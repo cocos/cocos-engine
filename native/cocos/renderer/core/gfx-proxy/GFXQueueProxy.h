@@ -1,7 +1,7 @@
 #pragma once
 
-#include "GFXProxy.h"
 #include "../gfx/GFXQueue.h"
+#include "GFXProxy.h"
 
 namespace cc {
 namespace gfx {

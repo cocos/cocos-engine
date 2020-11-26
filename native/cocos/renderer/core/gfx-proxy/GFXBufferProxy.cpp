@@ -1,7 +1,8 @@
 #include "CoreStd.h"
+
+#include "../thread/CommandEncoder.h"
 #include "GFXBufferProxy.h"
 #include "GFXDeviceProxy.h"
-#include "GFXDeviceThread.h"
 
 namespace cc {
 namespace gfx {
@@ -15,9 +16,9 @@ bool BufferProxy::initialize(const BufferInfo &info) {
     _count = _size / _stride;
 
     ENCODE_COMMAND_2(
-        ((DeviceProxy*)_device)->getDeviceThread()->GetMainCommandEncoder(),
+        ((DeviceProxy *)_device)->getMainEncoder(),
         BufferInit,
-        remote, GetRemote(),
+        remote, getRemote(),
         info, info,
         {
             remote->initialize(info);
@@ -35,12 +36,12 @@ bool BufferProxy::initialize(const BufferViewInfo &info) {
     _count = info.buffer->getCount();
 
     BufferViewInfo remoteInfo = info;
-    remoteInfo.buffer = ((BufferProxy*)info.buffer)->GetRemote();
+    remoteInfo.buffer = ((BufferProxy *)info.buffer)->getRemote();
 
     ENCODE_COMMAND_2(
-        ((DeviceProxy*)_device)->getDeviceThread()->GetMainCommandEncoder(),
+        ((DeviceProxy *)_device)->getMainEncoder(),
         BufferViewInit,
-        remote, GetRemote(),
+        remote, getRemote(),
         info, remoteInfo,
         {
             remote->initialize(info);
@@ -50,17 +51,21 @@ bool BufferProxy::initialize(const BufferViewInfo &info) {
 }
 
 void BufferProxy::destroy() {
-    ENCODE_COMMAND_1(
-        ((DeviceProxy*)_device)->getDeviceThread()->GetMainCommandEncoder(),
-        BufferDestroy,
-        remote, GetRemote(),
-        {
-            remote->destroy();
-        });
+    if (_remote) {
+        ENCODE_COMMAND_1(
+            ((DeviceProxy *)_device)->getMainEncoder(),
+            BufferDestroy,
+            remote, getRemote(),
+            {
+                CC_DESTROY(remote);
+            });
+
+        _remote = nullptr;
+    }
 }
 
 void BufferProxy::update(void *buffer, uint offset, uint size) {
-    CommandEncoder *encoder = ((DeviceProxy*)_device)->getDeviceThread()->GetMainCommandEncoder();
+    CommandEncoder *encoder = ((DeviceProxy *)_device)->getMainEncoder();
 
     uint8_t *remoteBuffer = encoder->Allocate<uint8_t>(size);
     memcpy(remoteBuffer, buffer, size);
@@ -68,7 +73,7 @@ void BufferProxy::update(void *buffer, uint offset, uint size) {
     ENCODE_COMMAND_4(
         encoder,
         BufferUpdate,
-        remote, GetRemote(),
+        remote, getRemote(),
         buffer, remoteBuffer,
         offset, offset,
         size, size,
@@ -82,9 +87,9 @@ void BufferProxy::resize(uint size) {
     _count = size / _stride;
 
     ENCODE_COMMAND_2(
-        ((DeviceProxy*)_device)->getDeviceThread()->GetMainCommandEncoder(),
+        ((DeviceProxy *)_device)->getMainEncoder(),
         BufferResize,
-        remote, GetRemote(),
+        remote, getRemote(),
         size, size,
         {
             remote->resize(size);

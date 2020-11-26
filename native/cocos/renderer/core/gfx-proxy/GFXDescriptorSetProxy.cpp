@@ -1,8 +1,10 @@
 #include "CoreStd.h"
-#include "GFXDescriptorSetProxy.h"
+
+#include "../thread/CommandEncoder.h"
 #include "GFXBufferProxy.h"
-#include "GFXTextureProxy.h"
+#include "GFXDescriptorSetProxy.h"
 #include "GFXDeviceProxy.h"
+#include "GFXTextureProxy.h"
 
 namespace cc {
 namespace gfx {
@@ -15,9 +17,9 @@ bool DescriptorSetProxy::initialize(const DescriptorSetInfo &info) {
     _samplers.resize(descriptorCount);
 
     ENCODE_COMMAND_2(
-        ((DeviceProxy*)_device)->getDeviceThread()->GetMainCommandEncoder(),
+        ((DeviceProxy *)_device)->getMainEncoder(),
         DescriptorSetInit,
-        remote, GetRemote(),
+        remote, getRemote(),
         info, info,
         {
             remote->initialize(info);
@@ -32,20 +34,24 @@ void DescriptorSetProxy::destroy() {
     _textures.clear();
     _samplers.clear();
 
-    ENCODE_COMMAND_1(
-        ((DeviceProxy*)_device)->getDeviceThread()->GetMainCommandEncoder(),
-        DescriptorSetDestroy,
-        remote, GetRemote(),
-        {
-            remote->destroy();
-        });
+    if (_remote) {
+        ENCODE_COMMAND_1(
+            ((DeviceProxy *)_device)->getMainEncoder(),
+            DescriptorSetDestroy,
+            remote, getRemote(),
+            {
+                CC_DESTROY(remote);
+            });
+
+        _remote = nullptr;
+    }
 }
 
 void DescriptorSetProxy::update() {
     ENCODE_COMMAND_1(
-        ((DeviceProxy*)_device)->getDeviceThread()->GetMainCommandEncoder(),
+        ((DeviceProxy *)_device)->getMainEncoder(),
         DescriptorSetUpdate,
-        remote, GetRemote(),
+        remote, getRemote(),
         {
             remote->update();
         });
@@ -55,11 +61,11 @@ void DescriptorSetProxy::bindBuffer(uint binding, Buffer *buffer, uint index) {
     DescriptorSet::bindBuffer(binding, buffer, index);
 
     ENCODE_COMMAND_4(
-        ((DeviceProxy*)_device)->getDeviceThread()->GetMainCommandEncoder(),
+        ((DeviceProxy *)_device)->getMainEncoder(),
         DescriptorSetBindBuffer,
-        remote, GetRemote(),
+        remote, getRemote(),
         binding, binding,
-        buffer, ((BufferProxy*)buffer)->GetRemote(),
+        buffer, ((BufferProxy *)buffer)->getRemote(),
         index, index,
         {
             remote->bindBuffer(binding, buffer, index);
@@ -70,11 +76,11 @@ void DescriptorSetProxy::bindTexture(uint binding, Texture *texture, uint index)
     DescriptorSet::bindTexture(binding, texture, index);
 
     ENCODE_COMMAND_4(
-        ((DeviceProxy*)_device)->getDeviceThread()->GetMainCommandEncoder(),
+        ((DeviceProxy *)_device)->getMainEncoder(),
         DescriptorSetBindTexture,
-        remote, GetRemote(),
+        remote, getRemote(),
         binding, binding,
-        texture, ((TextureProxy*)texture)->GetRemote(),
+        texture, ((TextureProxy *)texture)->getRemote(),
         index, index,
         {
             remote->bindTexture(binding, texture, index);
@@ -85,9 +91,9 @@ void DescriptorSetProxy::bindSampler(uint binding, Sampler *sampler, uint index)
     DescriptorSet::bindSampler(binding, sampler, index);
 
     ENCODE_COMMAND_4(
-        ((DeviceProxy*)_device)->getDeviceThread()->GetMainCommandEncoder(),
+        ((DeviceProxy *)_device)->getMainEncoder(),
         DescriptorSetBindSampler,
-        remote, GetRemote(),
+        remote, getRemote(),
         binding, binding,
         sampler, sampler,
         index, index,

@@ -1,33 +1,41 @@
 #pragma once
 
-#include "GFXProxy.h"
-#include "GFXDeviceThread.h"
 #include "../gfx/GFXDevice.h"
 #include "../thread/Semaphore.h"
+#include "GFXProxy.h"
 
 #define MAX_CPU_FRAME_AHEAD 2
 
 namespace cc {
 namespace gfx {
 
+class CommandEncoder;
+class CommandBuffer;
+
+// one per CPU core
+struct SubmitContext final {
+    CommandEncoder *encoder{nullptr};
+    CommandBuffer *commandBuffer{nullptr};
+};
+
 class CC_DLL DeviceProxy : public Proxy<Device> {
 public:
-    using Proxy::Proxy;
-    using Device::createCommandBuffer;
-    using Device::createFence;
-    using Device::createQueue;
+    using Device::copyBuffersToTexture;
     using Device::createBuffer;
-    using Device::createTexture;
-    using Device::createSampler;
-    using Device::createShader;
-    using Device::createInputAssembler;
-    using Device::createRenderPass;
-    using Device::createFramebuffer;
+    using Device::createCommandBuffer;
     using Device::createDescriptorSet;
     using Device::createDescriptorSetLayout;
+    using Device::createFence;
+    using Device::createFramebuffer;
+    using Device::createInputAssembler;
     using Device::createPipelineLayout;
     using Device::createPipelineState;
-    using Device::copyBuffersToTexture;
+    using Device::createQueue;
+    using Device::createRenderPass;
+    using Device::createSampler;
+    using Device::createShader;
+    using Device::createTexture;
+    using Proxy::Proxy;
 
     virtual bool initialize(const DeviceInfo &info) override;
     virtual void destroy() override;
@@ -61,14 +69,13 @@ public:
     virtual uint getNumInstances() const override { return _remote->getNumInstances(); }
     virtual uint getNumTris() const override { return _remote->getNumTris(); }
 
-    DeviceThread *getDeviceThread() const { return _thread.get(); }
+    CommandEncoder *getMainEncoder() const { return _mainEncoder; }
 
 protected:
+    CommandEncoder *_mainEncoder = nullptr;
+    vector<SubmitContext> _contexts{};
 
-    friend class DeviceThread;
-
-    std::unique_ptr<DeviceThread> _thread{};
-    Semaphore _frameBoundarySemaphore {MAX_CPU_FRAME_AHEAD};
+    Semaphore _frameBoundarySemaphore{MAX_CPU_FRAME_AHEAD};
 };
 
 } // namespace gfx

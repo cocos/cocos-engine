@@ -1,4 +1,6 @@
 #include "CoreStd.h"
+
+#include "../thread/CommandEncoder.h"
 #include "GFXTextureProxy.h"
 #include "GFXDeviceProxy.h"
 
@@ -19,9 +21,9 @@ bool TextureProxy::initialize(const TextureInfo &info) {
     _size = FormatSize(_format, _width, _height, _depth);
 
     ENCODE_COMMAND_2(
-        ((DeviceProxy*)_device)->getDeviceThread()->GetMainCommandEncoder(),
+        ((DeviceProxy*)_device)->getMainEncoder(),
         TextureInit,
-        remote, GetRemote(),
+        remote, getRemote(),
         info, info,
         {
             remote->initialize(info);
@@ -52,9 +54,9 @@ bool TextureProxy::initialize(const TextureViewInfo &info) {
     _size = FormatSize(_format, _width, _height, _depth);
 
     ENCODE_COMMAND_2(
-        ((DeviceProxy*)_device)->getDeviceThread()->GetMainCommandEncoder(),
+        ((DeviceProxy*)_device)->getMainEncoder(),
         TextureViewInit,
-        remote, GetRemote(),
+        remote, getRemote(),
         info, info,
         {
             remote->initialize(info);
@@ -64,20 +66,24 @@ bool TextureProxy::initialize(const TextureViewInfo &info) {
 }
 
 void TextureProxy::destroy() {
-    ENCODE_COMMAND_1(
-        ((DeviceProxy*)_device)->getDeviceThread()->GetMainCommandEncoder(),
-        TextureDestroy,
-        remote, GetRemote(),
-        {
-            remote->destroy();
-        });
+    if (_remote) {
+        ENCODE_COMMAND_1(
+            ((DeviceProxy *)_device)->getMainEncoder(),
+            TextureDestroy,
+            remote, getRemote(),
+            {
+                CC_DESTROY(remote);
+            });
+
+        _remote = nullptr;
+    }
 }
 
 void TextureProxy::resize(uint width, uint height) {
     ENCODE_COMMAND_3(
-        ((DeviceProxy*)_device)->getDeviceThread()->GetMainCommandEncoder(),
+        ((DeviceProxy*)_device)->getMainEncoder(),
         TextureResize,
-        remote, GetRemote(),
+        remote, getRemote(),
         width, width,
         height, height,
         {

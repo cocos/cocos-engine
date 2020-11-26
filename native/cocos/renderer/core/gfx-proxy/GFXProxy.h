@@ -5,16 +5,15 @@
 namespace cc {
 namespace gfx {
 
-template<typename Remote, typename Deleter = std::default_delete <Remote>>
+template <typename Remote>
 class CC_DLL Proxy : public Remote {
 public:
-
     Proxy() noexcept = delete;
 
     explicit Proxy(Remote *const remote, Device *const device) noexcept
-    : Remote(device) { _remote.reset(remote); }
+    : Remote(device), _remote(remote) {}
 
-    virtual ~Proxy() { _remote.reset(); }
+    virtual ~Proxy() {}
 
     Proxy(Proxy const &) = delete;
 
@@ -24,12 +23,10 @@ public:
 
     Proxy &operator=(Proxy &&) = delete;
 
-    inline Remote *GetRemote() const noexcept { return _remote.get(); }
+    inline Remote *getRemote() const noexcept { return _remote; }
 
 protected:
-
-    using RemotePtr = std::unique_ptr<Remote, Deleter>;
-    RemotePtr _remote{nullptr};
+    Remote * _remote{nullptr};
 };
 
 } // namespace gfx

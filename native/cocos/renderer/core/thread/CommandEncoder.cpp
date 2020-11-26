@@ -79,7 +79,7 @@ void CommandEncoder::MemoryAllocator::Free(uint8_t* const chunk) noexcept
 
 CommandEncoder::CommandEncoder()
 {
-    mImmediateMode = true;
+    //mImmediateMode = true;
     mFreeChunksByUser = false;
 
     uint8_t* const chunk = MemoryAllocator::GetInstance().Request();
@@ -123,7 +123,7 @@ void CommandEncoder::RunConsumerThread() noexcept
         return;
     }
 
-    std::thread consumerThread(std::bind(&CommandEncoder::ConsumerThreadLoop, this));
+    std::thread consumerThread(&CommandEncoder::ConsumerThreadLoop, this);
     consumerThread.detach();
     mWorkerAttached = true;
 }

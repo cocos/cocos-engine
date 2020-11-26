@@ -1,8 +1,9 @@
 #include "CoreStd.h"
-#include "GFXInputAssemblerProxy.h"
+
+#include "../thread/CommandEncoder.h"
 #include "GFXBufferProxy.h"
 #include "GFXDeviceProxy.h"
-#include "GFXDeviceThread.h"
+#include "GFXInputAssemblerProxy.h"
 
 namespace cc {
 namespace gfx {
@@ -25,19 +26,19 @@ bool InputAssemblerProxy::initialize(const InputAssemblerInfo &info) {
 
     InputAssemblerInfo remoteInfo = info;
     for (uint i = 0u; i < remoteInfo.vertexBuffers.size(); ++i) {
-        remoteInfo.vertexBuffers[i] = ((BufferProxy*)remoteInfo.vertexBuffers[i])->GetRemote();
+        remoteInfo.vertexBuffers[i] = ((BufferProxy *)remoteInfo.vertexBuffers[i])->getRemote();
     }
     if (remoteInfo.indexBuffer) {
-        remoteInfo.indexBuffer = ((BufferProxy*)remoteInfo.indexBuffer)->GetRemote();
+        remoteInfo.indexBuffer = ((BufferProxy *)remoteInfo.indexBuffer)->getRemote();
     }
     if (remoteInfo.indirectBuffer) {
-        remoteInfo.indirectBuffer = ((BufferProxy *)remoteInfo.indirectBuffer)->GetRemote();
+        remoteInfo.indirectBuffer = ((BufferProxy *)remoteInfo.indirectBuffer)->getRemote();
     }
 
     ENCODE_COMMAND_2(
-        ((DeviceProxy *)_device)->getDeviceThread()->GetMainCommandEncoder(),
+        ((DeviceProxy *)_device)->getMainEncoder(),
         InputAssemblerInit,
-        remote, GetRemote(),
+        remote, getRemote(),
         info, remoteInfo,
         {
             remote->initialize(info);
@@ -47,13 +48,17 @@ bool InputAssemblerProxy::initialize(const InputAssemblerInfo &info) {
 }
 
 void InputAssemblerProxy::destroy() {
-    ENCODE_COMMAND_1(
-        ((DeviceProxy *)_device)->getDeviceThread()->GetMainCommandEncoder(),
-        InputAssemblerDestroy,
-        remote, GetRemote(),
-        {
-            remote->destroy();
-        });
+    if (_remote) {
+        ENCODE_COMMAND_1(
+            ((DeviceProxy *)_device)->getMainEncoder(),
+            InputAssemblerDestroy,
+            remote, getRemote(),
+            {
+                CC_DESTROY(remote);
+            });
+
+        _remote = nullptr;
+    }
 }
 
 } // namespace gfx

@@ -1,15 +1,16 @@
 #include "CoreStd.h"
-#include "GFXDeviceProxy.h"
-#include "GFXCommandBufferProxy.h"
+
+#include "../thread/CommandEncoder.h"
 #include "GFXBufferProxy.h"
-#include "GFXTextureProxy.h"
-#include "GFXShaderProxy.h"
+#include "GFXCommandBufferProxy.h"
 #include "GFXDescriptorSetProxy.h"
+#include "GFXDeviceProxy.h"
+#include "GFXFramebufferProxy.h"
 #include "GFXInputAssemblerProxy.h"
 #include "GFXPipelineStateProxy.h"
-#include "GFXFramebufferProxy.h"
 #include "GFXQueueProxy.h"
-#include "GFXDeviceThread.h"
+#include "GFXShaderProxy.h"
+#include "GFXTextureProxy.h"
 
 namespace cc {
 namespace gfx {
@@ -54,36 +55,59 @@ bool DeviceProxy::initialize(const DeviceInfo &info) {
     _uboOffsetAlignment = _remote->getUboOffsetAlignment();
     _depthBits = _remote->getDepthBits();
     _stencilBits = _remote->getStencilBits();
-    memcpy(_features, ((DeviceProxy*)GetRemote())->_features, (uint)Feature::COUNT * sizeof(bool));
+    memcpy(_features, ((DeviceProxy *)getRemote())->_features, (uint)Feature::COUNT * sizeof(bool));
 
-    _thread = std::make_unique<DeviceThread>();
-    _thread->InitSubmitContexts(this);
-    _thread->Run();
+    _mainEncoder = CC_NEW(CommandEncoder);
+    _mainEncoder->RunConsumerThread();
+
+    _contexts.resize(1u); // std::thread::hardware_concurrency());
+
+    CommandBufferInfo cbInfo;
+    cbInfo.type = CommandBufferType::PRIMARY;
+    cbInfo.queue = _queue;
+
+    for (auto &context : _contexts) {
+        context.commandBuffer = createCommandBuffer(cbInfo);
+        context.encoder = CC_NEW(CommandEncoder);
+        context.encoder->RunConsumerThread();
+    }
 
     ENCODE_COMMAND_1(
-            getDeviceThread()->GetMainCommandEncoder(),
-            DeviceMakeCurrent,
-            remote, GetRemote(),
-            {
-                remote->makeCurrent();
-            });
+        getMainEncoder(),
+        DeviceMakeCurrent,
+        remote, getRemote(),
+        {
+            remote->makeCurrent();
+        });
 
     return true;
 }
 
 void DeviceProxy::destroy() {
-    ENCODE_COMMAND_2(
-        getDeviceThread()->GetMainCommandEncoder(),
-        DeviceDestroy,
-        remote, GetRemote(),
-        device, this,
-        {
-            remote->destroy();
-            CC_SAFE_DELETE(device->_queue);
-            CC_SAFE_DELETE(device->_cmdBuff);
-            device->_thread->Terminate();
-            device->_thread.reset();
-        });
+    for (auto &context : _contexts) {
+        context.encoder->TerminateConsumerThread();
+        CC_SAFE_DELETE(context.encoder);
+        CC_SAFE_DESTROY(context.commandBuffer);
+    }
+    _contexts.clear();
+
+    if (_remote) {
+        ENCODE_COMMAND_2(
+            getMainEncoder(),
+            DeviceDestroy,
+            device, this,
+            remote, getRemote(),
+            {
+                CC_DESTROY(remote);
+                CC_SAFE_DELETE(device->_queue);
+                CC_SAFE_DELETE(device->_cmdBuff);
+            });
+
+        _remote = nullptr;
+    }
+
+    _mainEncoder->TerminateConsumerThread();
+    CC_SAFE_DELETE(_mainEncoder);
 }
 
 void DeviceProxy::resize(uint width, uint height) {
@@ -91,9 +115,9 @@ void DeviceProxy::resize(uint width, uint height) {
     _height = _nativeHeight = height;
 
     ENCODE_COMMAND_3(
-        getDeviceThread()->GetMainCommandEncoder(),
+        getMainEncoder(),
         DeviceResize,
-        remote, GetRemote(),
+        remote, getRemote(),
         width, width,
         height, height,
         {
@@ -103,11 +127,11 @@ void DeviceProxy::resize(uint width, uint height) {
 
 void DeviceProxy::acquire() {
     _frameBoundarySemaphore.Wait();
-    CommandEncoder *encoder = getDeviceThread()->GetMainCommandEncoder();
+    CommandEncoder *encoder = getMainEncoder();
     ENCODE_COMMAND_2(
         encoder,
         DeviceAcquire,
-        remote, GetRemote(),
+        remote, getRemote(),
         encoder, encoder,
         {
             remote->acquire();
@@ -115,11 +139,11 @@ void DeviceProxy::acquire() {
 }
 
 void DeviceProxy::present() {
-    CommandEncoder *encoder = getDeviceThread()->GetMainCommandEncoder();
+    CommandEncoder *encoder = getMainEncoder();
     ENCODE_COMMAND_2(
         encoder,
         DevicePresent,
-        remote, GetRemote(),
+        remote, getRemote(),
         frameBoundarySemaphore, &_frameBoundarySemaphore,
         {
             remote->present();
@@ -205,7 +229,7 @@ PipelineState *DeviceProxy::createPipelineState() {
 }
 
 void DeviceProxy::copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint count) {
-    CommandEncoder *encoder = _thread->GetMainCommandEncoder();
+    CommandEncoder *encoder = getMainEncoder();
 
     BufferTextureCopy *remoteRegions = encoder->Allocate<BufferTextureCopy>(count);
     memcpy(remoteRegions, regions, count * sizeof(BufferTextureCopy));
@@ -228,9 +252,9 @@ void DeviceProxy::copyBuffersToTexture(const uint8_t *const *buffers, Texture *d
     ENCODE_COMMAND_5(
         encoder,
         DeviceCopyBuffersToTexture,
-        remote, GetRemote(),
+        remote, getRemote(),
         buffers, remoteBuffers,
-        dst, ((TextureProxy*)dst)->GetRemote(),
+        dst, ((TextureProxy *)dst)->getRemote(),
         regions, regions,
         count, count,
         {

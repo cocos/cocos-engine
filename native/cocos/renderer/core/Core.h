@@ -27,7 +27,6 @@
 #include "gfx/GFXCommand.h"
 #include "gfx/GFXCommandPool.h"
 
-#include "gfx-proxy/GFXDeviceThread.h"
 #include "gfx-proxy/GFXDeviceProxy.h"
 #include "gfx-proxy/GFXBufferProxy.h"
 #include "gfx-proxy/GFXTextureProxy.h"

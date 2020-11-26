@@ -1,7 +1,9 @@
 #include "CoreStd.h"
+
+#include "../thread/CommandEncoder.h"
+#include "GFXDeviceProxy.h"
 #include "GFXPipelineStateProxy.h"
 #include "GFXShaderProxy.h"
-#include "GFXDeviceProxy.h"
 
 namespace cc {
 namespace gfx {
@@ -18,12 +20,12 @@ bool PipelineStateProxy::initialize(const PipelineStateInfo &info) {
     _pipelineLayout = info.pipelineLayout;
 
     PipelineStateInfo remoteInfo = info;
-    remoteInfo.shader = ((ShaderProxy*)info.shader)->GetRemote();
+    remoteInfo.shader = ((ShaderProxy *)info.shader)->getRemote();
 
     ENCODE_COMMAND_2(
-        ((DeviceProxy*)_device)->getDeviceThread()->GetMainCommandEncoder(),
+        ((DeviceProxy *)_device)->getMainEncoder(),
         PipelineStateInit,
-        remote, GetRemote(),
+        remote, getRemote(),
         info, remoteInfo,
         {
             remote->initialize(info);
@@ -33,13 +35,17 @@ bool PipelineStateProxy::initialize(const PipelineStateInfo &info) {
 }
 
 void PipelineStateProxy::destroy() {
-    ENCODE_COMMAND_1(
-        ((DeviceProxy*)_device)->getDeviceThread()->GetMainCommandEncoder(),
-        PipelineStateDestroy,
-        remote, GetRemote(),
-        {
-            remote->destroy();
-        });
+    if (_remote) {
+        ENCODE_COMMAND_1(
+            ((DeviceProxy *)_device)->getMainEncoder(),
+            PipelineStateDestroy,
+            remote, getRemote(),
+            {
+                CC_DESTROY(remote);
+            });
+
+        _remote = nullptr;
+    }
 }
 
 } // namespace gfx
