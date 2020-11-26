@@ -354,10 +354,6 @@ export class Shadows {
             this._instancingMaterial.initialize({ effectName: 'planar-shadow', defines: { USE_INSTANCING: true } });
             ShadowsPool.set(this._handle, ShadowsView.INSTANCE_PASS, this._instancingMaterial.passes[0].handle);
         }
-        const root = legacyCC.director.root;
-        const pipeline = root.pipeline;
-        pipeline.macros.CC_RECEIVE_SHADOW = 0;
-        root.onGlobalPipelineStateChanged();
     }
 
     protected _updatePipeline () {
