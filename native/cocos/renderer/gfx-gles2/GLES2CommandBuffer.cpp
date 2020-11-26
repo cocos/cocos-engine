@@ -283,6 +283,7 @@ void GLES2CommandBuffer::updateBuffer(Buffer *buff, const void *data, uint size)
             GLES2CmdUpdateBuffer *cmd = _cmdAllocator->updateBufferCmdPool.alloc();
             cmd->gpuBuffer = gpuBuffer;
             cmd->size = size;
+            cmd->offset = offset;
             cmd->buffer = (uint8_t *)data;
 
             _curCmdPackage->updateBufferCmds.push(cmd);
@@ -304,8 +305,8 @@ void GLES2CommandBuffer::copyBuffersToTexture(const uint8_t *const *buffers, Tex
             cmd->count = count;
             cmd->buffers = buffers;
 
-            _curCmdPackage->copyBufferToTextureCmds.push(cmd);
-            _curCmdPackage->cmds.push(GFXCmdType::COPY_BUFFER_TO_TEXTURE);
+            _cmdPackage->copyBufferToTextureCmds.push(cmd);
+            _cmdPackage->cmds.push(GFXCmdType::COPY_BUFFER_TO_TEXTURE);
         }
     } else {
         CC_LOG_ERROR("Command 'copyBuffersToTexture' must be recorded outside a render pass.");

@@ -2256,12 +2256,9 @@ void GLES3CmdFuncUpdateBuffer(GLES3Device *device, GLES3GPUBuffer *gpuBuffer, co
                 GL_CHECK(glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, offset, size, buffer));
                 break;
             }
-            case GL_UNIFORM_BUFFER: {
-                if (device->stateCache()->glUniformBuffer != gpuBuffer->glBuffer) {
-                    GL_CHECK(glBindBuffer(GL_UNIFORM_BUFFER, gpuBuffer->glBuffer));
-                    device->stateCache()->glUniformBuffer = gpuBuffer->glBuffer;
-                }
-                GL_CHECK(glBufferSubData(GL_UNIFORM_BUFFER, offset, size, buffer));
+            case GFXCmdType::COPY_BUFFER_TO_TEXTURE: {
+                GLES3CmdCopyBufferToTexture *cmd = cmdPackage->copyBufferToTextureCmds[cmdIdx];
+                GLES3CmdFuncCopyBuffersToTexture(device, cmd->buffers, cmd->gpuTexture, cmd->regions, cmd->count);
                 break;
             }
             default:

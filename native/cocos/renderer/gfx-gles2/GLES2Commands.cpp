@@ -2344,19 +2344,9 @@ void GLES2CmdFuncUpdateBuffer(GLES2Device *device, GLES2GPUBuffer *gpuBuffer, co
                 GL_CHECK(glBufferSubData(GL_ARRAY_BUFFER, offset, size, buffer));
                 break;
             }
-            case GL_ELEMENT_ARRAY_BUFFER: {
-                if (device->useVAO()) {
-                    if (device->stateCache()->glVAO) {
-                        GL_CHECK(glBindVertexArrayOES(0));
-                        device->stateCache()->glVAO = 0;
-                        gfxStateCache.gpuInputAssembler = nullptr;
-                    }
-                }
-                if (device->stateCache()->glElementArrayBuffer != gpuBuffer->glBuffer) {
-                    GL_CHECK(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gpuBuffer->glBuffer));
-                    device->stateCache()->glElementArrayBuffer = gpuBuffer->glBuffer;
-                }
-                GL_CHECK(glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, offset, size, buffer));
+            case GFXCmdType::COPY_BUFFER_TO_TEXTURE: {
+                GLES2CmdCopyBufferToTexture *cmd = cmdPackage->copyBufferToTextureCmds[cmdIdx];
+                GLES2CmdFuncCopyBuffersToTexture(device, cmd->buffers, cmd->gpuTexture, cmd->regions, cmd->count);
                 break;
             }
             default:
