@@ -53,6 +53,7 @@ import { legacyCC } from '../global-exports';
 import { genSamplerHash, samplerLib } from '../renderer/core/sampler-lib';
 import { builtinResMgr } from '../3d/builtin/init';
 import { Texture2D } from '../assets/texture-2d';
+import { updatePlanarPROJ } from './forward/scene-culling';
 
 const _samplerInfo = [
     Filter.LINEAR,
@@ -148,6 +149,7 @@ export class RenderAdditiveLightQueue {
     private _batchedQueue: RenderBatchedQueue;
 
     private _lightMeterScale: number = 10000.0;
+
     private _sampler: Sampler | null = null;
 
     constructor (pipeline: ForwardPipeline) {
@@ -199,6 +201,10 @@ export class RenderAdditiveLightQueue {
             if (descriptorSet) {
                 descriptorSet.getBuffer(UBOGlobal.BINDING).destroy();
                 descriptorSet.getBuffer(UBOShadow.BINDING).destroy();
+                descriptorSet.getSampler(UNIFORM_SHADOWMAP_BINDING).destroy();
+                descriptorSet.getSampler(UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING).destroy();
+                descriptorSet.getTexture(UNIFORM_SHADOWMAP_BINDING).destroy();
+                descriptorSet.getTexture(UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING).destroy();
                 descriptorSet.destroy();
             }
         }
@@ -333,21 +339,20 @@ export class RenderAdditiveLightQueue {
     // update light DescriptorSet
     protected _updateLightDescriptorSet (view: RenderView, cmdBuff: CommandBuffer) {
         const shadowInfo = this._pipeline.shadows;
+        const mainLight = view.camera.scene!.mainLight;
         
         for (let i = 0; i < this._validLights.length; i++) {
             const light = this._validLights[i];           
             const descriptorSet = this._getOrCreateDescriptorSet(light);
             if(!descriptorSet) { return; }
 
-            descriptorSet.bindSampler(UNIFORM_SHADOWMAP_BINDING, this._sampler!);
-            descriptorSet.bindSampler(UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING, this._sampler!);
-            // Main light sampler binding
-            descriptorSet.bindTexture(UNIFORM_SHADOWMAP_BINDING, builtinResMgr.get<Texture2D>('default-texture').getGFXTexture()!);
-            descriptorSet.update();
             this._updateGlobalDescriptorSet(view, cmdBuff);
 
             switch (light.type) {
                 case LightType.SPHERE:
+                    // planar PROJ
+                    if(mainLight) { updatePlanarPROJ(shadowInfo, mainLight, this._shadowUBO); }
+
                     // Reserve sphere light shadow interface
                     Color.toArray(this._shadowUBO, shadowInfo.shadowColor,UBOShadow.SHADOW_COLOR_OFFSET);
 
@@ -355,11 +360,12 @@ export class RenderAdditiveLightQueue {
                     this._shadowUBO[UBOShadow.SHADOW_INFO_OFFSET + 1] = shadowInfo.size.y;
                     this._shadowUBO[UBOShadow.SHADOW_INFO_OFFSET + 2] = shadowInfo.pcf;
                     this._shadowUBO[UBOShadow.SHADOW_INFO_OFFSET + 3] = shadowInfo.bias;
-                    // Spot light sampler binding
-                    descriptorSet.bindTexture(UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING, builtinResMgr.get<Texture2D>('default-texture').getGFXTexture()!);
                     break;
                 case LightType.SPOT:
                     const spotLight = light as SpotLight;
+
+                    // planar PROJ
+                    if(mainLight) { updatePlanarPROJ(shadowInfo, mainLight, this._shadowUBO); }
 
                     // light view
                     Mat4.invert(_matShadowView, spotLight.node!.getWorldMatrix());
@@ -381,8 +387,6 @@ export class RenderAdditiveLightQueue {
                     // Spot light sampler binding
                     if (this._pipeline.shadowFrameBufferMap.has(light)) {
                         descriptorSet.bindTexture(UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING, this._pipeline.shadowFrameBufferMap.get(light)?.colorTextures[0]!);
-                    } else {
-                        descriptorSet.bindTexture(UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING, builtinResMgr.get<Texture2D>('default-texture').getGFXTexture()!);
                     }
                     break;
                 default:        
@@ -592,6 +596,11 @@ export class RenderAdditiveLightQueue {
                 UBOShadow.SIZE,
             ));
             descriptorSet.bindBuffer(UBOShadow.BINDING, shadowBUO);
+
+            descriptorSet.bindSampler(UNIFORM_SHADOWMAP_BINDING, this._sampler!);
+            descriptorSet.bindTexture(UNIFORM_SHADOWMAP_BINDING, builtinResMgr.get<Texture2D>('default-texture').getGFXTexture()!);
+            descriptorSet.bindSampler(UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING, this._sampler!);
+            descriptorSet.bindTexture(UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING, builtinResMgr.get<Texture2D>('default-texture').getGFXTexture()!);
 
             descriptorSet.update();
 

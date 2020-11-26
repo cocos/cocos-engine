@@ -33,8 +33,8 @@ import { RenderPipeline, IRenderPipelineInfo } from '../render-pipeline';
 import { ForwardFlow } from './forward-flow';
 import { RenderTextureConfig, MaterialConfig } from '../pipeline-serialization';
 import { ShadowFlow } from '../shadow/shadow-flow';
-import { IRenderObject, UBOGlobal, UBOShadow, UNIFORM_SHADOWMAP_BINDING } from '../define';
-import { BufferUsageBit, MemoryUsageBit, ClearFlag } from '../../gfx/define';
+import { IRenderObject, UBOGlobal, UBOShadow, UNIFORM_SHADOWMAP_BINDING, UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING } from '../define';
+import { BufferUsageBit, MemoryUsageBit, ClearFlag, Filter, Address } from '../../gfx/define';
 import { ColorAttachment, DepthStencilAttachment, RenderPass, LoadOp, TextureLayout,
     RenderPassInfo, BufferInfo, Feature, Framebuffer } from '../../gfx';
 import { SKYBOX_FLAG } from '../../renderer/scene/camera';
@@ -48,10 +48,22 @@ import { Shadows, ShadowType } from '../../renderer/scene/shadows';
 import { sceneCulling, getShadowWorldMatrix, updatePlanarPROJ } from './scene-culling';
 import { UIFlow } from '../ui/ui-flow';
 import { Light } from '../../renderer/scene/light';
+import { genSamplerHash, samplerLib } from '../../renderer/core/sampler-lib';
+import { builtinResMgr } from '../../3d/builtin/init';
+import { Texture2D } from '../../assets/texture-2d';
 
 const matShadowView = new Mat4();
 const matShadowViewProj = new Mat4();
 const vec3_center = new Vec3();
+
+const _samplerInfo = [
+    Filter.LINEAR,
+    Filter.LINEAR,
+    Filter.NONE,
+    Address.CLAMP,
+    Address.CLAMP,
+    Address.CLAMP,
+];
 
 /**
  * @en The forward render pipeline
@@ -118,6 +130,7 @@ export class ForwardPipeline extends RenderPipeline {
     protected _renderPasses = new Map<ClearFlag, RenderPass>();
     protected _globalUBO = new Float32Array(UBOGlobal.COUNT);
     protected _shadowUBO = new Float32Array(UBOShadow.COUNT);
+    protected _globalBinding: boolean = false;
 
     public initialize (info: IRenderPipelineInfo): boolean {
         super.initialize(info);
@@ -210,7 +223,21 @@ export class ForwardPipeline extends RenderPipeline {
         const device = this.device;
         const shadowInfo = this.shadows;
 
+        if (!this._globalBinding) {
+            const shadowMapSamplerHash = genSamplerHash(_samplerInfo);
+            const shadowMapSampler = samplerLib.getSampler(device, shadowMapSamplerHash);
+            this._descriptorSet.bindSampler(UNIFORM_SHADOWMAP_BINDING, shadowMapSampler);
+            this._descriptorSet.bindTexture(UNIFORM_SHADOWMAP_BINDING, builtinResMgr.get<Texture2D>('default-texture').getGFXTexture()!);
+            this._descriptorSet.bindSampler(UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING, shadowMapSampler);
+            this._descriptorSet.bindTexture(UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING, builtinResMgr.get<Texture2D>('default-texture').getGFXTexture()!);
+            this._descriptorSet.update();
+            this._globalBinding = true;
+        }
+
         if (mainLight && shadowInfo.enabled && shadowInfo.type === ShadowType.ShadowMap) {
+            if (this.shadowFrameBufferMap.has(mainLight)) {
+                this._descriptorSet.bindTexture(UNIFORM_SHADOWMAP_BINDING, this.shadowFrameBufferMap.get(mainLight)!.colorTextures[0]!);
+            }
 
             // light view
             let shadowCameraView: Mat4;
@@ -392,6 +419,10 @@ export class ForwardPipeline extends RenderPipeline {
         if (this._descriptorSet) {
             this._descriptorSet.getBuffer(UBOGlobal.BINDING).destroy();
             this._descriptorSet.getBuffer(UBOShadow.BINDING).destroy();
+            this._descriptorSet.getSampler(UNIFORM_SHADOWMAP_BINDING).destroy();
+            this._descriptorSet.getSampler(UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING).destroy();
+            this._descriptorSet.getTexture(UNIFORM_SHADOWMAP_BINDING).destroy();
+            this._descriptorSet.getTexture(UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING).destroy();
         }
     }
 
@@ -406,6 +437,7 @@ export class ForwardPipeline extends RenderPipeline {
         }
 
         this._commandBuffers.length = 0;
+        this._globalBinding = false;
 
         this.ambient.destroy();
         this.skybox.destroy();

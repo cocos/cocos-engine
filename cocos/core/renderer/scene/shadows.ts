@@ -168,8 +168,8 @@ export class Shadows {
     }
     set type (val: number) {
         ShadowsPool.set(this._handle, ShadowsView.TYPE, this.enabled ? val : SHADOW_TYPE_NONE);
-        this._updatePipeline();
-        this._updatePlanarInfo();
+        if (val >= 1){ this._updatePipeline(); }
+        else { this._updatePlanarInfo() };
     }
 
     /**
@@ -354,14 +354,17 @@ export class Shadows {
             this._instancingMaterial.initialize({ effectName: 'planar-shadow', defines: { USE_INSTANCING: true } });
             ShadowsPool.set(this._handle, ShadowsView.INSTANCE_PASS, this._instancingMaterial.passes[0].handle);
         }
+
+        const root = legacyCC.director.root;
+        const pipeline = root.pipeline;
+        pipeline.macros.CC_RECEIVE_SHADOW = 0;
+        root.onGlobalPipelineStateChanged();
     }
 
     protected _updatePipeline () {
         const root = legacyCC.director.root;
         const pipeline = root.pipeline;
-        const enable = this.enabled && this.type === ShadowType.ShadowMap;
-        if (pipeline.macros.CC_RECEIVE_SHADOW === enable) { return; }
-        pipeline.macros.CC_RECEIVE_SHADOW = enable;
+        pipeline.macros.CC_RECEIVE_SHADOW = 1;
         root.onGlobalPipelineStateChanged();
     }
 
