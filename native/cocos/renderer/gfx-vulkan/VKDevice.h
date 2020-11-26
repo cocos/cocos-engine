@@ -141,6 +141,9 @@ private:
     CCVKGPUDescriptorHub *_gpuDescriptorHub = nullptr;
     CCVKGPUSemaphorePool *_gpuSemaphorePool = nullptr;
 
+    uint _curBackBufferIndex = 0u;
+    uint _backBufferCount = 3u;
+
     vector<const char *> _layers;
     vector<const char *> _extensions;
 

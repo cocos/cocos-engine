@@ -74,9 +74,7 @@ void CCVKCommandBuffer::destroy() {
 void CCVKCommandBuffer::begin(RenderPass *renderPass, uint subpass, Framebuffer *frameBuffer, int submitIndex) {
     if (_gpuCommandBuffer->began) return;
 
-    CCVKGPUCommandBufferPool *pool = ((CCVKDevice *)_device)->gpuCommandBufferPool();
-    pool->yield(_gpuCommandBuffer);
-    pool->request(_gpuCommandBuffer);
+    ((CCVKDevice *)_device)->gpuCommandBufferPool()->request(_gpuCommandBuffer);
 
     _curGPUPipelineState = nullptr;
     _curGPUInputAssember = nullptr;
@@ -124,8 +122,7 @@ void CCVKCommandBuffer::end() {
     VK_CHECK(vkEndCommandBuffer(_gpuCommandBuffer->vkCommandBuffer));
     _gpuCommandBuffer->began = false;
 
-    _pendingQueue.push(_gpuCommandBuffer->vkCommandBuffer);
-    ((CCVKDevice *)_device)->gpuDevice()->getCommandBufferPool(std::this_thread::get_id())->yield(_gpuCommandBuffer);
+    ((CCVKDevice *)_device)->gpuCommandBufferPool()->yield(_gpuCommandBuffer);
 }
 
 void CCVKCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, int stencil, bool fromSecondaryCB) {

@@ -498,6 +498,8 @@ void CCVKDevice::acquire() {
     VK_CHECK(vkAcquireNextImageKHR(_gpuDevice->vkDevice, _gpuSwapchain->vkSwapchain, ~0ull,
                                    acquireSemaphore, VK_NULL_HANDLE, &_gpuSwapchain->curImageIndex));
 
+    assert(_curBackBufferIndex == _gpuSwapchain->curImageIndex);
+
     uint fenceCount = gpuFencePool()->size();
     if (fenceCount) {
         VK_CHECK(vkWaitForFences(_gpuDevice->vkDevice, fenceCount,
@@ -535,15 +537,17 @@ void CCVKDevice::present() {
 #ifndef DISABLE_PRE_TRANSFORM
         if (res) _swapchainReady = false;
 #endif
+
+        _curBackBufferIndex = (_curBackBufferIndex + 1) % _backBufferCount;
     }
 }
 
-CCVKGPUFencePool *CCVKDevice::gpuFencePool() { return _gpuFencePools[_gpuSwapchain->curImageIndex]; }
-CCVKGPURecycleBin *CCVKDevice::gpuRecycleBin() { return _gpuRecycleBins[_gpuSwapchain->curImageIndex]; }
-CCVKGPUTransportHub *CCVKDevice::gpuTransportHub()  { return _gpuTransportHubs[_gpuSwapchain->curImageIndex]; }
-CCVKGPUDescriptorSetPool *CCVKDevice::gpuDescriptorSetPool() { return _gpuDescriptorSetPools[_gpuSwapchain->curImageIndex]; }
-CCVKGPUCommandBufferPool *CCVKDevice::gpuCommandBufferPool() { return _gpuCommandBufferPools[_gpuSwapchain->curImageIndex]; }
-CCVKGPUStagingBufferPool *CCVKDevice::gpuStagingBufferPool() { return _gpuStagingBufferPools[_gpuSwapchain->curImageIndex]; }
+CCVKGPUFencePool *CCVKDevice::gpuFencePool() { return _gpuFencePools[_curBackBufferIndex]; }
+CCVKGPURecycleBin *CCVKDevice::gpuRecycleBin() { return _gpuRecycleBins[_curBackBufferIndex]; }
+CCVKGPUTransportHub *CCVKDevice::gpuTransportHub()  { return _gpuTransportHubs[_curBackBufferIndex]; }
+CCVKGPUDescriptorSetPool *CCVKDevice::gpuDescriptorSetPool() { return _gpuDescriptorSetPools[_curBackBufferIndex]; }
+CCVKGPUCommandBufferPool *CCVKDevice::gpuCommandBufferPool() { return _gpuCommandBufferPools[_curBackBufferIndex]; }
+CCVKGPUStagingBufferPool *CCVKDevice::gpuStagingBufferPool() { return _gpuStagingBufferPools[_curBackBufferIndex]; }
 
 CommandBuffer *CCVKDevice::createCommandBuffer() {
     return CC_NEW(CCVKCommandBuffer(this));
@@ -656,7 +660,7 @@ bool CCVKDevice::checkSwapchainStatus() {
 
     destroySwapchain();
 
-    _gpuDevice->curBackBufferIndex = 0u;
+    _curBackBufferIndex = 0u;
     _gpuSwapchain->curImageIndex = 0;
     _gpuSwapchain->vkSwapchain = vkSwapchain;
 

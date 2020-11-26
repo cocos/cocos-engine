@@ -53,6 +53,7 @@ bool GLES3CommandBuffer::initialize(const CommandBufferInfo &info) {
     size_t setCount = ((GLES3Device *)_device)->bindingMappingInfo().bufferOffsets.size();
     _curGPUDescriptorSets.resize(setCount);
     _curDynamicOffsets.resize(setCount);
+    _curDynamicOffsetCounts.resize(setCount);
 
     return true;
 }
@@ -84,6 +85,7 @@ void GLES3CommandBuffer::begin(RenderPass *renderPass, uint subpass, Framebuffer
     _curGPUPipelineState = nullptr;
     _curGPUInputAssember = nullptr;
     _curGPUDescriptorSets.assign(_curGPUDescriptorSets.size(), nullptr);
+    _curDynamicOffsetCounts.assign(_curDynamicOffsetCounts.size(), 0u);
 
     _numDrawCalls = 0;
     _numInstances = 0;
@@ -144,7 +146,8 @@ void GLES3CommandBuffer::bindDescriptorSet(uint set, DescriptorSet *descriptorSe
         _isStateInvalid = true;
     }
     if (dynamicOffsetCount) {
-        _curDynamicOffsets[set].assign(dynamicOffsets, dynamicOffsets + dynamicOffsetCount);
+        _curDynamicOffsets[set] = dynamicOffsets;
+        _curDynamicOffsetCounts[set] = dynamicOffsetCount;
         _isStateInvalid = true;
     }
 }
@@ -365,15 +368,11 @@ void GLES3CommandBuffer::BindStates() {
     GLES3CmdBindStates *cmd = _cmdAllocator->bindStatesCmdPool.alloc();
     cmd->gpuPipelineState = _curGPUPipelineState;
     cmd->gpuInputAssembler = _curGPUInputAssember;
-    cmd->gpuDescriptorSets = _curGPUDescriptorSets;
-
-    vector<uint> &dynamicOffsetOffsets = _curGPUPipelineState->gpuPipelineLayout->dynamicOffsetOffsets;
-    cmd->dynamicOffsets.resize(_curGPUPipelineState->gpuPipelineLayout->dynamicOffsetCount);
+    cmd->gpuDescriptorSets.push_back(_curGPUDescriptorSets[0]);
     for (size_t i = 0u; i < _curDynamicOffsets.size(); i++) {
-        size_t count = dynamicOffsetOffsets[i + 1] - dynamicOffsetOffsets[i];
-        //CCASSERT(_curDynamicOffsets[i].size() >= count, "missing dynamic offsets?");
-        count = std::min(count, _curDynamicOffsets[i].size());
-        if (count) memcpy(&cmd->dynamicOffsets[dynamicOffsetOffsets[i]], _curDynamicOffsets[i].data(), count * sizeof(uint));
+        const uint *dynamicOffset = _curDynamicOffsets[i];
+        uint count = _curDynamicOffsetCounts[i];
+        cmd->dynamicOffsets.insert(cmd->dynamicOffsets.end(), dynamicOffset, dynamicOffset + count);
     }
 
     cmd->viewport = _curViewport;

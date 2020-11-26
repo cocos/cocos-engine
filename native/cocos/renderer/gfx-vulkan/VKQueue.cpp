@@ -64,15 +64,11 @@ void CCVKQueue::submit(const CommandBuffer *const *cmdBuffs, uint count, Fence *
     device->gpuTransportHub()->depart();
 
     for (uint i = 0u; i < count; ++i) {
-        CCVKCommandBuffer *cmdBuff = (CCVKCommandBuffer *)cmdBuffs[i];
-        if (!cmdBuff->_pendingQueue.empty()) {
-            _gpuQueue->commandBuffers.push(cmdBuff->_pendingQueue.front());
-            cmdBuff->_pendingQueue.pop();
-
-            _numDrawCalls += cmdBuff->_numDrawCalls;
-            _numInstances += cmdBuff->_numInstances;
-            _numTriangles += cmdBuff->_numTriangles;
-        }
+        CCVKCommandBuffer *cmdBuffer = (CCVKCommandBuffer *)cmdBuffs[i];
+        _gpuQueue->commandBuffers.push(cmdBuffer->_gpuCommandBuffer->vkCommandBuffer);
+        _numDrawCalls += cmdBuffer->_numDrawCalls;
+        _numInstances += cmdBuffer->_numInstances;
+        _numTriangles += cmdBuffer->_numTriangles;
     }
 
     VkSubmitInfo submitInfo{VK_STRUCTURE_TYPE_SUBMIT_INFO};
