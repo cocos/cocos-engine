@@ -104,7 +104,6 @@ void DeviceProxy::resize(uint width, uint height) {
 void DeviceProxy::acquire() {
     _frameBoundarySemaphore.Wait();
     CommandEncoder *encoder = getDeviceThread()->GetMainCommandEncoder();
-    CommandEncoder::FreeChunksInFreeQueue(encoder);
     ENCODE_COMMAND_2(
         encoder,
         DeviceAcquire,
@@ -127,6 +126,7 @@ void DeviceProxy::present() {
             frameBoundarySemaphore->Signal();
         });
 
+    CommandEncoder::FreeChunksInFreeQueue(encoder);
     encoder->FinishWriting();
 }
 
