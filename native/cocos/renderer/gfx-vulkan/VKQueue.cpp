@@ -69,6 +69,7 @@ void CCVKQueue::submit(const CommandBuffer *const *cmdBuffs, uint count, Fence *
         _numDrawCalls += cmdBuffer->_numDrawCalls;
         _numInstances += cmdBuffer->_numInstances;
         _numTriangles += cmdBuffer->_numTriangles;
+        ((CCVKDevice *)_device)->gpuCommandBufferPool()->yield(cmdBuffer->_gpuCommandBuffer);
     }
 
     VkSubmitInfo submitInfo{VK_STRUCTURE_TYPE_SUBMIT_INFO};

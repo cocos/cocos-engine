@@ -2,8 +2,10 @@
 
 #include "../thread/CommandEncoder.h"
 #include "GFXBufferProxy.h"
+#include "GFXDescriptorSetLayoutProxy.h"
 #include "GFXDescriptorSetProxy.h"
 #include "GFXDeviceProxy.h"
+#include "GFXSamplerProxy.h"
 #include "GFXTextureProxy.h"
 
 namespace cc {
@@ -16,11 +18,14 @@ bool DescriptorSetProxy::initialize(const DescriptorSetInfo &info) {
     _textures.resize(descriptorCount);
     _samplers.resize(descriptorCount);
 
+    DescriptorSetInfo remoteInfo;
+    remoteInfo.layout = ((DescriptorSetLayoutProxy *)info.layout)->getRemote();
+
     ENCODE_COMMAND_2(
         ((DeviceProxy *)_device)->getMainEncoder(),
         DescriptorSetInit,
         remote, getRemote(),
-        info, info,
+        info, remoteInfo,
         {
             remote->initialize(info);
         });
@@ -95,7 +100,7 @@ void DescriptorSetProxy::bindSampler(uint binding, Sampler *sampler, uint index)
         DescriptorSetBindSampler,
         remote, getRemote(),
         binding, binding,
-        sampler, sampler,
+        sampler, ((SamplerProxy *)sampler)->getRemote(),
         index, index,
         {
             remote->bindSampler(binding, sampler, index);

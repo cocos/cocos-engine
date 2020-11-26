@@ -121,8 +121,6 @@ void CCVKCommandBuffer::end() {
     _curViewport.width = _curViewport.height = _curScissor.width = _curScissor.height = 0u;
     VK_CHECK(vkEndCommandBuffer(_gpuCommandBuffer->vkCommandBuffer));
     _gpuCommandBuffer->began = false;
-
-    ((CCVKDevice *)_device)->gpuCommandBufferPool()->yield(_gpuCommandBuffer);
 }
 
 void CCVKCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, int stencil, bool fromSecondaryCB) {

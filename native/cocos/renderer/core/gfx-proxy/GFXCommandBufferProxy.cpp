@@ -75,8 +75,11 @@ void CommandBufferProxy::beginRenderPass(RenderPass *renderPass, Framebuffer *fb
     CommandEncoder *encoder = ((DeviceProxy *)_device)->getMainEncoder();
 
     uint attachmentCount = (uint)renderPass->getColorAttachments().size();
-    Color *remoteColors = encoder->Allocate<Color>(attachmentCount);
-    memcpy(remoteColors, colors, sizeof(Color) * attachmentCount);
+    Color *remoteColors = nullptr;
+    if (attachmentCount) {
+        remoteColors = encoder->Allocate<Color>(attachmentCount);
+        memcpy(remoteColors, colors, sizeof(Color) * attachmentCount);
+    }
 
     ENCODE_COMMAND_7(
         encoder,

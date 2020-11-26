@@ -100,12 +100,13 @@ public:
     CC_INLINE CCVKGPUDescriptorHub *gpuDescriptorHub() { return _gpuDescriptorHub; }
     CC_INLINE CCVKGPUSemaphorePool *gpuSemaphorePool() { return _gpuSemaphorePool; }
 
-    CCVKGPUFencePool *gpuFencePool();
     CCVKGPURecycleBin *gpuRecycleBin();
-    CCVKGPUTransportHub *gpuTransportHub();
-    CCVKGPUDescriptorSetPool *gpuDescriptorSetPool();
-    CCVKGPUCommandBufferPool *gpuCommandBufferPool();
-    CCVKGPUStagingBufferPool *gpuStagingBufferPool();
+
+    CC_INLINE CCVKGPUFencePool *gpuFencePool() { return _gpuFencePools[_curBackBufferIndex]; }
+    CC_INLINE CCVKGPUTransportHub *gpuTransportHub() { return _gpuTransportHubs[_curBackBufferIndex]; }
+    CC_INLINE CCVKGPUDescriptorSetPool *gpuDescriptorSetPool() { return _gpuDescriptorSetPools[_curBackBufferIndex]; }
+    CC_INLINE CCVKGPUCommandBufferPool *gpuCommandBufferPool() { return _gpuCommandBufferPools[_curBackBufferIndex]; }
+    CC_INLINE CCVKGPUStagingBufferPool *gpuStagingBufferPool() { return _gpuStagingBufferPools[_curBackBufferIndex]; }
 
 private:
     virtual CommandBuffer *doCreateCommandBuffer(const CommandBufferInfo &info, bool hasAgent) override;

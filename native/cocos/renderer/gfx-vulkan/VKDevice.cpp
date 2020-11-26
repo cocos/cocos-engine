@@ -507,7 +507,7 @@ void CCVKDevice::acquire() {
     }
 
     // reset everything only when no pending commands
-    if (gpuTransportHub()->empty() && !((CCVKCommandBuffer *)_cmdBuff)->gpuCommandBuffer()->began) {
+    if (!((CCVKCommandBuffer *)_cmdBuff)->gpuCommandBuffer()->began) {
         gpuFencePool()->reset();
         gpuRecycleBin()->clear();
         gpuDescriptorSetPool()->reset();
@@ -542,12 +542,8 @@ void CCVKDevice::present() {
     }
 }
 
-CCVKGPUFencePool *CCVKDevice::gpuFencePool() { return _gpuFencePools[_curBackBufferIndex]; }
-CCVKGPURecycleBin *CCVKDevice::gpuRecycleBin() { return _gpuRecycleBins[_curBackBufferIndex]; }
-CCVKGPUTransportHub *CCVKDevice::gpuTransportHub()  { return _gpuTransportHubs[_curBackBufferIndex]; }
-CCVKGPUDescriptorSetPool *CCVKDevice::gpuDescriptorSetPool() { return _gpuDescriptorSetPools[_curBackBufferIndex]; }
-CCVKGPUCommandBufferPool *CCVKDevice::gpuCommandBufferPool() { return _gpuCommandBufferPools[_curBackBufferIndex]; }
-CCVKGPUStagingBufferPool *CCVKDevice::gpuStagingBufferPool() { return _gpuStagingBufferPools[_curBackBufferIndex]; }
+// recycled object before acquire should be put into last frame's bin
+CCVKGPURecycleBin *CCVKDevice::gpuRecycleBin() { return _gpuRecycleBins[_gpuSwapchain->curImageIndex]; }
 
 CommandBuffer *CCVKDevice::createCommandBuffer() {
     return CC_NEW(CCVKCommandBuffer(this));

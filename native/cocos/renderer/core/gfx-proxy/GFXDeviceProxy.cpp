@@ -3,13 +3,16 @@
 #include "../thread/CommandEncoder.h"
 #include "GFXBufferProxy.h"
 #include "GFXCommandBufferProxy.h"
+#include "GFXDescriptorSetLayoutProxy.h"
 #include "GFXDescriptorSetProxy.h"
 #include "GFXDeviceProxy.h"
 #include "GFXFramebufferProxy.h"
 #include "GFXInputAssemblerProxy.h"
+#include "GFXPipelineLayoutProxy.h"
 #include "GFXPipelineStateProxy.h"
 #include "GFXQueueProxy.h"
 #include "GFXRenderPassProxy.h"
+#include "GFXSamplerProxy.h"
 #include "GFXShaderProxy.h"
 #include "GFXTextureProxy.h"
 
@@ -184,7 +187,9 @@ Texture *DeviceProxy::createTexture() {
 }
 
 Sampler *DeviceProxy::createSampler() {
-    return _remote->createSampler();
+    Sampler *remote = _remote->createSampler();
+    SamplerProxy *proxy = CC_NEW(SamplerProxy(remote, this));
+    return proxy;
 }
 
 Shader *DeviceProxy::createShader() {
@@ -218,11 +223,15 @@ DescriptorSet *DeviceProxy::createDescriptorSet() {
 }
 
 DescriptorSetLayout *DeviceProxy::createDescriptorSetLayout() {
-    return _remote->createDescriptorSetLayout();
+    DescriptorSetLayout *remote = _remote->createDescriptorSetLayout();
+    DescriptorSetLayoutProxy *proxy = CC_NEW(DescriptorSetLayoutProxy(remote, this));
+    return proxy;
 }
 
 PipelineLayout *DeviceProxy::createPipelineLayout() {
-    return _remote->createPipelineLayout();
+    PipelineLayout *remote = _remote->createPipelineLayout();
+    PipelineLayoutProxy *proxy = CC_NEW(PipelineLayoutProxy(remote, this));
+    return proxy;
 }
 
 PipelineState *DeviceProxy::createPipelineState() {
@@ -258,7 +267,7 @@ void DeviceProxy::copyBuffersToTexture(const uint8_t *const *buffers, Texture *d
         remote, getRemote(),
         buffers, remoteBuffers,
         dst, ((TextureProxy *)dst)->getRemote(),
-        regions, regions,
+        regions, remoteRegions,
         count, count,
         {
             remote->copyBuffersToTexture(buffers, dst, regions, count);
