@@ -3,6 +3,7 @@
 #include "../thread/CommandEncoder.h"
 #include "GFXDeviceProxy.h"
 #include "GFXPipelineStateProxy.h"
+#include "GFXRenderPassProxy.h"
 #include "GFXShaderProxy.h"
 
 namespace cc {
@@ -21,6 +22,7 @@ bool PipelineStateProxy::initialize(const PipelineStateInfo &info) {
 
     PipelineStateInfo remoteInfo = info;
     remoteInfo.shader = ((ShaderProxy *)info.shader)->getRemote();
+    remoteInfo.renderPass = ((RenderPassProxy *)info.renderPass)->getRemote();
 
     ENCODE_COMMAND_2(
         ((DeviceProxy *)_device)->getMainEncoder(),

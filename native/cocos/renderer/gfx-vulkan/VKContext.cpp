@@ -44,7 +44,7 @@ constexpr uint FORCE_MINOR_VERSION = 0;             // 0 for default version, ot
 constexpr uint DISABLE_VALIDATION_ASSERTIONS = 0;   // 0 for default behavior, otherwise assertions will be disabled
 
 #define FORCE_ENABLE_VALIDATION  0
-#define FORCE_DISABLE_VALIDATION 1
+#define FORCE_DISABLE_VALIDATION 0
 
 #if CC_DEBUG > 0 && !FORCE_DISABLE_VALIDATION || FORCE_ENABLE_VALIDATION
 VKAPI_ATTR VkBool32 VKAPI_CALL debugUtilsMessengerCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
@@ -293,10 +293,10 @@ bool CCVKContext::initialize(const ContextInfo &info) {
                 CCVKDevice* device = (CCVKDevice*)_device;
                 CCVKQueue *queue = (CCVKQueue *)device->getQueue();
 
-                uint fenceCount = device->gpuFencePool()->getFenceCount();
+                uint fenceCount = device->gpuFencePool()->size();
                 if (fenceCount) {
                     VK_CHECK(vkWaitForFences(device->gpuDevice()->vkDevice, fenceCount,
-                                             device->gpuFencePool()->getFences(), VK_TRUE, DEFAULT_TIMEOUT));
+                                             device->gpuFencePool()->data(), VK_TRUE, DEFAULT_TIMEOUT));
                 }
 
                 device->destroySwapchain();

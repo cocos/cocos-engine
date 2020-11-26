@@ -9,6 +9,7 @@
 #include "GFXInputAssemblerProxy.h"
 #include "GFXPipelineStateProxy.h"
 #include "GFXQueueProxy.h"
+#include "GFXRenderPassProxy.h"
 #include "GFXTextureProxy.h"
 
 namespace cc {
@@ -52,7 +53,7 @@ void CommandBufferProxy::begin(RenderPass *renderPass, uint subpass, Framebuffer
         ((DeviceProxy *)_device)->getMainEncoder(),
         CommandBufferBegin,
         remote, getRemote(),
-        renderPass, renderPass,
+        renderPass, renderPass ? ((RenderPassProxy *)renderPass)->getRemote() : nullptr,
         subpass, subpass,
         frameBuffer, frameBuffer ? ((FramebufferProxy *)frameBuffer)->getRemote() : nullptr,
         {
@@ -81,7 +82,7 @@ void CommandBufferProxy::beginRenderPass(RenderPass *renderPass, Framebuffer *fb
         encoder,
         CommandBufferBeginRenderPass,
         remote, getRemote(),
-        renderPass, renderPass,
+        renderPass, ((RenderPassProxy *)renderPass)->getRemote(),
         fbo, ((FramebufferProxy *)fbo)->getRemote(),
         renderArea, renderArea,
         colors, remoteColors,

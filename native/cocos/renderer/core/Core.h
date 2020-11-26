@@ -31,6 +31,7 @@
 #include "gfx-proxy/GFXBufferProxy.h"
 #include "gfx-proxy/GFXTextureProxy.h"
 #include "gfx-proxy/GFXShaderProxy.h"
+#include "gfx-proxy/GFXRenderPassProxy.h"
 #include "gfx-proxy/GFXFramebufferProxy.h"
 #include "gfx-proxy/GFXInputAssemblerProxy.h"
 #include "gfx-proxy/GFXPipelineStateProxy.h"

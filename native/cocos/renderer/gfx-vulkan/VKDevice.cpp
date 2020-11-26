@@ -288,20 +288,22 @@ bool CCVKDevice::initialize(const DeviceInfo &info) {
     queueInfo.type = QueueType::GRAPHICS;
     _queue = createQueue(queueInfo);
 
-    _gpuSwapchain = CC_NEW(CCVKGPUSwapchain);
-    _gpuSwapchain->swapchainImages.resize(gpuContext->swapchainCreateInfo.minImageCount);
+    uint backBufferCount = gpuContext->swapchainCreateInfo.minImageCount;
+    for (uint i = 0u; i < backBufferCount; i++) {
+        _gpuFencePools.push_back(CC_NEW(CCVKGPUFencePool(_gpuDevice)));
+        _gpuRecycleBins.push_back(CC_NEW(CCVKGPURecycleBin(_gpuDevice)));
+        _gpuTransportHubs.push_back(CC_NEW(CCVKGPUTransportHub(_gpuDevice)));
+        _gpuDescriptorSetPools.push_back(CC_NEW(CCVKGPUDescriptorSetPool(_gpuDevice)));
+        _gpuCommandBufferPools.push_back(CC_NEW(CCVKGPUCommandBufferPool(_gpuDevice)));
+        _gpuStagingBufferPools.push_back(CC_NEW(CCVKGPUStagingBufferPool(_gpuDevice)));
 
-    _gpuFencePool = CC_NEW(CCVKGPUFencePool(_gpuDevice, _gpuSwapchain));
-    _gpuRecycleBin = CC_NEW(CCVKGPURecycleBin(_gpuDevice));
-    _gpuTransportHub = CC_NEW(CCVKGPUTransportHub(_gpuDevice));
-    _gpuTransportHub->link(((CCVKQueue *)_queue)->gpuQueue());
+        _gpuTransportHubs[i]->link(((CCVKQueue *)_queue)->gpuQueue(),
+            _gpuFencePools[i],
+            _gpuCommandBufferPools[i],
+            _gpuStagingBufferPools[i]);
+    }
     _gpuDescriptorHub = CC_NEW(CCVKGPUDescriptorHub(_gpuDevice));
     _gpuSemaphorePool = CC_NEW(CCVKGPUSemaphorePool(_gpuDevice));
-    _gpuDescriptorSetPool = CC_NEW(CCVKGPUDescriptorSetPool(_gpuDevice, _gpuSwapchain));
-    _gpuCommandBufferPool = CC_NEW(CCVKGPUCommandBufferPool(_gpuDevice, _gpuSwapchain));
-    _gpuStagingBufferPool = CC_NEW(CCVKGPUStagingBufferPool(_gpuDevice, _gpuSwapchain));
-
-    _gpuTransportHub->link(((CCVKQueue *)_queue)->gpuQueue(), _gpuFencePool, _gpuCommandBufferPool, _gpuStagingBufferPool);
 
     CommandBufferInfo cmdBuffInfo;
     cmdBuffInfo.type = CommandBufferType::PRIMARY;
@@ -340,6 +342,7 @@ bool CCVKDevice::initialize(const DeviceInfo &info) {
         _depthStencilTextures.push_back(texture);
     }
 
+    _gpuSwapchain = CC_NEW(CCVKGPUSwapchain);
     checkSwapchainStatus();
 
     ///////////////////// Print Debug Info /////////////////////
@@ -390,10 +393,6 @@ void CCVKDevice::destroy() {
     }
     _depthStencilTextures.clear();
 
-    if (_gpuRecycleBin) {
-        _gpuRecycleBin->clear();
-    }
-
     // these two are managed by their proxies
     if (_queue) {
         _queue->destroy();
@@ -403,23 +402,25 @@ void CCVKDevice::destroy() {
         _cmdBuff->destroy();
         _cmdBuff = nullptr;
     }
-    CC_SAFE_DELETE(_gpuSwapchain);
-    CC_SAFE_DELETE(_gpuStagingBufferPool);
-    CC_SAFE_DELETE(_gpuCommandBufferPool);
-    CC_SAFE_DELETE(_gpuDescriptorSetPool);
+
     CC_SAFE_DELETE(_gpuSemaphorePool);
     CC_SAFE_DELETE(_gpuDescriptorHub);
-    CC_SAFE_DELETE(_gpuDescriptorSetHub);
 
-    uint backBufferCount = ((CCVKContext *)_context)->gpuContext()->swapchainCreateInfo.minImageCount;
+    uint backBufferCount = ((CCVKContext*)_context)->gpuContext()->swapchainCreateInfo.minImageCount;
     for (uint i = 0u; i < backBufferCount; i++) {
         _gpuRecycleBins[i]->clear();
 
         CC_SAFE_DELETE(_gpuStagingBufferPools[i]);
+        CC_SAFE_DELETE(_gpuCommandBufferPools[i]);
+        CC_SAFE_DELETE(_gpuDescriptorSetPools[i]);
+        CC_SAFE_DELETE(_gpuTransportHubs[i]);
         CC_SAFE_DELETE(_gpuRecycleBins[i]);
         CC_SAFE_DELETE(_gpuFencePools[i]);
     }
     _gpuStagingBufferPools.clear();
+    _gpuCommandBufferPools.clear();
+    _gpuDescriptorSetPools.clear();
+    _gpuTransportHubs.clear();
     _gpuRecycleBins.clear();
     _gpuFencePools.clear();
 
@@ -497,19 +498,19 @@ void CCVKDevice::acquire() {
     VK_CHECK(vkAcquireNextImageKHR(_gpuDevice->vkDevice, _gpuSwapchain->vkSwapchain, ~0ull,
                                    acquireSemaphore, VK_NULL_HANDLE, &_gpuSwapchain->curImageIndex));
 
-    uint fenceCount = _gpuFencePool->getFenceCount();
+    uint fenceCount = gpuFencePool()->size();
     if (fenceCount) {
         VK_CHECK(vkWaitForFences(_gpuDevice->vkDevice, fenceCount,
-                                 _gpuFencePool->getFences(), VK_TRUE, DEFAULT_TIMEOUT));
+                                 gpuFencePool()->data(), VK_TRUE, DEFAULT_TIMEOUT));
     }
 
     // reset everything only when no pending commands
-    if (_gpuTransportHub->empty() && !((CCVKCommandBuffer *)_cmdBuff)->gpuCommandBuffer()->began) {
-        _gpuFencePool->reset();
-        _gpuRecycleBin->clear();
-        _gpuDescriptorSetPool->reset();
-        _gpuCommandBufferPool->reset();
-        _gpuStagingBufferPool->reset();
+    if (gpuTransportHub()->empty() && !((CCVKCommandBuffer *)_cmdBuff)->gpuCommandBuffer()->began) {
+        gpuFencePool()->reset();
+        gpuRecycleBin()->clear();
+        gpuDescriptorSetPool()->reset();
+        gpuCommandBufferPool()->reset();
+        gpuStagingBufferPool()->reset();
     }
 
     queue->gpuQueue()->nextWaitSemaphore = acquireSemaphore;
@@ -536,6 +537,13 @@ void CCVKDevice::present() {
 #endif
     }
 }
+
+CCVKGPUFencePool *CCVKDevice::gpuFencePool() { return _gpuFencePools[_gpuSwapchain->curImageIndex]; }
+CCVKGPURecycleBin *CCVKDevice::gpuRecycleBin() { return _gpuRecycleBins[_gpuSwapchain->curImageIndex]; }
+CCVKGPUTransportHub *CCVKDevice::gpuTransportHub()  { return _gpuTransportHubs[_gpuSwapchain->curImageIndex]; }
+CCVKGPUDescriptorSetPool *CCVKDevice::gpuDescriptorSetPool() { return _gpuDescriptorSetPools[_gpuSwapchain->curImageIndex]; }
+CCVKGPUCommandBufferPool *CCVKDevice::gpuCommandBufferPool() { return _gpuCommandBufferPools[_gpuSwapchain->curImageIndex]; }
+CCVKGPUStagingBufferPool *CCVKDevice::gpuStagingBufferPool() { return _gpuStagingBufferPools[_gpuSwapchain->curImageIndex]; }
 
 CommandBuffer *CCVKDevice::createCommandBuffer() {
     return CC_NEW(CCVKCommandBuffer(this));

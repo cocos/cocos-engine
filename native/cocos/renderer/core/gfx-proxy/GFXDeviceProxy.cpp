@@ -9,6 +9,7 @@
 #include "GFXInputAssemblerProxy.h"
 #include "GFXPipelineStateProxy.h"
 #include "GFXQueueProxy.h"
+#include "GFXRenderPassProxy.h"
 #include "GFXShaderProxy.h"
 #include "GFXTextureProxy.h"
 
@@ -199,7 +200,9 @@ InputAssembler *DeviceProxy::createInputAssembler() {
 }
 
 RenderPass *DeviceProxy::createRenderPass() {
-    return _remote->createRenderPass();
+    RenderPass *remote = _remote->createRenderPass();
+    RenderPassProxy *proxy = CC_NEW(RenderPassProxy(remote, this));
+    return proxy;
 }
 
 Framebuffer *DeviceProxy::createFramebuffer() {

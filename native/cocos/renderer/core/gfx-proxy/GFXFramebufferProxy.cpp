@@ -3,6 +3,7 @@
 #include "../thread/CommandEncoder.h"
 #include "GFXDeviceProxy.h"
 #include "GFXFramebufferProxy.h"
+#include "GFXRenderPassProxy.h"
 #include "GFXTextureProxy.h"
 
 namespace cc {
@@ -22,6 +23,7 @@ bool FramebufferProxy::initialize(const FramebufferInfo &info) {
     if (info.depthStencilTexture) {
         remoteInfo.depthStencilTexture = ((TextureProxy *)info.depthStencilTexture)->getRemote();
     }
+    remoteInfo.renderPass = ((RenderPassProxy *)info.renderPass)->getRemote();
 
     ENCODE_COMMAND_2(
         ((DeviceProxy *)_device)->getMainEncoder(),
