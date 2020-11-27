@@ -20,21 +20,6 @@ struct SubmitContext final {
 
 class CC_DLL DeviceProxy : public Proxy<Device> {
 public:
-    using Device::copyBuffersToTexture;
-    using Device::createBuffer;
-    using Device::createCommandBuffer;
-    using Device::createDescriptorSet;
-    using Device::createDescriptorSetLayout;
-    using Device::createFence;
-    using Device::createFramebuffer;
-    using Device::createInputAssembler;
-    using Device::createPipelineLayout;
-    using Device::createPipelineState;
-    using Device::createQueue;
-    using Device::createRenderPass;
-    using Device::createSampler;
-    using Device::createShader;
-    using Device::createTexture;
     using Proxy::Proxy;
 
     virtual bool initialize(const DeviceInfo &info) override;
@@ -59,6 +44,7 @@ public:
     virtual PipelineState *createPipelineState() override;
     virtual void copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint count) override;
 
+    virtual void setImmediateMode(bool immediateMode) { return _remote->setImmediateMode(immediateMode); }
     virtual SurfaceTransform getSurfaceTransform() const override { return _remote->getSurfaceTransform(); }
     virtual uint getWidth() const override { return _remote->getWidth(); }
     virtual uint getHeight() const override { return _remote->getHeight(); }

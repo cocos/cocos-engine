@@ -79,9 +79,6 @@ void CommandEncoder::MemoryAllocator::Free(uint8_t* const chunk) noexcept
 
 CommandEncoder::CommandEncoder()
 {
-    //mImmediateMode = true;
-    //mFreeChunksByUser = false;
-
     uint8_t* const chunk = MemoryAllocator::GetInstance().Request();
 
     mW.mCurrentMemoryChunk = chunk;

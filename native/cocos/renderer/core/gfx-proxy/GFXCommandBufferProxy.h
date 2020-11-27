@@ -33,13 +33,6 @@ public:
     virtual void copyBuffersToTexture(const uint8_t *const *buffers, Texture *texture, const BufferTextureCopy *regions, uint count) override;
     virtual void execute(const CommandBuffer *const *cmdBuffs, uint32_t count) override;
 
-    using CommandBuffer::begin;
-    using CommandBuffer::updateBuffer;
-    using CommandBuffer::execute;
-    using CommandBuffer::bindDescriptorSet;
-    using CommandBuffer::beginRenderPass;
-    using CommandBuffer::copyBuffersToTexture;
-
     virtual uint getNumDrawCalls() const override { return _remote->getNumDrawCalls(); }
     virtual uint getNumInstances() const override { return _remote->getNumInstances(); }
     virtual uint getNumTris() const override { return _remote->getNumTris(); }

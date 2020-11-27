@@ -71,18 +71,13 @@ bool DeviceProxy::initialize(const DeviceInfo &info) {
     cbInfo.queue = _queue;
 
     for (auto &context : _contexts) {
-        context.commandBuffer = createCommandBuffer(cbInfo);
+        context.commandBuffer = createCommandBuffer();
+        context.commandBuffer->initialize(cbInfo);
         context.encoder = CC_NEW(CommandEncoder);
         context.encoder->RunConsumerThread();
     }
 
-    ENCODE_COMMAND_1(
-        getMainEncoder(),
-        DeviceMakeCurrent,
-        remote, getRemote(),
-        {
-            remote->makeCurrent();
-        });
+    setImmediateMode(false);
 
     return true;
 }

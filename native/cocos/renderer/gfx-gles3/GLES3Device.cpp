@@ -25,6 +25,7 @@ THE SOFTWARE.
 
 #include "GLES3Buffer.h"
 #include "GLES3CommandBuffer.h"
+#include "GLES3PrimaryCommandBuffer.h"
 #include "GLES3Context.h"
 #include "GLES3DescriptorSet.h"
 #include "GLES3DescriptorSetLayout.h"
@@ -79,7 +80,7 @@ bool GLES3Device::initialize(const DeviceInfo &info) {
         destroy();
         return false;
     }
-    bindRenderContext(true);
+    _context = _initContext;
 
     String extStr = (const char *)glGetString(GL_EXTENSIONS);
     _extensions = StringUtil::Split(extStr, " ");
@@ -171,9 +172,6 @@ bool GLES3Device::initialize(const DeviceInfo &info) {
 
     _gpuStateCache->initialize(_maxTextureUnits, _maxUniformBufferBindings, _maxVertexAttributes);
 
-    _initContext->MakeCurrent(false);
-    _context = _initContext;
-
     return true;
 }
 
@@ -216,22 +214,41 @@ void GLES3Device::present() {
     queue->_numTriangles = 0;
 }
 
-void GLES3Device::makeCurrent() {
-    if (!_renderContext) {
-        ContextInfo ctxInfo;
-        ctxInfo.windowHandle = _windowHandle;
-        ctxInfo.sharedCtx = _initContext;
-
-        _renderContext = CC_NEW(GLES3Context(this));
-        _renderContext->initialize(ctxInfo);
-        _context = _renderContext;
+void GLES3Device::setImmediateMode(bool immediateMode) {
+    if (immediateMode) {
+        _renderContext->MakeCurrent(false);
+        _initContext->MakeCurrent();
     } else {
-        _renderContext->MakeCurrent();
+        _initContext->MakeCurrent(false);
+
+        /*if (!_renderContext) {
+            ENCODE_COMMAND_1(
+                getMainEncoder(),
+                DeviceInitThread,
+                device, this,
+                {
+                    ContextInfo ctxInfo;
+                    ctxInfo.windowHandle = _windowHandle;
+                    ctxInfo.sharedCtx = _initContext;
+
+                    device->_renderContext = CC_NEW(GLES3Context(device));
+                    device->_renderContext->initialize(ctxInfo);
+                    device->_context = device->_renderContext;
+                });
+        } else {
+            ENCODE_COMMAND_1(
+                getMainEncoder(),
+                DeviceInitThread,
+                device, this,
+                {
+                    _renderContext->MakeCurrent();
+                });
+        }*/
     }
 }
 
 CommandBuffer *GLES3Device::createCommandBuffer() {
-    return CC_NEW(GLES3CommandBuffer(this));
+    return CC_NEW(GLES3PrimaryCommandBuffer(this));
 }
 
 Fence *GLES3Device::createFence() {

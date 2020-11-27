@@ -64,16 +64,13 @@ public:
 protected:
     virtual void BindStates();
 
-    GLES3GPUCommandAllocator *_cmdAllocator = nullptr;
-    GLES3CmdPackage *_curCmdPackage = nullptr;
-    queue<GLES3CmdPackage *> _pendingPackages, _freePackages;
-
+    GLES3CmdPackage *_cmdPackage = nullptr;
+    GLES3GPUCommandAllocator *_gles3Allocator = nullptr;
     bool _isInRenderPass = false;
     GLES3GPUPipelineState *_curGPUPipelineState = nullptr;
     GLES3GPUInputAssembler *_curGPUInputAssember = nullptr;
     vector<GLES3GPUDescriptorSet *> _curGPUDescriptorSets;
     vector<const uint *> _curDynamicOffsets;
-    vector<uint> _curDynamicOffsetCounts;
     Viewport _curViewport;
     Rect _curScissor;
     float _curLineWidth = 1.0f;

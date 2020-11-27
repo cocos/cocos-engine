@@ -227,7 +227,7 @@ void GLES2Device::present() {
     queue->_numTriangles = 0;
 }
 
-void GLES2Device::makeCurrent() {
+void GLES2Device::setImmediateMode(bool immediateMode) {
     if (!_renderContext) {
         ContextInfo ctxInfo;
         ctxInfo.windowHandle = _windowHandle;

@@ -113,6 +113,7 @@ public:
     void                                    RecycleMemoryChunk(uint8_t* const chunk) const noexcept;
     static void                             FreeChunksInFreeQueue(CommandEncoder* const mainCommandbuffer) noexcept;
 
+    inline void                             SetImmediateMode(bool immediateMode) noexcept { mImmediateMode = immediateMode; }
     inline int                              GetPendingCommandCount() const noexcept { return mW.mPendingCommandCount; }
     inline int                              GetWrittenCommandCount() const noexcept { return mW.mWrittenCommandCount; }
     inline int                              GetNewCommandCount() const noexcept { return mR.mNewCommandCount; }
