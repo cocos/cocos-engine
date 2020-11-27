@@ -16,7 +16,7 @@
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 PROJECT_ROOT="$DIR/../.."
-TOJS_ROOT="$PROJECT_ROOT/tools/tojs"
+TRAVIS_ROOT="$PROJECT_ROOT/tools/travis-scripts"
 JS_AUTO_GENERATED_DIR="$PROJECT_ROOT/cocos/bindings/auto"
 CCFILES_AUTO_GENERATED_DIR="$PROJECT_ROOT/templates/cocos2dx_files.json"
 COMMITTAG="[ci skip][AUTO]: updating jsbinding automatically"
@@ -37,7 +37,7 @@ fi
 generate_cocosfiles_json()
 {
     echo "Updates cocos_files.json"
-    pushd "$TOJS_ROOT"
+    pushd "$TRAVIS_ROOT"
     ./generate-template-files.py
     popd
 }
