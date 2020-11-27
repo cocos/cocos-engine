@@ -19,11 +19,6 @@ public:
     virtual void updateBuffer(Buffer *buff, const void *data, uint size, uint offset) override;
     virtual void copyBuffersToTexture(const uint8_t *const *buffers, Texture *texture, const BufferTextureCopy *regions, uint count) override;
     virtual void execute(const CommandBuffer *const *cmdBuffs, uint32_t count) override;
-
-protected:
-    virtual void BindStates() override;
-
-private:
 };
 
 } // namespace gfx

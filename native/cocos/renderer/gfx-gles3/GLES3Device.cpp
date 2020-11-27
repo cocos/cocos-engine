@@ -171,6 +171,7 @@ bool GLES3Device::initialize(const DeviceInfo &info) {
     glGetIntegerv(GL_STENCIL_BITS, (GLint *)&_stencilBits);
 
     _gpuStateCache->initialize(_maxTextureUnits, _maxUniformBufferBindings, _maxVertexAttributes);
+    _initContext->MakeCurrent(false);
 
     return true;
 }
@@ -219,31 +220,18 @@ void GLES3Device::setImmediateMode(bool immediateMode) {
         _renderContext->MakeCurrent(false);
         _initContext->MakeCurrent();
     } else {
-        _initContext->MakeCurrent(false);
 
-        /*if (!_renderContext) {
-            ENCODE_COMMAND_1(
-                getMainEncoder(),
-                DeviceInitThread,
-                device, this,
-                {
+        if (!_renderContext) {
                     ContextInfo ctxInfo;
                     ctxInfo.windowHandle = _windowHandle;
                     ctxInfo.sharedCtx = _initContext;
 
-                    device->_renderContext = CC_NEW(GLES3Context(device));
-                    device->_renderContext->initialize(ctxInfo);
-                    device->_context = device->_renderContext;
-                });
+                    _renderContext = CC_NEW(GLES3Context(this));
+                    _renderContext->initialize(ctxInfo);
+                    _context = _renderContext;
         } else {
-            ENCODE_COMMAND_1(
-                getMainEncoder(),
-                DeviceInitThread,
-                device, this,
-                {
                     _renderContext->MakeCurrent();
-                });
-        }*/
+        }
     }
 }
 

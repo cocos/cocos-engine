@@ -39,7 +39,10 @@ void GLES3PrimaryCommandBuffer::draw(InputAssembler *ia) {
         (_type == CommandBufferType::SECONDARY)) {
 
         if (_isStateInvalid) {
-            BindStates();
+            GLES3CmdFuncBindState((GLES3Device *)_device, _curGPUPipelineState, _curGPUInputAssember, _curGPUDescriptorSets, _curDynamicOffsets,
+                                  _curViewport, _curScissor, _curLineWidth, false, _curDepthBias, _curBlendConstants, _curDepthBounds, _curStencilWriteMask, _curStencilCompareMask);
+
+            _isStateInvalid = false;
         }
 
         DrawInfo drawInfo;
@@ -103,13 +106,6 @@ void GLES3PrimaryCommandBuffer::execute(const CommandBuffer *const *cmdBuffs, ui
         _numInstances += cmdBuff->getNumInstances();
         _numTriangles += cmdBuff->getNumTris();
     }
-}
-
-void GLES3PrimaryCommandBuffer::BindStates() {
-    GLES3CmdFuncBindState((GLES3Device *)_device, _curGPUPipelineState, _curGPUInputAssember, _curGPUDescriptorSets, _curDynamicOffsets, 
-        _curViewport, _curScissor, _curLineWidth, false, _curDepthBias, _curBlendConstants, _curDepthBounds, _curStencilWriteMask, _curStencilCompareMask);
-
-    _isStateInvalid = false;
 }
 
 } // namespace gfx

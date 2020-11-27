@@ -65,15 +65,12 @@ public:
 protected:
     void BindStates();
 
-    GLES2GPUCommandAllocator *_cmdAllocator = nullptr;
-    GLES2CmdPackage *_curCmdPackage = nullptr;
-    queue<GLES2CmdPackage *> _pendingPackages, _freePackages;
-
+    GLES2CmdPackage *_cmdPackage = nullptr;
+    GLES2GPUCommandAllocator *_gles2Allocator = nullptr;
     bool _isInRenderPass = false;
     GLES2GPUPipelineState *_curGPUPipelineState = nullptr;
     vector<GLES2GPUDescriptorSet *> _curGPUDescriptorSets;
     vector<const uint *> _curDynamicOffsets;
-    vector<uint> _curDynamicOffsetCounts;
     GLES2GPUInputAssembler *_curGPUInputAssember = nullptr;
     Viewport _curViewport;
     Rect _curScissor;

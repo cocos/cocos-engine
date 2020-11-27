@@ -49,7 +49,7 @@ void GLES3Queue::submit(const CommandBuffer *const *cmdBuffs, uint count, Fence 
     if (!_isAsync) {
         for (uint i = 0; i < count; ++i) {
             GLES3CommandBuffer *cmdBuffer = (GLES3CommandBuffer *)cmdBuffs[i];
-             //GLES3CmdFuncExecuteCmds((GLES3Device *)_device, cmdBuffer->_cmdPackage);
+//             GLES3CmdFuncExecuteCmds((GLES3Device *)_device, cmdBuffer->_cmdPackage);
             _numDrawCalls += cmdBuffer->_numDrawCalls;
             _numInstances += cmdBuffer->_numInstances;
             _numTriangles += cmdBuffer->_numTriangles;

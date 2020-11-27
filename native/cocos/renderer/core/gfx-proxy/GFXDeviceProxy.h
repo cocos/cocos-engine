@@ -44,7 +44,7 @@ public:
     virtual PipelineState *createPipelineState() override;
     virtual void copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint count) override;
 
-    virtual void setImmediateMode(bool immediateMode) { return _remote->setImmediateMode(immediateMode); }
+    virtual void setImmediateMode(bool immediateMode) override { return _remote->setImmediateMode(immediateMode); }
     virtual SurfaceTransform getSurfaceTransform() const override { return _remote->getSurfaceTransform(); }
     virtual uint getWidth() const override { return _remote->getWidth(); }
     virtual uint getHeight() const override { return _remote->getHeight(); }

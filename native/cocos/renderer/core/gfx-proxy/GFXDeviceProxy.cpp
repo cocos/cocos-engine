@@ -77,7 +77,12 @@ bool DeviceProxy::initialize(const DeviceInfo &info) {
         context.encoder->RunConsumerThread();
     }
 
-    setImmediateMode(false);
+    ENCODE_COMMAND_1(
+            _mainEncoder, DeviceMakeCurrent,
+            remote, _remote,
+            {
+                remote->setImmediateMode(false);
+            });
 
     return true;
 }

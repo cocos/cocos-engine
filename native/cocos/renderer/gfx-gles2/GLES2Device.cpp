@@ -242,7 +242,7 @@ void GLES2Device::setImmediateMode(bool immediateMode) {
 }
 
 CommandBuffer *GLES2Device::createCommandBuffer() {
-    return CC_NEW(GLES2CommandBuffer(this));
+    return CC_NEW(GLES2PrimaryCommandBuffer(this));
 }
 
 Fence *GLES2Device::createFence() {

@@ -53,7 +53,6 @@ bool GLES2CommandBuffer::initialize(const CommandBufferInfo &info) {
     size_t setCount = ((GLES2Device *)_device)->bindingMappingInfo().bufferOffsets.size();
     _curGPUDescriptorSets.resize(setCount);
     _curDynamicOffsets.resize(setCount);
-    _curDynamicOffsetCounts.resize(setCount);
 
     return true;
 }
@@ -85,7 +84,6 @@ void GLES2CommandBuffer::begin(RenderPass *renderPass, uint subpass, Framebuffer
     _curGPUPipelineState = nullptr;
     _curGPUInputAssember = nullptr;
     _curGPUDescriptorSets.assign(_curGPUDescriptorSets.size(), nullptr);
-    _curDynamicOffsetCounts.assign(_curDynamicOffsetCounts.size(), 0u);
 
     _numDrawCalls = 0;
     _numInstances = 0;
@@ -147,7 +145,6 @@ void GLES2CommandBuffer::bindDescriptorSet(uint set, DescriptorSet *descriptorSe
     }
     if (dynamicOffsetCount) {
         _curDynamicOffsets[set] = dynamicOffsets;
-        _curDynamicOffsetCounts[set] = dynamicOffsetCount;
         _isStateInvalid = true;
     }
 }
@@ -362,15 +359,7 @@ void GLES2CommandBuffer::BindStates() {
     cmd->gpuPipelineState = _curGPUPipelineState;
     cmd->gpuInputAssembler = _curGPUInputAssember;
     cmd->gpuDescriptorSets = _curGPUDescriptorSets;
-
-    vector<uint> &dynamicOffsetOffsets = _curGPUPipelineState->gpuPipelineLayout->dynamicOffsetOffsets;
-    cmd->dynamicOffsets.resize(_curGPUPipelineState->gpuPipelineLayout->dynamicOffsetCount);
-    for (size_t i = 0u; i < _curDynamicOffsets.size(); i++) {
-        const uint *dynamicOffset = _curDynamicOffsets[i];
-        uint count = _curDynamicOffsetCounts[i];
-        cmd->dynamicOffsets.insert(cmd->dynamicOffsets.end(), dynamicOffset, dynamicOffset + count);
-    }
-
+    cmd->dynamicOffsets = _curDynamicOffsets;
     cmd->viewport = _curViewport;
     cmd->scissor = _curScissor;
     cmd->lineWidth = _curLineWidth;

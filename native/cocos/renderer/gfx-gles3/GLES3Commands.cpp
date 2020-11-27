@@ -2041,7 +2041,7 @@ void GLES3CmdFuncBindState(GLES3Device *device, GLES3GPUPipelineState *gpuPipeli
         }
     } // if
 
-    if (gpuPipelineState) {
+    if (gpuPipelineState && !gpuPipelineState->dynamicStates.empty()) {
         for (DynamicStateFlagBit dynamicState : gpuPipelineState->dynamicStates) {
             switch (dynamicState) {
                 case DynamicStateFlagBit::VIEWPORT:

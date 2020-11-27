@@ -56,8 +56,7 @@ bool CCVKCommandBuffer::initialize(const CommandBufferInfo &info) {
 
     size_t setCount = ((CCVKDevice *)_device)->bindingMappingInfo().bufferOffsets.size();
     _curGPUDescriptorSets.resize(setCount);
-    _curVkDescriptorSets.resize(setCount);
-    _curDynamicOffsetPtrs.resize(setCount);
+    _curDynamicOffsets.resize(setCount);
     _curDynamicOffsetCounts.resize(setCount);
 
     return true;
@@ -209,7 +208,7 @@ void CCVKCommandBuffer::bindDescriptorSet(uint set, DescriptorSet *descriptorSet
         }
     }
     if (dynamicOffsetCount) {
-        _curDynamicOffsetPtrs[set] = dynamicOffsets;
+        _curDynamicOffsets[set] = dynamicOffsets;
         _curDynamicOffsetCounts[set] = dynamicOffsetCount;
         if (set < _firstDirtyDescriptorSet) _firstDirtyDescriptorSet = set;
     }
@@ -474,8 +473,9 @@ void CCVKCommandBuffer::bindDescriptorSets() {
         for (uint i = 0u, offsetAcc = 0u; i < dirtyDescriptorSetCount; i++) {
             uint set = _firstDirtyDescriptorSet + i;
             uint offsetCount = pipelineLayout->dynamicOffsetOffsets[set + 1] - dynamicOffsetStartIndex;
-            if (_curDynamicOffsets[set].size() && offsetCount > 0) {
-                memcpy(dynamicOffsets + offsetAcc, _curDynamicOffsets[set].data(), offsetCount * sizeof(uint));
+            CCASSERT(_curDynamicOffsetCounts[set] == offsetCount, "dynamic offset count mismatch");
+            if (offsetCount > 0) {
+                memcpy(dynamicOffsets + offsetAcc, _curDynamicOffsets[set], offsetCount * sizeof(uint));
                 offsetAcc += offsetCount;
             }
         }
