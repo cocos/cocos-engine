@@ -72,7 +72,6 @@ public:
     virtual PipelineLayout *createPipelineLayout() override;
     virtual PipelineState *createPipelineState() override;
     virtual void copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint count) override;
-    virtual void setImmediateMode(bool immediateMode) override;
 
     CC_INLINE GLES3GPUStateCache *stateCache() const { return _gpuStateCache; }
     CC_INLINE GLES3GPUStagingBufferPool *stagingBufferPool() const { return _gpuStagingBufferPool; }
@@ -89,28 +88,12 @@ public:
     CC_INLINE uint getThreadID() const { return _threadID; }
 
 protected:
-    virtual CommandBuffer *doCreateCommandBuffer(const CommandBufferInfo &info, bool hasAgent) override;
-    virtual Fence *createFence() override;
-    virtual Queue *createQueue() override;
-    virtual Buffer *createBuffer() override;
-    virtual Texture *createTexture() override;
-    virtual Sampler *createSampler() override;
-    virtual Shader *createShader() override;
-    virtual InputAssembler *createInputAssembler() override;
-    virtual RenderPass *createRenderPass() override;
-    virtual Framebuffer *createFramebuffer() override;
-    virtual DescriptorSet *createDescriptorSet() override;
-    virtual DescriptorSetLayout *createDescriptorSetLayout() override;
-    virtual PipelineLayout *createPipelineLayout() override;
-    virtual PipelineState *createPipelineState() override;
-    virtual void copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint count) override;
-
     virtual void bindRenderContext(bool bound) override;
     virtual void bindDeviceContext(bool bound) override;
 
 private:
-    GLES3Context *_initContext = nullptr;
     GLES3Context *_renderContext = nullptr;
+    GLES3Context *_deviceContext = nullptr;
     GLES3GPUStateCache *_gpuStateCache = nullptr;
     GLES3GPUStagingBufferPool *_gpuStagingBufferPool = nullptr;
 

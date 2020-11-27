@@ -1345,6 +1345,7 @@ void GLES2CmdFuncDestroyFramebuffer(GLES2Device *device, GLES2GPUFramebuffer *gp
 
 void GLES2CmdFuncBeginRenderPass(GLES2Device *device, GLES2GPURenderPass *gpuRenderPass, GLES2GPUFramebuffer *gpuFramebuffer,
                                  const Rect &renderArea, size_t numClearColors, const Color *clearColors, float clearDepth, int clearStencil) {
+    GLES2ObjectCache &gfxStateCache = device->stateCache()->gfxStateCache;
     gfxStateCache.gpuRenderPass = gpuRenderPass;
     gfxStateCache.gpuFramebuffer = gpuFramebuffer;
     gfxStateCache.numClearColors = numClearColors;
@@ -1492,6 +1493,7 @@ void GLES2CmdFuncBeginRenderPass(GLES2Device *device, GLES2GPURenderPass *gpuRen
 }
 
 void GLES2CmdFuncEndRenderPass(GLES2Device *device) {
+    GLES2ObjectCache &gfxStateCache = device->stateCache()->gfxStateCache;
     size_t numClearColors = gfxStateCache.numClearColors;
     GLES2GPURenderPass *gpuRenderPass = gfxStateCache.gpuRenderPass;
     GLES2GPUFramebuffer *gpuFramebuffer = gfxStateCache.gpuFramebuffer;
@@ -1549,6 +1551,7 @@ void GLES2CmdFuncBindState(GLES2Device *device, GLES2GPUPipelineState *gpuPipeli
                            vector<GLES2GPUDescriptorSet *> &gpuDescriptorSets, vector<const uint *> &dynamicOffsets,
                            Viewport &viewport, Rect &scissor, float lineWidth, bool depthBiasEnabled, GLES2DepthBias &depthBias, Color &blendConstants,
                            GLES2DepthBounds &depthBounds, GLES2StencilWriteMask &stencilWriteMask, GLES2StencilCompareMask &stencilCompareMask) {
+    GLES2ObjectCache &gfxStateCache = device->stateCache()->gfxStateCache;
 
     GLES2GPUStateCache *cache = device->stateCache();
     bool isShaderChanged = false;
@@ -1980,10 +1983,11 @@ void GLES2CmdFuncBindState(GLES2Device *device, GLES2GPUPipelineState *gpuPipeli
         (isShaderChanged || gpuInputAssembler != gfxStateCache.gpuInputAssembler)) {
         gfxStateCache.gpuInputAssembler = gpuInputAssembler;
         if (device->useVAO()) {
-            GLuint glVAO = gpuInputAssembler->glVAOs[gpuPipelineState->gpuShader->glProgram];
+            GLuint hash = gpuPipelineState->gpuShader->glProgram ^ device->getThreadID();
+            GLuint glVAO = gpuInputAssembler->glVAOs[hash];
             if (!glVAO) {
                 glGenVertexArraysOES(1, &glVAO);
-                gpuInputAssembler->glVAOs[gpuPipelineState->gpuShader->glProgram] = glVAO;
+                gpuInputAssembler->glVAOs[hash] = glVAO;
                 glBindVertexArrayOES(glVAO);
                 glBindBuffer(GL_ARRAY_BUFFER, 0);
                 glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
@@ -2203,6 +2207,7 @@ void GLES2CmdFuncBindState(GLES2Device *device, GLES2GPUPipelineState *gpuPipeli
 }
 
 void GLES2CmdFuncDraw(GLES2Device *device, DrawInfo &drawInfo) {
+    GLES2ObjectCache &gfxStateCache = device->stateCache()->gfxStateCache;
     GLES2GPUPipelineState *gpuPipelineState = gfxStateCache.gpuPipelineState;
     GLES2GPUInputAssembler *gpuInputAssembler = gfxStateCache.gpuInputAssembler;
     GLenum glPrimitive = gfxStateCache.glPrimitive;
@@ -2261,6 +2266,7 @@ void GLES2CmdFuncDraw(GLES2Device *device, DrawInfo &drawInfo) {
 }
 
 void GLES2CmdFuncUpdateBuffer(GLES2Device *device, GLES2GPUBuffer *gpuBuffer, const void *buffer, uint offset, uint size) {
+    GLES2ObjectCache &gfxStateCache = device->stateCache()->gfxStateCache;
     CCASSERT(buffer, "Buffer should not be nullptr");
     if (gpuBuffer->usage & BufferUsageBit::UNIFORM) {
         memcpy(gpuBuffer->buffer + offset, buffer, size);

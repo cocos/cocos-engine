@@ -70,7 +70,7 @@ public:
         copyBuffersToTexture(buffers.data(), dst, regions.data(), static_cast<uint>(regions.size()) );
     }
 
-    virtual void setImmediateMode(bool immediateMode) {}
+    virtual void setMultithreaded(bool multithreaded) {}
     virtual SurfaceTransform getSurfaceTransform() const { return _transform; }
     virtual uint getWidth() const { return _width; }
     virtual uint getHeight() const { return _height; }
@@ -110,24 +110,6 @@ public:
     CC_INLINE uint genShaderId() { return _shaderIdGen++; }
 
 protected:
-    friend class DeviceAgent;
-
-    virtual CommandBuffer *doCreateCommandBuffer(const CommandBufferInfo &info, bool hasAgent) = 0;
-    virtual Fence *createFence() = 0;
-    virtual Queue *createQueue() = 0;
-    virtual Buffer *createBuffer() = 0;
-    virtual Texture *createTexture() = 0;
-    virtual Sampler *createSampler() = 0;
-    virtual Shader *createShader() = 0;
-    virtual InputAssembler *createInputAssembler() = 0;
-    virtual RenderPass *createRenderPass() = 0;
-    virtual Framebuffer *createFramebuffer() = 0;
-    virtual DescriptorSet *createDescriptorSet() = 0;
-    virtual DescriptorSetLayout *createDescriptorSetLayout() = 0;
-    virtual PipelineLayout *createPipelineLayout() = 0;
-    virtual PipelineState *createPipelineState() = 0;
-    virtual void copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint count) = 0;
-
     virtual void bindRenderContext(bool bound) {}
     virtual void bindDeviceContext(bool bound) {}
 

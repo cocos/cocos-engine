@@ -105,10 +105,11 @@ public:
     // 只支持单消费者
     void                                    RunConsumerThread() noexcept;
     void                                    TerminateConsumerThread() noexcept;
-    void                                    FinishWriting() noexcept;
+    void                                    FinishWriting(bool wait) noexcept;
     void                                    FlushCommands() noexcept;
 
     inline bool                             IsImmediateMode() const noexcept { return mImmediateMode; }
+    inline void                             FinishWriting() noexcept { FinishWriting(false); }
 
     void                                    RecycleMemoryChunk(uint8_t* const chunk) const noexcept;
     static void                             FreeChunksInFreeQueue(CommandEncoder* const mainCommandbuffer) noexcept;
@@ -159,7 +160,7 @@ private:
     WriterContext                           mW;
     ReaderContext                           mR;
     EventCV                                 mN;
-    bool                                    mImmediateMode      { false };
+    bool                                    mImmediateMode      { true };
     bool                                    mWorkerAttached     { false };
     bool                                    mFreeChunksByUser   { true }; // 被回收的Chunk会被记录到一个队列里 由用户在生产者线程选择合适的时机来Free
 

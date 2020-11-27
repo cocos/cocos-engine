@@ -31,17 +31,6 @@ namespace gfx {
 
 class GLES3Device;
 
-struct GLES3ObjectCache {
-    size_t numClearColors = 0u;
-    GLES3GPURenderPass *gpuRenderPass = nullptr;
-    GLES3GPUFramebuffer *gpuFramebuffer = nullptr;
-    GLES3GPUPipelineState *gpuPipelineState = nullptr;
-    GLES3GPUInputAssembler *gpuInputAssembler = nullptr;
-    bool reverseCW = false;
-    GLenum glPrimitive = 0;
-    GLenum invalidAttachments[GFX_MAX_ATTACHMENTS];
-};
-
 struct GLES3DepthBias {
     float constant = 0.0f;
     float clamp = 0.0f;

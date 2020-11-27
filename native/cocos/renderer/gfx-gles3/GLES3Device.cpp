@@ -75,12 +75,12 @@ bool GLES3Device::initialize(const DeviceInfo &info) {
     ctxInfo.windowHandle = _windowHandle;
     ctxInfo.sharedCtx = info.sharedCtx;
 
-    _initContext = CC_NEW(GLES3Context(this));
-    if (!_initContext->initialize(ctxInfo)) {
+    _renderContext = CC_NEW(GLES3Context(this));
+    if (!_renderContext->initialize(ctxInfo)) {
         destroy();
         return false;
     }
-    _context = _initContext;
+    bindRenderContext(true);
 
     String extStr = (const char *)glGetString(GL_EXTENSIONS);
     _extensions = StringUtil::Split(extStr, " ");
@@ -171,7 +171,6 @@ bool GLES3Device::initialize(const DeviceInfo &info) {
     glGetIntegerv(GL_STENCIL_BITS, (GLint *)&_stencilBits);
 
     _gpuStateCache->initialize(_maxTextureUnits, _maxUniformBufferBindings, _maxVertexAttributes);
-    _initContext->MakeCurrent(false);
 
     return true;
 }
@@ -188,8 +187,8 @@ void GLES3Device::destroy() {
     }
     CC_SAFE_DELETE(_gpuStagingBufferPool);
     CC_SAFE_DELETE(_gpuStateCache);
+    CC_SAFE_DESTROY(_deviceContext);
     CC_SAFE_DESTROY(_renderContext);
-    CC_SAFE_DESTROY(_initContext);
 }
 
 void GLES3Device::resize(uint width, uint height) {
@@ -215,23 +214,33 @@ void GLES3Device::present() {
     queue->_numTriangles = 0;
 }
 
-void GLES3Device::setImmediateMode(bool immediateMode) {
-    if (immediateMode) {
-        _renderContext->MakeCurrent(false);
-        _initContext->MakeCurrent();
-    } else {
+void GLES3Device::bindRenderContext(bool bound) {
+    _renderContext->MakeCurrent(bound);
+    _context = bound ? _renderContext : nullptr;
 
-        if (!_renderContext) {
-                    ContextInfo ctxInfo;
-                    ctxInfo.windowHandle = _windowHandle;
-                    ctxInfo.sharedCtx = _initContext;
+    if (bound) {
+        std::hash<std::thread::id> hasher;
+        _threadID = hasher(std::this_thread::get_id());
+        _gpuStateCache->reset();
+    }
+}
 
-                    _renderContext = CC_NEW(GLES3Context(this));
-                    _renderContext->initialize(ctxInfo);
-                    _context = _renderContext;
-        } else {
-                    _renderContext->MakeCurrent();
-        }
+void GLES3Device::bindDeviceContext(bool bound) {
+    if (!_deviceContext) {
+        ContextInfo ctxInfo;
+        ctxInfo.windowHandle = _windowHandle;
+        ctxInfo.sharedCtx = _renderContext;
+
+        _deviceContext = CC_NEW(GLES3Context(this));
+        _deviceContext->initialize(ctxInfo);
+    }
+    _deviceContext->MakeCurrent(bound);
+    _context = bound ? _deviceContext : nullptr;
+
+    if (bound) {
+        std::hash<std::thread::id> hasher;
+        _threadID = hasher(std::this_thread::get_id());
+        _gpuStateCache->reset();
     }
 }
 

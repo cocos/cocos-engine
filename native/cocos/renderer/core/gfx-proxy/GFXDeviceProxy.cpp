@@ -77,12 +77,7 @@ bool DeviceProxy::initialize(const DeviceInfo &info) {
         context.encoder->RunConsumerThread();
     }
 
-    ENCODE_COMMAND_1(
-            _mainEncoder, DeviceMakeCurrent,
-            remote, _remote,
-            {
-                remote->setImmediateMode(false);
-            });
+    setMultithreaded(true);
 
     return true;
 }
@@ -156,6 +151,32 @@ void DeviceProxy::present() {
 
     CommandEncoder::FreeChunksInFreeQueue(encoder);
     encoder->FinishWriting();
+}
+
+void DeviceProxy::setMultithreaded(bool multithreaded) {
+    if (multithreaded == _multithreaded) return;
+    _multithreaded = multithreaded;
+
+    if (multithreaded) {
+        _mainEncoder->SetImmediateMode(false);
+        ((DeviceProxy *) _remote)->bindRenderContext(false);
+        ENCODE_COMMAND_1(
+                _mainEncoder, DeviceMakeCurrent,
+                remote, (DeviceProxy*)_remote,
+                {
+                    remote->bindDeviceContext(true);
+                });
+    } else {
+        ENCODE_COMMAND_1(
+                _mainEncoder, DeviceMakeCurrent,
+                remote, (DeviceProxy*)_remote,
+                {
+                    remote->bindDeviceContext(false);
+                });
+        _mainEncoder->FinishWriting(true); // wait till finished
+        _mainEncoder->SetImmediateMode(true);
+        ((DeviceProxy *) _remote)->bindRenderContext(true);
+    }
 }
 
 CommandBuffer *DeviceProxy::createCommandBuffer() {

@@ -44,7 +44,8 @@ public:
     virtual PipelineState *createPipelineState() override;
     virtual void copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint count) override;
 
-    virtual void setImmediateMode(bool immediateMode) override { return _remote->setImmediateMode(immediateMode); }
+
+    virtual void setMultithreaded(bool multithreaded) override;
     virtual SurfaceTransform getSurfaceTransform() const override { return _remote->getSurfaceTransform(); }
     virtual uint getWidth() const override { return _remote->getWidth(); }
     virtual uint getHeight() const override { return _remote->getHeight(); }
@@ -58,7 +59,9 @@ public:
     CommandEncoder *getMainEncoder() const { return _mainEncoder; }
 
 protected:
-    CommandEncoder *_mainEncoder = nullptr;
+
+    bool _multithreaded{false};
+    CommandEncoder *_mainEncoder{nullptr};
     vector<SubmitContext> _contexts{};
 
     Semaphore _frameBoundarySemaphore{MAX_CPU_FRAME_AHEAD};

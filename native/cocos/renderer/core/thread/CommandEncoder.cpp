@@ -150,7 +150,7 @@ void CommandEncoder::TerminateConsumerThread() noexcept
     event.Wait();
 }
 
-void CommandEncoder::FinishWriting() noexcept
+void CommandEncoder::FinishWriting(bool wait) noexcept
 {
     if (!mImmediateMode)
     {
@@ -162,7 +162,8 @@ void CommandEncoder::FinishWriting() noexcept
                     *flushingFinished = true;
                 });
 
-        Kick();
+        if (wait) KickAndWait();
+        else Kick();
     }
 }
 

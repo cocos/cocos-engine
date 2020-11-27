@@ -37,7 +37,7 @@ namespace gfx {
 
 #if CC_DEBUG > 0
 
-void GL_APIENTRY GLES3EGLDebugProc(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar *message, const void *userParam) {
+void GLES3EGLDebugProc(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar *message, const void *userParam) {
     String sourceDesc;
     switch (source) {
         case GL_DEBUG_SOURCE_API_KHR: sourceDesc = "API"; break;
@@ -344,7 +344,7 @@ bool GLES3Context::initialize(const ContextInfo &info) {
         }
     }
 
-    return MakeCurrent();
+    return true;
 }
 
 void GLES3Context::destroy() {
@@ -389,6 +389,7 @@ void GLES3Context::present() {
 
 bool GLES3Context::MakeCurrent(bool bound) {
     if (!bound) {
+        CC_LOG_DEBUG("eglMakeCurrent() - UNBOUNDED, Context: 0x%p", this);
         return MakeCurrentImpl(false);
     }
 
@@ -412,10 +413,10 @@ bool GLES3Context::MakeCurrent(bool bound) {
             }
 #endif
 
-#if CC_DEBUG > 0 && CC_PLATFORM != CC_PLATFORM_MAC_IOS
-            GL_CHECK(glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS_KHR));
-            GL_CHECK(glDebugMessageControlKHR(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, NULL, GL_TRUE));
-            GL_CHECK(glDebugMessageCallbackKHR(GLES3EGLDebugProc, NULL));
+#if CC_DEBUG > 0
+            glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS_KHR);
+            glDebugMessageControlKHR(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, NULL, GL_TRUE);
+            glDebugMessageCallbackKHR(GLES3EGLDebugProc, NULL);
 #endif
 
             _isInitialized = true;

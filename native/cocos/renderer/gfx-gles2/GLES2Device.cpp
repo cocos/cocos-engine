@@ -74,8 +74,8 @@ bool GLES2Device::initialize(const DeviceInfo &info) {
     ctxInfo.windowHandle = _windowHandle;
     ctxInfo.sharedCtx = info.sharedCtx;
 
-    _initContext = CC_NEW(GLES2Context(this));
-    if (!_initContext->initialize(ctxInfo)) {
+    _renderContext = CC_NEW(GLES2Context(this));
+    if (!_renderContext->initialize(ctxInfo)) {
         destroy();
         return false;
     }
@@ -181,9 +181,6 @@ bool GLES2Device::initialize(const DeviceInfo &info) {
 
     _gpuStateCache->initialize(_maxTextureUnits, _maxVertexAttributes);
 
-    _initContext->MakeCurrent(false);
-    _context = _initContext;
-
     return true;
 }
 
@@ -200,8 +197,8 @@ void GLES2Device::destroy() {
 
     CC_SAFE_DELETE(_gpuStagingBufferPool);
     CC_SAFE_DELETE(_gpuStateCache);
+    CC_SAFE_DESTROY(_deviceContext);
     CC_SAFE_DESTROY(_renderContext);
-    CC_SAFE_DESTROY(_initContext);
 }
 
 void GLES2Device::resize(uint width, uint height) {
@@ -227,17 +224,33 @@ void GLES2Device::present() {
     queue->_numTriangles = 0;
 }
 
-void GLES2Device::setImmediateMode(bool immediateMode) {
-    if (!_renderContext) {
+void GLES2Device::bindRenderContext(bool bound) {
+    _renderContext->MakeCurrent(bound);
+    _context = bound ? _renderContext : nullptr;
+
+    if (bound) {
+        std::hash<std::thread::id> hasher;
+        _threadID = hasher(std::this_thread::get_id());
+        _gpuStateCache->reset();
+    }
+}
+
+void GLES2Device::bindDeviceContext(bool bound) {
+    if (!_deviceContext) {
         ContextInfo ctxInfo;
         ctxInfo.windowHandle = _windowHandle;
-        ctxInfo.sharedCtx = _initContext;
+        ctxInfo.sharedCtx = _renderContext;
 
-        _renderContext = CC_NEW(GLES2Context(this));
-        _renderContext->initialize(ctxInfo);
-        _context = _renderContext;
-    } else {
-        _renderContext->MakeCurrent();
+        _deviceContext = CC_NEW(GLES2Context(this));
+        _deviceContext->initialize(ctxInfo);
+    }
+    _deviceContext->MakeCurrent(bound);
+    _context = bound ? _deviceContext : nullptr;
+
+    if (bound) {
+        std::hash<std::thread::id> hasher;
+        _threadID = hasher(std::this_thread::get_id());
+        _gpuStateCache->reset();
     }
 }
 

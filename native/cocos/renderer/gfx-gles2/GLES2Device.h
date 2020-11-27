@@ -80,7 +80,6 @@ public:
     virtual PipelineLayout *createPipelineLayout() override;
     virtual PipelineState *createPipelineState() override;
     virtual void copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint count) override;
-    virtual void setImmediateMode(bool immediateMode) override;
 
     CC_INLINE bool useVAO() const { return _useVAO; }
     CC_INLINE bool useDrawInstanced() const { return _useDrawInstanced; }
@@ -102,22 +101,6 @@ public:
     CC_INLINE uint getThreadID() const { return _threadID; }
 
 protected:
-    virtual CommandBuffer *doCreateCommandBuffer(const CommandBufferInfo &info, bool hasAgent) override;
-    virtual Fence *createFence() override;
-    virtual Queue *createQueue() override;
-    virtual Buffer *createBuffer() override;
-    virtual Texture *createTexture() override;
-    virtual Sampler *createSampler() override;
-    virtual Shader *createShader() override;
-    virtual InputAssembler *createInputAssembler() override;
-    virtual RenderPass *createRenderPass() override;
-    virtual Framebuffer *createFramebuffer() override;
-    virtual DescriptorSet *createDescriptorSet() override;
-    virtual DescriptorSetLayout *createDescriptorSetLayout() override;
-    virtual PipelineLayout *createPipelineLayout() override;
-    virtual PipelineState *createPipelineState() override;
-    virtual void copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint count) override;
-
     virtual void bindRenderContext(bool bound) override;
     virtual void bindDeviceContext(bool bound) override;
 
@@ -125,8 +108,8 @@ private:
 
     bool checkForETC2() const;
 
-    GLES2Context *_initContext = nullptr;
     GLES2Context *_renderContext = nullptr;
+    GLES2Context *_deviceContext = nullptr;
     GLES2GPUStateCache *_gpuStateCache = nullptr;
     GLES2GPUStagingBufferPool *_gpuStagingBufferPool = nullptr;
 
@@ -137,7 +120,7 @@ private:
     bool _useInstancedArrays = false;
     bool _useDiscardFramebuffer = false;
 
-    uint _threadID = 0u;
+    uint _threadID;
 };
 
 } // namespace gfx

@@ -290,7 +290,7 @@ class GLES2GPUFence final : public Object {
 public:
 };
 
-struct GLES2ObjectCache final {
+struct GLES2ObjectCache {
     size_t numClearColors = 0u;
     GLES2GPURenderPass *gpuRenderPass = nullptr;
     GLES2GPUFramebuffer *gpuFramebuffer = nullptr;
@@ -301,7 +301,7 @@ struct GLES2ObjectCache final {
     GLenum invalidAttachments[GFX_MAX_ATTACHMENTS];
 };
 
-class GLES2GPUStateCache final : public Object {
+class GLES2GPUStateCache : public Object {
 public:
     GLuint glArrayBuffer = 0;
     GLuint glElementArrayBuffer = 0;
@@ -344,12 +344,6 @@ public:
         glReadFBO = 0;
         isCullFaceEnabled = true;
         isStencilTestEnabled = false;
-
-        viewport = Viewport();
-        scissor = Rect();
-        rs = RasterizerState();
-        dss = DepthStencilState();
-        bs = BlendState();
 
         gfxStateCache.gpuPipelineState = nullptr;
         gfxStateCache.numClearColors = 0u;
