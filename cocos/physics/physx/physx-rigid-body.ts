@@ -62,6 +62,9 @@ export class PhysXRigidBody implements IRigidBody {
         // } else {
         //     this.impl.setMassAndUpdateInertia(v);
         // }
+        if (v <= 0) return;
+        if (this._sharedBody.isStatic) return;
+        this.impl.setMassAndUpdateInertia(v);
     }
 
     setLinearDamping (v: number): void {
@@ -73,6 +76,7 @@ export class PhysXRigidBody implements IRigidBody {
     }
 
     setIsKinematic (v: boolean): void {
+        if (this._sharedBody.isStatic) return;
         if (USE_BYTEDANCE) {
             this._sharedBody.setRigidBodyFlag(PX.RigidBodyFlag.eKINEMATIC, !!v);
         } else {
