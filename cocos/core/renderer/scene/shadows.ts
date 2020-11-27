@@ -118,7 +118,7 @@ export class Shadows {
     set enabled (val: boolean) {
         ShadowsPool.set(this._handle, ShadowsView.ENABLE, val ? 1 : 0);
         if (!val) ShadowsPool.set(this._handle, ShadowsView.TYPE, SHADOW_TYPE_NONE);
-        if (val) this.activate(); else this._updatePipeline();
+        this.activate();
     }
 
     /**
@@ -168,8 +168,10 @@ export class Shadows {
     }
     set type (val: number) {
         ShadowsPool.set(this._handle, ShadowsView.TYPE, this.enabled ? val : SHADOW_TYPE_NONE);
-        if (val >= 1){ this._updatePipeline(); }
-        else { this._updatePlanarInfo() };
+        if (this.enabled) {
+            if (val >= 1){ this._updatePipeline(); }
+            else { this._updatePlanarInfo() };
+        }
     }
 
     /**
@@ -335,10 +337,17 @@ export class Shadows {
     }
 
     public activate () {
-        if (!this.enabled || this.type === ShadowType.ShadowMap) {
-            this._updatePipeline();
+        if (this.enabled) {
+            if (this.type === ShadowType.ShadowMap) {
+                this._updatePipeline();
+            } else {
+                this._updatePlanarInfo();
+            }
         } else {
-            this._updatePlanarInfo();
+            const root = legacyCC.director.root;
+            const pipeline = root.pipeline;
+            pipeline.macros.CC_RECEIVE_SHADOW = 0;
+            root.onGlobalPipelineStateChanged();
         }
     }
 
