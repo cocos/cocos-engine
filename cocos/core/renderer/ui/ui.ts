@@ -50,6 +50,11 @@ import * as UIVertexFormat from './ui-vertex-format';
 import { legacyCC } from '../../global-exports';
 import { DSPool } from '../core/memory-pools';
 import { ModelLocalBindings } from '../../pipeline/define';
+import { sys } from '../../platform/sys';
+
+const isIOS14OrIPadOS14Device = sys.os === sys.OS_IOS
+    && sys.isBrowser
+    && /(iPhone OS 1[4-9])|(Version\/1[4-9][\.\d]*)|(iOS 1[4-9])/.test(window.navigator.userAgent);
 
 /**
  * @zh
@@ -543,6 +548,12 @@ export class UI {
         buffer.vertexStart = buffer.vertexOffset;
         buffer.indicesStart = buffer.indicesOffset;
         buffer.byteStart = buffer.byteOffset;
+
+        // HACK: After sharing buffer between drawcalls, the performance degradation a lots on iOS 14 or iPad OS 14 device
+        // TODO: Maybe it can be removed after Apple fixes it?
+        if (isIOS14OrIPadOS14Device) {
+            this._requireBufferBatch();
+        }
     }
 
     /**
