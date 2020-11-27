@@ -168,10 +168,7 @@ export class Shadows {
     }
     set type (val: number) {
         ShadowsPool.set(this._handle, ShadowsView.TYPE, this.enabled ? val : SHADOW_TYPE_NONE);
-        if (this.enabled) {
-            if (val >= 1){ this._updatePipeline(); }
-            else { this._updatePlanarInfo() };
-        }
+        this.activate();
     }
 
     /**
