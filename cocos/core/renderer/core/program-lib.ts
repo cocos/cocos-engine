@@ -63,6 +63,7 @@ export interface IProgramInfo extends IShaderInfo {
     effectName: string;
     defines: IDefineRecord[];
     uber: boolean; // macro number exceeds default limits, will fallback to string hash
+    tmplInfo: ITemplateInfo;
 }
 
 interface IMacroInfo {
@@ -199,7 +200,7 @@ class ProgramLib {
         for (let i = 0; i < effect.shaders.length; i++) {
             const tmpl = this.define(effect.shaders[i]);
             tmpl.effectName = effect.name;
-            const tmplInfo = this._templateInfos[tmpl.hash];
+            const tmplInfo = tmpl.tmplInfo;
             insertBuiltinBindings(tmpl, tmplInfo, localDescriptorSetLayout, 'locals', bindings);
         }
     }
@@ -233,7 +234,7 @@ class ProgramLib {
         if (offset > 31) { tmpl.uber = true; }
         // store it
         this._templates[shader.name] = tmpl;
-        const curTmplInfo = this._templateInfos[tmpl.hash];
+        const curTmplInfo = tmpl.tmplInfo;
         if (!curTmplInfo) {
             const tmplInfo = {} as ITemplateInfo;
             // cache material-specific descriptor set layout
@@ -267,7 +268,7 @@ class ProgramLib {
             tmplInfo.hPipelineLayout = NULL_HANDLE;
             tmplInfo.setLayouts = [];
 
-            this._templateInfos[tmpl.hash] = tmplInfo;
+            tmpl.tmplInfo = tmplInfo;
         }
 
         return tmpl;
@@ -288,8 +289,8 @@ class ProgramLib {
      * @param name Target shader name
      */
     public getTemplateInfo (name: string) {
-        const hash = this._templates[name].hash;
-        return this._templateInfos[hash];
+        // const hash = this._templates[name].hash;
+        return this._templates[name].tmplInfo;
     }
 
     /**
@@ -299,7 +300,7 @@ class ProgramLib {
      */
     public getDescriptorSetLayout (device: Device, name: string, isLocal = false) {
         const tmpl = this._templates[name];
-        const tmplInfo = this._templateInfos[tmpl.hash];
+        const tmplInfo = tmpl.tmplInfo;
         if (!tmplInfo.setLayouts.length) {
             _dsLayoutInfo.bindings = tmplInfo.bindings;
             tmplInfo.setLayouts[SetIndex.MATERIAL] = device.createDescriptorSetLayout(_dsLayoutInfo);
@@ -394,7 +395,7 @@ class ProgramLib {
         if (res) { return res; }
 
         const tmpl = this._templates[name];
-        const tmplInfo = this._templateInfos[tmpl.hash];
+        const tmplInfo = tmpl.tmplInfo;
         if (!tmplInfo.hPipelineLayout) {
             this.getDescriptorSetLayout(device, name); // ensure set layouts have been created
             insertBuiltinBindings(tmpl, tmplInfo, globalDescriptorSetLayout, 'globals');
