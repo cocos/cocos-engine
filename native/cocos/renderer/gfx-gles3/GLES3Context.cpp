@@ -37,7 +37,7 @@ namespace gfx {
 
 #if CC_DEBUG > 0
 
-void GLES3EGLDebugProc(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar *message, const void *userParam) {
+void GL_APIENTRY GLES3EGLDebugProc(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar *message, const void *userParam) {
     String sourceDesc;
     switch (source) {
         case GL_DEBUG_SOURCE_API_KHR: sourceDesc = "API"; break;

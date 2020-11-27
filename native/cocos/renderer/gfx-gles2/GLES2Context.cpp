@@ -38,7 +38,7 @@ namespace gfx {
 
 #if CC_DEBUG > 0
 
-void GLES2EGLDebugProc(GLenum source,
+void GL_APIENTRY GLES2EGLDebugProc(GLenum source,
                        GLenum type, GLuint id,
                        GLenum severity, GLsizei length,
                        const GLchar *message,

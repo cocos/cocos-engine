@@ -22,7 +22,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 #import "View.h"
-#include "tests/Multithread.h"
+#include "tests/StressTest.h"
 #include "tests/ClearScreenTest.h"
 #include "tests/BasicTriangleTest.h"
 #include "tests/BasicTextureTest.h"
@@ -59,12 +59,10 @@ namespace
 - (instancetype)initWithFrame:(NSRect)frameRect {
     if (self = [super initWithFrame:frameRect]) {
         [self.window makeFirstResponder:self];
-#ifdef USE_METAL
         self.device = MTLCreateSystemDefaultDevice();
         self.depthStencilPixelFormat = MTLPixelFormatDepth24Unorm_Stencil8;
         self.mtlCommandQueue = [self.device newCommandQueue];
         self.delegate = self;
-#endif
         int pixelRatio = 1;
 #if CC_PLATFORM == CC_PLATFORM_MAC_OSX
         pixelRatio = [[NSScreen mainScreen] backingScaleFactor];
@@ -87,14 +85,12 @@ namespace
     return self;
 }
 
-#ifdef USE_METAL
 - (void)drawInMTKView:(MTKView *)view {
     g_test->tick();
 }
 
 - (void)mtkView:(nonnull MTKView *)view drawableSizeWillChange:(CGSize)size {
 }
-#endif
 
 - (void)initTests {
     static bool first = true;
@@ -102,7 +98,7 @@ namespace
     {
         using namespace cc;
         g_tests = {
-            Multithread::create,
+            StressTest::create,
             ClearScreen::create,
             BasicTriangle::create,
             BasicTexture::create,
