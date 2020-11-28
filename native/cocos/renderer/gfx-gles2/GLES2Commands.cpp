@@ -1384,32 +1384,18 @@ void GLES2CmdFuncBeginRenderPass(GLES2Device *device, GLES2GPURenderPass *gpuRen
             cache->scissor.height = renderArea.height;
         }
 
-                    GLbitfield glClears = 0;
-                    uint numAttachments = 0;
+        GLbitfield glClears = 0;
+        uint numAttachments = 0;
 
-                    gpuRenderPass = cmd->gpuRenderPass;
-                    for (uint j = 0; j < cmd->numClearColors; ++j) {
-                        const ColorAttachment &colorAttachment = gpuRenderPass->colorAttachments[j];
-                        if (colorAttachment.format != Format::UNKNOWN) {
-                            switch (colorAttachment.loadOp) {
-                                case LoadOp::LOAD: break; // GL default behaviour
-                                case LoadOp::CLEAR: {
-                                    if (cache->bs.targets[0].blendColorMask != ColorMask::ALL) {
-                                        glColorMask(true, true, true, true);
-                                    }
-
-                                    const Color &color = cmd->clearColors[j];
-                                    glClearColor(color.x, color.y, color.z, color.w);
-                                    glClears |= GL_COLOR_BUFFER_BIT;
-                                    break;
-                                }
-                                case LoadOp::DISCARD: {
-                                    // invalidate fbo
-                                    glAttachments[numAttachments++] = (cmd->gpuFBO->isOffscreen ? GL_COLOR_ATTACHMENT0 + j : GL_COLOR_EXT);
-                                    break;
-                                }
-                                default:;
-                            }
+        gpuRenderPass = gpuRenderPass;
+        for (uint j = 0; j < numClearColors; ++j) {
+            const ColorAttachment &colorAttachment = gpuRenderPass->colorAttachments[j];
+            if (colorAttachment.format != Format::UNKNOWN) {
+                switch (colorAttachment.loadOp) {
+                    case LoadOp::LOAD: break; // GL default behaviour
+                    case LoadOp::CLEAR: {
+                        if (cache->bs.targets[0].blendColorMask != ColorMask::ALL) {
+                            GL_CHECK(glColorMask(true, true, true, true));
                         }
 
                         const Color &color = clearColors[j];
@@ -1476,7 +1462,7 @@ void GLES2CmdFuncBeginRenderPass(GLES2Device *device, GLES2GPURenderPass *gpuRen
 
         // restore states
         if (glClears & GL_COLOR_BUFFER_BIT) {
-            ColorMask colorMask = cache->bs.targets[0]->blendColorMask;
+            ColorMask colorMask = cache->bs.targets[0].blendColorMask;
             if (colorMask != ColorMask::ALL) {
                 GL_CHECK(glColorMask((GLboolean)(colorMask & ColorMask::R),
                             (GLboolean)(colorMask & ColorMask::G),
@@ -1728,42 +1714,42 @@ void GLES2CmdFuncBindState(GLES2Device *device, GLES2GPUPipelineState *gpuPipeli
             cache->bs.blendColor = gpuPipelineState->bs.blendColor;
         }
 
-        BlendTarget *cacheTarget = cache->bs.targets[0];
-        const BlendTarget *target = gpuPipelineState->bs.targets[0];
-        if (cacheTarget->blend != target->blend) {
-            if (!cacheTarget->blend) {
+        BlendTarget &cacheTarget = cache->bs.targets[0];
+        const BlendTarget &target = gpuPipelineState->bs.targets[0];
+        if (cacheTarget.blend != target.blend) {
+            if (!cacheTarget.blend) {
                 GL_CHECK(glEnable(GL_BLEND));
             } else {
                 GL_CHECK(glDisable(GL_BLEND));
             }
-            cacheTarget->blend = target->blend;
+            cacheTarget.blend = target.blend;
         }
-        if (cacheTarget->blendEq != target->blendEq ||
-            cacheTarget->blendAlphaEq != target->blendAlphaEq) {
-            GL_CHECK(glBlendEquationSeparate(GLES2_BLEND_OPS[(int)target->blendEq],
-                                    GLES2_BLEND_OPS[(int)target->blendAlphaEq]));
-            cacheTarget->blendEq = target->blendEq;
-            cacheTarget->blendAlphaEq = target->blendAlphaEq;
+        if (cacheTarget.blendEq != target.blendEq ||
+            cacheTarget.blendAlphaEq != target.blendAlphaEq) {
+            GL_CHECK(glBlendEquationSeparate(GLES2_BLEND_OPS[(int)target.blendEq],
+                                    GLES2_BLEND_OPS[(int)target.blendAlphaEq]));
+            cacheTarget.blendEq = target.blendEq;
+            cacheTarget.blendAlphaEq = target.blendAlphaEq;
         }
-        if (cacheTarget->blendSrc != target->blendSrc ||
-            cacheTarget->blendDst != target->blendDst ||
-            cacheTarget->blendSrcAlpha != target->blendSrcAlpha ||
-            cacheTarget->blendDstAlpha != target->blendDstAlpha) {
-            GL_CHECK(glBlendFuncSeparate(GLES2_BLEND_FACTORS[(int)target->blendSrc],
-                                GLES2_BLEND_FACTORS[(int)target->blendDst],
-                                GLES2_BLEND_FACTORS[(int)target->blendSrcAlpha],
-                                GLES2_BLEND_FACTORS[(int)target->blendDstAlpha]));
-            cacheTarget->blendSrc = target->blendSrc;
-            cacheTarget->blendDst = target->blendDst;
-            cacheTarget->blendSrcAlpha = target->blendSrcAlpha;
-            cacheTarget->blendDstAlpha = target->blendDstAlpha;
+        if (cacheTarget.blendSrc != target.blendSrc ||
+            cacheTarget.blendDst != target.blendDst ||
+            cacheTarget.blendSrcAlpha != target.blendSrcAlpha ||
+            cacheTarget.blendDstAlpha != target.blendDstAlpha) {
+            GL_CHECK(glBlendFuncSeparate(GLES2_BLEND_FACTORS[(int)target.blendSrc],
+                                GLES2_BLEND_FACTORS[(int)target.blendDst],
+                                GLES2_BLEND_FACTORS[(int)target.blendSrcAlpha],
+                                GLES2_BLEND_FACTORS[(int)target.blendDstAlpha]));
+            cacheTarget.blendSrc = target.blendSrc;
+            cacheTarget.blendDst = target.blendDst;
+            cacheTarget.blendSrcAlpha = target.blendSrcAlpha;
+            cacheTarget.blendDstAlpha = target.blendDstAlpha;
         }
-        if (cacheTarget->blendColorMask != target->blendColorMask) {
-            GL_CHECK(glColorMask((GLboolean)(target->blendColorMask & ColorMask::R),
-                        (GLboolean)(target->blendColorMask & ColorMask::G),
-                        (GLboolean)(target->blendColorMask & ColorMask::B),
-                        (GLboolean)(target->blendColorMask & ColorMask::A)));
-            cacheTarget->blendColorMask = target->blendColorMask;
+        if (cacheTarget.blendColorMask != target.blendColorMask) {
+            GL_CHECK(glColorMask((GLboolean)(target.blendColorMask & ColorMask::R),
+                        (GLboolean)(target.blendColorMask & ColorMask::G),
+                        (GLboolean)(target.blendColorMask & ColorMask::B),
+                        (GLboolean)(target.blendColorMask & ColorMask::A)));
+            cacheTarget.blendColorMask = target.blendColorMask;
         }
     } // if
 
