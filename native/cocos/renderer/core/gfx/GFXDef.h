@@ -1008,14 +1008,13 @@ struct BlendTarget {
 };
 
 typedef cc::vector<BlendTarget> BlendTargetList;
-typedef cc::vector<BlendTarget *> BlendTargetPtrList;
 
 // Use uint32_t for all boolean values to do memeory copy in shared memory.
 struct BlendState {
     uint32_t isA2C = 0;
     uint32_t isIndepend = 0;
     Color blendColor;
-    BlendTargetPtrList targets;
+    BlendTargetList targets;
 };
 
 struct PipelineStateInfo {

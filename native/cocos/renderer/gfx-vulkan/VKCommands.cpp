@@ -558,15 +558,15 @@ void CCVKCmdFuncCreatePipelineState(CCVKDevice *device, CCVKGPUPipelineState *gp
     size_t blendTargetCount = gpuPipelineState->bs.targets.size();
     vector<VkPipelineColorBlendAttachmentState> blendTargets(blendTargetCount);
     for (size_t i = 0u; i < blendTargetCount; i++) {
-        BlendTarget *target = gpuPipelineState->bs.targets[i];
-        blendTargets[i].blendEnable = target->blend;
-        blendTargets[i].srcColorBlendFactor = VK_BLEND_FACTORS[(uint)target->blendSrc];
-        blendTargets[i].dstColorBlendFactor = VK_BLEND_FACTORS[(uint)target->blendDst];
-        blendTargets[i].colorBlendOp = VK_BLEND_OPS[(uint)target->blendEq];
-        blendTargets[i].srcAlphaBlendFactor = VK_BLEND_FACTORS[(uint)target->blendSrcAlpha];
-        blendTargets[i].dstAlphaBlendFactor = VK_BLEND_FACTORS[(uint)target->blendDstAlpha];
-        blendTargets[i].alphaBlendOp = VK_BLEND_OPS[(uint)target->blendAlphaEq];
-        blendTargets[i].colorWriteMask = MapVkColorComponentFlags(target->blendColorMask);
+        BlendTarget &target = gpuPipelineState->bs.targets[i];
+        blendTargets[i].blendEnable = target.blend;
+        blendTargets[i].srcColorBlendFactor = VK_BLEND_FACTORS[(uint)target.blendSrc];
+        blendTargets[i].dstColorBlendFactor = VK_BLEND_FACTORS[(uint)target.blendDst];
+        blendTargets[i].colorBlendOp = VK_BLEND_OPS[(uint)target.blendEq];
+        blendTargets[i].srcAlphaBlendFactor = VK_BLEND_FACTORS[(uint)target.blendSrcAlpha];
+        blendTargets[i].dstAlphaBlendFactor = VK_BLEND_FACTORS[(uint)target.blendDstAlpha];
+        blendTargets[i].alphaBlendOp = VK_BLEND_OPS[(uint)target.blendAlphaEq];
+        blendTargets[i].colorWriteMask = MapVkColorComponentFlags(target.blendColorMask);
     }
     Color &blendColor = gpuPipelineState->bs.blendColor;
 

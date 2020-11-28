@@ -257,7 +257,7 @@ public:
 
     void initialize(size_t texUnits, size_t bufferBindings, size_t vertexAttributes) {
         bt.resize(1);
-        bs.targets.push_back(&bt[0]);
+        bs.targets.push_back(bt[0]);
         glBindUBOs.resize(bufferBindings, 0u);
         glBindUBOOffsets.resize(bufferBindings, 0u);
         glTextures.resize(texUnits, 0u);

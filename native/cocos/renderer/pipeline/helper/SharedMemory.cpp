@@ -178,7 +178,7 @@ gfx::BlendState *getBlendStateImpl(uint index) {
     auto &targets = blendState.targets;
     targets.resize(targetLen);
     for (uint32_t i = 1; i <= targetLen; ++i) {
-        targets[i - 1] = GET_BLEND_TARGET(targetsHandle[i]);
+        memcpy(&targets[i - 1], GET_BLEND_TARGET(targetsHandle[i]), sizeof(gfx::BlendTarget));
     }
 
     return &blendState;

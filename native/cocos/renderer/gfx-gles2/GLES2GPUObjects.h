@@ -288,7 +288,7 @@ public:
 
     void initialize(size_t texUnits, size_t vertexAttributes) {
         bt.resize(1);
-        bs.targets.push_back(&bt[0]);
+        bs.targets.push_back(bt[0]);
         glTextures.resize(texUnits, 0u);
         glEnabledAttribLocs.resize(vertexAttributes, false);
         glCurrentAttribLocs.resize(vertexAttributes, false);

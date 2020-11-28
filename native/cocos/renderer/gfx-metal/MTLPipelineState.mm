@@ -71,7 +71,7 @@ bool CCMTLPipelineState::createGPUPipelineState() {
     _GPUPipelineState->stencilRefFront = _depthStencilState.stencilRefFront;
     _GPUPipelineState->stencilRefBack = _depthStencilState.stencilRefBack;
     _GPUPipelineState->primitiveType = mu::toMTLPrimitiveType(_primitive);
-    if(_pipelineLayout)
+    if (_pipelineLayout)
         _GPUPipelineState->gpuPipelineLayout = static_cast<CCMTLPipelineLayout *>(_pipelineLayout)->gpuPipelineLayout();
     _GPUPipelineState->gpuShader = static_cast<CCMTLShader *>(_shader)->gpuShader();
     return true;
@@ -189,7 +189,7 @@ void CCMTLPipelineState::setVertexDescriptor(MTLRenderPipelineDescriptor *descri
             descriptor.vertexBuffers[index].mutability = MTLMutabilityImmutable;
         }
     }
-    
+
     _GPUPipelineState->vertexBufferBindingInfo = std::move(layouts);
 }
 
@@ -228,17 +228,17 @@ void CCMTLPipelineState::setBlendStates(MTLRenderPipelineDescriptor *descriptor)
     int i = 0;
     for (const auto blendTarget : _blendState.targets) {
         MTLRenderPipelineColorAttachmentDescriptor *colorDescriptor = descriptor.colorAttachments[i];
-        colorDescriptor.blendingEnabled = blendTarget->blend;
-        if (!blendTarget->blend)
+        colorDescriptor.blendingEnabled = blendTarget.blend;
+        if (!blendTarget.blend)
             continue;
 
-        colorDescriptor.writeMask = mu::toMTLColorWriteMask(blendTarget->blendColorMask);
-        colorDescriptor.sourceRGBBlendFactor = mu::toMTLBlendFactor(blendTarget->blendSrc);
-        colorDescriptor.destinationRGBBlendFactor = mu::toMTLBlendFactor(blendTarget->blendDst);
-        colorDescriptor.rgbBlendOperation = mu::toMTLBlendOperation(blendTarget->blendEq);
-        colorDescriptor.sourceAlphaBlendFactor = mu::toMTLBlendFactor(blendTarget->blendSrcAlpha);
-        colorDescriptor.destinationAlphaBlendFactor = mu::toMTLBlendFactor(blendTarget->blendDstAlpha);
-        colorDescriptor.alphaBlendOperation = mu::toMTLBlendOperation(blendTarget->blendAlphaEq);
+        colorDescriptor.writeMask = mu::toMTLColorWriteMask(blendTarget.blendColorMask);
+        colorDescriptor.sourceRGBBlendFactor = mu::toMTLBlendFactor(blendTarget.blendSrc);
+        colorDescriptor.destinationRGBBlendFactor = mu::toMTLBlendFactor(blendTarget.blendDst);
+        colorDescriptor.rgbBlendOperation = mu::toMTLBlendOperation(blendTarget.blendEq);
+        colorDescriptor.sourceAlphaBlendFactor = mu::toMTLBlendFactor(blendTarget.blendSrcAlpha);
+        colorDescriptor.destinationAlphaBlendFactor = mu::toMTLBlendFactor(blendTarget.blendDstAlpha);
+        colorDescriptor.alphaBlendOperation = mu::toMTLBlendOperation(blendTarget.blendAlphaEq);
 
         ++i;
     }
