@@ -127,11 +127,10 @@ void DeviceProxy::resize(uint width, uint height) {
 void DeviceProxy::acquire() {
     _frameBoundarySemaphore.Wait();
     CommandEncoder *encoder = getMainEncoder();
-    ENCODE_COMMAND_2(
+    ENCODE_COMMAND_1(
         encoder,
         DeviceAcquire,
         remote, getRemote(),
-        encoder, encoder,
         {
             remote->acquire();
         });
