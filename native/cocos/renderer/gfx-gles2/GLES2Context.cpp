@@ -330,7 +330,7 @@ bool GLES2Context::initialize(const ContextInfo &info) {
             ctxAttribs[n++] = EGL_CONTEXT_MINOR_VERSION_KHR;
             ctxAttribs[n++] = _minorVersion;
 
-    #ifdef CC_DEBUG > 0
+    #if CC_DEBUG > 0
             ctxAttribs[n++] = EGL_CONTEXT_FLAGS_KHR;
             ctxAttribs[n++] = EGL_CONTEXT_OPENGL_DEBUG_BIT_KHR;
     #endif
