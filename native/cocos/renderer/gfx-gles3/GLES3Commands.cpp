@@ -1492,7 +1492,7 @@ void GLES3CmdFuncExecuteCmds(GLES3Device *device, GLES3CmdPackage *cmdPackage) {
                         glBindFramebuffer(GL_FRAMEBUFFER, cmd->gpuFBO->glFramebuffer);
                         cache->glFramebuffer = cmd->gpuFBO->glFramebuffer;
                         // render targets are drawn with flipped-Y
-                        gfxStateCache.reverseCW = !!cmd->gpuFBO->glFramebuffer;
+                        gfxStateCache.reverseCW = cmd->gpuFBO->isOffscreen;
                     }
 
                     if (cache->viewport.left != cmd->renderArea.x ||
