@@ -93,6 +93,7 @@ public:
 
     CC_INLINE void *getMTLCommandQueue() const { return _mtlCommandQueue; }
     CC_INLINE void *getMTKView() const { return _mtkView; }
+    CC_INLINE void *getMTLLayer() const { return _mtlLayer; }
     CC_INLINE void *getMTLDevice() const { return _mtlDevice; }
     CC_INLINE uint getMaximumSamplerUnits() const { return _maxSamplerUnits; }
     CC_INLINE uint getMaximumColorRenderTargets() const { return _maxColorRenderTargets; }
@@ -109,6 +110,7 @@ private:
     void *_mtlCommandQueue = nullptr;
     void *_mtkView = nullptr;
     void *_mtlDevice = nullptr;
+    void *_mtlLayer = nullptr;
     unsigned long _mtlFeatureSet = 0;
     uint _maxSamplerUnits = 0;
     uint _maxColorRenderTargets = 0;

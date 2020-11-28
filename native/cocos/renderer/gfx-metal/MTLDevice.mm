@@ -81,6 +81,7 @@ bool CCMTLDevice::initialize(const DeviceInfo &info) {
     _mtkView = (MTKView *)_windowHandle;
     id<MTLDevice> mtlDevice = ((MTKView *)_mtkView).device;
     _mtlDevice = mtlDevice;
+    _mtlLayer = ((MTKView *)_mtkView).layer;
     _mtlCommandQueue = [mtlDevice newCommandQueue];
 
     _mtlFeatureSet = mu::highestSupportedFeatureSet(mtlDevice);
