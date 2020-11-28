@@ -4,7 +4,7 @@
 
 import { ccclass, displayOrder, type, serializable } from 'cc.decorator';
 import { SetIndex } from '../define';
-import { Color, Rect } from '../../gfx';
+import { Color, Rect, Shader } from '../../gfx';
 import { IRenderStageInfo, RenderStage } from '../render-stage';
 import { RenderView } from '../render-view';
 import { DeferredStagePriority } from './enum';
@@ -14,6 +14,8 @@ import { Material } from '../../assets/material';
 import { ShaderPool } from '../../renderer/core/memory-pools';
 import { PipelineStateManager } from '../pipeline-state-manager';
 import { PipelineState } from '../../gfx/pipeline-state';
+import { builtinResMgr } from '../../3d/builtin/init';
+import { Pass } from '../../renderer';
 
 const colors: Color[] = [ new Color(0, 0, 0, 1) ];
 const POSTPROCESSPASS_INDEX = 0;
@@ -45,7 +47,7 @@ export class PostprocessStage extends RenderStage {
 
         this._postprocessMaterial = val;
     }
-    
+
     constructor () {
         super();
     }
@@ -56,7 +58,7 @@ export class PostprocessStage extends RenderStage {
     }
 
     public activate (pipeline: DeferredPipeline, flow: LightingFlow) {
-        super.activate(pipeline, flow);   
+        super.activate(pipeline, flow);
     }
 
     public destroy () {
@@ -67,7 +69,7 @@ export class PostprocessStage extends RenderStage {
         const device = pipeline.device;
 
         const cmdBuff = pipeline.commandBuffers[0];
-  
+
         const camera = view.camera;
         const vp = camera.viewport;
         this._renderArea!.x = vp.x * camera.width;
@@ -84,8 +86,16 @@ export class PostprocessStage extends RenderStage {
         cmdBuff.bindDescriptorSet(SetIndex.GLOBAL, pipeline.descriptorSet);
 
         // Postprocess
-        const pass = this._postprocessMaterial!.passes[POSTPROCESSPASS_INDEX];
-        const shader = ShaderPool.get(this._postprocessMaterial!.passes[POSTPROCESSPASS_INDEX].getShaderVariant());
+        var pass: Pass;
+        var shader: Shader;
+        const builtinPostProcess = builtinResMgr.get<Material>('builtin-post-process-material');
+        if (builtinPostProcess) {
+            pass = builtinPostProcess.passes[0];
+            shader = ShaderPool.get(pass.getShaderVariant());
+        } else {
+            pass = this._postprocessMaterial!.passes[POSTPROCESSPASS_INDEX];
+            shader = ShaderPool.get(this._postprocessMaterial!.passes[POSTPROCESSPASS_INDEX].getShaderVariant());
+        }
 
         const inputAssembler = pipeline.quadIA;
         var pso:PipelineState|null = null;

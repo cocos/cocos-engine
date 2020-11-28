@@ -121,12 +121,12 @@ export enum PipelineGlobalBindings {
     UBO_SHADOW,
 
     SAMPLER_SHADOWMAP,
+    SAMPLER_ENVIRONMENT, // don't put this as the first sampler binding due to Mac GL driver issues: cubemap at texture unit 0 causes rendering issues
     SAMPLER_GBUFFER_ALBEDOMAP,
     SAMPLER_GBUFFER_POSITIONMAP,
     SAMPLER_GBUFFER_NORMALMAP,
     SAMPLER_GBUFFER_EMISSIVEMAP,
     SAMPLER_LIGHTING_RESULTMAP,
-    SAMPLER_ENVIRONMENT, // don't put this as the first sampler binding due to Mac GL driver issues: cubemap at texture unit 0 causes rendering issues
 
     COUNT,
 }
