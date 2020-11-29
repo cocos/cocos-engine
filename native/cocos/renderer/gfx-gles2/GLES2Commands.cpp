@@ -1573,28 +1573,31 @@ void GLES2CmdFuncBindState(GLES2Device *device, GLES2GPUPipelineState *gpuPipeli
                         GL_CHECK(glDisable(GL_CULL_FACE));
                         cache->isCullFaceEnabled = false;
                     }
-                } break;
+                }
+                    break;
                 case CullMode::FRONT: {
                     if (!cache->isCullFaceEnabled) {
                         GL_CHECK(glEnable(GL_CULL_FACE));
                         cache->isCullFaceEnabled = true;
                     }
                     GL_CHECK(glCullFace(GL_FRONT));
-                } break;
+                }
+                    break;
                 case CullMode::BACK: {
                     if (!cache->isCullFaceEnabled) {
                         GL_CHECK(glEnable(GL_CULL_FACE));
                         cache->isCullFaceEnabled = true;
                     }
                     GL_CHECK(glCullFace(GL_BACK));
-                } break;
+                }
+                    break;
                 default:
                     break;
             }
             cache->rs.cullMode = gpuPipelineState->rs.cullMode;
         }
-        bool isFrontFaceCCW = (bool)gpuPipelineState->rs.isFrontFaceCCW != gfxStateCache.reverseCW;
-        if ((bool)cache->rs.isFrontFaceCCW != isFrontFaceCCW) {
+        bool isFrontFaceCCW = (bool) gpuPipelineState->rs.isFrontFaceCCW != gfxStateCache.reverseCW;
+        if ((bool) cache->rs.isFrontFaceCCW != isFrontFaceCCW) {
             GL_CHECK(glFrontFace(isFrontFaceCCW ? GL_CCW : GL_CW));
             cache->rs.isFrontFaceCCW = isFrontFaceCCW;
         }
@@ -1622,7 +1625,7 @@ void GLES2CmdFuncBindState(GLES2Device *device, GLES2GPUPipelineState *gpuPipeli
             cache->dss.depthWrite = gpuPipelineState->dss.depthWrite;
         }
         if (cache->dss.depthFunc != gpuPipelineState->dss.depthFunc) {
-            GL_CHECK(glDepthFunc(GLES2_CMP_FUNCS[(int)gpuPipelineState->dss.depthFunc]));
+            GL_CHECK(glDepthFunc(GLES2_CMP_FUNCS[(int) gpuPipelineState->dss.depthFunc]));
             cache->dss.depthFunc = gpuPipelineState->dss.depthFunc;
         }
 
@@ -1641,10 +1644,10 @@ void GLES2CmdFuncBindState(GLES2Device *device, GLES2GPUPipelineState *gpuPipeli
         if (cache->dss.stencilFuncFront != gpuPipelineState->dss.stencilFuncFront ||
             cache->dss.stencilRefFront != gpuPipelineState->dss.stencilRefFront ||
             cache->dss.stencilReadMaskFront != gpuPipelineState->dss.stencilReadMaskFront) {
-            glStencilFuncSeparate(GL_FRONT,
-                                    GLES2_CMP_FUNCS[(int)gpuPipelineState->dss.stencilFuncFront],
-                                    gpuPipelineState->dss.stencilRefFront,
-                                    gpuPipelineState->dss.stencilReadMaskFront);
+            GL_CHECK(glStencilFuncSeparate(GL_FRONT,
+                                  GLES2_CMP_FUNCS[(int) gpuPipelineState->dss.stencilFuncFront],
+                                  gpuPipelineState->dss.stencilRefFront,
+                                  gpuPipelineState->dss.stencilReadMaskFront));
             cache->dss.stencilFuncFront = gpuPipelineState->dss.stencilFuncFront;
             cache->dss.stencilRefFront = gpuPipelineState->dss.stencilRefFront;
             cache->dss.stencilReadMaskFront = gpuPipelineState->dss.stencilReadMaskFront;
@@ -1652,10 +1655,10 @@ void GLES2CmdFuncBindState(GLES2Device *device, GLES2GPUPipelineState *gpuPipeli
         if (cache->dss.stencilFailOpFront != gpuPipelineState->dss.stencilFailOpFront ||
             cache->dss.stencilZFailOpFront != gpuPipelineState->dss.stencilZFailOpFront ||
             cache->dss.stencilPassOpFront != gpuPipelineState->dss.stencilPassOpFront) {
-            glStencilOpSeparate(GL_FRONT,
-                                GLES2_STENCIL_OPS[(int)gpuPipelineState->dss.stencilFailOpFront],
-                                GLES2_STENCIL_OPS[(int)gpuPipelineState->dss.stencilZFailOpFront],
-                                GLES2_STENCIL_OPS[(int)gpuPipelineState->dss.stencilPassOpFront]);
+            GL_CHECK(glStencilOpSeparate(GL_FRONT,
+                                GLES2_STENCIL_OPS[(int) gpuPipelineState->dss.stencilFailOpFront],
+                                GLES2_STENCIL_OPS[(int) gpuPipelineState->dss.stencilZFailOpFront],
+                                GLES2_STENCIL_OPS[(int) gpuPipelineState->dss.stencilPassOpFront]));
             cache->dss.stencilFailOpFront = gpuPipelineState->dss.stencilFailOpFront;
             cache->dss.stencilZFailOpFront = gpuPipelineState->dss.stencilZFailOpFront;
             cache->dss.stencilPassOpFront = gpuPipelineState->dss.stencilPassOpFront;
@@ -1669,10 +1672,10 @@ void GLES2CmdFuncBindState(GLES2Device *device, GLES2GPUPipelineState *gpuPipeli
         if (cache->dss.stencilFuncBack != gpuPipelineState->dss.stencilFuncBack ||
             cache->dss.stencilRefBack != gpuPipelineState->dss.stencilRefBack ||
             cache->dss.stencilReadMaskBack != gpuPipelineState->dss.stencilReadMaskBack) {
-            glStencilFuncSeparate(GL_BACK,
-                                    GLES2_CMP_FUNCS[(int)gpuPipelineState->dss.stencilFuncBack],
-                                    gpuPipelineState->dss.stencilRefBack,
-                                    gpuPipelineState->dss.stencilReadMaskBack);
+            GL_CHECK(glStencilFuncSeparate(GL_BACK,
+                                  GLES2_CMP_FUNCS[(int) gpuPipelineState->dss.stencilFuncBack],
+                                  gpuPipelineState->dss.stencilRefBack,
+                                  gpuPipelineState->dss.stencilReadMaskBack));
             cache->dss.stencilFuncBack = gpuPipelineState->dss.stencilFuncBack;
             cache->dss.stencilRefBack = gpuPipelineState->dss.stencilRefBack;
             cache->dss.stencilReadMaskBack = gpuPipelineState->dss.stencilReadMaskBack;
@@ -1680,10 +1683,10 @@ void GLES2CmdFuncBindState(GLES2Device *device, GLES2GPUPipelineState *gpuPipeli
         if (cache->dss.stencilFailOpBack != gpuPipelineState->dss.stencilFailOpBack ||
             cache->dss.stencilZFailOpBack != gpuPipelineState->dss.stencilZFailOpBack ||
             cache->dss.stencilPassOpBack != gpuPipelineState->dss.stencilPassOpBack) {
-            glStencilOpSeparate(GL_BACK,
-                                GLES2_STENCIL_OPS[(int)gpuPipelineState->dss.stencilFailOpBack],
-                                GLES2_STENCIL_OPS[(int)gpuPipelineState->dss.stencilZFailOpBack],
-                                GLES2_STENCIL_OPS[(int)gpuPipelineState->dss.stencilPassOpBack]);
+            GL_CHECK(glStencilOpSeparate(GL_BACK,
+                                GLES2_STENCIL_OPS[(int) gpuPipelineState->dss.stencilFailOpBack],
+                                GLES2_STENCIL_OPS[(int) gpuPipelineState->dss.stencilZFailOpBack],
+                                GLES2_STENCIL_OPS[(int) gpuPipelineState->dss.stencilPassOpBack]));
             cache->dss.stencilFailOpBack = gpuPipelineState->dss.stencilFailOpBack;
             cache->dss.stencilZFailOpBack = gpuPipelineState->dss.stencilZFailOpBack;
             cache->dss.stencilPassOpBack = gpuPipelineState->dss.stencilPassOpBack;
@@ -1707,10 +1710,10 @@ void GLES2CmdFuncBindState(GLES2Device *device, GLES2GPUPipelineState *gpuPipeli
             cache->bs.blendColor.z != gpuPipelineState->bs.blendColor.z ||
             cache->bs.blendColor.w != gpuPipelineState->bs.blendColor.w) {
 
-            glBlendColor(gpuPipelineState->bs.blendColor.x,
-                            gpuPipelineState->bs.blendColor.y,
-                            gpuPipelineState->bs.blendColor.z,
-                            gpuPipelineState->bs.blendColor.w);
+            GL_CHECK(glBlendColor(gpuPipelineState->bs.blendColor.x,
+                         gpuPipelineState->bs.blendColor.y,
+                         gpuPipelineState->bs.blendColor.z,
+                         gpuPipelineState->bs.blendColor.w));
             cache->bs.blendColor = gpuPipelineState->bs.blendColor;
         }
 
@@ -1726,8 +1729,8 @@ void GLES2CmdFuncBindState(GLES2Device *device, GLES2GPUPipelineState *gpuPipeli
         }
         if (cacheTarget.blendEq != target.blendEq ||
             cacheTarget.blendAlphaEq != target.blendAlphaEq) {
-            GL_CHECK(glBlendEquationSeparate(GLES2_BLEND_OPS[(int)target.blendEq],
-                                    GLES2_BLEND_OPS[(int)target.blendAlphaEq]));
+            GL_CHECK(glBlendEquationSeparate(GLES2_BLEND_OPS[(int) target.blendEq],
+                                             GLES2_BLEND_OPS[(int) target.blendAlphaEq]));
             cacheTarget.blendEq = target.blendEq;
             cacheTarget.blendAlphaEq = target.blendAlphaEq;
         }
@@ -1735,20 +1738,20 @@ void GLES2CmdFuncBindState(GLES2Device *device, GLES2GPUPipelineState *gpuPipeli
             cacheTarget.blendDst != target.blendDst ||
             cacheTarget.blendSrcAlpha != target.blendSrcAlpha ||
             cacheTarget.blendDstAlpha != target.blendDstAlpha) {
-            GL_CHECK(glBlendFuncSeparate(GLES2_BLEND_FACTORS[(int)target.blendSrc],
-                                GLES2_BLEND_FACTORS[(int)target.blendDst],
-                                GLES2_BLEND_FACTORS[(int)target.blendSrcAlpha],
-                                GLES2_BLEND_FACTORS[(int)target.blendDstAlpha]));
+            GL_CHECK(glBlendFuncSeparate(GLES2_BLEND_FACTORS[(int) target.blendSrc],
+                                         GLES2_BLEND_FACTORS[(int) target.blendDst],
+                                         GLES2_BLEND_FACTORS[(int) target.blendSrcAlpha],
+                                         GLES2_BLEND_FACTORS[(int) target.blendDstAlpha]));
             cacheTarget.blendSrc = target.blendSrc;
             cacheTarget.blendDst = target.blendDst;
             cacheTarget.blendSrcAlpha = target.blendSrcAlpha;
             cacheTarget.blendDstAlpha = target.blendDstAlpha;
         }
         if (cacheTarget.blendColorMask != target.blendColorMask) {
-            GL_CHECK(glColorMask((GLboolean)(target.blendColorMask & ColorMask::R),
-                        (GLboolean)(target.blendColorMask & ColorMask::G),
-                        (GLboolean)(target.blendColorMask & ColorMask::B),
-                        (GLboolean)(target.blendColorMask & ColorMask::A)));
+            GL_CHECK(glColorMask((GLboolean) (target.blendColorMask & ColorMask::R),
+                                 (GLboolean) (target.blendColorMask & ColorMask::G),
+                                 (GLboolean) (target.blendColorMask & ColorMask::B),
+                                 (GLboolean) (target.blendColorMask & ColorMask::A)));
             cacheTarget.blendColorMask = target.blendColorMask;
         }
     } // if
@@ -1770,7 +1773,7 @@ void GLES2CmdFuncBindState(GLES2Device *device, GLES2GPUPipelineState *gpuPipeli
 
             if (!gpuDescriptor.gpuBuffer && !gpuDescriptor.gpuBufferView) {
                 CC_LOG_ERROR("Buffer binding '%s' at set %d binding %d is not bounded",
-                                glBlock.name.c_str(), glBlock.set, glBlock.binding);
+                             glBlock.name.c_str(), glBlock.set, glBlock.binding);
                 continue;
             }
 
@@ -1778,12 +1781,13 @@ void GLES2CmdFuncBindState(GLES2Device *device, GLES2GPUPipelineState *gpuPipeli
             const vector<int> &dynamicOffsetIndexSet = dynamicOffsetIndices[glBlock.set];
             if (dynamicOffsetIndexSet.size() > glBlock.binding) {
                 int dynamicOffsetIndex = dynamicOffsetIndexSet[glBlock.binding];
-                if (dynamicOffsetIndex >= 0) offset = dynamicOffsets[glBlock.set][dynamicOffsetIndex];
+                if (dynamicOffsetIndex >= 0)
+                    offset = dynamicOffsets[glBlock.set][dynamicOffsetIndex];
             }
 
             if (gpuDescriptor.gpuBufferView) {
                 uniformBuffBase = gpuDescriptor.gpuBufferView->gpuBuffer->buffer +
-                                    gpuDescriptor.gpuBufferView->offset + offset;
+                                  gpuDescriptor.gpuBufferView->offset + offset;
             } else if (gpuDescriptor.gpuBuffer) {
                 uniformBuffBase = gpuDescriptor.gpuBuffer->buffer + offset;
             }
@@ -1795,7 +1799,8 @@ void GLES2CmdFuncBindState(GLES2Device *device, GLES2GPUPipelineState *gpuPipeli
                     case GL_BOOL:
                     case GL_INT: {
                         if (memcmp(gpuUniform.buff, uniformBuff, gpuUniform.size) != 0) {
-                            GL_CHECK(glUniform1iv(gpuUniform.glLoc, gpuUniform.count, (const GLint *)uniformBuff));
+                            GL_CHECK(glUniform1iv(gpuUniform.glLoc, gpuUniform.count,
+                                                  (const GLint *) uniformBuff));
                             memcpy(gpuUniform.buff, uniformBuff, gpuUniform.size);
                         }
                         break;
@@ -1803,7 +1808,8 @@ void GLES2CmdFuncBindState(GLES2Device *device, GLES2GPUPipelineState *gpuPipeli
                     case GL_BOOL_VEC2:
                     case GL_INT_VEC2: {
                         if (memcmp(gpuUniform.buff, uniformBuff, gpuUniform.size) != 0) {
-                            GL_CHECK(glUniform2iv(gpuUniform.glLoc, gpuUniform.count, (const GLint *)uniformBuff));
+                            GL_CHECK(glUniform2iv(gpuUniform.glLoc, gpuUniform.count,
+                                                  (const GLint *) uniformBuff));
                             memcpy(gpuUniform.buff, uniformBuff, gpuUniform.size);
                         }
                         break;
@@ -1811,7 +1817,8 @@ void GLES2CmdFuncBindState(GLES2Device *device, GLES2GPUPipelineState *gpuPipeli
                     case GL_BOOL_VEC3:
                     case GL_INT_VEC3: {
                         if (memcmp(gpuUniform.buff, uniformBuff, gpuUniform.size) != 0) {
-                            GL_CHECK(glUniform3iv(gpuUniform.glLoc, gpuUniform.count, (const GLint *)uniformBuff));
+                            GL_CHECK(glUniform3iv(gpuUniform.glLoc, gpuUniform.count,
+                                                  (const GLint *) uniformBuff));
                             memcpy(gpuUniform.buff, uniformBuff, gpuUniform.size);
                         }
                         break;
@@ -1819,56 +1826,64 @@ void GLES2CmdFuncBindState(GLES2Device *device, GLES2GPUPipelineState *gpuPipeli
                     case GL_BOOL_VEC4:
                     case GL_INT_VEC4: {
                         if (memcmp(gpuUniform.buff, uniformBuff, gpuUniform.size) != 0) {
-                            GL_CHECK(glUniform4iv(gpuUniform.glLoc, gpuUniform.count, (const GLint *)uniformBuff));
+                            GL_CHECK(glUniform4iv(gpuUniform.glLoc, gpuUniform.count,
+                                                  (const GLint *) uniformBuff));
                             memcpy(gpuUniform.buff, uniformBuff, gpuUniform.size);
                         }
                         break;
                     }
                     case GL_FLOAT: {
                         if (memcmp(gpuUniform.buff, uniformBuff, gpuUniform.size) != 0) {
-                            GL_CHECK(glUniform1fv(gpuUniform.glLoc, gpuUniform.count, (const GLfloat *)uniformBuff));
+                            GL_CHECK(glUniform1fv(gpuUniform.glLoc, gpuUniform.count,
+                                                  (const GLfloat *) uniformBuff));
                             memcpy(gpuUniform.buff, uniformBuff, gpuUniform.size);
                         }
                         break;
                     }
                     case GL_FLOAT_VEC2: {
                         if (memcmp(gpuUniform.buff, uniformBuff, gpuUniform.size) != 0) {
-                            GL_CHECK(glUniform2fv(gpuUniform.glLoc, gpuUniform.count, (const GLfloat *)uniformBuff));
+                            GL_CHECK(glUniform2fv(gpuUniform.glLoc, gpuUniform.count,
+                                                  (const GLfloat *) uniformBuff));
                             memcpy(gpuUniform.buff, uniformBuff, gpuUniform.size);
                         }
                         break;
                     }
                     case GL_FLOAT_VEC3: {
                         if (memcmp(gpuUniform.buff, uniformBuff, gpuUniform.size) != 0) {
-                            GL_CHECK(glUniform3fv(gpuUniform.glLoc, gpuUniform.count, (const GLfloat *)uniformBuff));
+                            GL_CHECK(glUniform3fv(gpuUniform.glLoc, gpuUniform.count,
+                                                  (const GLfloat *) uniformBuff));
                             memcpy(gpuUniform.buff, uniformBuff, gpuUniform.size);
                         }
                         break;
                     }
                     case GL_FLOAT_VEC4: {
                         if (memcmp(gpuUniform.buff, uniformBuff, gpuUniform.size) != 0) {
-                            GL_CHECK(glUniform4fv(gpuUniform.glLoc, gpuUniform.count, (const GLfloat *)uniformBuff));
+                            GL_CHECK(glUniform4fv(gpuUniform.glLoc, gpuUniform.count,
+                                                  (const GLfloat *) uniformBuff));
                             memcpy(gpuUniform.buff, uniformBuff, gpuUniform.size);
                         }
                         break;
                     }
                     case GL_FLOAT_MAT2: {
                         if (memcmp(gpuUniform.buff, uniformBuff, gpuUniform.size) != 0) {
-                            GL_CHECK(glUniformMatrix2fv(gpuUniform.glLoc, gpuUniform.count, GL_FALSE, (const GLfloat *)uniformBuff));
+                            GL_CHECK(glUniformMatrix2fv(gpuUniform.glLoc, gpuUniform.count, GL_FALSE,
+                                                        (const GLfloat *) uniformBuff));
                             memcpy(gpuUniform.buff, uniformBuff, gpuUniform.size);
                         }
                         break;
                     }
                     case GL_FLOAT_MAT3: {
                         if (memcmp(gpuUniform.buff, uniformBuff, gpuUniform.size) != 0) {
-                            GL_CHECK(glUniformMatrix3fv(gpuUniform.glLoc, gpuUniform.count, GL_FALSE, (const GLfloat *)uniformBuff));
+                            GL_CHECK(glUniformMatrix3fv(gpuUniform.glLoc, gpuUniform.count, GL_FALSE,
+                                                        (const GLfloat *) uniformBuff));
                             memcpy(gpuUniform.buff, uniformBuff, gpuUniform.size);
                         }
                         break;
                     }
                     case GL_FLOAT_MAT4: {
                         if (memcmp(gpuUniform.buff, uniformBuff, gpuUniform.size) != 0) {
-                            GL_CHECK(glUniformMatrix4fv(gpuUniform.glLoc, gpuUniform.count, GL_FALSE, (const GLfloat *)uniformBuff));
+                            GL_CHECK(glUniformMatrix4fv(gpuUniform.glLoc, gpuUniform.count, GL_FALSE,
+                                                        (const GLfloat *) uniformBuff));
                             memcpy(gpuUniform.buff, uniformBuff, gpuUniform.size);
                         }
                         break;
@@ -1889,11 +1904,12 @@ void GLES2CmdFuncBindState(GLES2Device *device, GLES2GPUPipelineState *gpuPipeli
             const GLES2GPUDescriptor *gpuDescriptor = &gpuDescriptorSet->gpuDescriptors[descriptorIndex];
 
             for (size_t u = 0; u < glSampler.units.size(); u++, gpuDescriptor++) {
-                uint unit = (uint)glSampler.units[u];
+                uint unit = (uint) glSampler.units[u];
 
                 if (!gpuDescriptor->gpuTexture || !gpuDescriptor->gpuSampler) {
-                    CC_LOG_ERROR("Sampler binding '%s' at set %d binding %d index %d is not bounded",
-                                    glSampler.name.c_str(), glSampler.set, glSampler.binding, u);
+                    CC_LOG_ERROR(
+                            "Sampler binding '%s' at set %d binding %d index %d is not bounded",
+                            glSampler.name.c_str(), glSampler.set, glSampler.binding, u);
                     continue;
                 }
 
@@ -1915,7 +1931,7 @@ void GLES2CmdFuncBindState(GLES2Device *device, GLES2GPUPipelineState *gpuPipeli
                     if (gpuDescriptor->gpuTexture->mipLevel <= 1 &&
                         !(gpuDescriptor->gpuTexture->flags & TextureFlagBit::GEN_MIPMAP) &&
                         (gpuDescriptor->gpuSampler->glMinFilter == GL_LINEAR_MIPMAP_NEAREST ||
-                            gpuDescriptor->gpuSampler->glMinFilter == GL_LINEAR_MIPMAP_LINEAR)) {
+                         gpuDescriptor->gpuSampler->glMinFilter == GL_LINEAR_MIPMAP_LINEAR)) {
                         glMinFilter = GL_LINEAR;
                     } else {
                         glMinFilter = gpuDescriptor->gpuSampler->glMinFilter;
@@ -1924,285 +1940,336 @@ void GLES2CmdFuncBindState(GLES2Device *device, GLES2GPUPipelineState *gpuPipeli
                     glWrapS = GL_CLAMP_TO_EDGE;
                     glWrapT = GL_CLAMP_TO_EDGE;
 
-                    BlendTarget &cacheTarget = cache->bs.targets[0];
-                    const BlendTarget &target = gpuPipelineState->bs.targets[0];
-                    if (cacheTarget.blend != target.blend) {
-                        if (!cacheTarget.blend) {
-                            glEnable(GL_BLEND);
-                        } else {
-                            glDisable(GL_BLEND);
+                    if (gpuDescriptor->gpuSampler->glMinFilter == GL_LINEAR ||
+                        gpuDescriptor->gpuSampler->glMinFilter == GL_LINEAR_MIPMAP_NEAREST ||
+                        gpuDescriptor->gpuSampler->glMinFilter == GL_LINEAR_MIPMAP_LINEAR) {
+                        glMinFilter = GL_LINEAR;
+                    } else {
+                        glMinFilter = GL_NEAREST;
+                    }
+                }
+
+                // bind blend state
+                if (cache->bs.isA2C != gpuPipelineState->bs.isA2C) {
+                    if (cache->bs.isA2C) {
+                        GL_CHECK(glEnable(GL_SAMPLE_ALPHA_TO_COVERAGE));
+                    } else {
+                        GL_CHECK(glDisable(GL_SAMPLE_ALPHA_TO_COVERAGE));
+                    }
+                    cache->bs.isA2C = gpuPipelineState->bs.isA2C;
+                    if (gpuTexture->glWrapS != glWrapS) {
+                        if (cache->texUint != unit) {
+                            GL_CHECK(glActiveTexture(GL_TEXTURE0 + unit));
+                            cache->texUint = unit;
                         }
-                        cacheTarget.blend = target.blend;
-                    }
-                    if (cacheTarget.blendEq != target.blendEq ||
-                        cacheTarget.blendAlphaEq != target.blendAlphaEq) {
-                        glBlendEquationSeparate(GLES2_BLEND_OPS[(int)target.blendEq],
-                                                GLES2_BLEND_OPS[(int)target.blendAlphaEq]);
-                        cacheTarget.blendEq = target.blendEq;
-                        cacheTarget.blendAlphaEq = target.blendAlphaEq;
-                    }
-                    if (cacheTarget.blendSrc != target.blendSrc ||
-                        cacheTarget.blendDst != target.blendDst ||
-                        cacheTarget.blendSrcAlpha != target.blendSrcAlpha ||
-                        cacheTarget.blendDstAlpha != target.blendDstAlpha) {
-                        glBlendFuncSeparate(GLES2_BLEND_FACTORS[(int)target.blendSrc],
-                                            GLES2_BLEND_FACTORS[(int)target.blendDst],
-                                            GLES2_BLEND_FACTORS[(int)target.blendSrcAlpha],
-                                            GLES2_BLEND_FACTORS[(int)target.blendDstAlpha]);
-                        cacheTarget.blendSrc = target.blendSrc;
-                        cacheTarget.blendDst = target.blendDst;
-                        cacheTarget.blendSrcAlpha = target.blendSrcAlpha;
-                        cacheTarget.blendDstAlpha = target.blendDstAlpha;
-                    }
-                    if (cacheTarget.blendColorMask != target.blendColorMask) {
-                        glColorMask((GLboolean)(target.blendColorMask & ColorMask::R),
-                                    (GLboolean)(target.blendColorMask & ColorMask::G),
-                                    (GLboolean)(target.blendColorMask & ColorMask::B),
-                                    (GLboolean)(target.blendColorMask & ColorMask::A));
-                        cacheTarget.blendColorMask = target.blendColorMask;
-                    }
-                    GL_CHECK(glTexParameteri(gpuTexture->glTarget, GL_TEXTURE_MIN_FILTER, glMinFilter));
-                    gpuTexture->glMinFilter = glMinFilter;
-                }
-
-                if (gpuTexture->glMagFilter != gpuDescriptor->gpuSampler->glMagFilter) {
-                    if (cache->texUint != unit) {
-                        GL_CHECK(glActiveTexture(GL_TEXTURE0 + unit));
-                        cache->texUint = unit;
-                    }
-                    GL_CHECK(glTexParameteri(gpuTexture->glTarget, GL_TEXTURE_MAG_FILTER, gpuDescriptor->gpuSampler->glMagFilter));
-                    gpuTexture->glMagFilter = gpuDescriptor->gpuSampler->glMagFilter;
-                }
-            }
-        }
-    } // if
-
-    // bind vao
-    if (gpuInputAssembler && gpuPipelineState->gpuShader &&
-        (isShaderChanged || gpuInputAssembler != gfxStateCache.gpuInputAssembler)) {
-        gfxStateCache.gpuInputAssembler = gpuInputAssembler;
-        if (device->useVAO()) {
-            GLuint hash = gpuPipelineState->gpuShader->glProgram ^ device->getThreadID();
-            GLuint glVAO = gpuInputAssembler->glVAOs[hash];
-            if (!glVAO) {
-                GL_CHECK(glGenVertexArraysOES(1, &glVAO));
-                gpuInputAssembler->glVAOs[hash] = glVAO;
-                GL_CHECK(glBindVertexArrayOES(glVAO));
-                GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, 0));
-                GL_CHECK(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
-
-                for (size_t j = 0; j < gpuPipelineState->gpuShader->glInputs.size(); ++j) {
-                    const GLES2GPUInput &gpuInput = gpuPipelineState->gpuShader->glInputs[j];
-                    for (size_t a = 0; a < gpuInputAssembler->attributes.size(); ++a) {
-                        const GLES2GPUAttribute &gpuAttribute = gpuInputAssembler->glAttribs[a];
-                        if (gpuAttribute.name == gpuInput.name) {
-                            GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, gpuAttribute.glBuffer));
-
-                            for (uint c = 0; c < gpuAttribute.componentCount; ++c) {
-                                GLint glLoc = gpuInput.glLoc + c;
-                                uint attribOffset = gpuAttribute.offset + gpuAttribute.size * c;
-                                GL_CHECK(glEnableVertexAttribArray(glLoc));
-
-                                cache->glEnabledAttribLocs[glLoc] = true;
-                                GL_CHECK(glVertexAttribPointer(glLoc, gpuAttribute.count, gpuAttribute.glType, gpuAttribute.isNormalized, gpuAttribute.stride, BUFFER_OFFSET(attribOffset)));
-
-                                if (device->useInstancedArrays()) {
-                                    GL_CHECK(glVertexAttribDivisorEXT(glLoc, gpuAttribute.isInstanced ? 1 : 0));
-                                }
-                            }
-                            break;
-                        }
-                    } // for
-                } // for
-
-                if (gpuInputAssembler->gpuIndexBuffer) {
-                    GL_CHECK(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gpuInputAssembler->gpuIndexBuffer->glBuffer));
-                }
-
-                GL_CHECK(glBindVertexArrayOES(0));
-                GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, 0));
-                GL_CHECK(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
-                cache->glVAO = 0;
-                cache->glArrayBuffer = 0;
-                cache->glElementArrayBuffer = 0;
-            }
-
-            if (cache->glVAO != glVAO) {
-                GL_CHECK(glBindVertexArrayOES(glVAO));
-                cache->glVAO = glVAO;
-            }
-        } else {
-            for (uint a = 0; a < cache->glCurrentAttribLocs.size(); ++a) {
-                cache->glCurrentAttribLocs[a] = false;
-            }
-
-            for (size_t j = 0; j < gpuPipelineState->gpuShader->glInputs.size(); ++j) {
-                const GLES2GPUInput &gpuInput = gpuPipelineState->gpuShader->glInputs[j];
-                for (size_t a = 0; a < gpuInputAssembler->attributes.size(); ++a) {
-                    const GLES2GPUAttribute &gpuAttribute = gpuInputAssembler->glAttribs[a];
-                    if (gpuAttribute.name == gpuInput.name) {
-                        if (cache->glArrayBuffer != gpuAttribute.glBuffer) {
-                            GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, gpuAttribute.glBuffer));
-                            cache->glArrayBuffer = gpuAttribute.glBuffer;
+                        if (cache->bs.blendColor.x != gpuPipelineState->bs.blendColor.x ||
+                            cache->bs.blendColor.y != gpuPipelineState->bs.blendColor.y ||
+                            cache->bs.blendColor.z != gpuPipelineState->bs.blendColor.z ||
+                            cache->bs.blendColor.w != gpuPipelineState->bs.blendColor.w) {
+                            GL_CHECK(glTexParameteri(gpuTexture->glTarget, GL_TEXTURE_WRAP_S,
+                                                     glWrapS));
+                            gpuTexture->glWrapS = glWrapS;
                         }
 
-                        for (uint c = 0; c < gpuAttribute.componentCount; ++c) {
-                            GLint glLoc = gpuInput.glLoc + c;
-                            uint attribOffset = gpuAttribute.offset + gpuAttribute.size * c;
-                            GL_CHECK(glEnableVertexAttribArray(glLoc));
-                            cache->glEnabledAttribLocs[glLoc] = true;
-                            cache->glCurrentAttribLocs[glLoc] = true;
-                            GL_CHECK(glVertexAttribPointer(glLoc, gpuAttribute.count, gpuAttribute.glType, gpuAttribute.isNormalized, gpuAttribute.stride, BUFFER_OFFSET(attribOffset)));
-
-                            if (device->useInstancedArrays()) {
-                                GL_CHECK(glVertexAttribDivisorEXT(glLoc, gpuAttribute.isInstanced ? 1 : 0));
-                            }
-                        }
-                        break;
-                    }
-                } // for
-            }     // for
-
-            if (gpuInputAssembler->gpuIndexBuffer) {
-                if (cache->glElementArrayBuffer != gpuInputAssembler->gpuIndexBuffer->glBuffer) {
-                    GL_CHECK(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gpuInputAssembler->gpuIndexBuffer->glBuffer));
-                    cache->glElementArrayBuffer = gpuInputAssembler->gpuIndexBuffer->glBuffer;
-                }
-            }
-
-            for (uint a = 0; a < cache->glCurrentAttribLocs.size(); ++a) {
-                if (cache->glEnabledAttribLocs[a] != cache->glCurrentAttribLocs[a]) {
-                    GL_CHECK(glDisableVertexAttribArray(a));
-                    cache->glEnabledAttribLocs[a] = false;
-                }
-            }
-        } // if
-    }
-
-    if (gpuPipelineState && !gpuPipelineState->dynamicStates.empty()) {
-        for (DynamicStateFlagBit dynamicState : gpuPipelineState->dynamicStates) {
-            switch (dynamicState) {
-                case DynamicStateFlagBit::VIEWPORT:
-                    if (cache->viewport != viewport) {
-                        cache->viewport = viewport;
-                        GL_CHECK(glViewport(viewport.left, viewport.top, viewport.width, viewport.height));
-                    }
-                    break;
-                case DynamicStateFlagBit::SCISSOR:
-                    if (cache->scissor != scissor) {
-                        cache->scissor = scissor;
-                        GL_CHECK(glScissor(scissor.x, scissor.y, scissor.width, scissor.height));
-                    }
-                    break;
-                case DynamicStateFlagBit::LINE_WIDTH:
-                    if (cache->rs.lineWidth != lineWidth) {
-                        cache->rs.lineWidth = lineWidth;
-                        GL_CHECK(glLineWidth(lineWidth));
-                    }
-                    break;
-                case DynamicStateFlagBit::DEPTH_BIAS:
-                    if ((bool)cache->rs.depthBiasEnabled != depthBiasEnabled) {
-                        if (depthBiasEnabled)
-                            GL_CHECK(glEnable(GL_POLYGON_OFFSET_FILL));
-                        else
-                            GL_CHECK(glDisable(GL_POLYGON_OFFSET_FILL));
-
-                        cache->rs.depthBiasEnabled = depthBiasEnabled;
-                    }
-                    if ((cache->rs.depthBias != depthBias.constant) ||
-                        (cache->rs.depthBiasSlop != depthBias.slope)) {
-                        GL_CHECK(glPolygonOffset(depthBias.constant, depthBias.slope));
-                        cache->rs.depthBias = depthBias.constant;
-                        cache->rs.depthBiasSlop = depthBias.slope;
-                    }
-                    break;
-                case DynamicStateFlagBit::BLEND_CONSTANTS:
-                    if ((cache->bs.blendColor.x != gpuPipelineState->bs.blendColor.x) ||
-                        (cache->bs.blendColor.y != gpuPipelineState->bs.blendColor.y) ||
-                        (cache->bs.blendColor.z != gpuPipelineState->bs.blendColor.z) ||
-                        (cache->bs.blendColor.w != gpuPipelineState->bs.blendColor.w)) {
-                        glBlendColor(gpuPipelineState->bs.blendColor.x,
-                                        gpuPipelineState->bs.blendColor.y,
-                                        gpuPipelineState->bs.blendColor.z,
-                                        gpuPipelineState->bs.blendColor.w);
+                        GL_CHECK(glBlendColor(gpuPipelineState->bs.blendColor.x,
+                                     gpuPipelineState->bs.blendColor.y,
+                                     gpuPipelineState->bs.blendColor.z,
+                                     gpuPipelineState->bs.blendColor.w));
                         cache->bs.blendColor = gpuPipelineState->bs.blendColor;
+                        if (gpuTexture->glWrapT != glWrapT) {
+                            if (cache->texUint != unit) {
+                                GL_CHECK(glActiveTexture(GL_TEXTURE0 + unit));
+                                cache->texUint = unit;
+                            }
+                            GL_CHECK(glTexParameteri(gpuTexture->glTarget, GL_TEXTURE_WRAP_T,
+                                                     glWrapT));
+                            gpuTexture->glWrapT = glWrapT;
+                        }
+
+                        if (gpuTexture->glMinFilter != glMinFilter) {
+                            if (cache->texUint != unit) {
+                                GL_CHECK(glActiveTexture(GL_TEXTURE0 + unit));
+                                cache->texUint = unit;
+                            }
+                            GL_CHECK(glTexParameteri(gpuTexture->glTarget, GL_TEXTURE_MIN_FILTER,
+                                                     glMinFilter));
+                            gpuTexture->glMinFilter = glMinFilter;
+                        }
+
+                        if (gpuTexture->glMagFilter != gpuDescriptor->gpuSampler->glMagFilter) {
+                            if (cache->texUint != unit) {
+                                GL_CHECK(glActiveTexture(GL_TEXTURE0 + unit));
+                                cache->texUint = unit;
+                            }
+                            GL_CHECK(glTexParameteri(gpuTexture->glTarget, GL_TEXTURE_MAG_FILTER,
+                                                     gpuDescriptor->gpuSampler->glMagFilter));
+                            gpuTexture->glMagFilter = gpuDescriptor->gpuSampler->glMagFilter;
+                        }
                     }
-                    break;
-                case DynamicStateFlagBit::STENCIL_WRITE_MASK:
-                    switch (stencilWriteMask.face) {
-                        case StencilFace::FRONT:
-                            if (cache->dss.stencilWriteMaskFront != stencilWriteMask.writeMask) {
-                                GL_CHECK(glStencilMaskSeparate(GL_FRONT, stencilWriteMask.writeMask));
-                                cache->dss.stencilWriteMaskFront = stencilWriteMask.writeMask;
-                            }
-                            break;
-                        case StencilFace::BACK:
-                            if (cache->dss.stencilWriteMaskBack != stencilWriteMask.writeMask) {
-                                GL_CHECK(glStencilMaskSeparate(GL_BACK, stencilWriteMask.writeMask));
-                                cache->dss.stencilWriteMaskBack = stencilWriteMask.writeMask;
-                            }
-                            break;
-                        case StencilFace::ALL:
-                            if ((cache->dss.stencilWriteMaskFront != stencilWriteMask.writeMask) ||
-                                (cache->dss.stencilWriteMaskBack != stencilWriteMask.writeMask)) {
-                                GL_CHECK(glStencilMask(stencilWriteMask.writeMask));
-                                cache->dss.stencilWriteMaskFront = stencilWriteMask.writeMask;
-                                cache->dss.stencilWriteMaskBack = stencilWriteMask.writeMask;
-                            }
-                            break;
+                }
+            } // if
+
+            // bind vao
+            if (gpuInputAssembler && gpuPipelineState->gpuShader &&
+                (isShaderChanged || gpuInputAssembler != gfxStateCache.gpuInputAssembler)) {
+                gfxStateCache.gpuInputAssembler = gpuInputAssembler;
+                if (device->useVAO()) {
+                    GLuint hash = gpuPipelineState->gpuShader->glProgram ^device->getThreadID();
+                    GLuint glVAO = gpuInputAssembler->glVAOs[hash];
+                    if (!glVAO) {
+                        GL_CHECK(glGenVertexArraysOES(1, &glVAO));
+                        gpuInputAssembler->glVAOs[hash] = glVAO;
+                        GL_CHECK(glBindVertexArrayOES(glVAO));
+                        GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, 0));
+                        GL_CHECK(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
+
+                        for (size_t j = 0; j < gpuPipelineState->gpuShader->glInputs.size(); ++j) {
+                            const GLES2GPUInput &gpuInput = gpuPipelineState->gpuShader->glInputs[j];
+                            for (size_t a = 0; a < gpuInputAssembler->attributes.size(); ++a) {
+                                const GLES2GPUAttribute &gpuAttribute = gpuInputAssembler->glAttribs[a];
+                                if (gpuAttribute.name == gpuInput.name) {
+                                    GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, gpuAttribute.glBuffer));
+
+                                    for (uint c = 0; c < gpuAttribute.componentCount; ++c) {
+                                        GLint glLoc = gpuInput.glLoc + c;
+                                        uint attribOffset =
+                                                gpuAttribute.offset + gpuAttribute.size * c;
+                                        GL_CHECK(glEnableVertexAttribArray(glLoc));
+
+                                        cache->glEnabledAttribLocs[glLoc] = true;
+                                        GL_CHECK(glVertexAttribPointer(glLoc, gpuAttribute.count,
+                                                                       gpuAttribute.glType,
+                                                                       gpuAttribute.isNormalized,
+                                                                       gpuAttribute.stride,
+                                                                       BUFFER_OFFSET(
+                                                                               attribOffset)));
+
+                                        if (device->useInstancedArrays()) {
+                                            GL_CHECK(glVertexAttribDivisorEXT(glLoc,
+                                                                              gpuAttribute.isInstanced
+                                                                              ? 1 : 0));
+                                        }
+                                    }
+                                    break;
+                                }
+                            } // for
+                        } // for
+
+                        if (gpuInputAssembler->gpuIndexBuffer) {
+                            GL_CHECK(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,
+                                                  gpuInputAssembler->gpuIndexBuffer->glBuffer));
+                        }
+
+                        GL_CHECK(glBindVertexArrayOES(0));
+                        GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, 0));
+                        GL_CHECK(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
+                        cache->glVAO = 0;
+                        cache->glArrayBuffer = 0;
+                        cache->glElementArrayBuffer = 0;
                     }
-                    break;
-                case DynamicStateFlagBit::STENCIL_COMPARE_MASK:
-                    switch (stencilCompareMask.face) {
-                        case StencilFace::FRONT:
-                            if ((cache->dss.stencilRefFront != (uint)stencilCompareMask.refrence) ||
-                                (cache->dss.stencilReadMaskFront != stencilCompareMask.compareMask)) {
-                                glStencilFuncSeparate(GL_FRONT,
-                                                        GLES2_CMP_FUNCS[(uint)cache->dss.stencilFuncFront],
-                                                        stencilCompareMask.refrence,
-                                                        stencilCompareMask.compareMask);
-                                cache->dss.stencilRefFront = stencilCompareMask.refrence;
-                                cache->dss.stencilReadMaskFront = stencilCompareMask.compareMask;
-                            }
-                            break;
-                        case StencilFace::BACK:
-                            if ((cache->dss.stencilRefBack != (uint)stencilCompareMask.refrence) ||
-                                (cache->dss.stencilReadMaskBack != stencilCompareMask.compareMask)) {
-                                glStencilFuncSeparate(GL_BACK,
-                                                        GLES2_CMP_FUNCS[(uint)cache->dss.stencilFuncBack],
-                                                        stencilCompareMask.refrence,
-                                                        stencilCompareMask.compareMask);
-                                cache->dss.stencilRefBack = stencilCompareMask.refrence;
-                                cache->dss.stencilReadMaskBack = stencilCompareMask.compareMask;
-                            }
-                            break;
-                        case StencilFace::ALL:
-                            if ((cache->dss.stencilRefFront != (uint)stencilCompareMask.refrence) ||
-                                (cache->dss.stencilReadMaskFront != stencilCompareMask.compareMask) ||
-                                (cache->dss.stencilRefBack != (uint)stencilCompareMask.refrence) ||
-                                (cache->dss.stencilReadMaskBack != stencilCompareMask.compareMask)) {
-                                glStencilFuncSeparate(GL_FRONT,
-                                                        GLES2_CMP_FUNCS[(uint)cache->dss.stencilFuncFront],
-                                                        stencilCompareMask.refrence,
-                                                        stencilCompareMask.compareMask);
-                                glStencilFuncSeparate(GL_BACK,
-                                                        GLES2_CMP_FUNCS[(uint)cache->dss.stencilFuncBack],
-                                                        stencilCompareMask.refrence,
-                                                        stencilCompareMask.compareMask);
-                                cache->dss.stencilRefFront = stencilCompareMask.refrence;
-                                cache->dss.stencilReadMaskFront = stencilCompareMask.compareMask;
-                                cache->dss.stencilRefBack = stencilCompareMask.refrence;
-                                cache->dss.stencilReadMaskBack = stencilCompareMask.compareMask;
-                            }
-                            break;
+
+                    if (cache->glVAO != glVAO) {
+                        GL_CHECK(glBindVertexArrayOES(glVAO));
+                        cache->glVAO = glVAO;
                     }
-                    break;
-                default:
-                    CC_LOG_ERROR("Invalid dynamic states.");
-                    break;
-            } // switch
-        } // for
-    } // if
+                } else {
+                    for (uint a = 0; a < cache->glCurrentAttribLocs.size(); ++a) {
+                        cache->glCurrentAttribLocs[a] = false;
+                    }
+
+                    for (size_t j = 0; j < gpuPipelineState->gpuShader->glInputs.size(); ++j) {
+                        const GLES2GPUInput &gpuInput = gpuPipelineState->gpuShader->glInputs[j];
+                        for (size_t a = 0; a < gpuInputAssembler->attributes.size(); ++a) {
+                            const GLES2GPUAttribute &gpuAttribute = gpuInputAssembler->glAttribs[a];
+                            if (gpuAttribute.name == gpuInput.name) {
+                                if (cache->glArrayBuffer != gpuAttribute.glBuffer) {
+                                    GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, gpuAttribute.glBuffer));
+                                    cache->glArrayBuffer = gpuAttribute.glBuffer;
+                                }
+
+                                for (uint c = 0; c < gpuAttribute.componentCount; ++c) {
+                                    GLint glLoc = gpuInput.glLoc + c;
+                                    uint attribOffset = gpuAttribute.offset + gpuAttribute.size * c;
+                                    GL_CHECK(glEnableVertexAttribArray(glLoc));
+                                    cache->glEnabledAttribLocs[glLoc] = true;
+                                    cache->glCurrentAttribLocs[glLoc] = true;
+                                    GL_CHECK(glVertexAttribPointer(glLoc, gpuAttribute.count,
+                                                                   gpuAttribute.glType,
+                                                                   gpuAttribute.isNormalized,
+                                                                   gpuAttribute.stride,
+                                                                   BUFFER_OFFSET(attribOffset)));
+
+                                    if (device->useInstancedArrays()) {
+                                        GL_CHECK(glVertexAttribDivisorEXT(glLoc,
+                                                                          gpuAttribute.isInstanced
+                                                                          ? 1 : 0));
+                                    }
+                                }
+                                break;
+                            }
+                        } // for
+                    }     // for
+
+                    if (gpuInputAssembler->gpuIndexBuffer) {
+                        if (cache->glElementArrayBuffer !=
+                            gpuInputAssembler->gpuIndexBuffer->glBuffer) {
+                            GL_CHECK(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,
+                                                  gpuInputAssembler->gpuIndexBuffer->glBuffer));
+                            cache->glElementArrayBuffer = gpuInputAssembler->gpuIndexBuffer->glBuffer;
+                        }
+                    }
+
+                    for (uint a = 0; a < cache->glCurrentAttribLocs.size(); ++a) {
+                        if (cache->glEnabledAttribLocs[a] != cache->glCurrentAttribLocs[a]) {
+                            GL_CHECK(glDisableVertexAttribArray(a));
+                            cache->glEnabledAttribLocs[a] = false;
+                        }
+                    }
+                } // if
+            }
+
+            if (gpuPipelineState && !gpuPipelineState->dynamicStates.empty()) {
+                for (DynamicStateFlagBit dynamicState : gpuPipelineState->dynamicStates) {
+                    switch (dynamicState) {
+                        case DynamicStateFlagBit::VIEWPORT:
+                            if (cache->viewport != viewport) {
+                                cache->viewport = viewport;
+                                GL_CHECK(glViewport(viewport.left, viewport.top, viewport.width,
+                                                    viewport.height));
+                            }
+                            break;
+                        case DynamicStateFlagBit::SCISSOR:
+                            if (cache->scissor != scissor) {
+                                cache->scissor = scissor;
+                                GL_CHECK(glScissor(scissor.x, scissor.y, scissor.width,
+                                                   scissor.height));
+                            }
+                            break;
+                        case DynamicStateFlagBit::LINE_WIDTH:
+                            if (cache->rs.lineWidth != lineWidth) {
+                                cache->rs.lineWidth = lineWidth;
+                                GL_CHECK(glLineWidth(lineWidth));
+                            }
+                            break;
+                        case DynamicStateFlagBit::DEPTH_BIAS:
+                            if ((bool) cache->rs.depthBiasEnabled != depthBiasEnabled) {
+                                if (depthBiasEnabled)
+                                    GL_CHECK(glEnable(GL_POLYGON_OFFSET_FILL));
+                                else
+                                    GL_CHECK(glDisable(GL_POLYGON_OFFSET_FILL));
+
+                                cache->rs.depthBiasEnabled = depthBiasEnabled;
+                            }
+                            if ((cache->rs.depthBias != depthBias.constant) ||
+                                (cache->rs.depthBiasSlop != depthBias.slope)) {
+                                GL_CHECK(glPolygonOffset(depthBias.constant, depthBias.slope));
+                                cache->rs.depthBias = depthBias.constant;
+                                cache->rs.depthBiasSlop = depthBias.slope;
+                            }
+                            break;
+                        case DynamicStateFlagBit::BLEND_CONSTANTS:
+                            if ((cache->bs.blendColor.x != gpuPipelineState->bs.blendColor.x) ||
+                                (cache->bs.blendColor.y != gpuPipelineState->bs.blendColor.y) ||
+                                (cache->bs.blendColor.z != gpuPipelineState->bs.blendColor.z) ||
+                                (cache->bs.blendColor.w != gpuPipelineState->bs.blendColor.w)) {
+                                GL_CHECK(glBlendColor(gpuPipelineState->bs.blendColor.x,
+                                                      gpuPipelineState->bs.blendColor.y,
+                                                      gpuPipelineState->bs.blendColor.z,
+                                                      gpuPipelineState->bs.blendColor.w));
+                                cache->bs.blendColor = gpuPipelineState->bs.blendColor;
+                            }
+                            break;
+                        case DynamicStateFlagBit::STENCIL_WRITE_MASK:
+                            switch (stencilWriteMask.face) {
+                                case StencilFace::FRONT:
+                                    if (cache->dss.stencilWriteMaskFront !=
+                                        stencilWriteMask.writeMask) {
+                                        GL_CHECK(glStencilMaskSeparate(GL_FRONT,
+                                                                       stencilWriteMask.writeMask));
+                                        cache->dss.stencilWriteMaskFront = stencilWriteMask.writeMask;
+                                    }
+                                    break;
+                                case StencilFace::BACK:
+                                    if (cache->dss.stencilWriteMaskBack !=
+                                        stencilWriteMask.writeMask) {
+                                        GL_CHECK(glStencilMaskSeparate(GL_BACK,
+                                                                       stencilWriteMask.writeMask));
+                                        cache->dss.stencilWriteMaskBack = stencilWriteMask.writeMask;
+                                    }
+                                    break;
+                                case StencilFace::ALL:
+                                    if ((cache->dss.stencilWriteMaskFront !=
+                                         stencilWriteMask.writeMask) ||
+                                        (cache->dss.stencilWriteMaskBack !=
+                                         stencilWriteMask.writeMask)) {
+                                        GL_CHECK(glStencilMask(stencilWriteMask.writeMask));
+                                        cache->dss.stencilWriteMaskFront = stencilWriteMask.writeMask;
+                                        cache->dss.stencilWriteMaskBack = stencilWriteMask.writeMask;
+                                    }
+                                    break;
+                            }
+                            break;
+                        case DynamicStateFlagBit::STENCIL_COMPARE_MASK:
+                            switch (stencilCompareMask.face) {
+                                case StencilFace::FRONT:
+                                    if ((cache->dss.stencilRefFront !=
+                                         (uint) stencilCompareMask.refrence) ||
+                                        (cache->dss.stencilReadMaskFront !=
+                                         stencilCompareMask.compareMask)) {
+                                        GL_CHECK(glStencilFuncSeparate(GL_FRONT,
+                                                              GLES2_CMP_FUNCS[(uint) cache->dss.stencilFuncFront],
+                                                              stencilCompareMask.refrence,
+                                                              stencilCompareMask.compareMask));
+                                        cache->dss.stencilRefFront = stencilCompareMask.refrence;
+                                        cache->dss.stencilReadMaskFront = stencilCompareMask.compareMask;
+                                    }
+                                    break;
+                                case StencilFace::BACK:
+                                    if ((cache->dss.stencilRefBack !=
+                                         (uint) stencilCompareMask.refrence) ||
+                                        (cache->dss.stencilReadMaskBack !=
+                                         stencilCompareMask.compareMask)) {
+                                        GL_CHECK(glStencilFuncSeparate(GL_BACK,
+                                                              GLES2_CMP_FUNCS[(uint) cache->dss.stencilFuncBack],
+                                                              stencilCompareMask.refrence,
+                                                              stencilCompareMask.compareMask));
+                                        cache->dss.stencilRefBack = stencilCompareMask.refrence;
+                                        cache->dss.stencilReadMaskBack = stencilCompareMask.compareMask;
+                                    }
+                                    break;
+                                case StencilFace::ALL:
+                                    if ((cache->dss.stencilRefFront !=
+                                         (uint) stencilCompareMask.refrence) ||
+                                        (cache->dss.stencilReadMaskFront !=
+                                         stencilCompareMask.compareMask) ||
+                                        (cache->dss.stencilRefBack !=
+                                         (uint) stencilCompareMask.refrence) ||
+                                        (cache->dss.stencilReadMaskBack !=
+                                         stencilCompareMask.compareMask)) {
+                                        GL_CHECK(glStencilFuncSeparate(GL_FRONT,
+                                                              GLES2_CMP_FUNCS[(uint) cache->dss.stencilFuncFront],
+                                                              stencilCompareMask.refrence,
+                                                              stencilCompareMask.compareMask));
+                                        GL_CHECK(glStencilFuncSeparate(GL_BACK,
+                                                              GLES2_CMP_FUNCS[(uint) cache->dss.stencilFuncBack],
+                                                              stencilCompareMask.refrence,
+                                                              stencilCompareMask.compareMask));
+                                        cache->dss.stencilRefFront = stencilCompareMask.refrence;
+                                        cache->dss.stencilReadMaskFront = stencilCompareMask.compareMask;
+                                        cache->dss.stencilRefBack = stencilCompareMask.refrence;
+                                        cache->dss.stencilReadMaskBack = stencilCompareMask.compareMask;
+                                    }
+                                    break;
+                            }
+                            break;
+                        default:
+                            CC_LOG_ERROR("Invalid dynamic states.");
+                            break;
+                    } // switch
+                } // for
+            } // if
+        }
+    }
 }
 
 void GLES2CmdFuncDraw(GLES2Device *device, DrawInfo &drawInfo) {
@@ -2335,22 +2402,22 @@ void GLES2CmdFuncCopyBuffersToTexture(GLES2Device *device, const uint8_t *const 
                 if (isCompressed) {
                     GLsizei memSize = (GLsizei)FormatSize(gpuTexture->format, w, h, 1);
                     GL_CHECK(glCompressedTexSubImage2D(GL_TEXTURE_2D,
-                                                       region.texSubres.mipLevel,
-                                                       region.texOffset.x,
-                                                       region.texOffset.y,
-                                                       w, h,
-                                                       gpuTexture->glFormat,
-                                                       memSize,
-                                                       (GLvoid *)buff));
+                                              region.texSubres.mipLevel,
+                                              region.texOffset.x,
+                                              region.texOffset.y,
+                                              w, h,
+                                              gpuTexture->glFormat,
+                                              memSize,
+                                              (GLvoid *)buff));
                 } else {
                     GL_CHECK(glTexSubImage2D(GL_TEXTURE_2D,
-                                             region.texSubres.mipLevel,
-                                             region.texOffset.x,
-                                             region.texOffset.y,
-                                             w, h,
-                                             gpuTexture->glFormat,
-                                             gpuTexture->glType,
-                                             (GLvoid *)buff));
+                                    region.texSubres.mipLevel,
+                                    region.texOffset.x,
+                                    region.texOffset.y,
+                                    w, h,
+                                    gpuTexture->glFormat,
+                                    gpuTexture->glType,
+                                    (GLvoid *)buff));
                 }
             }
             break;
@@ -2370,23 +2437,23 @@ void GLES2CmdFuncCopyBuffersToTexture(GLES2Device *device, const uint8_t *const 
                     if (isCompressed) {
                         GLsizei memSize = (GLsizei)FormatSize(gpuTexture->format, w, h, 1);
                         GL_CHECK(glCompressedTexSubImage3DOES(GL_TEXTURE_2D_ARRAY,
-                                                              region.texSubres.mipLevel,
-                                                              region.texOffset.x,
-                                                              region.texOffset.y, z,
-                                                              w, h, d,
-                                                              gpuTexture->glFormat,
-                                                              memSize,
-                                                              (GLvoid *)buff));
+                                                     region.texSubres.mipLevel,
+                                                     region.texOffset.x,
+                                                     region.texOffset.y, z,
+                                                     w, h, d,
+                                                     gpuTexture->glFormat,
+                                                     memSize,
+                                                     (GLvoid *)buff));
                     } else {
                         GL_CHECK(glTexSubImage3DOES(GL_TEXTURE_2D_ARRAY,
-                                                    region.texSubres.mipLevel,
-                                                    region.texOffset.x,
-                                                    region.texOffset.y,
-                                                    z,
-                                                    w, h, d,
-                                                    gpuTexture->glFormat,
-                                                    gpuTexture->glType,
-                                                    (GLvoid *)buff));
+                                           region.texSubres.mipLevel,
+                                           region.texOffset.x,
+                                           region.texOffset.y,
+                                           z,
+                                           w, h, d,
+                                           gpuTexture->glFormat,
+                                           gpuTexture->glType,
+                                           (GLvoid *)buff));
                     }
                 }
             }
@@ -2405,24 +2472,24 @@ void GLES2CmdFuncCopyBuffersToTexture(GLES2Device *device, const uint8_t *const 
                 if (isCompressed) {
                     GLsizei memSize = (GLsizei)FormatSize(gpuTexture->format, w, h, 1);
                     GL_CHECK(glCompressedTexSubImage3DOES(GL_TEXTURE_3D,
-                                                          region.texSubres.mipLevel,
-                                                          region.texOffset.x,
-                                                          region.texOffset.y,
-                                                          region.texOffset.z,
-                                                          w, h, d,
-                                                          gpuTexture->glFormat,
-                                                          memSize,
-                                                          (GLvoid *)buff));
+                                                 region.texSubres.mipLevel,
+                                                 region.texOffset.x,
+                                                 region.texOffset.y,
+                                                 region.texOffset.z,
+                                                 w, h, d,
+                                                 gpuTexture->glFormat,
+                                                 memSize,
+                                                 (GLvoid *)buff));
                 } else {
                     GL_CHECK(glTexSubImage3DOES(GL_TEXTURE_3D,
-                                                region.texSubres.mipLevel,
-                                                region.texOffset.x,
-                                                region.texOffset.y,
-                                                region.texOffset.z,
-                                                w, h, d,
-                                                gpuTexture->glFormat,
-                                                gpuTexture->glType,
-                                                (GLvoid *)buff));
+                                       region.texSubres.mipLevel,
+                                       region.texOffset.x,
+                                       region.texOffset.y,
+                                       region.texOffset.z,
+                                       w, h, d,
+                                       gpuTexture->glFormat,
+                                       gpuTexture->glType,
+                                       (GLvoid *)buff));
                 }
             }
             break;
@@ -2441,21 +2508,21 @@ void GLES2CmdFuncCopyBuffersToTexture(GLES2Device *device, const uint8_t *const 
                     if (isCompressed) {
                         GLsizei memSize = (GLsizei)FormatSize(gpuTexture->format, w, h, 1);
                         GL_CHECK(glCompressedTexSubImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + f,
-                                                           region.texSubres.mipLevel,
-                                                           region.texOffset.x,
-                                                           region.texOffset.y,
-                                                           w, h,
-                                                           gpuTexture->glFormat,
-                                                           memSize,
-                                                           (GLvoid *)buff));
+                                                  region.texSubres.mipLevel,
+                                                  region.texOffset.x,
+                                                  region.texOffset.y,
+                                                  w, h,
+                                                  gpuTexture->glFormat,
+                                                  memSize,
+                                                  (GLvoid *)buff));
                     } else {
                         GL_CHECK(glTexSubImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + f,
-                                                 region.texSubres.mipLevel,
-                                                 region.texOffset.x, region.texOffset.y,
-                                                 w, h,
-                                                 gpuTexture->glFormat,
-                                                 gpuTexture->glType,
-                                                 (GLvoid *)buff));
+                                        region.texSubres.mipLevel,
+                                        region.texOffset.x, region.texOffset.y,
+                                        w, h,
+                                        gpuTexture->glFormat,
+                                        gpuTexture->glType,
+                                        (GLvoid *)buff));
                     }
                 }
             }

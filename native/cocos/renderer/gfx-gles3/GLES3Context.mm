@@ -24,19 +24,21 @@ THE SOFTWARE.
 #include "GLES3Std.h"
 #include "GLES3Context.h"
 #include "gles3w.h"
+
+#if TARGET_OS_OSX
 #import <QuartzCore/CAOpenGLLayer.h>
-#if !TARGET_OS_OSX
+#else
 #import <UIKit/UIScreen.h>
 #endif
-#if (CC_PLATFORM == CC_PLATFORM_MAC_IOS)
 
 #import <UIKit/UIScreen.h>
 
 namespace cc {
 namespace gfx {
 
-bool GLES3Context::initialize(const ContextInfo &info)
-{
+#if (CC_PLATFORM == CC_PLATFORM_MAC_IOS)
+
+bool GLES3Context::initialize(const ContextInfo &info) {
 
     _vsyncMode = info.vsyncMode;
     _windowHandle = info.windowHandle;
@@ -70,15 +72,11 @@ bool GLES3Context::initialize(const ContextInfo &info)
         _defaultFBO = sharedCtx->_defaultFBO;
         _defaultColorBuffer = sharedCtx->_defaultColorBuffer;
         _defaultDepthStencilBuffer = sharedCtx->_defaultDepthStencilBuffer;
-        
+
         EAGLContext* eagl_shared_context = (EAGLContext*)sharedCtx->eagl_shared_ctx();
         EAGLContext* eagl_context = [[EAGLContext alloc] initWithAPI: [eagl_shared_context API] sharegroup: [eagl_shared_context sharegroup]];
         if (!eagl_context) {
           CC_LOG_ERROR("Create EGL context with share context [0x%p] failed.", eagl_shared_context);
-
-          _eaglContext = (intptr_t)eagl_context;
-          _eaglSharedContext = (intptr_t)eagl_shared_context;
-
           return false;
         }
         
@@ -94,23 +92,27 @@ bool GLES3Context::initialize(const ContextInfo &info)
 
 bool GLES3Context::createCustomFrameBuffer()
 {
-    if (_defaultFBO) return true;
-    
-    glGenFramebuffers(1, &_defaultFBO);
+    if (_defaultFBO) {
+        GL_CHECK(glBindFramebuffer(GL_FRAMEBUFFER, _defaultFBO));
+        GL_CHECK(glBindRenderbuffer(GL_RENDERBUFFER, _defaultColorBuffer));
+        return true;
+    }
+
+    GL_CHECK(glGenFramebuffers(1, &_defaultFBO));
     if (0 == _defaultFBO)
     {
         CC_LOG_ERROR("Can not create default frame buffer");
         return false;
     }
-    glBindFramebuffer(GL_FRAMEBUFFER, _defaultFBO);
+    GL_CHECK(glBindFramebuffer(GL_FRAMEBUFFER, _defaultFBO));
 
-    glGenRenderbuffers(1, &_defaultColorBuffer);
+    GL_CHECK(glGenRenderbuffers(1, &_defaultColorBuffer));
     if (0 == _defaultColorBuffer)
     {
         CC_LOG_ERROR("Can not create default color buffer");
         return false;
     }
-    glBindRenderbuffer(GL_RENDERBUFFER, _defaultColorBuffer);
+    GL_CHECK(glBindRenderbuffer(GL_RENDERBUFFER, _defaultColorBuffer));
 
     CAEAGLLayer* eaglLayer = (CAEAGLLayer*)( ((UIView*)(_windowHandle)).layer);
     if (! [(EAGLContext*)_eaglContext renderbufferStorage:GL_RENDERBUFFER
@@ -122,13 +124,13 @@ bool GLES3Context::createCustomFrameBuffer()
         return false;
     }
 
-    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, _defaultColorBuffer);
+    GL_CHECK(glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, _defaultColorBuffer));
 
     GLint framebufferWidth = 0, framebufferHeight = 0;
-    glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_WIDTH, &framebufferWidth);
-    glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_HEIGHT, &framebufferHeight);
+    GL_CHECK(glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_WIDTH, &framebufferWidth));
+    GL_CHECK(glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_HEIGHT, &framebufferHeight));
 
-    glGenRenderbuffers(1, &_defaultDepthStencilBuffer);
+    GL_CHECK(glGenRenderbuffers(1, &_defaultDepthStencilBuffer));
     if (_defaultDepthStencilBuffer == 0)
     {
         // Application can run without depth/stencil buffer, so don't return false here.
@@ -172,7 +174,7 @@ bool GLES3Context::createCustomFrameBuffer()
         return false;
     }
 
-    glBindRenderbuffer(GL_RENDERBUFFER, _defaultColorBuffer);
+    GL_CHECK(glBindRenderbuffer(GL_RENDERBUFFER, _defaultColorBuffer));
     return true;
 }
 
@@ -186,9 +188,8 @@ void GLES3Context::destroyCustomFrameBuffer() {
         _defaultDepthStencilBuffer = 0;
     }
 
-    if (_defaultFBO)
-    {
-        glDeleteFramebuffers(1, &_defaultFBO);
+    if (_defaultFBO) {
+        GL_CHECK(glDeleteFramebuffers(1, &_defaultFBO));
         _defaultFBO = 0;
     }
 }
@@ -196,8 +197,7 @@ void GLES3Context::destroyCustomFrameBuffer() {
 void GLES3Context::destroy() {
     destroyCustomFrameBuffer();
 
-    if (_eaglContext)
-    {
+    if (_eaglContext) {
         [(EAGLContext*)_eaglContext release];
     }
 
@@ -207,19 +207,15 @@ void GLES3Context::destroy() {
     _isInitialized = false;
 }
 
-void GLES3Context::present()
-{
-
-    if (! [(EAGLContext*)_eaglContext presentRenderbuffer:GL_RENDERBUFFER] )
-    {
+void GLES3Context::present() {
+    if (! [(EAGLContext*)_eaglContext presentRenderbuffer:GL_RENDERBUFFER] ) {
         CC_LOG_ERROR("Failed to present content.");
     }
 }
 
-bool GLES3Context::MakeCurrentImpl(bool bound)
-{
-    if (!bound) return true;
-    return [EAGLContext setCurrentContext: (EAGLContext*)_eaglContext];
+bool GLES3Context::MakeCurrentImpl(bool bound) {
+    if (!bound) return [EAGLContext setCurrentContext: nil];
+    return [EAGLContext setCurrentContext: (EAGLContext*)_eaglContext] && createCustomFrameBuffer();
 }
 
 } // namespace gfx

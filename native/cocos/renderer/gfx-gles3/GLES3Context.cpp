@@ -413,10 +413,10 @@ bool GLES3Context::MakeCurrent(bool bound) {
             }
 #endif
 
-#if CC_DEBUG > 0
-            glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS_KHR);
-            glDebugMessageControlKHR(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, NULL, GL_TRUE);
-            glDebugMessageCallbackKHR(GLES3EGLDebugProc, NULL);
+#if CC_DEBUG > 0 && CC_PLATFORM != CC_PLATFORM_MAC_IOS
+            GL_CHECK(glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS_KHR));
+            GL_CHECK(glDebugMessageControlKHR(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, NULL, GL_TRUE));
+            GL_CHECK(glDebugMessageCallbackKHR(GLES3EGLDebugProc, NULL));
 #endif
 
             _isInitialized = true;
@@ -461,6 +461,8 @@ bool GLES3Context::MakeCurrent(bool bound) {
             GL_CHECK(glBlendFuncSeparate(GL_ONE, GL_ZERO, GL_ONE, GL_ZERO));
             GL_CHECK(glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE));
             GL_CHECK(glBlendColor((GLclampf)0.0f, (GLclampf)0.0f, (GLclampf)0.0f, (GLclampf)0.0f));
+
+            _isInitialized = true;
         }
 
         CC_LOG_DEBUG("eglMakeCurrent() - SUCCEEDED, Context: 0x%p", this);
