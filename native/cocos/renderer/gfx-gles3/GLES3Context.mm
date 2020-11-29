@@ -25,18 +25,14 @@ THE SOFTWARE.
 #include "GLES3Context.h"
 #include "gles3w.h"
 
-#if TARGET_OS_OSX
-#import <QuartzCore/CAOpenGLLayer.h>
-#else
+#if (CC_PLATFORM == CC_PLATFORM_MAC_IOS)
+
 #import <UIKit/UIScreen.h>
-#endif
 
 #import <UIKit/UIScreen.h>
 
 namespace cc {
 namespace gfx {
-
-#if (CC_PLATFORM == CC_PLATFORM_MAC_IOS)
 
 bool GLES3Context::initialize(const ContextInfo &info) {
 

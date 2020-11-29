@@ -171,6 +171,3 @@ build/*
 out
 
 CMakeSettings.json
-
-cocos/platform/mac/View.h
-cocos/platform/mac/View.mm

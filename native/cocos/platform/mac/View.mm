@@ -22,114 +22,163 @@
  THE SOFTWARE.
  ****************************************************************************/
 #import "View.h"
-#include "tests/StressTest.h"
-#include "tests/ClearScreenTest.h"
-#include "tests/BasicTriangleTest.h"
-#include "tests/BasicTextureTest.h"
-#include "tests/StencilTest.h"
-#include "tests/ParticleTest.h"
-#include "tests/DepthTest.h"
-#include "tests/TestBase.h"
-#include "tests/BunnyTest.h"
-#include "tests/BlendTest.h"
-
-#if CC_PLATFORM == CC_PLATFORM_MAC_OSX
-    #import <AppKit/AppKit.h>
-#endif
-#if CC_PLATFORM == CC_PLATFORM_MAC_IOS
-    #import <UIKit/UIKit.h>
-#endif
-#import <AppKit/NSTouch.h>
-#import <AppKit/NSEvent.h>
 #import "KeyCodeHelper.h"
-
-namespace
-{
-    int g_nextTextIndex = 0;
-    using createFunc = cc::TestBaseI * (*)(const cc::WindowInfo& info);
-    std::vector<createFunc> g_tests;
-    cc::TestBaseI* g_test    = nullptr;
-    cc::WindowInfo g_windowInfo;
-}
+#import "cocos/bindings/event/EventDispatcher.h"
+#include "platform/Application.h"
+#import <AppKit/NSEvent.h>
+#import <AppKit/NSTouch.h>
 
 @implementation View {
-
+    cc::MouseEvent _mouseEvent;
+    cc::KeyboardEvent _keyboardEvent;
 }
 
 - (instancetype)initWithFrame:(NSRect)frameRect {
     if (self = [super initWithFrame:frameRect]) {
         [self.window makeFirstResponder:self];
+#ifdef CC_USE_METAL
         self.device = MTLCreateSystemDefaultDevice();
-        self.depthStencilPixelFormat = MTLPixelFormatDepth24Unorm_Stencil8;
-        self.mtlCommandQueue = [self.device newCommandQueue];
+        self.framebufferOnly = YES;
         self.delegate = self;
-        int pixelRatio = 1;
-#if CC_PLATFORM == CC_PLATFORM_MAC_OSX
-        pixelRatio = [[NSScreen mainScreen] backingScaleFactor];
-#else
-        pixelRatio = [[UIScreen mainScreen] scale];
-#endif //CC_PLATFORM == CC_PLATFORM_MAC_OSX
-
-        g_windowInfo.windowHandle = (intptr_t)self;
-
-        g_windowInfo.screen.x = frameRect.origin.x;
-        g_windowInfo.screen.y = frameRect.origin.y;
-        g_windowInfo.screen.width = frameRect.size.width * pixelRatio;
-        g_windowInfo.screen.height = frameRect.size.height * pixelRatio;
-
-        g_windowInfo.physicalHeight = g_windowInfo.screen.height;
-        g_windowInfo.physicalWidth = g_windowInfo.screen.width;
-
-        [self initTests];
+#endif
     }
     return self;
 }
 
+#ifdef CC_USE_METAL
 - (void)drawInMTKView:(MTKView *)view {
-    g_test->tick();
+    cc::Application::getInstance()->tick();
 }
 
 - (void)mtkView:(nonnull MTKView *)view drawableSizeWillChange:(CGSize)size {
+    CC_LOG_WARNING("CCView::mtkView: drawable size will change: %f x %f", size.width, size.height);
+}
+#endif
+
+- (void)keyDown:(NSEvent *)event {
+    _keyboardEvent.key = translateKeycode(event.keyCode);
+    _keyboardEvent.action = [event isARepeat] ? cc::KeyboardEvent::Action::REPEAT
+                                              : cc::KeyboardEvent::Action::PRESS;
+    [self setModifierFlags:event];
+    cc::EventDispatcher::dispatchKeyboardEvent(_keyboardEvent);
 }
 
-- (void)initTests {
-    static bool first = true;
-    if (first)
-    {
-        using namespace cc;
-        g_tests = {
-            StressTest::create,
-            ClearScreen::create,
-            BasicTriangle::create,
-            BasicTexture::create,
-            StencilTest::create,
-            ParticleTest::create,
-            DepthTexture::create,
-            BunnyTest::create,
-            BlendTest::create,
-        };
-        g_test = g_tests[g_nextTextIndex](g_windowInfo);
-        if (g_test == nullptr)
-            return;
-        first = false;
+- (void)keyUp:(NSEvent *)event {
+    _keyboardEvent.key = translateKeycode(event.keyCode);
+    _keyboardEvent.action = cc::KeyboardEvent::Action::RELEASE;
+    [self setModifierFlags:event];
+    cc::EventDispatcher::dispatchKeyboardEvent(_keyboardEvent);
+}
+
+- (void)setModifierFlags:(NSEvent *)event {
+    NSEventModifierFlags modifierFlags = event.modifierFlags;
+    if (modifierFlags & NSEventModifierFlagShift)
+        _keyboardEvent.shiftKeyActive = true;
+    else
+        _keyboardEvent.shiftKeyActive = false;
+
+    if (modifierFlags & NSEventModifierFlagControl)
+        _keyboardEvent.ctrlKeyActive = true;
+    else
+        _keyboardEvent.ctrlKeyActive = false;
+
+    if (modifierFlags & NSEventModifierFlagOption)
+        _keyboardEvent.altKeyActive = true;
+    else
+        _keyboardEvent.altKeyActive = false;
+
+    if (modifierFlags & NSEventModifierFlagCommand)
+        _keyboardEvent.metaKeyActive = true;
+    else
+        _keyboardEvent.metaKeyActive = false;
+}
+
+- (void)mouseDown:(NSEvent *)event {
+    [self sendMouseEvent:0
+                    type:cc::MouseEvent::Type::DOWN
+                   event:event];
+}
+
+- (void)mouseUp:(NSEvent *)event {
+    [self sendMouseEvent:0
+                    type:cc::MouseEvent::Type::UP
+                   event:event];
+}
+
+- (void)mouseDragged:(NSEvent *)event {
+    [self mouseMoved:event];
+}
+
+- (void)mouseMoved:(NSEvent *)event {
+    [self sendMouseEvent:0
+                    type:cc::MouseEvent::Type::MOVE
+                   event:event];
+}
+
+- (void)otherMouseDown:(NSEvent *)event {
+    [self sendMouseEvent:[self translateButtonNumber:event.buttonNumber]
+                    type:cc::MouseEvent::Type::DOWN
+                   event:event];
+}
+
+- (void)otherMouseUp:(NSEvent *)event {
+    [self sendMouseEvent:[self translateButtonNumber:event.buttonNumber]
+                    type:cc::MouseEvent::Type::UP
+                   event:event];
+}
+
+- (int)translateButtonNumber:(int)buttonNumber {
+    if (buttonNumber == 1) // left
+        return 0;
+    else if (buttonNumber == 2) // right
+        return 2;
+    else
+        return 1;
+}
+
+- (void)scrollWheel:(NSEvent *)event {
+    double deltaX = [event scrollingDeltaX];
+    double deltaY = [event scrollingDeltaY];
+
+    if ([event hasPreciseScrollingDeltas]) {
+        deltaX *= 0.1;
+        deltaY *= 0.1;
+    }
+
+    if (fabs(deltaX) > 0.0 || fabs(deltaY) > 0.0) {
+        _mouseEvent.type = cc::MouseEvent::Type::WHEEL;
+        _mouseEvent.button = 0;
+        _mouseEvent.x = deltaX;
+        _mouseEvent.y = deltaY;
+        cc::EventDispatcher::dispatchMouseEvent(_mouseEvent);
     }
 }
 
-- (void)keyDown:(NSEvent *)event {
-    g_nextTextIndex = (++g_nextTextIndex) % g_tests.size();
-    CC_SAFE_DESTROY(g_test);
-    g_test = g_tests[g_nextTextIndex](g_windowInfo);
+- (void)rightMouseDown:(NSEvent *)event {
+    [self sendMouseEvent:2
+                    type:cc::MouseEvent::Type::DOWN
+                   event:event];
 }
 
-- (BOOL)acceptsFirstResponder
-{
+- (void)rightMouseUp:(NSEvent *)event {
+    [self sendMouseEvent:2
+                    type:cc::MouseEvent::Type::UP
+                   event:event];
+}
+
+- (BOOL)acceptsFirstResponder {
     return YES;
 }
 
-- (void)viewDidAppear
-{
-    // Make the view controller the window's first responder so that it can handle the Key events
-    [self.window makeFirstResponder:self];
+- (void)sendMouseEvent:(int)button type:(cc::MouseEvent::Type)type event:(NSEvent *)event {
+    const NSRect contentRect = [self frame];
+    const NSPoint pos = [event locationInWindow];
+
+    _mouseEvent.type = type;
+    _mouseEvent.button = button;
+    _mouseEvent.x = pos.x;
+    _mouseEvent.y = contentRect.size.height - pos.y;
+    cc::EventDispatcher::dispatchMouseEvent(_mouseEvent);
 }
 
 @end
