@@ -25,7 +25,7 @@
 
 /**
  * @packageDocumentation
- * @hidden
+ * @module geometry
  */
 
 import { replaceProperty, removeProperty } from '../utils/x-deprecated';
@@ -45,6 +45,6 @@ replaceProperty(Line.prototype, 'line', [
 
 removeProperty(intersect, 'intersect', [
     {
-        name: 'line_quad'
-    }
-])
+        name: 'line_quad',
+    },
+]);

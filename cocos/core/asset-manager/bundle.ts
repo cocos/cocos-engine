@@ -44,7 +44,6 @@ import { parseLoadResArgs, parseParameters } from './utilities';
  *
  */
 export default class Bundle {
-
     private _config: Config = new Config();
 
     /**
@@ -103,7 +102,9 @@ export default class Bundle {
      * @returns The asset info
      *
      * @example
+     * ```
      * var info = bundle.getInfoWithPath('image/a', cc.Texture2D);
+     * ```
      *
      */
     public getInfoWithPath (path: string, type?: AssetType | null): IAddressableInfo | null {
@@ -123,8 +124,10 @@ export default class Bundle {
      * @returns Infos
      *
      * @example
+     * ```
      * var infos = [];
      * bundle.getDirWithPath('images', cc.Texture2D, infos);
+     * ```
      */
     public getDirWithPath (path: string, type?: AssetType | null, out?: IAddressableInfo[]): IAddressableInfo[] {
         return this._config.getDirWithPath(path, type, out);
@@ -142,7 +145,9 @@ export default class Bundle {
      * @returns info
      *
      * @example
+     * ```
      * var info = bundle.getAssetInfo('fcmR3XADNLgJ1ByKhqcC5Z');
+     * ```
      *
      */
     public getAssetInfo (uuid: string): IAssetInfo | null {
@@ -161,7 +166,9 @@ export default class Bundle {
      * @return info
      *
      * @example
+     * ```
      * var info = bundle.getSceneInfo('first.fire');
+     * ```
      *
      */
     public getSceneInfo (name: string): ISceneInfo | null {
@@ -201,6 +208,7 @@ export default class Bundle {
      * @param onComplete.assets - The loaded assets.
      *
      * @example
+     * ```
      * // load the texture (${project}/assets/resources/textures/background.jpg) from resources
      * cc.resources.load('textures/background', cc.Texture2D, (err, texture) => console.log(err));
      *
@@ -212,6 +220,7 @@ export default class Bundle {
      *
      * // load the sprite frame (${project}/assets/some/xxx/bundle2/imgs/cocos.png) from bundle2 folder
      * bundle2.load('imgs/cocos', cc.SpriteFrame, null, (err, spriteFrame) => console.log(err));
+     * ```
      *
      */
     public load<T extends Asset> (paths: string, type: AssetType<T> | null,
@@ -227,9 +236,9 @@ export default class Bundle {
     public load<T extends Asset> (paths: string, onComplete?: CompleteCallback<T> | null): void;
     public load<T extends Asset> (paths: string[], onComplete?: CompleteCallback<T[]> | null): void;
     public load<T extends Asset> (paths: string|string[],
-                                  type?: AssetType<T> | ProgressCallback | CompleteCallback<T|T[]> | null,
-                                  onProgress?: ProgressCallback | CompleteCallback<T|T[]> | null,
-                                  onComplete?: CompleteCallback<T|T[]> | null) {
+        type?: AssetType<T> | ProgressCallback | CompleteCallback<T|T[]> | null,
+        onProgress?: ProgressCallback | CompleteCallback<T|T[]> | null,
+        onComplete?: CompleteCallback<T|T[]> | null) {
         const { type: _type, onProgress: onProg, onComplete: onComp } = parseLoadResArgs(type, onProgress, onComplete);
         const options = { __requestType__: RequestType.PATH, type: _type, bundle: this.name, __outputAsArray__: Array.isArray(paths) };
         legacyCC.assetManager.loadAny(paths, options, onProg, onComp);
@@ -257,6 +266,7 @@ export default class Bundle {
      * @param onComplete.items - The preloaded items.
      *
      * @example
+     * ```
      * // preload the texture (${project}/assets/resources/textures/background.jpg) from resources
      * cc.resources.preload('textures/background', cc.Texture2D);
      *
@@ -272,6 +282,7 @@ export default class Bundle {
      * bundle2.preload('imgs/cocos', cc.SpriteFrame);
      * // wait for while
      * bundle2.load('imgs/cocos', cc.SpriteFrame, (err, spriteFrame) => {});
+     * ```
      *
      */
     public preload (paths: string|string[], type: AssetType|null, onProgress: ProgressCallback|null, onComplete: CompleteCallback<RequestItem[]>|null): void;
@@ -279,9 +290,9 @@ export default class Bundle {
     public preload (paths: string|string[], type: AssetType | null, onComplete?: CompleteCallback<RequestItem[]> | null): void;
     public preload (paths: string|string[], onComplete?: CompleteCallback<RequestItem[]> | null): void;
     public preload (paths: string|string[],
-                    type?: AssetType | ProgressCallback | CompleteCallback<RequestItem[]> | null,
-                    onProgress?: ProgressCallback | CompleteCallback<RequestItem[]> | null,
-                    onComplete?: CompleteCallback<RequestItem[]> | null) {
+        type?: AssetType | ProgressCallback | CompleteCallback<RequestItem[]> | null,
+        onProgress?: ProgressCallback | CompleteCallback<RequestItem[]> | null,
+        onComplete?: CompleteCallback<RequestItem[]> | null) {
         const { type: _type, onProgress: onProg, onComplete: onComp } = parseLoadResArgs(type, onProgress, onComplete);
         legacyCC.assetManager.preloadAny(paths, { __requestType__: RequestType.PATH, type: _type, bundle: this.name }, onProg, onComp);
     }
@@ -307,6 +318,7 @@ export default class Bundle {
      * @param onComplete.assets - An array of all loaded assets.
      *
      * @example
+     * ```
      * // load all audios (resources/audios/)
      * cc.resources.loadDir('audios', cc.AudioClip, (err, audios) => {});
      *
@@ -321,6 +333,7 @@ export default class Bundle {
      *
      * // load all sprite frame (${project}/assets/some/xxx/bundle2/skills/) from bundle2 folder
      * bundle2.loadDir('skills', cc.SpriteFrame, null, (err, spriteFrames) => console.log(err));
+     * ```
      *
      */
     public loadDir<T extends Asset> (dir: string, type: AssetType<T> | null, onProgress: ProgressCallback | null, onComplete: CompleteCallback<T[]> | null): void;
@@ -328,9 +341,9 @@ export default class Bundle {
     public loadDir<T extends Asset> (dir: string, type: AssetType<T> | null, onComplete?: CompleteCallback<T[]> | null): void;
     public loadDir<T extends Asset> (dir: string, onComplete?: CompleteCallback<T[]> | null): void;
     public loadDir<T extends Asset> (dir: string,
-                                     type?: AssetType<T> | ProgressCallback | CompleteCallback<T[]> | null,
-                                     onProgress?: ProgressCallback | CompleteCallback<T[]> | null,
-                                     onComplete?: CompleteCallback<T[]> | null) {
+        type?: AssetType<T> | ProgressCallback | CompleteCallback<T[]> | null,
+        onProgress?: ProgressCallback | CompleteCallback<T[]> | null,
+        onComplete?: CompleteCallback<T[]> | null) {
         const { type: _type, onProgress: onProg, onComplete: onComp } = parseLoadResArgs(type, onProgress, onComplete);
         legacyCC.assetManager.loadAny(dir, { __requestType__: RequestType.DIR, type: _type, bundle: this.name, __outputAsArray__: true }, onProg, onComp);
     }
@@ -356,6 +369,7 @@ export default class Bundle {
      * @param onComplete.items - An array of all preloaded items.
      *
      * @example
+     * ```
      * // preload all audios (resources/audios/)
      * cc.resources.preloadDir('audios', cc.AudioClip);
      *
@@ -371,15 +385,16 @@ export default class Bundle {
      * bundle2.preloadDir('skills', cc.SpriteFrame);
      * // wait for while
      * bundle2.loadDir('skills', cc.SpriteFrame, (err, spriteFrames) => {});
+     * ```
      */
     public preloadDir (dir: string, type: AssetType | null, onProgress: ProgressCallback | null, onComplete: CompleteCallback<RequestItem[]> | null): void;
     public preloadDir (dir: string, onProgress: ProgressCallback | null, onComplete: CompleteCallback<RequestItem[]> | null): void;
     public preloadDir (dir: string, type: AssetType | null, onComplete?: CompleteCallback<RequestItem[]> | null): void;
     public preloadDir (dir: string, onComplete?: CompleteCallback<RequestItem[]> | null): void;
     public preloadDir (dir: string,
-                       type?: AssetType | ProgressCallback | CompleteCallback<RequestItem[]>| null,
-                       onProgress?: ProgressCallback | CompleteCallback<RequestItem[]>| null,
-                       onComplete?: CompleteCallback<RequestItem[]>| null) {
+        type?: AssetType | ProgressCallback | CompleteCallback<RequestItem[]>| null,
+        onProgress?: ProgressCallback | CompleteCallback<RequestItem[]>| null,
+        onComplete?: CompleteCallback<RequestItem[]>| null) {
         const { type: _type, onProgress: onProg, onComplete: onComp } = parseLoadResArgs(type, onProgress, onComplete);
         legacyCC.assetManager.preloadAny(dir, { __requestType__: RequestType.DIR, type: _type, bundle: this.name }, onProg, onComp);
     }
@@ -402,7 +417,9 @@ export default class Bundle {
      * @param onComplete.sceneAsset - The scene asset
      *
      * @example
+     * ```
      * bundle1.loadScene('first', (err, sceneAsset) => cc.director.runScene(sceneAsset));
+     * ```
      *
      */
     public loadScene (sceneName: string, options: IAssetOptions | null, onProgress: ProgressCallback | null, onComplete: CompleteCallback<SceneAsset> | null): void;
@@ -410,9 +427,9 @@ export default class Bundle {
     public loadScene (sceneName: string, options: IAssetOptions | null, onComplete?: CompleteCallback<SceneAsset> | null): void;
     public loadScene (sceneName: string, onComplete?: CompleteCallback<SceneAsset> | null): void;
     public loadScene (sceneName: string,
-                      options?: IAssetOptions | ProgressCallback | CompleteCallback<SceneAsset> | null,
-                      onProgress?: ProgressCallback | CompleteCallback<SceneAsset> | null,
-                      onComplete?: CompleteCallback<SceneAsset> | null) {
+        options?: IAssetOptions | ProgressCallback | CompleteCallback<SceneAsset> | null,
+        onProgress?: ProgressCallback | CompleteCallback<SceneAsset> | null,
+        onComplete?: CompleteCallback<SceneAsset> | null) {
         const { options: opts, onProgress: onProg, onComplete: onComp } = parseParameters(options, onProgress, onComplete);
 
         opts.preset = opts.preset || 'scene';
@@ -421,17 +438,13 @@ export default class Bundle {
             if (err) {
                 error(err.message, err.stack);
                 if (onComp) { onComp(err); }
-            }
-            else if (sceneAsset instanceof SceneAsset && sceneAsset.scene) {
+            } else if (sceneAsset instanceof SceneAsset && sceneAsset.scene) {
                 const scene = sceneAsset.scene;
                 // @ts-expect-error
                 scene._id = sceneAsset._uuid;
                 scene.name = sceneAsset.name;
                 if (onComp) { onComp(null, sceneAsset); }
-            }
-            else {
-                if (onComp) { onComp(new Error('The asset ' + sceneAsset._uuid + ' is not a scene')); }
-            }
+            } else if (onComp) { onComp(new Error(`The asset ${sceneAsset._uuid} is not a scene`)); }
         });
     }
 
@@ -455,9 +468,11 @@ export default class Bundle {
      * @param onComplete.error - null or the error object.
      *
      * @example
+     * ```
      * bundle1.preloadScene('first');
      * // wait for a while
      * bundle1.loadScene('first', (err, scene) => cc.director.runScene(scene));
+     * ```
      *
      */
     public preloadScene (sceneName: string, options: IAssetOptions | null, onProgress: ProgressCallback, onComplete: CompleteCallbackNoData | null): void;
@@ -465,9 +480,9 @@ export default class Bundle {
     public preloadScene (sceneName: string, options: IAssetOptions | null, onComplete?: CompleteCallbackNoData | null): void;
     public preloadScene (sceneName: string, onComplete?: CompleteCallbackNoData | null): void;
     public preloadScene (sceneName: string,
-                         options?: IAssetOptions | ProgressCallback | CompleteCallbackNoData | null,
-                         onProgress?: ProgressCallback | CompleteCallbackNoData | null,
-                         onComplete?: CompleteCallbackNoData | null) {
+        options?: IAssetOptions | ProgressCallback | CompleteCallbackNoData | null,
+        onProgress?: ProgressCallback | CompleteCallbackNoData | null,
+        onComplete?: CompleteCallbackNoData | null) {
         const { options: opts, onProgress: onProg, onComplete: onComp } = parseParameters(options, onProgress, onComplete);
 
         opts.bundle = this.name;
@@ -494,16 +509,17 @@ export default class Bundle {
      * @returns - the asset has been cached
      *
      * @example
+     * ```
      * bundle1.get('music/hit', cc.AudioClip);
+     * ```
      */
     public get<T extends Asset> (path: string, type?: AssetType<T> | null): T | null {
         const info = this.getInfoWithPath(path, type);
         if (info) {
             return assets.get(info.uuid) as T || null;
         }
-        else {
-            return null;
-        }
+
+        return null;
     }
 
     /**
@@ -519,9 +535,10 @@ export default class Bundle {
      * @param type - Only asset of type will be released if this argument is supplied.
      *
      * @example
+     * ```
      * // release a texture which is no longer need
      * bundle1.release('misc/character/cocos');
-     *
+     * ```
      */
     public release (path: string, type?: AssetType | null) {
         const asset = this.get(path, type);
@@ -540,8 +557,10 @@ export default class Bundle {
      * @private
      *
      * @example
+     * ```
      * // release all unused asset within bundle1
      * bundle1.releaseUnusedAssets();
+     * ```
      *
      */
     public releaseUnusedAssets () {
@@ -561,8 +580,10 @@ export default class Bundle {
      * 释放此包中的所有资源。详细信息请参考 {{#crossLink "AssetManager/releaseAll:method"}}{{/crossLink}}
      *
      * @example
+     * ```
      * // release all asset within bundle1
      * bundle1.releaseAll();
+     * ```
      */
     public releaseAll () {
         assets.forEach((asset) => {
@@ -576,7 +597,6 @@ export default class Bundle {
     public _destroy () {
         this._config.destroy();
     }
-
 }
 
 /**

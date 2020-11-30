@@ -23,8 +23,14 @@
  THE SOFTWARE.
  */
 
-import {legacyCC} from "../core/global-exports";
-import {VideoPlayerImplWeb} from "./video-player-impl-web";
+/**
+ * @packageDocumentation
+ * @hidden
+ * @module video
+ */
+
+import { legacyCC } from '../core/global-exports';
+import { VideoPlayerImplWeb } from './video-player-impl-web';
 
 export class VideoPlayerImplManager {
     // default web

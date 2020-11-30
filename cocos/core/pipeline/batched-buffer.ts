@@ -25,7 +25,7 @@
 
 /**
  * @packageDocumentation
- * @hidden
+ * @module pipeline
  */
 
 import { BufferUsageBit, Format, MemoryUsageBit, Device, DescriptorSet, InputAssembler,

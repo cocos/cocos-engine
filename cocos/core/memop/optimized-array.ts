@@ -23,6 +23,10 @@
  THE SOFTWARE.
  */
 
+/**
+ * @packageDocumentation
+ * @module memop
+ */
 
 /**
  * @en Array with optimized memory management.

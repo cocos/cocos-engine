@@ -23,10 +23,9 @@
  THE SOFTWARE.
  */
 
-
 /**
  * @packageDocumentation
- * @hidden
+ * @module pipeline
  */
 
 export const getPhaseID = (() => {

@@ -25,10 +25,10 @@
 
 /**
  * @packageDocumentation
- * @hidden
+ * @module component
  */
 
-import { ISchedulable } from "../scheduler";
+import { ISchedulable } from '../scheduler';
 
 /**
  * @en Base class for all functional system managed by [[Director]].
@@ -63,12 +63,11 @@ export default class System implements ISchedulable {
         if (a._priority < b._priority) {
             return 1;
         }
-        else if (a._priority > b.priority) {
+        if (a._priority > b.priority) {
             return -1;
         }
-        else {
-            return 0;
-        }
+
+        return 0;
     }
 
     /**

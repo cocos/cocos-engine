@@ -24,6 +24,12 @@
  THE SOFTWARE.
 */
 
+/**
+ * @packageDocumentation
+ * @hidden
+ * @module core/data
+ */
+
 export { ccclass } from './decorators/ccclass';
 export { property } from './decorators/property';
 export { requireComponent, executionOrder, disallowMultiple } from './decorators/component';

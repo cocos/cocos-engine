@@ -27,6 +27,7 @@
 /**
  * @packageDocumentation
  * @hidden
+ * @module asset-manager
  */
 
 export { default as assetManager, AssetManager } from './asset-manager';

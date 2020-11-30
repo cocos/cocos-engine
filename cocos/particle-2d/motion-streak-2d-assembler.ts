@@ -24,6 +24,11 @@
  THE SOFTWARE.
  */
 
+/**
+ * @packageDocumentation
+ * @module Particle2d
+ */
+
 import { IAssembler, IAssemblerManager } from '../core/renderer/ui/base';
 import { MotionStreak } from './motion-streak-2d';
 import { Vec2, Color } from '../core/math';
@@ -104,7 +109,7 @@ export const MotionStreakAssembler: IAssembler = {
 
         let cur;
         if (points.length > 1) {
-            const point = points[0] as any;
+            const point = points[0];
             const difx = point.x - tx;
             const dify = point.y - ty;
             if ((difx * difx + dify * dify) < comp.minSeg) {

@@ -1,5 +1,10 @@
-import { IVec2Like, Rect, Vec2 } from "../../core";
-import { ERaycast2DType, RaycastResult2D, Collider2D } from "../framework";
+/**
+ * @packageDocumentation
+ * @module physics2d
+ */
+
+import { IVec2Like, Rect, Vec2 } from '../../core';
+import { ERaycast2DType, RaycastResult2D, Collider2D } from '../framework';
 
 export interface IPhysicsWorld {
     readonly impl: any;

@@ -26,6 +26,7 @@
 /**
  * @packageDocumentation
  * @hidden
+ * @module asset
  */
 
 import { removeProperty, replaceProperty } from '../utils';

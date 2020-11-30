@@ -25,7 +25,7 @@
 
 /**
  * @packageDocumentation
- * @hidden
+ * @module core/math
  */
 
 import { removeProperty, replaceProperty } from '../utils/x-deprecated';

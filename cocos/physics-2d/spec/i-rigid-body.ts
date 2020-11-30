@@ -1,9 +1,10 @@
 /**
- * @hidden
+ * @packageDocumentation
+ * @module physics2d
  */
 
-import { ILifecycle } from '../../physics/spec/i-lifecycle'
-import { IVec2Like } from "../../core/math/type-define";
+import { ILifecycle } from '../../physics/spec/i-lifecycle';
+import { IVec2Like } from '../../core/math/type-define';
 import { RigidBody2D } from '../framework/components/rigid-body-2d';
 import { ERigidBody2DType } from '../framework/physics-types';
 import { Vec2 } from '../../core';

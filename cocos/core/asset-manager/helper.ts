@@ -22,6 +22,11 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
+/**
+ * @packageDocumentation
+ * @module asset-manager
+ */
+
 import { legacyCC } from '../global-exports';
 import { error } from '../platform/debug';
 import RequestItem from './request-item';
@@ -31,11 +36,6 @@ import Task from './task';
 const _uuidRegex = /.*[/\\][0-9a-fA-F]{2}[/\\]([0-9a-fA-F-@]{8,}).*/;
 
 export { default as decodeUuid } from '../utils/decode-uuid';
-
-/**
- * @packageDocumentation
- * @module asset-manager
- */
 
 /**
  * @en
@@ -48,8 +48,10 @@ export { default as decodeUuid } from '../utils/decode-uuid';
  * @returns the uuid parsed from url
  *
  * @example
+ * ```
  * var url = 'res/import/fc/fc991dd7-0033-4b80-9d41-c8a86a702e59.json';
  * var uuid = getUuidFromURL(url); // fc991dd7-0033-4b80-9d41-c8a86a702e59
+ * ```
  */
 export function getUuidFromURL (url: string): string {
     const matches = url.match(_uuidRegex);
@@ -73,20 +75,19 @@ export function getUuidFromURL (url: string): string {
  * @returns url
  *
  * @example
+ * ```
  * // json path, 'assets/main/import/fc/fc991dd7-0033-4b80-9d41-c8a86a702e59.json';
  * var url = getUrlWithUuid('fcmR3XADNLgJ1ByKhqcC5Z', {isNative: false});
  *
  * // png path, 'assets/main/native/fc/fc991dd7-0033-4b80-9d41-c8a86a702e59.png';
  * var url = getUrlWithUuid('fcmR3XADNLgJ1ByKhqcC5Z', {isNative: true, nativeExt: '.png'});
- *
+ * ```
  */
 export function getUrlWithUuid (uuid: string, options?: IOptions | null): string {
     options = options || Object.create(null);
     options!.__isNative__ = options!.isNative;
     options!.ext = options!.nativeExt;
-    const bundle = bundles.find((b) => {
-        return !!b.getAssetInfo(uuid);
-    });
+    const bundle = bundles.find((b) => !!b.getAssetInfo(uuid));
 
     if (bundle) {
         options!.bundle = bundle.name;
@@ -126,8 +127,7 @@ export function normalize (url: string): string {
         if (url.charCodeAt(0) === 46 && url.charCodeAt(1) === 47) {
             // strip './'
             url = url.slice(2);
-        }
-        else if (url.charCodeAt(0) === 47) {
+        } else if (url.charCodeAt(0) === 47) {
             // strip '/'
             url = url.slice(1);
         }
@@ -145,8 +145,7 @@ export function transform (input: Request, options?: IOptions | null): string | 
             requestItem.recycle();
             urls.push(url);
         }
-    }
-    catch (e) {
+    } catch (e) {
         for (const item of subTask.output) {
             item.recycle();
         }

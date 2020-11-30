@@ -26,6 +26,7 @@
 /**
  * @packageDocumentation
  * @hidden
+ * @module scene-graph
  */
 
 import Event from '../event/event';
@@ -150,11 +151,11 @@ function _mouseMoveHandler (this: EventListener, event: EventMouse) {
     if (hit) {
         if (!this._previousIn) {
             // Fix issue when hover node switched, previous hovered node won't get MOUSE_LEAVE notification
-            if (_currentHovered && _currentHovered!.eventProcessor.mouseListener) {
+            if (_currentHovered && _currentHovered.eventProcessor.mouseListener) {
                 event.type = SystemEventType.MOUSE_LEAVE;
-                _currentHovered!.dispatchEvent(event);
-                if (_currentHovered!.eventProcessor.mouseListener) {
-                    _currentHovered!.eventProcessor.mouseListener!._previousIn = false;
+                _currentHovered.dispatchEvent(event);
+                if (_currentHovered.eventProcessor.mouseListener) {
+                    _currentHovered.eventProcessor.mouseListener._previousIn = false;
                 }
             }
             _currentHovered = node;
@@ -352,13 +353,12 @@ export class NodeEventProcessor {
             if (this.mouseListener) {
                 this.mouseListener.mask = mask;
             }
-        }
-        else if (this.mouseListener) {
+        } else if (this.mouseListener) {
             this.mouseListener.mask = _searchMaskInParent(this._node as Node);
         }
     }
 
-    public destroy (): void{
+    public destroy (): void {
         if (_currentHovered === this._node) {
             _currentHovered = null;
         }
@@ -417,29 +417,28 @@ export class NodeEventProcessor {
         const forDispatch = this._checknSetupSysEvent(type);
         if (forDispatch) {
             return this._onDispatch(type, callback, target, useCapture);
-        } else {
-            // switch (type) {
-            //     case EventType.POSITION_CHANGED:
-            //         this._eventMask |= POSITION_ON;
-            //         break;
-            //     case EventType.SCALE_CHANGED:
-            //         this._eventMask |= SCALE_ON;
-            //         break;
-            //     case EventType.ROTATION_CHANGED:
-            //         this._eventMask |= ROTATION_ON;
-            //         break;
-            //     case EventType.SIZE_CHANGED:
-            //         this._eventMask |= SIZE_ON;
-            //         break;
-            //     case EventType.ANCHOR_CHANGED:
-            //         this._eventMask |= ANCHOR_ON;
-            //         break;
-            // }
-            if (!this.bubblingTargets) {
-                this.bubblingTargets = new CallbacksInvoker();
-            }
-            return this.bubblingTargets.on(type, callback, target);
         }
+        // switch (type) {
+        //     case EventType.POSITION_CHANGED:
+        //         this._eventMask |= POSITION_ON;
+        //         break;
+        //     case EventType.SCALE_CHANGED:
+        //         this._eventMask |= SCALE_ON;
+        //         break;
+        //     case EventType.ROTATION_CHANGED:
+        //         this._eventMask |= ROTATION_ON;
+        //         break;
+        //     case EventType.SIZE_CHANGED:
+        //         this._eventMask |= SIZE_ON;
+        //         break;
+        //     case EventType.ANCHOR_CHANGED:
+        //         this._eventMask |= ANCHOR_ON;
+        //         break;
+        // }
+        if (!this.bubblingTargets) {
+            this.bubblingTargets = new CallbacksInvoker();
+        }
+        return this.bubblingTargets.on(type, callback, target);
     }
 
     /**
@@ -468,8 +467,7 @@ export class NodeEventProcessor {
         let listeners: CallbacksInvoker;
         if (forDispatch && useCapture) {
             listeners = this.capturingTargets = this.capturingTargets || new CallbacksInvoker();
-        }
-        else {
+        } else {
             listeners = this.bubblingTargets = this.bubblingTargets || new CallbacksInvoker();
         }
 
@@ -556,7 +554,7 @@ export class NodeEventProcessor {
      * eventTarget.emit('fire', message, emitter);
      * ```
      */
-public emit (type: string, arg0?: any, arg1?: any, arg2?: any, arg3?: any, arg4?: any) {
+    public emit (type: string, arg0?: any, arg1?: any, arg2?: any, arg3?: any, arg4?: any) {
         if (this.bubblingTargets) {
             this.bubblingTargets.emit(type, arg0, arg1, arg2, arg3, arg4);
         }
@@ -736,11 +734,11 @@ public emit (type: string, arg0?: any, arg1?: any, arg2?: any, arg3?: any, arg4?
             target = undefined;
         } else { useCapture = !!useCapture; }
         if (!callback) {
-            if (this.capturingTargets){
+            if (this.capturingTargets) {
                 this.capturingTargets.removeAll(type);
             }
 
-            if (this.bubblingTargets){
+            if (this.bubblingTargets) {
                 this.bubblingTargets.removeAll(type);
             }
         } else {

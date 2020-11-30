@@ -37,9 +37,8 @@ import { js } from '../utils/js';
  *
  */
 export default class Cache<T = any> {
-
     private _map: Record<string, T> | null = null;
-    private _count: number = 0;
+    private _count = 0;
 
     /**
      * @en
@@ -55,8 +54,7 @@ export default class Cache<T = any> {
         if (map) {
             this._map = map;
             this._count = Object.keys(map).length;
-        }
-        else {
+        } else {
             this._map = js.createMap(true);
             this._count = 0;
         }
@@ -74,8 +72,10 @@ export default class Cache<T = any> {
      * @returns The value
      *
      * @example
+     * ```
      * var cache = new Cache();
      * cache.add('test', null);
+     * ```
      *
      */
     public add (key: string, val: T): T {
@@ -96,8 +96,10 @@ export default class Cache<T = any> {
      * @returns The corresponding content
      *
      * @example
+     * ```
      * let cache = new Cache();
      * let test = cache.get('test');
+     * ```
      *
      */
     public get (key: string): T | undefined {
@@ -115,8 +117,10 @@ export default class Cache<T = any> {
      * @returns True indecates that content of the key exists
      *
      * @example
+     * ```
      * var cache = new Cache();
      * var exist = cache.has('test');
+     * ```
      *
      */
     public has (key: string): boolean {
@@ -134,8 +138,10 @@ export default class Cache<T = any> {
      * @returns The removed content
      *
      * @example
+     * ```
      * var cache = new Cache();
      * var content = cache.remove('test');
+     * ```
      *
      */
     public remove (key: string): T | undefined {
@@ -155,8 +161,10 @@ export default class Cache<T = any> {
      * 清除所有内容
      *
      * @example
+     * ```
      * var cache = new Cache();
      * cache.clear();
+     * ```
      *
      */
     public clear (): void {
@@ -178,8 +186,10 @@ export default class Cache<T = any> {
      * @param func.key - The corresponding key
      *
      * @example
+     * ```
      * var cache = new Cache();
      * cache.forEach((val, key) => console.log(key));
+     * ```
      *
      */
     public forEach (func: (val: T, key: string) => void): void {
@@ -199,8 +209,10 @@ export default class Cache<T = any> {
      * @returns content
      *
      * @example
+     * ```
      * var cache = new Cache();
      * var val = cache.find((val, key) => key === 'test');
+     * ```
      *
      */
     public find (predicate: (val: T, key: string) => boolean): T | null {

@@ -25,7 +25,7 @@
 
 /**
  * @packageDocumentation
- * @hidden
+ * @module component
  */
 
 export { default as System } from './system';

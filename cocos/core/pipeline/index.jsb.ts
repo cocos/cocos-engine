@@ -23,6 +23,10 @@
  THE SOFTWARE.
  */
 
+/**
+ * @packageDocumentation
+ * @module pipeline
+ */
 
 declare const nr: any;
 

@@ -23,11 +23,17 @@
  THE SOFTWARE.
  */
 
-import {legacyCC} from '../core/global-exports';
-import {UITransform} from "../core/components/ui-base";
-import {VideoPlayer} from "./video-player";
-import {EventType} from './video-player-enums';
-import {error} from "../core/platform";
+/**
+ * @packageDocumentation
+ * @hidden
+ * @module video
+ */
+
+import { legacyCC } from '../core/global-exports';
+import { UITransform } from '../core/components/ui-base';
+import { VideoPlayer } from './video-player';
+import { EventType } from './video-player-enums';
+import { error } from '../core/platform';
 
 export abstract class VideoPlayerImpl {
     protected _componentEventList: Map<number, Function> = new Map<number, Function>();
@@ -112,20 +118,19 @@ export abstract class VideoPlayerImpl {
     public abstract syncLoop(enabled: boolean):void
     public abstract syncMatrix(): void;
 
-
     // get video player data
     public abstract getDuration(): void;
     public abstract getCurrentTime(): void;
     public get fullScreenOnAwake () { return this._fullScreenOnAwake; }
     public get loaded () { return this._loaded; }
-    public get componentEventList () { return this._componentEventList;}
+    public get componentEventList () { return this._componentEventList; }
     public get video () { return this._video; }
     public get state () { return this._state; }
     get UICanvas () { return this._uiTrans && this._uiTrans._canvas; }
     get UICamera () { return this._uiTrans && this._uiTrans._canvas && this._uiTrans._canvas.camera; }
 
     // video player event
-    public onLoadedMetadata(e) {
+    public onLoadedMetadata (e) {
         this._loadedMeta = true;
         this._forceUpdate = true;
         this._visible ? this.enable() : this.disable();
@@ -137,21 +142,21 @@ export abstract class VideoPlayerImpl {
         this.delayedPlay();
     }
 
-    public onCanPlay(e) {
+    public onCanPlay (e) {
         this._loaded = true;
         this.dispatchEvent(EventType.READY_TO_PLAY);
     }
 
-    public onPlay(e) {
+    public onPlay (e) {
         this._playing = true;
         this.dispatchEvent(EventType.PLAYING);
     }
 
-    public onPlaying(e) {
+    public onPlaying (e) {
         this.dispatchEvent(EventType.PLAYING);
     }
 
-    public onPause(e) {
+    public onPause (e) {
         if (this._ignorePause) {
             this._ignorePause = false;
             return;
@@ -160,74 +165,72 @@ export abstract class VideoPlayerImpl {
         this.dispatchEvent(EventType.PAUSED);
     }
 
-    public onStoped(e) {
+    public onStoped (e) {
         this._playing = false;
         this._ignorePause = false;
         this.dispatchEvent(EventType.STOPPED);
     }
 
-    public onEnded(e) {
+    public onEnded (e) {
         this.dispatchEvent(EventType.COMPLETED);
     }
 
-    public onClick(e) {
+    public onClick (e) {
         this.dispatchEvent(EventType.CLICKED);
     }
 
-    public onError(e) {
+    public onError (e) {
         this.dispatchEvent(EventType.ERROR);
-        let errorObj = e.target.error;
+        const errorObj = e.target.error;
         if (errorObj) {
-            error("Error " + errorObj.code + "; details: " + errorObj.message);
+            error(`Error ${errorObj.code}; details: ${errorObj.message}`);
         }
     }
 
     //
-    public play() {
+    public play () {
         if (this._loadedMeta || this._loaded) {
             this.canPlay();
-        }
-        else {
+        } else {
             this._waitingPlay = true;
         }
     }
 
-    public delayedPlay() {
+    public delayedPlay () {
         if (this._waitingPlay) {
             this.canPlay();
             this._waitingPlay = false;
         }
     }
 
-    public syncFullScreenOnAwake(enabled: boolean) {
+    public syncFullScreenOnAwake (enabled: boolean) {
         this._fullScreenOnAwake = enabled;
         if (this._loadedMeta || this._loaded) {
             this.canFullScreen(enabled);
-        }
-        else {
+        } else {
             this._waitingFullscreen = true;
         }
     }
 
-    public delayedFullScreen() {
+    public delayedFullScreen () {
         if (this._waitingFullscreen) {
             this.canFullScreen(this._fullScreenOnAwake);
             this._waitingFullscreen = false;
         }
     }
 
-    protected dispatchEvent(key) {
-        let callback = this._componentEventList.get(key);
+    protected dispatchEvent (key) {
+        const callback = this._componentEventList.get(key);
         if (callback) {
             this._state = key;
             callback.call(this);
         }
     }
 
-    protected syncUITransform(width, height) {
+    protected syncUITransform (width, height) {
         if (this._uiTrans) {
             this._uiTrans.width = width;
-            this._uiTrans.height = height
+            this._uiTrans.height = height;
         }
     }
 
@@ -238,7 +241,7 @@ export abstract class VideoPlayerImpl {
         }
     }
 
-    protected destroy() {
+    protected destroy () {
         this.removeVideoPlayer();
         this._componentEventList.clear();
         legacyCC.game.off(legacyCC.Game.EVENT_HIDE, this._onHide);

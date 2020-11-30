@@ -27,9 +27,8 @@
 /**
  * @packageDocumentation
  * @hidden
+ * @module event
  */
-
-
 
 import { Event } from '../../event';
 import { EventTouch } from './events';
@@ -37,7 +36,8 @@ import { EventListener, TouchOneByOne } from './event-listener';
 import { Node } from '../../scene-graph';
 import { macro } from '../macro';
 import { legacyCC } from '../../global-exports';
-import { errorID, warnID, logID, assertID } from '../../platform/debug';
+import { errorID, warnID, logID, assertID } from '../debug';
+
 const ListenerID = EventListener.ListenerID;
 
 function checkUINode (node) {
@@ -46,7 +46,6 @@ function checkUINode (node) {
     }
     return false;
 }
-
 
 class _EventListenerVector {
     public gt0Index = 0;
@@ -270,11 +269,9 @@ class EventManager {
         if (!(listener instanceof legacyCC.EventListener)) {
             assertID(!legacyCC.js.isNumber(nodeOrPriority), 3504);
             listener = legacyCC.EventListener.create(listener);
-        } else {
-            if (listener._isRegistered()) {
-                logID(3505);
-                return;
-            }
+        } else if (listener._isRegistered()) {
+            logID(3505);
+            return;
         }
 
         if (!listener.checkAvailable()) {
@@ -444,20 +441,18 @@ class EventManager {
                     this.removeListeners(locChild, true);
                 }
             }
+        } else if (listenerType === legacyCC.EventListener.TOUCH_ONE_BY_ONE) {
+            this._removeListenersForListenerID(ListenerID.TOUCH_ONE_BY_ONE);
+        } else if (listenerType === legacyCC.EventListener.TOUCH_ALL_AT_ONCE) {
+            this._removeListenersForListenerID(ListenerID.TOUCH_ALL_AT_ONCE);
+        } else if (listenerType === legacyCC.EventListener.MOUSE) {
+            this._removeListenersForListenerID(ListenerID.MOUSE);
+        } else if (listenerType === legacyCC.EventListener.ACCELERATION) {
+            this._removeListenersForListenerID(ListenerID.ACCELERATION);
+        } else if (listenerType === legacyCC.EventListener.KEYBOARD) {
+            this._removeListenersForListenerID(ListenerID.KEYBOARD);
         } else {
-            if (listenerType === legacyCC.EventListener.TOUCH_ONE_BY_ONE) {
-                this._removeListenersForListenerID(ListenerID.TOUCH_ONE_BY_ONE);
-            } else if (listenerType === legacyCC.EventListener.TOUCH_ALL_AT_ONCE) {
-                this._removeListenersForListenerID(ListenerID.TOUCH_ALL_AT_ONCE);
-            } else if (listenerType === legacyCC.EventListener.MOUSE) {
-                this._removeListenersForListenerID(ListenerID.MOUSE);
-            } else if (listenerType === legacyCC.EventListener.ACCELERATION) {
-                this._removeListenersForListenerID(ListenerID.ACCELERATION);
-            } else if (listenerType === legacyCC.EventListener.KEYBOARD) {
-                this._removeListenersForListenerID(ListenerID.KEYBOARD);
-            } else {
-                logID(3501);
-            }
+            logID(3501);
         }
     }
 
@@ -774,11 +769,11 @@ class EventManager {
         if (!l2 || !node2 || !node2._activeInHierarchy || !node2._uiProps.uiTransformComp) {
             return -1;
         }
-        else if (!l1 || !node1 || !node1._activeInHierarchy || !node1._uiProps.uiTransformComp) {
+        if (!l1 || !node1 || !node1._activeInHierarchy || !node1._uiProps.uiTransformComp) {
             return 1;
         }
 
-        let p1 = node1, p2 = node2, ex = false;
+        let p1 = node1; let p2 = node2; let ex = false;
         const trans1 = node1._uiProps.uiTransformComp;
         const trans2 = node2._uiProps.uiTransformComp;
         if (trans1.visibility !== trans2.visibility) {
@@ -991,7 +986,6 @@ class EventManager {
                     }
 
                     eventManager._currentTouchListener = null;
-
                 } else if (getCode === EventTouch.CANCELLED) {
                     if (listener.onTouchCancelled) {
                         listener.onTouchCancelled(selTouch, event);
@@ -1032,7 +1026,7 @@ class EventManager {
         const allAtOnceListeners = this._getListeners(ListenerID.TOUCH_ALL_AT_ONCE);
 
         // If there aren't any touch listeners, return directly.
-        if (null === oneByOneListeners && null === allAtOnceListeners) {
+        if (oneByOneListeners === null && allAtOnceListeners === null) {
             return;
         }
 

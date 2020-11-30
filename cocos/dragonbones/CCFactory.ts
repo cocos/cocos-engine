@@ -1,3 +1,8 @@
+/**
+ * @packageDocumentation
+ * @module dragonBones
+ */
+
 import { Component, director, Game, game, ISchedulable, Node, RenderTexture, Scheduler, systemEvent, SystemEventType } from '../core';
 import { ccclass } from '../core/data/class-decorator';
 import { EDITOR } from '../../editor/exports/populate-internal-constants';
@@ -7,10 +12,6 @@ import { CCSlot } from './CCSlot';
 import { ArmatureDisplay } from './ArmatureDisplay';
 import { CCArmatureDisplay } from './CCArmatureDisplay';
 import { Armature, BaseObject, Animation, BaseFactory, DragonBones } from './lib/dragonBones';
-
-/**
- * @module dragonBones
-*/
 
 /**
  * DragonBones factory
@@ -24,7 +25,9 @@ export class CCFactory extends BaseFactory implements ISchedulable {
      * @return {CCFactory}
      * @static
      * @example
+     * ```
      * let factory = CCFactory.getInstance();
+     * ```
     */
     static _factory: CCFactory | null = null;
     static getInstance () {

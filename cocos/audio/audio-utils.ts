@@ -23,6 +23,12 @@
  THE SOFTWARE.
  */
 
+/**
+ * @packageDocumentation
+ * @module component/audio
+ * @hidden
+ */
+
 import { sys } from '../core/platform/sys';
 
 const { __audioSupport } = sys;

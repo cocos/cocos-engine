@@ -25,7 +25,7 @@
 
 /**
  * @packageDocumentation
- * @hidden
+ * @module Particle2d
  */
 
 import { ParticleSystem2D } from './particle-system-2d';
@@ -39,5 +39,5 @@ export {
     MotionStreak,
     MotionStreakAssemblerManager,
     ParticleSystem2DAssembler,
-    ParticleAsset
+    ParticleAsset,
 };

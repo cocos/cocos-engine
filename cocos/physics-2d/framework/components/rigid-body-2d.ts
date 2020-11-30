@@ -1,10 +1,15 @@
-import { IRigidBody2D } from "../../spec/i-rigid-body";
-import { _decorator, Vec2, Component, error, Layers, IVec2Like } from "../../../core";
-import { ERigidBody2DType } from "../physics-types";
-import { ccclass } from "../../../core/data/class-decorator";
-import { EDITOR } from "internal:constants";
-import { createRigidBody } from "../instance";
-import { Joint2D } from "./joints/joint-2d";
+/**
+ * @packageDocumentation
+ * @module physics2d
+ */
+
+import { EDITOR } from 'internal:constants';
+import { IRigidBody2D } from '../../spec/i-rigid-body';
+import { _decorator, Vec2, Component, error, Layers, IVec2Like } from '../../../core';
+import { ERigidBody2DType } from '../physics-types';
+import { ccclass } from '../../../core/data/class-decorator';
+import { createRigidBody } from '../instance';
+import { Joint2D } from './joints/joint-2d';
 import { PhysicsGroup } from '../../../physics/framework/physics-enum';
 
 const { property, type, menu } = _decorator;
@@ -32,13 +37,13 @@ export class RigidBody2D extends Component {
     /**
      * @en
      * Is this a fast moving body that should be prevented from tunneling through
-     * other moving bodies? 
-     * Note : 
+     * other moving bodies?
+     * Note :
      * - All bodies are prevented from tunneling through kinematic and static bodies. This setting is only considered on dynamic bodies.
      * - You should use this flag sparingly since it increases processing time.
      * @zh
      * 这个刚体是否是一个快速移动的刚体，并且需要禁止穿过其他快速移动的刚体？
-     * 需要注意的是 : 
+     * 需要注意的是 :
      *  - 所有刚体都被禁止从 运动刚体 和 静态刚体 中穿过。此选项只关注于 动态刚体。
      *  - 应该尽量少的使用此选项，因为它会增加程序处理时间。
      */
@@ -60,8 +65,7 @@ export class RigidBody2D extends Component {
         if (this._body) {
             if (v === ERigidBody2DType.Animated) {
                 this._body.setType(ERigidBody2DType.Kinematic);
-            }
-            else {
+            } else {
                 this._body.setType(v);
             }
         }
@@ -87,7 +91,7 @@ export class RigidBody2D extends Component {
     }
 
     /**
-     * @en 
+     * @en
      * Scale the gravity applied to this body.
      * @zh
      * 缩放应用在此刚体上的重力值
@@ -240,7 +244,7 @@ export class RigidBody2D extends Component {
     // }
 
     /// RigidBody methods ///
-    
+
     /**
      * @en
      * Whether the rigid body is awake.
@@ -446,7 +450,6 @@ export class RigidBody2D extends Component {
         return 0;
     }
 
-
     /// COMPONENT LIFECYCLE ///
     protected onLoad () {
         if (!EDITOR) {
@@ -491,7 +494,7 @@ export class RigidBody2D extends Component {
     @property
     private _angularDamping = 0;
     @property
-    private _linearVelocity = new Vec2;
+    private _linearVelocity = new Vec2();
     @property
     private _angularVelocity = 0;
     @property

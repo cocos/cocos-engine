@@ -27,7 +27,7 @@
 
 /**
  * @packageDocumentation
- * @module ui
+ * @module tiledmap
  */
 
 import { ccclass } from 'cc.decorator';
@@ -429,8 +429,10 @@ export class TiledLayer extends UIRenderable {
      * @method getLayerName
      * @return {String}
      * @example
+     * ```
      * let layerName = tiledLayer.getLayerName();
      * cc.log(layerName);
+     * ```
      */
     public getLayerName (): string {
         return this._layerName;
@@ -442,7 +444,9 @@ export class TiledLayer extends UIRenderable {
      * @method SetLayerName
      * @param {String} layerName
      * @example
+     * ```
      * tiledLayer.setLayerName("New Layer");
+     * ```
      */
     public setLayerName (layerName: string) {
         this._layerName = layerName;
@@ -455,8 +459,10 @@ export class TiledLayer extends UIRenderable {
      * @param {String} propertyName
      * @return {*}
      * @example
+     * ```
      * let property = tiledLayer.getProperty("info");
      * cc.log(property);
+     * ```
      */
     public getProperty (propertyName: string) {
         return this._properties![propertyName];
@@ -470,10 +476,12 @@ export class TiledLayer extends UIRenderable {
      * @param {Number} [y]
      * @return {Vec2}
      * @example
+     * ```
      * let pos = tiledLayer.getPositionAt(cc.v2(0, 0));
      * cc.log("Pos: " + pos);
      * let pos = tiledLayer.getPositionAt(0, 0);
      * cc.log("Pos: " + pos);
+     * ```
      */
     public getPositionAt (pos: IVec2Like | number, y?: number): Vec2 | null {
         let x;
@@ -589,7 +597,9 @@ export class TiledLayer extends UIRenderable {
      * @param {Number} beginRow begin row number
      * @param {Number} totalCols count of column
      * @example
+     * ```
      * tiledLayer.setTilesGIDAt([1, 1, 1, 1], 10, 10, 2)
+     * ```
      */
     public setTilesGIDAt (gids: number[], beginCol: number, beginRow: number, totalCols: number) {
         if (!gids || gids.length === 0 || totalCols <= 0) return;
@@ -621,7 +631,9 @@ export class TiledLayer extends UIRenderable {
      * @param {Number} flagsOrY flags or y
      * @param {Number} [flags]
      * @example
+     * ```
      * tiledLayer.setTileGIDAt(1001, 10, 10, 1)
+     * ```
      */
     public setTileGIDAt (gid: MixedGID, x: number, y: number, flags?: number) {
         const ugid = ((gid as unknown as number) & TileFlag.FLIPPED_MASK) >>> 0;
@@ -674,7 +686,9 @@ export class TiledLayer extends UIRenderable {
      * @param {Vec2} pos
      * @return {Number}
      * @example
+     * ```
      * let tileGid = tiledLayer.getTileGIDAt(0, 0);
+     * ```
      */
     public getTileGIDAt (x: number, y: number): number | null {
         if (this.isInvalidPosition(x, y)) {
@@ -702,7 +716,9 @@ export class TiledLayer extends UIRenderable {
      * @param {number}} y
      * @return {Number}
      * @example
+     * ```
      * let tileGid = tiledLayer.getTileGIDAt(0, 0);
+     * ```
      */
     public getTileFlagsAt (x: number, y: number) {
         if (this.isInvalidPosition(x, y)) {
@@ -874,8 +890,10 @@ export class TiledLayer extends UIRenderable {
      * @method getLayerOrientation
      * @return {Number}
      * @example
+     * ```
      * let orientation = tiledLayer.getLayerOrientation();
      * cc.log("Layer Orientation: " + orientation);
+     * ```
      */
     public getLayerOrientation () {
         return this._layerOrientation;
@@ -887,8 +905,10 @@ export class TiledLayer extends UIRenderable {
      * @method getProperties
      * @return {Object}
      * @example
+     * ```
      * let properties = tiledLayer.getProperties();
      * cc.log("Properties: " + properties);
+     * ```
      */
     public getProperties () {
         return this._properties;
@@ -1092,8 +1112,10 @@ export class TiledLayer extends UIRenderable {
      * @param {Boolean} forceCreate
      * @return {cc.TiledTile}
      * @example
+     * ```
      * let tile = tiledLayer.getTiledTileAt(100, 100, true);
      * cc.log(tile);
+     * ```
      */
     public getTiledTileAt (x: number, y: number, forceCreate?: boolean) {
         if (this.isInvalidPosition(x, y)) {
@@ -1204,8 +1226,10 @@ export class TiledLayer extends UIRenderable {
      * @method getLayerSize
      * @return {Size}
      * @example
+     * ```
      * let size = tiledLayer.getLayerSize();
      * cc.log("layer size: " + size);
+     * ```
      */
     public getLayerSize (): Size {
         return this._layerSize!;
@@ -1217,8 +1241,10 @@ export class TiledLayer extends UIRenderable {
      * @method getMapTileSize
      * @return {Size}
      * @example
+     * ```
      * let mapTileSize = tiledLayer.getMapTileSize();
      * cc.log("MapTile size: " + mapTileSize);
+     * ```
      */
     public getMapTileSize (): Size {
         return this._mapTileSize!;

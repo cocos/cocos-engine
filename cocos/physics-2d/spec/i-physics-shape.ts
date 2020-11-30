@@ -1,5 +1,6 @@
 /**
- * @hidden
+ * @packageDocumentation
+ * @module physics2d
  */
 
 import { IVec3Like } from '../../core/math/type-define';

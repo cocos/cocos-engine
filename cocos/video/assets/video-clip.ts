@@ -24,11 +24,12 @@
  */
 
 /**
- * @category component/audio
+ * @packageDocumentation
+ * @module video
  */
 
-import { Asset } from '../../core/assets';
 import { ccclass, serializable } from 'cc.decorator';
+import { Asset } from '../../core/assets';
 
 /**
  * @en
@@ -38,7 +39,6 @@ import { ccclass, serializable } from 'cc.decorator';
  */
 @ccclass('cc.VideoClip')
 export class VideoClip extends Asset {
-
     @serializable
     protected _duration = 0;
     protected _video: any = null;

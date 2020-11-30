@@ -24,7 +24,8 @@
  */
 
 /**
- * @category component/web-view
+ * @packageDocumentation
+ * @module webView
  */
 
 import { ccclass, help, executeInEditMode, menu, tooltip, type, displayOrder, serializable, requireComponent } from 'cc.decorator';
@@ -33,7 +34,7 @@ import { UITransform } from '../core/components/ui-base';
 import { Component, EventHandler as ComponentEventHandler } from '../core/components';
 import { WebViewImplManager } from './web-view-impl-manager';
 import { EventType } from './web-view-enums';
-import { legacyCC } from "../core/global-exports";
+import { legacyCC } from '../core/global-exports';
 
 /**
  * @en

@@ -25,6 +25,7 @@
 /**
  * @packageDocumentation
  * @hidden
+ * @module asset-manager
  */
 import { EDITOR, TEST } from 'internal:constants';
 import { Asset } from '../assets/asset';

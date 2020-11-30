@@ -25,7 +25,8 @@
  */
 
 /**
- * @category particle2d
+ * @packageDocumentation
+ * @module Particle2d
  */
 
 import { ccclass, editable, type, menu, executeInEditMode, serializable, playOnFocus, tooltip } from 'cc.decorator';
@@ -176,8 +177,10 @@ function getParticleComponents (node) {
  * It is possible to customize any of the above mentioned properties in runtime. Example:   <br/>
  *
  * @example
+ * ```
  * emitter.radialAccel = 15;
  * emitter.startSpin = 0;
+ * ```
  */
 @ccclass('cc.ParticleSystem2D')
 @menu('Components/ParticleSystem2D')
@@ -842,8 +845,10 @@ export class ParticleSystem2D extends UIRenderable {
      * @en Stop emitting particles. Running particles will continue to run until they die.
      * @zh 停止发射器发射粒子，发射出去的粒子将继续运行，直至粒子生命结束。
      * @example
+     * ```
      * // stop particle system.
      * myParticleSystem.stopSystem();
+     * ```
      */
     public stopSystem () {
         this._stopped = true;
@@ -854,8 +859,10 @@ export class ParticleSystem2D extends UIRenderable {
      * @en Kill all living particles.
      * @zh 杀死所有存在的粒子，然后重新启动粒子发射器。
      * @example
+     * ```
      * // play particle system.
      * myParticleSystem.resetSystem();
+     * ```
      */
     public resetSystem () {
         this._stopped = false;

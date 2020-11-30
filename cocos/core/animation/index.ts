@@ -25,7 +25,7 @@
 
 /**
  * @packageDocumentation
- * @hidden
+ * @module animation
  */
 import { ccclass } from 'cc.decorator';
 import * as animation from './animation';

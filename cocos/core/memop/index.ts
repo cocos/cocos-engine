@@ -26,6 +26,7 @@
 /**
  * @packageDocumentation
  * @hidden
+ * @module memop
  */
 
 export * from './pool';

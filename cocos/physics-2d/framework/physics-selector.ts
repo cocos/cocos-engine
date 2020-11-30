@@ -1,8 +1,10 @@
+/**
+ * @packageDocumentation
+ * @module physics2d
+ */
+
 import { legacyCC } from '../../core/global-exports';
 
-/**
- * @hidden
- */
 interface IPhysicsWrapperObject {
     PhysicsWorld: any,
     RigidBody?: any,
@@ -11,7 +13,6 @@ interface IPhysicsWrapperObject {
     CircleShape: any,
     PolygonShape?: any,
 
-    
     DistanceJoint: any,
     FixedJoint: any,
     MouseJoint: any,
@@ -30,8 +31,8 @@ export let physicsEngineId: IPhysicsEngineId;
 
 export function select (id: IPhysicsEngineId, wrapper: IPhysicsWrapperObject) {
     physicsEngineId = id;
-    legacyCC._global['CC_PHYSICS_2D_BUILTIN'] = id == 'builtin';
-    legacyCC._global['CC_PHYSICS_2D_BOX2D'] = id == "box2d";
-    
+    legacyCC._global.CC_PHYSICS_2D_BUILTIN = id == 'builtin';
+    legacyCC._global.CC_PHYSICS_2D_BOX2D = id == 'box2d';
+
     WRAPPER = wrapper;
 }

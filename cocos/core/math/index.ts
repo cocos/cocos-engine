@@ -26,10 +26,12 @@
 
 /**
  * @packageDocumentation
- * @hidden
+ * @module core/math
  */
 
 import * as bits from './bits';
+
+import './deprecated';
 /**
  * Export module bits.
  */
@@ -47,5 +49,3 @@ export { Rect, rect } from './rect';
 export { Color, color } from './color';
 export * from './utils';
 export * from './type-define';
-
-import './deprecated';

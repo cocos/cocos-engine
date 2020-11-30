@@ -25,7 +25,7 @@
 
 /**
  * @packageDocumentation
- * @hidden
+ * @module tween
  */
 
 export { TweenSystem } from './tween-system';

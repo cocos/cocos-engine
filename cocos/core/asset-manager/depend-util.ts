@@ -52,7 +52,6 @@ export interface IDependencies {
  *
  */
 export class DependUtil {
-
     public _depends: Cache<IDependencies> = new Cache<IDependencies>();
 
     public init (): void {
@@ -70,12 +69,14 @@ export class DependUtil {
      * @returns native dependency
      *
      * @example
+     * ```
      * var dep = dependUtil.getNativeDep('fcmR3XADNLgJ1ByKhqcC5Z');
+     * ```
      */
     public getNativeDep (uuid: string): Record<string, any> | null {
         const depend = this._depends.get(uuid);
         if (depend && depend.nativeDep) {
-            return Object.assign({}, depend.nativeDep);
+            return { ...depend.nativeDep };
         }
         return null;
     }
@@ -91,8 +92,9 @@ export class DependUtil {
      * @returns direct referencing non-native dependency list
      *
      * @example
+     * ```
      * var deps = dependUtil.getDeps('fcmR3XADNLgJ1ByKhqcC5Z');
-     *
+     * ```
      */
     public getDeps (uuid: string): string[] {
         if (this._depends.has(uuid)) {
@@ -114,8 +116,9 @@ export class DependUtil {
      * @returns non-native dependency list
      *
      * @example
+     * ```
      * var deps = dependUtil.getDepsRecursively('fcmR3XADNLgJ1ByKhqcC5Z');
-     *
+     * ```
      */
     public getDepsRecursively (uuid: string): string[] {
         const exclude = Object.create(null);
@@ -140,15 +143,15 @@ export class DependUtil {
      * @returns dependency list, include non-native and native dependency
      *
      * @example
+     * ```
      * downloader.downloadFile('test.json', { xhrResponseType: 'json'}, null, (err, file) => {
      *     var dependencies = parse('fcmR3XADNLgJ1ByKhqcC5Z', file);
      * });
-     *
+     * ```
      */
     public parse (uuid: string, json: any): IDependencies {
         let out: IDependencies | null = null;
         if (Array.isArray(json) || json.__type__) {
-
             if (this._depends.has(uuid)) {
                 return this._depends.get(uuid)!;
             }
@@ -158,18 +161,16 @@ export class DependUtil {
                 out = {
                     deps: this._parseDepsFromJson(json),
                 };
-            }
-            else {
+            } else {
                 try {
                     const asset = deserialize(json, { __uuid__: uuid });
                     out = this._parseDepsFromAsset(asset);
                     if (out.nativeDep) {
                         out.nativeDep.uuid = uuid;
                     }
-                    parsed.add(uuid + '@import', asset);
-                }
-                catch (e) {
-                    files.remove(uuid + '@import');
+                    parsed.add(`${uuid}@import`, asset);
+                } catch (e) {
+                    files.remove(`${uuid}@import`);
                     out = { deps: [] };
                 }
             }
@@ -216,8 +217,8 @@ export class DependUtil {
             if (isCompiledJson(json)) {
                 // @ts-expect-error
                 depends = getDependUuidList(json);
-                depends!.forEach((uuid, index) => depends![index] = decodeUuid(uuid));
-                return depends!;
+                depends.forEach((uuid, index) => depends![index] = decodeUuid(uuid));
+                return depends;
             }
 
             depends = [];
@@ -228,11 +229,9 @@ export class DependUtil {
                     for (let i = 0, l = data.length; i < l; i++) {
                         parseDependRecursively(data[i], out);
                     }
-                }
-                else if (uuid) {
+                } else if (uuid) {
                     out.push(decodeUuid(uuid));
-                }
-                else {
+                } else {
                     for (const prop in data) {
                         parseDependRecursively(data[prop], out);
                     }
@@ -241,12 +240,12 @@ export class DependUtil {
             parseDependRecursively(json, depends);
             return depends;
         }
-        else {
-            // @ts-expect-error
-            depends = getDependUuidList(json);
-            depends!.forEach((uuid, index) => depends![index] = decodeUuid(uuid));
-        }
-        return depends!;
+
+        // @ts-expect-error
+        depends = getDependUuidList(json);
+        depends.forEach((uuid, index) => depends![index] = decodeUuid(uuid));
+
+        return depends;
     }
 
     private _descend (uuid: string, exclude: Record<string, any>, depends: string[]): void {

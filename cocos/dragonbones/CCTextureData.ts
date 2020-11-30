@@ -1,3 +1,8 @@
+/**
+ * @packageDocumentation
+ * @module dragonBones
+ */
+
 import { RenderTexture, Size, SpriteFrame, Vec2 } from '../core';
 import { TextureBase } from '../core/assets/texture-base';
 import { ccclass } from '../core/data/decorators';

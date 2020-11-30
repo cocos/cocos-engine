@@ -23,6 +23,11 @@
  THE SOFTWARE.
  */
 
+/**
+ * @packageDocumentation
+ * @module physics2d.box2d
+ */
+
 import b2 from '@cocos/box2d';
 import { Vec2 } from '../../core';
 import { PHYSICS_2D_PTM_RATIO } from '../framework/physics-types';
@@ -33,11 +38,10 @@ export type b2ContactExtends = b2.Contact & {
     m_userData: any
 }
 
-
 const pools: PhysicsContact[] = [];
 
 // temp world manifold
-const pointCache = [new Vec2, new Vec2];
+const pointCache = [new Vec2(), new Vec2()];
 
 const b2worldmanifold = new b2.WorldManifold();
 
@@ -377,18 +381,18 @@ export class PhysicsContact {
     emit (contactType) {
         let func;
         switch (contactType) {
-            case Contact2DType.BEGIN_CONTACT:
-                func = 'onBeginContact';
-                break;
-            case Contact2DType.END_CONTACT:
-                func = 'onEndContact';
-                break;
-            case Contact2DType.PRE_SOLVE:
-                func = 'onPreSolve';
-                break;
-            case Contact2DType.POST_SOLVE:
-                func = 'onPostSolve';
-                break;
+        case Contact2DType.BEGIN_CONTACT:
+            func = 'onBeginContact';
+            break;
+        case Contact2DType.END_CONTACT:
+            func = 'onEndContact';
+            break;
+        case Contact2DType.PRE_SOLVE:
+            func = 'onPreSolve';
+            break;
+        case Contact2DType.POST_SOLVE:
+            func = 'onPostSolve';
+            break;
         }
 
         const colliderA = this.colliderA;
@@ -414,7 +418,6 @@ export class PhysicsContact {
             this.disabledOnce = false;
         }
     }
-
 
     /**
      * @en
@@ -551,4 +554,3 @@ export class PhysicsContact {
         return this._b2contact!.ResetRestitution();
     }
 }
-

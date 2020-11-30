@@ -23,6 +23,11 @@
  THE SOFTWARE.
  */
 
+/**
+ * @packageDocumentation
+ * @module core
+ */
+
 const _global = typeof window === 'undefined' ? global : window;
 
 function defined (name: string) {

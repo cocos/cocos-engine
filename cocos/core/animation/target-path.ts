@@ -26,6 +26,7 @@
 /**
  * @packageDocumentation
  * @hidden
+ * @module animation
  */
 
 import { ccclass, serializable } from 'cc.decorator';
@@ -55,7 +56,7 @@ export function isCustomPath<T extends ICustomTargetPath> (path: TargetPath, con
 @ccclass('cc.animation.HierarchyPath')
 export class HierarchyPath implements ICustomTargetPath {
     @serializable
-    public path: string = '';
+    public path = '';
 
     constructor (path?: string) {
         this.path = path || '';
@@ -63,7 +64,7 @@ export class HierarchyPath implements ICustomTargetPath {
 
     public get (target: Node) {
         if (!(target instanceof Node)) {
-            warn(`Target of hierarchy path should be of type Node.`);
+            warn('Target of hierarchy path should be of type Node.');
             return null;
         }
         const result = target.getChildByPath(this.path);
@@ -78,7 +79,7 @@ export class HierarchyPath implements ICustomTargetPath {
 @ccclass('cc.animation.ComponentPath')
 export class ComponentPath implements ICustomTargetPath {
     @serializable
-    public component: string = '';
+    public component = '';
 
     constructor (component?: string) {
         this.component = component || '';
@@ -86,7 +87,7 @@ export class ComponentPath implements ICustomTargetPath {
 
     public get (target: Node) {
         if (!(target instanceof Node)) {
-            warn(`Target of component path should be of type Node.`);
+            warn('Target of component path should be of type Node.');
             return null;
         }
         const result = target.getComponent(this.component);
@@ -111,9 +112,8 @@ export function evaluatePath (root: any, ...paths: TargetPath[]) {
             if (!(path in result)) {
                 warn(`Target object has no property "${path}"`);
                 return null;
-            } else {
-                result = result[path];
             }
+            result = result[path];
         } else {
             result = path.get(result);
         }

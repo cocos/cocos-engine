@@ -1,6 +1,13 @@
-export * from "./physics-types";
+/**
+ * @packageDocumentation
+ * @module physics2d
+ */
 
-export * from "./physics-system";
+import * as PolygonSeparator from './utils/polygon-separator';
+
+export * from './physics-types';
+
+export * from './physics-system';
 
 // rigid body
 export * from './components/rigid-body-2d';
@@ -22,8 +29,6 @@ export * from './components/joints/fixed-joint-2d';
 export * from './components/joints/wheel-joint-2d';
 export * from './components/joints/hinge-joint-2d';
 
-import * as PolygonSeparator from './utils/polygon-separator';
-
 export const Physics2DUtils = {
-    PolygonSeparator
-}
+    PolygonSeparator,
+};

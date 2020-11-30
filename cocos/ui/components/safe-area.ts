@@ -29,14 +29,13 @@
  */
 
 import { ccclass, help, executionOrder, menu, executeInEditMode, requireComponent } from 'cc.decorator';
+import { EDITOR } from 'internal:constants';
 import { Component } from '../../core/components';
 import { UITransform } from '../../core/components/ui-base';
-import { view } from '../../core/platform';
+import { view, sys } from '../../core/platform';
 import { Widget } from './widget';
 import { widgetManager } from './widget-manager';
-import { legacyCC } from "../../core/global-exports";
-import { EDITOR } from 'internal:constants';
-import { sys } from "../../core/platform";
+import { legacyCC } from '../../core/global-exports';
 
 /**
  * @en
@@ -63,7 +62,6 @@ import { sys } from "../../core/platform";
 @menu('UI/SafeArea')
 @requireComponent(Widget)
 export class SafeArea extends Component {
-
     public onEnable () {
         this.updateArea();
         view.on('canvas-resize', this.updateArea, this);
@@ -78,8 +76,10 @@ export class SafeArea extends Component {
      * @zh 立即适配安全区域
      * @method updateArea
      * @example
+     * ```
      * let safeArea = this.node.addComponent(cc.SafeArea);
      * safeArea.updateArea();
+     * ```
      */
     public updateArea () {
         // TODO Remove Widget dependencies in the future

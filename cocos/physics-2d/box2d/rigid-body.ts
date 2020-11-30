@@ -1,17 +1,22 @@
+/**
+ * @packageDocumentation
+ * @module physics2d.box2d
+ */
+
 import b2 from '@cocos/box2d';
 import { IRigidBody2D } from '../spec/i-rigid-body';
 import { RigidBody2D } from '../framework/components/rigid-body-2d';
 import { PhysicsSystem2D } from '../framework/physics-system';
 import { b2PhysicsWorld } from './physics-world';
 import { Vec2, toRadian, Vec3, Quat, IVec2Like, toDegree, game } from '../../core';
-import { PHYSICS_2D_PTM_RATIO } from '../framework/physics-types';
-import { ERigidBody2DType } from '../framework/physics-types';
+import { PHYSICS_2D_PTM_RATIO, ERigidBody2DType } from '../framework/physics-types';
+
 import { Node } from '../../core/scene-graph/node';
 import { Collider2D } from '../framework';
 
-let tempVec3 = new Vec3;
+const tempVec3 = new Vec3();
 
-let tempVec2_1 = new b2.Vec2;
+const tempVec2_1 = new b2.Vec2();
 
 export class b2RigidBody2D implements IRigidBody2D {
     get impl () {
@@ -33,7 +38,6 @@ export class b2RigidBody2D implements IRigidBody2D {
 
     _animatedPos = new Vec2();
     _animatedAngle = 0;
-
 
     private _body: b2.Body | null = null;
     private _rigidBody!: RigidBody2D;
@@ -59,12 +63,12 @@ export class b2RigidBody2D implements IRigidBody2D {
     }
 
     _registerNodeEvents () {
-        var node = this.rigidBody.node;
+        const node = this.rigidBody.node;
         node.on(Node.EventType.TRANSFORM_CHANGED, this._onNodeTransformChanged, this);
     }
 
     _unregisterNodeEvents () {
-        var node = this.rigidBody.node;
+        const node = this.rigidBody.node;
         node.off(Node.EventType.TRANSFORM_CHANGED, this._onNodeTransformChanged, this);
     }
 
@@ -74,12 +78,11 @@ export class b2RigidBody2D implements IRigidBody2D {
         }
 
         if (type & Node.TransformBit.SCALE) {
-            var colliders = this.rigidBody.getComponents(Collider2D);
-            for (var i = 0; i < colliders.length; i++) {
+            const colliders = this.rigidBody.getComponents(Collider2D);
+            for (let i = 0; i < colliders.length; i++) {
                 colliders[i].apply();
             }
-        }
-        else {
+        } else {
             if (type & Node.TransformBit.POSITION) {
                 this.syncPositionToPhysics(true);
             }
@@ -111,33 +114,32 @@ export class b2RigidBody2D implements IRigidBody2D {
     }
 
     animate (dt: number) {
-        let b2body = this._body;
+        const b2body = this._body;
         if (!b2body) return;
-        let b2Pos = b2body.GetPosition();
+        const b2Pos = b2body.GetPosition();
 
         b2body.SetAwake(true);
 
-        let timeStep = 1 / dt;
+        const timeStep = 1 / dt;
         tempVec2_1.x = (this._animatedPos.x - b2Pos.x) * timeStep;
         tempVec2_1.y = (this._animatedPos.y - b2Pos.y) * timeStep;
         b2body.SetLinearVelocity(tempVec2_1);
 
-        let b2Rotation = b2body.GetAngle();
+        const b2Rotation = b2body.GetAngle();
         b2body.SetAngularVelocity((this._animatedAngle - b2Rotation) * timeStep);
     }
 
     syncPositionToPhysics (enableAnimated = false) {
-        var b2body = this._body;
+        const b2body = this._body;
         if (!b2body) return;
 
-        var pos = this._rigidBody.node.worldPosition;
+        const pos = this._rigidBody.node.worldPosition;
 
-        var temp;
-        let bodyType = this._rigidBody.type;
+        let temp;
+        const bodyType = this._rigidBody.type;
         if (bodyType === ERigidBody2DType.Animated) {
             temp = b2body.GetLinearVelocity();
-        }
-        else {
+        } else {
             temp = b2body.GetPosition();
         }
 
@@ -146,31 +148,29 @@ export class b2RigidBody2D implements IRigidBody2D {
 
         if (bodyType === ERigidBody2DType.Animated && enableAnimated) {
             this._animatedPos.set(temp.x, temp.y);
-        }
-        else {
+        } else {
             b2body.SetTransformVec(temp, b2body.GetAngle());
         }
     }
 
     syncRotationToPhysics (enableAnimated = false) {
-        var b2body = this._body;
+        const b2body = this._body;
         if (!b2body) return;
 
-        let rotation = toRadian(this._rigidBody.node.eulerAngles.z);
-        let bodyType = this._rigidBody.type;
+        const rotation = toRadian(this._rigidBody.node.eulerAngles.z);
+        const bodyType = this._rigidBody.type;
         if (bodyType === ERigidBody2DType.Animated && enableAnimated) {
             this._animatedAngle = rotation;
-        }
-        else {
+        } else {
             b2body.SetTransformVec(b2body.GetPosition(), rotation);
         }
     }
 
     resetVelocity () {
-        let b2body = this._body;
+        const b2body = this._body;
         if (!b2body) return;
 
-        var temp = b2body.m_linearVelocity;
+        const temp = b2body.m_linearVelocity;
         temp.Set(0, 0);
 
         b2body.SetLinearVelocity(temp);
@@ -214,7 +214,7 @@ export class b2RigidBody2D implements IRigidBody2D {
         this._body!.SetLinearVelocity(v as b2.Vec2);
     }
     getLinearVelocity<Out extends IVec2Like> (out: Out): Out {
-        let velocity = this._body!.GetLinearVelocity();
+        const velocity = this._body!.GetLinearVelocity();
         out.x = velocity.x;
         out.y = velocity.y;
         return out;

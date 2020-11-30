@@ -23,6 +23,12 @@
  THE SOFTWARE.
  */
 
+/**
+ * @packageDocumentation
+ * @hidden
+ * @module terrain
+ */
+
 export const TERRAIN_LOD_VERTS = 33;
 export const TERRAIN_LOD_TILES = 32;
 export const TERRAIN_LOD_LEVELS = 4;

@@ -25,6 +25,7 @@
 /**
  * @packageDocumentation
  * @hidden
+ * @module asset-manager
  */
 import { EDITOR } from 'internal:constants';
 import MissingScript from '../components/missing-script';
@@ -50,8 +51,7 @@ export default function (json: Record<string, any>, options: Record<string, any>
             return MissingScript;
         };
         classFinder.onDereferenced = missingClass.classFinder.onDereferenced;
-    }
-    else {
+    } else {
         classFinder = MissingScript.safeFindClass;
     }
 
@@ -63,8 +63,7 @@ export default function (json: Record<string, any>, options: Record<string, any>
             classFinder,
             customEnv: options,
         });
-    }
-    catch (e) {
+    } catch (e) {
         console.error(e);
         Details.pool.put(tdInfo);
         throw e;
@@ -99,5 +98,4 @@ export default function (json: Record<string, any>, options: Record<string, any>
     }
     Details.pool.put(tdInfo);
     return asset;
-
 }

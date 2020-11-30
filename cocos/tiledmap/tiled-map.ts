@@ -25,23 +25,22 @@
 
 /**
  * @packageDocumentation
- * @module ui
+ * @module tiledmap
  */
 
+import { ccclass, displayOrder, executeInEditMode, help, menu, requireComponent, type, serializable } from 'cc.decorator';
+import { EDITOR } from 'internal:constants';
 import { Component } from '../core/components';
 import { UITransform } from '../core/components/ui-base';
-import { ccclass, displayOrder, executeInEditMode, help, menu, requireComponent, type, serializable } from 'cc.decorator';
 import { GID, Orientation, PropertiesInfo, Property, RenderOrder, StaggerAxis, StaggerIndex, TiledAnimationType, TiledTextureGrids, TileFlag,
-    TMXImageLayerInfo, TMXLayerInfo, TMXObjectGroupInfo, TMXObjectType, TMXTilesetInfo } from './tiled-types'
+    TMXImageLayerInfo, TMXLayerInfo, TMXObjectGroupInfo, TMXObjectType, TMXTilesetInfo } from './tiled-types';
 import { TMXMapInfo } from './tmx-xml-parser';
 import { TiledLayer } from './tiled-layer';
 import { TiledObjectGroup } from './tiled-object-group';
 import { TiledMapAsset } from './tiled-map-asset';
 import { Sprite } from '../ui/components/sprite';
-import { EDITOR } from 'internal:constants';
 import { fillTextureGrids, loadAllTextures } from './tiled-utils';
 import { Size, SpriteFrame, SystemEventType, Vec2, Node, logID, Color, sys } from '../core';
-
 
 interface ImageExtendedNode extends Node {
     layerInfo: TMXImageLayerInfo;
@@ -60,7 +59,6 @@ interface ImageExtendedNode extends Node {
 @requireComponent(UITransform)
 @executeInEditMode
 export class TiledMap extends Component {
-
     // store all layer gid corresponding texture info, index is gid, format likes '[gid0]=tex-info,[gid1]=tex-info, ...'
     _texGrids: TiledTextureGrids = new Map();
     // store all tileset texture, index is tileset index, format likes '[0]=texture0, [1]=texture1, ...'
@@ -82,7 +80,6 @@ export class TiledMap extends Component {
     _preloaded = false;
 
     _mapOrientation = Orientation.ORTHO;
-
 
     static Orientation = Orientation;
     static Property = Property;
@@ -116,7 +113,6 @@ export class TiledMap extends Component {
         }
     }
 
-
     /**
      * @en
      * Whether or not enabled tiled map auto culling. If you set the TiledMap skew or rotation, then need to manually
@@ -140,15 +136,16 @@ export class TiledMap extends Component {
     @serializable
     protected cleanupImageCache = true;
 
-
     /**
      * @en Gets the map size.
      * @zh 获取地图大小。
      * @method getMapSize
      * @return {Size}
      * @example
+     * ```
      * let mapSize = tiledMap.getMapSize();
      * cc.log("Map Size: " + mapSize);
+     * ```
      */
     getMapSize () {
         return this._mapSize;
@@ -160,8 +157,10 @@ export class TiledMap extends Component {
      * @method getTileSize
      * @return {Size}
      * @example
+     * ```
      * let tileSize = tiledMap.getTileSize();
      * cc.log("Tile Size: " + tileSize);
+     * ```
      */
     getTileSize () {
         return this._tileSize;
@@ -173,8 +172,10 @@ export class TiledMap extends Component {
      * @method getMapOrientation
      * @return {Number}
      * @example
+     * ```
      * let mapOrientation = tiledMap.getMapOrientation();
      * cc.log("Map Orientation: " + mapOrientation);
+     * ```
      */
     getMapOrientation () {
         return this._mapOrientation;
@@ -186,10 +187,12 @@ export class TiledMap extends Component {
      * @method getObjectGroups
      * @return {TiledObjectGroup[]}
      * @example
+     * ```
      * let objGroups = titledMap.getObjectGroups();
      * for (let i = 0; i < objGroups.length; ++i) {
      *     cc.log("obj: " + objGroups[i]);
      * }
+     * ```
      */
     getObjectGroups () {
         return this._groups;
@@ -202,8 +205,10 @@ export class TiledMap extends Component {
      * @param {String} groupName
      * @return {TiledObjectGroup}
      * @example
+     * ```
      * let group = titledMap.getObjectGroup("Players");
      * cc.log("ObjectGroup: " + group);
+     * ```
      */
     getObjectGroup (groupName: string) {
         const groups = this._groups;
@@ -223,10 +228,12 @@ export class TiledMap extends Component {
      * @method getProperties
      * @return {Object[]}
      * @example
+     * ```
      * let properties = titledMap.getProperties();
      * for (let i = 0; i < properties.length; ++i) {
      *     cc.log("Properties: " + properties[i]);
      * }
+     * ```
      */
     getProperties () {
         return this._properties;
@@ -238,10 +245,12 @@ export class TiledMap extends Component {
      * @method getLayers
      * @returns {TiledLayer[]}
      * @example
+     * ```
      * let layers = titledMap.getLayers();
      * for (let i = 0; i < layers.length; ++i) {
      *     cc.log("Layers: " + layers[i]);
      * }
+     * ```
      */
     getLayers () {
         return this._layers;
@@ -254,8 +263,10 @@ export class TiledMap extends Component {
      * @param {String} layerName
      * @return {TiledLayer}
      * @example
+     * ```
      * let layer = titledMap.getLayer("Player");
      * cc.log(layer);
+     * ```
      */
     getLayer (layerName) {
         const layers = this._layers;
@@ -286,8 +297,10 @@ export class TiledMap extends Component {
      * @param {String} propertyName
      * @return {String}
      * @example
+     * ```
      * let property = titledMap.getProperty("info");
      * cc.log("Property: " + property);
+     * ```
      */
     getProperty (propertyName: string) {
         return this._properties[propertyName.toString()];
@@ -300,8 +313,10 @@ export class TiledMap extends Component {
      * @param {Number} GID
      * @return {Object}
      * @example
+     * ```
      * let properties = titledMap.getPropertiesForGID(GID);
      * cc.log("Properties: " + properties);
+     * ```
      */
     getPropertiesForGID (gid: GID) {
         return this._tileProperties.get(gid);
@@ -326,7 +341,6 @@ export class TiledMap extends Component {
     }
 
     _applyFile () {
-
         const spriteFrames: SpriteFrame[] = [];
         const spriteFramesCache = {};
 
@@ -352,7 +366,6 @@ export class TiledMap extends Component {
                 }
             }
 
-
             const imageLayerTextures: { [key: string]: SpriteFrame } = {};
             const texValues = file.imageLayerSpriteFrame;
             spfNames = file.imageLayerSpriteFrameNames;
@@ -376,9 +389,7 @@ export class TiledMap extends Component {
             }
 
             this._buildWithMapInfo(mapInfo);
-
-        }
-        else {
+        } else {
             this._releaseMapInfo();
         }
     }
@@ -465,7 +476,7 @@ export class TiledMap extends Component {
             const tilesetInfo = tilesets[i];
             if (!tilesetInfo) continue;
             if (!tilesetInfo.sourceImage) {
-                console.warn('Can\'t find the spriteFrame of tilesets ' + i);
+                console.warn(`Can't find the spriteFrame of tilesets ${i}`);
                 continue;
             }
             fillTextureGrids(tilesetInfo, texGrids, tilesetInfo.sourceImage);
@@ -526,16 +537,14 @@ export class TiledMap extends Component {
                     // tell the layerinfo to release the ownership of the tiles map.
                     layerInfo.ownTiles = false;
                     layers.push(layer);
-                }
-                else if (layerInfo instanceof TMXObjectGroupInfo) {
+                } else if (layerInfo instanceof TMXObjectGroupInfo) {
                     let group = child.getComponent(TiledObjectGroup);
                     if (!group) {
                         group = child.addComponent(TiledObjectGroup);
                     }
                     group._init(layerInfo, mapInfo, texGrids);
                     groups.push(group);
-                }
-                else if (layerInfo instanceof TMXImageLayerInfo) {
+                } else if (layerInfo instanceof TMXImageLayerInfo) {
                     const texture = layerInfo.sourceImage;
 
                     child.layerInfo = layerInfo;
@@ -606,7 +615,7 @@ export class TiledMap extends Component {
             if (self.cleanupImageCache) {
                 const tiledMap = self;
                 self._textures.forEach((tex) => {
-                    tiledMap.doCleanupImageCache(tex)
+                    tiledMap.doCleanupImageCache(tex);
                 });
             }
         });
@@ -615,9 +624,7 @@ export class TiledMap extends Component {
     doCleanupImageCache (texture) {
         if (texture._image instanceof HTMLImageElement) {
             texture._image.src = '';
-        }
-        else if (sys.capabilities.imageBitmap && texture._image instanceof ImageBitmap) {
-
+        } else if (sys.capabilities.imageBitmap && texture._image instanceof ImageBitmap) {
             texture._image.close && texture._image.close();
         }
         texture._image = null;
@@ -642,5 +649,4 @@ export class TiledMap extends Component {
             texGrids.set(aniGID, frame.grid!);
         }
     }
-
 }

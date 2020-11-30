@@ -24,9 +24,13 @@
  THE SOFTWARE.
  */
 
+/**
+ * @packageDocumentation
+ * @module tiledmap
+ */
 
-import { Asset } from '../core/assets/asset';
 import { ccclass, type, serializable } from 'cc.decorator';
+import { Asset } from '../core/assets/asset';
 import { CCString, Size, SpriteFrame, TextAsset } from '../core';
 /**
  * Class for tiled map asset handling.
@@ -36,9 +40,8 @@ import { CCString, Size, SpriteFrame, TextAsset } from '../core';
  */
 @ccclass('cc.TiledMapAsset')
 export class TiledMapAsset extends Asset {
-
     @serializable
-    tmxXmlStr: string = '';
+    tmxXmlStr = '';
 
     @serializable
     @type([TextAsset])
@@ -83,5 +86,5 @@ export class TiledMapAsset extends Asset {
     @type([Size])
     spriteFrameSizes: Size[] = [];
 
-    static preventDeferredLoadDependents: boolean = true;
+    static preventDeferredLoadDependents = true;
 }

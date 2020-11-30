@@ -27,16 +27,11 @@
 /**
  * @packageDocumentation
  * @hidden
+ * @module core/data
  */
 
-
-
-
-
-
-
-
-import { errorID, warnID } from '../platform/debug';
+import { DEV, EDITOR, SUPPORT_JIT, TEST } from 'internal:constants';
+import { errorID, warnID, error } from '../platform/debug';
 import * as js from '../utils/js';
 import { getSuper } from '../utils/js';
 import { BitMask } from '../value-types';
@@ -45,8 +40,7 @@ import * as attributeUtils from './utils/attribute';
 import { IAcceptableAttributes } from './utils/attribute-defines';
 import { preprocessAttrs } from './utils/preprocess-class';
 import * as RF from './utils/requiring-frame';
-import { error } from '../platform/debug';
-import { DEV, EDITOR, SUPPORT_JIT, TEST } from 'internal:constants';
+
 import { legacyCC } from '../global-exports';
 
 const DELIMETER = attributeUtils.DELIMETER;
@@ -67,12 +61,11 @@ const deferredInitializer: any = {
     push (data) {
         if (this.datas) {
             this.datas.push(data);
-        }
-        else {
+        } else {
             this.datas = [data];
             // start a new timer to initialize
             const self = this;
-            setTimeout(function () {
+            setTimeout(() => {
                 self.init();
             }, 0);
         }
@@ -91,8 +84,7 @@ const deferredInitializer: any = {
                 const name = js.getClassName(cls);
                 if (properties) {
                     declareProperties(cls, name, properties, cls.$super, data.mixins);
-                }
-                else {
+                } else {
                     errorID(3633, name);
                 }
             }
@@ -122,7 +114,7 @@ function defineProp (cls, className, propName, val) {
     if (DEV) {
         // check base prototype to avoid name collision
         if (CCClass.getInheritanceChain(cls)
-            .some(function (x) { return x.prototype.hasOwnProperty(propName); })) {
+            .some((x) => x.prototype.hasOwnProperty(propName))) {
             errorID(3637, className, propName, className);
             return;
         }
@@ -177,13 +169,11 @@ function getDefault (defaultVal) {
         if (EDITOR) {
             try {
                 return defaultVal();
-            }
-            catch (e) {
+            } catch (e) {
                 legacyCC._throw(e);
                 return undefined;
             }
-        }
-        else {
+        } else {
             return defaultVal();
         }
     }
@@ -292,8 +282,7 @@ function define (className, baseClass, mixins, options) {
                 }
             }
             frame.cls = cls;
-        }
-        else if (!js.isChildClassOf(frame.cls, Component)) {
+        } else if (!js.isChildClassOf(frame.cls, Component)) {
             frame.cls = cls;
         }
     }
@@ -303,20 +292,20 @@ function define (className, baseClass, mixins, options) {
 function getNewValueTypeCodeJit (value) {
     const clsName = js.getClassName(value);
     const type = value.constructor;
-    let res = 'new ' + clsName + '(';
+    let res = `new ${clsName}(`;
     for (let i = 0; i < type.__props__.length; i++) {
         const prop = type.__props__[i];
         const propVal = value[prop];
         if (DEV && typeof propVal === 'object') {
             errorID(3641, clsName);
-            return 'new ' + clsName + '()';
+            return `new ${clsName}()`;
         }
         res += propVal;
         if (i < type.__props__.length - 1) {
             res += ',';
         }
     }
-    return res + ')';
+    return `${res})`;
 }
 
 // TODO - move escapeForJS, IDENTIFIER_RE, getNewValueTypeCodeJit to misc.js or a new source file
@@ -324,10 +313,10 @@ function getNewValueTypeCodeJit (value) {
 // convert a normal string including newlines, quotes and unicode characters into a string literal
 // ready to use in JavaScript source
 function escapeForJS (s) {
-    return JSON.stringify(s).
+    return JSON.stringify(s)
         // see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify
-        replace(/\u2028/g, '\\u2028').
-        replace(/\u2029/g, '\\u2029');
+        .replace(/\u2028/g, '\\u2028')
+        .replace(/\u2029/g, '\\u2029');
 }
 
 // simple test variable name
@@ -344,9 +333,7 @@ function declareProperties (cls, className, properties, baseClass, mixins) {
         for (let m = 0; m < mixins.length; ++m) {
             const mixin = mixins[m];
             if (mixin.__props__) {
-                cls.__props__ = cls.__props__.concat(mixin.__props__.filter(function (x) {
-                    return cls.__props__.indexOf(x) < 0;
-                }));
+                cls.__props__ = cls.__props__.concat(mixin.__props__.filter((x) => cls.__props__.indexOf(x) < 0));
             }
         }
     }
@@ -359,17 +346,14 @@ function declareProperties (cls, className, properties, baseClass, mixins) {
             const val = properties[propName];
             if ('default' in val) {
                 defineProp(cls, className, propName, val);
-            }
-            else {
+            } else {
                 defineGetSet(cls, className, propName, val);
             }
         }
     }
 
     const attrs = attributeUtils.getClassAttrs(cls);
-    cls.__values__ = cls.__props__.filter(function (prop) {
-        return attrs[prop + DELIMETER + 'serializable'] !== false;
-    });
+    cls.__values__ = cls.__props__.filter((prop) => attrs[`${prop + DELIMETER}serializable`] !== false);
 }
 
 export function CCClass<TFunction> (options: {
@@ -381,7 +365,7 @@ export function CCClass<TFunction> (options: {
     editor?: any;
 }) {
     let name = options.name;
-    const base = options.extends/* || CCObject*/;
+    const base = options.extends/* || CCObject */;
     const mixins = options.mixins;
 
     // create constructor
@@ -397,21 +381,17 @@ export function CCClass<TFunction> (options: {
 
     // define Properties
     const properties = options.properties;
-    if (typeof properties === 'function' ||
-        (base && base.__props__ === null) ||
-        (mixins && mixins.some(function (x) {
-            return x.__props__ === null;
-        }))
+    if (typeof properties === 'function'
+        || (base && base.__props__ === null)
+        || (mixins && mixins.some((x) => x.__props__ === null))
     ) {
         if (DEV) {
             error('not yet implement deferred properties.');
-        }
-        else {
+        } else {
             deferredInitializer.push({ cls, props: properties, mixins });
             cls.__props__ = cls.__values__ = null;
         }
-    }
-    else {
+    } else {
         declareProperties(cls, name, properties, base, options.mixins);
     }
 
@@ -419,8 +399,7 @@ export function CCClass<TFunction> (options: {
     if (editor) {
         if (js.isChildClassOf(base, legacyCC.Component)) {
             legacyCC.Component._registerEditorProps(cls, editor);
-        }
-        else if (DEV) {
+        } else if (DEV) {
             warnID(3623, name);
         }
     }
@@ -461,8 +440,8 @@ CCClass.fastDefine = function (className, constructor, serializableFields) {
     const attrs = attributeUtils.getClassAttrs(constructor);
     for (let i = 0; i < props.length; i++) {
         const key = props[i];
-        attrs[key + DELIMETER + 'visible'] = false;
-        attrs[key + DELIMETER + 'default'] = serializableFields[key];
+        attrs[`${key + DELIMETER}visible`] = false;
+        attrs[`${key + DELIMETER}default`] = serializableFields[key];
     }
 };
 CCClass.Attr = attributeUtils;
@@ -528,9 +507,9 @@ function parseAttributes (constructor: Function, attributes: IAcceptableAttribut
     if (type) {
         const primitiveType = PrimitiveTypes[type];
         if (primitiveType) {
-            (attrs || initAttrs())[propertyNamePrefix + 'type'] = type;
+            (attrs || initAttrs())[`${propertyNamePrefix}type`] = type;
             if (((EDITOR && !window.Build) || TEST) && !attributes._short) {
-                onAfterProps_ET.push(attributeUtils.getTypeChecker_ET(primitiveType, 'cc.' + type));
+                onAfterProps_ET.push(attributeUtils.getTypeChecker_ET(primitiveType, `cc.${type}`));
             }
         } else if (type === 'Object') {
             if (DEV) {
@@ -543,19 +522,17 @@ function parseAttributes (constructor: Function, attributes: IAcceptableAttribut
         // }
         else if (typeof type === 'object') {
             if (Enum.isEnum(type)) {
-                (attrs || initAttrs())[propertyNamePrefix + 'type'] = 'Enum';
-                attrs![propertyNamePrefix + 'enumList'] = Enum.getList(type);
-            }
-            else if (BitMask.isBitMask(type)) {
-                (attrs || initAttrs())[propertyNamePrefix + 'type'] = 'BitMask';
-                attrs![propertyNamePrefix + 'bitmaskList'] = BitMask.getList(type);
-            }
-            else if (DEV) {
+                (attrs || initAttrs())[`${propertyNamePrefix}type`] = 'Enum';
+                attrs![`${propertyNamePrefix}enumList`] = Enum.getList(type);
+            } else if (BitMask.isBitMask(type)) {
+                (attrs || initAttrs())[`${propertyNamePrefix}type`] = 'BitMask';
+                attrs![`${propertyNamePrefix}bitmaskList`] = BitMask.getList(type);
+            } else if (DEV) {
                 errorID(3645, className, propertyName, type);
             }
         } else if (typeof type === 'function') {
-            (attrs || initAttrs())[propertyNamePrefix + 'type'] = 'Object';
-            attrs![propertyNamePrefix + 'ctor'] = type;
+            (attrs || initAttrs())[`${propertyNamePrefix}type`] = 'Object';
+            attrs![`${propertyNamePrefix}ctor`] = type;
             if (((EDITOR && !window.Build) || TEST) && !attributes._short) {
                 onAfterProps_ET.push(attributeUtils.getObjTypeChecker_ET(type));
             }
@@ -578,9 +555,8 @@ function parseAttributes (constructor: Function, attributes: IAcceptableAttribut
     if (attributes.editorOnly) {
         if (DEV && usedInGetter) {
             errorID(3613, 'editorOnly', name, propertyName);
-        }
-        else {
-            (attrs || initAttrs())[propertyNamePrefix + 'editorOnly'] = true;
+        } else {
+            (attrs || initAttrs())[`${propertyNamePrefix}editorOnly`] = true;
         }
     }
     // parseSimpleAttr('preventDeferredLoad', 'boolean');
@@ -590,7 +566,7 @@ function parseAttributes (constructor: Function, attributes: IAcceptableAttribut
         parseSimpleAttribute('multiline', 'boolean');
         parseSimpleAttribute('radian', 'boolean');
         if (attributes.readonly) {
-            (attrs || initAttrs())[propertyNamePrefix + 'readonly'] = true;
+            (attrs || initAttrs())[`${propertyNamePrefix}readonly`] = true;
         }
         parseSimpleAttribute('tooltip', 'string');
         parseSimpleAttribute('slide', 'boolean');
@@ -598,15 +574,12 @@ function parseAttributes (constructor: Function, attributes: IAcceptableAttribut
     }
 
     if (attributes.__noImplicit) {
-        (attrs || initAttrs())[propertyNamePrefix + 'serializable'] = attributes.serializable ?? false;
-    } else {
-        if (attributes.serializable === false) {
-            if (DEV && usedInGetter) {
-                errorID(3613, 'serializable', name, propertyName);
-            }
-            else {
-                (attrs || initAttrs())[propertyNamePrefix + 'serializable'] = false;
-            }
+        (attrs || initAttrs())[`${propertyNamePrefix}serializable`] = attributes.serializable ?? false;
+    } else if (attributes.serializable === false) {
+        if (DEV && usedInGetter) {
+            errorID(3613, 'serializable', name, propertyName);
+        } else {
+            (attrs || initAttrs())[`${propertyNamePrefix}serializable`] = false;
         }
     }
 
@@ -614,27 +587,25 @@ function parseAttributes (constructor: Function, attributes: IAcceptableAttribut
 
     if (EDITOR) {
         if ('animatable' in attributes) {
-            (attrs || initAttrs())[propertyNamePrefix + 'animatable'] = attributes.animatable;
+            (attrs || initAttrs())[`${propertyNamePrefix}animatable`] = attributes.animatable;
         }
     }
 
     if (DEV) {
         if (attributes.__noImplicit) {
-            (attrs || initAttrs())[propertyNamePrefix + 'visible'] = attributes.visible ?? false;
+            (attrs || initAttrs())[`${propertyNamePrefix}visible`] = attributes.visible ?? false;
         } else {
             const visible = attributes.visible;
             if (typeof visible !== 'undefined') {
                 if (!visible) {
-                    (attrs || initAttrs())[propertyNamePrefix + 'visible'] = false;
+                    (attrs || initAttrs())[`${propertyNamePrefix}visible`] = false;
+                } else if (typeof visible === 'function') {
+                    (attrs || initAttrs())[`${propertyNamePrefix}visible`] = visible;
                 }
-                else if (typeof visible === 'function') {
-                    (attrs || initAttrs())[propertyNamePrefix + 'visible'] = visible;
-                }
-            }
-            else {
+            } else {
                 const startsWithUS = (propertyName.charCodeAt(0) === 95);
                 if (startsWithUS) {
-                    (attrs || initAttrs())[propertyNamePrefix + 'visible'] = false;
+                    (attrs || initAttrs())[`${propertyNamePrefix}visible`] = false;
                 }
             }
         }
@@ -644,17 +615,15 @@ function parseAttributes (constructor: Function, attributes: IAcceptableAttribut
     if (range) {
         if (Array.isArray(range)) {
             if (range.length >= 2) {
-                (attrs || initAttrs())[propertyNamePrefix + 'min'] = range[0];
-                attrs![propertyNamePrefix + 'max'] = range[1];
+                (attrs || initAttrs())[`${propertyNamePrefix}min`] = range[0];
+                attrs![`${propertyNamePrefix}max`] = range[1];
                 if (range.length > 2) {
-                    attrs![propertyNamePrefix + 'step'] = range[2];
+                    attrs![`${propertyNamePrefix}step`] = range[2];
                 }
-            }
-            else if (DEV) {
+            } else if (DEV) {
                 errorID(3647);
             }
-        }
-        else if (DEV) {
+        } else if (DEV) {
             error(ERR_Type, 'range', className, propertyName, 'array');
         }
     }

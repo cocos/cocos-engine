@@ -23,6 +23,12 @@
  THE SOFTWARE.
  */
 
+/**
+ * @packageDocumentation
+ * @hidden
+ * @module gfx
+ */
+
 declare const gfx: any;
 
 import * as Defines from './define';

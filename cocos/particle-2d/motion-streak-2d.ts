@@ -24,11 +24,16 @@
  THE SOFTWARE.
  */
 
+/**
+ * @packageDocumentation
+ * @module Particle2d
+ */
+
 import { ccclass, executeInEditMode, serializable, playOnFocus, menu, help, editable, type } from 'cc.decorator';
+import { EDITOR } from 'internal:constants';
 import { UIRenderable } from '../core/components/ui-base';
 import { Texture2D } from '../core/assets/texture-2d';
 import { UI } from '../core/renderer/ui/ui';
-import { EDITOR } from 'internal:constants';
 
 /**
  * @en
@@ -64,7 +69,9 @@ export class MotionStreak extends UIRenderable {
      * @en The fade time to fade.
      * @zh 拖尾的渐隐时间，以秒为单位。
      * @example
+     * ```
      * motionStreak.fadeTime = 3;
+     * ```
      */
     @editable
     public get fadeTime () {
@@ -79,7 +86,9 @@ export class MotionStreak extends UIRenderable {
      * @en The minimum segment size.
      * @zh 拖尾之间最小距离。
      * @example
+     * ```
      * motionStreak.minSeg = 3;
+     * ```
      */
     @editable
     public get minSeg () {
@@ -92,7 +101,9 @@ export class MotionStreak extends UIRenderable {
      * @en The stroke's width.
      * @zh 拖尾的宽度。
      * @example
+     * ```
      * motionStreak.stroke = 64;
+     * ```
      */
     @editable
     public get stroke () {
@@ -106,7 +117,9 @@ export class MotionStreak extends UIRenderable {
      * @en The texture of the MotionStreak.
      * @zh 拖尾的贴图。
      * @example
+     * ```
      * motionStreak.texture = newTexture;
+     * ```
      */
     @type(Texture2D)
     public get texture () {
@@ -122,7 +135,9 @@ export class MotionStreak extends UIRenderable {
      * @en The fast Mode.
      * @zh 是否启用了快速模式。当启用快速模式，新的点会被更快地添加，但精度较低。
      * @example
+     * ```
      * motionStreak.fastMode = true;
+     * ```
      */
     @editable
     public get fastMode () {
@@ -137,7 +152,7 @@ export class MotionStreak extends UIRenderable {
     }
 
     @serializable
-    private _preview: boolean = false;
+    private _preview = false;
     @serializable
     private _fadeTime = 1;
     @serializable
@@ -147,7 +162,7 @@ export class MotionStreak extends UIRenderable {
     @serializable
     private _texture: Texture2D | null  = null;
     @serializable
-    private _fastMode: boolean = false;
+    private _fastMode = false;
     private _points: any[] = [];
 
     public onEnable () {
@@ -163,7 +178,7 @@ export class MotionStreak extends UIRenderable {
         }
 
         if (!this._renderData) {
-            if (this._assembler && this._assembler.createData){
+            if (this._assembler && this._assembler.createData) {
                 this._renderData = this._assembler.createData(this);
                 this._renderData!.material = this.material;
             }
@@ -186,8 +201,10 @@ export class MotionStreak extends UIRenderable {
      * @en Remove all living segments of the ribbon.
      * @zh 删除当前所有的拖尾片段。
      * @example
+     * ```
      * // Remove all living segments of the ribbon.
      * myMotionStreak.reset();
+     * ```
      */
     public reset () {
         this._points.length = 0;
@@ -200,6 +217,6 @@ export class MotionStreak extends UIRenderable {
     }
 
     public _render (render: UI) {
-        render.commitComp(this, this._texture!, this._assembler, null);
+        render.commitComp(this, this._texture, this._assembler, null);
     }
 }

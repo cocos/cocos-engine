@@ -25,7 +25,7 @@
 
 /**
  * @packageDocumentation
- * @module ui-assembler
+ * @module tiledmap
  */
 
 import { Mat4, Size, Vec3 } from '../../core/math';

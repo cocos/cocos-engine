@@ -26,7 +26,7 @@
 
 /**
  * @packageDocumentation
- * @hidden
+ * @module core/value-types
  */
 
 export { BitMask } from './bitmask';

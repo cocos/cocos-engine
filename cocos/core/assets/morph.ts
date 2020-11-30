@@ -26,6 +26,7 @@
 /**
  * @packageDocumentation
  * @hidden
+ * @module asset
  */
 
 import { AttributeName, Device, DescriptorSet } from '../gfx';

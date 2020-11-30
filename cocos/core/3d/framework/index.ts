@@ -26,7 +26,7 @@
 
 /**
  * @packageDocumentation
- * @hidden
+ * @module component
  */
 import { legacyCC } from '../../global-exports';
 import { SkinnedMeshBatchRenderer, SkinnedMeshUnit } from './skinned-mesh-batch-renderer';

@@ -25,7 +25,7 @@
 
 /**
  * @packageDocumentation
- * @hidden
+ * @module pipeline
  */
 
 import { AABB, intersect, Sphere } from '../../geometry';
@@ -34,7 +34,7 @@ import { Camera, SKYBOX_FLAG } from '../../renderer/scene/camera';
 import { Layers } from '../../scene-graph/layers';
 import { Vec3, Mat4, Quat, Color } from '../../math';
 import { ForwardPipeline } from './forward-pipeline';
-import { RenderView } from '../';
+import { RenderView } from '..';
 import { Pool } from '../../memop';
 import { IRenderObject, UBOShadow } from '../define';
 import { ShadowType, Shadows } from '../../renderer/scene/shadows';
@@ -147,7 +147,7 @@ function updateDirLight (pipeline: ForwardPipeline, light: DirectionalLight) {
     Mat4.toArray(pipeline.shadowUBO, shadows.matLight, UBOShadow.MAT_LIGHT_PLANE_PROJ_OFFSET);
 }
 
-export function updatePlanarPROJ (shadowInfo: Shadows, light: DirectionalLight, shadowUBO: Float32Array){
+export function updatePlanarPROJ (shadowInfo: Shadows, light: DirectionalLight, shadowUBO: Float32Array) {
     const dir = light.direction;
     const n = shadowInfo.normal; const d = shadowInfo.distance + 0.001; // avoid z-fighting
     const NdL = Vec3.dot(n, dir); const scale = 1 / NdL;
@@ -185,8 +185,8 @@ export function lightCollecting (view: RenderView, lightNumber: number) {
     for (let i = 0; i < spotLights.length; i++) {
         const light = spotLights[i];
         Sphere.set(_sphere, light.position.x, light.position.y, light.position.z, light.range);
-        if (intersect.sphereFrustum(_sphere, view.camera.frustum) &&
-         lightNumber > _validLights.length) {
+        if (intersect.sphereFrustum(_sphere, view.camera.frustum)
+         && lightNumber > _validLights.length) {
             _validLights.push(light);
         }
     }
@@ -207,9 +207,8 @@ export function shadowCollecting (pipeline: ForwardPipeline, view: RenderView) {
     for (let i = 0; i < models.length; i++) {
         const model = models[i];
         // filter model by view visibility
-        if (model.node && ((view.visibility & model.node.layer) === model.node.layer) ||
-            (view.visibility & model.visFlags)) {
-
+        if (model.node && ((view.visibility & model.node.layer) === model.node.layer)
+            || (view.visibility & model.visFlags)) {
             // shadow render Object
             if (model.castShadow && model.worldBounds) {
                 if (!_castBoundsInited) {
@@ -219,7 +218,7 @@ export function shadowCollecting (pipeline: ForwardPipeline, view: RenderView) {
                 AABB.merge(_castWorldBounds, _castWorldBounds, model.worldBounds);
                 shadowObjects.push(getCastShadowRenderObject(model, camera));
             }
-        }       
+        }
     }
     if (_castWorldBounds) { AABB.toBoundingSphere(shadows.sphere, _castWorldBounds); }
 }
@@ -256,21 +255,18 @@ export function sceneCulling (pipeline: ForwardPipeline, view: RenderView) {
         if (model.enabled) {
             const vis = view.visibility & Layers.BitMask.UI_2D;
             if (vis) {
-                if ((model.node && (view.visibility === model.node.layer)) ||
-                    view.visibility === model.visFlags) {
+                if ((model.node && (view.visibility === model.node.layer))
+                    || view.visibility === model.visFlags) {
                     renderObjects.push(getRenderObject(model, camera));
                 }
-            } else {
-                if (model.node && ((view.visibility & model.node.layer) === model.node.layer) ||
-                    (view.visibility & model.visFlags)) {
-
-                    // frustum culling
-                    if (model.worldBounds && !intersect.aabbFrustum(model.worldBounds, camera.frustum)) {
-                        continue;
-                    }
-
-                    renderObjects.push(getRenderObject(model, camera));
+            } else if (model.node && ((view.visibility & model.node.layer) === model.node.layer)
+                    || (view.visibility & model.visFlags)) {
+                // frustum culling
+                if (model.worldBounds && !intersect.aabbFrustum(model.worldBounds, camera.frustum)) {
+                    continue;
                 }
+
+                renderObjects.push(getRenderObject(model, camera));
             }
         }
     }

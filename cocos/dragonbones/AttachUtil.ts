@@ -1,3 +1,8 @@
+/**
+ * @packageDocumentation
+ * @module dragonBones
+ */
+
 import { Node, Mat4, Vec3 } from '../core';
 import { ccclass } from '../core/data/class-decorator';
 import { ArmatureFrameBoneInfo } from './ArmatureCache';
@@ -7,12 +12,8 @@ import { Armature, Matrix } from './lib/dragonBones.js';
 const _tempMat4 = new Mat4();
 
 /**
- * @module dragonBones
- */
-
-/**
- * !#en Attach node tool
- * !#zh 挂点工具类
+ * @en Attach node tool
+ * @zh 挂点工具类
  * @class dragonBones.AttachUtil
  */
 

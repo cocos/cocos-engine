@@ -23,9 +23,10 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
+
 /**
  * @packageDocumentation
- * @module asset-manager
+ * @module component/audio
  */
 
 import { getError, log } from '../core/platform/debug';
@@ -43,12 +44,11 @@ const formatSupport = __audioSupport.format;
 export function downloadDomAudio (
     url: string,
     options: IDownloadParseOptions,
-    onComplete: CompleteCallback<HTMLAudioElement>
+    onComplete: CompleteCallback<HTMLAudioElement>,
 ): void {
-
-    createDomAudio(url).then(dom => {
+    createDomAudio(url).then((dom) => {
         onComplete(null, dom);
-    }, errMsg => {
+    }, (errMsg) => {
         log(errMsg);
         onComplete(new Error(errMsg), null);
     });
@@ -67,13 +67,11 @@ export function downloadAudio (url: string, options: IDownloadParseOptions, onCo
     let handler: DownloadHandler | null = null;
     if (!__audioSupport.WEB_AUDIO) {
         handler = downloadDomAudio;
-    }
-    else {
+    } else {
         // web audio need to download file as arrayBuffer
         if (options.audioLoadMode !== AudioType.DOM_AUDIO) {
             handler = downloadArrayBuffer;
-        }
-        else {
+        } else {
             handler = downloadDomAudio;
         }
     }

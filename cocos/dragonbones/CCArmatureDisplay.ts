@@ -1,3 +1,8 @@
+/**
+ * @packageDocumentation
+ * @module dragonBones
+ */
+
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 
 import { ccclass } from '../core/data/class-decorator';

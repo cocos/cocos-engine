@@ -27,8 +27,11 @@
 /**
  * @packageDocumentation
  * @hidden
+ * @module asset
  */
 import { legacyCC } from '../global-exports';
+import './deprecation';
+
 export { Asset } from './asset';
 export { BufferAsset } from './buffer-asset';
 export { default as Prefab } from './prefab';
@@ -50,4 +53,3 @@ export { Material } from './material';
 export { Mesh, RenderingSubMesh } from './mesh';
 export { Skeleton } from './skeleton';
 export { RenderTexture } from './render-texture';
-import './deprecation';

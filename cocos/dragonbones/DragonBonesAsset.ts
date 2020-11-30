@@ -1,3 +1,8 @@
+/**
+ * @packageDocumentation
+ * @module dragonBones
+ */
+
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 import { EDITOR } from 'internal:constants';
 import { Asset } from '../core/assets';
@@ -9,18 +14,16 @@ import { BinaryDataParser, DragonBonesData } from './lib/dragonBones';
 import { property } from '../core/data/class-decorator';
 
 /**
- * !#en The skeleton data of dragonBones.
- * !#zh dragonBones 的 骨骼数据。
- * @class DragonBonesAsset
- * @extends Asset
+ * @en The skeleton data of dragonBones.
+ * @zh dragonBones 的 骨骼数据。
  */
 @ccclass('dragonBones.DragonBonesAsset')
 export class DragonBonesAsset extends Asset {
     static preventDeferredLoadDependents = true;
 
     /**
-     * !#en See http://developer.egret.com/cn/github/egret-docs/DB/dbLibs/dataFormat/index.html
-     * !#zh 可查看 DragonBones 官方文档 http://developer.egret.com/cn/github/egret-docs/DB/dbLibs/dataFormat/index.html
+     * @en See http://developer.egret.com/cn/github/egret-docs/DB/dbLibs/dataFormat/index.html
+     * @zh 可查看 DragonBones 官方文档 http://developer.egret.com/cn/github/egret-docs/DB/dbLibs/dataFormat/index.html
      * @property {string} dragonBonesJson
      */
     @serializable

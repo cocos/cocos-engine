@@ -347,9 +347,10 @@ export class Parser {
      * @param handler.onComplete - callback when finishing parsing
      *
      * @example
+     * ```
      * parser.register('.tga', (file, options, onComplete) => onComplete(null, null));
      * parser.register({'.tga': (file, options, onComplete) => onComplete(null, null), '.ext': (file, options, onComplete) => onComplete(null, null)});
-     *
+     * ```
      */
     public register (type: string, handler: ParseHandler): void;
     public register (map: Record<string, ParseHandler>): void;
@@ -377,9 +378,11 @@ export class Parser {
      * @param onComplete.contetnt - The parsed file
      *
      * @example
+     * ```
      * downloader.download('test.jpg', 'test.jpg', '.jpg', {}, (err, file) => {
      *      parser.parse('test.jpg', file, '.jpg', null, (err, img) => console.log(err));
      * });
+     * ```
      *
      */
     public parse (id: string, file: any, type: string, options: IDownloadParseOptions, onComplete: CompleteCallback): void {

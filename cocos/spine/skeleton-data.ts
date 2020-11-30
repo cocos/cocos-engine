@@ -1,3 +1,8 @@
+/**
+ * @packageDocumentation
+ * @module spine
+ */
+
 import { Asset, CCString, Enum, Node, Texture2D, errorID } from '../core';
 import SkeletonCache from './skeleton-cache';
 import { Skeleton } from './skeleton';
@@ -7,10 +12,8 @@ import { ccclass, serializable, type } from '../core/data/decorators';
 import { EDITOR } from '../../editor/exports/populate-internal-constants';
 
 /**
- * !#en The skeleton data of spine.
- * !#zh Spine 的 骨骼数据。
- * @class SkeletonData
- * @extends Asset
+ * @en The skeleton data of spine.
+ * @zh Spine 的 骨骼数据。
  */
 @ccclass('sp.SkeletonData')
 export class SkeletonData extends Asset {
@@ -28,8 +31,8 @@ export class SkeletonData extends Asset {
     }
 
     /**
-     * !#en See http://en.esotericsoftware.com/spine-json-format
-     * !#zh 可查看 Spine 官方文档 http://zh.esotericsoftware.com/spine-json-format
+     * @en See http://en.esotericsoftware.com/spine-json-format
+     * @zh 可查看 Spine 官方文档 http://zh.esotericsoftware.com/spine-json-format
      * @property {Object} skeletonJson
      */
     get skeletonJson (): spine.SkeletonJson {
@@ -76,7 +79,7 @@ export class SkeletonData extends Asset {
     public textureNames: string[] = [];
 
     /**
-     * !#en
+     * @en
      * A scale can be specified on the JSON or binary loader which will scale the bone positions,
      * image sizes, and animation translations.
      * This can be useful when using different sized images than were used when design ing the skeleton
@@ -84,7 +87,7 @@ export class SkeletonData extends Asset {
      * a scale of 0.5 can be used. This is commonly used for games that can run with either low or high
      * resolution texture atlases.
      * see http://en.esotericsoftware.com/spine-using-runtimes#Scaling
-     * !#zh 可查看 Spine 官方文档： http://zh.esotericsoftware.com/spine-using-runtimes#Scaling
+     * @zh 可查看 Spine 官方文档： http://zh.esotericsoftware.com/spine-using-runtimes#Scaling
      * @property {Number} scale
      */
     @serializable
@@ -182,9 +185,9 @@ export class SkeletonData extends Asset {
     }
 
     /**
-     * !#en Get the included SkeletonData used in spine runtime.<br>
+     * @en Get the included SkeletonData used in spine runtime.<br>
      * Returns a {{#crossLinkModule "sp.spine"}}sp.spine{{/crossLinkModule}}.SkeletonData object.
-     * !#zh 获取 Spine Runtime 使用的 SkeletonData。<br>
+     * @zh 获取 Spine Runtime 使用的 SkeletonData。<br>
      * 返回一个 {{#crossLinkModule "sp.spine"}}sp.spine{{/crossLinkModule}}.SkeletonData 对象。
      * @method getRuntimeData
      * @param {Boolean} [quiet=false]

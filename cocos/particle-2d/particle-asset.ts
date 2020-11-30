@@ -24,10 +24,9 @@
  THE SOFTWARE.
 */
 
-
 /**
  * @packageDocumentation
- * @module ParticleAsset
+ * @module Particle2d
  */
 
 import { ccclass, serializable, editable } from '../core/data/decorators';

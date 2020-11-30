@@ -1,4 +1,3 @@
-
 /*
  Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
@@ -25,7 +24,8 @@
  */
 
 /**
- * @category component/videoplayer
+ * @packageDocumentation
+ * @module video
  */
 
 /**
@@ -48,7 +48,7 @@ export const ResourceType = Enum({
      * @zh
      * 本地视频
      */
-    LOCAL: 1
+    LOCAL: 1,
 });
 
 export enum EventType {

@@ -24,19 +24,20 @@
  */
 
 /**
- * @category component/video
+ * @packageDocumentation
+ * @module video
  */
 
+import { ccclass, displayOrder, executeInEditMode, help, menu, slide, range, requireComponent, tooltip, type, serializable } from 'cc.decorator';
+import { EDITOR } from 'internal:constants';
 import { warn } from '../core/platform';
 import { Component, EventHandler as ComponentEventHandler } from '../core/components';
 import { UITransform } from '../core/components/ui-base';
-import { ccclass, displayOrder, executeInEditMode, help, menu, slide, range, requireComponent, tooltip, type, serializable } from 'cc.decorator';
 import { clamp } from '../core/math';
 import { VideoClip } from './assets/video-clip';
 import { VideoPlayerImplManager } from './video-player-impl-manager';
 import { EventType, ResourceType } from './video-player-enums';
-import { EDITOR } from 'internal:constants';
-import { legacyCC } from "../core/global-exports";
+import { legacyCC } from '../core/global-exports';
 
 /**
  * @en
@@ -140,10 +141,10 @@ export class VideoPlayer extends Component {
      * 视频加载后是否自动开始播放？
      */
     @tooltip('i18n:videoplayer.playOnAwake')
-    get playOnAwake() {
+    get playOnAwake () {
         return this._playOnAwake;
     }
-    set playOnAwake(value) {
+    set playOnAwake (value) {
         this._playOnAwake = value;
     }
 
@@ -156,10 +157,10 @@ export class VideoPlayer extends Component {
     @slide
     @range([0.0, 10, 1.0])
     @tooltip('i18n:videoplayer.playbackRate')
-    get playbackRate() {
+    get playbackRate () {
         return this._playbackRate;
     }
-    set playbackRate(value: number) {
+    set playbackRate (value: number) {
         this._playbackRate = value;
         if (this._impl) {
             this._impl.syncPlaybackRate(value);
@@ -175,10 +176,10 @@ export class VideoPlayer extends Component {
     @slide
     @range([0.0, 1.0, 0.1])
     @tooltip('i18n:videoplayer.volume')
-    get volume() {
+    get volume () {
         return this._volume;
     }
-    set volume(value: number) {
+    set volume (value: number) {
         this._volume = value;
         if (this._impl) {
             this._impl.syncVolume(value);
@@ -192,10 +193,10 @@ export class VideoPlayer extends Component {
      * 是否静音视频。静音时设置音量为 0，取消静音是恢复原来的音量。
      */
     @tooltip('i18n:videoplayer.mute')
-    get mute() {
+    get mute () {
         return this._mute;
     }
-    set mute(value) {
+    set mute (value) {
         this._mute = value;
         if (this._impl) {
             this._impl.syncMute(value);
@@ -209,10 +210,10 @@ export class VideoPlayer extends Component {
      * 视频是否应在结束时再次播放
      */
     @tooltip('i18n:videoplayer.loop')
-    get loop() {
+    get loop () {
         return this._loop;
     }
-    set loop(value) {
+    set loop (value) {
         this._loop = value;
         if (this._impl) {
             this._impl.syncLoop(value);
@@ -226,10 +227,10 @@ export class VideoPlayer extends Component {
      * 是否保持视频原来的宽高比
      */
     @tooltip('i18n:videoplayer.keepAspectRatio')
-    get keepAspectRatio() {
+    get keepAspectRatio () {
         return this._keepAspectRatio;
     }
-    set keepAspectRatio(value) {
+    set keepAspectRatio (value) {
         if (this._keepAspectRatio !== value) {
             this._keepAspectRatio = value;
             if (this._impl) {
@@ -359,8 +360,7 @@ export class VideoPlayer extends Component {
         if (!this._impl) { return; }
         if (this._resourceType === ResourceType.REMOTE) {
             this._impl.syncURL(this._remoteURL);
-        }
-        else {
+        } else {
             this._impl.syncClip(this._clip);
         }
     }
@@ -392,7 +392,7 @@ export class VideoPlayer extends Component {
         }
     }
 
-    public onEnable() {
+    public onEnable () {
         if (this._impl) {
             this._impl.enable();
         }

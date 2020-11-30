@@ -1,3 +1,7 @@
+/**
+ * @packageDocumentation
+ * @module physics2d.box2d
+ */
 import b2 from '@cocos/box2d';
 import { ISliderJoint } from '../../spec/i-physics-joint';
 import { b2Joint } from './joint-2d';
@@ -20,7 +24,7 @@ export class b2SliderJoint extends b2Joint implements ISliderJoint {
     }
     updateLimits () {
         if (this._b2joint) {
-            let comp = this._jointComp as SliderJoint2D;
+            const comp = this._jointComp as SliderJoint2D;
             (this._b2joint as b2.PrismaticJoint).SetLimits(comp.lowerLimit / PHYSICS_2D_PTM_RATIO, comp.upperLimit / PHYSICS_2D_PTM_RATIO);
         }
     }
@@ -43,11 +47,11 @@ export class b2SliderJoint extends b2Joint implements ISliderJoint {
     }
 
     _createJointDef () {
-        let comp = this._jointComp as SliderJoint2D;
-        let def = new b2.PrismaticJointDef();
+        const comp = this._jointComp as SliderJoint2D;
+        const def = new b2.PrismaticJointDef();
         def.localAnchorA.Set(comp.anchor.x / PHYSICS_2D_PTM_RATIO, comp.anchor.y / PHYSICS_2D_PTM_RATIO);
         def.localAnchorB.Set(comp.connectedAnchor.x / PHYSICS_2D_PTM_RATIO, comp.connectedAnchor.y / PHYSICS_2D_PTM_RATIO);
-        let angle = toRadian(comp.angle);
+        const angle = toRadian(comp.angle);
         def.localAxisA.Set(Math.cos(angle), Math.sin(angle));
         def.referenceAngle = 0;
         def.enableLimit = comp.enableLimit;

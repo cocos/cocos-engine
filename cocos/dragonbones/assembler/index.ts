@@ -1,3 +1,8 @@
+/**
+ * @packageDocumentation
+ * @module dragonBones
+ */
+
 import { IAssemblerManager } from '../../core/renderer/ui/base';
 import { ArmatureDisplay } from '../ArmatureDisplay';
 import { simple } from './simple';

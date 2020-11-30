@@ -65,7 +65,6 @@ export interface ISceneInfo {
  * Root类
  */
 export class Root {
-
     /**
      * @zh
      * GFX 设备
@@ -601,21 +600,19 @@ export class Root {
             p.free(l);
             if (l.scene) {
                 switch (l.type) {
-                    case LightType.SPHERE:
-                        l.scene.removeSphereLight(l as SphereLight);
-                        break;
-                    case LightType.SPOT:
-                        l.scene.removeSpotLight(l as SpotLight);
-                        break;
+                case LightType.SPHERE:
+                    l.scene.removeSphereLight(l as SphereLight);
+                    break;
+                case LightType.SPOT:
+                    l.scene.removeSpotLight(l as SpotLight);
+                    break;
                 }
             }
         }
     }
 
     public sortViews () {
-        this._cameras.sort((a: Camera, b: Camera) => {
-            return a.view.priority - b.view.priority;
-        });
+        this._cameras.sort((a: Camera, b: Camera) => a.view.priority - b.view.priority);
     }
 }
 

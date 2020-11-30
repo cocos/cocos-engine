@@ -28,6 +28,7 @@
 /**
  * @packageDocumentation
  * @hidden
+ * @module memop
  */
 
 

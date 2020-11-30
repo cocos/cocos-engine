@@ -1,3 +1,8 @@
+/**
+ * @packageDocumentation
+ * @module physics2d
+ */
+
 import { ccclass, property, menu } from '../../../../core/data/class-decorator';
 import { Component, Vec2, Size } from '../../../../core';
 import { Collider2D } from './collider-2d';
@@ -30,7 +35,7 @@ export class CircleCollider2D extends Collider2D {
         if (this._shape) {
             return (this._shape as ICircleShape).worldPosition;
         }
-        return new Vec2;
+        return new Vec2();
     }
     /**
      * @en Get world radius of the circle collider.

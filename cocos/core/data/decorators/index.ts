@@ -23,6 +23,10 @@
  THE SOFTWARE.
  */
 
+/**
+ * @packageDocumentation
+ * @module decorator
+ */
 
 export { ccclass } from './ccclass';
 export * from './component';

@@ -24,6 +24,11 @@
  THE SOFTWARE.
  */
 
+/**
+ * @packageDocumentation
+ * @module tiledmap
+ */
+
 import { ccclass, help, type, requireComponent } from 'cc.decorator';
 import { Component } from '../core/components';
 import { Sprite } from '../ui/components/sprite';
@@ -61,7 +66,9 @@ export class TiledObjectGroup extends Component {
      * @method getPositionOffset
      * @return {Vec2}
      * @example
+     * ```
      * let offset = tMXObjectGroup.getPositionOffset();
+     * ```
      */
     public getPositionOffset () {
         return this._positionOffset;
@@ -73,7 +80,9 @@ export class TiledObjectGroup extends Component {
      * @method getProperties
      * @return {Object}
      * @example
+     * ```
      * let offset = tMXObjectGroup.getProperties();
+     * ```
      */
     public getProperties () {
         return this._properties;
@@ -85,7 +94,9 @@ export class TiledObjectGroup extends Component {
      * @method getGroupName
      * @return {String}
      * @example
+     * ```
      * let groupName = tMXObjectGroup.getGroupName;
+     * ```
      */
     public getGroupName () {
         return this._groupName;
@@ -109,7 +120,9 @@ export class TiledObjectGroup extends Component {
      * @param {String} objectName
      * @return {Object|Null}
      * @example
+     * ```
      * let object = tMXObjectGroup.getObject("Group");
+     * ```
      */
     public getObject (objectName:string) {
         for (let i = 0, len = this._objects.length; i < len; i++) {
@@ -128,7 +141,9 @@ export class TiledObjectGroup extends Component {
      * @method getObjects
      * @return {Array}
      * @example
+     * ```
      * let objects = tMXObjectGroup.getObjects();
+     * ```
      */
     public getObjects () {
         return this._objects;

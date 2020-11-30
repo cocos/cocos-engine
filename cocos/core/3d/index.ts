@@ -25,13 +25,14 @@
 
 /**
  * @packageDocumentation
- * @hidden
+ * @module component
  */
+
+import * as utils from './misc/utils';
+import { legacyCC } from '../global-exports';
 
 export * from './builtin';
 export * from './framework';
-import * as utils from './misc/utils';
-import { legacyCC } from '../global-exports';
 
 export {
     utils,

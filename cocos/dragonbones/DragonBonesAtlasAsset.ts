@@ -1,4 +1,5 @@
 /**
+ * @packageDocumentation
  * @module dragonBones
  */
 import { JSB } from '../../editor/exports/populate-internal-constants';
@@ -10,10 +11,8 @@ import { CCFactory } from './CCFactory';
 import { TextureAtlasData } from './lib/dragonBones.js';
 
 /**
- * !#en The skeleton atlas data of dragonBones.
- * !#zh dragonBones 的骨骼纹理数据。
- * @class DragonBonesAtlasAsset
- * @extends Asset
+ * @en The skeleton atlas data of dragonBones.
+ * @zh dragonBones 的骨骼纹理数据。
  */
 @ccclass('dragonBones.DragonBonesAtlasAsset')
 export class DragonBonesAtlasAsset extends Asset {

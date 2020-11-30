@@ -26,6 +26,7 @@
 /**
  * @packageDocumentation
  * @hidden
+ * @module event
  */
 
 import { replaceProperty } from '../../utils';

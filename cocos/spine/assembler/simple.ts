@@ -1,3 +1,8 @@
+/**
+ * @packageDocumentation
+ * @module spine
+ */
+
 import spine from '../lib/spine-core.js';
 import { IAssembler } from '../../core/renderer/ui/base';
 import { UI } from '../../core/renderer/ui/ui';

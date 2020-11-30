@@ -23,12 +23,16 @@
  THE SOFTWARE.
  */
 
+/**
+ * @packageDocumentation
+ * @module tiledmap
+ */
+
 import { Rect, SpriteFrame, Texture2D } from '../core';
 import { GID, TiledGrid, TiledTextureGrids, TMXTilesetInfo } from './tiled-types';
 
 export function fillTextureGrids (tileset: TMXTilesetInfo, texGrids: TiledTextureGrids, spFrame?: SpriteFrame) {
-
-    const spf: SpriteFrame = spFrame ? spFrame : tileset.sourceImage!;
+    const spf: SpriteFrame = spFrame || tileset.sourceImage!;
     const tex: Texture2D = spf.texture as Texture2D;
 
     const collection = tileset.collection;
@@ -58,7 +62,7 @@ export function fillTextureGrids (tileset: TMXTilesetInfo, texGrids: TiledTextur
 
     const firstGid = tileset.firstGid;
     let grid: TiledGrid | null = null;
-    let override = texGrids.get(firstGid) ? true : false;
+    let override = !!texGrids.get(firstGid);
 
     // Tiledmap may not be partitioned into blocks, resulting in a count value of 0
 
@@ -75,9 +79,16 @@ export function fillTextureGrids (tileset: TMXTilesetInfo, texGrids: TiledTextur
 
         grid = {
             tileset,
-            x: 0, y: 0, width: tw, height: th,
-            t: 0, l: 0, r: 0, b: 0,
-            cx: 0, cy: 0,
+            x: 0,
+            y: 0,
+            width: tw,
+            height: th,
+            t: 0,
+            l: 0,
+            r: 0,
+            b: 0,
+            cx: 0,
+            cy: 0,
             offsetX: 0,
             offsetY: 0,
             rotated: false,
@@ -127,7 +138,6 @@ export function fillTextureGrids (tileset: TMXTilesetInfo, texGrids: TiledTextur
         texGrids.set(gid as unknown as GID, grid);
     }
 }
-
 
 export function loadAllTextures (textures: SpriteFrame[], loadedCallback: any) {
     const totalNum = textures.length;

@@ -23,7 +23,12 @@
  THE SOFTWARE.
  */
 
-import { legacyCC } from "../../core/global-exports";
+/**
+ * @packageDocumentation
+ * @module component/audio
+ */
+
+import { legacyCC } from '../../core/global-exports';
 
 export abstract class AudioManager<AudioType> {
     protected _playingAudios: Array<AudioType>;
@@ -38,7 +43,7 @@ export abstract class AudioManager<AudioType> {
     }
 
     public removePlaying (audio: AudioType) {
-        let index = this._playingAudios.indexOf(audio);
+        const index = this._playingAudios.indexOf(audio);
         if (index > -1) {
             this._playingAudios.splice(index, 1);
         }

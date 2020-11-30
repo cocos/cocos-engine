@@ -1,3 +1,8 @@
+/**
+ * @packageDocumentation
+ * @module physics2d.box2d
+ */
+
 import { select } from '../framework/physics-selector';
 import { b2PhysicsWorld } from './physics-world';
 import { b2RigidBody2D } from './rigid-body';
@@ -29,4 +34,4 @@ select('box2d', {
     FixedJoint: b2FixedJoint,
     WheelJoint: b2WheelJoint,
     HingeJoint: b2HingeJoint,
-})
+});

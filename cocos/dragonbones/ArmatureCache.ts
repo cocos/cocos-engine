@@ -1,3 +1,8 @@
+/**
+ * @packageDocumentation
+ * @module dragonBones
+ */
+
 import { Color, Mat4, RenderTexture } from '../core';
 import { TextureBase } from '../core/assets/texture-base';
 import { CCArmatureDisplay } from './CCArmatureDisplay';

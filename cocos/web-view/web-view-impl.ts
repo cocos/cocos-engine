@@ -1,4 +1,3 @@
-
 /*
  Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
@@ -25,13 +24,14 @@
  */
 
 /**
- * @category component/web-view
+ * @packageDocumentation
+ * @module webView
  */
 
-import {legacyCC} from '../core/global-exports';
-import {WebView} from './web-view';
-import {EventType} from './web-view-enums';
-import {UITransform} from '../core/components/ui-base';
+import { legacyCC } from '../core/global-exports';
+import { WebView } from './web-view';
+import { EventType } from './web-view-enums';
+import { UITransform } from '../core/components/ui-base';
 
 export abstract class WebViewImpl {
     protected _componentEventList: Map<number, Function> = new Map<number, Function>();
@@ -61,7 +61,7 @@ export abstract class WebViewImpl {
         this.createWebView();
     }
 
-    public reset() {
+    public reset () {
         this._warpper = null;
         this._webview = null;
         this._loaded = false;
@@ -90,7 +90,7 @@ export abstract class WebViewImpl {
 
     get loaded () { return this._loaded; }
     get componentEventList () { return this._componentEventList; }
-    get webview () { return this._webview;}
+    get webview () { return this._webview; }
     get state () { return this._state; }
     get UICamera () {
         return this._uiTrans && this._uiTrans._canvas && this._uiTrans._canvas.camera;

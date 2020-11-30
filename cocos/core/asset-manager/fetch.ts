@@ -26,6 +26,7 @@
 /**
  * @packageDocumentation
  * @hidden
+ * @module asset-manager
  */
 
 import { Asset } from '../assets';
@@ -38,7 +39,6 @@ import { clear, forEach, getDepends } from './utilities';
 import { legacyCC } from '../global-exports';
 
 export default function fetch (task: Task, done: CompleteCallbackNoData) {
-
     let firstTask = false;
     if (!task.progress) {
         task.progress = { finish: 0, total: task.input.length, canInvoke: true };
@@ -53,7 +53,6 @@ export default function fetch (task: Task, done: CompleteCallbackNoData) {
     task.output = [];
 
     forEach(task.input as RequestItem[], (item, cb) => {
-
         if (!item.isNative && assets.has(item.uuid)) {
             const asset = assets.get(item.uuid);
             asset!.addRef();
@@ -69,28 +68,21 @@ export default function fetch (task: Task, done: CompleteCallbackNoData) {
                         error(err.message, err.stack);
                         progress.canInvoke = false;
                         done(err);
-                    }
-                    else {
+                    } else {
                         handle(item, task, null, null, false, depends, total, done);
                     }
                 }
-            }
-            else {
-                if (!task.isFinish) {
-                    handle(item, task, null, data, !item.isNative, depends, total, done);
-                }
+            } else if (!task.isFinish) {
+                handle(item, task, null, data, !item.isNative, depends, total, done);
             }
             cb();
         });
-
     }, () => {
-
         if (task.isFinish) {
             clear(task, true);
             return task.dispatch('error');
         }
         if (depends.length > 0) {
-
             // stage 2 , download depend asset
             const subTask = Task.create({
                 input: depends,
@@ -125,7 +117,6 @@ function decreaseRef (task: Task) {
 }
 
 function handle (item: RequestItem, task: Task, content: any, file: any, loadDepends: boolean, depends: any[], last: number, done: CompleteCallbackNoData) {
-
     const exclude = task.options!.__exclude__;
     const progress = task.progress;
 

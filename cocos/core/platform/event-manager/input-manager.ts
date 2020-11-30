@@ -27,8 +27,10 @@
 /**
  * @packageDocumentation
  * @hidden
+ * @module event
  */
 
+import { JSB, RUNTIME_BASED } from 'internal:constants';
 import { Vec2 } from '../../math/index';
 import { rect } from '../../math/rect';
 import { macro } from '../macro';
@@ -36,7 +38,6 @@ import { sys } from '../sys';
 import eventManager from './event-manager';
 import { EventAcceleration, EventKeyboard, EventMouse, EventTouch } from './events';
 import { Touch } from './touch';
-import { JSB, RUNTIME_BASED } from 'internal:constants';
 import { legacyCC } from '../../global-exports';
 import { logID } from '../debug';
 
@@ -241,23 +242,21 @@ class InputManager {
                 width: box.width,
                 height: box.height,
             };
-        } else {
-            if (element instanceof HTMLCanvasElement) {
-                return {
-                    left: leftOffset,
-                    top: topOffset,
-                    width: element.width,
-                    height: element.height,
-                };
-            } else {
-                return {
-                    left: leftOffset,
-                    top: topOffset,
-                    width: parseInt(element.style.width || '0', undefined),
-                    height: parseInt(element.style.height || '0', undefined),
-                };
-            }
         }
+        if (element instanceof HTMLCanvasElement) {
+            return {
+                left: leftOffset,
+                top: topOffset,
+                width: element.width,
+                height: element.height,
+            };
+        }
+        return {
+            left: leftOffset,
+            top: topOffset,
+            width: parseInt(element.style.width || '0', undefined),
+            height: parseInt(element.style.height || '0', undefined),
+        };
     }
 
     public getPreTouch (touch: Touch) {
@@ -324,13 +323,13 @@ class InputManager {
 
     public getPointByEvent (event: MouseEvent, pos: IHTMLElementPosition) {
         if (event.pageX != null) {  // not avalable in <= IE8
-            return {x: event.pageX, y: event.pageY};
+            return { x: event.pageX, y: event.pageY };
         }
 
         pos.left -= document.body.scrollLeft;
         pos.top -= document.body.scrollTop;
 
-        return {x: event.clientX, y: event.clientY};
+        return { x: event.clientX, y: event.clientY };
     }
 
     public getTouchesByEvent (event: TouchEvent, position: IHTMLElementPosition) {
@@ -348,10 +347,12 @@ class InputManager {
             let location;
             if (sys.BROWSER_TYPE_FIREFOX === sys.browserType) {
                 location = locView!.convertToLocationInView(
-                    changedTouch.pageX, changedTouch.pageY, position, _vec2);
+                    changedTouch.pageX, changedTouch.pageY, position, _vec2,
+                );
             } else {
                 location = locView!.convertToLocationInView(
-                    changedTouch.clientX, changedTouch.clientY, position, _vec2);
+                    changedTouch.clientX, changedTouch.clientY, position, _vec2,
+                );
             }
             let touch: Touch;
             if (changedTouch.identifier != null) {
@@ -483,8 +484,8 @@ class InputManager {
             mAcceleration.y = -mAcceleration.y;
         }
         // fix android acc values are opposite
-        if (legacyCC.sys.os === legacyCC.sys.OS_ANDROID &&
-            legacyCC.sys.browserType !== legacyCC.sys.BROWSER_TYPE_MOBILE_QQ) {
+        if (legacyCC.sys.os === legacyCC.sys.OS_ANDROID
+            && legacyCC.sys.browserType !== legacyCC.sys.BROWSER_TYPE_MOBILE_QQ) {
             mAcceleration.x = -mAcceleration.x;
             mAcceleration.y = -mAcceleration.y;
         }
@@ -525,17 +526,17 @@ class InputManager {
             if (!(temp & 0x00000001)) {
                 this._indexBitsUsed |= (1 << i);
                 return i;
-            } else {
-                const touch = this._touches[i];
-                if (now - touch.lastModified > TOUCH_TIMEOUT) {
-                    this._removeUsedIndexBit(i);
-                    const touchID = touch.getID();
-                    if (touchID !== null) {
-                        delete this._touchesIntegerDict[touchID];
-                    }
-                    return i;
-                }
             }
+            const touch = this._touches[i];
+            if (now - touch.lastModified > TOUCH_TIMEOUT) {
+                this._removeUsedIndexBit(i);
+                const touchID = touch.getID();
+                if (touchID !== null) {
+                    delete this._touchesIntegerDict[touchID];
+                }
+                return i;
+            }
+
             temp >>= 1;
         }
 
@@ -573,8 +574,7 @@ class InputManager {
             // @ts-expect-error
             if (document.pointerLockElement === canvas || document.mozPointerLockElement === canvas) {
                 this._pointLocked = true;
-            }
-            else {
+            } else {
                 this._pointLocked = false;
             }
         };
@@ -672,10 +672,10 @@ class InputManager {
 
     private _registerMousePointerEvents (element: HTMLElement) {
         const _pointerEventsMap = {
-            MSPointerDown     : this.handleTouchesBegin,
-            MSPointerMove     : this.handleTouchesMove,
-            MSPointerUp       : this.handleTouchesEnd,
-            MSPointerCancel   : this.handleTouchesCancel,
+            MSPointerDown: this.handleTouchesBegin,
+            MSPointerMove: this.handleTouchesMove,
+            MSPointerUp: this.handleTouchesEnd,
+            MSPointerCancel: this.handleTouchesCancel,
         };
 
         for (const eventName in _pointerEventsMap) {
@@ -692,19 +692,17 @@ class InputManager {
     }
 
     private _registerTouchEvents (element: HTMLElement) {
-        const makeTouchListener = (touchesHandler: (touchesToHandle: any) => void) => {
-            return (event: TouchEvent) => {
-                if (!event.changedTouches) {
-                    return;
-                }
-                const pos = this.getHTMLElementPosition(element);
-                const body = document.body;
-                pos.left -= body.scrollLeft || 0;
-                pos.top -= body.scrollTop || 0;
-                touchesHandler(this.getTouchesByEvent(event, pos));
-                event.stopPropagation();
-                event.preventDefault();
-            };
+        const makeTouchListener = (touchesHandler: (touchesToHandle: any) => void) => (event: TouchEvent) => {
+            if (!event.changedTouches) {
+                return;
+            }
+            const pos = this.getHTMLElementPosition(element);
+            const body = document.body;
+            pos.left -= body.scrollLeft || 0;
+            pos.top -= body.scrollTop || 0;
+            touchesHandler(this.getTouchesByEvent(event, pos));
+            event.stopPropagation();
+            event.preventDefault();
         };
 
         element.addEventListener('touchstart', makeTouchListener((touchesToHandle) => {
@@ -786,7 +784,6 @@ class InputManager {
 
         return touches;
     }
-
 }
 
 const inputManager = new InputManager();

@@ -1,13 +1,10 @@
+/**
+ * @packageDocumentation
+ * @module dragonBones
+ */
+
 import { EDITOR } from '../../editor/exports/populate-internal-constants';
 
-/**
- * !#en
- * The global time scale of DragonBones.
- * !#zh
- * DragonBones 全局时间缩放率。
- * @example
- * dragonBones.timeScale = 0.8;
- */
 // const _timeScale = 1.0;
 
 // TODO timescale

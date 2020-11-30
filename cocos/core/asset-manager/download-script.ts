@@ -1,4 +1,3 @@
-
 /*
  Copyright (c) 2019-2020 Xiamen Yaji Software Co., Ltd.
 
@@ -26,6 +25,7 @@
 /**
  * @packageDocumentation
  * @hidden
+ * @module asset-manager
  */
 import { getError } from '../platform/debug';
 import { CompleteCallback, IBundleOptions } from './shared';
@@ -35,9 +35,8 @@ const downloaded = {};
 export default function downloadScript (
     url: string,
     options: IBundleOptions,
-    onComplete: CompleteCallback
-    ): HTMLScriptElement | null{
-
+    onComplete: CompleteCallback,
+): HTMLScriptElement | null {
     // no need to load script again
     if (downloaded[url]) {
         if (onComplete) { onComplete(null); }

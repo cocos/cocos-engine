@@ -1,3 +1,8 @@
+/**
+ * @packageDocumentation
+ * @module dragonBones
+ */
+
 import { Color, Component, GFXBlendFactor, macro, Mat4, RenderTexture, Node, Texture2D, Vec3 } from '../../core';
 import { TextureBase } from '../../core/assets/texture-base';
 import { MaterialInstance } from '../../core/renderer/core/material-instance';

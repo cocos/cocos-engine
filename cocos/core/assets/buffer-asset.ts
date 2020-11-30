@@ -24,16 +24,16 @@
 */
 
 /**
- * @category asset
+ * @packageDocumentation
+ * @module asset
  */
 
-import {ccclass, override } from 'cc.decorator';
+import { ccclass, override } from 'cc.decorator';
 import { legacyCC } from '../global-exports';
 import { Asset } from './asset';
 
 @ccclass('cc.BufferAsset')
 export class BufferAsset extends Asset {
-
     private _buffer: ArrayBuffer | null = null;
 
     @override
@@ -44,8 +44,7 @@ export class BufferAsset extends Asset {
     set _nativeAsset (bin: ArrayBufferView | ArrayBuffer) {
         if (bin instanceof ArrayBuffer) {
             this._buffer = bin;
-        }
-        else {
+        } else {
             this._buffer = bin.buffer;
         }
     }

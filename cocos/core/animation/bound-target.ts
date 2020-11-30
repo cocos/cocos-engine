@@ -26,6 +26,7 @@
 /**
  * @packageDocumentation
  * @hidden
+ * @module animation
  */
 
 import { Color, Vec2, Vec3, Vec4 } from '../math';
@@ -65,7 +66,7 @@ export function createBoundTarget (target: any, modifiers: TargetPath[], valueAd
             property: lastPath,
         };
     } else if (!valueAdapter) {
-        error(`Empty animation curve.`);
+        error('Empty animation curve.');
         return null;
     } else {
         const resultTarget = evaluatePath(target, ...modifiers);
@@ -89,14 +90,12 @@ export function createBoundTarget (target: any, modifiers: TargetPath[], valueAd
         getValue: () => {
             if (ap.isProxy) {
                 if (!ap.proxy.get) {
-                    error(`Target doesn't provide a get method.`);
+                    error('Target doesn\'t provide a get method.');
                     return null;
-                } else {
-                    return ap.proxy.get();
                 }
-            } else {
-                return ap.object[ap.property];
+                return ap.proxy.get();
             }
+            return ap.object[ap.property];
         },
     };
 }
@@ -109,15 +108,13 @@ export function createBufferedTarget (target: any, modifiers: TargetPath[], valu
     const value = boundTarget.getValue();
     const copyable = getBuiltinCopy(value);
     if (!copyable) {
-        error(`Value is not copyable!`);
+        error('Value is not copyable!');
         return null;
     }
     const buffer = copyable.createBuffer();
     const copy = copyable.copy;
     return Object.assign(boundTarget, {
-        peek: () => {
-            return buffer;
-        },
+        peek: () => buffer,
         pull: () => {
             const value = boundTarget.getValue();
             copy(buffer, value);
@@ -135,11 +132,9 @@ interface ICopyable {
 
 const getBuiltinCopy = (() => {
     const map = new Map<Constructor, ICopyable>();
-    map.set(Vec2, { createBuffer: () => new Vec2(), copy: Vec2.copy});
-    map.set(Vec3, { createBuffer: () => new Vec3(), copy: Vec3.copy});
-    map.set(Vec4, { createBuffer: () => new Vec4(), copy: Vec4.copy});
-    map.set(Color, { createBuffer: () => new Color(), copy: Color.copy});
-    return (value: any) => {
-        return map.get(value?.constructor);
-    };
+    map.set(Vec2, { createBuffer: () => new Vec2(), copy: Vec2.copy });
+    map.set(Vec3, { createBuffer: () => new Vec3(), copy: Vec3.copy });
+    map.set(Vec4, { createBuffer: () => new Vec4(), copy: Vec4.copy });
+    map.set(Color, { createBuffer: () => new Color(), copy: Color.copy });
+    return (value: any) => map.get(value?.constructor);
 })();

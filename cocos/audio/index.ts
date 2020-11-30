@@ -25,15 +25,16 @@ THE SOFTWARE.
 
 /**
  * @packageDocumentation
- * @hidden
+ * @module component/audio
  */
 
-export { AudioClip } from './assets/clip';
 import './audio-downloader';
 
 import { AudioSource } from './audio-source';
 import { legacyCC } from '../core/global-exports';
 import { js } from '../core/utils/js';
+
+export { AudioClip } from './assets/clip';
 
 export { AudioSource };
 

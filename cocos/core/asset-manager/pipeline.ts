@@ -43,7 +43,6 @@ export type IPipe = IAsyncPipe | ISyncPipe;
  *
  */
 export class Pipeline {
-
     private static _pipelineId = 0;
 
     /**
@@ -88,6 +87,7 @@ export class Pipeline {
      * the first is a `Task` flowed in pipeline, the second is complete callback
      *
      * @example
+     * ```
      * var pipeline = new Pipeline('download', [
      * (task, done) => {
      *      var url = task.input;
@@ -103,7 +103,7 @@ export class Pipeline {
      *      done();
      * }
      * ]);
-     *
+     * ```
      */
     constructor (name: string, funcs: IPipe[]) {
         this.name = name;
@@ -126,12 +126,13 @@ export class Pipeline {
      * @return pipeline
      *
      * @example
+     * ```
      * var pipeline = new Pipeline('test', []);
      * pipeline.insert((task, done) => {
      *      // do something
      *      done();
      * }, 0);
-     *
+     * ```
      */
     public insert (func: IPipe, index: number) {
         if (index > this.pipes.length) {
@@ -156,12 +157,13 @@ export class Pipeline {
      * @return pipeline
      *
      * @example
+     * ```
      * var pipeline = new Pipeline('test', []);
      * pipeline.append((task, done) => {
      *      // do something
      *      done();
      * });
-     *
+     * ```
      */
     public append (func: IPipe): Pipeline {
         this.pipes.push(func);
@@ -179,12 +181,13 @@ export class Pipeline {
      * @return pipeline
      *
      * @example
+     * ```
      * var pipeline = new Pipeline('test', (task, done) => {
      *      // do something
      *      done();
      * });
      * pipeline.remove(0);
-     *
+     * ```
      */
     public remove (index: number): Pipeline {
         this.pipes.splice(index, 1);
@@ -202,6 +205,7 @@ export class Pipeline {
      * @returns result
      *
      * @example
+     * ```
      * var pipeline = new Pipeline('sync', [(task) => {
      *      let input = task.input;
      *      task.output = doSomething(task.input);
@@ -209,7 +213,7 @@ export class Pipeline {
      *
      * var task = new Task({input: 'test'});
      * console.log(pipeline.sync(task));
-     *
+     * ```
      */
     public sync (task: Task): any {
         const pipes = this.pipes;
@@ -242,6 +246,7 @@ export class Pipeline {
      * @param task - The task will be executed
      *
      * @example
+     * ```
      * var pipeline = new Pipeline('sync', [(task, done) => {
      *      let input = task.input;
      *      task.output = doSomething(task.input);
@@ -249,7 +254,7 @@ export class Pipeline {
      * }]);
      * var task = new Task({input: 'test', onComplete: (err, result) => console.log(result)});
      * pipeline.async(task);
-     *
+     * ```
      */
     public async (task: Task): void {
         const pipes = this.pipes;
@@ -264,16 +269,14 @@ export class Pipeline {
             if (result) {
                 task.isFinish = true;
                 task.dispatch('complete', result);
-            }
-            else {
+            } else {
                 index++;
                 if (index < this.pipes.length) {
                     // move output to input
                     task.input = task.output;
                     task.output = null;
                     this._flow(index, task);
-                }
-                else {
+                } else {
                     task.isFinish = true;
                     task.dispatch('complete', result, task.output);
                 }

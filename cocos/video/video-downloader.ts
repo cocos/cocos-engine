@@ -24,7 +24,8 @@
  THE SOFTWARE.
  */
 /**
- * @category asset-manager
+ * @packageDocumentation
+ * @module video
  */
 
 import { CompleteCallback, IDownloadParseOptions } from '../core/asset-manager/shared';
@@ -50,11 +51,11 @@ export function downloadVideo (url: string, options: IDownloadParseOptions, onCo
             source.src = URL.createObjectURL(this.response);
             onComplete(null, video);
         } else {
-            onComplete(new Error(req.status + '(no response)'));
+            onComplete(new Error(`${req.status}(no response)`));
         }
     };
     req.onerror = function () {
-        const message = 'load video failure - ' + url;
+        const message = `load video failure - ${url}`;
         log(message);
         onComplete(new Error(message));
     };

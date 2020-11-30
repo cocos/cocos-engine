@@ -26,6 +26,7 @@
 /**
  * @packageDocumentation
  * @hidden
+ * @module event
  */
 
 export type EventArgumentsOf<

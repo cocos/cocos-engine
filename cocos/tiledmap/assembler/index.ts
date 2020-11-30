@@ -25,7 +25,7 @@
 
 /**
  * @packageDocumentation
- * @hidden
+ * @module tiledmap
  */
 
 import { IAssemblerManager } from '../../core/renderer/ui/base';
@@ -43,5 +43,5 @@ const tiledLayerAssembler: IAssemblerManager = {
 TiledLayer.Assembler = tiledLayerAssembler;
 
 export {
-    tiledLayerAssembler
+    tiledLayerAssembler,
 };

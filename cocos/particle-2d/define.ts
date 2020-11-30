@@ -23,29 +23,28 @@
  THE SOFTWARE.
  */
 
+/**
+ * @packageDocumentation
+ * @module Particle2d
+ */
+
 import { Enum } from '../core/value-types';
 
 /**
  * @en The Particle emitter lives forever.
  * @zh 表示发射器永久存在
- * @static
- * @readonly
  */
 export const DURATION_INFINITY = -1;
 
 /**
  * @en The starting size of the particle is equal to the ending size.
  * @zh 表示粒子的起始大小等于结束大小。
- * @static
- * @readonly
  */
 export const START_SIZE_EQUAL_TO_END_SIZE = -1;
 
 /**
  * @en The starting radius of the particle is equal to the ending radius.
  * @zh 表示粒子的起始半径等于结束半径。
- * @static
- * @readonly
  */
 export const START_RADIUS_EQUAL_TO_END_RADIUS = -1;
 
@@ -64,7 +63,7 @@ export const EmitterMode = Enum({
      * @en Uses radius movement + rotation.
      * @zh 半径模式，可以使粒子以圆圈方式旋转，它也可以创造螺旋效果让粒子急速前进或后退。
      */
-    RADIUS: 1
+    RADIUS: 1,
 });
 
 /**
@@ -83,7 +82,7 @@ export const PositionType = Enum({
 
     /**
      * @en
-     * In the relative mode, the particle will move with the parent node, but not with the node where the particle is. 
+     * In the relative mode, the particle will move with the parent node, but not with the node where the particle is.
      * For example, the coffee in the cup is steaming. Then the steam moves (forward) with the train, rather than moves with the cup.
      * @zh
      * 相对模式，粒子会跟随父节点移动，但不跟随粒子所在节点移动，例如在一列行进火车中，杯中的咖啡飘起雾气，
@@ -97,5 +96,5 @@ export const PositionType = Enum({
      * @zh
      * 整组模式，粒子跟随发射器移动。（不会发生拖尾）
      */
-    GROUPED: 2
+    GROUPED: 2,
 });

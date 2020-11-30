@@ -26,6 +26,7 @@
 /**
  * @packageDocumentation
  * @hidden
+ * @module ui
  */
 
 export * from './canvas';

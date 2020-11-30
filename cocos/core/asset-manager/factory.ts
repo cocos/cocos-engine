@@ -26,6 +26,7 @@
 /**
  * @packageDocumentation
  * @hidden
+ * @module asset-manager
  */
 
 import { AudioClip } from '../../audio/assets/clip';

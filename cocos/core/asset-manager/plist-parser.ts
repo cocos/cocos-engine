@@ -28,6 +28,7 @@
 /**
  * @packageDocumentation
  * @hidden
+ * @module asset-manager
  */
 
 import { EDITOR } from 'internal:constants';
@@ -106,8 +107,7 @@ class PlistParser extends SAXParser {
         } else if (tagName === 'string') {
             if (node.childNodes.length === 1) {
                 data = node.firstChild!.nodeValue;
-            }
-            else {
+            } else {
                 // handle Firefox's 4KB nodeValue limit
                 data = '';
                 for (let i = 0; i < node.childNodes.length; i++) {
@@ -150,8 +150,7 @@ class PlistParser extends SAXParser {
             // Grab the key, next noe should be the value
             if (child.tagName === 'key') {
                 key = child.firstChild!.nodeValue!;
-            }
-            else {
+            } else {
                 data[key] = this._parseNode(child);
             }                 // Parse the value node
         }

@@ -26,6 +26,7 @@
 /**
  * @packageDocumentation
  * @hidden
+ * @module animation
  */
 
 import { ccclass, serializable } from 'cc.decorator';
@@ -45,7 +46,7 @@ export class MorphWeightsValueProxy implements IValueProxyFactory {
      * @zh 子网格索引。
      */
     @serializable
-    public subMeshIndex: number = 0;
+    public subMeshIndex = 0;
 
     public forTarget (target: MeshRenderer) {
         return {

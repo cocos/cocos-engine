@@ -29,23 +29,24 @@
  * @module ui
  */
 
-import { Component } from '../../core/components/component';
 import { ccclass, help, executionOrder, menu, tooltip, requireComponent, executeInEditMode, serializable } from 'cc.decorator';
-import { Color } from '../../core/math';
+import { Component } from '../../core/components/component';
+import { Color, Vec2 } from '../../core/math';
 import { Label } from './label';
 import { legacyCC } from '../../core/global-exports';
-import { Vec2 } from '../../core/math';
 
 /**
  * @en Shadow effect for Label component, only for system fonts or TTF fonts
  * @zh 用于给 Label 组件添加阴影效果，只能用于系统字体或 ttf 字体
  * @example
+ * ```
  * import { Node, Label, LabelShadow } from 'cc';
  * // Create a new node and add label components.
  * const node = new Node("New Label");
  * const label = node.addComponent(Label);
  * const shadow = node.addComponent(LabelShadow);
  * node.parent = this.node;
+ * ```
  */
 @ccclass('cc.LabelShadow')
 @help('i18n:cc.LabelShadow')
@@ -80,7 +81,7 @@ export class LabelShadow extends Component {
     }
 
     set color (value) {
-        if (this._color === value){
+        if (this._color === value) {
             return;
         }
 

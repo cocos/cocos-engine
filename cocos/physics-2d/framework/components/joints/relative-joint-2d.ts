@@ -1,11 +1,16 @@
-import { Joint2D } from "./joint-2d";
-import { ccclass, property, menu, type } from "../../../../core/data/class-decorator";
-import { IRelativeJoint } from "../../../spec/i-physics-joint";
-import { EJoint2DType } from "../../physics-types";
-import { Vec3, Vec2, IVec2Like, Quat } from "../../../../core";
+/**
+ * @packageDocumentation
+ * @module physics2d
+ */
 
-let tempVec3_1 = new Vec3;
-let tempVec3_2 = new Vec3;
+import { Joint2D } from './joint-2d';
+import { ccclass, property, menu, type } from '../../../../core/data/class-decorator';
+import { IRelativeJoint } from '../../../spec/i-physics-joint';
+import { EJoint2DType } from '../../physics-types';
+import { Vec3, Vec2, IVec2Like, Quat } from '../../../../core';
+
+const tempVec3_1 = new Vec3();
+const tempVec3_2 = new Vec3();
 
 @ccclass('cc.RelativeJoint2D')
 @menu('Physics2D/Joints/RelativeJoint2D')
@@ -25,7 +30,7 @@ export class RelativeJoint2D extends Joint2D {
     set maxForce (v: number) {
         this._maxForce = v;
         if (this._joint) {
-            (this._joint! as IRelativeJoint).setMaxForce(v);
+            (this._joint as IRelativeJoint).setMaxForce(v);
         }
     }
 
@@ -42,7 +47,7 @@ export class RelativeJoint2D extends Joint2D {
     set maxTorque (v: number) {
         this._maxTorque = v;
         if (this._joint) {
-            (this._joint! as IRelativeJoint).setMaxTorque(v);
+            (this._joint as IRelativeJoint).setMaxTorque(v);
         }
     }
 
@@ -59,10 +64,9 @@ export class RelativeJoint2D extends Joint2D {
     set correctionFactor (v: number) {
         this._correctionFactor = v;
         if (this._joint) {
-            (this._joint! as IRelativeJoint).setCorrectionFactor(v);
+            (this._joint as IRelativeJoint).setCorrectionFactor(v);
         }
     }
-
 
     /**
      * @en
@@ -80,7 +84,7 @@ export class RelativeJoint2D extends Joint2D {
     set linearOffset (v: Vec2) {
         this._linearOffset.set(v);
         if (this._joint) {
-            (this._joint! as IRelativeJoint).setLinearOffset(v);
+            (this._joint as IRelativeJoint).setLinearOffset(v);
         }
     }
 
@@ -102,7 +106,7 @@ export class RelativeJoint2D extends Joint2D {
     set angularOffset (v: number) {
         this._angularOffset = v;
         if (this._joint) {
-            (this._joint! as IRelativeJoint).setAngularOffset(v);
+            (this._joint as IRelativeJoint).setAngularOffset(v);
         }
     }
 
@@ -131,7 +135,7 @@ export class RelativeJoint2D extends Joint2D {
     @property
     private _angularOffset = 0;
     @property
-    private _linearOffset = new Vec2;
+    private _linearOffset = new Vec2();
     @property
     private _autoCalcOffset = true;
 }

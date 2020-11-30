@@ -56,7 +56,6 @@ interface IUnpackRequest {
  *
  */
 export class PackManager {
-
     private _loading = new Cache<IUnpackRequest[]>();
     private _unpackers: Record<string, Unpacker> = {
         '.json': this.unpackJson,
@@ -77,18 +76,17 @@ export class PackManager {
      * @param onComplete.content - The unpacked assets
      *
      * @example
+     * ```
      * downloader.downloadFile('pack.json', { xhrResponseType: 'json'}, null, (err, file) => {
      *      packManager.unpackJson(['a', 'b'], file, null, (err, data) => console.log(err));
      * });
-     *
+     * ```
      */
     public unpackJson (pack: string[], json: any, options: IDownloadParseOptions, onComplete: CompleteCallback<Record<string, any>>): void {
-
         let out = js.createMap(true);
         let err: Error | null = null;
 
         if (Array.isArray(json)) {
-
             // @ts-expect-error
             json = unpackJSONs(json, MissingScript.safeFindClass);
 
@@ -96,10 +94,9 @@ export class PackManager {
                 errorID(4915);
             }
             for (let i = 0; i < pack.length; i++) {
-                out[pack[i] + '@import'] = json[i];
+                out[`${pack[i]}@import`] = json[i];
             }
-        }
-        else {
+        } else {
             const textureType = js._getClassId(Texture2D);
             if (json.type === textureType && json.data) {
                 const datas = json.data;
@@ -107,10 +104,9 @@ export class PackManager {
                     errorID(4915);
                 }
                 for (let i = 0; i < pack.length; i++) {
-                    out[pack[i] + '@import'] = packCustomObjData(textureType, { base: datas[i][0], mipmaps: datas[i][1] }, true);
+                    out[`${pack[i]}@import`] = packCustomObjData(textureType, { base: datas[i][0], mipmaps: datas[i][1] }, true);
                 }
-            }
-            else {
+            } else {
                 err = new Error('unmatched type pack!');
                 out = null;
             }
@@ -137,19 +133,20 @@ export class PackManager {
      * @param handler.onComplete - Callback when finishing unpacking
      *
      * @example
+     * ```
      * packManager.register('.bin', (packUuid, file, options, onComplete) => onComplete(null, null));
      * packManager.register({
      *  '.bin': (packUuid, file, options, onComplete) => onComplete(null, null),
      *  '.ab': (packUuid, file, options, onComplete) => onComplete(null, null),
      * });
+     * ```
      */
     public register (type: string, handler: Unpacker): void;
     public register (map: Record<string, Unpacker>): void;
     public register (type: string | Record<string, Unpacker>, handler?: Unpacker) {
         if (typeof type === 'object') {
             js.mixin(this._unpackers, type);
-        }
-        else {
+        } else {
             this._unpackers[type] = handler!;
         }
     }
@@ -171,10 +168,11 @@ export class PackManager {
      * @param onComplete.data - Original assets
      *
      * @example
+     * ```
      * downloader.downloadFile('pack.json', {xhrResponseType: 'json'}, null, (err, file) => {
      *      packManager.unpack(['2fawq123d', '1zsweq23f'], file, '.json', null, (err, data) => console.log(err));
      * });
-     *
+     * ```
      */
     public unpack (pack: string[], data: any, type: string, options: IDownloadParseOptions, onComplete: CompleteCallback): void {
         if (!data) {
@@ -200,11 +198,12 @@ export class PackManager {
      * @param onComplete.data - The unpacked data retrieved from package
      *
      * @example
+     * ```
      * var requestItem = cc.AssetManager.RequestItem.create();
      * requestItem.uuid = 'fcmR3XADNLgJ1ByKhqcC5Z';
      * requestItem.info = config.getAssetInfo('fcmR3XADNLgJ1ByKhqcC5Z');
      * packManager.load(requestItem, null, (err, data) => console.log(err));
-     *
+     * ```
      */
     public load (item: RequestItem, options: IDownloadParseOptions | null, onComplete: CompleteCallback): void {
         // if not in any package, download as uausl
@@ -217,9 +216,7 @@ export class PackManager {
         const packs = item.info.packs;
 
         // find a loading package
-        let pack = packs.find((val) => {
-            return this._loading.has(val.uuid);
-        });
+        let pack = packs.find((val) => this._loading.has(val.uuid));
 
         if (pack) {
             this._loading.get(pack.uuid)!.push({ onComplete, id: item.id });
@@ -256,8 +253,7 @@ export class PackManager {
                     const unpackedData = result[cb.id];
                     if (!unpackedData) {
                         cb.onComplete(new Error('can not retrieve data from package'));
-                    }
-                    else {
+                    } else {
                         cb.onComplete(null, unpackedData);
                     }
                 }

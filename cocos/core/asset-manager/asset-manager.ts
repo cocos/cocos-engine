@@ -59,8 +59,8 @@ import {
     Request,
     references,
     IJsonAssetOptions,
-} from './shared';
-import { assets, BuiltinBundleName, bundles, fetchPipeline, files, parsed, pipeline, transformPipeline } from './shared';
+    assets, BuiltinBundleName, bundles, fetchPipeline, files, parsed, pipeline, transformPipeline } from './shared';
+
 import Task from './task';
 import { combine, parse } from './url-transformer';
 import { asyncify, parseParameters } from './utilities';
@@ -125,7 +125,6 @@ export interface IAssetManagerOptions {
  *
  */
 export class AssetManager {
-
     /**
      * @en
      * Normal loading pipeline
@@ -195,7 +194,7 @@ export class AssetManager {
      * 是否强制加载资源, 如果为 true ，加载资源将会忽略报错
      *
      */
-    public force = EDITOR ? true : false;
+    public force = !!EDITOR;
 
     /**
      * @en
@@ -292,7 +291,7 @@ export class AssetManager {
     private _files = files;
 
     private _parsed = parsed;
-    private _parsePipeline = BUILD ? null : new Pipeline('parse existing json', [ this.loadPipe ]);
+    private _parsePipeline = BUILD ? null : new Pipeline('parse existing json', [this.loadPipe]);
 
     /**
      * @en
@@ -360,10 +359,12 @@ export class AssetManager {
      * @return - The loaded bundle
      *
      * @example
+     * ```
      * // ${project}/assets/test1
      * cc.assetManager.getBundle('test1');
      *
      * cc.assetManager.getBundle('resources');
+     * ```
      *
      */
     public getBundle (name: string): Bundle | null {
@@ -423,6 +424,7 @@ export class AssetManager {
      * @param onComplete.data - The loaded content
      *
      * @example
+     * ```
      * cc.assetManager.loadAny({url: 'http://example.com/a.png'}, (err, img) => cc.log(img));
      * cc.assetManager.loadAny(['60sVXiTH1D/6Aft4MRt9VC'], (err, assets) => cc.log(assets));
      * cc.assetManager.loadAny([{ uuid: '0cbZa5Y71CTZAccaIFluuZ'}, {url: 'http://example.com/a.png'}], (err, assets) => cc.log(assets));
@@ -437,6 +439,7 @@ export class AssetManager {
      *      onComplete(null, {skin, model});
      * });
      * cc.assetManager.loadAny({ url: 'http://example.com/my.asset', skin: 'xxx', model: 'xxx', userName: 'xxx', password: 'xxx' });
+     * ```
      *
      */
     public loadAny (requests: Request, options: IOptions | null, onProgress: ProgressCallback | null, onComplete: CompleteCallback | null): void;
@@ -444,10 +447,9 @@ export class AssetManager {
     public loadAny (requests: Request, options: IOptions | null, onComplete?: CompleteCallback | null): void;
     public loadAny (requests: Request, onComplete?: CompleteCallback | null): void;
     public loadAny (requests: Request,
-                    options?: IOptions | ProgressCallback | CompleteCallback | null,
-                    onProgress?: ProgressCallback | CompleteCallback | null,
-                    onComplete?: CompleteCallback | null) {
-
+        options?: IOptions | ProgressCallback | CompleteCallback | null,
+        onProgress?: ProgressCallback | CompleteCallback | null,
+        onComplete?: CompleteCallback | null) {
         const { options: opts, onProgress: onProg, onComplete: onComp } = parseParameters(options, onProgress, onComplete);
         opts.preset = opts.preset || 'default';
         requests = Array.isArray(requests) ? requests.slice() : requests;
@@ -477,7 +479,9 @@ export class AssetManager {
      * @param onComplete.items - The preloaded content
      *
      * @example
+     * ```
      * cc.assetManager.preloadAny('0cbZa5Y71CTZAccaIFluuZ', (err) => cc.assetManager.loadAny('0cbZa5Y71CTZAccaIFluuZ'));
+     * ```
      *
      */
     public preloadAny (requests: Request,
@@ -488,10 +492,9 @@ export class AssetManager {
     public preloadAny (requests: Request, options: IOptions | null, onComplete?: CompleteCallback<RequestItem[]> | null): void;
     public preloadAny (requests: Request, onComplete?: CompleteCallback<RequestItem[]> | null): void;
     public preloadAny (requests: Request,
-                       options?: IOptions | ProgressCallback | CompleteCallback<RequestItem[]> | null,
-                       onProgress?: ProgressCallback | CompleteCallback<RequestItem[]> | null,
-                       onComplete?: CompleteCallback<RequestItem[]> | null) {
-
+        options?: IOptions | ProgressCallback | CompleteCallback<RequestItem[]> | null,
+        onProgress?: ProgressCallback | CompleteCallback<RequestItem[]> | null,
+        onComplete?: CompleteCallback<RequestItem[]> | null) {
         const { options: opts, onProgress: onProg, onComplete: onComp } = parseParameters(options, onProgress, onComplete);
         opts.preset = opts.preset || 'preload';
         requests = Array.isArray(requests) ? requests.slice() : requests;
@@ -512,7 +515,9 @@ export class AssetManager {
      * @param onComplete.err - The error occured in loading process.
      *
      * @example
+     * ```
      * cc.assetManager.postLoadNative(texture, (err) => console.log(err));
+     * ```
      *
      */
     public postLoadNative (asset: Asset, options: INativeAssetOptions | null, onComplete: CompleteCallbackNoData | null): void;
@@ -542,8 +547,7 @@ export class AssetManager {
                     // @ts-expect-error
                     asset.__nativeDepend__ = false;
                 }
-            }
-            else {
+            } else {
                 error(err.message, err.stack);
             }
             if (onComp) { onComp(err); }
@@ -566,15 +570,16 @@ export class AssetManager {
      * @param onComplete.asset - The loaded texture
      *
      * @example
+     * ```
      * cc.assetManager.loadRemote('http://www.cloud.com/test1.jpg', (err, texture) => console.log(err));
      * cc.assetManager.loadRemote('http://www.cloud.com/test2.mp3', (err, audioClip) => console.log(err));
      * cc.assetManager.loadRemote('http://www.cloud.com/test3', { ext: '.png' }, (err, texture) => console.log(err));
+     * ```
      *
      */
     public loadRemote<T extends Asset> (url: string, options: IRemoteOptions | null, onComplete?: CompleteCallback<T> | null): void;
     public loadRemote<T extends Asset> (url: string, onComplete?: CompleteCallback<T> | null): void;
     public loadRemote<T extends Asset> (url: string, options?: IRemoteOptions | CompleteCallback<T> | null, onComplete?: CompleteCallback<T> | null) {
-
         const { options: opts, onComplete: onComp } = parseParameters(options, undefined, onComplete);
 
         if (!opts.reloadAsset && this.assets.has(url)) {
@@ -587,8 +592,7 @@ export class AssetManager {
             if (err) {
                 error(err.message, err.stack);
                 if (onComp) { onComp(err, null); }
-            }
-            else {
+            } else {
                 factory.create(url, data, opts.ext || extname(url), opts, (p1, p2) => {
                     if (onComp) { onComp(p1, p2 as T); }
                 });
@@ -611,7 +615,9 @@ export class AssetManager {
      * @param onComplete.bundle - The loaded bundle
      *
      * @example
+     * ```
      * loadBundle('http://localhost:8080/test', null, (err, bundle) => console.log(err));
+     * ```
      *
      */
     public loadBundle (nameOrUrl: string, options: IBundleOptions | null, onComplete?: CompleteCallback<Bundle> | null): void;
@@ -632,8 +638,7 @@ export class AssetManager {
             if (err) {
                 error(err.message, err.stack);
                 if (onComp) { onComp(err, null); }
-            }
-            else {
+            } else {
                 factory.create(nameOrUrl, data, 'bundle', opts, (p1, p2) => {
                     if (onComp) { onComp(p1, p2 as Bundle); }
                 });
@@ -657,8 +662,10 @@ export class AssetManager {
      * @param asset - The asset to be released
      *
      * @example
+     * ```
      * // release a texture which is no longer need
      * cc.assetManager.releaseAsset(texture);
+     * ```
      *
      */
     public releaseAsset (asset: Asset): void {
@@ -713,28 +720,29 @@ export class AssetManager {
         json: Record<string, any>,
         options?: IJsonAssetOptions | CompleteCallback<T> | null,
         onProgress?: ProgressCallback | CompleteCallback<T> | null,
-        onComplete?: CompleteCallback<T> | null)
-    {
+        onComplete?: CompleteCallback<T> | null,
+    ) {
         if (BUILD) { throw new Error('Only valid in Editor'); }
 
         const { options: opts, onProgress: onProg, onComplete: onComp } = parseParameters(options, onProgress, onComplete);
 
         const item = RequestItem.create();
         item.isNative = false;
-        item.uuid = opts.assetId || ('' + new Date().getTime() + Math.random());
+        item.uuid = opts.assetId || (`${new Date().getTime()}${Math.random()}`);
         item.file = json;
         item.ext = '.json';
 
-        const task = new Task({ input: [item], onProgress: onProg, options: opts, onComplete: asyncify((err) => {
-            if (!err) {
-                if (!opts.assetId) {
-                    task.output._uuid = '';
-                }
-                if (onComp) { onComp(null, task.output); }
-            } else {
-                if (onComp) { onComp(err, null); }
-            }
-        })});
+        const task = new Task({ input: [item],
+            onProgress: onProg,
+            options: opts,
+            onComplete: asyncify((err) => {
+                if (!err) {
+                    if (!opts.assetId) {
+                        task.output._uuid = '';
+                    }
+                    if (onComp) { onComp(null, task.output); }
+                } else if (onComp) { onComp(err, null); }
+            }) });
         this._parsePipeline!.async(task);
     }
 }

@@ -24,6 +24,11 @@
  THE SOFTWARE.
  */
 
+/**
+ * @packageDocumentation
+ * @module Particle2d
+ */
+
 import { IAssembler, IAssemblerManager } from '../core/renderer/ui/base';
 import { ParticleSystem2D } from './particle-system-2d';
 import { MeshRenderData } from '../core/renderer/ui/render-data';

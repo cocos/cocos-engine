@@ -26,6 +26,7 @@
 /**
  * @packageDocumentation
  * @hidden
+ * @module core
  */
 
 import * as debug from './platform/debug';

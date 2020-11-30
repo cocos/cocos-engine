@@ -26,6 +26,7 @@
 /**
  * @packageDocumentation
  * @hidden
+ * @module terrain
  */
 
 export * from './height-field';

@@ -32,6 +32,7 @@
  * @module core
  */
 
+import { DEBUG, EDITOR, BUILD } from 'internal:constants';
 import { SceneAsset } from './assets';
 import System from './components/system';
 import { CCObject } from './data/object';
@@ -45,7 +46,6 @@ import { ComponentScheduler } from './scene-graph/component-scheduler';
 import NodeActivator from './scene-graph/node-activator';
 import { Scheduler } from './scheduler';
 import { js } from './utils';
-import { DEBUG, EDITOR, BUILD } from 'internal:constants';
 import { legacyCC } from './global-exports';
 import { errorID, error, logID, assertID, warnID } from './platform/debug';
 
@@ -117,7 +117,6 @@ import { errorID, error, logID, assertID, warnID } from './platform/debug';
  * </p>
  */
 export class Director extends EventTarget {
-
     /**
      * @en The event which will be triggered when the singleton of Director initialized.
      * @zh Director 单例初始化时触发的事件
@@ -334,8 +333,7 @@ export class Director extends EventTarget {
         if (view._isRotated) {
             uiPoint.x = left + glPoint.y / view._devicePixelRatio;
             uiPoint.y = top + box.height - (view._viewportRect.width - glPoint.x) / view._devicePixelRatio;
-        }
-        else {
+        } else {
             uiPoint.x = left + glPoint.x * view._devicePixelRatio;
             uiPoint.y = top + box.height - glPoint.y * view._devicePixelRatio;
         }
@@ -472,9 +470,7 @@ export class Director extends EventTarget {
         if (BUILD && DEBUG) {
             console.time('AttachPersist');
         }
-        const persistNodeList = Object.keys(legacyCC.game._persistRootNodes).map((x) => {
-            return legacyCC.game._persistRootNodes[x];
-        });
+        const persistNodeList = Object.keys(legacyCC.game._persistRootNodes).map((x) => legacyCC.game._persistRootNodes[x]);
         for (let i = 0; i < persistNodeList.length; i++) {
             const node = persistNodeList[i];
             node.emit(legacyCC.Node.SCENE_CHANGED_FOR_PERSISTS, scene.renderScene);
@@ -484,8 +480,7 @@ export class Director extends EventTarget {
                 const index = existNode.getSiblingIndex();
                 existNode._destroyImmediate();
                 scene.insertChild(node, index);
-            }
-            else {
+            } else {
                 node.parent = scene;
             }
         }
@@ -583,32 +578,28 @@ export class Director extends EventTarget {
             warnID(1208, sceneName, this._loadingScene);
             return false;
         }
-        const bundle = legacyCC.assetManager.bundles.find((bundle) => {
-            return bundle.getSceneInfo(sceneName);
-        });
+        const bundle = legacyCC.assetManager.bundles.find((bundle) => bundle.getSceneInfo(sceneName));
         if (bundle) {
             this.emit(legacyCC.Director.EVENT_BEFORE_SCENE_LOADING, sceneName);
             this._loadingScene = sceneName;
-            console.time('LoadScene ' + sceneName);
+            console.time(`LoadScene ${sceneName}`);
             bundle.loadScene(sceneName, (err, scene) => {
-                console.timeEnd('LoadScene ' + sceneName);
+                console.timeEnd(`LoadScene ${sceneName}`);
                 this._loadingScene = '';
                 if (err) {
                     error(err);
                     if (onLaunched) {
                         onLaunched(err);
                     }
-                }
-                else {
+                } else {
                     this.runSceneImmediate(scene, onUnloaded, onLaunched);
                 }
             });
             return true;
         }
-        else {
-            errorID(1209, sceneName);
-            return false;
-        }
+
+        errorID(1209, sceneName);
+        return false;
     }
 
     /**
@@ -643,20 +634,17 @@ export class Director extends EventTarget {
     public preloadScene (
         sceneName: string,
         onProgress?: Director.OnLoadSceneProgress | Director.OnSceneLoaded,
-        onLoaded?: Director.OnSceneLoaded) {
-
-        const bundle = legacyCC.assetManager.bundles.find(function (bundle) {
-            return bundle.getSceneInfo(sceneName);
-        });
+        onLoaded?: Director.OnSceneLoaded,
+    ) {
+        const bundle = legacyCC.assetManager.bundles.find((bundle) => bundle.getSceneInfo(sceneName));
         if (bundle) {
             bundle.preloadScene(sceneName, null, onProgress, onLoaded);
-        }
-        else {
-            const err = 'Can not preload the scene "' + sceneName + '" because it is not in the build settings.';
+        } else {
+            const err = `Can not preload the scene "${sceneName}" because it is not in the build settings.`;
             if (onLoaded) {
                 onLoaded(new Error(err));
             }
-            error('preloadScene: ' + err);
+            error(`preloadScene: ${err}`);
         }
     }
 
@@ -838,9 +826,7 @@ export class Director extends EventTarget {
      * @zh 获取一个 system。
      */
     public getSystem (name: string) {
-        return this._systems.find((sys) => {
-            return sys.id === name;
-        });
+        return this._systems.find((sys) => sys.id === name);
     }
 
     /**
@@ -878,13 +864,11 @@ export class Director extends EventTarget {
         if (this._purgeDirectorInNextLoop) {
             this._purgeDirectorInNextLoop = false;
             this.purgeDirector();
-        }
-        else if (!this._invalid) {
+        } else if (!this._invalid) {
             // calculate "global" dt
             if (EDITOR && !legacyCC.GAME_VIEW) {
                 this._deltaTime = time;
-            }
-            else {
+            } else {
                 this.calculateDeltaTime(time);
             }
 

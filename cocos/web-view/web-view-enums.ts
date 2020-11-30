@@ -1,4 +1,3 @@
-
 /*
  Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
@@ -25,7 +24,8 @@
  */
 
 /**
- * @category component/web-view
+ * @packageDocumentation
+ * @module webView
  */
 
 export enum EventType {

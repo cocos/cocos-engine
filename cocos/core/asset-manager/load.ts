@@ -22,6 +22,13 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
+
+/**
+ * @packageDocumentation
+ * @hidden
+ * @module asset-manager
+ */
+
 import { EDITOR } from 'internal:constants';
 import { Asset } from '../assets';
 import { error, warn } from '../platform/debug';
@@ -34,10 +41,6 @@ import Task from './task';
 import { cache, checkCircleReference, clear, forEach, gatherAsset, getDepends, setProperties } from './utilities';
 import { legacyCC } from '../global-exports';
 
-/**
- * @packageDocumentation
- * @hidden
- */
 interface IProgress {
     finish: number;
     total: number;
