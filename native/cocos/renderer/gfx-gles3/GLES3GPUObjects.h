@@ -294,8 +294,6 @@ public:
     GLES3ObjectCache gfxStateCache;
 
     void initialize(size_t texUnits, size_t bufferBindings, size_t vertexAttributes) {
-        bt.resize(1);
-        bs.targets.push_back(bt[0]);
         glBindUBOs.resize(bufferBindings, 0u);
         glBindUBOOffsets.resize(bufferBindings, 0u);
         glTextures.resize(texUnits, 0u);
@@ -321,6 +319,12 @@ public:
         glReadFBO = 0;
         isCullFaceEnabled = true;
         isStencilTestEnabled = false;
+        
+        viewport = Viewport();
+        scissor = Rect();
+        rs = RasterizerState();
+        dss = DepthStencilState();
+        bs = BlendState();
 
         gfxStateCache.numClearColors = 0u;
         gfxStateCache.gpuRenderPass = nullptr;

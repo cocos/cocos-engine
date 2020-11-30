@@ -1409,15 +1409,18 @@ void GLES2CmdFuncBeginRenderPass(GLES2Device *device, GLES2GPURenderPass *gpuRen
                         break;
                     }
 
-                    // restore states
-                    if (glClears & GL_COLOR_BUFFER_BIT) {
-                        ColorMask colorMask = cache->bs.targets[0].blendColorMask;
-                        if (colorMask != ColorMask::ALL) {
-                            glColorMask((GLboolean)(colorMask & ColorMask::R),
-                                        (GLboolean)(colorMask & ColorMask::G),
-                                        (GLboolean)(colorMask & ColorMask::B),
-                                        (GLboolean)(colorMask & ColorMask::A));
+        if (gpuRenderPass->depthStencilAttachment.format != Format::UNKNOWN) {
+            bool hasDepth = GFX_FORMAT_INFOS[(int)gpuRenderPass->depthStencilAttachment.format].hasDepth;
+            if (hasDepth) {
+                switch (gpuRenderPass->depthStencilAttachment.depthLoadOp) {
+                    case LoadOp::LOAD: break; // GL default behaviour
+                    case LoadOp::CLEAR: {
+                        if (!cache->dss.depthWrite) {
+                            GL_CHECK(glDepthMask(true));
                         }
+                        GL_CHECK(glClearDepthf(clearDepth));
+                        glClears |= GL_DEPTH_BUFFER_BIT;
+                        break;
                     }
                     case LoadOp::DISCARD: {
                         // invalidate fbo
@@ -1471,7 +1474,7 @@ void GLES2CmdFuncBeginRenderPass(GLES2Device *device, GLES2GPURenderPass *gpuRen
             }
         }
 
-        if ((glClears & GL_COLOR_BUFFER_BIT) && !cache->dss.depthWrite) {
+        if ((glClears & GL_DEPTH_BUFFER_BIT) && !cache->dss.depthWrite) {
             GL_CHECK(glDepthMask(false));
         }
 
@@ -2007,269 +2010,269 @@ void GLES2CmdFuncBindState(GLES2Device *device, GLES2GPUPipelineState *gpuPipeli
                         }
                     }
                 }
-            } // if
+            }
+        }
+    } // if
 
-            // bind vao
-            if (gpuInputAssembler && gpuPipelineState->gpuShader &&
-                (isShaderChanged || gpuInputAssembler != gfxStateCache.gpuInputAssembler)) {
-                gfxStateCache.gpuInputAssembler = gpuInputAssembler;
-                if (device->useVAO()) {
-                    GLuint hash = gpuPipelineState->gpuShader->glProgram ^device->getThreadID();
-                    GLuint glVAO = gpuInputAssembler->glVAOs[hash];
-                    if (!glVAO) {
-                        GL_CHECK(glGenVertexArraysOES(1, &glVAO));
-                        gpuInputAssembler->glVAOs[hash] = glVAO;
-                        GL_CHECK(glBindVertexArrayOES(glVAO));
-                        GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, 0));
-                        GL_CHECK(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
+    // bind vao
+    if (gpuInputAssembler && gpuPipelineState->gpuShader &&
+        (isShaderChanged || gpuInputAssembler != gfxStateCache.gpuInputAssembler)) {
+        gfxStateCache.gpuInputAssembler = gpuInputAssembler;
+        if (device->useVAO()) {
+            GLuint hash = gpuPipelineState->gpuShader->glProgram ^device->getThreadID();
+            GLuint glVAO = gpuInputAssembler->glVAOs[hash];
+            if (!glVAO) {
+                GL_CHECK(glGenVertexArraysOES(1, &glVAO));
+                gpuInputAssembler->glVAOs[hash] = glVAO;
+                GL_CHECK(glBindVertexArrayOES(glVAO));
+                GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, 0));
+                GL_CHECK(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
 
-                        for (size_t j = 0; j < gpuPipelineState->gpuShader->glInputs.size(); ++j) {
-                            const GLES2GPUInput &gpuInput = gpuPipelineState->gpuShader->glInputs[j];
-                            for (size_t a = 0; a < gpuInputAssembler->attributes.size(); ++a) {
-                                const GLES2GPUAttribute &gpuAttribute = gpuInputAssembler->glAttribs[a];
-                                if (gpuAttribute.name == gpuInput.name) {
-                                    GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, gpuAttribute.glBuffer));
+                for (size_t j = 0; j < gpuPipelineState->gpuShader->glInputs.size(); ++j) {
+                    const GLES2GPUInput &gpuInput = gpuPipelineState->gpuShader->glInputs[j];
+                    for (size_t a = 0; a < gpuInputAssembler->attributes.size(); ++a) {
+                        const GLES2GPUAttribute &gpuAttribute = gpuInputAssembler->glAttribs[a];
+                        if (gpuAttribute.name == gpuInput.name) {
+                            GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, gpuAttribute.glBuffer));
 
-                                    for (uint c = 0; c < gpuAttribute.componentCount; ++c) {
-                                        GLint glLoc = gpuInput.glLoc + c;
-                                        uint attribOffset =
-                                                gpuAttribute.offset + gpuAttribute.size * c;
-                                        GL_CHECK(glEnableVertexAttribArray(glLoc));
+                            for (uint c = 0; c < gpuAttribute.componentCount; ++c) {
+                                GLint glLoc = gpuInput.glLoc + c;
+                                uint attribOffset =
+                                        gpuAttribute.offset + gpuAttribute.size * c;
+                                GL_CHECK(glEnableVertexAttribArray(glLoc));
 
-                                        cache->glEnabledAttribLocs[glLoc] = true;
-                                        GL_CHECK(glVertexAttribPointer(glLoc, gpuAttribute.count,
-                                                                       gpuAttribute.glType,
-                                                                       gpuAttribute.isNormalized,
-                                                                       gpuAttribute.stride,
-                                                                       BUFFER_OFFSET(
-                                                                               attribOffset)));
+                                cache->glEnabledAttribLocs[glLoc] = true;
+                                GL_CHECK(glVertexAttribPointer(glLoc, gpuAttribute.count,
+                                                                gpuAttribute.glType,
+                                                                gpuAttribute.isNormalized,
+                                                                gpuAttribute.stride,
+                                                                BUFFER_OFFSET(
+                                                                        attribOffset)));
 
-                                        if (device->useInstancedArrays()) {
-                                            GL_CHECK(glVertexAttribDivisorEXT(glLoc,
-                                                                              gpuAttribute.isInstanced
-                                                                              ? 1 : 0));
-                                        }
-                                    }
-                                    break;
+                                if (device->useInstancedArrays()) {
+                                    GL_CHECK(glVertexAttribDivisorEXT(glLoc,
+                                                                        gpuAttribute.isInstanced
+                                                                        ? 1 : 0));
                                 }
-                            } // for
-                        } // for
-
-                        if (gpuInputAssembler->gpuIndexBuffer) {
-                            GL_CHECK(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,
-                                                  gpuInputAssembler->gpuIndexBuffer->glBuffer));
-                        }
-
-                        GL_CHECK(glBindVertexArrayOES(0));
-                        GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, 0));
-                        GL_CHECK(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
-                        cache->glVAO = 0;
-                        cache->glArrayBuffer = 0;
-                        cache->glElementArrayBuffer = 0;
-                    }
-
-                    if (cache->glVAO != glVAO) {
-                        GL_CHECK(glBindVertexArrayOES(glVAO));
-                        cache->glVAO = glVAO;
-                    }
-                } else {
-                    for (uint a = 0; a < cache->glCurrentAttribLocs.size(); ++a) {
-                        cache->glCurrentAttribLocs[a] = false;
-                    }
-
-                    for (size_t j = 0; j < gpuPipelineState->gpuShader->glInputs.size(); ++j) {
-                        const GLES2GPUInput &gpuInput = gpuPipelineState->gpuShader->glInputs[j];
-                        for (size_t a = 0; a < gpuInputAssembler->attributes.size(); ++a) {
-                            const GLES2GPUAttribute &gpuAttribute = gpuInputAssembler->glAttribs[a];
-                            if (gpuAttribute.name == gpuInput.name) {
-                                if (cache->glArrayBuffer != gpuAttribute.glBuffer) {
-                                    GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, gpuAttribute.glBuffer));
-                                    cache->glArrayBuffer = gpuAttribute.glBuffer;
-                                }
-
-                                for (uint c = 0; c < gpuAttribute.componentCount; ++c) {
-                                    GLint glLoc = gpuInput.glLoc + c;
-                                    uint attribOffset = gpuAttribute.offset + gpuAttribute.size * c;
-                                    GL_CHECK(glEnableVertexAttribArray(glLoc));
-                                    cache->glEnabledAttribLocs[glLoc] = true;
-                                    cache->glCurrentAttribLocs[glLoc] = true;
-                                    GL_CHECK(glVertexAttribPointer(glLoc, gpuAttribute.count,
-                                                                   gpuAttribute.glType,
-                                                                   gpuAttribute.isNormalized,
-                                                                   gpuAttribute.stride,
-                                                                   BUFFER_OFFSET(attribOffset)));
-
-                                    if (device->useInstancedArrays()) {
-                                        GL_CHECK(glVertexAttribDivisorEXT(glLoc,
-                                                                          gpuAttribute.isInstanced
-                                                                          ? 1 : 0));
-                                    }
-                                }
-                                break;
                             }
-                        } // for
-                    }     // for
-
-                    if (gpuInputAssembler->gpuIndexBuffer) {
-                        if (cache->glElementArrayBuffer !=
-                            gpuInputAssembler->gpuIndexBuffer->glBuffer) {
-                            GL_CHECK(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,
-                                                  gpuInputAssembler->gpuIndexBuffer->glBuffer));
-                            cache->glElementArrayBuffer = gpuInputAssembler->gpuIndexBuffer->glBuffer;
+                            break;
                         }
-                    }
+                    } // for
+                } // for
 
-                    for (uint a = 0; a < cache->glCurrentAttribLocs.size(); ++a) {
-                        if (cache->glEnabledAttribLocs[a] != cache->glCurrentAttribLocs[a]) {
-                            GL_CHECK(glDisableVertexAttribArray(a));
-                            cache->glEnabledAttribLocs[a] = false;
-                        }
-                    }
-                } // if
+                if (gpuInputAssembler->gpuIndexBuffer) {
+                    GL_CHECK(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,
+                                            gpuInputAssembler->gpuIndexBuffer->glBuffer));
+                }
+
+                GL_CHECK(glBindVertexArrayOES(0));
+                GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, 0));
+                GL_CHECK(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
+                cache->glVAO = 0;
+                cache->glArrayBuffer = 0;
+                cache->glElementArrayBuffer = 0;
             }
 
-            if (gpuPipelineState && !gpuPipelineState->dynamicStates.empty()) {
-                for (DynamicStateFlagBit dynamicState : gpuPipelineState->dynamicStates) {
-                    switch (dynamicState) {
-                        case DynamicStateFlagBit::VIEWPORT:
-                            if (cache->viewport != viewport) {
-                                cache->viewport = viewport;
-                                GL_CHECK(glViewport(viewport.left, viewport.top, viewport.width,
-                                                    viewport.height));
-                            }
-                            break;
-                        case DynamicStateFlagBit::SCISSOR:
-                            if (cache->scissor != scissor) {
-                                cache->scissor = scissor;
-                                GL_CHECK(glScissor(scissor.x, scissor.y, scissor.width,
-                                                   scissor.height));
-                            }
-                            break;
-                        case DynamicStateFlagBit::LINE_WIDTH:
-                            if (cache->rs.lineWidth != lineWidth) {
-                                cache->rs.lineWidth = lineWidth;
-                                GL_CHECK(glLineWidth(lineWidth));
-                            }
-                            break;
-                        case DynamicStateFlagBit::DEPTH_BIAS:
-                            if ((bool) cache->rs.depthBiasEnabled != depthBiasEnabled) {
-                                if (depthBiasEnabled)
-                                    GL_CHECK(glEnable(GL_POLYGON_OFFSET_FILL));
-                                else
-                                    GL_CHECK(glDisable(GL_POLYGON_OFFSET_FILL));
+            if (cache->glVAO != glVAO) {
+                GL_CHECK(glBindVertexArrayOES(glVAO));
+                cache->glVAO = glVAO;
+            }
+        } else {
+            for (uint a = 0; a < cache->glCurrentAttribLocs.size(); ++a) {
+                cache->glCurrentAttribLocs[a] = false;
+            }
 
-                                cache->rs.depthBiasEnabled = depthBiasEnabled;
+            for (size_t j = 0; j < gpuPipelineState->gpuShader->glInputs.size(); ++j) {
+                const GLES2GPUInput &gpuInput = gpuPipelineState->gpuShader->glInputs[j];
+                for (size_t a = 0; a < gpuInputAssembler->attributes.size(); ++a) {
+                    const GLES2GPUAttribute &gpuAttribute = gpuInputAssembler->glAttribs[a];
+                    if (gpuAttribute.name == gpuInput.name) {
+                        if (cache->glArrayBuffer != gpuAttribute.glBuffer) {
+                            GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, gpuAttribute.glBuffer));
+                            cache->glArrayBuffer = gpuAttribute.glBuffer;
+                        }
+
+                        for (uint c = 0; c < gpuAttribute.componentCount; ++c) {
+                            GLint glLoc = gpuInput.glLoc + c;
+                            uint attribOffset = gpuAttribute.offset + gpuAttribute.size * c;
+                            GL_CHECK(glEnableVertexAttribArray(glLoc));
+                            cache->glEnabledAttribLocs[glLoc] = true;
+                            cache->glCurrentAttribLocs[glLoc] = true;
+                            GL_CHECK(glVertexAttribPointer(glLoc, gpuAttribute.count,
+                                                            gpuAttribute.glType,
+                                                            gpuAttribute.isNormalized,
+                                                            gpuAttribute.stride,
+                                                            BUFFER_OFFSET(attribOffset)));
+
+                            if (device->useInstancedArrays()) {
+                                GL_CHECK(glVertexAttribDivisorEXT(glLoc,
+                                                                    gpuAttribute.isInstanced
+                                                                    ? 1 : 0));
                             }
-                            if ((cache->rs.depthBias != depthBias.constant) ||
-                                (cache->rs.depthBiasSlop != depthBias.slope)) {
-                                GL_CHECK(glPolygonOffset(depthBias.constant, depthBias.slope));
-                                cache->rs.depthBias = depthBias.constant;
-                                cache->rs.depthBiasSlop = depthBias.slope;
-                            }
-                            break;
-                        case DynamicStateFlagBit::BLEND_CONSTANTS:
-                            if ((cache->bs.blendColor.x != gpuPipelineState->bs.blendColor.x) ||
-                                (cache->bs.blendColor.y != gpuPipelineState->bs.blendColor.y) ||
-                                (cache->bs.blendColor.z != gpuPipelineState->bs.blendColor.z) ||
-                                (cache->bs.blendColor.w != gpuPipelineState->bs.blendColor.w)) {
-                                GL_CHECK(glBlendColor(gpuPipelineState->bs.blendColor.x,
-                                                      gpuPipelineState->bs.blendColor.y,
-                                                      gpuPipelineState->bs.blendColor.z,
-                                                      gpuPipelineState->bs.blendColor.w));
-                                cache->bs.blendColor = gpuPipelineState->bs.blendColor;
-                            }
-                            break;
-                        case DynamicStateFlagBit::STENCIL_WRITE_MASK:
-                            switch (stencilWriteMask.face) {
-                                case StencilFace::FRONT:
-                                    if (cache->dss.stencilWriteMaskFront !=
-                                        stencilWriteMask.writeMask) {
-                                        GL_CHECK(glStencilMaskSeparate(GL_FRONT,
-                                                                       stencilWriteMask.writeMask));
-                                        cache->dss.stencilWriteMaskFront = stencilWriteMask.writeMask;
-                                    }
-                                    break;
-                                case StencilFace::BACK:
-                                    if (cache->dss.stencilWriteMaskBack !=
-                                        stencilWriteMask.writeMask) {
-                                        GL_CHECK(glStencilMaskSeparate(GL_BACK,
-                                                                       stencilWriteMask.writeMask));
-                                        cache->dss.stencilWriteMaskBack = stencilWriteMask.writeMask;
-                                    }
-                                    break;
-                                case StencilFace::ALL:
-                                    if ((cache->dss.stencilWriteMaskFront !=
-                                         stencilWriteMask.writeMask) ||
-                                        (cache->dss.stencilWriteMaskBack !=
-                                         stencilWriteMask.writeMask)) {
-                                        GL_CHECK(glStencilMask(stencilWriteMask.writeMask));
-                                        cache->dss.stencilWriteMaskFront = stencilWriteMask.writeMask;
-                                        cache->dss.stencilWriteMaskBack = stencilWriteMask.writeMask;
-                                    }
-                                    break;
-                            }
-                            break;
-                        case DynamicStateFlagBit::STENCIL_COMPARE_MASK:
-                            switch (stencilCompareMask.face) {
-                                case StencilFace::FRONT:
-                                    if ((cache->dss.stencilRefFront !=
-                                         (uint) stencilCompareMask.refrence) ||
-                                        (cache->dss.stencilReadMaskFront !=
-                                         stencilCompareMask.compareMask)) {
-                                        GL_CHECK(glStencilFuncSeparate(GL_FRONT,
-                                                              GLES2_CMP_FUNCS[(uint) cache->dss.stencilFuncFront],
-                                                              stencilCompareMask.refrence,
-                                                              stencilCompareMask.compareMask));
-                                        cache->dss.stencilRefFront = stencilCompareMask.refrence;
-                                        cache->dss.stencilReadMaskFront = stencilCompareMask.compareMask;
-                                    }
-                                    break;
-                                case StencilFace::BACK:
-                                    if ((cache->dss.stencilRefBack !=
-                                         (uint) stencilCompareMask.refrence) ||
-                                        (cache->dss.stencilReadMaskBack !=
-                                         stencilCompareMask.compareMask)) {
-                                        GL_CHECK(glStencilFuncSeparate(GL_BACK,
-                                                              GLES2_CMP_FUNCS[(uint) cache->dss.stencilFuncBack],
-                                                              stencilCompareMask.refrence,
-                                                              stencilCompareMask.compareMask));
-                                        cache->dss.stencilRefBack = stencilCompareMask.refrence;
-                                        cache->dss.stencilReadMaskBack = stencilCompareMask.compareMask;
-                                    }
-                                    break;
-                                case StencilFace::ALL:
-                                    if ((cache->dss.stencilRefFront !=
-                                         (uint) stencilCompareMask.refrence) ||
-                                        (cache->dss.stencilReadMaskFront !=
-                                         stencilCompareMask.compareMask) ||
-                                        (cache->dss.stencilRefBack !=
-                                         (uint) stencilCompareMask.refrence) ||
-                                        (cache->dss.stencilReadMaskBack !=
-                                         stencilCompareMask.compareMask)) {
-                                        GL_CHECK(glStencilFuncSeparate(GL_FRONT,
-                                                              GLES2_CMP_FUNCS[(uint) cache->dss.stencilFuncFront],
-                                                              stencilCompareMask.refrence,
-                                                              stencilCompareMask.compareMask));
-                                        GL_CHECK(glStencilFuncSeparate(GL_BACK,
-                                                              GLES2_CMP_FUNCS[(uint) cache->dss.stencilFuncBack],
-                                                              stencilCompareMask.refrence,
-                                                              stencilCompareMask.compareMask));
-                                        cache->dss.stencilRefFront = stencilCompareMask.refrence;
-                                        cache->dss.stencilReadMaskFront = stencilCompareMask.compareMask;
-                                        cache->dss.stencilRefBack = stencilCompareMask.refrence;
-                                        cache->dss.stencilReadMaskBack = stencilCompareMask.compareMask;
-                                    }
-                                    break;
-                            }
-                            break;
-                        default:
-                            CC_LOG_ERROR("Invalid dynamic states.");
-                            break;
-                    } // switch
+                        }
+                        break;
+                    }
                 } // for
-            } // if
+            } // for
+
+            if (gpuInputAssembler->gpuIndexBuffer) {
+                if (cache->glElementArrayBuffer !=
+                    gpuInputAssembler->gpuIndexBuffer->glBuffer) {
+                    GL_CHECK(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,
+                                            gpuInputAssembler->gpuIndexBuffer->glBuffer));
+                    cache->glElementArrayBuffer = gpuInputAssembler->gpuIndexBuffer->glBuffer;
+                }
+            }
+
+            for (uint a = 0; a < cache->glCurrentAttribLocs.size(); ++a) {
+                if (cache->glEnabledAttribLocs[a] != cache->glCurrentAttribLocs[a]) {
+                    GL_CHECK(glDisableVertexAttribArray(a));
+                    cache->glEnabledAttribLocs[a] = false;
+                }
+            }
         }
-    }
+    } // if
+
+    if (gpuPipelineState && !gpuPipelineState->dynamicStates.empty()) {
+        for (DynamicStateFlagBit dynamicState : gpuPipelineState->dynamicStates) {
+            switch (dynamicState) {
+                case DynamicStateFlagBit::VIEWPORT:
+                    if (cache->viewport != viewport) {
+                        cache->viewport = viewport;
+                        GL_CHECK(glViewport(viewport.left, viewport.top, viewport.width,
+                                            viewport.height));
+                    }
+                    break;
+                case DynamicStateFlagBit::SCISSOR:
+                    if (cache->scissor != scissor) {
+                        cache->scissor = scissor;
+                        GL_CHECK(glScissor(scissor.x, scissor.y, scissor.width,
+                                            scissor.height));
+                    }
+                    break;
+                case DynamicStateFlagBit::LINE_WIDTH:
+                    if (cache->rs.lineWidth != lineWidth) {
+                        cache->rs.lineWidth = lineWidth;
+                        GL_CHECK(glLineWidth(lineWidth));
+                    }
+                    break;
+                case DynamicStateFlagBit::DEPTH_BIAS:
+                    if ((bool) cache->rs.depthBiasEnabled != depthBiasEnabled) {
+                        if (depthBiasEnabled)
+                            GL_CHECK(glEnable(GL_POLYGON_OFFSET_FILL));
+                        else
+                            GL_CHECK(glDisable(GL_POLYGON_OFFSET_FILL));
+
+                        cache->rs.depthBiasEnabled = depthBiasEnabled;
+                    }
+                    if ((cache->rs.depthBias != depthBias.constant) ||
+                        (cache->rs.depthBiasSlop != depthBias.slope)) {
+                        GL_CHECK(glPolygonOffset(depthBias.constant, depthBias.slope));
+                        cache->rs.depthBias = depthBias.constant;
+                        cache->rs.depthBiasSlop = depthBias.slope;
+                    }
+                    break;
+                case DynamicStateFlagBit::BLEND_CONSTANTS:
+                    if ((cache->bs.blendColor.x != gpuPipelineState->bs.blendColor.x) ||
+                        (cache->bs.blendColor.y != gpuPipelineState->bs.blendColor.y) ||
+                        (cache->bs.blendColor.z != gpuPipelineState->bs.blendColor.z) ||
+                        (cache->bs.blendColor.w != gpuPipelineState->bs.blendColor.w)) {
+                        GL_CHECK(glBlendColor(gpuPipelineState->bs.blendColor.x,
+                                                gpuPipelineState->bs.blendColor.y,
+                                                gpuPipelineState->bs.blendColor.z,
+                                                gpuPipelineState->bs.blendColor.w));
+                        cache->bs.blendColor = gpuPipelineState->bs.blendColor;
+                    }
+                    break;
+                case DynamicStateFlagBit::STENCIL_WRITE_MASK:
+                    switch (stencilWriteMask.face) {
+                        case StencilFace::FRONT:
+                            if (cache->dss.stencilWriteMaskFront !=
+                                stencilWriteMask.writeMask) {
+                                GL_CHECK(glStencilMaskSeparate(GL_FRONT,
+                                                                stencilWriteMask.writeMask));
+                                cache->dss.stencilWriteMaskFront = stencilWriteMask.writeMask;
+                            }
+                            break;
+                        case StencilFace::BACK:
+                            if (cache->dss.stencilWriteMaskBack !=
+                                stencilWriteMask.writeMask) {
+                                GL_CHECK(glStencilMaskSeparate(GL_BACK,
+                                                                stencilWriteMask.writeMask));
+                                cache->dss.stencilWriteMaskBack = stencilWriteMask.writeMask;
+                            }
+                            break;
+                        case StencilFace::ALL:
+                            if ((cache->dss.stencilWriteMaskFront !=
+                                    stencilWriteMask.writeMask) ||
+                                (cache->dss.stencilWriteMaskBack !=
+                                    stencilWriteMask.writeMask)) {
+                                GL_CHECK(glStencilMask(stencilWriteMask.writeMask));
+                                cache->dss.stencilWriteMaskFront = stencilWriteMask.writeMask;
+                                cache->dss.stencilWriteMaskBack = stencilWriteMask.writeMask;
+                            }
+                            break;
+                    }
+                    break;
+                case DynamicStateFlagBit::STENCIL_COMPARE_MASK:
+                    switch (stencilCompareMask.face) {
+                        case StencilFace::FRONT:
+                            if ((cache->dss.stencilRefFront !=
+                                    (uint) stencilCompareMask.refrence) ||
+                                (cache->dss.stencilReadMaskFront !=
+                                    stencilCompareMask.compareMask)) {
+                                GL_CHECK(glStencilFuncSeparate(GL_FRONT,
+                                                        GLES2_CMP_FUNCS[(uint) cache->dss.stencilFuncFront],
+                                                        stencilCompareMask.refrence,
+                                                        stencilCompareMask.compareMask));
+                                cache->dss.stencilRefFront = stencilCompareMask.refrence;
+                                cache->dss.stencilReadMaskFront = stencilCompareMask.compareMask;
+                            }
+                            break;
+                        case StencilFace::BACK:
+                            if ((cache->dss.stencilRefBack !=
+                                    (uint) stencilCompareMask.refrence) ||
+                                (cache->dss.stencilReadMaskBack !=
+                                    stencilCompareMask.compareMask)) {
+                                GL_CHECK(glStencilFuncSeparate(GL_BACK,
+                                                        GLES2_CMP_FUNCS[(uint) cache->dss.stencilFuncBack],
+                                                        stencilCompareMask.refrence,
+                                                        stencilCompareMask.compareMask));
+                                cache->dss.stencilRefBack = stencilCompareMask.refrence;
+                                cache->dss.stencilReadMaskBack = stencilCompareMask.compareMask;
+                            }
+                            break;
+                        case StencilFace::ALL:
+                            if ((cache->dss.stencilRefFront !=
+                                    (uint) stencilCompareMask.refrence) ||
+                                (cache->dss.stencilReadMaskFront !=
+                                    stencilCompareMask.compareMask) ||
+                                (cache->dss.stencilRefBack !=
+                                    (uint) stencilCompareMask.refrence) ||
+                                (cache->dss.stencilReadMaskBack !=
+                                    stencilCompareMask.compareMask)) {
+                                GL_CHECK(glStencilFuncSeparate(GL_FRONT,
+                                                        GLES2_CMP_FUNCS[(uint) cache->dss.stencilFuncFront],
+                                                        stencilCompareMask.refrence,
+                                                        stencilCompareMask.compareMask));
+                                GL_CHECK(glStencilFuncSeparate(GL_BACK,
+                                                        GLES2_CMP_FUNCS[(uint) cache->dss.stencilFuncBack],
+                                                        stencilCompareMask.refrence,
+                                                        stencilCompareMask.compareMask));
+                                cache->dss.stencilRefFront = stencilCompareMask.refrence;
+                                cache->dss.stencilReadMaskFront = stencilCompareMask.compareMask;
+                                cache->dss.stencilRefBack = stencilCompareMask.refrence;
+                                cache->dss.stencilReadMaskBack = stencilCompareMask.compareMask;
+                            }
+                            break;
+                    }
+                    break;
+                default:
+                    CC_LOG_ERROR("Invalid dynamic states.");
+                    break;
+            } // switch
+        } // for
+    } // if
 }
 
 void GLES2CmdFuncDraw(GLES2Device *device, DrawInfo &drawInfo) {

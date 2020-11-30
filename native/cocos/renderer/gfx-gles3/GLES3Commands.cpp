@@ -1459,7 +1459,7 @@ void GLES3CmdFuncBeginRenderPass(GLES3Device *device, GLES3GPURenderPass *gpuRen
             GL_CHECK(glBindFramebuffer(GL_FRAMEBUFFER, gpuFramebuffer->glFramebuffer));
             cache->glFramebuffer = gpuFramebuffer->glFramebuffer;
             // render targets are drawn with flipped-Y
-            gfxStateCache.reverseCW = !!gpuFramebuffer->glFramebuffer;
+            gfxStateCache.reverseCW = gpuFramebuffer->isOffscreen;
         }
 
         if (cache->viewport.left != renderArea.x ||
@@ -1517,15 +1517,18 @@ void GLES3CmdFuncBeginRenderPass(GLES3Device *device, GLES3GPURenderPass *gpuRen
                         break;
                     }
 
-                    // restore states
-                    if (glClears & GL_COLOR_BUFFER_BIT) {
-                        ColorMask colorMask = cache->bs.targets[0].blendColorMask;
-                        if (colorMask != ColorMask::ALL) {
-                            glColorMask((GLboolean)(colorMask & ColorMask::R),
-                                        (GLboolean)(colorMask & ColorMask::G),
-                                        (GLboolean)(colorMask & ColorMask::B),
-                                        (GLboolean)(colorMask & ColorMask::A));
+        if (gpuRenderPass->depthStencilAttachment.format != Format::UNKNOWN) {
+            bool hasDepth = GFX_FORMAT_INFOS[(int)gpuRenderPass->depthStencilAttachment.format].hasDepth;
+            if (hasDepth) {
+                switch (gpuRenderPass->depthStencilAttachment.depthLoadOp) {
+                    case LoadOp::LOAD: break; // GL default behaviour
+                    case LoadOp::CLEAR: {
+                        if (!cache->dss.depthWrite) {
+                            GL_CHECK(glDepthMask(true));
                         }
+                        GL_CHECK(glClearDepthf(clearDepth));
+                        glClears |= GL_DEPTH_BUFFER_BIT;
+                        break;
                     }
                     case LoadOp::DISCARD: {
                         // invalidate fbo
@@ -1579,7 +1582,7 @@ void GLES3CmdFuncBeginRenderPass(GLES3Device *device, GLES3GPURenderPass *gpuRen
             }
         }
 
-        if ((glClears & GL_COLOR_BUFFER_BIT) && !cache->dss.depthWrite) {
+        if ((glClears & GL_DEPTH_BUFFER_BIT) && !cache->dss.depthWrite) {
             GL_CHECK(glDepthMask(false));
         }
 
@@ -1936,7 +1939,7 @@ void GLES3CmdFuncBindState(GLES3Device *device, GLES3GPUPipelineState *gpuPipeli
     } // if
 
     // bind vao
-    if (gpuInputAssembler && gpuPipelineState->gpuShader &&
+    if (gpuInputAssembler && gpuPipelineState && gpuPipelineState->gpuShader &&
         (isShaderChanged || gpuInputAssembler != gfxStateCache.gpuInputAssembler)) {
         gfxStateCache.gpuInputAssembler = gpuInputAssembler;
         if (USE_VAO) {

@@ -1020,7 +1020,7 @@ struct BlendState {
     uint32_t isA2C = 0;
     uint32_t isIndepend = 0;
     Color blendColor;
-    BlendTargetList targets;
+    BlendTargetList targets{1};
 };
 
 struct PipelineStateInfo {
