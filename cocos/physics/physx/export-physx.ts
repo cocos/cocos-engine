@@ -23,4 +23,9 @@ export const _trans = {
     rotation: { x: 0, y: 0, z: 0, w: 1 },
 };
 
+export const _trans2 = {
+    translation: { x: 0, y: 0, z: 0 },
+    rotation: { x: 0, y: 0, z: 0, w: 1 },
+};
+
 export const _pxtrans = USE_BYTEDANCE && PX ? new PX.Transform({ x: 0, y: 0, z: 0 }, { x: 0, y: 0, z: 0, w: 1 }) : _trans;

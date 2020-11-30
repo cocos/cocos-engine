@@ -17,6 +17,7 @@ export class PhysXRigidBody implements IRigidBody {
 
     get isEnabled (): boolean { return this._isEnabled; }
     get rigidBody (): RigidBody { return this._rigidBody; }
+    get sharedBody (): PhysXSharedBody { return this._sharedBody; }
 
     private _isEnabled = false;
     private _rigidBody!: RigidBody;
