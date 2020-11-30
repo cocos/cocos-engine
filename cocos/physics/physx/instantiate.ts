@@ -11,6 +11,7 @@ import { PhysXTrimeshShape } from './shapes/physx-trimesh-shape';
 import { PhysXTerrainShape } from './shapes/physx-terrain-shape';
 
 import { PhysXFixedJoint } from './joints/physx-fixed-joint';
+import { PhysXDistanceJoint } from './joints/physx-distance-joint';
 
 select('physx', {
     PhysicsWorld: PhysXWorld,
@@ -26,6 +27,7 @@ select('physx', {
     // SimplexShape: PhysXSimplexShape,
     PlaneShape: PhysXPlaneShape,
 
-    PointToPointConstraint: PhysXFixedJoint,
+    PointToPointConstraint: PhysXDistanceJoint,
+    // PointToPointConstraint: PhysXFixedJoint,
     // HingeConstraint: PhysXHingeConstraint,
 });
