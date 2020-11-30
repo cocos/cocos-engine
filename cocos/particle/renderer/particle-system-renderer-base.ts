@@ -53,6 +53,7 @@ export interface IParticleSystemRenderer {
     enableModule (name: string, val: Boolean, pm: IParticleModule): void;
     updateTrailMaterial (): void;
     getDefaultTrailMaterial (): any;
+    beforeRender (): void;
 }
 
 export abstract class ParticleSystemRendererBase implements IParticleSystemRenderer {
@@ -134,4 +135,5 @@ export abstract class ParticleSystemRendererBase implements IParticleSystemRende
     public abstract updateParticles (dt: number): number;
     public abstract updateRenderData (): void;
     public abstract enableModule (name: string, val: Boolean, pm: IParticleModule): void;
+    public abstract beforeRender (): void;
 }
