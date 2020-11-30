@@ -66,6 +66,11 @@ public:
 
     // @warning kFmtRawData only support RGBA8888
     bool initWithRawData(const unsigned char *data, ssize_t dataLen, int width, int height, int bitsPerComponent, bool preMulti = false);
+    
+    // data will be free ouside.
+    inline void takeData(unsigned char** outData) {
+        *outData = _data; _data = nullptr;
+    }
 
     // Getters
     inline unsigned char *getData() const { return _data; }

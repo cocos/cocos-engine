@@ -722,7 +722,7 @@ namespace
     };
 
     uint8_t* convertRGB2RGBA (uint32_t length, uint8_t* src) {
-        uint8_t* dst = new uint8_t[length];
+        uint8_t* dst = reinterpret_cast<uint8_t*>(malloc(length));
         for (uint32_t i = 0; i < length; i += 4) {
             dst[i] = *src++;
             dst[i + 1] = *src++;
@@ -733,7 +733,7 @@ namespace
     }
 
     uint8_t* convertIA2RGBA (uint32_t length, uint8_t* src) {
-        uint8_t* dst = new uint8_t[length];
+        uint8_t* dst = reinterpret_cast<uint8_t*>(malloc(length));
         for (uint32_t i = 0; i < length; i += 4) {
             dst[i] = *src;
             dst[i + 1] = *src;
@@ -744,7 +744,7 @@ namespace
     }
 
     uint8_t* convertI2RGBA (uint32_t length, uint8_t* src) {
-        uint8_t* dst = new uint8_t[length];
+        uint8_t* dst = reinterpret_cast<uint8_t*>(malloc(length));
         for (uint32_t i = 0; i < length; i += 4) {
             dst[i] = *src;
             dst[i + 1] = *src;
@@ -754,13 +754,13 @@ namespace
         return dst;
     }
 
-    struct ImageInfo* createImageInfo(const Image* img)
+    struct ImageInfo* createImageInfo(Image* img)
     {
         struct ImageInfo* imgInfo = new struct ImageInfo();
         imgInfo->length = (uint32_t)img->getDataLen();
         imgInfo->width = img->getWidth();
         imgInfo->height = img->getHeight();
-        imgInfo->data = img->getData();
+        img->takeData(&imgInfo->data);
         imgInfo->format = img->getRenderFormat();
         imgInfo->compressed = img->isCompressed();
 
@@ -858,6 +858,7 @@ bool jsb_global_load_image(const std::string& path, const se::Value& callbackVal
                     SE_REPORT_ERROR("initWithImageFile: %s failed!", path.c_str());
                 }
                 callbackPtr->toObject()->call(seArgs, nullptr);
+                img->release();
             });
 
         });
@@ -928,7 +929,7 @@ static bool js_destroyImage(se::State& s) {
         unsigned long data = 0;
         ok &= seval_to_ulong(args[0], &data);
         SE_PRECONDITION2(ok, false, "js_destroyImage : Error processing arguments");
-        delete reinterpret_cast<char*>(data);
+        free(reinterpret_cast<char*>(data));
         
         return true;
     }
