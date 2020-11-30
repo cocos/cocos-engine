@@ -130,7 +130,7 @@ export class ForwardPipeline extends RenderPipeline {
     protected _renderPasses = new Map<ClearFlag, RenderPass>();
     protected _globalUBO = new Float32Array(UBOGlobal.COUNT);
     protected _shadowUBO = new Float32Array(UBOShadow.COUNT);
-    protected _globalBinding: boolean = false;
+    protected _isGlobalBound: boolean = false;
 
     public initialize (info: IRenderPipelineInfo): boolean {
         super.initialize(info);
@@ -223,7 +223,7 @@ export class ForwardPipeline extends RenderPipeline {
         const device = this.device;
         const shadowInfo = this.shadows;
 
-        if (!this._globalBinding) {
+        if (!this._isGlobalBound) {
             const shadowMapSamplerHash = genSamplerHash(_samplerInfo);
             const shadowMapSampler = samplerLib.getSampler(device, shadowMapSamplerHash);
             this._descriptorSet.bindSampler(UNIFORM_SHADOWMAP_BINDING, shadowMapSampler);
@@ -231,7 +231,7 @@ export class ForwardPipeline extends RenderPipeline {
             this._descriptorSet.bindSampler(UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING, shadowMapSampler);
             this._descriptorSet.bindTexture(UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING, builtinResMgr.get<Texture2D>('default-texture').getGFXTexture()!);
             this._descriptorSet.update();
-            this._globalBinding = true;
+            this._isGlobalBound = true;
         }
 
         if (mainLight && shadowInfo.enabled && shadowInfo.type === ShadowType.ShadowMap) {
@@ -437,7 +437,7 @@ export class ForwardPipeline extends RenderPipeline {
         }
 
         this._commandBuffers.length = 0;
-        this._globalBinding = false;
+        this._isGlobalBound = false;
 
         this.ambient.destroy();
         this.skybox.destroy();
