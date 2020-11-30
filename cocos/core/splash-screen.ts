@@ -32,7 +32,7 @@
 import { COCOSPLAY, XIAOMI, JSB } from 'internal:constants';
 import * as easing from './animation/easing';
 import { Material } from './assets/material';
-import {  preTrans forms } from './math/mat4';
+import { preTransforms } from './math/mat4';
 import { clamp01 } from './math/utils';
 import { sys } from './platform/sys';
 import {
@@ -57,6 +57,7 @@ export interface ISplashSetting {
     readonly displayWatermark: boolean;
 }
 
+type Writable<T> = { -readonly [K in keyof T]: T[K] };
 
 export class SplashScreen {
     private set splashFinish (v: boolean) {
@@ -64,7 +65,8 @@ export class SplashScreen {
         this._tryToStart();
     }
     public set loadFinish (v: boolean) {
-        t this._tryToStart();
+        this._loadFinish = v;
+        this._tryToStart();
     }
 
     private handle = 0;
@@ -101,6 +103,7 @@ export class SplashScreen {
     private textAssmebler!: InputAssembler;
     private textMaterial!: Material;
     private textShader!: Shader;
+
     private screenWidth!: number;
     private screenHeight!: number;
 
@@ -109,7 +112,8 @@ export class SplashScreen {
             console.error('RENDER ROOT IS NULL.');
             return;
         }
- if (window._CCSettings && window._CCSettings.splashScreen) {
+
+        if (window._CCSettings && window._CCSettings.splashScreen) {
             const setting: Writable<ISplashSetting> = this.setting = window._CCSettings.splashScreen;
             (setting.totalTime) = this.setting.totalTime != null ? this.setting.totalTime : 3000;
             (setting.base64src) = this.setting.base64src || '';
@@ -148,7 +152,8 @@ export class SplashScreen {
             }, legacyCC.director);
 
             this.callBack = null;
-            this.cance            this.startTime = -1;
+            this.cancelAnimate = false;
+            this.startTime = -1;
 
             // this.setting.clearColor may not an instance of Color, so should create
             // Color manually, or will have problem on native.
@@ -158,7 +163,8 @@ export class SplashScreen {
             const { width, height, surfaceTransform } = this.device;
             this.screenWidth = surfaceTransform % 2 ? height : width;
             this.screenHeight = surfaceTransform % 2 ? width : height;
-     this.image = new Image();
+
+            this.image = new Image();
             this.image.onload = this.init.bind(this);
             this.image.src = this.setting.base64src;
         }
@@ -193,9 +199,12 @@ export class SplashScreen {
                 this.device.resize(width, height);
                 this.screenWidth = this.device.width;
                 this.screenHeight = this.device.height;
-            }        }
+            }
+        }
 
-        // TODO: hack for coco(COCOSPLAY || XIAOMI) {
+        // TODO: hack for cocosPlay & XIAOMI cause on landscape canvas value is wrong
+        if (COCOSPLAY || XIAOMI) {
+            if (window._CCSettings.orientation === 'landscape' && this.device.width < this.device.height) {
                 const width = this.device.height;
                 const height = this.device.width;
                 this.device.resize(width, height);
@@ -269,12 +278,12 @@ export class SplashScreen {
 
         const device = this.device;
         device.acquire();
- 
+
         // record command
         const cmdBuff = this.cmdBuff;
         const framebuffer = this.framebuffer;
         const renderArea = this.renderArea;
- 
+
         cmdBuff.begin();
         cmdBuff.beginRenderPass(framebuffer.renderPass, framebuffer, renderArea,
             this.clearColors, 1.0, 0);
@@ -283,13 +292,15 @@ export class SplashScreen {
         const pso = PipelineStateManager.getOrCreatePipelineState(device, pass, this.shader, framebuffer.renderPass, this.assmebler);
         cmdBuff.bindPipelineState(pso);
         cmdBuff.bindDescriptorSet(SetIndex.MATERIAL, pass.descriptorSet);
-        cmdBuff.bindInf(this.assmebler);
+        cmdBuff.bindInputAssembler(this.assmebler);
+        cmdBuff.draw(this.assmebler);
 
         if (this.setting.displayWatermark && this.textShader && this.textAssmebler) {
-            const paxt = this.textMaterial.passes[0];
-            const psermark = PipelineStateManager.getOrCreatePipelineState(device,
-                Text, this.textShader, framebuffer.renderPass, this.textAssmebler);
-ff.bindPipelineState(psoWatermark);
+            const passText = this.textMaterial.passes[0];
+            const psoWatermark = PipelineStateManager.getOrCreatePipelineState(device,
+                passText, this.textShader, framebuffer.renderPass, this.textAssmebler);
+            cmdBuff.bindPipelineState(psoWatermark);
+            cmdBuff.bindDescriptorSet(SetIndex.MATERIAL, passText.descriptorSet);
             cmdBuff.bindInputAssembler(this.textAssmebler);
             cmdBuff.draw(this.textAssmebler);
         }
@@ -373,14 +384,16 @@ ff.bindPipelineState(psoWatermark);
 
         // translate to bottom
         for (let i = 0; i < verts.length; i += 4) {
-              verts[i + 1] += this.screenHeight * 0.1;
+            verts[i] += this.screenWidth / 2;
+            verts[i + 1] += this.screenHeight * 0.1;
         }
 
         // doing the screen adaptation here will not support dynamic screen orientation changes
         const ySign = this.device.screenSpaceSignY;
         const preTransform = preTransforms[this.device.surfaceTransform];
         for (let i = 0; i < verts.length; i += 4) {
-            c const y = (verts[i + 1] / this.screenHeight * 2 - 1) * ySign;
+            const x = verts[i] / this.screenWidth * 2 - 1;
+            const y = (verts[i + 1] / this.screenHeight * 2 - 1) * ySign;
             verts[i] = preTransform[0] * x + preTransform[2] * y;
             verts[i + 1] = preTransform[1] * x + preTransform[3] * y;
         }
@@ -500,7 +513,8 @@ ff.bindPipelineState(psoWatermark);
         const device = this.device;
 
         this.material = new Material();
-        this.
+        this.material.initialize({ effectName: 'splash-screen' });
+
         const samplerInfo = new SamplerInfo();
         samplerInfo.addressU = Address.CLAMP;
         samplerInfo.addressV = Address.CLAMP;
@@ -509,7 +523,8 @@ ff.bindPipelineState(psoWatermark);
         this.texture = device.createTexture(new TextureInfo(
             TextureType.TEX2D,
             TextureUsageBit.SAMPLED | TextureUsageBit.TRANSFER_DST,
-            F this.image.width,
+            Format.RGBA8,
+            this.image.width,
             this.image.height,
         ));
 
@@ -518,7 +533,8 @@ ff.bindPipelineState(psoWatermark);
         pass.bindTexture(binding, this.texture);
 
         this.shader = ShaderPool.get(pass.getShaderVariant());
-        const riptorSet.bindSampler(binding, this.sampler);
+        const descriptorSet = DSPool.get(PassPool.get(pass.handle, PassView.DESCRIPTOR_SET));
+        descriptorSet.bindSampler(binding, this.sampler);
         descriptorSet.update();
 
         this.region = new BufferTextureCopy();
@@ -555,6 +571,7 @@ ff.bindPipelineState(psoWatermark);
 
         this.indicesBuffers.destroy();
         this.indicesBuffers = null!;
+
         this.sampler.destroy();
         this.sampler = null!;
 
@@ -590,11 +607,11 @@ ff.bindPipelineState(psoWatermark);
     public static get instance () {
         if (!SplashScreen._ins) {
             SplashScreen._ins = new SplashScreen();
-        } return SplashScreen._ins;
+        }
+        return SplashScreen._ins;
     }
 
     private constructor () { }
 }
 
 legacyCC.internal.SplashScreen = SplashScreen;
- &&
