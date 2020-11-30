@@ -792,6 +792,7 @@ namespace
                     break;
             }
 
+            if (dst != imgInfo->data) free(imgInfo->data);
             imgInfo->data = dst;
             imgInfo->hasAlpha = true;
         }
