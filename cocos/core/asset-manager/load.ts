@@ -152,7 +152,6 @@ const loadOneAssetPipeline = new Pipeline('loadOneAsset', [
                 }
             } else if (!options.reloadAsset && assets.has(uuid)) {
                 const asset = assets.get(uuid)!;
-                // @ts-expect-error
                 if (options.__asyncLoadAssets__ || !asset.__asyncLoadAssets__) {
                     item.content = asset.addRef();
                     if (progress.canInvoke) {
@@ -196,7 +195,6 @@ function loadDepends (task: Task, asset: Asset, done: CompleteCallbackNoData, in
         progress,
         onComplete: (err) => {
             asset.decRef && asset.decRef(false);
-            // @ts-expect-error
             asset.__asyncLoadAssets__ = __asyncLoadAssets__;
             repeatItem.finish = true;
             repeatItem.err = err;
@@ -210,12 +208,12 @@ function loadDepends (task: Task, asset: Asset, done: CompleteCallbackNoData, in
                 }
 
                 if (!init) {
-                    // @ts-expect-error
                     if (asset.__nativeDepend__) {
                         setProperties(uuid, asset, map);
                         try {
-                            if (asset.onLoaded) {
+                            if (asset.onLoaded && !asset.__onLoadedInvoked__ && !asset.__nativeDepend__) {
                                 asset.onLoaded();
+                                asset.__onLoadedInvoked__ = true;
                             }
                         } catch (e) {
                             error(e.message, e.stack);
@@ -224,8 +222,9 @@ function loadDepends (task: Task, asset: Asset, done: CompleteCallbackNoData, in
                 } else {
                     setProperties(uuid, asset, map);
                     try {
-                        if (asset.onLoaded) {
+                        if (asset.onLoaded && !asset.__onLoadedInvoked__ && !asset.__nativeDepend__) {
                             asset.onLoaded();
+                            asset.__onLoadedInvoked__ = true;
                         }
                     } catch (e) {
                         error(e.message, e.stack);

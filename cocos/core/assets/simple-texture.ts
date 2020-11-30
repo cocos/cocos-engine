@@ -39,7 +39,7 @@ import { TextureBase } from './texture-base';
 import { legacyCC } from '../global-exports';
 import { macro } from '../platform/macro';
 import dependUtil from '../asset-manager/depend-util';
-import { fastRemove } from '../utils/array';
+import { fastRemove, fastRemoveAt } from '../utils/array';
 
 const _regions: BufferTextureCopy[] = [new BufferTextureCopy()];
 
@@ -174,8 +174,9 @@ export class SimpleTexture extends TextureBase {
 
             if (macro.CLEANUP_IMAGE_CACHE) {
                 const deps = dependUtil.getDeps(this._uuid);
-                if (deps.includes(image._uuid)) {
-                    fastRemove(deps, image._uuid);
+                const index = deps.indexOf(image._uuid);
+                if (index !== -1) {
+                    fastRemoveAt(deps, index);
                     image.decRef();
                 }
             }

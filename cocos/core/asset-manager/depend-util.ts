@@ -52,7 +52,6 @@ export interface IDependencies {
  *
  */
 export class DependUtil {
-
     public _depends: Cache<IDependencies> = new Cache<IDependencies>();
 
     public init (): void {
@@ -75,7 +74,7 @@ export class DependUtil {
     public getNativeDep (uuid: string): Record<string, any> | null {
         const depend = this._depends.get(uuid);
         if (depend && depend.nativeDep) {
-            return Object.assign({}, depend.nativeDep);
+            return { ...depend.nativeDep };
         }
         return null;
     }
@@ -148,28 +147,25 @@ export class DependUtil {
     public parse (uuid: string, json: any): IDependencies {
         let out: IDependencies | null = null;
         if (Array.isArray(json) || json.__type__) {
-
             if (this._depends.has(uuid)) {
                 return this._depends.get(uuid)!;
             }
 
-            // @ts-expect-error
+            // @ts-expect-error unknown json
             if (Array.isArray(json) && (!(BUILD || isCompiledJson(json)) || !hasNativeDep(json))) {
                 out = {
                     deps: this._parseDepsFromJson(json),
                 };
-            }
-            else {
+            } else {
                 try {
                     const asset = deserialize(json, { __uuid__: uuid });
                     out = this._parseDepsFromAsset(asset);
                     if (out.nativeDep) {
                         out.nativeDep.uuid = uuid;
                     }
-                    parsed.add(uuid + '@import', asset);
-                }
-                catch (e) {
-                    files.remove(uuid + '@import');
+                    parsed.add(`${uuid}@import`, asset);
+                } catch (e) {
+                    files.remove(`${uuid}@import`);
                     out = { deps: [] };
                 }
             }
@@ -196,13 +192,11 @@ export class DependUtil {
             preventPreloadNativeObject: (asset.constructor as typeof Asset).preventPreloadNativeObject,
             preventDeferredLoadDependents: (asset.constructor as typeof Asset).preventDeferredLoadDependents,
         };
-        // @ts-expect-error
         const deps = asset.__depends__ as IDependProp[];
         for (let i = 0, l = deps.length; i < l; i++) {
             out.deps.push(deps[i].uuid);
         }
 
-        // @ts-expect-error
         if (asset.__nativeDepend__) {
             out.nativeDep = asset._nativeDep;
         }
@@ -216,8 +210,8 @@ export class DependUtil {
             if (isCompiledJson(json)) {
                 // @ts-expect-error
                 depends = getDependUuidList(json);
-                depends!.forEach((uuid, index) => depends![index] = decodeUuid(uuid));
-                return depends!;
+                depends.forEach((uuid, index) => depends![index] = decodeUuid(uuid));
+                return depends;
             }
 
             depends = [];
@@ -228,11 +222,9 @@ export class DependUtil {
                     for (let i = 0, l = data.length; i < l; i++) {
                         parseDependRecursively(data[i], out);
                     }
-                }
-                else if (uuid) {
+                } else if (uuid) {
                     out.push(decodeUuid(uuid));
-                }
-                else {
+                } else {
                     for (const prop in data) {
                         parseDependRecursively(data[prop], out);
                     }
@@ -241,12 +233,12 @@ export class DependUtil {
             parseDependRecursively(json, depends);
             return depends;
         }
-        else {
-            // @ts-expect-error
-            depends = getDependUuidList(json);
-            depends!.forEach((uuid, index) => depends![index] = decodeUuid(uuid));
-        }
-        return depends!;
+
+        // @ts-expect-error
+        depends = getDependUuidList(json);
+        depends.forEach((uuid, index) => depends![index] = decodeUuid(uuid));
+
+        return depends;
     }
 
     private _descend (uuid: string, exclude: Record<string, any>, depends: string[]): void {
