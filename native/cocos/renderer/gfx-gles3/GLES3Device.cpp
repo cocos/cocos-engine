@@ -166,6 +166,7 @@ void GLES3Device::resize(uint width, uint height) {
 
 void GLES3Device::acquire() {
     _gpuCmdAllocator->releaseCmds();
+    _gpuStagingBufferPool->reset();
 }
 
 void GLES3Device::present() {
