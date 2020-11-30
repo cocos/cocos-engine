@@ -16,9 +16,10 @@
 #include "gfx/GFXDevice.h"
 #include "gfx/GFXFramebuffer.h"
 #include "helper/SharedMemory.h"
-#include "gfx/GFXDescriptorSet.h"
+#include "gfx/GFXSampler.h"
 #include "gfx/GFXTexture.h"
 #include "Define.h"
+#include "forward/SceneCulling.h"
 
 namespace cc {
 namespace pipeline {
@@ -207,6 +208,10 @@ void RenderAdditiveLightQueue::destroy() {
         auto *descriptorSet = pair.second;
         descriptorSet->getBuffer(UBOGlobal::BINDING)->destroy();
         descriptorSet->getBuffer(UBOShadow::BINDING)->destroy();
+        descriptorSet->getSampler(SHADOWMAP::BINDING)->destroy();
+        descriptorSet->getTexture(SHADOWMAP::BINDING)->destroy();
+        descriptorSet->getSampler(SPOT_LIGHTING_MAP::BINDING)->destroy();
+        descriptorSet->getTexture(SPOT_LIGHTING_MAP::BINDING)->destroy();
         descriptorSet->destroy();
     }
     _descriptorSetMap.clear();
@@ -289,7 +294,12 @@ void RenderAdditiveLightQueue::updateUBOs(const RenderView *view, gfx::CommandBu
 }
 
 void RenderAdditiveLightQueue::updateLightDescriptorSet(const RenderView *view, gfx::CommandBuffer *cmdBuffer) {
-    const auto *shadowInfo = _pipeline->getShadows();
+    auto *shadowInfo = _pipeline->getShadows();
+    const auto camera = view->getCamera();
+    const auto scene = camera->getScene();
+    const Light *mainLight = nullptr;
+    if (scene->mainLightID) mainLight = scene->getMainLight();
+
     for (const auto *light : _validLights) {
         auto *descriptorSet = getOrCreateDescriptorSet(light);
         if (!descriptorSet) { return; }
@@ -306,6 +316,11 @@ void RenderAdditiveLightQueue::updateLightDescriptorSet(const RenderView *view, 
 
         switch (light->getType()) {
             case LightType::SPOT: {
+                // update planar PROJ
+                if (mainLight) {
+                    updateDirLight(shadowInfo, mainLight, _shadowUBO);
+                }
+
                 const auto &matShadowCamera = light->getNode()->worldMatrix;
 
                 const auto matShadowView = matShadowCamera.getInversed();
@@ -326,16 +341,15 @@ void RenderAdditiveLightQueue::updateLightDescriptorSet(const RenderView *view, 
                     auto *texture = shadowFramebufferMap.at(light)->getColorTextures()[0];
                     if (texture) {
                         descriptorSet->bindTexture(SPOT_LIGHTING_MAP::BINDING, texture);
-                    } else {
-                        descriptorSet->bindTexture(SPOT_LIGHTING_MAP::BINDING, _pipeline->getDefaultTexture());
                     }
                 }
-                
             } break;
             case LightType::SPHERE: {
+                // update planar PROJ
+                if (mainLight) {
+                    updateDirLight(shadowInfo, mainLight, _shadowUBO);
+                }
                 // Reserve sphere light shadow interface
-                // Spot light sampler binding
-                descriptorSet->bindTexture(SPOT_LIGHTING_MAP::BINDING, _pipeline->getDefaultTexture());
             } break;
             default:;
         }
@@ -505,6 +519,13 @@ gfx::DescriptorSet *RenderAdditiveLightQueue::getOrCreateDescriptorSet(const Lig
             gfx::BufferFlagBit::NONE,
         });
         descriptorSet->bindBuffer(UBOShadow::BINDING, shadowUBO);
+
+        // Main light sampler binding
+        descriptorSet->bindSampler(SHADOWMAP::BINDING, _sampler);
+        descriptorSet->bindTexture(SHADOWMAP::BINDING, _pipeline->getDefaultTexture());
+        // Spot light sampler binding
+        descriptorSet->bindSampler(SPOT_LIGHTING_MAP::BINDING, _sampler);
+        descriptorSet->bindTexture(SPOT_LIGHTING_MAP::BINDING, _pipeline->getDefaultTexture());
 
         descriptorSet->update();
 

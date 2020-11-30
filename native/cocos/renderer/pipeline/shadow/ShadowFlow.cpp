@@ -149,31 +149,6 @@ void ShadowFlow::initShadowFrameBuffer(ForwardPipeline *pipeline, const Light *l
     });
 
     pipeline->setShadowFramebuffer(light, framebuffer);
-
-    gfx::SamplerInfo info{
-        gfx::Filter::LINEAR,
-        gfx::Filter::LINEAR,
-        gfx::Filter::NONE,
-        gfx::Address::CLAMP,
-        gfx::Address::CLAMP,
-        gfx::Address::CLAMP,
-    };
-
-    if (!_globalBinding) {
-        const auto shadowMapSamplerHash = genSamplerHash(std::move(info));
-        const auto shadowMapSampler = getSampler(shadowMapSamplerHash);
-        // Main light sampler binding
-        this->_pipeline->getDescriptorSet()->bindSampler(SHADOWMAP::BINDING, shadowMapSampler);
-        this->_pipeline->getDescriptorSet()->bindTexture(SHADOWMAP::BINDING, _pipeline->getDefaultTexture());
-        // Spot light sampler binding
-        this->_pipeline->getDescriptorSet()->bindSampler(SPOT_LIGHTING_MAP::BINDING, shadowMapSampler);
-        this->_pipeline->getDescriptorSet()->bindTexture(SPOT_LIGHTING_MAP::BINDING, _pipeline->getDefaultTexture());
-        _globalBinding = true;
-    }
-
-    if (light && light->getType() == LightType::DIRECTIONAL) {
-        this->_pipeline->getDescriptorSet()->bindTexture(SHADOWMAP::BINDING, framebuffer->getColorTextures()[0]);
-    }
 }
 
 void ShadowFlow::destroy() {
@@ -185,8 +160,6 @@ void ShadowFlow::destroy() {
     }
 
     _validLights.clear();
-
-    _globalBinding = false;
 
     RenderFlow::destroy();
 }
