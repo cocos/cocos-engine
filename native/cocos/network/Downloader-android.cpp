@@ -238,7 +238,7 @@ namespace cc { namespace network {
             onTaskProgress(*coTask->task, dl, dlNow, dlTotal, transferDataToBuffer);
         }
 
-        void DownloaderAndroid::_onFinish(int taskId, int errCode, const char *errStr, std::vector<unsigned char>& data)
+        void DownloaderAndroid::_onFinish(int taskId, int errCode, const char *errStr, const std::vector<unsigned char>& data)
         {
             DLLOG("DownloaderAndroid::_onFinish(taskId: %d, errCode: %d, errStr: %s)", taskId, errCode, (errStr)?errStr:"null");
             auto iter = _taskMap.find(taskId);
@@ -281,7 +281,19 @@ JNIEXPORT void JNICALL JNI_DOWNLOADER(nativeOnProgress)(JNIEnv *env, jclass claz
 
 JNIEXPORT void JNICALL JNI_DOWNLOADER(nativeOnFinish)(JNIEnv *env, jclass clazz, jint id, jint taskId, jint errCode, jstring errStr, jbyteArray data)
 {
-    auto func = [=]() -> void {
+    std::string errStrTmp;
+    std::vector<uint8_t> dataTmp;
+    if(errStr) {
+        const char *nativeErrStr = env->GetStringUTFChars(errStr, JNI_FALSE);
+        errStrTmp = nativeErrStr;
+        env->ReleaseStringUTFChars(errStr, nativeErrStr);
+    }
+    if(data && env->GetArrayLength(data) > 0) {
+        auto len = env->GetArrayLength(data);
+        dataTmp.resize(len);
+        env->GetByteArrayRegion(data, 0, len, reinterpret_cast<jbyte*>(dataTmp.data()));
+    }
+    auto func = [errStrTmp = std::move(errStrTmp), dataTmp = std::move(dataTmp), id, taskId, errCode]() -> void {
         DLLOG("_nativeOnFinish(id: %d, taskId: %d)", id, taskId);
         //It's not thread-safe here, use thread-safe method instead
         cc::network::DownloaderAndroid *downloader = _findDownloaderAndroid(id);
@@ -291,26 +303,15 @@ JNIEXPORT void JNICALL JNI_DOWNLOADER(nativeOnFinish)(JNIEnv *env, jclass clazz,
             return;
         }
         std::vector<unsigned char> buf;
-        if (errStr)
+        if (!errStrTmp.empty())
         {
             // failure
-            const char *nativeErrStr = env->GetStringUTFChars(errStr, JNI_FALSE);
-            downloader->_onFinish((int)taskId, (int)errCode, nativeErrStr, buf);
-            env->ReleaseStringUTFChars(errStr, nativeErrStr);
+            downloader->_onFinish((int)taskId, (int)errCode, errStrTmp.c_str(), buf);
             return;
         }
 
         // success
-        if (data)
-        {
-            int len = env->GetArrayLength(data);
-            if (len)
-            {
-                buf.resize(len);
-                env->GetByteArrayRegion(data, 0, len, reinterpret_cast<jbyte*>(buf.data()));
-            }
-        }
-        downloader->_onFinish((int)taskId, (int)errCode, nullptr, buf);
+        downloader->_onFinish((int)taskId, (int)errCode, nullptr, dataTmp);
     };
     cc::Application::getInstance()->getScheduler()->performFunctionInCocosThread(func);
 }

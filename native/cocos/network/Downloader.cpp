@@ -89,7 +89,7 @@ namespace cc { namespace network {
                                      int errorCode,
                                      int errorCodeInternal,
                                      const std::string& errorStr,
-                                     std::vector<unsigned char>& data)
+                                     const std::vector<unsigned char>& data)
         {
             if (DownloadTask::ERROR_NO_ERROR != errorCode)
             {

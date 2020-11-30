@@ -65,7 +65,7 @@ namespace cc { namespace network
                            int errorCode,
                            int errorCodeInternal,
                            const std::string& errorStr,
-                           std::vector<unsigned char>& data)> onTaskFinish;
+                           const std::vector<unsigned char>& data)> onTaskFinish;
 
         virtual IDownloadTask *createCoTask(std::shared_ptr<const DownloadTask>& task) = 0;
 

@@ -78,7 +78,7 @@ namespace cc { namespace network {
         ~Downloader();
 
         std::function<void(const DownloadTask& task,
-                           std::vector<unsigned char>& data)> onDataTaskSuccess;
+                           const std::vector<unsigned char>& data)> onDataTaskSuccess;
 
         std::function<void(const DownloadTask& task)> onFileTaskSuccess;
 
