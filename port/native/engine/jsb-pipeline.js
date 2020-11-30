@@ -187,6 +187,130 @@ class RenderQueueDesc {
     return desc;
   }
 }
+
+class DeferredPipeline extends nr.DeferredPipeline {
+  constructor() {
+    super();
+    this._tag = 0;
+    this._flows = [];
+    this.renderTextures = [];
+    this.materials = [];
+  }
+
+  destroy () {
+    this.fog.destroy();
+    this.ambient.destroy();
+    this.skybox.destroy();
+    this.shadows.destroy();
+  }
+
+  init() {
+    this.fog = new cc.Fog();
+    this.ambient = new cc.Ambient();
+    this.skybox = new cc.Skybox();
+    this.shadows = new cc.Shadows();
+    this.setFog(this.fog.handle);
+    this.setAmbient(this.ambient.handle);
+    this.setSkybox(this.skybox.handle);
+    this.setShadows(this.shadows.handle);
+    for (let i = 0; i < this._flows.length; i++) {
+      this._flows[i].init();
+    }
+    let info = new nr.RenderPipelineInfo(this._tag, this._flows);
+    this.initialize(info);
+  }
+}
+
+class GBufferFlow extends nr.GBufferFlow {
+  constructor() {
+    super();
+    this._name = 0;
+    this._priority = 0;
+    this._tag = 0;
+    this._stages = [];
+  }
+  init() {
+    for (let i = 0; i < this._stages.length; i++) {
+      this._stages[i].init();
+    }
+    let info = new nr.RenderFlowInfo(
+        this._name, this._priority, this._tag, this._stages);
+    this.initialize(info);
+  }
+}
+
+class GBufferStage extends nr.GBufferStage {
+  constructor() {
+    super();
+  }
+
+  destroy () {
+
+  }
+}
+
+class LightingFlow extends nr.LightingFlow {
+  constructor() {
+    super();
+    this._name = 0;
+    this._priority = 0;
+    this._tag = 0;
+    this._stages = [];
+  }
+  init() {
+    for (let i = 0; i < this._stages.length; i++) {
+      this._stages[i].init();
+    }
+    let info = new nr.RenderFlowInfo(
+        this._name, this._priority, this._tag, this._stages);
+    this.initialize(info);
+  }
+}
+
+class LightingStage extends nr.LightingStage {
+  constructor() {
+    super();
+    this._name = 0;
+    this._priority = 0;
+    this._tag = 0;
+    this.renderQueues = [];
+  }
+  init() {
+    const queues = [];
+    for (let i = 0; i < this.renderQueues.length; i++) {
+      queues.push(this.renderQueues[i].init());
+    }
+    let info =
+        new nr.RenderStageInfo(this._name, this._priority, this._tag, queues);
+    this.initialize(info);
+  }
+}
+
+class PostprocessStage extends nr.PostprocessStage {
+  constructor() {
+    super();
+    this._name = 0;
+    this._priority = 0;
+    this._tag = 0;
+    this.renderQueues = [];
+  }
+  init() {
+    const queues = [];
+    for (let i = 0; i < this.renderQueues.length; i++) {
+      queues.push(this.renderQueues[i].init());
+    }
+    let info =
+        new nr.RenderStageInfo(this._name, this._priority, this._tag, queues);
+    this.initialize(info);
+  }
+}
+
+cc.js.setClassName('DeferredPipeline', DeferredPipeline);
+cc.js.setClassName('GBufferFlow', GBufferFlow);
+cc.js.setClassName('GBufferStage', GBufferStage);
+cc.js.setClassName('LightingFlow', LightingFlow);
+cc.js.setClassName('LightingStage', LightingStage);
+cc.js.setClassName('PostprocessStage',PostprocessStage);
 cc.js.setClassName('ForwardPipeline', ForwardPipeline);
 cc.js.setClassName('ForwardFlow', ForwardFlow);
 cc.js.setClassName('ShadowFlow', ShadowFlow);
