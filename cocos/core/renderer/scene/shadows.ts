@@ -118,7 +118,7 @@ export class Shadows {
     set enabled (val: boolean) {
         ShadowsPool.set(this._handle, ShadowsView.ENABLE, val ? 1 : 0);
         if (!val) ShadowsPool.set(this._handle, ShadowsView.TYPE, SHADOW_TYPE_NONE);
-        if (val) this.activate(); else this._updatePipeline();
+        this.activate();
     }
 
     /**
@@ -168,8 +168,7 @@ export class Shadows {
     }
     set type (val: number) {
         ShadowsPool.set(this._handle, ShadowsView.TYPE, this.enabled ? val : SHADOW_TYPE_NONE);
-        this._updatePipeline();
-        this._updatePlanarInfo();
+        this.activate();
     }
 
     /**
@@ -335,10 +334,17 @@ export class Shadows {
     }
 
     public activate () {
-        if (!this.enabled || this.type === ShadowType.ShadowMap) {
-            this._updatePipeline();
+        if (this.enabled) {
+            if (this.type === ShadowType.ShadowMap) {
+                this._updatePipeline();
+            } else {
+                this._updatePlanarInfo();
+            }
         } else {
-            this._updatePlanarInfo();
+            const root = legacyCC.director.root;
+            const pipeline = root.pipeline;
+            pipeline.macros.CC_RECEIVE_SHADOW = 0;
+            root.onGlobalPipelineStateChanged();
         }
     }
 
@@ -354,14 +360,17 @@ export class Shadows {
             this._instancingMaterial.initialize({ effectName: 'planar-shadow', defines: { USE_INSTANCING: true } });
             ShadowsPool.set(this._handle, ShadowsView.INSTANCE_PASS, this._instancingMaterial.passes[0].handle);
         }
+
+        const root = legacyCC.director.root;
+        const pipeline = root.pipeline;
+        pipeline.macros.CC_RECEIVE_SHADOW = 0;
+        root.onGlobalPipelineStateChanged();
     }
 
     protected _updatePipeline () {
         const root = legacyCC.director.root;
         const pipeline = root.pipeline;
-        const enable = this.enabled && this.type === ShadowType.ShadowMap;
-        if (pipeline.macros.CC_RECEIVE_SHADOW === enable) { return; }
-        pipeline.macros.CC_RECEIVE_SHADOW = enable;
+        pipeline.macros.CC_RECEIVE_SHADOW = 1;
         root.onGlobalPipelineStateChanged();
     }
 
