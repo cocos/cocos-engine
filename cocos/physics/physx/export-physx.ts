@@ -11,7 +11,7 @@ export const PX = _px;
 
 if (PX) {
     PX.CACHE_MAT = {};
-    PX.VECTOR_MAT = new PX.PxMaterialVector();
+    PX.VECTOR_MAT = USE_BYTEDANCE ? null : new PX.PxMaterialVector();
     PX.IMPL_PTR = {};
     PX.MESH_CONVEX = {};
     PX.MESH_STATIC = {};

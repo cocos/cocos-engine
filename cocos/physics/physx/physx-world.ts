@@ -236,6 +236,8 @@ export class PhysXWorld implements IPhysicsWorld {
     }
 
     raycast (worldRay: ray, options: IRaycastOptions, pool: RecyclePool<PhysicsRayResult>, results: PhysicsRayResult[]): boolean {
+        if (USE_BYTEDANCE) return false;
+
         const blocks = this.mutipleResults;
         const flags = (1 << 0) | (1 << 1) | (1 << 10);
         const word3 = 1 | (options.queryTrigger ? 0 : 2);
@@ -260,6 +262,8 @@ export class PhysXWorld implements IPhysicsWorld {
     }
 
     raycastClosest (worldRay: ray, options: IRaycastOptions, result: PhysicsRayResult): boolean {
+        if (USE_BYTEDANCE) return false;
+
         const block = this.singleResult;
         const flags = (1 << 0) | (1 << 1); // | (1 << 10);
         const word3 = 1 | (options.queryTrigger ? 0 : 2) | 4;

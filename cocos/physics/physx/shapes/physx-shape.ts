@@ -94,6 +94,7 @@ export class PhysXShape implements IBaseShape {
     }
 
     setMaterial (v: PhysicMaterial | null): void {
+        if (USE_BYTEDANCE) return;
         if (v && this._impl) {
             const mat = this.getSharedMaterial(v);
             if (PX.VECTOR_MAT.size() > 0) {
@@ -109,8 +110,13 @@ export class PhysXShape implements IBaseShape {
         if (!PX.CACHE_MAT[v._uuid]) {
             const physics = this._sharedBody.wrappedWorld.physics;
             const mat = physics.createMaterial(v.friction, v.friction, v.restitution);
-            mat.setFrictionCombineMode(PX.PxCombineMode.eMULTIPLY);
-            mat.setRestitutionCombineMode(PX.PxCombineMode.eMULTIPLY);
+            if (USE_BYTEDANCE) {
+                mat.setFrictionCombineMode(PX.CombineMode.eMULTIPLY);
+                mat.setRestitutionCombineMode(PX.CombineMode.eMULTIPLY);
+            } else {
+                mat.setFrictionCombineMode(PX.PxCombineMode.eMULTIPLY);
+                mat.setRestitutionCombineMode(PX.PxCombineMode.eMULTIPLY);
+            }
             PX.CACHE_MAT[v._uuid] = mat;
             return mat;
         }

@@ -1,14 +1,13 @@
-import { IVec3Like } from "../../../core";
-import { aabb, sphere } from "../../../core/geometry";
-import { Collider, RigidBody, PhysicMaterial, BoxCollider } from "../../framework";
-import { VEC3_0 } from "../../utils/util";
-import { IBoxShape } from "../../spec/i-physics-shape";
-import { PX, USE_BYTEDANCE } from "../export-physx";
-import { EPhysXShapeType, PhysXShape } from "./physx-shape";
+import { IVec3Like } from '../../../core';
+import { aabb, sphere } from '../../../core/geometry';
+import { Collider, RigidBody, PhysicMaterial, BoxCollider } from '../../framework';
+import { VEC3_0 } from '../../utils/util';
+import { IBoxShape } from '../../spec/i-physics-shape';
+import { PX, USE_BYTEDANCE } from '../export-physx';
+import { EPhysXShapeType, PhysXShape } from './physx-shape';
 
 export class PhysXBoxShape extends PhysXShape implements IBoxShape {
-
-    static BOX_GEOMETRY;
+    static BOX_GEOMETRY: any;
 
     constructor () {
         super(EPhysXShapeType.BOX);
@@ -26,36 +25,36 @@ export class PhysXBoxShape extends PhysXShape implements IBoxShape {
         this.updateScale();
     }
 
-    get collider () {
+    get collider (): BoxCollider {
         return this._collider as BoxCollider;
     }
 
-    onComponentSet () {
+    onComponentSet (): void {
         this.updateGeometry();
-        const physics = this._sharedBody.wrappedWorld.physics as any;
+        const physics = this._sharedBody.wrappedWorld.physics;
         const pxmat = this.getSharedMaterial(this._collider.sharedMaterial!);
         if (USE_BYTEDANCE) {
             this._impl = physics.createShape(PhysXBoxShape.BOX_GEOMETRY, pxmat);
             const v = this._collider.isTrigger;
             if (v) {
-                this._impl.setFlag(PX.ShapeFlag.eSIMULATION_SHAPE, !v)
+                this._impl.setFlag(PX.ShapeFlag.eSIMULATION_SHAPE, !v);
                 this._impl.setFlag(PX.ShapeFlag.eTRIGGER_SHAPE, v);
             } else {
                 this._impl.setFlag(PX.ShapeFlag.eTRIGGER_SHAPE, v);
-                this._impl.setFlag(PX.ShapeFlag.eSIMULATION_SHAPE, !v)
+                this._impl.setFlag(PX.ShapeFlag.eSIMULATION_SHAPE, !v);
             }
         } else {
             this._impl = physics.createShape(PhysXBoxShape.BOX_GEOMETRY, pxmat, true, this._flags);
         }
     }
 
-    updateScale () {
+    updateScale (): void {
         this.updateGeometry();
         this._impl.setGeometry(PhysXBoxShape.BOX_GEOMETRY);
         this.setCenter(this._collider.center);
     }
 
-    updateGeometry () {
+    updateGeometry (): void {
         const co = this.collider;
         const ws = co.node.worldScale;
         VEC3_0.set(co.size);

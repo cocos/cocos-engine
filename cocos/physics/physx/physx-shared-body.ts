@@ -108,6 +108,7 @@ export class PhysXSharedBody {
                 this._impl.setMass(rb.mass);
                 if (USE_BYTEDANCE) {
                     this._impl.setActorFlag(PX.ActorFlag.eDISABLE_GRAVITY, !rb.useGravity);
+                    this._impl.setRigidBodyFlag(PX.RigidBodyFlag.eKINEMATIC, !!rb.isKinematic);
                 } else {
                     this._impl.setActorFlag(PX.PxActorFlag.eDISABLE_GRAVITY, !rb.useGravity);
                     this._impl.setRigidBodyFlag(PX.PxRigidBodyFlag.eKINEMATIC, rb.isKinematic);
