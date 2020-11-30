@@ -48,6 +48,8 @@ jsb.onResize = function (size) {
         width: size.width,
         height: size.height,
     };
+    size.width /= window.devicePixelRatio;
+    size.height /= window.devicePixelRatio;
     window.resize(size.width, size.height);
 };
 
