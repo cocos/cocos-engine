@@ -95,7 +95,6 @@ export class TiffReader {
         // Check for towel.
         if (this.getUint16(2) !== 42) {
             throw RangeError(getError(6020));
-            return false;
         }
 
         return true;
@@ -572,7 +571,6 @@ export class TiffReader {
                             // Unknown Photometric Interpretation
                         default:
                             throw RangeError(getError(6028, photometricInterpretation));
-                            break;
                         }
 
                         ctx.fillStyle = `rgba(${red}, ${green}, ${blue}, ${opacity})`;
@@ -581,13 +579,14 @@ export class TiffReader {
                 }
 
                 numRowsInPreviousStrip = numRowsInStrip;
-        }
+            }
 
-        return this._canvas;
-    }
+            return this._canvas;
+        }
 
     // See: http://www.digitizationguidelines.gov/guidelines/TIFF_Metadata_Final.pdf
     // See: http://www.digitalpreservation.gov/formats/content/tiff_tags.shtml
+    }
 }
 
 const fieldTagNames = {
