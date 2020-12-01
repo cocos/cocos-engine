@@ -40,7 +40,7 @@ const LIGHTINGPASS_INDEX = 1;
 export class LightingStage extends RenderStage {
 
     private _deferredLitsBufs: Buffer = null!;
-    private _maxDeferredLights = UBODeferredLight::LIGHTS_PER_PASS;
+    private _maxDeferredLights = UBODeferredLight.LIGHTS_PER_PASS;
     private _lightBufferData!: Float32Array;
     private _lightBufferStride: number = 0;
     private _lightBufferElementCount: number = 0;
@@ -87,7 +87,7 @@ export class LightingStage extends RenderStage {
         if (this._deferredMaterial === val) {
             return
         }
-
+        
         this._deferredMaterial = val;
     }
 
@@ -121,7 +121,7 @@ export class LightingStage extends RenderStage {
         for (let i = 0; i < sphereLights.length; i++, ++idx) {
             const light = sphereLights[i];
             sphere.set(_sphere, light.position.x, light.position.y, light.position.z, light.range);
-            if (intersect.sphere_frustum(_sphere, view.camera.frustum)) {
+            if (intersect.sphereFrustum(_sphere, view.camera.frustum)) {
                 Vec3.toArray(_vec4Array, light.position);
                 _vec4Array[3] = 0;
                 this._lightBufferData.set(_vec4Array, idx * fieldLenth);
@@ -151,7 +151,7 @@ export class LightingStage extends RenderStage {
         for (let i = 0; i < spotLights.length; i++, ++idx) {
             const light = spotLights[i];
             sphere.set(_sphere, light.position.x, light.position.y, light.position.z, light.range);
-            if (intersect.sphere_frustum(_sphere, view.camera.frustum)) {
+            if (intersect.sphereFrustum(_sphere, view.camera.frustum)) {
                 Vec3.toArray(_vec4Array, light.position);
                 _vec4Array[3] = 1;
                 this._lightBufferData.set(_vec4Array, idx * fieldLenth + totalFieldLenth * 0);
