@@ -39,12 +39,12 @@ const temp_vec4 = legacyCC.v4();
 
 /**
  * @en
- * Basic Geometry: plane.
+ * Basic Geometry: Plane.
  * @zh
- * 基础几何 plane。
+ * 基础几何 Plane。
  */
 
-export default class plane {
+export class Plane {
 
     /**
      * @en
@@ -58,7 +58,7 @@ export default class plane {
      * @return
      */
     public static create (nx: number, ny: number, nz: number, d: number) {
-        return new plane(nx, ny, nz, d);
+        return new Plane(nx, ny, nz, d);
     }
 
     /**
@@ -69,8 +69,8 @@ export default class plane {
      * @param p 克隆的来源。
      * @return 克隆出的对象。
      */
-    public static clone (p: plane) {
-        return new plane(p.n.x, p.n.y, p.n.z, p.d);
+    public static clone (p: Plane) {
+        return new Plane(p.n.x, p.n.y, p.n.z, p.d);
     }
 
     /**
@@ -82,7 +82,7 @@ export default class plane {
      * @param p 复制的来源。
      * @return 接受操作的对象。
      */
-    public static copy (out: plane, p: plane) {
+    public static copy (out: Plane, p: Plane) {
         Vec3.copy(out.n, p.n);
         out.d = p.d;
 
@@ -100,7 +100,7 @@ export default class plane {
      * @param c 点 c。
      * @return out 接受操作的对象。
      */
-    public static fromPoints (out: plane, a: Vec3, b: Vec3, c: Vec3) {
+    public static fromPoints (out: Plane, a: Vec3, b: Vec3, c: Vec3) {
         Vec3.subtract(v1, b, a);
         Vec3.subtract(v2, c, a);
 
@@ -122,7 +122,7 @@ export default class plane {
      * @param d 与原点的距离。
      * @return out 接受操作的对象。
      */
-    public static set (out: plane, nx: number, ny: number, nz: number, d: number) {
+    public static set (out: Plane, nx: number, ny: number, nz: number, d: number) {
         out.n.x = nx;
         out.n.y = ny;
         out.n.z = nz;
@@ -141,7 +141,7 @@ export default class plane {
      * @param point 平面上的一点。
      * @return out 接受操作的对象。
      */
-    public static fromNormalAndPoint (out: plane, normal: Vec3, point: Vec3) {
+    public static fromNormalAndPoint (out: Plane, normal: Vec3, point: Vec3) {
         Vec3.copy(out.n, normal);
         out.d = Vec3.dot(normal, point);
 
@@ -157,7 +157,7 @@ export default class plane {
      * @param a 操作的源数据。
      * @return out 接受操作的对象。
      */
-    public static normalize (out: plane, a: plane) {
+    public static normalize (out: Plane, a: Plane) {
         const len = a.n.length();
         Vec3.normalize(out.n, a.n);
         if (len > 0) {

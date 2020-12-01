@@ -12,6 +12,8 @@ import { ECollider2DType, EJoint2DType,  } from './physics-types';
 import { legacyCC } from '../../core/global-exports';
 import { IJoint2D, IDistanceJoint, ISpringJoint, IFixedJoint, IMouseJoint, IRelativeJoint, ISliderJoint, IWheelJoint, IHingeJoint } from '../spec/i-physics-joint';
 
+const FUNC = (...v: any) => { return 0 as any; };
+
 export function checkPhysicsModule (obj: any) {
     if (DEBUG && !TEST && !EDITOR && obj == null) {
         errorID(9600);
@@ -25,12 +27,67 @@ export function createPhysicsWorld (): IPhysicsWorld {
     return new WRAPPER.PhysicsWorld() as IPhysicsWorld;
 }
 
-export function createRigidBody (): IRigidBody2D {
-    if (DEBUG && checkPhysicsModule(WRAPPER.RigidBody)) { return null as any; }
-    return new WRAPPER.RigidBody() as IRigidBody2D;
+interface IEntireBody extends IRigidBody2D { }
+const EntireBody: IEntireBody = {
+    impl: null as any,
+    rigidBody: null as any,
+    isAwake: false,
+    isSleeping: false,
+
+    initialize: FUNC,
+
+    setType: FUNC,
+
+    setLinearDamping: FUNC,
+    setAngularDamping: FUNC,
+    setGravityScale: FUNC,
+    setFixedRotation: FUNC,
+    setAllowSleep: FUNC,
+
+    isActive: FUNC,
+    setActive: FUNC,
+
+    wakeUp: FUNC,
+    sleep: FUNC,
+
+    getMass: FUNC,
+    getInertia: FUNC,
+
+    getLinearVelocity: FUNC,
+    setLinearVelocity: FUNC,
+    getLinearVelocityFromWorldPoint: FUNC,
+    getAngularVelocity: FUNC,
+    setAngularVelocity: FUNC,
+
+    getLocalVector: FUNC,
+    getWorldVector: FUNC,
+    getLocalPoint: FUNC,
+    getWorldPoint: FUNC,
+
+    applyForce: FUNC,
+    applyForceToCenter: FUNC,
+    applyTorque: FUNC,
+    applyLinearImpulse: FUNC,
+    applyLinearImpulseToCenter: FUNC,
+    applyAngularImpulse: FUNC,
+
+    onEnable: FUNC,
+    onDisable: FUNC,
+    onDestroy: FUNC
 }
 
-const FUNC = (...v: any) => { return 0 as any; };
+export function createRigidBody (): IRigidBody2D {
+    const PHYSICS_2D_BUILTIN = legacyCC._global['CC_PHYSICS_2D_BUILTIN'];
+
+    if (PHYSICS_2D_BUILTIN) {
+        return EntireBody;
+    }
+    else {
+        if (DEBUG && checkPhysicsModule(WRAPPER.RigidBody)) { return null as any; }
+        return new WRAPPER.RigidBody() as IRigidBody2D;
+    }
+}
+
 
 // shapes
 const CREATE_COLLIDER_PROXY = { INITED: false };
@@ -118,43 +175,85 @@ function initJointProxy () {
     if (CREATE_JOINT_PROXY.INITED) return;
     CREATE_JOINT_PROXY.INITED = true;
 
+    const PHYSICS_2D_BUILTIN = legacyCC._global['CC_PHYSICS_2D_BUILTIN'];
+
     CREATE_JOINT_PROXY[EJoint2DType.SPRING] = function createSpringJoint (): ISpringJoint {
-        if (DEBUG && checkPhysicsModule(WRAPPER.SpringJoint)) { return ENTIRE_JOINT; }
-        return new WRAPPER.SpringJoint() as ISpringJoint;
+        if (PHYSICS_2D_BUILTIN) {
+            return ENTIRE_JOINT;
+        }
+        else {
+            if (DEBUG && checkPhysicsModule(WRAPPER.SpringJoint)) { return ENTIRE_JOINT; }
+            return new WRAPPER.SpringJoint() as ISpringJoint;
+        }
     }
 
     CREATE_JOINT_PROXY[EJoint2DType.DISTANCE] = function createDistanceJoint (): IDistanceJoint {
-        if (DEBUG && checkPhysicsModule(WRAPPER.DistanceJoint)) { return ENTIRE_JOINT; }
-        return new WRAPPER.DistanceJoint() as IDistanceJoint;
+        if (PHYSICS_2D_BUILTIN) {
+            return ENTIRE_JOINT;
+        }
+        else {
+            if (DEBUG && checkPhysicsModule(WRAPPER.DistanceJoint)) { return ENTIRE_JOINT; }
+            return new WRAPPER.DistanceJoint() as IDistanceJoint;
+        }
     }
 
     CREATE_JOINT_PROXY[EJoint2DType.FIXED] = function createFixedJoint (): IFixedJoint {
-        if (DEBUG && checkPhysicsModule(WRAPPER.FixedJoint)) { return ENTIRE_JOINT; }
-        return new WRAPPER.FixedJoint() as IFixedJoint;
+        if (PHYSICS_2D_BUILTIN) {
+            return ENTIRE_JOINT;
+        }
+        else {
+            if (DEBUG && checkPhysicsModule(WRAPPER.FixedJoint)) { return ENTIRE_JOINT; }
+            return new WRAPPER.FixedJoint() as IFixedJoint;
+        }
     }
 
     CREATE_JOINT_PROXY[EJoint2DType.MOUSE] = function createMouseJoint (): IMouseJoint {
-        if (DEBUG && checkPhysicsModule(WRAPPER.MouseJoint)) { return ENTIRE_JOINT; }
-        return new WRAPPER.MouseJoint() as IMouseJoint;
+        if (PHYSICS_2D_BUILTIN) {
+            return ENTIRE_JOINT;
+        }
+        else {
+            if (DEBUG && checkPhysicsModule(WRAPPER.MouseJoint)) { return ENTIRE_JOINT; }
+            return new WRAPPER.MouseJoint() as IMouseJoint;
+        }
     }
 
     CREATE_JOINT_PROXY[EJoint2DType.RELATIVE] = function createRelativeJoint (): IRelativeJoint {
-        if (DEBUG && checkPhysicsModule(WRAPPER.RelativeJoint)) { return ENTIRE_JOINT; }
-        return new WRAPPER.RelativeJoint() as IRelativeJoint;
+        if (PHYSICS_2D_BUILTIN) {
+            return ENTIRE_JOINT;
+        }
+        else {
+            if (DEBUG && checkPhysicsModule(WRAPPER.RelativeJoint)) { return ENTIRE_JOINT; }
+            return new WRAPPER.RelativeJoint() as IRelativeJoint;
+        }
     }
 
     CREATE_JOINT_PROXY[EJoint2DType.SLIDER] = function createSliderJoint (): ISliderJoint {
-        if (DEBUG && checkPhysicsModule(WRAPPER.SliderJoint)) { return ENTIRE_JOINT; }
-        return new WRAPPER.SliderJoint() as ISliderJoint;
+        if (PHYSICS_2D_BUILTIN) {
+            return ENTIRE_JOINT;
+        }
+        else {
+            if (DEBUG && checkPhysicsModule(WRAPPER.SliderJoint)) { return ENTIRE_JOINT; }
+            return new WRAPPER.SliderJoint() as ISliderJoint;
+        }
     }
 
     CREATE_JOINT_PROXY[EJoint2DType.WHEEL] = function createWheelJoint (): IWheelJoint {
-        if (DEBUG && checkPhysicsModule(WRAPPER.WheelJoint)) { return ENTIRE_JOINT; }
-        return new WRAPPER.WheelJoint() as IWheelJoint;
+        if (PHYSICS_2D_BUILTIN) {
+            return ENTIRE_JOINT;
+        }
+        else {
+            if (DEBUG && checkPhysicsModule(WRAPPER.WheelJoint)) { return ENTIRE_JOINT; }
+            return new WRAPPER.WheelJoint() as IWheelJoint;
+        }
     }
 
     CREATE_JOINT_PROXY[EJoint2DType.HINGE] = function createHingeJoint (): IHingeJoint {
-        if (DEBUG && checkPhysicsModule(WRAPPER.HingeJoint)) { return ENTIRE_JOINT; }
-        return new WRAPPER.HingeJoint() as IHingeJoint;
+        if (PHYSICS_2D_BUILTIN) {
+            return ENTIRE_JOINT;
+        }
+        else {
+            if (DEBUG && checkPhysicsModule(WRAPPER.HingeJoint)) { return ENTIRE_JOINT; }
+            return new WRAPPER.HingeJoint() as IHingeJoint;
+        }
     }
 }

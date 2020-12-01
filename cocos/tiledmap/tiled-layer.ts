@@ -1,3 +1,4 @@
+/* eslint-disable default-case */
 /*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
  Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
@@ -31,17 +32,17 @@
 
 import { ccclass } from 'cc.decorator';
 
+import { EDITOR } from 'internal:constants';
 import { UIRenderable } from '../core/components/ui-base/ui-renderable';
 import { Component } from '../core/components';
 import { TMXMapInfo } from './tmx-xml-parser';
 import { Color, IVec2Like, Mat4, Size, SpriteFrame, SystemEventType, Texture2D, Vec2, Vec3, Node, warn, logID, CCBoolean } from '../core';
 import { TiledTile } from './tiled-tile';
-import { EDITOR } from 'internal:constants';
 import { MeshRenderData } from '../core/renderer/ui/render-data';
 import { UI } from '../core/renderer/ui/ui';
 import {
     MixedGID, GID, Orientation, TiledTextureGrids, TMXTilesetInfo, RenderOrder, StaggerAxis, StaggerIndex, TileFlag,
-    GIDFlags, TiledGrid, TiledAnimationType, PropertiesInfo, TMXLayerInfo
+    GIDFlags, TiledGrid, TiledAnimationType, PropertiesInfo, TMXLayerInfo,
 } from './tiled-types';
 import { fillTextureGrids, loadAllTextures } from './tiled-utils';
 
@@ -68,10 +69,10 @@ export interface TiledMeshData {
 }
 
 interface TiledSubNodeData {
-    subNodes: (null|TiledUserNodeData)[] ;
+    subNodes: (null | TiledUserNodeData)[];
 }
 
-type TiledMeshDataArray = (TiledMeshData |TiledSubNodeData)[];
+type TiledMeshDataArray = (TiledMeshData | TiledSubNodeData)[];
 
 /**
  * @en Render the TMX layer.
@@ -81,7 +82,6 @@ type TiledMeshDataArray = (TiledMeshData |TiledSubNodeData)[];
  */
 @ccclass('cc.TiledLayer')
 export class TiledLayer extends UIRenderable {
-
     // [row][col] = {count: 0, nodesList: []};
     protected _userNodeGrid: { [key: number]: { count: number;[key: number]: { count: number, list: (TiledUserNodeData | null)[] } } } = {};
     protected _userNodeMap: { [key: string]: TiledUserNodeData } = {};// [id] = node;
@@ -98,7 +98,7 @@ export class TiledLayer extends UIRenderable {
     protected _viewPort = { x: -1, y: -1, width: -1, height: -1 };
     protected _cullingRect = {
         leftDown: { row: -1, col: -1 },
-        rightTop: { row: -1, col: -1 }
+        rightTop: { row: -1, col: -1 },
     };
     get cullingRect () { return this._cullingRect; }
 
@@ -170,7 +170,7 @@ export class TiledLayer extends UIRenderable {
 
     protected _meshRenderDataArray: TiledMeshDataArray | null = null;
 
-    get meshRenderDataArray () { return this._meshRenderDataArray; };
+    get meshRenderDataArray () { return this._meshRenderDataArray; }
     get leftDownToCenterX () { return this._leftDownToCenterX; }
     get leftDownToCenterY () { return this._leftDownToCenterY; }
 
@@ -317,6 +317,8 @@ export class TiledLayer extends UIRenderable {
         const node = dataComp.node;
         const self = dataComp._tiledLayer!;
         self._updateCullingOffsetByUserNode(node);
+        self._userNodeDirty = true;
+        self.markForUpdateRenderData();
     }
 
     protected _userNodePosChange () {
@@ -354,6 +356,7 @@ export class TiledLayer extends UIRenderable {
         dataComp._col = -1;
         dataComp._index = -1;
         this._userNodeDirty = true;
+        this.markForUpdateRenderData();
     }
 
     protected _limitInLayer (rowCol: { row: number, col: number }) {
@@ -388,13 +391,21 @@ export class TiledLayer extends UIRenderable {
     }
 
     onEnable () {
-        super.onEnable()
+        super.onEnable();
         this.node.on(SystemEventType.ANCHOR_CHANGED, this._syncAnchorPoint, this);
+        this.node.on(SystemEventType.TRANSFORM_CHANGED, this.updateCulling, this);
+        this.node.on(SystemEventType.SIZE_CHANGED, this.updateCulling, this);
+        this.node.parent!.on(SystemEventType.TRANSFORM_CHANGED, this.updateCulling, this);
+        this.node.parent!.on(SystemEventType.SIZE_CHANGED, this.updateCulling, this);
         this.markForUpdateRenderData();
     }
 
     onDisable () {
         super.onDisable();
+        this.node.parent!.off(SystemEventType.SIZE_CHANGED, this.updateCulling, this);
+        this.node.parent!.off(SystemEventType.TRANSFORM_CHANGED, this.updateCulling, this);
+        this.node.off(SystemEventType.SIZE_CHANGED, this.updateCulling, this);
+        this.node.off(SystemEventType.TRANSFORM_CHANGED, this.updateCulling, this);
         this.node.off(SystemEventType.ANCHOR_CHANGED, this._syncAnchorPoint, this);
     }
 
@@ -469,19 +480,18 @@ export class TiledLayer extends UIRenderable {
         if (y !== undefined) {
             x = Math.floor(pos as number);
             y = Math.floor(y);
-        }
-        else {
+        } else {
             x = Math.floor((pos as IVec2Like).x);
             y = Math.floor((pos as IVec2Like).y);
         }
 
         switch (this._layerOrientation) {
-            case Orientation.ORTHO:
-                return this._positionForOrthoAt(x, y);
-            case Orientation.ISO:
-                return this._positionForIsoAt(x, y);
-            case Orientation.HEX:
-                return this._positionForHexAt(x, y);
+        case Orientation.ORTHO:
+            return this._positionForOrthoAt(x, y);
+        case Orientation.ISO:
+            return this._positionForIsoAt(x, y);
+        case Orientation.HEX:
+            return this._positionForHexAt(x, y);
         }
         return null;
     }
@@ -505,7 +515,7 @@ export class TiledLayer extends UIRenderable {
 
         return new Vec2(
             this._mapTileSize!.width * 0.5 * (this._layerSize!.height + x - y - 1) + offsetX,
-            this._mapTileSize!.height * 0.5 * (this._layerSize!.width - x + this._layerSize!.height - y - 2) - offsetY
+            this._mapTileSize!.height * 0.5 * (this._layerSize!.width - x + this._layerSize!.height - y - 2) - offsetY,
         );
     }
 
@@ -524,7 +534,7 @@ export class TiledLayer extends UIRenderable {
 
         return new Vec2(
             x * this._mapTileSize!.width + offsetX,
-            (this._layerSize!.height - y - 1) * this._mapTileSize!.height - offsetY
+            (this._layerSize!.height - y - 1) * this._mapTileSize!.height - offsetY,
         );
     }
 
@@ -535,11 +545,11 @@ export class TiledLayer extends UIRenderable {
 
         const index = Math.floor(col) + Math.floor(row) * this._layerSize!.width;
         const gid = ((this.tiles[index] as unknown as number) & TileFlag.FLIPPED_MASK) >>> 0;
-        let offset;
+        let offset: IVec2Like;
         if (this.texGrids!.get(gid as unknown as GID)) {
             offset = this.texGrids!.get(gid as unknown as GID)!.tileset.tileOffset;
         } else {
-            offset = { x: 0, y: 0 }
+            offset = { x: 0, y: 0 };
         }
 
         const odd_even = (this._staggerIndex === StaggerIndex.STAGGERINDEX_ODD) ? 1 : -1;
@@ -548,22 +558,22 @@ export class TiledLayer extends UIRenderable {
         let diffX = 0;
         let diffY = 0;
         switch (this._staggerAxis) {
-            case StaggerAxis.STAGGERAXIS_Y:
-                diffX = 0;
-                if (row % 2 === 1) {
-                    diffX = tileWidth / 2 * odd_even;
-                }
-                x = col * tileWidth + diffX + offset.x;
-                y = (rows - row - 1) * (tileHeight - (tileHeight - this._hexSideLength!) / 2) - offset.y;
-                break;
-            case StaggerAxis.STAGGERAXIS_X:
-                diffY = 0;
-                if (col % 2 === 1) {
-                    diffY = tileHeight / 2 * -odd_even;
-                }
-                x = col * (tileWidth - (tileWidth - this._hexSideLength!) / 2) + offset.x;
-                y = (rows - row - 1) * tileHeight + diffY - offset.y;
-                break;
+        case StaggerAxis.STAGGERAXIS_Y:
+            diffX = 0;
+            if (row % 2 === 1) {
+                diffX = tileWidth / 2 * odd_even;
+            }
+            x = col * tileWidth + diffX + offset.x;
+            y = (rows - row - 1) * (tileHeight - (tileHeight - this._hexSideLength!) / 2) - offset.y;
+            break;
+        case StaggerAxis.STAGGERAXIS_X:
+            diffY = 0;
+            if (col % 2 === 1) {
+                diffY = tileHeight / 2 * -odd_even;
+            }
+            x = col * (tileWidth - (tileWidth - this._hexSideLength!) / 2) + offset.x;
+            y = (rows - row - 1) * tileHeight + diffY - offset.y;
+            break;
         }
         return new Vec2(x, y);
     }
@@ -614,7 +624,6 @@ export class TiledLayer extends UIRenderable {
      * tiledLayer.setTileGIDAt(1001, 10, 10, 1)
      */
     public setTileGIDAt (gid: MixedGID, x: number, y: number, flags?: number) {
-
         const ugid = ((gid as unknown as number) & TileFlag.FLIPPED_MASK) >>> 0;
 
         x = Math.floor(x);
@@ -695,8 +704,7 @@ export class TiledLayer extends UIRenderable {
      * @example
      * let tileGid = tiledLayer.getTileGIDAt(0, 0);
      */
-    public getTileFlagsAt (x:number, y:number) {
-
+    public getTileFlagsAt (x: number, y: number) {
         if (this.isInvalidPosition(x, y)) {
             throw new Error('TiledLayer.getTileFlagsAt: invalid position');
         }
@@ -723,10 +731,10 @@ export class TiledLayer extends UIRenderable {
     // 'x, y' is the position of viewPort, which's anchor point is at the center of rect.
     // 'width, height' is the size of viewPort.
     public updateViewPort (x: number, y: number, width: number, height: number): void {
-        if (this._viewPort.width === width &&
-            this._viewPort.height === height &&
-            this._viewPort.x === x &&
-            this._viewPort.y === y) {
+        if (this._viewPort.width === width
+            && this._viewPort.height === height
+            && this._viewPort.x === x
+            && this._viewPort.y === y) {
             return;
         }
         this._viewPort.x = x;
@@ -789,12 +797,12 @@ export class TiledLayer extends UIRenderable {
             rightTop.row = _tempRowCol.row;
             rightTop.col = _tempRowCol.col;
             this._cullingDirty = true;
+            this.markForUpdateRenderData();
         }
     }
 
     // the result may not precise, but it dose't matter, it just uses to be got range
     protected _positionToRowCol (x: number, y: number, result: { col: number, row: number }): { col: number, row: number } {
-
         const maptw = this._mapTileSize!.width;
         const mapth = this._mapTileSize!.height;
         const maptw2 = maptw * 0.5;
@@ -806,29 +814,29 @@ export class TiledLayer extends UIRenderable {
         const axis = this._staggerAxis;
 
         switch (this._layerOrientation) {
-            // left top to right dowm
-            case Orientation.ORTHO:
-                col = Math.floor(x / maptw);
-                row = Math.floor(y / mapth);
-                break;
+        // left top to right dowm
+        case Orientation.ORTHO:
+            col = Math.floor(x / maptw);
+            row = Math.floor(y / mapth);
+            break;
             // right top to left down
             // iso can be treat as special hex whose hex side length is 0
-            case Orientation.ISO:
-                col = Math.floor(x / maptw2);
-                row = Math.floor(y / mapth2);
-                break;
+        case Orientation.ISO:
+            col = Math.floor(x / maptw2);
+            row = Math.floor(y / mapth2);
+            break;
             // left top to right dowm
-            case Orientation.HEX:
-                if (axis === StaggerAxis.STAGGERAXIS_Y) {
-                    row = Math.floor(y / (mapth - this._diffY1!));
-                    diffX2 = row % 2 === 1 ? maptw2 * this._odd_even! : 0;
-                    col = Math.floor((x - diffX2) / maptw);
-                } else {
-                    col = Math.floor(x / (maptw - this._diffX1!));
-                    diffY2 = col % 2 === 1 ? mapth2 * -this._odd_even! : 0;
-                    row = Math.floor((y - diffY2) / mapth);
-                }
-                break;
+        case Orientation.HEX:
+            if (axis === StaggerAxis.STAGGERAXIS_Y) {
+                row = Math.floor(y / (mapth - this._diffY1!));
+                diffX2 = row % 2 === 1 ? maptw2 * this._odd_even! : 0;
+                col = Math.floor((x - diffX2) / maptw);
+            } else {
+                col = Math.floor(x / (maptw - this._diffX1!));
+                diffY2 = col % 2 === 1 ? mapth2 * -this._odd_even! : 0;
+                row = Math.floor((y - diffY2) / mapth);
+            }
+            break;
         }
         result.row = row;
         result.col = col;
@@ -907,16 +915,14 @@ export class TiledLayer extends UIRenderable {
         const cols = this._layerSize!.width;
         const grids = this.texGrids!;
 
-        let gid: MixedGID;
-        let left: number = 0;
-        let bottom: number = 0;
+        let left = 0;
+        let bottom = 0;
         let axis: StaggerAxis;
         let diffX1: number;
         let diffY1: number;
         let odd_even: number;
         let diffX2: number;
         let diffY2: number;
-        let grid: TiledGrid;
 
         if (layerOrientation === Orientation.HEX) {
             axis = this._staggerAxis!;
@@ -927,7 +933,6 @@ export class TiledLayer extends UIRenderable {
 
         let cullingCol = 0;
         let cullingRow = 0;
-        let tileOffset: Vec2;
         let gridGID: GID = 0 as unknown as GID;
 
         // grid border
@@ -935,9 +940,9 @@ export class TiledLayer extends UIRenderable {
         let downBorder = 0; let leftBorder = 0;
         let rightBorder = 0;
         const index = row * cols + col;
-        gid = tiles[index];
+        const gid = tiles[index];
         gridGID = (((gid as unknown as number) & FLIPPED_MASK) >>> 0) as unknown as GID;
-        grid = grids.get(gridGID)!;
+        const grid = grids.get(gridGID)!;
         if (!grid) {
             return;
         }
@@ -948,38 +953,38 @@ export class TiledLayer extends UIRenderable {
         }
 
         switch (layerOrientation) {
-            // left top to right dowm
-            case Orientation.ORTHO:
-                cullingCol = col;
-                cullingRow = rows - row - 1;
-                left = cullingCol * maptw;
-                bottom = cullingRow * mapth;
-                break;
+        // left top to right dowm
+        case Orientation.ORTHO:
+            cullingCol = col;
+            cullingRow = rows - row - 1;
+            left = cullingCol * maptw;
+            bottom = cullingRow * mapth;
+            break;
             // right top to left down
-            case Orientation.ISO:
-                // if not consider about col, then left is 'w/2 * (rows - row - 1)'
-                // if consider about col then left must add 'w/2 * col'
-                // so left is 'w/2 * (rows - row - 1) + w/2 * col'
-                // combine expression is 'w/2 * (rows - row + col -1)'
-                cullingCol = rows + col - row - 1;
-                // if not consider about row, then bottom is 'h/2 * (cols - col -1)'
-                // if consider about row then bottom must add 'h/2 * (rows - row - 1)'
-                // so bottom is 'h/2 * (cols - col -1) + h/2 * (rows - row - 1)'
-                // combine expressionn is 'h/2 * (rows + cols - col - row - 2)'
-                cullingRow = rows + cols - col - row - 2;
-                left = maptw2 * cullingCol;
-                bottom = mapth2 * cullingRow;
-                break;
+        case Orientation.ISO:
+            // if not consider about col, then left is 'w/2 * (rows - row - 1)'
+            // if consider about col then left must add 'w/2 * col'
+            // so left is 'w/2 * (rows - row - 1) + w/2 * col'
+            // combine expression is 'w/2 * (rows - row + col -1)'
+            cullingCol = rows + col - row - 1;
+            // if not consider about row, then bottom is 'h/2 * (cols - col -1)'
+            // if consider about row then bottom must add 'h/2 * (rows - row - 1)'
+            // so bottom is 'h/2 * (cols - col -1) + h/2 * (rows - row - 1)'
+            // combine expressionn is 'h/2 * (rows + cols - col - row - 2)'
+            cullingRow = rows + cols - col - row - 2;
+            left = maptw2 * cullingCol;
+            bottom = mapth2 * cullingRow;
+            break;
             // left top to right dowm
-            case Orientation.HEX:
-                diffX2 = (axis! === StaggerAxis.STAGGERAXIS_Y && row % 2 === 1) ? maptw2 * odd_even! : 0;
-                diffY2 = (axis! === StaggerAxis.STAGGERAXIS_X && col % 2 === 1) ? mapth2 * -odd_even! : 0;
+        case Orientation.HEX:
+            diffX2 = (axis! === StaggerAxis.STAGGERAXIS_Y && row % 2 === 1) ? maptw2 * odd_even! : 0;
+            diffY2 = (axis! === StaggerAxis.STAGGERAXIS_X && col % 2 === 1) ? mapth2 * -odd_even! : 0;
 
-                left = col * (maptw - diffX1!) + diffX2;
-                bottom = (rows - row - 1) * (mapth - diffY1!) + diffY2;
-                cullingCol = col;
-                cullingRow = rows - row - 1;
-                break;
+            left = col * (maptw - diffX1!) + diffX2;
+            bottom = (rows - row - 1) * (mapth - diffY1!) + diffY2;
+            cullingCol = col;
+            cullingRow = rows - row - 1;
+            break;
         }
 
         const rowData = vertices[cullingRow] = vertices[cullingRow] || { minCol: 0, maxCol: 0 };
@@ -1006,9 +1011,9 @@ export class TiledLayer extends UIRenderable {
         // _offset is whole layer offset
         // tileOffset is tileset offset which is related to each grid
         // tileOffset coordinate system's y axis is opposite with engine's y axis.
-        tileOffset = grid.tileset.tileOffset!;
-        left += this._offset!.x + tileOffset!.x + grid.offsetX;
-        bottom += this._offset!.y - tileOffset!.y - grid.offsetY;
+        const tileOffset = grid.tileset.tileOffset;
+        left += this._offset!.x + tileOffset.x + grid.offsetX;
+        bottom += this._offset!.y - tileOffset.y - grid.offsetY;
 
         topBorder = -tileOffset.y + grid.tileset._tileSize.height - mapth;
         topBorder = topBorder < 0 ? 0 : topBorder;
@@ -1141,9 +1146,7 @@ export class TiledLayer extends UIRenderable {
         if (tiledTile) {
             this._hasTiledNodeGrid = true;
         } else {
-            this._hasTiledNodeGrid = this.tiledTiles.some((tiledNode) => {
-                return !!tiledNode;
-            });
+            this._hasTiledNodeGrid = this.tiledTiles.some((tiledNode) => !!tiledNode);
         }
 
         return tiledTile;
@@ -1274,19 +1277,17 @@ export class TiledLayer extends UIRenderable {
             }
         }
 
-        const self = this;
         loadAllTextures(textures, () => {
             for (let i = 0, l = tilesets.length; i < l; ++i) {
                 const tilesetInfo = tilesets[i];
                 if (!tilesetInfo) continue;
                 fillTextureGrids(tilesetInfo, texGrids, tilesetInfo.sourceImage);
             }
-            self._prepareToRender();
+            this._prepareToRender();
         });
     }
 
     public init (layerInfo: TMXLayerInfo, mapInfo: TMXMapInfo, tilesets: TMXTilesetInfo[], textures: SpriteFrame[], texGrids: TiledTextureGrids) {
-
         this._cullingDirty = true;
         this._layerInfo = layerInfo;
         this._mapInfo = mapInfo;
@@ -1330,7 +1331,6 @@ export class TiledLayer extends UIRenderable {
         const layerH = this._layerSize.height;
 
         if (this._layerOrientation === Orientation.HEX) {
-
             let width = 0;
             let height = 0;
 
@@ -1369,21 +1369,42 @@ export class TiledLayer extends UIRenderable {
 
     public requestMeshRenderData () {
         if (!this._meshRenderDataArray) {
-            this._meshRenderDataArray = new Array();
+            this._meshRenderDataArray = [];
         }
+        const arr = this._meshRenderDataArray as any[];
+        while (arr.length > 0 && arr[arr.length - 1].subNodes && arr[arr.length - 1].subNodes.length === 0) {
+            arr.pop();
+        }
+        if (arr.length > 0) {
+            const last = arr[arr.length - 1];
+            if (last.renderData && last.renderData.byteCount === 0) {
+                return last as TiledMeshData;
+            }
+        }
+
         const renderData = new MeshRenderData();
         const comb = { renderData, texture: null };
-        Object.defineProperty(renderData, 'material', { get: () => { return this.getRenderMaterial(0); } });
+        Object.defineProperty(renderData, 'material', { get: () => this.getRenderMaterial(0) });
         this._meshRenderDataArray.push(comb);
         return comb;
     }
 
     public requestSubNodesData () {
         if (!this._meshRenderDataArray) {
-            this._meshRenderDataArray = new Array();
+            this._meshRenderDataArray = [];
         }
-        const renderData:(TiledUserNodeData|null)[] = [];
-        const comb = {subNodes: renderData};
+        const arr = this._meshRenderDataArray as any[];
+        while (arr.length > 0 && arr[arr.length - 1].renderData && arr[arr.length - 1].renderData.byteCount === 0) {
+            arr.pop();
+        }
+        if (arr.length > 0) {
+            if (arr[arr.length - 1].subNodes && arr[arr.length - 1].subNodes.length === 0) {
+                return arr[arr.length - 1] as TiledSubNodeData;
+            }
+        }
+
+        const renderData: (TiledUserNodeData | null)[] = [];
+        const comb = { subNodes: renderData };
         this._meshRenderDataArray.push(comb);
         return comb;
     }
@@ -1391,22 +1412,7 @@ export class TiledLayer extends UIRenderable {
     public destroyRenderData () {
         if (this._meshRenderDataArray) {
             this._meshRenderDataArray.forEach((rd) => { if ((rd as TiledMeshData).renderData) (rd as TiledMeshData).renderData.reset(); });
-            this._meshRenderDataArray = null;
-        }
-    }
-
-    public resetRenderData () {
-        if (this._meshRenderDataArray) {
-            this._meshRenderDataArray.forEach((rd) => { if ((rd as TiledMeshData).renderData) (rd as TiledMeshData).renderData.reset(); });
-        }
-    }
-
-    public markForUpdateRenderData (enable: boolean = true) {
-        this._renderFlag = this._canRender();
-        if (enable && this._renderFlag) {
-            this._renderDataFlag = enable;
-        } else if (!enable) {
-            this._renderDataFlag = enable;
+            this._meshRenderDataArray.length = 0;
         }
     }
 
@@ -1425,20 +1431,20 @@ export class TiledLayer extends UIRenderable {
     }
 
     // 当前的 _meshRenderDataArray 的索引, 以便 fillBuffers 选取 RenderData
-    public _meshRenderDataArrayIdx: number = 0;
+    public _meshRenderDataArrayIdx = 0;
     protected _render (ui: UI) {
         if (this._meshRenderDataArray) {
             for (let i = 0; i < this._meshRenderDataArray.length; i++) {
                 this._meshRenderDataArrayIdx = i;
                 const m = this._meshRenderDataArray[i];
-                if ((m as TiledSubNodeData).subNodes!) {
+                if ((m as TiledSubNodeData).subNodes) {
                     // 提前处理 User Nodes
                     (m as TiledSubNodeData).subNodes.forEach((c) => {
-                        if(c) ui.walk(c.node);
+                        if (c) ui.walk(c.node);
                     });
                 } else if ((m as TiledMeshData).texture) {
                     // NOTE: 由于 commitComp 只支持单张纹理, 故分多次提交
-                    ui.commitComp(this, (m as TiledMeshData).texture, this._assembler);
+                    ui.commitComp(this, (m as TiledMeshData).texture, this._assembler, null);
                 }
             }
             this.node._static = true;

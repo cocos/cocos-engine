@@ -52,19 +52,16 @@ const AudioFmts = ['.mp3', '.ogg', '.wav', '.m4a'];
 function GetTrue () { return true; }
 
 const md5Pipe = {
-    transformURL (url) {
+    transformURL (url: string): string {
         const uuid = getUuidFromURL(url);
         if (!uuid) { return url; }
-        const bundle = bundles.find((b) => {
-            return !!b.getAssetInfo(uuid);
-        });
+        const bundle = bundles.find((b) => !!b.getAssetInfo(uuid));
         if (!bundle) { return url; }
         let hashValue = '';
         const info = bundle.getAssetInfo(uuid);
         if (url.startsWith(bundle.base + bundle.config.nativeBase)) {
             hashValue = info!.nativeVer || '';
-        }
-        else {
+        } else {
             hashValue = info!.ver || '';
         }
         if (!hashValue || url.indexOf(hashValue) !== -1) { return url; }
@@ -73,13 +70,11 @@ const md5Pipe = {
             hashPatchInFolder = true;
         }
         if (hashPatchInFolder) {
-            let dirname = path.dirname(url);
-            let basename = path.basename(url);
+            const dirname = path.dirname(url);
+            const basename = path.basename(url);
             url = `${dirname}.${hashValue}/${basename}`;
         } else {
-            url = url.replace(/.*[/\\][0-9a-fA-F]{2}[/\\]([0-9a-fA-F-@]{8,}).*/, (match, uuid) => {
-                return match + '.' + hashValue;
-            });
+            url = url.replace(/.*[/\\][0-9a-fA-F]{2}[/\\]([0-9a-fA-F-@]{8,}).*/, (match, uuid) => `${match}.${hashValue}`);
         }
 
         return url;
@@ -159,10 +154,9 @@ export class CCLoader {
             const item = requests[i];
             if (typeof item === 'string') {
                 requests[i] = { url: item, __isNative__: true };
-            }
-            else {
+            } else {
                 if (item.type) {
-                    item.ext = '.' + item.type;
+                    item.ext = `.${item.type}`;
                     item.type = undefined;
                 }
 
@@ -171,14 +165,13 @@ export class CCLoader {
                 }
             }
         }
-        const images: any[]= [];
+        const images: any[] = [];
         const audios: any[] = [];
         assetManager.loadAny(requests, null, (finish, total, item) => {
             if (item.content) {
                 if (ImageFmts.includes(item.ext)) {
                     images.push(item.content);
-                }
-                else if (AudioFmts.includes(item.ext)) {
+                } else if (AudioFmts.includes(item.ext)) {
                     audios.push(item.content);
                 }
             }
@@ -196,8 +189,7 @@ export class CCLoader {
                             factory.create(url, item, '.png', {}, (err, image) => {
                                 asset = native[i] = image;
                             });
-                        }
-                        else if (audios.includes(asset)) {
+                        } else if (audios.includes(asset)) {
                             factory.create(url, item, '.mp3', {}, (err, audio) => {
                                 asset = native[i] = audio;
                             });
@@ -211,8 +203,7 @@ export class CCLoader {
                         map[asset._uuid] = asset;
                     });
                     out = { isCompleted: GetTrue, _map: map };
-                }
-                else {
+                } else {
                     out = native[0];
                 }
             }
@@ -242,18 +233,6 @@ export class CCLoader {
         return assetManager.assets.has(id) ? { content: assetManager.assets.get(id) } : null;
     }
 
-    public loadRes<T> (
-        url: string,
-        type: Constructor<T>,
-        progressCallback: LoadProgressCallback,
-        completeCallback: LoadCompleteCallback<T>,
-    );
-
-    public loadRes<T> (
-        url: string,
-        type: Constructor<T>,
-        completeCallback: LoadCompleteCallback<T>,
-    );
     /**
      * @en
      * Load assets from the "resources" folder inside the "assets" folder of your project.<br>
@@ -296,14 +275,26 @@ export class CCLoader {
      * });
      *
      */
+    public loadRes<T> (
+        url: string,
+        type: Constructor<T>,
+        progressCallback: LoadProgressCallback,
+        completeCallback: LoadCompleteCallback<T>,
+    );
+
+    public loadRes<T> (
+        url: string,
+        type: Constructor<T>,
+        completeCallback: LoadCompleteCallback<T>,
+    );
     public loadRes (url: string, type: Function, progressCallback?: Function, completeCallback?: Function) {
         const { type: _type, onProgress, onComplete } = this._parseLoadResArgs<Asset>(type as any,
                                                                         progressCallback as LoadProgressCallback,
                                                                         completeCallback as LoadCompleteCallback<Asset>);
         const extname = path.extname(url);
-        if (extname) {
+        if (extname && !resources.getInfoWithPath(url, _type)) {
             // strip extname
-            url = url.slice(0, - extname.length);
+            url = url.slice(0, -extname.length);
         }
         resources.load(url, _type, onProgress, onComplete);
     }
@@ -346,9 +337,9 @@ export class CCLoader {
                                                                         completeCallback as LoadCompleteCallback<Asset[]>);
         urls.forEach((url, i) => {
             const extname = path.extname(url);
-            if (extname) {
+            if (extname && !resources.getInfoWithPath(url, _type)) {
                 // strip extname
-                urls[i] = url.slice(0, - extname.length);
+                urls[i] = url.slice(0, -extname.length);
             }
         });
         resources.load(urls, _type, onProgress, onComplete);
@@ -410,9 +401,7 @@ export class CCLoader {
             let urls: string[] = [];
             if (!err) {
                 const infos = resources.getDirWithPath(url, _type);
-                urls = infos.map((info) => {
-                    return info.path;
-                });
+                urls = infos.map((info) => info.path);
             }
             // @ts-expect-error
             if (onComplete) { onComplete(err, out, urls); }
@@ -549,7 +538,7 @@ export class CCLoader {
         const handler = Object.create(null);
         for (const type in extMap) {
             const func = extMap[type];
-            handler['.' + type] = (url, options, onComplete) => {
+            handler[`.${type}`] = (url, options, onComplete) => {
                 func({ url }, onComplete);
             };
         }
@@ -573,8 +562,8 @@ export class CCLoader {
         const handler = Object.create(null);
         for (const type in extMap) {
             const func = extMap[type];
-            handler['.' + type] = (file, options, onComplete) => {
-                func({content: file}, onComplete);
+            handler[`.${type}`] = (file, options, onComplete) => {
+                func({ content: file }, onComplete);
             };
         }
         parser.register(handler);
@@ -623,8 +612,7 @@ export class CCLoader {
                 if (typeof key === 'string') { key = assets.get(key) as Asset; }
                 assetManager.releaseAsset(key);
             }
-        }
-        else if (asset) {
+        } else if (asset) {
             if (typeof asset === 'string') { asset = assets.get(asset) as Asset; }
             assetManager.releaseAsset(asset);
         }
@@ -822,7 +810,7 @@ export const AssetLibrary = {
                 debug: true,
                 packs: {},
                 types: [],
-                versions: { import: [], native: []},
+                versions: { import: [], native: [] },
                 name: BuiltinBundleName.RESOURCES,
                 importBase: options.importBase,
                 nativeBase: options.nativeBase,
@@ -878,7 +866,7 @@ replaceProperty(url, 'url', [
                 }) as string;
             }
             return '';
-        }
+        },
     },
 ]);
 
@@ -913,12 +901,12 @@ replaceProperty(legacyCC, 'cc', [
         name: 'loader',
         newName: 'assetManager',
         logTimes: 1,
-        customGetter: () => { return loader; },
+        customGetter: () => loader,
     }, {
         name: 'AssetLibrary',
         newName: 'assetManager',
         logTimes: 1,
-        customGetter: () => { return AssetLibrary; },
+        customGetter: () => AssetLibrary,
     }, {
         name: 'Pipeline',
         target: AssetManager,
@@ -930,7 +918,7 @@ replaceProperty(legacyCC, 'cc', [
         targetName: 'assetManager',
         newName: 'utils',
         logTimes: 1,
-        customGetter: () => { return url; },
+        customGetter: () => url,
     },
 ]);
 
@@ -955,7 +943,7 @@ replaceProperty(director, 'director', [
         newName: 'getSceneInfo',
         customFunction: (sceneName) => {
             if (assetManager.main) {
-                return assetManager.main.getSceneInfo(sceneName)?.uuid; 
+                return assetManager.main.getSceneInfo(sceneName)?.uuid;
             }
             return '';
         },
@@ -976,7 +964,7 @@ replaceProperty(game, 'game', [
             }
             return scenes;
         },
-    }
+    },
 ]);
 
 const _autoRelease = releaseManager._autoRelease;

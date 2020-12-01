@@ -30,6 +30,10 @@ cc.game.restart = function () {
     __restartVM();
 };
 
+jsb.onError(function (location, message, stack) {
+    console.error(location, message, stack);
+});
+
 jsb.onPause = function () {
     cc.game.emit(cc.Game.EVENT_HIDE);
 };
@@ -40,10 +44,20 @@ jsb.onResume = function () {
 
 jsb.onResize = function (size) {
     if (size.width === 0 || size.height === 0) return;
+    cc.sys.windowPixelResolution = {
+        width: size.width,
+        height: size.height,
+    };
     window.resize(size.width, size.height);
-    cc.view.setCanvasSize(window.innerWidth, window.innerHeight);
+};
+
+jsb.onOrientationChanged = function (event) {
+    window.orientation  = event.orientation;
+    window.dispatchEvent({
+        type: 'orientationchange',
+    });
 };
 
 jsb.onMemoryWarning = function () {
     cc.game.emit(cc.Game.EVENT_LOW_MEMORY);
-}
+};

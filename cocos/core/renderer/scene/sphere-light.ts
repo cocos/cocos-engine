@@ -23,7 +23,7 @@
  THE SOFTWARE.
  */
 
-import { aabb } from '../../geometry';
+import { AABB } from '../../geometry';
 import { Vec3 } from '../../math';
 import { Light, LightType, nt2lm } from './light';
 import { AABBHandle, AABBPool, AABBView, LightPool, LightView, NULL_HANDLE } from '../core/memory-pools';
@@ -66,12 +66,12 @@ export class SphereLight extends Light {
     }
 
     protected _pos: Vec3;
-    protected _aabb: aabb;
+    protected _aabb: AABB;
     protected _hAABB: AABBHandle = NULL_HANDLE;
 
     constructor () {
         super();
-        this._aabb = aabb.create();
+        this._aabb = AABB.create();
         this._pos = new Vec3();
     }
 
@@ -90,7 +90,7 @@ export class SphereLight extends Light {
         if (this._node && (this._node.hasChangedFlags || this._needUpdate)) {
             this._node.getWorldPosition(this._pos);
             const range = LightPool.get(this._handle, LightView.RANGE);
-            aabb.set(this._aabb, this._pos.x, this._pos.y, this._pos.z, range, range, range);
+            AABB.set(this._aabb, this._pos.x, this._pos.y, this._pos.z, range, range, range);
             this._needUpdate = false;
 
             LightPool.setVec3(this._handle, LightView.POSITION, this._pos);

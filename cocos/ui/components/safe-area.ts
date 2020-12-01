@@ -33,8 +33,10 @@ import { Component } from '../../core/components';
 import { UITransform } from '../../core/components/ui-base';
 import { view } from '../../core/platform';
 import { Widget } from './widget';
+import { widgetManager } from './widget-manager';
 import { legacyCC } from "../../core/global-exports";
 import { EDITOR } from 'internal:constants';
+import { sys } from "../../core/platform";
 
 /**
  * @en
@@ -81,13 +83,11 @@ export class SafeArea extends Component {
      */
     public updateArea () {
         // TODO Remove Widget dependencies in the future
-        const widget = this.node.getComponent(Widget);
-        const uiTransComp = this.node.getComponent(UITransform);
+        const widget = this.node.getComponent(Widget) as Widget;
+        const uiTransComp = this.node.getComponent(UITransform) as UITransform;
         if (!widget || !uiTransComp) {
             return;
         }
-
-        const { winSize, sys } = legacyCC;
 
         if (EDITOR) {
             widget.top = widget.bottom = widget.left = widget.right = 0;
@@ -96,26 +96,24 @@ export class SafeArea extends Component {
         }
         // IMPORTANT: need to update alignment to get the latest position
         widget.updateAlignment();
-        const lastPos = this.node.position;
-        const lastAnchorPoint = uiTransComp.anchorPoint;
+        const lastPos = this.node.position.clone();
+        const lastAnchorPoint = uiTransComp.anchorPoint.clone();
         //
         widget.isAlignTop = widget.isAlignBottom = widget.isAlignLeft = widget.isAlignRight = true;
-        const screenWidth = winSize.width, screenHeight = winSize.height;
+        const screenWidth = legacyCC.winSize.width;
+        const screenHeight = legacyCC.winSize.height;
         const safeArea = sys.getSafeAreaRect();
-
-        console.log(safeArea);
-
         widget.top = screenHeight - safeArea.y - safeArea.height;
         widget.bottom = safeArea.y;
         widget.left = safeArea.x;
         widget.right = screenWidth - safeArea.x - safeArea.width;
         widget.updateAlignment();
         // set anchor, keep the original position unchanged
-        const curPos = this.node.position;
+        const curPos = this.node.position.clone();
         const anchorX = lastAnchorPoint.x - (curPos.x - lastPos.x) / uiTransComp.width;
         const anchorY = lastAnchorPoint.y - (curPos.y - lastPos.y) / uiTransComp.height;
         uiTransComp.setAnchorPoint(anchorX, anchorY);
         // IMPORTANT: restore to lastPos even if widget is not ALWAYS
-        widget.enabled = true;
+        widgetManager.add(widget);
     }
 }

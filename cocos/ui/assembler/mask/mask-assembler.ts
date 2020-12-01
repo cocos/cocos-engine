@@ -49,8 +49,7 @@ function applyAreaMask (mask: Mask, renderer: UI) {
         const mat = mask.graphics!.getMaterialInstance(0)!;
         renderer.forceMergeBatches(mat, mask.spriteFrame, mask.graphics!);
     } else {
-        const mat = mask.graphics!.getMaterialInstance(0);
-        renderer.commitModel(mask.graphics!, mask.graphics!.model, mat);
+        mask.graphics!.updateAssembler(renderer);
     }
 }
 
@@ -68,6 +67,7 @@ export const maskAssembler: IAssembler = {
     updateRenderData (mask: Mask){
         if (mask.type === MaskType.IMAGE_STENCIL){
             simple.updateRenderData(mask);
+            simple.updateColor(mask);
         }
     },
 

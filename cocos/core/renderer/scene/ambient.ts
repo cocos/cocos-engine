@@ -26,6 +26,7 @@
 import { Color, Vec3 } from '../../math';
 import { AmbientPool, NULL_HANDLE, AmbientView, AmbientHandle } from '../core/memory-pools';
 import { legacyCC } from '../../global-exports';
+import { AmbientInfo } from '../../scene-graph/scene-globals';
 
 export class Ambient {
     public static SUN_ILLUM = 65000.0;
@@ -45,7 +46,6 @@ export class Ambient {
      */
     set enabled (val: boolean) {
         AmbientPool.set(this._handle, AmbientView.ENABLE, val ? 1 : 0);
-        this.activate();
     }
     get enabled (): boolean {
         return AmbientPool.get(this._handle, AmbientView.ENABLE) as unknown as boolean;
@@ -59,7 +59,7 @@ export class Ambient {
     }
 
     set skyColor (color: Color) {
-        this._skyColor = color;
+        this._skyColor.set(color);
         Color.toArray(this._colorArray, this._skyColor);
         AmbientPool.setVec4(this._handle, AmbientView.SKY_COLOR, this._skyColor);
     }
@@ -85,7 +85,7 @@ export class Ambient {
     }
 
     set groundAlbedo (color: Color) {
-        this._groundAlbedo = color;
+        this._groundAlbedo.set(color);
         Vec3.toArray(this._albedoArray, this._groundAlbedo);
         AmbientPool.setVec4(this._handle, AmbientView.GROUND_ALBEDO, this._groundAlbedo);
     }
@@ -103,11 +103,14 @@ export class Ambient {
         this._handle = AmbientPool.alloc();
     }
 
-    public activate () {
+    public initialize (ambientInfo: AmbientInfo) {
+        this._skyColor.set(ambientInfo.skyColor);
+        this._groundAlbedo.set(ambientInfo.groundAlbedo);
         Color.toArray(this._colorArray, this._skyColor);
         Vec3.toArray(this._albedoArray, this._groundAlbedo);
         AmbientPool.setVec4(this._handle, AmbientView.SKY_COLOR, this._skyColor);
         AmbientPool.setVec4(this._handle, AmbientView.GROUND_ALBEDO, this._groundAlbedo);
+        AmbientPool.set(this._handle, AmbientView.ILLUM, ambientInfo.skyIllum);
     }
 
     public destroy () {

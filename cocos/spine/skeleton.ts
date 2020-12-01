@@ -125,11 +125,6 @@ js.setClassAlias(SpineSocket, 'sp.Skeleton.SpineSocket');
 @menu('Components/SpineSkeleton')
 @executeInEditMode
 export class Skeleton extends UIRenderable {
-    // editor: EDITOR && {
-    //     menu: 'i18n:MAIN_MENU.component.renderers/Spine Skeleton',
-    //     help: 'app://docs/html/components/spine.html',
-    //     inspector: 'packages://inspector/inspectors/comps/skeleton2d.js',
-    // },
     public static SpineSocket = SpineSocket;
 
     public static AnimationCacheMode = AnimationCacheMode;
@@ -210,7 +205,7 @@ export class Skeleton extends UIRenderable {
     set animation (value: string) {
         if (value) {
             this.setAnimation(0, value, this.loop);
-            this.resetRenderData();
+            this.destroyRenderData();
             this.markForUpdateRenderData();
         } else if (!this.isAnimationCached()) {
             this.clearTrack(0);
@@ -423,7 +418,7 @@ export class Skeleton extends UIRenderable {
     /**
      * @en
      * The bone sockets this animation component maintains.<br>
-     * Sockets have to be registered here before attaching custom nodes to animated bons.
+     * Sockets have to be registered here before attaching custom nodes to animated bones.
      * @zh
      * 当前动画组件维护的挂点数组。要挂载自定义节点到受动画驱动的骨骼上，必须先在此注册挂点。
      */
@@ -1286,12 +1281,6 @@ export class Skeleton extends UIRenderable {
         }
     }
 
-    public resetRenderData () {
-        if (this._meshRenderDataArray.length > 0) {
-            this._meshRenderDataArray.forEach((rd) => { rd.renderData.reset(); });
-        }
-    }
-
     public getMaterialForBlendAndTint (src: GFXBlendFactor, dst: GFXBlendFactor, type: SpineMaterialType): MaterialInstance {
         const key = `${type}/${src}/${dst}`;
         let inst = this._materialCache[key];
@@ -1327,9 +1316,9 @@ export class Skeleton extends UIRenderable {
         if (this._cachedSockets.size > 0) {
             return Array.from(this._cachedSockets.keys()).sort();
         }
+        return [];
     }
 
-    // 当前的 _meshRenderDataArray 的索引, 以便 fillBuffers 选取 RenderData
     public _meshRenderDataArrayIdx = 0;
     protected _render (ui: UI) {
         if (this._meshRenderDataArray) {
@@ -1337,8 +1326,7 @@ export class Skeleton extends UIRenderable {
                 this._meshRenderDataArrayIdx = i;
                 const m = this._meshRenderDataArray[i];
                 if (m.texture) {
-                    // NOTE: 由于 commitComp 只支持单张纹理, 故分多次提交
-                    ui.commitComp(this, m.texture, this._assembler);
+                    ui.commitComp(this, m.texture, this._assembler, null);
                 }
             }
             // this.node._static = true;
@@ -1555,14 +1543,17 @@ export class Skeleton extends UIRenderable {
                 debugDraw.strokeColor = new Color(255, 0, 0, 255);
 
                 this._debugRenderer = debugDraw;
+                debugDrawNode.parent = this.node;
             }
+            // this._debugRenderer.node.active = true;
 
-            this._debugRenderer.node.parent = this.node;
             if (this.isAnimationCached()) {
                 warn('Debug bones or slots is invalid in cached mode');
             }
         } else if (this._debugRenderer) {
-            this._debugRenderer.node.parent = null;
+            this._debugRenderer.node.destroy();
+            this._debugRenderer = null;
+            // this._debugRenderer.node.active = false;
         }
     }
 
@@ -1571,7 +1562,7 @@ export class Skeleton extends UIRenderable {
         if (this._assembler !== assembler) {
             this._assembler = assembler;
         }
-        if (this._meshRenderDataArray.length == 0) {
+        if (this._meshRenderDataArray.length === 0) {
             if (this._assembler && this._assembler.createData) {
                 this._assembler.createData(this);
                 this.markForUpdateRenderData();

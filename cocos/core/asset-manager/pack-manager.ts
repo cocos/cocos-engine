@@ -107,7 +107,7 @@ export class PackManager {
                     errorID(4915);
                 }
                 for (let i = 0; i < pack.length; i++) {
-                    out[pack[i] + '@import'] = packCustomObjData(textureType, { base: datas[i][0], mipmaps: datas[i][1] });
+                    out[pack[i] + '@import'] = packCustomObjData(textureType, { base: datas[i][0], mipmaps: datas[i][1] }, true);
                 }
             }
             else {

@@ -26,7 +26,7 @@
 'use strict';
 
 if (cc.internal.VideoPlayer) {
-    
+
     const { EventType } = cc.internal.VideoPlayer;
 
     let vec3 = cc.Vec3;
@@ -105,6 +105,9 @@ if (cc.internal.VideoPlayer) {
         }
 
         getDuration () {
+            if (!this.video) {
+                return -1;
+            }
             return this.video.duration();
         }
 

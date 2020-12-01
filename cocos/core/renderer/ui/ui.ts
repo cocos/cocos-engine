@@ -50,6 +50,11 @@ import { ModelLocalBindings } from '../../pipeline/define';
 import { EffectAsset, RenderTexture, SpriteFrame } from '../../assets';
 import { programLib } from '../core/program-lib';
 import { TextureBase } from '../../assets/texture-base';
+import { sys } from '../../platform/sys';
+
+const isWebIOS14OrIPadOS14Env = sys.os === sys.OS_IOS
+    && sys.isBrowser
+    && /(iPhone OS 1[4-9])|(Version\/1[4-9][\.\d]*)|(iOS 1[4-9])/.test(window.navigator.userAgent);
 
 const _dsInfo = new DescriptorSetInfo(null!);
 
@@ -102,6 +107,7 @@ export class UI {
     private _uiMaterials: Map<number, UIMaterial> = new Map<number, UIMaterial>();
     private _canvasMaterials: Map<number, Map<number, number>> = new Map<number, Map<number, number>>();
     private _batches: CachedArray<UIDrawBatch>;
+    private _doUploadBuffersCall: Map<any, Function> = new Map();
     private _uiModelPool: Pool<UIBatchModel> | null = null;
     private _modelInUse: CachedArray<UIBatchModel>;
     // batcher
@@ -113,6 +119,7 @@ export class UI {
     private _currMeshBuffer: MeshBuffer | null = null;
     private _currStaticRoot: UIStaticBatch | null = null;
     private _currComponent: UIRenderable | null = null;
+    private _currTransform: Node | null = null;
     private _currTextureHash = 0;
     private _currSamplerHash = 0;
     private _currMaterialHash = 0;
@@ -170,7 +177,7 @@ export class UI {
         }
 
         if (this._descriptorSetCacheMap) {
-            this._destoryDescriptorSet();
+            this._destroyDescriptorSet();
         }
 
         this._meshBuffers.clear();
@@ -310,6 +317,14 @@ export class UI {
         this._screens.sort(this._screenSort);
     }
 
+    public addUploadBuffersFunc(target: any, func: Function) {
+        this._doUploadBuffersCall.set(target, func);
+    }
+
+    public removeUploadBuffersFunc(target: any) {
+        this._doUploadBuffersCall.delete(target);
+    }
+
     public update () {
         const screens = this._screens;
         for (let i = 0; i < screens.length; ++i) {
@@ -384,6 +399,12 @@ export class UI {
 
     public uploadBuffers () {
         if (this._batches.length > 0) {
+            const calls = this._doUploadBuffersCall;
+            for (const key of calls.keys()) {
+                const list = calls.get(key);
+                list!.call(key, this);
+            }
+
             const buffers = this._meshBuffers;
             for (const i of buffers.keys()) {
                 const list = buffers.get(i);
@@ -413,6 +434,7 @@ export class UI {
         this._currTexture = null;
         this._currSampler = null;
         this._currComponent = null;
+        this._currTransform = null;
         this._meshBufferUseCount.clear();
         this._currMaterialHash = 0;
         this._currMaterialUniformHash = 0;
@@ -433,7 +455,7 @@ export class UI {
      * @param frame - 当前执行组件贴图。
      * @param assembler - 当前组件渲染数据组装器。
      */
-    public commitComp (comp: UIRenderable, frame: TextureBase | SpriteFrame | RenderTexture | null, assembler: any) {
+    public commitComp (comp: UIRenderable, frame: TextureBase | SpriteFrame | RenderTexture | null, assembler: any, transform: Node | null) {
         const renderComp = comp;
         let texture;
         let samp;
@@ -455,10 +477,11 @@ export class UI {
 
         // use material judgment merge is increasingly impossible, change to hash is more possible
         if (this._currMaterialHash !== matHash || this._currMaterialUniformHash !== matUniformHash
-            || this._currTextureHash !== textureHash || this._currSamplerHash !== samplerHash
+            || this._currTextureHash !== textureHash || this._currSamplerHash !== samplerHash || this._currTransform !== transform
         ) {
             this.autoMergeBatches(this._currComponent!);
             this._currComponent = renderComp;
+            this._currTransform = transform;
             this._currMaterial = mat!;
             this._currTexture = texture;
             this._currSampler = samp;
@@ -519,10 +542,12 @@ export class UI {
         curDrawBatch.material = mat;
         curDrawBatch.texture = null;
         curDrawBatch.sampler = null;
+        curDrawBatch.useLocalData = null;
 
         // reset current render state to null
         this._currMaterial = this._emptyMaterial;
         this._currComponent = null;
+        this._currTransform = null;
         this._currTexture = null;
         this._currSampler = null;
         this._currTextureHash = 0;
@@ -559,7 +584,6 @@ export class UI {
         const uiCanvas = this._currCanvas;
         const hIA = buffer?.recordBatch();
         let mat = this._currMaterial;
-
         if (!hIA || !mat) {
             return;
         }
@@ -579,7 +603,7 @@ export class UI {
         curDrawBatch.texture = this._currTexture!;
         curDrawBatch.sampler = this._currSampler;
         curDrawBatch.hInputAssembler = hIA;
-
+        curDrawBatch.useLocalData = this._currTransform;
         curDrawBatch.textureHash = this._currTextureHash;
         curDrawBatch.samplerHash = this._currSamplerHash;
 
@@ -588,6 +612,12 @@ export class UI {
         buffer!.vertexStart = buffer!.vertexOffset;
         buffer!.indicesStart = buffer!.indicesOffset;
         buffer!.byteStart = buffer!.byteOffset;
+
+        // HACK: After sharing buffer between drawcalls, the performance degradation a lots on iOS 14 or iPad OS 14 device
+        // TODO: Maybe it can be removed after Apple fixes it?
+        if (isWebIOS14OrIPadOS14Env) {
+            this._currMeshBuffer = null;
+        }
     }
 
     /**
@@ -628,6 +658,7 @@ export class UI {
         this._currMaterial = this._emptyMaterial;
         this._currTexture = null;
         this._currComponent = null;
+        this._currTransform = null;
         this._currTextureHash = 0;
         this._currSamplerHash = 0;
         this._currMaterialHash = 0;
@@ -662,7 +693,7 @@ export class UI {
         const parentOpacity = this._parentOpacity;
         this._parentOpacity *= node._uiProps.opacity;
 
-        this._preprocess(node);
+        this._preProcess(node);
         if (len > 0 && !node._static) {
             const children = node.children;
             for (let i = 0; i < children.length; ++i) {
@@ -671,13 +702,13 @@ export class UI {
             }
         }
 
-        this._postprocess(node);
+        this._postProcess(node);
         this._parentOpacity = parentOpacity;
 
         level += 1;
     }
 
-    private _preprocess (node: Node) {
+    private _preProcess (node: Node) {
         if (!node._uiProps.uiTransformComp) {
             return;
         }
@@ -690,7 +721,7 @@ export class UI {
         }
     }
 
-    private _postprocess (node: Node) {
+    private _postProcess (node: Node) {
         const render = node._uiProps.uiComp;
         if (render && render.enabledInHierarchy) {
             render.postUpdateAssembler(this);
@@ -739,11 +770,11 @@ export class UI {
         const opacity = (this._parentOpacity *= color);
         const currMeshBuffer = this.currBufferBatch!;
         const byteOffset = currMeshBuffer.byteOffset >> 2;
-        const vbuf = currMeshBuffer.vData!;
+        const vBuf = currMeshBuffer.vData!;
         const lastByteOffset = currMeshBuffer.lastByteOffset >> 2;
         const stride = currMeshBuffer.vertexFormatBytes / 4;
         for (let i = lastByteOffset; i < byteOffset; i += stride) {
-            vbuf[i + MeshBuffer.OPACITY_OFFSET] = opacity;
+            vBuf[i + MeshBuffer.OPACITY_OFFSET] *= opacity;
         }
 
         currMeshBuffer.lastByteOffset = currMeshBuffer.byteOffset;
@@ -766,7 +797,7 @@ export class UI {
         }
     }
 
-    private _destoryDescriptorSet () {
+    private _destroyDescriptorSet () {
         this._descriptorSetCacheMap.forEach((value, key, map) => {
             value.forEach((hDescriptorSet) => {
                 DSPool.free(hDescriptorSet);

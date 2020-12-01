@@ -232,7 +232,10 @@ async function _doBuild ({
     );
 
     const rpVirtualOptions: Record<string, string> = {};
-    const vmInternalConstants = getModuleSourceInternalConstants(options.buildTimeConstants);
+    const vmInternalConstants = getModuleSourceInternalConstants({
+        EXPORT_TO_GLOBAL: true,
+        ...options.buildTimeConstants,
+    });
     console.debug(`Module source "internal-constants":\n${vmInternalConstants}`);
     rpVirtualOptions['internal:constants'] = vmInternalConstants;
 
@@ -420,7 +423,7 @@ async function _doBuild ({
             const visualizeFile = visualizeOptions.file ?? ps.join(options.out, 'visualize.html');
             rollupPlugins.push(rpVisualizer({
                 filename: visualizeFile,
-                title: 'Cocos Creator 3D build visualizer',
+                title: 'Cocos Creator build visualizer',
                 template: 'treemap',
             }));
         }
@@ -432,7 +435,7 @@ async function _doBuild ({
         cache: false,
     };
 
-    const ammoJsAsmJsModule = await nodeResolveAsync('@cocos/ammo/builds/ammo.full.js');
+    const ammoJsAsmJsModule = await nodeResolveAsync('@cocos/ammo/builds/ammo.js');
     const ammoJsWasmModule = await nodeResolveAsync('@cocos/ammo/builds/ammo.wasm.js');
     if (ammoJsWasm === 'fallback') {
         rpVirtualOptions['@cocos/ammo'] = `
@@ -451,7 +454,7 @@ export { isWasm };
         rpVirtualOptions['@cocos/ammo'] = `
 import Ammo from '${filePathToModuleRequest(ammoJsWasmModule)}';
 export default Ammo;
-const isWasm = false;
+const isWasm = true;
 export { isWasm };
 `;
     }

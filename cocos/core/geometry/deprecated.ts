@@ -29,10 +29,10 @@
  */
 
 import { replaceProperty, removeProperty } from '../utils/x-deprecated';
-import line from './line';
+import { Line } from './line';
 import intersect from './intersect';
 
-replaceProperty(line.prototype, 'line', [
+replaceProperty(Line.prototype, 'line', [
     {
         name: 'mag',
         newName: 'len',

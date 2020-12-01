@@ -446,7 +446,7 @@ export class Mask extends UIRenderable {
     }
 
     protected _render (render: UI) {
-        render.commitComp(this, null, this._assembler!);
+        render.commitComp(this, null, this._assembler!, null);
     }
 
     protected _postRender (render: UI) {
@@ -454,7 +454,7 @@ export class Mask extends UIRenderable {
             return;
         }
 
-        render.commitComp(this, null, this._postAssembler);
+        render.commitComp(this, null, this._postAssembler, null);
     }
 
     protected _nodeStateChange (type: TransformBit) {
@@ -566,8 +566,8 @@ export class Mask extends UIRenderable {
             const indexBuffer = gfxDevice.createBuffer(new BufferInfo(
                 BufferUsageBit.INDEX | BufferUsageBit.TRANSFER_DST,
                 MemoryUsageBit.DEVICE,
-                6 * 2,
-                2,
+                6 * Uint16Array.BYTES_PER_ELEMENT,
+                Uint16Array.BYTES_PER_ELEMENT,
             ));
 
             const ib = new Uint16Array([0, 1, 2, 2, 1, 3]);

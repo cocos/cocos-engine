@@ -51,4 +51,4 @@ sys.getSafeAreaRect = function() {
     cc.view._convertPointWithScale(rightTop);
 
     return cc.rect(leftBottom.x, leftBottom.y, rightTop.x - leftBottom.x, rightTop.y - leftBottom.y);
-}
+};

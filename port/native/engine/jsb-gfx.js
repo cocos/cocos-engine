@@ -170,6 +170,15 @@ deviceProtos.forEach(function(item, index) {
                 return oldDeviceCreatTextureFun.call(this, info, false);
             }
         }
+
+        Object.defineProperty(item, 'uboOffsetAlignment', {
+            get () { 
+                if (this.cachedUboOffsetAlignment === undefined) {
+                    this.cachedUboOffsetAlignment = this.getUboOffsetAlignment();
+                }
+                return this.cachedUboOffsetAlignment; 
+            }
+        })
     }
 });
 

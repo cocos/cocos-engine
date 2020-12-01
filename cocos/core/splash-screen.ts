@@ -324,7 +324,7 @@ export class SplashScreen {
         ctx.textBaseline = 'top';
         ctx.textAlign = 'left';
         ctx.fillStyle = '`#424242`';
-        const text = 'Powered by Cocos Creator 3D';
+        const text = 'Powered by Cocos Creator';
         const textMetrics = ctx.measureText(text);
         ctx.fillText(text, (330 - textMetrics.width) / 2, 6);
 

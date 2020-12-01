@@ -28,16 +28,16 @@
  * @module material
  */
 
-import { ccclass, serializable, editable } from 'cc.decorator';
-import { Root } from '../../core/root';
+import { ccclass, serializable, editable, editorOnly } from 'cc.decorator';
+import { EDITOR } from 'internal:constants';
+import { Root } from '../root';
 import { BlendState, DepthStencilState, RasterizerState, DescriptorType,
-    DynamicStateFlags, PrimitiveMode, ShaderStageFlags, Type } from '../gfx';
-import { IUniform, IAttribute } from '../gfx';
+    DynamicStateFlags, PrimitiveMode, ShaderStageFlags, Type, IUniform, IAttribute } from '../gfx';
+
 import { RenderPassStage } from '../pipeline/define';
 import { MacroRecord } from '../renderer/core/pass-utils';
 import { programLib } from '../renderer/core/program-lib';
 import { Asset } from './asset';
-import { EDITOR } from 'internal:constants';
 import { legacyCC } from '../global-exports';
 
 export interface IPropertyInfo {
@@ -127,7 +127,6 @@ export interface IPreCompileInfo {
  */
 @ccclass('cc.EffectAsset')
 export class EffectAsset extends Asset {
-
     /**
      * @en Register the effect asset to the static map
      * @zh 将指定 effect 注册到全局管理器。
@@ -193,6 +192,10 @@ export class EffectAsset extends Asset {
     @editable
     public combinations: IPreCompileInfo[] = [];
 
+    @serializable
+    @editorOnly
+    public hideInEditor = false;
+
     /**
      * @en The loaded callback which should be invoked by the [[Loader]], will automatically register the effect.
      * @zh 通过 [[Loader]] 加载完成时的回调，将自动注册 effect 资源。
@@ -211,12 +214,18 @@ export class EffectAsset extends Asset {
             if (!combination) { continue; }
             Object.keys(combination).reduce((out, name) => out.reduce((acc, cur) => {
                 const choices = combination[name];
-                const next = [cur].concat([...Array(choices.length - 1)].map(() => Object.assign({}, cur)));
+                const next = [cur].concat([...Array(choices.length - 1)].map(() => ({ ...cur })));
                 next.forEach((defines, idx) => defines[name] = choices[idx]);
                 return acc.concat(next);
             }, [] as MacroRecord[]), [{}] as MacroRecord[]).forEach(
-                (defines) => programLib.getGFXShader(root.device, shader.name, defines, root.pipeline));
+                (defines) => programLib.getGFXShader(root.device, shader.name, defines, root.pipeline),
+            );
         }
+    }
+
+    public destroy () {
+        EffectAsset.remove(this.name);
+        return super.destroy();
     }
 }
 

@@ -47,9 +47,6 @@ import { EDITOR } from 'internal:constants';
 @menu('UI/Render/MotionStreak')
 @help('i18n:COMPONENT.help_url.motionStreak')
 export class MotionStreak extends UIRenderable {
-    @serializable
-    private _preview: boolean = false;
-
     /**
      * @en Preview the trailing effect in editor mode.
      * @zh 在编辑器模式下预览拖尾效果。
@@ -63,9 +60,6 @@ export class MotionStreak extends UIRenderable {
         this._preview = val;
         this.reset();
     }
-
-    @serializable
-    private _fadeTime = 1;
     /**
      * @en The fade time to fade.
      * @zh 拖尾的渐隐时间，以秒为单位。
@@ -81,9 +75,6 @@ export class MotionStreak extends UIRenderable {
         this._fadeTime = val;
         this.reset();
     }
-
-    @serializable
-    private _minSeg = 1;
     /**
      * @en The minimum segment size.
      * @zh 拖尾之间最小距离。
@@ -97,15 +88,12 @@ export class MotionStreak extends UIRenderable {
     public set minSeg (val) {
         this._minSeg = val;
     }
-
     /**
      * @en The stroke's width.
      * @zh 拖尾的宽度。
      * @example
      * motionStreak.stroke = 64;
      */
-    @serializable
-    private _stroke = 64;
     @editable
     public get stroke () {
         return this._stroke;
@@ -113,9 +101,6 @@ export class MotionStreak extends UIRenderable {
     public set stroke (val) {
         this._stroke = val;
     }
-
-    @serializable
-    private _texture: Texture2D | null  = null
 
     /**
      * @en The texture of the MotionStreak.
@@ -133,9 +118,6 @@ export class MotionStreak extends UIRenderable {
 
         this._texture = val;
     }
-
-    @serializable
-    private _fastMode: boolean = false;
     /**
      * @en The fast Mode.
      * @zh 是否启用了快速模式。当启用快速模式，新的点会被更快地添加，但精度较低。
@@ -149,6 +131,24 @@ export class MotionStreak extends UIRenderable {
     public set fastMode (val: boolean) {
         this._fastMode = val;
     }
+
+    public get points () {
+        return this._points;
+    }
+
+    @serializable
+    private _preview: boolean = false;
+    @serializable
+    private _fadeTime = 1;
+    @serializable
+    private _minSeg = 1;
+    @serializable
+    private _stroke = 64;
+    @serializable
+    private _texture: Texture2D | null  = null;
+    @serializable
+    private _fastMode: boolean = false;
+    private _points: any[] = [];
 
     public onEnable () {
         super.onEnable();
@@ -190,7 +190,7 @@ export class MotionStreak extends UIRenderable {
      * myMotionStreak.reset();
      */
     public reset () {
-        if (this._assembler) this._assembler.clear();
+        this._points.length = 0;
         if (this._renderData) this._renderData.clear();
     }
 
@@ -200,6 +200,6 @@ export class MotionStreak extends UIRenderable {
     }
 
     public _render (render: UI) {
-        render.commitComp(this, this._texture!, this._assembler);
+        render.commitComp(this, this._texture!, this._assembler, null);
     }
 }

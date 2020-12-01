@@ -27,7 +27,7 @@
 import { builtinResMgr } from '../../3d/builtin/init';
 import { Material } from '../../assets/material';
 import { RenderingSubMesh } from '../../assets/mesh';
-import { aabb } from '../../geometry';
+import { AABB } from '../../geometry';
 import { Pool } from '../../memop';
 import { Node } from '../../scene-graph';
 import { Layers } from '../../scene-graph/layers';
@@ -191,8 +191,8 @@ export class Model {
     public isDynamicBatching = false;
     public instancedAttributes: IInstancedAttributeBlock = { buffer: null!, views: [], attributes: [] };
 
-    protected _worldBounds: aabb | null = null;
-    protected _modelBounds: aabb | null = null;
+    protected _worldBounds: AABB | null = null;
+    protected _modelBounds: AABB | null = null;
     protected _subModels: SubModel[] = [];
     protected _node: Node = null!;
     protected _transform: Node = null!;
@@ -205,8 +205,8 @@ export class Model {
     protected _handle: ModelHandle = NULL_HANDLE;
     protected _hWorldBounds: AABBHandle = NULL_HANDLE;
 
-    private _localData = new Float32Array(UBOLocal.COUNT);
-    private _localBuffer: Buffer | null = null;
+    protected _localData = new Float32Array(UBOLocal.COUNT);
+    protected _localBuffer: Buffer | null = null;
     private _instMatWorldIdx = -1;
     private _lightmap: Texture2D | null = null;
     private _lightmapUVParam: Vec4 = new Vec4();
@@ -249,6 +249,8 @@ export class Model {
         this._subModels.length = 0;
         this._inited = false;
         this._transformUpdated = true;
+        this._transform = null!;
+        this._node = null!;
         this.isDynamicBatching = false;
 
         if (this._handle) {
@@ -326,8 +328,8 @@ export class Model {
      */
     public createBoundingShape (minPos?: Vec3, maxPos?: Vec3) {
         if (!minPos || !maxPos) { return; }
-        this._modelBounds = aabb.fromPoints(aabb.create(), minPos, maxPos);
-        this._worldBounds = aabb.clone(this._modelBounds);
+        this._modelBounds = AABB.fromPoints(AABB.create(), minPos, maxPos);
+        this._worldBounds = AABB.clone(this._modelBounds);
         if (this._hWorldBounds === NULL_HANDLE) {
             this._hWorldBounds = AABBPool.alloc();
             ModelPool.set(this._handle, ModelView.WORLD_BOUNDS, this._hWorldBounds);

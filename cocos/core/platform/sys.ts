@@ -29,7 +29,7 @@
  * @module core
  */
 
-import { EDITOR, TEST, COCOSPLAY, JSB, MINIGAME, HUAWEI, OPPO, VIVO, RUNTIME_BASED } from 'internal:constants';
+import { EDITOR, TEST, COCOSPLAY, JSB, MINIGAME, HUAWEI, OPPO, VIVO, RUNTIME_BASED, LINKSURE, QTT } from 'internal:constants';
 import { legacyCC } from '../global-exports';
 import { warnID, log, logID } from './debug';
 
@@ -381,11 +381,11 @@ export const sys: Record<string, any> = {
      */
     ALIPAY_MINI_GAME: 113,
     /**
-     * @property {Number} QTT_GAME
+     * @property {Number} QTT_MINI_GAME
      * @readOnly
      * @default 116
      */
-    QTT_GAME: 116,
+    QTT_MINI_GAME: 116,
     /**
      * @property {Number} BYTEDANCE_MINI_GAME
      * @readOnly
@@ -393,11 +393,11 @@ export const sys: Record<string, any> = {
      */
     BYTEDANCE_MINI_GAME: 117,
     /**
-     * @property {Number} LINKSURE
+     * @property {Number} LINKSURE_MINI_GAME
      * @readOnly
      * @default 119
      */
-    LINKSURE: 119,
+    LINKSURE_MINI_GAME: 119,
 
     /**
      * @en Browser Type - WeChat inner browser
@@ -555,6 +555,13 @@ export const sys: Record<string, any> = {
      * @default "sogou"
      */
     BROWSER_TYPE_SOUGOU: 'sogou',
+    /**
+     *
+     * @property {String} BROWSER_TYPE_HUAWEI
+     * @readOnly
+     * @default "huawei"
+     */
+    BROWSER_TYPE_HUAWEI: "huawei",
     /**
      * @en Browser Type - Unknown
      * @zh 浏览器类型 - 未知
@@ -786,10 +793,10 @@ export const sys: Record<string, any> = {
 
     /**
      * @en
-     * Returns the safe area of the screen. If the screen is not notched, the design resolution will be returned by default.
-     * Only supported on Android, iOS and WeChat Mini Game platform.
+     * Returns the safe area of the screen (in design resolution). If the screen is not notched, the visibleRect will be returned by default.
+     * Currently supports Android, iOS and WeChat Mini Game platform.
      * @zh
-     * 返回手机屏幕安全区域，如果不是异形屏将默认返回设计分辨率尺寸。目前只支持安卓、iOS 原生平台和微信小游戏平台。
+     * 返回手机屏幕安全区域（设计分辨率为单位），如果不是异形屏将默认返回 visibleRect。目前支持安卓、iOS 原生平台和微信小游戏平台。
      * @method getSafeAreaRect
      * @return {Rect}
      */
@@ -834,6 +841,10 @@ else if (JSB || RUNTIME_BASED) {
         platform = sys.HUAWEI_QUICK_GAME;
     } else if (COCOSPLAY) {
         platform = sys.COCOSPLAY;
+    } else if (LINKSURE) {
+        platform = sys.LINKSURE_MINI_GAME;
+    } else if (QTT) {
+        platform = sys.QTT_MINI_GAME;
     } else {
         // @ts-expect-error
         platform = __getPlatform();
@@ -868,8 +879,8 @@ else if (JSB || RUNTIME_BASED) {
     const h = window.innerHeight;
     const ratio = window.devicePixelRatio || 1;
     sys.windowPixelResolution = {
-        width: ratio * w,
-        height: ratio * h,
+        width: window.nativeWidth || ratio * w,
+        height: window.nativeHeight || ratio * h,
     };
 
     sys.localStorage = window.localStorage;
@@ -959,7 +970,7 @@ else if (JSB || RUNTIME_BASED) {
     /* Determine the browser type */
     (function () {
         const typeReg1 = /mqqbrowser|micromessenger|qqbrowser|sogou|qzone|liebao|maxthon|ucbs|360 aphone|360browser|baiduboxapp|baidubrowser|maxthon|mxbrowser|miuibrowser/i;
-        const typeReg2 = /qq|qqbrowser|ucbrowser|ubrowser|edge/i;
+        const typeReg2 = /qq|qqbrowser|ucbrowser|ubrowser|edge|HuaweiBrowser/i;
         const typeReg3 = /chrome|safari|firefox|trident|opera|opr\/|oupeng/i;
         const browserTypes = typeReg1.exec(ua) || typeReg2.exec(ua) || typeReg3.exec(ua);
 
@@ -985,6 +996,7 @@ else if (JSB || RUNTIME_BASED) {
             mxbrowser: sys.BROWSER_TYPE_MAXTHON,
             'opr/': sys.BROWSER_TYPE_OPERA,
             ubrowser: sys.BROWSER_TYPE_UC,
+            huaweibrowser: sys.BROWSER_TYPE_HUAWEI,
         };
 
         sys.browserType = typeMap[browserType] || browserType;
@@ -1044,7 +1056,13 @@ else if (JSB || RUNTIME_BASED) {
         };
     }
 
-    const _supportWebp = TEST ? false : _tmpCanvas1.toDataURL('image/webp').startsWith('data:image/webp');
+    let _supportWebp;
+    try {
+        _supportWebp = TEST ? false : _tmpCanvas1.toDataURL('image/webp').startsWith('data:image/webp');
+    }
+    catch (e) {
+        _supportWebp  = false;
+    }  
     const _supportCanvas = TEST ? false : !!_tmpCanvas1.getContext('2d');
     let _supportWebGL = false;
     if (TEST) {

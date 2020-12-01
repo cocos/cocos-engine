@@ -367,8 +367,6 @@ export class EditBox extends Component {
     @serializable
     protected  _returnType = KeyboardReturnType.DEFAULT;
     @serializable
-    protected  _useOriginalSize = true;
-    @serializable
     protected  _string = '';
     @serializable
     protected  _tabIndex = 0;

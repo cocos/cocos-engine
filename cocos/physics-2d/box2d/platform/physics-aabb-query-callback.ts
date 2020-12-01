@@ -48,8 +48,6 @@ export class PhysicsAABBQueryCallback extends b2.QueryCallback {
         if (this._isPoint) {
             if (fixture.TestPoint(this._point)) {
                 this._fixtures.push(fixture);
-                // We are done, terminate the query.
-                return false;
             }
         }
         else {

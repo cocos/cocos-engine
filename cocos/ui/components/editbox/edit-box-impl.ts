@@ -380,6 +380,7 @@ export class EditBoxImpl extends EditBoxImplBase {
         // begin to updateInputType
         if (inputFlag === InputFlag.PASSWORD) {
             elem.type = 'password';
+            elem.style.textTransform = 'none';
             return;
         }
 
@@ -433,7 +434,7 @@ export class EditBoxImpl extends EditBoxImplBase {
         elem.style.height = '100%';
         elem.style.outline = 'medium';
         elem.style.padding = '0';
-        elem.style.textTransform = 'uppercase';
+        elem.style.textTransform = 'none';
         elem.style.display = 'none';
         elem.style.position = 'absolute';
         elem.style.bottom = '0px';

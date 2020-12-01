@@ -173,6 +173,7 @@ class BuiltinResMgr {
                         shaderInfo[shaderVersionKey] = shaderSource;
                     }
                 });
+                effect.hideInEditor = true;
                 effect.onLoaded();
             });
             this._initMaterials();

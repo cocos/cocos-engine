@@ -102,9 +102,9 @@ export class RenderShadowMapBatchedQueue {
         this._batchedQueue = new RenderBatchedQueue();
     }
 
-    public gatherLightPasses (light: Light) {
+    public gatherLightPasses (light: Light, cmdBuff: CommandBuffer) {
         this.clear();
-        if (light && this._shadowInfo.type === ShadowType.ShadowMap) {
+        if (light && this._shadowInfo.enabled && this._shadowInfo.type === ShadowType.ShadowMap) {
             this._updateUBOs(light);
 
             for (let i = 0; i < this._shadowObjects.length; i++) {
@@ -113,14 +113,14 @@ export class RenderShadowMapBatchedQueue {
 
                 switch (light.type) {
                     case LightType.DIRECTIONAL:
-                        this.add(model);
+                        this.add(model, cmdBuff);
                         break;
                     case LightType.SPOT:
                         const spotLight = light as SpotLight;
                         if ((model.worldBounds &&
-                            (!intersect.aabb_aabb(model.worldBounds, spotLight.aabb) ||
-                            !intersect.aabb_frustum(model.worldBounds, spotLight.frustum)))) continue;
-                        this.add(model);
+                            (!intersect.aabbWithAABB(model.worldBounds, spotLight.aabb) ||
+                            !intersect.aabbFrustum(model.worldBounds, spotLight.frustum)))) continue;
+                        this.add(model, cmdBuff);
                         break;
                 }
             }
@@ -139,7 +139,7 @@ export class RenderShadowMapBatchedQueue {
         this._batchedQueue.clear();
     }
 
-    public add (model: Model) {
+    public add (model: Model, cmdBuff: CommandBuffer) {
         const subModels = model.subModels;
         // this assumes shadow pass index is the same for all submodels
         const shadowPassIdx = getShadowPassIndex(subModels);
@@ -168,6 +168,9 @@ export class RenderShadowMapBatchedQueue {
                 this._passArray.push(pass);
             }
         }
+
+        this._instancedQueue.uploadBuffers(cmdBuff);
+        this._batchedQueue.uploadBuffers(cmdBuff);
     }
 
     /**

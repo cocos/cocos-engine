@@ -32,7 +32,6 @@ import { IAssemblerManager } from '../../core/renderer/ui/base';
 import { TiledLayer } from '../tiled-layer';
 import { simple } from './simple';
 
-
 // Inline all type switch to avoid jit deoptimization during inlined function change
 
 const tiledLayerAssembler: IAssemblerManager = {

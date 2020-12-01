@@ -40,12 +40,12 @@ import { ColorAttachment, DepthStencilAttachment, RenderPass, LoadOp, TextureLay
 import { SKYBOX_FLAG } from '../../renderer/scene/camera';
 import { legacyCC } from '../../global-exports';
 import { RenderView } from '../render-view';
-import { Mat4, Vec3, Vec4} from '../../math';
+import { Color, color, Mat4, Vec3, Vec4} from '../../math';
 import { Fog } from '../../renderer/scene/fog';
 import { Ambient } from '../../renderer/scene/ambient';
 import { Skybox } from '../../renderer/scene/skybox';
 import { Shadows, ShadowType } from '../../renderer/scene/shadows';
-import { sceneCulling, getShadowWorldMatrix } from './scene-culling';
+import { sceneCulling, getShadowWorldMatrix, updatePlanarPROJ } from './scene-culling';
 import { UIFlow } from '../ui/ui-flow';
 import { Light } from '../../renderer/scene/light';
 
@@ -207,7 +207,7 @@ export class ForwardPipeline extends RenderPipeline {
         const device = this.device;
         const shadowInfo = this.shadows;
 
-        if (mainLight && shadowInfo.type === ShadowType.ShadowMap) {
+        if (mainLight && shadowInfo.enabled && shadowInfo.type === ShadowType.ShadowMap) {
 
             // light view
             let shadowCameraView: Mat4;
@@ -246,7 +246,11 @@ export class ForwardPipeline extends RenderPipeline {
             this._shadowUBO[UBOShadow.SHADOW_INFO_OFFSET + 1] = shadowInfo.size.y;
             this._shadowUBO[UBOShadow.SHADOW_INFO_OFFSET + 2] = shadowInfo.pcf;
             this._shadowUBO[UBOShadow.SHADOW_INFO_OFFSET + 3] = shadowInfo.bias;
+        } else if (mainLight && shadowInfo.type === ShadowType.Planar) {
+            updatePlanarPROJ(shadowInfo, mainLight, this._shadowUBO);
         }
+
+        Color.toArray(this._shadowUBO, shadowInfo.shadowColor, UBOShadow.SHADOW_COLOR_OFFSET);
 
         // update ubos
         this._commandBuffers[0].updateBuffer(this._descriptorSet.getBuffer(UBOGlobal.BINDING), this._globalUBO);

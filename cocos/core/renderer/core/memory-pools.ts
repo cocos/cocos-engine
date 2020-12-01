@@ -42,7 +42,7 @@ import { BatchingSchemes } from './pass';
 import {
     Vec2, Vec3, Quat, Color, Rect, Mat4, IVec2Like, IVec3Like, IVec4Like, IMat4Like,
 } from '../../math';
-import { plane } from '../../geometry';
+import { Plane } from '../../geometry';
 
 interface IMemoryPool<P extends PoolType> {
     free (handle: IHandle<P>): void;
@@ -1007,7 +1007,7 @@ export enum FrustumView {
 }
 interface IFrustumViewType extends BufferTypeManifest<typeof FrustumView> {
     [FrustumView.VERTICES]: Vec3;
-    [FrustumView.PLANES]: plane;
+    [FrustumView.PLANES]: Plane;
     [FrustumView.COUNT]: never;
 }
 const frustumViewDataType: BufferDataTypeManifest<typeof FrustumView> = {
@@ -1126,6 +1126,7 @@ export enum ShadowsView {
     DISTANCE,
     INSTANCE_PASS,
     PLANAR_PASS,
+    PLANAR_SHADER,
     NEAR,
     FAR,
     ASPECT,
@@ -1134,11 +1135,11 @@ export enum ShadowsView {
     BIAS,
     ORTHO_SIZE,
     AUTO_ADAPT,         // boolean
-    COLOR = 14,         // Vec4
-    SIZE = 18,          // Vec2
-    NORMAL = 20,        // Vec3
-    MAT_LIGHT = 23,     // Mat4
-    COUNT = 39
+    COLOR = 15,         // Vec4
+    SIZE = 19,          // Vec2
+    NORMAL = 21,        // Vec3
+    MAT_LIGHT = 24,     // Mat4
+    COUNT = 40
 }
 interface IShadowsViewType extends BufferTypeManifest<typeof ShadowsView> {
     [ShadowsView.ENABLE]: number;
@@ -1147,6 +1148,7 @@ interface IShadowsViewType extends BufferTypeManifest<typeof ShadowsView> {
     [ShadowsView.DISTANCE]: number;
     [ShadowsView.INSTANCE_PASS]: PassHandle;
     [ShadowsView.PLANAR_PASS]: PassHandle;
+    [ShadowsView.PLANAR_SHADER]: ShaderHandle;
     [ShadowsView.NEAR]: number;
     [ShadowsView.FAR]: number;
     [ShadowsView.ASPECT]: number;
@@ -1168,6 +1170,7 @@ const shadowsViewDataType: BufferDataTypeManifest<typeof ShadowsView> = {
     [ShadowsView.DISTANCE]: BufferDataType.FLOAT32,
     [ShadowsView.INSTANCE_PASS]: BufferDataType.UINT32,
     [ShadowsView.PLANAR_PASS]: BufferDataType.UINT32,
+    [ShadowsView.PLANAR_SHADER]: BufferDataType.UINT32,
     [ShadowsView.NEAR]: BufferDataType.FLOAT32,
     [ShadowsView.FAR]: BufferDataType.FLOAT32,
     [ShadowsView.ASPECT]: BufferDataType.FLOAT32,
