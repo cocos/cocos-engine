@@ -49,6 +49,9 @@ let inputManager = {
     _touches: [],
     _touchesIntegerDict:{},
 
+    _touchesCache: {},
+    _touchCount: 0,
+
     _indexBitsUsed: 0,
     _maxTouches: 8,
 
@@ -139,11 +142,23 @@ let inputManager = {
         let selTouch, index, curTouch, touchID,
             handleTouches = [], locTouchIntDict = this._touchesIntegerDict,
             now = sys.now();
+        let _touchesCache = this._touchesCache;
+
         for (let i = 0, len = touches.length; i < len; i ++) {
             selTouch = touches[i];
             touchID = selTouch.getID();
-            index = locTouchIntDict[touchID];
 
+            let ccTouch = _touchesCache[touchID];
+            if (!ccTouch) {
+                ccTouch = new cc.Touch(selTouch._point.x, selTouch._point.y, touchID);
+                ccTouch._setPrevPoint(selTouch._prevPoint);
+                ccTouch._lastModified = now;
+
+                _touchesCache[touchID] = ccTouch;
+                this._touchCount++;
+            }
+
+            index = locTouchIntDict[touchID];
             if (index == null) {
                 let unusedIndex = this._getUnUsedIndex();
                 if (unusedIndex === -1) {
@@ -151,9 +166,7 @@ let inputManager = {
                     continue;
                 }
                 //curTouch = this._touches[unusedIndex] = selTouch;
-                curTouch = this._touches[unusedIndex] = new cc.Touch(selTouch._point.x, selTouch._point.y, selTouch.getID());
-                curTouch._lastModified = now;
-                curTouch._setPrevPoint(selTouch._prevPoint);
+                curTouch = this._touches[unusedIndex] = ccTouch;
                 locTouchIntDict[touchID] = unusedIndex;
                 handleTouches.push(curTouch);
             }
@@ -174,19 +187,25 @@ let inputManager = {
         let selTouch, index, touchID,
             handleTouches = [], locTouches = this._touches,
             now = sys.now();
+        let _touchesCache = this._touchesCache;
+
         for (let i = 0, len = touches.length; i < len; i++) {
             selTouch = touches[i];
             touchID = selTouch.getID();
-            index = this._touchesIntegerDict[touchID];
 
+            let ccTouch = _touchesCache[touchID];
+            if (ccTouch) {
+                ccTouch._setPoint(selTouch._point);
+                ccTouch._setPrevPoint(selTouch._prevPoint);
+                ccTouch._lastModified = now;
+            }
+
+            index = this._touchesIntegerDict[touchID];
             if (index == null) {
                 //cc.log("if the index doesn't exist, it is an error");
                 continue;
             }
             if (locTouches[index]) {
-                locTouches[index]._setPoint(selTouch._point);
-                locTouches[index]._setPrevPoint(selTouch._prevPoint);
-                locTouches[index]._lastModified = now;
                 handleTouches.push(locTouches[index]);
             }
         }
@@ -203,6 +222,18 @@ let inputManager = {
      * @param {Array} touches
      */
     handleTouchesEnd (touches) {
+        let touchID;
+        let _touchesCache = this._touchesCache;
+        for (let i = 0, len = touches.length; i < len; i++) {
+            touchID = touches[i].getID();
+
+            let ccTouch = _touchesCache[touchID];
+            if (ccTouch) {
+                delete _touchesCache[touchID];
+                this._touchCount--;
+            }
+        }
+
         let handleTouches = this.getSetOfTouchesEndOrCancel(touches);
         if (handleTouches.length > 0) {
             this._glView._convertTouchesWithScale(handleTouches);
@@ -342,12 +373,12 @@ let inputManager = {
      */
     getPointByEvent (event, pos) {
         // qq , uc and safari browser can't calculate pageY correctly, need to refresh canvas bounding rect
-        if (cc.sys.browserType === cc.sys.BROWSER_TYPE_QQ 
+        if (cc.sys.browserType === cc.sys.BROWSER_TYPE_QQ
             || cc.sys.browserType === cc.sys.BROWSER_TYPE_UC
             || cc.sys.browserType === cc.sys.BROWSER_TYPE_SAFARI) {
             this._updateCanvasBoundingRect();
         }
-        
+
         if (event.pageX != null)  //not avalable in <= IE8
             return {x: event.pageX, y: event.pageY};
 
@@ -428,7 +459,7 @@ let inputManager = {
                 window.addEventListener('mouseup', function (event) {
                     if (!selfPointer._mousePressed)
                         return;
-                    
+
                     selfPointer._mousePressed = false;
 
                     let location = selfPointer.getPointByEvent(event, canvasBoundingRect);
@@ -564,7 +595,17 @@ let inputManager = {
             eventManager.dispatchEvent(new cc.Event.EventAcceleration(this._acceleration));
         }
         this._accelCurTime += dt;
+    },
+
+    getGlobalTouchCount () {
+        return this._touchCount;
+    },
+
+    getGlobalTouches () {
+        return this._touchesCache;
     }
+
 };
+
 
 module.exports = cc.internal.inputManager = inputManager;
