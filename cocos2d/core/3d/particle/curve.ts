@@ -4,25 +4,83 @@ import { ccclass , property} from '../../platform/CCClassDecorator';
 
 const LOOK_FORWARD = 3;
 
+/**
+ * !#en The wrap mode
+ * !#zh 循环模式
+ * @static
+ * @enum AnimationCurve.WrapMode
+ */
 const WrapMode = Enum({
+    /**
+     * !#en Default
+     * !#zh 默认模式
+     * @property Default
+     * @readonly
+     * @type {Number}
+     */
     Default: 0,
+    /**
+     * !#en Once Mode
+     * !#zh Once 模式
+     * @property Once
+     * @readonly
+     * @type {Number}
+     */
     Once: 1,
+    /**
+     * !#en Loop Mode
+     * !#zh Loop 模式
+     * @property Loop
+     * @readonly
+     * @type {Number}
+     */
     Loop: 2,
+    /**
+     * !#en PingPong Mode
+     * !#zh PingPong 模式
+     * @property PingPong
+     * @readonly
+     * @type {Number}
+     */
     PingPong: 3,
+    /**
+     * !#en ClampForever Mode
+     * !#zh ClampForever 模式
+     * @property ClampForever
+     * @readonly
+     * @type {Number}
+     */
     ClampForever: 4,
 });
 
 @ccclass('cc.Keyframe')
 export class Keyframe {
+    /**
+     * !#en Time.
+     * !#zh 时间。
+     * @property {Number} time
+     */
     @property
     time = 0;
-
+    /**
+     * !#en Key value.
+     * !#zh 关键值。
+     * @property {Number} value
+     */
     @property
     value = 0;
-
+    /**
+     * !#en In tangent value.
+     * !#zh 左切值。
+     * @property {Number} inTangent
+     */
     @property
     inTangent = 0;
-
+    /**
+     * !#en Out tangent value.
+     * !#zh 右切值。
+     * @property {Number} outTangent
+     */
     @property
     outTangent = 0;
 
@@ -68,17 +126,30 @@ const defaultKFEnd = new Keyframe(1, 1, 0, 0);
  */
 @ccclass('cc.AnimationCurve')
 export class AnimationCurve {
+    /**
+     * !#en Array of key value.
+     * !#zh 关键值列表。
+     * @property {[Keyframe]} keyFrames
+     */
     @property({
         type: [Keyframe],
     })
     keyFrames = new Array();
-    
+    /**
+     * !#en Pre-wrap mode.
+     * !#zh 前置循环模式。
+     * @property {WrapMode} preWrapMode
+     */
     @property({
         type: cc.Enum(WrapMode),
         visible: false,
     })
     preWrapMode = WrapMode.Loop;
-
+    /**
+     * !#en Post-wrap mode.
+     * !#zh 后置循环模式。
+     * @property {WrapMode} postWrapMode
+     */
     @property({
         type: cc.Enum(WrapMode),
         visible: false,

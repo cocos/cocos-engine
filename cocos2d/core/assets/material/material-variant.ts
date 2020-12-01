@@ -47,7 +47,7 @@ export default class MaterialVariant extends Material {
     }
 
     get uuid () {
-        return this._material.uuid;
+        return this._material._uuid;
     }
 
     get owner () {

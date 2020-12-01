@@ -377,7 +377,7 @@ AssetManager.prototype = {
         this.assets.clear();
         this.bundles.clear();
         this.packManager.init();
-        this.downloader.init(options.bundleVers);
+        this.downloader.init(options.bundleVers, options.server);
         this.parser.init();
         this.dependUtil.init();
         this.generalImportBase = options.importBase;
@@ -487,6 +487,7 @@ AssetManager.prototype = {
         var { options, onProgress, onComplete } = parseParameters(options, onProgress, onComplete);
         
         options.preset = options.preset || 'default';
+        requests = Array.isArray(requests) ? requests.concat() : requests;
         let task = new Task({input: requests, onProgress, onComplete: asyncify(onComplete), options});
         pipeline.async(task);
     },
@@ -527,6 +528,7 @@ AssetManager.prototype = {
         var { options, onProgress, onComplete } = parseParameters(options, onProgress, onComplete);
     
         options.preset = options.preset || 'preload';
+        requests = Array.isArray(requests) ? requests.concat() : requests;
         var task = new Task({input: requests, onProgress, onComplete: asyncify(onComplete), options});
         fetchPipeline.async(task);
     },
@@ -574,7 +576,9 @@ AssetManager.prototype = {
             
             this.loadAny(depend, options, function (err, native) {
                 if (!err) {
-                    !asset._nativeAsset && (asset._nativeAsset = native);
+                    if (asset.isValid && !asset._nativeAsset) {
+                        asset._nativeAsset = native
+                    }
                 }
                 else {
                     cc.error(err.message, err.stack);
@@ -626,7 +630,9 @@ AssetManager.prototype = {
                 onComplete && onComplete(err, null);
             }
             else {
-                factory.create(url, data, options.ext || cc.path.extname(url), options, onComplete);
+                factory.create(url, data, options.ext || cc.path.extname(url), options, function (err, out) {
+                    onComplete && onComplete(err, out);
+                });
             }
         });
     },
@@ -641,7 +647,7 @@ AssetManager.prototype = {
      * @method loadScript
      * @param {string|string[]} url - Url of the script
      * @param {Object} [options] - Some optional paramters
-     * @param {boolean} [options.isAsync] - Indicate whether or not loading process should be async
+     * @param {boolean} [options.async] - Indicate whether or not loading process should be async
      * @param {Function} [onComplete] - Callback when script loaded or failed
      * @param {Error} onComplete.err - The occurred error, null indicetes success
      * 
@@ -649,10 +655,10 @@ AssetManager.prototype = {
      * loadScript('http://localhost:8080/index.js', null, (err) => console.log(err));
      * 
      * @typescript
-     * loadScript(url: string|string[], options: Record<string, any>, onComplete: (err: Error) => void): void;
-     * loadScript(url: string|string[], onComplete: (err: Error) => void): void;
-     * loadScript(url: string|string[], options: Record<string, any>): void;
-     * loadScript(url: string|string[]): void;
+     * loadScript(url: string|string[], options: Record<string, any>, onComplete: (err: Error) => void): void
+     * loadScript(url: string|string[], onComplete: (err: Error) => void): void
+     * loadScript(url: string|string[], options: Record<string, any>): void
+     * loadScript(url: string|string[]): void
      */
     loadScript (url, options, onComplete) {
         var { options, onComplete } = parseParameters(options, undefined, onComplete);

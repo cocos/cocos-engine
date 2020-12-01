@@ -196,8 +196,6 @@ let Label = cc.Class({
     },
 
     properties: {
-        _useOriginalSize: true,
-        
         /**
          * !#en Content string of label.
          * !#zh 标签显示的文本内容。
@@ -520,7 +518,7 @@ let Label = cc.Class({
 
         /**
          * !#en Whether enable italic.
-         * !#zh 是否启用黑体。
+         * !#zh 是否启用斜体。
          * @property {Boolean} enableItalic
          */
         enableItalic: {
@@ -704,7 +702,7 @@ let Label = cc.Class({
     },
 
     _resetFrame () {
-        if (this._frame) {
+        if (this._frame && !(this.font instanceof cc.BitmapFont)) {
             deleteFromDynamicAtlas(this, this._frame);
             this._frame = null;
         }

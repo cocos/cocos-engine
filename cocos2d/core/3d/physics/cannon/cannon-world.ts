@@ -64,26 +64,64 @@ export class CannonWorld implements IPhysicsWorld {
     constructor () {
         this._world = new CANNON.World();
         this._world.broadphase = new CANNON.NaiveBroadphase();
+        this._world.addEventListener("postStep", this.onPostStep.bind(this));
+    }
+
+    onPostStep () {
+        const p3dm = cc.director.getPhysics3DManager();
+        if (p3dm.useFixedDigit) {
+            const pd = p3dm.fixDigits.position;
+            const rd = p3dm.fixDigits.rotation;
+            const bodies = this._world.bodies;
+            for (let i = 0; i < bodies.length; i++) {
+                const bi = bodies[i];
+                if(bi.type != CANNON.Body.STATIC && !bi.isSleeping()){
+                    const pos = bi.position;
+                    pos.x = parseFloat(pos.x.toFixed(pd));
+                    pos.y = parseFloat(pos.y.toFixed(pd));
+                    pos.z = parseFloat(pos.z.toFixed(pd));
+                    const rot = bi.quaternion;
+                    rot.x = parseFloat(rot.x.toFixed(rd));
+                    rot.y = parseFloat(rot.y.toFixed(rd));
+                    rot.z = parseFloat(rot.z.toFixed(rd));
+                    rot.w = parseFloat(rot.w.toFixed(rd));
+                    const vel = bi.velocity;
+                    vel.x = parseFloat(vel.x.toFixed(pd));
+                    vel.y = parseFloat(vel.y.toFixed(pd));
+                    vel.z = parseFloat(vel.z.toFixed(pd));
+                    const avel = bi.angularVelocity;
+                    avel.x = parseFloat(avel.x.toFixed(pd));
+                    avel.y = parseFloat(avel.y.toFixed(pd));
+                    avel.z = parseFloat(avel.z.toFixed(pd));
+                }
+            }
+        }
     }
 
     step (deltaTime: number, timeSinceLastCalled?: number, maxSubStep?: number) {
+        this.syncSceneToPhysics();
+        this._world.step(deltaTime, timeSinceLastCalled, maxSubStep);
+        this.syncPhysicsToScene();
+        this.emitEvents();
+    }
 
+    syncSceneToPhysics () {
         clearNodeTransformRecord();
-
         // sync scene to physics
         for (let i = 0; i < this.bodies.length; i++) {
             this.bodies[i].syncSceneToPhysics();
         }
-
         clearNodeTransformDirtyFlag();
+    }
 
-        this._world.step(deltaTime, timeSinceLastCalled, maxSubStep);
-
+    syncPhysicsToScene () {
         // sync physics to scene
         for (let i = 0; i < this.bodies.length; i++) {
             this.bodies[i].syncPhysicsToScene();
         }
+    }
 
+    emitEvents () {
         this._world.emitTriggeredEvents();
         this._world.emitCollisionEvents();
     }

@@ -157,6 +157,10 @@ var releaseManager = {
         }
     },
 
+    removeFromDeleteQueue (asset) {
+        _toDelete.remove(asset._uuid);
+    },
+
     // do auto release
     _autoRelease (oldScene, newScene, persistNodes) { 
 

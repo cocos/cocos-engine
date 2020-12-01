@@ -136,7 +136,6 @@ var utils = {
     },
 
     getDepends (uuid, data, exclude, depends, preload, asyncLoadAssets, config) {
-        var err = null;
         try {
             var info = dependUtil.parse(uuid, data);
             var includeNative = true;
@@ -171,9 +170,8 @@ var utils = {
             }
         }
         catch (e) {
-            err = e;
+            cc.error(e.message, e.stack);
         }
-        return err;
     },
     
     cache (id, asset, cacheAsset) {
@@ -334,7 +332,17 @@ var utils = {
 
     asyncify (cb) {
         return function (p1, p2) {
-            cb && callInNextTick(cb, p1, p2);
+            if (!cb) return;
+            let refs = [];
+            if (Array.isArray(p2)) {
+                p2.forEach(x => x instanceof cc.Asset && refs.push(x.addRef()));
+            } else {
+                p2 instanceof cc.Asset && refs.push(p2.addRef());
+            }
+            callInNextTick(() => {
+                refs.forEach(x => x.decRef(false));
+                cb(p1, p2);
+            }); 
         }
     }
 };

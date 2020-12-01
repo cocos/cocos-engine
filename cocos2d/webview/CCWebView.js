@@ -71,8 +71,6 @@ let WebView = cc.Class({
     },
 
     properties: {
-        _useOriginalSize: true,
-
         _url: '',
         /**
          * !#en A given URL to be loaded by the WebView, it should have a http or https prefix.

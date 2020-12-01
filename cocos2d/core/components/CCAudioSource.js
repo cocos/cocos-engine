@@ -217,7 +217,10 @@ var AudioSource = cc.Class({
     },
 
     onLoad: function () {
-        this.audio.src = this._clip;
+        // this.audio.src is undefined, when the clip property is deserialized from the scene
+        if (!this.audio.src) {
+            this.audio.src = this._clip;
+        }
         if (this.preload) {
             this._clip._ensureLoaded();
         }
@@ -239,9 +242,7 @@ var AudioSource = cc.Class({
     },
 
     onDestroy: function () {
-        this.stop();
         this.audio.destroy();
-        cc.audioEngine.uncache(this._clip);
     },
 
     /**
@@ -253,9 +254,6 @@ var AudioSource = cc.Class({
         if ( !this._clip ) return;
 
         var audio = this.audio;
-        if (this._clip.loaded) {
-            audio.stop();
-        }
         audio.setVolume(this._mute ? 0 : this._volume);
         audio.setLoop(this._loop);
         audio.setCurrentTime(0);

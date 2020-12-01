@@ -584,8 +584,12 @@ let TiledLayer = cc.Class({
 
         let index = Math.floor(col) + Math.floor(row) * this._layerSize.width;
         let gid = this._tiles[index];
-        let tileset = this._texGrids[gid].tileset;
-        let offset = tileset.tileOffset;
+        let offset;
+        if (this._texGrids[gid]) {
+            offset = this._texGrids[gid].tileset.tileOffset;
+        } else {
+            offset = { x: 0, y: 0 }
+        }
 
         let odd_even = (this._staggerIndex === cc.TiledMap.StaggerIndex.STAGGERINDEX_ODD) ? 1 : -1;
         let x = 0,

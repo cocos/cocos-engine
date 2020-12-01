@@ -62,7 +62,16 @@ export function fillRaycastResult (result: PhysicsRayResult, cannonResult: CANNO
 }
 
 export function commitShapeUpdates (body: CANNON.Body) {
+    body.aabbNeedsUpdate = true;
     body.updateMassProperties();
     body.updateBoundingRadius();
-    body.aabbNeedsUpdate = true;
 }
+
+export const deprecatedEventMap = {
+    'onCollisionEnter': 'collision-enter',
+    'onCollisionStay': 'collision-stay',
+    'onCollisionExit': 'collision-exit',
+    'onTriggerEnter': 'trigger-enter',
+    'onTriggerStay': 'trigger-stay',
+    'onTriggerExit': 'trigger-exit',
+};

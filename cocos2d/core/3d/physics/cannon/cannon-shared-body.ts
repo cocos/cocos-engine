@@ -25,14 +25,13 @@
 
 import CANNON from '../../../../../external/cannon/cannon';
 import { ERigidBodyType } from '../framework/physics-enum';
-import { getWrap } from '../framework/util';
+import { getWrap, worldDirty } from '../framework/util';
 import { CannonWorld } from './cannon-world';
 import { CannonShape } from './shapes/cannon-shape';
 import { Collider3D } from '../exports/physics-framework';
 import { CollisionEventType } from '../framework/physics-interface';
 import { CannonRigidBody } from './cannon-rigid-body';
-import { groupIndexToBitMask } from './cannon-util'
-import { updateWorldTransform, updateWorldRT } from "../framework/util"
+import { commitShapeUpdates, groupIndexToBitMask, deprecatedEventMap } from './cannon-util'
 
 const LocalDirtyFlag = cc.Node._LocalDirtyFlag;
 const PHYSICS_SCALE = LocalDirtyFlag.PHYSICS_SCALE;
@@ -88,7 +87,33 @@ export class CannonSharedBody {
             if (this.index < 0) {
                 this.index = this.wrappedWorld.bodies.length;
                 this.wrappedWorld.addSharedBody(this);
-                this.syncSceneToPhysics(true);
+
+                var node = this.node;
+                // body world aabb need to be recalculated
+                this.body.aabbNeedsUpdate = true;
+                node.getWorldPosition(v3_0);
+                node.getWorldRotation(quat_0);
+                var pos = this.body.position;
+                pos.x = parseFloat(v3_0.x.toFixed(3));
+                pos.y = parseFloat(v3_0.y.toFixed(3));
+                pos.z = parseFloat(v3_0.z.toFixed(3));
+                var rot = this.body.quaternion;
+                rot.x = parseFloat(quat_0.x.toFixed(12));
+                rot.y = parseFloat(quat_0.y.toFixed(12));
+                rot.z = parseFloat(quat_0.z.toFixed(12));
+                rot.w = parseFloat(quat_0.w.toFixed(12));
+
+                if (node._localMatDirty & PHYSICS_SCALE) {
+                    var wscale = node.__wscale;
+                    for (var i = 0; i < this.shapes.length; i++) {
+                        this.shapes[i].setScale(wscale);
+                    }
+                    commitShapeUpdates(this.body);
+                }
+
+                if (this.body.isSleeping()) {
+                    this.body.wakeUp();
+                }
             }
         } else {
             if (this.index >= 0) {
@@ -114,7 +139,7 @@ export class CannonSharedBody {
         this.wrappedWorld = wrappedWorld;
         this.node = node;
         this.body.material = this.wrappedWorld.world.defaultMaterial;
-        this.body.addEventListener('collide', this.onCollidedListener);
+        this.body.addEventListener('cc-collide', this.onCollidedListener);
         this._updateGroup();
         this.node.on(cc.Node.EventType.GROUP_CHANGED, this._updateGroup, this);
     }
@@ -146,42 +171,46 @@ export class CannonSharedBody {
         }
     }
 
-    syncSceneToPhysics (force: boolean = false) {
+    syncSceneToPhysics (force = false) {
         let node = this.node;
-        let needUpdateTransform = updateWorldTransform(node, force);
+        let needUpdateTransform = worldDirty(node);
         if (!force && !needUpdateTransform) {
             return;
         }
-
-        Vec3.copy(this.body.position, node.__wpos);
-        Quat.copy(this.body.quaternion, node.__wrot);
+        // body world aabb need to be recalculated
+        this.body.aabbNeedsUpdate = true;
+        node.getWorldPosition(v3_0);
+        node.getWorldRotation(quat_0)
+        Vec3.copy(this.body.position, v3_0);
+        Quat.copy(this.body.quaternion, quat_0);
 
         if (node._localMatDirty & PHYSICS_SCALE) {
             let wscale = node.__wscale;
             for (let i = 0; i < this.shapes.length; i++) {
                 this.shapes[i].setScale(wscale);
             }
+            commitShapeUpdates(this.body);
         }
-        
+
         if (this.body.isSleeping()) {
             this.body.wakeUp();
         }
-
-        // body world aabb need to be recalculated
-        this.body.aabbNeedsUpdate = true;
     }
 
     syncPhysicsToScene () {
-        if (this.body.type != ERigidBodyType.STATIC) {
+        if (this.body.type != ERigidBodyType.STATIC && !this.body.isSleeping()) {
             Vec3.copy(v3_0, this.body.position);
             Quat.copy(quat_0, this.body.quaternion);
-            updateWorldRT(this.node, v3_0, quat_0);
+            this.node.setWorldPosition(v3_0);
+            this.node.setWorldRotation(quat_0);
         }
     }
 
     private destroy () {
+        this.body.removeEventListener('cc-collide', this.onCollidedListener);
         this.node.off(cc.Node.EventType.GROUP_CHANGED, this._updateGroup, this);
         CannonSharedBody.sharedBodiesMap.delete(this.node._id);
+        delete CANNON.World['idToBodyMap'][this.body.id];
         (this.node as any) = null;
         (this.wrappedWorld as any) = null;
         (this.body as any) = null;
@@ -222,6 +251,10 @@ export class CannonSharedBody {
 
             for (i = 0; i < this.shapes.length; i++) {
                 const shape = this.shapes[i];
+                CollisionEventObject.type = deprecatedEventMap[CollisionEventObject.type];
+                shape.collider.emit(CollisionEventObject.type, CollisionEventObject);
+                // adapt 
+                CollisionEventObject.type = event.event;
                 shape.collider.emit(CollisionEventObject.type, CollisionEventObject);
             }
         }

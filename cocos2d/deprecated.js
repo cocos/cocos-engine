@@ -595,7 +595,7 @@ if (CC_DEBUG) {
         pAngle: 'v1.angle(v2)',
         pAngleSigned: 'v1.signAngle(v2)',
         pRotateByAngle: 'p.rotate(radians)',
-        pCompMult: 'v1.dot(v2)',
+        pCompMult: 'v1.multiply(v2)',
         pFuzzyEqual: 'v1.fuzzyEquals(v2, tolerance)',
         pLerp: 'p.lerp(endPoint, ratio)',
         pClamp: 'p.clampf(min_inclusive, max_inclusive)',

@@ -97,6 +97,8 @@ LetterTexture.prototype = {
         let startY = height / 2 +  fontSize * textUtils.MIDDLE_RATIO + fontSize * textUtils.BASELINE_OFFSET;
         let color = labelInfo.color;
 
+        // use round for line join to avoid sharp intersect point
+        context.lineJoin = 'round';
         context.textAlign = 'center';
         context.clearRect(0, 0, width, height);
         //Add a white background to avoid black edges.

@@ -93,10 +93,10 @@ export class Physics3DManager {
      * @property {number} deltaTime
      */
     get deltaTime (): number {
-        return this._deltaTime;
+        return this._fixedTime;
     }
     set deltaTime (value: number) {
-        this._deltaTime = value;
+        this._fixedTime = value;
     }
 
     /**
@@ -159,11 +159,24 @@ export class Physics3DManager {
     private _maxSubStep = 1;
 
     @property
-    private _deltaTime = 1.0 / 60.0;
+    private _fixedTime = 1.0 / 60.0;
 
     @property
     private _useFixedTime = true;
 
+    useAccumulator = false;
+    private _accumulator = 0;
+
+    useFixedDigit = false;
+    useInternalTime = false;
+
+    readonly fixDigits = {
+        position: 5,
+        rotation: 12,
+        timeNow: 3,
+    }
+    private _deltaTime = 0;
+    private _lastTime = 0;
     private readonly _material: cc.PhysicsMaterial | null = null;
 
     private readonly raycastOptions: IRaycastOptions = {
@@ -179,6 +192,7 @@ export class Physics3DManager {
     private constructor () {
         cc.director._scheduler && cc.director._scheduler.enableForTarget(this);
         this.physicsWorld = createPhysicsWorld();
+        this._lastTime = performance.now();
         if (!CC_PHYSICS_BUILTIN) {
             this.gravity = this._gravity;
             this.allowSleep = this._allowSleep;
@@ -206,12 +220,34 @@ export class Physics3DManager {
             return;
         }
 
+        if (this.useInternalTime) {
+            var now = parseFloat(performance.now().toFixed(this.fixDigits.timeNow));
+            this._deltaTime = now > this._lastTime ? (now - this._lastTime) / 1000 : 0;
+            this._lastTime = now;
+        } else {
+            this._deltaTime = deltaTime;
+        }
+
         cc.director.emit(cc.Director.EVENT_BEFORE_PHYSICS);
 
-        if (this._useFixedTime) {
-            this.physicsWorld.step(this._deltaTime);
+        if (CC_PHYSICS_BUILTIN) {
+            this.physicsWorld.step(this._fixedTime);
         } else {
-            this.physicsWorld.step(this._deltaTime, deltaTime, this._maxSubStep);
+            if (this._useFixedTime) {
+                this.physicsWorld.step(this._fixedTime);
+            } else {
+                if (this.useAccumulator) {
+                    let i = 0;
+                    this._accumulator += this._deltaTime;
+                    while (i < this._maxSubStep && this._accumulator > this._fixedTime) {
+                        this.physicsWorld.step(this._fixedTime);
+                        this._accumulator -= this._fixedTime;
+                        i++;
+                    }
+                } else {
+                    this.physicsWorld.step(this._fixedTime, this._deltaTime, this._maxSubStep);
+                }
+            }
         }
 
         cc.director.emit(cc.Director.EVENT_AFTER_PHYSICS);
@@ -227,7 +263,7 @@ export class Physics3DManager {
      * @param {boolean} queryTrigger Detect trigger or not
      * @return {PhysicsRayResult[] | null} Detected result
      */
-    raycast (worldRay: cc.geomUtils.Ray, groupIndexOrName: number|string = 0, maxDistance = Infinity, queryTrigger = true): PhysicsRayResult[] | null {
+    raycast (worldRay: cc.geomUtils.Ray, groupIndexOrName: number | string = 0, maxDistance = Infinity, queryTrigger = true): PhysicsRayResult[] | null {
         this.raycastResultPool.reset();
         this.raycastResults.length = 0;
         if (typeof groupIndexOrName == "string") {
@@ -254,7 +290,7 @@ export class Physics3DManager {
      * @param {boolean} queryTrigger Detect trigger or not
      * @return {PhysicsRayResult|null} Detected result
      */
-    raycastClosest (worldRay: cc.geomUtils.Ray, groupIndexOrName: number|string = 0, maxDistance = Infinity, queryTrigger = true): PhysicsRayResult|null {
+    raycastClosest (worldRay: cc.geomUtils.Ray, groupIndexOrName: number | string = 0, maxDistance = Infinity, queryTrigger = true): PhysicsRayResult | null {
         if (typeof groupIndexOrName == "string") {
             let groupIndex = cc.game.groupList.indexOf(groupIndexOrName);
             if (groupIndex == -1) groupIndex = 0;

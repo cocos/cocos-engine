@@ -292,6 +292,7 @@ cc.Asset = cc.Class({
      */
     addRef () {
         this._ref++;
+        cc.assetManager._releaseManager.removeFromDeleteQueue(this);
         return this;
     },
 
@@ -309,7 +310,7 @@ cc.Asset = cc.Class({
      * decRef(): cc.Asset
      */
     decRef (autoRelease) {
-        this._ref--;
+        this._ref > 0 && this._ref--;
         autoRelease !== false && cc.assetManager._releaseManager.tryRelease(this);
         return this;
     }

@@ -166,17 +166,35 @@ exports.uglify = function (platform, isJSB, isDebugBuild) {
     else {
         const Terser = require("terser");
         const ES = require('event-stream');
+        const applySourceMap = require('vinyl-sourcemaps-apply');
         return ES.through(function (file) {
             if (file.path.endsWith('.js')) {
-                var content = file.contents.toString();
+                let build;
+                let eachOption;
+                let content = file.contents.toString();
+                if (file.sourceMap && file.sourceMap.file) {
+                    build = {};
+                    build[file.sourceMap.file] = content;
+                    eachOption = Object.assign({}, options, {
+                        sourceMap: {
+                            filename: file.sourceMap.file,
+                        },
+                    });
+                } else {
+                    build = content;
+                    eachOption = options;
+                }
 
-                var result = Terser.minify(content, options);
+                var result = Terser.minify(build, eachOption);
                 if (result.error) {
                     return this.emit('error', result.error);
                 }
                 content = result.code;
 
                 file.contents = new Buffer(content);
+                if (result.map) {
+                    applySourceMap(file, result.map);
+                }
             }
             this.emit('data', file);
         });

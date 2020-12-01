@@ -480,6 +480,7 @@ var Texture2D = cc.Class({
      * @method getImpl
      */
     getImpl () {
+        if (!this._texture) this._texture = new renderer.Texture2D(renderer.device, {});
         return this._texture;
     },
 
@@ -974,9 +975,12 @@ var Texture2D = cc.Class({
                 this._setRawAsset(result.bestExt);
                 this._format = result.bestFormat;
             }
-            else {
+            else if (result.defaultExt) {
                 this._setRawAsset(result.defaultExt);
                 cc.warnID(3120, result.defaultExt, result.defaultExt);
+            }
+            else {
+                throw new Error(cc.debug.getError(3121));
             }
         }
         if (fields.length === 8) {
