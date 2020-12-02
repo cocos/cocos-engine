@@ -44,7 +44,6 @@ import { parseLoadResArgs, parseParameters } from './utilities';
  *
  */
 export default class Bundle {
-
     private _config: Config = new Config();
 
     /**
@@ -227,9 +226,9 @@ export default class Bundle {
     public load<T extends Asset> (paths: string, onComplete?: CompleteCallback<T> | null): void;
     public load<T extends Asset> (paths: string[], onComplete?: CompleteCallback<T[]> | null): void;
     public load<T extends Asset> (paths: string|string[],
-                                  type?: AssetType<T> | ProgressCallback | CompleteCallback<T|T[]> | null,
-                                  onProgress?: ProgressCallback | CompleteCallback<T|T[]> | null,
-                                  onComplete?: CompleteCallback<T|T[]> | null) {
+        type?: AssetType<T> | ProgressCallback | CompleteCallback<T|T[]> | null,
+        onProgress?: ProgressCallback | CompleteCallback<T|T[]> | null,
+        onComplete?: CompleteCallback<T|T[]> | null) {
         const { type: _type, onProgress: onProg, onComplete: onComp } = parseLoadResArgs(type, onProgress, onComplete);
         const options = { __requestType__: RequestType.PATH, type: _type, bundle: this.name, __outputAsArray__: Array.isArray(paths) };
         legacyCC.assetManager.loadAny(paths, options, onProg, onComp);
@@ -279,9 +278,9 @@ export default class Bundle {
     public preload (paths: string|string[], type: AssetType | null, onComplete?: CompleteCallback<RequestItem[]> | null): void;
     public preload (paths: string|string[], onComplete?: CompleteCallback<RequestItem[]> | null): void;
     public preload (paths: string|string[],
-                    type?: AssetType | ProgressCallback | CompleteCallback<RequestItem[]> | null,
-                    onProgress?: ProgressCallback | CompleteCallback<RequestItem[]> | null,
-                    onComplete?: CompleteCallback<RequestItem[]> | null) {
+        type?: AssetType | ProgressCallback | CompleteCallback<RequestItem[]> | null,
+        onProgress?: ProgressCallback | CompleteCallback<RequestItem[]> | null,
+        onComplete?: CompleteCallback<RequestItem[]> | null) {
         const { type: _type, onProgress: onProg, onComplete: onComp } = parseLoadResArgs(type, onProgress, onComplete);
         legacyCC.assetManager.preloadAny(paths, { __requestType__: RequestType.PATH, type: _type, bundle: this.name }, onProg, onComp);
     }
@@ -328,9 +327,9 @@ export default class Bundle {
     public loadDir<T extends Asset> (dir: string, type: AssetType<T> | null, onComplete?: CompleteCallback<T[]> | null): void;
     public loadDir<T extends Asset> (dir: string, onComplete?: CompleteCallback<T[]> | null): void;
     public loadDir<T extends Asset> (dir: string,
-                                     type?: AssetType<T> | ProgressCallback | CompleteCallback<T[]> | null,
-                                     onProgress?: ProgressCallback | CompleteCallback<T[]> | null,
-                                     onComplete?: CompleteCallback<T[]> | null) {
+        type?: AssetType<T> | ProgressCallback | CompleteCallback<T[]> | null,
+        onProgress?: ProgressCallback | CompleteCallback<T[]> | null,
+        onComplete?: CompleteCallback<T[]> | null) {
         const { type: _type, onProgress: onProg, onComplete: onComp } = parseLoadResArgs(type, onProgress, onComplete);
         legacyCC.assetManager.loadAny(dir, { __requestType__: RequestType.DIR, type: _type, bundle: this.name, __outputAsArray__: true }, onProg, onComp);
     }
@@ -377,9 +376,9 @@ export default class Bundle {
     public preloadDir (dir: string, type: AssetType | null, onComplete?: CompleteCallback<RequestItem[]> | null): void;
     public preloadDir (dir: string, onComplete?: CompleteCallback<RequestItem[]> | null): void;
     public preloadDir (dir: string,
-                       type?: AssetType | ProgressCallback | CompleteCallback<RequestItem[]>| null,
-                       onProgress?: ProgressCallback | CompleteCallback<RequestItem[]>| null,
-                       onComplete?: CompleteCallback<RequestItem[]>| null) {
+        type?: AssetType | ProgressCallback | CompleteCallback<RequestItem[]>| null,
+        onProgress?: ProgressCallback | CompleteCallback<RequestItem[]>| null,
+        onComplete?: CompleteCallback<RequestItem[]>| null) {
         const { type: _type, onProgress: onProg, onComplete: onComp } = parseLoadResArgs(type, onProgress, onComplete);
         legacyCC.assetManager.preloadAny(dir, { __requestType__: RequestType.DIR, type: _type, bundle: this.name }, onProg, onComp);
     }
@@ -410,9 +409,9 @@ export default class Bundle {
     public loadScene (sceneName: string, options: IAssetOptions | null, onComplete?: CompleteCallback<SceneAsset> | null): void;
     public loadScene (sceneName: string, onComplete?: CompleteCallback<SceneAsset> | null): void;
     public loadScene (sceneName: string,
-                      options?: IAssetOptions | ProgressCallback | CompleteCallback<SceneAsset> | null,
-                      onProgress?: ProgressCallback | CompleteCallback<SceneAsset> | null,
-                      onComplete?: CompleteCallback<SceneAsset> | null) {
+        options?: IAssetOptions | ProgressCallback | CompleteCallback<SceneAsset> | null,
+        onProgress?: ProgressCallback | CompleteCallback<SceneAsset> | null,
+        onComplete?: CompleteCallback<SceneAsset> | null) {
         const { options: opts, onProgress: onProg, onComplete: onComp } = parseParameters(options, onProgress, onComplete);
 
         opts.preset = opts.preset || 'scene';
@@ -421,17 +420,13 @@ export default class Bundle {
             if (err) {
                 error(err.message, err.stack);
                 if (onComp) { onComp(err); }
-            }
-            else if (sceneAsset instanceof SceneAsset && sceneAsset.scene) {
+            } else if (sceneAsset instanceof SceneAsset && sceneAsset.scene) {
                 const scene = sceneAsset.scene;
                 // @ts-expect-error
                 scene._id = sceneAsset._uuid;
                 scene.name = sceneAsset.name;
                 if (onComp) { onComp(null, sceneAsset); }
-            }
-            else {
-                if (onComp) { onComp(new Error('The asset ' + sceneAsset._uuid + ' is not a scene')); }
-            }
+            } else if (onComp) { onComp(new Error(`The asset ${sceneAsset._uuid} is not a scene`)); }
         });
     }
 
@@ -465,9 +460,9 @@ export default class Bundle {
     public preloadScene (sceneName: string, options: IAssetOptions | null, onComplete?: CompleteCallbackNoData | null): void;
     public preloadScene (sceneName: string, onComplete?: CompleteCallbackNoData | null): void;
     public preloadScene (sceneName: string,
-                         options?: IAssetOptions | ProgressCallback | CompleteCallbackNoData | null,
-                         onProgress?: ProgressCallback | CompleteCallbackNoData | null,
-                         onComplete?: CompleteCallbackNoData | null) {
+        options?: IAssetOptions | ProgressCallback | CompleteCallbackNoData | null,
+        onProgress?: ProgressCallback | CompleteCallbackNoData | null,
+        onComplete?: CompleteCallbackNoData | null) {
         const { options: opts, onProgress: onProg, onComplete: onComp } = parseParameters(options, onProgress, onComplete);
 
         opts.bundle = this.name;
@@ -485,9 +480,14 @@ export default class Bundle {
      * After you load asset with {{#crossLink "Bundle/load:method"}}{{/crossLink}} or {{#crossLink "Bundle/loadDir:method"}}{{/crossLink}},
      * you can acquire them by passing the path to this API.
      *
+     * NOTE：The `path` and `type` parameters passed need to be the same as those passed to `Bundle.load`,
+     * otherwise it may return some other resources with the same name!
+     *
      * @zh
      * 通过路径与类型获取已缓存资源。在你使用 {{#crossLink "Bundle/load:method"}}{{/crossLink}} 或者 {{#crossLink "Bundle/loadDir:method"}}{{/crossLink}} 之后，
      * 你能通过传路径通过这个 API 获取到这些资源。
+     *
+     * 注意：传入的 path 与 type 参数需要与 `Bundle.load` 加载资源时传入的参数一致，否则可能会获取到其他同名资源
      *
      * @param path - The path of asset
      * @param type - Only asset of type will be returned if this argument is supplied.
@@ -501,9 +501,8 @@ export default class Bundle {
         if (info) {
             return assets.get(info.uuid) as T || null;
         }
-        else {
-            return null;
-        }
+
+        return null;
     }
 
     /**
@@ -511,9 +510,14 @@ export default class Bundle {
      * Release the asset loaded by {{#crossLink "Bundle/load:method"}}{{/crossLink}} or {{#crossLink "Bundle/loadDir:method"}}{{/crossLink}}
      * and it's dependencies. Refer to {{#crossLink "AssetManager/releaseAsset:method"}}{{/crossLink}} for detailed informations.
      *
+     * NOTE：The `path` and `type` parameters passed need to be the same as those passed to `Bundle.load`,
+     * otherwise it may release some other resources with the same name!
+     *
      * @zh
      * 释放通过 {{#crossLink "Bundle/load:method"}}{{/crossLink}} 或者 {{#crossLink "Bundle/loadDir:method"}}{{/crossLink}} 加载的资源。
      * 详细信息请参考 {{#crossLink "AssetManager/releaseAsset:method"}}{{/crossLink}}
+     *
+     * 注意：传入的 path 与 type 参数需要与 `Bundle.load` 加载资源时传入的参数一致，否则可能会释放到其他同名资源
      *
      * @param path - The path of asset
      * @param type - Only asset of type will be released if this argument is supplied.
@@ -576,7 +580,6 @@ export default class Bundle {
     public _destroy () {
         this._config.destroy();
     }
-
 }
 
 /**
