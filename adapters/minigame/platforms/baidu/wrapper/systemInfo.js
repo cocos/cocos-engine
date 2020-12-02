@@ -1,4 +1,4 @@
-const systemInfo = require('../common/engine3d/globalAdapter/BaseSystemInfo');
+const systemInfo = require('../common/engine/globalAdapter/BaseSystemInfo');
 let _env = null;
 let adaptSysFunc = systemInfo.adaptSys;
 

@@ -1,4 +1,4 @@
-const systemInfo = require('../common/engine3d/globalAdapter/BaseSystemInfo');
+const systemInfo = require('../common/engine/globalAdapter/BaseSystemInfo');
 const adapter = window.__globalAdapter;
 const env = wx.getSystemInfoSync();
 let adaptSysFunc = systemInfo.adaptSys;

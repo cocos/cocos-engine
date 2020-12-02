@@ -1,4 +1,4 @@
-const systemInfo = require('../common/engine3d/globalAdapter/BaseSystemInfo');
+const systemInfo = require('../common/engine/globalAdapter/BaseSystemInfo');
 let adaptSysFunc = systemInfo.adaptSys;
 
 Object.assign(systemInfo, {
