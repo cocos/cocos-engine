@@ -1,6 +1,7 @@
 #include "MTLStd.h"
 
 #include "MTLBuffer.h"
+#include "MTLCommandBuffer.h"
 #include "MTLDevice.h"
 #include "MTLUtils.h"
 #import <Metal/Metal.h>
@@ -124,8 +125,10 @@ bool CCMTLBuffer::createMTLBuffer(uint size, MemoryUsage usage) {
         return false;
     }
 
-    if (_tripleEnabled) _device->getMemoryStatus().bufferSize += 3 * _size;
-    else _device->getMemoryStatus().bufferSize += size;
+    if (_tripleEnabled)
+        _device->getMemoryStatus().bufferSize += 3 * _size;
+    else
+        _device->getMemoryStatus().bufferSize += size;
 
     return true;
 }
@@ -162,9 +165,11 @@ void CCMTLBuffer::destroy() {
         _buffer = nullptr;
     }
     _indirects.clear();
-    
-    if (_tripleEnabled) _device->getMemoryStatus().bufferSize -= 3 * _size;
-    else _device->getMemoryStatus().bufferSize -= _size;
+
+    if (_tripleEnabled)
+        _device->getMemoryStatus().bufferSize -= 3 * _size;
+    else
+        _device->getMemoryStatus().bufferSize -= _size;
 }
 
 void CCMTLBuffer::resize(uint size) {
@@ -264,16 +269,13 @@ void CCMTLBuffer::update(void *buffer, uint offset, uint size) {
     }
 
     if (_mtlBuffer) {
-        if (_mtlResourceOptions == MTLResourceStorageModePrivate) {
-            static_cast<CCMTLDevice *>(_device)->blitBuffer(buffer, offset, size, _mtlBuffer);
-        } else {
-            uint8_t *dst = (uint8_t *)(_mtlBuffer.contents) + offset;
-            memcpy(dst, buffer, size);
+        CommandBuffer *cmdBuffer = _device->getCommandBuffer();
+        cmdBuffer->begin();
+        static_cast<CCMTLCommandBuffer *>(cmdBuffer)->updateBuffer(this, buffer, size, offset);
 #if (CC_PLATFORM == CC_PLATFORM_MAC_OSX)
-            if (_mtlResourceOptions == MTLResourceStorageModeManaged)
-                [_mtlBuffer didModifyRange:NSMakeRange(0, _size)]; // Synchronize the managed buffer.
+        if (_mtlResourceOptions == MTLResourceStorageModeManaged)
+            [_mtlBuffer didModifyRange:NSMakeRange(0, _size)]; // Synchronize the managed buffer.
 #endif
-        }
         return;
     }
 

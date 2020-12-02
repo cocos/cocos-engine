@@ -34,7 +34,6 @@ public:
     virtual PipelineLayout *createPipelineLayout(const PipelineLayoutInfo &info) override;
     virtual PipelineState *createPipelineState(const PipelineStateInfo &info) override;
     virtual void copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint count) override;
-    virtual void blitBuffer(void *srcBuffer, uint offset, uint size, void *dstBuffer);
 
     CC_INLINE CCMTLStateCache *getStateCache() const { return _stateCache; }
     CC_INLINE void *getMTLCommandQueue() const { return _mtlCommandQueue; }
