@@ -495,7 +495,9 @@ function traverseGrids (leftDown: { col: number, row: number }, rightTop: { col:
                 vertexBuf.set(color, _vfOffset + vertStep2 + 5);
                 vertexBuf.set(color, _vfOffset + vertStep3 + 5);
             } else {
-                fillByTiledNode(tiledNode.node, color, vertexBuf, left, right, top, bottom, diamondTile);
+                if(tiledNode.node.active) {
+                    fillByTiledNode(tiledNode.node, color, vertexBuf, left, right, top, bottom, diamondTile);
+                }
             }
 
             flipTexture(grid, gid);
