@@ -28,7 +28,7 @@ select('physx', {
     // SimplexShape: PhysXSimplexShape,
     PlaneShape: PhysXPlaneShape,
 
-    // PointToPointConstraint: PhysXDistanceJoint,
+    PointToPointConstraint: PhysXDistanceJoint,
     // PointToPointConstraint: PhysXFixedJoint,
     HingeConstraint: PhysXRevoluteJoint,
 });
