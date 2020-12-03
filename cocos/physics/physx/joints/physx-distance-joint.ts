@@ -11,6 +11,9 @@ export class PhysXDistanceJoint extends PhysXJoint implements IPointToPointConst
         Vec3.copy(_trans.translation, cs.pivotA);
         Quat.copy(_trans.rotation, Quat.IDENTITY);
         this._impl.setLocalPose(0, _trans);
+        if (!cs.connectedBody) {
+            this.setPivotB(cs.pivotB);
+        }
     }
 
     setPivotB (v: IVec3Like): void {

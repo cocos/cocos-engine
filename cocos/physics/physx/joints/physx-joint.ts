@@ -1,5 +1,6 @@
 import { Constraint, RigidBody } from '../../framework';
 import { IBaseConstraint } from '../../spec/i-physics-constraint';
+import { PX } from '../export-physx';
 import { PhysXRigidBody } from '../physx-rigid-body';
 import { PhysXSharedBody } from '../physx-shared-body';
 
@@ -24,6 +25,7 @@ export class PhysXJoint implements IBaseConstraint {
         this._rigidBody = v.attachedBody!;
         this.onComponentSet();
         this.setEnableCollision(this._com.enableCollision);
+        PX.IMPL_PTR[this._impl.$$.ptr] = this;
     }
 
     // virtual
@@ -49,6 +51,8 @@ export class PhysXJoint implements IBaseConstraint {
     }
 
     onDestroy (): void {
+        PX.IMPL_PTR[this._impl.$$.ptr] = null;
+        delete PX.IMPL_PTR[this._impl.$$.ptr];
         this._impl.release();
         (this._com as any) = null;
         (this._rigidBody as any) = null;

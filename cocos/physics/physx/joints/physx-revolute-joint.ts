@@ -11,6 +11,9 @@ export class PhysXRevoluteJoint extends PhysXJoint implements IHingeConstraint {
         Vec3.copy(_trans.translation, cs.pivotA);
         Quat.rotationTo(_trans.rotation, Vec3.UNIT_X, cs.axis);
         this._impl.setLocalPose(0, _trans);
+        if (!cs.connectedBody) {
+            this.setPivotB(cs.pivotB);
+        }
     }
 
     setPivotB (v: IVec3Like): void {
