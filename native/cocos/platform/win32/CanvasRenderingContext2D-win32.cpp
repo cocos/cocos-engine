@@ -517,8 +517,10 @@ private:
                     // Because text is drawn in white color, and background color is black,
                     // so the red value is equal to alpha value. And we should keep this value
                     // as it includes anti-atlas information.
-                    uint8_t alpha = GetRValue(clr);
-                    val = (alpha << 24) | textColor;
+                    uint8_t alpha = GetRValue(clr) ? 255 : 0;
+                    if (alpha > 0) {
+                        val = (alpha << 24) | textColor;
+                    }
                     ++pPixel;
                     ++pImage;
                 }
