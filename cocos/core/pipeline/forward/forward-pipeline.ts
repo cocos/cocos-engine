@@ -436,7 +436,6 @@ export class ForwardPipeline extends RenderPipeline {
         }
 
         this._commandBuffers.length = 0;
-        this._isGlobalBound = false;
 
         this.ambient.destroy();
         this.skybox.destroy();
