@@ -12,11 +12,13 @@ import android.view.MotionEvent;
 import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
 
 import java.io.File;
+import java.lang.reflect.Field;
 
 public class CocosActivity extends Activity implements SurfaceHolder.Callback {
     private boolean mDestroyed;
@@ -70,6 +72,36 @@ public class CocosActivity extends Activity implements SurfaceHolder.Callback {
         mTouchHandler = new CocosTouchHandler(this);
         mKeyCodeHandler = new CocosKeyCodeHandler(this);
         mSensorHandler = new CocosSensorHandler(this);
+
+        setImmersiveMode();
+
+        Utils.hideVirtualButton();
+    }
+
+    private void setImmersiveMode() {
+        WindowManager.LayoutParams lp = getWindow().getAttributes();
+        try {
+            Field field = lp.getClass().getField("layoutInDisplayCutoutMode");
+            //Field constValue = lp.getClass().getDeclaredField("LAYOUT_IN_DISPLAY_CUTOUT_MODE_NEVER");
+            Field constValue = lp.getClass().getDeclaredField("LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES");
+            field.setInt(lp, constValue.getInt(null));
+
+            // https://developer.android.com/training/system-ui/immersive
+            int flag = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                    | View.SYSTEM_UI_FLAG_FULLSCREEN
+                    | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                    | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                    | View.SYSTEM_UI_FLAG_LAYOUT_STABLE;
+
+            flag |= View.class.getDeclaredField("SYSTEM_UI_FLAG_IMMERSIVE_STICKY").getInt(null);
+            View view = getWindow().getDecorView();
+            view.setSystemUiVisibility(flag);
+
+        } catch (NoSuchFieldException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
     }
 
     private static String getAbsolutePath(File file) {
