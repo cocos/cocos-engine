@@ -610,7 +610,7 @@ export class ParticleSystem extends RenderableComponent {
 
         this._subEmitters = []; // array of { emitter: ParticleSystem, type: 'birth', 'collision' or 'death'}
 
-        legacyCC.director.on(legacyCC.Director.EVENT_BEFORE_RENDER, this.beforeRender, this);
+        legacyCC.director.on(legacyCC.Director.EVENT_BEFORE_COMMIT, this.beforeRender, this);
     }
 
     public onLoad () {
@@ -761,7 +761,7 @@ export class ParticleSystem extends RenderableComponent {
         // this._system.remove(this);
         this.processor.onDestroy();
         if (this._trailModule) this._trailModule.destroy();
-        legacyCC.director.off(legacyCC.Director.EVENT_BEFORE_RENDER, this.beforeRender, this);
+        legacyCC.director.off(legacyCC.Director.EVENT_BEFORE_COMMIT, this.beforeRender, this);
     }
 
     protected onEnable () {

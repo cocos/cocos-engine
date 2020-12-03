@@ -213,11 +213,11 @@ export class Director extends EventTarget {
     public static readonly EVENT_AFTER_DRAW = 'director_after_draw';
 
     /**
-     * @en The event which will be triggered after the pipeline render.
-     * @zh 当前帧开始前所触发的事件。
-     * @event Director.EVENT_BEFORE_RENDER
+     * @en The event which will be triggered before the pipeline render commit.
+     * @zh 当前渲染帧提交前所触发的事件。
+     * @event Director.EVENT_BEFORE_COMMIT
      */
-    public static readonly EVENT_BEFORE_RENDER = 'director_before_render';
+    public static readonly EVENT_BEFORE_COMMIT = 'director_before_commit';
 
     /**
      * The event which will be triggered before the physics process.<br/>

@@ -416,7 +416,7 @@ export class Root {
                     this._views.push(view);
                 }
             }
-            legacyCC.director.emit(legacyCC.Director.EVENT_BEFORE_RENDER);
+            legacyCC.director.emit(legacyCC.Director.EVENT_BEFORE_COMMIT);
             this._pipeline.render(this._views);
             this._device.present();
         }
