@@ -45,7 +45,9 @@ export interface IPointToPointConstraint extends IBaseConstraint {
 }
 
 export interface IHingeConstraint extends IBaseConstraint {
-
+    setPivotA (v: IVec3Like): void;
+    setPivotB (v: IVec3Like): void;
+    setAxisA (v: IVec3Like): void;
 }
 
 export interface IConeTwistConstraint extends IBaseConstraint {

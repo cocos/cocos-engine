@@ -5,9 +5,11 @@ import { PhysXSharedBody } from '../physx-shared-body';
 
 export class PhysXJoint implements IBaseConstraint {
     setConnectedBody (v: RigidBody | null): void {
+        // TODO
     }
 
     setEnableCollision (v: boolean): void {
+        this._impl.setConstraintFlag(1 << 3, v);
     }
 
     get impl (): any { return this._impl; }
@@ -21,6 +23,7 @@ export class PhysXJoint implements IBaseConstraint {
         this._com = v;
         this._rigidBody = v.attachedBody!;
         this.onComponentSet();
+        this.setEnableCollision(this._com.enableCollision);
     }
 
     // virtual
@@ -31,15 +34,13 @@ export class PhysXJoint implements IBaseConstraint {
     }
 
     onEnable (): void {
-        if (this._rigidBody) {
-            const sb = (this._rigidBody.body as PhysXRigidBody).sharedBody;
-            const connect = this._com.connectedBody;
-            if (connect) {
-                const sb2 = (connect.body as PhysXRigidBody).sharedBody;
-                this._impl.setActors(sb.impl, sb2.impl);
-            } else {
-                this._impl.setActors(sb.impl, null);
-            }
+        const sb = (this._rigidBody.body as PhysXRigidBody).sharedBody;
+        const connect = this._com.connectedBody;
+        if (connect) {
+            const sb2 = (connect.body as PhysXRigidBody).sharedBody;
+            this._impl.setActors(sb.impl, sb2.impl);
+        } else {
+            this._impl.setActors(sb.impl, null);
         }
     }
 
@@ -48,11 +49,9 @@ export class PhysXJoint implements IBaseConstraint {
     }
 
     onDestroy (): void {
-        if (this._impl) {
-            this._impl.release();
-            (this._com as any) = null;
-            (this._rigidBody as any) = null;
-            this._impl = null;
-        }
+        this._impl.release();
+        (this._com as any) = null;
+        (this._rigidBody as any) = null;
+        this._impl = null;
     }
 }
