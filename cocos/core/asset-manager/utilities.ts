@@ -64,24 +64,22 @@ export function urlAppendTimestamp (url: string, append: boolean): string {
         if (/\?/.test(url)) {
             return `${url}&_t=${Date.now()}`;
         }
-        else {
-            return `${url}?_t=${Date.now()}`;
-        }
+
+        return `${url}?_t=${Date.now()}`;
     }
     return url;
 }
 
 export type RetryFunction = (times: number, done: CompleteCallback) => void;
 
-export function retry (process: RetryFunction, times: number, wait: number, onComplete: CompleteCallback, index: number = 0) {
+export function retry (process: RetryFunction, times: number, wait: number, onComplete: CompleteCallback, index = 0) {
     process(index, (err, result) => {
         index++;
         if (!err || index > times) {
             if (onComplete) {
                 onComplete(err, result);
             }
-        }
-        else {
+        } else {
             setTimeout(() => {
                 retry(process, times, wait, onComplete, index);
             }, wait);
@@ -90,11 +88,10 @@ export function retry (process: RetryFunction, times: number, wait: number, onCo
 }
 
 export function getDepends (uuid: string, data: Asset | Record<string, any>, exclude: Record<string, any>,
-                            depends: any[], preload: boolean, asyncLoadAssets: boolean, config: Config): void {
+    depends: any[], preload: boolean, asyncLoadAssets: boolean, config: Config): void {
     try {
         const info = dependUtil.parse(uuid, data);
         let includeNative = true;
-        // @ts-expect-error
         if (data instanceof Asset && (!data.__nativeDepend__)) { includeNative = false; }
         if (!preload) {
             asyncLoadAssets = !EDITOR && (!!(data as SceneAsset|Prefab).asyncLoadAssets || (asyncLoadAssets && !info.preventDeferredLoadDependents));
@@ -110,9 +107,8 @@ export function getDepends (uuid: string, data: Asset | Record<string, any>, exc
                 if (config) {
                     info.nativeDep.bundle = config.name;
                 }
-                depends.push(Object.assign({}, info.nativeDep));
+                depends.push({ ...info.nativeDep });
             }
-
         } else {
             for (let i = 0, l = info.deps.length; i < l; i++) {
                 const dep = info.deps[i];
@@ -125,11 +121,10 @@ export function getDepends (uuid: string, data: Asset | Record<string, any>, exc
                 if (config) {
                     info.nativeDep.bundle = config.name;
                 }
-                depends.push(Object.assign({}, info.nativeDep));
+                depends.push({ ...info.nativeDep });
             }
         }
-    }
-    catch (e) {
+    } catch (e) {
         error(e.message, e.stack);
     }
 }
@@ -143,28 +138,24 @@ export function cache (id: string, asset: Asset, cacheAsset?: boolean) {
 }
 
 export function setProperties (uuid: string, asset: Asset, assetsMap: Record<string, any>) {
-
     let missingAsset = false;
-    // @ts-expect-error
     const depends = asset.__depends__ as IDependProp[];
     if (depends) {
         let missingAssetReporter: any = null;
         for (let i = 0, l = depends.length; i < l; i++) {
             const depend = depends[i];
-            const dependAsset = assetsMap[depend.uuid + '@import'];
+            const dependAsset = assetsMap[`${depend.uuid}@import`];
             if (!dependAsset) {
                 if (EDITOR) {
                     if (!missingAssetReporter) {
                         missingAssetReporter = new EditorExtends.MissingReporter.object(asset);
                     }
                     missingAssetReporter.stashByOwner(depend.owner, depend.prop, EditorExtends.serialize.asAsset(depend.uuid));
-                }
-                else {
-                    error('The asset ' + depend.uuid + ' is missing!');
+                } else {
+                    error(`The asset ${depend.uuid} is missing!`);
                 }
                 missingAsset = true;
-            }
-            else {
+            } else {
                 depend.owner[depend.prop] = dependAsset.addRef();
                 if (EDITOR) {
                     let reference = references!.get(dependAsset);
@@ -180,22 +171,18 @@ export function setProperties (uuid: string, asset: Asset, assetsMap: Record<str
         if (missingAssetReporter) {
             missingAssetReporter.reportByOwner();
         }
-        // @ts-expect-error
         asset.__depends__ = null;
     }
 
-    // @ts-expect-error
     if (asset.__nativeDepend__) {
-        if (assetsMap[uuid + '@native']) {
-            asset._nativeAsset = assetsMap[uuid + '@native'];
-        }
-        else {
+        if (assetsMap[`${uuid}@native`]) {
+            asset._nativeAsset = assetsMap[`${uuid}@native`];
+        } else {
             missingAsset = true;
             if (EDITOR) {
                 console.error(`the native asset of ${uuid} is missing!`);
             }
         }
-        // @ts-expect-error
         asset.__nativeDepend__ = false;
     }
     return missingAsset;
@@ -205,8 +192,7 @@ export function gatherAsset (task: Task) {
     const source = task.source;
     if (!task.options!.__outputAsArray__ && source.length === 1) {
         task.output = source[0].content;
-    }
-    else {
+    } else {
         const output: any[] = task.output = [];
         for (let i = 0, l = source.length; i < l; i++) {
             output.push(source[i].content);
@@ -227,7 +213,7 @@ export function forEach<T = any> (array: T[], process: ForEachFunction<T>, onCom
             if (err) {
                 errs.push(err);
             }
-            count ++;
+            count++;
             if (count === l) {
                 if (onComplete) {
                     onComplete(errs);
@@ -250,8 +236,8 @@ interface ILoadResArgs<T> {
 }
 
 export function parseParameters<T = any> (options: IOptions | ProgressCallback | CompleteCallback<T> | null | undefined,
-                                          onProgress: ProgressCallback | CompleteCallback<T> | null | undefined,
-                                          onComplete: CompleteCallback<T> | null | undefined): IParameters<T> {
+    onProgress: ProgressCallback | CompleteCallback<T> | null | undefined,
+    onComplete: CompleteCallback<T> | null | undefined): IParameters<T> {
     let optionsOut: any = options;
     let onProgressOut: any = onProgress;
     let onCompleteOut: any = onComplete;
@@ -262,8 +248,7 @@ export function parseParameters<T = any> (options: IOptions | ProgressCallback |
             if (!isCallback) {
                 onProgressOut = null;
             }
-        }
-        else if (onProgress === undefined && isCallback) {
+        } else if (onProgress === undefined && isCallback) {
             onCompleteOut = options as CompleteCallback;
             optionsOut = null;
             onProgressOut = null;
@@ -278,9 +263,8 @@ export function parseParameters<T = any> (options: IOptions | ProgressCallback |
 }
 
 export function parseLoadResArgs<T = any> (type: AssetType | ProgressCallback | CompleteCallback<T> | null | undefined,
-                                           onProgress: ProgressCallback | CompleteCallback<T> | null | undefined,
-                                           onComplete: CompleteCallback<T> | null | undefined): ILoadResArgs<T> {
-
+    onProgress: ProgressCallback | CompleteCallback<T> | null | undefined,
+    onComplete: CompleteCallback<T> | null | undefined): ILoadResArgs<T> {
     let typeOut: any = type;
     let onProgressOut: any = onProgress;
     let onCompleteOut: any = onComplete;
@@ -291,8 +275,7 @@ export function parseLoadResArgs<T = any> (type: AssetType | ProgressCallback | 
             if (isValidType) {
                 onProgressOut = null;
             }
-        }
-        else if (onProgress === undefined && !isValidType) {
+        } else if (onProgress === undefined && !isValidType) {
             onCompleteOut = type as CompleteCallback;
             onProgressOut = null;
             typeOut = null;
@@ -332,10 +315,8 @@ export function asyncify (cb: ((p1?: any, p2?: any) => void) | null): (p1?: any,
         const refs: Asset[] = [];
         if (Array.isArray(p2)) {
             p2.forEach((x) => x instanceof Asset && refs.push(x.addRef()));
-        } else {
-            if (p2 instanceof Asset) {
-                refs.push(p2.addRef());
-            }
+        } else if (p2 instanceof Asset) {
+            refs.push(p2.addRef());
         }
         callInNextTick(() => {
             refs.forEach((x) => x.decRef(false));
