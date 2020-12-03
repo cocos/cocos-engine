@@ -22,15 +22,45 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-require('./sys');
-require('./windows');
-require('./rt-feature-premut-alpha.js');
-require('./rt-sys.js');
-require('./rt_input.js');
-require('./rt-game.js');
-require('./rt-jsb.js');
-require('./rt-websocket.js');
-require('./jsb-audio.js');
-require('./asset-manager.js');
-require('./jsb-editbox.js');
-require('./DeviceMotionEvent.js');
+let rt = loadRuntime();
+
+jsb.inputBox = {
+	onConfirm: function(cb) {
+		rt.onKeyboardConfirm(cb);
+	},
+	offConfirm: function(cb) {
+		rt.offKeyboardConfirm(cb);
+	},
+
+	onComplete: function(cb) {
+		rt.onKeyboardComplete(cb);
+	},
+	offComplete: function(cb) {
+		rt.offKeyboardComplete(cb);
+	},
+
+	onInput: function(cb) {
+		rt.onKeyboardInput(cb);
+	},
+	offInput: function(cb) {
+		rt.offKeyboardInput(cb);
+	},
+
+    /**
+     * @param {string}		options.defaultValue
+     * @param {number}		options.maxLength
+     * @param {bool}        options.multiple
+     * @param {bool}        options.confirmHold
+     * @param {string}      options.confirmType
+     * @param {string}      options.inputType
+     * 
+     * Values of options.confirmType can be [done|next|search|go|send].
+     * Values of options.inputType can be [text|email|number|phone|password].
+     */
+	show: function(options) {
+		rt.showKeyboard(options);
+	},
+	hide: function() {
+		rt.hideKeyboard();
+	},
+};

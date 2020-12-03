@@ -1,11 +1,12 @@
 /****************************************************************************
- Copyright (c) 2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+  worldwide, royalty-free, non-assignable, revocable and  non-exclusive license
  to use Cocos Creator solely to develop games on your target platforms. You shall
   not use Cocos Creator software for developing other software or tools that's
   used for developing games. You are not granted to publish, distribute,
@@ -22,15 +23,24 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-require('./sys');
-require('./windows');
-require('./rt-feature-premut-alpha.js');
-require('./rt-sys.js');
-require('./rt_input.js');
-require('./rt-game.js');
-require('./rt-jsb.js');
-require('./rt-websocket.js');
-require('./jsb-audio.js');
-require('./asset-manager.js');
-require('./jsb-editbox.js');
-require('./DeviceMotionEvent.js');
+let  rt = loadRuntime();
+
+ (function(){
+    'use strict';
+
+    const sys = cc.sys;
+    const noop = function() {}
+    
+    sys.getNetworkType = noop;
+
+    sys.getBatteryLevel = function() {
+        const batteryInfo = rt.getBatteryInfoSync();
+
+        return batteryInfo && batteryInfo.level;
+    };
+    
+    sys.garbageCollect = noop;
+    
+    sys.restartVM = noop;
+    sys.isObjectValid = noop;
+})();

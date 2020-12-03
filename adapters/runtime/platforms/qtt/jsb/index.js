@@ -24,6 +24,7 @@ jsb.createImage = _rt.createImage;
 jsb.loadImageData = _rt.loadImageData;
 jsb.loadSubpackage = _rt.loadSubpackage;
 jsb.showKeyboard = _rt.showKeyboard;
+jsb.hideKeyboard = _rt.hideKeyboard;
 jsb.platform = _systemInfo.platform;
 jsb.language = _systemInfo.language;
 if (!jsb.loadFont) {
