@@ -1,2 +1,0 @@
-require('./Label');
-require('./ImageAsset');
