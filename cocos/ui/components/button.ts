@@ -654,7 +654,7 @@ export class Button extends Component {
     }
 
     protected _setCurrentStateSprite (spriteFrame) {
-        switch ( this._getButtonState() ) {
+        switch (this._getButtonState()) {
             case State.NORMAL:
                 this.normalSprite = spriteFrame;
                 break;
