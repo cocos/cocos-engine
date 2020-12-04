@@ -176,15 +176,8 @@ bool GLES3Device::initialize(const DeviceInfo &info) {
 }
 
 void GLES3Device::destroy() {
-    // these two are managed by their proxies
-    if (_queue) {
-        _queue->destroy();
-        _queue = nullptr;
-    }
-    if (_cmdBuff) {
-        _cmdBuff->destroy();
-        _cmdBuff = nullptr;
-    }
+    CC_SAFE_DESTROY(_queue);
+    CC_SAFE_DESTROY(_cmdBuff);
     CC_SAFE_DELETE(_gpuStagingBufferPool);
     CC_SAFE_DELETE(_gpuStateCache);
     CC_SAFE_DESTROY(_deviceContext);

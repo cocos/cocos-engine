@@ -176,15 +176,8 @@ bool CCMTLDevice::initialize(const DeviceInfo &info) {
 }
 
 void CCMTLDevice::destroy() {
-    // these two are managed by their proxies
-    if (_queue) {
-        _queue->destroy();
-        _queue = nullptr;
-    }
-    if (_cmdBuff) {
-        _cmdBuff->destroy();
-        _cmdBuff = nullptr;
-    }
+    CC_SAFE_DESTROY(_queue);
+    CC_SAFE_DESTROY(_cmdBuff);
     CC_SAFE_DESTROY(_context);
     CC_SAFE_DELETE(_inFlightSemaphore);
 
