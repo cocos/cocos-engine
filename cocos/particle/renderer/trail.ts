@@ -564,7 +564,6 @@ export default class TrailModule {
                 this._fillVertexBuffer(_temp_trailEle, this.colorOverTrail.evaluate(0, 1), indexOffset, 0, trailNum, PRE_TRIANGLE_INDEX);
             }
         }
-        this.updateIA(this.ibOffset);
     }
 
     public updateIA (count: number) {
@@ -577,6 +576,10 @@ export default class TrailModule {
             this._iaInfo.drawInfos[0].indexCount = count;
             this._iaInfoBuffer!.update(this._iaInfo);
         }
+    }
+
+    public beforeRender () {
+        this.updateIA(this.ibOffset);
     }
 
     private _createModel () {
