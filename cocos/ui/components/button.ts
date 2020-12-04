@@ -653,7 +653,10 @@ export class Button extends Component {
         this.node.on(SystemEventType.MOUSE_LEAVE, this._onMouseMoveOut, this);
     }
 
-    protected _setCurrentStateSprite (spriteFrame) {
+    protected _setCurrentStateSprite (spriteFrame: SpriteFrame | null) {
+        if (!spriteFrame) {
+            return;
+        }
         switch (this._getButtonState()) {
             case State.NORMAL:
                 this.normalSprite = spriteFrame;
