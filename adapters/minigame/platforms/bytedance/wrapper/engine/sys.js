@@ -1,30 +1,24 @@
-const systemInfo = require('../common/engine/globalAdapter/BaseSystemInfo');
+const sys = cc.sys;
+const originInit = sys.__init;
 const adapter = window.__globalAdapter;
-const env = wx.getSystemInfoSync();
-let adaptSysFunc = systemInfo.adaptSys;
+const env = adapter.getSystemInfoSync();
 
-Object.assign(systemInfo, {
-    // Extend adaptSys interface
-    adaptSys (sys) {
-        adaptSysFunc.call(this, sys);
-        // TODO: add mac platform
-        if (env.platform === 'windows') {
-            sys.isMobile = false;
-            sys.os = sys.OS_WINDOWS;
-        }
-        else if (env.platform === 'devtools') {
+Object.assign(sys, {
+    __init () {
+        originInit.call(this);
+        if (env.platform === 'devtools') {
             let system = env.system.toLowerCase();
             if (system.indexOf('android') > -1) {
-                sys.os = sys.OS_ANDROID;
+                this.os = this.OS_ANDROID;
             }
             else if (system.indexOf('ios') > -1) {
-                sys.os = sys.OS_IOS;
+                this.os = this.OS_IOS;
             }
         }
-        sys.platform = sys.WECHAT_GAME;
+        this.platform = this.BYTEDANCE_MINI_GAME;
 
         // move to common if other platforms support
-        sys.getSafeAreaRect = function () {
+        this.getSafeAreaRect = function () {
             let view = cc.view;
             let safeArea = adapter.getSafeArea();
             let screenSize = view.getFrameSize(); // Get leftBottom and rightTop point in UI coordinates
@@ -34,17 +28,13 @@ Object.assign(systemInfo, {
                 left: 0,
                 top: 0,
                 width: screenSize.width,
-                height: screenSize.height,
+                height: screenSize.height
             };
             view.convertToLocationInView(leftBottom.x, leftBottom.y, relatedPos, leftBottom);
             view.convertToLocationInView(rightTop.x, rightTop.y, relatedPos, rightTop); // convert view point to design resolution size
             view._convertPointWithScale(leftBottom);
             view._convertPointWithScale(rightTop);
-
             return cc.rect(leftBottom.x, leftBottom.y, rightTop.x - leftBottom.x, rightTop.y - leftBottom.y);
         };
-    }
+    },
 });
-
-__globalAdapter.init = systemInfo.init;
-__globalAdapter.adaptSys = systemInfo.adaptSys;

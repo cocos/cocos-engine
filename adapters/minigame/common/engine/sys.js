@@ -1,25 +1,19 @@
-let systemInfo = {
-    init (cb) {
-        cb && cb();
-    },
-
-    adaptSys (sys, env) {
-        if (!env) {
-            env = __globalAdapter.getSystemInfoSync();
-        }
-        sys.isNative = false;
-        sys.isBrowser = false;
-        sys.isMobile = true;
-        sys.language = env.language.substr(0, 2);
-        sys.languageCode = env.language.toLowerCase();
+Object.assign(cc.sys, {
+    __init () {
+        let env = __globalAdapter.getSystemInfoSync();
+        this.isNative = false;
+        this.isBrowser = false;
+        this.isMobile = true;
+        this.language = env.language.substr(0, 2);
+        this.languageCode = env.language.toLowerCase();
         var system = env.system.toLowerCase();
         var platform = env.platform.toLowerCase();
 
         if (platform === "android") {
-            sys.os = sys.OS_ANDROID;
+            this.os = this.OS_ANDROID;
         }
         else if (platform === "ios") {
-            sys.os = sys.OS_IOS;
+            this.os = this.OS_IOS;
         }
 
         // Adaptation to Android P
@@ -28,21 +22,21 @@ let systemInfo = {
         }
 
         var version = /[\d\.]+/.exec(system);
-        sys.osVersion = version ? version[0] : system;
-        sys.osMainVersion = parseInt(sys.osVersion);
+        this.osVersion = version ? version[0] : system;
+        this.osMainVersion = parseInt(this.osVersion);
 
-        sys.browserType = null;
-        sys.browserVersion = null;
+        this.browserType = null;
+        this.browserVersion = null;
 
         var w = env.windowWidth;
         var h = env.windowHeight;
         var ratio = env.pixelRatio || 1;
-        sys.windowPixelResolution = {
+        this.windowPixelResolution = {
             width: ratio * w,
             height: ratio * h
         };
 
-        sys.localStorage = window.localStorage;
+        this.localStorage = window.localStorage;
 
         var _supportWebGL = __globalAdapter.isSubContext ? false : true;
         var _supportWebp = false;
@@ -52,18 +46,16 @@ let systemInfo = {
         }
         catch (err) { }
 
-        sys.capabilities = {
+        this.capabilities = {
             "canvas": true,
             "opengl": !!_supportWebGL,
             "webp": _supportWebp
         };
-        sys.__audioSupport = {
+        this.__audioSupport = {
             ONLY_ONE: false,
             WEB_AUDIO: false,
             DELAY_CREATE_CTX: false,
             format: ['.mp3']
         };
     },
-};
-
-module.exports = systemInfo;
+});

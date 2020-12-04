@@ -6,3 +6,4 @@ require('./InputManager');
 require('./AssetManager');
 require('./Screen');
 require('./misc');
+require('./sys');
