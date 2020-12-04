@@ -131,6 +131,7 @@ export const tilled: IAssembler = {
         const offset = _perVertexLength;
         const offset1 = offset; const offset2 = offset * 2; const offset3 = offset * 3; const offset4 = offset * 4;
         let coefU = 0; let coefV = 0;
+        let tempXVerts :any = [], tempYVerts :any = [];
         for (let yIndex = 0, yLength = this.row; yIndex < yLength; ++yIndex) {
             if (this.sizableHeight > centerHeight) {
                 if (this.sizableHeight >= yIndex * centerHeight) {
@@ -156,68 +157,77 @@ export const tilled: IAssembler = {
                 const vertexOffsetV = vertexOffsetU + 1;
                 // UV
                 if (rotated) {
-                    // lb
-                    vBuf[vertexOffsetU] = uv[0];
-                    vBuf[vertexOffsetV] = uv[1];
-                    // rb
-                    vBuf[vertexOffsetU + offset1] = uv[0];
-                    vBuf[vertexOffsetV + offset1] = uv[1] + (uv[7] - uv[1]) * coefU;
-                    // lt
-                    vBuf[vertexOffsetU + offset2] = uv[0] + (uv[6] - uv[0]) * coefV;
-                    vBuf[vertexOffsetV + offset2] = uv[1];
-                    // rt
-                    vBuf[vertexOffsetU + offset3] = vBuf[vertexOffsetU + offset2];
-                    vBuf[vertexOffsetV + offset3] = vBuf[vertexOffsetV + offset1];
-                } else {
-                    // lb
-                    if (xIndex === 0) {
-                        vBuf[vertexOffsetU] = uv[0];
-                    } else if (xIndex > 0 && xIndex < (this.col - 1)) {
-                        vBuf[vertexOffsetU] = uvSliced[1].u;
-                    } else if (xIndex === (this.col - 1)) {
-                        vBuf[vertexOffsetU] = uvSliced[2].u;
-                    }
                     if (yIndex === 0) {
-                        vBuf[vertexOffsetV] = uvSliced[0].v;
-                    } else if (yIndex > 0 && yIndex < (this.row - 1)) {
-                        vBuf[vertexOffsetV] = uvSliced[4].v;
+                        tempXVerts[0] = uvSliced[0].u;
+                        tempXVerts[1] = uvSliced[0].u;
+                        tempXVerts[2] = uvSliced[4].u + (uvSliced[8].u - uvSliced[4].u) * coefV;
+                    } else if (yIndex < (this.row - 1)) {
+                        tempXVerts[0] = uvSliced[4].u;
+                        tempXVerts[1] = uvSliced[4].u;
+                        tempXVerts[2] = uvSliced[4].u + (uvSliced[8].u - uvSliced[4].u) * coefV;
                     } else if (yIndex === (this.row - 1)) {
-                        vBuf[vertexOffsetV] = uvSliced[8].v;
+                        tempXVerts[0] = uvSliced[8].u;
+                        tempXVerts[1] = uvSliced[8].u;
+                        tempXVerts[2] = uvSliced[12].u;
                     }
-                    // rb
                     if (xIndex === 0) {
-                        vBuf[vertexOffsetU + offset1] = uvSliced[1].u + (uvSliced[2].u - uvSliced[1].u) * coefU;
-                    } else if (xIndex > 0 && xIndex < (this.col - 1)) {
-                        vBuf[vertexOffsetU + offset1] = uvSliced[1].u + (uvSliced[2].u - uvSliced[1].u) * coefU;
+                        tempYVerts[0] = uvSliced[0].v;
+                        tempYVerts[1] = uvSliced[1].v + (uvSliced[2].v - uvSliced[1].v) * coefU;
+                        tempYVerts[2] = uvSliced[0].v;
+                    } else if (xIndex < (this.col - 1)) {
+                        tempYVerts[0] = uvSliced[1].v;
+                        tempYVerts[1] = uvSliced[1].v + (uvSliced[2].v - uvSliced[1].v) * coefU;
+                        tempYVerts[2] = uvSliced[1].v;
                     } else if (xIndex === (this.col - 1)) {
-                        vBuf[vertexOffsetU + offset1] = uvSliced[3].u;
+                        tempYVerts[0] = uvSliced[2].v;
+                        tempYVerts[1] = uvSliced[3].v;
+                        tempYVerts[2] = uvSliced[2].v;
                     }
-                    if (yIndex === 0) {
-                        vBuf[vertexOffsetV + offset1] = uvSliced[0].v;
-                    } else if (yIndex > 0 && yIndex < (this.row - 1)) {
-                        vBuf[vertexOffsetV + offset1] = uvSliced[4].v;
-                    } else if (yIndex === (this.row - 1)) {
-                        vBuf[vertexOffsetV + offset1] = uvSliced[8].v;
-                    }
-                    // lt
-                    if (xIndex === 0) {
-                        vBuf[vertexOffsetU + offset2] = uv[0];
-                    } else if (xIndex > 0 && xIndex < (this.col - 1)) {
-                        vBuf[vertexOffsetU + offset2] = uvSliced[1].u;
-                    } else if (xIndex === (this.col - 1)) {
-                        vBuf[vertexOffsetU + offset2] = uvSliced[2].u;
-                    }
-                    if (yIndex === 0) {
-                        vBuf[vertexOffsetV + offset2] = uvSliced[4].v + (uvSliced[8].v - uvSliced[4].v) * coefV;
-                    } else if (yIndex > 0 && yIndex < (this.row - 1)) {
-                        vBuf[vertexOffsetV + offset2] = uvSliced[4].v + (uvSliced[8].v - uvSliced[4].v) * coefV;
-                    } else if (yIndex === (this.row - 1)) {
-                        vBuf[vertexOffsetV + offset2] = uvSliced[12].v;
-                    }
-                    // rt
-                    vBuf[vertexOffsetU + offset3] = vBuf[vertexOffsetU + offset1];
-                    vBuf[vertexOffsetV + offset3] = vBuf[vertexOffsetV + offset2];
+                    tempXVerts[3] = tempXVerts[2];
+                    tempYVerts[3] = tempYVerts[1];
                 }
+                else {
+                    if (xIndex === 0) {
+                        tempXVerts[0] = uvSliced[0].u;
+                        tempXVerts[1] = uvSliced[1].u + (uvSliced[2].u - uvSliced[1].u) * coefU;
+                        tempXVerts[2] = uv[0];
+                    } else if (xIndex < (this.col - 1)) {
+                        tempXVerts[0] = uvSliced[1].u;
+                        tempXVerts[1] = uvSliced[1].u + (uvSliced[2].u - uvSliced[1].u) * coefU;
+                        tempXVerts[2] = uvSliced[1].u;
+                    } else if (xIndex === (this.col - 1)) {
+                        tempXVerts[0] = uvSliced[2].u;
+                        tempXVerts[1] = uvSliced[3].u;
+                        tempXVerts[2] = uvSliced[2].u;
+                    }
+                    if (yIndex === 0) {
+                        tempYVerts[0] = uvSliced[0].v;
+                        tempYVerts[1] = uvSliced[0].v;
+                        tempYVerts[2] = uvSliced[4].v + (uvSliced[8].v - uvSliced[4].v) * coefV;
+                    } else if (yIndex < (this.row - 1)) {
+                        tempYVerts[0] = uvSliced[4].v;
+                        tempYVerts[1] = uvSliced[4].v;
+                        tempYVerts[2] = uvSliced[4].v + (uvSliced[8].v - uvSliced[4].v) * coefV;
+                    } else if (yIndex === (this.row - 1)) {
+                        tempYVerts[0] = uvSliced[8].v;
+                        tempYVerts[1] = uvSliced[8].v;
+                        tempYVerts[2] = uvSliced[12].v;
+                    }
+                    tempXVerts[3] = tempXVerts[1];
+                    tempYVerts[3] = tempYVerts[2];
+                }
+                // lb
+                vBuf[vertexOffsetU] = tempXVerts[0];
+                vBuf[vertexOffsetV] = tempYVerts[0];
+                // rb
+                vBuf[vertexOffsetU + offset1] = tempXVerts[1];
+                vBuf[vertexOffsetV + offset1] = tempYVerts[1];
+                // lt
+                vBuf[vertexOffsetU + offset2] = tempXVerts[2];
+                vBuf[vertexOffsetV + offset2] = tempYVerts[2];
+                // rt
+                vBuf[vertexOffsetU + offset3] = tempXVerts[3];
+                vBuf[vertexOffsetV + offset3] = tempYVerts[3];
                 // color
                 Color.toArray(vBuf, sprite.color, vertexOffsetV + 1);
                 Color.toArray(vBuf, sprite.color, vertexOffsetV + offset1 + 1);
