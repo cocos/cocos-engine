@@ -22,7 +22,6 @@ import { ModuleOption, enumerateModuleOptionReps, parseModuleOption } from './mo
 import { generateCCSource } from './make-cc';
 import { getModuleName } from './module-name';
 import tsConfigPaths from './ts-paths';
-import { getPlatformConstantNames, IBuildTimeConstants } from './build-time-constants';
 import removeDeprecatedFeatures from './remove-deprecated-features';
 import realFs from 'fs';
 
@@ -141,7 +140,10 @@ namespace build {
             file?: string;
         };
 
-        buildTimeConstants: IBuildTimeConstants;
+        /**
+         * The content of `'internal:raw-constants'`.
+         */
+        rawConstants: Record<string, boolean | number | string>;
     }
 
     export interface Result {
@@ -232,10 +234,7 @@ async function _doBuild ({
     );
 
     const rpVirtualOptions: Record<string, string> = {};
-    const vmInternalConstants = getModuleSourceInternalConstants({
-        EXPORT_TO_GLOBAL: true,
-        ...options.buildTimeConstants,
-    });
+    const vmInternalConstants = getModuleSourceInternalConstants(options.rawConstants);
     console.debug(`Module source "internal-constants":\n${vmInternalConstants}`);
     rpVirtualOptions['internal:constants'] = vmInternalConstants;
 
@@ -320,9 +319,9 @@ async function _doBuild ({
     };
 
     const moduleRedirects: Record<string, string> = {};
-    const platformConstant = getPlatformConstantNames().find((name) => options.buildTimeConstants[name] === true);
-    if (platformConstant) {
-        const moduleOverrides = ccConfig.platforms?.[platformConstant]?.moduleOverrides;
+    const platform = options.rawConstants.platform;
+    if (typeof platform === 'string') {
+        const moduleOverrides = ccConfig.platforms?.[platform]?.moduleOverrides;
         if (moduleOverrides) {
             for (const [source, override] of Object.entries(moduleOverrides)) {
                 const normalizedSource = makePathEqualityKey(ps.resolve(engineRoot, source));
@@ -571,8 +570,10 @@ function filePathToModuleRequest (path: string) {
     return path.replace(/\\/g, '\\\\');
 }
 
-function getModuleSourceInternalConstants (buildTimeConstants: IBuildTimeConstants) {
-    return Object.entries(buildTimeConstants).map(([k, v]) => `export const ${k} = ${v};`).join('\n');
+function getModuleSourceInternalConstants (buildTimeConstants: build.Options['rawConstants']) {
+    return `export default {
+        ${Object.entries(buildTimeConstants).map(([k, v]) => `    ${k}: ${v},`).join('\n')}
+    }`;
 }
 
 function moduleOptionsToRollupFormat (moduleOptions: ModuleOption): rollup.ModuleFormat {

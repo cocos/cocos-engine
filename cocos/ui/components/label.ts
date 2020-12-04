@@ -456,13 +456,9 @@ export class Label extends UIRenderable {
         this._isSystemFontUsed = !!value;
         if (value) {
             this.font = null;
-            this._flushAssembler();
-            this.updateRenderData();
         }
-        // else if (!this._userDefinedFont) {
-        //     this.disableRender();
-        // }
-
+        this._flushAssembler();
+        this.updateRenderData();
     }
 
     /**

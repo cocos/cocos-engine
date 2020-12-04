@@ -38,10 +38,8 @@ Object.assign(systemInfo, {
             };
             view.convertToLocationInView(leftBottom.x, leftBottom.y, relatedPos, leftBottom);
             view.convertToLocationInView(rightTop.x, rightTop.y, relatedPos, rightTop); // convert view point to design resolution size
+            view._convertPointWithScale(leftBottom);
             view._convertPointWithScale(rightTop);
-            // HACK: view value on wechat have some error
-            leftBottom.x = leftBottom.x / view._scaleX;
-            leftBottom.y = leftBottom.y / view._scaleY;
 
             return cc.rect(leftBottom.x, leftBottom.y, rightTop.x - leftBottom.x, rightTop.y - leftBottom.y);
         };
