@@ -192,9 +192,10 @@ function loadDepends (task, asset, done, init) {
                 if (!init) {
                     if (asset.__nativeDepend__ && !asset._nativeAsset) {
                         var missingAsset = setProperties(uuid, asset, map);
-                        if (!missingAsset) {
+                        if (!missingAsset && !asset.__onLoadInvoked__) {
                             try {
                                 asset.onLoad && asset.onLoad();
+                                asset.__onLoadInvoked__ = true;
                             }
                             catch (e) {
                                 cc.error(e.message, e.stack);
@@ -204,9 +205,10 @@ function loadDepends (task, asset, done, init) {
                 }
                 else {
                     var missingAsset = setProperties(uuid, asset, map);
-                    if (!missingAsset) {
+                    if (!missingAsset && !asset.__onLoadInvoked__) {
                         try {
                             asset.onLoad && asset.onLoad();
+                            asset.__onLoadInvoked__ = true;
                         }
                         catch (e) {
                             cc.error(e.message, e.stack);

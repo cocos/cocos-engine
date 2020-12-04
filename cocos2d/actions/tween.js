@@ -485,7 +485,7 @@ let actions = {
      * @param {Function|String} [opts.easing]
      * @return {Tween}
      * @typescript
-     * to <OPTS extends Partial<{progress: Function, easing: Function|String}>> (duration: number, props: ConstructorType<T>, opts?: OPTS) : Tween<T>
+     * to<OPTS extends Partial<{ progress: Function, easing: Function | String, onUpdate: Function }>>(duration: number, props: ConstructorType<T>, opts?: OPTS): Tween<T>
      */
     to (duration, props, opts) {
         opts = opts || Object.create(null);
@@ -506,7 +506,7 @@ let actions = {
      * @param {Function|String} [opts.easing]
      * @return {Tween}
      * @typescript
-     * by <OPTS extends Partial<{progress: Function, easing: Function|String}>> (duration: number, props: ConstructorType<T>, opts?: OPTS) : Tween<T>
+     * by<OPTS extends Partial<{ progress: Function, easing: Function | String, onUpdate: Function }>>(duration: number, props: ConstructorType<T>, opts?: OPTS): Tween<T>
      */
     by (duration, props, opts) {
         opts = opts || Object.create(null);
