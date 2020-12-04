@@ -403,7 +403,6 @@ export class RigidBody2D extends Component {
      * Converts a world coordinate point to the given rigid body coordinate.
      * @zh
      * 将一个给定的世界坐标系下的向量转换为刚体本地坐标系下的向量
-     * @method getLocalVector
      * @param worldVector - a vector in world coordinates.
      * @param out - optional, the receiving vector
      */
@@ -413,6 +412,14 @@ export class RigidBody2D extends Component {
         }
         return out;
     }
+    /**
+     * !#en
+     * Converts a given vector in this rigid body's local coordinate system to the world coordinate system
+     * !#zh
+     * 将一个给定的刚体本地坐标系下的向量转换为世界坐标系下的向量
+     * @param localVector - a vector in world coordinates.
+     * @param out - optional, the receiving vector
+     */ 
     getWorldVector<Out extends IVec2Like> (localVector: IVec2Like, out: Out): Out {
         if (this._body) {
             return this._body.getWorldVector(localVector, out);
@@ -420,15 +427,55 @@ export class RigidBody2D extends Component {
         return out;
     }
 
+    /**
+     * !#en
+     * Converts a given point in the world coordinate system to this rigid body's local coordinate system
+     * !#zh
+     * 将一个给定的世界坐标系下的点转换为刚体本地坐标系下的点
+     * @param worldPoint - a point in world coordinates.
+     * @param out - optional, the receiving point
+     */
     getLocalPoint<Out extends IVec2Like> (worldPoint: IVec2Like, out: Out): Out {
         if (this._body) {
             return this._body.getLocalPoint(worldPoint, out);
         }
         return out;
     }
+    /**
+     * !#en
+     * Converts a given point in this rigid body's local coordinate system to the world coordinate system
+     * !#zh
+     * 将一个给定的刚体本地坐标系下的点转换为世界坐标系下的点
+     * @param localPoint - a point in local coordinates.
+     * @param out - optional, the receiving point
+     */
     getWorldPoint<Out extends IVec2Like> (localPoint: IVec2Like, out: Out): Out {
         if (this._body) {
             return this._body.getWorldPoint(localPoint, out);
+        }
+        return out;
+    }
+    /**
+     * !#en
+     * Get the local position of the center of mass.
+     * !#zh
+     * 获取刚体本地坐标系下的质心
+     */
+    getLocalCenter<Out extends IVec2Like> (out: Out): Out {
+        if (this._body) {
+            return this._body.getLocalCenter(out);
+        }
+        return out;
+    }
+    /**
+     * !#en
+     * Get the world position of the center of mass.
+     * !#zh
+     * 获取刚体世界坐标系下的质心
+     */
+    getWorldCenter<Out extends IVec2Like> (out: Out): Out {
+        if (this._body) {
+            return this._body.getWorldCenter(out);
         }
         return out;
     }

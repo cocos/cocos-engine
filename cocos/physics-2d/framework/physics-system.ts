@@ -8,6 +8,7 @@ import { IPhysicsConfig, ICollisionMatrix } from "../../physics/framework/physic
 import { CollisionMatrix } from "../../physics/framework/collision-matrix";
 import { ERaycast2DType, RaycastResult2D } from './physics-types';
 import { Collider2D } from "./components/colliders/collider-2d";
+import { PHYSICS_2D_PTM_RATIO } from 'exports/physics-2d-framework';
 
 let instance: PhysicsSystem2D | null = null;
 
@@ -53,7 +54,7 @@ export class PhysicsSystem2D extends Eventify(System) {
     set gravity (gravity: Vec2) {
         this._gravity.set(gravity);
         if (!EDITOR) {
-            this.physicsWorld.setGravity(gravity);
+            this.physicsWorld.setGravity(new Vec2(gravity.x / PHYSICS_2D_PTM_RATIO, gravity.y / PHYSICS_2D_PTM_RATIO));
         }
     }
 
@@ -178,7 +179,7 @@ export class PhysicsSystem2D extends Eventify(System) {
     private _autoSimulation = true;
     private _accumulator = 0;
     private _steping = false;
-    private readonly _gravity = new Vec2(0, -10);
+    private readonly _gravity = new Vec2(0, -10 * PHYSICS_2D_PTM_RATIO);
 
     private _delayEvents: DelayEvent[] = [];
 
@@ -193,6 +194,8 @@ export class PhysicsSystem2D extends Eventify(System) {
         const config = game.config ? game.config.physics as IPhysicsConfig : null;
         if (config) {
             Vec2.copy(this._gravity, config.gravity as IVec2Like);
+            this._gravity.multiplyScalar(PHYSICS_2D_PTM_RATIO);
+
             this._allowSleep = config.allowSleep;
             this._fixedTimeStep = config.fixedTimeStep;
             this._maxSubSteps = config.maxSubSteps;
