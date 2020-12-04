@@ -10,11 +10,6 @@ import { PhysXShape } from './shapes/physx-shape';
 import { CollisionEventObject, TriggerEventObject } from '../utils/util';
 import { PX, USE_BYTEDANCE } from './export-physx';
 
-/**
- * @param type
- * @param a
- * @param b
- */
 function onTrigger (type: TriggerEventType, wpa: PhysXShape, wpb: PhysXShape): void {
     if (wpa && wpb) {
         TriggerEventObject.type = type;
@@ -31,11 +26,6 @@ function onTrigger (type: TriggerEventType, wpa: PhysXShape, wpb: PhysXShape): v
     }
 }
 
-/**
- * @param type
- * @param a
- * @param b
- */
 function onCollision (type: CollisionEventType, wpa: PhysXShape, wpb: PhysXShape): void {
     if (wpa && wpb) {
         CollisionEventObject.type = type;
@@ -235,6 +225,34 @@ export class PhysXWorld implements IPhysicsWorld {
         }
     }
 
+    getSharedBody (node: Node, wrappedBody?: PhysXRigidBody): PhysXSharedBody {
+        return PhysXSharedBody.getSharedBody(node, this, wrappedBody);
+    }
+
+    addActor (body: PhysXSharedBody): void {
+        const index = this.wrappedBodies.indexOf(body);
+        if (index < 0) {
+            if (USE_BYTEDANCE) {
+                this.scene.addActor(body.impl);
+            } else {
+                this.scene.addActor(body.impl, null);
+            }
+            this.wrappedBodies.push(body);
+        }
+    }
+
+    removeActor (body: PhysXSharedBody): void {
+        const index = this.wrappedBodies.indexOf(body);
+        if (index >= 0) {
+            this.scene.removeActor(body.impl, true);
+            this.wrappedBodies.splice(index, 1);
+        }
+    }
+
+    addConstraint (_constraint: IBaseConstraint): void { }
+
+    removeConstraint (_constraint: IBaseConstraint): void { }
+
     raycast (worldRay: ray, options: IRaycastOptions, pool: RecyclePool<PhysicsRayResult>, results: PhysicsRayResult[]): boolean {
         if (USE_BYTEDANCE) return false;
 
@@ -278,34 +296,6 @@ export class PhysXWorld implements IPhysicsWorld {
         }
         return false;
     }
-
-    getSharedBody (node: Node, wrappedBody?: PhysXRigidBody): PhysXSharedBody {
-        return PhysXSharedBody.getSharedBody(node, this, wrappedBody);
-    }
-
-    addActor (body: PhysXSharedBody): void {
-        const index = this.wrappedBodies.indexOf(body);
-        if (index < 0) {
-            if (USE_BYTEDANCE) {
-                this.scene.addActor(body.impl);
-            } else {
-                this.scene.addActor(body.impl, null);
-            }
-            this.wrappedBodies.push(body);
-        }
-    }
-
-    removeActor (body: PhysXSharedBody): void {
-        const index = this.wrappedBodies.indexOf(body);
-        if (index >= 0) {
-            this.scene.removeActor(body.impl, true);
-            this.wrappedBodies.splice(index, 1);
-        }
-    }
-
-    addConstraint (_constraint: IBaseConstraint): void { }
-
-    removeConstraint (_constraint: IBaseConstraint): void { }
 
     updateCollisionMatrix (_group: number, _mask: number): void {
         for (let i = 0; i < this.wrappedBodies.length; i++) {
