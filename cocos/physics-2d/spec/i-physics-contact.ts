@@ -26,6 +26,12 @@ export interface IPhysics2DImpulse {
     tangentImpulses: number[],
 }
 
+/**
+ * @en
+ * A world manifold.
+ * @zh
+ * 世界坐标系下的流形。
+ */
 export interface IPhysics2DWorldManifold {
     /**
      * @en
@@ -52,6 +58,10 @@ export interface IPhysics2DWorldManifold {
     normal: Vec2,
 }
 
+/**
+ * @en Manifold Type
+ * @zh 流形类型
+ */
 export enum Physics2DManifoldType {
     Circles,
     FaceA,
@@ -98,6 +108,10 @@ export interface IPhysics2DManifoldPoint {
     tangentImpulse: number;
 }
 
+/**
+ * @en Manifold
+ * @zh 流形
+ */
 export interface IPhysics2DManifold {
     /**
      * @en
@@ -147,7 +161,6 @@ export interface IPhysics2DManifold {
  * @zh
  * 物理接触会在开始和结束碰撞之间生成，并作为参数传入到碰撞回调函数中。
  * 注意：传入的物理接触会被系统进行重用，所以不要在使用中缓存里面的任何信息。
- * @class PhysicsContact
  */
 export interface IPhysics2DContact {
     /**
