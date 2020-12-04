@@ -99,8 +99,15 @@ export class ToggleContainer extends Component {
         }).filter(Boolean);
     }
 
-    public start () {
+    public onEnable() {
         this.ensureValidState();
+        this.node.on('child-added', this.ensureValidState, this);
+        this.node.on('child-removed', this.ensureValidState, this);
+    }
+
+    public onDisable() {
+        this.node.off('child-added', this.ensureValidState, this);
+        this.node.off('child-removed', this.ensureValidState, this);
     }
 
     public activeToggles () {
@@ -161,6 +168,5 @@ export class ToggleContainer extends Component {
                 toggle!.isChecked = false;
             }
         }
-
     }
 }
