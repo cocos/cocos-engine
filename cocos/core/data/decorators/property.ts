@@ -176,35 +176,21 @@ function genProperty (
             return;
         }
 
-        let defaultValue: any;
-        let isDefaultValueSpecified = false;
         if (descriptor) {
             // In case of Babel, if an initializer is given for class field.
             // That initializer is passed to `descriptor.initializer`.
             // babel
             if (descriptor.initializer) {
-                defaultValue = getDefaultFromInitializer(descriptor.initializer);
-                isDefaultValueSpecified = true;
+                propertyRecord.default = getDefaultFromInitializer(descriptor.initializer);
             }
         } else {
             // In case of TypeScript, we can not directly capture the initializer.
             // We have to be hacking to extract the value.
             const actualDefaultValues = cache.default || (cache.default = extractActualDefaultValues(ctor));
             if (actualDefaultValues.hasOwnProperty(propertyKey)) {
-                defaultValue = actualDefaultValues[propertyKey];
-                isDefaultValueSpecified = true;
+                propertyRecord.default = actualDefaultValues[propertyKey];
             }
         }
-
-        if ((EDITOR && !window.Build) || TEST) {
-            if (!fullOptions && options && options.hasOwnProperty('default')) {
-                warnID(3653, propertyKey, js.getClassName(ctor));
-            } else if (!isDefaultValueSpecified) {
-                warnID(3654, js.getClassName(ctor), propertyKey);
-            }
-        }
-
-        propertyRecord.default = defaultValue;
     }
 
     properties[propertyKey] = propertyRecord;
