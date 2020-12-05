@@ -165,7 +165,7 @@ export class TerrainLayer {
      */
     @serializable
     @editable
-    public metallic = 0; /*[0, 1]*/
+    public metallic = 0; /* [0, 1] */
 
     /**
      * @en roughness
@@ -173,7 +173,7 @@ export class TerrainLayer {
      */
     @serializable
     @editable
-    public roughness = 1; /*[0, 1]*/
+    public roughness = 1; /* [0, 1] */
 }
 
 /**
@@ -387,8 +387,8 @@ export class TerrainBlock {
             PrimitiveMode.TRIANGLE_LIST, this._terrain._getSharedIndexBuffer());
 
         const model = this._renderable._model = (legacyCC.director.root as Root).createModel(scene.Model);
-        model.node = model.transform = this._terrain.node;
         model.createBoundingShape(bbMin, bbMax);
+        model.node = model.transform = this._node;
         this._renderable._getRenderScene().addModel(model);
 
         // reset weightmap
@@ -423,6 +423,7 @@ export class TerrainBlock {
         const useNormalMap = this._terrain.useNormalMap;
         const usePBR = this._terrain.usePBR;
 
+        // eslint-disable-next-line arrow-body-style
         const getDetailTex = (layer: TerrainLayer|null) => {
             return layer !== null ? layer.detailMap : null;
         };
@@ -820,7 +821,7 @@ export class Terrain extends Component {
     @disallowAnimation
     protected _usePBR = false;
 
-    protected _tileSize: number = 1;
+    protected _tileSize = 1;
     protected _blockCount: number[] = [1, 1];
     protected _weightMapSize = 128;
     protected _lightMapSize = 128;
@@ -1709,7 +1710,7 @@ export class Terrain extends Component {
 
     private _buildImp (restore = false) {
         if (this.valid) {
-            return true;
+            return;
         }
 
         const terrainAsset = this.__asset;
