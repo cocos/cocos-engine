@@ -655,6 +655,7 @@ sp.Skeleton = cc.Class({
         if (CC_EDITOR) {
             cc.engine._animatingInEditMode = 1;
             cc.engine.animatingInEditMode = 1;
+        }
 
         if (this.paused) return;
 
