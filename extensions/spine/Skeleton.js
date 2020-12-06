@@ -652,7 +652,10 @@ sp.Skeleton = cc.Class({
     },
 
     update (dt) {
-        if (CC_EDITOR) return;
+        if (CC_EDITOR) {
+            cc.engine._animatingInEditMode = 1;
+            cc.engine.animatingInEditMode = 1;
+
         if (this.paused) return;
 
         dt *= this.timeScale * sp.timeScale;
