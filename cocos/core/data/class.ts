@@ -569,7 +569,7 @@ function parseAttributes (constructor: Function, attributes: IAcceptableAttribut
         }
     }
 
-    if (Object.prototype.hasOwnProperty.call(attributes, 'default')) {
+    if ('default' in attributes) {
         (attrs || initAttrs())[`${propertyNamePrefix}default`] = attributes.default;
     } else if (DEV && warnOnNoDefault && !(attributes.get || attributes.set)) {
         warnID(3654, className, propertyName);
