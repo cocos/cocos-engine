@@ -8,6 +8,8 @@ namespace cc {
 namespace gfx {
 
 class CCMTLBuffer;
+class CCMTLRenderCommandEncoder;
+
 class CCMTLBufferManager {
 public:
     static void addBuffer(CCMTLBuffer *buffer);
@@ -34,7 +36,7 @@ public:
     CC_INLINE MTLIndexType getIndexType() const { return _indexType; }
     CC_INLINE bool isDrawIndirectByIndex() const { return _isDrawIndirectByIndex; }
     CC_INLINE const DrawInfoList &getDrawInfos() const { return _indirects; }
-    void encodeBuffer(id<MTLRenderCommandEncoder> encoder, uint offset, uint binding, ShaderStageFlags stages);
+    void encodeBuffer(CCMTLRenderCommandEncoder &encoder, uint offset, uint binding, ShaderStageFlags stages);
 
 private:
     friend class CCMTLBufferManager;

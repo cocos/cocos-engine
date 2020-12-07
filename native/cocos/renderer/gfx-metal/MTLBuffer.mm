@@ -4,6 +4,7 @@
 #include "MTLCommandBuffer.h"
 #include "MTLDevice.h"
 #include "MTLUtils.h"
+#include "MTLRenderCommandEncoder.h"
 #import <Metal/Metal.h>
 
 namespace cc {
@@ -285,26 +286,17 @@ void CCMTLBuffer::update(void *buffer, uint offset, uint size) {
     }
 }
 
-void CCMTLBuffer::encodeBuffer(id<MTLRenderCommandEncoder> encoder, uint offset, uint binding, ShaderStageFlags stages) {
-    if (encoder == nil) {
-        CC_LOG_ERROR("CCMTLBuffer::encodeBuffer: MTLRenderCommandEncoder should not be nil.");
-        return;
-    }
-
+void CCMTLBuffer::encodeBuffer(CCMTLRenderCommandEncoder &encoder, uint offset, uint binding, ShaderStageFlags stages) {
     if (_isBufferView) {
         offset += _bufferViewOffset;
     }
 
     if (stages & ShaderStageFlagBit::VERTEX) {
-        [encoder setVertexBuffer:_mtlBuffer
-                          offset:offset
-                         atIndex:binding];
+        encoder.setVertexBuffer(_mtlBuffer, offset, binding);
     }
 
     if (stages & ShaderStageFlagBit::FRAGMENT) {
-        [encoder setFragmentBuffer:_mtlBuffer
-                            offset:offset
-                           atIndex:binding];
+        encoder.setFragmentBuffer(_mtlBuffer, offset, binding);
     }
 }
 

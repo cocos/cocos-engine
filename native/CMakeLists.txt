@@ -766,6 +766,7 @@ if(CC_USE_METAL)
         cocos/renderer/gfx-metal/MTLUtils.mm
         cocos/renderer/gfx-metal/MTLFence.h
         cocos/renderer/gfx-metal/MTLFence.mm
+        cocos/renderer/gfx-metal/MTLRenderCommandEncoder.h
     )
 endif()
 

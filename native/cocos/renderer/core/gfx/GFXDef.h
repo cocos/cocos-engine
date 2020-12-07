@@ -665,15 +665,12 @@ struct Viewport {
     float maxDepth = 1.0f;
 
     bool operator==(const Viewport &rs) {
-        if (left == rs.left &&
-            top == rs.top &&
-            width == rs.width &&
-            height == rs.height &&
-            math::IsEqualF(minDepth, rs.minDepth) &&
-            math::IsEqualF(maxDepth, maxDepth)) {
-            return true;
-        } else
-            return false;
+        return (left == rs.left &&
+                top == rs.top &&
+                width == rs.width &&
+                height == rs.height &&
+                math::IsEqualF(minDepth, rs.minDepth) &&
+                math::IsEqualF(maxDepth, maxDepth));
     }
 
     bool operator!=(const Viewport &rs) {
@@ -687,6 +684,13 @@ struct Color {
     float y = 0.0f;
     float z = 0.0f;
     float w = 0.0f;
+
+    bool operator==(const Color &rhs) {
+        return (math::IsEqualF(x, rhs.x) &&
+                math::IsEqualF(y, rhs.y) &&
+                math::IsEqualF(z, rhs.z) &&
+                math::IsEqualF(w, rhs.w));
+    }
 };
 #pragma pack(pop)
 typedef cc::vector<Color> ColorList;
