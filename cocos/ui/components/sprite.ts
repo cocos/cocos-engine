@@ -439,7 +439,7 @@ export class Sprite extends UIRenderable {
         return this._sizeMode;
     }
     set sizeMode (value) {
-        if (this._sizeMode === value){
+        if (this._sizeMode === value) {
             return;
         }
 
@@ -487,7 +487,7 @@ export class Sprite extends UIRenderable {
             this.node.on(SystemEventType.SIZE_CHANGED, this._resized, this);
         }
 
-        if(this._spriteFrame){
+        if (this._spriteFrame) {
             this._spriteFrame.on('load', this._markForUpdateUvDirty, this);
             this._markForUpdateUvDirty();
         }
@@ -592,7 +592,7 @@ export class Sprite extends UIRenderable {
         //     return false;
         // }
         // return true;
-        if (!super._canRender()){
+        if (!super._canRender()) {
             return false;
         }
 
@@ -738,11 +738,11 @@ export class Sprite extends UIRenderable {
         // }
 
         if (this._renderData) {
-            if(oldFrame){
+            if (oldFrame) {
                 oldFrame.off('load', this._markForUpdateUvDirty);
             }
 
-            if(spriteFrame){
+            if (spriteFrame) {
                 spriteFrame.on('load', this._markForUpdateUvDirty, this);
             }
 
