@@ -90,7 +90,7 @@ const triggerCallback = {
 // eTOUCH = 1,  //!< a hit on the shape touches the intersection geometry of the query but does not block it
 // eBLOCK = 2   //!< a hit on the shape blocks the query (does not block overlap queries)
 const queryCallback = {
-    preFilter (filterData: any, shape: any, _actor: any, _out: any): void {
+    preFilter (filterData: any, shape: any, _actor: any, _out: any): number {
         // trigger filter
         // 0 for mask filter
         // 1 for trigger toggle

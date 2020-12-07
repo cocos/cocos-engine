@@ -1,13 +1,11 @@
-
-import { IVec3Like } from "../../../core";
-import { aabb, sphere } from "../../../core/geometry";
-import { Collider, RigidBody, PhysicMaterial, SphereCollider } from "../../framework";
-import { ISphereShape } from "../../spec/i-physics-shape";
-import { PX, USE_BYTEDANCE } from "../export-physx";
-import { EPhysXShapeType, PhysXShape } from "./physx-shape";
+import { IVec3Like } from '../../../core';
+import { aabb, sphere } from '../../../core/geometry';
+import { Collider, RigidBody, PhysicMaterial, SphereCollider } from '../../framework';
+import { ISphereShape } from '../../spec/i-physics-shape';
+import { PX, USE_BYTEDANCE } from '../export-physx';
+import { EPhysXShapeType, PhysXShape } from './physx-shape';
 
 export class PhysXSphereShape extends PhysXShape implements ISphereShape {
-
     static SPHERE_GEOMETRY;
 
     constructor () {
@@ -31,21 +29,9 @@ export class PhysXSphereShape extends PhysXShape implements ISphereShape {
 
     onComponentSet () {
         this.updateGeometry();
-        const physics = this._sharedBody.wrappedWorld.physics as any;
+        const physics = this._sharedBody.wrappedWorld.physics;
         const pxmat = this.getSharedMaterial(this.collider.sharedMaterial!);
-        if (USE_BYTEDANCE) {
-            this._impl = physics.createShape(PhysXSphereShape.SPHERE_GEOMETRY, pxmat);
-            const v = this._collider.isTrigger;
-            if (v) {
-                this._impl.setFlag(PX.ShapeFlag.eSIMULATION_SHAPE, !v)
-                this._impl.setFlag(PX.ShapeFlag.eTRIGGER_SHAPE, v);
-            } else {
-                this._impl.setFlag(PX.ShapeFlag.eTRIGGER_SHAPE, v);
-                this._impl.setFlag(PX.ShapeFlag.eSIMULATION_SHAPE, !v)
-            }
-        } else {
-            this._impl = physics.createShape(PhysXSphereShape.SPHERE_GEOMETRY, pxmat, true, this._flags);
-        }
+        this._impl = physics.createShape(PhysXSphereShape.SPHERE_GEOMETRY, pxmat, true, this._flags);
     }
 
     updateScale () {
@@ -60,11 +46,11 @@ export class PhysXSphereShape extends PhysXShape implements ISphereShape {
         const absX = Math.abs(ws.x);
         const absY = Math.abs(ws.y);
         const absZ = Math.abs(ws.z);
-        const max_sp = Math.max(Math.max(absX, absY), absZ);
+        const maxSp = Math.max(Math.max(absX, absY), absZ);
         if (USE_BYTEDANCE) {
-            PhysXSphereShape.SPHERE_GEOMETRY.setRadius(co.radius * max_sp);
+            PhysXSphereShape.SPHERE_GEOMETRY.setRadius(co.radius * maxSp);
         } else {
-            PhysXSphereShape.SPHERE_GEOMETRY.radius = co.radius * max_sp;
+            PhysXSphereShape.SPHERE_GEOMETRY.radius = co.radius * maxSp;
         }
     }
 }

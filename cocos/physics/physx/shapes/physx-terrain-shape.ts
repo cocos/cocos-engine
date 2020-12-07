@@ -1,13 +1,12 @@
-import { IVec3Like, Quat, Vec3 } from "../../../core";
-import { aabb, sphere } from "../../../core/geometry";
-import { TerrainCollider } from "../../framework";
-import { ITerrainAsset } from "../../spec/i-external";
-import { ITerrainShape } from "../../spec/i-physics-shape";
-import { PX, USE_BYTEDANCE, _pxtrans, _trans } from "../export-physx";
-import { EPhysXShapeType, PhysXShape } from "./physx-shape";
+import { IVec3Like, Quat, Vec3 } from '../../../core';
+import { aabb, sphere } from '../../../core/geometry';
+import { TerrainCollider } from '../../framework';
+import { ITerrainAsset } from '../../spec/i-external';
+import { ITerrainShape } from '../../spec/i-physics-shape';
+import { PX, USE_BYTEDANCE, _pxtrans, _trans } from '../export-physx';
+import { EPhysXShapeType, PhysXShape } from './physx-shape';
 
 export class PhysXTerrainShape extends PhysXShape implements ITerrainShape {
-
     static heightScale = 1 / 5000;
 
     constructor () {
@@ -17,7 +16,7 @@ export class PhysXTerrainShape extends PhysXShape implements ITerrainShape {
     setTerrain (v: ITerrainAsset | null): void {
         if (v && this._impl == null) {
             const wrappedWorld = this._sharedBody.wrappedWorld;
-            const physics = wrappedWorld.physics as any;
+            const physics = wrappedWorld.physics;
             const collider = this.collider;
             if (PX.TERRAIN_STATIC[v._uuid] == null) {
                 const cooking = wrappedWorld.cooking;
@@ -26,11 +25,12 @@ export class PhysXTerrainShape extends PhysXShape implements ITerrainShape {
                 const sizeJ = terrain.getVertexCountJ();
                 if (USE_BYTEDANCE) {
                     const samples = new PX.HeightFieldSamples(sizeI * sizeJ);
-                    console.log("size", sizeI, sizeJ);
+                    console.log('size', sizeI, sizeJ);
                     for (let i = 0; i < sizeI; i++) {
                         for (let j = 0; j < sizeJ; j++) {
                             const s = terrain.getHeight(i, j) / PhysXTerrainShape.heightScale;
-                            if (isNaN(s)) console.error("nan ", s);
+                            // eslint-disable-next-line no-restricted-globals
+                            if (isNaN(s)) console.error('nan ', s);
                             const index = j + i * sizeJ;
                             samples.setHeightAtIndex(index, s);
                             // samples.setMaterialIndex0AtIndex(index, 0);
@@ -58,21 +58,10 @@ export class PhysXTerrainShape extends PhysXShape implements ITerrainShape {
             const pxmat = this.getSharedMaterial(collider.sharedMaterial!);
             if (USE_BYTEDANCE) {
                 const geometry = new PX.HeightFieldGeometry(hf, PhysXTerrainShape.heightScale, v.tileSize, v.tileSize);
-                this._impl = physics.createShape(geometry, pxmat);
-                const isT = this._collider.isTrigger;
-                if (isT) {
-                    this._impl.setFlag(PX.ShapeFlag.eSIMULATION_SHAPE, !isT)
-                    this._impl.setFlag(PX.ShapeFlag.eTRIGGER_SHAPE, !!isT);
-                } else {
-                    this._impl.setFlag(PX.ShapeFlag.eTRIGGER_SHAPE, !!isT);
-                    this._impl.setFlag(PX.ShapeFlag.eSIMULATION_SHAPE, !isT)
-                }
+                this._impl = physics.createShape(geometry, pxmat, true, this._flags);
             } else {
-                const geometry = new PX.PxHeightFieldGeometry(
-                    hf, new PX.PxMeshGeometryFlags(1),
-                    PhysXTerrainShape.heightScale,
-                    v.tileSize, v.tileSize
-                );
+                const geometry = new PX.PxHeightFieldGeometry(hf, new PX.PxMeshGeometryFlags(1), PhysXTerrainShape.heightScale,
+                    v.tileSize, v.tileSize);
                 this._impl = physics.createShape(geometry, pxmat, true, this._flags);
             }
         }
@@ -90,7 +79,7 @@ export class PhysXTerrainShape extends PhysXShape implements ITerrainShape {
         this.setCenter(this._collider.center);
     }
 
-    //overwrite
+    // overwrite
     setCenter (v: IVec3Like): void {
         const pos = _trans.translation;
         const rot = _trans.rotation;

@@ -105,12 +105,7 @@ export class PhysXTrimeshShape extends PhysXShape implements ITrimeshShape {
             const physics = wrappedWorld.physics;
             const collider = this.collider;
             const pxmat = this.getSharedMaterial(collider.sharedMaterial!);
-            let meshScale: any;
-            if (USE_BYTEDANCE) {
-                meshScale = new PX.MeshScale(collider.node.worldScale, Quat.IDENTITY);
-            } else {
-                meshScale = new PX.PxMeshScale(collider.node.worldScale, Quat.IDENTITY);
-            }
+            const meshScale = USE_BYTEDANCE ? new PX.MeshScale(collider.node.worldScale, Quat.IDENTITY) : new PX.PxMeshScale(collider.node.worldScale, Quat.IDENTITY);
             if (collider.convex) {
                 if (PX.MESH_CONVEX[v._uuid] == null) {
                     const cooking = wrappedWorld.cooking;
@@ -130,15 +125,7 @@ export class PhysXTrimeshShape extends PhysXShape implements ITrimeshShape {
                 const convexMesh = PX.MESH_CONVEX[v._uuid];
                 if (USE_BYTEDANCE) {
                     const geometry = new PX.ConvexMeshGeometry(convexMesh, meshScale, 1);
-                    this._impl = physics.createShape(geometry, pxmat);
-                    const isT = this._collider.isTrigger;
-                    if (isT) {
-                        this._impl.setFlag(PX.ShapeFlag.eSIMULATION_SHAPE, !isT);
-                        this._impl.setFlag(PX.ShapeFlag.eTRIGGER_SHAPE, isT);
-                    } else {
-                        this._impl.setFlag(PX.ShapeFlag.eTRIGGER_SHAPE, isT);
-                        this._impl.setFlag(PX.ShapeFlag.eSIMULATION_SHAPE, !isT);
-                    }
+                    this._impl = physics.createShape(geometry, pxmat, true, this._flags);
                 } else {
                     const geometry = new PX.PxConvexMeshGeometry(convexMesh, meshScale, new PX.PxConvexMeshGeometryFlags(1));
                     this._impl = physics.createShape(geometry, pxmat, true, this._flags);
@@ -171,15 +158,7 @@ export class PhysXTrimeshShape extends PhysXShape implements ITrimeshShape {
                 const trimesh = PX.MESH_STATIC[v._uuid];
                 if (USE_BYTEDANCE) {
                     const geometry = new PX.TriangleMeshGeometry(trimesh, meshScale, PX.MeshGeometryFlag.eDOUBLE_SIDED);
-                    this._impl = physics.createShape(geometry, pxmat);
-                    const isT = this._collider.isTrigger;
-                    if (isT) {
-                        this._impl.setFlag(PX.ShapeFlag.eSIMULATION_SHAPE, !isT);
-                        this._impl.setFlag(PX.ShapeFlag.eTRIGGER_SHAPE, isT);
-                    } else {
-                        this._impl.setFlag(PX.ShapeFlag.eTRIGGER_SHAPE, isT);
-                        this._impl.setFlag(PX.ShapeFlag.eSIMULATION_SHAPE, !isT);
-                    }
+                    this._impl = physics.createShape(geometry, pxmat, true, this._flags);
                 } else {
                     const geometry = new PX.PxTriangleMeshGeometry(trimesh, meshScale, new PX.PxMeshGeometryFlags(0));
                     this._impl = physics.createShape(geometry, pxmat, true, this._flags);

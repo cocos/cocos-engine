@@ -1,12 +1,11 @@
-import { IVec3Like, Quat, Vec3 } from "../../../core";
-import { aabb, sphere } from "../../../core/geometry";
-import { Collider, RigidBody, PhysicMaterial, PlaneCollider } from "../../framework";
-import { IPlaneShape } from "../../spec/i-physics-shape";
-import { PX, USE_BYTEDANCE, _pxtrans, _trans } from "../export-physx";
-import { EPhysXShapeType, PhysXShape } from "./physx-shape";
+import { IVec3Like, Quat, Vec3 } from '../../../core';
+import { aabb, sphere } from '../../../core/geometry';
+import { Collider, RigidBody, PhysicMaterial, PlaneCollider } from '../../framework';
+import { IPlaneShape } from '../../spec/i-physics-shape';
+import { PX, USE_BYTEDANCE, _pxtrans, _trans } from '../export-physx';
+import { EPhysXShapeType, PhysXShape } from './physx-shape';
 
 export class PhysXPlaneShape extends PhysXShape implements IPlaneShape {
-
     static PLANE_GEOMETRY;
 
     constructor () {
@@ -51,21 +50,9 @@ export class PhysXPlaneShape extends PhysXShape implements IPlaneShape {
 
     onComponentSet () {
         const co = this.collider;
-        const physics = this._sharedBody.wrappedWorld.physics as any;
+        const physics = this._sharedBody.wrappedWorld.physics;
         const pxmat = this.getSharedMaterial(co.sharedMaterial!);
-        if (USE_BYTEDANCE) {
-            this._impl = physics.createShape(PhysXPlaneShape.PLANE_GEOMETRY, pxmat);
-            const v = this._collider.isTrigger;
-            if (v) {
-                this._impl.setFlag(PX.ShapeFlag.eSIMULATION_SHAPE, !v)
-                this._impl.setFlag(PX.ShapeFlag.eTRIGGER_SHAPE, v);
-            } else {
-                this._impl.setFlag(PX.ShapeFlag.eTRIGGER_SHAPE, v);
-                this._impl.setFlag(PX.ShapeFlag.eSIMULATION_SHAPE, !v)
-            }
-        } else {
-            this._impl = physics.createShape(PhysXPlaneShape.PLANE_GEOMETRY, pxmat, true, this._flags);
-        }
+        this._impl = physics.createShape(PhysXPlaneShape.PLANE_GEOMETRY, pxmat, true, this._flags);
         this.setCenter();
     }
 

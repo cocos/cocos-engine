@@ -1,12 +1,11 @@
-import { absMax, Quat, IVec3Like } from "../../../core";
-import { aabb, sphere } from "../../../core/geometry";
-import { Collider, RigidBody, PhysicMaterial, CapsuleCollider, EAxisDirection } from "../../framework";
-import { ICapsuleShape } from "../../spec/i-physics-shape";
-import { PX, USE_BYTEDANCE } from "../export-physx";
-import { EPhysXShapeType, PhysXShape } from "./physx-shape";
+import { absMax, Quat, IVec3Like } from '../../../core';
+import { aabb, sphere } from '../../../core/geometry';
+import { Collider, RigidBody, PhysicMaterial, CapsuleCollider, EAxisDirection } from '../../framework';
+import { ICapsuleShape } from '../../spec/i-physics-shape';
+import { PX, USE_BYTEDANCE } from '../export-physx';
+import { EPhysXShapeType, PhysXShape } from './physx-shape';
 
 export class PhysXCapsuleShape extends PhysXShape implements ICapsuleShape {
-
     static CAPSULE_GEOMETRY;
 
     constructor () {
@@ -38,21 +37,9 @@ export class PhysXCapsuleShape extends PhysXShape implements ICapsuleShape {
 
     onComponentSet () {
         this.updateGeometry();
-        const physics = this._sharedBody.wrappedWorld.physics as any;
+        const physics = this._sharedBody.wrappedWorld.physics;
         const pxmat = this.getSharedMaterial(this._collider.sharedMaterial!);
-        if (USE_BYTEDANCE) {
-            this._impl = physics.createShape(PhysXCapsuleShape.CAPSULE_GEOMETRY, pxmat);
-            const v = this._collider.isTrigger;
-            if (v) {
-                this._impl.setFlag(PX.ShapeFlag.eSIMULATION_SHAPE, !v)
-                this._impl.setFlag(PX.ShapeFlag.eTRIGGER_SHAPE, v);
-            } else {
-                this._impl.setFlag(PX.ShapeFlag.eTRIGGER_SHAPE, v);
-                this._impl.setFlag(PX.ShapeFlag.eSIMULATION_SHAPE, !v)
-            }
-        } else {
-            this._impl = physics.createShape(PhysXCapsuleShape.CAPSULE_GEOMETRY, pxmat, true, this._flags);
-        }
+        this._impl = physics.createShape(PhysXCapsuleShape.CAPSULE_GEOMETRY, pxmat, true, this._flags);
     }
 
     updateScale () {
@@ -65,7 +52,7 @@ export class PhysXCapsuleShape extends PhysXShape implements ICapsuleShape {
         const co = this.collider;
         const ws = co.node.worldScale;
         const upAxis = co.direction;
-        let r = 0.5, hf = 0.5;
+        let r = 0.5; let hf = 0.5;
         if (upAxis == EAxisDirection.Y_AXIS) {
             r = co.radius * Math.abs(absMax(ws.x, ws.z));
             hf = co.cylinderHeight / 2 * Math.abs(ws.y);
