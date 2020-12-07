@@ -157,6 +157,7 @@ export class WebGL2Buffer extends Buffer {
     }
 
     public update (buffer: BufferSource, offset?: number, size?: number) {
+        this._bufferSource = buffer;
         if (this._isBufferView) {
             console.warn('cannot update through buffer views!');
             return;

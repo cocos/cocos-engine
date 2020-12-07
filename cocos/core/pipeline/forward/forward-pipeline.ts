@@ -45,6 +45,7 @@ import { Fog } from '../../renderer/scene/fog';
 import { Ambient } from '../../renderer/scene/ambient';
 import { Skybox } from '../../renderer/scene/skybox';
 import { Shadows, ShadowType } from '../../renderer/scene/shadows';
+import { Wireframe } from '../../renderer/scene/wireframe';
 import { sceneCulling, getShadowWorldMatrix, updatePlanarPROJ } from './scene-culling';
 import { UIFlow } from '../ui/ui-flow';
 import { Light } from '../../renderer/scene/light';
@@ -116,6 +117,8 @@ export class ForwardPipeline extends RenderPipeline {
     public ambient: Ambient = new Ambient();
     public skybox: Skybox = new Skybox();
     public shadows: Shadows = new Shadows();
+    public wireframe: Wireframe = new Wireframe();
+
     /**
      * @en The list for render objects, only available after the scene culling of the current frame.
      * @zh 渲染对象数组，仅在当前帧的场景剔除完成后有效。
@@ -163,7 +166,8 @@ export class ForwardPipeline extends RenderPipeline {
             console.error('ForwardPipeline startup failed!');
             return false;
         }
-
+        // 用于测试线框功能
+        this.wireframe.enabled = true;
         return true;
     }
 
@@ -441,6 +445,7 @@ export class ForwardPipeline extends RenderPipeline {
         this.skybox.destroy();
         this.fog.destroy();
         this.shadows.destroy();
+        this.wireframe.destroy();
 
         return super.destroy();
     }

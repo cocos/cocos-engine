@@ -146,6 +146,10 @@ export abstract class Buffer extends Obj {
         return this._bakcupBuffer;
     }
 
+    get bufferSource (): BufferSource {
+        return this._bufferSource!;
+    }
+
     protected _device: Device;
     protected _usage: BufferUsage = BufferUsageBit.NONE;
     protected _memUsage: MemoryUsage = MemoryUsageBit.NONE;
@@ -156,6 +160,7 @@ export abstract class Buffer extends Obj {
     protected _bakcupBuffer: Uint8Array | null = null;
     protected _indirectBuffer: IndirectBuffer | null = null;
     protected _isBufferView = false;
+    protected _bufferSource: BufferSource | null = null;
 
     constructor (device: Device) {
         super(ObjectType.BUFFER);
