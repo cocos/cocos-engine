@@ -53,19 +53,7 @@ export class PhysXRigidBody implements IRigidBody {
     }
 
     setMass (v: number): void {
-        // if (v == 0 && !this.isStatic) {
-        //     this.isStatic = true;
-        //     this.impl.release();
-        //     const t = _trans as unknown as PhysX.Transform;
-        //     Vec3.copy(_trans.translation, this.rigidBody.node.worldPosition);
-        //     Quat.copy(_trans.rotation, this.rigidBody.node.worldRotation);
-        //     this.impl = this.wrappedWorld.physics.createRigidStatic(t);
-        // } else {
-        //     this.impl.setMassAndUpdateInertia(v);
-        // }
-        if (v <= 0) return;
-        if (this._sharedBody.isStatic) return;
-        this.impl.setMassAndUpdateInertia(v);
+        this._sharedBody.setMass(v);
     }
 
     setLinearDamping (v: number): void {

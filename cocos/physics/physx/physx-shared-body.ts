@@ -190,8 +190,14 @@ export class PhysXSharedBody {
         }
     }
 
-    setMass (m: number): void {
-
+    setMass (v: number): void {
+        if (v <= 0) return;
+        if (this.isStatic) return;
+        if (USE_BYTEDANCE) {
+            PX.RigidBodyExt.setMassAndUpdateInertia(this._impl, v);
+        } else {
+            this.impl.setMassAndUpdateInertia(v);
+        }
     }
 
     setRigidBodyFlag (v: any, b: boolean): void {
