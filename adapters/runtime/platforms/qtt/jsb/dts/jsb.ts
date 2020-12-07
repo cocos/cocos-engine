@@ -25,7 +25,8 @@ declare module jsb {
     export module AudioEngine {}
 
     // Fs
-    export function getFileSystemManager(): any;  // 补充
+    export function getFileSystemManager (): any;  // 补充
+    export function downloadFile (option: any): void;
 
     // System
     export const env: any;

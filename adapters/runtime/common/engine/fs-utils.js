@@ -80,7 +80,7 @@ var fsUtils = {
             }
         }
         if (header) options.header = header;
-        var task = rt.downloadFile(options);
+        var task = jsb.downloadFile(options);
         onProgress && task.onProgressUpdate(onProgress);
     },
 

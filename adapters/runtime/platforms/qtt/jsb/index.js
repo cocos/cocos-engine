@@ -51,3 +51,4 @@ jsb.offKeyboardComplete = _rt.offKeyboardComplete;
 
 jsb.env = _rt.env;
 jsb.getFileSystemManager = _rt.getFileSystemManager;
+jsb.downloadFile = _rt.downloadFile;
