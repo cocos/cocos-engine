@@ -622,14 +622,6 @@ static bool JSB_core_restartVM(se::State& s)
 }
 SE_BIND_FUNC(JSB_core_restartVM)
 
-static bool JSB_closeWindow(se::State& s)
-{
-    //TODO: minggo
-//    Application::getInstance()->end();
-    return true;
-}
-SE_BIND_FUNC(JSB_closeWindow)
-
 static bool JSB_isObjectValid(se::State& s)
 {
     const auto& args = s.args();
@@ -1123,7 +1115,6 @@ bool jsb_register_global_variables(se::Object* global)
     global->defineFunction("__getCurrentLanguageCode", _SE(JSBCore_getCurrentLanguageCode));
     global->defineFunction("__restartVM", _SE(JSB_core_restartVM));
     global->defineFunction("__isObjectValid", _SE(JSB_isObjectValid));
-    global->defineFunction("close", _SE(JSB_closeWindow));
 
     se::HandleObject performanceObj(se::Object::createPlainObject());
     performanceObj->defineFunction("now", _SE(js_performance_now));

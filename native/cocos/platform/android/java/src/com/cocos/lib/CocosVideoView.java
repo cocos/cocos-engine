@@ -32,6 +32,7 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.widget.FrameLayout;
 import android.app.Activity;
+import android.graphics.Point;
 
 import java.io.IOException;
 import java.util.Map;
@@ -98,8 +99,6 @@ public class CocosVideoView extends SurfaceView {
     protected int mVisibleHeight = 0;
 
     protected boolean mFullScreenEnabled = false;
-    protected int mFullScreenWidth = 0;
-    protected int mFullScreenHeight = 0;
 
     private boolean mIsAssetRouse = false;
     private String mVideoFilePath = null;
@@ -289,11 +288,9 @@ public class CocosVideoView extends SurfaceView {
 
     public void fixSize() {
         if (mFullScreenEnabled) {
-            //TOTO:minggo
-//            mFullScreenWidth = mActivity.getGLSurfaceView().getWidth();
-//            mFullScreenHeight = mActivity.getGLSurfaceView().getHeight();
-
-//            fixSize(0, 0, mFullScreenWidth, mFullScreenHeight);
+            Point screenSize = new Point();
+            mActivity.getWindowManager().getDefaultDisplay().getSize(screenSize);
+            fixSize(0, 0, screenSize.x, screenSize.y);
         } else {
             fixSize(mViewLeft, mViewTop, mViewWidth, mViewHeight);
         }
