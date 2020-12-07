@@ -2,6 +2,8 @@ export * from "./physics-types";
 
 export * from "./physics-system";
 
+export * from '../spec/i-physics-contact';
+
 // rigid body
 export * from './components/rigid-body-2d';
 
