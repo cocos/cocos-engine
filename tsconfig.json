@@ -14,16 +14,13 @@
       "isolatedModules": true,
       "baseUrl": "./",
       "paths": {
-        "internal:constants": [
-            "cocos/core/utils/internal-constants.ts"
-        ],
           "cc.decorator": [
               "cocos/core/data/decorators/index.ts"
           ]
       },
       "types": [
         "./@types/globals",
-        "./@types/raw-constants",
+        "./@types/consts",
         "./@types/editor-extends",
         "./@types/wx",
         "./@types/global-adapter",
