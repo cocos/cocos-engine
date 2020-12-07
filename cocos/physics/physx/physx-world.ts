@@ -8,7 +8,7 @@ import { PhysXSharedBody } from './physx-shared-body';
 import { PhysXRigidBody } from './physx-rigid-body';
 import { PhysXShape } from './shapes/physx-shape';
 import { CollisionEventObject, TriggerEventObject } from '../utils/util';
-import { PX, USE_BYTEDANCE } from './export-physx';
+import { getWrapShape, PX, USE_BYTEDANCE } from './export-physx';
 
 function onTrigger (type: TriggerEventType, wpa: PhysXShape, wpb: PhysXShape): void {
     if (wpa && wpb) {
@@ -45,18 +45,18 @@ function onCollision (type: CollisionEventType, wpa: PhysXShape, wpb: PhysXShape
 const persistShapes: string[] = [];
 const triggerCallback = {
     onContactBegin: (a: any, b: any): void => {
-        const wpa = PX.IMPL_PTR[a.$$.ptr] as PhysXShape;
-        const wpb = PX.IMPL_PTR[b.$$.ptr] as PhysXShape;
+        const wpa = getWrapShape<PhysXShape>(a);
+        const wpb = getWrapShape<PhysXShape>(b);
         onCollision('onCollisionEnter', wpa, wpb);
     },
     onContactEnd: (a: any, b: any): void => {
-        const wpa = PX.IMPL_PTR[a.$$.ptr] as PhysXShape;
-        const wpb = PX.IMPL_PTR[b.$$.ptr] as PhysXShape;
+        const wpa = getWrapShape<PhysXShape>(a);
+        const wpb = getWrapShape<PhysXShape>(b);
         onCollision('onCollisionExit', wpa, wpb);
     },
     onContactPersist: (a: any, b: any): void => {
-        const wpa = PX.IMPL_PTR[a.$$.ptr] as PhysXShape;
-        const wpb = PX.IMPL_PTR[b.$$.ptr] as PhysXShape;
+        const wpa = getWrapShape<PhysXShape>(a);
+        const wpb = getWrapShape<PhysXShape>(b);
         onCollision('onCollisionStay', wpa, wpb);
     },
     onTriggerBegin: (a: any, b: any): void => {
@@ -95,6 +95,14 @@ const queryCallback = {
         // 0 for mask filter
         // 1 for trigger toggle
         // 2 for single hit
+        if (USE_BYTEDANCE) {
+            const shapeFlags = shape.getFlags();
+            if ((filterData.word3 & 2) && (shapeFlags & PX.ShapeFlag.eTRIGGER_SHAPE)) {
+                return PX.QueryHitType.eNONE;
+            }
+            return filterData.word3 & 4 ? PX.QueryHitType.eBLOCK : PX.QueryHitType.eTOUCH;
+        }
+
         const shapeFlags = shape.getFlags();
         if ((filterData.word3 & 2) && shapeFlags.isSet(PX.PxShapeFlag.eTRIGGER_SHAPE)) {
             return PX.PxQueryHitType.eNONE;
@@ -127,7 +135,9 @@ export class PhysXWorld implements IPhysicsWorld {
 
     readonly wrappedBodies: PhysXSharedBody[] = [];
 
-    constructor (_options?: any) {
+    protected mutipleResultSize = 12;
+
+    constructor () {
         if (USE_BYTEDANCE) {
             // const physics = PX.createPhysics();
             const physics = PX.physics;
@@ -139,13 +149,10 @@ export class PhysXWorld implements IPhysicsWorld {
                 for (let i = 0; i < pairs.length; i++) {
                     const cp = pairs[i];
                     if (cp.getContactPairFlags() & (1 | 2)) continue;
-
                     const events = cp.getPairFlags();
                     const shapes = cp.getShapes();
-                    const a = shapes[0];
-                    const b = shapes[1];
-                    const shapeA = PX.IMPL_PTR[a.getQueryFilterData().word2] as PhysXShape;
-                    const shapeB = PX.IMPL_PTR[b.getQueryFilterData().word2] as PhysXShape;
+                    const shapeA = getWrapShape<PhysXShape>(shapes[0]);
+                    const shapeB = getWrapShape<PhysXShape>(shapes[1]);
                     if (events & 4) {
                         onCollision('onCollisionEnter', shapeA, shapeB);
                     } else if (events & 8) {
@@ -159,13 +166,9 @@ export class PhysXWorld implements IPhysicsWorld {
                 for (let i = 0; i < pairs.length; i++) {
                     const cp = pairs[i];
                     if (cp.getFlags() & (1 | 2)) continue;
-
                     const events = cp.getStatus();
-                    const a = cp.getTriggerShape();
-                    const b = cp.getOtherShape();
-                    const shapeA = PX.IMPL_PTR[a.getQueryFilterData().word2] as PhysXShape;
-                    const shapeB = PX.IMPL_PTR[b.getQueryFilterData().word2] as PhysXShape;
-
+                    const shapeA = getWrapShape<PhysXShape>(cp.getTriggerShape());
+                    const shapeB = getWrapShape<PhysXShape>(cp.getOtherShape());
                     if (events & 4) {
                         onTrigger('onTriggerEnter', shapeA, shapeB);
                     } else if (events & 8) {
@@ -175,6 +178,10 @@ export class PhysXWorld implements IPhysicsWorld {
                     }
                 }
             });
+            this.simulationCB = simulation;
+            this.queryFilterCB = new PX.QueryFilterCallback();
+            this.queryFilterCB.setPreFilter(queryCallback.preFilter);
+            this.queryfilterData = { data: { word0: 0, word1: 0, word2: 0, word3: 1 }, flags: 0 };
             sceneDesc.setSimulationEventCallback(simulation);
             const scene = physics.createScene(sceneDesc);
             this.physics = physics;
@@ -183,7 +190,7 @@ export class PhysXWorld implements IPhysicsWorld {
         } else {
             this.singleResult = new PX.PxRaycastHit();
             this.mutipleResults = new PX.PxRaycastHitVector();
-            this.mutipleResults.resize(12, this.singleResult);
+            this.mutipleResults.resize(this.mutipleResultSize, this.singleResult);
             this.queryfilterData = new PX.PxQueryFilterData();
             this.simulationCB = PX.PxSimulationEventCallback.implement(triggerCallback);
             this.queryFilterCB = PX.PxQueryFilterCallback.implement(queryCallback);
@@ -207,9 +214,9 @@ export class PhysXWorld implements IPhysicsWorld {
         }
         const scene = this.scene;
         if (USE_BYTEDANCE) {
-            (scene).simulate(deltaTime);
+            scene.simulate(deltaTime);
         } else {
-            (scene).simulate(deltaTime, true);
+            scene.simulate(deltaTime, true);
         }
         scene.fetchResults(true);
         for (let i = 0; i < this.wrappedBodies.length; i++) {
@@ -254,45 +261,77 @@ export class PhysXWorld implements IPhysicsWorld {
     removeConstraint (_constraint: IBaseConstraint): void { }
 
     raycast (worldRay: ray, options: IRaycastOptions, pool: RecyclePool<PhysicsRayResult>, results: PhysicsRayResult[]): boolean {
-        if (USE_BYTEDANCE) return false;
-
-        const blocks = this.mutipleResults;
+        const maxDistance = options.maxDistance;
         const flags = (1 << 0) | (1 << 1) | (1 << 10);
         const word3 = 1 | (options.queryTrigger ? 0 : 2);
-        this.queryfilterData.setWords(word3, 3);
-        this.queryfilterData.setWords(options.mask >>> 0, 0);
-        this.queryfilterData.setFlags((1 << 0) | (1 << 1) | (1 << 2) | (1 << 5));
-        const r = this.scene.raycastMultiple(worldRay.o, worldRay.d, options.maxDistance, flags,
-            blocks, blocks.size(), this.queryfilterData, this.queryFilterCB, null);
-        if (r > 0) {
-            for (let i = 0; i < r; i++) {
-                const block = blocks.get(i);
-                const collider = (PX.IMPL_PTR[block.getShape().$$.ptr] as PhysXShape).collider;
-                const result = pool.add();
-                result._assign(block.position, block.distance, collider, block.normal);
-                results.push(result);
+        if (USE_BYTEDANCE) {
+            this.queryfilterData.data.word3 = word3;
+            this.queryfilterData.data.word0 = options.mask >>> 0;
+            this.queryfilterData.flags = (1 << 0) | (1 << 1) | (1 << 2) | (1 << 5);
+            const r = PX.SceneQueryExt.raycastMultiple(this.scene, worldRay.o, worldRay.d, maxDistance, flags,
+                this.mutipleResultSize, this.queryfilterData, this.queryFilterCB);
+
+            if (r) {
+                for (let i = 0; i < r.length; i++) {
+                    const block = r[i];
+                    const collider = getWrapShape<PhysXShape>(block.getShape()).collider;
+                    const result = pool.add();
+                    result._assign(block.position, block.distance, collider, block.normal);
+                    results.push(result);
+                }
+                return true;
             }
-            return true;
-        } if (r === -1) {
-            console.error('not enough memory.');
+        } else {
+            this.queryfilterData.setWords(word3, 3);
+            this.queryfilterData.setWords(options.mask >>> 0, 0);
+            this.queryfilterData.setFlags((1 << 0) | (1 << 1) | (1 << 2) | (1 << 5));
+            const blocks = this.mutipleResults;
+            const r = this.scene.raycastMultiple(worldRay.o, worldRay.d, maxDistance, flags,
+                blocks, blocks.size(), this.queryfilterData, this.queryFilterCB, null);
+
+            if (r > 0) {
+                for (let i = 0; i < r; i++) {
+                    const block = blocks.get(i);
+                    const collider = getWrapShape<PhysXShape>(block.getShape()).collider;
+                    const result = pool.add();
+                    result._assign(block.position, block.distance, collider, block.normal);
+                    results.push(result);
+                }
+                return true;
+            } if (r === -1) {
+                console.error('not enough memory.');
+            }
         }
         return false;
     }
 
     raycastClosest (worldRay: ray, options: IRaycastOptions, result: PhysicsRayResult): boolean {
-        if (USE_BYTEDANCE) return false;
-
-        const block = this.singleResult;
+        const maxDistance = options.maxDistance;
         const flags = (1 << 0) | (1 << 1); // | (1 << 10);
         const word3 = 1 | (options.queryTrigger ? 0 : 2) | 4;
-        this.queryfilterData.setWords(word3, 3);
-        this.queryfilterData.setWords(options.mask >>> 0, 0);
-        this.queryfilterData.setFlags((1 << 0) | (1 << 1) | (1 << 2));
-        const r = this.scene.raycastSingle(worldRay.o, worldRay.d, options.maxDistance, flags, block, this.queryfilterData, this.queryFilterCB, null);
-        if (r) {
-            const collider = (PX.IMPL_PTR[block.getShape().$$.ptr] as PhysXShape).collider;
-            result._assign(block.position, block.distance, collider, block.normal);
-            return true;
+        if (USE_BYTEDANCE) {
+            this.queryfilterData.data.word3 = word3;
+            this.queryfilterData.data.word0 = options.mask >>> 0;
+            this.queryfilterData.flags = (1 << 0) | (1 << 1) | (1 << 2);
+            const block = PX.SceneQueryExt.raycastSingle(this.scene, worldRay.o, worldRay.d, maxDistance,
+                flags, this.queryfilterData, this.queryFilterCB);
+            if (block) {
+                const collider = getWrapShape<PhysXShape>(block.getShape()).collider;
+                result._assign(block.position, block.distance, collider, block.normal);
+                return true;
+            }
+        } else {
+            this.queryfilterData.setWords(options.mask >>> 0, 0);
+            this.queryfilterData.setWords(word3, 3);
+            this.queryfilterData.setFlags((1 << 0) | (1 << 1) | (1 << 2));
+            const block = this.singleResult;
+            const r = this.scene.raycastSingle(worldRay.o, worldRay.d, options.maxDistance, flags,
+                block, this.queryfilterData, this.queryFilterCB, null);
+            if (r) {
+                const collider = getWrapShape<PhysXShape>(block.getShape()).collider;
+                result._assign(block.position, block.distance, collider, block.normal);
+                return true;
+            }
         }
         return false;
     }

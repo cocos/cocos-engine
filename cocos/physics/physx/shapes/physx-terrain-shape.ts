@@ -29,8 +29,6 @@ export class PhysXTerrainShape extends PhysXShape implements ITerrainShape {
                     console.log("size", sizeI, sizeJ);
                     for (let i = 0; i < sizeI; i++) {
                         for (let j = 0; j < sizeJ; j++) {
-                            // const s = new PX.HeightFieldSample();
-                            // s.height = terrain.getHeight(i, j) / PhysXTerrainShape.heightScale;
                             const s = terrain.getHeight(i, j) / PhysXTerrainShape.heightScale;
                             if (isNaN(s)) console.error("nan ", s);
                             const index = j + i * sizeJ;

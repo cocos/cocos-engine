@@ -29,3 +29,10 @@ export const _trans2 = {
 };
 
 export const _pxtrans = USE_BYTEDANCE && PX ? new PX.Transform({ x: 0, y: 0, z: 0 }, { x: 0, y: 0, z: 0, w: 1 }) : _trans;
+
+export function getWrapShape<T> (pxShape: any): T {
+    if (USE_BYTEDANCE) {
+        return PX.IMPL_PTR[pxShape.getQueryFilterData().word2];
+    }
+    return PX.IMPL_PTR[pxShape.$$.ptr];
+}
