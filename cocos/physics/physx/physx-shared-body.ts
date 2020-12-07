@@ -108,10 +108,10 @@ export class PhysXSharedBody {
                 this._impl.setMass(rb.mass);
                 if (USE_BYTEDANCE) {
                     this._impl.setActorFlag(PX.ActorFlag.eDISABLE_GRAVITY, !rb.useGravity);
-                    this._impl.setRigidBodyFlag(PX.RigidBodyFlag.eKINEMATIC, !!rb.isKinematic);
+                    this.setRigidBodyFlag(1, !!rb.isKinematic);
                 } else {
                     this._impl.setActorFlag(PX.PxActorFlag.eDISABLE_GRAVITY, !rb.useGravity);
-                    this._impl.setRigidBodyFlag(PX.PxRigidBodyFlag.eKINEMATIC, rb.isKinematic);
+                    this.setRigidBodyFlag(PX.PxRigidBodyFlag.eKINEMATIC, rb.isKinematic);
                 }
                 this._impl.setLinearDamping(rb.linearDamping);
                 this._impl.setAngularDamping(rb.angularDamping);
@@ -202,7 +202,7 @@ export class PhysXSharedBody {
 
     setRigidBodyFlag (v: any, b: boolean): void {
         if (USE_BYTEDANCE) {
-            if (v === PX.RigidBodyFlag.eKINEMATIC) {
+            if (v === 1) {
                 this._isKinematic = b;
             }
         } else if (v === PX.PxRigidBodyFlag.eKINEMATIC) {

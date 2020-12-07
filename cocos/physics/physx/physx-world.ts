@@ -274,7 +274,7 @@ export class PhysXWorld implements IPhysicsWorld {
             if (r) {
                 for (let i = 0; i < r.length; i++) {
                     const block = r[i];
-                    const collider = getWrapShape<PhysXShape>(block.getShape()).collider;
+                    const collider = getWrapShape<PhysXShape>(block.shape).collider;
                     const result = pool.add();
                     result._assign(block.position, block.distance, collider, block.normal);
                     results.push(result);
@@ -316,7 +316,7 @@ export class PhysXWorld implements IPhysicsWorld {
             const block = PX.SceneQueryExt.raycastSingle(this.scene, worldRay.o, worldRay.d, maxDistance,
                 flags, this.queryfilterData, this.queryFilterCB);
             if (block) {
-                const collider = getWrapShape<PhysXShape>(block.getShape()).collider;
+                const collider = getWrapShape<PhysXShape>(block.shape).collider;
                 result._assign(block.position, block.distance, collider, block.normal);
                 return true;
             }
