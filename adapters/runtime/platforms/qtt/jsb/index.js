@@ -52,3 +52,9 @@ jsb.offKeyboardComplete = _rt.offKeyboardComplete;
 jsb.env = _rt.env;
 jsb.getFileSystemManager = _rt.getFileSystemManager;
 jsb.downloadFile = _rt.downloadFile;
+jsb.getBatteryInfoSync = _rt.getBatteryInfoSync;
+
+jsb.onShow = _rt.onShow;
+jsb.onHide = _rt.onHide;
+jsb.offShow = _rt.offShow;
+jsb.offHide = _rt.offHide;

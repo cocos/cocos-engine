@@ -58,21 +58,21 @@ class AudioPlayerJSB extends AudioPlayer {
         if (this._audio < 0) { return; }
         this._interrupted = false;
         if (this._state !== PlayingState.PLAYING) { return; }
-        rt.AudioEngine.pause(this._audio);
+        jsb.AudioEngine.pause(this._audio);
         this._onPause();
     }
 
     stop () {
         if (this._audio < 0) { return; }
         this._interrupted = false;
-        rt.AudioEngine.stop(this._audio);
+        jsb.AudioEngine.stop(this._audio);
         this._audio = -1;
         this._onStop();
     }
 
     playOneShot (volume) {
         if (volume === undefined) { volume = 1; }
-        rt.AudioEngine.play(this._url, false, volume);
+        jsb.AudioEngine.play(this._url, false, volume);
     }
 
     getCurrentTime () {
@@ -88,7 +88,7 @@ class AudioPlayerJSB extends AudioPlayer {
     setCurrentTime (val) {
         if (this._audio < 0) { return; }
         val = cc.math.clamp(val, 0, this._duration);
-        rt.AudioEngine.setCurrentTime(this._audio, val);
+        jsb.AudioEngine.setCurrentTime(this._audio, val);
         this._offset = val * 1000;
         this._startTime = performance.now();
     }
@@ -99,7 +99,7 @@ class AudioPlayerJSB extends AudioPlayer {
 
     setVolume (val, immediate) {
         this._volume = val;
-        if (this._audio >= 0) { rt.AudioEngine.setVolume(this._audio, val); }
+        if (this._audio >= 0) { jsb.AudioEngine.setVolume(this._audio, val); }
     }
 
     getLoop () {
@@ -108,20 +108,20 @@ class AudioPlayerJSB extends AudioPlayer {
 
     setLoop (val) {
         this._loop = val;
-        if (this._audio >= 0) { rt.AudioEngine.setLoop(this._audio, val); }
+        if (this._audio >= 0) { jsb.AudioEngine.setLoop(this._audio, val); }
     }
 
     destroy () {
-        if (this._audio >= 0) { rt.AudioEngine.uncache(this._url); this._audio = -1; }
+        if (this._audio >= 0) { jsb.AudioEngine.uncache(this._url); this._audio = -1; }
         super.destroy();
     }
 
     _doPlay () {
-        if (this._audio >= 0) rt.AudioEngine.resume(this._audio);
+        if (this._audio >= 0) jsb.AudioEngine.resume(this._audio);
         else {
-            this._audio = rt.AudioEngine.play(this._url, this._loop, this._volume);
-            rt.AudioEngine.setErrorCallback(this._audio, console.error);
-            rt.AudioEngine.setFinishCallback(this._audio, this._onEnded);
+            this._audio = jsb.AudioEngine.play(this._url, this._loop, this._volume);
+            jsb.AudioEngine.setErrorCallback(this._audio, console.error);
+            jsb.AudioEngine.setFinishCallback(this._audio, this._onEnded);
         }
     }
 

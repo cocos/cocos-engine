@@ -22,15 +22,10 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-require('./sys');
-require('./windows');
-require('./rt-feature-premut-alpha.js');
-require('./rt-sys.js');
-require('./rt_input.js');
-require('./rt-game.js');
-require('./rt-jsb.js');
-require('./rt-websocket.js');
-require('./jsb-audio.js');
+require('./sys.js');
+require('./windows.js');
 require('./asset-manager.js');
-require('./jsb-editbox.js');
+require('./AudioPlayer.js');
+require('./EditBox.js');
 require('./DeviceMotionEvent.js');
+require('./game.js');

@@ -1,6 +1,5 @@
 Object.assign(cc.sys, {
     __init () {
-        // let env = __globalAdapter.getSystemInfoSync();
         this.isNative = false;
         this.isBrowser = false;
         this.isMobile = true;
@@ -61,5 +60,10 @@ Object.assign(cc.sys, {
             DELAY_CREATE_CTX: false,
             format: ['.mp3']
         };
+    },
+
+    getBatteryLevel () {
+        const batteryInfo = jsb.getBatteryInfoSync();
+        return batteryInfo && batteryInfo.level;
     },
 });

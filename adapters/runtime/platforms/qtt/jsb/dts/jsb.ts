@@ -26,7 +26,7 @@ declare module jsb {
 
     // Fs
     export function getFileSystemManager (): any;  // 补充
-    export function downloadFile (option: any): void;
+    export function downloadFile (option: any): void;  // 补充
 
     // System
     export const env: any;
@@ -38,6 +38,12 @@ declare module jsb {
     export const height: number;
     export const pixelRatio: number;
     export function setPreferredFramesPerSecond (fps: number): void;
+    export function getBatteryInfoSync (): number;  // 补充
+
+    export function onShow (cb: Function): void;  // 补充
+    export function onHide (cb: Function): void;  // 补充
+    export function offShow (cb?: Function): void;  // 补充
+    export function offHide (cb?: Function): void;  // 补充
 
     export function createCanvas (): HTMLCanvasElement;
     export function createImage (): HTMLImageElement;
