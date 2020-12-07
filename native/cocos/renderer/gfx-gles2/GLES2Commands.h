@@ -31,7 +31,7 @@ namespace gfx {
 
 class GLES2Device;
 
-struct GLES2DepthBias {
+struct GLES2DepthBias final {
     float constant = 0.0f;
     float clamp = 0.0f;
     float slope = 0.0f;

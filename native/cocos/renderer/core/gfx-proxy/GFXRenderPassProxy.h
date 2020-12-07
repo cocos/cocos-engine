@@ -6,7 +6,7 @@
 namespace cc {
 namespace gfx {
 
-class CC_DLL RenderPassProxy : public Proxy<RenderPass> {
+class CC_DLL RenderPassProxy final : public Proxy<RenderPass> {
 public:
     using Proxy::Proxy;
     RenderPassProxy(Device *device) = delete;

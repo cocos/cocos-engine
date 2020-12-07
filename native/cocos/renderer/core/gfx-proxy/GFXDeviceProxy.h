@@ -18,7 +18,7 @@ struct SubmitContext final {
     CommandBuffer *commandBuffer{nullptr};
 };
 
-class CC_DLL DeviceProxy : public Proxy<Device> {
+class CC_DLL DeviceProxy final : public Proxy<Device> {
 public:
     using Proxy::Proxy;
 
@@ -57,6 +57,7 @@ public:
     virtual uint getNumTris() const override { return _remote->getNumTris(); }
 
     CommandEncoder *getMainEncoder() const { return _mainEncoder; }
+    vector<SubmitContext> &getSubmitContexts() { return _contexts; }
 
 protected:
 

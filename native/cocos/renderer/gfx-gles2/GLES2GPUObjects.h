@@ -290,7 +290,7 @@ class GLES2GPUFence final : public Object {
 public:
 };
 
-struct GLES2ObjectCache {
+struct GLES2ObjectCache final {
     size_t numClearColors = 0u;
     GLES2GPURenderPass *gpuRenderPass = nullptr;
     GLES2GPUFramebuffer *gpuFramebuffer = nullptr;
@@ -301,7 +301,7 @@ struct GLES2ObjectCache {
     GLenum invalidAttachments[GFX_MAX_ATTACHMENTS];
 };
 
-class GLES2GPUStateCache : public Object {
+class GLES2GPUStateCache final : public Object {
 public:
     GLuint glArrayBuffer = 0;
     GLuint glElementArrayBuffer = 0;

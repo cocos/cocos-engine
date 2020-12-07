@@ -6,7 +6,7 @@
 namespace cc {
 namespace gfx {
 
-class CC_DLL QueueProxy : public Proxy<Queue> {
+class CC_DLL QueueProxy final : public Proxy<Queue> {
 public:
     using Proxy::Proxy;
     using Queue::submit;

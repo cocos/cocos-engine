@@ -64,17 +64,18 @@ bool DeviceProxy::initialize(const DeviceInfo &info) {
     _mainEncoder = CC_NEW(CommandEncoder);
     _mainEncoder->RunConsumerThread();
 
-    _contexts.resize(1u); // std::thread::hardware_concurrency());
+    _contexts.resize(std::thread::hardware_concurrency() - 1);
 
     CommandBufferInfo cbInfo;
     cbInfo.type = CommandBufferType::PRIMARY;
     cbInfo.queue = _queue;
 
     for (auto &context : _contexts) {
-        context.commandBuffer = createCommandBuffer();
-        context.commandBuffer->initialize(cbInfo);
         context.encoder = CC_NEW(CommandEncoder);
         context.encoder->RunConsumerThread();
+        context.commandBuffer = createCommandBuffer();
+        context.commandBuffer->initialize(cbInfo);
+        ((CommandBufferProxy *)context.commandBuffer)->setEncoder(context.encoder);
     }
 
     setMultithreaded(true);

@@ -243,8 +243,14 @@ class CCVKGPUDescriptorSet final : public Object {
 public:
     CCVKGPUDescriptorList gpuDescriptors;
 
-    // references
-    VkDescriptorUpdateTemplate *pUpdateTemplate = nullptr;
+    vector<CCVKDescriptorInfo> descriptorInfos;
+    vector<VkWriteDescriptorSet> descriptorUpdateEntries;
+};
+
+class CCVKGPUDescriptorSetLayout final : public Object {
+public:
+    DescriptorSetLayoutBindingList bindings;
+    vector<uint> dynamicBindings;
 
     struct DescriptorSetInstance {
         VkDescriptorSet vkDescriptorSet = VK_NULL_HANDLE;
@@ -287,7 +293,6 @@ public:
     VkFence vkFence;
 };
 
-class CCVKGPUCommandBufferPool;
 class CCVKGPUDevice final : public Object {
 public:
     VkDevice vkDevice = VK_NULL_HANDLE;
@@ -581,7 +586,7 @@ private:
  * Staging buffer pool, based on multiple fix-sized VkBuffer blocks.
  */
 constexpr size_t chunkSize = 32 * 1024 * 1024; // 32M per block by default
-class CCVKGPUStagingBufferPool : public Object {
+class CCVKGPUStagingBufferPool final : public Object {
 public:
     CCVKGPUStagingBufferPool(CCVKGPUDevice *device)
     : _device(device) {

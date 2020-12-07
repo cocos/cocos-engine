@@ -16,6 +16,8 @@ namespace cc {
 namespace gfx {
 
 bool CommandBufferProxy::initialize(const CommandBufferInfo &info) {
+    _encoder = ((DeviceProxy *)_device)->getMainEncoder();
+
     _type = info.type;
     _queue = info.queue;
 
@@ -23,7 +25,7 @@ bool CommandBufferProxy::initialize(const CommandBufferInfo &info) {
     remoteInfo.queue = ((QueueProxy *)info.queue)->getRemote();
 
     ENCODE_COMMAND_2(
-        ((DeviceProxy *)_device)->getMainEncoder(),
+        _encoder,
         CommandBufferInit,
         remote, getRemote(),
         info, remoteInfo,
@@ -37,7 +39,7 @@ bool CommandBufferProxy::initialize(const CommandBufferInfo &info) {
 void CommandBufferProxy::destroy() {
     if (_remote) {
         ENCODE_COMMAND_1(
-            ((DeviceProxy *)_device)->getMainEncoder(),
+            _encoder,
             CommandBufferDestroy,
             remote, getRemote(),
             {
@@ -50,7 +52,7 @@ void CommandBufferProxy::destroy() {
 
 void CommandBufferProxy::begin(RenderPass *renderPass, uint subpass, Framebuffer *frameBuffer) {
     ENCODE_COMMAND_4(
-        ((DeviceProxy *)_device)->getMainEncoder(),
+        _encoder,
         CommandBufferBegin,
         remote, getRemote(),
         renderPass, renderPass ? ((RenderPassProxy *)renderPass)->getRemote() : nullptr,
@@ -63,7 +65,7 @@ void CommandBufferProxy::begin(RenderPass *renderPass, uint subpass, Framebuffer
 
 void CommandBufferProxy::end() {
     ENCODE_COMMAND_1(
-        ((DeviceProxy *)_device)->getMainEncoder(),
+        _encoder,
         CommandBufferEnd,
         remote, getRemote(),
         {
@@ -72,17 +74,16 @@ void CommandBufferProxy::end() {
 }
 
 void CommandBufferProxy::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, int stencil) {
-    CommandEncoder *encoder = ((DeviceProxy *)_device)->getMainEncoder();
 
     uint attachmentCount = (uint)renderPass->getColorAttachments().size();
     Color *remoteColors = nullptr;
     if (attachmentCount) {
-        remoteColors = encoder->Allocate<Color>(attachmentCount);
+        remoteColors = _encoder->Allocate<Color>(attachmentCount);
         memcpy(remoteColors, colors, sizeof(Color) * attachmentCount);
     }
 
     ENCODE_COMMAND_7(
-        encoder,
+        _encoder,
         CommandBufferBeginRenderPass,
         remote, getRemote(),
         renderPass, ((RenderPassProxy *)renderPass)->getRemote(),
@@ -98,7 +99,7 @@ void CommandBufferProxy::beginRenderPass(RenderPass *renderPass, Framebuffer *fb
 
 void CommandBufferProxy::endRenderPass() {
     ENCODE_COMMAND_1(
-        ((DeviceProxy *)_device)->getMainEncoder(),
+        _encoder,
         CommandBufferEndRenderPass,
         remote, getRemote(),
         {
@@ -108,7 +109,7 @@ void CommandBufferProxy::endRenderPass() {
 
 void CommandBufferProxy::bindPipelineState(PipelineState *pso) {
     ENCODE_COMMAND_2(
-        ((DeviceProxy *)_device)->getMainEncoder(),
+        _encoder,
         CommandBufferBindPipelineState,
         remote, getRemote(),
         pso, ((PipelineStateProxy *)pso)->getRemote(),
@@ -118,16 +119,14 @@ void CommandBufferProxy::bindPipelineState(PipelineState *pso) {
 }
 
 void CommandBufferProxy::bindDescriptorSet(uint set, DescriptorSet *descriptorSet, uint dynamicOffsetCount, const uint *dynamicOffsets) {
-    CommandEncoder *encoder = ((DeviceProxy *)_device)->getMainEncoder();
-
     uint *remoteDynamicOffsets = nullptr;
     if (dynamicOffsetCount) {
-        remoteDynamicOffsets = encoder->Allocate<uint>(dynamicOffsetCount);
+        remoteDynamicOffsets = _encoder->Allocate<uint>(dynamicOffsetCount);
         memcpy(remoteDynamicOffsets, dynamicOffsets, dynamicOffsetCount * sizeof(uint));
     }
 
     ENCODE_COMMAND_5(
-        encoder,
+        _encoder,
         CommandBufferBindDescriptorSet,
         remote, getRemote(),
         set, set,
@@ -141,7 +140,7 @@ void CommandBufferProxy::bindDescriptorSet(uint set, DescriptorSet *descriptorSe
 
 void CommandBufferProxy::bindInputAssembler(InputAssembler *ia) {
     ENCODE_COMMAND_2(
-        ((DeviceProxy *)_device)->getMainEncoder(),
+        _encoder,
         CommandBufferBindInputAssembler,
         remote, getRemote(),
         ia, ((InputAssemblerProxy *)ia)->getRemote(),
@@ -152,7 +151,7 @@ void CommandBufferProxy::bindInputAssembler(InputAssembler *ia) {
 
 void CommandBufferProxy::setViewport(const Viewport &vp) {
     ENCODE_COMMAND_2(
-        ((DeviceProxy *)_device)->getMainEncoder(),
+        _encoder,
         CommandBufferSetViewport,
         remote, getRemote(),
         vp, vp,
@@ -163,7 +162,7 @@ void CommandBufferProxy::setViewport(const Viewport &vp) {
 
 void CommandBufferProxy::setScissor(const Rect &rect) {
     ENCODE_COMMAND_2(
-        ((DeviceProxy *)_device)->getMainEncoder(),
+        _encoder,
         CommandBufferSetScissor,
         remote, getRemote(),
         rect, rect,
@@ -174,7 +173,7 @@ void CommandBufferProxy::setScissor(const Rect &rect) {
 
 void CommandBufferProxy::setLineWidth(const float width) {
     ENCODE_COMMAND_2(
-        ((DeviceProxy *)_device)->getMainEncoder(),
+        _encoder,
         CommandBufferSetLineWidth,
         remote, getRemote(),
         width, width,
@@ -185,7 +184,7 @@ void CommandBufferProxy::setLineWidth(const float width) {
 
 void CommandBufferProxy::setDepthBias(float constant, float clamp, float slope) {
     ENCODE_COMMAND_4(
-        ((DeviceProxy *)_device)->getMainEncoder(),
+        _encoder,
         CommandBufferSetDepthBias,
         remote, getRemote(),
         constant, constant,
@@ -198,7 +197,7 @@ void CommandBufferProxy::setDepthBias(float constant, float clamp, float slope) 
 
 void CommandBufferProxy::setBlendConstants(const Color &constants) {
     ENCODE_COMMAND_2(
-        ((DeviceProxy *)_device)->getMainEncoder(),
+        _encoder,
         CommandBufferSetBlendConstants,
         remote, getRemote(),
         constants, constants,
@@ -209,7 +208,7 @@ void CommandBufferProxy::setBlendConstants(const Color &constants) {
 
 void CommandBufferProxy::setDepthBound(float minBounds, float maxBounds) {
     ENCODE_COMMAND_3(
-        ((DeviceProxy *)_device)->getMainEncoder(),
+        _encoder,
         CommandBufferSetDepthBound,
         remote, getRemote(),
         minBounds, minBounds,
@@ -221,7 +220,7 @@ void CommandBufferProxy::setDepthBound(float minBounds, float maxBounds) {
 
 void CommandBufferProxy::setStencilWriteMask(StencilFace face, uint mask) {
     ENCODE_COMMAND_3(
-        ((DeviceProxy *)_device)->getMainEncoder(),
+        _encoder,
         CommandBufferSetStencilWriteMask,
         remote, getRemote(),
         face, face,
@@ -233,7 +232,7 @@ void CommandBufferProxy::setStencilWriteMask(StencilFace face, uint mask) {
 
 void CommandBufferProxy::setStencilCompareMask(StencilFace face, int ref, uint mask) {
     ENCODE_COMMAND_4(
-        ((DeviceProxy *)_device)->getMainEncoder(),
+        _encoder,
         CommandBufferSetStencilCompareMask,
         remote, getRemote(),
         face, face,
@@ -246,7 +245,7 @@ void CommandBufferProxy::setStencilCompareMask(StencilFace face, int ref, uint m
 
 void CommandBufferProxy::draw(InputAssembler *ia) {
     ENCODE_COMMAND_2(
-        ((DeviceProxy *)_device)->getMainEncoder(),
+        _encoder,
         CommandBufferDraw,
         remote, getRemote(),
         ia, ((InputAssemblerProxy *)ia)->getRemote(),
@@ -256,7 +255,7 @@ void CommandBufferProxy::draw(InputAssembler *ia) {
 }
 
 void CommandBufferProxy::updateBuffer(Buffer *buff, const void *data, uint size, uint offset) {
-    CommandEncoder *encoder = ((DeviceProxy *)_device)->getMainEncoder();
+    CommandEncoder *encoder = _encoder;
 
     uint8_t *remoteData = encoder->Allocate<uint8_t>(size);
     memcpy(remoteData, data, size);
@@ -275,28 +274,26 @@ void CommandBufferProxy::updateBuffer(Buffer *buff, const void *data, uint size,
 }
 
 void CommandBufferProxy::copyBuffersToTexture(const uint8_t *const *buffers, Texture *texture, const BufferTextureCopy *regions, uint count) {
-    CommandEncoder *encoder = ((DeviceProxy *)_device)->getMainEncoder();
-
-    BufferTextureCopy *remoteRegions = encoder->Allocate<BufferTextureCopy>(count);
+    BufferTextureCopy *remoteRegions = _encoder->Allocate<BufferTextureCopy>(count);
     memcpy(remoteRegions, regions, count * sizeof(BufferTextureCopy));
 
     uint bufferCount = 0u;
     for (uint i = 0u; i < count; i++) {
         bufferCount += regions[i].texSubres.layerCount;
     }
-    const uint8_t **remoteBuffers = encoder->Allocate<const uint8_t *>(bufferCount);
+    const uint8_t **remoteBuffers = _encoder->Allocate<const uint8_t *>(bufferCount);
     for (uint i = 0u, n = 0u; i < count; i++) {
         const BufferTextureCopy &region = regions[i];
         uint size = FormatSize(texture->getFormat(), region.texExtent.width, region.texExtent.height, 1);
         for (uint l = 0; l < region.texSubres.layerCount; l++) {
-            uint8_t *buffer = encoder->Allocate<uint8_t>(size);
+            uint8_t *buffer = _encoder->Allocate<uint8_t>(size);
             memcpy(buffer, buffers[n], size);
             remoteBuffers[n++] = buffer;
         }
     }
 
     ENCODE_COMMAND_5(
-        encoder,
+        _encoder,
         CommandBufferCopyBuffersToTexture,
         remote, getRemote(),
         buffers, remoteBuffers,
@@ -309,15 +306,13 @@ void CommandBufferProxy::copyBuffersToTexture(const uint8_t *const *buffers, Tex
 }
 
 void CommandBufferProxy::execute(const CommandBuffer *const *cmdBuffs, uint32_t count) {
-    CommandEncoder *encoder = ((DeviceProxy *)_device)->getMainEncoder();
-
-    const CommandBuffer **remoteCmdBuffs = encoder->Allocate<const CommandBuffer *>(count);
+    const CommandBuffer **remoteCmdBuffs = _encoder->Allocate<const CommandBuffer *>(count);
     for (uint i = 0; i < count; ++i) {
         remoteCmdBuffs[i] = ((CommandBufferProxy *)cmdBuffs[i])->getRemote();
     }
 
     ENCODE_COMMAND_3(
-        encoder,
+        _encoder,
         CommandBufferExecute,
         remote, getRemote(),
         cmdBuffs, remoteCmdBuffs,

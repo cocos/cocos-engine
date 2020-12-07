@@ -6,7 +6,7 @@
 namespace cc {
 namespace gfx {
 
-class CC_GLES2_API GLES2PrimaryCommandBuffer : public GLES2CommandBuffer {
+class CC_GLES2_API GLES2PrimaryCommandBuffer final : public GLES2CommandBuffer {
     friend class GLES2Queue;
 
 public:

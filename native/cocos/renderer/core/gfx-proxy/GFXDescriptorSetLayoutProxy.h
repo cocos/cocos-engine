@@ -6,7 +6,7 @@
 namespace cc {
 namespace gfx {
 
-class CC_DLL DescriptorSetLayoutProxy : public Proxy<DescriptorSetLayout> {
+class CC_DLL DescriptorSetLayoutProxy final : public Proxy<DescriptorSetLayout> {
 public:
     using Proxy::Proxy;
     DescriptorSetLayoutProxy(Device *device) = delete;

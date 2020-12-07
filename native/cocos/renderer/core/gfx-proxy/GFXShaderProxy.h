@@ -6,7 +6,7 @@
 namespace cc {
 namespace gfx {
 
-class CC_DLL ShaderProxy : public Proxy<Shader> {
+class CC_DLL ShaderProxy final : public Proxy<Shader> {
 public:
     using Proxy::Proxy;
     ShaderProxy(Device *device) = delete;

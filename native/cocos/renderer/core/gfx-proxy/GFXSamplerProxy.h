@@ -6,7 +6,7 @@
 namespace cc {
 namespace gfx {
 
-class CC_DLL SamplerProxy : public Proxy<Sampler> {
+class CC_DLL SamplerProxy final : public Proxy<Sampler> {
 public:
     using Proxy::Proxy;
     SamplerProxy(Device *device) = delete;

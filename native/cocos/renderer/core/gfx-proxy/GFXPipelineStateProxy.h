@@ -6,7 +6,7 @@
 namespace cc {
 namespace gfx {
 
-class CC_DLL PipelineStateProxy : public Proxy<PipelineState> {
+class CC_DLL PipelineStateProxy final : public Proxy<PipelineState> {
 public:
     using Proxy::Proxy;
     PipelineStateProxy(Device *device) = delete;

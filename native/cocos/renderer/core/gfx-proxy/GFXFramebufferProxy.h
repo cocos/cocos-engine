@@ -6,7 +6,7 @@
 namespace cc {
 namespace gfx {
 
-class CC_DLL FramebufferProxy : public Proxy<Framebuffer> {
+class CC_DLL FramebufferProxy final : public Proxy<Framebuffer> {
 public:
     using Proxy::Proxy;
     FramebufferProxy(Device *device) = delete;

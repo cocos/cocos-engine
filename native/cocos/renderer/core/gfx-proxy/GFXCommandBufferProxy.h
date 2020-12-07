@@ -6,7 +6,7 @@
 namespace cc {
 namespace gfx {
 
-class CC_DLL CommandBufferProxy : public Proxy<CommandBuffer> {
+class CC_DLL CommandBufferProxy final : public Proxy<CommandBuffer> {
 public:
     using Proxy::Proxy;
     CommandBufferProxy(Device *device) = delete;
@@ -36,6 +36,11 @@ public:
     virtual uint getNumDrawCalls() const override { return _remote->getNumDrawCalls(); }
     virtual uint getNumInstances() const override { return _remote->getNumInstances(); }
     virtual uint getNumTris() const override { return _remote->getNumTris(); }
+
+    void setEncoder(CommandEncoder *encoder) { _encoder = encoder; }
+
+private:
+    CommandEncoder *_encoder = nullptr;
 };
 
 } // namespace gfx

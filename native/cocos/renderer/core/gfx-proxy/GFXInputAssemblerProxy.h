@@ -6,7 +6,7 @@
 namespace cc {
 namespace gfx {
 
-class CC_DLL InputAssemblerProxy : public Proxy<InputAssembler> {
+class CC_DLL InputAssemblerProxy final : public Proxy<InputAssembler> {
 public:
     using Proxy::Proxy;
     InputAssemblerProxy(Device *device) = delete;

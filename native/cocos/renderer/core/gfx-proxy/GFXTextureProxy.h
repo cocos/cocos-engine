@@ -6,7 +6,7 @@
 namespace cc {
 namespace gfx {
 
-class CC_DLL TextureProxy : public Proxy<Texture> {
+class CC_DLL TextureProxy final : public Proxy<Texture> {
 public:
     using Proxy::Proxy;
     TextureProxy(Device *device) = delete;

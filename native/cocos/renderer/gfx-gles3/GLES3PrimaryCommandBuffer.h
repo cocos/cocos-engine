@@ -6,7 +6,7 @@
 namespace cc {
 namespace gfx {
 
-class CC_GLES3_API GLES3PrimaryCommandBuffer : public GLES3CommandBuffer {
+class CC_GLES3_API GLES3PrimaryCommandBuffer final : public GLES3CommandBuffer {
     friend class GLES3Queue;
 
 public:
