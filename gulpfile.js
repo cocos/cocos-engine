@@ -1,4 +1,4 @@
-﻿/*
+/*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
  Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
@@ -45,7 +45,7 @@ gulp.task('build-code', gulp.series('build-debug-infos', () => {
         `--engine=${__dirname}`,
         '--module=system',
         '--sourcemap',
-        '--buildmode=universal',
+        '--build-mode=BUILD',
         '--platform=HTML5',
         '--physics=cannon',
         '--out=./bin/dev/cc',
@@ -64,7 +64,7 @@ gulp.task('build-code-minified', gulp.series('build-debug-infos', () => {
         '--module=system',
         '--compress',
         '--sourcemap',
-        '--buildmode=universal',
+        '--build-mode=BUILD',
         '--platform=HTML5',
         '--physics=cannon',
         '--out=./bin/dev/cc-min',
