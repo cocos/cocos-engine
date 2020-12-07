@@ -1,11 +1,15 @@
 declare module jsb {
     // Accelerometer
-    export module device {
-        export function setMotionEnabled (enabled: boolean): void;
-        export function dispatchDeviceMotionEvent (event: any): void;
-    }
-    export function onAccelerometerChange (cb: Function): void;
-    export function offAccelerometerChange (cb?: Function | null): void;
+    // export module device {
+    //     export function setMotionEnabled (enabled: boolean): void;
+    //     export function dispatchDeviceMotionEvent (event: any): void;
+    //     export function setMotionInterval (interval: number): void;
+    // }
+    // export function onAccelerometerChange (cb: Function): void;
+    // export function offAccelerometerChange (cb?: Function | null): void;
+    export function startAccelerometer (cb: Function): void;  // 补充
+    export function stopAccelerometer (cb?: Function): void; // 补充
+    export function setAccelerometerInterval (interval: number): void;
 
     // Touch
     export function onTouchStart(cb: Function): void;
