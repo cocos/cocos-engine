@@ -240,6 +240,7 @@ export default class TiledAssembler extends Assembler2D {
         let uvSliced = sprite.spriteFrame.uvSliced;
         let rotated = sprite.spriteFrame._rotated;
         let floatsPerVert = this.floatsPerVert, uvOffset = this.uvOffset;
+        let tempXVerts = [], tempYVerts = [];
         for (let yindex = 0, ylength = row; yindex < ylength; ++yindex) {
             if (this.sizableHeight > centerHeight) {
                 if (this.sizableHeight >= yindex * centerHeight) {
