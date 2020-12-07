@@ -29,11 +29,9 @@
  * @module core
  */
 
-import { EDITOR, TEST, COCOSPLAY, JSB, MINIGAME, HUAWEI, OPPO, VIVO, RUNTIME_BASED, LINKSURE, QTT, DEV } from 'internal:constants';
+import { EDITOR, TEST, JSB, MINIGAME, RUNTIME_BASED, DEV } from 'internal:constants';
 import { legacyCC } from '../global-exports';
 import { warnID, log, logID } from './debug';
-
-const _global = typeof window === 'undefined' ? global : window;
 
 enum NetworkType {
     /**
@@ -868,15 +866,7 @@ export const sys: Record<string, any> = {
             const browserTypes = typeReg1.exec(ua) || typeReg2.exec(ua) || typeReg3.exec(ua);
     
             let browserType = browserTypes ? browserTypes[0].toLowerCase() : sys.BROWSER_TYPE_UNKNOWN;
-            if (COCOSPLAY) {
-                browserType = sys.BROWSER_TYPE_COCOSPLAY;
-            } else if (HUAWEI) {
-                browserType = sys.BROWSER_TYPE_HUAWEI_GAME;
-            } else if (OPPO) {
-                browserType = sys.BROWSER_TYPE_OPPO_GAME;
-            } else if (VIVO) {
-                browserType = sys.BROWSER_TYPE_VIVO_GAME;
-            } else if (browserType === 'safari' && isAndroid) {
+            if (browserType === 'safari' && isAndroid) {
                 browserType = sys.BROWSER_TYPE_ANDROID;
             } else if (browserType === 'qq' && ua.match(/android.*applewebkit/i)) {
                 browserType = sys.BROWSER_TYPE_ANDROID;
@@ -969,6 +959,10 @@ export const sys: Record<string, any> = {
             opengl: _supportWebGL,
             webp: _supportWebp,
             imageBitmap: false,
+            touches: false,
+            mouse: false,
+            keyboard: false,
+            accelerometer: false,
         } as { [x: string]: any; };
     
         if (!TEST && typeof createImageBitmap !== 'undefined' && typeof Blob !== 'undefined') {
@@ -1110,24 +1104,9 @@ export const sys: Record<string, any> = {
 //     };
 //     sys.__audioSupport = {};
 // }
-if (JSB || RUNTIME_BASED) {
-    let platform;
-    if (VIVO) {
-        platform = sys.VIVO_MINI_GAME;
-    } else if (OPPO) {
-        platform = sys.OPPO_MINI_GAME;
-    } else if (HUAWEI) {
-        platform = sys.HUAWEI_QUICK_GAME;
-    } else if (COCOSPLAY) {
-        platform = sys.COCOSPLAY;
-    } else if (LINKSURE) {
-        platform = sys.LINKSURE_MINI_GAME;
-    } else if (QTT) {
-        platform = sys.QTT_MINI_GAME;
-    } else {
-        // @ts-expect-error
-        platform = __getPlatform();
-    }
+if (JSB) {
+    // @ts-expect-error
+    let platform = __getPlatform();
     sys.platform = platform;
     sys.isMobile = (platform === sys.ANDROID
                     || platform === sys.IPAD
