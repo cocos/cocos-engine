@@ -101,7 +101,7 @@ let BlendFunc = cc.Class({
         );
         
         if (CC_JSB) {
-            RenderComponent.prototype.setVertsDirty.call(this);
+            RenderComponent.prototype.markForRender.call(this, true);
         }        
     },
 });
