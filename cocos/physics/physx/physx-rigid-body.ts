@@ -177,7 +177,7 @@ export class PhysXRigidBody implements IRigidBody {
         if (USE_BYTEDANCE) {
             this.impl.addForce(force, PX.ForceMode.eFORCE, true);
         } else {
-            this.impl.addForceAtLocalPos(force, rp);
+            this.impl.applyForce(force, rp);
         }
     }
 
@@ -187,7 +187,7 @@ export class PhysXRigidBody implements IRigidBody {
         if (USE_BYTEDANCE) {
             this.impl.addForce(force, PX.ForceMode.eFORCE, true);
         } else {
-            this.impl.addForceAtLocalPos(force, rp);
+            this.impl.applyLocalForce(force, rp);
         }
     }
 
@@ -197,7 +197,7 @@ export class PhysXRigidBody implements IRigidBody {
         if (USE_BYTEDANCE) {
             this.impl.addForce(force, PX.ForceMode.eIMPULSE, true);
         } else {
-            this.impl.addImpulseAtPos(force, rp);
+            this.impl.applyImpulse(force, rp);
         }
     }
 
@@ -207,7 +207,7 @@ export class PhysXRigidBody implements IRigidBody {
         if (USE_BYTEDANCE) {
             this.impl.addForce(force, PX.ForceMode.eIMPULSE, true);
         } else {
-            this.impl.addImpulseAtLocalPos(force, rp);
+            this.impl.applyLocalImpulse(force, rp);
         }
     }
 

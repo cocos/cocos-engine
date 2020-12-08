@@ -148,11 +148,14 @@ export class PhysXWorld implements IPhysicsWorld {
             simulation.setOnContact((_header, pairs) => {
                 for (let i = 0; i < pairs.length; i++) {
                     const cp = pairs[i];
-                    if (cp.getContactPairFlags() & (1 | 2)) continue;
-                    const events = cp.getPairFlags();
+                    if (cp.getContactPairFlags() & 3) continue;
                     const shapes = cp.getShapes();
-                    const shapeA = getWrapShape<PhysXShape>(shapes[0]);
-                    const shapeB = getWrapShape<PhysXShape>(shapes[1]);
+                    const shape0 = shapes.shape0;
+                    const shape1 = shapes.shape1;
+                    if (!shape0 || !shape1) continue;
+                    const shapeA = getWrapShape<PhysXShape>(shape0);
+                    const shapeB = getWrapShape<PhysXShape>(shape1);
+                    const events = cp.getPairFlags();
                     if (events & 4) {
                         onCollision('onCollisionEnter', shapeA, shapeB);
                     } else if (events & 8) {
@@ -165,7 +168,7 @@ export class PhysXWorld implements IPhysicsWorld {
             simulation.setOnTrigger((pairs) => {
                 for (let i = 0; i < pairs.length; i++) {
                     const cp = pairs[i];
-                    if (cp.getFlags() & (1 | 2)) continue;
+                    if (cp.getFlags() & 3) continue;
                     const events = cp.getStatus();
                     const shapeA = getWrapShape<PhysXShape>(cp.getTriggerShape());
                     const shapeB = getWrapShape<PhysXShape>(cp.getOtherShape());

@@ -105,7 +105,8 @@ export class PhysXTrimeshShape extends PhysXShape implements ITrimeshShape {
             const physics = wrappedWorld.physics;
             const collider = this.collider;
             const pxmat = this.getSharedMaterial(collider.sharedMaterial!);
-            const meshScale = USE_BYTEDANCE ? new PX.MeshScale(collider.node.worldScale, Quat.IDENTITY) : new PX.PxMeshScale(collider.node.worldScale, Quat.IDENTITY);
+            const meshScale = USE_BYTEDANCE ? new PX.MeshScale(collider.node.worldScale, Quat.IDENTITY)
+                : new PX.PxMeshScale(collider.node.worldScale, Quat.IDENTITY);
             if (collider.convex) {
                 if (PX.MESH_CONVEX[v._uuid] == null) {
                     const cooking = wrappedWorld.cooking;
@@ -136,8 +137,8 @@ export class PhysXTrimeshShape extends PhysXShape implements ITrimeshShape {
                     if (USE_BYTEDANCE) {
                         const posBuf = new Float32Array(v.readAttribute(0, GFXAttributeName.ATTR_POSITION)!);
                         const indBuf = new Uint32Array(v.readIndices(0)!);
-                        // PX.MESH_STATIC[v._uuid] = createTriangleMesh(posBuf, indBuf, cooking);
-                        PX.MESH_STATIC[v._uuid] = createBV33TriangleMesh(posBuf, indBuf, cooking);
+                        PX.MESH_STATIC[v._uuid] = createTriangleMesh(posBuf, indBuf, cooking);
+                        // PX.MESH_STATIC[v._uuid] = createBV33TriangleMesh(posBuf, indBuf, cooking);
                         // PX.MESH_STATIC[v._uuid] = createBV34TriangleMesh(posBuf, indBuf, cooking);
                     } else {
                         const posBuf = v.readAttribute(0, GFXAttributeName.ATTR_POSITION)!;
