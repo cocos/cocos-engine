@@ -492,7 +492,7 @@ var eventManager = {
         if (getCode === EventTouch.BEGAN) {
             if (!cc.macro.ENABLE_MULTI_TOUCH && eventManager._currentTouch) {
                 let node = eventManager._currentTouchListener._node;
-                if (node && node.activeInHierarchy) {
+                if (node && node.activeInHierarchy && node._touchListener.swallowTouches) {
                     return false;
                 }
             }
