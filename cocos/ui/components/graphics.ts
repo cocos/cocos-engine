@@ -667,9 +667,9 @@ export class Graphics extends UIRenderable {
     }
 
     protected _render (render: UI) {
-        if (this._isNeedUploadData) {
-            render.addUploadBuffersFunc(this, this._uploadData);
-        }
+        // if (this._isNeedUploadData) {
+        //     render.addUploadBuffersFunc(this, this._uploadData.bind(this));
+        // }
 
         render.commitModel(this, this.model, this.getMaterialInstance(0));
     }

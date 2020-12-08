@@ -51,6 +51,7 @@ import { EffectAsset, RenderTexture, SpriteFrame } from '../../assets';
 import { programLib } from '../core/program-lib';
 import { TextureBase } from '../../assets/texture-base';
 import { sys } from '../../platform/sys';
+import { Director, director } from '../../director';
 
 const isWebIOS14OrIPadOS14Env = sys.os === sys.OS_IOS
     && sys.isBrowser
@@ -326,6 +327,14 @@ export class UI {
     }
 
     public update () {
+        const calls = this._doUploadBuffersCall;
+        for (const key of calls.keys()) {
+            const func = calls.get(key);
+            if (func) {
+                func(this);
+            }
+        }
+
         const screens = this._screens;
         for (let i = 0; i < screens.length; ++i) {
             const screen = screens[i];
@@ -399,11 +408,13 @@ export class UI {
 
     public uploadBuffers () {
         if (this._batches.length > 0) {
-            const calls = this._doUploadBuffersCall;
-            for (const key of calls.keys()) {
-                const list = calls.get(key);
-                list!.call(key, this);
-            }
+            // const calls = this._doUploadBuffersCall;
+            // for (const key of calls.keys()) {
+            //     const func = calls.get(key);
+            //     if (func){
+            //         func(this);
+            //     }
+            // }
 
             const buffers = this._meshBuffers;
             for (const i of buffers.keys()) {

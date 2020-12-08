@@ -28,6 +28,7 @@
  * @module ui-assembler
  */
 
+import { director } from '../../../../core';
 import { Color, Vec3 } from '../../../../core/math';
 import { IAssembler } from '../../../../core/renderer/ui/base';
 import { MeshRenderData } from '../../../../core/renderer/ui/render-data';
@@ -160,6 +161,8 @@ export const graphicsAssembler: IAssembler = {
     },
 
     end (graphics: Graphics) {
+        // @ts-ignore
+        director.root?.ui.addUploadBuffersFunc(graphics, graphics._uploadData.bind(graphics));
         graphics.markForUpdateRenderData();
     },
 
