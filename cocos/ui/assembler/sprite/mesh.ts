@@ -23,15 +23,34 @@
  THE SOFTWARE.
 */
 
-let mesh = {
-    useModel: false,
+/**
+ * @packageDocumentation
+ * @module ui-assembler
+ */
 
-    createData(sprite) {
+import { IUV, SpriteFrame } from '../../../core/assets';
+import { Color, Mat4, Vec3 } from '../../../core/math';
+import { IRenderData, RenderData } from '../../../core/renderer/ui/render-data';
+import { UI } from '../../../core/renderer/ui/ui';
+import { Sprite } from '../../components';
+import { IAssembler } from '../../../core/renderer/ui/base';
+
+const vec3_temp = new Vec3();
+
+/**
+ * mesh 组装器
+ * 可通过 `UI.mesh` 获取该组装器。
+ */
+export const mesh: IAssembler = {
+    useModel: false,
+    verticesCount: 4,
+
+    createData (sprite: Sprite) {
         return sprite.requestRenderData();
     },
 
-    updateRenderData(sprite) {
-        let frame = sprite.spriteFrame;
+    updateRenderData (sprite: Sprite) {
+        const frame = sprite.spriteFrame;
 
         // TODO: Material API design and export from editor could affect the material activation process
         // need to update the logic here
@@ -44,29 +63,50 @@ let mesh = {
         //     }
         // }
 
-        let renderData = sprite._renderData;
+        const renderData = sprite.renderData;
         if (renderData && frame) {
-            let vertices = frame.vertices;
+            const vertices = frame.vertices;
             if (vertices) {
                 if (renderData.vertexCount !== vertices.x.length) {
                     renderData.vertexCount = vertices.x.length;
-
                     // 1 for world vertices, 2 for local vertices
                     renderData.dataLength = renderData.vertexCount * 2;
+    
+                    renderData.indicesCount = vertices.triangles.length;
+
+                    this.updateColor(sprite);
 
                     renderData.uvDirty = renderData.vertDirty = true;
                 }
-                renderData.indiceCount = vertices.triangles.length;
-
+                
                 if (renderData.uvDirty) {
                     this.updateUVs(sprite);
                 }
-                let vertDirty = renderData.vertDirty;
-                if (vertDirty) {
-                    this.updateVerts(sprite);
-                    this.updateWorldVerts(sprite);
+
+                if(renderData.vertDirty) {
+                    this.updateVertices(sprite);
+                    this.updateWorldVertices(sprite);
                 }
             }
+        }
+    },
+
+    updateColor (sprite: Sprite) {
+        const vData = sprite.renderData!.vData;
+
+        let colorOffset = 5;
+        const color = sprite.color;
+        const colorR = color.r / 255;
+        const colorG = color.g / 255;
+        const colorB = color.b / 255;
+        const colorA = color.a / 255;
+        for (let i = 0; i < 4; i++) {
+            vData![colorOffset] = colorR;
+            vData![colorOffset + 1] = colorG;
+            vData![colorOffset + 2] = colorB;
+            vData![colorOffset + 3] = colorA;
+
+            colorOffset += 9;
         }
     },
 
@@ -86,7 +126,7 @@ let mesh = {
         renderData.uvDirty = false;
     },
 
-    updateVerts(sprite) {
+    updateVertices(sprite) {
         let node = sprite.node,
             contentWidth = Math.abs(node.width),
             contentHeight = Math.abs(node.height),
@@ -140,37 +180,8 @@ let mesh = {
         for (let i = 0, l = renderData.vertexCount; i < l; i++) {
             let local = data[i + l];
             let world = data[i];
-            vec3.set(vec3_temp, local.x, local.y, 0);
-            vec3.transformMat4(world, vec3_temp, matrix);
-        }
-    },
-
-    fillBuffers(sprite, /*renderer*/buffer) {
-        let vertices = sprite.spriteFrame.vertices;
-        if (!vertices) {
-            return;
-        }
-
-        // update world verts
-        // if (renderer.worldMatDirty) {
-        this.updateWorldVerts(sprite);
-        // }
-
-        // buffer
-        let /*buffer = renderer._meshBuffer3D,*/
-            indiceOffset = buffer.indiceOffset,
-            vertexId = buffer.vertexOffset;
-
-        let node = sprite.node;
-        fillVerticesWithoutCalc3D(node, buffer, sprite._renderData, sprite._color._val);
-
-        // buffer data may be realloc, need get reference after request.
-        let ibuf = buffer._iData;
-        let triangles = vertices.triangles;
-        for (let i = 0, l = triangles.length; i < l; i++) {
-            ibuf[indiceOffset++] = vertexId + triangles[i];
+            Vec3.set(vec3_temp, local.x, local.y, 0);
+            Vec3.transformMat4(world, vec3_temp, matrix);
         }
     },
 };
-
-export default mesh;

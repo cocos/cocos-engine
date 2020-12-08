@@ -29,9 +29,9 @@
  * @module ui
  */
 
+import { ccclass, help, executionOrder, menu } from 'cc.decorator';
 import { RenderableComponent } from '../../core/3d/framework/renderable-component';
 import { UIComponent } from '../../core/components/ui-base/ui-component';
-import { ccclass, help, executionOrder, menu } from 'cc.decorator';
 import { director } from '../../core/director';
 import { RenderPriority } from '../../core/pipeline/define';
 import { UI } from '../../core/renderer/ui/ui';
@@ -53,7 +53,6 @@ import { legacyCC } from '../../core/global-exports';
 @executionOrder(110)
 @menu('UI/UIMeshRenderer')
 export class UIMeshRenderer extends UIComponent {
-
     private _models: scene.Model[] | null = null;
 
     public get modelComponent () {
@@ -63,7 +62,7 @@ export class UIMeshRenderer extends UIComponent {
     private _modelComponent: RenderableComponent | null = null;
 
     public onLoad () {
-        if(!this.node._uiProps.uiTransformComp){
+        if (!this.node._uiProps.uiTransformComp) {
             this.node.addComponent('cc.UITransform');
         }
 
@@ -107,7 +106,7 @@ export class UIMeshRenderer extends UIComponent {
 
     public updateAssembler (render: UI) {
         if (this._models) {
-            for(const m of this._models){
+            for (const m of this._models) {
                 render.commitModel.call(render, this, m, this._modelComponent!.material);
             }
             return true;
@@ -137,7 +136,7 @@ export class UIMeshRenderer extends UIComponent {
                 // @ts-expect-error
                 pass._priority = RenderPriority.MAX - 11;
                 if (!pass.blendState.targets[0].blend) {
-                    material.overridePipelineStates({ blendState: { targets: [ { blend: true } ] } }, j);
+                    material.overridePipelineStates({ blendState: { targets: [{ blend: true }] } }, j);
                 }
             }
         }

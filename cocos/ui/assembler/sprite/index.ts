@@ -48,22 +48,23 @@ const spriteAssembler: IAssemblerManager = {
 
         const comp = spriteComp as Sprite;
         switch (comp.type) {
-            case SpriteType.SLICED:
-                util = sliced;
-                break;
-            case SpriteType.TILED:
-                util = tilled;
-                break;
-            case SpriteType.FILLED:
-                if (comp.fillType === FillType.RADIAL) {
-                    util = radialFilled;
-                } else {
-                    util = barFilled;
-                }
-                break;
+        case SpriteType.SLICED:
+            util = sliced;
+            break;
+        case SpriteType.TILED:
+            util = tilled;
+            break;
+        case SpriteType.FILLED:
+            if (comp.fillType === FillType.RADIAL) {
+                util = radialFilled;
+            } else {
+                util = barFilled;
+            }
+            break;
             // case SpriteType.MESH:
             //     util = meshRenderUtil;
             //     break;
+        default:
         }
 
         return util;

@@ -69,7 +69,6 @@ function _calcIntersectedPoints (left, right, bottom, top, center, angle, inters
             intersectPoints[2].x = right;
             intersectPoints[2].y = yRight;
         }
-
     }
 
     if (sinAngle !== 0) {
@@ -85,7 +84,6 @@ function _calcIntersectedPoints (left, right, bottom, top, center, angle, inters
             intersectPoints[1].x = xBottom;
             intersectPoints[1].y = bottom;
         }
-
     }
 }
 
@@ -176,20 +174,18 @@ function _getVertAngle (start: Vec2, end: Vec2) {
 
     if (placementX === 0 && placementY === 0) {
         return 0;
-    } else if (placementX === 0) {
+    } if (placementX === 0) {
         if (placementY > 0) {
             return Math.PI * 0.5;
-        } else {
-            return Math.PI * 1.5;
         }
-    } else {
-        let angle = Math.atan(placementY / placementX);
-        if (placementX < 0) {
-            angle += Math.PI;
-        }
-
-        return angle;
+        return Math.PI * 1.5;
     }
+    let angle = Math.atan(placementY / placementX);
+    if (placementX < 0) {
+        angle += Math.PI;
+    }
+
+    return angle;
 }
 
 function _generateTriangle (dataList: IRenderData[], offset: number, vert0: Vec2, vert1: Vec2, vert2: Vec2) {
@@ -328,8 +324,7 @@ export const radialFilled: IAssembler = {
                             } else {
                                 // startAngle to endAngle
                                 _generateTriangle(dataList, offset, _center,
-                                    _vertPos[triangle.x], _vertPos[triangle.y],
-                                );
+                                    _vertPos[triangle.x], _vertPos[triangle.y]);
                             }
                             offset += 3;
                         } else {
@@ -341,16 +336,14 @@ export const radialFilled: IAssembler = {
                                 // fillStart to endAngle
                                 _generateTriangle(dataList, offset, _center,
                                     _intersectPoint_1[triangleIndex],
-                                    _vertPos[triangle.y],
-                                );
+                                    _vertPos[triangle.y]);
                                 offset += 3;
                             } else {
                                 renderData.dataLength = offset + 3;
                                 // fillStart to fillEnd
                                 _generateTriangle(dataList, offset, _center,
                                     _intersectPoint_1[triangleIndex],
-                                    _intersectPoint_2[triangleIndex],
-                                );
+                                    _intersectPoint_2[triangleIndex]);
                                 offset += 3;
                             }
                         }

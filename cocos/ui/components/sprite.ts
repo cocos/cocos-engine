@@ -29,16 +29,16 @@
  * @module ui
  */
 
+import { ccclass, help, executionOrder, menu, tooltip, displayOrder, type, range, editable, serializable } from 'cc.decorator';
+import { EDITOR } from 'internal:constants';
 import { SpriteAtlas } from '../../core/assets/sprite-atlas';
 import { SpriteFrame } from '../../core/assets/sprite-frame';
-import { ccclass, help, executionOrder, menu, tooltip, displayOrder, type, range, editable, serializable } from 'cc.decorator';
 import { SystemEventType } from '../../core/platform/event-manager/event-enum';
 import { Vec2 } from '../../core/math';
 import { ccenum } from '../../core/value-types/enum';
 import { clamp } from '../../core/math/utils';
 import { UI } from '../../core/renderer/ui/ui';
 import { UIRenderable, InstanceMaterialType } from '../../core/components/ui-base/ui-renderable';
-import { EDITOR } from 'internal:constants';
 import { legacyCC } from '../../core/global-exports';
 import { PixelFormat } from '../../core/assets/asset-enum';
 import { TextureBase } from '../../core/assets/texture-base';
@@ -82,11 +82,11 @@ enum SpriteType {
      * 填充类型。
      */
     FILLED = 3,
-    // /**
-    //  * @en The mesh type.
-    //  * @zh  以 Mesh 三角形组成的类型
-    //  */
-    // MESH: 4
+    /**
+    * @en The mesh type.
+    * @zh  以 Mesh 三角形组成的类型
+    */
+    MESH = 4,
 }
 
 ccenum(SpriteType);
@@ -178,7 +178,6 @@ enum EventType {
 @executionOrder(110)
 @menu('UI/Render/Sprite')
 export class Sprite extends UIRenderable {
-
     /**
      * @en
      * The sprite atlas where the sprite is.
@@ -199,7 +198,7 @@ export class Sprite extends UIRenderable {
         }
 
         this._atlas = value;
-//        this.spriteFrame = null;
+        //        this.spriteFrame = null;
     }
 
     /**
@@ -246,9 +245,9 @@ export class Sprite extends UIRenderable {
      */
     @type(SpriteType)
     @displayOrder(6)
-    @tooltip('渲染模式：\n- 普通（Simple）：修改尺寸会整体拉伸图像，适用于序列帧动画和普通图像 \n' +
-    '- 九宫格（Sliced）：修改尺寸时四个角的区域不会拉伸，适用于 UI 按钮和面板背景 \n' +
-    '- 填充（Filled）：设置一定的填充起始位置和方向，能够以一定比率剪裁显示图片')
+    @tooltip('渲染模式：\n- 普通（Simple）：修改尺寸会整体拉伸图像，适用于序列帧动画和普通图像 \n'
+    + '- 九宫格（Sliced）：修改尺寸时四个角的区域不会拉伸，适用于 UI 按钮和面板背景 \n'
+    + '- 填充（Filled）：设置一定的填充起始位置和方向，能够以一定比率剪裁显示图片')
     get type () {
         return this._type;
     }
@@ -282,10 +281,8 @@ export class Sprite extends UIRenderable {
             if (value === FillType.RADIAL || this._fillType === FillType.RADIAL) {
                 this.destroyRenderData();
                 this._renderData = null;
-            } else {
-                if (this._renderData) {
-                    this.markForUpdateRenderData(true);
-                }
+            } else if (this._renderData) {
+                this.markForUpdateRenderData(true);
             }
         }
 
@@ -395,8 +392,8 @@ export class Sprite extends UIRenderable {
         }
 
         this._isTrimmedMode = value;
-        if ((this._type === SpriteType.SIMPLE /*|| this._type === SpriteType.MESH*/) &&
-            this._renderData) {
+        if ((this._type === SpriteType.SIMPLE || this._type === SpriteType.MESH)
+            && this._renderData) {
             this.markForUpdateRenderData(true);
         }
     }
@@ -648,7 +645,6 @@ export class Sprite extends UIRenderable {
                 const rect = this._spriteFrame.getRect();
                 expectedW = rect.width;
                 expectedH = rect.height;
-
             }
 
             if (expectedW !== actualSize.width || expectedH !== actualSize.height) {
@@ -680,7 +676,6 @@ export class Sprite extends UIRenderable {
                     this.markForUpdateRenderData();
                     // }
                 }
-
             }
             // }
 
@@ -692,7 +687,7 @@ export class Sprite extends UIRenderable {
             // this.markForRender(true);
         }
     }
-/*
+    /*
     private _applyAtlas (spriteFrame: SpriteFrame | null) {
         if (!EDITOR) {
             return;
@@ -749,7 +744,7 @@ export class Sprite extends UIRenderable {
                 }
             }
 
-            this._renderDataFlag = this._renderData.uvDirty
+            this._renderDataFlag = this._renderData.uvDirty;
         }
 
         if (spriteFrame) {
@@ -762,7 +757,7 @@ export class Sprite extends UIRenderable {
                 }
             }
         }
-/*
+        /*
         if (EDITOR) {
             // Set atlas
             this._applyAtlas(spriteFrame);
