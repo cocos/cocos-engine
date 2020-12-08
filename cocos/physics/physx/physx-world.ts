@@ -208,7 +208,6 @@ export class PhysXWorld implements IPhysicsWorld {
             const sceneDesc = PX.getDefaultSceneDesc(this.physics.getTolerancesScale(), 0, this.simulationCB);
             this.scene = this.physics.createScene(sceneDesc);
         }
-        window.PP = this;
     }
 
     step (deltaTime: number, _timeSinceLastCalled?: number, _maxSubStep = 0): void {
