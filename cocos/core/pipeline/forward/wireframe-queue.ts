@@ -2,18 +2,16 @@
 import { CommandBuffer } from '../../gfx/command-buffer';
 import { Device } from '../../gfx/device';
 import { RenderPass } from '../../gfx/render-pass';
-import { DSPool, PassHandle, PassPool, PassView, ShaderHandle, ShaderPool, SubModelPool, SubModelView } from '../../renderer';
+import { DSPool, PassHandle, PassPool, PassView, ShaderPool, SubModelPool, SubModelView } from '../../renderer';
 import { IRenderObject, IRenderPass, IRenderQueueDesc, SetIndex } from '../define';
 import { PipelineStateManager } from '../pipeline-state-manager';
-import { Buffer, BufferInfo, BufferUsageBit, InputAssembler, InputAssemblerInfo, MemoryUsageBit, PipelineState, PrimitiveMode } from '../../gfx';
+import { Buffer, BufferInfo, BufferUsageBit, InputAssemblerInfo, MemoryUsageBit, PipelineState, PrimitiveMode } from '../../gfx';
 import { ForwardPipeline } from './forward-pipeline';
 import legacyCC from '../../../../predefine';
 import { InstancedBuffer } from '../instanced-buffer';
 import { BatchedBuffer } from '../batched-buffer';
 import { CachedArray } from '../../memop/cached-array';
 import { RecyclePool } from '../../memop/recycle-pool';
-import { SubModel, Wireframe } from '../../renderer/scene';
-import { Material } from '../../assets/material';
 
 enum WireframeType {
     Render,
@@ -44,12 +42,12 @@ export class WireframeQueue {
      * @en A set of instanced buffer
      * @zh Instance 合批缓存集合。
      */
-    public queueInstanced = new Set<[InstancedBuffer, SubModel]>();
+    public queueInstanced = new Set<[InstancedBuffer, Object]>();
     /**
      * @en A set of dynamic batched buffer
      * @zh 动态合批缓存集合。
      */
-    public queueBatched = new Set<[BatchedBuffer, SubModel]>();
+    public queueBatched = new Set<[BatchedBuffer, Object]>();
 
     constructor (pipeline: ForwardPipeline | null = null, desc: IRenderQueueDesc | null = null) {
         desc && this.initRenderQueue(desc);
@@ -60,11 +58,11 @@ export class WireframeQueue {
         this._pipeline = pipeline;
     }
 
-    addInstanced(instanceBuffer:InstancedBuffer, subModel: SubModel) {
+    addInstanced(instanceBuffer:InstancedBuffer, subModel: any) {
         this.queueInstanced.add([instanceBuffer, subModel]);
     }
 
-    addBatched(batchedBuffer: BatchedBuffer, subModel: SubModel) {
+    addBatched(batchedBuffer: BatchedBuffer, subModel: any) {
         this.queueBatched.add([batchedBuffer, subModel]);
     }
 
@@ -249,7 +247,6 @@ export class WireframeQueue {
                     const pso = PipelineStateManager.getOrCreatePipelineState(device, pass, ShaderPool.get(shader), renderPass, instance.wireframeIa);
                     pso.gpuPipelineState.glPrimitive = PrimitiveMode.LINE_LIST;
                     cmdBuff.bindPipelineState(pso);
-                    // cmdBuff.bindDescriptorSet(SetIndex.LOCAL, DSPool.get(instance.hDescriptorSet), res.value[0].dynamicOffsets);
                     cmdBuff.bindInputAssembler(instance.wireframeIa);
                     cmdBuff.draw(instance.wireframeIa);
                 }
@@ -279,8 +276,8 @@ export class WireframeQueue {
         }
     }
 
-    private _applyPass(wireframe: Wireframe, cmdBuff: CommandBuffer, type: WireframeType = WireframeType.Render) {
-        let currMaterial: Material = wireframe.renderMaterial;
+    private _applyPass(wireframe: any, cmdBuff: CommandBuffer, type: WireframeType = WireframeType.Render) {
+        let currMaterial = wireframe.renderMaterial;
         switch (type) {
             case WireframeType.Instanced:
                 currMaterial = wireframe.instancedMaterial!;

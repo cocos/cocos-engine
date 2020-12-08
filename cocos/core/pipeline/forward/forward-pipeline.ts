@@ -166,7 +166,7 @@ export class ForwardPipeline extends RenderPipeline {
             console.error('ForwardPipeline startup failed!');
             return false;
         }
-        // 用于测试线框功能
+
         this.wireframe.enabled = true;
         return true;
     }

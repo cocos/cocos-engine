@@ -49,7 +49,8 @@ import { ForwardPipeline } from './forward-pipeline';
 import { RenderQueueDesc, RenderQueueSortMode } from '../pipeline-serialization';
 import { PlanarShadowQueue } from './planar-shadow-queue';
 import { WireframeQueue } from './wireframe-queue';
-import { WireframeMode, Wireframe } from '../../renderer/scene';
+import { WireframeMode } from '../../renderer/scene';
+import { EDITOR } from 'internal:constants';
 
 const colors: Color[] = [ new Color(0, 0, 0, 1) ];
 
@@ -228,14 +229,14 @@ export class ForwardStage extends RenderStage {
             colors, camera.clearDepth, camera.clearStencil);
 
         cmdBuff.bindDescriptorSet(SetIndex.GLOBAL, pipeline.descriptorSet);
-        if(pipeline.wireframe.mode !== WireframeMode.WIREFRAME) {
+        if(!EDITOR || pipeline.wireframe.mode !== WireframeMode.WIREFRAME) {
             this._renderQueues[0].recordCommandBuffer(device, renderPass, cmdBuff);
             this._instancedQueue.recordCommandBuffer(device, renderPass, cmdBuff);
             this._batchedQueue.recordCommandBuffer(device, renderPass, cmdBuff);
             this._additiveLightQueue.recordCommandBuffer(device, renderPass, cmdBuff);
             this._planarQueue.recordCommandBuffer(device, renderPass, cmdBuff);
         }
-        if(pipeline.wireframe.mode !== WireframeMode.SHADED) {
+        if(EDITOR && pipeline.wireframe.mode !== WireframeMode.SHADED) {
             this._wireframeQueue.recordCommandBuffer(device, renderPass, cmdBuff);
         }
         this._renderQueues[1].recordCommandBuffer(device, renderPass, cmdBuff);
