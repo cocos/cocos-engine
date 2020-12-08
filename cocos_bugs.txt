@@ -22,3 +22,4 @@
 
 11/19
 17.编辑器预览界面资源初始化时序问题导致effect没有正确初始化
+18.deferredlight定义到了forwardlight内

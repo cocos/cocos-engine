@@ -155,21 +155,21 @@ export class Root {
         return RootPool.get(this._poolHandle, RootView.FRAME_TIME);
     }
 
-    public get deferredLightPassHandle (): PassHandle {
-        return RootPool.get(this._poolHandle, RootView.DEFERRED_LIGHT_PASS);
-    }
+    // public get deferredLightPassHandle (): PassHandle {
+    //     return RootPool.get(this._poolHandle, RootView.DEFERRED_LIGHT_PASS);
+    // }
 
-    public get deferredLightPassShaderHandle (): ShaderHandle {
-        return RootPool.get(this._poolHandle, RootView.DEFERRED_LIGHT_PASS_SHADER);
-    }
+    // public get deferredLightPassShaderHandle (): ShaderHandle {
+    //     return RootPool.get(this._poolHandle, RootView.DEFERRED_LIGHT_PASS_SHADER);
+    // }
 
-    public get deferredPostPassHandle (): PassHandle {
-        return RootPool.get(this._poolHandle, RootView.DEFERRED_POST_PASS);
-    }
+    // public get deferredPostPassHandle (): PassHandle {
+    //     return RootPool.get(this._poolHandle, RootView.DEFERRED_POST_PASS);
+    // }
 
-    public get deferredPostPassShaderHandle(): ShaderHandle  {
-        return RootPool.get(this._poolHandle, RootView.DEFERRED_POST_PASS_SHADER);
-    }
+    // public get deferredPostPassShaderHandle(): ShaderHandle  {
+    //     return RootPool.get(this._poolHandle, RootView.DEFERRED_POST_PASS_SHADER);
+    // }
 
     /**
      * @zh
@@ -278,19 +278,19 @@ export class Root {
                 const height = legacyCC.game.canvas.height;
                 this.resize(width, height);
 
-                const builinDeferred = builtinResMgr.get<Material>('builtin-deferred-material');
-                if (builinDeferred) {
-                    const passLit = builinDeferred.passes[1];
-                    RootPool.set(this._poolHandle, RootView.DEFERRED_LIGHT_PASS, passLit.handle);
-                    RootPool.set(this._poolHandle, RootView.DEFERRED_LIGHT_PASS_SHADER, passLit.getShaderVariant());
-                }
+                // const builinDeferred = builtinResMgr.get<Material>('builtin-deferred-material');
+                // if (builinDeferred) {
+                //     const passLit = builinDeferred.passes[1];
+                //     RootPool.set(this._poolHandle, RootView.DEFERRED_LIGHT_PASS, passLit.handle);
+                //     RootPool.set(this._poolHandle, RootView.DEFERRED_LIGHT_PASS_SHADER, passLit.getShaderVariant());
+                // }
 
-                const builtinPostProcess = builtinResMgr.get<Material>('builtin-post-process-material');
-                if (builtinPostProcess) {
-                    const passPost = builtinPostProcess.passes[0];
-                    RootPool.set(this._poolHandle, RootView.DEFERRED_POST_PASS, passPost.handle);
-                    RootPool.set(this._poolHandle, RootView.DEFERRED_POST_PASS_SHADER, passPost.getShaderVariant());
-                }
+                // const builtinPostProcess = builtinResMgr.get<Material>('builtin-post-process-material');
+                // if (builtinPostProcess) {
+                //     const passPost = builtinPostProcess.passes[0];
+                //     RootPool.set(this._poolHandle, RootView.DEFERRED_POST_PASS, passPost.handle);
+                //     RootPool.set(this._poolHandle, RootView.DEFERRED_POST_PASS_SHADER, passPost.getShaderVariant());
+                // }
             }, this);
         });
     }

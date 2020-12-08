@@ -291,16 +291,18 @@ export class LightingStage extends RenderStage {
         cmdBuff.bindDescriptorSet(SetIndex.GLOBAL, pipeline.descriptorSet);
 
         // Lighting
-        var pass: Pass;
-        var shader: Shader;
-        const builinDeferred = builtinResMgr.get<Material>('builtin-deferred-material');
-        if (builinDeferred) {
-            pass = builinDeferred.passes[1];
-            shader = ShaderPool.get(pass.getShaderVariant());
-        } else {
-            pass = this._deferredMaterial!.passes[LIGHTINGPASS_INDEX];
-            shader = ShaderPool.get(this._deferredMaterial!.passes[LIGHTINGPASS_INDEX].getShaderVariant());
-        }
+        const pass = this._deferredMaterial!.passes[LIGHTINGPASS_INDEX];
+        const shader = ShaderPool.get(this._deferredMaterial!.passes[LIGHTINGPASS_INDEX].getShaderVariant());
+        // var pass: Pass;
+        // var shader: Shader;
+        // const builinDeferred = builtinResMgr.get<Material>('builtin-deferred-material');
+        // if (builinDeferred) {
+        //     pass = builinDeferred.passes[1];
+        //     shader = ShaderPool.get(pass.getShaderVariant());
+        // } else {
+        //     pass = this._deferredMaterial!.passes[LIGHTINGPASS_INDEX];
+        //     shader = ShaderPool.get(this._deferredMaterial!.passes[LIGHTINGPASS_INDEX].getShaderVariant());
+        // }
 
         const inputAssembler = pipeline.quadIA;
         var pso:PipelineState|null = null;
