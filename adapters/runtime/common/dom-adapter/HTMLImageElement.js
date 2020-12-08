@@ -10,8 +10,10 @@ let _getter;
 if (_creteImage) {
     _image = _creteImage();
     let _descriptor = Object.getOwnPropertyDescriptor(_image.__proto__, "src");
-    _setter = _descriptor.set;
-    _getter = _descriptor.get;
+    if (_descriptor) {
+        _setter = _descriptor.set;
+        _getter = _descriptor.get;
+    }
 }
 
 export default class HTMLImageElement extends HTMLElement {
@@ -46,11 +48,11 @@ export default class HTMLImageElement extends HTMLElement {
                 configurable: true,
                 enumerable: true,
                 get: function () {
-                    return _getter.call(this);
+                    return _getter && _getter.call(this);
                 },
                 set: function (value) {
                     this.complete = false;
-                    return _setter.call(this, value);
+                    return _setter && _setter.call(this, value);
                 }
             });
             return image;

@@ -3,7 +3,12 @@ window.jsb = window.jsb || {};
 const _onWindowResize = wuji.onWindowResize;
 jsb.onWindowResize = function (callBack) {
     _onWindowResize(function (size) {
-        callBack(size.width || size.windowWidth, size.height || size.windowHeight);
+        let pixelRatio = jsb.pixelRatio;
+        let width = (size.width || size.windowWidth) / pixelRatio,
+            height = (size.height || size.windowHeight) / pixelRatio;
+        jsb.width = width;
+        jsb.height = height;
+        callBack(width, height);
     });
 };
 

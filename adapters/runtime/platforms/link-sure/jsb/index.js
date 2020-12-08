@@ -18,14 +18,16 @@ if (!jsb.setPreferredFramesPerSecond) {
 }
 
 jsb.AudioEngine = wuji.AudioEngine;
-jsb.createCanvas = wuji.createCanvas;
-jsb.createImage = wuji.createImage;
+// not supported
+// jsb.createCanvas = wuji.createCanvas;
+// jsb.createImage = wuji.createImage;
 jsb.loadImageData = wuji.loadImageData;
 jsb.loadSubpackage = wuji.loadSubpackage;
 jsb.showKeyboard = wuji.showKeyboard;
 jsb.hideKeyboard = wuji.hideKeyboard;
 jsb.platform = _systemInfo.platform;
-jsb.language = _systemInfo.language;
+// NOTE: systemInfo doesn't have language info
+jsb.language = _systemInfo.language || (__getCurrentLanguage && __getCurrentLanguage());
 if (!jsb.loadFont) {
     if (wuji.loadFont) {
         jsb.loadFont = wuji.loadFont;
