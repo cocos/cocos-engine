@@ -1,6 +1,7 @@
 #include "CoreStd.h"
 
-#include "../thread/CommandEncoder.h"
+#include "job-system/JobSystem.h"
+#include "threading/CommandEncoder.h"
 #include "GFXCommandBufferProxy.h"
 #include "GFXDeviceProxy.h"
 #include "GFXQueueProxy.h"
@@ -45,15 +46,33 @@ void QueueProxy::submit(const CommandBuffer *const *cmdBuffs, uint count, Fence 
         remoteCmdBuffs[i] = ((CommandBufferProxy *)cmdBuffs[i])->getRemote();
     }
 
-    ENCODE_COMMAND_4(
+    bool multiThreaded = _device->hasFeature(Feature::MULTITHREADED_SUBMISSION);
+
+    ENCODE_COMMAND_6(
         encoder,
         QueueSubmit,
         remote, getRemote(),
-        cmdBuffs, remoteCmdBuffs,
+        multiThreaded, multiThreaded,
+        cmdBuffs, cmdBuffs,
+        remoteCmdBuffs, remoteCmdBuffs,
         count, count,
         fence, fence,
         {
-            remote->submit(cmdBuffs, count, fence);
+            if (multiThreaded) {
+                JobGraph g;
+                Job j = g.createForEachIndexJob(1u, count, 1u, [this](uint i) {
+                    ((CommandBufferProxy *)cmdBuffs[i])->getEncoder()->FlushCommands();
+                });
+                JobSystem::getInstance().run(g);
+                ((CommandBufferProxy *)cmdBuffs[0])->getEncoder()->FlushCommands();
+                JobSystem::getInstance().waitForAll();
+            } else {
+                for (uint i = 0u; i < count; ++i) {
+                    ((CommandBufferProxy *)cmdBuffs[i])->getEncoder()->FlushCommands();
+                }
+            }
+
+            remote->submit(remoteCmdBuffs, count, fence);
         });
 }
 

@@ -51,6 +51,7 @@ THE SOFTWARE.
 #include "base/Macros.h"
 #include "base/UTF8.h"
 #include "base/Utils.h"
+#include "base/job-system/JobSystem.h"
 
 
 // math
@@ -76,7 +77,6 @@ THE SOFTWARE.
 #include "platform/SAXParser.h"
 #include "platform/CanvasRenderingContext2D.h"
 
-
 namespace cc {
 
 CC_DLL const char* cocos2dVersion();
@@ -84,4 +84,3 @@ CC_DLL const char* cocos2dVersion();
 }
 
 #endif // __COCOS2D_H__
-

@@ -5,8 +5,8 @@
 #include "base/CachedArray.h"
 #include "base/StringUtil.h"
 
-#include "thread/ThreadPool.h"
-#include "thread/CommandEncoder.h"
+#include "threading/ThreadPool.h"
+#include "threading/CommandEncoder.h"
 
 #include "gfx/GFXDevice.h"
 #include "gfx/GFXContext.h"
@@ -38,3 +38,8 @@
 #include "gfx-proxy/GFXDescriptorSetProxy.h"
 #include "gfx-proxy/GFXCommandBufferProxy.h"
 #include "gfx-proxy/GFXQueueProxy.h"
+
+#define CC_JOB_SYSTEM_TASKFLOW 1
+#define CC_JOB_SYSTEM_TBB 2
+
+#define CC_JOB_SYSTEM CC_JOB_SYSTEM_TASKFLOW

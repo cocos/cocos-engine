@@ -673,18 +673,17 @@ void CCVKCmdFuncUpdateBuffer(CCVKDevice *device, CCVKGPUBuffer *gpuBuffer, const
         sizeToUpload = size;
     }
 
-    // back buffer instances update command
-    if (gpuBuffer->instanceSize) {
-        device->gpuBufferHub()->record(gpuBuffer, dataToUpload, sizeToUpload);
-        return;
-    }
+//    if (!cmdBuffer && gpuBuffer->mappedData) {
+//        device->gpuTransportHub()->checkIn(gpuBuffer->mappedData + offset, dataToUpload, sizeToUpload);
+//        return;
+//    }
 
     CCVKGPUBuffer stagingBuffer;
     stagingBuffer.size = sizeToUpload;
     device->gpuStagingBufferPool()->alloc(&stagingBuffer);
     memcpy(stagingBuffer.mappedData, dataToUpload, sizeToUpload);
 
-    VkBufferCopy region{stagingBuffer.startOffset, gpuBuffer->startOffset, sizeToUpload};
+    VkBufferCopy region{stagingBuffer.startOffset, gpuBuffer->startOffset + offset, sizeToUpload};
     auto upload = [&stagingBuffer, &gpuBuffer, &region](const CCVKGPUCommandBuffer *cmdBuffer) {
         vkCmdCopyBuffer(cmdBuffer->vkCommandBuffer, stagingBuffer.vkBuffer, gpuBuffer->vkBuffer, 1, &region);
 
@@ -699,7 +698,7 @@ void CCVKCmdFuncUpdateBuffer(CCVKDevice *device, CCVKGPUBuffer *gpuBuffer, const
         barrier.size = region.size;
         vkCmdPipelineBarrier(cmdBuffer->vkCommandBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT, gpuBuffer->targetStage, 0, 0, nullptr, 1, &barrier, 0, nullptr);
     };
-
+    
     if (cmdBuffer) {
         upload(cmdBuffer);
     } else {

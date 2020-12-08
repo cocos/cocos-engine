@@ -4,7 +4,6 @@
 #include "Semaphore.h"
 
 namespace cc {
-namespace gfx {
 
 template <typename T>
 class Event final
@@ -23,5 +22,4 @@ private:
 using EventCV   = Event<ConditionVariable>;
 using EventSem  = Event<Semaphore>;
 
-} // namespace gfx
 } // namespace cc

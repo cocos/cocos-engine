@@ -1,6 +1,6 @@
 #include "CoreStd.h"
 
-#include "../thread/CommandEncoder.h"
+#include "threading/CommandEncoder.h"
 #include "GFXBufferProxy.h"
 #include "GFXCommandBufferProxy.h"
 #include "GFXDescriptorSetLayoutProxy.h"
@@ -45,6 +45,7 @@ bool DeviceProxy::initialize(const DeviceInfo &info) {
     _deviceName = _remote->getDeviceName();
     _queue = CC_NEW(QueueProxy(_remote->getQueue(), this));
     _cmdBuff = CC_NEW(CommandBufferProxy(_remote->getCommandBuffer(), this));
+    ((CommandBufferProxy *)_cmdBuff)->initEncoder();
     _renderer = _remote->getRenderer();
     _vendor = _remote->getVendor();
     _maxVertexAttributes = _remote->getMaxVertexAttributes();
@@ -59,24 +60,10 @@ bool DeviceProxy::initialize(const DeviceInfo &info) {
     _uboOffsetAlignment = _remote->getUboOffsetAlignment();
     _depthBits = _remote->getDepthBits();
     _stencilBits = _remote->getStencilBits();
-    memcpy(_features, ((DeviceProxy *)getRemote())->_features, (uint)Feature::COUNT * sizeof(bool));
+    memcpy(_features, _remote->_features, (uint)Feature::COUNT * sizeof(bool));
 
     _mainEncoder = CC_NEW(CommandEncoder);
     _mainEncoder->RunConsumerThread();
-
-    _contexts.resize(std::thread::hardware_concurrency() - 1);
-
-    CommandBufferInfo cbInfo;
-    cbInfo.type = CommandBufferType::PRIMARY;
-    cbInfo.queue = _queue;
-
-    for (auto &context : _contexts) {
-        context.encoder = CC_NEW(CommandEncoder);
-        context.encoder->RunConsumerThread();
-        context.commandBuffer = createCommandBuffer();
-        context.commandBuffer->initialize(cbInfo);
-        ((CommandBufferProxy *)context.commandBuffer)->setEncoder(context.encoder);
-    }
 
     setMultithreaded(true);
 
@@ -84,13 +71,6 @@ bool DeviceProxy::initialize(const DeviceInfo &info) {
 }
 
 void DeviceProxy::destroy() {
-    for (auto &context : _contexts) {
-        context.encoder->TerminateConsumerThread();
-        CC_SAFE_DELETE(context.encoder);
-        CC_SAFE_DESTROY(context.commandBuffer);
-    }
-    _contexts.clear();
-
     if (_remote) {
         ENCODE_COMMAND_2(
             getMainEncoder(),
@@ -159,23 +139,23 @@ void DeviceProxy::setMultithreaded(bool multithreaded) {
 
     if (multithreaded) {
         _mainEncoder->SetImmediateMode(false);
-        ((DeviceProxy *) _remote)->bindRenderContext(false);
+        _remote->bindRenderContext(false);
         ENCODE_COMMAND_1(
                 _mainEncoder, DeviceMakeCurrent,
-                remote, (DeviceProxy*)_remote,
+                remote, _remote,
                 {
                     remote->bindDeviceContext(true);
                 });
     } else {
         ENCODE_COMMAND_1(
                 _mainEncoder, DeviceMakeCurrent,
-                remote, (DeviceProxy*)_remote,
+                remote, _remote,
                 {
                     remote->bindDeviceContext(false);
                 });
         _mainEncoder->FinishWriting(true); // wait till finished
         _mainEncoder->SetImmediateMode(true);
-        ((DeviceProxy *) _remote)->bindRenderContext(true);
+        _remote->bindRenderContext(true);
     }
 }
 

@@ -284,7 +284,7 @@ bool GLES3Context::initialize(const ContextInfo &info) {
             uint height = _device->getHeight();
             ANativeWindow_setBuffersGeometry((ANativeWindow *)_windowHandle, width, height, nFmt);
 
-            _eglSurface = eglCreateWindowSurface(_eglDisplay, _eglConfig, (EGLNativeWindowType)_windowHandle, NULL);
+            EGL_CHECK(_eglSurface = eglCreateWindowSurface(_eglDisplay, _eglConfig, (EGLNativeWindowType)_windowHandle, NULL));
             if (_eglSurface == EGL_NO_SURFACE) {
                 CC_LOG_ERROR("Recreate window surface failed.");
                 return;
@@ -353,7 +353,7 @@ void GLES3Context::destroy() {
         _eglContext = EGL_NO_CONTEXT;
     }
 
-    if (_isPrimaryContex && _eglSurface != EGL_NO_SURFACE) {
+    if (_eglSurface != EGL_NO_SURFACE) {
         EGL_CHECK(eglDestroySurface(_eglDisplay, _eglSurface));
         _eglSurface = EGL_NO_SURFACE;
     }
@@ -374,11 +374,13 @@ void GLES3Context::destroy() {
 }
 
 bool GLES3Context::MakeCurrentImpl(bool bound) {
-    return eglMakeCurrent(_eglDisplay,
+    bool succeeded;
+    EGL_CHECK(succeeded = eglMakeCurrent(_eglDisplay,
         bound ? _eglSurface : EGL_NO_SURFACE,
         bound ? _eglSurface : EGL_NO_SURFACE,
         bound ? _eglContext : EGL_NO_CONTEXT
-    );
+    ));
+    return succeeded;
 }
 
 void GLES3Context::present() {

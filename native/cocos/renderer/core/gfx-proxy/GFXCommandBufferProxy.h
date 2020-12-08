@@ -36,10 +36,13 @@ public:
     virtual uint getNumDrawCalls() const override { return _remote->getNumDrawCalls(); }
     virtual uint getNumInstances() const override { return _remote->getNumInstances(); }
     virtual uint getNumTris() const override { return _remote->getNumTris(); }
-
-    void setEncoder(CommandEncoder *encoder) { _encoder = encoder; }
+    
+    CC_INLINE CommandEncoder *getEncoder() { return _encoder; }
 
 private:
+    friend class DeviceProxy;
+    
+    void initEncoder();
     CommandEncoder *_encoder = nullptr;
 };
 

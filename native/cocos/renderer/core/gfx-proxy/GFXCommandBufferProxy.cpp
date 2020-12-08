@@ -1,6 +1,6 @@
 #include "CoreStd.h"
 
-#include "../thread/CommandEncoder.h"
+#include "threading/CommandEncoder.h"
 #include "GFXBufferProxy.h"
 #include "GFXCommandBufferProxy.h"
 #include "GFXDescriptorSetProxy.h"
@@ -15,8 +15,13 @@
 namespace cc {
 namespace gfx {
 
+void CommandBufferProxy::initEncoder() {
+    _encoder = CC_NEW(CommandEncoder);
+    _encoder->SetImmediateMode(false);
+}
+
 bool CommandBufferProxy::initialize(const CommandBufferInfo &info) {
-    _encoder = ((DeviceProxy *)_device)->getMainEncoder();
+    initEncoder();
 
     _type = info.type;
     _queue = info.queue;
@@ -48,6 +53,8 @@ void CommandBufferProxy::destroy() {
 
         _remote = nullptr;
     }
+
+    CC_SAFE_DELETE(_encoder);
 }
 
 void CommandBufferProxy::begin(RenderPass *renderPass, uint subpass, Framebuffer *frameBuffer) {
@@ -71,6 +78,8 @@ void CommandBufferProxy::end() {
         {
             remote->end();
         });
+
+    _encoder->FinishWriting();
 }
 
 void CommandBufferProxy::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, int stencil) {

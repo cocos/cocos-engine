@@ -1,7 +1,6 @@
 #include "ConditionVariable.h"
 
 namespace cc {
-namespace gfx {
 
 void ConditionVariable::Wait() noexcept
 {
@@ -11,13 +10,14 @@ void ConditionVariable::Wait() noexcept
 
 void ConditionVariable::Signal() noexcept
 {
+    std::lock_guard<std::mutex> lock(mMutex);
     mCV.notify_one();
 }
 
 void ConditionVariable::SignalAll() noexcept
 {
+    std::lock_guard<std::mutex> lock(mMutex);
     mCV.notify_all();
 }
 
-} // namespace gfx
 } // namespace cc

@@ -1,5 +1,7 @@
 #include "Semaphore.h"
 
+namespace cc {
+
 Semaphore::Semaphore() noexcept
 : mSemaphore(0)
 {
@@ -19,3 +21,5 @@ void Semaphore::Signal() noexcept
 {
     mSemaphore.signal();
 }
+
+} // namespace cc

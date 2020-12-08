@@ -185,11 +185,7 @@ void CCVKBuffer::update(void *buffer, uint size) {
     if (_buffer) {
         memcpy(_buffer, buffer, size);
     }
-    // This assumes the default command buffer will get submitted every frame,
-    // which is true for now but may change in the future. This appoach gives us
-    // the wiggle room to leverage immediate update vs. copy-upload strategies without
-    // breaking compatabilities. When we reached some conclusion on this subject,
-    // getting rid of this interface all together might become a better option.
+
     CommandBuffer *cmdBuff = _device->getCommandBuffer();
     cmdBuff->begin();
     const CCVKGPUCommandBuffer *gpuCommandBuffer = ((CCVKCommandBuffer *)cmdBuff)->gpuCommandBuffer();

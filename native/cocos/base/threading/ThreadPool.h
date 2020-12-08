@@ -8,20 +8,20 @@
 #include <queue>
 #include <cassert>
 #include <cstdint>
-#include "boost/lockfree/stack.hpp"
+#include "concurrentqueue.h"
 #include "Event.h"
 
 namespace cc {
-namespace gfx {
 
 class ThreadPool final
 {
 public:
 
     using Task                      = std::function<void()>;
+    using TaskQueue                 = moodycamel::ConcurrentQueue<Task>;
 
-    static uint32_t const            kCpuCoreCount;
-    static uint32_t const kMaxThreadCount;
+    static uint8_t const            kCpuCoreCount;
+    static uint8_t const            kMaxThreadCount;
 
                                     ThreadPool() noexcept = default;
                                     ~ThreadPool() = default;
@@ -37,15 +37,15 @@ public:
 
 private:
 
-    using Event                     = EventCV;
+    using Event                     = ConditionVariable;
 
     void                            AddThread() noexcept;
 
-    boost::lockfree::stack<Task>    mTasks          { 64 };
+    TaskQueue                       mTasks          {};
     std::list<std::thread>          mWorkers        {};
     Event                           mEvent          {};
     std::atomic<bool>               mRunning        { false };
-    uint32_t                        mWorkerCount    { kMaxThreadCount };
+    uint8_t                         mWorkerCount    { kMaxThreadCount };
 };
 
 template <typename Function, typename... Args>
@@ -55,13 +55,13 @@ auto ThreadPool::DispatchTask(Function&& func, Args&&... args) noexcept -> std::
 
     using ReturnType = decltype(func(std::forward<Args>(args)...));
     auto task = std::make_shared<std::packaged_task<ReturnType()>>(std::bind(std::forward<Function>(func), std::forward<Args>(args)...));
-    mTasks.push([task]()
+    bool const succeed = mTasks.enqueue([task]()
     {
         (*task)();
     });
+    assert(succeed);
     mEvent.Signal();
     return task->get_future();
 }
 
-} // namespace gfx
 } // namespace cc

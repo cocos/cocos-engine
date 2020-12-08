@@ -1,10 +1,9 @@
 #include "ThreadPool.h"
 
 namespace cc {
-namespace gfx {
 
-uint32_t const ThreadPool::kCpuCoreCount = std::thread::hardware_concurrency();
-uint32_t const ThreadPool::kMaxThreadCount = kCpuCoreCount - 1;
+uint8_t const ThreadPool::kCpuCoreCount = std::thread::hardware_concurrency();
+uint8_t const ThreadPool::kMaxThreadCount = kCpuCoreCount - 1;
 
 void ThreadPool::Start() noexcept
 {
@@ -12,9 +11,9 @@ void ThreadPool::Start() noexcept
     {
         return;
     }
-
+    
     mRunning = true;
-
+    
     for (uint8_t i = 0; i < kMaxThreadCount; ++i)
     {
         AddThread();
@@ -27,10 +26,10 @@ void ThreadPool::Stop() noexcept
     {
         return;
     }
-
+    
     mRunning = false;
     mEvent.SignalAll();
-
+    
     for (auto& worker : mWorkers)
     {
         if (worker.joinable())
@@ -38,7 +37,7 @@ void ThreadPool::Stop() noexcept
             worker.join();
         }
     }
-
+    
     mWorkers.clear();
 }
 
@@ -50,18 +49,24 @@ void ThreadPool::AddThread() noexcept
     {
         while (mRunning)
         {
-            if (! mTasks.consume_one([](Task const& task)
+            Task task = nullptr;
+            
+            if (mTasks.try_dequeue(task))
             {
                 task();
-            }))
+            }
+            else
             {
-                mEvent.Wait();
+                // Double Check
+                mEvent.Wait([this]()
+                {
+                    return mTasks.size_approx() != 0;
+                });
             }
         }
     };
-
+    
     mWorkers.emplace_back(workerLoop);
 }
 
-} // namespace gfx
 } // namespace cc

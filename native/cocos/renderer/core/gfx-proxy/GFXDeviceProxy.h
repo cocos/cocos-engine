@@ -1,15 +1,17 @@
 #pragma once
 
 #include "../gfx/GFXDevice.h"
-#include "../thread/Semaphore.h"
+#include "threading/Semaphore.h"
 #include "GFXProxy.h"
 
 #define MAX_CPU_FRAME_AHEAD 2
 
 namespace cc {
-namespace gfx {
 
 class CommandEncoder;
+
+namespace gfx {
+
 class CommandBuffer;
 
 // one per CPU core
@@ -57,13 +59,10 @@ public:
     virtual uint getNumTris() const override { return _remote->getNumTris(); }
 
     CommandEncoder *getMainEncoder() const { return _mainEncoder; }
-    vector<SubmitContext> &getSubmitContexts() { return _contexts; }
-
 protected:
 
     bool _multithreaded{false};
     CommandEncoder *_mainEncoder{nullptr};
-    vector<SubmitContext> _contexts{};
 
     Semaphore _frameBoundarySemaphore{MAX_CPU_FRAME_AHEAD};
 };

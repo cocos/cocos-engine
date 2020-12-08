@@ -4,6 +4,8 @@
 #include "concurrentqueue.h"
 #include "lightweightsemaphore.h"
 
+namespace cc {
+
 class Semaphore final
 {
 public:
@@ -19,3 +21,5 @@ private:
 
     moodycamel::details::Semaphore  mSemaphore;
 };
+
+} // namespace cc

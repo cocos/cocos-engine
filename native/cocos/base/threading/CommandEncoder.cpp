@@ -2,7 +2,6 @@
 #include <cassert>
 
 namespace cc {
-namespace gfx {
 
 namespace
 {
@@ -314,5 +313,4 @@ char const* MemoryChunkSwitchCommand::GetName() const noexcept
     return "MemoryChunkSwitch";
 }
 
-} // namespace gfx
 } // namespace cc

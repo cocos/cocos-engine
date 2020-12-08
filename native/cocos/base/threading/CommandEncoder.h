@@ -5,7 +5,6 @@
 #include "Event.h"
 
 namespace cc {
-namespace gfx {
 
 // 由于系统的内存分配是从一个全局堆里申请 分配过程会上锁导致降低并行度 在多线程的环境下如果频繁的申请释放内存会降低性能
 // 所以这里先加个接口来统一调用 未来会换成单独服务于线程的无锁分配器
@@ -624,5 +623,4 @@ T* CommandEncoder::AllocateAndZero(uint32_t const count) noexcept
     };                                                              \
     WRITE_COMMAND(CB, CommandName, (Value1, Value2, Value3, Value4, Value5, Value6, Value7, Value8)) };
 
-} // namespace gfx
 } // namespace cc

@@ -110,6 +110,8 @@ public:
     CC_INLINE uint genShaderId() { return _shaderIdGen++; }
 
 protected:
+    friend class DeviceProxy;
+
     virtual void bindRenderContext(bool bound) {}
     virtual void bindDeviceContext(bool bound) {}
 

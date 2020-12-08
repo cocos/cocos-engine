@@ -1,6 +1,6 @@
 #include "CoreStd.h"
 
-#include "../thread/CommandEncoder.h"
+#include "threading/CommandEncoder.h"
 #include "GFXTextureProxy.h"
 #include "GFXDeviceProxy.h"
 
