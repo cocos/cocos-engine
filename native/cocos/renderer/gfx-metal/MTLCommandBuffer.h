@@ -46,9 +46,8 @@ public:
     virtual void updateBuffer(Buffer *buff, const void *data, uint size, uint offset) override;
     virtual void copyBuffersToTexture(const uint8_t *const *buffers, Texture *texture, const BufferTextureCopy *regions, uint count) override;
     virtual void execute(const CommandBuffer *const *cmdBuffs, uint32_t count) override;
-    CC_INLINE bool isCommandBufferBegan() const {
-        return _commandBufferBegan;
-    }
+    CC_INLINE bool isCommandBufferBegan() const { return _commandBufferBegan; }
+    CC_INLINE id<MTLCommandBuffer> getMTLCommandBuffer() const { return _mtlCommandBuffer; } 
 
 private:
     void bindDescriptorSets();
@@ -56,7 +55,6 @@ private:
 
 private:
     CCMTLGPUPipelineState *_gpuPipelineState = nullptr;
-    CCMTLFence *_fence = nullptr;
 
     vector<CCMTLGPUDescriptorSet *> _GPUDescriptorSets;
     vector<vector<uint>> _dynamicOffsets;

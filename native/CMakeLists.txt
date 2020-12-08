@@ -757,7 +757,6 @@ if(CC_USE_METAL)
         cocos/renderer/gfx-metal/MTLSampler.mm
         cocos/renderer/gfx-metal/MTLShader.h
         cocos/renderer/gfx-metal/MTLShader.mm
-        cocos/renderer/gfx-metal/MTLStateCache.h
         cocos/renderer/gfx-metal/MTLStd.cpp
         cocos/renderer/gfx-metal/MTLStd.h
         cocos/renderer/gfx-metal/MTLTexture.h
@@ -767,6 +766,8 @@ if(CC_USE_METAL)
         cocos/renderer/gfx-metal/MTLFence.h
         cocos/renderer/gfx-metal/MTLFence.mm
         cocos/renderer/gfx-metal/MTLRenderCommandEncoder.h
+        cocos/renderer/gfx-metal/MTLConfig.h
+        cocos/renderer/gfx-metal/MTLSemaphore.h
     )
 endif()
 

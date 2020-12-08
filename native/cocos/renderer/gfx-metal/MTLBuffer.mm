@@ -10,24 +10,6 @@
 namespace cc {
 namespace gfx {
 
-vector<CCMTLBuffer *> CCMTLBufferManager::_buffers;
-void CCMTLBufferManager::addBuffer(CCMTLBuffer *buffer) {
-    _buffers.emplace_back(buffer);
-}
-
-void CCMTLBufferManager::removeBuffer(CCMTLBuffer *buffer) {
-    const auto iter = std::find(_buffers.begin(), _buffers.end(), buffer);
-    if (iter != _buffers.end()) {
-        _buffers.erase(iter);
-    }
-}
-
-void CCMTLBufferManager::begin() {
-    for (auto buffer : _buffers) {
-        buffer->begin();
-    }
-}
-
 CCMTLBuffer::CCMTLBuffer(Device *device) : Buffer(device) {
     _mtlDevice = id<MTLDevice>(((CCMTLDevice *)_device)->getMTLDevice());
 }
@@ -87,10 +69,6 @@ bool CCMTLBuffer::initialize(const BufferInfo &info) {
         return false;
     }
 
-    if (_tripleEnabled) {
-        CCMTLBufferManager::addBuffer(this);
-    }
-
     return true;
 }
 
@@ -103,33 +81,17 @@ bool CCMTLBuffer::initialize(const BufferViewInfo &info) {
 
 bool CCMTLBuffer::createMTLBuffer(uint size, MemoryUsage usage) {
     _mtlResourceOptions = mu::toMTLResourseOption(usage);
-    if (_tripleEnabled) {
-        for (id<MTLBuffer> buffer in _dynamicDataBuffers) {
-            if (buffer) [buffer release];
-        }
-        NSMutableArray *mutableDynamicDataBuffers = [NSMutableArray arrayWithCapacity:MAX_INFLIGHT_BUFFER];
-        for (int i = 0; i < MAX_INFLIGHT_BUFFER; ++i) {
-            // Create a new buffer with enough capacity to store one instance of the dynamic buffer data
-            id<MTLBuffer> dynamicDataBuffer = [_mtlDevice newBufferWithLength:size options:_mtlResourceOptions];
-            [mutableDynamicDataBuffers addObject:dynamicDataBuffer];
-        }
-        _dynamicDataBuffers = [mutableDynamicDataBuffers copy];
 
-        _mtlBuffer = _dynamicDataBuffers[0];
-    } else {
-        if (_mtlBuffer)
-            [_mtlBuffer release];
-        _mtlBuffer = [_mtlDevice newBufferWithLength:size options:_mtlResourceOptions];
+    if (_mtlBuffer) {
+        [_mtlBuffer release];
     }
+    _mtlBuffer = [_mtlDevice newBufferWithLength:size options:_mtlResourceOptions];
     if (_mtlBuffer == nil) {
         CCASSERT(false, "Failed to create MTLBuffer.");
         return false;
     }
 
-    if (_tripleEnabled)
-        _device->getMemoryStatus().bufferSize += 3 * _size;
-    else
-        _device->getMemoryStatus().bufferSize += size;
+    _device->getMemoryStatus().bufferSize += size;
 
     return true;
 }
@@ -139,19 +101,9 @@ void CCMTLBuffer::destroy() {
         return;
     }
 
-    if (_tripleEnabled) {
-        for (id<MTLBuffer> buffer in _dynamicDataBuffers) {
-            [buffer release];
-        }
-        [_dynamicDataBuffers release];
-        _dynamicDataBuffers = nil;
+    if (_mtlBuffer) {
+        [_mtlBuffer release];
         _mtlBuffer = nil;
-        CCMTLBufferManager::removeBuffer(this);
-    } else {
-        if (_mtlBuffer) {
-            [_mtlBuffer release];
-            _mtlBuffer = nil;
-        }
     }
 
     if (_transferBuffer) {
@@ -167,10 +119,7 @@ void CCMTLBuffer::destroy() {
     }
     _indirects.clear();
 
-    if (_tripleEnabled)
-        _device->getMemoryStatus().bufferSize -= 3 * _size;
-    else
-        _device->getMemoryStatus().bufferSize -= _size;
+    _device->getMemoryStatus().bufferSize -= _size;
 }
 
 void CCMTLBuffer::resize(uint size) {
@@ -227,8 +176,6 @@ void CCMTLBuffer::update(void *buffer, uint offset, uint size) {
         CC_LOG_WARNING("Cannot update a buffer view.");
         return;
     }
-
-    updateInflightBuffer(offset, size);
 
     if (_buffer)
         memcpy(_buffer + offset, buffer, size);
@@ -297,26 +244,6 @@ void CCMTLBuffer::encodeBuffer(CCMTLRenderCommandEncoder &encoder, uint offset, 
 
     if (stages & ShaderStageFlagBit::FRAGMENT) {
         encoder.setFragmentBuffer(_mtlBuffer, offset, binding);
-    }
-}
-
-void CCMTLBuffer::begin() {
-    _inflightDirty = true;
-}
-
-void CCMTLBuffer::updateInflightBuffer(uint offset, uint size) {
-    if (_tripleEnabled && _mtlResourceOptions != MTLResourceStorageModePrivate && _inflightDirty) {
-        _inflightIndex = ((_inflightIndex + 1) % MAX_INFLIGHT_BUFFER);
-        id<MTLBuffer> prevFrameBuffer = _mtlBuffer;
-        _mtlBuffer = _dynamicDataBuffers[_inflightIndex];
-        if (offset) {
-            memcpy((uint8_t *)_mtlBuffer.contents, prevFrameBuffer.contents, offset);
-        }
-        offset += size;
-        if (offset < _size) {
-            memcpy((uint8_t *)_mtlBuffer.contents + offset, (uint8_t *)prevFrameBuffer.contents + offset, _size - offset);
-        }
-        _inflightDirty = false;
     }
 }
 
