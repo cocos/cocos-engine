@@ -848,8 +848,8 @@ export class Terrain extends Component {
             this.__asset = value;
             if (this.__asset != null && this.valid) {
                 // rebuild
-                for (const block of this._blocks) {
-                    block.destroy();
+                for (let i = 0; i < this._blocks.length; ++i) {
+                    this._blocks[i].destroy();
                 }
                 this._blocks = [];
                 this._blockInfos = [];
@@ -874,8 +874,8 @@ export class Terrain extends Component {
         }
 
         this._effectAsset = value;
-        for (const i of this._blocks) {
-            i._invalidMaterial();
+        for (let i = 0; i < this._blocks.length; ++i) {
+            this._blocks[i]._invalidMaterial();
         }
     }
 
@@ -1072,8 +1072,8 @@ export class Terrain extends Component {
 
         this._blockInfos = blockInfos;
 
-        for (const block of this._blocks) {
-            block.destroy();
+        for (let i = 0; i < this._blocks.length; ++i) {
+            this._blocks[i].destroy();
         }
         this._blocks = [];
 
@@ -1099,8 +1099,8 @@ export class Terrain extends Component {
             }
         }
 
-        for (const i of this._blocks) {
-            i.build();
+        for (let i = 0; i < this._blocks.length; ++i) {
+            this._blocks[i].build();
         }
     }
 
@@ -1124,8 +1124,8 @@ export class Terrain extends Component {
         this._buildNormals();
 
         // rebuild all blocks
-        for (const i of this._blocks) {
-            i._updateHeight();
+        for (let i = 0; i < this._blocks.length; ++i) {
+            this._blocks[i]._updateHeight();
         }
     }
 
@@ -1233,15 +1233,15 @@ export class Terrain extends Component {
     }
 
     public onDisable () {
-        for (const i of this._blocks) {
-            i.destroy();
+        for (let i = 0; i < this._blocks.length; ++i) {
+            this._blocks[i].destroy();
         }
         this._blocks = [];
     }
 
     public onDestroy () {
-        for (const i of this._blocks) {
-            i.destroy();
+        for (let i = 0; i < this._blocks.length; ++i) {
+            this._blocks[i].destroy();
         }
         this._blocks = [];
 
@@ -1261,8 +1261,8 @@ export class Terrain extends Component {
     }
 
     public update (deltaTime: number) {
-        for (const i of this._blocks) {
-            i.update();
+        for (let i = 0; i < this._blocks.length; ++i) {
+            this._blocks[i].update();
         }
     }
 
@@ -1728,26 +1728,27 @@ export class Terrain extends Component {
                 this._layers[i] = null;
             }
 
-            for (const i of terrainAsset.layerInfos) {
+            for (let i = 0; i < terrainAsset.layerInfos.length; ++i) {
+                const layerInfo = terrainAsset.layerInfos[i];
                 const layer = new TerrainLayer();
-                layer.tileSize = i.tileSize;
-                legacyCC.assetManager.loadAny(i.detailMap, (err, asset) => {
+                layer.tileSize = layerInfo.tileSize;
+                legacyCC.assetManager.loadAny(layerInfo.detailMap, (err, asset) => {
                     layer.detailMap = asset;
                 });
-                if (i.normalMap !== '') {
-                    legacyCC.AssetLibrary.loadAny(i.normalMap, (err, asset) => {
+                if (layerInfo.normalMap !== '') {
+                    legacyCC.AssetLibrary.loadAny(layerInfo.normalMap, (err, asset) => {
                         layer.normalMap = asset;
                     });
                 }
-                layer.roughness = i.roughness;
-                layer.metallic = i.metallic;
+                layer.roughness = layerInfo.roughness;
+                layer.metallic = layerInfo.metallic;
 
-                this._layers[i.slot] = layer;
+                this._layers[layerInfo.slot] = layer;
             }
         }
 
         if (this._blockCount[0] === 0 || this._blockCount[1] === 0) {
-            return false;
+            return;
         }
 
         // build heights & normals
@@ -1816,8 +1817,8 @@ export class Terrain extends Component {
             }
         }
 
-        for (const i of this._blocks) {
-            i.build();
+        for (let i = 0; i < this._blocks.length; ++i) {
+            this._blocks[i].build();
         }
     }
 
