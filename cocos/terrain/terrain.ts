@@ -725,6 +725,7 @@ export class TerrainBlock {
 
         this._renderable._meshData.vertexBuffers[0].update(vertexData);
         this._renderable._model!.createBoundingShape(bbMin, bbMax);
+        this._renderable._model!.updateWorldBound();
     }
 
     public _updateWeightMap () {
