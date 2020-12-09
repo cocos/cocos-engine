@@ -44,6 +44,7 @@ import {
     NULL_HANDLE, NodeHandle, NodePool, NodeView,
 } from '../renderer/core/memory-pools';
 import { NodeSpace, TransformBit } from './node-enum';
+import { applyPropertyOverrides, createNodeWithPrefab } from '../utils';
 
 const v3_a = new Vec3();
 const q_a = new Quat();
@@ -390,6 +391,11 @@ export class Node extends BaseNode {
 
     public _onBatchCreated (dontSyncChildPrefab: boolean) {
         super._onBatchCreated(dontSyncChildPrefab);
+
+        if (this._prefabInstance) {
+            createNodeWithPrefab(this);
+        }
+        
         this.hasChangedFlags = TransformBit.TRS;
         this._dirtyFlags = TransformBit.TRS;
         const len = this._children.length;
@@ -402,6 +408,10 @@ export class Node extends BaseNode {
             //     }
             // }
             this._children[i]._onBatchCreated(dontSyncChildPrefab);
+        }
+
+        if (this._prefabInstance) {
+            applyPropertyOverrides(this, this._prefabInstance.propertyOverrides);
         }
     }
 

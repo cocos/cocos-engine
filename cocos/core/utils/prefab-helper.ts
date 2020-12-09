@@ -34,6 +34,9 @@ import { Quat } from '../math';
 import { EDITOR, SUPPORT_JIT } from 'internal:constants';
 import { legacyCC } from '../global-exports';
 import { errorID } from '../platform/debug';
+import { Prefab } from '../assets';
+import { Node } from '../scene-graph';
+import { Component } from '../components';
 
 @ccclass('cc.PrefabInfo')
 export class PrefabInfo {
@@ -62,7 +65,7 @@ export class PrefabInfo {
 legacyCC._PrefabInfo = PrefabInfo;
 
 // update node to make it sync with prefab
-export default function syncWithPrefab (node) {
+export function syncWithPrefab (node) {
     const _prefab = node._prefab;
 
     if (!_prefab.asset) {
@@ -129,4 +132,119 @@ export class CompPrefabInfo {
     @serializable
     @editable
     public fileId = '';
+}
+
+export enum TargetType {
+    NODE,
+    COMPONENT,
+}
+export class TargetInfo {
+    // 用于标识目标在prefab 资源中的ID，区别于UUID
+    public localID: string = '';
+    // node or component
+    public type: TargetType = TargetType.NODE;
+}
+
+export class PropertyOverride {
+    public targetInfo: TargetInfo|null = null;
+    public propertyPath: string = '';
+    public value: any;
+}
+
+@ccclass('cc.PrefabInstance')
+export class PrefabInstance {
+
+    // 所属的 prefab 资源对象 (cc.Prefab)
+    // In Editor, only asset._uuid is usable because asset will be changed.
+    @serializable
+    @editable
+    public asset: Prefab|null = null;
+
+    @serializable
+    public propertyOverrides: PropertyOverride[] = [];
+
+    @serializable
+    public removeComponents: TargetInfo[] = [];
+}
+
+export function createNodeWithPrefab(node: Node) {
+    // @ts-ignore
+    const _prefabInstance = node._prefabInstance;
+
+    if (!_prefabInstance) {
+        return;
+    }
+
+    if (!_prefabInstance.asset) {
+        if (EDITOR) {
+            // TODO show message in editor
+        }
+        else {
+            errorID(3701, node.name);
+        }
+
+        // @ts-ignore
+        node._prefabInstance = null;
+        return;
+    }
+
+    // instantiate prefab
+    legacyCC.game._isCloning = true;
+    if (SUPPORT_JIT) {
+        // @ts-ignore
+        _prefabInstance.asset._doInstantiate(node);
+    }
+    else {
+        // root in prefab asset is always synced
+        const prefabRoot = _prefabInstance.asset.data;
+
+        // use node as the instantiated prefabRoot to make references to prefabRoot in prefab redirect to node
+        prefabRoot._iN$t = node;
+
+        // instantiate prefab and apply to node
+        legacyCC.instantiate._clone(prefabRoot, prefabRoot);
+    }
+    legacyCC.game._isCloning = false;
+}
+
+function walkNode(node: Node, handleFunc: (nodeIter: Node) => void) {
+    if (handleFunc) {
+        handleFunc(node);
+    }
+
+    const children = node.children;
+    for(let i = 0; i < children.length; i++) {
+        walkNode(children[i], handleFunc);
+    }
+}
+
+export function applyPropertyOverrides(node: Node, propertyOverrides: PropertyOverride[]) {
+    if (propertyOverrides.length <= 0) {
+        return;
+    }
+
+    // 待优化，需要更省更快速的组建node,component的id映射表
+    let nodeAndCompMap: {[index:string]: Node|Component} = {};
+
+    walkNode(node, (nodeIter: Node)=> {
+        // @ts-ignore
+        nodeAndCompMap[nodeIter._id] = nodeIter;
+        const components = nodeIter.components;
+        for (let i = 0; i < components.length; i++){
+            const comp = components[i];
+            nodeAndCompMap[comp._id] = comp;
+        }
+    });
+
+    let target: Node|Component|null = null;
+    for (let i = 0; i < propertyOverrides.length; i++) {
+        const propOverride = propertyOverrides[i];
+        if (propOverride && propOverride.targetInfo) {
+            const targetInfo = propOverride.targetInfo;
+            target = nodeAndCompMap[targetInfo.localID];
+            if (target) {
+                target[propOverride.propertyPath] = propOverride.value;
+            } 
+        }
+    }
 }

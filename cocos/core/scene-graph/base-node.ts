@@ -44,6 +44,7 @@ import { DEV, DEBUG, EDITOR } from 'internal:constants';
 import { legacyCC } from '../global-exports';
 import { Node } from './node';
 import { Scene } from './scene';
+import { PrefabInstance } from '../utils';
 
 type Constructor<T = {}> = new (...args: any[]) => T;
 
@@ -322,6 +323,9 @@ export class BaseNode extends CCObject implements ISchedulable {
     // The PrefabInfo object
     @serializable
     protected _prefab: any = null;
+
+    @serializable
+    protected _prefabInstance: PrefabInstance| null = null;
 
     protected _scene: any = NullScene;
 
