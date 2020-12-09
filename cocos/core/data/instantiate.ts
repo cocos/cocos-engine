@@ -110,7 +110,7 @@ export function instantiate (original: any, internalForce?: boolean) {
         if (original._instantiate) {
             legacyCC.game._isCloning = true;
             // @ts-expect-error
-            clone = original._instantiate();
+            clone = original._instantiate(null, true);
             legacyCC.game._isCloning = false;
             return clone;
         }
