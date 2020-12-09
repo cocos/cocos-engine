@@ -296,26 +296,26 @@ class BuiltinResMgr {
         resources[spineTwoColorMtl._uuid] = spineTwoColorMtl;
     }
 
-    // public _initDeferredMaterial () {
-    //     // builtin deferred material
-    //     cc.resources.load('shader/builtin-deferred', cc.EffectAsset, (err, ass) => {
-    //         if (ass) {
-    //             const builtinDeferredMtl = new legacyCC.Material();
-    //             builtinDeferredMtl._uuid = 'builtin-deferred-material';
-    //             builtinDeferredMtl.initialize({effectAsset: ass});
-    //             this._resources[builtinDeferredMtl._uuid] = builtinDeferredMtl;
-    //         }
-    //     });
+    public _initDeferredMaterial () {
+        // builtin deferred material
+        cc.resources.load('shader/builtin-deferred', cc.EffectAsset, (err, ass) => {
+            if (ass) {
+                const builtinDeferredMtl = new legacyCC.Material();
+                builtinDeferredMtl._uuid = 'builtin-deferred-material';
+                builtinDeferredMtl.initialize({effectAsset: ass});
+                this._resources[builtinDeferredMtl._uuid] = builtinDeferredMtl;
+            }
+        });
 
-    //     cc.resources.load('shader/builtin-postprocess', cc.EffectAsset, (err, bss) => {
-    //         if (bss) {
-    //             const builtinPostProcessMtl = new legacyCC.Material();
-    //             builtinPostProcessMtl._uuid = 'builtin-post-process-material';
-    //             builtinPostProcessMtl.initialize({effectAsset: bss});
-    //             this._resources[builtinPostProcessMtl._uuid] = builtinPostProcessMtl;
-    //         }
-    //     });
-    // }
+        cc.resources.load('shader/builtin-postprocess', cc.EffectAsset, (err, bss) => {
+            if (bss) {
+                const builtinPostProcessMtl = new legacyCC.Material();
+                builtinPostProcessMtl._uuid = 'builtin-post-process-material';
+                builtinPostProcessMtl.initialize({effectAsset: bss});
+                this._resources[builtinPostProcessMtl._uuid] = builtinPostProcessMtl;
+            }
+        });
+    }
 }
 
 const builtinResMgr = legacyCC.builtinResMgr = new BuiltinResMgr();

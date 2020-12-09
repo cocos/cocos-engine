@@ -42,5 +42,12 @@ export const ShadowStage = nr.ShadowStage;
 export const UIFlow = nr.UIFlow;
 export const UIStage = nr.UIStage;
 
+export const DeferredPipeline = nr.DeferredPipeline;
+export const GbufferFlow = nr.GbufferFlow;
+export const GbufferStage = nr.GbufferStage;
+export const LightingFlow = nr.LightingFlow;
+export const LightingStage = nr.LightingStage;
+export const PostprocessStage = nr.PostprocessStage;
+
 export const InstancedBuffer = nr.InstancedBuffer;
 export const PipelineStateManager = nr.PipelineStateManager;

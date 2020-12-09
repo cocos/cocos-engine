@@ -155,21 +155,21 @@ export class Root {
         return RootPool.get(this._poolHandle, RootView.FRAME_TIME);
     }
 
-    // public get deferredLightPassHandle (): PassHandle {
-    //     return RootPool.get(this._poolHandle, RootView.DEFERRED_LIGHT_PASS);
-    // }
+    public get deferredLightPassHandle (): PassHandle {
+        return RootPool.get(this._poolHandle, RootView.DEFERRED_LIGHT_PASS);
+    }
 
-    // public get deferredLightPassShaderHandle (): ShaderHandle {
-    //     return RootPool.get(this._poolHandle, RootView.DEFERRED_LIGHT_PASS_SHADER);
-    // }
+    public get deferredLightPassShaderHandle (): ShaderHandle {
+        return RootPool.get(this._poolHandle, RootView.DEFERRED_LIGHT_PASS_SHADER);
+    }
 
-    // public get deferredPostPassHandle (): PassHandle {
-    //     return RootPool.get(this._poolHandle, RootView.DEFERRED_POST_PASS);
-    // }
+    public get deferredPostPassHandle (): PassHandle {
+        return RootPool.get(this._poolHandle, RootView.DEFERRED_POST_PASS);
+    }
 
-    // public get deferredPostPassShaderHandle(): ShaderHandle  {
-    //     return RootPool.get(this._poolHandle, RootView.DEFERRED_POST_PASS_SHADER);
-    // }
+    public get deferredPostPassShaderHandle(): ShaderHandle  {
+        return RootPool.get(this._poolHandle, RootView.DEFERRED_POST_PASS_SHADER);
+    }
 
     /**
      * @zh

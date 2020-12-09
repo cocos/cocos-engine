@@ -290,10 +290,8 @@ export class Camera {
         if (this._isProjDirty || this._curTransform !== orientation) {
             this._curTransform = orientation;
             let projectionSignY = this._device.screenSpaceSignY;
-            if (this._view && 
-                (this._view.window.hasOffScreenAttachments || 
-                 this._view.flows.some((f) => f.name === 'GbufferFlow') ||
-                 this._view.flows.some((f) => f.name === 'LightingFlow'))) { // when drawing offscreen...
+            if (this._view &&
+                (this._view.window.hasOffScreenAttachments)) { // when drawing offscreen...
                 projectionSignY *= this._device.UVSpaceSignY; // apply sign-Y correction
                 orientation = SurfaceTransform.IDENTITY; // no pre-rotation
             }
