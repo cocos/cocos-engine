@@ -16,12 +16,12 @@ se::Class* __jsb_cc_AudioProfile_class = nullptr;
 
 static bool js_audio_AudioProfile_get_name(se::State& s)
 {
-    cc::AudioProfile* cobj = (cc::AudioProfile*)s.nativeThisObject();
+    cc::AudioProfile* cobj = SE_THIS_OBJECT<cc::AudioProfile>(s);
     SE_PRECONDITION2(cobj, false, "js_audio_AudioProfile_get_name : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
     se::Value jsret;
-    ok &= std_string_to_seval(cobj->name, &jsret);
+    ok &= nativevalue_to_se(cobj->name, jsret, s.thisObject() /*ctx*/);
     s.rval() = jsret;
     return true;
 }
@@ -30,26 +30,24 @@ SE_BIND_PROP_GET(js_audio_AudioProfile_get_name)
 static bool js_audio_AudioProfile_set_name(se::State& s)
 {
     const auto& args = s.args();
-    cc::AudioProfile* cobj = (cc::AudioProfile*)s.nativeThisObject();
+    cc::AudioProfile* cobj = SE_THIS_OBJECT<cc::AudioProfile>(s);
     SE_PRECONDITION2(cobj, false, "js_audio_AudioProfile_set_name : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    std::string arg0;
-    ok &= seval_to_std_string(args[0], &arg0);
+    ok &= sevalue_to_native(args[0], &cobj->name, s.thisObject());;
     SE_PRECONDITION2(ok, false, "js_audio_AudioProfile_set_name : Error processing new value");
-    cobj->name = arg0;
     return true;
 }
 SE_BIND_PROP_SET(js_audio_AudioProfile_set_name)
 
 static bool js_audio_AudioProfile_get_maxInstances(se::State& s)
 {
-    cc::AudioProfile* cobj = (cc::AudioProfile*)s.nativeThisObject();
+    cc::AudioProfile* cobj = SE_THIS_OBJECT<cc::AudioProfile>(s);
     SE_PRECONDITION2(cobj, false, "js_audio_AudioProfile_get_maxInstances : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
     se::Value jsret;
-    ok &= uint32_to_seval((unsigned int)cobj->maxInstances, &jsret);
+    ok &= nativevalue_to_se(cobj->maxInstances, jsret, s.thisObject() /*ctx*/);
     s.rval() = jsret;
     return true;
 }
@@ -58,26 +56,24 @@ SE_BIND_PROP_GET(js_audio_AudioProfile_get_maxInstances)
 static bool js_audio_AudioProfile_set_maxInstances(se::State& s)
 {
     const auto& args = s.args();
-    cc::AudioProfile* cobj = (cc::AudioProfile*)s.nativeThisObject();
+    cc::AudioProfile* cobj = SE_THIS_OBJECT<cc::AudioProfile>(s);
     SE_PRECONDITION2(cobj, false, "js_audio_AudioProfile_set_maxInstances : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    unsigned int arg0 = 0;
-    ok &= seval_to_uint32(args[0], (uint32_t*)&arg0);
+    ok &= sevalue_to_native(args[0], &cobj->maxInstances, s.thisObject());;
     SE_PRECONDITION2(ok, false, "js_audio_AudioProfile_set_maxInstances : Error processing new value");
-    cobj->maxInstances = arg0;
     return true;
 }
 SE_BIND_PROP_SET(js_audio_AudioProfile_set_maxInstances)
 
 static bool js_audio_AudioProfile_get_minDelay(se::State& s)
 {
-    cc::AudioProfile* cobj = (cc::AudioProfile*)s.nativeThisObject();
+    cc::AudioProfile* cobj = SE_THIS_OBJECT<cc::AudioProfile>(s);
     SE_PRECONDITION2(cobj, false, "js_audio_AudioProfile_get_minDelay : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
     se::Value jsret;
-    ok &= double_to_seval(cobj->minDelay, &jsret);
+    ok &= nativevalue_to_se(cobj->minDelay, jsret, s.thisObject() /*ctx*/);
     s.rval() = jsret;
     return true;
 }
@@ -86,21 +82,19 @@ SE_BIND_PROP_GET(js_audio_AudioProfile_get_minDelay)
 static bool js_audio_AudioProfile_set_minDelay(se::State& s)
 {
     const auto& args = s.args();
-    cc::AudioProfile* cobj = (cc::AudioProfile*)s.nativeThisObject();
+    cc::AudioProfile* cobj = SE_THIS_OBJECT<cc::AudioProfile>(s);
     SE_PRECONDITION2(cobj, false, "js_audio_AudioProfile_set_minDelay : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    double arg0 = 0;
-    ok &= seval_to_double(args[0], &arg0);
+    ok &= sevalue_to_native(args[0], &cobj->minDelay, s.thisObject());;
     SE_PRECONDITION2(ok, false, "js_audio_AudioProfile_set_minDelay : Error processing new value");
-    cobj->minDelay = arg0;
     return true;
 }
 SE_BIND_PROP_SET(js_audio_AudioProfile_set_minDelay)
 
 SE_DECLARE_FINALIZE_FUNC(js_cc_AudioProfile_finalize)
 
-static bool js_audio_AudioProfile_constructor(se::State& s)
+static bool js_audio_AudioProfile_constructor(se::State& s) // constructor.c
 {
     cc::AudioProfile* cobj = JSB_ALLOC(cc::AudioProfile);
     s.thisObject()->setPrivateData(cobj);
@@ -114,11 +108,11 @@ SE_BIND_CTOR(js_audio_AudioProfile_constructor, __jsb_cc_AudioProfile_class, js_
 
 static bool js_cc_AudioProfile_finalize(se::State& s)
 {
-    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
+    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::AudioProfile>(s));
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
         se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        cc::AudioProfile* cobj = (cc::AudioProfile*)s.nativeThisObject();
+        cc::AudioProfile* cobj = SE_THIS_OBJECT<cc::AudioProfile>(s);
         JSB_FREE(cobj);
     }
     return true;
@@ -153,7 +147,7 @@ static bool js_audio_AudioEngine_lazyInit(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 0) {
         bool result = cc::AudioEngine::lazyInit();
-        ok &= boolean_to_seval(result, &s.rval());
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_audio_AudioEngine_lazyInit : Error processing arguments");
         return true;
     }
@@ -168,13 +162,13 @@ static bool js_audio_AudioEngine_setCurrentTime(se::State& s)
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 2) {
-        int arg0 = 0;
-        float arg1 = 0;
-        do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (int)tmp; } while(false);
-        ok &= seval_to_float(args[1], &arg1);
+        HolderType<int, false> arg0 = {};
+        HolderType<float, false> arg1 = {};
+        ok &= sevalue_to_native(args[0], &arg0, nullptr);;
+        ok &= sevalue_to_native(args[1], &arg1, nullptr);;
         SE_PRECONDITION2(ok, false, "js_audio_AudioEngine_setCurrentTime : Error processing arguments");
-        bool result = cc::AudioEngine::setCurrentTime(arg0, arg1);
-        ok &= boolean_to_seval(result, &s.rval());
+        bool result = cc::AudioEngine::setCurrentTime(arg0.value(), arg1.value());
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_audio_AudioEngine_setCurrentTime : Error processing arguments");
         return true;
     }
@@ -189,11 +183,11 @@ static bool js_audio_AudioEngine_getVolume(se::State& s)
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
-        int arg0 = 0;
-        do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (int)tmp; } while(false);
+        HolderType<int, false> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, nullptr);;
         SE_PRECONDITION2(ok, false, "js_audio_AudioEngine_getVolume : Error processing arguments");
-        float result = cc::AudioEngine::getVolume(arg0);
-        ok &= float_to_seval(result, &s.rval());
+        float result = cc::AudioEngine::getVolume(arg0.value());
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_audio_AudioEngine_getVolume : Error processing arguments");
         return true;
     }
@@ -208,10 +202,10 @@ static bool js_audio_AudioEngine_uncache(se::State& s)
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
-        std::string arg0;
-        ok &= seval_to_std_string(args[0], &arg0);
+        HolderType<std::string, true> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, nullptr);;
         SE_PRECONDITION2(ok, false, "js_audio_AudioEngine_uncache : Error processing arguments");
-        cc::AudioEngine::uncache(arg0);
+        cc::AudioEngine::uncache(arg0.value());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
@@ -251,10 +245,10 @@ static bool js_audio_AudioEngine_pause(se::State& s)
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
-        int arg0 = 0;
-        do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (int)tmp; } while(false);
+        HolderType<int, false> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, nullptr);;
         SE_PRECONDITION2(ok, false, "js_audio_AudioEngine_pause : Error processing arguments");
-        cc::AudioEngine::pause(arg0);
+        cc::AudioEngine::pause(arg0.value());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
@@ -282,7 +276,7 @@ static bool js_audio_AudioEngine_getMaxAudioInstance(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 0) {
         int result = cc::AudioEngine::getMaxAudioInstance();
-        ok &= int32_to_seval((int)result, &s.rval());
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_audio_AudioEngine_getMaxAudioInstance : Error processing arguments");
         return true;
     }
@@ -298,7 +292,7 @@ static bool js_audio_AudioEngine_isEnabled(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 0) {
         bool result = cc::AudioEngine::isEnabled();
-        ok &= boolean_to_seval(result, &s.rval());
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_audio_AudioEngine_isEnabled : Error processing arguments");
         return true;
     }
@@ -313,11 +307,11 @@ static bool js_audio_AudioEngine_getDurationFromFile(se::State& s)
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
-        std::string arg0;
-        ok &= seval_to_std_string(args[0], &arg0);
+        HolderType<std::string, true> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, nullptr);;
         SE_PRECONDITION2(ok, false, "js_audio_AudioEngine_getDurationFromFile : Error processing arguments");
-        float result = cc::AudioEngine::getDurationFromFile(arg0);
-        ok &= float_to_seval(result, &s.rval());
+        float result = cc::AudioEngine::getDurationFromFile(arg0.value());
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_audio_AudioEngine_getDurationFromFile : Error processing arguments");
         return true;
     }
@@ -332,11 +326,11 @@ static bool js_audio_AudioEngine_getCurrentTime(se::State& s)
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
-        int arg0 = 0;
-        do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (int)tmp; } while(false);
+        HolderType<int, false> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, nullptr);;
         SE_PRECONDITION2(ok, false, "js_audio_AudioEngine_getCurrentTime : Error processing arguments");
-        float result = cc::AudioEngine::getCurrentTime(arg0);
-        ok &= float_to_seval(result, &s.rval());
+        float result = cc::AudioEngine::getCurrentTime(arg0.value());
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_audio_AudioEngine_getCurrentTime : Error processing arguments");
         return true;
     }
@@ -351,11 +345,11 @@ static bool js_audio_AudioEngine_setMaxAudioInstance(se::State& s)
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
-        int arg0 = 0;
-        do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (int)tmp; } while(false);
+        HolderType<int, false> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, nullptr);;
         SE_PRECONDITION2(ok, false, "js_audio_AudioEngine_setMaxAudioInstance : Error processing arguments");
-        bool result = cc::AudioEngine::setMaxAudioInstance(arg0);
-        ok &= boolean_to_seval(result, &s.rval());
+        bool result = cc::AudioEngine::setMaxAudioInstance(arg0.value());
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_audio_AudioEngine_setMaxAudioInstance : Error processing arguments");
         return true;
     }
@@ -370,11 +364,11 @@ static bool js_audio_AudioEngine_isLoop(se::State& s)
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
-        int arg0 = 0;
-        do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (int)tmp; } while(false);
+        HolderType<int, false> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, nullptr);;
         SE_PRECONDITION2(ok, false, "js_audio_AudioEngine_isLoop : Error processing arguments");
-        bool result = cc::AudioEngine::isLoop(arg0);
-        ok &= boolean_to_seval(result, &s.rval());
+        bool result = cc::AudioEngine::isLoop(arg0.value());
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_audio_AudioEngine_isLoop : Error processing arguments");
         return true;
     }
@@ -415,12 +409,12 @@ static bool js_audio_AudioEngine_setVolume(se::State& s)
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 2) {
-        int arg0 = 0;
-        float arg1 = 0;
-        do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (int)tmp; } while(false);
-        ok &= seval_to_float(args[1], &arg1);
+        HolderType<int, false> arg0 = {};
+        HolderType<float, false> arg1 = {};
+        ok &= sevalue_to_native(args[0], &arg0, nullptr);;
+        ok &= sevalue_to_native(args[1], &arg1, nullptr);;
         SE_PRECONDITION2(ok, false, "js_audio_AudioEngine_setVolume : Error processing arguments");
-        cc::AudioEngine::setVolume(arg0, arg1);
+        cc::AudioEngine::setVolume(arg0.value(), arg1.value());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
@@ -435,10 +429,10 @@ static bool js_audio_AudioEngine_preload(se::State& s)
     size_t argc = args.size();
     do {
         if (argc == 2) {
-            std::string arg0;
-            ok &= seval_to_std_string(args[0], &arg0);
+            HolderType<std::string, true> arg0 = {};
+            ok &= sevalue_to_native(args[0], &arg0, s.thisObject());;
             if (!ok) { ok = true; break; }
-            std::function<void (bool)> arg1;
+            HolderType<std::function<void (bool)>, false> arg1 = {};
             do {
                 if (args[1].isObject() && args[1].toObject()->isFunction())
                 {
@@ -452,7 +446,7 @@ static bool js_audio_AudioEngine_preload(se::State& s)
                         CC_UNUSED bool ok = true;
                         se::ValueArray args;
                         args.resize(1);
-                        ok &= boolean_to_seval(larg0, &args[0]);
+                        ok &= nativevalue_to_se(larg0, args[0], nullptr /*ctx*/);
                         se::Value rval;
                         se::Object* thisObj = jsThis.isObject() ? jsThis.toObject() : nullptr;
                         se::Object* funcObj = jsFunc.toObject();
@@ -461,25 +455,25 @@ static bool js_audio_AudioEngine_preload(se::State& s)
                             se::ScriptEngine::getInstance()->clearException();
                         }
                     };
-                    arg1 = lambda;
+                    arg1.data = lambda;
                 }
                 else
                 {
-                    arg1 = nullptr;
+                    arg1.data = nullptr;
                 }
             } while(false)
             ;
             if (!ok) { ok = true; break; }
-            cc::AudioEngine::preload(arg0, arg1);
+            cc::AudioEngine::preload(arg0.value(), arg1.value());
             return true;
         }
     } while (false);
     do {
         if (argc == 1) {
-            std::string arg0;
-            ok &= seval_to_std_string(args[0], &arg0);
+            HolderType<std::string, true> arg0 = {};
+            ok &= sevalue_to_native(args[0], &arg0, s.thisObject());;
             if (!ok) { ok = true; break; }
-            cc::AudioEngine::preload(arg0);
+            cc::AudioEngine::preload(arg0.value());
             return true;
         }
     } while (false);
@@ -494,10 +488,10 @@ static bool js_audio_AudioEngine_setEnabled(se::State& s)
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
-        bool arg0;
-        ok &= seval_to_boolean(args[0], &arg0);
+        HolderType<bool, false> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, nullptr);;
         SE_PRECONDITION2(ok, false, "js_audio_AudioEngine_setEnabled : Error processing arguments");
-        cc::AudioEngine::setEnabled(arg0);
+        cc::AudioEngine::setEnabled(arg0.value());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
@@ -511,50 +505,50 @@ static bool js_audio_AudioEngine_play2d(se::State& s)
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
-        std::string arg0;
-        ok &= seval_to_std_string(args[0], &arg0);
+        HolderType<std::string, true> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, nullptr);;
         SE_PRECONDITION2(ok, false, "js_audio_AudioEngine_play2d : Error processing arguments");
-        int result = cc::AudioEngine::play2d(arg0);
-        ok &= int32_to_seval((int)result, &s.rval());
+        int result = cc::AudioEngine::play2d(arg0.value());
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_audio_AudioEngine_play2d : Error processing arguments");
         return true;
     }
     if (argc == 2) {
-        std::string arg0;
-        bool arg1;
-        ok &= seval_to_std_string(args[0], &arg0);
-        ok &= seval_to_boolean(args[1], &arg1);
+        HolderType<std::string, true> arg0 = {};
+        HolderType<bool, false> arg1 = {};
+        ok &= sevalue_to_native(args[0], &arg0, nullptr);;
+        ok &= sevalue_to_native(args[1], &arg1, nullptr);;
         SE_PRECONDITION2(ok, false, "js_audio_AudioEngine_play2d : Error processing arguments");
-        int result = cc::AudioEngine::play2d(arg0, arg1);
-        ok &= int32_to_seval((int)result, &s.rval());
+        int result = cc::AudioEngine::play2d(arg0.value(), arg1.value());
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_audio_AudioEngine_play2d : Error processing arguments");
         return true;
     }
     if (argc == 3) {
-        std::string arg0;
-        bool arg1;
-        float arg2 = 0;
-        ok &= seval_to_std_string(args[0], &arg0);
-        ok &= seval_to_boolean(args[1], &arg1);
-        ok &= seval_to_float(args[2], &arg2);
+        HolderType<std::string, true> arg0 = {};
+        HolderType<bool, false> arg1 = {};
+        HolderType<float, false> arg2 = {};
+        ok &= sevalue_to_native(args[0], &arg0, nullptr);;
+        ok &= sevalue_to_native(args[1], &arg1, nullptr);;
+        ok &= sevalue_to_native(args[2], &arg2, nullptr);;
         SE_PRECONDITION2(ok, false, "js_audio_AudioEngine_play2d : Error processing arguments");
-        int result = cc::AudioEngine::play2d(arg0, arg1, arg2);
-        ok &= int32_to_seval((int)result, &s.rval());
+        int result = cc::AudioEngine::play2d(arg0.value(), arg1.value(), arg2.value());
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_audio_AudioEngine_play2d : Error processing arguments");
         return true;
     }
     if (argc == 4) {
-        std::string arg0;
-        bool arg1;
-        float arg2 = 0;
-        const cc::AudioProfile* arg3 = nullptr;
-        ok &= seval_to_std_string(args[0], &arg0);
-        ok &= seval_to_boolean(args[1], &arg1);
-        ok &= seval_to_float(args[2], &arg2);
-        ok &= seval_to_native_ptr(args[3], &arg3);
+        HolderType<std::string, true> arg0 = {};
+        HolderType<bool, false> arg1 = {};
+        HolderType<float, false> arg2 = {};
+        HolderType<const cc::AudioProfile*, false> arg3 = {};
+        ok &= sevalue_to_native(args[0], &arg0, nullptr);;
+        ok &= sevalue_to_native(args[1], &arg1, nullptr);;
+        ok &= sevalue_to_native(args[2], &arg2, nullptr);;
+        ok &= sevalue_to_native(args[3], &arg3, nullptr);;
         SE_PRECONDITION2(ok, false, "js_audio_AudioEngine_play2d : Error processing arguments");
-        int result = cc::AudioEngine::play2d(arg0, arg1, arg2, arg3);
-        ok &= int32_to_seval((int)result, &s.rval());
+        int result = cc::AudioEngine::play2d(arg0.value(), arg1.value(), arg2.value(), arg3.value());
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_audio_AudioEngine_play2d : Error processing arguments");
         return true;
     }
@@ -569,11 +563,11 @@ static bool js_audio_AudioEngine_getState(se::State& s)
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
-        int arg0 = 0;
-        do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (int)tmp; } while(false);
+        HolderType<int, false> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, nullptr);;
         SE_PRECONDITION2(ok, false, "js_audio_AudioEngine_getState : Error processing arguments");
-        int result = (int)cc::AudioEngine::getState(arg0);
-        ok &= int32_to_seval((int)result, &s.rval());
+        int result = (int)cc::AudioEngine::getState(arg0.value());
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_audio_AudioEngine_getState : Error processing arguments");
         return true;
     }
@@ -588,10 +582,10 @@ static bool js_audio_AudioEngine_resume(se::State& s)
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
-        int arg0 = 0;
-        do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (int)tmp; } while(false);
+        HolderType<int, false> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, nullptr);;
         SE_PRECONDITION2(ok, false, "js_audio_AudioEngine_resume : Error processing arguments");
-        cc::AudioEngine::resume(arg0);
+        cc::AudioEngine::resume(arg0.value());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
@@ -605,10 +599,10 @@ static bool js_audio_AudioEngine_stop(se::State& s)
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
-        int arg0 = 0;
-        do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (int)tmp; } while(false);
+        HolderType<int, false> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, nullptr);;
         SE_PRECONDITION2(ok, false, "js_audio_AudioEngine_stop : Error processing arguments");
-        cc::AudioEngine::stop(arg0);
+        cc::AudioEngine::stop(arg0.value());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
@@ -622,11 +616,11 @@ static bool js_audio_AudioEngine_getDuration(se::State& s)
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
-        int arg0 = 0;
-        do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (int)tmp; } while(false);
+        HolderType<int, false> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, nullptr);;
         SE_PRECONDITION2(ok, false, "js_audio_AudioEngine_getDuration : Error processing arguments");
-        float result = cc::AudioEngine::getDuration(arg0);
-        ok &= float_to_seval(result, &s.rval());
+        float result = cc::AudioEngine::getDuration(arg0.value());
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_audio_AudioEngine_getDuration : Error processing arguments");
         return true;
     }
@@ -641,12 +635,12 @@ static bool js_audio_AudioEngine_setLoop(se::State& s)
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 2) {
-        int arg0 = 0;
-        bool arg1;
-        do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (int)tmp; } while(false);
-        ok &= seval_to_boolean(args[1], &arg1);
+        HolderType<int, false> arg0 = {};
+        HolderType<bool, false> arg1 = {};
+        ok &= sevalue_to_native(args[0], &arg0, nullptr);;
+        ok &= sevalue_to_native(args[1], &arg1, nullptr);;
         SE_PRECONDITION2(ok, false, "js_audio_AudioEngine_setLoop : Error processing arguments");
-        cc::AudioEngine::setLoop(arg0, arg1);
+        cc::AudioEngine::setLoop(arg0.value(), arg1.value());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
@@ -661,7 +655,7 @@ static bool js_audio_AudioEngine_getDefaultProfile(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 0) {
         cc::AudioProfile* result = cc::AudioEngine::getDefaultProfile();
-        ok &= native_ptr_to_seval(result, &s.rval());
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_audio_AudioEngine_getDefaultProfile : Error processing arguments");
         return true;
     }
@@ -676,9 +670,9 @@ static bool js_audio_AudioEngine_setFinishCallback(se::State& s)
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 2) {
-        int arg0 = 0;
-        std::function<void (int, const std::string&)> arg1;
-        do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (int)tmp; } while(false);
+        HolderType<int, false> arg0 = {};
+        HolderType<std::function<void (int, const std::string&)>, true> arg1 = {};
+        ok &= sevalue_to_native(args[0], &arg0, nullptr);;
         do {
             if (args[1].isObject() && args[1].toObject()->isFunction())
             {
@@ -692,8 +686,8 @@ static bool js_audio_AudioEngine_setFinishCallback(se::State& s)
                     CC_UNUSED bool ok = true;
                     se::ValueArray args;
                     args.resize(2);
-                    ok &= int32_to_seval((int)larg0, &args[0]);
-                    ok &= std_string_to_seval(larg1, &args[1]);
+                    ok &= nativevalue_to_se(larg0, args[0], nullptr /*ctx*/);
+                    ok &= nativevalue_to_se(larg1, args[1], nullptr /*ctx*/);
                     se::Value rval;
                     se::Object* thisObj = jsThis.isObject() ? jsThis.toObject() : nullptr;
                     se::Object* funcObj = jsFunc.toObject();
@@ -702,16 +696,16 @@ static bool js_audio_AudioEngine_setFinishCallback(se::State& s)
                         se::ScriptEngine::getInstance()->clearException();
                     }
                 };
-                arg1 = lambda;
+                arg1.data = lambda;
             }
             else
             {
-                arg1 = nullptr;
+                arg1.data = nullptr;
             }
         } while(false)
         ;
         SE_PRECONDITION2(ok, false, "js_audio_AudioEngine_setFinishCallback : Error processing arguments");
-        cc::AudioEngine::setFinishCallback(arg0, arg1);
+        cc::AudioEngine::setFinishCallback(arg0.value(), arg1.value());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
@@ -726,22 +720,22 @@ static bool js_audio_AudioEngine_getProfile(se::State& s)
     size_t argc = args.size();
     do {
         if (argc == 1) {
-            std::string arg0;
-            ok &= seval_to_std_string(args[0], &arg0);
+            HolderType<std::string, true> arg0 = {};
+            ok &= sevalue_to_native(args[0], &arg0, s.thisObject());;
             if (!ok) { ok = true; break; }
-            cc::AudioProfile* result = cc::AudioEngine::getProfile(arg0);
-            ok &= native_ptr_to_seval(result, &s.rval());
+            cc::AudioProfile* result = cc::AudioEngine::getProfile(arg0.value());
+            ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
             SE_PRECONDITION2(ok, false, "js_audio_AudioEngine_getProfile : Error processing arguments");
             return true;
         }
     } while (false);
     do {
         if (argc == 1) {
-            int arg0 = 0;
-            do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (int)tmp; } while(false);
+            HolderType<int, false> arg0 = {};
+            ok &= sevalue_to_native(args[0], &arg0, s.thisObject());;
             if (!ok) { ok = true; break; }
-            cc::AudioProfile* result = cc::AudioEngine::getProfile(arg0);
-            ok &= native_ptr_to_seval(result, &s.rval());
+            cc::AudioProfile* result = cc::AudioEngine::getProfile(arg0.value());
+            ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
             SE_PRECONDITION2(ok, false, "js_audio_AudioEngine_getProfile : Error processing arguments");
             return true;
         }
@@ -758,7 +752,7 @@ static bool js_audio_AudioEngine_getPlayingAudioCount(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 0) {
         int result = cc::AudioEngine::getPlayingAudioCount();
-        ok &= int32_to_seval((int)result, &s.rval());
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_audio_AudioEngine_getPlayingAudioCount : Error processing arguments");
         return true;
     }

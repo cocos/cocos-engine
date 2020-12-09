@@ -1,13 +1,17 @@
 #pragma once
 #include "base/Config.h"
-
+#include <type_traits>
 #include "cocos/bindings/jswrapper/SeApi.h"
+#include "cocos/bindings/manual/jsb_conversions.h"
+#include "cocos/cocos2d.h"
 
 extern se::Object* __jsb_cc_FileUtils_proto;
 extern se::Class* __jsb_cc_FileUtils_class;
 
 bool js_register_cc_FileUtils(se::Object* obj);
 bool register_all_engine(se::Object* obj);
+
+JSB_REGISTER_OBJECT_TYPE(cc::FileUtils);
 SE_DECLARE_FUNC(js_engine_FileUtils_writeDataToFile);
 SE_DECLARE_FUNC(js_engine_FileUtils_getStringFromFile);
 SE_DECLARE_FUNC(js_engine_FileUtils_removeFile);
@@ -50,6 +54,8 @@ extern se::Class* __jsb_cc_Device_class;
 
 bool js_register_cc_Device(se::Object* obj);
 bool register_all_engine(se::Object* obj);
+
+JSB_REGISTER_OBJECT_TYPE(cc::Device);
 SE_DECLARE_FUNC(js_engine_Device_getDevicePixelRatio);
 SE_DECLARE_FUNC(js_engine_Device_setAccelerometerEnabled);
 SE_DECLARE_FUNC(js_engine_Device_setAccelerometerInterval);
@@ -67,6 +73,8 @@ extern se::Class* __jsb_cc_SAXParser_class;
 
 bool js_register_cc_SAXParser(se::Object* obj);
 bool register_all_engine(se::Object* obj);
+
+JSB_REGISTER_OBJECT_TYPE(cc::SAXParser);
 SE_DECLARE_FUNC(js_engine_SAXParser_init);
 
 extern se::Object* __jsb_cc_CanvasGradient_proto;
@@ -74,6 +82,8 @@ extern se::Class* __jsb_cc_CanvasGradient_class;
 
 bool js_register_cc_CanvasGradient(se::Object* obj);
 bool register_all_engine(se::Object* obj);
+
+JSB_REGISTER_OBJECT_TYPE(cc::CanvasGradient);
 SE_DECLARE_FUNC(js_engine_CanvasGradient_addColorStop);
 SE_DECLARE_FUNC(js_engine_CanvasGradient_CanvasGradient);
 
@@ -82,6 +92,8 @@ extern se::Class* __jsb_cc_CanvasRenderingContext2D_class;
 
 bool js_register_cc_CanvasRenderingContext2D(se::Object* obj);
 bool register_all_engine(se::Object* obj);
+
+JSB_REGISTER_OBJECT_TYPE(cc::CanvasRenderingContext2D);
 SE_DECLARE_FUNC(js_engine_CanvasRenderingContext2D_restore);
 SE_DECLARE_FUNC(js_engine_CanvasRenderingContext2D_moveTo);
 SE_DECLARE_FUNC(js_engine_CanvasRenderingContext2D_lineTo);

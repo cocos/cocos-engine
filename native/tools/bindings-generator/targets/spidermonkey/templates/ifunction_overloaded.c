@@ -3,7 +3,7 @@
 static bool ${signature_name}(se::State& s)
 {
     CC_UNUSED bool ok = true;
-    ${namespaced_class_name}* cobj = (${namespaced_class_name}*)s.nativeThisObject();
+    ${namespaced_class_name}* cobj = SE_THIS_OBJECT<${namespaced_class_name}>(s);
     SE_PRECONDITION2( cobj, false, "${signature_name} : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -14,46 +14,45 @@ static bool ${signature_name}(se::State& s)
     #while $arg_idx <= $arg_count
     #set arg_list = ""
     #set arg_array = []
+    #set arg_conv_array = []
     do {
         #if $func.min_args >= 0
         if (argc == $arg_idx) {
             #set $count = 0
-            #set arg_conv_array = []
             #while $count < $arg_idx
                 #set $arg = $func.arguments[$count]
                 #set $arg_type = $arg.to_string($generator)
-                #set conv_txt =  $arg.to_native({"generator": $generator, \
-                             "arg" : $arg,\
-                             "arg_type": $arg_type,\
-                             "in_value": "args[" + str(count) + "]",\
-                             "out_value": "arg" + str(count),\
-                             "class_name": $class_name,\
-                             "level": 3,\
-                             "is_static": False,\
-                             "is_persistent": $is_persistent,\
-                             "ntype": str($arg)})
-                #set arg_conv_array += [$conv_txt]
-                #if "seval_to_reference" in $conv_txt
-            $arg_type* arg${count} = nullptr;
-                #elif $arg.is_numeric
-            ${arg_type} arg${count} = 0;
-                #elif $arg.is_pointer
-            ${arg_type} arg${count} = nullptr;
+                #if $arg.is_reference
+                #set $holder_prefix="HolderType<"+$arg_type+", true>"
                 #else
-            ${arg_type} arg${count};
+                #set $holder_prefix="HolderType<"+$arg_type+", false>"
                 #end if
-            $conv_txt;            
-                #if "seval_to_reference" in $conv_txt
-                #set $arg_array += ["*arg"+str(count)]
-                #else
-                #set $arg_array += ["arg"+str(count)]
-                #end if
+                #set $arg_array += [ "arg"+str(count)+".value()"]
+            $holder_prefix arg${count} = {};
+                #set $count = $count + 1
+            #end while
+            #set $arg_list = ", ".join($arg_array)
+
+            #set $count = 0
+            #while $count < $arg_idx
+                #set $arg = $func.arguments[$count]
+                #set $arg_type = $arg.to_string($generator)
+            ${arg.to_native({"generator": $generator,
+                             "arg" : $arg,
+                             "arg_type": $arg_type,
+                             "in_value": "args[" + str(count) + "]",
+                             "out_value": "arg" + str(count),
+                             "class_name": $class_name,
+                             "level": 3,
+                             "context" : "s.thisObject()",
+                             "is_static": False,
+                             "is_persistent": $is_persistent,
+                             "ntype": str($arg)})};
                 #set $count = $count + 1
             #if $arg_idx > 0 and arg_type != "bool"
             if (!ok) { ok = true; break; }
             #end if
             #end while
-            #set $arg_list = ", ".join($arg_array)
         #end if
         #if str($func.ret_type) != "void"
             #if $func.ret_type.is_enum
@@ -64,6 +63,7 @@ static bool ${signature_name}(se::State& s)
             ${func.ret_type.from_native({"generator": $generator,
                                                       "in_value": "result",
                                                       "out_value": "s.rval()",
+                                                      "context" : "s.thisObject()",
                                                       "class_name": $func.ret_type.get_class_name($generator),
                                                       "ntype": str($func.ret_type),
                                                       "level": 2})};

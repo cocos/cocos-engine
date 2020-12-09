@@ -15,7 +15,7 @@ se::Class* __jsb_cc_gfx_CCMTLDevice_class = nullptr;
 
 SE_DECLARE_FINALIZE_FUNC(js_cc_gfx_CCMTLDevice_finalize)
 
-static bool js_mtl_CCMTLDevice_constructor(se::State& s)
+static bool js_mtl_CCMTLDevice_constructor(se::State& s) // constructor.c
 {
     cc::gfx::CCMTLDevice* cobj = JSB_ALLOC(cc::gfx::CCMTLDevice);
     s.thisObject()->setPrivateData(cobj);
@@ -30,11 +30,11 @@ extern se::Object* __jsb_cc_gfx_Device_proto;
 
 static bool js_cc_gfx_CCMTLDevice_finalize(se::State& s)
 {
-    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
+    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::gfx::CCMTLDevice>(s));
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
         se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        cc::gfx::CCMTLDevice* cobj = (cc::gfx::CCMTLDevice*)s.nativeThisObject();
+        cc::gfx::CCMTLDevice* cobj = SE_THIS_OBJECT<cc::gfx::CCMTLDevice>(s);
         JSB_FREE(cobj);
     }
     return true;

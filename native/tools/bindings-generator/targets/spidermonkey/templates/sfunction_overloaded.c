@@ -9,6 +9,7 @@ static bool ${signature_name}(se::State& s)
     #if len($func.arguments) >= $func.min_args
     #set arg_count = len($func.arguments)
     #set arg_idx = $func.min_args
+    #set holder_prefix_array = []
     #while $arg_idx <= $arg_count
     do {
         if (argc == ${arg_idx}) {
@@ -18,13 +19,13 @@ static bool ${signature_name}(se::State& s)
             #while $count < $arg_idx
                 #set $arg = $func.arguments[$count]
                 #set $arg_type = $arg.to_string($generator)
-                #if $arg.is_numeric
-            $arg_type arg${count} = 0;
-                #elif $arg.is_pointer
-            $arg_type arg${count} = nullptr;
+                #if $arg.is_reference
+                #set $holder_prefix="HolderType<"+$arg_type+", true>"
                 #else
-            $arg_type arg${count};
+                #set $holder_prefix="HolderType<"+$arg_type+", false>"
                 #end if
+            $holder_prefix arg${count} = {};
+                #set $arg_array += [ "arg"+str(count)+".value()"]
             ${arg.to_native({"generator": $generator,
                              "arg" : $arg,
                              "arg_type": $arg_type,
@@ -32,10 +33,10 @@ static bool ${signature_name}(se::State& s)
                              "out_value": "arg" + str(count),
                              "class_name": $class_name,
                              "level": 3,
+                             "context" : "s.thisObject()",
                              "is_static": True,
                              "is_persistent": $is_persistent,
                              "ntype": str($arg)})};
-            #set $arg_array += ["arg"+str(count)]
             #set $count = $count + 1
             #if $arg_idx > 0
             if (!ok) { ok = true; break; }
@@ -51,6 +52,7 @@ static bool ${signature_name}(se::State& s)
             ${func.ret_type.from_native({"generator": $generator,
                                          "in_value": "result",
                                          "out_value": "s.rval()",
+                                         "context" : "s.thisObject()",
                                          "class_name": $func.ret_type.get_class_name($generator),
                                          "ntype": str($func.ret_type),
                                          "level": 3})};

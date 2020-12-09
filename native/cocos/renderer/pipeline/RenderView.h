@@ -13,7 +13,7 @@ struct CC_DLL RenderViewInfo {
     uint cameraID = 0;
     String name;
     uint priority = 0;
-    vector<String> flows;
+    std::vector<String> flows;
 };
 
 class CC_DLL RenderView : public Object {

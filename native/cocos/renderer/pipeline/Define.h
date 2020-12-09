@@ -122,7 +122,7 @@ struct CC_DLL RenderQueueDesc {
     RenderQueueSortMode sortMode = RenderQueueSortMode::FRONT_TO_BACK;
     StringArray stages;
 };
-typedef vector<RenderQueueDesc> RenderQueueDescList;
+typedef std::vector<RenderQueueDesc> RenderQueueDescList;
 
 uint getPhaseID(const String &phase);
 

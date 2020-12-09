@@ -13,6 +13,10 @@ struct PassView;
 struct InstancedAttributeBlock;
 struct PSOInfo;
 
+#if defined(INITIAL_CAPACITY)
+#undef INITIAL_CAPACITY
+#endif
+
 struct CC_DLL InstancedItem {
     uint count = 0;
     uint capacity = 0;

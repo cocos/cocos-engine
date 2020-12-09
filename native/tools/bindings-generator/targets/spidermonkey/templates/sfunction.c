@@ -10,6 +10,7 @@ static bool ${signature_name}(se::State& s)
     #if ($arg_count > 0 or str($ret_type) != "void")
     CC_UNUSED bool ok = true;
     #end if
+    #set holder_prefix_array = []
     #while $arg_idx <= $arg_count
     if (argc == ${arg_idx}) {
         #set arg_list = ""
@@ -18,13 +19,13 @@ static bool ${signature_name}(se::State& s)
         #while $count < $arg_idx
             #set $arg = $arguments[$count]
             #set $arg_type = $arg.to_string($generator)
-            #if $arg.is_numeric
-        $arg_type arg${count} = 0;
-            #elif $arg.is_pointer
-        $arg_type arg${count} = nullptr;
+            #if $arg.is_reference
+            #set $holder_prefix="HolderType<"+$arg_type+", true>"
             #else
-        $arg_type arg${count};
+            #set $holder_prefix="HolderType<"+$arg_type+", false>"
             #end if
+        $holder_prefix arg${count} = {};
+            #set $arg_array += [ "arg"+str(count)+".value()"]
             #set $count = $count + 1
         #end while
         #set $count = 0
@@ -41,7 +42,6 @@ static bool ${signature_name}(se::State& s)
             "is_static": True,
             "is_persistent": $is_persistent,
             "ntype": str($arg)})};
-            #set $arg_array += ["arg"+str($count)]
             #set $count = $count + 1
         #end while
         #if $arg_idx > 0

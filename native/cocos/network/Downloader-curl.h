@@ -34,7 +34,7 @@ namespace cc {
 namespace cc { namespace network
 {
     class DownloadTaskCURL;
-    class DownloaderHints;
+    struct DownloaderHints;
 
     class DownloaderCURL : public IDownloaderImpl
     {

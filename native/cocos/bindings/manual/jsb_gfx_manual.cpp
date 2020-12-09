@@ -83,7 +83,7 @@ bool js_gfx_Device_copyBuffersToTexture(se::State &s) {
             }
         }
         ok &= seval_to_native_ptr(args[1], &arg1);
-        ok &= seval_to_gfx_buffer_texture_copy_list(args[2], &arg2);
+        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
         SE_PRECONDITION2(ok, false, "js_gfx_Device_copyBuffersToTexture : Error processing arguments");
         cobj->copyBuffersToTexture(arg0, arg1, arg2);
         return true;
@@ -131,7 +131,7 @@ bool js_gfx_Device_copyTexImagesToTexture(se::State &s) {
             ok &= false;
         }
         ok &= seval_to_native_ptr(args[1], &arg1);
-        ok &= seval_to_gfx_buffer_texture_copy_list(args[2], &arg2);
+        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
         SE_PRECONDITION2(ok, false, "js_gfx_Device_copyBuffersToTexture : Error processing arguments");
         cobj->copyBuffersToTexture(arg0, arg1, arg2);
         return true;
@@ -155,11 +155,11 @@ static bool js_gfx_Device_createBuffer(se::State &s) {
 
         if (createBufferView) {
             cc::gfx::BufferViewInfo bufferViewInfo;
-            seval_to_gfx_buffer_view_info(args[0], &bufferViewInfo);
+            sevalue_to_native(args[0], &bufferViewInfo, s.thisObject());
             buffer = cobj->createBuffer(bufferViewInfo);
         } else {
             cc::gfx::BufferInfo bufferInfo;
-            seval_to_gfx_buffer_info(args[0], &bufferInfo);
+            sevalue_to_native(args[0], &bufferInfo, s.thisObject());
             buffer = cobj->createBuffer(bufferInfo);
         }
         se::NonRefNativePtrCreatedByCtorMap::emplace(buffer);
@@ -189,7 +189,7 @@ static bool js_gfx_Device_createTexture(se::State &s) {
             texture = cobj->createTexture(*textureViewInfo);
         } else {
             cc::gfx::TextureInfo textureInfo;
-            seval_to_gfx_texture_info(args[0], &textureInfo);
+            sevalue_to_native(args[0], &textureInfo, s.thisObject());
             texture = cobj->createTexture(textureInfo);
         }
         se::NonRefNativePtrCreatedByCtorMap::emplace(texture);

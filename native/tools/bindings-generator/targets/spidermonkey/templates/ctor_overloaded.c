@@ -4,6 +4,7 @@ SE_DECLARE_FINALIZE_FUNC(js_${underlined_class_name}_finalize)
 
 static bool ${signature_name}(se::State& s)
 {
+    //ctor_overloaded.c
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
     size_t argc = args.size();
@@ -35,6 +36,7 @@ static bool ${signature_name}(se::State& s)
                              "out_value": "arg" + str(count),
                              "class_name": $class_name,
                              "level": 3,
+                             "context" : "s.thisObject()",
                              "is_static": False,
                              "is_persistent": $is_persistent,
                              "ntype": str($arg)})};

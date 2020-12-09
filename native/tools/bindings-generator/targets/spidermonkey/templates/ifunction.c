@@ -2,7 +2,7 @@
 
 static bool ${signature_name}(se::State& s)
 {
-    ${namespaced_class_name}* cobj = (${namespaced_class_name}*)s.nativeThisObject();
+    ${namespaced_class_name}* cobj = SE_THIS_OBJECT<${namespaced_class_name}>(s);
     SE_PRECONDITION2(cobj, false, "${signature_name} : Invalid Native Object");
 #if len($arguments) >= $min_args
     const auto& args = s.args();
@@ -16,29 +16,29 @@ static bool ${signature_name}(se::State& s)
     if (argc == ${arg_idx}) {
         #set $count = 0
         #set arg_conv_array = []
+        #set holder_prefix_array = []
         #while $count < $arg_idx
             #set $arg = $arguments[$count]
             #set $arg_type = $arg.to_string($generator)
+            #if $arg.is_reference
+            #set $holder_prefix="HolderType<"+$arg_type+", true>"
+            #else
+            #set $holder_prefix="HolderType<"+$arg_type+", false>"
+            #end if
+            #set holder_prefix_array += [$holder_prefix]
             #set conv_txt= $arg.to_native({"generator": $generator,\
                              "arg" : $arg, \
                              "arg_type": $arg_type, \
                              "in_value": "args[" + str(count) + "]", \
-                             "out_value": "arg" + str(count),   \
+                             "out_value":  "arg"+str(count) , \
                              "class_name": $class_name,\
                              "level": 2, \
+                             "context" : "s.thisObject()", \
                              "is_static": False, \
                              "is_persistent": $is_persistent, \
                              "ntype": str($arg)}) 
             #set arg_conv_array += [$conv_txt]
-            #if "seval_to_reference" in $conv_txt
-        $arg_type* arg${count} = nullptr;
-            #elif $arg.is_numeric
-        $arg_type arg${count} = 0;
-            #elif $arg.is_pointer
-        $arg_type arg${count} = nullptr;
-            #else
-        $arg_type arg${count};
-            #end if
+        $holder_prefix arg${count} = {};
             #set $count = $count + 1
         #end while
         #set $count = 0
@@ -48,11 +48,7 @@ static bool ${signature_name}(se::State& s)
             #set $arg = $arguments[$count]
             #set $arg_type = $arg.to_string($generator)
         $arg_conv_array[$count];
-            #if "seval_to_reference" in $arg_conv_array[$count]
-                #set $arg_array += ["*arg"+str(count)]
-            #else
-                #set $arg_array += ["arg"+str(count)]
-            #end if
+            #set $arg_array += [ "arg"+str(count)+".value()"]
             #set $count = $count + 1
         #end while
         #if $arg_idx > 0

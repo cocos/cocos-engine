@@ -29,15 +29,15 @@ static bool js_${current_class.underlined_class_name}_finalize(se::State& s)
 {
     #if $current_class.rename_destructor is None
     #if $current_class.is_ref_class
-    ${current_class.namespaced_class_name}* cobj = (${current_class.namespaced_class_name}*)s.nativeThisObject();
+    ${current_class.namespaced_class_name}* cobj =SE_THIS_OBJECT<${current_class.namespaced_class_name}>(s);
     cobj->release();
     #else
         #if not $current_class.is_class_owned_by_cpp
-    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
+    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<${current_class.namespaced_class_name}>(s));
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
         se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        ${current_class.namespaced_class_name}* cobj = (${current_class.namespaced_class_name}*)s.nativeThisObject();
+        ${current_class.namespaced_class_name}* cobj = SE_THIS_OBJECT<${current_class.namespaced_class_name}>(s);
         JSB_FREE(cobj);
     }
         #end if
@@ -54,20 +54,20 @@ SE_BIND_FINALIZE_FUNC(js_${current_class.underlined_class_name}_finalize)
 static bool js_${current_class.underlined_class_name}_${current_class.rename_destructor}(se::State& s)
 {
     #if $current_class.is_ref_class
-    ${current_class.namespaced_class_name}* cobj = (${current_class.namespaced_class_name}*)s.nativeThisObject();
+    ${current_class.namespaced_class_name}* cobj = SE_THIS_OBJECT<${current_class.namespaced_class_name}>(s);
     cobj->release();
     #else
         #if not $current_class.is_class_owned_by_cpp
-    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
+    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<${current_class.namespaced_class_name}>(s));
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
         se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        ${current_class.namespaced_class_name}* cobj = (${current_class.namespaced_class_name}*)s.nativeThisObject();
+        ${current_class.namespaced_class_name}* cobj = SE_THIS_OBJECT<${current_class.namespaced_class_name}>(s);
         JSB_FREE(cobj);
     }
         #end if
     #end if
-    auto objIter = se::NativePtrToObjectMap::find(s.nativeThisObject());
+    auto objIter = se::NativePtrToObjectMap::find(SE_THIS_OBJECT<${current_class.namespaced_class_name}>(s));
     if(objIter != se::NativePtrToObjectMap::end())
     {
         objIter->second->clearPrivateData(true);

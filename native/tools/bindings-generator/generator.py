@@ -92,7 +92,7 @@ stl_type_map = {
     'std::stack': 1,
     'std::queue': 1,
     'std::deque': 1,
-    'std::array': 1,
+   # 'std::array': 1,
 
     'unordered_map': 2,
     'unordered_multimap': 2,
@@ -330,10 +330,17 @@ def native_name_from_type(ntype, underlying=False):
         else:
             # print >> sys.stderr, "probably a function pointer: " + str(decl.spelling)
             return const + decl.spelling
+    elif kind == cindex.TypeKind.CONSTANTARRAY:
+        decl = ntype.get_declaration()
+        etype = ntype.element_type
+        esize = ntype.element_count
+        print >> sys.stderr, "probably a function const array: " + str(etype.spelling) + "[" + str(esize) + "]"
+        #return  "decltype(" + str(etype.spelling) + " _[" + str(esize) + "])"
+        return "std::array<%s, %s>" % (etype.spelling, esize)
     else:
-        # name = ntype.get_declaration().spelling
-        # print >> sys.stderr, "Unknown type: " + str(kind) + " " + str(name)
-        return INVALID_NATIVE_TYPE
+        name = ntype.get_declaration().spelling
+        #print >> sys.stderr, "Unknown type: " + str(kind) + " " + str(name)
+        return INVALID_NATIVE_TYPE + " - " + str(kind) + " ? " +str(name)
         # pdb.set_trace()
 
 
@@ -405,7 +412,13 @@ class NativeType(object):
         self.whole_name = None
         self.is_const = False
         self.is_pointer = False
+        self.is_reference = False
         self.canonical_type = None
+        self.kind = None
+
+    @property
+    def is_const_array(self):
+        return self.kind == cindex.TypeKind.CONSTANTARRAY
 
     @staticmethod
     def from_type(ntype, generator):
@@ -429,12 +442,24 @@ class NativeType(object):
             nt = NativeType.from_type(ntype.get_pointee(), generator)
             nt.is_const = ntype.get_pointee().is_const_qualified()
             nt.whole_name = nt.namespaced_class_name + "&"
+            nt.is_reference = True
 
             if nt.is_const:
                 nt.whole_name = "const " + nt.whole_name
 
             if None != nt.canonical_type:
                 nt.canonical_type.whole_name += "&"
+        elif ntype.kind == cindex.TypeKind.RVALUEREFERENCE:
+            nt = NativeType.from_type(ntype.get_pointee(), generator)
+            nt.is_const = ntype.get_pointee().is_const_qualified()
+            nt.whole_name = nt.namespaced_class_name + "&&"
+            nt.is_reference = True
+
+            if nt.is_const:
+                nt.whole_name = "const " + nt.whole_name
+
+            if None != nt.canonical_type:
+                nt.canonical_type.whole_name += "&&"
         else:
             nt = NativeType(generator)
             decl = ntype.get_declaration()
@@ -518,6 +543,7 @@ class NativeType(object):
         if re.search("(short|int|double|float|long|ssize_t)$", nt.name) is not None:
             nt.is_numeric = True
 
+        nt.kind = ntype.kind 
         return nt
 
     @staticmethod
@@ -583,66 +609,27 @@ class NativeType(object):
         generator = convert_opts['generator']
         keys = []
         # print("from_native:" + str(convert_opts))
-
-        if self.canonical_type != None:
-            keys.append(self.canonical_type.name)
-        keys.append(self.name)
-
-        class_name = self.name.replace('*', '').replace('const ', '')
-        # if class_name in self.generator.classes_owned_by_cpp:
-        #     print("cpp control: from_native: self.name: " + self.name)
-        # else:
-        #     print("js control: from_native: self.name: " + self.name)            
-
-        from_native_dict = generator.config['conversions']['from_native']
-
-        if self.is_object or self.is_struct:
-            if not NativeType.dict_has_key_re(from_native_dict, keys):
-                if class_name in self.generator.classes_owned_by_cpp:
-                    keys.append("rooted_object")
-                else:
-                    keys.append("object")
-        elif self.is_enum:
-            keys.append(self.enum_declare_type)
-
-        if NativeType.dict_has_key_re(from_native_dict, keys):
-            tpl = NativeType.dict_get_value_re(from_native_dict, keys)
-            tpl = Template(tpl, searchList=[convert_opts])
-            return str(tpl).rstrip()
-
-        return "#pragma warning NO CONVERSION FROM NATIVE FOR " + self.name
+        context = "nullptr"
+        if "context" in convert_opts:
+            context = convert_opts["context"]
+        return "ok &= nativevalue_to_se(%s, %s, %s /*ctx*/)" % (convert_opts["in_value"], convert_opts["out_value"], context)
 
     def to_native(self, convert_opts):
         assert('generator' in convert_opts)
         generator = convert_opts['generator']
         keys = []
-
-        if self.canonical_type != None:
-            keys.append(self.canonical_type.name)
-        keys.append(self.name)
-
-        to_native_dict = generator.config['conversions']['to_native']
-        is_struct_pointer = "arg" in convert_opts and convert_opts["arg"].is_pointer and self.is_pointer and self.is_struct
-        if self.is_object or is_struct_pointer:
-            if not NativeType.dict_has_key_re(to_native_dict, keys):
-                keys.append("object")
-        elif self.is_enum:
-            keys.append(self.enum_declare_type)
-
         if self.is_function:
             tpl = Template(file=os.path.join(generator.target, "templates", "lambda.c"),
                 searchList=[convert_opts, self])
             indent = convert_opts['level'] * four_space
             return str(tpl).replace("\n", "\n" + indent)
 
-        if NativeType.dict_has_key_re(to_native_dict, keys):
-            tpl = NativeType.dict_get_value_re(to_native_dict, keys)
-            tpl = Template(tpl, searchList=[convert_opts])
-            return str(tpl).rstrip()
+        context = "nullptr"
+        if "context" in convert_opts:
+            context = convert_opts["context"]
 
-        if "arg" in convert_opts and not convert_opts["arg"].is_pointer:
-            return "ok &= seval_to_reference(%s, &%s)" % (convert_opts["in_value"], convert_opts["out_value"])
-        return "#pragma warning NO CONVERSION TO NATIVE FOR " + self.name + "\n" + convert_opts['level'] * four_space +  "ok = false"
+
+        return "ok &= sevalue_to_native(%s, &%s, %s);" % (convert_opts["in_value"], convert_opts["out_value"], context)
 
     def to_string(self, generator):
         conversions = generator.config['conversions']
@@ -701,7 +688,7 @@ class NativeType(object):
         cls_name = original_name.replace('*', '').replace('const ', '').replace('&', '')
         cls_name = cls_name.split("::")[-1]
         # print("get_class_name: " + original_name + " -> " + cls_name)
-        return cls_name;
+        return cls_name
 
     def object_can_convert(self, generator, is_to_native = True):
         if self.is_object:
@@ -730,6 +717,7 @@ class NativeField(object):
         self.name = cursor.displayname
         self.kind = cursor.type.kind
         self.location = cursor.location
+        self.is_const_array = self.kind == cindex.TypeKind.CONSTANTARRAY
         member_field_re = re.compile('m_(\w+)')
         match = member_field_re.match(self.name)
         self.signature_name = self.name
@@ -740,7 +728,7 @@ class NativeField(object):
             self.pretty_name = self.name
 
     @staticmethod
-    def can_parse(ntype, generator):
+    def can_parse(ntype, generator, cursor):
         native_type = NativeType.from_type(ntype, generator)
         if ntype.kind == cindex.TypeKind.UNEXPOSED and native_type.name != "std::string":
             print('[ERROR] %s is ntype.kind %s' % (native_type.name, ntype.kind))
@@ -1001,6 +989,7 @@ class NativeClass(object):
         self.static_methods = {}
         self.dict_of_override_method_should_be_bound = {} # Key: function name, Value: list of NativeFunction
         self.generator = generator
+        self.is_const_array = cursor.kind == cindex.TypeKind.CONSTANTARRAY
         self.is_abstract = self.class_name in generator.abstract_classes
         self.is_persistent = self.class_name in generator.persistent_classes
         self.is_class_owned_by_cpp = self.class_name in self.generator.classes_owned_by_cpp
@@ -1240,7 +1229,7 @@ class NativeClass(object):
 
         elif cursor.kind == cindex.CursorKind.FIELD_DECL:
             self.fields.append(NativeField(cursor, self.generator))
-            if (self.is_struct or self._current_visibility == cindex.AccessSpecifier.PUBLIC) and NativeField.can_parse(cursor.type, self.generator):
+            if (self.is_struct or self._current_visibility == cindex.AccessSpecifier.PUBLIC) and NativeField.can_parse(cursor.type, self.generator, cursor):
                 self.public_fields.append(NativeField(cursor, self.generator))
         elif cursor.kind == cindex.CursorKind.CXX_ACCESS_SPEC_DECL:
             self._current_visibility = cursor.access_specifier
@@ -1305,6 +1294,58 @@ class NativeClass(object):
             # print >> sys.stderr, "unknown cursor: %s - %s" % (cursor.kind, cursor.displayname)
         return False
 
+
+class NativeEnum(object):
+    def __init__(self, cursor, generator):
+        # the cursor to the implementation
+        self.cursor = cursor
+        self.class_name = cursor.displayname
+        self.namespaced_class_name = self.class_name
+        self.parents = []
+        self.fields = []
+        self.public_fields = []
+        self.methods = {}
+        self.static_methods = {}
+        self.generator = generator
+        self._current_visibility = cindex.AccessSpecifier.PRIVATE
+        #for generate lua api doc
+
+        registration_name = generator.get_class_or_rename_class(self.class_name)
+        if generator.remove_prefix:
+            self.target_class_name = re.sub('^' + generator.remove_prefix, '', registration_name)
+        else:
+            self.target_class_name = registration_name
+        self.namespaced_class_name = get_namespaced_class_name(cursor)
+        self.namespace_name        = get_namespace_name(cursor)
+        self.parse()
+
+    def parse(self):
+        self._deep_iterate(self.cursor, 0)
+
+    def _deep_iterate(self, cursor=None, depth=0):
+        for node in cursor.get_children():
+            #print("%s%s - %s" % ("> " * depth, node.displayname, node.kind))
+            if self._process_node(node):
+                self._deep_iterate(node, depth + 1)
+
+    def _process_node(self, node):
+        if node.kind == cindex.CursorKind.ENUM_CONSTANT_DECL:
+            field = {}
+            field["name"] = node.displayname
+            field["value"] = node.enum_value
+            self.fields.append(field)
+            
+
+    def generate_code(self):
+        '''
+        actually generate the code. it uses the current target templates/rules in order to
+        generate the right code
+        '''
+        # generate register section
+        register = Template(file=os.path.join(self.generator.target, "templates", "enum.c"),
+                            searchList=[{"current_class": self, "generator": self.generator}])
+        self.generator.impl_file.write(str(register))
+
 class Generator(object):
     def __init__(self, opts):
         self.index = cindex.Index.create()
@@ -1336,13 +1377,22 @@ class Generator(object):
         self.out_file = opts['out_file']
         self.script_type = opts['script_type']
         self.macro_judgement = opts['macro_judgement']
-        self.hpp_headers = opts['hpp_headers']
+        self._hpp_headers = opts['hpp_headers']
         self.cpp_headers = opts['cpp_headers']
         self.win32_clang_flags = opts['win32_clang_flags']
         self.getter_setter = {}
         self.shadowed_methods_by_getter_setter = {}
 
         extend_clang_args = []
+
+        # append headers to hpp_headers
+        self.hpp_headers = []
+        if self._hpp_headers is not None:
+            self.hpp_headers += self._hpp_headers
+        cocos_root = os.path.normpath(os.path.join(os.path.dirname(__file__),"../.."))
+        for header in self.headers:
+            reldir = os.path.relpath(header, cocos_root)
+            self.hpp_headers.append(reldir)
 
         for clang_arg in self.clang_args:
             if not os.path.exists(clang_arg.replace("-I","")):
@@ -1354,7 +1404,7 @@ class Generator(object):
                         #simply pickup first installed clang version
                         clang_arg = os.path.join(clang_versions, clang_folders[0], "include")
                         extend_clang_args.append("-I"+clang_arg)
-                        print("  => append %s"%clang_arg)
+                        #print("  => append %s"%clang_arg)
 
         if len(extend_clang_args) > 0:
             self.clang_args.extend(extend_clang_args)
@@ -1481,6 +1531,8 @@ class Generator(object):
         return False
 
     def should_skip(self, class_name, method_name, verbose=False):
+        if method_name is not None and (method_name.startswith("operator") or method_name.find("=") != -1):
+            return True
         if class_name == "*" and self.skip_classes.has_key("*"):
             for func in self.skip_classes["*"]:
                 if re.match(func, method_name):
@@ -1542,6 +1594,15 @@ class Generator(object):
         for key in self.classes:
             md = re.match("^" + key + "$", class_name)
             if md and not self.should_skip(class_name, None):
+                return True
+        return False
+
+    def in_listed_classes_exactly(self, class_name):
+        """
+        returns True if the class is in the list of required classes and it's not in the skip list
+        """
+        for key in self.classes:
+            if key == class_name:
                 return True
         return False
 
@@ -1665,6 +1726,26 @@ class Generator(object):
                 if is_targeted_class and self.in_listed_classes(cursor.displayname):
                     if not self.generated_classes.has_key(cursor.displayname):
                         nclass = NativeClass(cursor, self, is_struct)
+                        nclass.generate_code()
+                        self.generated_classes[cursor.displayname] = nclass
+                    return
+        elif cursor.kind == cindex.CursorKind.ENUM_DECL :
+            if cursor == cursor.type.get_declaration() and len(get_children_array_from_iter(cursor.get_children())) > 0:
+                namespaced_class_name = get_namespaced_class_name(cursor)
+                if len(namespaced_class_name) == 0 or cursor.displayname.startswith("__"):
+                    return
+                is_targeted_class = True
+                if self.cpp_ns:
+                    is_targeted_class = False
+                    namespaced_name = get_namespaced_name(cursor)
+                    for ns in self.cpp_ns:
+                        if namespaced_name.startswith(ns):
+                            is_targeted_class = True
+                            break
+
+                if is_targeted_class and  len(cursor.displayname) > 0 and self.in_listed_classes_exactly(cursor.displayname):
+                    if not self.generated_classes.has_key(cursor.displayname):
+                        nclass = NativeEnum(cursor, self)
                         nclass.generate_code()
                         self.generated_classes[cursor.displayname] = nclass
                     return

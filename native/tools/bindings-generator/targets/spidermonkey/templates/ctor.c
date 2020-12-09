@@ -40,6 +40,7 @@ static bool ${signature_name}(se::State& s)
                          "out_value": "arg" + str(count),
                          "class_name": $class_name,
                          "level": 2,
+                         "context" : "s.thisObject()",
                          "is_static": False,
                          "is_persistent": $is_persistent,
                          "ntype": str($arg)})};

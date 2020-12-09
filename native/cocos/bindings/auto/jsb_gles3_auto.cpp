@@ -15,17 +15,17 @@ se::Class* __jsb_cc_gfx_GLES3Device_class = nullptr;
 
 static bool js_gles3_GLES3Device_checkExtension(se::State& s)
 {
-    cc::gfx::GLES3Device* cobj = (cc::gfx::GLES3Device*)s.nativeThisObject();
+    cc::gfx::GLES3Device* cobj = SE_THIS_OBJECT<cc::gfx::GLES3Device>(s);
     SE_PRECONDITION2(cobj, false, "js_gles3_GLES3Device_checkExtension : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
-        cc::String arg0;
-        arg0 = args[0].toStringForce().c_str();
+        HolderType<cc::String, true> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());;
         SE_PRECONDITION2(ok, false, "js_gles3_GLES3Device_checkExtension : Error processing arguments");
-        bool result = cobj->checkExtension(arg0);
-        ok &= boolean_to_seval(result, &s.rval());
+        bool result = cobj->checkExtension(arg0.value());
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_gles3_GLES3Device_checkExtension : Error processing arguments");
         return true;
     }
@@ -36,7 +36,7 @@ SE_BIND_FUNC(js_gles3_GLES3Device_checkExtension)
 
 SE_DECLARE_FINALIZE_FUNC(js_cc_gfx_GLES3Device_finalize)
 
-static bool js_gles3_GLES3Device_constructor(se::State& s)
+static bool js_gles3_GLES3Device_constructor(se::State& s) // constructor.c
 {
     cc::gfx::GLES3Device* cobj = JSB_ALLOC(cc::gfx::GLES3Device);
     s.thisObject()->setPrivateData(cobj);
@@ -51,11 +51,11 @@ extern se::Object* __jsb_cc_gfx_Device_proto;
 
 static bool js_cc_gfx_GLES3Device_finalize(se::State& s)
 {
-    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
+    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::gfx::GLES3Device>(s));
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
         se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        cc::gfx::GLES3Device* cobj = (cc::gfx::GLES3Device*)s.nativeThisObject();
+        cc::gfx::GLES3Device* cobj = SE_THIS_OBJECT<cc::gfx::GLES3Device>(s);
         JSB_FREE(cobj);
     }
     return true;

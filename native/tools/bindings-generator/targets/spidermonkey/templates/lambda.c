@@ -57,10 +57,10 @@ do {
             return result;
             #end if
         };
-        ${out_value} = lambda;
+        ${out_value}.data = lambda;
     }
     else
     {
-        ${out_value} = nullptr;
+        ${out_value}.data = nullptr;
     }
 } while(false)

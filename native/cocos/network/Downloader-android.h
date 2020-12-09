@@ -32,7 +32,7 @@ class _jobject;
 namespace cc { namespace network
     {
         class DownloadTaskAndroid;
-        class DownloaderHints;
+        struct DownloaderHints;
 
         class DownloaderAndroid : public IDownloaderImpl
         {

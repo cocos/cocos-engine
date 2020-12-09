@@ -31,6 +31,8 @@
 #include "cocos2d.h"
 #include "extensions/cocos-ext.h"
 #include "network/Downloader.h"
+#include <type_traits>
+#include <assert.h>
 
 namespace cc {
 namespace gfx {
@@ -113,6 +115,25 @@ struct InputAssemblerInfo;
         break;                                                                                      \
     }
 
+#if __clang__ && defined(__has_feature) && __has_feature(cxx_static_assert) && __has_feature(cxx_relaxed_constexpr)
+    #define CC_STATIC_ASSERT static_assert
+    #define CC_CONSTEXPR     constexpr
+    #define HAS_CONSTEXPR    1
+#elif defined(_MSVC_LANG) && _MSVC_LANG >= 201703L
+    #define CC_STATIC_ASSERT static_assert
+    #define CC_CONSTEXPR     constexpr
+    #define HAS_CONSTEXPR    1
+#else
+    #define CC_CONSTEXPR 
+    #define CC_STATIC_ASSERT(cond, msg) assert(cond)
+    #define HAS_CONSTEXPR 0
+#endif
+
+#if __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wc++17-extensions"
+#endif
+
 // se value -> native value
 bool seval_to_int32(const se::Value &v, int32_t *ret);
 bool seval_to_uint32(const se::Value &v, uint32_t *ret);
@@ -151,43 +172,6 @@ bool seval_to_std_map_string_string(const se::Value &v, std::map<std::string, st
 bool seval_to_Data(const se::Value &v, cc::Data *ret);
 bool seval_to_DownloaderHints(const se::Value &v, cc::network::DownloaderHints *ret);
 
-bool seval_to_gfx_rect(const se::Value &v, cc::gfx::Rect *rect);
-bool seval_to_gfx_viewport(const se::Value &v, cc::gfx::Viewport *viewport);
-bool seval_to_gfx_color(const se::Value &v, cc::gfx::Color *color);
-bool seval_to_gfx_color_list(const se::Value &v, cc::vector<cc::gfx::Color> *colorList);
-bool seval_to_gfx_offset(const se::Value &v, cc::gfx::Offset *offset);
-bool seval_to_gfx_extent(const se::Value &v, cc::gfx::Extent *extent);
-bool seval_to_gfx_texture_subres(const se::Value &v, cc::gfx::TextureSubres *textureSubres);
-bool seval_to_gfx_texture_copy(const se::Value &v, cc::gfx::TextureCopy *textureCopy);
-bool seval_to_gfx_buffer_texture_copy(const se::Value &v, cc::gfx::BufferTextureCopy *bufferTextureCopy);
-bool seval_to_gfx_buffer_texture_copy_list(const se::Value &v, cc::vector<cc::gfx::BufferTextureCopy> *bufferTextureCopyList);
-bool seval_to_gfx_buffer_info(const se::Value &v, cc::gfx::BufferInfo *bufferInfo);
-bool seval_to_gfx_buffer_view_info(const se::Value &v, cc::gfx::BufferViewInfo *bufferViewInfo);
-bool seval_to_gfx_texture_info(const se::Value &v, cc::gfx::TextureInfo *textureInfo);
-bool seval_to_gfx_descriptor_set_info(const se::Value &v, cc::gfx::DescriptorSetInfo *descriptorSetInfo);
-bool seval_to_gfx_binding_mapping_info(const se::Value &v, cc::gfx::BindingMappingInfo *bindingMappingInfo);
-bool seval_to_gfx_shader_stage(const se::Value &v, cc::gfx::ShaderStage *shaderStage);
-bool seval_to_gfx_uniform_sampler(const se::Value &v, cc::gfx::UniformSampler *uniformSampler);
-bool seval_to_gfx_uniform_block(const se::Value &v, cc::gfx::UniformBlock *uniformBlock);
-bool seval_to_gfx_uniform(const se::Value &v, cc::gfx::Uniform *uniform);
-bool seval_to_gfx_shader_info(const se::Value &v, cc::gfx::ShaderInfo *shaderInfo);
-bool seval_to_gfx_draw_info(const se::Value &v, cc::gfx::DrawInfo *drawInfo);
-bool seval_to_gfx_indirect_buffer(const se::Value &v, cc::gfx::IndirectBuffer *indirectBuffer);
-bool seval_to_gfx_sampler_info(const se::Value &v, cc::gfx::SamplerInfo *samplerInfo);
-bool seval_to_gfx_color_attachment(const se::Value &v, cc::gfx::ColorAttachment *colorAttachment);
-bool seval_to_gfx_depth_stencil_attachment(const se::Value &v, cc::gfx::DepthStencilAttachment *depthStencilAttachment);
-bool seval_to_gfx_sub_pass_info(const se::Value &v, cc::gfx::SubPassInfo *subPassInfo);
-bool seval_to_gfx_render_pass_info(const se::Value &v, cc::gfx::RenderPassInfo *renderPassInfo);
-bool seval_to_gfx_queue_info(const se::Value &v, cc::gfx::QueueInfo *queueInfo);
-bool seval_to_gfx_pipeline_layout_info(const se::Value &v, cc::gfx::PipelineLayoutInfo *pipelineLayoutInfo);
-bool seval_to_gfx_descriptor_set_layout_binding(const se::Value &v, cc::gfx::DescriptorSetLayoutBinding *dscriptorSetLayoutBinding);
-bool seval_to_gfx_descriptor_set_layout_info(const se::Value &v, cc::gfx::DescriptorSetLayoutInfo *dscriptorSetLayoutInfo);
-bool seval_to_gfx_frame_buffer_info(const se::Value &v, cc::gfx::FramebufferInfo *framebufferInfo);
-bool seval_to_gfx_command_buffer_info(const se::Value &v, cc::gfx::CommandBufferInfo *commandBufferInfo);
-bool seval_to_gfx_input_assembler_info(const se::Value &v, cc::gfx::InputAssemblerInfo *inputAssemblerInfo);
-
-#if USE_GFX_RENDERER
-#endif
 
 template <typename T>
 bool seval_to_native_ptr(const se::Value &v, T *ret) {
@@ -752,3 +736,842 @@ bool seval_to_reference(const se::Value &v, T **ret) {
     *ret = (T *)v.toObject()->getPrivateData();
     return true;
 }
+
+
+
+/////////////////////////////////// helpers //////////////////////////////////////////////////////////
+
+////////////////////////// is jsb object ///////////////////////////
+
+
+template <typename T>
+struct _is_jsb_object : std::false_type {};
+
+template <typename T>
+constexpr bool is_jsb_object_v = _is_jsb_object<typename std::remove_const<T>::type>::value;
+
+#define JSB_REGISTER_OBJECT_TYPE(T) \
+    template <>                     \
+    struct _is_jsb_object<T> : std::true_type {}
+
+
+#if HAS_CONSTEXPR
+
+template<typename Out, typename In>
+constexpr Out holder_convert_to(In& input) {
+    if CC_CONSTEXPR (std::is_same< Out, In>::value)
+    {
+        return (Out)(input);
+    }
+    else if CC_CONSTEXPR (std::is_same<Out, std::add_pointer_t<In>>::value)
+    {
+        return (Out)(&input);
+    } 
+    else if CC_CONSTEXPR (std::is_same<Out, std::remove_pointer_t<In>>::value)
+    {
+        return (Out)(*input);
+    }
+    else if CC_CONSTEXPR (std::is_enum<In>::value)
+    {
+        return (Out)input;
+    }
+    else {
+        assert(false); // "types are not convertiable!");
+    }
+}
+#else
+
+template <typename Out, typename In>
+constexpr typename std::enable_if<std::is_same<Out,In>::value || std::is_enum<In>::value, Out>::type 
+holder_convert_to(In &input) {
+    return (Out)input;
+}
+
+template <typename Out, typename In>
+constexpr typename std::enable_if<std::is_pointer_v<Out> && std::is_same<Out, typename std::add_pointer<In>::type>::value, Out>::type
+holder_convert_to(In &input) {
+    return (Out)(&input);
+}
+
+template <typename Out, typename In>
+constexpr typename std::enable_if<std::is_pointer_v<In> && std::is_same<Out, typename std::remove_pointer<In>::type>::value, Out>::type
+holder_convert_to(In &input) {
+    return (Out)(*input);
+}
+
+#endif //HAS_CONST_EXPR
+
+template<typename T, bool is_reference>
+struct HolderType {
+    using type = typename std::remove_const<T>::type;
+    using local_type = typename std::conditional_t<is_reference && is_jsb_object_v<T>, std::add_pointer_t<type>, type>;
+    local_type data;
+    type *ptr = nullptr;
+    constexpr inline type value()
+    {
+        if(ptr) return *ptr;
+        return holder_convert_to<type, local_type>(data);
+    }
+    ~HolderType() {
+        delete ptr;
+    }
+};
+
+template<>
+struct HolderType<const char*, false> {
+    using type = const char*;
+    using local_type = std::string;
+    local_type data;
+    std::remove_const_t<type> *ptr = nullptr;
+    inline type value() { return data.c_str(); }
+};
+
+template<typename R, typename ... ARGS>
+struct HolderType<std::function<R (ARGS...)>, true> {
+    using type = std::function<R (ARGS...)>;
+    using local_type = std::function<R (ARGS...)>;
+    local_type data;
+    std::remove_const_t<type> *ptr = nullptr;
+    inline type value() { return data; }
+};
+
+
+///////////////////////////////////convertion//////////////////////////////////////////////////////////
+
+template<typename T>
+inline typename std::enable_if_t<!std::is_enum<T>::value && !std::is_pointer<T>::value, bool>
+sevalue_to_native(const se::Value &from, T * to, se::Object *)
+{
+   // CC_STATIC_ASSERT(std::is_same<T, never_t>::value, "sevalue_to_native not implemented for type");
+    SE_LOGE("Can not convert type ???\n - [[ %s ]]\n", typeid(T).name());
+    return false;
+}
+
+
+template<typename T>
+inline typename std::enable_if_t<std::is_enum<T>::value, bool>
+sevalue_to_native(const se::Value &from, T* to, se::Object *ctx)
+{
+    typename std::underlying_type_t<T> tmp;
+    bool ret = sevalue_to_native(from, &tmp, ctx);
+    if(ret) *to = static_cast<T>(tmp);
+    return ret;
+}
+
+
+
+//////////////// vector type
+
+template<typename T, size_t CNT>
+bool sevalue_to_native(const se::Value &from, std::array<T, CNT>* to, se::Object *ctx)
+{
+    assert(from.toObject());
+    se::Object *array = from.toObject();
+    assert(array->isArray());
+    uint32_t len = 0;
+    array->getArrayLength(&len);
+    se::Value tmp;
+    assert(len >= CNT);
+    for (uint32_t i = 0; i < CNT; i++)
+    {
+        array->getArrayElement(i, &tmp);
+        sevalue_to_native(tmp, &(*to)[i], ctx);
+    }
+    return true;
+}
+
+template<size_t CNT>
+bool sevalue_to_native(const se::Value& from, std::array<uint8_t, CNT>* to, se::Object *ctx)
+{
+    assert(from.toObject());
+    se::Object* array = from.toObject();
+    assert(array->isArray() || array->isArrayBuffer() ||array->isTypedArray());
+    if (array->isTypedArray())
+    {
+        uint8_t* data = nullptr;
+        size_t size = 0;
+        array->getTypedArrayData(&data, &size);
+        for (size_t i = 0; i < std::min(size, CNT); i++) {
+            (*to)[i] = data[i];
+        }
+    }
+    else if (array->isArrayBuffer())
+    {
+        uint8_t* data = nullptr;
+        size_t size = 0;
+        array->getArrayBufferData(&data, &size);
+        for (size_t i = 0; i < std::min(size, CNT); i++) {
+            (*to)[i] = data[i];
+        }
+    }
+    else if(array->isArray())
+    {
+        uint32_t len = 0;
+        array->getArrayLength(&len);
+        se::Value tmp;
+        assert(len >= CNT);
+        for (size_t i = 0; i < CNT; i++)
+        {
+            array->getArrayElement(i, &tmp);
+            sevalue_to_native(tmp, &(*to)[i], ctx);
+        }
+    }
+    else 
+    {
+        return false;
+    }
+    return true;
+}
+
+
+
+template<>
+inline bool sevalue_to_native(const se::Value &from, std::string * to, se::Object *)
+{
+    *to = from.toString();
+    return true;
+}
+
+///// integers
+template<>
+inline bool sevalue_to_native(const se::Value &from, bool* to, se::Object *)
+{
+    *to = from.toBoolean();
+    return true;
+}
+
+template<>
+inline bool sevalue_to_native(const se::Value &from, int32_t * to, se::Object *)
+{
+    *to = from.toInt32();
+    return true;
+}
+template<>
+inline bool sevalue_to_native(const se::Value &from, uint32_t * to, se::Object *)
+{
+    *to = from.toUint32();
+    return true;
+}
+
+template<>
+inline bool sevalue_to_native(const se::Value &from, int16_t * to, se::Object *)
+{
+    *to = from.toInt16();
+    return true;
+}
+template<>
+inline bool sevalue_to_native(const se::Value &from, uint16_t * to, se::Object *)
+{
+    *to = from.toUint16();
+    return true;
+}
+
+template<>
+inline bool sevalue_to_native(const se::Value &from, int8_t * to, se::Object *)
+{
+    *to = from.toInt8();
+    return true;
+}
+template<>
+inline bool sevalue_to_native(const se::Value &from, uint8_t * to, se::Object *)
+{
+    *to = from.toUint8();
+    return true;
+}
+
+template<>
+inline bool sevalue_to_native(const se::Value &from, uint64_t *to, se::Object *)
+{
+    *to = from.toUIntptr_t();
+    return true;
+}
+
+template<>
+inline bool sevalue_to_native(const se::Value &from, int64_t *to, se::Object *)
+{
+    *to = (int64_t)from.toNumber();
+    return true;
+}
+
+#if CC_PLATFORM == CC_PLATFORM_MAC_IOS || CC_PLATFORM == CC_PLATFORM_MAC_OSX
+template<>
+inline bool sevalue_to_native(const se::Value &from, uintptr_t *to, se::Object *)
+{
+    *to = (uintptr_t)from.toNumber();
+    return true;
+}
+#endif
+
+
+
+
+template<>
+inline bool sevalue_to_native(const se::Value &from, float * to, se::Object *)
+{
+    *to = from.toFloat();
+    return true;
+}
+
+template<>
+inline bool sevalue_to_native(const se::Value &from, void * to, se::Object *)
+{
+    assert(false); // void not supported
+    return false;
+}
+
+
+////////////////// pointer types
+
+template<typename T>
+typename std::enable_if_t<std::is_pointer<T>::value && !std::is_pointer<typename std::remove_pointer<T>::type>::value, bool>
+sevalue_to_native(const se::Value &from, T to, se::Object *)
+{
+    CC_STATIC_ASSERT(is_jsb_object_v<std::remove_pointer_t<T>>, "Only JSB object are accepted!");
+    if (from.isNullOrUndefined()) {
+        //const std::string stack = se::ScriptEngine::getInstance()->getCurrentStackTrace();
+        //SE_LOGE("[ERROR] sevalue_to_native jsval is null/undefined: %s\nstack: %s", typeid(T).name(), stack.c_str());
+        *to = nullptr;
+        return true;
+    }
+    *to = (T) from.toObject()->getPrivateData();
+    return true;
+}
+
+template<typename T>
+typename std::enable_if_t<std::is_pointer<T>::value && std::is_pointer<typename std::remove_pointer<T>::type>::value, bool>
+sevalue_to_native(const se::Value &from, T to, se::Object *)
+{
+    CC_STATIC_ASSERT(is_jsb_object_v<typename std::remove_pointer<typename std::remove_pointer<T>::type>::type>, "Only JSB object are accepted!");
+    if (from.isNullOrUndefined()) {
+        //const std::string stack = se::ScriptEngine::getInstance()->getCurrentStackTrace();
+        //SE_LOGE("[ERROR] sevalue_to_native jsval is null/undefined: %s\nstack: %s", typeid(T).name(), stack.c_str());
+        *to = nullptr;
+        return true;
+    }
+    *to = (typename std::remove_pointer<T>::type) from.toObject()->getPrivateData();
+    return true;
+}
+
+template<typename T>
+typename std::enable_if_t<!std::is_pointer<T>::value && is_jsb_object_v<T>, bool>
+sevalue_to_native(const se::Value &from, T ** to, se::Object *)
+{
+    if (from.isNullOrUndefined()) {
+        //const std::string stack = se::ScriptEngine::getInstance()->getCurrentStackTrace();
+        //SE_LOGE("[ERROR] sevalue_to_native jsval is null/undefined: %s\nstack: %s", typeid(T).name(), stack.c_str());
+        *to = nullptr;
+        return true;
+    }
+    *to = (T*) from.toObject()->getPrivateData();
+    return true;
+}
+
+template<typename T>
+typename std::enable_if_t<!std::is_pointer<T>::value && is_jsb_object_v<T>, bool>
+sevalue_to_native(const se::Value &from, T *** to, se::Object *)
+{
+    if (from.isNullOrUndefined()) {
+        //const std::string stack = se::ScriptEngine::getInstance()->getCurrentStackTrace();
+        //SE_LOGE("[ERROR] sevalue_to_native jsval is null/undefined: %s\nstack: %s", typeid(T).name(), stack.c_str());
+        *to = nullptr;
+        return true;
+    }
+    **to = (T*) from.toObject()->getPrivateData();
+    return true;
+}
+
+
+template<typename T, typename allocator>
+bool sevalue_to_native(const se::Value &from, std::vector<T, allocator>* to, se::Object *ctx)
+{
+    assert(from.toObject());
+    se::Object *array = from.toObject();
+    assert(array->isArray());
+    uint32_t len = 0;
+    array->getArrayLength(&len);
+    to->resize(len);
+    se::Value tmp;
+    for(uint32_t i = 0; i < len; i++)
+    {
+        array->getArrayElement(i, &tmp);
+        if(!sevalue_to_native(tmp, to->data() + i, ctx)) {
+            SE_LOGE("vector %s convert error at %d\n", typeid(T).name(),  i);
+        }
+    }
+    return true;
+}
+
+
+//template<>
+//bool sevalue_to_native(const se::Value &from, cc::gfx::Context **to, se::Object*) {
+//    assert(from.isObject());
+//    *to = (cc::gfx::Context*)from.toObject()->getPrivateData();
+//    return true;
+//}
+
+
+
+template<>
+inline bool sevalue_to_native(const se::Value &from, void ** to, se::Object *)
+{
+    SE_LOGE("[warn] don't know how to convert to void *\n");
+    *to = from.toObject()->getPrivateData();
+    return true;
+}
+
+template<>
+inline bool sevalue_to_native(const se::Value &from, std::string ** to, se::Object *)
+{
+    **to = from.toString();
+    return true;
+}
+
+template<>
+inline bool sevalue_to_native(const se::Value &from, std::vector<unsigned char>* to, se::Object *)
+{
+    assert(from.isObject());
+    se::Object *in = from.toObject();
+    if(in->isTypedArray()) {
+        uint8_t *data = nullptr;
+        size_t dataLen = 0;
+        in->getTypedArrayData(&data, &dataLen);
+        to->resize(dataLen);
+        to->assign(data, data + dataLen);
+        return true;
+    }else if(in->isArrayBuffer()) {
+        uint8_t *data = nullptr;
+        size_t dataLen = 0;
+        in->getArrayBufferData(&data, &dataLen);
+        to->resize(dataLen);
+        to->assign(data, data + dataLen);
+        return true;
+    } else if(in->isArray()) {
+        uint32_t len = 0;
+        in->getArrayLength(&len);
+        to->resize(len);
+        se::Value ele;
+        for(int i = 0; i < len ; i++ ) {
+            in->getArrayElement(i, &ele);
+            (*to)[i] = ele.toUint8();
+        }
+        return true;
+    }
+    SE_LOGE("type error, ArrayBuffer/TypedArray/Array expected!");
+    return false;
+}
+
+
+template<typename R, typename ...Args>
+inline bool sevalue_to_native(const se::Value& from, std::function<R( Args...)>* func, se::Object *self)
+{
+    if (from.isObject() && from.toObject()->isFunction())
+    {
+        se::Object* callback = from.toObject();
+        self->attachObject(callback);
+        *func = [callback, self](Args ...inargs) {
+            se::AutoHandleScope hs;
+            bool ok = true;
+            se::ValueArray args;
+            int idx = 0;
+            args.resize(sizeof...(Args));
+            nativevalue_to_se_args_v(args, inargs...);
+            se::Value rval;
+            bool succeed = callback->call(args, self, &rval);
+            if (!succeed) {
+                se::ScriptEngine::getInstance()->clearException();
+            }
+            if CC_CONSTEXPR (!std::is_same<R, void>::value) {
+                R raw_ret = {};
+                sevalue_to_native(rval, &raw_ret, self);
+                return raw_ret;
+            }
+                
+        };
+    }
+    else
+    {
+        return false;
+    }
+    return true;
+}
+
+#if HAS_CONSTEXPR
+template<typename T, bool is_reference>
+inline bool sevalue_to_native(const se::Value &from, HolderType<T, is_reference> * holder, se::Object *ctx)
+{
+    if CC_CONSTEXPR (is_reference && is_jsb_object_v<T>) {
+        void *ptr = from.toObject()->getPrivateData();
+        if(ptr) {
+            holder->data = static_cast<T*>(ptr);
+            return true;
+        } else{
+            holder->ptr = new T;
+            return sevalue_to_native(from, holder->ptr, ctx);
+        }
+    } else if CC_CONSTEXPR (is_jsb_object_v<T>) {
+        void *ptr = from.toObject()->getPrivateData();
+        if(ptr) {
+            holder->data = *static_cast<T*>(ptr);
+            return true;
+        } else{
+            return sevalue_to_native(from, &(holder->data), ctx);
+        }
+    } else {
+        return sevalue_to_native(from, &(holder->data), ctx);
+    }
+}
+
+#else
+template <typename T>
+inline typename std::enable_if<is_jsb_object_v<T>,  bool>::type sevalue_to_native(const se::Value &from, HolderType<T, true> *holder, se::Object *ctx) {
+  
+        void *ptr = from.toObject()->getPrivateData();
+        if (ptr) {
+            holder->data = static_cast<T *>(ptr);
+            return true;
+        } else {
+            holder->ptr = new T;
+            return sevalue_to_native(from, holder->ptr, ctx);
+        }
+}
+
+template <typename T>
+inline typename std::enable_if<!is_jsb_object_v<T>, bool>::type sevalue_to_native(const se::Value &from, HolderType<T, true> *holder, se::Object *ctx) {
+    return sevalue_to_native(from, &(holder->data), ctx);
+}
+
+template <typename T >
+inline typename std::enable_if<is_jsb_object_v<T>, bool>::type sevalue_to_native(const se::Value &from, HolderType<T, false> *holder, se::Object *ctx) {
+    void *ptr = from.toObject()->getPrivateData();
+    if (ptr) {
+        holder->data = *static_cast<T *>(ptr);
+        return true;
+    } else {
+        return sevalue_to_native(from, &(holder->data), ctx);
+    }
+}
+
+template <typename T>
+inline typename std::enable_if<!is_jsb_object_v<T>, bool>::type sevalue_to_native(const se::Value &from, HolderType<T, false> *holder, se::Object *ctx) {
+    return sevalue_to_native(from, &(holder->data), ctx);
+}
+
+#endif // HAS_CONSTEXPR
+
+
+#if HAS_CONSTEXPR
+template<typename T, typename allocator>
+inline bool sevalue_to_native(const se::Value &from, HolderType<std::vector<T, allocator>, true> * holder, se::Object *ctx)
+{
+    if CC_CONSTEXPR (is_jsb_object_v<T> && std::is_pointer<T>::value) {
+        auto &vec = holder->data;
+        return sevalue_to_native(from, &vec, ctx);
+    } else if CC_CONSTEXPR (is_jsb_object_v<T>){
+        return sevalue_to_native(from,(std::vector<T, allocator> *)/* clang/xcode needs this */ &(holder->data), ctx);
+    }else {
+        return sevalue_to_native(from, &(holder->data), ctx);
+    }
+}
+
+#else
+template <typename T, typename allocator>
+inline typename std::enable_if<is_jsb_object_v<T> && std::is_pointer<T>::value, bool>::type
+sevalue_to_native(const se::Value &from, HolderType<std::vector<T, allocator>, true> *holder, se::Object *ctx) 
+{
+    auto &vec = holder->data;
+    return sevalue_to_native(from, &vec, ctx);
+}
+template <typename T, typename allocator>
+inline typename std::enable_if<is_jsb_object_v<T> && !std::is_pointer<T>::value, bool>::type 
+sevalue_to_native(const se::Value &from, HolderType<std::vector<T, allocator>, true> *holder, se::Object *ctx)
+{
+    return sevalue_to_native(from, (std::vector<T, allocator> *)/* clang/xcode needs this */ &(holder->data), ctx);
+}
+
+template <typename T, typename allocator>
+inline typename std::enable_if<!is_jsb_object_v<T>, bool>::type
+sevalue_to_native(const se::Value &from, HolderType<std::vector<T, allocator>, true> *holder, se::Object *ctx) 
+{
+    return sevalue_to_native(from, &(holder->data), ctx);
+}
+
+#endif // HAS_CONSTEXPR
+
+
+///////////////////////////////////////////////////////////////////
+
+#if HAS_CONSTEXPR
+
+template<typename T>
+inline bool nativevalue_to_se(const T &from, se::Value &to, se::Object *ctx) {
+    if CC_CONSTEXPR (std::is_enum<T>::value)
+    {
+        to.setInt32(static_cast<int32_t>(from));
+        return true;
+    } 
+    else if CC_CONSTEXPR (std::is_pointer<T>::value)
+    {
+        return native_ptr_to_seval(from, &to);
+    }
+    else if CC_CONSTEXPR (is_jsb_object_v<T>)
+    {
+        return native_ptr_to_seval(from, &to);
+    }
+    else
+    {
+        return nativevalue_to_se<typename std::conditional_t<std::is_const<T>::value, T, typename std::add_const<T>::type>>(from, to, ctx);
+    }
+    return false;
+}
+
+#else
+
+template <typename T>
+inline typename std::enable_if<std::is_enum<T>::value, bool>::type
+nativevalue_to_se(const T &from, se::Value &to, se::Object *ctx) 
+{
+    to.setInt32(static_cast<int32_t>(from));
+    return true;
+}
+
+template <typename T>
+inline typename std::enable_if<std::is_pointer<T>::value, bool>::type
+nativevalue_to_se(const T &from, se::Value &to, se::Object *ctx)
+{
+   return native_ptr_to_seval(from, &to);
+}
+
+template <typename T>
+inline typename std::enable_if<is_jsb_object_v<T>, bool>::type
+nativevalue_to_se(const T &from, se::Value &to, se::Object *ctx) {
+    return native_ptr_to_seval(from, &to);
+}
+
+template <typename T>
+inline typename std::enable_if<!std::is_enum<T>::value && !std::is_pointer<T>::value && !is_jsb_object_v<T>, bool>::type
+nativevalue_to_se(const T &from, se::Value &to, se::Object *ctx) {
+    return nativevalue_to_se<typename std::conditional_t<std::is_const<T>::value, T, typename std::add_const<T>::type>>(from, to, ctx);    
+}
+
+#endif // HAS_CONSTEXPR
+
+template<typename T, typename allocator>
+inline bool nativevalue_to_se(const std::vector<T, allocator>& from, se::Value& to, se::Object *ctx)
+{
+    se::Object* array = se::Object::createArrayObject(from.size());
+    se::Value tmp;
+    for (size_t i = 0; i < from.size(); i++) {
+        nativevalue_to_se(from[i], tmp, ctx);
+        array->setArrayElement((uint32_t)i, tmp);
+    }
+    to.setObject(array);
+    array->decRef();
+    return true;
+}
+
+template<>
+inline bool nativevalue_to_se(const std::vector<int8_t>& from, se::Value& to, se::Object *)
+{
+    se::Object* array = se::Object::createTypedArray(se::Object::TypedArrayType::INT8, (void*)from.data(), from.size());
+    to.setObject(array);
+    array->decRef();
+    return true;
+}
+
+template<>
+inline bool nativevalue_to_se(const std::vector<uint8_t>& from, se::Value& to, se::Object *)
+{
+    se::Object* array = se::Object::createTypedArray(se::Object::TypedArrayType::UINT8, (void*)from.data(), from.size());
+    to.setObject(array);
+    array->decRef();
+    return true;
+}
+
+
+
+template<typename T, size_t N>
+inline bool nativevalue_to_se(const std::array<T, N>& from, se::Value& to, se::Object *ctx)
+{
+    se::Object* array = se::Object::createArrayObject(N);
+    se::Value tmp;
+    for (size_t i = 0; i < N; i++) {
+        nativevalue_to_se(from[i], tmp, ctx);
+        array->setArrayElement((uint32_t)i, tmp);
+    }
+    to.setObject(array);
+    array->decRef();
+    return true;
+}
+
+template<size_t N>
+inline bool nativevalue_to_se(const std::array<uint8_t, N>& from, se::Value& to, se::Object *)
+{
+    se::Object* array = se::Object::createTypedArray(se::Object::TypedArrayType::UINT8, from.data(), N);
+    to.setObject(array);
+    array->decRef();
+    return true;
+}
+
+template<size_t N>
+inline bool nativevalue_to_se(const std::array<uint16_t, N>& from, se::Value& to, se::Object *)
+{
+    se::Object* array = se::Object::createTypedArray(se::Object::TypedArrayType::INT16, from.data(), N * sizeof(uint16_t));
+    to.setObject(array);
+    array->decRef();
+    return true;
+}
+
+template<size_t N>
+inline bool nativevalue_to_se(const std::array<float, N>& from, se::Value& to, se::Object *)
+{
+    se::Object* array = se::Object::createTypedArray(se::Object::TypedArrayType::FLOAT32, from.data(), N * sizeof(float));
+    to.setObject(array);
+    array->decRef();
+    return true;
+}
+
+template<>
+inline bool nativevalue_to_se(const int64_t &from, se::Value &to, se::Object *)
+{
+    to.setLong((long)from);
+    return true;
+}
+
+template<>
+inline bool nativevalue_to_se(const uint64_t &from, se::Value &to, se::Object *)
+{
+    to.setUlong((unsigned long)from);
+    return true;
+}
+template<>
+inline bool nativevalue_to_se(const int32_t &from, se::Value &to, se::Object *)
+{
+    to.setInt32(from);
+    return true;
+}
+
+template<>
+inline bool nativevalue_to_se(const uint32_t &from, se::Value &to, se::Object *)
+{
+    to.setUint32(from);
+    return true;
+}
+template<>
+inline bool nativevalue_to_se(const int16_t &from, se::Value &to, se::Object *)
+{
+    to.setInt16(from);
+    return true;
+}
+template<>
+inline bool nativevalue_to_se(const uint16_t &from, se::Value &to, se::Object *)
+{
+    to.setUint16(from);
+    return true;
+}
+
+template<>
+inline bool nativevalue_to_se(const int8_t &from, se::Value &to, se::Object *)
+{
+    to.setInt8(from);
+    return true;
+}
+
+template<>
+inline bool nativevalue_to_se(const uint8_t &from, se::Value &to, se::Object *)
+{
+    to.setUint8(from);
+    return true;
+}
+
+template<>
+inline bool nativevalue_to_se(const std::string &from, se::Value &to, se::Object *)
+{
+    to.setString(from);
+    return true;
+}
+template<>
+inline bool nativevalue_to_se(const float &from, se::Value &to, se::Object *)
+{
+    to.setFloat(from);
+    return true;
+}
+template<>
+inline bool nativevalue_to_se(const double &from, se::Value &to, se::Object *)
+{
+    to.setFloat((float)from);
+    return true;
+}
+template<>
+inline bool nativevalue_to_se(const bool& from, se::Value& to, se::Object *)
+{
+    to.setBoolean(from);
+    return true;
+}
+
+template<typename R, typename ... Args>
+inline bool nativevalue_to_se(const bool& from, std::function<R(Args...)>& to, se::Object *)
+{
+    SE_LOGE("Can not convert C++ lambda to JS object"); // TODO
+    return false;
+}
+
+
+///////////////////////// function ///////////////////////
+
+template<int i, typename T>
+bool nativevalue_to_se_args(se::ValueArray& array, T& x)
+{
+    return nativevalue_to_se(x, array[i], (se::Object*)nullptr);
+}
+template<int i, typename T, typename ...Args>
+bool nativevalue_to_se_args(se::ValueArray& array, T &x,  Args &... args)
+{
+    return nativevalue_to_se_args<i, T>(array, x) && nativevalue_to_se_args<i + 1, Args...>(array, args...);
+}
+
+template<typename ...Args>
+bool nativevalue_to_se_args_v(se::ValueArray& array, Args&... args)
+{
+    return nativevalue_to_se_args<0, Args...>(array, args ...);
+}
+
+
+/////////////////////// FIXME: remove all code bellow
+///////////////// gfx type
+namespace cc {
+    class GFXContext;
+    class Data;
+    class Value;
+    class Vec4;
+    class Size;
+}
+//template<>
+
+// JSB_REGISTER_OBJECT_TYPE(cc::network::DownloaderHints);
+
+template<>
+bool nativevalue_to_se(const cc::Data& from, se::Value& to, se::Object*);
+
+template<>
+bool nativevalue_to_se(const cc::Value& from, se::Value& to, se::Object*);
+
+template<>
+bool nativevalue_to_se(const std::unordered_map<std::string, cc::Value> & from, se::Value& to, se::Object*);
+
+template<>
+bool nativevalue_to_se(const cc::Vec3& from, se::Value& to, se::Object*);
+
+template<>
+bool nativevalue_to_se(const cc::Vec4& from, se::Value& to, se::Object*);
+
+template<>
+bool nativevalue_to_se(const cc::Size& from, se::Value& to, se::Object*);
+
+
+template<>
+bool nativevalue_to_se(const cc::extension::ManifestAsset& from, se::Value& to, se::Object*);
+
+
+#if __clang__
+#pragma clang diagnostic pop
+#endif

@@ -1,5 +1,30 @@
 ## ===== struct constructor function implementation template
 
+
+template<>
+bool sevalue_to_native(const se::Value &from, ${namespaced_class_name} * to, se::Object *ctx)
+{
+    assert(from.isObject());
+    se::Object *json = from.toObject();
+    auto* data = (${namespaced_class_name}*)json->getPrivateData();
+    if (data) {
+        *to = *data;
+        return true;
+    }
+    se::Value field;
+    bool ok = true;
+#set arg_idx = 0
+#for field in $public_fields
+    #set field_type = field.ntype.to_string($generator)
+    json->getProperty("${field.name}", &field);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->${field.name}), ctx);
+    }
+#set $arg_idx = $arg_idx + 1
+#end for 
+    return ok;
+}
+
 SE_DECLARE_FINALIZE_FUNC(js_${underlined_class_name}_finalize)
 
 static bool ${struct_constructor_name}(se::State& s)
@@ -22,43 +47,7 @@ static bool ${struct_constructor_name}(se::State& s)
         se::Value field;
 
         ${namespaced_class_name}* cobj = JSB_ALLOC(${namespaced_class_name});
-        #set arg_idx = 0
-        #set conv_text_array = []
-        #for field in $public_fields
-        #set field_type = field.ntype.to_string($generator)
-        #set conv_text = $field.ntype.to_native({"generator": $generator, \
-                             "arg" : $field.ntype, \
-                             "arg_type": $field_type, \
-                             "in_value": "field", \
-                             "out_value": "arg" + str(arg_idx), \
-                             "class_name": $class_name, \
-                             "level": 3, \
-                             "is_static": False, \
-                             "is_pointer": $field.ntype.is_pointer, \
-                             "is_persistent": $is_persistent, \
-                             "ntype": str($field_type)})
-        #set conv_text_array += [$conv_text]
-            #if "seval_to_reference" in $conv_text
-        ${field_type}* arg${arg_idx} = nullptr;
-            #elif $field.ntype.is_numeric
-        ${field_type} arg${arg_idx} = 0;
-            #elif $field.ntype.is_pointer
-        ${field_type} arg${arg_idx} = nullptr;
-            #else
-        ${field_type} arg${arg_idx};
-            #end if
-        json->getProperty("${field.name}", &field);
-        if(!field.isUndefined()) {
-            $conv_text;
-            #if "seval_to_reference" in $conv_text_array[$arg_idx]
-            cobj->${field.name} = *arg${arg_idx};
-            #else
-            cobj->${field.name} = arg${arg_idx};
-            #end if
-        }
-        #set $arg_idx = $arg_idx + 1
-        #end for 
-
+        ok &= sevalue_to_native(args[0], cobj, s.thisObject());
         if(!ok) {
             JSB_FREE(cobj);
             SE_REPORT_ERROR("argument convertion error");
@@ -74,37 +63,29 @@ static bool ${struct_constructor_name}(se::State& s)
     {
         ${namespaced_class_name}* cobj = JSB_ALLOC(${namespaced_class_name});
         #set arg_idx = 0
-        #set conv_text_array = []
         #for field in $public_fields
         #set field_type = field.ntype.to_string($generator)
         #set conv_text = $field.ntype.to_native({"generator": $generator, \
                              "arg": $field.ntype, \
                              "arg_type": $field_type, \
                              "in_value": "args[" + str(arg_idx) + "]", \
-                             "out_value": "arg" + str(arg_idx), \
+                             "_out_value": "arg" + str(arg_idx), \
+                             "out_value" : "(cobj->" + field.name +")",
                              "class_name": $class_name, \
                              "level": 3, \
                              "is_static": False, \
                              "is_pointer": $field.ntype.is_pointer, \
                              "is_persistent": $is_persistent, \
                              "ntype": str($field_type)})
-        #set conv_text_array += [$conv_text]
         if (argc > ${arg_idx} && !args[${arg_idx}].isUndefined()) {
-            #if "seval_to_reference" in $conv_text_array[$arg_idx]
-            ${field_type}* arg${arg_idx} = nullptr;
-                #elif $field.ntype.is_numeric
-            ${field_type} arg${arg_idx} = 0;
-                #elif $field.ntype.is_pointer
-            ${field_type} arg${arg_idx} = nullptr;
-                #else
-            ${field_type} arg${arg_idx};
-                #end if
-            $conv_text;
-            #if "seval_to_reference" in $conv_text_array[$arg_idx]
-            cobj->${field.name} = *arg${arg_idx};
+            #if $field.ntype.is_reference
+            #set $holder_prefix="HolderType<"+$field_type+", true>"
             #else
-            cobj->${field.name} = arg${arg_idx};
+            #set $holder_prefix="HolderType<"+$field_type+", false>"
             #end if
+            ## // $holder_prefix arg${arg_idx} = {};
+            $conv_text;
+            ## // cobj->${field.name} = arg${arg_idx}.value();
         }
         #set $arg_idx = $arg_idx + 1
         #end for 

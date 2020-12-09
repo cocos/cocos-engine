@@ -2,7 +2,7 @@
 
 SE_DECLARE_FINALIZE_FUNC(js_${underlined_class_name}_finalize)
 
-static bool ${signature_name}(se::State& s)
+static bool ${signature_name}(se::State& s) // constructor.c
 {
 #if $is_skip_constructor
     //#3 ${namespaced_class_name}: is_skip_construtor ${is_skip_constructor}
@@ -41,6 +41,7 @@ static bool ${signature_name}(se::State& s)
                          "in_value": "args[" + str(count) + "]",
                          "out_value": "arg" + str(count),
                          "class_name": $class_name,
+                         "context" : "s.thisObject()",
                          "level": 2,
                          "is_static": False,
                          "ntype": str($arg)})};

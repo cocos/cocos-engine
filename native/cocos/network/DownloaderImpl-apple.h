@@ -29,7 +29,7 @@
 
 namespace cc { namespace network
 {
-    class DownloaderHints;
+    struct DownloaderHints;
     class DownloaderApple : public IDownloaderImpl
     {
     public:
