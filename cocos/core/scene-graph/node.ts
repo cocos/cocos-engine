@@ -388,18 +388,21 @@ export class Node extends BaseNode {
         this.invalidateChildren(TransformBit.TRS);
     }
 
-    public _onBatchCreated (dontSyncChildPrefab?: boolean) {
-        super._onBatchCreated();
+    public _onBatchCreated (dontSyncChildPrefab: boolean) {
+        super._onBatchCreated(dontSyncChildPrefab);
         this.hasChangedFlags = TransformBit.TRS;
         this._dirtyFlags = TransformBit.TRS;
         const len = this._children.length;
         for (let i = 0; i < len; ++i) {
-            this._children[i]._onBatchCreated();
+            // if (!dontSyncChildPrefab) {
+            //     // sync child prefab
+            //     let prefabInfo = child._prefab;
+            //     if (prefabInfo && prefabInfo.sync && prefabInfo.root === child) {
+            //         PrefabHelper.syncWithPrefab(child);
+            //     }
+            // }
+            this._children[i]._onBatchCreated(dontSyncChildPrefab);
         }
-    }
-
-    public _onBatchRestored () {
-        this._onBatchCreated();
     }
 
     public _onBeforeSerialize () {

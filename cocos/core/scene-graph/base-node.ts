@@ -1238,11 +1238,7 @@ export class BaseNode extends CCObject implements ISchedulable {
         return;
     }
 
-    protected _onBatchRestored () {
-        return;
-    }
-
-    protected _onBatchCreated (dontSyncChildPrefab?: boolean) {
+    protected _onBatchCreated (dontSyncChildPrefab: boolean) {
         if (this._parent) {
             this._siblingIndex = this._parent.children.indexOf(this);
         }
@@ -1257,27 +1253,31 @@ export class BaseNode extends CCObject implements ISchedulable {
         return this._onHierarchyChangedBase(oldParent);
     }
 
-    protected _instantiate (cloned) {
+    protected _instantiate (cloned, isSyncedNode) {
         if (!cloned) {
             cloned = legacyCC.instantiate._clone(this, this);
         }
 
-        const thisPrefabInfo = this._prefab;
-        if (EDITOR && thisPrefabInfo) {
-            if (this !== thisPrefabInfo.root) {}
+        const newPrefabInfo = cloned._prefab;
+        if (EDITOR && newPrefabInfo) {
+            if (cloned === newPrefabInfo.root) {
+                newPrefabInfo.fileId = '';
+            } else {
+                // var PrefabUtils = Editor.require('scene://utils/prefab');
+                // PrefabUtils.unlinkPrefab(cloned);
+            }
         }
-        const syncing = thisPrefabInfo && this === thisPrefabInfo.root && thisPrefabInfo.sync;
-        if (syncing) {
-            // if (thisPrefabInfo._synced) {
-            //    return clone;
-            // }
-        } else if (EDITOR && legacyCC.GAME_VIEW) {
-            cloned._name += ' (Clone)';
+        if (EDITOR && legacyCC.GAME_VIEW) {
+            const syncing = newPrefabInfo && cloned === newPrefabInfo.root && newPrefabInfo.sync;
+            if (!syncing) {
+                cloned._name += ' (Clone)';
+            }
         }
+
 
         // reset and init
         cloned._parent = null;
-        cloned._onBatchRestored();
+        cloned._onBatchCreated(isSyncedNode);
 
         return cloned;
     }
