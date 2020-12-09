@@ -3,7 +3,7 @@ import { aabb, sphere } from '../../../core/geometry';
 import { Collider, RigidBody, PhysicMaterial, BoxCollider } from '../../framework';
 import { VEC3_0 } from '../../utils/util';
 import { IBoxShape } from '../../spec/i-physics-shape';
-import { PX, USE_BYTEDANCE } from '../export-physx';
+import { PX } from '../export-physx';
 import { EPhysXShapeType, PhysXShape } from './physx-shape';
 
 export class PhysXBoxShape extends PhysXShape implements IBoxShape {
@@ -12,12 +12,8 @@ export class PhysXBoxShape extends PhysXShape implements IBoxShape {
     constructor () {
         super(EPhysXShapeType.BOX);
         if (!PhysXBoxShape.BOX_GEOMETRY) {
-            if (USE_BYTEDANCE) {
-                VEC3_0.set(0.5, 0.5, 0.5);
-                PhysXBoxShape.BOX_GEOMETRY = new PX.BoxGeometry(VEC3_0);
-            } else {
-                PhysXBoxShape.BOX_GEOMETRY = new PX.PxBoxGeometry(0.5, 0.5, 0.5);
-            }
+            VEC3_0.set(0.5, 0.5, 0.5);
+            PhysXBoxShape.BOX_GEOMETRY = new PX.BoxGeometry(VEC3_0);
         }
     }
 
@@ -48,10 +44,6 @@ export class PhysXBoxShape extends PhysXShape implements IBoxShape {
         VEC3_0.set(co.size);
         VEC3_0.multiplyScalar(0.5);
         VEC3_0.multiply3f(Math.abs(ws.x), Math.abs(ws.y), Math.abs(ws.z));
-        if (USE_BYTEDANCE) {
-            PhysXBoxShape.BOX_GEOMETRY.setHalfExtents(VEC3_0);
-        } else {
-            PhysXBoxShape.BOX_GEOMETRY.halfExtents = VEC3_0;
-        }
+        PhysXBoxShape.BOX_GEOMETRY.setHalfExtents(VEC3_0);
     }
 }

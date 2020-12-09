@@ -105,8 +105,7 @@ export class PhysXTrimeshShape extends PhysXShape implements ITrimeshShape {
             const physics = wrappedWorld.physics;
             const collider = this.collider;
             const pxmat = this.getSharedMaterial(collider.sharedMaterial!);
-            const meshScale = USE_BYTEDANCE ? new PX.MeshScale(collider.node.worldScale, Quat.IDENTITY)
-                : new PX.PxMeshScale(collider.node.worldScale, Quat.IDENTITY);
+            const meshScale = new PX.MeshScale(collider.node.worldScale, Quat.IDENTITY);
             if (collider.convex) {
                 if (PX.MESH_CONVEX[v._uuid] == null) {
                     const cooking = wrappedWorld.cooking;

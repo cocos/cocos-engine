@@ -66,64 +66,36 @@ export class PhysXRigidBody implements IRigidBody {
 
     setIsKinematic (v: boolean): void {
         if (this._sharedBody.isStatic) return;
-        if (USE_BYTEDANCE) {
-            this._sharedBody.setRigidBodyFlag(1, !!v);
-        } else {
-            this._sharedBody.setRigidBodyFlag(PX.PxRigidBodyFlag.eKINEMATIC, v);
-        }
+        this._sharedBody.setRigidBodyFlag(PX.RigidBodyFlag.eKINEMATIC, v);
     }
 
     useGravity (v: boolean): void {
-        if (USE_BYTEDANCE) {
-            this.impl.setActorFlag(PX.ActorFlag.eDISABLE_GRAVITY, !v);
-        } else {
-            this.impl.setActorFlag(PX.PxActorFlag.eDISABLE_GRAVITY, !v);
-        }
+        if (this._sharedBody.isStatic) return;
+        this.impl.setActorFlag(PX.ActorFlag.eDISABLE_GRAVITY, !v);
     }
 
     useCCD (v: boolean): void {
-        if (USE_BYTEDANCE) {
-            this.impl.setRigidBodyFlag(1 << 2, v);
-        } else {
-            this.impl.setRigidBodyFlag(PX.PxRigidBodyFlag.eENABLE_CCD, v);
-        }
+        if (this._sharedBody.isStatic) return;
+        this.impl.setRigidBodyFlag(PX.RigidBodyFlag.eENABLE_CCD, v);
     }
 
     fixRotation (v: boolean): void {
-        if (USE_BYTEDANCE) {
-            this.impl.setRigidDynamicLockFlag(PX.RigidDynamicLockFlag.eLOCK_ANGULAR_X, !!v);
-            this.impl.setRigidDynamicLockFlag(PX.RigidDynamicLockFlag.eLOCK_ANGULAR_Y, !!v);
-            this.impl.setRigidDynamicLockFlag(PX.RigidDynamicLockFlag.eLOCK_ANGULAR_Z, !!v);
-        } else {
-            this.impl.setRigidDynamicLockFlag(PX.PxRigidDynamicLockFlag.eLOCK_ANGULAR_X, v);
-            this.impl.setRigidDynamicLockFlag(PX.PxRigidDynamicLockFlag.eLOCK_ANGULAR_Y, v);
-            this.impl.setRigidDynamicLockFlag(PX.PxRigidDynamicLockFlag.eLOCK_ANGULAR_Z, v);
-        }
+        this.impl.setRigidDynamicLockFlag(PX.RigidDynamicLockFlag.eLOCK_ANGULAR_X, !!v);
+        this.impl.setRigidDynamicLockFlag(PX.RigidDynamicLockFlag.eLOCK_ANGULAR_Y, !!v);
+        this.impl.setRigidDynamicLockFlag(PX.RigidDynamicLockFlag.eLOCK_ANGULAR_Z, !!v);
         if (!v) { this.setAngularFactor(this._rigidBody.angularFactor); }
     }
 
     setLinearFactor (v: IVec3Like): void {
-        if (USE_BYTEDANCE) {
-            this.impl.setRigidDynamicLockFlag(PX.RigidDynamicLockFlag.eLOCK_LINEAR_X, !v.x);
-            this.impl.setRigidDynamicLockFlag(PX.RigidDynamicLockFlag.eLOCK_LINEAR_Y, !v.y);
-            this.impl.setRigidDynamicLockFlag(PX.RigidDynamicLockFlag.eLOCK_LINEAR_Z, !v.z);
-        } else {
-            this.impl.setRigidDynamicLockFlag(PX.PxRigidDynamicLockFlag.eLOCK_LINEAR_X, !v.x);
-            this.impl.setRigidDynamicLockFlag(PX.PxRigidDynamicLockFlag.eLOCK_LINEAR_Y, !v.y);
-            this.impl.setRigidDynamicLockFlag(PX.PxRigidDynamicLockFlag.eLOCK_LINEAR_Z, !v.z);
-        }
+        this.impl.setRigidDynamicLockFlag(PX.RigidDynamicLockFlag.eLOCK_LINEAR_X, !v.x);
+        this.impl.setRigidDynamicLockFlag(PX.RigidDynamicLockFlag.eLOCK_LINEAR_Y, !v.y);
+        this.impl.setRigidDynamicLockFlag(PX.RigidDynamicLockFlag.eLOCK_LINEAR_Z, !v.z);
     }
 
     setAngularFactor (v: IVec3Like): void {
-        if (USE_BYTEDANCE) {
-            this.impl.setRigidDynamicLockFlag(PX.RigidDynamicLockFlag.eLOCK_ANGULAR_X, !v.x);
-            this.impl.setRigidDynamicLockFlag(PX.RigidDynamicLockFlag.eLOCK_ANGULAR_Y, !v.y);
-            this.impl.setRigidDynamicLockFlag(PX.RigidDynamicLockFlag.eLOCK_ANGULAR_Z, !v.z);
-        } else {
-            this.impl.setRigidDynamicLockFlag(PX.PxRigidDynamicLockFlag.eLOCK_ANGULAR_X, !v.x);
-            this.impl.setRigidDynamicLockFlag(PX.PxRigidDynamicLockFlag.eLOCK_ANGULAR_Y, !v.y);
-            this.impl.setRigidDynamicLockFlag(PX.PxRigidDynamicLockFlag.eLOCK_ANGULAR_Z, !v.z);
-        }
+        this.impl.setRigidDynamicLockFlag(PX.RigidDynamicLockFlag.eLOCK_ANGULAR_X, !v.x);
+        this.impl.setRigidDynamicLockFlag(PX.RigidDynamicLockFlag.eLOCK_ANGULAR_Y, !v.y);
+        this.impl.setRigidDynamicLockFlag(PX.RigidDynamicLockFlag.eLOCK_ANGULAR_Z, !v.z);
     }
 
     setAllowSleep (v: boolean): void {
@@ -146,13 +118,11 @@ export class PhysXRigidBody implements IRigidBody {
     }
 
     clearForces (): void {
-        this.impl.clearForce(PX.PxForceMode.eFORCE); // this.impl.clearForce(PX.PxForceMode.eACCELERATION);
-        this.impl.clearForce(PX.PxForceMode.eIMPULSE); // this.impl.clearForce(PX.PxForceMode.eVELOCITY_CHANGE);
+        this._sharedBody.clearForces();
     }
 
     clearVelocity (): void {
-        this.impl.setLinearVelocity(Vec3.ZERO, true);
-        this.impl.setAngularVelocity(Vec3.ZERO, true);
+        this._sharedBody.clearVelocity();
     }
 
     setSleepThreshold (v: number): void {

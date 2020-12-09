@@ -2,7 +2,7 @@ import { IVec3Like, Quat, Vec3 } from '../../../core';
 import { aabb, sphere } from '../../../core/geometry';
 import { Collider, RigidBody, PhysicMaterial, PhysicsSystem } from '../../framework';
 import { IBaseShape } from '../../spec/i-physics-shape';
-import { PX, USE_BYTEDANCE, _pxtrans, _trans } from '../export-physx';
+import { getTempTransform, PX, USE_BYTEDANCE, _pxtrans, _trans } from '../export-physx';
 import { PhysXSharedBody } from '../physx-shared-body';
 import { PhysXWorld } from '../physx-world';
 
@@ -99,15 +99,19 @@ export class PhysXShape implements IBaseShape {
     }
 
     setMaterial (v: PhysicMaterial | null): void {
-        if (USE_BYTEDANCE) return;
-        if (v && this._impl) {
-            const mat = this.getSharedMaterial(v);
-            if (PX.VECTOR_MAT.size() > 0) {
-                PX.VECTOR_MAT.set(0, mat);
-            } else {
-                PX.VECTOR_MAT.push_back(mat);
+        if (USE_BYTEDANCE) {
+            //
+        } else {
+            // eslint-disable-next-line no-lonely-if
+            if (v && this._impl) {
+                const mat = this.getSharedMaterial(v);
+                if (PX.VECTOR_MAT.size() > 0) {
+                    PX.VECTOR_MAT.set(0, mat);
+                } else {
+                    PX.VECTOR_MAT.push_back(mat);
+                }
+                this._impl.setMaterials(PX.VECTOR_MAT);
             }
-            this._impl.setMaterials(PX.VECTOR_MAT);
         }
     }
 
@@ -115,13 +119,8 @@ export class PhysXShape implements IBaseShape {
         if (!PX.CACHE_MAT[v._uuid]) {
             const physics = this._sharedBody.wrappedWorld.physics;
             const mat = physics.createMaterial(v.friction, v.friction, v.restitution);
-            if (USE_BYTEDANCE) {
-                mat.setFrictionCombineMode(PX.CombineMode.eMULTIPLY);
-                mat.setRestitutionCombineMode(PX.CombineMode.eMULTIPLY);
-            } else {
-                mat.setFrictionCombineMode(PX.PxCombineMode.eMULTIPLY);
-                mat.setRestitutionCombineMode(PX.PxCombineMode.eMULTIPLY);
-            }
+            mat.setFrictionCombineMode(PX.CombineMode.eMULTIPLY);
+            mat.setRestitutionCombineMode(PX.CombineMode.eMULTIPLY);
             PX.CACHE_MAT[v._uuid] = mat;
             return mat;
         }
@@ -133,20 +132,12 @@ export class PhysXShape implements IBaseShape {
     }
 
     setAsTrigger (v: boolean): void {
-        if (USE_BYTEDANCE) {
-            if (v) {
-                this._impl.setFlag(PX.ShapeFlag.eSIMULATION_SHAPE, !v);
-                this._impl.setFlag(PX.ShapeFlag.eTRIGGER_SHAPE, v);
-            } else {
-                this._impl.setFlag(PX.ShapeFlag.eTRIGGER_SHAPE, v);
-                this._impl.setFlag(PX.ShapeFlag.eSIMULATION_SHAPE, !v);
-            }
-        } else if (v) {
-            this._impl.setFlag(PX.PxShapeFlag.eSIMULATION_SHAPE, !v);
-            this._impl.setFlag(PX.PxShapeFlag.eTRIGGER_SHAPE, v);
+        if (v) {
+            this._impl.setFlag(PX.ShapeFlag.eSIMULATION_SHAPE, !v);
+            this._impl.setFlag(PX.ShapeFlag.eTRIGGER_SHAPE, v);
         } else {
-            this._impl.setFlag(PX.PxShapeFlag.eTRIGGER_SHAPE, v);
-            this._impl.setFlag(PX.PxShapeFlag.eSIMULATION_SHAPE, !v);
+            this._impl.setFlag(PX.ShapeFlag.eTRIGGER_SHAPE, v);
+            this._impl.setFlag(PX.ShapeFlag.eSIMULATION_SHAPE, !v);
         }
         if (this._index >= 0) {
             this._sharedBody.removeShape(this);
@@ -155,18 +146,12 @@ export class PhysXShape implements IBaseShape {
     }
 
     setCenter (v: IVec3Like): void {
-        Vec3.multiply(_trans.translation, v, this._collider.node.worldScale);
-        Quat.copy(_trans.rotation, this._rotation);
-        if (USE_BYTEDANCE) {
-            const pos = _trans.translation;
-            const rot = _trans.rotation;
-            _pxtrans.setPosition(pos);
-            _pxtrans.setQuaternion(rot);
-            this._impl.setLocalPose(_pxtrans);
-        } else {
-            this._impl.setLocalPose(_trans);
-        }
-
+        const pos = _trans.translation;
+        const rot = _trans.rotation;
+        Vec3.multiply(pos, v, this._collider.node.worldScale);
+        Quat.copy(rot, this._rotation);
+        const trans = getTempTransform(pos, rot);
+        this._impl.setLocalPose(trans);
         if (this._collider.enabled) this._sharedBody.updateCenterOfMass();
     }
 

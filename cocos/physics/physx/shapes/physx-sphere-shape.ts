@@ -2,7 +2,7 @@ import { IVec3Like } from '../../../core';
 import { aabb, sphere } from '../../../core/geometry';
 import { Collider, RigidBody, PhysicMaterial, SphereCollider } from '../../framework';
 import { ISphereShape } from '../../spec/i-physics-shape';
-import { PX, USE_BYTEDANCE } from '../export-physx';
+import { PX } from '../export-physx';
 import { EPhysXShapeType, PhysXShape } from './physx-shape';
 
 export class PhysXSphereShape extends PhysXShape implements ISphereShape {
@@ -11,11 +11,7 @@ export class PhysXSphereShape extends PhysXShape implements ISphereShape {
     constructor () {
         super(EPhysXShapeType.SPHERE);
         if (!PhysXSphereShape.SPHERE_GEOMETRY) {
-            if (USE_BYTEDANCE) {
-                PhysXSphereShape.SPHERE_GEOMETRY = new PX.SphereGeometry(0.5);
-            } else {
-                PhysXSphereShape.SPHERE_GEOMETRY = new PX.PxSphereGeometry(0.5);
-            }
+            PhysXSphereShape.SPHERE_GEOMETRY = new PX.SphereGeometry(0.5);
         }
     }
 
@@ -47,10 +43,6 @@ export class PhysXSphereShape extends PhysXShape implements ISphereShape {
         const absY = Math.abs(ws.y);
         const absZ = Math.abs(ws.z);
         const maxSp = Math.max(Math.max(absX, absY), absZ);
-        if (USE_BYTEDANCE) {
-            PhysXSphereShape.SPHERE_GEOMETRY.setRadius(co.radius * maxSp);
-        } else {
-            PhysXSphereShape.SPHERE_GEOMETRY.radius = co.radius * maxSp;
-        }
+        PhysXSphereShape.SPHERE_GEOMETRY.setRadius(co.radius * maxSp);
     }
 }

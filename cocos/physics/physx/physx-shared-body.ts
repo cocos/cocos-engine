@@ -3,7 +3,7 @@ import { PhysXRigidBody } from './physx-rigid-body';
 import { PhysXWorld } from './physx-world';
 import { PhysXShape } from './shapes/physx-shape';
 import { TransformBit } from '../../core/scene-graph/node-enum';
-import { PX, USE_BYTEDANCE, _pxtrans, _trans } from './export-physx';
+import { getTempTransform, PX, USE_BYTEDANCE, _pxtrans, _trans } from './export-physx';
 import { VEC3_0 } from '../utils/util';
 
 export class PhysXSharedBody {
@@ -64,6 +64,8 @@ export class PhysXSharedBody {
             if (isRemove) {
                 this._index = -1;
                 this.wrappedWorld.removeActor(this);
+                this.clearVelocity();
+                this.clearForces();
             }
         }
     }
@@ -72,73 +74,43 @@ export class PhysXSharedBody {
         this.id = PhysXSharedBody.idCounter++;
         this.node = node;
         this.wrappedWorld = wrappedWorld;
-        if (USE_BYTEDANCE) {
-            this._filterData = {
-                word0: 1,
-                word1: ((0xffffffff & (~2)) >>> 0),
-                word2: 0,
-                word3: 0,
-            };
-        } else {
-            this._filterData = new PX.PxFilterData(1, ((0xffffffff & (~2)) >>> 0), 0, 0);
-        }
+        this._filterData = {
+            word0: 1,
+            word1: ((0xffffffff & (~2)) >>> 0),
+            word2: 0,
+            word3: 0,
+        };
     }
 
     private _initActor (): void {
         if (this._impl) return;
-        const pos = _trans.translation;
-        const rot = _trans.rotation;
-        Vec3.copy(pos, this.node.worldPosition);
-        Quat.copy(rot, this.node.worldRotation);
-        let t = _trans;
-        if (USE_BYTEDANCE) {
-            _pxtrans.setPosition(pos);
-            _pxtrans.setQuaternion(rot);
-            t = _pxtrans;
-        }
+        const t = getTempTransform(this.node.worldPosition, this.node.worldRotation);
         const wb = this.wrappedBody;
         if (wb) {
             const rb = wb.rigidBody;
             if (rb.mass === 0) {
                 this._isStatic = true;
-                this._impl = this.wrappedWorld.physics.createRigidStatic(t as any);
+                this._impl = this.wrappedWorld.physics.createRigidStatic(t);
             } else {
                 this._isStatic = false;
-                this._impl = this.wrappedWorld.physics.createRigidDynamic(t as any);
+                this._impl = this.wrappedWorld.physics.createRigidDynamic(t);
                 this._impl.setMass(rb.mass);
-                if (USE_BYTEDANCE) {
-                    this._impl.setActorFlag(PX.ActorFlag.eDISABLE_GRAVITY, !rb.useGravity);
-                    this.setRigidBodyFlag(1, !!rb.isKinematic);
-                } else {
-                    this._impl.setActorFlag(PX.PxActorFlag.eDISABLE_GRAVITY, !rb.useGravity);
-                    this.setRigidBodyFlag(PX.PxRigidBodyFlag.eKINEMATIC, rb.isKinematic);
-                }
+                this._impl.setActorFlag(PX.ActorFlag.eDISABLE_GRAVITY, !rb.useGravity);
+                this.setRigidBodyFlag(PX.RigidBodyFlag.eKINEMATIC, rb.isKinematic);
                 this._impl.setLinearDamping(rb.linearDamping);
                 this._impl.setAngularDamping(rb.angularDamping);
                 const lf = rb.linearFactor;
-                if (USE_BYTEDANCE) {
-                    this._impl.setRigidDynamicLockFlag(PX.RigidDynamicLockFlag.eLOCK_LINEAR_X, !lf.x);
-                    this._impl.setRigidDynamicLockFlag(PX.RigidDynamicLockFlag.eLOCK_LINEAR_Y, !lf.y);
-                    this._impl.setRigidDynamicLockFlag(PX.RigidDynamicLockFlag.eLOCK_LINEAR_Z, !lf.z);
-                } else {
-                    this._impl.setRigidDynamicLockFlag(PX.PxRigidDynamicLockFlag.eLOCK_LINEAR_X, !lf.x);
-                    this._impl.setRigidDynamicLockFlag(PX.PxRigidDynamicLockFlag.eLOCK_LINEAR_Y, !lf.y);
-                    this._impl.setRigidDynamicLockFlag(PX.PxRigidDynamicLockFlag.eLOCK_LINEAR_Z, !lf.z);
-                }
+                this._impl.setRigidDynamicLockFlag(PX.RigidDynamicLockFlag.eLOCK_LINEAR_X, !lf.x);
+                this._impl.setRigidDynamicLockFlag(PX.RigidDynamicLockFlag.eLOCK_LINEAR_Y, !lf.y);
+                this._impl.setRigidDynamicLockFlag(PX.RigidDynamicLockFlag.eLOCK_LINEAR_Z, !lf.z);
                 const af = rb.angularFactor;
-                if (USE_BYTEDANCE) {
-                    this._impl.setRigidDynamicLockFlag(PX.RigidDynamicLockFlag.eLOCK_ANGULAR_X, !af.x);
-                    this._impl.setRigidDynamicLockFlag(PX.RigidDynamicLockFlag.eLOCK_ANGULAR_Y, !af.y);
-                    this._impl.setRigidDynamicLockFlag(PX.RigidDynamicLockFlag.eLOCK_ANGULAR_Z, !af.z);
-                } else {
-                    this._impl.setRigidDynamicLockFlag(PX.PxRigidDynamicLockFlag.eLOCK_ANGULAR_X, !af.x);
-                    this._impl.setRigidDynamicLockFlag(PX.PxRigidDynamicLockFlag.eLOCK_ANGULAR_Y, !af.y);
-                    this._impl.setRigidDynamicLockFlag(PX.PxRigidDynamicLockFlag.eLOCK_ANGULAR_Z, !af.z);
-                }
+                this._impl.setRigidDynamicLockFlag(PX.RigidDynamicLockFlag.eLOCK_ANGULAR_X, !af.x);
+                this._impl.setRigidDynamicLockFlag(PX.RigidDynamicLockFlag.eLOCK_ANGULAR_Y, !af.y);
+                this._impl.setRigidDynamicLockFlag(PX.RigidDynamicLockFlag.eLOCK_ANGULAR_Z, !af.z);
             }
         } else {
             this._isStatic = true;
-            this._impl = this.wrappedWorld.physics.createRigidStatic(t as any);
+            this._impl = this.wrappedWorld.physics.createRigidStatic(t);
         }
         if (this._impl) {
             if (USE_BYTEDANCE) {
@@ -321,6 +293,20 @@ export class PhysXSharedBody {
             Quat.copy(_trans.rotation, Quat.IDENTITY);
             this._impl.setCMassLocalPose(_trans);
         }
+    }
+
+    clearForces (): void {
+        if (this._isStatic || this._isKinematic) return;
+        this._impl.clearForce(PX.ForceMode.eFORCE); // this._impl.clearForce(PX.ForceMode.eACCELERATION);
+        this._impl.clearForce(PX.ForceMode.eIMPULSE); // this._impl.clearForce(PX.ForceMode.eVELOCITY_CHANGE);
+        this._impl.clearTorque(PX.ForceMode.eFORCE);
+        this._impl.clearTorque(PX.ForceMode.eIMPULSE);
+    }
+
+    clearVelocity (): void {
+        if (this._isStatic || this._isKinematic) return;
+        this._impl.setLinearVelocity(Vec3.ZERO, false);
+        this._impl.setAngularVelocity(Vec3.ZERO, false);
     }
 
     destroy (): void {

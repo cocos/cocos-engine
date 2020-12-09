@@ -1,6 +1,6 @@
 import { IVec3Like, Vec3, Quat } from '../../core';
 import { IContactEquation, ICollisionEvent, Collider } from '../framework';
-import { USE_BYTEDANCE } from './export-physx';
+import { getContactNormal, getContactPosition } from './export-physx';
 
 const quat = new Quat();
 export class PhysXContactEquation implements IContactEquation {
@@ -18,51 +18,27 @@ export class PhysXContactEquation implements IContactEquation {
     }
 
     getLocalPointOnA (out: IVec3Like): void {
-        if (USE_BYTEDANCE) {
-            Vec3.subtract(out, this.impl.getPosition(), this.colliderA.node.worldPosition);
-        } else {
-            Vec3.subtract(out, this.impl.position, this.colliderA.node.worldPosition);
-        }
+        Vec3.subtract(out, getContactPosition(this.impl), this.colliderA.node.worldPosition);
     }
 
     getLocalPointOnB (out: IVec3Like): void {
-        if (USE_BYTEDANCE) {
-            Vec3.subtract(out, this.impl.getPosition(), this.colliderB.node.worldPosition);
-        } else {
-            Vec3.subtract(out, this.impl.position, this.colliderB.node.worldPosition);
-        }
+        Vec3.subtract(out, getContactPosition(this.impl), this.colliderB.node.worldPosition);
     }
 
     getWorldPointOnA (out: IVec3Like): void {
-        if (USE_BYTEDANCE) {
-            Vec3.copy(out, this.impl.getPosition());
-        } else {
-            Vec3.copy(out, this.impl.position);
-        }
+        Vec3.copy(out, getContactPosition(this.impl));
     }
 
     getWorldPointOnB (out: IVec3Like): void {
-        if (USE_BYTEDANCE) {
-            Vec3.copy(out, this.impl.getPosition());
-        } else {
-            Vec3.copy(out, this.impl.position);
-        }
+        Vec3.copy(out, getContactPosition(this.impl));
     }
 
     getLocalNormalOnB (out: IVec3Like): void {
         Quat.conjugate(quat, this.colliderB.node.worldRotation);
-        if (USE_BYTEDANCE) {
-            Vec3.transformQuat(out, this.impl.getNormal(), quat);
-        } else {
-            Vec3.transformQuat(out, this.impl.normal, quat);
-        }
+        Vec3.transformQuat(out, getContactNormal(this.impl), quat);
     }
 
     getWorldNormalOnB (out: IVec3Like): void {
-        if (USE_BYTEDANCE) {
-            Vec3.copy(out, this.impl.getNormal());
-        } else {
-            Vec3.copy(out, this.impl.normal);
-        }
+        Vec3.copy(out, getContactNormal(this.impl));
     }
 }

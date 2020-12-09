@@ -1,6 +1,7 @@
 /* eslint-disable import/no-mutable-exports */
 /* eslint-disable no-undef */
 import { BYTEDANCE } from 'internal:constants';
+import { IQuatLike, IVec3Like, Quat, Vec3 } from '../../core';
 
 export let USE_BYTEDANCE = false;
 if (BYTEDANCE) USE_BYTEDANCE = true;
@@ -18,23 +19,63 @@ if (PX) {
     PX.TERRAIN_STATIC = {};
 }
 
-export const _trans = {
-    translation: { x: 0, y: 0, z: 0 },
-    rotation: { x: 0, y: 0, z: 0, w: 1 },
-};
+/// adapters ///
 
-export const _trans2 = {
+export const _trans = {
     translation: { x: 0, y: 0, z: 0 },
     rotation: { x: 0, y: 0, z: 0, w: 1 },
 };
 
 export const _pxtrans = USE_BYTEDANCE && PX ? new PX.Transform({ x: 0, y: 0, z: 0 }, { x: 0, y: 0, z: 0, w: 1 }) : _trans;
 
-export const _pxtrans2 = USE_BYTEDANCE && PX ? new PX.Transform({ x: 0, y: 0, z: 0 }, { x: 0, y: 0, z: 0, w: 1 }) : _trans2;
+if (!USE_BYTEDANCE) {
+    PX.ShapeFlag = PX.PxShapeFlag;
+    PX.ActorFlag = PX.PxActorFlag;
+    PX.RigidBodyFlag = PX.PxRigidBodyFlag;
+    PX.RigidDynamicLockFlag = PX.PxRigidDynamicLockFlag;
+    PX.CombineMode = PX.PxCombineMode;
+    PX.ForceMode = PX.PxForceMode;
+    PX.SphereGeometry = PX.PxSphereGeometry;
+    PX.BoxGeometry = PX.PxBoxGeometry;
+    PX.CapsuleGeometry = PX.PxCapsuleGeometry;
+    PX.PlaneGeometry = PX.PxPlaneGeometry;
+    PX.MeshScale = PX.PxMeshScale;
+} else {
+    PX.PxRevoluteJointCreate = (physics: any, a: any, b: any, c: any, d: any): any => PX.createRevoluteJoint(a, b, c, d);
+    PX.PxDistanceJointCreate = (physics: any, a: any, b: any, c: any, d: any): any => PX.createDistanceJoint(a, b, c, d);
+}
 
 export function getWrapShape<T> (pxShape: any): T {
     if (USE_BYTEDANCE) {
         return PX.IMPL_PTR[pxShape.getQueryFilterData().word2];
     }
     return PX.IMPL_PTR[pxShape.$$.ptr];
+}
+
+export function getContactPosition (pxContact: any): IVec3Like {
+    return USE_BYTEDANCE ? pxContact.getPosition() : pxContact.position;
+}
+
+export function getContactNormal (pxContact: any): IVec3Like {
+    return USE_BYTEDANCE ? pxContact.getNormal() : pxContact.normal;
+}
+
+export function getTempTransform (pos: IVec3Like, quat: IQuatLike): any {
+    if (USE_BYTEDANCE) {
+        _pxtrans.setPosition(pos);
+        _pxtrans.setQuaternion(quat);
+    } else {
+        Vec3.copy(_pxtrans.translation, pos);
+        Quat.copy(_pxtrans.rotation, quat);
+    }
+    return _pxtrans;
+}
+
+export function setJointActors (joint: any, actor0: any, actor1: any): void {
+    if (USE_BYTEDANCE) {
+        // eslint-disable-next-line no-unused-expressions
+        actor1 ? joint.setActors(actor0, actor1) : joint.setActors(actor0);
+    } else {
+        joint.setActors(actor0, actor1);
+    }
 }
