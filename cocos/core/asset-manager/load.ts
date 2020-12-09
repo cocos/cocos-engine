@@ -33,6 +33,7 @@ import { CompleteCallbackNoData, assets, files, parsed, pipeline } from './share
 import Task from './task';
 import { cache, checkCircleReference, clear, forEach, gatherAsset, getDepends, setProperties } from './utilities';
 import { legacyCC } from '../global-exports';
+import releaseManager from './release-manager';
 
 /**
  * @packageDocumentation
@@ -152,6 +153,7 @@ const loadOneAssetPipeline = new Pipeline('loadOneAsset', [
                 }
             } else if (!options.reloadAsset && assets.has(uuid)) {
                 const asset = assets.get(uuid)!;
+                releaseManager.removeFromDeleteQueue(asset);
                 if (options.__asyncLoadAssets__ || !asset.__asyncLoadAssets__) {
                     item.content = asset.addRef();
                     if (progress.canInvoke) {

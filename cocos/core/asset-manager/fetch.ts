@@ -36,6 +36,7 @@ import { assets, CompleteCallbackNoData, fetchPipeline } from './shared';
 import Task from './task';
 import { clear, forEach, getDepends } from './utilities';
 import { legacyCC } from '../global-exports';
+import releaseManager from './release-manager';
 
 export default function fetch (task: Task, done: CompleteCallbackNoData) {
     let firstTask = false;
@@ -53,9 +54,10 @@ export default function fetch (task: Task, done: CompleteCallbackNoData) {
 
     forEach(task.input as RequestItem[], (item, cb) => {
         if (!item.isNative && assets.has(item.uuid)) {
-            const asset = assets.get(item.uuid);
-            asset!.addRef();
-            handle(item, task, asset, null, asset!.__asyncLoadAssets__, depends, total, done);
+            const asset = assets.get(item.uuid)!;
+            releaseManager.removeFromDeleteQueue(asset);
+            asset.addRef();
+            handle(item, task, asset, null, asset.__asyncLoadAssets__, depends, total, done);
             return cb();
         }
 
