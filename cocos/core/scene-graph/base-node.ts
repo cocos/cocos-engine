@@ -1352,6 +1352,7 @@ export class BaseNode extends CCObject implements ISchedulable {
                 if (parent.emit) {
                     parent.emit(SystemEventType.CHILD_REMOVED, this);
                 }
+                parent._updateSiblingIndex();
             }
         }
 
