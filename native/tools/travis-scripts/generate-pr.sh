@@ -23,7 +23,7 @@ COMMITTAG="[ci skip][AUTO]: updating jsbinding automatically"
 ELAPSEDSECS=`date +%s`
 COCOS_BRANCH="update_js_bindings_$ELAPSEDSECS"
 COCOS_ROBOT_REMOTE="https://${GH_USER}:${GH_PASSWORD}@github.com/${GH_USER}/cocos2d-x-lite.git"
-PULL_REQUEST_REPO="https://api.github.com/repos/cocos-creator/cocos2d-x-lite/pulls"
+PULL_REQUEST_REPO="https://api.github.com/repos/cocos-robot/cocos2d-x-lite/pulls"
 FETCH_REMOTE_BRANCH=$1
 JS_COMMIT_PATH="cocos/bindings/auto"
 
@@ -140,11 +140,11 @@ git push -fq upstream "$COCOS_BRANCH"
 
 echo "  finish push ..."
 
-set +x
+# set +x
 
 # 7.
 echo "Sending Pull Request to base repo ..."
-curl --user "${GH_USER}:${GH_PASSWORD}" --request POST --data "{ \"title\": \"$COMMITTAG\", \"body\": \"\", \"head\": \"${GH_USER}:${COCOS_BRANCH}\", \"base\": \"${TRAVIS_BRANCH}\"}" "${PULL_REQUEST_REPO}" 2> /dev/null > /dev/null
+curl -H "Authorization: token $GH_TOKEN"  --request POST --data "{ \"title\": \"$COMMITTAG\", \"body\": \"\", \"head\": \"${GH_USER}:${COCOS_BRANCH}\", \"base\": \"${TRAVIS_BRANCH}\"}" "${PULL_REQUEST_REPO}" # 2> /dev/null > /dev/null
 
 echo "  finish sending PR ..."
 
