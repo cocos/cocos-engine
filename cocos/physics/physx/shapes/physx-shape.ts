@@ -30,6 +30,7 @@ export class PhysXShape implements IBaseShape {
     protected _flags: any;
     protected _sharedBody!: PhysXSharedBody;
     protected _rotation = new Quat(0, 0, 0, 1);
+    protected _index = -1;
 
     constructor (type: EPhysXShapeType) {
         this.type = type;
@@ -58,6 +59,10 @@ export class PhysXShape implements IBaseShape {
                 PX.IMPL_PTR[this._impl.$$.ptr] = this;
             }
         }
+    }
+
+    setIndex (v: number): void {
+        this._index = v;
     }
 
     // virtual
@@ -142,6 +147,10 @@ export class PhysXShape implements IBaseShape {
         } else {
             this._impl.setFlag(PX.PxShapeFlag.eTRIGGER_SHAPE, v);
             this._impl.setFlag(PX.PxShapeFlag.eSIMULATION_SHAPE, !v);
+        }
+        if (this._index >= 0) {
+            this._sharedBody.removeShape(this);
+            this._sharedBody.addShape(this);
         }
     }
 

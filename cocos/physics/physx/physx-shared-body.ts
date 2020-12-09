@@ -153,20 +153,19 @@ export class PhysXSharedBody {
         const index = this.wrappedShapes.indexOf(ws);
         if (index < 0) {
             this._filterData.word2 = ws.id;
+            ws.setIndex(this.wrappedShapes.length);
             ws.impl.setQueryFilterData(this._filterData);
             ws.impl.setSimulationFilterData(this._filterData);
             this.impl.attachShape(ws.impl);
             this.wrappedShapes.push(ws);
-
-            if (!Vec3.strictEquals(ws.collider.center, Vec3.ZERO)) {
-                this.updateCenterOfMass();
-            }
-
-            if (!this._isStatic) {
-                if (USE_BYTEDANCE) {
-                    PX.RigidBodyExt.setMassAndUpdateInertia(this._impl, this._wrappedBody!.rigidBody.mass);
-                } else {
-                    this.impl.setMassAndUpdateInertia(this._wrappedBody!.rigidBody.mass);
+            if (!ws.collider.isTrigger) {
+                if (!Vec3.strictEquals(ws.collider.center, Vec3.ZERO)) this.updateCenterOfMass();
+                if (!this._isStatic) {
+                    if (USE_BYTEDANCE) {
+                        PX.RigidBodyExt.setMassAndUpdateInertia(this._impl, this._wrappedBody!.rigidBody.mass);
+                    } else {
+                        this.impl.setMassAndUpdateInertia(this._wrappedBody!.rigidBody.mass);
+                    }
                 }
             }
         }
@@ -175,16 +174,17 @@ export class PhysXSharedBody {
     removeShape (ws: PhysXShape): void {
         const index = this.wrappedShapes.indexOf(ws);
         if (index >= 0) {
+            ws.setIndex(-1);
             this.impl.detachShape(ws.impl, true);
             this.wrappedShapes.splice(index, 1);
-
-            if (!Vec3.strictEquals(ws.collider.center, Vec3.ZERO)) this.updateCenterOfMass();
-
-            if (!this._isStatic) {
-                if (USE_BYTEDANCE) {
-                    PX.RigidBodyExt.setMassAndUpdateInertia(this._impl, this._wrappedBody!.rigidBody.mass);
-                } else {
-                    this.impl.setMassAndUpdateInertia(this._wrappedBody!.rigidBody.mass);
+            if (!ws.collider.isTrigger) {
+                if (!Vec3.strictEquals(ws.collider.center, Vec3.ZERO)) this.updateCenterOfMass();
+                if (!this._isStatic) {
+                    if (USE_BYTEDANCE) {
+                        PX.RigidBodyExt.setMassAndUpdateInertia(this._impl, this._wrappedBody!.rigidBody.mass);
+                    } else {
+                        this.impl.setMassAndUpdateInertia(this._wrappedBody!.rigidBody.mass);
+                    }
                 }
             }
         }

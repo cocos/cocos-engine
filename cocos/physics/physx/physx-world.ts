@@ -7,6 +7,7 @@ import { IBaseConstraint } from '../spec/i-physics-constraint';
 import { PhysXSharedBody } from './physx-shared-body';
 import { PhysXRigidBody } from './physx-rigid-body';
 import { PhysXShape } from './shapes/physx-shape';
+import { PhysXContactEquation } from './physx-contact-equation';
 import { CollisionEventObject, TriggerEventObject } from '../utils/util';
 import { getWrapShape, PX, USE_BYTEDANCE } from './export-physx';
 
@@ -26,38 +27,57 @@ function onTrigger (type: TriggerEventType, wpa: PhysXShape, wpb: PhysXShape): v
     }
 }
 
-function onCollision (type: CollisionEventType, wpa: PhysXShape, wpb: PhysXShape): void {
+const contactsPool: [] = [];
+function onCollision (type: CollisionEventType, wpa: PhysXShape, wpb: PhysXShape, c: number, d: any): void {
     if (wpa && wpb) {
-        CollisionEventObject.type = type;
-        if (wpa.collider.needCollisionEvent) {
-            CollisionEventObject.selfCollider = wpa.collider;
-            CollisionEventObject.otherCollider = wpb.collider;
-            wpa.collider.emit(CollisionEventObject.type, CollisionEventObject);
-        }
-        if (wpb.collider.needCollisionEvent) {
-            CollisionEventObject.selfCollider = wpb.collider;
-            CollisionEventObject.otherCollider = wpa.collider;
-            wpb.collider.emit(CollisionEventObject.type, CollisionEventObject);
+        if (wpa.collider.needCollisionEvent || wpb.collider.needCollisionEvent) {
+            CollisionEventObject.type = type;
+            CollisionEventObject.impl = d;
+            const contacts = CollisionEventObject.contacts;
+            contactsPool.push.apply(contactsPool, contacts as any);
+            contacts.length = 0;
+            for (let i = 0; i < c; i++) {
+                if (contactsPool.length > 0) {
+                    const c = contactsPool.pop() as unknown as PhysXContactEquation;
+                    c.colliderA = wpa.collider; c.colliderB = wpb.collider;
+                    c.impl = d.get(i); contacts.push(c);
+                } else {
+                    const c = new PhysXContactEquation(CollisionEventObject);
+                    c.colliderA = wpa.collider; c.colliderB = wpb.collider;
+                    c.impl = d.get(i); contacts.push(c);
+                }
+            }
+            if (wpa.collider.needCollisionEvent) {
+                CollisionEventObject.selfCollider = wpa.collider;
+                CollisionEventObject.otherCollider = wpb.collider;
+                wpa.collider.emit(CollisionEventObject.type, CollisionEventObject);
+            }
+            if (wpb.collider.needCollisionEvent) {
+                CollisionEventObject.selfCollider = wpb.collider;
+                CollisionEventObject.otherCollider = wpa.collider;
+                CollisionEventObject.contacts = [];
+                wpb.collider.emit(CollisionEventObject.type, CollisionEventObject);
+            }
         }
     }
 }
 
 const persistShapes: string[] = [];
-const triggerCallback = {
-    onContactBegin: (a: any, b: any): void => {
+const eventCallback = {
+    onContactBegin: (a: any, b: any, c: any, d: any): void => {
         const wpa = getWrapShape<PhysXShape>(a);
         const wpb = getWrapShape<PhysXShape>(b);
-        onCollision('onCollisionEnter', wpa, wpb);
+        onCollision('onCollisionEnter', wpa, wpb, c, d);
     },
-    onContactEnd: (a: any, b: any): void => {
+    onContactEnd: (a: any, b: any, c: any, d: any): void => {
         const wpa = getWrapShape<PhysXShape>(a);
         const wpb = getWrapShape<PhysXShape>(b);
-        onCollision('onCollisionExit', wpa, wpb);
+        onCollision('onCollisionExit', wpa, wpb, c, d);
     },
-    onContactPersist: (a: any, b: any): void => {
+    onContactPersist: (a: any, b: any, c: any, d: any): void => {
         const wpa = getWrapShape<PhysXShape>(a);
         const wpb = getWrapShape<PhysXShape>(b);
-        onCollision('onCollisionStay', wpa, wpb);
+        onCollision('onCollisionStay', wpa, wpb, c, d);
     },
     onTriggerBegin: (a: any, b: any): void => {
         const pa = a.$$.ptr as number;
@@ -91,7 +111,6 @@ const triggerCallback = {
 // eBLOCK = 2   //!< a hit on the shape blocks the query (does not block overlap queries)
 const queryCallback = {
     preFilter (filterData: any, shape: any, _actor: any, _out: any): number {
-        // trigger filter
         // 0 for mask filter
         // 1 for trigger toggle
         // 2 for single hit
@@ -109,9 +128,6 @@ const queryCallback = {
         }
         return filterData.word3 & 4 ? PX.PxQueryHitType.eBLOCK : PX.PxQueryHitType.eTOUCH;
     },
-    // postFilter (a: any, b: any) {
-    //     return PX.PxQueryHitType.eTOUCH;
-    // }
 };
 
 export class PhysXWorld implements IPhysicsWorld {
@@ -156,12 +172,13 @@ export class PhysXWorld implements IPhysicsWorld {
                     const shapeA = getWrapShape<PhysXShape>(shape0);
                     const shapeB = getWrapShape<PhysXShape>(shape1);
                     const events = cp.getPairFlags();
+                    const contacts = cp.getContactPoint();
                     if (events & 4) {
-                        onCollision('onCollisionEnter', shapeA, shapeB);
+                        onCollision('onCollisionEnter', shapeA, shapeB, contacts.length, contacts);
                     } else if (events & 8) {
-                        onCollision('onCollisionStay', shapeA, shapeB);
+                        onCollision('onCollisionStay', shapeA, shapeB, contacts.length, contacts);
                     } else if (events & 16) {
-                        onCollision('onCollisionExit', shapeA, shapeB);
+                        onCollision('onCollisionExit', shapeA, shapeB, contacts.length, contacts);
                     }
                 }
             });
@@ -195,7 +212,7 @@ export class PhysXWorld implements IPhysicsWorld {
             this.mutipleResults = new PX.PxRaycastHitVector();
             this.mutipleResults.resize(this.mutipleResultSize, this.singleResult);
             this.queryfilterData = new PX.PxQueryFilterData();
-            this.simulationCB = PX.PxSimulationEventCallback.implement(triggerCallback);
+            this.simulationCB = PX.PxSimulationEventCallback.implement(eventCallback);
             this.queryFilterCB = PX.PxQueryFilterCallback.implement(queryCallback);
             const version = PX.PX_PHYSICS_VERSION;
             const defaultErrorCallback = new PX.PxDefaultErrorCallback();

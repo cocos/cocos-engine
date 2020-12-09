@@ -81,6 +81,14 @@ export class PhysXRigidBody implements IRigidBody {
         }
     }
 
+    useCCD (v: boolean): void {
+        if (USE_BYTEDANCE) {
+            this.impl.setRigidBodyFlag(1 << 2, v);
+        } else {
+            this.impl.setRigidBodyFlag(PX.PxRigidBodyFlag.eENABLE_CCD, v);
+        }
+    }
+
     fixRotation (v: boolean): void {
         if (USE_BYTEDANCE) {
             this.impl.setRigidDynamicLockFlag(PX.RigidDynamicLockFlag.eLOCK_ANGULAR_X, !!v);
