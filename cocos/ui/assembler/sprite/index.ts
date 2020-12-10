@@ -36,6 +36,7 @@ import { radialFilled } from './radial-filled';
 import { simple } from './simple';
 import { sliced } from './sliced';
 import { tilled } from './tiled';
+import { meshRenderUtil } from './mesh';
 
 const SpriteType = Sprite.Type;
 const FillType = Sprite.FillType;
@@ -61,9 +62,9 @@ const spriteAssembler: IAssemblerManager = {
                 util = barFilled;
             }
             break;
-            // case SpriteType.MESH:
-            //     util = meshRenderUtil;
-            //     break;
+        case SpriteType.MESH:
+            util = meshRenderUtil;
+            break;
         default:
         }
 
@@ -84,4 +85,5 @@ export {
     sliced,
     barFilled,
     radialFilled,
+    meshRenderUtil,
 };

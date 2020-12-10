@@ -41,7 +41,7 @@ const vec3_temp = new Vec3();
  * mesh 组装器
  * 可通过 `UI.mesh` 获取该组装器。
  */
-export const mesh: IAssembler = {
+export const meshRenderUtil: IAssembler = {
     useModel: false,
     verticesCount: 4,
 
