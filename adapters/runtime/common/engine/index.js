@@ -23,7 +23,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 require('./sys.js');
-require('./windows.js');
+// require('./windows.js');
 require('./asset-manager.js');
 require('./AudioPlayer.js');
 require('./EditBox.js');

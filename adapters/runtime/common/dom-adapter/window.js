@@ -6,6 +6,7 @@ import Event from "./Event"
 import FontFace from "./FontFace"
 import FontFaceSet from "./FontFaceSet"
 import EventTarget from "./EventTarget"
+import HTMLElement from './HTMLElement'
 import HTMLAudioElement from "./HTMLAudioElement"
 import HTMLCanvasElement from "./HTMLCanvasElement"
 import HTMLImageElement from "./HTMLImageElement"
@@ -105,6 +106,7 @@ window.DeviceMotionEvent = DeviceMotionEvent;
 window.Event = Event;
 window.FontFace = FontFace;
 window.FontFaceSet = FontFaceSet;
+window.HTMLElement = HTMLElement;
 window.HTMLAudioElement = HTMLAudioElement;
 window.HTMLCanvasElement = HTMLCanvasElement;
 window.HTMLImageElement = HTMLImageElement;

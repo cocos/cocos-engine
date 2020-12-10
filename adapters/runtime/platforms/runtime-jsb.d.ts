@@ -31,6 +31,7 @@ declare module jsb {
     // Fs
     export function getFileSystemManager (): any;  // 补充
     export function downloadFile (option: any): void;  // 补充
+    export module fsUtils {}
 
     // System
     export const env: any;

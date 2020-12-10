@@ -2,6 +2,7 @@ import "./accelerometer"
 import "./input-touch"
 import "./opengl"
 import "./window-resize"
+import "./fs-utils"
 
 window.jsb = window.jsb || {};
 
