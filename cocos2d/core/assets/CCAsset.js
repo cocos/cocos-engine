@@ -292,7 +292,7 @@ cc.Asset = cc.Class({
      */
     addRef () {
         this._ref++;
-        cc.assetManager._releaseManager.removeFromDeleteQueue(this);
+        // cc.assetManager._releaseManager.removeFromDeleteQueue(this);
         return this;
     },
 

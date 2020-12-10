@@ -26,6 +26,7 @@ const dependUtil = require('./depend-util');
 const Cache = require('./cache');
 require('../assets/CCAsset');
 const { assets } = require('./shared');
+const { callInNextTick } = require('../platform/utils');
 
 function visitAsset (asset, deps) {
     // Skip assets generated programmatically or by user (e.g. label texture)
@@ -157,10 +158,6 @@ var releaseManager = {
         }
     },
 
-    removeFromDeleteQueue (asset) {
-        _toDelete.remove(asset._uuid);
-    },
-
     // do auto release
     _autoRelease (oldScene, newScene, persistNodes) { 
 
@@ -233,7 +230,7 @@ var releaseManager = {
             _toDelete.add(asset._uuid, asset);
             if (!eventListener) {
                 eventListener = true;
-                cc.director.once(cc.Director.EVENT_AFTER_DRAW, freeAssets);
+                callInNextTick(freeAssets);
             }
         }
     }
