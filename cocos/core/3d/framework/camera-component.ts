@@ -451,13 +451,6 @@ export class Camera extends Component {
         }
     }
 
-    set flows (val) {
-        if (this._camera) {
-            this._camera.flows = val;
-        }
-        this._flows = val;
-    }
-
     public onLoad () {
         this._createCamera();
     }

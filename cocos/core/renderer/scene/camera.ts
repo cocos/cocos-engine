@@ -30,7 +30,6 @@ import {
     lerp, Mat4, Rect, toRadian, Vec3, IVec4Like,
 } from '../../math';
 import { CAMERA_DEFAULT_MASK } from '../../pipeline/define';
-import { RenderView } from '../../pipeline';
 import { Node } from '../../scene-graph';
 import { RenderScene } from './render-scene';
 import { Device, Color } from '../../gfx';
@@ -129,6 +128,7 @@ const correctionMatrices: Mat4[] = [];
 export class Camera {
     public isWindowSize = true;
     public screenScale: number;
+    public window: RenderWindow | null = null;
 
     private _device: Device;
     private _scene: RenderScene | null = null;
@@ -155,7 +155,6 @@ export class Camera {
     private _frustum: Frustum = new Frustum();
     private _forward: Vec3 = new Vec3();
     private _position: Vec3 = new Vec3();
-    private _view: RenderView | null = null;
     private _visibility = CAMERA_DEFAULT_MASK;
     private _priority = 0;
     private _aperture: CameraAperture = CameraAperture.F16_0;
@@ -205,13 +204,6 @@ export class Camera {
         }
 
         this.updateExposure();
-        this._view = legacyCC.director.root.createView({
-            camera: this,
-            name: this._name,
-            priority: this._priority,
-            flows: info.flows,
-        });
-        legacyCC.director.root.attachCamera(this);
         this.changeTargetWindow(info.window);
 
         console.log(`Created Camera: ${this._name} ${CameraPool.get(handle,
@@ -219,10 +211,8 @@ export class Camera {
     }
 
     public destroy () {
-        legacyCC.director.root.detachCamera(this);
-        if (this._view) {
-            this._view.destroy();
-            this._view = null;
+        if (this.window) {
+            this.window.detachCamera(this);
         }
         this._name = null;
         if (this._poolHandle) {
@@ -237,18 +227,14 @@ export class Camera {
 
     public attachToScene (scene: RenderScene) {
         this._scene = scene;
+        this._enabled = true;
         CameraPool.set(this._poolHandle, CameraView.SCENE, scene.handle);
-        if (this._view) {
-            this._view.enable(true);
-        }
     }
 
     public detachFromScene () {
         this._scene = null;
+        this._enabled = false;
         CameraPool.set(this._poolHandle, CameraView.SCENE, 0 as unknown as SceneHandle);
-        if (this._view) {
-            this._view.enable(false);
-        }
     }
 
     public resize (width: number, height: number) {
@@ -290,7 +276,7 @@ export class Camera {
         if (this._isProjDirty || this._curTransform !== orientation) {
             this._curTransform = orientation;
             let projectionSignY = this._device.screenSpaceSignY;
-            if (this._view && this._view.window.hasOffScreenAttachments) { // when drawing offscreen...
+            if (this.window && this.window.hasOffScreenAttachments) { // when drawing offscreen...
                 projectionSignY *= this._device.UVSpaceSignY; // apply sign-Y correction
                 orientation = SurfaceTransform.IDENTITY; // no pre-rotation
             }
@@ -331,17 +317,10 @@ export class Camera {
 
     set enabled (val) {
         this._enabled = val;
-        if (this._view) {
-            this._view.enable(val);
-        }
     }
 
     get enabled () {
         return this._enabled;
-    }
-
-    get view (): RenderView {
-        return this._view!;
     }
 
     set orthoHeight (val) {
@@ -552,23 +531,17 @@ export class Camera {
 
     set visibility (vis) {
         this._visibility = vis;
-        if (this._view) {
-            this._view.visibility = vis;
-        }
     }
     get visibility () {
         return this._visibility;
     }
 
     get priority (): number {
-        return this._view ? this._view.priority : -1;
+        return this._priority;
     }
 
     set priority (val: number) {
         this._priority = val;
-        if (this._view) {
-            this._view.priority = this._priority;
-        }
     }
 
     set aperture (val: CameraAperture) {
@@ -625,12 +598,6 @@ export class Camera {
         return CameraPool.get(this._poolHandle, CameraView.EXPOSURE);
     }
 
-    set flows (val: string[]) {
-        if (this._view) {
-            this._view.setExecuteFlows(val);
-        }
-    }
-
     get clearFlag () : ClearFlag {
         return CameraPool.get(this._poolHandle, CameraView.CLEAR_FLAG);
     }
@@ -660,10 +627,14 @@ export class Camera {
     }
 
     public changeTargetWindow (window: RenderWindow | null = null) {
+        if (this.window) {
+            this.window.detachCamera(this);
+        }
         const win = window || legacyCC.director.root.mainWindow;
-        if (win && this._view) {
-            this._view.window = win;
+        if (win) {
+            win.attachCamera(this);
             this.resize(win.width, win.height);
+            this.window = win;
         }
     }
 

@@ -36,6 +36,7 @@ import { legacyCC } from '../global-exports';
 import { BindingMappingInfo, DescriptorType, Type, ShaderStageFlagBit,
     DescriptorSetLayoutBinding, Uniform, UniformBlock, UniformSampler } from '../gfx';
 import { Camera } from '../renderer/scene';
+import { DescriptorSetHandle, InputAssemblerHandle} from '../renderer/core/memory-pools';
 
 
 
@@ -71,6 +72,9 @@ export enum RenderPriority {
 export interface IRenderObject {
     model: Model;
     depth: number;
+    pass?: Pass;
+    ia?: InputAssemblerHandle;
+    ds?: DescriptorSetHandle;
 }
 
 /*
@@ -117,6 +121,7 @@ export const localDescriptorSetLayout: IDescriptorSetLayoutInfo = { bindings: []
  */
 export enum PipelineGlobalBindings {
     UBO_GLOBAL,
+    UBO_CAMERA,
     UBO_SHADOW,
 
     SAMPLER_SHADOWMAP,
@@ -163,19 +168,11 @@ bindingMappingInfo.flexibleSet = 1;
  * @zh 全局 UBO。
  */
 export class UBOGlobal {
-
     public static readonly TIME_OFFSET = 0;
     public static readonly SCREEN_SIZE_OFFSET = UBOGlobal.TIME_OFFSET + 4;
     public static readonly SCREEN_SCALE_OFFSET = UBOGlobal.SCREEN_SIZE_OFFSET + 4;
     public static readonly NATIVE_SIZE_OFFSET = UBOGlobal.SCREEN_SCALE_OFFSET + 4;
-    public static readonly MAT_VIEW_OFFSET = UBOGlobal.NATIVE_SIZE_OFFSET + 4;
-    public static readonly MAT_VIEW_INV_OFFSET = UBOGlobal.MAT_VIEW_OFFSET + 16;
-    public static readonly MAT_PROJ_OFFSET = UBOGlobal.MAT_VIEW_INV_OFFSET + 16;
-    public static readonly MAT_PROJ_INV_OFFSET = UBOGlobal.MAT_PROJ_OFFSET + 16;
-    public static readonly MAT_VIEW_PROJ_OFFSET = UBOGlobal.MAT_PROJ_INV_OFFSET + 16;
-    public static readonly MAT_VIEW_PROJ_INV_OFFSET = UBOGlobal.MAT_VIEW_PROJ_OFFSET + 16;
-    public static readonly CAMERA_POS_OFFSET = UBOGlobal.MAT_VIEW_PROJ_INV_OFFSET + 16;
-    public static readonly EXPOSURE_OFFSET = UBOGlobal.CAMERA_POS_OFFSET + 4;
+    public static readonly EXPOSURE_OFFSET = UBOGlobal.NATIVE_SIZE_OFFSET + 4;
     public static readonly MAIN_LIT_DIR_OFFSET = UBOGlobal.EXPOSURE_OFFSET + 4;
     public static readonly MAIN_LIT_COLOR_OFFSET = UBOGlobal.MAIN_LIT_DIR_OFFSET + 4;
     public static readonly AMBIENT_SKY_OFFSET = UBOGlobal.MAIN_LIT_COLOR_OFFSET + 4;
@@ -194,13 +191,6 @@ export class UBOGlobal {
         new Uniform('cc_screenSize', Type.FLOAT4, 1),
         new Uniform('cc_screenScale', Type.FLOAT4, 1),
         new Uniform('cc_nativeSize', Type.FLOAT4, 1),
-        new Uniform('cc_matView', Type.MAT4, 1),
-        new Uniform('cc_matViewInv', Type.MAT4, 1),
-        new Uniform('cc_matProj', Type.MAT4, 1),
-        new Uniform('cc_matProjInv', Type.MAT4, 1),
-        new Uniform('cc_matViewProj', Type.MAT4, 1),
-        new Uniform('cc_matViewProjInv', Type.MAT4, 1),
-        new Uniform('cc_cameraPos', Type.FLOAT4, 1),
         new Uniform('cc_exposure', Type.FLOAT4, 1),
         new Uniform('cc_mainLitDir', Type.FLOAT4, 1),
         new Uniform('cc_mainLitColor', Type.FLOAT4, 1),
@@ -213,6 +203,37 @@ export class UBOGlobal {
 }
 globalDescriptorSetLayout.layouts[UBOGlobal.NAME] = UBOGlobal.LAYOUT;
 globalDescriptorSetLayout.bindings[UBOGlobal.BINDING] = UBOGlobal.DESCRIPTOR;
+
+/**
+ * @en The global camera uniform buffer object
+ * @zh 全局相机 UBO。
+ */
+export class UBOCamera {
+    public static readonly MAT_VIEW_OFFSET = 0;
+    public static readonly MAT_VIEW_INV_OFFSET = UBOCamera.MAT_VIEW_OFFSET + 16;
+    public static readonly MAT_PROJ_OFFSET = UBOCamera.MAT_VIEW_INV_OFFSET + 16;
+    public static readonly MAT_PROJ_INV_OFFSET = UBOCamera.MAT_PROJ_OFFSET + 16;
+    public static readonly MAT_VIEW_PROJ_OFFSET = UBOCamera.MAT_PROJ_INV_OFFSET + 16;
+    public static readonly MAT_VIEW_PROJ_INV_OFFSET = UBOCamera.MAT_VIEW_PROJ_OFFSET + 16;
+    public static readonly CAMERA_POS_OFFSET = UBOCamera.MAT_VIEW_PROJ_INV_OFFSET + 16;
+    public static readonly COUNT = UBOCamera.CAMERA_POS_OFFSET + 4;
+    public static readonly SIZE = UBOCamera.COUNT * 4;
+
+    public static readonly NAME = 'CCCamera';
+    public static readonly BINDING = PipelineGlobalBindings.UBO_CAMERA;
+    public static readonly DESCRIPTOR = new DescriptorSetLayoutBinding(UBOCamera.BINDING, DescriptorType.UNIFORM_BUFFER, 1, ShaderStageFlagBit.ALL);
+    public static readonly LAYOUT = new UniformBlock(SetIndex.GLOBAL, UBOCamera.BINDING, UBOCamera.NAME, [
+        new Uniform('cc_matView', Type.MAT4, 1),
+        new Uniform('cc_matViewInv', Type.MAT4, 1),
+        new Uniform('cc_matProj', Type.MAT4, 1),
+        new Uniform('cc_matProjInv', Type.MAT4, 1),
+        new Uniform('cc_matViewProj', Type.MAT4, 1),
+        new Uniform('cc_matViewProjInv', Type.MAT4, 1),
+        new Uniform('cc_cameraPos', Type.FLOAT4, 1),
+    ], 1);
+}
+globalDescriptorSetLayout.layouts[UBOCamera.NAME] = UBOCamera.LAYOUT;
+globalDescriptorSetLayout.bindings[UBOCamera.BINDING] = UBOCamera.DESCRIPTOR;
 
 /**
  * @en The uniform buffer object for shadow
@@ -491,14 +512,3 @@ export const CAMERA_DEFAULT_MASK = Layers.makeMaskExclude([Layers.BitMask.UI_2D,
 export const CAMERA_EDITOR_MASK = Layers.makeMaskExclude([Layers.BitMask.UI_2D, Layers.BitMask.PROFILER]);
 
 export const MODEL_ALWAYS_MASK = Layers.Enum.ALL;
-
-/**
- * @en Render view information descriptor
- * @zh 渲染视图描述信息。
- */
-export interface IRenderViewInfo {
-    camera: Camera;
-    name: string;
-    priority: number;
-    flows?: string[];
-}

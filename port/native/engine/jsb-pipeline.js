@@ -203,40 +203,6 @@ nr.PipelineStateManager.getOrCreatePipelineState = function(device, pass, shader
 
 const RootProto = cc.Root.prototype;
 Object.assign(RootProto, {
-  createView(info) {
-    const view = new nr.RenderView();
-    let jsbInfo = {
-      cameraID: info.camera.handle,
-      name: info.name,
-      priority: info.priority,
-      flows: info.flows
-    };
-    view.initialize(new nr.RenderViewInfo(jsbInfo));
-    Object.defineProperty(view, 'window', {
-      get() {
-        return view.getWindow();
-      },
-      set(win) {
-        view.setWindow(win.handle);
-      },
-      enumerable: true,
-      configurable: true
-    });
-
-    view.cachedVisibility = 0;
-    Object.defineProperty(view, 'visibility', {
-      get() {
-        return view.cachedVisibility;
-      },
-      set(val) {
-        view.cachedVisibility = val;
-        view.setVisibility(val);
-      }
-    });
-
-    return view;
-  },
-
   createDefaultPipeline() {
     const pipeline = new nr.ForwardPipeline();
     const info = new nr.RenderPipelineInfo(0, []);

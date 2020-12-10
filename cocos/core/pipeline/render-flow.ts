@@ -29,9 +29,9 @@
  */
 import { ccclass, displayOrder, serializable, type } from 'cc.decorator';
 import { RenderStage } from './render-stage';
-import { RenderView } from './render-view';
 import { RenderPipeline } from './render-pipeline';
 import { legacyCC } from '../global-exports';
+import { Camera } from '../renderer/scene';
 
 /**
  * @en Render flow information descriptor
@@ -135,9 +135,9 @@ export abstract class RenderFlow {
      * @zh 渲染函数，对指定的渲染视图按顺序执行所有渲染阶段。
      * @param view Render view。
      */
-    public render (view: RenderView) {
+    public render (camera: Camera) {
         for (let i = 0, len = this._stages.length; i < len; i++) {
-            this._stages[i].render(view);
+            this._stages[i].render(camera);
         }
     }
 

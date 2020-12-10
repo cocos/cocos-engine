@@ -29,11 +29,11 @@
  */
 
 import { ccclass, displayOrder, serializable } from 'cc.decorator';
-import { RenderView } from './render-view';
 import { legacyCC } from '../global-exports';
 import { RenderPipeline } from './render-pipeline';
 import { RenderFlow } from './render-flow';
 import { RenderQueueDesc } from './pipeline-serialization';
+import { Camera } from '../renderer/scene';
 
 /**
  * @en The render stage information descriptor
@@ -138,7 +138,7 @@ export abstract class RenderStage {
      * @zh 渲染函数。
      * @param view The render view
      */
-    public abstract render (view: RenderView);
+    public abstract render (camera: Camera);
 }
 
 legacyCC.RenderStage = RenderStage;

@@ -38,11 +38,11 @@ import { RenderPass, LoadOp, StoreOp,
     DepthStencilAttachment, RenderPassInfo, TextureInfo, FramebufferInfo } from '../../gfx';
 import { RenderFlowTag } from '../pipeline-serialization';
 import { ForwardPipeline } from '../forward/forward-pipeline';
-import { RenderView } from '../render-view';
 import { ShadowType } from '../../renderer/scene/shadows';
 import { Light } from '../../renderer/scene/light';
 import { lightCollecting, shadowCollecting } from '../forward/scene-culling';
 import { Vec2 } from '../../math';
+import { Camera } from '../../renderer/scene';
 
 /**
  * @en Shadow map render flow
@@ -75,13 +75,14 @@ export class ShadowFlow extends RenderFlow {
         return true;
     }
 
-    public render (view: RenderView) {
+    public render (camera: Camera) {
         const pipeline = this._pipeline as ForwardPipeline;
         const shadowInfo = pipeline.shadows;
         if (!shadowInfo.enabled || shadowInfo.type !== ShadowType.ShadowMap) { return; }
 
-        const validLights = lightCollecting(view, shadowInfo.maxReceived);
-        shadowCollecting(pipeline, view);
+        pipeline.updateUBOs(camera);
+        const validLights = lightCollecting(camera, shadowInfo.maxReceived);
+        shadowCollecting(pipeline, camera);
 
         for (let l = 0; l < validLights.length; l++) {
             const light = validLights[l];
@@ -95,7 +96,7 @@ export class ShadowFlow extends RenderFlow {
             for (let i = 0; i < this._stages.length; i++) {
                 const shadowStage = this._stages[i] as ShadowStage;
                 shadowStage.setUsage(light, shadowFrameBuffer!);
-                shadowStage.render(view);
+                shadowStage.render(camera);
             }
         }
     }

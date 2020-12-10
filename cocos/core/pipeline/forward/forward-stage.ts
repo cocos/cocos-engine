@@ -38,7 +38,6 @@ import { SRGBToLinear } from '../pipeline-funcs';
 import { RenderBatchedQueue } from '../render-batched-queue';
 import { RenderInstancedQueue } from '../render-instanced-queue';
 import { IRenderStageInfo, RenderStage } from '../render-stage';
-import { RenderView } from '../render-view';
 import { ForwardStagePriority } from './enum';
 import { RenderAdditiveLightQueue } from '../render-additive-light-queue';
 import { InstancedBuffer } from '../instanced-buffer';
@@ -48,6 +47,8 @@ import { ForwardFlow } from './forward-flow';
 import { ForwardPipeline } from './forward-pipeline';
 import { RenderQueueDesc, RenderQueueSortMode } from '../pipeline-serialization';
 import { PlanarShadowQueue } from './planar-shadow-queue';
+import { UIPhase } from './ui-phase';
+import { Camera } from '../../renderer/scene';
 
 const colors: Color[] = [ new Color(0, 0, 0, 1) ];
 
@@ -89,11 +90,13 @@ export class ForwardStage extends RenderStage {
     private _phaseID = getPhaseID('default');
     private declare _additiveLightQueue: RenderAdditiveLightQueue;
     private declare _planarQueue: PlanarShadowQueue;
+    private declare _uiPhase: UIPhase;
 
     constructor () {
         super();
         this._batchedQueue = new RenderBatchedQueue();
         this._instancedQueue = new RenderInstancedQueue();
+        this._uiPhase = new UIPhase();
     }
 
     public initialize (info: IRenderStageInfo): boolean {
@@ -136,7 +139,7 @@ export class ForwardStage extends RenderStage {
     public destroy () {
     }
 
-    public render (view: RenderView) {
+    public render (camera: Camera) {
 
         this._instancedQueue.clear();
         this._batchedQueue.clear();
@@ -172,20 +175,20 @@ export class ForwardStage extends RenderStage {
                 }
             }
         }
+
         this._renderQueues.forEach(this.renderQueueSortFunc);
 
         const cmdBuff = pipeline.commandBuffers[0];
 
         this._instancedQueue.uploadBuffers(cmdBuff);
         this._batchedQueue.uploadBuffers(cmdBuff);
-        this._additiveLightQueue.gatherLightPasses(view, cmdBuff);
-        this._planarQueue.gatherShadowPasses(view, cmdBuff);
+        this._additiveLightQueue.gatherLightPasses(camera, cmdBuff);
+        this._planarQueue.gatherShadowPasses(camera, cmdBuff);
 
-        const camera = view.camera;
         const vp = camera.viewport;
         // render area is not oriented
-        const w = view.window.hasOnScreenAttachments && device.surfaceTransform % 2 ? camera.height : camera.width;
-        const h = view.window.hasOnScreenAttachments && device.surfaceTransform % 2 ? camera.width : camera.height;
+        const w = camera.window!.hasOnScreenAttachments && device.surfaceTransform % 2 ? camera.height : camera.width;
+        const h = camera.window!.hasOnScreenAttachments && device.surfaceTransform % 2 ? camera.width : camera.height;
         this._renderArea!.x = vp.x * w;
         this._renderArea!.y = vp.y * h;
         this._renderArea!.width = vp.width * w * pipeline.shadingScale;
@@ -207,7 +210,7 @@ export class ForwardStage extends RenderStage {
 
         colors[0].w = camera.clearColor.w;
 
-        const framebuffer = view.window.framebuffer;
+        const framebuffer = camera.window!.framebuffer;
         const renderPass = framebuffer.colorTextures[0] ? framebuffer.renderPass : pipeline.getRenderPass(camera.clearFlag);
 
         cmdBuff.beginRenderPass(renderPass, framebuffer, this._renderArea!,
@@ -221,6 +224,7 @@ export class ForwardStage extends RenderStage {
         this._additiveLightQueue.recordCommandBuffer(device, renderPass, cmdBuff);
         this._planarQueue.recordCommandBuffer(device, renderPass, cmdBuff);
         this._renderQueues[1].recordCommandBuffer(device, renderPass, cmdBuff);
+        this._uiPhase.recordCommandBuffer(device, renderPass, cmdBuff);
 
         cmdBuff.endRenderPass();
     }

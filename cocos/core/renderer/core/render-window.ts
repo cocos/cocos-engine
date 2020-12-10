@@ -31,6 +31,7 @@ import {
 import { RenderPass, Texture, Framebuffer, RenderPassInfo, Device, TextureInfo, FramebufferInfo } from '../../gfx';
 import { Root } from '../../root';
 import { RenderWindowHandle, RenderWindowPool, RenderWindowView, FramebufferPool, NULL_HANDLE } from './memory-pools';
+import { Camera } from '../../renderer/scene';
 
 export interface IRenderWindowInfo {
     title?: string;
@@ -95,6 +96,10 @@ export class RenderWindow {
         return this._poolHandle;
     }
 
+    get cameras () {
+        return this._cameras;
+    }
+
     /**
      * @private
      */
@@ -113,6 +118,7 @@ export class RenderWindow {
     protected _swapchainBufferIndices = 0;
     protected _shouldSyncSizeWithSwapchain = false;
     protected _poolHandle: RenderWindowHandle = NULL_HANDLE;
+    protected _cameras: Camera[] = [];
 
     private constructor (root: Root) {
     }
@@ -193,6 +199,7 @@ export class RenderWindow {
     }
 
     public destroy () {
+        this.clearCameras();
         if (this._depthStencilTexture) {
             this._depthStencilTexture.destroy();
             this._depthStencilTexture = null;
@@ -253,5 +260,54 @@ export class RenderWindow {
                 ));
             }
         }
+
+        for (const camera of this._cameras) {
+            if (camera.isWindowSize) {
+                camera.resize(width, height);
+            }
+        }
+    }
+
+    /**
+     * @zh
+     * 添加渲染相机
+     * @param camera 渲染相机
+     */
+    public attachCamera (camera: Camera) {
+        for (let i = 0; i < this._cameras.length; i++) {
+            if (this._cameras[i] === camera) {
+                return;
+            }
+        }
+        this._cameras.push(camera);
+        this.sortCameras();
+    }
+
+    /**
+     * @zh
+     * 移除渲染相机
+     * @param camera 相机
+     */
+    public detachCamera (camera: Camera) {
+        for (let i = 0; i < this._cameras.length; ++i) {
+            if (this._cameras[i] === camera) {
+                this._cameras.splice(i, 1);
+                return;
+            }
+        }
+    }
+
+    /**
+     * @zh
+     * 销毁全部渲染相机
+     */
+    public clearCameras () {
+        this._cameras.length = 0;
+    }
+
+    public sortCameras () {
+        this._cameras.sort((a: Camera, b: Camera) => {
+            return a.priority - b.priority;
+        });
     }
 }

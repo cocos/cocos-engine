@@ -33,24 +33,24 @@ import { RenderPipeline, IRenderPipelineInfo } from '../render-pipeline';
 import { ForwardFlow } from './forward-flow';
 import { RenderTextureConfig, MaterialConfig } from '../pipeline-serialization';
 import { ShadowFlow } from '../shadow/shadow-flow';
-import { IRenderObject, UBOGlobal, UBOShadow, UNIFORM_SHADOWMAP_BINDING, UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING } from '../define';
+import { IRenderObject, UBOGlobal, UBOShadow, UBOCamera, UNIFORM_SHADOWMAP_BINDING, UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING } from '../define';
 import { BufferUsageBit, MemoryUsageBit, ClearFlag, Filter, Address } from '../../gfx/define';
 import { ColorAttachment, DepthStencilAttachment, RenderPass, LoadOp, TextureLayout,
     RenderPassInfo, BufferInfo, Feature, Framebuffer } from '../../gfx';
 import { SKYBOX_FLAG } from '../../renderer/scene/camera';
 import { legacyCC } from '../../global-exports';
-import { RenderView } from '../render-view';
 import { Color, color, Mat4, Vec3, Vec4} from '../../math';
 import { Fog } from '../../renderer/scene/fog';
 import { Ambient } from '../../renderer/scene/ambient';
 import { Skybox } from '../../renderer/scene/skybox';
 import { Shadows, ShadowType } from '../../renderer/scene/shadows';
 import { sceneCulling, getShadowWorldMatrix, updatePlanarPROJ } from './scene-culling';
-import { UIFlow } from '../ui/ui-flow';
 import { Light } from '../../renderer/scene/light';
 import { genSamplerHash, samplerLib } from '../../renderer/core/sampler-lib';
 import { builtinResMgr } from '../../3d/builtin/init';
 import { Texture2D } from '../../assets/texture-2d';
+import { Camera } from '../../renderer/scene';
+import { UIDrawBatch } from '../../renderer/ui/ui-draw-batch';
 
 const matShadowView = new Mat4();
 const matShadowViewProj = new Mat4();
@@ -123,12 +123,14 @@ export class ForwardPipeline extends RenderPipeline {
      */
     public renderObjects: IRenderObject[] = [];
     public shadowObjects: IRenderObject[] = [];
+    public renderBatches: UIDrawBatch[] = [];
     public shadowFrameBufferMap: Map<Light, Framebuffer> = new Map();
     protected _isHDR: boolean = false;
     protected _shadingScale: number = 1.0;
     protected _fpScale: number = 1.0 / 1024.0;
     protected _renderPasses = new Map<ClearFlag, RenderPass>();
     protected _globalUBO = new Float32Array(UBOGlobal.COUNT);
+    protected _cameraUBO = new Float32Array(UBOCamera.COUNT);
     protected _shadowUBO = new Float32Array(UBOShadow.COUNT);
     protected _isGlobalBound: boolean = false;
 
@@ -143,11 +145,6 @@ export class ForwardPipeline extends RenderPipeline {
             const forwardFlow = new ForwardFlow();
             forwardFlow.initialize(ForwardFlow.initInfo);
             this._flows.push(forwardFlow);
-
-            const uiFlow = new UIFlow();
-            uiFlow.initialize(UIFlow.initInfo);
-            this._flows.push(uiFlow);
-            uiFlow.activate(this);
         }
 
         return true;
@@ -168,13 +165,13 @@ export class ForwardPipeline extends RenderPipeline {
         return true;
     }
 
-    public render (views: RenderView[]) {
+    public render (cameras: Camera[]) {
         this._commandBuffers[0].begin();
-        for (let i = 0; i < views.length; i++) {
-            const view = views[i];
-            sceneCulling(this, view);
-            for (let j = 0; j < view.flows.length; j++) {
-                view.flows[j].render(view);
+        for (let j = 0; j < this.flows.length; j++) {
+            for (let i = 0; i < cameras.length; i++) {
+                const camera = cameras[i];
+                sceneCulling(this, camera);
+                this.flows[j].render(camera);
             }
         }
         this._commandBuffers[0].end();
@@ -217,9 +214,9 @@ export class ForwardPipeline extends RenderPipeline {
      * @en Update all UBOs
      * @zh 更新全部 UBO。
      */
-    public updateUBOs (view: RenderView) {
-        this._updateUBO(view);
-        const mainLight = view.camera.scene!.mainLight;
+    public updateUBOs (camera: Camera) {
+        this._updateUBO(camera);
+        const mainLight = camera.scene!.mainLight;
         const device = this.device;
         const shadowInfo = this.shadows;
 
@@ -284,6 +281,7 @@ export class ForwardPipeline extends RenderPipeline {
 
         // update ubos
         this._commandBuffers[0].updateBuffer(this._descriptorSet.getBuffer(UBOGlobal.BINDING), this._globalUBO);
+        this._commandBuffers[0].updateBuffer(this._descriptorSet.getBuffer(UBOCamera.BINDING), this._cameraUBO);
         this._commandBuffers[0].updateBuffer(this._descriptorSet.getBuffer(UBOShadow.BINDING), this._shadowUBO);
     }
 
@@ -299,6 +297,14 @@ export class ForwardPipeline extends RenderPipeline {
             UBOGlobal.SIZE,
         ));
         this._descriptorSet.bindBuffer(UBOGlobal.BINDING, globalUBO);
+
+        const cameraUBO = device.createBuffer(new BufferInfo(
+            BufferUsageBit.UNIFORM | BufferUsageBit.TRANSFER_DST,
+            MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
+            UBOCamera.SIZE,
+            UBOCamera.SIZE,
+        ));
+        this._descriptorSet.bindBuffer(UBOCamera.BINDING, cameraUBO);
 
         const shadowUBO = device.createBuffer(new BufferInfo(
             BufferUsageBit.UNIFORM | BufferUsageBit.TRANSFER_DST,
@@ -317,12 +323,10 @@ export class ForwardPipeline extends RenderPipeline {
         return true;
     }
 
-    private _updateUBO (view: RenderView) {
+    private _updateUBO (camera: Camera) {
         this._descriptorSet.update();
 
         const root = legacyCC.director.root;
-
-        const camera = view.camera;
         const scene = camera.scene!;
 
         const mainLight = scene.mainLight;
@@ -353,19 +357,6 @@ export class ForwardPipeline extends RenderPipeline {
         fv[UBOGlobal.NATIVE_SIZE_OFFSET + 1] = shadingHeight;
         fv[UBOGlobal.NATIVE_SIZE_OFFSET + 2] = 1.0 / fv[UBOGlobal.NATIVE_SIZE_OFFSET];
         fv[UBOGlobal.NATIVE_SIZE_OFFSET + 3] = 1.0 / fv[UBOGlobal.NATIVE_SIZE_OFFSET + 1];
-
-        Mat4.toArray(fv, camera.matView, UBOGlobal.MAT_VIEW_OFFSET);
-        Mat4.toArray(fv, camera.node.worldMatrix, UBOGlobal.MAT_VIEW_INV_OFFSET);
-        Mat4.toArray(fv, camera.matProj, UBOGlobal.MAT_PROJ_OFFSET);
-        Mat4.toArray(fv, camera.matProjInv, UBOGlobal.MAT_PROJ_INV_OFFSET);
-        Mat4.toArray(fv, camera.matViewProj, UBOGlobal.MAT_VIEW_PROJ_OFFSET);
-        Mat4.toArray(fv, camera.matViewProjInv, UBOGlobal.MAT_VIEW_PROJ_INV_OFFSET);
-        Vec3.toArray(fv, camera.position, UBOGlobal.CAMERA_POS_OFFSET);
-        let projectionSignY = device.screenSpaceSignY;
-        if (view.window.hasOffScreenAttachments) {
-            projectionSignY *= device.UVSpaceSignY; // need flipping if drawing on render targets
-        }
-        fv[UBOGlobal.CAMERA_POS_OFFSET + 3] = projectionSignY;
 
         const exposure = camera.exposure;
         fv[UBOGlobal.EXPOSURE_OFFSET] = exposure;
@@ -413,12 +404,33 @@ export class ForwardPipeline extends RenderPipeline {
             fv[UBOGlobal.GLOBAL_FOG_ADD_OFFSET + 1] = fog.fogRange;
             fv[UBOGlobal.GLOBAL_FOG_ADD_OFFSET + 2] = fog.fogAtten;
         }
+
+        this.updateCameraUBO(camera);
+    }
+
+    public updateCameraUBO (camera: Camera) {
+        const device = this.device;
+        // update camera ubo
+        const cv = this._cameraUBO;
+        Mat4.toArray(cv, camera.matView, UBOCamera.MAT_VIEW_OFFSET);
+        Mat4.toArray(cv, camera.node.worldMatrix, UBOCamera.MAT_VIEW_INV_OFFSET);
+        Mat4.toArray(cv, camera.matProj, UBOCamera.MAT_PROJ_OFFSET);
+        Mat4.toArray(cv, camera.matProjInv, UBOCamera.MAT_PROJ_INV_OFFSET);
+        Mat4.toArray(cv, camera.matViewProj, UBOCamera.MAT_VIEW_PROJ_OFFSET);
+        Mat4.toArray(cv, camera.matViewProjInv, UBOCamera.MAT_VIEW_PROJ_INV_OFFSET);
+        Vec3.toArray(cv, camera.position, UBOCamera.CAMERA_POS_OFFSET);
+        let projectionSignY = device.screenSpaceSignY;
+        if (camera.window!.hasOffScreenAttachments) {
+            projectionSignY *= device.UVSpaceSignY; // need flipping if drawing on render targets
+        }
+        cv[UBOCamera.CAMERA_POS_OFFSET + 3] = projectionSignY;
     }
 
     private destroyUBOs () {
         if (this._descriptorSet) {
             this._descriptorSet.getBuffer(UBOGlobal.BINDING).destroy();
             this._descriptorSet.getBuffer(UBOShadow.BINDING).destroy();
+            this._descriptorSet.getBuffer(UBOCamera.BINDING).destroy();
             this._descriptorSet.getSampler(UNIFORM_SHADOWMAP_BINDING).destroy();
             this._descriptorSet.getSampler(UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING).destroy();
             this._descriptorSet.getTexture(UNIFORM_SHADOWMAP_BINDING).destroy();

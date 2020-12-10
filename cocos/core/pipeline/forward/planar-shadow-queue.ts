@@ -33,8 +33,8 @@ import { DSPool, ShaderPool, PassPool, PassView, ShadowsPool, ShadowsView } from
 import { RenderInstancedQueue } from '../render-instanced-queue';
 import { ForwardPipeline } from './forward-pipeline';
 import { ShadowType } from '../../renderer/scene/shadows';
-import { RenderView } from '../render-view';
 import { Layers } from '../../scene-graph/layers';
+import { Camera } from '../../renderer/scene';
 
 const _ab = new AABB();
 
@@ -47,11 +47,10 @@ export class PlanarShadowQueue {
         this._pipeline = pipeline;
     }
 
-    public gatherShadowPasses (view: RenderView, cmdBuff: CommandBuffer) {
+    public gatherShadowPasses (camera: Camera, cmdBuff: CommandBuffer) {
         const shadows = this._pipeline.shadows;
         if (!shadows.enabled || shadows.type !== ShadowType.Planar) { return; }
 
-        const camera = view.camera;
         const scene = camera.scene!;
         const frstm = camera.frustum;
         const shadowVisible =  (camera.visibility & Layers.BitMask.DEFAULT) !== 0;

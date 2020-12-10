@@ -30,7 +30,7 @@
 
 import { MeshBuffer } from '../../../ui';
 import { Material } from '../../assets/material';
-import { Texture, Sampler, DescriptorSetInfo } from '../../gfx';
+import { Texture, Sampler } from '../../gfx';
 import { Node } from '../../scene-graph';
 import { Camera } from '../scene/camera';
 import { Model } from '../scene/model';

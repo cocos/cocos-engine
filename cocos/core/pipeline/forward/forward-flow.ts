@@ -31,11 +31,11 @@
 import { ccclass } from 'cc.decorator';
 import { PIPELINE_FLOW_FORWARD } from '../define';
 import { IRenderFlowInfo, RenderFlow } from '../render-flow';
-import { RenderView } from '../render-view';
 import { ForwardFlowPriority } from './enum';
 import { ForwardStage } from './forward-stage';
 import { ForwardPipeline } from './forward-pipeline';
 import { RenderPipeline } from '../render-pipeline';
+import { Camera } from '../../renderer/scene';
 /**
  * @en The forward flow in forward render pipeline
  * @zh 前向渲染流程。
@@ -67,10 +67,10 @@ export class ForwardFlow extends RenderFlow {
         super.activate(pipeline);
     }
 
-    public render (view: RenderView) {
+    public render (camera: Camera) {
         const pipeline = this._pipeline as ForwardPipeline;
-        pipeline.updateUBOs(view);
-        super.render(view);
+        pipeline.updateUBOs(camera);
+        super.render(camera);
     }
 
     public destroy () {

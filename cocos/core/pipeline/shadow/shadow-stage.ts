@@ -31,13 +31,13 @@
 import { ccclass } from 'cc.decorator';
 import { Color, Rect, Framebuffer } from '../../gfx';
 import { IRenderStageInfo, RenderStage } from '../render-stage';
-import { RenderView } from '../render-view';
 import { ForwardStagePriority } from '../forward/enum';
 import { RenderShadowMapBatchedQueue } from '../render-shadow-map-batched-queue';
 import { ForwardPipeline } from '../forward/forward-pipeline';
 import { SetIndex } from '../define';
 import { Light } from '../../renderer/scene/light';
 import { ShadowFlow } from './shadow-flow';
+import { Camera } from '../../renderer/scene';
 
 const colors: Color[] = [ new Color(1, 1, 1, 1) ];
 
@@ -77,7 +77,7 @@ export class ShadowStage extends RenderStage {
         this._additiveShadowQueue.clear();
     }
 
-    public render (view: RenderView) {
+    public render (camera: Camera) {
         const pipeline = this._pipeline as ForwardPipeline;
         const shadowInfo = pipeline.shadows;
 
@@ -86,7 +86,6 @@ export class ShadowStage extends RenderStage {
         if (!this._light || !this._shadowFrameBuffer) { return; }
         this._additiveShadowQueue.gatherLightPasses(this._light, cmdBuff);
 
-        const camera = view.camera;
         const vp = camera.viewport;
         const shadowMapSize = shadowInfo.size;
         this._renderArea!.x = vp.x * shadowMapSize.x;

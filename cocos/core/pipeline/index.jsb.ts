@@ -32,7 +32,6 @@ nr.getPhaseID = getPhaseID;
 export const RenderPipeline = nr.RenderPipeline;
 export const RenderFlow = nr.RenderFlow;
 export const RenderStage = nr.RenderStage;
-export const RenderView = nr.RenderView;
 
 export const ForwardPipeline = nr.ForwardPipeline;
 export const ForwardFlow = nr.ForwardFlow;

@@ -198,7 +198,7 @@ export class Canvas extends Component {
 
     get visibility () {
         if (this._camera) {
-            return this._camera.view.visibility;
+            return this._camera.visibility;
         }
 
         return -1;
@@ -276,7 +276,7 @@ export class Canvas extends Component {
                 node: cameraNode,
                 projection: Camera.ProjectionType.ORTHO,
                 priority: this._getViewPriority(),
-                flows: ['UIFlow'],
+                flows: ['ForwardFlow'],
             });
 
             this._camera.fov = 45;
