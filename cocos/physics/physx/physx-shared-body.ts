@@ -3,7 +3,7 @@ import { PhysXRigidBody } from './physx-rigid-body';
 import { PhysXWorld } from './physx-world';
 import { PhysXShape } from './shapes/physx-shape';
 import { TransformBit } from '../../core/scene-graph/node-enum';
-import { getTempTransform, PX, USE_BYTEDANCE, _pxtrans, _trans } from './export-physx';
+import { copyPhysXTransform, getTempTransform, PX, setMassAndUpdateInertia } from './export-physx';
 import { VEC3_0 } from '../utils/util';
 
 export class PhysXSharedBody {
@@ -30,6 +30,7 @@ export class PhysXSharedBody {
 
     get isStatic (): boolean { return this._isStatic; }
     get isKinematic (): boolean { return this._isKinematic; }
+    get isDynamic (): boolean { return !this._isStatic && !this._isKinematic; }
     get wrappedBody (): PhysXRigidBody | null { return this._wrappedBody; }
     get impl (): any {
         this._initActor();
@@ -63,9 +64,9 @@ export class PhysXSharedBody {
 
             if (isRemove) {
                 this._index = -1;
-                this.wrappedWorld.removeActor(this);
-                this.clearVelocity();
                 this.clearForces();
+                this.clearVelocity();
+                this.wrappedWorld.removeActor(this);
             }
         }
     }
@@ -112,12 +113,8 @@ export class PhysXSharedBody {
             this._isStatic = true;
             this._impl = this.wrappedWorld.physics.createRigidStatic(t);
         }
-        if (this._impl) {
-            if (USE_BYTEDANCE) {
-                // PX.IMPL_PTR[this._impl.$$.ptr] = this;
-            } else {
-                PX.IMPL_PTR[this._impl.$$.ptr] = this;
-            }
+        if (this._impl && this._impl.$$) {
+            PX.IMPL_PTR[this._impl.$$.ptr] = this;
         }
     }
 
@@ -132,13 +129,7 @@ export class PhysXSharedBody {
             this.wrappedShapes.push(ws);
             if (!ws.collider.isTrigger) {
                 if (!Vec3.strictEquals(ws.collider.center, Vec3.ZERO)) this.updateCenterOfMass();
-                if (!this._isStatic) {
-                    if (USE_BYTEDANCE) {
-                        PX.RigidBodyExt.setMassAndUpdateInertia(this._impl, this._wrappedBody!.rigidBody.mass);
-                    } else {
-                        this.impl.setMassAndUpdateInertia(this._wrappedBody!.rigidBody.mass);
-                    }
-                }
+                if (this.isDynamic) setMassAndUpdateInertia(this._impl, this._wrappedBody!.rigidBody.mass);
             }
         }
     }
@@ -151,33 +142,19 @@ export class PhysXSharedBody {
             this.wrappedShapes.splice(index, 1);
             if (!ws.collider.isTrigger) {
                 if (!Vec3.strictEquals(ws.collider.center, Vec3.ZERO)) this.updateCenterOfMass();
-                if (!this._isStatic) {
-                    if (USE_BYTEDANCE) {
-                        PX.RigidBodyExt.setMassAndUpdateInertia(this._impl, this._wrappedBody!.rigidBody.mass);
-                    } else {
-                        this.impl.setMassAndUpdateInertia(this._wrappedBody!.rigidBody.mass);
-                    }
-                }
+                if (this.isDynamic) setMassAndUpdateInertia(this._impl, this._wrappedBody!.rigidBody.mass);
             }
         }
     }
 
     setMass (v: number): void {
         if (v <= 0) return;
-        if (this.isStatic) return;
-        if (USE_BYTEDANCE) {
-            PX.RigidBodyExt.setMassAndUpdateInertia(this._impl, v);
-        } else {
-            this.impl.setMassAndUpdateInertia(v);
-        }
+        if (!this.isDynamic) return;
+        setMassAndUpdateInertia(this._impl, v);
     }
 
     setRigidBodyFlag (v: any, b: boolean): void {
-        if (USE_BYTEDANCE) {
-            if (v === 1) {
-                this._isKinematic = b;
-            }
-        } else if (v === PX.PxRigidBodyFlag.eKINEMATIC) {
+        if (v === PX.RigidBodyFlag.eKINEMATIC) {
             this._isKinematic = b;
         }
         this.impl.setRigidBodyFlag(v, b);
@@ -192,25 +169,11 @@ export class PhysXSharedBody {
                     this.wrappedShapes[i].updateScale();
                 }
             }
-            const pos = _trans.translation;
-            const rot = _trans.rotation;
-            Vec3.copy(pos, node.worldPosition);
-            Quat.copy(rot, node.worldRotation);
-            if (USE_BYTEDANCE) {
-                _pxtrans.setPosition(pos);
-                _pxtrans.setQuaternion(rot);
-                if (this._isKinematic) {
-                    this._impl.setKinematicTarget(_pxtrans);
-                } else {
-                    this._impl.setGlobalPose(_pxtrans, true);
-                }
+            const trans = getTempTransform(node.worldPosition, node.worldRotation);
+            if (this._isKinematic) {
+                this._impl.setKinematicTarget(trans);
             } else {
-                // eslint-disable-next-line no-lonely-if
-                if (this._isKinematic) {
-                    this._impl.setKinematicTarget(_trans);
-                } else {
-                    this._impl.setGlobalPose(_trans, true);
-                }
+                this._impl.setGlobalPose(trans, true);
             }
         }
     }
@@ -218,16 +181,7 @@ export class PhysXSharedBody {
     syncPhysicsToScene (): void {
         if (this._isStatic || this._impl.isSleeping()) return;
         const transform = this._impl.getGlobalPose();
-        const node = this.node;
-        if (USE_BYTEDANCE) {
-            const pos = transform.getPosition();
-            const rot = transform.getQuaternion();
-            node.setWorldPosition(pos);
-            node.setWorldRotation(rot);
-        } else {
-            node.setWorldPosition(transform.translation);
-            node.setWorldRotation(transform.rotation);
-        }
+        copyPhysXTransform(this.node, transform);
     }
 
     setGroup (v: number): void {
@@ -284,15 +238,7 @@ export class PhysXSharedBody {
         for (let i = 0; i < this.wrappedShapes.length; i++) {
             center.subtract(this.wrappedShapes[i].collider.center);
         }
-        if (USE_BYTEDANCE) {
-            _pxtrans.setPosition(center);
-            _pxtrans.setQuaternion(Quat.IDENTITY);
-            this._impl.setCMassLocalPose(_pxtrans);
-        } else {
-            Vec3.copy(_trans.translation, center);
-            Quat.copy(_trans.rotation, Quat.IDENTITY);
-            this._impl.setCMassLocalPose(_trans);
-        }
+        this._impl.setCMassLocalPose(getTempTransform(center, Quat.IDENTITY));
     }
 
     clearForces (): void {
@@ -310,14 +256,10 @@ export class PhysXSharedBody {
     }
 
     destroy (): void {
-        if (this._impl) {
-            if (USE_BYTEDANCE) {
-                // this._impl.release();
-            } else {
-                PX.IMPL_PTR[this._impl.$$.ptr] = null;
-                delete PX.IMPL_PTR[this._impl.$$.ptr];
-                this._impl.release();
-            }
+        if (this._impl && this._impl.$$) {
+            PX.IMPL_PTR[this._impl.$$.ptr] = null;
+            delete PX.IMPL_PTR[this._impl.$$.ptr];
+            this._impl.release();
         }
         PhysXSharedBody.sharedBodesMap.delete(this.node.uuid);
     }

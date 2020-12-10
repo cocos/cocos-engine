@@ -2,7 +2,6 @@ import { IVec3Like, Quat, Vec3 } from '../../../core';
 import { HingeConstraint } from '../../framework';
 import { IHingeConstraint } from '../../spec/i-physics-constraint';
 import { getTempTransform, PX, _pxtrans, _trans } from '../export-physx';
-import { PhysXRigidBody } from '../physx-rigid-body';
 import { PhysXJoint } from './physx-joint';
 
 export class PhysXRevoluteJoint extends PhysXJoint implements IHingeConstraint {
@@ -41,12 +40,8 @@ export class PhysXRevoluteJoint extends PhysXJoint implements IHingeConstraint {
     }
 
     onComponentSet (): void {
-        if (this._rigidBody) {
-            const sb = (this._rigidBody.body as PhysXRigidBody).sharedBody;
-            const physics = sb.wrappedWorld.physics;
-            this._impl = PX.PxRevoluteJointCreate(physics, PhysXJoint.tempActor, _pxtrans, null, _pxtrans);
-            this.setPivotA(this.constraint.pivotA);
-            this.setPivotB(this.constraint.pivotB);
-        }
+        this._impl = PX.createRevoluteJoint(PhysXJoint.tempActor, _pxtrans, null, _pxtrans);
+        this.setPivotA(this.constraint.pivotA);
+        this.setPivotB(this.constraint.pivotB);
     }
 }

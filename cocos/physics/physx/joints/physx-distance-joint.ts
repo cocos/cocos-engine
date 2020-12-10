@@ -2,7 +2,6 @@ import { IVec3Like, Quat, Vec3 } from '../../../core';
 import { PointToPointConstraint } from '../../framework';
 import { IPointToPointConstraint } from '../../spec/i-physics-constraint';
 import { PX, _trans, getTempTransform, _pxtrans } from '../export-physx';
-import { PhysXRigidBody } from '../physx-rigid-body';
 import { PhysXJoint } from './physx-joint';
 
 export class PhysXDistanceJoint extends PhysXJoint implements IPointToPointConstraint {
@@ -37,12 +36,8 @@ export class PhysXDistanceJoint extends PhysXJoint implements IPointToPointConst
     }
 
     onComponentSet (): void {
-        if (this._rigidBody) {
-            const sb = (this._rigidBody.body as PhysXRigidBody).sharedBody;
-            const physics = sb.wrappedWorld.physics;
-            this._impl = PX.PxDistanceJointCreate(physics, PhysXJoint.tempActor, _pxtrans, null, _pxtrans);
-            this.setPivotA(this.constraint.pivotA);
-            this.setPivotB(this.constraint.pivotB);
-        }
+        this._impl = PX.createDistanceJoint(PhysXJoint.tempActor, _pxtrans, null, _pxtrans);
+        this.setPivotA(this.constraint.pivotA);
+        this.setPivotB(this.constraint.pivotB);
     }
 }

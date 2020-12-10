@@ -161,7 +161,7 @@ export class PhysXWorld implements IPhysicsWorld {
             const cooking = PX.createCooking(cp);
             const sceneDesc = physics.createSceneDesc();
             const simulation = new PX.SimulationEventCallback();
-            simulation.setOnContact((_header, pairs) => {
+            simulation.setOnContact((_header: any, pairs: any) => {
                 for (let i = 0; i < pairs.length; i++) {
                     const cp = pairs[i];
                     if (cp.getContactPairFlags() & 3) continue;
@@ -172,7 +172,7 @@ export class PhysXWorld implements IPhysicsWorld {
                     const shapeA = getWrapShape<PhysXShape>(shape0);
                     const shapeB = getWrapShape<PhysXShape>(shape1);
                     const events = cp.getPairFlags();
-                    const contacts = cp.getContactPoint();
+                    const contacts = cp.getContactsPoint();
                     if (events & 4) {
                         onCollision('onCollisionEnter', shapeA, shapeB, contacts.length, contacts);
                     } else if (events & 8) {
@@ -182,7 +182,7 @@ export class PhysXWorld implements IPhysicsWorld {
                     }
                 }
             });
-            simulation.setOnTrigger((pairs) => {
+            simulation.setOnTrigger((pairs: any) => {
                 for (let i = 0; i < pairs.length; i++) {
                     const cp = pairs[i];
                     if (cp.getFlags() & 3) continue;
@@ -224,6 +224,7 @@ export class PhysXWorld implements IPhysicsWorld {
             PX.PxInitExtensions(this.physics, null);
             const sceneDesc = PX.getDefaultSceneDesc(this.physics.getTolerancesScale(), 0, this.simulationCB);
             this.scene = this.physics.createScene(sceneDesc);
+            PX.physics = this.physics;
         }
     }
 

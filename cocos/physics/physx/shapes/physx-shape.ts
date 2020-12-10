@@ -53,10 +53,10 @@ export class PhysXShape implements IBaseShape {
         this.onComponentSet();
         this.setMaterial(this._collider.sharedMaterial);
         if (this._impl) {
-            if (USE_BYTEDANCE) {
-                PX.IMPL_PTR[this.id] = this;
-            } else {
+            if (this._impl.$$) {
                 PX.IMPL_PTR[this._impl.$$.ptr] = this;
+            } else {
+                PX.IMPL_PTR[this.id] = this;
             }
         }
     }
