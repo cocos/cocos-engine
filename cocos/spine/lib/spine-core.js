@@ -8153,7 +8153,6 @@ var spine;
         };
         SwirlEffect.prototype.end = function () {
         };
-        SwirlEffect.prototype.interpolation = new spine.PowOut(2);
         SwirlEffect.interpolation = new spine.PowOut(2);
         return SwirlEffect;
     }());
