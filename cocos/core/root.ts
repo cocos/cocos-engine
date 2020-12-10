@@ -420,6 +420,7 @@ export class Root {
                 }
                 this._pipeline.render(this._cameras);
             }
+            if (this._ui) this._ui.reset();
             this._device.present();
         }
     }
@@ -500,43 +501,6 @@ export class Root {
         this._scenes = [];
     }
 
-    /**
-     * @zh
-     * 添加渲染相机
-     * @param camera 渲染相机
-     */
-    // public attachCamera (camera: Camera) {
-    //     for (let i = 0; i < this._cameras.length; i++) {
-    //         if (this._cameras[i] === camera) {
-    //             return;
-    //         }
-    //     }
-    //     this._cameras.push(camera);
-    //     this.sortViews();
-    // }
-
-    /**
-     * @zh
-     * 移除渲染相机
-     * @param camera 相机
-     */
-    // public detachCamera (camera: Camera) {
-    //     for (let i = 0; i < this._cameras.length; ++i) {
-    //         if (this._cameras[i] === camera) {
-    //             this._cameras.splice(i, 1);
-    //             return;
-    //         }
-    //     }
-    // }
-
-    // /**
-    //  * @zh
-    //  * 销毁全部渲染相机
-    //  */
-    // public clearCameras () {
-    //     this._cameras.length = 0;
-    // }
-
     public createModel<T extends Model> (mClass: typeof Model): T {
         let p = this._modelPools.get(mClass);
         if (!p) {
@@ -564,15 +528,6 @@ export class Root {
     public createCamera (): Camera {
         return this._cameraPool!.alloc();
     }
-
-    // public destroyCamera (c: Camera) {
-    //     this._cameraPool!.free(c);
-    //     c.destroy();
-    //     if (c.scene) {
-    //         c.scene.removeCamera(c);
-    //     }
-    //     c.isWindowSize = true;
-    // }
 
     public createLight<T extends Light> (lClass: new () => T): T {
         let l = this._lightPools.get(lClass);
@@ -602,12 +557,6 @@ export class Root {
             }
         }
     }
-
-    // public sortViews () {
-    //     this._cameras.sort((a: Camera, b: Camera) => {
-    //         return a.view.priority - b.view.priority;
-    //     });
-    // }
 }
 
 legacyCC.Root = Root;

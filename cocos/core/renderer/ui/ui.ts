@@ -324,7 +324,7 @@ export class UI {
         }
 
         let batchPriority = 0;
-
+        this._scene.removeBatches();
         if (this._batches.length) {
             for (let i = 0; i < this._batches.length; ++i) {
                 const batch = this._batches.array[i];
@@ -360,6 +360,16 @@ export class UI {
                         }
                     }
                 }
+                
+                if (batch.camera) {
+                    const visibility = batch.camera.visibility
+                    batch.visFlags = visibility;
+                    if (this._canvasMaterials.get(visibility)!.get(batch.material!.hash) == null) {
+                        this._canvasMaterials.get(visibility)!.set(batch.material!.hash, 1);
+                    }
+                }
+                    
+                this._scene.addBatch(batch);
             }
         }
     }

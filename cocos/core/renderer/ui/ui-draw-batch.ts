@@ -36,6 +36,9 @@ import { Camera } from '../scene/camera';
 import { Model } from '../scene/model';
 import { UI } from './ui';
 import { InputAssemblerHandle, DescriptorSetHandle, NULL_HANDLE, DSPool } from '../core/memory-pools';
+import { Layers } from '../../scene-graph/layers';
+
+const UI_VIS_FLAG = Layers.Enum.NONE | Layers.Enum.UI_3D;
 
 export class UIDrawBatch {
 
@@ -49,7 +52,7 @@ export class UIDrawBatch {
     public hDescriptorSet: DescriptorSetHandle = NULL_HANDLE;
     public useLocalData: Node | null = null;
     public isStatic = false;
-
+    public visFlags: number = UI_VIS_FLAG;
     public textureHash: number = 0;
     public samplerHash: number = 0;
 
@@ -69,5 +72,6 @@ export class UIDrawBatch {
         this.model = null;
         this.isStatic = false;
         this.useLocalData = null;
+        this.visFlags = UI_VIS_FLAG;
     }
 }

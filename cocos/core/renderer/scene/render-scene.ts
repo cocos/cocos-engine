@@ -40,6 +40,7 @@ import { PREVIEW } from 'internal:constants';
 import { TransformBit } from '../../scene-graph/node-enum';
 import { legacyCC } from '../../global-exports';
 import { ScenePool, SceneView, ModelArrayPool, ModelArrayHandle, SceneHandle, NULL_HANDLE, freeHandleArray, ModelPool,LightArrayHandle, LightArrayPool } from '../core/memory-pools';
+import { UIDrawBatch } from '../ui/ui-draw-batch';
 
 export interface IRenderSceneInfo {
     name: string;
@@ -122,6 +123,10 @@ export class RenderScene {
         return this._scenePoolHandle;
     }
 
+    get batches () {
+        return this._batches;
+    }
+
     public static registerCreateFunc (root: Root) {
         root._createSceneFun = (_root: Root): RenderScene => new RenderScene(_root);
     }
@@ -130,6 +135,7 @@ export class RenderScene {
     private _name: string = '';
     private _cameras: Camera[] = [];
     private _models: Model[] = [];
+    private _batches: UIDrawBatch[] = [];
     private _directionalLights: DirectionalLight[] = [];
     private _sphereLights: SphereLight[] = [];
     private _spotLights: SpotLight[] = [];
@@ -333,6 +339,23 @@ export class RenderScene {
         }
         this._models.length = 0;
         ModelArrayPool.clear(this._modelArrayHandle);
+    }
+
+    public addBatch (batch: UIDrawBatch) {
+        this._batches.push(batch);
+    }
+
+    public removeBatch (batch: UIDrawBatch) {
+        for (let i = 0; i < this._batches.length; ++i) {
+            if (this._batches[i] === batch) {
+                this._batches.splice(i, 1);
+                return;
+            }
+        }
+    }
+
+    public removeBatches () {
+        this._batches.length = 0;
     }
 
     public onGlobalPipelineStateChanged () {

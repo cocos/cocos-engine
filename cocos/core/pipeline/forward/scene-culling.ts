@@ -279,14 +279,4 @@ export function sceneCulling (pipeline: ForwardPipeline, camera: Camera) {
             }
         }
     }
-
-    const batches = legacyCC.director.root.ui.batches;
-    const vis = camera.visibility & Layers.BitMask.UI_2D;
-    if (vis) {
-        for (let i = 0; i < batches.length; i++) {
-            const batch = batches[i];
-            renderObjects.push(getRenderBatch(batch, camera));
-        }
-        legacyCC.director.root.ui.reset();
-    }
 }
