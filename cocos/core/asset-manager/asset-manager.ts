@@ -570,9 +570,7 @@ export class AssetManager {
         const { options: opts, onComplete: onComp } = parseParameters(options, undefined, onComplete);
 
         if (!opts.reloadAsset && this.assets.has(url)) {
-            const asset = this.assets.get(url);
-            releaseManager.removeFromDeleteQueue(asset!);
-            return asyncify(onComp)(null, asset);
+            return asyncify(onComp)(null, this.assets.get(url));
         }
 
         opts.__isNative__ = true;
