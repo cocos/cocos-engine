@@ -18,7 +18,9 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-var fs = jsb.getFileSystemManager ? jsb.getFileSystemManager() : null;
+window.jsb = window.jsb || {};
+let _rt = loadRuntime();
+var fs = _rt.getFileSystemManager ? _rt.getFileSystemManager() : null;
 
 var fsUtils = {
 

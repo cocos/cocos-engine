@@ -18,7 +18,8 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-var fs = jsb.getFileSystemManager ? jsb.getFileSystemManager() : null;
+window.jsb = window.jsb || {};
+var fs = wuji.getFileSystemManager ? wuji.getFileSystemManager() : null;
 
 var fsUtils = {
 
@@ -273,4 +274,4 @@ var fsUtils = {
     },
 };
 
-cc.assetManager.fsUtils = window.fsUtils = module.exports = fsUtils;
+jsb.fsUtils = window.fsUtils = module.exports = fsUtils;
