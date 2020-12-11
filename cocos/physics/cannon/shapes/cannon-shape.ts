@@ -47,10 +47,9 @@ const cannonQuat_0 = new CANNON.Quaternion();
 const cannonVec3_0 = new CANNON.Vec3();
 const cannonVec3_1 = new CANNON.Vec3();
 export class CannonShape implements IBaseShape {
-
     static readonly idToMaterial = {};
 
-    get impl () { return this._shape!; }
+    get impl () { return this._shape; }
 
     get collider () { return this._collider; }
 
@@ -63,15 +62,17 @@ export class CannonShape implements IBaseShape {
 
     setMaterial (mat: PhysicsMaterial | null) {
         if (mat == null) {
-            (this._shape!.material as unknown) = null;
+            (this._shape.material as unknown) = null;
         } else {
             if (CannonShape.idToMaterial[mat._uuid] == null) {
                 CannonShape.idToMaterial[mat._uuid] = new CANNON.Material(mat._uuid);
             }
 
             this._shape.material = CannonShape.idToMaterial[mat._uuid];
-            this._shape.material.friction = mat.friction;
-            this._shape.material.restitution = mat.restitution;
+            const smat = this._shape.material;
+            smat.friction = mat.friction;
+            smat.restitution = mat.restitution;
+            (smat as any).correctInelastic = smat.restitution === 0 ? 3 : 0;
         }
     }
 
@@ -92,8 +93,7 @@ export class CannonShape implements IBaseShape {
     setAttachedBody (v: RigidBody | null) {
         if (v) {
             if (this._sharedBody) {
-                if (this._sharedBody.wrappedBody == v.body) return;
-
+                if (this._sharedBody.wrappedBody === v.body) return;
                 this._sharedBody.reference = false;
             }
 
@@ -111,7 +111,6 @@ export class CannonShape implements IBaseShape {
 
     getAABB (v: AABB) {
         Quat.copy(cannonQuat_0, this._collider.node.worldRotation);
-        // TODO: typing
         (this._shape as any).calculateWorldAABB(CANNON.Vec3.ZERO, cannonQuat_0, cannonVec3_0, cannonVec3_1);
         Vec3.subtract(v.halfExtents, cannonVec3_1, cannonVec3_0);
         Vec3.multiplyScalar(v.halfExtents, v.halfExtents, 0.5);
@@ -127,7 +126,7 @@ export class CannonShape implements IBaseShape {
     protected _shape!: CANNON.Shape;
     protected _offset = new CANNON.Vec3();
     protected _orient = new CANNON.Quaternion();
-    protected _index: number = -1;
+    protected _index = -1;
     protected _sharedBody!: CannonSharedBody;
     protected get _body (): CANNON.Body { return this._sharedBody.body; }
     protected onTriggerListener = this._onTrigger.bind(this);
@@ -167,7 +166,7 @@ export class CannonShape implements IBaseShape {
     onDestroy () {
         this._sharedBody.reference = false;
         this._shape.removeEventListener('cc-trigger', this.onTriggerListener);
-        delete CANNON.World['idToShapeMap'][this._shape.id];
+        delete (CANNON.World as any).idToShapeMap[this._shape.id];
         (this._sharedBody as any) = null;
         setWrap(this._shape, null);
         (this._offset as any) = null;
@@ -222,7 +221,7 @@ export class CannonShape implements IBaseShape {
     /**
      * change scale will recalculate center & size \
      * size handle by child class
-     * @param scale 
+     * @param scale
      */
     setScale (scale: IVec3Like) {
         this._setCenter(this._collider.center);

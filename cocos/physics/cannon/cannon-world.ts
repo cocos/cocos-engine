@@ -90,7 +90,7 @@ export class CannonWorld implements IPhysicsWorld {
     }
 
     step (deltaTime: number, timeSinceLastCalled?: number, maxSubStep?: number) {
-        if (this.bodies.length == 0) return;
+        if (this.bodies.length === 0) return;
         this._world.step(deltaTime, timeSinceLastCalled, maxSubStep);
 
         // sync physics to scene
