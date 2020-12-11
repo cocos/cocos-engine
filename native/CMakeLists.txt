@@ -1253,7 +1253,7 @@ if(APPLE)
         ${CWD}/cocos/platform/ios
     )
     find_library(ICONV_LIBRARY iconv)
-    find_library(AUDIOTOOLBOX_LIBRARY AudioToolBox)
+    find_library(AUDIOTOOLBOX_LIBRARY AudioToolbox)
     find_library(FOUNDATION_LIBRARY Foundation)
     find_library(OPENAL_LIBRARY OpenAL)
     find_library(GAMECONTROLLER_LIBRARY GameController)
