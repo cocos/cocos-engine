@@ -35,8 +35,8 @@ import { IPhysicsWorld, IRaycastOptions } from '../spec/i-physics-world';
 import { PhysicMaterial, PhysicsRayResult } from '../framework';
 import { IVec3Like } from '../../core/math/type-define';
 import { CannonRigidBody } from './cannon-rigid-body';
-export class CannonWorld implements IPhysicsWorld {
 
+export class CannonWorld implements IPhysicsWorld {
     get impl () {
         return this._world;
     }
@@ -76,7 +76,6 @@ export class CannonWorld implements IPhysicsWorld {
         this._world.defaultContactMaterial.frictionEquationStiffness = 1000000;
         this._world.defaultContactMaterial.contactEquationRelaxation = 3;
         this._world.defaultContactMaterial.frictionEquationRelaxation = 3;
-
     }
 
     emitEvents (): void {
@@ -118,7 +117,7 @@ export class CannonWorld implements IPhysicsWorld {
             fillRaycastResult(r, result);
             results.push(r);
         });
-        return hit
+        return hit;
     }
 
     getSharedBody (node: Node, wrappedBody?: CannonRigidBody): CannonSharedBody {
@@ -179,8 +178,8 @@ function setupFromAndTo (worldRay: Ray, distance: number) {
 }
 
 const raycastOpt: CANNON.IRaycastOptions = {
-    'checkCollisionResponse': false,
-    'collisionFilterGroup': -1,
-    'collisionFilterMask': -1,
-    'skipBackFaces': true
-}
+    checkCollisionResponse: false,
+    collisionFilterGroup: -1,
+    collisionFilterMask: -1,
+    skipBackfaces: true,
+} as any;
