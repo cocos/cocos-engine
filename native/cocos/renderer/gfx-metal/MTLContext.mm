@@ -28,9 +28,6 @@ CCMTLContext::CCMTLContext(Device *device)
 : Context(device) {
 }
 
-CCMTLContext::~CCMTLContext() {
-}
-
 bool CCMTLContext::initialize(const ContextInfo &info) {
     _vsyncMode = info.vsyncMode;
     _windowHandle = info.windowHandle;

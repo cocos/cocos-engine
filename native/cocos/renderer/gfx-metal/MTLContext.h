@@ -6,7 +6,7 @@ namespace gfx {
 class CCMTLContext : public Context {
 public:
     CCMTLContext(Device *device);
-    ~CCMTLContext();
+    ~CCMTLContext() = default;
 
     bool initialize(const ContextInfo &info) override;
     void destroy() override{};

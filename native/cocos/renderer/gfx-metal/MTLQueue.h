@@ -7,7 +7,7 @@ class CCMTLQueue : public Queue {
 
 public:
     CCMTLQueue(Device *device);
-    ~CCMTLQueue();
+    ~CCMTLQueue() = default;
 
     virtual bool initialize(const QueueInfo &info) override;
     virtual void destroy() override;

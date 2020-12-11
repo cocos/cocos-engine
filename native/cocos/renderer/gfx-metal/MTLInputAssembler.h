@@ -11,7 +11,7 @@ class CCMTLInputAssembler : public InputAssembler {
 
 public:
     CCMTLInputAssembler(Device *device);
-    ~CCMTLInputAssembler();
+    ~CCMTLInputAssembler() = default;
 
     virtual bool initialize(const InputAssemblerInfo &info) override;
     virtual void destroy() override;

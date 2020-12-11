@@ -31,8 +31,6 @@ CCMTLCommandBuffer::CCMTLCommandBuffer(Device *device)
     _indirectDrawSuppotred = _mtlDevice->isIndirectDrawSupported();
 }
 
-CCMTLCommandBuffer::~CCMTLCommandBuffer() { destroy(); }
-
 bool CCMTLCommandBuffer::initialize(const CommandBufferInfo &info) {
     _type = info.type;
     _queue = info.queue;

@@ -9,7 +9,7 @@ class CCMTLGPUShader;
 class CCMTLShader : public Shader {
 public:
     CCMTLShader(Device *device);
-    ~CCMTLShader();
+    ~CCMTLShader() = default;
 
     virtual bool initialize(const ShaderInfo &info) override;
     virtual void destroy() override;

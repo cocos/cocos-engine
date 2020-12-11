@@ -5,7 +5,7 @@ class CCMTLGPUDescriptorSetLayout;
 class CCMTLDescriptorSetLayout : public DescriptorSetLayout {
 public:
     CCMTLDescriptorSetLayout(Device *device);
-    virtual ~CCMTLDescriptorSetLayout();
+    virtual ~CCMTLDescriptorSetLayout() = default;
 
     virtual bool initialize(const DescriptorSetLayoutInfo &info) override;
     virtual void destroy() override;

@@ -17,7 +17,6 @@ namespace cc {
 namespace gfx {
 
 CCMTLPipelineState::CCMTLPipelineState(Device *device) : PipelineState(device) {}
-CCMTLPipelineState::~CCMTLPipelineState() { destroy(); }
 
 bool CCMTLPipelineState::initialize(const PipelineStateInfo &info) {
     _primitive = info.primitive;

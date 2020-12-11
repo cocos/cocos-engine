@@ -12,7 +12,7 @@ class TextureView;
 class CCMTLRenderPass : public RenderPass {
 public:
     CCMTLRenderPass(Device *device);
-    ~CCMTLRenderPass();
+    ~CCMTLRenderPass() = default;
 
     virtual bool initialize(const RenderPassInfo &info) override;
     virtual void destroy() override;

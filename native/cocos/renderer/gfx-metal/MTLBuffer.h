@@ -13,7 +13,7 @@ class CCMTLRenderCommandEncoder;
 class CCMTLBuffer : public Buffer {
 public:
     CCMTLBuffer(Device *device);
-    ~CCMTLBuffer();
+    ~CCMTLBuffer() = default;
 
     virtual bool initialize(const BufferInfo &info) override;
     virtual bool initialize(const BufferViewInfo &info) override;

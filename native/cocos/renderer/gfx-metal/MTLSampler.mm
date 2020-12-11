@@ -10,7 +10,6 @@ namespace cc {
 namespace gfx {
 
 CCMTLSampler::CCMTLSampler(Device *device) : Sampler(device) {}
-CCMTLSampler::~CCMTLSampler() { destroy(); }
 
 bool CCMTLSampler::initialize(const SamplerInfo &info) {
     _minFilter = info.minFilter;

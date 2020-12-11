@@ -11,8 +11,7 @@ public:
         _semaphore = dispatch_semaphore_create(initiaValue);
     }
     
-    ~CCMTLSemaphore() {
-    }
+    ~CCMTLSemaphore() = default;
     
     CCMTLSemaphore(const CCMTLSemaphore &) = delete;
     CCMTLSemaphore(CCMTLSemaphore &&) = delete;

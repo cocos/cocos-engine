@@ -8,7 +8,7 @@ namespace gfx {
 class CCMTLTexture : public Texture {
 public:
     CCMTLTexture(Device *device);
-    ~CCMTLTexture();
+    ~CCMTLTexture() = default;
 
     virtual bool initialize(const TextureInfo &info) override;
     virtual bool initialize(const TextureViewInfo &info) override;

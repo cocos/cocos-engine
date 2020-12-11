@@ -11,9 +11,6 @@ namespace cc {
 namespace gfx {
 CCMTLDescriptorSet::CCMTLDescriptorSet(Device *device) : DescriptorSet(device) {
 }
-CCMTLDescriptorSet::~CCMTLDescriptorSet() {
-    destroy();
-}
 
 bool CCMTLDescriptorSet::initialize(const DescriptorSetInfo &info) {
     _layout = info.layout;

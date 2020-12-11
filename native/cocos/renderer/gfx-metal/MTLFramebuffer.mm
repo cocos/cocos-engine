@@ -8,7 +8,6 @@ namespace cc {
 namespace gfx {
 
 CCMTLFramebuffer::CCMTLFramebuffer(Device *device) : Framebuffer(device) {}
-CCMTLFramebuffer::~CCMTLFramebuffer() { destroy(); }
 
 bool CCMTLFramebuffer::initialize(const FramebufferInfo &info) {
     _renderPass = info.renderPass;

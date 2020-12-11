@@ -14,10 +14,6 @@ CCMTLBuffer::CCMTLBuffer(Device *device) : Buffer(device) {
     _mtlDevice = id<MTLDevice>(((CCMTLDevice *)_device)->getMTLDevice());
 }
 
-CCMTLBuffer::~CCMTLBuffer() {
-    destroy();
-}
-
 bool CCMTLBuffer::initialize(const BufferInfo &info) {
     _usage = info.usage;
     _memUsage = info.memUsage;

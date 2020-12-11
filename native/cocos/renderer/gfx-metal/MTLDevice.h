@@ -12,7 +12,7 @@ class CCMTLSemaphore;
 class CCMTLDevice : public Device {
 public:
     CCMTLDevice();
-    ~CCMTLDevice();
+    ~CCMTLDevice() = default;
 
     virtual bool initialize(const DeviceInfo &info) override;
     virtual void destroy() override;

@@ -8,7 +8,6 @@ namespace cc {
 namespace gfx {
 
 CCMTLTexture::CCMTLTexture(Device *device) : Texture(device) {}
-CCMTLTexture::~CCMTLTexture() { destroy(); }
 
 bool CCMTLTexture::initialize(const TextureInfo &info) {
     _type = info.type;

@@ -8,7 +8,7 @@ namespace gfx {
 class CCMTLSampler : public Sampler {
 public:
     CCMTLSampler(Device *device);
-    ~CCMTLSampler();
+    ~CCMTLSampler() = default;
 
     bool initialize(const SamplerInfo &info) override;
     void destroy() override;

@@ -8,9 +8,6 @@ namespace gfx {
 
 CCMTLPipelineLayout::CCMTLPipelineLayout(Device *device) : PipelineLayout(device) {
 }
-CCMTLPipelineLayout::~CCMTLPipelineLayout() {
-    destroy();
-}
 
 bool CCMTLPipelineLayout::initialize(const PipelineLayoutInfo &info) {
     _setLayouts = info.setLayouts;

@@ -9,10 +9,6 @@ CCMTLQueue::CCMTLQueue(Device *device)
 : Queue(device) {
 }
 
-CCMTLQueue::~CCMTLQueue() {
-    destroy();
-}
-
 bool CCMTLQueue::initialize(const QueueInfo &info) {
     _type = info.type;
 

@@ -23,7 +23,7 @@ class CCMTLCommandBuffer : public CommandBuffer {
 
 public:
     CCMTLCommandBuffer(Device *device);
-    ~CCMTLCommandBuffer();
+    ~CCMTLCommandBuffer() = default;
 
     virtual bool initialize(const CommandBufferInfo &info) override;
     virtual void destroy() override;

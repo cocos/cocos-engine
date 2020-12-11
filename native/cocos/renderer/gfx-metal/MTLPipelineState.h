@@ -12,7 +12,7 @@ namespace gfx {
 class CCMTLPipelineState : public PipelineState {
 public:
     CCMTLPipelineState(Device *device);
-    virtual ~CCMTLPipelineState();
+    virtual ~CCMTLPipelineState() = default;
 
     virtual bool initialize(const PipelineStateInfo &info) override;
     virtual void destroy() override;

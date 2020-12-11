@@ -8,7 +8,6 @@ namespace cc {
 namespace gfx {
 
 CCMTLRenderPass::CCMTLRenderPass(Device *device) : RenderPass(device) {}
-CCMTLRenderPass::~CCMTLRenderPass() { destroy(); }
 
 bool CCMTLRenderPass::initialize(const RenderPassInfo &info) {
     _colorAttachments = info.colorAttachments;

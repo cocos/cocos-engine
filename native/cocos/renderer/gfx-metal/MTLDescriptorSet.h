@@ -6,7 +6,7 @@ class CCMTLGPUDescriptorSet;
 class CCMTLDescriptorSet : public DescriptorSet {
 public:
     CCMTLDescriptorSet(Device *device);
-    ~CCMTLDescriptorSet();
+    ~CCMTLDescriptorSet() = default;
 
     virtual bool initialize(const DescriptorSetInfo &info) override;
     virtual void destroy() override;

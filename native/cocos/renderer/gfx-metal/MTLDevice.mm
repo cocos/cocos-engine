@@ -33,9 +33,6 @@ CCMTLDevice::CCMTLDevice() {
     _UVSpaceSignY = 1.0f;
 }
 
-CCMTLDevice::~CCMTLDevice() {
-}
-
 bool CCMTLDevice::initialize(const DeviceInfo &info) {
     _API = API::METAL;
     _deviceName = "Metal";

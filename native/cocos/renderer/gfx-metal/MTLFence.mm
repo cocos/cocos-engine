@@ -10,9 +10,6 @@ CCMTLFence::CCMTLFence(Device *device)
 : Fence(device) {
 }
 
-CCMTLFence::~CCMTLFence() {
-}
-
 bool CCMTLFence::initialize(const FenceInfo &info) {
     return true;
 }

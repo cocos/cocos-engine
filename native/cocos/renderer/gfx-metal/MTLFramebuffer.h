@@ -6,7 +6,7 @@ namespace gfx {
 class CCMTLFramebuffer : public Framebuffer {
 public:
     CCMTLFramebuffer(Device *device);
-    ~CCMTLFramebuffer();
+    ~CCMTLFramebuffer() = default;
 
     virtual bool initialize(const FramebufferInfo &info) override;
     virtual void destroy() override;

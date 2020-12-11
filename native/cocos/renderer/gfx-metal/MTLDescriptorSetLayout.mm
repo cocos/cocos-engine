@@ -9,10 +9,6 @@ namespace gfx {
 CCMTLDescriptorSetLayout::CCMTLDescriptorSetLayout(Device *device) : DescriptorSetLayout(device) {
 }
 
-CCMTLDescriptorSetLayout::~CCMTLDescriptorSetLayout() {
-    destroy();
-}
-
 bool CCMTLDescriptorSetLayout::initialize(const DescriptorSetLayoutInfo &info) {
     _bindings = info.bindings;
     const auto bindingCount = _bindings.size();

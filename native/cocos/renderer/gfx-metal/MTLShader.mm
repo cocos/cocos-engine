@@ -10,7 +10,6 @@ namespace cc {
 namespace gfx {
 
 CCMTLShader::CCMTLShader(Device *device) : Shader(device) {}
-CCMTLShader::~CCMTLShader() { destroy(); }
 
 bool CCMTLShader::initialize(const ShaderInfo &info) {
     _name = info.name;
