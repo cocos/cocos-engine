@@ -952,6 +952,7 @@ const cameraViewDataType: BufferDataTypeManifest<typeof CameraView> = {
     [CameraView.CLEAR_FLAG]: BufferDataType.UINT32,
     [CameraView.CLEAR_DEPTH]: BufferDataType.FLOAT32,
     [CameraView.CLEAR_STENCIL]: BufferDataType.UINT32,
+    [CameraView.VISIBILITY]: BufferDataType.UINT32,
     [CameraView.NODE]: BufferDataType.UINT32,
     [CameraView.SCENE]: BufferDataType.UINT32,
     [CameraView.FRUSTUM]: BufferDataType.UINT32,

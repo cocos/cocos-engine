@@ -154,7 +154,6 @@ export class Camera {
     private _frustum: Frustum = new Frustum();
     private _forward: Vec3 = new Vec3();
     private _position: Vec3 = new Vec3();
-    private _visibility = CAMERA_DEFAULT_MASK;
     private _priority = 0;
     private _aperture: CameraAperture = CameraAperture.F16_0;
     private _apertureValue: number;
@@ -197,6 +196,7 @@ export class Camera {
         CameraPool.set(handle, CameraView.CLEAR_FLAG, ClearFlag.NONE);
         CameraPool.set(handle, CameraView.CLEAR_DEPTH, 1.0);
         CameraPool.set(handle, CameraView.NODE, this._node.handle);
+        CameraPool.set(handle, CameraView.VISIBILITY, CAMERA_DEFAULT_MASK);
         if (this._scene) CameraPool.set(handle, CameraView.SCENE, this._scene.handle);
         if (JSB) {
             this._frustumHandle = FrustumPool.alloc();
