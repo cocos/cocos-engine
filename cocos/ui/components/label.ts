@@ -304,6 +304,7 @@ export class Label extends UIRenderable {
      * 文本字体名称, 只在 useSystemFont 属性为 true 的时候生效。
      */
     @displayOrder(8)
+    @visible(function (this: Label) { return !this._isSystemFontUsed; })
     @tooltip('文字字体名字')
     get fontFamily () {
         return this._fontFamily;
@@ -392,6 +393,7 @@ export class Label extends UIRenderable {
      */
     @type(Font)
     @displayOrder(11)
+    @visible(function(this: Label) { return !this._isSystemFontUsed; })
     @tooltip('Label 使用的字体资源')
     get font () {
         // return this._N$file;
