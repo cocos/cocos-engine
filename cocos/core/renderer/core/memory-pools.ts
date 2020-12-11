@@ -930,6 +930,7 @@ interface ICameraViewType extends BufferTypeManifest<typeof CameraView> {
     [CameraView.CLEAR_FLAG]: ClearFlag;
     [CameraView.CLEAR_DEPTH]: number;
     [CameraView.CLEAR_STENCIL]: number;
+    [CameraView.VISIBILITY]: number,
     [CameraView.NODE]: NodeHandle;
     [CameraView.SCENE]: SceneHandle;
     [CameraView.FRUSTUM]: FrustumHandle;
