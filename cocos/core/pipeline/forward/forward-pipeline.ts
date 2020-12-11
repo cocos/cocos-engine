@@ -50,7 +50,7 @@ import { genSamplerHash, samplerLib } from '../../renderer/core/sampler-lib';
 import { builtinResMgr } from '../../3d/builtin/init';
 import { Texture2D } from '../../assets/texture-2d';
 import { Camera } from '../../renderer/scene';
-import { UIDrawBatch } from '../../renderer/ui/ui-draw-batch';
+import { CameraHandle } from '../../renderer/core/memory-pools';
 
 const matShadowView = new Mat4();
 const matShadowViewProj = new Mat4();
@@ -123,7 +123,6 @@ export class ForwardPipeline extends RenderPipeline {
      */
     public renderObjects: IRenderObject[] = [];
     public shadowObjects: IRenderObject[] = [];
-    public renderBatches: UIDrawBatch[] = [];
     public shadowFrameBufferMap: Map<Light, Framebuffer> = new Map();
     protected _isHDR: boolean = false;
     protected _shadingScale: number = 1.0;

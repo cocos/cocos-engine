@@ -39,7 +39,7 @@ import { SpotLight } from './spot-light';
 import { PREVIEW } from 'internal:constants';
 import { TransformBit } from '../../scene-graph/node-enum';
 import { legacyCC } from '../../global-exports';
-import { ScenePool, SceneView, ModelArrayPool, ModelArrayHandle, SceneHandle, NULL_HANDLE, freeHandleArray, ModelPool,LightArrayHandle, LightArrayPool } from '../core/memory-pools';
+import { ScenePool, SceneView, ModelArrayPool, ModelArrayHandle, SceneHandle, NULL_HANDLE, UIBatchArrayHandle, UIBatchArrayPool, LightArrayHandle, LightArrayPool } from '../core/memory-pools';
 import { UIDrawBatch } from '../ui/ui-draw-batch';
 
 export interface IRenderSceneInfo {
@@ -143,6 +143,7 @@ export class RenderScene {
     private _modelId: number = 0;
     private _scenePoolHandle: SceneHandle = NULL_HANDLE;
     private _modelArrayHandle: ModelArrayHandle = NULL_HANDLE;
+    private _batchArrayHandle: UIBatchArrayHandle = NULL_HANDLE;
     private _sphereLightsHandle: LightArrayHandle = NULL_HANDLE;
     private _spotLightsHandle: LightArrayHandle = NULL_HANDLE;
 
@@ -206,6 +207,10 @@ export class RenderScene {
         if (this._spotLightsHandle) {
             LightArrayPool.free(this._spotLightsHandle);
             this._spotLightsHandle = NULL_HANDLE;
+        }
+        if (this._batchArrayHandle) {
+            UIBatchArrayPool.free(this._batchArrayHandle);
+            this._batchArrayHandle = NULL_HANDLE;
         }
     }
 
@@ -343,12 +348,14 @@ export class RenderScene {
 
     public addBatch (batch: UIDrawBatch) {
         this._batches.push(batch);
+        UIBatchArrayPool.push(this._batchArrayHandle, batch.handle);
     }
 
     public removeBatch (batch: UIDrawBatch) {
         for (let i = 0; i < this._batches.length; ++i) {
             if (this._batches[i] === batch) {
                 this._batches.splice(i, 1);
+                UIBatchArrayPool.erase(this._batchArrayHandle, i);
                 return;
             }
         }
@@ -356,6 +363,7 @@ export class RenderScene {
 
     public removeBatches () {
         this._batches.length = 0;
+        UIBatchArrayPool.clear(this._batchArrayHandle);
     }
 
     public onGlobalPipelineStateChanged () {
@@ -571,6 +579,11 @@ export class RenderScene {
 
             this._sphereLightsHandle = LightArrayPool.alloc();
             ScenePool.set(this._scenePoolHandle, SceneView.SPHERE_LIGHT_ARRAY, this._sphereLightsHandle);
+        }
+
+        if (!this._batchArrayHandle) {
+            this._batchArrayHandle = UIBatchArrayPool.alloc();
+            ScenePool.set(this._scenePoolHandle, SceneView.UI_BATCH_ARRAY, this._batchArrayHandle);
         }
     }
 }

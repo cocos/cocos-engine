@@ -268,6 +268,19 @@ export class RenderWindow {
         }
     }
 
+    public getRenderCameras () {
+        const cameras: Camera[] = [];
+        for (let j = 0; j < this._cameras.length; j++) {
+            const camera = this._cameras[j];
+            if (camera.enabled) {
+                camera.update();
+                cameras.push(camera);
+            }
+        }
+
+        return cameras;
+    }
+
     /**
      * @zh
      * 添加渲染相机

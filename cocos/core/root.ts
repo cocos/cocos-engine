@@ -206,7 +206,6 @@ export class Root {
     private _ui: UI | null = null;
     private _dataPoolMgr: DataPoolManager;
     private _scenes: RenderScene[] = [];
-    private _cameras: Camera[] = [];
     private _modelPools = new Map<Constructor<Model>, Pool<Model>>();
     private _cameraPool: Pool<Camera> | null = null;
     private _lightPools = new Map<Constructor<Light>, Pool<Light>>();
@@ -304,12 +303,6 @@ export class Root {
                 window.resize(width, height);
             }
         }
-
-        // for (const camera of this._cameras) {
-        //     if (camera.isWindowSize) {
-        //         camera.resize(width, height);
-        //     }
-        // }
     }
 
     public setRenderPipeline (rppl: RenderPipeline): boolean {
@@ -409,16 +402,8 @@ export class Root {
 
             for (let i = 0; i < windows.length; i++) {
                 const window = windows[i];
-                const cameras = window.cameras;
-                this._cameras.length = 0;
-                for (let j = 0; j < cameras.length; j++) {
-                    const camera = cameras[j];
-                    if (camera.enabled) {
-                        camera.update();
-                        this._cameras.push(camera);
-                    }
-                }
-                this._pipeline.render(this._cameras);
+                const cameras = window.getRenderCameras();
+                this._pipeline.render(cameras);
             }
             if (this._ui) this._ui.reset();
             this._device.present();

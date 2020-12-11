@@ -36,7 +36,7 @@ import { Device, Color } from '../../gfx';
 import { legacyCC } from '../../global-exports';
 import { RenderWindow } from '../core/render-window';
 import {
-    CameraHandle, CameraPool, CameraView, FrustumHandle, FrustumPool, NULL_HANDLE, SceneHandle,
+    CameraHandle, CameraPool, CameraView, FrustumHandle, FrustumPool, NULL_HANDLE, SceneHandle, RenderWindowHandle
 } from '../core/memory-pools';
 import { recordFrustumToSharedMemory } from '../../geometry/frustum';
 import { preTransforms } from '../../math/mat4';
@@ -128,7 +128,6 @@ const correctionMatrices: Mat4[] = [];
 export class Camera {
     public isWindowSize = true;
     public screenScale: number;
-    public window: RenderWindow | null = null;
 
     private _device: Device;
     private _scene: RenderScene | null = null;
@@ -166,6 +165,7 @@ export class Camera {
     private _ec = 0.0;
     private _poolHandle: CameraHandle = NULL_HANDLE;
     private _frustumHandle: FrustumHandle = NULL_HANDLE;
+    private _window: Window | null = null;
 
     constructor (device: Device) {
         this._device = device;
@@ -211,8 +211,8 @@ export class Camera {
     }
 
     public destroy () {
-        if (this.window) {
-            this.window.detachCamera(this);
+        if (this._window) {
+            this._window.detachCamera(this);
         }
         this._name = null;
         if (this._poolHandle) {
@@ -276,7 +276,7 @@ export class Camera {
         if (this._isProjDirty || this._curTransform !== orientation) {
             this._curTransform = orientation;
             let projectionSignY = this._device.screenSpaceSignY;
-            if (this.window && this.window.hasOffScreenAttachments) { // when drawing offscreen...
+            if (this._window && this._window.hasOffScreenAttachments) { // when drawing offscreen...
                 projectionSignY *= this._device.UVSpaceSignY; // apply sign-Y correction
                 orientation = SurfaceTransform.IDENTITY; // no pre-rotation
             }
@@ -511,6 +511,15 @@ export class Camera {
         return this._frustum;
     }
 
+    set window (val) {
+        this._window = val;
+        if (val) CameraPool.set(this._poolHandle, CameraView.WINDOW, val.handle);
+    }
+
+    get window () {
+        return this._window;
+    }
+
     set forward (val) {
         this._forward = val;
         CameraPool.setVec3(this._poolHandle, CameraView.FORWARD, this._forward);
@@ -530,10 +539,10 @@ export class Camera {
     }
 
     set visibility (vis) {
-        this._visibility = vis;
+        CameraPool.set(this._poolHandle, CameraView.VISIBILITY, vis);
     }
     get visibility () {
-        return this._visibility;
+        return CameraPool.get(this._poolHandle, CameraView.VISIBILITY);
     }
 
     get priority (): number {
@@ -627,14 +636,15 @@ export class Camera {
     }
 
     public changeTargetWindow (window: RenderWindow | null = null) {
-        if (this.window) {
-            this.window.detachCamera(this);
+        if (this._window) {
+            this._window.detachCamera(this);
         }
         const win = window || legacyCC.director.root.mainWindow;
         if (win) {
             win.attachCamera(this);
             this.resize(win.width, win.height);
-            this.window = win;
+            this._window = win;
+            CameraPool.set(this._poolHandle, CameraView.WINDOW, win.handle);
         }
     }
 

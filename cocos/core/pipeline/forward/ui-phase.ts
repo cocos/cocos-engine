@@ -2,7 +2,7 @@ import { RenderPass } from '../../gfx';
 import { legacyCC } from '../../global-exports';
 import { PipelineStateManager } from '../pipeline-state-manager';
 import { SetIndex } from '../define';
-import { IAPool, DSPool, ShaderPool } from '../../renderer/core/memory-pools';
+import { IAPool, DSPool, ShaderPool, UIBatchPool, UIBatchView, PassPool } from '../../renderer/core/memory-pools';
 import { Layers } from '../../scene-graph/layers';
 import { Camera } from '../../renderer/scene/camera';
 import { ForwardPipeline } from './forward-pipeline';
@@ -39,17 +39,21 @@ export class UIPhase {
             }
 
             if (!visible) continue;
-            
-            const pass = batch.material!.passes[0];
-            const shader = ShaderPool.get(pass.getShaderVariant());
-            const inputAssembler = IAPool.get(batch.hInputAssembler);
-            const ds = DSPool.get(batch.hDescriptorSet);
-            const pso = PipelineStateManager.getOrCreatePipelineState(device, pass, shader, renderPass, inputAssembler);
-            cmdBuff.bindPipelineState(pso);
-            cmdBuff.bindDescriptorSet(SetIndex.MATERIAL, pass.descriptorSet);
-            cmdBuff.bindDescriptorSet(SetIndex.LOCAL, ds);
-            cmdBuff.bindInputAssembler(inputAssembler);
-            cmdBuff.draw(inputAssembler);
+            const handle = batch.handle;
+            const count = UIBatchPool.get(handle, UIBatchView.PASS_COUNT);
+            for (let i = 0; i < count; i++) {
+                const pass = batch.passes[i];
+                const shaderHandle = UIBatchPool.get(handle, UIBatchView.SHADER_0+i);
+                const shader = ShaderPool.get(shaderHandle);
+                const inputAssembler = IAPool.get(batch.hInputAssembler);
+                const ds = DSPool.get(batch.hDescriptorSet);
+                const pso = PipelineStateManager.getOrCreatePipelineState(device, pass, shader, renderPass, inputAssembler);
+                cmdBuff.bindPipelineState(pso);
+                cmdBuff.bindDescriptorSet(SetIndex.MATERIAL, pass.descriptorSet);
+                cmdBuff.bindDescriptorSet(SetIndex.LOCAL, ds);
+                cmdBuff.bindInputAssembler(inputAssembler);
+                cmdBuff.draw(inputAssembler);
+            }
         }
     }
 }
