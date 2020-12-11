@@ -1,78 +1,24 @@
-Cocos2d-x, compact version
+cocos2d-x-lite
 ==========================
 
 <a href="https://travis-ci.org/cocos-creator/cocos2d-x-lite"><img src="https://travis-ci.org/cocos-creator/cocos2d-x-lite.svg?branch=develop " alt="Build Status"></a>
 
-It is based on [cocos2d-x](https://github.com/cocos2d/cocos2d-x)[version 3.9], but remove 3D and other features. It works on iOS, Android, macOS and Windows.
+It used to be a compact version of cocos2d-x, but now it is the native backend of [Cocos Creator](https://www.cocos.com/en/creator). It works on `iOS`, `Android`, `Mac OS` and `Windows`.
 
-------------------------------------------------
+Documentations
+--------------------------------
+* [Online documentation](https://docs.cocos.com/creator/3.0/manual/en/)
 
-The major change:
+How to start a new game
+--------------------------------
+You can refer to [the documentation](https://docs.cocos.com/creator/3.0/manual/en/getting-started/) to start a new game.
 
-- Remove 3D features
-  - Sprite3D
-  - Skybox
-  - Terrain
-  - Light
-  - Navmesh
-  - Physics3D
-  - BillBoard
-  - Animate3D
-  - Bundle3D
-  - MeshSkin
-  - etc..
+Where to get help
+----------
 
-- Only support iOS, macOS, Android and Windows.
-- Remove support for LUA script
-- Remove deprecated classes and functions
-- Remove Camera
-- Remove Physics integration
-- Using FastTileMap instead of TileMap
-- Remove C++ implementations of CocoStudio parser
-- Remove C++ implementations of CocosBuilder parser
-- Remove AssetsManager, AssetsManagerEX
-- Remove Allocator
-- Remove AutoPolygon
-- Remove support for WebP, S3TC, ATITC
-- Remove support for game controller
-- Improved robustness and many bugs have been fixed
-
-Git user attention
------------------------
-
-1. Clone the repo from GitHub.
-
-       $ git clone https://github.com/cocos-creator/cocos2d-x-lite.git
-       $ cd cocos2d-x-lite
-       $ npm install
-
-2. After cloning the repo, please execute `gulp init` to download and install dependencies.
-
-       $ gulp init
-
-3. Build simulator
-
-       $ gulp gen-simulator
-       $ gulp update-simulator-config
-
-    If you need to debug the simulator on macOS, you should sign the "./simulator/mac/simulator.app" by using `codesign` after build, or manually build the simulator project ("./tools/simulator/frameworks/runtime-src/proj.ios_mac/simulator.xcodeproj") in Xcode and enable Signing.
-    ![](https://user-images.githubusercontent.com/1503156/32046986-3ab1f0b6-ba0a-11e7-9c7f-7fe0a385d338.png)
-
-Note, you may change to use other mirror for external config instead of github.
-For example, use gitlab:
-```json
-{
-    "version": "v3d-gfx-15",
-    "from": {
-        "type": "gitlab",
-        "origin": "http://gitlab.cocos.net:8929",
-        "owner": "publics",
-        "name": "cocos2d-x-lite-external",
-        "checkout": "v3d-gfx-15"
-    }
-}
-
-```
+* [English Forum](https://discuss.cocos2d-x.org/)
+* [Twitter](http://www.twitter.com/cocos2dx)
+* [中文社区](https://forum.cocos.org/c/Creator/58)
 
 Contributing to the Project
 --------------------------------
