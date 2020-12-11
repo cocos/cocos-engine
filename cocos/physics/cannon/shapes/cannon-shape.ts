@@ -72,7 +72,8 @@ export class CannonShape implements IBaseShape {
             const smat = this._shape.material;
             smat.friction = mat.friction;
             smat.restitution = mat.restitution;
-            (smat as any).correctInelastic = smat.restitution === 0 ? 3 : 0;
+            const coef = CANNON['CC_CONFIG'].correctInelastic;            
+            (smat as any).correctInelastic = smat.restitution === 0 ? coef : 0;
         }
     }
 
