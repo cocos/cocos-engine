@@ -23,10 +23,10 @@
  THE SOFTWARE.
  */
 
-import { builtinResMgr } from '../../3d/builtin';
+import { builtinResMgr } from '../../builtin';
 import { createMesh } from '../../3d/misc/utils';
 import { Material } from '../../assets/material';
-import { Mesh } from '../../assets/mesh';
+import { Mesh } from '../../3d/assets/mesh';
 import { TextureCube } from '../../assets/texture-cube';
 import { UNIFORM_ENVIRONMENT_BINDING } from '../../pipeline/define';
 import { box } from '../../primitive';

@@ -29,21 +29,20 @@
  */
 
 import { ALIPAY, EDITOR, JSB, PREVIEW, RUNTIME_BASED, BUILD } from 'internal:constants';
-import { default as assetManager, IAssetManagerOptions } from './asset-manager/asset-manager';
+import { IAssetManagerOptions } from './asset-manager/asset-manager';
 import { EventTarget } from './event/event-target';
 import * as debug from './platform/debug';
 import inputManager from './platform/event-manager/input-manager';
 import { Device, DeviceInfo } from './gfx';
 import { sys } from './platform/sys';
 import { macro } from './platform/macro';
-import { ICustomJointTextureLayout } from './renderer/models';
+import { ICustomJointTextureLayout } from './animation/skeletal-animation/skeletal-animation-utils';
 import { legacyCC, VERSION } from './global-exports';
 import { IPhysicsConfig } from '../physics/framework/physics-config';
 import { bindingMappingInfo } from './pipeline/define';
 import { SplashScreen } from './splash-screen';
 import { RenderPipeline } from './pipeline';
 import { Node } from './scene-graph/node';
-
 
 interface ISceneInfo {
     url: string;
@@ -429,10 +428,8 @@ export class Game extends EventTarget {
      * @zh 重新开始游戏
      */
     public restart (): Promise<void> {
-        const afterDrawPromise = new Promise<void>((resolve) =>
-            legacyCC.director.once(legacyCC.Director.EVENT_AFTER_DRAW, () => resolve()) as void);
+        const afterDrawPromise = new Promise<void>((resolve) => legacyCC.director.once(legacyCC.Director.EVENT_AFTER_DRAW, () => resolve()) as void);
         return afterDrawPromise.then(() => {
-
             for (const id in this._persistRootNodes) {
                 this.removePersistRootNode(this._persistRootNodes[id]);
             }

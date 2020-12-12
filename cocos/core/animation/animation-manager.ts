@@ -35,12 +35,12 @@ import { errorID } from '../platform/debug';
 import { Node } from '../scene-graph';
 import { Scheduler } from '../scheduler';
 import { MutableForwardIterator, remove } from '../utils/array';
-import { BlendStateBuffer } from './skeletal-animation-blending';
+import { BlendStateBuffer } from './skeletal-animation/skeletal-animation-blending';
 import { AnimationState } from './animation-state';
 import { CrossFade } from './cross-fade';
 import { legacyCC } from '../global-exports';
-import { IJointTransform, deleteTransform, getTransform, getWorldMatrix } from '../renderer/models/skinning-model';
-import { Socket } from './skeletal-animation';
+import { IJointTransform, deleteTransform, getTransform, getWorldMatrix } from '../3d/models/skinning-model';
+import { Socket } from './skeletal-animation/skeletal-animation';
 
 interface ISocketData {
     target: Node;

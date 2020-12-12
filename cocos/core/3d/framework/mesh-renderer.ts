@@ -28,18 +28,19 @@
  * @module model
  */
 
+import { ccclass, help, executeInEditMode, executionOrder, menu, tooltip, visible, type, formerlySerializedAs, serializable, editable, disallowAnimation } from 'cc.decorator';
 import { Texture2D } from '../../assets';
 import { Material } from '../../assets/material';
-import { Mesh } from '../../assets/mesh';
-import { ccclass, help, executeInEditMode, executionOrder, menu, tooltip, visible, type, formerlySerializedAs, serializable, editable, disallowAnimation } from 'cc.decorator';
+import { Mesh } from '../assets/mesh';
 import { Vec4 } from '../../math';
-import { scene, models } from '../../renderer';
+import { scene } from '../../renderer';
+import { MorphModel } from '../models/morph-model';
 import { Root } from '../../root';
 import { TransformBit } from '../../scene-graph/node-enum';
 import { Enum } from '../../value-types';
-import { builtinResMgr } from '../builtin';
-import { RenderableComponent } from './renderable-component';
-import { MorphRenderingInstance } from '../../assets/morph';
+import { builtinResMgr } from '../../builtin';
+import { RenderableComponent } from '../../components/renderable-component';
+import { MorphRenderingInstance } from '../assets/morph';
 import { legacyCC } from '../../global-exports';
 import { assertIsTrue } from '../../data/utils/asserts';
 
@@ -159,7 +160,6 @@ class ModelLightmapSettings {
 @menu('Components/MeshRenderer')
 @executeInEditMode
 export class MeshRenderer extends RenderableComponent {
-
     public static ShadowCastingMode = ModelShadowCastingMode;
     public static ShadowReceivingMode = ModelShadowReceivingMode;
 
@@ -361,13 +361,13 @@ export class MeshRenderer extends RenderableComponent {
         // Please notice that we do not enforce that
         // derived classes should use a morph-able model type(i.e. model type derived from `MorphModel`).
         // So we should take care of the edge case.
-        const modelType = (preferMorphOverPlain && this._modelType === scene.Model) ? models.MorphModel : this._modelType;
+        const modelType = (preferMorphOverPlain && this._modelType === scene.Model) ? MorphModel : this._modelType;
         const model = this._model! = (legacyCC.director.root as Root).createModel(modelType);
         model.visFlags = this.visibility;
         model.node = model.transform = this.node;
         this._models.length = 0;
         this._models.push(this._model);
-        if (this._morphInstance && model instanceof models.MorphModel) {
+        if (this._morphInstance && model instanceof MorphModel) {
             model.setMorphRendering(this._morphInstance);
         }
     }
@@ -522,7 +522,7 @@ export class MeshRenderer extends RenderableComponent {
             this._morphInstance.setWeights(iSubMesh, weights);
         }
 
-        if (this._model && this._model instanceof models.MorphModel) {
+        if (this._model && this._model instanceof MorphModel) {
             this._model.setMorphRendering(this._morphInstance);
         }
     }

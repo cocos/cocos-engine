@@ -1,10 +1,10 @@
 import spine from '../lib/spine-core.js';
-import { IAssembler } from '../../core/renderer/ui/base';
-import { UI } from '../../core/renderer/ui/ui';
+import { IAssembler } from '../../core/2d/renderer/base';
+import { UI } from '../../core/2d/renderer/ui';
 import { FrameColor } from '../skeleton-cache';
 import { MaterialInstance } from '../../core/renderer';
 import { SkeletonTexture } from '../skeleton-texture';
-import { vfmtPosUvColor, vfmtPosUvTwoColor } from '../../core/renderer/ui/ui-vertex-format';
+import { vfmtPosUvColor, vfmtPosUvTwoColor } from '../../core/2d/renderer/ui-vertex-format';
 import { Skeleton, SkeletonMeshData, SpineMaterialType } from '../skeleton';
 import { Color, GFXBlendFactor, Mat4, Material, Node, Texture2D, Vec3 } from '../../core';
 

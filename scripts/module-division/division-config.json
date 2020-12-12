@@ -94,6 +94,30 @@
             "default": true
         },
         {
+            "text": "Animation",
+            "description": "Animation",
+            "entry": "animation",
+            "default": true
+        },
+        {
+            "text": "Primitive",
+            "description": "Primitive",
+            "entry": "primitive",
+            "default": true
+        },
+        {
+            "text": "Profiler",
+            "description": "Profiler",
+            "entry": "profiler",
+            "default": true
+        },
+        {
+            "text": "3D Framework",
+            "description": "3D Framework",
+            "entry": "3d-framework",
+            "default": true
+        },
+        {
             "text": "Particle 2D",
             "description": "Particle 2D.",
             "entry": "particle-2d",

@@ -29,9 +29,9 @@
  */
 
 import { Mat4, Size, Vec3 } from '../../core/math';
-import { IAssembler } from '../../core/renderer/ui/base';
-import { MeshRenderData } from '../../core/renderer/ui/render-data';
-import { UI } from '../../core/renderer/ui/ui';
+import { IAssembler } from '../../core/2d/renderer/base';
+import { MeshRenderData } from '../../core/2d/renderer/render-data';
+import { UI } from '../../core/2d/renderer/ui';
 import { TiledLayer, TiledMeshData, TiledTile } from '..';
 import { GID, MixedGID, RenderOrder, TiledGrid, TileFlag } from '../tiled-types';
 import { Texture2D, Node } from '../../core';

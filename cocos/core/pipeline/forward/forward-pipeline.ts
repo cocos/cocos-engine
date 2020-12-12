@@ -49,7 +49,7 @@ import { sceneCulling, getShadowWorldMatrix, updatePlanarPROJ } from './scene-cu
 import { UIFlow } from '../ui/ui-flow';
 import { Light } from '../../renderer/scene/light';
 import { genSamplerHash, samplerLib } from '../../renderer/core/sampler-lib';
-import { builtinResMgr } from '../../3d/builtin/init';
+import { builtinResMgr } from '../../builtin';
 import { Texture2D } from '../../assets/texture-2d';
 
 const matShadowView = new Mat4();

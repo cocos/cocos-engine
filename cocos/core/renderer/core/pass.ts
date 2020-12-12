@@ -32,7 +32,7 @@ import { EDITOR } from 'internal:constants';
 import { Color } from '../../gfx/define-class';
 import { Root } from '../../root';
 import { TextureBase } from '../../assets/texture-base';
-import { builtinResMgr } from '../../3d/builtin/init';
+import { builtinResMgr } from '../../builtin/builtin-res-mgr';
 import { getPhaseID } from '../../pipeline/pass-phase';
 import { murmurhash2_32_gc } from '../../utils/murmurhash2_gc';
 import { samplerLib } from './sampler-lib';

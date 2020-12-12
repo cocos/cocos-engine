@@ -30,7 +30,7 @@
 
 import { replaceProperty } from '../utils/x-deprecated';
 import { Animation } from './animation-component';
-import { SkeletalAnimation } from './skeletal-animation';
+import { SkeletalAnimation } from './skeletal-animation/skeletal-animation';
 import { AnimationClip } from './animation-clip';
 import { js } from '../utils/js';
 import { legacyCC } from '../global-exports';

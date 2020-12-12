@@ -23,10 +23,10 @@
  THE SOFTWARE.
  */
 
-
-import { Color, Rect, Size, SpriteFrame, Texture2D, Vec2 } from '../core';
+import { Color, Rect, Size, Texture2D, Vec2 } from '../core';
+import { SpriteFrame } from '../core/2d/assets';
 import { ccenum } from '../core/value-types/enum';
-import { HorizontalTextAlignment, VerticalTextAlignment } from '../ui/components/label';
+import { HorizontalTextAlignment, VerticalTextAlignment } from '../core/2d/components/label';
 
 
 export type PropertiesInfo = { [key: string]: number | string };

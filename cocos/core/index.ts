@@ -56,9 +56,10 @@ export * from './pipeline';
 export * from './asset-manager';
 export * from './scene-graph';
 export * from './components';
+export * from './builtin';
 export * from './3d';
-export * from './animation';
-import './primitive';
+// export * from './animation';
+// import './primitive';
 
 export * from './utils/profiler/profiler';
 

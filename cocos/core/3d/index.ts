@@ -28,7 +28,7 @@
  * @hidden
  */
 
-export * from './builtin';
+export * from './assets';
 export * from './framework';
 import * as utils from './misc/utils';
 import { legacyCC } from '../global-exports';

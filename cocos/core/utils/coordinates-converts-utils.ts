@@ -28,7 +28,7 @@
  * @module core
  */
 
-import { Camera } from '../3d/framework/camera-component';
+import { Camera } from '../components/camera-component';
 import { Vec3 } from '../math';
 import { Node } from '../scene-graph';
 import { replaceProperty } from './x-deprecated';

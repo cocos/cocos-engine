@@ -28,17 +28,17 @@
  * @module core
  */
 
-import { builtinResMgr } from './3d/builtin';
+import { builtinResMgr } from './builtin';
 import { Pool } from './memop';
 import { RenderPipeline, ForwardPipeline, RenderView  } from './pipeline';
 import { IRenderViewInfo } from './pipeline/define';
 import { Camera, Light, Model } from './renderer/scene';
-import { DataPoolManager } from './renderer/data-pool-manager';
+import { DataPoolManager } from './animation/skeletal-animation/data-pool-manager';
 import { LightType } from './renderer/scene/light';
 import { IRenderSceneInfo, RenderScene } from './renderer/scene/render-scene';
 import { SphereLight } from './renderer/scene/sphere-light';
 import { SpotLight } from './renderer/scene/spot-light';
-import { UI } from './renderer/ui/ui';
+import { UI } from './2d/renderer/ui';
 import { legacyCC } from './global-exports';
 import { RenderWindow, IRenderWindowInfo } from './renderer/core/render-window';
 import { ColorAttachment, DepthStencilAttachment, RenderPassInfo, StoreOp, Device } from './gfx';

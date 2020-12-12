@@ -23,7 +23,7 @@
  THE SOFTWARE.
  */
 
-import { Mesh } from '../../assets/mesh';
+import { Mesh } from '../assets/mesh';
 import { AttributeName, Format, FormatInfos, PrimitiveMode } from '../../gfx/define';
 import { Attribute } from '../../gfx';
 import { Vec3 } from '../../math';

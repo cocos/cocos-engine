@@ -27,16 +27,16 @@
  * @category component/video
  */
 
+import { ccclass, displayOrder, executeInEditMode, help, menu, slide, range, requireComponent, tooltip, type, serializable } from 'cc.decorator';
+import { EDITOR } from 'internal:constants';
 import { warn } from '../core/platform';
 import { Component, EventHandler as ComponentEventHandler } from '../core/components';
-import { UITransform } from '../core/components/ui-base';
-import { ccclass, displayOrder, executeInEditMode, help, menu, slide, range, requireComponent, tooltip, type, serializable } from 'cc.decorator';
+import { UITransform } from '../core/2d/framework';
 import { clamp } from '../core/math';
 import { VideoClip } from './assets/video-clip';
 import { VideoPlayerImplManager } from './video-player-impl-manager';
 import { EventType, ResourceType } from './video-player-enums';
-import { EDITOR } from 'internal:constants';
-import { legacyCC } from "../core/global-exports";
+import { legacyCC } from '../core/global-exports';
 
 /**
  * @en

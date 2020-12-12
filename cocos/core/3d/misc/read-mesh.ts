@@ -23,8 +23,7 @@
  THE SOFTWARE.
  */
 
-
-import { Mesh } from '../../assets/mesh';
+import { Mesh } from '../assets/mesh';
 import { AttributeName, Format, FormatInfos } from '../../gfx/define';
 import { IGeometry } from '../../primitive/define';
 import { readBuffer } from './buffer';

@@ -6,6 +6,9 @@
 export * from './exports/base';
 export * from './exports/gfx-webgl';
 export * from './exports/gfx-webgl2';
+export * from './exports/animation';
+export * from './exports/primitive';
+export * from './exports/3d';
 export * from './exports/audio';
 export * from './exports/video';
 export * from './exports/webview';
@@ -23,3 +26,4 @@ export * from './exports/particle-2d';
 export * from './exports/tiled-map';
 export * from './exports/spine';
 export * from './exports/dragonbones';
+export * from './exports/profiler';

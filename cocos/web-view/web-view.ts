@@ -29,11 +29,11 @@
 
 import { ccclass, help, executeInEditMode, menu, tooltip, type, displayOrder, serializable, requireComponent } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
-import { UITransform } from '../core/components/ui-base';
+import { UITransform } from '../core/2d/framework';
 import { Component, EventHandler as ComponentEventHandler } from '../core/components';
 import { WebViewImplManager } from './web-view-impl-manager';
 import { EventType } from './web-view-enums';
-import { legacyCC } from "../core/global-exports";
+import { legacyCC } from '../core/global-exports';
 
 /**
  * @en

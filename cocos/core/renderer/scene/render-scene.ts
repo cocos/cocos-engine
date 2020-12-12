@@ -23,7 +23,8 @@
  THE SOFTWARE.
  */
 
-import { IBArray } from '../../assets/mesh';
+import { PREVIEW } from 'internal:constants';
+import { IBArray } from '../../assets/rendering-sub-mesh';
 import { AABB, intersect, Ray, Triangle } from '../../geometry';
 import { PrimitiveMode } from '../../gfx/define';
 import { Mat4, Vec3 } from '../../math';
@@ -36,7 +37,6 @@ import { DirectionalLight } from './directional-light';
 import { Model, ModelType } from './model';
 import { SphereLight } from './sphere-light';
 import { SpotLight } from './spot-light';
-import { PREVIEW } from 'internal:constants';
 import { TransformBit } from '../../scene-graph/node-enum';
 import { legacyCC } from '../../global-exports';
 import { ScenePool, SceneView, ModelArrayPool, ModelArrayHandle, SceneHandle, NULL_HANDLE, freeHandleArray, ModelPool,LightArrayHandle, LightArrayPool } from '../core/memory-pools';
@@ -57,7 +57,6 @@ export interface IRaycastResult {
 }
 
 export class RenderScene {
-
     get root (): Root {
         return this._root;
     }

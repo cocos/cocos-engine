@@ -24,9 +24,9 @@
  */
 
 // Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
-import { builtinResMgr } from '../../3d/builtin/init';
+import { builtinResMgr } from '../../builtin/builtin-res-mgr';
 import { Material } from '../../assets/material';
-import { RenderingSubMesh } from '../../assets/mesh';
+import { RenderingSubMesh } from '../../assets/rendering-sub-mesh';
 import { AABB } from '../../geometry';
 import { Pool } from '../../memop';
 import { Node } from '../../scene-graph';

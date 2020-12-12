@@ -28,31 +28,7 @@
  * @packageDocumentation
  * @hidden
  */
-import { legacyCC } from '../../global-exports';
-import { SkinnedMeshBatchRenderer, SkinnedMeshUnit } from './skinned-mesh-batch-renderer';
-import { Camera } from './camera-component';
-import { DirectionalLight } from './directional-light-component';
-import { Light } from './light-component';
-import { MeshRenderer } from './mesh-renderer';
-import { RenderableComponent } from './renderable-component';
-import { SkinnedMeshRenderer } from './skinned-mesh-renderer';
-import { SphereLight } from './sphere-light-component';
-import { SpotLight } from './spot-light-component';
-
-export {
-    Camera,
-    Light,
-    MeshRenderer,
-    SkinnedMeshRenderer,
-    SkinnedMeshBatchRenderer,
-    SkinnedMeshUnit,
-
-    RenderableComponent,
-
-    DirectionalLight,
-    SphereLight,
-    SpotLight,
-};
+export { MeshRenderer } from './mesh-renderer';
 
 /** deprecated */
 export * from './deprecated';

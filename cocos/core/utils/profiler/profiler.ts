@@ -26,7 +26,7 @@
 
 import { TEST, EDITOR } from 'internal:constants';
 import { MeshRenderer } from '../../3d/framework/mesh-renderer';
-import { Camera } from '../../3d/framework/camera-component';
+import { Camera } from '../../components/camera-component';
 import { createMesh } from '../../3d/misc/utils';
 import { Material } from '../../assets/material';
 import { ClearFlag, Format, TextureType, TextureUsageBit } from '../../gfx/define';

@@ -28,10 +28,10 @@
  * @module 3d/primitive
  */
 
-import { createMesh } from '../3d/misc/utils';
-import { Mesh } from '../assets/mesh';
 import { ccclass, type, serializable, editable } from 'cc.decorator';
-import * as primitives from '../primitive';
+import { createMesh } from '../3d/misc/utils';
+import { Mesh } from '../3d/assets/mesh';
+import * as primitives from '.';
 import { ccenum } from '../value-types/enum';
 import { legacyCC } from '../global-exports';
 
