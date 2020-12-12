@@ -80,6 +80,7 @@ gulp.task('build-declarations', async () => {
     await fs.emptyDir(outDir);
     return require('./scripts/generate-declarations/generate-declarations.js').generate({
         outDir,
+        withIndex: true,
     });
 });
 
