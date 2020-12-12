@@ -54,7 +54,7 @@ export class VertexEffectDelegate {
      */
     initSwirlWithPow (radius: number, power: number): spine.VertexEffect {
         this._interpolation = new spine.Pow(power);
-        this._vertexEffect = new spine.SwirlEffect(radius);
+        this._vertexEffect = new spine.SwirlEffect(radius, this._interpolation);
         return this._vertexEffect;
     }
 
@@ -68,7 +68,7 @@ export class VertexEffectDelegate {
      */
     initSwirlWithPowOut (radius:number, power:number) {
         this._interpolation = new spine.PowOut(power);
-        this._vertexEffect = new spine.SwirlEffect(radius);
+        this._vertexEffect = new spine.SwirlEffect(radius, this._interpolation);
         return this._vertexEffect;
     }
 
