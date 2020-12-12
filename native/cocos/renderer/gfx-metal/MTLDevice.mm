@@ -2,6 +2,7 @@
 
 #include "MTLBuffer.h"
 #include "MTLCommandBuffer.h"
+#include "MTLConfig.h"
 #include "MTLContext.h"
 #include "MTLDescriptorSet.h"
 #include "MTLDescriptorSetLayout.h"
@@ -14,12 +15,13 @@
 #include "MTLQueue.h"
 #include "MTLRenderPass.h"
 #include "MTLSampler.h"
+#include "MTLSemaphore.h"
 #include "MTLShader.h"
 #include "MTLTexture.h"
 #include "MTLUtils.h"
-#include "MTLConfig.h"
-#include "MTLSemaphore.h"
 #include "TargetConditionals.h"
+#include "cocos/bindings/event/CustomEventTypes.h"
+#include "cocos/bindings/event/EventDispatcher.h"
 
 #import <MetalKit/MTKView.h>
 #include <dispatch/dispatch.h>
@@ -139,12 +141,18 @@ bool CCMTLDevice::initialize(const DeviceInfo &info) {
     _features[static_cast<uint>(Feature::FORMAT_D32F)] = mu::isDepthStencilFormatSupported(mtlDevice, Format::D32F, gpuFamily);
     _features[static_cast<uint>(Feature::FORMAT_D32FS8)] = mu::isDepthStencilFormatSupported(mtlDevice, Format::D32F_S8, gpuFamily);
 
+    _memoryAlarmListenerId = EventDispatcher::addCustomEventListener(EVENT_MEMORY_WARNING, std::bind(&CCMTLDevice::onMemoryWarning, this));
+
     CC_LOG_INFO("Metal Feature Set: %s", mu::featureSetToString(MTLFeatureSet(_mtlFeatureSet)).c_str());
 
     return true;
 }
 
 void CCMTLDevice::destroy() {
+    if (_memoryAlarmListenerId != 0) {
+        EventDispatcher::removeCustomEventListener(EVENT_MEMORY_WARNING, _memoryAlarmListenerId);
+        _memoryAlarmListenerId = 0;
+    }
     CC_SAFE_DESTROY(_queue);
     CC_SAFE_DESTROY(_cmdBuff);
     CC_SAFE_DESTROY(_context);
@@ -166,10 +174,6 @@ void CCMTLDevice::acquire() {
     queue->_numDrawCalls = 0;
     queue->_numInstances = 0;
     queue->_numTriangles = 0;
-
-    if (!static_cast<CCMTLCommandBuffer *>(_cmdBuff)->isCommandBufferBegan()) {
-        _gpuStagingBufferPools[_currentFrameIndex]->reset();
-    }
 }
 
 void CCMTLDevice::present() {
@@ -178,6 +182,8 @@ void CCMTLDevice::present() {
     _numInstances = queue->_numInstances;
     _numTriangles = queue->_numTriangles;
 
+    //hold this pointer before update _currentFrameIndex
+    CCMTLGPUStagingBufferPool *bufferPool = _gpuStagingBufferPools[_currentFrameIndex];
     _currentFrameIndex = (_currentFrameIndex + 1) % MAX_FRAMES_IN_FLIGHT;
 
     auto mtlCommandBuffer = static_cast<CCMTLCommandBuffer *>(_cmdBuff)->getMTLCommandBuffer();
@@ -185,6 +191,7 @@ void CCMTLDevice::present() {
     [mtlCommandBuffer presentDrawable:mtkView.currentDrawable];
     [mtlCommandBuffer addCompletedHandler:^(id<MTLCommandBuffer> commandBuffer) {
         [commandBuffer release];
+        bufferPool->reset();
         _inFlightSemaphore->signal();
     }];
     [mtlCommandBuffer commit];
@@ -342,6 +349,12 @@ void CCMTLDevice::copyBuffersToTexture(const uint8_t *const *buffers, Texture *t
     // getting rid of this interface all together may become a better option.
     _cmdBuff->begin();
     static_cast<CCMTLCommandBuffer *>(_cmdBuff)->copyBuffersToTexture(buffers, texture, regions, count);
+}
+
+void CCMTLDevice::onMemoryWarning() {
+    for (int i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i) {
+        _gpuStagingBufferPools[i]->shrinkSize();
+    }
 }
 
 } // namespace gfx

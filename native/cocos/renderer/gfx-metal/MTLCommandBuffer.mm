@@ -5,16 +5,16 @@
 #include "MTLCommands.h"
 #include "MTLDescriptorSet.h"
 #include "MTLDevice.h"
+#include "MTLFence.h"
 #include "MTLFramebuffer.h"
 #include "MTLInputAssembler.h"
 #include "MTLPipelineState.h"
+#include "MTLQueue.h"
 #include "MTLRenderPass.h"
 #include "MTLSampler.h"
+#include "MTLSemaphore.h"
 #include "MTLShader.h"
 #include "MTLTexture.h"
-#include "MTLFence.h"
-#include "MTLQueue.h"
-#include "MTLSemaphore.h"
 #include "TargetConditionals.h"
 
 namespace cc {
@@ -118,7 +118,7 @@ void CCMTLCommandBuffer::bindPipelineState(PipelineState *pso) {
     }
 }
 
-void CCMTLCommandBuffer::bindDescriptorSet(uint set, DescriptorSet *descriptorSet, uint dynamicOffsetCount, const vector<uint>& dynamicOffsets) {
+void CCMTLCommandBuffer::bindDescriptorSet(uint set, DescriptorSet *descriptorSet, uint dynamicOffsetCount, const vector<uint> &dynamicOffsets) {
     CCASSERT(set < _GPUDescriptorSets.size(), "Invalid set index");
     if (dynamicOffsetCount) {
         _dynamicOffsets[set].assign(dynamicOffsets.begin(), dynamicOffsets.begin() + dynamicOffsetCount);
