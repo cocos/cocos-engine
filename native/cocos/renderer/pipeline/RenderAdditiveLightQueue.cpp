@@ -324,9 +324,11 @@ void RenderAdditiveLightQueue::updateLightDescriptorSet(const RenderView *view, 
                 const auto &matShadowCamera = light->getNode()->worldMatrix;
 
                 const auto matShadowView = matShadowCamera.getInversed();
+                auto *device = gfx::Device::getInstance();
+                const auto projectionSinY = device->getScreenSpaceSignY();
 
                 cc::Mat4 matShadowViewProj;
-                cc::Mat4::createPerspective(light->spotAngle, light->aspect, 0.001f, light->range, &matShadowViewProj);
+                cc::Mat4::createPerspectiveOffCenter(light->spotAngle, light->aspect, 0.001f, light->range, projectionSinY, &matShadowViewProj);
 
                 matShadowViewProj.multiply(matShadowView);
 

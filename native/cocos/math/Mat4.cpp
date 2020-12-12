@@ -99,12 +99,16 @@ void Mat4::createLookAt(float eyePositionX, float eyePositionY, float eyePositio
 
 void Mat4::createPerspective(float fieldOfView, float aspectRatio,
                              float zNearPlane, float zFarPlane, Mat4 *dst) {
+    createPerspectiveOffCenter(fieldOfView, aspectRatio, zNearPlane, zFarPlane, 1.0f, dst);
+}
+
+void Mat4::createPerspectiveOffCenter(float fieldOfView, float aspectRatio,
+                                      float zNearPlane, float zFarPlane, float projectionSignY, Mat4 *dst) {
     GP_ASSERT(dst);
     GP_ASSERT(zFarPlane != zNearPlane);
     GP_ASSERT(fieldOfView != 0.0f);
 
     const float minClipZ = -1.0f;
-    const float projectionSignY = 1.0f;
 
     const float f = 1.0f / std::tanf(fieldOfView / 2.0f);
     const float nf = 1.0f / (zNearPlane - zFarPlane);
