@@ -24,8 +24,7 @@ public:
     CC_INLINE id<MTLBuffer> getMTLBuffer() const { return _mtlBuffer; }
     CC_INLINE uint8_t *getTransferBuffer() const { return _transferBuffer; }
     CC_INLINE MTLIndexType getIndexType() const { return _indexType; }
-    CC_INLINE bool isDrawIndirectByIndex() const { return _isDrawIndirectByIndex; }
-    CC_INLINE const DrawInfoList &getDrawInfos() const { return _indirects; }
+    CC_INLINE const DrawInfoList &getDrawInfos() const { return _drawInfos; }
     void encodeBuffer(CCMTLRenderCommandEncoder &encoder, uint offset, uint binding, ShaderStageFlags stages);
 
 private:
@@ -39,10 +38,9 @@ private:
     MTLIndexType _indexType = MTLIndexTypeUInt16;
     MTLResourceOptions _mtlResourceOptions = MTLResourceStorageModePrivate;
     NSMutableArray *_dynamicDataBuffers = nil;
-    bool _isDrawIndirectByIndex = false;
-    uint _bufferViewOffset = 0;
     bool _indirectDrawSupported = false;
-    DrawInfoList _indirects;
+    uint _bufferViewOffset = 0;
+    DrawInfoList _drawInfos;
 };
 
 } // namespace gfx
