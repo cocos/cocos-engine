@@ -6,6 +6,7 @@
       "sourceMap": true,
       "outDir": "./bin/.ts",
       "rootDir": "./",
+      "noEmit": true,
       "strict": true,
       "noImplicitAny": false,
       "downlevelIteration": true,
@@ -33,10 +34,6 @@
     },
     "include": [
         "exports/**/*.ts",
-        "editor/exports/**/*.ts",
         "index.ts"
-    ],
-    "exclude": [
-      "**/*.jsb.ts"
     ]
   }

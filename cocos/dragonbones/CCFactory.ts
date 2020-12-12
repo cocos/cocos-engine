@@ -1,6 +1,6 @@
+import { EDITOR } from 'internal:constants';
 import { Component, director, Game, game, ISchedulable, Node, RenderTexture, Scheduler, systemEvent, SystemEventType } from '../core';
 import { ccclass } from '../core/data/class-decorator';
-import { EDITOR } from '../../editor/exports/populate-internal-constants';
 import { CCTextureAtlasData } from './CCTextureData';
 import { TextureBase } from '../core/assets/texture-base';
 import { CCSlot } from './CCSlot';

@@ -116,7 +116,7 @@ function _checkFontLoaded () {
 
 // refer to https://github.com/typekit/webfontloader/blob/master/src/core/nativefontwatchrunner.js
 function nativeCheckFontLoaded (start: number, font: string, callback: CompleteCallback): void {
-    const loader = new Promise((resolve, reject) => {
+    const loader = new Promise<void>((resolve, reject) => {
         const check = () => {
             const now = Date.now();
 

@@ -1,4 +1,4 @@
-import { EDITOR } from '../../editor/exports/populate-internal-constants';
+import { EDITOR } from 'internal:constants';
 
 /**
  * !#en
