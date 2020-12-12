@@ -11,38 +11,38 @@
     },
     "features": {
         "base": {
-            "entries": [
+            "modules": [
                 "base"
             ]
         },
         "gfx-webgl": {
-            "entries": [
+            "modules": [
                 "gfx-webgl"
             ]
         },
         "gfx-webgl2": {
-            "entries": [
+            "modules": [
                 "gfx-webgl2"
             ]
         },
         "ui": {
-            "entries": [
+            "modules": [
                 "ui"
             ]
         },
         "particle": {
-            "entries": [
+            "modules": [
                 "particle"
             ]
         },
         "physics-cannon": {
-            "entries": [
+            "modules": [
                 "physics-cannon",
                 "physics-framework"
             ]
         },
         "physics-ammo": {
-            "entries": [
+            "modules": [
                 "physics-ammo",
                 "physics-framework",
                 "wait-for-ammo-instantiation"
@@ -50,66 +50,66 @@
             "wechatPlugin": false
         },
         "physics-builtin": {
-            "entries": [
+            "modules": [
                 "physics-builtin",
                 "physics-framework"
             ]
         },
         "physics-2d-box2d": {
-            "entries": [
+            "modules": [
                 "physics-2d-box2d",
                 "physics-2d-framework"
             ]
         },
         "physics-2d-builtin": {
-            "entries": [
+            "modules": [
                 "physics-2d-builtin",
                 "physics-2d-framework"
             ]
         },
         "intersection-2d": {
-            "entries": [
+            "modules": [
                 "intersection-2d"
             ]
         },
         "audio": {
-            "entries": [
+            "modules": [
                 "audio"
             ]
         },
         "video": {
-            "entries": [
+            "modules": [
                 "video"
             ]
         },
         "terrain": {
-            "entries": [
+            "modules": [
                 "terrain"
             ]
         },
         "webview": {
-            "entries": [
+            "modules": [
                 "webview"
             ]
         },
         "tween": {
-            "entries": [
+            "modules": [
                 "tween"
             ]
         },
         "tiled-map": {
-            "entries": [
+            "modules": [
                 "tiled-map"
             ]
         },
         "spine": {
             "wechatPlugin": false,
-            "entries": [
+            "modules": [
                 "spine"
             ]
         },
         "dragonbones": {
             "wechatPlugin": false,
-            "entries": [
+            "modules": [
                 "dragonbones"
             ]

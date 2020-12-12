@@ -56,7 +56,7 @@
                     "type": "string"
                 },
                 "options": {
-                    "$ref": "#/definitions/Record<EngineModule,BaseItem>"
+                    "$ref": "#/definitions/Record<EngineFeature,BaseItem>"
                 },
                 "required": {
                     "type": "boolean"
@@ -67,7 +67,7 @@
             },
             "type": "object"
         },
-        "Record<EngineModule,BaseItem>": {
+        "Record<EngineFeature,BaseItem>": {
             "additionalProperties": false,
             "description": "Construct a type with a set of properties K of type T",
             "properties": {
@@ -143,7 +143,7 @@
             },
             "type": "object"
         },
-        "Record<EngineModule,Item>": {
+        "Record<EngineFeature,Item>": {
             "additionalProperties": false,
             "properties": {
                 "audio": {
@@ -223,8 +223,8 @@
         "$schema": {
             "type": "string"
         },
-        "modules": {
-            "$ref": "#/definitions/Record<EngineModule,Item>",
+        "features": {
+            "$ref": "#/definitions/Record<EngineFeature,Item>",
             "description": "The modules info"
         }
     },

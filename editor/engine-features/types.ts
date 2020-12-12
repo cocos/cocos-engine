@@ -1,7 +1,7 @@
 
 // tslint:disable:interface-name
 
-export type EngineModule =
+export type EngineFeature =
     | 'gfx-webgl'
     | 'gfx-webgl2'
     | 'base'
@@ -31,10 +31,10 @@ export interface ModuleRenderConfig {
     /**
      * The modules info
      */
-    modules: IModules;
+    features: IFeatures;
 }
 
-export type IModules = Record<EngineModule, Item>;
+export type IFeatures = Record<EngineFeature, Item>;
 
 export interface BaseItem {
     /**
@@ -62,5 +62,5 @@ export interface Item extends BaseItem {
      */
     mutex?: boolean;
 
-    options?: Record<EngineModule, BaseItem>;
+    options?: Record<EngineFeature, BaseItem>;
 }

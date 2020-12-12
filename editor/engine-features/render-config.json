@@ -1,6 +1,6 @@
 {
     "$schema": "./schema.json",
-    "modules": {
+    "features": {
         "base": {
             "label": "Core",
             "description": "Core module.",
