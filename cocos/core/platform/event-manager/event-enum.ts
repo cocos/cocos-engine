@@ -240,6 +240,12 @@ export enum SystemEventType {
      * @zh 节点 layer 改变时触发的事件。
      */
     LAYER_CHANGED = 'layer-changed',
+
+    /**
+     * @en The event type for node's sibling order changed.
+     * @zh 当节点在兄弟节点中的顺序发生变化时触发的事件。
+     */
+    SIBLING_ORDER_CHANGED = 'sibling-order-changed',
 }
 
 ccenum(SystemEventType);
