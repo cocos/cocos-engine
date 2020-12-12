@@ -1,3 +1,4 @@
+import { EDITOR } from 'internal:constants';
 import { TrackEntryListeners } from './track-entry-listeners';
 import spine from './lib/spine-core.js';
 import { AnimationCache, AnimationFrame, default as SkeletonCache } from './skeleton-cache';
@@ -6,7 +7,6 @@ import { ccclass, executeInEditMode, help, menu } from '../core/data/class-decor
 import { UIRenderable } from '../core/components/ui-base/ui-renderable';
 import { Node, CCClass, CCObject, Color, Enum, GFXBlendFactor, Material, PrivateNode, Texture2D, builtinResMgr, ccenum, errorID, logID, warn, Socket } from '../core';
 import { displayName, editable, override, serializable, tooltip, type, visible } from '../core/data/decorators';
-import { EDITOR } from '../../editor/exports/populate-internal-constants';
 import { SkeletonData } from './skeleton-data';
 import { VertexEffectDelegate } from './vertex-effect-delegate';
 import { MeshRenderData } from '../core/renderer/ui/render-data';
