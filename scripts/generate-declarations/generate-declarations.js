@@ -59,6 +59,7 @@ async function generate (options) {
     const parsedCommandLine = ts.getParsedCommandLineOfConfigFile(
         tsConfigPath, {
             declaration: true,
+            noEmit: false,
             emitDeclarationOnly: true,
             outFile: unbundledOutFile,
             outDir: undefined,
