@@ -219,6 +219,9 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
 
     // internal function
     public updateRenderData () {
+    }
+
+    public beforeRender () {
         // update vertex buffer
         this._model!.updateIA(this._particleNum);
     }

@@ -33,6 +33,7 @@ import { Component, EventHandler as ComponentEventHandler } from '../../core/com
 import { ccclass, help, executeInEditMode, executionOrder, menu, tooltip, type, serializable } from 'cc.decorator';
 import { Toggle } from './toggle';
 import { legacyCC } from '../../core/global-exports';
+import { SystemEventType } from "../../core/platform/event-manager";
 
 /**
  * @en
@@ -99,8 +100,15 @@ export class ToggleContainer extends Component {
         }).filter(Boolean);
     }
 
-    public start () {
+    public onEnable() {
         this.ensureValidState();
+        this.node.on(SystemEventType.CHILD_ADDED, this.ensureValidState, this);
+        this.node.on(SystemEventType.CHILD_REMOVED, this.ensureValidState, this);
+    }
+
+    public onDisable() {
+        this.node.off(SystemEventType.CHILD_ADDED, this.ensureValidState, this);
+        this.node.off(SystemEventType.CHILD_REMOVED, this.ensureValidState, this);
     }
 
     public activeToggles () {
@@ -161,6 +169,5 @@ export class ToggleContainer extends Component {
                 toggle!.isChecked = false;
             }
         }
-
     }
 }

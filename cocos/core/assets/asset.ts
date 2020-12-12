@@ -264,7 +264,6 @@ export class Asset extends Eventify(CCObject) {
      */
     public addRef (): Asset {
         this._ref++;
-        legacyCC.assetManager._releaseManager.removeFromDeleteQueue(this);
         return this;
     }
 

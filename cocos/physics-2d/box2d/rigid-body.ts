@@ -267,6 +267,21 @@ export class b2RigidBody2D implements IRigidBody2D {
         return out;
     }
 
+    getLocalCenter<Out extends IVec2Like> (out: Out): Out {
+        out = out || new Vec2();
+        var pos = this._body!.GetLocalCenter();
+        out.x = pos.x * PHYSICS_2D_PTM_RATIO;
+        out.y = pos.y * PHYSICS_2D_PTM_RATIO;
+        return out;
+    }
+    getWorldCenter<Out extends IVec2Like> (out: Out): Out {
+        out = out || new Vec2();
+        var pos = this._body!.GetWorldCenter();
+        out.x = pos.x * PHYSICS_2D_PTM_RATIO;
+        out.y = pos.y * PHYSICS_2D_PTM_RATIO;
+        return out;
+    }
+
     getInertia () {
         return this._body!.GetInertia();
     }

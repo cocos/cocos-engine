@@ -22,6 +22,7 @@ import { ModuleOption, enumerateModuleOptionReps, parseModuleOption } from './mo
 import { generateCCSource } from './make-cc';
 import { getModuleName } from './module-name';
 import tsConfigPaths from './ts-paths';
+import { getPlatformConstantNames, IBuildTimeConstants } from './build-time-constants';
 import removeDeprecatedFeatures from './remove-deprecated-features';
 import realFs from 'fs';
 
@@ -140,10 +141,7 @@ namespace build {
             file?: string;
         };
 
-        /**
-         * The content of `'internal:raw-constants'`.
-         */
-        rawConstants: Record<string, boolean | number | string>;
+        buildTimeConstants: IBuildTimeConstants;
     }
 
     export interface Result {
@@ -234,7 +232,10 @@ async function _doBuild ({
     );
 
     const rpVirtualOptions: Record<string, string> = {};
-    const vmInternalConstants = getModuleSourceInternalConstants(options.rawConstants);
+    const vmInternalConstants = getModuleSourceInternalConstants({
+        EXPORT_TO_GLOBAL: true,
+        ...options.buildTimeConstants,
+    });
     console.debug(`Module source "internal-constants":\n${vmInternalConstants}`);
     rpVirtualOptions['internal:constants'] = vmInternalConstants;
 
@@ -319,15 +320,25 @@ async function _doBuild ({
     };
 
     const moduleRedirects: Record<string, string> = {};
-    const platform = options.rawConstants.platform;
-    if (typeof platform === 'string') {
-        const moduleOverrides = ccConfig.platforms?.[platform]?.moduleOverrides;
+    const addModuleOverrides = (moduleOverrides: Record<string, string>) => {
+        for (const [source, override] of Object.entries(moduleOverrides)) {
+            const normalizedSource = makePathEqualityKey(ps.resolve(engineRoot, source));
+            const normalizedOverride = ps.resolve(engineRoot, override);
+            moduleRedirects[normalizedSource] = normalizedOverride;
+        }
+    };
+
+    if (options.buildTimeConstants.BUILD) {
+        addModuleOverrides({
+            'cocos/core/data/deserialize-dynamic.ts': 'cocos/core/data/deserialize-dynamic-empty.ts',
+        });
+    }
+
+    const platformConstant = getPlatformConstantNames().find((name) => options.buildTimeConstants[name] === true);
+    if (platformConstant) {
+        const moduleOverrides = ccConfig.platforms?.[platformConstant]?.moduleOverrides;
         if (moduleOverrides) {
-            for (const [source, override] of Object.entries(moduleOverrides)) {
-                const normalizedSource = makePathEqualityKey(ps.resolve(engineRoot, source));
-                const normalizedOverride = ps.resolve(engineRoot, override);
-                moduleRedirects[normalizedSource] = normalizedOverride;
-            }
+            addModuleOverrides(moduleOverrides);
         }
     }
 
@@ -570,10 +581,8 @@ function filePathToModuleRequest (path: string) {
     return path.replace(/\\/g, '\\\\');
 }
 
-function getModuleSourceInternalConstants (buildTimeConstants: build.Options['rawConstants']) {
-    return `export default {
-        ${Object.entries(buildTimeConstants).map(([k, v]) => `    ${k}: ${v},`).join('\n')}
-    }`;
+function getModuleSourceInternalConstants (buildTimeConstants: IBuildTimeConstants) {
+    return Object.entries(buildTimeConstants).map(([k, v]) => `export const ${k} = ${v};`).join('\n');
 }
 
 function moduleOptionsToRollupFormat (moduleOptions: ModuleOption): rollup.ModuleFormat {
