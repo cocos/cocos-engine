@@ -1340,10 +1340,10 @@ export class BaseNode extends CCObject implements ISchedulable {
                 const childIndex = parent._children.indexOf(this);
                 parent._children.splice(childIndex, 1);
                 this._siblingIndex = 0;
+                parent._updateSiblingIndex();
                 if (parent.emit) {
                     parent.emit(SystemEventType.CHILD_REMOVED, this);
                 }
-                parent._updateSiblingIndex();
             }
         }
 
