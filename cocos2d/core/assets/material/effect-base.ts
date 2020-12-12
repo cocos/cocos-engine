@@ -1,4 +1,5 @@
 import Pass from '../../../renderer/core/pass';
+import { FLOAT_ARRAY_TYPE } from '../../value-types/utils';
 
 const gfx = cc.gfx;
 
@@ -28,8 +29,8 @@ export default class EffectBase {
         let uniform = Object.create(null);
         uniform.name = name;
         uniform.type = prop.type;
-        if (prop.value instanceof Float32Array) {
-            uniform.value = new Float32Array(prop.value);
+        if (prop.value instanceof FLOAT_ARRAY_TYPE) {
+            uniform.value = new FLOAT_ARRAY_TYPE(prop.value);
         }
         else {
             uniform.value = prop.value;
