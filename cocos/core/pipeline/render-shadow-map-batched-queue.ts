@@ -55,14 +55,11 @@ const _matShadowViewProj = new Mat4();
 const _vec4ShadowInfo = new Vec4();
 const _vec3Center = new Vec3();
 let _shadowCameraView = new Mat4();
-let _x = 0;
-let _y = 0;
-let _far = 0;
 
 const _phaseID = getPhaseID('shadow-caster');
 const _shadowPassIndices: number[] = [];
-function getShadowPassIndex (subModels: SubModel[], _shadowPassIndices: number[]) {
-    _shadowPassIndices.length = 0;
+function getShadowPassIndex (subModels: SubModel[], shadowPassIndices: number[]) {
+    shadowPassIndices.length = 0;
     let hasShadowPass = false;
     for (let j = 0; j < subModels.length; j++) {
         const { passes } = subModels[j];
@@ -74,7 +71,7 @@ function getShadowPassIndex (subModels: SubModel[], _shadowPassIndices: number[]
                 break;
             }
         }
-        _shadowPassIndices.push(shadowPassIndex);
+        shadowPassIndices.push(shadowPassIndex);
     }
     return hasShadowPass;
 }
@@ -205,6 +202,9 @@ export class RenderShadowMapBatchedQueue {
     }
 
     private _updateUBOs (light: Light) {
+        let _x = 0;
+        let _y = 0;
+        let _far = 0;
         switch (light.type) {
         case LightType.DIRECTIONAL:
             // light view
