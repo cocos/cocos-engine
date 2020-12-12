@@ -849,7 +849,7 @@ export class RichText extends UIComponent {
         this._resetState();
 
         let lastEmptyLine = false;
-        let label: ILabelSegment;
+        let label: ISegment;
 
         for (let i = 0; i < this._textArray.length; ++i) {
             const richTextElement = this._textArray[i];
