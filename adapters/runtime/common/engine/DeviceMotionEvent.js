@@ -1,10 +1,8 @@
 const inputManager = cc.internal.inputManager;
+const jsb = window.jsb;
 
 Object.assign(inputManager, {
     setAccelerometerEnabled (isEnable) {
-        if (this._accelEnabled === isEnable) {
-            return;
-        }
         let scheduler = cc.director.getScheduler();
         scheduler.enableForTarget(this);
         if (isEnable) {
@@ -15,32 +13,20 @@ Object.assign(inputManager, {
             this._unregisterAccelerometerEvent();
             scheduler.unscheduleUpdate(this);
         }
-        this._accelEnabled = isEnable;
-        jsb.device.setMotionEnabled(isEnable);
     },
 
     setAccelerometerInterval (interval) {
-        if (this._accelInterval === interval) {
-            return;
-        }
-        this._accelInterval = interval;
-        if (jsb.device && jsb.device.setMotionInterval) {
-            jsb.device.setMotionInterval(interval);
-        }        
+        // TODO
     },
 
     _registerAccelerometerEvent () {
         this._accelCurTime = 0;
+        let self = this;
         this._acceleration = new cc.internal.Acceleration();
-        jsb.startAccelerometer(res => {
-            if (!this._accelEnabled) {
-                return;
-            }
-            const mAcceleration = this._acceleration;
-            mAcceleration.x = res.x;
-            mAcceleration.y = res.y;
-            mAcceleration.z = res.z;
-            mAcceleration.timestamp = res.timestamp;
+        jsb.startAccelerometer(function (res) {
+            self._acceleration.x = res.x;
+            self._acceleration.y = res.y;
+            self._acceleration.z = res.y;
         });
     },
 

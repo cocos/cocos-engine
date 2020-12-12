@@ -1,62 +1,42 @@
 window.jsb = window.jsb || {};
 
+let isAccelerometerInit = false;
+let sysInfo = qg.getSystemInfoSync();
+let isLandscape = sysInfo.windowWidth > sysInfo.windowHeight;
+
 const PORTRAIT = 0;
 const LANDSCAPE_LEFT = -90;
 const PORTRAIT_UPSIDE_DOWN = 180;
 const LANDSCAPE_RIGHT = 90;
-let _didAccelerateFun;
-
-// API for event listner is overwritten on DOM-adapter
-let nativeAddEventListener = window.addEventListener.bind(window);
-let nativeRemoveEventListener = window.removeEventListener.bind(window);
 
 Object.assign(jsb, {
     startAccelerometer (cb) {
-        if (_didAccelerateFun) {
-            return;
-        }
-        _didAccelerateFun = (event) => {
-            const eventAcceleration = event.accelerationIncludingGravity;
-            let x = (eventAcceleration.x || 0) * 0.1;
-            let y = (eventAcceleration.y || 0) * 0.1;
-            let z = (eventAcceleration.z || 0) * 0.1;
-        
-            const tmpX = x;
-            if (window.orientation === LANDSCAPE_RIGHT) {
-                x = y;
-                y = -tmpX;
+        qg.subscribeAccelerometer({
+            callback: function (res) {
+                let resClone = {};
+                let x = res.x;
+                let y = res.y;    
+                let factor = 0.1;            
+                
+                // TODO: vivo 无法判断方向
+                // if (isLandscape) {
+                //     let tmp = x;
+                //     x = -y;
+                //     y = tmp;
+                // }
+                resClone.x = x * -factor;
+                resClone.y = y * -factor;
+                resClone.z = res.z * factor;
+                cb && cb(resClone);
             }
-            else if (window.orientation === LANDSCAPE_LEFT) {
-                x = -y;
-                y = tmpX;
-            }
-            else if (window.orientation === PORTRAIT) {
-                x = -x;
-                y = -y;
-            }
-        
-            let res =  {};
-            res.x = x;
-            res.y = y;
-            res.z = z;
-            res.timestamp = event.timeStamp || Date.now();
-            cb && cb(res);
-        };
-        nativeAddEventListener('devicemotion', _didAccelerateFun, false);
-        jsb.device.setMotionEnabled(true);
+        });
     },
 
-    stopAccelerometer (cb) {
-        if (!_didAccelerateFun) {
-            return;
-        }
-        nativeRemoveEventListener('devicemotion', _didAccelerateFun, false);
-        _didAccelerateFun = undefined;
-        jsb.device.setMotionEnabled(false);
-        cb && cb();
+    stopAccelerometer () {
+        qg.unsubscribeAccelerometer();
     },
 
     setAccelerometerInterval (interval) {
-        jsb.device.setMotionInterval(interval);
+        // TODO
     },
 });
