@@ -8,5 +8,108 @@
                 "cocos/core/gfx/pipeline-state.ts": "cocos/core/gfx/pipeline-state.jsb.ts"
             }
         }
-    }
-}
+    },
+    "features": {
+        "base": {
+            "entries": [
+                "base"
+            ]
+        },
+        "gfx-webgl": {
+            "entries": [
+                "gfx-webgl"
+            ]
+        },
+        "gfx-webgl2": {
+            "entries": [
+                "gfx-webgl2"
+            ]
+        },
+        "ui": {
+            "entries": [
+                "ui"
+            ]
+        },
+        "particle": {
+            "entries": [
+                "particle"
+            ]
+        },
+        "physics-cannon": {
+            "entries": [
+                "physics-cannon",
+                "physics-framework"
+            ]
+        },
+        "physics-ammo": {
+            "entries": [
+                "physics-ammo",
+                "physics-framework",
+                "wait-for-ammo-instantiation"
+            ],
+            "wechatPlugin": false
+        },
+        "physics-builtin": {
+            "entries": [
+                "physics-builtin",
+                "physics-framework"
+            ]
+        },
+        "physics-2d-box2d": {
+            "entries": [
+                "physics-2d-box2d",
+                "physics-2d-framework"
+            ]
+        },
+        "physics-2d-builtin": {
+            "entries": [
+                "physics-2d-builtin",
+                "physics-2d-framework"
+            ]
+        },
+        "intersection-2d": {
+            "entries": [
+                "intersection-2d"
+            ]
+        },
+        "audio": {
+            "entries": [
+                "audio"
+            ]
+        },
+        "video": {
+            "entries": [
+                "video"
+            ]
+        },
+        "terrain": {
+            "entries": [
+                "terrain"
+            ]
+        },
+        "webview": {
+            "entries": [
+                "webview"
+            ]
+        },
+        "tween": {
+            "entries": [
+                "tween"
+            ]
+        },
+        "tiled-map": {
+            "entries": [
+                "tiled-map"
+            ]
+        },
+        "spine": {
+            "wechatPlugin": false,
+            "entries": [
+                "spine"
+            ]
+        },
+        "dragonbones": {
+            "wechatPlugin": false,
+            "entries": [
+                "dragonbones"
+            ]
