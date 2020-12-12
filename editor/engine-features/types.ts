@@ -1,7 +1,7 @@
 
 // tslint:disable:interface-name
 
-export type IEngineModule =
+export type EngineModule =
     | 'gfx-webgl'
     | 'gfx-webgl2'
     | 'base'
@@ -25,7 +25,6 @@ export type IEngineModule =
     | 'tiled-map'
     | 'spine'
     | 'dragonbones';
-
 export interface ModuleRenderConfig {
     $schema?: string;
 
@@ -35,9 +34,9 @@ export interface ModuleRenderConfig {
     modules: IModules;
 }
 
-export type IModules = Record<IEngineModule, Item>;
+export type IModules = Record<EngineModule, Item>;
 
-export interface IBaseItem {
+export interface BaseItem {
     /**
      * Display text.
      */
@@ -47,13 +46,21 @@ export interface IBaseItem {
      * Description.
      */
     description?: string;
+
+    required?: boolean;
+
+    native?: string;
+
+    wechatPlugin?: boolean;
+
+    default?: string[];
 }
 
-export interface Item extends IBaseItem {
+export interface Item extends BaseItem {
     /**
      * Whether if child item this item is mutex each other.
      */
     mutex?: boolean;
 
-    options?: Record<string, IBaseItem>;
+    options?: Record<EngineModule, BaseItem>;
 }

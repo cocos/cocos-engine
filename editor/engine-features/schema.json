@@ -2,11 +2,39 @@
     "$schema": "http://json-schema.org/draft-07/schema#",
     "additionalProperties": false,
     "definitions": {
+        "BaseItem": {
+            "additionalProperties": false,
+            "properties": {
+                "default": {
+                    "items": {
+                        "type": "string"
+                    },
+                    "type": "array"
+                },
+                "description": {
+                    "description": "Description.",
+                    "type": "string"
+                },
+                "label": {
+                    "description": "Display text.",
+                    "type": "string"
+                },
+                "native": {
+                    "type": "string"
+                },
+                "required": {
+                    "type": "boolean"
+                },
+                "wechatPlugin": {
+                    "type": "boolean"
+                }
+            },
+            "type": "object"
+        },
         "Item": {
             "additionalProperties": false,
             "properties": {
                 "default": {
-                    "description": "If have default it will checked",
                     "items": {
                         "type": "string"
                     },
@@ -24,11 +52,11 @@
                     "description": "Whether if child item this item is mutex each other.",
                     "type": "boolean"
                 },
-                "nativeMacro": {
+                "native": {
                     "type": "string"
                 },
                 "options": {
-                    "$ref": "#/definitions/Record<string,IBaseItem>"
+                    "$ref": "#/definitions/Record<EngineModule,BaseItem>"
                 },
                 "required": {
                     "type": "boolean"
@@ -39,7 +67,83 @@
             },
             "type": "object"
         },
-        "Record<IEngineModule,Item>": {
+        "Record<EngineModule,BaseItem>": {
+            "additionalProperties": false,
+            "description": "Construct a type with a set of properties K of type T",
+            "properties": {
+                "audio": {
+                    "$ref": "#/definitions/BaseItem"
+                },
+                "base": {
+                    "$ref": "#/definitions/BaseItem"
+                },
+                "dragonbones": {
+                    "$ref": "#/definitions/BaseItem"
+                },
+                "gfx-webgl": {
+                    "$ref": "#/definitions/BaseItem"
+                },
+                "gfx-webgl2": {
+                    "$ref": "#/definitions/BaseItem"
+                },
+                "graphcis": {
+                    "$ref": "#/definitions/BaseItem"
+                },
+                "intersection-2d": {
+                    "$ref": "#/definitions/BaseItem"
+                },
+                "particle": {
+                    "$ref": "#/definitions/BaseItem"
+                },
+                "particle-2d": {
+                    "$ref": "#/definitions/BaseItem"
+                },
+                "physics": {
+                    "$ref": "#/definitions/BaseItem"
+                },
+                "physics-2d": {
+                    "$ref": "#/definitions/BaseItem"
+                },
+                "physics-2d-box2d": {
+                    "$ref": "#/definitions/BaseItem"
+                },
+                "physics-2d-builtin": {
+                    "$ref": "#/definitions/BaseItem"
+                },
+                "physics-ammo": {
+                    "$ref": "#/definitions/BaseItem"
+                },
+                "physics-builtin": {
+                    "$ref": "#/definitions/BaseItem"
+                },
+                "physics-cannon": {
+                    "$ref": "#/definitions/BaseItem"
+                },
+                "spine": {
+                    "$ref": "#/definitions/BaseItem"
+                },
+                "terrain": {
+                    "$ref": "#/definitions/BaseItem"
+                },
+                "tiled-map": {
+                    "$ref": "#/definitions/BaseItem"
+                },
+                "tween": {
+                    "$ref": "#/definitions/BaseItem"
+                },
+                "ui": {
+                    "$ref": "#/definitions/BaseItem"
+                },
+                "video": {
+                    "$ref": "#/definitions/BaseItem"
+                },
+                "webview": {
+                    "$ref": "#/definitions/BaseItem"
+                }
+            },
+            "type": "object"
+        },
+        "Record<EngineModule,Item>": {
             "additionalProperties": false,
             "properties": {
                 "audio": {
@@ -51,13 +155,13 @@
                 "dragonbones": {
                     "$ref": "#/definitions/Item"
                 },
-                "gfx": {
-                    "$ref": "#/definitions/Item"
-                },
                 "gfx-webgl": {
                     "$ref": "#/definitions/Item"
                 },
                 "gfx-webgl2": {
+                    "$ref": "#/definitions/Item"
+                },
+                "graphcis": {
                     "$ref": "#/definitions/Item"
                 },
                 "intersection-2d": {
@@ -113,11 +217,6 @@
                 }
             },
             "type": "object"
-        },
-        "Record<string,IBaseItem>": {
-            "additionalProperties": false,
-            "description": "Construct a type with a set of properties K of type T",
-            "type": "object"
         }
     },
     "properties": {
@@ -125,7 +224,7 @@
             "type": "string"
         },
         "modules": {
-            "$ref": "#/definitions/Record<IEngineModule,Item>",
+            "$ref": "#/definitions/Record<EngineModule,Item>",
             "description": "The modules info"
         }
     },

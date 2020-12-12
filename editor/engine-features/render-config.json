@@ -19,6 +19,7 @@
                 },
                 "gfx-webgl2": {
                     "label": "WebGL 2.0"
+                }
             }
         },
         "ui": {
@@ -75,17 +76,20 @@
         "audio": {
             "default": ["audio"],
             "label": "Audio",
-            "description": "Audio support."
+            "description": "Audio support.",
+            "native": "USE_AUDIO"
         },
         "video": {
             "default": ["video"],
             "label": "VideoPlayer",
-            "description": "VideoPlayer support."
+            "description": "VideoPlayer support.",
+            "native": "USE_VIDEO"
         },
         "webview": {
             "default": ["webview"],
             "label": "WebView",
-            "description": "WebView support."
+            "description": "WebView support.",
+            "native": "USE_WEBVIEW"
         },
         "tween": {
             "default": ["tween"],
