@@ -221,13 +221,45 @@ class DeferredPipeline extends nr.DeferredPipeline {
   }
 }
 
+// hook to invoke init after deserialization
+DeferredPipeline.prototype.onAfterDeserialize_JSB = DeferredPipeline.prototype.init;
+
+class GbufferFlow extends nr.GbufferFlow {
+  constructor() {
+    super();
+    this._name = 0;
+    this._priority = 0;
+    this._tag = 0;
+    this._stages = [];
+  }
+
+  init() {
+    for (let i = 0; i < this._stages.length; i++) {
+      this._stages[i].init();
+    }
+    let info = new nr.RenderFlowInfo(
+        this._name, this._priority, this._tag, this._stages);
+    this.initialize(info);
+  }
+}
+
 class GbufferStage extends nr.GbufferStage {
   constructor() {
     super();
+    this._name = 0;
+    this._priority = 0;
+    this._tag = 0;
+    this.renderQueues = []
   }
 
-  destroy () {
-
+  init() {
+    const queues = [];
+    for (let i = 0; i < this.renderQueues.length; i++) {
+      queues.push(this.renderQueues[i].init());
+    }
+    let info =
+        new nr.RenderStageInfo(this._name, this._priority, this._tag, queues);
+    this.initialize(info);
   }
 }
 
@@ -283,24 +315,6 @@ class PostprocessStage extends nr.PostprocessStage {
     }
     let info =
         new nr.RenderStageInfo(this._name, this._priority, this._tag, queues);
-    this.initialize(info);
-  }
-}
-
-class GbufferFlow extends nr.GbufferFlow {
-  constructor() {
-    super();
-    this._name = 0;
-    this._priority = 0;
-    this._tag = 0;
-    this._stages = [];
-  }
-  init() {
-    for (let i = 0; i < this._stages.length; i++) {
-      this._stages[i].init();
-    }
-    let info = new nr.RenderFlowInfo(
-        this._name, this._priority, this._tag, this._stages);
     this.initialize(info);
   }
 }

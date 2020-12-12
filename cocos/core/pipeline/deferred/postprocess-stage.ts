@@ -88,16 +88,16 @@ export class PostprocessStage extends RenderStage {
         // Postprocess
         const pass = this._postprocessMaterial!.passes[POSTPROCESSPASS_INDEX];
         const shader = ShaderPool.get(this._postprocessMaterial!.passes[POSTPROCESSPASS_INDEX].getShaderVariant());
-        // var pass: Pass;
-        // var shader: Shader;
-        // const builtinPostProcess = builtinResMgr.get<Material>('builtin-post-process-material');
-        // if (builtinPostProcess) {
-        //     pass = builtinPostProcess.passes[0];
-        //     shader = ShaderPool.get(pass.getShaderVariant());
-        // } else {
-        //     pass = this._postprocessMaterial!.passes[POSTPROCESSPASS_INDEX];
-        //     shader = ShaderPool.get(this._postprocessMaterial!.passes[POSTPROCESSPASS_INDEX].getShaderVariant());
-        // }
+        var pass: Pass;
+        var shader: Shader;
+        const builtinPostProcess = builtinResMgr.get<Material>('builtin-post-process-material');
+        if (builtinPostProcess) {
+            pass = builtinPostProcess.passes[0];
+            shader = ShaderPool.get(pass.getShaderVariant());
+        } else {
+            pass = this._postprocessMaterial!.passes[POSTPROCESSPASS_INDEX];
+            shader = ShaderPool.get(this._postprocessMaterial!.passes[POSTPROCESSPASS_INDEX].getShaderVariant());
+        }
 
         const inputAssembler = pipeline.quadIA;
         var pso:PipelineState|null = null;

@@ -291,7 +291,7 @@ CCProgram lighting-vs %{
   void main () {
     StandardVertInput In;
     CCVertInput(In);
-    
+
     gl_Position = In.position;
     gl_Position.y = - gl_Position.y;
     gl_Position.zw = vec2(1.0, 1.0);
@@ -311,13 +311,13 @@ CCProgram lighting-fs %{
   in vec2 v_uv;
 
   #pragma builtin(global)
-  uniform sampler2D cc_gbuffer_albedoMap;
+  layout (set = 0, binding = 5) uniform sampler2D cc_gbuffer_albedoMap;
   #pragma builtin(global)
-  uniform sampler2D cc_gbuffer_positionMap;
+  layout (set = 0, binding = 6)uniform sampler2D cc_gbuffer_positionMap;
   #pragma builtin(global)
-  uniform sampler2D cc_gbuffer_normalMap;
+  layout (set = 0, binding = 7)uniform sampler2D cc_gbuffer_normalMap;
   #pragma builtin(global)
-  uniform sampler2D cc_gbuffer_emissiveMap;
+  layout (set = 0, binding = 8)uniform sampler2D cc_gbuffer_emissiveMap;
 
   layout(location = 0) out vec4 fragColor0;
 
@@ -339,9 +339,9 @@ CCProgram lighting-fs %{
     s.emissive = emissiveMap.xyz;
     s.occlusion = emissiveMap.w;
 
-    float fog_factor = CC_TRANSFER_FOG(vec4(s.position,1)); 
+    float fog_factor = CC_TRANSFER_FOG(vec4(s.position,1));
     vec4 color = CCDeferredShading(s, fog_factor);
-    //float fog_factor = CC_TRANSFER_FOG(vec4(s.position,1)); 
+    //float fog_factor = CC_TRANSFER_FOG(vec4(s.position,1));
     //color = CC_APPLY_FOG(color, fog_factor);
     fragColor0 = color;
   }
@@ -524,7 +524,7 @@ CCProgram standard-fs %{
   }
 
   vec4 frag () {
-    StandardSurface s; 
+    StandardSurface s;
     surf(s);
     vec4 color = CCStandardShading(s);
     color = CC_APPLY_FOG(color, v_fog_factor);
