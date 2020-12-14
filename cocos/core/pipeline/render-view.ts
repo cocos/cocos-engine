@@ -131,6 +131,10 @@ export class RenderView {
         return this._flows;
     }
 
+    public getFlows (): RenderFlow[] {
+        return this._flows;
+    }
+
     private _name: string = '';
     private _window: RenderWindow | null = null;
     private _priority: number = 0;
