@@ -18,7 +18,7 @@ Object.assign(jsb, {
                 let y = res.y;    
                 let factor = 0.1;            
                 
-                // TODO: vivo 无法判断方向
+                // TODO: 无法判断方向
                 // if (isLandscape) {
                 //     let tmp = x;
                 //     x = -y;
