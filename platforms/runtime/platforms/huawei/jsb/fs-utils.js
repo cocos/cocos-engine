@@ -21,7 +21,6 @@
 window.jsb = window.jsb || {};
 var fs = hbs.getFileSystemManager ? hbs.getFileSystemManager() : null;
 
-console.log('pptest fs')
 var fsUtils = {
 
     fs,
@@ -277,5 +276,4 @@ var fsUtils = {
     },
 };
 
-console.log('pptest fs1')
 jsb.fsUtils = window.fsUtils = module.exports = fsUtils;
