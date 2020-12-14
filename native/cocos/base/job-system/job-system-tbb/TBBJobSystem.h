@@ -12,8 +12,6 @@ public:
     JobSystem& operator=(JobSystem const&) = delete;
     JobSystem& operator=(JobSystem&&) = delete;
 
-    void run(JobGraph *g) = 0;
-
 private:
 
 };

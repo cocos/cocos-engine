@@ -43,6 +43,7 @@ private:
     friend class DeviceProxy;
     
     void initEncoder();
+    void destroyEncoder();
     CommandEncoder *_encoder = nullptr;
 };
 

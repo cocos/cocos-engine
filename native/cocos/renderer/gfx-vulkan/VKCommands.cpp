@@ -37,9 +37,15 @@ THE SOFTWARE.
 namespace cc {
 namespace gfx {
 
-CCVKGPUCommandBufferPool *CCVKGPUDevice::getCommandBufferPool(std::thread::id threadID) {
+CCVKGPUDevice::~CCVKGPUDevice() {
+    for (CommandBufferPools::iterator it = commandBufferPools.begin(); it != commandBufferPools.end(); ++it) {
+        CC_SAFE_DELETE(it->second);
+    }
+    commandBufferPools.clear();
+}
+
+CCVKGPUCommandBufferPool* CCVKGPUDevice::getCommandBufferPool(std::thread::id threadID) {
     if (!commandBufferPools.count(threadID)) {
-        //std::scoped_lock<std::mutex> guard(mutex);
         commandBufferPools[threadID] = CC_NEW(CCVKGPUCommandBufferPool(this));
     }
     return commandBufferPools[threadID];
@@ -389,35 +395,6 @@ void CCVKCmdFuncCreateDescriptorSetLayout(CCVKDevice *device, CCVKGPUDescriptorS
     VK_CHECK(vkCreateDescriptorSetLayout(gpuDevice->vkDevice, &setCreateInfo, nullptr, &gpuDescriptorSetLayout->vkDescriptorSetLayout));
 
     gpuDescriptorSetLayout->pool.link(gpuDevice, gpuDescriptorSetLayout->maxSetsPerPool, gpuDescriptorSetLayout->vkBindings, gpuDescriptorSetLayout->vkDescriptorSetLayout);
-
-    gpuDescriptorSetLayout->defaultDescriptorSet = gpuDescriptorSetLayout->pool.request();
-
-    if (gpuDevice->useDescriptorUpdateTemplate) {
-        const vector<VkDescriptorSetLayoutBinding> &bindings = gpuDescriptorSetLayout->vkBindings;
-        uint bindingCount = bindings.size();
-        if (!bindingCount) return;
-
-        vector<VkDescriptorUpdateTemplateEntry> entries(bindingCount);
-        for (size_t j = 0u, k = 0u; j < bindingCount; j++) {
-            const VkDescriptorSetLayoutBinding &binding = bindings[j];
-            if (binding.descriptorType != VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK_EXT) {
-                entries[j].dstBinding = binding.binding;
-                entries[j].dstArrayElement = 0;
-                entries[j].descriptorCount = binding.descriptorCount;
-                entries[j].descriptorType = binding.descriptorType;
-                entries[j].offset = sizeof(CCVKDescriptorInfo) * k;
-                entries[j].stride = sizeof(CCVKDescriptorInfo);
-                k += binding.descriptorCount;
-            } // TODO: inline UBOs
-        }
-
-        VkDescriptorUpdateTemplateCreateInfo createInfo = {VK_STRUCTURE_TYPE_DESCRIPTOR_UPDATE_TEMPLATE_CREATE_INFO};
-        createInfo.descriptorUpdateEntryCount = bindingCount;
-        createInfo.pDescriptorUpdateEntries = entries.data();
-        createInfo.templateType = VK_DESCRIPTOR_UPDATE_TEMPLATE_TYPE_DESCRIPTOR_SET;
-        createInfo.descriptorSetLayout = gpuDescriptorSetLayout->vkDescriptorSetLayout;
-        VK_CHECK(vkCreateDescriptorUpdateTemplateKHR(gpuDevice->vkDevice, &createInfo, nullptr, &gpuDescriptorSetLayout->vkDescriptorUpdateTemplate));
-    }
 }
 
 void CCVKCmdFuncCreatePipelineLayout(CCVKDevice *device, CCVKGPUPipelineLayout *gpuPipelineLayout) {
@@ -673,10 +650,10 @@ void CCVKCmdFuncUpdateBuffer(CCVKDevice *device, CCVKGPUBuffer *gpuBuffer, const
         sizeToUpload = size;
     }
 
-//    if (!cmdBuffer && gpuBuffer->mappedData) {
-//        device->gpuTransportHub()->checkIn(gpuBuffer->mappedData + offset, dataToUpload, sizeToUpload);
-//        return;
-//    }
+    //    if (!cmdBuffer && gpuBuffer->mappedData) {
+    //        device->gpuTransportHub()->checkIn(gpuBuffer->mappedData + offset, dataToUpload, sizeToUpload);
+    //        return;
+    //    }
 
     CCVKGPUBuffer stagingBuffer;
     stagingBuffer.size = sizeToUpload;
@@ -698,7 +675,7 @@ void CCVKCmdFuncUpdateBuffer(CCVKDevice *device, CCVKGPUBuffer *gpuBuffer, const
         barrier.size = region.size;
         vkCmdPipelineBarrier(cmdBuffer->vkCommandBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT, gpuBuffer->targetStage, 0, 0, nullptr, 1, &barrier, 0, nullptr);
     };
-    
+
     if (cmdBuffer) {
         upload(cmdBuffer);
     } else {

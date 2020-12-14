@@ -38,7 +38,9 @@ bool DeviceProxy::initialize(const DeviceInfo &info) {
         _bindingMappingInfo.samplerOffsets.push_back(0);
     }
 
-    _remote->initialize(info);
+    if (!_remote->initialize(info)) {
+        return false;
+    }
 
     _context = _remote->getContext();
     _API = _remote->getGfxAPI();
@@ -72,21 +74,21 @@ bool DeviceProxy::initialize(const DeviceInfo &info) {
 
 void DeviceProxy::destroy() {
     if (_remote) {
-        ENCODE_COMMAND_2(
+        ENCODE_COMMAND_1(
             getMainEncoder(),
             DeviceDestroy,
-            device, this,
             remote, getRemote(),
             {
                 CC_DESTROY(remote);
-                CC_SAFE_DELETE(device->_queue);
-                CC_SAFE_DELETE(device->_cmdBuff);
             });
 
         _remote = nullptr;
     }
 
     _mainEncoder->TerminateConsumerThread();
+    ((CommandBufferProxy *)_cmdBuff)->destroyEncoder();
+    CC_SAFE_DELETE(_cmdBuff);
+    CC_SAFE_DELETE(_queue);
     CC_SAFE_DELETE(_mainEncoder);
 }
 
@@ -141,18 +143,18 @@ void DeviceProxy::setMultithreaded(bool multithreaded) {
         _mainEncoder->SetImmediateMode(false);
         _remote->bindRenderContext(false);
         ENCODE_COMMAND_1(
-                _mainEncoder, DeviceMakeCurrent,
-                remote, _remote,
-                {
-                    remote->bindDeviceContext(true);
-                });
+            _mainEncoder, DeviceMakeCurrent,
+            remote, _remote,
+            {
+                remote->bindDeviceContext(true);
+            });
     } else {
         ENCODE_COMMAND_1(
-                _mainEncoder, DeviceMakeCurrent,
-                remote, _remote,
-                {
-                    remote->bindDeviceContext(false);
-                });
+            _mainEncoder, DeviceMakeCurrent,
+            remote, _remote,
+            {
+                remote->bindDeviceContext(false);
+            });
         _mainEncoder->FinishWriting(true); // wait till finished
         _mainEncoder->SetImmediateMode(true);
         _remote->bindRenderContext(true);

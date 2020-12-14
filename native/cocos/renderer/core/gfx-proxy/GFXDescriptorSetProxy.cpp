@@ -2,9 +2,9 @@
 
 #include "threading/CommandEncoder.h"
 #include "GFXBufferProxy.h"
-#include "GFXDescriptorSetLayoutProxy.h"
 #include "GFXDescriptorSetProxy.h"
 #include "GFXDeviceProxy.h"
+#include "GFXPipelineLayoutProxy.h"
 #include "GFXSamplerProxy.h"
 #include "GFXTextureProxy.h"
 
@@ -12,14 +12,15 @@ namespace cc {
 namespace gfx {
 
 bool DescriptorSetProxy::initialize(const DescriptorSetInfo &info) {
-    _layout = info.layout;
+    _layout = info.layout->getSetLayouts()[info.setIndex];
     uint descriptorCount = _layout->getDescriptorCount();
     _buffers.resize(descriptorCount);
     _textures.resize(descriptorCount);
     _samplers.resize(descriptorCount);
 
     DescriptorSetInfo remoteInfo;
-    remoteInfo.layout = ((DescriptorSetLayoutProxy *)info.layout)->getRemote();
+    remoteInfo.layout = ((PipelineLayoutProxy *)info.layout)->getRemote();
+    remoteInfo.setIndex = info.setIndex;
 
     ENCODE_COMMAND_2(
         ((DeviceProxy *)_device)->getMainEncoder(),

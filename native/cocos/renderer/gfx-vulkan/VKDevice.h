@@ -38,9 +38,6 @@ class CCVKGPUTransportHub;
 class CCVKGPUDescriptorHub;
 class CCVKGPUSemaphorePool;
 class CCVKGPUDescriptorSetHub;
-
-class CCVKGPUFencePool;
-class CCVKGPURecycleBin;
 class CCVKGPUStagingBufferPool;
 
 class CC_VULKAN_API CCVKDevice final : public Device {
@@ -99,14 +96,12 @@ public:
 
     CC_INLINE CCVKGPUDescriptorHub *gpuDescriptorHub() { return _gpuDescriptorHub; }
     CC_INLINE CCVKGPUSemaphorePool *gpuSemaphorePool() { return _gpuSemaphorePool; }
+    CC_INLINE CCVKGPUDescriptorSetHub *gpuDescriptorSetHub() { return _gpuDescriptorSetHub; }
 
+    CCVKGPUFencePool *gpuFencePool();
     CCVKGPURecycleBin *gpuRecycleBin();
-
-    CC_INLINE CCVKGPUFencePool *gpuFencePool() { return _gpuFencePools[_curBackBufferIndex]; }
-    CC_INLINE CCVKGPUTransportHub *gpuTransportHub() { return _gpuTransportHubs[_curBackBufferIndex]; }
-    CC_INLINE CCVKGPUDescriptorSetPool *gpuDescriptorSetPool() { return _gpuDescriptorSetPools[_curBackBufferIndex]; }
-    CC_INLINE CCVKGPUCommandBufferPool *gpuCommandBufferPool() { return _gpuCommandBufferPools[_curBackBufferIndex]; }
-    CC_INLINE CCVKGPUStagingBufferPool *gpuStagingBufferPool() { return _gpuStagingBufferPools[_curBackBufferIndex]; }
+    CCVKGPUTransportHub *gpuTransportHub();
+    CCVKGPUStagingBufferPool *gpuStagingBufferPool();
 
 private:
     virtual CommandBuffer *doCreateCommandBuffer(const CommandBufferInfo &info, bool hasAgent) override;
@@ -135,15 +130,11 @@ private:
     vector<CCVKGPUFencePool *> _gpuFencePools;
     vector<CCVKGPURecycleBin *> _gpuRecycleBins;
     vector<CCVKGPUTransportHub *> _gpuTransportHubs;
-    vector<CCVKGPUDescriptorSetPool *> _gpuDescriptorSetPools;
-    vector<CCVKGPUCommandBufferPool *> _gpuCommandBufferPools;
     vector<CCVKGPUStagingBufferPool *> _gpuStagingBufferPools;
 
     CCVKGPUDescriptorHub *_gpuDescriptorHub = nullptr;
     CCVKGPUSemaphorePool *_gpuSemaphorePool = nullptr;
-
-    uint _curBackBufferIndex = 0u;
-    uint _backBufferCount = 3u;
+    CCVKGPUDescriptorSetHub *_gpuDescriptorSetHub = nullptr;
 
     vector<const char *> _layers;
     vector<const char *> _extensions;

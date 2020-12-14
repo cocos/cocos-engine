@@ -16,7 +16,7 @@ public:
     inline T        Subtract(T const v) noexcept    { return mCounter.fetch_sub(v, std::memory_order_relaxed); }
     inline void     Set(T const v) noexcept         { mCounter.store(v, std::memory_order_relaxed); }
     inline T        Get() const noexcept            { return mCounter.load(std::memory_order_relaxed); }
-    inline T        Reset() noexcept                { Set(0); }
+    inline void     Reset() noexcept                { Set(0); }
 
 private:
 

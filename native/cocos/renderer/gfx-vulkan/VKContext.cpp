@@ -37,7 +37,7 @@ THE SOFTWARE.
 
 namespace cc {
 namespace gfx {
-            
+
 namespace {
 
 constexpr uint FORCE_MINOR_VERSION = 0;             // 0 for default version, otherwise minorVersion = (FORCE_MINOR_VERSION - 1)
@@ -492,7 +492,7 @@ bool CCVKContext::initialize(const ContextInfo &info) {
         }
 
         // Determine the number of images
-        uint desiredNumberOfSwapchainImages = std::max(device->_backBufferCount, surfaceCapabilities.minImageCount + 1);
+        uint desiredNumberOfSwapchainImages = std::max(3u, surfaceCapabilities.minImageCount + 1);
 
         if ((surfaceCapabilities.maxImageCount > 0) && (desiredNumberOfSwapchainImages > surfaceCapabilities.maxImageCount)) {
             desiredNumberOfSwapchainImages = surfaceCapabilities.maxImageCount;

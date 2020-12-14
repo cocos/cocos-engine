@@ -353,7 +353,7 @@ void GLES3Context::destroy() {
         _eglContext = EGL_NO_CONTEXT;
     }
 
-    if (_eglSurface != EGL_NO_SURFACE) {
+    if (_isPrimaryContex && _eglSurface != EGL_NO_SURFACE) {
         EGL_CHECK(eglDestroySurface(_eglDisplay, _eglSurface));
         _eglSurface = EGL_NO_SURFACE;
     }

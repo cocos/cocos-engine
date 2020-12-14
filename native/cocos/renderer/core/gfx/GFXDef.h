@@ -949,7 +949,8 @@ struct DescriptorSetLayoutInfo {
 };
 
 struct DescriptorSetInfo {
-    DescriptorSetLayout *layout = nullptr;
+    PipelineLayout *layout = nullptr;
+    uint setIndex = 0u;
 };
 
 typedef cc::vector<DescriptorSetLayout *> DescriptorSetLayoutList;

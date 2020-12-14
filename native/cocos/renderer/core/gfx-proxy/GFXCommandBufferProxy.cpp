@@ -20,6 +20,10 @@ void CommandBufferProxy::initEncoder() {
     _encoder->SetImmediateMode(false);
 }
 
+void CommandBufferProxy::destroyEncoder() {
+    CC_SAFE_DELETE(_encoder);
+}
+
 bool CommandBufferProxy::initialize(const CommandBufferInfo &info) {
     initEncoder();
 
@@ -53,8 +57,7 @@ void CommandBufferProxy::destroy() {
 
         _remote = nullptr;
     }
-
-    CC_SAFE_DELETE(_encoder);
+    destroyEncoder();
 }
 
 void CommandBufferProxy::begin(RenderPass *renderPass, uint subpass, Framebuffer *frameBuffer) {

@@ -484,7 +484,7 @@ T* CommandEncoder::AllocateAndZero(uint32_t const count) noexcept
     , Param6(In##Param6)                                            \
     {                                                               \
     }                                                               \
-    virtual void Execute() noexcept                                 \
+    virtual void Execute() noexcept override                        \
     {                                                               \
         Code;                                                       \
     }                                                               \

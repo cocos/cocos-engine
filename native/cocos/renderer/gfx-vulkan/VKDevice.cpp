@@ -293,17 +293,15 @@ bool CCVKDevice::initialize(const DeviceInfo &info) {
         _gpuFencePools.push_back(CC_NEW(CCVKGPUFencePool(_gpuDevice)));
         _gpuRecycleBins.push_back(CC_NEW(CCVKGPURecycleBin(_gpuDevice)));
         _gpuTransportHubs.push_back(CC_NEW(CCVKGPUTransportHub(_gpuDevice)));
-        _gpuDescriptorSetPools.push_back(CC_NEW(CCVKGPUDescriptorSetPool(_gpuDevice)));
-        _gpuCommandBufferPools.push_back(CC_NEW(CCVKGPUCommandBufferPool(_gpuDevice)));
         _gpuStagingBufferPools.push_back(CC_NEW(CCVKGPUStagingBufferPool(_gpuDevice)));
 
         _gpuTransportHubs[i]->link(((CCVKQueue *)_queue)->gpuQueue(),
                                    _gpuFencePools[i],
-                                   _gpuCommandBufferPools[i],
                                    _gpuStagingBufferPools[i]);
     }
     _gpuDescriptorHub = CC_NEW(CCVKGPUDescriptorHub(_gpuDevice));
     _gpuSemaphorePool = CC_NEW(CCVKGPUSemaphorePool(_gpuDevice));
+    _gpuDescriptorSetHub = CC_NEW(CCVKGPUDescriptorSetHub(_gpuDevice));
 
     CommandBufferInfo cmdBuffInfo;
     cmdBuffInfo.type = CommandBufferType::PRIMARY;
@@ -398,21 +396,18 @@ void CCVKDevice::destroy() {
 
     CC_SAFE_DELETE(_gpuSemaphorePool);
     CC_SAFE_DELETE(_gpuDescriptorHub);
-
+    CC_SAFE_DELETE(_gpuDescriptorSetHub);
+    
     uint backBufferCount = ((CCVKContext *)_context)->gpuContext()->swapchainCreateInfo.minImageCount;
     for (uint i = 0u; i < backBufferCount; i++) {
         _gpuRecycleBins[i]->clear();
 
         CC_SAFE_DELETE(_gpuStagingBufferPools[i]);
-        CC_SAFE_DELETE(_gpuCommandBufferPools[i]);
-        CC_SAFE_DELETE(_gpuDescriptorSetPools[i]);
         CC_SAFE_DELETE(_gpuTransportHubs[i]);
         CC_SAFE_DELETE(_gpuRecycleBins[i]);
         CC_SAFE_DELETE(_gpuFencePools[i]);
     }
     _gpuStagingBufferPools.clear();
-    _gpuCommandBufferPools.clear();
-    _gpuDescriptorSetPools.clear();
     _gpuTransportHubs.clear();
     _gpuRecycleBins.clear();
     _gpuFencePools.clear();
@@ -485,13 +480,15 @@ void CCVKDevice::acquire() {
     queue->_numTriangles = 0;
     queue->gpuQueue()->nextWaitSemaphore = VK_NULL_HANDLE;
     queue->gpuQueue()->nextSignalSemaphore = VK_NULL_HANDLE;
+    
+    _gpuDescriptorSetHub->flush();
 
     _gpuSemaphorePool->reset();
     VkSemaphore acquireSemaphore = _gpuSemaphorePool->alloc();
     VK_CHECK(vkAcquireNextImageKHR(_gpuDevice->vkDevice, _gpuSwapchain->vkSwapchain, ~0ull,
                                    acquireSemaphore, VK_NULL_HANDLE, &_gpuSwapchain->curImageIndex));
 
-    assert(_curBackBufferIndex == _gpuSwapchain->curImageIndex);
+    assert(_gpuDevice->curBackBufferIndex == _gpuSwapchain->curImageIndex);
 
     uint fenceCount = gpuFencePool()->size();
     if (fenceCount) {
@@ -500,11 +497,9 @@ void CCVKDevice::acquire() {
     }
 
     // reset everything only when no pending commands
-    if (gpuTransportHub()->empty()) {
+    if (!((CCVKCommandBuffer *)_cmdBuff)->gpuCommandBuffer()->began) {
         gpuFencePool()->reset();
         gpuRecycleBin()->clear();
-        gpuDescriptorSetPool()->reset();
-        gpuCommandBufferPool()->reset();
         gpuStagingBufferPool()->reset();
     }
 
@@ -531,12 +526,16 @@ void CCVKDevice::present() {
         if (res) _swapchainReady = false;
 #endif
 
-        _curBackBufferIndex = (_curBackBufferIndex + 1) % _backBufferCount;
+        _gpuDevice->curBackBufferIndex = (_gpuDevice->curBackBufferIndex + 1) % _gpuDevice->backBufferCount;
     }
 }
 
-// recycled object before acquire should be put into last frame's bin
+// objects recycled before acquire should be put into last frame's bin
 CCVKGPURecycleBin *CCVKDevice::gpuRecycleBin() { return _gpuRecycleBins[_gpuSwapchain->curImageIndex]; }
+
+CCVKGPUFencePool *CCVKDevice::gpuFencePool() { return _gpuFencePools[_gpuDevice->curBackBufferIndex]; }
+CCVKGPUTransportHub *CCVKDevice::gpuTransportHub() { return _gpuTransportHubs[_gpuDevice->curBackBufferIndex]; }
+CCVKGPUStagingBufferPool *CCVKDevice::gpuStagingBufferPool() { return _gpuStagingBufferPools[_gpuDevice->curBackBufferIndex]; }
 
 CommandBuffer *CCVKDevice::createCommandBuffer() {
     return CC_NEW(CCVKCommandBuffer(this));
@@ -649,7 +648,7 @@ bool CCVKDevice::checkSwapchainStatus() {
 
     destroySwapchain();
 
-    _curBackBufferIndex = 0u;
+    _gpuDevice->curBackBufferIndex = 0u;
     _gpuSwapchain->curImageIndex = 0;
     _gpuSwapchain->vkSwapchain = vkSwapchain;
 

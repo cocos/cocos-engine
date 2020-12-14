@@ -6,6 +6,9 @@ message(STATUS "Target: ${TARGET_NAME}...")
 
 set(INCLUDE_FILES
   ${GFX_EXTERNAL_PATH}/taskflow
+  ${GFX_EXTERNAL_PATH}/concurrentqueue
+  ${COCOS_SRC_PATH}
+  ${COCOS_SRC_PATH}/base
   ${COCOS_SRC_PATH}/renderer/core
 )
 
@@ -41,7 +44,7 @@ else()
 	add_library(${TARGET_NAME} SHARED ${HEADER_FILES} ${ALL_FILES})
 endif()
 
-target_link_libraries(${TARGET_NAME} Core)
+target_link_libraries(${TARGET_NAME})
 
 set_target_properties(${TARGET_NAME} PROPERTIES OUTPUT_NAME CCTFJobSystem)
 set_target_properties(${TARGET_NAME} PROPERTIES OUTPUT_NAME_DEBUG CCTFJobSystem_d)

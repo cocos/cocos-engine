@@ -60,12 +60,12 @@ void QueueProxy::submit(const CommandBuffer *const *cmdBuffs, uint count, Fence 
         {
             if (multiThreaded) {
                 JobGraph g;
-                Job j = g.createForEachIndexJob(1u, count, 1u, [this](uint i) {
+                g.createForEachIndexJob(1u, count, 1u, [this](uint i) {
                     ((CommandBufferProxy *)cmdBuffs[i])->getEncoder()->FlushCommands();
                 });
                 JobSystem::getInstance().run(g);
                 ((CommandBufferProxy *)cmdBuffs[0])->getEncoder()->FlushCommands();
-                JobSystem::getInstance().waitForAll();
+                g.waitForAll();
             } else {
                 for (uint i = 0u; i < count; ++i) {
                     ((CommandBufferProxy *)cmdBuffs[i])->getEncoder()->FlushCommands();

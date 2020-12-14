@@ -40,7 +40,7 @@ else()
 	add_library(${TARGET_NAME} SHARED ${HEADER_FILES} ${ALL_FILES})
 endif()
 
-target_link_libraries(${TARGET_NAME} Core)
+target_link_libraries(${TARGET_NAME})
 
 set_target_properties(${TARGET_NAME} PROPERTIES OUTPUT_NAME CCThreading)
 set_target_properties(${TARGET_NAME} PROPERTIES OUTPUT_NAME_DEBUG CCThreading_d)

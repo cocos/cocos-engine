@@ -213,8 +213,7 @@ void GLES3Device::bindRenderContext(bool bound) {
     _context = bound ? _renderContext : nullptr;
 
     if (bound) {
-        std::hash<std::thread::id> hasher;
-        _threadID = hasher(std::this_thread::get_id());
+        _threadID = std::hash<std::thread::id>()(std::this_thread::get_id());
         _gpuStateCache->reset();
     }
 }

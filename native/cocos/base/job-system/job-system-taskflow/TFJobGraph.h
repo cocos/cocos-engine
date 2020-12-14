@@ -1,7 +1,6 @@
 #pragma once
 
 #include "taskflow/taskflow.hpp"
-#include "TFJob.h"
 
 namespace cc {
 
@@ -9,34 +8,45 @@ class TFJobGraph final {
 public:
 
     template <typename Function>
-    TFJob createJob(Function &&func) noexcept;
+    uint createJob(Function &&func) noexcept;
 
     template <typename B, typename E, typename S, typename Function>
-    TFJob createForEachIndexJob(B &&begin, E &&end, S &&step, Function &&func) noexcept;
-    
+    uint createForEachIndexJob(B &&begin, E &&end, S &&step, Function &&func) noexcept;
+
     template <typename B, typename E, typename T, typename Function>
-    TFJob createReduceJob(B &&begin, E &&end, T &acc, Function &&func) noexcept;
+    uint createReduceJob(B &&begin, E &&end, T &acc, Function &&func) noexcept;
+
+    void makeEdge(uint j1, uint j2) noexcept;
+    
+    void waitForAll() { if (_pending) { _future.wait(); _pending = false; } }
 
 private:
 
     friend class TFJobSystem;
 
     tf::Taskflow _flow;
+    vector<tf::Task> _tasks;
+
+    std::future<void> _future;
+    bool _pending = false;
 };
 
 template <typename Function>
-TFJob TFJobGraph::createJob(Function &&func) noexcept {
-    return TFJob(_flow.emplace(func));
+uint TFJobGraph::createJob(Function &&func) noexcept {
+    _tasks.emplace_back(_flow.emplace(func));
+    return _tasks.size();
 }
 
 template <typename B, typename E, typename S, typename Function>
-TFJob TFJobGraph::createForEachIndexJob(B &&begin, E &&end, S &&step, Function &&func) noexcept {
-    return TFJob(_flow.for_each_index(begin, end, step, func));
+uint TFJobGraph::createForEachIndexJob(B &&begin, E &&end, S &&step, Function &&func) noexcept {
+    _tasks.emplace_back(_flow.for_each_index(begin, end, step, func));
+    return _tasks.size();
 }
 
 template <typename B, typename E, typename T, typename Function>
-TFJob TFJobGraph::createReduceJob(B &&begin, E &&end, T &acc, Function &&func) noexcept {
-    return TFJob(_flow.reduce(begin, end, acc, func));
+uint TFJobGraph::createReduceJob(B &&begin, E &&end, T &acc, Function &&func) noexcept {
+    _tasks.emplace_back(_flow.reduce(begin, end, acc, func));
+    return _tasks.size();
 }
 
 } // namespace cc

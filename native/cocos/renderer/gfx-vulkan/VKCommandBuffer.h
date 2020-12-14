@@ -69,10 +69,10 @@ private:
 
     CCVKGPUPipelineState *_curGPUPipelineState = nullptr;
     vector<CCVKGPUDescriptorSet *> _curGPUDescriptorSets;
+    vector<VkDescriptorSet> _curVkDescriptorSets;
     vector<const uint *> _curDynamicOffsets;
     vector<uint> _curDynamicOffsetCounts;
     uint _firstDirtyDescriptorSet = UINT_MAX;
-    uint _firstDifferentDescriptorSet = UINT_MAX;
 
     CCVKGPUInputAssembler *_curGPUInputAssember = nullptr;
     CCVKGPUFramebuffer *_curGPUFBO = nullptr;

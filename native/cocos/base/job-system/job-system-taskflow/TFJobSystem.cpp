@@ -10,24 +10,13 @@ TFJobSystem TFJobSystem::_instance;
 TFJobSystem::TFJobSystem(uint threadCount) noexcept
 : _executor(threadCount)
 {
-    _nextHandle.Set(1 << 10); // start from non-zero
+    CC_LOG_INFO("Job system initialized: %d worker threads", threadCount);
 }
 
-uint TFJobSystem::run(TFJobGraph &g) noexcept {
-    uint nextHandle = _nextHandle.Increment();
-    _futures[nextHandle] = _executor.run(g._flow);
-    return nextHandle;
-}
-
-void TFJobSystem::wait(uint handle) noexcept {
-    if (_futures.count(handle) == 0) return;
-    _futures[handle].wait();
-    _futures.erase(handle);
-}
-
-void TFJobSystem::waitForAll() noexcept {
-    _executor.wait_for_all();
-    _futures.clear();
+void TFJobSystem::run(TFJobGraph &g) noexcept {
+    if (g._pending) return;
+    g._future = _executor.run(g._flow);
+    g._pending = true;
 }
 
 } // namespace cc
