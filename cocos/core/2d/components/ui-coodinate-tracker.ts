@@ -29,12 +29,12 @@
  * @module component
  */
 
-import { Component } from '../../core/components/component';
-import { EventHandler } from '../../core/components/component-event-handler';
+import { Component } from '../../components/component';
+import { EventHandler } from '../../components/component-event-handler';
 import { ccclass, help, menu, executionOrder, tooltip, type, serializable } from 'cc.decorator';
-import { Node } from '../../core/scene-graph/node';
-import { Camera } from '../../core/3d';
-import { Vec3 } from '../../core/math';
+import { Node } from '../../scene-graph/node';
+import { Camera } from '../../components';
+import { Vec3 } from '../../math';
 
 /**
  * @en The component that converts 3D node coordinates to UI node coordinates.

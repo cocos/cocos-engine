@@ -28,13 +28,12 @@
  * @hidden
  */
 
-import { BitmapFont, IConfig, FontLetterDefinition } from '../../../core/assets/bitmap-font';
-import { SpriteFrame } from '../../../core/assets/sprite-frame';
-import { isUnicodeCJK, isUnicodeSpace } from '../../../core/utils/text-utils';
-import { Rect, Size, Vec2 } from '../../../core/math';
-import { HorizontalTextAlignment, VerticalTextAlignment } from '../../components/label';
-import { Label, Overflow } from '../../components/label';
-import { UITransform } from '../../../core/components/ui-base/ui-transform';
+import { BitmapFont, IConfig, FontLetterDefinition } from '../../assets/bitmap-font';
+import { SpriteFrame } from '../../assets/sprite-frame';
+import { isUnicodeCJK, isUnicodeSpace } from '../../../utils/text-utils';
+import { Rect, Size, Vec2 } from '../../../math';
+import { HorizontalTextAlignment, VerticalTextAlignment, Label, Overflow } from '../../components/label';
+import { UITransform } from '../../framework/ui-transform';
 import { shareLabelInfo } from './font-utils';
 
 class LetterInfo {

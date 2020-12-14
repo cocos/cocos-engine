@@ -29,21 +29,21 @@
  * @module ui
  */
 
-import { Font, SpriteAtlas, TTFFont } from '../../core/assets';
+import { Font, SpriteAtlas, TTFFont } from '../assets';
 import { ccclass, executeInEditMode, executionOrder, help, menu, tooltip, multiline, type, serializable } from 'cc.decorator';
-import { assert, EventTouch, warnID } from '../../core/platform';
-import { BASELINE_RATIO, fragmentText, HtmlTextParser, IHtmlTextParserResultObj, IHtmlTextParserStack, isUnicodeCJK, isUnicodeSpace } from '../../core/utils';
-import Pool from '../../core/utils/pool';
-import { Color, Vec2 } from '../../core/math';
-import { Node, PrivateNode } from '../../core/scene-graph';
+import { assert, EventTouch, warnID } from '../../platform';
+import { BASELINE_RATIO, fragmentText, HtmlTextParser, IHtmlTextParserResultObj, IHtmlTextParserStack, isUnicodeCJK, isUnicodeSpace } from '../../utils';
+import Pool from '../../utils/pool';
+import { Color, Vec2 } from '../../math';
+import { Node, PrivateNode } from '../../scene-graph';
 import { CacheMode, HorizontalTextAlignment, Label, VerticalTextAlignment } from './label';
 import { LabelOutline } from './label-outline';
 import { Sprite } from './sprite';
-import { UIComponent, UIRenderable, UITransform } from '../../core/components/ui-base';
+import { UIComponent, UIRenderable, UITransform } from '../framework';
 import { DEV, EDITOR } from 'internal:constants';
-import { legacyCC } from '../../core/global-exports';
-import { Component } from "../../core/components";
-import assetManager from '../../core/asset-manager/asset-manager';
+import { legacyCC } from '../../global-exports';
+import { Component } from '../../components';
+import assetManager from '../../asset-manager/asset-manager';
 
 const _htmlTextParser = new HtmlTextParser();
 const RichTextChildName = 'RICHTEXT_CHILD';

@@ -29,16 +29,16 @@
  * @module ui
  */
 
-import { Component, EventHandler } from '../../core/components';
-import { UITransform } from '../../core/components/ui-base';
+import { Component, EventHandler } from '../../components';
+import { UITransform } from '../framework';
 import { ccclass, help, executionOrder, menu, requireComponent, tooltip, type, slide, range, serializable } from 'cc.decorator';
-import { EventTouch, SystemEventType, Touch } from '../../core/platform';
-import { Vec3 } from '../../core/math';
-import { ccenum } from '../../core/value-types/enum';
-import { clamp01 } from '../../core/math/utils';
+import { EventTouch, SystemEventType, Touch } from '../../platform';
+import { Vec3 } from '../../math';
+import { ccenum } from '../../value-types/enum';
+import { clamp01 } from '../../math/utils';
 import { Sprite } from './sprite';
 import { EDITOR } from 'internal:constants';
-import { legacyCC } from '../../core/global-exports';
+import { legacyCC } from '../../global-exports';
 
 const _tempPos = new Vec3();
 /**

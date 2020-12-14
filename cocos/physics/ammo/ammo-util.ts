@@ -25,7 +25,7 @@
 
 import Ammo from './ammo-instantiated';
 import { IVec3Like, IQuatLike } from '../../core/math/type-define';
-import { Mesh } from '../../core/assets';
+import { Mesh } from '../../core/3d';
 import { PrimitiveMode } from '../../core/gfx';
 
 export function cocos2AmmoVec3 (out: Ammo.btVector3, v: IVec3Like): Ammo.btVector3 {

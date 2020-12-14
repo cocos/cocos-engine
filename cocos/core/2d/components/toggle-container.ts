@@ -29,11 +29,11 @@
  * @module ui
  */
 
-import { Component, EventHandler as ComponentEventHandler } from '../../core/components';
+import { Component, EventHandler as ComponentEventHandler } from '../../components';
 import { ccclass, help, executeInEditMode, executionOrder, menu, tooltip, type, serializable } from 'cc.decorator';
 import { Toggle } from './toggle';
-import { legacyCC } from '../../core/global-exports';
-import { SystemEventType } from "../../core/platform/event-manager";
+import { legacyCC } from '../../global-exports';
+import { SystemEventType } from "../../platform/event-manager";
 
 /**
  * @en

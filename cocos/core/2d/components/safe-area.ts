@@ -29,14 +29,13 @@
  */
 
 import { ccclass, help, executionOrder, menu, executeInEditMode, requireComponent } from 'cc.decorator';
-import { Component } from '../../core/components';
-import { UITransform } from '../../core/components/ui-base';
-import { view } from '../../core/platform';
+import { Component } from '../../components';
+import { UITransform } from '../framework';
+import { view, sys } from '../../platform';
 import { Widget } from './widget';
 import { widgetManager } from './widget-manager';
-import { legacyCC } from "../../core/global-exports";
+import { legacyCC } from "../../global-exports";
 import { EDITOR } from 'internal:constants';
-import { sys } from "../../core/platform";
 
 /**
  * @en

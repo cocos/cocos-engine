@@ -29,14 +29,15 @@
  * @module ui
  */
 
-import { BitmapFont, Font, ImageAsset, SpriteFrame, Texture2D, Material } from '../../core/assets';
+import { BitmapFont, Font, SpriteFrame } from '../assets';
+import { ImageAsset, Texture2D, Material } from '../../assets';
 import { ccclass, help, executionOrder, menu, tooltip, displayOrder, visible, displayName, multiline, type, readOnly, override, serializable, editable } from 'cc.decorator';
-import { ccenum } from '../../core/value-types/enum';
-import { UI } from '../../core/renderer/ui/ui';
-import { FontAtlas } from '../../core/assets/bitmap-font';
+import { ccenum } from '../../value-types/enum';
+import { UI } from '../renderer/ui';
+import { FontAtlas } from '../assets/bitmap-font';
 import { CanvasPool, ISharedLabelData, LetterRenderTexture } from '../assembler/label/font-utils';
-import { UIRenderable } from '../../core/components/ui-base/ui-renderable';
-import { warnID } from '../../core/platform/debug';
+import { UIRenderable } from '../framework/ui-renderable';
+import { warnID } from '../../platform/debug';
 import { EDITOR } from 'internal:constants';
 
 /**

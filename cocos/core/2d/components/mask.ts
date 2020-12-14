@@ -30,20 +30,21 @@
  */
 
 import { ccclass, help, executionOrder, menu, tooltip, displayOrder, type, visible, override, serializable, range, slide } from 'cc.decorator';
-import { InstanceMaterialType, UIRenderable } from '../../core/components/ui-base/ui-renderable';
-import { clamp, Color, Mat4, Vec2, Vec3 } from '../../core/math';
-import { warnID } from '../../core/platform';
-import { UI } from '../../core/renderer/ui/ui';
-import { ccenum } from '../../core/value-types/enum';
+import { InstanceMaterialType, UIRenderable } from '../framework/ui-renderable';
+import { clamp, Color, Mat4, Vec2, Vec3 } from '../../math';
+import { warnID } from '../../platform';
+import { UI } from '../renderer/ui';
+import { ccenum } from '../../value-types/enum';
 import { Graphics } from './graphics';
-import { TransformBit } from '../../core/scene-graph/node-enum';
-import { Game, SpriteFrame, Material, builtinResMgr, director, RenderingSubMesh } from '../../core';
-import { Device, BufferInfo, BufferUsageBit, MemoryUsageBit, PrimitiveMode } from '../../core/gfx';
-import { legacyCC } from '../../core/global-exports';
-import { MaterialInstance, scene } from '../../core/renderer';
-import { Model } from '../../core/renderer/scene';
-import { vfmt, getAttributeStride } from '../../core/renderer/ui/ui-vertex-format';
-import { Stage } from '../../core/renderer/ui/stencil-manager';
+import { TransformBit } from '../../scene-graph/node-enum';
+import { SpriteFrame } from '../assets/sprite-frame';
+import { Game, Material, builtinResMgr, director, RenderingSubMesh } from '../..';
+import { Device, BufferInfo, BufferUsageBit, MemoryUsageBit, PrimitiveMode } from '../../gfx';
+import { legacyCC } from '../../global-exports';
+import { MaterialInstance, scene } from '../../renderer';
+import { Model } from '../../renderer/scene';
+import { vfmt, getAttributeStride } from '../renderer/ui-vertex-format';
+import { Stage } from '../renderer/stencil-manager';
 
 const _worldMatrix = new Mat4();
 const _vec2_temp = new Vec2();

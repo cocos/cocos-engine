@@ -28,13 +28,13 @@
  * @module ui-assembler
  */
 
-import { Mat4, Vec3 } from '../../../core/math';
-import { IRenderData, RenderData } from '../../../core/renderer/ui/render-data';
-import { UI } from '../../../core/renderer/ui/ui';
+import { Mat4, Vec3 } from '../../../math';
+import { IRenderData, RenderData } from '../../renderer/render-data';
+import { UI } from '../../renderer/ui';
 import { Sprite } from '../../components';
-import { IAssembler } from '../../../core/renderer/ui/base';
+import { IAssembler } from '../../renderer/base';
 import { fillVerticesWithoutCalc3D } from '../utils';
-import { errorID } from '../../../core/platform/debug';
+import { errorID } from '../../../platform/debug';
 
 const FillType = Sprite.FillType;
 const matrix = new Mat4();

@@ -29,17 +29,17 @@
  * @module ui
  */
 
-import { Component } from '../../core/components/component';
+import { Component } from '../../components/component';
 import { ccclass, help, executeInEditMode, executionOrder, menu, requireComponent, tooltip, type, serializable } from 'cc.decorator';
-import { Rect, Size, Vec2, Vec3 } from '../../core/math';
-import { ccenum } from '../../core/value-types/enum';
-import { UITransform } from '../../core/components/ui-base/ui-transform';
-import { SystemEventType } from '../../core/platform/event-manager/event-enum';
-import { director, Director } from '../../core/director';
-import { TransformBit } from '../../core/scene-graph/node-enum';
-import { Node } from '../../core';
+import { Rect, Size, Vec2, Vec3 } from '../../math';
+import { ccenum } from '../../value-types/enum';
+import { UITransform } from '../framework/ui-transform';
+import { SystemEventType } from '../../platform/event-manager/event-enum';
+import { director, Director } from '../../director';
+import { TransformBit } from '../../scene-graph/node-enum';
+import { Node } from '../../scene-graph';
 import { EDITOR } from 'internal:constants';
-import { legacyCC } from '../../core/global-exports';
+import { legacyCC } from '../../global-exports';
 const NodeEvent = SystemEventType;
 /**
  * @en Enum for layout.

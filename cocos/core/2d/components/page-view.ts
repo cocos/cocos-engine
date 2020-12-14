@@ -28,21 +28,20 @@
  * @module ui
  */
 
-import { EventHandler as ComponentEventHandler } from '../../core/components';
+import { EventHandler as ComponentEventHandler } from '../../components';
 import { ccclass, help, executionOrder, menu, tooltip, type, slide, range, visible, override, serializable, editable } from 'cc.decorator';
-import { EventTouch, SystemEventType } from '../../core/platform';
-import { Vec2, Vec3 } from '../../core/math';
-import { ccenum } from '../../core/value-types/enum';
+import { EventTouch, SystemEventType } from '../../platform';
+import { Vec2, Vec3 } from '../../math';
+import { ccenum } from '../../value-types/enum';
 import { Layout } from './layout';
 import { PageViewIndicator } from './page-view-indicator';
-import { ScrollView } from './scroll-view';
+import { ScrollView, EventType as ScrollEventType } from './scroll-view';
 import { ScrollBar } from './scroll-bar';
-import { warnID, logID } from '../../core/platform/debug';
-import { extendsEnum } from '../../core/data/utils/extends-enum';
-import { EventType as ScrollEventType } from './scroll-view';
-import { Node } from '../../core';
+import { warnID, logID } from '../../platform/debug';
+import { extendsEnum } from '../../data/utils/extends-enum';
+import { Node } from '../../scene-graph';
 import { EDITOR } from 'internal:constants';
-import { legacyCC } from '../../core/global-exports';
+import { legacyCC } from '../../global-exports';
 
 const _temp_vec2 = new Vec2();
 

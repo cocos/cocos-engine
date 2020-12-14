@@ -31,8 +31,9 @@
 import { AudioClip } from '../../audio/assets/clip';
 import { VideoClip } from '../../video/assets/video-clip';
 import {
-    ImageAsset, JsonAsset, TextAsset, TTFFont, Asset,
+    ImageAsset, JsonAsset, TextAsset, Asset,
 } from '../assets';
+import { TTFFont } from '../2d/assets';
 import { BufferAsset } from '../assets/buffer-asset';
 import { js } from '../utils/js';
 import Bundle, { resources } from './bundle';
@@ -44,6 +45,7 @@ import {
 } from './shared';
 
 import { cache } from './utilities';
+import { legacyCC } from '../global-exports';
 
 export type CreateHandler = (id: string, data: any, options: IDownloadParseOptions, onComplete: CompleteCallback<Asset|Bundle>) => void;
 
@@ -82,7 +84,7 @@ function createTextAsset (id: string, data: string, options: IDownloadParseOptio
 }
 
 function createFont (id: string, data: string, options: IDownloadParseOptions, onComplete: CompleteCallback<TTFFont>) {
-    const out = new TTFFont();
+    const out = new legacyCC.TTFFont() as TTFFont;
     out._nativeUrl = id;
     out._nativeAsset = data;
     onComplete(null, out);

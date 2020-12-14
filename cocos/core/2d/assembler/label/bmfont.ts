@@ -28,12 +28,12 @@
  * @module ui-assembler
  */
 
-import { SpriteFrame } from '../../../core/assets/sprite-frame';
-import * as js from '../../../core/utils/js';
-import { Rect } from '../../../core/math';
-import { UI } from '../../../core/renderer/ui/ui';
+import { SpriteFrame } from '../../assets/sprite-frame';
+import * as js from '../../../utils/js';
+import { Rect } from '../../../math';
+import { UI } from '../../renderer/ui';
 import { Label } from '../../components/label';
-import { IAssembler } from '../../../core/renderer/ui/base';
+import { IAssembler } from '../../renderer/base';
 import { fillMeshVertices3D } from '../utils';
 import { bmfontUtils } from './bmfontUtils';
 

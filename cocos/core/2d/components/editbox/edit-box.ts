@@ -29,23 +29,23 @@
  * @module ui
  */
 
-import { UITransform } from '../../../core/components/ui-base';
-import { SpriteFrame } from '../../../core/assets/sprite-frame';
-import { Component } from '../../../core/components/component';
-import { EventHandler as ComponentEventHandler } from '../../../core/components/component-event-handler';
+import { UITransform } from '../../framework';
+import { SpriteFrame } from '../../assets/sprite-frame';
+import { Component } from '../../../components/component';
+import { EventHandler as ComponentEventHandler } from '../../../components/component-event-handler';
 import { ccclass, help, executeInEditMode, executionOrder, menu, requireComponent, tooltip, displayOrder, type, serializable } from 'cc.decorator';
-import { Color, Size, Vec3 } from '../../../core/math';
-import { EventTouch } from '../../../core/platform';
-import { SystemEventType } from '../../../core/platform/event-manager/event-enum';
-import { Node } from '../../../core/scene-graph/node';
+import { Color, Size, Vec3 } from '../../../math';
+import { EventTouch } from '../../../platform';
+import { SystemEventType } from '../../../platform/event-manager/event-enum';
+import { Node } from '../../../scene-graph/node';
 import { Label, VerticalTextAlignment } from '../label';
 import { Sprite } from '../sprite';
 import { EditBoxImpl } from './edit-box-impl';
 import { EditBoxImplBase } from './edit-box-impl-base';
 import { InputFlag, InputMode, KeyboardReturnType } from './types';
-import { sys } from '../../../core/platform/sys';
+import { sys } from '../../../platform/sys';
 import { EDITOR } from 'internal:constants';
-import { legacyCC } from '../../../core/global-exports';
+import { legacyCC } from '../../../global-exports';
 
 const LEFT_PADDING = 2;
 

@@ -29,18 +29,18 @@
  * @hidden
  */
 
-import { Director, director } from '../../core/director';
-import { Vec2, Vec3 } from '../../core/math';
-import { View } from '../../core/platform/view';
-import visibleRect from '../../core/platform/visible-rect';
-import { Scene } from '../../core/scene-graph';
-import { Node } from '../../core/scene-graph/node';
-import { array } from '../../core/utils/js';
+import { Director, director } from '../../director';
+import { Vec2, Vec3 } from '../../math';
+import { View } from '../../platform/view';
+import visibleRect from '../../platform/visible-rect';
+import { Scene } from '../../scene-graph';
+import { Node } from '../../scene-graph/node';
+import { array } from '../../utils/js';
 import { AlignFlags, AlignMode, computeInverseTransForTarget, getReadonlyNodeSize, Widget } from './widget';
-import { UITransform } from '../../core/components/ui-base';
+import { UITransform } from '../framework';
 import { EDITOR, DEV } from 'internal:constants';
-import { legacyCC } from '../../core/global-exports';
-import { warnID } from '../../core/platform/debug';
+import { legacyCC } from '../../global-exports';
+import { warnID } from '../../platform/debug';
 
 const _tempPos = new Vec3();
 const _defaultAnchor = new Vec2();

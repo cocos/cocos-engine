@@ -29,19 +29,19 @@
  * @module ui
  */
 
-import { SpriteAtlas } from '../../core/assets/sprite-atlas';
-import { SpriteFrame } from '../../core/assets/sprite-frame';
+import { SpriteAtlas } from '../assets/sprite-atlas';
+import { SpriteFrame } from '../assets/sprite-frame';
 import { ccclass, help, executionOrder, menu, tooltip, displayOrder, type, range, editable, serializable } from 'cc.decorator';
-import { SystemEventType } from '../../core/platform/event-manager/event-enum';
-import { Vec2 } from '../../core/math';
-import { ccenum } from '../../core/value-types/enum';
-import { clamp } from '../../core/math/utils';
-import { UI } from '../../core/renderer/ui/ui';
-import { UIRenderable, InstanceMaterialType } from '../../core/components/ui-base/ui-renderable';
+import { SystemEventType } from '../../platform/event-manager/event-enum';
+import { Vec2 } from '../../math';
+import { ccenum } from '../../value-types/enum';
+import { clamp } from '../../math/utils';
+import { UI } from '../renderer/ui';
+import { UIRenderable, InstanceMaterialType } from '../framework/ui-renderable';
 import { EDITOR } from 'internal:constants';
-import { legacyCC } from '../../core/global-exports';
-import { PixelFormat } from '../../core/assets/asset-enum';
-import { TextureBase } from '../../core/assets/texture-base';
+import { legacyCC } from '../../global-exports';
+import { PixelFormat } from '../../assets/asset-enum';
+import { TextureBase } from '../../assets/texture-base';
 
 /**
  * @en

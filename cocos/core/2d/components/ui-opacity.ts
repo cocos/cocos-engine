@@ -28,9 +28,9 @@
  * @module ui
  */
 
-import { Component } from '../../core/components/component';
+import { Component } from '../../components/component';
 import { ccclass, help, executeInEditMode, executionOrder, menu, editable, serializable } from 'cc.decorator';
-import { clampf } from '../../core/utils/misc';
+import { clampf } from '../../utils/misc';
 
 /**
  * @en

@@ -26,6 +26,28 @@
             ]
         },
         {
+            "text": "3D",
+            "description": "Graphcis API used by GFX. There can be more than one API existed.",
+            "items": [
+                {
+                    "text": "3D Framework",
+                    "description": "The WebGL 1.0 is required whenever.",
+                    "entry": "3d-framework",
+                    "default": true
+                },
+                {
+                    "text": "Light",
+                    "entry": ["3d-framework", "light"],
+                    "default": true
+                },
+                {
+                    "text": "Skinned Mesh Rendering",
+                    "entry": ["3d-framework", "skinned-mesh-rendering"],
+                    "default": true
+                }
+            ]
+        },
+        {
             "text": "UI",
             "description": "UI module",
             "entry": "ui",
@@ -96,25 +118,30 @@
         {
             "text": "Animation",
             "description": "Animation",
-            "entry": "animation",
-            "default": true
+            "items": [
+                {
+                    "text": "Animation",
+                    "description": "The WebGL 1.0 is required whenever.",
+                    "entry": "animation",
+                    "default": true
+                },
+                {
+                    "text": "Skeletal Animation",
+                    "entry": ["animation", "skeletal-animation", "3d-framework", "skinned-mesh-rendering"],
+                    "default": true
+                }
+            ]
         },
         {
             "text": "Primitive",
             "description": "Primitive",
-            "entry": "primitive",
+            "entry": ["primitive", "3d-framework"],
             "default": true
         },
         {
             "text": "Profiler",
             "description": "Profiler",
-            "entry": "profiler",
-            "default": true
-        },
-        {
-            "text": "3D Framework",
-            "description": "3D Framework",
-            "entry": "3d-framework",
+            "entry": ["profiler", "3d-framework"],
             "default": true
         },
         {

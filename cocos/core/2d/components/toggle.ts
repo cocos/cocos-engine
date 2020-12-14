@@ -29,16 +29,15 @@
  * @module ui
  */
 
-import { EventHandler as ComponentEventHandler } from '../../core/components/component-event-handler';
-import { UITransform } from '../../core/components/ui-base';
+import { EventHandler as ComponentEventHandler } from '../../components/component-event-handler';
+import { UITransform } from '../framework';
 import { ccclass, help, requireComponent, executionOrder, menu, tooltip, displayOrder, type, serializable } from 'cc.decorator';
-import { Button } from './button';
 import { Sprite } from './sprite';
 import { ToggleContainer } from './toggle-container';
-import { extendsEnum } from '../../core/data/utils/extends-enum';
-import { EventType as ButtonEventType } from './button';
+import { extendsEnum } from '../../data/utils/extends-enum';
+import { EventType as ButtonEventType, Button } from './button';
 import { EDITOR } from 'internal:constants';
-import { legacyCC } from '../../core/global-exports';
+import { legacyCC } from '../../global-exports';
 
 enum EventType {
     TOGGLE = 'toggle',

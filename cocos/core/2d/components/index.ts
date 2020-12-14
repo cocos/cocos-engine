@@ -57,3 +57,4 @@ export { LabelShadow } from './label-shadow';
 export { SubContextView } from './SubContextView';
 
 export { widgetManager } from './widget-manager';
+export * from './deprecated';

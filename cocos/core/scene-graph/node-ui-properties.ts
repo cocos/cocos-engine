@@ -28,7 +28,9 @@
  * @module scene-graph
  */
 
-import { UIComponent, UITransform, UIRenderable } from '../2d/framework';
+import { UIComponent } from '../2d/framework/ui-component';
+import { UIRenderable } from '../2d/framework/ui-renderable';
+import { UITransform } from '../2d/framework/ui-transform';
 import { warnID } from '../platform/debug';
 
 /**

@@ -28,12 +28,12 @@
  * @module ui-assembler
  */
 
-import { SpriteFrame } from '../../../core/assets';
-import { Vec2 } from '../../../core/math';
-import { IRenderData, RenderData } from '../../../core/renderer/ui/render-data';
-import { UI } from '../../../core/renderer/ui/ui';
+import { SpriteFrame } from '../../assets';
+import { Vec2 } from '../../../math';
+import { IRenderData, RenderData } from '../../renderer/render-data';
+import { UI } from '../../renderer/ui';
 import { Sprite } from '../../components';
-import { IAssembler } from '../../../core/renderer/ui/base';
+import { IAssembler } from '../../renderer/base';
 import { fillVertices3D } from '../utils';
 
 const PI_2 = Math.PI * 2;

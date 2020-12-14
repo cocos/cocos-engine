@@ -28,7 +28,7 @@
  * @hidden
  */
 
-import { Enum } from '../../../core/value-types';
+import { Enum } from '../../../value-types';
 /**
  * 键盘的返回键类型。
  * @readonly

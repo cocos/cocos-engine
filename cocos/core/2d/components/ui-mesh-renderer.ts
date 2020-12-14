@@ -29,14 +29,14 @@
  * @module ui
  */
 
-import { RenderableComponent } from '../../core/3d/framework/renderable-component';
-import { UIComponent } from '../../core/components/ui-base/ui-component';
+import { RenderableComponent } from '../../components/renderable-component';
+import { UIComponent } from '../framework/ui-component';
 import { ccclass, help, executionOrder, menu } from 'cc.decorator';
-import { director } from '../../core/director';
-import { RenderPriority } from '../../core/pipeline/define';
-import { UI } from '../../core/renderer/ui/ui';
-import { scene } from '../../core/renderer';
-import { legacyCC } from '../../core/global-exports';
+import { director } from '../../director';
+import { RenderPriority } from '../../pipeline/define';
+import { UI } from '../renderer/ui';
+import { scene } from '../../renderer';
+import { legacyCC } from '../../global-exports';
 
 /**
  * @en

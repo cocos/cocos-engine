@@ -28,11 +28,11 @@
  * @module ui-assembler
  */
 
-import { IRenderData, RenderData } from '../../../core/renderer/ui/render-data';
-import { UI } from '../../../core/renderer/ui/ui';
+import { IRenderData, RenderData } from '../../renderer/render-data';
+import { UI } from '../../renderer/ui';
 import { Mask, MaskType } from '../../components/mask';
-import { IAssembler, IAssemblerManager } from '../../../core/renderer/ui/base';
-import { StencilManager } from '../../../core/renderer/ui/stencil-manager';
+import { IAssembler, IAssemblerManager } from '../../renderer/base';
+import { StencilManager } from '../../renderer/stencil-manager';
 import { simple } from '../sprite';
 
 const _stencilManager = StencilManager.sharedManager!;

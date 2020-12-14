@@ -29,13 +29,13 @@
  */
 
 import { ccclass, help, menu, executionOrder, visible, override } from 'cc.decorator';
-import { UIRenderable } from '../../core/components/ui-base/ui-renderable';
-import { UI } from '../../core/renderer/ui/ui';
-import { MeshBuffer } from '../../core/renderer/ui/mesh-buffer';
-import { UIDrawBatch } from '../../core/renderer/ui/ui-draw-batch';
-import { director, Color, warnID } from '../../core';
-import { vfmtPosUvColor } from '../../core/renderer/ui/ui-vertex-format';
-import { BlendFactor } from '../../core/gfx';
+import { UIRenderable } from '../framework/ui-renderable';
+import { UI } from '../renderer/ui';
+import { MeshBuffer } from '../renderer/mesh-buffer';
+import { UIDrawBatch } from '../renderer/ui-draw-batch';
+import { director, Color, warnID } from '../..';
+import { vfmtPosUvColor } from '../renderer/ui-vertex-format';
+import { BlendFactor } from '../../gfx';
 
 /**
  * @en

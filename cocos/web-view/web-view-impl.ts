@@ -31,7 +31,7 @@
 import {legacyCC} from '../core/global-exports';
 import {WebView} from './web-view';
 import {EventType} from './web-view-enums';
-import {UITransform} from '../core/components/ui-base';
+import {UITransform} from '../core/2d/framework';
 
 export abstract class WebViewImpl {
     protected _componentEventList: Map<number, Function> = new Map<number, Function>();

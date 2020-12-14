@@ -1,6 +1,6 @@
 import { IPhysicsWorld } from '../spec/i-physics-world'
 import { EDITOR } from 'internal:constants';
-import { Graphics } from '../../ui';
+import { Graphics } from '../../core/2d';
 import { Node, CCObject, find, director, Vec3, Color, IVec2Like, Vec2, Rect } from '../../core';
 import { Canvas } from '../../../exports/ui';
 import { BuiltinShape2D } from './shapes/shape-2d';

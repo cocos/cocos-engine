@@ -29,20 +29,20 @@
  * @module ui
  */
 
-import { EventHandler as ComponentEventHandler } from '../../core/components/component-event-handler';
-import { UITransform } from '../../core/components/ui-base';
+import { EventHandler as ComponentEventHandler } from '../../components/component-event-handler';
+import { UITransform } from '../framework';
 import { ccclass, help, executionOrder, menu, requireComponent, tooltip, displayOrder, range, type, serializable } from 'cc.decorator';
-import { Event } from '../../core/event';
-import { EventMouse, EventTouch, Touch, logID } from '../../core/platform';
-import { Size, Vec2, Vec3 } from '../../core/math';
+import { Event } from '../../event';
+import { EventMouse, EventTouch, Touch, logID } from '../../platform';
+import { Size, Vec2, Vec3 } from '../../math';
 import { Layout } from './layout';
 import { ScrollBar } from './scroll-bar';
 import { ViewGroup } from './view-group';
-import { Node } from '../../core/scene-graph/node';
-import { director, Director } from '../../core/director';
-import { TransformBit } from '../../core/scene-graph/node-enum';
+import { Node } from '../../scene-graph/node';
+import { director, Director } from '../../director';
+import { TransformBit } from '../../scene-graph/node-enum';
 import { EDITOR } from 'internal:constants';
-import { legacyCC } from '../../core/global-exports';
+import { legacyCC } from '../../global-exports';
 
 const NUMBER_OF_GATHERED_TOUCHES_FOR_MOVE_SPEED = 5;
 const OUT_OF_BOUNDARY_BREAKING_FACTOR = 0.05;

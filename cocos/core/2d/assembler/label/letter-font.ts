@@ -27,8 +27,8 @@
  * @packageDocumentation
  * @hidden
  */
-import { assetManager } from '../../../core/asset-manager';
-import { mixin } from '../../../core/utils/js';
+import { assetManager } from '../../../asset-manager';
+import { mixin } from '../../../utils/js';
 import { Label, LabelOutline } from '../../components';
 import { bmfontUtils } from './bmfontUtils';
 import { shareLabelInfo, LetterAtlas, computeHash } from './font-utils';

@@ -30,7 +30,7 @@
  */
 
 import { ccclass } from 'cc.decorator';
-import { Asset } from '../../assets/asset';
+import { Asset } from '../../assets';
 import { legacyCC } from '../../global-exports';
 
 /**

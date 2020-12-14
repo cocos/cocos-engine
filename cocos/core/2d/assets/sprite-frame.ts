@@ -1172,13 +1172,13 @@ export class SpriteFrame extends Asset {
         } : null as any;
         sp.uv.splice(0, sp.uv.length, ...this.uv);
         sp.uvHash = this.uvHash;
-        sp.unbiasUV.splice(0, sp.unbiasUV.length, ...this.unbiasUV);
-        sp.uvSliced.splice(0, sp.uvSliced.length, ...this.uvSliced);
+        sp.unbiasUV.splice(0, sp.unbiasUV.length, ... this.unbiasUV);
+        sp.uvSliced.splice(0, sp.uvSliced.length, ... this.uvSliced);
         sp._rect.set(this._rect);
         sp._offset.set(this._offset);
         sp._originalSize.set(this._originalSize);
         sp._rotated = this._rotated;
-        sp._capInsets.splice(0, sp._capInsets.length, ...this._capInsets);
+        sp._capInsets.splice(0, sp._capInsets.length, ... this._capInsets);
         sp._atlasUuid = this._atlasUuid;
         sp._texture = this._texture;
         sp._isFlipUVX = this._isFlipUVX;

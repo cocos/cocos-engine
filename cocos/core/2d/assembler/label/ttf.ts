@@ -28,13 +28,13 @@
  * @module ui-assembler
  */
 
-import * as js from '../../../core/utils/js';
-import { Color, Vec3 } from '../../../core/math';
-import { UI } from '../../../core/renderer/ui/ui';
+import * as js from '../../../utils/js';
+import { Color, Vec3 } from '../../../math';
+import { UI } from '../../renderer/ui';
 import { Label } from '../../components/label';
-import { IAssembler } from '../../../core/renderer/ui/base';
+import { IAssembler } from '../../renderer/base';
 import { ttfUtils } from './ttfUtils';
-import { IRenderData } from '../../../core/renderer/ui/render-data';
+import { IRenderData } from '../../renderer/render-data';
 
 const WHITE = Color.WHITE.clone();
 

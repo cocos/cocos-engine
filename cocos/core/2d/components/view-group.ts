@@ -43,9 +43,9 @@
  * 请参考 ScrollView 的实现来获取更多信息。
  */
 
-import { Component } from '../../core/components';
+import { Component } from '../../components';
 import { ccclass, executionOrder } from 'cc.decorator';
-import { legacyCC } from '../../core/global-exports';
+import { legacyCC } from '../../global-exports';
 
 @ccclass('cc.ViewGroup')
 @executionOrder(110)

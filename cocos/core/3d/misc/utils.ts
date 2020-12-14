@@ -24,6 +24,7 @@
  */
 
 
+export * from './batch-utils';
 export { find } from '../../scene-graph/find';
 export { toPPM } from './ppm';
 export { readMesh } from './read-mesh';

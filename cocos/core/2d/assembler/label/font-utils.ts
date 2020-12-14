@@ -28,13 +28,13 @@
  * @hidden
  */
 
-import { FontAtlas } from '../../../core/assets/bitmap-font';
-import { Color } from '../../../core/math';
-import { ImageAsset, Texture2D } from '../../../core/assets';
-import { PixelFormat } from '../../../core/assets/asset-enum';
-import { BufferTextureCopy } from '../../../core/gfx';
-import { safeMeasureText, BASELINE_RATIO, MIDDLE_RATIO, getBaselineOffset } from '../../../core/utils';
-import { director, Director } from '../../../core/director';
+import { FontAtlas } from '../../assets/bitmap-font';
+import { Color } from '../../../math';
+import { ImageAsset, Texture2D } from '../../../assets';
+import { PixelFormat } from '../../../assets/asset-enum';
+import { BufferTextureCopy } from '../../../gfx';
+import { safeMeasureText, BASELINE_RATIO, MIDDLE_RATIO, getBaselineOffset } from '../../../utils';
+import { director, Director } from '../../../director';
 
 export interface ISharedLabelData {
     canvas: HTMLCanvasElement;

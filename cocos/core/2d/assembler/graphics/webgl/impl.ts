@@ -24,8 +24,8 @@
  */
 
 
-import { Color, Vec2 } from '../../../../core/math';
-import { MeshRenderData } from '../../../../core/renderer/ui/render-data';
+import { Color, Vec2 } from '../../../../math';
+import { MeshRenderData } from '../../../renderer/render-data';
 import { arc, ellipse, roundRect, tesselateBezier } from '../helper';
 import { LineCap, LineJoin, PointFlags} from '../types';
 

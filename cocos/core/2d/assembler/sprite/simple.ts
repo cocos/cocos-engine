@@ -28,10 +28,10 @@
  * @module ui-assembler
  */
 
-import { Vec3 } from '../../../core/math';
-import { IAssembler } from '../../../core/renderer/ui/base';
-import { IRenderData, RenderData } from '../../../core/renderer/ui/render-data';
-import { UI } from '../../../core/renderer/ui/ui';
+import { Vec3 } from '../../../math';
+import { IAssembler } from '../../renderer/base';
+import { IRenderData, RenderData } from '../../renderer/render-data';
+import { UI } from '../../renderer/ui';
 import { Sprite } from '../../components';
 
 const vec3_temps: Vec3[] = [];

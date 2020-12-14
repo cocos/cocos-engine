@@ -29,11 +29,11 @@
  * @module ui
  */
 
-import { Component } from '../../core/components/component';
+import { Component } from '../../components/component';
 import { ccclass, help, executionOrder, menu, tooltip, requireComponent, executeInEditMode, serializable } from 'cc.decorator';
-import { Color } from '../../core/math';
+import { Color } from '../../math';
 import { Label } from './label';
-import { legacyCC } from '../../core/global-exports';
+import { legacyCC } from '../../global-exports';
 
 /**
  * @en

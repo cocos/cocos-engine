@@ -29,8 +29,8 @@
  */
 
 import './utils';
+
 export * from './graphics';
 export * from './label';
 export * from './mask';
 export * from './sprite';
-export * from '../../core/renderer/ui/base';

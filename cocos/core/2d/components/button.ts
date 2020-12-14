@@ -30,18 +30,18 @@
  */
 
 import { ccclass, help, executionOrder, menu, requireComponent, tooltip, displayOrder, type, rangeMin, rangeMax, serializable, executeInEditMode } from 'cc.decorator';
-import { SpriteFrame } from '../../core/assets';
-import { Component, EventHandler as ComponentEventHandler } from '../../core/components';
-import { UITransform, UIRenderable } from '../../core/components/ui-base';
-import { EventMouse, EventTouch, SystemEventType } from '../../core/platform';
-import { Color, Vec3 } from '../../core/math';
-import { ccenum } from '../../core/value-types/enum';
-import { lerp } from '../../core/math/utils';
-import { Node } from '../../core/scene-graph/node';
+import { SpriteFrame } from '../assets';
+import { Component, EventHandler as ComponentEventHandler } from '../../components';
+import { UITransform, UIRenderable } from '../framework';
+import { EventMouse, EventTouch, SystemEventType } from '../../platform';
+import { Color, Vec3 } from '../../math';
+import { ccenum } from '../../value-types/enum';
+import { lerp } from '../../math/utils';
+import { Node } from '../../scene-graph/node';
 import { Sprite } from './sprite';
 import { EDITOR } from 'internal:constants';
-import { legacyCC } from '../../core/global-exports';
-import { TransformBit } from '../../core/scene-graph/node-enum';
+import { legacyCC } from '../../global-exports';
+import { TransformBit } from '../../scene-graph/node-enum';
 
 const _tempColor = new Color();
 

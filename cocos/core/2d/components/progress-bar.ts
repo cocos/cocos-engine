@@ -29,15 +29,15 @@
  * @module ui
  */
 
-import { Component } from '../../core/components/component';
-import { UITransform } from '../../core/components/ui-base';
+import { Component } from '../../components/component';
+import { UITransform } from '../framework';
 import { ccclass, help, executionOrder, menu, requireComponent, tooltip, type, range, slide, serializable } from 'cc.decorator';
-import { Size, Vec2, Vec3 } from '../../core/math';
-import { Enum } from '../../core/value-types';
-import { clamp01 } from '../../core/math/utils';
+import { Size, Vec2, Vec3 } from '../../math';
+import { Enum } from '../../value-types';
+import { clamp01 } from '../../math/utils';
 import { Sprite } from './sprite';
-import { warn } from '../../core/platform/debug';
-import { legacyCC } from '../../core/global-exports';
+import { warn } from '../../platform/debug';
+import { legacyCC } from '../../global-exports';
 
 /**
  * @en

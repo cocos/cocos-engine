@@ -36,7 +36,7 @@ import { Texture2D } from '../../assets/texture-2d';
 import { SubModel } from './submodel';
 import { Pass, IMacroPatch, BatchingSchemes } from '../core/pass';
 import { legacyCC } from '../../global-exports';
-import { InstancedBuffer } from '../../pipeline';
+import { InstancedBuffer } from '../../pipeline/instanced-buffer';
 
 import { Mat4, Vec3, Vec4 } from '../../math';
 import { genSamplerHash, samplerLib } from '../core/sampler-lib';

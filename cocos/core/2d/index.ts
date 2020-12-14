@@ -53,8 +53,7 @@ import { legacyCC } from '../global-exports';
 export * from './assets';
 export * from './framework';
 export * from './components';
-
-export * from './deprecated';
+export * from './renderer/base';
 
 export {
     MeshBuffer,

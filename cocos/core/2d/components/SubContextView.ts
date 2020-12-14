@@ -28,18 +28,18 @@
  * @module component
  */
 
-import { Component } from '../../core/components/component';
+import { Component } from '../../components/component';
 import { ccclass, help, menu, executionOrder, requireComponent, tooltip, serializable } from 'cc.decorator';
-import { view } from '../../core/platform/view';
+import { view } from '../../platform/view';
 import { Sprite } from './sprite';
-import { Node, PrivateNode } from '../../core/scene-graph';
-import { UITransform } from '../../core/components/ui-base/ui-transform';
+import { Node, PrivateNode } from '../../scene-graph';
+import { UITransform } from '../framework/ui-transform';
 
-import { SpriteFrame } from '../../core/assets';
-import { ImageAsset } from '../../core/assets/image-asset';
-import { Rect, Size } from '../../core/math';
+import { SpriteFrame } from '../assets';
+import { ImageAsset } from '../../assets/image-asset';
+import { Rect, Size } from '../../math';
 
-import { legacyCC } from '../../core/global-exports';
+import { legacyCC } from '../../global-exports';
 import { EDITOR } from 'internal:constants';
 
 /**

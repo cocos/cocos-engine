@@ -28,10 +28,10 @@
  * @module ui-assembler
  */
 
-import { Color, Vec3 } from '../../../../core/math';
-import { IAssembler } from '../../../../core/renderer/ui/base';
-import { MeshRenderData } from '../../../../core/renderer/ui/render-data';
-import { UI } from '../../../../core/renderer/ui/ui';
+import { Color, Vec3 } from '../../../../math';
+import { IAssembler } from '../../../renderer/base';
+import { MeshRenderData } from '../../../renderer/render-data';
+import { UI } from '../../../renderer/ui';
 import { Graphics } from '../../../components';
 import { LineCap, LineJoin, PointFlags } from '../types';
 import { earcut as Earcut } from './earcut';

@@ -23,8 +23,8 @@
  THE SOFTWARE.
 */
 
-import { UIRenderable } from '../../../../core/components/ui-base/ui-renderable';
-import { IAssemblerManager } from '../../../../core/renderer/ui/base';
+import { UIRenderable } from '../../../framework/ui-renderable';
+import { IAssemblerManager } from '../../../renderer/base';
 import { Graphics } from '../../../components';
 import { graphicsAssembler as graphics } from './graphics-assembler';
 export { earcut } from './earcut';

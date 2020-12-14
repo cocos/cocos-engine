@@ -29,20 +29,20 @@
  * @module ui
  */
 
-import { builtinResMgr } from '../../core/3d/builtin';
-import { InstanceMaterialType, UIRenderable } from '../../core/components/ui-base/ui-renderable';
+import { builtinResMgr } from '../../builtin';
+import { InstanceMaterialType, UIRenderable } from '../framework/ui-renderable';
 import { ccclass, help, executionOrder, menu, tooltip, type, visible, override, editable, serializable } from 'cc.decorator';
-import { director } from '../../core/director';
-import { Color } from '../../core/math';
-import { IMaterialInstanceInfo, MaterialInstance, scene } from '../../core/renderer';
-import { IAssembler } from '../../core/renderer/ui/base';
-import { UI } from '../../core/renderer/ui/ui';
+import { director } from '../../director';
+import { Color } from '../../math';
+import { IMaterialInstanceInfo, MaterialInstance, scene } from '../../renderer';
+import { IAssembler } from '../renderer/base';
+import { UI } from '../renderer/ui';
 import { LineCap, LineJoin } from '../assembler/graphics/types';
 import { Impl } from '../assembler/graphics/webgl/impl';
-import { RenderingSubMesh } from '../../core';
-import { Format, PrimitiveMode, Attribute, Device, BufferUsageBit, BufferInfo, MemoryUsageBit } from '../../core/gfx';
-import { vfmtPosColor, getAttributeStride, getAttributeFormatBytes } from '../../core/renderer/ui/ui-vertex-format';
-import { legacyCC } from '../../core/global-exports';
+import { RenderingSubMesh } from '../../assets';
+import { Format, PrimitiveMode, Attribute, Device, BufferUsageBit, BufferInfo, MemoryUsageBit } from '../../gfx';
+import { vfmtPosColor, getAttributeStride, getAttributeFormatBytes } from '../renderer/ui-vertex-format';
+import { legacyCC } from '../../global-exports';
 
 const _matInsInfo: IMaterialInstanceInfo = {
     parent: null!,

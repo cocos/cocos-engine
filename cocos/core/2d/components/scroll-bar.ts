@@ -29,16 +29,16 @@
  * @module ui
  */
 
-import { Component } from '../../core/components/component';
-import { UITransform } from '../../core/components/ui-base'
+import { Component } from '../../components/component';
+import { UITransform } from '../framework';
 import { ccclass, help, executionOrder, menu, requireComponent, tooltip, displayOrder, type, serializable } from 'cc.decorator';
-import { Color, Size, Vec2, Vec3 } from '../../core/math';
-import { ccenum } from '../../core/value-types/enum';
-import { clamp01 } from '../../core/math/utils';
+import { Color, Size, Vec2, Vec3 } from '../../math';
+import { ccenum } from '../../value-types/enum';
+import { clamp01 } from '../../math/utils';
 import { ScrollView } from './scroll-view';
 import { Sprite } from './sprite';
-import { Node } from '../../core';
-import { legacyCC } from '../../core/global-exports';
+import { Node } from '../..';
+import { legacyCC } from '../../global-exports';
 
 const GETTING_SHORTER_FACTOR = 20;
 const ZERO = new Vec3();

@@ -28,12 +28,12 @@
  * @module ui-assembler
  */
 
-import { IUV, SpriteFrame } from '../../../core/assets';
-import { Color, Mat4, Vec3 } from '../../../core/math';
-import { IRenderData, RenderData } from '../../../core/renderer/ui/render-data';
-import { UI } from '../../../core/renderer/ui/ui';
+import { IUV, SpriteFrame } from '../../assets';
+import { Color, Mat4, Vec3 } from '../../../math';
+import { IRenderData, RenderData } from '../../renderer/render-data';
+import { UI } from '../../renderer/ui';
 import { Sprite } from '../../components';
-import { IAssembler } from '../../../core/renderer/ui/base';
+import { IAssembler } from '../../renderer/base';
 
 const vec3_temp = new Vec3();
 const matrix = new Mat4();

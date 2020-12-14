@@ -29,20 +29,20 @@
  * @module ui
  */
 
-import { Component } from '../../core/components';
-import { UITransform } from '../../core/components/ui-base/ui-transform';
+import { Component } from '../../components';
+import { UITransform } from '../framework/ui-transform';
 import { ccclass, help, executeInEditMode, executionOrder, menu, requireComponent, tooltip, type, editorOnly, editable, serializable, visible } from 'cc.decorator';
-import { Size, Vec3 } from '../../core/math';
-import { errorID, warnID } from '../../core/platform/debug';
-import { SystemEventType } from '../../core/platform/event-manager/event-enum';
-import { View } from '../../core/platform/view';
-import visibleRect from '../../core/platform/visible-rect';
-import { Scene } from '../../core/scene-graph';
-import { Node } from '../../core/scene-graph/node';
-import { ccenum } from '../../core/value-types/enum';
-import { TransformBit } from '../../core/scene-graph/node-enum';
+import { Size, Vec3 } from '../../math';
+import { errorID, warnID } from '../../platform/debug';
+import { SystemEventType } from '../../platform/event-manager/event-enum';
+import { View } from '../../platform/view';
+import visibleRect from '../../platform/visible-rect';
+import { Scene } from '../../scene-graph';
+import { Node } from '../../scene-graph/node';
+import { ccenum } from '../../value-types/enum';
+import { TransformBit } from '../../scene-graph/node-enum';
 import { EDITOR, DEV } from 'internal:constants';
-import { legacyCC } from '../../core/global-exports';
+import { legacyCC } from '../../global-exports';
 
 const _zeroVec3 = new Vec3();
 

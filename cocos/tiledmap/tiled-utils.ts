@@ -23,7 +23,8 @@
  THE SOFTWARE.
  */
 
-import { Rect, SpriteFrame, Texture2D } from '../core';
+import { SpriteFrame } from '../core/2d';
+import { Rect, Texture2D } from '../core';
 import { GID, TiledGrid, TiledTextureGrids, TMXTilesetInfo } from './tiled-types';
 
 export function fillTextureGrids (tileset: TMXTilesetInfo, texGrids: TiledTextureGrids, spFrame?: SpriteFrame) {

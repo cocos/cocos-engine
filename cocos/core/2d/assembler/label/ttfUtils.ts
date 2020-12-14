@@ -28,15 +28,16 @@
  * @hidden
  */
 
-import { SpriteFrame, Texture2D } from '../../../core/assets';
-import { fragmentText, safeMeasureText, getBaselineOffset, BASELINE_RATIO } from '../../../core/utils';
-import { Color, Size, Vec2, Rect } from '../../../core/math';
+import { SpriteFrame } from '../../assets';
+import { Texture2D } from '../../../assets';
+import { fragmentText, safeMeasureText, getBaselineOffset, BASELINE_RATIO } from '../../../utils';
+import { Color, Size, Vec2, Rect } from '../../../math';
 import { HorizontalTextAlignment, Label, LabelOutline, VerticalTextAlignment, LabelShadow } from '../../components';
 import { ISharedLabelData, LetterRenderTexture } from './font-utils';
-import { logID } from '../../../core/platform/debug';
-import { UITransform } from '../../../core/components/ui-base/ui-transform';
-import { legacyCC } from '../../../core/global-exports';
-import { assetManager } from '../../../core';
+import { logID } from '../../../platform/debug';
+import { UITransform } from '../../framework/ui-transform';
+import { legacyCC } from '../../../global-exports';
+import { assetManager } from '../../../asset-manager';
 
 const Overflow = Label.Overflow;
 const MAX_SIZE = 2048;

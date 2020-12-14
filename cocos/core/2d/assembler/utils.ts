@@ -28,10 +28,10 @@
  * @hidden
  */
 
-import { Color, Mat4, Vec3 } from '../../core/math';
-import { RenderData } from '../../core/renderer/ui/render-data';
-import { UI } from '../../core/renderer/ui/ui';
-import { Node } from '../../core';
+import { Color, Mat4, Vec3 } from '../../math';
+import { RenderData } from '../renderer/render-data';
+import { UI } from '../renderer/ui';
+import { Node } from '../..';
 
 const vec3_temp = new Vec3();
 const _worldMatrix = new Mat4();

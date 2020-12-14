@@ -37,6 +37,7 @@ import { legacyCC } from '../../global-exports';
 import { murmurhash2_32_gc } from '../../utils/murmurhash2_gc';
 import { sys } from '../../platform/sys';
 import { warnID } from '../../platform/debug';
+import { RenderingSubMesh } from '../../assets';
 import {
     Attribute, Device, InputAssemblerInfo, Buffer, BufferInfo,
 } from '../../gfx';

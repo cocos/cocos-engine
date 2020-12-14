@@ -28,9 +28,9 @@
  * @module ui-assembler
  */
 
-import { BitmapFont } from '../../../core/assets';
+import { BitmapFont } from '../../assets';
 import { Label } from '../../components';
-import { IAssemblerManager } from '../../../core/renderer/ui/base';
+import { IAssemblerManager } from '../../renderer/base';
 import { bmfont } from './bmfont';
 import { CanvasPool } from './font-utils';
 import { letter } from './letter';

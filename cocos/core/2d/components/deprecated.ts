@@ -28,11 +28,34 @@
  * @module ui
  */
 
-import { warnID } from '../core/platform/debug';
-import { ccclass } from '../core/data/class-decorator';
-import { BlockInputEvents, Button, EditBox, Layout, Mask, Label, LabelOutline, ProgressBar, RichText, ScrollView, ScrollBar, Slider, Sprite, Toggle, ToggleContainer, UIMeshRenderer, Widget, Graphics, PageView, PageViewIndicator, UIStaticBatch, UIOpacity, SafeArea, UICoordinateTracker } from './components';
-import { js } from '../core/utils/js';
-import { legacyCC } from '../core/global-exports';
+import { warnID } from '../../platform/debug';
+import { ccclass } from '../../data/class-decorator';
+import { UICoordinateTracker } from './ui-coodinate-tracker';
+import { BlockInputEvents } from './block-input-events';
+import { Button } from './button';
+import { EditBox } from './editbox/edit-box';
+import { Layout } from './layout';
+import { Mask } from './mask';
+import { Label } from './label';
+import { LabelOutline } from './label-outline';
+import { ProgressBar } from './progress-bar';
+import { RichText } from './rich-text';
+import { ScrollView } from './scroll-view';
+import { ScrollBar } from './scroll-bar';
+import { Slider } from './slider';
+import { Sprite } from './sprite';
+import { Toggle } from './toggle';
+import { ToggleContainer } from './toggle-container';
+import { UIMeshRenderer } from './ui-mesh-renderer';
+import { Widget } from './widget';
+import { Graphics } from './graphics';
+import { PageView } from './page-view';
+import { PageViewIndicator } from './page-view-indicator';
+import { UIStaticBatch } from './ui-static-batch';
+import { UIOpacity } from './ui-opacity';
+import { SafeArea } from './safe-area';
+import { js } from '../../utils/js';
+import { legacyCC } from '../../global-exports';
 
 /**
  * @deprecated Since v1.2

@@ -29,12 +29,11 @@
  * @module ui
  */
 
-import { Component } from '../../core/components/component';
+import { Component } from '../../components/component';
 import { ccclass, help, executionOrder, menu, tooltip, requireComponent, executeInEditMode, serializable } from 'cc.decorator';
-import { Color } from '../../core/math';
+import { Color, Vec2 } from '../../math';
 import { Label } from './label';
-import { legacyCC } from '../../core/global-exports';
-import { Vec2 } from '../../core/math';
+import { legacyCC } from '../../global-exports';
 
 /**
  * @en Shadow effect for Label component, only for system fonts or TTF fonts

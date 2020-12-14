@@ -31,22 +31,22 @@
  * @hidden
  */
 
-import { BitmapFont } from '../../../core';
-import { director } from '../../../core/director';
-import { game } from '../../../core/game';
-import { Color, Mat4, Size, Vec3 } from '../../../core/math';
-import { screen, view } from '../../../core/platform';
-import { macro } from '../../../core/platform/macro';
-import { contains } from '../../../core/utils/misc';
+import { BitmapFont } from '../../assets';
+import { director } from '../../../director';
+import { game } from '../../../game';
+import { Color, Mat4, Size, Vec3 } from '../../../math';
+import { screen, view } from '../../../platform';
+import { macro } from '../../../platform/macro';
+import { contains } from '../../../utils/misc';
 import { Label } from '../label';
 import { EditBox } from './edit-box';
 import { tabIndexUtil } from './tabIndexUtil';
 import { InputFlag, InputMode, KeyboardReturnType } from './types';
-import { sys } from '../../../core/platform/sys';
-import visibleRect from '../../../core/platform/visible-rect';
-import { Node } from '../../../core';
+import { sys } from '../../../platform/sys';
+import visibleRect from '../../../platform/visible-rect';
+import { Node } from '../../../scene-graph';
 import { EditBoxImplBase } from './edit-box-impl-base';
-import { legacyCC } from '../../../core/global-exports';
+import { legacyCC } from '../../../global-exports';
 
 // https://segmentfault.com/q/1010000002914610
 const SCROLLY = 40;

@@ -28,13 +28,13 @@
  * @module ui-assembler
  */
 
-import { addon } from '../../../core/utils/js';
-import { UI } from '../../../core/renderer/ui/ui';
+import { addon } from '../../../utils/js';
+import { UI } from '../../renderer/ui';
 import { Label } from '../../components/label';
 import { fillMeshVertices3D } from '../utils';
 import { bmfont } from './bmfont';
 import { letterFont} from './letter-font';
-import { Color } from '../../../core/math/color';
+import { Color } from '../../../math/color';
 
 const WHITE = new Color(255, 255, 255, 255);
 
