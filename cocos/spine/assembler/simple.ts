@@ -155,10 +155,11 @@ export const simple: IAssembler = {
 
     updateRenderData (comp: Skeleton, ui: UI) {
         _comp = comp;
-        // if (comp.isAnimationCached()) return;
         const skeleton = comp._skeleton;
-        if (skeleton) {
+        if (!comp.isAnimationCached() && skeleton) {
             skeleton.updateWorldTransform();
+        }
+        if (skeleton) {
             updateComponentRenderData(comp, ui);
         }
     },
