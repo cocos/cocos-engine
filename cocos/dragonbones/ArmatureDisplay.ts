@@ -428,7 +428,7 @@ export class ArmatureDisplay extends UIRenderable {
     /* protected */ _debugDraw: Graphics | null = null;
 
     @serializable
-    protected _enableBatch = false;
+    public _enableBatch = false;
 
     // DragonBones data store key.
     protected _armatureKey = '';
