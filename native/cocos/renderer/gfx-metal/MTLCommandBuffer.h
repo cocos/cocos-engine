@@ -54,18 +54,12 @@ private:
 
 private:
     CCMTLGPUPipelineState *_gpuPipelineState = nullptr;
-    Viewport _currentViewport;
-    Rect _currentScissor;
-
-    CCMTLDepthBias _depthBias;
-    CCMTLDepthBounds _depthBounds;
-    Color _blendConstants;
-    bool _isOffscreen = false;
 
     vector<CCMTLGPUDescriptorSet *> _GPUDescriptorSets;
     vector<vector<uint>> _dynamicOffsets;
     uint _firstDirtyDescriptorSet = UINT_MAX;
 
+    bool _isOffscreen = false;
     bool _indirectDrawSuppotred = false;
     bool _commandBufferBegan = false;
     CCMTLDevice *_mtlDevice = nullptr;

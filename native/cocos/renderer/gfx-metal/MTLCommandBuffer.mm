@@ -71,7 +71,7 @@ bool CCMTLCommandBuffer::isRenderingEntireDrawable(const Rect &rect, const CCMTL
 
 void CCMTLCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, int stencil) {
     _isOffscreen = static_cast<CCMTLFramebuffer *>(fbo)->isOffscreen();
-    if (! _isOffscreen) {
+    if (!_isOffscreen) {
         static_cast<CCMTLRenderPass *>(renderPass)->setColorAttachment(0, _mtkView.currentDrawable.texture, 0);
         static_cast<CCMTLRenderPass *>(renderPass)->setDepthStencilAttachment(_mtkView.depthStencilTexture, 0);
     }
@@ -103,11 +103,18 @@ void CCMTLCommandBuffer::endRenderPass() {
 void CCMTLCommandBuffer::bindPipelineState(PipelineState *pso) {
     _gpuPipelineState = static_cast<CCMTLPipelineState *>(pso)->getGPUPipelineState();
     _mtlPrimitiveType = _gpuPipelineState->primitiveType;
-    [_mtlEncoder setCullMode:_gpuPipelineState->cullMode];
-    [_mtlEncoder setFrontFacingWinding: (MTLWinding)(_isOffscreen ? !_gpuPipelineState->winding : _gpuPipelineState->winding)];
+
+    MTLWinding winding = _gpuPipelineState->winding;
+    if (_isOffscreen) {
+        if (MTLWindingClockwise == winding) {
+            winding = MTLWindingCounterClockwise;
+        } else {
+            winding = MTLWindingClockwise;
+        }
+    }
+    _commandEncoder.setFrontFacingWinding(winding);
 
     _commandEncoder.setCullMode(_gpuPipelineState->cullMode);
-    _commandEncoder.setFrontFacingWinding(_gpuPipelineState->winding);
     _commandEncoder.setDepthClipMode(_gpuPipelineState->depthClipMode);
     _commandEncoder.setTriangleFillMode(_gpuPipelineState->fillMode);
     _commandEncoder.setRenderPipelineState(_gpuPipelineState->mtlRenderPipelineState);
@@ -185,7 +192,7 @@ void CCMTLCommandBuffer::draw(InputAssembler *ia) {
             _numDrawCalls += count;
             for (uint i = 0; i < count; ++i) {
                 const auto &drawInfo = drawInfos[i];
-                
+
                 if (_indirectDrawSuppotred) {
                     if (indexBuffer) {
                         if (drawInfo.indexCount) {
@@ -196,8 +203,7 @@ void CCMTLCommandBuffer::draw(InputAssembler *ia) {
                                                indirectBuffer:indirectBuffer->getMTLBuffer()
                                          indirectBufferOffset:i * sizeof(MTLDrawIndexedPrimitivesIndirectArguments)];
                         }
-                    }
-                    else if (drawInfo.vertexCount) {
+                    } else if (drawInfo.vertexCount) {
                         [mtlEncoder drawPrimitives:_mtlPrimitiveType
                                     indirectBuffer:indirectBuffer->getMTLBuffer()
                               indirectBufferOffset:i * sizeof(MTLDrawIndexedPrimitivesIndirectArguments)];
