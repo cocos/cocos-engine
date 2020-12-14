@@ -112,7 +112,7 @@ function build_macosx()
     cd  $COCOS2DX_ROOT/templates/template-link/platforms/mac
     mkdir build-mac
     cd build-mac
-    cmake ../../../common -GXcode -DCOCOS_ROOT=$COCOS2DX_ROOT
+    cmake ../../../common -GXcode -DCOCOS_ROOT=$COCOS2DX_ROOT -DCC_USE_METAL=ON
     cmake --build . --config Debug -- -quiet -jobs $NUM_OF_CORES
     echo "Compile MacOSX Debug Done!"
     cmake --build . --config Release -- -quiet -jobs $NUM_OF_CORES
@@ -129,7 +129,8 @@ function build_ios()
     cd build-ios
     cmake ../../../common -GXcode -DCOCOS_ROOT=$COCOS2DX_ROOT -DCMAKE_SYSTEM_NAME=iOS \
         -DCMAKE_OSX_SYSROOT=iphonesimulator \
-        -DCMAKE_OSX_ARCHITECTURES=x86_64
+        -DCMAKE_OSX_ARCHITECTURES=x86_64 \
+        -DCC_USE_METAL=ON
     cmake --build . --config Debug -- -quiet -jobs $NUM_OF_CORES
     echo "Compile iOS Done!"
 }
