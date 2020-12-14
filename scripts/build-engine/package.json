@@ -23,6 +23,7 @@
     "@rollup/plugin-json": "^4.0.2",
     "@rollup/plugin-node-resolve": "^7.1.1",
     "@rollup/plugin-virtual": "^2.0.1",
+    "dedent": "^0.7.0",
     "fs-extra": "^8.1.0",
     "json5": "^2.1.3",
     "resolve": "^1.17.0",
@@ -30,11 +31,14 @@
     "rollup-plugin-progress": "^1.1.1",
     "rollup-plugin-terser": "^5.2.0",
     "semver": "^7.3.2",
+    "tfig": "^3.0.0",
+    "typescript": "^4.1.2",
     "yargs": "^15.1.0"
   },
   "devDependencies": {
     "@types/babel__core": "^7.1.3",
     "@types/babel__preset-env": "^7.9.1",
+    "@types/dedent": "^0.7.0",
     "@types/fs-extra": "^8.0.1",
     "@types/json5": "0.0.30",
     "@types/node": "^13.1.7",

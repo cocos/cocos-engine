@@ -1,3 +1,1 @@
-
-import * as sp from '../cocos/spine';
-export {sp};
+export * from '../cocos/spine';
