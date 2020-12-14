@@ -109,3 +109,44 @@ export function getContactData (vec: any, index: number) {
         return vec.get(index);
     }
 }
+
+export function applyImpulse (isGlobal: boolean, impl: any, vec: IVec3Like, rp: IVec3Like) {
+    if (isGlobal) {
+        if (USE_BYTEDANCE) {
+            PX.RigidBodyExt.applyImpulse(impl, vec, rp);
+        } else {
+            impl.applyImpulse(vec, rp);
+        }
+    } else {
+        if (USE_BYTEDANCE) {
+            // TODO: applyLocalImpulse
+            PX.RigidBodyExt.applylocalImpulse(impl, vec, rp);
+        } else {
+            impl.applyLocalImpulse(vec, rp);
+        }
+    }
+}
+
+export function applyForce (isGlobal: boolean, impl: any, vec: IVec3Like, rp: IVec3Like) {
+    if (isGlobal) {
+        if (USE_BYTEDANCE) {
+            PX.RigidBodyExt.applyForce(impl, vec, rp);
+        } else {
+            impl.applyForce(vec, rp);
+        }
+    } else {
+        if (USE_BYTEDANCE) {
+            PX.RigidBodyExt.applyLocalForce(impl, vec, rp);
+        } else {
+            impl.applyLocalForce(vec, rp);
+        }
+    }
+}
+
+export function applyTorqueForce (impl: any, vec: IVec3Like) {
+    if (USE_BYTEDANCE) {
+        impl.addTorque(vec, PX.ForceMode.eFORCE, true);
+    } else {
+        impl.addTorque(vec);
+    }
+}

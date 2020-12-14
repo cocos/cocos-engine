@@ -2,7 +2,7 @@ import { IVec3Like, Node, Vec3 } from '../../core';
 import { TransformBit } from '../../core/scene-graph/node-enum';
 import { PhysicsSystem, RigidBody } from '../framework';
 import { IRigidBody } from '../spec/i-rigid-body';
-import { PX, USE_BYTEDANCE, _trans } from './export-physx';
+import { applyForce, applyImpulse, applyTorqueForce, PX, USE_BYTEDANCE, _trans } from './export-physx';
 import { PhysXSharedBody } from './physx-shared-body';
 import { PhysXWorld } from './physx-world';
 
@@ -152,59 +152,35 @@ export class PhysXRigidBody implements IRigidBody {
     applyForce (force: IVec3Like, relativePoint?: IVec3Like): void {
         this._sharedBody.syncSceneToPhysics();
         const rp = relativePoint || Vec3.ZERO;
-        if (USE_BYTEDANCE) {
-            this.impl.addForce(force, PX.ForceMode.eFORCE, true);
-        } else {
-            this.impl.applyForce(force, rp);
-        }
+        applyForce(true, this.impl, force, rp);
     }
 
     applyLocalForce (force: IVec3Like, relativePoint?: IVec3Like): void {
         this._sharedBody.syncSceneToPhysics();
         const rp = relativePoint || Vec3.ZERO;
-        if (USE_BYTEDANCE) {
-            this.impl.addForce(force, PX.ForceMode.eFORCE, true);
-        } else {
-            this.impl.applyLocalForce(force, rp);
-        }
+        applyForce(false, this.impl, force, rp);
     }
 
     applyImpulse (force: IVec3Like, relativePoint?: IVec3Like): void {
         this._sharedBody.syncSceneToPhysics();
         const rp = relativePoint || Vec3.ZERO;
-        if (USE_BYTEDANCE) {
-            this.impl.addForce(force, PX.ForceMode.eIMPULSE, true);
-        } else {
-            this.impl.applyImpulse(force, rp);
-        }
+        applyImpulse(true, this.impl, force, rp);
     }
 
     applyLocalImpulse (force: IVec3Like, relativePoint?: IVec3Like): void {
         this._sharedBody.syncSceneToPhysics();
         const rp = relativePoint || Vec3.ZERO;
-        if (USE_BYTEDANCE) {
-            this.impl.addForce(force, PX.ForceMode.eIMPULSE, true);
-        } else {
-            this.impl.applyLocalImpulse(force, rp);
-        }
+        applyImpulse(false, this.impl, force, rp);
     }
 
     applyTorque (torque: IVec3Like): void {
-        if (USE_BYTEDANCE) {
-            this.impl.addTorque(torque, PX.ForceMode.eFORCE, true);
-        } else {
-            this.impl.addTorque(torque);
-        }
+        applyTorqueForce(this.impl, torque);
     }
 
     applyLocalTorque (torque: IVec3Like): void {
         this._sharedBody.syncSceneToPhysics();
         Vec3.transformQuat(v30, torque, this._sharedBody.node.worldRotation);
-        if (USE_BYTEDANCE) {
-            this.impl.addTorque(v30, PX.ForceMode.eFORCE, true);
-        } else {
-            this.impl.addTorque(v30);
-        }
+        applyTorqueForce(this.impl, v30);
     }
 
     setGroup (v: number): void {
