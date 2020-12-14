@@ -30,6 +30,7 @@
 
 import { AttributeName, Format, FormatInfos } from '../../gfx/define';
 import { Attribute } from '../../gfx';
+import { legacyCC } from '../../global-exports';
 
 export const vfmt = [
     new Attribute(AttributeName.ATTR_POSITION, Format.RGB32F),
