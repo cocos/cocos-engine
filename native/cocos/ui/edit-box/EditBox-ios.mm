@@ -264,8 +264,16 @@ namespace
         if (@available(iOS 11.0, *))
         {
             auto safeAreaInsets = view.safeAreaInsets;
-            viewRect.origin.x += safeAreaInsets.left;
-            viewRect.size.width -= safeAreaInsets.left;
+            
+            UIInterfaceOrientation sataus = [UIApplication sharedApplication].statusBarOrientation;
+            if (UIInterfaceOrientationLandscapeLeft == sataus) {
+                viewRect.origin.x = 0;
+                viewRect.size.width -= safeAreaInsets.right;
+            }
+            else {
+                viewRect.origin.x += safeAreaInsets.left;
+                viewRect.size.width -= safeAreaInsets.left;
+            }
         }
 
         return viewRect;
