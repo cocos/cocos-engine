@@ -151,11 +151,7 @@ export default class Prefab extends Asset {
     // @param {Node} [rootToRedirect] - specify an instantiated prefabRoot that all references to prefabRoot in prefab
     //                                  will redirect to
     private _doInstantiate (rootToRedirect?: any) {
-        if (this.data._prefab) {
-            // prefab asset is always synced
-            this.data._prefab._synced = true;
-        }
-        else {
+        if (!this.data._prefab) {
             // temp guard code
             warnID(3700);
         }
@@ -187,8 +183,6 @@ export default class Prefab extends Asset {
             this.data._instantiate(node);
         }
         else {
-            // prefab asset is always synced
-            this.data._prefab._synced = true;
             // instantiate node
             node = this.data._instantiate();
         }

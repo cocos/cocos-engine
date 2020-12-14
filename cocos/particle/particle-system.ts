@@ -56,6 +56,7 @@ import TrailModule from './renderer/trail';
 import { IParticleSystemRenderer } from './renderer/particle-system-renderer-base';
 import { PARTICLE_MODULE_PROPERTY } from './particle';
 import { EDITOR } from 'internal:constants';
+import { legacyCC } from '../core/global-exports';
 
 const _world_mat = new Mat4();
 const _world_rol = new Quat();
@@ -608,6 +609,8 @@ export class ParticleSystem extends RenderableComponent {
         this._customData2 = new Vec2();
 
         this._subEmitters = []; // array of { emitter: ParticleSystem, type: 'birth', 'collision' or 'death'}
+
+        legacyCC.director.on(legacyCC.Director.EVENT_BEFORE_COMMIT, this.beforeRender, this);
     }
 
     public onLoad () {
@@ -758,6 +761,7 @@ export class ParticleSystem extends RenderableComponent {
         // this._system.remove(this);
         this.processor.onDestroy();
         if (this._trailModule) this._trailModule.destroy();
+        legacyCC.director.off(legacyCC.Director.EVENT_BEFORE_COMMIT, this.beforeRender, this);
     }
 
     protected onEnable () {
@@ -783,14 +787,21 @@ export class ParticleSystem extends RenderableComponent {
             if (this.processor.updateParticles(scaledDeltaTime) === 0 && !this._isEmitting) {
                 this.stop();
             }
+        }
+        // update render data
+        this.processor.updateRenderData();
 
-            // update render data
-            this.processor.updateRenderData();
+        // update trail
+        if (this._trailModule && this._trailModule.enable) {
+            this._trailModule.updateRenderData();
+        }
+    }
 
-            // update trail
-            if (this._trailModule && this._trailModule.enable) {
-                this._trailModule.updateRenderData();
-            }
+    protected beforeRender () {
+        if (!this._isPlaying) return;
+        this.processor.beforeRender();
+        if (this._trailModule && this._trailModule.enable) {
+            this._trailModule.beforeRender();
         }
     }
 

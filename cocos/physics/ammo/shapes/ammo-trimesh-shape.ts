@@ -24,8 +24,8 @@
  */
 
 import Ammo from '../ammo-instantiated';
-import { AmmoShape } from "./ammo-shape";
-import { Mesh, warnID } from "../../../core";
+import { AmmoShape } from './ammo-shape';
+import { Mesh, warnID } from '../../../core';
 import { MeshCollider } from '../../../../exports/physics-framework';
 import { cocos2AmmoVec3, cocos2AmmoTriMesh } from '../ammo-util';
 import { AmmoBroadphaseNativeTypes } from '../ammo-enum';
@@ -33,7 +33,6 @@ import { ITrimeshShape } from '../../spec/i-physics-shape';
 import { AmmoConstant } from '../ammo-const';
 
 export class AmmoTrimeshShape extends AmmoShape implements ITrimeshShape {
-
     public get collider () {
         return this._collider as MeshCollider;
     }
@@ -51,7 +50,7 @@ export class AmmoTrimeshShape extends AmmoShape implements ITrimeshShape {
         } else {
             const mesh = v;
             if (mesh && mesh.renderingSubMeshes.length > 0) {
-                var btTriangleMesh: Ammo.btTriangleMesh = this._getBtTriangleMesh(mesh);
+                const btTriangleMesh: Ammo.btTriangleMesh = this._getBtTriangleMesh(mesh);
                 if (this.collider.convex) {
                     this._btShape = new Ammo.btConvexTriangleMeshShape(btTriangleMesh, true);
                 } else {
@@ -96,19 +95,19 @@ export class AmmoTrimeshShape extends AmmoShape implements ITrimeshShape {
     }
 
     private _getBtTriangleMesh (mesh: Mesh): Ammo.btTriangleMesh {
-        var btTriangleMesh: Ammo.btTriangleMesh;
-        if (Ammo['CC_CACHE']['btTriangleMesh'].enable) {
-            if (Ammo['CC_CACHE']['btTriangleMesh'][mesh._uuid] == null) {
-                var btm = new Ammo.btTriangleMesh();
-                Ammo['CC_CACHE']['btTriangleMesh'][mesh._uuid] = btm;
+        let btTriangleMesh: Ammo.btTriangleMesh;
+        const cache = (Ammo as any).CC_CACHE;
+        if (cache.btTriangleMesh.enable) {
+            if (cache.btTriangleMesh[mesh._uuid] == null) {
+                const btm = new Ammo.btTriangleMesh();
+                cache.btTriangleMesh[mesh._uuid] = btm;
                 cocos2AmmoTriMesh(btm, mesh);
             }
-            btTriangleMesh = Ammo['CC_CACHE']['btTriangleMesh'][mesh._uuid];
+            btTriangleMesh = cache.btTriangleMesh[mesh._uuid];
         } else {
             this.refBtTriangleMesh = btTriangleMesh = new Ammo.btTriangleMesh();
             cocos2AmmoTriMesh(btTriangleMesh, mesh);
         }
         return btTriangleMesh;
     }
-
 }

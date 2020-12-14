@@ -43,6 +43,8 @@ export interface IRigidBody2D extends ILifecycle {
     getWorldVector<Out extends IVec2Like> (localVector: IVec2Like, out: Out): Out;
     getLocalPoint<Out extends IVec2Like> (worldPoint: IVec2Like, out: Out): Out;
     getWorldPoint<Out extends IVec2Like> (localPoint: IVec2Like, out: Out): Out;
+    getLocalCenter<Out extends IVec2Like> (out: Out): Out;
+    getWorldCenter<Out extends IVec2Like> (out: Out): Out;
 
     applyForce (force: Vec2, point: Vec2, wake: boolean)
     applyForceToCenter (force: Vec2, wake: boolean)

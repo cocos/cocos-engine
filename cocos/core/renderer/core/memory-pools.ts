@@ -62,7 +62,8 @@ enum BufferDataType {
     NEVER,
 }
 
-type BufferManifest = { [key: string]: number | string; COUNT: number };
+// `| any` here work around this issue: microsoft/TypeScript#41931
+type BufferManifest = { [key: string]: number | string | any; COUNT: number };
 type StandardBufferElement = number | IHandle<PoolType>;
 type GeneralBufferElement = StandardBufferElement | IVec2Like | IVec3Like | IVec4Like | IMat4Like;
 type BufferTypeManifest<E extends BufferManifest> = { [key in E[keyof E]]: GeneralBufferElement };
@@ -73,33 +74,19 @@ class BufferPool<P extends PoolType, E extends BufferManifest, M extends BufferT
     // this._bufferViews[chunk][entry][element]
 
     private _dataType: BufferDataTypeManifest<E>;
-
     private _elementCount: number;
-
     private _entryBits: number;
-
     private _stride: number;
-
     private _entriesPerChunk: number;
-
     private _entryMask: number;
-
     private _chunkMask: number;
-
     private _poolFlag: number;
-
     private _arrayBuffers: ArrayBuffer[] = [];
-
     private _freelists: number[][] = [];
-
     private _uint32BufferViews: Uint32Array[][] = [];
-
     private _float32BufferViews: Float32Array[][] = [];
-
     private _hasUint32 = false;
-
     private _hasFloat32 = false;
-
     private _nativePool: NativeBufferPool;
 
     constructor (poolType: P, dataType: BufferDataTypeManifest<E>, enumType: E, entryBits = 8) {

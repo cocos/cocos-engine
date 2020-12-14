@@ -399,6 +399,8 @@ export class Root {
             for (let i = 0; i < scenes.length; i++) {
                 scenes[i].update(stamp);
             }
+            
+            legacyCC.director.emit(legacyCC.Director.EVENT_BEFORE_COMMIT);
 
             for (let i = 0; i < windows.length; i++) {
                 const window = windows[i];
@@ -408,6 +410,7 @@ export class Root {
                 }
             }
             if (this._ui) this._ui.reset();
+
             this._device.present();
         }
     }

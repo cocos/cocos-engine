@@ -297,6 +297,21 @@ export class Model {
         }
     }
 
+    public updateWorldBound () {
+        const node = this.transform;
+        if (node !== null) {
+            node.updateWorldTransform();
+            this._transformUpdated = true;
+            const worldBounds = this._worldBounds;
+            if (this._modelBounds && worldBounds) {
+                // @ts-expect-error TS2445
+                this._modelBounds.transform(node._mat, node._pos, node._rot, node._scale, worldBounds);
+                AABBPool.setVec3(this._hWorldBounds, AABBView.CENTER, worldBounds.center);
+                AABBPool.setVec3(this._hWorldBounds, AABBView.HALF_EXTENSION, worldBounds.halfExtents);
+            }
+        }
+    }
+
     public updateUBOs (stamp: number) {
         const subModels = this._subModels;
         for (let i = 0; i < subModels.length; i++) {

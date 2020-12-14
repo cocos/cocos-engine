@@ -61,7 +61,6 @@ import { extname } from '../utils/path';
  */
 @ccclass('cc.Asset')
 export class Asset extends Eventify(CCObject) {
-
     /**
      * @en Indicates whether its dependent native assets can support deferred load if the owner scene (or prefab) is marked as `asyncLoadAssets`.
      * @zh 当场景或 Prefab 被标记为 `asyncLoadAssets`，禁止延迟加载该资源所依赖的其它原始资源。
@@ -104,11 +103,16 @@ export class Asset extends Eventify(CCObject) {
      * @default ""
      */
     @serializable
-    public _native: string = '';
-    public _nativeUrl: string = '';
+    public _native = '';
+    public _nativeUrl = '';
+    // only for internal use
+    public __onLoadedInvoked__ = false;
+    public __nativeDepend__: any = null;
+    public __asyncLoadAssets__ = false;
+    public __depends__: any = null;
 
     private _file: any = null;
-    private _ref: number = 0;
+    private _ref = 0;
 
     /**
      * @en
@@ -129,8 +133,7 @@ export class Asset extends Eventify(CCObject) {
             if (name.charCodeAt(0) === 46) {  // '.'
                 // imported in dir where json exist
                 this._nativeUrl = getUrlWithUuid(this._uuid, { nativeExt: name, isNative: true });
-            }
-            else {
+            } else {
                 // imported in an independent dir
                 this._nativeUrl = getUrlWithUuid(this._uuid, { __nativeName__: name, nativeExt: extname(name), isNative: true });
             }
@@ -214,12 +217,11 @@ export class Asset extends Eventify(CCObject) {
      * @param inLibrary
      * @private
      */
-    public _setRawAsset (filename: string, inLibrary: boolean = true) {
+    public _setRawAsset (filename: string, inLibrary = true) {
         if (inLibrary !== false) {
             this._native = filename || '';
-        }
-        else {
-            this._native = '/' + filename;  // simply use '/' to tag location where is not in the library
+        } else {
+            this._native = `/${filename}`;  // simply use '/' to tag location where is not in the library
         }
     }
 
@@ -262,7 +264,6 @@ export class Asset extends Eventify(CCObject) {
      */
     public addRef (): Asset {
         this._ref++;
-        legacyCC.assetManager._releaseManager.removeFromDeleteQueue(this);
         return this;
     }
 
@@ -276,7 +277,7 @@ export class Asset extends Eventify(CCObject) {
      * @return itself
      *
      */
-    public decRef (autoRelease: boolean = true): Asset {
+    public decRef (autoRelease = true): Asset {
         if (this._ref > 0) {
             this._ref--;
         }

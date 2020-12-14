@@ -320,15 +320,25 @@ async function _doBuild ({
     };
 
     const moduleRedirects: Record<string, string> = {};
+    const addModuleOverrides = (moduleOverrides: Record<string, string>) => {
+        for (const [source, override] of Object.entries(moduleOverrides)) {
+            const normalizedSource = makePathEqualityKey(ps.resolve(engineRoot, source));
+            const normalizedOverride = ps.resolve(engineRoot, override);
+            moduleRedirects[normalizedSource] = normalizedOverride;
+        }
+    };
+
+    if (options.buildTimeConstants.BUILD) {
+        addModuleOverrides({
+            'cocos/core/data/deserialize-dynamic.ts': 'cocos/core/data/deserialize-dynamic-empty.ts',
+        });
+    }
+
     const platformConstant = getPlatformConstantNames().find((name) => options.buildTimeConstants[name] === true);
     if (platformConstant) {
         const moduleOverrides = ccConfig.platforms?.[platformConstant]?.moduleOverrides;
         if (moduleOverrides) {
-            for (const [source, override] of Object.entries(moduleOverrides)) {
-                const normalizedSource = makePathEqualityKey(ps.resolve(engineRoot, source));
-                const normalizedOverride = ps.resolve(engineRoot, override);
-                moduleRedirects[normalizedSource] = normalizedOverride;
-            }
+            addModuleOverrides(moduleOverrides);
         }
     }
 

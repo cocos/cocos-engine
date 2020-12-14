@@ -1,0 +1,1 @@
+cc.internal.AudioManager.maxAudioChannel = 6;

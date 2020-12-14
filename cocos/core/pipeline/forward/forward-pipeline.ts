@@ -130,7 +130,6 @@ export class ForwardPipeline extends RenderPipeline {
     protected _globalUBO = new Float32Array(UBOGlobal.COUNT);
     protected _cameraUBO = new Float32Array(UBOCamera.COUNT);
     protected _shadowUBO = new Float32Array(UBOShadow.COUNT);
-    protected _isGlobalBound: boolean = false;
 
     public initialize (info: IRenderPipelineInfo): boolean {
         super.initialize(info);
@@ -280,7 +279,13 @@ export class ForwardPipeline extends RenderPipeline {
             UBOShadow.SIZE,
         ));
         this._descriptorSet.bindBuffer(UBOShadow.BINDING, shadowUBO);
-
+        
+        const shadowMapSamplerHash = genSamplerHash(_samplerInfo);
+        const shadowMapSampler = samplerLib.getSampler(device, shadowMapSamplerHash);
+        this._descriptorSet.bindSampler(UNIFORM_SHADOWMAP_BINDING, shadowMapSampler);
+        this._descriptorSet.bindTexture(UNIFORM_SHADOWMAP_BINDING, builtinResMgr.get<Texture2D>('default-texture').getGFXTexture()!);
+        this._descriptorSet.bindSampler(UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING, shadowMapSampler);
+        this._descriptorSet.bindTexture(UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING, builtinResMgr.get<Texture2D>('default-texture').getGFXTexture()!);
         this._descriptorSet.update();
 
         // update global defines when all states initialized.
@@ -296,66 +301,56 @@ export class ForwardPipeline extends RenderPipeline {
         const device = this.device;
         const shadowInfo = this.shadows;
 
-        if (!this._isGlobalBound) {
-            const shadowMapSamplerHash = genSamplerHash(_samplerInfo);
-            const shadowMapSampler = samplerLib.getSampler(device, shadowMapSamplerHash);
-            this._descriptorSet.bindSampler(UNIFORM_SHADOWMAP_BINDING, shadowMapSampler);
-            this._descriptorSet.bindTexture(UNIFORM_SHADOWMAP_BINDING, builtinResMgr.get<Texture2D>('default-texture').getGFXTexture()!);
-            this._descriptorSet.bindSampler(UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING, shadowMapSampler);
-            this._descriptorSet.bindTexture(UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING, builtinResMgr.get<Texture2D>('default-texture').getGFXTexture()!);
-            this._descriptorSet.update();
-            this._isGlobalBound = true;
-        }
-
-        if (mainLight && shadowInfo.enabled && shadowInfo.type === ShadowType.ShadowMap) {
-            if (this.shadowFrameBufferMap.has(mainLight)) {
-                this._descriptorSet.bindTexture(UNIFORM_SHADOWMAP_BINDING, this.shadowFrameBufferMap.get(mainLight)!.colorTextures[0]!);
+        if (shadowInfo.enabled) {
+            if (mainLight && shadowInfo.type === ShadowType.ShadowMap) {
+                if (this.shadowFrameBufferMap.has(mainLight)) {
+                    this._descriptorSet.bindTexture(UNIFORM_SHADOWMAP_BINDING, this.shadowFrameBufferMap.get(mainLight)!.colorTextures[0]!);
+                }
+    
+                // light view
+                let shadowCameraView: Mat4;
+    
+                // light proj
+                let x: number = 0;
+                let y: number = 0;
+                let far: number = 0;
+                if (shadowInfo.autoAdapt) {
+                    shadowCameraView = getShadowWorldMatrix(this, mainLight.node?.getWorldRotation()!, mainLight.direction, vec3_center);
+                    // if orthoSize is the smallest, auto calculate orthoSize.
+                    const radius = shadowInfo.sphere.radius;
+                    x = radius * shadowInfo.aspect;
+                    y = radius;
+    
+                    const halfFar = Vec3.distance(shadowInfo.sphere.center, vec3_center);
+                    far =  Math.min(halfFar * Shadows.COEFFICIENT_OF_EXPANSION, Shadows.MAX_FAR);
+                } else {
+                    shadowCameraView = mainLight.node!.getWorldMatrix();
+    
+                    x = shadowInfo.orthoSize * shadowInfo.aspect;
+                    y = shadowInfo.orthoSize;
+    
+                    far = shadowInfo.far;
+                }
+    
+                Mat4.invert(matShadowView, shadowCameraView!);
+    
+                const projectionSignY = device.screenSpaceSignY * device.UVSpaceSignY; // always offscreen
+                Mat4.ortho(matShadowViewProj, -x, x, -y, y, shadowInfo.near, far,
+                    device.clipSpaceMinZ, projectionSignY);
+                Mat4.multiply(matShadowViewProj, matShadowViewProj, matShadowView);
+                Mat4.toArray(this._shadowUBO, matShadowViewProj, UBOShadow.MAT_LIGHT_VIEW_PROJ_OFFSET);
+    
+                this._shadowUBO[UBOShadow.SHADOW_INFO_OFFSET]     = shadowInfo.size.x;
+                this._shadowUBO[UBOShadow.SHADOW_INFO_OFFSET + 1] = shadowInfo.size.y;
+                this._shadowUBO[UBOShadow.SHADOW_INFO_OFFSET + 2] = shadowInfo.pcf;
+                this._shadowUBO[UBOShadow.SHADOW_INFO_OFFSET + 3] = shadowInfo.bias;
+            } else if (mainLight && shadowInfo.type === ShadowType.Planar) {
+                updatePlanarPROJ(shadowInfo, mainLight, this._shadowUBO);
             }
-
-            // light view
-            let shadowCameraView: Mat4;
-
-            // light proj
-            let x: number = 0;
-            let y: number = 0;
-            let far: number = 0;
-            if (shadowInfo.autoAdapt) {
-                shadowCameraView = getShadowWorldMatrix(this, mainLight.node?.getWorldRotation()!, mainLight.direction, vec3_center);
-                // if orthoSize is the smallest, auto calculate orthoSize.
-                const radius = shadowInfo.sphere.radius;
-                x = radius * shadowInfo.aspect;
-                y = radius;
-
-                const halfFar = Vec3.distance(shadowInfo.sphere.center, vec3_center);
-                far =  Math.min(halfFar * Shadows.COEFFICIENT_OF_EXPANSION, Shadows.MAX_FAR);
-            } else {
-                shadowCameraView = mainLight.node!.getWorldMatrix();
-
-                x = shadowInfo.orthoSize * shadowInfo.aspect;
-                y = shadowInfo.orthoSize;
-
-                far = shadowInfo.far;
-            }
-
-            Mat4.invert(matShadowView, shadowCameraView!);
-
-            const projectionSignY = device.screenSpaceSignY * device.UVSpaceSignY; // always offscreen
-            Mat4.ortho(matShadowViewProj, -x, x, -y, y, shadowInfo.near, far,
-                device.clipSpaceMinZ, projectionSignY);
-            Mat4.multiply(matShadowViewProj, matShadowViewProj, matShadowView);
-            Mat4.toArray(this._shadowUBO, matShadowViewProj, UBOShadow.MAT_LIGHT_VIEW_PROJ_OFFSET);
-
-            this._shadowUBO[UBOShadow.SHADOW_INFO_OFFSET]     = shadowInfo.size.x;
-            this._shadowUBO[UBOShadow.SHADOW_INFO_OFFSET + 1] = shadowInfo.size.y;
-            this._shadowUBO[UBOShadow.SHADOW_INFO_OFFSET + 2] = shadowInfo.pcf;
-            this._shadowUBO[UBOShadow.SHADOW_INFO_OFFSET + 3] = shadowInfo.bias;
-        } else if (mainLight && shadowInfo.type === ShadowType.Planar) {
-            updatePlanarPROJ(shadowInfo, mainLight, this._shadowUBO);
+    
+            Color.toArray(this._shadowUBO, shadowInfo.shadowColor, UBOShadow.SHADOW_COLOR_OFFSET);
+            this._commandBuffers[0].updateBuffer(this._descriptorSet.getBuffer(UBOShadow.BINDING), this._shadowUBO);
         }
-
-        Color.toArray(this._shadowUBO, shadowInfo.shadowColor, UBOShadow.SHADOW_COLOR_OFFSET);
-
-        this._commandBuffers[0].updateBuffer(this._descriptorSet.getBuffer(UBOShadow.BINDING), this._shadowUBO);
     }
 
     public updateCameraUBO (camera: Camera) {
@@ -447,7 +442,6 @@ export class ForwardPipeline extends RenderPipeline {
         }
 
         this._commandBuffers.length = 0;
-        this._isGlobalBound = false;
 
         this.ambient.destroy();
         this.skybox.destroy();

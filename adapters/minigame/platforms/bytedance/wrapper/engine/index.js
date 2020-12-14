@@ -1,0 +1,2 @@
+require('./Label');
+require('./ImageAsset');

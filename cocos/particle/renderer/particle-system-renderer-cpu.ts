@@ -301,6 +301,10 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
             idx = i * 4;
             this._fillDataFunc(p, idx, fi);
         }
+      
+    }
+
+    public beforeRender () {
         // because we use index buffer, per particle index count = 6.
         this._model!.updateIA(this._particles!.length);
     }
