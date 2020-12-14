@@ -44,7 +44,7 @@ import { UIDrawBatch } from './ui-draw-batch';
 import { UIMaterial } from './ui-material';
 import * as UIVertexFormat from './ui-vertex-format';
 import { legacyCC } from '../../global-exports';
-import { DescriptorSetHandle, DSPool } from '../core/memory-pools';
+import { DescriptorSetHandle, DSPool, SubModelPool, SubModelView } from '../core/memory-pools';
 import { ModelLocalBindings } from '../../pipeline/define';
 import { EffectAsset, RenderTexture, SpriteFrame } from '../../assets';
 import { programLib } from '../core/program-lib';
@@ -515,26 +515,31 @@ export class UI {
 
         const uiCanvas = this._currCanvas;
         const curDrawBatch = this._drawBatchPool.alloc();
-        curDrawBatch.camera = uiCanvas && uiCanvas.camera;
-        curDrawBatch.model = model;
-        curDrawBatch.bufferBatch = null;
-        curDrawBatch.material = mat;
-        curDrawBatch.texture = null;
-        curDrawBatch.sampler = null;
-        curDrawBatch.useLocalData = null;
-
-        // reset current render state to null
-        this._currMaterial = this._emptyMaterial;
-        this._currComponent = null;
-        this._currTransform = null;
-        this._currTexture = null;
-        this._currSampler = null;
-        this._currTextureHash = 0;
-        this._currSamplerHash = 0;
-        this._currMaterialHash = 0;
-        this._currMaterialUniformHash = 0;
-
-        this._batches.push(curDrawBatch);
+        const subModel = model!.subModels[0];
+        if (subModel) {
+            curDrawBatch.camera = uiCanvas && uiCanvas.camera;
+            curDrawBatch.model = model;
+            curDrawBatch.bufferBatch = null;
+            curDrawBatch.material = mat;
+            curDrawBatch.texture = null;
+            curDrawBatch.sampler = null;
+            curDrawBatch.useLocalData = null;
+            curDrawBatch.hDescriptorSet = SubModelPool.get(subModel.handle, SubModelView.DESCRIPTOR_SET);
+            curDrawBatch.hInputAssembler = SubModelPool.get(subModel.handle, SubModelView.INPUT_ASSEMBLER);
+    
+            // reset current render state to null
+            this._currMaterial = this._emptyMaterial;
+            this._currComponent = null;
+            this._currTransform = null;
+            this._currTexture = null;
+            this._currSampler = null;
+            this._currTextureHash = 0;
+            this._currSamplerHash = 0;
+            this._currMaterialHash = 0;
+            this._currMaterialUniformHash = 0;
+    
+            this._batches.push(curDrawBatch);
+        }
     }
 
     /**

@@ -39,8 +39,6 @@ export const ForwardFlow = nr.ForwardFlow;
 export const ForwardStage = nr.ForwardStage;
 export const ShadowFlow = nr.ShadowFlow;
 export const ShadowStage = nr.ShadowStage;
-export const UIFlow = nr.UIFlow;
-export const UIStage = nr.UIStage;
 
 export const InstancedBuffer = nr.InstancedBuffer;
 export const PipelineStateManager = nr.PipelineStateManager;
