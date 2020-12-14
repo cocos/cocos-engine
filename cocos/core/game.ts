@@ -815,10 +815,15 @@ export class Game extends EventTarget {
             const ctors: Constructor<Device>[] = [];
 
             if (JSB && window.gfx) {
-                if (gfx.CCVKDevice) { ctors.push(gfx.CCVKDevice); }
-                if (gfx.CCMTLDevice) { ctors.push(gfx.CCMTLDevice); }
-                if (gfx.GLES3Device) { ctors.push(gfx.GLES3Device); }
-                if (gfx.GLES2Device) { ctors.push(gfx.GLES2Device); }
+                const os = sys.os;
+                if (os === sys.OS_OSX || os === sys.OS_IOS) {
+                    if (gfx.CCMTLDevice) { ctors.push(gfx.CCMTLDevice); }
+                    if (gfx.GLES3Device) { ctors.push(gfx.GLES3Device); }
+                } else { // windows or android
+                    if (gfx.GLES3Device) { ctors.push(gfx.GLES3Device); }
+                    if (gfx.CCVKDevice) { ctors.push(gfx.CCVKDevice); }
+                    if (gfx.GLES2Device) { ctors.push(gfx.GLES2Device); }
+                }
             } else {
                 let useWebGL2 = (!!window.WebGL2RenderingContext);
                 const userAgent = window.navigator.userAgent.toLowerCase();

@@ -1,3 +1,4 @@
+import { EDITOR } from 'internal:constants';
 import { TrackEntryListeners } from './track-entry-listeners';
 import spine from './lib/spine-core.js';
 import { AnimationCache, AnimationFrame, default as SkeletonCache } from './skeleton-cache';
@@ -6,7 +7,6 @@ import { ccclass, executeInEditMode, help, menu } from '../core/data/class-decor
 import { UIRenderable } from '../core/2d/framework/ui-renderable';
 import { Node, CCClass, CCObject, Color, Enum, GFXBlendFactor, Material, PrivateNode, Texture2D, builtinResMgr, ccenum, errorID, logID, warn } from '../core';
 import { displayName, editable, override, serializable, tooltip, type, visible } from '../core/data/decorators';
-import { EDITOR } from '../../editor/exports/populate-internal-constants';
 import { SkeletonData } from './skeleton-data';
 import { VertexEffectDelegate } from './vertex-effect-delegate';
 import { MeshRenderData } from '../core/2d/renderer/render-data';
@@ -15,6 +15,7 @@ import { Graphics } from '../core/2d/components/graphics';
 import { MaterialInstance } from '../core/renderer';
 import { js } from '../core/utils/js';
 import { sp } from '../../exports/spine';
+import { BlendOp } from '../core/gfx';
 
 export const timeScale = 1.0;
 
@@ -334,18 +335,18 @@ export class Skeleton extends UIRenderable {
      * !#zh 是否启用贴图预乘。
      * 当图片的透明区域出现色块时需要关闭该选项，当图片的半透明区域颜色变黑时需要启用该选项。
      */
-    // @serializable
-    // private _premultipliedAlpha: boolean = true;
+    @serializable
+    private _premultipliedAlpha = true;
 
-    // @editable
-    // @tooltip('i18n:COMPONENT.skeleton.premultipliedAlpha')
-    // get premultipliedAlpha (): boolean { return this._premultipliedAlpha; }
-    // set premultipliedAlpha (v: boolean) {
-    //     if (v !== this._premultipliedAlpha) {
-    //         this._premultipliedAlpha = v;
-    //         this.markForUpdateRenderData();
-    //     }
-    // }
+    @editable
+    @tooltip('i18n:COMPONENT.skeleton.premultipliedAlpha')
+    get premultipliedAlpha (): boolean { return this._premultipliedAlpha; }
+    set premultipliedAlpha (v: boolean) {
+        if (v !== this._premultipliedAlpha) {
+            this._premultipliedAlpha = v;
+            this.markForUpdateRenderData();
+        }
+    }
 
     /**
      * !#en The time scale of this skeleton.
@@ -1297,8 +1298,14 @@ export class Skeleton extends UIRenderable {
         this._materialCache[key] = inst;
         inst.overridePipelineStates({
             blendState: {
+                blendColor: Color.WHITE,
                 targets: [{
-                    blendSrc: src, blendDst: dst,
+                    blendEq: BlendOp.ADD,
+                    blendAlphaEq: BlendOp.ADD,
+                    blendSrc: src,
+                    blendDst: dst,
+                    blendSrcAlpha: src,
+                    blendDstAlpha: dst,
                 }],
             },
         });
@@ -1325,6 +1332,7 @@ export class Skeleton extends UIRenderable {
             for (let i = 0; i < this._meshRenderDataArray.length; i++) {
                 this._meshRenderDataArrayIdx = i;
                 const m = this._meshRenderDataArray[i];
+                this.material = m.renderData.material!;
                 if (m.texture) {
                     ui.commitComp(this, m.texture, this._assembler, null);
                 }

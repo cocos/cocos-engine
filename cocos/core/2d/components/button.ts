@@ -577,17 +577,11 @@ export class Button extends Component {
         // check sprite frames
         //
         if (!EDITOR || legacyCC.GAME_VIEW) {
-            this.node.on(SystemEventType.TOUCH_START, this._onTouchBegan, this);
-            this.node.on(SystemEventType.TOUCH_MOVE, this._onTouchMove, this);
-            this.node.on(SystemEventType.TOUCH_END, this._onTouchEnded, this);
-            this.node.on(SystemEventType.TOUCH_CANCEL, this._onTouchCancel, this);
-
-            this.node.on(SystemEventType.MOUSE_ENTER, this._onMouseMoveIn, this);
-            this.node.on(SystemEventType.MOUSE_LEAVE, this._onMouseMoveOut, this);
+            this._registerNodeEvent();
         } else {
             this.node.on(Sprite.EventType.SPRITE_FRAME_CHANGED, (comp: Sprite) => {
                 if (this._transition === Transition.SPRITE) {
-                    this._normalSprite = comp.spriteFrame;
+                    this._setCurrentStateSpriteFrame(comp.spriteFrame);
                 } else {
                     // avoid serialization data loss when in no-sprite mode
                     this._normalSprite = null;
@@ -603,13 +597,7 @@ export class Button extends Component {
         this._resetState();
 
         if (!EDITOR || legacyCC.GAME_VIEW) {
-            this.node.off(SystemEventType.TOUCH_START, this._onTouchBegan, this);
-            this.node.off(SystemEventType.TOUCH_MOVE, this._onTouchMove, this);
-            this.node.off(SystemEventType.TOUCH_END, this._onTouchEnded, this);
-            this.node.off(SystemEventType.TOUCH_CANCEL, this._onTouchCancel, this);
-
-            this.node.off(SystemEventType.MOUSE_ENTER, this._onMouseMoveIn, this);
-            this.node.off(SystemEventType.MOUSE_LEAVE, this._onMouseMoveOut, this);
+            this._unregisterNodeEvent();
         } else {
             this.node.off(Sprite.EventType.SPRITE_FRAME_CHANGED);
         }
@@ -686,15 +674,13 @@ export class Button extends Component {
     }
 
     protected _registerNodeEvent () {
-        if (!EDITOR || legacyCC.GAME_VIEW) {
-            this.node.on(SystemEventType.TOUCH_START, this._onTouchBegan, this);
-            this.node.on(SystemEventType.TOUCH_MOVE, this._onTouchMove, this);
-            this.node.on(SystemEventType.TOUCH_END, this._onTouchEnded, this);
-            this.node.on(SystemEventType.TOUCH_CANCEL, this._onTouchCancel, this);
+        this.node.on(SystemEventType.TOUCH_START, this._onTouchBegan, this);
+        this.node.on(SystemEventType.TOUCH_MOVE, this._onTouchMove, this);
+        this.node.on(SystemEventType.TOUCH_END, this._onTouchEnded, this);
+        this.node.on(SystemEventType.TOUCH_CANCEL, this._onTouchCancel, this);
 
-            this.node.on(SystemEventType.MOUSE_ENTER, this._onMouseMoveIn, this);
-            this.node.on(SystemEventType.MOUSE_LEAVE, this._onMouseMoveOut, this);
-        }
+        this.node.on(SystemEventType.MOUSE_ENTER, this._onMouseMoveIn, this);
+        this.node.on(SystemEventType.MOUSE_LEAVE, this._onMouseMoveOut, this);
     }
 
     protected _registerTargetEvent (target) {
@@ -706,15 +692,13 @@ export class Button extends Component {
     }
 
     protected _unregisterNodeEvent () {
-        if (!EDITOR || legacyCC.GAME_VIEW) {
-            this.node.off(SystemEventType.TOUCH_START, this._onTouchBegan, this);
-            this.node.off(SystemEventType.TOUCH_MOVE, this._onTouchMove, this);
-            this.node.off(SystemEventType.TOUCH_END, this._onTouchEnded, this);
-            this.node.off(SystemEventType.TOUCH_CANCEL, this._onTouchCancel, this);
+        this.node.off(SystemEventType.TOUCH_START, this._onTouchBegan, this);
+        this.node.off(SystemEventType.TOUCH_MOVE, this._onTouchMove, this);
+        this.node.off(SystemEventType.TOUCH_END, this._onTouchEnded, this);
+        this.node.off(SystemEventType.TOUCH_CANCEL, this._onTouchCancel, this);
 
-            this.node.off(SystemEventType.MOUSE_ENTER, this._onMouseMoveIn, this);
-            this.node.off(SystemEventType.MOUSE_LEAVE, this._onMouseMoveOut, this);
-        }
+        this.node.off(SystemEventType.MOUSE_ENTER, this._onMouseMoveIn, this);
+        this.node.off(SystemEventType.MOUSE_LEAVE, this._onMouseMoveOut, this);
     }
 
     protected _unregisterTargetEvent (target) {

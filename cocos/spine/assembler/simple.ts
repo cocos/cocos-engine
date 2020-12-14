@@ -23,7 +23,7 @@ const _darkColor: spine.Color | null = new spine.Color(1, 1, 1, 1);
 const _tempPos: spine.Vector2 | null = new spine.Vector2();
 const _tempUv: spine.Vector2 | null = new spine.Vector2();
 
-// let _premultipliedAlpha: boolean;
+let _premultipliedAlpha: boolean;
 let _multiplier;
 let _slotRangeStart: number;
 let _slotRangeEnd: number;
@@ -85,7 +85,7 @@ function _getSlotMaterial (blendMode: spine.BlendMode) {
     let dst: GFXBlendFactor;
     switch (blendMode) {
     case spine.BlendMode.Additive:
-        src = /* _premultipliedAlpha ? GFXBlendFactor.ONE : */  GFXBlendFactor.SRC_ALPHA;
+        src =  _premultipliedAlpha ? GFXBlendFactor.ONE :  GFXBlendFactor.SRC_ALPHA;
         dst = GFXBlendFactor.ONE;
         break;
     case spine.BlendMode.Multiply:
@@ -98,7 +98,7 @@ function _getSlotMaterial (blendMode: spine.BlendMode) {
         break;
     case spine.BlendMode.Normal:
     default:
-        src = /* _premultipliedAlpha ? GFXBlendFactor.ONE : */ GFXBlendFactor.SRC_ALPHA;
+        src = _premultipliedAlpha ? GFXBlendFactor.ONE : GFXBlendFactor.SRC_ALPHA;
         dst = GFXBlendFactor.ONE_MINUS_SRC_ALPHA;
         break;
     }
@@ -109,7 +109,7 @@ function _getSlotMaterial (blendMode: spine.BlendMode) {
 function _handleColor (color: FrameColor) {
     // temp rgb has multiply 255, so need divide 255;
     _fa = color.fa * _nodeA;
-    _multiplier = /* _premultipliedAlpha ? _fa / 255 : */ 1;
+    _multiplier = _premultipliedAlpha ? _fa / 255 :  1;
     _r = _nodeR * _multiplier;
     _g = _nodeG * _multiplier;
     _b = _nodeB * _multiplier;
@@ -125,7 +125,7 @@ function _handleColor (color: FrameColor) {
     _dr = color.dr * _r;
     _dg = color.dg * _g;
     _db = color.db * _b;
-    _da =  /* _premultipliedAlpha ? 255 : */ 0;
+    _da =   _premultipliedAlpha ? 255 :  0;
     _darkColor32[0] = _dr / 255.0;
     _darkColor32[1] = _dg / 255.0;
     _darkColor32[2] = _db / 255.0;
@@ -155,10 +155,11 @@ export const simple: IAssembler = {
 
     updateRenderData (comp: Skeleton, ui: UI) {
         _comp = comp;
-        // if (comp.isAnimationCached()) return;
         const skeleton = comp._skeleton;
-        if (skeleton) {
+        if (!comp.isAnimationCached() && skeleton) {
             skeleton.updateWorldTransform();
+        }
+        if (skeleton) {
             updateComponentRenderData(comp, ui);
         }
     },
@@ -241,13 +242,13 @@ function updateComponentRenderData (comp: Skeleton, ui: UI) {
     _currentMaterial = _comp.getBuiltinMaterial(_useTint ? SpineMaterialType.TWO_COLORED : SpineMaterialType.COLORED_TEXTURED);
 
     _mustFlush = true;
-    // _premultipliedAlpha = comp.premultipliedAlpha;
+    _premultipliedAlpha = comp.premultipliedAlpha;
     _multiplier = 1.0;
     _handleVal = 0x00;
     _needColor = false;
     _vertexEffect = comp._effectDelegate && comp._effectDelegate._vertexEffect as any;
 
-    if (nodeColor._val !== 0xffffffff /* || _premultipliedAlpha */) {
+    if (nodeColor._val !== 0xffffffff ||  _premultipliedAlpha) {
         _needColor = true;
     }
 
@@ -286,7 +287,7 @@ function fillVertices (skeletonColor: spine.Color, attachmentColor: spine.Color,
     let ibuf = _buffer!.renderData.iData;
 
     _finalColor!.a = slotColor.a * attachmentColor.a * skeletonColor.a * _nodeA * 255;
-    _multiplier = /* _premultipliedAlpha ? _finalColor!.a : */ 255;
+    _multiplier =  _premultipliedAlpha ? _finalColor!.a : 255;
     _tempr = _nodeR * attachmentColor.r * skeletonColor.r * _multiplier;
     _tempg = _nodeG * attachmentColor.g * skeletonColor.g * _multiplier;
     _tempb = _nodeB * attachmentColor.b * skeletonColor.b * _multiplier;
@@ -302,7 +303,7 @@ function fillVertices (skeletonColor: spine.Color, attachmentColor: spine.Color,
         _darkColor!.g = slot.darkColor.g * _tempg;
         _darkColor!.b = slot.darkColor.b * _tempb;
     }
-    _darkColor!.a = /* _premultipliedAlpha ? 255 : */ 0;
+    _darkColor!.a =  _premultipliedAlpha ? 255 : 0;
 
     if (!clipper.isClipping()) {
         if (_vertexEffect) {
