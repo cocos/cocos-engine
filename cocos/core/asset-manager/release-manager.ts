@@ -36,6 +36,7 @@ import { assets, references } from './shared';
 import { legacyCC } from '../global-exports';
 import { ImageAsset } from '../assets/image-asset';
 import { TextureBase } from '../assets/texture-base';
+import { callInNextTick } from '../utils/misc';
 
 function visitAsset (asset: Asset, deps: string[]) {
     // Skip assets generated programmatically or by user (e.g. label texture)
@@ -210,12 +211,8 @@ class ReleaseManager {
         this._toDelete.add(asset._uuid, asset);
         if (!this._eventListener) {
             this._eventListener = true;
-            legacyCC.director.once(legacyCC.Director.EVENT_AFTER_DRAW, this._freeAssets, this);
+            callInNextTick(this._freeAssets.bind(this));
         }
-    }
-
-    public removeFromDeleteQueue (asset: Asset): void {
-        this._toDelete.remove(asset._uuid);
     }
 
     private _freeAssets () {

@@ -81,9 +81,6 @@ function clamp (v: number, minNum: number, maxNum: number) {
  */
 export const graphicsAssembler: IAssembler = {
     useModel: true,
-    createImpl (graphics: Graphics) {
-        return new Impl();
-    },
 
     updateRenderData (graphics: Graphics) {
 

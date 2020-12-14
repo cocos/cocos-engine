@@ -1,7 +1,7 @@
 /**
  * @module dragonBones
  */
-import { JSB } from '../../editor/exports/populate-internal-constants';
+import { JSB } from 'internal:constants';
 import { Asset, Texture2D, Node } from '../core';
 import { ccclass, serializable, type } from '../core/data/decorators';
 import { ArmatureCache } from './ArmatureCache';

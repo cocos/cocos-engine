@@ -1,9 +1,8 @@
+import { EDITOR } from 'internal:constants';
 import { ccclass, executeInEditMode, help, menu } from '../core/data/class-decorator';
 import { UIRenderable } from '../core/components/ui-base/ui-renderable';
 import { Node, EventTarget, CCClass, Color, Enum, PrivateNode, ccenum, errorID, Texture2D, GFXBlendFactor, js, CCObject } from '../core';
 import { displayName, editable, serializable, tooltip, type, visible } from '../core/data/decorators';
-import { EDITOR } from '../../editor/exports/populate-internal-constants';
-
 import { AnimationCache, ArmatureCache, ArmatureFrame } from './ArmatureCache';
 import { AttachUtil } from './AttachUtil';
 import { CCFactory } from './CCFactory';
