@@ -356,6 +356,8 @@ function cacheTraverse (frame: ArmatureFrame | null, parentMat?: Mat4) {
             }
         }
 
+        _buffer!.renderData.advance(_vertexCount, _indexCount);
+
         if (!(_handleVal & NEED_COLOR)) continue;
 
         // handle color
@@ -368,7 +370,6 @@ function cacheTraverse (frame: ArmatureFrame | null, parentMat?: Mat4) {
             }
             vbuf.set(_c, ii);
         }
-        _buffer!.renderData.advance(_vertexCount, _indexCount);
     }
 }
 

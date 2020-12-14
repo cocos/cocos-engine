@@ -478,7 +478,6 @@ export class ArmatureDisplay extends UIRenderable {
         this._inited = false;
         this.attachUtil = new AttachUtil();
         this._factory = CCFactory.getInstance();
-        this._cacheMode = this._defaultCacheMode;
         setEnumAttr(this, '_animationIndex', this._enumAnimations);
         setEnumAttr(this, '_defaultArmatureIndex', this._enumArmatures);
     }
@@ -616,6 +615,8 @@ export class ArmatureDisplay extends UIRenderable {
             this._objFlags |= (Flags.IsAnchorLocked | Flags.IsSizeLocked);
             // this._refreshInspector();
         }
+
+        this._cacheMode = this._defaultCacheMode;
 
         if (this._inited) return;
         this._inited = true;
