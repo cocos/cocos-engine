@@ -363,13 +363,13 @@ export class ArmatureDisplay extends UIRenderable {
      * @property {Boolean} enableBatch
      * @default false
      */
-    @editable
-    @tooltip('i18n:COMPONENT.dragon_bones.enabled_batch')
-    get enableBatch () { return this._enableBatch; }
-    set enableBatch (value) {
-        this._enableBatch = value;
-        this._updateBatch();
-    }
+    // @editable
+    // @tooltip('i18n:COMPONENT.dragon_bones.enabled_batch')
+    // get enableBatch () { return this._enableBatch; }
+    // set enableBatch (value) {
+    //     this._enableBatch = value;
+    //     this._updateBatch();
+    // }
 
     /**
      * @en
@@ -533,7 +533,7 @@ export class ArmatureDisplay extends UIRenderable {
             owner: this,
         };
         inst = new MaterialInstance(matInfo);
-        inst.recompileShaders({ USE_LOCAL: true }, 0);
+        inst.recompileShaders({ USE_LOCAL: false }, 0); // TODO: not supported by ui
         this._materialCache[key] = inst;
         inst.overridePipelineStates({
             blendState: {
@@ -551,6 +551,7 @@ export class ArmatureDisplay extends UIRenderable {
             for (let i = 0; i < this._meshRenderDataArray.length; i++) {
                 this._meshRenderDataArrayIdx = i;
                 const m = this._meshRenderDataArray[i];
+                this.material = m.renderData.material;
                 if (m.texture) {
                     ui.commitComp(this, m.texture, this._assembler, null);
                 }
