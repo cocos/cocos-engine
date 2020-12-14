@@ -77,6 +77,12 @@ export class UIDrawBatch {
             }
         }
     }
+    public get visFlags () {
+        return UIBatchPool.get(this._handle, UIBatchView.VIS_FLAGS);
+    }
+    public set visFlags (vis) {
+        UIBatchPool.set(this._handle, UIBatchView.VIS_FLAGS, vis);
+    }
     public bufferBatch: MeshBuffer | null = null;
     public camera: Camera | null = null;
     public model: Model | null = null;
@@ -84,7 +90,6 @@ export class UIDrawBatch {
     public sampler: Sampler | null = null;
     public useLocalData: Node | null = null;
     public isStatic = false;
-    public visFlags: number = UI_VIS_FLAG;
     public textureHash: number = 0;
     public samplerHash: number = 0;
     private _material: Material | null = null;
