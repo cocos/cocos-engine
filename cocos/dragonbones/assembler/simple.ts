@@ -145,7 +145,7 @@ export const simple: IAssembler = {
 
         // copy all vertexData
         vBuf.set(srcVBuf.slice(srcVIdx, srcVIdx + renderData.vertexCount * STRIDE_FLOAT), floatOffset);
-        if (!comp.enableBatch) {
+        if (!comp._enableBatch) {
             for (let i = 0; i < renderData.vertexCount; i++) {
                 const pOffset = floatOffset + i * STRIDE_FLOAT;
                 _vec3u_temp.set(vBuf[pOffset], vBuf[pOffset + 1], vBuf[pOffset + 2]);
@@ -401,7 +401,7 @@ function updateComponentRenderData (comp: ArmatureDisplay, ui: UI) {
     }
 
     let worldMat:Mat4|undefined;
-    if (_comp.enableBatch) {
+    if (_comp._enableBatch) {
         worldMat = _node.worldMatrix;
         _mustFlush = false;
         _handleVal |= NEED_BATCH;
