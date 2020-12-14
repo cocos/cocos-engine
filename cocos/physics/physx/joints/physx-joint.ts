@@ -69,10 +69,10 @@ export class PhysXJoint implements IBaseConstraint {
         if (this._impl.$$) {
             PX.IMPL_PTR[this._impl.$$.ptr] = null;
             delete PX.IMPL_PTR[this._impl.$$.ptr];
-            this._impl.release();
         } else {
             //
         }
+        this._impl.release();
         (this._com as any) = null;
         (this._rigidBody as any) = null;
         this._impl = null;

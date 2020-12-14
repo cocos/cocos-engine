@@ -7,7 +7,7 @@ export let USE_BYTEDANCE = false;
 if (BYTEDANCE) USE_BYTEDANCE = true;
 
 let _px = globalThis.PhysX as any;
-if (USE_BYTEDANCE) _px = globalThis.phy;
+if (USE_BYTEDANCE && globalThis.tt.getPhy) _px = globalThis.tt.getPhy();
 export const PX = _px;
 
 /// adapters ///
@@ -43,11 +43,15 @@ if (PX) {
     }
 }
 
-export function getWrapShape<T> (pxShape: any): T {
+export function getImplPtr (impl: any) {
     if (USE_BYTEDANCE) {
-        return PX.IMPL_PTR[pxShape.getQueryFilterData().word2];
+        return impl.getQueryFilterData().word2;
     }
-    return PX.IMPL_PTR[pxShape.$$.ptr];
+    return impl.$$.ptr;
+}
+
+export function getWrapShape<T> (pxShape: any): T {
+    return PX.IMPL_PTR[getImplPtr(pxShape)];
 }
 
 export function getContactPosition (pxContact: any): IVec3Like {
@@ -95,5 +99,13 @@ export function copyPhysXTransform (node: Node, transform: any): void {
     } else {
         node.setWorldPosition(transform.translation);
         node.setWorldRotation(transform.rotation);
+    }
+}
+
+export function getContactData (vec: any, index: number) {
+    if (USE_BYTEDANCE) {
+        return vec[index];
+    } else {
+        return vec.get(index);
     }
 }

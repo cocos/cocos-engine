@@ -9,7 +9,7 @@ import { PhysXRigidBody } from './physx-rigid-body';
 import { PhysXShape } from './shapes/physx-shape';
 import { PhysXContactEquation } from './physx-contact-equation';
 import { CollisionEventObject, TriggerEventObject } from '../utils/util';
-import { getWrapShape, PX, USE_BYTEDANCE } from './export-physx';
+import { getContactData, getImplPtr, getWrapShape, PX, USE_BYTEDANCE } from './export-physx';
 
 function onTrigger (type: TriggerEventType, wpa: PhysXShape, wpb: PhysXShape): void {
     if (wpa && wpb) {
@@ -40,11 +40,11 @@ function onCollision (type: CollisionEventType, wpa: PhysXShape, wpb: PhysXShape
                 if (contactsPool.length > 0) {
                     const c = contactsPool.pop() as unknown as PhysXContactEquation;
                     c.colliderA = wpa.collider; c.colliderB = wpb.collider;
-                    c.impl = d.get(i); contacts.push(c);
+                    c.impl = getContactData(d, i); contacts.push(c);
                 } else {
                     const c = new PhysXContactEquation(CollisionEventObject);
                     c.colliderA = wpa.collider; c.colliderB = wpb.collider;
-                    c.impl = d.get(i); contacts.push(c);
+                    c.impl = getContactData(d, i); contacts.push(c);
                 }
             }
             if (wpa.collider.needCollisionEvent) {
@@ -187,13 +187,19 @@ export class PhysXWorld implements IPhysicsWorld {
                     const cp = pairs[i];
                     if (cp.getFlags() & 3) continue;
                     const events = cp.getStatus();
-                    const shapeA = getWrapShape<PhysXShape>(cp.getTriggerShape());
-                    const shapeB = getWrapShape<PhysXShape>(cp.getOtherShape());
+                    const ca = cp.getTriggerShape();
+                    const cb = cp.getOtherShape();
+                    const shapeA = getWrapShape<PhysXShape>(ca);
+                    const shapeB = getWrapShape<PhysXShape>(cb);
+                    const key = `${getImplPtr(ca)}-${getImplPtr(cb)}`;
+                    const _i = persistShapes.indexOf(key);
                     if (events & 4) {
+                        if (_i < 0) persistShapes.push(key);
                         onTrigger('onTriggerEnter', shapeA, shapeB);
-                    } else if (events & 8) {
+                    } /*else if (events & 8) {
                         onTrigger('onTriggerStay', shapeA, shapeB);
-                    } else if (events & 16) {
+                    } */else if (events & 16) {
+                        if (_i >= 0) persistShapes.splice(_i, 1);
                         onTrigger('onTriggerExit', shapeA, shapeB);
                     }
                 }
