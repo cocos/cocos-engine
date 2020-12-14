@@ -23,7 +23,7 @@ declare module jsb {
     export function offTouchEnd(cb?: Function | null): void;
 
     // Window
-    export function onWindowResize (cb: Function): void;
+    export function onWindowResize (cb: (width: number, height: number) => void): void;
 
     // Audio
     export module AudioEngine {}

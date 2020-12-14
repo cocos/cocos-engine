@@ -28,3 +28,4 @@ require('./AudioPlayer.js');
 require('./EditBox.js');
 require('./DeviceMotionEvent.js');
 require('./game.js');
+require('./InputManager');
