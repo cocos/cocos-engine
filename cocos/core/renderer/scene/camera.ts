@@ -648,6 +648,12 @@ export class Camera {
         }
     }
 
+    public detachCamera () {
+        if (this._window) {
+            this._window.detachCamera(this);
+        }
+    }
+
     /**
      * transform a screen position (in oriented space) to a world space ray
      */

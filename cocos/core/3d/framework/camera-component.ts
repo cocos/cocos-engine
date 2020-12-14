@@ -471,7 +471,7 @@ export class Camera extends Component {
 
     public onDestroy () {
         if (this._camera) {
-            legacyCC.director.root.destroyCamera(this._camera);
+            this._camera.detachCamera();
             this._camera = null;
         }
 

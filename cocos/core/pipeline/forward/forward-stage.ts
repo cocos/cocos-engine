@@ -96,6 +96,7 @@ export class ForwardStage extends RenderStage {
         super();
         this._batchedQueue = new RenderBatchedQueue();
         this._instancedQueue = new RenderInstancedQueue();
+        this._uiPhase = new UIPhase();
     }
 
     public initialize (info: IRenderStageInfo): boolean {
@@ -132,7 +133,7 @@ export class ForwardStage extends RenderStage {
 
         this._additiveLightQueue = new RenderAdditiveLightQueue(this._pipeline as ForwardPipeline);
         this._planarQueue = new PlanarShadowQueue(this._pipeline as ForwardPipeline);
-        this._uiPhase = new UIPhase(this._pipeline as ForwardPipeline);
+        this._uiPhase.activate(pipeline);
     }
 
 

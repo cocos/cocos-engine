@@ -80,7 +80,7 @@ export class ShadowFlow extends RenderFlow {
         const shadowInfo = pipeline.shadows;
         if (!shadowInfo.enabled || shadowInfo.type !== ShadowType.ShadowMap) { return; }
 
-        pipeline.updateUBOs(camera);
+        pipeline.updateShadowUBO(camera);
         const validLights = lightCollecting(camera, shadowInfo.maxReceived);
         shadowCollecting(pipeline, camera);
 

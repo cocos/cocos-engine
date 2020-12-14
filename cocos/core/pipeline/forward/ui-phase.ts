@@ -6,20 +6,17 @@ import { IAPool, DSPool, ShaderPool, UIBatchPool, UIBatchView, PassPool } from '
 import { Layers } from '../../scene-graph/layers';
 import { Camera } from '../../renderer/scene/camera';
 import { ForwardPipeline } from './forward-pipeline';
+import { RenderPipeline } from '../render-pipeline';
 
 export class UIPhase {
-    private declare _pipeline: ForwardPipeline;
-    /**
-     * @en Construct a RenderQueue with render queue descriptor
-     * @zh 利用渲染队列描述来构造一个 RenderQueue。
-     * @param desc Render queue descriptor
-     */
-    constructor (pipeline: ForwardPipeline) {
+    private declare _pipeline: RenderPipeline;
+
+    public activate (pipeline: RenderPipeline) {
         this._pipeline = pipeline;
     }
 
     public render (camera: Camera, renderPass: RenderPass) {
-        const pipeline = this._pipeline;
+        const pipeline = this._pipeline as ForwardPipeline;
         const device = pipeline.device;
         const cmdBuff = pipeline.commandBuffers[0];
         const scene = camera.scene!;
@@ -41,9 +38,9 @@ export class UIPhase {
             if (!visible) continue;
             const handle = batch.handle;
             const count = UIBatchPool.get(handle, UIBatchView.PASS_COUNT);
-            for (let i = 0; i < count; i++) {
-                const pass = batch.passes[i];
-                const shaderHandle = UIBatchPool.get(handle, UIBatchView.SHADER_0+i);
+            for (let j = 0; j < count; j++) {
+                const pass = batch.passes[j];
+                const shaderHandle = UIBatchPool.get(handle, UIBatchView.SHADER_0+j);
                 const shader = ShaderPool.get(shaderHandle);
                 const inputAssembler = IAPool.get(batch.hInputAssembler);
                 const ds = DSPool.get(batch.hDescriptorSet);

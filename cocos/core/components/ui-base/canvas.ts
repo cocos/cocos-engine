@@ -319,7 +319,7 @@ export class Canvas extends Component {
     public onDestroy () {
         legacyCC.director.root!.ui.removeScreen(this);
         if (this._camera) {
-            legacyCC.director.root!.destroyCamera(this._camera);
+            this._camera.detachCamera();
         }
 
         if (EDITOR) {
