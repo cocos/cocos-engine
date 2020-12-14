@@ -131,9 +131,6 @@ elseif(IOS)
     list(APPEND PROJ_SOURCES
         ${PROJ_SRC_DIR}/AppDelegate.mm
         ${PROJ_SRC_DIR}/AppDelegate.h
-        ${PROJ_SRC_DIR}/SDKWrapper.m
-        ${PROJ_SRC_DIR}/SDKWrapper.h
-        ${PROJ_SRC_DIR}/service/SDKDelegate.h
         ${PROJ_SRC_DIR}/main.m
         ${PROJ_SRC_DIR}/ViewController.mm
         ${PROJ_SRC_DIR}/ViewController.h
