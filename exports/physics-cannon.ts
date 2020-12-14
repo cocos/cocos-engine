@@ -36,6 +36,7 @@ CANNON['CC_CONFIG'] = {
     'numSegmentsCone': 12,
     'numSegmentsCylinder': 12,
     'ignoreSelfBody': true,
+    'correctInelastic': 3,
 }
 
 // overwrite

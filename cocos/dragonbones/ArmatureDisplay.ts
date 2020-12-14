@@ -1,9 +1,8 @@
+import { EDITOR } from 'internal:constants';
 import { ccclass, executeInEditMode, help, menu } from '../core/data/class-decorator';
 import { UIRenderable } from '../core/components/ui-base/ui-renderable';
 import { Node, EventTarget, CCClass, Color, Enum, PrivateNode, ccenum, errorID, Texture2D, GFXBlendFactor, js, CCObject } from '../core';
 import { displayName, editable, serializable, tooltip, type, visible } from '../core/data/decorators';
-import { EDITOR } from '../../editor/exports/populate-internal-constants';
-
 import { AnimationCache, ArmatureCache, ArmatureFrame } from './ArmatureCache';
 import { AttachUtil } from './AttachUtil';
 import { CCFactory } from './CCFactory';
@@ -479,7 +478,6 @@ export class ArmatureDisplay extends UIRenderable {
         this._inited = false;
         this.attachUtil = new AttachUtil();
         this._factory = CCFactory.getInstance();
-        this._cacheMode = this._defaultCacheMode;
         setEnumAttr(this, '_animationIndex', this._enumAnimations);
         setEnumAttr(this, '_defaultArmatureIndex', this._enumArmatures);
     }
@@ -617,6 +615,8 @@ export class ArmatureDisplay extends UIRenderable {
             this._objFlags |= (Flags.IsAnchorLocked | Flags.IsSizeLocked);
             // this._refreshInspector();
         }
+
+        this._cacheMode = this._defaultCacheMode;
 
         if (this._inited) return;
         this._inited = true;

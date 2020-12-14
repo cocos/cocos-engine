@@ -13,9 +13,9 @@ const gift = require('tfig');
 const tsConfigDir = join(__dirname, '..', '..');
 const tsConfigPath = join(tsConfigDir, 'tsconfig.json');
 
-async function getEngineEntries (engine) {
+async function getDomainExports(engine, exportsRoot, prefix, excludes) {
     const result = {};
-    const entryRootDir = join(engine, 'exports');
+    const entryRootDir = join(engine, exportsRoot);
     const entryFileNames = await readdir(entryRootDir);
     for (const entryFileName of entryFileNames) {
         const entryExtName = extname(entryFileName);
@@ -23,22 +23,43 @@ async function getEngineEntries (engine) {
             continue;
         }
         const entryBaseNameNoExt = basename(entryFileName, entryExtName);
-        const entryName = `cc.${entryBaseNameNoExt}`;
-        result[entryName] = `exports/${entryBaseNameNoExt}`;
+        if (excludes && excludes.includes(entryBaseNameNoExt)) {
+            continue;
+        }
+        const entryName = `${prefix}${entryBaseNameNoExt}`;
+        result[entryName] = `${exportsRoot.split(/[\\\/]/g).join('/')}/${entryBaseNameNoExt}`;
     }
     return result;
+}
+
+async function getEngineEntries (engine) {
+    return await getDomainExports(engine, 'exports', 'cc/', ['wait-for-ammo-instantiation']);
+}
+
+async function getEditorExportEntries(engine) {
+    return await getDomainExports(engine, join('editor', 'exports'), 'cc/editor/exports/');
 }
 
 async function generate (options) {
     console.log(`Typescript version: ${ts.version}`);
 
-    const { outDir } = options;
+    const {
+        outDir,
+        withIndex,
+        withExports,
+        withEditorExports,
+    } = options;
     ensureDirSync(outDir);
+
+    console.debug(`With index: ${withIndex}`);
+    console.debug(`With exports: ${withExports}`);
+    console.debug(`With editor exports: ${withEditorExports}`);
 
     const unbundledOutFile = join(outDir, `cc-before-rollup.js`);
     const parsedCommandLine = ts.getParsedCommandLineOfConfigFile(
         tsConfigPath, {
             declaration: true,
+            noEmit: false,
             emitDeclarationOnly: true,
             outFile: unbundledOutFile,
             outDir: undefined,
@@ -76,7 +97,17 @@ async function generate (options) {
 
     console.log(`Generating...`);
 
-    const program = ts.createProgram(parsedCommandLine.fileNames, parsedCommandLine.options);
+    const engineRoot = join(__dirname, '..', '..');
+    const entryMap = await getEngineEntries(engineRoot);
+
+    const editorExportEntries = await getEditorExportEntries(engineRoot);
+
+    let fileNames = parsedCommandLine.fileNames;
+    if (withEditorExports) {
+        fileNames = fileNames.concat(Object.values(editorExportEntries).map((e) => join(engineRoot, e)));
+    }
+
+    const program = ts.createProgram(fileNames, parsedCommandLine.options);
     const emitResult = program.emit(
         undefined, // targetSourceFile
         undefined, // writeFile
@@ -126,50 +157,68 @@ async function generate (options) {
         copyFileSync(file, destPath);
     });
 
-    const entryMap = await getEngineEntries(join(__dirname, '..', '..'));
-    const entries = Object.keys(entryMap);
+    const giftInputs = [ tscOutputDtsFile ];
 
-    
-    // The "cc" module, contents like:
-    // ```
-    // declare module "cc" {
-    //     export * from "exports/base";
-    // }
-    // ```
-    const ccDtsFile = join(dirName, 'virtual-cc.d.ts');
-    await (async () => {
-        const ccModules = entries.slice().map((extern) => entryMap[extern]);
-        const code = `declare module "cc" {\n${ccModules.map((moduleId) => `    export * from "${moduleId}";`).join('\n')}\n}`;
+    /** @type {Record<string, string>} */
+    const giftEntries = { };
+
+    const cleanupFiles = [ tscOutputDtsFile ];
+
+    if (withExports) {
+        Object.assign(giftEntries, entryMap);
+    }
+
+    if (withEditorExports) {
+        Object.assign(giftEntries, editorExportEntries);
+    }
+
+    if (withIndex && !withExports) {
+        giftEntries['cc'] = 'cc';
+        const ccDtsFile = join(dirName, 'virtual-cc.d.ts');
+        giftInputs.push(ccDtsFile);
+        cleanupFiles.push(ccDtsFile);
+        const code = generateModuleSourceCc(Object.values(entryMap));
         await fs.writeFile(ccDtsFile, code, { encoding: 'utf8' });
-    })();
+    }
 
     console.log(`Bundling...`);
     try {
-        const giftInputPath = tscOutputDtsFile;
-        const giftOutputPath = join(dirName,'cc.d.ts' );
+        const indexOutputPath = join(dirName,'cc.d.ts');
         const giftResult = gift.bundle({
-            input: [giftInputPath, ccDtsFile],
-            output: giftOutputPath,
+            input: giftInputs,
             name: 'cc',
             rootModule: 'index',
-            entries: {
-                'cc': 'cc',
-            },
+            entries: giftEntries,
+            groups: [
+                { test: /^cc\/editor.*$/, path: join(dirName,'cc.editor.d.ts') },
+                { test: /^cc\/.*$/, path: join(dirName,'index.d.ts') },
+                { test: /^cc.*$/, path: indexOutputPath },
+            ],
         });
-        if (giftResult.error !== gift.GiftErrors.Ok) {
-            console.error(`Failed to bundle declaration files because of gift error: ${gift.GiftErrors[giftResult.error]}.`);
-            return false;
+
+        await Promise.all(giftResult.groups.map(async (group) => {
+            await fs.outputFile(group.path, group.code, { encoding: 'utf8' });
+        }));
+
+        if (withIndex && withExports) {
+            await fs.outputFile(
+                indexOutputPath,
+                generateModuleSourceCc(Object.keys(entryMap)),
+                { encoding: 'utf8' });
         }
-        writeFileSync(giftOutputPath, giftResult.code);
+
+    } catch (error) {
+        console.error(error)
+        return false;
     } finally {
-        await Promise.all(([
-            tscOutputDtsFile,
-            ccDtsFile,
-        ].map(async (file) => fs.unlink(file))));
-        
+        await Promise.all((cleanupFiles.map(async (file) => fs.unlink(file))));
     }
 
     return true;
+}
+
+function generateModuleSourceCc(requests) {
+    return `declare module "cc" {\n${requests.map((moduleId) => `    export * from "${moduleId}";`).join('\n')}\n}`
 }
 
 module.exports = { generate };

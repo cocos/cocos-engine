@@ -29,12 +29,12 @@
  * @module ui
  */
 
+import { ccclass, help, executionOrder, menu, tooltip, type, visible, override, editable, serializable } from 'cc.decorator';
 import { builtinResMgr } from '../../core/3d/builtin';
 import { InstanceMaterialType, UIRenderable } from '../../core/components/ui-base/ui-renderable';
-import { ccclass, help, executionOrder, menu, tooltip, type, visible, override, editable, serializable } from 'cc.decorator';
 import { director } from '../../core/director';
 import { Color } from '../../core/math';
-import { IMaterialInstanceInfo, MaterialInstance, scene } from '../../core/renderer';
+import { IMaterialInstanceInfo, scene } from '../../core/renderer';
 import { IAssembler } from '../../core/renderer/ui/base';
 import { UI } from '../../core/renderer/ui/ui';
 import { LineCap, LineJoin } from '../assembler/graphics/types';
@@ -70,7 +70,6 @@ const stride = getAttributeStride(attributes);
 @executionOrder(110)
 @menu('UI/Render/Graphics')
 export class Graphics extends UIRenderable {
-
     /**
      * @en
      * Current line width.
@@ -84,7 +83,7 @@ export class Graphics extends UIRenderable {
     }
     set lineWidth (value) {
         this._lineWidth = value;
-        if (!this.impl){
+        if (!this.impl) {
             return;
         }
 
@@ -171,7 +170,7 @@ export class Graphics extends UIRenderable {
     }
 
     set fillColor (value) {
-        if (!this.impl){
+        if (!this.impl) {
             return;
         }
 
@@ -250,9 +249,10 @@ export class Graphics extends UIRenderable {
     protected _isDrawing = false;
     protected _isNeedUploadData = true;
 
-    constructor (){
+    constructor () {
         super();
         this._instanceMaterialType = InstanceMaterialType.ADD_COLOR;
+        this.impl = new Impl();
     }
 
     public onRestore () {
@@ -261,30 +261,22 @@ export class Graphics extends UIRenderable {
         }
     }
 
-    public __preload (){
-        super.__preload();
-
-        // this._flushAssembler();
-        this.impl = this._assembler && (this._assembler as IAssembler).createImpl!(this);
-    }
-
     public onLoad () {
         this._sceneGetter = director.root!.ui.getRenderSceneGetter();
         this.model = director.root!.createModel(scene.Model);
         this.model.node = this.model.transform = this.node;
-
-        if (!this.impl){
-            this._flushAssembler();
-            this.impl = this._assembler && (this._assembler as IAssembler).createImpl!(this);
-        }
+        this._flushAssembler();
     }
 
     public onEnable () {
         super.onEnable();
         this._updateMtlForGraphics();
+        if (this._isDrawing) {
+            this._attachToScene();
+        }
     }
 
-    public onDisable (){
+    public onDisable () {
         super.onDisable();
         this._detachFromScene();
     }
@@ -624,7 +616,7 @@ export class Graphics extends UIRenderable {
         }
     }
 
-    protected _uploadData(render: UI) {
+    protected _uploadData (render: UI) {
         const impl = this.impl;
         const renderDataList = impl && impl.getRenderData();
         if (!renderDataList || !this.model) {
@@ -651,10 +643,10 @@ export class Graphics extends UIRenderable {
                 continue;
             }
 
-            const verticesData = new Float32Array(renderData.vData!.buffer, offset, (byteOffset - offset) >> 2);
+            const verticesData = new Float32Array(renderData.vData.buffer, offset, (byteOffset - offset) >> 2);
             ia.vertexBuffers[0].update(verticesData, offset);
             ia.vertexCount = renderData.vertexStart;
-            const indicesData = new Uint16Array(renderData.iData!.buffer, renderData.lastFilledIndices * Uint16Array.BYTES_PER_ELEMENT, renderData.indicesStart - renderData.lastFilledIndices);
+            const indicesData = new Uint16Array(renderData.iData.buffer, renderData.lastFilledIndices * Uint16Array.BYTES_PER_ELEMENT, renderData.indicesStart - renderData.lastFilledIndices);
             ia.indexBuffer!.update(indicesData, renderData.lastFilledIndices * Uint16Array.BYTES_PER_ELEMENT);
             ia.indexCount = renderData.indicesStart;
 
@@ -674,7 +666,7 @@ export class Graphics extends UIRenderable {
         render.commitModel(this, this.model, this.getMaterialInstance(0));
     }
 
-    protected _flushAssembler (){
+    protected _flushAssembler () {
         const assembler = Graphics.Assembler!.getAssembler(this);
 
         if (this._assembler !== assembler) {
@@ -682,8 +674,8 @@ export class Graphics extends UIRenderable {
         }
     }
 
-    protected _canRender (){
-        if (!super._canRender()){
+    protected _canRender () {
+        if (!super._canRender()) {
             return false;
         }
 
@@ -692,14 +684,14 @@ export class Graphics extends UIRenderable {
 
     protected _attachToScene () {
         const renderScene = director.root!.ui.renderScene;
-        if (!this.model || this.model!.scene === renderScene) {
+        if (!this.model || this.model.scene === renderScene) {
             return;
         }
 
-        if (this.model!.scene !== null) {
+        if (this.model.scene !== null) {
             this._detachFromScene();
         }
-        renderScene.addModel(this.model!);
+        renderScene.addModel(this.model);
     }
 
     protected _detachFromScene () {

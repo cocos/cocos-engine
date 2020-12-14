@@ -45,7 +45,7 @@ export const CollisionEventObject = {
 export class AmmoConstant {
     private static _instance: AmmoConstant;
     static get instance () {
-        if (AmmoConstant._instance == null) AmmoConstant._instance = new AmmoConstant;
+        if (AmmoConstant._instance == null) AmmoConstant._instance = new AmmoConstant();
         return AmmoConstant._instance;
     }
     readonly EMPTY_SHAPE = new Ammo.btEmptyShape();

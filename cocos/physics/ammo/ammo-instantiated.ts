@@ -24,7 +24,7 @@
  */
 
 import AmmoClosure, * as AmmoJs from '@cocos/ammo';
-import { WECHAT } from '../../../editor/exports/populate-internal-constants';
+import { WECHAT } from 'internal:constants';
 
 const Ammo: typeof AmmoClosure = {} as any;
 
