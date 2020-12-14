@@ -74,3 +74,6 @@ export function getAttributeStride (attrs: Attribute[]) {
 
     return count;
 }
+
+legacyCC.internal.vfmtPosUvColor = vfmtPosUvColor;
+legacyCC.internal.vfmtPosUvTwoColor = vfmtPosUvTwoColor;
