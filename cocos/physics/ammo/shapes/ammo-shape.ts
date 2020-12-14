@@ -24,8 +24,8 @@
  */
 
 import Ammo from '../ammo-instantiated';
-import { Vec3, Quat } from "../../../core/math";
-import { Collider, PhysicMaterial, PhysicsSystem } from "../../../../exports/physics-framework";
+import { Vec3, Quat } from '../../../core/math';
+import { Collider, PhysicMaterial, PhysicsSystem } from '../../../../exports/physics-framework';
 import { AmmoWorld } from '../ammo-world';
 import { AmmoBroadphaseNativeTypes, EAmmoSharedBodyDirty } from '../ammo-enum';
 import { cocos2AmmoVec3, ammoDeletePtr, cocos2AmmoQuat } from '../ammo-util';
@@ -39,7 +39,6 @@ import { AmmoConstant, CC_V3_0 } from '../ammo-const';
 const v3_0 = CC_V3_0;
 
 export class AmmoShape implements IBaseShape {
-
     setMaterial (v: PhysicMaterial | null) {
         if (!this._isTrigger && this._isEnabled && v) {
             if (this._btCompound) {
@@ -61,8 +60,7 @@ export class AmmoShape implements IBaseShape {
     }
 
     setAsTrigger (v: boolean) {
-        if (this._isTrigger == v)
-            return;
+        if (this._isTrigger === v) { return; }
 
         if (this._isEnabled) {
             this._sharedBody.removeShape(this, !v);
@@ -76,7 +74,7 @@ export class AmmoShape implements IBaseShape {
         return null;
     }
 
-    get impl () { return this._btShape!; }
+    get impl () { return this._btShape; }
     get collider (): Collider { return this._collider; }
     get sharedBody (): AmmoSharedBody { return this._sharedBody; }
     get index () { return this._index; }
@@ -85,7 +83,7 @@ export class AmmoShape implements IBaseShape {
     readonly id: number;
     readonly type: AmmoBroadphaseNativeTypes;
 
-    protected _index: number = -1;
+    protected _index = -1;
     protected _isEnabled = false;
     protected _isBinding = false;
     protected _isTrigger = false;
@@ -132,7 +130,7 @@ export class AmmoShape implements IBaseShape {
         this._isBinding = true;
         this.onComponentSet();
         this.setWrapper();
-        this._sharedBody = (PhysicsSystem.instance.physicsWorld as AmmoWorld).getSharedBody(this._collider.node as Node);
+        this._sharedBody = (PhysicsSystem.instance.physicsWorld as AmmoWorld).getSharedBody(this._collider.node);
         this._sharedBody.reference = true;
     }
 
@@ -161,13 +159,15 @@ export class AmmoShape implements IBaseShape {
         this._btCompound = null;
         (this._collider as any) = null;
         const shape = Ammo.castObject(this._btShape, Ammo.btCollisionShape);
-        shape['wrapped'] = null;
+        (shape as any).wrapped = null;
         Ammo.destroy(this.pos);
         Ammo.destroy(this.quat);
         Ammo.destroy(this.scale);
         Ammo.destroy(this.transform);
-        Ammo.destroy(this._btShape);
-        ammoDeletePtr(this._btShape, Ammo.btCollisionShape);
+        if (this._btShape !== AmmoConstant.instance.EMPTY_SHAPE) {
+            Ammo.destroy(this._btShape);
+            ammoDeletePtr(this._btShape, Ammo.btCollisionShape);
+        }
         (this._btShape as any) = null;
         (this.transform as any) = null;
         (this.pos as any) = null;
@@ -222,7 +222,7 @@ export class AmmoShape implements IBaseShape {
 
     setWrapper () {
         const shape = Ammo.castObject(this._btShape, Ammo.btCollisionShape);
-        shape['wrapped'] = this;
+        (shape as any).wrapped = this;
     }
 
     setScale () {
@@ -240,16 +240,14 @@ export class AmmoShape implements IBaseShape {
     }
 
     needCompound () {
-        if (this.type == AmmoBroadphaseNativeTypes.TERRAIN_SHAPE_PROXYTYPE)
-            return true;
+        if (this.type === AmmoBroadphaseNativeTypes.TERRAIN_SHAPE_PROXYTYPE) { return true; }
 
-        if (this._collider.center.equals(Vec3.ZERO))
-            return false;
+        if (this._collider.center.equals(Vec3.ZERO)) { return false; }
 
         return true;
     }
 
-    /**DEBUG */
+    /** DEBUG */
     private static _debugTransform: Ammo.btTransform | null;
     debugTransform (n: Node) {
         if (AmmoShape._debugTransform == null) {
@@ -264,11 +262,11 @@ export class AmmoShape implements IBaseShape {
         const lt = this.transform;
         AmmoShape._debugTransform.setIdentity();
         AmmoShape._debugTransform.op_mul(wt).op_mul(lt);
-        let origin = AmmoShape._debugTransform.getOrigin();
+        const origin = AmmoShape._debugTransform.getOrigin();
         n.worldPosition = new Vec3(origin.x(), origin.y(), origin.z());
-        let rotation = AmmoShape._debugTransform.getRotation();
+        const rotation = AmmoShape._debugTransform.getRotation();
         n.worldRotation = new Quat(rotation.x(), rotation.y(), rotation.z(), rotation.w());
-        let scale = this.impl.getLocalScaling();
+        const scale = this.impl.getLocalScaling();
         n.scale = new Vec3(scale.x(), scale.y(), scale.z());
     }
 }
