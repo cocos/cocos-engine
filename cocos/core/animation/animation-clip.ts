@@ -350,7 +350,9 @@ export class AnimationClip extends Asset {
     }
 
     public destroy () {
-        (legacyCC.director.root.dataPoolManager as DataPoolManager).releaseAnimationClip(this);
+        if (legacyCC.director.root.dataPoolManager) {
+            (legacyCC.director.root.dataPoolManager as DataPoolManager).releaseAnimationClip(this);
+        }
         SkelAnimDataHub.destroy(this);
         return super.destroy();
     }

@@ -154,8 +154,10 @@ export class Skybox {
             skybox_material.recompileShaders({ USE_RGBE_CUBEMAP: this.isRGBE });
         }
 
-        if (!skybox_mesh) { skybox_mesh = legacyCC.utils.createMesh(legacyCC.primitives.box({ width: 2, height: 2, length: 2 })) as Mesh; }
-        this._model.initSubModel(0, skybox_mesh.renderingSubMeshes[0], skybox_material);
+        if (this.enabled) {
+            if (!skybox_mesh) { skybox_mesh = legacyCC.utils.createMesh(legacyCC.primitives.box({ width: 2, height: 2, length: 2 })) as Mesh; }
+            this._model.initSubModel(0, skybox_mesh.renderingSubMeshes[0], skybox_material);
+        }
         this._updateGlobalBinding();
         this._updatePipeline();
     }

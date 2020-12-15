@@ -32,6 +32,7 @@ import { AnimationClip } from '../animation-clip';
 import { Skeleton } from '../../3d/assets';
 import { Device } from '../../gfx';
 import { JointAnimationInfo, JointTexturePool } from './skeletal-animation-utils';
+import { legacyCC } from '../../global-exports';
 
 export class DataPoolManager {
     public jointTexturePool: JointTexturePool;
@@ -55,3 +56,5 @@ export class DataPoolManager {
         this.jointAnimationInfo.clear();
     }
 }
+
+legacyCC.internal.DataPoolManager = DataPoolManager;

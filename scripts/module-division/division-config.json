@@ -31,17 +31,19 @@
             "items": [
                 {
                     "text": "3D Framework",
-                    "description": "The WebGL 1.0 is required whenever.",
+                    "description": "3D Framework",
                     "entry": "3d-framework",
                     "default": true
                 },
                 {
                     "text": "Light",
+                    "description": "Light Module",
                     "entry": ["3d-framework", "light"],
                     "default": true
                 },
                 {
                     "text": "Skinned Mesh Rendering",
+                    "description": "Skinned Mesh Rendering",
                     "entry": ["3d-framework", "skinned-mesh-rendering"],
                     "default": true
                 }
@@ -120,13 +122,14 @@
             "description": "Animation",
             "items": [
                 {
-                    "text": "Animation",
-                    "description": "The WebGL 1.0 is required whenever.",
+                    "text": "Normal Animation",
+                    "description": "Normal Animation",
                     "entry": "animation",
                     "default": true
                 },
                 {
                     "text": "Skeletal Animation",
+                    "description": "Skinned Skeleton Animation",
                     "entry": ["animation", "skeletal-animation", "3d-framework", "skinned-mesh-rendering"],
                     "default": true
                 }

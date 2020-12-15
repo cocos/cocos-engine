@@ -44,7 +44,7 @@ export class NodeUIProperties {
      */
     get uiTransformComp () {
         if (!this._uiTransformComp) {
-            this._uiTransformComp = this._node.getComponent(UITransform);
+            this._uiTransformComp = this._node.getComponent('cc.UITransform') as UITransform;
         }
 
         return this._uiTransformComp;

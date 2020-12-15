@@ -50,6 +50,8 @@ import * as UIVertexFormat from './renderer/ui-vertex-format';
 import { StencilManager } from './renderer/stencil-manager';
 import { legacyCC } from '../global-exports';
 
+import './renderer/ui';
+
 export * from './assets';
 export * from './framework';
 export * from './components';

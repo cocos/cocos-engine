@@ -225,7 +225,7 @@ export class Root {
      */
     constructor (device: Device) {
         this._device = device;
-        this._dataPoolMgr = new DataPoolManager(device);
+        this._dataPoolMgr = legacyCC.internal.DataPoolManager && new legacyCC.internal.DataPoolManager(device) as DataPoolManager;
 
         RenderScene.registerCreateFunc(this);
         RenderWindow.registerCreateFunc(this);
@@ -329,8 +329,8 @@ export class Root {
         }
 
         this.onGlobalPipelineStateChanged();
-        if (!this._ui) {
-            this._ui = new UI(this);
+        if (!this._ui && legacyCC.internal.UI) {
+            this._ui = new legacyCC.internal.UI(this) as UI;
             if (!this._ui.initialize()) {
                 this.destroy();
                 return false;

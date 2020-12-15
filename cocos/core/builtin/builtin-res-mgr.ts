@@ -150,11 +150,13 @@ class BuiltinResMgr {
         };
         resources[defaultCubeTexture._uuid] = defaultCubeTexture;
 
-        const spriteFrame = new SpriteFrame();
-        const texture = imgAsset._texture;
-        spriteFrame.texture = texture;
-        spriteFrame._uuid = 'default-spriteframe';
-        resources[spriteFrame._uuid] = spriteFrame;
+        if (legacyCC.SpriteFrame) {
+            const spriteFrame = new legacyCC.SpriteFrame() as SpriteFrame;
+            const texture = imgAsset._texture;
+            spriteFrame.texture = texture;
+            spriteFrame._uuid = 'default-spriteframe';
+            resources[spriteFrame._uuid] = spriteFrame;
+        }
 
         // builtin effects
         const shaderVersionKey = getDeviceShaderVersion(device);

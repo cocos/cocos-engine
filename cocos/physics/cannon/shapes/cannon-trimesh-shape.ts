@@ -26,7 +26,8 @@
 import CANNON from '@cocos/cannon';
 import { CannonShape } from './cannon-shape';
 import { MeshCollider } from '../../framework';
-import { Mesh, Vec3 } from '../../../core';
+import { Vec3 } from '../../../core';
+import { Mesh } from '../../../core/3d/assets';
 import { ITrimeshShape } from '../../spec/i-physics-shape';
 import { commitShapeUpdates } from '../cannon-util';
 

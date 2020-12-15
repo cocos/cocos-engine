@@ -524,7 +524,9 @@ export class Game extends EventTarget {
                 this._initEvents();
             }
 
-            legacyCC.director.root.dataPoolManager.jointTexturePool.registerCustomTextureLayouts(config.customJointTextureLayouts);
+            if (legacyCC.director.root.dataPoolManager) {
+                legacyCC.director.root.dataPoolManager.jointTexturePool.registerCustomTextureLayouts(config.customJointTextureLayouts);
+            }
             return this._inited;
         });
     }

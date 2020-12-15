@@ -30,7 +30,7 @@
 
 export * from './assets';
 export * from './framework';
-import * as utils from './misc/utils';
+import * as utils from './misc';
 import { legacyCC } from '../global-exports';
 
 export {

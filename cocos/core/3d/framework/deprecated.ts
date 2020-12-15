@@ -31,8 +31,6 @@
 
 import { removeProperty, replaceProperty } from '../../utils';
 import { MeshRenderer } from './mesh-renderer';
-import { SkinnedMeshRenderer } from '../skinned-mesh-renderer/skinned-mesh-renderer';
-import { SkinnedMeshBatchRenderer, SkinnedMeshUnit } from '../skinned-mesh-renderer/skinned-mesh-batch-renderer';
 import { js } from '../../utils/js';
 import { legacyCC } from '../../global-exports';
 

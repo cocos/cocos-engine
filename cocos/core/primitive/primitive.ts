@@ -29,7 +29,7 @@
  */
 
 import { ccclass, type, serializable, editable } from 'cc.decorator';
-import { createMesh } from '../3d/misc/utils';
+import { createMesh } from '../3d/misc';
 import { Mesh } from '../3d/assets/mesh';
 import * as primitives from '.';
 import { ccenum } from '../value-types/enum';

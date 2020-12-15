@@ -807,3 +807,5 @@ export class UI {
         this._descriptorSetCacheMap.clear();
     }
 }
+
+legacyCC.internal.UI = UI;
