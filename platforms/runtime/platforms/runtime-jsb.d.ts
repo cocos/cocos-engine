@@ -1,7 +1,7 @@
 declare module jsb {
     // Accelerometer
-    export function startAccelerometer (cb: Function): void;  // 补充
-    export function stopAccelerometer (cb?: Function): void; // 补充
+    export function startAccelerometer (cb: Function): void;
+    export function stopAccelerometer (cb?: Function): void;
     export function setAccelerometerInterval (interval: number): void;
 
     // Touch
