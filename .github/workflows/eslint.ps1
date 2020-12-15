@@ -26,10 +26,7 @@ if (-not $diffFiles) {
     return
 }
 
-$eslintFiles = [string]::join(" ", $diffFiles.Split('\n'))
-Write-Host "ESLint check files: $eslintFiles"
-if ($eslintFiles.Length -eq 0) {
-    Write-Host "Skip ESLint since no input files."
-} else {
-    npx eslint -c ./.eslintrc.yaml $eslintFiles
+foreach ($file in $diffFiles.Split('\n')) {
+    Write-Host "ESLint check $file"
+    npx eslint -c ./.eslintrc.yaml $file
 }
