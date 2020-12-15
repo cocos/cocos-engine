@@ -113,7 +113,6 @@ export interface ICameraInfo {
     window?: RenderWindow | null;
     priority: number;
     pipeline?: string;
-    flows?: string[];
 }
 
 const v_a = new Vec3();

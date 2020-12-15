@@ -65,21 +65,6 @@ function getRenderObject (model: Model, camera: Camera) {
     return ro;
 }
 
-function getRenderBatch (batch: UIDrawBatch, camera: Camera) {
-    let depth = 0;
-    if (batch.model && batch.model.node) {
-        Vec3.subtract(_tempVec3, batch.model.node.worldPosition, camera.position);
-        depth = Vec3.dot(_tempVec3, camera.forward);
-    }
-    const ro = roPool.alloc();
-    // ro.model = batch.model;
-    ro.depth = depth;
-    ro.pass = batch.material!.passes[0];
-    ro.ia = batch.hInputAssembler;
-    ro.ds = batch.hDescriptorSet;
-    return ro;
-}
-
 function getCastShadowRenderObject (model: Model, camera: Camera) {
     let depth = 0;
     if (model.node) {

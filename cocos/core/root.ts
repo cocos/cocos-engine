@@ -261,7 +261,6 @@ export class Root {
     }
 
     public destroy () {
-        // this.clearCameras();
         this.destroyScenes();
 
         if (this._pipeline) {

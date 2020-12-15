@@ -72,9 +72,6 @@ export enum RenderPriority {
 export interface IRenderObject {
     model: Model;
     depth: number;
-    pass?: Pass;
-    ia?: InputAssemblerHandle;
-    ds?: DescriptorSetHandle;
 }
 
 /*
