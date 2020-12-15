@@ -59,6 +59,22 @@ CCEffect %{
       propertyIndex: 1
       rasterizerState:
         cullMode: front
+      properties:
+        tilingOffset:   { value: [1.0, 1.0, 0.0, 0.0] }
+        mainColor:      { value: [0.6, 0.6, 0.6, 1.0], target: baseColor, editor: { displayName: BaseColor, type: color } }
+        colorScale:     { value: [1.0, 1.0, 1.0], target: colorScaleAndCutoff.xyz }
+        alphaThreshold: { value: 0.5, target: colorScaleAndCutoff.w, editor: { parent: USE_ALPHA_TEST } }
+        shadeColor1:    { value: [0.4, 0.4, 0.4, 1.0], editor: { type: color } }
+        shadeColor2:    { value: [0.2, 0.2, 0.2, 1.0], editor: { type: color } }
+        specular:       { value: [1.0, 1.0, 1.0, 0.3], editor: { type: color } }
+        baseStep:       { value: 0.8,   target: shadeParams.x }
+        baseFeather:    { value: 0.001, target: shadeParams.y }
+        shadeStep:      { value: 0.5,   target: shadeParams.z }
+        shadeFeather:   { value: 0.001, target: shadeParams.w }
+        emissive:       { value: [0.0, 0.0, 0.0, 1.0], editor: { type: color } }
+        emissiveScale:  { value: [1.0, 1.0, 1.0], target: emissiveScaleAndStrenth.xyz }
+        normalStrenth:  { value: 1.0, target: emissiveScaleAndStrenth.w, editor: { parent: USE_NORMAL_MAP } }
+        mainTexture:    { value: white, target: baseColorMap, editor: { displayName: BaseColorMap } }
 }%
 
 CCProgram shared-ubos %{

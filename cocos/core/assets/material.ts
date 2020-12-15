@@ -404,7 +404,9 @@ export class Material extends Asset {
                 this._passes.forEach((pass, i) => {
                     let props = this._props[i];
                     if (!props) { props = this._props[i] = {}; }
-                    props = this._props[pass.propertyIndex];
+                    if (pass.propertyIndex !== undefined) {
+                        Object.assign(props, this._props[pass.propertyIndex]);
+                    }
                     for (const p in props) {
                         this._uploadProperty(pass, p, props[p]);
                     }

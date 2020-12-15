@@ -31,10 +31,10 @@ import { CompleteCallback, IDownloadParseOptions } from '../core/asset-manager/s
 import { getError, log } from '../core/platform/debug';
 import { sys } from '../core/platform/sys';
 
-const __videoSupport = sys.__videoSupport;
-const formatSupport = __videoSupport && __videoSupport.format;
-
 export function downloadVideo (url: string, options: IDownloadParseOptions, onComplete: CompleteCallback) {
+    const __videoSupport = sys.__videoSupport;
+    const formatSupport = __videoSupport && __videoSupport.format;
+    
     if (!formatSupport || formatSupport.length === 0) {
         return onComplete(new Error(getError(7703)));
     }
