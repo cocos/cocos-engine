@@ -29,7 +29,7 @@
  * @module ui
  */
 
-import { Font, SpriteAtlas, TTFFont } from '../assets';
+import { Font, SpriteAtlas, TTFFont, SpriteFrame } from '../assets';
 import { ccclass, executeInEditMode, executionOrder, help, menu, tooltip, multiline, type, serializable } from 'cc.decorator';
 import { assert, EventTouch, warnID } from '../../platform';
 import { BASELINE_RATIO, fragmentText, HtmlTextParser, IHtmlTextParserResultObj, IHtmlTextParserStack, isUnicodeCJK, isUnicodeSpace } from '../../utils';
