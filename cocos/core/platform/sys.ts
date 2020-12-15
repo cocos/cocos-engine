@@ -571,13 +571,13 @@ export const sys: Record<string, any> = {
      * @en Whether the running platform is native app
      * @zh 指示运行平台是否是原生平台
      */
-    isNative: JSB,
+    isNative: false,
 
     /**
      * @en Whether the running platform is browser
      * @zh 指示运行平台是否是浏览器
      */
-    isBrowser: typeof window === 'object' && typeof document === 'object' && !MINIGAME && !JSB && !RUNTIME_BASED,
+    isBrowser: typeof window === 'object' && typeof document === 'object',
 
     /**
      * @en Indicate whether the current running context is a mobile system
@@ -761,12 +761,7 @@ export const sys: Record<string, any> = {
      * @zh 尝试打开一个 web 页面，并非在所有平台都有效
      */
     openURL (url) {
-        if (JSB || RUNTIME_BASED) {
-            // @ts-expect-error
-            jsb.openURL(url);
-        } else {
-            window.open(url);
-        }
+        window.open(url);
     },
 
     /**
@@ -1083,95 +1078,6 @@ export const sys: Record<string, any> = {
             && /(iPhone OS 1[4-9])|(Version\/1[4-9][\.\d]*)|(iOS 1[4-9])/.test(window.navigator.userAgent);
     }
 };
-
-// ============= Platform Adaptation ==============
-// TODO: main process flag
-// if (EDITOR) {
-//     sys.isMobile = false;
-//     sys.platform = sys.EDITOR_CORE;
-//     sys.language = sys.LANGUAGE_UNKNOWN;
-//     sys.os = ({
-//         darwin: sys.OS_OSX,
-//         win32: sys.OS_WINDOWS,
-//         linux: sys.OS_LINUX,
-//     // @ts-expect-error
-//     })[process.platform] || sys.OS_UNKNOWN;
-//     sys.browserType = sys.BROWSER_TYPE_UNKNOWN;
-//     sys.browserVersion = '';
-//     sys.windowPixelResolution = {
-//         width: 0,
-//         height: 0,
-//     };
-//     sys.__audioSupport = {};
-// }
-if (JSB) {
-    // @ts-expect-error
-    let platform = __getPlatform();
-    sys.platform = platform;
-    sys.isMobile = (platform === sys.ANDROID
-                    || platform === sys.IPAD
-                    || platform === sys.IPHONE
-                    || platform === sys.WP8
-                    || platform === sys.TIZEN
-                    || platform === sys.BLACKBERRY
-                    || platform === sys.XIAOMI_QUICK_GAME
-                    || platform === sys.VIVO_MINI_GAME
-                    || platform === sys.OPPO_MINI_GAME
-                    || platform === sys.HUAWEI_QUICK_GAME
-                    || platform === sys.COCOSPLAY);
-
-    // @ts-expect-error
-    sys.os = __getOS();
-    // @ts-expect-error
-    sys.language = __getCurrentLanguage();
-    // @ts-expect-error
-    const languageCode = JSB && __getCurrentLanguageCode();
-    sys.languageCode = languageCode ? languageCode.toLowerCase() : 'unknown';
-    // @ts-expect-error
-    sys.osVersion = __getOSVersion();
-    sys.osMainVersion = parseInt(sys.osVersion);
-    sys.browserType = sys.BROWSER_TYPE_UNKNOWN;
-    sys.browserVersion = '';
-
-    const w = window.innerWidth;
-    const h = window.innerHeight;
-    const ratio = window.devicePixelRatio || 1;
-    sys.windowPixelResolution = {
-        width: window.nativeWidth || ratio * w,
-        height: window.nativeHeight || ratio * h,
-    };
-
-    sys.localStorage = window.localStorage;
-
-    let capabilities;
-    capabilities = sys.capabilities = {
-        canvas: false,
-        opengl: true,
-        webp: true,
-        imageBitmap: false,
-    };
-
-    if (sys.isMobile) {
-        capabilities.accelerometer = true;
-        capabilities.touches = true;
-    } else {
-        // desktop
-        capabilities.keyboard = true;
-        capabilities.mouse = true;
-        capabilities.touches = false;
-    }
-
-    sys.__audioSupport = {
-        ONLY_ONE: false,
-        WEB_AUDIO: false,
-        DELAY_CREATE_CTX: false,
-        format: ['.mp3'],
-    };
-
-    sys.__videoSupport = {
-        format: ['.mp4'],
-    };
-}
 
 // this equals to sys.isBrowser
 // now we have no web-adapter yet
