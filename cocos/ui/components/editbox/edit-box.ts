@@ -44,7 +44,7 @@ import { EditBoxImpl } from './edit-box-impl';
 import { EditBoxImplBase } from './edit-box-impl-base';
 import { InputFlag, InputMode, KeyboardReturnType } from './types';
 import { sys } from '../../../core/platform/sys';
-import { EDITOR } from 'internal:constants';
+import { EDITOR, JSB, MINIGAME, RUNTIME_BASED } from 'internal:constants';
 import { legacyCC } from '../../../core/global-exports';
 
 const LEFT_PADDING = 2;
@@ -717,7 +717,9 @@ export class EditBox extends Component {
     }
 }
 
-if (sys.isBrowser){
+// this equals to sys.isBrowser
+// now we have no web-adapter yet
+if (typeof window === 'object' && typeof document === 'object' && !MINIGAME && !JSB && !RUNTIME_BASED) {
     EditBox._EditBoxImpl = EditBoxImpl;
 }
 
