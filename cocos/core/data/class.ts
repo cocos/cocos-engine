@@ -433,11 +433,9 @@ export function CCClass<TFunction> (options: {
  * @return {Boolean}
  * @private
  */
-CCClass._isCCClass = function isCCClass (constructor): boolean {
-    // Does not support fastDefined class (ValueType).
-    // Use `instanceof ValueType` if necessary.
-    // eslint-disable-next-line no-prototype-builtins, @typescript-eslint/no-unsafe-return
-    return constructor?.hasOwnProperty?.('__ctors__');     // __ctors__ is not inherited
+CCClass._isCCClass = function (constructor) {
+    return constructor && constructor.hasOwnProperty &&
+        constructor.hasOwnProperty('__ctors__');     // is not inherited __ctors__
 };
 
 //
@@ -571,7 +569,7 @@ function parseAttributes (constructor: Function, attributes: IAcceptableAttribut
 
     if ('default' in attributes) {
         (attrs || initAttrs())[`${propertyNamePrefix}default`] = attributes.default;
-    } else if (DEV && warnOnNoDefault && !(attributes.get || attributes.set)) {
+    } else if (((EDITOR && !window.Build) || TEST) && warnOnNoDefault && !(attributes.get || attributes.set)) {
         warnID(3654, className, propertyName);
     }
 
