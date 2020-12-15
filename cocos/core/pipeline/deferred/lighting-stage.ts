@@ -212,7 +212,7 @@ export class LightingStage extends RenderStage {
         const layoutInfo = new DescriptorSetLayoutInfo(localDescriptorSetLayout.bindings);
         this._descriptorSetLayout = device.createDescriptorSetLayout(layoutInfo);
         this._descriptorSet = device.createDescriptorSet(new DescriptorSetInfo(this._descriptorSetLayout));
-        this._descriptorSet.bindBuffer(UBODeferredLight.BINDING, deferredLitsBufView);
+        this._descriptorSet.bindBuffer(UBOForwardLight.BINDING, deferredLitsBufView);
 
         // activate queue
         for (let i = 0; i < this.renderQueues.length; i++) {

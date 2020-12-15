@@ -106,7 +106,7 @@ vec4 DealMainLightShading (StandardSurface s, float fogFractor) {
   #endif
   finalColor += s.emissive;
 
-  #if CC_RECEIVE_SHADOW 
+  #if CC_RECEIVE_SHADOW
     vec4 v_shadowPos = cc_matLightViewProj * vec4(s.position, 1.0);
     float pcf = cc_shadowInfo.z + 0.001;
     float shadowAttenuation = 0.0;
@@ -129,6 +129,6 @@ vec4 CCDeferredShading(StandardSurface s, float fogFractor) {
   retColor += DealMainLightShading(s, fogFractor);
 
   // part 2 : other lights, dot or sphere light
-  retColor += DealLightShading(s, fogFractor);
+  //retColor += DealLightShading(s, fogFractor);
   return retColor;
 }

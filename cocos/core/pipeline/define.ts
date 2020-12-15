@@ -137,7 +137,7 @@ const GLOBAL_SAMPLER_COUNT = PipelineGlobalBindings.COUNT - GLOBAL_UBO_COUNT;
 export enum ModelLocalBindings {
     UBO_LOCAL,
     UBO_FORWARD_LIGHTS,
-    UBO_DEFERRED_LIGHTS,
+    //UBO_DEFERRED_LIGHTS,
     UBO_SKINNING_ANIMATION,
     UBO_SKINNING_TEXTURE,
     UBO_MORPH,
@@ -391,8 +391,8 @@ export class UBODeferredLight {
         new Uniform('cc_lightCnt', Type.FLOAT4, 1),
     ], 1);
 }
-localDescriptorSetLayout.layouts[UBODeferredLight.NAME] = UBODeferredLight.LAYOUT;
-localDescriptorSetLayout.bindings[UBODeferredLight.BINDING] = UBODeferredLight.DESCRIPTOR;
+//localDescriptorSetLayout.layouts[UBODeferredLight.NAME] = UBODeferredLight.LAYOUT;
+//localDescriptorSetLayout.bindings[UBODeferredLight.BINDING] = UBODeferredLight.DESCRIPTOR;
 
 // The actual uniform vectors used is JointUniformCapacity * 3.
 // We think this is a reasonable default capacity considering MAX_VERTEX_UNIFORM_VECTORS in WebGL spec is just 128.

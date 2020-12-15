@@ -344,6 +344,7 @@ CCProgram lighting-fs %{
     //float fog_factor = CC_TRANSFER_FOG(vec4(s.position,1));
     //color = CC_APPLY_FOG(color, fog_factor);
     fragColor0 = color;
+    fragColor0 = vec4(1,0,0,1);
   }
 }%
 
