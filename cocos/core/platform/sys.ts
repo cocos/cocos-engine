@@ -404,36 +404,6 @@ export const sys: Record<string, any> = {
      */
     BROWSER_TYPE_WECHAT: 'wechat',
     /**
-     * @en Browser Type - Cocos Play Game
-     * @zh 浏览器类型 - Cocos Play 游戏
-     * @default "cocosplay"
-     */
-    BROWSER_TYPE_COCOSPLAY: 'cocosplay',
-    /**
-     * @en Browser Type - huawei quick Game
-     * @zh 浏览器类型 - 华为快游戏
-     * @default "huaweiquickgame"
-     */
-    BROWSER_TYPE_HUAWEI_GAME: 'huaweiquickgame',
-    /**
-     * @en Browser Type - OPPO mini Game
-     * @zh 浏览器类型 - OPPO小游戏
-     * @default "oppogame"
-     */
-    BROWSER_TYPE_OPPO_GAME: 'oppogame',
-    /**
-     * @en Browser Type - vivo mini Game
-     * @zh 浏览器类型 - vivo小游戏
-     * @default "vivogame"
-     */
-    BROWSER_TYPE_VIVO_GAME: 'vivogame',
-    /**
-     * @en Browser Type - Xiaomi Game
-     * @zh 浏览器类型 - 小米小游戏
-     * @default "xiaomigame"
-     */
-    BROWSER_TYPE_XIAOMI_GAME: 'xiaomigame',
-    /**
      * @en Browser Type - Android Browser
      * @zh 浏览器类型 - 安卓浏览器
      * @default "androidbrowser"
