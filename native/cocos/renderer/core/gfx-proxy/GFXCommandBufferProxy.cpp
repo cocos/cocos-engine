@@ -1,5 +1,6 @@
 #include "CoreStd.h"
 
+#include "job-system/JobSystem.h"
 #include "threading/CommandEncoder.h"
 #include "GFXBufferProxy.h"
 #include "GFXCommandBufferProxy.h"
@@ -21,6 +22,7 @@ void CommandBufferProxy::initEncoder() {
 }
 
 void CommandBufferProxy::destroyEncoder() {
+    _encoder->KickAndWait();
     CC_SAFE_DELETE(_encoder);
 }
 
@@ -34,7 +36,7 @@ bool CommandBufferProxy::initialize(const CommandBufferInfo &info) {
     remoteInfo.queue = ((QueueProxy *)info.queue)->getRemote();
 
     ENCODE_COMMAND_2(
-        _encoder,
+        ((DeviceProxy *)_device)->getMainEncoder(),
         CommandBufferInit,
         remote, getRemote(),
         info, remoteInfo,
@@ -46,9 +48,10 @@ bool CommandBufferProxy::initialize(const CommandBufferInfo &info) {
 }
 
 void CommandBufferProxy::destroy() {
+    destroyEncoder();
     if (_remote) {
         ENCODE_COMMAND_1(
-            _encoder,
+            ((DeviceProxy *)_device)->getMainEncoder(),
             CommandBufferDestroy,
             remote, getRemote(),
             {
@@ -57,7 +60,6 @@ void CommandBufferProxy::destroy() {
 
         _remote = nullptr;
     }
-    destroyEncoder();
 }
 
 void CommandBufferProxy::begin(RenderPass *renderPass, uint subpass, Framebuffer *frameBuffer) {
@@ -85,7 +87,7 @@ void CommandBufferProxy::end() {
     _encoder->FinishWriting();
 }
 
-void CommandBufferProxy::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, int stencil) {
+void CommandBufferProxy::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, int stencil, bool fromSecondaryCB) {
 
     uint attachmentCount = (uint)renderPass->getColorAttachments().size();
     Color *remoteColors = nullptr;
@@ -94,7 +96,7 @@ void CommandBufferProxy::beginRenderPass(RenderPass *renderPass, Framebuffer *fb
         memcpy(remoteColors, colors, sizeof(Color) * attachmentCount);
     }
 
-    ENCODE_COMMAND_7(
+    ENCODE_COMMAND_8(
         _encoder,
         CommandBufferBeginRenderPass,
         remote, getRemote(),
@@ -104,8 +106,9 @@ void CommandBufferProxy::beginRenderPass(RenderPass *renderPass, Framebuffer *fb
         colors, remoteColors,
         depth, depth,
         stencil, stencil,
+        fromSecondaryCB, fromSecondaryCB,
         {
-            remote->beginRenderPass(renderPass, fbo, renderArea, colors, depth, stencil);
+            remote->beginRenderPass(renderPass, fbo, renderArea, colors, depth, stencil, fromSecondaryCB);
         });
 }
 
@@ -318,19 +321,42 @@ void CommandBufferProxy::copyBuffersToTexture(const uint8_t *const *buffers, Tex
 }
 
 void CommandBufferProxy::execute(const CommandBuffer *const *cmdBuffs, uint32_t count) {
+    if (!count) return;
+    
     const CommandBuffer **remoteCmdBuffs = _encoder->Allocate<const CommandBuffer *>(count);
     for (uint i = 0; i < count; ++i) {
         remoteCmdBuffs[i] = ((CommandBufferProxy *)cmdBuffs[i])->getRemote();
     }
 
-    ENCODE_COMMAND_3(
+    bool multiThreaded = _device->hasFeature(Feature::MULTITHREADED_SUBMISSION);
+
+    ENCODE_COMMAND_5(
         _encoder,
         CommandBufferExecute,
         remote, getRemote(),
-        cmdBuffs, remoteCmdBuffs,
+        cmdBuffs, cmdBuffs,
+        remoteCmdBuffs, remoteCmdBuffs,
         count, count,
+        multiThreaded, multiThreaded,
         {
-            remote->execute(cmdBuffs, count);
+            if (count > 1) {
+                if (multiThreaded) {
+                    JobGraph g;
+                    g.createForEachIndexJob(1u, count, 1u, [this](uint i) {
+                        ((CommandBufferProxy *)cmdBuffs[i])->getEncoder()->FlushCommands();
+                    });
+                    JobSystem::getInstance().run(g);
+                    ((CommandBufferProxy *)cmdBuffs[0])->getEncoder()->FlushCommands();
+                    g.waitForAll();
+                } else {
+                    for (uint i = 0u; i < count; ++i) {
+                        ((CommandBufferProxy *)cmdBuffs[i])->getEncoder()->FlushCommands();
+                    }
+                }
+            } else {
+                ((CommandBufferProxy *)cmdBuffs[0])->getEncoder()->FlushCommands();
+            }
+            remote->execute(remoteCmdBuffs, count);
         });
 }
 

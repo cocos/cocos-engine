@@ -397,7 +397,7 @@ void CCVKDevice::destroy() {
     CC_SAFE_DELETE(_gpuSemaphorePool);
     CC_SAFE_DELETE(_gpuDescriptorHub);
     CC_SAFE_DELETE(_gpuDescriptorSetHub);
-    
+
     uint backBufferCount = ((CCVKContext *)_context)->gpuContext()->swapchainCreateInfo.minImageCount;
     for (uint i = 0u; i < backBufferCount; i++) {
         _gpuRecycleBins[i]->clear();
@@ -480,7 +480,7 @@ void CCVKDevice::acquire() {
     queue->_numTriangles = 0;
     queue->gpuQueue()->nextWaitSemaphore = VK_NULL_HANDLE;
     queue->gpuQueue()->nextSignalSemaphore = VK_NULL_HANDLE;
-    
+
     _gpuDescriptorSetHub->flush();
 
     _gpuSemaphorePool->reset();

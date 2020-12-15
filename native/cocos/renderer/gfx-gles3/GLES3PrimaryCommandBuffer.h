@@ -13,7 +13,7 @@ public:
     GLES3PrimaryCommandBuffer(Device *device);
     ~GLES3PrimaryCommandBuffer();
 
-    virtual void beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, int stencil) override;
+    virtual void beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, int stencil, bool fromSecondaryCB) override;
     virtual void endRenderPass() override;
     virtual void draw(InputAssembler *ia) override;
     virtual void updateBuffer(Buffer *buff, const void *data, uint size, uint offset) override;

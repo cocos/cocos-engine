@@ -245,10 +245,10 @@ typedef vector<CCVKGPUDescriptor> CCVKGPUDescriptorList;
 class CCVKGPUDescriptorSet final : public Object {
 public:
     CCVKGPUDescriptorList gpuDescriptors;
-    
+
     // references
     VkDescriptorUpdateTemplate *pUpdateTemplate = nullptr;
-    
+
     vector<VkDescriptorSet> vkDescriptorSets; // per swapchain image
 
     vector<CCVKDescriptorInfo> descriptorInfos;
@@ -297,7 +297,7 @@ public:
     vector<VkExtensionProperties> extensions;
     VmaAllocator memoryAllocator = VK_NULL_HANDLE;
     VkPipelineCache vkPipelineCache = VK_NULL_HANDLE;
-    
+
     uint curBackBufferIndex = 0u;
     uint backBufferCount = 3u;
 
@@ -312,11 +312,11 @@ public:
     CCVKGPUTexture defaultTexture;
     CCVKGPUTextureView defaultTextureView;
     CCVKGPUBuffer defaultBuffer;
-    
+
     using CommandBufferPools = tbb::concurrent_unordered_map<std::thread::id,
         CCVKGPUCommandBufferPool*, std::hash<std::thread::id>>;
     CommandBufferPools commandBufferPools;
-    
+
     ~CCVKGPUDevice();
     CCVKGPUCommandBufferPool* getCommandBufferPool(std::thread::id threadID);
 };
@@ -432,12 +432,12 @@ public:
         if (leakedSetCount) CC_LOG_DEBUG("Leaked %d descriptor sets.", leakedSetCount);
         _pools.clear();
     }
-    
+
     void link(CCVKGPUDevice *device, uint maxSetsPerPool, vector<VkDescriptorSetLayoutBinding> &bindings, VkDescriptorSetLayout setLayout) {
         _device = device;
         _maxSetsPerPool = maxSetsPerPool;
         _setLayouts.insert(_setLayouts.begin(), _maxSetsPerPool, setLayout);
-        
+
         unordered_map<VkDescriptorType, uint> typeMap;
         for (size_t i = 0u; i < bindings.size(); i++) {
             VkDescriptorSetLayoutBinding &vkBinding = bindings[i];
@@ -473,7 +473,7 @@ public:
             VkDescriptorPool descriptorPool;
             VK_CHECK(vkCreateDescriptorPool(_device->vkDevice, &createInfo, nullptr, &descriptorPool));
             _pools.push_back({ descriptorPool, {}, {} });
-            
+
             _pools[idx].freeSets.resize(_maxSetsPerPool);
             VkDescriptorSetAllocateInfo info{VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO};
             info.pSetLayouts = _setLayouts.data();
@@ -487,7 +487,7 @@ public:
         _pools[idx].activeSets.insert(output);
         return output;
     }
-    
+
     void yield(VkDescriptorSet set) {
         for (DescriptorSetPool &pool : _pools) {
             if (pool.activeSets.count(set)) {
@@ -500,14 +500,14 @@ public:
 
 private:
     CCVKGPUDevice *_device = nullptr;
-    
+
     struct DescriptorSetPool {
         VkDescriptorPool vkPool = VK_NULL_HANDLE;
         set<VkDescriptorSet> activeSets;
         vector<VkDescriptorSet> freeSets;
     };
     vector<DescriptorSetPool> _pools;
-    
+
     vector<VkDescriptorPoolSize> _poolSizes;
     vector<VkDescriptorSetLayout> _setLayouts;
     uint _maxSetsPerPool = 0u;
@@ -524,7 +524,7 @@ public:
     vector<uint> bindingIndices;
     vector<uint> descriptorIndices;
     uint descriptorCount = 0u;
-    
+
     uint maxSetsPerPool = 10u;
     CCVKGPUDescriptorSetPool pool;
 };
@@ -550,7 +550,7 @@ public:
         }
         _pools.clear();
     }
-    
+
     CC_INLINE uint getHash(uint queueFamilyIndex) {
         return (queueFamilyIndex << 10) | _device->curBackBufferIndex;
     }
@@ -567,12 +567,12 @@ public:
 
     void request(CCVKGPUCommandBuffer *gpuCommandBuffer) {
         uint hash = getHash(gpuCommandBuffer->queueFamilyIndex);
-        
+
         if (_device->curBackBufferIndex != _lastBackBufferIndex) {
-            reset();
+            reset(); // has to be called in the same thread as cb allocations
             _lastBackBufferIndex = _device->curBackBufferIndex;
         }
-        
+
         if (!_pools.count(hash)) {
             VkCommandPoolCreateInfo createInfo{VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO};
             createInfo.queueFamilyIndex = gpuCommandBuffer->queueFamilyIndex;
@@ -597,7 +597,7 @@ public:
         if (gpuCommandBuffer->vkCommandBuffer) {
             uint hash = getHash(gpuCommandBuffer->queueFamilyIndex);
             CCASSERT(_pools.count(hash), "wrong command pool to yield?");
-            
+
             CommandBufferPool &pool = _pools[hash];
             pool.usedCommandBuffers[gpuCommandBuffer->level].push(gpuCommandBuffer->vkCommandBuffer);
         }
@@ -608,7 +608,7 @@ public:
             if (getBackBufferIndex(it->first) != _device->curBackBufferIndex) continue;
             CommandBufferPool &pool = it->second;
 
-            VK_CHECK(vkResetCommandPool(_device->vkDevice, pool.vkCommandPool, 0));
+            bool needsReset = false;
             for (uint i = 0u; i < 2u; i++) {
                 CachedArray<VkCommandBuffer> &usedList = pool.usedCommandBuffers[i];
                 if (usedList.size()) {
@@ -907,7 +907,7 @@ public:
     : _device(device) {
         _setsToBeUpdate.resize(device->backBufferCount);
     }
-    
+
     void record(CCVKGPUDescriptorSet *gpuDescriptorSet) {
         update(gpuDescriptorSet);
         for (uint i = 0u; i < _device->backBufferCount; ++i) {
@@ -916,7 +916,7 @@ public:
             }
         }
     }
-    
+
     void flush() {
         set<CCVKGPUDescriptorSet *> &sets = _setsToBeUpdate[_device->curBackBufferIndex];
         for (set<CCVKGPUDescriptorSet *>::iterator it = sets.begin(); it != sets.end(); ++it) {
@@ -924,7 +924,7 @@ public:
         }
         sets.clear();
     }
-    
+
 private:
     void update(CCVKGPUDescriptorSet *gpuDescriptorSet) {
         if (gpuDescriptorSet->pUpdateTemplate) {
@@ -1056,7 +1056,7 @@ public:
     template <typename TFunc>
     void checkIn(const TFunc &record, bool immediateSubmission = false) {
         CCVKGPUCommandBufferPool *commandBufferPool = _device->getCommandBufferPool(std::this_thread::get_id());
-        
+
         if (!_cmdBuff.vkCommandBuffer) {
             commandBufferPool->request(&_cmdBuff);
             VkCommandBufferBeginInfo beginInfo{VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO};
@@ -1081,7 +1081,7 @@ public:
     void depart() {
         if (_cmdBuff.vkCommandBuffer) {
             CCVKGPUCommandBufferPool *commandBufferPool = _device->getCommandBufferPool(std::this_thread::get_id());
-        
+
             VK_CHECK(vkEndCommandBuffer(_cmdBuff.vkCommandBuffer));
             _queue->commandBuffers.push(_cmdBuff.vkCommandBuffer);
             commandBufferPool->yield(&_cmdBuff);

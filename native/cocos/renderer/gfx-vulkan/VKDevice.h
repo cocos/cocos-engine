@@ -33,11 +33,13 @@ class CCVKGPUDevice;
 class CCVKGPUContext;
 class CCVKGPUSwapchain;
 
-class CCVKGPUBufferHub;
-class CCVKGPUTransportHub;
 class CCVKGPUDescriptorHub;
 class CCVKGPUSemaphorePool;
 class CCVKGPUDescriptorSetHub;
+
+class CCVKGPUFencePool;
+class CCVKGPURecycleBin;
+class CCVKGPUTransportHub;
 class CCVKGPUStagingBufferPool;
 
 class CC_VULKAN_API CCVKDevice final : public Device {

@@ -39,6 +39,7 @@ void QueueProxy::destroy() {
 }
 
 void QueueProxy::submit(const CommandBuffer *const *cmdBuffs, uint count, Fence *fence) {
+    if (!count) return;
     CommandEncoder *encoder = ((DeviceProxy *)_device)->getMainEncoder();
 
     const CommandBuffer **remoteCmdBuffs = encoder->Allocate<const CommandBuffer *>(count);
@@ -58,19 +59,27 @@ void QueueProxy::submit(const CommandBuffer *const *cmdBuffs, uint count, Fence 
         count, count,
         fence, fence,
         {
-            if (multiThreaded) {
-                JobGraph g;
-                g.createForEachIndexJob(1u, count, 1u, [this](uint i) {
-                    ((CommandBufferProxy *)cmdBuffs[i])->getEncoder()->FlushCommands();
-                });
-                JobSystem::getInstance().run(g);
-                ((CommandBufferProxy *)cmdBuffs[0])->getEncoder()->FlushCommands();
-                g.waitForAll();
-            } else {
-                for (uint i = 0u; i < count; ++i) {
-                    ((CommandBufferProxy *)cmdBuffs[i])->getEncoder()->FlushCommands();
+//            auto startTime = std::chrono::steady_clock::now();
+            if (count > 1) {
+                if (multiThreaded) {
+                    JobGraph g;
+                    g.createForEachIndexJob(1u, count, 1u, [this](uint i) {
+                        ((CommandBufferProxy *)cmdBuffs[i])->getEncoder()->FlushCommands();
+                    });
+                    JobSystem::getInstance().run(g);
+                    ((CommandBufferProxy *)cmdBuffs[0])->getEncoder()->FlushCommands();
+                    g.waitForAll();
+                } else {
+                    for (uint i = 0u; i < count; ++i) {
+                        ((CommandBufferProxy *)cmdBuffs[i])->getEncoder()->FlushCommands();
+                    }
                 }
+            } else {
+                ((CommandBufferProxy *)cmdBuffs[0])->getEncoder()->FlushCommands();
             }
+//            CC_LOG_INFO("======== one round ========");
+//            auto endTime = std::chrono::steady_clock::now();
+//            CC_LOG_INFO("---------- %.2fms", std::chrono::duration_cast<std::chrono::nanoseconds>(endTime - startTime).count() / 1e6);
 
             remote->submit(remoteCmdBuffs, count, fence);
         });
