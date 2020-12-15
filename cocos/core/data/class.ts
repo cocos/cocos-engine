@@ -433,9 +433,11 @@ export function CCClass<TFunction> (options: {
  * @return {Boolean}
  * @private
  */
-CCClass._isCCClass = function (constructor) {
-    return constructor && constructor.hasOwnProperty &&
-        constructor.hasOwnProperty('__ctors__');     // is not inherited __ctors__
+CCClass._isCCClass = function isCCClass (constructor): boolean {
+    // Does not support fastDefined class (ValueType).
+    // Use `instanceof ValueType` if necessary.
+    // eslint-disable-next-line no-prototype-builtins, @typescript-eslint/no-unsafe-return
+    return constructor?.hasOwnProperty?.('__ctors__');     // __ctors__ is not inherited
 };
 
 //
