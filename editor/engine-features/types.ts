@@ -31,10 +31,10 @@ export interface ModuleRenderConfig {
     /**
      * The modules info
      */
-    features: IFeatures;
+    features: Features ;
 }
 
-export type IFeatures = Record<EngineFeature, Item>;
+export type Features  = Record<EngineFeature, Item>;
 
 export interface BaseItem {
     /**
