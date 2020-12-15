@@ -34,7 +34,8 @@ import { legacyCC } from '../../global-exports';
 import { getDeviceShaderVersion } from '../../renderer/core/program-lib';
 import { ccbitmask } from '../../value-types/bitmask';
 import { EffectAsset } from '../../assets';
-import { AssetTable } from '../../load-pipeline/asset-table';
+import { resources } from '../../asset-manager/bundle';
+
 
 class BuiltinResMgr {
     protected _device: Device | null = null;
@@ -298,7 +299,7 @@ class BuiltinResMgr {
 
     public _initDeferredMaterial () {
         // builtin deferred material
-        cc.resources.load('shader/builtin-deferred', cc.EffectAsset, (err, ass) => {
+        resources.load('shader/builtin-deferred', EffectAsset, (err, ass) => {
             if (ass) {
                 const builtinDeferredMtl = new legacyCC.Material();
                 builtinDeferredMtl._uuid = 'builtin-deferred-material';
@@ -307,7 +308,7 @@ class BuiltinResMgr {
             }
         });
 
-        cc.resources.load('shader/builtin-postprocess', cc.EffectAsset, (err, bss) => {
+        resources.load('shader/builtin-postprocess', EffectAsset, (err, bss) => {
             if (bss) {
                 const builtinPostProcessMtl = new legacyCC.Material();
                 builtinPostProcessMtl._uuid = 'builtin-post-process-material';
