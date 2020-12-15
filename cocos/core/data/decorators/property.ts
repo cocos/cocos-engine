@@ -191,6 +191,12 @@ function genProperty (
                 propertyRecord.default = actualDefaultValues[propertyKey];
             }
         }
+
+        if ((EDITOR && !window.Build) || TEST) {
+            if (!fullOptions && options && options.hasOwnProperty('default')) {
+                warnID(3653, propertyKey, js.getClassName(ctor));
+            }
+        }
     }
 
     properties[propertyKey] = propertyRecord;

@@ -588,7 +588,7 @@ function parseAttributes (constructor: Function, attributes: IAcceptableAttribut
 
     if (attributes.editorOnly) {
         if (DEV && usedInGetter) {
-            errorID(3613, 'editorOnly', name, propertyName);
+            errorID(3613, 'editorOnly', className, propertyName);
         }
         else {
             (attrs || initAttrs())[propertyNamePrefix + 'editorOnly'] = true;
@@ -613,7 +613,7 @@ function parseAttributes (constructor: Function, attributes: IAcceptableAttribut
     } else {
         if (attributes.serializable === false) {
             if (DEV && usedInGetter) {
-                errorID(3613, 'serializable', name, propertyName);
+                errorID(3613, 'serializable', className, propertyName);
             }
             else {
                 (attrs || initAttrs())[propertyNamePrefix + 'serializable'] = false;
