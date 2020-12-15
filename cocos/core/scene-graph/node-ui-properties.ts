@@ -49,7 +49,7 @@ export class NodeUIProperties {
 
         return this._uiTransformComp;
     }
-    set uiTransformComp (value) {
+    set uiTransformComp (value: UITransform | null) {
         this._uiTransformComp = value;
     }
 
