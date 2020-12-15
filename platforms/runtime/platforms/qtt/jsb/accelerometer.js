@@ -1,3 +1,8 @@
+/*
+ * this platform doesn't provide with the onAccelerometerChange API
+ * so we turn to using this HACK but native implementation
+*/
+
 window.jsb = window.jsb || {};
 
 const PORTRAIT = 0;
@@ -21,6 +26,7 @@ Object.assign(jsb, {
             let y = (eventAcceleration.y || 0) * 0.1;
             let z = (eventAcceleration.z || 0) * 0.1;
         
+            // FIXME: not supported to detect the orientation
             const tmpX = x;
             if (window.orientation === LANDSCAPE_RIGHT) {
                 x = y;

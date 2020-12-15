@@ -1,3 +1,8 @@
+/*
+ * the API onAccelerometerChange can't provide us with accurate acceleration calculation
+ * so we turn to using this HACK but native implementation
+*/
+
 window.jsb = window.jsb || {};
 
 const PORTRAIT = 0;
