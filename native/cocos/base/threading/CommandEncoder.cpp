@@ -135,6 +135,9 @@ void CommandEncoder::TerminateConsumerThread() noexcept
     EventSem* const pEvent = &event;
 
     ReaderContext* const pR = &mR;
+
+    bool immediateMode = mImmediateMode;
+    mImmediateMode = false;
     ENCODE_COMMAND_2(
             this,   TerminateConsumerThread,
              pR,    pR,
@@ -144,6 +147,7 @@ void CommandEncoder::TerminateConsumerThread() noexcept
                 pR->mFlushingFinished = true;
                 pEvent->Signal();
             });
+    mImmediateMode = immediateMode;
 
     Kick();
     event.Wait();

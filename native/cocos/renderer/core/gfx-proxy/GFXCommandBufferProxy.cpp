@@ -22,8 +22,6 @@ void CommandBufferProxy::initEncoder() {
 }
 
 void CommandBufferProxy::destroyEncoder() {
-    //_encoder->FinishWriting();
-    //_encoder->FlushCommands();
     CC_SAFE_DELETE(_encoder);
 }
 

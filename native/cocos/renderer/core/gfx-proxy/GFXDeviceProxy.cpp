@@ -85,10 +85,11 @@ void DeviceProxy::destroy() {
         _remote = nullptr;
     }
 
-    _mainEncoder->TerminateConsumerThread();
     ((CommandBufferProxy *)_cmdBuff)->destroyEncoder();
     CC_SAFE_DELETE(_cmdBuff);
     CC_SAFE_DELETE(_queue);
+
+    _mainEncoder->TerminateConsumerThread();
     CC_SAFE_DELETE(_mainEncoder);
 }
 
