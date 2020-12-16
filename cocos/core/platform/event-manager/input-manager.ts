@@ -383,8 +383,8 @@ class InputManager {
         this._glView = legacyCC.view;
 
         const prohibition = sys.isMobile;
-        const supportMouse = ('mouse' in sys.capabilities);
-        const supportTouches = ('touches' in sys.capabilities);
+        const supportMouse = sys.capabilities.mouse;
+        const supportTouches = sys.capabilities.touches;
 
         // Register mouse events.
         if (supportMouse) {

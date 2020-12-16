@@ -28,7 +28,7 @@
  * @hidden
  */
 
-import { Color, Vec2, Vec3, Vec4 } from '../math';
+import { Color, Size, Vec2, Vec3, Vec4 } from '../math';
 import { IValueProxy, IValueProxyFactory } from './value-proxy';
 import { isPropertyPath, PropertyPath, TargetPath, evaluatePath } from './target-path';
 import { error } from '../platform/debug';
@@ -133,12 +133,17 @@ interface ICopyable {
     copy: (out: any, source: any) => any;
 }
 
+function SizeCopy(out: Size, source: Size) {
+    return out.set(source);
+}
+
 const getBuiltinCopy = (() => {
     const map = new Map<Constructor, ICopyable>();
     map.set(Vec2, { createBuffer: () => new Vec2(), copy: Vec2.copy});
     map.set(Vec3, { createBuffer: () => new Vec3(), copy: Vec3.copy});
     map.set(Vec4, { createBuffer: () => new Vec4(), copy: Vec4.copy});
     map.set(Color, { createBuffer: () => new Color(), copy: Color.copy});
+    map.set(Size,  { createBuffer: () => new Size(), copy: SizeCopy});
     return (value: any) => {
         return map.get(value?.constructor);
     };

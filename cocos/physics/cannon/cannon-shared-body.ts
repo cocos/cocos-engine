@@ -53,7 +53,6 @@ const CollisionEventObject = {
  * static
  */
 export class CannonSharedBody {
-
     private static readonly sharedBodesMap = new Map<string, CannonSharedBody>();
 
     static getSharedBody (node: Node, wrappedWorld: CannonWorld, wrappedBody?: CannonRigidBody) {
@@ -81,8 +80,8 @@ export class CannonSharedBody {
     readonly shapes: CannonShape[] = [];
     wrappedBody: CannonRigidBody | null = null;
 
-    private index: number = -1;
-    private ref: number = 0;
+    private index = -1;
+    private ref = 0;
     private onCollidedListener = this.onCollided.bind(this);
 
     /**
@@ -97,23 +96,22 @@ export class CannonSharedBody {
                 this.wrappedWorld.addSharedBody(this);
                 this.syncInitial();
             }
-        } else {
-            if (this.index >= 0) {
-                const isRemove = (this.shapes.length == 0 && this.wrappedBody == null) ||
-                    (this.shapes.length == 0 && this.wrappedBody != null && !this.wrappedBody.isEnabled)
+        } else if (this.index >= 0) {
+            const isRemove = (this.shapes.length == 0 && this.wrappedBody == null)
+                    || (this.shapes.length == 0 && this.wrappedBody != null && !this.wrappedBody.isEnabled);
 
-                if (isRemove) {
-                    this.body.sleep(); // clear velocity etc.
-                    this.index = -1;
-                    this.wrappedWorld.removeSharedBody(this);
-                }
+            if (isRemove) {
+                this.body.sleep(); // clear velocity etc.
+                this.index = -1;
+                this.wrappedWorld.removeSharedBody(this);
             }
         }
     }
 
     set reference (v: boolean) {
+        // eslint-disable-next-line no-unused-expressions
         v ? this.ref++ : this.ref--;
-        if (this.ref == 0) { this.destroy(); }
+        if (this.ref === 0) { this.destroy(); }
     }
 
     private constructor (node: Node, wrappedWorld: CannonWorld) {
@@ -167,7 +165,7 @@ export class CannonSharedBody {
     }
 
     syncPhysicsToScene () {
-        if (this.body.type != ERigidBodyType.STATIC) {
+        if (this.body.type === ERigidBodyType.DYNAMIC) {
             if (!this.body.isSleeping()) {
                 Vec3.copy(v3_0, this.body.position);
                 Quat.copy(quat_0, this.body.quaternion);
@@ -192,7 +190,7 @@ export class CannonSharedBody {
     private destroy () {
         this.body.removeEventListener('cc-collide', this.onCollidedListener);
         CannonSharedBody.sharedBodesMap.delete(this.node.uuid);
-        delete CANNON.World['idToBodyMap'][this.body.id];
+        delete (CANNON.World as any).idToBodyMap[this.body.id];
         (this.node as any) = null;
         (this.wrappedWorld as any) = null;
         (this.body as any) = null;
@@ -205,7 +203,7 @@ export class CannonSharedBody {
         const self = getWrap<CannonShape>(event.selfShape);
         const other = getWrap<CannonShape>(event.otherShape);
         if (self && self.collider.needCollisionEvent) {
-            contactsPool.push.apply(contactsPool, CollisionEventObject.contacts as CannonContactEquation[]);
+            contactsPool.push.apply(contactsPool, CollisionEventObject.contacts);
             CollisionEventObject.contacts.length = 0;
 
             CollisionEventObject.impl = event;
@@ -232,5 +230,4 @@ export class CannonSharedBody {
             }
         }
     }
-
 }

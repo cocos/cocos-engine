@@ -37,9 +37,6 @@ import downloadFile from '../core/asset-manager/download-file';
 import { DownloadHandler } from '../core/asset-manager/downloader';
 import { createDomAudio } from './audio-utils';
 
-const __audioSupport = sys.__audioSupport;
-const formatSupport = __audioSupport.format;
-
 export function downloadDomAudio (
     url: string,
     options: IDownloadParseOptions,
@@ -60,6 +57,8 @@ function downloadArrayBuffer (url: string, options: IDownloadParseOptions, onCom
 }
 
 export function downloadAudio (url: string, options: IDownloadParseOptions, onComplete: CompleteCallback) {
+    const __audioSupport = sys.__audioSupport;
+    const formatSupport = __audioSupport.format;
     if (formatSupport.length === 0) {
         onComplete(new Error(getError(4927)));
         return;

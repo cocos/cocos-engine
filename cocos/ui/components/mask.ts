@@ -135,9 +135,9 @@ export class Mask extends UIRenderable {
             return;
         }
 
-        if (this._type === MaskType.IMAGE_STENCIL && !this._spriteFrame) {
-            this._attachClearModel();
-        }
+        // if (this._type === MaskType.IMAGE_STENCIL && !this._spriteFrame) {
+        //     this._detachClearModel();
+        // }
 
         this._type = value;
         this.markForUpdateRenderData(false);
@@ -375,7 +375,11 @@ export class Mask extends UIRenderable {
 
     public onEnable () {
         super.onEnable();
-        if (this._type !== MaskType.IMAGE_STENCIL) {
+        if (this._type !== MaskType.IMAGE_STENCIL || this.spriteFrame) {
+            this._attachClearModel();
+        }
+
+        if (this._type === MaskType.ELLIPSE || this._type === MaskType.RECT) {
             this._updateGraphics();
         }
     }
@@ -576,9 +580,6 @@ export class Mask extends UIRenderable {
             renderMesh.subMeshIdx = 0;
 
             this._clearModel.initSubModel(0, renderMesh, this._clearStencilMtl);
-            if (this._type !== MaskType.IMAGE_STENCIL || this._spriteFrame) {
-                this._attachClearModel();
-            }
         }
     }
 
@@ -601,6 +602,10 @@ export class Mask extends UIRenderable {
     }
 
     protected _disableGraphics () {
+        if (this._clearModel) {
+            this._detachClearModel();
+        }
+
         if (this._graphics) {
             this._graphics.onDisable();
         }

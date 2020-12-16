@@ -4,7 +4,7 @@ import { Skeleton } from './skeleton';
 import { SkeletonTexture } from './skeleton-texture';
 import spine from './lib/spine-core.js';
 import { ccclass, serializable, type } from '../core/data/decorators';
-import { EDITOR } from '../../editor/exports/populate-internal-constants';
+import { EDITOR } from 'internal:constants';
 
 /**
  * !#en The skeleton data of spine.

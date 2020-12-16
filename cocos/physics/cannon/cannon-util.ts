@@ -33,7 +33,7 @@ export function toCannonRaycastOptions (out: CANNON.IRaycastOptions, options: IR
     out.checkCollisionResponse = !options.queryTrigger;
     out.collisionFilterGroup = -1;
     out.collisionFilterMask = options.mask;
-    // out.skipBackFaces = true;
+    // out.skipBackfaces = true;
 }
 
 export function fillRaycastResult (result: PhysicsRayResult, cannonResult: CANNON.RaycastResult) {
@@ -41,7 +41,7 @@ export function fillRaycastResult (result: PhysicsRayResult, cannonResult: CANNO
         cannonResult.hitPointWorld,
         cannonResult.distance,
         getWrap<IBaseShape>(cannonResult.shape).collider,
-        cannonResult.hitNormalWorld
+        cannonResult.hitNormalWorld,
     );
 }
 
