@@ -29,7 +29,7 @@
  * @module ui
  */
 
-import { ccclass, help, executeInEditMode, executionOrder, menu, requireComponent, tooltip, type, serializable, visible, displayName, readOnly } from 'cc.decorator';
+import { ccclass, help, executeInEditMode, executionOrder, menu, requireComponent, tooltip, type, serializable, visible, displayName } from 'cc.decorator';
 import { Component } from '../../core/components/component';
 import { Rect, Size, Vec2, Vec3 } from '../../core/math';
 import { ccenum } from '../../core/value-types/enum';
@@ -219,18 +219,48 @@ const _tempVec3 = new Vec3();
 export class Layout extends Component {
     /**
      * @en
-     * Automatic alignment. Fixed starting position in the same direction when Type is Horizontal or Vertical.
+     * Alignment horizontal. Fixed starting position in the same direction when Type is Horizontal.
      *
      * @zh
-     * 自动对齐。在 Type 为 Horizontal 或 Vertical 时按同个方向固定起始位置排列。
+     * 横向对齐。在 Type 为 Horizontal 时按同个方向固定起始位置排列。
      */
-    @displayName('AutoAlignment')
+    @visible(function (this: Layout) {
+        return this._layoutType === Type.HORIZONTAL;
+    })
     @tooltip('自动对齐。在 Type 为 Horizontal 或 Vertical 时按同个方向位置排列')
-    get isAlign () {
+    get alignHorizontal () {
         return this._isAlign;
     }
 
-    set isAlign (value) {
+    set alignHorizontal (value) {
+        if (this._layoutType !== Type.HORIZONTAL) {
+            return;
+        }
+
+        this._isAlign = value;
+        this._doLayoutDirty();
+    }
+
+    /**
+     * @en
+     * Alignment vertical. Fixed starting position in the same direction when Type is Vertical.
+     *
+     * @zh
+     * 纵向对齐。在 Type 为 Horizontal 或 Vertical 时按同个方向固定起始位置排列。
+     */
+    @visible(function (this: Layout) {
+        return this._layoutType === Type.VERTICAL;
+    })
+    @tooltip('自动对齐。在 Type 为 Vertical 时按同个方向位置排列')
+    get alignVertical () {
+        return this._isAlign;
+    }
+
+    set alignVertical (value) {
+        if (this._layoutType !== Type.VERTICAL) {
+            return;
+        }
+
         this._isAlign = value;
         this._doLayoutDirty();
     }
@@ -260,12 +290,15 @@ export class Layout extends Component {
      * 缩放模式。
      */
     @type(ResizeMode)
+    @visible(function (this: Layout) {
+        return this._layoutType !== Type.NONE;
+    })
     @tooltip('缩放模式，包括：\n 1. NONE，不会对子节点和容器进行大小缩放 \n 2. CONTAINER, 对容器的大小进行缩放 \n 3. CHILDREN, 对子节点的大小进行缩放')
     get resizeMode () {
         return this._resizeMode;
     }
     set resizeMode (value) {
-        if (this._layoutType === Type.NONE && value === ResizeMode.CHILDREN) {
+        if (this._layoutType === Type.NONE) {
             return;
         }
 
@@ -527,7 +560,7 @@ export class Layout extends Component {
     }
 
     set constraint (value: Constraint) {
-        if (this._constraint === value) {
+        if (this._layoutType === Type.NONE || this._constraint === value) {
             return;
         }
 
@@ -551,7 +584,7 @@ export class Layout extends Component {
     }
 
     set constraintNum (value) {
-        if (this._constraintNum === value) {
+        if (this._constraint === Constraint.NONE || this._constraintNum === value) {
             return;
         }
 
@@ -945,52 +978,6 @@ export class Layout extends Component {
         return containerResizeBoundary;
     }
 
-    protected _doLayoutBasic () {
-        const children = this._usefulLayoutObj;
-        let allChildrenBoundingBox: Rect | null = null;
-
-        for (let i = 0; i < children.length; ++i) {
-            const childTransform = children[i];
-            if (!allChildrenBoundingBox) {
-                allChildrenBoundingBox = childTransform.getBoundingBoxToWorld();
-            } else {
-                Rect.union(allChildrenBoundingBox, allChildrenBoundingBox, childTransform.getBoundingBoxToWorld());
-            }
-        }
-
-        if (allChildrenBoundingBox) {
-            const parentTransform = this.node.parent!._uiProps.uiTransformComp;
-            if (!parentTransform) {
-                return;
-            }
-
-            Vec3.set(_tempVec3, allChildrenBoundingBox.x, allChildrenBoundingBox.y, 0);
-            const leftBottomInParentSpace = new Vec3();
-            parentTransform.convertToNodeSpaceAR(_tempVec3, leftBottomInParentSpace);
-            Vec3.set(leftBottomInParentSpace,
-                leftBottomInParentSpace.x - this._paddingLeft, leftBottomInParentSpace.y - this._paddingBottom,
-                leftBottomInParentSpace.z);
-
-            Vec3.set(_tempVec3, allChildrenBoundingBox.x + allChildrenBoundingBox.width, allChildrenBoundingBox.y + allChildrenBoundingBox.height, 0);
-            const rightTopInParentSpace = new Vec3();
-            parentTransform.convertToNodeSpaceAR(_tempVec3, rightTopInParentSpace);
-            Vec3.set(rightTopInParentSpace, rightTopInParentSpace.x + this._paddingRight, rightTopInParentSpace.y + this._paddingTop, rightTopInParentSpace.z);
-            Vec3.subtract(_tempVec3, rightTopInParentSpace, leftBottomInParentSpace);
-            const newSize = new Size(parseFloat(_tempVec3.x.toFixed(2)), parseFloat(_tempVec3.y.toFixed(2)));
-            const pos = this.node.position;
-            const trans = this.node._uiProps.uiTransformComp!;
-            if (newSize.width !== 0) {
-                const newAnchorX = (pos.x - leftBottomInParentSpace.x) / newSize.width;
-                trans.anchorX = parseFloat(newAnchorX.toFixed(2));
-            }
-            if (newSize.height !== 0) {
-                const newAnchorY = (pos.y - leftBottomInParentSpace.y) / newSize.height;
-                trans.anchorY = parseFloat(newAnchorY.toFixed(2));
-            }
-            trans.setContentSize(newSize);
-        }
-    }
-
     protected _doLayoutGridAxisHorizontal (layoutAnchor: Vec2, layoutSize: Size) {
         const baseWidth = layoutSize.width;
 
@@ -1003,8 +990,7 @@ export class Layout extends Component {
             paddingY = this._paddingTop;
         }
 
-        const self = this;
-        const fnPositionY = (child: Node, childTrans: UITransform, topOffset: number) => bottomBoundaryOfLayout + sign * (topOffset + (1 - childTrans.anchorY) * childTrans.height * self._getUsedScaleValue(child.scale.y) + paddingY);
+        const fnPositionY = (child: Node, childTrans: UITransform, topOffset: number) => bottomBoundaryOfLayout + sign * (topOffset + (1 - childTrans.anchorY) * childTrans.height * this._getUsedScaleValue(child.scale.y) + paddingY);
 
         let newHeight = 0;
         if (this._resizeMode === ResizeMode.CONTAINER) {
@@ -1037,8 +1023,7 @@ export class Layout extends Component {
             paddingX = this._paddingRight;
         }
 
-        const self = this;
-        const fnPositionX = (child: Node, childTrans: UITransform, leftOffset: number) => leftBoundaryOfLayout + sign * (leftOffset + (1 - childTrans.anchorX) * childTrans.width * self._getUsedScaleValue(child.scale.x) + paddingX);
+        const fnPositionX = (child: Node, childTrans: UITransform, leftOffset: number) => leftBoundaryOfLayout + sign * (leftOffset + (1 - childTrans.anchorX) * childTrans.width * this._getUsedScaleValue(child.scale.x) + paddingX);
 
         let newWidth = 0;
         if (this._resizeMode === ResizeMode.CONTAINER) {
@@ -1137,10 +1122,6 @@ export class Layout extends Component {
 
             this._doLayoutVertically(newHeight, false, fnPositionX, true);
             this.node._uiProps.uiTransformComp!.height = newHeight;
-        } else if (this._layoutType === Type.NONE) {
-            if (this._resizeMode === ResizeMode.CONTAINER) {
-                this._doLayoutBasic();
-            }
         } else if (this._layoutType === Type.GRID) {
             this._doLayoutGrid();
         }
