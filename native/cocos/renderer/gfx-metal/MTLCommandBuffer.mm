@@ -123,6 +123,11 @@ void CCMTLCommandBuffer::end()
 
 bool CCMTLCommandBuffer::isRenderingEntireDrawable(const Rect &rect, const CCMTLRenderPass *renderPass)
 {
+    const int num = renderPass->getColorRenderTargetNums();
+    if (num == 0)
+    {
+        return true;
+    }
     const auto &renderTargetSize = renderPass->getRenderTargetSizes()[0];
     return rect.x == 0 && rect.y == 0 && rect.width == renderTargetSize.x && rect.height == renderTargetSize.y;
 }
