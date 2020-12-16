@@ -68,12 +68,14 @@ const OptimizationPolicy = Enum({
     MULTI_INSTANCE: 2,
 });
 
+import * as utils from '../utils/prefab-utils';
+
 /**
  * @en Class for prefab handling.
  * @zh 预制资源类。
  */
 @ccclass('cc.Prefab')
-export default class Prefab extends Asset {
+class Prefab extends Asset {
     /**
      * @en Enumeration for optimization policy
      * @zh Prefab 创建实例所用的优化策略枚举类型
@@ -191,6 +193,25 @@ export default class Prefab extends Asset {
         return node;
     }
 }
+
+declare namespace Prefab {
+    /**
+     * @en for internal use
+     * @zh 内部使用工具类
+     */
+    export import _utils = utils;
+}
+
+Object.defineProperty(
+    Prefab,
+    '_utils',
+    {
+        value: utils,
+        enumerable: false,
+    }
+);
+
+export default Prefab;
 
 legacyCC.Prefab = Prefab;
 if (ALIPAY || RUNTIME_BASED) {

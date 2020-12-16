@@ -44,7 +44,8 @@ import { DEV, DEBUG, EDITOR } from 'internal:constants';
 import { legacyCC } from '../global-exports';
 import { Node } from './node';
 import { Scene } from './scene';
-import { PrefabInstance } from '../utils';
+import { PrefabInfo } from '../utils';
+import { PrefabInstance} from '../utils/prefab-utils';
 
 type Constructor<T = {}> = new (...args: any[]) => T;
 
@@ -322,7 +323,7 @@ export class BaseNode extends CCObject implements ISchedulable {
 
     // The PrefabInfo object
     @serializable
-    protected _prefab: any = null;
+    protected _prefab: PrefabInfo|null = null;
 
     @serializable
     protected _prefabInstance: PrefabInstance| null = null;
@@ -1266,7 +1267,7 @@ export class BaseNode extends CCObject implements ISchedulable {
         const newPrefabInfo = cloned._prefab;
         if (EDITOR && newPrefabInfo) {
             if (cloned === newPrefabInfo.root) {
-                newPrefabInfo.fileId = '';
+                // newPrefabInfo.fileId = '';
             } else {
                 // var PrefabUtils = Editor.require('scene://utils/prefab');
                 // PrefabUtils.unlinkPrefab(cloned);
