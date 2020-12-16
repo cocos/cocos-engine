@@ -27,28 +27,95 @@
 
 const sys = cc.sys;
 
-sys.getNetworkType = jsb.Device.getNetworkType;
-sys.getBatteryLevel = jsb.Device.getBatteryLevel;
-sys.garbageCollect = jsb.garbageCollect;
-sys.restartVM = __restartVM;
-sys.isObjectValid = __isObjectValid;
+Object.assign(sys, {
+    __init () {
+        let platform = __getPlatform();
+        this.isNative = true;
+        this.isBrowser = false;
+        this.platform = platform;
+        this.isMobile = (platform === this.ANDROID
+                        || platform === this.IPAD
+                        || platform === this.IPHONE
+                        || platform === this.WP8
+                        || platform === this.TIZEN
+                        || platform === this.BLACKBERRY
+                        || platform === this.XIAOMI_QUICK_GAME
+                        || platform === this.VIVO_MINI_GAME
+                        || platform === this.OPPO_MINI_GAME
+                        || platform === this.HUAWEI_QUICK_GAME
+                        || platform === this.COCOSPLAY);
 
-sys.getSafeAreaRect = function() {
-    // x(top), y(left), z(bottom), w(right)
-    var edge = jsb.Device.getSafeAreaEdge();
-    var screenSize = cc.view.getFrameSize();
+        this.os = __getOS();
+        this.language = __getCurrentLanguage();
+        const languageCode = __getCurrentLanguageCode();
+        this.languageCode = languageCode ? languageCode.toLowerCase() : 'unknown';
+        this.osVersion = __getOSVersion();
+        this.osMainVersion = parseInt(this.osVersion);
+        this.browserType = null;
+        this.browserVersion = '';
 
-    // Get leftBottom and rightTop point in UI coordinates
-    var leftBottom = new cc.Vec2(edge.y, screenSize.height - edge.z);
-    var rightTop = new cc.Vec2(screenSize.width - edge.w, edge.x);
+        const w = window.innerWidth;
+        const h = window.innerHeight;
+        const ratio = window.devicePixelRatio || 1;
+        this.windowPixelResolution = {
+            width: window.nativeWidth || ratio * w,
+            height: window.nativeHeight || ratio * h,
+        };
 
-    // Returns the real location in view.
-    var relatedPos = {left: 0, top: 0, width: screenSize.width, height: screenSize.height};
-    cc.view.convertToLocationInView(leftBottom.x, leftBottom.y, relatedPos, leftBottom);
-    cc.view.convertToLocationInView(rightTop.x, rightTop.y, relatedPos, rightTop);
-    // convert view point to design resolution size
-    cc.view._convertPointWithScale(leftBottom);
-    cc.view._convertPointWithScale(rightTop);
+        this.localStorage = window.localStorage;
 
-    return cc.rect(leftBottom.x, leftBottom.y, rightTop.x - leftBottom.x, rightTop.y - leftBottom.y);
-};
+        let capabilities;
+        capabilities = this.capabilities = {
+            canvas: false,
+            opengl: true,
+            webp: true,
+            imageBitmap: false,
+            touches: this.isMobile,
+            mouse: !this.isMobile,
+            keyboard: !this.isMobile,
+            accelerometer: this.isMobile,
+        };
+
+        this.__audioSupport = {
+            ONLY_ONE: false,
+            WEB_AUDIO: false,
+            DELAY_CREATE_CTX: false,
+            format: ['.mp3'],
+        };
+
+        this.__videoSupport = {
+            format: ['.mp4'],
+        };
+        
+    },
+    
+    getNetworkType: jsb.Device.getNetworkType,
+    getBatteryLevel: jsb.Device.getBatteryLevel,
+    garbageCollect: jsb.garbageCollect,
+    restartVM: __restartVM,
+    isObjectValid: __isObjectValid,
+    
+    openURL (url) {
+        jsb.openURL(url);
+    },
+
+    getSafeAreaRect () {
+        // x(top), y(left), z(bottom), w(right)
+        var edge = jsb.Device.getSafeAreaEdge();
+        var screenSize = cc.view.getFrameSize();
+    
+        // Get leftBottom and rightTop point in UI coordinates
+        var leftBottom = new cc.Vec2(edge.y, screenSize.height - edge.z);
+        var rightTop = new cc.Vec2(screenSize.width - edge.w, edge.x);
+    
+        // Returns the real location in view.
+        var relatedPos = {left: 0, top: 0, width: screenSize.width, height: screenSize.height};
+        cc.view.convertToLocationInView(leftBottom.x, leftBottom.y, relatedPos, leftBottom);
+        cc.view.convertToLocationInView(rightTop.x, rightTop.y, relatedPos, rightTop);
+        // convert view point to design resolution size
+        cc.view._convertPointWithScale(leftBottom);
+        cc.view._convertPointWithScale(rightTop);
+    
+        return cc.rect(leftBottom.x, leftBottom.y, rightTop.x - leftBottom.x, rightTop.y - leftBottom.y);
+    },
+});

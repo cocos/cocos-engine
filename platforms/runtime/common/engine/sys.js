@@ -61,6 +61,10 @@ Object.assign(cc.sys, {
             format: ['.mp3']
         };
     },
+    
+    openURL (url) {
+        jsb.openURL(url);
+    },
 
     getBatteryLevel () {
         const batteryInfo = jsb.getBatteryInfoSync();
