@@ -27,13 +27,11 @@
  * @packageDocumentation
  * @module ui-assembler
  */
-
-import { IUV, SpriteFrame } from '../../../core/assets';
-import { Color, Mat4, Vec3 } from '../../../core/math';
-import { IRenderData, RenderData } from '../../../core/renderer/ui/render-data';
-import { UI } from '../../../core/renderer/ui/ui';
+import { Vec3 } from '../../../core/math';
 import { Sprite } from '../../components';
 import { IAssembler } from '../../../core/renderer/ui/base';
+import { UI } from '../../../core/renderer/ui/ui';
+import { fillVerticesWithoutCalc3D } from '../utils';
 
 const vec3_temp = new Vec3();
 
@@ -43,7 +41,6 @@ const vec3_temp = new Vec3();
  */
 export const meshRenderUtil: IAssembler = {
     useModel: false,
-    verticesCount: 4,
 
     createData (sprite: Sprite) {
         return sprite.requestRenderData();
@@ -69,21 +66,19 @@ export const meshRenderUtil: IAssembler = {
             if (vertices) {
                 if (renderData.vertexCount !== vertices.x.length) {
                     renderData.vertexCount = vertices.x.length;
+
                     // 1 for world vertices, 2 for local vertices
                     renderData.dataLength = renderData.vertexCount * 2;
-    
-                    renderData.indicesCount = vertices.triangles.length;
-
-                    this.updateColor(sprite);
 
                     renderData.uvDirty = renderData.vertDirty = true;
                 }
-                
+                renderData.indicesCount = vertices.triangles.length;
+
                 if (renderData.uvDirty) {
                     this.updateUVs(sprite);
                 }
 
-                if(renderData.vertDirty) {
+                if (renderData.vertDirty) {
                     this.updateVertices(sprite);
                     this.updateWorldVertices(sprite);
                 }
@@ -91,97 +86,106 @@ export const meshRenderUtil: IAssembler = {
         }
     },
 
-    updateColor (sprite: Sprite) {
-        const vData = sprite.renderData!.vData;
+    updateUVs (sprite) {
+        const vertices = sprite.spriteFrame.vertices;
+        const u = vertices.nu;
+        const v = vertices.nv;
 
-        let colorOffset = 5;
-        const color = sprite.color;
-        const colorR = color.r / 255;
-        const colorG = color.g / 255;
-        const colorB = color.b / 255;
-        const colorA = color.a / 255;
-        for (let i = 0; i < 4; i++) {
-            vData![colorOffset] = colorR;
-            vData![colorOffset + 1] = colorG;
-            vData![colorOffset + 2] = colorB;
-            vData![colorOffset + 3] = colorA;
-
-            colorOffset += 9;
-        }
-    },
-
-    updateUVs(sprite) {
-        let vertices = sprite.spriteFrame.vertices,
-            u = vertices.nu,
-            v = vertices.nv;
-
-        let renderData = sprite._renderData;
-        let data = renderData._data;
+        const renderData = sprite._renderData;
+        const data = renderData._data;
         for (let i = 0, l = u.length; i < l; i++) {
-            let vertice = data[i];
-            vertice.u = u[i];
-            vertice.v = v[i];
+            const vertex = data[i];
+            vertex.u = u[i];
+            vertex.v = v[i];
         }
 
         renderData.uvDirty = false;
     },
 
-    updateVertices(sprite) {
-        let node = sprite.node,
-            contentWidth = Math.abs(node.width),
-            contentHeight = Math.abs(node.height),
-            appx = node.anchorX * contentWidth,
-            appy = node.anchorY * contentHeight;
+    updateVertices (sprite) {
+        const node = sprite.node;
+        const contentWidth = Math.abs(node.width);
+        const contentHeight = Math.abs(node.height);
+        const appX = node.anchorX * contentWidth;
+        const appY = node.anchorY * contentHeight;
 
-        let frame = sprite.spriteFrame,
-            vertices = frame.vertices,
-            x = vertices.x,
-            y = vertices.y,
-            originalWidth = frame._originalSize.width,
-            originalHeight = frame._originalSize.height,
-            rectWidth = frame._rect.width,
-            rectHeight = frame._rect.height,
-            offsetX = frame._offset.x,
-            offsetY = frame._offset.y,
-            trimX = offsetX + (originalWidth - rectWidth) / 2,
-            trimY = offsetY + (originalHeight - rectHeight) / 2;
+        const frame = sprite.spriteFrame;
+        const vertices = frame.vertices;
+        const x = vertices.x;
+        const y = vertices.y;
+        const originalWidth = frame._originalSize.width;
+        const originalHeight = frame._originalSize.height;
+        const rectWidth = frame._rect.width;
+        const rectHeight = frame._rect.height;
+        const offsetX: number = frame._offset.x;
+        const offsetY: number = frame._offset.y;
+        const trimX = offsetX + (originalWidth - rectWidth) / 2;
+        const trimY = offsetY + (originalHeight - rectHeight) / 2;
 
-        let scaleX = contentWidth / (sprite.trim ? rectWidth : originalWidth),
-            scaleY = contentHeight / (sprite.trim ? rectHeight : originalHeight);
+        const scaleX = contentWidth / (sprite.trim ? rectWidth : originalWidth);
+        const scaleY = contentHeight / (sprite.trim ? rectHeight : originalHeight);
 
-        let renderData = sprite._renderData;
-        let data = renderData._data;
+        const renderData = sprite._renderData;
+        const data = renderData._data;
 
         if (!sprite.trim) {
-            for (let i = 0, l = x.length; i < l; i++) {
-                let vertice = data[i + l];
-                vertice.x = (x[i]) * scaleX - appx;
-                vertice.y = (originalHeight - y[i]) * scaleY - appy;
+            for (let i = 0, l: number = x.length; i < l; i++) {
+                const vertex = data[i + l];
+                vertex.x = (x[i]) * scaleX - appX;
+                vertex.y = (originalHeight - y[i]) * scaleY - appY;
             }
-        }
-        else {
-            for (let i = 0, l = x.length; i < l; i++) {
-                let vertice = data[i + l];
-                vertice.x = (x[i] - trimX) * scaleX - appx;
-                vertice.y = (originalHeight - y[i] - trimY) * scaleY - appy;
+        } else {
+            for (let i = 0, l: number = x.length; i < l; i++) {
+                const vertex = data[i + l];
+                vertex.x = (x[i] - trimX) * scaleX - appX;
+                vertex.y = (originalHeight - y[i] - trimY) * scaleY - appY;
             }
         }
 
         renderData.vertDirty = false;
     },
 
-    updateWorldVerts(sprite) {
-        let node = sprite.node,
-            renderData = sprite._renderData,
-            data = renderData._data;
+    updateWorldVertices (sprite) {
+        const node = sprite.node;
+        const renderData = sprite._renderData;
+        const data = renderData._data;
 
         node._updateWorldMatrix();
-        let matrix = node._worldMatrix;
-        for (let i = 0, l = renderData.vertexCount; i < l; i++) {
-            let local = data[i + l];
-            let world = data[i];
+        const matrix = node._worldMatrix;
+        for (let i = 0, l: number = renderData.vertexCount; i < l; i++) {
+            const local = data[i + l];
+            const world = data[i];
             Vec3.set(vec3_temp, local.x, local.y, 0);
             Vec3.transformMat4(world, vec3_temp, matrix);
+        }
+    },
+
+    fillBuffers (sprite: Sprite, renderer: UI) {
+        if (sprite === null) {
+            return;
+        }
+
+        const vertices = sprite.spriteFrame!.vertices;
+        if (!vertices) {
+            return;
+        }
+
+        // update world vertices
+        this.updateWorldVertices(sprite);
+
+        // buffer
+        const buffer = renderer.acquireBufferBatch()!;
+        let indicesOffset = buffer.indicesOffset;
+        const vertexId: number = buffer.vertexOffset;
+
+        const node = sprite.node;
+        fillVerticesWithoutCalc3D(node, renderer, sprite.renderData!, sprite.color);
+
+        // buffer data may be realloc, need get reference after request.
+        const iBuf = buffer.iData!;
+        const triangles = vertices.triangles;
+        for (let i = 0, l = triangles.length; i < l; i++) {
+            iBuf[indicesOffset++] = vertexId + (triangles[i] as number);
         }
     },
 };

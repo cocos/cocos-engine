@@ -75,12 +75,12 @@ export const tilled: IAssembler = {
 
         this.hRepeat = centerWidth === 0 ? this.sizableWidth : this.sizableWidth / centerWidth;
         this.vRepeat = centerHeight === 0 ? this.sizableHeight : this.sizableHeight / centerHeight;
-        this.row = Math.ceil(this.vRepeat + 2);
-        this.col = Math.ceil(this.hRepeat + 2);
+        this.row = Math.ceil(this.vRepeat as number + 2);
+        this.col = Math.ceil(this.hRepeat as number + 2);
 
-        renderData.dataLength = Math.max(8, this.row + 1, this.col + 1);
+        renderData.dataLength = Math.max(8, this.row as number + 1, this.col as number + 1);
 
-        this.updateVerts(sprite);
+        this.updateVertices(sprite);
 
         // update data property
         renderData.vertexCount = this.row * this.col * 4;
@@ -112,10 +112,12 @@ export const tilled: IAssembler = {
             vertexId = 0;
         }
 
-        const frame = sprite.spriteFrame!;
+        const frame = sprite.spriteFrame;
+        if (!frame) { return; }
+
         const rotated = frame.isRotated();
         const uv = frame.uv;
-        const uvSliced = sprite.spriteFrame?.uvSliced!;
+        const uvSliced = frame.uvSliced;
         const rect = frame.getRect();
         const leftWidth = frame.insetLeft;
         const rightWidth = frame.insetRight;
@@ -267,16 +269,18 @@ export const tilled: IAssembler = {
         }
     },
 
-    updateVerts (sprite: Sprite) {
+    updateVertices (sprite: Sprite) {
         const uiTrans = sprite.node._uiProps.uiTransformComp!;
-        const data = sprite.renderData?.data!;
+        const renderData = sprite.renderData;
+        if (!renderData) { return; }
+        const data = renderData.data;
         const frame = sprite.spriteFrame!;
 
         const rect = frame.getRect();
         const contentWidth = Math.abs(uiTrans.width);
         const contentHeight = Math.abs(uiTrans.height);
-        const appx = uiTrans.anchorX * contentWidth;
-        const appy = uiTrans.anchorY * contentHeight;
+        const appX = uiTrans.anchorX * contentWidth;
+        const appY = uiTrans.anchorY * contentHeight;
         const leftWidth = frame.insetLeft;
         const rightWidth = frame.insetRight;
         const centerWidth = rect.width - leftWidth - rightWidth;
@@ -306,40 +310,40 @@ export const tilled: IAssembler = {
 
         for (let i = 0; i <= this.col; i++) {
             if (i === 0) {
-                data[i].x = -appx;
+                data[i].x = -appX;
             } else if (i > 0 && i < this.col) {
                 if (i === 1) {
-                    data[i].x = leftWidth * xScale + Math.min(centerWidth, this.sizableWidth) - appx;
+                    data[i].x = leftWidth * xScale + Math.min(centerWidth, this.sizableWidth) - appX;
                 } else if (centerWidth > 0) {
                     if (i === (this.col - 1)) {
-                        data[i].x = leftWidth + offsetWidth + centerWidth * (i - 2) - appx;
+                        data[i].x = leftWidth + offsetWidth + centerWidth * (i - 2) - appX;
                     } else {
-                        data[i].x = leftWidth + Math.min(centerWidth, this.sizableWidth) + centerWidth * (i - 2) - appx;
+                        data[i].x = leftWidth + Math.min(centerWidth, this.sizableWidth) + centerWidth * (i - 2) - appX;
                     }
                 } else {
-                    data[i].x = leftWidth + this.sizableWidth - appx;
+                    data[i].x = leftWidth + (this.sizableWidth as number) - appX;
                 }
             } else if (i === this.col) {
-                data[i].x = Math.min(leftWidth + this.sizableWidth + rightWidth, contentWidth) - appx;
+                data[i].x = Math.min(leftWidth + (this.sizableWidth as number) + rightWidth, contentWidth) - appX;
             }
         }
         for (let i = 0; i <= this.row; i++) {
             if (i === 0) {
-                data[i].y = -appy;
+                data[i].y = -appY;
             } else if (i > 0 && i < this.row) {
                 if (i === 1) {
-                    data[i].y = bottomHeight * yScale + Math.min(centerHeight, this.sizableHeight) - appy;
+                    data[i].y = bottomHeight * yScale + Math.min(centerHeight, this.sizableHeight) - appY;
                 } else if (centerHeight > 0) {
                     if (i === (this.row - 1)) {
-                        data[i].y = bottomHeight + offsetHeight + (i - 2) * centerHeight - appy;
+                        data[i].y = bottomHeight + offsetHeight + (i - 2) * centerHeight - appY;
                     } else {
-                        data[i].y = bottomHeight + Math.min(centerHeight, this.sizableHeight) + (i - 2) * centerHeight - appy;
+                        data[i].y = bottomHeight + Math.min(centerHeight, this.sizableHeight) + (i - 2) * centerHeight - appY;
                     }
                 } else {
-                    data[i].y = bottomHeight + this.sizableHeight - appy;
+                    data[i].y = bottomHeight + (this.sizableHeight as number) - appY;
                 }
             } else if (i === this.row) {
-                data[i].y = Math.min(bottomHeight + this.sizableHeight + topHeight, contentHeight) - appy;
+                data[i].y = Math.min(bottomHeight + (this.sizableHeight as number) + topHeight, contentHeight) - appY;
             }
         }
     },

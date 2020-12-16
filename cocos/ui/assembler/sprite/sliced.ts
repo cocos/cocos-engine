@@ -89,7 +89,7 @@ export const sliced: IAssembler = {
         const appX = uiTrans.anchorX * width;
         const appY = uiTrans.anchorY * height;
 
-        const frame: SpriteFrame|null = sprite.spriteFrame;
+        const frame: SpriteFrame | null = sprite.spriteFrame;
         const leftWidth = frame!.insetLeft;
         const rightWidth = frame!.insetRight;
         const topHeight = frame!.insetTop;
@@ -99,8 +99,8 @@ export const sliced: IAssembler = {
         let sizableHeight = height - topHeight - bottomHeight;
         let xScale = width / (leftWidth + rightWidth);
         let yScale = height / (topHeight + bottomHeight);
-        xScale = (isNaN(xScale) || xScale > 1) ? 1 : xScale;
-        yScale = (isNaN(yScale) || yScale > 1) ? 1 : yScale;
+        xScale = (Number.isNaN(xScale) || xScale > 1) ? 1 : xScale;
+        yScale = (Number.isNaN(yScale) || yScale > 1) ? 1 : yScale;
         sizableWidth = sizableWidth < 0 ? 0 : sizableWidth;
         sizableHeight = sizableHeight < 0 ? 0 : sizableHeight;
 
@@ -122,7 +122,7 @@ export const sliced: IAssembler = {
         }
 
         let buffer = renderer.acquireBufferBatch()!;
-        const renderData: RenderData|null = sprite.renderData;
+        const renderData: RenderData | null = sprite.renderData;
         // const node: Node = sprite.node;
         // const color: Color = sprite.color;
         const dataList: IRenderData[] = renderData!.data;
@@ -143,9 +143,9 @@ export const sliced: IAssembler = {
         }
 
         // buffer data may be realloc, need get reference after request.
-        const vBuf: Float32Array|null = buffer.vData;
+        const vBuf: Float32Array | null = buffer.vData;
         // const  uintbuf = buffer._uintVData,
-        const iBuf: Uint16Array|null = buffer.iData;
+        const iBuf: Uint16Array | null = buffer.iData;
 
         for (let i = 4; i < 20; ++i) {
             const vert = dataList[i];
