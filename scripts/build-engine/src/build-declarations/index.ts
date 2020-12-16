@@ -1,61 +1,36 @@
-/* eslint-disable no-console */
-/* eslint-disable @typescript-eslint/no-require-imports */
-/* eslint-disable @typescript-eslint/no-var-requires */
+import ps from 'path';
+import fs from 'fs-extra';
+import ts from 'typescript';
+import * as gift from 'tfig';
+import { StatsQuery } from '../stats-query';
 
-// @ts-check
-
-const { join, extname, basename, dirname, isAbsolute } = require('path');
-const fs = require('fs-extra');
-const { copyFileSync, existsSync, readFileSync, unlinkSync, writeFileSync, ensureDirSync, readdir } = require('fs-extra');
-const ts = require('typescript');
-const gift = require('tfig');
-
-const tsConfigDir = join(__dirname, '..', '..');
-const tsConfigPath = join(tsConfigDir, 'tsconfig.json');
-
-async function getDomainExports(engine, exportsRoot, prefix, excludes) {
-    const result = {};
-    const entryRootDir = join(engine, exportsRoot);
-    const entryFileNames = await readdir(entryRootDir);
-    for (const entryFileName of entryFileNames) {
-        const entryExtName = extname(entryFileName);
-        if (!entryExtName.toLowerCase().endsWith('.ts')) {
-            continue;
-        }
-        const entryBaseNameNoExt = basename(entryFileName, entryExtName);
-        if (excludes && excludes.includes(entryBaseNameNoExt)) {
-            continue;
-        }
-        const entryName = `${prefix}${entryBaseNameNoExt}`;
-        result[entryName] = `${exportsRoot.split(/[\\\/]/g).join('/')}/${entryBaseNameNoExt}`;
-    }
-    return result;
-}
-
-async function getEngineEntries (engine) {
-    return await getDomainExports(engine, 'exports', 'cc/', ['wait-for-ammo-instantiation']);
-}
-
-async function getEditorExportEntries(engine) {
-    return await getDomainExports(engine, join('editor', 'exports'), 'cc/editor/exports/');
-}
-
-async function generate (options) {
+export async function build (options: {
+    engine: string;
+    outDir: string;
+    withIndex: boolean;
+    withExports: boolean;
+    withEditorExports: boolean;
+}) {
     console.log(`Typescript version: ${ts.version}`);
 
     const {
+        engine,
         outDir,
-        withIndex,
-        withExports,
-        withEditorExports,
+        withIndex = true,
+        withExports = false,
+        withEditorExports = false,
     } = options;
-    ensureDirSync(outDir);
+    await fs.ensureDir(outDir);
 
     console.debug(`With index: ${withIndex}`);
     console.debug(`With exports: ${withExports}`);
     console.debug(`With editor exports: ${withEditorExports}`);
 
-    const unbundledOutFile = join(outDir, `cc-before-rollup.js`);
+    const statsQuery = await StatsQuery.create(engine);
+
+    const tsConfigPath = statsQuery.tsConfigPath;
+
+    const unbundledOutFile = ps.join(outDir, `cc-before-rollup.js`);
     const parsedCommandLine = ts.getParsedCommandLineOfConfigFile(
         tsConfigPath, {
             declaration: true,
@@ -72,39 +47,41 @@ async function generate (options) {
             readFile: ts.sys.readFile,
         }
     );
+    if (!parsedCommandLine) {
+        throw new Error(`Can not get 'parsedCommandLine'.`);
+    }
 
-    const outputJSPath = join(tsConfigDir, unbundledOutFile);
+    const outputJSPath = ps.join(ps.dirname(tsConfigPath), unbundledOutFile);
     // console.log(outputJSPath);
 
-    const extName = extname(outputJSPath);
+    const extName = ps.extname(outputJSPath);
     if (extName !== '.js') {
         console.error(`Unexpected output extension ${extName}, please check it.`);
         return undefined;
     }
-    const dirName = dirname(outputJSPath);
-    const baseName = basename(outputJSPath, extName);
+    const dirName = ps.dirname(outputJSPath);
+    const baseName = ps.basename(outputJSPath, extName);
     const destExtensions = [
         '.d.ts',
         '.d.ts.map',
     ];
     for (const destExtension of destExtensions) {
-        const destFile = join(dirName, baseName + destExtension);
-        if (existsSync(destFile)) {
+        const destFile = ps.join(dirName, baseName + destExtension);
+        if (await fs.pathExists(destFile)) {
             console.log(`Delete old ${destFile}.`);
-            unlinkSync(destFile);
+            await fs.unlink(destFile);
         }
     }
 
     console.log(`Generating...`);
 
-    const engineRoot = join(__dirname, '..', '..');
-    const entryMap = await getEngineEntries(engineRoot);
+    const exportModules = statsQuery.getPublicModules().filter((m) => m !== 'cc/wait-for-ammo-instantiation');
 
-    const editorExportEntries = await getEditorExportEntries(engineRoot);
+    const editorExportModules = statsQuery.getEditorPublicModules();
 
     let fileNames = parsedCommandLine.fileNames;
     if (withEditorExports) {
-        fileNames = fileNames.concat(Object.values(editorExportEntries).map((e) => join(engineRoot, e)));
+        fileNames = fileNames.concat(editorExportModules.map((e) => statsQuery.getEditorPublicModuleFile(e)));
     }
 
     const program = ts.createProgram(fileNames, parsedCommandLine.options);
@@ -135,63 +112,73 @@ async function generate (options) {
         if (!printer) {
             continue;
         }
-        if (diagnostic.file) {
+        if (diagnostic.file && diagnostic.start !== undefined) {
             let { line, character } = diagnostic.file.getLineAndCharacterOfPosition(diagnostic.start);
-            let message = ts.flattenDiagnosticMessageText(diagnostic.messageText);
+            let message = ts.flattenDiagnosticMessageText(diagnostic.messageText, ts.sys.newLine);
             printer(`${diagnostic.file.fileName} (${line + 1},${character + 1}): ${message}`);
         } else {
             printer(`${ts.flattenDiagnosticMessageText(diagnostic.messageText, "\n")}`);
         }
     }
 
-    const tscOutputDtsFile = join(dirName, baseName + '.d.ts');
-    if (!existsSync(tscOutputDtsFile)) {
+    const tscOutputDtsFile = ps.join(dirName, baseName + '.d.ts');
+    if (!await fs.pathExists(tscOutputDtsFile)) {
         console.error(`Failed to compile.`);
         return false;
     }
 
-    const types = parsedCommandLine.options.types.map((typeFile) => `${typeFile}.d.ts`);
-    types.forEach((file) => {
-        const destPath = join(outDir, isAbsolute(file) ? basename(file) : file);
-        ensureDirSync(dirname(destPath));
-        copyFileSync(file, destPath);
-    });
+    const types = parsedCommandLine.options.types?.map((typeFile) => `${typeFile}.d.ts`);
+    if (types) {
+        for (const file of types) {
+            const destPath = ps.join(outDir, ps.isAbsolute(file) ? ps.basename(file) : file);
+            await fs.ensureDir(ps.dirname(destPath));
+            await fs.copyFile(file, destPath);
+        }
+    }
 
     const giftInputs = [ tscOutputDtsFile ];
 
-    /** @type {Record<string, string>} */
-    const giftEntries = { };
+    const giftEntries: Record<string, string> = { };
 
     const cleanupFiles = [ tscOutputDtsFile ];
 
     if (withExports) {
-        Object.assign(giftEntries, entryMap);
+        for (const exportEntry of exportModules) {
+            giftEntries[exportEntry] = getModuleNameInTsOutFile(
+                statsQuery.getPublicModuleFile(exportEntry), statsQuery);
+        }
     }
 
     if (withEditorExports) {
-        Object.assign(giftEntries, editorExportEntries);
+        for (const editorExportModule of editorExportModules) {
+            giftEntries[editorExportModule] = getModuleNameInTsOutFile(
+                statsQuery.getEditorPublicModuleFile(editorExportModule), statsQuery);
+        }
     }
 
     if (withIndex && !withExports) {
         giftEntries['cc'] = 'cc';
-        const ccDtsFile = join(dirName, 'virtual-cc.d.ts');
+        const ccDtsFile = ps.join(dirName, 'virtual-cc.d.ts');
         giftInputs.push(ccDtsFile);
         cleanupFiles.push(ccDtsFile);
-        const code = generateModuleSourceCc(Object.values(entryMap));
+        const code = `declare module "cc" {\n${
+            statsQuery.evaluateIndexModuleSource(exportModules,
+                (moduleName) => getModuleNameInTsOutFile(statsQuery.getPublicModuleFile(moduleName), statsQuery))
+        }\n}`;
         await fs.writeFile(ccDtsFile, code, { encoding: 'utf8' });
     }
 
     console.log(`Bundling...`);
     try {
-        const indexOutputPath = join(dirName,'cc.d.ts');
+        const indexOutputPath = ps.join(dirName,'cc.d.ts');
         const giftResult = gift.bundle({
             input: giftInputs,
             name: 'cc',
             rootModule: 'index',
             entries: giftEntries,
             groups: [
-                { test: /^cc\/editor.*$/, path: join(dirName,'cc.editor.d.ts') },
-                { test: /^cc\/.*$/, path: join(dirName,'index.d.ts') },
+                { test: /^cc\/editor.*$/, path: ps.join(dirName,'cc.editor.d.ts') },
+                { test: /^cc\/.*$/, path: ps.join(dirName,'index.d.ts') },
                 { test: /^cc.*$/, path: indexOutputPath },
             ],
         });
@@ -203,7 +190,7 @@ async function generate (options) {
         if (withIndex && withExports) {
             await fs.outputFile(
                 indexOutputPath,
-                generateModuleSourceCc(Object.keys(entryMap)),
+                buildIndexModule(exportModules, statsQuery),
                 { encoding: 'utf8' });
         }
 
@@ -217,8 +204,17 @@ async function generate (options) {
     return true;
 }
 
-function generateModuleSourceCc(requests) {
-    return `declare module "cc" {\n${requests.map((moduleId) => `    export * from "${moduleId}";`).join('\n')}\n}`
+export function buildIndexModule (exportModules: string[], statsQuery: StatsQuery) {
+    return `declare module "cc" {\n${
+        statsQuery.evaluateIndexModuleSource(exportModules)
+            .split('\n')
+            .map((line) => `    ${line}`)
+            .join('\n')
+        }\n}`;
 }
 
-module.exports = { generate };
+function getModuleNameInTsOutFile(moduleFile: string, statsQuery: StatsQuery) {
+    const path = ps.relative(statsQuery.path, moduleFile);
+    const tsOutFileModuleName = ps.join(ps.dirname(path), ps.basename(path, ps.extname(path))).replace(/\\/g, '/');
+    return tsOutFileModuleName;
+}

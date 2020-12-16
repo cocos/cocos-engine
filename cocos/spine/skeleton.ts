@@ -14,7 +14,6 @@ import { UI } from '../core/renderer/ui/ui';
 import { Graphics } from '../ui/components/graphics';
 import { MaterialInstance } from '../core/renderer';
 import { js } from '../core/utils/js';
-import { sp } from '../../exports/spine';
 import { BlendOp } from '../core/gfx';
 
 export const timeScale = 1.0;
@@ -1430,7 +1429,7 @@ export class Skeleton extends UIRenderable {
         }
         this._cachedSockets.clear();
         const bones = this._skeleton.bones;
-        const getBoneName = (bone: sp.spine.Bone) => {
+        const getBoneName = (bone: spine.Bone) => {
             if (bone.parent == null) return bone.data.name || '<Unamed>';
             return `${getBoneName(bones[bone.parent.data.index])}/${bone.data.name}`;
         };
