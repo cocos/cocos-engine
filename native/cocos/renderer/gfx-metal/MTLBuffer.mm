@@ -21,7 +21,7 @@ bool CCMTLBuffer::initialize(const BufferInfo &info) {
     _stride = std::max(info.stride, 1U);
     _count = _size / _stride;
     _flags = info.flags;
-    _indirectDrawSupported = static_cast<CCMTLDevice *>(_device)->isIndirectDrawSupported();
+    _isIndirectDrawSupported = static_cast<CCMTLDevice *>(_device)->isIndirectDrawSupported();
     if (_usage & BufferUsage::INDEX) {
         switch (_stride) {
             case 4: _indexType = MTLIndexTypeUInt32; break;
@@ -47,9 +47,12 @@ bool CCMTLBuffer::initialize(const BufferInfo &info) {
         _usage & BufferUsageBit::INDEX) {
         createMTLBuffer(_size, _memUsage);
     } else if (_usage & BufferUsageBit::INDIRECT) {
-        _drawInfos.resize(_count);
-        if (_indirectDrawSupported) {
+        if (_isIndirectDrawSupported) {
             createMTLBuffer(_size, _memUsage);
+            _primitiveIndirectArguments.resize(_count);
+            _indexedPrimitivesIndirectArguments.resize(_count);
+        } else {
+            _drawInfos.resize(_count);
         }
     }
 
@@ -95,6 +98,8 @@ void CCMTLBuffer::destroy() {
         _device->getMemoryStatus().bufferSize -= _size;
         _buffer = nullptr;
     }
+    _indexedPrimitivesIndirectArguments.clear();
+    _primitiveIndirectArguments.clear();
     _drawInfos.clear();
 
     _device->getMemoryStatus().bufferSize -= _size;
@@ -120,9 +125,12 @@ void CCMTLBuffer::resize(uint size) {
     _count = _size / _stride;
     resizeBuffer(&_buffer, _size, oldSize);
     if (_usage & BufferUsageBit::INDIRECT) {
-        _drawInfos.resize(_count);
-        if (_indirectDrawSupported) {
+        if (_isIndirectDrawSupported) {
             createMTLBuffer(size, _memUsage);
+            _primitiveIndirectArguments.resize(_count);
+            _indexedPrimitivesIndirectArguments.resize(_count);
+        } else {
+            _drawInfos.resize(_count);
         }
     }
 }
@@ -157,44 +165,49 @@ void CCMTLBuffer::update(void *buffer, uint offset, uint size) {
         memcpy(_buffer + offset, buffer, size);
 
     if (_usage & BufferUsageBit::INDIRECT) {
-        auto drawInfoCount = size / _stride;
-        for (int i = 0; i < drawInfoCount; ++i) {
-            memcpy(&_drawInfos[i], static_cast<uint8_t *>(buffer) + i * _stride, _stride);
-        }
+        if (_isIndirectDrawSupported) {
+            uint drawInfoCount = size / _stride;
+            const DrawInfo *drawInfo = static_cast<const DrawInfo *>(buffer);
 
-        if (!_indirectDrawSupported) {
-            return;
-        }
+            if (drawInfoCount > 0) {
+                if (drawInfo->indexCount) {
+                    _isDrawIndirectByIndex = true;
+                    uint stride = sizeof(MTLDrawIndexedPrimitivesIndirectArguments);
 
-        if (drawInfoCount > 0) {
-            if (_drawInfos[0].indexCount) {
-                vector<MTLDrawIndexedPrimitivesIndirectArguments> arguments(drawInfoCount);
-                int i = 0;
-                for (auto &argument : arguments) {
-                    const auto &drawInfo = _drawInfos[i++];
-                    argument.indexCount = drawInfo.indexCount;
-                    argument.instanceCount = drawInfo.instanceCount == 0 ? 1 : drawInfo.instanceCount;
-                    argument.indexStart = drawInfo.firstIndex;
-                    argument.baseVertex = drawInfo.firstVertex;
-                    argument.baseInstance = drawInfo.firstInstance;
+                    for (uint i = 0; i < drawInfoCount; ++i) {
+                        auto &arguments = _indexedPrimitivesIndirectArguments[i];
+                        arguments.indexCount = drawInfo->indexCount;
+                        arguments.instanceCount = std::max(drawInfo->instanceCount, 1u);
+                        arguments.indexStart = drawInfo->firstIndex;
+                        arguments.baseVertex = drawInfo->firstVertex;
+                        arguments.baseInstance = drawInfo->firstInstance;
+                        ++drawInfo;
+                    }
+                    updateMTLBuffer(_indexedPrimitivesIndirectArguments.data(), offset, drawInfoCount * stride);
+                } else {
+                    _isDrawIndirectByIndex = false;
+                    uint stride = sizeof(MTLDrawIndexedPrimitivesIndirectArguments);
+
+                    for (uint i = 0; i < drawInfoCount; ++i) {
+                        auto &arguments = _primitiveIndirectArguments[i];
+                        arguments.vertexCount = drawInfo->vertexCount;
+                        arguments.instanceCount = std::max(drawInfo->instanceCount, 1u);
+                        arguments.vertexStart = drawInfo->firstVertex;
+                        arguments.baseInstance = drawInfo->firstInstance;
+                        ++drawInfo;
+                    }
+                    updateMTLBuffer(_primitiveIndirectArguments.data(), offset, drawInfoCount * stride);
                 }
-                memcpy(static_cast<uint8_t *>(_mtlBuffer.contents) + offset, arguments.data(), drawInfoCount * sizeof(MTLDrawIndexedPrimitivesIndirectArguments));
-            } else if (_drawInfos[0].vertexCount) {
-                vector<MTLDrawPrimitivesIndirectArguments> arguments(drawInfoCount);
-                int i = 0;
-                for (auto &argument : arguments) {
-                    const auto &drawInfo = _drawInfos[i++];
-                    argument.vertexCount = drawInfo.vertexCount;
-                    argument.instanceCount = drawInfo.instanceCount == 0 ? 1 : drawInfo.instanceCount;
-                    argument.vertexStart = drawInfo.firstVertex;
-                    argument.baseInstance = drawInfo.firstInstance;
-                }
-                memcpy(static_cast<uint8_t *>(_mtlBuffer.contents) + offset, arguments.data(), drawInfoCount * sizeof(MTLDrawPrimitivesIndirectArguments));
             }
+        } else {
+            memcpy(_drawInfos.data(), buffer, size);
         }
-        return;
+    } else {
+        updateMTLBuffer(buffer, offset, size);
     }
+}
 
+void CCMTLBuffer::updateMTLBuffer(void *buffer, uint offset, uint size) {
     if (_mtlBuffer) {
         CommandBuffer *cmdBuffer = _device->getCommandBuffer();
         cmdBuffer->begin();
@@ -203,7 +216,6 @@ void CCMTLBuffer::update(void *buffer, uint offset, uint size) {
         if (_mtlResourceOptions == MTLResourceStorageModeManaged)
             [_mtlBuffer didModifyRange:NSMakeRange(0, _size)]; // Synchronize the managed buffer.
 #endif
-        return;
     }
 }
 
