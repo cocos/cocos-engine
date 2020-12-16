@@ -42,6 +42,13 @@ endif()
 
 target_link_libraries(${TARGET_NAME})
 
+if(MSVC)
+    target_compile_options(${TARGET_NAME}
+		PUBLIC /utf-8 # MSVC portability
+		PUBLIC /wd4324 # command encoder alignment
+	)
+endif()
+
 set_target_properties(${TARGET_NAME} PROPERTIES OUTPUT_NAME CCThreading)
 set_target_properties(${TARGET_NAME} PROPERTIES OUTPUT_NAME_DEBUG CCThreading_d)
 

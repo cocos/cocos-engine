@@ -15,7 +15,6 @@ public:
     TFJobSystem(uint threadCount) noexcept;
 
     void run(TFJobGraph &g) noexcept;
-    void waitForLastRun() noexcept;
     
     CC_INLINE uint threadCount() { return _executor.num_workers(); }
 
