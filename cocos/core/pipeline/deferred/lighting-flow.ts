@@ -78,7 +78,7 @@ export class LightingFlow extends RenderFlow {
             depthStencilAttachment.stencilLoadOp = LoadOp.DISCARD;
             depthStencilAttachment.stencilStoreOp = StoreOp.DISCARD;
             depthStencilAttachment.sampleCount = 1;
-            depthStencilAttachment.beginLayout = TextureLayout.UNDEFINED;
+            depthStencilAttachment.beginLayout = TextureLayout.DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
             depthStencilAttachment.endLayout = TextureLayout.DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
             const renderPassInfo = new RenderPassInfo([colorAttachment], depthStencilAttachment);

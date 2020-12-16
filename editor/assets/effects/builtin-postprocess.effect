@@ -25,6 +25,7 @@ CCProgram postprocess-vs %{
     CCVertInput(In);
 
     gl_Position = In.position;
+    gl_Position.y = -gl_Position.y;
     v_uv = a_texCoord;
   }
 }%
