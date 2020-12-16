@@ -33,7 +33,7 @@
             "description": "Particle system module"
         },
         "physics": {
-            "mutex": true,
+            "multi": false,
             "label": "Physics",
             "description": "Physics(implementation).",
             "default": ["physics-cannon"],
@@ -50,7 +50,7 @@
             }
         },
         "physics-2d": {
-            "mutex": true,
+            "multi": false,
             "label": "Physics 2D",
             "description": "Physics 2D",
             "default": ["physics-2d-box2d"],

@@ -58,9 +58,9 @@ export interface BaseItem {
 
 export interface Item extends BaseItem {
     /**
-     * Whether if child item this item is mutex each other.
+     * Whether if the feature of options allow multiple selection.
      */
-    mutex?: boolean;
+    multi?: boolean;
 
     options?: Record<EngineFeature, BaseItem>;
 }

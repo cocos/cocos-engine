@@ -48,8 +48,8 @@
                     "description": "Display text.",
                     "type": "string"
                 },
-                "mutex": {
-                    "description": "Whether if child item this item is mutex each other.",
+                "multi": {
+                    "description": "Whether if the feature of options allow multiple selection.",
                     "type": "boolean"
                 },
                 "native": {
