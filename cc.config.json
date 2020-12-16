@@ -5,6 +5,7 @@
         "gfx-webgl2": { "modules": [ "gfx-webgl2" ] },
         "ui": { "modules": [ "ui" ] },
         "particle": { "modules": [ "particle" ] },
+        "particle-2d": { "modules": [ "particle-2d" ] },
         "physics-cannon": { "modules": [ "physics-cannon", "physics-framework" ] },
         "physics-ammo": { "modules": [ "physics-ammo", "physics-framework", "wait-for-ammo-instantiation" ] },
         "physics-builtin": { "modules": [ "physics-builtin", "physics-framework" ] },
