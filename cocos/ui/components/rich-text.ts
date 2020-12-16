@@ -52,14 +52,14 @@ const RichTextChildImageName = 'RICHTEXT_Image_CHILD';
 /**
  * 富文本池。<br/>
  */
-const pool = new Pool((seg: ISegment) => {
+const labelPool = new Pool((seg: ISegment) => {
     if (DEV) {
         assert(!seg.node.parent, 'Recycling node\'s parent should be null!');
     }
     if (!legacyCC.isValid(seg.node)) {
         return false;
     }
-    else if (seg.type === RichTextChildName) {
+    else {
         const outline = seg.node.getComponent(LabelOutline);
         if (outline) {
             outline.width = 0;
@@ -67,6 +67,13 @@ const pool = new Pool((seg: ISegment) => {
     }
     return true;
 }, 20);
+
+const imagePool = new Pool((seg: ISegment) => {
+    if (DEV) {
+        assert(!seg.node.parent, 'Recycling node\'s parent should be null!');
+    }
+    return legacyCC.isValid(seg.node);
+}, 10);
 
 //
 function createSegment (type: string): ISegment {
@@ -82,39 +89,41 @@ function createSegment (type: string): ISegment {
     };
 }
 
-// @ts-expect-error
-pool.get = function (type: string, content: string | SpriteFrame) {
-    let seg = this._get() || createSegment(type);
+function getSegmentByPool (type: string, content: string | SpriteFrame) {
+    let seg;
+    if (type === RichTextChildName) {
+        seg = labelPool._get();
+    } else if (type === RichTextChildImageName) {
+        seg = imagePool._get();
+    }
+    seg = seg || createSegment(type);
     let node = seg.node;
     if (!node) {
         node = new PrivateNode(type);
     }
-
-    let component: Label | Sprite;
     if (type === RichTextChildImageName) {
-        component = node.getComponent(Sprite) || node.addComponent(Sprite);
-        component.spriteFrame = content as SpriteFrame;
-        component.type = Sprite.Type.SLICED;
-        component.sizeMode = Sprite.SizeMode.CUSTOM;
+        seg.comp = node.getComponent(Sprite) || node.addComponent(Sprite);
+        seg.comp.spriteFrame = content as SpriteFrame;
+        seg.comp.type = Sprite.Type.SLICED;
+        seg.comp.sizeMode = Sprite.SizeMode.CUSTOM;
     } else { // RichTextChildName
-        component = node.getComponent(Label) || node.addComponent(Label);
-        component.string = content as string;
-        component.horizontalAlign = HorizontalTextAlignment.LEFT;
-        component.verticalAlign = VerticalTextAlignment.TOP;
+        seg.comp = node.getComponent(Label) || node.addComponent(Label);
+        seg.comp.string = content as string;
+        seg.comp.horizontalAlign = HorizontalTextAlignment.LEFT;
+        seg.comp.verticalAlign = VerticalTextAlignment.TOP;
     }
     node.setPosition(0, 0, 0);
     const trans = node._uiProps.uiTransformComp!;
     trans.setAnchorPoint(0.5, 0.5);
 
     seg.node = node;
-    seg.comp = component;
     seg.lineCount = 0;
     seg.styleIndex = 0;
     seg.imageOffset = '';
     seg.clickParam = '';
     seg.clickHandler = '';
     return seg;
-};
+}
 
 interface ISegment {
     node: PrivateNode;
@@ -486,7 +495,12 @@ export class RichText extends UIComponent {
     public onDestroy () {
         for (const seg of this._segments) {
             seg.node.removeFromParent();
-            pool.put(seg);
+            if (seg.type === RichTextChildName) {
+                labelPool.put(seg);
+            }
+            else if (seg.type === RichTextChildImageName) {
+                imagePool.put(seg);
+            }
         }
 
         this.node.off(Node.EventType.ANCHOR_CHANGED, this._updateRichTextPosition, this);
@@ -507,13 +521,11 @@ export class RichText extends UIComponent {
     }
 
     protected _createFontLabel (str: string): ISegment {
-        // @ts-expect-error
-        return pool.get(RichTextChildName, str)!;
+        return getSegmentByPool(RichTextChildName, str)!;
     }
 
     protected _createImage (spriteFrame: SpriteFrame): ISegment {
-        // @ts-expect-error
-        return pool.get(RichTextChildImageName, spriteFrame)!;
+        return getSegmentByPool(RichTextChildImageName, spriteFrame)!;
     }
 
     protected _onTTFLoaded () {
@@ -602,10 +614,16 @@ export class RichText extends UIComponent {
                     children.splice(i, 1);
                 }
 
-                const segment = createSegment(RichTextChildName);
+                const segment = createSegment(child.name);
                 segment.node = child;
-                segment.comp = RichTextChildName ? child.getComponent(Label) : child.getComponent(Sprite);
-                pool.put(segment);
+                if (child.name === RichTextChildName) {
+                    segment.comp = child.getComponent(Label);
+                    labelPool.put(segment);
+                }
+                else {
+                    segment.comp = child.getComponent(Sprite);
+                    imagePool.put(segment);
+                }
             }
         }
         // Tolerate null parent child (upgrade issue may cause this special case)
