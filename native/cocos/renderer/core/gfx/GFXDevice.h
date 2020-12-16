@@ -116,7 +116,7 @@ protected:
     unordered_map<String, String> _macros;
     float _clipSpaceMinZ = -1.0f;
     float _screenSpaceSignY = 1.0f;
-    float _UVSpaceSignY = -1.0f; // GLES: RT viewport <-> texture upload direction conflict
+    float _UVSpaceSignY = -1.0f;
     BindingMappingInfo _bindingMappingInfo;
 
 private:

@@ -59,7 +59,6 @@ private:
     vector<vector<uint>> _dynamicOffsets;
     uint _firstDirtyDescriptorSet = UINT_MAX;
 
-    bool _isOffscreen = false;
     bool _indirectDrawSuppotred = false;
     bool _commandBufferBegan = false;
     CCMTLDevice *_mtlDevice = nullptr;

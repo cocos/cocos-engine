@@ -126,7 +126,6 @@ void ShadowMapBatchedQueue::updateUBOs(const Light *light, gfx::CommandBuffer *c
     const auto *shadowInfo = _pipeline->getShadows();
     auto shadowUBO = _pipeline->getShadowUBO();
     auto *device = gfx::Device::getInstance();
-    const auto projectionSinY = device->getScreenSpaceSignY() * device->getUVSpaceSignY();
 
     switch (light->getType()) {
         case LightType::DIRECTIONAL: {
@@ -155,6 +154,7 @@ void ShadowMapBatchedQueue::updateUBOs(const Light *light, gfx::CommandBuffer *c
             const auto matShadowView = matShadowCamera.getInversed();
 
             cc::Mat4 matShadowViewProj;
+            const auto projectionSinY = device->getScreenSpaceSignY() * device->getUVSpaceSignY();
             Mat4::createOrthographicOffCenter(-x, x, -y, y, shadowInfo->nearValue, farClamp, device->getClipSpaceMinZ(), projectionSinY, &matShadowViewProj);
 
             matShadowViewProj.multiply(matShadowView);
@@ -166,7 +166,7 @@ void ShadowMapBatchedQueue::updateUBOs(const Light *light, gfx::CommandBuffer *c
             const auto matShadowView = matShadowCamera.getInversed();
 
             cc::Mat4 matShadowViewProj;
-            cc::Mat4::createPerspectiveOffCenter(light->spotAngle, light->aspect, 0.001f, light->range, projectionSinY, &matShadowViewProj);
+            cc::Mat4::createPerspective(light->spotAngle, light->aspect, 0.001f, light->range, &matShadowViewProj);
 
             matShadowViewProj.multiply(matShadowView);
             memcpy(shadowUBO.data() + UBOShadow::MAT_LIGHT_VIEW_PROJ_OFFSET, matShadowViewProj.m, sizeof(matShadowViewProj));

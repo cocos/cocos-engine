@@ -70,8 +70,8 @@ bool CCMTLCommandBuffer::isRenderingEntireDrawable(const Rect &rect, const CCMTL
 }
 
 void CCMTLCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, int stencil) {
-    _isOffscreen = static_cast<CCMTLFramebuffer *>(fbo)->isOffscreen();
-    if (!_isOffscreen) {
+    auto isOffscreen = static_cast<CCMTLFramebuffer *>(fbo)->isOffscreen();
+    if (!isOffscreen) {
         static_cast<CCMTLRenderPass *>(renderPass)->setColorAttachment(0, _mtkView.currentDrawable.texture, 0);
         static_cast<CCMTLRenderPass *>(renderPass)->setDepthStencilAttachment(_mtkView.depthStencilTexture, 0);
     }
@@ -104,17 +104,8 @@ void CCMTLCommandBuffer::bindPipelineState(PipelineState *pso) {
     _gpuPipelineState = static_cast<CCMTLPipelineState *>(pso)->getGPUPipelineState();
     _mtlPrimitiveType = _gpuPipelineState->primitiveType;
 
-    MTLWinding winding = _gpuPipelineState->winding;
-    if (_isOffscreen) {
-        if (MTLWindingClockwise == winding) {
-            winding = MTLWindingCounterClockwise;
-        } else {
-            winding = MTLWindingClockwise;
-        }
-    }
-    _commandEncoder.setFrontFacingWinding(winding);
-
     _commandEncoder.setCullMode(_gpuPipelineState->cullMode);
+    _commandEncoder.setFrontFacingWinding(_gpuPipelineState->winding);
     _commandEncoder.setDepthClipMode(_gpuPipelineState->depthClipMode);
     _commandEncoder.setTriangleFillMode(_gpuPipelineState->fillMode);
     _commandEncoder.setRenderPipelineState(_gpuPipelineState->mtlRenderPipelineState);

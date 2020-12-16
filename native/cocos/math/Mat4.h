@@ -202,22 +202,6 @@ public:
      * @param dst A matrix to store the result in.
      */
     static void createPerspective(float fieldOfView, float aspectRatio, float zNearPlane, float zFarPlane, Mat4 *dst);
-    
-    /**
-     * Builds a perspective projection matrix based on a field of view and returns by value.
-     *
-     * Projection space refers to the space after applying projection transformation from view space.
-     * After the projection transformation, visible content has x- and y-coordinates ranging from -1 to 1,
-     * and a z-coordinate ranging from 0 to 1. To obtain the viewable area (in world space) of a scene,
-     * create a BoundingFrustum and pass the combined view and projection matrix to the constructor.
-     *
-     * @param fieldOfView The field of view in the y direction (in degrees).
-     * @param aspectRatio The aspect ratio, defined as view space width divided by height.
-     * @param zNearPlane The distance to the near view plane.
-     * @param zFarPlane The distance to the far view plane.
-     * @param dst A matrix to store the result in.
-     */
-    static void createPerspectiveOffCenter(float fieldOfView, float aspectRatio, float zNearPlane, float zFarPlane, float projectionSignY, Mat4 *dst);
 
     /**
      * Creates an orthographic projection matrix.
