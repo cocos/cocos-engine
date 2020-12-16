@@ -124,7 +124,7 @@ async function main() {
     const options: build.Options = {
         engine: yargs.argv.engine as string,
         split: yargs.argv.split as boolean,
-        moduleEntries: yargs.argv._ as (string[] | undefined),
+        features: yargs.argv._ as (string[] | undefined) ?? [],
         compress: yargs.argv.compress as (boolean | undefined),
         out: yargs.argv.out as string,
         sourceMap,

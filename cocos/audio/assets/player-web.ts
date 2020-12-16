@@ -34,8 +34,6 @@ import { AudioPlayer, IAudioInfo, PlayingState } from './player';
 import { legacyCC } from '../../core/global-exports';
 import { AudioManager } from './audio-manager';
 
-const audioSupport = sys.__audioSupport;
-
 type ManagedAudio = AudioPlayerWeb | AudioBufferSourceNode;
 
 class AudioManagerWeb extends AudioManager<ManagedAudio> {
@@ -78,6 +76,7 @@ export class AudioPlayerWeb extends AudioPlayer {
 
     constructor (info: IAudioInfo) {
         super(info);
+        const audioSupport = sys.__audioSupport;
         this._nativeAudio = info.nativeAudio;
 
         this._context = audioSupport.context;

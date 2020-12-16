@@ -363,13 +363,13 @@ export class ArmatureDisplay extends UIRenderable {
      * @property {Boolean} enableBatch
      * @default false
      */
-    @editable
-    @tooltip('i18n:COMPONENT.dragon_bones.enabled_batch')
-    get enableBatch () { return this._enableBatch; }
-    set enableBatch (value) {
-        this._enableBatch = value;
-        this._updateBatch();
-    }
+    // @editable
+    // @tooltip('i18n:COMPONENT.dragon_bones.enabled_batch')
+    // get enableBatch () { return this._enableBatch; }
+    // set enableBatch (value) {
+    //     this._enableBatch = value;
+    //     this._updateBatch();
+    // }
 
     /**
      * @en
@@ -428,7 +428,7 @@ export class ArmatureDisplay extends UIRenderable {
     /* protected */ _debugDraw: Graphics | null = null;
 
     @serializable
-    protected _enableBatch = false;
+    public _enableBatch = false;
 
     // DragonBones data store key.
     protected _armatureKey = '';
@@ -478,7 +478,6 @@ export class ArmatureDisplay extends UIRenderable {
         this._inited = false;
         this.attachUtil = new AttachUtil();
         this._factory = CCFactory.getInstance();
-        this._cacheMode = this._defaultCacheMode;
         setEnumAttr(this, '_animationIndex', this._enumAnimations);
         setEnumAttr(this, '_defaultArmatureIndex', this._enumArmatures);
     }
@@ -533,7 +532,7 @@ export class ArmatureDisplay extends UIRenderable {
             owner: this,
         };
         inst = new MaterialInstance(matInfo);
-        inst.recompileShaders({ USE_LOCAL: true }, 0);
+        inst.recompileShaders({ USE_LOCAL: false }, 0); // TODO: not supported by ui
         this._materialCache[key] = inst;
         inst.overridePipelineStates({
             blendState: {
@@ -551,6 +550,7 @@ export class ArmatureDisplay extends UIRenderable {
             for (let i = 0; i < this._meshRenderDataArray.length; i++) {
                 this._meshRenderDataArrayIdx = i;
                 const m = this._meshRenderDataArray[i];
+                this.material = m.renderData.material;
                 if (m.texture) {
                     ui.commitComp(this, m.texture, this._assembler, null);
                 }
@@ -616,6 +616,8 @@ export class ArmatureDisplay extends UIRenderable {
             this._objFlags |= (Flags.IsAnchorLocked | Flags.IsSizeLocked);
             // this._refreshInspector();
         }
+
+        this._cacheMode = this._defaultCacheMode;
 
         if (this._inited) return;
         this._inited = true;
