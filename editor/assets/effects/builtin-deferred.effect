@@ -341,10 +341,15 @@ CCProgram lighting-fs %{
 
     float fog_factor = CC_TRANSFER_FOG(vec4(s.position,1));
     vec4 color = CCDeferredShading(s, fog_factor);
+    if (color.x > 1.0) color.x = 1.0;
+    if (color.y > 1.0) color.y = 1.0;
+    if (color.z > 1.0) color.z = 1.0;
+    if (color.w > 1.0) color.w = 1.0;
+    color.w = 1.0;
     //float fog_factor = CC_TRANSFER_FOG(vec4(s.position,1));
     //color = CC_APPLY_FOG(color, fog_factor);
     fragColor0 = color;
-    fragColor0 = vec4(1,0,0,1);
+    //fragColor0 = vec4(1,0,0,1);
   }
 }%
 

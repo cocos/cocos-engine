@@ -86,8 +86,6 @@ export class PostprocessStage extends RenderStage {
         cmdBuff.bindDescriptorSet(SetIndex.GLOBAL, pipeline.descriptorSet);
 
         // Postprocess
-        const pass = this._postprocessMaterial!.passes[POSTPROCESSPASS_INDEX];
-        const shader = ShaderPool.get(this._postprocessMaterial!.passes[POSTPROCESSPASS_INDEX].getShaderVariant());
         var pass: Pass;
         var shader: Shader;
         const builtinPostProcess = builtinResMgr.get<Material>('builtin-post-process-material');

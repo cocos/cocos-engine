@@ -119,7 +119,7 @@ vec4 DealMainLightShading (StandardSurface s, float fogFractor) {
   #endif
 
   vec4 ret = vec4(finalColor, s.albedo.a);
-  ret = vec4(mix(cc_fogColor.rgb, ret.rgb, fogFractor), ret.a);
+  //ret = vec4(mix(cc_fogColor.rgb, ret.rgb, fogFractor), ret.a);
   return CCFragOutput(ret);
 }
 
