@@ -51,17 +51,6 @@ bool CCMTLBuffer::initialize(const BufferInfo &info) {
         if (_indirectDrawSupported) {
             createMTLBuffer(_size, _memUsage);
         }
-    } else if (_usage & BufferUsageBit::TRANSFER_SRC ||
-               _usage & BufferUsageBit::TRANSFER_DST) {
-        _transferBuffer = (uint8_t *)CC_MALLOC(_size);
-        if (!_transferBuffer) {
-            CCASSERT(false, "CCMTLBuffer: failed to create memory for transfer buffer.");
-            return false;
-        }
-        _device->getMemoryStatus().bufferSize += _size;
-    } else {
-        CCASSERT(false, "Unsupported BufferType, create buffer failed.");
-        return false;
     }
 
     return true;
@@ -101,12 +90,6 @@ void CCMTLBuffer::destroy() {
         _mtlBuffer = nil;
     }
 
-    if (_transferBuffer) {
-        CC_FREE(_transferBuffer);
-        _transferBuffer = nullptr;
-        _device->getMemoryStatus().bufferSize -= _size;
-    }
-
     if (_buffer) {
         CC_FREE(_buffer);
         _device->getMemoryStatus().bufferSize -= _size;
@@ -135,7 +118,6 @@ void CCMTLBuffer::resize(uint size) {
     const uint oldSize = _size;
     _size = size;
     _count = _size / _stride;
-    resizeBuffer(&_transferBuffer, _size, oldSize);
     resizeBuffer(&_buffer, _size, oldSize);
     if (_usage & BufferUsageBit::INDIRECT) {
         _drawInfos.resize(_count);
@@ -221,11 +203,6 @@ void CCMTLBuffer::update(void *buffer, uint offset, uint size) {
         if (_mtlResourceOptions == MTLResourceStorageModeManaged)
             [_mtlBuffer didModifyRange:NSMakeRange(0, _size)]; // Synchronize the managed buffer.
 #endif
-        return;
-    }
-
-    if (_transferBuffer) {
-        memcpy(_transferBuffer + offset, buffer, size);
         return;
     }
 }
