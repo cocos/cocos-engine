@@ -27,8 +27,9 @@ import { RenderingSubMesh } from '../../assets/mesh';
 import { RenderPriority } from '../../pipeline/define';
 import { BatchingSchemes, IMacroPatch, Pass } from '../core/pass';
 import { DSPool, IAPool, SubModelPool, SubModelView, SubModelHandle, NULL_HANDLE } from '../core/memory-pools';
-import { DescriptorSet, DescriptorSetInfo, Device, InputAssembler } from '../../gfx';
+import { DescriptorSet, DescriptorSetInfo, Device, InputAssembler, Buffer } from '../../gfx';
 import { legacyCC } from '../../global-exports';
+import { WireframeMode } from './wireframe';
 
 const _dsInfo = new DescriptorSetInfo(null!);
 
@@ -41,6 +42,16 @@ export class SubModel {
     protected _priority: RenderPriority = RenderPriority.DEFAULT;
     protected _inputAssembler: InputAssembler | null = null;
     protected _descriptorSet: DescriptorSet | null = null;
+    protected _wireframeMode: WireframeMode = WireframeMode.SHADED;
+
+    setWireframe(val: WireframeMode, buffer: Buffer|null) {
+        this._wireframeMode = val;
+        this.inputAssembler.wireframeBuffer = buffer;
+    }
+
+    get wireframeMode() {
+        return this._wireframeMode;
+    }
 
     set passes (passes) {
         this._passes = passes;

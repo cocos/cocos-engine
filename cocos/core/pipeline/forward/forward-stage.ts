@@ -163,6 +163,7 @@ export class ForwardStage extends RenderStage {
             const subModels = ro.model.subModels;
             for (m = 0; m < subModels.length; ++m) {
                 const subModel = subModels[m];
+                const wireframeMode = subModel.wireframeMode;
                 const passes = subModel.passes;
                 for (p = 0; p < passes.length; ++p) {
                     const pass = passes[p];
@@ -171,17 +172,18 @@ export class ForwardStage extends RenderStage {
                     if (batchingScheme === BatchingSchemes.INSTANCING) {
                         const instancedBuffer = InstancedBuffer.get(pass);
                         instancedBuffer.merge(subModel, ro.model.instancedAttributes, p);
-                        this._instancedQueue.queue.add(instancedBuffer);
-                        this._wireframeQueue.addInstanced(instancedBuffer, subModel);
+                        (wireframeMode !== WireframeMode.WIREFRAME || !EDITOR) && this._instancedQueue.queue.add(instancedBuffer);
+                        wireframeMode !== WireframeMode.SHADED && EDITOR && this._wireframeQueue.addInstanced(instancedBuffer, subModel);
                     } else if (batchingScheme === BatchingSchemes.VB_MERGING) {
                         const batchedBuffer = BatchedBuffer.get(pass);
                         batchedBuffer.merge(subModel, p, ro.model);
-                        this._batchedQueue.queue.add(batchedBuffer);
-                        this._wireframeQueue.addBatched(batchedBuffer, subModel);
+                        (wireframeMode !== WireframeMode.WIREFRAME || !EDITOR) && this._batchedQueue.queue.add(batchedBuffer);
+                        wireframeMode !== WireframeMode.SHADED && EDITOR && this._wireframeQueue.addBatched(batchedBuffer, subModel);
                     } else {
                         for (k = 0; k < this._renderQueues.length; k++) {
-                            this._renderQueues[k].insertRenderPass(ro, m, p);
-                            k === 0 && this._wireframeQueue.insertRenderPass(ro, m, p);
+                            (wireframeMode !== WireframeMode.WIREFRAME || !EDITOR) && this._renderQueues[k].insertRenderPass(ro, m, p);
+                            k !== 0 && this._renderQueues[k].insertRenderPass(ro, m, p);
+                            wireframeMode !== WireframeMode.SHADED && EDITOR && k === 0 && this._wireframeQueue.insertRenderPass(ro, m, p);
                         }
                     }
                 }
@@ -229,16 +231,13 @@ export class ForwardStage extends RenderStage {
             colors, camera.clearDepth, camera.clearStencil);
 
         cmdBuff.bindDescriptorSet(SetIndex.GLOBAL, pipeline.descriptorSet);
-        if(!EDITOR || pipeline.wireframe.mode !== WireframeMode.WIREFRAME) {
-            this._renderQueues[0].recordCommandBuffer(device, renderPass, cmdBuff);
-            this._instancedQueue.recordCommandBuffer(device, renderPass, cmdBuff);
-            this._batchedQueue.recordCommandBuffer(device, renderPass, cmdBuff);
-            this._additiveLightQueue.recordCommandBuffer(device, renderPass, cmdBuff);
-            this._planarQueue.recordCommandBuffer(device, renderPass, cmdBuff);
-        }
-        if(EDITOR && pipeline.wireframe.mode !== WireframeMode.SHADED) {
-            this._wireframeQueue.recordCommandBuffer(device, renderPass, cmdBuff);
-        }
+        this._renderQueues[0].recordCommandBuffer(device, renderPass, cmdBuff);
+        this._instancedQueue.recordCommandBuffer(device, renderPass, cmdBuff);
+        this._batchedQueue.recordCommandBuffer(device, renderPass, cmdBuff);
+        this._additiveLightQueue.recordCommandBuffer(device, renderPass, cmdBuff);
+        this._planarQueue.recordCommandBuffer(device, renderPass, cmdBuff);
+
+        EDITOR && this._wireframeQueue.recordCommandBuffer(device, renderPass, cmdBuff);
         this._renderQueues[1].recordCommandBuffer(device, renderPass, cmdBuff);
         cmdBuff.endRenderPass();
     }

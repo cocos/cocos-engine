@@ -19,15 +19,6 @@ enum WireframeType {
     Batched
 }
 
-function convertBlock(incomingData) { // incoming data is a UInt8Array
-    var i, l = incomingData.length;
-    var outputData = new Float32Array(incomingData.length);
-    for (i = 0; i < l; i++) {
-        outputData[i] = (incomingData[i] - 128) / 128.0;
-    }
-    return outputData;
-}
-
 let pass, shader;
 export class WireframeQueue {
     /**
@@ -236,9 +227,8 @@ export class WireframeQueue {
                     const instance = instances[b];
                     if (!instance.count) { continue; }
                     if(!instance.wireframeIa) {
-                        let currIb = this._rebuildIB(instance.ia.indexBuffer!);
                         let iaInfo = new InputAssemblerInfo(instance.ia.attributes, instance.ia.vertexBuffers, 
-                        currIb, instance.ia.indirectBuffer);
+                        currSubModel.inputAssembler.wireframeBuffer, instance.ia.indirectBuffer);
                         instance.wireframeIa = legacyCC.director.root.device.createInputAssembler(iaInfo);
                     }
                     instance.wireframeIa.instanceCount = instance.ia.instanceCount;
@@ -257,10 +247,13 @@ export class WireframeQueue {
 
     private _recordCommandRenderBuffer(device: Device, renderPass: RenderPass, cmdBuff: CommandBuffer) {
         for (let i = 0; i < this.queue!.length; ++i) {
-            const { subModel, passIdx } = this.queue!.array[i];
-            const { inputAssembler, handle: hSubModel } = subModel;
+            const { subModel } = this.queue!.array[i];
+            const { inputAssembler } = subModel;
+            if(!inputAssembler.wireframeBuffer) {
+                continue;
+            }
             let iaInfo = new InputAssemblerInfo(inputAssembler.attributes, inputAssembler.vertexBuffers, 
-            this._rebuildIB(inputAssembler.indexBuffer!), inputAssembler.indirectBuffer);
+            inputAssembler.wireframeBuffer, inputAssembler.indirectBuffer);
             if(!subModel.wireframeIa) {
                 subModel.wireframeIa = legacyCC.director.root.device.createInputAssembler(iaInfo);
             } else {

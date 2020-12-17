@@ -89,6 +89,18 @@ export abstract class InputAssembler extends Obj {
     }
 
     /**
+     * @en Get wireframe buffer.
+     * @zh 线框缓冲。
+     */
+    get wireframeBuffer (): Buffer | null {
+        return this._wireframeBuffer;
+    }
+
+    set wireframeBuffer (value: Buffer | null) {
+        this._wireframeBuffer = value;
+    }
+
+    /**
      * @en Get current attributes.
      * @zh 顶点属性数组。
      */
@@ -222,6 +234,7 @@ export abstract class InputAssembler extends Obj {
 
     protected _indirectBuffer: Buffer | null = null;
 
+    protected _wireframeBuffer: Buffer | null = null;
     constructor (device: Device) {
         super(ObjectType.INPUT_ASSEMBLER);
         this._device = device;

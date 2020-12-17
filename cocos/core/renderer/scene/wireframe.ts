@@ -13,7 +13,6 @@ export class Wireframe {
     protected _batchedMaterial: Material | null = null;
     private _isEnabled: boolean = false;
     private _color: Color = Color.GRAY;
-    private _mode: WireframeMode = WireframeMode.SHADED;
     public activate () {
         if (!this._renderMaterial) {
             this._renderMaterial = new Material();
@@ -29,15 +28,6 @@ export class Wireframe {
         }
         this.color = Color.GRAY;
         
-    }
-
-
-    public get mode() {
-        return this._mode;
-    }
-
-    public set mode(mode: WireframeMode) {
-        this._mode = mode;
     }
 
     public set color (color: Color) {
