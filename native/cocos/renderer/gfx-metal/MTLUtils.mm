@@ -666,13 +666,15 @@ String compileGLSLShader2Msl(const String &src,
     for (const auto &sampler : resources.sampled_images) {
         auto set = msl.get_decoration(sampler.id, spv::DecorationDescriptorSet);
         auto binding = msl.get_decoration(sampler.id, spv::DecorationBinding);
-        int size = 1, s = -1;
+        int size = 1;
         const spirv_cross::SPIRType &type = msl.get_type(sampler.type_id);
-        if (type.array_size_literal[0]) {
+        if (type.image.dim == spv::Dim2D)
+        {
             size = type.array[0];
         }
-
-        for (int i = 0; i < size; ++i) {
+        
+        for (int i = 0; i < size; ++i)
+        {
             auto mappedBinding = binding + samplerBindingOffset[set] + i;
             newBinding.desc_set = set;
             newBinding.binding = binding + i;
@@ -693,7 +695,7 @@ String compileGLSLShader2Msl(const String &src,
 
     // Set some options.
     spirv_cross::CompilerMSL::Options options;
-    //    options.set_msl_version(2, 0);
+    options.set_msl_version(2, 0);
     #if (CC_PLATFORM == CC_PLATFORM_MAC_IOS)
     options.platform = spirv_cross::CompilerMSL::Options::Platform::iOS;
     #else
