@@ -24,7 +24,7 @@ public:
     virtual void beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, int stencil) override;
     virtual void endRenderPass() override;
     virtual void bindPipelineState(PipelineState *pso) override;
-    virtual void bindDescriptorSet(uint set, DescriptorSet *descriptorSet, uint dynamicOffsetCount, const vector<uint> &dynamicOffsets) override;
+    virtual void bindDescriptorSet(uint set, DescriptorSet *descriptorSet, uint dynamicOffsetCount, const uint *dynamicOffsets) override;
     virtual void bindInputAssembler(InputAssembler *ia) override;
     virtual void setViewport(const Viewport &vp) override;
     virtual void setScissor(const Rect &rect) override;

@@ -160,7 +160,7 @@ void CCVKCommandBuffer::bindPipelineState(PipelineState *pso) {
     }
 }
 
-void CCVKCommandBuffer::bindDescriptorSet(uint set, DescriptorSet *descriptorSet, uint dynamicOffsetCount, const vector<uint> &dynamicOffsets) {
+void CCVKCommandBuffer::bindDescriptorSet(uint set, DescriptorSet *descriptorSet, uint dynamicOffsetCount, const uint *dynamicOffsets) {
     CCASSERT(_curGPUDescriptorSets.size() > set, "Invalid set index");
 
     CCVKGPUDescriptorSet *gpuDescriptorSet = ((CCVKDescriptorSet *)descriptorSet)->gpuDescriptorSet();
@@ -170,7 +170,7 @@ void CCVKCommandBuffer::bindDescriptorSet(uint set, DescriptorSet *descriptorSet
         if (set < _firstDirtyDescriptorSet) _firstDirtyDescriptorSet = set;
     }
     if (dynamicOffsetCount) {
-        _curDynamicOffsets[set].assign(dynamicOffsets.begin(), dynamicOffsets.begin() + dynamicOffsetCount);
+        _curDynamicOffsets[set].assign(dynamicOffsets, dynamicOffsets + dynamicOffsetCount);
         if (set < _firstDirtyDescriptorSet) _firstDirtyDescriptorSet = set;
     }
 }

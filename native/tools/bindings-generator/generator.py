@@ -1044,6 +1044,8 @@ class NativeClass(object):
 
 
     def skip_bind_function(self, method_name):
+        if self.generator.is_reserved_function(self.class_name, method_name["name"]):
+            return False
         if self.class_name in self.generator.shadowed_methods_by_getter_setter :
             #print("??? skip %s contains %s" %(self.generator.shadowed_methods_by_getter_setter[self.class_name], method_name))
             return method_name["name"] in self.generator.shadowed_methods_by_getter_setter[self.class_name]
@@ -1083,8 +1085,8 @@ class NativeClass(object):
                 if self.generator.should_skip(self.class_name, name):
                     should_skip = True
             if not should_skip:
-                ret.append({"name": name, "impl": impl})
-        return ret
+                ret.append({"name": self.generator.should_rename_function(self.class_name, name) or name, "impl": impl})
+        return sorted(ret, key=lambda fn: fn["name"])
 
     def static_methods_clean(self):
         '''
@@ -1238,7 +1240,7 @@ class NativeClass(object):
             # skip if variadic
             if self._current_visibility == cindex.AccessSpecifier.PUBLIC and not cursor.type.is_function_variadic():
                 m = NativeFunction(cursor, self.generator)
-                registration_name = self.generator.should_rename_function(self.class_name, m.func_name) or m.func_name
+                registration_name = m.func_name
                 # bail if the function is not supported (at least one arg not supported)
                 if m.not_supported:
                     return False
@@ -1504,7 +1506,13 @@ class Generator(object):
                         else:
                             raise Exception("getter_setter parse %s:%s failed" %(gs_kls, field))
 
-
+    def is_reserved_function(self, class_name, method_name):
+        if self.rename_functions.has_key(class_name):
+            rename_map = self.rename_functions[class_name]
+            for fn in rename_map:
+                if method_name == rename_map[fn]:
+                    return True
+        return False 
 
     def should_rename_function(self, class_name, method_name):
         if self.rename_functions.has_key(class_name) and self.rename_functions[class_name].has_key(method_name):

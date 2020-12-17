@@ -93,7 +93,7 @@ void GLES2CommandBuffer::bindPipelineState(PipelineState *pso) {
     }
 }
 
-void GLES2CommandBuffer::bindDescriptorSet(uint set, DescriptorSet *descriptorSet, uint dynamicOffsetCount, const std::vector<uint> &dynamicOffsets) {
+void GLES2CommandBuffer::bindDescriptorSet(uint set, DescriptorSet *descriptorSet, uint dynamicOffsetCount, const uint *dynamicOffsets) {
     CCASSERT(_curGPUDescriptorSets.size() > set, "Invalid set index");
 
     GLES2GPUDescriptorSet *gpuDescriptorSet = ((GLES2DescriptorSet *)descriptorSet)->gpuDescriptorSet();
@@ -102,7 +102,7 @@ void GLES2CommandBuffer::bindDescriptorSet(uint set, DescriptorSet *descriptorSe
         _isStateInvalid = true;
     }
     if (dynamicOffsetCount) {
-        _curDynamicOffsets[set].assign(dynamicOffsets.begin(), dynamicOffsets.begin() + dynamicOffsetCount);
+        _curDynamicOffsets[set].assign(dynamicOffsets, dynamicOffsets + dynamicOffsetCount);
         _isStateInvalid = true;
     }
 }
