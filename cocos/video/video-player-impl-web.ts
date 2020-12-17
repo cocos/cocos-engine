@@ -24,7 +24,7 @@
  */
 
 import { mat4 } from '../core/math';
-import { error, sys, view, screen } from '../core/platform';
+import { error, sys, view, screen, warn } from '../core/platform';
 import { game } from '../core';
 import { contains } from '../core/utils/misc';
 import { EventType, READY_STATE } from './video-player-enums';
@@ -122,7 +122,7 @@ export class VideoPlayerImplWeb extends VideoPlayerImpl {
 
     public syncPlaybackRate (val: number) {
         if (sys.browserType === sys.BROWSER_TYPE_UC) {
-            console.warn('playbackRate is not supported by the uc mobile browser.');
+            warn('playbackRate is not supported by the uc mobile browser.');
             return;
         }
         if (this.video) {
@@ -400,7 +400,7 @@ export class VideoPlayerImplWeb extends VideoPlayerImpl {
         if (sys.browserType !== sys.BROWSER_TYPE_MOBILE_QQ) {
             this._video.style.objectFit = this._keepAspectRatio ? 'none' : 'fill';
         } else {
-            console.warn('keepAspectRatio is not supported by the qq mobile browser.');
+            warn('keepAspectRatio is not supported by the qq mobile browser.');
         }
 
         const w = this._w * scaleX;

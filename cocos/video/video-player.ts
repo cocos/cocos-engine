@@ -248,8 +248,9 @@ export class VideoPlayer extends Component {
     @tooltip('i18n:videoplayer.fullScreenOnAwake')
     get fullScreenOnAwake () {
         if (!EDITOR) {
-            if (this._fullScreenOnAwake && this._impl) {
-                return this._impl.fullScreenOnAwake;
+            if (this._impl) {
+                this._fullScreenOnAwake = this._impl.fullScreenOnAwake;
+                return this._fullScreenOnAwake;
             }
         }
         return this._fullScreenOnAwake;
