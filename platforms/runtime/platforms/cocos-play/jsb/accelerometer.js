@@ -1,3 +1,8 @@
+/*
+ * this platform doesn't provide with the onAccelerometerChange API
+ * so we turn to using this HACK but native implementation
+*/
+
 window.jsb = window.jsb || {};
 
 const PORTRAIT = 0;
