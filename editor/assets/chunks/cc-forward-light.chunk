@@ -2,7 +2,7 @@
 // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 #if !USE_HW_PIPELINE
 
-#define LIGHTS_PER_PASS 1
+# define LIGHTS_PER_PASS 1
 
 #pragma builtin(local)
 layout(set = 2, binding = 1) uniform CCForwardLight {
@@ -13,9 +13,10 @@ layout(set = 2, binding = 1) uniform CCForwardLight {
 };
 
 #else
-
-#define LIGHTS_PER_PASS 1
-#define LIGHTS_CNT int(cc_lightDir[0].w)
+// for deferred pipeline
+# define LIGHTS_PER_PASS 10
+//# define LIGHTS_CNT int(cc_lightDir[0].w)
+# define LIGHTS_CNT 3
 #pragma builtin(local)
 layout(set = 2, binding = 1) uniform CCForwardLight {
   highp vec4 cc_lightPos[LIGHTS_PER_PASS]; // xyz: pos, w: isSpotLight

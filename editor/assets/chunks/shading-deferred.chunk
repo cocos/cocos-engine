@@ -129,6 +129,6 @@ vec4 CCDeferredShading(StandardSurface s, float fogFractor) {
   retColor += DealMainLightShading(s, fogFractor);
 
   // part 2 : other lights, dot or sphere light
-  //retColor += DealLightShading(s, fogFractor);
+  retColor += DealLightShading(s, fogFractor);
   return retColor;
 }

@@ -47,7 +47,6 @@ export class LightingStage extends RenderStage {
     private _lightMeterScale: number = 10000.0;
     private _descriptorSet: DescriptorSet = null!;
     private _descriptorSetLayout!: DescriptorSetLayout;
-    private totalLits: number = 0;
 
     private _renderArea = new Rect();
     private declare _additiveLightQueue: RenderAdditiveLightQueue;
@@ -113,18 +112,17 @@ export class LightingStage extends RenderStage {
         const _vec4Array = new Float32Array(4);
         const exposure = view.camera.exposure;
 
-        this.totalLits = UBODeferredLight.LIGHTS_PER_PASS;
         let idx = 0;
-        let fieldLenth = 4;
-        let totalFieldLenth = fieldLenth * this.totalLits;
+        let elementLen = 4; // vec4
+        let fieldLen = elementLen * this._maxDeferredLights;
 
-        for (let i = 0; i < sphereLights.length; i++, ++idx) {
+        for (let i = 0; i < sphereLights.length && idx < this._maxDeferredLights; i++, ++idx) {
             const light = sphereLights[i];
             sphere.set(_sphere, light.position.x, light.position.y, light.position.z, light.range);
             if (intersect.sphereFrustum(_sphere, view.camera.frustum)) {
                 Vec3.toArray(_vec4Array, light.position);
                 _vec4Array[3] = 0;
-                this._lightBufferData.set(_vec4Array, idx * fieldLenth);
+                this._lightBufferData.set(_vec4Array, idx * elementLen);
 
                 Vec3.toArray(_vec4Array, light.color);
                 if (light.useColorTemperature) {
@@ -140,29 +138,30 @@ export class LightingStage extends RenderStage {
                     _vec4Array[3] = light.luminance * exposure * this._lightMeterScale;
                 }
 
-                this._lightBufferData.set(_vec4Array, idx * fieldLenth + totalFieldLenth * 1);
+                this._lightBufferData.set(_vec4Array, idx * elementLen + fieldLen * 1);
 
                 _vec4Array[0] = light.size;
                 _vec4Array[1] = light.range;
                 _vec4Array[2] = 0.0;
-                this._lightBufferData.set(_vec4Array, idx * fieldLenth + totalFieldLenth * 2);
+                this._lightBufferData.set(_vec4Array, idx * elementLen + fieldLen * 2);
             }
         }
-        for (let i = 0; i < spotLights.length; i++, ++idx) {
+
+        for (let i = 0; i < spotLights.length && idx < this._maxDeferredLights; i++, ++idx) {
             const light = spotLights[i];
             sphere.set(_sphere, light.position.x, light.position.y, light.position.z, light.range);
             if (intersect.sphereFrustum(_sphere, view.camera.frustum)) {
                 Vec3.toArray(_vec4Array, light.position);
                 _vec4Array[3] = 1;
-                this._lightBufferData.set(_vec4Array, idx * fieldLenth + totalFieldLenth * 0);
+                this._lightBufferData.set(_vec4Array, idx * elementLen + fieldLen * 0);
 
                 _vec4Array[0] = light.size;
                 _vec4Array[1] = light.range;
                 _vec4Array[2] = light.spotAngle;
-                this._lightBufferData.set(_vec4Array, idx * fieldLenth + totalFieldLenth * 2);
+                this._lightBufferData.set(_vec4Array, idx * elementLen + fieldLen * 2);
 
                 Vec3.toArray(_vec4Array, light.direction);
-                this._lightBufferData.set(_vec4Array, idx * fieldLenth + totalFieldLenth * 3);
+                this._lightBufferData.set(_vec4Array, idx * elementLen + fieldLen * 3);
 
                 Vec3.toArray(_vec4Array, light.color);
                 if (light.useColorTemperature) {
@@ -176,15 +175,13 @@ export class LightingStage extends RenderStage {
                 } else {
                     _vec4Array[3] = light.luminance * exposure * this._lightMeterScale;
                 }
-                this._lightBufferData.set(_vec4Array, idx * fieldLenth + totalFieldLenth * 1);
+                this._lightBufferData.set(_vec4Array, idx * elementLen + fieldLen * 1);
             }
         }
 
-        _vec4Array[0] = sphereLights.length + spotLights.length;
-        _vec4Array[1] = 0;
-        _vec4Array[2] = 0;
-        _vec4Array[3] = 0;
-        this._lightBufferData.set(_vec4Array, totalFieldLenth * 4);
+        // cc_lightDir[0].w
+        var offset = fieldLen * 3 + 3;
+        this._lightBufferData.set([idx], offset);
 
         cmdBuff.updateBuffer(this._deferredLitsBufs, this._lightBufferData);
     }

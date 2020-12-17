@@ -378,27 +378,9 @@ localDescriptorSetLayout.layouts[UBOForwardLight.NAME] = UBOForwardLight.LAYOUT;
 localDescriptorSetLayout.bindings[UBOForwardLight.BINDING] = UBOForwardLight.DESCRIPTOR;
 
 export class UBODeferredLight {
-    public static readonly LIGHTS_PER_PASS = 20;
-
-    public static readonly NAME = 'CCDeferredLight';
-    public static readonly BINDING = ModelLocalBindings.UBO_DEFERRED_LIGHTS;
-    public static readonly DESCRIPTOR = new DescriptorSetLayoutBinding(DescriptorType.DYNAMIC_UNIFORM_BUFFER, 1, ShaderStageFlagBit.FRAGMENT);
-    public static readonly LAYOUT = new UniformBlock(SetIndex.LOCAL, UBODeferredLight.BINDING, UBODeferredLight.NAME, [
-        new Uniform('cc_lightPos', Type.FLOAT4, UBODeferredLight.LIGHTS_PER_PASS),
-        new Uniform('cc_lightColor', Type.FLOAT4, UBODeferredLight.LIGHTS_PER_PASS),
-        new Uniform('cc_lightSizeRangeAngle', Type.FLOAT4, UBODeferredLight.LIGHTS_PER_PASS),
-        new Uniform('cc_lightDir', Type.FLOAT4, UBODeferredLight.LIGHTS_PER_PASS),
-        new Uniform('cc_lightCnt', Type.FLOAT4, 1),
-    ], 1);
+    public static readonly LIGHTS_PER_PASS = 10;
 }
-//localDescriptorSetLayout.layouts[UBODeferredLight.NAME] = UBODeferredLight.LAYOUT;
-//localDescriptorSetLayout.bindings[UBODeferredLight.BINDING] = UBODeferredLight.DESCRIPTOR;
 
-// The actual uniform vectors used is JointUniformCapacity * 3.
-// We think this is a reasonable default capacity considering MAX_VERTEX_UNIFORM_VECTORS in WebGL spec is just 128.
-// Skinning models with number of bones more than this capacity will be automatically switched to texture skinning.
-// But still, you can tweak this for your own need by changing the number below
-// and the JOINT_UNIFORM_CAPACITY macro in cc-skinning shader header.
 export const JOINT_UNIFORM_CAPACITY = 30;
 
 /**
