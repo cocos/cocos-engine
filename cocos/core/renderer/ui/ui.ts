@@ -51,6 +51,7 @@ import { EffectAsset, RenderTexture, SpriteFrame } from '../../assets';
 import { programLib } from '../core/program-lib';
 import { TextureBase } from '../../assets/texture-base';
 import { sys } from '../../platform/sys';
+
 const _dsInfo = new DescriptorSetInfo(null!);
 
 /**
@@ -294,7 +295,7 @@ export class UI {
 
         let camera: Camera | null;
         for (let i = idx; i < this._screens.length; i++) {
-            camera = this._screens[i].camera;
+            camera = this._screens[i].camera!;
             if (camera) {
                 const matRecord = this._canvasMaterials.get(camera.view.visibility)!;
                 camera.view.visibility = Layers.BitMask.UI_2D | (i + 1);
@@ -312,11 +313,11 @@ export class UI {
         this._screens.sort(this._screenSort);
     }
 
-    public addUploadBuffersFunc(target: any, func: Function) {
+    public addUploadBuffersFunc (target: any, func: Function) {
         this._doUploadBuffersCall.set(target, func);
     }
 
-    public removeUploadBuffersFunc(target: any) {
+    public removeUploadBuffersFunc (target: any) {
         this._doUploadBuffersCall.delete(target);
     }
 
@@ -531,7 +532,7 @@ export class UI {
 
         const uiCanvas = this._currCanvas;
         const curDrawBatch = this._drawBatchPool.alloc();
-        curDrawBatch.camera = uiCanvas && uiCanvas.camera;
+        curDrawBatch.camera = uiCanvas && uiCanvas.camera!;
         curDrawBatch.model = model;
         curDrawBatch.bufferBatch = null;
         curDrawBatch.material = mat;
@@ -592,7 +593,7 @@ export class UI {
         }
 
         const curDrawBatch = this._currStaticRoot ? this._currStaticRoot._requireDrawBatch() : this._drawBatchPool.alloc();
-        curDrawBatch.camera = uiCanvas && uiCanvas.camera;
+        curDrawBatch.camera = uiCanvas && uiCanvas.camera!;
         curDrawBatch.bufferBatch = buffer;
         curDrawBatch.material = mat;
         curDrawBatch.texture = this._currTexture!;
