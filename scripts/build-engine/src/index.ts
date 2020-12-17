@@ -268,15 +268,17 @@ async function _doBuild ({
         };
         const bundledModules = [];
         for (const moduleName of moduleNames) {
-            const moduleFile = statsQuery.getPublicModuleFile(moduleName);
             if (forceStandaloneModules.includes(moduleName)) {
-                rollupEntries[moduleName] = moduleFile;
+                rollupEntries[moduleName] = statsQuery.getPublicModuleFile(moduleName);
             } else {
                 bundledModules.push(moduleName);
             }
         }
 
-        rpVirtualOptions.cc = statsQuery.evaluateIndexModuleSource(bundledModules);
+        rpVirtualOptions.cc = statsQuery.evaluateIndexModuleSource(
+            bundledModules,
+            (moduleName) => filePathToModuleRequest(statsQuery.getPublicModuleFile(moduleName)),
+        );
         rollupEntries.cc = 'cc';
 
         console.debug(`Module source "cc":\n${rpVirtualOptions.cc}`);
