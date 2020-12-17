@@ -27,7 +27,7 @@ import { RenderingSubMesh } from '../../assets/mesh';
 import { RenderPriority } from '../../pipeline/define';
 import { BatchingSchemes, IMacroPatch, Pass } from '../core/pass';
 import { DSPool, IAPool, SubModelPool, SubModelView, SubModelHandle, NULL_HANDLE } from '../core/memory-pools';
-import { DescriptorSet, DescriptorSetInfo, Device, InputAssembler, Buffer } from '../../gfx';
+import { DescriptorSet, DescriptorSetInfo, Device, InputAssembler, Buffer, InputAssemblerInfo } from '../../gfx';
 import { legacyCC } from '../../global-exports';
 import { WireframeMode } from './wireframe';
 
@@ -43,13 +43,24 @@ export class SubModel {
     protected _inputAssembler: InputAssembler | null = null;
     protected _descriptorSet: DescriptorSet | null = null;
     protected _wireframeMode: WireframeMode = WireframeMode.SHADED;
+    protected _wireframeIa: InputAssembler | null = null;
 
-    setWireframe(val: WireframeMode, buffer: Buffer|null) {
+    setWireframe (val: WireframeMode, buffer: Buffer|null) {
         this._wireframeMode = val;
-        this.inputAssembler.wireframeBuffer = buffer;
+        if (val === WireframeMode.SHADED) {
+            this._wireframeIa = null;
+            return;
+        }
+        const iaInfo = new InputAssemblerInfo(this.inputAssembler.attributes, this.inputAssembler.vertexBuffers,
+            buffer, this.inputAssembler.indirectBuffer);
+        this._wireframeIa = this._device!.createInputAssembler(iaInfo);
     }
 
-    get wireframeMode() {
+    get wireframeIa () {
+        return this._wireframeIa;
+    }
+
+    get wireframeMode () {
         return this._wireframeMode;
     }
 

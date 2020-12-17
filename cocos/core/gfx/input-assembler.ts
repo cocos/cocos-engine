@@ -71,7 +71,6 @@ export class InputAssemblerInfo {
  * @zh GFX 输入汇集器。
  */
 export abstract class InputAssembler extends Obj {
-
     /**
      * @en Get current vertex buffers.
      * @zh 顶点缓冲数组。
@@ -86,18 +85,6 @@ export abstract class InputAssembler extends Obj {
      */
     get indexBuffer (): Buffer | null {
         return this._indexBuffer;
-    }
-
-    /**
-     * @en Get wireframe buffer.
-     * @zh 线框缓冲。
-     */
-    get wireframeBuffer (): Buffer | null {
-        return this._wireframeBuffer;
-    }
-
-    set wireframeBuffer (value: Buffer | null) {
-        this._wireframeBuffer = value;
     }
 
     /**
@@ -234,7 +221,6 @@ export abstract class InputAssembler extends Obj {
 
     protected _indirectBuffer: Buffer | null = null;
 
-    protected _wireframeBuffer: Buffer | null = null;
     constructor (device: Device) {
         super(ObjectType.INPUT_ASSEMBLER);
         this._device = device;
@@ -248,9 +234,8 @@ export abstract class InputAssembler extends Obj {
     public getVertexBuffer (stream = 0): Buffer | null {
         if (stream < this._vertexBuffers.length) {
             return this._vertexBuffers[stream];
-        } else {
-            return null;
         }
+        return null;
     }
 
     protected computeAttributesHash (): number {

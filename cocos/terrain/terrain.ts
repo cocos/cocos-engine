@@ -340,6 +340,10 @@ export class TerrainBlock {
         this._renderable = this._node.addComponent(TerrainRenderable);
     }
 
+    get renderable () {
+        return this._renderable;
+    }
+
     public build () {
         const gfxDevice = director.root!.device;
 
@@ -878,30 +882,32 @@ export class Terrain extends Component {
      */
     @type(WireframeMode)
     @disallowAnimation
-    get wireframeMode() {
+    get wireframeMode () {
         return this._wireframeMode;
     }
 
     _updateWireframe () {
-        if(this._wireframeMode === WireframeMode.SHADED) {
+        if (this._wireframeMode === WireframeMode.SHADED) {
             this._tempWireframeData = null;
-            for(let i = 0; i < this._blocks.length; i++) {
-                // @ts-ignore
-                this._blocks[i]._renderable._model?.subModels.forEach((submodel) => {
-                    submodel.setWireframe(this._wireframeMode, null);
-                });
+            for (let i = 0; i < this._blocks.length; i++) {
+                if (this._blocks[i].renderable) {
+                    const submodels = this._blocks[i].renderable._model!.subModels;
+                    for (let j = 0; j < submodels.length; j++) {
+                        submodels[j].setWireframe(this._wireframeMode, null);
+                    }
+                }
             }
             return;
         }
-        if(!this._tempWireframeData) {
+        if (!this._tempWireframeData) {
             this.onLoad();
         }
-        let tempDatas = this._tempWireframeData;
+        const tempDatas = this._tempWireframeData;
         const res: number[] = [];
-        let v_uint16Array = tempDatas as Uint16Array;
+        const v_uint16Array = tempDatas as Uint16Array;
         const len = v_uint16Array.length / 3;
         let resBuffer = this._tempWireframeData;
-        if(len >= 1) {
+        if (len >= 1) {
             for (let i = 0; i < len; i++) {
                 const a = tempDatas![i * 3 + 0];
                 const b = tempDatas![i * 3 + 1];
@@ -910,18 +916,20 @@ export class Terrain extends Component {
             }
             resBuffer = new Uint16Array(res);
         }
-        let currIB = legacyCC.director.root.device.createBuffer(new BufferInfo(
+        const currIB = legacyCC.director.root.device.createBuffer(new BufferInfo(
             BufferUsageBit.INDEX | BufferUsageBit.TRANSFER_DST,
             MemoryUsageBit.DEVICE,
             (resBuffer as ArrayBuffer).byteLength,
             2,
         ));
         currIB.update(resBuffer);
-        for(let i = 0; i < this._blocks.length; i++) {
-            // @ts-ignore
-            this._blocks[i]._renderable._model?.subModels.forEach((submodel) => {
-                submodel.setWireframe(this._wireframeMode, currIB);
-            });
+        for (let i = 0; i < this._blocks.length; i++) {
+            if (this._blocks[i].renderable) {
+                const submodels = this._blocks[i].renderable._model!.subModels;
+                for (let j = 0; j < submodels.length; j++) {
+                    submodels[j].setWireframe(this._wireframeMode, currIB);
+                }
+            }
         }
     }
 

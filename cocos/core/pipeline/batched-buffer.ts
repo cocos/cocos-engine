@@ -45,6 +45,7 @@ export interface IBatchedItem {
     vbCount: number;
     mergeCount: number;
     ia: InputAssembler;
+    wireframeIa: InputAssembler;
     ubo: Buffer;
     uboData: Float32Array;
     descriptorSet: DescriptorSet;
@@ -207,7 +208,7 @@ export class BatchedBuffer {
 
         const uboData = new Float32Array(UBOLocalBatched.COUNT);
         Mat4.toArray(uboData, model.transform.worldMatrix, UBOLocalBatched.MAT_WORLDS_OFFSET);
-
+        let wireframeIa;
         this.batches.push({
             mergeCount: 1,
             vbs,
@@ -216,6 +217,7 @@ export class BatchedBuffer {
             vbIdxData,
             vbCount,
             ia,
+            wireframeIa,
             ubo,
             uboData,
             pass,

@@ -29,6 +29,7 @@
  */
 
 import { ccclass, displayOrder, type, serializable } from 'cc.decorator';
+import { EDITOR } from 'internal:constants';
 import { IRenderPass, SetIndex } from '../define';
 import { getPhaseID } from '../pass-phase';
 import { opaqueCompareFn, RenderQueue, transparentCompareFn } from '../render-queue';
@@ -50,9 +51,8 @@ import { RenderQueueDesc, RenderQueueSortMode } from '../pipeline-serialization'
 import { PlanarShadowQueue } from './planar-shadow-queue';
 import { WireframeQueue } from './wireframe-queue';
 import { WireframeMode } from '../../renderer/scene';
-import { EDITOR } from 'internal:constants';
 
-const colors: Color[] = [ new Color(0, 0, 0, 1) ];
+const colors: Color[] = [new Color(0, 0, 0, 1)];
 
 /**
  * @en The forward render stage
@@ -60,7 +60,6 @@ const colors: Color[] = [ new Color(0, 0, 0, 1) ];
  */
 @ccclass('ForwardStage')
 export class ForwardStage extends RenderStage {
-
     public static initInfo: IRenderStageInfo = {
         name: 'ForwardStage',
         priority: ForwardStagePriority.FORWARD,
@@ -76,9 +75,8 @@ export class ForwardStage extends RenderStage {
                 sortMode: RenderQueueSortMode.BACK_TO_FRONT,
                 stages: ['default', 'planarShadow'],
             },
-        ]
+        ],
     };
-
 
     @type([RenderQueueDesc])
     @serializable
@@ -119,12 +117,13 @@ export class ForwardStage extends RenderStage {
             }
             let sortFunc: (a: IRenderPass, b: IRenderPass) => number = opaqueCompareFn;
             switch (this.renderQueues[i].sortMode) {
-                case RenderQueueSortMode.BACK_TO_FRONT:
-                    sortFunc = transparentCompareFn;
-                    break;
-                case RenderQueueSortMode.FRONT_TO_BACK:
-                    sortFunc = opaqueCompareFn;
-                    break;
+            case RenderQueueSortMode.BACK_TO_FRONT:
+                sortFunc = transparentCompareFn;
+                break;
+            case RenderQueueSortMode.FRONT_TO_BACK:
+                sortFunc = opaqueCompareFn;
+                break;
+            default:
             }
 
             this._renderQueues[i] = new RenderQueue({
@@ -143,12 +142,10 @@ export class ForwardStage extends RenderStage {
         this._planarQueue = new PlanarShadowQueue(this._pipeline as ForwardPipeline);
     }
 
-
     public destroy () {
     }
 
     public render (view: RenderView) {
-
         this._instancedQueue.clear();
         this._batchedQueue.clear();
         this._wireframeQueue.clear();
@@ -172,18 +169,18 @@ export class ForwardStage extends RenderStage {
                     if (batchingScheme === BatchingSchemes.INSTANCING) {
                         const instancedBuffer = InstancedBuffer.get(pass);
                         instancedBuffer.merge(subModel, ro.model.instancedAttributes, p);
-                        (wireframeMode !== WireframeMode.WIREFRAME || !EDITOR) && this._instancedQueue.queue.add(instancedBuffer);
-                        wireframeMode !== WireframeMode.SHADED && EDITOR && this._wireframeQueue.addInstanced(instancedBuffer, subModel);
+                        if (wireframeMode !== WireframeMode.WIREFRAME || !EDITOR) this._instancedQueue.queue.add(instancedBuffer);
+                        if (wireframeMode !== WireframeMode.SHADED && EDITOR) this._wireframeQueue.addInstanced(instancedBuffer, subModel);
                     } else if (batchingScheme === BatchingSchemes.VB_MERGING) {
                         const batchedBuffer = BatchedBuffer.get(pass);
                         batchedBuffer.merge(subModel, p, ro.model);
-                        (wireframeMode !== WireframeMode.WIREFRAME || !EDITOR) && this._batchedQueue.queue.add(batchedBuffer);
-                        wireframeMode !== WireframeMode.SHADED && EDITOR && this._wireframeQueue.addBatched(batchedBuffer, subModel);
+                        if ((wireframeMode !== WireframeMode.WIREFRAME || !EDITOR)) this._batchedQueue.queue.add(batchedBuffer);
+                        if (wireframeMode !== WireframeMode.SHADED && EDITOR) this._wireframeQueue.addBatched(batchedBuffer, subModel);
                     } else {
                         for (k = 0; k < this._renderQueues.length; k++) {
-                            (wireframeMode !== WireframeMode.WIREFRAME || !EDITOR) && this._renderQueues[k].insertRenderPass(ro, m, p);
-                            k !== 0 && this._renderQueues[k].insertRenderPass(ro, m, p);
-                            wireframeMode !== WireframeMode.SHADED && EDITOR && k === 0 && this._wireframeQueue.insertRenderPass(ro, m, p);
+                            if (wireframeMode !== WireframeMode.WIREFRAME || !EDITOR) this._renderQueues[k].insertRenderPass(ro, m, p);
+                            if (k !== 0) this._renderQueues[k].insertRenderPass(ro, m, p);
+                            if (wireframeMode !== WireframeMode.SHADED && EDITOR && k === 0) this._wireframeQueue.insertRenderPass(ro, m, p);
                         }
                     }
                 }
@@ -203,10 +200,10 @@ export class ForwardStage extends RenderStage {
         // render area is not oriented
         const w = view.window.hasOnScreenAttachments && device.surfaceTransform % 2 ? camera.height : camera.width;
         const h = view.window.hasOnScreenAttachments && device.surfaceTransform % 2 ? camera.width : camera.height;
-        this._renderArea!.x = vp.x * w;
-        this._renderArea!.y = vp.y * h;
-        this._renderArea!.width = vp.width * w * pipeline.shadingScale;
-        this._renderArea!.height = vp.height * h * pipeline.shadingScale;
+        this._renderArea.x = vp.x * w;
+        this._renderArea.y = vp.y * h;
+        this._renderArea.width = vp.width * w * pipeline.shadingScale;
+        this._renderArea.height = vp.height * h * pipeline.shadingScale;
 
         if (camera.clearFlag & ClearFlag.COLOR) {
             if (pipeline.isHDR) {
@@ -227,7 +224,7 @@ export class ForwardStage extends RenderStage {
         const framebuffer = view.window.framebuffer;
         const renderPass = framebuffer.colorTextures[0] ? framebuffer.renderPass : pipeline.getRenderPass(camera.clearFlag);
 
-        cmdBuff.beginRenderPass(renderPass, framebuffer, this._renderArea!,
+        cmdBuff.beginRenderPass(renderPass, framebuffer, this._renderArea,
             colors, camera.clearDepth, camera.clearStencil);
 
         cmdBuff.bindDescriptorSet(SetIndex.GLOBAL, pipeline.descriptorSet);
@@ -237,7 +234,7 @@ export class ForwardStage extends RenderStage {
         this._additiveLightQueue.recordCommandBuffer(device, renderPass, cmdBuff);
         this._planarQueue.recordCommandBuffer(device, renderPass, cmdBuff);
 
-        EDITOR && this._wireframeQueue.recordCommandBuffer(device, renderPass, cmdBuff);
+        if (EDITOR) this._wireframeQueue.recordCommandBuffer(device, renderPass, cmdBuff);
         this._renderQueues[1].recordCommandBuffer(device, renderPass, cmdBuff);
         cmdBuff.endRenderPass();
     }

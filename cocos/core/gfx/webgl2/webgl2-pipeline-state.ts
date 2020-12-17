@@ -48,7 +48,6 @@ const WebGLPrimitives: GLenum[] = [
 ];
 
 export class WebGL2PipelineState extends PipelineState {
-
     get gpuPipelineState (): IWebGL2GPUPipelineState {
         return  this._gpuPipelineState!;
     }
@@ -56,7 +55,6 @@ export class WebGL2PipelineState extends PipelineState {
     private _gpuPipelineState: IWebGL2GPUPipelineState | null = null;
 
     public initialize (info: PipelineStateInfo): boolean {
-
         this._primitive = info.primitive;
         this._shader = info.shader;
         this._pipelineLayout = info.pipelineLayout;
