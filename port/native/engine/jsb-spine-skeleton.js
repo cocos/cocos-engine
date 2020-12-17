@@ -26,6 +26,7 @@ const cacheManager = require('./jsb-cache-manager');
 
 (function(){
     if (window.spine === undefined || window.middleware === undefined) return;
+    
 
     middleware.generateGetSet(spine);
 
@@ -288,7 +289,10 @@ const cacheManager = require('./jsb-cache-manager');
     };
 
     skeleton.setSkeletonData = function (skeletonData) {
-        null != skeletonData.width && null != skeletonData.height && this.node.setContentSize(skeletonData.width, skeletonData.height);
+        if (null != skeletonData.width && null != skeletonData.height) {
+            const uiTrans = this.node._uiProps.uiTransformComp;
+            uiTrans.setContentSize(skeletonData.width, skeletonData.height);
+        }
 
         let uuid = skeletonData._uuid;
         if (!uuid) {
@@ -774,7 +778,7 @@ const cacheManager = require('./jsb-cache-manager');
         this._stateData = null;
     };
 
-    let _tempAttachMat4 = new Mat4();
+    let _tempAttachMat4 = new cc.mat4();
     skeleton._render = function (ui) {
         let nativeSkeleton = this._nativeSkeleton;
         if (!nativeSkeleton) return;
@@ -806,14 +810,15 @@ const cacheManager = require('./jsb-cache-manager');
                 }
 
                 let tm = _tempAttachMat4;
-                tm.m00 = attachInfo[attachInfoOffset];
-                tm.m01 = attachInfo[attachInfoOffset + 1];
-                tm.m04 = attachInfo[attachInfoOffset + 4];
-                tm.m05 = attachInfo[attachInfoOffset + 5];
-                tm.m12 = attachInfo[attachInfoOffset + 12];
-                tm.m13 = attachInfo[attachInfoOffset + 13];
-                node.matrix = _tempMat4;
-                node.scale = this.node.scale;
+                let matOffset = attachInfoOffset + boneIdx * 16;
+                tm.m00 = attachInfo[matOffset];
+                tm.m01 = attachInfo[matOffset + 1];
+                tm.m04 = attachInfo[matOffset + 4];
+                tm.m05 = attachInfo[matOffset + 5];
+                tm.m12 = attachInfo[matOffset + 12];
+                tm.m13 = attachInfo[matOffset + 13];
+                boneNode.matrix = tm;
+                boneNode.scale = this.node.scale;
             }
         }
 
@@ -856,9 +861,6 @@ const cacheManager = require('./jsb-cache-manager');
 
             ui.commitComp(this, realTexture._texture, this._assembler, null);
         }
-
-        // sync attached node matrix
-        comp.attachUtil._syncAttachedNode();
     }
 
     //////////////////////////////////////////
