@@ -1,0 +1,15 @@
+name: quality
+on: [push, pull_request]
+jobs:
+  eslint:
+    name: Run ESLint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 12
+      - run: npm ci
+      - name: Run ESLint
+        shell: pwsh
+        run: ./.github/workflows/eslint.ps1

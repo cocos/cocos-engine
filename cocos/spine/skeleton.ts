@@ -14,7 +14,7 @@ import { UI } from '../core/renderer/ui/ui';
 import { Graphics } from '../ui/components/graphics';
 import { MaterialInstance } from '../core/renderer';
 import { js } from '../core/utils/js';
-import { sp } from '../../exports/spine';
+import { BlendOp } from '../core/gfx';
 
 export const timeScale = 1.0;
 
@@ -334,18 +334,18 @@ export class Skeleton extends UIRenderable {
      * !#zh 是否启用贴图预乘。
      * 当图片的透明区域出现色块时需要关闭该选项，当图片的半透明区域颜色变黑时需要启用该选项。
      */
-    // @serializable
-    // private _premultipliedAlpha: boolean = true;
+    @serializable
+    private _premultipliedAlpha = true;
 
-    // @editable
-    // @tooltip('i18n:COMPONENT.skeleton.premultipliedAlpha')
-    // get premultipliedAlpha (): boolean { return this._premultipliedAlpha; }
-    // set premultipliedAlpha (v: boolean) {
-    //     if (v !== this._premultipliedAlpha) {
-    //         this._premultipliedAlpha = v;
-    //         this.markForUpdateRenderData();
-    //     }
-    // }
+    @editable
+    @tooltip('i18n:COMPONENT.skeleton.premultipliedAlpha')
+    get premultipliedAlpha (): boolean { return this._premultipliedAlpha; }
+    set premultipliedAlpha (v: boolean) {
+        if (v !== this._premultipliedAlpha) {
+            this._premultipliedAlpha = v;
+            this.markForUpdateRenderData();
+        }
+    }
 
     /**
      * !#en The time scale of this skeleton.
@@ -1297,8 +1297,14 @@ export class Skeleton extends UIRenderable {
         this._materialCache[key] = inst;
         inst.overridePipelineStates({
             blendState: {
+                blendColor: Color.WHITE,
                 targets: [{
-                    blendSrc: src, blendDst: dst,
+                    blendEq: BlendOp.ADD,
+                    blendAlphaEq: BlendOp.ADD,
+                    blendSrc: src,
+                    blendDst: dst,
+                    blendSrcAlpha: src,
+                    blendDstAlpha: dst,
                 }],
             },
         });
@@ -1325,6 +1331,9 @@ export class Skeleton extends UIRenderable {
             for (let i = 0; i < this._meshRenderDataArray.length; i++) {
                 this._meshRenderDataArrayIdx = i;
                 const m = this._meshRenderDataArray[i];
+                if (m.renderData.material) {
+                    this.material = m.renderData.material;
+                }
                 if (m.texture) {
                     ui.commitComp(this, m.texture, this._assembler, null);
                 }
@@ -1422,7 +1431,7 @@ export class Skeleton extends UIRenderable {
         }
         this._cachedSockets.clear();
         const bones = this._skeleton.bones;
-        const getBoneName = (bone: sp.spine.Bone) => {
+        const getBoneName = (bone: spine.Bone) => {
             if (bone.parent == null) return bone.data.name || '<Unamed>';
             return `${getBoneName(bones[bone.parent.data.index])}/${bone.data.name}`;
         };

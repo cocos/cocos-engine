@@ -29,7 +29,7 @@
  * @module ui
  */
 
-import { Font, SpriteAtlas, TTFFont } from '../../core/assets';
+import { Font, SpriteAtlas, SpriteFrame, TTFFont } from '../../core/assets';
 import { ccclass, executeInEditMode, executionOrder, help, menu, tooltip, multiline, type, serializable } from 'cc.decorator';
 import { assert, EventTouch, warnID } from '../../core/platform';
 import { BASELINE_RATIO, fragmentText, HtmlTextParser, IHtmlTextParserResultObj, IHtmlTextParserStack, isUnicodeCJK, isUnicodeSpace } from '../../core/utils';
@@ -52,18 +52,15 @@ const RichTextChildImageName = 'RICHTEXT_Image_CHILD';
 /**
  * 富文本池。<br/>
  */
-const pool = new Pool((labelSeg: ILabelSegment) => {
-    if (EDITOR) {
-        return false;
-    }
+const labelPool = new Pool((seg: ISegment) => {
     if (DEV) {
-        assert(!labelSeg.node.parent, 'Recycling node\'s parent should be null!');
+        assert(!seg.node.parent, 'Recycling node\'s parent should be null!');
     }
-    if (!legacyCC.isValid(labelSeg.node)) {
+    if (!legacyCC.isValid(seg.node)) {
         return false;
     }
     else {
-        const outline = labelSeg.node.getComponent(LabelOutline);
+        const outline = seg.node.getComponent(LabelOutline);
         if (outline) {
             outline.width = 0;
         }
@@ -71,61 +68,72 @@ const pool = new Pool((labelSeg: ILabelSegment) => {
     return true;
 }, 20);
 
-// @ts-expect-error
-pool.get = function (str: string, richtext: RichText) {
-    let labelSeg = this._get();
-    if (!labelSeg) {
-        labelSeg = {
-            node: new PrivateNode(RichTextChildName),
-            comp: null,
-            lineCount: 0,
-            styleIndex: 0,
-            imageOffset: '',
-            clickParam: '',
-            clickHandler: '',
-        };
+const imagePool = new Pool((seg: ISegment) => {
+    if (DEV) {
+        assert(!seg.node.parent, 'Recycling node\'s parent should be null!');
     }
+    return legacyCC.isValid(seg.node);
+}, 10);
 
-    let labelNode = labelSeg.node;
-    if (!labelNode) {
-        labelNode = new PrivateNode(RichTextChildName);
-    }
-
-    let label = labelNode.getComponent(Label);
-    if (!label) {
-        label = labelNode.addComponent(Label)!;
-    }
-
-    label.string = str;
-    label.horizontalAlign = HorizontalTextAlignment.LEFT;
-    label.verticalAlign = VerticalTextAlignment.TOP;
-    // label._forceUseCanvas = true;
-
-    labelNode.setPosition(0, 0, 0);
-    const trans = labelNode._uiProps.uiTransformComp!;
-    trans.setAnchorPoint(0.5, 0.5);
-
-    const labelObj: ILabelSegment = {
-        node: labelNode,
-        comp: label,
+//
+function createSegment (type: string): ISegment {
+    return {
+        node: new PrivateNode(type),
+        comp: null,
         lineCount: 0,
         styleIndex: 0,
         imageOffset: '',
         clickParam: '',
         clickHandler: '',
+        type: type,
     };
+}
 
-    return labelObj;
-};
+function getSegmentByPool (type: string, content: string | SpriteFrame) {
+    let seg;
+    if (type === RichTextChildName) {
+        seg = labelPool._get();
+    } else if (type === RichTextChildImageName) {
+        seg = imagePool._get();
+    }
+    seg = seg || createSegment(type);
+    let node = seg.node;
+    if (!node) {
+        node = new PrivateNode(type);
+    }
+    if (type === RichTextChildImageName) {
+        seg.comp = node.getComponent(Sprite) || node.addComponent(Sprite);
+        seg.comp.spriteFrame = content as SpriteFrame;
+        seg.comp.type = Sprite.Type.SLICED;
+        seg.comp.sizeMode = Sprite.SizeMode.CUSTOM;
+    } else { // RichTextChildName
+        seg.comp = node.getComponent(Label) || node.addComponent(Label);
+        seg.comp.string = content as string;
+        seg.comp.horizontalAlign = HorizontalTextAlignment.LEFT;
+        seg.comp.verticalAlign = VerticalTextAlignment.TOP;
+    }
+    node.setPosition(0, 0, 0);
+    const trans = node._uiProps.uiTransformComp!;
+    trans.setAnchorPoint(0.5, 0.5);
 
-interface ILabelSegment {
+    seg.node = node;
+    seg.lineCount = 0;
+    seg.styleIndex = 0;
+    seg.imageOffset = '';
+    seg.clickParam = '';
+    seg.clickHandler = '';
+    return seg;
+}
+
+interface ISegment {
     node: PrivateNode;
-    comp: UIRenderable | null;
+    comp: Label | Sprite | null;
     lineCount: number;
     styleIndex: number;
     imageOffset: string;
     clickParam: string;
     clickHandler: string;
+    type: string,
 }
 
 /**
@@ -428,8 +436,8 @@ export class RichText extends UIComponent {
     protected _handleTouchEvent = true;
 
     protected _textArray: IHtmlTextParserResultObj[] = [];
-    protected _labelSegments: ILabelSegment[] = [];
-    protected _labelSegmentsCache: ILabelSegment[] = [];
+    protected _segments: ISegment[] = [];
+    protected _labelSegmentsCache: ISegment[] = [];
     protected _linesWidth: number[] = [];
     protected _lineCount = 1;
     protected _labelWidth = 0;
@@ -485,9 +493,14 @@ export class RichText extends UIComponent {
     }
 
     public onDestroy () {
-        for (const seg of this._labelSegments) {
+        for (const seg of this._segments) {
             seg.node.removeFromParent();
-            pool.put(seg);
+            if (seg.type === RichTextChildName) {
+                labelPool.put(seg);
+            }
+            else if (seg.type === RichTextChildImageName) {
+                imagePool.put(seg);
+            }
         }
 
         this.node.off(Node.EventType.ANCHOR_CHANGED, this._updateRichTextPosition, this);
@@ -502,14 +515,17 @@ export class RichText extends UIComponent {
     }
 
     protected _updateLabelSegmentTextAttributes () {
-        this._labelSegments.forEach((item) => {
+        this._segments.forEach((item) => {
             this._applyTextAttribute(item);
         });
     }
 
-    protected _createFontLabel (str: string): ILabelSegment {
-        // @ts-expect-error
-        return pool.get(str, this)!;
+    protected _createFontLabel (str: string): ISegment {
+        return getSegmentByPool(RichTextChildName, str)!;
+    }
+
+    protected _createImage (spriteFrame: SpriteFrame): ISegment {
+        return getSegmentByPool(RichTextChildImageName, spriteFrame)!;
     }
 
     protected _onTTFLoaded () {
@@ -534,7 +550,7 @@ export class RichText extends UIComponent {
 
     protected _measureText (styleIndex: number, string?: string) {
         const func = (s: string) => {
-            let label: ILabelSegment;
+            let label: ISegment;
             if (this._labelSegmentsCache.length === 0) {
                 label = this._createFontLabel(s);
                 this._labelSegmentsCache.push(label);
@@ -559,7 +575,7 @@ export class RichText extends UIComponent {
     protected _onTouchEnded (event: EventTouch) {
         const components = this.node.getComponents(Component);
 
-        for (const seg of this._labelSegments) {
+        for (const seg of this._segments) {
             const clickHandler = seg.clickHandler;
             const clickParam = seg.clickParam;
             if (clickHandler && this._containsTouchLocation(seg, event.touch!.getUILocation())) {
@@ -574,7 +590,7 @@ export class RichText extends UIComponent {
         }
     }
 
-    protected _containsTouchLocation (label: ILabelSegment, point: Vec2) {
+    protected _containsTouchLocation (label: ISegment, point: Vec2) {
         const comp = label.node.getComponent(UITransform);
         if (!comp) {
             return false;
@@ -598,21 +614,22 @@ export class RichText extends UIComponent {
                     children.splice(i, 1);
                 }
 
+                const segment = createSegment(child.name);
+                segment.node = child;
                 if (child.name === RichTextChildName) {
-                    const index = this._labelSegments.findIndex((seg) => {
-                        return seg.node === child;
-                    });
-
-                    if (index !== -1) {
-                        pool.put(this._labelSegments[index]);
-                    }
+                    segment.comp = child.getComponent(Label);
+                    labelPool.put(segment);
+                }
+                else {
+                    segment.comp = child.getComponent(Sprite);
+                    imagePool.put(segment);
                 }
             }
         }
         // Tolerate null parent child (upgrade issue may cause this special case)
         children.length = 0;
 
-        this._labelSegments.length = 0;
+        this._segments.length = 0;
         this._labelSegmentsCache.length = 0;
         this._linesWidth.length = 0;
         this._lineOffsetX = 0;
@@ -632,7 +649,7 @@ export class RichText extends UIComponent {
     }
 
     protected _addLabelSegment (stringToken: string, styleIndex: number) {
-        let labelSegment: ILabelSegment;
+        let labelSegment: ISegment;
         if (this._labelSegmentsCache.length === 0) {
             labelSegment = this._createFontLabel(stringToken);
         } else {
@@ -648,14 +665,14 @@ export class RichText extends UIComponent {
         labelSegment.node._uiProps.uiTransformComp!.setAnchorPoint(0, 0);
         this._applyTextAttribute(labelSegment);
         this.node.addChild(labelSegment.node);
-        this._labelSegments.push(labelSegment);
+        this._segments.push(labelSegment);
 
         return labelSegment;
     }
 
     protected _updateRichTextWithMaxWidth (labelString: string, labelWidth: number, styleIndex: number) {
         let fragmentWidth = labelWidth;
-        let labelSegment: ILabelSegment;
+        let labelSegment: ISegment;
 
         if (this._lineOffsetX > 0 && fragmentWidth + this._lineOffsetX > this._maxWidth) {
             // concat previous line
@@ -771,36 +788,22 @@ export class RichText extends UIComponent {
         if (!spriteFrame) {
             warnID(4400);
         } else {
-            const spriteNode = new PrivateNode(RichTextChildImageName);
-            const sprite = spriteNode.addComponent(Sprite);
+            const segment = this._createImage(spriteFrame);
+            const sprite = segment.comp;
             switch (style.imageAlign) {
                 case 'top':
-                    spriteNode._uiProps.uiTransformComp!.setAnchorPoint(0, 1);
+                    segment.node._uiProps.uiTransformComp!.setAnchorPoint(0, 1);
                     break;
                 case 'center':
-                    spriteNode._uiProps.uiTransformComp!.setAnchorPoint(0, 0.5);
+                    segment.node._uiProps.uiTransformComp!.setAnchorPoint(0, 0.5);
                     break;
                 default:
-                    spriteNode._uiProps.uiTransformComp!.setAnchorPoint(0, 0);
+                    segment.node._uiProps.uiTransformComp!.setAnchorPoint(0, 0);
                     break;
             }
-            sprite.type = Sprite.Type.SLICED;
-            sprite.sizeMode = Sprite.SizeMode.CUSTOM;
 
-            // Why need to set spriteFrame before can add child ??
-            sprite.spriteFrame = spriteFrame;
-            this.node.addChild(spriteNode);
-            const obj: ILabelSegment = {
-                node: spriteNode,
-                comp: sprite,
-                lineCount: 0,
-                styleIndex: 0,
-                imageOffset: style.imageOffset || '',
-                clickParam: '',
-                clickHandler: '',
-            };
-            this._labelSegments.push(obj);
-
+            this.node.addChild(segment.node);
+            this._segments.push(segment);
 
             const spriteRect = spriteFrame.rect.clone();
             let scaleFactor = 1;
@@ -835,15 +838,15 @@ export class RichText extends UIComponent {
                     this._labelWidth = this._lineOffsetX;
                 }
             }
-            spriteNode._uiProps.uiTransformComp!.setContentSize(spriteWidth, spriteHeight);
-            obj.lineCount = this._lineCount;
+            segment.node._uiProps.uiTransformComp!.setContentSize(spriteWidth, spriteHeight);
+            segment.lineCount = this._lineCount;
 
-            obj.clickHandler = '';
-            obj.clickParam = '';
+            segment.clickHandler = '';
+            segment.clickParam = '';
             const event = style.event;
             if (event) {
-                obj.clickHandler = event['click'];
-                obj.clickParam = event['param'];
+                segment.clickHandler = event['click'];
+                segment.clickParam = event['param'];
             }
         }
     }
@@ -864,7 +867,7 @@ export class RichText extends UIComponent {
         this._resetState();
 
         let lastEmptyLine = false;
-        let label: ILabelSegment;
+        let label: ISegment;
 
         for (let i = 0; i < this._textArray.length; ++i) {
             const richTextElement = this._textArray[i];
@@ -962,8 +965,8 @@ export class RichText extends UIComponent {
         const trans = this.node._uiProps.uiTransformComp!;
         const anchorX = trans.anchorX;
         const anchorY = trans.anchorY;
-        for (let i = 0; i < this._labelSegments.length; ++i) {
-            const segment = this._labelSegments[i];
+        for (let i = 0; i < this._segments.length; ++i) {
+            const segment = this._segments[i];
             const lineCount = segment.lineCount;
             if (lineCount > nextLineIndex) {
                 nextTokenX = 0;
@@ -1049,7 +1052,7 @@ export class RichText extends UIComponent {
         }
     }
 
-    protected _applyTextAttribute (labelSeg: ILabelSegment) {
+    protected _applyTextAttribute (labelSeg: ISegment) {
         const label = labelSeg.node.getComponent(Label);
         if (!label) {
             return;
