@@ -44,7 +44,6 @@ import { sceneCulling } from './scene-culling';
  */
 @ccclass('ForwardFlow')
 export class ForwardFlow extends RenderFlow {
-
     /**
      * @en The shared initialization information of forward render flow
      * @zh 共享的前向渲染流程初始化参数
@@ -52,7 +51,7 @@ export class ForwardFlow extends RenderFlow {
     public static initInfo: IRenderFlowInfo = {
         name: PIPELINE_FLOW_FORWARD,
         priority: ForwardFlowPriority.FORWARD,
-        stages: []
+        stages: [],
     };
 
     public initialize (info: IRenderFlowInfo): boolean {
