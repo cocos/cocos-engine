@@ -333,7 +333,7 @@ std::string getCurAppName(void)
     float workareaWidth = workarea.size.width;
     float workareaHeight = workarea.size.height - [self titleBarHeight];
     CC_LOG_DEBUG("WORKAREA WIDTH %0.2f, HEIGHT %0.2f", workareaWidth, workareaHeight);
-    while (true && frameScale > 0.25f)
+    while (frameScale > 0.25f)
     {
         if (frameSize.width * frameScale > workareaWidth || frameSize.height * frameScale > workareaHeight)
         {
@@ -383,7 +383,9 @@ std::string getCurAppName(void)
     _window.contentView = viewController.view;
     [_window.contentView setWantsBestResolutionOpenGLSurface:YES];
     [_window makeKeyAndOrderFront:nil];
-
+    
+    NSApplication *thisApp = [NSApplication sharedApplication];
+    [thisApp activateIgnoringOtherApps:YES];
 
     // create opengl view, and init app
     _app = new Game(frameWidth, frameHeight);
