@@ -15,6 +15,7 @@ conversions:
     short: "int16_t"
     "unsigned char": "uint8_t"
     "char": "int8_t"
+    "long long": "int64_t"
   ns_map:
     "cc::extension::": "cc."
     "cc::ui::": "ccui."

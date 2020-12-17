@@ -24,14 +24,14 @@ type_map = {
     cindex.TypeKind.USHORT      : "unsigned short",
     cindex.TypeKind.UINT        : "unsigned int",
     cindex.TypeKind.ULONG       : "unsigned long",
-    cindex.TypeKind.ULONGLONG   : "unsigned long long",
+    cindex.TypeKind.ULONGLONG   : "uint64_t",
     cindex.TypeKind.CHAR_S      : "char",
     cindex.TypeKind.SCHAR       : "char",
     cindex.TypeKind.WCHAR       : "wchar_t",
     cindex.TypeKind.SHORT       : "short",
     cindex.TypeKind.INT         : "int",
     cindex.TypeKind.LONG        : "long",
-    cindex.TypeKind.LONGLONG    : "long long",
+    cindex.TypeKind.LONGLONG    : "int64_t",
     cindex.TypeKind.FLOAT       : "float",
     cindex.TypeKind.DOUBLE      : "double",
     cindex.TypeKind.LONGDOUBLE  : "long double",
@@ -559,7 +559,7 @@ class NativeType(object):
 
     @property
     def lambda_parameters(self):
-        params = ["%s larg%d" % (str(nt), i) for i, nt in enumerate(self.param_types)]
+        params = ["%s larg%d" % (str(nt.to_string(self.generator)), i) for i, nt in enumerate(self.param_types)]
         return ", ".join(params)
 
     @staticmethod
@@ -629,14 +629,15 @@ class NativeType(object):
             context = convert_opts["context"]
 
 
-        return "ok &= sevalue_to_native(%s, &%s, %s);" % (convert_opts["in_value"], convert_opts["out_value"], context)
+        return "ok &= sevalue_to_native(%s, &%s, %s)" % (convert_opts["in_value"], convert_opts["out_value"], context)
 
     def to_string(self, generator):
         conversions = generator.config['conversions']
         if conversions.has_key('native_types'):
             native_types_dict = conversions['native_types']
             if NativeType.dict_has_key_re(native_types_dict, [self.namespaced_class_name]):
-                return NativeType.dict_get_value_re(native_types_dict, [self.namespaced_class_name])
+                # print "type ---> " + self.namespaced_class_name
+                return  NativeType.dict_get_value_re(native_types_dict, [self.namespaced_class_name])
 
         name = self.namespaced_class_name
 
