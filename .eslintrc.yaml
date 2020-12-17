@@ -64,12 +64,10 @@ rules:
     lines-between-class-members: off # be more lenient on member declarations
     max-classes-per-file: off # helper classes are common
     max-len: [warn, 150] # more lenient on max length per line
-    new-cap: error
     no-underscore-dangle: [warn, {
       allowFunctionParams: true # designate the unused param
     }] # allow underscores
     no-plusplus: off # allow increment/decrement operators
-    no-console: error # should use log functions defined by engine
     no-continue: off # allow unlabeled continues
     no-mixed-operators: off # this is just cumbersome
     no-multi-assign: off # it is handy sometimes
