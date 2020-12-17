@@ -7,6 +7,7 @@ import { SkeletonTexture } from '../skeleton-texture';
 import { vfmtPosUvColor, vfmtPosUvTwoColor } from '../../core/renderer/ui/ui-vertex-format';
 import { Skeleton, SkeletonMeshData, SpineMaterialType } from '../skeleton';
 import { Color, GFXBlendFactor, Mat4, Material, Node, Texture2D, Vec3 } from '../../core';
+import { legacyCC } from '../../core/global-exports';
 
 const FLAG_BATCH = 0x10;
 const FLAG_TWO_COLOR = 0x01;
@@ -795,3 +796,5 @@ function cacheTraverse (worldMat?: Mat4) {
         }
     }
 }
+
+legacyCC.internal.SpineAssembler = simple;

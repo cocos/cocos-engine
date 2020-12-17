@@ -5,6 +5,7 @@ import { SkeletonTexture } from './skeleton-texture';
 import spine from './lib/spine-core.js';
 import { ccclass, serializable, type } from '../core/data/decorators';
 import { EDITOR } from 'internal:constants';
+import { legacyCC } from '../core/global-exports';
 
 /**
  * !#en The skeleton data of spine.
@@ -302,3 +303,5 @@ export class SkeletonData extends Asset {
         return this._atlasCache = new spine.TextureAtlas(this.atlasText, this._getTexture.bind(this));
     }
 }
+
+legacyCC.internal.SpineSkeletonData = SkeletonData;

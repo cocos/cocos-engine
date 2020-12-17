@@ -1,5 +1,6 @@
 import { ccenum } from '../core';
 import spine from './lib/spine-core';
+import { legacyCC } from '../core/global-exports';
 
 /**
  * !#en
@@ -86,3 +87,5 @@ export enum AnimationEventType {
     EVENT = 5
 }
 ccenum(AnimationEventType);
+
+legacyCC.internal.SpineAnimationEventType = AnimationEventType;

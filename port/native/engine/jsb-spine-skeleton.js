@@ -25,13 +25,12 @@
 const cacheManager = require('./jsb-cache-manager');
 
 (function(){
-    if (window.sp === undefined || window.spine === undefined || window.middleware === undefined) return;
+    if (window.spine === undefined || window.middleware === undefined) return;
 
-    sp.VertexEffectDelegate = spine.VertexEffectDelegate;
     middleware.generateGetSet(spine);
 
     // spine global time scale
-    Object.defineProperty(sp, 'timeScale', {
+    Object.defineProperty(spine, 'timeScale', {
         get () {
             return this._timeScale;
         },
@@ -47,7 +46,7 @@ const cacheManager = require('./jsb-cache-manager');
     let _meshColor = cc.color(255, 255, 0, 255);
     let _originColor = cc.color(0, 255, 0, 255);
     
-    let skeletonDataProto = sp.SkeletonData.prototype;
+    let skeletonDataProto = cc.internal.SpineSkeletonData.prototype;
     let _gTextureIdx = 1;
     let _textureKeyMap = {};
     let _textureMap = new WeakMap();
@@ -125,12 +124,6 @@ const cacheManager = require('./jsb-cache-manager');
             spTex.setRealTextureIndex(textureIdx);
             spTex.setPixelsWide(texture.width);
             spTex.setPixelsHigh(texture.height);
-            spTex.setTexParamCallback(function(texIdx,minFilter,magFilter,wrapS,warpT){
-                let tex = this.getTextureByIndex(texIdx);
-                tex.setFilters(minFilter, magFilter);
-                tex.setWrapMode(wrapS, warpT);
-            }.bind(this));
-            spTex.setNativeTexture(texture.getImpl());
             jsbTextures[textureNames[i]] = spTex;
         }
         this._jsbTextures = jsbTextures;
@@ -162,8 +155,6 @@ const cacheManager = require('./jsb-cache-manager');
         return _textureMap.get(texKey);
     };
 
-    let renderCompProto = cc.UIRenderable.prototype;
-
     let animation = spine.SkeletonAnimation.prototype;
     // The methods are added to be compatibility with old versions.
     animation.setCompleteListener = function (listener) {
@@ -188,45 +179,48 @@ const cacheManager = require('./jsb-cache-manager');
         this._target = target;
         this._callback = callback;
 
+        
+        let AnimationEventType = legacyCC.internal.SpineAnimationEventType;
+
         this.setStartListener(function (trackEntry) {
             if (this._target && this._callback) {
-                this._callback.call(this._target, this, trackEntry, sp.AnimationEventType.START, null, 0);
+                this._callback.call(this._target, this, trackEntry, AnimationEventType.START, null, 0);
             }
         });
 
         this.setInterruptListener(function (trackEntry) {
             if (this._target && this._callback) {
-                this._callback.call(this._target, this, trackEntry, sp.AnimationEventType.INTERRUPT, null, 0);
+                this._callback.call(this._target, this, trackEntry, AnimationEventType.INTERRUPT, null, 0);
             }
         });
 
         this.setEndListener(function (trackEntry) {
             if (this._target && this._callback) {
-                this._callback.call(this._target, this, trackEntry, sp.AnimationEventType.END, null, 0);
+                this._callback.call(this._target, this, trackEntry, AnimationEventType.END, null, 0);
             }
         });
 
         this.setDisposeListener(function (trackEntry) {
             if (this._target && this._callback) {
-                this._callback.call(this._target, this, trackEntry, sp.AnimationEventType.DISPOSE, null, 0);
+                this._callback.call(this._target, this, trackEntry, AnimationEventType.DISPOSE, null, 0);
             }
         });
 
         this.setCompleteListener(function (trackEntry, loopCount) {
             if (this._target && this._callback) {
-                this._callback.call(this._target, this, trackEntry, sp.AnimationEventType.COMPLETE, null, loopCount);
+                this._callback.call(this._target, this, trackEntry, AnimationEventType.COMPLETE, null, loopCount);
             }
         });
 
         this.setEventListener(function (trackEntry, event) {
             if (this._target && this._callback) {
-                this._callback.call(this._target, this, trackEntry, sp.AnimationEventType.EVENT, event, 0);
+                this._callback.call(this._target, this, trackEntry, AnimationEventType.EVENT, event, 0);
             }
         });
     };
 
-    let skeleton = sp.Skeleton.prototype;
-    const AnimationCacheMode = sp.Skeleton.AnimationCacheMode;
+    let skeleton = cc.internal.SpineSkeleton.prototype;
+    const AnimationCacheMode = cc.internal.SpineSkeleton.AnimationCacheMode;
     Object.defineProperty(skeleton, 'paused', {
         get () {
             return this._paused || false;
@@ -338,8 +332,8 @@ const cacheManager = require('./jsb-cache-manager');
         nativeSkeleton.setOpacityModifyRGB(this.premultipliedAlpha);
         nativeSkeleton.setTimeScale(this.timeScale);
         nativeSkeleton.setBatchEnabled(this.enableBatch);
-        nativeSkeleton.bindNodeProxy(this.node._proxy);
-        nativeSkeleton.setColor(this.node.color);
+        let compColor = this.color;
+        nativeSkeleton.setColor(compColor.r, compColor.g, compColor.b, compColor.a);
 
         this._skeleton = nativeSkeleton.getSkeleton();
 
@@ -351,9 +345,10 @@ const cacheManager = require('./jsb-cache-manager');
         this._interruptListener && this.setInterruptListener(this._interruptListener);
         this._disposeListener && this.setDisposeListener(this._disposeListener);
 
-        this._renderInfoOffset = nativeSkeleton.getRenderInfoOffset();
-        this._renderInfoOffset[0] = 0;
+        this._sharedBufferOffset = nativeSkeleton.getSharedBufferOffset();
+        this._sharedBufferOffset[0] = 0;
         this._renderSegmentInfo = {};
+        this._useAttach = false;
 
         // store render order and world matrix
         this._paramsBuffer = nativeSkeleton.getParamsBuffer();
@@ -363,7 +358,8 @@ const cacheManager = require('./jsb-cache-manager');
 
     skeleton._updateColor = function () {
         if (this._nativeSkeleton) {
-            this._nativeSkeleton.setColor(this.node.color);
+            let compColor = this.color;
+            this._nativeSkeleton.setColor(compColor.r, compColor.g, compColor.b, compColor.a);
         }
     };
 
@@ -427,6 +423,18 @@ const cacheManager = require('./jsb-cache-manager');
         paramsBuffer[14] = worldMat.m13;
         paramsBuffer[15] = worldMat.m14;
         paramsBuffer[16] = worldMat.m15;
+
+        if (this.__preColor__ === undefined || !this.color.equals(this.__preColor__)) {
+            let compColor = this.color;
+            nativeSkeleton.setColor(compColor.r, compColor.g, compColor.b, compColor.a);
+            this.__preColor__ = compColor;
+        }
+        
+        const socketNodes = this.socketNodes;
+        if (!this._useAttach && socketNodes.size > 0) {
+            this._useAttach = true;
+            nativeSkeleton.setAttachEnabled(true);
+        }
 
         if (!this.isAnimationCached() && (this.debugBones || this.debugSlots || this.debugMesh) && this._debugRenderer) {
             
@@ -567,7 +575,7 @@ const cacheManager = require('./jsb-cache-manager');
     };
 
     skeleton.getTextureAtlas = function (regionAttachment) {
-        cc.warn("sp.Skeleton getTextureAtlas not support in native");
+        cc.warn("Spine Skeleton getTextureAtlas not support in native");
         return null;
     };
 
@@ -733,7 +741,7 @@ const cacheManager = require('./jsb-cache-manager');
     };
 
     skeleton._ensureListener = function () {
-        cc.warn("sp.Skeleton _ensureListener not need in native");
+        cc.warn("Spine Skeleton _ensureListener not need in native");
     };
 
     skeleton._updateSkeletonData = function () {
@@ -766,6 +774,7 @@ const cacheManager = require('./jsb-cache-manager');
         this._stateData = null;
     };
 
+    let _tempAttachMat4 = new Mat4();
     skeleton._render = function (ui) {
         let nativeSkeleton = this._nativeSkeleton;
         if (!nativeSkeleton) return;
@@ -773,27 +782,50 @@ const cacheManager = require('./jsb-cache-manager');
         let node = this.node;
         if (!node) return;
 
-        let renderInfoOffset = this._renderInfoOffset;
-        if (!renderInfoOffset) return;
+        let sharedBufferOffset = this._sharedBufferOffset;
+        if (!sharedBufferOffset) return;
 
-        if (this.__preColor__ === undefined || !this.color.equals(this.__preColor__)) {
-            nativeSkeleton.setColor(node.color);
-            this.__preColor__ = node.color;
+        let renderInfoOffset = sharedBufferOffset[0];
+        // reset render info offset
+        sharedBufferOffset[0] = 0;
+        
+        const socketNodes = this.socketNodes;
+        if (socketNodes.size > 0) {
+            let attachInfoMgr = middleware.attachInfoMgr;
+            let attachInfo = attachInfoMgr.attachInfo;
+
+            let attachInfoOffset = sharedBufferOffset[1];
+            // reset attach info offset
+            sharedBufferOffset[1] = 0;
+            for (const boneIdx of socketNodes.keys()) {
+                const boneNode = socketNodes.get(boneIdx);
+                // Node has been destroy
+                if (!boneNode || !boneNode.isValid) {
+                    socketNodes.delete(boneIdx);
+                    continue;
+                }
+
+                let tm = _tempAttachMat4;
+                tm.m00 = attachInfo[attachInfoOffset];
+                tm.m01 = attachInfo[attachInfoOffset + 1];
+                tm.m04 = attachInfo[attachInfoOffset + 4];
+                tm.m05 = attachInfo[attachInfoOffset + 5];
+                tm.m12 = attachInfo[attachInfoOffset + 12];
+                tm.m13 = attachInfo[attachInfoOffset + 13];
+                node.matrix = _tempMat4;
+                node.scale = this.node.scale;
+            }
         }
-        
-        let infoOffset = renderInfoOffset[0];
-        // reset offset
-        renderInfoOffset[0] = 0;
-        
+
         let renderInfoMgr = middleware.renderInfoMgr;
         let renderInfo = renderInfoMgr.renderInfo;
 
         let materialIdx = 0, realTextureIndex, realTexture;
         // verify render border
-        let border = renderInfo[infoOffset + materialIdx++];
+        let border = renderInfo[renderInfoOffset + materialIdx++];
         if (border !== 0xffffffff) return;
 
-        let matLen = renderInfo[infoOffset + materialIdx++];
+        let matLen = renderInfo[renderInfoOffset + materialIdx++];
         let useTint = this.useTint;
         let vfmt = useTint ? middleware.vfmtPosUvTwoColor : middleware.vfmtPosUvColor;
         
@@ -803,32 +835,35 @@ const cacheManager = require('./jsb-cache-manager');
         if (matLen == 0) return;
 
         for (let index = 0; index < matLen; index++) {
-            realTextureIndex = renderInfo[infoOffset + materialIdx++];
-            realTexture = this.skeletonData.textures[realTextureIndex];
+            realTextureIndex = renderInfo[renderInfoOffset + materialIdx++];
+            realTexture = this.skeletonData.getTextureByIndex(realTextureIndex);
             if (!realTexture) return;
 
             // SpineMaterialType.TWO_COLORED 2
             // SpineMaterialType.COLORED_TEXTURED 0
             // cache material
-            this.getMaterialForBlendAndTint(
-                renderInfo[infoOffset + materialIdx++], 
-                renderInfo[infoOffset + materialIdx++], 
+            this.material = this.getMaterialForBlendAndTint(
+                renderInfo[renderInfoOffset + materialIdx++], 
+                renderInfo[renderInfoOffset + materialIdx++], 
                 useTint ? 2: 0);
 
-            renderSegmentInfo.rIB = renderInfo[infoOffset + materialIdx++];
-            renderSegmentInfo.rVB = renderInfo[infoOffset + materialIdx++];
-            renderSegmentInfo.indicesOffset = renderInfo[infoOffset + materialIdx++];
-            renderSegmentInfo.indicesCount = renderInfo[infoOffset + materialIdx++];
-            renderSegmentInfo.vertexOffset = renderInfo[infoOffset + materialIdx++];
-            renderSegmentInfo.vertexCount = renderInfo[infoOffset + materialIdx++];
+            renderSegmentInfo.rIB = renderInfo[renderInfoOffset + materialIdx++];
+            renderSegmentInfo.rVB = renderInfo[renderInfoOffset + materialIdx++];
+            renderSegmentInfo.indicesOffset = renderInfo[renderInfoOffset + materialIdx++];
+            renderSegmentInfo.indicesCount = renderInfo[renderInfoOffset + materialIdx++];
+            renderSegmentInfo.vertexFloatOffset = renderInfo[renderInfoOffset + materialIdx++];
+            renderSegmentInfo.vertexFloatCount = renderInfo[renderInfoOffset + materialIdx++];
 
-            ui.commitComp(this, realTexture, this._assembler, null);
+            ui.commitComp(this, realTexture._texture, this._assembler, null);
         }
+
+        // sync attached node matrix
+        comp.attachUtil._syncAttachedNode();
     }
 
     //////////////////////////////////////////
     // assembler
-    const assembler = sp.Skeleton.Assembler.getAssembler(this);
+    const assembler = cc.internal.SpineAssembler;
     
     assembler.updateRenderData = function () {
     };
@@ -840,14 +875,15 @@ const cacheManager = require('./jsb-cache-manager');
         let node = comp.node;
         if (!node) return;
 
-        let renderSegmentInfo = this._renderSegmentInfo;
+        let renderSegmentInfo = comp._renderSegmentInfo;
         let vfmt = renderSegmentInfo.vfmt;
         let rIB = renderSegmentInfo.rIB;
         let rVB = renderSegmentInfo.rVB;
         let srcIndicesOffset = renderSegmentInfo.indicesOffset;
         let srcIndicesCount = renderSegmentInfo.indicesCount;
-        let srcVertexOffset = renderSegmentInfo.vertexOffset;
-        let srcVertexCount = renderSegmentInfo.vertexCount;
+        let srcVertexFloatOffset = renderSegmentInfo.vertexFloatOffset;
+        let srcVertexFloatCount = renderSegmentInfo.vertexFloatCount;
+        let srcVertexCount = srcVertexFloatCount / vfmt;
 
         let vfmtPosUvColor = cc.internal.vfmtPosUvColor;
         let vfmtPosUvTwoColor = cc.internal.vfmtPosUvTwoColor;    
@@ -871,15 +907,17 @@ const cacheManager = require('./jsb-cache-manager');
         const iBuf = buffer.iData;
 
         const srcVBuf = middlewareMgr.getVBTypedArray(vfmt, rVB);
-        const srcVIdx = srcVertexOffset;
         const srcIBuf = middlewareMgr.getIBTypedArray(vfmt, rIB);
 
-        // copy all vertexData
-        vBuf.set(srcVBuf.subarray(srcVIdx, srcVIdx + srcVertexCount * vfmt), floatOffset);
+        vBuf.set(srcVBuf.subarray(srcVertexFloatOffset, srcVertexFloatOffset + srcVertexFloatCount), floatOffset);
 
-        const srcIOffset = srcIndicesOffset;
-        for (let i = 0; i < renderData.indicesCount; i += 1) {
-            iBuf[i + indicesOffset] = srcIBuf[i + srcIOffset] + vertexOffset;
+        vertexOffset -= srcVertexFloatOffset / vfmt;
+        if (vertexOffset == 0) {
+            iBuf.set(srcIBuf.subarray(srcIndicesOffset, srcIndicesOffset + srcIndicesCount), indicesOffset);
+        } else {
+            for (let i = 0; i < srcIndicesCount; i += 1) {
+                iBuf[i + indicesOffset] = srcIBuf[i + srcIndicesOffset] + vertexOffset;
+            }
         }
     };
 })();

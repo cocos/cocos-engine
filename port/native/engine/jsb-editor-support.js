@@ -38,13 +38,21 @@
         middleware.renderOrder = 0;
     })
 
-    let renderInfoMgr = middleware.RenderInfoMgr.getInstance();
-    middleware.renderInfoMgr = renderInfoMgr;
-    renderInfoMgr.renderInfo = renderInfoMgr.getRenderInfo();
-    renderInfoMgr.__middleware__ = middleware;
+    let renderInfoMgr = middlewareMgr.getRenderInfoMgr();
+    renderInfoMgr.renderInfo = renderInfoMgr.getSharedBuffer();
     renderInfoMgr.setResizeCallback(function() {
-        this.renderInfo = this.getRenderInfo();
+        this.attachInfo = this.getSharedBuffer();
     });
+    renderInfoMgr.__middleware__ = middleware;
+
+    let attachInfoMgr = middlewareMgr.getAttachInfoMgr();
+    attachInfoMgr.attachInfo = attachInfoMgr.getSharedBuffer();
+    attachInfoMgr.setResizeCallback(function() {
+        this.attachInfo = this.getSharedBuffer();
+    });
+
+    middleware.renderInfoMgr = renderInfoMgr;
+    middleware.attachInfoMgr = attachInfoMgr;
 
     // generate get set function
     middleware.generateGetSet = function (moduleObj) {
