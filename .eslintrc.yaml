@@ -57,9 +57,9 @@ rules:
     class-methods-use-this: off # so empty functions could work
     guard-for-in: off # for-in is a efficient choice for plain objects 
     import/export: off # so export declare namespace could work
-    import/extensions: off # typescriptor doesn't support this
+    import/extensions: off # typescript doesn't support this
     import/no-unresolved: off # TODO: fix internal modules
-    import/prefer-default-export: off # prefer seperate exports
+    import/prefer-default-export: off # prefer named exports
     indent: [warn, 4] # we use 4-space convention
     lines-between-class-members: off # be more lenient on member declarations
     max-classes-per-file: off # helper classes are common
