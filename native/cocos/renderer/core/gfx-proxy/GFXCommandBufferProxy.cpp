@@ -82,8 +82,6 @@ void CommandBufferProxy::end() {
         {
             remote->end();
         });
-
-    _encoder->FinishWriting();
 }
 
 void CommandBufferProxy::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, int stencil, bool fromSecondaryCB) {
@@ -268,22 +266,21 @@ void CommandBufferProxy::draw(InputAssembler *ia) {
         });
 }
 
-void CommandBufferProxy::updateBuffer(Buffer *buff, const void *data, uint size, uint offset) {
+void CommandBufferProxy::updateBuffer(Buffer *buff, const void *data, uint size) {
     CommandEncoder *encoder = _encoder;
 
     uint8_t *remoteData = encoder->Allocate<uint8_t>(size);
     memcpy(remoteData, data, size);
 
-    ENCODE_COMMAND_5(
+    ENCODE_COMMAND_4(
         encoder,
         CommandBufferUpdateBuffer,
         remote, getRemote(),
         buff, ((BufferProxy *)buff)->getRemote(),
         data, remoteData,
         size, size,
-        offset, offset,
         {
-            remote->updateBuffer(buff, data, size, offset);
+            remote->updateBuffer(buff, data, size);
         });
 }
 
@@ -324,7 +321,9 @@ void CommandBufferProxy::execute(const CommandBuffer *const *cmdBuffs, uint32_t 
     
     const CommandBuffer **remoteCmdBuffs = _encoder->Allocate<const CommandBuffer *>(count);
     for (uint i = 0; i < count; ++i) {
-        remoteCmdBuffs[i] = ((CommandBufferProxy *)cmdBuffs[i])->getRemote();
+        CommandBufferProxy *cmdBuff = (CommandBufferProxy *)cmdBuffs[i];
+        cmdBuff->getEncoder()->FinishWriting();
+        remoteCmdBuffs[i] = cmdBuff->getRemote();
     }
 
     bool multiThreaded = _device->hasFeature(Feature::MULTITHREADED_SUBMISSION);
@@ -344,7 +343,7 @@ void CommandBufferProxy::execute(const CommandBuffer *const *cmdBuffs, uint32_t 
                     g.createForEachIndexJob(1u, count, 1u, [this](uint i) {
                         ((CommandBufferProxy *)cmdBuffs[i])->getEncoder()->FlushCommands();
                     });
-                    JobSystem::getInstance().run(g);
+                    g.run();
                     ((CommandBufferProxy *)cmdBuffs[0])->getEncoder()->FlushCommands();
                     g.waitForAll();
                 } else {

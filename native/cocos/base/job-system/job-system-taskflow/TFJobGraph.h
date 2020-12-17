@@ -6,7 +6,6 @@ namespace cc {
 
 class TFJobGraph final {
 public:
-
     template <typename Function>
     uint createJob(Function &&func) noexcept;
 
@@ -17,11 +16,17 @@ public:
     uint createReduceJob(B &&begin, E &&end, T &acc, Function &&func) noexcept;
 
     void makeEdge(uint j1, uint j2) noexcept;
-    
-    void waitForAll() { if (_pending) { _future.wait(); _pending = false; } }
+
+    void run() noexcept;
+
+    CC_INLINE void waitForAll() {
+        if (_pending) {
+            _future.wait();
+            _pending = false;
+        }
+    }
 
 private:
-
     friend class TFJobSystem;
 
     tf::Taskflow _flow;

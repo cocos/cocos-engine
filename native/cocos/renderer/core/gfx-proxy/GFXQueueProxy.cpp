@@ -44,7 +44,9 @@ void QueueProxy::submit(const CommandBuffer *const *cmdBuffs, uint count, Fence 
 
     const CommandBuffer **remoteCmdBuffs = encoder->Allocate<const CommandBuffer *>(count);
     for (uint i = 0u; i < count; ++i) {
-        remoteCmdBuffs[i] = ((CommandBufferProxy *)cmdBuffs[i])->getRemote();
+        CommandBufferProxy *cmdBuff = (CommandBufferProxy *)cmdBuffs[i];
+        cmdBuff->getEncoder()->FinishWriting();
+        remoteCmdBuffs[i] = cmdBuff->getRemote();
     }
 
     bool multiThreaded = _device->hasFeature(Feature::MULTITHREADED_SUBMISSION);
@@ -66,7 +68,7 @@ void QueueProxy::submit(const CommandBuffer *const *cmdBuffs, uint count, Fence 
                     g.createForEachIndexJob(1u, count, 1u, [this](uint i) {
                         ((CommandBufferProxy *)cmdBuffs[i])->getEncoder()->FlushCommands();
                     });
-                    JobSystem::getInstance().run(g);
+                    g.run();
                     ((CommandBufferProxy *)cmdBuffs[0])->getEncoder()->FlushCommands();
                     g.waitForAll();
                 } else {

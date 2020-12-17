@@ -30,10 +30,10 @@ bool BufferProxy::initialize(const BufferInfo &info) {
 bool BufferProxy::initialize(const BufferViewInfo &info) {
     _usage = info.buffer->getUsage();
     _memUsage = info.buffer->getMemUsage();
-    _size = info.buffer->getSize();
     _flags = info.buffer->getFlags();
-    _stride = info.buffer->getStride();
-    _count = info.buffer->getCount();
+    _offset = info.offset;
+    _size = _stride = info.range;
+    _count = 1u;
 
     BufferViewInfo remoteInfo = info;
     remoteInfo.buffer = ((BufferProxy *)info.buffer)->getRemote();
@@ -64,21 +64,20 @@ void BufferProxy::destroy() {
     }
 }
 
-void BufferProxy::update(void *buffer, uint offset, uint size) {
+void BufferProxy::update(void *buffer, uint size) {
     CommandEncoder *encoder = ((DeviceProxy *)_device)->getMainEncoder();
 
     uint8_t *remoteBuffer = encoder->Allocate<uint8_t>(size);
     memcpy(remoteBuffer, buffer, size);
 
-    ENCODE_COMMAND_4(
+    ENCODE_COMMAND_3(
         encoder,
         BufferUpdate,
         remote, getRemote(),
         buffer, remoteBuffer,
-        offset, offset,
         size, size,
         {
-            remote->update(buffer, offset, size);
+            remote->update(buffer, size);
         });
 }
 

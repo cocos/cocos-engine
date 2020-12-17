@@ -71,13 +71,13 @@ void GLES2PrimaryCommandBuffer::draw(InputAssembler *ia) {
     }
 }
 
-void GLES2PrimaryCommandBuffer::updateBuffer(Buffer *buff, const void *data, uint size, uint offset) {
+void GLES2PrimaryCommandBuffer::updateBuffer(Buffer *buff, const void *data, uint size) {
     if ((_type == CommandBufferType::PRIMARY && !_isInRenderPass) ||
         (_type == CommandBufferType::SECONDARY)) {
 
         GLES2GPUBuffer *gpuBuffer = ((GLES2Buffer *)buff)->gpuBuffer();
         if (gpuBuffer) {
-            GLES2CmdFuncUpdateBuffer((GLES2Device *)_device, gpuBuffer, data, offset, size);
+            GLES2CmdFuncUpdateBuffer((GLES2Device *)_device, gpuBuffer, data, 0u, size);
         }
     } else {
         CC_LOG_ERROR("Command 'updateBuffer' must be recorded outside a render pass.");

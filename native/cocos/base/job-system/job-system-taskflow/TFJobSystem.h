@@ -11,7 +11,7 @@ public:
 
     static TFJobSystem &getInstance() { return _instance; }
 
-    TFJobSystem() noexcept : TFJobSystem(std::thread::hardware_concurrency() - 1) {}
+    TFJobSystem() noexcept : TFJobSystem(std::thread::hardware_concurrency() - 2) {}
     TFJobSystem(uint threadCount) noexcept;
 
     void run(TFJobGraph &g) noexcept;

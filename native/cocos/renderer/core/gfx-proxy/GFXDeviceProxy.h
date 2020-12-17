@@ -4,8 +4,6 @@
 #include "threading/Semaphore.h"
 #include "GFXProxy.h"
 
-#define MAX_CPU_FRAME_AHEAD 2
-
 namespace cc {
 
 class CommandEncoder;
@@ -13,6 +11,7 @@ class CommandEncoder;
 namespace gfx {
 
 class CommandBuffer;
+constexpr uint MAX_CPU_FRAME_AHEAD = 1u;
 
 // one per CPU core
 struct SubmitContext final {
@@ -64,7 +63,7 @@ protected:
     bool _multithreaded{false};
     CommandEncoder *_mainEncoder{nullptr};
 
-    Semaphore _frameBoundarySemaphore{MAX_CPU_FRAME_AHEAD};
+    Semaphore _frameBoundarySemaphore{MAX_CPU_FRAME_AHEAD + 1};
 };
 
 } // namespace gfx

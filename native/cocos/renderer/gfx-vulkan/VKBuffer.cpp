@@ -189,7 +189,7 @@ void CCVKBuffer::update(void *buffer, uint size) {
     CommandBuffer *cmdBuff = _device->getCommandBuffer();
     cmdBuff->begin();
     const CCVKGPUCommandBuffer *gpuCommandBuffer = ((CCVKCommandBuffer *)cmdBuff)->gpuCommandBuffer();
-    CCVKCmdFuncUpdateBuffer((CCVKDevice *)_device, _gpuBuffer, buffer, offset, size, gpuCommandBuffer);
+    CCVKCmdFuncUpdateBuffer((CCVKDevice *)_device, _gpuBuffer, buffer, size, gpuCommandBuffer);
 }
 
 } // namespace gfx

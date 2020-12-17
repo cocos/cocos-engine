@@ -288,7 +288,6 @@ void GLES3CommandBuffer::updateBuffer(Buffer *buff, const void *data, uint size)
             GLES3CmdUpdateBuffer *cmd = _cmdAllocator->updateBufferCmdPool.alloc();
             cmd->gpuBuffer = gpuBuffer;
             cmd->size = size;
-            cmd->offset = offset;
             cmd->buffer = (uint8_t *)data;
 
             _curCmdPackage->updateBufferCmds.push(cmd);

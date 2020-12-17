@@ -16,7 +16,7 @@ public:
     virtual void beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, int stencil, bool fromSecondaryCB) override;
     virtual void endRenderPass() override;
     virtual void draw(InputAssembler *ia) override;
-    virtual void updateBuffer(Buffer *buff, const void *data, uint size, uint offset) override;
+    virtual void updateBuffer(Buffer *buff, const void *data, uint size) override;
     virtual void copyBuffersToTexture(const uint8_t *const *buffers, Texture *texture, const BufferTextureCopy *regions, uint count) override;
     virtual void execute(const CommandBuffer *const *cmdBuffs, uint32_t count) override;
 };
