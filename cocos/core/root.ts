@@ -541,6 +541,8 @@ export class Root {
                 case LightType.SPOT:
                     l.scene.removeSpotLight(l as SpotLight);
                     break;
+                default:
+                    break;
                 }
             }
         }
