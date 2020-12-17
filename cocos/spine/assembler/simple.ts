@@ -428,8 +428,6 @@ function realTimeTraverse (worldMat?: Mat4) {
     const clipper = _comp!._clipper!;
     let material: Material | MaterialInstance | null = null;
     let attachment: spine.Attachment;
-    let attachmentColor: spine.Color;
-    let slotColor: spine.Color;
     let uvs: spine.ArrayLike<number>;
     let triangles: number[];
     let isRegion: boolean;
@@ -604,10 +602,7 @@ function realTimeTraverse (worldMat?: Mat4) {
             vbuf![v + 4] = uvs[u + 1];       // v
         }
 
-        attachmentColor = meshAttachment.color,
-        slotColor = slot.color;
-
-        fillVertices(skeletonColor, attachmentColor, slotColor, clipper, slot);
+        fillVertices(skeletonColor, meshAttachment.color, slot.color, clipper, slot);
 
         // reset buffer pointer, because clipper maybe realloc a new buffer in file Vertices function.
 
