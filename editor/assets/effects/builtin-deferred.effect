@@ -339,7 +339,8 @@ CCProgram lighting-fs %{
     s.emissive = emissiveMap.xyz;
     s.occlusion = emissiveMap.w;
 
-    float fog_factor = CC_TRANSFER_FOG(vec4(s.position,1));
+    // fixme: default value is 0, and give black result
+    float fog_factor = 4.0;//CC_TRANSFER_FOG(vec4(s.position,1));
     vec4 color = CCDeferredShading(s, fog_factor);
 
     fragColor0 = color;

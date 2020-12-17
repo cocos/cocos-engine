@@ -15,8 +15,7 @@ layout(set = 2, binding = 1) uniform CCForwardLight {
 #else
 // for deferred pipeline
 # define LIGHTS_PER_PASS 10
-//# define LIGHTS_CNT int(cc_lightDir[0].w)
-# define LIGHTS_CNT 3
+# define LIGHTS_CNT int(cc_lightDir[0].w)
 #pragma builtin(local)
 layout(set = 2, binding = 1) uniform CCForwardLight {
   highp vec4 cc_lightPos[LIGHTS_PER_PASS]; // xyz: pos, w: isSpotLight

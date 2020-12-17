@@ -119,14 +119,13 @@ vec4 DealMainLightShading (StandardSurface s, float fogFractor) {
   #endif
 
   vec4 ret = vec4(finalColor, s.albedo.a);
-  //ret = vec4(mix(cc_fogColor.rgb, ret.rgb, fogFractor), ret.a);
+  ret = vec4(mix(cc_fogColor.rgb, ret.rgb, fogFractor), ret.a);
   return CCFragOutput(ret);
 }
 
 vec4 CCDeferredShading(StandardSurface s, float fogFractor) {
   // part 1 : the main light - direct light
-  vec4 retColor = vec4(0,0,0,0);
-  retColor += DealMainLightShading(s, fogFractor);
+  vec4 retColor = DealMainLightShading(s, fogFractor);
 
   // part 2 : other lights, dot or sphere light
   retColor += DealLightShading(s, fogFractor);
