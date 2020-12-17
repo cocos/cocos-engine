@@ -57,17 +57,17 @@ rules:
     class-methods-use-this: off # so empty functions could work
     guard-for-in: off # for-in is a efficient choice for plain objects 
     import/export: off # so export declare namespace could work
-    import/extensions: off # typescriptor doesn't support this
+    import/extensions: off # typescript doesn't support this
     import/no-unresolved: off # TODO: fix internal modules
-    import/prefer-default-export: off # prefer seperate exports
+    import/prefer-default-export: off # prefer named exports
     indent: [warn, 4] # we use 4-space convention
     lines-between-class-members: off # be more lenient on member declarations
     max-classes-per-file: off # helper classes are common
     max-len: [warn, 150] # more lenient on max length per line
-    new-cap: off # some class still doesn't follow this yet
-    no-underscore-dangle: off # allow underscores
+    no-underscore-dangle: [warn, {
+      allowAfterThis: true # members prefixed with underscore are considered as private
+    }] # allow underscores
     no-plusplus: off # allow increment/decrement operators
-    no-console: off # allow console statements
     no-continue: off # allow unlabeled continues
     no-mixed-operators: off # this is just cumbersome
     no-multi-assign: off # it is handy sometimes
