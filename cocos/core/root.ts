@@ -489,11 +489,11 @@ export class Root {
         this._scenes = [];
     }
 
-    public createModel<T extends Model> (mClass: typeof Model): T {
-        let p = this._modelPools.get(mClass);
+    public createModel<T extends Model> (ModelCtor: typeof Model): T {
+        let p = this._modelPools.get(ModelCtor);
         if (!p) {
-            this._modelPools.set(mClass, new Pool(() => new mClass(), 10));
-            p = this._modelPools.get(mClass)!;
+            this._modelPools.set(ModelCtor, new Pool(() => new ModelCtor(), 10));
+            p = this._modelPools.get(ModelCtor)!;
         }
         const model = p.alloc() as T;
         model.initialize();
@@ -517,11 +517,11 @@ export class Root {
         return this._cameraPool!.alloc();
     }
 
-    public createLight<T extends Light> (lClass: new () => T): T {
-        let l = this._lightPools.get(lClass);
+    public createLight<T extends Light> (LightCtor: new () => T): T {
+        let l = this._lightPools.get(LightCtor);
         if (!l) {
-            this._lightPools.set(lClass, new Pool(() => new lClass(), 4));
-            l = this._lightPools.get(lClass)!;
+            this._lightPools.set(LightCtor, new Pool(() => new LightCtor(), 4));
+            l = this._lightPools.get(LightCtor)!;
         }
         const light = l.alloc() as T;
         light.initialize();
