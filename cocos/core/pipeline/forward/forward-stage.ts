@@ -50,7 +50,7 @@ import { PlanarShadowQueue } from './planar-shadow-queue';
 import { UIPhase } from './ui-phase';
 import { Camera } from '../../renderer/scene';
 
-const colors: Color[] = [ new Color(0, 0, 0, 1) ];
+const colors: Color[] = [new Color(0, 0, 0, 1)];
 
 /**
  * @en The forward render stage
@@ -58,7 +58,6 @@ const colors: Color[] = [ new Color(0, 0, 0, 1) ];
  */
 @ccclass('ForwardStage')
 export class ForwardStage extends RenderStage {
-
     public static initInfo: IRenderStageInfo = {
         name: 'ForwardStage',
         priority: ForwardStagePriority.FORWARD,
@@ -74,9 +73,8 @@ export class ForwardStage extends RenderStage {
                 sortMode: RenderQueueSortMode.BACK_TO_FRONT,
                 stages: ['default', 'planarShadow'],
             },
-        ]
+        ],
     };
-
 
     @type([RenderQueueDesc])
     @serializable
@@ -116,12 +114,14 @@ export class ForwardStage extends RenderStage {
             }
             let sortFunc: (a: IRenderPass, b: IRenderPass) => number = opaqueCompareFn;
             switch (this.renderQueues[i].sortMode) {
-                case RenderQueueSortMode.BACK_TO_FRONT:
-                    sortFunc = transparentCompareFn;
-                    break;
-                case RenderQueueSortMode.FRONT_TO_BACK:
-                    sortFunc = opaqueCompareFn;
-                    break;
+            case RenderQueueSortMode.BACK_TO_FRONT:
+                sortFunc = transparentCompareFn;
+                break;
+            case RenderQueueSortMode.FRONT_TO_BACK:
+                sortFunc = opaqueCompareFn;
+                break;
+            default:
+                break;
             }
 
             this._renderQueues[i] = new RenderQueue({
@@ -136,12 +136,10 @@ export class ForwardStage extends RenderStage {
         this._uiPhase.activate(pipeline);
     }
 
-
     public destroy () {
     }
 
     public render (camera: Camera) {
-
         this._instancedQueue.clear();
         this._batchedQueue.clear();
         const pipeline = this._pipeline as ForwardPipeline;
@@ -190,10 +188,10 @@ export class ForwardStage extends RenderStage {
         // render area is not oriented
         const w = camera.window!.hasOnScreenAttachments && device.surfaceTransform % 2 ? camera.height : camera.width;
         const h = camera.window!.hasOnScreenAttachments && device.surfaceTransform % 2 ? camera.width : camera.height;
-        this._renderArea!.x = vp.x * w;
-        this._renderArea!.y = vp.y * h;
-        this._renderArea!.width = vp.width * w * pipeline.shadingScale;
-        this._renderArea!.height = vp.height * h * pipeline.shadingScale;
+        this._renderArea.x = vp.x * w;
+        this._renderArea.y = vp.y * h;
+        this._renderArea.width = vp.width * w * pipeline.shadingScale;
+        this._renderArea.height = vp.height * h * pipeline.shadingScale;
 
         if (camera.clearFlag & ClearFlag.COLOR) {
             if (pipeline.isHDR) {
@@ -214,7 +212,7 @@ export class ForwardStage extends RenderStage {
         const framebuffer = camera.window!.framebuffer;
         const renderPass = framebuffer.colorTextures[0] ? framebuffer.renderPass : pipeline.getRenderPass(camera.clearFlag);
 
-        cmdBuff.beginRenderPass(renderPass, framebuffer, this._renderArea!,
+        cmdBuff.beginRenderPass(renderPass, framebuffer, this._renderArea,
             colors, camera.clearDepth, camera.clearStencil);
 
         cmdBuff.bindDescriptorSet(SetIndex.GLOBAL, pipeline.descriptorSet);

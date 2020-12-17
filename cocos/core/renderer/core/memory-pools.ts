@@ -837,7 +837,6 @@ const uiBatchViewDataType: BufferDataTypeManifest<typeof UIBatchView> = {
 
 export const UIBatchPool = new BufferPool<PoolType.UI_BATCH, typeof UIBatchView, IUIBatchViewType>(PoolType.UI_BATCH, uiBatchViewDataType, UIBatchView);
 
-
 export enum AABBView {
     CENTER,             // Vec3
     HALF_EXTENSION = 3, // Vec3

@@ -36,7 +36,7 @@ import { Device, Color } from '../../gfx';
 import { legacyCC } from '../../global-exports';
 import { RenderWindow } from '../core/render-window';
 import {
-    CameraHandle, CameraPool, CameraView, FrustumHandle, FrustumPool, NULL_HANDLE, SceneHandle, RenderWindowHandle
+    CameraHandle, CameraPool, CameraView, FrustumHandle, FrustumPool, NULL_HANDLE, SceneHandle, RenderWindowHandle,
 } from '../core/memory-pools';
 import { recordFrustumToSharedMemory } from '../../geometry/frustum';
 import { preTransforms } from '../../math/mat4';

@@ -34,7 +34,7 @@ import { IRenderFlowInfo, RenderFlow } from '../render-flow';
 import { ForwardFlowPriority } from '../forward/enum';
 import { ShadowStage } from './shadow-stage';
 import { RenderPass, LoadOp, StoreOp,
-    TextureLayout, Format, Texture, TextureType, TextureUsageBit,ColorAttachment,
+    TextureLayout, Format, Texture, TextureType, TextureUsageBit, ColorAttachment,
     DepthStencilAttachment, RenderPassInfo, TextureInfo, FramebufferInfo } from '../../gfx';
 import { RenderFlowTag } from '../pipeline-serialization';
 import { ForwardPipeline } from '../forward/forward-pipeline';
@@ -50,7 +50,6 @@ import { Camera } from '../../renderer/scene';
  */
 @ccclass('ShadowFlow')
 export class ShadowFlow extends RenderFlow {
-
     /**
      * @en A common initialization info for shadow map render flow
      * @zh 一个通用的 ShadowFlow 的初始化信息对象
@@ -59,7 +58,7 @@ export class ShadowFlow extends RenderFlow {
         name: PIPELINE_FLOW_SHADOW,
         priority: ForwardFlowPriority.SHADOW,
         tag: RenderFlowTag.SCENE,
-        stages: []
+        stages: [],
     };
 
     private _shadowRenderPass: RenderPass|null = null;
@@ -103,7 +102,7 @@ export class ShadowFlow extends RenderFlow {
 
     public destroy () {
         super.destroy();
-        let shadowFrameBuffers = Array.from((this._pipeline as ForwardPipeline).shadowFrameBufferMap.values());
+        const shadowFrameBuffers = Array.from((this._pipeline as ForwardPipeline).shadowFrameBufferMap.values());
         for (let i = 0; i < shadowFrameBuffers.length; i++) {
             const frameBuffer = shadowFrameBuffers[i];
 
@@ -111,7 +110,7 @@ export class ShadowFlow extends RenderFlow {
             const renderTargets = frameBuffer.colorTextures;
             for (let j = 0; j < renderTargets.length; j++) {
                 const renderTarget = renderTargets[i];
-                if (renderTarget) { renderTarget.destroy() };
+                if (renderTarget) { renderTarget.destroy(); }
             }
             renderTargets.length = 0;
 
@@ -123,7 +122,7 @@ export class ShadowFlow extends RenderFlow {
 
         (this._pipeline as ForwardPipeline).shadowFrameBufferMap.clear();
 
-        if(this._shadowRenderPass) { this._shadowRenderPass.destroy() };
+        if (this._shadowRenderPass) { this._shadowRenderPass.destroy(); }
     }
 
     public _initShadowFrameBuffer  (pipeline: ForwardPipeline, light: Light) {

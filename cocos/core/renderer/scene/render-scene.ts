@@ -23,6 +23,7 @@
  THE SOFTWARE.
  */
 
+import { PREVIEW } from 'internal:constants';
 import { IBArray } from '../../assets/mesh';
 import { AABB, intersect, Ray, Triangle } from '../../geometry';
 import { PrimitiveMode } from '../../gfx/define';
@@ -36,7 +37,6 @@ import { DirectionalLight } from './directional-light';
 import { Model, ModelType } from './model';
 import { SphereLight } from './sphere-light';
 import { SpotLight } from './spot-light';
-import { PREVIEW } from 'internal:constants';
 import { TransformBit } from '../../scene-graph/node-enum';
 import { legacyCC } from '../../global-exports';
 import { ScenePool, SceneView, ModelArrayPool, ModelArrayHandle, SceneHandle, NULL_HANDLE, UIBatchArrayHandle, UIBatchArrayPool, LightArrayHandle, LightArrayPool } from '../core/memory-pools';
@@ -58,7 +58,6 @@ export interface IRaycastResult {
 }
 
 export class RenderScene {
-
     get root (): Root {
         return this._root;
     }
@@ -132,7 +131,7 @@ export class RenderScene {
     }
 
     private _root: Root;
-    private _name: string = '';
+    private _name = '';
     private _cameras: Camera[] = [];
     private _models: Model[] = [];
     private _batches: UIDrawBatch[] = [];
@@ -140,7 +139,7 @@ export class RenderScene {
     private _sphereLights: SphereLight[] = [];
     private _spotLights: SpotLight[] = [];
     private _mainLight: DirectionalLight | null = null;
-    private _modelId: number = 0;
+    private _modelId = 0;
     private _scenePoolHandle: SceneHandle = NULL_HANDLE;
     private _modelArrayHandle: ModelArrayHandle = NULL_HANDLE;
     private _batchArrayHandle: UIBatchArrayHandle = NULL_HANDLE;
@@ -281,7 +280,7 @@ export class RenderScene {
             if (this._sphereLights[i] === pl) {
                 pl.detachFromScene();
                 this._sphereLights.splice(i, 1);
-                LightArrayPool.erase(this._sphereLightsHandle, i)
+                LightArrayPool.erase(this._sphereLightsHandle, i);
                 return;
             }
         }
@@ -537,23 +536,27 @@ export class RenderScene {
         return resultCanvas.length > 0;
     }
 
-    private _raycastUI2DNode (worldRay: Ray, ui2dNode: Node, mask = Layers.Enum.UI_2D, distance = Infinity) {
+    private _raycastUI2DNode (worldRay: Ray, ui2dNode: Node, mask = Layers.Enum.UI_2D, distance = Infinity): any {
         if (PREVIEW) {
             if (ui2dNode == null) { console.error('make sure UINode is not null'); }
         }
         const uiTransform = ui2dNode._uiProps.uiTransformComp;
-        if (uiTransform == null || ui2dNode.layer & Layers.Enum.IGNORE_RAYCAST || !(ui2dNode.layer & mask)) { return; }
+        if (uiTransform == null || ui2dNode.layer & Layers.Enum.IGNORE_RAYCAST || !(ui2dNode.layer & mask)) { return null; }
         uiTransform.getComputeAABB(aabbUI);
         const d = intersect.rayAABB(worldRay, aabbUI);
 
         if (d <= 0) {
-            return;
-        } else if (d < distance) {
+            return null;
+        }
+
+        if (d < distance) {
             const r = poolUI.add();
             r.node = ui2dNode;
             r.distance = d;
             return r;
         }
+
+        return null;
     }
 
     private _raycastUI2DNodeRecursiveChildren (worldRay: Ray, parent: Node, mask = Layers.Enum.UI_2D, distance = Infinity) {
@@ -593,15 +596,11 @@ const v3 = new Vec3();
 const m4 = new Mat4();
 let narrowDis = Infinity;
 const tri = Triangle.create();
-const pool = new RecyclePool<IRaycastResult>(() => {
-    return { node: null!, distance: Infinity };
-}, 8);
+const pool = new RecyclePool<IRaycastResult>(() => ({ node: null!, distance: Infinity }), 8);
 const resultModels: IRaycastResult[] = [];
 /** Canvas raycast result pool */
 const aabbUI = new AABB();
-const poolUI = new RecyclePool<IRaycastResult>(() => {
-    return { node: null!, distance: Infinity };
-}, 8);
+const poolUI = new RecyclePool<IRaycastResult>(() => ({ node: null!, distance: Infinity }), 8);
 const resultCanvas: IRaycastResult[] = [];
 /** raycast all */
 const resultAll: IRaycastResult[] = [];

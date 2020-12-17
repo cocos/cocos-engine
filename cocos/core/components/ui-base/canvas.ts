@@ -275,7 +275,7 @@ export class Canvas extends Component {
                 name: `ui_${this.node.name}`,
                 node: cameraNode,
                 projection: Camera.ProjectionType.ORTHO,
-                priority: this._getViewPriority()
+                priority: this._getViewPriority(),
             });
 
             this._camera.fov = 45;

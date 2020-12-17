@@ -28,9 +28,9 @@
  * @module pipeline
  */
 
+import { ccclass, displayOrder, type, serializable } from 'cc.decorator';
 import { legacyCC } from '../global-exports';
 import { Asset } from '../assets/asset';
-import { ccclass, displayOrder, type, serializable } from 'cc.decorator';
 import { RenderFlow } from './render-flow';
 import { MacroRecord } from '../renderer/core/pass-utils';
 import { Device, DescriptorSet, CommandBuffer, DescriptorSetLayout, DescriptorSetLayoutInfo, DescriptorSetInfo } from '../gfx';
@@ -56,7 +56,6 @@ export interface IRenderPipelineInfo {
  */
 @ccclass('cc.RenderPipeline')
 export abstract class RenderPipeline extends Asset {
-
     /**
      * @en Layout of the pipeline-global descriptor set.
      * @zh 管线层的全局描述符集布局。
@@ -91,7 +90,7 @@ export abstract class RenderPipeline extends Asset {
      */
     @displayOrder(0)
     @serializable
-    protected _tag: number = 0;
+    protected _tag = 0;
 
     /**
      * @en Flows
@@ -193,5 +192,3 @@ export abstract class RenderPipeline extends Asset {
         return super.destroy();
     }
 }
-
-

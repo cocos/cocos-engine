@@ -85,7 +85,7 @@ export abstract class RenderStage {
      */
     @displayOrder(0)
     @serializable
-    protected _name: string = '';
+    protected _name = '';
 
     /**
      * @en Priority
@@ -93,7 +93,7 @@ export abstract class RenderStage {
      */
     @displayOrder(1)
     @serializable
-    protected _priority: number = 0;
+    protected _priority = 0;
 
     /**
      * @en Type
@@ -101,7 +101,7 @@ export abstract class RenderStage {
      */
     @displayOrder(2)
     @serializable
-    protected _tag: number = 0;
+    protected _tag = 0;
     protected _pipeline!: RenderPipeline;
     protected _flow!: RenderFlow;
 

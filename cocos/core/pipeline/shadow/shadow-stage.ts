@@ -39,7 +39,7 @@ import { Light } from '../../renderer/scene/light';
 import { ShadowFlow } from './shadow-flow';
 import { Camera } from '../../renderer/scene';
 
-const colors: Color[] = [ new Color(1, 1, 1, 1) ];
+const colors: Color[] = [new Color(1, 1, 1, 1)];
 
 /**
  * @en Shadow map render stage
@@ -54,7 +54,7 @@ export class ShadowStage extends RenderStage {
     public static initInfo: IRenderStageInfo = {
         name: 'ShadowStage',
         priority: ForwardStagePriority.FORWARD,
-        tag: 0
+        tag: 0,
     };
 
     /**
@@ -88,15 +88,15 @@ export class ShadowStage extends RenderStage {
 
         const vp = camera.viewport;
         const shadowMapSize = shadowInfo.size;
-        this._renderArea!.x = vp.x * shadowMapSize.x;
-        this._renderArea!.y = vp.y * shadowMapSize.y;
-        this._renderArea!.width =  vp.width * shadowMapSize.x * pipeline.shadingScale;
-        this._renderArea!.height = vp.height * shadowMapSize.y * pipeline.shadingScale;
+        this._renderArea.x = vp.x * shadowMapSize.x;
+        this._renderArea.y = vp.y * shadowMapSize.y;
+        this._renderArea.width =  vp.width * shadowMapSize.x * pipeline.shadingScale;
+        this._renderArea.height = vp.height * shadowMapSize.y * pipeline.shadingScale;
 
         const device = pipeline.device;
-        const renderPass = this._shadowFrameBuffer!.renderPass;
+        const renderPass = this._shadowFrameBuffer.renderPass;
 
-        cmdBuff.beginRenderPass(renderPass, this._shadowFrameBuffer!, this._renderArea!,
+        cmdBuff.beginRenderPass(renderPass, this._shadowFrameBuffer, this._renderArea,
             colors, camera.clearDepth, camera.clearStencil);
 
         cmdBuff.bindDescriptorSet(SetIndex.GLOBAL, pipeline.descriptorSet);

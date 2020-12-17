@@ -85,15 +85,15 @@ export abstract class RenderFlow {
 
     @displayOrder(0)
     @serializable
-    protected _name: string = '';
+    protected _name = '';
 
     @displayOrder(1)
     @serializable
-    protected _priority: number = 0;
+    protected _priority = 0;
 
     @displayOrder(2)
     @serializable
-    protected _tag: number = 0;
+    protected _tag = 0;
 
     @displayOrder(3)
     @type([RenderStage])
@@ -106,7 +106,7 @@ export abstract class RenderFlow {
      * @zh 初始化函数，正常情况下不会用到，仅用于程序化生成渲染管线的情况。
      * @param info The render flow information
      */
-    public initialize (info: IRenderFlowInfo): boolean{
+    public initialize (info: IRenderFlowInfo): boolean {
         this._name = info.name;
         this._priority = info.priority;
         this._stages = info.stages;
@@ -121,9 +121,7 @@ export abstract class RenderFlow {
      */
     public activate (pipeline: RenderPipeline) {
         this._pipeline = pipeline;
-        this._stages.sort((a, b) => {
-            return a.priority - b.priority;
-        });
+        this._stages.sort((a, b) => a.priority - b.priority);
 
         for (let i = 0, len = this._stages.length; i < len; i++) {
             this._stages[i].activate(pipeline, this);

@@ -301,7 +301,7 @@ export class ForwardPipeline extends RenderPipeline {
                 let y = 0;
                 let far = 0;
                 if (shadowInfo.autoAdapt) {
-                    shadowCameraView = getShadowWorldMatrix(this, mainLight.node?.getWorldRotation()!, mainLight.direction, vec3_center);
+                    shadowCameraView = getShadowWorldMatrix(this, mainLight.node!.getWorldRotation()!, mainLight.direction, vec3_center);
                     // if orthoSize is the smallest, auto calculate orthoSize.
                     const radius = shadowInfo.sphere.radius;
                     x = radius * shadowInfo.aspect;

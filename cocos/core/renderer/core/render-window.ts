@@ -31,7 +31,7 @@ import {
 import { RenderPass, Texture, Framebuffer, RenderPassInfo, Device, TextureInfo, FramebufferInfo } from '../../gfx';
 import { Root } from '../../root';
 import { RenderWindowHandle, RenderWindowPool, RenderWindowView, FramebufferPool, NULL_HANDLE } from './memory-pools';
-import { Camera } from '../../renderer/scene';
+import { Camera } from '../scene';
 
 export interface IRenderWindowInfo {
     title?: string;
@@ -47,7 +47,6 @@ export interface IRenderWindowInfo {
  * @zh 渲染窗口代表了一个渲染目标，可以是离屏的帧缓冲，也可以是屏幕缓冲
  */
 export class RenderWindow {
-
     /**
      * @en Get window width.
      * @zh 窗口宽度。
@@ -81,7 +80,7 @@ export class RenderWindow {
      * @zh 这个渲染窗口是否指向在屏缓冲
      */
     get hasOnScreenAttachments () {
-        return RenderWindowPool.get(this._poolHandle, RenderWindowView.HAS_ON_SCREEN_ATTACHMENTS) === 1 ? true : false;
+        return RenderWindowPool.get(this._poolHandle, RenderWindowView.HAS_ON_SCREEN_ATTACHMENTS) === 1;
     }
 
     /**
@@ -89,7 +88,7 @@ export class RenderWindow {
      * @zh 这个渲染窗口是否指向离屏缓冲
      */
     get hasOffScreenAttachments () {
-        return RenderWindowPool.get(this._poolHandle, RenderWindowView.HAS_OFF_SCREEN_ATTACHMENTS) === 1 ? true : false;
+        return RenderWindowPool.get(this._poolHandle, RenderWindowView.HAS_OFF_SCREEN_ATTACHMENTS) === 1;
     }
 
     get handle () : RenderWindowHandle {
@@ -229,9 +228,8 @@ export class RenderWindow {
         this._width = width;
         this._height = height;
 
-        if (width > this._nativeWidth ||
-            height > this._nativeHeight) {
-
+        if (width > this._nativeWidth
+            || height > this._nativeHeight) {
             this._nativeWidth = width;
             this._nativeHeight = height;
 
@@ -319,8 +317,6 @@ export class RenderWindow {
     }
 
     public sortCameras () {
-        this._cameras.sort((a: Camera, b: Camera) => {
-            return a.priority - b.priority;
-        });
+        this._cameras.sort((a: Camera, b: Camera) => a.priority - b.priority);
     }
 }

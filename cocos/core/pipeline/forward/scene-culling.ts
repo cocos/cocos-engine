@@ -148,7 +148,7 @@ function updateDirLight (pipeline: ForwardPipeline, light: DirectionalLight) {
     Mat4.toArray(pipeline.shadowUBO, shadows.matLight, UBOShadow.MAT_LIGHT_PLANE_PROJ_OFFSET);
 }
 
-export function updatePlanarPROJ (shadowInfo: Shadows, light: DirectionalLight, shadowUBO: Float32Array){
+export function updatePlanarPROJ (shadowInfo: Shadows, light: DirectionalLight, shadowUBO: Float32Array) {
     const dir = light.direction;
     const n = shadowInfo.normal; const d = shadowInfo.distance + 0.001; // avoid z-fighting
     const NdL = Vec3.dot(n, dir); const scale = 1 / NdL;
@@ -185,8 +185,8 @@ export function lightCollecting (camera: Camera, lightNumber: number) {
     for (let i = 0; i < spotLights.length; i++) {
         const light = spotLights[i];
         Sphere.set(_sphere, light.position.x, light.position.y, light.position.z, light.range);
-        if (intersect.sphereFrustum(_sphere, camera.frustum) &&
-         lightNumber > _validLights.length) {
+        if (intersect.sphereFrustum(_sphere, camera.frustum)
+         && lightNumber > _validLights.length) {
             _validLights.push(light);
         }
     }
@@ -206,9 +206,8 @@ export function shadowCollecting (pipeline: ForwardPipeline, camera: Camera) {
     for (let i = 0; i < models.length; i++) {
         const model = models[i];
         // filter model by view visibility
-        if (model.node && ((camera.visibility & model.node.layer) === model.node.layer) ||
-            (camera.visibility & model.visFlags)) {
-
+        if (model.node && ((camera.visibility & model.node.layer) === model.node.layer)
+            || (camera.visibility & model.visFlags)) {
             // shadow render Object
             if (model.castShadow && model.worldBounds) {
                 if (!_castBoundsInited) {
@@ -218,7 +217,7 @@ export function shadowCollecting (pipeline: ForwardPipeline, camera: Camera) {
                 AABB.merge(_castWorldBounds, _castWorldBounds, model.worldBounds);
                 shadowObjects.push(getCastShadowRenderObject(model, camera));
             }
-        }       
+        }
     }
     if (_castWorldBounds) { AABB.toBoundingSphere(shadows.sphere, _castWorldBounds); }
 }
@@ -252,9 +251,8 @@ export function sceneCulling (pipeline: ForwardPipeline, camera: Camera) {
 
         // filter model by view visibility
         if (model.enabled) {
-            if (model.node && ((camera.visibility & model.node.layer) === model.node.layer) ||
-                (camera.visibility & model.visFlags)) {
-
+            if (model.node && ((camera.visibility & model.node.layer) === model.node.layer)
+                || (camera.visibility & model.visFlags)) {
                 // frustum culling
                 if (model.worldBounds && !intersect.aabbFrustum(model.worldBounds, camera.frustum)) {
                     continue;

@@ -50,6 +50,7 @@ import { EffectAsset, RenderTexture, SpriteFrame } from '../../assets';
 import { programLib } from '../core/program-lib';
 import { TextureBase } from '../../assets/texture-base';
 import { sys } from '../../platform/sys';
+
 const _dsInfo = new DescriptorSetInfo(null!);
 
 /**
@@ -298,11 +299,11 @@ export class UI {
         this._screens.sort(this._screenSort);
     }
 
-    public addUploadBuffersFunc(target: any, func: Function) {
+    public addUploadBuffersFunc (target: any, func: Function) {
         this._doUploadBuffersCall.set(target, func);
     }
 
-    public removeUploadBuffersFunc(target: any) {
+    public removeUploadBuffersFunc (target: any) {
         this._doUploadBuffersCall.delete(target);
     }
 
@@ -355,15 +356,15 @@ export class UI {
                         }
                     }
                 }
-                
+
                 if (batch.camera) {
-                    const visibility = batch.camera.visibility
+                    const visibility = batch.camera.visibility;
                     batch.visFlags = visibility;
                     if (this._canvasMaterials.get(visibility)!.get(batch.material!.hash) == null) {
                         this._canvasMaterials.get(visibility)!.set(batch.material!.hash, 1);
                     }
                 }
-                    
+
                 this._scene.addBatch(batch);
             }
         }
@@ -521,7 +522,7 @@ export class UI {
             curDrawBatch.useLocalData = null;
             curDrawBatch.hDescriptorSet = SubModelPool.get(subModel.handle, SubModelView.DESCRIPTOR_SET);
             curDrawBatch.hInputAssembler = SubModelPool.get(subModel.handle, SubModelView.INPUT_ASSEMBLER);
-    
+
             // reset current render state to null
             this._currMaterial = this._emptyMaterial;
             this._currComponent = null;
@@ -532,7 +533,7 @@ export class UI {
             this._currSamplerHash = 0;
             this._currMaterialHash = 0;
             this._currMaterialUniformHash = 0;
-    
+
             this._batches.push(curDrawBatch);
         }
     }

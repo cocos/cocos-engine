@@ -56,11 +56,11 @@ export class UIDrawBatch {
     public set hDescriptorSet (handle) {
         UIBatchPool.set(this._handle, UIBatchView.DESCRIPTOR_SET, handle);
     }
-    public get material () {
-        return this._material;
-    }
     public get passes () {
         return this._material!.passes;
+    }
+    public get material () {
+        return this._material;
     }
     public set material (mat) {
         this._material = mat;
@@ -90,8 +90,8 @@ export class UIDrawBatch {
     public sampler: Sampler | null = null;
     public useLocalData: Node | null = null;
     public isStatic = false;
-    public textureHash: number = 0;
-    public samplerHash: number = 0;
+    public textureHash = 0;
+    public samplerHash = 0;
     private _material: Material | null = null;
     private _handle: UIBatchHandle = NULL_HANDLE;
 
@@ -113,7 +113,7 @@ export class UIDrawBatch {
         this._material = null;
         this.bufferBatch = null;
         this.hInputAssembler = NULL_HANDLE;
-        this.hDescriptorSet = NULL_HANDLE
+        this.hDescriptorSet = NULL_HANDLE;
         this.camera = null;
         this.texture = null;
         this.sampler = null;

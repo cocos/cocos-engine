@@ -64,7 +64,6 @@ export interface ISceneInfo {
  * Root类
  */
 export class Root {
-
     /**
      * @zh
      * GFX 设备
@@ -398,7 +397,7 @@ export class Root {
             for (let i = 0; i < scenes.length; i++) {
                 scenes[i].update(stamp);
             }
-            
+
             legacyCC.director.emit(legacyCC.Director.EVENT_BEFORE_COMMIT);
 
             for (let i = 0; i < windows.length; i++) {
@@ -536,12 +535,12 @@ export class Root {
             p.free(l);
             if (l.scene) {
                 switch (l.type) {
-                    case LightType.SPHERE:
-                        l.scene.removeSphereLight(l as SphereLight);
-                        break;
-                    case LightType.SPOT:
-                        l.scene.removeSpotLight(l as SpotLight);
-                        break;
+                case LightType.SPHERE:
+                    l.scene.removeSphereLight(l as SphereLight);
+                    break;
+                case LightType.SPOT:
+                    l.scene.removeSpotLight(l as SpotLight);
+                    break;
                 }
             }
         }
