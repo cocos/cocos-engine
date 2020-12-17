@@ -7,8 +7,10 @@ import { Layers } from '../../scene-graph/layers';
 import { Camera } from '../../renderer/scene/camera';
 import { ForwardPipeline } from './forward-pipeline';
 import { RenderPipeline } from '../render-pipeline';
+import { getPhaseID } from '../pass-phase';
 
 export class UIPhase {
+    private _phaseID = getPhaseID('default');
     private declare _pipeline: RenderPipeline;
 
     public activate (pipeline: RenderPipeline) {
@@ -29,10 +31,8 @@ export class UIPhase {
                 if (camera.visibility === batch.visFlags) {
                     visible = true;
                 }
-            } else {
-                if (camera.visibility & batch.visFlags) {
-                    visible = true;
-                }
+            } else if (camera.visibility & batch.visFlags) {
+                visible = true;
             }
 
             if (!visible) continue;
@@ -40,7 +40,8 @@ export class UIPhase {
             const count = UIBatchPool.get(handle, UIBatchView.PASS_COUNT);
             for (let j = 0; j < count; j++) {
                 const pass = batch.passes[j];
-                const shaderHandle = UIBatchPool.get(handle, UIBatchView.SHADER_0+j);
+                if (pass.phase !== this._phaseID) continue;
+                const shaderHandle = UIBatchPool.get(handle, UIBatchView.SHADER_0 + j);
                 const shader = ShaderPool.get(shaderHandle);
                 const inputAssembler = IAPool.get(batch.hInputAssembler);
                 const ds = DSPool.get(batch.hDescriptorSet);

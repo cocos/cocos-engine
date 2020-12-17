@@ -342,7 +342,7 @@ export class RenderAdditiveLightQueue {
     protected _updateLightDescriptorSet (camera: Camera, cmdBuff: CommandBuffer) {
         const shadowInfo = this._pipeline.shadows;
         const mainLight = camera.scene!.mainLight;
-        
+
         for (let i = 0; i < this._validLights.length; i++) {
             const light = this._validLights[i];
             const descriptorSet = this._getOrCreateDescriptorSet(light);
@@ -408,8 +408,6 @@ export class RenderAdditiveLightQueue {
     protected _updateGlobalDescriptorSet (camera: Camera, cmdBuff: CommandBuffer) {
         const root = legacyCC.director.root;
         const device = this._pipeline.device;
-        const pipeline = this._pipeline;
-        const fog = pipeline.fog;
         const fv = this._globalUBO;
 
         const shadingWidth = Math.floor(device.width);
@@ -422,25 +420,13 @@ export class RenderAdditiveLightQueue {
 
         fv[UBOGlobal.SCREEN_SIZE_OFFSET] = device.width;
         fv[UBOGlobal.SCREEN_SIZE_OFFSET + 1] = device.height;
-        fv[UBOGlobal.SCREEN_SIZE_OFFSET + 2] = 1.0 / fv[UBOGlobal.SCREEN_SIZE_OFFSET];
-        fv[UBOGlobal.SCREEN_SIZE_OFFSET + 3] = 1.0 / fv[UBOGlobal.SCREEN_SIZE_OFFSET + 1];
+        fv[UBOGlobal.SCREEN_SIZE_OFFSET + 2] = 1.0 / device.width;
+        fv[UBOGlobal.SCREEN_SIZE_OFFSET + 3] = 1.0 / device.height;
 
         fv[UBOGlobal.NATIVE_SIZE_OFFSET] = shadingWidth;
         fv[UBOGlobal.NATIVE_SIZE_OFFSET + 1] = shadingHeight;
         fv[UBOGlobal.NATIVE_SIZE_OFFSET + 2] = 1.0 / fv[UBOGlobal.NATIVE_SIZE_OFFSET];
         fv[UBOGlobal.NATIVE_SIZE_OFFSET + 3] = 1.0 / fv[UBOGlobal.NATIVE_SIZE_OFFSET + 1];
-
-        if (fog.enabled) {
-             fv.set(fog.colorArray, UBOGlobal.GLOBAL_FOG_COLOR_OFFSET);
- 
-             fv[UBOGlobal.GLOBAL_FOG_BASE_OFFSET] = fog.fogStart;
-             fv[UBOGlobal.GLOBAL_FOG_BASE_OFFSET + 1] = fog.fogEnd;
-             fv[UBOGlobal.GLOBAL_FOG_BASE_OFFSET + 2] = fog.fogDensity;
- 
-             fv[UBOGlobal.GLOBAL_FOG_ADD_OFFSET] = fog.fogTop;
-             fv[UBOGlobal.GLOBAL_FOG_ADD_OFFSET + 1] = fog.fogRange;
-             fv[UBOGlobal.GLOBAL_FOG_ADD_OFFSET + 2] = fog.fogAtten;
-         }
 
         this._updateCameraUBO(camera);
     }
@@ -454,6 +440,7 @@ export class RenderAdditiveLightQueue {
         const device = this._pipeline.device;
         const shadingWidth = Math.floor(device.width);
         const shadingHeight = Math.floor(device.height);
+        const fog = pipeline.fog;
 
         const cv = this._cameraUBO;
         cv[UBOCamera.SCREEN_SCALE_OFFSET] = camera.width / shadingWidth * shadingScale;
@@ -507,6 +494,18 @@ export class RenderAdditiveLightQueue {
         }
         cv.set(skyColor, UBOCamera.AMBIENT_SKY_OFFSET);
         cv.set(ambient.albedoArray, UBOCamera.AMBIENT_GROUND_OFFSET);
+
+        if (fog.enabled) {
+            cv.set(fog.colorArray, UBOCamera.GLOBAL_FOG_COLOR_OFFSET);
+
+            cv[UBOCamera.GLOBAL_FOG_BASE_OFFSET] = fog.fogStart;
+            cv[UBOCamera.GLOBAL_FOG_BASE_OFFSET + 1] = fog.fogEnd;
+            cv[UBOCamera.GLOBAL_FOG_BASE_OFFSET + 2] = fog.fogDensity;
+
+            cv[UBOCamera.GLOBAL_FOG_ADD_OFFSET] = fog.fogTop;
+            cv[UBOCamera.GLOBAL_FOG_ADD_OFFSET + 1] = fog.fogRange;
+            cv[UBOCamera.GLOBAL_FOG_ADD_OFFSET + 2] = fog.fogAtten;
+        }
     }
 
     protected _updateUBOs (camera: Camera, cmdBuff: CommandBuffer) {

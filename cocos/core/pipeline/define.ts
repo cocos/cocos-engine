@@ -36,9 +36,7 @@ import { legacyCC } from '../global-exports';
 import { BindingMappingInfo, DescriptorType, Type, ShaderStageFlagBit,
     DescriptorSetLayoutBinding, Uniform, UniformBlock, UniformSampler } from '../gfx';
 import { Camera } from '../renderer/scene';
-import { DescriptorSetHandle, InputAssemblerHandle} from '../renderer/core/memory-pools';
-
-
+import { DescriptorSetHandle, InputAssemblerHandle } from '../renderer/core/memory-pools';
 
 export const PIPELINE_FLOW_FORWARD = 'ForwardFlow';
 export const PIPELINE_FLOW_SHADOW = 'ShadowFlow';
@@ -166,12 +164,9 @@ bindingMappingInfo.flexibleSet = 1;
  */
 export class UBOGlobal {
     public static readonly TIME_OFFSET = 0;
-    public static readonly SCREEN_SIZE_OFFSET = UBOGlobal.TIME_OFFSET + 4;
-    public static readonly NATIVE_SIZE_OFFSET = UBOGlobal.SCREEN_SIZE_OFFSET + 4;
-    public static readonly GLOBAL_FOG_COLOR_OFFSET = UBOGlobal.NATIVE_SIZE_OFFSET + 4;
-    public static readonly GLOBAL_FOG_BASE_OFFSET = UBOGlobal.GLOBAL_FOG_COLOR_OFFSET + 4;
-    public static readonly GLOBAL_FOG_ADD_OFFSET = UBOGlobal.GLOBAL_FOG_BASE_OFFSET + 4;
-    public static readonly COUNT = UBOGlobal.GLOBAL_FOG_ADD_OFFSET + 4;
+    public static readonly NATIVE_SIZE_OFFSET = UBOGlobal.TIME_OFFSET + 4;
+    public static readonly SCREEN_SIZE_OFFSET = UBOGlobal.NATIVE_SIZE_OFFSET + 4;
+    public static readonly COUNT = UBOGlobal.SCREEN_SIZE_OFFSET + 4;
     public static readonly SIZE = UBOGlobal.COUNT * 4;
 
     public static readonly NAME = 'CCGlobal';
@@ -181,9 +176,6 @@ export class UBOGlobal {
         new Uniform('cc_time', Type.FLOAT4, 1),
         new Uniform('cc_screenSize', Type.FLOAT4, 1),
         new Uniform('cc_nativeSize', Type.FLOAT4, 1),
-        new Uniform('cc_fogColor', Type.FLOAT4, 1),
-        new Uniform('cc_fogBase', Type.FLOAT4, 1),
-        new Uniform('cc_fogAdd', Type.FLOAT4, 1),
     ], 1);
 }
 globalDescriptorSetLayout.layouts[UBOGlobal.NAME] = UBOGlobal.LAYOUT;
@@ -194,32 +186,29 @@ globalDescriptorSetLayout.bindings[UBOGlobal.BINDING] = UBOGlobal.DESCRIPTOR;
  * @zh 全局相机 UBO。
  */
 export class UBOCamera {
-    public static readonly SCREEN_SCALE_OFFSET = 0;
-    public static readonly EXPOSURE_OFFSET = UBOCamera.SCREEN_SCALE_OFFSET + 4;
-    public static readonly MAIN_LIT_DIR_OFFSET = UBOCamera.EXPOSURE_OFFSET + 4;
-    public static readonly MAIN_LIT_COLOR_OFFSET = UBOCamera.MAIN_LIT_DIR_OFFSET + 4;
-    public static readonly AMBIENT_SKY_OFFSET = UBOCamera.MAIN_LIT_COLOR_OFFSET + 4;
-    public static readonly AMBIENT_GROUND_OFFSET = UBOCamera.AMBIENT_SKY_OFFSET + 4;
-    public static readonly MAT_VIEW_OFFSET = UBOCamera.AMBIENT_GROUND_OFFSET + 4;
+    public static readonly MAT_VIEW_OFFSET = 0;
     public static readonly MAT_VIEW_INV_OFFSET = UBOCamera.MAT_VIEW_OFFSET + 16;
     public static readonly MAT_PROJ_OFFSET = UBOCamera.MAT_VIEW_INV_OFFSET + 16;
     public static readonly MAT_PROJ_INV_OFFSET = UBOCamera.MAT_PROJ_OFFSET + 16;
     public static readonly MAT_VIEW_PROJ_OFFSET = UBOCamera.MAT_PROJ_INV_OFFSET + 16;
     public static readonly MAT_VIEW_PROJ_INV_OFFSET = UBOCamera.MAT_VIEW_PROJ_OFFSET + 16;
     public static readonly CAMERA_POS_OFFSET = UBOCamera.MAT_VIEW_PROJ_INV_OFFSET + 16;
-    public static readonly COUNT = UBOCamera.CAMERA_POS_OFFSET + 4;
+    public static readonly SCREEN_SCALE_OFFSET = UBOCamera.CAMERA_POS_OFFSET + 4;
+    public static readonly EXPOSURE_OFFSET = UBOCamera.SCREEN_SCALE_OFFSET + 4;
+    public static readonly MAIN_LIT_DIR_OFFSET = UBOCamera.EXPOSURE_OFFSET + 4;
+    public static readonly MAIN_LIT_COLOR_OFFSET = UBOCamera.MAIN_LIT_DIR_OFFSET + 4;
+    public static readonly AMBIENT_SKY_OFFSET = UBOCamera.MAIN_LIT_COLOR_OFFSET + 4;
+    public static readonly AMBIENT_GROUND_OFFSET = UBOCamera.AMBIENT_SKY_OFFSET + 4;
+    public static readonly GLOBAL_FOG_COLOR_OFFSET = UBOCamera.AMBIENT_GROUND_OFFSET + 4;
+    public static readonly GLOBAL_FOG_BASE_OFFSET = UBOCamera.GLOBAL_FOG_COLOR_OFFSET + 4;
+    public static readonly GLOBAL_FOG_ADD_OFFSET = UBOCamera.GLOBAL_FOG_BASE_OFFSET + 4;
+    public static readonly COUNT = UBOCamera.GLOBAL_FOG_ADD_OFFSET + 4;
     public static readonly SIZE = UBOCamera.COUNT * 4;
 
     public static readonly NAME = 'CCCamera';
     public static readonly BINDING = PipelineGlobalBindings.UBO_CAMERA;
     public static readonly DESCRIPTOR = new DescriptorSetLayoutBinding(UBOCamera.BINDING, DescriptorType.UNIFORM_BUFFER, 1, ShaderStageFlagBit.ALL);
     public static readonly LAYOUT = new UniformBlock(SetIndex.GLOBAL, UBOCamera.BINDING, UBOCamera.NAME, [
-        new Uniform('cc_screenScale', Type.FLOAT4, 1),
-        new Uniform('cc_exposure', Type.FLOAT4, 1),
-        new Uniform('cc_mainLitDir', Type.FLOAT4, 1),
-        new Uniform('cc_mainLitColor', Type.FLOAT4, 1),
-        new Uniform('cc_ambientSky', Type.FLOAT4, 1),
-        new Uniform('cc_ambientGround', Type.FLOAT4, 1),
         new Uniform('cc_matView', Type.MAT4, 1),
         new Uniform('cc_matViewInv', Type.MAT4, 1),
         new Uniform('cc_matProj', Type.MAT4, 1),
@@ -227,6 +216,15 @@ export class UBOCamera {
         new Uniform('cc_matViewProj', Type.MAT4, 1),
         new Uniform('cc_matViewProjInv', Type.MAT4, 1),
         new Uniform('cc_cameraPos', Type.FLOAT4, 1),
+        new Uniform('cc_screenScale', Type.FLOAT4, 1),
+        new Uniform('cc_exposure', Type.FLOAT4, 1),
+        new Uniform('cc_mainLitDir', Type.FLOAT4, 1),
+        new Uniform('cc_mainLitColor', Type.FLOAT4, 1),
+        new Uniform('cc_ambientSky', Type.FLOAT4, 1),
+        new Uniform('cc_ambientGround', Type.FLOAT4, 1),
+        new Uniform('cc_fogColor', Type.FLOAT4, 1),
+        new Uniform('cc_fogBase', Type.FLOAT4, 1),
+        new Uniform('cc_fogAdd', Type.FLOAT4, 1),
     ], 1);
 }
 globalDescriptorSetLayout.layouts[UBOCamera.NAME] = UBOCamera.LAYOUT;
