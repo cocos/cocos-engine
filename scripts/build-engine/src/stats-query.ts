@@ -1,4 +1,3 @@
-
 import ps from 'path';
 import fs from 'fs-extra';
 import JSON5 from 'json5';
@@ -12,6 +11,7 @@ interface Config {
 
     /**
      * Describe how to generate the index module `'cc'`.
+     * Currently not used.
      */
     index?: IndexConfig;
 
@@ -62,7 +62,7 @@ export class StatsQuery {
     /**
      * @param engine Path to the engine root.
      */
-    public static async create(engine: string) {
+    public static async create (engine: string) {
         const configFile = ps.join(engine, 'cc.config.json');
         const config: Config = JSON5.parse(await fs.readFile(configFile, 'utf8'));
         const query = new StatsQuery(engine, config);
@@ -80,14 +80,14 @@ export class StatsQuery {
     /**
      * Gets the path to tsconfig.
      */
-    get tsConfigPath() {
+    get tsConfigPath () {
         return ps.join(this._engine, 'tsconfig.json');
     }
 
     /**
      * Gets all features defined.
      */
-    public getFeatures() {
+    public getFeatures () {
         return Object.keys(this._features);
     }
 
@@ -95,41 +95,41 @@ export class StatsQuery {
      * Returns if the specified feature is defined.
      * @param feature Feature ID.
      */
-    public hasFeature(feature: string) {
+    public hasFeature (feature: string) {
         return !!this._features[feature];
     }
 
     /**
-     * Gets all public modules included in specified features.
+     * Gets all feature units included in specified features.
      * @param featureIds Feature ID.
      */
-    public getModulesOfFeatures(featureIds: string[]) {
-        const modules = new Set<string>();
+    public getUnitsOfFeatures (featureIds: string[]) {
+        const units = new Set<string>();
         for (const featureId of featureIds) {
-            this._features[featureId]?.modules.forEach(entry => modules.add(entry));
+            this._features[featureId]?.modules.forEach((entry) => units.add(entry));
         }
-        return Array.from(modules);
+        return Array.from(units);
     }
 
     /**
-     * Gets all public modules in their names.
+     * Gets all feature units in their names.
      */
-    public getPublicModules() {
-        return Object.keys(this._publicModules);
+    public getFeatureUnits () {
+        return Object.keys(this._featureUnits);
     }
 
     /**
-     * Gets the path to source file of the public module.
-     * @param moduleId Name of the public module.
+     * Gets the path to source file of the feature unit.
+     * @param moduleId Name of the feature unit.
      */
-    public getPublicModuleFile(moduleName: string) {
-        return this._publicModules[moduleName];
+    public getFeatureUnitFile (featureUnit: string) {
+        return this._featureUnits[featureUnit];
     }
 
     /**
      * Gets all editor public modules in their names.
      */
-    public getEditorPublicModules() {
+    public getEditorPublicModules () {
         return Object.keys(this._editorPublicModules);
     }
 
@@ -137,42 +137,42 @@ export class StatsQuery {
      * Gets the path to source file of the editor-public module.
      * @param moduleName Name of the public module.
      */
-    public getEditorPublicModuleFile(moduleName: string) {
+    public getEditorPublicModuleFile (moduleName: string) {
         return this._editorPublicModules[moduleName];
     }
 
     /**
      * Gets the source of `'cc'`.
-     * @param moduleNames Involved modules.
-     * @param mapper If exists, map the module name into another module request.
+     * @param featureUnits Involved feature units.
+     * @param mapper If exists, map the feature unit name into another module request.
      */
-    public evaluateIndexModuleSource(moduleNames: string[], mapper?: (moduleName: string) => string) {
-        return moduleNames.map(moduleName => {
-            const indexInfo = this._index.modules[moduleName];
+    public evaluateIndexModuleSource (featureUnits: string[], mapper?: (featureUnit: string) => string) {
+        return featureUnits.map((featureUnit) => {
+            const indexInfo = this._index.modules[featureUnit];
             const ns = indexInfo?.ns;
             if (ns) {
                 return dedent`
-                    import * as ${ns} from '${mapper?.(moduleName) ?? moduleName}';
+                    import * as ${ns} from '${mapper?.(featureUnit) ?? featureUnit}';
                     export { ${ns} };
                 `;
             }
-            return `export * from '${mapper?.(moduleName) ?? moduleName}';`;
+            return `export * from '${mapper?.(featureUnit) ?? featureUnit}';`;
         }).join('\n');
     }
 
     /**
      * Evaluates the source of `'internal-constants'`(`'cc/env'`),
-     * @param context 
+     * @param context
      */
-    public evaluateEnvModuleSourceFromRecord(record: Record<string, unknown>) {
+    public evaluateEnvModuleSourceFromRecord (record: Record<string, unknown>) {
         return Object.entries(record).map(([k, v]) => `export const ${k} = ${v};`).join('\n');
     }
 
     /**
      * Evaluates module overrides under specified context.
-     * @param context 
+     * @param context
      */
-    public evaluateModuleOverrides(context: Context) {
+    public evaluateModuleOverrides (context: Context) {
         const overrides: Record<string, string> = {};
 
         const addModuleOverrides = (moduleOverrides: Record<string, string>) => {
@@ -192,7 +192,7 @@ export class StatsQuery {
         return overrides;
     }
 
-    private static async _readDomainSpecifiedPublicModules(exportsDir: string, mapper: (baseName: string) => string) {
+    private static async _readModulesInDir (exportsDir: string, mapper: (baseName: string) => string) {
         const result: Record<string, string> = {};
         for (const entryFileName of await fs.readdir(exportsDir)) {
             const entryExtName = ps.extname(entryFileName);
@@ -207,46 +207,48 @@ export class StatsQuery {
         return result;
     }
 
-    private static _baseNameToModuleName(baseName: string) {
-        return `cc/${baseName}`;
+    private static _baseNameToFeatureUnitName (baseName: string) {
+        return `${baseName}`;
     }
 
-    private static _editorBaseNameToModuleName(baseName: string) {
+    private static _editorBaseNameToModuleName (baseName: string) {
         return `cc/editor/exports/${baseName}`;
     }
 
-    private constructor(engine: string, config: Config) {
+    private constructor (engine: string, config: Config) {
         this._config = config;
         this._engine = engine;
     }
 
-    private _evalTest<T>(test: Test, context: Context) {
+    private _evalTest<T> (test: Test, context: Context) {
+        // eslint-disable-next-line @typescript-eslint/no-implied-eval,no-new-func
         const result = new Function('context', `return ${test}`)(context) as T;
         console.debug(`Eval "${test}" to ${result}`);
         return result;
     }
 
-    private async _initialize() {
+    private async _initialize () {
         const { _config: config, _engine: engine } = this;
 
-        const publicModules = this._publicModules = await StatsQuery._readDomainSpecifiedPublicModules(
-            ps.join(engine, 'exports'), StatsQuery._baseNameToModuleName);
+        const featureUnits = this._featureUnits = await StatsQuery._readModulesInDir(
+            ps.join(engine, 'exports'), StatsQuery._baseNameToFeatureUnitName,
+        );
 
         for (const [featureName, feature] of Object.entries(config.features)) {
             const parsedFeature = this._features[featureName] = { modules: [] } as Feature;
             for (const moduleFileBaseName of feature.modules) {
-                const moduleName = StatsQuery._baseNameToModuleName(moduleFileBaseName);
-                if (!publicModules[moduleName]) {
+                const featureUnitName = StatsQuery._baseNameToFeatureUnitName(moduleFileBaseName);
+                if (!featureUnits[featureUnitName]) {
                     throw new Error(`Invalid config file: '${moduleFileBaseName}' is not a valid module.`);
                 }
-                parsedFeature.modules.push(moduleName);
+                parsedFeature.modules.push(featureUnitName);
             }
         }
 
         if (config.index) {
             if (config.index.modules) {
                 for (const [k, v] of Object.entries(config.index.modules)) {
-                    this._index.modules[StatsQuery._baseNameToModuleName(k)] = v;
+                    this._index.modules[StatsQuery._baseNameToFeatureUnitName(k)] = v;
                 }
             }
             this._index = {
@@ -255,15 +257,16 @@ export class StatsQuery {
             };
         }
 
-        this._editorPublicModules = await StatsQuery._readDomainSpecifiedPublicModules(
-            ps.join(engine, 'editor', 'exports'), StatsQuery._editorBaseNameToModuleName);
+        this._editorPublicModules = await StatsQuery._readModulesInDir(
+            ps.join(engine, 'editor', 'exports'), StatsQuery._editorBaseNameToModuleName,
+        );
     }
 
     private _engine: string;
-    private _index: ParsedIndexConfig = { modules: {}, };
+    private _index: ParsedIndexConfig = { modules: {} };
     private _features: Config['features'] = {};
     private _config: Readonly<Config>;
-    private _publicModules: Record<string, string> = {};
+    private _featureUnits: Record<string, string> = {};
     private _editorPublicModules: Record<string, string> = {};
 }
 
