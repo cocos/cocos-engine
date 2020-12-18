@@ -64,7 +64,7 @@ export class MeshBuffer {
     private _vertexFormatBytes = 0;
     private _initVDataCount = 0;
     private _initIDataCount = 256 * 6;
-    private _outOfCallback: ((...args: number[]) => void) | null = null;
+    private _outOfCallback: ((attrs: Attribute[], ...args: number[]) => void) | null = null;
     private _hInputAssemblers: InputAssemblerHandle[] = [];
     private _nextFreeIAHandle = 0;
 
@@ -76,7 +76,7 @@ export class MeshBuffer {
         return this._vertexFormatBytes;
     }
 
-    public initialize (attrs: Attribute[], outOfCallback: ((...args: number[]) => void) | null) {
+    public initialize (attrs: Attribute[], outOfCallback: ((attrs: Attribute[], ...args: number[]) => void) | null) {
         this._outOfCallback = outOfCallback;
         const formatBytes = getAttributeFormatBytes(attrs);
         this._vertexFormatBytes = formatBytes * Float32Array.BYTES_PER_ELEMENT;
@@ -118,7 +118,7 @@ export class MeshBuffer {
             // merge last state
             this._batcher.autoMergeBatches();
             if (this._outOfCallback) {
-                this._outOfCallback.call(this._batcher, vertexCount, indicesCount);
+                this._outOfCallback.call(this._batcher, this._attributes, vertexCount, indicesCount);
             }
             return false;
         }

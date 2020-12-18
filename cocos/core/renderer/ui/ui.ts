@@ -735,7 +735,7 @@ export class UI {
 
     private _createMeshBuffer (attributes: Attribute[]): MeshBuffer {
         const batch = this._bufferBatchPool.add();
-        batch.initialize(attributes, this._requireBufferBatch.bind(this, attributes));
+        batch.initialize(attributes, this._requireBufferBatch.bind(this));
         const strideBytes = UIVertexFormat.getAttributeStride(attributes);
         let buffers = this._meshBuffers.get(strideBytes);
         if (!buffers) { buffers = []; this._meshBuffers.set(strideBytes, buffers); }
@@ -755,8 +755,8 @@ export class UI {
             this._currMeshBuffer = buffers[meshBufferUseCount];
         }
         this._meshBufferUseCount.set(strideBytes, meshBufferUseCount + 1);
-        if (arguments.length === 2) {
-            this._currMeshBuffer.request(arguments[0], arguments[1]);
+        if (arguments.length === 3) {
+            this._currMeshBuffer.request(arguments[1], arguments[2]);
         }
     }
 

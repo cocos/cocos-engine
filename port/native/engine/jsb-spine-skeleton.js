@@ -831,7 +831,7 @@ const cacheManager = require('./jsb-cache-manager');
         if (border !== 0xffffffff) return;
 
         let matLen = renderInfo[renderInfoOffset + materialIdx++];
-        let useTint = this.useTint;
+        let useTint = this.useTint || this.isAnimationCached();
         let vfmt = useTint ? middleware.vfmtPosUvTwoColor : middleware.vfmtPosUvColor;
         
         let renderSegmentInfo = this._renderSegmentInfo;
