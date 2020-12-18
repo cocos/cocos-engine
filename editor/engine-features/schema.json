@@ -77,7 +77,7 @@
                 "base": {
                     "$ref": "#/definitions/BaseItem"
                 },
-                "dragonbones": {
+                "dragon-bones": {
                     "$ref": "#/definitions/BaseItem"
                 },
                 "gfx-webgl": {
@@ -152,7 +152,7 @@
                 "base": {
                     "$ref": "#/definitions/Item"
                 },
-                "dragonbones": {
+                "dragon-bones": {
                     "$ref": "#/definitions/Item"
                 },
                 "gfx-webgl": {
