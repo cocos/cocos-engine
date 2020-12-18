@@ -62,9 +62,10 @@ module.exports = {
             VideoPlayer: `${url}/${version}/manual/zh/ui-system/components/editor/videoplayer.html`,
             WebView: `${url}/${version}/manual/zh/ui-system/components/editor/webview.html`,
             SafeArea: `${url}/${version}/manual/zh/ui-system/components/editor/safearea.html`,
+            Terrain: `${url}/${version}/manual/zh/editor/terrain/`,
             TiledMap: ``,
             Spine: ``,
-        }
+        },
     },
 
     animation: {
@@ -123,7 +124,8 @@ module.exports = {
     sprite: {
         sprite_frame: '渲染 Sprite 使用的 SpriteFrame 图片资源',
         atlas: '图片资源所属的 Atlas 图集资源',
-        type: '渲染模式：\n - 普通(Simple)：修改尺寸会整体拉伸图像，适用于序列帧动画和普通图像 \n' +
+        type:
+            '渲染模式：\n - 普通(Simple)：修改尺寸会整体拉伸图像，适用于序列帧动画和普通图像 \n' +
             '- 九宫格（Sliced）：修改尺寸时四个角的区域不会拉伸，适用于 UI 按钮和面板背景 \n' +
             '- 平铺（Tiled）：修改尺寸时会不断平铺原始大小的图片 \n' +
             '- 填充（Filled）：设置一定的填充起始位置和方向，能够以一定比率剪裁显示图片',
@@ -138,7 +140,8 @@ module.exports = {
         fill_range: '填充总量，取值范围 0 ~ 1 指定显示图像范围的百分比',
         src_blend_factor: '混合显示两张图片时，源图片的取值模式',
         dst_blend_factor: '混合显示两张图片时，目标图片的取值模式',
-        size_mode: '指定 Sprite 所在节点的尺寸，CUSTOM 表示自定义尺寸，TRIMMED 表示取原始图片剪裁透明像素后的尺寸，RAW 表示取原始图片未剪裁的尺寸',
+        size_mode:
+            '指定 Sprite 所在节点的尺寸，CUSTOM 表示自定义尺寸，TRIMMED 表示取原始图片剪裁透明像素后的尺寸，RAW 表示取原始图片未剪裁的尺寸',
         trim: '节点约束框内是否包括透明像素区域，勾选此项会去除节点约束框内的透明区域',
     },
     button: {
@@ -156,7 +159,8 @@ module.exports = {
         disabled_color: '禁用状态的按钮背景颜色',
         duration: '按钮颜色变化或者缩放变化的过渡时间',
         zoom_scale: '当用户点击按钮后，按钮会缩放到一个值，这个值等于 Button 原始 scale * zoomScale, zoomScale 可以为负数',
-        auto_gray_effect: '如果这个标记为 true，当 button 的 interactable 属性为 false 的时候，会使用内置 shader 让 button 的 target 节点的 sprite 组件变灰',
+        auto_gray_effect:
+            '如果这个标记为 true，当 button 的 interactable 属性为 false 的时候，会使用内置 shader 让 button 的 target 节点的 sprite 组件变灰',
         normal_sprite: '普通状态的按钮背景图资源',
         pressed_sprite: '按下状态的按钮背景图资源',
         hover_sprite: '悬停状态的按钮背景图资源',
@@ -165,7 +169,8 @@ module.exports = {
         click_events: '按钮点击事件的列表。先将数量改为1或更多，就可以为每个点击事件设置接受者和处理方法',
     },
     canvas: {
-        design_resolution: '设计分辨率是游戏在设计时使用的分辨率参考，以像素为单位，通过下面的适配策略，可以在不同分辨率的设备上按照一定的方式对 Canvas 进行整体缩放来适配。',
+        design_resolution:
+            '设计分辨率是游戏在设计时使用的分辨率参考，以像素为单位，通过下面的适配策略，可以在不同分辨率的设备上按照一定的方式对 Canvas 进行整体缩放来适配。',
         fit_height: '自动缩放 Canvas 使设计分辨率的高度充满设备屏幕的高度',
         fit_width: '自动缩放 Canvas 使设计分辨率的宽度充满设备屏幕的宽度',
     },
@@ -176,7 +181,8 @@ module.exports = {
         font_size: '文字尺寸，以 point 为单位',
         font_family: '文字字体名字',
         line_height: '文字行高，以 point 为单位',
-        overflow: '文字排版模式，包括以下三种：\n 1. CLAMP: 节点约束框之外的文字会被截断 \n 2. SHRINK: 自动根据节点约束框缩小文字\n 3. RESIZE: 根据文本内容自动更新节点的 height 属性.',
+        overflow:
+            '文字排版模式，包括以下三种：\n 1. CLAMP: 节点约束框之外的文字会被截断 \n 2. SHRINK: 自动根据节点约束框缩小文字\n 3. RESIZE: 根据文本内容自动更新节点的 height 属性.',
         wrap: '是否允许自动换行',
         font: 'Label 使用的字体资源',
         system_font: '是否使用系统默认字体，选中此项会将 file 属性置空',
@@ -216,7 +222,8 @@ module.exports = {
         indicator: '页面视图指示器组件',
         pageTurningSpeed: '每个页面翻页时所需时间。单位：秒',
         pageEvents: '页面视图的事件回调函数',
-        autoPageTurningThreshold: '快速滑动翻页临界值。 当用户快速滑动时，会根据滑动开始和结束的距离与时间计算出一个速度值，该值与此临界值相比较，如果大于临界值，则进行自动翻页',
+        autoPageTurningThreshold:
+            '快速滑动翻页临界值。 当用户快速滑动时，会根据滑动开始和结束的距离与时间计算出一个速度值，该值与此临界值相比较，如果大于临界值，则进行自动翻页',
     },
     pageview_indicator: {
         spriteFrame: '每个页面标记显示的图片',
@@ -234,7 +241,8 @@ module.exports = {
         disabled_color: '禁用状态的 Toggle 背景颜色',
         duration: 'Toggle 颜色变化或者缩放变化的过渡时间',
         zoom_scale: '当用户点击 Toggle 后，Toggle 会缩放到一个值，这个值等于 Toggle 原始 scale * zoomScale, zoomScale 可以为负数',
-        auto_gray_effect: '如果这个标记为 true，当 toggle 的 interactable 属性为 false 的时候，会使用内置 shader 让 toggle 的 target 节点的 sprite 组件变灰',
+        auto_gray_effect:
+            '如果这个标记为 true，当 toggle 的 interactable 属性为 false 的时候，会使用内置 shader 让 toggle 的 target 节点的 sprite 组件变灰',
         normal_sprite: '普通状态的 Toggle 背景图资源',
         pressed_sprite: '按下状态的 Toggle 背景图资源',
         hover_sprite: '悬停状态的 Toggle 背景图资源',
@@ -242,7 +250,8 @@ module.exports = {
         target: '指定 Toggle 背景节点，Toggle 状态改变时会修改此节点的 Color 或 Sprite 属性',
         isChecked: '如果这个设置为 true，则 check mark 组件会处于 enabled 状态，否则处于 disabled 状态。',
         checkMark: 'Toggle 处于选中状态时显示的精灵图片',
-        toggleGroup: 'Toggle 所属的 ToggleGroup，这个属性是可选的。如果这个属性为 null，则 Toggle 是一个 CheckBox，否则，Toggle 是一个 RadioButton。',
+        toggleGroup:
+            'Toggle 所属的 ToggleGroup，这个属性是可选的。如果这个属性为 null，则 Toggle 是一个 CheckBox，否则，Toggle 是一个 RadioButton。',
     },
     toggle_group: {
         allowSwitchOff: '如果这个设置为 true， 那么 toggle 按钮在被点击的时候可以反复地被选中和未选中。',
@@ -263,15 +272,18 @@ module.exports = {
         align_v_center: '是否对齐父节点垂直中点，开启这一选项将取消垂直轴上的其他对齐选项',
         align_mode: '指定 Widget 的对齐模式，用于决定运行时 Widget 应该何时刷新。',
         top: '本节点顶边和父节点顶边的距离，可输入负值，默认单位为像素（px），也可以输入百分比，根据父节点 height 和百分比数值计算出距离',
-        bottom: '本节点底边和父节点底边的距离，可输入负值，默认单位为像素（px），也可以输入百分比，根据父节点 height 和百分比数值计算出距离',
+        bottom:
+            '本节点底边和父节点底边的距离，可输入负值，默认单位为像素（px），也可以输入百分比，根据父节点 height 和百分比数值计算出距离',
         left: '本节点左边和父节点左边的距离，可输入负值，默认单位为像素（px），也可以输入百分比，根据父节点 width 和百分比数值计算出距离',
         right: '本节点右边和父节点右边的距离，可输入负值，默认单位为像素（px），也可以输入百分比，根据父节点 width 和百分比数值计算出距离',
         horizontal_center: '水平居中的偏移值，可输入负值，默认单位为像素（px），也可以是百分比',
         vertical_center: '垂直居中的偏移值，可输入负值，默认单位为像素（px），也可以是百分比',
     },
     layout: {
-        layout_type: '自动布局模式，包括：\n 1. NONE，不会对子节点进行自动布局 \n 2. HORIZONTAL，横向自动排布子物体 \n 3. VERTICAL，垂直自动排布子物体\n 4. GRID, 采用网格方式对子物体自动进行布局',
-        resize_mode: '缩放模式，包括：\n 1. NONE，不会对子节点和容器进行大小缩放 \n 2. CONTAINER, 对容器的大小进行缩放 \n 3. CHILD, 对子节点的大小进行缩放',
+        layout_type:
+            '自动布局模式，包括：\n 1. NONE，不会对子节点进行自动布局 \n 2. HORIZONTAL，横向自动排布子物体 \n 3. VERTICAL，垂直自动排布子物体\n 4. GRID, 采用网格方式对子物体自动进行布局',
+        resize_mode:
+            '缩放模式，包括：\n 1. NONE，不会对子节点和容器进行大小缩放 \n 2. CONTAINER, 对容器的大小进行缩放 \n 3. CHILD, 对子节点的大小进行缩放',
         padding_left: 'Layout 节点左边界和子节点的内边距',
         padding_right: 'Layout 节点右边界和子节点的内边距',
         padding_top: 'Layout 节点上边界和子节点的内边距',
@@ -322,7 +334,7 @@ module.exports = {
     },
     webview: {
         url: '指定一个 URL 地址，这个地址以 http 或者 https 开头，请填写一个有效的 URL 地址。',
-        webviewEvents: 'Webview 的回调事件，当网页加载过程中，加载完成后或者加载出错时都会回调此函数'
+        webviewEvents: 'Webview 的回调事件，当网页加载过程中，加载完成后或者加载出错时都会回调此函数',
     },
     richtext: {
         string: '富文本的内容字符串, 你可以在里面使用 BBCode 来指定特定文本的样式',
@@ -362,7 +374,8 @@ module.exports = {
         fastMode: '是否启用了快速模式',
     },
     missing_scirpt: {
-        error_compiled: '载入脚本时报错或脚本已丢失，请检查报错信息并进行修正，该组件将在修正后自动还原。如果脚本已删除，请手动删除该组件。',
+        error_compiled:
+            '载入脚本时报错或脚本已丢失，请检查报错信息并进行修正，该组件将在修正后自动还原。如果脚本已删除，请手动删除该组件。',
         error_not_compiled: '脚本编译失败，请检查报错信息并进行修正，该组件将在修正后自动还原。',
     },
     collider: {
@@ -421,8 +434,10 @@ module.exports = {
             type: '刚体类型： Static（静态）, Kinematic（不受外力）, Dynamic（动态）和 Animated（通过设置线性速度和角速度驱动）',
             allowSleep: '如果此刚体永远都不应该进入睡眠，那么设置这个属性为 false。需要注意这将使 CPU 占用率提高',
             gravityScale: '缩放应用在此刚体上的重力值',
-            linearDamping: 'Linear damping 用于衰减刚体的线性速度。衰减系数可以大于 1，但是当衰减系数比较大的时候，衰减的效果会变得比较敏感。',
-            angularDamping: 'Angular damping 用于衰减刚体的角速度。衰减系数可以大于 1，但是当衰减系数比较大的时候，衰减的效果会变得比较敏感。',
+            linearDamping:
+                'Linear damping 用于衰减刚体的线性速度。衰减系数可以大于 1，但是当衰减系数比较大的时候，衰减的效果会变得比较敏感。',
+            angularDamping:
+                'Angular damping 用于衰减刚体的角速度。衰减系数可以大于 1，但是当衰减系数比较大的时候，衰减的效果会变得比较敏感。',
             linearVelocity: '刚体在世界坐标下的线性速度',
             angularVelocity: '刚体的角速度',
             fixedRotation: '是否禁止此刚体进行旋转',
