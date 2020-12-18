@@ -244,7 +244,7 @@ async function _doBuild ({
         return result;
     }, {} as Record<string, string>);
 
-    const moduleNames = statsQuery.getModulesOfFeatures(features);
+    const featureUnits = statsQuery.getUnitsOfFeatures(features);
 
     const rpVirtualOptions: Record<string, string> = {};
     const vmInternalConstants = statsQuery.evaluateEnvModuleSourceFromRecord({
@@ -258,26 +258,26 @@ async function _doBuild ({
 
     let rollupEntries: NonNullable<rollup.RollupOptions['input']> | undefined;
     if (split) {
-        rollupEntries = moduleNames.reduce((result, moduleName) => {
-            result[moduleName] = statsQuery.getPublicModuleFile(moduleName);
+        rollupEntries = featureUnits.reduce((result, featureUnit) => {
+            result[featureUnit] = statsQuery.getFeatureUnitFile(featureUnit);
             return result;
         }, {} as Record<string, string>);
     } else {
         rollupEntries = {
             cc: 'cc',
         };
-        const bundledModules = [];
-        for (const moduleName of moduleNames) {
-            if (forceStandaloneModules.includes(moduleName)) {
-                rollupEntries[moduleName] = statsQuery.getPublicModuleFile(moduleName);
+        const selectedFeatureUnits = [];
+        for (const featureUnit of featureUnits) {
+            if (forceStandaloneModules.includes(featureUnit)) {
+                rollupEntries[featureUnit] = statsQuery.getFeatureUnitFile(featureUnit);
             } else {
-                bundledModules.push(moduleName);
+                selectedFeatureUnits.push(featureUnit);
             }
         }
 
         rpVirtualOptions.cc = statsQuery.evaluateIndexModuleSource(
-            bundledModules,
-            (moduleName) => filePathToModuleRequest(statsQuery.getPublicModuleFile(moduleName)),
+            selectedFeatureUnits,
+            (featureUnit) => filePathToModuleRequest(statsQuery.getFeatureUnitFile(featureUnit)),
         );
         rollupEntries.cc = 'cc';
 

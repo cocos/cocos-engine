@@ -21,11 +21,6 @@
         "spine": { "modules": [ "spine" ] },
         "dragonbones": { "modules": [ "dragonbones" ] }
     },
-    "index": {
-        "modules": {
-            "spine": { "ns": "sp" }
-        }
-    },
     "moduleOverrides": [
         {
             "test": "context.mode === 'BUILD'",
