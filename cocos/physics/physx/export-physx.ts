@@ -33,12 +33,12 @@ export const _pxtrans = USE_BYTEDANCE && PX ? new PX.Transform({ x: 0, y: 0, z: 
 
 if (PX) {
     PX.CACHE_MAT = {};
-    PX.VECTOR_MAT = USE_BYTEDANCE ? null : new PX.PxMaterialVector();
     PX.IMPL_PTR = {};
     PX.MESH_CONVEX = {};
     PX.MESH_STATIC = {};
     PX.TERRAIN_STATIC = {};
     if (!USE_BYTEDANCE) {
+        PX.VECTOR_MAT = new PX.PxMaterialVector();
         PX.ShapeFlag = PX.PxShapeFlag;
         PX.ActorFlag = PX.PxActorFlag;
         PX.RigidBodyFlag = PX.PxRigidBodyFlag;
@@ -49,6 +49,7 @@ if (PX) {
         PX.BoxGeometry = PX.PxBoxGeometry;
         PX.CapsuleGeometry = PX.PxCapsuleGeometry;
         PX.PlaneGeometry = PX.PxPlaneGeometry;
+        PX.ConvexMeshGeometry = PX.PxConvexMeshGeometry;
         PX.MeshScale = PX.PxMeshScale;
         PX.createRevoluteJoint = (a: any, b: any, c: any, d: any): any => PX.PxRevoluteJointCreate(PX.physics, a, b, c, d);
         PX.createDistanceJoint = (a: any, b: any, c: any, d: any): any => PX.PxDistanceJointCreate(PX.physics, a, b, c, d);

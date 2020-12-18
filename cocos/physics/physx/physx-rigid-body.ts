@@ -18,7 +18,7 @@ export class PhysXRigidBody implements IRigidBody {
     get rigidBody (): RigidBody { return this._rigidBody; }
     get sharedBody (): PhysXSharedBody { return this._sharedBody; }
     get isStatic (): boolean { return !this.impl || this._sharedBody.isStatic; }
-    get isStaticOrKinematic (): boolean { return !this.impl || this._sharedBody.isKinematic; }
+    get isStaticOrKinematic (): boolean { return !this.impl || this._sharedBody.isStatic || this._sharedBody.isKinematic; }
 
     private _isEnabled = false;
     private _rigidBody!: RigidBody;
