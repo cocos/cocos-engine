@@ -2,7 +2,7 @@ import { IVec3Like, Quat, Vec3 } from '../../../core';
 import { aabb, sphere } from '../../../core/geometry';
 import { Collider, RigidBody, PhysicMaterial, PhysicsSystem } from '../../framework';
 import { IBaseShape } from '../../spec/i-physics-shape';
-import { EFilterDataWord3, getTempTransform, PX, USE_BYTEDANCE, _pxtrans, _trans } from '../export-physx';
+import { EFilterDataWord3, getShapeFlags, getShapeMaterials, getTempTransform, PX, _pxtrans, _trans } from '../export-physx';
 import { PhysXSharedBody } from '../physx-shared-body';
 import { PhysXWorld } from '../physx-world';
 
@@ -40,15 +40,7 @@ export class PhysXShape implements IBaseShape {
 
     initialize (v: Collider): void {
         this._collider = v;
-        if (USE_BYTEDANCE) {
-            const flag = (v.isTrigger ? PX.ShapeFlag.eTRIGGER_SHAPE : PX.ShapeFlag.eSIMULATION_SHAPE)
-                | PX.ShapeFlag.eSCENE_QUERY_SHAPE;
-            this._flags = flag;
-        } else {
-            const flag = (v.isTrigger ? PX.PxShapeFlag.eTRIGGER_SHAPE.value : PX.PxShapeFlag.eSIMULATION_SHAPE.value)
-                | PX.PxShapeFlag.eSCENE_QUERY_SHAPE.value;
-            this._flags = new PX.PxShapeFlags(flag);
-        }
+        this._flags = getShapeFlags(v.isTrigger);
         this._sharedBody = (PhysicsSystem.instance.physicsWorld as PhysXWorld).getSharedBody(v.node);
         this._sharedBody.reference = true;
         this.onComponentSet();
@@ -88,32 +80,22 @@ export class PhysXShape implements IBaseShape {
 
     onDestroy (): void {
         this._sharedBody.reference = false;
-        if (USE_BYTEDANCE) {
-            PX.IMPL_PTR[this.id] = null;
-            delete PX.IMPL_PTR[this.id];
-            // this._impl.release();
-        } else {
+        if (this._impl.$$) {
             PX.IMPL_PTR[this._impl.$$.ptr] = null;
             delete PX.IMPL_PTR[this._impl.$$.ptr];
             this._impl.release();
+        } else {
+            PX.IMPL_PTR[this.id] = null;
+            delete PX.IMPL_PTR[this.id];
+            // this._impl.release();
         }
     }
 
     setMaterial (v: PhysicMaterial | null): void {
-        if (USE_BYTEDANCE) {
-            //
-        } else {
-            // eslint-disable-next-line no-lonely-if
-            if (v && this._impl) {
-                const mat = this.getSharedMaterial(v);
-                if (PX.VECTOR_MAT.size() > 0) {
-                    PX.VECTOR_MAT.set(0, mat);
-                } else {
-                    PX.VECTOR_MAT.push_back(mat);
-                }
-                this._impl.setMaterials(PX.VECTOR_MAT);
-            }
-        }
+        if (!this._impl) return;
+        if (v == null) v = PhysicsSystem.instance.defaultMaterial;
+        const mat = this.getSharedMaterial(v);
+        if (this._impl.$$) this._impl.setMaterials(getShapeMaterials(mat));
     }
 
     protected getSharedMaterial (v: PhysicMaterial): any {

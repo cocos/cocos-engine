@@ -181,3 +181,29 @@ export function applyTorqueForce (impl: any, vec: IVec3Like) {
         impl.addTorque(vec);
     }
 }
+
+export function getShapeFlags (isTrigger: boolean): any {
+    if (USE_BYTEDANCE) {
+        const flag = (isTrigger ? PX.ShapeFlag.eTRIGGER_SHAPE : PX.ShapeFlag.eSIMULATION_SHAPE)
+            | PX.ShapeFlag.eSCENE_QUERY_SHAPE;
+        return flag;
+    } else {
+        const flag = (isTrigger ? PX.PxShapeFlag.eTRIGGER_SHAPE.value : PX.PxShapeFlag.eSIMULATION_SHAPE.value)
+            | PX.PxShapeFlag.eSCENE_QUERY_SHAPE.value;
+        return new PX.PxShapeFlags(flag);
+    }
+}
+
+export function getShapeMaterials (pxMtl: any) {
+    if (USE_BYTEDANCE) {
+        return [pxMtl];
+    } else {
+        if (PX.VECTOR_MAT.size() > 0) {
+            PX.VECTOR_MAT.set(0, pxMtl);
+        } else {
+            PX.VECTOR_MAT.push_back(pxMtl);
+        }
+        return PX.VECTOR_MAT;
+    }
+}
+
