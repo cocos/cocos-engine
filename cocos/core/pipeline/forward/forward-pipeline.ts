@@ -40,7 +40,7 @@ import { ColorAttachment, DepthStencilAttachment, RenderPass, LoadOp, TextureLay
 import { SKYBOX_FLAG } from '../../renderer/scene/camera';
 import { legacyCC } from '../../global-exports';
 import { RenderView } from '../render-view';
-import { Color, color, Mat4, Vec3, Vec4} from '../../math';
+import { Color, Mat4, Vec3, Vec4 } from '../../math';
 import { Fog } from '../../renderer/scene/fog';
 import { Ambient } from '../../renderer/scene/ambient';
 import { Skybox } from '../../renderer/scene/skybox';
@@ -72,14 +72,13 @@ const _samplerInfo = [
  */
 @ccclass('ForwardPipeline')
 export class ForwardPipeline extends RenderPipeline {
-
     get isHDR () {
         return this._isHDR;
     }
 
     set isHDR (val) {
         if (this._isHDR === val) {
-            return
+            return;
         }
 
         this._isHDR = val;
@@ -127,8 +126,8 @@ export class ForwardPipeline extends RenderPipeline {
     public renderObjects: IRenderObject[] = [];
     public shadowObjects: IRenderObject[] = [];
     public shadowFrameBufferMap: Map<Light, Framebuffer> = new Map();
-    protected _isHDR: boolean = false;
-    protected _shadingScale: number = 1.0;
+    protected _isHDR = false;
+    protected _shadingScale = 1.0;
     protected _fpScale: number = 1.0 / 1024.0;
     protected _renderPasses = new Map<ClearFlag, RenderPass>();
     protected _globalUBO = new Float32Array(UBOGlobal.COUNT);
@@ -188,7 +187,7 @@ export class ForwardPipeline extends RenderPipeline {
         let renderPass = this._renderPasses.get(clearFlags);
         if (renderPass) { return renderPass; }
 
-        const device = this.device!;
+        const device = this.device;
         const colorAttachment = new ColorAttachment();
         const depthStencilAttachment = new DepthStencilAttachment();
         colorAttachment.format = device.colorFormat;
@@ -211,7 +210,7 @@ export class ForwardPipeline extends RenderPipeline {
 
         const renderPassInfo = new RenderPassInfo([colorAttachment], depthStencilAttachment);
         renderPass = device.createRenderPass(renderPassInfo);
-        this._renderPasses.set(clearFlags, renderPass!);
+        this._renderPasses.set(clearFlags, renderPass);
 
         return renderPass;
     }
@@ -231,40 +230,40 @@ export class ForwardPipeline extends RenderPipeline {
                 if (this.shadowFrameBufferMap.has(mainLight)) {
                     this._descriptorSet.bindTexture(UNIFORM_SHADOWMAP_BINDING, this.shadowFrameBufferMap.get(mainLight)!.colorTextures[0]!);
                 }
-    
+
                 // light view
                 let shadowCameraView: Mat4;
-    
+
                 // light proj
-                let x: number = 0;
-                let y: number = 0;
-                let far: number = 0;
+                let x = 0;
+                let y = 0;
+                let far = 0;
                 if (shadowInfo.autoAdapt) {
-                    shadowCameraView = getShadowWorldMatrix(this, mainLight.node?.getWorldRotation()!, mainLight.direction, vec3_center);
+                    shadowCameraView = getShadowWorldMatrix(this, mainLight.node!.getWorldRotation()!, mainLight.direction, vec3_center);
                     // if orthoSize is the smallest, auto calculate orthoSize.
                     const radius = shadowInfo.sphere.radius;
                     x = radius * shadowInfo.aspect;
                     y = radius;
-    
+
                     const halfFar = Vec3.distance(shadowInfo.sphere.center, vec3_center);
                     far =  Math.min(halfFar * Shadows.COEFFICIENT_OF_EXPANSION, Shadows.MAX_FAR);
                 } else {
                     shadowCameraView = mainLight.node!.getWorldMatrix();
-    
+
                     x = shadowInfo.orthoSize * shadowInfo.aspect;
                     y = shadowInfo.orthoSize;
-    
+
                     far = shadowInfo.far;
                 }
-    
+
                 Mat4.invert(matShadowView, shadowCameraView!);
-    
+
                 const projectionSignY = device.screenSpaceSignY * device.UVSpaceSignY; // always offscreen
                 Mat4.ortho(matShadowViewProj, -x, x, -y, y, shadowInfo.near, far,
                     device.clipSpaceMinZ, projectionSignY);
                 Mat4.multiply(matShadowViewProj, matShadowViewProj, matShadowView);
                 Mat4.toArray(this._shadowUBO, matShadowViewProj, UBOShadow.MAT_LIGHT_VIEW_PROJ_OFFSET);
-    
+
                 this._shadowUBO[UBOShadow.SHADOW_INFO_OFFSET]     = shadowInfo.size.x;
                 this._shadowUBO[UBOShadow.SHADOW_INFO_OFFSET + 1] = shadowInfo.size.y;
                 this._shadowUBO[UBOShadow.SHADOW_INFO_OFFSET + 2] = shadowInfo.pcf;
@@ -272,7 +271,7 @@ export class ForwardPipeline extends RenderPipeline {
             } else if (mainLight && shadowInfo.type === ShadowType.Planar) {
                 updatePlanarPROJ(shadowInfo, mainLight, this._shadowUBO);
             }
-    
+
             Color.toArray(this._shadowUBO, shadowInfo.shadowColor, UBOShadow.SHADOW_COLOR_OFFSET);
             this._commandBuffers[0].updateBuffer(this._descriptorSet.getBuffer(UBOShadow.BINDING), this._shadowUBO);
         }

@@ -28,10 +28,10 @@
  * @module model
  */
 
+import { ccclass, help, executeInEditMode, executionOrder, menu, tooltip, visible, type, formerlySerializedAs, serializable, editable, disallowAnimation } from 'cc.decorator';
 import { Texture2D } from '../../assets';
 import { Material } from '../../assets/material';
 import { Mesh } from '../../assets/mesh';
-import { ccclass, help, executeInEditMode, executionOrder, menu, tooltip, visible, type, formerlySerializedAs, serializable, editable, disallowAnimation } from 'cc.decorator';
 import { Vec4 } from '../../math';
 import { scene, models } from '../../renderer';
 import { Root } from '../../root';
@@ -90,13 +90,13 @@ class ModelLightmapSettings {
     @serializable
     public uvParam: Vec4 = new Vec4();
     @serializable
-    protected _bakeable: boolean = false;
+    protected _bakeable = false;
     @serializable
-    protected _castShadow: boolean = false;
+    protected _castShadow = false;
     @formerlySerializedAs('_recieveShadow')
-    protected _receiveShadow: boolean = false;
+    protected _receiveShadow = false;
     @serializable
-    protected _lightmapSize: number = 64;
+    protected _lightmapSize = 64;
 
     /**
      * @en bakeable.
@@ -161,7 +161,6 @@ class ModelLightmapSettings {
 @menu('Components/MeshRenderer')
 @executeInEditMode
 export class MeshRenderer extends RenderableComponent {
-
     public static ShadowCastingMode = ModelShadowCastingMode;
     public static ShadowReceivingMode = ModelShadowReceivingMode;
 
@@ -207,7 +206,7 @@ export class MeshRenderer extends RenderableComponent {
      */
     @type(WireframeMode)
     @disallowAnimation
-    get wireframeMode() {
+    get wireframeMode () {
         return this._wireframeMode;
     }
 
@@ -240,7 +239,7 @@ export class MeshRenderer extends RenderableComponent {
     set mesh (val) {
         const old = this._mesh;
         this._mesh = val;
-        this._mesh?.initialize();
+        this._mesh!.initialize();
         this._watchMorphInMesh();
         this._onMeshChanged(old);
         this._updateModels();
@@ -256,9 +255,9 @@ export class MeshRenderer extends RenderableComponent {
 
     @visible(function (this: MeshRenderer) {
         return !!(
-            this.mesh &&
-            this.mesh.struct.morph &&
-            this.mesh.struct.morph.subMeshMorphs.some((subMeshMorph) => !!subMeshMorph)
+            this.mesh
+            && this.mesh.struct.morph
+            && this.mesh.struct.morph.subMeshMorphs.some((subMeshMorph) => !!subMeshMorph)
         );
     })
     @disallowAnimation
@@ -285,7 +284,7 @@ export class MeshRenderer extends RenderableComponent {
     }
 
     public onLoad () {
-        this._mesh?.initialize();
+        this._mesh!.initialize();
         this._watchMorphInMesh();
         this._updateModels();
         this._updateWireframe();
@@ -483,9 +482,9 @@ export class MeshRenderer extends RenderableComponent {
         if (!this._model) { return; }
         let verts: Uint8Array[] | undefined = [];
         let idxs: any = [];
-        let renderSubMeshs = this.mesh!.renderingSubMeshes;
-        if(this.wireframeMode !== WireframeMode.SHADED) {
-            let verBufferSrc: ArrayBuffer | SharedArrayBuffer = this.mesh?.data.buffer!;
+        const renderSubMeshs = this.mesh!.renderingSubMeshes;
+        if (this.wireframeMode !== WireframeMode.SHADED) {
+            const verBufferSrc: ArrayBuffer | SharedArrayBuffer = this.mesh!.data.buffer;
             verts = this.mesh?.struct.vertexBundles.map((vertexBundle) => {
                 const view = new Uint8Array(verBufferSrc, vertexBundle.view.offset, vertexBundle.view.length);
                 return view;
@@ -495,14 +494,14 @@ export class MeshRenderer extends RenderableComponent {
                 if (prim.vertexBundelIndices.length === 0) {
                     continue;
                 }
-                for(let j = 0; j < renderSubMeshs.length; j++) {
+                for (let j = 0; j < renderSubMeshs.length; j++) {
                     idxs = this.mesh?.readIndices(renderSubMeshs[j].subMeshIdx!);
                     let resBuffer = idxs;
                     if (idxs) {
                         const res: number[] = [];
-                        let v_uint16Array = idxs as Uint16Array;
+                        const v_uint16Array = idxs as Uint16Array;
                         const len = v_uint16Array.length / 3;
-                        if(len >= 1) {
+                        if (len >= 1) {
                             for (let i = 0; i < len; i++) {
                                 const a = idxs[i * 3 + 0];
                                 const b = idxs[i * 3 + 1];
@@ -512,24 +511,23 @@ export class MeshRenderer extends RenderableComponent {
                             resBuffer = new Uint16Array(res);
                         }
                     }
-                    let currIB = legacyCC.director.root.device.createBuffer(new BufferInfo(
+                    const currIB = legacyCC.director.root.device.createBuffer(new BufferInfo(
                         BufferUsageBit.INDEX | BufferUsageBit.TRANSFER_DST,
                         MemoryUsageBit.DEVICE,
                         (resBuffer as ArrayBuffer).byteLength,
                         2,
                     ));
                     currIB.update(resBuffer);
-                    let currSubModel = this.model?.subModels[j]!;
+                    const currSubModel = this.model!.subModels[j]!;
                     currSubModel.setWireframe(this.wireframeMode, currIB);
                 }
             }
         } else {
-            for(let j = 0; j < renderSubMeshs.length; j++) {
-                let currSubModel = this.model?.subModels[j]!;
+            for (let j = 0; j < renderSubMeshs.length; j++) {
+                const currSubModel = this.model!.subModels[j]!;
                 currSubModel.setWireframe(this.wireframeMode, null);
             }
         }
-
     }
 
     protected _updateCastShadow () {
@@ -576,9 +574,9 @@ export class MeshRenderer extends RenderableComponent {
             return;
         }
 
-        if (!this._mesh ||
-            !this._mesh.struct.morph ||
-            !this._mesh.morphRendering) {
+        if (!this._mesh
+            || !this._mesh.struct.morph
+            || !this._mesh.morphRendering) {
             return;
         }
 
@@ -591,9 +589,9 @@ export class MeshRenderer extends RenderableComponent {
                 continue;
             }
             const initialWeights = subMeshMorph.weights || morph.weights;
-            const weights = initialWeights ?
-                initialWeights.slice() :
-                new Array<number>(subMeshMorph.targets.length).fill(0);
+            const weights = initialWeights
+                ? initialWeights.slice()
+                : new Array<number>(subMeshMorph.targets.length).fill(0);
             this._morphInstance.setWeights(iSubMesh, weights);
         }
 

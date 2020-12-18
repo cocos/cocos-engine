@@ -15,10 +15,8 @@ import { RecyclePool } from '../../memop/recycle-pool';
 enum WireframeType {
     Render,
     Instanced,
-    Batched
+    Batched,
 }
-
-let pass; let shader;
 export class WireframeQueue {
     /**
      * @en A cached array of render passes
@@ -28,6 +26,7 @@ export class WireframeQueue {
     private _passDesc: IRenderQueueDesc | null = null;
     private _passPool: RecyclePool<IRenderPass> | null = null;
     private _pipeline: ForwardPipeline | null = null;
+    protected pass;
     /**
      * @en A set of instanced buffer
      * @zh Instance 合批缓存集合。
@@ -185,8 +184,8 @@ export class WireframeQueue {
                             currIb, batch.ia.indirectBuffer);
                         batch.wireframeIa = legacyCC.director.root.device.createInputAssembler(iaInfo);
                     }
-                    shader = pass.getShaderVariant(currSubModel.patches);
-                    const pso = PipelineStateManager.getOrCreatePipelineState(device, pass, ShaderPool.get(shader), renderPass, batch.wireframeIa);
+                    const shader = this.pass.getShaderVariant(currSubModel.patches);
+                    const pso = PipelineStateManager.getOrCreatePipelineState(device, this.pass, ShaderPool.get(shader), renderPass, batch.wireframeIa);
                     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                     // @ts-ignore
                     pso.gpuPipelineState.glPrimitive = PrimitiveMode.LINE_LIST;
@@ -218,8 +217,8 @@ export class WireframeQueue {
                     }
                     instance.wireframeIa.instanceCount = instance.ia.instanceCount;
                     instance.wireframeIa.firstInstance = instance.ia.firstInstance;
-                    shader = pass.getShaderVariant(currSubModel.patches);
-                    const pso = PipelineStateManager.getOrCreatePipelineState(device, pass, ShaderPool.get(shader), renderPass, instance.wireframeIa);
+                    const shader = this.pass.getShaderVariant(currSubModel.patches);
+                    const pso = PipelineStateManager.getOrCreatePipelineState(device, this.pass, ShaderPool.get(shader), renderPass, instance.wireframeIa);
                     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                     // @ts-ignore
                     pso.gpuPipelineState.glPrimitive = PrimitiveMode.LINE_LIST;
@@ -235,8 +234,8 @@ export class WireframeQueue {
     private _recordCommandRenderBuffer (device: Device, renderPass: RenderPass, cmdBuff: CommandBuffer) {
         for (let i = 0; i < this.queue!.length; ++i) {
             const { subModel } = this.queue!.array[i];
-            shader = pass.getShaderVariant(subModel.patches);
-            const pso = PipelineStateManager.getOrCreatePipelineState(device, pass,  ShaderPool.get(shader), renderPass, subModel.wireframeIa!);
+            const shader = this.pass.getShaderVariant(subModel.patches);
+            const pso = PipelineStateManager.getOrCreatePipelineState(device, this.pass,  ShaderPool.get(shader), renderPass, subModel.wireframeIa!);
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore
             pso.gpuPipelineState!.glPrimitive = PrimitiveMode.LINE_LIST;
@@ -259,8 +258,8 @@ export class WireframeQueue {
         default:
             currMaterial = wireframe.renderMaterial;
         }
-        pass = currMaterial.passes[0];
-        const descriptorSet = DSPool.get(PassPool.get(pass.handle, PassView.DESCRIPTOR_SET));
+        this.pass = currMaterial.passes[0];
+        const descriptorSet = DSPool.get(PassPool.get(this.pass.handle, PassView.DESCRIPTOR_SET));
         cmdBuff.bindDescriptorSet(SetIndex.MATERIAL, descriptorSet);
     }
 

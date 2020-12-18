@@ -470,8 +470,8 @@ export class WebGL2Device extends Device {
 
     public createCommandBuffer (info: CommandBufferInfo): CommandBuffer {
         // const ctor = WebGLCommandBuffer; // opt to instant invocation
-        const ctor = info.type === CommandBufferType.PRIMARY ? WebGL2PrimaryCommandBuffer : WebGL2CommandBuffer;
-        const cmdBuff = new ctor(this);
+        const Ctor = info.type === CommandBufferType.PRIMARY ? WebGL2PrimaryCommandBuffer : WebGL2CommandBuffer;
+        const cmdBuff = new Ctor(this);
         if (cmdBuff.initialize(info)) {
             return cmdBuff;
         }
@@ -614,7 +614,7 @@ export class WebGL2Device extends Device {
         const format = gpuFramebuffer.gpuColorTextures[0].format;
         const glFormat = GFXFormatToWebGLFormat(format, gl);
         const glType = GFXFormatToWebGLType(format, gl);
-        const ctor = getTypedArrayConstructor(FormatInfos[format]);
+        const Ctor = getTypedArrayConstructor(FormatInfos[format]);
 
         const curFBO = this.stateCache.glFramebuffer;
 
@@ -623,7 +623,7 @@ export class WebGL2Device extends Device {
             this.stateCache.glFramebuffer = gpuFramebuffer.glFramebuffer;
         }
 
-        const view = new ctor(dstBuffer);
+        const view = new Ctor(dstBuffer);
 
         for (const region of regions) {
             const w = region.texExtent.width;
@@ -655,9 +655,10 @@ export class WebGL2Device extends Device {
     private getExtension (ext: string): any {
         const prefixes = ['', 'WEBKIT_', 'MOZ_'];
         for (let i = 0; i < prefixes.length; ++i) {
-            const _ext = this.gl.getExtension(prefixes[i] + ext);
-            if (_ext) {
-                return _ext;
+            const currExt = this.gl.getExtension(prefixes[i] + ext);
+            if (currExt) {
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+                return currExt;
             }
         }
         return null;

@@ -56,7 +56,6 @@ export function transparentCompareFn (a: IRenderPass, b: IRenderPass) {
  * @zh 渲染队列。它管理一个 GFX [[RenderPass]] 队列，队列中的渲染过程会被 [[RenderStage]] 所执行。
  */
 export class RenderQueue {
-
     /**
      * @en A cached array of render passes
      * @zh 基于缓存数组的渲染过程队列。
