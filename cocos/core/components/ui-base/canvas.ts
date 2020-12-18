@@ -220,6 +220,31 @@ export class Canvas extends Component {
         return -1;
     }
 
+    @type(Camera)
+    @tooltip('2D渲染相机')
+    get cameraComponent () {
+        return this._cameraComponent;
+    }
+
+    set cameraComponent (value) {
+        if (this._cameraComponent === value) { return; }
+
+        this._cameraComponent = value;
+
+        this._onResizeCamera();
+    }
+
+    @tooltip('是否自动为 camera 计算参数')
+    get alignCanvasWithScreen () {
+        return this._alignCanvasWithScreen;
+    }
+
+    set alignCanvasWithScreen (value) {
+        this._alignCanvasWithScreen = value;
+
+        this._onResizeCamera();
+    }
+
     get camera () {
         return this._camera;
     }
@@ -240,14 +265,17 @@ export class Canvas extends Component {
     protected _color = new Color(0, 0, 0, 255);
     @type(RenderMode)
     protected _renderMode = RenderMode.OVERLAY;
+    @type(Camera)
+    protected _cameraComponent: Camera | null = null;
+    @serializable
+    protected _alignCanvasWithScreen = true;
 
     protected _thisOnCameraResized: () => void;
     // fit canvas node to design resolution
     protected _fitDesignResolution: (() => void) | undefined;
 
     protected _camera: scene.Camera | null = null;
-    @type(Camera)
-    protected _cameraComponent: Camera | null = null;
+
     private _pos = new Vec3();
 
     constructor () {
@@ -379,17 +407,13 @@ export class Canvas extends Component {
                 camera.resize(size.width, size.height);
                 camera.orthoHeight = game.canvas!.height / view.getScaleY() / 2;
             }
-            this.node.getWorldPosition(_worldPos);
-            camera.node.setWorldPosition(_worldPos.x, _worldPos.y, 1000);
             camera.update();
+        }
 
-            if (this._cameraComponent) {
-                if (!this._targetTexture) {
-                    this._cameraComponent.orthoHeight = visibleRect.height / 2;
-                } else {
-                    this._cameraComponent.orthoHeight = game.canvas!.height / view.getScaleY() / 2;
-                }
-            }
+        if (this._cameraComponent) {
+            this.node.getWorldPosition(_worldPos);
+            this._cameraComponent.node.setWorldPosition(_worldPos.x, _worldPos.y, 1000);
+            this._cameraComponent.orthoHeight = game.canvas!.height / view.getScaleY() / 2;
         }
     }
 
