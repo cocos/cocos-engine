@@ -10,6 +10,7 @@ export enum EPhysXShapeType {
     SPHERE,
     BOX,
     CAPSULE,
+    CYLINDER,
     PLANE,
     TERRAIN,
     MESH,

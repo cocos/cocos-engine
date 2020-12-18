@@ -1,6 +1,4 @@
-import { IVec3Like } from '../../../core';
-import { aabb, sphere } from '../../../core/geometry';
-import { Collider, RigidBody, PhysicMaterial, SphereCollider } from '../../framework';
+import { SphereCollider } from '../../framework';
 import { ISphereShape } from '../../spec/i-physics-shape';
 import { PX } from '../export-physx';
 import { EPhysXShapeType, PhysXShape } from './physx-shape';

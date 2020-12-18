@@ -1,6 +1,5 @@
-import { absMax, Quat, IVec3Like } from '../../../core';
-import { aabb, sphere } from '../../../core/geometry';
-import { Collider, RigidBody, PhysicMaterial, CapsuleCollider, EAxisDirection } from '../../framework';
+import { absMax, Quat } from '../../../core';
+import { CapsuleCollider, EAxisDirection } from '../../framework';
 import { ICapsuleShape } from '../../spec/i-physics-shape';
 import { PX } from '../export-physx';
 import { EPhysXShapeType, PhysXShape } from './physx-shape';
