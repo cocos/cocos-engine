@@ -2,10 +2,10 @@ root: true
 
 parser: '@typescript-eslint/parser'
 
-parserOptions: 
+parserOptions:
     project: ./tsconfig.json
 
-extends: 
+extends:
     - eslint:recommended
     - airbnb-base
     - plugin:@typescript-eslint/recommended
@@ -14,23 +14,23 @@ extends:
 plugins:
     - '@typescript-eslint'
 
-settings: 
+settings:
     import/resolver:
-        node: 
-            extensions: 
+        node:
+            extensions:
                 - .js
                 - .jsx
                 - .ts
                 - .tsx
                 - .d.ts
 
-env: 
+env:
     browser: true
     node: true
     es6: true
     jest: true
 
-globals: 
+globals:
     cc: false
     wx: false
     Editor: false
@@ -51,11 +51,12 @@ rules:
     prefer-rest-params: off # we need ES5 to be fast too
     prefer-spread: off # we need ES5 to be fast too
     space-before-function-paren: [warn, always] # we require this explicitly
+    radix: off # we sometimes do not need to pass a second parameter
 
     ##### AIRBNB-SPECIFIC RULE OVERRIDES #####
 
     class-methods-use-this: off # so empty functions could work
-    guard-for-in: off # for-in is a efficient choice for plain objects 
+    guard-for-in: off # for-in is a efficient choice for plain objects
     import/export: off # so export declare namespace could work
     import/extensions: off # typescript doesn't support this
     import/no-unresolved: off # TODO: fix internal modules

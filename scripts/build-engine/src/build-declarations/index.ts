@@ -75,7 +75,7 @@ export async function build (options: {
 
     console.log(`Generating...`);
 
-    const exportModules = statsQuery.getPublicModules().filter((m) => m !== 'cc/wait-for-ammo-instantiation');
+    const featureUnits = statsQuery.getFeatureUnits().filter((m) => m !== 'wait-for-ammo-instantiation');
 
     const editorExportModules = statsQuery.getEditorPublicModules();
 
@@ -143,9 +143,9 @@ export async function build (options: {
     const cleanupFiles = [ tscOutputDtsFile ];
 
     if (withExports) {
-        for (const exportEntry of exportModules) {
+        for (const exportEntry of featureUnits) {
             giftEntries[exportEntry] = getModuleNameInTsOutFile(
-                statsQuery.getPublicModuleFile(exportEntry), statsQuery);
+                statsQuery.getFeatureUnitFile(exportEntry), statsQuery);
         }
     }
 
@@ -162,8 +162,8 @@ export async function build (options: {
         giftInputs.push(ccDtsFile);
         cleanupFiles.push(ccDtsFile);
         const code = `declare module "cc" {\n${
-            statsQuery.evaluateIndexModuleSource(exportModules,
-                (moduleName) => getModuleNameInTsOutFile(statsQuery.getPublicModuleFile(moduleName), statsQuery))
+            statsQuery.evaluateIndexModuleSource(featureUnits,
+                (featureUnit) => getModuleNameInTsOutFile(statsQuery.getFeatureUnitFile(featureUnit), statsQuery))
         }\n}`;
         await fs.writeFile(ccDtsFile, code, { encoding: 'utf8' });
     }
@@ -190,7 +190,7 @@ export async function build (options: {
         if (withIndex && withExports) {
             await fs.outputFile(
                 indexOutputPath,
-                buildIndexModule(exportModules, statsQuery),
+                buildIndexModule(featureUnits, statsQuery),
                 { encoding: 'utf8' });
         }
 
@@ -204,9 +204,9 @@ export async function build (options: {
     return true;
 }
 
-export function buildIndexModule (exportModules: string[], statsQuery: StatsQuery) {
+export function buildIndexModule (featureUnits: string[], statsQuery: StatsQuery) {
     return `declare module "cc" {\n${
-        statsQuery.evaluateIndexModuleSource(exportModules)
+        statsQuery.evaluateIndexModuleSource(featureUnits)
             .split('\n')
             .map((line) => `    ${line}`)
             .join('\n')

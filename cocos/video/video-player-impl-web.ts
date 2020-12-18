@@ -23,55 +23,58 @@
  THE SOFTWARE.
  */
 
-import {mat4} from "../core/math";
-import {error, sys, view, screen} from "../core/platform";
-import {game} from "../core";
-import {contains} from '../core/utils/misc';
-import {EventType, READY_STATE} from './video-player-enums';
-import {VideoPlayerImpl} from "./video-player-impl";
-import {ClearFlag} from "../core/gfx";
+import { mat4 } from '../core/math';
+import { error, sys, view, screen, warn } from '../core/platform';
+import { game } from '../core';
+import { contains } from '../core/utils/misc';
+import { EventType, READY_STATE } from './video-player-enums';
+import { VideoPlayerImpl } from './video-player-impl';
+import { ClearFlag } from '../core/gfx';
 import visibleRect from '../core/platform/visible-rect';
 
-const MIN_ZINDEX = -Math.pow(2, 15);
+const MIN_ZINDEX = -(2 ** 15);
 
-let _mat4_temp = mat4();
+const _mat4_temp = mat4();
 
 /**
  * @category component/video
  */
 
 export class VideoPlayerImplWeb extends VideoPlayerImpl {
-
-    protected _eventList: Map<string, Function> = new Map<string, Function>();
+    protected _eventList: Map<string, ((e: Event) => void)> = new Map();
 
     // use stay on bottom
     protected _clearColorA = -1;
     protected _clearFlag;
 
-    constructor(component) {
+    constructor (component) {
         super(component);
     }
 
-    protected addListener(type: string, handler: Function) {
+    protected addListener (type: string, handler: (e: Event)=> void) {
         if (!this._video) {
             return;
         }
         this._eventList.set(type, handler);
         this._video.addEventListener(type, handler);
     }
-    protected removeAllListeners() {
+    protected removeAllListeners () {
         this._eventList.forEach((handler, type) => {
+            if (!this._video) {
+                return;
+            }
             this._video.removeEventListener(type, handler);
         });
         this._eventList.clear();
     }
 
-    public canPlay() {
+    public canPlay () {
         if (this.video) {
-            let promise = this.video.play();
+            const promise = this.video.play();
             // the play API can only be initiated by user gesture.
             if (window.Promise && promise instanceof Promise) {
-                promise.catch(error => {
+                // eslint-disable-next-line @typescript-eslint/no-floating-promises
+                promise.catch((error) => {
                     // Auto-play was prevented
                     // Show a UI element to let the user manually start playback
                 }).then(() => {
@@ -82,18 +85,18 @@ export class VideoPlayerImplWeb extends VideoPlayerImpl {
         }
     }
 
-    public pause() {
+    public pause () {
         if (this.video) {
             this.video.pause();
             this._cachedCurrentTime = this.video.currentTime;
         }
     }
 
-    public resume() {
+    public resume () {
         this.play();
     }
 
-    public stop() {
+    public stop () {
         if (this.video) {
             this._ignorePause = true;
             this.video.currentTime = 0;
@@ -101,25 +104,25 @@ export class VideoPlayerImplWeb extends VideoPlayerImpl {
             setTimeout(() => {
                 this._ignorePause = false;
                 this.dispatchEvent(EventType.STOPPED);
-            }, 0)
+            }, 0);
         }
     }
 
-    public syncClip(clip: any) {
+    public syncClip (clip: any) {
         this.removeVideoPlayer();
         if (!clip) { return; }
         this.createVideoPlayer(clip.nativeUrl);
     }
 
-    public syncURL(url: string) {
+    public syncURL (url: string) {
         this.removeVideoPlayer();
         if (!url) { return; }
         this.createVideoPlayer(url);
     }
 
-    public syncPlaybackRate(val: number) {
+    public syncPlaybackRate (val: number) {
         if (sys.browserType === sys.BROWSER_TYPE_UC) {
-            console.warn('playbackRate is not supported by the uc mobile browser.');
+            warn('playbackRate is not supported by the uc mobile browser.');
             return;
         }
         if (this.video) {
@@ -127,32 +130,32 @@ export class VideoPlayerImplWeb extends VideoPlayerImpl {
         }
     }
 
-    public syncVolume(val: number) {
+    public syncVolume (val: number) {
         if (this.video) {
             this.video.volume = val;
         }
     }
 
-    public syncMute(enabled: boolean) {
+    public syncMute (enabled: boolean) {
         if (this.video) {
-            this.video.mute = enabled;
+            this.video.muted = enabled;
         }
     }
 
-    public syncLoop(enabled: boolean) {
+    public syncLoop (enabled: boolean) {
         if (this.video) {
             this.video.loop = enabled;
         }
     }
 
-    public getDuration() {
+    public getDuration () {
         if (!this.video) {
             return 0;
         }
         return this.video.duration;
     }
 
-    public getCurrentTime() {
+    public getCurrentTime () {
         if (this.video) {
             return this.video.currentTime;
         }
@@ -166,18 +169,24 @@ export class VideoPlayerImplWeb extends VideoPlayerImpl {
     }
 
     canFullScreen (enabled: boolean) {
-        let video = this._video;
+        const video = this._video;
         if (!video || video.readyState !== READY_STATE.HAVE_ENOUGH_DATA) {
             return;
         }
 
         if (sys.os === sys.OS_IOS && sys.isBrowser) {
             if (enabled) {
-                video.webkitEnterFullscreen && video.webkitEnterFullscreen();
+                // @ts-expect-error only ios support
+                if (video.webkitEnterFullscreen) {
+                    // @ts-expect-error only ios support
+                    video.webkitEnterFullscreen();
+                }
+                // @ts-expect-error only ios support
+            } else if (video.webkitExitFullscreen) {
+                // @ts-expect-error only ios support
+                video.webkitExitFullscreen();
             }
-            else {
-                video.webkitExitFullscreen && video.webkitExitFullscreen();
-            }
+            // @ts-expect-error only ios support
             this._fullScreenOnAwake = video.webkitDisplayingFullscreen;
             return;
         }
@@ -197,15 +206,17 @@ export class VideoPlayerImplWeb extends VideoPlayerImpl {
                 video.style.transform = '';
             }
             // Monitor video entry and exit full-screen events
-            video.setAttribute("x5-video-player-fullscreen", 'true');
+            video.setAttribute('x5-video-player-fullscreen', 'true');
+            // eslint-disable-next-line @typescript-eslint/no-floating-promises
             screen.requestFullScreen(video, (document) => {
-                let fullscreenElement = sys.browserType === sys.BROWSER_TYPE_IE ? document.msFullscreenElement : document.fullscreenElement;
+                const fullscreenElement = sys.browserType === sys.BROWSER_TYPE_IE ? document.msFullscreenElement : document.fullscreenElement;
                 this._fullScreenOnAwake = (fullscreenElement === video);
             }, () => {
                 this._fullScreenOnAwake = false;
             });
         } else {
-            video.removeAttribute("x5-video-player-fullscreen");
+            video.removeAttribute('x5-video-player-fullscreen');
+            // eslint-disable-next-line @typescript-eslint/no-floating-promises
             screen.exitFullScreen();
         }
     }
@@ -220,13 +231,13 @@ export class VideoPlayerImplWeb extends VideoPlayerImpl {
 
     public syncKeepAspectRatio (enabled: boolean) {
         this._keepAspectRatio = enabled;
-        if (enabled && this._loadedMeta) {
+        if (enabled && this._loadedMeta && this._video) {
             this.syncUITransform(this._video.videoWidth, this._video.videoHeight);
         }
     }
 
     public removeVideoPlayer () {
-        let video = this._video;
+        const video = this._video;
         if (video) {
             if (contains(game.container, video)) {
                 game.container!.removeChild(video);
@@ -238,33 +249,32 @@ export class VideoPlayerImplWeb extends VideoPlayerImpl {
         this._loaded = false;
         this._loadedMeta = false;
         this._video = null;
-
     }
 
     public createVideoPlayer (url: string) {
         const video = this._video = document.createElement('video');
-        video.className = "cocosVideo";
+        video.className = 'cocosVideo';
         video.style.visibility = 'hidden';
-        video.style.position = "absolute";
-        video.style.bottom = "0px";
-        video.style.left = "0px";
+        video.style.position = 'absolute';
+        video.style.bottom = '0px';
+        video.style.left = '0px';
         // video.style['object-fit'] = 'none';
         video.style['transform-origin'] = '0px 100% 0px';
         video.style['-webkit-transform-origin'] = '0px 100% 0px';
         video.setAttribute('preload', 'auto');
         video.setAttribute('webkit-playsinline', '');
         // This x5-playsinline tag must be added, otherwise the play, pause events will only fire once, in the qq browser.
-        video.setAttribute("x5-playsinline", '');
+        video.setAttribute('x5-playsinline', '');
         video.setAttribute('playsinline', '');
         this._bindDomEvent();
         game.container!.appendChild(video);
-        let source = document.createElement("source");
+        const source = document.createElement('source');
         video.appendChild(source);
         source.src = url;
     }
 
     protected _bindDomEvent () {
-        let video = this._video;
+        const video = this._video;
         this.addListener('loadedmetadata', this.onLoadedMetadata.bind(this));
         this.addListener('canplay', this.onCanPlay.bind(this));
         this.addListener('canplaythrough', this.onCanPlay.bind(this));
@@ -276,16 +286,18 @@ export class VideoPlayerImplWeb extends VideoPlayerImpl {
         this.addListener('error', this.onError.bind(this));
     }
 
-    public onCanPlay(e) {
-        if (this._loaded) {
+    public onCanPlay (e: Event) {
+        const video = e.target as HTMLVideoElement;
+        if (this._loaded && video) {
             return;
         }
-        switch (e.target.readyState) {
-            case READY_STATE.HAVE_METADATA:
-            case READY_STATE.HAVE_ENOUGH_DATA: {
-                super.onCanPlay(e);
-                break;
-            }
+        // eslint-disable-next-line default-case
+        switch (video.readyState) {
+        case READY_STATE.HAVE_METADATA:
+        case READY_STATE.HAVE_ENOUGH_DATA: {
+            super.onCanPlay(e);
+            break;
+        }
         }
     }
 
@@ -336,14 +348,11 @@ export class VideoPlayerImplWeb extends VideoPlayerImpl {
                 this._clearFlag = canvas.clearFlag;
                 canvas.color.a = 0;
                 canvas.clearFlag = ClearFlag.ALL;
-            }
-            else {
-                if (this._clearFlag) {
-                    canvas.color.a = this._clearColorA;
-                    canvas.clearFlag = this._clearFlag;
-                    this._clearColorA = -1;
-                    this._clearFlag = null;
-                }
+            } else if (this._clearFlag) {
+                canvas.color.a = this._clearColorA;
+                canvas.clearFlag = this._clearFlag;
+                this._clearColorA = -1;
+                this._clearFlag = null;
             }
         }
 
@@ -351,21 +360,20 @@ export class VideoPlayerImplWeb extends VideoPlayerImpl {
         camera.update(true);
         camera.worldMatrixToScreen(_mat4_temp, _mat4_temp, game.canvas!.width, game.canvas!.height);
 
-        let width = 0, height = 0;
+        let width = 0; let height = 0;
         if (this._fullScreenOnAwake) {
             width = visibleRect.width;
             height = visibleRect.height;
-        }
-        else {
+        } else {
             width = this._uiTrans!.contentSize.width;
             height = this._uiTrans!.contentSize.height;
         }
 
-        if (!this._forceUpdate &&
-            this._m00 === _mat4_temp.m00 && this._m01 === _mat4_temp.m01 &&
-            this._m04 === _mat4_temp.m04 && this._m05 === _mat4_temp.m05 &&
-            this._m12 === _mat4_temp.m12 && this._m13 === _mat4_temp.m13 &&
-            this._w === width && this._h === height) {
+        if (!this._forceUpdate
+            && this._m00 === _mat4_temp.m00 && this._m01 === _mat4_temp.m01
+            && this._m04 === _mat4_temp.m04 && this._m05 === _mat4_temp.m05
+            && this._m12 === _mat4_temp.m12 && this._m13 === _mat4_temp.m13
+            && this._w === width && this._h === height) {
             return;
         }
 
@@ -379,37 +387,35 @@ export class VideoPlayerImplWeb extends VideoPlayerImpl {
         this._w = width;
         this._h = height;
 
-        let dpr = view.getDevicePixelRatio();
-        let scaleX = 1 / dpr;
-        let scaleY = 1 / dpr;
+        const dpr = view.getDevicePixelRatio();
+        const scaleX = 1 / dpr;
+        const scaleY = 1 / dpr;
 
-        let container = game.container;
-        let sx = _mat4_temp.m00 * scaleX, b = _mat4_temp.m01, c = _mat4_temp.m04, sy = _mat4_temp.m05 * scaleY;
+        const container = game.container;
+        const sx = _mat4_temp.m00 * scaleX; const b = _mat4_temp.m01; const c = _mat4_temp.m04; const sy = _mat4_temp.m05 * scaleY;
 
-        let w, h;
-        this._video.style.width = this._w + 'px';
-        this._video.style.height = this._h + 'px';
+        this._video.style.width = `${this._w}px`;
+        this._video.style.height = `${this._h}px`;
 
         if (sys.browserType !== sys.BROWSER_TYPE_MOBILE_QQ) {
             this._video.style.objectFit = this._keepAspectRatio ? 'none' : 'fill';
-        }
-        else {
-            console.warn('keepAspectRatio is not supported by the qq mobile browser.');
+        } else {
+            warn('keepAspectRatio is not supported by the qq mobile browser.');
         }
 
-        w = this._w * scaleX;
-        h = this._h * scaleY;
+        const w = this._w * scaleX;
+        const h = this._h * scaleY;
 
         const { x, y } = this._uiTrans!.anchorPoint;
-        let appx = (w * _mat4_temp.m00) * x;
-        let appy = (h * _mat4_temp.m05) * y;
+        const appx = (w * _mat4_temp.m00) * x;
+        const appy = (h * _mat4_temp.m05) * y;
 
-        let offsetX = container && container.style.paddingLeft ? parseInt(container.style.paddingLeft) : 0;
-        let offsetY = container && container.style.paddingBottom ? parseInt(container.style.paddingBottom) : 0;
-        let tx = _mat4_temp.m12 * scaleX - appx + offsetX, ty = _mat4_temp.m13 * scaleY - appy + offsetY;
+        const offsetX = container && container.style.paddingLeft ? parseInt(container.style.paddingLeft) : 0;
+        const offsetY = container && container.style.paddingBottom ? parseInt(container.style.paddingBottom) : 0;
+        const tx = _mat4_temp.m12 * scaleX - appx + offsetX; const ty = _mat4_temp.m13 * scaleY - appy + offsetY;
 
-        let matrix = "matrix(" + sx + "," + -b + "," + -c + "," + sy + "," + tx + "," + -ty + ")";
-        this._video.style['transform'] = matrix;
+        const matrix = `matrix(${sx},${-b},${-c},${sy},${tx},${-ty})`;
+        this._video.style.transform = matrix;
         this._video.style['-webkit-transform'] = matrix;
         // video style would change when enter fullscreen on IE
         // there is no way to add fullscreenchange event listeners on IE so that we can restore the cached video style
@@ -418,4 +424,3 @@ export class VideoPlayerImplWeb extends VideoPlayerImpl {
         }
     }
 }
-
