@@ -402,7 +402,7 @@ export class Root {
 
             for (let i = 0; i < windows.length; i++) {
                 const window = windows[i];
-                const cameras = window.getRenderCameras();
+                const cameras = window.extractRenderCameras();
                 if (cameras.length > 0) {
                     this._pipeline.render(cameras);
                 }

@@ -266,7 +266,7 @@ export class RenderWindow {
         }
     }
 
-    public getRenderCameras () {
+    public extractRenderCameras () {
         const cameras: Camera[] = [];
         for (let j = 0; j < this._cameras.length; j++) {
             const camera = this._cameras[j];

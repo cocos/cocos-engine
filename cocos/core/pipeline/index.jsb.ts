@@ -45,7 +45,7 @@ export const PipelineStateManager = nr.PipelineStateManager;
 
 const RenderWindowProto = RenderWindow.prototype;
 Object.assign(RenderWindowProto, {
-    getRenderCameras() {
+    extractRenderCameras() {
         const cameras = [];
         for (let j = 0; j < this._cameras.length; j++) {
             const camera = this._cameras[j];
