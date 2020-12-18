@@ -36,6 +36,16 @@
 - (instancetype)initWithFrame:(NSRect)frameRect {
     if (self = [super initWithFrame:frameRect]) {
         [self.window makeFirstResponder:self];
+
+        // Add tracking area to receive mouse move events.
+        CGSize viewDrawableSize = self.drawableSize;
+        NSRect rect = {0, 0, viewDrawableSize.width, viewDrawableSize.height};
+        NSTrackingArea *trackingArea = [[NSTrackingArea alloc] initWithRect:rect
+                                                                    options:(NSTrackingMouseEnteredAndExited | NSTrackingMouseMoved | NSTrackingActiveInKeyWindow)
+                                                                      owner:self
+                                                                   userInfo:nil];
+        [self addTrackingArea:trackingArea];
+
 #ifdef CC_USE_METAL
         self.device = MTLCreateSystemDefaultDevice();
         self.framebufferOnly = YES;
@@ -103,10 +113,6 @@
     [self sendMouseEvent:0
                     type:cc::MouseEvent::Type::UP
                    event:event];
-}
-
-- (void)mouseDragged:(NSEvent *)event {
-    [self mouseMoved:event];
 }
 
 - (void)mouseMoved:(NSEvent *)event {
