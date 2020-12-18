@@ -1,1 +1,1 @@
-export * from '../cocos/core/utils/profiler/profiler';
+export * from '../cocos/profiler/profiler';

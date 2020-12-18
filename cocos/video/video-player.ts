@@ -31,7 +31,7 @@ import { ccclass, displayOrder, executeInEditMode, help, menu, slide, range, req
 import { EDITOR } from 'internal:constants';
 import { warn } from '../core/platform';
 import { Component, EventHandler as ComponentEventHandler } from '../core/components';
-import { UITransform } from '../core/2d/framework';
+import { UITransform } from '../2d/framework';
 import { clamp } from '../core/math';
 import { VideoClip } from './assets/video-clip';
 import { VideoPlayerImplManager } from './video-player-impl-manager';

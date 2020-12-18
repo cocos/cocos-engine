@@ -24,7 +24,7 @@
  */
 
 import {legacyCC} from '../core/global-exports';
-import {UITransform} from "../core/2d/framework";
+import {UITransform} from "../2d/framework";
 import {VideoPlayer} from "./video-player";
 import {EventType} from './video-player-enums';
 import {error} from "../core/platform";

@@ -29,7 +29,7 @@
  */
 
 import { Component } from '../core/components';
-import { UITransform } from '../core/2d/framework';
+import { UITransform } from '../2d/framework';
 import { ccclass, displayOrder, executeInEditMode, help, menu, requireComponent, type, serializable } from 'cc.decorator';
 import { GID, Orientation, PropertiesInfo, Property, RenderOrder, StaggerAxis, StaggerIndex, TiledAnimationType, TiledTextureGrids, TileFlag,
     TMXImageLayerInfo, TMXLayerInfo, TMXObjectGroupInfo, TMXObjectType, TMXTilesetInfo } from './tiled-types'
@@ -37,11 +37,11 @@ import { TMXMapInfo } from './tmx-xml-parser';
 import { TiledLayer } from './tiled-layer';
 import { TiledObjectGroup } from './tiled-object-group';
 import { TiledMapAsset } from './tiled-map-asset';
-import { Sprite } from '../core/2d/components/sprite';
+import { Sprite } from '../2d/components/sprite';
 import { EDITOR } from 'internal:constants';
 import { fillTextureGrids, loadAllTextures } from './tiled-utils';
 import { Size, SystemEventType, Vec2, Node, logID, Color, sys } from '../core';
-import { SpriteFrame } from '../core/2d/assets';
+import { SpriteFrame } from '../2d/assets';
 
 
 interface ImageExtendedNode extends Node {

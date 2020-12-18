@@ -24,9 +24,9 @@
  */
 
 import { Color, Rect, Size, Texture2D, Vec2 } from '../core';
-import { SpriteFrame } from '../core/2d/assets';
+import { SpriteFrame } from '../2d/assets';
 import { ccenum } from '../core/value-types/enum';
-import { HorizontalTextAlignment, VerticalTextAlignment } from '../core/2d/components/label';
+import { HorizontalTextAlignment, VerticalTextAlignment } from '../2d/components/label';
 
 
 export type PropertiesInfo = { [key: string]: number | string };

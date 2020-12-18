@@ -25,7 +25,7 @@
 
 import { builtinResMgr } from '../../builtin';
 import { Material } from '../../assets/material';
-import { Mesh } from '../../3d/assets/mesh';
+import { Mesh } from '../../../3d/assets/mesh';
 import { TextureCube } from '../../assets/texture-cube';
 import { UNIFORM_ENVIRONMENT_BINDING } from '../../pipeline/define';
 import { MaterialInstance } from '../core/material-instance';

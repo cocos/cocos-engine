@@ -28,12 +28,10 @@
  * @hidden
  */
 
-import { AudioClip } from '../../audio/assets/clip';
 import { VideoClip } from '../../video/assets/video-clip';
 import {
     ImageAsset, JsonAsset, TextAsset, Asset,
 } from '../assets';
-import { TTFFont } from '../2d/assets';
 import { BufferAsset } from '../assets/buffer-asset';
 import { js } from '../utils/js';
 import Bundle, { resources } from './bundle';
@@ -45,7 +43,6 @@ import {
 } from './shared';
 
 import { cache } from './utilities';
-import { legacyCC } from '../global-exports';
 
 export type CreateHandler = (id: string, data: any, options: IDownloadParseOptions, onComplete: CompleteCallback<Asset|Bundle>) => void;
 
@@ -62,15 +59,6 @@ function createImageAsset (id: string, data: HTMLImageElement, options: IDownloa
     onComplete(err, out);
 }
 
-function createAudioClip (id: string, data: HTMLAudioElement | AudioBuffer, options: IDownloadParseOptions, onComplete: CompleteCallback<AudioClip>) {
-    const out = new AudioClip();
-    out._nativeUrl = id;
-    out._nativeAsset = data;
-    // @ts-expect-error assignment to private field
-    out._duration = data.duration;
-    onComplete(null, out);
-}
-
 function createJsonAsset (id: string, data: Record<string, any>, options: IDownloadParseOptions, onComplete: CompleteCallback<JsonAsset>) {
     const out = new JsonAsset();
     out.json = data;
@@ -80,13 +68,6 @@ function createJsonAsset (id: string, data: Record<string, any>, options: IDownl
 function createTextAsset (id: string, data: string, options: IDownloadParseOptions, onComplete: CompleteCallback<TextAsset>) {
     const out = new TextAsset();
     out.text = data;
-    onComplete(null, out);
-}
-
-function createFont (id: string, data: string, options: IDownloadParseOptions, onComplete: CompleteCallback<TTFFont>) {
-    const out = new legacyCC.TTFFont() as TTFFont;
-    out._nativeUrl = id;
-    out._nativeAsset = data;
     onComplete(null, out);
 }
 
@@ -114,13 +95,6 @@ function createBundle (id: string, data: IConfigOption, options: IDownloadParseO
     onComplete(null, bundle);
 }
 
-function createVideoClip (id: string, data: HTMLVideoElement, options: IDownloadParseOptions, onComplete: CompleteCallback<VideoClip>) {
-    const out = new VideoClip();
-    out._nativeUrl = id;
-    out._nativeAsset = data;
-    onComplete(null, out);
-}
-
 export class Factory {
     private _creating = new Cache<CompleteCallback[]>();
 
@@ -138,21 +112,6 @@ export class Factory {
         '.pvr': createImageAsset,
         '.pkm': createImageAsset,
 
-        // Audio
-        '.mp3': createAudioClip,
-        '.ogg': createAudioClip,
-        '.wav': createAudioClip,
-        '.m4a': createAudioClip,
-
-        // Video
-        '.mp4': createVideoClip,
-        '.avi': createVideoClip,
-        '.mov': createVideoClip,
-        '.mpg': createVideoClip,
-        '.mpeg': createVideoClip,
-        '.rm': createVideoClip,
-        '.rmvb': createVideoClip,
-
         // Txt
         '.txt': createTextAsset,
         '.xml': createTextAsset,
@@ -166,14 +125,6 @@ export class Factory {
 
         '.json': createJsonAsset,
         '.ExportJson': createJsonAsset,
-
-        // font
-        '.font': createFont,
-        '.eot': createFont,
-        '.ttf': createFont,
-        '.woff': createFont,
-        '.svg': createFont,
-        '.ttc': createFont,
 
         // Binary
         '.binary': createBufferAsset,

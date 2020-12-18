@@ -25,20 +25,20 @@
 */
 
 import { TEST, EDITOR } from 'internal:constants';
-import { MeshRenderer } from '../../3d/framework/mesh-renderer';
-import { Camera } from '../../components/camera-component';
-import { createMesh } from '../../3d/misc';
-import { Material } from '../../assets/material';
-import { ClearFlag, Format, TextureType, TextureUsageBit } from '../../gfx/define';
-import { Texture, TextureInfo, Device, BufferTextureCopy } from '../../gfx';
-import { toRadian, Vec4 } from '../../math';
-import { Layers } from '../../scene-graph';
-import { Node } from '../../scene-graph/node';
+import { MeshRenderer } from '../core/3d/framework/mesh-renderer';
+import { Camera } from '../core/components/camera-component';
+import { createMesh } from '../core/3d/misc';
+import { Material } from '../core/assets/material';
+import { ClearFlag, Format, TextureType, TextureUsageBit } from '../core/gfx/define';
+import { Texture, TextureInfo, Device, BufferTextureCopy } from '../core/gfx';
+import { toRadian, Vec4 } from '../core/math';
+import { Layers } from '../core/scene-graph';
+import { Node } from '../core/scene-graph/node';
 import { ICounterOption } from './counter';
 import { PerfCounter } from './perf-counter';
-import { legacyCC } from '../../global-exports';
-import { Pass } from '../../renderer';
-import { preTransforms } from '../../math/mat4';
+import { legacyCC } from '../core/global-exports';
+import { Pass } from '../core/renderer';
+import { preTransforms } from '../core/math/mat4';
 
 const _characters = '0123456789. ';
 

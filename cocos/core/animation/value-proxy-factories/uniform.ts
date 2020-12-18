@@ -31,7 +31,7 @@
 import { ccclass, float, serializable } from 'cc.decorator';
 import { builtinResMgr } from '../../builtin/builtin-res-mgr';
 import { Material } from '../../assets/material';
-import { SpriteFrame } from '../../2d/assets/sprite-frame';
+import { SpriteFrame } from '../../../2d/assets/sprite-frame';
 import { TextureBase } from '../../assets/texture-base';
 import { Type } from '../../gfx/define';
 import { Pass } from '../../renderer/core/pass';

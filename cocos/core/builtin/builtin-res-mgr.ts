@@ -25,7 +25,7 @@
 
 import { Asset } from '../assets/asset';
 import { ImageAsset } from '../assets/image-asset';
-import { SpriteFrame } from '../2d/assets/sprite-frame';
+import { SpriteFrame } from '../../2d/assets/sprite-frame';
 import { Texture2D } from '../assets/texture-2d';
 import { TextureCube } from '../assets/texture-cube';
 import { Device } from '../gfx';

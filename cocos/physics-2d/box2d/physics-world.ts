@@ -1,22 +1,21 @@
 import b2 from '@cocos/box2d';
 import { EDITOR } from 'internal:constants';
 
-import { IPhysicsWorld } from '../spec/i-physics-world'
+import { IPhysicsWorld } from '../spec/i-physics-world';
 import { IVec2Like, Vec3, Quat, toRadian, Vec2, toDegree, Rect, Node, game, CCObject, find, director } from '../../core';
-import { PHYSICS_2D_PTM_RATIO, ERaycast2DType } from '../framework/physics-types';
-import { ERigidBody2DType } from '../framework/physics-types';
+import { PHYSICS_2D_PTM_RATIO, ERaycast2DType, ERigidBody2DType } from '../framework/physics-types';
 import { array } from '../../core/utils/js';
-import { Canvas, Graphics } from '../../../exports/ui';
+import { Canvas } from '../../2d/framework';
+import { Graphics } from '../../2d/components';
 
 import { b2RigidBody2D } from './rigid-body';
 import { PhysicsContactListener } from './platform/physics-contact-listener';
 import { PhysicsAABBQueryCallback } from './platform/physics-aabb-query-callback';
 import { PhysicsRayCastCallback } from './platform/physics-ray-cast-callback';
-import { PhysicsContact } from './physics-contact';
+import { PhysicsContact, b2ContactExtends } from './physics-contact';
 import { Contact2DType, Collider2D, RaycastResult2D } from '../framework';
 import { b2Shape2D } from './shapes/shape-2d';
 import { PhysicsDebugDraw } from './platform/physics-debug-draw';
-import { b2ContactExtends } from './physics-contact';
 
 let tempVec3 = new Vec3;
 let tempVec2_1 = new Vec2();

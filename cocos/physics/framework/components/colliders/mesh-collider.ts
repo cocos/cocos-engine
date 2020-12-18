@@ -38,7 +38,7 @@ import {
     serializable,
 } from 'cc.decorator';
 import { Collider } from './collider';
-import { Mesh } from '../../../../core/3d/assets';
+import { Mesh } from '../../../../3d/assets';
 import { ITrimeshShape } from '../../../spec/i-physics-shape';
 import { EDITOR, TEST } from 'internal:constants';
 import { EColliderType } from '../../physics-enum';

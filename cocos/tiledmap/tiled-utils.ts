@@ -23,7 +23,7 @@
  THE SOFTWARE.
  */
 
-import { SpriteFrame } from '../core/2d';
+import { SpriteFrame } from '../2d/assets';
 import { Rect, Texture2D } from '../core';
 import { GID, TiledGrid, TiledTextureGrids, TMXTilesetInfo } from './tiled-types';
 

@@ -28,4 +28,4 @@
  * @hidden
  */
 
-export * from '../cocos/core/2d';
+export * from '../cocos/ui';

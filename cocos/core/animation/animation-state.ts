@@ -36,7 +36,7 @@ import { Playable } from './playable';
 import { WrapMode, WrapModeMask, WrappedInfo } from './types';
 import { EDITOR } from 'internal:constants';
 import { HierarchyPath, evaluatePath, TargetPath } from './target-path';
-import { BlendStateBuffer, createBlendStateWriter, IBlendStateWriter, IBlendStateWriterHost } from './skeletal-animation/skeletal-animation-blending';
+import { BlendStateBuffer, createBlendStateWriter, IBlendStateWriter, IBlendStateWriterHost } from '../../3d/skeletal-animation/skeletal-animation-blending';
 import { legacyCC } from '../global-exports';
 import { ccenum } from '../value-types/enum';
 import { IValueProxyFactory } from './value-proxy';

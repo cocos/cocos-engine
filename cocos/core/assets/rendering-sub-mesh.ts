@@ -29,7 +29,7 @@
  */
 
 import { legacyCC } from '../global-exports';
-import { mapBuffer } from '../3d/misc/buffer';
+import { mapBuffer } from '../../3d/misc/buffer';
 import {
     Attribute, Device, InputAssemblerInfo, Buffer, BufferInfo,
 } from '../gfx';
@@ -50,7 +50,7 @@ import {
     SubMeshHandle, SubMeshPool, SubMeshView, freeHandleArray,
 } from '../renderer/core/memory-pools';
 import { Vec3 } from '../math';
-import { Mesh } from '../3d/assets/mesh';
+import { Mesh } from '../../3d/assets/mesh';
 
 /**
  * @en Array views for index buffer

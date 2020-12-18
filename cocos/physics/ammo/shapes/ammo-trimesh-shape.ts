@@ -26,7 +26,7 @@
 import Ammo from '../ammo-instantiated';
 import { AmmoShape } from './ammo-shape';
 import { warnID } from '../../../core';
-import { Mesh } from '../../../core/3d/assets';
+import { Mesh } from '../../../3d/assets';
 import { MeshCollider } from '../../../../exports/physics-framework';
 import { cocos2AmmoVec3, cocos2AmmoTriMesh } from '../ammo-util';
 import { AmmoBroadphaseNativeTypes } from '../ammo-enum';

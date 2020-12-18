@@ -33,14 +33,14 @@
 import { ccclass } from 'cc.decorator';
 
 import { EDITOR } from 'internal:constants';
-import { UIRenderable } from '../core/2d/framework/ui-renderable';
-import { SpriteFrame } from '../core/2d/assets/sprite-frame';
+import { UIRenderable } from '../2d/framework/ui-renderable';
+import { SpriteFrame } from '../2d/assets/sprite-frame';
 import { Component } from '../core/components';
 import { TMXMapInfo } from './tmx-xml-parser';
 import { Color, IVec2Like, Mat4, Size, SystemEventType, Texture2D, Vec2, Vec3, Node, warn, logID, CCBoolean } from '../core';
 import { TiledTile } from './tiled-tile';
-import { MeshRenderData } from '../core/2d/renderer/render-data';
-import { UI } from '../core/2d/renderer/ui';
+import { MeshRenderData } from '../2d/renderer/render-data';
+import { UI } from '../2d/renderer/ui';
 import {
     MixedGID, GID, Orientation, TiledTextureGrids, TMXTilesetInfo, RenderOrder, StaggerAxis, StaggerIndex, TileFlag,
     GIDFlags, TiledGrid, TiledAnimationType, PropertiesInfo, TMXLayerInfo,

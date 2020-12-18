@@ -27,32 +27,20 @@
         },
         {
             "text": "3D",
-            "description": "Graphcis API used by GFX. There can be more than one API existed.",
-            "items": [
-                {
-                    "text": "3D Framework",
-                    "description": "3D Framework",
-                    "entry": "3d-framework",
-                    "default": true
-                },
-                {
-                    "text": "Light",
-                    "description": "Light Module",
-                    "entry": ["3d-framework", "light"],
-                    "default": true
-                },
-                {
-                    "text": "Skinned Mesh Rendering",
-                    "description": "Skinned Mesh Rendering",
-                    "entry": ["3d-framework", "skinned-mesh-rendering"],
-                    "default": true
-                }
-            ]
+            "description": "3D",
+            "entry": "3d",
+            "default": true
+        },
+        {
+            "text": "2D",
+            "description": "2D module",
+            "entry": "2d",
+            "default": true
         },
         {
             "text": "UI",
             "description": "UI module",
-            "entry": "ui",
+            "entry": ["ui", "2d"],
             "default": true
         },
         {
@@ -118,33 +106,15 @@
             "default": true
         },
         {
-            "text": "Animation",
-            "description": "Animation",
-            "items": [
-                {
-                    "text": "Normal Animation",
-                    "description": "Normal Animation",
-                    "entry": "animation",
-                    "default": true
-                },
-                {
-                    "text": "Skeletal Animation",
-                    "description": "Skinned Skeleton Animation",
-                    "entry": ["animation", "skeletal-animation", "3d-framework", "skinned-mesh-rendering"],
-                    "default": true
-                }
-            ]
-        },
-        {
             "text": "Primitive",
             "description": "Primitive",
-            "entry": ["primitive", "3d-framework"],
+            "entry": "primitive",
             "default": true
         },
         {
             "text": "Profiler",
             "description": "Profiler",
-            "entry": ["profiler", "3d-framework"],
+            "entry": "profiler",
             "default": true
         },
         {

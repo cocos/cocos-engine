@@ -26,9 +26,9 @@
 
 import { ccclass, executeInEditMode, serializable, playOnFocus, menu, help, editable, type } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
-import { UIRenderable } from '../core/2d/framework';
+import { UIRenderable } from '../2d/framework';
 import { Texture2D } from '../core/assets/texture-2d';
-import { UI } from '../core/2d/renderer/ui';
+import { UI } from '../2d/renderer/ui';
 
 /**
  * @en

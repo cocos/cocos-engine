@@ -28,7 +28,7 @@
  * @hidden
  */
 
-import { IAssemblerManager } from '../../core/2d/renderer/base';
+import { IAssemblerManager } from '../../2d/renderer/base';
 import { TiledLayer } from '../tiled-layer';
 import { simple } from './simple';
 

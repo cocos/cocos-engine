@@ -1,6 +1,6 @@
 import { EDITOR } from 'internal:constants';
 import { ccclass, executeInEditMode, help, menu } from '../core/data/class-decorator';
-import { UIRenderable } from '../core/2d/framework';
+import { UIRenderable } from '../2d/framework';
 import { Node, EventTarget, CCClass, Color, Enum, PrivateNode, ccenum, errorID, Texture2D, GFXBlendFactor, js, CCObject } from '../core';
 import { displayName, editable, serializable, tooltip, type, visible } from '../core/data/decorators';
 import { AnimationCache, ArmatureCache, ArmatureFrame } from './ArmatureCache';
@@ -9,10 +9,10 @@ import { CCFactory } from './CCFactory';
 import { Armature, Bone, EventObject } from './lib/dragonBones.js';
 import { DragonBonesAsset } from './DragonBonesAsset';
 import { DragonBonesAtlasAsset } from './DragonBonesAtlasAsset';
-import { Graphics } from '../core/2d/components';
+import { Graphics } from '../2d/components';
 import { CCArmatureDisplay } from './CCArmatureDisplay';
-import { MeshRenderData } from '../core/2d/renderer/render-data';
-import { UI } from '../core/2d/renderer/ui';
+import { MeshRenderData } from '../2d/renderer/render-data';
+import { UI } from '../2d/renderer/ui';
 import { MaterialInstance } from '../core/renderer/core/material-instance';
 
 enum DefaultArmaturesEnum {
