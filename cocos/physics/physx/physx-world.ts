@@ -166,29 +166,28 @@ export class PhysXWorld implements IPhysicsWorld {
                 /**
                  * uint16   ContactPairFlags
                  * uint16   PairFlags
-                 * uint8    ContactCount
+                 * uint16   ContactCount
                  */
                 const pairBuf = _header.pairBuffer as ArrayBuffer;
                 const pairL = shapes.length / 2;
+                const ui16View = new Uint16Array(pairBuf, 0, pairL * 3);
                 for (let i = 0; i < pairL; i++) {
-                    const ui16View = new Uint16Array(pairBuf, i * 5, 2);
                     const flags = ui16View[0];
                     if (flags & 3) continue;
                     const shape0 = shapes[2 * i];
                     const shape1 = shapes[2 * i + 1];
                     if (!shape0 || !shape1) continue;
                     const shapeA = getWrapShape<PhysXShape>(shape0);
-                    const shapeB = getWrapShape<PhysXShape>(shape1);                    
-                    const ui8View = new Uint8Array(pairBuf, i * 4, 1);
-                    const contactCount = ui8View[0];
+                    const shapeB = getWrapShape<PhysXShape>(shape1);
                     const events = ui16View[1];
-                    const contactBuf = _header.contactBuffer as ArrayBuffer;
+                    const contactCount = ui16View[2];
+                    const contactBuffer = _header.contactBuffer as ArrayBuffer;
                     if (events & 4) {
-                        onCollision('onCollisionEnter', shapeA, shapeB, contactCount, contactBuf);
+                        onCollision('onCollisionEnter', shapeA, shapeB, contactCount, contactBuffer);
                     } else if (events & 8) {
-                        onCollision('onCollisionStay', shapeA, shapeB, contactCount, contactBuf);
+                        onCollision('onCollisionStay', shapeA, shapeB, contactCount, contactBuffer);
                     } else if (events & 16) {
-                        onCollision('onCollisionExit', shapeA, shapeB, contactCount, contactBuf);
+                        onCollision('onCollisionExit', shapeA, shapeB, contactCount, contactBuffer);
                     }
                 }
             });

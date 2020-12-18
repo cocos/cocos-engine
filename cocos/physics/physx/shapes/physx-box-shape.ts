@@ -43,7 +43,10 @@ export class PhysXBoxShape extends PhysXShape implements IBoxShape {
         const ws = co.node.worldScale;
         VEC3_0.set(co.size);
         VEC3_0.multiplyScalar(0.5);
-        VEC3_0.multiply3f(Math.abs(ws.x), Math.abs(ws.y), Math.abs(ws.z));
+        VEC3_0.multiply(ws);
+        VEC3_0.x = Math.abs(VEC3_0.x);
+        VEC3_0.y = Math.abs(VEC3_0.y);
+        VEC3_0.z = Math.abs(VEC3_0.z);
         PhysXBoxShape.BOX_GEOMETRY.setHalfExtents(VEC3_0);
     }
 }

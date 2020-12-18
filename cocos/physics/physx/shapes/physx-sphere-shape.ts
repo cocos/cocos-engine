@@ -43,6 +43,6 @@ export class PhysXSphereShape extends PhysXShape implements ISphereShape {
         const absY = Math.abs(ws.y);
         const absZ = Math.abs(ws.z);
         const maxSp = Math.max(Math.max(absX, absY), absZ);
-        PhysXSphereShape.SPHERE_GEOMETRY.setRadius(co.radius * maxSp);
+        PhysXSphereShape.SPHERE_GEOMETRY.setRadius(Math.max(0.0001, co.radius * maxSp));
     }
 }

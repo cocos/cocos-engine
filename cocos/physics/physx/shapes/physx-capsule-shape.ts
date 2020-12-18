@@ -62,7 +62,7 @@ export class PhysXCapsuleShape extends PhysXShape implements ICapsuleShape {
             hf = co.cylinderHeight / 2 * Math.abs(ws.z);
             Quat.fromEuler(this._rotation, 0, 90, 0);
         }
-        PhysXCapsuleShape.CAPSULE_GEOMETRY.setRadius(r);
-        PhysXCapsuleShape.CAPSULE_GEOMETRY.setHalfHeight(hf);
+        PhysXCapsuleShape.CAPSULE_GEOMETRY.setRadius(Math.max(0.0001, r));
+        PhysXCapsuleShape.CAPSULE_GEOMETRY.setHalfHeight(Math.max(0.0001, hf));
     }
 }
