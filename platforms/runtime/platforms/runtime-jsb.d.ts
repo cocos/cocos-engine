@@ -1,14 +1,7 @@
 declare module jsb {
     // Accelerometer
-    // export module device {
-    //     export function setMotionEnabled (enabled: boolean): void;
-    //     export function dispatchDeviceMotionEvent (event: any): void;
-    //     export function setMotionInterval (interval: number): void;
-    // }
-    // export function onAccelerometerChange (cb: Function): void;
-    // export function offAccelerometerChange (cb?: Function | null): void;
-    export function startAccelerometer (cb: Function): void;  // 补充
-    export function stopAccelerometer (cb?: Function): void; // 补充
+    export function startAccelerometer (cb: Function): void;
+    export function stopAccelerometer (cb?: Function): void;
     export function setAccelerometerInterval (interval: number): void;
 
     // Touch
@@ -29,8 +22,8 @@ declare module jsb {
     export module AudioEngine {}
 
     // Fs
-    export function getFileSystemManager (): any;  // 补充
-    export function downloadFile (option: any): void;  // 补充
+    export function getFileSystemManager (): any;
+    export function downloadFile (option: any): void;
     export module fsUtils {}
 
     // System
@@ -43,24 +36,24 @@ declare module jsb {
     export const height: number;
     export const pixelRatio: number;
     export function setPreferredFramesPerSecond (fps: number): void;
-    export function getBatteryInfoSync (): number;  // 补充
+    export function getBatteryInfoSync (): number;
 
-    export function onShow (cb: Function): void;  // 补充
-    export function onHide (cb: Function): void;  // 补充
-    export function offShow (cb?: Function): void;  // 补充
-    export function offHide (cb?: Function): void;  // 补充
+    export function onShow (cb: Function): void;
+    export function onHide (cb: Function): void;
+    export function offShow (cb?: Function): void;
+    export function offHide (cb?: Function): void;
 
     export function createCanvas (): HTMLCanvasElement;
     export function createImage (): HTMLImageElement;
-    export function loadImageData (): void;  // TODO: 函数签名不确定
     export function loadSubpackage (name: string, cb: Function): void;
+    export let loadImageData: any;  // TODO
 
     // Font
     export function loadFont (fontUrl: string): string;
 
     // Keyboard
     export function showKeyboard (res: Record<string, any>): void;
-    export function hideKeyboard (): void;  // 补充
+    export function hideKeyboard (): void;
 
     export function onKeyboardConfirm (cb: Function): void;
     export function onKeyboardComplete (cb: Function): void;

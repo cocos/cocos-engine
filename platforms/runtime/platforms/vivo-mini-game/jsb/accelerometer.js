@@ -18,7 +18,7 @@ Object.assign(jsb, {
                 let y = res.y;    
                 let factor = 0.1;            
                 
-                // TODO: 无法判断方向
+                // FIXME: not supported to detect the orientation
                 // if (isLandscape) {
                 //     let tmp = x;
                 //     x = -y;
