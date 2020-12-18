@@ -222,12 +222,8 @@ std::string getCurAppName(void)
         FileUtils::getInstance()->setDefaultResourceRootPath(tmpConfig.getProjectDir());
     }
 
-    // parse config.json
+    // parse config.json when firstly init ConfigParser single instance
     auto parser = ConfigParser::getInstance();
-    auto configPath = spath.append(CONFIG_FILE);
-    if(!FileUtils::getInstance()->isFileExist(configPath))
-        configPath = solutionDir.append(CONFIG_FILE);
-    parser->readConfig(configPath);
 
     // set information
     config->setConsolePort(parser->getConsolePort());

@@ -35,6 +35,7 @@
 #include "ide-support/CodeIDESupport.h"
 #include "runtime/Runtime.h"
 #include "ide-support/RuntimeJsImpl.h"
+#include "runtime/ConfigParser.h"
 using namespace std;
 
 Game::Game(int width, int height) : cc::Application(width, height) {}
@@ -56,9 +57,10 @@ bool Game::init()
     jsb_init_file_operation_delegate();
     jsb_register_all_modules();
     
+    auto parser = ConfigParser::getInstance();
  #if defined(CC_DEBUG) && (CC_DEBUG > 0)
      // Enable debugger here
-    jsb_enable_debugger("0.0.0.0", 5086, false);
+    jsb_enable_debugger("0.0.0.0", 5086, parser->isWaitForConnect());
  #endif
     
     se->start();
