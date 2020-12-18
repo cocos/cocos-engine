@@ -666,9 +666,9 @@ String compileGLSLShader2Msl(const String &src,
     for (const auto &sampler : resources.sampled_images) {
         auto set = msl.get_decoration(sampler.id, spv::DecorationDescriptorSet);
         auto binding = msl.get_decoration(sampler.id, spv::DecorationBinding);
-        int size = 1;
+        int size = 1, s = -1;
         const spirv_cross::SPIRType &type = msl.get_type(sampler.type_id);
-        if (type.image.dim == spv::Dim2D)
+        if (type.array_size_literal[0])
         {
             size = type.array[0];
         }
