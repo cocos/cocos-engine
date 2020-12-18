@@ -365,20 +365,20 @@ export class Canvas extends Component {
     protected _onResizeCamera () {
         if (!this._alignCanvasWithScreen) { return; }
 
-        const camera = this._cameraComponent;
-        if (camera) {
+        const cameraComponent = this._cameraComponent;
+        if (cameraComponent) {
             if (this._targetTexture) {
                 const win = this._targetTexture.window;
-                camera.camera.setFixedSize(win!.width, win!.height);
-                camera.orthoHeight = visibleRect.height / 2;
+                cameraComponent.camera.setFixedSize(win!.width, win!.height);
+                cameraComponent.orthoHeight = visibleRect.height / 2;
             } else {
                 const size = game.canvas!;
-                camera.camera.resize(size.width, size.height);
-                camera.orthoHeight = game.canvas!.height / view.getScaleY() / 2;
+                cameraComponent.camera.resize(size.width, size.height);
+                cameraComponent.orthoHeight = game.canvas!.height / view.getScaleY() / 2;
             }
             this.node.getWorldPosition(_worldPos);
-            camera.node.setWorldPosition(_worldPos.x, _worldPos.y, 1000);
-            camera.camera.update();
+            cameraComponent.node.setWorldPosition(_worldPos.x, _worldPos.y, 1000);
+            cameraComponent.camera.update();
         }
     }
 
@@ -402,20 +402,20 @@ export class Canvas extends Component {
     protected _updateTargetTexture () {
         if (!this._cameraComponent) { return; }
 
-        const camera = this._cameraComponent;
-        if (!camera.camera) { return; }
+        const cameraComponent = this._cameraComponent;
+        if (!cameraComponent.camera) { return; }
 
         if (!this._targetTexture) {
-            camera.camera.changeTargetWindow();
-            camera.orthoHeight = game.canvas!.height / view.getScaleY() / 2;
-            camera.camera.isWindowSize = true;
+            cameraComponent.camera.changeTargetWindow();
+            cameraComponent.orthoHeight = game.canvas!.height / view.getScaleY() / 2;
+            cameraComponent.camera.isWindowSize = true;
         } else {
             const win = this._targetTexture.window;
-            camera.camera.changeTargetWindow(win);
-            camera.orthoHeight = visibleRect.height / 2;
-            camera.camera.isWindowSize = false;
+            cameraComponent.camera.changeTargetWindow(win);
+            cameraComponent.orthoHeight = visibleRect.height / 2;
+            cameraComponent.camera.isWindowSize = false;
         }
-        camera.camera.update();
+        cameraComponent.camera.update();
     }
 
     private _getViewPriority () {
