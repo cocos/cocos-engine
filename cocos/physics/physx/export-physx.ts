@@ -50,6 +50,7 @@ if (PX) {
         PX.CapsuleGeometry = PX.PxCapsuleGeometry;
         PX.PlaneGeometry = PX.PxPlaneGeometry;
         PX.ConvexMeshGeometry = PX.PxConvexMeshGeometry;
+        PX.TriangleMeshGeometry = PX.PxTriangleMeshGeometry;
         PX.MeshScale = PX.PxMeshScale;
         PX.createRevoluteJoint = (a: any, b: any, c: any, d: any): any => PX.PxRevoluteJointCreate(PX.physics, a, b, c, d);
         PX.createDistanceJoint = (a: any, b: any, c: any, d: any): any => PX.PxDistanceJointCreate(PX.physics, a, b, c, d);
@@ -69,26 +70,25 @@ export function getWrapShape<T> (pxShape: any): T {
 
 /**
  * f32 x3  position.x,position.y,position.z,
- * f32 separation,
  * f32 x3 normal.x,normal.y,normal.z,
- * ui32 internalFaceIndex0,
  * f32 x3 impulse.x,impulse.y,impulse.z,
- * ui32 internalFaceIndex1
+ * f32 separation,
+ * totoal = 40
+ * ui32 internalFaceIndex0,
+ * ui32 internalFaceIndex1,
  * totoal = 48
  */
 export function getContactPosition (pxContactOrIndex: any, out: IVec3Like, buf: any) {
-    // return USE_BYTEDANCE ? pxContact.getPosition() : pxContactOrIndex.position;
     if (USE_BYTEDANCE) {
-        Vec3.fromArray(out, new Float32Array(buf, 48 * pxContactOrIndex, 3));
+        Vec3.fromArray(out, new Float32Array(buf, 40 * pxContactOrIndex, 3));
     } else {
         Vec3.copy(out, pxContactOrIndex.position);
     }
 }
 
 export function getContactNormal (pxContactOrIndex: any, out: IVec3Like, buf: any) {
-    // return USE_BYTEDANCE ? pxContact.getNormal() : pxContact.normal;
     if (USE_BYTEDANCE) {
-        Vec3.fromArray(out, new Float32Array(buf, 48 * pxContactOrIndex + 16, 3));
+        Vec3.fromArray(out, new Float32Array(buf, 40 * pxContactOrIndex + 12, 3));
     } else {
         Vec3.copy(out, pxContactOrIndex.normal);
     }
@@ -209,6 +209,7 @@ export function getShapeMaterials (pxMtl: any) {
 }
 
 export function setupCommonCookingParam (params: any, skipMeshClean = false, skipEdgedata = false): void {
+    if (!USE_BYTEDANCE) return;
     params.setSuppressTriangleMeshRemapTable(true);
     if (!skipMeshClean) {
         params.setMeshPreprocessParams(params.getMeshPreprocessParams() & ~PX.MeshPreprocessingFlag.eDISABLE_CLEAN_MESH);
@@ -223,11 +224,12 @@ export function setupCommonCookingParam (params: any, skipMeshClean = false, ski
     }
 }
 
-export function createConvexMesh (vertices: Float32Array, cooking: any, physics: any): any {
+export function createConvexMesh (vertices: Float32Array | number[], cooking: any, physics: any): any {
     if (USE_BYTEDANCE) {
         const cdesc = new PX.ConvexMeshDesc();
-        cdesc.setPointsData(vertices);
-        cdesc.setPointsCount(vertices.length / 3);
+        const verticesF32 = new Float32Array(vertices);
+        cdesc.setPointsData(verticesF32);
+        cdesc.setPointsCount(verticesF32.length / 3);
         cdesc.setPointsStride(3 * Float32Array.BYTES_PER_ELEMENT);
         cdesc.setConvexFlags(PX.ConvexFlag.eCOMPUTE_CONVEX);
         return cooking.createConvexMesh(cdesc);
@@ -252,14 +254,15 @@ export function createMeshGeometryFlags (flags: number, isConvex: boolean) {
     }
 }
 
-export function createTriangleMesh (vertices: Float32Array, indices: Uint32Array, cooking: any, physics: any): any {
+export function createTriangleMesh (vertices: Float32Array | number[], indices: Uint32Array, cooking: any, physics: any): any {
     if (USE_BYTEDANCE) {
         const meshDesc = new PX.TriangleMeshDesc();
         meshDesc.setPointsData(vertices);
         meshDesc.setPointsCount(vertices.length / 3);
         meshDesc.setPointsStride(Float32Array.BYTES_PER_ELEMENT * 3);
-        meshDesc.setTrianglesData(indices);
-        meshDesc.setTrianglesCount(indices.length / 3);
+        const indicesUI32 = new Uint32Array(indices);
+        meshDesc.setTrianglesData(indicesUI32);
+        meshDesc.setTrianglesCount(indicesUI32.length / 3);
         meshDesc.setTrianglesStride(Uint32Array.BYTES_PER_ELEMENT * 3);
         return cooking.createTriangleMesh(meshDesc);
     } else {
@@ -277,7 +280,7 @@ export function createTriangleMesh (vertices: Float32Array, indices: Uint32Array
     }
 }
 
-export function createBV33TriangleMesh (vertices: Float32Array, indices: Uint32Array, cooking: any, physics: any,
+export function createBV33TriangleMesh (vertices: number[], indices: Uint32Array, cooking: any, physics: any,
     skipMeshCleanUp = false,
     skipEdgeData = false,
     cookingPerformance = false,
@@ -308,7 +311,7 @@ export function createBV33TriangleMesh (vertices: Float32Array, indices: Uint32A
     return cooking.createTriangleMesh(meshDesc);
 }
 
-export function createBV34TriangleMesh (vertices: Float32Array, indices: Uint32Array, cooking: any, physics: any,
+export function createBV34TriangleMesh (vertices: number[], indices: Uint32Array, cooking: any, physics: any,
     skipMeshCleanUp = false,
     skipEdgeData = false,
     numTrisPerLeaf = true,

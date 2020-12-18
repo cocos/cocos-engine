@@ -9,6 +9,8 @@ import { PhysXCapsuleShape } from './shapes/physx-capsule-shape';
 import { PhysXPlaneShape } from './shapes/physx-plane-shape';
 import { PhysXTrimeshShape } from './shapes/physx-trimesh-shape';
 import { PhysXTerrainShape } from './shapes/physx-terrain-shape';
+import { PhysXCylinderShape } from './shapes/physx-cylinder-shape';
+import { PhysXConeShape } from './shapes/physx-cone-shape';
 
 import { PhysXFixedJoint } from './joints/physx-fixed-joint';
 import { PhysXDistanceJoint } from './joints/physx-distance-joint';
@@ -22,8 +24,8 @@ select('physx', {
     SphereShape: PhysXSphereShape,
     CapsuleShape: PhysXCapsuleShape,
     TrimeshShape: PhysXTrimeshShape,
-    // CylinderShape: PhysXCylinderShape,
-    // ConeShape: PhysXConeShape,
+    CylinderShape: PhysXCylinderShape,
+    ConeShape: PhysXConeShape,
     TerrainShape: PhysXTerrainShape,
     // SimplexShape: PhysXSimplexShape,
     PlaneShape: PhysXPlaneShape,

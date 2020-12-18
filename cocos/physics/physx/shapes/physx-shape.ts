@@ -11,12 +11,20 @@ export enum EPhysXShapeType {
     BOX,
     CAPSULE,
     CYLINDER,
+    CONE,
     PLANE,
     TERRAIN,
     MESH,
 }
 
 export class PhysXShape implements IBaseShape {
+    private static _MESH_SCALE: any;
+    static get MESH_SCALE (): any {
+        if (!this._MESH_SCALE)
+            this._MESH_SCALE = new PX.MeshScale(Vec3.ZERO, Quat.IDENTITY);
+        return this._MESH_SCALE;
+    }
+
     get impl (): any { return this._impl; }
     get collider (): Collider { return this._collider; }
     get attachedRigidBody (): RigidBody | null { return null; }
