@@ -47,6 +47,8 @@ const cannonQuat_0 = new CANNON.Quaternion();
 const cannonVec3_0 = new CANNON.Vec3();
 const cannonVec3_1 = new CANNON.Vec3();
 export class CannonShape implements IBaseShape {
+    updateEventListener (): void { }
+
     static readonly idToMaterial = {};
 
     get impl () { return this._shape; }

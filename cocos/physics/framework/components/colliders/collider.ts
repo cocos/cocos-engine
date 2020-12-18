@@ -469,6 +469,7 @@ export class Collider extends Eventify(Component) {
                     this._needCollisionEvent = false;
                 }
             }
+            if (this._shape) this._shape.updateEventListener()
         }
     }
 }

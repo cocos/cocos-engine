@@ -39,6 +39,8 @@ import { AmmoConstant, CC_V3_0 } from '../ammo-const';
 const v3_0 = CC_V3_0;
 
 export class AmmoShape implements IBaseShape {
+    updateEventListener (): void { }
+
     setMaterial (v: PhysicMaterial | null) {
         if (!this._isTrigger && this._isEnabled && v) {
             if (this._btCompound) {

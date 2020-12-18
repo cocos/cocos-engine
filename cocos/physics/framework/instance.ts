@@ -94,6 +94,7 @@ const ENTIRE_SHAPE: IEntireShape = {
     setTerrain: FUNC,
     setNormal: FUNC,
     setConstant: FUNC,
+    updateEventListener: FUNC,
 }
 
 export function createShape (type: EColliderType): IBaseShape {

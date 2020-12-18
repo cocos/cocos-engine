@@ -10,6 +10,18 @@ let _px = globalThis.PhysX as any;
 if (USE_BYTEDANCE && globalThis.tt.getPhy) _px = globalThis.tt.getPhy();
 export const PX = _px;
 
+/// enum ///
+
+export enum EFilterDataWord3 {
+    QUERY_FILTER = 1 << 0,
+    QUERY_CHECK_TRIGGER = 1 << 1,
+    QUERY_SINGLE_HIT = 1 << 2,
+    DETECT_TRIGGER_EVENT = 1 << 3,
+    DETECT_CONTACT_EVENT = 1 << 4,
+    DETECT_CONTACT_POINT = 1 << 5,
+    DETECT_CONTACT_CCD = 1 << 6,
+}
+
 /// adapters ///
 
 export const _trans = {
@@ -54,12 +66,31 @@ export function getWrapShape<T> (pxShape: any): T {
     return PX.IMPL_PTR[getImplPtr(pxShape)];
 }
 
-export function getContactPosition (pxContact: any): IVec3Like {
-    return USE_BYTEDANCE ? pxContact.getPosition() : pxContact.position;
+/**
+ * f32 x3  position.x,position.y,position.z,
+ * f32 separation,
+ * f32 x3 normal.x,normal.y,normal.z,
+ * ui32 internalFaceIndex0,
+ * f32 x3 impulse.x,impulse.y,impulse.z,
+ * ui32 internalFaceIndex1
+ * totoal = 48
+ */
+export function getContactPosition (pxContactOrIndex: any, out: IVec3Like, buf: any) {
+    // return USE_BYTEDANCE ? pxContact.getPosition() : pxContactOrIndex.position;
+    if (USE_BYTEDANCE) {
+        Vec3.fromArray(out, new Float32Array(buf, 48 * pxContactOrIndex, 3));
+    } else {
+        Vec3.copy(out, pxContactOrIndex.position);
+    }
 }
 
-export function getContactNormal (pxContact: any): IVec3Like {
-    return USE_BYTEDANCE ? pxContact.getNormal() : pxContact.normal;
+export function getContactNormal (pxContactOrIndex: any, out: IVec3Like, buf: any) {
+    // return USE_BYTEDANCE ? pxContact.getNormal() : pxContact.normal;
+    if (USE_BYTEDANCE) {
+        Vec3.fromArray(out, new Float32Array(buf, 48 * pxContactOrIndex + 16, 3));
+    } else {
+        Vec3.copy(out, pxContactOrIndex.normal);
+    }
 }
 
 export function getTempTransform (pos: IVec3Like, quat: IQuatLike): any {
@@ -104,7 +135,8 @@ export function copyPhysXTransform (node: Node, transform: any): void {
 
 export function getContactData (vec: any, index: number) {
     if (USE_BYTEDANCE) {
-        return vec[index];
+        // return vec[index];
+        return index;
     } else {
         return vec.get(index);
     }
@@ -119,8 +151,7 @@ export function applyImpulse (isGlobal: boolean, impl: any, vec: IVec3Like, rp: 
         }
     } else {
         if (USE_BYTEDANCE) {
-            // TODO: applyLocalImpulse
-            PX.RigidBodyExt.applylocalImpulse(impl, vec, rp);
+            PX.RigidBodyExt.applyLocalImpulse(impl, vec, rp);
         } else {
             impl.applyLocalImpulse(vec, rp);
         }

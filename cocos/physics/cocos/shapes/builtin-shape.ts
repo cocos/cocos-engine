@@ -36,6 +36,7 @@ import { AABB, Sphere } from '../../../core/geometry';
 export class BuiltinShape implements IBaseShape {
     getAABB (v: AABB) { }
     getBoundingSphere (v: Sphere) { }
+    updateEventListener (): void { }
     setMaterial (v: PhysicMaterial | null) { }
     setAsTrigger (v: boolean) { }
     get attachedRigidBody (): RigidBody | null { return null; }

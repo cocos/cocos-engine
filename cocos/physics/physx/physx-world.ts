@@ -162,23 +162,33 @@ export class PhysXWorld implements IPhysicsWorld {
             const sceneDesc = physics.createSceneDesc();
             const simulation = new PX.SimulationEventCallback();
             simulation.setOnContact((_header: any, pairs: any) => {
-                for (let i = 0; i < pairs.length; i++) {
-                    const cp = pairs[i];
-                    if (cp.getContactPairFlags() & 3) continue;
-                    const shapes = cp.getShapes();
-                    const shape0 = shapes.shape0;
-                    const shape1 = shapes.shape1;
+                const shapes = _header.shapes as any[];
+                /**
+                 * uint16   ContactPairFlags
+                 * uint16   PairFlags
+                 * uint8    ContactCount
+                 */
+                const pairBuf = _header.pairBuffer as ArrayBuffer;
+                const pairL = shapes.length / 2;
+                for (let i = 0; i < pairL; i++) {
+                    const ui16View = new Uint16Array(pairBuf, i * 5, 2);
+                    const flags = ui16View[0];
+                    if (flags & 3) continue;
+                    const shape0 = shapes[2 * i];
+                    const shape1 = shapes[2 * i + 1];
                     if (!shape0 || !shape1) continue;
                     const shapeA = getWrapShape<PhysXShape>(shape0);
-                    const shapeB = getWrapShape<PhysXShape>(shape1);
-                    const events = cp.getPairFlags();
-                    const contacts = cp.getContactsPoint();
+                    const shapeB = getWrapShape<PhysXShape>(shape1);                    
+                    const ui8View = new Uint8Array(pairBuf, i * 4, 1);
+                    const contactCount = ui8View[0];
+                    const events = ui16View[1];
+                    const contactBuf = _header.contactBuffer as ArrayBuffer;
                     if (events & 4) {
-                        onCollision('onCollisionEnter', shapeA, shapeB, contacts.length, contacts);
+                        onCollision('onCollisionEnter', shapeA, shapeB, contactCount, contactBuf);
                     } else if (events & 8) {
-                        onCollision('onCollisionStay', shapeA, shapeB, contacts.length, contacts);
+                        onCollision('onCollisionStay', shapeA, shapeB, contactCount, contactBuf);
                     } else if (events & 16) {
-                        onCollision('onCollisionExit', shapeA, shapeB, contacts.length, contacts);
+                        onCollision('onCollisionExit', shapeA, shapeB, contactCount, contactBuf);
                     }
                 }
             });

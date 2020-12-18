@@ -32,6 +32,7 @@ export class PhysXSharedBody {
     get isKinematic (): boolean { return this._isKinematic; }
     get isDynamic (): boolean { return !this._isStatic && !this._isKinematic; }
     get wrappedBody (): PhysXRigidBody | null { return this._wrappedBody; }
+    get filterData () { return this._filterData; }
     get impl (): any {
         this._initActor();
         return this._impl;
@@ -121,15 +122,13 @@ export class PhysXSharedBody {
     addShape (ws: PhysXShape): void {
         const index = this.wrappedShapes.indexOf(ws);
         if (index < 0) {
-            this._filterData.word2 = ws.id;
             ws.setIndex(this.wrappedShapes.length);
-            ws.impl.setQueryFilterData(this._filterData);
-            ws.impl.setSimulationFilterData(this._filterData);
+            ws.updateFilterData(this._filterData);
             this.impl.attachShape(ws.impl);
             this.wrappedShapes.push(ws);
             if (!ws.collider.isTrigger) {
                 if (!Vec3.strictEquals(ws.collider.center, Vec3.ZERO)) this.updateCenterOfMass();
-                if (this.isDynamic) setMassAndUpdateInertia(this._impl, this._wrappedBody!.rigidBody.mass);
+                if (this.isDynamic) setMassAndUpdateInertia(this.impl, this._wrappedBody!.rigidBody.mass);
             }
         }
     }
@@ -142,7 +141,7 @@ export class PhysXSharedBody {
             this.wrappedShapes.splice(index, 1);
             if (!ws.collider.isTrigger) {
                 if (!Vec3.strictEquals(ws.collider.center, Vec3.ZERO)) this.updateCenterOfMass();
-                if (this.isDynamic) setMassAndUpdateInertia(this._impl, this._wrappedBody!.rigidBody.mass);
+                if (this.isDynamic) setMassAndUpdateInertia(this.impl, this._wrappedBody!.rigidBody.mass);
             }
         }
     }
@@ -150,7 +149,7 @@ export class PhysXSharedBody {
     setMass (v: number): void {
         if (v <= 0) return;
         if (!this.isDynamic) return;
-        setMassAndUpdateInertia(this._impl, v);
+        setMassAndUpdateInertia(this.impl, v);
     }
 
     setRigidBodyFlag (v: any, b: boolean): void {
@@ -186,7 +185,7 @@ export class PhysXSharedBody {
 
     setGroup (v: number): void {
         this._filterData.word0 = v;
-        this.updateFiltering();
+        this.updateFilterData();
     }
 
     getGroup (): number {
@@ -195,18 +194,18 @@ export class PhysXSharedBody {
 
     addGroup (v: number): void {
         this._filterData.word0 |= v;
-        this.updateFiltering();
+        this.updateFilterData();
     }
 
     removeGroup (v: number): void {
         this._filterData.word0 &= ~v;
-        this.updateFiltering();
+        this.updateFilterData();
     }
 
     setMask (v: number): void {
         if (v === -1) v = 0xffffffff;
         this._filterData.word1 = v;
-        this.updateFiltering();
+        this.updateFilterData();
     }
 
     getMask (): number {
@@ -215,24 +214,22 @@ export class PhysXSharedBody {
 
     addMask (v: number): void {
         this._filterData.word1 |= v;
-        this.updateFiltering();
+        this.updateFilterData();
     }
 
     removeMask (v: number): void {
         this._filterData.word1 &= ~v;
-        this.updateFiltering();
+        this.updateFilterData();
     }
 
-    updateFiltering (): void {
+    updateFilterData (): void {
         for (let i = 0; i < this.wrappedShapes.length; i++) {
-            this._filterData.word2 = this.wrappedShapes[i].id;
-            this.wrappedShapes[i].impl.setQueryFilterData(this._filterData);
-            this.wrappedShapes[i].impl.setSimulationFilterData(this._filterData);
+            this.wrappedShapes[i].updateFilterData(this._filterData);
         }
     }
 
     updateCenterOfMass (): void {
-        if (this._isStatic || !this._impl) return;
+        if (!this.impl || this._isStatic) return;
         const center = VEC3_0;
         center.set(0, 0, 0);
         for (let i = 0; i < this.wrappedShapes.length; i++) {
@@ -243,16 +240,16 @@ export class PhysXSharedBody {
 
     clearForces (): void {
         if (this._isStatic || this._isKinematic) return;
-        this._impl.clearForce(PX.ForceMode.eFORCE); // this._impl.clearForce(PX.ForceMode.eACCELERATION);
-        this._impl.clearForce(PX.ForceMode.eIMPULSE); // this._impl.clearForce(PX.ForceMode.eVELOCITY_CHANGE);
-        this._impl.clearTorque(PX.ForceMode.eFORCE);
-        this._impl.clearTorque(PX.ForceMode.eIMPULSE);
+        this.impl.clearForce(PX.ForceMode.eFORCE); // this.impl.clearForce(PX.ForceMode.eACCELERATION);
+        this.impl.clearForce(PX.ForceMode.eIMPULSE); // this.impl.clearForce(PX.ForceMode.eVELOCITY_CHANGE);
+        this.impl.clearTorque(PX.ForceMode.eFORCE);
+        this.impl.clearTorque(PX.ForceMode.eIMPULSE);
     }
 
     clearVelocity (): void {
         if (this._isStatic || this._isKinematic) return;
-        this._impl.setLinearVelocity(Vec3.ZERO, false);
-        this._impl.setAngularVelocity(Vec3.ZERO, false);
+        this.impl.setLinearVelocity(Vec3.ZERO, false);
+        this.impl.setAngularVelocity(Vec3.ZERO, false);
     }
 
     destroy (): void {

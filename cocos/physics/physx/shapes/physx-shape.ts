@@ -2,7 +2,7 @@ import { IVec3Like, Quat, Vec3 } from '../../../core';
 import { aabb, sphere } from '../../../core/geometry';
 import { Collider, RigidBody, PhysicMaterial, PhysicsSystem } from '../../framework';
 import { IBaseShape } from '../../spec/i-physics-shape';
-import { getTempTransform, PX, USE_BYTEDANCE, _pxtrans, _trans } from '../export-physx';
+import { EFilterDataWord3, getTempTransform, PX, USE_BYTEDANCE, _pxtrans, _trans } from '../export-physx';
 import { PhysXSharedBody } from '../physx-shared-body';
 import { PhysXWorld } from '../physx-world';
 
@@ -31,6 +31,7 @@ export class PhysXShape implements IBaseShape {
     protected _sharedBody!: PhysXSharedBody;
     protected _rotation = new Quat(0, 0, 0, 1);
     protected _index = -1;
+    protected _word3 = 0;
 
     constructor (type: EPhysXShapeType) {
         this.type = type;
@@ -118,7 +119,7 @@ export class PhysXShape implements IBaseShape {
     protected getSharedMaterial (v: PhysicMaterial): any {
         if (!PX.CACHE_MAT[v._uuid]) {
             const physics = this._sharedBody.wrappedWorld.physics;
-            const mat = physics.createMaterial(v.friction, v.friction, v.restitution);
+            const mat = physics.createMaterial(v.friction, v.rollingFriction, v.restitution);
             mat.setFrictionCombineMode(PX.CombineMode.eMULTIPLY);
             mat.setRestitutionCombineMode(PX.CombineMode.eMULTIPLY);
             PX.CACHE_MAT[v._uuid] = mat;
@@ -126,7 +127,7 @@ export class PhysXShape implements IBaseShape {
         }
         const mat = PX.CACHE_MAT[v._uuid];
         mat.setStaticFriction(v.friction);
-        mat.setDynamicFriction(v.friction);
+        mat.setDynamicFriction(v.rollingFriction);
         mat.setRestitution(v.restitution);
         return mat;
     }
@@ -189,5 +190,25 @@ export class PhysXShape implements IBaseShape {
 
     removeMask (v: number): void {
         this._sharedBody.removeMask(v);
+    }
+
+    updateFilterData (filterData: any) {
+        this._word3 = EFilterDataWord3.DETECT_CONTACT_CCD;
+        if (this._collider.needTriggerEvent) {
+            this._word3 |= EFilterDataWord3.DETECT_TRIGGER_EVENT;
+        }
+        if (this._collider.needCollisionEvent) {
+            this._word3 |= EFilterDataWord3.DETECT_CONTACT_EVENT | EFilterDataWord3.DETECT_CONTACT_POINT;
+        }
+        filterData.word2 = this.id;
+        filterData.word3 = this._word3;
+        this._impl.setQueryFilterData(filterData);
+        this._impl.setSimulationFilterData(filterData);
+    }
+
+    updateEventListener () {
+        if (this._sharedBody) {
+            this.updateFilterData(this._sharedBody.filterData);
+        }
     }
 }

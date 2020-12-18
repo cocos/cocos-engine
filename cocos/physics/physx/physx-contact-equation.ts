@@ -18,27 +18,30 @@ export class PhysXContactEquation implements IContactEquation {
     }
 
     getLocalPointOnA (out: IVec3Like): void {
-        Vec3.subtract(out, getContactPosition(this.impl), this.colliderA.node.worldPosition);
+        getContactPosition(this.impl, out, this.event.impl);
+        Vec3.subtract(out, out, this.colliderA.node.worldPosition);
     }
 
     getLocalPointOnB (out: IVec3Like): void {
-        Vec3.subtract(out, getContactPosition(this.impl), this.colliderB.node.worldPosition);
+        getContactPosition(this.impl, out, this.event.impl);
+        Vec3.subtract(out, out, this.colliderB.node.worldPosition);
     }
 
     getWorldPointOnA (out: IVec3Like): void {
-        Vec3.copy(out, getContactPosition(this.impl));
+        getContactPosition(this.impl, out, this.event.impl);
     }
 
     getWorldPointOnB (out: IVec3Like): void {
-        Vec3.copy(out, getContactPosition(this.impl));
+        getContactPosition(this.impl, out, this.event.impl);
     }
 
     getLocalNormalOnB (out: IVec3Like): void {
         Quat.conjugate(quat, this.colliderB.node.worldRotation);
-        Vec3.transformQuat(out, getContactNormal(this.impl), quat);
+        getContactNormal(this.impl, out, this.event.impl);
+        Vec3.transformQuat(out, out, quat);
     }
 
     getWorldNormalOnB (out: IVec3Like): void {
-        Vec3.copy(out, getContactNormal(this.impl));
+        getContactNormal(this.impl, out, this.event.impl);
     }
 }
