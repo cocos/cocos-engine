@@ -106,14 +106,7 @@ export class UI {
     private _uiMaterials: Map<number, UIMaterial> = new Map<number, UIMaterial>();
     private _canvasMaterials: Map<number, Map<number, number>> = new Map<number, Map<number, number>>();
     private _batches: CachedArray<UIDrawBatch>;
-<<<<<<< HEAD
     private _doUploadBuffersCall: Map<any, Function> = new Map();
-=======
-    private _doUploadBuffersCall: Map<any, (ui: UI) => void> = new Map();
-    private _uiModelPool: Pool<UIBatchModel> | null = null;
-    private _modelInUse: CachedArray<UIBatchModel>;
-    // batcher
->>>>>>> upstream/3d
     private _emptyMaterial = new Material();
     private _currMaterial: Material = this._emptyMaterial;
     private _currTexture: Texture | null = null;
