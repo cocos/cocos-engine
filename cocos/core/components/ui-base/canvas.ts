@@ -98,6 +98,10 @@ export class Canvas extends Component {
         if (this._camera) {
             this._camera.clearFlag = this._clearFlag;
         }
+
+        if (this._cameraComponent) {
+            this._cameraComponent.clearFlags = this._clearFlag;
+        }
     }
 
     /**
@@ -116,6 +120,10 @@ export class Canvas extends Component {
         Color.copy(this._color, val);
         if (this._camera) {
             this._camera.clearColor = val;
+        }
+
+        if (this._cameraComponent) {
+            this._cameraComponent.clearColor = val;
         }
     }
 
@@ -143,6 +151,10 @@ export class Canvas extends Component {
         if (this._camera) {
             this._camera.priority = this._getViewPriority();
         }
+
+        if (this._cameraComponent) {
+            this._cameraComponent.priority = this._getViewPriority();
+        }
     }
 
     /**
@@ -165,6 +177,10 @@ export class Canvas extends Component {
         this._priority = val;
         if (this._camera) {
             this._camera.priority = this._getViewPriority();
+        }
+
+        if (this._cameraComponent) {
+            this._cameraComponent.priority = this._getViewPriority();
         }
 
         if (legacyCC.director.root && legacyCC.director.root.ui) {
@@ -230,6 +246,8 @@ export class Canvas extends Component {
     protected _fitDesignResolution: (() => void) | undefined;
 
     protected _camera: scene.Camera | null = null;
+    @type(Camera)
+    protected _cameraComponent: Camera | null = null;
     private _pos = new Vec3();
 
     constructor () {
@@ -239,9 +257,9 @@ export class Canvas extends Component {
         if (EDITOR) {
             this._fitDesignResolution = () => {
                 // TODO: support paddings of locked widget
-                let nodeSize: Size; let designSize: Size;
+                let designSize: Size;
                 this.node.getPosition(this._pos);
-                nodeSize = designSize = view.getDesignResolutionSize();
+                const nodeSize = designSize = view.getDesignResolutionSize();
                 Vec3.set(_worldPos, designSize.width * 0.5, designSize.height * 0.5, 0);
 
                 if (!this._pos.equals(_worldPos)) {
@@ -268,22 +286,38 @@ export class Canvas extends Component {
         }
 
         const cameraNode = new Node(`UICamera_${this.node.name}`);
-        cameraNode.setPosition(0, 0, 1000);
-        if (!EDITOR) {
-            this._camera = legacyCC.director.root!.createCamera() as scene.Camera;
-            this._camera.initialize({
-                name: `ui_${this.node.name}`,
-                node: cameraNode,
-                projection: Camera.ProjectionType.ORTHO,
-                priority: this._getViewPriority(),
-                flows: ['UIFlow'],
-            });
+        this.node.addChild(cameraNode);
+        // Create cameraComponent to manage camera value.
+        if (!this._cameraComponent) {
+            cameraNode.addComponent('cc.Camera');
+            this._cameraComponent = cameraNode.getComponent('cc.Camera') as Camera;
+            this._cameraComponent.projection = Camera.ProjectionType.ORTHO;
+            this._cameraComponent.priority = this._getViewPriority();
+            this._cameraComponent.flows = ['UIFlow'];
+            this._cameraComponent.clearFlags = this.clearFlag;
+            this._cameraComponent.far = 2000.0;
+            this._cameraComponent.rect = new Rect(0, 0, 1, 1);
+            this._cameraComponent.clearColor = this._color;
+        }
 
-            this._camera.fov = 45;
-            this._camera.clearFlag = this.clearFlag;
-            this._camera.farClip = 2000;
-            this._camera.viewport = new Rect(0, 0, 1, 1);
-            this.color = this._color;
+        if (!EDITOR) {
+            // this._camera = legacyCC.director.root!.createCamera() as scene.Camera;
+            // this._camera.initialize({
+            //     name: `ui_${this.node.name}`,
+            //     node: cameraNode,
+            //     projection: Camera.ProjectionType.ORTHO,
+            //     priority: this._getViewPriority(),
+            //     flows: ['UIFlow'],
+            // });
+
+            // this._camera.fov = 45;
+            // this._camera.clearFlag = this.clearFlag;
+            // this._camera.farClip = 2000;
+            // this._camera.viewport = new Rect(0, 0, 1, 1);
+            // this.color = this._color;
+
+            this._cameraComponent.onLoad();
+            this._camera = this._cameraComponent.camera;
 
             this._checkTargetTextureEvent(null);
             this._updateTargetTexture();
@@ -346,8 +380,16 @@ export class Canvas extends Component {
                 camera.orthoHeight = game.canvas!.height / view.getScaleY() / 2;
             }
             this.node.getWorldPosition(_worldPos);
-            camera.node.setPosition(_worldPos.x, _worldPos.y, 1000);
+            camera.node.setWorldPosition(_worldPos.x, _worldPos.y, 1000);
             camera.update();
+
+            if (this._cameraComponent) {
+                if (!this._targetTexture) {
+                    this._cameraComponent.orthoHeight = visibleRect.height / 2;
+                } else {
+                    this._cameraComponent.orthoHeight = game.canvas!.height / view.getScaleY() / 2;
+                }
+            }
         }
     }
 
@@ -382,6 +424,14 @@ export class Canvas extends Component {
             camera.changeTargetWindow(win);
             camera.orthoHeight = visibleRect.height / 2;
             camera.isWindowSize = false;
+        }
+
+        if (this._cameraComponent) {
+            if (!this._targetTexture) {
+                this._cameraComponent.orthoHeight = game.canvas!.height / view.getScaleY() / 2;
+            } else {
+                this._cameraComponent.orthoHeight = visibleRect.height / 2;
+            }
         }
     }
 
