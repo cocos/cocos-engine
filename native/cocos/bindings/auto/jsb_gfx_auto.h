@@ -411,28 +411,28 @@ bool js_register_cc_gfx_Device(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
 
 JSB_REGISTER_OBJECT_TYPE(cc::gfx::Device);
-SE_DECLARE_FUNC(js_gfx_Device_hasFeature);
-SE_DECLARE_FUNC(js_gfx_Device_createFence);
-SE_DECLARE_FUNC(js_gfx_Device_createDescriptorSetLayout);
-SE_DECLARE_FUNC(js_gfx_Device_createCommandBuffer);
-SE_DECLARE_FUNC(js_gfx_Device_createPipelineState);
-SE_DECLARE_FUNC(js_gfx_Device_createDescriptorSet);
-SE_DECLARE_FUNC(js_gfx_Device_present);
-SE_DECLARE_FUNC(js_gfx_Device_destroy);
-SE_DECLARE_FUNC(js_gfx_Device_createFramebuffer);
-SE_DECLARE_FUNC(js_gfx_Device_createRenderPass);
-SE_DECLARE_FUNC(js_gfx_Device_createPipelineLayout);
 SE_DECLARE_FUNC(js_gfx_Device_acquire);
-SE_DECLARE_FUNC(js_gfx_Device_createShader);
-SE_DECLARE_FUNC(js_gfx_Device_createInputAssembler);
-SE_DECLARE_FUNC(js_gfx_Device_defineMacro);
-SE_DECLARE_FUNC(js_gfx_Device_createSampler);
-SE_DECLARE_FUNC(js_gfx_Device_initialize);
-SE_DECLARE_FUNC(js_gfx_Device_resize);
-SE_DECLARE_FUNC(js_gfx_Device_genShaderId);
-SE_DECLARE_FUNC(js_gfx_Device_createQueue);
 SE_DECLARE_FUNC(js_gfx_Device_bindingMappingInfo);
+SE_DECLARE_FUNC(js_gfx_Device_createCommandBuffer);
+SE_DECLARE_FUNC(js_gfx_Device_createDescriptorSet);
+SE_DECLARE_FUNC(js_gfx_Device_createDescriptorSetLayout);
+SE_DECLARE_FUNC(js_gfx_Device_createFence);
+SE_DECLARE_FUNC(js_gfx_Device_createFramebuffer);
+SE_DECLARE_FUNC(js_gfx_Device_createInputAssembler);
+SE_DECLARE_FUNC(js_gfx_Device_createPipelineLayout);
+SE_DECLARE_FUNC(js_gfx_Device_createPipelineState);
+SE_DECLARE_FUNC(js_gfx_Device_createQueue);
+SE_DECLARE_FUNC(js_gfx_Device_createRenderPass);
+SE_DECLARE_FUNC(js_gfx_Device_createSampler);
+SE_DECLARE_FUNC(js_gfx_Device_createShader);
+SE_DECLARE_FUNC(js_gfx_Device_defineMacro);
+SE_DECLARE_FUNC(js_gfx_Device_destroy);
+SE_DECLARE_FUNC(js_gfx_Device_genShaderId);
 SE_DECLARE_FUNC(js_gfx_Device_getUboOffsetAlignment);
+SE_DECLARE_FUNC(js_gfx_Device_hasFeature);
+SE_DECLARE_FUNC(js_gfx_Device_initialize);
+SE_DECLARE_FUNC(js_gfx_Device_present);
+SE_DECLARE_FUNC(js_gfx_Device_resize);
 
 extern se::Object* __jsb_cc_gfx_Context_proto;
 extern se::Class* __jsb_cc_gfx_Context_class;
@@ -441,9 +441,9 @@ bool js_register_cc_gfx_Context(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
 
 JSB_REGISTER_OBJECT_TYPE(cc::gfx::Context);
-SE_DECLARE_FUNC(js_gfx_Context_initialize);
 SE_DECLARE_FUNC(js_gfx_Context_destroy);
 SE_DECLARE_FUNC(js_gfx_Context_getDevice);
+SE_DECLARE_FUNC(js_gfx_Context_initialize);
 SE_DECLARE_FUNC(js_gfx_Context_present);
 SE_DECLARE_FUNC(js_gfx_Context_Context);
 
@@ -466,8 +466,8 @@ bool register_all_gfx(se::Object* obj);
 
 JSB_REGISTER_OBJECT_TYPE(cc::gfx::Texture);
 SE_DECLARE_FUNC(js_gfx_Texture_destroy);
-SE_DECLARE_FUNC(js_gfx_Texture_resize);
 SE_DECLARE_FUNC(js_gfx_Texture_isTextureView);
+SE_DECLARE_FUNC(js_gfx_Texture_resize);
 SE_DECLARE_FUNC(js_gfx_Texture_Texture);
 
 extern se::Object* __jsb_cc_gfx_Sampler_proto;
@@ -477,8 +477,8 @@ bool js_register_cc_gfx_Sampler(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
 
 JSB_REGISTER_OBJECT_TYPE(cc::gfx::Sampler);
-SE_DECLARE_FUNC(js_gfx_Sampler_initialize);
 SE_DECLARE_FUNC(js_gfx_Sampler_destroy);
+SE_DECLARE_FUNC(js_gfx_Sampler_initialize);
 SE_DECLARE_FUNC(js_gfx_Sampler_Sampler);
 
 extern se::Object* __jsb_cc_gfx_Shader_proto;
@@ -488,8 +488,8 @@ bool js_register_cc_gfx_Shader(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
 
 JSB_REGISTER_OBJECT_TYPE(cc::gfx::Shader);
-SE_DECLARE_FUNC(js_gfx_Shader_initialize);
 SE_DECLARE_FUNC(js_gfx_Shader_destroy);
+SE_DECLARE_FUNC(js_gfx_Shader_initialize);
 SE_DECLARE_FUNC(js_gfx_Shader_Shader);
 
 extern se::Object* __jsb_cc_gfx_InputAssembler_proto;
@@ -510,10 +510,10 @@ bool js_register_cc_gfx_RenderPass(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
 
 JSB_REGISTER_OBJECT_TYPE(cc::gfx::RenderPass);
-SE_DECLARE_FUNC(js_gfx_RenderPass_getSubPasses);
-SE_DECLARE_FUNC(js_gfx_RenderPass_initialize);
 SE_DECLARE_FUNC(js_gfx_RenderPass_destroy);
 SE_DECLARE_FUNC(js_gfx_RenderPass_getDepthStencilAttachment);
+SE_DECLARE_FUNC(js_gfx_RenderPass_getSubPasses);
+SE_DECLARE_FUNC(js_gfx_RenderPass_initialize);
 SE_DECLARE_FUNC(js_gfx_RenderPass_RenderPass);
 
 extern se::Object* __jsb_cc_gfx_Framebuffer_proto;
@@ -523,8 +523,8 @@ bool js_register_cc_gfx_Framebuffer(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
 
 JSB_REGISTER_OBJECT_TYPE(cc::gfx::Framebuffer);
-SE_DECLARE_FUNC(js_gfx_Framebuffer_initialize);
 SE_DECLARE_FUNC(js_gfx_Framebuffer_destroy);
+SE_DECLARE_FUNC(js_gfx_Framebuffer_initialize);
 SE_DECLARE_FUNC(js_gfx_Framebuffer_Framebuffer);
 
 extern se::Object* __jsb_cc_gfx_DescriptorSetLayout_proto;
@@ -534,9 +534,9 @@ bool js_register_cc_gfx_DescriptorSetLayout(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
 
 JSB_REGISTER_OBJECT_TYPE(cc::gfx::DescriptorSetLayout);
+SE_DECLARE_FUNC(js_gfx_DescriptorSetLayout_destroy);
 SE_DECLARE_FUNC(js_gfx_DescriptorSetLayout_getBindings);
 SE_DECLARE_FUNC(js_gfx_DescriptorSetLayout_initialize);
-SE_DECLARE_FUNC(js_gfx_DescriptorSetLayout_destroy);
 SE_DECLARE_FUNC(js_gfx_DescriptorSetLayout_DescriptorSetLayout);
 
 extern se::Object* __jsb_cc_gfx_PipelineLayout_proto;
@@ -546,9 +546,9 @@ bool js_register_cc_gfx_PipelineLayout(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
 
 JSB_REGISTER_OBJECT_TYPE(cc::gfx::PipelineLayout);
-SE_DECLARE_FUNC(js_gfx_PipelineLayout_initialize);
 SE_DECLARE_FUNC(js_gfx_PipelineLayout_destroy);
 SE_DECLARE_FUNC(js_gfx_PipelineLayout_getSetLayouts);
+SE_DECLARE_FUNC(js_gfx_PipelineLayout_initialize);
 SE_DECLARE_FUNC(js_gfx_PipelineLayout_PipelineLayout);
 
 extern se::Object* __jsb_cc_gfx_PipelineState_proto;
@@ -558,10 +558,10 @@ bool js_register_cc_gfx_PipelineState(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
 
 JSB_REGISTER_OBJECT_TYPE(cc::gfx::PipelineState);
-SE_DECLARE_FUNC(js_gfx_PipelineState_getPipelineLayout);
-SE_DECLARE_FUNC(js_gfx_PipelineState_initialize);
 SE_DECLARE_FUNC(js_gfx_PipelineState_destroy);
 SE_DECLARE_FUNC(js_gfx_PipelineState_getDynamicStates);
+SE_DECLARE_FUNC(js_gfx_PipelineState_getPipelineLayout);
+SE_DECLARE_FUNC(js_gfx_PipelineState_initialize);
 SE_DECLARE_FUNC(js_gfx_PipelineState_PipelineState);
 
 extern se::Object* __jsb_cc_gfx_DescriptorSet_proto;
@@ -571,18 +571,18 @@ bool js_register_cc_gfx_DescriptorSet(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
 
 JSB_REGISTER_OBJECT_TYPE(cc::gfx::DescriptorSet);
-SE_DECLARE_FUNC(js_gfx_DescriptorSet_bindTextureJSB);
 SE_DECLARE_FUNC(js_gfx_DescriptorSet_bindBuffer);
-SE_DECLARE_FUNC(js_gfx_DescriptorSet_bindSamplerJSB);
-SE_DECLARE_FUNC(js_gfx_DescriptorSet_getTexture);
+SE_DECLARE_FUNC(js_gfx_DescriptorSet_bindBufferJSB);
 SE_DECLARE_FUNC(js_gfx_DescriptorSet_bindSampler);
-SE_DECLARE_FUNC(js_gfx_DescriptorSet_update);
-SE_DECLARE_FUNC(js_gfx_DescriptorSet_getSampler);
+SE_DECLARE_FUNC(js_gfx_DescriptorSet_bindSamplerJSB);
 SE_DECLARE_FUNC(js_gfx_DescriptorSet_bindTexture);
-SE_DECLARE_FUNC(js_gfx_DescriptorSet_initialize);
+SE_DECLARE_FUNC(js_gfx_DescriptorSet_bindTextureJSB);
 SE_DECLARE_FUNC(js_gfx_DescriptorSet_destroy);
 SE_DECLARE_FUNC(js_gfx_DescriptorSet_getBuffer);
-SE_DECLARE_FUNC(js_gfx_DescriptorSet_bindBufferJSB);
+SE_DECLARE_FUNC(js_gfx_DescriptorSet_getSampler);
+SE_DECLARE_FUNC(js_gfx_DescriptorSet_getTexture);
+SE_DECLARE_FUNC(js_gfx_DescriptorSet_initialize);
+SE_DECLARE_FUNC(js_gfx_DescriptorSet_update);
 SE_DECLARE_FUNC(js_gfx_DescriptorSet_DescriptorSet);
 
 extern se::Object* __jsb_cc_gfx_CommandBuffer_proto;
@@ -592,29 +592,29 @@ bool js_register_cc_gfx_CommandBuffer(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
 
 JSB_REGISTER_OBJECT_TYPE(cc::gfx::CommandBuffer);
-SE_DECLARE_FUNC(js_gfx_CommandBuffer_draw);
-SE_DECLARE_FUNC(js_gfx_CommandBuffer_setBlendConstants);
-SE_DECLARE_FUNC(js_gfx_CommandBuffer_setDepthBound);
-SE_DECLARE_FUNC(js_gfx_CommandBuffer_getQueue);
-SE_DECLARE_FUNC(js_gfx_CommandBuffer_setLineWidth);
-SE_DECLARE_FUNC(js_gfx_CommandBuffer_end);
-SE_DECLARE_FUNC(js_gfx_CommandBuffer_setStencilWriteMask);
-SE_DECLARE_FUNC(js_gfx_CommandBuffer_getNumInstances);
-SE_DECLARE_FUNC(js_gfx_CommandBuffer_setStencilCompareMask);
+SE_DECLARE_FUNC(js_gfx_CommandBuffer_begin);
+SE_DECLARE_FUNC(js_gfx_CommandBuffer_beginRenderPass);
+SE_DECLARE_FUNC(js_gfx_CommandBuffer_bindDescriptorSetForJS);
 SE_DECLARE_FUNC(js_gfx_CommandBuffer_bindInputAssembler);
 SE_DECLARE_FUNC(js_gfx_CommandBuffer_bindPipelineState);
 SE_DECLARE_FUNC(js_gfx_CommandBuffer_destroy);
-SE_DECLARE_FUNC(js_gfx_CommandBuffer_getNumTris);
-SE_DECLARE_FUNC(js_gfx_CommandBuffer_setViewport);
-SE_DECLARE_FUNC(js_gfx_CommandBuffer_setDepthBias);
-SE_DECLARE_FUNC(js_gfx_CommandBuffer_begin);
-SE_DECLARE_FUNC(js_gfx_CommandBuffer_getType);
-SE_DECLARE_FUNC(js_gfx_CommandBuffer_bindDescriptorSet);
+SE_DECLARE_FUNC(js_gfx_CommandBuffer_draw);
+SE_DECLARE_FUNC(js_gfx_CommandBuffer_end);
 SE_DECLARE_FUNC(js_gfx_CommandBuffer_endRenderPass);
-SE_DECLARE_FUNC(js_gfx_CommandBuffer_initialize);
-SE_DECLARE_FUNC(js_gfx_CommandBuffer_setScissor);
-SE_DECLARE_FUNC(js_gfx_CommandBuffer_beginRenderPass);
 SE_DECLARE_FUNC(js_gfx_CommandBuffer_getNumDrawCalls);
+SE_DECLARE_FUNC(js_gfx_CommandBuffer_getNumInstances);
+SE_DECLARE_FUNC(js_gfx_CommandBuffer_getNumTris);
+SE_DECLARE_FUNC(js_gfx_CommandBuffer_getQueue);
+SE_DECLARE_FUNC(js_gfx_CommandBuffer_getType);
+SE_DECLARE_FUNC(js_gfx_CommandBuffer_initialize);
+SE_DECLARE_FUNC(js_gfx_CommandBuffer_setBlendConstants);
+SE_DECLARE_FUNC(js_gfx_CommandBuffer_setDepthBias);
+SE_DECLARE_FUNC(js_gfx_CommandBuffer_setDepthBound);
+SE_DECLARE_FUNC(js_gfx_CommandBuffer_setLineWidth);
+SE_DECLARE_FUNC(js_gfx_CommandBuffer_setScissor);
+SE_DECLARE_FUNC(js_gfx_CommandBuffer_setStencilCompareMask);
+SE_DECLARE_FUNC(js_gfx_CommandBuffer_setStencilWriteMask);
+SE_DECLARE_FUNC(js_gfx_CommandBuffer_setViewport);
 SE_DECLARE_FUNC(js_gfx_CommandBuffer_CommandBuffer);
 
 extern se::Object* __jsb_cc_gfx_Fence_proto;
@@ -624,10 +624,10 @@ bool js_register_cc_gfx_Fence(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
 
 JSB_REGISTER_OBJECT_TYPE(cc::gfx::Fence);
-SE_DECLARE_FUNC(js_gfx_Fence_initialize);
 SE_DECLARE_FUNC(js_gfx_Fence_destroy);
-SE_DECLARE_FUNC(js_gfx_Fence_wait);
+SE_DECLARE_FUNC(js_gfx_Fence_initialize);
 SE_DECLARE_FUNC(js_gfx_Fence_reset);
+SE_DECLARE_FUNC(js_gfx_Fence_wait);
 SE_DECLARE_FUNC(js_gfx_Fence_Fence);
 
 extern se::Object* __jsb_cc_gfx_Queue_proto;
@@ -637,9 +637,9 @@ bool js_register_cc_gfx_Queue(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
 
 JSB_REGISTER_OBJECT_TYPE(cc::gfx::Queue);
-SE_DECLARE_FUNC(js_gfx_Queue_submit);
-SE_DECLARE_FUNC(js_gfx_Queue_isAsync);
-SE_DECLARE_FUNC(js_gfx_Queue_initialize);
 SE_DECLARE_FUNC(js_gfx_Queue_destroy);
+SE_DECLARE_FUNC(js_gfx_Queue_initialize);
+SE_DECLARE_FUNC(js_gfx_Queue_isAsync);
+SE_DECLARE_FUNC(js_gfx_Queue_submit);
 SE_DECLARE_FUNC(js_gfx_Queue_Queue);
 

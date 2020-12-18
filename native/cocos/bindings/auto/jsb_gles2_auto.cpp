@@ -22,7 +22,7 @@ static bool js_gles2_GLES2Device_checkExtension(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         HolderType<cc::String, true> arg0 = {};
-        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());;
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         SE_PRECONDITION2(ok, false, "js_gles2_GLES2Device_checkExtension : Error processing arguments");
         bool result = cobj->checkExtension(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);

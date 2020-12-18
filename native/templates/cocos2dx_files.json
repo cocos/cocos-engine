@@ -1372,7 +1372,6 @@
         "external/android/x86/v8/libv8_monolith.a", 
         "external/cmake/CocosExternalConfig.cmake", 
         "external/cmake/scripts/sync_folder.py", 
-        "external/config.json", 
         "external/ios/CMakeLists.txt", 
         "external/ios/include/StandAlone/ResourceLimits.h", 
         "external/ios/include/StandAlone/resource_limits_c.h", 
