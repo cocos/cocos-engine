@@ -17,6 +17,7 @@ CCEffect %{
 CCProgram postprocess-vs %{
   precision highp float;
   #include <input-standard>
+  #include <cc-global>
 
   out vec2 v_uv;
 
@@ -25,7 +26,7 @@ CCProgram postprocess-vs %{
     CCVertInput(In);
 
     gl_Position = In.position;
-    gl_Position.y = -gl_Position.y;
+    gl_Position.y = gl_Position.y * cc_cameraPos[3];
     v_uv = a_texCoord;
   }
 }%
@@ -115,7 +116,7 @@ vec4 fxaa(sampler2D tex, vec2 fragCoord, vec2 resolution,
   	mediump vec2 v_rgbM;
 
     vec2 resolution = cc_screenSize.xy;
-    vec2 fragCoord = gl_FragCoord.xy;
+    vec2 fragCoord = v_uv * resolution;
     fragCoord.y = resolution.y - fragCoord.y;
 
     texcoords(fragCoord, resolution, v_rgbNW, v_rgbNE, v_rgbSW, v_rgbSE, v_rgbM);
