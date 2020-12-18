@@ -63,7 +63,7 @@ export class PhysXRigidBody implements IRigidBody {
     }
 
     setMass (v: number): void {
-        if (this.isStaticOrKinematic) return;
+        if (this.isStatic) return;
         this._sharedBody.setMass(v);
     }
 
