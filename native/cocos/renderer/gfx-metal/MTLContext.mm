@@ -54,9 +54,9 @@ CCMTLContext::CCMTLContext(Device *device)
 bool CCMTLContext::initialize(const ContextInfo &info) {
     _vsyncMode = info.vsyncMode;
     _windowHandle = info.windowHandle;
-    MTKView *view = (MTKView *)((CCMTLDevice *)_device)->getMTKView();
-    _colorFmt = toFormat(view.colorPixelFormat);
-    _depthStencilFmt = toFormat(view.depthStencilPixelFormat);
+    CAMetalLayer *layer = (CAMetalLayer *)((CCMTLDevice *)_device)->getMTLLayer();
+    _colorFmt = toFormat(layer.pixelFormat);
+    _depthStencilFmt = toFormat(MTLPixelFormatDepth24Unorm_Stencil8);
 
     return true;
 }

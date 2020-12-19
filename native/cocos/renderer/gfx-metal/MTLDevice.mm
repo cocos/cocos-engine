@@ -78,10 +78,11 @@ bool CCMTLDevice::initialize(const DeviceInfo &info) {
     _inFlightSemaphore = CC_NEW(CCMTLSemaphore(MAX_FRAMES_IN_FLIGHT));
     _currentFrameIndex = 0;
 
-    _mtkView = (MTKView *)_windowHandle;
-    id<MTLDevice> mtlDevice = ((MTKView *)_mtkView).device;
+    NSView *view = (NSView *)_windowHandle;
+    CAMetalLayer *layer = static_cast<CAMetalLayer *>(view.layer);
+    _mtlLayer = layer;
+    id<MTLDevice> mtlDevice = (id<MTLDevice>)layer.device;
     _mtlDevice = mtlDevice;
-    _mtlLayer = ((MTKView *)_mtkView).layer;
     _mtlCommandQueue = [mtlDevice newCommandQueue];
 
     _mtlFeatureSet = mu::highestSupportedFeatureSet(mtlDevice);
@@ -97,10 +98,18 @@ bool CCMTLDevice::initialize(const DeviceInfo &info) {
     _uboOffsetAlignment = mu::getMinBufferOffsetAlignment(gpuFamily);
     _icbSuppored = mu::isIndirectCommandBufferSupported(MTLFeatureSet(_mtlFeatureSet));
     _isSamplerDescriptorCompareFunctionSupported = mu::isSamplerDescriptorCompareFunctionSupported(gpuFamily);
-    MTKView *view = static_cast<MTKView *>(_mtkView);
-    if (view.colorPixelFormat == MTLPixelFormatInvalid) view.colorPixelFormat = MTLPixelFormatBGRA8Unorm;
-    view.depthStencilPixelFormat = mu::getSupportedDepthStencilFormat(mtlDevice, gpuFamily, _depthBits);
+    if (layer.pixelFormat == MTLPixelFormatInvalid)
+    {
+        layer.pixelFormat = MTLPixelFormatBGRA8Unorm;
+    }
 
+    // Persistent depth stencil texture
+    MTLTextureDescriptor *textureDescriptor = [[MTLTextureDescriptor alloc] init];
+    textureDescriptor.pixelFormat = mu::getSupportedDepthStencilFormat(mtlDevice, gpuFamily, _depthBits);
+    textureDescriptor.width = info.width;
+    textureDescriptor.height = info.height;
+    textureDescriptor.storageMode = MTLStorageModePrivate;
+    _dssTex = [mtlDevice newTextureWithDescriptor:textureDescriptor];
     _stencilBits = 8;
 
     ContextInfo contextCreateInfo;
