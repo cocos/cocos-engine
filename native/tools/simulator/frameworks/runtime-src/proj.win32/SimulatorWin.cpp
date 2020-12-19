@@ -505,8 +505,9 @@ int SimulatorWin::run()
     }
 
     // init player services
-    setupUI();
-    DrawMenuBar(_hwnd);
+    // the UI workflow is migrated into the Cocos Creator Editor
+    // setupUI();
+    // DrawMenuBar(_hwnd);
 
     // prepare
     _project.dump();
@@ -830,10 +831,8 @@ void SimulatorWin::parseCocosProjectConfig(ProjectConfig &config)
         FileUtils::getInstance()->setDefaultResourceRootPath(tmpConfig.getProjectDir().c_str());
     }
 
-    // parse config.json
+    // parse config.json when firstly init ConfigParser single instance
     auto parser = ConfigParser::getInstance();
-    auto configPath = solutionDir.append(CONFIG_FILE);
-    parser->readConfig(configPath);
 
     // set information
     config.setConsolePort(parser->getConsolePort());

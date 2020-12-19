@@ -431,8 +431,9 @@ std::string getCurAppName(void)
     NSString *resourcePath = [[NSBundle mainBundle] resourcePath];
     FileUtils::getInstance()->addSearchPath(resourcePath.UTF8String);
 
-     [self setupUI];
-     [self adjustEditMenuIndex];
+    // the UI workflow is migrated into the Cocos Creator Editor
+    // [self setupUI];
+    [self adjustEditMenuIndex];
 
     RuntimeEngine::getInstance()->setProjectConfig(_project);
 

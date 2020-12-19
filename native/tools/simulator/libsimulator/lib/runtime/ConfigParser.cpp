@@ -78,72 +78,51 @@ void ConfigParser::readConfig(const string &filepath)
         CC_LOG_DEBUG("read json file %s failed because of %d", fullPathFile.c_str(), _docRootjson.GetParseError());
         return;
     }
-    
-    if (_docRootjson.HasMember("init_cfg"))
+
+    const rapidjson::Value& objectInitView = _docRootjson;
+    if (objectInitView.HasMember("width") && objectInitView.HasMember("height"))
     {
-        if(_docRootjson["init_cfg"].IsObject())
+        _initViewSize.width = objectInitView["width"].GetUint();
+        _initViewSize.height = objectInitView["height"].GetUint();
+        if (_initViewSize.height>_initViewSize.width)
         {
-            const rapidjson::Value& objectInitView = _docRootjson["init_cfg"];
-            if (objectInitView.HasMember("width") && objectInitView.HasMember("height"))
-            {
-                _initViewSize.width = objectInitView["width"].GetUint();
-                _initViewSize.height = objectInitView["height"].GetUint();
-                if (_initViewSize.height>_initViewSize.width)
-                {
-                    float tmpvalue = _initViewSize.height;
-                    _initViewSize.height = _initViewSize.width;
-                    _initViewSize.width = tmpvalue;
-                }
-                
-            }
-            if (objectInitView.HasMember("name") && objectInitView["name"].IsString())
-            {
-                _viewName = objectInitView["name"].GetString();
-            }
-            if (objectInitView.HasMember("isLandscape") && objectInitView["isLandscape"].IsBool())
-            {
-                _isLandscape = objectInitView["isLandscape"].GetBool();
-            }
-            if (objectInitView.HasMember("entry") && objectInitView["entry"].IsString())
-            {
-                setEntryFile(objectInitView["entry"].GetString());
-            }
-            if (objectInitView.HasMember("consolePort"))
-            {
-                setConsolePort(objectInitView["consolePort"].GetUint());
-            }
-            if (objectInitView.HasMember("debugPort"))
-            {
-                setDebugPort(objectInitView["debugPort"].GetUint());
-            }
-            if (objectInitView.HasMember("uploadPort"))
-            {
-                setUploadPort(objectInitView["uploadPort"].GetUint());
-            }
-            if (objectInitView.HasMember("isWindowTop") && objectInitView["isWindowTop"].IsBool())
-            {
-                _isWindowTop= objectInitView["isWindowTop"].GetBool();
-            }
-            if (objectInitView.HasMember("waitForConnect") && objectInitView["waitForConnect"].IsBool())
-            {
-                _isWaitForConnect= objectInitView["waitForConnect"].GetBool();
-            }
+            float tmpvalue = _initViewSize.height;
+            _initViewSize.height = _initViewSize.width;
+            _initViewSize.width = tmpvalue;
         }
+        
     }
-    if (_docRootjson.HasMember("simulator_screen_size"))
+    if (objectInitView.HasMember("name") && objectInitView["name"].IsString())
     {
-        const rapidjson::Value& ArrayScreenSize = _docRootjson["simulator_screen_size"];
-        if (ArrayScreenSize.IsArray())
-        {
-            for (int i = 0; i < ArrayScreenSize.Size(); i++)
-            {
-                const rapidjson::Value& objectScreenSize = ArrayScreenSize[i];
-                if (objectScreenSize.HasMember("title") && objectScreenSize.HasMember("width") && objectScreenSize.HasMember("height"))
-                {
-                    _screenSizeArray.push_back(SimulatorScreenSize(objectScreenSize["title"].GetString(), objectScreenSize["width"].GetUint(), objectScreenSize["height"].GetUint()));
-                }
-            }
-        }
+        _viewName = objectInitView["name"].GetString();
+    }
+    if (objectInitView.HasMember("isLandscape") && objectInitView["isLandscape"].IsBool())
+    {
+        _isLandscape = objectInitView["isLandscape"].GetBool();
+    }
+    if (objectInitView.HasMember("entry") && objectInitView["entry"].IsString())
+    {
+        setEntryFile(objectInitView["entry"].GetString());
+    }
+    if (objectInitView.HasMember("consolePort"))
+    {
+        setConsolePort(objectInitView["consolePort"].GetUint());
+    }
+    if (objectInitView.HasMember("debugPort"))
+    {
+        setDebugPort(objectInitView["debugPort"].GetUint());
+    }
+    if (objectInitView.HasMember("uploadPort"))
+    {
+        setUploadPort(objectInitView["uploadPort"].GetUint());
+    }
+    if (objectInitView.HasMember("isWindowTop") && objectInitView["isWindowTop"].IsBool())
+    {
+        _isWindowTop= objectInitView["isWindowTop"].GetBool();
+    }
+    if (objectInitView.HasMember("waitForConnect") && objectInitView["waitForConnect"].IsBool())
+    {
+        _isWaitForConnect= objectInitView["waitForConnect"].GetBool();
     }
 }
 
