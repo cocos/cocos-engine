@@ -349,7 +349,7 @@ export const widgetManager = legacyCC._widgetManager = {
     init () {
         director.on(Director.EVENT_AFTER_UPDATE, refreshScene);
 
-        if (EDITOR) {
+        if (DEV) {
             View.instance.on('design-resolution-changed', this.onResized, this);
         } else {
             const thisOnResized = this.onResized.bind(this);
