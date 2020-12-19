@@ -29,6 +29,7 @@
  * @hidden
  */
 
+import { EDITOR, DEV } from 'internal:constants';
 import { Director, director } from '../../core/director';
 import { Vec2, Vec3 } from '../../core/math';
 import { View } from '../../core/platform/view';
@@ -38,7 +39,6 @@ import { Node } from '../../core/scene-graph/node';
 import { array } from '../../core/utils/js';
 import { AlignFlags, AlignMode, computeInverseTransForTarget, getReadonlyNodeSize, Widget } from './widget';
 import { UITransform } from '../../core/components/ui-base';
-import { EDITOR, DEV } from 'internal:constants';
 import { legacyCC } from '../../core/global-exports';
 import { warnID } from '../../core/platform/debug';
 
@@ -113,8 +113,7 @@ function align (node: Node, widget: Widget) {
         } else {
             width = uiTrans.width * scaleX;
             if (widget.isAlignHorizontalCenter) {
-                let localHorizontalCenter = widget.isAbsoluteHorizontalCenter ?
-                    widget.horizontalCenter : widget.horizontalCenter * targetWidth;
+                let localHorizontalCenter = widget.isAbsoluteHorizontalCenter ? widget.horizontalCenter : widget.horizontalCenter * targetWidth;
                 let targetCenter = (0.5 - targetAnchor.x) * targetSize.width;
                 if (hasTarget) {
                     localHorizontalCenter *= inverseScale.x;
@@ -133,7 +132,6 @@ function align (node: Node, widget: Widget) {
     }
 
     if (widget.alignFlags & AlignFlags.VERTICAL) {
-
         let localTop = 0;
         let localBottom = 0;
         const targetHeight = targetSize.height;
@@ -173,8 +171,7 @@ function align (node: Node, widget: Widget) {
         } else {
             height = uiTrans.height * scaleY;
             if (widget.isAlignVerticalCenter) {
-                let localVerticalCenter = widget.isAbsoluteVerticalCenter ?
-                    widget.verticalCenter : widget.verticalCenter * targetHeight;
+                let localVerticalCenter = widget.isAbsoluteVerticalCenter ? widget.verticalCenter : widget.verticalCenter * targetHeight;
                 let targetMiddle = (0.5 - targetAnchor.y) * targetSize.height;
                 if (hasTarget) {
                     localVerticalCenter *= inverseScale.y;
@@ -207,11 +204,10 @@ function visitNode (node: any) {
         if ((!EDITOR || widgetManager.animationState!.animatedSinceLastFrame) && widget.alignMode === AlignMode.ONCE) {
             widget.enabled = false;
         } else {
-            if (legacyCC.isValid(node, true)) {
-                activeWidgets.push(widget);
-            } else {
-                return;
+            if (!legacyCC.isValid(node, true)) {
+                return ;
             }
+            activeWidgets.push(widget);
         }
     }
     const children = node.children;
@@ -271,8 +267,7 @@ function refreshScene () {
             activeWidgets.length = 0;
             visitNode(scene);
             widgetManager._nodesOrderDirty = false;
-        }
-        else {
+        } else {
             const i = 0;
             let widget: Widget | null = null;
             const iterator = widgetManager._activeWidgetsIterator;
@@ -372,8 +367,7 @@ export const widgetManager = legacyCC._widgetManager = {
     refreshWidgetOnResized (node: Node) {
         const widget = Node.isNode(node) && node.getComponent(Widget);
         if (widget && widget.enabled && (
-            widget.alignMode === AlignMode.ON_WINDOW_RESIZE ||
-            widget.alignMode === AlignMode.ALWAYS
+            widget.alignMode === AlignMode.ON_WINDOW_RESIZE || widget.alignMode === AlignMode.ALWAYS
         )) {
             widget.setDirty();
         }
