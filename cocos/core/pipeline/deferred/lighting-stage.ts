@@ -251,7 +251,9 @@ export class LightingStage extends RenderStage {
         this.gatherLights(view);
         this._descriptorSet.update();
         this._planarQueue.gatherShadowPasses(view, cmdBuff);
-        cmdBuff.bindDescriptorSet(SetIndex.LOCAL, this._descriptorSet);
+
+        const dynamicOffsets: number[] = [0];
+        cmdBuff.bindDescriptorSet(SetIndex.LOCAL, this._descriptorSet, dynamicOffsets);
 
         const camera = view.camera;
         const vp = camera.viewport;
