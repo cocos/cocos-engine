@@ -6,7 +6,6 @@ message(STATUS "Target: ${TARGET_NAME}...")
 
 set(INCLUDE_FILES
   ${GFX_EXTERNAL_PATH}/taskflow
-  ${GFX_EXTERNAL_PATH}/concurrentqueue
   ${COCOS_SRC_PATH}
   ${COCOS_SRC_PATH}/base
   ${COCOS_SRC_PATH}/renderer/core

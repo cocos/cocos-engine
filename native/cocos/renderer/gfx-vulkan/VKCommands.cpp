@@ -39,6 +39,7 @@ namespace gfx {
 
 CCVKGPUCommandBufferPool *CCVKGPUDevice::getCommandBufferPool(std::thread::id threadID) {
     if (!commandBufferPools.count(threadID)) {
+        //std::scoped_lock<std::mutex> guard(mutex);
         commandBufferPools[threadID] = CC_NEW(CCVKGPUCommandBufferPool(this));
     }
     return commandBufferPools[threadID];

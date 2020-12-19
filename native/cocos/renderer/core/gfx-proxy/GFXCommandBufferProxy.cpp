@@ -322,6 +322,7 @@ void CommandBufferProxy::execute(const CommandBuffer *const *cmdBuffs, uint32_t 
     const CommandBuffer **remoteCmdBuffs = _encoder->Allocate<const CommandBuffer *>(count);
     for (uint i = 0; i < count; ++i) {
         CommandBufferProxy *cmdBuff = (CommandBufferProxy *)cmdBuffs[i];
+        CommandEncoder::FreeChunksInFreeQueue(cmdBuff->getEncoder());
         cmdBuff->getEncoder()->FinishWriting();
         remoteCmdBuffs[i] = cmdBuff->getRemote();
     }
@@ -339,11 +340,11 @@ void CommandBufferProxy::execute(const CommandBuffer *const *cmdBuffs, uint32_t 
         {
             if (count > 1) {
                 if (multiThreaded) {
-                    JobGraph g;
-                    g.createForEachIndexJob(1u, count, 1u, [this](uint i) {
+                    JobGraph g(JobSystem::getInstance());
+                    uint job = g.createForEachIndexJob(1u, count, 1u, [this](uint i) {
                         ((CommandBufferProxy *)cmdBuffs[i])->getEncoder()->FlushCommands();
                     });
-                    g.run();
+                    g.run(job);
                     ((CommandBufferProxy *)cmdBuffs[0])->getEncoder()->FlushCommands();
                     g.waitForAll();
                 } else {

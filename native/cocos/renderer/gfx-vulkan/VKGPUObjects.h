@@ -317,8 +317,14 @@ public:
 
     CCVKGPUSwapchain *swapchain = nullptr; // reference
 
+    /* */
     using CommandBufferPools = tbb::concurrent_unordered_map<
         std::thread::id, CCVKGPUCommandBufferPool *, std::hash<std::thread::id>>;
+    /* *
+    using CommandBufferPools = unordered_map<std::thread::id, CCVKGPUCommandBufferPool *>;
+    std::mutex mutex;
+    /* */
+
     CommandBufferPools commandBufferPools;
 
     CCVKGPUCommandBufferPool *getCommandBufferPool(std::thread::id threadID);
@@ -475,7 +481,7 @@ public:
 
             VkDescriptorPool descriptorPool;
             VK_CHECK(vkCreateDescriptorPool(_device->vkDevice, &createInfo, nullptr, &descriptorPool));
-            _pools.push_back({descriptorPool, {}, {}});
+            _pools.push_back({descriptorPool});
 
             _pools[idx].freeSets.resize(_maxSetsPerPool);
             VkDescriptorSetAllocateInfo info{VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO};

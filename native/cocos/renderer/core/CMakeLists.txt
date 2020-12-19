@@ -139,7 +139,7 @@ if (COCOS_PLATFORM_WIN32)
 else()
 	target_link_libraries(${TARGET_NAME} ${COCOS_EXTERNAL_TARGETS})
 endif()
-target_link_libraries(${TARGET_NAME} TFJobSystem Threading)
+target_link_libraries(${TARGET_NAME} TBBJobSystem TFJobSystem Threading)
 
 if(MSVC)
     set_property(TARGET ${TARGET_NAME} PROPERTY LINK_FLAGS "/SUBSYSTEM:WINDOWS")

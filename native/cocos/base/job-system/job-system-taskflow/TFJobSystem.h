@@ -4,22 +4,28 @@
 
 namespace cc {
 
-class TFJobGraph;
-
 class TFJobSystem final {
 public:
+    static TFJobSystem *getInstance() {
+        if (!_instance) {
+            _instance = CC_NEW(TFJobSystem);
+        }
+        return _instance;
+    }
 
-    static TFJobSystem &getInstance() { return _instance; }
+    static void destroyInstance() {
+        CC_SAFE_DELETE(_instance);
+    }
 
     TFJobSystem() noexcept : TFJobSystem(std::thread::hardware_concurrency() - 2) {}
     TFJobSystem(uint threadCount) noexcept;
 
-    void run(TFJobGraph &g) noexcept;
-    
     CC_INLINE uint threadCount() { return _executor.num_workers(); }
 
 private:
-    static TFJobSystem _instance;
+    friend class TFJobGraph;
+
+    static TFJobSystem *_instance;
     
     tf::Executor _executor;
 };
