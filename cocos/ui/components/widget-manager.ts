@@ -205,7 +205,7 @@ function visitNode (node: any) {
             widget.enabled = false;
         } else {
             if (!legacyCC.isValid(node, true)) {
-                return ;
+                return;
             }
             activeWidgets.push(widget);
         }
