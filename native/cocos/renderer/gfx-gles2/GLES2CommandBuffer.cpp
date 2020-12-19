@@ -80,7 +80,7 @@ void GLES2CommandBuffer::destroy() {
 }
 
 void GLES2CommandBuffer::begin(RenderPass *renderPass, uint subpass, Framebuffer *frameBuffer, int submitIndex) {
-    _cmdAllocator->clearCmds(_curCmdPackage);
+    _gles2Allocator->clearCmds(_cmdPackage);
     _curGPUPipelineState = nullptr;
     _curGPUInputAssember = nullptr;
     _curGPUDescriptorSets.assign(_curGPUDescriptorSets.size(), nullptr);

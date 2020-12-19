@@ -78,7 +78,7 @@ id<CAMetalDrawable> CCMTLCommandBuffer::getCurrentDrawable()
     return _currDrawable;
 }
 
-void CCMTLCommandBuffer::begin(RenderPass *renderPass, uint subpass, Framebuffer *frameBuffer)
+void CCMTLCommandBuffer::begin(RenderPass *renderPass, uint subpass, Framebuffer *frameBuffer, int submitIndex)
 {
     if (_commandBufferBegan) return;
 

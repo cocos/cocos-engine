@@ -61,16 +61,17 @@ void CommandBufferProxy::destroy() {
     }
 }
 
-void CommandBufferProxy::begin(RenderPass *renderPass, uint subpass, Framebuffer *frameBuffer) {
-    ENCODE_COMMAND_4(
+void CommandBufferProxy::begin(RenderPass *renderPass, uint subpass, Framebuffer *frameBuffer, int submitIndex) {
+    ENCODE_COMMAND_5(
         _encoder,
         CommandBufferBegin,
         remote, getRemote(),
         renderPass, renderPass ? ((RenderPassProxy *)renderPass)->getRemote() : nullptr,
         subpass, subpass,
         frameBuffer, frameBuffer ? ((FramebufferProxy *)frameBuffer)->getRemote() : nullptr,
+        submitIndex, submitIndex,
         {
-            remote->begin(renderPass, subpass, frameBuffer);
+            remote->begin(renderPass, subpass, frameBuffer, submitIndex);
         });
 }
 
@@ -82,6 +83,8 @@ void CommandBufferProxy::end() {
         {
             remote->end();
         });
+    CommandEncoder::FreeChunksInFreeQueue(_encoder);
+    _encoder->FinishWriting();
 }
 
 void CommandBufferProxy::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, int stencil, bool fromSecondaryCB) {
@@ -318,13 +321,10 @@ void CommandBufferProxy::copyBuffersToTexture(const uint8_t *const *buffers, Tex
 
 void CommandBufferProxy::execute(const CommandBuffer *const *cmdBuffs, uint32_t count) {
     if (!count) return;
-    
+
     const CommandBuffer **remoteCmdBuffs = _encoder->Allocate<const CommandBuffer *>(count);
     for (uint i = 0; i < count; ++i) {
-        CommandBufferProxy *cmdBuff = (CommandBufferProxy *)cmdBuffs[i];
-        CommandEncoder::FreeChunksInFreeQueue(cmdBuff->getEncoder());
-        cmdBuff->getEncoder()->FinishWriting();
-        remoteCmdBuffs[i] = cmdBuff->getRemote();
+        remoteCmdBuffs[i] = ((CommandBufferProxy *)cmdBuffs[i])->getRemote();
     }
 
     bool multiThreaded = _device->hasFeature(Feature::MULTITHREADED_SUBMISSION);

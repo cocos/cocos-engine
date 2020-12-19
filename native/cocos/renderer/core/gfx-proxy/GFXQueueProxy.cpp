@@ -44,10 +44,7 @@ void QueueProxy::submit(const CommandBuffer *const *cmdBuffs, uint count, Fence 
 
     const CommandBuffer **remoteCmdBuffs = encoder->Allocate<const CommandBuffer *>(count);
     for (uint i = 0u; i < count; ++i) {
-        CommandBufferProxy *cmdBuff = (CommandBufferProxy *)cmdBuffs[i];
-        CommandEncoder::FreeChunksInFreeQueue(cmdBuff->getEncoder());
-        cmdBuff->getEncoder()->FinishWriting();
-        remoteCmdBuffs[i] = cmdBuff->getRemote();
+        remoteCmdBuffs[i] = ((CommandBufferProxy *)cmdBuffs[i])->getRemote();
     }
 
     bool multiThreaded = _device->hasFeature(Feature::MULTITHREADED_SUBMISSION);

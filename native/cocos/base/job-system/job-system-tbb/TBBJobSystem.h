@@ -1,6 +1,7 @@
 #pragma once
 
 #include "tbb/global_control.h"
+#include <thread>
 
 namespace cc {
 
