@@ -109,7 +109,6 @@ bool CCMTLDevice::initialize(const DeviceInfo &info) {
     textureDescriptor.width = info.width;
     textureDescriptor.height = info.height;
     textureDescriptor.storageMode = MTLStorageModePrivate;
-    textureDescriptor.usage = MTLTextureUsageRenderTarget;
     _dssTex = [mtlDevice newTextureWithDescriptor:textureDescriptor];
     _stencilBits = 8;
 

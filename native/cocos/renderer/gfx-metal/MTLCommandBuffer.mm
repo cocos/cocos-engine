@@ -161,14 +161,18 @@ void CCMTLCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fb
         mtlRenderPassDescriptor.stencilAttachment.clearStencil = stencil;
     }
 
-    _commandEncoder.initialize(_mtlCommandBuffer, mtlRenderPassDescriptor);
-    _commandEncoder.setViewport(renderArea);
-    _commandEncoder.setScissor(renderArea);
+    _mtlEncoder = [[_mtlCommandBuffer renderCommandEncoderWithDescriptor:mtlRenderPassDescriptor] retain];
+    _currentViewport = {renderArea.x, renderArea.y, renderArea.width, renderArea.height};
+    _currentScissor = renderArea;
+    [_mtlEncoder setViewport:mu::toMTLViewport(_currentViewport)];
+    [_mtlEncoder setScissorRect:mu::toMTLScissorRect(_currentScissor)];
 }
 
 void CCMTLCommandBuffer::endRenderPass()
 {
     [_mtlEncoder endEncoding];
+    [_mtlEncoder release];
+    _mtlEncoder = nil;
 }
 
 void CCMTLCommandBuffer::bindPipelineState(PipelineState *pso)
