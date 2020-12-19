@@ -112,11 +112,15 @@ function build_macosx()
     cd  $COCOS2DX_ROOT/templates/template-link/platforms/mac
     mkdir build-mac
     cd build-mac
-    cmake ../../../common -GXcode -DCOCOS_ROOT=$COCOS2DX_ROOT -DCC_USE_METAL=ON
-    cmake --build . --config Debug -- -quiet -jobs $NUM_OF_CORES
-    echo "Compile MacOSX Debug Done!"
+    cmake ../../../common -GXcode -DCOCOS_ROOT=$COCOS2DX_ROOT -DCC_USE_METAL=ON -DCMAKE_OSX_ARCHITECTURES=x86_64
     cmake --build . --config Release -- -quiet -jobs $NUM_OF_CORES
-    echo "Compile MacOSX Release Done!"
+    echo "Compile MacOSX X86_64 Release Done!"
+    cd ..
+    mkdir build-mac-apple-silicon
+    cd build-mac-apple-silicon
+    cmake ../../../common -GXcode -DCOCOS_ROOT=$COCOS2DX_ROOT -DCC_USE_METAL=ON -DCC_USE_GLES3=OFF -DCMAKE_OSX_ARCHITECTURES=arm64
+    cmake --build . --config Release -- -quiet -jobs $NUM_OF_CORES
+    echo "Compile MacOSX ARM64 Release Done!"
 }
 
 function build_ios()
@@ -131,7 +135,7 @@ function build_ios()
         -DCMAKE_OSX_SYSROOT=iphonesimulator \
         -DCMAKE_OSX_ARCHITECTURES=x86_64 \
         -DCC_USE_METAL=ON
-    cmake --build . --config Debug -- -quiet -jobs $NUM_OF_CORES
+    cmake --build . --config Debug -- -quiet -jobs $NUM_OF_CORES -allowProvisioningUpdates
     echo "Compile iOS Done!"
 }
 
