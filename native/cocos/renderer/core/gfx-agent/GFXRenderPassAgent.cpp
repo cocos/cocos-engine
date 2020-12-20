@@ -1,13 +1,13 @@
 #include "CoreStd.h"
 
 #include "threading/CommandEncoder.h"
-#include "GFXDeviceProxy.h"
-#include "GFXRenderPassProxy.h"
+#include "GFXDeviceAgent.h"
+#include "GFXRenderPassAgent.h"
 
 namespace cc {
 namespace gfx {
 
-bool RenderPassProxy::initialize(const RenderPassInfo &info) {
+bool RenderPassAgent::initialize(const RenderPassInfo &info) {
 
     _colorAttachments = info.colorAttachments;
     _depthStencilAttachment = info.depthStencilAttachment;
@@ -15,28 +15,28 @@ bool RenderPassProxy::initialize(const RenderPassInfo &info) {
     _hash = computeHash();
 
     ENCODE_COMMAND_2(
-        ((DeviceProxy *)_device)->getMainEncoder(),
+        ((DeviceAgent *)_device)->getMainEncoder(),
         RenderPassInit,
-        remote, getRemote(),
+        actor, getActor(),
         info, info,
         {
-            remote->initialize(info);
+            actor->initialize(info);
         });
 
     return true;
 }
 
-void RenderPassProxy::destroy() {
-    if (_remote) {
+void RenderPassAgent::destroy() {
+    if (_actor) {
         ENCODE_COMMAND_1(
-            ((DeviceProxy *)_device)->getMainEncoder(),
+            ((DeviceAgent *)_device)->getMainEncoder(),
             RenderPassDestroy,
-            remote, getRemote(),
+            actor, getActor(),
             {
-                CC_DESTROY(remote);
+                CC_DESTROY(actor);
             });
 
-        _remote = nullptr;
+        _actor = nullptr;
     }
 }
 

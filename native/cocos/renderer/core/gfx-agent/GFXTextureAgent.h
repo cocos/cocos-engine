@@ -1,15 +1,15 @@
 #pragma once
 
-#include "GFXProxy.h"
+#include "GFXAgent.h"
 #include "../gfx/GFXTexture.h"
 
 namespace cc {
 namespace gfx {
 
-class CC_DLL TextureProxy final : public Proxy<Texture> {
+class CC_DLL TextureAgent final : public Agent<Texture> {
 public:
-    using Proxy::Proxy;
-    TextureProxy(Device *device) = delete;
+    using Agent::Agent;
+    TextureAgent(Device *device) = delete;
 
     virtual bool initialize(const TextureInfo &info) override;
     virtual bool initialize(const TextureViewInfo &info) override;

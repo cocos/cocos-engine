@@ -1,13 +1,13 @@
 #include "CoreStd.h"
 
 #include "threading/CommandEncoder.h"
-#include "GFXDeviceProxy.h"
-#include "GFXShaderProxy.h"
+#include "GFXDeviceAgent.h"
+#include "GFXShaderAgent.h"
 
 namespace cc {
 namespace gfx {
 
-bool ShaderProxy::initialize(const ShaderInfo &info) {
+bool ShaderAgent::initialize(const ShaderInfo &info) {
     _name = info.name;
     _stages = info.stages;
     _attributes = info.attributes;
@@ -15,28 +15,28 @@ bool ShaderProxy::initialize(const ShaderInfo &info) {
     _samplers = info.samplers;
 
     ENCODE_COMMAND_2(
-        ((DeviceProxy *)_device)->getMainEncoder(),
+        ((DeviceAgent *)_device)->getMainEncoder(),
         ShaderInit,
-        remote, getRemote(),
+        actor, getActor(),
         info, info,
         {
-            remote->initialize(info);
+            actor->initialize(info);
         });
 
     return true;
 }
 
-void ShaderProxy::destroy() {
-    if (_remote) {
+void ShaderAgent::destroy() {
+    if (_actor) {
         ENCODE_COMMAND_1(
-            ((DeviceProxy *)_device)->getMainEncoder(),
+            ((DeviceAgent *)_device)->getMainEncoder(),
             ShaderDestroy,
-            remote, getRemote(),
+            actor, getActor(),
             {
-                CC_DESTROY(remote);
+                CC_DESTROY(actor);
             });
 
-        _remote = nullptr;
+        _actor = nullptr;
     }
 }
 

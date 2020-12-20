@@ -1,15 +1,15 @@
 #pragma once
 
 #include "../gfx/GFXRenderPass.h"
-#include "GFXProxy.h"
+#include "GFXAgent.h"
 
 namespace cc {
 namespace gfx {
 
-class CC_DLL RenderPassProxy final : public Proxy<RenderPass> {
+class CC_DLL RenderPassAgent final : public Agent<RenderPass> {
 public:
-    using Proxy::Proxy;
-    RenderPassProxy(Device *device) = delete;
+    using Agent::Agent;
+    RenderPassAgent(Device *device) = delete;
 
     virtual bool initialize(const RenderPassInfo &info) override;
     virtual void destroy() override;

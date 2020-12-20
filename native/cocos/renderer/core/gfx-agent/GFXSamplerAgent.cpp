@@ -1,14 +1,14 @@
 #include "CoreStd.h"
 
 #include "threading/CommandEncoder.h"
-#include "GFXDescriptorSetLayoutProxy.h"
-#include "GFXDeviceProxy.h"
-#include "GFXSamplerProxy.h"
+#include "GFXDescriptorSetLayoutAgent.h"
+#include "GFXDeviceAgent.h"
+#include "GFXSamplerAgent.h"
 
 namespace cc {
 namespace gfx {
 
-bool SamplerProxy::initialize(const SamplerInfo &info) {
+bool SamplerAgent::initialize(const SamplerInfo &info) {
 
     _minFilter = info.minFilter;
     _magFilter = info.magFilter;
@@ -24,28 +24,28 @@ bool SamplerProxy::initialize(const SamplerInfo &info) {
     _mipLODBias = info.mipLODBias;
 
     ENCODE_COMMAND_2(
-        ((DeviceProxy *)_device)->getMainEncoder(),
+        ((DeviceAgent *)_device)->getMainEncoder(),
         SamplerInit,
-        remote, getRemote(),
+        actor, getActor(),
         info, info,
         {
-            remote->initialize(info);
+            actor->initialize(info);
         });
 
     return true;
 }
 
-void SamplerProxy::destroy() {
-    if (_remote) {
+void SamplerAgent::destroy() {
+    if (_actor) {
         ENCODE_COMMAND_1(
-            ((DeviceProxy *)_device)->getMainEncoder(),
+            ((DeviceAgent *)_device)->getMainEncoder(),
             SamplerDestroy,
-            remote, getRemote(),
+            actor, getActor(),
             {
-                CC_DESTROY(remote);
+                CC_DESTROY(actor);
             });
 
-        _remote = nullptr;
+        _actor = nullptr;
     }
 }
 

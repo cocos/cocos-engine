@@ -1,15 +1,15 @@
 #pragma once
 
-#include "GFXProxy.h"
+#include "GFXAgent.h"
 #include "../gfx/GFXShader.h"
 
 namespace cc {
 namespace gfx {
 
-class CC_DLL ShaderProxy final : public Proxy<Shader> {
+class CC_DLL ShaderAgent final : public Agent<Shader> {
 public:
-    using Proxy::Proxy;
-    ShaderProxy(Device *device) = delete;
+    using Agent::Agent;
+    ShaderAgent(Device *device) = delete;
 
     virtual bool initialize(const ShaderInfo &info) override;
     virtual void destroy() override;

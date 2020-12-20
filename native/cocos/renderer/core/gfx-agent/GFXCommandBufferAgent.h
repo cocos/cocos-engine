@@ -1,15 +1,15 @@
 #pragma once
 
-#include "GFXProxy.h"
+#include "GFXAgent.h"
 #include "../gfx/GFXCommandBuffer.h"
 
 namespace cc {
 namespace gfx {
 
-class CC_DLL CommandBufferProxy final : public Proxy<CommandBuffer> {
+class CC_DLL CommandBufferAgent final : public Agent<CommandBuffer> {
 public:
-    using Proxy::Proxy;
-    CommandBufferProxy(Device *device) = delete;
+    using Agent::Agent;
+    CommandBufferAgent(Device *device) = delete;
 
     virtual bool initialize(const CommandBufferInfo &info) override;
     virtual void destroy() override;
@@ -33,14 +33,14 @@ public:
     virtual void copyBuffersToTexture(const uint8_t *const *buffers, Texture *texture, const BufferTextureCopy *regions, uint count) override;
     virtual void execute(const CommandBuffer *const *cmdBuffs, uint32_t count) override;
 
-    virtual uint getNumDrawCalls() const override { return _remote->getNumDrawCalls(); }
-    virtual uint getNumInstances() const override { return _remote->getNumInstances(); }
-    virtual uint getNumTris() const override { return _remote->getNumTris(); }
+    virtual uint getNumDrawCalls() const override { return _actor->getNumDrawCalls(); }
+    virtual uint getNumInstances() const override { return _actor->getNumInstances(); }
+    virtual uint getNumTris() const override { return _actor->getNumTris(); }
     
     CC_INLINE CommandEncoder *getEncoder() { return _encoder; }
 
 private:
-    friend class DeviceProxy;
+    friend class DeviceAgent;
     
     void initEncoder();
     void destroyEncoder();

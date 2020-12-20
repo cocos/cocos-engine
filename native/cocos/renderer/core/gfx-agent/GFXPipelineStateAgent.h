@@ -1,15 +1,15 @@
 #pragma once
 
-#include "GFXProxy.h"
+#include "GFXAgent.h"
 #include "../gfx/GFXPipelineState.h"
 
 namespace cc {
 namespace gfx {
 
-class CC_DLL PipelineStateProxy final : public Proxy<PipelineState> {
+class CC_DLL PipelineStateAgent final : public Agent<PipelineState> {
 public:
-    using Proxy::Proxy;
-    PipelineStateProxy(Device *device) = delete;
+    using Agent::Agent;
+    PipelineStateAgent(Device *device) = delete;
 
     virtual bool initialize(const PipelineStateInfo &info) override;
     virtual void destroy() override;

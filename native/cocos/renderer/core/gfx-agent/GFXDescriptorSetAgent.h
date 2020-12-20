@@ -1,15 +1,15 @@
 #pragma once
 
-#include "GFXProxy.h"
+#include "GFXAgent.h"
 #include "../gfx/GFXDescriptorSet.h"
 
 namespace cc {
 namespace gfx {
 
-class CC_DLL DescriptorSetProxy final : public Proxy<DescriptorSet> {
+class CC_DLL DescriptorSetAgent final : public Agent<DescriptorSet> {
 public:
-    using Proxy::Proxy;
-    DescriptorSetProxy(Device *device) = delete;
+    using Agent::Agent;
+    DescriptorSetAgent(Device *device) = delete;
 
     virtual bool initialize(const DescriptorSetInfo &info) override;
     virtual void destroy() override;

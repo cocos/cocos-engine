@@ -5,11 +5,9 @@
 #include "base/CachedArray.h"
 #include "base/StringUtil.h"
 
-#include "threading/ThreadPool.h"
 #include "threading/CommandEncoder.h"
+#include "threading/ThreadPool.h"
 
-#include "gfx/GFXDevice.h"
-#include "gfx/GFXContext.h"
 #include "gfx/GFXBuffer.h"
 #include "gfx/GFXCommand.h"
 #include "gfx/GFXCommandBuffer.h"
@@ -24,22 +22,24 @@
 #include "gfx/GFXPipelineLayout.h"
 #include "gfx/GFXPipelineState.h"
 #include "gfx/GFXQueue.h"
-#include "gfx/GFXCommand.h"
-#include "gfx/GFXCommandPool.h"
+#include "gfx/GFXRenderPass.h"
+#include "gfx/GFXSampler.h"
+#include "gfx/GFXShader.h"
+#include "gfx/GFXTexture.h"
 
-#include "gfx-proxy/GFXDeviceProxy.h"
-#include "gfx-proxy/GFXBufferProxy.h"
-#include "gfx-proxy/GFXTextureProxy.h"
-#include "gfx-proxy/GFXShaderProxy.h"
-#include "gfx-proxy/GFXRenderPassProxy.h"
-#include "gfx-proxy/GFXFramebufferProxy.h"
-#include "gfx-proxy/GFXInputAssemblerProxy.h"
-#include "gfx-proxy/GFXPipelineStateProxy.h"
-#include "gfx-proxy/GFXDescriptorSetProxy.h"
-#include "gfx-proxy/GFXCommandBufferProxy.h"
-#include "gfx-proxy/GFXQueueProxy.h"
+#include "gfx-agent/GFXBufferAgent.h"
+#include "gfx-agent/GFXCommandBufferAgent.h"
+#include "gfx-agent/GFXDescriptorSetAgent.h"
+#include "gfx-agent/GFXDeviceAgent.h"
+#include "gfx-agent/GFXFramebufferAgent.h"
+#include "gfx-agent/GFXInputAssemblerAgent.h"
+#include "gfx-agent/GFXPipelineStateAgent.h"
+#include "gfx-agent/GFXQueueAgent.h"
+#include "gfx-agent/GFXRenderPassAgent.h"
+#include "gfx-agent/GFXShaderAgent.h"
+#include "gfx-agent/GFXTextureAgent.h"
 
 #define CC_JOB_SYSTEM_TASKFLOW 1
-#define CC_JOB_SYSTEM_TBB 2
+#define CC_JOB_SYSTEM_TBB      2
 
 #define CC_JOB_SYSTEM CC_JOB_SYSTEM_TASKFLOW

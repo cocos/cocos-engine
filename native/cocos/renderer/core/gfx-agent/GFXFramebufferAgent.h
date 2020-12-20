@@ -1,15 +1,15 @@
 #pragma once
 
-#include "GFXProxy.h"
+#include "GFXAgent.h"
 #include "../gfx/GFXFramebuffer.h"
 
 namespace cc {
 namespace gfx {
 
-class CC_DLL FramebufferProxy final : public Proxy<Framebuffer> {
+class CC_DLL FramebufferAgent final : public Agent<Framebuffer> {
 public:
-    using Proxy::Proxy;
-    FramebufferProxy(Device *device) = delete;
+    using Agent::Agent;
+    FramebufferAgent(Device *device) = delete;
 
     virtual bool initialize(const FramebufferInfo &info) override;
     virtual void destroy() override;

@@ -2,7 +2,7 @@
 
 #include "../gfx/GFXDevice.h"
 #include "threading/Semaphore.h"
-#include "GFXProxy.h"
+#include "GFXAgent.h"
 
 namespace cc {
 
@@ -19,9 +19,9 @@ struct SubmitContext final {
     CommandBuffer *commandBuffer{nullptr};
 };
 
-class CC_DLL DeviceProxy final : public Proxy<Device> {
+class CC_DLL DeviceAgent final : public Agent<Device> {
 public:
-    using Proxy::Proxy;
+    using Agent::Agent;
 
     virtual bool initialize(const DeviceInfo &info) override;
     virtual void destroy() override;
@@ -47,15 +47,15 @@ public:
 
 
     virtual void setMultithreaded(bool multithreaded) override;
-    virtual SurfaceTransform getSurfaceTransform() const override { return _remote->getSurfaceTransform(); }
-    virtual uint getWidth() const override { return _remote->getWidth(); }
-    virtual uint getHeight() const override { return _remote->getHeight(); }
-    virtual uint getNativeWidth() const override { return _remote->getNativeWidth(); }
-    virtual uint getNativeHeight() const override { return _remote->getNativeHeight(); }
-    virtual MemoryStatus &getMemoryStatus() override { return _remote->getMemoryStatus(); }
-    virtual uint getNumDrawCalls() const override { return _remote->getNumDrawCalls(); }
-    virtual uint getNumInstances() const override { return _remote->getNumInstances(); }
-    virtual uint getNumTris() const override { return _remote->getNumTris(); }
+    virtual SurfaceTransform getSurfaceTransform() const override { return _actor->getSurfaceTransform(); }
+    virtual uint getWidth() const override { return _actor->getWidth(); }
+    virtual uint getHeight() const override { return _actor->getHeight(); }
+    virtual uint getNativeWidth() const override { return _actor->getNativeWidth(); }
+    virtual uint getNativeHeight() const override { return _actor->getNativeHeight(); }
+    virtual MemoryStatus &getMemoryStatus() override { return _actor->getMemoryStatus(); }
+    virtual uint getNumDrawCalls() const override { return _actor->getNumDrawCalls(); }
+    virtual uint getNumInstances() const override { return _actor->getNumInstances(); }
+    virtual uint getNumTris() const override { return _actor->getNumTris(); }
 
     CommandEncoder *getMainEncoder() const { return _mainEncoder; }
 protected:

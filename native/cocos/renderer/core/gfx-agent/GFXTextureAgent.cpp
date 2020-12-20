@@ -1,13 +1,13 @@
 #include "CoreStd.h"
 
 #include "threading/CommandEncoder.h"
-#include "GFXTextureProxy.h"
-#include "GFXDeviceProxy.h"
+#include "GFXTextureAgent.h"
+#include "GFXDeviceAgent.h"
 
 namespace cc {
 namespace gfx {
 
-bool TextureProxy::initialize(const TextureInfo &info) {
+bool TextureAgent::initialize(const TextureInfo &info) {
     _type = info.type;
     _usage = info.usage;
     _format = info.format;
@@ -21,18 +21,18 @@ bool TextureProxy::initialize(const TextureInfo &info) {
     _size = FormatSize(_format, _width, _height, _depth);
 
     ENCODE_COMMAND_2(
-        ((DeviceProxy*)_device)->getMainEncoder(),
+        ((DeviceAgent*)_device)->getMainEncoder(),
         TextureInit,
-        remote, getRemote(),
+        actor, getActor(),
         info, info,
         {
-            remote->initialize(info);
+            actor->initialize(info);
         });
 
     return true;
 }
 
-bool TextureProxy::initialize(const TextureViewInfo &info) {
+bool TextureAgent::initialize(const TextureViewInfo &info) {
     _isTextureView = true;
 
     if (!info.texture) {
@@ -54,40 +54,40 @@ bool TextureProxy::initialize(const TextureViewInfo &info) {
     _size = FormatSize(_format, _width, _height, _depth);
 
     ENCODE_COMMAND_2(
-        ((DeviceProxy*)_device)->getMainEncoder(),
+        ((DeviceAgent*)_device)->getMainEncoder(),
         TextureViewInit,
-        remote, getRemote(),
+        actor, getActor(),
         info, info,
         {
-            remote->initialize(info);
+            actor->initialize(info);
         });
 
     return true;
 }
 
-void TextureProxy::destroy() {
-    if (_remote) {
+void TextureAgent::destroy() {
+    if (_actor) {
         ENCODE_COMMAND_1(
-            ((DeviceProxy *)_device)->getMainEncoder(),
+            ((DeviceAgent *)_device)->getMainEncoder(),
             TextureDestroy,
-            remote, getRemote(),
+            actor, getActor(),
             {
-                CC_DESTROY(remote);
+                CC_DESTROY(actor);
             });
 
-        _remote = nullptr;
+        _actor = nullptr;
     }
 }
 
-void TextureProxy::resize(uint width, uint height) {
+void TextureAgent::resize(uint width, uint height) {
     ENCODE_COMMAND_3(
-        ((DeviceProxy*)_device)->getMainEncoder(),
+        ((DeviceAgent*)_device)->getMainEncoder(),
         TextureResize,
-        remote, getRemote(),
+        actor, getActor(),
         width, width,
         height, height,
         {
-            remote->resize(width, height);
+            actor->resize(width, height);
         });
 }
 

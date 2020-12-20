@@ -1,13 +1,13 @@
 #include "CoreStd.h"
 
 #include "threading/CommandEncoder.h"
-#include "GFXDeviceProxy.h"
-#include "GFXDescriptorSetLayoutProxy.h"
+#include "GFXDeviceAgent.h"
+#include "GFXDescriptorSetLayoutAgent.h"
 
 namespace cc {
 namespace gfx {
 
-bool DescriptorSetLayoutProxy::initialize(const DescriptorSetLayoutInfo &info) {
+bool DescriptorSetLayoutAgent::initialize(const DescriptorSetLayoutInfo &info) {
 
     _bindings = info.bindings;
     uint bindingCount = _bindings.size();
@@ -33,28 +33,28 @@ bool DescriptorSetLayoutProxy::initialize(const DescriptorSetLayoutInfo &info) {
     }
 
     ENCODE_COMMAND_2(
-        ((DeviceProxy *)_device)->getMainEncoder(),
+        ((DeviceAgent *)_device)->getMainEncoder(),
         DescriptorSetLayoutInit,
-        remote, getRemote(),
+        actor, getActor(),
         info, info,
         {
-            remote->initialize(info);
+            actor->initialize(info);
         });
 
     return true;
 }
 
-void DescriptorSetLayoutProxy::destroy() {
-    if (_remote) {
+void DescriptorSetLayoutAgent::destroy() {
+    if (_actor) {
         ENCODE_COMMAND_1(
-            ((DeviceProxy *)_device)->getMainEncoder(),
+            ((DeviceAgent *)_device)->getMainEncoder(),
             DescriptorSetLayoutDestroy,
-            remote, getRemote(),
+            actor, getActor(),
             {
-                CC_DESTROY(remote);
+                CC_DESTROY(actor);
             });
 
-        _remote = nullptr;
+        _actor = nullptr;
     }
 }
 

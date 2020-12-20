@@ -1,15 +1,15 @@
 #pragma once
 
-#include "GFXProxy.h"
+#include "GFXAgent.h"
 #include "../gfx/GFXSampler.h"
 
 namespace cc {
 namespace gfx {
 
-class CC_DLL SamplerProxy final : public Proxy<Sampler> {
+class CC_DLL SamplerAgent final : public Agent<Sampler> {
 public:
-    using Proxy::Proxy;
-    SamplerProxy(Device *device) = delete;
+    using Agent::Agent;
+    SamplerAgent(Device *device) = delete;
 
     virtual bool initialize(const SamplerInfo &info) override;
     virtual void destroy() override;

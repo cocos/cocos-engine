@@ -1,17 +1,17 @@
 #pragma once
 
 #include "../gfx/GFXQueue.h"
-#include "GFXProxy.h"
+#include "GFXAgent.h"
 
 namespace cc {
 namespace gfx {
 
-class CC_DLL QueueProxy final : public Proxy<Queue> {
+class CC_DLL QueueAgent final : public Agent<Queue> {
 public:
-    using Proxy::Proxy;
+    using Agent::Agent;
     using Queue::submit;
 
-    QueueProxy(Device *device) = delete;
+    QueueAgent(Device *device) = delete;
 
     virtual bool initialize(const QueueInfo &info) override;
     virtual void destroy() override;
