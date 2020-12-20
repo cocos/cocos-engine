@@ -23,19 +23,74 @@
  THE SOFTWARE.
  ****************************************************************************/
 (function(){
-    if (window.middleware === undefined) return;
+    if (!window.middleware) return;
 
     let middlewareMgr = middleware.MiddlewareManager.getInstance();
     let director = cc.director;
 
+    let nativeXYZUVC = middleware.vfmtPosUvColor = 9;
+    let nativeXYZUVCC = middleware.vfmtPosUvTwoColor = 13;
+
+    let vfmtPosUvColor = cc.internal.vfmtPosUvColor;
+    let vfmtPosUvTwoColor = cc.internal.vfmtPosUvTwoColor; 
+
+    let renderInfoLookup = middleware.RenderInfoLookup = {};
+    renderInfoLookup[nativeXYZUVC] = [];
+    renderInfoLookup[nativeXYZUVCC] = [];
+
+    middleware.preRenderComponent = null;
+    middleware.preRenderBufferIndex = null;
+    middleware.preRenderBufferType = nativeXYZUVC;
     middleware.renderOrder = 0;
-    middleware.vfmtPosUvColor = 9;
-    middleware.vfmtPosUvTwoColor = 13;
+    middleware.indicesStart = 0;
+    middleware.resetIndicesStart = false;
+
+    function CopyNativeBufferToJS(renderer, nativeFormat, jsFormat) {
+        if (!renderer) return;
+
+        let bufferCount = middlewareMgr.getBufferCount(nativeFormat);
+        for(let i = 0; i < bufferCount; i++) {
+            let ibBytesLength = middlewareMgr.getIBTypedArrayLength(nativeFormat, i);
+            let srcVertexCount = 65535;
+            let srcIndicesCount = ibBytesLength / 2; // USHORT
+            let srcVertexFloatCount = srcVertexCount * nativeFormat;
+            
+            let buffer = renderer.acquireBufferBatch(jsFormat);
+            const isRecreate = buffer.request(srcVertexCount, srcIndicesCount);
+            if (!isRecreate) {
+                buffer = renderer.currBufferBatch;
+            }
+
+            const vBuf = buffer.vData;
+            const iBuf = buffer.iData;
+
+            const srcVBuf = middlewareMgr.getVBTypedArray(nativeFormat, i);
+            const srcIBuf = middlewareMgr.getIBTypedArray(nativeFormat, i);
+
+            vBuf.set(srcVBuf.subarray(0, srcVertexFloatCount), 0);
+            iBuf.set(srcIBuf.subarray(0, srcIndicesCount), 0);
+
+            // forbid auto merge, because of it's meanless
+            buffer.indicesOffset = 0;
+            renderInfoLookup[nativeFormat][i] = buffer;
+        }
+    }
+
     director.on(cc.Director.EVENT_BEFORE_DRAW,function(){
         middlewareMgr.update(director._deltaTime);
         middlewareMgr.render(director._deltaTime);
+
         // reset render order
         middleware.renderOrder = 0;
+        middleware.preRenderComponent = null;
+        middleware.preRenderBufferIndex = null;
+        middleware.preRenderBufferType = nativeXYZUVC;
+        middleware.indicesStart = 0;
+        middleware.resetIndicesStart = false;
+
+        let ui = director.root.ui;
+        CopyNativeBufferToJS(ui, nativeXYZUVC, vfmtPosUvColor)
+        CopyNativeBufferToJS(ui, nativeXYZUVCC, vfmtPosUvTwoColor)
     })
 
     let renderInfoMgr = middlewareMgr.getRenderInfoMgr();

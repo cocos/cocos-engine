@@ -351,8 +351,8 @@ const cacheManager = require('./jsb-cache-manager');
 
         this._sharedBufferOffset = nativeSkeleton.getSharedBufferOffset();
         this._sharedBufferOffset[0] = 0;
-        this._renderSegmentInfo = {};
         this._useAttach = false;
+        this._renderOrder = -1;
 
         // store render order and world matrix
         this._paramsBuffer = nativeSkeleton.getParamsBuffer();
@@ -405,28 +405,33 @@ const cacheManager = require('./jsb-cache-manager');
         if (!node) return;
         
         let paramsBuffer = this._paramsBuffer;
-        paramsBuffer[0] = middleware.renderOrder;
-        middleware.renderOrder++;
+        if (this._renderOrder != middleware.renderOrder) {
+            paramsBuffer[0] = middleware.renderOrder;
+            this._renderOrder = middleware.renderOrder;
+            middleware.renderOrder++;
+        }
 
-        // sync node world matrix to native
-        node.updateWorldTransform();
-        let worldMat = node._mat;
-        paramsBuffer[1]  = worldMat.m00;
-        paramsBuffer[2]  = worldMat.m01;
-        paramsBuffer[3]  = worldMat.m02;
-        paramsBuffer[4]  = worldMat.m03;
-        paramsBuffer[5]  = worldMat.m04;
-        paramsBuffer[6]  = worldMat.m05;
-        paramsBuffer[7]  = worldMat.m06;
-        paramsBuffer[8]  = worldMat.m07;
-        paramsBuffer[9]  = worldMat.m08;
-        paramsBuffer[10] = worldMat.m09;
-        paramsBuffer[11] = worldMat.m10;
-        paramsBuffer[12] = worldMat.m11;
-        paramsBuffer[13] = worldMat.m12;
-        paramsBuffer[14] = worldMat.m13;
-        paramsBuffer[15] = worldMat.m14;
-        paramsBuffer[16] = worldMat.m15;
+        if (node.hasChangedFlags) {
+            // sync node world matrix to native
+            node.updateWorldTransform();
+            let worldMat = node._mat;
+            paramsBuffer[1]  = worldMat.m00;
+            paramsBuffer[2]  = worldMat.m01;
+            paramsBuffer[3]  = worldMat.m02;
+            paramsBuffer[4]  = worldMat.m03;
+            paramsBuffer[5]  = worldMat.m04;
+            paramsBuffer[6]  = worldMat.m05;
+            paramsBuffer[7]  = worldMat.m06;
+            paramsBuffer[8]  = worldMat.m07;
+            paramsBuffer[9]  = worldMat.m08;
+            paramsBuffer[10] = worldMat.m09;
+            paramsBuffer[11] = worldMat.m10;
+            paramsBuffer[12] = worldMat.m11;
+            paramsBuffer[13] = worldMat.m12;
+            paramsBuffer[14] = worldMat.m13;
+            paramsBuffer[15] = worldMat.m14;
+            paramsBuffer[16] = worldMat.m15;
+        }
 
         if (this.__preColor__ === undefined || !this.color.equals(this.__preColor__)) {
             let compColor = this.color;
@@ -779,6 +784,8 @@ const cacheManager = require('./jsb-cache-manager');
     };
 
     let _tempAttachMat4 = new cc.mat4();
+    let _tempVfmt, _tempBufferIndex, _tempIndicesOffset, _tempIndicesCount;
+
     skeleton._render = function (ui) {
         let nativeSkeleton = this._nativeSkeleton;
         if (!nativeSkeleton) return;
@@ -834,8 +841,7 @@ const cacheManager = require('./jsb-cache-manager');
         let useTint = this.useTint || this.isAnimationCached();
         let vfmt = useTint ? middleware.vfmtPosUvTwoColor : middleware.vfmtPosUvColor;
         
-        let renderSegmentInfo = this._renderSegmentInfo;
-        renderSegmentInfo.vfmt = vfmt;
+        _tempVfmt = vfmt;
 
         if (matLen == 0) return;
 
@@ -852,12 +858,18 @@ const cacheManager = require('./jsb-cache-manager');
                 renderInfo[renderInfoOffset + materialIdx++], 
                 useTint ? 2: 0);
 
-            renderSegmentInfo.rIB = renderInfo[renderInfoOffset + materialIdx++];
-            renderSegmentInfo.rVB = renderInfo[renderInfoOffset + materialIdx++];
-            renderSegmentInfo.indicesOffset = renderInfo[renderInfoOffset + materialIdx++];
-            renderSegmentInfo.indicesCount = renderInfo[renderInfoOffset + materialIdx++];
-            renderSegmentInfo.vertexFloatOffset = renderInfo[renderInfoOffset + materialIdx++];
-            renderSegmentInfo.vertexFloatCount = renderInfo[renderInfoOffset + materialIdx++];
+            _tempBufferIndex = renderInfo[renderInfoOffset + materialIdx++];
+            _tempIndicesOffset = renderInfo[renderInfoOffset + materialIdx++];
+            _tempIndicesCount = renderInfo[renderInfoOffset + materialIdx++];
+
+            if (middleware.indicesStart != _tempIndicesOffset ||
+                middleware.preRenderBufferIndex != _tempBufferIndex ||
+                middleware.preRenderBufferType != _tempVfmt) {
+                ui.autoMergeBatches(middleware.preRenderComponent);
+                middleware.resetIndicesStart = true;
+            } else {
+                middleware.resetIndicesStart = false;
+            }
 
             ui.commitComp(this, realTexture._texture, this._assembler, null);
         }
@@ -877,49 +889,18 @@ const cacheManager = require('./jsb-cache-manager');
         let node = comp.node;
         if (!node) return;
 
-        let renderSegmentInfo = comp._renderSegmentInfo;
-        let vfmt = renderSegmentInfo.vfmt;
-        let rIB = renderSegmentInfo.rIB;
-        let rVB = renderSegmentInfo.rVB;
-        let srcIndicesOffset = renderSegmentInfo.indicesOffset;
-        let srcIndicesCount = renderSegmentInfo.indicesCount;
-        let srcVertexFloatOffset = renderSegmentInfo.vertexFloatOffset;
-        let srcVertexFloatCount = renderSegmentInfo.vertexFloatCount;
-        let srcVertexCount = srcVertexFloatCount / vfmt;
+        let renderInfoLookup = middleware.RenderInfoLookup
+        let buffer = renderInfoLookup[_tempVfmt][_tempBufferIndex];
+        renderer.currBufferBatch = buffer;
 
-        let vfmtPosUvColor = cc.internal.vfmtPosUvColor;
-        let vfmtPosUvTwoColor = cc.internal.vfmtPosUvTwoColor;    
-
-        let buffer = renderer.acquireBufferBatch(vfmt === middleware.vfmtPosUvColor ? vfmtPosUvColor : vfmtPosUvTwoColor);
-        let floatOffset = buffer.byteOffset >> 2;
-        let indicesOffset = buffer.indicesOffset;
-        let vertexOffset = buffer.vertexOffset;
-
-        let middlewareMgr = middleware.MiddlewareManager.getInstance();
-
-        const isRecreate = buffer.request(srcVertexCount, srcIndicesCount);
-        if (!isRecreate) {
-            buffer = renderer.currBufferBatch;
-            floatOffset = 0;
-            indicesOffset = 0;
-            vertexOffset = 0;
+        if (middleware.resetIndicesStart) {
+            buffer.indicesStart = _tempIndicesOffset;
         }
+        buffer.indicesOffset = _tempIndicesOffset + _tempIndicesCount;
 
-        const vBuf = buffer.vData;
-        const iBuf = buffer.iData;
-
-        const srcVBuf = middlewareMgr.getVBTypedArray(vfmt, rVB);
-        const srcIBuf = middlewareMgr.getIBTypedArray(vfmt, rIB);
-
-        vBuf.set(srcVBuf.subarray(srcVertexFloatOffset, srcVertexFloatOffset + srcVertexFloatCount), floatOffset);
-
-        vertexOffset -= srcVertexFloatOffset / vfmt;
-        if (vertexOffset == 0) {
-            iBuf.set(srcIBuf.subarray(srcIndicesOffset, srcIndicesOffset + srcIndicesCount), indicesOffset);
-        } else {
-            for (let i = 0; i < srcIndicesCount; i += 1) {
-                iBuf[i + indicesOffset] = srcIBuf[i + srcIndicesOffset] + vertexOffset;
-            }
-        }
+        middleware.indicesStart = buffer.indicesOffset;
+        middleware.preRenderComponent = comp;
+        middleware.preRenderBufferIndex = _tempBufferIndex;
+        middleware.preRenderBufferType = _tempVfmt;
     };
 })();
