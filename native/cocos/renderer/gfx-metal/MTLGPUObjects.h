@@ -228,7 +228,10 @@ public:
             for (size_t idx = 0; idx < bufferCount; idx++)
             {
                 buffer = &_pool[idx];
+                id<MTLBuffer> prevFrameBuffer = buffer->mtlBuffer;
                 buffer->mtlBuffer = buffer->dynamicDataBuffers[_inflightIndex];
+                memcpy((uint8_t *)buffer->mtlBuffer.contents, prevFrameBuffer.contents, buffer->curOffset);
+                buffer->mappedData = (uint8_t *)buffer->mtlBuffer.contents;
             }
         }
     }
