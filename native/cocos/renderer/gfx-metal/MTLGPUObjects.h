@@ -236,22 +236,6 @@ public:
         }
     }
 
-    void updateInflightBuffer() {
-        if (_tripleEnabled) {
-            _inflightIndex = ((_inflightIndex + 1) % MAX_FRAMES_IN_FLIGHT);
-
-            size_t bufferCount = _pool.size();
-            Buffer *buffer = nullptr;
-            for (size_t idx = 0; idx < bufferCount; idx++) {
-                buffer = &_pool[idx];
-                id<MTLBuffer> prevFrameBuffer = buffer->mtlBuffer;
-                buffer->mtlBuffer = buffer->dynamicDataBuffers[_inflightIndex];
-                memcpy((uint8_t *)buffer->mtlBuffer.contents, prevFrameBuffer.contents, buffer->curOffset);
-                buffer->mappedData = (uint8_t *)buffer->mtlBuffer.contents;
-            }
-        }
-    }
-
     void reset() {
         for (auto &buffer : _pool) {
             buffer.curOffset = 0;
