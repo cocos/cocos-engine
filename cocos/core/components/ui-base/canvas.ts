@@ -351,7 +351,7 @@ export class Canvas extends Component {
         if (this._cameraComponent) {
             const camera = this._cameraComponent.camera;
             if (camera) {
-                legacyCC.director.root!.ui.renderScene.removeCamera(this._cameraComponent.camera);
+                legacyCC.director.root!.ui.renderScene.removeCamera(camera);
             }
         }
     }
@@ -383,11 +383,11 @@ export class Canvas extends Component {
 
             if (this._targetTexture) {
                 const win = this._targetTexture.window;
-                this._cameraComponent.camera.setFixedSize(win!.width, win!.height);
+                camera.setFixedSize(win!.width, win!.height);
                 this._cameraComponent.orthoHeight = visibleRect.height / 2;
             } else {
                 const size = game.canvas!;
-                this._cameraComponent.camera.resize(size.width, size.height);
+                camera.resize(size.width, size.height);
                 this._cameraComponent.orthoHeight = game.canvas!.height / view.getScaleY() / 2;
             }
             this.node.getWorldPosition(_worldPos);
@@ -421,14 +421,14 @@ export class Canvas extends Component {
         if (!camera) { return; }
 
         if (!this._targetTexture) {
-            cameraComponent.camera.changeTargetWindow();
+            camera.changeTargetWindow();
             cameraComponent.orthoHeight = game.canvas!.height / view.getScaleY() / 2;
-            cameraComponent.camera.isWindowSize = true;
+            camera.isWindowSize = true;
         } else {
             const win = this._targetTexture.window;
-            cameraComponent.camera.changeTargetWindow(win);
+            camera.changeTargetWindow(win);
             cameraComponent.orthoHeight = visibleRect.height / 2;
-            cameraComponent.camera.isWindowSize = false;
+            camera.isWindowSize = false;
         }
     }
 
