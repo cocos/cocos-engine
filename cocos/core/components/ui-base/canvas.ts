@@ -298,10 +298,10 @@ export class Canvas extends Component {
             this._fitDesignResolution!();
         }
 
-        const cameraNode = new Node(`UICamera_${this.node.name}`);
-        this.node.addChild(cameraNode);
         // Create cameraComponent to manage camera value.
         if (!this._cameraComponent) {
+            const cameraNode = new Node(`UICamera_${this.node.name}`);
+            this.node.addChild(cameraNode);
             cameraNode.addComponent('cc.Camera');
             this._cameraComponent = cameraNode.getComponent('cc.Camera') as Camera;
             this._cameraComponent.projection = Camera.ProjectionType.ORTHO;
