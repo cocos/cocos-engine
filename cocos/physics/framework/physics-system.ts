@@ -338,7 +338,7 @@ export class PhysicsSystem extends System {
                     this._subStepCount++;
                     this.physicsWorld.emitEvents();
                     // TODO: nesting the dirty flag reset between the syncScenetoPhysics and the simulation to reduce calling syncScenetoPhysics.
-                    this.physicsWorld.syncSceneToPhysics();
+                    this.physicsWorld.syncAfterEvents();
                 } else {
                     this.physicsWorld.syncSceneToPhysics();
                     break;

@@ -134,6 +134,16 @@ export function copyPhysXTransform (node: Node, transform: any): void {
     }
 }
 
+export function physXEqualsCocosVec3 (trans: any, v3: IVec3Like): boolean {
+    const pos = USE_BYTEDANCE ? trans.getPosition() : trans.translation;
+    return Vec3.strictEquals(pos, v3);
+}
+
+export function physXEqualsCocosQuat (trans: any, q: IQuatLike): boolean {
+    const rot = USE_BYTEDANCE ? trans.getQuaternion() : trans.rotation;
+    return Quat.strictEquals(rot, q);
+}
+
 export function getContactData (vec: any, index: number) {
     if (USE_BYTEDANCE) {
         return index;

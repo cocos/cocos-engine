@@ -3,7 +3,7 @@ import { PhysXRigidBody } from './physx-rigid-body';
 import { PhysXWorld } from './physx-world';
 import { PhysXShape } from './shapes/physx-shape';
 import { TransformBit } from '../../core/scene-graph/node-enum';
-import { copyPhysXTransform, getTempTransform, PX, setMassAndUpdateInertia } from './export-physx';
+import { copyPhysXTransform, getTempTransform, physXEqualsCocosQuat, physXEqualsCocosVec3, PX, setMassAndUpdateInertia } from './export-physx';
 import { VEC3_0 } from '../utils/util';
 import { ERigidBodyType, PhysicsSystem } from '../framework';
 
@@ -181,6 +181,30 @@ export class PhysXSharedBody {
                 this._impl.setKinematicTarget(trans);
             } else {
                 this._impl.setGlobalPose(trans, true);
+            }
+        }
+    }
+
+    syncSceneWithCheck (): void {
+        const node = this.node;
+        if (node.hasChangedFlags) {
+            if (node.hasChangedFlags & TransformBit.SCALE) {
+                const l = this.wrappedShapes.length;
+                for (let i = 0; i < l; i++) {
+                    this.wrappedShapes[i].updateScale();
+                }
+            }
+            const wp = node.worldPosition;
+            const wr = node.worldRotation;
+            const pose = this._impl.getGlobalPose();
+            const DontUpdate = physXEqualsCocosVec3(pose, wp) && physXEqualsCocosQuat(pose, wr);
+            if (!DontUpdate) {
+                const trans = getTempTransform(node.worldPosition, node.worldRotation);
+                if (this._isKinematic) {
+                    this._impl.setKinematicTarget(trans);
+                } else {
+                    this._impl.setGlobalPose(trans, true);
+                }
             }
         }
     }

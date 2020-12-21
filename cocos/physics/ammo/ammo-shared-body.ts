@@ -224,7 +224,7 @@ export class AmmoSharedBody {
         }
         AmmoInstance.bodyStructs['KEY' + this._bodyStruct.id] = this._bodyStruct;
         this.body.setUserIndex(this._bodyStruct.id);
-        if (mass == 0) this.body.setActivationState(AmmoCollisionObjectStates.DISABLE_DEACTIVATION);        
+        if (mass == 0) this.body.setActivationState(AmmoCollisionObjectStates.DISABLE_DEACTIVATION);
         if (Ammo['CC_CONFIG']['ignoreSelfBody'] && this._ghostStruct) this.ghost.setIgnoreCollisionCheck(this.body, true);
     }
 
@@ -351,7 +351,7 @@ export class AmmoSharedBody {
         if (this.body.isStaticOrKinematicObject() || this.isBodySleeping()) {
             return;
         }
-        
+
         const wt0 = this.bodyStruct.startTransform;
         this.body.getMotionState().getWorldTransform(wt0);
         this.node.worldPosition = ammo2CocosVec3(v3_0, wt0.getOrigin());

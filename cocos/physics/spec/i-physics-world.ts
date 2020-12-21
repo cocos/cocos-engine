@@ -51,4 +51,5 @@ export interface IPhysicsWorld {
     raycastClosest (worldRay: Ray, options: IRaycastOptions, out: PhysicsRayResult): boolean;
     emitEvents (): void;
     syncSceneToPhysics (): void;
+    syncAfterEvents (): void;
 }

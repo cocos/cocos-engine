@@ -239,7 +239,7 @@ export class PhysXWorld implements IPhysicsWorld {
             PX.physics = this.physics;
         }
     }
-    
+
     step (deltaTime: number, _timeSinceLastCalled?: number, _maxSubStep = 0): void {
         if (this.wrappedBodies.length === 0) {
             return;
@@ -261,6 +261,13 @@ export class PhysXWorld implements IPhysicsWorld {
         for (let i = 0; i < this.wrappedBodies.length; i++) {
             const body = this.wrappedBodies[i];
             body.syncSceneToPhysics();
+        }
+    }
+
+    syncAfterEvents (): void {
+        for (let i = 0; i < this.wrappedBodies.length; i++) {
+            const body = this.wrappedBodies[i];
+            body.syncSceneWithCheck();
         }
     }
 

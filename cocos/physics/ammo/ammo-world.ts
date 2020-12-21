@@ -37,7 +37,6 @@ import { IRaycastOptions, IPhysicsWorld } from '../spec/i-physics-world';
 import { PhysicsRayResult, PhysicMaterial } from '../framework';
 import { Node, RecyclePool } from '../../core';
 import { AmmoInstance } from './ammo-instance';
-import { AmmoCollisionFilterGroups, AmmoDispatcherFlags } from './ammo-enum';
 import { IVec3Like } from '../../core/math/type-define';
 import { AmmoContactEquation } from './ammo-contact-equation';
 import { AmmoConstraint } from './constraints/ammo-constraint';
@@ -108,6 +107,10 @@ export class AmmoWorld implements IPhysicsWorld {
             this.bodies[i].updateDirty();
             this.bodies[i].syncSceneToPhysics();
         }
+    }
+
+    syncAfterEvents (): void {
+        this.syncSceneToPhysics();
     }
 
     raycast (worldRay: Ray, options: IRaycastOptions, pool: RecyclePool<PhysicsRayResult>, results: PhysicsRayResult[]): boolean {

@@ -53,6 +53,14 @@ export function ammo2CocosQuat<T extends IQuatLike> (out: T, q: Ammo.btQuaternio
     return out;
 }
 
+export function ammoEqualCocosVec3 (a: Ammo.btVector3, b: IVec3Like) {
+    return a.x() === b.x && a.y() === b.y && a.z() === b.z;
+}
+
+export function ammoEqualCocosQuat (a: Ammo.btQuaternion, b: IQuatLike) {
+    return a.x() === b.x && a.y() === b.y && a.z() === b.z && a.w() === b.w;
+}
+
 export function ammoDeletePtr (obj: Ammo.Type, klass: Constructor<Ammo.Type>): void {
     delete (klass as any).__cache__[(obj as any).ptr];
 }
