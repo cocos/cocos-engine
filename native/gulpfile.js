@@ -149,6 +149,7 @@ gulp.task('gen-cocos2d-x', function(cb) {
 });
 
 gulp.task('gen-simulator', async function () {
+    let isWin32 = process.platform === 'win32';
     // get the cmake path
     let cmakeBin = await new Promise((resolve, reject) => {
         which('cmake', (err, resolvedPath) => {
@@ -166,7 +167,7 @@ gulp.task('gen-simulator', async function () {
     console.log('make project\n');
     console.log('=====================================\n');
     await new Promise((resolve, reject) => {
-        let cmakeProcess = spawn(cmakeBin, ['-G', process.platform === 'win32'? 'Visual Studio 15 2017': 'Xcode', absolutePath('./tools/simulator/frameworks/runtime-src/')], {
+        let cmakeProcess = spawn(cmakeBin, ['-G', isWin32? 'Visual Studio 15 2017': 'Xcode', absolutePath('./tools/simulator/frameworks/runtime-src/')], {
             cwd: simulatorProject,
         });
         cmakeProcess.on('close',  () => {
@@ -189,7 +190,11 @@ gulp.task('gen-simulator', async function () {
     console.log('build project\n');
     console.log('=====================================\n');
     await new Promise((resolve, reject) => {
-        let buildProcess = spawn(cmakeBin, ['--build', simulatorProject], {
+        let makeArgs = ['--build', simulatorProject];
+        if (!isWin32) {
+            makeArgs = makeArgs.concat(['--', '-quiet']);
+        }
+        let buildProcess = spawn(cmakeBin, makeArgs, {
             cwd: simulatorProject,
         });
         buildProcess.on('close',  () => {
