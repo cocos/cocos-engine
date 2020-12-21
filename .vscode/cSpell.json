@@ -12,6 +12,7 @@
         "deinterleave",
         "deserialize",
         "earcut",
+        "emscripten",
         "eventify",
         "eventified",
         "forin",

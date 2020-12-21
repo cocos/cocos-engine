@@ -68,7 +68,7 @@ export const ttf: IAssembler = {
         const node = comp.node;
 
         let buffer = renderer.acquireBufferBatch()!;
-        const vertexOffset = buffer.byteOffset >> 2;
+        let vertexOffset = buffer.byteOffset >> 2;
         let indicesOffset = buffer.indicesOffset;
         let vertexId = buffer.vertexOffset;
         const isRecreate = buffer.request();
@@ -76,6 +76,7 @@ export const ttf: IAssembler = {
             buffer = renderer.currBufferBatch!;
             indicesOffset = 0;
             vertexId = 0;
+            vertexOffset = 0;
         }
 
         // buffer data may be reallocated, need get reference after request.

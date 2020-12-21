@@ -27,8 +27,8 @@
  * @category component/audio
  */
 
-import { Asset } from '../../core/assets';
 import { ccclass, serializable } from 'cc.decorator';
+import { Asset } from '../../core/assets';
 
 /**
  * @en
@@ -38,17 +38,16 @@ import { ccclass, serializable } from 'cc.decorator';
  */
 @ccclass('cc.VideoClip')
 export class VideoClip extends Asset {
-
     @serializable
     protected _duration = 0;
-    protected _video: any = null;
+    protected _video: HTMLVideoElement | null = null;
 
     constructor () {
         super();
         this.loaded = false;
     }
 
-    set _nativeAsset (clip: any) {
+    set _nativeAsset (clip: HTMLVideoElement | null) {
         this._video = clip;
         if (clip) {
             this._duration = clip.duration;
@@ -59,7 +58,7 @@ export class VideoClip extends Asset {
         }
     }
 
-    get _nativeAsset () {
+    get _nativeAsset (): HTMLVideoElement | null {
         return this._video;
     }
 }

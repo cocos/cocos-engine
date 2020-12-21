@@ -23,19 +23,19 @@
  THE SOFTWARE.
  */
 
-import {legacyCC} from '../core/global-exports';
-import {UITransform} from "../2d/framework";
-import {VideoPlayer} from "./video-player";
-import {EventType} from './video-player-enums';
-import {error} from "../core/platform";
+import { legacyCC } from '../core/global-exports';
+import { UITransform } from '../2d/framework';
+import { VideoPlayer } from './video-player';
+import { EventType } from './video-player-enums';
+import { error } from '../core/platform';
 
 export abstract class VideoPlayerImpl {
-    protected _componentEventList: Map<number, Function> = new Map<number, Function>();
+    protected _componentEventList: Map<string, () => void> = new Map();
     protected _state = EventType.NONE;
-    protected _video: any;
+    protected _video: HTMLVideoElement | null = null;
 
-    protected _onHide: Function;
-    protected _onShow: Function;
+    protected _onHide: () => void;
+    protected _onShow: () => void;
     protected _interrupted = false;
 
     protected _loaded = false;
@@ -78,6 +78,7 @@ export abstract class VideoPlayerImpl {
         };
         this._onShow = () => {
             if (!this._interrupted || !this.video) { return; }
+            // eslint-disable-next-line @typescript-eslint/no-floating-promises
             this.video.play();
             this._interrupted = false;
         };
@@ -112,46 +113,50 @@ export abstract class VideoPlayerImpl {
     public abstract syncLoop(enabled: boolean):void
     public abstract syncMatrix(): void;
 
-
     // get video player data
-    public abstract getDuration(): void;
-    public abstract getCurrentTime(): void;
+    public abstract getDuration(): number;
+    public abstract getCurrentTime(): number;
     public get fullScreenOnAwake () { return this._fullScreenOnAwake; }
     public get loaded () { return this._loaded; }
-    public get componentEventList () { return this._componentEventList;}
+    public get componentEventList () { return this._componentEventList; }
     public get video () { return this._video; }
     public get state () { return this._state; }
     get UICanvas () { return this._uiTrans && this._uiTrans._canvas; }
     get UICamera () { return this._uiTrans && this._uiTrans._canvas && this._uiTrans._canvas.camera; }
 
     // video player event
-    public onLoadedMetadata(e) {
+    public onLoadedMetadata (e: Event) {
         this._loadedMeta = true;
         this._forceUpdate = true;
-        this._visible ? this.enable() : this.disable();
+        if (this._visible) {
+            this.enable();
+        } else {
+            this.disable();
+        }
         this.dispatchEvent(EventType.META_LOADED);
-        if (this._keepAspectRatio) {
-            this.syncUITransform(e.target.videoWidth, e.target.videoHeight);
+        const video = e.target as HTMLVideoElement;
+        if (this._keepAspectRatio && video) {
+            this.syncUITransform(video.videoWidth, video.videoHeight);
         }
         this.delayedFullScreen();
         this.delayedPlay();
     }
 
-    public onCanPlay(e) {
+    public onCanPlay (e: Event) {
         this._loaded = true;
         this.dispatchEvent(EventType.READY_TO_PLAY);
     }
 
-    public onPlay(e) {
+    public onPlay (e: Event) {
         this._playing = true;
         this.dispatchEvent(EventType.PLAYING);
     }
 
-    public onPlaying(e) {
+    public onPlaying (e: Event) {
         this.dispatchEvent(EventType.PLAYING);
     }
 
-    public onPause(e) {
+    public onPause (e: Event) {
         if (this._ignorePause) {
             this._ignorePause = false;
             return;
@@ -160,85 +165,86 @@ export abstract class VideoPlayerImpl {
         this.dispatchEvent(EventType.PAUSED);
     }
 
-    public onStoped(e) {
+    public onStoped (e: Event) {
         this._playing = false;
         this._ignorePause = false;
         this.dispatchEvent(EventType.STOPPED);
     }
 
-    public onEnded(e) {
+    public onEnded (e: Event) {
         this.dispatchEvent(EventType.COMPLETED);
     }
 
-    public onClick(e) {
+    public onClick (e: Event) {
         this.dispatchEvent(EventType.CLICKED);
     }
 
-    public onError(e) {
+    public onError (e: Event) {
         this.dispatchEvent(EventType.ERROR);
-        let errorObj = e.target.error;
-        if (errorObj) {
-            error("Error " + errorObj.code + "; details: " + errorObj.message);
+        const video = e.target as HTMLVideoElement;
+        if (video && video.error) {
+            error(`Error ${video.error.code}; details: ${video.error.message}`);
         }
     }
 
     //
-    public play() {
+    public play () {
         if (this._loadedMeta || this._loaded) {
             this.canPlay();
-        }
-        else {
+        } else {
             this._waitingPlay = true;
         }
     }
 
-    public delayedPlay() {
+    public delayedPlay () {
         if (this._waitingPlay) {
             this.canPlay();
             this._waitingPlay = false;
         }
     }
 
-    public syncFullScreenOnAwake(enabled: boolean) {
+    public syncFullScreenOnAwake (enabled: boolean) {
         this._fullScreenOnAwake = enabled;
         if (this._loadedMeta || this._loaded) {
             this.canFullScreen(enabled);
-        }
-        else {
+        } else {
             this._waitingFullscreen = true;
         }
     }
 
-    public delayedFullScreen() {
+    public delayedFullScreen () {
         if (this._waitingFullscreen) {
             this.canFullScreen(this._fullScreenOnAwake);
             this._waitingFullscreen = false;
         }
     }
 
-    protected dispatchEvent(key) {
-        let callback = this._componentEventList.get(key);
+    protected dispatchEvent (key) {
+        const callback = this._componentEventList.get(key);
         if (callback) {
             this._state = key;
             callback.call(this);
         }
     }
 
-    protected syncUITransform(width, height) {
+    protected syncUITransform (width, height) {
         if (this._uiTrans) {
             this._uiTrans.width = width;
-            this._uiTrans.height = height
+            this._uiTrans.height = height;
         }
     }
 
     protected syncCurrentTime () {
+        if (!this.video) {
+            return;
+        }
         if (this._cachedCurrentTime !== -1 && this.video.currentTime !== this._cachedCurrentTime) {
             this.seekTo(this._cachedCurrentTime);
             this._cachedCurrentTime = -1;
         }
     }
 
-    protected destroy() {
+    public destroy () {
         this.removeVideoPlayer();
         this._componentEventList.clear();
         legacyCC.game.off(legacyCC.Game.EVENT_HIDE, this._onHide);

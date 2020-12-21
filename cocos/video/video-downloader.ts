@@ -34,10 +34,11 @@ import { getError, log } from '../core/platform/debug';
 import { sys } from '../core/platform/sys';
 import { VideoClip } from './assets/video-clip';
 
+// eslint-disable-next-line consistent-return
 export function downloadVideo (url: string, options: IDownloadParseOptions, onComplete: CompleteCallback) {
     const __videoSupport = sys.__videoSupport;
     const formatSupport = __videoSupport && __videoSupport.format;
-    
+
     if (!formatSupport || formatSupport.length === 0) {
         return onComplete(new Error(getError(7703)));
     }
@@ -48,16 +49,16 @@ export function downloadVideo (url: string, options: IDownloadParseOptions, onCo
     const req = new XMLHttpRequest();
     req.open('GET', url, true);
     req.responseType = 'blob';
-    req.onload = function () {
+    req.onload = function onload () {
         if (this.status === 200 || this.status === 0) {
             source.src = URL.createObjectURL(this.response);
             onComplete(null, video);
         } else {
-            onComplete(new Error(req.status + '(no response)'));
+            onComplete(new Error(`${req.status}(no response)`));
         }
     };
-    req.onerror = function () {
-        const message = 'load video failure - ' + url;
+    req.onerror = function onerror () {
+        const message = `load video failure - ${url}`;
         log(message);
         onComplete(new Error(message));
     };

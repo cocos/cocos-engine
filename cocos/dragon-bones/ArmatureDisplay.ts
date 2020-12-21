@@ -1,7 +1,7 @@
 import { EDITOR } from 'internal:constants';
 import { ccclass, executeInEditMode, help, menu } from '../core/data/class-decorator';
-import { UIRenderable } from '../2d/framework';
-import { Node, EventTarget, CCClass, Color, Enum, PrivateNode, ccenum, errorID, Texture2D, GFXBlendFactor, js, CCObject } from '../core';
+import { UIRenderable } from '../2d/framework/ui-renderable';
+import { Node, EventTarget, CCClass, Color, Enum, PrivateNode, ccenum, errorID, Texture2D, js, CCObject } from '../core';
 import { displayName, editable, serializable, tooltip, type, visible } from '../core/data/decorators';
 import { AnimationCache, ArmatureCache, ArmatureFrame } from './ArmatureCache';
 import { AttachUtil } from './AttachUtil';
@@ -14,6 +14,7 @@ import { CCArmatureDisplay } from './CCArmatureDisplay';
 import { MeshRenderData } from '../2d/renderer/render-data';
 import { UI } from '../2d/renderer/ui';
 import { MaterialInstance } from '../core/renderer/core/material-instance';
+import { BlendFactor } from '../core/gfx';
 
 enum DefaultArmaturesEnum {
     default = -1,
@@ -289,7 +290,7 @@ export class ArmatureDisplay extends UIRenderable {
         if (this._defaultCacheMode !== AnimationCacheMode.REALTIME) {
             if (this._armature && !ArmatureCache.canCache(this._armature)) {
                 this._defaultCacheMode = AnimationCacheMode.REALTIME;
-                console.warn("Animation cache mode doesn't support skeletal nesting");
+                console.warn('Animation cache mode doesn\'t support skeletal nesting');
                 return;
             }
         }
@@ -519,7 +520,7 @@ export class ArmatureDisplay extends UIRenderable {
         }
     }
 
-    public getMaterialForBlend (src: GFXBlendFactor, dst: GFXBlendFactor): MaterialInstance {
+    public getMaterialForBlend (src: BlendFactor, dst: BlendFactor): MaterialInstance {
         const key = `${src}/${dst}`;
         let inst = this._materialCache[key];
         if (inst) {
@@ -550,7 +551,9 @@ export class ArmatureDisplay extends UIRenderable {
             for (let i = 0; i < this._meshRenderDataArray.length; i++) {
                 this._meshRenderDataArrayIdx = i;
                 const m = this._meshRenderDataArray[i];
-                this.material = m.renderData.material;
+                if (m.renderData.material) {
+                    this.material = m.renderData.material;
+                }
                 if (m.texture) {
                     ui.commitComp(this, m.texture, this._assembler, null);
                 }

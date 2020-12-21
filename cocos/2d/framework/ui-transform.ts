@@ -28,15 +28,15 @@
  * @module ui
  */
 
-import { Component } from '../../core/components/component';
 import { ccclass, help, executeInEditMode, executionOrder, menu, tooltip, displayOrder, serializable, disallowMultiple } from 'cc.decorator';
+import { EDITOR } from 'internal:constants';
+import { Component } from '../../core/components';
 import { SystemEventType } from '../../core/platform/event-manager/event-enum';
 import { EventListener, IListenerMask } from '../../core/platform/event-manager/event-listener';
 import { Mat4, Rect, Size, Vec2, Vec3 } from '../../core/math';
 import { AABB } from '../../core/geometry';
 import { Canvas } from './canvas';
 import { Node } from '../../core/scene-graph';
-import { EDITOR } from 'internal:constants';
 import { legacyCC } from '../../core/global-exports';
 import { warnID } from '../../core/platform/debug';
 
@@ -61,7 +61,6 @@ const _rect = new Rect();
 @disallowMultiple
 @executeInEditMode
 export class UITransform extends Component {
-
     /**
      * @en
      * Size of the UI node.
@@ -93,7 +92,6 @@ export class UITransform extends Component {
         } else {
             this.node.emit(SystemEventType.SIZE_CHANGED);
         }
-
     }
 
     get width () {
@@ -200,11 +198,11 @@ export class UITransform extends Component {
      * 渲染先后顺序，按照广度渲染排列，按同级节点下进行一次排列。
      */
     @tooltip('渲染排序优先级')
-    get priority() {
+    get priority () {
         return this._priority;
     }
 
-    set priority(value) {
+    set priority (value) {
         if (this._priority === value) {
             return;
         }
@@ -215,7 +213,8 @@ export class UITransform extends Component {
         }
 
         this._priority = value;
-        this._sortSiblings();
+        this._checkAndSortSiblings();
+        this.node.parent!._updateSiblingIndex();
     }
 
     @serializable
@@ -246,15 +245,18 @@ export class UITransform extends Component {
         this.node._uiProps.uiTransformComp = this;
     }
 
-    public onEnable(){
+    public onEnable () {
         this._updateVisibility();
 
         this.node.on(SystemEventType.PARENT_CHANGED, this._parentChanged, this);
 
-        this._sortSiblings();
+        const changed = this._checkAndSortSiblings();
+        if (changed) {
+            this.node.parent!._updateSiblingIndex();
+        }
     }
 
-    public onDisable(){
+    public onDisable () {
         this.node.off(SystemEventType.PARENT_CHANGED, this._parentChanged, this);
         this._canvas = null;
     }
@@ -406,7 +408,7 @@ export class UITransform extends Component {
 
         if (testPt.x >= 0 && testPt.y >= 0 && testPt.x <= w && testPt.y <= h) {
             if (listener && listener.mask) {
-                const mask = listener.mask as IListenerMask;
+                const mask = listener.mask;
                 let parent: any = this.node;
                 // find mask parent, should hit test it
                 for (let i = 0; parent && i < mask.index; ++i, parent = parent.parent) {
@@ -414,16 +416,13 @@ export class UITransform extends Component {
                 if (parent === mask.node) {
                     const comp = parent.getComponent(legacyCC.Mask);
                     return (comp && comp.enabledInHierarchy) ? comp.isHit(cameraPt) : true;
-                } else {
-                    listener.mask = null;
-                    return true;
                 }
-            } else {
+                listener.mask = null;
                 return true;
             }
-        } else {
-            return false;
+            return true;
         }
+        return false;
     }
 
     /**
@@ -498,7 +497,8 @@ export class UITransform extends Component {
             -this._anchorPoint.x * width,
             -this._anchorPoint.y * height,
             width,
-            height);
+            height,
+        );
         rect.transformMat4(_matrix);
         return rect;
     }
@@ -522,9 +522,8 @@ export class UITransform extends Component {
         if (this.node.parent) {
             this.node.parent.getWorldMatrix(_worldMatrix);
             return this.getBoundingBoxTo(_worldMatrix);
-        } else {
-            return this.getBoundingBox();
         }
+        return this.getBoundingBox();
     }
 
     /**
@@ -545,7 +544,8 @@ export class UITransform extends Component {
             -this._anchorPoint.x * width,
             -this._anchorPoint.y * height,
             width,
-            height);
+            height,
+        );
 
         Mat4.multiply(_worldMatrix, parentMat, _matrix);
         rect.transformMat4(_worldMatrix);
@@ -585,10 +585,11 @@ export class UITransform extends Component {
             -this._anchorPoint.x * width,
             -this._anchorPoint.y * height,
             width,
-            height);
+            height,
+        );
         _rect.transformMat4(this.node.worldMatrix);
         const px = _rect.x + _rect.width * 0.5;
-        const py = _rect.y + _rect.height * 0.5;;
+        const py = _rect.y + _rect.height * 0.5;
         const pz = this.node.worldPosition.z;
         const w = _rect.width / 2;
         const h = _rect.height / 2;
@@ -600,7 +601,7 @@ export class UITransform extends Component {
         }
     }
 
-    public _updateVisibility() {
+    public _updateVisibility () {
         let parent = this.node;
         // 获取被渲染相机的 visibility
         while (parent) {
@@ -617,16 +618,17 @@ export class UITransform extends Component {
         }
     }
 
-    protected _parentChanged(node: Node) {
+    protected _parentChanged (node: Node) {
         if (this._canvas && this._canvas.node === this.node) {
             return;
         }
 
-        this._sortSiblings();
+        this._checkAndSortSiblings();
     }
 
-    protected _sortSiblings() {
-        const siblings = this.node.parent && this.node.parent.children as Mutable<Node[]>;
+    protected _checkAndSortSiblings () {
+        const siblings = this.node.parent && this.node.parent.children;
+        let changed = false;
         if (siblings) {
             siblings.sort((a, b) => {
                 const aComp = a._uiProps.uiTransformComp;
@@ -635,12 +637,16 @@ export class UITransform extends Component {
                 const cb = bComp ? bComp.priority : 0;
                 const diff = ca - cb;
                 if (diff === 0) {
-                    return a.getSiblingIndex() - b.getSiblingIndex();
+                    const value = a.getSiblingIndex() - b.getSiblingIndex();
+                    changed = value > 0;
+                    return value;
                 }
+
+                changed = diff > 0;
                 return diff;
             });
-
-            this.node.parent!._updateSiblingIndex();
         }
+
+        return changed;
     }
 }
