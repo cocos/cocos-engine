@@ -80,8 +80,8 @@
         },
         "primitive": {
             "default": ["primitive"],
-            "label": "3D Primitive",
-            "description": "3D Primitive"
+            "label": "Primitive",
+            "description": "Primitive"
         },
         "profiler": {
             "default": ["profiler"],
