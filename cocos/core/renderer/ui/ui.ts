@@ -51,6 +51,7 @@ import { EffectAsset, RenderTexture, SpriteFrame } from '../../assets';
 import { programLib } from '../core/program-lib';
 import { TextureBase } from '../../assets/texture-base';
 import { sys } from '../../platform/sys';
+
 const _dsInfo = new DescriptorSetInfo(null!);
 
 /**
@@ -292,9 +293,8 @@ export class UI {
             matRecord!.clear();
         }
 
-        let camera: Camera | null;
         for (let i = idx; i < this._screens.length; i++) {
-            camera = this._screens[i].camera;
+            const camera = this._screens[i].camera;
             if (camera) {
                 const matRecord = this._canvasMaterials.get(camera.view.visibility)!;
                 camera.view.visibility = Layers.BitMask.UI_2D | (i + 1);
@@ -312,11 +312,11 @@ export class UI {
         this._screens.sort(this._screenSort);
     }
 
-    public addUploadBuffersFunc(target: any, func: Function) {
+    public addUploadBuffersFunc (target: any, func: Function) {
         this._doUploadBuffersCall.set(target, func);
     }
 
-    public removeUploadBuffersFunc(target: any) {
+    public removeUploadBuffersFunc (target: any) {
         this._doUploadBuffersCall.delete(target);
     }
 
@@ -382,8 +382,10 @@ export class UI {
                     if (batch.camera) {
                         const viewVisibility = batch.camera.view.visibility;
                         uiModel.visFlags = viewVisibility;
-                        if (this._canvasMaterials.get(viewVisibility)!.get(batch.material!.hash) == null) {
-                            this._canvasMaterials.get(viewVisibility)!.set(batch.material!.hash, 1);
+                        if (this._canvasMaterials.has(viewVisibility)) {
+                            if (!this._canvasMaterials.get(viewVisibility)!.has(batch.material!.hash)) {
+                                this._canvasMaterials.get(viewVisibility)!.set(batch.material!.hash, 1);
+                            }
                         }
                     }
                     this._modelInUse.push(uiModel);
@@ -531,6 +533,7 @@ export class UI {
 
         const uiCanvas = this._currCanvas;
         const curDrawBatch = this._drawBatchPool.alloc();
+        if (!uiCanvas?.camera) { return; }
         curDrawBatch.camera = uiCanvas && uiCanvas.camera;
         curDrawBatch.model = model;
         curDrawBatch.bufferBatch = null;
@@ -592,6 +595,7 @@ export class UI {
         }
 
         const curDrawBatch = this._currStaticRoot ? this._currStaticRoot._requireDrawBatch() : this._drawBatchPool.alloc();
+        if (!uiCanvas?.camera) { return; }
         curDrawBatch.camera = uiCanvas && uiCanvas.camera;
         curDrawBatch.bufferBatch = buffer;
         curDrawBatch.material = mat;

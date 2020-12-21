@@ -95,9 +95,6 @@ export class Canvas extends Component {
 
     set clearFlag (val) {
         this._clearFlag = val;
-        if (this._camera) {
-            this._camera.clearFlag = this._clearFlag;
-        }
 
         if (this._cameraComponent) {
             this._cameraComponent.clearFlags = this._clearFlag;
@@ -118,9 +115,6 @@ export class Canvas extends Component {
 
     set color (val) {
         Color.copy(this._color, val);
-        if (this._camera) {
-            this._camera.clearColor = val;
-        }
 
         if (this._cameraComponent) {
             this._cameraComponent.clearColor = val;
@@ -148,9 +142,6 @@ export class Canvas extends Component {
 
     set renderMode (val) {
         this._renderMode = val;
-        if (this._camera) {
-            this._camera.priority = this._getViewPriority();
-        }
 
         if (this._cameraComponent) {
             this._cameraComponent.priority = this._getViewPriority();
@@ -175,9 +166,6 @@ export class Canvas extends Component {
 
     set priority (val: number) {
         this._priority = val;
-        if (this._camera) {
-            this._camera.priority = this._getViewPriority();
-        }
 
         if (this._cameraComponent) {
             this._cameraComponent.priority = this._getViewPriority();
@@ -213,8 +201,8 @@ export class Canvas extends Component {
     }
 
     get visibility () {
-        if (this._camera) {
-            return this._camera.view.visibility;
+        if (this._cameraComponent) {
+            return this._cameraComponent.visibility;
         }
 
         return -1;
@@ -246,7 +234,7 @@ export class Canvas extends Component {
     }
 
     get camera () {
-        return this._camera;
+        return this._cameraComponent?.camera;
     }
 
     // /**
@@ -274,7 +262,7 @@ export class Canvas extends Component {
     // fit canvas node to design resolution
     protected _fitDesignResolution: (() => void) | undefined;
 
-    protected _camera: scene.Camera | null = null;
+    // protected _camera: scene.Camera | null = null;
 
     private _pos = new Vec3();
 
@@ -320,8 +308,8 @@ export class Canvas extends Component {
             cameraNode.addComponent('cc.Camera');
             this._cameraComponent = cameraNode.getComponent('cc.Camera') as Camera;
             this._cameraComponent.projection = Camera.ProjectionType.ORTHO;
-            this._cameraComponent.priority = this._getViewPriority();
-            this._cameraComponent.flows = ['UIFlow'];
+            // this._cameraComponent.priority = this._getViewPriority();
+            // this._cameraComponent.flows = ['UIFlow'];
             this._cameraComponent.clearFlags = this.clearFlag;
             this._cameraComponent.far = 2000.0;
             this._cameraComponent.rect = new Rect(0, 0, 1, 1);
@@ -344,8 +332,15 @@ export class Canvas extends Component {
             // this._camera.viewport = new Rect(0, 0, 1, 1);
             // this.color = this._color;
 
+            this._cameraComponent.projection = Camera.ProjectionType.ORTHO;
+            this._cameraComponent.priority = this._getViewPriority();
+            this._cameraComponent.flows = ['UIFlow'];
+            this._cameraComponent.clearFlags = this.clearFlag;
+            this._cameraComponent.far = 2000.0;
+            this._cameraComponent.rect = new Rect(0, 0, 1, 1);
+            this._cameraComponent.clearColor = this._color;
+
             this._cameraComponent.onLoad();
-            this._camera = this._cameraComponent.camera;
 
             this._checkTargetTextureEvent(null);
             this._updateTargetTexture();
@@ -367,21 +362,21 @@ export class Canvas extends Component {
     }
 
     public onEnable () {
-        if (this._camera) {
-            legacyCC.director.root!.ui.renderScene.addCamera(this._camera);
+        if (this._cameraComponent) {
+            legacyCC.director.root!.ui.renderScene.addCamera(this._cameraComponent.camera);
         }
     }
 
     public onDisable () {
-        if (this._camera) {
-            legacyCC.director.root!.ui.renderScene.removeCamera(this._camera);
+        if (this._cameraComponent) {
+            legacyCC.director.root!.ui.renderScene.removeCamera(this._cameraComponent.camera);
         }
     }
 
     public onDestroy () {
         legacyCC.director.root!.ui.removeScreen(this);
-        if (this._camera) {
-            legacyCC.director.root!.destroyCamera(this._camera);
+        if (this._cameraComponent) {
+            legacyCC.director.root!.destroyCamera(this._cameraComponent.camera);
         }
 
         if (EDITOR) {
@@ -396,31 +391,41 @@ export class Canvas extends Component {
     }
 
     protected _onResizeCamera () {
-        const camera = this._camera;
-        if (camera) {
-            if (this._targetTexture) {
-                const win = this._targetTexture.window;
-                camera.setFixedSize(win!.width, win!.height);
-                camera.orthoHeight = visibleRect.height / 2;
-            } else {
-                const size = game.canvas!;
-                camera.resize(size.width, size.height);
-                camera.orthoHeight = game.canvas!.height / view.getScaleY() / 2;
-            }
-            camera.update();
-        }
+        // const camera = this._camera;
+        // if (camera) {
+        //     if (this._targetTexture) {
+        //         const win = this._targetTexture.window;
+        //         camera.setFixedSize(win!.width, win!.height);
+        //         camera.orthoHeight = visibleRect.height / 2;
+        //     } else {
+        //         const size = game.canvas!;
+        //         camera.resize(size.width, size.height);
+        //         camera.orthoHeight = game.canvas!.height / view.getScaleY() / 2;
+        //     }
+        //     camera.update();
+        // }
 
         if (this._cameraComponent) {
+            if (this._targetTexture) {
+                const win = this._targetTexture.window;
+                this._cameraComponent.camera.setFixedSize(win!.width, win!.height);
+                this._cameraComponent.orthoHeight = visibleRect.height / 2;
+            } else {
+                const size = game.canvas!;
+                this._cameraComponent.camera.resize(size.width, size.height);
+                this._cameraComponent.orthoHeight = game.canvas!.height / view.getScaleY() / 2;
+            }
+
             this.node.getWorldPosition(_worldPos);
             this._cameraComponent.node.setWorldPosition(_worldPos.x, _worldPos.y, 1000);
-            this._cameraComponent.orthoHeight = game.canvas!.height / view.getScaleY() / 2;
+            // this._cameraComponent.orthoHeight = game.canvas!.height / view.getScaleY() / 2;
         }
     }
 
     protected _checkTargetTextureEvent (old: RenderTexture | null) {
         const resizeFunc = (win: RenderWindow) => {
-            if (this._camera) {
-                this._camera.setFixedSize(win.width, win.height);
+            if (this._cameraComponent) {
+                this._cameraComponent.camera.setFixedSize(win.width, win.height);
             }
         };
 
@@ -434,28 +439,20 @@ export class Canvas extends Component {
     }
 
     protected _updateTargetTexture () {
-        if (!this._camera) {
+        if (!this._cameraComponent) {
             return;
         }
 
-        const camera = this._camera;
+        const cameraComponent = this._cameraComponent;
         if (!this._targetTexture) {
-            camera.changeTargetWindow();
-            camera.orthoHeight = game.canvas!.height / view.getScaleY() / 2;
-            camera.isWindowSize = true;
+            cameraComponent.camera.changeTargetWindow();
+            cameraComponent.orthoHeight = game.canvas!.height / view.getScaleY() / 2;
+            cameraComponent.camera.isWindowSize = true;
         } else {
             const win = this._targetTexture.window;
-            camera.changeTargetWindow(win);
-            camera.orthoHeight = visibleRect.height / 2;
-            camera.isWindowSize = false;
-        }
-
-        if (this._cameraComponent) {
-            if (!this._targetTexture) {
-                this._cameraComponent.orthoHeight = game.canvas!.height / view.getScaleY() / 2;
-            } else {
-                this._cameraComponent.orthoHeight = visibleRect.height / 2;
-            }
+            cameraComponent.camera.changeTargetWindow(win);
+            cameraComponent.orthoHeight = visibleRect.height / 2;
+            cameraComponent.camera.isWindowSize = false;
         }
     }
 
