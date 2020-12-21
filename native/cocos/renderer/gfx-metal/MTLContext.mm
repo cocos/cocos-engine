@@ -54,9 +54,12 @@ CCMTLContext::CCMTLContext(Device *device)
 bool CCMTLContext::initialize(const ContextInfo &info) {
     _vsyncMode = info.vsyncMode;
     _windowHandle = info.windowHandle;
-    CAMetalLayer *layer = (CAMetalLayer *)((CCMTLDevice *)_device)->getMTLLayer();
+    
+    CCMTLDevice *device = (CCMTLDevice *)_device;
+    CAMetalLayer *layer = (CAMetalLayer *)device->getMTLLayer();
     _colorFmt = toFormat(layer.pixelFormat);
-    _depthStencilFmt = toFormat(MTLPixelFormatDepth24Unorm_Stencil8);
+    id<MTLTexture> dssTex = (id<MTLTexture>)device->getDSSTexture();
+    _depthStencilFmt = toFormat(dssTex.pixelFormat);
 
     return true;
 }
