@@ -314,7 +314,7 @@ export class Canvas extends Component {
         }
 
         if (!EDITOR) {
-            if (!this._cameraComponent.camera) { this._cameraComponent.onLoad(); }
+            if (!this._cameraComponent.camera) { this._cameraComponent.createCamera(); }
 
             this._checkTargetTextureEvent(null);
             this._updateTargetTexture();
@@ -341,7 +341,7 @@ export class Canvas extends Component {
             if (camera) {
                 legacyCC.director.root!.ui.renderScene.addCamera(camera);
             } else {
-                this._cameraComponent.onLoad();
+                this._cameraComponent.createCamera();
                 legacyCC.director.root!.ui.renderScene.addCamera(this._cameraComponent.camera);
             }
         }
