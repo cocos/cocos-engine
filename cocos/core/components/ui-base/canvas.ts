@@ -361,7 +361,7 @@ export class Canvas extends Component {
         if (this._cameraComponent) {
             const camera = this._cameraComponent.camera;
             if (camera) {
-                legacyCC.director.root!.destroyCamera(this._cameraComponent.camera);
+                legacyCC.director.root!.destroyCamera(camera);
             }
         }
 
@@ -378,6 +378,9 @@ export class Canvas extends Component {
 
     protected _onResizeCamera () {
         if (this._cameraComponent && this._alignCanvasWithScreen) {
+            const camera = this._cameraComponent.camera;
+            if (!camera) { return; }
+
             if (this._targetTexture) {
                 const win = this._targetTexture.window;
                 this._cameraComponent.camera.setFixedSize(win!.width, win!.height);
@@ -414,6 +417,9 @@ export class Canvas extends Component {
         }
 
         const cameraComponent = this._cameraComponent;
+        const camera = cameraComponent.camera;
+        if (!camera) { return; }
+
         if (!this._targetTexture) {
             cameraComponent.camera.changeTargetWindow();
             cameraComponent.orthoHeight = game.canvas!.height / view.getScaleY() / 2;
