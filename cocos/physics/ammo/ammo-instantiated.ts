@@ -88,10 +88,4 @@ export namespace waitForAmmoInstantiation {
      * True if the `'@cocos/ammo'` is the WebAssembly edition.
      */
     export const isWasm = (AmmoJs as any).isWasm;
-
-    /**
-     * The url to the WebAssembly binary.
-     * Either can be absolute or relative, depends on build options.
-     */
-    export const wasmBinaryURL = (AmmoJs as any).wasmBinaryURL;
 }
