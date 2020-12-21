@@ -314,7 +314,7 @@ export class Canvas extends Component {
         }
 
         if (!EDITOR) {
-            this._cameraComponent.onLoad();
+            if (!this._cameraComponent.camera) { this._cameraComponent.onLoad(); }
 
             this._checkTargetTextureEvent(null);
             this._updateTargetTexture();
