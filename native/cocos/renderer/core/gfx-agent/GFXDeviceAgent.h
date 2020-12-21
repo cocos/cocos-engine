@@ -29,7 +29,7 @@ public:
     virtual void acquire() override;
     virtual void present() override;
 
-    virtual CommandBuffer *createCommandBuffer() override;
+    virtual CommandBuffer *doCreateCommandBuffer(const CommandBufferInfo &info, bool hasAgent) override;
     virtual Fence *createFence() override;
     virtual Queue *createQueue() override;
     virtual Buffer *createBuffer() override;

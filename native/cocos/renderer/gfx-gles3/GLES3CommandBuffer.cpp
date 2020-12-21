@@ -80,7 +80,7 @@ void GLES3CommandBuffer::destroy() {
 }
 
 void GLES3CommandBuffer::begin(RenderPass *renderPass, uint subpass, Framebuffer *frameBuffer, int submitIndex) {
-    _gles3Allocator->clearCmds(_cmdPackage);
+    _cmdAllocator->clearCmds(_curCmdPackage);
     _curGPUPipelineState = nullptr;
     _curGPUInputAssember = nullptr;
     _curGPUDescriptorSets.assign(_curGPUDescriptorSets.size(), nullptr);
@@ -144,7 +144,7 @@ void GLES3CommandBuffer::bindDescriptorSet(uint set, DescriptorSet *descriptorSe
         _isStateInvalid = true;
     }
     if (dynamicOffsetCount) {
-        _curDynamicOffsets[set] = dynamicOffsets;
+        _curDynamicOffsets[set].assign(dynamicOffsets, dynamicOffsets + dynamicOffsetCount);
         _isStateInvalid = true;
     }
 }
@@ -311,8 +311,8 @@ void GLES3CommandBuffer::copyBuffersToTexture(const uint8_t *const *buffers, Tex
             cmd->count = count;
             cmd->buffers = buffers;
 
-            _cmdPackage->copyBufferToTextureCmds.push(cmd);
-            _cmdPackage->cmds.push(GFXCmdType::COPY_BUFFER_TO_TEXTURE);
+            _curCmdPackage->copyBufferToTextureCmds.push(cmd);
+            _curCmdPackage->cmds.push(GFXCmdType::COPY_BUFFER_TO_TEXTURE);
         }
     } else {
         CC_LOG_ERROR("Command 'copyBuffersToTexture' must be recorded outside a render pass.");
@@ -365,7 +365,15 @@ void GLES3CommandBuffer::BindStates() {
     cmd->gpuPipelineState = _curGPUPipelineState;
     cmd->gpuInputAssembler = _curGPUInputAssember;
     cmd->gpuDescriptorSets = _curGPUDescriptorSets;
-    cmd->dynamicOffsets = _curDynamicOffsets;
+
+    vector<uint> &dynamicOffsetOffsets = _curGPUPipelineState->gpuPipelineLayout->dynamicOffsetOffsets;
+    vector<uint> &dynamicOffsets = _curGPUPipelineState->gpuPipelineLayout->dynamicOffsets;
+    cmd->dynamicOffsets.resize(_curGPUPipelineState->gpuPipelineLayout->dynamicOffsetCount);
+    for (size_t i = 0u; i < _curDynamicOffsets.size(); i++) {
+        uint count = dynamicOffsetOffsets[i + 1] - dynamicOffsetOffsets[i];
+        memcpy(&cmd->dynamicOffsets[dynamicOffsetOffsets[i]], _curDynamicOffsets[i].data(), count * sizeof(uint));
+    }
+
     cmd->viewport = _curViewport;
     cmd->scissor = _curScissor;
     cmd->lineWidth = _curLineWidth;

@@ -104,7 +104,7 @@ public:
     GLES3GPUPipelineState *gpuPipelineState = nullptr;
     GLES3GPUInputAssembler *gpuInputAssembler = nullptr;
     vector<GLES3GPUDescriptorSet *> gpuDescriptorSets;
-    vector<const uint *> dynamicOffsets;
+    vector<uint> dynamicOffsets;
     Viewport viewport;
     Rect scissor;
     float lineWidth = 1.0f;
@@ -231,7 +231,7 @@ CC_GLES3_API void GLES3CmdFuncBeginRenderPass(GLES3Device *device, GLES3GPURende
                                               const Rect &renderArea, size_t numClearColors, const Color *clearColors, float clearDepth, int clearStencil);
 CC_GLES3_API void GLES3CmdFuncEndRenderPass(GLES3Device *device);
 CC_GLES3_API void GLES3CmdFuncBindState(GLES3Device *device, GLES3GPUPipelineState *gpuPipelineState, GLES3GPUInputAssembler *gpuInputAssembler,
-                                        vector<GLES3GPUDescriptorSet *> &gpuDescriptorSets, vector<const uint *> &dynamicOffsets,
+                                        vector<GLES3GPUDescriptorSet *> &gpuDescriptorSets, vector<uint> &dynamicOffsets,
                                         Viewport &viewport, Rect &scissor, float lineWidth, bool depthBiasEnabled, GLES3DepthBias &depthBias, Color &blendConstants,
                                         GLES3DepthBounds &depthBounds, GLES3StencilWriteMask &stencilWriteMask, GLES3StencilCompareMask &stencilCompareMask);
 CC_GLES3_API void GLES3CmdFuncDraw(GLES3Device *device, DrawInfo &drawInfo);

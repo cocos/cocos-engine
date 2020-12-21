@@ -39,7 +39,13 @@ void GLES2PrimaryCommandBuffer::draw(InputAssembler *ia) {
         (_type == CommandBufferType::SECONDARY)) {
 
         if (_isStateInvalid) {
-            GLES2CmdFuncBindState((GLES2Device *)_device, _curGPUPipelineState, _curGPUInputAssember, _curGPUDescriptorSets, _curDynamicOffsets,
+            vector<uint> &dynamicOffsetOffsets = _curGPUPipelineState->gpuPipelineLayout->dynamicOffsetOffsets;
+            vector<uint> &dynamicOffsets = _curGPUPipelineState->gpuPipelineLayout->dynamicOffsets;
+            for (size_t i = 0u; i < _curDynamicOffsets.size(); i++) {
+                uint count = dynamicOffsetOffsets[i + 1] - dynamicOffsetOffsets[i];
+                memcpy(&dynamicOffsets[dynamicOffsetOffsets[i]], _curDynamicOffsets[i].data(), count * sizeof(uint));
+            }
+            GLES2CmdFuncBindState((GLES2Device *)_device, _curGPUPipelineState, _curGPUInputAssember, _curGPUDescriptorSets, dynamicOffsets,
                                   _curViewport, _curScissor, _curLineWidth, false, _curDepthBias, _curBlendConstants, _curDepthBounds, _curStencilWriteMask, _curStencilCompareMask);
 
             _isStateInvalid = false;
@@ -100,11 +106,16 @@ void GLES2PrimaryCommandBuffer::copyBuffersToTexture(const uint8_t *const *buffe
 void GLES2PrimaryCommandBuffer::execute(const CommandBuffer *const *cmdBuffs, uint32_t count) {
     for (uint i = 0; i < count; ++i) {
         GLES2PrimaryCommandBuffer *cmdBuff = (GLES2PrimaryCommandBuffer *)cmdBuffs[i];
-        GLES2CmdFuncExecuteCmds((GLES2Device *)_device, cmdBuff->_cmdPackage);
+        GLES2CmdPackage *cmdPackage = cmdBuff->_pendingPackages.front();
 
-        _numDrawCalls += cmdBuff->getNumDrawCalls();
-        _numInstances += cmdBuff->getNumInstances();
-        _numTriangles += cmdBuff->getNumTris();
+        GLES2CmdFuncExecuteCmds((GLES2Device *)_device, cmdPackage);
+
+        _numDrawCalls += cmdBuff->_numDrawCalls;
+        _numInstances += cmdBuff->_numInstances;
+        _numTriangles += cmdBuff->_numTriangles;
+
+        cmdBuff->_pendingPackages.pop();
+        cmdBuff->_freePackages.push(cmdPackage);
     }
 }
 

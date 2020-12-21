@@ -22,6 +22,7 @@ void CommandBufferAgent::initEncoder() {
 }
 
 void CommandBufferAgent::destroyEncoder() {
+    ((DeviceAgent *)_device)->getMainEncoder()->KickAndWait();
     CC_SAFE_DELETE(_encoder);
 }
 

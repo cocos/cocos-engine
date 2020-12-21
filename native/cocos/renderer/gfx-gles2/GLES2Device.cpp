@@ -245,8 +245,9 @@ void GLES2Device::bindDeviceContext(bool bound) {
     }
 }
 
-CommandBuffer *GLES2Device::createCommandBuffer() {
-    return CC_NEW(GLES2PrimaryCommandBuffer(this));
+CommandBuffer *GLES2Device::doCreateCommandBuffer(const CommandBufferInfo &info, bool hasAgent) {
+    if (hasAgent || info.type == CommandBufferType::PRIMARY) return CC_NEW(GLES2PrimaryCommandBuffer(this));
+    return CC_NEW(GLES2CommandBuffer(this));
 }
 
 Fence *GLES2Device::createFence() {

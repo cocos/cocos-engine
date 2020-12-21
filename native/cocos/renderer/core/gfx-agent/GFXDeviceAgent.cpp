@@ -162,8 +162,8 @@ void DeviceAgent::setMultithreaded(bool multithreaded) {
     }
 }
 
-CommandBuffer *DeviceAgent::createCommandBuffer() {
-    CommandBuffer *actor = _actor->createCommandBuffer();
+CommandBuffer *DeviceAgent::doCreateCommandBuffer(const CommandBufferInfo &info, bool hasAgent) {
+    CommandBuffer *actor = _actor->doCreateCommandBuffer(info, true);
     CommandBufferAgent *agent = CC_NEW(CommandBufferAgent(actor, this));
     return agent;
 }

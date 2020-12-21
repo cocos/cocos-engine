@@ -74,7 +74,21 @@ public:
     virtual void resize(uint width, uint height) override;
     virtual void acquire() override;
     virtual void present() override;
-    virtual CommandBuffer *createCommandBuffer() override;
+
+    CC_INLINE void *getMTLCommandQueue() const { return _mtlCommandQueue; }
+    CC_INLINE void *getMTLLayer() const { return _mtlLayer; }
+    CC_INLINE void *getMTLDevice() const { return _mtlDevice; }
+    CC_INLINE uint getMaximumSamplerUnits() const { return _maxSamplerUnits; }
+    CC_INLINE uint getMaximumColorRenderTargets() const { return _maxColorRenderTargets; }
+    CC_INLINE uint getMaximumBufferBindingIndex() const { return _maxBufferBindingIndex; }
+    CC_INLINE bool isIndirectCommandBufferSupported() const { return _icbSuppored; }
+    CC_INLINE bool isIndirectDrawSupported() const { return _indirectDrawSupported; }
+    CC_INLINE CCMTLGPUStagingBufferPool *gpuStagingBufferPool() const { return _gpuStagingBufferPools[_currentFrameIndex]; }
+    CC_INLINE bool isSamplerDescriptorCompareFunctionSupported() const { return _isSamplerDescriptorCompareFunctionSupported; }
+    CC_INLINE void *getDSSTexture() const { return _dssTex; }
+
+protected:
+    virtual CommandBuffer *doCreateCommandBuffer(const CommandBufferInfo &info, bool hasAgent) override;
     virtual Fence *createFence() override;
     virtual Queue *createQueue() override;
     virtual Buffer *createBuffer() override;
@@ -90,18 +104,6 @@ public:
     virtual PipelineState *createPipelineState() override;
     virtual void copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint count) override;
     virtual void blitBuffer(void *srcBuffer, uint offset, uint size, void *dstBuffer);
-
-    CC_INLINE void *getMTLCommandQueue() const { return _mtlCommandQueue; }
-    CC_INLINE void *getMTLLayer() const { return _mtlLayer; }
-    CC_INLINE void *getMTLDevice() const { return _mtlDevice; }
-    CC_INLINE uint getMaximumSamplerUnits() const { return _maxSamplerUnits; }
-    CC_INLINE uint getMaximumColorRenderTargets() const { return _maxColorRenderTargets; }
-    CC_INLINE uint getMaximumBufferBindingIndex() const { return _maxBufferBindingIndex; }
-    CC_INLINE bool isIndirectCommandBufferSupported() const { return _icbSuppored; }
-    CC_INLINE bool isIndirectDrawSupported() const { return _indirectDrawSupported; }
-    CC_INLINE CCMTLGPUStagingBufferPool *gpuStagingBufferPool() const { return _gpuStagingBufferPools[_currentFrameIndex]; }
-    CC_INLINE bool isSamplerDescriptorCompareFunctionSupported() const { return _isSamplerDescriptorCompareFunctionSupported; }
-    CC_INLINE void *getDSSTexture() const { return _dssTex; }
 
 private:
     void onMemoryWarning();

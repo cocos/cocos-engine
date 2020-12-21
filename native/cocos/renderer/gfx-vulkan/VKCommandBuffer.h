@@ -88,6 +88,7 @@ private:
     CCVKStencilCompareMask _curStencilCompareMask;
     
     vector<VkCommandBuffer> _vkCommandBuffers;
+    queue<VkCommandBuffer> _pendingQueue;
 };
 
 } // namespace gfx

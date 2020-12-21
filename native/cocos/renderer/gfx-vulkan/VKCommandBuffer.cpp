@@ -121,7 +121,8 @@ void CCVKCommandBuffer::end() {
     _curViewport.width = _curViewport.height = _curScissor.width = _curScissor.height = 0u;
     VK_CHECK(vkEndCommandBuffer(_gpuCommandBuffer->vkCommandBuffer));
     _gpuCommandBuffer->began = false;
-    
+
+    _pendingQueue.push(_gpuCommandBuffer->vkCommandBuffer);
     ((CCVKDevice *)_device)->gpuDevice()->getCommandBufferPool(std::this_thread::get_id())->yield(_gpuCommandBuffer);
 }
 
@@ -409,13 +410,13 @@ void CCVKCommandBuffer::execute(const CommandBuffer *const *cmdBuffs, uint count
     uint validCount = 0u;
     for (uint i = 0u; i < count; ++i) {
         CCVKCommandBuffer *cmdBuff = (CCVKCommandBuffer *)cmdBuffs[i];
-        if (cmdBuff->_gpuCommandBuffer->vkCommandBuffer) {
-            _vkCommandBuffers[validCount++] = cmdBuff->_gpuCommandBuffer->vkCommandBuffer;
+        if (!cmdBuff->_pendingQueue.empty()) {
+            _vkCommandBuffers[validCount++] = cmdBuff->_pendingQueue.front();
+            cmdBuff->_pendingQueue.pop();
 
-            _numDrawCalls += cmdBuff->getNumDrawCalls();
-            _numInstances += cmdBuff->getNumInstances();
-            _numTriangles += cmdBuff->getNumTris();
-            cmdBuff->_gpuCommandBuffer->vkCommandBuffer = VK_NULL_HANDLE;
+            _numDrawCalls += cmdBuff->_numDrawCalls;
+            _numInstances += cmdBuff->_numInstances;
+            _numTriangles += cmdBuff->_numTriangles;
         }
     }
     if (validCount) {

@@ -55,7 +55,7 @@ bool GLES2PipelineLayout::initialize(const PipelineLayoutInfo &info) {
 
         for (uint j = 0u; j < dynamicCount; j++) {
             uint binding = gpuSetLayout->dynamicBindings[j];
-            if (indices[binding] < 0) indices[binding] = j;
+            if (indices[binding] < 0) indices[binding] = offset + j;
         }
         _gpuPipelineLayout->dynamicOffsetOffsets.push_back(offset);
         _gpuPipelineLayout->setLayouts.push_back(gpuSetLayout);

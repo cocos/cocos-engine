@@ -4,6 +4,9 @@
 #include "../gfx/GFXCommandBuffer.h"
 
 namespace cc {
+
+class CommandEncoder;
+
 namespace gfx {
 
 class CC_DLL CommandBufferAgent final : public Agent<CommandBuffer> {

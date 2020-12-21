@@ -34,23 +34,7 @@ public:
     virtual void acquire() = 0;
     virtual void present() = 0;
 
-    virtual CommandBuffer *createCommandBuffer() = 0;
-    virtual Fence *createFence() = 0;
-    virtual Queue *createQueue() = 0;
-    virtual Buffer *createBuffer() = 0;
-    virtual Texture *createTexture() = 0;
-    virtual Sampler *createSampler() = 0;
-    virtual Shader *createShader() = 0;
-    virtual InputAssembler *createInputAssembler() = 0;
-    virtual RenderPass *createRenderPass() = 0;
-    virtual Framebuffer *createFramebuffer() = 0;
-    virtual DescriptorSet *createDescriptorSet() = 0;
-    virtual DescriptorSetLayout *createDescriptorSetLayout() = 0;
-    virtual PipelineLayout *createPipelineLayout() = 0;
-    virtual PipelineState *createPipelineState() = 0;
-    virtual void copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint count) = 0;
-
-    CC_INLINE CommandBuffer *createCommandBuffer(const CommandBufferInfo &info) { CommandBuffer *res = createCommandBuffer(); res->initialize(info); return res; }
+    CC_INLINE CommandBuffer *createCommandBuffer(const CommandBufferInfo &info) { CommandBuffer *res = doCreateCommandBuffer(info, false); res->initialize(info); return res; }
     CC_INLINE Fence *createFence(const FenceInfo &info) { Fence *res = createFence(); res->initialize(info); return res; }
     CC_INLINE Queue *createQueue(const QueueInfo &info) { Queue *res = createQueue(); res->initialize(info); return res; }
     CC_INLINE Buffer *createBuffer(const BufferInfo &info) { Buffer *res = createBuffer(); res->initialize(info); return res; }
@@ -111,6 +95,22 @@ public:
 
 protected:
     friend class DeviceAgent;
+
+    virtual CommandBuffer *doCreateCommandBuffer(const CommandBufferInfo &info, bool hasAgent) = 0;
+    virtual Fence *createFence() = 0;
+    virtual Queue *createQueue() = 0;
+    virtual Buffer *createBuffer() = 0;
+    virtual Texture *createTexture() = 0;
+    virtual Sampler *createSampler() = 0;
+    virtual Shader *createShader() = 0;
+    virtual InputAssembler *createInputAssembler() = 0;
+    virtual RenderPass *createRenderPass() = 0;
+    virtual Framebuffer *createFramebuffer() = 0;
+    virtual DescriptorSet *createDescriptorSet() = 0;
+    virtual DescriptorSetLayout *createDescriptorSetLayout() = 0;
+    virtual PipelineLayout *createPipelineLayout() = 0;
+    virtual PipelineState *createPipelineState() = 0;
+    virtual void copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint count) = 0;
 
     virtual void bindRenderContext(bool bound) {}
     virtual void bindDeviceContext(bool bound) {}

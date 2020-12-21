@@ -25,7 +25,6 @@ THE SOFTWARE.
 
 #include "GLES3Buffer.h"
 #include "GLES3CommandBuffer.h"
-#include "GLES3PrimaryCommandBuffer.h"
 #include "GLES3Context.h"
 #include "GLES3DescriptorSet.h"
 #include "GLES3DescriptorSetLayout.h"
@@ -190,7 +189,6 @@ void GLES3Device::resize(uint width, uint height) {
 }
 
 void GLES3Device::acquire() {
-    _gpuCmdAllocator->releaseCmds();
     _gpuStagingBufferPool->reset();
 }
 
@@ -237,8 +235,9 @@ void GLES3Device::bindDeviceContext(bool bound) {
     }
 }
 
-CommandBuffer *GLES3Device::createCommandBuffer() {
-    return CC_NEW(GLES3PrimaryCommandBuffer(this));
+CommandBuffer *GLES3Device::doCreateCommandBuffer(const CommandBufferInfo &info, bool hasAgent) {
+    if (hasAgent || info.type == CommandBufferType::PRIMARY) return CC_NEW(GLES3PrimaryCommandBuffer(this));
+    return CC_NEW(GLES3CommandBuffer(this));
 }
 
 Fence *GLES3Device::createFence() {

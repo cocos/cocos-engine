@@ -1,10 +1,10 @@
 #include "CoreStd.h"
 
-#include "job-system/JobSystem.h"
-#include "threading/CommandEncoder.h"
 #include "GFXCommandBufferAgent.h"
 #include "GFXDeviceAgent.h"
 #include "GFXQueueAgent.h"
+#include "job-system/JobSystem.h"
+#include "threading/CommandEncoder.h"
 
 namespace cc {
 namespace gfx {
@@ -59,7 +59,7 @@ void QueueAgent::submit(const CommandBuffer *const *cmdBuffs, uint count, Fence 
         count, count,
         fence, fence,
         {
-//            auto startTime = std::chrono::steady_clock::now();
+            //auto startTime = std::chrono::steady_clock::now();
             if (count > 1) {
                 if (multiThreaded) {
                     JobGraph g(JobSystem::getInstance());
@@ -77,9 +77,9 @@ void QueueAgent::submit(const CommandBuffer *const *cmdBuffs, uint count, Fence 
             } else {
                 ((CommandBufferAgent *)cmdBuffs[0])->getEncoder()->FlushCommands();
             }
-//            CC_LOG_INFO("======== one round ========");
-//            auto endTime = std::chrono::steady_clock::now();
-//            CC_LOG_INFO("---------- %.2fms", std::chrono::duration_cast<std::chrono::nanoseconds>(endTime - startTime).count() / 1e6);
+            //CC_LOG_INFO("======== one round ========");
+            //auto endTime = std::chrono::steady_clock::now();
+            //CC_LOG_INFO("---------- %.2fms", std::chrono::duration_cast<std::chrono::nanoseconds>(endTime - startTime).count() / 1e6);
 
             actor->submit(actorCmdBuffs, count, fence);
         });

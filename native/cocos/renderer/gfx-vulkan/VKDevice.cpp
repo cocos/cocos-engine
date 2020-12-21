@@ -531,7 +531,7 @@ CCVKGPURecycleBin *CCVKDevice::gpuRecycleBin() { return _gpuRecycleBins[_gpuSwap
 CCVKGPUStagingBufferPool *CCVKDevice::gpuStagingBufferPool() { return _gpuStagingBufferPools[_gpuSwapchain->curImageIndex]; }
 CCVKGPUFencePool *CCVKDevice::gpuFencePool() { return _gpuFencePools[_gpuSwapchain->curImageIndex]; }
 
-CommandBuffer *CCVKDevice::createCommandBuffer() {
+CommandBuffer *CCVKDevice::doCreateCommandBuffer(const CommandBufferInfo &info, bool hasAgent) {
     return CC_NEW(CCVKCommandBuffer(this));
 }
 
