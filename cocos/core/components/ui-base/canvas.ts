@@ -378,16 +378,17 @@ export class Canvas extends Component {
 
     protected _onResizeCamera () {
         if (this._cameraComponent) {
-            if (this._targetTexture) {
-                const win = this._targetTexture.window;
-                this._cameraComponent.camera.setFixedSize(win!.width, win!.height);
-                this._cameraComponent.orthoHeight = visibleRect.height / 2;
-            } else {
-                const size = game.canvas!;
-                this._cameraComponent.camera.resize(size.width, size.height);
-                this._cameraComponent.orthoHeight = game.canvas!.height / view.getScaleY() / 2;
+            if (this._alignCanvasWithScreen) {
+                if (this._targetTexture) {
+                    const win = this._targetTexture.window;
+                    this._cameraComponent.camera.setFixedSize(win!.width, win!.height);
+                    this._cameraComponent.orthoHeight = visibleRect.height / 2;
+                } else {
+                    const size = game.canvas!;
+                    this._cameraComponent.camera.resize(size.width, size.height);
+                    this._cameraComponent.orthoHeight = game.canvas!.height / view.getScaleY() / 2;
+                }
             }
-
             this.node.getWorldPosition(_worldPos);
             this._cameraComponent.node.setWorldPosition(_worldPos.x, _worldPos.y, 1000);
         }
