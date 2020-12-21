@@ -395,8 +395,8 @@ export class Node extends BaseNode {
         if (!dontSyncChildPrefab && this._prefabInstance) {
             createNodeWithPrefab(this);
 
-            if (this._prefabInstance.addedChildren) {
-                // @ts-ignore
+            if (this._prefabInstance && this._prefabInstance.addedChildren) {
+                // @ts-expect-error member access
                 this._children = this._children.concat(this._prefabInstance.addedChildren);
             }
         }
@@ -690,7 +690,7 @@ export class Node extends BaseNode {
     }
 
     /**
-     * @en Set rotation in local coordinate system with a vector representing euler angles 
+     * @en Set rotation in local coordinate system with a vector representing euler angles
      * @zh 用欧拉角设置本地旋转
      * @param rotation Rotation in vector
      */
@@ -715,7 +715,7 @@ export class Node extends BaseNode {
             Vec3.set(this._euler, val as number, y, z);
             Quat.fromEuler(this._lrot, val as number, y, z);
         }
-        
+
         this._eulerDirty = false;
 
         this.invalidateChildren(TransformBit.ROTATION);
