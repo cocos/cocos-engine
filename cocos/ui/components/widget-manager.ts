@@ -344,9 +344,8 @@ export const widgetManager = legacyCC._widgetManager = {
     init () {
         director.on(Director.EVENT_AFTER_UPDATE, refreshScene);
 
-        if (DEV) {
-            View.instance.on('design-resolution-changed', this.onResized, this);
-        } else {
+        View.instance.on('design-resolution-changed', this.onResized, this);
+        if (!EDITOR) {
             const thisOnResized = this.onResized.bind(this);
             View.instance.on('canvas-resize', thisOnResized);
             window.addEventListener('orientationchange', thisOnResized);
