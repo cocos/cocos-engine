@@ -37,7 +37,7 @@ public:
 
     CC_INLINE void begin() { begin(nullptr, 0, nullptr, -1); }
     CC_INLINE void begin(int submitIndex) { begin(nullptr, 0, nullptr, submitIndex); }
-    // secondary command buffer specific
+    // secondary command buffer specifics
     CC_INLINE void begin(RenderPass *renderPass) { begin(renderPass, 0, nullptr, -1); }
     CC_INLINE void begin(RenderPass *renderPass, uint subpass) { begin(renderPass, subpass, nullptr, -1); }
     CC_INLINE void begin(RenderPass *renderPass, uint subpass, Framebuffer *frameBuffer) { begin(renderPass, subpass, frameBuffer, -1); }

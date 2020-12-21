@@ -6,8 +6,7 @@
 
 namespace cc {
 
-// 由于系统的内存分配是从一个全局堆里申请 分配过程会上锁导致降低并行度 在多线程的环境下如果频繁的申请释放内存会降低性能
-// 所以这里先加个接口来统一调用 未来会换成单独服务于线程的无锁分配器
+// TODO: thread-specific allocators
 template <typename T>
 inline T *memoryAllocateForMultiThread(uint32_t const count) noexcept {
     return static_cast<T *>(malloc(sizeof(T) * count));
@@ -59,9 +58,8 @@ struct alignas(64) ReaderContext final {
     bool mFlushingFinished{false};
 };
 
-// 支持单生产者单消费者的环形缓冲区
-// 生产者线程Allocate 消费者线程execute
-// 除了Command之外 执行Command需要的数据也需要拷贝到这里 来实现线程安全的数据访问
+// A single-producer single-consumer circular buffer queue.
+// Both the commands and their submitting data should be allocated from here.
 class alignas(64) CommandEncoder final {
 public:
     CommandEncoder();
@@ -71,12 +69,12 @@ public:
     CommandEncoder &operator=(CommandEncoder const &) = delete;
     CommandEncoder &operator=(CommandEncoder &&) = delete;
 
-    // 分配Command
+    // command allocation
     template <typename T>
     std::enable_if_t<std::is_base_of<Command, T>::value, T *>
     allocate(uint32_t const count) noexcept;
 
-    // 分配数据
+    // general-purpose allocation
     template <typename T>
     std::enable_if_t<!std::is_base_of<Command, T>::value, T *>
     allocate(uint32_t const count) noexcept;
@@ -85,13 +83,12 @@ public:
     template <typename T>
     T *allocateAndZero(uint32_t const count) noexcept;
 
-    // 通知消费者线程开始工作
+    // notify the consumer to start working
     void kick() noexcept;
 
-    // 通知消费者线程开始工作并阻塞生产者线程 直到消费者线程执行完所有命令
+    // notify the consumer to start working and block the producer until finished
     void kickAndWait() noexcept;
 
-    // 只支持单消费者
     void runConsumerThread() noexcept;
     void terminateConsumerThread() noexcept;
     void finishWriting(bool wait) noexcept;
@@ -135,7 +132,7 @@ private:
     uint8_t *allocateImpl(uint32_t &allocatedSize, uint32_t const requestSize) noexcept;
     void pushCommands() noexcept;
 
-    // 在消费者线程执行
+    // consumer thread specifics
     void pullCommands() noexcept;
     void executeCommand() noexcept;
     Command *readCommand() noexcept;
@@ -147,7 +144,7 @@ private:
     EventCV mN;
     bool mImmediateMode{true};
     bool mWorkerAttached{false};
-    bool mFreeChunksByUser{true}; // 被回收的Chunk会被记录到一个队列里 由用户在生产者线程选择合适的时机来Free
+    bool mFreeChunksByUser{true}; // recycled chunks will be stashed until explicit free instruction
 
     friend class MemoryChunkSwitchCommand;
 };
@@ -208,7 +205,7 @@ T *CommandEncoder::allocateAndZero(uint32_t const count) noexcept {
     return allocatedMemory;
 }
 
-// 生产者线程用来向CommandBuffer填充Command的工具宏
+// utility macros for the producer thread to encode commands
 
 #define WRITE_COMMAND(CB, CommandName, Params)                     \
     {                                                              \

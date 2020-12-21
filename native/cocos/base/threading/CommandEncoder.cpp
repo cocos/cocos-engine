@@ -66,7 +66,7 @@ CommandEncoder::CommandEncoder() {
     mW.mCurrentMemoryChunk = chunk;
     mR.mCurrentMemoryChunk = chunk;
 
-    // 分配一个头节点 不要被Execute
+    // sentinel node will not be executed
     Command *const cmd = allocate<DummyCommand>(1);
     pushCommands();
     pullCommands();
@@ -157,7 +157,7 @@ void CommandEncoder::freeChunksInFreeQueue(CommandEncoder *const mainCommandbuff
 
 uint8_t *CommandEncoder::allocateImpl(uint32_t &allocatedSize, uint32_t const requestSize) noexcept {
     uint32_t const alignedSize = align(requestSize, 16);
-    assert(alignedSize + kSwitchChunkMemoryRequirement <= kMemoryChunkSize); // 一个Command直接把整个Chunk填满了
+    assert(alignedSize + kSwitchChunkMemoryRequirement <= kMemoryChunkSize); // exceeds the block size
 
     uint32_t const newOffset = mW.mOffset + alignedSize;
 
@@ -170,7 +170,7 @@ uint8_t *CommandEncoder::allocateImpl(uint32_t &allocatedSize, uint32_t const re
         uint8_t *const newChunk = CommandEncoder::MemoryAllocator::getInstance().request();
         MemoryChunkSwitchCommand *const switchCommand = reinterpret_cast<MemoryChunkSwitchCommand *>(mW.mCurrentMemoryChunk + mW.mOffset);
         new (switchCommand) MemoryChunkSwitchCommand(this, newChunk, mW.mCurrentMemoryChunk);
-        switchCommand->mNext = reinterpret_cast<Command *>(newChunk); // 注意这里还指向原位置
+        switchCommand->mNext = reinterpret_cast<Command *>(newChunk); // point to start position
         mW.mLastCommand = switchCommand;
         ++mW.mPendingCommandCount;
         mW.mCurrentMemoryChunk = newChunk;
@@ -222,14 +222,12 @@ void CommandEncoder::executeCommand() noexcept {
 }
 
 Command *CommandEncoder::readCommand() noexcept {
-    while (!hasNewCommand()) {
-        // 如果当前没有可读的Command 尝试同步一下生产者线程的数据
-        pullCommands();
+    while (!hasNewCommand()) { // if empty
+        pullCommands();        // try pulling data from consumer
 
-        // 如果依然没有 挂起消费者线程 等待生产者线程填充Command并唤醒消费者线程
-        if (!hasNewCommand()) {
-            mN.Wait();
-            pullCommands();
+        if (!hasNewCommand()) { // still empty
+            mN.Wait();          // wait for the producer to wake me up
+            pullCommands();     // pulling again
         }
     }
 
