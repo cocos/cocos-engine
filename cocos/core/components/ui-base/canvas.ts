@@ -39,7 +39,6 @@ import { ClearFlag } from '../../gfx/define';
 import { Color, Vec3, Rect, Size } from '../../math';
 import { view } from '../../platform/view';
 import visibleRect from '../../platform/visible-rect';
-import { scene } from '../../renderer';
 import { Node } from '../../scene-graph/node';
 import { Enum } from '../../value-types';
 import { Component } from '../component';
@@ -262,8 +261,6 @@ export class Canvas extends Component {
     // fit canvas node to design resolution
     protected _fitDesignResolution: (() => void) | undefined;
 
-    // protected _camera: scene.Camera | null = null;
-
     private _pos = new Vec3();
 
     constructor () {
@@ -308,8 +305,8 @@ export class Canvas extends Component {
             cameraNode.addComponent('cc.Camera');
             this._cameraComponent = cameraNode.getComponent('cc.Camera') as Camera;
             this._cameraComponent.projection = Camera.ProjectionType.ORTHO;
-            // this._cameraComponent.priority = this._getViewPriority();
-            // this._cameraComponent.flows = ['UIFlow'];
+            this._cameraComponent.priority = this._getViewPriority();
+            this._cameraComponent.flows = ['UIFlow'];
             this._cameraComponent.clearFlags = this.clearFlag;
             this._cameraComponent.far = 2000.0;
             this._cameraComponent.rect = new Rect(0, 0, 1, 1);
@@ -317,29 +314,6 @@ export class Canvas extends Component {
         }
 
         if (!EDITOR) {
-            // this._camera = legacyCC.director.root!.createCamera() as scene.Camera;
-            // this._camera.initialize({
-            //     name: `ui_${this.node.name}`,
-            //     node: cameraNode,
-            //     projection: Camera.ProjectionType.ORTHO,
-            //     priority: this._getViewPriority(),
-            //     flows: ['UIFlow'],
-            // });
-
-            // this._camera.fov = 45;
-            // this._camera.clearFlag = this.clearFlag;
-            // this._camera.farClip = 2000;
-            // this._camera.viewport = new Rect(0, 0, 1, 1);
-            // this.color = this._color;
-
-            this._cameraComponent.projection = Camera.ProjectionType.ORTHO;
-            this._cameraComponent.priority = this._getViewPriority();
-            this._cameraComponent.flows = ['UIFlow'];
-            this._cameraComponent.clearFlags = this.clearFlag;
-            this._cameraComponent.far = 2000.0;
-            this._cameraComponent.rect = new Rect(0, 0, 1, 1);
-            this._cameraComponent.clearColor = this._color;
-
             this._cameraComponent.onLoad();
 
             this._checkTargetTextureEvent(null);
@@ -363,20 +337,32 @@ export class Canvas extends Component {
 
     public onEnable () {
         if (this._cameraComponent) {
-            legacyCC.director.root!.ui.renderScene.addCamera(this._cameraComponent.camera);
+            const camera = this._cameraComponent.camera;
+            if (camera) {
+                legacyCC.director.root!.ui.renderScene.addCamera(camera);
+            } else {
+                this._cameraComponent.onLoad();
+                legacyCC.director.root!.ui.renderScene.addCamera(this._cameraComponent.camera);
+            }
         }
     }
 
     public onDisable () {
         if (this._cameraComponent) {
-            legacyCC.director.root!.ui.renderScene.removeCamera(this._cameraComponent.camera);
+            const camera = this._cameraComponent.camera;
+            if (camera) {
+                legacyCC.director.root!.ui.renderScene.removeCamera(this._cameraComponent.camera);
+            }
         }
     }
 
     public onDestroy () {
         legacyCC.director.root!.ui.removeScreen(this);
         if (this._cameraComponent) {
-            legacyCC.director.root!.destroyCamera(this._cameraComponent.camera);
+            const camera = this._cameraComponent.camera;
+            if (camera) {
+                legacyCC.director.root!.destroyCamera(this._cameraComponent.camera);
+            }
         }
 
         if (EDITOR) {
@@ -391,20 +377,6 @@ export class Canvas extends Component {
     }
 
     protected _onResizeCamera () {
-        // const camera = this._camera;
-        // if (camera) {
-        //     if (this._targetTexture) {
-        //         const win = this._targetTexture.window;
-        //         camera.setFixedSize(win!.width, win!.height);
-        //         camera.orthoHeight = visibleRect.height / 2;
-        //     } else {
-        //         const size = game.canvas!;
-        //         camera.resize(size.width, size.height);
-        //         camera.orthoHeight = game.canvas!.height / view.getScaleY() / 2;
-        //     }
-        //     camera.update();
-        // }
-
         if (this._cameraComponent) {
             if (this._targetTexture) {
                 const win = this._targetTexture.window;
@@ -418,7 +390,6 @@ export class Canvas extends Component {
 
             this.node.getWorldPosition(_worldPos);
             this._cameraComponent.node.setWorldPosition(_worldPos.x, _worldPos.y, 1000);
-            // this._cameraComponent.orthoHeight = game.canvas!.height / view.getScaleY() / 2;
         }
     }
 
