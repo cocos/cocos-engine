@@ -19,7 +19,7 @@
         "tween": { "modules": [ "tween" ] },
         "tiled-map": { "modules": [ "tiled-map" ] },
         "spine": { "modules": [ "spine" ] },
-        "dragonbones": { "modules": [ "dragonbones" ] }
+        "dragon-bones": { "modules": [ "dragon-bones" ] }
     },
     "moduleOverrides": [
         {

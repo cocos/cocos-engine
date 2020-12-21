@@ -24,7 +24,7 @@ export type EngineFeature =
     | 'terrain'
     | 'tiled-map'
     | 'spine'
-    | 'dragonbones';
+    | 'dragon-bones';
 export interface ModuleRenderConfig {
     $schema?: string;
 
