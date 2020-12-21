@@ -193,6 +193,9 @@ export class AnimationCurve {
         case WrapMode.Clamp:
             wrappedTime = clamp(time, startTime, endTime);
             break;
+        default:
+            wrappedTime = clamp(time, startTime, endTime);
+            break;
         }
         let preKFIndex = 0;
         if (wrappedTime > this.keyFrames![0].time) {
@@ -249,6 +252,9 @@ export class AnimationCurve {
         case WrapMode.Default:
         case WrapMode.Normal:
         case WrapMode.Clamp:
+            wrappedTime = clamp(time, startTime, endTime);
+            break;
+        default:
             wrappedTime = clamp(time, startTime, endTime);
             break;
         }
