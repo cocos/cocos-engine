@@ -326,7 +326,7 @@ export class BaseNode extends CCObject implements ISchedulable {
     protected _prefab: PrefabInfo|null = null;
 
     @serializable
-    protected _prefabInstance: PrefabInstance| null = null;
+    protected _prefabInstance?: PrefabInstance;
 
     protected _scene: any = NullScene;
 

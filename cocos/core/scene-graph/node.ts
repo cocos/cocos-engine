@@ -394,6 +394,11 @@ export class Node extends BaseNode {
 
         if (!dontSyncChildPrefab && this._prefabInstance) {
             createNodeWithPrefab(this);
+
+            if (this._prefabInstance.addedChildren) {
+                // @ts-ignore
+                this._children = this._children.concat(this._prefabInstance.addedChildren);
+            }
         }
 
         this.hasChangedFlags = TransformBit.TRS;
