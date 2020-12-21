@@ -113,18 +113,7 @@ void CommandEncoder::terminateConsumerThread() noexcept {
 
     ReaderContext *const pR = &mR;
 
-    bool immediateMode = mImmediateMode;
-    mImmediateMode = false;
-    ENCODE_COMMAND_2(
-        this, terminateConsumerThread,
-        pR, pR,
-        pEvent, pEvent,
-        {
-            pR->mTerminateConsumerThread = true;
-            pR->mFlushingFinished = true;
-            pEvent->Signal();
-        });
-    mImmediateMode = immediateMode;
+    new (allocate<TerminateConsumerThreadCommand>(1)) TerminateConsumerThreadCommand(pEvent, pR);
 
     kick();
     event.Wait();
@@ -250,21 +239,35 @@ char const *DummyCommand::getName() const noexcept {
     return "Dummy";
 }
 
-MemoryChunkSwitchCommand::MemoryChunkSwitchCommand(CommandEncoder *const cb, uint8_t *const newChunk, uint8_t *const oldChunk) noexcept
-: mCommandBuffer(cb), mNewChunk(newChunk), mOldChunk(oldChunk) {
+MemoryChunkSwitchCommand::MemoryChunkSwitchCommand(CommandEncoder *const encoder, uint8_t *const newChunk, uint8_t *const oldChunk) noexcept
+: mCommandEncoder(encoder), mNewChunk(newChunk), mOldChunk(oldChunk) {
 }
 
 MemoryChunkSwitchCommand::~MemoryChunkSwitchCommand() {
-    mCommandBuffer->recycleMemoryChunk(mOldChunk);
+    mCommandEncoder->recycleMemoryChunk(mOldChunk);
 }
 
 void MemoryChunkSwitchCommand::execute() noexcept {
-    mCommandBuffer->mR.mCurrentMemoryChunk = mNewChunk;
-    mCommandBuffer->pullCommands();
+    mCommandEncoder->mR.mCurrentMemoryChunk = mNewChunk;
+    mCommandEncoder->pullCommands();
 }
 
 char const *MemoryChunkSwitchCommand::getName() const noexcept {
     return "MemoryChunkSwitch";
+}
+
+TerminateConsumerThreadCommand::TerminateConsumerThreadCommand(EventSem *const pEvent, ReaderContext *const pR) noexcept
+: mEvent(pEvent), mR(pR) {
+}
+
+void TerminateConsumerThreadCommand::execute() noexcept {
+    mR->mTerminateConsumerThread = true;
+    mR->mFlushingFinished = true;
+    mEvent->Signal();
+}
+
+char const *TerminateConsumerThreadCommand::getName() const noexcept {
+    return "TerminateConsumerThread";
 }
 
 } // namespace cc

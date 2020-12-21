@@ -164,9 +164,21 @@ public:
     virtual char const *getName() const noexcept override;
 
 private:
-    CommandEncoder *mCommandBuffer{nullptr};
+    CommandEncoder *mCommandEncoder{nullptr};
     uint8_t *mNewChunk{nullptr};
     uint8_t *mOldChunk{nullptr};
+};
+
+class TerminateConsumerThreadCommand final : public Command {
+public:
+    TerminateConsumerThreadCommand(EventSem *const pEvent, ReaderContext *const pR) noexcept;
+
+    virtual void execute() noexcept override;
+    virtual char const *getName() const noexcept override;
+
+private:
+    EventSem *mEvent{nullptr};
+    ReaderContext *mR{nullptr};
 };
 
 template <typename T>
