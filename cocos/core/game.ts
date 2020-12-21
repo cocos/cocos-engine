@@ -540,10 +540,6 @@ export class Game extends EventTarget {
     public run (onStart?: Game.OnStart): Promise<void>;
 
     public run (configOrCallback?: Game.OnStart | IGameConfig, onStart?: Game.OnStart) {
-        if (!EDITOR) {
-            this._initEvents();
-        }
-
         // To compatible with older version,
         // we allow the `run(config, onstart?)` form. But it's deprecated.
         let initPromise: Promise<boolean> | undefined;
