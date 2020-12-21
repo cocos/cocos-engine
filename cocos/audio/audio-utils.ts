@@ -25,9 +25,9 @@
 
 import { sys } from '../core/platform/sys';
 
-const { __audioSupport } = sys;
 
 export function createDomAudio (url: string): Promise<HTMLAudioElement> {
+    const { __audioSupport } = sys;
     return new Promise((resolve, reject) => {
         const dom = document.createElement('audio');
         dom.src = url;

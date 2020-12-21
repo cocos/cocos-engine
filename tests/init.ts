@@ -11,7 +11,7 @@ jest.mock('../cocos/core/platform/debug', () => {
         ...jest.requireActual('../cocos/core/platform/debug'),
     };
     if (result.warnID) {
-        result.warnID = jest.fn(result.warnID);
+        result.warnID = jest.fn();
     }
     return result;
 });

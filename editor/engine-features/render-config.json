@@ -1,0 +1,120 @@
+{
+    "$schema": "./schema.json",
+    "features": {
+        "base": {
+            "label": "Core",
+            "description": "Core module.",
+            "required": true,
+            "default": ["base"]
+        },
+        "graphcis": {
+            "label": "Graphcis API",
+            "description": "Graphcis API used by GFX. There can be more than one API existed.",
+            "default": ["gfx-webgl", "gfx-webgl2"],
+            "options": {
+                "gfx-webgl": {
+                    "required": true,
+                    "label": "WebGL 1.0",
+                    "description": "The WebGL 1.0 is required whenever."
+                },
+                "gfx-webgl2": {
+                    "label": "WebGL 2.0"
+                }
+            }
+        },
+        "ui": {
+            "default": ["ui"],
+            "label": "UI",
+            "description": "UI module"
+        },
+        "particle": {
+            "default": ["particle"],
+            "label": "Particle System",
+            "description": "Particle system module"
+        },
+        "physics": {
+            "multi": false,
+            "label": "Physics",
+            "description": "Physics(implementation).",
+            "default": ["physics-cannon"],
+            "options": {
+                "physics-ammo": {
+                    "label": "ammo.js"
+                },
+                "physics-cannon": {
+                    "label": "cannon.js"
+                },
+                "physics-builtin": {
+                    "label": "builtin"
+                }
+            }
+        },
+        "physics-2d": {
+            "multi": false,
+            "label": "Physics 2D",
+            "description": "Physics 2D",
+            "default": ["physics-2d-box2d"],
+            "options": {
+                "physics-2d-box2d": {
+                    "label": "box2d"
+                },
+                "physics-2d-builtin": {
+                    "label": "builtin"
+                }
+            }
+        },
+        "intersection-2d": {
+            "default": ["intersection-2d"],
+            "label": "Intersection 2D",
+            "description": "Intersection 2D."
+        },
+        "particle-2d": {
+            "default": ["particle-2d"],
+            "label": "Particle 2D",
+            "description": "Particle 2D."
+        },
+        "audio": {
+            "default": ["audio"],
+            "label": "Audio",
+            "description": "Audio support.",
+            "native": "USE_AUDIO"
+        },
+        "video": {
+            "default": ["video"],
+            "label": "VideoPlayer",
+            "description": "VideoPlayer support.",
+            "native": "USE_VIDEO"
+        },
+        "webview": {
+            "default": ["webview"],
+            "label": "WebView",
+            "description": "WebView support.",
+            "native": "USE_WEBVIEW"
+        },
+        "tween": {
+            "default": ["tween"],
+            "label": "Tween",
+            "description": "Tween support."
+        },
+        "terrain": {
+            "default": ["terrain"],
+            "label": "Terrain",
+            "description": "Terrain support"
+        },
+        "tiled-map": {
+            "default": ["tiled-map"],
+            "label": "TiledMap",
+            "description": "TimedMap support"
+        },
+        "spine": {
+            "default": ["spine"],
+            "label": "Spine",
+            "description": "Spine support"
+        },
+        "dragon-bones": {
+            "default": ["dragon-bones"],
+            "label": "DragonBones",
+            "description": "Description support"
+        }
+    }
+}

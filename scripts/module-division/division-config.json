@@ -147,7 +147,7 @@
         {
             "text": "DragonBones",
             "description": "Description support",
-            "entry": "dragonbones",
+            "entry": "dragon-bones",
             "default": true
         }
     ]
