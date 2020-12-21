@@ -65,7 +65,7 @@ bool DeviceAgent::initialize(const DeviceInfo &info) {
     memcpy(_features, _actor->_features, (uint)Feature::COUNT * sizeof(bool));
 
     _mainEncoder = CC_NEW(CommandEncoder);
-    _mainEncoder->RunConsumerThread();
+    _mainEncoder->runConsumerThread();
 
     setMultithreaded(true);
 
@@ -89,7 +89,7 @@ void DeviceAgent::destroy() {
     CC_SAFE_DELETE(_cmdBuff);
     CC_SAFE_DELETE(_queue);
 
-    _mainEncoder->TerminateConsumerThread();
+    _mainEncoder->terminateConsumerThread();
     CC_SAFE_DELETE(_mainEncoder);
 }
 
@@ -132,8 +132,8 @@ void DeviceAgent::present() {
             frameBoundarySemaphore->Signal();
         });
 
-    CommandEncoder::FreeChunksInFreeQueue(encoder);
-    encoder->FinishWriting();
+    CommandEncoder::freeChunksInFreeQueue(encoder);
+    encoder->finishWriting();
 }
 
 void DeviceAgent::setMultithreaded(bool multithreaded) {
@@ -141,7 +141,7 @@ void DeviceAgent::setMultithreaded(bool multithreaded) {
     _multithreaded = multithreaded;
 
     if (multithreaded) {
-        _mainEncoder->SetImmediateMode(false);
+        _mainEncoder->setImmediateMode(false);
         _actor->bindRenderContext(false);
         ENCODE_COMMAND_1(
             _mainEncoder, DeviceMakeCurrent,
@@ -156,8 +156,8 @@ void DeviceAgent::setMultithreaded(bool multithreaded) {
             {
                 actor->bindDeviceContext(false);
             });
-        _mainEncoder->FinishWriting(true); // wait till finished
-        _mainEncoder->SetImmediateMode(true);
+        _mainEncoder->finishWriting(true); // wait till finished
+        _mainEncoder->setImmediateMode(true);
         _actor->bindRenderContext(true);
     }
 }
@@ -247,19 +247,19 @@ PipelineState *DeviceAgent::createPipelineState() {
 void DeviceAgent::copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint count) {
     CommandEncoder *encoder = getMainEncoder();
 
-    BufferTextureCopy *actorRegions = encoder->Allocate<BufferTextureCopy>(count);
+    BufferTextureCopy *actorRegions = encoder->allocate<BufferTextureCopy>(count);
     memcpy(actorRegions, regions, count * sizeof(BufferTextureCopy));
 
     uint bufferCount = 0u;
     for (uint i = 0u; i < count; i++) {
         bufferCount += regions[i].texSubres.layerCount;
     }
-    const uint8_t **actorBuffers = encoder->Allocate<const uint8_t *>(bufferCount);
+    const uint8_t **actorBuffers = encoder->allocate<const uint8_t *>(bufferCount);
     for (uint i = 0u, n = 0u; i < count; i++) {
         const BufferTextureCopy &region = regions[i];
         uint size = FormatSize(dst->getFormat(), region.texExtent.width, region.texExtent.height, 1);
         for (uint l = 0; l < region.texSubres.layerCount; l++) {
-            uint8_t *buffer = encoder->Allocate<uint8_t>(size);
+            uint8_t *buffer = encoder->allocate<uint8_t>(size);
             memcpy(buffer, buffers[n], size);
             actorBuffers[n++] = buffer;
         }

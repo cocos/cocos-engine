@@ -42,7 +42,7 @@ void QueueAgent::submit(const CommandBuffer *const *cmdBuffs, uint count, Fence 
     if (!count) return;
     CommandEncoder *encoder = ((DeviceAgent *)_device)->getMainEncoder();
 
-    const CommandBuffer **actorCmdBuffs = encoder->Allocate<const CommandBuffer *>(count);
+    const CommandBuffer **actorCmdBuffs = encoder->allocate<const CommandBuffer *>(count);
     for (uint i = 0u; i < count; ++i) {
         actorCmdBuffs[i] = ((CommandBufferAgent *)cmdBuffs[i])->getActor();
     }
@@ -64,18 +64,18 @@ void QueueAgent::submit(const CommandBuffer *const *cmdBuffs, uint count, Fence 
                 if (multiThreaded) {
                     JobGraph g(JobSystem::getInstance());
                     uint job = g.createForEachIndexJob(1u, count, 1u, [this](uint i) {
-                        ((CommandBufferAgent *)cmdBuffs[i])->getEncoder()->FlushCommands();
+                        ((CommandBufferAgent *)cmdBuffs[i])->getEncoder()->flushCommands();
                     });
                     g.run(job);
-                    ((CommandBufferAgent *)cmdBuffs[0])->getEncoder()->FlushCommands();
+                    ((CommandBufferAgent *)cmdBuffs[0])->getEncoder()->flushCommands();
                     g.waitForAll();
                 } else {
                     for (uint i = 0u; i < count; ++i) {
-                        ((CommandBufferAgent *)cmdBuffs[i])->getEncoder()->FlushCommands();
+                        ((CommandBufferAgent *)cmdBuffs[i])->getEncoder()->flushCommands();
                     }
                 }
             } else {
-                ((CommandBufferAgent *)cmdBuffs[0])->getEncoder()->FlushCommands();
+                ((CommandBufferAgent *)cmdBuffs[0])->getEncoder()->flushCommands();
             }
             //CC_LOG_INFO("======== one round ========");
             //auto endTime = std::chrono::steady_clock::now();

@@ -67,7 +67,7 @@ void BufferAgent::destroy() {
 void BufferAgent::update(void *buffer, uint size) {
     CommandEncoder *encoder = ((DeviceAgent *)_device)->getMainEncoder();
 
-    uint8_t *actorBuffer = encoder->Allocate<uint8_t>(size);
+    uint8_t *actorBuffer = encoder->allocate<uint8_t>(size);
     memcpy(actorBuffer, buffer, size);
 
     ENCODE_COMMAND_3(

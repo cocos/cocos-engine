@@ -18,11 +18,11 @@ namespace gfx {
 
 void CommandBufferAgent::initEncoder() {
     _encoder = CC_NEW(CommandEncoder);
-    _encoder->SetImmediateMode(false);
+    _encoder->setImmediateMode(false);
 }
 
 void CommandBufferAgent::destroyEncoder() {
-    ((DeviceAgent *)_device)->getMainEncoder()->KickAndWait();
+    ((DeviceAgent *)_device)->getMainEncoder()->kickAndWait();
     CC_SAFE_DELETE(_encoder);
 }
 
@@ -84,8 +84,8 @@ void CommandBufferAgent::end() {
         {
             actor->end();
         });
-    CommandEncoder::FreeChunksInFreeQueue(_encoder);
-    _encoder->FinishWriting();
+    CommandEncoder::freeChunksInFreeQueue(_encoder);
+    _encoder->finishWriting();
 }
 
 void CommandBufferAgent::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, int stencil, bool fromSecondaryCB) {
@@ -93,7 +93,7 @@ void CommandBufferAgent::beginRenderPass(RenderPass *renderPass, Framebuffer *fb
     uint attachmentCount = (uint)renderPass->getColorAttachments().size();
     Color *actorColors = nullptr;
     if (attachmentCount) {
-        actorColors = _encoder->Allocate<Color>(attachmentCount);
+        actorColors = _encoder->allocate<Color>(attachmentCount);
         memcpy(actorColors, colors, sizeof(Color) * attachmentCount);
     }
 
@@ -137,7 +137,7 @@ void CommandBufferAgent::bindPipelineState(PipelineState *pso) {
 void CommandBufferAgent::bindDescriptorSet(uint set, DescriptorSet *descriptorSet, uint dynamicOffsetCount, const uint *dynamicOffsets) {
     uint *actorDynamicOffsets = nullptr;
     if (dynamicOffsetCount) {
-        actorDynamicOffsets = _encoder->Allocate<uint>(dynamicOffsetCount);
+        actorDynamicOffsets = _encoder->allocate<uint>(dynamicOffsetCount);
         memcpy(actorDynamicOffsets, dynamicOffsets, dynamicOffsetCount * sizeof(uint));
     }
 
@@ -273,7 +273,7 @@ void CommandBufferAgent::draw(InputAssembler *ia) {
 void CommandBufferAgent::updateBuffer(Buffer *buff, const void *data, uint size) {
     CommandEncoder *encoder = _encoder;
 
-    uint8_t *actorData = encoder->Allocate<uint8_t>(size);
+    uint8_t *actorData = encoder->allocate<uint8_t>(size);
     memcpy(actorData, data, size);
 
     ENCODE_COMMAND_4(
@@ -289,19 +289,19 @@ void CommandBufferAgent::updateBuffer(Buffer *buff, const void *data, uint size)
 }
 
 void CommandBufferAgent::copyBuffersToTexture(const uint8_t *const *buffers, Texture *texture, const BufferTextureCopy *regions, uint count) {
-    BufferTextureCopy *actorRegions = _encoder->Allocate<BufferTextureCopy>(count);
+    BufferTextureCopy *actorRegions = _encoder->allocate<BufferTextureCopy>(count);
     memcpy(actorRegions, regions, count * sizeof(BufferTextureCopy));
 
     uint bufferCount = 0u;
     for (uint i = 0u; i < count; i++) {
         bufferCount += regions[i].texSubres.layerCount;
     }
-    const uint8_t **actorBuffers = _encoder->Allocate<const uint8_t *>(bufferCount);
+    const uint8_t **actorBuffers = _encoder->allocate<const uint8_t *>(bufferCount);
     for (uint i = 0u, n = 0u; i < count; i++) {
         const BufferTextureCopy &region = regions[i];
         uint size = FormatSize(texture->getFormat(), region.texExtent.width, region.texExtent.height, 1);
         for (uint l = 0; l < region.texSubres.layerCount; l++) {
-            uint8_t *buffer = _encoder->Allocate<uint8_t>(size);
+            uint8_t *buffer = _encoder->allocate<uint8_t>(size);
             memcpy(buffer, buffers[n], size);
             actorBuffers[n++] = buffer;
         }
@@ -323,7 +323,7 @@ void CommandBufferAgent::copyBuffersToTexture(const uint8_t *const *buffers, Tex
 void CommandBufferAgent::execute(const CommandBuffer *const *cmdBuffs, uint32_t count) {
     if (!count) return;
 
-    const CommandBuffer **actorCmdBuffs = _encoder->Allocate<const CommandBuffer *>(count);
+    const CommandBuffer **actorCmdBuffs = _encoder->allocate<const CommandBuffer *>(count);
     for (uint i = 0; i < count; ++i) {
         actorCmdBuffs[i] = ((CommandBufferAgent *)cmdBuffs[i])->getActor();
     }
@@ -343,18 +343,18 @@ void CommandBufferAgent::execute(const CommandBuffer *const *cmdBuffs, uint32_t 
                 if (multiThreaded) {
                     JobGraph g(JobSystem::getInstance());
                     uint job = g.createForEachIndexJob(1u, count, 1u, [this](uint i) {
-                        ((CommandBufferAgent *)cmdBuffs[i])->getEncoder()->FlushCommands();
+                        ((CommandBufferAgent *)cmdBuffs[i])->getEncoder()->flushCommands();
                     });
                     g.run(job);
-                    ((CommandBufferAgent *)cmdBuffs[0])->getEncoder()->FlushCommands();
+                    ((CommandBufferAgent *)cmdBuffs[0])->getEncoder()->flushCommands();
                     g.waitForAll();
                 } else {
                     for (uint i = 0u; i < count; ++i) {
-                        ((CommandBufferAgent *)cmdBuffs[i])->getEncoder()->FlushCommands();
+                        ((CommandBufferAgent *)cmdBuffs[i])->getEncoder()->flushCommands();
                     }
                 }
             } else {
-                ((CommandBufferAgent *)cmdBuffs[0])->getEncoder()->FlushCommands();
+                ((CommandBufferAgent *)cmdBuffs[0])->getEncoder()->flushCommands();
             }
             actor->execute(actorCmdBuffs, count);
         });
