@@ -456,7 +456,7 @@ export class Camera extends Component {
     }
 
     public onLoad () {
-        this.createCamera();
+        this._createCamera();
     }
 
     public onEnable () {
@@ -536,7 +536,7 @@ export class Camera extends Component {
         return out;
     }
 
-    public createCamera () {
+    public _createCamera () {
         this._camera = (legacyCC.director.root as Root).createCamera();
         this._camera.initialize({
             name: this.node.name,
