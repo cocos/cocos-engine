@@ -1,5 +1,5 @@
 import { IVec3Like, Vec3 } from '../../core';
-import { PhysicsSystem, RigidBody } from '../framework';
+import { ERigidBodyType, PhysicsSystem, RigidBody } from '../framework';
 import { IRigidBody } from '../spec/i-rigid-body';
 import { applyForce, applyImpulse, applyTorqueForce, PX, _trans } from './export-physx';
 import { PhysXSharedBody } from './physx-shared-body';
@@ -30,21 +30,13 @@ export class PhysXRigidBody implements IRigidBody {
         this._sharedBody.reference = true;
     }
 
-    onLoad (): void {
-    }
-
     onEnable (): void {
         this._isEnabled = true;
-        this.setGroup(this._rigidBody.group);
-        if (PhysicsSystem.instance.useCollisionMatrix) {
-            this.setMask(PhysicsSystem.instance.collisionMatrix[this._rigidBody.group]);
-        }
         this.setMass(this._rigidBody.mass);
+        this.setType(this._rigidBody.type);
         this.setAllowSleep(this._rigidBody.allowSleep);
         this.setLinearDamping(this._rigidBody.linearDamping);
         this.setAngularDamping(this._rigidBody.angularDamping);
-        this.setIsKinematic(this._rigidBody.isKinematic);
-        this.fixRotation(this._rigidBody.fixedRotation);
         this.setLinearFactor(this._rigidBody.linearFactor);
         this.setAngularFactor(this._rigidBody.angularFactor);
         this.useGravity(this._rigidBody.useGravity);
@@ -62,6 +54,25 @@ export class PhysXRigidBody implements IRigidBody {
         (this._sharedBody as any) = null;
     }
 
+    setType (v: ERigidBodyType): void {
+        switch (v) {
+            case ERigidBodyType.DYNAMIC:
+                if (this.isStatic) return;
+                this._sharedBody.setRigidBodyFlag(PX.RigidBodyFlag.eKINEMATIC, false);
+                break;
+            case ERigidBodyType.KINEMATIC:
+                if (this.isStatic) return;
+                this._sharedBody.setRigidBodyFlag(PX.RigidBodyFlag.eKINEMATIC, true);
+                break;
+            case ERigidBodyType.STATIC:
+            default:
+                // hack
+                if (this.isStatic) return;
+                this._sharedBody.setRigidBodyFlag(PX.RigidBodyFlag.eKINEMATIC, true);
+                break;
+        }
+    }
+
     setMass (v: number): void {
         if (this.isStatic) return;
         this._sharedBody.setMass(v);
@@ -77,11 +88,6 @@ export class PhysXRigidBody implements IRigidBody {
         this.impl.setAngularDamping(v);
     }
 
-    setIsKinematic (v: boolean): void {
-        if (this.isStatic) return;
-        this._sharedBody.setRigidBodyFlag(PX.RigidBodyFlag.eKINEMATIC, v);
-    }
-
     useGravity (v: boolean): void {
         if (this.isStatic) return;
         this.impl.setActorFlag(PX.ActorFlag.eDISABLE_GRAVITY, !v);
@@ -90,14 +96,6 @@ export class PhysXRigidBody implements IRigidBody {
     useCCD (v: boolean): void {
         if (this.isStatic) return;
         this.impl.setRigidBodyFlag(PX.RigidBodyFlag.eENABLE_CCD, v);
-    }
-
-    fixRotation (v: boolean): void {
-        if (this.isStatic) return;
-        this.impl.setRigidDynamicLockFlag(PX.RigidDynamicLockFlag.eLOCK_ANGULAR_X, !!v);
-        this.impl.setRigidDynamicLockFlag(PX.RigidDynamicLockFlag.eLOCK_ANGULAR_Y, !!v);
-        this.impl.setRigidDynamicLockFlag(PX.RigidDynamicLockFlag.eLOCK_ANGULAR_Z, !!v);
-        if (!v) { this.setAngularFactor(this._rigidBody.angularFactor); }
     }
 
     setLinearFactor (v: IVec3Like): void {

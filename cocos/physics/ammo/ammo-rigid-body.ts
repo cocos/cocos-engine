@@ -77,6 +77,7 @@ export class AmmoRigidBody implements IRigidBody {
 
     setType (v: ERigidBodyType) {
         let m_collisionFlags = this.impl.getCollisionFlags();
+        let m_gcf = this._sharedBody.ghost.getCollisionFlags();
         const localInertia = AmmoConstant.instance.VECTOR3_0;
         switch (v) {
             case ERigidBodyType.DYNAMIC:
@@ -86,6 +87,9 @@ export class AmmoRigidBody implements IRigidBody {
                 this.setMass(this._rigidBody.mass);
                 this.useGravity(this._rigidBody.useGravity);
                 this.setAllowSleep(this._rigidBody.allowSleep);
+                m_gcf &= (~AmmoCollisionFlags.CF_STATIC_OBJECT);
+                m_gcf |= AmmoCollisionFlags.CF_KINEMATIC_OBJECT;
+                this._sharedBody.ghost.setCollisionFlags(m_gcf);
                 break;
             case ERigidBodyType.KINEMATIC:
                 m_collisionFlags |= AmmoCollisionFlags.CF_KINEMATIC_OBJECT;
@@ -94,6 +98,9 @@ export class AmmoRigidBody implements IRigidBody {
                 localInertia.setValue(0, 0, 0);
                 this.impl.setMassProps(0, localInertia);
                 this.impl.forceActivationState(AmmoCollisionObjectStates.DISABLE_DEACTIVATION);
+                m_gcf &= (~AmmoCollisionFlags.CF_STATIC_OBJECT);
+                m_gcf |= AmmoCollisionFlags.CF_KINEMATIC_OBJECT;
+                this._sharedBody.ghost.setCollisionFlags(m_gcf);
                 break;
             case ERigidBodyType.STATIC:
             default:
@@ -103,6 +110,9 @@ export class AmmoRigidBody implements IRigidBody {
                 localInertia.setValue(0, 0, 0);
                 this.impl.setMassProps(0, localInertia);
                 this.impl.forceActivationState(AmmoCollisionObjectStates.DISABLE_DEACTIVATION);
+                m_gcf &= (~AmmoCollisionFlags.CF_KINEMATIC_OBJECT);
+                m_gcf |= AmmoCollisionFlags.CF_STATIC_OBJECT;
+                this._sharedBody.ghost.setCollisionFlags(m_gcf);
                 break;
         }
     }
@@ -229,22 +239,6 @@ export class AmmoRigidBody implements IRigidBody {
         return this.impl['getLinearSleepingThreshold']();
     }
 
-    /** type */
-
-    getType (): ERigidBodyType {
-        if (this.impl.isStaticOrKinematicObject()) {
-            if (this.impl.isKinematicObject()) {
-                return ERigidBodyType.KINEMATIC
-            } else {
-                return ERigidBodyType.STATIC
-            }
-        } else {
-            return ERigidBodyType.DYNAMIC
-        }
-    }
-
-    /** kinematic */
-
     getLinearVelocity (out: Vec3): Vec3 {
         return ammo2CocosVec3(out, this.impl.getLinearVelocity());
     }
@@ -262,8 +256,6 @@ export class AmmoRigidBody implements IRigidBody {
         this._wakeUpIfSleep();
         cocos2AmmoVec3(this.impl.getAngularVelocity(), value);
     }
-
-    /** dynamic */
 
     applyLocalForce (force: Vec3, rel_pos?: Vec3): void {
         this._sharedBody.syncSceneToPhysics();
@@ -322,7 +314,6 @@ export class AmmoRigidBody implements IRigidBody {
         )
     }
 
-    /** group mask */
     getGroup (): number {
         return this._sharedBody.collisionFilterGroup;
     }

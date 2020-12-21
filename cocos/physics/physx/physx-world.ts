@@ -162,11 +162,9 @@ export class PhysXWorld implements IPhysicsWorld {
             const simulation = new PX.SimulationEventCallback();
             simulation.setOnContact((_header: any, pairs: any) => {
                 const shapes = _header.shapes as any[];
-                /**
-                 * uint16   ContactPairFlags
-                 * uint16   PairFlags
-                 * uint16   ContactCount
-                 */
+                // uint16   ContactPairFlags
+                // uint16   PairFlags
+                // uint16   ContactCount
                 const pairBuf = _header.pairBuffer as ArrayBuffer;
                 const pairL = shapes.length / 2;
                 const ui16View = new Uint16Array(pairBuf, 0, pairL * 3);
@@ -241,7 +239,7 @@ export class PhysXWorld implements IPhysicsWorld {
             PX.physics = this.physics;
         }
     }
-
+    
     step (deltaTime: number, _timeSinceLastCalled?: number, _maxSubStep = 0): void {
         if (this.wrappedBodies.length === 0) {
             return;
@@ -368,15 +366,6 @@ export class PhysXWorld implements IPhysicsWorld {
             }
         }
         return false;
-    }
-
-    updateCollisionMatrix (_group: number, _mask: number): void {
-        for (let i = 0; i < this.wrappedBodies.length; i++) {
-            const g = this.wrappedBodies[i];
-            if (g.getGroup() === _group) {
-                g.setMask(_mask);
-            }
-        }
     }
 
     emitEvents (): void {

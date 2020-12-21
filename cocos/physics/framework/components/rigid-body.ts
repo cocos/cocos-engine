@@ -130,7 +130,7 @@ export class RigidBody extends Component {
 
     public set mass (value) {
         if (this._mass == value) return;
-        value = value < 0 ? 0 : value;
+        value = value <= 0 ? 0.0001 : value;
         this._mass = value;
         if (this._body) {
             this._body.setMass(value);

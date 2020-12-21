@@ -5,6 +5,7 @@ import { PhysXShape } from './shapes/physx-shape';
 import { TransformBit } from '../../core/scene-graph/node-enum';
 import { copyPhysXTransform, getTempTransform, PX, setMassAndUpdateInertia } from './export-physx';
 import { VEC3_0 } from '../utils/util';
+import { ERigidBodyType, PhysicsSystem } from '../framework';
 
 export class PhysXSharedBody {
     private static idCounter = 0;
@@ -19,7 +20,14 @@ export class PhysXSharedBody {
             newSB = new PhysXSharedBody(node, wrappedWorld);
             PhysXSharedBody.sharedBodesMap.set(node.uuid, newSB);
         }
-        if (wrappedBody) { newSB._wrappedBody = wrappedBody; }
+        if (wrappedBody) {
+            newSB._wrappedBody = wrappedBody;
+            const g = wrappedBody.rigidBody.group;
+            const m = PhysicsSystem.instance.collisionMatrix[g];
+            newSB.filterData.word0 = g;
+            newSB.filterData.word1 = m;
+
+        }
         return newSB;
     }
 
@@ -90,7 +98,7 @@ export class PhysXSharedBody {
         const wb = this.wrappedBody;
         if (wb) {
             const rb = wb.rigidBody;
-            if (rb.mass === 0) {
+            if (rb.type === ERigidBodyType.STATIC) {
                 this._isStatic = true;
                 this._impl = this.wrappedWorld.physics.createRigidStatic(t);
             } else {

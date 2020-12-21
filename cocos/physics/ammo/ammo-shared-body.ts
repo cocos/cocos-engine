@@ -234,7 +234,7 @@ export class AmmoSharedBody {
         const ghost = new Ammo.btCollisionObject();
         const ghostShape = new Ammo.btCompoundShape();
         ghost.setCollisionShape(ghostShape);
-        ghost.setCollisionFlags(AmmoCollisionFlags.CF_NO_CONTACT_RESPONSE);
+        ghost.setCollisionFlags(AmmoCollisionFlags.CF_STATIC_OBJECT | AmmoCollisionFlags.CF_NO_CONTACT_RESPONSE);
         this._ghostStruct = {
             'id': sharedIDCounter++,
             'ghost': ghost,
