@@ -55,7 +55,6 @@ function onCollision (type: CollisionEventType, wpa: PhysXShape, wpb: PhysXShape
             if (wpb.collider.needCollisionEvent) {
                 CollisionEventObject.selfCollider = wpb.collider;
                 CollisionEventObject.otherCollider = wpa.collider;
-                CollisionEventObject.contacts = [];
                 wpb.collider.emit(CollisionEventObject.type, CollisionEventObject);
             }
         }

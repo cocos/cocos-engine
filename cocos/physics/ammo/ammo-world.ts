@@ -355,7 +355,6 @@ export class AmmoWorld implements IPhysicsWorld {
         while (dicL--) {
             contactsPool.push.apply(contactsPool, CollisionEventObject.contacts as AmmoContactEquation[]);
             CollisionEventObject.contacts.length = 0;
-
             const key = this.contactsDic.getKeyByIndex(dicL);
             const data = this.contactsDic.getDataByKey(key) as any;
             const shape0: AmmoShape = data.shape0;
@@ -455,19 +454,6 @@ export class AmmoWorld implements IPhysicsWorld {
                         if (this.collisionArrayMat.get(shape0.id, shape1.id)) {
                             contactsPool.push.apply(contactsPool, CollisionEventObject.contacts as AmmoContactEquation[]);
                             CollisionEventObject.contacts.length = 0;
-
-                            for (let i = 0; i < data.contacts.length; i++) {
-                                const cq = data.contacts[i] as Ammo.btManifoldPoint;
-                                if (contactsPool.length > 0) {
-                                    const c = contactsPool.pop();
-                                    c!.impl = cq;
-                                    CollisionEventObject.contacts.push(c!);
-                                } else {
-                                    const c = new AmmoContactEquation(CollisionEventObject);
-                                    c.impl = cq;
-                                    CollisionEventObject.contacts.push(c);
-                                }
-                            }
 
                             CollisionEventObject.type = 'onCollisionExit';
                             CollisionEventObject.selfCollider = collider0;

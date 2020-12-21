@@ -136,7 +136,6 @@ export function copyPhysXTransform (node: Node, transform: any): void {
 
 export function getContactData (vec: any, index: number) {
     if (USE_BYTEDANCE) {
-        // return vec[index];
         return index;
     } else {
         return vec.get(index);
