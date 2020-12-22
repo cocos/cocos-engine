@@ -89,6 +89,10 @@ bool CCMTLCommandBuffer::isRenderingEntireDrawable(const Rect &rect, const CCMTL
 void CCMTLCommandBuffer::begin(RenderPass *renderPass, uint subpass, Framebuffer *frameBuffer, int submitIndex)
 {
     if (_commandBufferBegan) return;
+    if (!_pool)
+    {
+        _pool = [[NSAutoreleasePool alloc] init];
+    }
     
     _isSubCB = renderPass != nullptr;
 
@@ -127,6 +131,11 @@ void CCMTLCommandBuffer::end()
         [_currDrawable release];
         _currDrawable = nil;
     }
+    if (_pool)
+    {
+        [_pool release];
+        _pool = nullptr;
+    }
 }
 
 void CCMTLCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, int stencil, const CommandBuffer *const *cmdBuffs, uint32_t count)
@@ -136,6 +145,11 @@ void CCMTLCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fb
     {
         return;
     }
+    if (!_pool)
+    {
+        _pool = [[NSAutoreleasePool alloc] init];
+    }
+    
     auto isOffscreen = static_cast<CCMTLFramebuffer *>(fbo)->isOffscreen();
     if (!isOffscreen)
     {
@@ -166,7 +180,7 @@ void CCMTLCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fb
 
     if (count > 0)
     {
-        _parallelEncoder = [_mtlCommandBuffer parallelRenderCommandEncoderWithDescriptor:mtlRenderPassDescriptor];
+        _parallelEncoder = [[_mtlCommandBuffer parallelRenderCommandEncoderWithDescriptor:mtlRenderPassDescriptor] retain];
         // Create command encoders from parallel encoder and assign to command buffers
         for (uint i = 0u; i < count; ++i)
         {
@@ -188,6 +202,7 @@ void CCMTLCommandBuffer::endRenderPass()
     if (_parallelEncoder)
     {
         [_parallelEncoder endEncoding];
+        [_parallelEncoder release];
         _parallelEncoder = nil;
     }
     else

@@ -55,13 +55,13 @@ public:
 
     CC_INLINE void initialize(id<MTLCommandBuffer> commandBuffer, MTLRenderPassDescriptor *descriptor)
     {
-        _mtlEncoder = [commandBuffer renderCommandEncoderWithDescriptor:descriptor];
+        _mtlEncoder = [[commandBuffer renderCommandEncoderWithDescriptor:descriptor] retain];
         clearStates();
     }
     
     CC_INLINE void initialize(id<MTLParallelRenderCommandEncoder> parallelEncoder)
     {
-        _mtlEncoder = [parallelEncoder renderCommandEncoder];
+        _mtlEncoder = [[parallelEncoder renderCommandEncoder] retain];
         clearStates();
     }
     
@@ -288,7 +288,7 @@ public:
     CC_INLINE void endEncoding()
     {
         [_mtlEncoder endEncoding];
-//        [_mtlEncoder release];
+        [_mtlEncoder release];
         _mtlEncoder = nil;
     }
 
