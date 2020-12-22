@@ -126,29 +126,35 @@ texture coordinate
 a c
 b d
 */
-function _flipTexture (inGrid, gid) {
+function _flipTexture (inGrid, gid, shrink) {
+    const px = shrink * inGrid._px
+    const py = shrink * inGrid._py
+    const l = inGrid.l + px
+    const r = inGrid.r - px
+    const t = inGrid.t + py
+    const b = inGrid.b - py
     if (inGrid._rotated) {
         // 2:b   1:a
         // 4:d   3:c
-        _uva.x = inGrid.r;
-        _uva.y = inGrid.t;
-        _uvb.x = inGrid.l;
-        _uvb.y = inGrid.t;
-        _uvc.x = inGrid.r;
-        _uvc.y = inGrid.b;
-        _uvd.x = inGrid.l;
-        _uvd.y = inGrid.b;
+        _uva.x = r;
+        _uva.y = t;
+        _uvb.x = l;
+        _uvb.y = t;
+        _uvc.x = r;
+        _uvc.y = b;
+        _uvd.x = l;
+        _uvd.y = b;
     } else {
         // 1:a  3:c
         // 2:b  4:d
-        _uva.x = inGrid.l;
-        _uva.y = inGrid.t;
-        _uvb.x = inGrid.l;
-        _uvb.y = inGrid.b;
-        _uvc.x = inGrid.r;
-        _uvc.y = inGrid.t;
-        _uvd.x = inGrid.r;
-        _uvd.y = inGrid.b;
+        _uva.x = l;
+        _uva.y = t;
+        _uvb.x = l;
+        _uvb.y = b;
+        _uvc.x = r;
+        _uvc.y = t;
+        _uvd.x = r;
+        _uvd.y = b;
     }
 
     let tempVal;
@@ -189,31 +195,40 @@ texture coordinate
 b     c
    d
 */
-function _flipDiamondTileTexture (inGrid, gid) {
+function _flipDiamondTileTexture (inGrid, gid, shrink) {
+    const px = shrink * inGrid._px * inGrid.width / inGrid.height
+    const py = shrink * inGrid._py
+    const l = inGrid.l + px
+    const r = inGrid.r - px
+    const t = inGrid.t + py
+    const b = inGrid.b - py
+    const cx = inGrid.cx
+    const cy = inGrid.cy
+
     if (inGrid._rotated) {
         //       2:b
         // 4:d         1:a
         //       3:c
-        _uva.x = inGrid.r;
-        _uva.y = inGrid.cy;
-        _uvb.x = inGrid.cx;
-        _uvb.y = inGrid.t;
-        _uvc.x = inGrid.cx;
-        _uvc.y = inGrid.b;
-        _uvd.x = inGrid.l;
-        _uvd.y = inGrid.cy;
+        _uva.x = r;
+        _uva.y = cy;
+        _uvb.x = cx;
+        _uvb.y = t;
+        _uvc.x = cx;
+        _uvc.y = b;
+        _uvd.x = l;
+        _uvd.y = cy;
     } else {
         //       1:a
         // 2:b         3:c
         //       4:d
-        _uva.x = inGrid.cx;
-        _uva.y = inGrid.t;
-        _uvb.x = inGrid.l;
-        _uvb.y = inGrid.cy;
-        _uvc.x = inGrid.r;
-        _uvc.y = inGrid.cy;
-        _uvd.x = inGrid.cx;
-        _uvd.y = inGrid.b;
+        _uva.x = cx;
+        _uva.y = t;
+        _uvb.x = l;
+        _uvb.y = cy;
+        _uvc.x = r;
+        _uvc.y = cy;
+        _uvd.x = cx;
+        _uvd.y = b;
     }
 
     let tempVal;
@@ -455,8 +470,8 @@ export default class TmxAssembler extends Assembler {
                 // calc rect vertex
                 left = colData.left - _moveX;
                 bottom = colData.bottom - _moveY;
-                right = left + tileSize.width;
                 top = bottom + tileSize.height;
+                right = left + tileSize.width;
 
                 // begin to fill vertex buffer
                 tiledNode = tiledTiles[colData.index];
@@ -508,7 +523,7 @@ export default class TmxAssembler extends Assembler {
                     this.fillByTiledNode(tiledNode.node, _vbuf, _uintbuf, left, right, top, bottom, diamondTile, withColor);
                 }
 
-                this._flipTexture(grid, gid);
+                this._flipTexture(grid, gid, comp.shrink || 0);
 
                 // lt/ct -> a
                 _vbuf[_vfOffset + 2] = _uva.x;

@@ -1048,6 +1048,8 @@ cc.TiledMap.fillTextureGrids = function (tileset, texGrids, texId, spFrame, name
             offsetY: 0,
             rotated: false,
             gid: gid,
+            _px: 1 / texWidth,
+            _py: 1 / texHeight,
             _texture: tex
         };
 

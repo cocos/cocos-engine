@@ -178,6 +178,19 @@ let TiledLayer = cc.Class({
             type: cc.Boolean
         },
 
+        _shrink: {
+            default: 0
+        },
+        shrink: {
+            get () {
+                return this._shrink;
+            },
+            set (value) {
+                this._shrink = value;
+            },
+            type: cc.Float
+        },
+
         _shareCulling: {
             default: false
         },
