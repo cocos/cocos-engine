@@ -55,11 +55,11 @@ export class CannonConstraint implements IBaseConstraint {
 
     protected _impl!: CANNON.Constraint;
     protected _com!: Constraint;
-    protected _rigidBody: RigidBody | null = null;
+    protected _rigidBody: RigidBody;
 
     initialize (v: Constraint): void {
         this._com = v;
-        this._rigidBody = v.attachedBody;
+        this._rigidBody = v.attachedBody!;
         this.onComponentSet();
         this.setEnableCollision(v.enableCollision);
         CANNON.World['idToConstraintMap'][this._impl.id] = this._impl;

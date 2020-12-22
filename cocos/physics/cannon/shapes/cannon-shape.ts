@@ -63,6 +63,7 @@ export class CannonShape implements IBaseShape {
     get sharedBody (): CannonSharedBody { return this._sharedBody; }
 
     setMaterial (mat: PhysicsMaterial | null) {
+        if (!this._shape) return;
         if (mat == null) {
             (this._shape.material as unknown) = null;
         } else {
@@ -74,7 +75,7 @@ export class CannonShape implements IBaseShape {
             const smat = this._shape.material;
             smat.friction = mat.friction;
             smat.restitution = mat.restitution;
-            const coef = CANNON['CC_CONFIG'].correctInelastic;            
+            const coef = CANNON['CC_CONFIG'].correctInelastic;
             (smat as any).correctInelastic = smat.restitution === 0 ? coef : 0;
         }
     }
