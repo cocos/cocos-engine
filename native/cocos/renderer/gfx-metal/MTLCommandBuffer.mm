@@ -43,6 +43,8 @@ THE SOFTWARE.
 namespace cc {
 namespace gfx {
 
+thread_local NSAutoreleasePool *cbAutoReleasePool = nullptr;
+
 CCMTLCommandBuffer::CCMTLCommandBuffer(Device *device)
 : CommandBuffer(device)
 , _mtlDevice((CCMTLDevice *)device)
@@ -89,13 +91,10 @@ bool CCMTLCommandBuffer::isRenderingEntireDrawable(const Rect &rect, const CCMTL
 void CCMTLCommandBuffer::begin(RenderPass *renderPass, uint subpass, Framebuffer *frameBuffer, int submitIndex)
 {
     if (_commandBufferBegan) return;
-    if (!_pool)
-    {
-        _pool = [[NSAutoreleasePool alloc] init];
-    }
+    
+    cbAutoReleasePool = [[NSAutoreleasePool alloc] init];
     
     _isSubCB = renderPass != nullptr;
-
     if (!_isSubCB)
     {
         // Sub command buffer for parallel shouldn't request any command buffer
@@ -131,11 +130,8 @@ void CCMTLCommandBuffer::end()
         [_currDrawable release];
         _currDrawable = nil;
     }
-    if (_pool)
-    {
-        [_pool release];
-        _pool = nullptr;
-    }
+    [cbAutoReleasePool release];
+    cbAutoReleasePool = nullptr;
 }
 
 void CCMTLCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, int stencil, const CommandBuffer *const *cmdBuffs, uint32_t count)
@@ -144,10 +140,6 @@ void CCMTLCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fb
     if (_isSubCB)
     {
         return;
-    }
-    if (!_pool)
-    {
-        _pool = [[NSAutoreleasePool alloc] init];
     }
     
     auto isOffscreen = static_cast<CCMTLFramebuffer *>(fbo)->isOffscreen();

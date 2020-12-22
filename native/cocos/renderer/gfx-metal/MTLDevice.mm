@@ -52,6 +52,8 @@ THE SOFTWARE.
 namespace cc {
 namespace gfx {
 
+thread_local NSAutoreleasePool *autoReleasePool = nullptr;
+
 CCMTLDevice::CCMTLDevice() {
     _clipSpaceMinZ = 0.0f;
     _screenSpaceSignY = 1.0f;
@@ -206,6 +208,7 @@ void CCMTLDevice::resize(uint width, uint height) {}
 void CCMTLDevice::acquire() {
     _inFlightSemaphore->wait();
 
+    autoReleasePool = [[NSAutoreleasePool alloc] init];
     // Clear queue stats
     CCMTLQueue *queue = static_cast<CCMTLQueue *>(_queue);
     queue->_numDrawCalls = 0;
@@ -232,6 +235,8 @@ void CCMTLDevice::present() {
         _inFlightSemaphore->signal();
     }];
     [mtlCommandBuffer commit];
+    [autoReleasePool release];
+    autoReleasePool = nullptr;
 }
 
 Fence *CCMTLDevice::createFence() {
