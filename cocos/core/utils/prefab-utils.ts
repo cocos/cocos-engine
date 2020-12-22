@@ -196,17 +196,6 @@ export function createNodeWithPrefab (node: Node) {
     }
 }
 
-function walkNode (node: Node, handleFunc: (nodeIter: Node) => void) {
-    if (handleFunc) {
-        handleFunc(node);
-    }
-
-    const children = node.children;
-    for (let i = 0; i < children.length; i++) {
-        walkNode(children[i], handleFunc);
-    }
-}
-
 export function generateTargetMap (node: Node, targetMap: any, isRoot: boolean) {
     let curTargetMap = targetMap;
 
@@ -299,52 +288,4 @@ export function applyPropertyOverrides (node: Node, propertyOverrides: PropertyO
             }
         }
     }
-}
-
-/**
- * whether the node is the root of a prefab
- * @param node node
- */
-export function isPrefabInstanceRoot (node: Node) {
-    // @ts-expect-error: private member access
-    return !!node._prefabInstance;
-}
-
-/**
- * whether the node is child of a prefab
- * @param node node
- */
-export function isChildOfPrefabInstance (node: Node) {
-    let parent = node.parent;
-    let hasPrefabRootInParent = false;
-    while (parent) {
-        // @ts-expect-error: private member access
-        if (parent._prefabInstance) {
-            hasPrefabRootInParent = true;
-            break;
-        }
-        parent = parent.parent;
-    }
-
-    return hasPrefabRootInParent;
-}
-
-/**
- * whether the node is part of a prefab,
- * root of prefab is also part of prefab
- * @param node node
- */
-export function isPartOfPrefabInstance (node: Node) {
-    let parent: Node|null = node;
-    let hasPrefabRootInParent = false;
-    while (parent) {
-        // @ts-expect-error: private member access
-        if (parent._prefabInstance) {
-            hasPrefabRootInParent = true;
-            break;
-        }
-        parent = parent.parent;
-    }
-
-    return hasPrefabRootInParent;
 }
