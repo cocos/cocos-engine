@@ -529,7 +529,7 @@ export class Camera extends Component {
         return out;
     }
 
-    protected _createCamera () {
+    public _createCamera () {
         this._camera = (legacyCC.director.root as Root).createCamera();
         this._camera.initialize({
             name: this.node.name,

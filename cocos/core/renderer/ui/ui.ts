@@ -106,7 +106,7 @@ export class UI {
     private _uiMaterials: Map<number, UIMaterial> = new Map<number, UIMaterial>();
     private _canvasMaterials: Map<number, Map<number, number>> = new Map<number, Map<number, number>>();
     private _batches: CachedArray<UIDrawBatch>;
-    private _doUploadBuffersCall: Map<any, Function> = new Map();
+    private _doUploadBuffersCall: Map<any, ((ui:UI) => void)> = new Map();
     private _emptyMaterial = new Material();
     private _currMaterial: Material = this._emptyMaterial;
     private _currTexture: Texture | null = null;
@@ -269,19 +269,19 @@ export class UI {
         this._screens.splice(idx, 1);
         if (comp.camera) {
             const matRecord = this._canvasMaterials.get(comp.camera.visibility);
-            const matHashInter = matRecord!.keys();
+            if (!matRecord) { return; }
+            const matHashInter = matRecord.keys();
             let matHash = matHashInter.next();
             while (!matHash.done) {
                 this._removeUIMaterial(matHash.value);
                 matHash = matHashInter.next();
             }
 
-            matRecord!.clear();
+            matRecord.clear();
         }
 
-        let camera: Camera | null;
         for (let i = idx; i < this._screens.length; i++) {
-            camera = this._screens[i].camera!;
+            const camera = this._screens[i].camera;
             if (camera) {
                 const matRecord = this._canvasMaterials.get(camera.visibility)!;
                 camera.visibility = Layers.BitMask.UI_2D | (i + 1);
@@ -299,7 +299,7 @@ export class UI {
         this._screens.sort(this._screenSort);
     }
 
-    public addUploadBuffersFunc (target: any, func: (ui: UI) => void) {
+    public addUploadBuffersFunc (target: any, func: ((ui:UI) => void)) {
         this._doUploadBuffersCall.set(target, func);
     }
 
@@ -511,9 +511,10 @@ export class UI {
 
         const uiCanvas = this._currCanvas;
         const curDrawBatch = this._drawBatchPool.alloc();
+        if (!uiCanvas?.camera) { return; }
         const subModel = model!.subModels[0];
         if (subModel) {
-            curDrawBatch.camera = uiCanvas && uiCanvas.camera!;
+            curDrawBatch.camera = uiCanvas && uiCanvas.camera;
             curDrawBatch.model = model;
             curDrawBatch.bufferBatch = null;
             curDrawBatch.material = mat;
@@ -577,7 +578,8 @@ export class UI {
         }
 
         const curDrawBatch = this._currStaticRoot ? this._currStaticRoot._requireDrawBatch() : this._drawBatchPool.alloc();
-        curDrawBatch.camera = uiCanvas && uiCanvas.camera!;
+        if (!uiCanvas?.camera) { return; }
+        curDrawBatch.camera = uiCanvas && uiCanvas.camera;
         curDrawBatch.bufferBatch = buffer;
         curDrawBatch.material = mat;
         curDrawBatch.texture = this._currTexture!;

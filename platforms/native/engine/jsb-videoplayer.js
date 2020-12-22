@@ -81,6 +81,19 @@ if (cc.internal.VideoPlayer) {
             this.video.addEventListener('ended', this.onEnded.bind(this));
         }
 
+        onLoadedMetadata() {
+            this._loadedMeta = true;
+            this._forceUpdate = true;
+            if (this._visible) {
+                this.enable();
+            } else {
+                this.disable();
+            }
+            this.dispatchEvent(EventType.META_LOADED);
+            this.delayedFullScreen();
+            this.delayedPlay();
+        }
+
         createVideoPlayer(url) {
             this._video = new jsb.VideoPlayer();
             this._bindEvent();

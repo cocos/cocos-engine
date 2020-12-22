@@ -52,6 +52,9 @@ rules:
     prefer-spread: off # we need ES5 to be fast too
     space-before-function-paren: [warn, always] # we require this explicitly
     radix: off # we sometimes do not need to pass a second parameter
+    # allow underscores, we still widely use pre-dangle naming in our naming convention
+    # e.g. private properties, private functions, module scope shared variables etc.
+    no-underscore-dangle: off 
 
     ##### AIRBNB-SPECIFIC RULE OVERRIDES #####
 
@@ -65,9 +68,6 @@ rules:
     lines-between-class-members: off # be more lenient on member declarations
     max-classes-per-file: off # helper classes are common
     max-len: [warn, 150] # more lenient on max length per line
-    no-underscore-dangle: [warn, {
-      allowAfterThis: true # members prefixed with underscore are considered as private
-    }] # allow underscores
     no-plusplus: off # allow increment/decrement operators
     no-continue: off # allow unlabeled continues
     no-mixed-operators: off # this is just cumbersome

@@ -29,8 +29,8 @@
  * @module ui
  */
 
-import { ccclass, help, disallowMultiple, executeInEditMode, executionOrder,
-    menu, requireComponent, tooltip, type, serializable } from 'cc.decorator';
+import { ccclass, help, disallowMultiple, executeInEditMode,
+    executionOrder, menu, requireComponent, tooltip, type, serializable } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
 import { Camera } from '../../3d/framework/camera-component';
 import { Widget } from '../../../ui/components/widget';
@@ -47,7 +47,6 @@ import { UITransform } from './ui-transform';
 import { legacyCC } from '../../global-exports';
 import { RenderWindow } from '../../renderer/core/render-window';
 import { SystemEventType } from '../../platform/event-manager';
-import { Layers } from '../..';
 
 const _worldPos = new Vec3();
 
@@ -96,6 +95,7 @@ export class Canvas extends Component {
 
     set clearFlag (val) {
         this._clearFlag = val;
+
         if (this._cameraComponent) {
             this._cameraComponent.clearFlags = this._clearFlag;
         }
@@ -115,6 +115,7 @@ export class Canvas extends Component {
 
     set color (val) {
         Color.copy(this._color, val);
+
         if (this._cameraComponent) {
             this._cameraComponent.clearColor = val;
         }
@@ -141,6 +142,7 @@ export class Canvas extends Component {
 
     set renderMode (val) {
         this._renderMode = val;
+
         if (this._cameraComponent) {
             this._cameraComponent.priority = this._getViewPriority();
         }
@@ -164,6 +166,7 @@ export class Canvas extends Component {
 
     set priority (val: number) {
         this._priority = val;
+
         if (this._cameraComponent) {
             this._cameraComponent.priority = this._getViewPriority();
         }
@@ -295,26 +298,22 @@ export class Canvas extends Component {
             this._fitDesignResolution!();
         }
 
+        // Create cameraComponent to manage camera value.
         if (!this._cameraComponent) {
-            const cameraNode = new Node(`UICamera_${this.node.name}`);
-            this.node.addChild(cameraNode);
-            cameraNode.addComponent('cc.Camera');
-            this._cameraComponent = cameraNode.getComponent('cc.Camera') as Camera;
-            this._cameraComponent.name = `ui_${this.node.name}`;
-            this._cameraComponent.projection = Camera.ProjectionType.ORTHO;
-            this._cameraComponent.priority = this._getViewPriority();
-            this._cameraComponent.visibility = Layers.BitMask.DEFAULT | Layers.BitMask.UI_2D | Layers.BitMask.UI_3D;
-
-            this._cameraComponent.fov = 45.0;
-            this._cameraComponent.clearFlags = this.clearFlag;
-            this._cameraComponent.far = 2000.0;
-            this._cameraComponent.rect = new Rect(0, 0, 1, 1);
-            this._cameraComponent.clearColor = this._color;
-            this._cameraComponent.camera.update();
+            this._createCameraComponent();
+        } else if (this._cameraComponent) {
+            const node = this._cameraComponent.node;
+            if (!node || !this._atScene(node)) { this._createCameraComponent(); }
         }
 
-        this._checkTargetTextureEvent(null);
-        this._updateTargetTexture();
+        if (!EDITOR) {
+            if (this._cameraComponent) {
+                if (!this._cameraComponent.camera) { this._cameraComponent._createCamera(); }
+            }
+
+            this._checkTargetTextureEvent(null);
+            this._updateTargetTexture();
+        }
 
         if (EDITOR) {
             // Constantly align canvas node in edit mode
@@ -333,21 +332,27 @@ export class Canvas extends Component {
 
     public onEnable () {
         if (this._cameraComponent) {
-            this._cameraComponent.onEnable();
+            const camera = this._cameraComponent.camera;
+            if (camera) {
+                legacyCC.director.root!.ui.renderScene.addCamera(camera);
+            } else {
+                this._cameraComponent._createCamera();
+                legacyCC.director.root!.ui.renderScene.addCamera(this._cameraComponent.camera);
+            }
         }
     }
 
     public onDisable () {
         if (this._cameraComponent) {
-            this._cameraComponent.onDisable();
+            const camera = this._cameraComponent.camera;
+            if (camera) {
+                legacyCC.director.root!.ui.renderScene.removeCamera(camera);
+            }
         }
     }
 
     public onDestroy () {
         legacyCC.director.root!.ui.removeScreen(this);
-        if (this._cameraComponent) {
-            this._cameraComponent.onDestroy();
-        }
 
         if (EDITOR) {
             legacyCC.director.off(legacyCC.Director.EVENT_AFTER_UPDATE, this._fitDesignResolution!, this);
@@ -361,22 +366,18 @@ export class Canvas extends Component {
     }
 
     protected _onResizeCamera () {
-        if (!this._alignCanvasWithScreen) { return; }
-
-        const cameraComponent = this._cameraComponent;
-        if (cameraComponent) {
+        if (this._cameraComponent && this._alignCanvasWithScreen) {
             if (this._targetTexture) {
                 const win = this._targetTexture.window;
-                cameraComponent.camera.setFixedSize(win!.width, win!.height);
-                cameraComponent.orthoHeight = visibleRect.height / 2;
+                if (this._cameraComponent.camera) { this._cameraComponent.camera.setFixedSize(win!.width, win!.height); }
+                this._cameraComponent.orthoHeight = visibleRect.height / 2;
             } else {
                 const size = game.canvas!;
-                cameraComponent.camera.resize(size.width, size.height);
-                cameraComponent.orthoHeight = game.canvas!.height / view.getScaleY() / 2;
+                if (this._cameraComponent.camera) { this._cameraComponent.camera.resize(size.width, size.height); }
+                this._cameraComponent.orthoHeight = game.canvas!.height / view.getScaleY() / 2;
             }
             this.node.getWorldPosition(_worldPos);
-            cameraComponent.node.setWorldPosition(_worldPos.x, _worldPos.y, 1000);
-            cameraComponent.camera.update();
+            this._cameraComponent.node.setWorldPosition(_worldPos.x, _worldPos.y, 1000);
         }
     }
 
@@ -384,7 +385,6 @@ export class Canvas extends Component {
         const resizeFunc = (win: RenderWindow) => {
             if (this._cameraComponent) {
                 this._cameraComponent.camera.setFixedSize(win.width, win.height);
-                this._cameraComponent.camera.update();
             }
         };
 
@@ -398,26 +398,55 @@ export class Canvas extends Component {
     }
 
     protected _updateTargetTexture () {
-        if (!this._cameraComponent) { return; }
+        if (!this._cameraComponent) {
+            return;
+        }
 
         const cameraComponent = this._cameraComponent;
-        if (!cameraComponent.camera) { return; }
+        const camera = cameraComponent.camera;
+        if (!camera) { return; }
 
         if (!this._targetTexture) {
-            cameraComponent.camera.changeTargetWindow();
+            camera.changeTargetWindow();
             cameraComponent.orthoHeight = game.canvas!.height / view.getScaleY() / 2;
-            cameraComponent.camera.isWindowSize = true;
+            camera.isWindowSize = true;
         } else {
             const win = this._targetTexture.window;
-            cameraComponent.camera.changeTargetWindow(win);
+            camera.changeTargetWindow(win);
             cameraComponent.orthoHeight = visibleRect.height / 2;
-            cameraComponent.camera.isWindowSize = false;
+            camera.isWindowSize = false;
         }
-        cameraComponent.camera.update();
     }
 
     private _getViewPriority () {
         return this._renderMode === RenderMode.OVERLAY ? this._priority | 1 << 30 : this._priority;
+    }
+
+    private _atScene (node: Node) {
+        if (!(node === legacyCC.director.getScene())) {
+            const tmpNode = node.getParent();
+            if (tmpNode) { return this._atScene(tmpNode) as boolean; }
+            return false;
+        }
+        return true;
+    }
+
+    private _createCameraComponent () {
+        if (this._cameraComponent) {
+            this._cameraComponent.destroy();
+            this._cameraComponent = null;
+        }
+
+        const cameraNode = new Node(`UICamera_${this.node.name}`);
+        this.node.addChild(cameraNode);
+        cameraNode.addComponent('cc.Camera');
+        this._cameraComponent = cameraNode.getComponent('cc.Camera') as Camera;
+        this._cameraComponent.projection = Camera.ProjectionType.ORTHO;
+        this._cameraComponent.priority = this._getViewPriority();
+        this._cameraComponent.clearFlags = this.clearFlag;
+        this._cameraComponent.far = 2000.0;
+        this._cameraComponent.rect = new Rect(0, 0, 1, 1);
+        this._cameraComponent.clearColor = this._color;
     }
 }
 
