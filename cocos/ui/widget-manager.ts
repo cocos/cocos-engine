@@ -29,6 +29,7 @@
  * @hidden
  */
 
+import { EDITOR, DEV } from 'internal:constants';
 import { Director, director } from '../core/director';
 import { Vec2, Vec3 } from '../core/math';
 import { View } from '../core/platform/view';
@@ -38,7 +39,6 @@ import { Node } from '../core/scene-graph/node';
 import { array } from '../core/utils/js';
 import { AlignFlags, AlignMode, computeInverseTransForTarget, getReadonlyNodeSize, Widget } from './widget';
 import { UITransform } from '../2d/framework';
-import { EDITOR, DEV } from 'internal:constants';
 import { legacyCC } from '../core/global-exports';
 import { warnID } from '../core/platform/debug';
 
