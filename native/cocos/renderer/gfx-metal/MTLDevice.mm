@@ -218,6 +218,20 @@ void CCMTLDevice::present() {
     _numDrawCalls = queue->_numDrawCalls;
     _numInstances = queue->_numInstances;
     _numTriangles = queue->_numTriangles;
+
+    //hold this pointer before update _currentFrameIndex
+    CCMTLGPUStagingBufferPool *bufferPool = _gpuStagingBufferPools[_currentFrameIndex];
+    _currentFrameIndex = (_currentFrameIndex + 1) % MAX_FRAMES_IN_FLIGHT;
+
+    auto cmdBuff = static_cast<CCMTLCommandBuffer *>(_cmdBuff);
+    auto mtlCommandBuffer = cmdBuff->getMTLCommandBuffer();
+    [mtlCommandBuffer presentDrawable:cmdBuff->getCurrentDrawable()];
+    [mtlCommandBuffer addCompletedHandler:^(id<MTLCommandBuffer> commandBuffer) {
+        [commandBuffer release];
+        bufferPool->reset();
+        _inFlightSemaphore->signal();
+    }];
+    [mtlCommandBuffer commit];
 }
 
 Fence *CCMTLDevice::createFence() {

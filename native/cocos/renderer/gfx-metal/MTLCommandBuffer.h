@@ -71,11 +71,11 @@ public:
 
     CC_INLINE bool isCommandBufferBegan() const { return _commandBufferBegan; }
     CC_INLINE id<MTLCommandBuffer> getMTLCommandBuffer() const { return _mtlCommandBuffer; }
+    id<CAMetalDrawable> getCurrentDrawable();
 
 private:
     void bindDescriptorSets();
     bool isRenderingEntireDrawable(const Rect &rect, const CCMTLRenderPass *renderPass);
-    id<CAMetalDrawable> getCurrentDrawable();
 
     CCMTLGPUPipelineState *_gpuPipelineState = nullptr;
 

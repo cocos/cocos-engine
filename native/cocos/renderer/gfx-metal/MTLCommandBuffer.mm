@@ -452,7 +452,7 @@ void CCMTLCommandBuffer::draw(InputAssembler *ia)
     }
 }
 
-void CCMTLCommandBuffer::updateBuffer(Buffer *buff, const void *data, uint size, uint offset)
+void CCMTLCommandBuffer::updateBuffer(Buffer *buff, const void *data, uint size)
 {
     if (!buff)
     {
