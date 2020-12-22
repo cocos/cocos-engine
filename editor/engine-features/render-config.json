@@ -28,32 +28,37 @@
         },
         "3d": {
             "default": ["3d"],
-            "label": "3D",
+            "label": "Core",
             "description": "3D module",
-            "wechatPlugin": true
+            "wechatPlugin": true,
+            "category": "3D Features"
         },
         "2d": {
             "default": ["2d"],
-            "label": "2D",
+            "label": "Core",
             "description": "2D module",
+            "category": "2D Features",
             "wechatPlugin": true
         },
         "ui": {
             "default": ["ui"],
             "label": "UI",
             "description": "UI module",
+            "category": "2D Features",
             "wechatPlugin": true
         },
         "particle": {
             "default": ["particle"],
             "label": "Particle System",
             "description": "Particle system module",
+            "category": "3D Features",
             "wechatPlugin": true
         },
         "physics": {
             "label": "Physics",
             "description": "Physics(implementation).",
             "default": ["physics-cannon"],
+            "category": "3D Features",
             "options": {
                 "physics-ammo": {
                     "label": "ammo.js"
@@ -67,9 +72,10 @@
             }
         },
         "physics-2d": {
-            "label": "Physics 2D",
+            "label": "Physics",
             "description": "Physics 2D",
             "default": ["physics-2d-box2d"],
+            "category": "2D Features",
             "options": {
                 "physics-2d-box2d": {
                     "label": "box2d"
@@ -81,15 +87,17 @@
         },
         "intersection-2d": {
             "default": ["intersection-2d"],
-            "label": "Intersection 2D",
+            "label": "Intersection",
             "description": "Intersection 2D.",
-            "wechatPlugin": true
+            "wechatPlugin": true,
+            "category": "2D Features"
         },
         "primitive": {
             "default": ["primitive"],
             "label": "Primitive",
             "description": "Primitive",
-            "wechatPlugin": true
+            "wechatPlugin": true,
+            "category": "3D Features"
         },
         "profiler": {
             "default": ["profiler"],
@@ -99,9 +107,10 @@
         },
         "particle-2d": {
             "default": ["particle-2d"],
-            "label": "Particle 2D",
-            "description": "Particle 2D.",
-            "wechatPlugin": true
+            "label": "Particle",
+            "description": "Particle 2D",
+            "wechatPlugin": true,
+            "category": "2D Features"
         },
         "audio": {
             "default": ["audio"],
@@ -134,25 +143,29 @@
             "default": ["terrain"],
             "label": "Terrain",
             "description": "Terrain support",
-            "wechatPlugin": true
+            "wechatPlugin": true,
+            "category": "3D Features"
         },
         "tiled-map": {
             "default": ["tiled-map"],
             "label": "TiledMap",
-            "description": "TimedMap support",
-            "wechatPlugin": true
+            "description": "TiledMap support",
+            "wechatPlugin": true,
+            "category": "2D Features"
         },
         "spine": {
             "default": ["spine"],
             "label": "Spine",
             "description": "Spine support",
-            "wechatPlugin": true
+            "wechatPlugin": true,
+            "category": "2D Features"
         },
         "dragon-bones": {
             "default": ["dragon-bones"],
             "label": "DragonBones",
             "description": "Description support",
-            "wechatPlugin": true
+            "wechatPlugin": true,
+            "category": "2D Features"
         }
     }
 }

@@ -63,6 +63,9 @@
                 },
                 "wechatPlugin": {
                     "type": "boolean"
+                },
+                "category": {
+                    "type": "string"
                 }
             },
             "type": "object"
