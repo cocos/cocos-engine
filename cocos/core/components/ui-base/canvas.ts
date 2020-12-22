@@ -29,7 +29,8 @@
  * @module ui
  */
 
-import { ccclass, help, disallowMultiple, executeInEditMode, executionOrder, menu, requireComponent, tooltip, type, serializable } from 'cc.decorator';
+import { ccclass, help, disallowMultiple, executeInEditMode,
+    executionOrder, menu, requireComponent, tooltip, type, serializable } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
 import { Camera } from '../../3d/framework/camera-component';
 import { Widget } from '../../../ui/components/widget';
@@ -300,21 +301,16 @@ export class Canvas extends Component {
 
         // Create cameraComponent to manage camera value.
         if (!this._cameraComponent) {
-            const cameraNode = new Node(`UICamera_${this.node.name}`);
-            this.node.addChild(cameraNode);
-            cameraNode.addComponent('cc.Camera');
-            this._cameraComponent = cameraNode.getComponent('cc.Camera') as Camera;
-            this._cameraComponent.projection = Camera.ProjectionType.ORTHO;
-            this._cameraComponent.priority = this._getViewPriority();
-            this._cameraComponent.flows = ['UIFlow'];
-            this._cameraComponent.clearFlags = this.clearFlag;
-            this._cameraComponent.far = 2000.0;
-            this._cameraComponent.rect = new Rect(0, 0, 1, 1);
-            this._cameraComponent.clearColor = this._color;
+            this._createCameraComponent();
+        } else if (this._cameraComponent) {
+            const node = this._cameraComponent.node;
+            if (!node || !this._atScene(node)) { this._createCameraComponent(); }
         }
 
         if (!EDITOR) {
-            if (!this._cameraComponent.camera) { this._cameraComponent._createCamera(); }
+            if (this._cameraComponent) {
+                if (!this._cameraComponent.camera) { this._cameraComponent._createCamera(); }
+            }
 
             this._checkTargetTextureEvent(null);
             this._updateTargetTexture();
@@ -434,6 +430,33 @@ export class Canvas extends Component {
 
     private _getViewPriority () {
         return this._renderMode === RenderMode.OVERLAY ? this._priority | 1 << 30 : this._priority;
+    }
+
+    private _atScene (node: Node) {
+        if (!(node instanceof legacyCC.Scene)) {
+            const tmpNode = node.getParent();
+            if (tmpNode) { this._atScene(tmpNode); } else { return false; }
+        }
+        return true;
+    }
+
+    private _createCameraComponent () {
+        if (this._cameraComponent) {
+            this._cameraComponent.destroy();
+            this._cameraComponent = null;
+        }
+
+        const cameraNode = new Node(`UICamera_${this.node.name}`);
+        this.node.addChild(cameraNode);
+        cameraNode.addComponent('cc.Camera');
+        this._cameraComponent = cameraNode.getComponent('cc.Camera') as Camera;
+        this._cameraComponent.projection = Camera.ProjectionType.ORTHO;
+        this._cameraComponent.priority = this._getViewPriority();
+        this._cameraComponent.flows = ['UIFlow'];
+        this._cameraComponent.clearFlags = this.clearFlag;
+        this._cameraComponent.far = 2000.0;
+        this._cameraComponent.rect = new Rect(0, 0, 1, 1);
+        this._cameraComponent.clearColor = this._color;
     }
 }
 
