@@ -79,7 +79,7 @@ void GLES3CommandBuffer::destroy() {
     CC_DELETE(_cmdAllocator);
 }
 
-void GLES3CommandBuffer::begin(RenderPass *renderPass, uint subpass, Framebuffer *frameBuffer, int submitIndex) {
+void GLES3CommandBuffer::begin(RenderPass *renderPass, uint subpass, Framebuffer *frameBuffer, bool parallelPass, int submitIndex) {
     _cmdAllocator->clearCmds(_curCmdPackage);
     _curGPUPipelineState = nullptr;
     _curGPUInputAssember = nullptr;

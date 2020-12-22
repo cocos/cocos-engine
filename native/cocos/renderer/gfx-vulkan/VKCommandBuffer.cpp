@@ -71,7 +71,7 @@ void CCVKCommandBuffer::destroy() {
     }
 }
 
-void CCVKCommandBuffer::begin(RenderPass *renderPass, uint subpass, Framebuffer *frameBuffer, int submitIndex) {
+void CCVKCommandBuffer::begin(RenderPass *renderPass, uint subpass, Framebuffer *frameBuffer, bool parallelPass, int submitIndex) {
     if (_gpuCommandBuffer->began) return;
 
     ((CCVKDevice *)_device)->gpuDevice()->getCommandBufferPool(std::this_thread::get_id())->request(_gpuCommandBuffer);
