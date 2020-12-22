@@ -5,7 +5,8 @@
             "label": "Core",
             "description": "Core module.",
             "required": true,
-            "default": ["base"]
+            "default": ["base"],
+            "wechatPlugin": true
         },
         "graphcis": {
             "label": "Graphcis API",
@@ -15,32 +16,38 @@
                 "gfx-webgl": {
                     "required": true,
                     "label": "WebGL 1.0",
-                    "description": "The WebGL 1.0 is required whenever."
+                    "description": "The WebGL 1.0 is required whenever.",
+                    "wechatPlugin": true
                 },
                 "gfx-webgl2": {
-                    "label": "WebGL 2.0"
+                    "label": "WebGL 2.0",
+                    "wechatPlugin": true
                 }
             }
         },
         "3d": {
             "default": ["3d"],
             "label": "3D",
-            "description": "3D module"
+            "description": "3D module",
+            "wechatPlugin": true
         },
         "2d": {
             "default": ["2d"],
             "label": "2D",
-            "description": "2D module"
+            "description": "2D module",
+            "wechatPlugin": true
         },
         "ui": {
             "default": ["ui"],
             "label": "UI",
-            "description": "UI module"
+            "description": "UI module",
+            "wechatPlugin": true
         },
         "particle": {
             "default": ["particle"],
             "label": "Particle System",
-            "description": "Particle system module"
+            "description": "Particle system module",
+            "wechatPlugin": true
         },
         "physics": {
             "multi": false,
@@ -76,65 +83,77 @@
         "intersection-2d": {
             "default": ["intersection-2d"],
             "label": "Intersection 2D",
-            "description": "Intersection 2D."
+            "description": "Intersection 2D.",
+            "wechatPlugin": true
         },
         "primitive": {
             "default": ["primitive"],
             "label": "Primitive",
-            "description": "Primitive"
+            "description": "Primitive",
+            "wechatPlugin": true
         },
         "profiler": {
             "default": ["profiler"],
             "label": "Profiler",
-            "description": "Profiler"
+            "description": "Profiler",
+            "wechatPlugin": true
         },
         "particle-2d": {
             "default": ["particle-2d"],
             "label": "Particle 2D",
-            "description": "Particle 2D."
+            "description": "Particle 2D.",
+            "wechatPlugin": true
         },
         "audio": {
             "default": ["audio"],
             "label": "Audio",
             "description": "Audio support.",
-            "native": "USE_AUDIO"
+            "native": "USE_AUDIO",
+            "wechatPlugin": true
         },
         "video": {
             "default": ["video"],
             "label": "VideoPlayer",
             "description": "VideoPlayer support.",
-            "native": "USE_VIDEO"
+            "native": "USE_VIDEO",
+            "wechatPlugin": true
         },
         "webview": {
             "default": ["webview"],
             "label": "WebView",
             "description": "WebView support.",
-            "native": "USE_WEBVIEW"
+            "native": "USE_WEBVIEW",
+            "wechatPlugin": true
         },
         "tween": {
             "default": ["tween"],
             "label": "Tween",
-            "description": "Tween support."
+            "description": "Tween support.",
+            "wechatPlugin": true
         },
         "terrain": {
             "default": ["terrain"],
             "label": "Terrain",
-            "description": "Terrain support"
+            "description": "Terrain support",
+            "wechatPlugin": true
         },
         "tiled-map": {
             "default": ["tiled-map"],
             "label": "TiledMap",
-            "description": "TimedMap support"
+            "description": "TimedMap support",
+            "wechatPlugin": true
         },
         "spine": {
             "default": ["spine"],
             "label": "Spine",
-            "description": "Spine support"
+            "description": "Spine support",
+            "wechatPlugin": true
         },
         "dragon-bones": {
             "default": ["dragon-bones"],
             "label": "DragonBones",
-            "description": "Description support"
+            "description": "Description support",
+            "wechatPlugin": true
         }
     }
 }
