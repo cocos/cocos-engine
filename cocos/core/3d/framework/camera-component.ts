@@ -29,10 +29,10 @@
  */
 
 import { EDITOR } from 'internal:constants';
+import { ccclass, help, executeInEditMode, menu, tooltip, displayOrder, type, serializable } from 'cc.decorator';
 import { RenderTexture } from '../../assets/render-texture';
 import { UITransform } from '../../components/ui-base';
 import { Component } from '../../components/component';
-import { ccclass, help, executeInEditMode, menu, tooltip, displayOrder, type, serializable } from 'cc.decorator';
 import { Ray } from '../../geometry';
 import { ClearFlag as GFXClearFlag } from '../../gfx/define';
 import { Color, Rect, toRadian, Vec3 } from '../../math';
@@ -67,7 +67,6 @@ const ClearFlag = Enum({
     DONT_CLEAR: GFXClearFlag.NONE,
 });
 
-
 export declare namespace Camera {
     export type ProjectionType = EnumAlias<typeof ProjectionType>;
     export type FOVAxis = EnumAlias<typeof FOVAxis>;
@@ -76,7 +75,6 @@ export declare namespace Camera {
     export type Shutter = EnumAlias<typeof Shutter>;
     export type ISO = EnumAlias<typeof ISO>;
 }
-
 
 /**
  * @en The Camera Component.
@@ -270,8 +268,7 @@ export class Camera extends Component {
         this._fovAxis = val;
         if (this._camera) {
             this._camera.fovAxis = val;
-            if (val === CameraFOVAxis.VERTICAL) { this.fov = this._fov * this._camera.aspect; }
-            else { this.fov = this._fov / this._camera.aspect; }
+            if (val === CameraFOVAxis.VERTICAL) { this.fov = this._fov * this._camera.aspect; } else { this.fov = this._fov / this._camera.aspect; }
         }
     }
 
@@ -446,8 +443,8 @@ export class Camera extends Component {
     set inEditorMode (value) {
         this._inEditorMode = value;
         if (this._camera) {
-            this._camera.changeTargetWindow(value ? legacyCC.director.root && legacyCC.director.root.mainWindow :
-                legacyCC.director.root && legacyCC.director.root.tempWindow);
+            this._camera.changeTargetWindow(value ? legacyCC.director.root && legacyCC.director.root.mainWindow
+                : legacyCC.director.root && legacyCC.director.root.tempWindow);
         }
     }
 
@@ -466,7 +463,6 @@ export class Camera extends Component {
         this.node.hasChangedFlags |= TransformBit.POSITION; // trigger camera matrix update
         if (this._camera) {
             this._attachToScene();
-            return;
         }
     }
 
@@ -528,8 +524,8 @@ export class Camera extends Component {
         this.worldToScreen(wpos, _temp_vec3_1);
         const cmp = uiNode.getComponent('cc.UITransform') as UITransform;
         const designSize = view.getVisibleSize();
-        const xoffset = _temp_vec3_1.x - this._camera!.width * 0.5;
-        const yoffset = _temp_vec3_1.y - this._camera!.height * 0.5;
+        const xoffset = _temp_vec3_1.x - this._camera.width * 0.5;
+        const yoffset = _temp_vec3_1.y - this._camera.height * 0.5;
         _temp_vec3_1.x = xoffset / legacyCC.view.getScaleX() + designSize.width * 0.5;
         _temp_vec3_1.y = yoffset / legacyCC.view.getScaleY() + designSize.height * 0.5;
 
@@ -542,12 +538,12 @@ export class Camera extends Component {
 
     protected _createCamera () {
         this._camera = (legacyCC.director.root as Root).createCamera();
-        this._camera!.initialize({
+        this._camera.initialize({
             name: this.node.name,
             node: this.node,
             projection: this._projection,
-            window: this._inEditorMode ? legacyCC.director.root && legacyCC.director.root.mainWindow :
-                legacyCC.director.root && legacyCC.director.root.tempWindow,
+            window: this._inEditorMode ? legacyCC.director.root && legacyCC.director.root.mainWindow
+                : legacyCC.director.root && legacyCC.director.root.tempWindow,
             priority: this._priority,
             flows: this._flows,
         });
