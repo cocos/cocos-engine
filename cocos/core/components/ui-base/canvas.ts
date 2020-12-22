@@ -426,10 +426,8 @@ export class Canvas extends Component {
     private _atScene (node: Node) {
         if (!(node === legacyCC.director.getScene())) {
             const tmpNode = node.getParent();
-            if (tmpNode) {
-                this._atScene(tmpNode);
-                return true;
-            }  return false;
+            if (tmpNode) { return this._atScene(tmpNode) as boolean; }
+            return false;
         }
         return true;
     }
