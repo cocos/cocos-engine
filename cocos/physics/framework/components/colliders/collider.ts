@@ -124,7 +124,7 @@ export class Collider extends Eventify(Component) {
     public set material (value) {
         if (this._shape) {
             if (value != null && this._material != null) {
-                if (this._material._uuid != value._uuid) {
+                if (this._material._uuid !== value._uuid) {
                     this._material.off('physics_material_update', this._updateMaterial, this);
                     value.on('physics_material_update', this._updateMaterial, this);
                     this._isSharedMaterial = false;
@@ -232,7 +232,7 @@ export class Collider extends Eventify(Component) {
     protected readonly _center: Vec3 = new Vec3();
 
     protected get _assertOnLoadCalled (): boolean {
-        const r = this._isOnLoadCalled == 0;
+        const r = this._isOnLoadCalled === 0;
         if (r) { error('[Physics]: Please make sure that the node has been added to the scene'); }
         return !r;
     }
@@ -458,10 +458,14 @@ export class Collider extends Eventify(Component) {
                     this._needTriggerEvent = true;
                 }
             } else {
-                if (!(this.hasEventListener('onTriggerEnter') || this.hasEventListener('onTriggerStay') || this.hasEventListener('onTriggerExit'))) {
+                if (!(this.hasEventListener('onTriggerEnter')
+                || this.hasEventListener('onTriggerStay')
+                || this.hasEventListener('onTriggerExit'))) {
                     this._needTriggerEvent = false;
                 }
-                if (!(this.hasEventListener('onCollisionEnter') || this.hasEventListener('onCollisionStay') || this.hasEventListener('onCollisionExit'))) {
+                if (!(this.hasEventListener('onCollisionEnter')
+                || this.hasEventListener('onCollisionStay')
+                || this.hasEventListener('onCollisionExit'))) {
                     this._needCollisionEvent = false;
                 }
             }
