@@ -28,9 +28,10 @@
  * @module scene-graph
  */
 
+import { ccclass, editable, serializable } from 'cc.decorator';
+import { DEV, DEBUG, EDITOR } from 'internal:constants';
 import { Component } from '../components/component';
 import { property } from '../data/decorators/property';
-import { ccclass, editable, serializable } from 'cc.decorator';
 import { CCObject } from '../data/object';
 import { Event } from '../event';
 import { errorID, warnID, error, log, getError } from '../platform/debug';
@@ -40,7 +41,6 @@ import IdGenerator from '../utils/id-generator';
 import * as js from '../utils/js';
 import { baseNodePolyfill } from './base-node-dev';
 import { NodeEventProcessor } from './node-event-processor';
-import { DEV, DEBUG, EDITOR } from 'internal:constants';
 import { legacyCC } from '../global-exports';
 import { Node } from './node';
 import { Scene } from './scene';

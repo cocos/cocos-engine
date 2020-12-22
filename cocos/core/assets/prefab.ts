@@ -30,13 +30,14 @@
  */
 
 import { ccclass, serializable, editable } from 'cc.decorator';
+import { SUPPORT_JIT, ALIPAY, RUNTIME_BASED } from 'internal:constants';
 import { compile } from '../data/instantiate-jit';
 import { obsolete } from '../utils/js';
 import { Enum } from '../value-types';
 import { Asset } from './asset';
-import { SUPPORT_JIT, ALIPAY, RUNTIME_BASED } from 'internal:constants';
 import { legacyCC } from '../global-exports';
 import { warnID } from '../platform/debug';
+import * as utils from '../utils/prefab-utils';
 
 /**
  * @en An enumeration used with the [[Prefab.optimizationPolicy]] to specify how to optimize the instantiate operation.
@@ -45,7 +46,8 @@ import { warnID } from '../platform/debug';
 const OptimizationPolicy = Enum({
     /**
      * @en The optimization policy is automatically chosen based on the number of instantiations.
-     * When you first create an instance, the behavior is the same as SINGLE_INSTANCE. MULTI_INSTANCE will be automatically used after multiple creation.
+     * When you first create an instance, the behavior is the same as SINGLE_INSTANCE.
+     * MULTI_INSTANCE will be automatically used after multiple creation.
      * @zh 根据创建次数自动调整优化策略。初次创建实例时，行为等同 SINGLE_INSTANCE，多次创建后将自动采用 MULTI_INSTANCE。
      */
     AUTO: 0,
@@ -61,14 +63,14 @@ const OptimizationPolicy = Enum({
      * @en Optimize for creating instances multiple times.<br>
      * This option enables code generation for this prefab.
      * When this prefab will usually create multiple instances, please select this option.
-     * It is also recommended to select this option if the prefab instance in the scene has Auto Sync enabled and there are multiple instances in the scene.
+     * It is also recommended to select this option if the prefab instance in the scene has
+     * Auto Sync enabled and there are multiple instances in the scene.
      * @zh 优化多次创建性能。<br>
-     * 该选项会启用针对这个 prefab 的代码生成优化操作。当该 prefab 加载后，一般会创建多个实例时，请选择此项。如果该 prefab 在场景中的节点启用了自动关联，并且在场景中有多份实例，也建议选择此项。
+     * 该选项会启用针对这个 prefab 的代码生成优化操作。当该 prefab 加载后，一般会创建多个实例时，请选择此项。
+     * 如果该 prefab 在场景中的节点启用了自动关联，并且在场景中有多份实例，也建议选择此项。
      */
     MULTI_INSTANCE: 2,
 });
-
-import * as utils from '../utils/prefab-utils';
 
 /**
  * @en Class for prefab handling.
