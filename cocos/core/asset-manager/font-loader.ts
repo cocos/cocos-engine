@@ -52,7 +52,7 @@ const _timeout = 3000;
 
 // Refer to https://github.com/typekit/webfontloader/blob/master/src/core/fontwatcher.js
 const useNativeCheck = (() => {
-    let nativeCheck;
+    let nativeCheck: boolean;
     return (): boolean => {
         if (nativeCheck === undefined) {
             if ('FontFace' in window) {
@@ -61,25 +61,21 @@ const useNativeCheck = (() => {
 
                 if (match) {
                     nativeCheck = parseInt(match[1], 10) > 42;
-                }
-                else if (safari10Match) {
+                } else if (safari10Match) {
                     nativeCheck = false;
-                }
-                else {
+                } else {
                     nativeCheck = true;
                 }
-
             } else {
                 nativeCheck = false;
             }
         }
 
         return nativeCheck;
-
     };
 })();
 
-function _checkFontLoaded () {
+function checkFontLoaded () {
     let allFontsLoaded = true;
     const now = Date.now();
 
@@ -95,15 +91,14 @@ function _checkFontLoaded () {
         }
 
         const oldWidth = fontLoadHandle.refWidth;
-        const fontDesc = '40px ' + fontFamily;
+        const fontDesc = `40px ${fontFamily}`;
         _canvasContext!.font = fontDesc;
-        let newWidth = safeMeasureText(_canvasContext!, _testString, fontDesc);
+        const newWidth = safeMeasureText(_canvasContext!, _testString, fontDesc);
         // loaded successfully
         if (oldWidth !== newWidth) {
             _loadingFonts.splice(i, 1);
             fontLoadHandle.onComplete(null, fontFamily);
-        }
-        else {
+        } else {
             allFontsLoaded = false;
         }
     }
@@ -122,14 +117,12 @@ function nativeCheckFontLoaded (start: number, font: string, callback: CompleteC
 
             if (now - start >= _timeout) {
                 reject();
-            }
-            else {
-                // @ts-expect-error
-                document.fonts.load('40px ' + font).then((fonts) => {
+            } else {
+                // @ts-expect-error see https://developer.mozilla.org/en-US/docs/Web/API/Document/fonts
+                document.fonts.load(`40px ${font}`).then((fonts) => {
                     if (fonts.length >= 1) {
                         resolve();
-                    }
-                    else {
+                    } else {
                         setTimeout(check, 100);
                     }
                 }, () => {
@@ -160,11 +153,12 @@ function nativeCheckFontLoaded (start: number, font: string, callback: CompleteC
 }
 
 export function loadFont (url: string, options: IDownloadParseOptions, onComplete: CompleteCallback) {
-    const fontFamilyName = _getFontFamily(url);
+    const fontFamilyName = getFontFamily(url);
 
     // Already loaded fonts
     if (_fontFaces[fontFamilyName]) {
-        return onComplete(null, fontFamilyName);
+        onComplete(null, fontFamilyName);
+        return;
     }
 
     if (!_canvasContext) {
@@ -175,21 +169,20 @@ export function loadFont (url: string, options: IDownloadParseOptions, onComplet
     }
 
     // Default width reference to test whether new font is loaded correctly
-    const fontDesc = '40px ' + fontFamilyName;
-    let refWidth = safeMeasureText(_canvasContext!, _testString, fontDesc);
+    const fontDesc = `40px ${fontFamilyName}`;
+    const refWidth = safeMeasureText(_canvasContext!, _testString, fontDesc);
 
     // Setup font face style
     const fontStyle = document.createElement('style');
     fontStyle.type = 'text/css';
     let fontStr = '';
-    if (isNaN(Number(fontFamilyName))) {
-        fontStr += '@font-face { font-family:' + fontFamilyName + '; src:';
+    if (Number.isNaN(fontFamilyName)) {
+        fontStr += `@font-face { font-family:${fontFamilyName}; src:`;
+    } else {
+        fontStr += `@font-face { font-family:"${fontFamilyName}"; src:`;
     }
-    else {
-        fontStr += '@font-face { font-family:"' + fontFamilyName + '"; src:';
-    }
-    fontStr += 'url("' + url + '");';
-    fontStyle.textContent = fontStr + '}';
+    fontStr += `url("${url}");`;
+    fontStyle.textContent = `${fontStr}}`;
     document.body.appendChild(fontStyle);
 
     // Preload font with div
@@ -204,8 +197,7 @@ export function loadFont (url: string, options: IDownloadParseOptions, onComplet
 
     if (useNativeCheck()) {
         nativeCheckFontLoaded(Date.now(), fontFamilyName, onComplete);
-    }
-    else {
+    } else {
         // Save loading font
         const fontLoadHandle = {
             fontFamilyName,
@@ -215,25 +207,25 @@ export function loadFont (url: string, options: IDownloadParseOptions, onComplet
         };
         _loadingFonts.push(fontLoadHandle);
         if (_intervalId === -1) {
-            _intervalId = setInterval(_checkFontLoaded, 100);
+            _intervalId = setInterval(checkFontLoaded, 100);
         }
     }
     _fontFaces[fontFamilyName] = fontStyle;
 }
 
-export function _getFontFamily (fontHandle: string): string {
+export function getFontFamily (fontHandle: string): string {
     const ttfIndex = fontHandle.lastIndexOf('.ttf');
     if (ttfIndex === -1) { return fontHandle; }
 
     const slashPos = fontHandle.lastIndexOf('/');
-    let fontFamilyName;
+    let fontFamilyName: string;
     if (slashPos === -1) {
-        fontFamilyName = fontHandle.substring(0, ttfIndex) + '_LABEL';
+        fontFamilyName = `${fontHandle.substring(0, ttfIndex)}_LABEL`;
     } else {
-        fontFamilyName = fontHandle.substring(slashPos + 1, ttfIndex) + '_LABEL';
+        fontFamilyName = `${fontHandle.substring(slashPos + 1, ttfIndex)}_LABEL`;
     }
     if (fontFamilyName.indexOf(' ') !== -1) {
-        fontFamilyName = '"' + fontFamilyName + '"';
+        fontFamilyName = `"${fontFamilyName}"`;
     }
     return fontFamilyName;
 }

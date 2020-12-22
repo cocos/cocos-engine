@@ -37,31 +37,31 @@ export default function preprocess (task: Task, done: CompleteCallbackNoData) {
 
     for (const op in options) {
         switch (op) {
-            // can't set these attributes in options
-            case RequestType.PATH:
-            case RequestType.UUID:
-            case RequestType.DIR:
-            case RequestType.SCENE:
-            case RequestType.URL : break;
+        // can't set these attributes in options
+        case RequestType.PATH:
+        case RequestType.UUID:
+        case RequestType.DIR:
+        case RequestType.SCENE:
+        case RequestType.URL: break;
             // only need these attributes to transform url
-            case '__requestType__':
-            case '__isNative__':
-            case 'ext' :
-            case 'type':
-            case '__nativeName__':
-            case 'audioLoadMode':
-            case 'bundle':
-                subOptions[op] = options[op];
-                break;
+        case '__requestType__':
+        case '__isNative__':
+        case 'ext':
+        case 'type':
+        case '__nativeName__':
+        case 'audioLoadMode':
+        case 'bundle':
+            subOptions[op] = options[op];
+            break;
             // other settings, left to next pipe
-            case '__exclude__':
-            case '__outputAsArray__':
-                leftOptions[op] = options[op];
-                break;
-            default:
-                subOptions[op] = options[op];
-                leftOptions[op] = options[op];
-                break;
+        case '__exclude__':
+        case '__outputAsArray__':
+            leftOptions[op] = options[op];
+            break;
+        default:
+            subOptions[op] = options[op];
+            leftOptions[op] = options[op];
+            break;
         }
     }
     task.options = leftOptions;
@@ -71,8 +71,7 @@ export default function preprocess (task: Task, done: CompleteCallbackNoData) {
     let err = null;
     try {
         task.output = task.source = transformPipeline.sync(subTask);
-    }
-    catch (e) {
+    } catch (e) {
         err = e;
         for (let i = 0, l = subTask.output.length; i < l; i++) {
             subTask.output[i].recycle();

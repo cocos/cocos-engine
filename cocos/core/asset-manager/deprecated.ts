@@ -82,7 +82,8 @@ const md5Pipe = {
 };
 
 type LoadProgressCallback = (completedCount: number, totalCount: number, item: any) => void;
-type LoadCompleteCallback<T> = (error: Error | null | undefined, asset?: T | null) => void;
+type LoadCompleteCallback<T> = (error: Error | null | undefined, asset: T) => void;
+type LoadDirCompleteCallback<T> = (error: Error | null | undefined, asset: T[], urls: string[]) => void;
 
 /**
  * @en Loader for resource loading process. The engine automatically initialize its singleton object {{loader}}.
@@ -108,7 +109,7 @@ export class CCLoader {
     private _parseLoadResArgs = parseLoadResArgs;
 
     public get _cache () {
-        // @ts-expect-error
+        // @ts-expect-error return private property
         return assets._map;
     }
 
@@ -142,7 +143,7 @@ export class CCLoader {
      * @param completeCallback - Callback invoked when all resources loaded
      * @deprecated since v3.0, loader.load is deprecated, please use assetManager.loadRemote instead
      */
-    public load (res: string|string[]|Record<string, any>, progressCallback?: Function|null, completeCallback?: Function|null) {
+    public load (res: string|string[]|Record<string, any>, progressCallback?: ((...args) => void)|null, completeCallback?: ((...args) => void)|null) {
         if (completeCallback === undefined) {
             if (progressCallback !== undefined) {
                 completeCallback = progressCallback;
@@ -275,28 +276,40 @@ export class CCLoader {
      * });
      *
      */
-    public loadRes<T> (
+    public loadRes<T extends Asset> (
         url: string,
         type: Constructor<T>,
         progressCallback: LoadProgressCallback,
         completeCallback: LoadCompleteCallback<T>,
     );
-
-    public loadRes<T> (
+    public loadRes<T extends Asset> (
         url: string,
         type: Constructor<T>,
         completeCallback: LoadCompleteCallback<T>,
     );
-    public loadRes (url: string, type: Function, progressCallback?: Function, completeCallback?: Function) {
-        const { type: _type, onProgress, onComplete } = this._parseLoadResArgs<Asset>(type as any,
+    public loadRes<T extends Asset> (
+        url: string,
+        progressCallback: LoadProgressCallback,
+        completeCallback: LoadCompleteCallback<T>,
+    );
+    public loadRes<T extends Asset> (
+        url: string,
+        completeCallback: LoadCompleteCallback<T>,
+    );
+    public loadRes<T extends Asset> (
+        url: string, type?: Constructor<T> | LoadCompleteCallback<T> | LoadProgressCallback,
+        progressCallback?: LoadProgressCallback | LoadCompleteCallback<T>,
+        completeCallback?: LoadCompleteCallback<T>,
+    ) {
+        const { type: _type, onProgress, onComplete } = this._parseLoadResArgs(type as any,
                                                                         progressCallback as LoadProgressCallback,
-                                                                        completeCallback as LoadCompleteCallback<Asset>);
+                                                                        completeCallback as LoadCompleteCallback<T>);
         const extname = path.extname(url);
         if (extname && !resources.getInfoWithPath(url, _type)) {
             // strip extname
             url = url.slice(0, -extname.length);
         }
-        resources.load(url, _type, onProgress, onComplete);
+        resources.load(url, _type as Constructor<T>, onProgress, onComplete);
     }
 
     /**
@@ -331,8 +344,13 @@ export class CCLoader {
      * });
      * ```
      */
-    public loadResArray (urls: string[], type?: Function, progressCallback?: Function, completeCallback?: Function) {
-        const { type: _type, onProgress, onComplete } = this._parseLoadResArgs<Asset[]>(type as any,
+    public loadResArray<T extends Asset> (
+        urls: string[],
+        type?: Constructor<T>,
+        progressCallback?: LoadProgressCallback,
+        completeCallback?: LoadCompleteCallback<T[]>,
+    ) {
+        const { type: _type, onProgress, onComplete } = this._parseLoadResArgs<LoadCompleteCallback<Asset[]>>(type as any,
                                                                         progressCallback as LoadProgressCallback,
                                                                         completeCallback as LoadCompleteCallback<Asset[]>);
         urls.forEach((url, i) => {
@@ -352,7 +370,7 @@ export class CCLoader {
      * Note: All asset URLs in Creator use forward slashes, URLs using backslashes will not work.
      * @zh
      * 将所有资产加载到项目 “assets / resources” 文件夹中
-     * <br>
+     * <br>
      * 注意：Creator 中的所有资源 URL 都使用正斜杠，使用反斜杠的 URL 将不起作用。
      *
      * @deprecated since v3.0 loader.loadResDir is deprecated, please use resources.loadDir instead
@@ -393,17 +411,21 @@ export class CCLoader {
      * });
      * ```
      */
-    public loadResDir (url: string, type?: Function, progressCallback?: Function, completeCallback?: Function) {
-        const { type: _type, onProgress, onComplete } = this._parseLoadResArgs<Asset[]>(type as any,
+    public loadResDir<T extends Asset> (
+        url: string,
+        type?: Constructor<T>,
+        progressCallback?: LoadProgressCallback,
+        completeCallback?: LoadDirCompleteCallback<T>,
+    ) {
+        const { type: _type, onProgress, onComplete } = this._parseLoadResArgs<LoadDirCompleteCallback<Asset>>(type as any,
                                                                         progressCallback as LoadProgressCallback,
-                                                                        completeCallback as LoadCompleteCallback<Asset[]>);
+                                                                        completeCallback as LoadDirCompleteCallback<Asset>);
         resources.loadDir(url, _type, onProgress, (err, out) => {
             let urls: string[] = [];
             if (!err) {
                 const infos = resources.getDirWithPath(url, _type);
                 urls = infos.map((info) => info.path);
             }
-            // @ts-expect-error
             if (onComplete) { onComplete(err, out, urls); }
         });
     }
@@ -534,7 +556,7 @@ export class CCLoader {
      * @param extMap Handlers for corresponding type in a map
      * @deprecated since v3.0 loader.addDownloadHandlers is deprecated, please use assetManager.downloader.register instead
      */
-    public addDownloadHandlers (extMap: Map<string, Function>) {
+    public addDownloadHandlers (extMap: Record<string, (item: { url: string }, cb: CompleteCallback) => void>) {
         const handler = Object.create(null);
         for (const type in extMap) {
             const func = extMap[type];
@@ -558,7 +580,7 @@ export class CCLoader {
      * @param extMap Handlers for corresponding type in a map
      * @deprecated since v3.0 loader.addLoadHandlers is deprecated, please use assetManager.parser.register instead
      */
-    public addLoadHandlers (extMap: Map<string, Function>) {
+    public addLoadHandlers (extMap: Record<string, ({ content: any }, cb: CompleteCallback) => void>) {
         const handler = Object.create(null);
         for (const type in extMap) {
             const func = extMap[type];

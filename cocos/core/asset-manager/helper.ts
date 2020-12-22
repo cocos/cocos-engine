@@ -52,7 +52,7 @@ export { default as decodeUuid } from '../utils/decode-uuid';
  * var uuid = getUuidFromURL(url); // fc991dd7-0033-4b80-9d41-c8a86a702e59
  */
 export function getUuidFromURL (url: string): string {
-    const matches = url.match(_uuidRegex);
+    const matches = _uuidRegex.exec(url);
     if (matches) {
         return matches[1];
     }
@@ -84,9 +84,7 @@ export function getUrlWithUuid (uuid: string, options?: IOptions | null): string
     options = options || Object.create(null);
     options!.__isNative__ = options!.isNative;
     options!.ext = options!.nativeExt;
-    const bundle = bundles.find((b) => {
-        return !!b.getAssetInfo(uuid);
-    });
+    const bundle = bundles.find((b) => !!b.getAssetInfo(uuid));
 
     if (bundle) {
         options!.bundle = bundle.name;
@@ -126,8 +124,7 @@ export function normalize (url: string): string {
         if (url.charCodeAt(0) === 46 && url.charCodeAt(1) === 47) {
             // strip './'
             url = url.slice(2);
-        }
-        else if (url.charCodeAt(0) === 47) {
+        } else if (url.charCodeAt(0) === 47) {
             // strip '/'
             url = url.slice(1);
         }
@@ -145,8 +142,7 @@ export function transform (input: Request, options?: IOptions | null): string | 
             requestItem.recycle();
             urls.push(url);
         }
-    }
-    catch (e) {
+    } catch (e) {
         for (const item of subTask.output) {
             item.recycle();
         }

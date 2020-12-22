@@ -31,14 +31,13 @@ import { CompleteCallback, IXHROptions } from './shared';
 type FileProgressCallback = (loaded: number, total: number) => void;
 
 export default function downloadFile (
-    url: string, 
-    options: IXHROptions, 
-    onProgress: FileProgressCallback | null | undefined, 
-    onComplete: CompleteCallback
-    ): XMLHttpRequest {
-
+    url: string,
+    options: IXHROptions,
+    onProgress: FileProgressCallback | null | undefined,
+    onComplete: CompleteCallback,
+): XMLHttpRequest {
     const xhr = new XMLHttpRequest();
-    const errInfo = 'download failed: ' + url + ', status: ';
+    const errInfo = `download failed: ${url}, status: `;
 
     xhr.open('GET', url, true);
 
@@ -56,9 +55,7 @@ export default function downloadFile (
     xhr.onload = () => {
         if (xhr.status === 200 || xhr.status === 0) {
             if (onComplete) { onComplete(null, xhr.response); }
-        } else {
-            if (onComplete) { onComplete(new Error(errInfo + xhr.status + '(no response)')); }
-        }
+        } else if (onComplete) { onComplete(new Error(`${errInfo}${xhr.status}(no response)`)); }
     };
 
     if (onProgress) {
@@ -70,15 +67,15 @@ export default function downloadFile (
     }
 
     xhr.onerror = () => {
-        if (onComplete) { onComplete(new Error(errInfo + xhr.status + '(error)')); }
+        if (onComplete) { onComplete(new Error(`${errInfo}${xhr.status}(error)`)); }
     };
 
     xhr.ontimeout = () => {
-        if (onComplete) { onComplete(new Error(errInfo + xhr.status + '(time out)')); }
+        if (onComplete) { onComplete(new Error(`${errInfo}${xhr.status}(time out)`)); }
     };
 
     xhr.onabort = () => {
-        if (onComplete) { onComplete(new Error(errInfo + xhr.status + '(abort)')); }
+        if (onComplete) { onComplete(new Error(`${errInfo}${xhr.status}(abort)`)); }
     };
 
     xhr.send(null);

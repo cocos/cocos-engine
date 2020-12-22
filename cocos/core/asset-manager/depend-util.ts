@@ -169,9 +169,7 @@ export class DependUtil {
                     out = { deps: [] };
                 }
             }
-        }
-        // get deps from an existing asset
-        else {
+        } else { // get deps from an existing asset
             if (!EDITOR && this._depends.has(uuid)) {
                 out = this._depends.get(uuid)!;
                 if (out.parsedFromExistAsset) {
@@ -204,18 +202,17 @@ export class DependUtil {
         return out;
     }
 
-    private _parseDepsFromJson (json: Record<string, any>): string[] {
+    private _parseDepsFromJson (json: any[]): string[] {
         let depends: string[] | null = null;
         if (DEV) {
             if (isCompiledJson(json)) {
-                // @ts-expect-error
-                depends = getDependUuidList(json);
+                depends = getDependUuidList(json as any);
                 depends.forEach((uuid, index) => depends![index] = decodeUuid(uuid));
                 return depends;
             }
 
             depends = [];
-            function parseDependRecursively (data: Record<string, any>, out: string[]) {
+            const parseDependRecursively = (data: any, out: string[]) => {
                 if (!data || typeof data !== 'object' || data.__id__) { return; }
                 const uuid = data.__uuid__;
                 if (Array.isArray(data)) {
@@ -229,13 +226,12 @@ export class DependUtil {
                         parseDependRecursively(data[prop], out);
                     }
                 }
-            }
+            };
             parseDependRecursively(json, depends);
             return depends;
         }
 
-        // @ts-expect-error
-        depends = getDependUuidList(json);
+        depends = getDependUuidList(json as any);
         depends.forEach((uuid, index) => depends![index] = decodeUuid(uuid));
 
         return depends;
