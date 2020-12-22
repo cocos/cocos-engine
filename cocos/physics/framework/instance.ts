@@ -207,7 +207,7 @@ const ENTIRE_CONSTRAINT: IEntireConstraint = {
     'setConnectedBody': FUNC,
     'setPivotA': FUNC,
     'setPivotB': FUNC,
-    'setAxisA': FUNC,
+    'setAxis': FUNC,
 }
 
 export function createConstraint (type: EConstraintType): IBaseConstraint {

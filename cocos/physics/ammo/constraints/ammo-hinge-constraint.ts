@@ -59,11 +59,7 @@ export class AmmoHingeConstraint extends AmmoConstraint implements IHingeConstra
         }
     }
 
-    setAxisA (v: IVec3Like) {
-
-    }
-
-    setAxisB (v: IVec3Like) {
+    setAxis (v: IVec3Like) {
 
     }
 
@@ -94,13 +90,13 @@ export class AmmoHingeConstraint extends AmmoConstraint implements IHingeConstra
             this.setPivotB(this.constraint.pivotB);
             this._axisA = new Ammo.btVector3();
             this._axisB = new Ammo.btVector3();
-            cocos2AmmoVec3(this._axisA, this.constraint.axisA);
-            cocos2AmmoVec3(this._axisB, this.constraint.axisB);
+            cocos2AmmoVec3(this._axisA, this.constraint.axis);
+            cocos2AmmoVec3(this._axisB, this.constraint.axis);
             if (bodyB) {
                 this._impl = new Ammo.btHingeConstraint(bodyA, bodyB, this._pivotA, this._pivotB, this._axisA, this._axisB);
             } else {
                 const quat = new Quat();
-                Quat.rotationTo(quat, Vec3.UNIT_Z, this.constraint.axisA);
+                Quat.rotationTo(quat, Vec3.UNIT_Z, this.constraint.axis);
                 const qa = new Ammo.btQuaternion(quat.x, quat.y, quat.z, quat.w);
                 const rbAFrame = new Ammo.btTransform();
                 rbAFrame.setIdentity();

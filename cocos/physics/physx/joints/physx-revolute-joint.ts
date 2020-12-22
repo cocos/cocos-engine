@@ -30,7 +30,7 @@ export class PhysXRevoluteJoint extends PhysXJoint implements IHingeConstraint {
         this._impl.setLocalPose(1, getTempTransform(pos, rot));
     }
 
-    setAxisA (v: IVec3Like): void {
+    setAxis (v: IVec3Like): void {
         this.setPivotA(this.constraint.pivotA);
         this.setPivotB(this.constraint.pivotB);
     }

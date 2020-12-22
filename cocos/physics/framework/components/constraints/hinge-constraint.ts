@@ -78,7 +78,7 @@ export class HingeConstraint extends Constraint {
     set axis (v: Vec3) {
         Vec3.copy(this._axis, v);
         if (!EDITOR) {
-            this.constraint.setAxisA(this._axis);
+            this.constraint.setAxis(this._axis);
         }
     }
 
