@@ -76,8 +76,11 @@
         }
     }
 
-    director.on(cc.Director.EVENT_BEFORE_DRAW,function(){
+    director.on(cc.Director.EVENT_BEFORE_UPDATE, function () {
         middlewareMgr.update(director._deltaTime);
+    });
+
+    director.on(cc.Director.EVENT_BEFORE_DRAW, function () {
         middlewareMgr.render(director._deltaTime);
 
         // reset render order
@@ -91,7 +94,7 @@
         let ui = director.root.ui;
         CopyNativeBufferToJS(ui, nativeXYZUVC, vfmtPosUvColor)
         CopyNativeBufferToJS(ui, nativeXYZUVCC, vfmtPosUvTwoColor)
-    })
+    });
 
     let renderInfoMgr = middlewareMgr.getRenderInfoMgr();
     renderInfoMgr.renderInfo = renderInfoMgr.getSharedBuffer();
