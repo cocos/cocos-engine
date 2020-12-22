@@ -83,6 +83,7 @@ export class AmmoWorld implements IPhysicsWorld {
         this._btBroadphase = new Ammo.btDbvtBroadphase();
         this._btSolver = new Ammo.btSequentialImpulseConstraintSolver();
         this._btWorld = new Ammo.btDiscreteDynamicsWorld(this._btDispatcher, this._btBroadphase, this._btSolver, collisionConfiguration);
+        (this._btWorld.getPairCache() as any).setOverlapFilterCallback(new (Ammo as any).ccOverlapFilterCallback);
         this._btGravity = new Ammo.btVector3(0, -10, 0);
         this._btWorld.setGravity(this._btGravity);
     }
@@ -253,9 +254,6 @@ export class AmmoWorld implements IPhysicsWorld {
             const manifold = this._btDispatcher.getManifoldByIndexInternal(i);
             const body0 = manifold.getBody0();
             const body1 = manifold.getBody1();
-
-            if (!Ammo['CC_CONFIG']['emitStaticCollision'] && body0.isStaticObject() && body1.isStaticObject())
-                continue;
 
             //TODO: SUPPORT CHARACTER EVENT
             if (body0['useCharacter'] || body1['useCharacter'])

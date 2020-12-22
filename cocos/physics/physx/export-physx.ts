@@ -2,6 +2,8 @@
 /* eslint-disable no-undef */
 import { BYTEDANCE } from 'internal:constants';
 import { IQuatLike, IVec3Like, Node, Quat, Vec3 } from '../../core';
+// import PhysX from '@cocos/physx';
+// globalThis.PX = PhysX;
 
 export let USE_BYTEDANCE = false;
 if (BYTEDANCE) USE_BYTEDANCE = true;

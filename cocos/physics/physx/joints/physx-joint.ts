@@ -29,7 +29,6 @@ export class PhysXJoint implements IBaseConstraint {
     protected _impl!: any;
     protected _com!: Constraint;
     protected _rigidBody!: RigidBody;
-    protected _sharedBody!: PhysXSharedBody;
 
     initialize (v: Constraint): void {
         this._com = v;

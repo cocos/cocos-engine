@@ -59,7 +59,7 @@ export class AmmoConstraint implements IBaseConstraint {
 
     protected _impl!: Ammo.btTypedConstraint;
     protected _com!: Constraint;
-    protected _rigidBody: RigidBody | null = null;
+    protected _rigidBody!: RigidBody;
     protected _collided = false;
 
     updateByReAdd () {
@@ -72,7 +72,7 @@ export class AmmoConstraint implements IBaseConstraint {
 
     initialize (v: Constraint): void {
         this._com = v;
-        this._rigidBody = v.attachedBody;
+        this._rigidBody = v.attachedBody!;
         this._collided = v.enableCollision;
         this.onComponentSet();
     }

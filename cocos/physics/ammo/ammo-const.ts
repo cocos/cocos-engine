@@ -50,6 +50,7 @@ export class AmmoConstant {
     }
     readonly EMPTY_SHAPE = new Ammo.btEmptyShape();
     readonly TRANSFORM = new Ammo.btTransform();
+    readonly TRANSFORM_1 = new Ammo.btTransform();
     readonly VECTOR3_0 = new Ammo.btVector3();
     readonly VECTOR3_1 = new Ammo.btVector3();
     readonly QUAT_0 = new Ammo.btQuaternion();
