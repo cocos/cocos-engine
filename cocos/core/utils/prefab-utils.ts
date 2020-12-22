@@ -65,7 +65,7 @@ export class PropertyOverride {
     @serializable
     public value: any;
 
-    public isEqual(localID: string[], propPath: string[]) {
+    public isEqual (localID: string[], propPath: string[]) {
         return compareStringArray(this.targetInfo?.localID, localID)
         && compareStringArray(this.propertyPath, propPath);
     }
@@ -127,7 +127,6 @@ interface IPreserveProps {
     _objFlags: number;
     _parent: Node|null;
     _id: string;
-    _active: boolean;
     _prefabInstance: PrefabInstance;
 }
 
@@ -136,7 +135,6 @@ function getPreservedProps (node: any): IPreserveProps {
         _objFlags: node._objFlags,
         _parent: node._parent,
         _id: node._id,
-        _active: node._active,
         _prefabInstance: node._prefabInstance,
     };
 }
@@ -145,7 +143,6 @@ function restorePreservedProps (node: any, preservedProps: IPreserveProps) {
     node._objFlags = preservedProps._objFlags;
     node._parent = preservedProps._parent;
     node._id = preservedProps._id;
-    node._active = preservedProps._active;
     node._prefabInstance = preservedProps._prefabInstance;
 }
 
