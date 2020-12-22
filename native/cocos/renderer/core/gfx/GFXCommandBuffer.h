@@ -17,7 +17,7 @@ public:
     virtual void destroy() = 0;
     virtual void begin(RenderPass *renderPass, uint subpass, Framebuffer *frameBuffer, int submitIndex) = 0;
     virtual void end() = 0;
-    virtual void beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, int stencil, bool fromSecondaryCB) = 0;
+    virtual void beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, int stencil, const CommandBuffer *const *cmdBuffs, uint32_t count) = 0;
     virtual void endRenderPass() = 0;
     virtual void bindPipelineState(PipelineState *pso) = 0;
     virtual void bindDescriptorSet(uint set, DescriptorSet *descriptorSet, uint dynamicOffsetCount, const uint *dynamicOffsets) = 0;
@@ -38,24 +38,19 @@ public:
     CC_INLINE void begin() { begin(nullptr, 0, nullptr, -1); }
     CC_INLINE void begin(int submitIndex) { begin(nullptr, 0, nullptr, submitIndex); }
     // secondary command buffer specifics
-    CC_INLINE void begin(RenderPass *renderPass) { begin(renderPass, 0, nullptr, -1); }
-    CC_INLINE void begin(RenderPass *renderPass, uint subpass) { begin(renderPass, subpass, nullptr, -1); }
-    CC_INLINE void begin(RenderPass *renderPass, uint subpass, Framebuffer *frameBuffer) { begin(renderPass, subpass, frameBuffer, -1); }
+    CC_INLINE void begin(RenderPass *renderPass, uint subpass = 0, Framebuffer *frameBuffer = nullptr) { begin(renderPass, subpass, frameBuffer, -1); }
+    CC_INLINE void beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, int stencil) {
+        beginRenderPass(renderPass, fbo, renderArea, colors, depth, stencil, nullptr, 0);
+    }
+    CC_INLINE void beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const ColorList &colors, float depth, int stencil, const CommandBuffer *const *cmdBuffs = nullptr, uint32_t count = 0) {
+        beginRenderPass(renderPass, fbo, renderArea, colors.data(), depth, stencil, cmdBuffs, count);
+    }
+    CC_INLINE void execute(const CommandBufferList &cmdBuffs, uint32_t count) { execute(cmdBuffs.data(), count); }
 
     CC_INLINE void updateBuffer(Buffer *buff, const void *data) { updateBuffer(buff, data, buff->getSize()); }
-    CC_INLINE void execute(const CommandBufferList &cmdBuffs, uint32_t count) { execute(cmdBuffs.data(), count); }
-    CC_INLINE void bindDescriptorSet(uint set, DescriptorSet *descriptorSet) { bindDescriptorSet(set, descriptorSet, 0, nullptr); }
+    CC_INLINE void bindDescriptorSet(uint set, DescriptorSet *descriptorSet) { bindDescriptorSet(set, descriptorSet, 0, {}); }
     CC_INLINE void bindDescriptorSet(uint set, DescriptorSet *descriptorSet, const vector<uint> &dynamicOffsets) {
         bindDescriptorSet(set, descriptorSet, static_cast<uint>(dynamicOffsets.size()), dynamicOffsets.data());
-    }
-    CC_INLINE void beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, int stencil) {
-        beginRenderPass(renderPass, fbo, renderArea, colors, depth, stencil, false);
-    }
-    CC_INLINE void beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const ColorList &colors, float depth, int stencil) {
-        beginRenderPass(renderPass, fbo, renderArea, colors.data(), depth, stencil);
-    }
-    CC_INLINE void beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, int stencil) {
-        beginRenderPass(renderPass, fbo, renderArea, colors, depth, stencil, false);
     }
     CC_INLINE void copyBuffersToTexture(const BufferDataList &buffers, Texture *texture, const BufferTextureCopyList &regions) {
         copyBuffersToTexture(buffers.data(), texture, regions.data(), static_cast<uint>(regions.size()));

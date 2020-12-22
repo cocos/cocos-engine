@@ -620,4 +620,78 @@ T *CommandEncoder::allocateAndZero(uint32_t const count) noexcept {
                        Value8))                                     \
     }
 
+#define ENCODE_COMMAND_9(CB, CommandName,                           \
+                         Param1, Value1,                            \
+                         Param2, Value2,                            \
+                         Param3, Value3,                            \
+                         Param4, Value4,                            \
+                         Param5, Value5,                            \
+                         Param6, Value6,                            \
+                         Param7, Value7,                            \
+                         Param8, Value8,                            \
+                         Param9, Value9,                            \
+                         Code)                                      \
+    {                                                               \
+                                                                    \
+        using Type1 = std::decay<decltype(Value1)>::type;           \
+        using Type2 = std::decay<decltype(Value2)>::type;           \
+        using Type3 = std::decay<decltype(Value3)>::type;           \
+        using Type4 = std::decay<decltype(Value4)>::type;           \
+        using Type5 = std::decay<decltype(Value5)>::type;           \
+        using Type6 = std::decay<decltype(Value6)>::type;           \
+        using Type7 = std::decay<decltype(Value7)>::type;           \
+        using Type8 = std::decay<decltype(Value8)>::type;           \
+        using Type9 = std::decay<decltype(Value9)>::type;           \
+                                                                    \
+        class CommandName : public Command {                        \
+        public:                                                     \
+            CommandName(Type1 const &In##Param1,                    \
+                        Type2 const &In##Param2,                    \
+                        Type3 const &In##Param3,                    \
+                        Type4 const &In##Param4,                    \
+                        Type5 const &In##Param5,                    \
+                        Type6 const &In##Param6,                    \
+                        Type7 const &In##Param7,                    \
+                        Type8 const &In##Param8,                    \
+                        Type9 const &In##Param9)                    \
+            : Param1(In##Param1),                                   \
+              Param2(In##Param2),                                   \
+              Param3(In##Param3),                                   \
+              Param4(In##Param4),                                   \
+              Param5(In##Param5),                                   \
+              Param6(In##Param6),                                   \
+              Param7(In##Param7),                                   \
+              Param8(In##Param8),                                   \
+              Param9(In##Param9) {                                  \
+            }                                                       \
+            virtual void execute() noexcept override {              \
+                Code                                                \
+            }                                                       \
+            virtual char const *getName() const noexcept override { \
+                return (#CommandName);                              \
+            }                                                       \
+                                                                    \
+        private:                                                    \
+            Type1 Param1;                                           \
+            Type2 Param2;                                           \
+            Type3 Param3;                                           \
+            Type4 Param4;                                           \
+            Type5 Param5;                                           \
+            Type6 Param6;                                           \
+            Type7 Param7;                                           \
+            Type8 Param8;                                           \
+            Type9 Param9;                                           \
+        };                                                          \
+        WRITE_COMMAND(CB, CommandName,                              \
+                      (Value1,                                      \
+                       Value2,                                      \
+                       Value3,                                      \
+                       Value4,                                      \
+                       Value5,                                      \
+                       Value6,                                      \
+                       Value7,                                      \
+                       Value8,                                      \
+                       Value9))                                     \
+    }
+
 } // namespace cc

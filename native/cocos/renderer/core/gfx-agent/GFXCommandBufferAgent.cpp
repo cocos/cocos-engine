@@ -88,16 +88,20 @@ void CommandBufferAgent::end() {
     _encoder->finishWriting();
 }
 
-void CommandBufferAgent::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, int stencil, bool fromSecondaryCB) {
-
+void CommandBufferAgent::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, int stencil, const CommandBuffer *const *cmdBuffs, uint32_t count) {
     uint attachmentCount = (uint)renderPass->getColorAttachments().size();
     Color *actorColors = nullptr;
     if (attachmentCount) {
         actorColors = _encoder->allocate<Color>(attachmentCount);
         memcpy(actorColors, colors, sizeof(Color) * attachmentCount);
     }
+    
+    const CommandBuffer **actorCmdBuffs = _encoder->allocate<const CommandBuffer *>(count);
+    for (uint i = 0; i < count; ++i) {
+        actorCmdBuffs[i] = ((CommandBufferAgent *)cmdBuffs[i])->getActor();
+    }
 
-    ENCODE_COMMAND_8(
+    ENCODE_COMMAND_9(
         _encoder,
         CommandBufferBeginRenderPass,
         actor, getActor(),
@@ -107,9 +111,10 @@ void CommandBufferAgent::beginRenderPass(RenderPass *renderPass, Framebuffer *fb
         colors, actorColors,
         depth, depth,
         stencil, stencil,
-        fromSecondaryCB, fromSecondaryCB,
+        actorCmdBuffs, actorCmdBuffs,
+        count, count,
         {
-            actor->beginRenderPass(renderPass, fbo, renderArea, colors, depth, stencil, fromSecondaryCB);
+            actor->beginRenderPass(renderPass, fbo, renderArea, colors, depth, stencil, actorCmdBuffs, count);
         });
 }
 
@@ -120,6 +125,46 @@ void CommandBufferAgent::endRenderPass() {
         actor, getActor(),
         {
             actor->endRenderPass();
+        });
+}
+
+void CommandBufferAgent::execute(const CommandBuffer *const *cmdBuffs, uint32_t count) {
+    if (!count) return;
+
+    const CommandBuffer **actorCmdBuffs = _encoder->allocate<const CommandBuffer *>(count);
+    for (uint i = 0; i < count; ++i) {
+        actorCmdBuffs[i] = ((CommandBufferAgent *)cmdBuffs[i])->getActor();
+    }
+
+    bool multiThreaded = _device->hasFeature(Feature::MULTITHREADED_SUBMISSION);
+
+    ENCODE_COMMAND_5(
+        _encoder,
+        CommandBufferExecute,
+        actor, getActor(),
+        cmdBuffs, cmdBuffs,
+        actorCmdBuffs, actorCmdBuffs,
+        count, count,
+        multiThreaded, multiThreaded,
+        {
+            if (count > 1) {
+                if (multiThreaded) {
+                    JobGraph g(JobSystem::getInstance());
+                    uint job = g.createForEachIndexJob(1u, count, 1u, [this](uint i) {
+                        ((CommandBufferAgent *)cmdBuffs[i])->getEncoder()->flushCommands();
+                    });
+                    g.run(job);
+                    ((CommandBufferAgent *)cmdBuffs[0])->getEncoder()->flushCommands();
+                    g.waitForAll();
+                } else {
+                    for (uint i = 0u; i < count; ++i) {
+                        ((CommandBufferAgent *)cmdBuffs[i])->getEncoder()->flushCommands();
+                    }
+                }
+            } else {
+                ((CommandBufferAgent *)cmdBuffs[0])->getEncoder()->flushCommands();
+            }
+            actor->execute(actorCmdBuffs, count);
         });
 }
 
@@ -317,46 +362,6 @@ void CommandBufferAgent::copyBuffersToTexture(const uint8_t *const *buffers, Tex
         count, count,
         {
             actor->copyBuffersToTexture(buffers, texture, regions, count);
-        });
-}
-
-void CommandBufferAgent::execute(const CommandBuffer *const *cmdBuffs, uint32_t count) {
-    if (!count) return;
-
-    const CommandBuffer **actorCmdBuffs = _encoder->allocate<const CommandBuffer *>(count);
-    for (uint i = 0; i < count; ++i) {
-        actorCmdBuffs[i] = ((CommandBufferAgent *)cmdBuffs[i])->getActor();
-    }
-
-    bool multiThreaded = _device->hasFeature(Feature::MULTITHREADED_SUBMISSION);
-
-    ENCODE_COMMAND_5(
-        _encoder,
-        CommandBufferExecute,
-        actor, getActor(),
-        cmdBuffs, cmdBuffs,
-        actorCmdBuffs, actorCmdBuffs,
-        count, count,
-        multiThreaded, multiThreaded,
-        {
-            if (count > 1) {
-                if (multiThreaded) {
-                    JobGraph g(JobSystem::getInstance());
-                    uint job = g.createForEachIndexJob(1u, count, 1u, [this](uint i) {
-                        ((CommandBufferAgent *)cmdBuffs[i])->getEncoder()->flushCommands();
-                    });
-                    g.run(job);
-                    ((CommandBufferAgent *)cmdBuffs[0])->getEncoder()->flushCommands();
-                    g.waitForAll();
-                } else {
-                    for (uint i = 0u; i < count; ++i) {
-                        ((CommandBufferAgent *)cmdBuffs[i])->getEncoder()->flushCommands();
-                    }
-                }
-            } else {
-                ((CommandBufferAgent *)cmdBuffs[0])->getEncoder()->flushCommands();
-            }
-            actor->execute(actorCmdBuffs, count);
         });
 }
 

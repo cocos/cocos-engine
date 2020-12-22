@@ -20,7 +20,7 @@ GLES2PrimaryCommandBuffer::GLES2PrimaryCommandBuffer(Device *device)
 GLES2PrimaryCommandBuffer::~GLES2PrimaryCommandBuffer() {
 }
 
-void GLES2PrimaryCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, int stencil, bool fromSecondaryCB) {
+void GLES2PrimaryCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, int stencil, const CommandBuffer *const *cmdBuffs, uint32_t count) {
     _isInRenderPass = true;
     GLES2GPURenderPass *gpuRenderPass = ((GLES2RenderPass *)renderPass)->gpuRenderPass();
     GLES2GPUFramebuffer *gpuFramebuffer = ((GLES2Framebuffer *)fbo)->gpuFBO();
