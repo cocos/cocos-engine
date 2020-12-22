@@ -283,14 +283,15 @@ export class UI {
         this._screens.splice(idx, 1);
         if (comp.camera) {
             const matRecord = this._canvasMaterials.get(comp.camera.view.visibility);
-            const matHashInter = matRecord!.keys();
+            if (!matRecord) { return; }
+            const matHashInter = matRecord.keys();
             let matHash = matHashInter.next();
             while (!matHash.done) {
                 this._removeUIMaterial(matHash.value);
                 matHash = matHashInter.next();
             }
 
-            matRecord!.clear();
+            matRecord.clear();
         }
 
         for (let i = idx; i < this._screens.length; i++) {
@@ -347,9 +348,11 @@ export class UI {
                 if (batch.model) {
                     const camera = batch.camera || this._scene.cameras[0];
                     if (camera) {
-                        const visFlags = camera.view.visibility;
-                        batch.model.visFlags = visFlags;
-                        batch.model.node.layer = visFlags;
+                        if (camera.view) {
+                            const visFlags = camera.view.visibility;
+                            batch.model.visFlags = visFlags;
+                            batch.model.node.layer = visFlags;
+                        }
                     }
                     const subModels = batch.model.subModels;
                     for (let j = 0; j < subModels.length; j++) {
@@ -380,11 +383,13 @@ export class UI {
                     this._scene.addModel(uiModel);
                     uiModel.subModels[0].priority = batchPriority++;
                     if (batch.camera) {
-                        const viewVisibility = batch.camera.view.visibility;
-                        uiModel.visFlags = viewVisibility;
-                        if (this._canvasMaterials.has(viewVisibility)) {
-                            if (!this._canvasMaterials.get(viewVisibility)!.has(batch.material!.hash)) {
-                                this._canvasMaterials.get(viewVisibility)!.set(batch.material!.hash, 1);
+                        if (batch.camera.view) {
+                            const viewVisibility = batch.camera.view.visibility;
+                            uiModel.visFlags = viewVisibility;
+                            if (this._canvasMaterials.has(viewVisibility)) {
+                                if (!this._canvasMaterials.get(viewVisibility)!.has(batch.material!.hash)) {
+                                    this._canvasMaterials.get(viewVisibility)!.set(batch.material!.hash, 1);
+                                }
                             }
                         }
                     }

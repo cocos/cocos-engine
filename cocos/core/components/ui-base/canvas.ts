@@ -354,12 +354,6 @@ export class Canvas extends Component {
 
     public onDestroy () {
         legacyCC.director.root!.ui.removeScreen(this);
-        if (this._cameraComponent) {
-            const camera = this._cameraComponent.camera;
-            if (camera) {
-                legacyCC.director.root!.destroyCamera(camera);
-            }
-        }
 
         if (EDITOR) {
             legacyCC.director.off(legacyCC.Director.EVENT_AFTER_UPDATE, this._fitDesignResolution!, this);
@@ -374,16 +368,13 @@ export class Canvas extends Component {
 
     protected _onResizeCamera () {
         if (this._cameraComponent && this._alignCanvasWithScreen) {
-            const camera = this._cameraComponent.camera;
-            if (!camera) { return; }
-
             if (this._targetTexture) {
                 const win = this._targetTexture.window;
-                camera.setFixedSize(win!.width, win!.height);
+                if (this._cameraComponent.camera) { this._cameraComponent.camera.setFixedSize(win!.width, win!.height); }
                 this._cameraComponent.orthoHeight = visibleRect.height / 2;
             } else {
                 const size = game.canvas!;
-                camera.resize(size.width, size.height);
+                if (this._cameraComponent.camera) { this._cameraComponent.camera.resize(size.width, size.height); }
                 this._cameraComponent.orthoHeight = game.canvas!.height / view.getScaleY() / 2;
             }
             this.node.getWorldPosition(_worldPos);
@@ -433,9 +424,12 @@ export class Canvas extends Component {
     }
 
     private _atScene (node: Node) {
-        if (!(node instanceof legacyCC.Scene)) {
+        if (!(node === legacyCC.director.getScene())) {
             const tmpNode = node.getParent();
-            if (tmpNode) { this._atScene(tmpNode); } else { return false; }
+            if (tmpNode) {
+                this._atScene(tmpNode);
+                return true;
+            }  return false;
         }
         return true;
     }
