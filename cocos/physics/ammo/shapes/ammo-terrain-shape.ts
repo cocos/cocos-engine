@@ -125,7 +125,6 @@ export class AmmoTerrainShape extends AmmoShape implements ITerrainShape {
     }
 
     // setScale () {
-    //     // TODO: handle scale
     // }
 
 }

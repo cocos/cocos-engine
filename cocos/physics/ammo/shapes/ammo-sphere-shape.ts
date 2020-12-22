@@ -31,8 +31,6 @@ import { AmmoBroadphaseNativeTypes } from '../ammo-enum';
 import { ISphereShape } from '../../spec/i-physics-shape';
 import { CC_V3_0 } from '../ammo-const';
 
-const v3_0 = CC_V3_0;
-
 export class AmmoSphereShape extends AmmoShape implements ISphereShape {
 
     setRadius (radius: number) {
@@ -59,6 +57,7 @@ export class AmmoSphereShape extends AmmoShape implements ISphereShape {
 
     setScale () {
         super.setScale();
+        const v3_0 = CC_V3_0;
         const ws = this._collider.node.worldScale;
         const absX = Math.abs(ws.x);
         const absY = Math.abs(ws.y);

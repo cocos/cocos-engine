@@ -44,12 +44,13 @@ export class AmmoShape implements IBaseShape {
     setMaterial (v: PhysicMaterial | null) {
         if (!this._isTrigger && this._isEnabled && v) {
             if (this._btCompound) {
-                this._btCompound.setMaterial(this._index, v.friction, v.restitution, v.rollingFriction, v.spinningFriction);
+                this._btCompound.setMaterial(this._index, v.friction, v.restitution, v.rollingFriction, v.spinningFriction, 2);
             } else {
                 this._sharedBody.body.setFriction(v.friction);
                 this._sharedBody.body.setRestitution(v.restitution);
                 this._sharedBody.body.setRollingFriction(v.rollingFriction);
                 this._sharedBody.body.setSpinningFriction(v.spinningFriction);
+                this._sharedBody.body.setUserIndex2(2);
             }
         }
     }
@@ -95,19 +96,15 @@ export class AmmoShape implements IBaseShape {
     protected _collider!: Collider;
 
     protected readonly transform: Ammo.btTransform;
-    protected readonly pos: Ammo.btVector3;
     protected readonly quat: Ammo.btQuaternion;
     protected readonly scale: Ammo.btVector3;
 
     constructor (type: AmmoBroadphaseNativeTypes) {
         this.type = type;
         this.id = AmmoShape.idCounter++;
-
-        this.pos = new Ammo.btVector3();
         this.quat = new Ammo.btQuaternion();
-        this.transform = new Ammo.btTransform(this.quat, this.pos);
+        this.transform = new Ammo.btTransform();
         this.transform.setIdentity();
-
         this.scale = new Ammo.btVector3(1, 1, 1);
     }
 
@@ -162,7 +159,6 @@ export class AmmoShape implements IBaseShape {
         (this._collider as any) = null;
         const shape = Ammo.castObject(this._btShape, Ammo.btCollisionShape);
         (shape as any).wrapped = null;
-        Ammo.destroy(this.pos);
         Ammo.destroy(this.quat);
         Ammo.destroy(this.scale);
         Ammo.destroy(this.transform);
@@ -172,7 +168,6 @@ export class AmmoShape implements IBaseShape {
         }
         (this._btShape as any) = null;
         (this.transform as any) = null;
-        (this.pos as any) = null;
         (this.quat as any) = null;
         (this.scale as any) = null;
     }
@@ -243,9 +238,7 @@ export class AmmoShape implements IBaseShape {
 
     needCompound () {
         if (this.type === AmmoBroadphaseNativeTypes.TERRAIN_SHAPE_PROXYTYPE) { return true; }
-
         if (this._collider.center.equals(Vec3.ZERO)) { return false; }
-
         return true;
     }
 

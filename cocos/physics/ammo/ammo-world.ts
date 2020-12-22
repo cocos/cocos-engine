@@ -84,6 +84,7 @@ export class AmmoWorld implements IPhysicsWorld {
         this._btSolver = new Ammo.btSequentialImpulseConstraintSolver();
         this._btWorld = new Ammo.btDiscreteDynamicsWorld(this._btDispatcher, this._btBroadphase, this._btSolver, collisionConfiguration);
         (this._btWorld.getPairCache() as any).setOverlapFilterCallback(new (Ammo as any).ccOverlapFilterCallback);
+        // this._btWorld.setContactBreakingThreshold(0.04);
         this._btGravity = new Ammo.btVector3(0, -10, 0);
         this._btWorld.setGravity(this._btGravity);
     }
@@ -127,9 +128,8 @@ export class AmmoWorld implements IPhysicsWorld {
         this.allHitsCB.m_shapeParts.clear();
         this.allHitsCB.m_hitFractions.clear();
         this.allHitsCB.m_collisionObjects.clear();
-        // TODO: typing
-        const hp = (this.allHitsCB.m_hitPointWorld as any);
-        const hn = (this.allHitsCB.m_hitNormalWorld as any);
+        const hp = this.allHitsCB.m_hitPointWorld;
+        const hn = this.allHitsCB.m_hitNormalWorld;
         hp.clear();
         hn.clear();
         this._btWorld.rayTest(from, to, this.allHitsCB);
@@ -263,75 +263,72 @@ export class AmmoWorld implements IPhysicsWorld {
             const numContacts = manifold.getNumContacts();
             for (let j = 0; j < numContacts; j++) {
                 const manifoldPoint: Ammo.btManifoldPoint = manifold.getContactPoint(j);
-                const d = manifoldPoint.getDistance();
-                if (d <= 0) {
-                    const s0 = manifoldPoint.getShape0();
-                    const s1 = manifoldPoint.getShape1();
-                    let shape0: AmmoShape;
-                    let shape1: AmmoShape;
-                    if (isUseCCD) {
-                        if (body0['useCCD']) {
-                            const asb = (body0['wrapped'] as AmmoRigidBody).sharedBody;
-                            if (!asb) continue;
-                            shape0 = asb.bodyStruct.wrappedShapes[0];
-                        } else {
-                            const btShape0 = body0.getCollisionShape();
-                            if (btShape0.isCompound()) {
-                                // TODO: SUPPORT COMPOUND COLLISION WITH CCD
-                                continue;
-                            } else {
-                                shape0 = (btShape0 as any).wrapped;
-                            }
-                        }
-
-                        if (body1['useCCD']) {
-                            const asb = (body1['wrapped'] as AmmoRigidBody).sharedBody;
-                            if (!asb) continue;
-                            shape1 = asb.bodyStruct.wrappedShapes[0];
-                        } else {
-                            const btShape1 = body1.getCollisionShape();
-                            if (btShape1.isCompound()) {
-                                // TODO: SUPPORT COMPOUND COLLISION WITH CCD
-                                continue;
-                            } else {
-                                shape1 = (btShape1 as any).wrapped;
-                            }
-                        }
+                const s0 = manifoldPoint.getShape0();
+                const s1 = manifoldPoint.getShape1();
+                let shape0: AmmoShape;
+                let shape1: AmmoShape;
+                if (isUseCCD) {
+                    if (body0['useCCD']) {
+                        const asb = (body0['wrapped'] as AmmoRigidBody).sharedBody;
+                        if (!asb) continue;
+                        shape0 = asb.bodyStruct.wrappedShapes[0];
                     } else {
-                        if (s0.isCompound()) {
-                            const com = Ammo.castObject(s0, Ammo.btCompoundShape) as Ammo.btCompoundShape;
-                            shape0 = (com.getChildShape(manifoldPoint.m_index0) as any).wrapped;
+                        const btShape0 = body0.getCollisionShape();
+                        if (btShape0.isCompound()) {
+                            // TODO: SUPPORT COMPOUND COLLISION WITH CCD
+                            continue;
                         } else {
-                            shape0 = (s0 as any).wrapped;
-                        }
-
-                        if (s1.isCompound()) {
-                            const com = Ammo.castObject(s1, Ammo.btCompoundShape) as Ammo.btCompoundShape;
-                            shape1 = (com.getChildShape(manifoldPoint.m_index1) as any).wrapped;
-                        } else {
-                            shape1 = (s1 as any).wrapped;
+                            shape0 = (btShape0 as any).wrapped;
                         }
                     }
 
-                    if (shape0.collider.needTriggerEvent ||
-                        shape1.collider.needTriggerEvent ||
-                        shape0.collider.needCollisionEvent ||
-                        shape1.collider.needCollisionEvent
-                    ) {
-                        // current contact
-                        var item = this.contactsDic.get(shape0.id, shape1.id) as any;
-                        if (item == null) {
-                            item = this.contactsDic.set(shape0.id, shape1.id,
-                                {
-                                    shape0: shape0,
-                                    shape1: shape1,
-                                    contacts: [],
-                                    impl: manifold
-                                }
-                            );
+                    if (body1['useCCD']) {
+                        const asb = (body1['wrapped'] as AmmoRigidBody).sharedBody;
+                        if (!asb) continue;
+                        shape1 = asb.bodyStruct.wrappedShapes[0];
+                    } else {
+                        const btShape1 = body1.getCollisionShape();
+                        if (btShape1.isCompound()) {
+                            // TODO: SUPPORT COMPOUND COLLISION WITH CCD
+                            continue;
+                        } else {
+                            shape1 = (btShape1 as any).wrapped;
                         }
-                        item.contacts.push(manifoldPoint);
                     }
+                } else {
+                    if (s0.isCompound()) {
+                        const com = Ammo.castObject(s0, Ammo.btCompoundShape) as Ammo.btCompoundShape;
+                        shape0 = (com.getChildShape(manifoldPoint.m_index0) as any).wrapped;
+                    } else {
+                        shape0 = (s0 as any).wrapped;
+                    }
+
+                    if (s1.isCompound()) {
+                        const com = Ammo.castObject(s1, Ammo.btCompoundShape) as Ammo.btCompoundShape;
+                        shape1 = (com.getChildShape(manifoldPoint.m_index1) as any).wrapped;
+                    } else {
+                        shape1 = (s1 as any).wrapped;
+                    }
+                }
+
+                if (shape0.collider.needTriggerEvent ||
+                    shape1.collider.needTriggerEvent ||
+                    shape0.collider.needCollisionEvent ||
+                    shape1.collider.needCollisionEvent
+                ) {
+                    // current contact
+                    var item = this.contactsDic.get(shape0.id, shape1.id) as any;
+                    if (item == null) {
+                        item = this.contactsDic.set(shape0.id, shape1.id,
+                            {
+                                shape0: shape0,
+                                shape1: shape1,
+                                contacts: [],
+                                impl: manifold
+                            }
+                        );
+                    }
+                    item.contacts.push(manifoldPoint);
                 }
             }
         }

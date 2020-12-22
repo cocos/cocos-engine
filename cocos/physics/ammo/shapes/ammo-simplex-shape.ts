@@ -40,7 +40,6 @@ export class AmmoSimplexShape extends AmmoShape implements ISimplexShape {
     }
 
     setVertices (v: IVec3Like[]) {
-        //TODO: Fix
         const length = this.VERTICES.length;
         for (let i = 0; i < length; i++) {
             cocos2AmmoVec3(this.VERTICES[i], v[i]);

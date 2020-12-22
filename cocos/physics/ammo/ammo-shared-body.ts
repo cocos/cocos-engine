@@ -223,6 +223,7 @@ export class AmmoSharedBody {
             'useCompound': false,
         }
         AmmoInstance.bodyStructs['KEY' + this._bodyStruct.id] = this._bodyStruct;
+        this.body.setUserIndex2(2);
         this.body.setUserIndex(this._bodyStruct.id);
         if (mass == 0) this.body.setActivationState(AmmoCollisionObjectStates.DISABLE_DEACTIVATION);
         if (Ammo['CC_CONFIG']['ignoreSelfBody'] && this._ghostStruct) this.ghost.setIgnoreCollisionCheck(this.body, true);
@@ -243,6 +244,7 @@ export class AmmoSharedBody {
             'wrappedShapes': []
         }
         AmmoInstance.ghostStructs['KEY' + this._ghostStruct.id] = this._ghostStruct;
+        this.ghost.setUserIndex2(2);
         this.ghost.setUserIndex(this._ghostStruct.id);
         this.ghost.setActivationState(AmmoCollisionObjectStates.DISABLE_DEACTIVATION);
         if (Ammo['CC_CONFIG']['ignoreSelfBody'] && this._bodyStruct) this.ghost.setIgnoreCollisionCheck(this.body, true);

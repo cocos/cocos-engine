@@ -70,10 +70,10 @@ export class AmmoConeShape extends AmmoShape implements ICylinderShape {
 
     constructor () {
         super(AmmoBroadphaseNativeTypes.CONE_SHAPE_PROXYTYPE);
-        this._btShape = new Ammo.btConeShape(0.5, 1);
     }
 
     onComponentSet () {
+        this._btShape = new Ammo.btConeShape(0.5, 1);
         this.setRadius(this.collider.radius);
     }
 

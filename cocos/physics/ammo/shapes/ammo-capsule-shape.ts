@@ -70,10 +70,10 @@ export class AmmoCapsuleShape extends AmmoShape implements ICapsuleShape {
 
     constructor () {
         super(AmmoBroadphaseNativeTypes.CAPSULE_SHAPE_PROXYTYPE);
-        this._btShape = new Ammo.btCapsuleShape(0.5, 1);
     }
 
     onComponentSet () {
+        this._btShape = new Ammo.btCapsuleShape(0.5, 1);
         this.setRadius(this.collider.radius);
     }
 
