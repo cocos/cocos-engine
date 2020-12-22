@@ -2,6 +2,7 @@
 
 #include "tbb/global_control.h"
 #include <thread>
+#include <algorithm>
 
 namespace cc {
 
@@ -20,7 +21,7 @@ public:
         CC_SAFE_DELETE(_instance);
     }
 
-    TBBJobSystem() noexcept : TBBJobSystem(std::thread::hardware_concurrency() - 2) {}
+    TBBJobSystem() noexcept : TBBJobSystem(std::max(2u, std::thread::hardware_concurrency() - 2u)) {}
     TBBJobSystem(uint threadCount) noexcept;
 
     CC_INLINE uint threadCount() { return _threadCount; }
