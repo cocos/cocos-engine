@@ -86,11 +86,12 @@ bool CCMTLCommandBuffer::isRenderingEntireDrawable(const Rect &rect, const CCMTL
     return rect.x == 0 && rect.y == 0 && rect.width == renderTargetSize.x && rect.height == renderTargetSize.y;
 }
 
-void CCMTLCommandBuffer::begin(RenderPass *renderPass, uint subpass, Framebuffer *frameBuffer, bool parallelPass, int submitIndex)
+void CCMTLCommandBuffer::begin(RenderPass *renderPass, uint subpass, Framebuffer *frameBuffer, int submitIndex)
 {
     if (_commandBufferBegan) return;
 
-    _mtlCommandBuffer = [[_mtlCommandQueue commandBuffer] retain];
+    _mtlCommandBuffer = [_mtlCommandQueue commandBuffer];
+    [_mtlCommandBuffer retain];
     [_mtlCommandBuffer enqueue];
     _numTriangles = 0;
     _numDrawCalls = 0;

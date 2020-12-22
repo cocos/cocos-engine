@@ -62,18 +62,17 @@ void CommandBufferAgent::destroy() {
     }
 }
 
-void CommandBufferAgent::begin(RenderPass *renderPass, uint subpass, Framebuffer *frameBuffer, bool parallelPass, int submitIndex) {
-    ENCODE_COMMAND_6(
+void CommandBufferAgent::begin(RenderPass *renderPass, uint subpass, Framebuffer *frameBuffer, int submitIndex) {
+    ENCODE_COMMAND_5(
         _encoder,
         CommandBufferBegin,
         actor, getActor(),
         renderPass, renderPass ? ((RenderPassAgent *)renderPass)->getActor() : nullptr,
         subpass, subpass,
         frameBuffer, frameBuffer ? ((FramebufferAgent *)frameBuffer)->getActor() : nullptr,
-        parallelPass, parallelPass,
         submitIndex, submitIndex,
         {
-            actor->begin(renderPass, subpass, frameBuffer, parallelPass, submitIndex);
+            actor->begin(renderPass, subpass, frameBuffer, submitIndex);
         });
 }
 
