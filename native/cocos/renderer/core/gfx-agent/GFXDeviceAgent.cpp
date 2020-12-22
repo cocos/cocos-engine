@@ -144,7 +144,11 @@ void DeviceAgent::present() {
     _mainEncoder->finishWriting();
     _currentIndex = (_currentIndex + 1) % (MAX_CPU_FRAME_AHEAD + 1);
     _frameBoundarySemaphore.Wait();
+
     getMainAllocator()->reset();
+    for (LinearAllocatorPool **allocatorPools: _allocatorPoolRefs) {
+        allocatorPools[_currentIndex]->reset();
+    }
 }
 
 void DeviceAgent::setMultithreaded(bool multithreaded) {

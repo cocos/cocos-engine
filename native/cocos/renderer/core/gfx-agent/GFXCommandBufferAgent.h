@@ -9,6 +9,8 @@ class CommandEncoder;
 
 namespace gfx {
 
+class LinearAllocatorPool;
+
 class CC_DLL CommandBufferAgent final : public Agent<CommandBuffer> {
 public:
     using Agent::Agent;
@@ -41,6 +43,7 @@ public:
     virtual uint getNumTris() const override { return _actor->getNumTris(); }
     
     CC_INLINE CommandEncoder *getEncoder() { return _encoder; }
+    LinearAllocatorPool *getAllocator();
 
 private:
     friend class DeviceAgent;
@@ -48,6 +51,7 @@ private:
     void initEncoder();
     void destroyEncoder();
     CommandEncoder *_encoder = nullptr;
+    vector<LinearAllocatorPool *> _allocatorPools;
 };
 
 } // namespace gfx

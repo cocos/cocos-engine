@@ -8,7 +8,7 @@ namespace cc {
 namespace gfx {
 
 namespace {
-constexpr size_t DEFAULT_BLOCK_SIZE = 16 * 1024 * 1024; // 16M per block by default
+constexpr size_t DEFAULT_BLOCK_SIZE = 4096 * 16;
 
 uint nextPowerOf2(uint v) {
     v--;
@@ -23,8 +23,8 @@ uint nextPowerOf2(uint v) {
 
 class CC_DLL LinearAllocatorPool final {
 public:
-    LinearAllocatorPool() {
-        _allocators.emplace_back(CC_NEW(ThreadSafeLinearAllocator(DEFAULT_BLOCK_SIZE)));
+    LinearAllocatorPool(size_t defaultBlockSize = DEFAULT_BLOCK_SIZE): _defaultBlockSize(defaultBlockSize) {
+        _allocators.emplace_back(CC_NEW(ThreadSafeLinearAllocator(_defaultBlockSize)));
     }
     
     ~LinearAllocatorPool() {
@@ -55,6 +55,7 @@ public:
 
 protected:
     vector<ThreadSafeLinearAllocator *> _allocators;
+    size_t _defaultBlockSize = DEFAULT_BLOCK_SIZE;
 };
 
 } // namespace gfx

@@ -18,6 +18,12 @@ namespace cc {
 namespace gfx {
 
 void CommandBufferAgent::initEncoder() {
+    _allocatorPools.resize(MAX_CPU_FRAME_AHEAD + 1);
+    for (uint i = 0u; i < MAX_CPU_FRAME_AHEAD + 1; ++i) {
+        _allocatorPools[i] = CC_NEW(LinearAllocatorPool);
+    }
+    ((DeviceAgent *)_device)->_allocatorPoolRefs.insert(_allocatorPools.data());
+
     _encoder = CC_NEW(CommandEncoder);
     _encoder->setImmediateMode(false);
 }
@@ -25,6 +31,16 @@ void CommandBufferAgent::initEncoder() {
 void CommandBufferAgent::destroyEncoder() {
     ((DeviceAgent *)_device)->getMainEncoder()->kickAndWait();
     CC_SAFE_DELETE(_encoder);
+
+    ((DeviceAgent *)_device)->_allocatorPoolRefs.erase(_allocatorPools.data());
+    for (LinearAllocatorPool *pool : _allocatorPools) {
+        CC_SAFE_DELETE(pool);
+    }
+    _allocatorPools.clear();
+}
+
+LinearAllocatorPool *CommandBufferAgent::getAllocator() {
+    return _allocatorPools[((DeviceAgent *)_device)->_currentIndex];
 }
 
 bool CommandBufferAgent::initialize(const CommandBufferInfo &info) {
@@ -93,7 +109,7 @@ void CommandBufferAgent::beginRenderPass(RenderPass *renderPass, Framebuffer *fb
     uint attachmentCount = (uint)renderPass->getColorAttachments().size();
     Color *actorColors = nullptr;
     if (attachmentCount) {
-        actorColors = ((DeviceAgent *)_device)->getMainAllocator()->allocate<Color>(attachmentCount);
+        actorColors = getAllocator()->allocate<Color>(attachmentCount);
         memcpy(actorColors, colors, sizeof(Color) * attachmentCount);
     }
     
@@ -183,7 +199,7 @@ void CommandBufferAgent::bindPipelineState(PipelineState *pso) {
 void CommandBufferAgent::bindDescriptorSet(uint set, DescriptorSet *descriptorSet, uint dynamicOffsetCount, const uint *dynamicOffsets) {
     uint *actorDynamicOffsets = nullptr;
     if (dynamicOffsetCount) {
-        actorDynamicOffsets = ((DeviceAgent *)_device)->getMainAllocator()->allocate<uint>(dynamicOffsetCount);
+        actorDynamicOffsets = getAllocator()->allocate<uint>(dynamicOffsetCount);
         memcpy(actorDynamicOffsets, dynamicOffsets, dynamicOffsetCount * sizeof(uint));
     }
 
@@ -319,7 +335,7 @@ void CommandBufferAgent::draw(InputAssembler *ia) {
 void CommandBufferAgent::updateBuffer(Buffer *buff, const void *data, uint size) {
     CommandEncoder *encoder = _encoder;
 
-    uint8_t *actorData = ((DeviceAgent *)_device)->getMainAllocator()->allocate<uint8_t>(size);
+    uint8_t *actorData = getAllocator()->allocate<uint8_t>(size);
     memcpy(actorData, data, size);
 
     ENCODE_COMMAND_4(
@@ -335,7 +351,7 @@ void CommandBufferAgent::updateBuffer(Buffer *buff, const void *data, uint size)
 }
 
 void CommandBufferAgent::copyBuffersToTexture(const uint8_t *const *buffers, Texture *texture, const BufferTextureCopy *regions, uint count) {
-    LinearAllocatorPool *allocator = ((DeviceAgent *)_device)->getMainAllocator();
+    LinearAllocatorPool *allocator = getAllocator();
 
     BufferTextureCopy *actorRegions = allocator->allocate<BufferTextureCopy>(count);
     memcpy(actorRegions, regions, count * sizeof(BufferTextureCopy));
@@ -371,7 +387,7 @@ void CommandBufferAgent::copyBuffersToTexture(const uint8_t *const *buffers, Tex
 void CommandBufferAgent::execute(const CommandBuffer *const *cmdBuffs, uint32_t count) {
     if (!count) return;
 
-    const CommandBuffer **actorCmdBuffs = ((DeviceAgent *)_device)->getMainAllocator()->allocate<const CommandBuffer *>(count);
+    const CommandBuffer **actorCmdBuffs = getAllocator()->allocate<const CommandBuffer *>(count);
     for (uint i = 0; i < count; ++i) {
         actorCmdBuffs[i] = ((CommandBufferAgent *)cmdBuffs[i])->getActor();
     }

@@ -60,14 +60,18 @@ public:
 
     CommandEncoder *getMainEncoder() const { return _mainEncoder; }
     LinearAllocatorPool *getMainAllocator() const { return _allocatorPools[_currentIndex]; }
-protected:
 
+protected:
+    friend class CommandBufferAgent;
+    
     bool _multithreaded{false};
     CommandEncoder *_mainEncoder{nullptr};
     
     uint _currentIndex = 0u;
     vector<LinearAllocatorPool *> _allocatorPools;
     Semaphore _frameBoundarySemaphore{MAX_CPU_FRAME_AHEAD};
+    
+    unordered_set<LinearAllocatorPool **> _allocatorPoolRefs;
 };
 
 } // namespace gfx
