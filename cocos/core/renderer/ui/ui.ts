@@ -51,7 +51,8 @@ import { EffectAsset, RenderTexture, SpriteFrame } from '../../assets';
 import { programLib } from '../core/program-lib';
 import { TextureBase } from '../../assets/texture-base';
 import { sys } from '../../platform/sys';
-const _dsInfo = new DescriptorSetInfo(null!);
+
+const dsInfo = new DescriptorSetInfo(null!);
 
 /**
  * @zh
@@ -779,8 +780,8 @@ export class UI {
         const root = legacyCC.director.root;
 
         const programName = EffectAsset.get('sprite')!.shaders[0].name;
-        _dsInfo.layout = programLib.getDescriptorSetLayout(root.device, programName, true);
-        batch.hDescriptorSet = DSPool.alloc(root.device, _dsInfo);
+        dsInfo.layout = programLib.getDescriptorSetLayout(root.device, programName, true);
+        batch.hDescriptorSet = DSPool.alloc(root.device, dsInfo);
     }
 
     private _releaseDescriptorSetCache (textureHash: number) {

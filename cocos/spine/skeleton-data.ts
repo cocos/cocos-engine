@@ -1,10 +1,10 @@
+import { EDITOR } from 'internal:constants';
 import { Asset, CCString, Enum, Node, Texture2D, errorID } from '../core';
 import SkeletonCache from './skeleton-cache';
 import { Skeleton } from './skeleton';
 import { SkeletonTexture } from './skeleton-texture';
 import spine from './lib/spine-core.js';
 import { ccclass, serializable, type } from '../core/data/decorators';
-import { EDITOR } from 'internal:constants';
 import { legacyCC } from '../core/global-exports';
 
 /**
@@ -149,14 +149,14 @@ export class SkeletonData extends Asset {
         const textures = this.textures;
         const texsLen = textures.length;
         if (texsLen === 0) {
-            loaded?.call(caller, false);
+            if (loaded) loaded.call(caller, false);
             return;
         }
         let loadedCount = 0;
         const loadedItem = () => {
             loadedCount++;
             if (loadedCount >= texsLen) {
-                loaded?.call(caller, true);
+                if (loaded) loaded.call(caller, true);
                 loaded = null;
             }
         };

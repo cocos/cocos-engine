@@ -34,7 +34,7 @@ import { legacyCC } from '../../global-exports';
 
 export const vfmt = [
     new Attribute(AttributeName.ATTR_POSITION, Format.RGB32F),
-]
+];
 
 export const vfmtPosColor = [
     new Attribute(AttributeName.ATTR_POSITION, Format.RGB32F),
