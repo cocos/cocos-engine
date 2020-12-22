@@ -127,12 +127,12 @@ a c
 b d
 */
 function _flipTexture (inGrid, gid, shrink) {
-    const px = shrink * inGrid._px
-    const py = shrink * inGrid._py
-    const l = inGrid.l + px
-    const r = inGrid.r - px
-    const t = inGrid.t + py
-    const b = inGrid.b - py
+    const px = shrink * inGrid._px;
+    const py = shrink * inGrid._py;
+    const l = inGrid.l + px;
+    const r = inGrid.r - px;
+    const t = inGrid.t + py;
+    const b = inGrid.b - py;
     if (inGrid._rotated) {
         // 2:b   1:a
         // 4:d   3:c
@@ -196,14 +196,14 @@ b     c
    d
 */
 function _flipDiamondTileTexture (inGrid, gid, shrink) {
-    const px = shrink * inGrid._px * inGrid.width / inGrid.height
-    const py = shrink * inGrid._py
-    const l = inGrid.l + px
-    const r = inGrid.r - px
-    const t = inGrid.t + py
-    const b = inGrid.b - py
-    const cx = inGrid.cx
-    const cy = inGrid.cy
+    const px = shrink * inGrid._px * inGrid._whr;
+    const py = shrink * inGrid._py;
+    const l = inGrid.l + px;
+    const r = inGrid.r - px;
+    const t = inGrid.t + py;
+    const b = inGrid.b - py;
+    const cx = inGrid.cx;
+    const cy = inGrid.cy;
 
     if (inGrid._rotated) {
         //       2:b
