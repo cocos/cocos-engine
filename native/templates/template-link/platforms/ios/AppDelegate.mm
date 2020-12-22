@@ -56,7 +56,7 @@ Game* game = nullptr;
     game->init();
 
     [[NSNotificationCenter defaultCenter] addObserver:self
-        selector:@selector(statusBarOrientationChanged:)name:UIApplicationDidChangeStatusBarOrientationNotification object:nil];
+        selector:@selector(orientationChanged:)name:UIDeviceOrientationDidChangeNotification object:nil];
 
     [self.window makeKeyAndVisible];
 
@@ -64,29 +64,28 @@ Game* game = nullptr;
 }
 
 
-- (void) statusBarOrientationChanged:(NSNotification *)note {
-    // https://developer.apple.com/documentation/uikit/uideviceorientation
-    // NOTE: do not use API [UIDevice currentDevice].orientation to get the device orientation
-    // when the device rotates to LandscapeLeft, device.orientation returns UIDeviceOrientationLandscapeRight
-    // when the device rotates to LandscapeRight, device.orientation returns UIDeviceOrientationLandscapeLeft
-    cc::Device::Orientation orientation;
-    switch([[UIApplication sharedApplication] statusBarOrientation]) {
-        case UIInterfaceOrientationLandscapeRight:
+- (void) orientationChanged:(NSNotification *)note {
+    cc::Device::Orientation orientation = cc::Device::Orientation::PORTRAIT;
+    UIDevice * device = note.object;
+
+    switch (device.orientation)
+    {
+        case UIDeviceOrientationPortrait:
+            orientation = cc::Device::Orientation::PORTRAIT;
+            break;
+        case UIDeviceOrientationLandscapeRight:
             orientation = cc::Device::Orientation::LANDSCAPE_RIGHT;
             break;
-        case UIInterfaceOrientationLandscapeLeft:
-            orientation = cc::Device::Orientation::LANDSCAPE_LEFT;
-            break;
-        case UIInterfaceOrientationPortraitUpsideDown:
+        case UIDeviceOrientationPortraitUpsideDown:
             orientation = cc::Device::Orientation::PORTRAIT_UPSIDE_DOWN;
             break;
-        case UIInterfaceOrientationPortrait:
-            orientation = cc::Device::Orientation::PORTRAIT;
+        case UIDeviceOrientationLandscapeLeft:
+            orientation = cc::Device::Orientation::LANDSCAPE_LEFT;
             break;
         default:
             break;
-    }
-    if(_lastOrientation != orientation){
+    };
+    if (_lastOrientation != orientation) {
         cc::EventDispatcher::dispatchOrientationChangeEvent((int) orientation);
         _lastOrientation = orientation;
     }

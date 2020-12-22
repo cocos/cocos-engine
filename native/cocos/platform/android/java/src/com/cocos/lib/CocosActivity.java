@@ -1,3 +1,27 @@
+/****************************************************************************
+ * Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ *
+ * http://www.cocos.com
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ ****************************************************************************/
+
 package com.cocos.lib;
 
 import android.app.Activity;
@@ -24,10 +48,10 @@ public class CocosActivity extends Activity implements SurfaceHolder.Callback {
     private boolean mDestroyed;
     private SurfaceHolder mSurfaceHolder;
     private FrameLayout mFrameLayout;
-    private SurfaceView mSurfaceView;
+    private CocosSurfaceView mSurfaceView;
     private CocosWebViewHelper mWebViewHelper = null;
     private CocosVideoHelper mVideoHelper = null;
-
+    private CocosOrientationHelper mOrientationHelper = null;
 
     private boolean engineInit = false;
 
@@ -76,6 +100,8 @@ public class CocosActivity extends Activity implements SurfaceHolder.Callback {
         setImmersiveMode();
 
         Utils.hideVirtualButton();
+
+        mOrientationHelper = new CocosOrientationHelper(this);
     }
 
     private void setImmersiveMode() {
@@ -116,7 +142,7 @@ public class CocosActivity extends Activity implements SurfaceHolder.Callback {
         mFrameLayout.setLayoutParams(frameLayoutParams);
         setContentView(mFrameLayout);
 
-        mSurfaceView = new SurfaceView(this);
+        mSurfaceView = new CocosSurfaceView(this);
         mSurfaceView.getHolder().addCallback(this);
         mFrameLayout.addView(mSurfaceView);
 
@@ -151,6 +177,7 @@ public class CocosActivity extends Activity implements SurfaceHolder.Callback {
     protected void onPause() {
         super.onPause();
         mSensorHandler.onPause();
+        mOrientationHelper.onPause();
         onPauseNative();
     }
 
@@ -158,6 +185,7 @@ public class CocosActivity extends Activity implements SurfaceHolder.Callback {
     protected void onResume() {
         super.onResume();
         mSensorHandler.onResume();
+        mOrientationHelper.onResume();
         onResumeNative();
     }
 
