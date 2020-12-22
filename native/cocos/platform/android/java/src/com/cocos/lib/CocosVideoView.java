@@ -457,6 +457,12 @@ public class CocosVideoView extends SurfaceView {
             }
 
             mCurrentState = State.PREPARED;
+
+            if (mPositionBeforeRelease > 0) {
+                CocosVideoView.this.seekTo(mPositionBeforeRelease);
+                CocosVideoView.this.start();
+                mPositionBeforeRelease = 0;
+            }
         }
     };
 
@@ -530,9 +536,6 @@ public class CocosVideoView extends SurfaceView {
         public void surfaceCreated(SurfaceHolder holder) {
             mSurfaceHolder = holder;
             CocosVideoView.this.openVideo();
-
-            if (mPositionBeforeRelease > 0)
-                mMediaPlayer.seekTo(mPositionBeforeRelease);
         }
 
         public void surfaceDestroyed(SurfaceHolder holder) {
