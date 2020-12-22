@@ -33,7 +33,6 @@ import { Node, Scene } from '../scene-graph';
 import Cache from './cache';
 import dependUtil from './depend-util';
 import { assets, references } from './shared';
-import { legacyCC } from '../global-exports';
 import { ImageAsset } from '../assets/image-asset';
 import { TextureBase } from '../assets/texture-base';
 import { callInNextTick } from '../utils/misc';
@@ -102,9 +101,9 @@ function descendOpRef (asset: Asset, refs: Record<string, number>, exclude: stri
 }
 
 const _temp = [];
-function checkCircularReference (asset: Asset) {
+function checkCircularReference (asset: Asset): number {
     // check circular reference
-    const refs = Object.create(null);
+    const refs: Record<string, number> = Object.create(null);
     refs[asset._uuid] = asset.refCount;
     descendOpRef(asset, refs, _temp, -1);
     _temp.length = 0;
@@ -160,8 +159,7 @@ class ReleaseManager {
         // transfer refs from persist nodes to new scene
         for (let i = 0, l = persistNodes.length; i < l; i++) {
             const node = persistNodes[i];
-            // @ts-expect-error
-            const sceneDeps = dependUtil._depends.get(newScene._id);
+            const sceneDeps = dependUtil._depends.get(newScene.uuid);
             const deps = this._persistNodeDeps.get(node.uuid) as string[];
             for (const dep of deps) {
                 const dependAsset = assets.get(dep);
@@ -179,16 +177,15 @@ class ReleaseManager {
 
         if (!oldScene) { return; }
 
-        // @ts-expect-error
-        const childs = dependUtil.getDeps(oldScene._id);
+        const childs = dependUtil.getDeps(oldScene.uuid);
         for (let i = 0, l = childs.length; i < l; i++) {
             const asset = assets.get(childs[i]);
             if (asset) {
                 asset.decRef(TEST || oldScene.autoReleaseAssets);
             }
         }
-        // @ts-expect-error
-        const dependencies = dependUtil._depends.get(oldScene._id);
+
+        const dependencies = dependUtil._depends.get(oldScene.uuid);
         if (dependencies && dependencies.persistDeps) {
             const persistDeps = dependencies.persistDeps;
             for (let i = 0, l = persistDeps.length; i < l; i++) {
@@ -198,14 +195,15 @@ class ReleaseManager {
                 }
             }
         }
-        // @ts-expect-error
-        dependUtil.remove(oldScene._id);
+
+        dependUtil.remove(oldScene.uuid);
     }
 
     public tryRelease (asset: Asset, force = false): void {
         if (!(asset instanceof Asset)) { return; }
         if (force) {
-            return this._free(asset, force);
+            this._free(asset, force);
+            return;
         }
 
         this._toDelete.add(asset._uuid, asset);
@@ -242,7 +240,10 @@ class ReleaseManager {
             const dependAsset = assets.get(depends[i]);
             if (dependAsset) {
                 dependAsset.decRef(false);
-                this._free(dependAsset, false);
+                // no need to release dependencies recursively in editor
+                if (!EDITOR) {
+                    this._free(dependAsset, false);
+                }
             }
         }
         // only release non-gc asset in editor
