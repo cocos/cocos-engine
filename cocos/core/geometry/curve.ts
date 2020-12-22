@@ -28,10 +28,11 @@
  * @module geometry
  */
 
-import { CCClass } from '../../core/data/class';
-import { clamp, inverseLerp, pingPong, repeat } from '../../core/math/utils';
-import { Enum } from '../../core/value-types/enum';
-import { WrapModeMask } from '../../core/animation/types';
+import { CCClass } from '../data/class';
+import { clamp, inverseLerp, pingPong, repeat } from '../math/utils';
+import { Enum } from '../value-types/enum';
+import { WrapModeMask } from '../animation/types';
+
 const LOOK_FORWARD = 3;
 
 const WrapMode = Enum({
@@ -45,11 +46,10 @@ const WrapMode = Enum({
 /**
  * @en
  * A key frame in the curve.
- * @zh 
+ * @zh
  * 曲线中的一个关键帧。
  */
 export class Keyframe {
-
     /**
      * @en Current frame time.
      * @zh 当前帧时间。
@@ -111,7 +111,6 @@ export function evalOptCurve (t: number, coefs: Float32Array | number[]) {
  * 描述一条曲线，其中每个相邻关键帧采用三次hermite插值计算。
  */
 export class AnimationCurve {
-
     private static defaultKF: Keyframe[] = [{
         time: 0,
         value: 1,
@@ -127,7 +126,7 @@ export class AnimationCurve {
     /**
      * @en
      * The key frame of the curve.
-     * @zh 
+     * @zh
      * 曲线的关键帧。
      */
     public keyFrames: Keyframe[] | null;
@@ -135,7 +134,7 @@ export class AnimationCurve {
     /**
      * @en
      * Loop mode [[WrapMode]] when the sampling time exceeds the left end.
-     * @zh 
+     * @zh
      * 当采样时间超出左端时采用的循环模式[[WrapMode]]。
      */
     public preWrapMode: number = WrapMode.Loop;
@@ -143,7 +142,7 @@ export class AnimationCurve {
     /**
      * @en
      * Cycle mode [[WrapMode]] when the sampling time exceeds the right end.
-     * @zh 
+     * @zh
      * 当采样时间超出右端时采用的循环模式[[WrapMode]]。
      */
     public postWrapMode: number = WrapMode.Clamp;
@@ -162,7 +161,7 @@ export class AnimationCurve {
     /**
      * @en
      * Add a keyframe.
-     * @zh 
+     * @zh
      * 添加一个关键帧。
      * @param keyFrame 关键帧。
      */
@@ -183,24 +182,26 @@ export class AnimationCurve {
         const startTime = this.keyFrames![0].time;
         const endTime = this.keyFrames![this.keyFrames!.length - 1].time;
         switch (wrapMode) {
-            case WrapMode.Loop:
-                wrappedTime = repeat(time - startTime, endTime - startTime) + startTime;
-                break;
-            case WrapMode.PingPong:
-                wrappedTime = pingPong(time - startTime, endTime - startTime) + startTime;
-                break;
-            case WrapMode.Default:
-            case WrapMode.Normal:
-            case WrapMode.Clamp:
-                wrappedTime = clamp(time, startTime, endTime);
-                break;
+        case WrapMode.Loop:
+            wrappedTime = repeat(time - startTime, endTime - startTime) + startTime;
+            break;
+        case WrapMode.PingPong:
+            wrappedTime = pingPong(time - startTime, endTime - startTime) + startTime;
+            break;
+        case WrapMode.Default:
+        case WrapMode.Normal:
+        case WrapMode.Clamp:
+            wrappedTime = clamp(time, startTime, endTime);
+            break;
+        default:
+            wrappedTime = clamp(time, startTime, endTime);
+            break;
         }
         let preKFIndex = 0;
         if (wrappedTime > this.keyFrames![0].time) {
             if (wrappedTime >= this.keyFrames![this.keyFrames!.length - 1].time) {
                 preKFIndex = this.keyFrames!.length - 2;
-            }
-            else {
+            } else {
                 for (let i = 0; i < this.keyFrames!.length - 1; i++) {
                     if (wrappedTime >= this.keyFrames![0].time && wrappedTime <= this.keyFrames![i + 1].time) {
                         preKFIndex = i;
@@ -232,7 +233,7 @@ export class AnimationCurve {
     /**
      * @en
      * Calculate the curve interpolation at a given point in time.
-     * @zh 
+     * @zh
      * 计算给定时间点的曲线插值。
      * @param time 时间。
      */
@@ -242,26 +243,28 @@ export class AnimationCurve {
         const startTime = this.keyFrames![0].time;
         const endTime = this.keyFrames![this.keyFrames!.length - 1].time;
         switch (wrapMode) {
-            case WrapMode.Loop:
-                wrappedTime = repeat(time - startTime, endTime - startTime) + startTime;
-                break;
-            case WrapMode.PingPong:
-                wrappedTime = pingPong(time - startTime, endTime - startTime) + startTime;
-                break;
-            case WrapMode.Default:
-            case WrapMode.Normal:
-            case WrapMode.Clamp:
-                wrappedTime = clamp(time, startTime, endTime);
-                break;
+        case WrapMode.Loop:
+            wrappedTime = repeat(time - startTime, endTime - startTime) + startTime;
+            break;
+        case WrapMode.PingPong:
+            wrappedTime = pingPong(time - startTime, endTime - startTime) + startTime;
+            break;
+        case WrapMode.Default:
+        case WrapMode.Normal:
+        case WrapMode.Clamp:
+            wrappedTime = clamp(time, startTime, endTime);
+            break;
+        default:
+            wrappedTime = clamp(time, startTime, endTime);
+            break;
         }
         if (wrappedTime >= this.cachedKey.time && wrappedTime < this.cachedKey.endTime) {
             return this.cachedKey.evaluate(wrappedTime);
-        } else {
-            const leftIndex = this.findIndex(this.cachedKey, wrappedTime);
-            const rightIndex = Math.min(leftIndex + 1, this.keyFrames!.length - 1);
-            this.calcOptimizedKey(this.cachedKey, leftIndex, rightIndex);
-            return this.cachedKey.evaluate(wrappedTime);
         }
+        const leftIndex = this.findIndex(this.cachedKey, wrappedTime);
+        const rightIndex = Math.min(leftIndex + 1, this.keyFrames!.length - 1);
+        this.calcOptimizedKey(this.cachedKey, leftIndex, rightIndex);
+        return this.cachedKey.evaluate(wrappedTime);
     }
 
     /**
@@ -316,14 +319,14 @@ export class AnimationCurve {
         }
         let left = 0;
         let right = this.keyFrames!.length;
-        let mid = Math.floor((left + right) / 2);
+        let mid;
         while (right - left > 1) {
+            mid = Math.floor((left + right) / 2);
             if (this.keyFrames![mid].time >= t) {
                 right = mid;
             } else {
-                left = mid + 1;
+                left = mid;
             }
-            mid = Math.floor((left + right) / 2);
         }
         return left;
     }

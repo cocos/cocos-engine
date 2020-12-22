@@ -113,8 +113,7 @@ function align (node: Node, widget: Widget) {
         } else {
             width = uiTrans.width * scaleX;
             if (widget.isAlignHorizontalCenter) {
-                let localHorizontalCenter = widget.isAbsoluteHorizontalCenter ?
-                    widget.horizontalCenter : widget.horizontalCenter * targetWidth;
+                let localHorizontalCenter = widget.isAbsoluteHorizontalCenter ? widget.horizontalCenter : widget.horizontalCenter * targetWidth;
                 let targetCenter = (0.5 - targetAnchor.x) * targetSize.width;
                 if (hasTarget) {
                     localHorizontalCenter *= inverseScale.x;
@@ -133,7 +132,6 @@ function align (node: Node, widget: Widget) {
     }
 
     if (widget.alignFlags & AlignFlags.VERTICAL) {
-
         let localTop = 0;
         let localBottom = 0;
         const targetHeight = targetSize.height;
@@ -173,8 +171,7 @@ function align (node: Node, widget: Widget) {
         } else {
             height = uiTrans.height * scaleY;
             if (widget.isAlignVerticalCenter) {
-                let localVerticalCenter = widget.isAbsoluteVerticalCenter ?
-                    widget.verticalCenter : widget.verticalCenter * targetHeight;
+                let localVerticalCenter = widget.isAbsoluteVerticalCenter ? widget.verticalCenter : widget.verticalCenter * targetHeight;
                 let targetMiddle = (0.5 - targetAnchor.y) * targetSize.height;
                 if (hasTarget) {
                     localVerticalCenter *= inverseScale.y;
@@ -207,11 +204,10 @@ function visitNode (node: any) {
         if ((!EDITOR || widgetManager.animationState!.animatedSinceLastFrame) && widget.alignMode === AlignMode.ONCE) {
             widget.enabled = false;
         } else {
-            if (legacyCC.isValid(node, true)) {
-                activeWidgets.push(widget);
-            } else {
+            if (!legacyCC.isValid(node, true)) {
                 return;
             }
+            activeWidgets.push(widget);
         }
     }
     const children = node.children;
@@ -271,8 +267,7 @@ function refreshScene () {
             activeWidgets.length = 0;
             visitNode(scene);
             widgetManager._nodesOrderDirty = false;
-        }
-        else {
+        } else {
             const i = 0;
             let widget: Widget | null = null;
             const iterator = widgetManager._activeWidgetsIterator;
@@ -349,9 +344,8 @@ export const widgetManager = legacyCC._widgetManager = {
     init () {
         director.on(Director.EVENT_AFTER_UPDATE, refreshScene);
 
-        if (EDITOR) {
-            View.instance.on('design-resolution-changed', this.onResized, this);
-        } else {
+        View.instance.on('design-resolution-changed', this.onResized, this);
+        if (!EDITOR) {
             const thisOnResized = this.onResized.bind(this);
             View.instance.on('canvas-resize', thisOnResized);
             window.addEventListener('orientationchange', thisOnResized);
@@ -372,8 +366,7 @@ export const widgetManager = legacyCC._widgetManager = {
     refreshWidgetOnResized (node: Node) {
         const widget = Node.isNode(node) && node.getComponent(Widget);
         if (widget && widget.enabled && (
-            widget.alignMode === AlignMode.ON_WINDOW_RESIZE ||
-            widget.alignMode === AlignMode.ALWAYS
+            widget.alignMode === AlignMode.ON_WINDOW_RESIZE || widget.alignMode === AlignMode.ALWAYS
         )) {
             widget.setDirty();
         }

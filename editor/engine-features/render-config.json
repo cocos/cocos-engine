@@ -10,6 +10,7 @@
         },
         "graphcis": {
             "label": "Graphcis API",
+            "multi": true,
             "description": "Graphcis API used by GFX. There can be more than one API existed.",
             "default": ["gfx-webgl", "gfx-webgl2"],
             "options": {
@@ -50,7 +51,6 @@
             "wechatPlugin": true
         },
         "physics": {
-            "multi": false,
             "label": "Physics",
             "description": "Physics(implementation).",
             "default": ["physics-cannon"],
@@ -67,7 +67,6 @@
             }
         },
         "physics-2d": {
-            "multi": false,
             "label": "Physics 2D",
             "description": "Physics 2D",
             "default": ["physics-2d-box2d"],

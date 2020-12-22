@@ -10,7 +10,6 @@
     "outDir": "dist"
   },
   "exclude": [
-      "dist",
-      "out"
+      "dist"
   ]
 }
