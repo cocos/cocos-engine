@@ -29,6 +29,7 @@
  */
 
 import { EDITOR } from 'internal:constants';
+import { ccclass, help, executeInEditMode, menu, tooltip, displayOrder, type, serializable } from 'cc.decorator';
 import { RenderTexture } from '../../assets/render-texture';
 import { UITransform } from '../../components/ui-base';
 import { Component } from '../../components/component';
