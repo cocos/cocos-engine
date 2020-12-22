@@ -1,6 +1,6 @@
 /****************************************************************************
 Copyright (c) 2014-2016 Chukong Technologies Inc.
-Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
 http://www.cocos2d-x.org
 
@@ -349,58 +349,25 @@ public class CocosVideoHelper {
         }
     }
 
-
-    public static <T> T callInMainThread(Callable<T> call) throws ExecutionException, InterruptedException {
-        FutureTask<T> task = new FutureTask<T>(call);
-        sHandler.post(task);
-        return task.get();
-    }
-
     public static float getCurrentTime(final int index) {
-        Callable<Float> callable = new Callable<Float>() {
-            @Override
-            public Float call() throws Exception {
-                CocosVideoView video = sVideoViews.get(index);
-                float currentPosition = -1;
-                if (video != null) {
-                    currentPosition = video.getCurrentPosition() / 1000.0f;
-                }
-                return new Float(currentPosition);
-            }
-        };
-
-        try {
-            return callInMainThread(callable);
-        } catch (ExecutionException e) {
-            return -1;
-        } catch (InterruptedException e) {
-            return -1;
+        CocosVideoView video = sVideoViews.get(index);
+        float currentPosition = -1;
+        if (video != null) {
+            currentPosition = video.getCurrentPosition() / 1000.0f;
         }
+        return currentPosition;
     }
 
     public  static  float getDuration(final int index) {
-        Callable<Float> callable = new Callable<Float>() {
-            @Override
-            public Float call() throws Exception {
-                CocosVideoView video = sVideoViews.get(index);
-                float duration = -1;
-                if (video != null) {
-                    duration = video.getDuration() / 1000.0f;
-                }
-                if (duration <= 0) {
-                    Log.w("CocosVideoHelper", "Video player's duration is not ready to get now!");
-                }
-                return new Float(duration);
-            }
-        };
-
-        try {
-            return callInMainThread(callable);
-        } catch (ExecutionException e) {
-            return -1;
-        } catch (InterruptedException e) {
-            return -1;
+        CocosVideoView video = sVideoViews.get(index);
+        float duration = -1;
+        if (video != null) {
+            duration = video.getDuration() / 1000.0f;
         }
+        if (duration <= 0) {
+            Log.w("CocosVideoHelper", "Video player's duration is not ready to get now!");
+        }
+        return duration;
     }
 
     public static void setVideoVisible(int index, boolean visible) {
@@ -461,5 +428,4 @@ public class CocosVideoHelper {
         msg.arg2 = (int) (volume * 10);
         mVideoHandler.sendMessage(msg);
     }
-
 }

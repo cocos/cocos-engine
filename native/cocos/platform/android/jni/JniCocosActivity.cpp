@@ -46,6 +46,7 @@ namespace {
         LOGV("activityState=%d", cmd);
         std::unique_lock<std::mutex> lk(cc::cocosApp.mutex);
         cc::cocosApp.activityState = cmd;
+        lk.unlock();
         cc::cocosApp.cond.notify_all();
     }
 
@@ -71,12 +72,15 @@ namespace {
                 cc::cocosApp.cond.notify_all();
                 break;
             case APP_CMD_RESUME:
+                LOGV("APP_CMD_RESUME");
                 handlePauseResume(cmd);
                 break;
             case APP_CMD_PAUSE:
+                LOGV("APP_CMD_PAUSE");
                 handlePauseResume(cmd);
                 break;
             case APP_CMD_DESTROY:
+                LOGV("APP_CMD_DESTROY");
                 cc::cocosApp.destroyRequested = true;
                 break;
             default:
@@ -86,9 +90,7 @@ namespace {
 
     void postExecCmd(int8_t cmd) {
         switch (cmd) {
-            case APP_CMD_TERM_WINDOW:
-            {
-                LOGV("APP_CMD_TERM_WINDOW");
+            case APP_CMD_TERM_WINDOW: {
                 std::unique_lock<std::mutex> lk(cc::cocosApp.mutex);
                 cc::cocosApp.window = nullptr;
                 lk.unlock();
@@ -118,13 +120,19 @@ namespace {
 
             if (game) {
                 // Handle java events send by UI thread. Input events are handled here too.
-                cc::JniHelper::callStaticVoidMethod("com.cocos.lib.CocosHelper", "flushTasksOnGameThread");
-
+                cc::JniHelper::callStaticVoidMethod("com.cocos.lib.CocosHelper",
+                                                    "flushTasksOnGameThread");
                 game->tick();
             }
 
             if (cc::cocosApp.destroyRequested) break;
         }
+
+        close(pipeRead);
+        close(pipeWrite);
+
+        delete game;
+        game = nullptr;
     }
 
     void setWindow(ANativeWindow *window) {
@@ -154,6 +162,10 @@ extern "C" {
 
 JNIEXPORT void JNICALL Java_com_cocos_lib_CocosActivity_onCreateNative(JNIEnv *env, jobject obj, jobject activity,
 	jobject assetMgr, jstring obbPath, jint sdkVersion) {
+    if (cc::cocosApp.running) {
+        return;
+    }
+
 	cc::cocosApp.sdkVersion = sdkVersion;
 	cc::JniHelper::init(env, activity);
 	cc::cocosApp.obbPath = cc::JniHelper::jstring2string(obbPath);
