@@ -10,6 +10,7 @@ class CommandEncoder;
 
 namespace gfx {
 
+class LinearAllocatorPool;
 class CommandBuffer;
 constexpr uint MAX_CPU_FRAME_AHEAD = 1u;
 
@@ -58,12 +59,15 @@ public:
     virtual uint getNumTris() const override { return _actor->getNumTris(); }
 
     CommandEncoder *getMainEncoder() const { return _mainEncoder; }
+    LinearAllocatorPool *getMainAllocator() const { return _allocatorPools[_currentIndex]; }
 protected:
 
     bool _multithreaded{false};
     CommandEncoder *_mainEncoder{nullptr};
-
-    Semaphore _frameBoundarySemaphore{MAX_CPU_FRAME_AHEAD + 1};
+    
+    uint _currentIndex = 0u;
+    vector<LinearAllocatorPool *> _allocatorPools;
+    Semaphore _frameBoundarySemaphore{MAX_CPU_FRAME_AHEAD};
 };
 
 } // namespace gfx

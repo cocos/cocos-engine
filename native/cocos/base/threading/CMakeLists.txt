@@ -6,6 +6,8 @@ message(STATUS "Target: ${TARGET_NAME}...")
 
 set(INCLUDE_FILES
 	${GFX_EXTERNAL_PATH}/concurrentqueue
+	${GFX_EXTERNAL_PATH}/acl/includes
+	${GFX_EXTERNAL_PATH}/rtm/includes
 )
 
 include_directories( ${INCLUDE_FILES} )

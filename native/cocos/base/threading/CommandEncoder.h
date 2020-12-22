@@ -205,14 +205,14 @@ CommandEncoder::allocate(uint32_t const count) noexcept {
 
 template <typename T>
 T *CommandEncoder::allocateAndCopy(uint32_t const count, void const *data) noexcept {
-    T *const allocatedMemory = Allocate<T>(count);
+    T *const allocatedMemory = allocate<T>(count);
     memcpy(allocatedMemory, data, sizeof(T) * count);
     return allocatedMemory;
 }
 
 template <typename T>
 T *CommandEncoder::allocateAndZero(uint32_t const count) noexcept {
-    T *const allocatedMemory = Allocate<T>(count);
+    T *const allocatedMemory = allocate<T>(count);
     memset(allocatedMemory, 0, sizeof(T) * count);
     return allocatedMemory;
 }

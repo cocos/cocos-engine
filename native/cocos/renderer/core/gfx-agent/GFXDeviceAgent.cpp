@@ -8,6 +8,7 @@
 #include "GFXDeviceAgent.h"
 #include "GFXFramebufferAgent.h"
 #include "GFXInputAssemblerAgent.h"
+#include "GFXLinearAllocatorPool.h"
 #include "GFXPipelineLayoutAgent.h"
 #include "GFXPipelineStateAgent.h"
 #include "GFXQueueAgent.h"
@@ -67,6 +68,11 @@ bool DeviceAgent::initialize(const DeviceInfo &info) {
     _mainEncoder = CC_NEW(CommandEncoder);
     _mainEncoder->runConsumerThread();
 
+    _allocatorPools.resize(MAX_CPU_FRAME_AHEAD + 1);
+    for (uint i = 0u; i < MAX_CPU_FRAME_AHEAD + 1; ++i) {
+        _allocatorPools[i] = CC_NEW(LinearAllocatorPool);
+    }
+
     setMultithreaded(true);
 
     return true;
@@ -91,6 +97,11 @@ void DeviceAgent::destroy() {
 
     _mainEncoder->terminateConsumerThread();
     CC_SAFE_DELETE(_mainEncoder);
+
+    for (LinearAllocatorPool *pool : _allocatorPools) {
+        CC_SAFE_DELETE(pool);
+    }
+    _allocatorPools.clear();
 }
 
 void DeviceAgent::resize(uint width, uint height) {
@@ -109,10 +120,8 @@ void DeviceAgent::resize(uint width, uint height) {
 }
 
 void DeviceAgent::acquire() {
-    _frameBoundarySemaphore.Wait();
-    CommandEncoder *encoder = getMainEncoder();
     ENCODE_COMMAND_1(
-        encoder,
+        _mainEncoder,
         DeviceAcquire,
         actor, getActor(),
         {
@@ -121,9 +130,8 @@ void DeviceAgent::acquire() {
 }
 
 void DeviceAgent::present() {
-    CommandEncoder *encoder = getMainEncoder();
     ENCODE_COMMAND_2(
-        encoder,
+        _mainEncoder,
         DevicePresent,
         actor, getActor(),
         frameBoundarySemaphore, &_frameBoundarySemaphore,
@@ -132,8 +140,11 @@ void DeviceAgent::present() {
             frameBoundarySemaphore->Signal();
         });
 
-    CommandEncoder::freeChunksInFreeQueue(encoder);
-    encoder->finishWriting();
+    CommandEncoder::freeChunksInFreeQueue(_mainEncoder);
+    _mainEncoder->finishWriting();
+    _currentIndex = (_currentIndex + 1) % (MAX_CPU_FRAME_AHEAD + 1);
+    _frameBoundarySemaphore.Wait();
+    getMainAllocator()->reset();
 }
 
 void DeviceAgent::setMultithreaded(bool multithreaded) {
@@ -245,28 +256,28 @@ PipelineState *DeviceAgent::createPipelineState() {
 }
 
 void DeviceAgent::copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint count) {
-    CommandEncoder *encoder = getMainEncoder();
+    LinearAllocatorPool *allocator = getMainAllocator();
 
-    BufferTextureCopy *actorRegions = encoder->allocate<BufferTextureCopy>(count);
+    BufferTextureCopy *actorRegions = allocator->allocate<BufferTextureCopy>(count);
     memcpy(actorRegions, regions, count * sizeof(BufferTextureCopy));
 
     uint bufferCount = 0u;
     for (uint i = 0u; i < count; i++) {
         bufferCount += regions[i].texSubres.layerCount;
     }
-    const uint8_t **actorBuffers = encoder->allocate<const uint8_t *>(bufferCount);
+    const uint8_t **actorBuffers = allocator->allocate<const uint8_t *>(bufferCount);
     for (uint i = 0u, n = 0u; i < count; i++) {
         const BufferTextureCopy &region = regions[i];
         uint size = FormatSize(dst->getFormat(), region.texExtent.width, region.texExtent.height, 1);
         for (uint l = 0; l < region.texSubres.layerCount; l++) {
-            uint8_t *buffer = encoder->allocate<uint8_t>(size);
+            uint8_t *buffer = allocator->allocate<uint8_t>(size);
             memcpy(buffer, buffers[n], size);
             actorBuffers[n++] = buffer;
         }
     }
 
     ENCODE_COMMAND_5(
-        encoder,
+        _mainEncoder,
         DeviceCopyBuffersToTexture,
         actor, getActor(),
         buffers, actorBuffers,

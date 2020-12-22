@@ -2,6 +2,7 @@
 
 #include "GFXCommandBufferAgent.h"
 #include "GFXDeviceAgent.h"
+#include "GFXLinearAllocatorPool.h"
 #include "GFXQueueAgent.h"
 #include "job-system/JobSystem.h"
 #include "threading/CommandEncoder.h"
@@ -40,9 +41,9 @@ void QueueAgent::destroy() {
 
 void QueueAgent::submit(const CommandBuffer *const *cmdBuffs, uint count, Fence *fence) {
     if (!count) return;
-    CommandEncoder *encoder = ((DeviceAgent *)_device)->getMainEncoder();
-
-    const CommandBuffer **actorCmdBuffs = encoder->allocate<const CommandBuffer *>(count);
+    
+    LinearAllocatorPool *allocator = ((DeviceAgent *)_device)->getMainAllocator();
+    const CommandBuffer **actorCmdBuffs = allocator->allocate<const CommandBuffer *>(count);
     for (uint i = 0u; i < count; ++i) {
         actorCmdBuffs[i] = ((CommandBufferAgent *)cmdBuffs[i])->getActor();
     }
@@ -50,7 +51,7 @@ void QueueAgent::submit(const CommandBuffer *const *cmdBuffs, uint count, Fence 
     bool multiThreaded = _device->hasFeature(Feature::MULTITHREADED_SUBMISSION);
 
     ENCODE_COMMAND_6(
-        encoder,
+        ((DeviceAgent *)_device)->getMainEncoder(),
         QueueSubmit,
         actor, getActor(),
         multiThreaded, multiThreaded,

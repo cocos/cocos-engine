@@ -3,6 +3,7 @@
 #include "threading/CommandEncoder.h"
 #include "GFXBufferAgent.h"
 #include "GFXDeviceAgent.h"
+#include "GFXLinearAllocatorPool.h"
 
 namespace cc {
 namespace gfx {
@@ -65,13 +66,11 @@ void BufferAgent::destroy() {
 }
 
 void BufferAgent::update(void *buffer, uint size) {
-    CommandEncoder *encoder = ((DeviceAgent *)_device)->getMainEncoder();
-
-    uint8_t *actorBuffer = encoder->allocate<uint8_t>(size);
+    uint8_t *actorBuffer = ((DeviceAgent *)_device)->getMainAllocator()->allocate<uint8_t>(size);
     memcpy(actorBuffer, buffer, size);
 
     ENCODE_COMMAND_3(
-        encoder,
+        ((DeviceAgent *)_device)->getMainEncoder(),
         BufferUpdate,
         actor, getActor(),
         buffer, actorBuffer,
