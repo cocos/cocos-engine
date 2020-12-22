@@ -332,7 +332,8 @@ export class Animation extends Eventify(Component) {
      * @en
      * Remove clip from the animation list. This will remove the clip and any animation states based on it.<br>
      * If there are animation states depend on the clip are playing or clip is defaultClip, it will not delete the clip.<br>
-     * But if force is true, then will always remove the clip and any animation states based on it. If clip is defaultClip, defaultClip will be reset to null
+     * But if force is true, then will always remove the clip and any animation states based on it. If clip is defaultClip,
+     * defaultClip will be reset to null
      * @zh
      * 从动画列表中移除指定的动画剪辑，<br/>
      * 如果依赖于 clip 的 AnimationState 正在播放或者 clip 是 defaultClip 的话，默认是不会删除 clip 的。<br/>

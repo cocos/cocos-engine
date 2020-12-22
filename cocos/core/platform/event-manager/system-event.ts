@@ -38,6 +38,7 @@ import eventManager from './event-manager';
 import inputManager from './input-manager';
 import { Touch } from './touch';
 import { legacyCC } from '../../global-exports';
+import { logID, warnID } from '../debug';
 
 let keyboardListener: EventListener | null = null;
 let accelerationListener: EventListener | null = null;
@@ -79,8 +80,11 @@ export class SystemEvent extends EventTarget {
         // for iOS 13+
         if (isEnabled && window.DeviceMotionEvent && typeof DeviceMotionEvent.requestPermission === 'function') {
             DeviceMotionEvent.requestPermission().then((response) => {
-                console.log(`Device Motion Event request permission: ${response}`);
+                logID(3520, response);
                 inputManager.setAccelerometerEnabled(response === 'granted');
+            }).catch((error) => {
+                warnID(3521, error.message);
+                inputManager.setAccelerometerEnabled(false);
             });
         } else {
             inputManager.setAccelerometerEnabled(isEnabled);
