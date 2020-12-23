@@ -8,6 +8,7 @@ import { ArmatureCache } from './ArmatureCache';
 import { ArmatureDisplay } from './ArmatureDisplay';
 import { CCFactory } from './CCFactory';
 import { TextureAtlasData } from './lib/dragonBones.js';
+import { legacyCC } from '../core/global-exports';
 
 /**
  * !#en The skeleton atlas data of dragonBones.
@@ -98,3 +99,5 @@ export class DragonBonesAtlasAsset extends Asset {
         this._textureAtlasData = null;
     }
 }
+
+legacyCC.internal.DragonBonesAtlasAsset = DragonBonesAtlasAsset;

@@ -1,7 +1,7 @@
 import { EDITOR } from 'internal:constants';
 import { ccclass, executeInEditMode, help, menu } from '../core/data/class-decorator';
 import { UIRenderable } from '../core/components/ui-base/ui-renderable';
-import { Node, EventTarget, CCClass, Color, Enum, PrivateNode, ccenum, errorID, Texture2D, js, CCObject } from '../core';
+import { Node, EventTarget, CCClass, Color, Enum, PrivateNode, ccenum, errorID, Texture2D, GFXBlendFactor, js, CCObject } from '../core';
 import { displayName, editable, serializable, tooltip, type, visible } from '../core/data/decorators';
 import { AnimationCache, ArmatureCache, ArmatureFrame } from './ArmatureCache';
 import { AttachUtil } from './AttachUtil';
@@ -14,7 +14,7 @@ import { CCArmatureDisplay } from './CCArmatureDisplay';
 import { MeshRenderData } from '../core/renderer/ui/render-data';
 import { UI } from '../core/renderer/ui/ui';
 import { MaterialInstance } from '../core/renderer/core/material-instance';
-import { BlendFactor } from '../core/gfx';
+import { legacyCC } from '../core/global-exports';
 
 enum DefaultArmaturesEnum {
     default = -1,
@@ -478,9 +478,13 @@ export class ArmatureDisplay extends UIRenderable {
         this._eventTarget = new EventTarget();
         this._inited = false;
         this.attachUtil = new AttachUtil();
-        this._factory = CCFactory.getInstance();
+        this.initFactory();
         setEnumAttr(this, '_animationIndex', this._enumAnimations);
         setEnumAttr(this, '_defaultArmatureIndex', this._enumArmatures);
+    }
+
+    initFactory () {
+        this._factory = CCFactory.getInstance();
     }
 
     onLoad () {
@@ -520,7 +524,7 @@ export class ArmatureDisplay extends UIRenderable {
         }
     }
 
-    public getMaterialForBlend (src: BlendFactor, dst: BlendFactor): MaterialInstance {
+    public getMaterialForBlend (src: GFXBlendFactor, dst: GFXBlendFactor): MaterialInstance {
         const key = `${src}/${dst}`;
         let inst = this._materialCache[key];
         if (inst) {
@@ -551,9 +555,7 @@ export class ArmatureDisplay extends UIRenderable {
             for (let i = 0; i < this._meshRenderDataArray.length; i++) {
                 this._meshRenderDataArrayIdx = i;
                 const m = this._meshRenderDataArray[i];
-                if (m.renderData.material) {
-                    this.material = m.renderData.material;
-                }
+                this.material = m.renderData.material;
                 if (m.texture) {
                     ui.commitComp(this, m.texture, this._assembler, null);
                 }
@@ -1280,3 +1282,5 @@ export class ArmatureDisplay extends UIRenderable {
         }
     }
 }
+
+legacyCC.internal.ArmatureDisplay = ArmatureDisplay;

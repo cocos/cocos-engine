@@ -35,7 +35,8 @@
                 "cocos/core/renderer/core/native-pools.ts": "cocos/core/renderer/core/native-pools.jsb.ts",
                 "cocos/core/gfx/index.ts": "cocos/core/gfx/index.jsb.ts",
                 "cocos/core/gfx/pipeline-state.ts": "cocos/core/gfx/pipeline-state.jsb.ts",
-                "cocos/spine/index.ts": "cocos/spine/index.jsb.ts"
+                "cocos/spine/index.ts": "cocos/spine/index.jsb.ts",
+                "cocos/dragon-bones/index.ts": "cocos/dragon-bones/index.jsb.ts"
             }
         }
     ]

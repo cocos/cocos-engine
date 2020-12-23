@@ -76,8 +76,11 @@
         }
     }
 
-    director.on(cc.Director.EVENT_BEFORE_DRAW,function(){
+    director.on(cc.Director.EVENT_BEFORE_UPDATE, function () {
         middlewareMgr.update(director._deltaTime);
+    })
+
+    director.on(cc.Director.EVENT_BEFORE_DRAW,function(){
         middlewareMgr.render(director._deltaTime);
 
         // reset render order
