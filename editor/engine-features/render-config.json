@@ -108,12 +108,14 @@
         "spine": {
             "default": ["spine"],
             "label": "Spine",
-            "description": "Spine support"
+            "description": "Spine support",
+            "native": "USE_SPINE"
         },
         "dragon-bones": {
             "default": ["dragon-bones"],
             "label": "DragonBones",
-            "description": "Description support"
+            "description": "Description support",
+            "native": "USE_DRAGONBONES"
         }
     }
 }
