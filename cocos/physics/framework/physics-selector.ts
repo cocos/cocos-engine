@@ -28,7 +28,10 @@
  * @hidden
  */
 
+/* eslint-disable import/no-mutable-exports */
+import { warn } from '../../core';
 import { legacyCC } from '../../core/global-exports';
+
 interface IPhysicsWrapperObject {
     PhysicsWorld: any,
     RigidBody?: any,
@@ -48,7 +51,7 @@ interface IPhysicsWrapperObject {
     ConeTwistConstraint?: any,
 }
 
-type IPhysicsEngineId = 'builtin' | 'cannon.js' | 'ammo.js' | string | undefined;
+type IPhysicsEngineId = 'builtin' | 'cannon.js' | 'ammo.js' | 'physx' | string | undefined;
 
 export let WRAPPER: IPhysicsWrapperObject;
 
@@ -56,10 +59,11 @@ export let physicsEngineId: IPhysicsEngineId;
 
 export function select (id: IPhysicsEngineId, wrapper: IPhysicsWrapperObject) {
     physicsEngineId = id;
-    legacyCC._global['CC_PHYSICS_BUILTIN'] = id == 'builtin';
-    legacyCC._global['CC_PHYSICS_CANNON'] = id == "cannon.js";
-    legacyCC._global['CC_PHYSICS_AMMO'] = id == "ammo.js";
+    legacyCC._global.CC_PHYSICS_BUILTIN = id === 'builtin';
+    legacyCC._global.CC_PHYSICS_CANNON = id === 'cannon.js';
+    legacyCC._global.CC_PHYSICS_AMMO = id === 'ammo.js';
 
     WRAPPER = wrapper;
-    console.log(`[PHYSICS]: Using ${id}`);
+    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+    warn(`[PHYSICS]: Using ${id}`);
 }

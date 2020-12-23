@@ -1,5 +1,9 @@
 /* eslint-disable import/no-mutable-exports */
-/* eslint-disable no-undef */
+/* eslint-disable no-console */
+/* eslint-disable @typescript-eslint/restrict-template-expressions */
+/* eslint-disable consistent-return */
+/* eslint-disable @typescript-eslint/no-unsafe-return */
+
 import { BYTEDANCE } from 'internal:constants';
 import { IQuatLike, IVec3Like, Node, Quat, Vec3 } from '../../core';
 // import PhysX from '@cocos/physx';
@@ -59,7 +63,7 @@ if (PX) {
     }
 }
 
-export function getImplPtr (impl: any) {
+export function getImplPtr (impl: any): any {
     if (USE_BYTEDANCE) {
         return impl.getQueryFilterData().word2;
     }
@@ -149,9 +153,8 @@ export function physXEqualsCocosQuat (trans: any, q: IQuatLike): boolean {
 export function getContactData (vec: any, index: number) {
     if (USE_BYTEDANCE) {
         return index;
-    } else {
-        return vec.get(index);
     }
+    return vec.get(index);
 }
 
 export function applyImpulse (isGlobal: boolean, impl: any, vec: IVec3Like, rp: IVec3Like) {
@@ -161,12 +164,10 @@ export function applyImpulse (isGlobal: boolean, impl: any, vec: IVec3Like, rp: 
         } else {
             impl.applyImpulse(vec, rp);
         }
+    } else if (USE_BYTEDANCE) {
+        PX.RigidBodyExt.applyLocalImpulse(impl, vec, rp);
     } else {
-        if (USE_BYTEDANCE) {
-            PX.RigidBodyExt.applyLocalImpulse(impl, vec, rp);
-        } else {
-            impl.applyLocalImpulse(vec, rp);
-        }
+        impl.applyLocalImpulse(vec, rp);
     }
 }
 
@@ -177,12 +178,10 @@ export function applyForce (isGlobal: boolean, impl: any, vec: IVec3Like, rp: IV
         } else {
             impl.applyForce(vec, rp);
         }
+    } else if (USE_BYTEDANCE) {
+        PX.RigidBodyExt.applyLocalForce(impl, vec, rp);
     } else {
-        if (USE_BYTEDANCE) {
-            PX.RigidBodyExt.applyLocalForce(impl, vec, rp);
-        } else {
-            impl.applyLocalForce(vec, rp);
-        }
+        impl.applyLocalForce(vec, rp);
     }
 }
 
@@ -199,24 +198,22 @@ export function getShapeFlags (isTrigger: boolean): any {
         const flag = (isTrigger ? PX.ShapeFlag.eTRIGGER_SHAPE : PX.ShapeFlag.eSIMULATION_SHAPE)
             | PX.ShapeFlag.eSCENE_QUERY_SHAPE;
         return flag;
-    } else {
-        const flag = (isTrigger ? PX.PxShapeFlag.eTRIGGER_SHAPE.value : PX.PxShapeFlag.eSIMULATION_SHAPE.value)
-            | PX.PxShapeFlag.eSCENE_QUERY_SHAPE.value;
-        return new PX.PxShapeFlags(flag);
     }
+    const flag = (isTrigger ? PX.PxShapeFlag.eTRIGGER_SHAPE.value : PX.PxShapeFlag.eSIMULATION_SHAPE.value)
+        | PX.PxShapeFlag.eSCENE_QUERY_SHAPE.value;
+    return new PX.PxShapeFlags(flag);
 }
 
 export function getShapeMaterials (pxMtl: any) {
     if (USE_BYTEDANCE) {
         return [pxMtl];
-    } else {
-        if (PX.VECTOR_MAT.size() > 0) {
-            PX.VECTOR_MAT.set(0, pxMtl);
-        } else {
-            PX.VECTOR_MAT.push_back(pxMtl);
-        }
-        return PX.VECTOR_MAT;
     }
+    if (PX.VECTOR_MAT.size() > 0) {
+        PX.VECTOR_MAT.set(0, pxMtl);
+    } else {
+        PX.VECTOR_MAT.push_back(pxMtl);
+    }
+    return PX.VECTOR_MAT;
 }
 
 export function setupCommonCookingParam (params: any, skipMeshClean = false, skipEdgedata = false): void {
@@ -244,25 +241,23 @@ export function createConvexMesh (vertices: Float32Array | number[], cooking: an
         cdesc.setPointsStride(3 * Float32Array.BYTES_PER_ELEMENT);
         cdesc.setConvexFlags(PX.ConvexFlag.eCOMPUTE_CONVEX);
         return cooking.createConvexMesh(cdesc);
-    } else {
-        ;
-        const l = vertices.length;
-        const vArr = new PX.PxVec3Vector();
-        for (let i = 0; i < l; i += 3) {
-            vArr.push_back({ x: vertices[i], y: vertices[i + 1], z: vertices[i + 2] });
-        }
-        return cooking.createConvexMesh(vArr, physics);
     }
+
+    const l = vertices.length;
+    const vArr = new PX.PxVec3Vector();
+    for (let i = 0; i < l; i += 3) {
+        vArr.push_back({ x: vertices[i], y: vertices[i + 1], z: vertices[i + 2] });
+    }
+    return cooking.createConvexMesh(vArr, physics);
 }
 
-//eTIGHT_BOUNDS = (1<<0) convex
-//eDOUBLE_SIDED = (1<<1) trimesh
+// eTIGHT_BOUNDS = (1<<0) convex
+// eDOUBLE_SIDED = (1<<1) trimesh
 export function createMeshGeometryFlags (flags: number, isConvex: boolean) {
     if (USE_BYTEDANCE) {
         return flags;
-    } else {
-        return isConvex ? new PX.PxConvexMeshGeometryFlags(flags) : new PX.PxMeshGeometryFlags(flags);
     }
+    return isConvex ? new PX.PxConvexMeshGeometryFlags(flags) : new PX.PxMeshGeometryFlags(flags);
 }
 
 export function createTriangleMesh (vertices: Float32Array | number[], indices: Uint32Array, cooking: any, physics: any): any {
@@ -276,19 +271,18 @@ export function createTriangleMesh (vertices: Float32Array | number[], indices: 
         meshDesc.setTrianglesCount(indicesUI32.length / 3);
         meshDesc.setTrianglesStride(Uint32Array.BYTES_PER_ELEMENT * 3);
         return cooking.createTriangleMesh(meshDesc);
-    } else {
-        const l = vertices.length;
-        const l2 = indices.length;
-        const vArr = new PX.PxVec3Vector();
-        for (let i = 0; i < l; i += 3) {
-            vArr.push_back({ x: vertices[i], y: vertices[i + 1], z: vertices[i + 2] });
-        }
-        const iArr = new PX.PxU16Vector();
-        for (let i = 0; i < l2; i += 3) {
-            iArr.push_back(indices[i]); iArr.push_back(indices[i + 1]); iArr.push_back(indices[i + 2]);
-        }
-        return cooking.createTriMeshExt(vArr, iArr, physics);
     }
+    const l = vertices.length;
+    const l2 = indices.length;
+    const vArr = new PX.PxVec3Vector();
+    for (let i = 0; i < l; i += 3) {
+        vArr.push_back({ x: vertices[i], y: vertices[i + 1], z: vertices[i + 2] });
+    }
+    const iArr = new PX.PxU16Vector();
+    for (let i = 0; i < l2; i += 3) {
+        iArr.push_back(indices[i]); iArr.push_back(indices[i + 1]); iArr.push_back(indices[i + 2]);
+    }
+    return cooking.createTriMeshExt(vArr, iArr, physics);
 }
 
 export function createBV33TriangleMesh (vertices: number[], indices: Uint32Array, cooking: any, physics: any,
@@ -317,8 +311,7 @@ export function createBV33TriangleMesh (vertices: number[], indices: Uint32Array
 
     params.setMidphaseDesc(midDesc);
     cooking.setParams(params);
-    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-    console.log(`Cook 状态：${cooking.validateTriangleMesh(meshDesc)}`);
+    console.log(`[Physics] cook bvh33 status:${cooking.validateTriangleMesh(meshDesc)}`);
     return cooking.createTriangleMesh(meshDesc);
 }
 
@@ -342,8 +335,7 @@ export function createBV34TriangleMesh (vertices: number[], indices: Uint32Array
     midDesc.setNumPrimsLeaf(numTrisPerLeaf);
     params.setMidphaseDesc(midDesc);
     cooking.setParams(params);
-    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-    console.log(`Cook 状态：${cooking.validateTriangleMesh(meshDesc)}`);
+    console.log(`[Physics] cook bvh34 status:${cooking.validateTriangleMesh(meshDesc)}`);
     return cooking.createTriangleMesh(meshDesc);
 }
 
@@ -366,24 +358,22 @@ export function createHeightField (terrain: any, heightScale: number, cooking: a
         hfdesc.setNbColumns(sizeI);
         hfdesc.setSamples(samples);
         return cooking.createHeightField(hfdesc);
-    } else {
-        const samples = new PX.PxHeightFieldSampleVector();
-        for (let i = 0; i < sizeI; i++) {
-            for (let j = 0; j < sizeJ; j++) {
-                const s = new PX.PxHeightFieldSample();
-                s.height = terrain.getHeight(i, j) / heightScale;
-                samples.push_back(s);
-            }
-        }
-        return cooking.createHeightFieldExt(sizeI, sizeJ, samples, physics);
     }
+    const samples = new PX.PxHeightFieldSampleVector();
+    for (let i = 0; i < sizeI; i++) {
+        for (let j = 0; j < sizeJ; j++) {
+            const s = new PX.PxHeightFieldSample();
+            s.height = terrain.getHeight(i, j) / heightScale;
+            samples.push_back(s);
+        }
+    }
+    return cooking.createHeightFieldExt(sizeI, sizeJ, samples, physics);
 }
 
 export function createHeightFieldGeometry (hf: any, flags: number, hs: number, xs: number, zs: number) {
     if (USE_BYTEDANCE) {
         return new PX.HeightFieldGeometry(hf, hs, xs, zs);
-    } else {
-        return new PX.PxHeightFieldGeometry(hf, new PX.PxMeshGeometryFlags(flags),
-            hs, xs, zs);
     }
+    return new PX.PxHeightFieldGeometry(hf, new PX.PxMeshGeometryFlags(flags),
+        hs, xs, zs);
 }

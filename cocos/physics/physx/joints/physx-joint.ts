@@ -1,8 +1,9 @@
+/* eslint-disable @typescript-eslint/no-unsafe-return */
+
 import { Constraint, PhysicsSystem, RigidBody } from '../../framework';
 import { IBaseConstraint } from '../../spec/i-physics-constraint';
 import { PX, setJointActors, _pxtrans } from '../export-physx';
 import { PhysXRigidBody } from '../physx-rigid-body';
-import { PhysXSharedBody } from '../physx-shared-body';
 import { PhysXWorld } from '../physx-world';
 
 export class PhysXJoint implements IBaseConstraint {

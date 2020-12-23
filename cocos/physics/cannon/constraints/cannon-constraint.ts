@@ -55,7 +55,7 @@ export class CannonConstraint implements IBaseConstraint {
 
     protected _impl!: CANNON.Constraint;
     protected _com!: Constraint;
-    protected _rigidBody: RigidBody;
+    protected _rigidBody!: RigidBody;
 
     initialize (v: Constraint): void {
         this._com = v;

@@ -23,17 +23,16 @@
  THE SOFTWARE.
  */
 
-import { IContactEquation, ICollisionEvent } from "../framework";
-import { IVec3Like, Quat, Vec3 } from "../../core";
-import { CannonShape } from "./shapes/cannon-shape";
+import { IContactEquation, ICollisionEvent } from '../framework';
+import { IVec3Like, Quat, Vec3 } from '../../core';
+import { CannonShape } from './shapes/cannon-shape';
 
 const quat = new Quat();
 export class CannonContactEquation implements IContactEquation {
-
     get isBodyA (): boolean {
         const si = (this.event.selfCollider.shape as CannonShape).impl;
         const bj = this.impl!.bj;
-        return si.body.id == bj.id;
+        return si.body.id === bj.id;
     }
 
     impl: CANNON.ContactEquation | null = null;
@@ -81,5 +80,4 @@ export class CannonContactEquation implements IContactEquation {
     getWorldNormalOnB (out: IVec3Like): void {
         if (this.impl) Vec3.transformQuat(out, this.impl.ni, this.impl.bi.quaternion);
     }
-
 }

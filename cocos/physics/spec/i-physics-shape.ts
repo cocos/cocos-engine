@@ -28,8 +28,8 @@
  * @hidden
  */
 
-import { ILifecycle } from './i-lifecycle'
-import { IGroupMask } from './i-group-mask'
+import { ILifecycle } from './i-lifecycle';
+import { IGroupMask } from './i-group-mask';
 import { IVec3Like } from '../../core/math/type-define';
 import { Collider, RigidBody, PhysicMaterial, SimplexCollider } from '../../../exports/physics-framework';
 import { Mesh } from '../../core';

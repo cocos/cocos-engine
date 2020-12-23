@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-namespace */
+/* eslint-disable func-names */
 /*
  Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
 
@@ -38,10 +40,10 @@ import {
     editable,
     serializable,
 } from 'cc.decorator';
+import { EDITOR, TEST } from 'internal:constants';
 import { Vec3 } from '../../../../core/math';
 import { Collider } from './collider';
 import { ISimplexShape } from '../../../spec/i-physics-shape';
-import { EDITOR, TEST } from 'internal:constants';
 import { ESimplexType, EColliderType } from '../../physics-enum';
 import { IVec3Like } from '../../../../core/math/type-define';
 
@@ -56,7 +58,6 @@ import { IVec3Like } from '../../../../core/math/type-define';
 @menu('Physics/SimplexCollider')
 @executeInEditMode
 export class SimplexCollider extends Collider {
-
     static readonly ESimplexType = ESimplexType;
 
     /// PUBLIC PROPERTY GETTER\SETTER ///
@@ -124,7 +125,7 @@ export class SimplexCollider extends Collider {
     }
 
     get vertices () {
-        return this._vertices
+        return this._vertices;
     }
 
     /// PRIVATE PROPERTY ///
@@ -149,7 +150,6 @@ export class SimplexCollider extends Collider {
             this.shape.setVertices(this._vertices);
         }
     }
-
 }
 
 export namespace SimplexCollider {

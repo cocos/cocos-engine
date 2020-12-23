@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-return */
 import { IVec3Like, Vec3 } from '../../core';
 import { ERigidBodyType, PhysicsSystem, RigidBody } from '../framework';
 import { IRigidBody } from '../spec/i-rigid-body';
@@ -56,20 +57,20 @@ export class PhysXRigidBody implements IRigidBody {
 
     setType (v: ERigidBodyType): void {
         switch (v) {
-            case ERigidBodyType.DYNAMIC:
-                if (this.isStatic) return;
-                this._sharedBody.setRigidBodyFlag(PX.RigidBodyFlag.eKINEMATIC, false);
-                break;
-            case ERigidBodyType.KINEMATIC:
-                if (this.isStatic) return;
-                this._sharedBody.setRigidBodyFlag(PX.RigidBodyFlag.eKINEMATIC, true);
-                break;
-            case ERigidBodyType.STATIC:
-            default:
-                // hack
-                if (this.isStatic) return;
-                this._sharedBody.setRigidBodyFlag(PX.RigidBodyFlag.eKINEMATIC, true);
-                break;
+        case ERigidBodyType.DYNAMIC:
+            if (this.isStatic) return;
+            this._sharedBody.setRigidBodyFlag(PX.RigidBodyFlag.eKINEMATIC, false);
+            break;
+        case ERigidBodyType.KINEMATIC:
+            if (this.isStatic) return;
+            this._sharedBody.setRigidBodyFlag(PX.RigidBodyFlag.eKINEMATIC, true);
+            break;
+        case ERigidBodyType.STATIC:
+        default:
+            // hack
+            if (this.isStatic) return;
+            this._sharedBody.setRigidBodyFlag(PX.RigidBodyFlag.eKINEMATIC, true);
+            break;
         }
     }
 
@@ -114,8 +115,8 @@ export class PhysXRigidBody implements IRigidBody {
 
     setAllowSleep (v: boolean): void {
         if (this.isStaticOrKinematic) return;
-        const st = this.impl.getSleepThreshold();
-        const wc = v ? Math.max(0.0, st - 0.1) : st + 0xffffffff;
+        const st = this.impl.getSleepThreshold() as number;
+        const wc = v ? Math.max(0.0, st - 0.001) : st + 0xffffffff;
         this.impl.setWakeCounter(wc);
     }
 

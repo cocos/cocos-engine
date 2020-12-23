@@ -28,11 +28,11 @@
  * @hidden
  */
 
-import { IVec3Like } from "../../core/math/type-define";
+import { IVec3Like } from '../../core/math/type-define';
 import { PhysicsRayResult } from '../framework/physics-ray-result';
 import { Ray } from '../../core/geometry';
 import { RecyclePool } from '../../core';
-import { PhysicMaterial } from "../framework";
+import { PhysicMaterial } from '../framework';
 
 export interface IRaycastOptions {
     mask: number;

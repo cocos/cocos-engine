@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-return */
 import { ray } from '../../core/geometry';
 import { IPhysicsWorld, IRaycastOptions } from '../spec/i-physics-world';
 import { CollisionEventType, PhysicMaterial, PhysicsRayResult, TriggerEventType } from '../framework';
@@ -197,14 +198,13 @@ export class PhysXWorld implements IPhysicsWorld {
                     const cb = cp.getOtherShape();
                     const shapeA = getWrapShape<PhysXShape>(ca);
                     const shapeB = getWrapShape<PhysXShape>(cb);
+                    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
                     const key = `${getImplPtr(ca)}-${getImplPtr(cb)}`;
                     const _i = persistShapes.indexOf(key);
                     if (events & 4) {
                         if (_i < 0) persistShapes.push(key);
                         onTrigger('onTriggerEnter', shapeA, shapeB);
-                    } /*else if (events & 8) {
-                        onTrigger('onTriggerStay', shapeA, shapeB);
-                    } */else if (events & 16) {
+                    } else if (events & 16) {
                         if (_i >= 0) persistShapes.splice(_i, 1);
                         onTrigger('onTriggerExit', shapeA, shapeB);
                     }
@@ -338,6 +338,7 @@ export class PhysXWorld implements IPhysicsWorld {
                 }
                 return true;
             } if (r === -1) {
+                // eslint-disable-next-line no-console
                 console.error('not enough memory.');
             }
         }

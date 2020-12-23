@@ -97,8 +97,8 @@ export class CannonSharedBody {
                 this.syncInitial();
             }
         } else if (this.index >= 0) {
-            const isRemove = (this.shapes.length == 0 && this.wrappedBody == null)
-                || (this.shapes.length == 0 && this.wrappedBody != null && !this.wrappedBody.isEnabled);
+            const isRemove = (this.shapes.length === 0 && this.wrappedBody == null)
+                || (this.shapes.length === 0 && this.wrappedBody != null && !this.wrappedBody.isEnabled);
 
             if (isRemove) {
                 this.body.sleep(); // clear velocity etc.
@@ -210,7 +210,7 @@ export class CannonSharedBody {
             CollisionEventObject.otherCollider = other ? other.collider : (null as any);
 
             let i = 0;
-            if (CollisionEventObject.type != 'onCollisionExit') {
+            if (CollisionEventObject.type !== 'onCollisionExit') {
                 for (i = 0; i < event.contacts.length; i++) {
                     const cq = event.contacts[i];
                     if (contactsPool.length > 0) {
