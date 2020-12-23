@@ -45,7 +45,7 @@ import { legacyCC } from '../global-exports';
 import { Node } from './node';
 import { Scene } from './scene';
 import { PrefabInfo } from '../utils';
-import { PrefabInstance} from '../utils/prefab-utils';
+import { PrefabInstance } from '../utils/prefab-utils';
 
 type Constructor<T = {}> = new (...args: any[]) => T;
 
@@ -227,12 +227,10 @@ export class BaseNode extends CCObject implements ISchedulable {
     public static _setScene (node: BaseNode) {
         if (node instanceof legacyCC.Scene) {
             node._scene = node;
+        } else if (node._parent == null) {
+            error('Node %s(%s) has not attached to a scene.', node.name, node.uuid);
         } else {
-            if (node._parent == null) {
-                error('Node %s(%s) has not attached to a scene.', node.name, node.uuid);
-            } else {
-                node._scene = node._parent._scene;
-            }
+            node._scene = node._parent._scene;
         }
     }
 
@@ -289,7 +287,7 @@ export class BaseNode extends CCObject implements ISchedulable {
             let comp = BaseNode._findComponent(node, constructor);
             if (comp) {
                 return comp;
-            } else if (node._children.length > 0) {
+            } if (node._children.length > 0) {
                 comp = BaseNode._findChildComponent(node._children, constructor);
                 if (comp) {
                     return comp;
@@ -350,8 +348,7 @@ export class BaseNode extends CCObject implements ISchedulable {
                     const comp = this._components[i];
                     EditorExtends.Component.add(comp._id, comp);
                 }
-            }
-            else {
+            } else {
                 for (let i = 0; i < this._components.length; i++) {
                     const comp = this._components[i];
                     EditorExtends.Component.remove(comp._id);
@@ -411,9 +408,9 @@ export class BaseNode extends CCObject implements ISchedulable {
         }
         const oldParent = this._parent;
         const newParent = value as this;
-        if (DEBUG && oldParent &&
+        if (DEBUG && oldParent
             // Change parent when old parent desactivating or activating
-            (oldParent._objFlags & ChangingState)) {
+            && (oldParent._objFlags & ChangingState)) {
             errorID(3821);
         }
 
@@ -907,7 +904,7 @@ export class BaseNode extends CCObject implements ISchedulable {
 
     public addComponent (typeOrClassName: string | Function) {
         if (EDITOR && (this._objFlags & Destroying)) {
-            throw Error(`isDestroying`);
+            throw Error('isDestroying');
         }
 
         // get component
@@ -948,7 +945,7 @@ export class BaseNode extends CCObject implements ISchedulable {
             this.addComponent(ReqComp);
         }
 
-        //// check conflict
+        /// / check conflict
         //
         // if (EDITOR && !_Scene.DetectConflict.beforeAddComponent(this, constructor)) {
         //    return null;
@@ -1066,9 +1063,9 @@ export class BaseNode extends CCObject implements ISchedulable {
      */
     public on (type: string | SystemEventType, callback: Function, target?: Object, useCapture: any = false) {
         switch (type) {
-            case SystemEventType.TRANSFORM_CHANGED:
-                this._eventMask |= TRANSFORM_ON;
-                break;
+        case SystemEventType.TRANSFORM_CHANGED:
+            this._eventMask |= TRANSFORM_ON;
+            break;
         }
         this._eventProcessor.on(type, callback, target, useCapture);
     }
@@ -1095,9 +1092,9 @@ export class BaseNode extends CCObject implements ISchedulable {
         // All listener removed
         if (!hasListeners) {
             switch (type) {
-                case SystemEventType.TRANSFORM_CHANGED:
-                    this._eventMask &= ~TRANSFORM_ON;
-                    break;
+            case SystemEventType.TRANSFORM_CHANGED:
+                this._eventMask &= ~TRANSFORM_ON;
+                break;
             }
         }
     }
@@ -1241,14 +1238,13 @@ export class BaseNode extends CCObject implements ISchedulable {
     // PRIVATE
 
     protected _onPostActivated (active: boolean) {
-        return;
+
     }
 
     protected _onBatchCreated (dontSyncChildPrefab: boolean) {
         if (this._parent) {
             this._siblingIndex = this._parent.children.indexOf(this);
         }
-        return;
     }
 
     protected _onPreDestroy () {
@@ -1279,7 +1275,6 @@ export class BaseNode extends CCObject implements ISchedulable {
                 cloned._name += ' (Clone)';
             }
         }
-
 
         // reset and init
         cloned._parent = null;
