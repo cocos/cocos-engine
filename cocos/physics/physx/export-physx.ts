@@ -36,13 +36,14 @@
 
 import { BYTEDANCE } from 'internal:constants';
 import { IQuatLike, IVec3Like, Node, Quat, Vec3 } from '../../core';
+import { legacyCC } from '../../core/global-exports';
 // import PhysX from '@cocos/physx';
+const globalThis = legacyCC._global;
 // globalThis.PX = PhysX;
 
 export let USE_BYTEDANCE = false;
 if (BYTEDANCE) USE_BYTEDANCE = true;
-
-let _px = globalThis ? globalThis.PhysX : null as any;
+let _px = globalThis.PhysX as any;
 if (USE_BYTEDANCE && globalThis && globalThis.tt.getPhy) _px = globalThis.tt.getPhy();
 export const PX = _px;
 
