@@ -34,7 +34,7 @@ import { EDITOR, SUPPORT_JIT } from 'internal:constants';
 import { legacyCC } from '../global-exports';
 import { Prefab } from '../assets';
 import type { Node } from '../scene-graph/node';
-import { errorID } from '../platform/debug';
+import { errorID, warn } from '../platform/debug';
 import { Component } from '../components';
 
 function compareStringArray (array1: string[]|undefined, array2: string[]|undefined) {
@@ -265,7 +265,7 @@ export function applyAddedChildren (node: Node, addedChildren: AddedChildrenInfo
             }
 
             if (childInfo.nodes) {
-                for(let i = 0; i < childInfo.nodes.length; i++) {
+                for (let i = 0; i < childInfo.nodes.length; i++) {
                     const childNode = childInfo.nodes[i];
                     childNode._onBatchCreated(false);
                     // @ts-expect-error private member access
@@ -315,7 +315,7 @@ export function applyPropertyOverrides (node: Node, propertyOverrides: PropertyO
                     targetPropOwnerParent[targetPropOwnerName] = targetPropOwner;
                 }
             } else {
-                console.warn('property path is empty');
+                warn('property path is empty');
             }
         }
     }
