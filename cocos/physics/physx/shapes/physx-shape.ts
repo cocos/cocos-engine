@@ -71,6 +71,7 @@ export class PhysXShape implements IBaseShape {
     onDestroy (): void {
         this._sharedBody.reference = false;
         PX.IMPL_PTR[this._impl.$$.ptr] = null;
+        delete PX.IMPL_PTR[this._impl.$$.ptr];
         this._impl.release();
     }
 

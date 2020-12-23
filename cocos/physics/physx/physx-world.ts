@@ -15,32 +15,36 @@ import { PX } from "./export-physx";
 function onTrigger (type: TriggerEventType, a: string, b: string) {
     const wpa = PX.IMPL_PTR[a] as PhysXShape;
     const wpb = PX.IMPL_PTR[b] as PhysXShape;
-    TriggerEventObject.type = type;
-    if (wpa.collider.needTriggerEvent) {
-        TriggerEventObject.selfCollider = wpa.collider;
-        TriggerEventObject.otherCollider = wpb.collider;
-        wpa.collider.emit(TriggerEventObject.type, TriggerEventObject);
-    }
-    if (wpb.collider.needTriggerEvent) {
-        TriggerEventObject.selfCollider = wpb.collider;
-        TriggerEventObject.otherCollider = wpa.collider;
-        wpb.collider.emit(TriggerEventObject.type, TriggerEventObject);
+    if (wpa && wpb) {
+        TriggerEventObject.type = type;
+        if (wpa.collider.needTriggerEvent) {
+            TriggerEventObject.selfCollider = wpa.collider;
+            TriggerEventObject.otherCollider = wpb.collider;
+            wpa.collider.emit(TriggerEventObject.type, TriggerEventObject);
+        }
+        if (wpb.collider.needTriggerEvent) {
+            TriggerEventObject.selfCollider = wpb.collider;
+            TriggerEventObject.otherCollider = wpa.collider;
+            wpb.collider.emit(TriggerEventObject.type, TriggerEventObject);
+        }
     }
 }
 
 function onCollision (type: CollisionEventType, a: any, b: any) {
     const wpa = PX.IMPL_PTR[a['$$'].ptr] as PhysXShape;
     const wpb = PX.IMPL_PTR[b['$$'].ptr] as PhysXShape;
-    CollisionEventObject.type = type;
-    if (wpa.collider.needCollisionEvent) {
-        CollisionEventObject.selfCollider = wpa.collider;
-        CollisionEventObject.otherCollider = wpb.collider;
-        wpa.collider.emit(CollisionEventObject.type, CollisionEventObject);
-    }
-    if (wpb.collider.needCollisionEvent) {
-        CollisionEventObject.selfCollider = wpb.collider;
-        CollisionEventObject.otherCollider = wpa.collider;
-        wpb.collider.emit(CollisionEventObject.type, CollisionEventObject);
+    if (wpa && wpb) {
+        CollisionEventObject.type = type;
+        if (wpa.collider.needCollisionEvent) {
+            CollisionEventObject.selfCollider = wpa.collider;
+            CollisionEventObject.otherCollider = wpb.collider;
+            wpa.collider.emit(CollisionEventObject.type, CollisionEventObject);
+        }
+        if (wpb.collider.needCollisionEvent) {
+            CollisionEventObject.selfCollider = wpb.collider;
+            CollisionEventObject.otherCollider = wpa.collider;
+            wpb.collider.emit(CollisionEventObject.type, CollisionEventObject);
+        }
     }
 }
 

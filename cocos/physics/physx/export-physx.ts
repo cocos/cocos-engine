@@ -1,5 +1,3 @@
-import { Vec3 } from "../../core";
-
 export const PX = globalThis['PhysX'] as any;
 
 if (PX) {
