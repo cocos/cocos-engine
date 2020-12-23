@@ -530,17 +530,17 @@ export class Camera extends Component {
     }
 
     public _createCamera () {
-        this._camera = (legacyCC.director.root as Root).createCamera();
-        this._camera.initialize({
-            name: this.node.name,
-            node: this.node,
-            projection: this._projection,
-            window: this._inEditorMode ? legacyCC.director.root && legacyCC.director.root.mainWindow
-                : legacyCC.director.root && legacyCC.director.root.tempWindow,
-            priority: this._priority,
-        });
+        if (!this._camera) {
+            this._camera = (legacyCC.director.root as Root).createCamera();
+            this._camera.initialize({
+                name: this.node.name,
+                node: this.node,
+                projection: this._projection,
+                window: this._inEditorMode ? legacyCC.director.root && legacyCC.director.root.mainWindow
+                    : legacyCC.director.root && legacyCC.director.root.tempWindow,
+                priority: this._priority,
+            });
 
-        if (this._camera) {
             this._camera.viewport = this._rect;
             this._camera.fovAxis = this._fovAxis;
             this._camera.fov = toRadian(this._fov);
