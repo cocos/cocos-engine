@@ -8,7 +8,7 @@ export default class TextureCube extends Texture {
    * @param {Device} device
    * @param {Object} options
    * @param {Array} options.images
-   * @param {Boolean} options.mipmap
+   * @param {Boolean} options.genMipmaps
    * @param {Number} options.width
    * @param {Number} options.height
    * @param {TEXTURE_FMT_*} options.format

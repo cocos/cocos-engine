@@ -65,7 +65,10 @@ export class CannonRigidBody implements IRigidBody {
         body.mass = value;
         if (body.mass == 0) {
             body.type = CANNON.Body.STATIC;
+        } else {
+            body.type = this._rigidBody.isKinematic ? CANNON.Body.KINEMATIC : CANNON.Body.DYNAMIC;
         }
+
         body.updateMassProperties();
         if (body.isSleeping()) {
             body.wakeUp();

@@ -76,15 +76,15 @@ function setEnumAttr (obj, propName, enumDef) {
  * !#en
  * The Armature Display of DragonBones <br/>
  * <br/>
- * (Armature Display has a reference to a DragonBonesAsset and stores the state for ArmatureDisplay instance,
+ * Armature Display has a reference to a DragonBonesAsset and stores the state for ArmatureDisplay instance,
  * which consists of the current pose's bone SRT, slot colors, and which slot attachments are visible. <br/>
- * Multiple Armature Display can use the same DragonBonesAsset which includes all animations, skins, and attachments.) <br/>
+ * Multiple Armature Display can use the same DragonBonesAsset which includes all animations, skins, and attachments. <br/>
  * !#zh
  * DragonBones 骨骼动画 <br/>
  * <br/>
- * (Armature Display 具有对骨骼数据的引用并且存储了骨骼实例的状态，
+ * Armature Display 具有对骨骼数据的引用并且存储了骨骼实例的状态，
  * 它由当前的骨骼动作，slot 颜色，和可见的 slot attachments 组成。<br/>
- * 多个 Armature Display 可以使用相同的骨骼数据，其中包括所有的动画，皮肤和 attachments。)<br/>
+ * 多个 Armature Display 可以使用相同的骨骼数据，其中包括所有的动画，皮肤和 attachments。<br/>
  *
  * @class ArmatureDisplay
  * @extends RenderComponent
@@ -268,6 +268,7 @@ let ArmatureDisplay = cc.Class({
             type: DefaultAnimsEnum,
             visible: true,
             editorOnly: true,
+            animatable: false,
             displayName: 'Animation',
             tooltip: CC_DEV && 'i18n:COMPONENT.dragon_bones.animation_name'
         },

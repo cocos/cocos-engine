@@ -52,6 +52,9 @@ export class CannonBoxShape extends CannonShape implements IBoxShape {
 
     set size (v: IVec3Like) {
         this.collider.node.getWorldScale(v3_0);
+        v3_0.x = Math.abs(v3_0.x);
+        v3_0.y = Math.abs(v3_0.y);
+        v3_0.z = Math.abs(v3_0.z);
         Vec3.multiplyScalar(this.halfExtent, v, 0.5);
         Vec3.multiply(this.box.halfExtents, this.halfExtent, v3_0);
         this.box.updateConvexPolyhedronRepresentation();

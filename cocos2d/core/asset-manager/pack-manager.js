@@ -99,7 +99,7 @@ var packManager = {
                         cc.errorID(4915);
                     }
                     for (let i = 0; i < pack.length; i++) {
-                        out[pack[i] + '@import'] = packCustomObjData(textureType, datas[i]);
+                        out[pack[i] + '@import'] = packCustomObjData(textureType, datas[i], true);
                     }
                 }
             }

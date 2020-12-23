@@ -377,6 +377,7 @@ let Mask = cc.Class({
     },
 
     _updateGraphics () {
+        if (!this.enabledInHierarchy) return;
         let node = this.node;
         let graphics = this._graphics;
         // Share render data with graphics content

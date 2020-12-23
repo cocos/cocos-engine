@@ -204,6 +204,23 @@ var handleQueue = function (maxConcurrency, maxRequestsPerFrame) {
  */
 var downloader = {
 
+    _remoteServerAddress: '',
+    
+    /**
+     * !#en 
+     * The address of remote server
+     * 
+     * !#zh
+     * 远程服务器地址
+     * 
+     * @property remoteServerAddress
+     * @type {string}
+     * @default ''
+     */
+    get remoteServerAddress () {
+        return this._remoteServerAddress;
+    },
+
     /**
      * !#en 
      * The maximum number of concurrent when downloading
@@ -360,14 +377,15 @@ var downloader = {
      * downloadScript('http://localhost:8080/index.js', null, (err) => console.log(err));
      * 
      * @typescript
-     * downloadScript(url: string, options?: Record<string, any>, onComplete?: (err: Error) => void): void;
-     * downloadScript(url: string, onComplete?: (err: Error) => void): void;
+     * downloadScript(url: string, options?: Record<string, any>, onComplete?: (err: Error) => void): void
+     * downloadScript(url: string, onComplete?: (err: Error) => void): void
      */
     downloadScript: downloadScript,
 
-    init (bundleVers) {
+    init (bundleVers, remoteServerAddress) {
         _downloading.clear();
         _queue.length = 0;
+        this._remoteServerAddress = remoteServerAddress || '';
         this.bundleVers = bundleVers || Object.create(null);
     },
 
@@ -452,9 +470,9 @@ var downloader = {
         }
         else {
             // if download fail, should retry
-            var maxRetryCount = options.maxRetryCount || this.maxRetryCount;
-            var maxConcurrency = options.maxConcurrency || this.maxConcurrency;
-            var maxRequestsPerFrame = options.maxRequestsPerFrame || this.maxRequestsPerFrame;
+            var maxRetryCount = typeof options.maxRetryCount !== 'undefined' ? options.maxRetryCount : this.maxRetryCount;
+            var maxConcurrency = typeof options.maxConcurrency !== 'undefined' ? options.maxConcurrency : this.maxConcurrency;
+            var maxRequestsPerFrame = typeof options.maxRequestsPerFrame !== 'undefined' ? options.maxRequestsPerFrame : this.maxRequestsPerFrame;
 
             function process (index, callback) {
                 if (index === 0) {

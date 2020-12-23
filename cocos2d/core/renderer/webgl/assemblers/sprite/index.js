@@ -1,4 +1,4 @@
-import Asembler from '../../../assembler';
+import Assembler from '../../../assembler';
 import { Type, FillType } from '../../../../components/CCSprite';
 
 import Simple from "./2d/simple";
@@ -57,4 +57,4 @@ let ctor = {
     Mesh3D,
 };
 
-Asembler.register(cc.Sprite, ctor);
+Assembler.register(cc.Sprite, ctor);

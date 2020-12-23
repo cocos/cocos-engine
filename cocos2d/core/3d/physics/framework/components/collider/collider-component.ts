@@ -292,6 +292,9 @@ export class Collider3D extends cc.Component {
 
     protected onDestroy () {
         if (!CC_EDITOR) {
+            if (this._material) {
+                this._material.off('physics_material_update', this._updateMaterial, this);
+            }
             this._shape.onDestroy!();
         }
     }

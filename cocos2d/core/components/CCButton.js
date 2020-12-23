@@ -70,20 +70,31 @@ const State = cc.Enum({
 
 /**
  * !#en
- * Button has 4 Transition types<br/>
- * When Button state changed:<br/>
- *  If Transition type is Button.Transition.NONE, Button will do nothing<br/>
- *  If Transition type is Button.Transition.COLOR, Button will change target's color<br/>
- *  If Transition type is Button.Transition.SPRITE, Button will change target Sprite's sprite<br/>
- *  If Transition type is Button.Transition.SCALE, Button will change target node's scale<br/>
+ * Button component. Can be pressed or clicked. Button has 4 Transition types:
+ * 
+ *   - Button.Transition.NONE   // Button will do nothing
+ *   - Button.Transition.COLOR  // Button will change target's color
+ *   - Button.Transition.SPRITE // Button will change target Sprite's sprite
+ *   - Button.Transition.SCALE // Button will change target node's scale
  *
- * Button will trigger 5 events:<br/>
- *  Button.EVENT_TOUCH_DOWN<br/>
- *  Button.EVENT_TOUCH_UP<br/>
- *  Button.EVENT_HOVER_IN<br/>
- *  Button.EVENT_HOVER_MOVE<br/>
- *  Button.EVENT_HOVER_OUT<br/>
- *  User can get the current clicked node with 'event.target' from event object which is passed as parameter in the callback function of click event.
+ * The button can bind events (but you must be on the button's node to bind events).<br/>
+ * The following events can be triggered on all platforms.
+ * 
+ *  - cc.Node.EventType.TOUCH_START  // Press
+ *  - cc.Node.EventType.TOUCH_MOVE   // After pressing and moving
+ *  - cc.Node.EventType.TOUCH_END    // After pressing and releasing
+ *  - cc.Node.EventType.TOUCH_CANCEL // Press to cancel
+ * 
+ * The following events are only triggered on the PC platform:
+ *
+ *   - cc.Node.EventType.MOUSE_DOWN
+ *   - cc.Node.EventType.MOUSE_MOVE
+ *   - cc.Node.EventType.MOUSE_ENTER
+ *   - cc.Node.EventType.MOUSE_LEAVE
+ *   - cc.Node.EventType.MOUSE_UP
+ *   - cc.Node.EventType.MOUSE_WHEEL
+ *
+ * User can get the current clicked node with 'event.target' from event object which is passed as parameter in the callback function of click event.
  *
  * !#zh
  * 按钮组件。可以被按下，或者点击。
@@ -99,7 +110,7 @@ const State = cc.Enum({
  * 以下事件可以在全平台上都触发：
  * 
  *   - cc.Node.EventType.TOUCH_START  // 按下时事件
- *   - cc.Node.EventType.TOUCH_Move   // 按住移动后事件
+ *   - cc.Node.EventType.TOUCH_MOVE   // 按住移动后事件
  *   - cc.Node.EventType.TOUCH_END    // 按下后松开后事件
  *   - cc.Node.EventType.TOUCH_CANCEL // 按下取消事件
  * 

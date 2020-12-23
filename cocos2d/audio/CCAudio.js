@@ -271,19 +271,21 @@ Audio.State = {
         set: function (clip) {
             this._unbindEnded();
             if (clip) {
-                this._src = clip;
-                if (!clip.loaded) {
-                    let self = this;
-                    // need to call clip._ensureLoaded mannually to start loading
-                    clip.once('load', function () {
-                        // In case set a new src when the old one hasn't finished loading
-                        if (clip === self._src) {
-                            self._onLoaded();
-                        }
-                    });
-                }
-                else {
-                    this._onLoaded();
+                if (clip !== this._src) {
+                    this._src = clip;
+                    if (!clip.loaded) {
+                        let self = this;
+                        // need to call clip._ensureLoaded mannually to start loading
+                        clip.once('load', function () {
+                            // In case set a new src when the old one hasn't finished loading
+                            if (clip === self._src) {
+                                self._onLoaded();
+                            }
+                        });
+                    }
+                    else {
+                        this._onLoaded();
+                    }
                 }
             }
             else {

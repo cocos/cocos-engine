@@ -1,4 +1,4 @@
-// Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd. 
+// Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
 import { RecyclePool } from '../memop';
 import enums from '../enums';
@@ -114,6 +114,8 @@ export default class Base {
         };
       }, 100);
     }, 16);
+
+    this._definesChanged = false;
   }
 
   _resetTextuerUnit () {
@@ -144,6 +146,8 @@ export default class Base {
   reset () {
     this._viewPools.reset();
     this._stageItemsPools.reset();
+
+    this._definesChanged = false;
   }
 
   _requestView () {
@@ -309,6 +313,11 @@ export default class Base {
     // for each pass
     for (let i = 0; i < passes.length; ++i) {
       let pass = passes[i];
+
+      if (this._definesChanged) {
+        pass._programKey = null;
+      }
+
       let count = ia.count;
 
       // set vertex buffer
@@ -327,7 +336,7 @@ export default class Base {
       // set program
       Object.setPrototypeOf(defines, pass._defines);
 
-      let program = programLib.getProgram(pass._programName, defines, effect.name);
+      let program = programLib.getProgram(pass, defines, effect.name);
       device.setProgram(program);
 
       let uniforms = program._uniforms;

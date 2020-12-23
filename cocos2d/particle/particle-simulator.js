@@ -37,6 +37,7 @@ let Particle = function () {
     this.startPos = cc.v2(0, 0);
     this.color = cc.color(0, 0, 0, 255);
     this.deltaColor = {r: 0, g: 0, b: 0, a: 255};
+    this.preciseColor = {r: 0, g: 0, b: 0, a: 255};
     this.size = 0;
     this.deltaSize = 0;
     this.rotation = 0;
@@ -137,6 +138,14 @@ Simulator.prototype.emitParticle = function (pos) {
     particle.color.g = sg = clampf(startColor.g + startColorVar.g * (Math.random() - 0.5) * 2, 0, 255);
     particle.color.b = sb = clampf(startColor.b + startColorVar.b * (Math.random() - 0.5) * 2, 0, 255);
     particle.color.a = sa = clampf(startColor.a + startColorVar.a * (Math.random() - 0.5) * 2, 0, 255);
+
+    let color = particle.color;
+    let preciseColor = particle.preciseColor;
+    preciseColor.r = color.r;
+    preciseColor.g = color.g;
+    preciseColor.b = color.b;
+    preciseColor.a = color.a;
+
     particle.deltaColor.r = (clampf(endColor.r + endColorVar.r * (Math.random() - 0.5) * 2, 0, 255) - sr) / timeToLive;
     particle.deltaColor.g = (clampf(endColor.g + endColorVar.g * (Math.random() - 0.5) * 2, 0, 255) - sg) / timeToLive;
     particle.deltaColor.b = (clampf(endColor.b + endColorVar.b * (Math.random() - 0.5) * 2, 0, 255) - sb) / timeToLive;
@@ -390,10 +399,18 @@ Simulator.prototype.step = function (dt) {
             }
 
             // color
-            particle.color.r += particle.deltaColor.r * dt;
-            particle.color.g += particle.deltaColor.g * dt;
-            particle.color.b += particle.deltaColor.b * dt;
-            particle.color.a += particle.deltaColor.a * dt;
+            let preciseColor = particle.preciseColor;
+            let deltaColor = particle.deltaColor;
+            preciseColor.r += deltaColor.r * dt;
+            preciseColor.g += deltaColor.g * dt;
+            preciseColor.b += deltaColor.b * dt;
+            preciseColor.a += deltaColor.a * dt;
+
+            let color = particle.color;
+            color.r = preciseColor.r;
+            color.g = preciseColor.g;
+            color.b = preciseColor.b;
+            color.a = preciseColor.a;
 
             // size
             particle.size += particle.deltaSize * dt;

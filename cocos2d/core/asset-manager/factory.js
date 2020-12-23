@@ -24,7 +24,7 @@
  ****************************************************************************/
 const Bundle = require('./bundle');
 const Cache = require('./cache');
-const { assets } = require('./shared');
+const { assets, bundles } = require('./shared');
 
 const _creating = new Cache();
 
@@ -83,9 +83,12 @@ function createAsset (id, data, options, onComplete) {
 }
 
 function createBundle (id, data, options, onComplete) {
-    let bundle = new Bundle();
-    data.base = data.base || id + '/';
-    bundle.init(data);
+    let bundle = bundles.get(data.name);
+    if (!bundle) {
+        bundle = new Bundle();
+        data.base = data.base || id + '/';
+        bundle.init(data);
+    }
     onComplete && onComplete(null, bundle);
 }
 

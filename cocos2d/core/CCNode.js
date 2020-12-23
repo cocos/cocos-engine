@@ -1033,12 +1033,21 @@ let NodeDefines = {
                 let trs = this._trs;
                 if (value !== trs[2]) {
                     if (!CC_EDITOR || isFinite(value)) {
+                        let oldValue;
+                        if (CC_EDITOR) {
+                            oldValue = trs[2];
+                        }
                         trs[2] = value;
                         this.setLocalDirty(LocalDirtyFlag.ALL_POSITION);
                         !CC_NATIVERENDERER && (this._renderFlag |= RenderFlow.FLAG_WORLD_TRANSFORM);
                         // fast check event
                         if (this._eventMask & POSITION_ON) {
-                            this.emit(EventType.POSITION_CHANGED);
+                            if (CC_EDITOR) {
+                                this.emit(EventType.POSITION_CHANGED, new cc.Vec3(trs[0], trs[1], oldValue));
+                            }
+                            else {
+                                this.emit(EventType.POSITION_CHANGED);
+                            }
                         }
                     }
                     else {
@@ -1853,7 +1862,7 @@ let NodeDefines = {
         }
     },
 
-    _upgrade_1x_to_2x () {
+    _initProperties () {
         if (this._is3DNode) {
             this._update3DFunction();
         }
@@ -1872,11 +1881,6 @@ let NodeDefines = {
             trs = this._trs = this._spaceInfo.trs;
         }
 
-        if (this._zIndex !== undefined) {
-            this._localZOrder = this._zIndex << 16;
-            this._zIndex = undefined;
-        }
-
         if (CC_EDITOR) {
             if (this._skewX !== 0 || this._skewY !== 0) {
                 var NodeUtils = Editor.require('scene://utils/node');
@@ -1886,17 +1890,6 @@ let NodeDefines = {
 
         this._fromEuler();
 
-        if (this._localZOrder !== 0) {
-            this._zIndex = (this._localZOrder & 0xffff0000) >> 16;
-        }
-
-        // Upgrade from 2.0.0 preview 4 & earlier versions
-        // TODO: Remove after final version
-        if (this._color.a < 255 && this._opacity === 255) {
-            this._opacity = this._color.a;
-            this._color.a = 255;
-        }
-
         if (CC_JSB && CC_NATIVERENDERER) {
             this._renderFlag |= RenderFlow.FLAG_TRANSFORM | RenderFlow.FLAG_OPACITY_COLOR;
         }
@@ -1905,19 +1898,8 @@ let NodeDefines = {
     /*
      * The initializer for Node which will be called before all components onLoad
      */
-    _onBatchCreated () {
-        let prefabInfo = this._prefab;
-        if (prefabInfo && prefabInfo.sync && prefabInfo.root === this) {
-            if (CC_DEV) {
-                // TODO - remove all usage of _synced
-                cc.assert(!prefabInfo._synced, 'prefab should not synced');
-            }
-            PrefabHelper.syncWithPrefab(this);
-        }
-
-        this._upgrade_1x_to_2x();
-
-        this._updateOrderOfArrival();
+    _onBatchCreated (dontSyncChildPrefab) {
+        this._initProperties();
 
         // Fixed a bug where children and parent node groups were forced to synchronize, instead of only synchronizing `_cullingMask` value
         this._cullingMask = 1 << _getActualGroupIndex(this);
@@ -1926,8 +1908,8 @@ let NodeDefines = {
         }
 
         if (!this._activeInHierarchy) {
-            // deactivate ActionManager and EventManager by default
-            if (ActionManagerExist) {
+            if (CC_EDITOR ? cc.director.getActionManager() : ActionManagerExist) {
+                // deactivate ActionManager and EventManager by default
                 cc.director.getActionManager().pauseTarget(this);
             }
             eventManager.pauseTarget(this);
@@ -1935,41 +1917,16 @@ let NodeDefines = {
 
         let children = this._children;
         for (let i = 0, len = children.length; i < len; i++) {
-            children[i]._onBatchCreated();
-        }
-
-        if (children.length > 0) {
-            this._renderFlag |= RenderFlow.FLAG_CHILDREN;
-        }
-
-        if (CC_JSB && CC_NATIVERENDERER) {
-            this._proxy.initNative();
-        }
-    },
-
-    // the same as _onBatchCreated but untouch prefab
-    _onBatchRestored () {
-        this._upgrade_1x_to_2x();
-
-        // Fixed a bug where children and parent node groups were forced to synchronize, instead of only synchronizing `_cullingMask` value
-        this._cullingMask = 1 << _getActualGroupIndex(this);
-        if (CC_JSB && CC_NATIVERENDERER) {
-            this._proxy && this._proxy.updateCullingMask();
-        }
-
-        if (!this._activeInHierarchy) {
-            // deactivate ActionManager and EventManager by default
-
-            // ActionManager may not be inited in the editor worker.
-            let manager = cc.director.getActionManager();
-            manager && manager.pauseTarget(this);
-
-            eventManager.pauseTarget(this);
-        }
-
-        var children = this._children;
-        for (var i = 0, len = children.length; i < len; i++) {
-            children[i]._onBatchRestored();
+            let child = children[i];
+            if (!dontSyncChildPrefab) {
+                // sync child prefab
+                let prefabInfo = child._prefab;
+                if (prefabInfo && prefabInfo.sync && prefabInfo.root === child) {
+                    PrefabHelper.syncWithPrefab(child);
+                }
+                child._updateOrderOfArrival();
+            }
+            child._onBatchCreated(dontSyncChildPrefab);
         }
 
         if (children.length > 0) {

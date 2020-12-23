@@ -465,7 +465,7 @@ var widgetManager = cc._widgetManager = module.exports = {
         }
         else {
             let thisOnResized = this.onResized.bind(this);
-            window.addEventListener('resize', thisOnResized);
+            cc.view.on('canvas-resize', thisOnResized);
             window.addEventListener('orientationchange', thisOnResized);
         }
     },

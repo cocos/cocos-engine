@@ -56,6 +56,9 @@ export class BuiltinBoxShape extends BuiltinShape implements IBoxShape {
     set size (size: cc.Vec3) {
         Vec3.multiplyScalar(this.localObb.halfExtents, size, 0.5);
         this.collider.node.getWorldScale(_worldScale);
+        _worldScale.x = Math.abs(_worldScale.x);
+        _worldScale.y = Math.abs(_worldScale.y);
+        _worldScale.z = Math.abs(_worldScale.z);
         Vec3.multiply(this.worldObb.halfExtents, this.localObb.halfExtents, _worldScale);
     }
 
