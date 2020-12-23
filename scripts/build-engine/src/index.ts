@@ -153,11 +153,11 @@ namespace build {
 
     export interface Result {
         /**
-         * 模块名与实际模块文件的映射，例如：
+         * Mappings between feature unit name and their actual chunk file, for example:
          * ```js
          * {
-         *   "cc.core": "./cc.core.js",
-         *   "cc.gfx-webgl": "./cc.gfx-webgl.js",
+         *   "core": "./core.js",
+         *   "gfx-webgl": "./gfx-webgl.js",
          * }
          * ```
          */
