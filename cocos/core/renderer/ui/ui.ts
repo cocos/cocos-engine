@@ -313,11 +313,7 @@ export class UI {
         this._screens.sort(this._screenSort);
     }
 
-<<<<<<< HEAD
-    public addUploadBuffersFunc (target: any, func: any) {
-=======
     public addUploadBuffersFunc (target: any, func: ((ui:UI) => void)) {
->>>>>>> origin/3d
         this._doUploadBuffersCall.set(target, func);
     }
 
