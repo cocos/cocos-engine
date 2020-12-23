@@ -23,6 +23,11 @@
  THE SOFTWARE.
  */
 
+/**
+ * @packageDocumentation
+ * @hidden
+ */
+
 import Ammo from './ammo-instantiated';
 
 export enum EAmmoSharedBodyDirty {

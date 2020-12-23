@@ -24,6 +24,11 @@
  */
 
 /**
+ * @packageDocumentation
+ * @hidden
+ */
+
+/**
  * Records what objects are colliding with each other
  * @class ObjectCollisionMatrix
  * @constructor

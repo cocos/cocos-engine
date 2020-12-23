@@ -23,6 +23,11 @@
  THE SOFTWARE.
  */
 
+/**
+ * @packageDocumentation
+ * @hidden
+ */
+
 /* eslint-disable new-cap */
 import Ammo from '../ammo-instantiated';
 import { Vec3, Quat } from '../../../core/math';

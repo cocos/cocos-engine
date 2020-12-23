@@ -33,16 +33,15 @@ import { IBaseConstraint } from '../../spec/i-physics-constraint';
 import { Constraint, RigidBody } from '../../framework';
 import { CannonRigidBody } from '../cannon-rigid-body';
 
-CANNON.World['staticBody'] = new CANNON.Body();
-CANNON.World['idToConstraintMap'] = {};
+(CANNON.World as any).staticBody = new CANNON.Body();
+(CANNON.World as any).idToConstraintMap = {};
 
 export class CannonConstraint implements IBaseConstraint {
-
     setConnectedBody (v: RigidBody | null): void {
         if (v) {
             this._impl.bodyB = (v.body as CannonRigidBody).impl;
         } else {
-            this._impl.bodyB = CANNON.World['staticBody'];
+            this._impl.bodyB = (CANNON.World as any).staticBody;
         }
     }
 
@@ -51,7 +50,7 @@ export class CannonConstraint implements IBaseConstraint {
     }
 
     get impl () { return this._impl; }
-    get constraint () { return this._com }
+    get constraint () { return this._com; }
 
     protected _impl!: CANNON.Constraint;
     protected _com!: Constraint;
@@ -62,7 +61,7 @@ export class CannonConstraint implements IBaseConstraint {
         this._rigidBody = v.attachedBody!;
         this.onComponentSet();
         this.setEnableCollision(v.enableCollision);
-        CANNON.World['idToConstraintMap'][this._impl.id] = this._impl;
+        (CANNON.World as any).idToConstraintMap[this._impl.id] = this._impl;
     }
 
     // virtual
@@ -87,7 +86,7 @@ export class CannonConstraint implements IBaseConstraint {
     }
 
     onDestroy () {
-        delete CANNON.World['idToConstraintMap'][this._impl.id];
+        delete (CANNON.World as any).idToConstraintMap[this._impl.id];
         (this._com as any) = null;
         (this._rigidBody as any) = null;
         (this._impl as any) = null;

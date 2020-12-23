@@ -23,6 +23,11 @@
  THE SOFTWARE.
  */
 
+/**
+ * @packageDocumentation
+ * @hidden
+ */
+
 import { select } from '../framework/physics-selector';
 import { AmmoRigidBody } from './ammo-rigid-body';
 import { AmmoWorld } from './ammo-world';

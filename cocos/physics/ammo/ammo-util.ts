@@ -23,6 +23,11 @@
  THE SOFTWARE.
  */
 
+/**
+ * @packageDocumentation
+ * @hidden
+ */
+
 /* eslint-disable new-cap */
 import Ammo from './ammo-instantiated';
 import { IVec3Like, IQuatLike } from '../../core/math/type-define';

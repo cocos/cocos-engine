@@ -24,6 +24,11 @@
  THE SOFTWARE.
  */
 
+/**
+ * @packageDocumentation
+ * @hidden
+ */
+
 import Ammo from './ammo-instantiated';
 import { Vec3 } from '../../core/math';
 import { AmmoSharedBody } from './ammo-shared-body';

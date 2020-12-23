@@ -37,6 +37,11 @@ import { IAmmoBodyStruct, IAmmoGhostStruct } from './ammo-interface';
 import { CC_V3_0, CC_QUAT_0, AmmoConstant } from './ammo-const';
 import { PhysicsSystem } from '../framework';
 
+/**
+ * @packageDocumentation
+ * @hidden
+ */
+
 const v3_0 = CC_V3_0;
 const quat_0 = CC_QUAT_0;
 let sharedIDCounter = 0;

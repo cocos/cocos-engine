@@ -23,6 +23,11 @@
  THE SOFTWARE.
  */
 
+/**
+ * @packageDocumentation
+ * @hidden
+ */
+
 import CANNON from '@cocos/cannon';
 import { Vec3 } from '../../../core/math';
 import { maxComponent } from '../../utils/util';
@@ -32,7 +37,6 @@ import { ISphereShape } from '../../spec/i-physics-shape';
 import { SphereCollider } from '../../../../exports/physics-framework';
 
 export class CannonSphereShape extends CannonShape implements ISphereShape {
-
     get collider () {
         return this._collider as SphereCollider;
     }
@@ -45,7 +49,7 @@ export class CannonSphereShape extends CannonShape implements ISphereShape {
         const max = maxComponent(this.collider.node.worldScale);
         this.impl.radius = v * Math.abs(max);
         this.impl.updateBoundingSphereRadius();
-        if (this._index != -1) {
+        if (this._index !== -1) {
             commitShapeUpdates(this._body);
         }
     }
@@ -64,5 +68,4 @@ export class CannonSphereShape extends CannonShape implements ISphereShape {
         super.setScale(scale);
         this.setRadius(this.collider.radius);
     }
-
 }

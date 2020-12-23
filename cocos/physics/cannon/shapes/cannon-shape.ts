@@ -23,6 +23,11 @@
  THE SOFTWARE.
  */
 
+/**
+ * @packageDocumentation
+ * @hidden
+ */
+
 import CANNON from '@cocos/cannon';
 import { Vec3, Quat } from '../../../core/math';
 import { getWrap, setWrap } from '../../utils/util';
@@ -75,7 +80,7 @@ export class CannonShape implements IBaseShape {
             const smat = this._shape.material;
             smat.friction = mat.friction;
             smat.restitution = mat.restitution;
-            const coef = CANNON['CC_CONFIG'].correctInelastic;
+            const coef = (CANNON as any).CC_CONFIG.correctInelastic;
             (smat as any).correctInelastic = smat.restitution === 0 ? coef : 0;
         }
     }

@@ -38,7 +38,6 @@ import { CannonRigidBody } from '../cannon-rigid-body';
 const v3_0 = new Vec3();
 
 export class CannonPointToPointConstraint extends CannonConstraint implements IPointToPointConstraint {
-
     public get impl () {
         return this._impl as CANNON.PointToPointConstraint;
     }

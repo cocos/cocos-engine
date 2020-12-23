@@ -23,6 +23,11 @@
  THE SOFTWARE.
  */
 
+/**
+ * @packageDocumentation
+ * @hidden
+ */
+
 import Ammo from './ammo-instantiated';
 import { Vec3, Node } from '../../core';
 import { AmmoWorld } from './ammo-world';

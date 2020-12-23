@@ -23,6 +23,11 @@
  THE SOFTWARE.
  */
 
+/**
+ * @packageDocumentation
+ * @hidden
+ */
+
 /* eslint-disable new-cap */
 import Ammo from '../ammo-instantiated';
 import { absMax } from '../../../core';

@@ -23,6 +23,11 @@
  THE SOFTWARE.
  */
 
+/**
+ * @packageDocumentation
+ * @hidden
+ */
+
 import { IContactEquation, ICollisionEvent } from '../framework';
 import { IVec3Like, Quat, Vec3 } from '../../core';
 import { CannonShape } from './shapes/cannon-shape';
