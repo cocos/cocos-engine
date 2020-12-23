@@ -28,9 +28,10 @@
  * @hidden
  */
 
+/* eslint-disable new-cap */
 import Ammo from '../ammo-instantiated';
-import { AmmoConstraint } from "./ammo-constraint";
-import { IHingeConstraint } from "../../spec/i-physics-constraint";
+import { AmmoConstraint } from './ammo-constraint';
+import { IHingeConstraint } from '../../spec/i-physics-constraint';
 import { IVec3Like, Quat, Vec3 } from '../../../core';
 import { cocos2AmmoQuat, cocos2AmmoVec3 } from '../ammo-util';
 import { HingeConstraint } from '../../framework';
@@ -38,7 +39,6 @@ import { AmmoRigidBody } from '../ammo-rigid-body';
 import { AmmoConstant, CC_QUAT_0, CC_V3_0 } from '../ammo-const';
 
 export class AmmoHingeConstraint extends AmmoConstraint implements IHingeConstraint {
-
     setPivotA (v: IVec3Like): void {
         this.updateFrames();
     }

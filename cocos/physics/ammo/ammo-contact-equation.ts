@@ -23,14 +23,13 @@
  THE SOFTWARE.
  */
 
-import { IContactEquation, ICollisionEvent } from "../framework";
-import { IVec3Like, Vec3, Quat } from "../../core";
-import { ammo2CocosVec3, ammo2CocosQuat } from "./ammo-util";
-import { AmmoShape } from "./shapes/ammo-shape";
-import { CC_QUAT_0, AmmoConstant } from "./ammo-const";
+import { IContactEquation, ICollisionEvent } from '../framework';
+import { IVec3Like, Vec3, Quat } from '../../core';
+import { ammo2CocosVec3, ammo2CocosQuat } from './ammo-util';
+import { AmmoShape } from './shapes/ammo-shape';
+import { CC_QUAT_0, AmmoConstant } from './ammo-const';
 
 export class AmmoContactEquation implements IContactEquation {
-
     get isBodyA (): boolean {
         const sb = (this.event.selfCollider.shape as AmmoShape).sharedBody.body;
         const b0 = (this.event.impl as Ammo.btPersistentManifold).getBody0();
@@ -97,5 +96,4 @@ export class AmmoContactEquation implements IContactEquation {
     getWorldNormalOnB (out: IVec3Like): void {
         if (this.impl) ammo2CocosVec3(out, this.impl.m_normalWorldOnB);
     }
-
 }

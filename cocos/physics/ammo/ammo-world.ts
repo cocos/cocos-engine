@@ -1,3 +1,4 @@
+/* eslint-disable new-cap */
 /*
  Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
 
@@ -24,13 +25,13 @@
  */
 
 import Ammo from './ammo-instantiated';
-import { Vec3 } from "../../core/math";
-import { AmmoSharedBody } from "./ammo-shared-body";
-import { AmmoRigidBody } from "./ammo-rigid-body";
+import { Vec3 } from '../../core/math';
+import { AmmoSharedBody } from './ammo-shared-body';
+import { AmmoRigidBody } from './ammo-rigid-body';
 import { AmmoShape } from './shapes/ammo-shape';
 import { ArrayCollisionMatrix } from '../utils/array-collision-matrix';
 import { TupleDictionary } from '../utils/tuple-dictionary';
-import { TriggerEventObject, CollisionEventObject, CC_V3_0, CC_V3_1 } from './ammo-const';
+import { TriggerEventObject, CollisionEventObject, CC_V3_0, CC_V3_1, AmmoConstant } from './ammo-const';
 import { ammo2CocosVec3, cocos2AmmoVec3, cocos2AmmoQuat } from './ammo-util';
 import { Ray } from '../../core/geometry';
 import { IRaycastOptions, IPhysicsWorld } from '../spec/i-physics-world';
@@ -46,13 +47,13 @@ const v3_0 = CC_V3_0;
 const v3_1 = CC_V3_1;
 
 export class AmmoWorld implements IPhysicsWorld {
-
-    setAllowSleep (v: boolean) { };
-    setDefaultMaterial (v: PhysicMaterial) { };
+    setAllowSleep (v: boolean) { }
+    setDefaultMaterial (v: PhysicMaterial) { }
 
     setGravity (gravity: IVec3Like) {
-        cocos2AmmoVec3(this._btGravity, gravity);
-        this._btWorld.setGravity(this._btGravity);
+        const TMP = AmmoConstant.instance.VECTOR3_0;
+        cocos2AmmoVec3(TMP, gravity);
+        this._btWorld.setGravity(TMP);
     }
 
     get impl () {
@@ -63,7 +64,6 @@ export class AmmoWorld implements IPhysicsWorld {
     private readonly _btBroadphase: Ammo.btDbvtBroadphase;
     private readonly _btSolver: Ammo.btSequentialImpulseConstraintSolver;
     private readonly _btDispatcher: Ammo.btCollisionDispatcher;
-    private readonly _btGravity: Ammo.btVector3;
 
     readonly bodies: AmmoSharedBody[] = [];
     readonly ghosts: AmmoSharedBody[] = [];
@@ -73,8 +73,8 @@ export class AmmoWorld implements IPhysicsWorld {
     readonly contactsDic = new TupleDictionary();
     readonly oldContactsDic = new TupleDictionary();
 
-    readonly closeHitCB = new Ammo.ClosestRayResultCallback(new Ammo.btVector3(), new Ammo.btVector3());
-    readonly allHitsCB = new Ammo.AllHitsRayResultCallback(new Ammo.btVector3(), new Ammo.btVector3());
+    readonly closeHitCB: Ammo.ClosestRayResultCallback;
+    readonly allHitsCB: Ammo.AllHitsRayResultCallback;
 
     constructor (options?: any) {
         const collisionConfiguration = new Ammo.btDefaultCollisionConfiguration();
@@ -83,15 +83,18 @@ export class AmmoWorld implements IPhysicsWorld {
         this._btBroadphase = new Ammo.btDbvtBroadphase();
         this._btSolver = new Ammo.btSequentialImpulseConstraintSolver();
         this._btWorld = new Ammo.btDiscreteDynamicsWorld(this._btDispatcher, this._btBroadphase, this._btSolver, collisionConfiguration);
-        (this._btWorld.getPairCache() as any).setOverlapFilterCallback(new (Ammo as any).ccOverlapFilterCallback);
+        (this._btWorld.getPairCache() as any).setOverlapFilterCallback(new (Ammo as any).ccOverlapFilterCallback());
         // this._btWorld.setContactBreakingThreshold(0.04);
-        this._btGravity = new Ammo.btVector3(0, -10, 0);
-        this._btWorld.setGravity(this._btGravity);
+        const TMP = AmmoConstant.instance.VECTOR3_0;
+        TMP.setValue(0, -10, 0);
+        this._btWorld.setGravity(TMP);
+        this.closeHitCB = new Ammo.ClosestRayResultCallback(TMP, TMP);
+        this.allHitsCB = new Ammo.AllHitsRayResultCallback(TMP, TMP);
     }
 
-    step (deltaTime: number, timeSinceLastCalled?: number, maxSubStep: number = 0) {
-        if (this.bodies.length == 0 && this.ghosts.length == 0) return;
-        if (timeSinceLastCalled == undefined) timeSinceLastCalled = deltaTime;
+    step (deltaTime: number, timeSinceLastCalled?: number, maxSubStep = 0) {
+        if (this.bodies.length === 0 && this.ghosts.length === 0) return;
+        if (timeSinceLastCalled === undefined) timeSinceLastCalled = deltaTime;
         this._btWorld.stepSimulation(timeSinceLastCalled, maxSubStep, deltaTime);
 
         for (let i = 0; i < this.bodies.length; i++) {
@@ -116,9 +119,9 @@ export class AmmoWorld implements IPhysicsWorld {
     }
 
     raycast (worldRay: Ray, options: IRaycastOptions, pool: RecyclePool<PhysicsRayResult>, results: PhysicsRayResult[]): boolean {
-        let from = cocos2AmmoVec3(this.allHitsCB.m_rayFromWorld, worldRay.o);
+        const from = cocos2AmmoVec3(this.allHitsCB.m_rayFromWorld, worldRay.o);
         worldRay.computeHit(v3_0, options.maxDistance);
-        let to = cocos2AmmoVec3(this.allHitsCB.m_rayToWorld, v3_0);
+        const to = cocos2AmmoVec3(this.allHitsCB.m_rayToWorld, v3_0);
 
         this.allHitsCB.m_collisionFilterGroup = -1;
         this.allHitsCB.m_collisionFilterMask = options.mask;
@@ -141,10 +144,10 @@ export class AmmoWorld implements IPhysicsWorld {
                 if (btCs.isCompound()) {
                     const shapeIndex = this.allHitsCB.m_shapeParts.at(i);
                     const index = btObj.getUserIndex();
-                    const shared = AmmoInstance.bodyAndGhosts['KEY' + index];
+                    const shared = AmmoInstance.bodyAndGhosts[`KEY${index}`];
                     shape = shared.wrappedShapes[shapeIndex];
                 } else {
-                    shape = btCs['wrapped'];
+                    shape = (btCs as any).wrapped;
                 }
                 ammo2CocosVec3(v3_0, hp.at(i));
                 ammo2CocosVec3(v3_1, hn.at(i));
@@ -163,9 +166,9 @@ export class AmmoWorld implements IPhysicsWorld {
      * @return True if any body was hit.
      */
     raycastClosest (worldRay: Ray, options: IRaycastOptions, result: PhysicsRayResult): boolean {
-        let from = cocos2AmmoVec3(this.closeHitCB.m_rayFromWorld, worldRay.o);
+        const from = cocos2AmmoVec3(this.closeHitCB.m_rayFromWorld, worldRay.o);
         worldRay.computeHit(v3_0, options.maxDistance);
-        let to = cocos2AmmoVec3(this.closeHitCB.m_rayToWorld, v3_0);
+        const to = cocos2AmmoVec3(this.closeHitCB.m_rayToWorld, v3_0);
 
         this.closeHitCB.m_collisionFilterGroup = -1;
         this.closeHitCB.m_collisionFilterMask = options.mask;
@@ -179,11 +182,11 @@ export class AmmoWorld implements IPhysicsWorld {
             let shape: AmmoShape;
             if (btCs.isCompound()) {
                 const index = btObj.getUserIndex();
-                const shared = AmmoInstance.bodyAndGhosts['KEY' + index];
+                const shared = AmmoInstance.bodyAndGhosts[`KEY${index}`];
                 const shapeIndex = this.closeHitCB.m_shapePart;
                 shape = shared.wrappedShapes[shapeIndex];
             } else {
-                shape = btCs['wrapped'];
+                shape = (btCs as any).wrapped;
             }
             ammo2CocosVec3(v3_0, this.closeHitCB.m_hitPointWorld);
             ammo2CocosVec3(v3_1, this.closeHitCB.m_hitNormalWorld);
@@ -252,14 +255,13 @@ export class AmmoWorld implements IPhysicsWorld {
         const numManifolds = this._btDispatcher.getNumManifolds();
         for (let i = 0; i < numManifolds; i++) {
             const manifold = this._btDispatcher.getManifoldByIndexInternal(i);
-            const body0 = manifold.getBody0();
-            const body1 = manifold.getBody1();
+            const body0 = manifold.getBody0() as any;
+            const body1 = manifold.getBody1() as any;
 
-            //TODO: SUPPORT CHARACTER EVENT
-            if (body0['useCharacter'] || body1['useCharacter'])
-                continue;
+            // TODO: SUPPORT CHARACTER EVENT
+            if (body0.useCharacter || body1.useCharacter) { continue; }
 
-            const isUseCCD = body0['useCCD'] || body1['useCCD'];
+            const isUseCCD = body0.useCCD || body1.useCCD;
             const numContacts = manifold.getNumContacts();
             for (let j = 0; j < numContacts; j++) {
                 const manifoldPoint: Ammo.btManifoldPoint = manifold.getContactPoint(j);
@@ -268,8 +270,8 @@ export class AmmoWorld implements IPhysicsWorld {
                 let shape0: AmmoShape;
                 let shape1: AmmoShape;
                 if (isUseCCD) {
-                    if (body0['useCCD']) {
-                        const asb = (body0['wrapped'] as AmmoRigidBody).sharedBody;
+                    if (body0.useCCD) {
+                        const asb = (body0.wrapped as AmmoRigidBody).sharedBody;
                         if (!asb) continue;
                         shape0 = asb.bodyStruct.wrappedShapes[0];
                     } else {
@@ -278,12 +280,12 @@ export class AmmoWorld implements IPhysicsWorld {
                             // TODO: SUPPORT COMPOUND COLLISION WITH CCD
                             continue;
                         } else {
-                            shape0 = (btShape0 as any).wrapped;
+                            shape0 = (btShape0).wrapped;
                         }
                     }
 
-                    if (body1['useCCD']) {
-                        const asb = (body1['wrapped'] as AmmoRigidBody).sharedBody;
+                    if (body1.useCCD) {
+                        const asb = (body1.wrapped as AmmoRigidBody).sharedBody;
                         if (!asb) continue;
                         shape1 = asb.bodyStruct.wrappedShapes[0];
                     } else {
@@ -292,41 +294,40 @@ export class AmmoWorld implements IPhysicsWorld {
                             // TODO: SUPPORT COMPOUND COLLISION WITH CCD
                             continue;
                         } else {
-                            shape1 = (btShape1 as any).wrapped;
+                            shape1 = (btShape1).wrapped;
                         }
                     }
                 } else {
                     if (s0.isCompound()) {
-                        const com = Ammo.castObject(s0, Ammo.btCompoundShape) as Ammo.btCompoundShape;
+                        const com = Ammo.castObject(s0, Ammo.btCompoundShape);
                         shape0 = (com.getChildShape(manifoldPoint.m_index0) as any).wrapped;
                     } else {
                         shape0 = (s0 as any).wrapped;
                     }
 
                     if (s1.isCompound()) {
-                        const com = Ammo.castObject(s1, Ammo.btCompoundShape) as Ammo.btCompoundShape;
+                        const com = Ammo.castObject(s1, Ammo.btCompoundShape);
                         shape1 = (com.getChildShape(manifoldPoint.m_index1) as any).wrapped;
                     } else {
                         shape1 = (s1 as any).wrapped;
                     }
                 }
 
-                if (shape0.collider.needTriggerEvent ||
-                    shape1.collider.needTriggerEvent ||
-                    shape0.collider.needCollisionEvent ||
-                    shape1.collider.needCollisionEvent
+                if (shape0.collider.needTriggerEvent
+                    || shape1.collider.needTriggerEvent
+                    || shape0.collider.needCollisionEvent
+                    || shape1.collider.needCollisionEvent
                 ) {
                     // current contact
-                    var item = this.contactsDic.get(shape0.id, shape1.id) as any;
+                    let item = this.contactsDic.get<any>(shape0.id, shape1.id);
                     if (item == null) {
                         item = this.contactsDic.set(shape0.id, shape1.id,
                             {
-                                shape0: shape0,
-                                shape1: shape1,
+                                shape0,
+                                shape1,
                                 contacts: [],
-                                impl: manifold
-                            }
-                        );
+                                impl: manifold,
+                            });
                     }
                     item.contacts.push(manifoldPoint);
                 }
@@ -339,7 +340,7 @@ export class AmmoWorld implements IPhysicsWorld {
             contactsPool.push.apply(contactsPool, CollisionEventObject.contacts as AmmoContactEquation[]);
             CollisionEventObject.contacts.length = 0;
             const key = this.contactsDic.getKeyByIndex(dicL);
-            const data = this.contactsDic.getDataByKey(key) as any;
+            const data = this.contactsDic.getDataByKey<any>(key);
             const shape0: AmmoShape = data.shape0;
             const shape1: AmmoShape = data.shape1;
             this.oldContactsDic.set(shape0.id, shape1.id, data);
@@ -410,8 +411,8 @@ export class AmmoWorld implements IPhysicsWorld {
         // is exit
         let oldDicL = this.oldContactsDic.getLength();
         while (oldDicL--) {
-            let key = this.oldContactsDic.getKeyByIndex(oldDicL);
-            let data = this.oldContactsDic.getDataByKey(key) as any;
+            const key = this.oldContactsDic.getKeyByIndex(oldDicL);
+            const data = this.oldContactsDic.getDataByKey<any>(key);
             const shape0: AmmoShape = data.shape0;
             const shape1: AmmoShape = data.shape1;
             const collider0 = shape0.collider;
@@ -433,23 +434,21 @@ export class AmmoWorld implements IPhysicsWorld {
                             this.triggerArrayMat.set(shape0.id, shape1.id, false);
                             this.oldContactsDic.set(shape0.id, shape1.id, null);
                         }
-                    } else {
-                        if (this.collisionArrayMat.get(shape0.id, shape1.id)) {
-                            contactsPool.push.apply(contactsPool, CollisionEventObject.contacts as AmmoContactEquation[]);
-                            CollisionEventObject.contacts.length = 0;
+                    } else if (this.collisionArrayMat.get(shape0.id, shape1.id)) {
+                        contactsPool.push.apply(contactsPool, CollisionEventObject.contacts as AmmoContactEquation[]);
+                        CollisionEventObject.contacts.length = 0;
 
-                            CollisionEventObject.type = 'onCollisionExit';
-                            CollisionEventObject.selfCollider = collider0;
-                            CollisionEventObject.otherCollider = collider1;
-                            collider0.emit(CollisionEventObject.type, CollisionEventObject);
+                        CollisionEventObject.type = 'onCollisionExit';
+                        CollisionEventObject.selfCollider = collider0;
+                        CollisionEventObject.otherCollider = collider1;
+                        collider0.emit(CollisionEventObject.type, CollisionEventObject);
 
-                            CollisionEventObject.selfCollider = collider1;
-                            CollisionEventObject.otherCollider = collider0;
-                            collider1.emit(CollisionEventObject.type, CollisionEventObject);
+                        CollisionEventObject.selfCollider = collider1;
+                        CollisionEventObject.otherCollider = collider0;
+                        collider1.emit(CollisionEventObject.type, CollisionEventObject);
 
-                            this.collisionArrayMat.set(shape0.id, shape1.id, false);
-                            this.oldContactsDic.set(shape0.id, shape1.id, null);
-                        }
+                        this.collisionArrayMat.set(shape0.id, shape1.id, false);
+                        this.oldContactsDic.set(shape0.id, shape1.id, null);
                     }
                 }
             }

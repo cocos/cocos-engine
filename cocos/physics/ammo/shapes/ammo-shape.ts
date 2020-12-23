@@ -23,6 +23,7 @@
  THE SOFTWARE.
  */
 
+/* eslint-disable new-cap */
 import Ammo from '../ammo-instantiated';
 import { Vec3, Quat } from '../../../core/math';
 import { Collider, PhysicMaterial, PhysicsSystem } from '../../../../exports/physics-framework';

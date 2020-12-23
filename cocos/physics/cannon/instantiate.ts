@@ -23,7 +23,6 @@
  THE SOFTWARE.
  */
 
-
 import { select } from '../framework/physics-selector';
 
 import { CannonRigidBody } from './cannon-rigid-body';
@@ -57,5 +56,3 @@ select('cannon.js', {
     PointToPointConstraint: CannonPointToPointConstraint,
     HingeConstraint: CannonHingeConstraint,
 });
-
-import './deprecated';

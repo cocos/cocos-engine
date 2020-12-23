@@ -1,3 +1,4 @@
+/* eslint-disable new-cap */
 /*
  Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
 
@@ -24,8 +25,8 @@
  */
 
 import Ammo from '../ammo-instantiated';
-import { AmmoShape } from "./ammo-shape";
-import { Vec3 } from "../../../core";
+import { AmmoShape } from './ammo-shape';
+import { Vec3 } from '../../../core';
 import { BoxCollider } from '../../../../exports/physics-framework';
 import { cocos2AmmoVec3 } from '../ammo-util';
 import { AmmoBroadphaseNativeTypes } from '../ammo-enum';
@@ -34,7 +35,6 @@ import { IVec3Like } from '../../../core/math/type-define';
 import { AmmoConstant, CC_V3_0 } from '../ammo-const';
 
 export class AmmoBoxShape extends AmmoShape implements IBoxShape {
-
     setSize (size: IVec3Like) {
         const v3_0 = CC_V3_0;
         Vec3.multiplyScalar(v3_0, size, 0.5);
@@ -70,5 +70,4 @@ export class AmmoBoxShape extends AmmoShape implements IBoxShape {
         this._btShape.setLocalScaling(this.scale);
         this.updateCompoundTransform();
     }
-
 }
