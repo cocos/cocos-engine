@@ -383,8 +383,10 @@ export class UI {
                     if (batch.camera) {
                         const viewVisibility = batch.camera.view.visibility;
                         uiModel.visFlags = viewVisibility;
-                        if (!this._canvasMaterials.get(viewVisibility)!.get(batch.material!.hash)) {
-                            this._canvasMaterials.get(viewVisibility)!.set(batch.material!.hash, 1);
+                        if (this._canvasMaterials.has(viewVisibility)) {
+                            if (!this._canvasMaterials.get(viewVisibility)!.has(batch.material!.hash)) {
+                                this._canvasMaterials.get(viewVisibility)!.set(batch.material!.hash, 1);
+                            }
                         }
                     }
                     this._modelInUse.push(uiModel);
