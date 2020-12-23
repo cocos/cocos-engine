@@ -1408,6 +1408,10 @@ void GLES2CmdFuncBeginRenderPass(GLES2Device *device, GLES2GPURenderPass *gpuRen
                         invalidAttachments[numAttachments++] = (gpuFramebuffer->isOffscreen ? GL_COLOR_ATTACHMENT0 + j : GL_COLOR_EXT);
                         break;
                     }
+                    default:;
+                }
+            }
+        } // for
 
         if (gpuRenderPass->depthStencilAttachment.format != Format::UNKNOWN) {
             bool hasDepth = GFX_FORMAT_INFOS[(int)gpuRenderPass->depthStencilAttachment.format].hasDepth;

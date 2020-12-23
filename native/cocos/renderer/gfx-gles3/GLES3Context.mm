@@ -29,8 +29,6 @@ THE SOFTWARE.
 
 #import <UIKit/UIScreen.h>
 
-#import <UIKit/UIScreen.h>
-
 namespace cc {
 namespace gfx {
 

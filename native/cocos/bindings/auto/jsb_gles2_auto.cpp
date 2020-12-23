@@ -46,7 +46,6 @@ static bool js_gles2_GLES2Device_getThreadID(se::State& s)
         unsigned int result = cobj->getThreadID();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_gles2_GLES2Device_getThreadID : Error processing arguments");
-        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);

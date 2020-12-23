@@ -3,7 +3,7 @@
 #include <type_traits>
 #include "cocos/bindings/jswrapper/SeApi.h"
 #include "cocos/bindings/manual/jsb_conversions.h"
-#include "cocos/cocos2d.h"
+#include "cocos\cocos2d.h"
 
 extern se::Object* __jsb_cc_FileUtils_proto;
 extern se::Class* __jsb_cc_FileUtils_class;

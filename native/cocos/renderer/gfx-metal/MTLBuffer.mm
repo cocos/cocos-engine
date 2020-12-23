@@ -208,10 +208,8 @@ void CCMTLBuffer::resizeBuffer(uint8_t **buffer, uint size, uint oldSize) {
     status.bufferSize -= oldSize;
 }
 
-void CCMTLBuffer::update(void *buffer, uint size)
-{
-    if (_isBufferView)
-    {
+void CCMTLBuffer::update(void *buffer, uint size) {
+    if (_isBufferView) {
         CC_LOG_WARNING("Cannot update a buffer view.");
         return;
     }

@@ -385,6 +385,33 @@ void CCVKCmdFuncCreateDescriptorSetLayout(CCVKDevice *device, CCVKGPUDescriptorS
     VK_CHECK(vkCreateDescriptorSetLayout(gpuDevice->vkDevice, &setCreateInfo, nullptr, &gpuDescriptorSetLayout->vkDescriptorSetLayout));
 
     gpuDescriptorSetLayout->pool.link(gpuDevice, gpuDescriptorSetLayout->maxSetsPerPool, gpuDescriptorSetLayout->vkBindings, gpuDescriptorSetLayout->vkDescriptorSetLayout);
+
+    if (gpuDevice->useDescriptorUpdateTemplate) {
+        const vector<VkDescriptorSetLayoutBinding> &bindings = gpuDescriptorSetLayout->vkBindings;
+        uint bindingCount = bindings.size();
+        if (!bindingCount) return;
+
+        vector<VkDescriptorUpdateTemplateEntry> entries(bindingCount);
+        for (size_t j = 0u, k = 0u; j < bindingCount; j++) {
+            const VkDescriptorSetLayoutBinding &binding = bindings[j];
+            if (binding.descriptorType != VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK_EXT) {
+                entries[j].dstBinding = binding.binding;
+                entries[j].dstArrayElement = 0;
+                entries[j].descriptorCount = binding.descriptorCount;
+                entries[j].descriptorType = binding.descriptorType;
+                entries[j].offset = sizeof(CCVKDescriptorInfo) * k;
+                entries[j].stride = sizeof(CCVKDescriptorInfo);
+                k += binding.descriptorCount;
+            } // TODO: inline UBOs
+        }
+
+        VkDescriptorUpdateTemplateCreateInfo createInfo = {VK_STRUCTURE_TYPE_DESCRIPTOR_UPDATE_TEMPLATE_CREATE_INFO};
+        createInfo.descriptorUpdateEntryCount = bindingCount;
+        createInfo.pDescriptorUpdateEntries = entries.data();
+        createInfo.templateType = VK_DESCRIPTOR_UPDATE_TEMPLATE_TYPE_DESCRIPTOR_SET;
+        createInfo.descriptorSetLayout = gpuDescriptorSetLayout->vkDescriptorSetLayout;
+        VK_CHECK(vkCreateDescriptorUpdateTemplateKHR(gpuDevice->vkDevice, &createInfo, nullptr, &gpuDescriptorSetLayout->vkDescriptorUpdateTemplate));
+    }
 }
 
 void CCVKCmdFuncCreatePipelineLayout(CCVKDevice *device, CCVKGPUPipelineLayout *gpuPipelineLayout) {
@@ -842,11 +869,6 @@ void CCVKCmdFuncDestroyFramebuffer(CCVKGPUDevice *gpuDevice, CCVKGPUFramebuffer 
 }
 
 void CCVKCmdFuncDestroyDescriptorSetLayout(CCVKGPUDevice *gpuDevice, CCVKGPUDescriptorSetLayout *gpuDescriptorSetLayout) {
-    if (gpuDescriptorSetLayout->defaultDescriptorSet != VK_NULL_HANDLE) {
-         gpuDescriptorSetLayout->pool.yield(gpuDescriptorSetLayout->defaultDescriptorSet);
-        gpuDescriptorSetLayout->defaultDescriptorSet = VK_NULL_HANDLE;
-    }
-
     if (gpuDescriptorSetLayout->vkDescriptorUpdateTemplate != VK_NULL_HANDLE) {
         vkDestroyDescriptorUpdateTemplateKHR(gpuDevice->vkDevice, gpuDescriptorSetLayout->vkDescriptorUpdateTemplate, nullptr);
         gpuDescriptorSetLayout->vkDescriptorUpdateTemplate = VK_NULL_HANDLE;

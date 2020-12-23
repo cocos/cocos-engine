@@ -53,22 +53,6 @@ public:
     using Device::createPipelineState;
     using Device::copyBuffersToTexture;
 
-    using Device::createCommandBuffer;
-    using Device::createFence;
-    using Device::createQueue;
-    using Device::createBuffer;
-    using Device::createTexture;
-    using Device::createSampler;
-    using Device::createShader;
-    using Device::createInputAssembler;
-    using Device::createRenderPass;
-    using Device::createFramebuffer;
-    using Device::createDescriptorSet;
-    using Device::createDescriptorSetLayout;
-    using Device::createPipelineLayout;
-    using Device::createPipelineState;
-    using Device::copyBuffersToTexture;
-
     virtual bool initialize(const DeviceInfo &info) override;
     virtual void destroy() override;
     virtual void resize(uint width, uint height) override;
@@ -103,20 +87,6 @@ protected:
     virtual PipelineLayout *createPipelineLayout() override;
     virtual PipelineState *createPipelineState() override;
     virtual void copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint count) override;
-    virtual void blitBuffer(void *srcBuffer, uint offset, uint size, void *dstBuffer);
-
-    CC_INLINE CCMTLStateCache *getStateCache() const { return _stateCache; }
-    CC_INLINE void *getMTLCommandQueue() const { return _mtlCommandQueue; }
-    CC_INLINE void *getMTLLayer() const { return _mtlLayer; }
-    CC_INLINE void *getMTLDevice() const { return _mtlDevice; }
-    CC_INLINE uint getMaximumSamplerUnits() const { return _maxSamplerUnits; }
-    CC_INLINE uint getMaximumColorRenderTargets() const { return _maxColorRenderTargets; }
-    CC_INLINE uint getMaximumBufferBindingIndex() const { return _maxBufferBindingIndex; }
-    CC_INLINE bool isIndirectCommandBufferSupported() const { return _icbSuppored; }
-    CC_INLINE bool isIndirectDrawSupported() const { return _indirectDrawSupported; }
-    CC_INLINE CCMTLGPUStagingBufferPool *gpuStagingBufferPool() const { return _gpuStagingBufferPool; }
-    CC_INLINE bool isSamplerDescriptorCompareFunctionSupported() const { return _isSamplerDescriptorCompareFunctionSupported; }
-    CC_INLINE void *getDSSTexture() const { return _dssTex; }
 
 private:
     void onMemoryWarning();

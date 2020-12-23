@@ -47,7 +47,6 @@ bool CCVKDescriptorSet::initialize(const DescriptorSetInfo &info) {
 
     _layout = info.layout->getSetLayouts()[info.setIndex];
 
-    CCVKGPUPipelineLayout *gpuPipelineLayout = ((CCVKPipelineLayout *)info.layout)->gpuPipelineLayout();
     CCVKGPUDescriptorSetLayout *gpuDescriptorSetLayout = ((CCVKDescriptorSetLayout *)_layout)->gpuDescriptorSetLayout();
     const uint bindingCount = gpuDescriptorSetLayout->bindings.size();
     const uint descriptorCount = gpuDescriptorSetLayout->descriptorCount;
@@ -68,13 +67,15 @@ bool CCVKDescriptorSet::initialize(const DescriptorSetInfo &info) {
 
     CCVKGPUDevice *gpuDevice = ((CCVKDevice *)_device)->gpuDevice();
     if (gpuDevice->useDescriptorUpdateTemplate) {
-        _gpuDescriptorSet->pUpdateTemplate = &gpuPipelineLayout->vkDescriptorUpdateTemplates[info.setIndex];
+        _gpuDescriptorSet->pUpdateTemplate = &gpuDescriptorSetLayout->vkDescriptorUpdateTemplate;
     }
     _gpuDescriptorSet->instances.resize(gpuDevice->backBufferCount);
 
     for (size_t t = 0u; t < gpuDevice->backBufferCount; ++t) {
         CCVKGPUDescriptorSet::DescriptorSetInstance &instance = _gpuDescriptorSet->instances[t];
-        instance.vkDescriptorSet = gpuDescriptorSetLayout->pool.request();
+        if (bindingCount) { // don't create resources if not needed
+            instance.vkDescriptorSet = gpuDescriptorSetLayout->pool.request();
+        }
         instance.descriptorInfos.resize(descriptorCount, {});
 
         for (size_t i = 0u, k = 0u; i < bindingCount; ++i) {
@@ -155,7 +156,7 @@ void CCVKDescriptorSet::destroy() {
                 }
             }
 
-            if (gpuDescriptorSetLayout) {
+            if (gpuDescriptorSetLayout && instance.vkDescriptorSet) {
                 gpuDescriptorSetLayout->pool.yield(instance.vkDescriptorSet);
             }
         }

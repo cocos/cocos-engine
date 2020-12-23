@@ -3,7 +3,7 @@
 #include <type_traits>
 #include "cocos/bindings/jswrapper/SeApi.h"
 #include "cocos/bindings/manual/jsb_conversions.h"
-#include "extensions/cocos-ext.h"
+#include "extensions\cocos-ext.h"
 
 extern se::Object* __jsb_cc_extension_EventAssetsManagerEx_proto;
 extern se::Class* __jsb_cc_extension_EventAssetsManagerEx_class;

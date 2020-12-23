@@ -302,9 +302,6 @@ public:
     uint curBackBufferIndex = 0u;
     uint backBufferCount = 3u;
 
-    uint curBackBufferIndex = 0u;
-    uint backBufferCount = 3u;
-
     bool useDescriptorUpdateTemplate = false;
     bool useMultiDrawIndirect = false;
 
@@ -316,10 +313,10 @@ public:
 
     CCVKGPUSwapchain *swapchain = nullptr; // reference
 
-    /* */
+    /* *
     using CommandBufferPools = tbb::concurrent_unordered_map<
         std::thread::id, CCVKGPUCommandBufferPool *, std::hash<std::thread::id>>;
-    /* *
+    /* */
     using CommandBufferPools = unordered_map<std::thread::id, CCVKGPUCommandBufferPool *>;
     std::mutex mutex;
     /* */
@@ -528,6 +525,7 @@ public:
 
     vector<VkDescriptorSetLayoutBinding> vkBindings;
     VkDescriptorSetLayout vkDescriptorSetLayout = VK_NULL_HANDLE;
+    VkDescriptorUpdateTemplate vkDescriptorUpdateTemplate = VK_NULL_HANDLE;
 
     vector<uint> bindingIndices;
     vector<uint> descriptorIndices;
@@ -557,13 +555,6 @@ public:
             pool.commandBuffers->clear();
         }
         _pools.clear();
-    }
-
-    CC_INLINE uint getHash(uint queueFamilyIndex) {
-        return (queueFamilyIndex << 10) | _device->curBackBufferIndex;
-    }
-    CC_INLINE uint getBackBufferIndex(uint hash) {
-        return hash & ((1 << 10) - 1);
     }
 
     CC_INLINE uint getHash(uint queueFamilyIndex) {
@@ -903,6 +894,33 @@ private:
             vector<VkWriteDescriptorSet> &entries = instance.descriptorUpdateEntries;
             vkUpdateDescriptorSets(_device->vkDevice, entries.size(), entries.data(), 0, nullptr);
         }
+    }
+
+    void erase(CCVKGPUBuffer *gpuBuffer) {
+        for (uint i = 0u; i < _device->backBufferCount; ++i) {
+            if (_buffersToBeUpdated[i].count(gpuBuffer)) {
+                _buffersToBeUpdated[i].erase(gpuBuffer);
+            }
+        }
+    }
+
+    void flush() {
+        unordered_map<CCVKGPUBuffer *, BufferUpdate> &buffers = _buffersToBeUpdated[_device->curBackBufferIndex];
+        for (unordered_map<CCVKGPUBuffer *, BufferUpdate>::iterator it = buffers.begin(); it != buffers.end(); ++it) {
+            update(it->first, it->second.src, it->second.size);
+        }
+        buffers.clear();
+    }
+
+private:
+    struct BufferUpdate {
+        const void *src = nullptr;
+        size_t size = 0u;
+    };
+    uint8_t *update(CCVKGPUBuffer *gpuBuffer, const void *src, size_t size) {
+        uint8_t *dst = gpuBuffer->mappedData + _device->curBackBufferIndex * gpuBuffer->instanceSize;
+        memcpy(dst, src, size);
+        return dst;
     }
 
     CCVKGPUDevice *_device = nullptr;

@@ -44,6 +44,8 @@ public:
     virtual void resize(uint size) override;
     virtual void update(void *buffer, uint offset) override;
 
+    void encodeBuffer(CCMTLRenderCommandEncoder &encoder, uint offset, uint binding, ShaderStageFlags stages);
+
     CC_INLINE id<MTLBuffer> getMTLBuffer() const { return _mtlBuffer; }
     CC_INLINE MTLIndexType getIndexType() const { return _indexType; }
     CC_INLINE bool isDrawIndirectByIndex() const { return _isDrawIndirectByIndex; }

@@ -77,30 +77,13 @@ id<CAMetalDrawable> CCMTLCommandBuffer::getCurrentDrawable()
     return _currDrawable;
 }
 
-bool CCMTLCommandBuffer::isRenderingEntireDrawable(const Rect &rect, const CCMTLRenderPass *renderPass)
-{
-    const int num = renderPass->getColorRenderTargetNums();
-    if (num == 0)
-    {
-        return true;
-    }
-    const auto &renderTargetSize = renderPass->getRenderTargetSizes()[0];
-    return rect.x == 0 && rect.y == 0 && rect.width == renderTargetSize.x && rect.height == renderTargetSize.y;
-}
-
 void CCMTLCommandBuffer::begin(RenderPass *renderPass, uint subpass, Framebuffer *frameBuffer, int submitIndex)
 {
     if (_commandBufferBegan) return;
-    
-    cbAutoReleasePool = [[NSAutoreleasePool alloc] init];
-    
-    _isSubCB = renderPass != nullptr;
-    if (!_isSubCB)
-    {
-        // Sub command buffer for parallel shouldn't request any command buffer
-        _mtlCommandBuffer = [[_mtlCommandQueue commandBuffer] retain];
-        [_mtlCommandBuffer enqueue];
-    }
+
+    _mtlCommandBuffer = [_mtlCommandQueue commandBuffer];
+    [_mtlCommandBuffer retain];
+    [_mtlCommandBuffer enqueue];
     _numTriangles = 0;
     _numDrawCalls = 0;
     _numInstances = 0;
@@ -118,30 +101,27 @@ void CCMTLCommandBuffer::end()
 {
     if (!_commandBufferBegan) return;
     _commandBufferBegan = false;
-    
-    // End encoding for sub encoder of a parallel encoder
-    if (_isSubCB)
-    {
-        _commandEncoder.endEncoding();
-    }
 
     if (_currDrawable)
     {
         [_currDrawable release];
         _currDrawable = nil;
     }
-    [cbAutoReleasePool release];
-    cbAutoReleasePool = nullptr;
 }
 
-void CCMTLCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, int stencil, const CommandBuffer *const *cmdBuffs, uint32_t count)
+bool CCMTLCommandBuffer::isRenderingEntireDrawable(const Rect &rect, const CCMTLRenderPass *renderPass)
 {
-    // Sub CommandBuffer should call begin render pass
-    if (_isSubCB)
+    const int num = renderPass->getColorRenderTargetNums();
+    if (num == 0)
     {
-        return;
+        return true;
     }
-    
+    const auto &renderTargetSize = renderPass->getRenderTargetSizes()[0];
+    return rect.x == 0 && rect.y == 0 && rect.width == renderTargetSize.x && rect.height == renderTargetSize.y;
+}
+
+void CCMTLCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, int stencil, bool fromSecondaryCB)
+{
     auto isOffscreen = static_cast<CCMTLFramebuffer *>(fbo)->isOffscreen();
     if (!isOffscreen)
     {
@@ -200,17 +180,6 @@ void CCMTLCommandBuffer::endRenderPass()
     else
     {
         _commandEncoder.endEncoding();
-    }
-}
-
-void CCMTLCommandBuffer::execute(const CommandBuffer *const *commandBuffs, uint32_t count)
-{
-    for (uint i = 0; i < count; ++i)
-    {
-        auto commandBuffer = static_cast<const CCMTLCommandBuffer *>(commandBuffs[i]);
-        _numDrawCalls += commandBuffer->_numDrawCalls;
-        _numInstances += commandBuffer->_numInstances;
-        _numTriangles += commandBuffer->_numTriangles;
     }
 }
 
@@ -468,6 +437,11 @@ void CCMTLCommandBuffer::draw(InputAssembler *ia)
                 }
             }
         }
+
+    }
+    else if (_type == CommandBufferType::SECONDARY)
+    {
+        CC_LOG_ERROR("CommandBufferType::SECONDARY not implemented.");
     }
     else
     {
@@ -562,6 +536,17 @@ void CCMTLCommandBuffer::copyBuffersToTexture(const uint8_t *const *buffers, Tex
         [encoder generateMipmapsForTexture:dstTexture];
     }
     [encoder endEncoding];
+}
+
+void CCMTLCommandBuffer::execute(const CommandBuffer *const *commandBuffs, uint32_t count)
+{
+    for (uint i = 0; i < count; ++i)
+    {
+        auto commandBuffer = static_cast<const CCMTLCommandBuffer *>(commandBuffs[i]);
+        _numDrawCalls += commandBuffer->_numDrawCalls;
+        _numInstances += commandBuffer->_numInstances;
+        _numTriangles += commandBuffer->_numTriangles;
+    }
 }
 
 void CCMTLCommandBuffer::bindDescriptorSets()
