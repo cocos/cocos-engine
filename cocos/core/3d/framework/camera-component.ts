@@ -456,7 +456,7 @@ export class Camera extends Component {
     }
 
     public onLoad () {
-        this._createCamera();
+        if (!this._camera) { this._createCamera(); }
     }
 
     public onEnable () {
