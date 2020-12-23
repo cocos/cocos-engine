@@ -357,6 +357,7 @@ const cacheManager = require('./jsb-cache-manager');
         // store render order and world matrix
         this._paramsBuffer = nativeSkeleton.getParamsBuffer();
 
+        this.syncTransform(true);
         this.markForUpdateRenderData();
     };
 
@@ -377,7 +378,8 @@ const cacheManager = require('./jsb-cache-manager');
     let _onEnable = skeleton.onEnable;
     skeleton.onEnable = function () {
         _onEnable.call(this);
-        
+        this.syncTransform(true);
+
         if (this._nativeSkeleton) {
             this._nativeSkeleton.onEnable();
         }
@@ -397,21 +399,14 @@ const cacheManager = require('./jsb-cache-manager');
         }
     };
 
-    skeleton.update = function () {
-        let nativeSkeleton = this._nativeSkeleton;
-        if (!nativeSkeleton) return;
-
+    skeleton.syncTransform = function (force) {
         let node = this.node;
         if (!node) return;
-        
-        let paramsBuffer = this._paramsBuffer;
-        if (this._renderOrder != middleware.renderOrder) {
-            paramsBuffer[0] = middleware.renderOrder;
-            this._renderOrder = middleware.renderOrder;
-            middleware.renderOrder++;
-        }
 
-        if (node.hasChangedFlags) {
+        let paramsBuffer = this._paramsBuffer;
+        if (!paramsBuffer) return;
+        
+        if (force || node.hasChangedFlags) {
             // sync node world matrix to native
             node.updateWorldTransform();
             let worldMat = node._mat;
@@ -432,6 +427,23 @@ const cacheManager = require('./jsb-cache-manager');
             paramsBuffer[15] = worldMat.m14;
             paramsBuffer[16] = worldMat.m15;
         }
+    };
+
+    skeleton.update = function () {
+        let nativeSkeleton = this._nativeSkeleton;
+        if (!nativeSkeleton) return;
+
+        let node = this.node;
+        if (!node) return;
+        
+        let paramsBuffer = this._paramsBuffer;
+        if (this._renderOrder != middleware.renderOrder) {
+            paramsBuffer[0] = middleware.renderOrder;
+            this._renderOrder = middleware.renderOrder;
+            middleware.renderOrder++;
+        }
+
+        this.syncTransform();
 
         if (this.__preColor__ === undefined || !this.color.equals(this.__preColor__)) {
             let compColor = this.color;
