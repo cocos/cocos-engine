@@ -1,7 +1,7 @@
 import { IVec3Like } from "../../../core";
 import { aabb, sphere } from "../../../core/geometry";
 import { Collider, RigidBody, PhysicMaterial, BoxCollider } from "../../framework";
-import { VEC3_0 } from "../../framework/util";
+import { VEC3_0 } from "../../utils/util";
 import { IBoxShape } from "../../spec/i-physics-shape";
 import { PX } from "../export-physx";
 import { EPhysXShapeType, PhysXShape } from "./physx-shape";

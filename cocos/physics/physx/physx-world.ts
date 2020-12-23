@@ -33,11 +33,12 @@ export class PhysXWorld implements IPhysicsWorld {
             defaultErrorCallback
         )
         const triggerCallback = {
-            onContactBegin: () => { },
-            onContactEnd: () => { },
-            onContactPersist: () => { },
-            onTriggerBegin: () => { },
-            onTriggerEnd: () => { },
+            onContactBegin: (...a: any) => { console.log('onContactBegin', a); },
+            onContactEnd: (...a: any) => { console.log('onContactEnd', a); },
+            onContactPersist: (...a: any) => { console.log('onContactPersist', a); },
+            onTriggerBegin: (...a: any) => { console.log('onTriggerBegin', a); },
+            onTriggerEnd: (...a: any) => { console.log('onTriggerEnd', a); },
+            // onTriggerPersist: (...a: any) => { console.log('onTriggerPersist', a); },
         }
         const physxSimulationCallbackInstance = px.PxSimulationEventCallback.implement(
             triggerCallback

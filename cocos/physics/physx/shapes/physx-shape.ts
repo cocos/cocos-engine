@@ -3,6 +3,7 @@ import { IVec3Like, Quat, Vec3 } from "../../../core";
 import { aabb, sphere } from "../../../core/geometry";
 import { Collider, RigidBody, PhysicMaterial, PhysicsSystem } from "../../framework";
 import { IBaseShape } from "../../spec/i-physics-shape";
+import { setWrap } from "../../utils/util";
 import { PX, _trans } from "../export-physx";
 import { PhysXSharedBody } from "../physx-shared-body";
 import { PhysXWorld } from "../physx-world";
@@ -44,6 +45,7 @@ export class PhysXShape implements IBaseShape {
         this._sharedBody = (PhysicsSystem.instance.physicsWorld as PhysXWorld).getSharedBody(v.node);
         this._sharedBody.reference = true;
         this.onComponentSet();
+        // if (this._impl) setWrap(this._impl, this);
     }
 
     // virtual
