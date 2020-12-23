@@ -414,8 +414,8 @@ export class Collider extends Eventify(Component) {
     protected onLoad () {
         if (!EDITOR) {
             this._shape = createShape(this.TYPE);
-            this._shape.initialize(this);
             this.sharedMaterial = this._material == null ? PhysicsSystem.instance.defaultMaterial : this._material;
+            this._shape.initialize(this);
             this._shape.onLoad!();
         }
     }

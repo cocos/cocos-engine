@@ -56,6 +56,7 @@
   "dependencies": {
     "@cocos/ammo": "1.0.7-beta.4",
     "@cocos/box2d": "1.0.1",
-    "@cocos/cannon": "1.2.0"
+    "@cocos/cannon": "1.2.0",
+    "@cocos/physx": "^1.0.0-beta.2"
   }
 }

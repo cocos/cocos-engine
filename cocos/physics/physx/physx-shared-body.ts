@@ -1,0 +1,206 @@
+import { Node, Quat, Vec3 } from "../../core";
+import { PhysXRigidBody } from "./physx-rigid-body";
+import { PhysXWorld } from "./physx-world";
+import { PhysXShape } from "./shapes/physx-shape";
+
+import { PX as PX, _trans } from "./export-physx";
+import { TransformBit } from "../../core/scene-graph/node-enum";
+
+export class PhysXSharedBody {
+
+    private static idCounter = 0;
+    private static readonly sharedBodesMap = new Map<string, PhysXSharedBody>();
+
+    static getSharedBody (node: Node, wrappedWorld: PhysXWorld, wrappedBody?: PhysXRigidBody) {
+        const key = node.uuid;
+        let newSB!: PhysXSharedBody;
+        if (PhysXSharedBody.sharedBodesMap.has(key)) {
+            newSB = PhysXSharedBody.sharedBodesMap.get(key)!;
+        } else {
+            newSB = new PhysXSharedBody(node, wrappedWorld);
+            PhysXSharedBody.sharedBodesMap.set(node.uuid, newSB);
+        }
+        if (wrappedBody) { newSB._wrappedBody = wrappedBody; }
+        return newSB;
+    }
+
+    readonly id: number;
+    readonly node: Node;
+    readonly wrappedWorld: PhysXWorld;
+    readonly wrappedShapes: PhysXShape[] = [];
+
+    get isStatic () { return this._isStatic; }
+    get wrappedBody () { return this._wrappedBody; }
+    get impl () {
+        this._initActor();
+        return this._impl;
+    }
+
+    private _index: number = -1;
+    private _ref: number = 0;
+    private _isStatic = false;
+    private _impl!: PhysX.RigidActor | any;
+    private _wrappedBody: PhysXRigidBody | null = null;
+    private _filterData: any;
+
+    set reference (v: boolean) {
+        v ? this._ref++ : this._ref--;
+        if (this._ref == 0) { this.destroy(); }
+    }
+
+    set enabled (v: boolean) {
+        if (v) {
+            if (this._index < 0) {
+                this._index = this.wrappedWorld.wrappedBodies.length;
+                this.wrappedWorld.addActor(this);
+            }
+        } else {
+            if (this._index >= 0) {
+                const ws = this.wrappedShapes;
+                const wb = this.wrappedBody;
+                const isRemove = (ws.length == 0 && wb == null) ||
+                    (ws.length == 0 && wb != null && !wb.isEnabled)
+
+                if (isRemove) {
+                    // this.impl.sleep(); // clear velocity etc.
+                    this._index = -1;
+                    this.wrappedWorld.removeActor(this);
+                }
+            }
+        }
+    }
+
+    constructor (node: Node, wrappedWorld: PhysXWorld) {
+        this.id = PhysXSharedBody.idCounter++;
+        this.node = node;
+        this.wrappedWorld = wrappedWorld;
+        this._filterData = new PX.PxFilterData(1, ((0xffffffff & (~2)) >>> 0), 0, 0);
+    }
+
+    private _initActor () {
+        if (this._impl) return;
+        Vec3.copy(_trans.translation, this.node.worldPosition);
+        Quat.copy(_trans.rotation, this.node.worldRotation);
+        const wb = this.wrappedBody;
+        if (wb) {
+            const rb = wb.rigidBody;
+            if (rb.mass == 0) {
+                this._isStatic = true;
+                this._impl = this.wrappedWorld.physics.createRigidStatic(_trans as any);
+            } else {
+                this._isStatic = false;
+                this._impl = this.wrappedWorld.physics.createRigidDynamic(_trans as any);
+                this._impl.setMass(rb.mass);
+                this._impl.setActorFlag(PX.PxActorFlag.eDISABLE_GRAVITY, !rb.useGravity);
+                this._impl.setLinearDamping(rb.linearDamping);
+                this._impl.setAngularDamping(rb.angularDamping);
+                const lf = rb.linearFactor;
+                this._impl.setRigidDynamicLockFlag(PX.PxRigidDynamicLockFlag.eLOCK_LINEAR_X, !lf.x);
+                this._impl.setRigidDynamicLockFlag(PX.PxRigidDynamicLockFlag.eLOCK_LINEAR_Y, !lf.y);
+                this._impl.setRigidDynamicLockFlag(PX.PxRigidDynamicLockFlag.eLOCK_LINEAR_Z, !lf.z);
+                const af = rb.angularFactor;
+                this._impl.setRigidDynamicLockFlag(PX.PxRigidDynamicLockFlag.eLOCK_ANGULAR_X, !af.x);
+                this._impl.setRigidDynamicLockFlag(PX.PxRigidDynamicLockFlag.eLOCK_ANGULAR_Y, !af.y);
+                this._impl.setRigidDynamicLockFlag(PX.PxRigidDynamicLockFlag.eLOCK_ANGULAR_Z, !af.z);
+            }
+        } else {
+            this._isStatic = true;
+            this._impl = this.wrappedWorld.physics.createRigidStatic(_trans as any);
+        }
+    }
+
+    addShape (ws: PhysXShape) {
+        const index = this.wrappedShapes.indexOf(ws);
+        if (index < 0) {
+            ws.impl.setSimulationFilterData(this._filterData);
+            this.impl.attachShape(ws.impl);
+            if (!this._isStatic) this.impl.setMassAndUpdateInertia(this._wrappedBody!.rigidBody.mass);
+            this.wrappedShapes.push(ws);
+        }
+    }
+
+    removeShape (ws: PhysXShape) {
+        const index = this.wrappedShapes.indexOf(ws);
+        if (index >= 0) {
+            this.impl.detachShape(ws.impl, true);
+            this.wrappedShapes.splice(index, 1);
+        }
+    }
+
+    setMass (m: number) {
+
+    }
+
+    syncSceneToPhysics () {
+        const node = this.node;
+        if (node.hasChangedFlags) {
+            if (node.hasChangedFlags & TransformBit.SCALE) {
+                const l = this.wrappedShapes.length;
+                for (let i = 0; i < l; i++) {
+                    this.wrappedShapes[i].updateScale();
+                }
+            }
+            Vec3.copy(_trans.translation, node.worldPosition);
+            Quat.copy(_trans.rotation, node.worldRotation);
+            this.impl.setGlobalPose(_trans, true);
+        }
+    }
+
+    syncPhysicsToScene () {
+        if (this._isStatic || this.impl.isSleeping()) return;
+        const transform = this.impl.getGlobalPose();
+        const node = this.node;
+        node.setWorldPosition(transform.translation);
+        node.setWorldRotation(transform.rotation);
+    }
+
+    setGroup (v: number): void {
+        this._filterData.word0 = v;
+        this.updateFiltering();
+    }
+
+    getGroup (): number {
+        return this._filterData.word0;
+    }
+
+    addGroup (v: number): void {
+        this._filterData.word0 |= v;
+        this.updateFiltering();
+    }
+
+    removeGroup (v: number): void {
+        this._filterData.word0 &= ~v;
+        this.updateFiltering();
+    }
+
+    setMask (v: number): void {
+        if (v == -1) v = 0xffffffff;
+        this._filterData.word1 = v;
+        this.updateFiltering();
+    }
+
+    getMask (): number {
+        return this._filterData.word1;
+    }
+
+    addMask (v: number): void {
+        this._filterData.word1 |= v;
+        this.updateFiltering();
+    }
+
+    removeMask (v: number): void {
+        this._filterData.word1 &= ~v;
+        this.updateFiltering();
+    }
+
+    updateFiltering () {
+        for (let i = 0; i < this.wrappedShapes.length; i++) {
+            this.wrappedShapes[i].impl.setSimulationFilterData(this._filterData);
+        }
+    }
+
+    destroy () {
+        this._impl.release();
+        PhysXSharedBody.sharedBodesMap.delete(this.node.uuid);
+    }
+}

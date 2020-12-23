@@ -120,7 +120,7 @@ function initColliderProxy () {
     }
 
     CREATE_COLLIDER_PROXY[EColliderType.CAPSULE] = function createCapsuleShape (radius = 0.5, height = 2, dir = 1): ICapsuleShape {
-        if (PHYSICS_BUILTIN || PHYSICS_AMMO) {
+        if (!PHYSICS_CANNON) {
             if (DEBUG && checkPhysicsModule(WRAPPER.CapsuleShape)) { return ENTIRE_SHAPE; }
             return new WRAPPER.CapsuleShape(radius, height, dir) as ICapsuleShape;
         } else {
@@ -130,7 +130,7 @@ function initColliderProxy () {
     }
 
     CREATE_COLLIDER_PROXY[EColliderType.CYLINDER] = function createCylinderShape (radius = 0.5, height = 2, dir = 1): ICylinderShape {
-        if (PHYSICS_CANNON || PHYSICS_AMMO) {
+        if (!PHYSICS_BUILTIN) {
             if (DEBUG && checkPhysicsModule(WRAPPER.CylinderShape)) { return ENTIRE_SHAPE; }
             return new WRAPPER.CylinderShape(radius, height, dir) as ICylinderShape;
         } else {
@@ -140,7 +140,7 @@ function initColliderProxy () {
     }
 
     CREATE_COLLIDER_PROXY[EColliderType.CONE] = function createConeShape (radius = 0.5, height = 1, dir = 1): IConeShape {
-        if (PHYSICS_CANNON || PHYSICS_AMMO) {
+        if (!PHYSICS_BUILTIN) {
             if (DEBUG && checkPhysicsModule(WRAPPER.ConeShape)) { return ENTIRE_SHAPE; }
             return new WRAPPER.ConeShape(radius, height, dir) as IConeShape;
         } else {
@@ -150,7 +150,7 @@ function initColliderProxy () {
     }
 
     CREATE_COLLIDER_PROXY[EColliderType.MESH] = function createTrimeshShape (): ITrimeshShape {
-        if (PHYSICS_CANNON || PHYSICS_AMMO) {
+        if (!PHYSICS_BUILTIN) {
             if (DEBUG && checkPhysicsModule(WRAPPER.TrimeshShape)) { return ENTIRE_SHAPE; }
             return new WRAPPER.TrimeshShape() as ITrimeshShape;
         } else {
@@ -160,7 +160,7 @@ function initColliderProxy () {
     }
 
     CREATE_COLLIDER_PROXY[EColliderType.TERRAIN] = function createTerrainShape (): ITerrainShape {
-        if (PHYSICS_CANNON || PHYSICS_AMMO) {
+        if (!PHYSICS_BUILTIN) {
             if (DEBUG && checkPhysicsModule(WRAPPER.TerrainShape)) { return ENTIRE_SHAPE; }
             return new WRAPPER.TerrainShape() as ITerrainShape;
         } else {
@@ -170,7 +170,7 @@ function initColliderProxy () {
     }
 
     CREATE_COLLIDER_PROXY[EColliderType.SIMPLEX] = function createSimplexShape (): ISimplexShape {
-        if (PHYSICS_CANNON || PHYSICS_AMMO) {
+        if (!PHYSICS_BUILTIN) {
             if (DEBUG && checkPhysicsModule(WRAPPER.SimplexShape)) { return ENTIRE_SHAPE; }
             return new WRAPPER.SimplexShape() as ISimplexShape;
         } else {
@@ -180,7 +180,7 @@ function initColliderProxy () {
     }
 
     CREATE_COLLIDER_PROXY[EColliderType.PLANE] = function createPlaneShape (): IPlaneShape {
-        if (PHYSICS_CANNON || PHYSICS_AMMO) {
+        if (!PHYSICS_BUILTIN) {
             if (DEBUG && checkPhysicsModule(WRAPPER.PlaneShape)) { return ENTIRE_SHAPE; }
             return new WRAPPER.PlaneShape() as IPlaneShape;
         } else {
@@ -222,7 +222,7 @@ function initConstraintProxy () {
     const PHYSICS_AMMO = legacyCC._global['CC_PHYSICS_AMMO'];
 
     CREATE_CONSTRAINT_PROXY[EConstraintType.POINT_TO_POINT] = function createPointToPointConstraint (): IPointToPointConstraint {
-        if (PHYSICS_CANNON || PHYSICS_AMMO) {
+        if (!PHYSICS_BUILTIN) {
             if (DEBUG && checkPhysicsModule(WRAPPER.PointToPointConstraint)) { return ENTIRE_CONSTRAINT; }
             return new WRAPPER.PointToPointConstraint() as IPointToPointConstraint;
         } else {
@@ -232,7 +232,7 @@ function initConstraintProxy () {
     }
 
     CREATE_CONSTRAINT_PROXY[EConstraintType.HINGE] = function createHingeConstraint (): IHingeConstraint {
-        if (PHYSICS_CANNON || PHYSICS_AMMO) {
+        if (!PHYSICS_BUILTIN) {
             if (DEBUG && checkPhysicsModule(WRAPPER.HingeConstraint)) { return ENTIRE_CONSTRAINT; }
             return new WRAPPER.HingeConstraint() as IHingeConstraint;
         } else {
@@ -242,7 +242,7 @@ function initConstraintProxy () {
     }
 
     CREATE_CONSTRAINT_PROXY[EConstraintType.CONE_TWIST] = function createConeTwistConstraint (): IConeTwistConstraint {
-        if (PHYSICS_CANNON || PHYSICS_AMMO) {
+        if (!PHYSICS_BUILTIN) {
             if (DEBUG && checkPhysicsModule(WRAPPER.ConeTwistConstraint)) { return null as any; }
             return new WRAPPER.ConeTwistConstraint() as IConeTwistConstraint;
         } else {

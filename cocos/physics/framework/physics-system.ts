@@ -68,6 +68,10 @@ export class PhysicsSystem extends System {
         return physicsEngineId === 'ammo.js';
     }
 
+    static get PHYSICS_PHYSX () {
+        return physicsEngineId === 'physx';
+    }
+
     /**
      * @en
      * Gets the ID of the system.
@@ -272,7 +276,7 @@ export class PhysicsSystem extends System {
     private constructor () {
         super();
         const config = game.config ? game.config.physics as IPhysicsConfig : null;
-        if (config) {
+        if (config && config.physicsEngine) {
             Vec3.copy(this._gravity, config.gravity);
             this._allowSleep = config.allowSleep;
             this._fixedTimeStep = config.fixedTimeStep;
@@ -334,7 +338,7 @@ export class PhysicsSystem extends System {
                     this._subStepCount++;
                     this.physicsWorld.emitEvents();
                     // TODO: nesting the dirty flag reset between the syncScenetoPhysics and the simulation to reduce calling syncScenetoPhysics.
-                    this.physicsWorld.syncSceneToPhysics();
+                    // this.physicsWorld.syncSceneToPhysics();
                 } else {
                     this.physicsWorld.syncSceneToPhysics();
                     break;
