@@ -25,7 +25,7 @@
 
 import CANNON from '@cocos/cannon';
 import { Vec3 } from '../../../core/math';
-import { maxComponent } from '../../framework/util';
+import { maxComponent } from '../../utils/util';
 import { commitShapeUpdates } from '../cannon-util';
 import { CannonShape } from './cannon-shape';
 import { ISphereShape } from '../../spec/i-physics-shape';
