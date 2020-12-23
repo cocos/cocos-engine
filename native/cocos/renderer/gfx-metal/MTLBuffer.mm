@@ -47,7 +47,6 @@ bool CCMTLBuffer::initialize(const BufferInfo &info)
     _stride = std::max(info.stride, 1U);
     _count = _size / _stride;
     _flags = info.flags;
-    _indirectDrawSupported = static_cast<CCMTLDevice *>(_device)->isIndirectDrawSupported();
     if (_usage & BufferUsage::INDEX)
     {
         switch (_stride)
@@ -222,52 +221,56 @@ void CCMTLBuffer::update(void *buffer, uint size)
 
     if (_usage & BufferUsageBit::INDIRECT)
     {
-        auto drawInfoCount = size / _stride;
-        for (uint i = 0; i < drawInfoCount; ++i)
+        if (_isIndirectDrawSupported)
         {
-            memcpy(&_drawInfos[i], static_cast<uint8_t *>(buffer) + i * _stride, _stride);
-        }
+            uint drawInfoCount = size / _stride;
+            const DrawInfo *drawInfo = static_cast<const DrawInfo *>(buffer);
 
-        if (!_indirectDrawSupported)
-        {
-            return;
-        }
-
-        if (drawInfoCount > 0)
-        {
-            if (_drawInfos[0].indexCount)
+            if (drawInfoCount > 0)
             {
-                vector<MTLDrawIndexedPrimitivesIndirectArguments> arguments(drawInfoCount);
-                int i = 0;
-                for (auto &argument : arguments)
+                if (drawInfo->indexCount)
                 {
-                    const auto &drawInfo = _drawInfos[i++];
-                    argument.indexCount = drawInfo.indexCount;
-                    argument.instanceCount = drawInfo.instanceCount == 0 ? 1 : drawInfo.instanceCount;
-                    argument.indexStart = drawInfo.firstIndex;
-                    argument.baseVertex = drawInfo.firstVertex;
-                    argument.baseInstance = drawInfo.firstInstance;
+                    _isDrawIndirectByIndex = true;
+                    uint stride = sizeof(MTLDrawIndexedPrimitivesIndirectArguments);
+
+                    for (uint i = 0; i < drawInfoCount; ++i)
+                    {
+                        auto &arguments = _indexedPrimitivesIndirectArguments[i];
+                        arguments.indexCount = drawInfo->indexCount;
+                        arguments.instanceCount = std::max(drawInfo->instanceCount, 1u);
+                        arguments.indexStart = drawInfo->firstIndex;
+                        arguments.baseVertex = drawInfo->firstVertex;
+                        arguments.baseInstance = drawInfo->firstInstance;
+                        ++drawInfo;
+                    }
+                    updateMTLBuffer(_indexedPrimitivesIndirectArguments.data(), 0, drawInfoCount * stride);
                 }
-                memcpy(static_cast<uint8_t *>(_mtlBuffer.contents), arguments.data(), drawInfoCount * sizeof(MTLDrawIndexedPrimitivesIndirectArguments));
-            }
-            else if (_drawInfos[0].vertexCount)
-            {
-                vector<MTLDrawPrimitivesIndirectArguments> arguments(drawInfoCount);
-                int i = 0;
-                for (auto &argument : arguments)
+                else
                 {
-                    const auto &drawInfo = _drawInfos[i++];
-                    argument.vertexCount = drawInfo.vertexCount;
-                    argument.instanceCount = drawInfo.instanceCount == 0 ? 1 : drawInfo.instanceCount;
-                    argument.vertexStart = drawInfo.firstVertex;
-                    argument.baseInstance = drawInfo.firstInstance;
+                    _isDrawIndirectByIndex = false;
+                    uint stride = sizeof(MTLDrawIndexedPrimitivesIndirectArguments);
+
+                    for (uint i = 0; i < drawInfoCount; ++i)
+                    {
+                        auto &arguments = _primitiveIndirectArguments[i];
+                        arguments.vertexCount = drawInfo->vertexCount;
+                        arguments.instanceCount = std::max(drawInfo->instanceCount, 1u);
+                        arguments.vertexStart = drawInfo->firstVertex;
+                        arguments.baseInstance = drawInfo->firstInstance;
+                        ++drawInfo;
+                    }
+                    updateMTLBuffer(_primitiveIndirectArguments.data(), 0, drawInfoCount * stride);
                 }
                 memcpy(static_cast<uint8_t *>(_mtlBuffer.contents), arguments.data(), drawInfoCount * sizeof(MTLDrawPrimitivesIndirectArguments));
             }
-        } else {
+        }
+        else
+        {
             memcpy(_drawInfos.data(), buffer, size);
         }
-    } else {
+    }
+    else
+    {
         updateMTLBuffer(buffer, 0, size);
     }
 }
