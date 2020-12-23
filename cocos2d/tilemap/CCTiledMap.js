@@ -372,7 +372,9 @@ let TiledMap = cc.Class({
             },
             set (value) {
                 this._tileAtlases = value;
-                (this._preloaded || CC_EDITOR) && _applyFile(false);
+                if (this._preloaded || CC_EDITOR) {
+                    this._applyFile(false);
+                }
             },
             type: [cc.SpriteAtlas]
         },
@@ -624,6 +626,9 @@ let TiledMap = cc.Class({
                 let allSpriteFrames = this.spriteFramesCache;
 
                 this._tileAtlases.forEach(function(atlas) {
+                    if (!atlas) {
+                        return
+                    }
                     let sfs = atlas.getSpriteFrames();
                     sfs.forEach(function(sf) {
                         allSpriteFrames[sf.name] = sf;

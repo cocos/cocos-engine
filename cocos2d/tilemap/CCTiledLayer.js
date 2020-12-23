@@ -1399,7 +1399,9 @@ let TiledLayer = cc.Class({
             if (gid === 0) continue;
             let grid = texGrids[gid];
             if (!grid) {
-                cc.error("CCTiledLayer:_traverseAllGrid grid is null, gid is:", gid);
+                if (!CC_EDITOR) {
+                    cc.error("CCTiledLayer:_traverseAllGrid grid is null, gid is:", gid);
+                }
                 continue;
             }
             let tilesetIdx = grid.texId;
@@ -1486,7 +1488,10 @@ let TiledLayer = cc.Class({
         this._useAutomaticVertexZ = false;
         this._vertexZvalue = 0;
         this._syncAnchorPoint();
-        this._prepareToRender();
+
+        if (this._tilesets && this._tilesets.length > 0) {
+            this._prepareToRender();
+        }
     },
 
     _prepareToRender () {
