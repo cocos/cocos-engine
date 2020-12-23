@@ -33,6 +33,7 @@ import { PhysicsRayResult } from '../framework/physics-ray-result';
 import { BuiltinSharedBody } from './builtin-shared-body';
 import { BuiltinShape } from './shapes/builtin-shape';
 import { ArrayCollisionMatrix } from '../utils/array-collision-matrix';
+import { ObjectCollisionMatrix } from '../utils/object-collision-matrix';
 import { Ray, intersect } from '../../core/geometry';
 import { RecyclePool, Node } from '../../core';
 import { IPhysicsWorld, IRaycastOptions } from '../spec/i-physics-world';

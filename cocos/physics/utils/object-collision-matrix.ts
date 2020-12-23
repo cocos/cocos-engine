@@ -34,31 +34,29 @@
  * @constructor
  */
 export class ObjectCollisionMatrix {
-
     /**
      * The matrix storage
      */
-    public matrix: {};
+    public matrix: Record<string, unknown>;
 
     constructor () {
         this.matrix = {};
     }
 
-
     /**
      * @method get
      * @param  {number} i
      * @param  {number} j
-     * @return 
+     * @return
      */
     public get<T> (i: number, j: number): T {
         if (j > i) {
-            var temp = j;
+            const temp = j;
             j = i;
             i = temp;
         }
-        return this.matrix[i + '-' + j];
-    };
+        return this.matrix[`${i}-${j}`] as T;
+    }
 
     /**
      * @method set
@@ -68,12 +66,12 @@ export class ObjectCollisionMatrix {
      */
     public set<T> (i: number, j: number, value: T) {
         if (j > i) {
-            var temp = j;
+            const temp = j;
             j = i;
             i = temp;
         }
-        this.matrix[i + '-' + j] = value;
-    };
+        this.matrix[`${i}-${j}`] = value;
+    }
 
     /**
      * Empty the matrix
@@ -81,5 +79,5 @@ export class ObjectCollisionMatrix {
      */
     public reset () {
         this.matrix = {};
-    };
+    }
 }

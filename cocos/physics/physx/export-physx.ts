@@ -42,8 +42,8 @@ import { IQuatLike, IVec3Like, Node, Quat, Vec3 } from '../../core';
 export let USE_BYTEDANCE = false;
 if (BYTEDANCE) USE_BYTEDANCE = true;
 
-let _px = globalThis.PhysX as any;
-if (USE_BYTEDANCE && globalThis.tt.getPhy) _px = globalThis.tt.getPhy();
+let _px = globalThis ? globalThis.PhysX : null as any;
+if (USE_BYTEDANCE && globalThis && globalThis.tt.getPhy) _px = globalThis.tt.getPhy();
 export const PX = _px;
 
 /// enum ///
