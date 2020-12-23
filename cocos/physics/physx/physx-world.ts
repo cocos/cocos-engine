@@ -2,14 +2,49 @@
 import { Vec3 } from "../../core/math";
 import { ray } from '../../core/geometry';
 import { IRaycastOptions, IPhysicsWorld } from '../spec/i-physics-world';
-import { PhysicsRayResult, PhysicMaterial } from '../framework';
+import { PhysicsRayResult, PhysicMaterial, TriggerEventType, CollisionEventType } from '../framework';
 import { Node, RecyclePool } from '../../core';
 import { IVec3Like } from '../../core/math/type-define';
 import { IBaseConstraint } from "../spec/i-physics-constraint";
-
-import { PX as px } from "./export-physx";
 import { PhysXSharedBody } from "./physx-shared-body";
 import { PhysXRigidBody } from "./physx-rigid-body";
+import { PhysXShape } from "./shapes/physx-shape";
+import { CollisionEventObject, TriggerEventObject } from "../utils/util";
+import { PX } from "./export-physx";
+
+function onTrigger (type: TriggerEventType, a: string, b: string) {
+    const wpa = PX.IMPL_PTR[a] as PhysXShape;
+    const wpb = PX.IMPL_PTR[b] as PhysXShape;
+    TriggerEventObject.type = type;
+    if (wpa.collider.needTriggerEvent) {
+        TriggerEventObject.selfCollider = wpa.collider;
+        TriggerEventObject.otherCollider = wpb.collider;
+        wpa.collider.emit(TriggerEventObject.type, TriggerEventObject);
+    }
+    if (wpb.collider.needTriggerEvent) {
+        TriggerEventObject.selfCollider = wpb.collider;
+        TriggerEventObject.otherCollider = wpa.collider;
+        wpb.collider.emit(TriggerEventObject.type, TriggerEventObject);
+    }
+}
+
+function onCollision (type: CollisionEventType, a: any, b: any) {
+    const wpa = PX.IMPL_PTR[a['$$'].ptr] as PhysXShape;
+    const wpb = PX.IMPL_PTR[b['$$'].ptr] as PhysXShape;
+    CollisionEventObject.type = type;
+    if (wpa.collider.needCollisionEvent) {
+        CollisionEventObject.selfCollider = wpa.collider;
+        CollisionEventObject.otherCollider = wpb.collider;
+        wpa.collider.emit(CollisionEventObject.type, CollisionEventObject);
+    }
+    if (wpb.collider.needCollisionEvent) {
+        CollisionEventObject.selfCollider = wpb.collider;
+        CollisionEventObject.otherCollider = wpa.collider;
+        wpb.collider.emit(CollisionEventObject.type, CollisionEventObject);
+    }
+}
+
+const persistShapes: string[] = [];
 
 export class PhysXWorld implements IPhysicsWorld {
 
@@ -24,35 +59,49 @@ export class PhysXWorld implements IPhysicsWorld {
     readonly wrappedBodies: PhysXSharedBody[] = [];
 
     constructor (options?: any) {
-        const version = px.PX_PHYSICS_VERSION
-        const defaultErrorCallback = new px.PxDefaultErrorCallback()
-        const allocator = new px.PxDefaultAllocator()
-        const foundation = px.PxCreateFoundation(
+        const version = PX.PX_PHYSICS_VERSION
+        const defaultErrorCallback = new PX.PxDefaultErrorCallback()
+        const allocator = new PX.PxDefaultAllocator()
+        const foundation = PX.PxCreateFoundation(
             version,
             allocator,
             defaultErrorCallback
         )
         const triggerCallback = {
-            onContactBegin: (...a: any) => { console.log('onContactBegin', a); },
-            onContactEnd: (...a: any) => { console.log('onContactEnd', a); },
-            onContactPersist: (...a: any) => { console.log('onContactPersist', a); },
-            onTriggerBegin: (...a: any) => { console.log('onTriggerBegin', a); },
-            onTriggerEnd: (...a: any) => { console.log('onTriggerEnd', a); },
+            onContactBegin: (a: any, b: any) => { onCollision('onCollisionEnter', a, b); },
+            onContactEnd: (a: any, b: any) => { onCollision('onCollisionExit', a, b); },
+            onContactPersist: (a: any, b: any) => { onCollision('onCollisionStay', a, b); },
+            onTriggerBegin: (a: any, b: any) => {
+                const pa = a['$$'].ptr;
+                const pb = b['$$'].ptr;
+                const key = pa + '-' + pb;
+                const i = persistShapes.indexOf(key);
+                if (i < 0) persistShapes.push(key);
+                onTrigger("onTriggerEnter", pa, pb);
+            },
+            onTriggerEnd: (a: any, b: any) => {
+                const pa = a['$$'].ptr;
+                const pb = b['$$'].ptr;
+                const key = pa + '-' + pb;
+                const i = persistShapes.indexOf(key);
+                if (i >= 0) persistShapes.splice(i, 1);
+                onTrigger("onTriggerExit", pa, pb);
+            },
             // onTriggerPersist: (...a: any) => { console.log('onTriggerPersist', a); },
         }
-        const physxSimulationCallbackInstance = px.PxSimulationEventCallback.implement(
+        const physxSimulationCallbackInstance = PX.PxSimulationEventCallback.implement(
             triggerCallback
         )
 
-        this.physics = px.PxCreatePhysics(
+        this.physics = PX.PxCreatePhysics(
             version,
             foundation,
-            new px.PxTolerancesScale(),
+            new PX.PxTolerancesScale(),
             false,
             null
         )
-        px.PxInitExtensions(this.physics, null)
-        const sceneDesc = px.getDefaultSceneDesc(
+        PX.PxInitExtensions(this.physics, null)
+        const sceneDesc = PX.getDefaultSceneDesc(
             this.physics['getTolerancesScale'](),
             0,
             physxSimulationCallbackInstance
@@ -117,5 +166,11 @@ export class PhysXWorld implements IPhysicsWorld {
     }
 
     emitEvents () {
+        const l = persistShapes.length;
+        for (let i = 0; i < l; i++) {
+            const key = persistShapes[i];
+            const ptr = key.split('-');
+            onTrigger("onTriggerStay", ptr[0], ptr[1]);
+        }
     }
 }

@@ -29,6 +29,7 @@
  */
 import { Vec3 } from '../../core';
 import { IVec3Like, IQuatLike } from '../../core/math/type-define';
+import { Collider, CollisionEventType, IContactEquation, TriggerEventType } from '../framework';
 
 interface IWrapped<T> {
     __cc_wrapper__: T;
@@ -47,3 +48,18 @@ export function maxComponent (v: IVec3Like) {
 }
 
 export const VEC3_0 = new Vec3();
+
+export const TriggerEventObject = {
+    type: 'onTriggerEnter' as TriggerEventType,
+    selfCollider: null as Collider | null,
+    otherCollider: null as Collider | null,
+    impl: null as any,
+};
+
+export const CollisionEventObject = {
+    type: 'onCollisionEnter' as CollisionEventType,
+    selfCollider: null as unknown as Collider,
+    otherCollider: null as unknown as Collider,
+    contacts: [] as IContactEquation[],
+    impl: null as any,
+};

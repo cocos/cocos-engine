@@ -107,6 +107,7 @@ export class PhysXSharedBody {
             this._isStatic = true;
             this._impl = this.wrappedWorld.physics.createRigidStatic(_trans as any);
         }
+        if (this._impl) PX.IMPL_PTR[this._impl.$$.ptr] = this;
     }
 
     addShape (ws: PhysXShape) {
@@ -200,6 +201,7 @@ export class PhysXSharedBody {
     }
 
     destroy () {
+        PX.IMPL_PTR[this._impl.$$.ptr] = null;
         this._impl.release();
         PhysXSharedBody.sharedBodesMap.delete(this.node.uuid);
     }

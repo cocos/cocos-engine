@@ -45,7 +45,7 @@ export class PhysXShape implements IBaseShape {
         this._sharedBody = (PhysicsSystem.instance.physicsWorld as PhysXWorld).getSharedBody(v.node);
         this._sharedBody.reference = true;
         this.onComponentSet();
-        // if (this._impl) setWrap(this._impl, this);
+        if (this._impl) PX.IMPL_PTR[this._impl.$$.ptr] = this;
     }
 
     // virtual
@@ -70,6 +70,7 @@ export class PhysXShape implements IBaseShape {
 
     onDestroy (): void {
         this._sharedBody.reference = false;
+        PX.IMPL_PTR[this._impl.$$.ptr] = null;
         this._impl.release();
     }
 
