@@ -44,7 +44,8 @@ import {
     NULL_HANDLE, NodeHandle, NodePool, NodeView,
 } from '../renderer/core/memory-pools';
 import { NodeSpace, TransformBit } from './node-enum';
-import { applyPropertyOverrides, createNodeWithPrefab } from '../utils/prefab-utils';
+import { applyAddedChildren, applyPropertyOverrides, createNodeWithPrefab, generateTargetMap } from '../utils/prefab-utils';
+import { Component } from '../components';
 
 const v3_a = new Vec3();
 const q_a = new Quat();
@@ -394,11 +395,6 @@ export class Node extends BaseNode {
 
         if (!dontSyncChildPrefab && this._prefabInstance) {
             createNodeWithPrefab(this);
-
-            if (this._prefabInstance && this._prefabInstance.addedChildren) {
-                // @ts-expect-error member access
-                this._children = this._children.concat(this._prefabInstance.addedChildren);
-            }
         }
 
         this.hasChangedFlags = TransformBit.TRS;
@@ -415,8 +411,15 @@ export class Node extends BaseNode {
             this._children[i]._onBatchCreated(dontSyncChildPrefab);
         }
 
+        const targetMap: Record<string, any | Node | Component> = {};
+        generateTargetMap(this, targetMap, true);
+
         if (!dontSyncChildPrefab && this._prefabInstance) {
-            applyPropertyOverrides(this, this._prefabInstance.propertyOverrides);
+            applyAddedChildren(this, this._prefabInstance.addedChildren, targetMap);
+        }
+
+        if (!dontSyncChildPrefab && this._prefabInstance) {
+            applyPropertyOverrides(this, this._prefabInstance.propertyOverrides, targetMap);
         }
     }
 

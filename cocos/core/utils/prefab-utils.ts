@@ -34,8 +34,8 @@ import { EDITOR, SUPPORT_JIT } from 'internal:constants';
 import { legacyCC } from '../global-exports';
 import { Prefab } from '../assets';
 import type { Node } from '../scene-graph/node';
-import { Component } from '../components';
 import { errorID } from '../platform/debug';
+import { Component } from '../components';
 
 function compareStringArray (array1: string[]|undefined, array2: string[]|undefined) {
     if (!array1 || !array2) {
@@ -65,9 +65,21 @@ export class PropertyOverride {
     @serializable
     public value: any;
 
-    public isEqual (localID: string[], propPath: string[]) {
+    public isTarget (localID: string[], propPath: string[]) {
         return compareStringArray(this.targetInfo?.localID, localID)
         && compareStringArray(this.propertyPath, propPath);
+    }
+}
+
+@ccclass('cc.AddedChildrenInfo')
+export class AddedChildrenInfo {
+    @serializable
+    public targetInfo: TargetInfo|null = null;
+    @serializable
+    public nodes: Node[] = [];
+
+    public isTarget (localID: string[]) {
+        return compareStringArray(this.targetInfo?.localID, localID);
     }
 }
 
@@ -92,7 +104,7 @@ export class PrefabInstance {
 
     // 实例化的Prefab中额外增加的子节点数据
     @serializable
-    public addedChildren: Node[] = [];
+    public addedChildren: AddedChildrenInfo[] = [];
 
     // 属性的覆盖数据
     @serializable
@@ -104,7 +116,7 @@ export class PrefabInstance {
     public findPropertyOverride (localID: string[], propPath: string[]) {
         for (let i = 0; i < this.propertyOverrides.length; i++) {
             const propertyOverride = this.propertyOverrides[i];
-            if (propertyOverride.isEqual(localID, propPath)) {
+            if (propertyOverride.isTarget(localID, propPath)) {
                 return propertyOverride;
             }
         }
@@ -115,7 +127,7 @@ export class PrefabInstance {
     public removePropertyOverride (localID: string[], propPath: string[]) {
         for (let i = 0; i < this.propertyOverrides.length; i++) {
             const propertyOverride = this.propertyOverrides[i];
-            if (propertyOverride.isEqual(localID, propPath)) {
+            if (propertyOverride.isTarget(localID, propPath)) {
                 this.propertyOverrides.splice(i, 1);
                 break;
             }
@@ -196,6 +208,7 @@ export function createNodeWithPrefab (node: Node) {
     }
 }
 
+// TODO: more efficient id->Node/Component map
 export function generateTargetMap (node: Node, targetMap: any, isRoot: boolean) {
     let curTargetMap = targetMap;
 
@@ -242,15 +255,33 @@ export function getTarget (localID: string[], targetMap: any): unknown {
     return target;
 }
 
-export function applyPropertyOverrides (node: Node, propertyOverrides: PropertyOverride[]) {
+export function applyAddedChildren (node: Node, addedChildren: AddedChildrenInfo[], targetMap: Record<string, any | Node | Component>) {
+    for (let i = 0; i < addedChildren.length; i++) {
+        const childInfo = addedChildren[i];
+        if (childInfo && childInfo.targetInfo) {
+            const target = getTarget(childInfo.targetInfo.localID, targetMap) as Node;
+            if (!target) {
+                continue;
+            }
+
+            if (childInfo.nodes) {
+                for(let i = 0; i < childInfo.nodes.length; i++) {
+                    const childNode = childInfo.nodes[i];
+                    childNode._onBatchCreated(false);
+                    // @ts-expect-error private member access
+                    target._children.push(childNode);
+                    // @ts-expect-error private member access
+                    childNode._parent = target;
+                }
+            }
+        }
+    }
+}
+
+export function applyPropertyOverrides (node: Node, propertyOverrides: PropertyOverride[], targetMap: Record<string, any | Node | Component>) {
     if (propertyOverrides.length <= 0) {
         return;
     }
-
-    // 待优化，需要更省更快速的组建node,component的id映射表
-    const targetMap: {[index:string]: any|Node|Component} = {};
-
-    generateTargetMap(node, targetMap, true);
 
     let target: any = null;
     for (let i = 0; i < propertyOverrides.length; i++) {

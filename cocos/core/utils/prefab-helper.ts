@@ -30,33 +30,35 @@
  */
 
 import { ccclass, serializable, editable } from 'cc.decorator';
-import { Vec3, Quat } from '../math';
 import { EDITOR, SUPPORT_JIT } from 'internal:constants';
+import { Vec3, Quat } from '../math';
 import { legacyCC } from '../global-exports';
 import { errorID } from '../platform/debug';
+import type Prefab from '../assets/prefab';
+import type { Node } from '../scene-graph/node';
 
 @ccclass('cc.PrefabInfo')
 export class PrefabInfo {
     // the most top node of this prefab in the scene
     @serializable
     @editable
-    public root: any = null;
+    public root?: Node;
 
     // 所属的 prefab 资源对象 (cc.Prefab)
     // In Editor, only asset._uuid is usable because asset will be changed.
     @serializable
     @editable
-    public asset: any = null;
+    public asset?: Prefab;
 
     // 用来标识别该节点在 prefab 资源中的位置，因此这个 ID 只需要保证在 Assets 里不重复就行
     @serializable
     @editable
-    public fileId: string = '';
+    public fileId = '';
 
     // Indicates whether this node should always synchronize with the prefab asset, only available in the root node
     @serializable
     @editable
-    public sync: boolean = false;
+    public sync = false;
 }
 
 legacyCC._PrefabInfo = PrefabInfo;
@@ -72,8 +74,7 @@ export function syncWithPrefab (node) {
 
             // cc.warn(Editor.T('MESSAGE.prefab.missing_prefab', { node: NodeUtils.getNodePath(node) }));
             // node.name += PrefabUtils.MISSING_PREFAB_SUFFIX;
-        }
-        else {
+        } else {
             errorID(3701, node.name);
         }
         node._prefab = null;
@@ -96,8 +97,7 @@ export function syncWithPrefab (node) {
     legacyCC.game._isCloning = true;
     if (SUPPORT_JIT) {
         _prefab.asset._doInstantiate(node);
-    }
-    else {
+    } else {
         // root in prefab asset is always synced
         const prefabRoot = _prefab.asset.data;
 
