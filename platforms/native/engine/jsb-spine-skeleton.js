@@ -449,7 +449,7 @@ const cacheManager = require('./jsb-cache-manager');
             
             let graphics = this._debugRenderer;
             graphics.clear();
-            graphics.lineWidth = 2;
+            graphics.lineWidth = 5;
             
             let debugData = this._debugData || nativeSkeleton.getDebugData();
             if (!debugData) return;
