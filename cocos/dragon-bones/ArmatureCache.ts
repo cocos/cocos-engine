@@ -545,4 +545,3 @@ export class ArmatureCache {
     static FrameTime = FrameTime;
     static sharedCache = new ArmatureCache();
 }
-
