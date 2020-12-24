@@ -13,7 +13,6 @@
 #include "forward/ForwardPipeline.h"
 #include "gfx/GFXDescriptorSet.h"
 #include "gfx/GFXDevice.h"
-#include "renderer/pipeline/RenderView.h"
 #include "gfx/GFXShader.h"
 
 namespace cc {
@@ -24,14 +23,13 @@ PlanarShadowQueue::PlanarShadowQueue(RenderPipeline *pipeline)
     _instancedQueue = CC_NEW(RenderInstancedQueue);
 }
 
-void PlanarShadowQueue::gatherShadowPasses(RenderView *view, gfx::CommandBuffer *cmdBufferer) {
+void PlanarShadowQueue::gatherShadowPasses(Camera *camera, gfx::CommandBuffer *cmdBufferer) {
     clear();
     const auto *shadowInfo = _pipeline->getShadows();
     if (!shadowInfo->enabled || shadowInfo->getShadowType() != ShadowType::PLANAR) { return; }
 
-    const auto *camera = view->getCamera();
     const auto *scene = camera->getScene();
-    const bool shadowVisible = view->getVisibility() & static_cast<uint>(LayerList::DEFAULT);
+    const bool shadowVisible = camera->visibility & static_cast<uint>(LayerList::DEFAULT);
 
     if (!scene->getMainLight() || !shadowVisible) { return; }
     
@@ -44,7 +42,7 @@ void PlanarShadowQueue::gatherShadowPasses(RenderView *view, gfx::CommandBuffer 
         const auto *model = scene->getModelView(models[i]);
         const auto *node = model->getNode();
         if (model->enabled && model->castShadow) {
-            visibility = view->getVisibility();
+            visibility = camera->visibility;
             if ((model->nodeID && ((visibility & node->layer) == node->layer)) ||
                 (visibility & model->visFlags)) {
 

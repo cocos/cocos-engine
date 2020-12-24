@@ -17,7 +17,8 @@ struct PassView;
 class InstanceBuffer;
 class RenderInstancedQueue;
 class RenderBatchedQueue;
-struct RenderView;
+struct Camera;
+
 struct AABB;
 
 struct ShadowRenderData {
@@ -32,7 +33,7 @@ public:
     ~PlanarShadowQueue() = default;
 
     void clear();
-    void gatherShadowPasses(RenderView *view , gfx::CommandBuffer *cmdBufferer);
+    void gatherShadowPasses(Camera *camera , gfx::CommandBuffer *cmdBufferer);
     void recordCommandBuffer(gfx::Device *, gfx::RenderPass *, gfx::CommandBuffer *);
     void destroy();
     

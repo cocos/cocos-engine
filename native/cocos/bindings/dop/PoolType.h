@@ -34,6 +34,7 @@ enum class PoolType {
     DEPTH_STENCIL_STATE,
     BLEND_TARGET,
     BLEND_STATE,
+    UI_BATCH,
 
     // array
     SUB_MODEL_ARRAY = 200,
@@ -43,6 +44,7 @@ enum class PoolType {
     INSTANCED_ATTRIBUTE_ARRAY,
     LIGHT_ARRAY,
     BLEND_TARGET_ARRAY,
+    UI_BATCH_ARRAY,
 
     // raw buffer
     RAW_BUFFER = 300,

@@ -7,7 +7,7 @@ namespace pipeline {
 
 class RenderPipeline;
 class RenderStage;
-class RenderView;
+struct Camera;
 
 struct CC_DLL RenderFlowInfo {
     String name;
@@ -23,7 +23,7 @@ public:
 
     virtual bool initialize(const RenderFlowInfo &info);
     virtual void activate(RenderPipeline *pipeline);
-    virtual void render(RenderView *view);
+    virtual void render(Camera *camera);
     virtual void destroy();
 
     CC_INLINE const String &getName() const { return _name; }

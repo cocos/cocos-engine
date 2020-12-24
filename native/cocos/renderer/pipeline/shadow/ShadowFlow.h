@@ -16,7 +16,7 @@ public:
 
     virtual void activate(RenderPipeline *pipeline) override;
 
-    virtual void render(RenderView *view) override;
+    virtual void render(Camera *camera) override;
 
     virtual void destroy() override;
 

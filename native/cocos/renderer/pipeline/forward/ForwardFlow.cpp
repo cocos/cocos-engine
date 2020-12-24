@@ -32,10 +32,11 @@ void ForwardFlow::activate(RenderPipeline *pipeline) {
     RenderFlow::activate(pipeline);
 }
 
-void ForwardFlow::render(RenderView *view) {
+void ForwardFlow::render(Camera *camera) {
     auto pipeline = static_cast<ForwardPipeline *>(_pipeline);
-    pipeline->updateUBOs(view);
-    RenderFlow::render(view);
+    sceneCulling(pipeline, camera);
+    pipeline->updateCameraUBO(camera);
+    RenderFlow::render(camera);
 }
 
 void ForwardFlow::destroy() {

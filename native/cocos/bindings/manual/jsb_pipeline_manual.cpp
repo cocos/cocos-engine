@@ -7,7 +7,6 @@
 #include "renderer/pipeline/Define.h"
 #include "renderer/pipeline/PipelineStateManager.h"
 #include "renderer/pipeline/RenderPipeline.h"
-#include "renderer/pipeline/RenderView.h"
 
 
 static bool js_pipeline_RenderPipeline_getMacros(se::State &s) {

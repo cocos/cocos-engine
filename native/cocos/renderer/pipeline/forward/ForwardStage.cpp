@@ -6,13 +6,13 @@
 #include "../RenderBatchedQueue.h"
 #include "../RenderInstancedQueue.h"
 #include "../RenderQueue.h"
-#include "../RenderView.h"
 #include "../helper/SharedMemory.h"
 #include "ForwardPipeline.h"
 #include "gfx/GFXCommandBuffer.h"
 #include "gfx/GFXDevice.h"
 #include "gfx/GFXFramebuffer.h"
 #include "gfx/GFXQueue.h"
+#include "UIPhase.h"
 
 namespace cc {
 namespace pipeline {
@@ -41,6 +41,7 @@ const RenderStageInfo &ForwardStage::getInitializeInfo() { return ForwardStage::
 ForwardStage::ForwardStage() : RenderStage() {
     _batchedQueue = CC_NEW(RenderBatchedQueue);
     _instancedQueue = CC_NEW(RenderInstancedQueue);
+    _uiPhase = CC_NEW(UIPhase);
 }
 
 ForwardStage::~ForwardStage() {
@@ -78,6 +79,7 @@ void ForwardStage::activate(RenderPipeline *pipeline, RenderFlow *flow) {
 
     _additiveLightQueue = CC_NEW(RenderAdditiveLightQueue(_pipeline));
     _planarShadowQueue = CC_NEW(PlanarShadowQueue(_pipeline));
+    _uiPhase->activate(pipeline);
 }
 
 void ForwardStage::destroy() {
@@ -85,10 +87,11 @@ void ForwardStage::destroy() {
     CC_SAFE_DELETE(_instancedQueue);
     CC_SAFE_DELETE(_additiveLightQueue);
     CC_SAFE_DELETE(_planarShadowQueue);
+    CC_SAFE_DELETE(_uiPhase);
     RenderStage::destroy();
 }
 
-void ForwardStage::render(RenderView *view) {
+void ForwardStage::render(Camera *camera) {
     _instancedQueue->clear();
     _batchedQueue->clear();
     auto pipeline = static_cast<ForwardPipeline *>(_pipeline);
@@ -135,13 +138,12 @@ void ForwardStage::render(RenderView *view) {
 
     _instancedQueue->uploadBuffers(cmdBuff);
     _batchedQueue->uploadBuffers(cmdBuff);
-    _additiveLightQueue->gatherLightPasses(view, cmdBuff);
-    _planarShadowQueue->gatherShadowPasses(view, cmdBuff);
+    _additiveLightQueue->gatherLightPasses(camera, cmdBuff);
+    _planarShadowQueue->gatherShadowPasses(camera, cmdBuff);
 
-    auto camera = view->getCamera();
     // render area is not oriented
-    uint w = view->getWindow()->hasOnScreenAttachments && (uint)_device->getSurfaceTransform() % 2 ? camera->height : camera->width;
-    uint h = view->getWindow()->hasOnScreenAttachments && (uint)_device->getSurfaceTransform() % 2 ? camera->width : camera->height;
+    uint w = camera->getWindow()->hasOnScreenAttachments && (uint)_device->getSurfaceTransform() % 2 ? camera->height : camera->width;
+    uint h = camera->getWindow()->hasOnScreenAttachments && (uint)_device->getSurfaceTransform() % 2 ? camera->width : camera->height;
     _renderArea.x = camera->viewportX * w;
     _renderArea.y = camera->viewportY * h;
     _renderArea.width = camera->viewportWidth * w * pipeline->getShadingScale();
@@ -163,7 +165,7 @@ void ForwardStage::render(RenderView *view) {
 
     _clearColors[0].w = camera->clearColor.w;
 
-    auto framebuffer = view->getWindow()->getFramebuffer();
+    auto framebuffer = camera->getWindow()->getFramebuffer();
     const auto &colorTextures = framebuffer->getColorTextures();
 
     auto renderPass = colorTextures.size() && colorTextures[0] ? framebuffer->getRenderPass() : pipeline->getOrCreateRenderPass(static_cast<gfx::ClearFlagBit>(camera->clearFlag));
@@ -177,7 +179,8 @@ void ForwardStage::render(RenderView *view) {
     _additiveLightQueue->recordCommandBuffer(_device, renderPass, cmdBuff);
     _planarShadowQueue->recordCommandBuffer(_device, renderPass, cmdBuff);
     _renderQueues[1]->recordCommandBuffer(_device, renderPass, cmdBuff);
-
+    _uiPhase->render(camera, renderPass);
+    
     cmdBuff->endRenderPass();
 }
 

@@ -1,6 +1,5 @@
 #include "RenderPipeline.h"
 #include "RenderFlow.h"
-#include "RenderView.h"
 #include "gfx/GFXCommandBuffer.h"
 #include "gfx/GFXDescriptorSet.h"
 #include "gfx/GFXDescriptorSetLayout.h"
@@ -30,6 +29,8 @@ void RenderPipeline::setDescriptorSetLayout() {
 
     globalDescriptorSetLayout.blocks[UBOGlobal::NAME] = UBOGlobal::LAYOUT;
     globalDescriptorSetLayout.bindings[UBOGlobal::BINDING] = UBOGlobal::DESCRIPTOR;
+    globalDescriptorSetLayout.blocks[UBOCamera::NAME] = UBOCamera::LAYOUT;
+    globalDescriptorSetLayout.bindings[UBOCamera::BINDING] = UBOCamera::DESCRIPTOR;
     globalDescriptorSetLayout.blocks[UBOShadow::NAME] = UBOShadow::LAYOUT;
     globalDescriptorSetLayout.bindings[UBOShadow::BINDING] = UBOShadow::DESCRIPTOR;
     globalDescriptorSetLayout.samplers[SHADOWMAP::NAME] = SHADOWMAP::LAYOUT;
@@ -76,11 +77,13 @@ bool RenderPipeline::initialize(const RenderPipelineInfo &info) {
 
 bool RenderPipeline::activate() {
     if (_descriptorSetLayout) {
+        _descriptorSetLayout->destroy();
         CC_DELETE(_descriptorSetLayout);
     }
     _descriptorSetLayout = _device->createDescriptorSetLayout({globalDescriptorSetLayout.bindings});
 
     if (_descriptorSet) {
+        _descriptorSet->destroy();
         CC_DELETE(_descriptorSet);
     }
     _descriptorSet = _device->createDescriptorSet({_descriptorSetLayout});
@@ -103,10 +106,11 @@ bool RenderPipeline::activate() {
     return true;
 }
 
-void RenderPipeline::render(const vector<RenderView *> &views) {
-    for (const auto view : views) {
-        for (const auto flow : view->getFlows()) {
-            flow->render(view);
+void RenderPipeline::render(const vector<uint> &cameras) {
+    for (const auto flow : _flows) {
+        for (const auto cameraID : cameras) {
+            Camera* camera = GET_CAMERA(cameraID);
+            flow->render(camera);
         }
     }
 }

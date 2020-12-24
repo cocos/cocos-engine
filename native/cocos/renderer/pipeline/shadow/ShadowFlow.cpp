@@ -39,13 +39,13 @@ void ShadowFlow::activate(RenderPipeline *pipeline) {
     RenderFlow::activate(pipeline);
 }
 
-void ShadowFlow::render(RenderView *view) {
+void ShadowFlow::render(Camera *camera) {
     auto *pipeline = static_cast<ForwardPipeline *>(_pipeline);
     const auto *shadowInfo = pipeline->getShadows();
     if (!shadowInfo->enabled || shadowInfo->getShadowType() != ShadowType::SHADOWMAP) return;
 
-    lightCollecting(view, _validLights);
-    shadowCollecting(pipeline, view);
+    lightCollecting(camera, _validLights);
+    shadowCollecting(pipeline, camera);
 
     const auto &shadowFramebufferMap = pipeline->getShadowFramebufferMap();
     for (const auto *light : _validLights) {
@@ -60,7 +60,7 @@ void ShadowFlow::render(RenderView *view) {
         for (auto *_stage : _stages) {
             auto *shadowStage = static_cast<ShadowStage *>(_stage);
             shadowStage->setUseData(light, shadowFrameBuffer);
-            shadowStage->render(view);
+            shadowStage->render(camera);
         }
     }
 }

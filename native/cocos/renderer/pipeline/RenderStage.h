@@ -12,8 +12,8 @@ namespace pipeline {
 
 class RenderFlow;
 class RenderPipeline;
-class RenderView;
 class RenderQueue;
+struct Camera;
 
 struct CC_DLL RenderStageInfo {
     String name;
@@ -31,7 +31,7 @@ public:
     virtual bool initialize(const RenderStageInfo &info);
 
     virtual void destroy();
-    virtual void render(RenderView *view) = 0;
+    virtual void render(Camera *camera) = 0;
 
     CC_INLINE const String &getName() const { return _name; }
     CC_INLINE uint getPriority() const { return _priority; }

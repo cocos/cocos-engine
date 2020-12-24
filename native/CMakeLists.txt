@@ -583,8 +583,6 @@ cocos_source_files(
     cocos/renderer/pipeline/RenderQueue.h
     cocos/renderer/pipeline/RenderStage.cpp
     cocos/renderer/pipeline/RenderStage.h
-    cocos/renderer/pipeline/RenderView.cpp
-    cocos/renderer/pipeline/RenderView.h
     cocos/renderer/pipeline/PlanarShadowQueue.cpp
     cocos/renderer/pipeline/PlanarShadowQueue.h
     cocos/renderer/pipeline/ShadowMapBatchedQueue.cpp
@@ -597,14 +595,12 @@ cocos_source_files(
     cocos/renderer/pipeline/forward/ForwardStage.h
     cocos/renderer/pipeline/forward/SceneCulling.cpp
     cocos/renderer/pipeline/forward/SceneCulling.h
+    cocos/renderer/pipeline/forward/UIPhase.cpp
+    cocos/renderer/pipeline/forward/UIPhase.h
     cocos/renderer/pipeline/shadow/ShadowFlow.cpp
     cocos/renderer/pipeline/shadow/ShadowFlow.h
     cocos/renderer/pipeline/shadow/ShadowStage.cpp
     cocos/renderer/pipeline/shadow/ShadowStage.h
-    cocos/renderer/pipeline/ui/UIFlow.h
-    cocos/renderer/pipeline/ui/UIFlow.cpp
-    cocos/renderer/pipeline/ui/UIStage.h
-    cocos/renderer/pipeline/ui/UIStage.cpp
     cocos/renderer/pipeline/helper/DefineMap.h
     cocos/renderer/pipeline/helper/DefineMap.cpp
     cocos/renderer/pipeline/helper/SharedMemory.h

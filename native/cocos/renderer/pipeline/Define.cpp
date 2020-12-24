@@ -25,23 +25,7 @@ const gfx::UniformBlock UBOGlobal::LAYOUT = {
     {
         {"cc_time", gfx::Type::FLOAT4, 1},
         {"cc_screenSize", gfx::Type::FLOAT4, 1},
-        {"cc_screenScale", gfx::Type::FLOAT4, 1},
         {"cc_nativeSize", gfx::Type::FLOAT4, 1},
-        {"cc_matView", gfx::Type::MAT4, 1},
-        {"cc_matViewInv", gfx::Type::MAT4, 1},
-        {"cc_matProj", gfx::Type::MAT4, 1},
-        {"cc_matProjInv", gfx::Type::MAT4, 1},
-        {"cc_matViewProj", gfx::Type::MAT4, 1},
-        {"cc_matViewProjInv", gfx::Type::MAT4, 1},
-        {"cc_cameraPos", gfx::Type::FLOAT4, 1},
-        {"cc_exposure", gfx::Type::FLOAT4, 1},
-        {"cc_mainLitDir", gfx::Type::FLOAT4, 1},
-        {"cc_mainLitColor", gfx::Type::FLOAT4, 1},
-        {"cc_ambientSky", gfx::Type::FLOAT4, 1},
-        {"cc_ambientGround", gfx::Type::FLOAT4, 1},
-        {"cc_fogColor", gfx::Type::FLOAT4, 1},
-        {"cc_fogBase", gfx::Type::FLOAT4, 1},
-        {"cc_fogAdd", gfx::Type::FLOAT4, 1},
     },
     1,
 };
@@ -59,6 +43,38 @@ const gfx::UniformBlock UBOLocalBatched::LAYOUT = {
     UBOLocalBatched::NAME,
     {
         {"cc_matWorlds", gfx::Type::MAT4, static_cast<uint>(UBOLocalBatched::BATCHING_COUNT)},
+    },
+    1,
+};
+
+const String UBOCamera::NAME = "CCCamera";
+const gfx::DescriptorSetLayoutBinding UBOCamera::DESCRIPTOR = {
+    UBOCamera::BINDING,
+    gfx::DescriptorType::UNIFORM_BUFFER,
+    1,
+    gfx::ShaderStageFlagBit::ALL,
+};
+const gfx::UniformBlock UBOCamera::LAYOUT = {
+    GLOBAL_SET,
+    UBOCamera::BINDING,
+    UBOCamera::NAME,
+    {
+        {"cc_matView", gfx::Type::MAT4, 1},
+        {"cc_matViewInv", gfx::Type::MAT4, 1},
+        {"cc_matProj", gfx::Type::MAT4, 1},
+        {"cc_matProjInv", gfx::Type::MAT4, 1},
+        {"cc_matViewProj", gfx::Type::MAT4, 1},
+        {"cc_matViewProjInv", gfx::Type::MAT4, 1},
+        {"cc_cameraPos", gfx::Type::FLOAT4, 1},
+        {"cc_screenScale", gfx::Type::FLOAT4, 1},
+        {"cc_exposure", gfx::Type::FLOAT4, 1},
+        {"cc_mainLitDir", gfx::Type::FLOAT4, 1},
+        {"cc_mainLitColor", gfx::Type::FLOAT4, 1},
+        {"cc_ambientSky", gfx::Type::FLOAT4, 1},
+        {"cc_ambientGround", gfx::Type::FLOAT4, 1},
+        {"cc_fogColor", gfx::Type::FLOAT4, 1},
+        {"cc_fogBase", gfx::Type::FLOAT4, 1},
+        {"cc_fogAdd", gfx::Type::FLOAT4, 1},
     },
     1,
 };

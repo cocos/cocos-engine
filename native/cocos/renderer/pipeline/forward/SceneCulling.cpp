@@ -3,7 +3,6 @@
 
 #include "SceneCulling.h"
 #include "../Define.h"
-#include "../RenderView.h"
 #include "../helper/SharedMemory.h"
 #include "ForwardPipeline.h"
 #include "gfx/GFXBuffer.h"
@@ -156,10 +155,10 @@ void updateDirLight(Shadows *shadows, const Light *light, std::array<float, UBOS
     memcpy(shadowUBO.data() + UBOShadow::MAT_LIGHT_PLANE_PROJ_OFFSET, matLight.m, sizeof(matLight));
 }
 
- void lightCollecting(RenderView *view, std::vector<const Light *>& validLights) {
+ void lightCollecting(Camera *camera, std::vector<const Light *>& validLights) {
     validLights.clear();
     auto *sphere = CC_NEW(Sphere);
-    const auto scene = view->getCamera()->getScene();
+    const auto scene = camera->getScene();
     const Light *mainLight = nullptr;
     if (scene->mainLightID) mainLight = scene->getMainLight();
     validLights.emplace_back(mainLight);
@@ -170,7 +169,7 @@ void updateDirLight(Shadows *shadows, const Light *light, std::array<float, UBOS
         const auto *spotLight = scene->getSpotLight(spotLightArrayID[i]);
         sphere->center.set(spotLight->position);
         sphere->radius = spotLight->range;
-        if (sphere->interset(*view->getCamera()->getFrustum())) {
+        if (sphere->interset(*camera->getFrustum())) {
             validLights.emplace_back(spotLight);
         }
     }
@@ -178,8 +177,7 @@ void updateDirLight(Shadows *shadows, const Light *light, std::array<float, UBOS
     CC_SAFE_DELETE(sphere);
 }
 
-void shadowCollecting(ForwardPipeline *pipeline, RenderView *view) {
-    const auto camera = view->getCamera();
+void shadowCollecting(ForwardPipeline *pipeline, Camera *camera) {
     const auto scene = camera->getScene();
 
     castBoundsInitialized = false;
@@ -193,7 +191,7 @@ void shadowCollecting(ForwardPipeline *pipeline, RenderView *view) {
 
         // filter model by view visibility
         if (model->enabled) {
-            const auto visibility = view->getVisibility();
+            const auto visibility = camera->visibility;
             const auto node = model->getNode();
             if ((model->nodeID && ((visibility & node->layer) == node->layer)) ||
                 (visibility & model->visFlags)) {
@@ -215,8 +213,7 @@ void shadowCollecting(ForwardPipeline *pipeline, RenderView *view) {
     pipeline->setShadowObjects(shadowObjects);
 }
 
-void sceneCulling(ForwardPipeline *pipeline, RenderView *view) {
-    const auto camera = view->getCamera();
+void sceneCulling(ForwardPipeline *pipeline, Camera *camera) {
     const auto shadows = pipeline->getShadows();
     const auto skyBox = pipeline->getSkybox();
     const auto scene = camera->getScene();
@@ -236,7 +233,7 @@ void sceneCulling(ForwardPipeline *pipeline, RenderView *view) {
 
         // filter model by view visibility
         if (model->enabled) {
-            const auto visibility = view->getVisibility();
+            const auto visibility = camera->visibility;
             const auto vis = visibility & static_cast<uint>(LayerList::UI_2D);
             const auto node = model->getNode();
             if (vis) {

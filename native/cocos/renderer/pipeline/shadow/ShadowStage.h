@@ -15,7 +15,7 @@ public:
 
     virtual bool initialize(const RenderStageInfo &info) override;
     virtual void destroy() override;
-    virtual void render(RenderView *view) override;
+    virtual void render(Camera *camera) override;
     virtual void activate(RenderPipeline *pipeline, RenderFlow *flow) override;
 
     CC_INLINE void setFramebuffer(gfx::Framebuffer *framebuffer) { _framebuffer = framebuffer; }

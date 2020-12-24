@@ -8,12 +8,14 @@
 namespace cc {
 namespace pipeline {
 struct UBOGlobal;
+struct UBOCamera;
 struct UBOShadow;
 struct Fog;
 struct Ambient;
 struct Skybox;
 struct Shadows;
 struct Sphere;
+struct Camera;
 class Framebuffer;
 
 class CC_DLL ForwardPipeline : public RenderPipeline {
@@ -24,9 +26,11 @@ public:
     virtual bool initialize(const RenderPipelineInfo &info) override;
     virtual void destroy() override;
     virtual bool activate() override;
-    virtual void render(const vector<RenderView *> &views) override;
+    virtual void render(const vector<uint> &cameras) override;
 
-    void updateUBOs(RenderView *view);
+    void updateGlobalUBO();
+    void updateCameraUBO(Camera *camera);
+    void updateShadowUBO(Camera *camera);
     CC_INLINE void setHDR(bool isHDR) { _isHDR = isHDR; }
 
     gfx::RenderPass *getOrCreateRenderPass(gfx::ClearFlags clearFlags);
@@ -61,7 +65,7 @@ public:
 
 private:
     bool activeRenderer();
-    void updateUBO(RenderView *);
+    void updateUBO(Camera *);
 
 private:
     const Fog *_fog = nullptr;
@@ -77,6 +81,7 @@ private:
     RenderObjectList _shadowObjects;
     map<gfx::ClearFlags, gfx::RenderPass *> _renderPasses;
     std::array<float, UBOGlobal::COUNT> _globalUBO;
+    std::array<float, UBOCamera::COUNT> _cameraUBO;
     std::array<float, UBOShadow::COUNT> _shadowUBO;
     Sphere *_sphere = nullptr;
 

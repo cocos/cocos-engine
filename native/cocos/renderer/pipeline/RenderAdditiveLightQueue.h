@@ -10,7 +10,6 @@ struct Light;
 struct RenderObject;
 struct PassView;
 class RenderPipeline;
-class RenderView;
 class DefineMap;
 class RenderInstancedQueue;
 class RenderBatchedQueue;
@@ -34,14 +33,15 @@ public:
     ~RenderAdditiveLightQueue();
 
     void recordCommandBuffer(gfx::Device *device, gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuffer);
-    void gatherLightPasses(const RenderView *view, gfx::CommandBuffer *cmdBuffer);
+    void gatherLightPasses(const Camera *camera, gfx::CommandBuffer *cmdBuffer);
     void destroy();
 
 private:
     void clear();
-    void updateUBOs(const RenderView *view, gfx::CommandBuffer *cmdBuffer);
-    void updateLightDescriptorSet(const RenderView *view, gfx::CommandBuffer *cmdBuffer);
-    void updateGlobalDescriptorSet(const RenderView *view, gfx::CommandBuffer *cmdBuffer);
+    void updateUBOs(const Camera *camera, gfx::CommandBuffer *cmdBuffer);
+    void updateCameraUBO(const Camera *camera, gfx::CommandBuffer *cmdBuffer);
+    void updateLightDescriptorSet(const Camera *camera, gfx::CommandBuffer *cmdBuffer);
+    void updateGlobalDescriptorSet(const Camera *camera, gfx::CommandBuffer *cmdBuffer);
     bool getLightPassIndex(const ModelView *model, vector<uint> &lightPassIndices) const;
     bool cullingLight(const Light *light, const ModelView *model);
     gfx::DescriptorSet *getOrCreateDescriptorSet(const Light *);
@@ -64,6 +64,7 @@ private:
 
     std::unordered_map<const Light *, gfx::DescriptorSet *> _descriptorSetMap;
     std::array<float, UBOGlobal::COUNT> _globalUBO;
+    std::array<float, UBOCamera::COUNT> _cameraUBO;
     std::array<float, UBOShadow::COUNT> _shadowUBO;
 
     float _fpScale = 0;

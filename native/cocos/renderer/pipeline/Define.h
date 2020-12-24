@@ -146,6 +146,7 @@ CC_INLINE bool transparentCompareFn(const RenderPass &a, const RenderPass &b) {
 
 enum class CC_DLL PipelineGlobalBindings {
     UBO_GLOBAL,
+    UBO_CAMERA,
     UBO_SHADOW,
 
     SAMPLER_SHADOWMAP,
@@ -273,26 +274,35 @@ enum class CC_DLL RenderFlowTag {
 struct CC_DLL UBOGlobal : public Object {
     static constexpr uint TIME_OFFSET = 0;
     static constexpr uint SCREEN_SIZE_OFFSET = UBOGlobal::TIME_OFFSET + 4;
-    static constexpr uint SCREEN_SCALE_OFFSET = UBOGlobal::SCREEN_SIZE_OFFSET + 4;
-    static constexpr uint NATIVE_SIZE_OFFSET = UBOGlobal::SCREEN_SCALE_OFFSET + 4;
-    static constexpr uint MAT_VIEW_OFFSET = UBOGlobal::NATIVE_SIZE_OFFSET + 4;
-    static constexpr uint MAT_VIEW_INV_OFFSET = UBOGlobal::MAT_VIEW_OFFSET + 16;
-    static constexpr uint MAT_PROJ_OFFSET = UBOGlobal::MAT_VIEW_INV_OFFSET + 16;
-    static constexpr uint MAT_PROJ_INV_OFFSET = UBOGlobal::MAT_PROJ_OFFSET + 16;
-    static constexpr uint MAT_VIEW_PROJ_OFFSET = UBOGlobal::MAT_PROJ_INV_OFFSET + 16;
-    static constexpr uint MAT_VIEW_PROJ_INV_OFFSET = UBOGlobal::MAT_VIEW_PROJ_OFFSET + 16;
-    static constexpr uint CAMERA_POS_OFFSET = UBOGlobal::MAT_VIEW_PROJ_INV_OFFSET + 16;
-    static constexpr uint EXPOSURE_OFFSET = UBOGlobal::CAMERA_POS_OFFSET + 4;
-    static constexpr uint MAIN_LIT_DIR_OFFSET = UBOGlobal::EXPOSURE_OFFSET + 4;
-    static constexpr uint MAIN_LIT_COLOR_OFFSET = UBOGlobal::MAIN_LIT_DIR_OFFSET + 4;
-    static constexpr uint AMBIENT_SKY_OFFSET = UBOGlobal::MAIN_LIT_COLOR_OFFSET + 4;
-    static constexpr uint AMBIENT_GROUND_OFFSET = UBOGlobal::AMBIENT_SKY_OFFSET + 4;
-    static constexpr uint GLOBAL_FOG_COLOR_OFFSET = UBOGlobal::AMBIENT_GROUND_OFFSET + 4;
-    static constexpr uint GLOBAL_FOG_BASE_OFFSET = UBOGlobal::GLOBAL_FOG_COLOR_OFFSET + 4;
-    static constexpr uint GLOBAL_FOG_ADD_OFFSET = UBOGlobal::GLOBAL_FOG_BASE_OFFSET + 4;
-    static constexpr uint COUNT = UBOGlobal::GLOBAL_FOG_ADD_OFFSET + 4;
+    static constexpr uint NATIVE_SIZE_OFFSET = UBOGlobal::SCREEN_SIZE_OFFSET + 4;
+    static constexpr uint COUNT = UBOGlobal::NATIVE_SIZE_OFFSET + 4;
     static constexpr uint SIZE = UBOGlobal::COUNT * 4;
     static constexpr uint BINDING = static_cast<uint>(PipelineGlobalBindings::UBO_GLOBAL);
+    static const gfx::DescriptorSetLayoutBinding DESCRIPTOR;
+    static const gfx::UniformBlock LAYOUT;
+    static const String NAME;
+};
+
+struct CC_DLL UBOCamera : public Object {
+    static constexpr uint MAT_VIEW_OFFSET = 0;
+    static constexpr uint MAT_VIEW_INV_OFFSET = UBOCamera::MAT_VIEW_OFFSET + 16;
+    static constexpr uint MAT_PROJ_OFFSET = UBOCamera::MAT_VIEW_INV_OFFSET + 16;
+    static constexpr uint MAT_PROJ_INV_OFFSET = UBOCamera::MAT_PROJ_OFFSET + 16;
+    static constexpr uint MAT_VIEW_PROJ_OFFSET = UBOCamera::MAT_PROJ_INV_OFFSET + 16;
+    static constexpr uint MAT_VIEW_PROJ_INV_OFFSET = UBOCamera::MAT_VIEW_PROJ_OFFSET + 16;
+    static constexpr uint CAMERA_POS_OFFSET = UBOCamera::MAT_VIEW_PROJ_INV_OFFSET + 16;
+    static constexpr uint SCREEN_SCALE_OFFSET = UBOCamera::CAMERA_POS_OFFSET + 4;
+    static constexpr uint EXPOSURE_OFFSET = UBOCamera::SCREEN_SCALE_OFFSET + 4;
+    static constexpr uint MAIN_LIT_DIR_OFFSET = UBOCamera::EXPOSURE_OFFSET + 4;
+    static constexpr uint MAIN_LIT_COLOR_OFFSET = UBOCamera::MAIN_LIT_DIR_OFFSET + 4;
+    static constexpr uint AMBIENT_SKY_OFFSET = UBOCamera::MAIN_LIT_COLOR_OFFSET + 4;
+    static constexpr uint AMBIENT_GROUND_OFFSET = UBOCamera::AMBIENT_SKY_OFFSET + 4;
+    static constexpr uint GLOBAL_FOG_COLOR_OFFSET = UBOCamera::AMBIENT_GROUND_OFFSET + 4;
+    static constexpr uint GLOBAL_FOG_BASE_OFFSET = UBOCamera::GLOBAL_FOG_COLOR_OFFSET + 4;
+    static constexpr uint GLOBAL_FOG_ADD_OFFSET = UBOCamera::GLOBAL_FOG_BASE_OFFSET + 4;
+    static constexpr uint COUNT = UBOCamera::GLOBAL_FOG_ADD_OFFSET + 4;
+    static constexpr uint SIZE = UBOCamera::COUNT * 4;
+    static constexpr uint BINDING = static_cast<uint>(PipelineGlobalBindings::UBO_CAMERA);
     static const gfx::DescriptorSetLayoutBinding DESCRIPTOR;
     static const gfx::UniformBlock LAYOUT;
     static const String NAME;

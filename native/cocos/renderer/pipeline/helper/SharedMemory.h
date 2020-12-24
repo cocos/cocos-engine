@@ -42,6 +42,7 @@ extern gfx::BlendState *getBlendStateImpl(uint index);
 #define GET_DEPTH_STENCIL_STATE(index) SharedMemory::getBuffer<gfx::DepthStencilState>(se::PoolType::DEPTH_STENCIL_STATE, index)
 #define GET_BLEND_TARGET(index)        SharedMemory::getBuffer<gfx::BlendTarget>(se::PoolType::BLEND_TARGET, index)
 #define GET_BLEND_STATE(index)         getBlendStateImpl(index)
+#define GET_UI_BATCH(index)              SharedMemory::getBuffer<UIBatch>(index)
 
 //Get object pool data
 #define GET_DESCRIPTOR_SET(index)  SharedMemory::getObject<gfx::DescriptorSet, se::PoolType::DESCRIPTOR_SETS>(index)
@@ -59,6 +60,7 @@ extern gfx::BlendState *getBlendStateImpl(uint index);
 #define GET_INSTANCED_ATTRIBUTE_ARRAY(index) SharedMemory::getHandleArray(se::PoolType::INSTANCED_ATTRIBUTE_ARRAY, index)
 #define GET_LIGHT_ARRAY(index)               SharedMemory::getHandleArray(se::PoolType::LIGHT_ARRAY, index)
 #define GET_BLEND_TARGET_ARRAY(index)        SharedMemory::getHandleArray(se::PoolType::BLEND_TARGET_ARRAY, index)
+#define GET_UI_BATCH_ARRAY(index)        SharedMemory::getHandleArray(se::PoolType::UI_BATCH_ARRAY, index)
 
 // Get raw buffer or gfx object.
 #define GET_RAW_BUFFER(index, size) SharedMemory::getRawBuffer<uint8_t>(se::PoolType::RAW_BUFFER, index, size)
@@ -284,11 +286,28 @@ struct CC_DLL ModelView {
     const static se::PoolType type;
 };
 
+struct CC_DLL UIBatch {
+    uint32_t visFlags = 0;
+    uint32_t passCount = 0;
+    uint32_t passID[4] = {0, 0, 0, 0};
+    uint32_t shaderID[4] = {0, 0, 0, 0};
+    uint32_t descriptorSetID = 0;
+    uint32_t inputAssemblerID = 0;
+    
+    CC_INLINE const PassView *getPassView(uint idx) const { return GET_PASS(passID[idx]); }
+    CC_INLINE gfx::Shader *getShader(uint idx) const { return GET_SHADER(shaderID[idx]); }
+    CC_INLINE gfx::DescriptorSet *getDescriptorSet() const { return GET_DESCRIPTOR_SET(descriptorSetID); }
+    CC_INLINE gfx::InputAssembler *getInputAssembler() const { return GET_IA(inputAssemblerID); }
+    
+    const static se::PoolType type;
+};
+
 struct CC_DLL Scene {
     uint32_t mainLightID = 0;
     uint32_t modelsID = 0; // array pool
     uint32_t sphereLights; // array pool
     uint32_t spotLights;   // array pool
+    uint32_t uiBatches; // array pool
 
     CC_INLINE const Light *getMainLight() const { return GET_LIGHT(mainLightID); }
     CC_INLINE const uint *getSphereLightArrayID() const { return GET_LIGHT_ARRAY(sphereLights); }
@@ -297,6 +316,17 @@ struct CC_DLL Scene {
     CC_INLINE const Light *getSpotLight(uint idx) const { return GET_LIGHT(idx); }
     CC_INLINE const uint *getModels() const { return GET_MODEL_ARRAY(modelsID); }
     CC_INLINE const ModelView *getModelView(uint idx) const { return GET_MODEL(idx); }
+    CC_INLINE const uint *getUIBatches() const {return GET_UI_BATCH_ARRAY(uiBatches);}
+
+    const static se::PoolType type;
+};
+
+struct CC_DLL RenderWindow {
+    uint32_t hasOnScreenAttachments = 0;
+    uint32_t hasOffScreenAttachments = 0;
+    uint32_t framebufferID = 0;
+
+    CC_INLINE gfx::Framebuffer *getFramebuffer() const { return GET_FRAMEBUFFER(framebufferID); }
 
     const static se::PoolType type;
 };
@@ -308,9 +338,11 @@ struct CC_DLL Camera {
     uint32_t clearFlag = 0;
     float clearDepth = 0;
     uint32_t clearStencil = 0;
+    uint32_t visibility = 0;
     uint32_t nodeID = 0;
     uint32_t sceneID = 0;
     uint32_t frustumID = 0;
+    uint32_t windowID = 0;
     cc::Vec3 forward;
     cc::Vec3 position;
     float viewportX = 0;
@@ -327,7 +359,8 @@ struct CC_DLL Camera {
     CC_INLINE const Node *getNode() const { return GET_NODE(nodeID); }
     CC_INLINE const Scene *getScene() const { return GET_SCENE(sceneID); }
     CC_INLINE const Frustum *getFrustum() const { return GET_FRUSTUM(frustumID); }
-
+    CC_INLINE const RenderWindow *getWindow() const { return GET_WINDOW(windowID); }
+    
     const static se::PoolType type;
 };
 
@@ -419,16 +452,6 @@ struct CC_DLL Skybox {
 struct CC_DLL Root {
     float cumulativeTime = 0;
     float frameTime = 0;
-
-    const static se::PoolType type;
-};
-
-struct CC_DLL RenderWindow {
-    uint32_t hasOnScreenAttachments = 0;
-    uint32_t hasOffScreenAttachments = 0;
-    uint32_t framebufferID = 0;
-
-    CC_INLINE gfx::Framebuffer *getFramebuffer() const { return GET_FRAMEBUFFER(framebufferID); }
 
     const static se::PoolType type;
 };

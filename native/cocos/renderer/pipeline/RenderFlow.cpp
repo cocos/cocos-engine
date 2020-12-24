@@ -26,9 +26,9 @@ void RenderFlow::activate(RenderPipeline *pipeline) {
         stage->activate(pipeline, this);
 }
 
-void RenderFlow::render(RenderView *view) {
+void RenderFlow::render(Camera *camera) {
     for (const auto stage : _stages)
-        stage->render(view);
+        stage->render(camera);
 }
 
 void RenderFlow::destroy() {

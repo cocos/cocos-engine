@@ -1,6 +1,5 @@
 #include "ShadowStage.h"
 #include "../Define.h"
-#include "../RenderView.h"
 #include "../ShadowMapBatchedQueue.h"
 #include "../forward/ForwardPipeline.h"
 #include "../helper/SharedMemory.h"
@@ -39,7 +38,7 @@ void ShadowStage::activate(RenderPipeline *pipeline, RenderFlow *flow) {
     _additiveShadowQueue = CC_NEW(ShadowMapBatchedQueue(static_cast<ForwardPipeline *>(pipeline)));
 }
 
-void ShadowStage::render(RenderView *view) {
+void ShadowStage::render(Camera *camera) {
     const auto pipeline = static_cast<ForwardPipeline *>(_pipeline);
     const auto shadowInfo = pipeline->getShadows();
 
@@ -47,7 +46,6 @@ void ShadowStage::render(RenderView *view) {
         return;
     }
 
-    const auto camera = view->getCamera();
     auto cmdBuffer = pipeline->getCommandBuffers()[0];
 
     _additiveShadowQueue->gatherLightPasses(_light, cmdBuffer);

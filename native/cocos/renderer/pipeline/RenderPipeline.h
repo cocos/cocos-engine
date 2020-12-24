@@ -3,16 +3,17 @@
 #include "../core/CoreStd.h"
 #include "Define.h"
 #include "helper/DefineMap.h"
+#include "helper/SharedMemory.h"
 
 namespace cc {
 namespace gfx {
 class CommandBuffer;
 class DescriptorSet;
 class DescriptorSetLayout;
+struct Camera;
 } // namespace gfx
 namespace pipeline {
 class DefineMap;
-class RenderView;
 
 struct CC_DLL RenderPipelineInfo {
     uint tag = 0;
@@ -29,7 +30,7 @@ public:
     virtual bool activate();
     virtual void destroy();
     virtual bool initialize(const RenderPipelineInfo &info);
-    virtual void render(const vector<RenderView *> &views);
+    virtual void render(const vector<uint> &cameras);
 
     CC_INLINE const RenderFlowList &getFlows() const { return _flows; }
     CC_INLINE uint getTag() const { return _tag; }
