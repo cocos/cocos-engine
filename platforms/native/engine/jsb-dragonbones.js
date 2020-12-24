@@ -123,16 +123,12 @@ const cacheManager = require('./jsb-cache-manager');
     let armatureProto = dragonBones.Armature.prototype;
 
     armatureProto.addEventListener = function (eventType, listener, target) {
-        if (!this.__persistentDisplay__) {
-            this.__persistentDisplay__ = this.getDisplay();
-        }
+        this.__persistentDisplay__ = this.getDisplay();
         this.__persistentDisplay__.on(eventType, listener, target);
     };
 
     armatureProto.removeEventListener = function (eventType, listener, target) {
-        if (!this.__persistentDisplay__) {
-            this.__persistentDisplay__ = this.getDisplay();
-        }
+        this.__persistentDisplay__ = this.getDisplay();
         this.__persistentDisplay__.off(eventType, listener, target);
     };
 
