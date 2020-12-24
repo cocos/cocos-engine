@@ -1,4 +1,5 @@
-import { AnimationClip, js, AnimationState, Node, Component, Vec3, AnimationManager } from '../../cocos/core';
+import { js, Node, Component, Vec3 } from '../../cocos/core';
+import { AnimationClip, AnimationState, AnimationManager } from '../../cocos/core/animation';
 import { ComponentPath, HierarchyPath } from '../../cocos/core/animation/animation';
 import { ccclass } from 'cc.decorator';
 

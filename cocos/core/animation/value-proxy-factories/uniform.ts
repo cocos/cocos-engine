@@ -28,11 +28,11 @@
  * @hidden
  */
 
-import { builtinResMgr } from '../../3d/builtin/init';
-import { Material } from '../../assets/material';
-import { SpriteFrame } from '../../assets/sprite-frame';
-import { TextureBase } from '../../assets/texture-base';
 import { ccclass, float, serializable } from 'cc.decorator';
+import { builtinResMgr } from '../../builtin/builtin-res-mgr';
+import { Material } from '../../assets/material';
+import { SpriteFrame } from '../../../2d/assets/sprite-frame';
+import { TextureBase } from '../../assets/texture-base';
 import { Type } from '../../gfx/define';
 import { Pass } from '../../renderer/core/pass';
 import { getDefaultFromType, PropertyType } from '../../renderer/core/pass-utils';
@@ -54,14 +54,14 @@ export class UniformProxyFactory implements IValueProxyFactory {
      * @zh Pass 索引。
      */
     @serializable
-    public passIndex: number = 0;
+    public passIndex = 0;
 
     /**
      * @en Uniform name.
      * @zh Uniform 名称。
      */
     @serializable
-    public uniformName: string = '';
+    public uniformName = '';
 
     /**
      * @en
@@ -99,17 +99,16 @@ export class UniformProxyFactory implements IValueProxyFactory {
                         pass.setUniformArray(realHandle, value);
                     },
                 };
-            } else {
-                return {
-                    set: (value: any) => {
-                        pass.setUniform(realHandle, value);
-                    },
-                };
             }
-        } else if (propertyType === PropertyType.SAMPLER) {
+            return {
+                set: (value: any) => {
+                    pass.setUniform(realHandle, value);
+                },
+            };
+        } if (propertyType === PropertyType.SAMPLER) {
             const binding = Pass.getBindingFromHandle(handle);
             const prop = pass.properties[this.uniformName];
-            const texName = prop && prop.value ? prop.value + '-texture' : getDefaultFromType(prop.type) as string;
+            const texName = prop && prop.value ? `${prop.value}-texture` : getDefaultFromType(prop.type) as string;
             let dftTex = builtinResMgr.get<TextureBase>(texName);
             if (!dftTex) {
                 warn(`Illegal texture default value: ${texName}.`);
@@ -126,9 +125,8 @@ export class UniformProxyFactory implements IValueProxyFactory {
                     }
                 },
             };
-        } else {
-            throw new Error(`Animations are not available for uniforms with property type ${propertyType}.`);
         }
+        throw new Error(`Animations are not available for uniforms with property type ${propertyType}.`);
     }
 }
 

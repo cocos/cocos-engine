@@ -28,12 +28,12 @@
  * @module terrain
  */
 import { ccclass, disallowMultiple, executeInEditMode, help, visible, type, serializable, editable, disallowAnimation } from 'cc.decorator';
-import { builtinResMgr } from '../core/3d/builtin';
-import { RenderableComponent } from '../core/3d/framework/renderable-component';
+import { builtinResMgr } from '../core/builtin';
+import { RenderableComponent } from '../core/components/renderable-component';
 import { EffectAsset, Texture2D } from '../core/assets';
 import { Filter, PixelFormat, WrapMode } from '../core/assets/asset-enum';
 import { Material } from '../core/assets/material';
-import { RenderingSubMesh } from '../core/assets/mesh';
+import { RenderingSubMesh } from '../core/assets/rendering-sub-mesh';
 import { Component } from '../core/components';
 import { isValid } from '../core/data/object';
 import { director } from '../core/director';

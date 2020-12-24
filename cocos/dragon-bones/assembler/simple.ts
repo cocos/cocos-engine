@@ -1,8 +1,8 @@
 import { Color, Component, GFXBlendFactor, macro, Mat4, RenderTexture, Node, Texture2D, Vec3 } from '../../core';
 import { TextureBase } from '../../core/assets/texture-base';
 import { MaterialInstance } from '../../core/renderer/core/material-instance';
-import { IAssembler } from '../../core/renderer/ui/base';
-import { UI } from '../../core/renderer/ui/ui';
+import { IAssembler } from '../../2d/renderer/base';
+import { UI } from '../../2d/renderer/ui';
 import { ArmatureFrame, ArmatureFrameColor } from '../ArmatureCache';
 import { ArmatureDisplay, ArmatureDisplayMeshData } from '../ArmatureDisplay';
 import { CCSlot } from '../CCSlot';

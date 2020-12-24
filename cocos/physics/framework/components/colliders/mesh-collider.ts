@@ -39,7 +39,7 @@ import {
 } from 'cc.decorator';
 import { EDITOR, TEST } from 'internal:constants';
 import { Collider } from './collider';
-import { Mesh } from '../../../../core';
+import { Mesh } from '../../../../3d/assets';
 import { ITrimeshShape } from '../../../spec/i-physics-shape';
 import { EColliderType } from '../../physics-enum';
 
