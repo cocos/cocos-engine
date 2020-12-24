@@ -208,6 +208,8 @@ export class CannonSharedBody {
         const b = this.body;
         Vec3.copy(b.position, n.worldPosition);
         Quat.copy(b.quaternion, n.worldRotation);
+        Vec3.copy(b.previousPosition, n.worldPosition);
+        Quat.copy(b.previousQuaternion, n.worldRotation);
         b.aabbNeedsUpdate = true;
         this.syncScale();
         if (b.isSleeping()) b.wakeUp();
@@ -235,6 +237,8 @@ export class CannonSharedBody {
         (this.wrappedWorld as any) = null;
         (this.body as any) = null;
         (this.wrappedShapes as any) = null;
+        (this.wrappedJoints0 as any) = null;
+        (this.wrappedJoints1 as any) = null;
         (this.onCollidedListener as any) = null;
     }
 
