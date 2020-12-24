@@ -23,14 +23,12 @@
  THE SOFTWARE.
  */
 
-
 import { BuiltinShape } from './builtin-shape';
 import { ICapsuleShape } from '../../spec/i-physics-shape';
 import { Capsule } from '../../../core/geometry';
 import { EAxisDirection, CapsuleCollider } from '../../framework';
 
 export class BuiltinCapsuleShape extends BuiltinShape implements ICapsuleShape {
-
     get localCapsule () {
         return this._localShape as Capsule;
     }
@@ -57,7 +55,7 @@ export class BuiltinCapsuleShape extends BuiltinShape implements ICapsuleShape {
             this._sharedBody.node.worldMatrix,
             this._sharedBody.node.worldPosition,
             this._sharedBody.node.worldRotation,
-            this._sharedBody.node.worldScale
+            this._sharedBody.node.worldScale,
         );
     }
 
@@ -69,7 +67,7 @@ export class BuiltinCapsuleShape extends BuiltinShape implements ICapsuleShape {
             this._sharedBody.node.worldMatrix,
             this._sharedBody.node.worldPosition,
             this._sharedBody.node.worldRotation,
-            this._sharedBody.node.worldScale
+            this._sharedBody.node.worldScale,
         );
     }
 
@@ -84,7 +82,7 @@ export class BuiltinCapsuleShape extends BuiltinShape implements ICapsuleShape {
             this._sharedBody.node.worldMatrix,
             this._sharedBody.node.worldPosition,
             this._sharedBody.node.worldRotation,
-            this._sharedBody.node.worldScale
+            this._sharedBody.node.worldScale,
         );
     }
 

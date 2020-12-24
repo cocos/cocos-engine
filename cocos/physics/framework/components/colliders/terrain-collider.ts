@@ -36,10 +36,10 @@ import {
     type,
     serializable,
 } from 'cc.decorator';
+import { EDITOR, TEST } from 'internal:constants';
 import { Collider } from './collider';
 import { ITerrainShape } from '../../../spec/i-physics-shape';
 import { ITerrainAsset } from '../../../spec/i-external';
-import { EDITOR, TEST } from 'internal:constants';
 import { TerrainAsset } from '../../../../terrain/terrain-asset';
 import { EColliderType } from '../../physics-enum';
 
@@ -54,7 +54,6 @@ import { EColliderType } from '../../physics-enum';
 @menu('Physics/TerrainCollider(beta)')
 @executeInEditMode
 export class TerrainCollider extends Collider {
-
     /// PUBLIC PROPERTY GETTER\SETTER ///
 
     /**

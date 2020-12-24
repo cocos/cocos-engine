@@ -217,7 +217,7 @@ export interface ICollisionEvent {
  * @en
  * Value type definitions for collision events.
  * @zh
- * 碰撞事件的值类型定义。 
+ * 碰撞事件的值类型定义。
  */
 export type CollisionEventType = 'onCollisionEnter' | 'onCollisionStay' | 'onCollisionExit';
 

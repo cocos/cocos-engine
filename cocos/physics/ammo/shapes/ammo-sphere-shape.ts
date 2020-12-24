@@ -23,18 +23,21 @@
  THE SOFTWARE.
  */
 
+/**
+ * @packageDocumentation
+ * @hidden
+ */
+
+/* eslint-disable new-cap */
 import Ammo from '../ammo-instantiated';
-import { AmmoShape } from "./ammo-shape";
+import { AmmoShape } from './ammo-shape';
 import { SphereCollider } from '../../../../exports/physics-framework';
 import { cocos2AmmoVec3 } from '../ammo-util';
 import { AmmoBroadphaseNativeTypes } from '../ammo-enum';
 import { ISphereShape } from '../../spec/i-physics-shape';
 import { CC_V3_0 } from '../ammo-const';
 
-const v3_0 = CC_V3_0;
-
 export class AmmoSphereShape extends AmmoShape implements ISphereShape {
-
     setRadius (radius: number) {
         this.impl.setUnscaledRadius(radius);
         this.updateCompoundTransform();
@@ -59,6 +62,7 @@ export class AmmoSphereShape extends AmmoShape implements ISphereShape {
 
     setScale () {
         super.setScale();
+        const v3_0 = CC_V3_0;
         const ws = this._collider.node.worldScale;
         const absX = Math.abs(ws.x);
         const absY = Math.abs(ws.y);
