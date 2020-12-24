@@ -256,6 +256,10 @@ export function getTarget (localID: string[], targetMap: any): unknown {
 }
 
 export function applyAddedChildren (node: Node, addedChildren: AddedChildrenInfo[], targetMap: Record<string, any | Node | Component>) {
+    if (!addedChildren) {
+        return;
+    }
+    
     for (let i = 0; i < addedChildren.length; i++) {
         const childInfo = addedChildren[i];
         if (childInfo && childInfo.targetInfo) {
