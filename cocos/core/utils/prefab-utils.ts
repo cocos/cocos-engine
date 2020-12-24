@@ -259,7 +259,7 @@ export function applyAddedChildren (node: Node, addedChildren: AddedChildrenInfo
     if (!addedChildren) {
         return;
     }
-    
+
     for (let i = 0; i < addedChildren.length; i++) {
         const childInfo = addedChildren[i];
         if (childInfo && childInfo.targetInfo) {
