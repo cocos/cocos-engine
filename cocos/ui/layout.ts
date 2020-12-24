@@ -531,7 +531,6 @@ export class Layout extends Component {
      * @zh
      * 容器内边距，该属性会在四个布局方向上生效。
      */
-    @tooltip('容器内边距，该属性会在四个布局方向上生效')
     get padding () {
         return this._paddingLeft;
     }

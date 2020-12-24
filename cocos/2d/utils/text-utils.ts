@@ -182,7 +182,7 @@ export function isUnicodeSpace (ch: string) {
     chCode === 12288);
 }
 
-export function safeMeasureText (ctx: CanvasRenderingContext2D, string: string, desc: string) {
+export function safeMeasureText (ctx: CanvasRenderingContext2D, string: string, desc?: string) {
     const font = desc || ctx.font;
     const key = font + '\uD83C\uDFAE' + string;
     const cache = measureCache.get(key);
