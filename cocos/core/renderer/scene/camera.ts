@@ -41,6 +41,7 @@ import {
 } from '../core/memory-pools';
 import { recordFrustumToSharedMemory } from '../../geometry/frustum';
 import { preTransforms } from '../../math/mat4';
+import { director } from '../../director';
 
 export enum CameraFOVAxis {
     VERTICAL,
@@ -291,9 +292,7 @@ export class Camera {
             this._curTransform = orientation;
             let projectionSignY = this._device.screenSpaceSignY;
             if (this._view && 
-                (this._view.window.hasOffScreenAttachments || 
-                 this._view.getFlows().some((f) => f.name === 'GbufferFlow') ||
-                 this._view.getFlows().some((f) => f.name === 'LightingFlow'))) { // when drawing offscreen...
+                 (this._view.window.hasOffScreenAttachments || legacyCC.director.root.useDeferredPipeline == true)) { // when drawing offscreen...
                 projectionSignY *= this._device.UVSpaceSignY; // apply sign-Y correction
                 orientation = SurfaceTransform.IDENTITY; // no pre-rotation
             }

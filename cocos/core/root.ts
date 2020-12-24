@@ -211,6 +211,10 @@ export class Root {
     get handle () : RootHandle {
         return this._poolHandle;
     }
+    
+    get useDeferredPipeline () : boolean {
+        return this._useDeferredPipeline;
+    }
 
     public _createSceneFun: (root: Root) => RenderScene = null!;
     public _createWindowFun: (root: Root) => RenderWindow = null!;
@@ -235,6 +239,7 @@ export class Root {
     private _fixedFPS = 0;
     private _fixedFPSFrameTime = 0;
     private _poolHandle: RootHandle = NULL_HANDLE;
+    private _useDeferredPipeline: boolean = false;
 
     /**
      * 构造函数
@@ -373,6 +378,7 @@ export class Root {
         }
         const builinDeferred = builtinResMgr.get<Material>('builtin-deferred-material');
         if (builinDeferred) {
+            this._useDeferredPipeline = true;
             const passLit = builinDeferred.passes[1];
             passLit.beginChangeStatesSilently();
             passLit.tryCompile(); 
