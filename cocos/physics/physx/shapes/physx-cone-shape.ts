@@ -29,7 +29,7 @@
  */
 
 import { Quat, Vec3 } from '../../../core';
-import cylinder from '../../../core/primitive/cylinder';
+import cylinder from '../../../primitive/cylinder';
 import { ConeCollider, EAxisDirection } from '../../framework';
 import { IConeShape } from '../../spec/i-physics-shape';
 import { createConvexMesh, createMeshGeometryFlags, PX, _trans } from '../export-physx';

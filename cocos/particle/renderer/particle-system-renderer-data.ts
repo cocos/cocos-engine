@@ -23,7 +23,8 @@
  THE SOFTWARE.
  */
 
-import { Material, Mesh, Texture2D } from '../../core/assets';
+import { Mesh } from '../../3d';
+import { Material, Texture2D } from '../../core/assets';
 import { ccclass, tooltip, displayOrder, type, serializable } from 'cc.decorator';
 import { RenderMode} from '../enum';
 import ParticleSystemRendererCPU from './particle-system-renderer-cpu';

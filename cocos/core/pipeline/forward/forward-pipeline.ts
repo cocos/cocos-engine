@@ -47,7 +47,7 @@ import { Shadows, ShadowType } from '../../renderer/scene/shadows';
 import { getShadowWorldMatrix, updatePlanarPROJ } from './scene-culling';
 import { Light } from '../../renderer/scene/light';
 import { genSamplerHash, samplerLib } from '../../renderer/core/sampler-lib';
-import { builtinResMgr } from '../../3d/builtin/init';
+import { builtinResMgr } from '../../builtin';
 import { Texture2D } from '../../assets/texture-2d';
 import { Camera } from '../../renderer/scene';
 

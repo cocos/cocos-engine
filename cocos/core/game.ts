@@ -36,7 +36,7 @@ import inputManager from './platform/event-manager/input-manager';
 import { Device, DeviceInfo } from './gfx';
 import { sys } from './platform/sys';
 import { macro } from './platform/macro';
-import { ICustomJointTextureLayout } from './renderer/models';
+import { ICustomJointTextureLayout } from '../3d/skeletal-animation/skeletal-animation-utils';
 import { legacyCC, VERSION } from './global-exports';
 import { IPhysicsConfig } from '../physics/framework/physics-config';
 import { bindingMappingInfo } from './pipeline/define';
@@ -517,7 +517,9 @@ export class Game extends EventTarget {
                 this._initEvents();
             }
 
-            legacyCC.director.root.dataPoolManager.jointTexturePool.registerCustomTextureLayouts(config.customJointTextureLayouts);
+            if (legacyCC.director.root.dataPoolManager) {
+                legacyCC.director.root.dataPoolManager.jointTexturePool.registerCustomTextureLayouts(config.customJointTextureLayouts);
+            }
             return this._engineInited;
         });
     }

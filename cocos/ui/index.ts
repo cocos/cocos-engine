@@ -27,68 +27,22 @@
  * @packageDocumentation
  * @hidden
  */
-
-import {
-    barFilled,
-    bmfont,
-    CanvasPool,
-    graphics,
-    graphicsAssembler,
-    labelAssembler,
-    letter,
-    mask,
-    maskEnd,
-    radialFilled,
-    simple,
-    sliced,
-    spriteAssembler,
-    ttf,
-    earcut,
-} from './assembler';
-import { MeshBuffer } from '../core/renderer/ui/mesh-buffer';
-import * as UIVertexFormat from '../core/renderer/ui/ui-vertex-format';
-import { StencilManager } from '../core/renderer/ui/stencil-manager';
-import { legacyCC } from '../core/global-exports';
-
-export * from './components';
-
+export { Button } from './button';
+export { EditBox } from './editbox/edit-box';
+export { Layout } from './layout';
+export { ProgressBar } from './progress-bar';
+export { ScrollBar } from './scroll-bar';
+export { ScrollView } from './scroll-view';
+export { Slider } from './slider';
+export { Toggle } from './toggle';
+export { ToggleContainer } from './toggle-container';
+export { ViewGroup } from './view-group';
+export { Widget } from './widget';
+export { PageView } from './page-view';
+export { PageViewIndicator } from './page-view-indicator';
+export { SafeArea } from './safe-area';
+export { UICoordinateTracker } from './ui-coodinate-tracker';
+export { BlockInputEvents } from './block-input-events';
+export { SubContextView } from './SubContextView';
+export { widgetManager } from './widget-manager';
 export * from './deprecated';
-
-export {
-    MeshBuffer,
-    UIVertexFormat,
-    StencilManager,
-    CanvasPool,
-    // barFilled,
-    // radialFilled,
-    // simple,
-    // sliced,
-    // ttf,
-    // bmfont,
-    // letter,
-    // mask,
-    // maskEnd,
-    spriteAssembler,
-    // graphics,
-    labelAssembler,
-    graphicsAssembler,
-    earcut,
-};
-
-legacyCC.UI = {
-    MeshBuffer,
-    UIVertexFormat,
-    // barFilled,
-    // radialFilled,
-    // simple,
-    // sliced,
-    // ttf,
-    // bmfont,
-    // letter,
-    // mask,
-    // maskEnd,
-    // graphics,
-    spriteAssembler,
-    graphicsAssembler,
-    labelAssembler,
-};

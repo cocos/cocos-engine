@@ -23,7 +23,7 @@
  THE SOFTWARE.
  */
 
-import { builtinResMgr } from '../../core/3d/builtin';
+import { builtinResMgr } from '../../core/builtin';
 import { Material } from '../../core/assets';
 import { Texture2D } from '../../core';
 import { Component } from '../../core/components';

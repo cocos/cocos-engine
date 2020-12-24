@@ -1,1 +1,3 @@
-cc.internal.AudioManager.maxAudioChannel = 6;
+if (cc.internal.AudioManager) {
+    cc.internal.AudioManager.maxAudioChannel = 6;
+}

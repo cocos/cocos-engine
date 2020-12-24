@@ -6,6 +6,8 @@ export type EngineFeature =
     | 'gfx-webgl2'
     | 'base'
     | 'graphcis'
+    | '3d'
+    | '2d'
     | 'ui'
     | 'particle'
     | 'physics'
@@ -24,7 +26,9 @@ export type EngineFeature =
     | 'terrain'
     | 'tiled-map'
     | 'spine'
-    | 'dragon-bones';
+    | 'dragon-bones'
+    | 'primitive'
+    | 'profiler';
 export interface ModuleRenderConfig {
     $schema?: string;
 

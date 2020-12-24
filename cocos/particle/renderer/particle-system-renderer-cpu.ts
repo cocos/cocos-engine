@@ -23,7 +23,7 @@
  THE SOFTWARE.
  */
 
-import { builtinResMgr } from '../../core/3d/builtin';
+import { builtinResMgr } from '../../core/builtin';
 import { Material } from '../../core/assets';
 import { AttributeName, Format, Attribute } from '../../core/gfx';
 import { Mat4, Vec2, Vec3, Vec4, pseudoRandom } from '../../core/math';

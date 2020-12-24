@@ -4,14 +4,14 @@ import spine from './lib/spine-core.js';
 import SkeletonCache, { AnimationCache, AnimationFrame } from './skeleton-cache';
 import { AttachUtil } from './attach-util';
 import { ccclass, executeInEditMode, help, menu } from '../core/data/class-decorator';
-import { UIRenderable } from '../core/components/ui-base/ui-renderable';
-import { Node, CCClass, CCObject, Color, Enum, Material, PrivateNode, Texture2D, builtinResMgr, ccenum, errorID, logID, warn, Socket } from '../core';
+import { UIRenderable } from '../2d/framework/ui-renderable';
+import { Node, CCClass, CCObject, Color, Enum, Material, PrivateNode, Texture2D, builtinResMgr, ccenum, errorID, logID, warn } from '../core';
 import { displayName, editable, override, serializable, tooltip, type, visible } from '../core/data/decorators';
 import { SkeletonData } from './skeleton-data';
 import { VertexEffectDelegate } from './vertex-effect-delegate';
-import { MeshRenderData } from '../core/renderer/ui/render-data';
-import { UI } from '../core/renderer/ui/ui';
-import { Graphics } from '../ui/components/graphics';
+import { MeshRenderData } from '../2d/renderer/render-data';
+import { UI } from '../2d/renderer/ui';
+import { Graphics } from '../2d/components/graphics';
 import { MaterialInstance } from '../core/renderer';
 import { js } from '../core/utils/js';
 import { BlendFactor, BlendOp } from '../core/gfx';
@@ -653,7 +653,7 @@ export class Skeleton extends UIRenderable {
      */
     public setAnimationStateData (stateData) {
         if (this.isAnimationCached()) {
-            warn("'setAnimationStateData' interface can not be invoked in cached mode.");
+            warn('\'setAnimationStateData\' interface can not be invoked in cached mode.');
         } else {
             const state = new spine.AnimationState(stateData);
             if (this._listener) {
@@ -1071,7 +1071,7 @@ export class Skeleton extends UIRenderable {
      */
     public getCurrent (trackIndex: number) {
         if (this.isAnimationCached()) {
-            warn("'getCurrent' interface can not be invoked in cached mode.");
+            warn('\'getCurrent\' interface can not be invoked in cached mode.');
         } else if (this._state) {
             return this._state.getCurrent(trackIndex);
         }
@@ -1085,7 +1085,7 @@ export class Skeleton extends UIRenderable {
      */
     public clearTracks () {
         if (this.isAnimationCached()) {
-            warn("'clearTracks' interface can not be invoked in cached mode.");
+            warn('\'clearTracks\' interface can not be invoked in cached mode.');
         } else if (this._state) {
             this._state.clearTracks();
         }
@@ -1099,7 +1099,7 @@ export class Skeleton extends UIRenderable {
      */
     public clearTrack (trackIndex: number) {
         if (this.isAnimationCached()) {
-            warn("'clearTrack' interface can not be invoked in cached mode.");
+            warn('\'clearTrack\' interface can not be invoked in cached mode.');
         } else if (this._state) {
             this._state.clearTrack(trackIndex);
             if (EDITOR/* && !cc.engine.isPlaying */) {

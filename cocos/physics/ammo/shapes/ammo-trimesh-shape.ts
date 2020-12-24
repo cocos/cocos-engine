@@ -31,7 +31,8 @@
 /* eslint-disable new-cap */
 import Ammo from '../ammo-instantiated';
 import { AmmoShape } from './ammo-shape';
-import { Mesh, warnID } from '../../../core';
+import { warnID } from '../../../core';
+import { Mesh } from '../../../3d/assets';
 import { MeshCollider } from '../../../../exports/physics-framework';
 import { cocos2AmmoVec3, cocos2AmmoTriMesh } from '../ammo-util';
 import { AmmoBroadphaseNativeTypes } from '../ammo-enum';

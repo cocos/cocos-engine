@@ -28,7 +28,7 @@
  * @module material
  */
 
-import { RenderableComponent } from '../../3d/framework/renderable-component';
+import { RenderableComponent } from '../../components/renderable-component';
 import { Material } from '../../assets/material';
 import { PassInstance } from './pass-instance';
 import { MacroRecord } from './pass-utils';
