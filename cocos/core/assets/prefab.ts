@@ -32,7 +32,7 @@
 import { ccclass, serializable, editable } from 'cc.decorator';
 import { SUPPORT_JIT, ALIPAY, RUNTIME_BASED } from 'internal:constants';
 import { compile } from '../data/instantiate-jit';
-import { obsolete } from '../utils/js';
+import { js, obsolete } from '../utils/js';
 import { Enum } from '../value-types';
 import { Asset } from './asset';
 import { legacyCC } from '../global-exports';
@@ -63,11 +63,9 @@ const OptimizationPolicy = Enum({
      * @en Optimize for creating instances multiple times.<br>
      * This option enables code generation for this prefab.
      * When this prefab will usually create multiple instances, please select this option.
-     * It is also recommended to select this option if the prefab instance in the scene has
-     * Auto Sync enabled and there are multiple instances in the scene.
+     * It is also recommended to select this option if the prefab instance in the scene has Auto Sync enabled and there are multiple instances in the scene.
      * @zh 优化多次创建性能。<br>
-     * 该选项会启用针对这个 prefab 的代码生成优化操作。当该 prefab 加载后，一般会创建多个实例时，请选择此项。
-     * 如果该 prefab 在场景中的节点启用了自动关联，并且在场景中有多份实例，也建议选择此项。
+     * 该选项会启用针对这个 prefab 的代码生成优化操作。当该 prefab 加载后，一般会创建多个实例时，请选择此项。如果该 prefab 在场景中的节点启用了自动关联，并且在场景中有多份实例，也建议选择此项。
      */
     MULTI_INSTANCE: 2,
 });
@@ -171,11 +169,9 @@ class Prefab extends Asset {
         if (SUPPORT_JIT) {
             if (this.optimizationPolicy === OptimizationPolicy.SINGLE_INSTANCE) {
                 useJit = false;
-            }
-            else if (this.optimizationPolicy === OptimizationPolicy.MULTI_INSTANCE) {
+            } else if (this.optimizationPolicy === OptimizationPolicy.MULTI_INSTANCE) {
                 useJit = true;
-            }
-            else {
+            } else {
                 // auto
                 useJit = (this._instantiatedTimes + 1) >= Prefab.OptimizationPolicyThreshold;
             }
@@ -185,8 +181,7 @@ class Prefab extends Asset {
             node = this._doInstantiate();
             // initialize node
             this.data._instantiate(node);
-        }
-        else {
+        } else {
             // instantiate node
             node = this.data._instantiate();
         }
@@ -204,14 +199,7 @@ declare namespace Prefab {
     export import _utils = utils;
 }
 
-Object.defineProperty(
-    Prefab,
-    '_utils',
-    {
-        value: utils,
-        enumerable: false,
-    }
-);
+js.value(Prefab, '_utils', utils);
 
 export default Prefab;
 

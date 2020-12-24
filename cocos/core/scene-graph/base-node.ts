@@ -287,7 +287,9 @@ export class BaseNode extends CCObject implements ISchedulable {
             let comp = BaseNode._findComponent(node, constructor);
             if (comp) {
                 return comp;
-            } if (node._children.length > 0) {
+            }
+
+            if (node._children.length > 0) {
                 comp = BaseNode._findChildComponent(node._children, constructor);
                 if (comp) {
                     return comp;
