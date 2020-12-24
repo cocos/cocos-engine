@@ -1,6 +1,5 @@
-import { Color, Component, macro, Mat4, RenderTexture, Node, Texture2D, Vec3 } from '../../core';
+import { Color, Component, GFXBlendFactor, macro, Mat4, RenderTexture, Node, Texture2D, Vec3 } from '../../core';
 import { TextureBase } from '../../core/assets/texture-base';
-import { BlendFactor } from '../../core/gfx';
 import { MaterialInstance } from '../../core/renderer/core/material-instance';
 import { IAssembler } from '../../core/renderer/ui/base';
 import { UI } from '../../core/renderer/ui/ui';
@@ -8,6 +7,7 @@ import { ArmatureFrame, ArmatureFrameColor } from '../ArmatureCache';
 import { ArmatureDisplay, ArmatureDisplayMeshData } from '../ArmatureDisplay';
 import { CCSlot } from '../CCSlot';
 import { Armature, BlendMode } from '../lib/dragonBones.js';
+import { legacyCC } from '../../core/global-exports';
 
 const NEED_COLOR = 0x01;
 const NEED_BATCH = 0x10;
@@ -54,25 +54,25 @@ const _vec3u_temp = new Vec3();
 function _getSlotMaterial (tex: RenderTexture | TextureBase | null, blendMode: BlendMode) {
     if (!tex) return null;
 
-    let src: BlendFactor;
-    let dst: BlendFactor;
+    let src: GFXBlendFactor;
+    let dst: GFXBlendFactor;
     switch (blendMode) {
     case 1:// additive
-        src = _premultipliedAlpha ? BlendFactor.ONE : BlendFactor.SRC_ALPHA;
-        dst = BlendFactor.ONE;
+        src = _premultipliedAlpha ? GFXBlendFactor.ONE : GFXBlendFactor.SRC_ALPHA;
+        dst = GFXBlendFactor.ONE;
         break;
     case 10:// multiply
-        src = BlendFactor.DST_COLOR;
-        dst = BlendFactor.ONE_MINUS_SRC_ALPHA;
+        src = GFXBlendFactor.DST_COLOR;
+        dst = GFXBlendFactor.ONE_MINUS_SRC_ALPHA;
         break;
     case 12:// screen
-        src = BlendFactor.ONE;
-        dst = BlendFactor.ONE_MINUS_SRC_COLOR;
+        src = GFXBlendFactor.ONE;
+        dst = GFXBlendFactor.ONE_MINUS_SRC_COLOR;
         break;
     case 0:// normal
     default:
-        src = _premultipliedAlpha ? BlendFactor.ONE : BlendFactor.SRC_ALPHA;
-        dst = BlendFactor.ONE_MINUS_SRC_ALPHA;
+        src = _premultipliedAlpha ? GFXBlendFactor.ONE : GFXBlendFactor.SRC_ALPHA;
+        dst = GFXBlendFactor.ONE_MINUS_SRC_ALPHA;
         break;
     }
 
@@ -456,3 +456,5 @@ function updateComponentRenderData (comp: ArmatureDisplay, ui: UI) {
     _ui = undefined;
     _comp = undefined;
 }
+
+legacyCC.internal.DragonBonesAssembler = simple;
