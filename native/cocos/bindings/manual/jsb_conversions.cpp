@@ -1247,3 +1247,104 @@ bool nativevalue_to_se(const cc::extension::ManifestAsset& from, se::Value& to, 
 {
     return ManifestAsset_to_seval(from, &to);
 }
+
+template<>
+bool nativevalue_to_se(const cc::Rect& from, se::Value& to, se::Object*) {
+	return Rect_to_seval(from, &to);
+}
+
+#if USE_SPINE
+
+template <>
+bool sevalue_to_native(const se::Value &v, spine::Vector<spine::String> *ret, se::Object *) {
+    assert(v.isObject());
+    se::Object *obj = v.toObject();
+    assert(obj->isArray());
+
+    bool ok = true;
+    uint32_t len = 0;
+    ok = obj->getArrayLength(&len);
+    if (!ok) {
+        ret->clear();
+        return false;
+    }
+
+    se::Value tmp;
+    for (uint32_t i = 0; i < len; ++i) {
+        ok = obj->getArrayElement(i, &tmp);
+        if (!ok || !tmp.isObject()) {
+            ret->clear();
+            return false;
+        }
+
+        const char *str = tmp.toString().c_str();
+        ret->add(str);
+    }
+
+    return true;
+}
+
+template <>
+bool nativevalue_to_se(const spine::String &obj, se::Value &val, se::Object *) {
+    val.setString(obj.buffer());
+    return true;
+}
+
+template <>
+bool nativevalue_to_se(const spine::Vector<spine::String> &v, se::Value &ret, se::Object *) {
+    se::HandleObject obj(se::Object::createArrayObject(v.size()));
+    bool ok = true;
+
+    spine::Vector<spine::String> tmpv = v;
+    for (uint32_t i = 0, count = (uint32_t)tmpv.size(); i < count; i++) {
+        if (!obj->setArrayElement(i, se::Value(tmpv[i].buffer()))) {
+            ok = false;
+            ret.setUndefined();
+            break;
+        }
+    }
+
+    if (ok)
+        ret.setObject(obj);
+
+    return ok;
+}
+
+template <>
+bool nativevalue_to_se(const se_object_ptr &obj, se::Value &val, se::Object *) {
+    val.setObject(const_cast<se::Object *>(obj));
+    return true;
+}
+
+template <>
+bool seval_to_Map_string_key(const se::Value &v, cc::Map<std::string, cc::middleware::Texture2D *> *ret) {
+    assert(ret != nullptr);
+    assert(v.isObject());
+    se::Object *obj = v.toObject();
+
+    std::vector<std::string> allKeys;
+    bool ok = obj->getAllKeys(&allKeys);
+    if (!ok) {
+        ret->clear();
+        return false;
+    }
+
+    se::Value tmp;
+    for (const auto &key : allKeys) {
+        auto pngPos = key.find(".png");
+        if (pngPos == key.npos) continue;
+
+        ok = obj->getProperty(key.c_str(), &tmp);
+        if (!ok || !tmp.isObject()) {
+            ret->clear();
+            return false;
+        }
+
+        cc::middleware::Texture2D *nativeObj = (cc::middleware::Texture2D *)tmp.toObject()->getPrivateData();
+        ret->insert(key, nativeObj);
+    }
+
+    return true;
+}
+
+#endif

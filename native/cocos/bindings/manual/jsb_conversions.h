@@ -33,6 +33,9 @@
 #include "network/Downloader.h"
 #include <type_traits>
 #include <assert.h>
+#if USE_SPINE
+#include "cocos/editor-support/spine-creator-support/spine-cocos2dx.h"
+#endif
 
 namespace cc {
 namespace gfx {
@@ -1435,7 +1438,6 @@ inline bool nativevalue_to_se(const int32_t &from, se::Value &to, se::Object *)
     return true;
 }
 
-
 template<>
 inline bool nativevalue_to_se(const uint32_t &from, se::Value &to, se::Object *)
 {
@@ -1564,7 +1566,100 @@ bool nativevalue_to_se(const cc::Size& from, se::Value& to, se::Object*);
 template<>
 bool nativevalue_to_se(const cc::extension::ManifestAsset& from, se::Value& to, se::Object*);
 
+template<>
+bool nativevalue_to_se(const cc::Rect& from, se::Value& to, se::Object*);
 
 #if __clang__
 #pragma clang diagnostic pop
+#endif
+
+// Spine conversions
+#if USE_SPINE
+
+template <typename T>
+bool nativevalue_to_se(const spine::Vector<T> &v, se::Value &ret, se::Object *) {
+    se::HandleObject obj(se::Object::createArrayObject(v.size()));
+    bool ok = true;
+
+    spine::Vector<T> tmpv = v;
+    for (uint32_t i = 0, count = (uint32_t)tmpv.size(); i < count; i++) {
+        se::Value tmp;
+        ok = nativevalue_to_se(tmpv[i], tmp, nullptr);
+        if (!ok || !obj->setArrayElement(i, tmp)) {
+            ok = false;
+            ret.setUndefined();
+            break;
+        }
+    }
+
+    if (ok)
+        ret.setObject(obj);
+
+    return ok;
+}
+
+template <typename T>
+bool nativevalue_to_se(const spine::Vector<T *> &v, se::Value &ret, se::Object *) {
+    se::HandleObject obj(se::Object::createArrayObject(v.size()));
+    bool ok = true;
+
+    spine::Vector<T *> tmpv = v;
+    for (uint32_t i = 0, count = (uint32_t)tmpv.size(); i < count; i++) {
+        se::Value tmp;
+        ok = native_ptr_to_rooted_seval<T>(tmpv[i], &tmp);
+        if (!ok || !obj->setArrayElement(i, tmp)) {
+            ok = false;
+            ret.setUndefined();
+            break;
+        }
+    }
+
+    if (ok) ret.setObject(obj);
+    return ok;
+}
+
+template <typename T>
+bool sevalue_to_native(const se::Value &v, spine::Vector<T *> *ret, se::Object *) {
+    assert(ret != nullptr);
+    assert(v.isObject());
+    se::Object *obj = v.toObject();
+    assert(obj->isArray());
+
+    bool ok = true;
+    uint32_t len = 0;
+    ok = obj->getArrayLength(&len);
+    if (!ok) {
+        ret->clear();
+        return false;
+    }
+
+    se::Value tmp;
+    for (uint32_t i = 0; i < len; ++i) {
+        ok = obj->getArrayElement(i, &tmp);
+        if (!ok || !tmp.isObject()) {
+            ret->clear();
+            return false;
+        }
+
+        T *nativeObj = (T *)tmp.toObject()->getPrivateData();
+        ret->add(nativeObj);
+    }
+
+    return true;
+}
+
+template <>
+bool nativevalue_to_se(const spine::Vector<spine::String> &v, se::Value &ret, se::Object *);
+
+template <>
+bool nativevalue_to_se(const se_object_ptr &obj, se::Value &val, se::Object *);
+
+template <>
+bool nativevalue_to_se(const spine::String &obj, se::Value &val, se::Object *);
+
+template <>
+bool sevalue_to_native(const se::Value &v, spine::Vector<spine::String> *ret, se::Object *);
+
+template <>
+bool seval_to_Map_string_key(const se::Value &v, cc::Map<std::string, cc::middleware::Texture2D *> *ret);
 #endif

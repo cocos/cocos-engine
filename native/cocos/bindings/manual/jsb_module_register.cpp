@@ -80,6 +80,16 @@
 #include "cocos/bindings/manual/jsb_websocket_server.h"
 #endif
 
+#if USE_MIDDLEWARE
+#include "cocos/bindings/auto/jsb_editor_support_auto.h"
+
+#if USE_SPINE
+#include "cocos/bindings/auto/jsb_spine_auto.h"
+#include "cocos/bindings/manual/jsb_spine_manual.h"
+#endif
+
+#endif // USE_MIDDLEWARE
+
 using namespace cc;
 
 bool jsb_register_all_modules() {
@@ -128,6 +138,16 @@ bool jsb_register_all_modules() {
     se->addRegisterCallback(register_all_websocket);
     se->addRegisterCallback(register_all_socketio);
 #endif
+
+#if USE_MIDDLEWARE
+    se->addRegisterCallback(register_all_editor_support);
+
+#if USE_SPINE
+    se->addRegisterCallback(register_all_spine);
+    se->addRegisterCallback(register_all_spine_manual);
+#endif
+
+#endif // USE_MIDDLEWARE
 
 #if (CC_PLATFORM == CC_PLATFORM_MAC_IOS || CC_PLATFORM == CC_PLATFORM_ANDROID)
 
