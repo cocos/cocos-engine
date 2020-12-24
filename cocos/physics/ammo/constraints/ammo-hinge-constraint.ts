@@ -71,25 +71,36 @@ export class AmmoHingeConstraint extends AmmoConstraint implements IHingeConstra
 
     updateFrames () {
         const cs = this.constraint;
-
-        const rot = CC_QUAT_0;
+        const node = cs.node;
+        const v3_0 = CC_V3_0;
+        const rot_0 = CC_QUAT_0;
         const trans0 = AmmoConstant.instance.TRANSFORM;
-        cocos2AmmoVec3(trans0.getOrigin(), cs.pivotA);
+        Vec3.multiply(v3_0, node.worldScale, cs.pivotA);
+        cocos2AmmoVec3(trans0.getOrigin(), v3_0);
         const quat = AmmoConstant.instance.QUAT_0;
-        Quat.rotationTo(rot, Vec3.UNIT_Z, cs.axis);
-        trans0.setRotation(cocos2AmmoQuat(quat, rot));
+        Quat.rotationTo(rot_0, Vec3.UNIT_Z, cs.axis);
+        trans0.setRotation(cocos2AmmoQuat(quat, rot_0));
 
-        const pos = CC_V3_0;
         const trans1 = AmmoConstant.instance.TRANSFORM_1;
-        if (this.constraint.connectedBody) {
-            Vec3.copy(pos, cs.pivotB);
+        const cb = this.constraint.connectedBody;
+        if (cb) {
+            Vec3.multiply(v3_0, cb.node.worldScale, cs.pivotB);
         } else {
-            Vec3.add(pos, this._rigidBody.node.worldPosition, cs.pivotA);
-            Vec3.add(pos, pos, cs.pivotB);
-            Quat.multiply(rot, rot, this._rigidBody.node.worldRotation);
+            Vec3.multiply(v3_0, node.worldScale, cs.pivotA);
+            Vec3.add(v3_0, v3_0, node.worldPosition);
+            Vec3.add(v3_0, v3_0, cs.pivotB);
+            Quat.multiply(rot_0, rot_0, node.worldRotation);
         }
-        cocos2AmmoVec3(trans1.getOrigin(), pos);
-        trans1.setRotation(cocos2AmmoQuat(quat, rot));
+        cocos2AmmoVec3(trans1.getOrigin(), v3_0);
+        trans1.setRotation(cocos2AmmoQuat(quat, rot_0));
         (this.impl as any).setFrames(trans0, trans1);
+    }
+
+    updateScale0 () {
+        this.updateFrames();
+    }
+
+    updateScale1 () {
+        this.updateFrames();
     }
 }

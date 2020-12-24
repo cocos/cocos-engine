@@ -36,6 +36,7 @@ import { AmmoInstance } from './ammo-instance';
 import { IAmmoBodyStruct, IAmmoGhostStruct } from './ammo-interface';
 import { CC_V3_0, CC_QUAT_0, AmmoConstant } from './ammo-const';
 import { PhysicsSystem } from '../framework';
+import { AmmoConstraint } from './constraints/ammo-constraint';
 
 /**
  * @packageDocumentation
@@ -125,6 +126,8 @@ export class AmmoSharedBody {
     readonly id: number;
     readonly node: Node;
     readonly wrappedWorld: AmmoWorld;
+    readonly wrappedJoints0: AmmoConstraint[] = [];
+    readonly wrappedJoints1: AmmoConstraint[] = [];
     dirty: EAmmoSharedBodyDirty = 0;
 
     private _collisionFilterGroup: number = PhysicsSystem.PhysicsGroup.DEFAULT;
@@ -152,8 +155,8 @@ export class AmmoSharedBody {
             }
         } else if (this.bodyIndex >= 0) {
             const isRemoveBody = (this.bodyStruct.wrappedShapes.length === 0 && this.wrappedBody == null)
-                    || (this.bodyStruct.wrappedShapes.length === 0 && this.wrappedBody != null && !this.wrappedBody.isEnabled)
-                    || (this.bodyStruct.wrappedShapes.length === 0 && this.wrappedBody != null && !this.wrappedBody.rigidBody.enabledInHierarchy);
+                || (this.bodyStruct.wrappedShapes.length === 0 && this.wrappedBody != null && !this.wrappedBody.isEnabled)
+                || (this.bodyStruct.wrappedShapes.length === 0 && this.wrappedBody != null && !this.wrappedBody.rigidBody.enabledInHierarchy);
 
             if (isRemoveBody) {
                 this.body.clearState(); // clear velocity etc.
@@ -316,6 +319,26 @@ export class AmmoSharedBody {
         }
     }
 
+    addJoint (v: AmmoConstraint, type: 0 | 1) {
+        if (type) {
+            const i = this.wrappedJoints1.indexOf(v);
+            if (i < 0) this.wrappedJoints1.push(v);
+        } else {
+            const i = this.wrappedJoints0.indexOf(v);
+            if (i < 0) this.wrappedJoints0.push(v);
+        }
+    }
+
+    removeJoint (v: AmmoConstraint, type: 0 | 1) {
+        if (type) {
+            const i = this.wrappedJoints1.indexOf(v);
+            if (i >= 0) this.wrappedJoints1.splice(i, 1);
+        } else {
+            const i = this.wrappedJoints0.indexOf(v);
+            if (i >= 0) this.wrappedJoints0.splice(i, 1);
+        }
+    }
+
     updateDirty () {
         if (this.dirty) {
             if (this.bodyIndex >= 0 && this.dirty & EAmmoSharedBodyDirty.BODY_RE_ADD) this.updateBodyByReAdd();
@@ -332,9 +355,7 @@ export class AmmoSharedBody {
             wt.setRotation(this.bodyStruct.worldQuat);
 
             if (this.node.hasChangedFlags & TransformBit.SCALE) {
-                for (let i = 0; i < this.bodyStruct.wrappedShapes.length; i++) {
-                    this.bodyStruct.wrappedShapes[i].setScale();
-                }
+                this.syncBodyScale();
             }
 
             if (this.body.isKinematicObject()) {
@@ -371,13 +392,8 @@ export class AmmoSharedBody {
             cocos2AmmoVec3(wt1.getOrigin(), this.node.worldPosition);
             cocos2AmmoQuat(this.ghostStruct.worldQuat, this.node.worldRotation);
             wt1.setRotation(this.ghostStruct.worldQuat);
+            if (this.node.hasChangedFlags & TransformBit.SCALE) this.syncGhostScale();
             this.ghost.activate();
-
-            if (this.node.hasChangedFlags & TransformBit.SCALE) {
-                for (let i = 0; i < this.ghostStruct.wrappedShapes.length; i++) {
-                    this.ghostStruct.wrappedShapes[i].setScale();
-                }
-            }
         }
     }
 
@@ -386,9 +402,7 @@ export class AmmoSharedBody {
         cocos2AmmoVec3(wt.getOrigin(), this.node.worldPosition);
         cocos2AmmoQuat(this.bodyStruct.worldQuat, this.node.worldRotation);
         wt.setRotation(this.bodyStruct.worldQuat);
-        for (let i = 0; i < this.bodyStruct.wrappedShapes.length; i++) {
-            this.bodyStruct.wrappedShapes[i].setScale();
-        }
+        this.syncBodyScale();
         this.body.activate();
     }
 
@@ -397,10 +411,26 @@ export class AmmoSharedBody {
         cocos2AmmoVec3(wt1.getOrigin(), this.node.worldPosition);
         cocos2AmmoQuat(this.ghostStruct.worldQuat, this.node.worldRotation);
         wt1.setRotation(this.ghostStruct.worldQuat);
+        this.syncGhostScale();
+        this.ghost.activate();
+    }
+
+    syncBodyScale () {
+        for (let i = 0; i < this.bodyStruct.wrappedShapes.length; i++) {
+            this.bodyStruct.wrappedShapes[i].setScale();
+        }
+        for (let i = 0; i < this.wrappedJoints0.length; i++) {
+            this.wrappedJoints0[i].updateScale0();
+        }
+        for (let i = 0; i < this.wrappedJoints1.length; i++) {
+            this.wrappedJoints1[i].updateScale1();
+        }
+    }
+
+    syncGhostScale () {
         for (let i = 0; i < this.ghostStruct.wrappedShapes.length; i++) {
             this.ghostStruct.wrappedShapes[i].setScale();
         }
-        this.ghost.activate();
     }
 
     /**
