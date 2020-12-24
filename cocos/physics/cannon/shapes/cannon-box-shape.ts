@@ -23,6 +23,11 @@
  THE SOFTWARE.
  */
 
+/**
+ * @packageDocumentation
+ * @hidden
+ */
+
 import CANNON from '@cocos/cannon';
 import { Vec3 } from '../../../core/math';
 import { commitShapeUpdates } from '../cannon-util';
@@ -32,7 +37,6 @@ import { IVec3Like } from '../../../core/math/type-define';
 import { BoxCollider } from '../../../../exports/physics-framework';
 
 export class CannonBoxShape extends CannonShape implements IBoxShape {
-
     public get collider () {
         return this._collider as BoxCollider;
     }
@@ -55,7 +59,7 @@ export class CannonBoxShape extends CannonShape implements IBoxShape {
         this.impl.halfExtents.y = this.HALF_EXTENT.y * Math.abs(ws.y);
         this.impl.halfExtents.z = this.HALF_EXTENT.z * Math.abs(ws.z);
         this.impl.updateConvexPolyhedronRepresentation();
-        if (this._index != -1) {
+        if (this._index !== -1) {
             commitShapeUpdates(this._body);
         }
     }

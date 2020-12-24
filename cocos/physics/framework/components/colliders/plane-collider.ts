@@ -38,10 +38,10 @@ import {
     editable,
     serializable,
 } from 'cc.decorator';
+import { EDITOR, TEST } from 'internal:constants';
 import { Vec3 } from '../../../../core/math';
 import { Collider } from './collider';
 import { IPlaneShape } from '../../../spec/i-physics-shape';
-import { EDITOR, TEST } from 'internal:constants';
 import { EColliderType } from '../../physics-enum';
 
 /**
@@ -55,7 +55,6 @@ import { EColliderType } from '../../physics-enum';
 @menu('Physics/PlaneCollider(beta)')
 @executeInEditMode
 export class PlaneCollider extends Collider {
-
     /// PUBLIC PROPERTY GETTER\SETTER ///
 
     /**

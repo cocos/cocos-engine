@@ -23,6 +23,11 @@
  THE SOFTWARE.
  */
 
+/**
+ * @packageDocumentation
+ * @hidden
+ */
+
 import { IAmmoBodyStruct, IAmmoGhostStruct } from './ammo-interface';
 
 export class AmmoInstance {

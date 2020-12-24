@@ -36,6 +36,6 @@ export class CollisionMatrix {
             const key = 1 << i;
             this[`${key}`] = 0;
         }
-        this[`1`] = PhysicsGroup.DEFAULT;
+        this['1'] = PhysicsGroup.DEFAULT;
     }
 }

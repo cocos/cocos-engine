@@ -23,6 +23,11 @@
  THE SOFTWARE.
  */
 
+/**
+ * @packageDocumentation
+ * @hidden
+ */
+
 import CANNON from '@cocos/cannon';
 import { Vec3 } from '../../../core/math';
 import { CannonShape } from './cannon-shape';
@@ -36,7 +41,6 @@ const v3_0 = new Vec3();
 const v3_1 = new Vec3();
 
 export class CannonConeShape extends CannonShape implements IConeShape {
-
     get collider () {
         return this._collider as ConeCollider;
     }
@@ -49,41 +53,41 @@ export class CannonConeShape extends CannonShape implements IConeShape {
         this.updateProperties(
             this.collider.radius,
             this.collider.height,
-            CANNON['CC_CONFIG']['numSegmentsCone'],
+            (CANNON as any).CC_CONFIG.numSegmentsCone,
             this.collider.direction,
-            this.collider.node.worldScale
+            this.collider.node.worldScale,
         );
 
-        if (this._index != -1) commitShapeUpdates(this._body);
+        if (this._index !== -1) commitShapeUpdates(this._body);
     }
 
     setHeight (v: number) {
         this.updateProperties(
             this.collider.radius,
             this.collider.height,
-            CANNON['CC_CONFIG']['numSegmentsCone'],
+            (CANNON as any).CC_CONFIG.numSegmentsCone,
             this.collider.direction,
-            this.collider.node.worldScale
+            this.collider.node.worldScale,
         );
 
-        if (this._index != -1) commitShapeUpdates(this._body);
+        if (this._index !== -1) commitShapeUpdates(this._body);
     }
 
     setDirection (v: number) {
         this.updateProperties(
             this.collider.radius,
             this.collider.height,
-            CANNON['CC_CONFIG']['numSegmentsCone'],
+            (CANNON as any).CC_CONFIG.numSegmentsCone,
             this.collider.direction,
-            this.collider.node.worldScale
+            this.collider.node.worldScale,
         );
 
-        if (this._index != -1) commitShapeUpdates(this._body);
+        if (this._index !== -1) commitShapeUpdates(this._body);
     }
 
     constructor (radius = 0.5, height = 1, direction = EAxisDirection.Y_AXIS) {
         super();
-        this._shape = new CANNON.Cylinder(0, radius, height, CANNON['CC_CONFIG']['numSegmentsCone'], direction == EAxisDirection.Y_AXIS);
+        this._shape = new CANNON.Cylinder(0, radius, height, (CANNON as any).CC_CONFIG.numSegmentsCone, direction === EAxisDirection.Y_AXIS);
     }
 
     onLoad () {
@@ -103,10 +107,10 @@ export class CannonConeShape extends CannonShape implements IConeShape {
         const sin = Math.sin;
         const abs = Math.abs;
         const max = Math.max;
-        if (direction == 1) {
+        if (direction === 1) {
             wh = abs(scale.y) * height;
             wr = max(abs(scale.x), abs(scale.z)) * radius;
-        } else if (direction == 2) {
+        } else if (direction === 2) {
             wh = abs(scale.z) * height;
             wr = max(abs(scale.x), abs(scale.y)) * radius;
         } else {
@@ -119,18 +123,18 @@ export class CannonConeShape extends CannonShape implements IConeShape {
         const indices: number[][] = [];
         const axes: CANNON.Vec3[] = [];
         const theta = Math.PI * 2 / N;
-        if (direction == 1) {
+        if (direction === 1) {
             const bf: number[] = [];
             indices.push(bf);
             vertices.push(new CANNON.Vec3(0, hH, 0));
-            for (var i = 0; i < N; i++) {
+            for (let i = 0; i < N; i++) {
                 const x = wr * cos(theta * i);
                 const z = wr * sin(theta * i);
                 vertices.push(new CANNON.Vec3(x, -hH, z));
             }
-            for (var i = 0; i < N; i++) {
-                if (i != 0) bf.push(i);
-                var face: number[];
+            for (let i = 0; i < N; i++) {
+                if (i !== 0) bf.push(i);
+                let face: number[];
                 if (i < N - 1) {
                     face = [0, i + 2, i + 1];
                 } else {
@@ -144,18 +148,18 @@ export class CannonConeShape extends CannonShape implements IConeShape {
                 axes.push(new CANNON.Vec3(v3_0.x, v3_0.y, v3_0.z));
             }
             axes.push(new CANNON.Vec3(0, -1, 0));
-        } else if (direction == 2) {
+        } else if (direction === 2) {
             const bf: number[] = [];
             indices.push(bf);
             vertices.push(new CANNON.Vec3(0, 0, hH));
-            for (var i = 0; i < N; i++) {
+            for (let i = 0; i < N; i++) {
                 const x = wr * cos(theta * i);
                 const y = wr * sin(theta * i);
                 vertices.push(new CANNON.Vec3(x, y, -hH));
             }
-            for (var i = 0; i < N; i++) {
-                if (i != 0) bf.push(N - i);
-                var face: number[];
+            for (let i = 0; i < N; i++) {
+                if (i !== 0) bf.push(N - i);
+                let face: number[];
                 if (i < N - 1) {
                     face = [0, i + 1, i + 2];
                 } else {
@@ -173,14 +177,14 @@ export class CannonConeShape extends CannonShape implements IConeShape {
             const bf: number[] = [];
             indices.push(bf);
             vertices.push(new CANNON.Vec3(hH, 0, 0));
-            for (var i = 0; i < N; i++) {
+            for (let i = 0; i < N; i++) {
                 const y = wr * cos(theta * i);
                 const z = wr * sin(theta * i);
                 vertices.push(new CANNON.Vec3(-hH, y, z));
             }
-            for (var i = 0; i < N; i++) {
-                if (i != 0) bf.push(N - i);
-                var face: number[];
+            for (let i = 0; i < N; i++) {
+                if (i !== 0) bf.push(N - i);
+                let face: number[];
                 if (i < N - 1) {
                     face = [0, i + 1, i + 2];
                 } else {
@@ -205,5 +209,4 @@ export class CannonConeShape extends CannonShape implements IConeShape {
         this.impl.computeEdges();
         this.impl.updateBoundingSphereRadius();
     }
-
 }

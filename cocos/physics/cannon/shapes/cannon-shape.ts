@@ -23,9 +23,14 @@
  THE SOFTWARE.
  */
 
+/**
+ * @packageDocumentation
+ * @hidden
+ */
+
 import CANNON from '@cocos/cannon';
 import { Vec3, Quat } from '../../../core/math';
-import { getWrap, setWrap } from '../../framework/util';
+import { getWrap, setWrap } from '../../utils/util';
 import { commitShapeUpdates } from '../cannon-util';
 import { PhysicsMaterial } from '../../framework/assets/physics-material';
 import { IBaseShape } from '../../spec/i-physics-shape';
@@ -47,6 +52,8 @@ const cannonQuat_0 = new CANNON.Quaternion();
 const cannonVec3_0 = new CANNON.Vec3();
 const cannonVec3_1 = new CANNON.Vec3();
 export class CannonShape implements IBaseShape {
+    updateEventListener (): void { }
+
     static readonly idToMaterial = {};
 
     get impl () { return this._shape; }
@@ -61,6 +68,7 @@ export class CannonShape implements IBaseShape {
     get sharedBody (): CannonSharedBody { return this._sharedBody; }
 
     setMaterial (mat: PhysicsMaterial | null) {
+        if (!this._shape) return;
         if (mat == null) {
             (this._shape.material as unknown) = null;
         } else {
@@ -72,7 +80,7 @@ export class CannonShape implements IBaseShape {
             const smat = this._shape.material;
             smat.friction = mat.friction;
             smat.restitution = mat.restitution;
-            const coef = CANNON['CC_CONFIG'].correctInelastic;            
+            const coef = (CANNON as any).CC_CONFIG.correctInelastic;
             (smat as any).correctInelastic = smat.restitution === 0 ? coef : 0;
         }
     }
