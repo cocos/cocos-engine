@@ -53,7 +53,6 @@ import { EColliderType } from '../../physics-enum';
 @menu('Physics/BoxCollider')
 @executeInEditMode
 export class BoxCollider extends Collider {
-
     /// PUBLIC PROPERTY GETTER\SETTER ///
 
     /**

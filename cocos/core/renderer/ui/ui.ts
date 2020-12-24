@@ -737,8 +737,8 @@ export class UI {
             this._currMeshBuffer = buffers[meshBufferUseCount];
         }
         this._meshBufferUseCount.set(strideBytes, meshBufferUseCount + 1);
-        if (arguments.length === 2) {
-            this._currMeshBuffer.request(arguments[0], arguments[1]);
+        if (arguments.length === 3) {
+            this._currMeshBuffer.request(arguments[1], arguments[2]);
         }
     }
 

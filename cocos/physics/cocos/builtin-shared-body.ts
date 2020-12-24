@@ -37,7 +37,6 @@ import { Node } from '../../core';
 import { BuiltinRigidBody } from './builtin-rigid-body';
 import { PhysicsSystem } from '../framework';
 
-
 const m4_0 = new Mat4();
 const v3_0 = new Vec3();
 const v3_1 = new Vec3();
@@ -47,7 +46,6 @@ const quat_0 = new Quat();
  * Built-in static collider, no physical forces involved
  */
 export class BuiltinSharedBody extends BuiltinObject {
-
     private static readonly sharedBodesMap = new Map<string, BuiltinSharedBody>();
 
     static getSharedBody (node: Node, wrappedWorld: BuiltInWorld, wrappedBody?: BuiltinRigidBody) {
@@ -85,21 +83,20 @@ export class BuiltinSharedBody extends BuiltinObject {
                 this.world.addSharedBody(this);
                 this.syncInitial();
             }
-        } else {
-            if (this.index >= 0) {
-                const isRemove = (this.shapes.length == 0);
+        } else if (this.index >= 0) {
+            const isRemove = (this.shapes.length === 0);
 
-                if (isRemove) {
-                    this.index = -1;
-                    this.world.removeSharedBody(this);
-                }
+            if (isRemove) {
+                this.index = -1;
+                this.world.removeSharedBody(this);
             }
         }
     }
 
     set reference (v: boolean) {
+        // eslint-disable-next-line no-unused-expressions
         v ? this.ref++ : this.ref--;
-        if (this.ref == 0) { this.destroy(); }
+        if (this.ref === 0) { this.destroy(); }
     }
 
     /** id generator */

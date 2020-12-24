@@ -63,6 +63,13 @@
                         "physics-framework",
                         "wait-for-ammo-instantiation"
                     ]
+                },
+                {
+                    "text": "physx",
+                    "entry": [
+                        "physics-physx",
+                        "physics-framework"
+                    ]
                 }
             ]
         },
