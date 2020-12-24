@@ -35,6 +35,7 @@ import { Sprite } from '../../components';
 import { IAssembler } from '../../renderer/base';
 import { fillVerticesWithoutCalc3D } from '../utils';
 import { errorID } from '../../../core/platform/debug';
+import { dynamicAtlasManager } from '../../utils/dynamic-atlas/atlas-manager';
 
 const FillType = Sprite.FillType;
 const matrix = new Mat4();
@@ -58,6 +59,8 @@ export const barFilled: IAssembler = {
         //         sprite._activateMaterial();
         //     }
         // }
+
+        dynamicAtlasManager.packToDynamicAtlas(sprite, frame);
 
         const renderData = sprite.renderData;
         if (renderData && frame) {

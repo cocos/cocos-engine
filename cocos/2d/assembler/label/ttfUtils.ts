@@ -38,6 +38,7 @@ import { logID } from '../../../core/platform/debug';
 import { UITransform } from '../../framework/ui-transform';
 import { legacyCC } from '../../../core/global-exports';
 import { assetManager } from '../../../core/asset-manager';
+import { dynamicAtlasManager } from '../../utils/dynamic-atlas/atlas-manager';
 
 const Overflow = Label.Overflow;
 const MAX_SIZE = 2048;
@@ -108,12 +109,15 @@ export const ttfUtils =  {
         this._updateProperties(comp, trans);
         this._calculateLabelFont();
         this._updateLabelDimensions();
+        this._resetDynamicAtlas(comp);
         this._updateTexture();
+        this._calDynamicAtlas(comp);
 
         comp.actualFontSize = _fontSize;
         trans.setContentSize(_canvasSize);
 
         this.updateVertexData(comp);
+        this.updateUvs(comp);
 
         comp.markForUpdateRenderData(false);
 
@@ -123,6 +127,9 @@ export const ttfUtils =  {
     },
 
     updateVertexData (comp: Label) {
+    },
+
+    updateUvs (comp: Label) {
     },
 
     _updateFontFamily (comp: Label) {
@@ -316,6 +323,23 @@ export const ttfUtils =  {
                 }
             }
         }
+    },
+
+    _resetDynamicAtlas (comp: Label) {
+        if (comp.cacheMode !== Label.CacheMode.BITMAP) return;
+        const frame = comp.ttfSpriteFrame!;
+        dynamicAtlasManager.deleteAtlasSpriteFrame(frame);
+        frame._resetDynamicAtlasFrame();
+    },
+
+    _calDynamicAtlas (comp: Label) {
+        if (comp.cacheMode !== Label.CacheMode.BITMAP) return;
+        const frame = comp.ttfSpriteFrame!;
+        if (!frame.original) {
+            frame.rect = new Rect(0, 0, _canvas!.width, _canvas!.height);
+        }
+        dynamicAtlasManager.packToDynamicAtlas(comp, frame);
+        comp.renderData!.uvDirty = true;
     },
 
     _setupOutline () {
