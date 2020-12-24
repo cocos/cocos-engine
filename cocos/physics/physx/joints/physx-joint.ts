@@ -55,6 +55,7 @@ export class PhysXJoint implements IBaseConstraint {
     }
 
     get impl (): any { return this._impl; }
+    get constraint () { return this._com; }
 
     protected _impl!: any;
     protected _com!: Constraint;
@@ -75,12 +76,18 @@ export class PhysXJoint implements IBaseConstraint {
     // virtual
     protected onComponentSet (): void { }
 
+    // virtual
+    updateScale0 () { }
+    updateScale1 () { }
+
     onEnable (): void {
         const sb = (this._rigidBody.body as PhysXRigidBody).sharedBody;
         const connect = this._com.connectedBody;
+        sb.addJoint(this, 0);
         if (connect) {
             const sb2 = (connect.body as PhysXRigidBody).sharedBody;
             setJointActors(this._impl, sb.impl, sb2.impl);
+            sb2.addJoint(this, 1);
         } else {
             setJointActors(this._impl, sb.impl, null);
         }
@@ -88,6 +95,13 @@ export class PhysXJoint implements IBaseConstraint {
 
     onDisable (): void {
         setJointActors(this._impl, PhysXJoint.tempActor, null);
+        const sb = (this._rigidBody.body as PhysXRigidBody).sharedBody;
+        sb.removeJoint(this, 0);
+        const connect = this.constraint.connectedBody;
+        if (connect) {
+            const sb2 = (connect.body as PhysXRigidBody).sharedBody;
+            sb2.removeJoint(this, 1);
+        }
     }
 
     onDestroy (): void {

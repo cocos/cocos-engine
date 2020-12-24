@@ -36,6 +36,7 @@ import { BuiltinShape } from './shapes/builtin-shape';
 import { Node } from '../../core';
 import { BuiltinRigidBody } from './builtin-rigid-body';
 import { PhysicsSystem } from '../framework';
+import { PhysicsGroup } from '../framework/physics-enum';
 
 const m4_0 = new Mat4();
 const v3_0 = new Vec3();
@@ -55,6 +56,10 @@ export class BuiltinSharedBody extends BuiltinObject {
             newSB = BuiltinSharedBody.sharedBodesMap.get(key)!;
         } else {
             newSB = new BuiltinSharedBody(node, wrappedWorld);
+            const g = PhysicsGroup.DEFAULT;
+            const m = PhysicsSystem.instance.collisionMatrix[g];
+            newSB.collisionFilterGroup = g;
+            newSB.collisionFilterMask = m;
             BuiltinSharedBody.sharedBodesMap.set(node.uuid, newSB);
         }
         if (wrappedBody) {

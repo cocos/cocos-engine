@@ -407,13 +407,18 @@ export class PhysXWorld implements IPhysicsWorld {
     }
 
     emitEvents (): void {
-        const l = persistShapes.length;
-        for (let i = 0; i < l; i++) {
-            const key = persistShapes[i];
+        let len = persistShapes.length;
+        for (let idx = 0; idx < len; idx++) {
+            const key = persistShapes[idx];
             const ptr = key.split('-');
             const wpa = PX.IMPL_PTR[ptr[0]];
             const wpb = PX.IMPL_PTR[ptr[1]];
-            onTrigger('onTriggerStay', wpa, wpb);
+            if (!wpa || !wpb) {
+                persistShapes.splice(idx, 1);
+                len--; idx--;
+            } else {
+                onTrigger('onTriggerStay', wpa, wpb);
+            }
         }
     }
 }

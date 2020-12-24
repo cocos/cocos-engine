@@ -37,6 +37,7 @@ import { IAmmoBodyStruct, IAmmoGhostStruct } from './ammo-interface';
 import { CC_V3_0, CC_QUAT_0, AmmoConstant } from './ammo-const';
 import { PhysicsSystem } from '../framework';
 import { AmmoConstraint } from './constraints/ammo-constraint';
+import { PhysicsGroup } from '../framework/physics-enum';
 
 /**
  * @packageDocumentation
@@ -63,6 +64,10 @@ export class AmmoSharedBody {
             newSB = AmmoSharedBody.sharedBodesMap.get(key)!;
         } else {
             newSB = new AmmoSharedBody(node, wrappedWorld);
+            const g = PhysicsGroup.DEFAULT;
+            const m = PhysicsSystem.instance.collisionMatrix[g];
+            newSB._collisionFilterGroup = g;
+            newSB._collisionFilterMask = m;
             AmmoSharedBody.sharedBodesMap.set(node.uuid, newSB);
         }
         if (wrappedBody) {

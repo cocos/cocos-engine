@@ -30,7 +30,7 @@
 
 import CANNON from '@cocos/cannon';
 import { Quat, Vec3 } from '../../core/math';
-import { ERigidBodyType } from '../framework/physics-enum';
+import { ERigidBodyType, PhysicsGroup } from '../framework/physics-enum';
 import { getWrap, setWrap } from '../utils/util';
 import { CannonWorld } from './cannon-world';
 import { CannonShape } from './shapes/cannon-shape';
@@ -68,6 +68,10 @@ export class CannonSharedBody {
             newSB = CannonSharedBody.sharedBodesMap.get(key)!;
         } else {
             newSB = new CannonSharedBody(node, wrappedWorld);
+            const g = PhysicsGroup.DEFAULT;
+            const m = PhysicsSystem.instance.collisionMatrix[g];
+            newSB.body.collisionFilterGroup = g;
+            newSB.body.collisionFilterMask = m;
             CannonSharedBody.sharedBodesMap.set(node.uuid, newSB);
         }
         if (wrappedBody) {
@@ -179,14 +183,14 @@ export class CannonSharedBody {
     }
 
     syncSceneToPhysics () {
-        const n = this.node;
-        const b = this.body;
-        if (n.hasChangedFlags) {
-            if (b.isSleeping()) b.wakeUp();
-            Vec3.copy(b.position, n.worldPosition);
-            Quat.copy(b.quaternion, n.worldRotation);
-            b.aabbNeedsUpdate = true;
-            if (n.hasChangedFlags & TransformBit.SCALE) this.syncScale();
+        const node = this.node;
+        const body = this.body;
+        if (node.hasChangedFlags) {
+            if (body.isSleeping()) body.wakeUp();
+            Vec3.copy(body.position, node.worldPosition);
+            Quat.copy(body.quaternion, node.worldRotation);
+            body.aabbNeedsUpdate = true;
+            if (node.hasChangedFlags & TransformBit.SCALE) this.syncScale();
         }
     }
 
