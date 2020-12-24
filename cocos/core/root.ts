@@ -44,6 +44,8 @@ import { RenderWindow, IRenderWindowInfo } from './renderer/core/render-window';
 import { ColorAttachment, DepthStencilAttachment, RenderPassInfo, StoreOp, Device } from './gfx';
 import { RootHandle, RootPool, RootView, NULL_HANDLE, LightHandle, PassHandle, ShaderHandle } from './renderer/core/memory-pools';
 import { Material } from "./assets";
+import { Asset } from '../core/assets/asset';
+
 
 /**
  * @zh
@@ -338,6 +340,10 @@ export class Root {
     }
 
     public setRenderPipeline (rppl: RenderPipeline): boolean {
+        if ((rppl as Asset)._uuid == "5d45ba66-829a-46d3-948e-2ed3fa7ee421"){
+            this._useDeferredPipeline = true;
+        }
+
         if (!rppl) {
             rppl = this.createDefaultPipeline();
         }
@@ -378,7 +384,6 @@ export class Root {
         }
         const builinDeferred = builtinResMgr.get<Material>('builtin-deferred-material');
         if (builinDeferred) {
-            this._useDeferredPipeline = true;
             const passLit = builinDeferred.passes[1];
             passLit.beginChangeStatesSilently();
             passLit.tryCompile(); 
