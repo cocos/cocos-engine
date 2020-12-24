@@ -36,7 +36,7 @@ import { Camera } from '../../core/renderer/scene/camera';
 import { Model } from '../../core/renderer/scene/model';
 import { UI } from './ui';
 import { InputAssemblerHandle, DescriptorSetHandle, NULL_HANDLE, UIBatchHandle, UIBatchPool, UIBatchView, DSPool } from '../../core/renderer/core/memory-pools';
-import { Layers } from '../../scene-graph/layers';
+import { Layers } from '../../core/scene-graph/layers';
 
 const UI_VIS_FLAG = Layers.Enum.NONE | Layers.Enum.UI_3D;
 

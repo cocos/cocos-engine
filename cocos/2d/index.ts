@@ -51,12 +51,12 @@ import { StencilManager } from './renderer/stencil-manager';
 import { legacyCC } from '../core/global-exports';
 
 import './renderer/ui';
-import './utils/font-loader';
 
 export * from './assets';
 export * from './framework';
 export * from './components';
 export * from './renderer/base';
+export * from './utils';
 
 export {
     MeshBuffer,

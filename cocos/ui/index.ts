@@ -45,3 +45,4 @@ export { UICoordinateTracker } from './ui-coodinate-tracker';
 export { BlockInputEvents } from './block-input-events';
 export { SubContextView } from './SubContextView';
 export { widgetManager } from './widget-manager';
+export * from './deprecated';
