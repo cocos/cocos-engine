@@ -53,17 +53,10 @@ public:
     CCMTLRenderCommandEncoder &operator=(const CCMTLRenderCommandEncoder &) = delete;
     CCMTLRenderCommandEncoder &operator=(CCMTLRenderCommandEncoder &&) = delete;
 
-    CC_INLINE void initialize(id<MTLCommandBuffer> commandBuffer, MTLRenderPassDescriptor *descriptor)
-    {
-        _mtlEncoder = [[commandBuffer renderCommandEncoderWithDescriptor:descriptor] retain];
-        clearStates();
-    }
-    
-    CC_INLINE void initialize(id<MTLParallelRenderCommandEncoder> parallelEncoder)
-    {
-        _mtlEncoder = [[parallelEncoder renderCommandEncoder] retain];
-        clearStates();
-    }
+    void initialize(id<MTLCommandBuffer> commandBuffer, MTLRenderPassDescriptor *descriptor);
+    void initialize(id<MTLParallelRenderCommandEncoder> parallelEncoder);
+    void beginEncoding();
+    void endEncoding();
     
     CC_INLINE void clearStates()
     {
@@ -283,13 +276,6 @@ public:
 
         _fragmentSamplerMap[index] = sampler;
         [_mtlEncoder setFragmentSamplerState:sampler atIndex:index];
-    }
-
-    CC_INLINE void endEncoding()
-    {
-        [_mtlEncoder endEncoding];
-        [_mtlEncoder release];
-        _mtlEncoder = nil;
     }
 
     CC_INLINE id<MTLRenderCommandEncoder> const getMTLEncoder()

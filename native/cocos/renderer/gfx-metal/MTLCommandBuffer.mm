@@ -65,10 +65,20 @@ void CCMTLCommandBuffer::destroy() {
 
 void CCMTLCommandBuffer::begin(RenderPass *renderPass, uint subpass, Framebuffer *frameBuffer, int submitIndex) {
     if (_commandBufferBegan) return;
-
-    _mtlCommandBuffer = [_mtlCommandQueue commandBuffer];
-    [_mtlCommandBuffer retain];
-    [_mtlCommandBuffer enqueue];
+    
+    cbAutoReleasePool = [[NSAutoreleasePool alloc] init];
+    
+    _isSubCB = renderPass != nullptr && _mtlCommandBuffer;
+    if (!_isSubCB)
+    {
+        // Sub command buffer for parallel shouldn't request any command buffer
+        _mtlCommandBuffer = [[_mtlCommandQueue commandBuffer] retain];
+        [_mtlCommandBuffer enqueue];
+    }
+    else
+    {
+        _commandEncoder.beginEncoding();
+    }
     _numTriangles = 0;
     _numDrawCalls = 0;
     _numInstances = 0;
@@ -92,8 +102,6 @@ bool CCMTLCommandBuffer::isRenderingEntireDrawable(const Rect &rect, const CCMTL
     if (num == 0) {
         return true;
     }
-    const auto &renderTargetSize = renderPass->getRenderTargetSizes()[0];
-    return rect.x == 0 && rect.y == 0 && rect.width == renderTargetSize.x && rect.height == renderTargetSize.y;
 }
 
 void CCMTLCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, int stencil, bool fromSecondaryCB) {
