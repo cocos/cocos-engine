@@ -112,3 +112,4 @@ export class CCArmatureDisplay extends DisplayData implements IEventDispatcher {
         this._eventTarget.emit(type, eventObject);
     }
 }
+
