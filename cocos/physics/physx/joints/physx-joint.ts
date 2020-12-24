@@ -75,10 +75,6 @@ export class PhysXJoint implements IBaseConstraint {
     // virtual
     protected onComponentSet (): void { }
 
-    onLoad (): void {
-
-    }
-
     onEnable (): void {
         const sb = (this._rigidBody.body as PhysXRigidBody).sharedBody;
         const connect = this._com.connectedBody;

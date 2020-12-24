@@ -78,10 +78,6 @@ export class CannonConstraint implements IBaseConstraint {
     updateScale0 () { }
     updateScale1 () { }
 
-    onLoad () {
-
-    }
-
     onEnable () {
         const sb = (this._rigidBody.body as CannonRigidBody).sharedBody;
         sb.wrappedWorld.addConstraint(this);

@@ -98,7 +98,6 @@ export class Constraint extends Eventify(Component) {
         if (!EDITOR) {
             this._constraint = createConstraint(this.TYPE);
             this._constraint.initialize(this);
-            this._constraint.onLoad!();
         }
     }
 
