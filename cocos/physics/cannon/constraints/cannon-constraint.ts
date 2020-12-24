@@ -32,14 +32,21 @@ import CANNON from '@cocos/cannon';
 import { IBaseConstraint } from '../../spec/i-physics-constraint';
 import { Constraint, RigidBody } from '../../framework';
 import { CannonRigidBody } from '../cannon-rigid-body';
+import { getWrap } from '../../utils/util';
+import { CannonSharedBody } from '../cannon-shared-body';
 
 (CANNON.World as any).staticBody = new CANNON.Body();
 (CANNON.World as any).idToConstraintMap = {};
 
 export class CannonConstraint implements IBaseConstraint {
     setConnectedBody (v: RigidBody | null): void {
+        const oldSB = getWrap<CannonSharedBody>(this.impl.bodyB);
+        if (oldSB) oldSB.removeJoint(this, 1);
+
         if (v) {
             this._impl.bodyB = (v.body as CannonRigidBody).impl;
+            const newSB = (v.body as CannonRigidBody).sharedBody;
+            newSB.addJoint(this, 1);
         } else {
             this._impl.bodyB = (CANNON.World as any).staticBody;
         }
@@ -67,21 +74,33 @@ export class CannonConstraint implements IBaseConstraint {
     // virtual
     protected onComponentSet () { }
 
+    // virtual
+    updateScale0 () { }
+    updateScale1 () { }
+
     onLoad () {
 
     }
 
     onEnable () {
-        if (this._rigidBody) {
-            const sb = (this._rigidBody.body as CannonRigidBody).sharedBody;
-            sb.wrappedWorld.addConstraint(this);
+        const sb = (this._rigidBody.body as CannonRigidBody).sharedBody;
+        sb.wrappedWorld.addConstraint(this);
+        sb.addJoint(this, 0);
+        const connect = this.constraint.connectedBody;
+        if (connect) {
+            const sb2 = (connect.body as CannonRigidBody).sharedBody;
+            sb2.addJoint(this, 1);
         }
     }
 
     onDisable () {
-        if (this._rigidBody) {
-            const sb = (this._rigidBody.body as CannonRigidBody).sharedBody;
-            sb.wrappedWorld.removeConstraint(this);
+        const sb = (this._rigidBody.body as CannonRigidBody).sharedBody;
+        sb.wrappedWorld.removeConstraint(this);
+        sb.removeJoint(this, 0);
+        const connect = this.constraint.connectedBody;
+        if (connect) {
+            const sb2 = (connect.body as CannonRigidBody).sharedBody;
+            sb2.removeJoint(this, 1);
         }
     }
 

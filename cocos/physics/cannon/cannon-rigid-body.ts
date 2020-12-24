@@ -32,7 +32,6 @@ import CANNON from '@cocos/cannon';
 import { Vec3 } from '../../core/math';
 import { IRigidBody } from '../spec/i-rigid-body';
 import { CannonSharedBody } from './cannon-shared-body';
-import { Node } from '../../core';
 import { CannonWorld } from './cannon-world';
 import { PhysicsSystem } from '../framework/physics-system';
 import { ERigidBodyType, RigidBody } from '../framework';

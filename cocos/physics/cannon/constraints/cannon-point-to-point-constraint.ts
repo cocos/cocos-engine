@@ -48,32 +48,40 @@ export class CannonPointToPointConstraint extends CannonConstraint implements IP
 
     setPivotA (v: IVec3Like): void {
         const cs = this.constraint;
-        Vec3.copy(this.impl.pivotA, cs.pivotA);
+        Vec3.multiply(this.impl.pivotA, this._rigidBody.node.worldScale, cs.pivotA);
     }
 
     setPivotB (v: IVec3Like): void {
         const cs = this.constraint;
         const cb = cs.connectedBody;
         if (cb) {
-            Vec3.copy(this.impl.pivotB, cs.pivotB);
+            Vec3.multiply(this.impl.pivotB, cb.node.worldScale, cs.pivotB);
         } else {
-            Vec3.add(v3_0, this._rigidBody.node.worldPosition, cs.pivotA);
+            const n = this._rigidBody.node;
+            Vec3.multiply(v3_0, n.worldScale, cs.pivotA);
+            Vec3.add(v3_0, v3_0, n.worldPosition);
             Vec3.add(v3_0, v3_0, cs.pivotB);
             Vec3.copy(this.impl.pivotB, v3_0);
         }
     }
 
     onComponentSet () {
-        if (this._rigidBody) {
-            const bodyA = (this._rigidBody.body as CannonRigidBody).impl;
-            const cb = this.constraint.connectedBody;
-            let bodyB: CANNON.Body = (CANNON.World as any).staticBody;
-            if (cb) {
-                bodyB = (cb.body as CannonRigidBody).impl;
-            }
-            this._impl = new CANNON.PointToPointConstraint(bodyA, null, bodyB);
-            this.setPivotA(this.constraint.pivotA);
-            this.setPivotB(this.constraint.pivotB);
+        const bodyA = (this._rigidBody.body as CannonRigidBody).impl;
+        const cb = this.constraint.connectedBody;
+        let bodyB: CANNON.Body = (CANNON.World as any).staticBody;
+        if (cb) {
+            bodyB = (cb.body as CannonRigidBody).impl;
         }
+        this._impl = new CANNON.PointToPointConstraint(bodyA, null, bodyB);
+        this.setPivotA(this.constraint.pivotA);
+        this.setPivotB(this.constraint.pivotB);
+    }
+
+    updateScale0 () {
+        this.setPivotA(this.constraint.pivotA);
+    }
+
+    updateScale1 () {
+        this.setPivotB(this.constraint.pivotB);
     }
 }

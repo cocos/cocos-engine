@@ -28,7 +28,7 @@
  * @hidden
  */
 
-import CANNON, { RotationalEquation } from '@cocos/cannon';
+import CANNON from '@cocos/cannon';
 import { CannonConstraint } from './cannon-constraint';
 import { IHingeConstraint } from '../../spec/i-physics-constraint';
 import { HingeConstraint } from '../../framework';
@@ -48,16 +48,18 @@ export class CannonHingeConstraint extends CannonConstraint implements IHingeCon
 
     setPivotA (v: IVec3Like): void {
         const cs = this.constraint;
-        Vec3.copy(this.impl.pivotA, cs.pivotA);
+        Vec3.multiply(this.impl.pivotA, this._rigidBody.node.worldScale, cs.pivotA);
     }
 
     setPivotB (v: IVec3Like): void {
         const cs = this.constraint;
         const cb = cs.connectedBody;
         if (cb) {
-            Vec3.copy(this.impl.pivotB, cs.pivotB);
+            Vec3.multiply(this.impl.pivotB, cb.node.worldScale, cs.pivotB);
         } else {
-            Vec3.add(v3_0, this._rigidBody.node.worldPosition, cs.pivotA);
+            const n = this._rigidBody.node;
+            Vec3.multiply(v3_0, n.worldScale, cs.pivotA);
+            Vec3.add(v3_0, v3_0, n.worldPosition);
             Vec3.add(v3_0, v3_0, cs.pivotB);
             Vec3.copy(this.impl.pivotB, v3_0);
         }
@@ -65,31 +67,37 @@ export class CannonHingeConstraint extends CannonConstraint implements IHingeCon
 
     setAxis (v: IVec3Like): void {
         Vec3.copy(this.impl.axisA, v);
-        Vec3.copy((this.impl.equations[3] as RotationalEquation).axisA, v);
-        Vec3.copy((this.impl.equations[4] as RotationalEquation).axisA, v);
+        Vec3.copy((this.impl.equations[3] as CANNON.RotationalEquation).axisA, v);
+        Vec3.copy((this.impl.equations[4] as CANNON.RotationalEquation).axisA, v);
         if (this.constraint.connectedBody) {
             Vec3.copy(this.impl.axisB, v);
-            Vec3.copy((this.impl.equations[3] as RotationalEquation).axisB, v);
-            Vec3.copy((this.impl.equations[4] as RotationalEquation).axisB, v);
+            Vec3.copy((this.impl.equations[3] as CANNON.RotationalEquation).axisB, v);
+            Vec3.copy((this.impl.equations[4] as CANNON.RotationalEquation).axisB, v);
         } else {
             Vec3.transformQuat(this.impl.axisB, v, this._rigidBody.node.worldRotation);
-            Vec3.copy((this.impl.equations[3] as RotationalEquation).axisB, this.impl.axisB);
-            Vec3.copy((this.impl.equations[4] as RotationalEquation).axisB, this.impl.axisB);
+            Vec3.copy((this.impl.equations[3] as CANNON.RotationalEquation).axisB, this.impl.axisB);
+            Vec3.copy((this.impl.equations[4] as CANNON.RotationalEquation).axisB, this.impl.axisB);
         }
     }
 
     onComponentSet () {
-        if (this._rigidBody) {
-            const bodyA = (this._rigidBody.body as CannonRigidBody).impl;
-            const cb = this.constraint.connectedBody;
-            let bodyB: CANNON.Body = (CANNON.World as any).staticBody;
-            if (cb) {
-                bodyB = (cb.body as CannonRigidBody).impl;
-            }
-            this._impl = new CANNON.HingeConstraint(bodyA, bodyB);
-            this.setPivotA(this.constraint.pivotA);
-            this.setPivotB(this.constraint.pivotB);
-            this.setAxis(this.constraint.axis);
+        const bodyA = (this._rigidBody.body as CannonRigidBody).impl;
+        const cb = this.constraint.connectedBody;
+        let bodyB: CANNON.Body = (CANNON.World as any).staticBody;
+        if (cb) {
+            bodyB = (cb.body as CannonRigidBody).impl;
         }
+        this._impl = new CANNON.HingeConstraint(bodyA, bodyB);
+        this.setPivotA(this.constraint.pivotA);
+        this.setPivotB(this.constraint.pivotB);
+        this.setAxis(this.constraint.axis);
+    }
+
+    updateScale0 () {
+        this.setPivotA(this.constraint.pivotA);
+    }
+
+    updateScale1 () {
+        this.setPivotB(this.constraint.pivotB);
     }
 }
