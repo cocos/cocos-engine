@@ -28,7 +28,8 @@
  * @hidden
  */
 
-import { warnID, warn, easing } from '../core';
+import { easing } from '../core/animation';
+import { warnID, warn } from '../core';
 import { ActionInterval } from './actions/action-interval';
 import { ITweenOption } from './export-api';
 import { legacyCC, VERSION } from '../core/global-exports';

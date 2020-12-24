@@ -28,7 +28,7 @@
  * @hidden
  */
 
-import { RenderingSubMesh } from '../../core/assets/mesh';
+import { RenderingSubMesh } from '../../core/assets/rendering-sub-mesh';
 import { DRAW_INFO_SIZE, Buffer, IndirectBuffer, Attribute, BufferInfo, DrawInfo } from '../../core/gfx';
 import { AttributeName, BufferUsageBit, Format, FormatInfos, MemoryUsageBit, PrimitiveMode } from '../../core/gfx/define';
 import { Vec3 } from '../../core/math';

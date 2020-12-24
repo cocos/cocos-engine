@@ -28,7 +28,8 @@
  * @hidden
  */
 
-import { GFXAttributeName, Mesh, Quat, Vec3 } from '../../../core';
+import { GFXAttributeName, Quat, Vec3 } from '../../../core';
+import { Mesh } from '../../../3d/assets';
 import { MeshCollider } from '../../framework';
 import { ITrimeshShape } from '../../spec/i-physics-shape';
 import { createConvexMesh, createMeshGeometryFlags, createTriangleMesh, PX, _trans } from '../export-physx';

@@ -28,16 +28,16 @@
  * @module core
  */
 
-import { builtinResMgr } from './3d/builtin';
+import { builtinResMgr } from './builtin';
 import { Pool } from './memop';
 import { RenderPipeline, ForwardPipeline } from './pipeline';
 import { Camera, Light, Model } from './renderer/scene';
-import { DataPoolManager } from './renderer/data-pool-manager';
+import { DataPoolManager } from '../3d/skeletal-animation/data-pool-manager';
 import { LightType } from './renderer/scene/light';
 import { IRenderSceneInfo, RenderScene } from './renderer/scene/render-scene';
 import { SphereLight } from './renderer/scene/sphere-light';
 import { SpotLight } from './renderer/scene/spot-light';
-import { UI } from './renderer/ui/ui';
+import { UI } from '../2d/renderer/ui';
 import { legacyCC } from './global-exports';
 import { RenderWindow, IRenderWindowInfo } from './renderer/core/render-window';
 import { ColorAttachment, DepthStencilAttachment, RenderPassInfo, StoreOp, Device } from './gfx';
@@ -221,7 +221,7 @@ export class Root {
      */
     constructor (device: Device) {
         this._device = device;
-        this._dataPoolMgr = new DataPoolManager(device);
+        this._dataPoolMgr = legacyCC.internal.DataPoolManager && new legacyCC.internal.DataPoolManager(device) as DataPoolManager;
 
         RenderScene.registerCreateFunc(this);
         RenderWindow.registerCreateFunc(this);
@@ -318,8 +318,8 @@ export class Root {
         }
 
         this.onGlobalPipelineStateChanged();
-        if (!this._ui) {
-            this._ui = new UI(this);
+        if (!this._ui && legacyCC.internal.UI) {
+            this._ui = new legacyCC.internal.UI(this) as UI;
             if (!this._ui.initialize()) {
                 this.destroy();
                 return false;

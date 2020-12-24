@@ -24,7 +24,7 @@
  */
 
 import { PREVIEW } from 'internal:constants';
-import { IBArray } from '../../assets/mesh';
+import { IBArray } from '../../assets/rendering-sub-mesh';
 import { AABB, intersect, Ray, Triangle } from '../../geometry';
 import { PrimitiveMode } from '../../gfx/define';
 import { Mat4, Vec3 } from '../../math';
@@ -40,7 +40,7 @@ import { SpotLight } from './spot-light';
 import { TransformBit } from '../../scene-graph/node-enum';
 import { legacyCC } from '../../global-exports';
 import { ScenePool, SceneView, ModelArrayPool, ModelArrayHandle, SceneHandle, NULL_HANDLE, UIBatchArrayHandle, UIBatchArrayPool, LightArrayHandle, LightArrayPool } from '../core/memory-pools';
-import { UIDrawBatch } from '../ui/ui-draw-batch';
+import { UIDrawBatch } from '../../../2d/renderer/ui-draw-batch';
 
 export interface IRenderSceneInfo {
     name: string;

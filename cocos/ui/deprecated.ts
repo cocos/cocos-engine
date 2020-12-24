@@ -27,10 +27,23 @@
  * @packageDocumentation
  * @module ui
  */
-
+import { UICoordinateTracker } from './ui-coodinate-tracker';
+import { BlockInputEvents } from './block-input-events';
+import { Button } from './button';
+import { EditBox } from './editbox/edit-box';
+import { Layout } from './layout';
+import { ProgressBar } from './progress-bar';
+import { ScrollView } from './scroll-view';
+import { ScrollBar } from './scroll-bar';
+import { Slider } from './slider';
+import { Toggle } from './toggle';
+import { ToggleContainer } from './toggle-container';
+import { Widget } from './widget';
+import { PageView } from './page-view';
+import { PageViewIndicator } from './page-view-indicator';
+import { SafeArea } from './safe-area';
 import { warnID } from '../core/platform/debug';
 import { ccclass } from '../core/data/class-decorator';
-import { BlockInputEvents, Button, EditBox, Layout, Mask, Label, LabelOutline, ProgressBar, RichText, ScrollView, ScrollBar, Slider, Sprite, Toggle, ToggleContainer, UIMeshRenderer, Widget, Graphics, PageView, PageViewIndicator, UIStaticBatch, UIOpacity, SafeArea, UICoordinateTracker } from './components';
 import { js } from '../core/utils/js';
 import { legacyCC } from '../core/global-exports';
 
@@ -67,40 +80,12 @@ export { Layout as LayoutComponent };
 legacyCC.LayoutComponent = Layout;
 js.setClassAlias(Layout, 'cc.LayoutComponent');
 /**
- * Alias of [[Mask]]
- * @deprecated Since v1.2
- */
-export { Mask as MaskComponent };
-legacyCC.MaskComponent = Mask;
-js.setClassAlias(Mask, 'cc.MaskComponent');
-/**
- * Alias of [[Label]]
- * @deprecated Since v1.2
- */
-export { Label as LabelComponent };
-legacyCC.LabelComponent = Label;
-js.setClassAlias(Label, 'cc.LabelComponent');
-/**
- * Alias of [[LabelOutline]]
- * @deprecated Since v1.2
- */
-export { LabelOutline as LabelOutlineComponent };
-legacyCC.LabelOutlineComponent = LabelOutline;
-js.setClassAlias(LabelOutline, 'cc.LabelOutlineComponent');
-/**
  * Alias of [[ProgressBar]]
  * @deprecated Since v1.2
  */
 export { ProgressBar as ProgressBarComponent };
 legacyCC.ProgressBarComponent = ProgressBar;
 js.setClassAlias(ProgressBar, 'cc.ProgressBarComponent');
-/**
- * Alias of [[RichText]]
- * @deprecated Since v1.2
- */
-export { RichText as RichTextComponent };
-legacyCC.RichTextComponent = RichText;
-js.setClassAlias(RichText, 'cc.RichTextComponent');
 /**
  * Alias of [[ScrollView]]
  * @deprecated Since v1.2
@@ -123,13 +108,6 @@ export { Slider as SliderComponent };
 legacyCC.SliderComponent = Slider;
 js.setClassAlias(Slider, 'cc.SliderComponent');
 /**
- * Alias of [[Sprite]]
- * @deprecated Since v1.2
- */
-export { Sprite as SpriteComponent };
-legacyCC.SpriteComponent = Sprite;
-js.setClassAlias(Sprite, 'cc.SpriteComponent');
-/**
  * Alias of [[Toggle]]
  * @deprecated Since v1.2
  */
@@ -144,26 +122,12 @@ export { ToggleContainer as ToggleContainerComponent };
 legacyCC.ToggleContainerComponent = ToggleContainer;
 js.setClassAlias(ToggleContainer, 'cc.ToggleContainerComponent');
 /**
- * Alias of [[UIMeshRenderer]]
- * @deprecated Since v1.2
- */
-export { UIMeshRenderer as UIModelComponent };
-legacyCC.UIModelComponent = UIMeshRenderer;
-js.setClassAlias(UIMeshRenderer, 'cc.UIModelComponent');
-/**
  * Alias of [[Widget]]
  * @deprecated Since v1.2
  */
 export { Widget as WidgetComponent };
 legacyCC.WidgetComponent = Widget;
 js.setClassAlias(Widget, 'cc.WidgetComponent');
-/**
- * Alias of [[Graphics]]
- * @deprecated Since v1.2
- */
-export { Graphics as GraphicsComponent };
-legacyCC.GraphicsComponent = Graphics;
-js.setClassAlias(Graphics, 'cc.GraphicsComponent');
 /**
  * Alias of [[PageView]]
  * @deprecated Since v1.2
@@ -178,18 +142,6 @@ js.setClassAlias(PageView, 'cc.PageViewComponent');
 export { PageViewIndicator as PageViewIndicatorComponent };
 legacyCC.PageViewIndicatorComponent = PageViewIndicator;
 js.setClassAlias(PageViewIndicator, 'cc.PageViewIndicatorComponent');
-/**
- * Alias of [[UIStaticBatch]]
- * @deprecated Since v1.2
- */
-export { UIStaticBatch as UIStaticBatchComponent };
-js.setClassAlias(UIStaticBatch, 'cc.UIStaticBatchComponent');
-/**
- * Alias of [[UIOpacity]]
- * @deprecated Since v1.2
- */
-export { UIOpacity as UIOpacityComponent };
-js.setClassAlias(UIOpacity, 'cc.UIOpacityComponent');
 /**
  * Alias of [[SafeArea]]
  * @deprecated Since v1.2

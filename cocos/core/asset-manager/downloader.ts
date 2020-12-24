@@ -31,14 +31,10 @@ import { js } from '../utils';
 import { callInNextTick } from '../utils/misc';
 import { basename } from '../utils/path';
 import Cache from './cache';
-import { downloadDomAudio, downloadAudio } from '../../audio/audio-downloader';
-import { downloadVideo } from '../../video/video-downloader';
 import downloadDomImage from './download-dom-image';
 import downloadFile from './download-file';
 import downloadScript from './download-script';
-import { loadFont } from './font-loader';
-import { CompleteCallback, CompleteCallbackNoData, IBundleOptions, IDownloadParseOptions } from './shared';
-import { files } from './shared';
+import { CompleteCallback, CompleteCallbackNoData, IBundleOptions, IDownloadParseOptions, files } from './shared';
 import { retry, RetryFunction, urlAppendTimestamp } from './utilities';
 import { legacyCC } from '../global-exports';
 import { EDITOR } from 'internal:constants';
@@ -219,7 +215,7 @@ export class Downloader {
 
     public downloadDomImage = downloadDomImage;
 
-    public downloadDomAudio = downloadDomAudio;
+    public downloadDomAudio: DownloadHandler | null = null;
 
     public downloadFile = downloadFile;
 
@@ -241,12 +237,6 @@ export class Downloader {
         '.pkm': downloadArrayBuffer,
         '.astc': downloadArrayBuffer,
 
-        // Audio
-        '.mp3' : downloadAudio,
-        '.ogg' : downloadAudio,
-        '.wav' : downloadAudio,
-        '.m4a' : downloadAudio,
-
         // Txt
         '.txt' : downloadText,
         '.xml' : downloadText,
@@ -262,23 +252,6 @@ export class Downloader {
         '.plist' : downloadText,
 
         '.fnt' : downloadText,
-
-        // font
-        '.font' : loadFont,
-        '.eot' : loadFont,
-        '.ttf' : loadFont,
-        '.woff' : loadFont,
-        '.svg' : loadFont,
-        '.ttc' : loadFont,
-
-        // Video
-        '.mp4': downloadVideo,
-        '.avi': downloadVideo,
-        '.mov': downloadVideo,
-        '.mpg': downloadVideo,
-        '.mpeg': downloadVideo,
-        '.rm': downloadVideo,
-        '.rmvb': downloadVideo,
 
         // Binary
         '.binary' : downloadArrayBuffer,

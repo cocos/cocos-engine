@@ -30,7 +30,7 @@
  */
 
 import { Material } from '../../core/assets/material';
-import { RenderingSubMesh } from '../../core/assets/mesh';
+import { RenderingSubMesh } from '../../core/assets/rendering-sub-mesh';
 import { ccclass, tooltip, displayOrder, type, serializable } from 'cc.decorator';
 import { director } from '../../core/director';
 import { AttributeName, BufferUsageBit, Format, FormatInfos, MemoryUsageBit, PrimitiveMode } from '../../core/gfx/define';
