@@ -404,7 +404,7 @@ export class UI {
             const calls = this._doUploadBuffersCall;
             for (const key of calls.keys()) {
                 const list = calls.get(key);
-                list.call(key, this);
+                list!.call(key, this);
             }
 
             const buffers = this._meshBuffers;
