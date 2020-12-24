@@ -42,18 +42,18 @@ import { Device, RenderPass, Buffer, BufferUsageBit, MemoryUsageBit,
 import { Pool } from '../memop';
 import { RenderBatchedQueue } from './render-batched-queue';
 import { RenderInstancedQueue } from './render-instanced-queue';
-import { RenderView } from './render-view';
 import { SphereLight } from '../renderer/scene/sphere-light';
 import { SpotLight } from '../renderer/scene/spot-light';
 import { SubModel } from '../renderer/scene/submodel';
 import { getPhaseID } from './pass-phase';
 import { Light, LightType } from '../renderer/scene/light';
-import { IRenderObject, SetIndex, UBOForwardLight, UBOGlobal, UBOShadow, UNIFORM_SHADOWMAP_BINDING, UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING } from './define';
+import { IRenderObject, SetIndex, UBOForwardLight, UBOGlobal, UBOShadow, UBOCamera, UNIFORM_SHADOWMAP_BINDING, UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING } from './define';
 import { legacyCC } from '../global-exports';
 import { genSamplerHash, samplerLib } from '../renderer/core/sampler-lib';
 import { builtinResMgr } from '../builtin/builtin-res-mgr';
 import { Texture2D } from '../assets/texture-2d';
 import { updatePlanarPROJ } from './forward/scene-culling';
+import { Camera } from '../renderer/scene';
 
 const _samplerInfo = [
     Filter.LINEAR,
@@ -123,6 +123,8 @@ export class RenderAdditiveLightQueue {
     private _descriptorSetMap: Map<Light, DescriptorSet> = new Map();
 
     private _globalUBO = new Float32Array(UBOGlobal.COUNT);
+
+    private _cameraUBO = new Float32Array(UBOCamera.COUNT);
 
     private _shadowUBO = new Float32Array(UBOShadow.COUNT);
 
@@ -211,25 +213,25 @@ export class RenderAdditiveLightQueue {
         this._descriptorSetMap.clear();
     }
 
-    public gatherLightPasses (view: RenderView, cmdBuff: CommandBuffer) {
+    public gatherLightPasses (camera: Camera, cmdBuff: CommandBuffer) {
         const validLights = this._validLights;
-        const { sphereLights } = view.camera.scene!;
+        const { sphereLights } = camera.scene!;
 
         this.clear();
 
         for (let i = 0; i < sphereLights.length; i++) {
             const light = sphereLights[i];
             Sphere.set(_sphere, light.position.x, light.position.y, light.position.z, light.range);
-            if (intersect.sphereFrustum(_sphere, view.camera.frustum)) {
+            if (intersect.sphereFrustum(_sphere, camera.frustum)) {
                 validLights.push(light);
                 this._getOrCreateDescriptorSet(light);
             }
         }
-        const { spotLights } = view.camera.scene!;
+        const { spotLights } = camera.scene!;
         for (let i = 0; i < spotLights.length; i++) {
             const light = spotLights[i];
             Sphere.set(_sphere, light.position.x, light.position.y, light.position.z, light.range);
-            if (intersect.sphereFrustum(_sphere, view.camera.frustum)) {
+            if (intersect.sphereFrustum(_sphere, camera.frustum)) {
                 validLights.push(light);
                 this._getOrCreateDescriptorSet(light);
             }
@@ -237,8 +239,8 @@ export class RenderAdditiveLightQueue {
 
         if (!validLights.length) { return; }
 
-        this._updateUBOs(view, cmdBuff);
-        this._updateLightDescriptorSet(view, cmdBuff);
+        this._updateUBOs(camera, cmdBuff);
+        this._updateLightDescriptorSet(camera, cmdBuff);
 
         for (let i = 0; i < this._renderObjects.length; i++) {
             const ro = this._renderObjects[i];
@@ -337,16 +339,16 @@ export class RenderAdditiveLightQueue {
     }
 
     // update light DescriptorSet
-    protected _updateLightDescriptorSet (view: RenderView, cmdBuff: CommandBuffer) {
+    protected _updateLightDescriptorSet (camera: Camera, cmdBuff: CommandBuffer) {
         const shadowInfo = this._pipeline.shadows;
-        const mainLight = view.camera.scene!.mainLight;
+        const mainLight = camera.scene!.mainLight;
 
         for (let i = 0; i < this._validLights.length; i++) {
             const light = this._validLights[i];
             const descriptorSet = this._getOrCreateDescriptorSet(light);
             if (!descriptorSet) { continue; }
 
-            this._updateGlobalDescriptorSet(view, cmdBuff);
+            this._updateGlobalDescriptorSet(camera, cmdBuff);
 
             switch (light.type) {
             case LightType.SPHERE:
@@ -398,21 +400,15 @@ export class RenderAdditiveLightQueue {
             descriptorSet.update();
 
             cmdBuff.updateBuffer(descriptorSet.getBuffer(UBOGlobal.BINDING)!, this._globalUBO);
+            cmdBuff.updateBuffer(descriptorSet.getBuffer(UBOCamera.BINDING)!, this._cameraUBO);
             cmdBuff.updateBuffer(descriptorSet.getBuffer(UBOShadow.BINDING)!, this._shadowUBO);
         }
     }
 
-    protected _updateGlobalDescriptorSet (view: RenderView, cmdBuff: CommandBuffer) {
+    protected _updateGlobalDescriptorSet (camera: Camera, cmdBuff: CommandBuffer) {
         const root = legacyCC.director.root;
         const device = this._pipeline.device;
-        const pipeline = this._pipeline;
-        const camera = view.camera;
-        const scene = camera.scene!;
-        const mainLight = scene.mainLight;
-        const ambient = pipeline.ambient;
-        const fog = pipeline.fog;
         const fv = this._globalUBO;
-        const shadingScale = pipeline.shadingScale;
 
         const shadingWidth = Math.floor(device.width);
         const shadingHeight = Math.floor(device.height);
@@ -424,57 +420,71 @@ export class RenderAdditiveLightQueue {
 
         fv[UBOGlobal.SCREEN_SIZE_OFFSET] = device.width;
         fv[UBOGlobal.SCREEN_SIZE_OFFSET + 1] = device.height;
-        fv[UBOGlobal.SCREEN_SIZE_OFFSET + 2] = 1.0 / fv[UBOGlobal.SCREEN_SIZE_OFFSET];
-        fv[UBOGlobal.SCREEN_SIZE_OFFSET + 3] = 1.0 / fv[UBOGlobal.SCREEN_SIZE_OFFSET + 1];
-
-        fv[UBOGlobal.SCREEN_SCALE_OFFSET] = camera.width / shadingWidth * shadingScale;
-        fv[UBOGlobal.SCREEN_SCALE_OFFSET + 1] = camera.height / shadingHeight * shadingScale;
-        fv[UBOGlobal.SCREEN_SCALE_OFFSET + 2] = 1.0 / fv[UBOGlobal.SCREEN_SCALE_OFFSET];
-        fv[UBOGlobal.SCREEN_SCALE_OFFSET + 3] = 1.0 / fv[UBOGlobal.SCREEN_SCALE_OFFSET + 1];
+        fv[UBOGlobal.SCREEN_SIZE_OFFSET + 2] = 1.0 / device.width;
+        fv[UBOGlobal.SCREEN_SIZE_OFFSET + 3] = 1.0 / device.height;
 
         fv[UBOGlobal.NATIVE_SIZE_OFFSET] = shadingWidth;
         fv[UBOGlobal.NATIVE_SIZE_OFFSET + 1] = shadingHeight;
         fv[UBOGlobal.NATIVE_SIZE_OFFSET + 2] = 1.0 / fv[UBOGlobal.NATIVE_SIZE_OFFSET];
         fv[UBOGlobal.NATIVE_SIZE_OFFSET + 3] = 1.0 / fv[UBOGlobal.NATIVE_SIZE_OFFSET + 1];
 
-        Mat4.toArray(fv, camera.matView, UBOGlobal.MAT_VIEW_OFFSET);
-        Mat4.toArray(fv, camera.node.worldMatrix, UBOGlobal.MAT_VIEW_INV_OFFSET);
-        Mat4.toArray(fv, camera.matProj, UBOGlobal.MAT_PROJ_OFFSET);
-        Mat4.toArray(fv, camera.matProjInv, UBOGlobal.MAT_PROJ_INV_OFFSET);
-        Mat4.toArray(fv, camera.matViewProj, UBOGlobal.MAT_VIEW_PROJ_OFFSET);
-        Mat4.toArray(fv, camera.matViewProjInv, UBOGlobal.MAT_VIEW_PROJ_INV_OFFSET);
-        Vec3.toArray(fv, camera.position, UBOGlobal.CAMERA_POS_OFFSET);
-        let projectionSignY = device.screenSpaceSignY;
-        if (view.window.hasOffScreenAttachments) {
-            projectionSignY *= device.UVSpaceSignY; // need flipping if drawing on render targets
-        }
-        fv[UBOGlobal.CAMERA_POS_OFFSET + 3] = projectionSignY;
+        this._updateCameraUBO(camera);
+    }
+
+    protected _updateCameraUBO (camera: Camera) {
+        const pipeline = this._pipeline;
+        const scene = camera.scene!;
+        const mainLight = scene.mainLight;
+        const ambient = pipeline.ambient;
+        const shadingScale = pipeline.shadingScale;
+        const device = this._pipeline.device;
+        const shadingWidth = Math.floor(device.width);
+        const shadingHeight = Math.floor(device.height);
+        const fog = pipeline.fog;
+
+        const cv = this._cameraUBO;
+        cv[UBOCamera.SCREEN_SCALE_OFFSET] = camera.width / shadingWidth * shadingScale;
+        cv[UBOCamera.SCREEN_SCALE_OFFSET + 1] = camera.height / shadingHeight * shadingScale;
+        cv[UBOCamera.SCREEN_SCALE_OFFSET + 2] = 1.0 / cv[UBOCamera.SCREEN_SCALE_OFFSET];
+        cv[UBOCamera.SCREEN_SCALE_OFFSET + 3] = 1.0 / cv[UBOCamera.SCREEN_SCALE_OFFSET + 1];
 
         const exposure = camera.exposure;
-        fv[UBOGlobal.EXPOSURE_OFFSET] = exposure;
-        fv[UBOGlobal.EXPOSURE_OFFSET + 1] = 1.0 / exposure;
-        fv[UBOGlobal.EXPOSURE_OFFSET + 2] = this._isHDR ? 1.0 : 0.0;
-        fv[UBOGlobal.EXPOSURE_OFFSET + 3] = this._fpScale / exposure;
+        cv[UBOCamera.EXPOSURE_OFFSET] = exposure;
+        cv[UBOCamera.EXPOSURE_OFFSET + 1] = 1.0 / exposure;
+        cv[UBOCamera.EXPOSURE_OFFSET + 2] = this._isHDR ? 1.0 : 0.0;
+        cv[UBOCamera.EXPOSURE_OFFSET + 3] = this._fpScale / exposure;
 
         if (mainLight) {
-            Vec3.toArray(fv, mainLight.direction, UBOGlobal.MAIN_LIT_DIR_OFFSET);
-            Vec3.toArray(fv, mainLight.color, UBOGlobal.MAIN_LIT_COLOR_OFFSET);
+            Vec3.toArray(cv, mainLight.direction, UBOCamera.MAIN_LIT_DIR_OFFSET);
+            Vec3.toArray(cv, mainLight.color, UBOCamera.MAIN_LIT_COLOR_OFFSET);
             if (mainLight.useColorTemperature) {
                 const colorTempRGB = mainLight.colorTemperatureRGB;
-                fv[UBOGlobal.MAIN_LIT_COLOR_OFFSET] *= colorTempRGB.x;
-                fv[UBOGlobal.MAIN_LIT_COLOR_OFFSET + 1] *= colorTempRGB.y;
-                fv[UBOGlobal.MAIN_LIT_COLOR_OFFSET + 2] *= colorTempRGB.z;
+                cv[UBOCamera.MAIN_LIT_COLOR_OFFSET] *= colorTempRGB.x;
+                cv[UBOCamera.MAIN_LIT_COLOR_OFFSET + 1] *= colorTempRGB.y;
+                cv[UBOCamera.MAIN_LIT_COLOR_OFFSET + 2] *= colorTempRGB.z;
             }
 
             if (this._isHDR) {
-                fv[UBOGlobal.MAIN_LIT_COLOR_OFFSET + 3] = mainLight.illuminance * this._fpScale;
+                cv[UBOCamera.MAIN_LIT_COLOR_OFFSET + 3] = mainLight.illuminance * this._fpScale;
             } else {
-                fv[UBOGlobal.MAIN_LIT_COLOR_OFFSET + 3] = mainLight.illuminance * exposure;
+                cv[UBOCamera.MAIN_LIT_COLOR_OFFSET + 3] = mainLight.illuminance * exposure;
             }
         } else {
-            Vec3.toArray(fv, Vec3.UNIT_Z, UBOGlobal.MAIN_LIT_DIR_OFFSET);
-            Vec4.toArray(fv, Vec4.ZERO, UBOGlobal.MAIN_LIT_COLOR_OFFSET);
+            Vec3.toArray(cv, Vec3.UNIT_Z, UBOCamera.MAIN_LIT_DIR_OFFSET);
+            Vec4.toArray(cv, Vec4.ZERO, UBOCamera.MAIN_LIT_COLOR_OFFSET);
         }
+        Mat4.toArray(cv, camera.matView, UBOCamera.MAT_VIEW_OFFSET);
+        Mat4.toArray(cv, camera.node.worldMatrix, UBOCamera.MAT_VIEW_INV_OFFSET);
+        Mat4.toArray(cv, camera.matProj, UBOCamera.MAT_PROJ_OFFSET);
+        Mat4.toArray(cv, camera.matProjInv, UBOCamera.MAT_PROJ_INV_OFFSET);
+        Mat4.toArray(cv, camera.matViewProj, UBOCamera.MAT_VIEW_PROJ_OFFSET);
+        Mat4.toArray(cv, camera.matViewProjInv, UBOCamera.MAT_VIEW_PROJ_INV_OFFSET);
+        Vec3.toArray(cv, camera.position, UBOCamera.CAMERA_POS_OFFSET);
+        let projectionSignY = device.screenSpaceSignY;
+        if (camera.window!.hasOffScreenAttachments) {
+            projectionSignY *= device.UVSpaceSignY; // need flipping if drawing on render targets
+        }
+        cv[UBOCamera.CAMERA_POS_OFFSET + 3] = projectionSignY;
 
         const skyColor = ambient.colorArray;
         if (this._isHDR) {
@@ -482,24 +492,24 @@ export class RenderAdditiveLightQueue {
         } else {
             skyColor[3] = ambient.skyIllum * exposure;
         }
-        fv.set(skyColor, UBOGlobal.AMBIENT_SKY_OFFSET);
-        fv.set(ambient.albedoArray, UBOGlobal.AMBIENT_GROUND_OFFSET);
+        cv.set(skyColor, UBOCamera.AMBIENT_SKY_OFFSET);
+        cv.set(ambient.albedoArray, UBOCamera.AMBIENT_GROUND_OFFSET);
 
         if (fog.enabled) {
-            fv.set(fog.colorArray, UBOGlobal.GLOBAL_FOG_COLOR_OFFSET);
+            cv.set(fog.colorArray, UBOCamera.GLOBAL_FOG_COLOR_OFFSET);
 
-            fv[UBOGlobal.GLOBAL_FOG_BASE_OFFSET] = fog.fogStart;
-            fv[UBOGlobal.GLOBAL_FOG_BASE_OFFSET + 1] = fog.fogEnd;
-            fv[UBOGlobal.GLOBAL_FOG_BASE_OFFSET + 2] = fog.fogDensity;
+            cv[UBOCamera.GLOBAL_FOG_BASE_OFFSET] = fog.fogStart;
+            cv[UBOCamera.GLOBAL_FOG_BASE_OFFSET + 1] = fog.fogEnd;
+            cv[UBOCamera.GLOBAL_FOG_BASE_OFFSET + 2] = fog.fogDensity;
 
-            fv[UBOGlobal.GLOBAL_FOG_ADD_OFFSET] = fog.fogTop;
-            fv[UBOGlobal.GLOBAL_FOG_ADD_OFFSET + 1] = fog.fogRange;
-            fv[UBOGlobal.GLOBAL_FOG_ADD_OFFSET + 2] = fog.fogAtten;
+            cv[UBOCamera.GLOBAL_FOG_ADD_OFFSET] = fog.fogTop;
+            cv[UBOCamera.GLOBAL_FOG_ADD_OFFSET + 1] = fog.fogRange;
+            cv[UBOCamera.GLOBAL_FOG_ADD_OFFSET + 2] = fog.fogAtten;
         }
     }
 
-    protected _updateUBOs (view: RenderView, cmdBuff: CommandBuffer) {
-        const { exposure } = view.camera;
+    protected _updateUBOs (camera: Camera, cmdBuff: CommandBuffer) {
+        const { exposure } = camera;
 
         if (this._validLights.length > this._lightBufferCount) {
             this._firstLightBufferView.destroy();
@@ -587,6 +597,14 @@ export class RenderAdditiveLightQueue {
                 UBOGlobal.SIZE,
             ));
             descriptorSet.bindBuffer(UBOGlobal.BINDING, globalUBO);
+
+            const cameraBUO = device.createBuffer(new BufferInfo(
+                BufferUsageBit.UNIFORM | BufferUsageBit.TRANSFER_DST,
+                MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
+                UBOCamera.SIZE,
+                UBOCamera.SIZE,
+            ));
+            descriptorSet.bindBuffer(UBOCamera.BINDING, cameraBUO);
 
             const shadowBUO = device.createBuffer(new BufferInfo(
                 BufferUsageBit.UNIFORM | BufferUsageBit.TRANSFER_DST,

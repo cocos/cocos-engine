@@ -39,7 +39,8 @@ import { SphereLight } from './sphere-light';
 import { SpotLight } from './spot-light';
 import { TransformBit } from '../../scene-graph/node-enum';
 import { legacyCC } from '../../global-exports';
-import { ScenePool, SceneView, ModelArrayPool, ModelArrayHandle, SceneHandle, NULL_HANDLE, freeHandleArray, ModelPool,LightArrayHandle, LightArrayPool } from '../core/memory-pools';
+import { ScenePool, SceneView, ModelArrayPool, ModelArrayHandle, SceneHandle, NULL_HANDLE, UIBatchArrayHandle, UIBatchArrayPool, LightArrayHandle, LightArrayPool } from '../core/memory-pools';
+import { UIDrawBatch } from '../ui/ui-draw-batch';
 
 export interface IRenderSceneInfo {
     name: string;
@@ -121,21 +122,27 @@ export class RenderScene {
         return this._scenePoolHandle;
     }
 
+    get batches () {
+        return this._batches;
+    }
+
     public static registerCreateFunc (root: Root) {
         root._createSceneFun = (_root: Root): RenderScene => new RenderScene(_root);
     }
 
     private _root: Root;
-    private _name: string = '';
+    private _name = '';
     private _cameras: Camera[] = [];
     private _models: Model[] = [];
+    private _batches: UIDrawBatch[] = [];
     private _directionalLights: DirectionalLight[] = [];
     private _sphereLights: SphereLight[] = [];
     private _spotLights: SpotLight[] = [];
     private _mainLight: DirectionalLight | null = null;
-    private _modelId: number = 0;
+    private _modelId = 0;
     private _scenePoolHandle: SceneHandle = NULL_HANDLE;
     private _modelArrayHandle: ModelArrayHandle = NULL_HANDLE;
+    private _batchArrayHandle: UIBatchArrayHandle = NULL_HANDLE;
     private _sphereLightsHandle: LightArrayHandle = NULL_HANDLE;
     private _spotLightsHandle: LightArrayHandle = NULL_HANDLE;
 
@@ -199,6 +206,10 @@ export class RenderScene {
         if (this._spotLightsHandle) {
             LightArrayPool.free(this._spotLightsHandle);
             this._spotLightsHandle = NULL_HANDLE;
+        }
+        if (this._batchArrayHandle) {
+            UIBatchArrayPool.free(this._batchArrayHandle);
+            this._batchArrayHandle = NULL_HANDLE;
         }
     }
 
@@ -269,7 +280,7 @@ export class RenderScene {
             if (this._sphereLights[i] === pl) {
                 pl.detachFromScene();
                 this._sphereLights.splice(i, 1);
-                LightArrayPool.erase(this._sphereLightsHandle, i)
+                LightArrayPool.erase(this._sphereLightsHandle, i);
                 return;
             }
         }
@@ -332,6 +343,26 @@ export class RenderScene {
         }
         this._models.length = 0;
         ModelArrayPool.clear(this._modelArrayHandle);
+    }
+
+    public addBatch (batch: UIDrawBatch) {
+        this._batches.push(batch);
+        UIBatchArrayPool.push(this._batchArrayHandle, batch.handle);
+    }
+
+    public removeBatch (batch: UIDrawBatch) {
+        for (let i = 0; i < this._batches.length; ++i) {
+            if (this._batches[i] === batch) {
+                this._batches.splice(i, 1);
+                UIBatchArrayPool.erase(this._batchArrayHandle, i);
+                return;
+            }
+        }
+    }
+
+    public removeBatches () {
+        this._batches.length = 0;
+        UIBatchArrayPool.clear(this._batchArrayHandle);
     }
 
     public onGlobalPipelineStateChanged () {
@@ -505,23 +536,27 @@ export class RenderScene {
         return resultCanvas.length > 0;
     }
 
-    private _raycastUI2DNode (worldRay: Ray, ui2dNode: Node, mask = Layers.Enum.UI_2D, distance = Infinity) {
+    private _raycastUI2DNode (worldRay: Ray, ui2dNode: Node, mask = Layers.Enum.UI_2D, distance = Infinity): any {
         if (PREVIEW) {
             if (ui2dNode == null) { console.error('make sure UINode is not null'); }
         }
         const uiTransform = ui2dNode._uiProps.uiTransformComp;
-        if (uiTransform == null || ui2dNode.layer & Layers.Enum.IGNORE_RAYCAST || !(ui2dNode.layer & mask)) { return; }
+        if (uiTransform == null || ui2dNode.layer & Layers.Enum.IGNORE_RAYCAST || !(ui2dNode.layer & mask)) { return null; }
         uiTransform.getComputeAABB(aabbUI);
         const d = intersect.rayAABB(worldRay, aabbUI);
 
         if (d <= 0) {
-            return;
-        } else if (d < distance) {
+            return null;
+        }
+
+        if (d < distance) {
             const r = poolUI.add();
             r.node = ui2dNode;
             r.distance = d;
             return r;
         }
+
+        return null;
     }
 
     private _raycastUI2DNodeRecursiveChildren (worldRay: Ray, parent: Node, mask = Layers.Enum.UI_2D, distance = Infinity) {
@@ -548,6 +583,11 @@ export class RenderScene {
             this._sphereLightsHandle = LightArrayPool.alloc();
             ScenePool.set(this._scenePoolHandle, SceneView.SPHERE_LIGHT_ARRAY, this._sphereLightsHandle);
         }
+
+        if (!this._batchArrayHandle) {
+            this._batchArrayHandle = UIBatchArrayPool.alloc();
+            ScenePool.set(this._scenePoolHandle, SceneView.UI_BATCH_ARRAY, this._batchArrayHandle);
+        }
     }
 }
 
@@ -556,15 +596,11 @@ const v3 = new Vec3();
 const m4 = new Mat4();
 let narrowDis = Infinity;
 const tri = Triangle.create();
-const pool = new RecyclePool<IRaycastResult>(() => {
-    return { node: null!, distance: Infinity };
-}, 8);
+const pool = new RecyclePool<IRaycastResult>(() => ({ node: null!, distance: Infinity }), 8);
 const resultModels: IRaycastResult[] = [];
 /** Canvas raycast result pool */
 const aabbUI = new AABB();
-const poolUI = new RecyclePool<IRaycastResult>(() => {
-    return { node: null!, distance: Infinity };
-}, 8);
+const poolUI = new RecyclePool<IRaycastResult>(() => ({ node: null!, distance: Infinity }), 8);
 const resultCanvas: IRaycastResult[] = [];
 /** raycast all */
 const resultAll: IRaycastResult[] = [];

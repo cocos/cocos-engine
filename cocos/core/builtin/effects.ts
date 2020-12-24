@@ -11,7 +11,7 @@ export default [
         "name": "billboard|vert:vs_main|tinted-fs:add",
         "hash": 2143664850,
         "builtins": {
-          "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }], "samplers": [] },
+          "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }], "samplers": [] },
           "locals": { "blocks": [{ "name": "CCLocal", "defines": [] }], "samplers": [] }
         },
         "defines": [
@@ -73,7 +73,7 @@ export default [
         "name": "graphics|vs:vert|fs:frag",
         "hash": 3946667351,
         "builtins": {
-          "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }], "samplers": [] },
+          "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }], "samplers": [] },
           "locals": { "blocks": [{ "name": "CCLocal", "defines": [] }], "samplers": [] }
         },
         "defines": [],
@@ -97,7 +97,7 @@ export default [
         "name": "particle-gpu|particle-vs-gpu:gpvs_main|tinted-fs:add",
         "hash": 3696836305,
         "builtins": {
-          "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }], "samplers": [] },
+          "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }], "samplers": [] },
           "locals": { "blocks": [{ "name": "CCLocal", "defines": [] }], "samplers": [] }
         },
         "defines": [
@@ -182,7 +182,7 @@ export default [
         "name": "particle-trail|particle-trail:vs_main|tinted-fs:add",
         "hash": 4115155772,
         "builtins": {
-          "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }], "samplers": [] },
+          "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }], "samplers": [] },
           "locals": { "blocks": [{ "name": "CCLocal", "defines": [] }], "samplers": [] }
         },
         "defines": [
@@ -224,7 +224,7 @@ export default [
         "name": "particle|particle-vs-legacy:lpvs_main|tinted-fs:add",
         "hash": 66662317,
         "builtins": {
-          "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }], "samplers": [] },
+          "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }], "samplers": [] },
           "locals": { "blocks": [{ "name": "CCLocal", "defines": [] }], "samplers": [] }
         },
         "defines": [
@@ -268,7 +268,7 @@ export default [
         "name": "spine-two-colored|sprite-vs:vert|sprite-fs:frag",
         "hash": 3853945046,
         "builtins": {
-          "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }], "samplers": [] },
+          "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }], "samplers": [] },
           "locals": { "blocks": [{ "name": "CCLocal", "defines": ["USE_LOCAL"] }], "samplers": [{ "name": "cc_spriteTexture", "defines": ["USE_TEXTURE"] }] }
         },
         "defines": [
@@ -304,7 +304,7 @@ export default [
         "name": "sprite|sprite-vs:vert|sprite-fs:frag",
         "hash": 3640649043,
         "builtins": {
-          "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }], "samplers": [] },
+          "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }], "samplers": [] },
           "locals": { "blocks": [{ "name": "CCLocal", "defines": ["USE_LOCAL"] }], "samplers": [{ "name": "cc_spriteTexture", "defines": ["USE_TEXTURE"] }] }
         },
         "defines": [
@@ -339,7 +339,7 @@ export default [
         "name": "standard|standard-vs:vert|standard-fs:frag",
         "hash": 2131953132,
         "builtins": {
-          "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCShadow", "defines": [] }], "samplers": [{ "name": "cc_environment", "defines": ["CC_USE_IBL"] }, { "name": "cc_shadowMap", "defines": ["CC_RECEIVE_SHADOW"] }, { "name": "cc_spotLightingMap", "defines": ["CC_RECEIVE_SHADOW"] }] },
+          "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }, { "name": "CCShadow", "defines": [] }], "samplers": [{ "name": "cc_environment", "defines": ["CC_USE_IBL"] }, { "name": "cc_shadowMap", "defines": ["CC_RECEIVE_SHADOW"] }, { "name": "cc_spotLightingMap", "defines": ["CC_RECEIVE_SHADOW"] }] },
           "locals": { "blocks": [{ "name": "CCMorph", "defines": ["CC_USE_MORPH"] }, { "name": "CCSkinningTexture", "defines": ["CC_USE_SKINNING", "CC_USE_BAKED_ANIMATION"] }, { "name": "CCSkinningAnimation", "defines": ["CC_USE_SKINNING", "CC_USE_BAKED_ANIMATION"] }, { "name": "CCSkinning", "defines": ["CC_USE_SKINNING", "!CC_USE_BAKED_ANIMATION"] }, { "name": "CCLocalBatched", "defines": ["!USE_INSTANCING", "USE_BATCHING"] }, { "name": "CCLocal", "defines": ["!USE_INSTANCING", "!USE_BATCHING"] }, { "name": "CCForwardLight", "defines": ["CC_FORWARD_ADD"] }], "samplers": [{ "name": "cc_PositionDisplacements", "defines": ["CC_USE_MORPH", "CC_MORPH_TARGET_HAS_POSITION"] }, { "name": "cc_NormalDisplacements", "defines": ["CC_USE_MORPH", "CC_MORPH_TARGET_HAS_NORMAL"] }, { "name": "cc_TangentDisplacements", "defines": ["CC_USE_MORPH", "CC_MORPH_TARGET_HAS_TANGENT"] }, { "name": "cc_jointTexture", "defines": ["CC_USE_SKINNING", "CC_USE_BAKED_ANIMATION"] }, { "name": "cc_lightingMap", "defines": ["USE_LIGHTMAP", "!USE_BATCHING", "!CC_FORWARD_ADD"] }] }
         },
         "defines": [
@@ -479,7 +479,7 @@ export default [
         "name": "terrain|terrain-vs:vert|terrain-fs:frag",
         "hash": 78522740,
         "builtins": {
-          "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCShadow", "defines": [] }], "samplers": [{ "name": "cc_environment", "defines": ["CC_USE_IBL"] }, { "name": "cc_shadowMap", "defines": ["CC_RECEIVE_SHADOW"] }, { "name": "cc_spotLightingMap", "defines": ["CC_RECEIVE_SHADOW"] }] },
+          "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }, { "name": "CCShadow", "defines": [] }], "samplers": [{ "name": "cc_environment", "defines": ["CC_USE_IBL"] }, { "name": "cc_shadowMap", "defines": ["CC_RECEIVE_SHADOW"] }, { "name": "cc_spotLightingMap", "defines": ["CC_RECEIVE_SHADOW"] }] },
           "locals": { "blocks": [{ "name": "CCLocal", "defines": [] }, { "name": "CCForwardLight", "defines": ["CC_FORWARD_ADD"] }], "samplers": [] }
         },
         "defines": [
@@ -526,7 +526,7 @@ export default [
         "name": "terrain|shadow-caster-vs:vert|shadow-caster-fs:frag",
         "hash": 3874167763,
         "builtins": {
-          "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCShadow", "defines": [] }], "samplers": [] },
+          "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }, { "name": "CCShadow", "defines": [] }], "samplers": [] },
           "locals": { "blocks": [{ "name": "CCLocal", "defines": [] }], "samplers": [] }
         },
         "defines": [],
@@ -550,7 +550,7 @@ export default [
         "name": "unlit|unlit-vs:vert|unlit-fs:frag",
         "hash": 3822871803,
         "builtins": {
-          "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }], "samplers": [] },
+          "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }], "samplers": [] },
           "locals": { "blocks": [{ "name": "CCMorph", "defines": ["CC_USE_MORPH"] }, { "name": "CCSkinningTexture", "defines": ["CC_USE_SKINNING", "CC_USE_BAKED_ANIMATION"] }, { "name": "CCSkinningAnimation", "defines": ["CC_USE_SKINNING", "CC_USE_BAKED_ANIMATION"] }, { "name": "CCSkinning", "defines": ["CC_USE_SKINNING", "!CC_USE_BAKED_ANIMATION"] }, { "name": "CCLocalBatched", "defines": ["!USE_INSTANCING", "USE_BATCHING"] }, { "name": "CCLocal", "defines": ["!USE_INSTANCING", "!USE_BATCHING"] }], "samplers": [{ "name": "cc_PositionDisplacements", "defines": ["CC_USE_MORPH", "CC_MORPH_TARGET_HAS_POSITION"] }, { "name": "cc_NormalDisplacements", "defines": ["CC_USE_MORPH", "CC_MORPH_TARGET_HAS_NORMAL"] }, { "name": "cc_TangentDisplacements", "defines": ["CC_USE_MORPH", "CC_MORPH_TARGET_HAS_TANGENT"] }, { "name": "cc_jointTexture", "defines": ["CC_USE_SKINNING", "CC_USE_BAKED_ANIMATION"] }] }
         },
         "defines": [
@@ -615,7 +615,7 @@ export default [
         "name": "planar-shadow|planar-shadow-vs:vert|planar-shadow-fs:frag",
         "hash": 2901856202,
         "builtins": {
-          "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCShadow", "defines": [] }], "samplers": [] },
+          "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }, { "name": "CCShadow", "defines": [] }], "samplers": [] },
           "locals": { "blocks": [{ "name": "CCMorph", "defines": ["CC_USE_MORPH"] }, { "name": "CCSkinningTexture", "defines": ["CC_USE_SKINNING", "CC_USE_BAKED_ANIMATION"] }, { "name": "CCSkinningAnimation", "defines": ["CC_USE_SKINNING", "CC_USE_BAKED_ANIMATION"] }, { "name": "CCSkinning", "defines": ["CC_USE_SKINNING", "!CC_USE_BAKED_ANIMATION"] }, { "name": "CCLocalBatched", "defines": ["!USE_INSTANCING", "USE_BATCHING"] }, { "name": "CCLocal", "defines": ["!USE_INSTANCING", "!USE_BATCHING"] }], "samplers": [{ "name": "cc_PositionDisplacements", "defines": ["CC_USE_MORPH", "CC_MORPH_TARGET_HAS_POSITION"] }, { "name": "cc_NormalDisplacements", "defines": ["CC_USE_MORPH", "CC_MORPH_TARGET_HAS_NORMAL"] }, { "name": "cc_TangentDisplacements", "defines": ["CC_USE_MORPH", "CC_MORPH_TARGET_HAS_TANGENT"] }, { "name": "cc_jointTexture", "defines": ["CC_USE_SKINNING", "CC_USE_BAKED_ANIMATION"] }] }
         },
         "defines": [
@@ -663,7 +663,7 @@ export default [
         "name": "skybox|sky-vs:vert|sky-fs:frag",
         "hash": 2319917655,
         "builtins": {
-          "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }], "samplers": [{ "name": "cc_environment", "defines": [] }] },
+          "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }], "samplers": [{ "name": "cc_environment", "defines": [] }] },
           "locals": { "blocks": [], "samplers": [] }
         },
         "defines": [
@@ -692,7 +692,7 @@ export default [
         "name": "profiler|profiler-vs:vert|profiler-fs:frag",
         "hash": 2029303284,
         "builtins": {
-          "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }], "samplers": [] },
+          "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }], "samplers": [] },
           "locals": { "blocks": [], "samplers": [] }
         },
         "defines": [

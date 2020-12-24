@@ -98,24 +98,6 @@ class ShadowFlow extends nr.ShadowFlow {
   }
 }
 
-class UIFlow extends nr.UIFlow {
-  constructor() {
-    super();
-    this._name = 0;
-    this._priority = 0;
-    this._tag = 0;
-    this._stages = [];
-  }
-  init() {
-    for (let i = 0; i < this._stages.length; i++) {
-      this._stages[i].init();
-    }
-    let info = new nr.RenderFlowInfo(
-        this._name, this._priority, this._tag, this._stages);
-    this.initialize(info);
-  }
-}
-
 class ForwardStage extends nr.ForwardStage {
   constructor() {
     super();
@@ -149,25 +131,6 @@ class ShadowStage extends nr.ShadowStage {
   }
 }
 
-class UIStage extends nr.UIStage {
-  constructor() {
-    super();
-    this._name = 0;
-    this._priority = 0;
-    this._tag = 0;
-    this.renderQueues = [];
-  }
-  init() {
-    const queues = [];
-    for (let i = 0; i < this.renderQueues.length; i++) {
-      queues.push(this.renderQueues[i].init());
-    }
-    let info =
-        new nr.RenderStageInfo(this._name, this._priority, this._tag, queues);
-    this.initialize(info);
-  }
-}
-
 let instancedBufferProto = nr.InstancedBuffer;
 let oldGetFunc = instancedBufferProto.get;
 instancedBufferProto.get = function(pass) {
@@ -190,10 +153,8 @@ class RenderQueueDesc {
 cc.js.setClassName('ForwardPipeline', ForwardPipeline);
 cc.js.setClassName('ForwardFlow', ForwardFlow);
 cc.js.setClassName('ShadowFlow', ShadowFlow);
-cc.js.setClassName('UIFlow', UIFlow);
 cc.js.setClassName('ForwardStage', ForwardStage);
 cc.js.setClassName('ShadowStage', ShadowStage);
-cc.js.setClassName('UIStage', UIStage);
 cc.js.setClassName('RenderQueueDesc', RenderQueueDesc);
 
 let getOrCreatePipelineState = nr.PipelineStateManager.getOrCreatePipelineState;
@@ -203,40 +164,6 @@ nr.PipelineStateManager.getOrCreatePipelineState = function(device, pass, shader
 
 const RootProto = cc.Root.prototype;
 Object.assign(RootProto, {
-  createView(info) {
-    const view = new nr.RenderView();
-    let jsbInfo = {
-      cameraID: info.camera.handle,
-      name: info.name,
-      priority: info.priority,
-      flows: info.flows
-    };
-    view.initialize(new nr.RenderViewInfo(jsbInfo));
-    Object.defineProperty(view, 'window', {
-      get() {
-        return view.getWindow();
-      },
-      set(win) {
-        view.setWindow(win.handle);
-      },
-      enumerable: true,
-      configurable: true
-    });
-
-    view.cachedVisibility = 0;
-    Object.defineProperty(view, 'visibility', {
-      get() {
-        return view.cachedVisibility;
-      },
-      set(val) {
-        view.cachedVisibility = val;
-        view.setVisibility(val);
-      }
-    });
-
-    return view;
-  },
-
   createDefaultPipeline() {
     const pipeline = new nr.ForwardPipeline();
     const info = new nr.RenderPipelineInfo(0, []);

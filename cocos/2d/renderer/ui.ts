@@ -40,12 +40,11 @@ import { Root } from '../../core/root';
 import { Layers, Node } from '../../core/scene-graph';
 import { MeshBuffer } from './mesh-buffer';
 import { StencilManager } from './stencil-manager';
-import { UIBatchModel } from './ui-batch-model';
 import { UIDrawBatch } from './ui-draw-batch';
 import { UIMaterial } from './ui-material';
 import * as UIVertexFormat from './ui-vertex-format';
 import { legacyCC } from '../../core/global-exports';
-import { DescriptorSetHandle, DSPool } from '../../core/renderer/core/memory-pools';
+import { DescriptorSetHandle, DSPool, SubModelPool, SubModelView } from '../../core/renderer/core/memory-pools';
 import { ModelLocalBindings } from '../../core/pipeline/define';
 import { EffectAsset, RenderTexture } from '../../core/assets';
 import { SpriteFrame } from '../assets';
@@ -77,6 +76,10 @@ export class UI {
         }
     }
 
+    get batches () {
+        return this._batches;
+    }
+
     /**
      * Acquire a new mesh buffer if the vertex layout differs from the current one.
      * @param attributes
@@ -105,9 +108,6 @@ export class UI {
     private _canvasMaterials: Map<number, Map<number, number>> = new Map<number, Map<number, number>>();
     private _batches: CachedArray<UIDrawBatch>;
     private _doUploadBuffersCall: Map<any, ((ui:UI) => void)> = new Map();
-    private _uiModelPool: Pool<UIBatchModel> | null = null;
-    private _modelInUse: CachedArray<UIBatchModel>;
-    // batcher
     private _emptyMaterial = new Material();
     private _currMaterial: Material = this._emptyMaterial;
     private _currTexture: Texture | null = null;
@@ -130,15 +130,7 @@ export class UI {
         this._scene = this._root.createScene({
             name: 'GUIScene',
         });
-        this._uiModelPool = new Pool(() => {
-            const model = legacyCC.director.root.createModel(UIBatchModel) as UIBatchModel;
-            model.enabled = true;
-            model.visFlags |= Layers.Enum.UI_3D;
-            return model;
-        }, 2);
-        this._modelInUse = new CachedArray<UIBatchModel>(10);
         this._batches = new CachedArray(64);
-
         this._drawBatchPool = new Pool(() => new UIDrawBatch(), 128);
     }
 
@@ -164,12 +156,6 @@ export class UI {
         if (this._drawBatchPool) {
             this._drawBatchPool.destroy((obj) => {
                 obj.destroy(this);
-            });
-        }
-
-        if (this._uiModelPool) {
-            this._uiModelPool.destroy((obj) => {
-                obj.destroy();
             });
         }
 
@@ -218,7 +204,7 @@ export class UI {
         for (let i = 0; i < screens.length; i++) {
             const screen = screens[i];
             if (screen.camera) {
-                const visibility = screen.camera.view.visibility;
+                const visibility = screen.camera.visibility;
                 const matRecord = this._canvasMaterials.get(visibility);
                 if (matRecord) {
                     const matHashInter = matRecord.keys();
@@ -238,9 +224,9 @@ export class UI {
         for (let i = 0; i < screens.length; i++) {
             const element = screens[i];
             if (element.camera) {
-                element.camera.view.visibility = Layers.BitMask.UI_2D | (i + 1);
-                if (!this._canvasMaterials.has(element.camera.view.visibility)) {
-                    this._canvasMaterials.set(element.camera.view.visibility, new Map<number, number>());
+                element.camera.visibility = Layers.BitMask.UI_2D | (i + 1);
+                if (!this._canvasMaterials.has(element.camera.visibility)) {
+                    this._canvasMaterials.set(element.camera.visibility, new Map<number, number>());
                 }
             }
         }
@@ -260,7 +246,7 @@ export class UI {
         for (let i = 0; i < screens.length; ++i) {
             const screen = screens[i];
             if (screen.camera) {
-                if (screen.camera.view.visibility === visibility) {
+                if (screen.camera.visibility === visibility) {
                     return screen;
                 }
             }
@@ -283,7 +269,7 @@ export class UI {
 
         this._screens.splice(idx, 1);
         if (comp.camera) {
-            const matRecord = this._canvasMaterials.get(comp.camera.view.visibility);
+            const matRecord = this._canvasMaterials.get(comp.camera.visibility);
             if (!matRecord) { return; }
             const matHashInter = matRecord.keys();
             let matHash = matHashInter.next();
@@ -298,9 +284,9 @@ export class UI {
         for (let i = idx; i < this._screens.length; i++) {
             const camera = this._screens[i].camera;
             if (camera) {
-                const matRecord = this._canvasMaterials.get(camera.view.visibility)!;
-                camera.view.visibility = Layers.BitMask.UI_2D | (i + 1);
-                const newMatRecord = this._canvasMaterials.get(camera.view.visibility)!;
+                const matRecord = this._canvasMaterials.get(camera.visibility)!;
+                camera.visibility = Layers.BitMask.UI_2D | (i + 1);
+                const newMatRecord = this._canvasMaterials.get(camera.visibility)!;
                 matRecord.forEach((value: number, key: number) => {
                     newMatRecord.set(key, value);
                 });
@@ -335,13 +321,7 @@ export class UI {
         }
 
         let batchPriority = 0;
-
-        for (let m = 0; m < this._modelInUse.length; m++) {
-            this._scene.removeModel(this._modelInUse.get(m));
-            this._uiModelPool!.free(this._modelInUse.get(m));
-        }
-        this._modelInUse.clear();
-
+        this._scene.removeBatches();
         if (this._batches.length) {
             for (let i = 0; i < this._batches.length; ++i) {
                 const batch = this._batches.array[i];
@@ -349,7 +329,7 @@ export class UI {
                 if (batch.model) {
                     const camera = batch.camera || this._scene.cameras[0];
                     if (camera) {
-                        const visFlags = camera.view.visibility;
+                        const visFlags = camera.visibility;
                         batch.model.visFlags = visFlags;
                         batch.model.node.layer = visFlags;
                     }
@@ -376,22 +356,17 @@ export class UI {
                             this._descriptorSetCacheMap.set(batch.textureHash, new Map([[batch.samplerHash, batch.hDescriptorSet]]));
                         }
                     }
-
-                    const uiModel = this._uiModelPool!.alloc();
-                    uiModel.directInitialize(batch);
-                    this._scene.addModel(uiModel);
-                    uiModel.subModels[0].priority = batchPriority++;
-                    if (batch.camera) {
-                        const viewVisibility = batch.camera.view.visibility;
-                        uiModel.visFlags = viewVisibility;
-                        if (this._canvasMaterials.has(viewVisibility)) {
-                            if (!this._canvasMaterials.get(viewVisibility)!.has(batch.material!.hash)) {
-                                this._canvasMaterials.get(viewVisibility)!.set(batch.material!.hash, 1);
-                            }
-                        }
-                    }
-                    this._modelInUse.push(uiModel);
                 }
+
+                if (batch.camera) {
+                    const visibility = batch.camera.visibility;
+                    batch.visFlags = visibility;
+                    if (this._canvasMaterials.get(visibility)!.get(batch.material!.hash) == null) {
+                        this._canvasMaterials.get(visibility)!.set(batch.material!.hash, 1);
+                    }
+                }
+
+                this._scene.addBatch(batch);
             }
         }
     }
@@ -415,7 +390,9 @@ export class UI {
                 }
             }
         }
+    }
 
+    public reset () {
         for (let i = 0; i < this._batches.length; ++i) {
             const batch = this._batches.array[i];
             if (batch.isStatic) {
@@ -427,7 +404,6 @@ export class UI {
         }
 
         this._parentOpacity = 1;
-        this._batches.clear();
         this._currMaterial = this._emptyMaterial;
         this._currCanvas = null;
         this._currTexture = null;
@@ -435,6 +411,7 @@ export class UI {
         this._currComponent = null;
         this._currTransform = null;
         this._meshBufferUseCount.clear();
+        this._batches.clear();
         this._currMaterialHash = 0;
         this._currMaterialUniformHash = 0;
         StencilManager.sharedManager!.reset();
@@ -536,26 +513,31 @@ export class UI {
         const uiCanvas = this._currCanvas;
         const curDrawBatch = this._drawBatchPool.alloc();
         if (!uiCanvas?.camera) { return; }
-        curDrawBatch.camera = uiCanvas && uiCanvas.camera;
-        curDrawBatch.model = model;
-        curDrawBatch.bufferBatch = null;
-        curDrawBatch.material = mat;
-        curDrawBatch.texture = null;
-        curDrawBatch.sampler = null;
-        curDrawBatch.useLocalData = null;
+        const subModel = model!.subModels[0];
+        if (subModel) {
+            curDrawBatch.camera = uiCanvas && uiCanvas.camera;
+            curDrawBatch.model = model;
+            curDrawBatch.bufferBatch = null;
+            curDrawBatch.material = mat;
+            curDrawBatch.texture = null;
+            curDrawBatch.sampler = null;
+            curDrawBatch.useLocalData = null;
+            curDrawBatch.hDescriptorSet = SubModelPool.get(subModel.handle, SubModelView.DESCRIPTOR_SET);
+            curDrawBatch.hInputAssembler = SubModelPool.get(subModel.handle, SubModelView.INPUT_ASSEMBLER);
 
-        // reset current render state to null
-        this._currMaterial = this._emptyMaterial;
-        this._currComponent = null;
-        this._currTransform = null;
-        this._currTexture = null;
-        this._currSampler = null;
-        this._currTextureHash = 0;
-        this._currSamplerHash = 0;
-        this._currMaterialHash = 0;
-        this._currMaterialUniformHash = 0;
+            // reset current render state to null
+            this._currMaterial = this._emptyMaterial;
+            this._currComponent = null;
+            this._currTransform = null;
+            this._currTexture = null;
+            this._currSampler = null;
+            this._currTextureHash = 0;
+            this._currSamplerHash = 0;
+            this._currMaterialHash = 0;
+            this._currMaterialUniformHash = 0;
 
-        this._batches.push(curDrawBatch);
+            this._batches.push(curDrawBatch);
+        }
     }
 
     /**

@@ -30,44 +30,96 @@
 
 import { MeshBuffer } from './mesh-buffer';
 import { Material } from '../../core/assets/material';
-import { Texture, Sampler, DescriptorSetInfo } from '../../core/gfx';
+import { Texture, Sampler } from '../../core/gfx';
 import { Node } from '../../core/scene-graph';
 import { Camera } from '../../core/renderer/scene/camera';
 import { Model } from '../../core/renderer/scene/model';
 import { UI } from './ui';
-import { InputAssemblerHandle, DescriptorSetHandle, NULL_HANDLE, DSPool } from '../../core/renderer/core/memory-pools';
+import { InputAssemblerHandle, DescriptorSetHandle, NULL_HANDLE, UIBatchHandle, UIBatchPool, UIBatchView, DSPool } from '../../core/renderer/core/memory-pools';
+import { Layers } from '../../scene-graph/layers';
+
+const UI_VIS_FLAG = Layers.Enum.NONE | Layers.Enum.UI_3D;
 
 export class UIDrawBatch {
+    public get handle () {
+        return this._handle;
+    }
+    public get hInputAssembler () {
+        return UIBatchPool.get(this._handle, UIBatchView.INPUT_ASSEMBLER);
+    }
+    public set hInputAssembler (handle) {
+        UIBatchPool.set(this._handle, UIBatchView.INPUT_ASSEMBLER, handle);
+    }
+    public get hDescriptorSet () {
+        return UIBatchPool.get(this._handle, UIBatchView.DESCRIPTOR_SET);
+    }
+    public set hDescriptorSet (handle) {
+        UIBatchPool.set(this._handle, UIBatchView.DESCRIPTOR_SET, handle);
+    }
+    public get passes () {
+        return this._material!.passes;
+    }
+    public get material () {
+        return this._material;
+    }
+    public set material (mat) {
+        this._material = mat;
+        if (mat) {
+            const passes = mat.passes;
+            if (!passes) { return; }
 
+            UIBatchPool.set(this._handle, UIBatchView.PASS_COUNT, passes.length);
+            let passOffset = UIBatchView.PASS_0 as const;
+            let shaderOffset = UIBatchView.SHADER_0 as const;
+            for (let i = 0; i < passes.length; i++, passOffset++, shaderOffset++) {
+                UIBatchPool.set(this._handle, passOffset, passes[i].handle);
+                UIBatchPool.set(this._handle, shaderOffset, passes[i].getShaderVariant());
+            }
+        }
+    }
+    public get visFlags () {
+        return UIBatchPool.get(this._handle, UIBatchView.VIS_FLAGS);
+    }
+    public set visFlags (vis) {
+        UIBatchPool.set(this._handle, UIBatchView.VIS_FLAGS, vis);
+    }
     public bufferBatch: MeshBuffer | null = null;
     public camera: Camera | null = null;
     public model: Model | null = null;
-    public material: Material | null = null;
     public texture: Texture | null = null;
     public sampler: Sampler | null = null;
-    public hInputAssembler: InputAssemblerHandle = NULL_HANDLE;
-    public hDescriptorSet: DescriptorSetHandle = NULL_HANDLE;
     public useLocalData: Node | null = null;
     public isStatic = false;
+    public textureHash = 0;
+    public samplerHash = 0;
+    private _material: Material | null = null;
+    private _handle: UIBatchHandle = NULL_HANDLE;
 
-    public textureHash: number = 0;
-    public samplerHash: number = 0;
+    constructor () {
+        this._handle = UIBatchPool.alloc();
+        UIBatchPool.set(this._handle, UIBatchView.VIS_FLAGS, UI_VIS_FLAG);
+        UIBatchPool.set(this._handle, UIBatchView.INPUT_ASSEMBLER, NULL_HANDLE);
+        UIBatchPool.set(this._handle, UIBatchView.DESCRIPTOR_SET, NULL_HANDLE);
+    }
 
     public destroy (ui: UI) {
-        if (this.hDescriptorSet) {
-            this.hDescriptorSet = NULL_HANDLE;
+        if (this._handle) {
+            UIBatchPool.free(this._handle);
+            this._handle = NULL_HANDLE;
         }
     }
 
     public clear () {
+        this._material = null;
         this.bufferBatch = null;
         this.hInputAssembler = NULL_HANDLE;
+        this.hDescriptorSet = NULL_HANDLE;
         this.camera = null;
-        this.material = null;
         this.texture = null;
         this.sampler = null;
         this.model = null;
         this.isStatic = false;
         this.useLocalData = null;
+        this.visFlags = UI_VIS_FLAG;
     }
 }
