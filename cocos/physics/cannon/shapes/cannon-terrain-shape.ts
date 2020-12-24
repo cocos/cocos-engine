@@ -23,6 +23,11 @@
  THE SOFTWARE.
  */
 
+/**
+ * @packageDocumentation
+ * @hidden
+ */
+
 import CANNON from '@cocos/cannon';
 import { CannonShape } from './cannon-shape';
 import { TerrainCollider } from '../../framework';
@@ -35,22 +40,22 @@ import { IVec3Like } from '../../../core/math/type-define';
 const CANNON_AABB_LOCAL = new CANNON.AABB();
 const CANNON_AABB = new CANNON.AABB();
 const CANNON_TRANSFORM = new CANNON.Transform();
+// eslint-disable-next-line func-names
 CANNON.Heightfield.prototype.calculateWorldAABB = function (pos: CANNON.Vec3, quat: CANNON.Quaternion, min: CANNON.Vec3, max: CANNON.Vec3) {
-    var frame = CANNON_TRANSFORM;
-    var result = CANNON_AABB;
+    const frame = CANNON_TRANSFORM;
+    const result = CANNON_AABB;
     Vec3.copy(frame.position, pos);
     Quat.copy(frame.quaternion, quat);
-    var s = this.elementSize;
-    var data = this.data;
+    const s = this.elementSize;
+    const data = this.data;
     CANNON_AABB_LOCAL.lowerBound.set(0, 0, this.minValue);
     CANNON_AABB_LOCAL.upperBound.set((data.length - 1) * s, (data[0].length - 1) * s, this.maxValue);
     CANNON_AABB_LOCAL.toWorldFrame(frame, result);
     min.copy(result.lowerBound);
     max.copy(result.upperBound);
-}
+};
 
 export class CannonTerrainShape extends CannonShape implements ITerrainShape {
-
     get collider () {
         return this._collider as TerrainCollider;
     }
@@ -61,7 +66,7 @@ export class CannonTerrainShape extends CannonShape implements ITerrainShape {
 
     setTerrain (v: ITerrainAsset | null): void {
         if (v) {
-            if (this._terrainID != v._uuid) {
+            if (this._terrainID !== v._uuid) {
                 const terrain = v;
                 const sizeI = terrain.getVertexCountI();
                 const sizeJ = terrain.getVertexCountJ();
@@ -77,15 +82,13 @@ export class CannonTerrainShape extends CannonShape implements ITerrainShape {
                 this.OPTIONS.elementSize = terrain.tileSize;
                 this.updateProperties(this.DATA, this.OPTIONS.elementSize);
             }
-        } else {
-            if (this._terrainID != '') {
-                this._terrainID = '';
-                this.DATA.length = 1;
-                this.DATA[0] = this.DATA[0] || [];
-                this.DATA[0].length = 0;
-                this.OPTIONS.elementSize = 0;
-                this.updateProperties(this.DATA, this.OPTIONS.elementSize);
-            }
+        } else if (this._terrainID !== '') {
+            this._terrainID = '';
+            this.DATA.length = 1;
+            this.DATA[0] = this.DATA[0] || [];
+            this.DATA[0].length = 0;
+            this.OPTIONS.elementSize = 0;
+            this.updateProperties(this.DATA, this.OPTIONS.elementSize);
         }
     }
 

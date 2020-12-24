@@ -32,13 +32,14 @@ import { Device } from '../gfx';
 import effects from './effects';
 import { legacyCC } from '../global-exports';
 import { getDeviceShaderVersion } from '../renderer/core/program-lib';
+import shaderSourceAssembly from './shader-source-assembly';
 
 class BuiltinResMgr {
     protected _device: Device | null = null;
     protected _resources: Record<string, Asset> = {};
 
     // this should be called after renderer initialized
-    public initBuiltinRes (device: Device) {
+    public initBuiltinRes (device: Device): Promise<void> {
         this._device = device;
         const resources = this._resources;
         const canvas = document.createElement('canvas');
@@ -158,12 +159,20 @@ class BuiltinResMgr {
             resources[spriteFrame._uuid] = spriteFrame;
         }
 
-        // builtin effects
         const shaderVersionKey = getDeviceShaderVersion(device);
         if (!shaderVersionKey) {
             return Promise.reject(Error('Failed to initialize builtin shaders: unknown device.'));
         }
-        return import(`./shader-sources/${shaderVersionKey}.js`).then(({ default: shaderSources }) => {
+
+        const shaderSources = shaderSourceAssembly[shaderVersionKey];
+        if (!shaderSources) {
+            return Promise.reject(Error(
+                `Current device is requiring builtin shaders of version ${shaderVersionKey} `
+                + `but shaders of that version are not assembled in this build.`,
+            ));
+        }
+
+        return Promise.resolve().then(() => {
             effects.forEach((e, effectIndex) => {
                 const effect = Object.assign(new legacyCC.EffectAsset(), e);
                 effect.shaders.forEach((shaderInfo, shaderIndex) => {
@@ -291,7 +300,14 @@ class BuiltinResMgr {
         // ui spine two color material
         const spineTwoColorMtl = new legacyCC.Material();
         spineTwoColorMtl._uuid = 'ui-spine-two-colored-material';
-        spineTwoColorMtl.initialize({ defines: { USE_TEXTURE: true, CC_USE_EMBEDDED_ALPHA: false, IS_GRAY: false }, effectName: 'spine-two-colored' });
+        spineTwoColorMtl.initialize({
+            defines: {
+                USE_TEXTURE: true,
+                CC_USE_EMBEDDED_ALPHA: false,
+                IS_GRAY: false,
+            },
+            effectName: 'spine-two-colored',
+        });
         resources[spineTwoColorMtl._uuid] = spineTwoColorMtl;
     }
 }

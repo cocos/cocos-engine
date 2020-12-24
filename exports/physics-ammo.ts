@@ -63,7 +63,6 @@ window.Ammo = Ammo;
 //polyfill config
 Ammo['CC_CONFIG'] = {
     'ignoreSelfBody': true,
-    'emitStaticCollision': false,
 }
 
 Ammo['CC_CACHE'] = {

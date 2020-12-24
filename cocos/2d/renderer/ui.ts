@@ -349,11 +349,9 @@ export class UI {
                 if (batch.model) {
                     const camera = batch.camera || this._scene.cameras[0];
                     if (camera) {
-                        if (camera.view) {
-                            const visFlags = camera.view.visibility;
-                            batch.model.visFlags = visFlags;
-                            batch.model.node.layer = visFlags;
-                        }
+                        const visFlags = camera.view.visibility;
+                        batch.model.visFlags = visFlags;
+                        batch.model.node.layer = visFlags;
                     }
                     const subModels = batch.model.subModels;
                     for (let j = 0; j < subModels.length; j++) {
@@ -384,13 +382,11 @@ export class UI {
                     this._scene.addModel(uiModel);
                     uiModel.subModels[0].priority = batchPriority++;
                     if (batch.camera) {
-                        if (batch.camera.view) {
-                            const viewVisibility = batch.camera.view.visibility;
-                            uiModel.visFlags = viewVisibility;
-                            if (this._canvasMaterials.has(viewVisibility)) {
-                                if (!this._canvasMaterials.get(viewVisibility)!.has(batch.material!.hash)) {
-                                    this._canvasMaterials.get(viewVisibility)!.set(batch.material!.hash, 1);
-                                }
+                        const viewVisibility = batch.camera.view.visibility;
+                        uiModel.visFlags = viewVisibility;
+                        if (this._canvasMaterials.has(viewVisibility)) {
+                            if (!this._canvasMaterials.get(viewVisibility)!.has(batch.material!.hash)) {
+                                this._canvasMaterials.get(viewVisibility)!.set(batch.material!.hash, 1);
                             }
                         }
                     }
@@ -760,8 +756,8 @@ export class UI {
             this._currMeshBuffer = buffers[meshBufferUseCount];
         }
         this._meshBufferUseCount.set(strideBytes, meshBufferUseCount + 1);
-        if (arguments.length === 2) {
-            this._currMeshBuffer.request(arguments[0], arguments[1]);
+        if (arguments.length === 3) {
+            this._currMeshBuffer.request(arguments[1], arguments[2]);
         }
     }
 

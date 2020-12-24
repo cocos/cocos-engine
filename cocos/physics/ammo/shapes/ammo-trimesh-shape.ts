@@ -23,6 +23,12 @@
  THE SOFTWARE.
  */
 
+/**
+ * @packageDocumentation
+ * @hidden
+ */
+
+/* eslint-disable new-cap */
 import Ammo from '../ammo-instantiated';
 import { AmmoShape } from './ammo-shape';
 import { warnID } from '../../../core';
@@ -45,7 +51,7 @@ export class AmmoTrimeshShape extends AmmoShape implements ITrimeshShape {
     setMesh (v: Mesh | null) {
         if (!this._isBinding) return;
 
-        if (this._btShape != null && this._btShape != AmmoConstant.instance.EMPTY_SHAPE) {
+        if (this._btShape != null && this._btShape !== AmmoConstant.instance.EMPTY_SHAPE) {
             // TODO: change the mesh after initialization
             warnID(9620);
         } else {

@@ -23,6 +23,11 @@
  THE SOFTWARE.
  */
 
+/**
+ * @packageDocumentation
+ * @hidden
+ */
+
 import CANNON from '@cocos/cannon';
 import { Vec3, Quat } from '../../../core/math';
 import { commitShapeUpdates } from '../cannon-util';
@@ -32,7 +37,6 @@ import { IVec3Like } from '../../../core/math/type-define';
 import { PlaneCollider } from '../../../../exports/physics-framework';
 
 export class CannonPlaneShape extends CannonShape implements IPlaneShape {
-
     public get collider () {
         return this._collider as PlaneCollider;
     }
@@ -48,7 +52,7 @@ export class CannonPlaneShape extends CannonShape implements IPlaneShape {
 
     setNormal (v: IVec3Like) {
         Quat.rotationTo(this._orient, Vec3.UNIT_Z, v);
-        if (this._index != -1) {
+        if (this._index !== -1) {
             commitShapeUpdates(this._body);
         }
     }

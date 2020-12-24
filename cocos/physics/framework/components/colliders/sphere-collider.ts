@@ -36,9 +36,9 @@ import {
     tooltip,
     serializable,
 } from 'cc.decorator';
+import { EDITOR, TEST } from 'internal:constants';
 import { Collider } from './collider';
 import { ISphereShape } from '../../../spec/i-physics-shape';
-import { EDITOR, TEST } from 'internal:constants';
 import { EColliderType } from '../../physics-enum';
 
 /**
@@ -52,7 +52,6 @@ import { EColliderType } from '../../physics-enum';
 @menu('Physics/SphereCollider')
 @executeInEditMode
 export class SphereCollider extends Collider {
-
     /// PUBLIC PROPERTY GETTER\SETTER ///
 
     /**
@@ -86,7 +85,7 @@ export class SphereCollider extends Collider {
     /// PRIVATE PROPERTY ///
 
     @serializable
-    private _radius: number = 0.5;
+    private _radius = 0.5;
 
     constructor () {
         super(EColliderType.SPHERE);

@@ -23,6 +23,11 @@
  THE SOFTWARE.
  */
 
+/**
+ * @packageDocumentation
+ * @hidden
+ */
+
 import CANNON from '@cocos/cannon';
 import { Vec3, Quat } from '../../core/math';
 import { fillRaycastResult, toCannonRaycastOptions } from './cannon-util';
@@ -87,6 +92,10 @@ export class CannonWorld implements IPhysicsWorld {
         for (let i = 0; i < this.bodies.length; i++) {
             this.bodies[i].syncSceneToPhysics();
         }
+    }
+
+    syncAfterEvents (): void {
+        this.syncSceneToPhysics();
     }
 
     step (deltaTime: number, timeSinceLastCalled?: number, maxSubStep?: number) {
@@ -157,15 +166,6 @@ export class CannonWorld implements IPhysicsWorld {
         if (i >= 0) {
             this.constraints.splice(i, 1);
             this._world.removeConstraint(constraint.impl);
-        }
-    }
-
-    updateCollisionMatrix (group: number, mask: number) {
-        for (let i = 0; i < this.bodies.length; i++) {
-            const b = this.bodies[i].body;
-            if (b.collisionFilterGroup == group) {
-                b.collisionFilterMask = mask;
-            }
         }
     }
 }

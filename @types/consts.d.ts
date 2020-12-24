@@ -43,6 +43,8 @@ declare module 'internal:constants' {
      */
     export const JSB: boolean;
 
+    export const HTML5: boolean;
+
     /**
      * Running in the Wechat's mini game.
      */

@@ -1,3 +1,4 @@
+/* eslint-disable new-cap */
 /*
  Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
 
@@ -23,24 +24,28 @@
  THE SOFTWARE.
  */
 
+/**
+ * @packageDocumentation
+ * @hidden
+ */
+
 import Ammo from '../ammo-instantiated';
-import { AmmoShape } from "./ammo-shape";
-import { Vec3 } from "../../../core";
+import { AmmoShape } from './ammo-shape';
+import { Vec3 } from '../../../core';
 import { BoxCollider } from '../../../../exports/physics-framework';
-import { cocos2AmmoVec3, ammoDeletePtr } from '../ammo-util';
+import { cocos2AmmoVec3 } from '../ammo-util';
 import { AmmoBroadphaseNativeTypes } from '../ammo-enum';
 import { IBoxShape } from '../../spec/i-physics-shape';
 import { IVec3Like } from '../../../core/math/type-define';
-import { CC_V3_0 } from '../ammo-const';
-
-const v3_0 = CC_V3_0;
+import { AmmoConstant, CC_V3_0 } from '../ammo-const';
 
 export class AmmoBoxShape extends AmmoShape implements IBoxShape {
-
     setSize (size: IVec3Like) {
+        const v3_0 = CC_V3_0;
         Vec3.multiplyScalar(v3_0, size, 0.5);
-        cocos2AmmoVec3(this.halfExt, v3_0);
-        this.impl.setUnscaledHalfExtents(this.halfExt);
+        const hf = AmmoConstant.instance.VECTOR3_0;
+        cocos2AmmoVec3(hf, v3_0);
+        this.impl.setUnscaledHalfExtents(hf);
         this.updateCompoundTransform();
     }
 
@@ -52,25 +57,16 @@ export class AmmoBoxShape extends AmmoShape implements IBoxShape {
         return this._collider as BoxCollider;
     }
 
-    readonly halfExt: Ammo.btVector3;
-
     constructor () {
         super(AmmoBroadphaseNativeTypes.BOX_SHAPE_PROXYTYPE);
-        this.halfExt = new Ammo.btVector3(0.5, 0.5, 0.5);
     }
 
     onComponentSet () {
         const s = this.collider.size;
-        this.halfExt.setValue(s.x / 2, s.y / 2, s.z / 2);
-        this._btShape = new Ammo.btBoxShape(this.halfExt);
+        const hf = AmmoConstant.instance.VECTOR3_0;
+        hf.setValue(s.x / 2, s.y / 2, s.z / 2);
+        this._btShape = new Ammo.btBoxShape(hf);
         this.setScale();
-    }
-
-    onDestroy () {
-        Ammo.destroy(this.halfExt);
-        ammoDeletePtr(this.halfExt, Ammo.btVector3);
-        (this.halfExt as any) = null;
-        super.onDestroy();
     }
 
     setScale () {
@@ -79,5 +75,4 @@ export class AmmoBoxShape extends AmmoShape implements IBoxShape {
         this._btShape.setLocalScaling(this.scale);
         this.updateCompoundTransform();
     }
-
 }

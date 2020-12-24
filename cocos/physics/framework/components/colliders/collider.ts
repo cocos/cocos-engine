@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-namespace */
 /*
  Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
 
@@ -414,8 +415,8 @@ export class Collider extends Eventify(Component) {
     protected onLoad () {
         if (!EDITOR) {
             this._shape = createShape(this.TYPE);
-            this._shape.initialize(this);
             this.sharedMaterial = this._material == null ? PhysicsSystem.instance.defaultMaterial : this._material;
+            this._shape.initialize(this);
             this._shape.onLoad!();
         }
     }
@@ -469,6 +470,7 @@ export class Collider extends Eventify(Component) {
                     this._needCollisionEvent = false;
                 }
             }
+            if (this._shape) this._shape.updateEventListener();
         }
     }
 }

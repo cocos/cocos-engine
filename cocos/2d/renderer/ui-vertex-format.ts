@@ -30,10 +30,11 @@
 
 import { AttributeName, Format, FormatInfos } from '../../core/gfx/define';
 import { Attribute } from '../../core/gfx';
+import { legacyCC } from '../../core/global-exports';
 
 export const vfmt = [
     new Attribute(AttributeName.ATTR_POSITION, Format.RGB32F),
-]
+];
 
 export const vfmtPosColor = [
     new Attribute(AttributeName.ATTR_POSITION, Format.RGB32F),
@@ -74,3 +75,6 @@ export function getAttributeStride (attrs: Attribute[]) {
 
     return count;
 }
+
+legacyCC.internal.vfmtPosUvColor = vfmtPosUvColor;
+legacyCC.internal.vfmtPosUvTwoColor = vfmtPosUvTwoColor;

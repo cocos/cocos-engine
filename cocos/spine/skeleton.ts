@@ -15,6 +15,7 @@ import { Graphics } from '../2d/components/graphics';
 import { MaterialInstance } from '../core/renderer';
 import { js } from '../core/utils/js';
 import { BlendFactor, BlendOp } from '../core/gfx';
+import { legacyCC } from '../core/global-exports';
 
 export const timeScale = 1.0;
 
@@ -1609,3 +1610,5 @@ export class Skeleton extends UIRenderable {
         }
     }
 }
+
+legacyCC.internal.SpineSkeleton = Skeleton;

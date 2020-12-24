@@ -23,16 +23,21 @@
  THE SOFTWARE.
  */
 
+/**
+ * @packageDocumentation
+ * @hidden
+ */
+
 import CANNON from '@cocos/cannon';
 import { Quat, Vec3 } from '../../core/math';
 import { ERigidBodyType } from '../framework/physics-enum';
-import { getWrap } from '../framework/util';
+import { getWrap } from '../utils/util';
 import { CannonWorld } from './cannon-world';
 import { CannonShape } from './shapes/cannon-shape';
 import { Collider, PhysicsSystem } from '../../../exports/physics-framework';
 import { TransformBit } from '../../core/scene-graph/node-enum';
 import { Node } from '../../core';
-import { CollisionEventType, IContactEquation } from '../framework/physics-interface';
+import { CollisionEventType } from '../framework/physics-interface';
 import { CannonRigidBody } from './cannon-rigid-body';
 import { commitShapeUpdates } from './cannon-util';
 import { CannonContactEquation } from './cannon-contact-equation';
@@ -97,8 +102,8 @@ export class CannonSharedBody {
                 this.syncInitial();
             }
         } else if (this.index >= 0) {
-            const isRemove = (this.shapes.length == 0 && this.wrappedBody == null)
-                    || (this.shapes.length == 0 && this.wrappedBody != null && !this.wrappedBody.isEnabled);
+            const isRemove = (this.shapes.length === 0 && this.wrappedBody == null)
+                || (this.shapes.length === 0 && this.wrappedBody != null && !this.wrappedBody.isEnabled);
 
             if (isRemove) {
                 this.body.sleep(); // clear velocity etc.
@@ -205,22 +210,23 @@ export class CannonSharedBody {
         if (self && self.collider.needCollisionEvent) {
             contactsPool.push.apply(contactsPool, CollisionEventObject.contacts);
             CollisionEventObject.contacts.length = 0;
-
             CollisionEventObject.impl = event;
             CollisionEventObject.selfCollider = self.collider;
             CollisionEventObject.otherCollider = other ? other.collider : (null as any);
 
             let i = 0;
-            for (i = 0; i < event.contacts.length; i++) {
-                const cq = event.contacts[i];
-                if (contactsPool.length > 0) {
-                    const c = contactsPool.pop();
-                    c!.impl = cq;
-                    CollisionEventObject.contacts.push(c!);
-                } else {
-                    const c = new CannonContactEquation(CollisionEventObject);
-                    c.impl = cq;
-                    CollisionEventObject.contacts.push(c);
+            if (CollisionEventObject.type !== 'onCollisionExit') {
+                for (i = 0; i < event.contacts.length; i++) {
+                    const cq = event.contacts[i];
+                    if (contactsPool.length > 0) {
+                        const c = contactsPool.pop();
+                        c!.impl = cq;
+                        CollisionEventObject.contacts.push(c!);
+                    } else {
+                        const c = new CannonContactEquation(CollisionEventObject);
+                        c.impl = cq;
+                        CollisionEventObject.contacts.push(c);
+                    }
                 }
             }
 

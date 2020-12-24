@@ -36,17 +36,16 @@ import {
     type,
     serializable,
 } from 'cc.decorator';
+import { EDITOR } from 'internal:constants';
 import { Constraint } from './constraint';
 import { Vec3, IVec3Like } from '../../../../core';
 import { EConstraintType } from '../../physics-enum';
-import { EDITOR } from 'internal:constants';
 import { IPointToPointConstraint } from '../../../spec/i-physics-constraint';
 
 @ccclass('cc.PointToPointConstraint')
 @help('i18n:cc.PointToPointConstraint')
 @menu('Physics/PointToPointConstraint(beta)')
 export class PointToPointConstraint extends Constraint {
-
     @type(Vec3)
     get pivotA () {
         return this._pivotA;
@@ -85,4 +84,3 @@ export class PointToPointConstraint extends Constraint {
         super(EConstraintType.POINT_TO_POINT);
     }
 }
-

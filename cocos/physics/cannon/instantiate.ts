@@ -23,6 +23,10 @@
  THE SOFTWARE.
  */
 
+/**
+ * @packageDocumentation
+ * @hidden
+ */
 
 import { select } from '../framework/physics-selector';
 
@@ -57,5 +61,3 @@ select('cannon.js', {
     PointToPointConstraint: CannonPointToPointConstraint,
     HingeConstraint: CannonHingeConstraint,
 });
-
-import './deprecated';

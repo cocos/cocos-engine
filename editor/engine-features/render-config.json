@@ -157,14 +157,16 @@
             "default": ["spine"],
             "label": "Spine",
             "description": "Spine support",
-            "wechatPlugin": true,
+            "native": "USE_SPINE",
+	        "wechatPlugin": true,
             "category": "2D Features"
         },
         "dragon-bones": {
             "default": ["dragon-bones"],
             "label": "DragonBones",
             "description": "Description support",
-            "wechatPlugin": true,
+            "native": "USE_DRAGONBONES",
+	        "wechatPlugin": true,
             "category": "2D Features"
         }
     }
