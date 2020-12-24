@@ -263,7 +263,6 @@ export class Profiler {
         camera.visibility = Layers.BitMask.PROFILER;
         camera.clearFlags = ClearFlag.NONE;
         camera.priority = 0xffffffff; // after everything else
-        camera.flows = ['UIFlow'];
 
         const managerNode = new Node('Profiler_Root');
         managerNode.parent = this._rootNode;
