@@ -9,13 +9,10 @@
 #include "cocos/renderer/pipeline/forward/ForwardStage.h"
 #include "cocos/renderer/pipeline/shadow/ShadowFlow.h"
 #include "cocos/renderer/pipeline/shadow/ShadowStage.h"
-#include "cocos/renderer/pipeline/ui/UIFlow.h"
-#include "cocos/renderer/pipeline/ui/UIStage.h"
 #include "cocos/renderer/pipeline/RenderPipeline.h"
 #include "cocos/renderer/pipeline/RenderFlow.h"
 #include "cocos/renderer/pipeline/RenderStage.h"
 #include "cocos/renderer/pipeline/Define.h"
-#include "cocos/renderer/pipeline/RenderView.h"
 #include "cocos/renderer/pipeline/helper/SharedMemory.h"
 #include "cocos/renderer/pipeline/InstancedBuffer.h"
 
@@ -28,30 +25,6 @@ bool register_all_pipeline(se::Object* obj);
 template<>
 bool sevalue_to_native(const se::Value &, cc::pipeline::RenderQueueDesc *, se::Object *ctx);
 JSB_REGISTER_OBJECT_TYPE(cc::pipeline::RenderQueueDesc);
-
-extern se::Object* __jsb_cc_pipeline_RenderPipelineInfo_proto;
-extern se::Class* __jsb_cc_pipeline_RenderPipelineInfo_class;
-
-bool js_register_cc_pipeline_RenderPipelineInfo(se::Object* obj);
-bool register_all_pipeline(se::Object* obj);
-
-template<>
-bool sevalue_to_native(const se::Value &, cc::pipeline::RenderPipelineInfo *, se::Object *ctx);
-JSB_REGISTER_OBJECT_TYPE(cc::pipeline::RenderPipelineInfo);
-
-extern se::Object* __jsb_cc_pipeline_RenderPipeline_proto;
-extern se::Class* __jsb_cc_pipeline_RenderPipeline_class;
-
-bool js_register_cc_pipeline_RenderPipeline(se::Object* obj);
-bool register_all_pipeline(se::Object* obj);
-
-JSB_REGISTER_OBJECT_TYPE(cc::pipeline::RenderPipeline);
-SE_DECLARE_FUNC(js_pipeline_RenderPipeline_activate);
-SE_DECLARE_FUNC(js_pipeline_RenderPipeline_destroy);
-SE_DECLARE_FUNC(js_pipeline_RenderPipeline_initialize);
-SE_DECLARE_FUNC(js_pipeline_RenderPipeline_render);
-SE_DECLARE_FUNC(js_pipeline_RenderPipeline_setValue);
-SE_DECLARE_FUNC(js_pipeline_RenderPipeline_getInstance);
 
 extern se::Object* __jsb_cc_pipeline_Light_proto;
 extern se::Class* __jsb_cc_pipeline_Light_class;
@@ -95,6 +68,30 @@ template<>
 bool sevalue_to_native(const se::Value &, cc::pipeline::RenderWindow *, se::Object *ctx);
 JSB_REGISTER_OBJECT_TYPE(cc::pipeline::RenderWindow);
 SE_DECLARE_FUNC(js_pipeline_RenderWindow_getFramebuffer);
+
+extern se::Object* __jsb_cc_pipeline_RenderPipelineInfo_proto;
+extern se::Class* __jsb_cc_pipeline_RenderPipelineInfo_class;
+
+bool js_register_cc_pipeline_RenderPipelineInfo(se::Object* obj);
+bool register_all_pipeline(se::Object* obj);
+
+template<>
+bool sevalue_to_native(const se::Value &, cc::pipeline::RenderPipelineInfo *, se::Object *ctx);
+JSB_REGISTER_OBJECT_TYPE(cc::pipeline::RenderPipelineInfo);
+
+extern se::Object* __jsb_cc_pipeline_RenderPipeline_proto;
+extern se::Class* __jsb_cc_pipeline_RenderPipeline_class;
+
+bool js_register_cc_pipeline_RenderPipeline(se::Object* obj);
+bool register_all_pipeline(se::Object* obj);
+
+JSB_REGISTER_OBJECT_TYPE(cc::pipeline::RenderPipeline);
+SE_DECLARE_FUNC(js_pipeline_RenderPipeline_activate);
+SE_DECLARE_FUNC(js_pipeline_RenderPipeline_destroy);
+SE_DECLARE_FUNC(js_pipeline_RenderPipeline_initialize);
+SE_DECLARE_FUNC(js_pipeline_RenderPipeline_render);
+SE_DECLARE_FUNC(js_pipeline_RenderPipeline_setValue);
+SE_DECLARE_FUNC(js_pipeline_RenderPipeline_getInstance);
 
 extern se::Object* __jsb_cc_pipeline_ForwardPipeline_proto;
 extern se::Class* __jsb_cc_pipeline_ForwardPipeline_class;
@@ -194,55 +191,6 @@ SE_DECLARE_FUNC(js_pipeline_ShadowStage_setFramebuffer);
 SE_DECLARE_FUNC(js_pipeline_ShadowStage_setUseData);
 SE_DECLARE_FUNC(js_pipeline_ShadowStage_getInitializeInfo);
 SE_DECLARE_FUNC(js_pipeline_ShadowStage_ShadowStage);
-
-extern se::Object* __jsb_cc_pipeline_UIFlow_proto;
-extern se::Class* __jsb_cc_pipeline_UIFlow_class;
-
-bool js_register_cc_pipeline_UIFlow(se::Object* obj);
-bool register_all_pipeline(se::Object* obj);
-
-JSB_REGISTER_OBJECT_TYPE(cc::pipeline::UIFlow);
-SE_DECLARE_FUNC(js_pipeline_UIFlow_getInitializeInfo);
-SE_DECLARE_FUNC(js_pipeline_UIFlow_UIFlow);
-
-extern se::Object* __jsb_cc_pipeline_UIStage_proto;
-extern se::Class* __jsb_cc_pipeline_UIStage_class;
-
-bool js_register_cc_pipeline_UIStage(se::Object* obj);
-bool register_all_pipeline(se::Object* obj);
-
-JSB_REGISTER_OBJECT_TYPE(cc::pipeline::UIStage);
-SE_DECLARE_FUNC(js_pipeline_UIStage_getInitializeInfo);
-SE_DECLARE_FUNC(js_pipeline_UIStage_UIStage);
-
-extern se::Object* __jsb_cc_pipeline_RenderViewInfo_proto;
-extern se::Class* __jsb_cc_pipeline_RenderViewInfo_class;
-
-bool js_register_cc_pipeline_RenderViewInfo(se::Object* obj);
-bool register_all_pipeline(se::Object* obj);
-
-template<>
-bool sevalue_to_native(const se::Value &, cc::pipeline::RenderViewInfo *, se::Object *ctx);
-JSB_REGISTER_OBJECT_TYPE(cc::pipeline::RenderViewInfo);
-
-extern se::Object* __jsb_cc_pipeline_RenderView_proto;
-extern se::Class* __jsb_cc_pipeline_RenderView_class;
-
-bool js_register_cc_pipeline_RenderView(se::Object* obj);
-bool register_all_pipeline(se::Object* obj);
-
-JSB_REGISTER_OBJECT_TYPE(cc::pipeline::RenderView);
-SE_DECLARE_FUNC(js_pipeline_RenderView_destroy);
-SE_DECLARE_FUNC(js_pipeline_RenderView_setEnable);
-SE_DECLARE_FUNC(js_pipeline_RenderView_getFlows);
-SE_DECLARE_FUNC(js_pipeline_RenderView_getVisibility);
-SE_DECLARE_FUNC(js_pipeline_RenderView_getWindow);
-SE_DECLARE_FUNC(js_pipeline_RenderView_initialize);
-SE_DECLARE_FUNC(js_pipeline_RenderView_onGlobalPipelineStateChanged);
-SE_DECLARE_FUNC(js_pipeline_RenderView_setExecuteFlows);
-SE_DECLARE_FUNC(js_pipeline_RenderView_setVisibility);
-SE_DECLARE_FUNC(js_pipeline_RenderView_setWindow);
-SE_DECLARE_FUNC(js_pipeline_RenderView_RenderView);
 
 extern se::Object* __jsb_cc_pipeline_InstancedBuffer_proto;
 extern se::Class* __jsb_cc_pipeline_InstancedBuffer_class;
