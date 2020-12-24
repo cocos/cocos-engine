@@ -28,4 +28,4 @@
  * @hidden
  */
 
-import "../cocos/physics/physx/instantiate";
+import '../cocos/physics/physx/instantiate';
