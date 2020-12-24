@@ -27,7 +27,7 @@
  * @packageDocumentation
  * @module ui
  */
-
+import { EDITOR } from 'internal:constants';
 import { ccclass, executeInEditMode, requireComponent, disallowMultiple, tooltip, type, displayOrder, serializable, override, visible, displayName } from 'cc.decorator';
 import { Color } from '../../core/math';
 import { SystemEventType } from '../../core/platform/event-manager/event-enum';
@@ -43,7 +43,6 @@ import { Node } from '../../core/scene-graph';
 import { TransformBit } from '../../core/scene-graph/node-enum';
 import { UITransform } from './ui-transform';
 import { RenderableComponent } from '../../core/components/renderable-component';
-import { EDITOR } from 'internal:constants';
 import { Stage } from '../renderer/stencil-manager';
 import { warnID } from '../../core/platform/debug';
 import { murmurhash2_32_gc } from '../../core/utils';
@@ -124,7 +123,6 @@ const _matInsInfo: IMaterialInstanceInfo = {
 @disallowMultiple
 @executeInEditMode
 export class UIRenderable extends RenderableComponent {
-
     @override
     protected _materials: (Material | null)[] = [];
 
@@ -186,7 +184,7 @@ export class UIRenderable extends RenderableComponent {
      * sprite.srcBlendFactor = BlendFactor.ONE;
      * ```
      */
-    @visible(function (this: UIRenderable) { if (this._customMaterial) {return false;} return true; })
+    @visible(function (this: UIRenderable) { if (this._customMaterial) { return false; } return true; })
     @type(BlendFactor)
     @displayOrder(0)
     @tooltip('Source blend factor')
@@ -218,7 +216,7 @@ export class UIRenderable extends RenderableComponent {
      * sprite.dstBlendFactor = BlendFactor.ONE_MINUS_SRC_ALPHA;
      * ```
      */
-    @visible(function (this: UIRenderable) { if (this._customMaterial) {return false;} return true; })
+    @visible(function (this: UIRenderable) { if (this._customMaterial) { return false; } return true; })
     @type(BlendFactor)
     @displayOrder(1)
     @tooltip('destination blend factor')
@@ -355,20 +353,20 @@ export class UIRenderable extends RenderableComponent {
                 for (let j = 0; j < pass.blocks.length; j++) {
                     block = blocks[j];
                     for (let k = 0; k < block.length; k++) {
-                        hashData += block[k] + ',';
+                        hashData += `${block[k]},`;
                     }
                 }
             }
         }
         if (dirty) {
-            this._materialUniformHash = murmurhash2_32_gc(hashData,666);
+            this._materialUniformHash = murmurhash2_32_gc(hashData, 666);
         }
         return this._materialUniformHash;
     }
 
-    public __preload (){
+    public __preload () {
         this.node._uiProps.uiComp = this;
-        if (this._flushAssembler){
+        if (this._flushAssembler) {
             this._flushAssembler();
         }
     }
@@ -399,8 +397,8 @@ export class UIRenderable extends RenderableComponent {
             this.node._uiProps.uiComp = null;
         }
         this.destroyRenderData();
-        if (this._materialInstances){
-            for(let i = 0; i < this._materialInstances.length; i++) {
+        if (this._materialInstances) {
+            for (let i = 0; i < this._materialInstances.length; i++) {
                 this._materialInstances[i]!.destroy();
             }
         }
@@ -412,7 +410,7 @@ export class UIRenderable extends RenderableComponent {
      * @zh 标记当前组件的渲染数据为已修改状态，这样渲染数据才会重新计算。
      * @param enable Marked necessary to update or not
      */
-    public markForUpdateRenderData (enable: boolean = true) {
+    public markForUpdateRenderData (enable = true) {
         this._renderFlag = this._canRender();
         if (enable && this._renderFlag) {
             const renderData = this._renderData;
@@ -459,7 +457,7 @@ export class UIRenderable extends RenderableComponent {
      * 注意：不要手动调用该函数，除非你理解整个流程。
      */
     public updateAssembler (render: UI) {
-        if (this._renderFlag){
+        if (this._renderFlag) {
             this._checkAndUpdateRenderData();
             this._render(render);
         }
@@ -491,18 +489,18 @@ export class UIRenderable extends RenderableComponent {
     }
 
     protected _canRender () {
-        return this.isValid &&
-               this.getMaterial(0) !== null &&
-               this.enabled &&
-               (this._delegateSrc ? this._delegateSrc.activeInHierarchy : this.enabledInHierarchy) &&
-               this._color.a > 0;
+        return this.isValid
+               && this.getMaterial(0) !== null
+               && this.enabled
+               && (this._delegateSrc ? this._delegateSrc.activeInHierarchy : this.enabledInHierarchy)
+               && this._color.a > 0;
     }
 
     protected _postCanRender () {}
 
     protected _updateColor () {
         if (this._assembler && this._assembler.updateColor) {
-            this._assembler!.updateColor(this);
+            this._assembler.updateColor(this);
         }
     }
 
@@ -510,15 +508,15 @@ export class UIRenderable extends RenderableComponent {
         let mat = this.getMaterial(0);
         const target = this._blendTemplate.blendState.targets[0];
 
-        if(mat) {
+        if (mat) {
             if (target.blendDst !== this._dstBlendFactor || target.blendSrc !== this._srcBlendFactor) {
                 mat = this.material!;
                 target.blendDst = this._dstBlendFactor;
                 target.blendSrc = this._srcBlendFactor;
                 mat.overridePipelineStates(this._blendTemplate, 0);
             }
-            return mat;
         }
+        return mat;
     }
 
     // pos, rot, scale changed
@@ -537,23 +535,23 @@ export class UIRenderable extends RenderableComponent {
     }
 
     private _updateBuiltinMaterial () : Material {
-        let mat;
+        let mat : Material;
         switch (this._instanceMaterialType) {
-            case InstanceMaterialType.ADD_COLOR:
-                mat = builtinResMgr.get('ui-base-material') as Material;
-                break;
-            case InstanceMaterialType.GRAYSCALE:
-                mat = builtinResMgr.get('ui-sprite-gray-material') as Material;
-                break;
-            case InstanceMaterialType.USE_ALPHA_SEPARATED:
-                mat = builtinResMgr.get('ui-sprite-alpha-sep-material') as Material;
-                break;
-            case InstanceMaterialType.USE_ALPHA_SEPARATED_AND_GRAY:
-                mat = builtinResMgr.get('ui-sprite-gray-alpha-sep-material') as Material;
-                break;
-            default:
-                mat = builtinResMgr.get('ui-sprite-material') as Material;
-                break;
+        case InstanceMaterialType.ADD_COLOR:
+            mat = builtinResMgr.get('ui-base-material');
+            break;
+        case InstanceMaterialType.GRAYSCALE:
+            mat = builtinResMgr.get('ui-sprite-gray-material');
+            break;
+        case InstanceMaterialType.USE_ALPHA_SEPARATED:
+            mat = builtinResMgr.get('ui-sprite-alpha-sep-material');
+            break;
+        case InstanceMaterialType.USE_ALPHA_SEPARATED_AND_GRAY:
+            mat = builtinResMgr.get('ui-sprite-gray-alpha-sep-material');
+            break;
+        default:
+            mat = builtinResMgr.get('ui-sprite-material');
+            break;
         }
         return mat;
     }
@@ -562,4 +560,3 @@ export class UIRenderable extends RenderableComponent {
 }
 
 legacyCC.internal.UIRenderable = UIRenderable;
-
