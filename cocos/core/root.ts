@@ -403,14 +403,12 @@ export class Root {
             for (let i = 0; i < windows.length; i++) {
                 const window = windows[i];
                 const cameras = window.extractRenderCameras();
-                if (cameras.length > 0) {
-                    this._pipeline.render(cameras);
-                }
+                this._pipeline.render(cameras);
             }
-            if (this._ui) this._ui.reset();
-
             this._device.present();
         }
+
+        if (this._ui) this._ui.reset();
     }
 
     /**
