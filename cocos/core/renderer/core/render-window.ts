@@ -31,6 +31,7 @@ import {
 import { RenderPass, Texture, Framebuffer, RenderPassInfo, Device, TextureInfo, FramebufferInfo } from '../../gfx';
 import { Root } from '../../root';
 import { RenderWindowHandle, RenderWindowPool, RenderWindowView, FramebufferPool, NULL_HANDLE } from './memory-pools';
+import { Camera } from '../scene';
 
 export interface IRenderWindowInfo {
     title?: string;
@@ -46,7 +47,6 @@ export interface IRenderWindowInfo {
  * @zh 渲染窗口代表了一个渲染目标，可以是离屏的帧缓冲，也可以是屏幕缓冲
  */
 export class RenderWindow {
-
     /**
      * @en Get window width.
      * @zh 窗口宽度。
@@ -80,7 +80,7 @@ export class RenderWindow {
      * @zh 这个渲染窗口是否指向在屏缓冲
      */
     get hasOnScreenAttachments () {
-        return RenderWindowPool.get(this._poolHandle, RenderWindowView.HAS_ON_SCREEN_ATTACHMENTS) === 1 ? true : false;
+        return RenderWindowPool.get(this._poolHandle, RenderWindowView.HAS_ON_SCREEN_ATTACHMENTS) === 1;
     }
 
     /**
@@ -88,11 +88,15 @@ export class RenderWindow {
      * @zh 这个渲染窗口是否指向离屏缓冲
      */
     get hasOffScreenAttachments () {
-        return RenderWindowPool.get(this._poolHandle, RenderWindowView.HAS_OFF_SCREEN_ATTACHMENTS) === 1 ? true : false;
+        return RenderWindowPool.get(this._poolHandle, RenderWindowView.HAS_OFF_SCREEN_ATTACHMENTS) === 1;
     }
 
     get handle () : RenderWindowHandle {
         return this._poolHandle;
+    }
+
+    get cameras () {
+        return this._cameras;
     }
 
     /**
@@ -113,6 +117,7 @@ export class RenderWindow {
     protected _swapchainBufferIndices = 0;
     protected _shouldSyncSizeWithSwapchain = false;
     protected _poolHandle: RenderWindowHandle = NULL_HANDLE;
+    protected _cameras: Camera[] = [];
 
     private constructor (root: Root) {
     }
@@ -193,6 +198,7 @@ export class RenderWindow {
     }
 
     public destroy () {
+        this.clearCameras();
         if (this._depthStencilTexture) {
             this._depthStencilTexture.destroy();
             this._depthStencilTexture = null;
@@ -222,9 +228,8 @@ export class RenderWindow {
         this._width = width;
         this._height = height;
 
-        if (width > this._nativeWidth ||
-            height > this._nativeHeight) {
-
+        if (width > this._nativeWidth
+            || height > this._nativeHeight) {
             this._nativeWidth = width;
             this._nativeHeight = height;
 
@@ -253,5 +258,65 @@ export class RenderWindow {
                 ));
             }
         }
+
+        for (const camera of this._cameras) {
+            if (camera.isWindowSize) {
+                camera.resize(width, height);
+            }
+        }
+    }
+
+    public extractRenderCameras () {
+        const cameras: Camera[] = [];
+        for (let j = 0; j < this._cameras.length; j++) {
+            const camera = this._cameras[j];
+            if (camera.enabled) {
+                camera.update();
+                cameras.push(camera);
+            }
+        }
+
+        return cameras;
+    }
+
+    /**
+     * @zh
+     * 添加渲染相机
+     * @param camera 渲染相机
+     */
+    public attachCamera (camera: Camera) {
+        for (let i = 0; i < this._cameras.length; i++) {
+            if (this._cameras[i] === camera) {
+                return;
+            }
+        }
+        this._cameras.push(camera);
+        this.sortCameras();
+    }
+
+    /**
+     * @zh
+     * 移除渲染相机
+     * @param camera 相机
+     */
+    public detachCamera (camera: Camera) {
+        for (let i = 0; i < this._cameras.length; ++i) {
+            if (this._cameras[i] === camera) {
+                this._cameras.splice(i, 1);
+                return;
+            }
+        }
+    }
+
+    /**
+     * @zh
+     * 销毁全部渲染相机
+     */
+    public clearCameras () {
+        this._cameras.length = 0;
+    }
+
+    public sortCameras () {
+        this._cameras.sort((a: Camera, b: Camera) => a.priority - b.priority);
     }
 }

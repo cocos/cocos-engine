@@ -448,13 +448,6 @@ export class Camera extends Component {
         }
     }
 
-    set flows (val) {
-        if (this._camera) {
-            this._camera.flows = val;
-        }
-        this._flows = val;
-    }
-
     public onLoad () {
         this._createCamera();
     }
@@ -474,7 +467,7 @@ export class Camera extends Component {
 
     public onDestroy () {
         if (this._camera) {
-            legacyCC.director.root.destroyCamera(this._camera);
+            this._camera.detachCamera();
             this._camera = null;
         }
 
@@ -537,20 +530,17 @@ export class Camera extends Component {
     }
 
     public _createCamera () {
-        if (this._camera) { return; }
+        if (!this._camera) {
+            this._camera = (legacyCC.director.root as Root).createCamera();
+            this._camera.initialize({
+                name: this.node.name,
+                node: this.node,
+                projection: this._projection,
+                window: this._inEditorMode ? legacyCC.director.root && legacyCC.director.root.mainWindow
+                    : legacyCC.director.root && legacyCC.director.root.tempWindow,
+                priority: this._priority,
+            });
 
-        this._camera = (legacyCC.director.root as Root).createCamera();
-        this._camera.initialize({
-            name: this.node.name,
-            node: this.node,
-            projection: this._projection,
-            window: this._inEditorMode ? legacyCC.director.root && legacyCC.director.root.mainWindow
-                : legacyCC.director.root && legacyCC.director.root.tempWindow,
-            priority: this._priority,
-            flows: this._flows,
-        });
-
-        if (this._camera) {
             this._camera.viewport = this._rect;
             this._camera.fovAxis = this._fovAxis;
             this._camera.fov = toRadian(this._fov);

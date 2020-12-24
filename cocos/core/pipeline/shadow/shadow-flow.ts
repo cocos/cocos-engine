@@ -34,15 +34,15 @@ import { IRenderFlowInfo, RenderFlow } from '../render-flow';
 import { ForwardFlowPriority } from '../forward/enum';
 import { ShadowStage } from './shadow-stage';
 import { RenderPass, LoadOp, StoreOp,
-    TextureLayout, Format, Texture, TextureType, TextureUsageBit,ColorAttachment,
+    TextureLayout, Format, Texture, TextureType, TextureUsageBit, ColorAttachment,
     DepthStencilAttachment, RenderPassInfo, TextureInfo, FramebufferInfo } from '../../gfx';
 import { RenderFlowTag } from '../pipeline-serialization';
 import { ForwardPipeline } from '../forward/forward-pipeline';
-import { RenderView } from '../render-view';
 import { ShadowType } from '../../renderer/scene/shadows';
 import { Light } from '../../renderer/scene/light';
 import { lightCollecting, shadowCollecting } from '../forward/scene-culling';
 import { Vec2 } from '../../math';
+import { Camera } from '../../renderer/scene';
 
 /**
  * @en Shadow map render flow
@@ -50,7 +50,6 @@ import { Vec2 } from '../../math';
  */
 @ccclass('ShadowFlow')
 export class ShadowFlow extends RenderFlow {
-
     /**
      * @en A common initialization info for shadow map render flow
      * @zh 一个通用的 ShadowFlow 的初始化信息对象
@@ -59,7 +58,7 @@ export class ShadowFlow extends RenderFlow {
         name: PIPELINE_FLOW_SHADOW,
         priority: ForwardFlowPriority.SHADOW,
         tag: RenderFlowTag.SCENE,
-        stages: []
+        stages: [],
     };
 
     private _shadowRenderPass: RenderPass|null = null;
@@ -75,13 +74,14 @@ export class ShadowFlow extends RenderFlow {
         return true;
     }
 
-    public render (view: RenderView) {
+    public render (camera: Camera) {
         const pipeline = this._pipeline as ForwardPipeline;
         const shadowInfo = pipeline.shadows;
         if (!shadowInfo.enabled || shadowInfo.type !== ShadowType.ShadowMap) { return; }
 
-        const validLights = lightCollecting(view, shadowInfo.maxReceived);
-        shadowCollecting(pipeline, view);
+        pipeline.updateShadowUBO(camera);
+        const validLights = lightCollecting(camera, shadowInfo.maxReceived);
+        shadowCollecting(pipeline, camera);
 
         for (let l = 0; l < validLights.length; l++) {
             const light = validLights[l];
@@ -95,14 +95,14 @@ export class ShadowFlow extends RenderFlow {
             for (let i = 0; i < this._stages.length; i++) {
                 const shadowStage = this._stages[i] as ShadowStage;
                 shadowStage.setUsage(light, shadowFrameBuffer!);
-                shadowStage.render(view);
+                shadowStage.render(camera);
             }
         }
     }
 
     public destroy () {
         super.destroy();
-        let shadowFrameBuffers = Array.from((this._pipeline as ForwardPipeline).shadowFrameBufferMap.values());
+        const shadowFrameBuffers = Array.from((this._pipeline as ForwardPipeline).shadowFrameBufferMap.values());
         for (let i = 0; i < shadowFrameBuffers.length; i++) {
             const frameBuffer = shadowFrameBuffers[i];
 
@@ -110,7 +110,7 @@ export class ShadowFlow extends RenderFlow {
             const renderTargets = frameBuffer.colorTextures;
             for (let j = 0; j < renderTargets.length; j++) {
                 const renderTarget = renderTargets[i];
-                if (renderTarget) { renderTarget.destroy() };
+                if (renderTarget) { renderTarget.destroy(); }
             }
             renderTargets.length = 0;
 
@@ -122,7 +122,7 @@ export class ShadowFlow extends RenderFlow {
 
         (this._pipeline as ForwardPipeline).shadowFrameBufferMap.clear();
 
-        if(this._shadowRenderPass) { this._shadowRenderPass.destroy() };
+        if (this._shadowRenderPass) { this._shadowRenderPass.destroy(); }
     }
 
     public _initShadowFrameBuffer  (pipeline: ForwardPipeline, light: Light) {

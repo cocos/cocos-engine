@@ -30,8 +30,7 @@
 
 import { builtinResMgr } from './3d/builtin';
 import { Pool } from './memop';
-import { RenderPipeline, ForwardPipeline, RenderView  } from './pipeline';
-import { IRenderViewInfo } from './pipeline/define';
+import { RenderPipeline, ForwardPipeline } from './pipeline';
 import { Camera, Light, Model } from './renderer/scene';
 import { DataPoolManager } from './renderer/data-pool-manager';
 import { LightType } from './renderer/scene/light';
@@ -65,7 +64,6 @@ export interface ISceneInfo {
  * Root类
  */
 export class Root {
-
     /**
      * @zh
      * GFX 设备
@@ -207,8 +205,6 @@ export class Root {
     private _ui: UI | null = null;
     private _dataPoolMgr: DataPoolManager;
     private _scenes: RenderScene[] = [];
-    private _cameras: Camera[] = [];
-    private _views: RenderView[] = [];
     private _modelPools = new Map<Constructor<Model>, Pool<Model>>();
     private _cameraPool: Pool<Camera> | null = null;
     private _lightPools = new Map<Constructor<Light>, Pool<Light>>();
@@ -264,7 +260,6 @@ export class Root {
     }
 
     public destroy () {
-        this.clearCameras();
         this.destroyScenes();
 
         if (this._pipeline) {
@@ -306,12 +301,6 @@ export class Root {
                 window.resize(width, height);
             }
         }
-
-        for (const camera of this._cameras) {
-            if (camera.isWindowSize) {
-                camera.resize(width, height);
-            }
-        }
     }
 
     public setRenderPipeline (rppl: RenderPipeline): boolean {
@@ -347,9 +336,6 @@ export class Root {
     }
 
     public onGlobalPipelineStateChanged () {
-        for (let i = 0; i < this._cameras.length; i++) {
-            this._cameras[i].view.onGlobalPipelineStateChanged();
-        }
         for (let i = 0; i < this._scenes.length; i++) {
             this._scenes[i].onGlobalPipelineStateChanged();
         }
@@ -403,23 +389,26 @@ export class Root {
 
         if (this._pipeline) {
             this._device.acquire();
-            this._views.length = 0;
-            const views = this._cameras;
+            const windows = this._windows;
+            const scenes = this._scenes;
             const stamp = legacyCC.director.getTotalFrames();
             if (this._ui) this._ui.uploadBuffers();
-            for (let i = 0; i < views.length; i++) {
-                const camera = this._cameras[i];
-                const view = camera.view;
-                if (view.isEnable && view.window) {
-                    camera.update();
-                    camera.scene!.update(stamp);
-                    this._views.push(view);
-                }
+
+            for (let i = 0; i < scenes.length; i++) {
+                scenes[i].update(stamp);
             }
+
             legacyCC.director.emit(legacyCC.Director.EVENT_BEFORE_COMMIT);
-            this._pipeline.render(this._views);
+
+            for (let i = 0; i < windows.length; i++) {
+                const window = windows[i];
+                const cameras = window.extractRenderCameras();
+                this._pipeline.render(cameras);
+            }
             this._device.present();
         }
+
+        if (this._ui) this._ui.reset();
     }
 
     /**
@@ -498,59 +487,11 @@ export class Root {
         this._scenes = [];
     }
 
-    /**
-     * @zh
-     * 创建渲染视图
-     * @param info 渲染视图描述信息
-     */
-    public createView (info: IRenderViewInfo): RenderView {
-        const view: RenderView = new RenderView();
-        view.initialize(info);
-        return view;
-    }
-
-    /**
-     * @zh
-     * 添加渲染相机
-     * @param camera 渲染相机
-     */
-    public attachCamera (camera: Camera) {
-        for (let i = 0; i < this._cameras.length; i++) {
-            if (this._cameras[i] === camera) {
-                return;
-            }
-        }
-        this._cameras.push(camera);
-        this.sortViews();
-    }
-
-    /**
-     * @zh
-     * 移除渲染相机
-     * @param camera 相机
-     */
-    public detachCamera (camera: Camera) {
-        for (let i = 0; i < this._cameras.length; ++i) {
-            if (this._cameras[i] === camera) {
-                this._cameras.splice(i, 1);
-                return;
-            }
-        }
-    }
-
-    /**
-     * @zh
-     * 销毁全部渲染相机
-     */
-    public clearCameras () {
-        this._cameras.length = 0;
-    }
-
-    public createModel<T extends Model> (mClass: typeof Model): T {
-        let p = this._modelPools.get(mClass);
+    public createModel<T extends Model> (ModelCtor: typeof Model): T {
+        let p = this._modelPools.get(ModelCtor);
         if (!p) {
-            this._modelPools.set(mClass, new Pool(() => new mClass(), 10));
-            p = this._modelPools.get(mClass)!;
+            this._modelPools.set(ModelCtor, new Pool(() => new ModelCtor(), 10));
+            p = this._modelPools.get(ModelCtor)!;
         }
         const model = p.alloc() as T;
         model.initialize();
@@ -574,20 +515,11 @@ export class Root {
         return this._cameraPool!.alloc();
     }
 
-    public destroyCamera (c: Camera) {
-        this._cameraPool!.free(c);
-        c.destroy();
-        if (c.scene) {
-            c.scene.removeCamera(c);
-        }
-        c.isWindowSize = true;
-    }
-
-    public createLight<T extends Light> (lClass: new () => T): T {
-        let l = this._lightPools.get(lClass);
+    public createLight<T extends Light> (LightCtor: new () => T): T {
+        let l = this._lightPools.get(LightCtor);
         if (!l) {
-            this._lightPools.set(lClass, new Pool(() => new lClass(), 4));
-            l = this._lightPools.get(lClass)!;
+            this._lightPools.set(LightCtor, new Pool(() => new LightCtor(), 4));
+            l = this._lightPools.get(LightCtor)!;
         }
         const light = l.alloc() as T;
         light.initialize();
@@ -601,21 +533,17 @@ export class Root {
             p.free(l);
             if (l.scene) {
                 switch (l.type) {
-                    case LightType.SPHERE:
-                        l.scene.removeSphereLight(l as SphereLight);
-                        break;
-                    case LightType.SPOT:
-                        l.scene.removeSpotLight(l as SpotLight);
-                        break;
+                case LightType.SPHERE:
+                    l.scene.removeSphereLight(l as SphereLight);
+                    break;
+                case LightType.SPOT:
+                    l.scene.removeSpotLight(l as SpotLight);
+                    break;
+                default:
+                    break;
                 }
             }
         }
-    }
-
-    public sortViews () {
-        this._cameras.sort((a: Camera, b: Camera) => {
-            return a.view.priority - b.view.priority;
-        });
     }
 }
 

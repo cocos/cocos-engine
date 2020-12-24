@@ -271,10 +271,9 @@ export class Canvas extends Component {
         if (EDITOR) {
             this._fitDesignResolution = () => {
                 // TODO: support paddings of locked widget
-                let designSize: Size;
                 this.node.getPosition(this._pos);
-                const nodeSize = designSize = view.getDesignResolutionSize();
-                Vec3.set(_worldPos, designSize.width * 0.5, designSize.height * 0.5, 0);
+                const nodeSize = view.getDesignResolutionSize();
+                Vec3.set(_worldPos, nodeSize.width * 0.5, nodeSize.height * 0.5, 0);
 
                 if (!this._pos.equals(_worldPos)) {
                     this.node.setPosition(_worldPos);
@@ -444,7 +443,6 @@ export class Canvas extends Component {
         this._cameraComponent = cameraNode.getComponent('cc.Camera') as Camera;
         this._cameraComponent.projection = Camera.ProjectionType.ORTHO;
         this._cameraComponent.priority = this._getViewPriority();
-        this._cameraComponent.flows = ['UIFlow'];
         this._cameraComponent.clearFlags = this.clearFlag;
         this._cameraComponent.far = 2000.0;
         this._cameraComponent.rect = new Rect(0, 0, 1, 1);
