@@ -449,6 +449,11 @@ public:
             typeMap[vkBinding.descriptorType] += maxSetsPerPool * vkBinding.descriptorCount;
         }
 
+        // minimal reserve for empty set layouts
+        if (!bindings.size()) {
+            typeMap[VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER] = 1;
+        }
+
         _poolSizes.clear();
         for (unordered_map<VkDescriptorType, uint>::iterator it = typeMap.begin(); it != typeMap.end(); it++) {
             _poolSizes.push_back({it->first, it->second});
@@ -526,6 +531,7 @@ public:
     vector<VkDescriptorSetLayoutBinding> vkBindings;
     VkDescriptorSetLayout vkDescriptorSetLayout = VK_NULL_HANDLE;
     VkDescriptorUpdateTemplate vkDescriptorUpdateTemplate = VK_NULL_HANDLE;
+    VkDescriptorSet defaultDescriptorSet = VK_NULL_HANDLE;
 
     vector<uint> bindingIndices;
     vector<uint> descriptorIndices;
@@ -568,12 +574,7 @@ public:
         uint hash = getHash(gpuCommandBuffer->queueFamilyIndex);
 
         if (_device->curBackBufferIndex != _lastBackBufferIndex) {
-            // don't reset before acquire or the in-flight cbs are not finished yet.
-            // this imposes an implicit assumption: commands recorded before acquire
-            // can only be a low-frequency operation, or else the comman pool would never get reset.
-            if (_device->curBackBufferIndex == _device->swapchain->curImageIndex) {
-                reset(); // has to be called in the same thread as cb allocations so can't do this in device
-            }
+            reset();
             _lastBackBufferIndex = _device->curBackBufferIndex;
         }
 
@@ -861,7 +862,9 @@ public:
     void record(CCVKGPUDescriptorSet *gpuDescriptorSet) {
         update(gpuDescriptorSet);
         for (uint i = 0u; i < _device->backBufferCount; ++i) {
-            if (i != _device->curBackBufferIndex) {
+            if (i == _device->curBackBufferIndex) {
+                _setsToBeUpdated[i].erase(gpuDescriptorSet);
+            } else {
                 _setsToBeUpdated[i].insert(gpuDescriptorSet);
             }
         }
@@ -940,7 +943,9 @@ public:
     void record(CCVKGPUBuffer *gpuBuffer, const void *src, size_t size) {
         src = update(gpuBuffer, src, size); // copy from self afterwards
         for (uint i = 0u; i < _device->backBufferCount; ++i) {
-            if (i != _device->curBackBufferIndex) {
+            if (i == _device->curBackBufferIndex) {
+                _buffersToBeUpdated[i].erase(gpuBuffer);
+            } else {
                 _buffersToBeUpdated[i][gpuBuffer] = {src, size};
             }
         }

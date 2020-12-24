@@ -3,7 +3,7 @@
 #include <type_traits>
 #include "cocos/bindings/jswrapper/SeApi.h"
 #include "cocos/bindings/manual/jsb_conversions.h"
-#include "cocos\renderer\gfx-vulkan\GFXVulkan.h"
+#include "cocos/renderer/gfx-vulkan/GFXVulkan.h"
 
 extern se::Object* __jsb_cc_gfx_CCVKDevice_proto;
 extern se::Class* __jsb_cc_gfx_CCVKDevice_class;

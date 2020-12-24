@@ -438,20 +438,16 @@ void CCVKCommandBuffer::bindDescriptorSets() {
     CCVKDevice *device = (CCVKDevice *)_device;
     CCVKGPUDevice *gpuDevice = device->gpuDevice();
     CCVKGPUPipelineLayout *pipelineLayout = _curGPUPipelineState->gpuPipelineLayout;
+    vector<uint> &dynamicOffsetOffsets = pipelineLayout->dynamicOffsetOffsets;
+    uint descriptorSetCount = pipelineLayout->setLayouts.size();
+    _curDynamicOffsets.resize(pipelineLayout->dynamicOffsetCount);
 
-    uint dirtyDescriptorSetCount = _curGPUDescriptorSets.size() - _firstDirtyDescriptorSet;
-    uint dynamicOffsetStartIndex = pipelineLayout->dynamicOffsetOffsets[_firstDirtyDescriptorSet];
-    uint dynamicOffsetCount = pipelineLayout->dynamicOffsetCount - dynamicOffsetStartIndex;
-    _curDynamicOffsets.resize(dynamicOffsetCount);
-    uint *dynamicOffsets = _curDynamicOffsets.data();
-    for (uint i = 0u, offsetAcc = 0u; i < dirtyDescriptorSetCount; i++) {
-        uint set = _firstDirtyDescriptorSet + i;
-        _curVkDescriptorSets[set] = _curGPUDescriptorSets[set]->instances[gpuDevice->curBackBufferIndex].vkDescriptorSet;
-        uint offsetCount = pipelineLayout->dynamicOffsetOffsets[set + 1] - dynamicOffsetStartIndex;
-        CCASSERT(_curDynamicOffsetCounts[set] == offsetCount, "dynamic offset count mismatch");
-        if (offsetCount > 0) {
-            memcpy(dynamicOffsets + offsetAcc, _curDynamicOffsetPtrs[set], offsetCount * sizeof(uint));
-            offsetAcc += offsetCount;
+    uint dirtyDescriptorSetCount = descriptorSetCount - _firstDirtyDescriptorSet;
+    for (uint i = _firstDirtyDescriptorSet; i < descriptorSetCount; ++i) {
+        if (_curGPUDescriptorSets[i]) {
+            _curVkDescriptorSets[i] = _curGPUDescriptorSets[i]->instances[gpuDevice->curBackBufferIndex].vkDescriptorSet;
+        } else {
+            _curVkDescriptorSets[i] = pipelineLayout->setLayouts[i]->defaultDescriptorSet;
         }
         uint count = dynamicOffsetOffsets[i + 1] - dynamicOffsetOffsets[i];
         //CCASSERT(_curDynamicOffsetCounts[i] >= count, "missing dynamic offsets?");
@@ -459,12 +455,15 @@ void CCVKCommandBuffer::bindDescriptorSets() {
         if (count > 0) memcpy(&_curDynamicOffsets[dynamicOffsetOffsets[i]], _curDynamicOffsetPtrs[i], count * sizeof(uint));
     }
 
+    uint dynamicOffsetStartIndex = dynamicOffsetOffsets[_firstDirtyDescriptorSet];
+    uint dynamicOffsetEndIndex = dynamicOffsetOffsets[_firstDirtyDescriptorSet + dirtyDescriptorSetCount];
+    uint dynamicOffsetCount = dynamicOffsetEndIndex - dynamicOffsetStartIndex;
     vkCmdBindDescriptorSets(_gpuCommandBuffer->vkCommandBuffer,
                             VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout->vkPipelineLayout,
                             _firstDirtyDescriptorSet, dirtyDescriptorSetCount,
                             &_curVkDescriptorSets[_firstDirtyDescriptorSet],
-                            dynamicOffsetCount, dynamicOffsets);
-
+                            dynamicOffsetCount, &_curDynamicOffsetCounts[dynamicOffsetStartIndex]);
+    
     _firstDirtyDescriptorSet = UINT_MAX;
 }
 

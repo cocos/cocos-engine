@@ -3,7 +3,7 @@
 #include <type_traits>
 #include "cocos/bindings/jswrapper/SeApi.h"
 #include "cocos/bindings/manual/jsb_conversions.h"
-#include "cocos\renderer\gfx-gles3\GFXGLES3.h"
+#include "cocos/renderer/gfx-gles3/GFXGLES3.h"
 
 extern se::Object* __jsb_cc_gfx_GLES3Device_proto;
 extern se::Class* __jsb_cc_gfx_GLES3Device_class;

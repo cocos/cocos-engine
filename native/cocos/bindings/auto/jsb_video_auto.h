@@ -4,7 +4,7 @@
 #include <type_traits>
 #include "cocos/bindings/jswrapper/SeApi.h"
 #include "cocos/bindings/manual/jsb_conversions.h"
-#include "cocos\ui\videoplayer\VideoPlayer.h"
+#include "cocos/ui/videoplayer/VideoPlayer.h"
 
 extern se::Object* __jsb_cc_VideoPlayer_proto;
 extern se::Class* __jsb_cc_VideoPlayer_class;

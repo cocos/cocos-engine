@@ -199,8 +199,10 @@ void CCVKCmdFuncCreateBuffer(CCVKDevice *device, CCVKGPUBuffer *gpuBuffer) {
         bufferInfo.usage |= VK_BUFFER_USAGE_TRANSFER_DST_BIT;
         allocInfo.usage = VMA_MEMORY_USAGE_GPU_ONLY;
     } else if (gpuBuffer->memUsage == (MemoryUsage::HOST | MemoryUsage::DEVICE)) {
+        /* *
         gpuBuffer->instanceSize = roundUp(gpuBuffer->size, device->getUboOffsetAlignment());
         bufferInfo.size = gpuBuffer->instanceSize * device->gpuDevice()->backBufferCount;
+        /* */
         allocInfo.flags = VMA_ALLOCATION_CREATE_MAPPED_BIT;
         allocInfo.usage = VMA_MEMORY_USAGE_CPU_TO_GPU;
     }
@@ -385,6 +387,8 @@ void CCVKCmdFuncCreateDescriptorSetLayout(CCVKDevice *device, CCVKGPUDescriptorS
     VK_CHECK(vkCreateDescriptorSetLayout(gpuDevice->vkDevice, &setCreateInfo, nullptr, &gpuDescriptorSetLayout->vkDescriptorSetLayout));
 
     gpuDescriptorSetLayout->pool.link(gpuDevice, gpuDescriptorSetLayout->maxSetsPerPool, gpuDescriptorSetLayout->vkBindings, gpuDescriptorSetLayout->vkDescriptorSetLayout);
+
+    gpuDescriptorSetLayout->defaultDescriptorSet = gpuDescriptorSetLayout->pool.request();
 
     if (gpuDevice->useDescriptorUpdateTemplate) {
         const vector<VkDescriptorSetLayoutBinding> &bindings = gpuDescriptorSetLayout->vkBindings;
@@ -869,6 +873,11 @@ void CCVKCmdFuncDestroyFramebuffer(CCVKGPUDevice *gpuDevice, CCVKGPUFramebuffer 
 }
 
 void CCVKCmdFuncDestroyDescriptorSetLayout(CCVKGPUDevice *gpuDevice, CCVKGPUDescriptorSetLayout *gpuDescriptorSetLayout) {
+    if (gpuDescriptorSetLayout->defaultDescriptorSet != VK_NULL_HANDLE) {
+         gpuDescriptorSetLayout->pool.yield(gpuDescriptorSetLayout->defaultDescriptorSet);
+        gpuDescriptorSetLayout->defaultDescriptorSet = VK_NULL_HANDLE;
+    }
+
     if (gpuDescriptorSetLayout->vkDescriptorUpdateTemplate != VK_NULL_HANDLE) {
         vkDestroyDescriptorUpdateTemplateKHR(gpuDevice->vkDevice, gpuDescriptorSetLayout->vkDescriptorUpdateTemplate, nullptr);
         gpuDescriptorSetLayout->vkDescriptorUpdateTemplate = VK_NULL_HANDLE;

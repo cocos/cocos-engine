@@ -490,16 +490,6 @@ void CCVKDevice::acquire() {
 
     assert(_gpuDevice->curBackBufferIndex == _gpuSwapchain->curImageIndex);
 
-    uint fenceCount = gpuFencePool()->size();
-    if (fenceCount) {
-        VK_CHECK(vkWaitForFences(_gpuDevice->vkDevice, fenceCount,
-                                 gpuFencePool()->data(), VK_TRUE, DEFAULT_TIMEOUT));
-    }
-
-    gpuFencePool()->reset();
-    gpuRecycleBin()->clear();
-    gpuStagingBufferPool()->reset();
-
     queue->gpuQueue()->nextWaitSemaphore = acquireSemaphore;
     queue->gpuQueue()->nextSignalSemaphore = _gpuSemaphorePool->alloc();
 }
@@ -524,12 +514,22 @@ void CCVKDevice::present() {
 #endif
 
         _gpuDevice->curBackBufferIndex = (_gpuDevice->curBackBufferIndex + 1) % _gpuDevice->backBufferCount;
+
+        uint fenceCount = gpuFencePool()->size();
+        if (fenceCount) {
+            VK_CHECK(vkWaitForFences(_gpuDevice->vkDevice, fenceCount,
+                                     gpuFencePool()->data(), VK_TRUE, DEFAULT_TIMEOUT));
+        }
+
+        gpuFencePool()->reset();
+        gpuRecycleBin()->clear();
+        gpuStagingBufferPool()->reset();
     }
 }
 
-CCVKGPURecycleBin *CCVKDevice::gpuRecycleBin() { return _gpuRecycleBins[_gpuSwapchain->curImageIndex]; }
-CCVKGPUStagingBufferPool *CCVKDevice::gpuStagingBufferPool() { return _gpuStagingBufferPools[_gpuSwapchain->curImageIndex]; }
-CCVKGPUFencePool *CCVKDevice::gpuFencePool() { return _gpuFencePools[_gpuSwapchain->curImageIndex]; }
+CCVKGPUFencePool *CCVKDevice::gpuFencePool() { return _gpuFencePools[_gpuDevice->curBackBufferIndex]; }
+CCVKGPURecycleBin *CCVKDevice::gpuRecycleBin() { return _gpuRecycleBins[_gpuDevice->curBackBufferIndex]; }
+CCVKGPUStagingBufferPool *CCVKDevice::gpuStagingBufferPool() { return _gpuStagingBufferPools[_gpuDevice->curBackBufferIndex]; }
 
 CommandBuffer *CCVKDevice::doCreateCommandBuffer(const CommandBufferInfo &info, bool hasAgent) {
     return CC_NEW(CCVKCommandBuffer(this));

@@ -3,7 +3,7 @@
 #include <type_traits>
 #include "cocos/bindings/jswrapper/SeApi.h"
 #include "cocos/bindings/manual/jsb_conversions.h"
-#include "cocos\network\Downloader.h"
+#include "cocos/network/Downloader.h"
 
 extern se::Object* __jsb_cc_network_DownloadTask_proto;
 extern se::Class* __jsb_cc_network_DownloadTask_class;

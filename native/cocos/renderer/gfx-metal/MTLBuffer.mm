@@ -242,9 +242,7 @@ void CCMTLBuffer::update(void *buffer, uint size) {
                         ++drawInfo;
                     }
                     updateMTLBuffer(_indexedPrimitivesIndirectArguments.data(), 0, drawInfoCount * stride);
-                }
-                else
-                {
+                } else {
                     _isDrawIndirectByIndex = false;
                     uint stride = sizeof(MTLDrawIndexedPrimitivesIndirectArguments);
 
@@ -266,9 +264,7 @@ void CCMTLBuffer::update(void *buffer, uint size) {
         {
             memcpy(_drawInfos.data(), buffer, size);
         }
-    }
-    else
-    {
+    } else {
         updateMTLBuffer(buffer, 0, size);
     }
 }

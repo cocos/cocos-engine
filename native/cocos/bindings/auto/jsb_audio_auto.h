@@ -4,7 +4,7 @@
 #include <type_traits>
 #include "cocos/bindings/jswrapper/SeApi.h"
 #include "cocos/bindings/manual/jsb_conversions.h"
-#include "cocos\audio\include\AudioEngine.h"
+#include "cocos/audio/include/AudioEngine.h"
 
 extern se::Object* __jsb_cc_AudioProfile_proto;
 extern se::Class* __jsb_cc_AudioProfile_class;

@@ -3,7 +3,7 @@
 #include <type_traits>
 #include "cocos/bindings/jswrapper/SeApi.h"
 #include "cocos/bindings/manual/jsb_conversions.h"
-#include "cocos\renderer\core\Core.h"
+#include "cocos/renderer/core/Core.h"
 
 extern se::Object* __jsb_cc_gfx_Offset_proto;
 extern se::Class* __jsb_cc_gfx_Offset_class;

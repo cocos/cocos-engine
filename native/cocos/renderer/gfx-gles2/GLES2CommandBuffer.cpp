@@ -360,11 +360,12 @@ void GLES2CommandBuffer::BindStates() {
     cmd->gpuDescriptorSets = _curGPUDescriptorSets;
 
     vector<uint> &dynamicOffsetOffsets = _curGPUPipelineState->gpuPipelineLayout->dynamicOffsetOffsets;
-    vector<uint> &dynamicOffsets = _curGPUPipelineState->gpuPipelineLayout->dynamicOffsets;
     cmd->dynamicOffsets.resize(_curGPUPipelineState->gpuPipelineLayout->dynamicOffsetCount);
     for (size_t i = 0u; i < _curDynamicOffsets.size(); i++) {
         uint count = dynamicOffsetOffsets[i + 1] - dynamicOffsetOffsets[i];
-        memcpy(&cmd->dynamicOffsets[dynamicOffsetOffsets[i]], _curDynamicOffsets[i].data(), count * sizeof(uint));
+        //CCASSERT(_curDynamicOffsets[i].size() >= count, "missing dynamic offsets?");
+        count = std::min(count, _curDynamicOffsets[i].size());
+        if (count) memcpy(&cmd->dynamicOffsets[dynamicOffsetOffsets[i]], _curDynamicOffsets[i].data(), count * sizeof(uint));
     }
 
     cmd->viewport = _curViewport;

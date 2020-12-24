@@ -11595,7 +11595,7 @@ static bool js_gfx_CommandBuffer_beginRenderPass(se::State& s)
             HolderType<cc::gfx::RenderPass*, false> arg0 = {};
             HolderType<cc::gfx::Framebuffer*, false> arg1 = {};
             HolderType<cc::gfx::Rect, true> arg2 = {};
-            HolderType<const cc::gfx::Color*, false> arg3 = {};
+            HolderType<cc::gfx::ColorList, true> arg3 = {};
             HolderType<float, false> arg4 = {};
             HolderType<int, false> arg5 = {};
 
@@ -11649,7 +11649,7 @@ static bool js_gfx_CommandBuffer_beginRenderPass(se::State& s)
             HolderType<cc::gfx::RenderPass*, false> arg0 = {};
             HolderType<cc::gfx::Framebuffer*, false> arg1 = {};
             HolderType<cc::gfx::Rect, true> arg2 = {};
-            HolderType<cc::gfx::ColorList, true> arg3 = {};
+            HolderType<const cc::gfx::Color*, false> arg3 = {};
             HolderType<float, false> arg4 = {};
             HolderType<int, false> arg5 = {};
 
