@@ -192,13 +192,13 @@ export class ArmatureDisplay extends UIRenderable {
         }
 
         if (this._armature && !this.isAnimationCached()) {
-            this._factory._dragonBones.clock.remove(this._armature);
+            this._factory!._dragonBones.clock.remove(this._armature);
         }
 
         this._refresh();
 
         if (this._armature && !this.isAnimationCached()) {
-            this._factory._dragonBones.clock.add(this._armature);
+            this._factory!._dragonBones.clock.add(this._armature);
         }
     }
 
