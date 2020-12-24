@@ -450,7 +450,7 @@ export class ArmatureDisplay extends UIRenderable {
 
     protected _eventTarget: EventTarget;
 
-    protected _factory: CCFactory;
+    protected _factory: CCFactory | null = null;
 
     protected _displayProxy: CCArmatureDisplay | null = null;
 
@@ -679,7 +679,7 @@ export class ArmatureDisplay extends UIRenderable {
             this._cacheMode = cacheMode;
             this._buildArmature();
             if (this._armature && !this.isAnimationCached()) {
-                this._factory._dragonBones.clock.add(this._armature);
+                this._factory!._dragonBones.clock.add(this._armature);
             }
             this._updateSocketBindings();
             this.markForUpdateRenderData();
@@ -701,7 +701,7 @@ export class ArmatureDisplay extends UIRenderable {
         super.onEnable();
         // If cache mode is cache, no need to update by dragonbones library.
         if (this._armature && !this.isAnimationCached()) {
-            this._factory._dragonBones.clock.add(this._armature);
+            this._factory!._dragonBones.clock.add(this._armature);
         }
         this._flushAssembler();
     }
@@ -710,7 +710,7 @@ export class ArmatureDisplay extends UIRenderable {
         super.onDisable();
         // If cache mode is cache, no need to update by dragonbones library.
         if (this._armature && !this.isAnimationCached()) {
-            this._factory._dragonBones.clock.remove(this._armature);
+            this._factory!._dragonBones.clock.remove(this._armature);
         }
     }
 
@@ -857,7 +857,7 @@ export class ArmatureDisplay extends UIRenderable {
         }
 
         const atlasUUID = this.dragonAtlasAsset._uuid;
-        this._armatureKey = this.dragonAsset.init(this._factory, atlasUUID);
+        this._armatureKey = this.dragonAsset.init(this._factory!, atlasUUID);
 
         if (this.isAnimationCached()) {
             this._armature = this._armatureCache!.getArmatureCache(this.armatureName, this._armatureKey, atlasUUID);
@@ -869,7 +869,7 @@ export class ArmatureDisplay extends UIRenderable {
 
         this._preCacheMode = this._cacheMode;
         if (EDITOR || this._cacheMode === AnimationCacheMode.REALTIME) {
-            this._displayProxy = this._factory.buildArmatureDisplay(this.armatureName, this._armatureKey, '', atlasUUID) as CCArmatureDisplay;
+            this._displayProxy = this._factory!.buildArmatureDisplay(this.armatureName, this._armatureKey, '', atlasUUID) as CCArmatureDisplay;
             if (!this._displayProxy) return;
             this._displayProxy._ccNode = this.node;
             this._displayProxy._ccComponent = this;
@@ -928,7 +928,7 @@ export class ArmatureDisplay extends UIRenderable {
 
     _parseDragonAtlasAsset () {
         if (this.dragonAtlasAsset) {
-            this.dragonAtlasAsset.init(this._factory);
+            this.dragonAtlasAsset.init(this._factory!);
         }
     }
 
@@ -1110,7 +1110,7 @@ export class ArmatureDisplay extends UIRenderable {
      * @returns {Array}
      */
     getArmatureNames () {
-        const dragonBonesData = this._factory.getDragonBonesData(this._armatureKey);
+        const dragonBonesData = this._factory!.getDragonBonesData(this._armatureKey);
         return (dragonBonesData && dragonBonesData.armatureNames) || [];
     }
 
@@ -1125,7 +1125,7 @@ export class ArmatureDisplay extends UIRenderable {
      */
     getAnimationNames (armatureName: string) {
         const ret: string[] = [];
-        const dragonBonesData = this._factory.getDragonBonesData(this._armatureKey);
+        const dragonBonesData = this._factory!.getDragonBonesData(this._armatureKey);
         if (dragonBonesData) {
             const armatureData = dragonBonesData.getArmature(armatureName);
             if (armatureData) {
@@ -1224,7 +1224,7 @@ export class ArmatureDisplay extends UIRenderable {
      * @return {dragonBones.ArmatureDisplay}
      */
     buildArmature (armatureName: string, node?: Node) {
-        return this._factory.createArmatureNode(this, armatureName, node);
+        return this._factory!.createArmatureNode(this, armatureName, node);
     }
 
     /**

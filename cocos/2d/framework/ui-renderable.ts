@@ -47,6 +47,7 @@ import { EDITOR } from 'internal:constants';
 import { Stage } from '../renderer/stencil-manager';
 import { warnID } from '../../core/platform/debug';
 import { murmurhash2_32_gc } from '../../core/utils';
+import { legacyCC } from '../../core/global-exports';
 
 // hack
 ccenum(BlendFactor);
@@ -561,3 +562,4 @@ export class UIRenderable extends RenderableComponent {
 }
 
 legacyCC.internal.UIRenderable = UIRenderable;
+
