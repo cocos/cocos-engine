@@ -26,6 +26,7 @@ COCOS_ROBOT_REMOTE="https://${GH_USER}:${GH_PASSWORD}@github.com/${GH_USER}/coco
 PULL_REQUEST_REPO="https://api.github.com/repos/cocos-creator/cocos2d-x-lite/pulls"
 FETCH_REMOTE_BRANCH=$1
 JS_COMMIT_PATH="cocos/bindings/auto"
+JS_COMMIT_CCFILES="templates/cocos2dx_files.json"
 
 # Exit on error
 set -e
@@ -104,7 +105,7 @@ git fetch origin ${FETCH_REMOTE_BRANCH}
 # Don't exit on non-zero return value
 set +e
 
-git diff FETCH_HEAD --stat --exit-code ${JS_COMMIT_PATH}
+git diff FETCH_HEAD --stat --exit-code ${JS_COMMIT_PATH} ${JS_COMMIT_CCFILES}
 
 JS_DIFF_RETVAL=$?
 if [ $JS_DIFF_RETVAL -eq 0 ]
