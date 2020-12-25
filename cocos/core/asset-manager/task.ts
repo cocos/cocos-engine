@@ -47,7 +47,6 @@ export interface ITaskOption {
  *
  */
 export default class Task {
-
     public static MAX_DEAD_NUM = 500;
 
     /**
@@ -74,8 +73,7 @@ export default class Task {
         if (Task._deadPool.length !== 0) {
             out = Task._deadPool.pop() as Task;
             out.set(options);
-        }
-        else {
+        } else {
             out = new Task(options);
         }
 
@@ -182,7 +180,7 @@ export default class Task {
      * 此任务是否已经完成
      *
      */
-    public isFinish: boolean = true;
+    public isFinish = true;
 
     /**
      * @en
@@ -255,27 +253,28 @@ export default class Task {
      */
     public dispatch (event: string, param1?: any, param2?: any, param3?: any, param4?: any): void {
         switch (event) {
-            case 'complete' :
-                if (this.onComplete) {
-                    this.onComplete(param1, param2);
-                }
-                break;
-            case 'progress':
-                if (this.onProgress) {
-                    this.onProgress(param1, param2, param3, param4);
-                }
-                break;
-            case 'error':
-                if (this.onError) {
-                    this.onError(param1, param2, param3, param4);
-                }
-                break;
-            default:
-                const str = 'on' + event[0].toUpperCase() + event.substr(1);
-                if (typeof this[str] === 'function') {
-                    this[str](param1, param2, param3, param4);
-                }
-                break;
+        case 'complete':
+            if (this.onComplete) {
+                this.onComplete(param1, param2);
+            }
+            break;
+        case 'progress':
+            if (this.onProgress) {
+                this.onProgress(param1, param2, param3, param4);
+            }
+            break;
+        case 'error':
+            if (this.onError) {
+                this.onError(param1, param2, param3, param4);
+            }
+            break;
+        default: {
+            const str = `on${event[0].toUpperCase()}${event.substr(1)}`;
+            if (typeof this[str] === 'function') {
+                this[str](param1, param2, param3, param4);
+            }
+            break;
+        }
         }
     }
 

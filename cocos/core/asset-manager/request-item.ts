@@ -38,7 +38,6 @@ import Config, { IAssetInfo } from './config';
  *
  */
 export default class RequestItem {
-
     /**
      * @en
      * The id of request, combined from uuid and isNative
@@ -48,7 +47,7 @@ export default class RequestItem {
      */
     get id (): string {
         if (!this._id) {
-            this._id = this.uuid + '@' + (this.isNative ? 'native' : 'import');
+            this._id = `${this.uuid}@${this.isNative ? 'native' : 'import'}`;
         }
         return this._id;
     }
@@ -69,8 +68,7 @@ export default class RequestItem {
         let out: RequestItem;
         if (RequestItem._deadPool.length !== 0) {
             out = RequestItem._deadPool.pop() as RequestItem;
-        }
-        else {
+        } else {
             out = new RequestItem();
         }
 
@@ -87,7 +85,7 @@ export default class RequestItem {
      * 请求资源的uuid
      *
      */
-    public uuid: string = '';
+    public uuid = '';
 
     /**
      * @en
@@ -97,7 +95,7 @@ export default class RequestItem {
      * 请求的最终url
      *
      */
-    public url: string = '';
+    public url = '';
 
     /**
      * @en
@@ -107,7 +105,7 @@ export default class RequestItem {
      * 资源的扩展名
      *
      */
-    public ext: string = '.json';
+    public ext = '.json';
 
     /**
      * @en
@@ -149,7 +147,7 @@ export default class RequestItem {
      * 资源是否是原生资源
      *
      */
-    public isNative: boolean = false;
+    public isNative = false;
 
     /**
      * @en
@@ -161,7 +159,7 @@ export default class RequestItem {
      */
     public options: Record<string, any> = Object.create(null);
 
-    private _id: string = '';
+    private _id = '';
 
     /**
      * @en
