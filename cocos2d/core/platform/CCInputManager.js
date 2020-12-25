@@ -606,7 +606,7 @@ let inputManager = {
         let _touchesCache = this._touchesCache;
         for (let touchID in _touchesCache) {
             let ccTouch = _touchesCache[touchID];
-            if (!ccTouch || now - touch._lastModified > timeout) {
+            if (!ccTouch || now - ccTouch._lastModified > timeout) {
                 delete _touchesCache[touchID];
                 this._touchCount--;
             }
