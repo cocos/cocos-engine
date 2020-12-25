@@ -141,9 +141,9 @@ export class ShadowFlow extends RenderFlow {
             const depthStencilAttachment = new DepthStencilAttachment();
             depthStencilAttachment.format = device.depthStencilFormat;
             depthStencilAttachment.depthLoadOp = LoadOp.CLEAR;
-            depthStencilAttachment.depthStoreOp = StoreOp.STORE;
+            depthStencilAttachment.depthStoreOp = StoreOp.DISCARD;
             depthStencilAttachment.stencilLoadOp = LoadOp.CLEAR;
-            depthStencilAttachment.stencilStoreOp = StoreOp.STORE;
+            depthStencilAttachment.stencilStoreOp = StoreOp.DISCARD;
             depthStencilAttachment.sampleCount = 1;
             depthStencilAttachment.beginLayout = TextureLayout.UNDEFINED;
             depthStencilAttachment.endLayout = TextureLayout.DEPTH_STENCIL_ATTACHMENT_OPTIMAL;

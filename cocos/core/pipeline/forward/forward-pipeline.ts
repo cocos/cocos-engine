@@ -34,7 +34,7 @@ import { ForwardFlow } from './forward-flow';
 import { RenderTextureConfig, MaterialConfig } from '../pipeline-serialization';
 import { ShadowFlow } from '../shadow/shadow-flow';
 import { IRenderObject, UBOGlobal, UBOShadow, UBOCamera, UNIFORM_SHADOWMAP_BINDING, UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING } from '../define';
-import { BufferUsageBit, MemoryUsageBit, ClearFlag, Filter, Address } from '../../gfx/define';
+import { BufferUsageBit, MemoryUsageBit, ClearFlag, Filter, Address, StoreOp } from '../../gfx/define';
 import { ColorAttachment, DepthStencilAttachment, RenderPass, LoadOp, TextureLayout,
     RenderPassInfo, BufferInfo, Feature, Framebuffer } from '../../gfx';
 import { SKYBOX_FLAG } from '../../renderer/scene/camera';
@@ -183,6 +183,8 @@ export class ForwardPipeline extends RenderPipeline {
         const depthStencilAttachment = new DepthStencilAttachment();
         colorAttachment.format = device.colorFormat;
         depthStencilAttachment.format = device.depthStencilFormat;
+        depthStencilAttachment.stencilStoreOp = StoreOp.DISCARD;
+        depthStencilAttachment.depthStoreOp = StoreOp.DISCARD;
 
         if (!(clearFlags & ClearFlag.COLOR)) {
             if (clearFlags & SKYBOX_FLAG) {

@@ -361,8 +361,9 @@ export class UI {
                 if (batch.camera) {
                     const visibility = batch.camera.visibility;
                     batch.visFlags = visibility;
-                    if (this._canvasMaterials.get(visibility)!.get(batch.material!.hash) == null) {
-                        this._canvasMaterials.get(visibility)!.set(batch.material!.hash, 1);
+                    const materials = this._canvasMaterials.get(visibility);
+                    if (materials && materials.get(batch.material!.hash) == null) {
+                        materials.set(batch.material!.hash, 1);
                     }
                 }
 
