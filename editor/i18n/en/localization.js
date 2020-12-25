@@ -614,7 +614,7 @@ module.exports = {
             description: "Tween system.",
         },
         profiler: {
-            label: "Run Stats",
+            label: "Running Stats",
             description: "Include various components and tools used to audit and display rendering stats.",
         },
         tiled_map: {
