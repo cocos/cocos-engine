@@ -44,28 +44,11 @@ function inject () {
     window.Request = m_fetch.Request;
     window.Response = m_fetch.Response;
 
-    const ROTATION_0 = 0;
-    const ROTATION_90 = 1;
-    const ROTATION_180 = 2;
-    const ROTATION_270 = 3;
-    var orientation = 0;
-    var rotation = jsb.device.getDeviceRotation();
-    switch (rotation) {
-        case ROTATION_90:
-            orientation = 90;
-            break;
-        case ROTATION_180:
-            orientation = 180;
-            break;
-        case ROTATION_270:
-            orientation = -90;
-            break;
-        default:
-            break;
-    }
-
-    //FIXME: The value needs to be updated when device orientation changes.
-    window.orientation = orientation;
+    // const PORTRAIT = 0;
+    // const LANDSCAPE_LEFT = -90;
+    // const PORTRAIT_UPSIDE_DOWN = 180;
+    // const LANDSCAPE_RIGHT = 90;
+    window.orientation = jsb.device.getDeviceOrientation();
 
     // window.devicePixelRatio is readonly
     Object.defineProperty(window, "devicePixelRatio", {
