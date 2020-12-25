@@ -496,6 +496,16 @@ module.exports = {
         },
     },
     features: {
+        categories: {
+            '2d': {
+                label: '2D',
+                description: '2D',
+            },
+            '3d': {
+                label: '3D',
+                description: '3D',
+            },
+        },
         core: {
             label: "核心功能",
             description: "Cocos Creator 核心功能。",
@@ -589,7 +599,7 @@ module.exports = {
             description: "缓动系统支持。",
         },
         profiler: {
-            label: "剖析工具",
+            label: "运行状态统计",
             description: "包含用于统计、显示渲染数据的组件与工具。",
         },
         tiled_map: {

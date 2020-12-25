@@ -511,6 +511,16 @@ module.exports = {
         },
     },
     features: {
+        categories: {
+            '2d': {
+                label: '2D',
+                description: '2D',
+            },
+            '3d': {
+                label: '3D',
+                description: '3D',
+            },
+        },
         core: {
             label: "Core",
             description: "Cocos Creator core functionalities.",
@@ -604,7 +614,7 @@ module.exports = {
             description: "Tween system.",
         },
         profiler: {
-            label: "Profiler",
+            label: "Running Stats",
             description: "Include various components and tools used to audit and display rendering stats.",
         },
         tiled_map: {
