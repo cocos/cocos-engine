@@ -589,7 +589,7 @@ module.exports = {
             description: "缓动系统支持。",
         },
         profiler: {
-            label: "剖析工具",
+            label: "运行状态统计",
             description: "包含用于统计、显示渲染数据的组件与工具。",
         },
         tiled_map: {
