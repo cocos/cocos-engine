@@ -222,18 +222,6 @@ let inputManager = {
      * @param {Array} touches
      */
     handleTouchesEnd (touches) {
-        let touchID;
-        let _touchesCache = this._touchesCache;
-        for (let i = 0, len = touches.length; i < len; i++) {
-            touchID = touches[i].getID();
-
-            let ccTouch = _touchesCache[touchID];
-            if (ccTouch) {
-                delete _touchesCache[touchID];
-                this._touchCount--;
-            }
-        }
-
         let handleTouches = this.getSetOfTouchesEndOrCancel(touches);
         if (handleTouches.length > 0) {
             this._glView._convertTouchesWithScale(handleTouches);
@@ -265,11 +253,19 @@ let inputManager = {
      * @returns {Array}
      */
     getSetOfTouchesEndOrCancel (touches) {
+        let _touchesCache = this._touchesCache;
+
         let selTouch, index, touchID, handleTouches = [], locTouches = this._touches, locTouchesIntDict = this._touchesIntegerDict;
         for (let i = 0, len = touches.length; i< len; i ++) {
             selTouch = touches[i];
             touchID = selTouch.getID();
             index = locTouchesIntDict[touchID];
+
+            let ccTouch = _touchesCache[touchID];
+            if (ccTouch) {
+                delete _touchesCache[touchID];
+                this._touchCount--;
+            }
 
             if (index == null) {
                 continue;  //cc.log("if the index doesn't exist, it is an error");
@@ -609,3 +605,4 @@ let inputManager = {
 
 
 module.exports = cc.internal.inputManager = inputManager;
+
