@@ -49,6 +49,15 @@ THE SOFTWARE.
 
 namespace {
     cc::Device::MotionValue motionValue;
+
+    // constant from Android API:
+    // reference: https://developer.android.com/reference/android/view/Surface#ROTATION_0
+    enum Rotation {
+        ROTATION_0 = 0,
+        ROTATION_90,
+        ROTATION_180,
+        ROTATION_270
+    };
 }
 
 namespace cc {
@@ -96,10 +105,19 @@ const Device::MotionValue& Device::getDeviceMotionValue()
     return motionValue;
 }
 
-Device::Rotation Device::getDeviceRotation()
+Device::Orientation Device::getDeviceOrientation()
 {
     int rotation = JniHelper::callStaticIntMethod(JCLS_HELPER, "getDeviceRotation");
-    return (Device::Rotation)rotation;
+    switch (rotation) {
+        case ROTATION_0:
+            return Orientation::PORTRAIT;
+        case ROTATION_90:
+            return Orientation::LANDSCAPE_RIGHT;
+        case ROTATION_180:
+            return Orientation::PORTRAIT_UPSIDE_DOWN;
+        case ROTATION_270:
+            return Orientation::LANDSCAPE_LEFT;
+    }
 }
 
 std::string Device::getDeviceModel()

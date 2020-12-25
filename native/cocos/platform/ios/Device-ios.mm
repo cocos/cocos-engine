@@ -213,32 +213,32 @@ const Device::MotionValue& Device::getDeviceMotionValue()
 #endif
 }
 
-Device::Rotation Device::getDeviceRotation()
+Device::Orientation Device::getDeviceOrientation()
 {
-    Rotation ret = Device::Rotation::_0;
+    Orientation orientation = Device::Orientation::LANDSCAPE_RIGHT;
     switch ([[UIApplication sharedApplication] statusBarOrientation])
     {
         case UIInterfaceOrientationLandscapeRight:
-            ret = Device::Rotation::_90;
+            orientation = Device::Orientation::LANDSCAPE_RIGHT;
             break;
 
         case UIInterfaceOrientationLandscapeLeft:
-            ret = Device::Rotation::_270;
+            orientation = Device::Orientation::LANDSCAPE_LEFT;
             break;
 
         case UIInterfaceOrientationPortraitUpsideDown:
-            ret = Device::Rotation::_180;
+            orientation = Device::Orientation::PORTRAIT_UPSIDE_DOWN;
             break;
 
         case UIInterfaceOrientationPortrait:
-            ret = Device::Rotation::_0;
+            orientation = Device::Orientation::PORTRAIT;
             break;
         default:
             assert(false);
             break;
     }
 
-    return ret;
+    return orientation;
 }
 
 std::string Device::getDeviceModel()

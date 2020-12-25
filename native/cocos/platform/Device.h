@@ -54,13 +54,6 @@ public:
         PORTRAIT_UPSIDE_DOWN = 180,
         LANDSCAPE_RIGHT = 90
     };
-    // TODO: remove Rotation
-    enum class Rotation {
-        _0 = 0,
-        _90,
-        _180,
-        _270
-    };
 
     struct MotionValue {
         float accelerationX = 0.0f;
@@ -103,9 +96,9 @@ public:
     static const MotionValue& getDeviceMotionValue();
 
     /**
-     *  Gets the rotation of device.
+     *  Gets the orientation of device.
      */
-    static Rotation getDeviceRotation();
+    static Orientation getDeviceOrientation();
 
     /**
      *  Gets device model information.
