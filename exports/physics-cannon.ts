@@ -29,22 +29,21 @@
  */
 
 import CANNON from '@cocos/cannon';
+import '../cocos/physics/cannon/instantiate';
+
 if (window) window.CANNON = CANNON;
 
 // polyfill config
-CANNON['CC_CONFIG'] = {
-    'numSegmentsCone': 12,
-    'numSegmentsCylinder': 12,
-    'ignoreSelfBody': true,
-    'correctInelastic': 3,
-}
+(CANNON as any).CC_CONFIG = {
+    numSegmentsCone: 12,
+    numSegmentsCylinder: 12,
+    ignoreSelfBody: true,
+    correctInelastic: 3,
+};
 
 // overwrite
-CANNON.ArrayCollisionMatrix.prototype.reset = function () {
-    for (let key in this.matrix) {
+(CANNON as any).ArrayCollisionMatrix.prototype.reset = function reset () {
+    for (const key in this.matrix) {
         delete this.matrix[key];
     }
-}
-
-
-import '../cocos/physics/cannon/instantiate';
+};

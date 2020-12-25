@@ -32,7 +32,6 @@ import CANNON from '@cocos/cannon';
 import { Vec3 } from '../../core/math';
 import { IRigidBody } from '../spec/i-rigid-body';
 import { CannonSharedBody } from './cannon-shared-body';
-import { Node } from '../../core';
 import { CannonWorld } from './cannon-world';
 import { PhysicsSystem } from '../framework/physics-system';
 import { ERigidBodyType, RigidBody } from '../framework';
@@ -65,6 +64,7 @@ export class CannonRigidBody implements IRigidBody {
     }
 
     setMass (value: number) {
+        if (this.impl.type !== CANNON.Body.DYNAMIC) return;
         this.impl.mass = value;
         this.impl.updateMassProperties();
         this._wakeUpIfSleep();
@@ -74,15 +74,18 @@ export class CannonRigidBody implements IRigidBody {
         switch (v) {
         case ERigidBodyType.DYNAMIC:
             this.impl.type = CANNON.Body.DYNAMIC;
-            this.impl.updateMassProperties();
-            this._wakeUpIfSleep();
+            this.setMass(this._rigidBody.mass);
             break;
         case ERigidBodyType.KINEMATIC:
             this.impl.type = CANNON.Body.KINEMATIC;
+            this.impl.mass = 0;
+            this.impl.updateMassProperties();
             break;
         case ERigidBodyType.STATIC:
         default:
             this.impl.type = CANNON.Body.STATIC;
+            this.impl.mass = 0;
+            this.impl.updateMassProperties();
             break;
         }
     }

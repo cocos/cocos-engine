@@ -80,21 +80,29 @@ export class AmmoConstraint implements IBaseConstraint {
     // virtual
     protected onComponentSet () { }
 
-    onLoad (): void {
-
-    }
+    // virtual
+    updateScale0 () { }
+    updateScale1 () { }
 
     onEnable (): void {
-        if (this._rigidBody) {
-            const sb = (this._rigidBody.body as AmmoRigidBody).sharedBody;
-            sb.wrappedWorld.addConstraint(this);
+        const sb = (this._rigidBody.body as AmmoRigidBody).sharedBody;
+        sb.wrappedWorld.addConstraint(this);
+        sb.addJoint(this, 0);
+        const connect = this.constraint.connectedBody;
+        if (connect) {
+            const sb2 = (connect.body as AmmoRigidBody).sharedBody;
+            sb2.addJoint(this, 1);
         }
     }
 
     onDisable (): void {
-        if (this._rigidBody) {
-            const sb = (this._rigidBody.body as AmmoRigidBody).sharedBody;
-            sb.wrappedWorld.removeConstraint(this);
+        const sb = (this._rigidBody.body as AmmoRigidBody).sharedBody;
+        sb.wrappedWorld.removeConstraint(this);
+        sb.removeJoint(this, 0);
+        const connect = this.constraint.connectedBody;
+        if (connect) {
+            const sb2 = (connect.body as AmmoRigidBody).sharedBody;
+            sb2.removeJoint(this, 1);
         }
     }
 

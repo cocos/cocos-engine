@@ -68,7 +68,7 @@ export function ammoEqualCocosQuat (a: Ammo.btQuaternion, b: IQuatLike) {
 }
 
 export function ammoDeletePtr (obj: Ammo.Type, klass: Constructor<Ammo.Type>): void {
-    // delete (klass as any).Yo[(obj as any).Wo];
+    delete (klass as any).bp[(obj as any).$o];
     // delete (klass as any).__cache__[(obj as any).ptr];
 }
 

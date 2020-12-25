@@ -39,7 +39,7 @@ export class PhysXRevoluteJoint extends PhysXJoint implements IHingeConstraint {
         const cs = this.constraint;
         const pos = _trans.translation;
         const rot = _trans.rotation;
-        Vec3.copy(pos, cs.pivotA);
+        Vec3.multiply(pos, cs.node.worldScale, cs.pivotA);
         Quat.rotationTo(rot, Vec3.UNIT_X, cs.axis);
         this._impl.setLocalPose(0, getTempTransform(pos, rot));
         if (!cs.connectedBody) this.setPivotB(cs.pivotB);
@@ -47,15 +47,18 @@ export class PhysXRevoluteJoint extends PhysXJoint implements IHingeConstraint {
 
     setPivotB (v: IVec3Like): void {
         const cs = this.constraint;
+        const cb = cs.connectedBody;
         const pos = _trans.translation;
         const rot = _trans.rotation;
         Quat.rotationTo(rot, Vec3.UNIT_X, cs.axis);
-        if (this.constraint.connectedBody) {
-            Vec3.copy(pos, cs.pivotB);
+        if (cb) {
+            Vec3.multiply(pos, cb.node.worldScale, cs.pivotB);
         } else {
-            Vec3.add(pos, this._rigidBody.node.worldPosition, cs.pivotA);
+            const node = cs.node;
+            Vec3.multiply(pos, node.worldScale, cs.pivotA);
+            Vec3.add(pos, pos, node.worldPosition);
             Vec3.add(pos, pos, cs.pivotB);
-            Quat.multiply(rot, rot, this._rigidBody.node.worldRotation);
+            Quat.multiply(rot, rot, node.worldRotation);
         }
         this._impl.setLocalPose(1, getTempTransform(pos, rot));
     }
@@ -72,6 +75,14 @@ export class PhysXRevoluteJoint extends PhysXJoint implements IHingeConstraint {
     onComponentSet (): void {
         this._impl = PX.createRevoluteJoint(PhysXJoint.tempActor, _pxtrans, null, _pxtrans);
         this.setPivotA(this.constraint.pivotA);
+        this.setPivotB(this.constraint.pivotB);
+    }
+
+    updateScale0 () {
+        this.setPivotA(this.constraint.pivotA);
+    }
+
+    updateScale1 () {
         this.setPivotB(this.constraint.pivotB);
     }
 }
