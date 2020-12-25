@@ -63,7 +63,7 @@ SE_DECLARE_FUNC(js_engine_Device_vibrate);
 SE_DECLARE_FUNC(js_engine_Device_setKeepScreenOn);
 SE_DECLARE_FUNC(js_engine_Device_getNetworkType);
 SE_DECLARE_FUNC(js_engine_Device_getBatteryLevel);
-SE_DECLARE_FUNC(js_engine_Device_getDeviceRotation);
+SE_DECLARE_FUNC(js_engine_Device_getDeviceOrientation);
 SE_DECLARE_FUNC(js_engine_Device_getDPI);
 SE_DECLARE_FUNC(js_engine_Device_getSafeAreaEdge);
 SE_DECLARE_FUNC(js_engine_Device_getDeviceModel);

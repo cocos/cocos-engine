@@ -968,21 +968,21 @@ static bool js_engine_Device_getBatteryLevel(se::State& s)
 }
 SE_BIND_FUNC(js_engine_Device_getBatteryLevel)
 
-static bool js_engine_Device_getDeviceRotation(se::State& s)
+static bool js_engine_Device_getDeviceOrientation(se::State& s)
 {
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        int result = (int)cc::Device::getDeviceRotation();
+        int result = (int)cc::Device::getDeviceOrientation();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_engine_Device_getDeviceRotation : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_engine_Device_getDeviceOrientation : Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_FUNC(js_engine_Device_getDeviceRotation)
+SE_BIND_FUNC(js_engine_Device_getDeviceOrientation)
 
 static bool js_engine_Device_getDPI(se::State& s)
 {
@@ -1046,7 +1046,7 @@ bool js_register_engine_Device(se::Object* obj)
     cls->defineStaticFunction("setKeepScreenOn", _SE(js_engine_Device_setKeepScreenOn));
     cls->defineStaticFunction("getNetworkType", _SE(js_engine_Device_getNetworkType));
     cls->defineStaticFunction("getBatteryLevel", _SE(js_engine_Device_getBatteryLevel));
-    cls->defineStaticFunction("getDeviceRotation", _SE(js_engine_Device_getDeviceRotation));
+    cls->defineStaticFunction("getDeviceOrientation", _SE(js_engine_Device_getDeviceOrientation));
     cls->defineStaticFunction("getDPI", _SE(js_engine_Device_getDPI));
     cls->defineStaticFunction("getSafeAreaEdge", _SE(js_engine_Device_getSafeAreaEdge));
     cls->defineStaticFunction("getDeviceModel", _SE(js_engine_Device_getDeviceModel));
