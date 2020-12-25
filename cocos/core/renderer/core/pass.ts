@@ -634,6 +634,34 @@ export class Pass {
         }
     }
 
+    private _initPassFromTarget (target: Pass, dss: DepthStencilState, bs: BlendState) {
+        PassPool.set(this.handle, PassView.PRIORITY, target.priority);
+        PassPool.set(this.handle, PassView.STAGE, target.stage);
+        PassPool.set(this.handle, PassView.PHASE, target.phase);
+        PassPool.set(this.handle, PassView.BATCHING_SCHEME, target.batchingScheme);
+        PassPool.set(this.handle, PassView.PRIMITIVE, target.primitive);
+        PassPool.set(this.handle, PassView.DYNAMIC_STATES, target.dynamicStates);
+        this._descriptorSet = target.descriptorSet;
+        PassPool.set(this.handle, PassView.DESCRIPTOR_SET, PassPool.get(target.handle, PassView.DESCRIPTOR_SET));
+
+        this._bs = bs;
+        this._rs = target.rasterizerState;
+        this._dss = dss;
+
+        this._passIndex = target.passIndex;
+        this._propertyIndex = target.propertyIndex;
+        this._programName = target.program;
+        this._defines = target.defines;
+        this._shaderInfo = target._shaderInfo;
+        this._properties = target._properties;
+
+        this._blocks = target._blocks;
+        this._dynamics =  target._dynamics;
+
+        // Todo: Or getHash?
+        this.tryCompile();
+    }
+
     // infos
     get root (): Root { return this._root; }
     get device (): Device { return this._device; }

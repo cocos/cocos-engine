@@ -271,14 +271,10 @@ export class Graphics extends UIRenderable {
     public onEnable () {
         super.onEnable();
         this._updateMtlForGraphics();
-        if (this._isDrawing) {
-            this._attachToScene();
-        }
     }
 
     public onDisable () {
         super.onDisable();
-        this._detachFromScene();
     }
 
     public onDestroy () {
@@ -518,7 +514,6 @@ export class Graphics extends UIRenderable {
             }
         }
 
-        this._detachFromScene();
         this.markForUpdateRenderData();
     }
 
@@ -553,7 +548,6 @@ export class Graphics extends UIRenderable {
         this._isDrawing = true;
         this._isNeedUploadData = true;
         (this._assembler as IAssembler).stroke!(this);
-        this._attachToScene();
     }
 
     /**
@@ -571,7 +565,6 @@ export class Graphics extends UIRenderable {
         this._isDrawing = true;
         this._isNeedUploadData = true;
         (this._assembler as IAssembler).fill!(this);
-        this._attachToScene();
     }
 
     private _updateMtlForGraphics () {
@@ -680,24 +673,5 @@ export class Graphics extends UIRenderable {
         }
 
         return !!this.model && this._isDrawing;
-    }
-
-    protected _attachToScene () {
-        const renderScene = director.root!.ui.renderScene;
-        if (!this.model || this.model.scene === renderScene) {
-            return;
-        }
-
-        if (this.model.scene !== null) {
-            this._detachFromScene();
-        }
-        renderScene.addModel(this.model);
-    }
-
-    protected _detachFromScene () {
-        if (this.model && this.model.scene) {
-            this.model.scene.removeModel(this.model);
-            this.model.scene = null;
-        }
     }
 }
