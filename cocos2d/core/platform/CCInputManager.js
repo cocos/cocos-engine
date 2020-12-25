@@ -593,6 +593,26 @@ let inputManager = {
         this._accelCurTime += dt;
     },
 
+    // (此处注释需要更新)
+    // 某些安卓手机有特殊的全屏多点触控手势, 这些手势会导致 cocos无法获得正确的 "在屏手指"数.
+    // 所以用户应该根据自己的需求 适时的调用这个方法.
+    //  比如在 touchStart时, 而且 timeout 应该传入一个比较小的毫秒值.
+    cleanTimeoutGlobalTouches (timeout) {
+        if (this._touchCount < 1) {
+            return;
+        }
+        timeout = timeout || TOUCH_TIMEOUT;
+        let now = cc.sys.now();
+        let _touchesCache = this._touchesCache;
+        for (let touchID in _touchesCache) {
+            let ccTouch = _touchesCache[touchID];
+            if (!ccTouch || now - touch._lastModified > timeout) {
+                delete _touchesCache[touchID];
+                this._touchCount--;
+            }
+        }
+    },
+
     getGlobalTouchCount () {
         return this._touchCount;
     },
