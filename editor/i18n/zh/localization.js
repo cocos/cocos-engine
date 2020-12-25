@@ -556,7 +556,7 @@ module.exports = {
         },
         base_2d: {
             label: "基础 2D 功能",
-            description: "常用于一般 2D 应用的工具与组件。。",
+            description: "常用于一般 2D 应用的工具与组件。",
         },
         physics_2d: {
             label: "2D 物理系统",
