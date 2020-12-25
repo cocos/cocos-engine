@@ -636,11 +636,9 @@ export class Graphics extends UIRenderable {
                 continue;
             }
 
-            const verticesData = new Float32Array(renderData.vData.buffer, offset, (byteOffset - offset) >> 2);
-            ia.vertexBuffers[0].update(verticesData, offset);
+            ia.vertexBuffers[0].update(renderData.vData);
             ia.vertexCount = renderData.vertexStart;
-            const indicesData = new Uint16Array(renderData.iData.buffer, renderData.lastFilledIndices * Uint16Array.BYTES_PER_ELEMENT, renderData.indicesStart - renderData.lastFilledIndices);
-            ia.indexBuffer!.update(indicesData, renderData.lastFilledIndices * Uint16Array.BYTES_PER_ELEMENT);
+            ia.indexBuffer!.update(renderData.iData);
             ia.indexCount = renderData.indicesStart;
 
             renderData.lastFilledVertex = renderData.vertexStart;
