@@ -35,7 +35,12 @@ export interface ModuleRenderConfig {
     /**
      * The modules info
      */
-    features: Features ;
+    features: Features;
+
+     /**
+     * The categories info
+     */
+    categories: {[category: string]: CategoryInfo};
 }
 
 export type Features  = Record<EngineFeature, Item>;
@@ -58,6 +63,8 @@ export interface BaseItem {
     wechatPlugin?: boolean;
 
     default?: string[];
+
+    category?: string;
 }
 
 export interface Item extends BaseItem {
@@ -67,4 +74,9 @@ export interface Item extends BaseItem {
     multi?: boolean;
 
     options?: Record<EngineFeature, BaseItem>;
+}
+
+export interface CategoryInfo {
+    label?: string;
+    description?: string;
 }
