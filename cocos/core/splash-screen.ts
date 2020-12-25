@@ -579,7 +579,6 @@ export class SplashScreen {
 
         /** text */
         if (this.textImg) {
-            if (JSB) (this.textImg as any).destroy();
             this.textImg = null!;
             this.textRegion = null!;
             this.textShader = null!;
