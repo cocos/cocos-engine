@@ -21,6 +21,9 @@ declare module jsb {
     // Audio
     export module AudioEngine {}
 
+    // Video
+    export function createVideo (): any;
+
     // Fs
     export function getFileSystemManager (): any;
     export function downloadFile (option: any): void;

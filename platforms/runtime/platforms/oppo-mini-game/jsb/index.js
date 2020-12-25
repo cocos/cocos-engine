@@ -61,3 +61,5 @@ jsb.onShow = qg.onShow;
 jsb.onHide = qg.onHide;
 jsb.offShow = qg.offShow;
 jsb.offHide = qg.offHide;
+
+jsb.createVideo = qg.createVideo;
