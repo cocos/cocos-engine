@@ -92,6 +92,7 @@ export class StencilManager {
             this.stage = Stage.DISABLED;
         }
         else {
+            this.stageOld = Stage.EXIT_LEVEL;
             this.stage = Stage.ENABLED;
         }
     }
@@ -176,8 +177,13 @@ export class StencilManager {
     }
 
     private _changed (pass: Pass, comp?: UIRenderable) {
+        // only ui-model use this code
+        // Notice: Not all state
+        const stencilState = pass.depthStencilState;
+        const pattern = this._stencilPattern;
+
         if(comp) {
-            if (comp.stencilStage === this.stage) {
+            if (comp.stencilStage === this.stage && pattern.ref === stencilState.stencilRefFront) {
                 return false;
             } else {
                 comp.stencilStage = this.stage;
@@ -185,10 +191,6 @@ export class StencilManager {
             }
         }
 
-        // only ui-model use this code
-        // Notice: Not all state
-        const stencilState = pass.depthStencilState;
-        const pattern = this._stencilPattern;
         if (pattern.stencilTest !== stencilState.stencilTestFront ||
             pattern.func !== stencilState.stencilFuncFront ||
             pattern.failOp !== stencilState.stencilFailOpFront ||
