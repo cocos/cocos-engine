@@ -511,6 +511,16 @@ module.exports = {
         },
     },
     features: {
+        categories: {
+            '2d': {
+                label: '2D',
+                description: '2D',
+            },
+            '3d': {
+                label: '3D',
+                description: '3D',
+            },
+        },
         core: {
             label: "Core",
             description: "Cocos Creator core functionalities.",
