@@ -132,12 +132,12 @@ export class TweenAction extends ActionInterval {
         for (const name in props) {
             // filtering if
             // - it was not own property
-            // - it was a function
+            // - types was function / string
             // - it was undefined / null
             // eslint-disable-next-line no-prototype-builtins
             if (!props.hasOwnProperty(name)) continue;
             let value = props[name];
-            if (value == null || typeof value === 'function') continue;
+            if (value == null || typeof value === 'string' || typeof value === 'function') continue;
             // property may have custom easing or progress function
             let easing: any; let progress: any;
             if (value.value !== undefined && (value.easing || value.progress)) {
