@@ -82,8 +82,8 @@ const md5Pipe = {
 };
 
 type LoadProgressCallback = (completedCount: number, totalCount: number, item: any) => void;
-type LoadCompleteCallback<T> = (error: Error | null | undefined, asset: T) => void;
-type LoadDirCompleteCallback<T> = (error: Error | null | undefined, asset: T[], urls: string[]) => void;
+type LoadCompleteCallback<T> = (error: Error | null, asset: T) => void;
+type LoadDirCompleteCallback<T> = (error: Error | null, asset: T[], urls: string[]) => void;
 
 /**
  * @en Loader for resource loading process. The engine automatically initialize its singleton object {{loader}}.
@@ -413,8 +413,28 @@ export class CCLoader {
      */
     public loadResDir<T extends Asset> (
         url: string,
-        type?: Constructor<T>,
-        progressCallback?: LoadProgressCallback,
+        type: Constructor<T>,
+        progressCallback: LoadProgressCallback,
+        completeCallback: LoadDirCompleteCallback<T>,
+    );
+    public loadResDir<T extends Asset> (
+        url: string,
+        type: Constructor<T>,
+        completeCallback: LoadDirCompleteCallback<T>,
+    );
+    public loadResDir<T extends Asset> (
+        url: string,
+        progressCallback: LoadProgressCallback,
+        completeCallback: LoadDirCompleteCallback<T>,
+    );
+    public loadResDir<T extends Asset> (
+        url: string,
+        completeCallback: LoadDirCompleteCallback<T>,
+    );
+    public loadResDir<T extends Asset> (
+        url: string,
+        type?: Constructor<T> | LoadProgressCallback | LoadDirCompleteCallback<T>,
+        progressCallback?: LoadProgressCallback | LoadDirCompleteCallback<T>,
         completeCallback?: LoadDirCompleteCallback<T>,
     ) {
         const { type: _type, onProgress, onComplete } = this._parseLoadResArgs<LoadDirCompleteCallback<Asset>>(type as any,

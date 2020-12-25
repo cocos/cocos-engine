@@ -441,6 +441,8 @@ export class AssetManager {
     public loadAny (requests: Request, options: IOptions | null, onProgress: ProgressCallback | null, onComplete: CompleteCallbackWithData | null): void;
     public loadAny (requests: Request, onProgress: ProgressCallback | null, onComplete: CompleteCallbackWithData | null): void;
     public loadAny (requests: Request, options: IOptions | null, onComplete?: CompleteCallbackWithData | null): void;
+    public loadAny<T extends Asset> (requests: string, onComplete?: CompleteCallbackWithData<T> | null): void;
+    public loadAny<T extends Asset> (requests: string[], onComplete?: CompleteCallbackWithData<T[]> | null): void;
     public loadAny (requests: Request, onComplete?: CompleteCallbackWithData | null): void;
     public loadAny (
         requests: Request,

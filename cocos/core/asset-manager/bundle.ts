@@ -224,10 +224,10 @@ export default class Bundle {
         onComplete: CompleteCallbackWithData<T[]> | null): void;
     public load<T extends Asset> (paths: string, onProgress: ProgressCallback | null, onComplete: CompleteCallbackWithData<T> | null): void;
     public load<T extends Asset> (paths: string[], onProgress: ProgressCallback | null, onComplete: CompleteCallbackWithData<T[]> | null): void;
-    public load<T extends Asset> (paths: string, type: AssetType<T> | null, onComplete?: CompleteCallbackWithData<T> | null): void;
-    public load<T extends Asset> (paths: string[], type: AssetType<T> | null, onComplete?: CompleteCallbackWithData<T[]> | null): void;
     public load<T extends Asset> (paths: string, onComplete?: CompleteCallbackWithData<T> | null): void;
     public load<T extends Asset> (paths: string[], onComplete?: CompleteCallbackWithData<T[]> | null): void;
+    public load<T extends Asset> (paths: string, type: AssetType<T> | null, onComplete?: CompleteCallbackWithData<T> | null): void;
+    public load<T extends Asset> (paths: string[], type: AssetType<T> | null, onComplete?: CompleteCallbackWithData<T[]> | null): void;
     public load<T extends Asset> (
         paths: string|string[],
         type?: AssetType<T> | ProgressCallback | CompleteCallbackWithData<T|T[]> | null,
@@ -280,8 +280,8 @@ export default class Bundle {
      */
     public preload (paths: string|string[], type: AssetType|null, onProgress: ProgressCallback|null, onComplete: CompleteCallbackWithData<RequestItem[]>|null): void;
     public preload (paths: string|string[], onProgress: ProgressCallback | null, onComplete: CompleteCallbackWithData<RequestItem[]> | null): void;
-    public preload (paths: string|string[], type: AssetType | null, onComplete?: CompleteCallbackWithData<RequestItem[]> | null): void;
     public preload (paths: string|string[], onComplete?: CompleteCallbackWithData<RequestItem[]> | null): void;
+    public preload (paths: string|string[], type: AssetType | null, onComplete?: CompleteCallbackWithData<RequestItem[]> | null): void;
     public preload (
         paths: string|string[],
         type?: AssetType | ProgressCallback | CompleteCallbackWithData<RequestItem[]> | null,
@@ -331,8 +331,8 @@ export default class Bundle {
      */
     public loadDir<T extends Asset> (dir: string, type: AssetType<T> | null, onProgress: ProgressCallback | null, onComplete: CompleteCallbackWithData<T[]> | null): void;
     public loadDir<T extends Asset> (dir: string, onProgress: ProgressCallback | null, onComplete: CompleteCallbackWithData<T[]> | null): void;
-    public loadDir<T extends Asset> (dir: string, type: AssetType<T> | null, onComplete?: CompleteCallbackWithData<T[]> | null): void;
     public loadDir<T extends Asset> (dir: string, onComplete?: CompleteCallbackWithData<T[]> | null): void;
+    public loadDir<T extends Asset> (dir: string, type: AssetType<T> | null, onComplete?: CompleteCallbackWithData<T[]> | null): void;
     public loadDir<T extends Asset> (
         dir: string,
         type?: AssetType<T> | ProgressCallback | CompleteCallbackWithData<T[]> | null,
@@ -383,8 +383,8 @@ export default class Bundle {
      */
     public preloadDir (dir: string, type: AssetType | null, onProgress: ProgressCallback | null, onComplete: CompleteCallbackWithData<RequestItem[]> | null): void;
     public preloadDir (dir: string, onProgress: ProgressCallback | null, onComplete: CompleteCallbackWithData<RequestItem[]> | null): void;
-    public preloadDir (dir: string, type: AssetType | null, onComplete?: CompleteCallbackWithData<RequestItem[]> | null): void;
     public preloadDir (dir: string, onComplete?: CompleteCallbackWithData<RequestItem[]> | null): void;
+    public preloadDir (dir: string, type: AssetType | null, onComplete?: CompleteCallbackWithData<RequestItem[]> | null): void;
     public preloadDir (
         dir: string,
         type?: AssetType | ProgressCallback | CompleteCallbackWithData<RequestItem[]>| null,
