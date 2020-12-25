@@ -6,6 +6,8 @@ export type EngineFeature =
     | 'gfx-webgl2'
     | 'base'
     | 'graphcis'
+    | '3d'
+    | '2d'
     | 'ui'
     | 'particle'
     | 'physics'
@@ -24,14 +26,21 @@ export type EngineFeature =
     | 'terrain'
     | 'tiled-map'
     | 'spine'
-    | 'dragon-bones';
+    | 'dragon-bones'
+    | 'primitive'
+    | 'profiler';
 export interface ModuleRenderConfig {
     $schema?: string;
 
     /**
      * The modules info
      */
-    features: Features ;
+    features: Features;
+
+     /**
+     * The categories info
+     */
+    categories: {[category: string]: CategoryInfo};
 }
 
 export type Features  = Record<EngineFeature, Item>;
@@ -54,6 +63,8 @@ export interface BaseItem {
     wechatPlugin?: boolean;
 
     default?: string[];
+
+    category?: string;
 }
 
 export interface Item extends BaseItem {
@@ -63,4 +74,9 @@ export interface Item extends BaseItem {
     multi?: boolean;
 
     options?: Record<EngineFeature, BaseItem>;
+}
+
+export interface CategoryInfo {
+    label?: string;
+    description?: string;
 }

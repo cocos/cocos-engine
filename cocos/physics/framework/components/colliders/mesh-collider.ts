@@ -37,10 +37,10 @@ import {
     editable,
     serializable,
 } from 'cc.decorator';
-import { Collider } from './collider';
-import { Mesh } from '../../../../core';
-import { ITrimeshShape } from '../../../spec/i-physics-shape';
 import { EDITOR, TEST } from 'internal:constants';
+import { Collider } from './collider';
+import { Mesh } from '../../../../3d/assets';
+import { ITrimeshShape } from '../../../spec/i-physics-shape';
 import { EColliderType } from '../../physics-enum';
 
 /**
@@ -54,7 +54,6 @@ import { EColliderType } from '../../physics-enum';
 @menu('Physics/MeshCollider')
 @executeInEditMode
 export class MeshCollider extends Collider {
-
     /// PUBLIC PROPERTY GETTER\SETTER ///
 
     /**
@@ -104,7 +103,7 @@ export class MeshCollider extends Collider {
     private _mesh: Mesh | null = null;
 
     @serializable
-    private _convex: boolean = false;
+    private _convex = false;
 
     constructor () {
         super(EColliderType.MESH);

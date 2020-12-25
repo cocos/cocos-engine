@@ -26,11 +26,10 @@
 import { Sphere } from '../../../core/geometry';
 import { BuiltinShape } from './builtin-shape';
 import { ISphereShape } from '../../spec/i-physics-shape';
-import { maxComponent } from '../../framework/util';
+import { maxComponent } from '../../utils/util';
 import { SphereCollider } from '../../../../exports/physics-framework';
 
 export class BuiltinSphereShape extends BuiltinShape implements ISphereShape {
-
     setRadius (radius: number) {
         this.localSphere.radius = radius;
         const s = maxComponent(this.collider.node.worldScale);
@@ -59,5 +58,4 @@ export class BuiltinSphereShape extends BuiltinShape implements ISphereShape {
         super.onLoad();
         this.setRadius(this.collider.radius);
     }
-
 }

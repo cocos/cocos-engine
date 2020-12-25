@@ -30,11 +30,10 @@
  * @module particle
  */
 
-
-
-import { RenderableComponent } from '../core/3d/framework/renderable-component';
-import { Material } from '../core/assets/material';
 import { ccclass, help, executeInEditMode, executionOrder, menu, tooltip, displayOrder, type, range, displayName, visible, formerlySerializedAs, override, radian, serializable } from 'cc.decorator';
+import { EDITOR } from 'internal:constants';
+import { RenderableComponent } from '../core/components/renderable-component';
+import { Material } from '../core/assets/material';
 import { Mat4, pseudoRandom, Quat, randomRangeInt, Vec2, Vec3 } from '../core/math';
 import { INT_MAX } from '../core/math/bits';
 import { scene } from '../core/renderer';
@@ -55,7 +54,6 @@ import ParticleSystemRenderer from './renderer/particle-system-renderer-data';
 import TrailModule from './renderer/trail';
 import { IParticleSystemRenderer } from './renderer/particle-system-renderer-base';
 import { PARTICLE_MODULE_PROPERTY } from './particle';
-import { EDITOR } from 'internal:constants';
 import { legacyCC } from '../core/global-exports';
 
 const _world_mat = new Mat4();

@@ -30,7 +30,7 @@
 
 import { Attribute, Buffer, BufferInfo, Device, InputAssemblerInfo } from '../gfx';
 import { AttributeName, BufferUsageBit, Format, MemoryUsageBit } from '../gfx/define';
-import { IGeometry } from '../primitive/define';
+import { IGeometry } from '../../primitive/define';
 
 export function createIA (device: Device, data: IGeometry) {
     if (!data.positions) {

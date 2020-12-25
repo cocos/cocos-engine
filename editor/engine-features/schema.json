@@ -5,6 +5,9 @@
         "BaseItem": {
             "additionalProperties": false,
             "properties": {
+                "category": {
+                    "type": "string"
+                },
                 "default": {
                     "items": {
                         "type": "string"
@@ -31,9 +34,24 @@
             },
             "type": "object"
         },
+        "CategoryInfo": {
+            "additionalProperties": false,
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "label": {
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        },
         "Item": {
             "additionalProperties": false,
             "properties": {
+                "category": {
+                    "type": "string"
+                },
                 "default": {
                     "items": {
                         "type": "string"
@@ -71,6 +89,12 @@
             "additionalProperties": false,
             "description": "Construct a type with a set of properties K of type T",
             "properties": {
+                "2d": {
+                    "$ref": "#/definitions/BaseItem"
+                },
+                "3d": {
+                    "$ref": "#/definitions/BaseItem"
+                },
                 "audio": {
                     "$ref": "#/definitions/BaseItem"
                 },
@@ -117,6 +141,12 @@
                     "$ref": "#/definitions/BaseItem"
                 },
                 "physics-cannon": {
+                    "$ref": "#/definitions/BaseItem"
+                },
+                "primitive": {
+                    "$ref": "#/definitions/BaseItem"
+                },
+                "profiler": {
                     "$ref": "#/definitions/BaseItem"
                 },
                 "spine": {
@@ -146,6 +176,12 @@
         "Record<EngineFeature,Item>": {
             "additionalProperties": false,
             "properties": {
+                "2d": {
+                    "$ref": "#/definitions/Item"
+                },
+                "3d": {
+                    "$ref": "#/definitions/Item"
+                },
                 "audio": {
                     "$ref": "#/definitions/Item"
                 },
@@ -192,6 +228,12 @@
                     "$ref": "#/definitions/Item"
                 },
                 "physics-cannon": {
+                    "$ref": "#/definitions/Item"
+                },
+                "primitive": {
+                    "$ref": "#/definitions/Item"
+                },
+                "profiler": {
                     "$ref": "#/definitions/Item"
                 },
                 "spine": {
@@ -222,6 +264,13 @@
     "properties": {
         "$schema": {
             "type": "string"
+        },
+        "categories": {
+            "additionalProperties": {
+                "$ref": "#/definitions/CategoryInfo"
+            },
+            "description": "The categories info",
+            "type": "object"
         },
         "features": {
             "$ref": "#/definitions/Record<EngineFeature,Item>",

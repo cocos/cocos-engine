@@ -23,17 +23,22 @@
  THE SOFTWARE.
  */
 
+/**
+ * @packageDocumentation
+ * @hidden
+ */
+
 import CANNON from '@cocos/cannon';
 import { CannonShape } from './cannon-shape';
 import { MeshCollider } from '../../framework';
-import { Mesh, Vec3 } from '../../../core';
+import { Vec3 } from '../../../core';
+import { Mesh } from '../../../3d/assets';
 import { ITrimeshShape } from '../../spec/i-physics-shape';
 import { commitShapeUpdates } from '../cannon-util';
 
 const v3_cannon0 = new CANNON.Vec3();
 
 export class CannonTrimeshShape extends CannonShape implements ITrimeshShape {
-
     get collider () {
         return this._collider as MeshCollider;
     }
@@ -48,20 +53,18 @@ export class CannonTrimeshShape extends CannonShape implements ITrimeshShape {
         const mesh = v;
         if (this._shape != null) {
             if (mesh && mesh.renderingSubMeshes.length > 0) {
-                const vertices = mesh.renderingSubMeshes[0].geometricInfo!.positions;
-                const indices = mesh.renderingSubMeshes[0].geometricInfo!.indices as Uint16Array;
+                const vertices = mesh.renderingSubMeshes[0].geometricInfo.positions;
+                const indices = mesh.renderingSubMeshes[0].geometricInfo.indices as Uint16Array;
                 this.updateProperties(vertices, indices);
             } else {
                 this.updateProperties(new Float32Array(), new Uint16Array());
             }
+        } else if (mesh && mesh.renderingSubMeshes.length > 0) {
+            const vertices = mesh.renderingSubMeshes[0].geometricInfo.positions;
+            const indices = mesh.renderingSubMeshes[0].geometricInfo.indices as Uint16Array;
+            this._shape = new CANNON.Trimesh(vertices, indices);
         } else {
-            if (mesh && mesh.renderingSubMeshes.length > 0) {
-                const vertices = mesh.renderingSubMeshes[0].geometricInfo!.positions;
-                const indices = mesh.renderingSubMeshes[0].geometricInfo!.indices as Uint16Array;
-                this._shape = new CANNON.Trimesh(vertices, indices);
-            } else {
-                this._shape = new CANNON.Trimesh(new Float32Array(), new Uint16Array());
-            }
+            this._shape = new CANNON.Trimesh(new Float32Array(), new Uint16Array());
         }
     }
 

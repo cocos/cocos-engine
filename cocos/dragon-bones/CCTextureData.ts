@@ -1,4 +1,5 @@
-import { RenderTexture, Size, SpriteFrame, Vec2 } from '../core';
+import { RenderTexture, Size, Vec2 } from '../core';
+import { SpriteFrame } from '../2d';
 import { TextureBase } from '../core/assets/texture-base';
 import { ccclass } from '../core/data/decorators';
 import { Rect } from '../core/math/rect';

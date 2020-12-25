@@ -28,45 +28,46 @@
  * @hidden
  */
 
-import { warnID, warn, easing } from '../core';
+import { easing } from '../core/animation';
+import { warnID, warn } from '../core';
 import { ActionInterval } from './actions/action-interval';
 import { ITweenOption } from './export-api';
 import { legacyCC, VERSION } from '../core/global-exports';
 
 /** adapter */
 function TweenEasinAdapter (easingName: string) {
-    let initialChar = easingName.charAt(0);
+    const initialChar = easingName.charAt(0);
     if (/[A-Z]/.test(initialChar)) {
         easingName = easingName.replace(initialChar, initialChar.toLowerCase());
         const arr = easingName.split('-');
-        if (arr.length == 2) {
+        if (arr.length === 2) {
             const str0 = arr[0];
-            if (str0 == 'linear') {
+            if (str0 === 'linear') {
                 easingName = 'linear';
             } else {
                 const str1 = arr[1];
                 switch (str0) {
-                    case 'quadratic':
-                        easingName = 'quad' + str1;
-                        break;
-                    case 'quartic':
-                        easingName = 'quart' + str1;
-                        break;
-                    case 'quintic':
-                        easingName = 'quint' + str1;
-                        break;
-                    case 'sinusoidal':
-                        easingName = 'sine' + str1;
-                        break;
-                    case 'exponential':
-                        easingName = 'expo' + str1;
-                        break;
-                    case 'circular':
-                        easingName = 'circ' + str1;
-                        break;
-                    default:
-                        easingName = str0 + str1;
-                        break;
+                case 'quadratic':
+                    easingName = `quad${str1}`;
+                    break;
+                case 'quartic':
+                    easingName = `quart${str1}`;
+                    break;
+                case 'quintic':
+                    easingName = `quint${str1}`;
+                    break;
+                case 'sinusoidal':
+                    easingName = `sine${str1}`;
+                    break;
+                case 'exponential':
+                    easingName = `expo${str1}`;
+                    break;
+                case 'circular':
+                    easingName = `circ${str1}`;
+                    break;
+                default:
+                    easingName = str0 + str1;
+                    break;
                 }
             }
         }
@@ -78,20 +79,21 @@ function TweenEasinAdapter (easingName: string) {
 function TweenOptionChecker (opts: ITweenOption) {
     const header = ' [Tween:] ';
     const message = ` option is not support in v + ${VERSION}`;
-    if (opts['delay']) {
-        warn(header + 'delay' + message);
+    const _opts = opts as unknown as any;
+    if (_opts.delay) {
+        warn(`${header}delay${message}`);
     }
-    if (opts['repeat']) {
-        warn(header + 'repeat' + message);
+    if (_opts.repeat) {
+        warn(`${header}repeat${message}`);
     }
-    if (opts['repeatDelay']) {
-        warn(header + 'repeatDelay' + message);
+    if (_opts.repeatDelay) {
+        warn(`${header}repeatDelay${message}`);
     }
-    if (opts['interpolation']) {
-        warn(header + 'interpolation' + message);
+    if (_opts.interpolation) {
+        warn(`${header}interpolation${message}`);
     }
-    if (opts['onStop']) {
-        warn(header + 'onStop' + message);
+    if (_opts.onStop) {
+        warn(`${header}onStop${message}`);
     }
 }
 
@@ -118,7 +120,7 @@ export class TweenAction extends ActionInterval {
                 opts.progress = this.progress;
             }
             if (opts.easing && typeof opts.easing === 'string') {
-                let easingName = opts.easing as string;
+                const easingName = opts.easing as string;
                 opts.easing = easing[easingName];
 
                 if (!opts.easing) { warnID(1031, easingName); }
@@ -127,29 +129,29 @@ export class TweenAction extends ActionInterval {
         this._opts = opts;
 
         this._props = Object.create(null);
-        for (let name in props) {
+        for (const name in props) {
             // filtering if
             // - it was not own property
-            // - it was a function
+            // - types was function / string
             // - it was undefined / null
+            // eslint-disable-next-line no-prototype-builtins
             if (!props.hasOwnProperty(name)) continue;
             let value = props[name];
-            if (!value || typeof value === 'function') continue;
+            if (value == null || typeof value === 'string' || typeof value === 'function') continue;
             // property may have custom easing or progress function
-            let easing, progress;
+            let easing: any; let progress: any;
             if (value.value !== undefined && (value.easing || value.progress)) {
                 if (typeof value.easing === 'string') {
                     easing = easing[value.easing];
-                    !easing && warnID(1031, value.easing);
-                }
-                else {
+                    if (!easing) warnID(1031, value.easing);
+                } else {
                     easing = value.easing;
                 }
                 progress = value.progress;
                 value = value.value;
             }
 
-            let prop = Object.create(null);
+            const prop = Object.create(null);
             prop.value = value;
             prop.easing = easing;
             prop.progress = progress;
@@ -161,36 +163,39 @@ export class TweenAction extends ActionInterval {
     }
 
     clone () {
-        var action = new TweenAction(this._duration, this._originProps, this._opts);
+        const action = new TweenAction(this._duration, this._originProps, this._opts);
         this._cloneDecoration(action);
         return action;
     }
 
-    startWithTarget (target: {}) {
+    startWithTarget (target: Record<string, unknown>) {
         ActionInterval.prototype.startWithTarget.call(this, target);
 
         const relative = !!this._opts.relative;
         const props = this._props;
-        for (var property in props) {
+        for (const property in props) {
             const _t: any = target[property];
             if (_t === undefined) { continue; }
 
             const prop: any = props[property];
             const value = prop.value;
-            if (typeof _t === "number") {
+            if (typeof _t === 'number') {
                 prop.start = _t;
                 prop.current = _t;
+                // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
                 prop.end = relative ? _t + value : value;
-            } else if (typeof _t === "object") {
+            } else if (typeof _t === 'object') {
                 if (prop.start == null) {
                     prop.start = {}; prop.current = {}; prop.end = {};
                 }
 
-                for (var k in value) {
+                for (const k in value) {
                     // filtering if it not a number
+                    // eslint-disable-next-line no-restricted-globals
                     if (isNaN(_t[k])) continue;
                     prop.start[k] = _t[k];
                     prop.current[k] = _t[k];
+                    // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
                     prop.end[k] = relative ? _t[k] + value[k] : value[k];
                 }
             }
@@ -208,18 +213,17 @@ export class TweenAction extends ActionInterval {
         let easingTime = t;
         if (opts.easing) easingTime = opts.easing(t);
 
-        let progress = opts.progress;
+        const progress = opts.progress;
         for (const name in props) {
-            let prop = props[name];
-            let time = prop.easing ? prop.easing(t) : easingTime;
-            let interpolation = prop.progress ? prop.progress : progress;
+            const prop = props[name];
+            const time = prop.easing ? prop.easing(t) : easingTime;
+            const interpolation = prop.progress ? prop.progress : progress;
 
             const start = prop.start;
             const end = prop.end;
             if (typeof start === 'number') {
                 prop.current = interpolation(start, end, prop.current, time);
             } else if (typeof start === 'object') {
-
                 // const value = prop.value;
                 for (const k in start) {
                     // if (value[k].easing) {
@@ -235,10 +239,10 @@ export class TweenAction extends ActionInterval {
             target[name] = prop.current;
         }
         if (opts.onUpdate) { opts.onUpdate(this.target, t); }
-        if (t == 1 && opts.onComplete) { opts.onComplete(this.target); }
+        if (t === 1 && opts.onComplete) { opts.onComplete(this.target); }
     }
 
-    progress (start: any, end: any, current: any, t: number) {
+    progress (start: number, end: number, current: number, t: number) {
         return current = start + (end - start) * t;
     }
 }

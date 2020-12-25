@@ -36,7 +36,7 @@ import { Playable } from './playable';
 import { WrapMode, WrapModeMask, WrappedInfo } from './types';
 import { EDITOR } from 'internal:constants';
 import { HierarchyPath, evaluatePath, TargetPath } from './target-path';
-import { BlendStateBuffer, createBlendStateWriter, IBlendStateWriter, IBlendStateWriterHost } from './skeletal-animation-blending';
+import { BlendStateBuffer, createBlendStateWriter, IBlendStateWriter, IBlendStateWriterHost } from '../../3d/skeletal-animation/skeletal-animation-blending';
 import { legacyCC } from '../global-exports';
 import { ccenum } from '../value-types/enum';
 import { IValueProxyFactory } from './value-proxy';
@@ -167,7 +167,6 @@ const InvalidIndex = -1;
  *
  */
 export class AnimationState extends Playable {
-
     /**
      * @en The clip that is being played by this animation state.
      * @zh 此动画状态正在播放的剪辑。

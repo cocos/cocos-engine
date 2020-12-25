@@ -55,6 +55,8 @@ rules:
     # allow underscores, we still widely use pre-dangle naming in our naming convention
     # e.g. private properties, private functions, module scope shared variables etc.
     no-underscore-dangle: off 
+    quotes: [warn, single, { allowTemplateLiterals: true }] # force single, but allow template literal
+    no-else-return: off # else-return is a common pattern which clearly expresses the control flow
 
     ##### AIRBNB-SPECIFIC RULE OVERRIDES #####
 

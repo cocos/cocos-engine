@@ -23,9 +23,16 @@
  THE SOFTWARE.
  */
 
+/**
+ * @packageDocumentation
+ * @hidden
+ */
+
+/* eslint-disable new-cap */
 import Ammo from '../ammo-instantiated';
 import { AmmoShape } from './ammo-shape';
-import { Mesh, warnID } from '../../../core';
+import { warnID } from '../../../core';
+import { Mesh } from '../../../3d/assets';
 import { MeshCollider } from '../../../../exports/physics-framework';
 import { cocos2AmmoVec3, cocos2AmmoTriMesh } from '../ammo-util';
 import { AmmoBroadphaseNativeTypes } from '../ammo-enum';
@@ -44,7 +51,7 @@ export class AmmoTrimeshShape extends AmmoShape implements ITrimeshShape {
     setMesh (v: Mesh | null) {
         if (!this._isBinding) return;
 
-        if (this._btShape != null && this._btShape != AmmoConstant.instance.EMPTY_SHAPE) {
+        if (this._btShape != null && this._btShape !== AmmoConstant.instance.EMPTY_SHAPE) {
             // TODO: change the mesh after initialization
             warnID(9620);
         } else {

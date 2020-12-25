@@ -23,8 +23,13 @@
  THE SOFTWARE.
  */
 
+/**
+ * @packageDocumentation
+ * @hidden
+ */
+
 import CANNON from '@cocos/cannon';
-import { getWrap } from '../framework/util';
+import { getWrap } from '../utils/util';
 import { IBaseShape } from '../spec/i-physics-shape';
 import { PhysicsRayResult } from '../framework';
 import { IRaycastOptions } from '../spec/i-physics-world';

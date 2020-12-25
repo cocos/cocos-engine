@@ -1,13 +1,14 @@
 import spine from '../lib/spine-core.js';
-import { IAssembler } from '../../core/renderer/ui/base';
-import { UI } from '../../core/renderer/ui/ui';
+import { IAssembler } from '../../2d/renderer/base';
+import { UI } from '../../2d/renderer/ui';
 import { FrameColor } from '../skeleton-cache';
 import { MaterialInstance } from '../../core/renderer';
 import { SkeletonTexture } from '../skeleton-texture';
-import { vfmtPosUvColor, vfmtPosUvTwoColor } from '../../core/renderer/ui/ui-vertex-format';
+import { vfmtPosUvColor, vfmtPosUvTwoColor } from '../../2d/renderer/ui-vertex-format';
 import { Skeleton, SkeletonMeshData, SpineMaterialType } from '../skeleton';
 import { Color, Mat4, Material, Node, Texture2D, Vec3 } from '../../core';
 import { BlendFactor } from '../../core/gfx';
+import { legacyCC } from '../../core/global-exports';
 
 const FLAG_BATCH = 0x10;
 const FLAG_TWO_COLOR = 0x01;
@@ -791,3 +792,5 @@ function cacheTraverse (worldMat?: Mat4) {
         }
     }
 }
+
+legacyCC.internal.SpineAssembler = simple;
