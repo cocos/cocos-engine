@@ -90,8 +90,7 @@ export class StencilManager {
         this._maskStack.pop();
         if (this._maskStack.length === 0) {
             this.stage = Stage.DISABLED;
-        }
-        else {
+        } else {
             this.stageOld = Stage.EXIT_LEVEL;
             this.stage = Stage.ENABLED;
         }
@@ -182,7 +181,7 @@ export class StencilManager {
         const stencilState = pass.depthStencilState;
         const pattern = this._stencilPattern;
 
-        if(comp) {
+        if (comp) {
             if (comp.stencilStage === this.stage && pattern.ref === stencilState.stencilRefFront) {
                 return false;
             } else {
@@ -191,12 +190,12 @@ export class StencilManager {
             }
         }
 
-        if (pattern.stencilTest !== stencilState.stencilTestFront ||
-            pattern.func !== stencilState.stencilFuncFront ||
-            pattern.failOp !== stencilState.stencilFailOpFront ||
-            pattern.stencilMask !== stencilState.stencilReadMaskFront ||
-            pattern.writeMask !== stencilState.stencilWriteMaskFront ||
-            pattern.ref !== stencilState.stencilRefFront) {
+        if (pattern.stencilTest !== stencilState.stencilTestFront
+            || pattern.func !== stencilState.stencilFuncFront
+            || pattern.failOp !== stencilState.stencilFailOpFront
+            || pattern.stencilMask !== stencilState.stencilReadMaskFront
+            || pattern.writeMask !== stencilState.stencilWriteMaskFront
+            || pattern.ref !== stencilState.stencilRefFront) {
             return true;
         }
 
