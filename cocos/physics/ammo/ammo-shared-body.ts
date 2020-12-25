@@ -38,6 +38,7 @@ import { CC_V3_0, CC_QUAT_0, AmmoConstant } from './ammo-const';
 import { PhysicsSystem } from '../framework';
 import { AmmoConstraint } from './constraints/ammo-constraint';
 import { PhysicsGroup } from '../framework/physics-enum';
+import { fastRemoveAt } from '../../core/utils/array';
 
 /**
  * @packageDocumentation
@@ -304,7 +305,7 @@ export class AmmoSharedBody {
         if (isTrigger) {
             const index = this.ghostStruct.wrappedShapes.indexOf(v);
             if (index >= 0) {
-                this.ghostStruct.wrappedShapes.splice(index, 1);
+                fastRemoveAt(this.ghostStruct.wrappedShapes, index);
                 v.setCompound(null);
                 this.ghostEnabled = false;
             }
@@ -318,7 +319,7 @@ export class AmmoSharedBody {
                 }
                 this.body.activate(true);
                 this.dirty |= EAmmoSharedBodyDirty.BODY_RE_ADD;
-                this.bodyStruct.wrappedShapes.splice(index, 1);
+                fastRemoveAt(this.bodyStruct.wrappedShapes, index);
                 this.bodyEnabled = false;
             }
         }
@@ -337,10 +338,10 @@ export class AmmoSharedBody {
     removeJoint (v: AmmoConstraint, type: 0 | 1) {
         if (type) {
             const i = this.wrappedJoints1.indexOf(v);
-            if (i >= 0) this.wrappedJoints1.splice(i, 1);
+            if (i >= 0) fastRemoveAt(this.wrappedJoints1, i);
         } else {
             const i = this.wrappedJoints0.indexOf(v);
-            if (i >= 0) this.wrappedJoints0.splice(i, 1);
+            if (i >= 0) fastRemoveAt(this.wrappedJoints0, i);
         }
     }
 

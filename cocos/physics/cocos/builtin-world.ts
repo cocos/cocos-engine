@@ -42,6 +42,7 @@ import { PhysicsMaterial } from '../framework/assets/physics-material';
 import { TriggerEventType } from '../framework/physics-interface';
 import { Collider } from '../../../exports/physics-framework';
 import { BuiltinRigidBody } from './builtin-rigid-body';
+import { fastRemoveAt } from '../../core/utils/array';
 
 const hitPoint = new Vec3();
 const TriggerEventObject = {
@@ -166,7 +167,7 @@ export class BuiltInWorld implements IPhysicsWorld {
     removeSharedBody (body: BuiltinSharedBody) {
         const index = this.bodies.indexOf(body);
         if (index >= 0) {
-            this.bodies.splice(index, 1);
+            fastRemoveAt(this.bodies, index);
         }
     }
 

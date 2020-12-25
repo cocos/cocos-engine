@@ -46,6 +46,7 @@ import { AmmoInstance } from './ammo-instance';
 import { IVec3Like } from '../../core/math/type-define';
 import { AmmoContactEquation } from './ammo-contact-equation';
 import { AmmoConstraint } from './constraints/ammo-constraint';
+import { fastRemoveAt } from '../../core/utils/array';
 
 const contactsPool: AmmoContactEquation[] = [];
 const v3_0 = CC_V3_0;
@@ -217,7 +218,7 @@ export class AmmoWorld implements IPhysicsWorld {
     removeSharedBody (sharedBody: AmmoSharedBody) {
         const i = this.bodies.indexOf(sharedBody);
         if (i >= 0) {
-            this.bodies.splice(i, 1);
+            fastRemoveAt(this.bodies, i);
             this._btWorld.removeRigidBody(sharedBody.body);
         }
     }
@@ -233,7 +234,7 @@ export class AmmoWorld implements IPhysicsWorld {
     removeGhostObject (sharedBody: AmmoSharedBody) {
         const i = this.ghosts.indexOf(sharedBody);
         if (i >= 0) {
-            this.ghosts.splice(i, 1);
+            fastRemoveAt(this.ghosts, i);
             this._btWorld.removeCollisionObject(sharedBody.ghost);
         }
     }
