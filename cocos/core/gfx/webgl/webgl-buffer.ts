@@ -35,7 +35,6 @@ import { WebGLDevice } from './webgl-device';
 import { IWebGLGPUBuffer, IWebGLGPUBufferView } from './webgl-gpu-objects';
 
 export class WebGLBuffer extends Buffer {
-
     get gpuBuffer (): IWebGLGPUBuffer {
         return  this._gpuBuffer!;
     }
@@ -49,9 +48,7 @@ export class WebGLBuffer extends Buffer {
     private _uniformBuffer: Uint8Array | null = null;
 
     public initialize (info: BufferInfo | BufferViewInfo): boolean {
-
         if ('buffer' in info) { // buffer view
-
             this._isBufferView = true;
 
             const buffer = info.buffer as WebGLBuffer;
@@ -67,9 +64,7 @@ export class WebGLBuffer extends Buffer {
                 offset: info.offset,
                 range: info.range,
             };
-
         } else { // native buffer
-
             this._usage = info.usage;
             this._memUsage = info.memUsage;
             this._size = info.size;
@@ -172,7 +167,7 @@ export class WebGLBuffer extends Buffer {
         }
     }
 
-    public update (buffer: BufferSource, offset?: number, size?: number) {
+    public update (buffer: BufferSource, size?: number) {
         if (this._isBufferView) {
             console.warn('cannot update through buffer views!');
             return;
@@ -188,14 +183,15 @@ export class WebGLBuffer extends Buffer {
         }
         if (this._bakcupBuffer && buffer !== this._bakcupBuffer.buffer) {
             const view = new Uint8Array(buffer as ArrayBuffer, 0, size);
-            this._bakcupBuffer.set(view, offset);
+            this._bakcupBuffer.set(view);
         }
 
         WebGLCmdFuncUpdateBuffer(
             this._device as WebGLDevice,
             this._gpuBuffer!,
             buffer,
-            offset || 0,
-            buffSize);
+            0,
+            buffSize,
+        );
     }
 }
