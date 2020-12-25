@@ -510,4 +510,114 @@ module.exports = {
             script: 'Custom Script',
         },
     },
+    features: {
+        core: {
+            label: "Core",
+            description: "Cocos Creator core functionalities.",
+        },
+        graphics: {
+            label: "Graphics Backend",
+            description: "Select graphics back end used for rendering.",
+        },
+        gfx_webgl: {
+            label: "WebGL",
+            description: "Include support for WebGL 1.0 graphics API.",
+        },
+        gfx_webgl2: {
+            label: "WebGL 2.0",
+            description: "Include support for WebGL 2.0 graphics API.\n If WebGL 2.0 is not available on target platform, the one will fallback as WebGL 1.0.",
+        },
+        ui: {
+            label: "User Interface",
+            description: "User interface support.",
+        },
+        base_3d: {
+            label: "Basic 3D Features",
+            description: "Components and tools that are widely used in general 3D applications.",
+        },
+        particle: {
+            label: "Particle System",
+            description: "Particle system support.",
+        },
+        physics: {
+            label: "Physics System",
+            description: "Select physics system.",
+        },
+        physics_builtin: {
+            label: "Builtin Physics System",
+            description: "Builtin physics system support.",
+        },
+        physics_cannon: {
+            label: "cannon.js Based Physics system",
+            description: "Physics system that based on cannon.js.",
+        },
+        physics_ammo: {
+            label: "ammo.js Based Physics System",
+            description: "Physics system that based on ammo.js.",
+        },
+        primitives: {
+            label: "Primitive Geometries",
+            description: "Libraries that used to create primitive geometries.",
+        },
+        base_2d: {
+            label: "Basic 2D Features",
+            description: "Components and tools that are widely used in general 2D applications.",
+        },
+        physics_2d: {
+            label: "2D Physics System",
+            description: "Physics system that applied to 2D application.",
+        },
+        physics_2d_builtin: {
+            label: "Builtin 2D Physics System",
+            description: "Builtin 2D physics system support.",
+        },
+        physics_2d_box2d: {
+            label: "Box2D Based 2D Physics System",
+            description: "2D Physics system that based on Box2D.",
+        },
+        intersection_2d: {
+            label: "2D Intersection Algorithms",
+            description: "Include 2D intersection algorithms.",
+        },
+        particle_2d: {
+            label: "2D Particle System",
+            description: "Particle system that applied to 2D application.",
+        },
+        terrain: {
+            label: "Terrain",
+            description: "Terrain support.",
+        },
+        audio: {
+            label: "Audio",
+            description: "Audio playing support.",
+        },
+        video: {
+            label: "Video",
+            description: "Video playing support.",
+        },
+        webview: {
+            label: "Web View",
+            description: "Support displaying Web contents.",
+        },
+        tween: {
+            label: "Tween",
+            description: "Tween system.",
+        },
+        profiler: {
+            label: "Profiler",
+            description: "Include various components and tools used to audit and display rendering stats.",
+        },
+        tiled_map: {
+            label: "Tiled Map",
+            description: "Tiled map support.",
+        },
+        spine: {
+            label: "Spine Animation",
+            description: "Spine Animation support.",
+        },
+        dragon_bones: {
+            label: "DragonBones",
+            description: "DragonBones support.",
+        },
+    },
 };
