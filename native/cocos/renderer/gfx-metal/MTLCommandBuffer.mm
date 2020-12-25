@@ -49,6 +49,7 @@ CCMTLCommandBuffer::CCMTLCommandBuffer(Device *device)
 : CommandBuffer(device)
 , _mtlDevice((CCMTLDevice *)device)
 , _mtlCommandQueue(id<MTLCommandQueue>(((CCMTLDevice *)device)->getMTLCommandQueue()))
+, _mtkView((MTKView *)(((CCMTLDevice *)device)->getMTKView()))
 {
     const auto setCount = device->bindingMappingInfo().bufferOffsets.size();
     _GPUDescriptorSets.resize(setCount);
@@ -65,16 +66,6 @@ bool CCMTLCommandBuffer::initialize(const CommandBufferInfo &info)
 
 void CCMTLCommandBuffer::destroy()
 {
-}
-
-id<CAMetalDrawable> CCMTLCommandBuffer::getCurrentDrawable()
-{
-    if (!_currDrawable)
-    {
-        CAMetalLayer *layer = (CAMetalLayer*)_mtlDevice->getMTLLayer();
-        _currDrawable = [[layer nextDrawable] retain];
-    }
-    return _currDrawable;
 }
 
 void CCMTLCommandBuffer::begin(RenderPass *renderPass, uint subpass, Framebuffer *frameBuffer, int submitIndex)
@@ -101,12 +92,6 @@ void CCMTLCommandBuffer::end()
 {
     if (!_commandBufferBegan) return;
     _commandBufferBegan = false;
-
-    if (_currDrawable)
-    {
-        [_currDrawable release];
-        _currDrawable = nil;
-    }
 }
 
 bool CCMTLCommandBuffer::isRenderingEntireDrawable(const Rect &rect, const CCMTLRenderPass *renderPass)
@@ -125,10 +110,8 @@ void CCMTLCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fb
     auto isOffscreen = static_cast<CCMTLFramebuffer *>(fbo)->isOffscreen();
     if (!isOffscreen)
     {
-        id<CAMetalDrawable> drawable = getCurrentDrawable();
-        id<MTLTexture> dssTex = (id<MTLTexture>)_mtlDevice->getDSSTexture();
-        static_cast<CCMTLRenderPass *>(renderPass)->setColorAttachment(0, drawable.texture, 0);
-        static_cast<CCMTLRenderPass *>(renderPass)->setDepthStencilAttachment(dssTex, 0);
+        static_cast<CCMTLRenderPass *>(renderPass)->setColorAttachment(0, _mtkView.currentDrawable.texture, 0);
+        static_cast<CCMTLRenderPass *>(renderPass)->setDepthStencilAttachment(_mtkView.depthStencilTexture, 0);
     }
     MTLRenderPassDescriptor *mtlRenderPassDescriptor = static_cast<CCMTLRenderPass *>(renderPass)->getMTLRenderPassDescriptor();
     if (!isRenderingEntireDrawable(renderArea, static_cast<CCMTLRenderPass *>(renderPass)))

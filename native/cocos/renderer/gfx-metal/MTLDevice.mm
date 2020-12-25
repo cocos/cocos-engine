@@ -80,14 +80,8 @@ bool CCMTLDevice::initialize(const DeviceInfo &info) {
     _inFlightSemaphore = CC_NEW(CCMTLSemaphore(MAX_FRAMES_IN_FLIGHT));
     _currentFrameIndex = 0;
 
-#if CC_PLATFORM == CC_PLATFORM_MAC_OSX
-    NSView *view = (NSView *)_windowHandle;
-#else
-    UIView *view = (UIView *)_windowHandle;
-#endif
-    CAMetalLayer *layer = static_cast<CAMetalLayer *>(view.layer);
-    _mtlLayer = layer;
-    id<MTLDevice> mtlDevice = (id<MTLDevice>)layer.device;
+    _mtkView = (MTKView *)_windowHandle;
+    id<MTLDevice> mtlDevice = ((MTKView *)_mtkView).device;
     _mtlDevice = mtlDevice;
     _mtlCommandQueue = [mtlDevice newCommandQueue];
 
@@ -104,19 +98,10 @@ bool CCMTLDevice::initialize(const DeviceInfo &info) {
     _uboOffsetAlignment = mu::getMinBufferOffsetAlignment(gpuFamily);
     _icbSuppored = mu::isIndirectCommandBufferSupported(MTLFeatureSet(_mtlFeatureSet));
     _isSamplerDescriptorCompareFunctionSupported = mu::isSamplerDescriptorCompareFunctionSupported(gpuFamily);
-    if (layer.pixelFormat == MTLPixelFormatInvalid)
-    {
-        layer.pixelFormat = MTLPixelFormatBGRA8Unorm;
-    }
+    MTKView *view = static_cast<MTKView *>(_mtkView);
+    if (view.colorPixelFormat == MTLPixelFormatInvalid) view.colorPixelFormat = MTLPixelFormatBGRA8Unorm;
+    view.depthStencilPixelFormat = mu::getSupportedDepthStencilFormat(mtlDevice, gpuFamily, _depthBits);
 
-    // Persistent depth stencil texture
-    MTLTextureDescriptor *dssDescriptor = [[MTLTextureDescriptor alloc] init];
-    dssDescriptor.pixelFormat = mu::getSupportedDepthStencilFormat(mtlDevice, gpuFamily, _depthBits);
-    dssDescriptor.width = info.width;
-    dssDescriptor.height = info.height;
-    dssDescriptor.storageMode = MTLStorageModePrivate;
-    dssDescriptor.usage = MTLTextureUsageRenderTarget;
-    _dssTex = [mtlDevice newTextureWithDescriptor:dssDescriptor];
     _stencilBits = 8;
 
     ContextInfo contextCreateInfo;
@@ -226,9 +211,9 @@ void CCMTLDevice::present() {
     CCMTLGPUStagingBufferPool *bufferPool = _gpuStagingBufferPools[_currentFrameIndex];
     _currentFrameIndex = (_currentFrameIndex + 1) % MAX_FRAMES_IN_FLIGHT;
 
-    auto cmdBuff = static_cast<CCMTLCommandBuffer *>(_cmdBuff);
-    auto mtlCommandBuffer = cmdBuff->getMTLCommandBuffer();
-    [mtlCommandBuffer presentDrawable:cmdBuff->getCurrentDrawable()];
+    auto mtlCommandBuffer = static_cast<CCMTLCommandBuffer *>(_cmdBuff)->getMTLCommandBuffer();
+    auto mtkView = static_cast<MTKView *>(_mtkView);
+    [mtlCommandBuffer presentDrawable:mtkView.currentDrawable];
     [mtlCommandBuffer addCompletedHandler:^(id<MTLCommandBuffer> commandBuffer) {
         [commandBuffer release];
         bufferPool->reset();

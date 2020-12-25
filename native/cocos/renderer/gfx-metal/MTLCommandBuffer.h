@@ -87,10 +87,10 @@ private:
     bool _commandBufferBegan = false;
     bool _isSubCB = false;
     CCMTLDevice *_mtlDevice = nullptr;
-    id<CAMetalDrawable> _currDrawable = nil;
+//    id<CAMetalDrawable> _currDrawable = nil;
     id<MTLCommandQueue> _mtlCommandQueue = nil;
     id<MTLCommandBuffer> _mtlCommandBuffer = nil;
-    id<MTLParallelRenderCommandEncoder> _parallelEncoder = nil;
+    MTKView *_mtkView = nil;
     CCMTLRenderCommandEncoder _commandEncoder;
     CCMTLInputAssembler *_inputAssembler = nullptr;
     MTLIndexType _indexType = MTLIndexTypeUInt16;

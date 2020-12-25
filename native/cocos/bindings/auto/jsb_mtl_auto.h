@@ -12,7 +12,5 @@ bool js_register_cc_gfx_CCMTLDevice(se::Object* obj);
 bool register_all_mtl(se::Object* obj);
 
 JSB_REGISTER_OBJECT_TYPE(cc::gfx::CCMTLDevice);
-SE_DECLARE_FUNC(js_mtl_CCMTLDevice_getDSSTexture);
-SE_DECLARE_FUNC(js_mtl_CCMTLDevice_getMTLLayer);
 SE_DECLARE_FUNC(js_mtl_CCMTLDevice_CCMTLDevice);
 
