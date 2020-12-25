@@ -155,4 +155,4 @@ export class DynamicAtlasManager {
 
 export const dynamicAtlasManager: DynamicAtlasManager = DynamicAtlasManager.instance = new DynamicAtlasManager();
 
-legacyCC.dynamicAtlasManager = dynamicAtlasManager;
+legacyCC.internal.dynamicAtlasManager = dynamicAtlasManager;

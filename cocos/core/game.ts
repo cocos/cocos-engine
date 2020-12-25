@@ -619,7 +619,7 @@ export class Game extends EventTarget {
             debug.log(`Cocos Creator v${VERSION}`);
             this.emit(Game.EVENT_ENGINE_INITED);
             this._engineInited = true;
-            legacyCC.dynamicAtlasManager.enabled = !macro.CLEANUP_IMAGE_CACHE;
+            legacyCC.internal.dynamicAtlasManager.enabled = !macro.CLEANUP_IMAGE_CACHE;
         });
     }
 
