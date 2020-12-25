@@ -495,4 +495,114 @@ module.exports = {
             script: '自定义脚本',
         },
     },
+    features: {
+        core: {
+            label: "核心功能",
+            description: "Cocos Creator 核心功能。",
+        },
+        graphics: {
+            label: "图形后端",
+            description: "选择支撑渲染系统的图形后端。",
+        },
+        gfx_webgl: {
+            label: "WebGL",
+            description: "包含对 WebGL 1.0 图形 API 的支持。",
+        },
+        gfx_webgl2: {
+            label: "WebGL 2.0",
+            description: "包含对 WebGL 2.0 图形 API 的支持。\n当 WebGL 2.0 在目标平台上不可用时会自动回退至 WebGL 1.0。",
+        },
+        ui: {
+            label: "用户界面",
+            description: "用户界面支持。",
+        },
+        base_3d: {
+            label: "基础 3D 功能",
+            description: "常用于一般 3D 应用的工具与组件。",
+        },
+        particle: {
+            label: "粒子系统",
+            description: "粒子系统支持。",
+        },
+        physics: {
+            label: "物理系统",
+            description: "选择不同的物理系统。",
+        },
+        physics_builtin: {
+            label: "内置物理系统",
+            description: "内置的物理系统支持。",
+        },
+        physics_cannon: {
+            label: "基于 cannon.js 的物理系统",
+            description: "基于 cannon.js 的物理系统支持。",
+        },
+        physics_ammo: {
+            label: "基于 ammo.js 的物理系统",
+            description: "基于 ammo.js 的物理系统支持。",
+        },
+        primitives: {
+            label: "基础几何体",
+            description: "创建基础几何体的库。",
+        },
+        base_2d: {
+            label: "基础 2D 功能",
+            description: "常用于一般 2D 应用的工具与组件。。",
+        },
+        physics_2d: {
+            label: "2D 物理系统",
+            description: "应用于 2D 的物理系统支持。",
+        },
+        physics_2d_builtin: {
+            label: "内置 2D 物理系统",
+            description: "内置的 2D 物理系统支持。",
+        },
+        physics_2d_box2d: {
+            label: "基于 Box2D 的 2D 物理系统",
+            description: "基于 Box2D 的 2D 物理系统支持。",
+        },
+        intersection_2d: {
+            label: "2D 相交检测算法",
+            description: "包含用于二维相交检测的算法。",
+        },
+        particle_2d: {
+            label: "2D 粒子系统",
+            description: "应用于 2D 的粒子系统支持。",
+        },
+        terrain: {
+            label: "地形",
+            description: "地形功能支持。",
+        },
+        audio: {
+            label: "音频",
+            description: "音频播放支持。",
+        },
+        video: {
+            label: "视频",
+            description: "视频播放支持。",
+        },
+        webview: {
+            label: "Web View",
+            description: "支持显示 Web 内容。",
+        },
+        tween: {
+            label: "缓动系统",
+            description: "缓动系统支持。",
+        },
+        profiler: {
+            label: "剖析工具",
+            description: "包含用于统计、显示渲染数据的组件与工具。",
+        },
+        tiled_map: {
+            label: "Tiled 地图",
+            description: "Tiled 地图支持。",
+        },
+        spine: {
+            label: "Spine 动画",
+            description: "Spine 动画支持。",
+        },
+        dragon_bones: {
+            label: "DragonBones",
+            description: "DragonBones 支持。",
+        },
+    },
 };
