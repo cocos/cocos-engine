@@ -37,10 +37,9 @@ import dependUtil from './depend-util';
 import { IDependProp } from './deserialize';
 import { isScene } from './helper';
 import RequestItem from './request-item';
-import { assets, AssetType, CompleteCallbackNoData, IOptions, ProgressCallback, references } from './shared';
+import { assets, AssetType, CompleteCallbackNoData, CompleteCallback, IOptions, ProgressCallback, references } from './shared';
 import Task from './task';
 
-type CompleteCallback<T = any> = (err: Error | null, data: T) => void;
 let defaultProgressCallback: ProgressCallback | null = null;
 
 export function setDefaultProgressCallback (onProgress: ProgressCallback) {
