@@ -33,6 +33,7 @@ import { IAssembler } from '../../renderer/base';
 import { IRenderData, RenderData } from '../../renderer/render-data';
 import { UI } from '../../renderer/ui';
 import { Sprite } from '../../components';
+import { dynamicAtlasManager } from '../../utils/dynamic-atlas/atlas-manager';
 
 const vec3_temps: Vec3[] = [];
 for (let i = 0; i < 4; i++) {
@@ -68,6 +69,7 @@ export const simple: IAssembler = {
         //         sprite._activateMaterial();
         //     }
         // }
+        dynamicAtlasManager.packToDynamicAtlas(sprite, frame);
 
         const renderData = sprite.renderData;
         if (renderData && frame) {

@@ -29,16 +29,16 @@
  * @module ui
  */
 
+import { ccclass, help, executionOrder, menu, tooltip, displayOrder, visible, displayName, multiline, type, readOnly, override, serializable, editable } from 'cc.decorator';
+import { EDITOR } from 'internal:constants';
 import { BitmapFont, Font, SpriteFrame } from '../assets';
 import { ImageAsset, Texture2D, Material } from '../../core/assets';
-import { ccclass, help, executionOrder, menu, tooltip, displayOrder, visible, displayName, multiline, type, readOnly, override, serializable, editable } from 'cc.decorator';
 import { ccenum } from '../../core/value-types/enum';
 import { UI } from '../renderer/ui';
 import { FontAtlas } from '../assets/bitmap-font';
 import { CanvasPool, ISharedLabelData, LetterRenderTexture } from '../assembler/label/font-utils';
 import { UIRenderable } from '../framework/ui-renderable';
 import { warnID } from '../../core/platform/debug';
-import { EDITOR } from 'internal:constants';
 
 /**
  * @en Enum for horizontal text alignment.
@@ -205,7 +205,7 @@ export class Label extends UIRenderable {
         return this._string;
     }
     set string (value) {
-        value = value + '';
+        value += '';
         if (this._string === value) {
             return;
         }
@@ -394,7 +394,7 @@ export class Label extends UIRenderable {
      */
     @type(Font)
     @displayOrder(11)
-    @visible(function(this: Label) { return !this._isSystemFontUsed; })
+    @visible(function (this: Label) { return !this._isSystemFontUsed; })
     @tooltip('Label 使用的字体资源')
     get font () {
         // return this._N$file;
@@ -483,9 +483,9 @@ export class Label extends UIRenderable {
             return;
         }
 
-        // if (this._cacheMode === CacheMode.BITMAP && !(this._font instanceof BitmapFont) && this._frame) {
-        //     this._frame._resetDynamicAtlasFrame();
-        // }
+        if (this._cacheMode === CacheMode.BITMAP && !(this._font instanceof BitmapFont) && this._ttfSpriteFrame) {
+            this._ttfSpriteFrame._resetDynamicAtlasFrame();
+        }
 
         if (this._cacheMode === CacheMode.CHAR) {
             this._ttfSpriteFrame = null;
@@ -497,6 +497,10 @@ export class Label extends UIRenderable {
 
     get spriteFrame () {
         return this._texture;
+    }
+
+    get ttfSpriteFrame () {
+        return this._ttfSpriteFrame;
     }
 
     /**
@@ -581,7 +585,7 @@ export class Label extends UIRenderable {
         this.updateRenderData();
     }
 
-    get assemblerData (){
+    get assemblerData () {
         return this._assemblerData;
     }
 
@@ -606,11 +610,10 @@ export class Label extends UIRenderable {
         this.updateRenderData();
     }
 
-    get _bmFontOriginalSize (){
+    get _bmFontOriginalSize () {
         if (this._font instanceof BitmapFont) {
             return this._font.fontSize;
-        }
-        else {
+        } else {
             return -1;
         }
     }
@@ -732,7 +735,7 @@ export class Label extends UIRenderable {
 
     protected _updateColor () {
         if (this._font instanceof BitmapFont) {
-           super._updateColor();
+            super._updateColor();
         } else {
             this.updateRenderData(false);
         }
@@ -764,7 +767,7 @@ export class Label extends UIRenderable {
         }
 
         if (!this._renderData) {
-            if (this._assembler && this._assembler.createData){
+            if (this._assembler && this._assembler.createData) {
                 this._renderData = this._assembler.createData(this);
                 this._renderData!.material = this.material;
             }
@@ -779,7 +782,7 @@ export class Label extends UIRenderable {
                 // TODO: old texture in material have been released by loader
                 this._texture = spriteFrame;
                 if (this._assembler) {
-                    this._assembler!.updateRenderData(this);
+                    this._assembler.updateRenderData(this);
                 }
             };
             // cannot be activated if texture not loaded yet
@@ -805,10 +808,6 @@ export class Label extends UIRenderable {
             if (this.cacheMode !== CacheMode.CHAR) {
                 // this._frame._refreshTexture(this._texture);
                 this._texture = this._ttfSpriteFrame;
-            }
-
-            if (this._assembler) {
-                this._assembler!.updateRenderData(this);
             }
         }
     }
