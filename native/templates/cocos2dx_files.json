@@ -2,6 +2,7 @@
     "common": [
         ".browserslistrc", 
         ".clang-format", 
+        ".clang-tidy", 
         "CMakeLists.txt", 
         "cocos/audio/AudioEngine.cpp", 
         "cocos/audio/android/AssetFd.cpp", 
