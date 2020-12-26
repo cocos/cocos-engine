@@ -24,9 +24,9 @@
  */
 
 // Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
-import { builtinResMgr } from '../../3d/builtin/init';
+import { builtinResMgr } from '../../builtin/builtin-res-mgr';
 import { Material } from '../../assets/material';
-import { RenderingSubMesh } from '../../assets/mesh';
+import { RenderingSubMesh } from '../../assets/rendering-sub-mesh';
 import { AABB } from '../../geometry';
 import { Pool } from '../../memop';
 import { Node } from '../../scene-graph';
@@ -36,7 +36,7 @@ import { Texture2D } from '../../assets/texture-2d';
 import { SubModel } from './submodel';
 import { Pass, IMacroPatch, BatchingSchemes } from '../core/pass';
 import { legacyCC } from '../../global-exports';
-import { InstancedBuffer } from '../../pipeline';
+import { InstancedBuffer } from '../../pipeline/instanced-buffer';
 
 import { Mat4, Vec3, Vec4 } from '../../math';
 import { genSamplerHash, samplerLib } from '../core/sampler-lib';

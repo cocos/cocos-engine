@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-namespace */
+/* eslint-disable func-names */
 /*
  Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
 
@@ -41,11 +43,11 @@ import {
     type,
     serializable,
 } from 'cc.decorator';
+import { EDITOR } from 'internal:constants';
 import { Vec3 } from '../../../core/math';
 import { Component, error } from '../../../core';
 import { IRigidBody } from '../../spec/i-rigid-body';
 import { createRigidBody } from '../instance';
-import { EDITOR } from 'internal:constants';
 import { ERigidBodyType } from '../physics-enum';
 import { PhysicsSystem } from '../physics-system';
 
@@ -62,7 +64,6 @@ import { PhysicsSystem } from '../physics-system';
 @disallowMultiple
 @executionOrder(-1)
 export class RigidBody extends Component {
-
     /**
      * @en
      * Enumeration of rigid body types.
@@ -87,7 +88,7 @@ export class RigidBody extends Component {
     }
 
     public set group (v: number) {
-        if (this._group == v) return;
+        if (this._group === v) return;
         this._group = v;
         if (this._body) {
             this._body.setGroup(v);
@@ -108,7 +109,7 @@ export class RigidBody extends Component {
     }
 
     public set type (v: ERigidBodyType) {
-        if (this._type == v) return;
+        if (this._type === v) return;
         this._type = v;
         if (this._body) {
             this._body.setType(v);
@@ -121,7 +122,7 @@ export class RigidBody extends Component {
      * @zh
      * 获取或设置刚体的质量。
      */
-    @visible(function (this: RigidBody) { return this.isDynamic })
+    @visible(function (this: RigidBody) { return this.isDynamic; })
     @displayOrder(0)
     @tooltip('刚体的质量')
     public get mass () {
@@ -129,8 +130,8 @@ export class RigidBody extends Component {
     }
 
     public set mass (value) {
-        if (this._mass == value) return;
-        value = value < 0 ? 0 : value;
+        if (this._mass === value) return;
+        value = value <= 0 ? 0.0001 : value;
         this._mass = value;
         if (this._body) {
             this._body.setMass(value);
@@ -143,7 +144,7 @@ export class RigidBody extends Component {
      * @zh
      * 获取或设置是否允许休眠。
      */
-    @visible(function (this: RigidBody) { return this.isDynamic })
+    @visible(function (this: RigidBody) { return this.isDynamic; })
     @displayOrder(0.5)
     @tooltip('是否允许休眠')
     public get allowSleep (): boolean {
@@ -163,7 +164,7 @@ export class RigidBody extends Component {
      * @zh
      * 获取或设置线性阻尼。
      */
-    @visible(function (this: RigidBody) { return this.isDynamic })
+    @visible(function (this: RigidBody) { return this.isDynamic; })
     @displayOrder(1)
     @tooltip('线性阻尼')
     public get linearDamping () {
@@ -183,7 +184,7 @@ export class RigidBody extends Component {
      * @zh
      * 获取或设置旋转阻尼。
      */
-    @visible(function (this: RigidBody) { return this.isDynamic })
+    @visible(function (this: RigidBody) { return this.isDynamic; })
     @displayOrder(2)
     @tooltip('旋转阻尼')
     public get angularDamping () {
@@ -203,7 +204,7 @@ export class RigidBody extends Component {
      * @zh
      * 获取或设置刚体是否使用重力。
      */
-    @visible(function (this: RigidBody) { return this.isDynamic })
+    @visible(function (this: RigidBody) { return this.isDynamic; })
     @displayOrder(4)
     @tooltip('刚体是否使用重力')
     public get useGravity () {
@@ -223,7 +224,7 @@ export class RigidBody extends Component {
      * @zh
      * 获取或设置线性速度的因子，可以用来控制每个轴方向上的速度的缩放。
      */
-    @visible(function (this: RigidBody) { return this.isDynamic })
+    @visible(function (this: RigidBody) { return this.isDynamic; })
     @displayOrder(6)
     @tooltip('线性速度的因子，可以用来控制每个轴方向上的速度的缩放')
     public get linearFactor () {
@@ -243,7 +244,7 @@ export class RigidBody extends Component {
      * @zh
      * 获取或设置旋转速度的因子，可以用来控制每个轴方向上的旋转速度的缩放。
      */
-    @visible(function (this: RigidBody) { return this.isDynamic })
+    @visible(function (this: RigidBody) { return this.isDynamic; })
     @displayOrder(7)
     @tooltip('旋转速度的因子，可以用来控制每个轴方向上的旋转速度的缩放')
     public get angularFactor () {
@@ -322,7 +323,7 @@ export class RigidBody extends Component {
      * 获取或设置刚体是否是静态类型的（静止不动的）。
      */
     public get isStatic (): boolean {
-        return this._type == ERigidBodyType.STATIC;
+        return this._type === ERigidBodyType.STATIC;
     }
 
     public set isStatic (v: boolean) {
@@ -337,7 +338,7 @@ export class RigidBody extends Component {
      * 获取或设置刚体是否是动力学态类型的（将根据物理动力学控制运动）。
      */
     public get isDynamic (): boolean {
-        return this._type == ERigidBodyType.DYNAMIC;
+        return this._type === ERigidBodyType.DYNAMIC;
     }
 
     public set isDynamic (v: boolean) {
@@ -352,7 +353,7 @@ export class RigidBody extends Component {
      * 获取或设置刚体是否是运动态类型的（将由用户来控制运动）。
      */
     public get isKinematic () {
-        return this._type == ERigidBodyType.KINEMATIC;
+        return this._type === ERigidBodyType.KINEMATIC;
     }
 
     public set isKinematic (v: boolean) {
@@ -381,19 +382,19 @@ export class RigidBody extends Component {
     private _type: ERigidBodyType = ERigidBodyType.DYNAMIC;
 
     @serializable
-    private _mass: number = 1;
+    private _mass = 1;
 
     @serializable
-    private _allowSleep: boolean = true;
+    private _allowSleep = true;
 
     @serializable
-    private _linearDamping: number = 0.1;
+    private _linearDamping = 0.1;
 
     @serializable
-    private _angularDamping: number = 0.1;
+    private _angularDamping = 0.1;
 
     @serializable
-    private _useGravity: boolean = true;
+    private _useGravity = true;
 
     @serializable
     private _linearFactor: Vec3 = new Vec3(1, 1, 1);
@@ -402,7 +403,7 @@ export class RigidBody extends Component {
     private _angularFactor: Vec3 = new Vec3(1, 1, 1);
 
     protected get _assertOnLoadCalled (): boolean {
-        const r = this._isOnLoadCalled == 0;
+        const r = this._isOnLoadCalled === 0;
         if (r) { error('[Physics]: Please make sure that the node has been added to the scene'); }
         return !r;
     }
@@ -735,7 +736,6 @@ export class RigidBody extends Component {
             this._body!.removeMask(v);
         }
     }
-
 }
 
 export namespace RigidBody {

@@ -34,9 +34,8 @@ import { CompleteCallback, IDownloadParseOptions } from './shared';
 export default function downloadDomImage (
     url: string,
     options: IDownloadParseOptions,
-    onComplete: CompleteCallback<HTMLImageElement>
-    ): HTMLImageElement {
-
+    onComplete: CompleteCallback<HTMLImageElement>,
+): HTMLImageElement {
     const img = new Image();
 
     if (window.location.protocol !== 'file:') {

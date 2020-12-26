@@ -26,22 +26,18 @@
  * @packageDocumentation
  * @module asset-manager
  */
+import { EDITOR } from 'internal:constants';
 import { sys } from '../platform/sys';
 import { js } from '../utils';
 import { callInNextTick } from '../utils/misc';
 import { basename } from '../utils/path';
 import Cache from './cache';
-import { downloadDomAudio, downloadAudio } from '../../audio/audio-downloader';
-import { downloadVideo } from '../../video/video-downloader';
 import downloadDomImage from './download-dom-image';
 import downloadFile from './download-file';
 import downloadScript from './download-script';
-import { loadFont } from './font-loader';
-import { CompleteCallback, CompleteCallbackNoData, IBundleOptions, IDownloadParseOptions } from './shared';
-import { files } from './shared';
+import { CompleteCallback, CompleteCallbackNoData, IBundleOptions, IDownloadParseOptions, files } from './shared';
 import { retry, RetryFunction, urlAppendTimestamp } from './utilities';
 import { legacyCC } from '../global-exports';
-import { EDITOR } from 'internal:constants';
 
 export type DownloadHandler = (url: string, opitons: IDownloadParseOptions, onComplete: CompleteCallback) => void;
 
@@ -88,14 +84,13 @@ const downloadBundle = (nameOrUrl: string, options: IBundleOptions, onComplete: 
     if (!REGEX.test(url)) {
         if (downloader.remoteBundles.indexOf(bundleName) !== -1) {
             url = `${downloader.remoteServerAddress}remote/${bundleName}`;
-        }
-        else {
+        } else {
             url = `assets/${bundleName}`;
         }
     }
     const version = options.version || downloader.bundleVers![bundleName];
     let count = 0;
-    const config = `${url}/config.${version ? version + '.' : ''}json`;
+    const config = `${url}/config.${version ? `${version}.` : ''}json`;
     let out: Record<string, any> | null = null;
     let error: Error | null = null;
     downloadJson(config, options, (err, response) => {
@@ -103,14 +98,14 @@ const downloadBundle = (nameOrUrl: string, options: IBundleOptions, onComplete: 
             error = err;
         }
         out = response as Record<string, any>;
-        if (out) { out.base = url + '/'; }
+        if (out) { out.base = `${url}/`; }
         count++;
         if (count === 2) {
             onComplete(error, out);
         }
     });
 
-    const jspath = `${url}/index.${version ? version + '.' : ''}js`;
+    const jspath = `${url}/index.${version ? `${version}.` : ''}js`;
     downloadScript(jspath, options, (err) => {
         if (err) {
             error = err;
@@ -118,8 +113,7 @@ const downloadBundle = (nameOrUrl: string, options: IBundleOptions, onComplete: 
             if (count === 2) {
                 onComplete(err);
             }
-        }
-        else {
+        } else {
             downloader.importBundleEntry(bundleName).then(() => {
                 count++;
                 if (count === 2) {
@@ -155,7 +149,6 @@ const downloadBundle = (nameOrUrl: string, options: IBundleOptions, onComplete: 
  *
  */
 export class Downloader {
-
     /**
      * @en
      * The maximum number of concurrent when downloading
@@ -178,10 +171,10 @@ export class Downloader {
     /**
      * @en
      * The address of remote server
-     * 
+     *
      * @zh
      * 远程服务器地址
-     * 
+     *
      */
     public get remoteServerAddress () {
         return this._remoteServerAddress;
@@ -199,9 +192,9 @@ export class Downloader {
      */
     public maxRetryCount = EDITOR ? 0 : 3;
 
-    public appendTimeStamp = EDITOR ? true : false;
+    public appendTimeStamp = !!EDITOR;
 
-    public limited = EDITOR ? false : true;
+    public limited = !EDITOR;
 
     /**
      * @en
@@ -219,7 +212,7 @@ export class Downloader {
 
     public downloadDomImage = downloadDomImage;
 
-    public downloadDomAudio = downloadDomAudio;
+    public downloadDomAudio: DownloadHandler | null = null;
 
     public downloadFile = downloadFile;
 
@@ -228,69 +221,46 @@ export class Downloader {
     // dafault handler map
     private _downloaders: Record<string, DownloadHandler> = {
         // Images
-        '.png' : downloadImage,
-        '.jpg' : downloadImage,
-        '.bmp' : downloadImage,
-        '.jpeg' : downloadImage,
-        '.gif' : downloadImage,
-        '.ico' : downloadImage,
-        '.tiff' : downloadImage,
-        '.webp' : downloadImage,
-        '.image' : downloadImage,
+        '.png': downloadImage,
+        '.jpg': downloadImage,
+        '.bmp': downloadImage,
+        '.jpeg': downloadImage,
+        '.gif': downloadImage,
+        '.ico': downloadImage,
+        '.tiff': downloadImage,
+        '.webp': downloadImage,
+        '.image': downloadImage,
         '.pvr': downloadArrayBuffer,
         '.pkm': downloadArrayBuffer,
         '.astc': downloadArrayBuffer,
 
-        // Audio
-        '.mp3' : downloadAudio,
-        '.ogg' : downloadAudio,
-        '.wav' : downloadAudio,
-        '.m4a' : downloadAudio,
-
         // Txt
-        '.txt' : downloadText,
-        '.xml' : downloadText,
-        '.vsh' : downloadText,
-        '.fsh' : downloadText,
-        '.atlas' : downloadText,
+        '.txt': downloadText,
+        '.xml': downloadText,
+        '.vsh': downloadText,
+        '.fsh': downloadText,
+        '.atlas': downloadText,
 
-        '.tmx' : downloadText,
-        '.tsx' : downloadText,
+        '.tmx': downloadText,
+        '.tsx': downloadText,
 
-        '.json' : downloadJson,
-        '.ExportJson' : downloadJson,
-        '.plist' : downloadText,
+        '.json': downloadJson,
+        '.ExportJson': downloadJson,
+        '.plist': downloadText,
 
-        '.fnt' : downloadText,
-
-        // font
-        '.font' : loadFont,
-        '.eot' : loadFont,
-        '.ttf' : loadFont,
-        '.woff' : loadFont,
-        '.svg' : loadFont,
-        '.ttc' : loadFont,
-
-        // Video
-        '.mp4': downloadVideo,
-        '.avi': downloadVideo,
-        '.mov': downloadVideo,
-        '.mpg': downloadVideo,
-        '.mpeg': downloadVideo,
-        '.rm': downloadVideo,
-        '.rmvb': downloadVideo,
+        '.fnt': downloadText,
 
         // Binary
-        '.binary' : downloadArrayBuffer,
+        '.binary': downloadArrayBuffer,
         '.bin': downloadArrayBuffer,
         '.dbbin': downloadArrayBuffer,
         '.skel': downloadArrayBuffer,
 
         '.js': downloadScript,
 
-        'bundle': downloadBundle,
+        bundle: downloadBundle,
 
-        'default': downloadText,
+        default: downloadText,
     };
 
     private _downloading = new Cache<CompleteCallback[]>();
@@ -306,7 +276,7 @@ export class Downloader {
     private _checkNextPeriod = false;
     private _remoteServerAddress = '';
 
-    public init (remoteServerAddress: string = '', bundleVers: Record<string, string> = {}, remoteBundles: string[] = []) {
+    public init (remoteServerAddress = '', bundleVers: Record<string, string> = {}, remoteBundles: string[] = []) {
         this._downloading.clear();
         this._queue.length = 0;
         this._remoteServerAddress = remoteServerAddress;
@@ -337,14 +307,13 @@ export class Downloader {
     public register (type: string | Record<string, DownloadHandler>, handler?: DownloadHandler) {
         if (typeof type === 'object') {
             js.mixin(this._downloaders, type);
-        }
-        else {
+        } else {
             this._downloaders[type] = handler as DownloadHandler;
         }
     }
 
     public importBundleEntry (bundleName: string): Promise<any> {
-        return import('virtual:///prerequisite-imports/' + bundleName);
+        return import(`virtual:///prerequisite-imports/${bundleName}`);
     }
 
     /**
@@ -374,7 +343,10 @@ export class Downloader {
     public download (id: string, url: string, type: string, options: IDownloadParseOptions, onComplete: CompleteCallback): void {
         // if it is downloaded, don't download again
         const file = files.get(id);
-        if (file) { return onComplete(null, file); }
+        if (file) {
+            onComplete(null, file);
+            return;
+        }
 
         const downloadCallbacks = this._downloading.get(id);
         if (downloadCallbacks) {
@@ -400,7 +372,10 @@ export class Downloader {
                 this._downloading.add(id, [onComplete]);
             }
 
-            if (!this.limited) { return handler(urlAppendTimestamp(url, this.appendTimeStamp), options, callback); }
+            if (!this.limited) {
+                handler(urlAppendTimestamp(url, this.appendTimeStamp), options, callback);
+                return;
+            }
 
             // refresh
             this._updateTime();
@@ -416,8 +391,7 @@ export class Downloader {
                 handler(urlAppendTimestamp(url, this.appendTimeStamp), options, done);
                 this._totalNum++;
                 this._totalNumThisPeriod++;
-            }
-            else {
+            } else {
                 // when number of request up to limitation, cache the rest
                 this._queue.push({ id, priority: options.priority || 0, url, options, done, handler });
                 this._queueDirty = true;
@@ -487,7 +461,6 @@ export class Downloader {
             this._checkNextPeriod = true;
         }
     }
-
 }
 
 const downloader = new Downloader();

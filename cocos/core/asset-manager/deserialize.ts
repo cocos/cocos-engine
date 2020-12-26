@@ -27,8 +27,10 @@
  * @hidden
  */
 import { EDITOR } from 'internal:constants';
+import { Asset } from '../assets/asset';
 import MissingScript from '../components/missing-script';
 import { deserialize, Details } from '../data/deserialize';
+import { error } from '../platform/debug';
 import { decodeUuid } from './helper';
 
 const missingClass = EDITOR && EditorExtends.MissingReporter.classInstance;
@@ -39,33 +41,31 @@ export interface IDependProp {
     prop: string;
 }
 
-export default function (json: Record<string, any>, options: Record<string, any>) {
+export default function (json: Record<string, any>, options: Record<string, any>): Asset {
     let classFinder;
     if (EDITOR) {
-        classFinder = (type, data, owner, propName) => {
+        classFinder = (type, data, owner, propName): Constructor<unknown> => {
             const res = missingClass.classFinder(type, data, owner, propName);
             if (res) {
-                return res;
+                return res as Constructor<unknown>;
             }
             return MissingScript;
         };
         classFinder.onDereferenced = missingClass.classFinder.onDereferenced;
-    }
-    else {
+    } else {
         classFinder = MissingScript.safeFindClass;
     }
 
     const tdInfo = Details.pool.get() as Details;
 
-    let asset;
+    let asset: Asset;
     try {
         asset = deserialize(json, tdInfo, {
             classFinder,
             customEnv: options,
         });
-    }
-    catch (e) {
-        console.error(e);
+    } catch (e) {
+        error(e);
         Details.pool.put(tdInfo);
         throw e;
     }
@@ -99,5 +99,4 @@ export default function (json: Record<string, any>, options: Record<string, any>
     }
     Details.pool.put(tdInfo);
     return asset;
-
 }

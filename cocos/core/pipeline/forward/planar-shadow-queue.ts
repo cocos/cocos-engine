@@ -23,17 +23,16 @@
  THE SOFTWARE.
  */
 
-import { AABB, intersect} from '../../geometry';
-import { SetIndex} from '../../pipeline/define';
+import { AABB, intersect } from '../../geometry';
+import { SetIndex } from '../define';
 import { CommandBuffer, Device, RenderPass, Shader } from '../../gfx';
 import { InstancedBuffer } from '../instanced-buffer';
-import { PipelineStateManager } from '../../pipeline/pipeline-state-manager';
-import { Model } from '../../renderer/scene';
+import { PipelineStateManager } from '../pipeline-state-manager';
+import { Model, Camera } from '../../renderer/scene';
 import { DSPool, ShaderPool, PassPool, PassView, ShadowsPool, ShadowsView } from '../../renderer/core/memory-pools';
 import { RenderInstancedQueue } from '../render-instanced-queue';
 import { ForwardPipeline } from './forward-pipeline';
 import { ShadowType } from '../../renderer/scene/shadows';
-import { RenderView } from '../render-view';
 import { Layers } from '../../scene-graph/layers';
 
 const _ab = new AABB();
@@ -47,11 +46,10 @@ export class PlanarShadowQueue {
         this._pipeline = pipeline;
     }
 
-    public gatherShadowPasses (view: RenderView, cmdBuff: CommandBuffer) {
+    public gatherShadowPasses (camera: Camera, cmdBuff: CommandBuffer) {
         const shadows = this._pipeline.shadows;
         if (!shadows.enabled || shadows.type !== ShadowType.Planar) { return; }
 
-        const camera = view.camera;
         const scene = camera.scene!;
         const frstm = camera.frustum;
         const shadowVisible =  (camera.visibility & Layers.BitMask.DEFAULT) !== 0;
@@ -96,7 +94,7 @@ export class PlanarShadowQueue {
             const model = this._pendingModels[i];
             for (let j = 0; j < model.subModels.length; j++) {
                 const subModel = model.subModels[j];
-                const ia = subModel.inputAssembler!;
+                const ia = subModel.inputAssembler;
                 const pso = PipelineStateManager.getOrCreatePipelineState(device, pass, shader, renderPass, ia);
                 cmdBuff.bindPipelineState(pso);
                 cmdBuff.bindDescriptorSet(SetIndex.LOCAL, subModel.descriptorSet);

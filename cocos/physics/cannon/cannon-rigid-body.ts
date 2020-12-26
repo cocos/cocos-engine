@@ -23,11 +23,15 @@
  THE SOFTWARE.
  */
 
+/**
+ * @packageDocumentation
+ * @hidden
+ */
+
 import CANNON from '@cocos/cannon';
 import { Vec3 } from '../../core/math';
 import { IRigidBody } from '../spec/i-rigid-body';
 import { CannonSharedBody } from './cannon-shared-body';
-import { Node } from '../../core';
 import { CannonWorld } from './cannon-world';
 import { PhysicsSystem } from '../framework/physics-system';
 import { ERigidBodyType, RigidBody } from '../framework';
@@ -42,7 +46,6 @@ const v3_cannon1 = new CANNON.Vec3();
  * kinematic
  */
 export class CannonRigidBody implements IRigidBody {
-
     get isAwake (): boolean {
         return this.impl.isAwake();
     }
@@ -57,29 +60,33 @@ export class CannonRigidBody implements IRigidBody {
 
     setAllowSleep (v: boolean) {
         this.impl.allowSleep = v;
-        this._wakeUpIfSleep()
+        this._wakeUpIfSleep();
     }
 
     setMass (value: number) {
+        if (this.impl.type !== CANNON.Body.DYNAMIC) return;
         this.impl.mass = value;
         this.impl.updateMassProperties();
-        this._wakeUpIfSleep()
+        this._wakeUpIfSleep();
     }
 
     setType (v: ERigidBodyType) {
         switch (v) {
-            case ERigidBodyType.DYNAMIC:
-                this.impl.type = CANNON.Body.DYNAMIC;
-                this.impl.updateMassProperties();
-                this._wakeUpIfSleep()
-                break;
-            case ERigidBodyType.KINEMATIC:
-                this.impl.type = CANNON.Body.KINEMATIC;
-                break;
-            case ERigidBodyType.STATIC:
-            default:
-                this.impl.type = CANNON.Body.STATIC;
-                break;
+        case ERigidBodyType.DYNAMIC:
+            this.impl.type = CANNON.Body.DYNAMIC;
+            this.setMass(this._rigidBody.mass);
+            break;
+        case ERigidBodyType.KINEMATIC:
+            this.impl.type = CANNON.Body.KINEMATIC;
+            this.impl.mass = 0;
+            this.impl.updateMassProperties();
+            break;
+        case ERigidBodyType.STATIC:
+        default:
+            this.impl.type = CANNON.Body.STATIC;
+            this.impl.mass = 0;
+            this.impl.updateMassProperties();
+            break;
         }
     }
     setLinearDamping (value: number) {
@@ -92,22 +99,22 @@ export class CannonRigidBody implements IRigidBody {
 
     useGravity (value: boolean) {
         this.impl.useGravity = value;
-        this._wakeUpIfSleep()
+        this._wakeUpIfSleep();
     }
 
     setLinearFactor (value: IVec3Like) {
         Vec3.copy(this.impl.linearFactor, value);
-        this._wakeUpIfSleep()
+        this._wakeUpIfSleep();
     }
 
     setAngularFactor (value: IVec3Like) {
         Vec3.copy(this.impl.angularFactor, value);
         const fixR = Vec3.equals(this.impl.angularFactor, Vec3.ZERO);
-        if (fixR != this.impl.fixedRotation) {
+        if (fixR !== this.impl.fixedRotation) {
             this.impl.fixedRotation = fixR;
             this.impl.updateMassProperties();
         }
-        this._wakeUpIfSleep()
+        this._wakeUpIfSleep();
     }
 
     get impl () {
@@ -129,14 +136,13 @@ export class CannonRigidBody implements IRigidBody {
     private _rigidBody!: RigidBody;
     private _sharedBody!: CannonSharedBody;
 
-
     private _isEnabled = false;
 
     /** LIFECYCLE */
 
     initialize (com: RigidBody) {
         this._rigidBody = com;
-        this._sharedBody = (PhysicsSystem.instance.physicsWorld as CannonWorld).getSharedBody(this._rigidBody.node as Node, this);
+        this._sharedBody = (PhysicsSystem.instance.physicsWorld as CannonWorld).getSharedBody(this._rigidBody.node, this);
         this._sharedBody.reference = true;
         this._sharedBody.wrappedBody = this;
     }
@@ -208,7 +214,7 @@ export class CannonRigidBody implements IRigidBody {
     }
 
     setLinearVelocity (value: Vec3): void {
-        this._wakeUpIfSleep()
+        this._wakeUpIfSleep();
         Vec3.copy(this.impl.velocity, value);
     }
 
@@ -218,47 +224,47 @@ export class CannonRigidBody implements IRigidBody {
     }
 
     setAngularVelocity (value: Vec3): void {
-        this._wakeUpIfSleep()
+        this._wakeUpIfSleep();
         Vec3.copy(this.impl.angularVelocity, value);
     }
 
     applyForce (force: Vec3, worldPoint?: Vec3) {
         this._sharedBody.syncSceneToPhysics();
-        this._wakeUpIfSleep()
+        this._wakeUpIfSleep();
         if (worldPoint == null) worldPoint = Vec3.ZERO;
         this.impl.applyForce(Vec3.copy(v3_cannon0, force), Vec3.copy(v3_cannon1, worldPoint));
     }
 
     applyImpulse (impulse: Vec3, worldPoint?: Vec3) {
         this._sharedBody.syncSceneToPhysics();
-        this._wakeUpIfSleep()
+        this._wakeUpIfSleep();
         if (worldPoint == null) worldPoint = Vec3.ZERO;
         this.impl.applyImpulse(Vec3.copy(v3_cannon0, impulse), Vec3.copy(v3_cannon1, worldPoint));
     }
 
     applyLocalForce (force: Vec3, localPoint?: Vec3): void {
         this._sharedBody.syncSceneToPhysics();
-        this._wakeUpIfSleep()
+        this._wakeUpIfSleep();
         if (localPoint == null) localPoint = Vec3.ZERO;
         this.impl.applyLocalForce(Vec3.copy(v3_cannon0, force), Vec3.copy(v3_cannon1, localPoint));
     }
 
     applyLocalImpulse (impulse: Vec3, localPoint?: Vec3): void {
         this._sharedBody.syncSceneToPhysics();
-        this._wakeUpIfSleep()
+        this._wakeUpIfSleep();
         if (localPoint == null) localPoint = Vec3.ZERO;
         this.impl.applyLocalImpulse(Vec3.copy(v3_cannon0, impulse), Vec3.copy(v3_cannon1, localPoint));
     }
 
     applyTorque (torque: Vec3): void {
         this._sharedBody.syncSceneToPhysics();
-        this._wakeUpIfSleep()
+        this._wakeUpIfSleep();
         Vec3.add(this.impl.torque, this.impl.torque, torque);
     }
 
     applyLocalTorque (torque: Vec3): void {
         this._sharedBody.syncSceneToPhysics();
-        this._wakeUpIfSleep()
+        this._wakeUpIfSleep();
         Vec3.copy(v3_cannon0, torque);
         this.impl.vectorToWorldFrame(v3_cannon0, v3_cannon0);
         Vec3.add(this.impl.torque, this.impl.torque, v3_cannon0);
@@ -271,17 +277,17 @@ export class CannonRigidBody implements IRigidBody {
 
     setGroup (v: number): void {
         this.impl.collisionFilterGroup = v;
-        this._wakeUpIfSleep()
+        this._wakeUpIfSleep();
     }
 
     addGroup (v: number): void {
         this.impl.collisionFilterGroup |= v;
-        this._wakeUpIfSleep()
+        this._wakeUpIfSleep();
     }
 
     removeGroup (v: number): void {
         this.impl.collisionFilterGroup &= ~v;
-        this._wakeUpIfSleep()
+        this._wakeUpIfSleep();
     }
 
     /** mask */
@@ -291,17 +297,17 @@ export class CannonRigidBody implements IRigidBody {
 
     setMask (v: number): void {
         this.impl.collisionFilterMask = v;
-        this._wakeUpIfSleep()
+        this._wakeUpIfSleep();
     }
 
     addMask (v: number): void {
         this.impl.collisionFilterMask |= v;
-        this._wakeUpIfSleep()
+        this._wakeUpIfSleep();
     }
 
     removeMask (v: number): void {
         this.impl.collisionFilterMask &= ~v;
-        this._wakeUpIfSleep()
+        this._wakeUpIfSleep();
     }
 
     protected _wakeUpIfSleep () {

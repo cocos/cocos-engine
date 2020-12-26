@@ -23,13 +23,11 @@
  THE SOFTWARE.
  */
 
-import { builtinResMgr } from '../../3d/builtin';
-import { createMesh } from '../../3d/misc/utils';
+import { builtinResMgr } from '../../builtin';
 import { Material } from '../../assets/material';
-import { Mesh } from '../../assets/mesh';
+import { Mesh } from '../../../3d/assets/mesh';
 import { TextureCube } from '../../assets/texture-cube';
 import { UNIFORM_ENVIRONMENT_BINDING } from '../../pipeline/define';
-import { box } from '../../primitive';
 import { MaterialInstance } from '../core/material-instance';
 import { samplerLib } from '../core/sampler-lib';
 import { Model } from './model';
@@ -156,8 +154,10 @@ export class Skybox {
             skybox_material.recompileShaders({ USE_RGBE_CUBEMAP: this.isRGBE });
         }
 
-        if (!skybox_mesh) { skybox_mesh = createMesh(box({ width: 2, height: 2, length: 2 })); }
-        this._model.initSubModel(0, skybox_mesh.renderingSubMeshes[0], skybox_material);
+        if (this.enabled) {
+            if (!skybox_mesh) { skybox_mesh = legacyCC.utils.createMesh(legacyCC.primitives.box({ width: 2, height: 2, length: 2 })) as Mesh; }
+            this._model.initSubModel(0, skybox_mesh.renderingSubMeshes[0], skybox_material);
+        }
         this._updateGlobalBinding();
         this._updatePipeline();
     }

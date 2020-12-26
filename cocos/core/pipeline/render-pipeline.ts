@@ -28,14 +28,14 @@
  * @module pipeline
  */
 
+import { ccclass, displayOrder, type, serializable } from 'cc.decorator';
 import { legacyCC } from '../global-exports';
 import { Asset } from '../assets/asset';
-import { ccclass, displayOrder, type, serializable } from 'cc.decorator';
 import { RenderFlow } from './render-flow';
-import { RenderView } from './render-view';
 import { MacroRecord } from '../renderer/core/pass-utils';
 import { Device, DescriptorSet, CommandBuffer, DescriptorSetLayout, DescriptorSetLayoutInfo, DescriptorSetInfo } from '../gfx';
 import { globalDescriptorSetLayout } from './define';
+import { Camera } from '../renderer/scene/camera';
 
 /**
  * @en Render pipeline information descriptor
@@ -49,14 +49,13 @@ export interface IRenderPipelineInfo {
 /**
  * @en Render pipeline describes how we handle the rendering process for all render objects in the related render scene root.
  * It contains some general pipeline configurations, necessary rendering resources and some [[RenderFlow]]s.
- * The rendering process function [[render]] is invoked by [[Root]] for all [[RenderView]]s.
+ * The rendering process function [[render]] is invoked by [[Root]] for all [[Camera]]s.
  * @zh 渲染管线对象决定了引擎对相关渲染场景下的所有渲染对象实施的完整渲染流程。
  * 这个类主要包含一些通用的管线配置，必要的渲染资源和一些 [[RenderFlow]]。
- * 渲染流程函数 [[render]] 会由 [[Root]] 发起调用并对所有 [[RenderView]] 执行预设的渲染流程。
+ * 渲染流程函数 [[render]] 会由 [[Root]] 发起调用并对所有 [[Camera]] 执行预设的渲染流程。
  */
 @ccclass('cc.RenderPipeline')
 export abstract class RenderPipeline extends Asset {
-
     /**
      * @en Layout of the pipeline-global descriptor set.
      * @zh 管线层的全局描述符集布局。
@@ -91,7 +90,7 @@ export abstract class RenderPipeline extends Asset {
      */
     @displayOrder(0)
     @serializable
-    protected _tag: number = 0;
+    protected _tag = 0;
 
     /**
      * @en Flows
@@ -161,11 +160,11 @@ export abstract class RenderPipeline extends Asset {
      * @zh 渲染函数，对指定的渲染视图按顺序执行所有渲染流程。
      * @param view Render view。
      */
-    public render (views: RenderView[]) {
-        for (let i = 0; i < views.length; i++) {
-            const view = views[i];
-            for (let j = 0; j < view.flows.length; j++) {
-                view.flows[j].render(view);
+    public render (cameras: Camera[]) {
+        for (let j = 0; j < this.flows.length; j++) {
+            for (let i = 0; i < cameras.length; i++) {
+                const camera = cameras[i];
+                this.flows[j].render(camera);
             }
         }
     }
@@ -193,5 +192,3 @@ export abstract class RenderPipeline extends Asset {
         return super.destroy();
     }
 }
-
-legacyCC.RenderPipeline = RenderPipeline;

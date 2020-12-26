@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-namespace */
 /*
  Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
 
@@ -29,18 +30,17 @@
  */
 
 import { ccclass, requireComponent, displayOrder, type, readOnly, serializable } from 'cc.decorator';
+import { EDITOR } from 'internal:constants';
 import { Component } from '../../../../core';
 import { RigidBody } from '../rigid-body';
 import { Eventify } from '../../../../core/event';
 import { IBaseConstraint } from '../../../spec/i-physics-constraint';
-import { EDITOR } from 'internal:constants';
 import { createConstraint } from '../../instance';
 import { EConstraintType } from '../../physics-enum';
 
 @ccclass('cc.Constraint')
 @requireComponent(RigidBody)
 export class Constraint extends Eventify(Component) {
-
     static readonly EConstraintType = EConstraintType;
 
     @type(RigidBody)
@@ -98,7 +98,6 @@ export class Constraint extends Eventify(Component) {
         if (!EDITOR) {
             this._constraint = createConstraint(this.TYPE);
             this._constraint.initialize(this);
-            this._constraint.onLoad!();
         }
     }
 

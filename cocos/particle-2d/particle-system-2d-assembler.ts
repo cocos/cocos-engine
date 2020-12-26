@@ -24,10 +24,10 @@
  THE SOFTWARE.
  */
 
-import { IAssembler, IAssemblerManager } from '../core/renderer/ui/base';
+import { IAssembler, IAssemblerManager } from '../2d/renderer/base';
 import { ParticleSystem2D } from './particle-system-2d';
-import { MeshRenderData } from '../core/renderer/ui/render-data';
-import { UI } from '../core/renderer/ui/ui';
+import { MeshRenderData } from '../2d/renderer/render-data';
+import { UI } from '../2d/renderer/ui';
 import { PositionType } from './define';
 import { legacyCC } from '../core/global-exports';
 

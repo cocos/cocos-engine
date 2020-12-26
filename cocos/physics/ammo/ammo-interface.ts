@@ -23,6 +23,11 @@
  THE SOFTWARE.
  */
 
+/**
+ * @packageDocumentation
+ * @hidden
+ */
+
 import Ammo from './ammo-instantiated';
 import { AmmoShape } from './shapes/ammo-shape';
 

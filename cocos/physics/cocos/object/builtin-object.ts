@@ -28,13 +28,12 @@
  * @hidden
  */
 
-import { PhysicsSystem } from "../../framework";
+import { PhysicsSystem } from '../../framework';
 
 export class BuiltinObject {
-
     public collisionFilterGroup: number = PhysicsSystem.PhysicsGroup.DEFAULT;
 
-    public collisionFilterMask: number = -1;
+    public collisionFilterMask = -1;
 
     /** group */
     public getGroup (): number {

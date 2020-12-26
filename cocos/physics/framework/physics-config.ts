@@ -28,7 +28,7 @@
  * @hidden
  */
 
-import { IVec3Like } from "../../core";
+import { IVec3Like } from '../../core';
 
 export interface ICollisionMatrix {
     [x: string]: number;

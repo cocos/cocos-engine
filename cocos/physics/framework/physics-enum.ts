@@ -28,7 +28,7 @@
  * @module physics
  */
 
-import { Enum } from "../../core";
+import { Enum } from '../../core';
 
 export enum ERigidBodyType {
     DYNAMIC = 1,

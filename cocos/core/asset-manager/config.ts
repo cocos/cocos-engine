@@ -98,8 +98,7 @@ const processOptions = (options: IConfigOption) => {
             const type = entry[1];
             entry[1] = types[type];
         }
-    }
-    else {
+    } else {
         const out = Object.create(null);
         for (let i = 0, l = uuids.length; i < l; i++) {
             const uuid = uuids[i];
@@ -145,18 +144,16 @@ const processOptions = (options: IConfigOption) => {
             redirect[i + 1] = bundles[redirect[i + 1]];
         }
     }
-
 };
 
 export default class Config {
+    public name = '';
 
-    public name: string = '';
+    public base = '';
 
-    public base: string = '';
+    public importBase = '';
 
-    public importBase: string = '';
-
-    public nativeBase: string = '';
+    public nativeBase = '';
 
     public deps: string[] | null = null;
 
@@ -184,7 +181,6 @@ export default class Config {
     }
 
     public getInfoWithPath (path: string, type?: AssetType | null): IAddressableInfo | null {
-
         if (!path) {
             return null;
         }
@@ -198,8 +194,7 @@ export default class Config {
                         return assetInfo;
                     }
                 }
-            }
-            else {
+            } else {
                 return items[0];
             }
         }
@@ -236,12 +231,10 @@ export default class Config {
             name += '.scene';
         }
         if (name[0] !== '/' && !name.startsWith('db://')) {
-            name = '/' + name;
+            name = `/${name}`;
         }
         // search scene
-        const info = this.scenes.find((val, key) => {
-            return key.endsWith(name);
-        });
+        const info = this.scenes.find((val, key) => key.endsWith(name));
         return info;
     }
 
@@ -278,12 +271,10 @@ export default class Config {
             if (paths.has(path)) {
                 if (isSubAsset) {
                     paths.get(path)!.push(assetInfo);
-                }
-                else {
+                } else {
                     paths.get(path)!.splice(0, 0, assetInfo);
                 }
-            }
-            else {
+            } else {
                 paths.add(path, [assetInfo]);
             }
         }
@@ -317,12 +308,10 @@ export default class Config {
                 if (assetPacks) {
                     if (l === 1) {
                         assetPacks.splice(0, 0, pack);
-                    }
-                    else {
+                    } else {
                         assetPacks.push(pack);
                     }
-                }
-                else {
+                } else {
                     assetInfo.packs = [pack];
                 }
             }

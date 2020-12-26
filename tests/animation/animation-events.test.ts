@@ -1,4 +1,5 @@
-import { Node, Animation, AnimationClip, math, AnimationState } from '../../cocos/core';
+import { Node, math } from '../../cocos/core';
+import { Animation, AnimationState, AnimationClip } from '../../cocos/core/animation';
 
 test('Animation events(general)', () => {
     const mockInstance = jest.spyOn((global as any).cc.director, 'getAnimationManager').mockImplementation(() => {

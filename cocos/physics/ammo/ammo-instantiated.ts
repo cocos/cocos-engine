@@ -23,6 +23,11 @@
  THE SOFTWARE.
  */
 
+/**
+ * @packageDocumentation
+ * @hidden
+ */
+
 import AmmoClosure, * as AmmoJs from '@cocos/ammo';
 import { WECHAT } from 'internal:constants';
 

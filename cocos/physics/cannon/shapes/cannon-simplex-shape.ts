@@ -23,6 +23,12 @@
  THE SOFTWARE.
  */
 
+/**
+ * @packageDocumentation
+ * @hidden
+ */
+
+/* eslint-disable func-names */
 import CANNON from '@cocos/cannon';
 import { Vec3 } from '../../../core/math';
 import { commitShapeUpdates } from '../cannon-util';
@@ -32,16 +38,15 @@ import { IVec3Like } from '../../../core/math/type-define';
 import { SimplexCollider } from '../../../../exports/physics-framework';
 
 export class CannonSimplexShape extends CannonShape implements ISimplexShape {
-
     setShapeType (v: SimplexCollider.ESimplexType) {
         if (this._isBinding) {
-            //TODO: change the type after init
+            // TODO: change the type after init
         }
     }
 
     setVertices (v: IVec3Like[]) {
         const length = this.VERTICES.length;
-        if (length == 4) {
+        if (length === 4) {
             const ws = this._collider.node.worldScale;
             for (let i = 0; i < length; i++) {
                 Vec3.multiply(this.VERTICES[i], ws, v[i]);
@@ -54,7 +59,7 @@ export class CannonSimplexShape extends CannonShape implements ISimplexShape {
             // TODO: add to center
             // const impl = this.impl as CANNON.Particle;
         }
-        if (this._index != -1) {
+        if (this._index !== -1) {
             commitShapeUpdates(this._body);
         }
     }
@@ -71,13 +76,13 @@ export class CannonSimplexShape extends CannonShape implements ISimplexShape {
 
     protected onComponentSet () {
         const type = this.collider.shapeType;
-        if (type == SimplexCollider.ESimplexType.TETRAHEDRON) {
+        if (type === SimplexCollider.ESimplexType.TETRAHEDRON) {
             for (let i = 0; i < 4; i++) {
                 this.VERTICES[i] = new CANNON.Vec3(0, 0, 0);
             }
             this._shape = createTetra(this.VERTICES);
         } else {
-            if (type != SimplexCollider.ESimplexType.VERTEX) {
+            if (type !== SimplexCollider.ESimplexType.VERTEX) {
                 // WARN
             }
             this._shape = new CANNON.Particle();
@@ -93,9 +98,7 @@ export class CannonSimplexShape extends CannonShape implements ISimplexShape {
         super.setScale(scale);
         this.collider.updateVertices();
     }
-
 }
-
 
 const createTetra = (function () {
     const faces = [
@@ -106,5 +109,5 @@ const createTetra = (function () {
     ];
     return function (verts: CANNON.Vec3[]) {
         return new CANNON.ConvexPolyhedron(verts, faces);
-    }
-})();
+    };
+}());

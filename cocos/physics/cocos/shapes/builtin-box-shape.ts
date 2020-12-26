@@ -31,7 +31,6 @@ import { BoxCollider } from '../../../../exports/physics-framework';
 import { IVec3Like } from '../../../core/math/type-define';
 
 export class BuiltinBoxShape extends BuiltinShape implements IBoxShape {
-
     get localObb () {
         return this._localShape as OBB;
     }
@@ -59,5 +58,4 @@ export class BuiltinBoxShape extends BuiltinShape implements IBoxShape {
         super.onLoad();
         this.setSize(this.collider.size);
     }
-
 }

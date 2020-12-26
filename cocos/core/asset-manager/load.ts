@@ -94,7 +94,8 @@ export default function load (task: Task, done: CompleteCallbackNoData) {
 
         if (task.isFinish) {
             clear(task, true);
-            return task.dispatch('error');
+            task.dispatch('error');
+            return;
         }
 
         gatherAsset(task);
@@ -110,7 +111,10 @@ const loadOneAssetPipeline = new Pipeline('loadOneAsset', [
         const { options, isNative, uuid, file } = item;
         const { reloadAsset } = options;
 
-        if (file || (!reloadAsset && !isNative && assets.has(uuid))) { return done(); }
+        if (file || (!reloadAsset && !isNative && assets.has(uuid))) {
+            done();
+            return;
+        }
 
         packManager.load(item, task.options, (err, data) => {
             item.file = data;
@@ -126,7 +130,10 @@ const loadOneAssetPipeline = new Pipeline('loadOneAsset', [
 
         if (item.isNative) {
             parser.parse(id, file, item.ext, options, (err, asset) => {
-                if (err) { return done(err); }
+                if (err) {
+                    done(err);
+                    return;
+                }
                 item.content = asset;
                 if (progress.canInvoke) {
                     task.dispatch('progress', ++progress.finish, progress.total, item);
@@ -164,7 +171,10 @@ const loadOneAssetPipeline = new Pipeline('loadOneAsset', [
             } else {
                 options.__uuid__ = uuid;
                 parser.parse(id, file, 'import', options, (err, asset: Asset) => {
-                    if (err) { return done(err); }
+                    if (err) {
+                        done(err);
+                        return;
+                    }
                     loadDepends(task, asset, done, true);
                 });
             }
@@ -179,7 +189,9 @@ function loadDepends (task: Task, asset: Asset, done: CompleteCallbackNoData, in
 
     const depends = [];
     // add reference avoid being released during loading dependencies
-    asset.addRef && asset.addRef();
+    if (asset.addRef) {
+        asset.addRef();
+    }
     getDepends(uuid, asset, Object.create(null), depends, false, __asyncLoadAssets__, config!);
     if (progress.canInvoke) {
         task.dispatch('progress', ++progress.finish, progress.total += depends.length, item);
@@ -194,7 +206,9 @@ function loadDepends (task: Task, asset: Asset, done: CompleteCallbackNoData, in
         onError: Task.prototype.recycle,
         progress,
         onComplete: (err) => {
-            asset.decRef && asset.decRef(false);
+            if (asset.decRef) {
+                asset.decRef(false);
+            }
             asset.__asyncLoadAssets__ = __asyncLoadAssets__;
             repeatItem.finish = true;
             repeatItem.err = err;
@@ -240,7 +254,9 @@ function loadDepends (task: Task, asset: Asset, done: CompleteCallbackNoData, in
 
             for (let i = 0, l = callbacks.length; i < l; i++) {
                 const cb = callbacks[i];
-                asset.addRef && asset.addRef();
+                if (asset.addRef) {
+                    asset.addRef();
+                }
                 cb.item.content = asset;
                 cb.done(err);
             }
