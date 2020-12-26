@@ -49,7 +49,6 @@ import { PrefabInfo } from '../utils/prefab-utils';
 const Destroying = CCObject.Flags.Destroying;
 const DontDestroy = CCObject.Flags.DontDestroy;
 const Deactivating = CCObject.Flags.Deactivating;
-// @ts-expect-error
 const Activating = CCObject.Flags.Activating;
 const ChangingState = Activating | Deactivating;
 
