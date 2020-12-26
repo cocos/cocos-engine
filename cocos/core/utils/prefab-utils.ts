@@ -49,6 +49,44 @@ function compareStringArray (array1: string[]|undefined, array2: string[]|undefi
     return array1.every((value, index) => value === array2[index]);
 }
 
+@ccclass('cc.PrefabInfo')
+export class PrefabInfo {
+    // the most top node of this prefab in the scene
+    @serializable
+    @editable
+    public root?: Node;
+
+    // 所属的 prefab 资源对象 (cc.Prefab)
+    // In Editor, only asset._uuid is usable because asset will be changed.
+    @serializable
+    @editable
+    public asset?: Prefab;
+
+    // 用来标识别该节点在 prefab 资源中的位置，因此这个 ID 只需要保证在 Assets 里不重复就行
+    @serializable
+    @editable
+    public fileId = '';
+
+    // Instance of a prefabAsset
+    @serializable
+    public instance?: PrefabInstance;
+
+    // Indicates whether this node should always synchronize with the prefab asset, only available in the root node
+    @serializable
+    @editable
+    public sync = false;
+}
+
+legacyCC._PrefabInfo = PrefabInfo;
+
+@ccclass('cc.CompPrefabInfo ')
+export class CompPrefabInfo {
+    // To identify current component in a prefab asset, so only needs to be unique.
+    @serializable
+    @editable
+    public fileId = '';
+}
+
 @ccclass('cc.TargetInfo')
 export class TargetInfo {
     // 用于标识目标在prefab 资源中的ID，区别于UUID
@@ -71,8 +109,8 @@ export class PropertyOverride {
     }
 }
 
-@ccclass('cc.AddedChildrenInfo')
-export class AddedChildrenInfo {
+@ccclass('cc.MountedChildrenInfo')
+export class MountedChildrenInfo {
     @serializable
     public targetInfo: TargetInfo|null = null;
     @serializable
@@ -96,15 +134,9 @@ export class PrefabInstance {
     @serializable
     public prefabRootNode?: Node;
 
-    // 所属的 prefab 资源对象 (cc.Prefab)
-    // In Editor, only asset._uuid is usable because asset will be changed.
-    @serializable
-    @editable
-    public asset: Prefab|null = null;
-
     // 实例化的Prefab中额外增加的子节点数据
     @serializable
-    public addedChildren: AddedChildrenInfo[] = [];
+    public mountedChildren: MountedChildrenInfo[] = [];
 
     // 属性的覆盖数据
     @serializable
@@ -139,7 +171,7 @@ interface IPreserveProps {
     _objFlags: number;
     _parent: Node|null;
     _id: string;
-    _prefabInstance: PrefabInstance;
+    _prefab: PrefabInfo;
 }
 
 function getPreservedProps (node: any): IPreserveProps {
@@ -147,7 +179,7 @@ function getPreservedProps (node: any): IPreserveProps {
         _objFlags: node._objFlags,
         _parent: node._parent,
         _id: node._id,
-        _prefabInstance: node._prefabInstance,
+        _prefab: node._prefab,
     };
 }
 
@@ -155,18 +187,25 @@ function restorePreservedProps (node: any, preservedProps: IPreserveProps) {
     node._objFlags = preservedProps._objFlags;
     node._parent = preservedProps._parent;
     node._id = preservedProps._id;
-    node._prefabInstance = preservedProps._prefabInstance;
+    if (node._prefab) {
+        node._prefab.instance = preservedProps._prefab.instance;
+    }
 }
 
 export function createNodeWithPrefab (node: Node) {
     // @ts-expect-error: private member access
-    const _prefabInstance = node._prefabInstance;
-
-    if (!_prefabInstance) {
+    const prefabInfo = node._prefab;
+    if (!prefabInfo) {
         return;
     }
 
-    if (!_prefabInstance.asset) {
+    const prefabInstance = prefabInfo.instance;
+
+    if (!prefabInstance) {
+        return;
+    }
+
+    if (!prefabInfo.asset) {
         if (EDITOR) {
             // TODO show message in editor
         } else {
@@ -174,7 +213,7 @@ export function createNodeWithPrefab (node: Node) {
         }
 
         // @ts-expect-error: private member access
-        node._prefabInstance = null;
+        prefabInfo.instance = null;
         return;
     }
 
@@ -185,10 +224,10 @@ export function createNodeWithPrefab (node: Node) {
     legacyCC.game._isCloning = true;
     if (SUPPORT_JIT) {
         // @ts-expect-error: private member access
-        _prefabInstance.asset._doInstantiate(node);
+        prefabInfo._doInstantiate(node);
     } else {
         // root in prefab asset is always synced
-        const prefabRoot = _prefabInstance.asset.data;
+        const prefabRoot = prefabInfo.asset.data;
 
         // use node as the instantiated prefabRoot to make references to prefabRoot in prefab redirect to node
         prefabRoot._iN$t = node;
@@ -202,9 +241,9 @@ export function createNodeWithPrefab (node: Node) {
     restorePreservedProps(node, preservedProps);
 
     // @ts-expect-error: private member access
-    const prefabInfo = node._prefab;
-    if (prefabInfo) {
-        prefabInfo.sync = true;     // default to sync
+    if (node._prefab) {
+        // @ts-expect-error: private member access
+        node._prefab.sync = true;     // default to sync
     }
 }
 
@@ -213,7 +252,7 @@ export function generateTargetMap (node: Node, targetMap: any, isRoot: boolean) 
     let curTargetMap = targetMap;
 
     // @ts-expect-error: private member access
-    const prefabInstance = node._prefabInstance;
+    const prefabInstance = node._prefab?.instance;
     if (!isRoot && prefabInstance) {
         targetMap[prefabInstance.fileId] = {};
         curTargetMap = targetMap[prefabInstance.fileId];
@@ -255,13 +294,13 @@ export function getTarget (localID: string[], targetMap: any): unknown {
     return target;
 }
 
-export function applyAddedChildren (node: Node, addedChildren: AddedChildrenInfo[], targetMap: Record<string, any | Node | Component>) {
-    if (!addedChildren) {
+export function applyAddedChildren (node: Node, mountedChildren: MountedChildrenInfo[], targetMap: Record<string, any | Node | Component>) {
+    if (!mountedChildren) {
         return;
     }
 
-    for (let i = 0; i < addedChildren.length; i++) {
-        const childInfo = addedChildren[i];
+    for (let i = 0; i < mountedChildren.length; i++) {
+        const childInfo = mountedChildren[i];
         if (childInfo && childInfo.targetInfo) {
             const target = getTarget(childInfo.targetInfo.localID, targetMap) as Node;
             if (!target) {
@@ -318,7 +357,7 @@ export function applyPropertyOverrides (node: Node, propertyOverrides: PropertyO
                 if (Array.isArray(targetPropOwner) && targetPropOwnerParent && targetPropOwnerName) {
                     targetPropOwnerParent[targetPropOwnerName] = targetPropOwner;
                 }
-            } else {
+            } else if (EDITOR) {
                 warn('property path is empty');
             }
         }

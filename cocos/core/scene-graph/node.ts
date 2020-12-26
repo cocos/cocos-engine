@@ -393,7 +393,8 @@ export class Node extends BaseNode {
     public _onBatchCreated (dontSyncChildPrefab: boolean) {
         super._onBatchCreated(dontSyncChildPrefab);
 
-        if (!dontSyncChildPrefab && this._prefabInstance) {
+        const prefabInstance = this._prefab?.instance;
+        if (!dontSyncChildPrefab && prefabInstance) {
             createNodeWithPrefab(this);
         }
 
@@ -411,15 +412,12 @@ export class Node extends BaseNode {
             this._children[i]._onBatchCreated(dontSyncChildPrefab);
         }
 
-        const targetMap: Record<string, any | Node | Component> = {};
-        generateTargetMap(this, targetMap, true);
+        if (!dontSyncChildPrefab && prefabInstance) {
+            const targetMap: Record<string, any | Node | Component> = {};
+            generateTargetMap(this, targetMap, true);
 
-        if (!dontSyncChildPrefab && this._prefabInstance) {
-            applyAddedChildren(this, this._prefabInstance.addedChildren, targetMap);
-        }
-
-        if (!dontSyncChildPrefab && this._prefabInstance) {
-            applyPropertyOverrides(this, this._prefabInstance.propertyOverrides, targetMap);
+            applyAddedChildren(this, prefabInstance.mountedChildren, targetMap);
+            applyPropertyOverrides(this, prefabInstance.propertyOverrides, targetMap);
         }
     }
 

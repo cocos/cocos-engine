@@ -44,8 +44,7 @@ import { NodeEventProcessor } from './node-event-processor';
 import { legacyCC } from '../global-exports';
 import { Node } from './node';
 import { Scene } from './scene';
-import { PrefabInfo } from '../utils';
-import { PrefabInstance } from '../utils/prefab-utils';
+import { PrefabInfo } from '../utils/prefab-utils';
 
 type Constructor<T = {}> = new (...args: any[]) => T;
 
@@ -324,9 +323,6 @@ export class BaseNode extends CCObject implements ISchedulable {
     // The PrefabInfo object
     @serializable
     protected _prefab: PrefabInfo|null = null;
-
-    @serializable
-    protected _prefabInstance?: PrefabInstance;
 
     protected _scene: any = NullScene;
 
