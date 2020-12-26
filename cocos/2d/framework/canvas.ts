@@ -34,18 +34,12 @@ import { ccclass, help, disallowMultiple, executeInEditMode,
 import { EDITOR } from 'internal:constants';
 import { Camera } from '../../core/components/camera-component';
 import { Widget } from '../../ui/widget';
-import { RenderTexture } from '../../core/assets/render-texture';
 import { game } from '../../core/game';
-import { ClearFlag } from '../../core/gfx/define';
-import { Color, Vec3, Rect, Size } from '../../core/math';
+import { Vec3 } from '../../core/math';
 import { view } from '../../core/platform/view';
-import visibleRect from '../../core/platform/visible-rect';
-import { Node } from '../../core/scene-graph/node';
-import { Enum } from '../../core/value-types';
 import { Component } from '../../core/components/component';
 import { UITransform } from './ui-transform';
 import { legacyCC } from '../../core/global-exports';
-import { RenderWindow } from '../../core/renderer/core/render-window';
 import { SystemEventType } from '../../core/platform/event-manager';
 
 const _worldPos = new Vec3();
