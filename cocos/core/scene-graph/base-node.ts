@@ -43,10 +43,8 @@ import { baseNodePolyfill } from './base-node-dev';
 import { NodeEventProcessor } from './node-event-processor';
 import { legacyCC } from '../global-exports';
 import { Node } from './node';
-import { Scene } from './scene';
+import type { Scene } from './scene';
 import { PrefabInfo } from '../utils/prefab-utils';
-
-type Constructor<T = {}> = new (...args: any[]) => T;
 
 const Destroying = CCObject.Flags.Destroying;
 const DontDestroy = CCObject.Flags.DontDestroy;
@@ -62,15 +60,13 @@ export const TRANSFORM_ON = 1 << 0;
 
 const idGenerator = new IdGenerator('Node');
 
-const NullScene = null;
-
-function getConstructor (typeOrClassName: string | Function): Function | null {
+function getConstructor<T> (typeOrClassName: string | Constructor<T>): Constructor<T> | null | undefined {
     if (!typeOrClassName) {
         errorID(3804);
         return null;
     }
     if (typeof typeOrClassName === 'string') {
-        return js.getClassByName(typeOrClassName);
+        return js.getClassByName(typeOrClassName) as Constructor<T> | undefined;
     }
 
     return typeOrClassName;
@@ -223,30 +219,28 @@ export class BaseNode extends CCObject implements ISchedulable {
         return this._eventProcessor;
     }
 
-    public static _setScene (node: BaseNode) {
-        if (node instanceof legacyCC.Scene) {
-            node._scene = node;
-        } else if (node._parent == null) {
-            error('Node %s(%s) has not attached to a scene.', node.name, node.uuid);
-        } else {
-            node._scene = node._parent._scene;
-        }
-    }
-
     protected static idGenerator = idGenerator;
 
     // For walk
     protected static _stacks: Array<Array<(BaseNode | null)>> = [[]];
     protected static _stackId = 0;
 
-    protected static _findComponent (node: BaseNode, constructor: Function) {
+    /**
+     * Call `_updateScene` of specified node.
+     * @param node The node.
+     */
+    protected static _setScene (node: BaseNode) {
+        node._updateScene();
+    }
+
+    protected static _findComponent<T extends Component> (node: BaseNode, constructor: Constructor<T>): T | null {
         const cls = constructor as any;
         const comps = node._components;
         if (cls._sealed) {
             for (let i = 0; i < comps.length; ++i) {
                 const comp = comps[i];
                 if (comp.constructor === constructor) {
-                    return comp;
+                    return comp as T;
                 }
             }
         } else {
@@ -260,7 +254,7 @@ export class BaseNode extends CCObject implements ISchedulable {
         return null;
     }
 
-    protected static _findComponents (node: BaseNode, constructor: Function, components: Component[]) {
+    protected static _findComponents<T extends Component> (node: BaseNode, constructor: Constructor<T>, components: Component[]) {
         const cls = constructor as any;
         const comps = node._components;
         if (cls._sealed) {
@@ -280,7 +274,7 @@ export class BaseNode extends CCObject implements ISchedulable {
         }
     }
 
-    protected static _findChildComponent (children: BaseNode[], constructor) {
+    protected static _findChildComponent<T extends Component> (children: BaseNode[], constructor: Constructor<T>): T | null {
         for (let i = 0; i < children.length; ++i) {
             const node = children[i];
             let comp = BaseNode._findComponent(node, constructor);
@@ -324,7 +318,7 @@ export class BaseNode extends CCObject implements ISchedulable {
     @serializable
     protected _prefab: PrefabInfo|null = null;
 
-    protected _scene: any = NullScene;
+    protected _scene: Scene = null!;
 
     protected _activeInHierarchy = false;
 
@@ -337,7 +331,19 @@ export class BaseNode extends CCObject implements ISchedulable {
 
     protected _siblingIndex = 0;
 
-    protected _registerIfAttached = !EDITOR ? undefined : function (this: BaseNode, register) {
+    /**
+     * Set `_scene` field of this node.
+     * The derived `Scene` overrides this method to behavior differently.
+     */
+    protected _updateScene () {
+        if (this._parent == null) {
+            error('Node %s(%s) has not attached to a scene.', this.name, this.uuid);
+        } else {
+            this._scene = this._parent._scene;
+        }
+    }
+
+    protected _registerIfAttached = !EDITOR ? undefined : function _registerIfAttached (this: BaseNode, register) {
         if (EditorExtends.Node && EditorExtends.Component) {
             if (register) {
                 EditorExtends.Node.add(this._id, this);
@@ -382,7 +388,7 @@ export class BaseNode extends CCObject implements ISchedulable {
      * node.attr(attrs);
      * ```
      */
-    public attr (attrs: Object) {
+    public attr (attrs: unknown) {
         js.mixin(this, attrs);
     }
 
@@ -426,7 +432,8 @@ export class BaseNode extends CCObject implements ISchedulable {
             if (!(oldParent._objFlags & Destroying)) {
                 const removeAt = oldParent._children.indexOf(this);
                 if (DEV && removeAt < 0) {
-                    return errorID(1633);
+                    errorID(1633);
+                    return;
                 }
                 oldParent._children.splice(removeAt, 1);
                 oldParent._updateSiblingIndex();
@@ -508,6 +515,7 @@ export class BaseNode extends CCObject implements ISchedulable {
      */
     public getChildByPath (path: string) {
         const segments = path.split('/');
+        // eslint-disable-next-line @typescript-eslint/no-this-alias
         let lastNode: this = this;
         for (let i = 0; i < segments.length; ++i) {
             const segment = segments[i];
@@ -738,6 +746,7 @@ export class BaseNode extends CCObject implements ISchedulable {
      * @return True if this node is a child, deep child or identical to the given node.
      */
     public isChildOf (parent: this | Scene | null): boolean {
+        // eslint-disable-next-line @typescript-eslint/no-this-alias
         let child: BaseNode | null = this;
         do {
             if (child === parent) {
@@ -783,7 +792,7 @@ export class BaseNode extends CCObject implements ISchedulable {
      */
     public getComponent (className: string): Component | null;
 
-    public getComponent (typeOrClassName: string | Function) {
+    public getComponent<T extends Component> (typeOrClassName: string | Constructor<T>) {
         const constructor = getConstructor(typeOrClassName);
         if (constructor) {
             return BaseNode._findComponent(this, constructor);
@@ -805,7 +814,7 @@ export class BaseNode extends CCObject implements ISchedulable {
      */
     public getComponents (className: string): Component[];
 
-    public getComponents (typeOrClassName: string | Function) {
+    public getComponents<T extends Component> (typeOrClassName: string | Constructor<T>) {
         const constructor = getConstructor(typeOrClassName);
         const components: Component[] = [];
         if (constructor) {
@@ -836,7 +845,7 @@ export class BaseNode extends CCObject implements ISchedulable {
      */
     public getComponentInChildren (className: string): Component | null;
 
-    public getComponentInChildren (typeOrClassName: string | Function) {
+    public getComponentInChildren<T extends Component> (typeOrClassName: string | Constructor<T>) {
         const constructor = getConstructor(typeOrClassName);
         if (constructor) {
             return BaseNode._findChildComponent(this._children, constructor);
@@ -866,7 +875,7 @@ export class BaseNode extends CCObject implements ISchedulable {
      */
     public getComponentsInChildren (className: string): Component[];
 
-    public getComponentsInChildren (typeOrClassName: string | Function) {
+    public getComponentsInChildren<T extends Component> (typeOrClassName: string | Constructor<T>) {
         const constructor = getConstructor(typeOrClassName);
         const components: Component[] = [];
         if (constructor) {
@@ -900,16 +909,16 @@ export class BaseNode extends CCObject implements ISchedulable {
      */
     public addComponent (className: string): Component;
 
-    public addComponent (typeOrClassName: string | Function) {
+    public addComponent<T extends Component> (typeOrClassName: string | Constructor<T>) {
         if (EDITOR && (this._objFlags & Destroying)) {
             throw Error('isDestroying');
         }
 
         // get component
 
-        let constructor;
+        let constructor: Constructor<T> | null | undefined;
         if (typeof typeOrClassName === 'string') {
-            constructor = js.getClassByName(typeOrClassName);
+            constructor = js.getClassByName(typeOrClassName) as Constructor<T> | undefined;
             if (!constructor) {
                 if (legacyCC._RF.peek()) {
                     errorID(3808, typeOrClassName);
@@ -932,13 +941,13 @@ export class BaseNode extends CCObject implements ISchedulable {
             throw TypeError(getError(3810));
         }
 
-        if (EDITOR && constructor._disallowMultiple) {
+        if (EDITOR && (constructor as typeof constructor & { _disallowMultiple?: unknown })._disallowMultiple) {
             this._checkMultipleComp!(constructor);
         }
 
         // check requirement
 
-        const ReqComp = constructor._requireComponent;
+        const ReqComp = (constructor as typeof constructor & { _requireComponent?: typeof Component })._requireComponent;
         if (ReqComp && !this.getComponent(ReqComp)) {
             this.addComponent(ReqComp);
         }
@@ -952,7 +961,7 @@ export class BaseNode extends CCObject implements ISchedulable {
         //
 
         const component = new constructor();
-        component.node = this;
+        component.node = (this as unknown as Node); // TODO: HACK here
         this._components.push(component);
         if (EDITOR && EditorExtends.Node && EditorExtends.Component) {
             const node = EditorExtends.Node.getNode(this._id);
@@ -1059,10 +1068,12 @@ export class BaseNode extends CCObject implements ISchedulable {
      * node.on(SystemEventType.TOUCH_END, callback, this);
      * ```
      */
-    public on (type: string | SystemEventType, callback: Function, target?: Object, useCapture: any = false) {
+    public on (type: string | SystemEventType, callback: AnyFunction, target?: unknown, useCapture: any = false) {
         switch (type) {
         case SystemEventType.TRANSFORM_CHANGED:
             this._eventMask |= TRANSFORM_ON;
+            break;
+        default:
             break;
         }
         this._eventProcessor.on(type, callback, target, useCapture);
@@ -1083,7 +1094,7 @@ export class BaseNode extends CCObject implements ISchedulable {
      * node.off(SystemEventType.TOUCH_START, callback, this.node);
      * ```
      */
-    public off (type: string, callback?: Function, target?: Object, useCapture: any = false) {
+    public off (type: string, callback?: AnyFunction, target?: unknown, useCapture: any = false) {
         this._eventProcessor.off(type, callback, target, useCapture);
 
         const hasListeners = this._eventProcessor.hasEventListener(type);
@@ -1092,6 +1103,8 @@ export class BaseNode extends CCObject implements ISchedulable {
             switch (type) {
             case SystemEventType.TRANSFORM_CHANGED:
                 this._eventMask &= ~TRANSFORM_ON;
+                break;
+            default:
                 break;
             }
         }
@@ -1109,7 +1122,7 @@ export class BaseNode extends CCObject implements ISchedulable {
      *                              The callback is ignored if it is a duplicate (the callbacks are unique).
      * @param target - The target (this object) to invoke the callback, can be null
      */
-    public once (type: string, callback: Function, target?: Object, useCapture?: any) {
+    public once (type: string, callback: AnyFunction, target?: unknown, useCapture?: any) {
         this._eventProcessor.once(type, callback, target, useCapture);
     }
 
@@ -1153,7 +1166,7 @@ export class BaseNode extends CCObject implements ISchedulable {
      * @param target - The callback callee of the event listener
      * @return True if a callback of the specified type is registered; false otherwise.
      */
-    public hasEventListener (type: string, callback?: Function, target?: Object) {
+    public hasEventListener (type: string, callback?: AnyFunction, target?: unknown) {
         return this._eventProcessor.hasEventListener(type, callback, target);
     }
 
@@ -1162,7 +1175,7 @@ export class BaseNode extends CCObject implements ISchedulable {
      * @zh 移除目标上的所有注册事件。
      * @param target - The target to be searched for all related callbacks
      */
-    public targetOff (target: string | Object) {
+    public targetOff (target: string | unknown) {
         this._eventProcessor.targetOff(target);
         // Check for event mask reset
         if ((this._eventMask & TRANSFORM_ON) && !this._eventProcessor.hasEventListener(SystemEventType.TRANSFORM_CHANGED)) {
@@ -1208,9 +1221,7 @@ export class BaseNode extends CCObject implements ISchedulable {
                 if (EDITOR && EditorExtends.Component) {
                     EditorExtends.Component.remove(component._id);
                 }
-            }
-            // @ts-expect-error
-            else if (component.node !== this) {
+            } else if (component.node !== (this as unknown as BaseNode)) {
                 errorID(3815);
             }
         }
@@ -1226,9 +1237,7 @@ export class BaseNode extends CCObject implements ISchedulable {
     protected _onSetParent (oldParent: this | null, keepWorldTransform = false) {
         if (this._parent) {
             if ((oldParent == null || oldParent._scene !== this._parent._scene) && this._parent._scene != null) {
-                this.walk((node) => {
-                    BaseNode._setScene(node);
-                });
+                this.walk(BaseNode._setScene);
             }
         }
     }
@@ -1278,6 +1287,7 @@ export class BaseNode extends CCObject implements ISchedulable {
         cloned._parent = null;
         cloned._onBatchCreated(isSyncedNode);
 
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
         return cloned;
     }
 
@@ -1374,7 +1384,7 @@ export class BaseNode extends CCObject implements ISchedulable {
      * @param constructor Constructor of the component.
      * @throws If one or more component of same type have been existed in this node.
      */
-    protected _checkMultipleComp? (constructor: Function): void;
+    protected _checkMultipleComp?<T extends Component> (constructor: Constructor<T>): void;
 }
 
 baseNodePolyfill(BaseNode);

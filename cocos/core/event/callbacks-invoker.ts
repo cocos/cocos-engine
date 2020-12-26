@@ -29,21 +29,22 @@
  * @hidden
  */
 
+import { TEST } from 'internal:constants';
 import { Pool } from '../memop';
 import { array, createMap } from '../utils/js';
-import { TEST } from 'internal:constants';
 import { CCObject, isValid } from '../data/object';
 import { legacyCC } from '../global-exports';
+
 const fastRemoveAt = array.fastRemoveAt;
 
-function empty (){}
+function empty () { }
 
 class CallbackInfo {
-    public callback: Function = empty;
-    public target: Object | undefined = undefined;
+    public callback: AnyFunction = empty;
+    public target: unknown | undefined = undefined;
     public once = false;
 
-    public set (callback: Function, target?: Object, once?: boolean) {
+    public set (callback: AnyFunction, target?: unknown, once?: boolean) {
         this.callback = callback || empty;
         this.target = target;
         this.once = !!once;
@@ -59,16 +60,13 @@ class CallbackInfo {
         // Validation
         if (this.target instanceof CCObject && !isValid(this.target, true)) {
             return false;
-        }
-        else {
+        } else {
             return true;
         }
     }
 }
 
-const callbackInfoPool = new Pool(() => {
-    return new CallbackInfo();
-}, 32);
+const callbackInfoPool = new Pool(() => new CallbackInfo(), 32);
 /**
  * @zh 事件监听器列表的简单封装。
  * @en A simple list of event callbacks
@@ -84,7 +82,7 @@ export class CallbackList {
      *
      * @param cb - The callback to be removed
      */
-    public removeByCallback (cb: Function) {
+    public removeByCallback (cb: AnyFunction) {
         for (let i = 0; i < this.callbackInfos.length; ++i) {
             const info = this.callbackInfos[i];
             if (info && info.callback === cb) {
@@ -100,7 +98,7 @@ export class CallbackList {
      * @en Remove the event listeners with the given target from the list
      * @param target
      */
-    public removeByTarget (target: Object) {
+    public removeByTarget (target: unknown) {
         for (let i = 0; i < this.callbackInfos.length; ++i) {
             const info = this.callbackInfos[i];
             if (info && info.target === target) {
@@ -123,8 +121,7 @@ export class CallbackList {
             info.reset();
             if (this.isInvoking) {
                 this.callbackInfos[index] = null;
-            }
-            else {
+            } else {
                 fastRemoveAt(this.callbackInfos, index);
             }
             callbackInfoPool.free(info);
@@ -175,9 +172,7 @@ export class CallbackList {
 }
 
 const MAX_SIZE = 16;
-const callbackListPool = new Pool<CallbackList>(() => {
-    return new CallbackList();
-}, MAX_SIZE);
+const callbackListPool = new Pool<CallbackList>(() => new CallbackList(), MAX_SIZE);
 
 export interface ICallbackTable {
     [x: string]: CallbackList | undefined;
@@ -185,7 +180,7 @@ export interface ICallbackTable {
 
 /**
  * @zh CallbacksInvoker 用来根据事件名（Key）管理事件监听器列表并调用回调方法。
- * @en CallbacksInvoker is used to manager and invoke event listeners with different event keys, 
+ * @en CallbacksInvoker is used to manager and invoke event listeners with different event keys,
  * each key is mapped to a CallbackList.
  */
 export class CallbacksInvoker {
@@ -200,7 +195,7 @@ export class CallbacksInvoker {
      * @param target - Callback callee
      * @param once - Whether invoke the callback only once (and remove it)
      */
-    public on (key: string, callback: Function, target?: Object, once?: boolean) {
+    public on (key: string, callback: AnyFunction, target?: unknown, once?: boolean) {
         if (!this.hasEventListener(key, callback, target)) {
             let list = this._callbackTable[key];
             if (!list) {
@@ -220,7 +215,7 @@ export class CallbacksInvoker {
      * @param callback - Callback function when event triggered
      * @param target - Callback callee
      */
-    public hasEventListener (key: string, callback?: Function, target?: Object) {
+    public hasEventListener (key: string, callback?: AnyFunction, target?: unknown) {
         const list = this._callbackTable && this._callbackTable[key];
         if (!list) {
             return false;
@@ -237,14 +232,13 @@ export class CallbacksInvoker {
                     }
                 }
                 return false;
-            }
-            else {
+            } else {
                 return infos.length > 0;
             }
         }
 
         for (let i = 0; i < infos.length; ++i) {
-            let info = infos[i];
+            const info = infos[i];
             if (info && info.check() && info.callback === callback && info.target === target) {
                 return true;
             }
@@ -257,22 +251,20 @@ export class CallbacksInvoker {
      * @en Removes all callbacks registered in a certain event type or all callbacks registered with a certain target
      * @param keyOrTarget - The event type or target with which the listeners will be removed
      */
-    public removeAll (keyOrTarget: string | Object) {
+    public removeAll (keyOrTarget: string | unknown) {
         if (typeof keyOrTarget === 'string') {
             // remove by key
             const list = this._callbackTable && this._callbackTable[keyOrTarget];
             if (list) {
                 if (list.isInvoking) {
                     list.cancelAll();
-                }
-                else {
+                } else {
                     list.clear();
                     callbackListPool.free(list);
                     delete this._callbackTable[keyOrTarget];
                 }
             }
-        }
-        else if (keyOrTarget) {
+        } else if (keyOrTarget) {
             // remove by target
             for (const key in this._callbackTable) {
                 const list = this._callbackTable[key]!;
@@ -284,8 +276,7 @@ export class CallbacksInvoker {
                             list.cancel(i);
                         }
                     }
-                }
-                else {
+                } else {
                     list.removeByTarget(keyOrTarget);
                 }
             }
@@ -299,7 +290,7 @@ export class CallbacksInvoker {
      * @param callback - The callback function of the event listener, if absent all event listeners for the given type will be removed
      * @param target - The callback callee of the event listener
      */
-    public off (key: string, callback?: Function, target?: Object) {
+    public off (key: string, callback?: AnyFunction, target?: unknown) {
         const list = this._callbackTable && this._callbackTable[key];
         if (list) {
             const infos = list.callbackInfos;
@@ -311,8 +302,7 @@ export class CallbacksInvoker {
                         break;
                     }
                 }
-            }
-            else {
+            } else {
                 this.removeAll(key);
             }
         }
@@ -344,18 +334,14 @@ export class CallbacksInvoker {
                     if (info.once) {
                         this.off(key, callback, target);
                     }
-                    // Lazy check validity of callback target, 
+                    // Lazy check validity of callback target,
                     // if target is CCObject and is no longer valid, then remove the callback info directly
                     if (!info.check()) {
                         this.off(key, callback, target);
-                    }
-                    else {
-                        if (target) {
-                            callback.call(target, arg0, arg1, arg2, arg3, arg4);
-                        }
-                        else {
-                            callback(arg0, arg1, arg2, arg3, arg4);
-                        }
+                    } else if (target) {
+                        callback.call(target, arg0, arg1, arg2, arg3, arg4);
+                    } else {
+                        callback(arg0, arg1, arg2, arg3, arg4);
                     }
                 }
             }
@@ -373,8 +359,8 @@ export class CallbacksInvoker {
      * 移除所有回调。
      */
     public clear () {
-        for (let key in this._callbackTable) {
-            let list = this._callbackTable[key];
+        for (const key in this._callbackTable) {
+            const list = this._callbackTable[key];
             if (list) {
                 list.clear();
                 callbackListPool.free(list);
