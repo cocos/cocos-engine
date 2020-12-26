@@ -186,7 +186,7 @@ export class GbufferFlow extends RenderFlow {
 
     public render (view: RenderView) {
         const pipeline = this._pipeline as DeferredPipeline;
-        pipeline.updateUBOs(view);
+        pipeline.updateUBOs(view, true);
         super.render(view);
     }
 

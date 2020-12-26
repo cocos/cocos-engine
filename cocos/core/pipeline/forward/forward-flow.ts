@@ -69,7 +69,7 @@ export class ForwardFlow extends RenderFlow {
 
     public render (view: RenderView) {
         const pipeline = this._pipeline as ForwardPipeline;
-        pipeline.updateUBOs(view);
+        pipeline.updateUBOs(view, view.window.hasOffScreenAttachments);
         super.render(view);
     }
 

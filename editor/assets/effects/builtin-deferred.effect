@@ -285,6 +285,7 @@ CCProgram gbuffer-fs %{
 CCProgram lighting-vs %{
   precision highp float;
   #include <input-standard>
+  #include <cc-global>
 
   out vec2 v_uv;
 
@@ -293,7 +294,7 @@ CCProgram lighting-vs %{
     CCVertInput(In);
 
     gl_Position = In.position;
-    gl_Position.y = - gl_Position.y;
+    gl_Position.y = gl_Position.y * cc_cameraPos[3];
     gl_Position.zw = vec2(1.0, 1.0);
     v_uv = a_texCoord;
   }
@@ -311,7 +312,7 @@ CCProgram lighting-fs %{
   in vec2 v_uv;
 
   #pragma builtin(global)
-  layout (set = 0, binding = 5) uniform sampler2D cc_gbuffer_albedoMap;
+  layout (set = 0, binding = 5)uniform sampler2D cc_gbuffer_albedoMap;
   #pragma builtin(global)
   layout (set = 0, binding = 6)uniform sampler2D cc_gbuffer_positionMap;
   #pragma builtin(global)
@@ -323,13 +324,11 @@ CCProgram lighting-fs %{
 
   void main () {
     StandardSurface s;
-    vec2 uv = v_uv;
-    uv.y = 1.0 - uv.y;
 
-    vec4 albedoMap = texture(cc_gbuffer_albedoMap,uv);
-    vec4 positionMap =  texture(cc_gbuffer_positionMap,uv);
-    vec4 normalMap = texture(cc_gbuffer_normalMap,uv);
-    vec4 emissiveMap = texture(cc_gbuffer_emissiveMap,uv);
+    vec4 albedoMap = texture(cc_gbuffer_albedoMap,v_uv);
+    vec4 positionMap =  texture(cc_gbuffer_positionMap,v_uv);
+    vec4 normalMap = texture(cc_gbuffer_normalMap,v_uv);
+    vec4 emissiveMap = texture(cc_gbuffer_emissiveMap,v_uv);
 
     s.albedo = albedoMap;
     s.position = positionMap.xyz;

@@ -860,7 +860,11 @@ export enum CameraView {
     MAT_VIEW_PROJ_INV = 55, // Mat4
     MAT_PROJ = 71,          // Mat4
     MAT_PROJ_INV = 87,      // Mat4
-    COUNT = 103
+    MAT_VIEW_PROJ_OFFSCREEN = 103,     // Mat4
+    MAT_VIEW_PROJ_INV_OFFSCREEN = 119, // Mat4
+    MAT_PROJ_OFFSCREEN = 135,          // Mat4
+    MAT_PROJ_INV_OFFSCREEN = 151,      // Mat4
+    COUNT = 167
 }
 interface ICameraViewType extends BufferTypeManifest<typeof CameraView> {
     [CameraView.WIDTH]: number;
@@ -881,6 +885,10 @@ interface ICameraViewType extends BufferTypeManifest<typeof CameraView> {
     [CameraView.MAT_VIEW_PROJ_INV]: Mat4;
     [CameraView.MAT_PROJ]: Mat4;
     [CameraView.MAT_PROJ_INV]: Mat4;
+    [CameraView.MAT_VIEW_PROJ_OFFSCREEN]: Mat4;
+    [CameraView.MAT_VIEW_PROJ_INV_OFFSCREEN]: Mat4;
+    [CameraView.MAT_PROJ_OFFSCREEN]: Mat4;
+    [CameraView.MAT_PROJ_INV_OFFSCREEN]: Mat4;
     [CameraView.COUNT]: never;
 }
 const cameraViewDataType: BufferDataTypeManifest<typeof CameraView> = {
@@ -902,6 +910,10 @@ const cameraViewDataType: BufferDataTypeManifest<typeof CameraView> = {
     [CameraView.MAT_VIEW_PROJ_INV]: BufferDataType.FLOAT32,
     [CameraView.MAT_PROJ]: BufferDataType.FLOAT32,
     [CameraView.MAT_PROJ_INV]: BufferDataType.FLOAT32,
+    [CameraView.MAT_VIEW_PROJ_OFFSCREEN]: BufferDataType.FLOAT32,
+    [CameraView.MAT_VIEW_PROJ_INV_OFFSCREEN]: BufferDataType.FLOAT32,
+    [CameraView.MAT_PROJ_OFFSCREEN]: BufferDataType.FLOAT32,
+    [CameraView.MAT_PROJ_INV_OFFSCREEN]: BufferDataType.FLOAT32,
     [CameraView.COUNT]: BufferDataType.NEVER,
 };
 // Theoretically we only have to declare the type view here while all the other arguments can be inferred.

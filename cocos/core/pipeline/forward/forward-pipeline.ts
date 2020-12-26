@@ -201,8 +201,8 @@ export class ForwardPipeline extends RenderPipeline {
      * @en Update all UBOs
      * @zh 更新全部 UBO。
      */
-    public updateUBOs (view: RenderView) {
-        this._updateUBO(view);
+    public updateUBOs (view: RenderView, hasOffScreenAttachments: boolean = false) {
+        this._updateUBO(view, hasOffScreenAttachments);
         const mainLight = view.camera.scene!.mainLight;
         const device = this.device;
         const shadowInfo = this.shadows;
@@ -287,7 +287,7 @@ export class ForwardPipeline extends RenderPipeline {
         return true;
     }
 
-    private _updateUBO (view: RenderView) {
+    private _updateUBO (view: RenderView, hasOffScreenAttachments: boolean = false) {
         this._descriptorSet.update();
 
         const root = legacyCC.director.root;
@@ -326,16 +326,22 @@ export class ForwardPipeline extends RenderPipeline {
 
         Mat4.toArray(fv, camera.matView, UBOGlobal.MAT_VIEW_OFFSET);
         Mat4.toArray(fv, camera.node.worldMatrix, UBOGlobal.MAT_VIEW_INV_OFFSET);
-        Mat4.toArray(fv, camera.matProj, UBOGlobal.MAT_PROJ_OFFSET);
-        Mat4.toArray(fv, camera.matProjInv, UBOGlobal.MAT_PROJ_INV_OFFSET);
-        Mat4.toArray(fv, camera.matViewProj, UBOGlobal.MAT_VIEW_PROJ_OFFSET);
-        Mat4.toArray(fv, camera.matViewProjInv, UBOGlobal.MAT_VIEW_PROJ_INV_OFFSET);
         Vec3.toArray(fv, camera.position, UBOGlobal.CAMERA_POS_OFFSET);
-        let projectionSignY = device.screenSpaceSignY;
-        if (view.window.hasOffScreenAttachments) {
-            projectionSignY *= device.UVSpaceSignY; // need flipping if drawing on render targets
+
+        if (hasOffScreenAttachments) {
+            Mat4.toArray(fv, camera.matProj_offscreen, UBOGlobal.MAT_PROJ_OFFSET);
+            Mat4.toArray(fv, camera.matProjInv_offscreen, UBOGlobal.MAT_PROJ_INV_OFFSET);
+            Mat4.toArray(fv, camera.matViewProj_offscreen, UBOGlobal.MAT_VIEW_PROJ_OFFSET);
+            Mat4.toArray(fv, camera.matViewProjInv_offscreen, UBOGlobal.MAT_VIEW_PROJ_INV_OFFSET);
+            fv[UBOGlobal.CAMERA_POS_OFFSET + 3] = this._device.screenSpaceSignY * this._device.UVSpaceSignY;
         }
-        fv[UBOGlobal.CAMERA_POS_OFFSET + 3] = projectionSignY;
+        else {
+            Mat4.toArray(fv, camera.matProj, UBOGlobal.MAT_PROJ_OFFSET);
+            Mat4.toArray(fv, camera.matProjInv, UBOGlobal.MAT_PROJ_INV_OFFSET);
+            Mat4.toArray(fv, camera.matViewProj, UBOGlobal.MAT_VIEW_PROJ_OFFSET);
+            Mat4.toArray(fv, camera.matViewProjInv, UBOGlobal.MAT_VIEW_PROJ_INV_OFFSET);
+            fv[UBOGlobal.CAMERA_POS_OFFSET + 3] = this._device.screenSpaceSignY;
+        }
 
         const exposure = camera.exposure;
         fv[UBOGlobal.EXPOSURE_OFFSET] = exposure;

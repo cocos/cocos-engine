@@ -117,7 +117,6 @@ vec4 fxaa(sampler2D tex, vec2 fragCoord, vec2 resolution,
 
     vec2 resolution = cc_screenSize.xy;
     vec2 fragCoord = v_uv * resolution;
-    fragCoord.y = resolution.y - fragCoord.y;
 
     texcoords(fragCoord, resolution, v_rgbNW, v_rgbNE, v_rgbSW, v_rgbSE, v_rgbM);
     fragColor = fxaa(cc_lighting_resultMap, fragCoord, resolution, v_rgbNW, v_rgbNE, v_rgbSW, v_rgbSE, v_rgbM);
