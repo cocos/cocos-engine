@@ -321,10 +321,8 @@ export class UIRenderable extends RenderableComponent {
     }
 
     public updateBlendHash () {
-        let hashData = '';
-        hashData += `blendDst${this._blendState.targets[0].blendDst}`;
-        hashData += `blendSrc${this._blendState.targets[0].blendSrc}`;
-        this._blendHash = murmurhash2_32_gc(hashData, 666);
+        const dst = this._blendState.targets[0].blendDst << 16;
+        this._blendHash = dst | this._blendState.targets[0].blendSrc;
     }
 
     protected _lastParent: Node | null = null;

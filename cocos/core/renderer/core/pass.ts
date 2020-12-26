@@ -645,8 +645,11 @@ export class Pass {
         PassPool.set(this.handle, PassView.DESCRIPTOR_SET, PassPool.get(target.handle, PassView.DESCRIPTOR_SET));
 
         this._bs = bs;
+        PassPool.set(this.handle, PassView.BLEND_STATE, bs.handle);
         this._rs = target.rasterizerState;
+        PassPool.set(this.handle, PassView.RASTERIZER_STATE, PassPool.get(target.handle, PassView.RASTERIZER_STATE));
         this._dss = dss;
+        PassPool.set(this.handle, PassView.DEPTH_STENCIL_STATE, dss.handle);
 
         this._passIndex = target.passIndex;
         this._propertyIndex = target.propertyIndex;
