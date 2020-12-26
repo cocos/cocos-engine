@@ -606,6 +606,58 @@ export default [
     ]
   },
   {
+    "name": "wireframe",
+    "techniques": [
+      { "name": "opaque", "passes": [{ "program": "wireframe|wireframe-vs:vert|wireframe-fs:frag", "properties": { "lineColor": { "value": [1, 1, 1, 1], "type": 16 } } }] }
+    ],
+    "shaders": [
+      {
+        "name": "wireframe|wireframe-vs:vert|wireframe-fs:frag",
+        "hash": 3010540133,
+        "builtins": {
+          "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }], "samplers": [] },
+          "locals": { "blocks": [{ "name": "CCLocalBatched", "defines": ["!USE_INSTANCING", "USE_BATCHING"] }, { "name": "CCLocal", "defines": ["!USE_INSTANCING", "!USE_BATCHING"] }, { "name": "CCMorph", "defines": ["CC_USE_MORPH"] }, { "name": "CCSkinningTexture", "defines": ["CC_USE_SKINNING", "CC_USE_BAKED_ANIMATION"] }, { "name": "CCSkinningAnimation", "defines": ["CC_USE_SKINNING", "CC_USE_BAKED_ANIMATION"] }, { "name": "CCSkinning", "defines": ["CC_USE_SKINNING", "!CC_USE_BAKED_ANIMATION"] }], "samplers": [{ "name": "cc_PositionDisplacements", "defines": ["CC_USE_MORPH", "CC_MORPH_TARGET_HAS_POSITION"] }, { "name": "cc_NormalDisplacements", "defines": ["CC_USE_MORPH", "CC_MORPH_TARGET_HAS_NORMAL"] }, { "name": "cc_TangentDisplacements", "defines": ["CC_USE_MORPH", "CC_MORPH_TARGET_HAS_TANGENT"] }, { "name": "cc_jointTexture", "defines": ["CC_USE_SKINNING", "CC_USE_BAKED_ANIMATION"] }] }
+        },
+        "defines": [
+          { "name": "USE_INSTANCING", "type": "boolean" },
+          { "name": "USE_BATCHING", "type": "boolean" },
+          { "name": "USE_LIGHTMAP", "type": "boolean" },
+          { "name": "CC_USE_MORPH", "type": "boolean" },
+          { "name": "CC_MORPH_TARGET_COUNT", "type": "number", "range": [2, 8] },
+          { "name": "CC_SUPPORT_FLOAT_TEXTURE", "type": "boolean" },
+          { "name": "CC_MORPH_PRECOMPUTED", "type": "boolean" },
+          { "name": "CC_MORPH_TARGET_HAS_POSITION", "type": "boolean" },
+          { "name": "CC_MORPH_TARGET_HAS_NORMAL", "type": "boolean" },
+          { "name": "CC_MORPH_TARGET_HAS_TANGENT", "type": "boolean" },
+          { "name": "CC_USE_SKINNING", "type": "boolean" },
+          { "name": "CC_USE_BAKED_ANIMATION", "type": "boolean" },
+          { "name": "CC_USE_HDR", "type": "boolean" }
+        ],
+        "blocks": [
+          {"name": "FragConstants", "defines": [], "binding": 0, "stageFlags": 1, "members": [
+            { "name": "lineColor", "type": 16, "count": 1 }
+          ]}
+        ],
+        "samplers": [],
+        "attributes": [
+          { "name": "a_matWorld0", "type": 16, "count": 1, "defines": ["USE_INSTANCING"], "stageFlags": 1, "format": 44, "isInstanced": true, "location": 6 },
+          { "name": "a_matWorld1", "type": 16, "count": 1, "defines": ["USE_INSTANCING"], "stageFlags": 1, "format": 44, "isInstanced": true, "location": 7 },
+          { "name": "a_matWorld2", "type": 16, "count": 1, "defines": ["USE_INSTANCING"], "stageFlags": 1, "format": 44, "isInstanced": true, "location": 8 },
+          { "name": "a_lightingMapUVParam", "type": 16, "count": 1, "defines": ["USE_INSTANCING", "USE_LIGHTMAP"], "stageFlags": 1, "format": 44, "isInstanced": true, "location": 9 },
+          { "name": "a_dyn_batch_id", "type": 13, "count": 1, "defines": ["!USE_INSTANCING", "USE_BATCHING"], "stageFlags": 1, "format": 11, "location": 10 },
+          { "name": "a_position", "type": 15, "count": 1, "defines": [], "stageFlags": 1, "format": 32, "location": 0 },
+          { "name": "a_normal", "type": 15, "count": 1, "defines": [], "stageFlags": 1, "format": 32, "location": 1 },
+          { "name": "a_texCoord", "type": 14, "count": 1, "defines": [], "stageFlags": 1, "format": 21, "location": 2 },
+          { "name": "a_tangent", "type": 16, "count": 1, "defines": [], "stageFlags": 1, "format": 44, "location": 3 },
+          { "name": "a_vertexId", "type": 13, "count": 1, "defines": ["CC_USE_MORPH"], "stageFlags": 1, "format": 11, "location": 11 },
+          { "name": "a_joints", "type": 12, "count": 1, "defines": ["CC_USE_SKINNING"], "stageFlags": 1, "format": 42, "location": 4 },
+          { "name": "a_weights", "type": 16, "count": 1, "defines": ["CC_USE_SKINNING"], "stageFlags": 1, "format": 44, "location": 5 },
+          { "name": "a_jointAnimInfo", "type": 16, "count": 1, "defines": ["CC_USE_SKINNING", "CC_USE_BAKED_ANIMATION", "USE_INSTANCING"], "stageFlags": 1, "format": 44, "isInstanced": true, "location": 12 }
+        ]
+      }
+    ]
+  },
+  {
     "name": "planar-shadow",
     "techniques": [
       { "passes": [{ "phase": "planarShadow", "blendState": { "targets": [{ "blend": true, "blendSrc": 2, "blendDst": 4, "blendDstAlpha": 4 }] }, "program": "planar-shadow|planar-shadow-vs:vert|planar-shadow-fs:frag", "depthStencilState": { "depthTest": true, "depthWrite": false, "stencilTestFront": true, "stencilFuncFront": 5, "stencilPassOpFront": 2, "stencilRefBack": 128, "stencilRefFront": 128, "stencilReadMaskBack": 128, "stencilReadMaskFront": 128, "stencilWriteMaskBack": 128, "stencilWriteMaskFront": 128 } }] }

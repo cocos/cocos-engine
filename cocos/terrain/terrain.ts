@@ -50,6 +50,7 @@ import { TerrainAsset, TerrainLayerInfo, TERRAIN_HEIGHT_BASE, TERRAIN_HEIGHT_FAC
     TERRAIN_BLOCK_TILE_COMPLEXITY, TERRAIN_BLOCK_VERTEX_SIZE, TERRAIN_BLOCK_VERTEX_COMPLEXITY,
     TERRAIN_MAX_LAYER_COUNT, TERRAIN_HEIGHT_FMIN, TERRAIN_HEIGHT_FMAX } from './terrain-asset';
 import { CCBoolean, CCInteger } from '../core';
+import { WireframeMode } from '../core/renderer/scene';
 
 const bbMin = new Vec3();
 const bbMax = new Vec3();
@@ -339,6 +340,10 @@ export class TerrainBlock {
         this._renderable = this._node.addComponent(TerrainRenderable);
     }
 
+    get renderable () {
+        return this._renderable;
+    }
+
     public build () {
         const gfxDevice = director.root!.device;
 
@@ -396,6 +401,7 @@ export class TerrainBlock {
 
         // reset material
         this._updateMaterial(true);
+        return vertexData;
     }
 
     public rebuild () {
@@ -822,6 +828,8 @@ export class Terrain extends Component {
     @disallowAnimation
     protected _usePBR = false;
 
+    protected _wireframeMode = WireframeMode.SHADED;
+
     protected _tileSize = 1;
     protected _blockCount: number[] = [1, 1];
     protected _weightMapSize = 128;
@@ -831,6 +839,7 @@ export class Terrain extends Component {
     protected _normals: number[] = [];
     protected _blocks: TerrainBlock[] = [];
     protected _sharedIndexBuffer: Buffer|null = null;
+    private _tempWireframeData: Uint16Array|null = null;
 
     constructor () {
         super();
@@ -860,6 +869,68 @@ export class Terrain extends Component {
 
     public get _asset () {
         return this.__asset;
+    }
+
+    set wireframeMode (val) {
+        this._wireframeMode = val;
+        this._updateWireframe();
+    }
+
+    /**
+     * @en Wireframe mode.
+     * @zh 线框开启方式。
+     */
+    @type(WireframeMode)
+    @disallowAnimation
+    get wireframeMode () {
+        return this._wireframeMode;
+    }
+
+    _updateWireframe () {
+        if (this._wireframeMode === WireframeMode.SHADED) {
+            this._tempWireframeData = null;
+            for (let i = 0; i < this._blocks.length; i++) {
+                if (this._blocks[i].renderable) {
+                    const submodels = this._blocks[i].renderable._model!.subModels;
+                    for (let j = 0; j < submodels.length; j++) {
+                        submodels[j].setWireframe(this._wireframeMode, null);
+                    }
+                }
+            }
+            return;
+        }
+        if (!this._tempWireframeData) {
+            this.onLoad();
+        }
+        const tempDatas = this._tempWireframeData;
+        const res: number[] = [];
+        const v_uint16Array = tempDatas as Uint16Array;
+        const len = v_uint16Array.length / 3;
+        let resBuffer = this._tempWireframeData;
+        if (len >= 1) {
+            for (let i = 0; i < len; i++) {
+                const a = tempDatas![i * 3 + 0];
+                const b = tempDatas![i * 3 + 1];
+                const c = tempDatas![i * 3 + 2];
+                res.push(a, b, b, c, c, a);
+            }
+            resBuffer = new Uint16Array(res);
+        }
+        const currIB = legacyCC.director.root.device.createBuffer(new BufferInfo(
+            BufferUsageBit.INDEX | BufferUsageBit.TRANSFER_DST,
+            MemoryUsageBit.DEVICE,
+            (resBuffer as ArrayBuffer).byteLength,
+            2,
+        ));
+        currIB.update(resBuffer);
+        for (let i = 0; i < this._blocks.length; i++) {
+            if (this._blocks[i].renderable) {
+                const submodels = this._blocks[i].renderable._model!.subModels;
+                for (let j = 0; j < submodels.length; j++) {
+                    submodels[j].setWireframe(this._wireframeMode, currIB);
+                }
+            }
+        }
     }
 
     /**
@@ -1102,6 +1173,7 @@ export class Terrain extends Component {
         for (let i = 0; i < this._blocks.length; ++i) {
             this._blocks[i].build();
         }
+        this._updateWireframe();
     }
 
     /**
@@ -1224,12 +1296,15 @@ export class Terrain extends Component {
             Uint16Array.BYTES_PER_ELEMENT,
         ));
         this._sharedIndexBuffer.update(indexData);
+        this._tempWireframeData = indexData;
+        this._updateWireframe();
     }
 
     public onEnable () {
         if (this._blocks.length === 0) {
             this._buildImp();
         }
+        this._updateWireframe();
     }
 
     public onDisable () {
@@ -1820,6 +1895,7 @@ export class Terrain extends Component {
         for (let i = 0; i < this._blocks.length; ++i) {
             this._blocks[i].build();
         }
+        this._updateWireframe();
     }
 
     private _rebuildHeights (info: TerrainInfo) {

@@ -49,7 +49,7 @@ import { Light } from '../../renderer/scene/light';
 import { genSamplerHash, samplerLib } from '../../renderer/core/sampler-lib';
 import { builtinResMgr } from '../../builtin';
 import { Texture2D } from '../../assets/texture-2d';
-import { Camera } from '../../renderer/scene';
+import { Camera, Wireframe } from '../../renderer/scene';
 
 const matShadowView = new Mat4();
 const matShadowViewProj = new Mat4();
@@ -114,6 +114,7 @@ export class ForwardPipeline extends RenderPipeline {
     public ambient: Ambient = new Ambient();
     public skybox: Skybox = new Skybox();
     public shadows: Shadows = new Shadows();
+    public wireframe: Wireframe = new Wireframe();
     /**
      * @en The list for render objects, only available after the scene culling of the current frame.
      * @zh 渲染对象数组，仅在当前帧的场景剔除完成后有效。
@@ -157,7 +158,7 @@ export class ForwardPipeline extends RenderPipeline {
             console.error('ForwardPipeline startup failed!');
             return false;
         }
-
+        this.wireframe.enabled = true;
         return true;
     }
 
@@ -448,6 +449,7 @@ export class ForwardPipeline extends RenderPipeline {
         this.skybox.destroy();
         this.fog.destroy();
         this.shadows.destroy();
+        this.wireframe.destroy();
 
         return super.destroy();
     }

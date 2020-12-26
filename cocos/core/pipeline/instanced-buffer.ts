@@ -41,6 +41,7 @@ export interface IInstancedItem {
     vb: Buffer;
     data: Uint8Array;
     ia: InputAssembler;
+    wireframeIa: InputAssembler;
     stride: number;
     hShader: ShaderHandle;
     hDescriptorSet: DescriptorSetHandle;
@@ -51,7 +52,6 @@ const INITIAL_CAPACITY = 32;
 const MAX_CAPACITY = 1024;
 
 export class InstancedBuffer {
-
     private static _buffers = new Map<Pass, Record<number, InstancedBuffer>>();
 
     public static get (pass: Pass, extraKey = 0) {
@@ -138,7 +138,8 @@ export class InstancedBuffer {
         vertexBuffers.push(vb);
         const iaInfo = new InputAssemblerInfo(attributes, vertexBuffers, indexBuffer);
         const ia = this._device.createInputAssembler(iaInfo);
-        this.instances.push({ count: 1, capacity: INITIAL_CAPACITY, vb, data, ia, stride, hShader, hDescriptorSet, lightingMap});
+        let wireframeIa;
+        this.instances.push({ count: 1, capacity: INITIAL_CAPACITY, vb, data, ia, wireframeIa, stride, hShader, hDescriptorSet, lightingMap });
         this.hasPendingModels = true;
     }
 

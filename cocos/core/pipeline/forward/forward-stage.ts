@@ -29,6 +29,7 @@
  */
 
 import { ccclass, displayOrder, type, serializable } from 'cc.decorator';
+import { EDITOR } from 'internal:constants';
 import { IRenderPass, SetIndex } from '../define';
 import { getPhaseID } from '../pass-phase';
 import { opaqueCompareFn, RenderQueue, transparentCompareFn } from '../render-queue';
@@ -48,7 +49,8 @@ import { ForwardPipeline } from './forward-pipeline';
 import { RenderQueueDesc, RenderQueueSortMode } from '../pipeline-serialization';
 import { PlanarShadowQueue } from './planar-shadow-queue';
 import { UIPhase } from './ui-phase';
-import { Camera } from '../../renderer/scene';
+import { Camera, WireframeMode } from '../../renderer/scene';
+import { WireframeQueue } from './wireframe-queue';
 
 const colors: Color[] = [new Color(0, 0, 0, 1)];
 
@@ -90,12 +92,14 @@ export class ForwardStage extends RenderStage {
     private declare _additiveLightQueue: RenderAdditiveLightQueue;
     private declare _planarQueue: PlanarShadowQueue;
     private declare _uiPhase: UIPhase;
+    private declare _wireframeQueue: WireframeQueue;
 
     constructor () {
         super();
         this._batchedQueue = new RenderBatchedQueue();
         this._instancedQueue = new RenderInstancedQueue();
         this._uiPhase = new UIPhase();
+        this._wireframeQueue = new WireframeQueue();
     }
 
     public initialize (info: IRenderStageInfo): boolean {
@@ -108,6 +112,7 @@ export class ForwardStage extends RenderStage {
 
     public activate (pipeline: ForwardPipeline, flow: ForwardFlow) {
         super.activate(pipeline, flow);
+        this._wireframeQueue.setPipeline(pipeline);
         for (let i = 0; i < this.renderQueues.length; i++) {
             let phase = 0;
             for (let j = 0; j < this.renderQueues[i].stages.length; j++) {
@@ -130,6 +135,11 @@ export class ForwardStage extends RenderStage {
                 phases: phase,
                 sortFunc,
             });
+            this._wireframeQueue.initRenderQueue({
+                isTransparent: false,
+                phases: phase,
+                sortFunc,
+            });
         }
 
         this._additiveLightQueue = new RenderAdditiveLightQueue(this._pipeline as ForwardPipeline);
@@ -143,6 +153,7 @@ export class ForwardStage extends RenderStage {
     public render (camera: Camera) {
         this._instancedQueue.clear();
         this._batchedQueue.clear();
+        this._wireframeQueue.clear();
         const pipeline = this._pipeline as ForwardPipeline;
         const device = pipeline.device;
         this._renderQueues.forEach(this.renderQueueClearFunc);
@@ -154,6 +165,7 @@ export class ForwardStage extends RenderStage {
             const subModels = ro.model.subModels;
             for (m = 0; m < subModels.length; ++m) {
                 const subModel = subModels[m];
+                const wireframeMode = subModel.wireframeMode;
                 const passes = subModel.passes;
                 for (p = 0; p < passes.length; ++p) {
                     const pass = passes[p];
@@ -162,14 +174,18 @@ export class ForwardStage extends RenderStage {
                     if (batchingScheme === BatchingSchemes.INSTANCING) {
                         const instancedBuffer = InstancedBuffer.get(pass);
                         instancedBuffer.merge(subModel, ro.model.instancedAttributes, p);
-                        this._instancedQueue.queue.add(instancedBuffer);
+                        if (wireframeMode !== WireframeMode.WIREFRAME || !EDITOR) this._instancedQueue.queue.add(instancedBuffer);
+                        if (wireframeMode !== WireframeMode.SHADED && EDITOR) this._wireframeQueue.addInstanced(instancedBuffer, subModel);
                     } else if (batchingScheme === BatchingSchemes.VB_MERGING) {
                         const batchedBuffer = BatchedBuffer.get(pass);
                         batchedBuffer.merge(subModel, p, ro.model);
-                        this._batchedQueue.queue.add(batchedBuffer);
+                        if ((wireframeMode !== WireframeMode.WIREFRAME || !EDITOR)) this._batchedQueue.queue.add(batchedBuffer);
+                        if (wireframeMode !== WireframeMode.SHADED && EDITOR) this._wireframeQueue.addBatched(batchedBuffer, subModel);
                     } else {
                         for (k = 0; k < this._renderQueues.length; k++) {
-                            this._renderQueues[k].insertRenderPass(ro, m, p);
+                            if (wireframeMode !== WireframeMode.WIREFRAME || !EDITOR) this._renderQueues[k].insertRenderPass(ro, m, p);
+                            if (k !== 0) this._renderQueues[k].insertRenderPass(ro, m, p);
+                            if (wireframeMode !== WireframeMode.SHADED && EDITOR && k === 0) this._wireframeQueue.insertRenderPass(ro, m, p);
                         }
                     }
                 }
@@ -223,6 +239,7 @@ export class ForwardStage extends RenderStage {
         this._batchedQueue.recordCommandBuffer(device, renderPass, cmdBuff);
         this._additiveLightQueue.recordCommandBuffer(device, renderPass, cmdBuff);
         this._planarQueue.recordCommandBuffer(device, renderPass, cmdBuff);
+        if (EDITOR) this._wireframeQueue.recordCommandBuffer(device, renderPass, cmdBuff);
         this._renderQueues[1].recordCommandBuffer(device, renderPass, cmdBuff);
         this._uiPhase.render(camera, renderPass);
 

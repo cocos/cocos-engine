@@ -43,6 +43,8 @@ import { RenderableComponent } from '../../core/components/renderable-component'
 import { MorphRenderingInstance } from '../assets/morph';
 import { legacyCC } from '../../core/global-exports';
 import { assertIsTrue } from '../../core/data/utils/asserts';
+import { WireframeMode } from '../../core/renderer/scene';
+import { BufferInfo, BufferUsageBit, MemoryUsageBit } from '../../core/gfx';
 
 /**
  * @en Shadow projection mode.
@@ -89,13 +91,13 @@ class ModelLightmapSettings {
     @serializable
     public uvParam: Vec4 = new Vec4();
     @serializable
-    protected _bakeable: boolean = false;
+    protected _bakeable = false;
     @serializable
-    protected _castShadow: boolean = false;
+    protected _castShadow = false;
     @formerlySerializedAs('_recieveShadow')
-    protected _receiveShadow: boolean = false;
+    protected _receiveShadow = false;
     @serializable
-    protected _lightmapSize: number = 64;
+    protected _lightmapSize = 64;
 
     /**
      * @en bakeable.
@@ -177,6 +179,7 @@ export class MeshRenderer extends RenderableComponent {
     @serializable
     protected _shadowReceivingMode = ModelShadowReceivingMode.ON;
 
+    protected _wireframeMode = WireframeMode.SHADED;
     /**
      * @en Shadow projection mode.
      * @zh 阴影投射方式。
@@ -191,6 +194,73 @@ export class MeshRenderer extends RenderableComponent {
     set shadowCastingMode (val) {
         this._shadowCastingMode = val;
         this._updateCastShadow();
+    }
+
+    set wireframeMode (val) {
+        this._wireframeMode = val;
+        this._updateWireframe();
+    }
+
+    /**
+     * @en Wireframe mode.
+     * @zh 线框开启方式。
+     */
+    @type(WireframeMode)
+    @disallowAnimation
+    get wireframeMode () {
+        return this._wireframeMode;
+    }
+
+    protected _updateWireframe () {
+        if (!this._model) { return; }
+        let verts: Uint8Array[] | undefined = [];
+        let idxs: any = [];
+        const renderSubMeshs = this.mesh!.renderingSubMeshes;
+        if (this.wireframeMode !== WireframeMode.SHADED) {
+            const verBufferSrc: ArrayBuffer | SharedArrayBuffer = this.mesh!.data.buffer;
+            verts = this.mesh?.struct.vertexBundles.map((vertexBundle) => {
+                const view = new Uint8Array(verBufferSrc, vertexBundle.view.offset, vertexBundle.view.length);
+                return view;
+            });
+            for (let i = 0; i < this.mesh!.struct.primitives.length; i++) {
+                const prim = this.mesh!.struct.primitives[i];
+                if (prim.vertexBundelIndices.length === 0) {
+                    continue;
+                }
+                for (let j = 0; j < renderSubMeshs.length; j++) {
+                    idxs = this.mesh?.readIndices(renderSubMeshs[j].subMeshIdx!);
+                    let resBuffer = idxs;
+                    if (idxs) {
+                        const res: number[] = [];
+                        const v_uint16Array = idxs as Uint16Array;
+                        const len = v_uint16Array.length / 3;
+                        if (len >= 1) {
+                            for (let i = 0; i < len; i++) {
+                                const a = idxs[i * 3 + 0];
+                                const b = idxs[i * 3 + 1];
+                                const c = idxs[i * 3 + 2];
+                                res.push(a, b, b, c, c, a);
+                            }
+                            resBuffer = new Uint16Array(res);
+                        }
+                    }
+                    const currIB = legacyCC.director.root.device.createBuffer(new BufferInfo(
+                        BufferUsageBit.INDEX | BufferUsageBit.TRANSFER_DST,
+                        MemoryUsageBit.DEVICE,
+                        (resBuffer as ArrayBuffer).byteLength,
+                        2,
+                    ));
+                    currIB.update(resBuffer);
+                    const currSubModel = this.model!.subModels[j]!;
+                    currSubModel.setWireframe(this.wireframeMode, currIB);
+                }
+            }
+        } else {
+            for (let j = 0; j < renderSubMeshs.length; j++) {
+                const currSubModel = this.model!.subModels[j]!;
+                currSubModel.setWireframe(this.wireframeMode, null);
+            }
+        }
     }
 
     /**
@@ -222,10 +292,11 @@ export class MeshRenderer extends RenderableComponent {
     set mesh (val) {
         const old = this._mesh;
         this._mesh = val;
-        this._mesh?.initialize();
+        this._mesh!.initialize();
         this._watchMorphInMesh();
         this._onMeshChanged(old);
         this._updateModels();
+        this._updateWireframe();
         if (this.enabledInHierarchy) {
             this._attachToScene();
         }
@@ -237,9 +308,9 @@ export class MeshRenderer extends RenderableComponent {
 
     @visible(function (this: MeshRenderer) {
         return !!(
-            this.mesh &&
-            this.mesh.struct.morph &&
-            this.mesh.struct.morph.subMeshMorphs.some((subMeshMorph) => !!subMeshMorph)
+            this.mesh
+            && this.mesh.struct.morph
+            && this.mesh.struct.morph.subMeshMorphs.some((subMeshMorph) => !!subMeshMorph)
         );
     })
     @disallowAnimation
@@ -269,6 +340,7 @@ export class MeshRenderer extends RenderableComponent {
         this._mesh?.initialize();
         this._watchMorphInMesh();
         this._updateModels();
+        this._updateWireframe();
         this._updateCastShadow();
         this._updateReceiveShadow();
     }
@@ -276,6 +348,7 @@ export class MeshRenderer extends RenderableComponent {
     // Redo, Undo, Prefab restore, etc.
     public onRestore () {
         this._updateModels();
+        this._updateWireframe();
         this._updateCastShadow();
         this._updateReceiveShadow();
     }
@@ -284,6 +357,7 @@ export class MeshRenderer extends RenderableComponent {
         if (!this._model) {
             this._updateModels();
         }
+        this._updateWireframe();
         this._attachToScene();
     }
 
@@ -501,9 +575,9 @@ export class MeshRenderer extends RenderableComponent {
             return;
         }
 
-        if (!this._mesh ||
-            !this._mesh.struct.morph ||
-            !this._mesh.morphRendering) {
+        if (!this._mesh
+            || !this._mesh.struct.morph
+            || !this._mesh.morphRendering) {
             return;
         }
 
@@ -516,9 +590,9 @@ export class MeshRenderer extends RenderableComponent {
                 continue;
             }
             const initialWeights = subMeshMorph.weights || morph.weights;
-            const weights = initialWeights ?
-                initialWeights.slice() :
-                new Array<number>(subMeshMorph.targets.length).fill(0);
+            const weights = initialWeights
+                ? initialWeights.slice()
+                : new Array<number>(subMeshMorph.targets.length).fill(0);
             this._morphInstance.setWeights(iSubMesh, weights);
         }
 

@@ -6,7 +6,7 @@ CCEffect %{
     - vert: wireframe-vs:vert
       frag: wireframe-fs:frag
       properties:
-        lineColor: { value: [1, 1, 1, 1] }
+        lineColor: { value: [1, 1, 1, 1], editor: { type: color } }
 }%
 
 CCProgram wireframe-vs %{
@@ -15,7 +15,7 @@ CCProgram wireframe-vs %{
     #include <cc-local-batch>
     #include <input>
 
-    uniform TexCoords {
+    uniform FragConstants {
         vec4 lineColor;
     };
 
