@@ -23,8 +23,8 @@
  THE SOFTWARE.
  */
 
-import {legacyCC} from "../core/global-exports";
-import {WebViewImplWeb} from "./web-view-impl-web";
+import { legacyCC } from '../core/global-exports';
+import { WebViewImplWeb } from './web-view-impl-web';
 
 export class WebViewImplManager {
     // default web
