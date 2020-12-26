@@ -1446,67 +1446,42 @@ if(APPLE)
     target_include_directories(cocos2d PUBLIC
         ${CWD}/cocos/platform/ios
     )
-    find_library(ICONV_LIBRARY iconv)
-    find_library(AUDIOTOOLBOX_LIBRARY AudioToolbox)
-    find_library(FOUNDATION_LIBRARY Foundation)
-    find_library(OPENAL_LIBRARY OpenAL)
-    find_library(GAMECONTROLLER_LIBRARY GameController)
-    find_library(METAL_LIBRARY Metal)
-    find_library(METALLIT_LIBRARY MetalKit)
-    find_library(SQLITE3_LIBRARY SQLite3)
-    find_library(SECURITY_LIBRARY Security)
-    find_library(SystemConfiguration_LIBRARY SystemConfiguration)
     target_link_libraries(cocos2d PUBLIC
-        ${ICONV_LIBRARY}
-        ${AUDIOTOOLBOX_LIBRARY}
-        ${FOUNDATION_LIBRARY}
-        ${OPENAL_LIBRARY}
-        ${GAMECONTROLLER_LIBRARY}
-        ${METAL_LIBRARY}
-        ${METALLIT_LIBRARY}
-        ${SQLITE3_LIBRARY}
-        ${SECURITY_LIBRARY}
-        ${SystemConfiguration_LIBRARY}
+        "-liconv"
+        "-framework AudioToolbox"
+        "-framework Foundation"
+        "-framework OpenAL"
+        "-framework GameController"
+        "-framework Metal"
+        "-framework MetalKit"
+        "-lSQLite3"
+        "-framework Security"
+        "-framework SystemConfiguration"
         ${CC_EXTERNAL_LIBS}
     )
     if(MACOSX)
-        find_library(OPENGL_LIBRARY OpenGL)
-        find_library(APPKIT_LIBRARY AppKit)
         target_link_libraries(cocos2d PUBLIC
-            ${OPENGL_LIBRARY}
-            ${APPKIT_LIBRARY}
+            "-framework OpenGL"
+            "-framework AppKit"
         )
         target_compile_definitions(cocos2d PUBLIC
             CC_KEYBOARD_SUPPORT
             )
     elseif(IOS)
-        find_library(QUARTZCORE_LIBRARY QuartzCore)
-        find_library(UIKIT_LIBRARY UIKit)
-        find_library(AVKIT_LIBRARY AVKit)
-        find_library(WebKit_LIBRARY WebKit)
-        find_library(CORE_MOTION_LIBRARY CoreMotion)
-        find_library(CFNETWORK_LIBRARY CFNetwork)
-        find_library(CORE_MEDIA_LIBRARY CoreMedia)
-        find_library(CORE_TEXT_LIBRARY CoreText)
-        find_library(CORE_GRAPHICS_LIBRARY CoreGraphics)
-        find_library(AV_FOUNDATION_LIBRARY AVFoundation)
-        find_library(ZLIB_LIBRARY z)
-        find_library(OPENGLES_LIBRARY OpenGLES)
-        find_library(JAVASCRIPTCORE_LIBRARY JavaScriptCore)
         target_link_libraries(cocos2d PUBLIC
-            ${QUARTZCORE_LIBRARY}
-            ${UIKIT_LIBRARY}
-            ${CFNETWORK_LIBRARY}
-            ${ZLIB_LIBRARY}
-            ${CORE_GRAPHICS_LIBRARY}
-            ${AV_FOUNDATION_LIBRARY}
-            ${CORE_TEXT_LIBRARY}
-            ${CORE_MOTION_LIBRARY}
-            ${OPENGLES_LIBRARY}
-            ${JAVASCRIPTCORE_LIBRARY}
-            ${CORE_MEDIA_LIBRARY}
-            ${AVKIT_LIBRARY}
-            ${WebKit_LIBRARY}
+            "-framework QuartzCore"
+            "-framework UIKit"
+            "-framework AVKit"
+            "-framework WebKit"
+            "-framework CoreMotion"
+            "-framework CFNetwork"
+            "-framework CoreMedia"
+            "-framework CoreText"
+            "-framework CoreGraphics"
+            "-framework AVFoundation"
+            "-lz"
+            "-framework OpenGLES"
+            "-framework JavaScriptCore"
         )
         set_property(TARGET cocos2d PROPERTY XCODE_ATTRIBUTE_IPHONEOS_DEPLOYMENT_TARGET ${TARGET_IOS_VERSION})
         set_property(TARGET cocos2d PROPERTY XCODE_ATTRIBUTE_ENABLE_BITCODE "NO")

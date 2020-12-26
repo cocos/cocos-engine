@@ -31,11 +31,7 @@ endif()
 set(DEVELOPMENT_TEAM "" CACHE STRING "APPLE Developtment Team")
 set(RES_DIR "" CACHE STRING          "Resource path")
 
-if(CMAKE_OSX_SYSROOT STREQUAL "iphonesimulator")
-    set(TARGET_IOS_VERSION "9.0")
-else()
-    set(TARGET_IOS_VERSION "8.0")
-endif()
+set(TARGET_IOS_VERSION "9.0")
 set(TARGET_OSX_VERSION "10.10")
 
 if(RES_DIR)
@@ -230,7 +226,11 @@ if(APPLE)
 
         target_include_directories(${LIB_NAME} PRIVATE ${PROJ_SRC_DIR}/service )
 
-        set_target_properties(${LIB_NAME} PROPERTIES MACOSX_BUNDLE_INFO_PLIST "${PROJ_SRC_DIR}/Info.plist")
+        set_target_properties(${LIB_NAME} PROPERTIES 
+            MACOSX_BUNDLE_INFO_PLIST "${PROJ_SRC_DIR}/Info.plist"
+            IOS_INSTALL_COMBINED YES
+            OSX_ARCHITECTURES "arm64;x86_64"
+        )
         set_property(TARGET ${LIB_NAME} PROPERTY XCODE_ATTRIBUTE_DEVELOPMENT_TEAM "${DEVELOPMENT_TEAM}")
         set_property(TARGET ${LIB_NAME} PROPERTY XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY "iPhone Developer")
         set_property(TARGET ${LIB_NAME} PROPERTY XCODE_ATTRIBUTE_ASSETCATALOG_COMPILER_APPICON_NAME "AppIcon")
