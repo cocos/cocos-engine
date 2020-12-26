@@ -43,6 +43,7 @@ export class SubModel {
     protected _inputAssembler: InputAssembler | null = null;
     protected _descriptorSet: DescriptorSet | null = null;
     protected _wireframeMode: WireframeMode = WireframeMode.SHADED;
+    // Since some submodels don’t have mesh, it’s implemented this way first, and if there is a need to modify later, make changes
     protected _wireframeIa: InputAssembler | null = null;
 
     setWireframe (val: WireframeMode, buffer: Buffer|null) {
