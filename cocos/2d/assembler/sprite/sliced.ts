@@ -34,6 +34,7 @@ import { IRenderData, RenderData } from '../../renderer/render-data';
 import { UI } from '../../renderer/ui';
 import { Sprite } from '../../components';
 import { IAssembler } from '../../renderer/base';
+import { dynamicAtlasManager } from '../../utils/dynamic-atlas/atlas-manager';
 
 const vec3_temp = new Vec3();
 const matrix = new Mat4();
@@ -69,6 +70,7 @@ export const sliced: IAssembler = {
         //         sprite._activateMaterial();
         //     }
         // }
+        dynamicAtlasManager.packToDynamicAtlas(sprite, frame);
 
         const renderData = sprite.renderData;
         if (renderData && frame) {

@@ -35,6 +35,7 @@ import { UI } from '../../renderer/ui';
 import { Sprite } from '../../components';
 import { IAssembler } from '../../renderer/base';
 import { fillVertices3D } from '../utils';
+import { dynamicAtlasManager } from '../../utils/dynamic-atlas/atlas-manager';
 
 const PI_2 = Math.PI * 2;
 const EPSILON = 1e-6;
@@ -256,6 +257,8 @@ export const radialFilled: IAssembler = {
         //         sprite._activateMaterial();
         //     }
         // }
+
+        dynamicAtlasManager.packToDynamicAtlas(sprite, frame);
 
         const renderData = sprite.renderData;
         if (renderData && frame) {

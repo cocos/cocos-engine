@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import fs from 'fs-extra';
 import ps from 'path';
 import * as babel from '@babel/core';
@@ -18,17 +19,19 @@ import rpProgress from 'rollup-plugin-progress';
 import rpVirtual from '@rollup/plugin-virtual';
 import nodeResolve from 'resolve';
 import babelPluginDynamicImportVars from '@cocos/babel-plugin-dynamic-import-vars';
+import realFs from 'fs';
+import { URL, pathToFileURL, fileURLToPath } from 'url';
 import { ModuleOption, enumerateModuleOptionReps, parseModuleOption } from './module-option';
 import tsConfigPaths from './ts-paths';
 import { getPlatformConstantNames, IBuildTimeConstants } from './build-time-constants';
 import removeDeprecatedFeatures from './remove-deprecated-features';
-import realFs from 'fs';
 import { StatsQuery } from './stats-query';
 import { filePathToModuleRequest } from './utils';
+import { assetRef as rpAssetRef, pathToAssetRefURL } from './rollup-plugins/asset-ref';
 
 export { ModuleOption, enumerateModuleOptionReps, parseModuleOption };
 
-function equalPathIgnoreDriverLetterCase(lhs: string, rhs: string) {
+function equalPathIgnoreDriverLetterCase (lhs: string, rhs: string) {
     if (lhs.length !== rhs.length) {
         return false;
     }
@@ -51,11 +54,12 @@ function makePathEqualityKey (path: string) {
 
 async function build (options: build.Options) {
     console.debug(`Build-engine options: ${JSON.stringify(options, undefined, 2)}`);
-    return await _doBuild({
+    return doBuild({
         options,
     });
 }
 
+// eslint-disable-next-line @typescript-eslint/no-namespace
 namespace build {
     export interface Options {
         /**
@@ -144,6 +148,11 @@ namespace build {
          */
         loose?: boolean;
 
+        /**
+         * How to generate the URL of external assets.
+         */
+        assetURLFormat?: rpAssetRef.Format;
+
         visualize?: boolean | {
             file?: string;
         };
@@ -166,7 +175,7 @@ namespace build {
         dependencyGraph?: Record<string, string[]>;
     }
 
-    export async function transform(code: string, moduleOption: ModuleOption, loose?: boolean) {
+    export async function transform (code: string, moduleOption: ModuleOption, loose?: boolean) {
         const babelFormat = moduleOptionsToBabelEnvModules(moduleOption);
         const babelFileResult = await babel.transformAsync(code, {
             presets: [[babelPresetEnv, { modules: babelFormat, loose: loose ?? true } as babelPresetEnv.Options]],
@@ -182,18 +191,18 @@ namespace build {
 
 export { build };
 
-async function _doBuild ({
+async function doBuild ({
     options,
 }: {
     options: build.Options;
 }): Promise<build.Result> {
     const realpath = typeof realFs.realpath.native === 'function' ? realFs.realpath.native : realFs.realpath;
     const realPath = (file: string) => new Promise<string>((resolve, reject) => {
-        realpath(file, function (err, path) {
+        realpath(file, (err, path) => {
             if (err && err.code !== 'ENOENT') {
                 reject(err);
             } else {
-                resolve(err ? file : path)
+                resolve(err ? file : path);
             }
         });
     });
@@ -230,8 +239,8 @@ async function _doBuild ({
         if (split !== true) {
             split = true;
             console.warn(
-                `You did not specify features which implies 'split: true'. ` +
-                `Explicitly set 'split: true' to suppress this warning.`
+                `You did not specify features which implies 'split: true'. `
+                + `Explicitly set 'split: true' to suppress this warning.`,
             );
         }
     }
@@ -239,7 +248,7 @@ async function _doBuild ({
     const moduleOverrides = Object.entries(statsQuery.evaluateModuleOverrides({
         mode: options.mode,
         platform: options.platform,
-    })).reduce((result, [k ,v]) => {
+    })).reduce((result, [k, v]) => {
         result[makePathEqualityKey(k)] = v;
         return result;
     }, {} as Record<string, string>);
@@ -347,6 +356,10 @@ async function _doBuild ({
     }
 
     rollupPlugins.push(
+        rpAssetRef({
+            format: options.assetURLFormat,
+        }),
+
         {
             name: '@cocos/build-engine|module-overrides',
             load (this, id: string) {
@@ -444,8 +457,10 @@ async function _doBuild ({
 
     const ammoJsAsmJsModule = await nodeResolveAsync('@cocos/ammo/builds/ammo.js');
     const ammoJsWasmModule = await nodeResolveAsync('@cocos/ammo/builds/ammo.wasm.js');
+    const wasmBinaryPath = ps.join(ammoJsWasmModule, '..', 'ammo.wasm.wasm');
     if (ammoJsWasm === 'fallback') {
         rpVirtualOptions['@cocos/ammo'] = `
+import wasmBinaryURL from '${pathToAssetRefURL(wasmBinaryPath)}';
 let ammo;
 let isWasm = false;
 if (typeof WebAssembly === 'undefined') {
@@ -455,14 +470,15 @@ if (typeof WebAssembly === 'undefined') {
     isWasm = true;
 }
 export default ammo.default;
-export { isWasm };
+export { isWasm, wasmBinaryURL };
 `;
     } else if (ammoJsWasm === true) {
         rpVirtualOptions['@cocos/ammo'] = `
+import wasmBinaryURL from '${pathToAssetRefURL(wasmBinaryPath)}';
 import Ammo from '${filePathToModuleRequest(ammoJsWasmModule)}';
 export default Ammo;
 const isWasm = true;
-export { isWasm };
+export { isWasm, wasmBinaryURL };
 `;
     }
 
@@ -514,26 +530,6 @@ export { isWasm };
 
     Object.assign(result.exports, validEntryChunks);
 
-    // // 构造模块 `"cc"`
-    // let ccModuleRequests: string[] | undefined;
-    // if (options.cc === 'bare') {
-    //     ccModuleRequests = [];
-    //     ccModuleRequests.push(...Object.keys(validEntryChunks));
-    // } else if (options.cc === 'unmapped') {
-    //     ccModuleRequests = [];
-    //     ccModuleRequests.push(...Object.values(validEntryChunks).map(fileName => `./${fileName}`));
-    // }
-    // if (ccModuleRequests !== undefined) {
-    //     let code = await makeModuleSourceCC(ccModuleRequests, moduleOption);
-    //     if (options.compress) {
-    //         code = terser.minify(code).code!;
-    //     }
-    //     const moduleCCFileName = 'cc.js';
-    //     await fs.ensureDir(options.out);
-    //     await fs.writeFile(ps.join(options.out, moduleCCFileName), code);
-    //     result.exports['cc'] = moduleCCFileName;
-    // }
-
     result.dependencyGraph = {};
     for (const output of rollupOutput.output) {
         if (output.type === 'chunk') {
@@ -541,21 +537,7 @@ export { isWasm };
         }
     }
 
-    if (ammoJsWasm === 'fallback' || ammoJsWasm === true) {
-        await fs.copy(
-            ps.join(ammoJsWasmModule, '..', 'ammo.wasm.wasm'),
-            ps.join(options.out, 'ammo.wasm.wasm'),
-        );
-    }
-
     return result;
-
-    async function copy (src: string) {
-        const rel = ps.relative(options.engine, src);
-        const target = ps.join(options.out, rel);
-        await fs.ensureDir(ps.dirname(target));
-        await fs.copy(src, target);
-    }
 
     async function nodeResolveAsync (specifier: string) {
         return new Promise<string>((r, reject) => {
@@ -578,6 +560,7 @@ function moduleOptionsToRollupFormat (moduleOptions: ModuleOption): rollup.Modul
     case ModuleOption.esm: return 'esm';
     case ModuleOption.system: return 'system';
     case ModuleOption.iife: return 'iife';
+    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
     default: throw new Error(`Unknown module format ${moduleOptions}`);
     }
 }
@@ -588,14 +571,14 @@ function moduleOptionsToBabelEnvModules (moduleOptions: ModuleOption):
 | 'amd'
 | 'umd'
 | 'systemjs'
-| 'auto'
-{
+| 'auto' {
     switch (moduleOptions) {
-        case ModuleOption.cjs: return 'commonjs';
-        case ModuleOption.system: return 'systemjs';
-        case ModuleOption.iife:
-        case ModuleOption.esm: return false;
-        default: throw new Error(`Unknown module format ${moduleOptions}`);
+    case ModuleOption.cjs: return 'commonjs';
+    case ModuleOption.system: return 'systemjs';
+    case ModuleOption.iife:
+    case ModuleOption.esm: return false;
+    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+    default: throw new Error(`Unknown module format ${moduleOptions}`);
     }
 }
 
