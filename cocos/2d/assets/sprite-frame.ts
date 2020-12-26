@@ -41,6 +41,7 @@ import { legacyCC } from '../../core/global-exports';
 import { ImageAsset, ImageSource } from '../../core/assets/image-asset';
 import { Texture2D } from '../../core/assets/texture-2d';
 import { errorID } from '../../core/platform/debug';
+import { dynamicAtlasManager } from '../utils/dynamic-atlas/atlas-manager';
 
 const INSET_LEFT = 0;
 const INSET_TOP = 1;
@@ -74,6 +75,7 @@ interface ISpriteFramesSerializeData{
     capInsets: number[];
     vertices: IVertices;
     texture: string;
+    packable: boolean;
 }
 
 interface ISpriteFrameOriginal {
@@ -470,6 +472,17 @@ export class SpriteFrame extends Asset {
         this._calculateUV();
     }
 
+    get packable () {
+        return this._packable;
+    }
+    set packable (value: boolean) {
+        this._packable = value;
+    }
+
+    get original () {
+        return this._original;
+    }
+
     /**
      * @en Vertex list for the mesh type sprite frame
      * @zh 网格类型精灵帧的所有顶点列表
@@ -511,6 +524,15 @@ export class SpriteFrame extends Asset {
     protected _isFlipUVY = false;
 
     protected _isFlipUVX = false;
+
+    // store original info before packed to dynamic atlas
+    protected _original : {
+        _texture: TextureBase | RenderTexture,
+        _x: number,
+        _y: number,
+    } | null = null;
+
+    protected _packable = true;
 
     constructor () {
         super();
@@ -766,6 +788,9 @@ export class SpriteFrame extends Asset {
     }
 
     public destroy () {
+        if (this._packable && dynamicAtlasManager) {
+            dynamicAtlasManager.deleteAtlasSpriteFrame(this);
+        }
         return super.destroy();
     }
 
@@ -1070,6 +1095,53 @@ export class SpriteFrame extends Asset {
         this._calculateSlicedUV();
     }
 
+    public _setDynamicAtlasFrame (frame) {
+        if (!frame) return;
+
+        this._original = {
+            _texture: this._texture,
+            _x: this._rect.x,
+            _y: this._rect.y,
+        };
+
+        this._texture = frame.texture;
+        this._rect.x = frame.x;
+        this._rect.y = frame.y;
+        this._calculateUV();
+    }
+
+    public _resetDynamicAtlasFrame () {
+        if (!this._original) return;
+        this._rect.x = this._original._x;
+        this._rect.y = this._original._y;
+        this._texture = this._original._texture;
+        this._original = null;
+        this._calculateUV();
+    }
+
+    public _checkPackable () {
+        const dynamicAtlas = dynamicAtlasManager;
+        if (!dynamicAtlas) return;
+        const texture = this._texture;
+
+        if (!(texture instanceof Texture2D) || texture.isCompressed) {
+            this._packable = false;
+            return;
+        }
+
+        const w = this.width;
+        const h = this.height;
+        if (!texture.image
+            || w > dynamicAtlas.maxFrameSize || h > dynamicAtlas.maxFrameSize) {
+            this._packable = false;
+            return;
+        }
+
+        if (texture.image && texture.image instanceof HTMLCanvasElement) {
+            this._packable = true;
+        }
+    }
+
     // SERIALIZATION
     public _serialize (ctxForExporting: any): any {
         if (EDITOR || TEST) {
@@ -1105,6 +1177,7 @@ export class SpriteFrame extends Asset {
                 capInsets: this._capInsets,
                 vertices,
                 texture,
+                packable: this._packable,
             };
 
             // 为 underfined 的数据则不在序列化文件里显示
@@ -1130,6 +1203,7 @@ export class SpriteFrame extends Asset {
         }
         this._rotated = !!data.rotated;
         this._name = data.name;
+        this._packable = !!data.packable;
 
         const capInsets = data.capInsets;
         if (capInsets) {
@@ -1172,13 +1246,13 @@ export class SpriteFrame extends Asset {
         } : null as any;
         sp.uv.splice(0, sp.uv.length, ...this.uv);
         sp.uvHash = this.uvHash;
-        sp.unbiasUV.splice(0, sp.unbiasUV.length, ... this.unbiasUV);
-        sp.uvSliced.splice(0, sp.uvSliced.length, ... this.uvSliced);
+        sp.unbiasUV.splice(0, sp.unbiasUV.length, ...this.unbiasUV);
+        sp.uvSliced.splice(0, sp.uvSliced.length, ...this.uvSliced);
         sp._rect.set(this._rect);
         sp._offset.set(this._offset);
         sp._originalSize.set(this._originalSize);
         sp._rotated = this._rotated;
-        sp._capInsets.splice(0, sp._capInsets.length, ... this._capInsets);
+        sp._capInsets.splice(0, sp._capInsets.length, ...this._capInsets);
         sp._atlasUuid = this._atlasUuid;
         sp._texture = this._texture;
         sp._isFlipUVX = this._isFlipUVX;
@@ -1208,6 +1282,8 @@ export class SpriteFrame extends Asset {
             this.reset(config);
             this.onLoaded();
         }
+
+        this._checkPackable();
     }
 
     protected _refreshTexture (texture: TextureBase | RenderTexture) {

@@ -38,5 +38,5 @@ foreach ($file in $diffFiles.Split('\n')) {
         continue
     }
     Write-Host "ESLint check $file"
-    npx eslint -c ./.eslintrc.yaml $file
+    npx eslint $file
 }

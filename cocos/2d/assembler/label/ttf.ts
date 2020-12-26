@@ -142,6 +142,29 @@ export const ttf: IAssembler = {
         data[3].x = width - appX;
         data[3].y = height - appY;
     },
+
+    updateUvs (comp: Label) {
+        const renderData = comp.renderData;
+        if (!renderData) {
+            return;
+        }
+        const vData = renderData.vData!;
+        if (!vData || !renderData.uvDirty) {
+            return;
+        }
+
+        const uv = comp.ttfSpriteFrame!.uv;
+        vData[3] = uv[0];
+        vData[4] = uv[1];
+        vData[12] = uv[2];
+        vData[13] = uv[3];
+        vData[21] = uv[4];
+        vData[22] = uv[5];
+        vData[30] = uv[6];
+        vData[31] = uv[7];
+
+        renderData.uvDirty = false;
+    },
 };
 
 js.addon(ttf, ttfUtils);

@@ -35,6 +35,7 @@ import { Rect, Size, Vec2 } from '../../../core/math';
 import { HorizontalTextAlignment, VerticalTextAlignment, Label, Overflow } from '../../components/label';
 import { UITransform } from '../../framework/ui-transform';
 import { shareLabelInfo } from './font-utils';
+import { dynamicAtlasManager } from '../../utils/dynamic-atlas/atlas-manager';
 
 class LetterInfo {
     public char = '';
@@ -115,6 +116,8 @@ export const bmfontUtils = {
         _spriteFrame = fontAsset.spriteFrame;
         _fntConfig = fontAsset.fntConfig;
         shareLabelInfo.fontAtlas = fontAsset.fontDefDictionary;
+
+        dynamicAtlasManager.packToDynamicAtlas(comp, _spriteFrame);
     },
 
     _updateLabelInfo (comp) {
