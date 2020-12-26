@@ -18,7 +18,8 @@ void UIPhase::render(Camera *camera, gfx::RenderPass *renderPass){
     auto batches = camera->getScene()->getUIBatches();
     const auto vis = camera->visibility & static_cast<uint>(LayerList::UI_2D);
     const int batchCount = batches[0];
-    for (int i = 1; i < batchCount; ++i) {
+    // Notice: The batches[0] is batchCount
+    for (int i = 1; i <= batchCount; ++i) {
         const auto batch = GET_UI_BATCH(batches[i]);
         bool visible = false;
         if (vis) {
