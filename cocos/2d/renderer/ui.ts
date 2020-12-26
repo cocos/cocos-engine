@@ -745,7 +745,10 @@ export class UI {
     }
 
     private _screenSort (a: Canvas, b: Canvas) {
-        const delta = a.priority - b.priority;
+        let delta = 0;
+        if (a.camera && b.camera) {
+            delta = a.camera.priority - b.camera.priority;
+        }
         return delta === 0 ? a.node.getSiblingIndex() - b.node.getSiblingIndex() : delta;
     }
 
