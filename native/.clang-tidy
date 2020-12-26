@@ -1,0 +1,57 @@
+Checks: >
+  -*,
+  readability-*,
+  performance-*,
+  modernize-*,
+  misc-*,
+  portability-*,
+  cppcoreguidelines-*,
+  google-explicit-constructor,
+  -modernize-use-trailing-return-type,
+  -fuchsia-trailing-return
+
+
+CheckOptions:
+################## readability identifier naming ################################
+# class
+  - key:      readability-identifier-naming.ClassCase
+    value:    CamelCase
+  - key:      readability-identifier-naming.ClassMemberCase
+    value:    camelBack
+  - key:      readability-identifier-naming.ClassMemberPrefix
+    value:    _
+  - key:      readability-identifier-naming.ClassMethodCase
+    value:    camelBack
+  - key:      readability-identifier-naming.ClassConstantCase
+    value:    UPPER_CASE
+  - key:      readability-identifier-naming.ClassConstantCasePrefix
+    value:    _
+# enum
+  - key:      readability-identifier-naming.EnumCase
+    value:    CamelCase
+  - key:      readability-identifier-naming.ScopedEnumConstantCase
+    value:    UPPER_CASE
+  - key:      readability-identifier-naming.EnumConstantCase
+    value:    UPPER_CASE
+# others
+  - key:      readability-identifier-naming.FunctionCase
+    value:    camelBack
+  - key:      readability-identifier-naming.ConstantCase
+    value:    UPPER_CASE
+  - key:      readability-identifier-naming.GlobalConstantCase
+    value:    UPPER_CASE
+  - key:      readability-identifier-naming.LocalConstantCase
+    value:    camelBack
+  - key:      readability-identifier-naming.LocalVariableCase
+    value:    camelBack
+  - key:      readability-identifier-naming.MacroDefinitionCase
+    value:    UPPER_CASE
+  - key:      readability-identifier-naming.ParameterCase
+    value:    camelBack
+  - key:      readability-identifier-naming.StaticConstantCase
+    value:    UPPER_CASE
+  - key:      readability-identifier-naming.VariableCase
+    value:    camelBack
+  - key:      readability-identifier-naming.StructCase
+    value:    CamelBack
+
