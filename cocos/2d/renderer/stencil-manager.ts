@@ -27,10 +27,9 @@
  * @hidden
  */
 
-import { UIRenderable } from '../framework';
-import { Material } from '../../core/assets/material';
 import { ComparisonFunc, StencilOp } from '../../core/gfx/define';
-import { Pass } from '../../core/renderer/core/pass';
+import { Mask } from '../components/mask';
+import { DepthStencilState } from '../../core/gfx/pipeline-state';
 
 // Stage types
 export enum Stage {
@@ -44,12 +43,15 @@ export enum Stage {
     ENABLED = 3,
     // Exiting a level, should restore old stencil or disable
     EXIT_LEVEL = 4,
+    // Clear stencil buffer & USE INVERTED
+    CLEAR_INVERTED = 5,
+    // Entering a new level & USE INVERTED
+    ENTER_LEVEL_INVERTED = 6,
 }
 
 export class StencilManager {
     public static sharedManager: StencilManager | null = null;
     public stage = Stage.DISABLED;
-    public stageOld = Stage.DISABLED; // the stage before update
     private _maskStack: any[] = [];
     private _stencilPattern = {
         stencilTest: true,
@@ -70,12 +72,14 @@ export class StencilManager {
         this._maskStack.push(mask);
     }
 
-    public clear () {
-        this.stage = Stage.CLEAR;
+    public clear (comp: Mask) {
+        comp.stencilStage = comp.inverted ? Stage.CLEAR_INVERTED : Stage.CLEAR;
+        // this.stage = Stage.CLEAR;
     }
 
-    public enterLevel () {
-        this.stage = Stage.ENTER_LEVEL;
+    public enterLevel (comp: Mask) {
+        comp.graphics!.stencilStage = comp.inverted ? Stage.ENTER_LEVEL_INVERTED : Stage.ENTER_LEVEL;
+        // this.stage = Stage.ENTER_LEVEL;
     }
 
     public enableMask () {
@@ -90,67 +94,9 @@ export class StencilManager {
         this._maskStack.pop();
         if (this._maskStack.length === 0) {
             this.stage = Stage.DISABLED;
-        }
-        else {
+        } else {
             this.stage = Stage.ENABLED;
         }
-    }
-
-    public handleMaterial (mat: Material, comp?: UIRenderable) {
-        if (this.stage !== this.stageOld) {
-            const pattern = this._stencilPattern;
-            if (this.stage === Stage.DISABLED) {
-                pattern.stencilTest = false;
-                pattern.func = ComparisonFunc.ALWAYS;
-                pattern.failOp = StencilOp.KEEP;
-                pattern.stencilMask = pattern.writeMask = 0xffff;
-                pattern.ref = 1;
-            } else {
-                pattern.stencilTest = true;
-                if (this.stage === Stage.ENABLED) {
-                    pattern.func = ComparisonFunc.EQUAL;
-                    pattern.failOp = StencilOp.KEEP;
-                    pattern.stencilMask = pattern.ref = this.getStencilRef();
-                    pattern.writeMask = this.getWriteMask();
-                } else if (this.stage === Stage.CLEAR) {
-                    const mask = this._maskStack[this._maskStack.length - 1];
-                    pattern.func = ComparisonFunc.NEVER;
-                    pattern.failOp = mask.inverted ? StencilOp.REPLACE : StencilOp.ZERO;
-                    pattern.writeMask = pattern.stencilMask = pattern.ref = this.getWriteMask();
-                } else if (this.stage === Stage.ENTER_LEVEL) {
-                    const mask = this._maskStack[this._maskStack.length - 1];
-                    pattern.func = ComparisonFunc.NEVER;
-                    pattern.failOp = mask.inverted ? StencilOp.ZERO : StencilOp.REPLACE;
-                    pattern.writeMask = pattern.stencilMask = pattern.ref = this.getWriteMask();
-                }
-            }
-            this.stageOld = this.stage;
-        }
-
-        return this._changed(mat.passes[0], comp);
-    }
-
-    public applyStencil (material: Material, state: any) {
-        material.overridePipelineStates({
-            depthStencilState: {
-                stencilTestFront: state.stencilTest,
-                stencilFuncFront: state.func,
-                stencilReadMaskFront: state.stencilMask,
-                stencilWriteMaskFront: state.writeMask,
-                stencilFailOpFront: state.failOp,
-                stencilZFailOpFront: state.zFailOp,
-                stencilPassOpFront: state.passOp,
-                stencilRefFront: state.ref,
-                stencilTestBack: state.stencilTest,
-                stencilFuncBack: state.func,
-                stencilReadMaskBack: state.stencilMask,
-                stencilWriteMaskBack: state.writeMask,
-                stencilFailOpBack: state.failOp,
-                stencilZFailOpBack: state.zFailOp,
-                stencilPassOpBack: state.passOp,
-                stencilRefBack: state.ref,
-            },
-        });
     }
 
     public getWriteMask () {
@@ -175,30 +121,72 @@ export class StencilManager {
         this.stage = Stage.DISABLED;
     }
 
-    private _changed (pass: Pass, comp?: UIRenderable) {
-        if(comp) {
-            if (comp.stencilStage === this.stage) {
-                return false;
-            } else {
-                comp.stencilStage = this.stage;
-                return true;
+    private stencilStateMap = new Map<Stage, DepthStencilState>();
+
+    public getStencilStage (stage: Stage) {
+        if (this.stencilStateMap && this.stencilStateMap.has(stage)) {
+            return this.stencilStateMap.get(stage);
+        }
+        this.setStateFromStage(stage);
+        const depthStencilState = new DepthStencilState(
+            false,
+            false,
+            ComparisonFunc.LESS,
+            this._stencilPattern.stencilTest,
+            this._stencilPattern.func,
+            this._stencilPattern.stencilMask,
+            this._stencilPattern.writeMask,
+            this._stencilPattern.failOp,
+            this._stencilPattern.zFailOp,
+            this._stencilPattern.passOp,
+            this._stencilPattern.ref,
+            this._stencilPattern.stencilTest,
+            this._stencilPattern.func,
+            this._stencilPattern.stencilMask,
+            this._stencilPattern.writeMask,
+            this._stencilPattern.failOp,
+            this._stencilPattern.zFailOp,
+            this._stencilPattern.passOp,
+            this._stencilPattern.ref,
+        );
+        this.stencilStateMap.set(stage, depthStencilState);
+        return depthStencilState;
+    }
+
+    // Notice: Only children node in Mask need use this.stage
+    private setStateFromStage (stage) {
+        const pattern = this._stencilPattern;
+        if (stage === Stage.DISABLED) {
+            pattern.stencilTest = false;
+            pattern.func = ComparisonFunc.ALWAYS;
+            pattern.failOp = StencilOp.KEEP;
+            pattern.stencilMask = pattern.writeMask = 0xffff;
+            pattern.ref = 1;
+        } else {
+            pattern.stencilTest = true;
+            if (stage === Stage.ENABLED) {
+                pattern.func = ComparisonFunc.EQUAL;
+                pattern.failOp = StencilOp.KEEP;
+                pattern.stencilMask = pattern.ref = this.getStencilRef();
+                pattern.writeMask = this.getWriteMask();
+            } else if (stage === Stage.CLEAR) {
+                pattern.func = ComparisonFunc.NEVER;
+                pattern.failOp = StencilOp.ZERO;
+                pattern.writeMask = pattern.stencilMask = pattern.ref = this.getWriteMask();
+            } else if (stage === Stage.CLEAR_INVERTED) {
+                pattern.func = ComparisonFunc.NEVER;
+                pattern.failOp = StencilOp.REPLACE;
+                pattern.writeMask = pattern.stencilMask = pattern.ref = this.getWriteMask();
+            } else if (stage === Stage.ENTER_LEVEL) {
+                pattern.func = ComparisonFunc.NEVER;
+                pattern.failOp = StencilOp.REPLACE;
+                pattern.writeMask = pattern.stencilMask = pattern.ref = this.getWriteMask();
+            }  else if (stage === Stage.ENTER_LEVEL_INVERTED) {
+                pattern.func = ComparisonFunc.NEVER;
+                pattern.failOp = StencilOp.ZERO;
+                pattern.writeMask = pattern.stencilMask = pattern.ref = this.getWriteMask();
             }
         }
-
-        // only ui-model use this code
-        // Notice: Not all state
-        const stencilState = pass.depthStencilState;
-        const pattern = this._stencilPattern;
-        if (pattern.stencilTest !== stencilState.stencilTestFront ||
-            pattern.func !== stencilState.stencilFuncFront ||
-            pattern.failOp !== stencilState.stencilFailOpFront ||
-            pattern.stencilMask !== stencilState.stencilReadMaskFront ||
-            pattern.writeMask !== stencilState.stencilWriteMaskFront ||
-            pattern.ref !== stencilState.stencilRefFront) {
-            return true;
-        }
-
-        return false;
     }
 }
 

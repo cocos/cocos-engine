@@ -29,9 +29,9 @@
  * @module ui
  */
 
+import { ccclass, help, executionOrder, menu } from 'cc.decorator';
 import { RenderableComponent } from '../../core/components/renderable-component';
 import { UIComponent } from '../framework/ui-component';
-import { ccclass, help, executionOrder, menu } from 'cc.decorator';
 import { director } from '../../core/director';
 import { RenderPriority } from '../../core/pipeline/define';
 import { UI } from '../renderer/ui';
@@ -53,7 +53,6 @@ import { legacyCC } from '../../core/global-exports';
 @executionOrder(110)
 @menu('UI/UIMeshRenderer')
 export class UIMeshRenderer extends UIComponent {
-
     private _models: scene.Model[] | null = null;
 
     public get modelComponent () {
@@ -63,7 +62,7 @@ export class UIMeshRenderer extends UIComponent {
     private _modelComponent: RenderableComponent | null = null;
 
     public onLoad () {
-        if(!this.node._uiProps.uiTransformComp){
+        if (!this.node._uiProps.uiTransformComp) {
             this.node.addComponent('cc.UITransform');
         }
 
@@ -73,22 +72,16 @@ export class UIMeshRenderer extends UIComponent {
             return;
         }
 
-        this._modelComponent._sceneGetter = director.root!.ui.getRenderSceneGetter();
+        this._modelComponent._sceneGetter = null;
         this._models = this._modelComponent._collectModels();
     }
 
     public onEnable () {
         super.onEnable();
-        if (this._modelComponent) {
-            (this._modelComponent as any)._attachToScene();
-        }
     }
 
     public onDisable () {
         super.onDisable();
-        if (this._modelComponent) {
-            (this._modelComponent as any)._detachFromScene();
-        }
     }
 
     public onDestroy () {
@@ -99,15 +92,12 @@ export class UIMeshRenderer extends UIComponent {
         }
 
         this._modelComponent._sceneGetter = null;
-        if (legacyCC.isValid(this._modelComponent, true)) {
-            (this._modelComponent as any)._attachToScene();
-        }
         this._models = null;
     }
 
     public updateAssembler (render: UI) {
         if (this._models) {
-            for(const m of this._models){
+            for (const m of this._models) {
                 render.commitModel.call(render, this, m, this._modelComponent!.material);
             }
             return true;
@@ -137,7 +127,7 @@ export class UIMeshRenderer extends UIComponent {
                 // @ts-expect-error
                 pass._priority = RenderPriority.MAX - 11;
                 if (!pass.blendState.targets[0].blend) {
-                    material.overridePipelineStates({ blendState: { targets: [ { blend: true } ] } }, j);
+                    material.overridePipelineStates({ blendState: { targets: [{ blend: true }] } }, j);
                 }
             }
         }

@@ -35,8 +35,10 @@ import { Node } from '../../core/scene-graph';
 import { Camera } from '../../core/renderer/scene/camera';
 import { Model } from '../../core/renderer/scene/model';
 import { UI } from './ui';
-import { InputAssemblerHandle, DescriptorSetHandle, NULL_HANDLE, UIBatchHandle, UIBatchPool, UIBatchView, DSPool } from '../../core/renderer/core/memory-pools';
+import { NULL_HANDLE, UIBatchHandle, UIBatchPool, UIBatchView, PassPool } from '../../core/renderer/core/memory-pools';
 import { Layers } from '../../core/scene-graph/layers';
+import { legacyCC } from '../../core/global-exports';
+import { Pass } from '../../core/renderer/core/pass';
 
 const UI_VIS_FLAG = Layers.Enum.NONE | Layers.Enum.UI_3D;
 
@@ -56,33 +58,16 @@ export class UIDrawBatch {
     public set hDescriptorSet (handle) {
         UIBatchPool.set(this._handle, UIBatchView.DESCRIPTOR_SET, handle);
     }
-    public get passes () {
-        return this._material!.passes;
-    }
-    public get material () {
-        return this._material;
-    }
-    public set material (mat) {
-        this._material = mat;
-        if (mat) {
-            const passes = mat.passes;
-            if (!passes) { return; }
-
-            UIBatchPool.set(this._handle, UIBatchView.PASS_COUNT, passes.length);
-            let passOffset = UIBatchView.PASS_0 as const;
-            let shaderOffset = UIBatchView.SHADER_0 as const;
-            for (let i = 0; i < passes.length; i++, passOffset++, shaderOffset++) {
-                UIBatchPool.set(this._handle, passOffset, passes[i].handle);
-                UIBatchPool.set(this._handle, shaderOffset, passes[i].getShaderVariant());
-            }
-        }
-    }
     public get visFlags () {
         return UIBatchPool.get(this._handle, UIBatchView.VIS_FLAGS);
     }
     public set visFlags (vis) {
         UIBatchPool.set(this._handle, UIBatchView.VIS_FLAGS, vis);
     }
+    public get passes () {
+        return this._passes;
+    }
+
     public bufferBatch: MeshBuffer | null = null;
     public camera: Camera | null = null;
     public model: Model | null = null;
@@ -92,8 +77,8 @@ export class UIDrawBatch {
     public isStatic = false;
     public textureHash = 0;
     public samplerHash = 0;
-    private _material: Material | null = null;
     private _handle: UIBatchHandle = NULL_HANDLE;
+    private _passes: Pass[] = [];
 
     constructor () {
         this._handle = UIBatchPool.alloc();
@@ -110,7 +95,6 @@ export class UIDrawBatch {
     }
 
     public clear () {
-        this._material = null;
         this.bufferBatch = null;
         this.hInputAssembler = NULL_HANDLE;
         this.hDescriptorSet = NULL_HANDLE;
@@ -121,5 +105,35 @@ export class UIDrawBatch {
         this.isStatic = false;
         this.useLocalData = null;
         this.visFlags = UI_VIS_FLAG;
+        this._passes = [];
+    }
+
+    // object version
+    public fillPasses (mat: Material | null, dss, bs) {
+        if (mat) {
+            const passes = mat.passes;
+            if (!passes) { return; }
+
+            UIBatchPool.set(this._handle, UIBatchView.PASS_COUNT, passes.length);
+            let passOffset = UIBatchView.PASS_0;
+            let shaderOffset = UIBatchView.SHADER_0;
+            for (let i = 0; i < passes.length; i++, passOffset++, shaderOffset++) {
+                if (!this._passes[i]) {
+                    this._passes[i] = new Pass(legacyCC.director.root);
+                    // @ts-expect-error hack for UI use pass object
+                    this._passes[i]._handle = PassPool.alloc();
+                }
+                const mtlPass = passes[i];
+                const passInUse = this._passes[i];
+                if (!dss) { dss = mtlPass.depthStencilState; }
+                if (!bs) { bs = mtlPass.blendState; }
+
+                mtlPass.update();
+                // @ts-expect-error hack for UI use pass object
+                passInUse._initPassFromTarget(mtlPass, dss, bs);
+                UIBatchPool.set(this._handle, passOffset, passInUse.handle);
+                UIBatchPool.set(this._handle, shaderOffset, passInUse.getShaderVariant());
+            }
+        }
     }
 }
