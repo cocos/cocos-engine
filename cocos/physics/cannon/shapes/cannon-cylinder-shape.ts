@@ -23,6 +23,11 @@
  THE SOFTWARE.
  */
 
+/**
+ * @packageDocumentation
+ * @hidden
+ */
+
 import CANNON from '@cocos/cannon';
 import { Vec3 } from '../../../core/math';
 import { CannonShape } from './cannon-shape';
@@ -33,7 +38,6 @@ import { IVec3Like } from '../../../core/math/type-define';
 import { commitShapeUpdates } from '../cannon-util';
 
 export class CannonCylinderShape extends CannonShape implements ICylinderShape {
-
     get collider () {
         return this._collider as CylinderCollider;
     }
@@ -46,41 +50,41 @@ export class CannonCylinderShape extends CannonShape implements ICylinderShape {
         this.updateProperties(
             this.collider.radius,
             this.collider.height,
-            CANNON['CC_CONFIG']['numSegmentsCylinder'],
+            (CANNON as any).CC_CONFIG.numSegmentsCylinder,
             this.collider.direction,
-            this.collider.node.worldScale
+            this.collider.node.worldScale,
         );
 
-        if (this._index != -1) commitShapeUpdates(this._body);
+        if (this._index !== -1) commitShapeUpdates(this._body);
     }
 
     setHeight (v: number) {
         this.updateProperties(
             this.collider.radius,
             this.collider.height,
-            CANNON['CC_CONFIG']['numSegmentsCylinder'],
+            (CANNON as any).CC_CONFIG.numSegmentsCylinder,
             this.collider.direction,
-            this.collider.node.worldScale
+            this.collider.node.worldScale,
         );
 
-        if (this._index != -1) commitShapeUpdates(this._body);
+        if (this._index !== -1) commitShapeUpdates(this._body);
     }
 
     setDirection (v: number) {
         this.updateProperties(
             this.collider.radius,
             this.collider.height,
-            CANNON['CC_CONFIG']['numSegmentsCylinder'],
+            (CANNON as any).CC_CONFIG.numSegmentsCylinder,
             this.collider.direction,
-            this.collider.node.worldScale
+            this.collider.node.worldScale,
         );
 
-        if (this._index != -1) commitShapeUpdates(this._body);
+        if (this._index !== -1) commitShapeUpdates(this._body);
     }
 
     constructor (radius = 0.5, height = 2, direction = EAxisDirection.Y_AXIS) {
         super();
-        this._shape = new CANNON.Cylinder(radius, radius, height, CANNON['CC_CONFIG']['numSegmentsCylinder'], direction == EAxisDirection.Y_AXIS);
+        this._shape = new CANNON.Cylinder(radius, radius, height, (CANNON as any).CC_CONFIG.numSegmentsCylinder, direction === EAxisDirection.Y_AXIS);
     }
 
     onLoad () {
@@ -100,10 +104,10 @@ export class CannonCylinderShape extends CannonShape implements ICylinderShape {
         const sin = Math.sin;
         const abs = Math.abs;
         const max = Math.max;
-        if (direction == 1) {
+        if (direction === 1) {
             wh = abs(scale.y) * height;
             wr = max(abs(scale.x), abs(scale.z)) * radius;
-        } else if (direction == 2) {
+        } else if (direction === 2) {
             wh = abs(scale.z) * height;
             wr = max(abs(scale.x), abs(scale.y)) * radius;
         } else {
@@ -116,10 +120,10 @@ export class CannonCylinderShape extends CannonShape implements ICylinderShape {
         const indices: number[][] = [];
         const axes: CANNON.Vec3[] = [];
         const theta = Math.PI * 2 / N;
-        if (direction == 1) {
+        if (direction === 1) {
             const bf = [1];
             const tf = [0];
-            for (var i = 0; i < N; i++) {
+            for (let i = 0; i < N; i++) {
                 const x = wr * cos(theta * i);
                 const z = wr * sin(theta * i);
                 vertices.push(new CANNON.Vec3(x, hH, z));
@@ -138,16 +142,16 @@ export class CannonCylinderShape extends CannonShape implements ICylinderShape {
                 }
             }
             indices.push(bf);
-            var temp: number[] = [];
-            for (var i = 0; i < tf.length; i++) {
+            const temp: number[] = [];
+            for (let i = 0; i < tf.length; i++) {
                 temp.push(tf[tf.length - i - 1]);
             }
             indices.push(temp);
             axes.push(new CANNON.Vec3(0, 1, 0));
-        } else if (direction == 2) {
+        } else if (direction === 2) {
             const bf = [0];
             const tf = [1];
-            for (var i = 0; i < N; i++) {
+            for (let i = 0; i < N; i++) {
                 const x = wr * cos(theta * i);
                 const y = wr * sin(theta * i);
                 vertices.push(new CANNON.Vec3(x, y, hH));
@@ -166,8 +170,8 @@ export class CannonCylinderShape extends CannonShape implements ICylinderShape {
                 }
             }
             indices.push(bf);
-            var temp: number[] = [];
-            for (var i = 0; i < tf.length; i++) {
+            const temp: number[] = [];
+            for (let i = 0; i < tf.length; i++) {
                 temp.push(tf[tf.length - i - 1]);
             }
             indices.push(temp);
@@ -175,7 +179,7 @@ export class CannonCylinderShape extends CannonShape implements ICylinderShape {
         } else {
             const bf = [0];
             const tf = [1];
-            for (var i = 0; i < N; i++) {
+            for (let i = 0; i < N; i++) {
                 const y = wr * cos(theta * i);
                 const z = wr * sin(theta * i);
                 vertices.push(new CANNON.Vec3(hH, y, z));
@@ -194,8 +198,8 @@ export class CannonCylinderShape extends CannonShape implements ICylinderShape {
                 }
             }
             indices.push(bf);
-            var temp: number[] = [];
-            for (var i = 0; i < tf.length; i++) {
+            const temp: number[] = [];
+            for (let i = 0; i < tf.length; i++) {
                 temp.push(tf[tf.length - i - 1]);
             }
             indices.push(temp);
@@ -211,5 +215,4 @@ export class CannonCylinderShape extends CannonShape implements ICylinderShape {
         this.impl.computeEdges();
         this.impl.updateBoundingSphereRadius();
     }
-
 }

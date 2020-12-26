@@ -23,8 +23,13 @@
  THE SOFTWARE.
  */
 
+/**
+ * @packageDocumentation
+ * @hidden
+ */
+
 import AmmoClosure, * as AmmoJs from '@cocos/ammo';
-import { WECHAT } from '../../../editor/exports/populate-internal-constants';
+import { WECHAT } from 'internal:constants';
 
 const Ammo: typeof AmmoClosure = {} as any;
 
@@ -88,4 +93,10 @@ export namespace waitForAmmoInstantiation {
      * True if the `'@cocos/ammo'` is the WebAssembly edition.
      */
     export const isWasm = (AmmoJs as any).isWasm;
+
+    /**
+     * The url to the WebAssembly binary.
+     * Either can be absolute or relative, depends on build options.
+     */
+    export const wasmBinaryURL = (AmmoJs as any).wasmBinaryURL;
 }

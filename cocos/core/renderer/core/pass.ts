@@ -32,7 +32,7 @@ import { EDITOR } from 'internal:constants';
 import { Color } from '../../gfx/define-class';
 import { Root } from '../../root';
 import { TextureBase } from '../../assets/texture-base';
-import { builtinResMgr } from '../../3d/builtin/init';
+import { builtinResMgr } from '../../builtin/builtin-res-mgr';
 import { getPhaseID } from '../../pipeline/pass-phase';
 import { murmurhash2_32_gc } from '../../utils/murmurhash2_gc';
 import { samplerLib } from './sampler-lib';
@@ -636,53 +636,30 @@ export class Pass {
 
     // infos
     get root (): Root { return this._root; }
-
     get device (): Device { return this._device; }
-
     get shaderInfo (): IProgramInfo { return this._shaderInfo; }
-
     get localSetLayout (): DescriptorSetLayout { return programLib.getDescriptorSetLayout(this._device, this._programName, true); }
-
     get program (): string { return this._programName; }
-
     get properties (): Record<string, IPropertyInfo> { return this._properties; }
-
     get defines (): Record<string, string | number | boolean> { return this._defines; }
-
     get passIndex (): number { return this._passIndex; }
-
     get propertyIndex (): number { return this._propertyIndex; }
-
     // data
     get dynamics (): IPassDynamics { return this._dynamics; }
-
     get blocks (): Float32Array[] { return this._blocks; }
-
     // states
     get handle (): PassHandle { return this._handle; }
-
     get priority (): RenderPriority { return PassPool.get(this._handle, PassView.PRIORITY); }
-
     get primitive (): PrimitiveMode { return PassPool.get(this._handle, PassView.PRIMITIVE); }
-
     get stage (): RenderPassStage { return PassPool.get(this._handle, PassView.STAGE); }
-
     get phase (): number { return PassPool.get(this._handle, PassView.PHASE); }
-
     get rasterizerState (): RasterizerState { return this._rs; }
-
     get depthStencilState (): DepthStencilState { return this._dss; }
-
     get blendState (): BlendState { return this._bs; }
-
     get dynamicStates (): DynamicStateFlags { return PassPool.get(this._handle, PassView.DYNAMIC_STATES); }
-
     get batchingScheme (): BatchingSchemes { return PassPool.get(this._handle, PassView.BATCHING_SCHEME); }
-
     get descriptorSet (): DescriptorSet { return this._descriptorSet; }
-
     get hash (): number { return PassPool.get(this._handle, PassView.HASH); }
-
     get rootBufferDirty (): boolean { return this._rootBufferDirty; }
 }
 

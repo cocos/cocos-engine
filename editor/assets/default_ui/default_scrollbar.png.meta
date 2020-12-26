@@ -33,7 +33,7 @@
       "name": "texture"
     },
     "f9941": {
-      "ver": "1.0.8",
+      "ver": "1.0.9",
       "importer": "sprite-frame",
       "uuid": "0da256a2-21f6-481b-90b6-d3643a09179b@f9941",
       "imported": true,
@@ -67,7 +67,8 @@
         "isUuid": true,
         "imageUuidOrDatabaseUri": "0da256a2-21f6-481b-90b6-d3643a09179b@6c48a",
         "atlasUuid": "",
-        "mipfilter": "none"
+        "mipfilter": "none",
+        "packable": true
       },
       "displayName": "default_scrollbar",
       "id": "f9941",

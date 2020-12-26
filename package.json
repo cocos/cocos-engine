@@ -26,7 +26,7 @@
     "@babel/core": "^7.9.0",
     "@babel/preset-env": "7.8.7",
     "@cocos/babel-preset-cc": "2.2.0",
-    "@cocos/build-engine": "4.0.1",
+    "@cocos/build-engine": "4.1.0",
     "@cocos/typedoc-plugin-internal-external": "^1.0.1",
     "@cocos/typedoc-plugin-localization": "^1.0.0",
     "@types/fs-extra": "^5.0.4",
@@ -45,17 +45,18 @@
     "jest": "^24.8.0",
     "spectorjs": "^0.9.15",
     "stats.js": "^0.17.0",
-    "tfig": "^2.0.10",
+    "tfig": "^3.0.0",
     "ts-jest": "^26.3.0",
     "typedoc": "^0.17.7",
     "typedoc-plugin-external-module-name": "^4.0.3",
-    "typescript": "^4.0.5",
+    "typescript": "^4.1.3",
     "vconsole": "^3.3.0",
     "yargs": "^12.0.5"
   },
   "dependencies": {
-    "@cocos/ammo": "1.0.7-beta.4",
+    "@cocos/ammo": "^1.0.8",
     "@cocos/box2d": "1.0.1",
-    "@cocos/cannon": "1.1.1-exp.4"
+    "@cocos/cannon": "1.2.0",
+    "@cocos/physx": "1.0.0-beta.5"
   }
 }

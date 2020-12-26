@@ -29,9 +29,9 @@
  */
 
 import { Mat4, Size, Vec3 } from '../../core/math';
-import { IAssembler } from '../../core/renderer/ui/base';
-import { MeshRenderData } from '../../core/renderer/ui/render-data';
-import { UI } from '../../core/renderer/ui/ui';
+import { IAssembler } from '../../2d/renderer/base';
+import { MeshRenderData } from '../../2d/renderer/render-data';
+import { UI } from '../../2d/renderer/ui';
 import { TiledLayer, TiledMeshData, TiledTile } from '..';
 import { GID, MixedGID, RenderOrder, TiledGrid, TileFlag } from '../tiled-types';
 import { Texture2D, Node } from '../../core';
@@ -495,7 +495,9 @@ function traverseGrids (leftDown: { col: number, row: number }, rightTop: { col:
                 vertexBuf.set(color, _vfOffset + vertStep2 + 5);
                 vertexBuf.set(color, _vfOffset + vertStep3 + 5);
             } else {
-                fillByTiledNode(tiledNode.node, color, vertexBuf, left, right, top, bottom, diamondTile);
+                if(tiledNode.node.active) {
+                    fillByTiledNode(tiledNode.node, color, vertexBuf, left, right, top, bottom, diamondTile);
+                }
             }
 
             flipTexture(grid, gid);

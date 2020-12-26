@@ -28,15 +28,19 @@
  * @hidden
  */
 
+import Ammo from '../cocos/physics/ammo/ammo-instantiated';
+import '../cocos/physics/ammo/instantiate';
+
 // polyfill for wechat
 if (window.atob == null) {
-    window.atob = function (input) {
-        var keyStr = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
-        var output = "";
-        var chr1 = 0, chr2 = 0, chr3 = 0;
-        var enc1 = 0, enc2 = 0, enc3 = 0, enc4 = 0;
-        var i = 0;
-        input = input.replace(/[^A-Za-z0-9\+\/\=]/g, "");
+    window.atob = function atob (input) {
+        const keyStr = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
+        let output = '';
+        let chr1 = 0; let chr2 = 0; let chr3 = 0;
+        let enc1 = 0; let enc2 = 0; let enc3 = 0; let enc4 = 0;
+        let i = 0;
+        // eslint-disable-next-line no-useless-escape
+        input = input.replace(/[^A-Za-z0-9\+\/\=]/g, '');
         do {
             enc1 = keyStr.indexOf(input.charAt(i++));
             enc2 = keyStr.indexOf(input.charAt(i++));
@@ -45,29 +49,24 @@ if (window.atob == null) {
             chr1 = enc1 << 2 | enc2 >> 4;
             chr2 = (enc2 & 15) << 4 | enc3 >> 2;
             chr3 = (enc3 & 3) << 6 | enc4;
-            output = output + String.fromCharCode(chr1);
+            output += String.fromCharCode(chr1);
             if (enc3 !== 64) {
-                output = output + String.fromCharCode(chr2)
+                output += String.fromCharCode(chr2);
             }
             if (enc4 !== 64) {
-                output = output + String.fromCharCode(chr3)
+                output += String.fromCharCode(chr3);
             }
         } while (i < input.length);
-        return output
+        return output;
     };
 }
-
-import Ammo from '../cocos/physics/ammo/ammo-instantiated';
 window.Ammo = Ammo;
 
-//polyfill config
-Ammo['CC_CONFIG'] = {
-    'ignoreSelfBody': true,
-    'emitStaticCollision': false,
-}
+// polyfill config
+(Ammo as any).CC_CONFIG = {
+    ignoreSelfBody: true,
+};
 
-Ammo['CC_CACHE'] = {
-    'btTriangleMesh': { 'enable': false },
-}
-
-import '../cocos/physics/ammo/instantiate';
+(Ammo as any).CC_CACHE = {
+    btTriangleMesh: { enable: false },
+};

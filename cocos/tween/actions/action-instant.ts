@@ -30,8 +30,8 @@
  * @hidden
  */
 
-import { FiniteTimeAction, Action } from "./action";
-import { RenderableComponent } from "../../core";
+import { FiniteTimeAction, Action } from './action';
+import { RenderableComponent } from '../../core/components/renderable-component';
 
 /**
  * @en Instant actions are immediate actions. They don't have a duration like the ActionInterval actions.
@@ -40,7 +40,6 @@ import { RenderableComponent } from "../../core";
  * @extends FiniteTimeAction
  */
 export class ActionInstant extends FiniteTimeAction {
-
     isDone () {
         return true;
     }
@@ -50,7 +49,7 @@ export class ActionInstant extends FiniteTimeAction {
     }
 
     update (dt: number) {
-        //nothing
+        // nothing
     }
 
     /**
@@ -76,9 +75,9 @@ export class ActionInstant extends FiniteTimeAction {
  */
 export class Show extends ActionInstant {
     update (dt: any) {
-        var _renderComps = this.target!.getComponentsInChildren(RenderableComponent);
-        for (var i = 0; i < _renderComps.length; ++i) {
-            var render = _renderComps[i];
+        const _renderComps = this.target!.getComponentsInChildren(RenderableComponent);
+        for (let i = 0; i < _renderComps.length; ++i) {
+            const render = _renderComps[i];
             render.enabled = true;
         }
     }
@@ -103,7 +102,7 @@ export class Show extends ActionInstant {
  */
 export function show (): ActionInstant {
     return new Show();
-};
+}
 
 /*
  * Hide the node.
@@ -111,11 +110,10 @@ export function show (): ActionInstant {
  * @extends ActionInstant
  */
 export class Hide extends ActionInstant {
-
     update (dt: any) {
-        var _renderComps = this.target!.getComponentsInChildren(RenderableComponent);
-        for (var i = 0; i < _renderComps.length; ++i) {
-            var render = _renderComps[i];
+        const _renderComps = this.target!.getComponentsInChildren(RenderableComponent);
+        for (let i = 0; i < _renderComps.length; ++i) {
+            const render = _renderComps[i];
             render.enabled = false;
         }
     }
@@ -140,7 +138,7 @@ export class Hide extends ActionInstant {
  */
 export function hide (): ActionInstant {
     return new Hide();
-};
+}
 
 /*
  * Toggles the visibility of a node.
@@ -148,11 +146,10 @@ export function hide (): ActionInstant {
  * @extends ActionInstant
  */
 export class ToggleVisibility extends ActionInstant {
-
     update (dt: any) {
-        var _renderComps = this.target!.getComponentsInChildren(RenderableComponent);
-        for (var i = 0; i < _renderComps.length; ++i) {
-            var render = _renderComps[i];
+        const _renderComps = this.target!.getComponentsInChildren(RenderableComponent);
+        for (let i = 0; i < _renderComps.length; ++i) {
+            const render = _renderComps[i];
             render.enabled = !render.enabled;
         }
     }
@@ -177,7 +174,7 @@ export class ToggleVisibility extends ActionInstant {
  */
 export function toggleVisibility (): ActionInstant {
     return new ToggleVisibility();
-};
+}
 
 /*
  * Delete self in the next frame.
@@ -231,7 +228,7 @@ export class RemoveSelf extends ActionInstant {
  */
 export function removeSelf (isNeedCleanUp: boolean): ActionInstant {
     return new RemoveSelf(isNeedCleanUp);
-};
+}
 
 /*
  * Calls a 'callback'.
@@ -249,7 +246,6 @@ export function removeSelf (isNeedCleanUp: boolean): ActionInstant {
  * var finish = new CallFunc(this.removeFromParentAndCleanup, this,  true);
  */
 export class CallFunc extends ActionInstant {
-
     private _selectorTarget = null;
     private _function: Function | null = null;
     private _data = null;
@@ -313,14 +309,13 @@ export class CallFunc extends ActionInstant {
      */
     setTargetCallback (sel: any) {
         if (sel !== this._selectorTarget) {
-            if (this._selectorTarget)
-                this._selectorTarget = null;
+            if (this._selectorTarget) { this._selectorTarget = null; }
             this._selectorTarget = sel;
         }
     }
 
     clone () {
-        var action = new CallFunc();
+        const action = new CallFunc();
         action.initWithFunction(this._function, this._selectorTarget, this._data);
         return action;
     }
@@ -344,4 +339,4 @@ export class CallFunc extends ActionInstant {
  */
 export function callFunc (selector: Function, selectorTarget?: any, data?: any): ActionInstant {
     return new CallFunc(selector, selectorTarget, data);
-};
+}

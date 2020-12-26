@@ -35,6 +35,7 @@ import RequestItem from './request-item';
 
 export type CompleteCallback<T = any> = (err: Error | null, data?: T | null) => void;
 export type CompleteCallbackNoData = (err?: Error | null) => void;
+export type CompleteCallbackWithData<T = any> = (err: Error | null, data: T) => void;
 export type ProgressCallback = (finished: number, total: number, item: RequestItem) => void;
 export type Request = string | string[] | IRequest | Array<IRequest>;
 
@@ -47,9 +48,9 @@ export interface IRequest extends IOptions {
 }
 
 export interface IOptions extends IBundleOptions, IRemoteOptions {
-    type?: typeof Asset; 
+    type?: typeof Asset;
     bundle?: string;
-};
+}
 
 export interface IRemoteOptions extends IAssetOptions {
     ext?: string;
@@ -66,7 +67,7 @@ export interface IXHROptions extends Record<string, any> {
 export interface IAssetOptions extends INativeAssetOptions {
     reloadAsset?: boolean;
     cacheAsset?: boolean;
-};
+}
 
 export interface IJsonAssetOptions extends IAssetOptions {
     assetId?: string;
@@ -74,18 +75,18 @@ export interface IJsonAssetOptions extends IAssetOptions {
 
 export interface IDownloadParseOptions extends IXHROptions {
     priority?: number;
-    audioLoadMode?: number; 
-    onFileProgress?: (loaded: number, total: number) => void; 
-    maxConcurrency?: number; 
-    maxRequestsPerFrame?: number; 
+    audioLoadMode?: number;
+    onFileProgress?: (loaded: number, total: number) => void;
+    maxConcurrency?: number;
+    maxRequestsPerFrame?: number;
     maxRetryCount?: number;
     cacheEnabled?: boolean;
-};
+}
 
 export interface IBundleOptions extends INativeAssetOptions {
-    version?: string; 
+    version?: string;
     scriptAsyncLoading?: boolean;
-};
+}
 
 export interface INativeAssetOptions extends IDownloadParseOptions {
     preset?: string;
@@ -141,7 +142,7 @@ export const presets: Record<string, Record<string, any>> = {
 
     remote: {
         maxRetryCount: 4,
-    }
+    },
 };
 
 /**

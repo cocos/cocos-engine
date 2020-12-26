@@ -30,16 +30,16 @@
  */
 
 import { EDITOR } from 'internal:constants';
-import { Asset } from '../assets/asset';
-import { SpriteFrame } from '../assets/sprite-frame';
 import { ccclass, serializable } from 'cc.decorator';
+import { Asset } from '../assets/asset';
+import { SpriteFrame } from '../../2d/assets/sprite-frame';
 import { CompactValueTypeArray } from '../data/utils/compact-value-type-array';
 import { errorID } from '../platform/debug';
-import { DataPoolManager } from '../renderer/data-pool-manager';
+import { DataPoolManager } from '../../3d/skeletal-animation/data-pool-manager';
 import binarySearchEpsilon from '../utils/binary-search';
 import { murmurhash2_32_gc } from '../utils/murmurhash2_gc';
 import { AnimCurve, IPropertyCurveData, RatioSampler } from './animation-curve';
-import { SkelAnimDataHub } from './skeletal-animation-data-hub';
+import { SkelAnimDataHub } from '../../3d/skeletal-animation/skeletal-animation-data-hub';
 import { ComponentPath, HierarchyPath, TargetPath } from './target-path';
 import { WrapMode as AnimationWrapMode } from './types';
 import { IValueProxyFactory } from './value-proxy';
@@ -350,7 +350,9 @@ export class AnimationClip extends Asset {
     }
 
     public destroy () {
-        (legacyCC.director.root.dataPoolManager as DataPoolManager).releaseAnimationClip(this);
+        if (legacyCC.director.root.dataPoolManager) {
+            (legacyCC.director.root.dataPoolManager as DataPoolManager).releaseAnimationClip(this);
+        }
         SkelAnimDataHub.destroy(this);
         return super.destroy();
     }

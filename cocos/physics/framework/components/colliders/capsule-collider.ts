@@ -37,9 +37,9 @@ import {
     type,
     serializable,
 } from 'cc.decorator';
+import { EDITOR, TEST } from 'internal:constants';
 import { Collider } from './collider';
 import { ICapsuleShape } from '../../../spec/i-physics-shape';
-import { EDITOR, TEST } from 'internal:constants';
 import { EAxisDirection, EColliderType } from '../../physics-enum';
 import { absMax } from '../../../../core';
 
@@ -101,7 +101,7 @@ export class CapsuleCollider extends Collider {
      * 获取或设置在本地坐标系下胶囊体的方向。
      */
     @type(EAxisDirection)
-    @tooltip("本地坐标系下胶囊体的朝向")
+    @tooltip('本地坐标系下胶囊体的朝向')
     public get direction () {
         return this._direction;
     }
@@ -169,22 +169,16 @@ export class CapsuleCollider extends Collider {
     private _getRadiusScale () {
         if (this.node == null) return 1;
         const ws = this.node.worldScale;
-        if (this._direction == EAxisDirection.Y_AXIS)
-            return Math.abs(absMax(ws.x, ws.z));
-        else if (this._direction == EAxisDirection.X_AXIS)
-            return Math.abs(absMax(ws.y, ws.z));
-        else
-            return Math.abs(absMax(ws.x, ws.y));
+        if (this._direction === EAxisDirection.Y_AXIS) return Math.abs(absMax(ws.x, ws.z));
+        if (this._direction === EAxisDirection.X_AXIS) return Math.abs(absMax(ws.y, ws.z));
+        return Math.abs(absMax(ws.x, ws.y));
     }
 
     private _getHeightScale () {
         if (this.node == null) return 1;
         const ws = this.node.worldScale;
-        if (this._direction == EAxisDirection.Y_AXIS)
-            return Math.abs(ws.y);
-        else if (this._direction == EAxisDirection.X_AXIS)
-            return Math.abs(ws.x);
-        else
-            return Math.abs(ws.z);
+        if (this._direction === EAxisDirection.Y_AXIS) return Math.abs(ws.y);
+        if (this._direction === EAxisDirection.X_AXIS) return Math.abs(ws.x);
+        return Math.abs(ws.z);
     }
 }

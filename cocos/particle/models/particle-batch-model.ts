@@ -28,14 +28,14 @@
  * @hidden
  */
 
-import { RenderingSubMesh, Mesh } from '../../core/assets/mesh';
+import { Mesh } from '../../3d/assets/mesh';
 import { AttributeName, BufferUsageBit, FormatInfos,
     MemoryUsageBit, PrimitiveMode } from '../../core/gfx/define';
 import { Attribute, DRAW_INFO_SIZE, Buffer, IndirectBuffer, BufferInfo, DrawInfo } from '../../core/gfx';
 import { Color } from '../../core/math/color';
 import { scene } from '../../core/renderer';
 import { Particle } from '../particle';
-import { Material } from '../../core/assets';
+import { Material, RenderingSubMesh } from '../../core/assets';
 
 const _uvs = [
     0, 0, // bottom-left
@@ -45,7 +45,6 @@ const _uvs = [
 ];
 
 export default class ParticleBatchModel extends scene.Model {
-
     private _capacity: number;
     private _vertAttrs: Attribute[] | null;
     private _vertSize: number;
@@ -57,10 +56,10 @@ export default class ParticleBatchModel extends scene.Model {
     private _iaInfoBuffer: Buffer | null;
     private _subMeshData: RenderingSubMesh | null;
     private _mesh: Mesh | null;
-    private _vertCount: number = 0;
-    private _indexCount: number = 0;
-    private _startTimeOffset: number = 0;
-    private _lifeTimeOffset: number = 0;
+    private _vertCount = 0;
+    private _indexCount = 0;
+    private _startTimeOffset = 0;
+    private _lifeTimeOffset = 0;
     private _material: Material | null = null;
 
     constructor () {
@@ -288,7 +287,7 @@ export default class ParticleBatchModel extends scene.Model {
             lifeTime = this._vdataF32![pBaseIndex + this._lifeTimeOffset];
             interval = time - startTime;
             if (lifeTime - interval < dt) {
-                lastBaseIndex = -- num * pSize;
+                lastBaseIndex = --num * pSize;
                 this._vdataF32!.copyWithin(pBaseIndex, lastBaseIndex, lastBaseIndex + pSize);
                 i--;
             }
@@ -301,11 +300,11 @@ export default class ParticleBatchModel extends scene.Model {
         if (!this._vertAttrs) {
             return;
         }
-        let vIdx = this._vertAttrs!.findIndex((val) => val.name === 'a_position_starttime');
-        let vOffset = (this._vertAttrs![vIdx] as any).offset;
+        let vIdx = this._vertAttrs.findIndex((val) => val.name === 'a_position_starttime');
+        let vOffset = (this._vertAttrs[vIdx] as any).offset;
         this._startTimeOffset = vOffset / 4 + 3;
-        vIdx = this._vertAttrs!.findIndex((val) => val.name === 'a_dir_life');
-        vOffset = (this._vertAttrs![vIdx] as any).offset;
+        vIdx = this._vertAttrs.findIndex((val) => val.name === 'a_dir_life');
+        vOffset = (this._vertAttrs[vIdx] as any).offset;
         this._lifeTimeOffset = vOffset / 4 + 3;
     }
 
@@ -342,6 +341,7 @@ export default class ParticleBatchModel extends scene.Model {
         if (this._subMeshData) {
             this._subMeshData.destroy();
             this._subMeshData = null;
+            this._iaInfoBuffer = null;
         }
     }
 }

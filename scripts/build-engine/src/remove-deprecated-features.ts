@@ -7,7 +7,7 @@ export default function removeDeprecatedFeatures (range?: string): rollup.Plugin
     return {
         name: '@cocos/build-engine | remove-deprecated-features',
 
-        load: function (this, id: string) {
+        load (this, id: string) {
             if (!ps.isAbsolute(id)) {
                 return null;
             }
@@ -25,7 +25,7 @@ export default function removeDeprecatedFeatures (range?: string): rollup.Plugin
                     console.debug(`${id} looks like a deprecated module, but it contains an invalid version.`);
                     return null;
                 }
-                
+
                 if (versionRange && !semver.satisfies(parsedVersion, versionRange)) {
                     return null;
                 }

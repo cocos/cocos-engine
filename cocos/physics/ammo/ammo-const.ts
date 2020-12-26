@@ -23,6 +23,12 @@
  THE SOFTWARE.
  */
 
+/**
+ * @packageDocumentation
+ * @hidden
+ */
+
+/* eslint-disable new-cap */
 import Ammo from './ammo-instantiated';
 import { Collider, TriggerEventType, CollisionEventType, IContactEquation } from '../../../exports/physics-framework';
 import { Vec3, Quat } from '../../core';
@@ -45,11 +51,12 @@ export const CollisionEventObject = {
 export class AmmoConstant {
     private static _instance: AmmoConstant;
     static get instance () {
-        if (AmmoConstant._instance == null) AmmoConstant._instance = new AmmoConstant;
+        if (AmmoConstant._instance == null) AmmoConstant._instance = new AmmoConstant();
         return AmmoConstant._instance;
     }
     readonly EMPTY_SHAPE = new Ammo.btEmptyShape();
     readonly TRANSFORM = new Ammo.btTransform();
+    readonly TRANSFORM_1 = new Ammo.btTransform();
     readonly VECTOR3_0 = new Ammo.btVector3();
     readonly VECTOR3_1 = new Ammo.btVector3();
     readonly QUAT_0 = new Ammo.btQuaternion();

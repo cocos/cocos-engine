@@ -64,6 +64,9 @@ const EntireBody: IEntireBody = {
     getLocalPoint: FUNC,
     getWorldPoint: FUNC,
 
+    getLocalCenter: FUNC,
+    getWorldCenter: FUNC,
+
     applyForce: FUNC,
     applyForceToCenter: FUNC,
     applyTorque: FUNC,

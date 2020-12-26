@@ -2,10 +2,10 @@ root: true
 
 parser: '@typescript-eslint/parser'
 
-parserOptions: 
+parserOptions:
     project: ./tsconfig.json
 
-extends: 
+extends:
     - eslint:recommended
     - airbnb-base
     - plugin:@typescript-eslint/recommended
@@ -14,23 +14,23 @@ extends:
 plugins:
     - '@typescript-eslint'
 
-settings: 
+settings:
     import/resolver:
-        node: 
-            extensions: 
+        node:
+            extensions:
                 - .js
                 - .jsx
                 - .ts
                 - .tsx
                 - .d.ts
 
-env: 
+env:
     browser: true
     node: true
     es6: true
     jest: true
 
-globals: 
+globals:
     cc: false
     wx: false
     Editor: false
@@ -51,23 +51,26 @@ rules:
     prefer-rest-params: off # we need ES5 to be fast too
     prefer-spread: off # we need ES5 to be fast too
     space-before-function-paren: [warn, always] # we require this explicitly
+    radix: off # we sometimes do not need to pass a second parameter
+    # allow underscores, we still widely use pre-dangle naming in our naming convention
+    # e.g. private properties, private functions, module scope shared variables etc.
+    no-underscore-dangle: off 
+    quotes: [warn, single, { allowTemplateLiterals: true }] # force single, but allow template literal
+    no-else-return: off # else-return is a common pattern which clearly expresses the control flow
 
     ##### AIRBNB-SPECIFIC RULE OVERRIDES #####
 
     class-methods-use-this: off # so empty functions could work
-    guard-for-in: off # for-in is a efficient choice for plain objects 
+    guard-for-in: off # for-in is a efficient choice for plain objects
     import/export: off # so export declare namespace could work
-    import/extensions: off # typescriptor doesn't support this
+    import/extensions: off # typescript doesn't support this
     import/no-unresolved: off # TODO: fix internal modules
-    import/prefer-default-export: off # prefer seperate exports
+    import/prefer-default-export: off # prefer named exports
     indent: [warn, 4] # we use 4-space convention
     lines-between-class-members: off # be more lenient on member declarations
     max-classes-per-file: off # helper classes are common
     max-len: [warn, 150] # more lenient on max length per line
-    new-cap: off # some class still doesn't follow this yet
-    no-underscore-dangle: off # allow underscores
     no-plusplus: off # allow increment/decrement operators
-    no-console: off # allow console statements
     no-continue: off # allow unlabeled continues
     no-mixed-operators: off # this is just cumbersome
     no-multi-assign: off # it is handy sometimes

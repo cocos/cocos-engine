@@ -49,6 +49,8 @@ import { Constraint } from './components/constraints/constraint';
 import { HingeConstraint } from './components/constraints/hinge-constraint';
 import { PointToPointConstraint } from './components/constraints/point-to-point-constraint';
 
+import { legacyCC } from '../../core/global-exports';
+
 export {
     PhysicsSystem,
     PhysicsRayResult,
@@ -75,7 +77,6 @@ export {
     ConstantForce,
 };
 
-import { legacyCC } from '../../core/global-exports';
 legacyCC.PhysicsSystem = PhysicsSystem;
 
 legacyCC.PhysicsMaterial = PhysicsMaterial;

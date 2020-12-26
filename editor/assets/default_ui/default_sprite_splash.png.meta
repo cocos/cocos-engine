@@ -33,7 +33,7 @@
       "name": "texture"
     },
     "f9941": {
-      "ver": "1.0.8",
+      "ver": "1.0.9",
       "importer": "sprite-frame",
       "uuid": "7d8f9b89-4fd1-4c9f-a3ab-38ec7cded7ca@f9941",
       "imported": true,
@@ -67,7 +67,8 @@
         "isUuid": true,
         "imageUuidOrDatabaseUri": "7d8f9b89-4fd1-4c9f-a3ab-38ec7cded7ca@6c48a",
         "atlasUuid": "",
-        "mipfilter": "none"
+        "mipfilter": "none",
+        "packable": true
       },
       "displayName": "default_sprite_splash",
       "id": "f9941",

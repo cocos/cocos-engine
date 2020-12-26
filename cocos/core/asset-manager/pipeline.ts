@@ -43,7 +43,6 @@ export type IPipe = IAsyncPipe | ISyncPipe;
  *
  */
 export class Pipeline {
-
     private static _pipelineId = 0;
 
     /**
@@ -133,10 +132,10 @@ export class Pipeline {
      * }, 0);
      *
      */
-    public insert (func: IPipe, index: number) {
+    public insert (func: IPipe, index: number): Pipeline {
         if (index > this.pipes.length) {
             warnID(4921);
-            return;
+            return this;
         }
 
         this.pipes.splice(index, 0, func);
@@ -213,7 +212,7 @@ export class Pipeline {
      */
     public sync (task: Task): any {
         const pipes = this.pipes;
-        if (pipes.length === 0) { return; }
+        if (pipes.length === 0) { return null; }
         task.isFinish = false;
         for (let i = 0, l = pipes.length; i < l;) {
             const pipe = pipes[i] as ISyncPipe;
@@ -229,7 +228,7 @@ export class Pipeline {
             }
         }
         task.isFinish = true;
-        return task.output;
+        return task.output as unknown;
     }
 
     /**
@@ -264,16 +263,14 @@ export class Pipeline {
             if (result) {
                 task.isFinish = true;
                 task.dispatch('complete', result);
-            }
-            else {
+            } else {
                 index++;
                 if (index < this.pipes.length) {
                     // move output to input
                     task.input = task.output;
                     task.output = null;
                     this._flow(index, task);
-                }
-                else {
+                } else {
                     task.isFinish = true;
                     task.dispatch('complete', result, task.output);
                 }

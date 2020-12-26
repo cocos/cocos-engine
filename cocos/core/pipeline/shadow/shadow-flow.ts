@@ -29,32 +29,22 @@
  */
 
 import { ccclass } from 'cc.decorator';
-import { PIPELINE_FLOW_SHADOW, UNIFORM_SHADOWMAP_BINDING, UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING } from '../define';
+import { PIPELINE_FLOW_SHADOW } from '../define';
 import { IRenderFlowInfo, RenderFlow } from '../render-flow';
 import { ForwardFlowPriority } from '../forward/enum';
 import { ShadowStage } from './shadow-stage';
 import { RenderPass, LoadOp, StoreOp,
-    TextureLayout, Format, Texture, TextureType, TextureUsageBit, Filter, Address,
-    ColorAttachment, DepthStencilAttachment, RenderPassInfo, TextureInfo, FramebufferInfo } from '../../gfx';
+    TextureLayout, Format, Texture, TextureType, TextureUsageBit, ColorAttachment,
+    DepthStencilAttachment, RenderPassInfo, TextureInfo, FramebufferInfo } from '../../gfx';
 import { RenderFlowTag } from '../pipeline-serialization';
+import { ForwardPipeline } from '../forward/forward-pipeline';
 import { RenderPipeline } from '..';
 import { RenderView } from '../render-view';
 import { ShadowType } from '../../renderer/scene/shadows';
-import { genSamplerHash, samplerLib } from '../../renderer/core/sampler-lib';
-import { Light, LightType } from '../../renderer/scene/light';
+import { Light } from '../../renderer/scene/light';
 import { lightCollecting, shadowCollecting } from '../forward/scene-culling';
 import { Vec2 } from '../../math';
-import { builtinResMgr } from '../../3d/builtin/init';
-import { Texture2D } from '../../assets/texture-2d';
-
-const _samplerInfo = [
-    Filter.LINEAR,
-    Filter.LINEAR,
-    Filter.NONE,
-    Address.CLAMP,
-    Address.CLAMP,
-    Address.CLAMP,
-];
+import { Camera } from '../../renderer/scene';
 
 /**
  * @en Shadow map render flow
@@ -62,7 +52,6 @@ const _samplerInfo = [
  */
 @ccclass('ShadowFlow')
 export class ShadowFlow extends RenderFlow {
-
     /**
      * @en A common initialization info for shadow map render flow
      * @zh 一个通用的 ShadowFlow 的初始化信息对象
@@ -71,11 +60,10 @@ export class ShadowFlow extends RenderFlow {
         name: PIPELINE_FLOW_SHADOW,
         priority: ForwardFlowPriority.SHADOW,
         tag: RenderFlowTag.SCENE,
-        stages: []
+        stages: [],
     };
 
     private _shadowRenderPass: RenderPass|null = null;
-    private _globalBinding: boolean = false;
 
     public initialize (info: IRenderFlowInfo): boolean {
         super.initialize(info);
@@ -88,13 +76,14 @@ export class ShadowFlow extends RenderFlow {
         return true;
     }
 
-    public render (view: RenderView) {
-        const pipeline = this._pipeline as RenderPipeline;
+    public render (camera: Camera) {
+        const pipeline = this._pipeline as ForwardPipeline;
         const shadowInfo = pipeline.shadows;
-        if (shadowInfo.type !== ShadowType.ShadowMap) { return; }
+        if (!shadowInfo.enabled || shadowInfo.type !== ShadowType.ShadowMap) { return; }
 
-        const validLights = lightCollecting(view, shadowInfo.maxReceived);
-        shadowCollecting(pipeline, view);
+        pipeline.updateShadowUBO(camera);
+        const validLights = lightCollecting(camera, shadowInfo.maxReceived);
+        shadowCollecting(pipeline, camera);
 
         for (let l = 0; l < validLights.length; l++) {
             const light = validLights[l];
@@ -108,14 +97,14 @@ export class ShadowFlow extends RenderFlow {
             for (let i = 0; i < this._stages.length; i++) {
                 const shadowStage = this._stages[i] as ShadowStage;
                 shadowStage.setUsage(light, shadowFrameBuffer!);
-                shadowStage.render(view);
+                shadowStage.render(camera);
             }
         }
     }
 
     public destroy () {
         super.destroy();
-        let shadowFrameBuffers = Array.from((this._pipeline as ForwardPipeline).shadowFrameBufferMap.values());
+        const shadowFrameBuffers = Array.from((this._pipeline as ForwardPipeline).shadowFrameBufferMap.values());
         for (let i = 0; i < shadowFrameBuffers.length; i++) {
             const frameBuffer = shadowFrameBuffers[i];
 
@@ -123,7 +112,7 @@ export class ShadowFlow extends RenderFlow {
             const renderTargets = frameBuffer.colorTextures;
             for (let j = 0; j < renderTargets.length; j++) {
                 const renderTarget = renderTargets[i];
-                if (renderTarget) { renderTarget.destroy() };
+                if (renderTarget) { renderTarget.destroy(); }
             }
             renderTargets.length = 0;
 
@@ -135,9 +124,7 @@ export class ShadowFlow extends RenderFlow {
 
         (this._pipeline as ForwardPipeline).shadowFrameBufferMap.clear();
 
-        if(this._shadowRenderPass) { this._shadowRenderPass.destroy() };
-
-        this._globalBinding = false;
+        if (this._shadowRenderPass) { this._shadowRenderPass.destroy(); }
     }
 
     public _initShadowFrameBuffer  (pipeline: RenderPipeline, light: Light) {
@@ -156,9 +143,9 @@ export class ShadowFlow extends RenderFlow {
             const depthStencilAttachment = new DepthStencilAttachment();
             depthStencilAttachment.format = device.depthStencilFormat;
             depthStencilAttachment.depthLoadOp = LoadOp.CLEAR;
-            depthStencilAttachment.depthStoreOp = StoreOp.STORE;
+            depthStencilAttachment.depthStoreOp = StoreOp.DISCARD;
             depthStencilAttachment.stencilLoadOp = LoadOp.CLEAR;
-            depthStencilAttachment.stencilStoreOp = StoreOp.STORE;
+            depthStencilAttachment.stencilStoreOp = StoreOp.DISCARD;
             depthStencilAttachment.sampleCount = 1;
             depthStencilAttachment.beginLayout = TextureLayout.UNDEFINED;
             depthStencilAttachment.endLayout = TextureLayout.DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
@@ -192,21 +179,6 @@ export class ShadowFlow extends RenderFlow {
 
         // Cache frameBuffer
         pipeline.shadowFrameBufferMap.set(light, shadowFrameBuffer);
-
-
-        if (!this._globalBinding) {
-            const shadowMapSamplerHash = genSamplerHash(_samplerInfo);
-            const shadowMapSampler = samplerLib.getSampler(device, shadowMapSamplerHash);
-            pipeline.descriptorSet.bindSampler(UNIFORM_SHADOWMAP_BINDING, shadowMapSampler);
-            pipeline.descriptorSet.bindTexture(UNIFORM_SHADOWMAP_BINDING, builtinResMgr.get<Texture2D>('default-texture').getGFXTexture()!);
-            pipeline.descriptorSet.bindSampler(UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING, shadowMapSampler);
-            pipeline.descriptorSet.bindTexture(UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING, builtinResMgr.get<Texture2D>('default-texture').getGFXTexture()!);
-            this._globalBinding = true;
-        }
-
-        if (light && light.type === LightType.DIRECTIONAL) {
-            pipeline.descriptorSet.bindTexture(UNIFORM_SHADOWMAP_BINDING, shadowFrameBuffer.colorTextures[0]!);
-        }
     }
 
     private resizeShadowMap (light: Light, size: Vec2) {

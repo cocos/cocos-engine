@@ -36,7 +36,8 @@ import { BuiltinShape } from './shapes/builtin-shape';
 import { Node } from '../../core';
 import { BuiltinRigidBody } from './builtin-rigid-body';
 import { PhysicsSystem } from '../framework';
-
+import { PhysicsGroup } from '../framework/physics-enum';
+import { fastRemoveAt } from '../../core/utils/array';
 
 const m4_0 = new Mat4();
 const v3_0 = new Vec3();
@@ -47,7 +48,6 @@ const quat_0 = new Quat();
  * Built-in static collider, no physical forces involved
  */
 export class BuiltinSharedBody extends BuiltinObject {
-
     private static readonly sharedBodesMap = new Map<string, BuiltinSharedBody>();
 
     static getSharedBody (node: Node, wrappedWorld: BuiltInWorld, wrappedBody?: BuiltinRigidBody) {
@@ -57,6 +57,10 @@ export class BuiltinSharedBody extends BuiltinObject {
             newSB = BuiltinSharedBody.sharedBodesMap.get(key)!;
         } else {
             newSB = new BuiltinSharedBody(node, wrappedWorld);
+            const g = PhysicsGroup.DEFAULT;
+            const m = PhysicsSystem.instance.collisionMatrix[g];
+            newSB.collisionFilterGroup = g;
+            newSB.collisionFilterMask = m;
             BuiltinSharedBody.sharedBodesMap.set(node.uuid, newSB);
         }
         if (wrappedBody) {
@@ -85,21 +89,20 @@ export class BuiltinSharedBody extends BuiltinObject {
                 this.world.addSharedBody(this);
                 this.syncInitial();
             }
-        } else {
-            if (this.index >= 0) {
-                const isRemove = (this.shapes.length == 0);
+        } else if (this.index >= 0) {
+            const isRemove = (this.shapes.length === 0);
 
-                if (isRemove) {
-                    this.index = -1;
-                    this.world.removeSharedBody(this);
-                }
+            if (isRemove) {
+                this.index = -1;
+                this.world.removeSharedBody(this);
             }
         }
     }
 
     set reference (v: boolean) {
+        // eslint-disable-next-line no-unused-expressions
         v ? this.ref++ : this.ref--;
-        if (this.ref == 0) { this.destroy(); }
+        if (this.ref === 0) { this.destroy(); }
     }
 
     /** id generator */
@@ -145,7 +148,7 @@ export class BuiltinSharedBody extends BuiltinObject {
     removeShape (shape: BuiltinShape): void {
         const i = this.shapes.indexOf(shape);
         if (i >= 0) {
-            this.shapes.splice(i, 1);
+            fastRemoveAt(this.shapes, i);
         }
     }
 

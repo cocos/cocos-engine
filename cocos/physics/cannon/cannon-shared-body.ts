@@ -23,19 +23,26 @@
  THE SOFTWARE.
  */
 
+/**
+ * @packageDocumentation
+ * @hidden
+ */
+
 import CANNON from '@cocos/cannon';
 import { Quat, Vec3 } from '../../core/math';
-import { ERigidBodyType } from '../framework/physics-enum';
-import { getWrap } from '../framework/util';
+import { ERigidBodyType, PhysicsGroup } from '../framework/physics-enum';
+import { getWrap, setWrap } from '../utils/util';
 import { CannonWorld } from './cannon-world';
 import { CannonShape } from './shapes/cannon-shape';
 import { Collider, PhysicsSystem } from '../../../exports/physics-framework';
 import { TransformBit } from '../../core/scene-graph/node-enum';
 import { Node } from '../../core';
-import { CollisionEventType, IContactEquation } from '../framework/physics-interface';
+import { CollisionEventType } from '../framework/physics-interface';
 import { CannonRigidBody } from './cannon-rigid-body';
 import { commitShapeUpdates } from './cannon-util';
 import { CannonContactEquation } from './cannon-contact-equation';
+import { CannonConstraint } from './constraints/cannon-constraint';
+import { fastRemoveAt } from '../../core/utils/array';
 
 const v3_0 = new Vec3();
 const quat_0 = new Quat();
@@ -53,7 +60,6 @@ const CollisionEventObject = {
  * static
  */
 export class CannonSharedBody {
-
     private static readonly sharedBodesMap = new Map<string, CannonSharedBody>();
 
     static getSharedBody (node: Node, wrappedWorld: CannonWorld, wrappedBody?: CannonRigidBody) {
@@ -63,6 +69,10 @@ export class CannonSharedBody {
             newSB = CannonSharedBody.sharedBodesMap.get(key)!;
         } else {
             newSB = new CannonSharedBody(node, wrappedWorld);
+            const g = PhysicsGroup.DEFAULT;
+            const m = PhysicsSystem.instance.collisionMatrix[g];
+            newSB.body.collisionFilterGroup = g;
+            newSB.body.collisionFilterMask = m;
             CannonSharedBody.sharedBodesMap.set(node.uuid, newSB);
         }
         if (wrappedBody) {
@@ -78,11 +88,13 @@ export class CannonSharedBody {
     readonly node: Node;
     readonly wrappedWorld: CannonWorld;
     readonly body: CANNON.Body;
-    readonly shapes: CannonShape[] = [];
+    readonly wrappedShapes: CannonShape[] = [];
+    readonly wrappedJoints0: CannonConstraint[] = [];
+    readonly wrappedJoints1: CannonConstraint[] = [];
     wrappedBody: CannonRigidBody | null = null;
 
-    private index: number = -1;
-    private ref: number = 0;
+    private index = -1;
+    private ref = 0;
     private onCollidedListener = this.onCollided.bind(this);
 
     /**
@@ -97,29 +109,29 @@ export class CannonSharedBody {
                 this.wrappedWorld.addSharedBody(this);
                 this.syncInitial();
             }
-        } else {
-            if (this.index >= 0) {
-                const isRemove = (this.shapes.length == 0 && this.wrappedBody == null) ||
-                    (this.shapes.length == 0 && this.wrappedBody != null && !this.wrappedBody.isEnabled)
+        } else if (this.index >= 0) {
+            const isRemove = (this.wrappedShapes.length === 0 && this.wrappedBody == null)
+                || (this.wrappedShapes.length === 0 && this.wrappedBody != null && !this.wrappedBody.isEnabled);
 
-                if (isRemove) {
-                    this.body.sleep(); // clear velocity etc.
-                    this.index = -1;
-                    this.wrappedWorld.removeSharedBody(this);
-                }
+            if (isRemove) {
+                this.body.sleep(); // clear velocity etc.
+                this.index = -1;
+                this.wrappedWorld.removeSharedBody(this);
             }
         }
     }
 
     set reference (v: boolean) {
+        // eslint-disable-next-line no-unused-expressions
         v ? this.ref++ : this.ref--;
-        if (this.ref == 0) { this.destroy(); }
+        if (this.ref === 0) { this.destroy(); }
     }
 
     private constructor (node: Node, wrappedWorld: CannonWorld) {
         this.wrappedWorld = wrappedWorld;
         this.node = node;
         this.body = new CANNON.Body();
+        setWrap(this.body, this);
         this.body.collisionFilterGroup = PhysicsSystem.PhysicsGroup.DEFAULT;
         this.body.sleepSpeedLimit = PhysicsSystem.instance.sleepThreshold;
         this.body.material = this.wrappedWorld.impl.defaultMaterial;
@@ -127,11 +139,11 @@ export class CannonSharedBody {
     }
 
     addShape (v: CannonShape) {
-        const index = this.shapes.indexOf(v);
+        const index = this.wrappedShapes.indexOf(v);
         if (index < 0) {
             const index = this.body.shapes.length;
             this.body.addShape(v.impl);
-            this.shapes.push(v);
+            this.wrappedShapes.push(v);
 
             v.setIndex(index);
             const offset = this.body.shapeOffsets[index];
@@ -142,61 +154,96 @@ export class CannonSharedBody {
     }
 
     removeShape (v: CannonShape) {
-        const index = this.shapes.indexOf(v);
+        const index = this.wrappedShapes.indexOf(v);
         if (index >= 0) {
-            this.shapes.splice(index, 1);
+            fastRemoveAt(this.wrappedShapes, index);
             this.body.removeShape(v.impl);
             v.setIndex(-1);
             if (this.body.isSleeping()) this.body.wakeUp();
         }
     }
 
+    addJoint (v: CannonConstraint, type: 0 | 1) {
+        if (type) {
+            const i = this.wrappedJoints1.indexOf(v);
+            if (i < 0) this.wrappedJoints1.push(v);
+        } else {
+            const i = this.wrappedJoints0.indexOf(v);
+            if (i < 0) this.wrappedJoints0.push(v);
+        }
+    }
+
+    removeJoint (v: CannonConstraint, type: 0 | 1) {
+        if (type) {
+            const i = this.wrappedJoints1.indexOf(v);
+            if (i >= 0) fastRemoveAt(this.wrappedJoints1, i);
+        } else {
+            const i = this.wrappedJoints0.indexOf(v);
+            if (i >= 0) fastRemoveAt(this.wrappedJoints0, i);
+        }
+    }
+
     syncSceneToPhysics () {
-        if (this.node.hasChangedFlags) {
-            if (this.body.isSleeping()) this.body.wakeUp();
-            Vec3.copy(this.body.position, this.node.worldPosition);
-            Quat.copy(this.body.quaternion, this.node.worldRotation);
-            this.body.aabbNeedsUpdate = true;
-            if (this.node.hasChangedFlags & TransformBit.SCALE) {
-                for (let i = 0; i < this.shapes.length; i++) {
-                    this.shapes[i].setScale(this.node.worldScale);
-                }
-                commitShapeUpdates(this.body);
-            }
+        const node = this.node;
+        const body = this.body;
+        if (node.hasChangedFlags) {
+            if (body.isSleeping()) body.wakeUp();
+            Vec3.copy(body.position, node.worldPosition);
+            Quat.copy(body.quaternion, node.worldRotation);
+            body.aabbNeedsUpdate = true;
+            if (node.hasChangedFlags & TransformBit.SCALE) this.syncScale();
         }
     }
 
     syncPhysicsToScene () {
-        if (this.body.type != ERigidBodyType.STATIC) {
-            if (!this.body.isSleeping()) {
-                Vec3.copy(v3_0, this.body.position);
-                Quat.copy(quat_0, this.body.quaternion);
-                this.node.worldPosition = v3_0;
-                this.node.worldRotation = quat_0;
+        const n = this.node;
+        const b = this.body;
+        if (b.type === ERigidBodyType.DYNAMIC) {
+            if (!b.isSleeping()) {
+                Vec3.copy(v3_0, b.position);
+                Quat.copy(quat_0, b.quaternion);
+                n.worldPosition = v3_0;
+                n.worldRotation = quat_0;
             }
         }
     }
 
     syncInitial () {
-        Vec3.copy(this.body.position, this.node.worldPosition);
-        Quat.copy(this.body.quaternion, this.node.worldRotation);
-        this.body.aabbNeedsUpdate = true;
-        for (let i = 0; i < this.shapes.length; i++) {
-            this.shapes[i].setScale(this.node.worldScale);
+        const n = this.node;
+        const b = this.body;
+        Vec3.copy(b.position, n.worldPosition);
+        Quat.copy(b.quaternion, n.worldRotation);
+        Vec3.copy(b.previousPosition, n.worldPosition);
+        Quat.copy(b.previousQuaternion, n.worldRotation);
+        b.aabbNeedsUpdate = true;
+        this.syncScale();
+        if (b.isSleeping()) b.wakeUp();
+    }
+
+    syncScale () {
+        for (let i = 0; i < this.wrappedShapes.length; i++) {
+            this.wrappedShapes[i].setScale(this.node.worldScale);
+        }
+        for (let i = 0; i < this.wrappedJoints0.length; i++) {
+            this.wrappedJoints0[i].updateScale0();
+        }
+        for (let i = 0; i < this.wrappedJoints1.length; i++) {
+            this.wrappedJoints1[i].updateScale1();
         }
         commitShapeUpdates(this.body);
-
-        if (this.body.isSleeping()) this.body.wakeUp();
     }
 
     private destroy () {
+        setWrap(this.body, null);
         this.body.removeEventListener('cc-collide', this.onCollidedListener);
         CannonSharedBody.sharedBodesMap.delete(this.node.uuid);
-        delete CANNON.World['idToBodyMap'][this.body.id];
+        delete (CANNON.World as any).idToBodyMap[this.body.id];
         (this.node as any) = null;
         (this.wrappedWorld as any) = null;
         (this.body as any) = null;
-        (this.shapes as any) = null;
+        (this.wrappedShapes as any) = null;
+        (this.wrappedJoints0 as any) = null;
+        (this.wrappedJoints1 as any) = null;
         (this.onCollidedListener as any) = null;
     }
 
@@ -205,32 +252,32 @@ export class CannonSharedBody {
         const self = getWrap<CannonShape>(event.selfShape);
         const other = getWrap<CannonShape>(event.otherShape);
         if (self && self.collider.needCollisionEvent) {
-            contactsPool.push.apply(contactsPool, CollisionEventObject.contacts as CannonContactEquation[]);
+            contactsPool.push.apply(contactsPool, CollisionEventObject.contacts);
             CollisionEventObject.contacts.length = 0;
-
             CollisionEventObject.impl = event;
             CollisionEventObject.selfCollider = self.collider;
             CollisionEventObject.otherCollider = other ? other.collider : (null as any);
 
             let i = 0;
-            for (i = 0; i < event.contacts.length; i++) {
-                const cq = event.contacts[i];
-                if (contactsPool.length > 0) {
-                    const c = contactsPool.pop();
-                    c!.impl = cq;
-                    CollisionEventObject.contacts.push(c!);
-                } else {
-                    const c = new CannonContactEquation(CollisionEventObject);
-                    c.impl = cq;
-                    CollisionEventObject.contacts.push(c);
+            if (CollisionEventObject.type !== 'onCollisionExit') {
+                for (i = 0; i < event.contacts.length; i++) {
+                    const cq = event.contacts[i];
+                    if (contactsPool.length > 0) {
+                        const c = contactsPool.pop();
+                        c!.impl = cq;
+                        CollisionEventObject.contacts.push(c!);
+                    } else {
+                        const c = new CannonContactEquation(CollisionEventObject);
+                        c.impl = cq;
+                        CollisionEventObject.contacts.push(c);
+                    }
                 }
             }
 
-            for (i = 0; i < this.shapes.length; i++) {
-                const shape = this.shapes[i];
+            for (i = 0; i < this.wrappedShapes.length; i++) {
+                const shape = this.wrappedShapes[i];
                 shape.collider.emit(CollisionEventObject.type, CollisionEventObject);
             }
         }
     }
-
 }

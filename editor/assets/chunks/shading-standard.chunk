@@ -96,7 +96,9 @@ struct StandardSurface {
 
       vec3 lightColor = cc_lightColor[i].rgb;
     #if CC_RECEIVE_SHADOW
-      CC_DIR_SHADOW_FACTOR(lightColor);
+      if (cc_lightPos[i].w > 0.0) {
+          CC_DIR_SHADOW_FACTOR(lightColor);
+      }
     #endif
 
       finalColor += SNL * lightColor * cc_lightColor[i].w * illum * att * (diffuseContrib + lspec);

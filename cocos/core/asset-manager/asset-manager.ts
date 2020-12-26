@@ -48,7 +48,7 @@ import preprocess from './preprocess';
 import releaseManager from './release-manager';
 import RequestItem from './request-item';
 import {
-    CompleteCallback,
+    CompleteCallbackWithData,
     CompleteCallbackNoData,
     ProgressCallback,
     IBundleOptions,
@@ -59,8 +59,8 @@ import {
     Request,
     references,
     IJsonAssetOptions,
-} from './shared';
-import { assets, BuiltinBundleName, bundles, fetchPipeline, files, parsed, pipeline, transformPipeline } from './shared';
+    assets, BuiltinBundleName, bundles, fetchPipeline, files, parsed, pipeline, transformPipeline } from './shared';
+
 import Task from './task';
 import { combine, parse } from './url-transformer';
 import { asyncify, parseParameters } from './utilities';
@@ -125,7 +125,6 @@ export interface IAssetManagerOptions {
  *
  */
 export class AssetManager {
-
     /**
      * @en
      * Normal loading pipeline
@@ -195,7 +194,7 @@ export class AssetManager {
      * 是否强制加载资源, 如果为 true ，加载资源将会忽略报错
      *
      */
-    public force = EDITOR ? true : false;
+    public force = !!EDITOR;
 
     /**
      * @en
@@ -292,7 +291,7 @@ export class AssetManager {
     private _files = files;
 
     private _parsed = parsed;
-    private _parsePipeline = BUILD ? null : new Pipeline('parse existing json', [ this.loadPipe ]);
+    private _parsePipeline = BUILD ? null : new Pipeline('parse existing json', [this.loadPipe]);
 
     /**
      * @en
@@ -439,15 +438,18 @@ export class AssetManager {
      * cc.assetManager.loadAny({ url: 'http://example.com/my.asset', skin: 'xxx', model: 'xxx', userName: 'xxx', password: 'xxx' });
      *
      */
-    public loadAny (requests: Request, options: IOptions | null, onProgress: ProgressCallback | null, onComplete: CompleteCallback | null): void;
-    public loadAny (requests: Request, onProgress: ProgressCallback | null, onComplete: CompleteCallback | null): void;
-    public loadAny (requests: Request, options: IOptions | null, onComplete?: CompleteCallback | null): void;
-    public loadAny (requests: Request, onComplete?: CompleteCallback | null): void;
-    public loadAny (requests: Request,
-                    options?: IOptions | ProgressCallback | CompleteCallback | null,
-                    onProgress?: ProgressCallback | CompleteCallback | null,
-                    onComplete?: CompleteCallback | null) {
-
+    public loadAny (requests: Request, options: IOptions | null, onProgress: ProgressCallback | null, onComplete: CompleteCallbackWithData | null): void;
+    public loadAny (requests: Request, onProgress: ProgressCallback | null, onComplete: CompleteCallbackWithData | null): void;
+    public loadAny (requests: Request, options: IOptions | null, onComplete?: CompleteCallbackWithData | null): void;
+    public loadAny<T extends Asset> (requests: string, onComplete?: CompleteCallbackWithData<T> | null): void;
+    public loadAny<T extends Asset> (requests: string[], onComplete?: CompleteCallbackWithData<T[]> | null): void;
+    public loadAny (requests: Request, onComplete?: CompleteCallbackWithData | null): void;
+    public loadAny (
+        requests: Request,
+        options?: IOptions | ProgressCallback | CompleteCallbackWithData | null,
+        onProgress?: ProgressCallback | CompleteCallbackWithData | null,
+        onComplete?: CompleteCallbackWithData | null,
+    ) {
         const { options: opts, onProgress: onProg, onComplete: onComp } = parseParameters(options, onProgress, onComplete);
         opts.preset = opts.preset || 'default';
         requests = Array.isArray(requests) ? requests.slice() : requests;
@@ -480,18 +482,20 @@ export class AssetManager {
      * cc.assetManager.preloadAny('0cbZa5Y71CTZAccaIFluuZ', (err) => cc.assetManager.loadAny('0cbZa5Y71CTZAccaIFluuZ'));
      *
      */
-    public preloadAny (requests: Request,
-                       options: IOptions | null,
-                       onProgress: ProgressCallback | null,
-                       onComplete: CompleteCallback<RequestItem[]>|null): void;
-    public preloadAny (requests: Request, onProgress: ProgressCallback | null, onComplete: CompleteCallback<RequestItem[]> | null): void;
-    public preloadAny (requests: Request, options: IOptions | null, onComplete?: CompleteCallback<RequestItem[]> | null): void;
-    public preloadAny (requests: Request, onComplete?: CompleteCallback<RequestItem[]> | null): void;
-    public preloadAny (requests: Request,
-                       options?: IOptions | ProgressCallback | CompleteCallback<RequestItem[]> | null,
-                       onProgress?: ProgressCallback | CompleteCallback<RequestItem[]> | null,
-                       onComplete?: CompleteCallback<RequestItem[]> | null) {
-
+    public preloadAny (
+        requests: Request,
+        options: IOptions | null,
+        onProgress: ProgressCallback | null,
+        onComplete: CompleteCallbackWithData<RequestItem[]>|null): void;
+    public preloadAny (requests: Request, onProgress: ProgressCallback | null, onComplete: CompleteCallbackWithData<RequestItem[]> | null): void;
+    public preloadAny (requests: Request, options: IOptions | null, onComplete?: CompleteCallbackWithData<RequestItem[]> | null): void;
+    public preloadAny (requests: Request, onComplete?: CompleteCallbackWithData<RequestItem[]> | null): void;
+    public preloadAny (
+        requests: Request,
+        options?: IOptions | ProgressCallback | CompleteCallbackWithData<RequestItem[]> | null,
+        onProgress?: ProgressCallback | CompleteCallbackWithData<RequestItem[]> | null,
+        onComplete?: CompleteCallbackWithData<RequestItem[]> | null,
+    ) {
         const { options: opts, onProgress: onProg, onComplete: onComp } = parseParameters(options, onProgress, onComplete);
         opts.preset = opts.preset || 'preload';
         requests = Array.isArray(requests) ? requests.slice() : requests;
@@ -518,11 +522,11 @@ export class AssetManager {
     public postLoadNative (asset: Asset, options: INativeAssetOptions | null, onComplete: CompleteCallbackNoData | null): void;
     public postLoadNative (asset: Asset, onComplete?: CompleteCallbackNoData | null): void;
     public postLoadNative (asset: Asset, options?: INativeAssetOptions | CompleteCallbackNoData | null, onComplete?: CompleteCallbackNoData | null) {
-        const { options: opts, onComplete: onComp } = parseParameters(options, undefined, onComplete);
+        const { options: opts, onComplete: onComp } = parseParameters<CompleteCallbackNoData>(options, undefined, onComplete);
 
-        // @ts-expect-error
         if (!asset._native || !asset.__nativeDepend__) {
-            return asyncify(onComp)(null);
+            asyncify(onComp)(null);
+            return;
         }
 
         const depend = dependUtil.getNativeDep(asset._uuid);
@@ -536,14 +540,11 @@ export class AssetManager {
 
         this.loadAny(depend, opts, (err, native) => {
             if (!err) {
-                // @ts-expect-error
                 if (asset.isValid && asset.__nativeDepend__) {
                     asset._nativeAsset = native;
-                    // @ts-expect-error
                     asset.__nativeDepend__ = false;
                 }
-            }
-            else {
+            } else {
                 error(err.message, err.stack);
             }
             if (onComp) { onComp(err); }
@@ -571,14 +572,14 @@ export class AssetManager {
      * cc.assetManager.loadRemote('http://www.cloud.com/test3', { ext: '.png' }, (err, texture) => console.log(err));
      *
      */
-    public loadRemote<T extends Asset> (url: string, options: IRemoteOptions | null, onComplete?: CompleteCallback<T> | null): void;
-    public loadRemote<T extends Asset> (url: string, onComplete?: CompleteCallback<T> | null): void;
-    public loadRemote<T extends Asset> (url: string, options?: IRemoteOptions | CompleteCallback<T> | null, onComplete?: CompleteCallback<T> | null) {
-
-        const { options: opts, onComplete: onComp } = parseParameters(options, undefined, onComplete);
+    public loadRemote<T extends Asset> (url: string, options: IRemoteOptions | null, onComplete?: CompleteCallbackWithData<T> | null): void;
+    public loadRemote<T extends Asset> (url: string, onComplete?: CompleteCallbackWithData<T> | null): void;
+    public loadRemote<T extends Asset> (url: string, options?: IRemoteOptions | CompleteCallbackWithData<T> | null, onComplete?: CompleteCallbackWithData<T> | null) {
+        const { options: opts, onComplete: onComp } = parseParameters<CompleteCallbackWithData<T>>(options, undefined, onComplete);
 
         if (!opts.reloadAsset && this.assets.has(url)) {
-            return asyncify(onComp)(null, this.assets.get(url));
+            asyncify(onComp)(null, this.assets.get(url));
+            return;
         }
 
         opts.__isNative__ = true;
@@ -586,9 +587,8 @@ export class AssetManager {
         this.loadAny({ url }, opts, null, (err, data) => {
             if (err) {
                 error(err.message, err.stack);
-                if (onComp) { onComp(err, null); }
-            }
-            else {
+                if (onComp) { onComp(err, data); }
+            } else {
                 factory.create(url, data, opts.ext || extname(url), opts, (p1, p2) => {
                     if (onComp) { onComp(p1, p2 as T); }
                 });
@@ -614,15 +614,16 @@ export class AssetManager {
      * loadBundle('http://localhost:8080/test', null, (err, bundle) => console.log(err));
      *
      */
-    public loadBundle (nameOrUrl: string, options: IBundleOptions | null, onComplete?: CompleteCallback<Bundle> | null): void;
-    public loadBundle (nameOrUrl: string, onComplete?: CompleteCallback<Bundle> | null): void;
-    public loadBundle (nameOrUrl: string, options?: IBundleOptions | CompleteCallback<Bundle> | null, onComplete?: CompleteCallback<Bundle> | null) {
-        const { options: opts, onComplete: onComp } = parseParameters(options, undefined, onComplete);
+    public loadBundle (nameOrUrl: string, options: IBundleOptions | null, onComplete?: CompleteCallbackWithData<Bundle> | null): void;
+    public loadBundle (nameOrUrl: string, onComplete?: CompleteCallbackWithData<Bundle> | null): void;
+    public loadBundle (nameOrUrl: string, options?: IBundleOptions | CompleteCallbackWithData<Bundle> | null, onComplete?: CompleteCallbackWithData<Bundle> | null) {
+        const { options: opts, onComplete: onComp } = parseParameters<CompleteCallbackWithData<Bundle>>(options, undefined, onComplete);
 
         const bundleName = basename(nameOrUrl);
 
         if (this.bundles.has(bundleName)) {
-            return asyncify(onComp)(null, this.getBundle(bundleName));
+            asyncify(onComp)(null, this.getBundle(bundleName));
+            return;
         }
 
         opts.preset = opts.preset || 'bundle';
@@ -631,9 +632,8 @@ export class AssetManager {
         this.loadAny({ url: nameOrUrl }, opts, null, (err, data) => {
             if (err) {
                 error(err.message, err.stack);
-                if (onComp) { onComp(err, null); }
-            }
-            else {
+                if (onComp) { onComp(err, data); }
+            } else {
                 factory.create(nameOrUrl, data, 'bundle', opts, (p1, p2) => {
                     if (onComp) { onComp(p1, p2 as Bundle); }
                 });
@@ -702,39 +702,43 @@ export class AssetManager {
      * @param onComplete
      * @private
      */
-    public loadWithJson<T extends Asset> (json: Record<string, any>,
-                                          options: IJsonAssetOptions | null,
-                                          onProgress: ProgressCallback | null,
-                                          onComplete: CompleteCallback<T> | null): void;
-    public loadWithJson<T extends Asset> (json: Record<string, any>, onProgress: ProgressCallback | null, onComplete: CompleteCallback<T> | null): void;
-    public loadWithJson<T extends Asset> (json: Record<string, any>, options: IJsonAssetOptions | null, onComplete?: CompleteCallback<T> | null): void;
-    public loadWithJson<T extends Asset> (json: Record<string, any>, onComplete?: CompleteCallback<T> | null): void;
     public loadWithJson<T extends Asset> (
         json: Record<string, any>,
-        options?: IJsonAssetOptions | CompleteCallback<T> | null,
-        onProgress?: ProgressCallback | CompleteCallback<T> | null,
-        onComplete?: CompleteCallback<T> | null)
-    {
+        options: IJsonAssetOptions | null,
+        onProgress: ProgressCallback | null,
+        onComplete: CompleteCallbackWithData<T> | null): void;
+    public loadWithJson<T extends Asset> (json: Record<string, any>, onProgress: ProgressCallback | null, onComplete: CompleteCallbackWithData<T> | null): void;
+    public loadWithJson<T extends Asset> (json: Record<string, any>, options: IJsonAssetOptions | null, onComplete?: CompleteCallbackWithData<T> | null): void;
+    public loadWithJson<T extends Asset> (json: Record<string, any>, onComplete?: CompleteCallbackWithData<T> | null): void;
+    public loadWithJson<T extends Asset> (
+        json: Record<string, any>,
+        options?: IJsonAssetOptions | CompleteCallbackWithData<T> | null,
+        onProgress?: ProgressCallback | CompleteCallbackWithData<T> | null,
+        onComplete?: CompleteCallbackWithData<T> | null,
+    ) {
         if (BUILD) { throw new Error('Only valid in Editor'); }
 
-        const { options: opts, onProgress: onProg, onComplete: onComp } = parseParameters(options, onProgress, onComplete);
+        const { options: opts, onProgress: onProg, onComplete: onComp } = parseParameters<CompleteCallbackWithData<T>>(options, onProgress, onComplete);
 
         const item = RequestItem.create();
         item.isNative = false;
-        item.uuid = opts.assetId || ('' + new Date().getTime() + Math.random());
+        item.uuid = opts.assetId || (`${new Date().getTime()}${Math.random()}`);
         item.file = json;
         item.ext = '.json';
 
-        const task = new Task({ input: [item], onProgress: onProg, options: opts, onComplete: asyncify((err) => {
-            if (!err) {
-                if (!opts.assetId) {
-                    task.output._uuid = '';
+        const task = new Task({
+            input: [item],
+            onProgress: onProg,
+            options: opts,
+            onComplete: asyncify((err, data: T) => {
+                if (!err) {
+                    if (!opts.assetId) {
+                        data._uuid = '';
+                    }
                 }
-                if (onComp) { onComp(null, task.output); }
-            } else {
-                if (onComp) { onComp(err, null); }
-            }
-        })});
+                if (onComp) { onComp(err, data); }
+            }),
+        });
         this._parsePipeline!.async(task);
     }
 }

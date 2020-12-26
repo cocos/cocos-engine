@@ -24,10 +24,10 @@
  THE SOFTWARE.
  */
 
-
-import { Asset } from '../core/assets/asset';
 import { ccclass, type, serializable } from 'cc.decorator';
-import { CCString, Size, SpriteFrame, TextAsset } from '../core';
+import { Asset } from '../core/assets/asset';
+import { CCString, Size, TextAsset } from '../core';
+import { SpriteFrame } from '../2d/assets';
 /**
  * Class for tiled map asset handling.
  * @class TiledMapAsset

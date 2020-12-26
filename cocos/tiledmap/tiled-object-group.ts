@@ -26,14 +26,15 @@
 
 import { ccclass, help, type, requireComponent } from 'cc.decorator';
 import { Component } from '../core/components';
-import { Sprite } from '../ui/components/sprite';
-import { Label } from '../ui/components/label';
+import { Sprite } from '../2d/components/sprite';
+import { Label } from '../2d/components/label';
 import { BlendFactor } from '../core/gfx';
 
 import { TMXMapInfo } from './tmx-xml-parser';
 import { TiledTextureGrids, GID, TileFlag, Orientation, StaggerAxis, TMXObjectType, PropertiesInfo, TiledAnimationType, TMXObject, TMXObjectGroupInfo } from './tiled-types';
-import { UITransform } from '../core/components/ui-base/ui-transform';
-import { CCBoolean, Node, Vec2, SpriteFrame, Color, PrivateNode } from '../core';
+import { UITransform } from '../2d/framework/ui-transform';
+import { CCBoolean, Node, Vec2, Color, PrivateNode } from '../core';
+import { SpriteFrame } from '../2d/assets';
 
 /**
  * @en Renders the TMX object group.

@@ -23,6 +23,11 @@
  THE SOFTWARE.
  */
 
+/**
+ * @packageDocumentation
+ * @hidden
+ */
+
 import CANNON from '@cocos/cannon';
 import { Vec3, Quat } from '../../core/math';
 import { fillRaycastResult, toCannonRaycastOptions } from './cannon-util';
@@ -35,8 +40,9 @@ import { IPhysicsWorld, IRaycastOptions } from '../spec/i-physics-world';
 import { PhysicMaterial, PhysicsRayResult } from '../framework';
 import { IVec3Like } from '../../core/math/type-define';
 import { CannonRigidBody } from './cannon-rigid-body';
-export class CannonWorld implements IPhysicsWorld {
+import { fastRemoveAt } from '../../core/utils/array';
 
+export class CannonWorld implements IPhysicsWorld {
     get impl () {
         return this._world;
     }
@@ -76,7 +82,6 @@ export class CannonWorld implements IPhysicsWorld {
         this._world.defaultContactMaterial.frictionEquationStiffness = 1000000;
         this._world.defaultContactMaterial.contactEquationRelaxation = 3;
         this._world.defaultContactMaterial.frictionEquationRelaxation = 3;
-
     }
 
     emitEvents (): void {
@@ -90,8 +95,12 @@ export class CannonWorld implements IPhysicsWorld {
         }
     }
 
+    syncAfterEvents (): void {
+        this.syncSceneToPhysics();
+    }
+
     step (deltaTime: number, timeSinceLastCalled?: number, maxSubStep?: number) {
-        if (this.bodies.length == 0) return;
+        if (this.bodies.length === 0) return;
         this._world.step(deltaTime, timeSinceLastCalled, maxSubStep);
 
         // sync physics to scene
@@ -118,7 +127,7 @@ export class CannonWorld implements IPhysicsWorld {
             fillRaycastResult(r, result);
             results.push(r);
         });
-        return hit
+        return hit;
     }
 
     getSharedBody (node: Node, wrappedBody?: CannonRigidBody): CannonSharedBody {
@@ -136,7 +145,7 @@ export class CannonWorld implements IPhysicsWorld {
     removeSharedBody (sharedBody: CannonSharedBody) {
         const i = this.bodies.indexOf(sharedBody);
         if (i >= 0) {
-            this.bodies.splice(i, 1);
+            fastRemoveAt(this.bodies, i);
             this._world.remove(sharedBody.body);
         }
     }
@@ -156,17 +165,8 @@ export class CannonWorld implements IPhysicsWorld {
     removeConstraint (constraint: CannonConstraint) {
         const i = this.constraints.indexOf(constraint);
         if (i >= 0) {
-            this.constraints.splice(i, 1);
+            fastRemoveAt(this.constraints, i);
             this._world.removeConstraint(constraint.impl);
-        }
-    }
-
-    updateCollisionMatrix (group: number, mask: number) {
-        for (let i = 0; i < this.bodies.length; i++) {
-            const b = this.bodies[i].body;
-            if (b.collisionFilterGroup == group) {
-                b.collisionFilterMask = mask;
-            }
         }
     }
 }
@@ -179,8 +179,8 @@ function setupFromAndTo (worldRay: Ray, distance: number) {
 }
 
 const raycastOpt: CANNON.IRaycastOptions = {
-    'checkCollisionResponse': false,
-    'collisionFilterGroup': -1,
-    'collisionFilterMask': -1,
-    'skipBackFaces': true
-}
+    checkCollisionResponse: false,
+    collisionFilterGroup: -1,
+    collisionFilterMask: -1,
+    skipBackfaces: true,
+} as any;

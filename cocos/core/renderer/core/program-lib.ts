@@ -189,18 +189,14 @@ function getActiveAttributes (tmpl: IProgramInfo, tmplInfo: ITemplateInfo, defin
  * @zh 维护 shader 资源实例的全局管理器。
  */
 class ProgramLib {
-    protected _localBindings: Record<string, DescriptorSetLayoutBinding[]> = {}; // per effect
     protected _templates: Record<string, IProgramInfo> = {}; // per shader
     protected _cache: Record<string, ShaderHandle> = {};
     protected _templateInfos: Record<number, ITemplateInfo> = {};
 
     public register (effect: EffectAsset) {
-        const bindings = this._localBindings[effect.name] = [];
         for (let i = 0; i < effect.shaders.length; i++) {
             const tmpl = this.define(effect.shaders[i]);
             tmpl.effectName = effect.name;
-            const tmplInfo = this._templateInfos[tmpl.hash];
-            insertBuiltinBindings(tmpl, tmplInfo, localDescriptorSetLayout, 'locals', bindings);
         }
     }
 
@@ -233,8 +229,7 @@ class ProgramLib {
         if (offset > 31) { tmpl.uber = true; }
         // store it
         this._templates[shader.name] = tmpl;
-        const curTmplInfo = this._templateInfos[tmpl.hash];
-        if (!curTmplInfo) {
+        if (!this._templateInfos[tmpl.hash]) {
             const tmplInfo = {} as ITemplateInfo;
             // cache material-specific descriptor set layout
             tmplInfo.samplerStartBinding = tmpl.blocks.length;
@@ -259,6 +254,7 @@ class ProgramLib {
                 const attr = tmpl.attributes[i];
                 tmplInfo.gfxAttributes.push(new Attribute(attr.name, attr.format, attr.isNormalized, 0, attr.isInstanced, attr.location));
             }
+            insertBuiltinBindings(tmpl, tmplInfo, localDescriptorSetLayout, 'locals');
 
             tmplInfo.gfxStages = [];
             tmplInfo.gfxStages.push(new ShaderStage(ShaderStageFlagBit.VERTEX, ''));

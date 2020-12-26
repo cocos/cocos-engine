@@ -1,20 +1,21 @@
+import { EDITOR } from 'internal:constants';
 import { TrackEntryListeners } from './track-entry-listeners';
 import spine from './lib/spine-core.js';
-import { AnimationCache, AnimationFrame, default as SkeletonCache } from './skeleton-cache';
+import SkeletonCache, { AnimationCache, AnimationFrame } from './skeleton-cache';
 import { AttachUtil } from './attach-util';
 import { ccclass, executeInEditMode, help, menu } from '../core/data/class-decorator';
-import { UIRenderable } from '../core/components/ui-base/ui-renderable';
-import { Node, CCClass, CCObject, Color, Enum, GFXBlendFactor, Material, PrivateNode, Texture2D, builtinResMgr, ccenum, errorID, logID, warn, Socket } from '../core';
+import { UIRenderable } from '../2d/framework/ui-renderable';
+import { Node, CCClass, CCObject, Color, Enum, Material, PrivateNode, Texture2D, builtinResMgr, ccenum, errorID, logID, warn } from '../core';
 import { displayName, editable, override, serializable, tooltip, type, visible } from '../core/data/decorators';
-import { EDITOR } from '../../editor/exports/populate-internal-constants';
 import { SkeletonData } from './skeleton-data';
 import { VertexEffectDelegate } from './vertex-effect-delegate';
-import { MeshRenderData } from '../core/renderer/ui/render-data';
-import { UI } from '../core/renderer/ui/ui';
-import { Graphics } from '../ui/components/graphics';
+import { MeshRenderData } from '../2d/renderer/render-data';
+import { UI } from '../2d/renderer/ui';
+import { Graphics } from '../2d/components/graphics';
 import { MaterialInstance } from '../core/renderer';
 import { js } from '../core/utils/js';
-import { sp } from '../../exports/spine';
+import { BlendFactor, BlendOp } from '../core/gfx';
+import { legacyCC } from '../core/global-exports';
 
 export const timeScale = 1.0;
 
@@ -221,6 +222,7 @@ export class Skeleton extends UIRenderable {
             const skinsEnum = this.skeletonData.getSkinsEnum();
             if (skinsEnum) {
                 if (this.defaultSkin === '') {
+                    // eslint-disable-next-line no-prototype-builtins
                     if (skinsEnum.hasOwnProperty(0)) {
                         this._defaultSkinIndex = 0;
                         return 0;
@@ -334,18 +336,18 @@ export class Skeleton extends UIRenderable {
      * !#zh 是否启用贴图预乘。
      * 当图片的透明区域出现色块时需要关闭该选项，当图片的半透明区域颜色变黑时需要启用该选项。
      */
-    // @serializable
-    // private _premultipliedAlpha: boolean = true;
+    @serializable
+    private _premultipliedAlpha = true;
 
-    // @editable
-    // @tooltip('i18n:COMPONENT.skeleton.premultipliedAlpha')
-    // get premultipliedAlpha (): boolean { return this._premultipliedAlpha; }
-    // set premultipliedAlpha (v: boolean) {
-    //     if (v !== this._premultipliedAlpha) {
-    //         this._premultipliedAlpha = v;
-    //         this.markForUpdateRenderData();
-    //     }
-    // }
+    @editable
+    @tooltip('i18n:COMPONENT.skeleton.premultipliedAlpha')
+    get premultipliedAlpha (): boolean { return this._premultipliedAlpha; }
+    set premultipliedAlpha (v: boolean) {
+        if (v !== this._premultipliedAlpha) {
+            this._premultipliedAlpha = v;
+            this.markForUpdateRenderData();
+        }
+    }
 
     /**
      * !#en The time scale of this skeleton.
@@ -364,7 +366,7 @@ export class Skeleton extends UIRenderable {
     @tooltip('i18n:COMPONENT.skeleton.debug_slots')
     get debugSlots () { return this._debugSlots; }
     set debugSlots (v: boolean) {
-        if (v != this._debugSlots) {
+        if (v !== this._debugSlots) {
             this._debugSlots = v;
             this._updateDebugDraw();
             this.markForUpdateRenderData();
@@ -379,7 +381,7 @@ export class Skeleton extends UIRenderable {
     @tooltip('i18n:COMPONENT.skeleton.debug_bones')
     get debugBones () { return this._debugBones; }
     set debugBones (v: boolean) {
-        if (v != this._debugBones) {
+        if (v !== this._debugBones) {
             this._debugBones = v;
             this._updateDebugDraw();
             this.markForUpdateRenderData();
@@ -394,7 +396,7 @@ export class Skeleton extends UIRenderable {
     @tooltip('i18n:COMPONENT.skeleton.debug_mesh')
     get debugMesh () { return this._debugMesh; }
     set debugMesh (value) {
-        if (value != this._debugMesh) {
+        if (value !== this._debugMesh) {
             this._debugMesh = value;
             this._updateDebugDraw();
             this.markForUpdateRenderData();
@@ -409,7 +411,7 @@ export class Skeleton extends UIRenderable {
     @tooltip('i18n:COMPONENT.skeleton.use_tint')
     get useTint () { return this._useTint; }
     set useTint (value) {
-        if (value != this._useTint) {
+        if (value !== this._useTint) {
             this._useTint = value;
             this._updateUseTint();
             this.markForUpdateRenderData();
@@ -564,7 +566,7 @@ export class Skeleton extends UIRenderable {
 
     public getBuiltinMaterial (type: SpineMaterialType): Material {
         // not need _uiMaterialDirty at firstTime
-        let mat;
+        let mat:Material;
         switch (type) {
         case SpineMaterialType.COLORED:
             mat = builtinResMgr.get('ui-base-material');
@@ -590,7 +592,8 @@ export class Skeleton extends UIRenderable {
     /**
      * !#en
      * Sets runtime skeleton data to sp.Skeleton.<br>
-     * This method is different from the `skeletonData` property. This method is passed in the raw data provided by the Spine runtime, and the skeletonData type is the asset type provided by Creator.
+     * This method is different from the `skeletonData` property. This method is passed in the raw data provided by the
+     *  Spine runtime, and the skeletonData type is the asset type provided by Creator.
      * !#zh
      * 设置底层运行时用到的 SkeletonData。<br>
      * 这个接口有别于 `skeletonData` 属性，这个接口传入的是 Spine runtime 提供的原始数据，而 skeletonData 的类型是 Creator 提供的资源类型。
@@ -650,7 +653,7 @@ export class Skeleton extends UIRenderable {
      */
     public setAnimationStateData (stateData) {
         if (this.isAnimationCached()) {
-            warn("'setAnimationStateData' interface can not be invoked in cached mode.");
+            warn('\'setAnimationStateData\' interface can not be invoked in cached mode.');
         } else {
             const state = new spine.AnimationState(stateData);
             if (this._listener) {
@@ -686,7 +689,7 @@ export class Skeleton extends UIRenderable {
         this._indexBoneSockets();
         this._updateSocketBindings();
         // this._updateBatch();
-        EDITOR && this._refreshInspector();
+        if (EDITOR) { this._refreshInspector(); }
     }
 
     /**
@@ -1068,7 +1071,7 @@ export class Skeleton extends UIRenderable {
      */
     public getCurrent (trackIndex: number) {
         if (this.isAnimationCached()) {
-            warn("'getCurrent' interface can not be invoked in cached mode.");
+            warn('\'getCurrent\' interface can not be invoked in cached mode.');
         } else if (this._state) {
             return this._state.getCurrent(trackIndex);
         }
@@ -1082,7 +1085,7 @@ export class Skeleton extends UIRenderable {
      */
     public clearTracks () {
         if (this.isAnimationCached()) {
-            warn("'clearTracks' interface can not be invoked in cached mode.");
+            warn('\'clearTracks\' interface can not be invoked in cached mode.');
         } else if (this._state) {
             this._state.clearTracks();
         }
@@ -1096,7 +1099,7 @@ export class Skeleton extends UIRenderable {
      */
     public clearTrack (trackIndex: number) {
         if (this.isAnimationCached()) {
-            warn("'clearTrack' interface can not be invoked in cached mode.");
+            warn('\'clearTrack\' interface can not be invoked in cached mode.');
         } else if (this._state) {
             this._state.clearTrack(trackIndex);
             if (EDITOR/* && !cc.engine.isPlaying */) {
@@ -1281,7 +1284,7 @@ export class Skeleton extends UIRenderable {
         }
     }
 
-    public getMaterialForBlendAndTint (src: GFXBlendFactor, dst: GFXBlendFactor, type: SpineMaterialType): MaterialInstance {
+    public getMaterialForBlendAndTint (src: BlendFactor, dst: BlendFactor, type: SpineMaterialType): MaterialInstance {
         const key = `${type}/${src}/${dst}`;
         let inst = this._materialCache[key];
         if (inst) {
@@ -1297,8 +1300,14 @@ export class Skeleton extends UIRenderable {
         this._materialCache[key] = inst;
         inst.overridePipelineStates({
             blendState: {
+                blendColor: Color.WHITE,
                 targets: [{
-                    blendSrc: src, blendDst: dst,
+                    blendEq: BlendOp.ADD,
+                    blendAlphaEq: BlendOp.ADD,
+                    blendSrc: src,
+                    blendDst: dst,
+                    blendSrcAlpha: src,
+                    blendDstAlpha: dst,
                 }],
             },
         });
@@ -1325,6 +1334,9 @@ export class Skeleton extends UIRenderable {
             for (let i = 0; i < this._meshRenderDataArray.length; i++) {
                 this._meshRenderDataArrayIdx = i;
                 const m = this._meshRenderDataArray[i];
+                if (m.renderData.material) {
+                    this.material = m.renderData.material;
+                }
                 if (m.texture) {
                     ui.commitComp(this, m.texture, this._assembler, null);
                 }
@@ -1358,8 +1370,8 @@ export class Skeleton extends UIRenderable {
     protected _emitCacheCompleteEvent () {
         if (!this._listener) return;
         this._endEntry.animation.name = this._animationName;
-        this._listener.complete && this._listener.complete(this._endEntry);
-        this._listener.end && this._listener.end(this._endEntry);
+        if (this._listener.complete) this._listener.complete(this._endEntry);
+        if (this._listener.end) this._listener.end(this._endEntry);
     }
 
     protected _updateCache (dt: number) {
@@ -1372,9 +1384,9 @@ export class Skeleton extends UIRenderable {
 
         // Animation Start, the event diffrent from dragonbones inner event,
         // It has no event object.
-        if (this._accTime == 0 && this._playCount == 0) {
+        if (this._accTime === 0 && this._playCount === 0) {
             this._startEntry.animation.name = this._animationName;
-            this._listener && this._listener.start && this._listener.start(this._startEntry);
+            if (this._listener && this._listener.start) this._listener.start(this._startEntry);
         }
 
         this._accTime += dt;
@@ -1422,7 +1434,7 @@ export class Skeleton extends UIRenderable {
         }
         this._cachedSockets.clear();
         const bones = this._skeleton.bones;
-        const getBoneName = (bone: sp.spine.Bone) => {
+        const getBoneName = (bone: spine.Bone) => {
             if (bone.parent == null) return bone.data.name || '<Unamed>';
             return `${getBoneName(bones[bone.parent.data.index])}/${bone.data.name}`;
         };
@@ -1511,7 +1523,7 @@ export class Skeleton extends UIRenderable {
             if (!this.isAnimationCached()) {
                 this.setAnimationStateData(new spine.AnimationStateData(this._skeleton!.data));
             }
-            this.defaultSkin && this.setSkin(this.defaultSkin);
+            if (this.defaultSkin) this.setSkin(this.defaultSkin);
         } catch (e) {
             warn(e);
         }
@@ -1527,11 +1539,6 @@ export class Skeleton extends UIRenderable {
         this._updateSkinEnum();
         // TODO: refresh inspector
         // Editor.Utils.refreshSelectedInspector('node', this.node.uuid);
-
-        if (EDITOR) {
-            // @ts-expect-error
-            EditorExtends.emit('change', this.node.uuid, this.node);
-        }
     }
 
     protected _updateDebugDraw () {
@@ -1603,3 +1610,5 @@ export class Skeleton extends UIRenderable {
         }
     }
 }
+
+legacyCC.internal.SpineSkeleton = Skeleton;

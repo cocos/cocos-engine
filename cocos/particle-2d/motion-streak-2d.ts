@@ -25,10 +25,10 @@
  */
 
 import { ccclass, executeInEditMode, serializable, playOnFocus, menu, help, editable, type } from 'cc.decorator';
-import { UIRenderable } from '../core/components/ui-base';
-import { Texture2D } from '../core/assets/texture-2d';
-import { UI } from '../core/renderer/ui/ui';
 import { EDITOR } from 'internal:constants';
+import { UIRenderable } from '../2d/framework';
+import { Texture2D } from '../core/assets/texture-2d';
+import { UI } from '../2d/renderer/ui';
 
 /**
  * @en

@@ -30,11 +30,11 @@
 
 import { ccclass, editable, type, menu, executeInEditMode, serializable, playOnFocus, tooltip } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
-import { UIRenderable } from '../core/components/ui-base/ui-renderable';
+import { UIRenderable } from '../2d/framework/ui-renderable';
 import { Color, Vec2 } from '../core/math';
 import { warnID, errorID, error } from '../core/platform/debug';
 import { Simulator } from './particle-simulator-2d';
-import { SpriteFrame } from '../core/assets/sprite-frame';
+import { SpriteFrame } from '../2d/assets/sprite-frame';
 import { ImageAsset } from '../core/assets/image-asset';
 import { ParticleAsset } from './particle-asset';
 import { BlendFactor } from '../core/gfx';
@@ -42,7 +42,7 @@ import { path } from '../core/utils';
 import { PNGReader } from './png-reader';
 import { TiffReader } from './tiff-reader';
 import codec from '../../external/compression/ZipUtils';
-import { UI } from '../core/renderer/ui/ui';
+import { UI } from '../2d/renderer/ui';
 import { assetManager } from '../core/asset-manager';
 import { PositionType, EmitterMode, DURATION_INFINITY, START_RADIUS_EQUAL_TO_END_RADIUS, START_SIZE_EQUAL_TO_END_SIZE } from './define';
 
@@ -1152,6 +1152,6 @@ export class ParticleSystem2D extends UIRenderable {
     }
 
     protected _render (render: UI) {
-        render.commitComp(this, this._spriteFrame, this._assembler!, this._positionType === PositionType.RELATIVE ? this.node.parent : null);
+        render.commitComp(this, this._renderSpriteFrame, this._assembler!, this._positionType === PositionType.RELATIVE ? this.node.parent : null);
     }
 }

@@ -1,3 +1,10 @@
+const pkg = require('../../../package.json');
+const version = pkg.version.replace(/(^\d+\.\d+)\..*$/, (str, a) => {
+    return a;
+});
+
+const url = 'https://docs.cocos.com/creator';
+
 module.exports = {
     menu: {
         custom_script: 'Custom script',
@@ -5,88 +12,70 @@ module.exports = {
 
     help: {
         cc: {
-            Node: 'https://docs.cocos.com/creator3d/manual/en/concepts/scene/node-component.html',
-            MeshRenderer: 'https://docs.cocos.com/creator3d/manual/en/engine/renderable/model-component.html',
-            UITransform: 'https://docs.cocos.com/creator3d/manual/en/ui-system/components/editor/ui-transform.html',
-            Sprite: 'https://docs.cocos.com/creator3d/manual/en/ui-system/components/editor/sprite.html',
-            SubContextView: 'https://docs.cocos.com/creator3d/manual/en/editor/publish/publish-wechatgame-subcontext.html',
-            BlockInputEvents: 'https://docs.cocos.com/creator3d/manual/en/ui-system/components/editor/block-input-enents.html',
-            Camera: 'https://docs.cocos.com/creator3d/manual/en/editor/components/camera-component.html',
-            Canvas: 'https://docs.cocos.com/creator3d/manual/en/ui-system/components/editor/canvas.html',
-            SkinnedMeshRenderer: 'https://docs.cocos.com/creator3d/manual/en/engine/animation/skeletal-animation.html',
-            SkinnedMeshBatchRenderer: 'https://docs.cocos.com/creator3d/manual/en/engine/animation/skeletal-animation.html',
-            DirectionalLight: 'https://docs.cocos.com/creator3d/manual/en/concepts/scene/light/dir-light.html',
-            SphereLight: 'https://docs.cocos.com/creator3d/manual/en/concepts/scene/light/sphere-light.html',
-            SpotLight: 'https://docs.cocos.com/creator3d/manual/en/concepts/scene/light/spot-light.html',
-            UICoordinateTracker: 'https://docs.cocos.com/creator3d/manual/en/ui-system/components/editor/ui-coordinate-tracker.html',
-            Animation: 'https://docs.cocos.com/creator3d/manual/en/engine/animation/animation-component.html',
-            SkeletalAnimation: 'https://docs.cocos.com/creator3d/manual/en/engine/animation/skeletal-animation.html',
-            AudioSource: 'https://docs.cocos.com/creator3d/manual/en/audio-system/overview.html',
-            Billboard: 'https://docs.cocos.com/creator3d/manual/en/particle-system/billboard-component.html',
-            Line: 'https://docs.cocos.com/creator3d/manual/en/particle-system/line-component.html',
-            ParticleSystem: 'https://docs.cocos.com/creator3d/manual/en/particle-system/main-module.html',
-            Button: 'https://docs.cocos.com/creator3d/manual/en/ui-system/components/editor/button.html',
-            Label: 'https://docs.cocos.com/creator3d/manual/en/ui-system/components/editor/label.html',
-            EditBox: 'https://docs.cocos.com/creator3d/manual/en/ui-system/components/editor/editbox.html',
-            Layout: 'https://docs.cocos.com/creator3d/manual/en/ui-system/components/editor/layout.html',
-            Graphics: 'https://docs.cocos.com/creator3d/manual/en/ui-system/components/editor/graphics.html',
-            Mask: 'https://docs.cocos.com/creator3d/manual/en/ui-system/components/editor/mask.html',
-            ProgressBar: 'https://docs.cocos.com/creator3d/manual/en/ui-system/components/editor/progress.html',
-            LabelOutline: 'https://docs.cocos.com/creator3d/manual/en/ui-system/components/editor/label-outline.html',
-            RichText: 'https://docs.cocos.com/creator3d/manual/en/ui-system/components/editor/richtext.html',
-            ScrollBar: 'https://docs.cocos.com/creator3d/manual/en/ui-system/components/editor/scrollbar.html',
-            ScrollView: 'https://docs.cocos.com/creator3d/manual/en/ui-system/components/editor/scrollview.html',
-            Slider: 'https://docs.cocos.com/creator3d/manual/en/ui-system/components/editor/slider.html',
-            ToggleContainer: 'https://docs.cocos.com/creator3d/manual/en/ui-system/components/editor/toggleContainer.html',
-            Toggle: 'https://docs.cocos.com/creator3d/manual/en/ui-system/components/editor/toggle.html',
-            UIMeshRenderer: 'https://docs.cocos.com/creator3d/manual/en/ui-system/components/editor/ui-model.html',
-            Widget: 'https://docs.cocos.com/creator3d/manual/en/ui-system/components/editor/widget.html',
-            PageViewIndicator: 'https://docs.cocos.com/creator3d/manual/en/ui-system/components/editor/pageviewindicator.html',
-            PageView: 'https://docs.cocos.com/creator3d/manual/en/ui-system/components/editor/pageview.html',
-            UIStaticBatch: 'https://docs.cocos.com/creator3d/manual/en/ui-system/components/editor/ui-static.html',
-            UIOpacity: 'https://docs.cocos.com/creator3d/manual/en/ui-system/components/editor/ui-opacity.html',
-            BoxCollider: 'https://docs.cocos.com/creator3d/manual/en/physics/physics-collider.html',
-            SphereCollider: 'https://docs.cocos.com/creator3d/manual/en/physics/physics-component.html',
-            CapsuleCollider: 'https://docs.cocos.com/creator3d/manual/en/physics/physics-component.html',
-            CylinderCollider: 'https://docs.cocos.com/creator3d/manual/en/physics/physics-component.html',
-            MeshCollider: 'https://docs.cocos.com/creator3d/manual/en/physics/physics-component.html',
-            RigidBody: 'https://docs.cocos.com/creator3d/manual/en/physics/physics-rigidbody.html',
-            ConstantForce: 'https://docs.cocos.com/creator3d/manual/en/physics/physics-component.html',
-        }
+            Node: `${url}/${version}/manual/en/concepts/scene/node-component.html`,
+            MeshRenderer: `${url}/${version}/manual/en/engine/renderable/model-component.html`,
+            UITransform: `${url}/${version}/manual/en/ui-system/components/editor/ui-transform.html`,
+            Sprite: `${url}/${version}/manual/en/ui-system/components/editor/sprite.html`,
+            SubContextView: `${url}/${version}/manual/zh/editor/publish/build-open-data-context.html`,
+            BlockInputEvents: `${url}/${version}/manual/en/ui-system/components/editor/block-input-events.html`,
+            Camera: `${url}/${version}/manual/en/editor/components/camera-component.html`,
+            Canvas: `${url}/${version}/manual/en/ui-system/components/editor/canvas.html`,
+            SkinnedMeshRenderer: `${url}/${version}/manual/en/engine/animation/skeletal-animation.html`,
+            SkinnedMeshBatchRenderer: `${url}/${version}/manual/en/engine/animation/skeletal-animation.html`,
+            DirectionalLight: `${url}/${version}/manual/en/concepts/scene/light/dir-light.html`,
+            SphereLight: `${url}/${version}/manual/en/concepts/scene/light/sphere-light.html`,
+            SpotLight: `${url}/${version}/manual/en/concepts/scene/light/spot-light.html`,
+            UICoordinateTracker: `${url}/${version}/manual/en/ui-system/components/editor/ui-coordinate-tracker.html`,
+            Animation: `${url}/${version}/manual/en/engine/animation/animation-component.html`,
+            SkeletalAnimation: `${url}/${version}/manual/en/engine/animation/skeletal-animation.html`,
+            AudioSource: `${url}/${version}/manual/en/audio-system/overview.html`,
+            Billboard: `${url}/${version}/manual/en/particle-system/billboard-component.html`,
+            Line: `${url}/${version}/manual/en/particle-system/line-component.html`,
+            ParticleSystem: `${url}/${version}/manual/en/particle-system/main-module.html`,
+            Button: `${url}/${version}/manual/en/ui-system/components/editor/button.html`,
+            Label: `${url}/${version}/manual/en/ui-system/components/editor/label.html`,
+            EditBox: `${url}/${version}/manual/en/ui-system/components/editor/editbox.html`,
+            Layout: `${url}/${version}/manual/en/ui-system/components/editor/layout.html`,
+            Graphics: `${url}/${version}/manual/en/ui-system/components/editor/graphics.html`,
+            Mask: `${url}/${version}/manual/en/ui-system/components/editor/mask.html`,
+            ProgressBar: `${url}/${version}/manual/en/ui-system/components/editor/progress.html`,
+            LabelOutline: `${url}/${version}/manual/en/ui-system/components/editor/label-outline.html`,
+            RichText: `${url}/${version}/manual/en/ui-system/components/editor/richtext.html`,
+            ScrollBar: `${url}/${version}/manual/en/ui-system/components/editor/scrollbar.html`,
+            ScrollView: `${url}/${version}/manual/en/ui-system/components/editor/scrollview.html`,
+            Slider: `${url}/${version}/manual/en/ui-system/components/editor/slider.html`,
+            ToggleContainer: `${url}/${version}/manual/en/ui-system/components/editor/toggleContainer.html`,
+            Toggle: `${url}/${version}/manual/en/ui-system/components/editor/toggle.html`,
+            UIMeshRenderer: `${url}/${version}/manual/en/ui-system/components/editor/ui-model.html`,
+            Widget: `${url}/${version}/manual/en/ui-system/components/editor/widget.html`,
+            PageViewIndicator: `${url}/${version}/manual/en/ui-system/components/editor/pageviewindicator.html`,
+            PageView: `${url}/${version}/manual/en/ui-system/components/editor/pageview.html`,
+            UIStaticBatch: `${url}/${version}/manual/en/ui-system/components/editor/ui-static.html`,
+            UIOpacity: `${url}/${version}/manual/en/ui-system/components/editor/ui-opacity.html`,
+            BoxCollider: `${url}/${version}/manual/en/physics/physics-collider.html`,
+            SphereCollider: `${url}/${version}/manual/en/physics/physics-component.html`,
+            CapsuleCollider: `${url}/${version}/manual/en/physics/physics-component.html`,
+            CylinderCollider: `${url}/${version}/manual/en/physics/physics-component.html`,
+            MeshCollider: `${url}/${version}/manual/en/physics/physics-component.html`,
+            RigidBody: `${url}/${version}/manual/en/physics/physics-rigidbody.html`,
+            ConstantForce: `${url}/${version}/manual/en/physics/physics-component.html`,
+            VideoPlayer: `${url}/${version}/manual/en/ui-system/components/editor/videoplayer.html`,
+            WebView: `${url}/${version}/manual/en/ui-system/components/editor/webview.html`,
+            SafeArea: `${url}/${version}/manual/en/ui-system/components/editor/safearea.html`,
+            Terrain: `${url}/${version}/manual/en/editor/terrain/`,
+            TiledMap: ``,
+            Spine: ``,
+        },
     },
 
-    help_url: {
-        animation: 'https://cocos2d-x.org/docs/editors_and_tools/creator-chapters/components/animation/',
-        sprite: 'https://cocos2d-x.org/docs/editors_and_tools/creator-chapters/components/sprite/',
-        label: 'https://cocos2d-x.org/docs/editors_and_tools/creator-chapters/components/label/',
-        canvas: 'https://cocos2d-x.org/docs/editors_and_tools/creator-chapters/components/canvas/',
-        spine: 'https://www.cocos.com/docs/creator/components/spine.html',
-        widget: 'https://cocos2d-x.org/docs/editors_and_tools/creator-chapters/components/widget/',
-        button: 'https://cocos2d-x.org/docs/editors_and_tools/creator-chapters/components/button/',
-        progressbar: 'https://cocos2d-x.org/docs/editors_and_tools/creator-chapters/components/progress/',
-        mask: 'https://cocos2d-x.org/docs/editors_and_tools/creator-chapters/components/mask/',
-        scrollview: 'https://cocos2d-x.org/docs/editors_and_tools/creator-chapters/components/scrollview/',
-        scrollbar: 'https://cocos2d-x.org/docs/editors_and_tools/creator-chapters/components/scrollbar/',
-        layout: 'https://cocos2d-x.org/docs/editors_and_tools/creator-chapters/components/layout/',
-        tiledmap: 'https://www.cocos.com/docs/creator/components/tiledmap.html',
-        editbox: 'https://www.cocos.com/docs/creator/components/editbox.html',
-        videoplayer: 'https://www.cocos.com/docs/creator/components/videoplayer.html',
-        richtext: 'https://www.cocos.com/docs/creator/components/richtext.html',
-        toggle: 'https://www.cocos.com/docs/creator/components/toggle.html',
-        toggleGroup: 'https://www.cocos.com/docs/creator/components/toggleGroup.html',
-        toggleContainer: 'https://www.cocos.com/docs/creator/components/toggleContainer.html',
-        pageview: 'https://www.cocos.com/docs/creator/components/pageview.html',
-        pageviewIndicator: 'https://www.cocos.com/docs/creator/components/pageviewIndicator.html',
-        slider: 'https://www.cocos.com/docs/creator/components/slider.html',
-        block_input_events: 'https://www.cocos.com/docs/creator/components/block-input-events.html',
-        wx_subcontext_view: 'https://www.cocos.com/docs/creator/components/wx-subcontext-view.html',
-    },
     animation: {
         default_clip: 'When checking, the deault animation clip is automatically played.',
         clips: 'You can access and play animation clips via a script',
         play_on_load: 'Automatically play animation clip with the scene is loaded',
-        use_baked_animation: 'Whether to bake animations. Default to true,\nwhich substantially increases performance while making all animations completely fixed',
-        sockets: 'The joint sockets this animation component maintains.\nSockets have to be registered before attaching custom nodes to animated joints',
+        use_baked_animation:
+            'Whether to bake animations. Default to true,\nwhich substantially increases performance while making all animations completely fixed',
+        sockets:
+            'The joint sockets this animation component maintains.\nSockets have to be registered before attaching custom nodes to animated joints',
     },
     audio: {
         clip: 'The default AudioClip to be played for this audio source',
@@ -96,7 +85,8 @@ module.exports = {
     },
     batched_skinning_model: {
         atlas_size: 'Size of the generated texture atlas',
-        batchable_texture_names: 'Texture properties that will be actually using the generated atlas.\nThe first unit\'s texture will be used if not specified',
+        batchable_texture_names:
+            "Texture properties that will be actually using the generated atlas.\nThe first unit's texture will be used if not specified",
         units: 'Source skinning model components, containing all the data to be batched',
     },
     camera: {
@@ -138,7 +128,7 @@ module.exports = {
         sprite_frame: 'SpriteFrame image to use',
         atlas: 'Atlas that the image belongs to',
         type: 'Rendering Mode: Simple, Sliced, Tiled or Filled',
-        original_size: 'Use the Image\'s original size as the Node size?',
+        original_size: "Use the Image's original size as the Node size?",
         edit_button: 'Edit',
         select_button: 'Select In Atlas',
         select_tooltip: 'Choose Atlas',
@@ -149,8 +139,10 @@ module.exports = {
         fill_range: 'The normalizad value indicates how much of the sprite we want to show',
         src_blend_factor: 'The source image blend mode',
         dst_blend_factor: 'The destination image blend mode',
-        size_mode: 'Set the size of the node on which the Sprite component is on. CUSTOM for setting width and height manually;TRIMMED to use image size with transparent pixels trimmed; RAW to use image size without trimming.',
-        trim: 'Whether to render transparent pixels around image in node\'s bounding box. If you check this option the bounding box will not include transparent pixels around the image.',
+        size_mode:
+            'Set the size of the node on which the Sprite component is on. CUSTOM for setting width and height manually;TRIMMED to use image size with transparent pixels trimmed; RAW to use image size without trimming.',
+        trim:
+            "Whether to render transparent pixels around image in node's bounding box. If you check this option the bounding box will not include transparent pixels around the image.",
     },
     button: {
         click_event: {
@@ -166,13 +158,15 @@ module.exports = {
         hover_color: 'Button color when the mouse hovers over it',
         disabled_color: 'Button color when disabled',
         duration: 'How long until the button color/scale transitions to a new color?',
-        zoom_scale: 'When user press the button, the button will zoom to a scale.The final scale of the button  equals (button original scale * zoomScale), zoomScale could be negative value.',
+        zoom_scale:
+            'When user press the button, the button will zoom to a scale.The final scale of the button  equals (button original scale * zoomScale), zoomScale could be negative value.',
         auto_gray_effect: 'When this flag is true, Button target sprite will turn gray when interactable is false.',
         normal_sprite: 'The Sprite that is used when the button is in a normal sate.',
         pressed_sprite: 'The Sprite that is used when the button is in a pressed sate.',
         hover_sprite: 'The Sprite that is used when the button is hovered over.',
         disabled_sprite: 'The Sprite that is used when the button is in a disabled sate.',
-        target: "reference to the Sprite as button's background. When the state of the button changes the sprite's color or spriteFrame will be updated.",
+        target:
+            "reference to the Sprite as button's background. When the state of the button changes the sprite's color or spriteFrame will be updated.",
         click_events: 'What method is called on the click event?',
     },
     canvas: {
@@ -187,7 +181,8 @@ module.exports = {
         font_size: 'Font size, in points',
         font_family: 'Font family name',
         line_height: 'Line height, in points',
-        overflow: 'Text layout modes: \n 1. CLAMP: text nodes outside the bounding box will be truncated \n 2. SHRINK: automatically shrink text box according to the constraint node \n 3. RESIZE: Automatically updates the Node based on heightof the text.',
+        overflow:
+            'Text layout modes: \n 1. CLAMP: text nodes outside the bounding box will be truncated \n 2. SHRINK: automatically shrink text box according to the constraint node \n 3. RESIZE: Automatically updates the Node based on heightof the text.',
         wrap: 'Wrap text?',
         font: 'What font to use',
         system_font: 'Whether to use the system default font',
@@ -222,12 +217,15 @@ module.exports = {
     pageview: {
         sizeMode: 'Specify the size type of each page in PageView',
         direction: 'The page view direction',
-        scrollThreshold: 'The scroll threshold value, when drag exceeds this value, release the next page will automatically scroll, less than the restore',
-        pageTurningEventTiming: 'Change the AutoScroll stop epsilon value of PageView, change this value could adjust the PageView\'s event triggering timing.',
+        scrollThreshold:
+            'The scroll threshold value, when drag exceeds this value, release the next page will automatically scroll, less than the restore',
+        pageTurningEventTiming:
+            "Change the AutoScroll stop epsilon value of PageView, change this value could adjust the PageView's event triggering timing.",
         indicator: 'The Page View Indicator',
         pageTurningSpeed: 'The time required to turn over a page. unit: second',
         pageEvents: 'PageView events callback',
-        autoPageTurningThreshold: 'Auto page turning velocity threshold. When users swipe the PageView quickly, it will calculate a velocity based on the scroll distance and time, if the calculated velocity is larger than the threshold, then it will trigger page turning',
+        autoPageTurningThreshold:
+            'Auto page turning velocity threshold. When users swipe the PageView quickly, it will calculate a velocity based on the scroll distance and time, if the calculated velocity is larger than the threshold, then it will trigger page turning',
     },
     pageview_indicator: {
         spriteFrame: 'The spriteFrame for each element',
@@ -243,19 +241,24 @@ module.exports = {
         hover_color: 'Toggle color when the mouse hovers over it',
         disabled_color: 'Toggle color when disabled',
         duration: 'How long until the Toggle color/scale transitions to a new color?',
-        zoom_scale: 'When user press the Toggle, the Toggle will zoom to a scale.The final scale of the Toggle  equals (Toggle original scale * zoomScale), zoomScale could be negative value.',
+        zoom_scale:
+            'When user press the Toggle, the Toggle will zoom to a scale.The final scale of the Toggle  equals (Toggle original scale * zoomScale), zoomScale could be negative value.',
         auto_gray_effect: 'When this flag is true, Toggle target sprite will turn gray when interactable is false.',
         normal_sprite: 'The Sprite that is used when the Toggle is in a normal sate.',
         pressed_sprite: 'The Sprite that is used when the Toggle is in a pressed sate.',
         hover_sprite: 'The Sprite that is used when the Toggle is hovered over.',
         disabled_sprite: 'The Sprite that is used when the Toggle is in a disabled sate.',
-        target: "reference to the Sprite as Toggle's background. When the state of the button changes the sprite's color or spriteFrame will be updated.",
-        isChecked: 'If this flag is true, the associated checkMark sprite component will be enabled, otherwise the checkMark will be disabled.',
+        target:
+            "reference to the Sprite as Toggle's background. When the state of the button changes the sprite's color or spriteFrame will be updated.",
+        isChecked:
+            'If this flag is true, the associated checkMark sprite component will be enabled, otherwise the checkMark will be disabled.',
         checkMark: 'The Sprite component displayed when Toggle is checked.',
-        toggleGroup: 'The toggle group which the toggle belongs to. When it is null, the toggle is a CheckBox. Otherwise, the toggle is a RadioButton.',
+        toggleGroup:
+            'The toggle group which the toggle belongs to. When it is null, the toggle is a CheckBox. Otherwise, the toggle is a RadioButton.',
     },
     toggle_group: {
-        allowSwitchOff: "If this setting is true, a toggle could be switched off and on when pressed.If it is false, it will make sure there is always only one toggle could be switched on and the already switched on toggle can't be switched off.",
+        allowSwitchOff:
+            "If this setting is true, a toggle could be switched off and on when pressed.If it is false, it will make sure there is always only one toggle could be switched on and the already switched on toggle can't be switched off.",
     },
     slider: {
         handle: 'The "handle" part of the slider',
@@ -264,7 +267,8 @@ module.exports = {
         slideEvents: 'The slider events callback',
     },
     widget: {
-        target: 'Specifies an alignment target that can only be one of the parent nodes of the current node. The default value is null, and when null, indicates the current parent',
+        target:
+            'Specifies an alignment target that can only be one of the parent nodes of the current node. The default value is null, and when null, indicates the current parent',
         align_top: 'Top edge alignment of the parent Node',
         align_bottom: 'Bottom edge alignment of the parent Node',
         align_left: 'Left edge alignment of the parent Node',
@@ -280,8 +284,10 @@ module.exports = {
         vertical_center: 'Vertical midpoint offset in pixels, This can be a percentage and a positive or negative value',
     },
     layout: {
-        layout_type: 'Automatic layout mode: \n 1. NONE, no automatic arrangement of child Nodes \n 2. HORIZONTAL, automatic horizontal arrangement of child Nodes \n 3. VERTICAL, automatic vertical arrangement of child Nodes\n 4. GRID, automatic grid arrangement of child Nodes',
-        resize_mode: 'Automatic resize mode: \n 1. NONE, no resize of both child Nodes and container. \n 2. CONTAINER, resize container Node. \n 3. CHILDREN, resize child Nodes.',
+        layout_type:
+            'Automatic layout mode: \n 1. NONE, no automatic arrangement of child Nodes \n 2. HORIZONTAL, automatic horizontal arrangement of child Nodes \n 3. VERTICAL, automatic vertical arrangement of child Nodes\n 4. GRID, automatic grid arrangement of child Nodes',
+        resize_mode:
+            'Automatic resize mode: \n 1. NONE, no resize of both child Nodes and container. \n 2. CONTAINER, resize container Node. \n 3. CHILDREN, resize child Nodes.',
         padding_left: 'Use a padding between left sides of the Node',
         padding_right: 'Use a padding between right sides of the Node',
         padding_top: 'Use a padding between top sides of the Node',
@@ -327,12 +333,14 @@ module.exports = {
         loop: 'Whether the video should be played again at the end',
         keepAspectRatio: 'Whether keep the aspect ration of the original video.',
         fullScreenOnAwake: 'Whether play video in fullscreen mode?',
-        stayOnBottom: 'Always below the game view (only useful on Web. Note: The specific effects are not guaranteed to be consistent, depending on whether each browser supports or restricts).',
-        videoPlayerEvent: 'The video player\'s callback, it will be triggered when certain event occurs, like: playing, paused, stopped and completed.',
+        stayOnBottom:
+            'Always below the game view (only useful on Web. Note: The specific effects are not guaranteed to be consistent, depending on whether each browser supports or restricts).',
+        videoPlayerEvent:
+            "The video player's callback, it will be triggered when certain event occurs, like: playing, paused, stopped and completed.",
     },
     webview: {
         url: 'A given URL to be loaded by the Webview, it should have a http or https prefix.',
-        webviewEvents: 'The Webview\'s event callback , it will be triggered when certain Webview event occurs.'
+        webviewEvents: "The Webview's event callback , it will be triggered when certain Webview event occurs.",
     },
     richtext: {
         string: 'Text of the RichText, you could use BBcode in the string',
@@ -341,8 +349,10 @@ module.exports = {
         font: 'Custom TTF font of RichText',
         line_height: 'Line height, in points',
         max_width: 'The maximize width of RichText, pass 0 means not limit the maximize width.',
-        image_atlas: 'The image atlas for the img tag. For each src value in the img tag, there should be a valid spriteFrame in the image atlas.',
-        handleTouchEvent: 'Once checked, the RichText will block all input events (mouse and touch) within the bounding box of the node, preventing the input from penetrating into the underlying node.',
+        image_atlas:
+            'The image atlas for the img tag. For each src value in the img tag, there should be a valid spriteFrame in the image atlas.',
+        handleTouchEvent:
+            'Once checked, the RichText will block all input events (mouse and touch) within the bounding box of the node, preventing the input from penetrating into the underlying node.',
     },
     skeleton: {
         skeleton_data: 'The skeleton data contains the skeleton information, drag the json file exported from Spine to get started.',
@@ -355,12 +365,15 @@ module.exports = {
         premultipliedAlpha: 'Indicates whether to enable premultiplied alpha.',
     },
     dragon_bones: {
-        dragon_bones_asset: 'The json data contains the DragonBones information, drag the json file exported from DragonBones to get started.',
-        dragon_bones_atlas_asset: 'The json data contains the Texture information, drag the json file exported from DragonBones to get started.',
+        dragon_bones_asset:
+            'The json data contains the DragonBones information, drag the json file exported from DragonBones to get started.',
+        dragon_bones_atlas_asset:
+            'The json data contains the Texture information, drag the json file exported from DragonBones to get started.',
         armature_name: 'The name of current armature.',
         animation_name: 'The name of current playing animation.',
         time_scale: 'The time scale of this armature.',
-        play_times: 'The play times of the default animation.\n-1 means using the value of config file\n0 means repeat for ever\n>0 means repeat times',
+        play_times:
+            'The play times of the default animation.\n-1 means using the value of config file\n0 means repeat for ever\n>0 means repeat times',
         debug_bones: 'Indicates whether open debug bones',
     },
     motionStreak: {
@@ -372,8 +385,10 @@ module.exports = {
         fastMode: 'Whether to enable fast mode',
     },
     missing_scirpt: {
-        error_compiled: 'Error on executing script, or the script reference is missing. Please check error log carefully and correct/recover your script. The component will be restored once scripting error is gone. If you no long need the missing script, please remove this component manually.',
-        error_not_compiled: 'Error on compiling script. Please check error log carefully and correct your script. This component will be restored once compiling error is gone.',
+        error_compiled:
+            'Error on executing script, or the script reference is missing. Please check error log carefully and correct/recover your script. The component will be restored once scripting error is gone. If you no long need the missing script, please remove this component manually.',
+        error_not_compiled:
+            'Error on compiling script. Please check error log carefully and correct your script. This component will be restored once compiling error is gone.',
     },
     collider: {
         editing: 'Edit this collider component',
@@ -421,19 +436,23 @@ module.exports = {
         type: 'The mask type',
         spriteFrame: 'The mask image',
         inverted: 'The Reverse mask (Not supported Canvas Mode)',
-        alphaThreshold: 'The alpha threshold，The content is drawn only where the stencil have pixel with alpha greater than the alphaThreshold (Not supported Canvas Mode)',
+        alphaThreshold:
+            'The alpha threshold，The content is drawn only where the stencil have pixel with alpha greater than the alphaThreshold (Not supported Canvas Mode)',
         segements: 'The segements for ellipse mask',
     },
     physics: {
         rigidbody: {
-            enabledContactListener: 'Should enabled contact listener. When a collision is trigger, the collision callback will only be called when enabled contact listener.',
+            enabledContactListener:
+                'Should enabled contact listener. When a collision is trigger, the collision callback will only be called when enabled contact listener.',
             bullet: 'Is this a fast moving body that should be prevented from tunneling through other moving bodies?',
             type: 'Rigidbody type : Static, Kinematic, Dynamic or Animated.',
             allowSleep: 'Set this flag to false if this body should never fall asleep. Note that this increases CPU usage.',
             gravityScale: 'Scale the gravity applied to this body.',
-            linearDamping: 'Linear damping is use to reduce the linear velocity. The damping parameter can be larger than 1, but the damping effect becomes sensitive to the time step when the damping parameter is large.',
-            angularDamping: 'Angular damping is use to reduce the angular velocity. The damping parameter can be larger than 1 but the damping effect becomes sensitive to the time step when the damping parameter is large.',
-            linearVelocity: 'The linear velocity of the body\'s origin in world co-ordinates',
+            linearDamping:
+                'Linear damping is use to reduce the linear velocity. The damping parameter can be larger than 1, but the damping effect becomes sensitive to the time step when the damping parameter is large.',
+            angularDamping:
+                'Angular damping is use to reduce the angular velocity. The damping parameter can be larger than 1 but the damping effect becomes sensitive to the time step when the damping parameter is large.',
+            linearVelocity: "The linear velocity of the body's origin in world co-ordinates",
             angularVelocity: 'The angular velocity of the body.',
             fixedRotation: 'Should this body be prevented from rotating?',
             awake: 'Is this body initially awake or sleeping?',
@@ -455,7 +474,7 @@ module.exports = {
             maxForce: 'The maximum force can be applied to rigidbody.',
             maxTorque: 'The maximum torque can be applied to rigidbody.',
             correctionFactor: 'The position correction factor in the range [0,1].',
-            mouseRegion: 'The node used to register touch evnet. If this is null, it will be the joint\'s node.',
+            mouseRegion: "The node used to register touch evnet. If this is null, it will be the joint's node.",
             target: 'The target point. The mouse joint will move choosed rigidbody to target point.',
             localAxisA: 'The local joint axis relative to rigidbody.',
             enableLimit: 'Enable joint distance limit?',
@@ -477,7 +496,8 @@ module.exports = {
         },
     },
     block_input_events: {
-        brief_help: 'This component will block all input events, preventing the input from penetrating to other nodes below the screen, typically for the background of the top-level UI of the screen.',
+        brief_help:
+            'This component will block all input events, preventing the input from penetrating to other nodes below the screen, typically for the background of the top-level UI of the screen.',
     },
     tiledtile: {
         row: 'Specify the TiledTile horizontal coordinate，use map tile as the unit.',
@@ -488,6 +508,126 @@ module.exports = {
     INSPECTOR: {
         component: {
             script: 'Custom Script',
+        },
+    },
+    features: {
+        categories: {
+            '2d': {
+                label: '2D',
+                description: '2D',
+            },
+            '3d': {
+                label: '3D',
+                description: '3D',
+            },
+        },
+        core: {
+            label: "Core",
+            description: "Cocos Creator core functionalities.",
+        },
+        graphics: {
+            label: "Graphics Backend",
+            description: "Select graphics back end used for rendering.",
+        },
+        gfx_webgl: {
+            label: "WebGL",
+            description: "Include support for WebGL 1.0 graphics API.",
+        },
+        gfx_webgl2: {
+            label: "WebGL 2.0",
+            description: "Include support for WebGL 2.0 graphics API.\n If WebGL 2.0 is not available on target platform, the one will fallback as WebGL 1.0.",
+        },
+        ui: {
+            label: "User Interface",
+            description: "User interface support.",
+        },
+        base_3d: {
+            label: "Basic 3D Features",
+            description: "Components and tools that are widely used in general 3D applications.",
+        },
+        particle: {
+            label: "Particle System",
+            description: "Particle system support.",
+        },
+        physics: {
+            label: "Physics System",
+            description: "Select physics system.",
+        },
+        physics_builtin: {
+            label: "Builtin Physics System",
+            description: "Builtin physics system support.",
+        },
+        physics_cannon: {
+            label: "cannon.js Based Physics system",
+            description: "Physics system that based on cannon.js.",
+        },
+        physics_ammo: {
+            label: "ammo.js Based Physics System",
+            description: "Physics system that based on ammo.js.",
+        },
+        primitives: {
+            label: "Primitive Geometries",
+            description: "Libraries that used to create primitive geometries.",
+        },
+        base_2d: {
+            label: "Basic 2D Features",
+            description: "Components and tools that are widely used in general 2D applications.",
+        },
+        physics_2d: {
+            label: "2D Physics System",
+            description: "Physics system that applied to 2D application.",
+        },
+        physics_2d_builtin: {
+            label: "Builtin 2D Physics System",
+            description: "Builtin 2D physics system support.",
+        },
+        physics_2d_box2d: {
+            label: "Box2D Based 2D Physics System",
+            description: "2D Physics system that based on Box2D.",
+        },
+        intersection_2d: {
+            label: "2D Intersection Algorithms",
+            description: "Include 2D intersection algorithms.",
+        },
+        particle_2d: {
+            label: "2D Particle System",
+            description: "Particle system that applied to 2D application.",
+        },
+        terrain: {
+            label: "Terrain",
+            description: "Terrain support.",
+        },
+        audio: {
+            label: "Audio",
+            description: "Audio playing support.",
+        },
+        video: {
+            label: "Video",
+            description: "Video playing support.",
+        },
+        webview: {
+            label: "Web View",
+            description: "Support displaying Web contents.",
+        },
+        tween: {
+            label: "Tween",
+            description: "Tween system.",
+        },
+        profiler: {
+            label: "Running Stats",
+            description: "Include various components and tools used to audit and display rendering stats.",
+        },
+        tiled_map: {
+            label: "Tiled Map",
+            description: "Tiled map support.",
+        },
+        spine: {
+            label: "Spine Animation",
+            description: "Spine Animation support.",
+        },
+        dragon_bones: {
+            label: "DragonBones",
+            description: "DragonBones support.",
         },
     },
 };

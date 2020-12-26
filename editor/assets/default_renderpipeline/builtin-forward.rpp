@@ -11,9 +11,6 @@
       },
       {
         "__id__": 3
-      },
-      {
-        "__id__": 7
       }
     ],
     "renderTextures": [],
@@ -67,36 +64,6 @@
     "sortMode": 0,
     "stages": [
       "default"
-    ]
-  },
-  {
-    "__type__": "RenderQueueDesc",
-    "isTransparent": true,
-    "sortMode": 1,
-    "stages": [
-      "default"
-    ]
-  },
-  {
-    "__type__": "UIFlow",
-    "_name": "UIFlow",
-    "_priority": 10,
-    "_tag": 2,
-    "_stages": [
-      {
-        "__id__": 8
-      }
-    ]
-  },
-  {
-    "__type__": "UIStage",
-    "_name": "UIStage",
-    "_priority": 20,
-    "_tag": 0,
-    "renderQueues": [
-      {
-        "__id__": 9
-      }
     ]
   },
   {

@@ -24,11 +24,11 @@
  THE SOFTWARE.
  */
 
-import { IAssembler, IAssemblerManager } from '../core/renderer/ui/base';
+import { IAssembler, IAssemblerManager } from '../2d/renderer/base';
 import { MotionStreak } from './motion-streak-2d';
 import { Vec2, Color } from '../core/math';
-import { RenderData } from '../core/renderer/ui/render-data';
-import { UI } from '../core/renderer/ui/ui';
+import { RenderData } from '../2d/renderer/render-data';
+import { UI } from '../2d/renderer/ui';
 
 class Point {
     public point = new Vec2();

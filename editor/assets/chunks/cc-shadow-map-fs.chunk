@@ -6,10 +6,10 @@ in highp vec4 v_shadowPos;
 
 #if CC_RECEIVE_SHADOW
   #pragma builtin(global)
-  layout(set = 0, binding = 2) uniform sampler2D cc_shadowMap;
+  layout(set = 0, binding = 3) uniform sampler2D cc_shadowMap;
 
   #pragma builtin(global)
-  layout(set = 0, binding = 4) uniform sampler2D cc_spotLightingMap;
+  layout(set = 0, binding = 5) uniform sampler2D cc_spotLightingMap;
 
   float CCGetShadowFactorX1 (vec4 shadowPos) {
     vec3 clipPos = shadowPos.xyz / shadowPos.w * 0.5 + 0.5;

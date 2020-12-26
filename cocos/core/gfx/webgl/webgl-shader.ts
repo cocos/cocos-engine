@@ -29,7 +29,6 @@ import { WebGLDevice } from './webgl-device';
 import { IWebGLGPUShader, IWebGLGPUShaderStage } from './webgl-gpu-objects';
 
 export class WebGLShader extends Shader {
-
     get gpuShader (): IWebGLGPUShader {
         return  this._gpuShader!;
     }
@@ -37,7 +36,6 @@ export class WebGLShader extends Shader {
     private _gpuShader: IWebGLGPUShader | null = null;
 
     public initialize (info: ShaderInfo): boolean {
-
         this._name = info.name;
         this._stages = info.stages;
         this._attributes = info.attributes;

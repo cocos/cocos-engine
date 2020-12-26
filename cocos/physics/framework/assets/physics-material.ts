@@ -23,7 +23,6 @@
  THE SOFTWARE.
  */
 
-
 // @ts-check
 
 /**
@@ -31,8 +30,8 @@
  * @module physics
  */
 
-import { Asset } from '../../../core/assets/asset';
 import { ccclass, editable, serializable } from 'cc.decorator';
+import { Asset } from '../../../core/assets/asset';
 import { math } from '../../../core';
 
 /**
@@ -43,7 +42,6 @@ import { math } from '../../../core';
  */
 @ccclass('cc.PhysicsMaterial')
 export class PhysicsMaterial extends Asset {
-
     /**
      * @en
      * Gets all physics material instances.
@@ -124,10 +122,10 @@ export class PhysicsMaterial extends Asset {
         }
     }
 
-    private static _idCounter: number = 0;
+    private static _idCounter = 0;
 
     @serializable
-    private _friction = 0.5;
+    private _friction = 0.6;
 
     @serializable
     private _rollingFriction = 0.1;
@@ -136,13 +134,13 @@ export class PhysicsMaterial extends Asset {
     private _spinningFriction = 0.1;
 
     @serializable
-    private _restitution = 0.1;
+    private _restitution = 0.0;
 
     constructor () {
         super();
         PhysicsMaterial.allMaterials.push(this);
-        if (this._uuid == '') {
-            this._uuid = 'pm_' + PhysicsMaterial._idCounter++;
+        if (!this._uuid) {
+            this._uuid = `pm_${PhysicsMaterial._idCounter++}`;
         }
     }
 
@@ -153,7 +151,7 @@ export class PhysicsMaterial extends Asset {
      * 克隆。
      */
     public clone () {
-        let c = new PhysicsMaterial();
+        const c = new PhysicsMaterial();
         c._friction = this._friction;
         c._restitution = this._restitution;
         c._rollingFriction = this._rollingFriction;
@@ -170,14 +168,12 @@ export class PhysicsMaterial extends Asset {
      */
     public destroy (): boolean {
         if (super.destroy()) {
-            let idx = PhysicsMaterial.allMaterials.indexOf(this);
+            const idx = PhysicsMaterial.allMaterials.indexOf(this);
             if (idx >= 0) {
                 PhysicsMaterial.allMaterials.splice(idx, 1);
             }
             return true;
-        } else {
-            return false;
         }
+        return false;
     }
-
 }

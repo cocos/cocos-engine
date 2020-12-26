@@ -28,12 +28,12 @@
  * @module terrain
  */
 import { ccclass, disallowMultiple, executeInEditMode, help, visible, type, serializable, editable, disallowAnimation } from 'cc.decorator';
-import { builtinResMgr } from '../core/3d/builtin';
-import { RenderableComponent } from '../core/3d/framework/renderable-component';
+import { builtinResMgr } from '../core/builtin';
+import { RenderableComponent } from '../core/components/renderable-component';
 import { EffectAsset, Texture2D } from '../core/assets';
 import { Filter, PixelFormat, WrapMode } from '../core/assets/asset-enum';
 import { Material } from '../core/assets/material';
-import { RenderingSubMesh } from '../core/assets/mesh';
+import { RenderingSubMesh } from '../core/assets/rendering-sub-mesh';
 import { Component } from '../core/components';
 import { isValid } from '../core/data/object';
 import { director } from '../core/director';
@@ -165,7 +165,7 @@ export class TerrainLayer {
      */
     @serializable
     @editable
-    public metallic = 0; /*[0, 1]*/
+    public metallic = 0; /* [0, 1] */
 
     /**
      * @en roughness
@@ -173,7 +173,7 @@ export class TerrainLayer {
      */
     @serializable
     @editable
-    public roughness = 1; /*[0, 1]*/
+    public roughness = 1; /* [0, 1] */
 }
 
 /**
@@ -387,8 +387,8 @@ export class TerrainBlock {
             PrimitiveMode.TRIANGLE_LIST, this._terrain._getSharedIndexBuffer());
 
         const model = this._renderable._model = (legacyCC.director.root as Root).createModel(scene.Model);
-        model.node = model.transform = this._terrain.node;
         model.createBoundingShape(bbMin, bbMax);
+        model.node = model.transform = this._node;
         this._renderable._getRenderScene().addModel(model);
 
         // reset weightmap
@@ -423,6 +423,7 @@ export class TerrainBlock {
         const useNormalMap = this._terrain.useNormalMap;
         const usePBR = this._terrain.usePBR;
 
+        // eslint-disable-next-line arrow-body-style
         const getDetailTex = (layer: TerrainLayer|null) => {
             return layer !== null ? layer.detailMap : null;
         };
@@ -724,6 +725,7 @@ export class TerrainBlock {
 
         this._renderable._meshData.vertexBuffers[0].update(vertexData);
         this._renderable._model!.createBoundingShape(bbMin, bbMax);
+        this._renderable._model!.updateWorldBound();
     }
 
     public _updateWeightMap () {
@@ -820,7 +822,7 @@ export class Terrain extends Component {
     @disallowAnimation
     protected _usePBR = false;
 
-    protected _tileSize: number = 1;
+    protected _tileSize = 1;
     protected _blockCount: number[] = [1, 1];
     protected _weightMapSize = 128;
     protected _lightMapSize = 128;
@@ -846,8 +848,8 @@ export class Terrain extends Component {
             this.__asset = value;
             if (this.__asset != null && this.valid) {
                 // rebuild
-                for (const block of this._blocks) {
-                    block.destroy();
+                for (let i = 0; i < this._blocks.length; ++i) {
+                    this._blocks[i].destroy();
                 }
                 this._blocks = [];
                 this._blockInfos = [];
@@ -872,8 +874,8 @@ export class Terrain extends Component {
         }
 
         this._effectAsset = value;
-        for (const i of this._blocks) {
-            i._invalidMaterial();
+        for (let i = 0; i < this._blocks.length; ++i) {
+            this._blocks[i]._invalidMaterial();
         }
     }
 
@@ -1070,8 +1072,8 @@ export class Terrain extends Component {
 
         this._blockInfos = blockInfos;
 
-        for (const block of this._blocks) {
-            block.destroy();
+        for (let i = 0; i < this._blocks.length; ++i) {
+            this._blocks[i].destroy();
         }
         this._blocks = [];
 
@@ -1097,8 +1099,8 @@ export class Terrain extends Component {
             }
         }
 
-        for (const i of this._blocks) {
-            i.build();
+        for (let i = 0; i < this._blocks.length; ++i) {
+            this._blocks[i].build();
         }
     }
 
@@ -1122,8 +1124,8 @@ export class Terrain extends Component {
         this._buildNormals();
 
         // rebuild all blocks
-        for (const i of this._blocks) {
-            i._updateHeight();
+        for (let i = 0; i < this._blocks.length; ++i) {
+            this._blocks[i]._updateHeight();
         }
     }
 
@@ -1231,15 +1233,15 @@ export class Terrain extends Component {
     }
 
     public onDisable () {
-        for (const i of this._blocks) {
-            i.destroy();
+        for (let i = 0; i < this._blocks.length; ++i) {
+            this._blocks[i].destroy();
         }
         this._blocks = [];
     }
 
     public onDestroy () {
-        for (const i of this._blocks) {
-            i.destroy();
+        for (let i = 0; i < this._blocks.length; ++i) {
+            this._blocks[i].destroy();
         }
         this._blocks = [];
 
@@ -1259,8 +1261,8 @@ export class Terrain extends Component {
     }
 
     public update (deltaTime: number) {
-        for (const i of this._blocks) {
-            i.update();
+        for (let i = 0; i < this._blocks.length; ++i) {
+            this._blocks[i].update();
         }
     }
 
@@ -1709,7 +1711,7 @@ export class Terrain extends Component {
 
     private _buildImp (restore = false) {
         if (this.valid) {
-            return true;
+            return;
         }
 
         const terrainAsset = this.__asset;
@@ -1726,26 +1728,27 @@ export class Terrain extends Component {
                 this._layers[i] = null;
             }
 
-            for (const i of terrainAsset.layerInfos) {
+            for (let i = 0; i < terrainAsset.layerInfos.length; ++i) {
+                const layerInfo = terrainAsset.layerInfos[i];
                 const layer = new TerrainLayer();
-                layer.tileSize = i.tileSize;
-                legacyCC.assetManager.loadAny(i.detailMap, (err, asset) => {
+                layer.tileSize = layerInfo.tileSize;
+                legacyCC.assetManager.loadAny(layerInfo.detailMap, (err, asset) => {
                     layer.detailMap = asset;
                 });
-                if (i.normalMap !== '') {
-                    legacyCC.AssetLibrary.loadAny(i.normalMap, (err, asset) => {
+                if (layerInfo.normalMap !== '') {
+                    legacyCC.AssetLibrary.loadAny(layerInfo.normalMap, (err, asset) => {
                         layer.normalMap = asset;
                     });
                 }
-                layer.roughness = i.roughness;
-                layer.metallic = i.metallic;
+                layer.roughness = layerInfo.roughness;
+                layer.metallic = layerInfo.metallic;
 
-                this._layers[i.slot] = layer;
+                this._layers[layerInfo.slot] = layer;
             }
         }
 
         if (this._blockCount[0] === 0 || this._blockCount[1] === 0) {
-            return false;
+            return;
         }
 
         // build heights & normals
@@ -1814,8 +1817,8 @@ export class Terrain extends Component {
             }
         }
 
-        for (const i of this._blocks) {
-            i.build();
+        for (let i = 0; i < this._blocks.length; ++i) {
+            this._blocks[i].build();
         }
     }
 

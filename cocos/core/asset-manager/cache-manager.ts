@@ -89,12 +89,12 @@ export default abstract class CacheManager {
     public abstract deleteInterval: number;
 
     /**
-     * @en 
+     * @en
      * List of all cached files
-     * 
+     *
      * @zh
      * 所有缓存文件列表
-     * 
+     *
      */
     public abstract cachedFiles: Cache<{ bundle: string, url: string, lastTime: number }>;
 

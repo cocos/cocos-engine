@@ -24,12 +24,16 @@
  */
 
 /**
+ * @packageDocumentation
+ * @hidden
+ */
+
+/**
  * Collision "matrix". It's actually a triangular-shaped array of whether two bodies are touching this step, for reference next step
  * @class ArrayCollisionMatrix
  * @constructor
  */
 export class ArrayCollisionMatrix {
-
     /**
      * The matrix storage
      */
@@ -82,5 +86,4 @@ export class ArrayCollisionMatrix {
     public setNumObjects (n: number) {
         this.matrix.length = n * (n - 1) >> 1;
     }
-
 }

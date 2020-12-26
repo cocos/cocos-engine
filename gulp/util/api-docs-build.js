@@ -10,7 +10,7 @@ program
     .parse(process.argv);
 
 const mode = 'commonjs';
-const docsName = 'Creator-3d-API';
+const docsName = 'Cocos-Creator-API';
 const exclude = '"**/cocos/**/+(webgl|webgl2|utils|builtin|renderer|scene|models|misc|ammo|shapes|constraint|cannon|graphics|profiler)/*.ts"';
 const readme = 'none';
 //const exclude = '"**/cocos/**/index.ts"';

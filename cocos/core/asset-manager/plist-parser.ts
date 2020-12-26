@@ -56,11 +56,10 @@ export class SAXParser {
 
     protected _parseXML (textxml: string): Document {
         // get a reference to the requested corresponding xml file
-        let xmlDoc;
         if (this._parser) {
-            xmlDoc = this._parser.parseFromString(textxml, 'text/xml');
+            return this._parser.parseFromString(textxml, 'text/xml');
         }
-        return xmlDoc;
+        throw new Error('Dom parser is not supported in this platform!');
     }
 }
 
@@ -96,7 +95,7 @@ class PlistParser extends SAXParser {
         return this._parseNode(node!);
     }
 
-    private _parseNode (node: HTMLElement): any {
+    private _parseNode (node: HTMLElement): unknown {
         let data: any = null;
         const tagName = node.tagName;
         if (tagName === 'dict') {
@@ -106,8 +105,7 @@ class PlistParser extends SAXParser {
         } else if (tagName === 'string') {
             if (node.childNodes.length === 1) {
                 data = node.firstChild!.nodeValue;
-            }
-            else {
+            } else {
                 // handle Firefox's 4KB nodeValue limit
                 data = '';
                 for (let i = 0; i < node.childNodes.length; i++) {
@@ -126,7 +124,7 @@ class PlistParser extends SAXParser {
         return data;
     }
 
-    private _parseArray (node: HTMLElement): any[] {
+    private _parseArray (node: HTMLElement): unknown[] {
         const data: any[] = [];
         for (let i = 0, len = node.childNodes.length; i < len; i++) {
             const child = node.childNodes[i];
@@ -150,8 +148,7 @@ class PlistParser extends SAXParser {
             // Grab the key, next noe should be the value
             if (child.tagName === 'key') {
                 key = child.firstChild!.nodeValue!;
-            }
-            else {
+            } else {
                 data[key] = this._parseNode(child);
             }                 // Parse the value node
         }

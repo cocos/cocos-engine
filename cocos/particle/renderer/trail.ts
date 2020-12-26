@@ -30,7 +30,7 @@
  */
 
 import { Material } from '../../core/assets/material';
-import { RenderingSubMesh } from '../../core/assets/mesh';
+import { RenderingSubMesh } from '../../core/assets/rendering-sub-mesh';
 import { ccclass, tooltip, displayOrder, type, serializable } from 'cc.decorator';
 import { director } from '../../core/director';
 import { AttributeName, BufferUsageBit, Format, FormatInfos, MemoryUsageBit, PrimitiveMode } from '../../core/gfx/define';
@@ -564,7 +564,6 @@ export default class TrailModule {
                 this._fillVertexBuffer(_temp_trailEle, this.colorOverTrail.evaluate(0, 1), indexOffset, 0, trailNum, PRE_TRIANGLE_INDEX);
             }
         }
-        this.updateIA(this.ibOffset);
     }
 
     public updateIA (count: number) {
@@ -577,6 +576,10 @@ export default class TrailModule {
             this._iaInfo.drawInfos[0].indexCount = count;
             this._iaInfoBuffer!.update(this._iaInfo);
         }
+    }
+
+    public beforeRender () {
+        this.updateIA(this.ibOffset);
     }
 
     private _createModel () {
