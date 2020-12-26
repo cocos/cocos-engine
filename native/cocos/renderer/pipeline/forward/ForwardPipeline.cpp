@@ -37,6 +37,8 @@ gfx::RenderPass *ForwardPipeline::getOrCreateRenderPass(gfx::ClearFlags clearFla
     gfx::DepthStencilAttachment depthStencilAttachment;
     colorAttachment.format = device->getColorFormat();
     depthStencilAttachment.format = device->getDepthStencilFormat();
+    depthStencilAttachment.stencilStoreOp = gfx::StoreOp::DISCARD;
+    depthStencilAttachment.depthStoreOp = gfx::StoreOp::DISCARD;
 
     if (!(clearFlags & gfx::ClearFlagBit::COLOR)) {
         if (clearFlags & static_cast<gfx::ClearFlagBit>(SKYBOX_FLAG)) {
