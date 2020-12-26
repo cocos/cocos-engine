@@ -123,6 +123,7 @@ export class Root {
     /**
      * @zh
      * UI实例
+     * 引擎内部使用，用户无需调用此接口
      */
     public get ui (): UI {
         return this._ui as UI;
