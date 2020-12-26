@@ -239,9 +239,9 @@ export class Canvas extends Component {
         if (EDITOR) {
             this._fitDesignResolution = () => {
                 // TODO: support paddings of locked widget
-                let nodeSize: Size; let designSize: Size;
+                let designSize: Size;
                 this.node.getPosition(this._pos);
-                nodeSize = designSize = view.getDesignResolutionSize();
+                const nodeSize = designSize = view.getDesignResolutionSize();
                 Vec3.set(_worldPos, designSize.width * 0.5, designSize.height * 0.5, 0);
 
                 if (!this._pos.equals(_worldPos)) {

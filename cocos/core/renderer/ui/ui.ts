@@ -51,6 +51,7 @@ import { EffectAsset, RenderTexture, SpriteFrame } from '../../assets';
 import { programLib } from '../core/program-lib';
 import { TextureBase } from '../../assets/texture-base';
 import { sys } from '../../platform/sys';
+
 const _dsInfo = new DescriptorSetInfo(null!);
 
 /**
@@ -102,7 +103,7 @@ export class UI {
     private _uiMaterials: Map<number, UIMaterial> = new Map<number, UIMaterial>();
     private _canvasMaterials: Map<number, Map<number, number>> = new Map<number, Map<number, number>>();
     private _batches: CachedArray<UIDrawBatch>;
-    private _doUploadBuffersCall: Map<any, Function> = new Map();
+    private _doUploadBuffersCall: Map<any, (ui:UI) => void> = new Map();
     private _uiModelPool: Pool<UIBatchModel> | null = null;
     private _modelInUse: CachedArray<UIBatchModel>;
     // batcher
@@ -312,11 +313,11 @@ export class UI {
         this._screens.sort(this._screenSort);
     }
 
-    public addUploadBuffersFunc(target: any, func: Function) {
+    public addUploadBuffersFunc (target: any, func: (ui:UI) => void) {
         this._doUploadBuffersCall.set(target, func);
     }
 
-    public removeUploadBuffersFunc(target: any) {
+    public removeUploadBuffersFunc (target: any) {
         this._doUploadBuffersCall.delete(target);
     }
 
