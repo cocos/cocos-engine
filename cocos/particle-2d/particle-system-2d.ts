@@ -130,11 +130,11 @@ export function getImageFormatByData (imgData) {
     return ImageFormat.UNKNOWN;
 }
 
-function getParticleComponents (node) {
+function getParticleComponents (node): ParticleSystem2D[] {
     const parent = node.parent;
     const comp = node.getComponent(ParticleSystem2D);
     if (!parent || !comp) {
-        return node.getComponentsInChildren(ParticleSystem2D);
+        return node.getComponentsInChildren(ParticleSystem2D) as ParticleSystem2D[];
     }
     return getParticleComponents(parent);
 }
@@ -914,11 +914,11 @@ export class ParticleSystem2D extends UIRenderable {
     public _initTextureWithDictionary (dict) {
         if (dict.spriteFrameUuid) {
             const spriteFrameUuid = dict.spriteFrameUuid;
-            assetManager.loadAny(spriteFrameUuid, (error: Error, spriteFrame: SpriteFrame) => {
-                if (error) {
+            assetManager.loadAny(spriteFrameUuid, (err: Error, spriteFrame: SpriteFrame) => {
+                if (err) {
                     dict.spriteFrameUuid = undefined;
                     this._initTextureWithDictionary(dict);
-                    console.error(error);
+                    error(err);
                 } else {
                     this.spriteFrame = spriteFrame;
                 }
@@ -929,11 +929,11 @@ export class ParticleSystem2D extends UIRenderable {
             const imgPath = path.changeBasename(this._plistFile, dict.textureFileName || '');
             if (dict.textureFileName) {
                 // Try to get the texture from the cache
-                assetManager.loadRemote<ImageAsset>(imgPath, (error: Error | null, imageAsset: ImageAsset) => {
-                    if (error) {
+                assetManager.loadRemote<ImageAsset>(imgPath, (err: Error | null, imageAsset: ImageAsset) => {
+                    if (err) {
                         dict.textureFileName = undefined;
                         this._initTextureWithDictionary(dict);
-                        console.error(error);
+                        error(err);
                     } else {
                         this.spriteFrame = SpriteFrame.createWithImage(imageAsset);
                     }
@@ -1153,7 +1153,10 @@ export class ParticleSystem2D extends UIRenderable {
 
     protected _render (render: UI) {
         if (this._renderSpriteFrame) {
-            render.commitComp(this, this._renderSpriteFrame, this._assembler!, this._positionType === PositionType.RELATIVE ? this.node.parent : null);
+            render.commitComp(this,
+                this._renderSpriteFrame,
+                this._assembler!,
+                this._positionType === PositionType.RELATIVE ? this.node.parent : null);
         }
     }
 }
