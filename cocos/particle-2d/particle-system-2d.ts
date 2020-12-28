@@ -876,7 +876,7 @@ export class ParticleSystem2D extends UIRenderable {
     public _applyFile () {
         const file = this._file;
         if (file) {
-            const applyTemp = (err) => {
+            const applyTemp = (err: any) => {
                 if (err || !file) {
                     errorID(6029);
                     return;
@@ -911,7 +911,7 @@ export class ParticleSystem2D extends UIRenderable {
         }
     }
 
-    public _initTextureWithDictionary (dict) {
+    public _initTextureWithDictionary (dict: any) {
         if (dict.spriteFrameUuid) {
             const spriteFrameUuid = dict.spriteFrameUuid;
             assetManager.loadAny(spriteFrameUuid, (err: Error, spriteFrame: SpriteFrame) => {
@@ -923,9 +923,8 @@ export class ParticleSystem2D extends UIRenderable {
                     this.spriteFrame = spriteFrame;
                 }
             });
-        }
-        // texture
-        else {
+        } else {
+            // texture
             const imgPath = path.changeBasename(this._plistFile, dict.textureFileName || '');
             if (dict.textureFileName) {
                 // Try to get the texture from the cache
@@ -985,7 +984,7 @@ export class ParticleSystem2D extends UIRenderable {
     }
 
     // parsing process
-    public _initWithDictionary (dict) {
+    public _initWithDictionary (dict: any) {
         this.totalParticles = parseInt(dict.maxParticles || 0);
 
         // life span
