@@ -28,6 +28,7 @@
  * @hidden
  */
 
+import { IUV } from '../../assets';
 import { Mat4, Vec3, Color } from '../../../core/math';
 import { RenderData, IRenderData } from '../../renderer/render-data';
 import { UI } from '../../renderer/ui';
@@ -118,7 +119,7 @@ export const tilled: IAssembler = {
         const frame = sprite.spriteFrame!;
         const rotated = frame.isRotated();
         const uv = frame.uv;
-        const uvSliced = sprite.spriteFrame?.uvSliced;
+        const uvSliced: IUV[] = sprite.spriteFrame!.uvSliced;
         const rect = frame.getRect();
         const leftWidth = frame.insetLeft;
         const rightWidth = frame.insetRight;
@@ -291,7 +292,8 @@ export const tilled: IAssembler = {
 
     updateVerts (sprite: Sprite, sizableWidth: number, sizableHeight: number, row: number, col: number) {
         const uiTrans = sprite.node._uiProps.uiTransformComp!;
-        const data = sprite.renderData?.data;
+        const renderData: RenderData | null = sprite.renderData;
+        const data: IRenderData[] = renderData!.data;
         const frame = sprite.spriteFrame!;
 
         const rect = frame.getRect();
