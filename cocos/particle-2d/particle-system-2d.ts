@@ -1120,6 +1120,9 @@ export class ParticleSystem2D extends UIRenderable {
                 this._renderSpriteFrame.once('load', this._onTextureLoaded, this);
             }
         }
+        else {
+            this.resetSystem();
+        }
     }
 
     public _getTexture () {
@@ -1147,15 +1150,10 @@ export class ParticleSystem2D extends UIRenderable {
     }
 
     protected _canRender () {
-        return super._canRender() && !this._stopped && !this._deferredloaded;
+        return super._canRender() && !this._stopped && !this._deferredloaded && this._renderSpriteFrame !== null;
     }
 
     protected _render (render: UI) {
-        if (this._renderSpriteFrame) {
-            render.commitComp(this,
-                this._renderSpriteFrame,
-                this._assembler!,
-                this._positionType === PositionType.RELATIVE ? this.node.parent : null);
-        }
+        render.commitComp(this, this._renderSpriteFrame, this._assembler!, this._positionType === PositionType.RELATIVE ? this.node.parent : null);
     }
 }
