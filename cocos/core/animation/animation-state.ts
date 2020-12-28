@@ -28,18 +28,20 @@
  * @module animation
  */
 
-import { EDITOR } from 'internal:constants';
 import { Node } from '../scene-graph/node';
-import { AnimationClip, IRuntimeCurve } from './animation-clip';
+import { AnimationClip, IAnimationEventGroup, IRuntimeCurve } from './animation-clip';
 import { AnimCurve, RatioSampler } from './animation-curve';
 import { createBoundTarget, createBufferedTarget, IBufferedTarget, IBoundTarget } from './bound-target';
 import { Playable } from './playable';
-import { WrapMode, WrapModeMask, WrappedInfo } from './types';
+import { WrapMode, WrapModeMask } from './types';
 import { HierarchyPath, evaluatePath, TargetPath } from './target-path';
 import { BlendStateBuffer, createBlendStateWriter, IBlendStateWriter } from '../../3d/skeletal-animation/skeletal-animation-blending';
 import { legacyCC } from '../global-exports';
 import { ccenum } from '../value-types/enum';
 import { IValueProxyFactory } from './value-proxy';
+import { assertIsTrue } from '../data/utils/asserts';
+import { getGlobalAnimationStateContext } from './utils/global-context';
+import { DEFAULT_EPSILON } from './epsilon';
 
 /**
  * @en The event type supported by Animation
@@ -68,10 +70,17 @@ export enum EventType {
     RESUME = 'resume',
 
     /**
-     * @en If animation repeat count is larger than 1, emit when animation play to the last frame.
-     * @zh 假如动画循环次数大于 1，当动画播放到最后一帧时触发。
+     * @en If animation repeat count is larger than 1, emit every time the animation playback finished once iteration.
+     * @zh 假如动画循环次数大于 1，每当动画完成一次迭代后触发。
      */
-    LASTFRAME = 'lastframe',
+    ITERATION_END = 'lastframe', // cspell:disable-line lastframe
+
+    /**
+     * @en Synonym(misspelled) of `ITERATION_END`.
+     * @zh `ITERATION_END` 的同义词。
+     * @deprecated Since V3.1. Use `ITERATION_END` instead.
+     */
+    LASTFRAME = ITERATION_END, // cspell:disable-line LASTFRAME
 
     /**
      * @en Triggered when finish playing animation.
@@ -158,6 +167,8 @@ function makeSamplerSharedGroup (sampler: RatioSampler | null): ISamplerSharedGr
 
 const InvalidIndex = -1;
 
+const nullIteration = -1;
+
 /**
  * @en
  * The AnimationState gives full control over animation playback process.
@@ -169,33 +180,42 @@ const InvalidIndex = -1;
  */
 export class AnimationState extends Playable {
     /**
-     * @en The clip that is being played by this animation state.
-     * @zh 此动画状态正在播放的剪辑。
+     * @en The clip that is associated with this animation state.
+     * @zh 此动画状态关联的剪辑。
      */
     get clip () {
         return this._clip;
     }
 
     /**
-     * @en The name of the playing animation.
-     * @zh 动画的名字。
+     * @en The name of the animation state.
+     * @zh 此动画状态的名字。
      */
     get name () {
         return this._name;
     }
 
+    /**
+     * @en The iteration duration of this animation in seconds. It's a synonymy of `this.duration`.
+     * @zh 单次动画的持续时间，单位为秒。和 `this.duration` 同义。
+     */
     get length () {
         return this.duration;
     }
 
     /**
      * @en
-     * Wrapping mode of the playing animation.
-     * Notice : dynamic change wrapMode will reset time and repeatCount property
+     * Gets or sets the wrapping mode of the animation playback.
+     * The initial wrapping mode is what set to the clip.
+     * @note When set wrapping mode, the accumulated playback time and repeat count got reset:
+     * Setting wrapping mode as `AnimationClip.WrapMode.Normal` or `AnimationClip.WrapMode.Reverse` would reset the repeat count as `1`,
+     * Otherwise, the repeat count is reset as `Infinity`(infinite repeat count).
      * @zh
-     * 动画循环方式。
-     * 需要注意的是，动态修改 wrapMode 时，会重置 time 以及 repeatCount。
-     * @default: WrapMode.Normal
+     * 获取或设置动画播放的循环模式。
+     * 初始的循环模式将从动画剪辑中读取。
+     * @note 设置循环模式时，会重置累计播放时间和重复次数：
+     * 设置循环模式为 `AnimationClip.WrapMode.Normal` 或 `AnimationClip.WrapMode.Reverse` 时重复次数将被重置为 `1`，
+     * 其余循环模式将重置重复次数为 `Infinity`（无限次）。
      */
     get wrapMode () {
         return this._wrapMode;
@@ -203,12 +223,7 @@ export class AnimationState extends Playable {
 
     set wrapMode (value: WrapMode) {
         this._wrapMode = value;
-
-        if (EDITOR && !legacyCC.GAME_VIEW) { return; }
-
-        // dynamic change wrapMode will need reset time to 0
         this.time = 0;
-
         if (value & WrapModeMask.Loop) {
             this.repeatCount = Infinity;
         } else {
@@ -217,17 +232,11 @@ export class AnimationState extends Playable {
     }
 
     /**
-     * @en The animation's iteration count property.
-     *
-     * A real number greater than or equal to zero (including positive infinity) representing the number of times
-     * to repeat the animation node.
-     *
-     * Values less than zero and NaN values are treated as the value 1.0 for the purpose of timing model
-     * calculations.
-     *
-     * @zh 迭代次数，指动画播放多少次后结束, normalize time。 如 2.5（2次半）。
-     *
-     * @default 1
+     * @en The playback's repeat count.
+     * It may be used to qualify the iteration count of various playback wrapping mode into limited count.
+     * The initial repeat count is decided by the initial wrapping mode.
+     * @zh 播放的重复次数，可以用来限定各种播放循环模式的迭代次数。
+     * 初始的重复次数是由初始的循环模式决定的。
      */
     get repeatCount () {
         return this._repeatCount;
@@ -239,9 +248,10 @@ export class AnimationState extends Playable {
         const shouldWrap = this._wrapMode & WrapModeMask.ShouldWrap;
         const reverse = (this.wrapMode & WrapModeMask.Reverse) === WrapModeMask.Reverse;
         if (value === Infinity && !shouldWrap && !reverse) {
-            this._process = this.simpleProcess;
+            this._isIfl = true;
+            this._currentPosition.setAsIfl();
         } else {
-            this._process = this.process;
+            this._isIfl = false;
         }
     }
 
@@ -259,35 +269,47 @@ export class AnimationState extends Playable {
         this._delayTime = this._delay = value;
     }
 
-    // http://www.w3.org/TR/web-animations/#idl-def-AnimationTiming
-
     /**
-     * @en The iteration duration of this animation in seconds. (length)
-     * @zh 单次动画的持续时间，秒。（动画长度）
-     * @readOnly
+     * @en The duration of the clip, in seconds.
+     * @zh 动画剪辑的周期，单位为秒。
      */
-    public duration = 1;
+    get duration () {
+        return this.clip.duration;
+    }
 
     /**
-     * @en The animation's playback speed. 1 is normal playback speed.
+     * @en The animation's playback speed.
      * @zh 播放速率。
-     * @default: 1.0
+     * @default 1.0
      */
     public speed = 1;
 
     /**
-     * @en The current accumulated time of this animation in seconds.
+     * @en The accumulated time of this animation in seconds.
+     * Negative accumulated time behaves specially.
      * @zh 动画当前**累计播放**的时间，单位为秒。
+     * 累计播放时间为负值时具有特殊的含义。
      * @default 0
      */
-    public time = 0;
+    get time () {
+        return this._time;
+    }
+
+    /**
+     * @en Sets the accumulated time of this animation in seconds.
+     * @zh 设置动画的 **累计播放** 时间，单位为秒。
+     */
+    set time (value) {
+        this._setTime(value);
+        this._currentSampled = false;
+    }
 
     /**
      * @en Gets the time progress, in seconds.
      * @zh 获取动画的时间进度，单位为秒。
      */
     get current () {
-        return this.getWrappedInfo(this.time).time;
+        return this._currentPosition.time;
     }
 
     /**
@@ -295,7 +317,7 @@ export class AnimationState extends Playable {
      * @zh 获取动画播放的比例时间。
      */
     get ratio () {
-        return this.current / this.duration;
+        return this._currentPosition.ratio;
     }
 
     /**
@@ -303,6 +325,12 @@ export class AnimationState extends Playable {
      */
     public weight = 0;
 
+    /**
+     * @en
+     * The editing frame rate, in FPS.
+     * @zh
+     * 此动画状态的编辑帧率，单位为帧每秒。
+     */
     public frameRate = 0;
 
     /**
@@ -316,10 +344,10 @@ export class AnimationState extends Playable {
     protected _curveLoaded = false;
 
     private _clip: AnimationClip;
-    private _process = this.process;
+    private _context: AnimationState.Context;
+    private _time = 0;
     private _samplerSharedGroups: ISamplerSharedGroup[] = [];
     private _target: Node | null = null;
-    private _ignoreIndex = InvalidIndex;
     /**
      * May be `null` due to failed to initialize.
      */
@@ -329,30 +357,64 @@ export class AnimationState extends Playable {
     })[] = [];
     private _wrapMode = WrapMode.Normal;
     private _repeatCount = 1;
+    /**
+     * Is current in infinity forward loop mode.
+     */
+    private _isIfl = false;
     private _delay = 0;
     private _delayTime = 0;
-    /**
-     * Mark whether the current frame is played.
-     * When set new time to animation state, we should ensure the frame at the specified time being played at next update.
-     */
-    private _currentFramePlayed = false;
     private _name: string;
-    private _lastIterations?: number;
-    private _lastWrapInfo: WrappedInfo | null = null;
-    private _lastWrapInfoEvent: WrappedInfo | null = null;
-    private _wrappedInfo = new WrappedInfo();
+    private _currentPosition = new PlaybackPosition();
+    /**
+     * Whether current time has been sampled.
+     * If not, we won't take the next time update through `update()` call.
+     */
+    private _currentSampled = false;
     private _blendStateBuffer: BlendStateBuffer | null = null;
     private _blendStateWriters: IBlendStateWriter[] = [];
-    private _allowLastFrame = false;
+    private _ignoreIndex = InvalidIndex;
     private _blendStateWriterHost = {
         weight: 0,
         enabled: false,
     };
 
-    constructor (clip: AnimationClip, name = '') {
+    /**
+     * @zh
+     * 创建一个用于播放动画剪辑的动画状态对象。
+     * @en
+     * Creates an animation state object that is used to play the specified animation clip.
+     * @param context The animation state's context.
+     * @param clip The associated animation clip.
+     * @param name Name of the animation state. If not specified or is empty, the clip's name would be taken.
+     */
+    constructor (context: AnimationState.Context, clip: AnimationClip, name?: string);
+
+    /**
+     * @zh
+     * 创建一个用于播放动画剪辑的动画状态对象。将使用全局上下文。
+     * @en
+     * Creates an animation state object that is used to play the specified animation clip.
+     * The context would be set to global context.
+     * @param clip The associated animation clip.
+     * @param name Name of the animation state. If not specified or is empty, the clip's name would be taken.
+     */
+    constructor (clip: AnimationClip, name?: string);
+
+    constructor (
+        contextOrClip: AnimationState.Context | AnimationClip,
+        clipOrName: AnimationClip | string | undefined,
+        name?: string,
+    ) {
         super();
-        this._clip = clip;
-        this._name = name || (clip && clip.name);
+        if (typeof clipOrName === 'object') {
+            this._clip = clipOrName;
+            this._context = contextOrClip as AnimationState.Context;
+        } else {
+            this._clip = contextOrClip as AnimationClip;
+            this._context = getGlobalAnimationStateContext();
+            name = clipOrName;
+        }
+        this._name = name || this._clip.name;
     }
 
     /**
@@ -362,19 +424,21 @@ export class AnimationState extends Playable {
         return this._curveLoaded;
     }
 
+    /**
+     * This method is used for internal purpose only.
+     */
     public initialize (root: Node, propertyCurves?: readonly IRuntimeCurve[]) {
         if (this._curveLoaded) { return; }
         this._curveLoaded = true;
         this._destroyBlendStateWriters();
         this._samplerSharedGroups.length = 0;
-        this._blendStateBuffer = legacyCC.director.getAnimationManager()?.blendState ?? null;
+        this._blendStateBuffer = this._context.blendStateBuffer ?? null;
         if (this._blendStateBuffer) {
             this._blendStateBuffer.bindState(this);
         }
         this._targetNode = root;
         const clip = this._clip;
 
-        this.duration = clip.duration;
         this.speed = clip.speed;
         this.wrapMode = clip.wrapMode;
         this.frameRate = clip.sample;
@@ -489,148 +553,97 @@ export class AnimationState extends Playable {
     }
 
     /**
-     * @deprecated Since V1.1.1, animation states were no longer defined as event targets.
-     * To process animation events, use `Animation` instead.
-     */
-    public emit (...args: any[]) {
-        legacyCC.director.getAnimationManager().pushDelayEvent(this._emit, this, args);
-    }
-
-    /**
-     * @deprecated Since V1.1.1, animation states were no longer defined as event targets.
-     * To process animation events, use `Animation` instead.
-     */
-    // eslint-disable-next-line @typescript-eslint/ban-types
-    public on (type: string, callback: Function, target?: any) {
-        if (this._target && this._target.isValid) {
-            return this._target.on(type, callback, target);
-        } else {
-            return null;
-        }
-    }
-
-    /**
-     * @deprecated Since V1.1.1, animation states were no longer defined as event targets.
-     * To process animation events, use `Animation` instead.
-     */
-    // eslint-disable-next-line @typescript-eslint/ban-types
-    public once (type: string, callback: Function, target?: any) {
-        if (this._target && this._target.isValid) {
-            return this._target.once(type, callback, target);
-        } else {
-            return null;
-        }
-    }
-
-    /**
-     * @deprecated Since V1.1.1, animation states were no longer defined as event targets.
-     * To process animation events, use `Animation` instead.
-     */
-    // eslint-disable-next-line @typescript-eslint/ban-types
-    public off (type: string, callback: Function, target?: any) {
-        if (this._target && this._target.isValid) {
-            this._target.off(type, callback, target);
-        }
-    }
-
-    /**
      * @zh
-     * 是否允许触发 `LastFrame` 事件。
-     * 该方法仅用作内部用途。
+     * 等价于 `this.time = time`。
      * @en
-     * Whether `LastFrame` should be triggered.
-     * @param allowed True if the last frame events may be triggered.
-     * This method is only used for internal purpose only.
+     * Equivalent to `this.time = time`.
+     * @deprecated Since V3.1. Directly set `this.time` or `this.current` instead.
+     * @param time The time to set.
      */
-    public allowLastFrameEvent (allowed: boolean) {
-        this._allowLastFrame = allowed;
+    public setTime (time: number) {
+        this.time = time;
     }
 
     /**
-     * This method is used for internal purpose only.
+     * @zh 步进播放时间并进行采样。
+     * 注意，此方法可能受“完美首帧”机制影响导致时间并没有改变：
+     * 在动画状态初始时或通过 `this.time` 显式地设置播放时间后，
+     * 只要未进行过播放（无论是通过 `update()` 还是 `sample()`），
+     * 那么下次 `update()` 时不会改变播放时间，而是仅仅应用彼时的状态。
+     * 这是为了确保在动画映入眼帘时不会突兀地调过首帧。
+     * 要避免完美首帧，需要确保更新后的时间已被应用。例如，通过 `sample()` 调用。
+     * @en Steps the playback time and do sampling.
+     * Note, this method may be affected by the "perfect first frame" mechanism:
+     * when the animation state is in initial state or its time got explicitly set through `this.time`
+     * and never been played(thought whatever `update()` or `sample()`),
+     * the next `update()` call would not change the play time but only apply then time.
+     * The reason for this is to prevent the first frame from being suddenly skipped as the animation came into view.
+     * To avoid the perfect first frame,
+     * ensure the updated time has been applied. For example, through `sample()` call.
+     * @param delta The delta time, in seconds.
      */
-    public _setEventTarget (target) {
-        this._target = target;
-    }
-
-    public setTime (time: number) {
-        this._currentFramePlayed = false;
-        this.time = time || 0;
-
-        if (!EDITOR || legacyCC.GAME_VIEW) {
-            this._lastWrapInfoEvent = null;
-            this._ignoreIndex = InvalidIndex;
-
-            const info = this.getWrappedInfo(time, this._wrappedInfo);
-            const direction = info.direction;
-            let frameIndex = this._clip.getEventGroupIndexAtRatio(info.ratio);
-
-            // only ignore when time not on a frame index
-            if (frameIndex < 0) {
-                frameIndex = ~frameIndex - 1;
-
-                // if direction is inverse, then increase index
-                if (direction < 0) { frameIndex += 1; }
-
-                this._ignoreIndex = frameIndex;
-            }
-        }
-    }
-
     public update (delta: number) {
-        // calculate delay time
-
         if (this._delayTime > 0) {
             this._delayTime -= delta;
             if (this._delayTime > 0) {
-                // still waiting
                 return;
             }
         }
 
-        // make first frame perfect
+        const {
+            ratio: lastRatio,
+            iterations: lastIterations,
+            forwarding: lastForwarding,
+        } = this._currentPosition;
+        const lastPositionSampled = this._currentSampled;
 
-        // var playPerfectFirstFrame = (this.time === 0);
-        if (this._currentFramePlayed) {
-            this.time += (delta * this.speed);
-        } else {
-            this._currentFramePlayed = true;
+        if (lastPositionSampled) {
+            const time = this._time + delta * this.speed;
+            this._setTime(time);
         }
 
-        this._process();
+        this.sample();
+
+        if (lastPositionSampled) {
+            this._countEvents(lastRatio, lastIterations, lastForwarding);
+        } else {
+            const index = this._clip.getEventGroupIndexAtRatio(this._currentPosition.ratio);
+            if (index >= 0) {
+                this._triggerEventsInIndexRange(index, index, true);
+            }
+        }
     }
 
+    /**
+     * 立即执行一次采样。
+     */
     public sample () {
-        const info = this.getWrappedInfo(this.time, this._wrappedInfo);
-        this._sampleCurves(info.ratio);
-        if (!EDITOR || legacyCC.GAME_VIEW) {
-            this._sampleEvents(info);
-        }
-        return info;
+        this._currentSampled = true;
+        this._sampleCurves(this._currentPosition.ratio);
     }
 
     protected onPlay () {
         this.setTime(0);
         this._delayTime = this._delay;
         this._onReplayOrResume();
-        this.emit(EventType.PLAY, this);
+        this._context.emit?.(EventType.PLAY, this);
     }
 
     protected onStop () {
         if (!this.isPaused) {
             this._onPauseOrStop();
         }
-        this.emit(EventType.STOP, this);
+        this._context.emit?.(EventType.STOP, this);
     }
 
     protected onResume () {
         this._onReplayOrResume();
-        this.emit(EventType.RESUME, this);
+        this._context.emit?.(EventType.RESUME, this);
     }
 
     protected onPause () {
         this._onPauseOrStop();
-        this.emit(EventType.PAUSE, this);
+        this._context.emit?.(EventType.PAUSE, this);
     }
 
     protected _sampleCurves (ratio: number) {
@@ -700,210 +713,115 @@ export class AnimationState extends Playable {
         }
     }
 
-    private process () {
-        // sample
-        const info = this.sample();
-
-        if (this._allowLastFrame) {
-            let lastInfo;
-            if (!this._lastWrapInfo) {
-                lastInfo = this._lastWrapInfo = new WrappedInfo(info);
-            } else {
-                lastInfo = this._lastWrapInfo;
-            }
-
-            if (this.repeatCount > 1 && ((info.iterations | 0) > (lastInfo.iterations | 0))) {
-                this.emit(EventType.LASTFRAME, this);
-            }
-
-            lastInfo.set(info);
+    private _setTime (time: number) {
+        this._time = time;
+        if (this._isIfl) {
+            this._currentPosition.updateIfl(time, this.duration);
+        } else {
+            this._currentPosition.update(time, this.duration, this._wrapMode, this._repeatCount);
         }
+    }
 
-        if (info.stopped) {
+    private _countEvents (lastRatio: number, lastIterations: number, lastForwarding: boolean) {
+        const currentIterations = this._currentPosition.iterations;
+        const currentRatio = this._currentPosition.ratio;
+        const repeatCount = this._repeatCount;
+
+        this._triggerEventsInRange(
+            lastRatio,
+            lastIterations,
+            lastForwarding,
+            currentRatio,
+            currentIterations,
+            this._clip.eventGroups.length,
+        );
+
+        if (Math.abs(this._time) / this.duration >= repeatCount) {
             this.stop();
-            this.emit(EventType.FINISHED, this);
+            this._context.emit?.(EventType.FINISHED, this);
         }
     }
 
-    private simpleProcess () {
-        const duration = this.duration;
-        let time = this.time % duration;
-        if (time < 0) { time += duration; }
-        const ratio = time / duration;
-        this._sampleCurves(ratio);
+    private _triggerEventsInRange (
+        startRatio: number,
+        startIterations: number,
+        startForwarding: boolean,
+        endRatio: number,
+        endIterations: number,
+        markerCount: number,
+    ) {
+        const clip = this._clip;
+        const startIndex = getEventIndex(clip, startRatio, startForwarding);
 
-        if (!EDITOR || legacyCC.GAME_VIEW) {
-            if (this._clip.hasEvents()) {
-                this._sampleEvents(this.getWrappedInfo(this.time, this._wrappedInfo));
+        const isPingPong = (this._wrapMode & WrapModeMask.PingPong) === WrapModeMask.PingPong;
+        const lastFrameEvent = !!this._context.lastFrameEvent && this._repeatCount > 1;
+        const diffIterations = Math.trunc(endIterations) - Math.trunc(startIterations);
+        let forwarding = startForwarding;
+
+        if (diffIterations === 0 && markerCount > 0) {
+            const endIndex = getEventIndex(clip, endRatio, forwarding);
+            if (endIndex > startIndex) {
+                this._triggerEventsInIndexRange(startIndex + 1, endIndex, true);
+            } else if (startIndex > endIndex) {
+                assertIsTrue(startIndex > 0);
+                this._triggerEventsInIndexRange(endIndex < 0 ? 0 : endIndex, startIndex - 1, false);
             }
-        }
-
-        if (this._allowLastFrame) {
-            if (this._lastIterations === undefined) {
-                this._lastIterations = ratio;
-            }
-
-            if ((this.time > 0 && this._lastIterations > ratio) || (this.time < 0 && this._lastIterations < ratio)) {
-                this.emit(EventType.LASTFRAME, this);
-            }
-
-            this._lastIterations = ratio;
-        }
-    }
-
-    private cache (frames: number) {
-    }
-
-    private _needReverse (currentIterations: number) {
-        const wrapMode = this.wrapMode;
-        let needReverse = false;
-
-        if ((wrapMode & WrapModeMask.PingPong) === WrapModeMask.PingPong) {
-            const isEnd = currentIterations - (currentIterations | 0) === 0;
-            if (isEnd && (currentIterations > 0)) {
-                currentIterations -= 1;
-            }
-
-            const isOddIteration = currentIterations & 1;
-            if (isOddIteration) {
-                needReverse = !needReverse;
-            }
-        }
-        if ((wrapMode & WrapModeMask.Reverse) === WrapModeMask.Reverse) {
-            needReverse = !needReverse;
-        }
-        return needReverse;
-    }
-
-    private getWrappedInfo (time: number, info?: WrappedInfo) {
-        info = info || new WrappedInfo();
-
-        let stopped = false;
-        const duration = this.duration;
-        const repeatCount = this.repeatCount;
-
-        let currentIterations = time > 0 ? (time / duration) : -(time / duration);
-        if (currentIterations >= repeatCount) {
-            currentIterations = repeatCount;
-
-            stopped = true;
-            let tempRatio = repeatCount - (repeatCount | 0);
-            if (tempRatio === 0) {
-                tempRatio = 1;  // 如果播放过，动画不复位
-            }
-            time = tempRatio * duration * (time > 0 ? 1 : -1);
-        }
-
-        if (time > duration) {
-            const tempTime = time % duration;
-            time = tempTime === 0 ? duration : tempTime;
-        } else if (time < 0) {
-            time %= duration;
-            if (time !== 0) { time += duration; }
-        }
-
-        let needReverse = false;
-        const shouldWrap = this._wrapMode & WrapModeMask.ShouldWrap;
-        if (shouldWrap) {
-            needReverse = this._needReverse(currentIterations);
-        }
-
-        let direction = needReverse ? -1 : 1;
-        if (this.speed < 0) {
-            direction *= -1;
-        }
-
-        // calculate wrapped time
-        if (shouldWrap && needReverse) {
-            time = duration - time;
-        }
-
-        info.ratio = time / duration;
-        info.time = time;
-        info.direction = direction;
-        info.stopped = stopped;
-        info.iterations = currentIterations;
-
-        return info;
-    }
-
-    private _sampleEvents (wrapInfo: WrappedInfo) {
-        const length = this._clip.eventGroups.length;
-        let direction = wrapInfo.direction;
-        let eventIndex = this._clip.getEventGroupIndexAtRatio(wrapInfo.ratio);
-        if (eventIndex < 0) {
-            eventIndex = ~eventIndex - 1;
-            // If direction is inverse, increase index.
-            if (direction < 0) {
-                eventIndex += 1;
-            }
-        }
-
-        if (this._ignoreIndex !== eventIndex) {
-            this._ignoreIndex = InvalidIndex;
-        }
-
-        wrapInfo.frameIndex = eventIndex;
-
-        if (!this._lastWrapInfoEvent) {
-            this._fireEvent(eventIndex);
-            this._lastWrapInfoEvent = new WrappedInfo(wrapInfo);
             return;
         }
 
-        const wrapMode = this.wrapMode;
-        const currentIterations = wrapIterations(wrapInfo.iterations);
-
-        const lastWrappedInfo = this._lastWrapInfoEvent;
-        let lastIterations = wrapIterations(lastWrappedInfo.iterations);
-        let lastIndex = lastWrappedInfo.frameIndex;
-        const lastDirection = lastWrappedInfo.direction;
-
-        const iterationsChanged = lastIterations !== -1 && currentIterations !== lastIterations;
-
-        if (lastIndex === eventIndex && iterationsChanged && length === 1) {
-            this._fireEvent(0);
-        } else if (lastIndex !== eventIndex || iterationsChanged) {
-            direction = lastDirection;
-
-            do {
-                if (lastIndex !== eventIndex) {
-                    if (direction === -1 && lastIndex === 0 && eventIndex > 0) {
-                        if ((wrapMode & WrapModeMask.PingPong) === WrapModeMask.PingPong) {
-                            direction *= -1;
+        const iLastIteration = Math.abs(diffIterations);
+        for (let iIteration = 0;
+            iIteration <= iLastIteration;
+            ++iIteration, forwarding = isPingPong ? !forwarding : forwarding
+        ) {
+            if (markerCount > 0) {
+                let first = 0;
+                let last = markerCount - 1;
+                if (iIteration === 0) {
+                    if (forwarding) {
+                        if (startIndex >= (markerCount - 1)) {
+                            continue;
                         } else {
-                            lastIndex = length;
+                            first = startIndex + 1;
                         }
-                        lastIterations++;
-                    } else if (direction === 1 && lastIndex === length - 1 && eventIndex < length - 1) {
-                        if ((wrapMode & WrapModeMask.PingPong) === WrapModeMask.PingPong) {
-                            direction *= -1;
-                        } else {
-                            lastIndex = -1;
-                        }
-                        lastIterations++;
+                    } else if (startIndex < 1) {
+                        continue;
+                    } else {
+                        first = startIndex - 1;
                     }
-
-                    if (lastIndex === eventIndex) {
-                        break;
-                    }
-                    if (lastIterations > currentIterations) {
-                        break;
+                } else if (iIteration === iLastIteration) {
+                    const endIndex = getEventIndex(clip, endRatio, forwarding);
+                    if (forwarding && endIndex < 0
+                    || !forwarding && endIndex >= markerCount) {
+                        continue;
+                    } else {
+                        last = endIndex < 0 ? 0 : endIndex;
                     }
                 }
-
-                lastIndex += direction;
-
-                legacyCC.director.getAnimationManager().pushDelayEvent(this._fireEvent, this, [lastIndex]);
-            } while (lastIndex !== eventIndex && lastIndex > -1 && lastIndex < length);
+                this._triggerEventsInIndexRange(first, last, forwarding);
+            }
+            if (lastFrameEvent) {
+                // If the iteration isn't last or if it is but the end ratio reaches the end,
+                // we should emit the last frame event.
+                if (iIteration !== iLastIteration
+                    || forwarding && Math.abs(endRatio - 1.0) < DEFAULT_EPSILON
+                    || !forwarding && Math.abs(endRatio) < DEFAULT_EPSILON) {
+                    this._context.emit?.(EventType.ITERATION_END, this);
+                }
+            }
         }
-
-        this._lastWrapInfoEvent.set(wrapInfo);
     }
 
-    private _emit (type, state) {
-        if (this._target && this._target.isValid) {
-            this._target.emit(type, type, state);
+    private _triggerEventsInIndexRange (startIndex: number, endIndex: number, forwarding: boolean) {
+        assertIsTrue(endIndex >= startIndex);
+        if (forwarding) {
+            for (let i = startIndex; i <= endIndex; ++i) {
+                this._context.emitFrameEvent?.(this._fireEvent, this, [i]);
+            }
+        } else {
+            for (let i = endIndex; i >= endIndex; --i) {
+                this._context.emitFrameEvent?.(this._fireEvent, this, [i]);
+            }
         }
     }
 
@@ -913,9 +831,8 @@ export class AnimationState extends Playable {
         }
 
         const { eventGroups } = this._clip;
-        if (index < 0 || index >= eventGroups.length || this._ignoreIndex === index) {
-            return;
-        }
+
+        assertIsTrue(index >= 0 && index < eventGroups.length);
 
         const eventGroup = eventGroups[index];
         const components = this._targetNode.components;
@@ -931,11 +848,11 @@ export class AnimationState extends Playable {
     }
 
     private _onReplayOrResume () {
-        legacyCC.director.getAnimationManager().addAnimation(this);
+        this._context.enqueue(this);
     }
 
     private _onPauseOrStop () {
-        legacyCC.director.getAnimationManager().removeAnimation(this);
+        this._context.dequeue(this);
     }
 
     private _destroyBlendStateWriters () {
@@ -974,11 +891,158 @@ function isTargetingTRS (path: TargetPath[]) {
     }
 }
 
-function wrapIterations (iterations: number) {
-    if (iterations - (iterations | 0) === 0) {
-        iterations -= 1;
+/**
+ * Gets the most triggered frame event index `index`. `-1` means no frame event is covered.
+ * If `forwarding` is `true`, the covered frame event range is `[0, index]`(inclusive),
+ * Otherwise the covered frame event range is `[length - 1, index]`,
+ * @param clip
+ * @param ratio
+ * @param forwarding
+ */
+function getEventIndex (clip: AnimationClip, ratio: number, forwarding: boolean) {
+    let eventIndex = clip.getEventGroupIndexAtRatio(ratio);
+    if (eventIndex < 0) {
+        eventIndex = ~eventIndex - 1;
+        // If direction is inverse, increase index.
+        if (!forwarding) {
+            eventIndex += 1;
+        }
     }
-    return iterations | 0;
+    return eventIndex;
+}
+
+export declare namespace AnimationState {
+    export interface Context {
+        /**
+         * The blend state buffer to use.
+         */
+        blendStateBuffer?: BlendStateBuffer;
+
+        /**
+         * Enqueue an animation state.
+         * While an animation state is enqueued,
+         * the context should be responsible to invoke its `update()` method to update the animation state.
+         */
+        enqueue(state: AnimationState): void;
+
+        /**
+         * Dequeue an animation state.
+         * While an animation state is enqueued,
+         * the context shall not invoke its `update()` method.
+         */
+        dequeue(state: AnimationState): void;
+
+        /**
+         * @zh
+         * 是否允许触发 `LAST_EVENT` 事件。
+         * @en
+         * Whether `LastFrame` should be triggered.
+         */
+        lastFrameEvent?: boolean;
+
+        /**
+         * @zh
+         * 触发动画播放事件。若未指定则不会触发动画播放事件。
+         * @en
+         * Emit an animation playback event. If not specified, animation playback events are not triggered.
+         * @param type Event type.
+         * @param state The state that triggered the event.
+         */
+        emit?(type: string, state: AnimationState): void;
+
+        /**
+         * @zh
+         * 触发动画帧事件。若未指定则不会触发动画帧事件。
+         * @en
+         * Emit a animation frame event. If not specified, animation frame events are not triggered.
+         * @param fn The function to invoke.
+         * @param thisArg The `this` argument should be passed to `fn`.
+         * @param args The arguments should be passed to `fn`.
+         */
+        emitFrameEvent?<ThisArg, Args extends unknown[]>(fn: (this: ThisArg, ...args: Args) => void, thisArg: unknown, args: Args): void;
+    }
+}
+
+class PlaybackPosition {
+    /**
+     * Progress time.
+     */
+    public time = 0;
+
+    /**
+     * Playback ratio.
+     */
+    public ratio = 0;
+
+    /**
+     * Is forwarding playing.
+     */
+    public forwarding = true;
+
+    /**
+     * The scaled accumulated time.
+     */
+    public iterations = 0;
+
+    public setAsIfl () {
+        this.time = 0.0;
+        this.forwarding = true;
+    }
+
+    public update (accTime: number, duration: number, wrapMode: WrapMode, repeatCount: number) {
+        const accTimeAbs = Math.abs(accTime);
+        const multiples = accTimeAbs / duration;
+        const clampedIterations = Math.min(multiples, repeatCount);
+        let time = 0;
+        const integral = Math.trunc(clampedIterations);
+        if (integral !== clampedIterations) {
+            time = duration * (clampedIterations - integral);
+            this.iterations = clampedIterations;
+        } else if (clampedIterations === repeatCount || accTimeAbs === 0) {
+            time = duration;
+            this.iterations = clampedIterations - 1;
+        } else {
+            time = 0;
+            this.iterations = clampedIterations;
+        }
+        let forwarding = true;
+        if ((wrapMode & WrapModeMask.PingPong) === WrapModeMask.PingPong && Math.trunc(this.iterations) & 1) {
+            forwarding = !forwarding;
+        }
+        if ((wrapMode & WrapModeMask.Reverse) === WrapModeMask.Reverse) {
+            forwarding = !forwarding;
+        }
+        if (Math.sign(accTime) < 0) {
+            forwarding = !forwarding;
+        }
+        if (!forwarding) {
+            time = duration - time;
+        }
+        this.forwarding = forwarding;
+        this.time = time;
+        this.ratio = time / duration;
+    }
+
+    public updateIfl (accTime: number, duration: number) {
+        let time = accTime;
+        let iterationAdjustment = 0;
+        if (accTime >= duration) {
+            time = accTime % duration;
+            if (time === 0) {
+                time = duration;
+                iterationAdjustment = -1;
+            }
+        } else if (accTime < 0) {
+            time = accTime % duration;
+            if (time !== 0) {
+                time += duration;
+                iterationAdjustment = -1;
+            }
+        }
+        this.time = time;
+        this.ratio = time / duration;
+        this.iterations = iterationAdjustment + Math.trunc(Math.abs(accTime) / duration);
+    }
 }
 
 legacyCC.AnimationState = AnimationState;

@@ -71,8 +71,8 @@ export class SkeletalAnimationState extends AnimationState {
 
     protected _curvesInited = false;
 
-    constructor (clip: AnimationClip, name = '') {
-        super(clip, name);
+    constructor (...args: ConstructorParameters<typeof AnimationState>) {
+        super(...args);
         this._animInfoMgr = legacyCC.director.root.dataPoolManager.jointAnimationInfo;
     }
 

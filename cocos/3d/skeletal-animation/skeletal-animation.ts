@@ -43,6 +43,7 @@ import { getWorldTransformUntilRoot } from '../../core/animation/transform-utils
 import { legacyCC } from '../../core/global-exports';
 import { AnimationManager } from '../../core/animation/animation-manager';
 import { js } from '../../core/utils/js';
+import type { AnimationState } from '../../core/animation/animation-state';
 
 @ccclass('cc.SkeletalAnimation.Socket')
 export class Socket {
@@ -218,8 +219,8 @@ export class SkeletalAnimation extends Animation {
         return target;
     }
 
-    protected _createState (clip: AnimationClip, name?: string) {
-        return new SkeletalAnimationState(clip, name);
+    protected _createState (context: AnimationState.Context, clip: AnimationClip, name?: string) {
+        return new SkeletalAnimationState(context, clip, name);
     }
 
     protected _doCreateState (clip: AnimationClip, name: string) {

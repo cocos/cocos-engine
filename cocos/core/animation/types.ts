@@ -82,33 +82,6 @@ export enum WrapMode {
 
 ccenum(WrapMode);
 
-/**
- * For internal
- */
-export class WrappedInfo {
-    public ratio = 0;
-    public time = 0;
-    public direction = 1;
-    public stopped = true;
-    public iterations = 0;
-    public frameIndex: number = undefined as unknown as number;
-
-    constructor (info?: WrappedInfo) {
-        if (info) {
-            this.set(info);
-        }
-    }
-
-    public set (info: WrappedInfo) {
-        this.ratio = info.ratio;
-        this.time = info.time;
-        this.direction = info.direction;
-        this.stopped = info.stopped;
-        this.iterations = info.iterations;
-        this.frameIndex = info.frameIndex;
-    }
-}
-
 export interface ILerpable {
     /**
      * 在当前曲线值与目标曲线值之间插值。
