@@ -1,6 +1,6 @@
 #include "CoreStd.h"
 
-#include "threading/CommandEncoder.h"
+#include "threading/MessageQueue.h"
 #include "GFXDeviceAgent.h"
 #include "GFXFramebufferAgent.h"
 #include "GFXRenderPassAgent.h"
@@ -25,8 +25,8 @@ bool FramebufferAgent::initialize(const FramebufferInfo &info) {
     }
     actorInfo.renderPass = ((RenderPassAgent *)info.renderPass)->getActor();
 
-    ENCODE_COMMAND_2(
-        ((DeviceAgent *)_device)->getMainEncoder(),
+    ENQUEUE_MESSAGE_2(
+        ((DeviceAgent *)_device)->getMessageQueue(),
         FramebufferInit,
         actor, getActor(),
         info, actorInfo,
@@ -39,8 +39,8 @@ bool FramebufferAgent::initialize(const FramebufferInfo &info) {
 
 void FramebufferAgent::destroy() {
     if (_actor) {
-        ENCODE_COMMAND_1(
-            ((DeviceAgent *)_device)->getMainEncoder(),
+        ENQUEUE_MESSAGE_1(
+            ((DeviceAgent *)_device)->getMessageQueue(),
             FramebufferDestroy,
             actor, getActor(),
             {

@@ -1,6 +1,6 @@
 #include "CoreStd.h"
 
-#include "threading/CommandEncoder.h"
+#include "threading/MessageQueue.h"
 #include "GFXDescriptorSetLayoutAgent.h"
 #include "GFXDeviceAgent.h"
 #include "GFXPipelineLayoutAgent.h"
@@ -18,8 +18,8 @@ bool PipelineLayoutAgent::initialize(const PipelineLayoutInfo &info) {
         actorInfo.setLayouts[i] = ((DescriptorSetLayoutAgent *)info.setLayouts[i])->getActor();
     }
 
-    ENCODE_COMMAND_2(
-        ((DeviceAgent *)_device)->getMainEncoder(),
+    ENQUEUE_MESSAGE_2(
+        ((DeviceAgent *)_device)->getMessageQueue(),
         PipelineLayoutInit,
         actor, getActor(),
         info, actorInfo,
@@ -32,8 +32,8 @@ bool PipelineLayoutAgent::initialize(const PipelineLayoutInfo &info) {
 
 void PipelineLayoutAgent::destroy() {
     if (_actor) {
-        ENCODE_COMMAND_1(
-            ((DeviceAgent *)_device)->getMainEncoder(),
+        ENQUEUE_MESSAGE_1(
+            ((DeviceAgent *)_device)->getMessageQueue(),
             PipelineLayoutDestroy,
             actor, getActor(),
             {

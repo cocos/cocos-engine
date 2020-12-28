@@ -390,10 +390,8 @@ void CCVKCmdFuncCreateDescriptorSetLayout(CCVKDevice *device, CCVKGPUDescriptorS
 
     gpuDescriptorSetLayout->defaultDescriptorSet = gpuDescriptorSetLayout->pool.request();
 
-    if (gpuDevice->useDescriptorUpdateTemplate) {
+    if (gpuDevice->useDescriptorUpdateTemplate && bindingCount) {
         const vector<VkDescriptorSetLayoutBinding> &bindings = gpuDescriptorSetLayout->vkBindings;
-        uint bindingCount = bindings.size();
-        if (!bindingCount) return;
 
         vector<VkDescriptorUpdateTemplateEntry> entries(bindingCount);
         for (size_t j = 0u, k = 0u; j < bindingCount; j++) {

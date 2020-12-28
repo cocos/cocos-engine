@@ -1,6 +1,6 @@
 #include "CoreStd.h"
 
-#include "threading/CommandEncoder.h"
+#include "threading/MessageQueue.h"
 #include "GFXDeviceAgent.h"
 #include "GFXDescriptorSetLayoutAgent.h"
 
@@ -32,8 +32,8 @@ bool DescriptorSetLayoutAgent::initialize(const DescriptorSetLayoutInfo &info) {
         }
     }
 
-    ENCODE_COMMAND_2(
-        ((DeviceAgent *)_device)->getMainEncoder(),
+    ENQUEUE_MESSAGE_2(
+        ((DeviceAgent *)_device)->getMessageQueue(),
         DescriptorSetLayoutInit,
         actor, getActor(),
         info, info,
@@ -46,8 +46,8 @@ bool DescriptorSetLayoutAgent::initialize(const DescriptorSetLayoutInfo &info) {
 
 void DescriptorSetLayoutAgent::destroy() {
     if (_actor) {
-        ENCODE_COMMAND_1(
-            ((DeviceAgent *)_device)->getMainEncoder(),
+        ENQUEUE_MESSAGE_1(
+            ((DeviceAgent *)_device)->getMessageQueue(),
             DescriptorSetLayoutDestroy,
             actor, getActor(),
             {

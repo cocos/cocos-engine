@@ -1,6 +1,6 @@
 #include "CoreStd.h"
 
-#include "threading/CommandEncoder.h"
+#include "threading/MessageQueue.h"
 #include "GFXBufferAgent.h"
 #include "GFXDeviceAgent.h"
 #include "GFXLinearAllocatorPool.h"
@@ -16,8 +16,8 @@ bool BufferAgent::initialize(const BufferInfo &info) {
     _stride = std::max(info.stride, 1u);
     _count = _size / _stride;
 
-    ENCODE_COMMAND_2(
-        ((DeviceAgent *)_device)->getMainEncoder(),
+    ENQUEUE_MESSAGE_2(
+        ((DeviceAgent *)_device)->getMessageQueue(),
         BufferInit,
         actor, getActor(),
         info, info,
@@ -39,8 +39,8 @@ bool BufferAgent::initialize(const BufferViewInfo &info) {
     BufferViewInfo actorInfo = info;
     actorInfo.buffer = ((BufferAgent *)info.buffer)->getActor();
 
-    ENCODE_COMMAND_2(
-        ((DeviceAgent *)_device)->getMainEncoder(),
+    ENQUEUE_MESSAGE_2(
+        ((DeviceAgent *)_device)->getMessageQueue(),
         BufferViewInit,
         actor, getActor(),
         info, actorInfo,
@@ -53,8 +53,8 @@ bool BufferAgent::initialize(const BufferViewInfo &info) {
 
 void BufferAgent::destroy() {
     if (_actor) {
-        ENCODE_COMMAND_1(
-            ((DeviceAgent *)_device)->getMainEncoder(),
+        ENQUEUE_MESSAGE_1(
+            ((DeviceAgent *)_device)->getMessageQueue(),
             BufferDestroy,
             actor, getActor(),
             {
@@ -69,8 +69,8 @@ void BufferAgent::update(void *buffer, uint size) {
     uint8_t *actorBuffer = ((DeviceAgent *)_device)->getMainAllocator()->allocate<uint8_t>(size);
     memcpy(actorBuffer, buffer, size);
 
-    ENCODE_COMMAND_3(
-        ((DeviceAgent *)_device)->getMainEncoder(),
+    ENQUEUE_MESSAGE_3(
+        ((DeviceAgent *)_device)->getMessageQueue(),
         BufferUpdate,
         actor, getActor(),
         buffer, actorBuffer,
@@ -84,8 +84,8 @@ void BufferAgent::resize(uint size) {
     _size = size;
     _count = size / _stride;
 
-    ENCODE_COMMAND_2(
-        ((DeviceAgent *)_device)->getMainEncoder(),
+    ENQUEUE_MESSAGE_2(
+        ((DeviceAgent *)_device)->getMessageQueue(),
         BufferResize,
         actor, getActor(),
         size, size,

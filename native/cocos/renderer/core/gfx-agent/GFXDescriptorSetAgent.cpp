@@ -1,6 +1,6 @@
 #include "CoreStd.h"
 
-#include "threading/CommandEncoder.h"
+#include "threading/MessageQueue.h"
 #include "GFXBufferAgent.h"
 #include "GFXDescriptorSetAgent.h"
 #include "GFXDeviceAgent.h"
@@ -22,8 +22,8 @@ bool DescriptorSetAgent::initialize(const DescriptorSetInfo &info) {
     actorInfo.layout = ((PipelineLayoutAgent *)info.layout)->getActor();
     actorInfo.setIndex = info.setIndex;
 
-    ENCODE_COMMAND_2(
-        ((DeviceAgent *)_device)->getMainEncoder(),
+    ENQUEUE_MESSAGE_2(
+        ((DeviceAgent *)_device)->getMessageQueue(),
         DescriptorSetInit,
         actor, getActor(),
         info, actorInfo,
@@ -41,8 +41,8 @@ void DescriptorSetAgent::destroy() {
     _samplers.clear();
 
     if (_actor) {
-        ENCODE_COMMAND_1(
-            ((DeviceAgent *)_device)->getMainEncoder(),
+        ENQUEUE_MESSAGE_1(
+            ((DeviceAgent *)_device)->getMessageQueue(),
             DescriptorSetDestroy,
             actor, getActor(),
             {
@@ -54,8 +54,8 @@ void DescriptorSetAgent::destroy() {
 }
 
 void DescriptorSetAgent::update() {
-    ENCODE_COMMAND_1(
-        ((DeviceAgent *)_device)->getMainEncoder(),
+    ENQUEUE_MESSAGE_1(
+        ((DeviceAgent *)_device)->getMessageQueue(),
         DescriptorSetUpdate,
         actor, getActor(),
         {
@@ -66,8 +66,8 @@ void DescriptorSetAgent::update() {
 void DescriptorSetAgent::bindBuffer(uint binding, Buffer *buffer, uint index) {
     DescriptorSet::bindBuffer(binding, buffer, index);
 
-    ENCODE_COMMAND_4(
-        ((DeviceAgent *)_device)->getMainEncoder(),
+    ENQUEUE_MESSAGE_4(
+        ((DeviceAgent *)_device)->getMessageQueue(),
         DescriptorSetBindBuffer,
         actor, getActor(),
         binding, binding,
@@ -81,8 +81,8 @@ void DescriptorSetAgent::bindBuffer(uint binding, Buffer *buffer, uint index) {
 void DescriptorSetAgent::bindTexture(uint binding, Texture *texture, uint index) {
     DescriptorSet::bindTexture(binding, texture, index);
 
-    ENCODE_COMMAND_4(
-        ((DeviceAgent *)_device)->getMainEncoder(),
+    ENQUEUE_MESSAGE_4(
+        ((DeviceAgent *)_device)->getMessageQueue(),
         DescriptorSetBindTexture,
         actor, getActor(),
         binding, binding,
@@ -96,8 +96,8 @@ void DescriptorSetAgent::bindTexture(uint binding, Texture *texture, uint index)
 void DescriptorSetAgent::bindSampler(uint binding, Sampler *sampler, uint index) {
     DescriptorSet::bindSampler(binding, sampler, index);
 
-    ENCODE_COMMAND_4(
-        ((DeviceAgent *)_device)->getMainEncoder(),
+    ENQUEUE_MESSAGE_4(
+        ((DeviceAgent *)_device)->getMessageQueue(),
         DescriptorSetBindSampler,
         actor, getActor(),
         binding, binding,

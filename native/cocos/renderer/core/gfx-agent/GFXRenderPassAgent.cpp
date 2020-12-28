@@ -1,6 +1,6 @@
 #include "CoreStd.h"
 
-#include "threading/CommandEncoder.h"
+#include "threading/MessageQueue.h"
 #include "GFXDeviceAgent.h"
 #include "GFXRenderPassAgent.h"
 
@@ -14,8 +14,8 @@ bool RenderPassAgent::initialize(const RenderPassInfo &info) {
     _subPasses = info.subPasses;
     _hash = computeHash();
 
-    ENCODE_COMMAND_2(
-        ((DeviceAgent *)_device)->getMainEncoder(),
+    ENQUEUE_MESSAGE_2(
+        ((DeviceAgent *)_device)->getMessageQueue(),
         RenderPassInit,
         actor, getActor(),
         info, info,
@@ -28,8 +28,8 @@ bool RenderPassAgent::initialize(const RenderPassInfo &info) {
 
 void RenderPassAgent::destroy() {
     if (_actor) {
-        ENCODE_COMMAND_1(
-            ((DeviceAgent *)_device)->getMainEncoder(),
+        ENQUEUE_MESSAGE_1(
+            ((DeviceAgent *)_device)->getMessageQueue(),
             RenderPassDestroy,
             actor, getActor(),
             {

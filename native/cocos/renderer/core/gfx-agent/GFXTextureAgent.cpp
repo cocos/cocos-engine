@@ -1,6 +1,6 @@
 #include "CoreStd.h"
 
-#include "threading/CommandEncoder.h"
+#include "threading/MessageQueue.h"
 #include "GFXTextureAgent.h"
 #include "GFXDeviceAgent.h"
 
@@ -20,8 +20,8 @@ bool TextureAgent::initialize(const TextureInfo &info) {
     _flags = info.flags;
     _size = FormatSize(_format, _width, _height, _depth);
 
-    ENCODE_COMMAND_2(
-        ((DeviceAgent*)_device)->getMainEncoder(),
+    ENQUEUE_MESSAGE_2(
+        ((DeviceAgent*)_device)->getMessageQueue(),
         TextureInit,
         actor, getActor(),
         info, info,
@@ -53,8 +53,8 @@ bool TextureAgent::initialize(const TextureViewInfo &info) {
     _flags = info.texture->getFlags();
     _size = FormatSize(_format, _width, _height, _depth);
 
-    ENCODE_COMMAND_2(
-        ((DeviceAgent*)_device)->getMainEncoder(),
+    ENQUEUE_MESSAGE_2(
+        ((DeviceAgent*)_device)->getMessageQueue(),
         TextureViewInit,
         actor, getActor(),
         info, info,
@@ -67,8 +67,8 @@ bool TextureAgent::initialize(const TextureViewInfo &info) {
 
 void TextureAgent::destroy() {
     if (_actor) {
-        ENCODE_COMMAND_1(
-            ((DeviceAgent *)_device)->getMainEncoder(),
+        ENQUEUE_MESSAGE_1(
+            ((DeviceAgent *)_device)->getMessageQueue(),
             TextureDestroy,
             actor, getActor(),
             {
@@ -80,8 +80,8 @@ void TextureAgent::destroy() {
 }
 
 void TextureAgent::resize(uint width, uint height) {
-    ENCODE_COMMAND_3(
-        ((DeviceAgent*)_device)->getMainEncoder(),
+    ENQUEUE_MESSAGE_3(
+        ((DeviceAgent*)_device)->getMessageQueue(),
         TextureResize,
         actor, getActor(),
         width, width,

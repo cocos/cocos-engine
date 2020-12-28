@@ -1,6 +1,6 @@
 #include "CoreStd.h"
 
-#include "threading/CommandEncoder.h"
+#include "threading/MessageQueue.h"
 #include "GFXBufferAgent.h"
 #include "GFXDeviceAgent.h"
 #include "GFXInputAssemblerAgent.h"
@@ -35,8 +35,8 @@ bool InputAssemblerAgent::initialize(const InputAssemblerInfo &info) {
         actorInfo.indirectBuffer = ((BufferAgent *)actorInfo.indirectBuffer)->getActor();
     }
 
-    ENCODE_COMMAND_2(
-        ((DeviceAgent *)_device)->getMainEncoder(),
+    ENQUEUE_MESSAGE_2(
+        ((DeviceAgent *)_device)->getMessageQueue(),
         InputAssemblerInit,
         actor, getActor(),
         info, actorInfo,
@@ -49,8 +49,8 @@ bool InputAssemblerAgent::initialize(const InputAssemblerInfo &info) {
 
 void InputAssemblerAgent::destroy() {
     if (_actor) {
-        ENCODE_COMMAND_1(
-            ((DeviceAgent *)_device)->getMainEncoder(),
+        ENQUEUE_MESSAGE_1(
+            ((DeviceAgent *)_device)->getMessageQueue(),
             InputAssemblerDestroy,
             actor, getActor(),
             {

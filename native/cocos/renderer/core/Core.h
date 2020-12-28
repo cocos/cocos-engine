@@ -24,7 +24,7 @@
 #include "gfx/GFXShader.h"
 #include "gfx/GFXTexture.h"
 
-#include "threading/CommandEncoder.h"
+#include "threading/MessageQueue.h"
 #include "threading/ThreadPool.h"
 
 #include "gfx-agent/GFXBufferAgent.h"

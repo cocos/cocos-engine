@@ -5,7 +5,7 @@
 #include "GFXLinearAllocatorPool.h"
 #include "GFXQueueAgent.h"
 #include "job-system/JobSystem.h"
-#include "threading/CommandEncoder.h"
+#include "threading/MessageQueue.h"
 
 namespace cc {
 namespace gfx {
@@ -13,8 +13,8 @@ namespace gfx {
 bool QueueAgent::initialize(const QueueInfo &info) {
     _type = info.type;
 
-    ENCODE_COMMAND_2(
-        ((DeviceAgent *)_device)->getMainEncoder(),
+    ENQUEUE_MESSAGE_2(
+        ((DeviceAgent *)_device)->getMessageQueue(),
         QueueInit,
         actor, getActor(),
         info, info,
@@ -27,8 +27,8 @@ bool QueueAgent::initialize(const QueueInfo &info) {
 
 void QueueAgent::destroy() {
     if (_actor) {
-        ENCODE_COMMAND_1(
-            ((DeviceAgent *)_device)->getMainEncoder(),
+        ENQUEUE_MESSAGE_1(
+            ((DeviceAgent *)_device)->getMessageQueue(),
             QueueDestroy,
             actor, getActor(),
             {
@@ -50,8 +50,8 @@ void QueueAgent::submit(const CommandBuffer *const *cmdBuffs, uint count, Fence 
 
     bool multiThreaded = _device->hasFeature(Feature::MULTITHREADED_SUBMISSION);
 
-    ENCODE_COMMAND_6(
-        ((DeviceAgent *)_device)->getMainEncoder(),
+    ENQUEUE_MESSAGE_6(
+        ((DeviceAgent *)_device)->getMessageQueue(),
         QueueSubmit,
         actor, getActor(),
         multiThreaded, multiThreaded,

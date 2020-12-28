@@ -1,6 +1,6 @@
 #include "CoreStd.h"
 
-#include "threading/CommandEncoder.h"
+#include "threading/MessageQueue.h"
 #include "GFXDeviceAgent.h"
 #include "GFXShaderAgent.h"
 
@@ -14,8 +14,8 @@ bool ShaderAgent::initialize(const ShaderInfo &info) {
     _blocks = info.blocks;
     _samplers = info.samplers;
 
-    ENCODE_COMMAND_2(
-        ((DeviceAgent *)_device)->getMainEncoder(),
+    ENQUEUE_MESSAGE_2(
+        ((DeviceAgent *)_device)->getMessageQueue(),
         ShaderInit,
         actor, getActor(),
         info, info,
@@ -28,8 +28,8 @@ bool ShaderAgent::initialize(const ShaderInfo &info) {
 
 void ShaderAgent::destroy() {
     if (_actor) {
-        ENCODE_COMMAND_1(
-            ((DeviceAgent *)_device)->getMainEncoder(),
+        ENQUEUE_MESSAGE_1(
+            ((DeviceAgent *)_device)->getMessageQueue(),
             ShaderDestroy,
             actor, getActor(),
             {

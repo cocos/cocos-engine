@@ -1,6 +1,6 @@
 #include "CoreStd.h"
 
-#include "threading/CommandEncoder.h"
+#include "threading/MessageQueue.h"
 #include "GFXDeviceAgent.h"
 #include "GFXPipelineLayoutAgent.h"
 #include "GFXPipelineStateAgent.h"
@@ -26,8 +26,8 @@ bool PipelineStateAgent::initialize(const PipelineStateInfo &info) {
     actorInfo.renderPass = ((RenderPassAgent *)info.renderPass)->getActor();
     actorInfo.pipelineLayout = ((PipelineLayoutAgent *)info.pipelineLayout)->getActor();
 
-    ENCODE_COMMAND_2(
-        ((DeviceAgent *)_device)->getMainEncoder(),
+    ENQUEUE_MESSAGE_2(
+        ((DeviceAgent *)_device)->getMessageQueue(),
         PipelineStateInit,
         actor, getActor(),
         info, actorInfo,
@@ -40,8 +40,8 @@ bool PipelineStateAgent::initialize(const PipelineStateInfo &info) {
 
 void PipelineStateAgent::destroy() {
     if (_actor) {
-        ENCODE_COMMAND_1(
-            ((DeviceAgent *)_device)->getMainEncoder(),
+        ENQUEUE_MESSAGE_1(
+            ((DeviceAgent *)_device)->getMessageQueue(),
             PipelineStateDestroy,
             actor, getActor(),
             {

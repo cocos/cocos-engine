@@ -1,6 +1,6 @@
 #include "CoreStd.h"
 
-#include "threading/CommandEncoder.h"
+#include "threading/MessageQueue.h"
 #include "GFXBufferAgent.h"
 #include "GFXCommandBufferAgent.h"
 #include "GFXDescriptorSetLayoutAgent.h"
@@ -48,7 +48,7 @@ bool DeviceAgent::initialize(const DeviceInfo &info) {
     _deviceName = _actor->getDeviceName();
     _queue = CC_NEW(QueueAgent(_actor->getQueue(), this));
     _cmdBuff = CC_NEW(CommandBufferAgent(_actor->getCommandBuffer(), this));
-    ((CommandBufferAgent *)_cmdBuff)->initEncoder();
+    ((CommandBufferAgent *)_cmdBuff)->initMessageQueue();
     _renderer = _actor->getRenderer();
     _vendor = _actor->getVendor();
     _maxVertexAttributes = _actor->getMaxVertexAttributes();
@@ -65,7 +65,7 @@ bool DeviceAgent::initialize(const DeviceInfo &info) {
     _stencilBits = _actor->getStencilBits();
     memcpy(_features, _actor->_features, (uint)Feature::COUNT * sizeof(bool));
 
-    _mainEncoder = CC_NEW(CommandEncoder);
+    _mainEncoder = CC_NEW(MessageQueue);
     _mainEncoder->runConsumerThread();
 
     _allocatorPools.resize(MAX_CPU_FRAME_AHEAD + 1);
@@ -80,8 +80,8 @@ bool DeviceAgent::initialize(const DeviceInfo &info) {
 
 void DeviceAgent::destroy() {
     if (_actor) {
-        ENCODE_COMMAND_1(
-            getMainEncoder(),
+        ENQUEUE_MESSAGE_1(
+            getMessageQueue(),
             DeviceDestroy,
             actor, getActor(),
             {
@@ -91,7 +91,7 @@ void DeviceAgent::destroy() {
         _actor = nullptr;
     }
 
-    ((CommandBufferAgent *)_cmdBuff)->destroyEncoder();
+    ((CommandBufferAgent *)_cmdBuff)->destroyMessageQueue();
     CC_SAFE_DELETE(_cmdBuff);
     CC_SAFE_DELETE(_queue);
 
@@ -108,8 +108,8 @@ void DeviceAgent::resize(uint width, uint height) {
     _width = _nativeWidth = width;
     _height = _nativeHeight = height;
 
-    ENCODE_COMMAND_3(
-        getMainEncoder(),
+    ENQUEUE_MESSAGE_3(
+        getMessageQueue(),
         DeviceResize,
         actor, getActor(),
         width, width,
@@ -120,7 +120,7 @@ void DeviceAgent::resize(uint width, uint height) {
 }
 
 void DeviceAgent::acquire() {
-    ENCODE_COMMAND_1(
+    ENQUEUE_MESSAGE_1(
         _mainEncoder,
         DeviceAcquire,
         actor, getActor(),
@@ -130,7 +130,7 @@ void DeviceAgent::acquire() {
 }
 
 void DeviceAgent::present() {
-    ENCODE_COMMAND_2(
+    ENQUEUE_MESSAGE_2(
         _mainEncoder,
         DevicePresent,
         actor, getActor(),
@@ -140,7 +140,7 @@ void DeviceAgent::present() {
             frameBoundarySemaphore->Signal();
         });
 
-    CommandEncoder::freeChunksInFreeQueue(_mainEncoder);
+    MessageQueue::freeChunksInFreeQueue(_mainEncoder);
     _mainEncoder->finishWriting();
     _currentIndex = (_currentIndex + 1) % (MAX_CPU_FRAME_AHEAD + 1);
     _frameBoundarySemaphore.Wait();
@@ -158,14 +158,14 @@ void DeviceAgent::setMultithreaded(bool multithreaded) {
     if (multithreaded) {
         _mainEncoder->setImmediateMode(false);
         _actor->bindRenderContext(false);
-        ENCODE_COMMAND_1(
+        ENQUEUE_MESSAGE_1(
             _mainEncoder, DeviceMakeCurrent,
             actor, _actor,
             {
                 actor->bindDeviceContext(true);
             });
     } else {
-        ENCODE_COMMAND_1(
+        ENQUEUE_MESSAGE_1(
             _mainEncoder, DeviceMakeCurrent,
             actor, _actor,
             {
@@ -280,7 +280,7 @@ void DeviceAgent::copyBuffersToTexture(const uint8_t *const *buffers, Texture *d
         }
     }
 
-    ENCODE_COMMAND_5(
+    ENQUEUE_MESSAGE_5(
         _mainEncoder,
         DeviceCopyBuffersToTexture,
         actor, getActor(),

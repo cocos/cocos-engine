@@ -5,7 +5,7 @@
 
 namespace cc {
 
-class CommandEncoder;
+class MessageQueue;
 
 namespace gfx {
 
@@ -44,15 +44,15 @@ public:
     virtual uint getNumInstances() const override { return _actor->getNumInstances(); }
     virtual uint getNumTris() const override { return _actor->getNumTris(); }
     
-    CC_INLINE CommandEncoder *getEncoder() { return _encoder; }
+    CC_INLINE MessageQueue *getMessageQueue() { return _messageQueue; }
     LinearAllocatorPool *getAllocator();
 
 private:
     friend class DeviceAgent;
     
-    void initEncoder();
-    void destroyEncoder();
-    CommandEncoder *_encoder = nullptr;
+    void initMessageQueue();
+    void destroyMessageQueue();
+    MessageQueue *_messageQueue = nullptr;
     vector<LinearAllocatorPool *> _allocatorPools;
 };
 

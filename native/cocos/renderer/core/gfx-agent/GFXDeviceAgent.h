@@ -6,7 +6,7 @@
 
 namespace cc {
 
-class CommandEncoder;
+class MessageQueue;
 
 namespace gfx {
 
@@ -16,7 +16,7 @@ constexpr uint MAX_CPU_FRAME_AHEAD = 1u;
 
 // one per CPU core
 struct SubmitContext final {
-    CommandEncoder *encoder{nullptr};
+    MessageQueue *encoder{nullptr};
     CommandBuffer *commandBuffer{nullptr};
 };
 
@@ -58,14 +58,14 @@ public:
     virtual uint getNumInstances() const override { return _actor->getNumInstances(); }
     virtual uint getNumTris() const override { return _actor->getNumTris(); }
 
-    CommandEncoder *getMainEncoder() const { return _mainEncoder; }
+    MessageQueue *getMessageQueue() const { return _mainEncoder; }
     LinearAllocatorPool *getMainAllocator() const { return _allocatorPools[_currentIndex]; }
 
 protected:
     friend class CommandBufferAgent;
     
     bool _multithreaded{false};
-    CommandEncoder *_mainEncoder{nullptr};
+    MessageQueue *_mainEncoder{nullptr};
     
     uint _currentIndex = 0u;
     vector<LinearAllocatorPool *> _allocatorPools;
