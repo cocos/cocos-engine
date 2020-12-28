@@ -36,7 +36,7 @@ CCMTLDescriptorSet::CCMTLDescriptorSet(Device *device) : DescriptorSet(device) {
 }
 
 bool CCMTLDescriptorSet::initialize(const DescriptorSetInfo &info) {
-    _layout = info.layout->getSetLayouts()[info.setIndex];
+    _layout = info.layout;
 
     const auto gpuDescriptorSetLayout = static_cast<CCMTLDescriptorSetLayout *>(_layout)->gpuDescriptorSetLayout();
     const auto descriptorCount = gpuDescriptorSetLayout->descriptorCount;
@@ -49,9 +49,9 @@ bool CCMTLDescriptorSet::initialize(const DescriptorSetInfo &info) {
     _gpuDescriptorSet = CC_NEW(CCMTLGPUDescriptorSet);
     _gpuDescriptorSet->descriptorIndices = &gpuDescriptorSetLayout->descriptorIndices;
     _gpuDescriptorSet->gpuDescriptors.resize(descriptorCount);
-    for (auto i = 0, k = 0; i < bindingCount; i++) {
+    for (auto i = 0u, k = 0u; i < bindingCount; i++) {
         const auto &binding = gpuDescriptorSetLayout->bindings[i];
-        for (auto j = 0; j < binding.count; j++, k++) {
+        for (auto j = 0u; j < binding.count; j++, k++) {
             _gpuDescriptorSet->gpuDescriptors[k].type = binding.descriptorType;
         }
     }

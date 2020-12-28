@@ -70,23 +70,6 @@ public:
     CC_INLINE CCMTLGPUStagingBufferPool *gpuStagingBufferPool() const { return _gpuStagingBufferPools[_currentFrameIndex]; }
     CC_INLINE bool isSamplerDescriptorCompareFunctionSupported() const { return _isSamplerDescriptorCompareFunctionSupported; }
 
-protected:
-    virtual CommandBuffer *doCreateCommandBuffer(const CommandBufferInfo &info, bool hasAgent) override;
-    virtual Fence *createFence() override;
-    virtual Queue *createQueue() override;
-    virtual Buffer *createBuffer() override;
-    virtual Texture *createTexture() override;
-    virtual Sampler *createSampler() override;
-    virtual Shader *createShader() override;
-    virtual InputAssembler *createInputAssembler() override;
-    virtual RenderPass *createRenderPass() override;
-    virtual Framebuffer *createFramebuffer() override;
-    virtual DescriptorSet *createDescriptorSet() override;
-    virtual DescriptorSetLayout *createDescriptorSetLayout() override;
-    virtual PipelineLayout *createPipelineLayout() override;
-    virtual PipelineState *createPipelineState() override;
-    virtual void copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint count) override;
-
 private:
     void onMemoryWarning();
 
@@ -104,7 +87,7 @@ private:
     CCMTLGPUStagingBufferPool *_gpuStagingBufferPools[MAX_FRAMES_IN_FLIGHT] = {nullptr};
     CCMTLSemaphore *_inFlightSemaphore = nullptr;
     uint _currentFrameIndex = 0;
-    uint32_t _memoryAlarmListenerId = 0;
+//    uint32_t _memoryAlarmListenerId = 0;
 };
 
 } // namespace gfx

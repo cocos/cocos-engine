@@ -44,8 +44,7 @@ CCVKDescriptorSet::~CCVKDescriptorSet() {
 }
 
 bool CCVKDescriptorSet::initialize(const DescriptorSetInfo &info) {
-
-    _layout = info.layout->getSetLayouts()[info.setIndex];
+    _layout = info.layout;
 
     CCVKGPUDescriptorSetLayout *gpuDescriptorSetLayout = ((CCVKDescriptorSetLayout *)_layout)->gpuDescriptorSetLayout();
     const uint bindingCount = gpuDescriptorSetLayout->bindings.size();
