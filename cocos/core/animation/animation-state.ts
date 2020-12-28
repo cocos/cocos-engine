@@ -339,6 +339,9 @@ export class AnimationState extends Playable {
         this._name = name || (clip && clip.name);
     }
 
+    /**
+     * This method is used for internal purpose only.
+     */
     get curveLoaded () {
         return this._curveLoaded;
     }
