@@ -27,9 +27,8 @@
  * @packageDocumentation
  * @module ui
  */
-
-import { ccclass, executeInEditMode, requireComponent, disallowMultiple, tooltip, type, displayOrder, serializable, override, visible, displayName } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
+import { ccclass, executeInEditMode, requireComponent, disallowMultiple, tooltip, type, displayOrder, serializable, override, visible, displayName } from 'cc.decorator';
 import { Color } from '../../core/math';
 import { SystemEventType } from '../../core/platform/event-manager/event-enum';
 import { ccenum } from '../../core/value-types/enum';
@@ -48,6 +47,7 @@ import { Stage } from '../renderer/stencil-manager';
 import { warnID } from '../../core/platform/debug';
 import { murmurhash2_32_gc } from '../../core/utils';
 import { BlendState, BlendTarget } from '../../core/gfx/pipeline-state';
+import { legacyCC } from '../../core/global-exports';
 
 // hack
 ccenum(BlendFactor);
@@ -501,7 +501,7 @@ export class UIRenderable extends RenderableComponent {
     }
 
     private _updateBuiltinMaterial () : Material {
-        let mat: Material;
+        let mat : Material;
         switch (this._instanceMaterialType) {
         case InstanceMaterialType.ADD_COLOR:
             mat = builtinResMgr.get('ui-base-material');
@@ -524,3 +524,5 @@ export class UIRenderable extends RenderableComponent {
 
     protected _flushAssembler? (): void;
 }
+
+legacyCC.internal.UIRenderable = UIRenderable;
