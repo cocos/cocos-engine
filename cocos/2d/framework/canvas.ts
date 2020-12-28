@@ -63,13 +63,6 @@ const _worldPos = new Vec3();
 @executeInEditMode
 @disallowMultiple
 export class Canvas extends Component {
-    get visibility () {
-        if (this._cameraComponent) {
-            return this._cameraComponent.visibility;
-        }
-
-        return -1;
-    }
 
     @type(Camera)
     @tooltip('2D渲染相机')
