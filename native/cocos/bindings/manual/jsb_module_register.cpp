@@ -88,6 +88,11 @@
 #include "cocos/bindings/manual/jsb_spine_manual.h"
 #endif
 
+#if USE_DRAGONBONES
+#include "cocos/bindings/auto/jsb_dragonbones_auto.h"
+#include "cocos/bindings/manual/jsb_dragonbones_manual.h"
+#endif
+
 #endif // USE_MIDDLEWARE
 
 using namespace cc;
@@ -145,6 +150,11 @@ bool jsb_register_all_modules() {
 #if USE_SPINE
     se->addRegisterCallback(register_all_spine);
     se->addRegisterCallback(register_all_spine_manual);
+#endif
+
+#if USE_DRAGONBONES
+    se->addRegisterCallback(register_all_dragonbones);
+    se->addRegisterCallback(register_all_dragonbones_manual);
 #endif
 
 #endif // USE_MIDDLEWARE

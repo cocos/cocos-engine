@@ -36,6 +36,7 @@ struct Color4B {
     Color4B();
     bool operator==(const Color4B &right) const;
     bool operator!=(const Color4B &right) const;
+    Color4B& operator=(const Color4B &right);
 
     uint32_t r = 0;
     uint32_t g = 0;
@@ -50,7 +51,8 @@ struct Color4F {
     Color4F();
     bool operator==(const Color4F &right) const;
     bool operator!=(const Color4F &right) const;
-
+    Color4F& operator=(const Color4B &right);
+    
     float r = 0.0f;
     float g = 0.0f;
     float b = 0.0f;

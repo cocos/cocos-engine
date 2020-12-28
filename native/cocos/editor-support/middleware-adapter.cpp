@@ -33,9 +33,25 @@ Color4F::Color4F(float _r, float _g, float _b, float _a)
 : r(_r), g(_g), b(_b), a(_a) {}
 Color4F::Color4F() {}
 
+Color4F& Color4F::operator=(const Color4B &right) {
+    r = right.r / 255.0f;
+    g = right.g / 255.0f;
+    b = right.b / 255.0f;
+    a = right.a / 255.0f;
+    return *this;
+}
+
 Color4B::Color4B() {}
 Color4B::Color4B(uint32_t _r, uint32_t _g, uint32_t _b, uint32_t _a)
 : r(_r), g(_g), b(_b), a(_a) {}
+
+Color4B& Color4B::operator=(const Color4B &right) {
+    r = right.r;
+    g = right.g;
+    b = right.b;
+    a = right.a;
+    return *this;
+}
 
 bool Color4B::operator==(const Color4B &right) const {
     return (r == right.r && g == right.g && b == right.b && a == right.a);
