@@ -85,7 +85,6 @@ LetterTexture.prototype = {
         }
 
         this._texture.initWithElement(this._canvas);
-        this._texture.packable = true;
     },
     _updateTexture () {
         let context = this._context;
@@ -117,7 +116,6 @@ LetterTexture.prototype = {
         context.fillText(this._char, startX, startY);
 
         this._texture.handleLoadedTexture();
-        this._texture.packable = true;
     },
 
     destroy () {
