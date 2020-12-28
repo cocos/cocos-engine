@@ -70,11 +70,6 @@ export class PrefabInfo {
     // Instance of a prefabAsset
     @serializable
     public instance?: PrefabInstance;
-
-    // Indicates whether this node should always synchronize with the prefab asset, only available in the root node
-    @serializable
-    @editable
-    public sync = false;
 }
 
 legacyCC._PrefabInfo = PrefabInfo;
@@ -94,8 +89,8 @@ export class TargetInfo {
     public localID: string[] = [];
 }
 
-@ccclass('CCPropertyOverride')
-export class PropertyOverride {
+@ccclass('CCPropertyOverrideInfo')
+export class PropertyOverrideInfo {
     @serializable
     public targetInfo: TargetInfo|null = null;
     @serializable
@@ -103,9 +98,12 @@ export class PropertyOverride {
     @serializable
     public value: any;
 
+    // eslint-disable-next-line consistent-return
     public isTarget (localID: string[], propPath: string[]) {
-        return compareStringArray(this.targetInfo?.localID, localID)
-        && compareStringArray(this.propertyPath, propPath);
+        if (EDITOR) {
+            return compareStringArray(this.targetInfo?.localID, localID)
+            && compareStringArray(this.propertyPath, propPath);
+        }
     }
 }
 
@@ -116,8 +114,11 @@ export class MountedChildrenInfo {
     @serializable
     public nodes: Node[] = [];
 
+    // eslint-disable-next-line consistent-return
     public isTarget (localID: string[]) {
-        return compareStringArray(this.targetInfo?.localID, localID);
+        if (EDITOR) {
+            return compareStringArray(this.targetInfo?.localID, localID);
+        }
     }
 }
 
@@ -140,55 +141,34 @@ export class PrefabInstance {
 
     // 属性的覆盖数据
     @serializable
-    public propertyOverrides: PropertyOverride[] = [];
+    public propertyOverrides: PropertyOverrideInfo[] = [];
 
     @serializable
-    public removeComponents: TargetInfo[] = [];
+    public removedComponents: TargetInfo[] = [];
 
+    // eslint-disable-next-line consistent-return
     public findPropertyOverride (localID: string[], propPath: string[]) {
-        for (let i = 0; i < this.propertyOverrides.length; i++) {
-            const propertyOverride = this.propertyOverrides[i];
-            if (propertyOverride.isTarget(localID, propPath)) {
-                return propertyOverride;
+        if (EDITOR) {
+            for (let i = 0; i < this.propertyOverrides.length; i++) {
+                const propertyOverride = this.propertyOverrides[i];
+                if (propertyOverride.isTarget(localID, propPath)) {
+                    return propertyOverride;
+                }
             }
+            return null;
         }
-
-        return null;
     }
 
     public removePropertyOverride (localID: string[], propPath: string[]) {
-        for (let i = 0; i < this.propertyOverrides.length; i++) {
-            const propertyOverride = this.propertyOverrides[i];
-            if (propertyOverride.isTarget(localID, propPath)) {
-                this.propertyOverrides.splice(i, 1);
-                break;
+        if (EDITOR) {
+            for (let i = 0; i < this.propertyOverrides.length; i++) {
+                const propertyOverride = this.propertyOverrides[i];
+                if (propertyOverride.isTarget(localID, propPath)) {
+                    this.propertyOverrides.splice(i, 1);
+                    break;
+                }
             }
         }
-    }
-}
-
-interface IPreserveProps {
-    _objFlags: number;
-    _parent: Node|null;
-    _id: string;
-    _prefab: PrefabInfo;
-}
-
-function getPreservedProps (node: any): IPreserveProps {
-    return {
-        _objFlags: node._objFlags,
-        _parent: node._parent,
-        _id: node._id,
-        _prefab: node._prefab,
-    };
-}
-
-function restorePreservedProps (node: any, preservedProps: IPreserveProps) {
-    node._objFlags = preservedProps._objFlags;
-    node._parent = preservedProps._parent;
-    node._id = preservedProps._id;
-    if (node._prefab) {
-        node._prefab.instance = preservedProps._prefab.instance;
     }
 }
 
@@ -218,7 +198,13 @@ export function createNodeWithPrefab (node: Node) {
     }
 
     // save root's preserved props to avoid overwritten by prefab
-    const preservedProps = getPreservedProps(node);
+    const _objFlags =  node._objFlags;
+    // @ts-expect-error: private member access
+    const _parent = node._parent;
+    // @ts-expect-error: private member access
+    const _id = node._id;
+    // @ts-expect-error: private member access
+    const _prefab = node._prefab;
 
     // instantiate prefab
     legacyCC.game._isCloning = true;
@@ -238,12 +224,15 @@ export function createNodeWithPrefab (node: Node) {
     legacyCC.game._isCloning = false;
 
     // restore preserved props
-    restorePreservedProps(node, preservedProps);
-
+    node._objFlags = _objFlags;
+    // @ts-expect-error: private member access
+    node._parent = _parent;
+    // @ts-expect-error: private member access
+    node._id = _id;
     // @ts-expect-error: private member access
     if (node._prefab) {
         // @ts-expect-error: private member access
-        node._prefab.sync = true;     // default to sync
+        node._prefab.instance = _prefab?.instance;
     }
 }
 
@@ -294,7 +283,7 @@ export function getTarget (localID: string[], targetMap: any): unknown {
     return target;
 }
 
-export function applyAddedChildren (node: Node, mountedChildren: MountedChildrenInfo[], targetMap: Record<string, any | Node | Component>) {
+export function applyMountedChildren (node: Node, mountedChildren: MountedChildrenInfo[], targetMap: Record<string, any | Node | Component>) {
     if (!mountedChildren) {
         return;
     }
@@ -321,7 +310,7 @@ export function applyAddedChildren (node: Node, mountedChildren: MountedChildren
     }
 }
 
-export function applyPropertyOverrides (node: Node, propertyOverrides: PropertyOverride[], targetMap: Record<string, any | Node | Component>) {
+export function applyPropertyOverrides (node: Node, propertyOverrides: PropertyOverrideInfo[], targetMap: Record<string, any | Node | Component>) {
     if (propertyOverrides.length <= 0) {
         return;
     }
@@ -343,6 +332,9 @@ export function applyPropertyOverrides (node: Node, propertyOverrides: PropertyO
             const propertyPath = propOverride.propertyPath.slice();
             if (propertyPath.length > 0) {
                 const targetPropName = propertyPath.pop();
+                if (!targetPropName) {
+                    return;
+                }
 
                 for (let i = 0; i < propertyPath.length; i++) {
                     const propName = propertyPath[i];
@@ -351,7 +343,7 @@ export function applyPropertyOverrides (node: Node, propertyOverrides: PropertyO
                     targetPropOwner = targetPropOwner[propName];
                 }
 
-                targetPropOwner[targetPropName!] = propOverride.value;
+                targetPropOwner[targetPropName] = propOverride.value;
 
                 // 如果是改数组元素，需要重新赋值一下自己以触发setter
                 if (Array.isArray(targetPropOwner) && targetPropOwnerParent && targetPropOwnerName) {

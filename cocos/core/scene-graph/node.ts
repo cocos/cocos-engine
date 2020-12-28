@@ -44,7 +44,7 @@ import {
     NULL_HANDLE, NodeHandle, NodePool, NodeView,
 } from '../renderer/core/memory-pools';
 import { NodeSpace, TransformBit } from './node-enum';
-import { applyAddedChildren, applyPropertyOverrides, createNodeWithPrefab, generateTargetMap } from '../utils/prefab-utils';
+import { applyMountedChildren, applyPropertyOverrides, createNodeWithPrefab, generateTargetMap } from '../utils/prefab-utils';
 import { Component } from '../components';
 
 const v3_a = new Vec3();
@@ -402,21 +402,15 @@ export class Node extends BaseNode {
         this._dirtyFlags = TransformBit.TRS;
         const len = this._children.length;
         for (let i = 0; i < len; ++i) {
-            // if (!dontSyncChildPrefab) {
-            //     // sync child prefab
-            //     let prefabInfo = child._prefab;
-            //     if (prefabInfo && prefabInfo.sync && prefabInfo.root === child) {
-            //         PrefabHelper.syncWithPrefab(child);
-            //     }
-            // }
             this._children[i]._onBatchCreated(dontSyncChildPrefab);
         }
 
+        // apply mounted children and property overrides after all the nodes in prefabAsset are instantiated
         if (!dontSyncChildPrefab && prefabInstance) {
             const targetMap: Record<string, any | Node | Component> = {};
             generateTargetMap(this, targetMap, true);
 
-            applyAddedChildren(this, prefabInstance.mountedChildren, targetMap);
+            applyMountedChildren(this, prefabInstance.mountedChildren, targetMap);
             applyPropertyOverrides(this, prefabInstance.propertyOverrides, targetMap);
         }
     }

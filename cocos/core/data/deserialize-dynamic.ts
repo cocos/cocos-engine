@@ -325,12 +325,6 @@ function _deserializeFireClass (self, obj, serialized, klass) {
         js.value(klass, '__deserialize__', deserialize, true);
     }
     deserialize(self, obj, serialized, klass);
-    // if preview or build worker
-    if (PREVIEW || (EDITOR && self._ignoreEditorOnly)) {
-        if (klass === legacyCC._PrefabInfo && !obj.sync) {
-            unlinkUnusedPrefab(self, serialized, obj);
-        }
-    }
 }
 
 // function _compileTypedObject (accessor, klass, ctorCode) {
