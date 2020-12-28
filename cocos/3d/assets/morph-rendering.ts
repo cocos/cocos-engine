@@ -468,10 +468,7 @@ class MorphUniforms {
     }
 
     public commit () {
-        this._remoteBuffer.update(
-            this._localBuffer.buffer,
-            this._localBuffer.byteLength,
-        );
+        this._remoteBuffer.update(this._localBuffer.buffer);
     }
 }
 
