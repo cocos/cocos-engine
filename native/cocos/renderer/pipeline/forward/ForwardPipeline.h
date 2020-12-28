@@ -60,8 +60,8 @@ public:
     CC_INLINE Sphere *getSphere() const { return _sphere; }
     CC_INLINE std::array<float, UBOShadow::COUNT> getShadowUBO() const { return _shadowUBO; }
 
-    void setRenderObjects(const RenderObjectList &ro) { _renderObjects = std::move(ro); }
-    void setShadowObjects(const RenderObjectList &ro) { _shadowObjects = std::move(ro); }
+    CC_INLINE void setRenderObjects(RenderObjectList &&ro) { _renderObjects = std::forward<RenderObjectList>(ro); }
+    CC_INLINE void setShadowObjects(RenderObjectList &&ro) { _shadowObjects = std::forward<RenderObjectList>(ro); }
 
 private:
     bool activeRenderer();

@@ -210,7 +210,7 @@ void shadowCollecting(ForwardPipeline *pipeline, Camera *camera) {
 
     pipeline->getSphere()->define(castWorldBounds);
 
-    pipeline->setShadowObjects(shadowObjects);
+    pipeline->setShadowObjects(std::move(shadowObjects));
 }
 
 void sceneCulling(ForwardPipeline *pipeline, Camera *camera) {
@@ -256,7 +256,7 @@ void sceneCulling(ForwardPipeline *pipeline, Camera *camera) {
         }
     }
 
-    pipeline->setRenderObjects(renderObjects);
+    pipeline->setRenderObjects(std::move(renderObjects));
 }
 
 } // namespace pipeline

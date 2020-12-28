@@ -2168,25 +2168,6 @@ static bool js_pipeline_ForwardPipeline_setFog(se::State& s)
 }
 SE_BIND_FUNC(js_pipeline_ForwardPipeline_setFog)
 
-static bool js_pipeline_ForwardPipeline_setRenderObjects(se::State& s)
-{
-    cc::pipeline::ForwardPipeline* cobj = SE_THIS_OBJECT<cc::pipeline::ForwardPipeline>(s);
-    SE_PRECONDITION2(cobj, false, "js_pipeline_ForwardPipeline_setRenderObjects : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        HolderType<std::vector<cc::pipeline::RenderObject>, true> arg0 = {};
-        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_pipeline_ForwardPipeline_setRenderObjects : Error processing arguments");
-        cobj->setRenderObjects(arg0.value());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC(js_pipeline_ForwardPipeline_setRenderObjects)
-
 static bool js_pipeline_ForwardPipeline_setShadows(se::State& s)
 {
     cc::pipeline::ForwardPipeline* cobj = SE_THIS_OBJECT<cc::pipeline::ForwardPipeline>(s);
@@ -2260,7 +2241,6 @@ bool js_register_pipeline_ForwardPipeline(se::Object* obj)
     cls->defineFunction("getSphere", _SE(js_pipeline_ForwardPipeline_getSphere));
     cls->defineFunction("setAmbient", _SE(js_pipeline_ForwardPipeline_setAmbient));
     cls->defineFunction("setFog", _SE(js_pipeline_ForwardPipeline_setFog));
-    cls->defineFunction("setRenderObjects", _SE(js_pipeline_ForwardPipeline_setRenderObjects));
     cls->defineFunction("setShadows", _SE(js_pipeline_ForwardPipeline_setShadows));
     cls->defineFunction("setSkybox", _SE(js_pipeline_ForwardPipeline_setSkybox));
     cls->defineFinalizeFunction(_SE(js_cc_pipeline_ForwardPipeline_finalize));

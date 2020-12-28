@@ -103,7 +103,6 @@ JSB_REGISTER_OBJECT_TYPE(cc::pipeline::ForwardPipeline);
 SE_DECLARE_FUNC(js_pipeline_ForwardPipeline_getSphere);
 SE_DECLARE_FUNC(js_pipeline_ForwardPipeline_setAmbient);
 SE_DECLARE_FUNC(js_pipeline_ForwardPipeline_setFog);
-SE_DECLARE_FUNC(js_pipeline_ForwardPipeline_setRenderObjects);
 SE_DECLARE_FUNC(js_pipeline_ForwardPipeline_setShadows);
 SE_DECLARE_FUNC(js_pipeline_ForwardPipeline_setSkybox);
 SE_DECLARE_FUNC(js_pipeline_ForwardPipeline_ForwardPipeline);
