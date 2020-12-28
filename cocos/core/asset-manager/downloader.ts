@@ -275,6 +275,7 @@ export class Downloader {
     // if _totalNumThisPeriod equals max, move request to next period using setTimeOut.
     private _checkNextPeriod = false;
     private _remoteServerAddress = '';
+    private _maxInterval = 1 / 30;
 
     public init (remoteServerAddress = '', bundleVers: Record<string, string> = {}, remoteBundles: string[] = []) {
         this._downloading.clear();
@@ -427,8 +428,10 @@ export class Downloader {
 
     private _updateTime () {
         const now = Date.now();
-        // use deltaTime as period
-        if (now - this._lastDate > legacyCC.director.getDeltaTime() * 1000) {
+        // use deltaTime as interval
+        const deltaTime = legacyCC.director.getDeltaTime();
+        const interval = deltaTime > this._maxInterval ? this._maxInterval : deltaTime;
+        if (now - this._lastDate > interval * 1000) {
             this._totalNumThisPeriod = 0;
             this._lastDate = now;
         }
