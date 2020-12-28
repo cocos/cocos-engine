@@ -18,9 +18,6 @@ public:
     template <typename Function>
     uint createForEachIndexJob(uint begin, uint end, uint step, Function &&func) noexcept;
 
-    template <typename Function>
-    uint createReduceJob(uint begin, uint end, uint acc, Function &&func) noexcept;
-
     void makeEdge(uint j1, uint j2) noexcept;
 
     void run(uint startJob) noexcept;
@@ -35,8 +32,6 @@ public:
 private:
     static constexpr uint PARALLEL_JOB_FLAG = 1u << 20;
     static constexpr uint PARALLEL_JOB_MASK = ~PARALLEL_JOB_FLAG;
-    static constexpr uint REDUCE_JOB_FLAG = 1u << 21;
-    static constexpr uint REDUCE_JOB_MASK = ~REDUCE_JOB_FLAG;
 
     tbb::flow::graph _graph;
 
@@ -78,12 +73,6 @@ uint TBBJobGraph::createForEachIndexJob(uint begin, uint end, uint step, Functio
 
     _parallelJobs.push_back({predecessorIdx, successorIdx});
     return (_parallelJobs.size() - 1u) | PARALLEL_JOB_FLAG;
-}
-
-template <typename Function>
-uint TBBJobGraph::createReduceJob(uint begin, uint end, uint acc, Function &&func) noexcept {
-    // TODO
-    return 0u;
 }
 
 } // namespace cc
