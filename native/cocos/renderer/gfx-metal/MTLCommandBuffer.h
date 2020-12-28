@@ -26,9 +26,9 @@ public:
 
     virtual bool initialize(const CommandBufferInfo &info) override;
     virtual void destroy() override;
-    virtual void begin(RenderPass *renderPass, uint subpass, Framebuffer *frameBuffer) override;
+    virtual void begin(RenderPass *renderPass, uint subpass, Framebuffer *frameBuffer, int submitIndex) override;
     virtual void end() override;
-    virtual void beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, int stencil) override;
+    virtual void beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, int stencil, bool fromSecondaryCB) override;
     virtual void endRenderPass() override;
     virtual void bindPipelineState(PipelineState *pso) override;
     virtual void bindDescriptorSet(uint set, DescriptorSet *descriptorSet, uint dynamicOffsetCount, const uint *dynamicOffsets) override;
@@ -42,17 +42,18 @@ public:
     virtual void setStencilWriteMask(StencilFace face, uint mask) override;
     virtual void setStencilCompareMask(StencilFace face, int ref, uint mask) override;
     virtual void draw(InputAssembler *ia) override;
-    virtual void updateBuffer(Buffer *buff, const void *data, uint size, uint offset) override;
+    virtual void updateBuffer(Buffer *buff, const void *data, uint size) override;
     virtual void copyBuffersToTexture(const uint8_t *const *buffers, Texture *texture, const BufferTextureCopy *regions, uint count) override;
     virtual void execute(const CommandBuffer *const *cmdBuffs, uint32_t count) override;
+
     CC_INLINE bool isCommandBufferBegan() const { return _commandBufferBegan; }
-    CC_INLINE id<MTLCommandBuffer> getMTLCommandBuffer() const { return _mtlCommandBuffer; } 
+    CC_INLINE id<MTLCommandBuffer> getMTLCommandBuffer() const { return _mtlCommandBuffer; }
+    id<CAMetalDrawable> getCurrentDrawable();
 
 private:
     void bindDescriptorSets();
     bool isRenderingEntireDrawable(const Rect &rect, const CCMTLRenderPass *renderPass);
 
-private:
     CCMTLGPUPipelineState *_gpuPipelineState = nullptr;
 
     vector<CCMTLGPUDescriptorSet *> _GPUDescriptorSets;
@@ -62,9 +63,10 @@ private:
     bool _indirectDrawSuppotred = false;
     bool _commandBufferBegan = false;
     CCMTLDevice *_mtlDevice = nullptr;
+//    id<CAMetalDrawable> _currDrawable = nil;
     id<MTLCommandQueue> _mtlCommandQueue = nil;
-    MTKView *_mtkView = nil;
     id<MTLCommandBuffer> _mtlCommandBuffer = nil;
+    MTKView *_mtkView = nil;
     CCMTLRenderCommandEncoder _commandEncoder;
     CCMTLInputAssembler *_inputAssembler = nullptr;
     MTLIndexType _indexType = MTLIndexTypeUInt16;

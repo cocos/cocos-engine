@@ -30,32 +30,33 @@ bool CCVKCommandBuffer::initialize(const CommandBufferInfo &info) {
     _gpuCommandBuffer = CC_NEW(CCVKGPUCommandBuffer);
     _gpuCommandBuffer->level = MapVkCommandBufferLevel(_type);
     _gpuCommandBuffer->queueFamilyIndex = ((CCVKQueue *)_queue)->gpuQueue()->queueFamilyIndex;
-    ((CCVKDevice *)_device)->gpuCommandBufferPool()->request(_gpuCommandBuffer);
 
-    uint setCount = ((CCVKDevice *)_device)->bindingMappingInfo().bufferOffsets.size();
+    size_t setCount = ((CCVKDevice *)_device)->bindingMappingInfo().bufferOffsets.size();
     _curGPUDescriptorSets.resize(setCount);
-    _curDynamicOffsets.resize(setCount);
+    _curVkDescriptorSets.resize(setCount);
+    _curDynamicOffsetPtrs.resize(setCount);
+    _curDynamicOffsetCounts.resize(setCount);
 
     return true;
 }
 
 void CCVKCommandBuffer::destroy() {
     if (_gpuCommandBuffer) {
-        ((CCVKDevice *)_device)->gpuCommandBufferPool()->yield(_gpuCommandBuffer);
+        ((CCVKDevice *)_device)->gpuDevice()->getCommandBufferPool(std::this_thread::get_id())->yield(_gpuCommandBuffer);
         CC_DELETE(_gpuCommandBuffer);
         _gpuCommandBuffer = nullptr;
     }
 }
 
-void CCVKCommandBuffer::begin(RenderPass *renderPass, uint subpass, Framebuffer *frameBuffer) {
+void CCVKCommandBuffer::begin(RenderPass *renderPass, uint subpass, Framebuffer *frameBuffer, int submitIndex) {
     if (_gpuCommandBuffer->began) return;
+
+    ((CCVKDevice *)_device)->gpuDevice()->getCommandBufferPool(std::this_thread::get_id())->request(_gpuCommandBuffer);
 
     _curGPUPipelineState = nullptr;
     _curGPUInputAssember = nullptr;
     _curGPUDescriptorSets.assign(_curGPUDescriptorSets.size(), nullptr);
-    for (size_t i = 0u; i < _curDynamicOffsets.size(); i++) {
-        _curDynamicOffsets[i].clear();
-    }
+    _curDynamicOffsetCounts.assign(_curDynamicOffsetCounts.size(), 0u);
     _firstDirtyDescriptorSet = UINT_MAX;
 
     _numDrawCalls = 0;
@@ -64,18 +65,26 @@ void CCVKCommandBuffer::begin(RenderPass *renderPass, uint subpass, Framebuffer 
 
     VkCommandBufferBeginInfo beginInfo{VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO};
     beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+    VkCommandBufferInheritanceInfo inheritanceInfo{VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_INFO};
 
     if (_type == CommandBufferType::SECONDARY) {
         if (!renderPass) {
             CC_LOG_ERROR("RenderPass has to be specified when beginning secondary command buffers.");
             return;
         }
-        VkCommandBufferInheritanceInfo inheritanceInfo{VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_INFO};
         inheritanceInfo.renderPass = ((CCVKRenderPass *)renderPass)->gpuRenderPass()->vkRenderPass;
         inheritanceInfo.subpass = subpass;
-        if (frameBuffer) inheritanceInfo.framebuffer = ((CCVKFramebuffer *)frameBuffer)->gpuFBO()->vkFramebuffer;
+        if (frameBuffer) {
+            CCVKGPUFramebuffer *gpuFBO = ((CCVKFramebuffer *)frameBuffer)->gpuFBO();
+            if (gpuFBO->isOffscreen)
+                inheritanceInfo.framebuffer = gpuFBO->vkFramebuffer;
+            else
+                inheritanceInfo.framebuffer = gpuFBO->swapchain->vkSwapchainFramebufferListMap[gpuFBO][gpuFBO->swapchain->curImageIndex];
+        }
         beginInfo.pInheritanceInfo = &inheritanceInfo;
+        beginInfo.flags |= VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT;
     }
+
     VK_CHECK(vkBeginCommandBuffer(_gpuCommandBuffer->vkCommandBuffer, &beginInfo));
 
     _gpuCommandBuffer->began = true;
@@ -85,12 +94,16 @@ void CCVKCommandBuffer::end() {
     if (!_gpuCommandBuffer->began) return;
 
     _curGPUFBO = nullptr;
+    _curGPUInputAssember = nullptr;
+    _curViewport.width = _curViewport.height = _curScissor.width = _curScissor.height = 0u;
     VK_CHECK(vkEndCommandBuffer(_gpuCommandBuffer->vkCommandBuffer));
     _gpuCommandBuffer->began = false;
+
+    _pendingQueue.push(_gpuCommandBuffer->vkCommandBuffer);
+    ((CCVKDevice *)_device)->gpuDevice()->getCommandBufferPool(std::this_thread::get_id())->yield(_gpuCommandBuffer);
 }
 
-void CCVKCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea,
-                                        const Color *colors, float depth, int stencil) {
+void CCVKCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, int stencil, bool fromSecondaryCB) {
     _curGPUFBO = ((CCVKFramebuffer *)fbo)->gpuFBO();
     CCVKGPURenderPass *gpuRenderPass = ((CCVKRenderPass *)renderPass)->gpuRenderPass();
     VkFramebuffer framebuffer = _curGPUFBO->vkFramebuffer;
@@ -103,7 +116,7 @@ void CCVKCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo
 
     if (attachmentCount) {
         for (size_t i = 0u; i < attachmentCount - 1; i++) {
-            clearValues[i].color = {colors[i].x, colors[i].y, colors[i].z, colors[i].w};
+            clearValues[i].color = {{colors[i].x, colors[i].y, colors[i].z, colors[i].w}};
         }
         clearValues[attachmentCount - 1].depthStencil = {depth, (uint)stencil};
     }
@@ -135,11 +148,14 @@ void CCVKCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo
     passBeginInfo.clearValueCount = clearValues.size();
     passBeginInfo.pClearValues = clearValues.data();
     passBeginInfo.renderArea = {{(int)renderArea.x, (int)renderArea.y}, {renderArea.width, renderArea.height}};
-    vkCmdBeginRenderPass(_gpuCommandBuffer->vkCommandBuffer, &passBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
+    vkCmdBeginRenderPass(_gpuCommandBuffer->vkCommandBuffer, &passBeginInfo,
+        fromSecondaryCB ? VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS : VK_SUBPASS_CONTENTS_INLINE);
 
-    VkViewport viewport{(float)renderArea.x, (float)renderArea.y, (float)renderArea.width, (float)renderArea.height, 0.f, 1.f};
-    vkCmdSetViewport(_gpuCommandBuffer->vkCommandBuffer, 0, 1, &viewport);
-    vkCmdSetScissor(_gpuCommandBuffer->vkCommandBuffer, 0, 1, &passBeginInfo.renderArea);
+    if (!fromSecondaryCB) {
+        VkViewport viewport{(float)renderArea.x, (float)renderArea.y, (float)renderArea.width, (float)renderArea.height, 0.f, 1.f};
+        vkCmdSetViewport(_gpuCommandBuffer->vkCommandBuffer, 0, 1, &viewport);
+        vkCmdSetScissor(_gpuCommandBuffer->vkCommandBuffer, 0, 1, &passBeginInfo.renderArea);
+    }
 }
 
 void CCVKCommandBuffer::endRenderPass() {
@@ -170,7 +186,8 @@ void CCVKCommandBuffer::bindDescriptorSet(uint set, DescriptorSet *descriptorSet
         if (set < _firstDirtyDescriptorSet) _firstDirtyDescriptorSet = set;
     }
     if (dynamicOffsetCount) {
-        _curDynamicOffsets[set].assign(dynamicOffsets, dynamicOffsets + dynamicOffsetCount);
+        _curDynamicOffsetPtrs[set] = dynamicOffsets;
+        _curDynamicOffsetCounts[set] = dynamicOffsetCount;
         if (set < _firstDirtyDescriptorSet) _firstDirtyDescriptorSet = set;
     }
 }
@@ -290,39 +307,43 @@ void CCVKCommandBuffer::draw(InputAssembler *ia) {
     }
 
     CCVKGPUInputAssembler *gpuInputAssembler = ((CCVKInputAssembler *)ia)->gpuInputAssembler();
+    CCVKGPUBuffer *gpuIndirectBuffer = gpuInputAssembler->gpuIndirectBuffer;
+
     DrawInfo drawInfo;
 
-    if (gpuInputAssembler->gpuIndirectBuffer) {
-        uint drawInfoCount = gpuInputAssembler->gpuIndirectBuffer->count;
-        if (static_cast<CCVKDevice *>(_device)->gpuDevice()->useMultiDrawIndirect) {
-            if (gpuInputAssembler->gpuIndirectBuffer->isDrawIndirectByIndex) {
+    if (gpuIndirectBuffer) {
+        uint drawInfoCount = gpuIndirectBuffer->count;
+        CCVKGPUDevice *gpuDevice = static_cast<CCVKDevice *>(_device)->gpuDevice();
+        VkDeviceSize offset = gpuIndirectBuffer->startOffset + gpuDevice->curBackBufferIndex * gpuIndirectBuffer->instanceSize;
+        if (gpuDevice->useMultiDrawIndirect) {
+            if (gpuIndirectBuffer->isDrawIndirectByIndex) {
                 vkCmdDrawIndexedIndirect(_gpuCommandBuffer->vkCommandBuffer,
-                                         gpuInputAssembler->gpuIndirectBuffer->vkBuffer,
-                                         0,
+                                         gpuIndirectBuffer->vkBuffer,
+                                         offset,
                                          drawInfoCount,
                                          sizeof(VkDrawIndexedIndirectCommand));
             } else {
                 vkCmdDrawIndirect(_gpuCommandBuffer->vkCommandBuffer,
-                                  gpuInputAssembler->gpuIndirectBuffer->vkBuffer,
-                                  0,
+                                  gpuIndirectBuffer->vkBuffer,
+                                  offset,
                                   drawInfoCount,
                                   sizeof(VkDrawIndirectCommand));
             }
         } else {
             // If multi draw is not available, we must issue separate draw commands
-            if (gpuInputAssembler->gpuIndirectBuffer->isDrawIndirectByIndex) {
-                for (uint j = 0u; j < drawInfoCount; j++) {
+            if (gpuIndirectBuffer->isDrawIndirectByIndex) {
+                for (VkDeviceSize j = 0u; j < drawInfoCount; j++) {
                     vkCmdDrawIndexedIndirect(_gpuCommandBuffer->vkCommandBuffer,
-                                             gpuInputAssembler->gpuIndirectBuffer->vkBuffer,
-                                             j * sizeof(VkDrawIndexedIndirectCommand),
+                                             gpuIndirectBuffer->vkBuffer,
+                                             offset + j * sizeof(VkDrawIndexedIndirectCommand),
                                              1,
                                              sizeof(VkDrawIndexedIndirectCommand));
                 }
             } else {
-                for (uint j = 0u; j < drawInfoCount; j++) {
+                for (VkDeviceSize j = 0u; j < drawInfoCount; j++) {
                     vkCmdDrawIndirect(_gpuCommandBuffer->vkCommandBuffer,
-                                      gpuInputAssembler->gpuIndirectBuffer->vkBuffer,
-                                      j * sizeof(VkDrawIndirectCommand),
+                                      gpuIndirectBuffer->vkBuffer,
+                                      offset + j * sizeof(VkDrawIndirectCommand),
                                       1,
                                       sizeof(VkDrawIndirectCommand));
                 }
@@ -361,23 +382,28 @@ void CCVKCommandBuffer::draw(InputAssembler *ia) {
 
 void CCVKCommandBuffer::execute(const CommandBuffer *const *cmdBuffs, uint count) {
     if (!count) return;
+    _vkCommandBuffers.resize(count);
 
-    vector<VkCommandBuffer> vkCmdBuffs(count);
-
+    uint validCount = 0u;
     for (uint i = 0u; i < count; ++i) {
         CCVKCommandBuffer *cmdBuff = (CCVKCommandBuffer *)cmdBuffs[i];
-        vkCmdBuffs[i] = cmdBuff->_gpuCommandBuffer->vkCommandBuffer;
+        if (!cmdBuff->_pendingQueue.empty()) {
+            _vkCommandBuffers[validCount++] = cmdBuff->_pendingQueue.front();
+            cmdBuff->_pendingQueue.pop();
 
-        _numDrawCalls += cmdBuff->getNumDrawCalls();
-        _numInstances += cmdBuff->getNumInstances();
-        _numTriangles += cmdBuff->getNumTris();
+            _numDrawCalls += cmdBuff->_numDrawCalls;
+            _numInstances += cmdBuff->_numInstances;
+            _numTriangles += cmdBuff->_numTriangles;
+        }
     }
-
-    vkCmdExecuteCommands(_gpuCommandBuffer->vkCommandBuffer, count, vkCmdBuffs.data());
+    if (validCount) {
+        vkCmdExecuteCommands(_gpuCommandBuffer->vkCommandBuffer, validCount,
+                             _vkCommandBuffers.data());
+    }
 }
 
-void CCVKCommandBuffer::updateBuffer(Buffer *buffer, const void *data, uint size, uint offset) {
-    CCVKCmdFuncUpdateBuffer((CCVKDevice *)_device, ((CCVKBuffer *)buffer)->gpuBuffer(), data, offset, size, _gpuCommandBuffer);
+void CCVKCommandBuffer::updateBuffer(Buffer *buffer, const void *data, uint size) {
+    CCVKCmdFuncUpdateBuffer((CCVKDevice *)_device, ((CCVKBuffer *)buffer)->gpuBuffer(), data, size, _gpuCommandBuffer);
 }
 
 void CCVKCommandBuffer::copyBuffersToTexture(const uint8_t *const *buffers, Texture *texture, const BufferTextureCopy *regions, uint count) {
@@ -385,51 +411,35 @@ void CCVKCommandBuffer::copyBuffersToTexture(const uint8_t *const *buffers, Text
 }
 
 void CCVKCommandBuffer::bindDescriptorSets() {
-
     CCVKDevice *device = (CCVKDevice *)_device;
     CCVKGPUDevice *gpuDevice = device->gpuDevice();
-    VkCommandBuffer cmdBuff = _gpuCommandBuffer->vkCommandBuffer;
     CCVKGPUPipelineLayout *pipelineLayout = _curGPUPipelineState->gpuPipelineLayout;
-    uint dirtyDescriptorSetCount = _curGPUDescriptorSets.size() - _firstDirtyDescriptorSet;
-    uint dynamicOffsetStartIndex = pipelineLayout->dynamicOffsetOffsets[_firstDirtyDescriptorSet];
-    uint dynamicOffsetCount = pipelineLayout->dynamicOffsetCount - dynamicOffsetStartIndex;
-    uint *dynamicOffsets = pipelineLayout->dynamicOffsets.data() + dynamicOffsetStartIndex;
+    vector<uint> &dynamicOffsetOffsets = pipelineLayout->dynamicOffsetOffsets;
+    uint descriptorSetCount = pipelineLayout->setLayouts.size();
+    _curDynamicOffsets.resize(pipelineLayout->dynamicOffsetCount);
 
-    const vector<VkDescriptorSetLayout> &layouts = _curGPUPipelineState->gpuPipelineLayout->descriptorSetLayouts;
-    vector<VkDescriptorSet> &sets = _curGPUPipelineState->gpuPipelineLayout->descriptorSets;
-    device->gpuDescriptorSetPool()->alloc(layouts.data() + _firstDirtyDescriptorSet,
-                                          sets.data() + _firstDirtyDescriptorSet,
-                                          dirtyDescriptorSetCount);
-
-    for (uint i = 0u, offsetAcc = 0u; i < dirtyDescriptorSetCount; i++) {
-        uint set = _firstDirtyDescriptorSet + i;
-        CCVKGPUDescriptorSet *gpuDescriptorSet = _curGPUDescriptorSets[set];
-        if (!gpuDescriptorSet || !gpuDescriptorSet->gpuDescriptors.size()) continue;
-
-        if (gpuDevice->useDescriptorUpdateTemplate) {
-            const vector<CCVKDescriptorInfo> &descriptorInfos = gpuDescriptorSet->descriptorInfos;
-            const vector<VkDescriptorUpdateTemplate> &templates = pipelineLayout->vkDescriptorUpdateTemplates;
-            vkUpdateDescriptorSetWithTemplateKHR(device->gpuDevice()->vkDevice, sets[set], templates[set], descriptorInfos.data());
+    uint dirtyDescriptorSetCount = descriptorSetCount - _firstDirtyDescriptorSet;
+    for (uint i = _firstDirtyDescriptorSet; i < descriptorSetCount; ++i) {
+        if (_curGPUDescriptorSets[i]) {
+            _curVkDescriptorSets[i] = _curGPUDescriptorSets[i]->instances[gpuDevice->curBackBufferIndex].vkDescriptorSet;
         } else {
-            vector<VkWriteDescriptorSet> &entries = gpuDescriptorSet->descriptorUpdateEntries;
-
-            for (uint j = 0u; j < entries.size(); j++) {
-                entries[j].dstSet = sets[set];
-            }
-            vkUpdateDescriptorSets(device->gpuDevice()->vkDevice, entries.size(), entries.data(), 0, nullptr);
+            _curVkDescriptorSets[i] = pipelineLayout->setLayouts[i]->defaultDescriptorSet;
         }
-
-        uint offsetCount = pipelineLayout->dynamicOffsetOffsets[set + 1] - dynamicOffsetStartIndex;
-        if (_curDynamicOffsets[set].size() && offsetCount > 0) {
-            memcpy(dynamicOffsets + offsetAcc, _curDynamicOffsets[set].data(), offsetCount * sizeof(uint));
-            offsetAcc += offsetCount;
-        }
+        uint count = dynamicOffsetOffsets[i + 1] - dynamicOffsetOffsets[i];
+        //CCASSERT(_curDynamicOffsetCounts[i] >= count, "missing dynamic offsets?");
+        count = std::min(count, _curDynamicOffsetCounts[i]);
+        if (count > 0) memcpy(&_curDynamicOffsets[dynamicOffsetOffsets[i]], _curDynamicOffsetPtrs[i], count * sizeof(uint));
     }
 
-    vkCmdBindDescriptorSets(cmdBuff, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout->vkPipelineLayout,
-                            _firstDirtyDescriptorSet, dirtyDescriptorSetCount, sets.data() + _firstDirtyDescriptorSet,
-                            dynamicOffsetCount, dynamicOffsets);
-
+    uint dynamicOffsetStartIndex = dynamicOffsetOffsets[_firstDirtyDescriptorSet];
+    uint dynamicOffsetEndIndex = dynamicOffsetOffsets[_firstDirtyDescriptorSet + dirtyDescriptorSetCount];
+    uint dynamicOffsetCount = dynamicOffsetEndIndex - dynamicOffsetStartIndex;
+    vkCmdBindDescriptorSets(_gpuCommandBuffer->vkCommandBuffer,
+                            VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout->vkPipelineLayout,
+                            _firstDirtyDescriptorSet, dirtyDescriptorSetCount,
+                            &_curVkDescriptorSets[_firstDirtyDescriptorSet],
+                            dynamicOffsetCount, &_curDynamicOffsetCounts[dynamicOffsetStartIndex]);
+    
     _firstDirtyDescriptorSet = UINT_MAX;
 }
 

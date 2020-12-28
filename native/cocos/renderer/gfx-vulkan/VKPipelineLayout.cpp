@@ -33,7 +33,6 @@ bool CCVKPipelineLayout::initialize(const PipelineLayoutInfo &info) {
     }
     _gpuPipelineLayout->dynamicOffsetOffsets.push_back(offset);
     _gpuPipelineLayout->dynamicOffsetCount = offset;
-    _gpuPipelineLayout->dynamicOffsets.resize(offset);
 
     CCVKCmdFuncCreatePipelineLayout((CCVKDevice *)_device, _gpuPipelineLayout);
 

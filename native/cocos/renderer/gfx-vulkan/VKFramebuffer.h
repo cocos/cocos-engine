@@ -6,7 +6,7 @@ namespace gfx {
 
 class CCVKGPUFramebuffer;
 
-class CC_VULKAN_API CCVKFramebuffer : public Framebuffer {
+class CC_VULKAN_API CCVKFramebuffer final : public Framebuffer {
 public:
     CCVKFramebuffer(Device *device);
     ~CCVKFramebuffer();

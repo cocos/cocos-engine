@@ -6,7 +6,7 @@ namespace gfx {
 
 class CCVKGPUFence;
 
-class CC_VULKAN_API CCVKFence : public Fence {
+class CC_VULKAN_API CCVKFence final : public Fence {
 public:
     CCVKFence(Device *device);
     virtual ~CCVKFence() override;

@@ -21,10 +21,7 @@ namespace cc {
 namespace gfx {
 
 CCMTLCommandBuffer::CCMTLCommandBuffer(Device *device)
-: CommandBuffer(device),
-  _mtlDevice((CCMTLDevice *)device),
-  _mtlCommandQueue(id<MTLCommandQueue>(((CCMTLDevice *)device)->getMTLCommandQueue())),
-  _mtkView((MTKView *)(((CCMTLDevice *)device)->getMTKView())) {
+: CommandBuffer(device), _mtlDevice((CCMTLDevice *)device), _mtlCommandQueue(id<MTLCommandQueue>(((CCMTLDevice *)device)->getMTLCommandQueue())), _mtkView((MTKView *)(((CCMTLDevice *)device)->getMTKView())) {
     const auto setCount = device->bindingMappingInfo().bufferOffsets.size();
     _GPUDescriptorSets.resize(setCount);
     _dynamicOffsets.resize(setCount);
@@ -40,12 +37,12 @@ bool CCMTLCommandBuffer::initialize(const CommandBufferInfo &info) {
 void CCMTLCommandBuffer::destroy() {
 }
 
-void CCMTLCommandBuffer::begin(RenderPass *renderPass, uint subpass, Framebuffer *frameBuffer) {
+void CCMTLCommandBuffer::begin(RenderPass *renderPass, uint subpass, Framebuffer *frameBuffer, int submitIndex) {
     if (_commandBufferBegan) return;
 
     _mtlCommandBuffer = [_mtlCommandQueue commandBuffer];
-    [_mtlCommandBuffer enqueue];
     [_mtlCommandBuffer retain];
+    [_mtlCommandBuffer enqueue];
     _numTriangles = 0;
     _numDrawCalls = 0;
     _numInstances = 0;
@@ -65,11 +62,15 @@ void CCMTLCommandBuffer::end() {
 }
 
 bool CCMTLCommandBuffer::isRenderingEntireDrawable(const Rect &rect, const CCMTLRenderPass *renderPass) {
+    const int num = renderPass->getColorRenderTargetNums();
+    if (num == 0) {
+        return true;
+    }
     const auto &renderTargetSize = renderPass->getRenderTargetSizes()[0];
     return rect.x == 0 && rect.y == 0 && rect.width == renderTargetSize.x && rect.height == renderTargetSize.y;
 }
 
-void CCMTLCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, int stencil) {
+void CCMTLCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, int stencil, bool fromSecondaryCB) {
     auto isOffscreen = static_cast<CCMTLFramebuffer *>(fbo)->isOffscreen();
     if (!isOffscreen) {
         static_cast<CCMTLRenderPass *>(renderPass)->setColorAttachment(0, _mtkView.currentDrawable.texture, 0);
@@ -289,11 +290,12 @@ void CCMTLCommandBuffer::draw(InputAssembler *ia) {
     }
 }
 
-void CCMTLCommandBuffer::updateBuffer(Buffer *buff, const void *data, uint size, uint offset) {
+void CCMTLCommandBuffer::updateBuffer(Buffer *buff, const void *data, uint size) {
     if (!buff) {
         CC_LOG_ERROR("CCMTLCommandBuffer::updateBuffer: buffer is nullptr.");
         return;
     }
+
     CCMTLGPUBuffer stagingBuffer;
     stagingBuffer.size = size;
     _mtlDevice->gpuStagingBufferPool()->alloc(&stagingBuffer);
@@ -302,7 +304,7 @@ void CCMTLCommandBuffer::updateBuffer(Buffer *buff, const void *data, uint size,
     [encoder copyFromBuffer:stagingBuffer.mtlBuffer
                sourceOffset:stagingBuffer.startOffset
                    toBuffer:((CCMTLBuffer *)buff)->getMTLBuffer()
-          destinationOffset:offset
+          destinationOffset:0
                        size:size];
     [encoder endEncoding];
 }

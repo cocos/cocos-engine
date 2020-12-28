@@ -6,7 +6,7 @@ namespace gfx {
 
 class GLES2GPUFence;
 
-class CC_GLES2_API GLES2Fence : public Fence {
+class CC_GLES2_API GLES2Fence final : public Fence {
 public:
     GLES2Fence(Device *device);
     ~GLES2Fence();

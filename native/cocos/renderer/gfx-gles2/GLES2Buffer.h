@@ -7,7 +7,7 @@ namespace gfx {
 class GLES2GPUBuffer;
 class GLES2GPUBufferView;
 
-class CC_GLES2_API GLES2Buffer : public Buffer {
+class CC_GLES2_API GLES2Buffer final : public Buffer {
 public:
     GLES2Buffer(Device *device);
     ~GLES2Buffer();
@@ -17,7 +17,7 @@ public:
     virtual bool initialize(const BufferViewInfo &info) override;
     virtual void destroy() override;
     virtual void resize(uint size) override;
-    virtual void update(void *buffer, uint offset, uint size) override;
+    virtual void update(void *buffer, uint size) override;
 
     CC_INLINE GLES2GPUBuffer *gpuBuffer() const { return _gpuBuffer; }
     CC_INLINE GLES2GPUBufferView *gpuBufferView() const { return _gpuBufferView; }

@@ -6,7 +6,7 @@ namespace gfx {
 
 class GLES3GPUTexture;
 
-class CC_GLES3_API GLES3Texture : public Texture {
+class CC_GLES3_API GLES3Texture final : public Texture {
 public:
     GLES3Texture(Device *device);
     ~GLES3Texture();

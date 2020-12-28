@@ -1,4 +1,5 @@
 #include "CoreStd.h"
+
 #include "GFXDescriptorSet.h"
 #include "GFXDescriptorSetLayout.h"
 
@@ -78,7 +79,7 @@ bool DescriptorSet::bindSamplerJSB(uint binding, Sampler *sampler, uint index) {
     return _isDirty;
 }
 
-Buffer* DescriptorSet::getBuffer(uint binding, uint index) const {
+Buffer *DescriptorSet::getBuffer(uint binding, uint index) const {
     const vector<uint> &descriptorIndices = _layout->getDescriptorIndices();
     if (binding >= descriptorIndices.size()) return nullptr;
     const uint descriptorIndex = descriptorIndices[binding] + index;

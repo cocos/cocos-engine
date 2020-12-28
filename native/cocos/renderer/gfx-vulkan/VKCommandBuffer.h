@@ -6,7 +6,7 @@
 namespace cc {
 namespace gfx {
 
-class CC_VULKAN_API CCVKCommandBuffer : public CommandBuffer {
+class CC_VULKAN_API CCVKCommandBuffer final : public CommandBuffer {
 public:
     CCVKCommandBuffer(Device *device);
     ~CCVKCommandBuffer();
@@ -17,9 +17,9 @@ public:
     virtual bool initialize(const CommandBufferInfo &info) override;
     virtual void destroy() override;
 
-    virtual void begin(RenderPass *renderPass, uint subpass, Framebuffer *frameBuffer) override;
+    virtual void begin(RenderPass *renderPass, uint subpass, Framebuffer *frameBuffer, int submitIndex) override;
     virtual void end() override;
-    virtual void beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, int stencil) override;
+    virtual void beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, int stencil, bool fromSecondaryCB) override;
     virtual void endRenderPass() override;
     virtual void bindPipelineState(PipelineState *pso) override;
     virtual void bindDescriptorSet(uint set, DescriptorSet *descriptorSet, uint dynamicOffsetCount, const uint *dynamicOffsets) override;
@@ -33,7 +33,7 @@ public:
     virtual void setStencilWriteMask(StencilFace face, uint mask) override;
     virtual void setStencilCompareMask(StencilFace face, int reference, uint mask) override;
     virtual void draw(InputAssembler *ia) override;
-    virtual void updateBuffer(Buffer *buffer, const void *data, uint size, uint offset) override;
+    virtual void updateBuffer(Buffer *buffer, const void *data, uint size) override;
     virtual void copyBuffersToTexture(const uint8_t *const *buffers, Texture *texture, const BufferTextureCopy *regions, uint count) override;
     virtual void execute(const CommandBuffer *const *cmdBuffs, uint count) override;
 
@@ -46,7 +46,10 @@ private:
 
     CCVKGPUPipelineState *_curGPUPipelineState = nullptr;
     vector<CCVKGPUDescriptorSet *> _curGPUDescriptorSets;
-    vector<vector<uint>> _curDynamicOffsets;
+    vector<VkDescriptorSet> _curVkDescriptorSets;
+    vector<uint> _curDynamicOffsets;
+    vector<const uint *> _curDynamicOffsetPtrs;
+    vector<uint> _curDynamicOffsetCounts;
     uint _firstDirtyDescriptorSet = UINT_MAX;
 
     CCVKGPUInputAssembler *_curGPUInputAssember = nullptr;
@@ -60,6 +63,9 @@ private:
     CCVKDepthBounds _curDepthBounds;
     CCVKStencilWriteMask _curStencilWriteMask;
     CCVKStencilCompareMask _curStencilCompareMask;
+    
+    vector<VkCommandBuffer> _vkCommandBuffers;
+    queue<VkCommandBuffer> _pendingQueue;
 };
 
 } // namespace gfx

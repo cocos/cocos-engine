@@ -6,7 +6,7 @@ namespace gfx {
 
 class GLES3GPUPipelineState;
 
-class CC_GLES3_API GLES3PipelineState : public PipelineState {
+class CC_GLES3_API GLES3PipelineState final : public PipelineState {
 public:
     GLES3PipelineState(Device *device);
     ~GLES3PipelineState();

@@ -485,16 +485,17 @@ SurfaceTransform MapSurfaceTransform(VkSurfaceTransformFlagBitsKHR transform) {
     return SurfaceTransform::IDENTITY;
 }
 
-const char *MapVendorName(uint32_t vendorID) {
+String MapVendorName(uint32_t vendorID) {
     switch (vendorID) {
         case 0x1002: return "Advanced Micro Devices, Inc.";
         case 0x1010: return "Imagination Technologies";
+        case 0x106b: return "Apple Inc.";
         case 0x10DE: return "Nvidia Corporation";
         case 0x13B5: return "Arm Limited";
         case 0x5143: return "Qualcomm Incorporated";
         case 0x8086: return "Intel Corporation";
     }
-    return "Unknown";
+    return StringUtil::Format("Unknown VendorID %d", vendorID);
 }
 
 void MapDepthStencilBits(Format format, uint &depthBits, uint &stencilBits) {

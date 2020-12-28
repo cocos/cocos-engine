@@ -632,6 +632,8 @@ if(CC_USE_GLES2)
         cocos/renderer/gfx-gles2/GLES2PipelineLayout.h
         cocos/renderer/gfx-gles2/GLES2PipelineState.cpp
         cocos/renderer/gfx-gles2/GLES2PipelineState.h
+        cocos/renderer/gfx-gles2/GLES2PrimaryCommandBuffer.cpp
+        cocos/renderer/gfx-gles2/GLES2PrimaryCommandBuffer.h
         cocos/renderer/gfx-gles2/GLES2Queue.cpp
         cocos/renderer/gfx-gles2/GLES2Queue.h
         cocos/renderer/gfx-gles2/GLES2RenderPass.cpp
@@ -689,6 +691,8 @@ if(CC_USE_GLES3)
         cocos/renderer/gfx-gles3/GLES3PipelineLayout.h
         cocos/renderer/gfx-gles3/GLES3PipelineState.cpp
         cocos/renderer/gfx-gles3/GLES3PipelineState.h
+        cocos/renderer/gfx-gles3/GLES3PrimaryCommandBuffer.cpp
+        cocos/renderer/gfx-gles3/GLES3PrimaryCommandBuffer.h
         cocos/renderer/gfx-gles3/GLES3Queue.cpp
         cocos/renderer/gfx-gles3/GLES3Queue.h
         cocos/renderer/gfx-gles3/GLES3RenderPass.cpp

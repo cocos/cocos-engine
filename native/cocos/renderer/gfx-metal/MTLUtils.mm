@@ -643,26 +643,34 @@ String compileGLSLShader2Msl(const String &src,
     for (const auto &sampler : resources.sampled_images) {
         auto set = msl.get_decoration(sampler.id, spv::DecorationDescriptorSet);
         auto binding = msl.get_decoration(sampler.id, spv::DecorationBinding);
-
-        auto mappedBinding = binding + samplerBindingOffset[set];
-        newBinding.desc_set = set;
-        newBinding.binding = binding;
-        newBinding.msl_buffer = 0;
-        newBinding.msl_texture = mappedBinding;
-        newBinding.msl_sampler = samplerIndex;
-        msl.add_msl_resource_binding(newBinding);
-
-        if (gpuShader->samplers.find(mappedBinding) == gpuShader->samplers.end()) {
-            gpuShader->samplers[mappedBinding] = {sampler.name, set, binding, mappedBinding, samplerIndex, shaderType};
-        } else {
-            gpuShader->samplers[mappedBinding].stages |= shaderType;
+        int size = 1, s = -1;
+        const spirv_cross::SPIRType &type = msl.get_type(sampler.type_id);
+        if (type.array_size_literal[0]) {
+            size = type.array[0];
         }
 
-        samplerIndex++;
+        for (int i = 0; i < size; ++i) {
+            auto mappedBinding = binding + samplerBindingOffset[set] + i;
+            newBinding.desc_set = set;
+            newBinding.binding = binding + i;
+            newBinding.msl_buffer = 0;
+            newBinding.msl_texture = mappedBinding;
+            newBinding.msl_sampler = samplerIndex;
+            msl.add_msl_resource_binding(newBinding);
+
+            if (gpuShader->samplers.find(mappedBinding) == gpuShader->samplers.end()) {
+                gpuShader->samplers[mappedBinding] = {sampler.name, set, binding, mappedBinding, samplerIndex, shaderType};
+            } else {
+                gpuShader->samplers[mappedBinding].stages |= shaderType;
+            }
+
+            samplerIndex++;
+        }
     }
 
     // Set some options.
     spirv_cross::CompilerMSL::Options options;
+    //    options.set_msl_version(2, 0);
     #if (CC_PLATFORM == CC_PLATFORM_MAC_IOS)
     options.platform = spirv_cross::CompilerMSL::Options::Platform::iOS;
     #else
@@ -1549,7 +1557,7 @@ CCMTLGPUPipelineState *getClearRenderPassPipelineState(CCMTLDevice *device, Rend
     pipelineInfo.inputState = {{position}};
     pipelineInfo.renderPass = renderPass;
 
-    pipelineState = gfx::Device::getInstance()->createPipelineState(std::move(pipelineInfo));
+    pipelineState = device->createPipelineState(std::move(pipelineInfo));
     CC_DELETE(pipelineInfo.shader);
     return static_cast<CCMTLPipelineState *>(pipelineState)->getGPUPipelineState();
 }

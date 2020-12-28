@@ -6,7 +6,7 @@ namespace gfx {
 
 class GLES3GPUDescriptorSetLayout;
 
-class CC_GLES3_API GLES3DescriptorSetLayout : public DescriptorSetLayout {
+class CC_GLES3_API GLES3DescriptorSetLayout final : public DescriptorSetLayout {
 public:
     GLES3DescriptorSetLayout(Device *device);
     ~GLES3DescriptorSetLayout();

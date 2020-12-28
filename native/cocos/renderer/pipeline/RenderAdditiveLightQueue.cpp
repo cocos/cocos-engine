@@ -510,7 +510,7 @@ bool RenderAdditiveLightQueue::cullingLight(const Light *light, const ModelView 
 gfx::DescriptorSet *RenderAdditiveLightQueue::getOrCreateDescriptorSet(const Light *light) {
     if (!_descriptorSetMap.count(light)) {
         auto *device = gfx::Device::getInstance();
-        auto *descriptorSet = device->createDescriptorSet({_pipeline->getDescriptorSetLayout()});
+        gfx::DescriptorSet *descriptorSet = device->createDescriptorSet({_pipeline->getDescriptorSetLayout()});
 
         auto globalUBO = device->createBuffer({
             gfx::BufferUsageBit::UNIFORM | gfx::BufferUsageBit::TRANSFER_DST,

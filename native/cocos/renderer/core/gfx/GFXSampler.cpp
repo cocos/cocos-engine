@@ -1,4 +1,5 @@
 #include "CoreStd.h"
+
 #include "GFXSampler.h"
 
 namespace cc {

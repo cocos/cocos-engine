@@ -1,4 +1,5 @@
 #include "CoreStd.h"
+
 #include "GFXBuffer.h"
 
 namespace cc {

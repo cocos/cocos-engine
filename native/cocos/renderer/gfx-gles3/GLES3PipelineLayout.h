@@ -6,7 +6,7 @@ namespace gfx {
 
 class GLES3GPUPipelineLayout;
 
-class CC_GLES3_API GLES3PipelineLayout : public PipelineLayout {
+class CC_GLES3_API GLES3PipelineLayout final : public PipelineLayout {
 public:
     GLES3PipelineLayout(Device *device);
     ~GLES3PipelineLayout();

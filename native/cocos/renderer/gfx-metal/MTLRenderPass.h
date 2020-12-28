@@ -3,6 +3,7 @@
 #import <Metal/MTLPixelFormat.h>
 #import <Metal/MTLRenderPass.h>
 #import <Metal/MTLTexture.h>
+#include "math/Vec2.h"
 
 namespace cc {
 namespace gfx {

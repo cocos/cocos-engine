@@ -6,7 +6,7 @@ namespace gfx {
 
 class CCVKGPUDescriptorSetLayout;
 
-class CC_VULKAN_API CCVKDescriptorSetLayout : public DescriptorSetLayout {
+class CC_VULKAN_API CCVKDescriptorSetLayout final : public DescriptorSetLayout {
 public:
     CCVKDescriptorSetLayout(Device *device);
     ~CCVKDescriptorSetLayout();

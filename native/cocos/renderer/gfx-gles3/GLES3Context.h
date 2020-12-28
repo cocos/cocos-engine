@@ -31,7 +31,7 @@
 namespace cc {
 namespace gfx {
 
-class CC_GLES3_API GLES3Context : public Context {
+class CC_GLES3_API GLES3Context final : public Context {
 public:
     GLES3Context(Device *device);
     ~GLES3Context();
@@ -41,7 +41,7 @@ public:
     virtual void destroy() override;
     virtual void present() override;
 
-    bool MakeCurrent();
+    bool MakeCurrent(bool bound);
     bool CheckExtension(const String &extension) const;
 
 #if (CC_PLATFORM == CC_PLATFORM_MAC_IOS)
@@ -56,11 +56,12 @@ public:
     CC_INLINE EGLContext egl_context() const { return _eglContext; }
     CC_INLINE EGLContext egl_shared_ctx() const { return _eglSharedContext; }
 #endif
+    CC_INLINE bool MakeCurrent() { return MakeCurrent(true); }
     CC_INLINE int major_ver() const { return _majorVersion; }
     CC_INLINE int minor_ver() const { return _minorVersion; }
 
 private:
-    bool MakeCurrentImpl();
+    bool MakeCurrentImpl(bool bound);
 #if (CC_PLATFORM == CC_PLATFORM_MAC_IOS)
     bool createCustomFrameBuffer();
     void destroyCustomFrameBuffer();

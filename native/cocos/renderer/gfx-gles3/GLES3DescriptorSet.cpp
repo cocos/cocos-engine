@@ -24,7 +24,6 @@ bool GLES3DescriptorSet::initialize(const DescriptorSetInfo &info) {
     const GLES3GPUDescriptorSetLayout *gpuDescriptorSetLayout = ((GLES3DescriptorSetLayout *)_layout)->gpuDescriptorSetLayout();
     const size_t descriptorCount = gpuDescriptorSetLayout->descriptorCount;
     const size_t bindingCount = gpuDescriptorSetLayout->bindings.size();
-    const vector<uint> &indices = gpuDescriptorSetLayout->descriptorIndices;
 
     _buffers.resize(descriptorCount);
     _textures.resize(descriptorCount);

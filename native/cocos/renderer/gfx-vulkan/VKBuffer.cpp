@@ -87,6 +87,7 @@ void CCVKBuffer::destroy() {
 
     if (_gpuBuffer) {
         if (!_isBufferView) {
+            ((CCVKDevice *)_device)->gpuBufferHub()->erase(_gpuBuffer);
             ((CCVKDevice *)_device)->gpuRecycleBin()->collect(_gpuBuffer);
             _device->getMemoryStatus().bufferSize -= _size;
             CC_DELETE(_gpuBuffer);
@@ -140,8 +141,9 @@ void CCVKBuffer::resize(uint size) {
     }
 }
 
-void CCVKBuffer::update(void *buffer, uint offset, uint size) {
+void CCVKBuffer::update(void *buffer, uint size) {
     CCASSERT(!_isBufferView, "Cannot update through buffer views");
+    if (!size) return;
 
 #if CC_DEBUG > 0
     if (_usage & BufferUsageBit::INDIRECT) {
@@ -158,21 +160,13 @@ void CCVKBuffer::update(void *buffer, uint offset, uint size) {
 #endif
 
     if (_buffer) {
-        memcpy(_buffer + offset, buffer, size);
+        memcpy(_buffer, buffer, size);
     }
-    /* *
-    CCVKCmdFuncUpdateBuffer((CCVKDevice *)_device, _gpuBuffer, buffer, offset, size);
-    /* */
-    // This assumes the default command buffer will get submitted every frame,
-    // which is true for now but may change in the future. This appoach gives us
-    // the wiggle room to leverage immediate update vs. copy-upload strategies without
-    // breaking compatabilities. When we reached some conclusion on this subject,
-    // getting rid of this interface all together might become a better option.
+
     CommandBuffer *cmdBuff = _device->getCommandBuffer();
     cmdBuff->begin();
     const CCVKGPUCommandBuffer *gpuCommandBuffer = ((CCVKCommandBuffer *)cmdBuff)->gpuCommandBuffer();
-    CCVKCmdFuncUpdateBuffer((CCVKDevice *)_device, _gpuBuffer, buffer, offset, size, gpuCommandBuffer);
-    /* */
+    CCVKCmdFuncUpdateBuffer((CCVKDevice *)_device, _gpuBuffer, buffer, size, gpuCommandBuffer);
 }
 
 } // namespace gfx

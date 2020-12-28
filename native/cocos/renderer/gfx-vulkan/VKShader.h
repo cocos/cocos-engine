@@ -6,7 +6,7 @@ namespace gfx {
 
 class CCVKGPUShader;
 
-class CC_VULKAN_API CCVKShader : public Shader {
+class CC_VULKAN_API CCVKShader final : public Shader {
 public:
     CCVKShader(Device *device);
     ~CCVKShader();

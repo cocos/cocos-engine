@@ -10,7 +10,7 @@ class CCVKGPUContext;
 class CCVKGPUSwapchain;
 class CCVKGPUSemaphorePool;
 
-class CC_VULKAN_API CCVKContext : public Context {
+class CC_VULKAN_API CCVKContext final : public Context {
 public:
     CCVKContext(Device *device);
     ~CCVKContext();

@@ -6,7 +6,7 @@ namespace gfx {
 
 class GLES3GPURenderPass;
 
-class CC_GLES3_API GLES3RenderPass : public RenderPass {
+class CC_GLES3_API GLES3RenderPass final : public RenderPass {
 public:
     GLES3RenderPass(Device *device);
     ~GLES3RenderPass();

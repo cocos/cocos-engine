@@ -1,13 +1,17 @@
 set(TARGET_NAME GFXMetal)
 
 message(STATUS "Target: ${TARGET_NAME}...")
+
 # ---------------------------------------------------------------------
 # set include files
 
-set(INCLUDE_FILES 
-  ${GFX_EXTERNAL_PATH}/khronos
-  ${COCOS_SRC_PATH}/renderer/core
-  ${COCOS_SRC_PATH}/renderer/gfx-metal
+set(INCLUDE_FILES
+    ${GFX_EXTERNAL_PATH}/khronos
+    ${GFX_EXTERNAL_PATH}/boost
+    ${GFX_EXTERNAL_PATH}/concurrentqueue
+    ${COCOS_SRC_PATH}/base
+    ${COCOS_SRC_PATH}/renderer/core
+    ${COCOS_SRC_PATH}/renderer/gfx-metal
 )
 
 include_directories( ${INCLUDE_FILES} )
@@ -31,16 +35,23 @@ else()
 endif()
 
 target_compile_definitions(${TARGET_NAME} PRIVATE CC_USE_METAL)
+find_library(COREFOUNDATION_FRAMEWORK CoreFoundation)
+find_library(FOUNDATION_FRAMEWORK Foundation)
 find_library(METAL_LIBRARY Metal)
 find_library(METALKIT_LIBRARY MetalKit)
 set(glslang_libs_name glslang OGLCompiler OSDependent SPIRV glslang-default-resource-limits)
 set(spirv-cross_libs_name spirv-cross-core spirv-cross-glsl spirv-cross-msl)
-target_link_libraries(${TARGET_NAME} Core ${METAL_LIBRARY} ${METALKIT_LIBRARY} ${glslang_libs_name} ${spirv-cross_libs_name})
+target_link_libraries(${TARGET_NAME} Core ${COREFOUNDATION_FRAMEWORK} ${FOUNDATION_FRAMEWORK} ${METAL_LIBRARY} ${METALKIT_LIBRARY} ${glslang_libs_name} ${spirv-cross_libs_name})
+
 target_include_directories(${TARGET_NAME} PUBLIC ${COCOS_EXTERNAL_PATH}/mac/include)
 
 set_target_properties(${TARGET_NAME} PROPERTIES OUTPUT_NAME CCGFXMetal)
 set_target_properties(${TARGET_NAME} PROPERTIES OUTPUT_NAME_DEBUG CCGFXMetal_d)
 
-use_precompiled_header("${CMAKE_CURRENT_SOURCE_DIR}/MetalStd.h" ${SOURCE_CPP_FILES} ${SOURCE_OBJC_FILES} ${SOURCE_C_FILES})
+use_precompiled_header("${CMAKE_CURRENT_SOURCE_DIR}/MTLStd.h" "${CMAKE_CURRENT_SOURCE_DIR}/MTLStd.cpp" ${SOURCE_CPP_FILES} ${SOURCE_OBJC_FILES} ${SOURCE_C_FILES})
 
-message(STATUS "${TARGET_NAME} configuration completed.") 
+message(STATUS "${TARGET_NAME} configuration completed.")
+
+target_compile_definitions(${TARGET_NAME} PUBLIC
+    $<$<CONFIG:Debug>:CC_DEBUG=1>
+)

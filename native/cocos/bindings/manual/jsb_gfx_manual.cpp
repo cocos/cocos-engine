@@ -284,23 +284,14 @@ static bool js_gfx_GFXBuffer_update(se::State &s) {
 
     if (argc == 1) {
         SE_PRECONDITION2(ok, false, "js_gfx_GFXBuffer_update : Error processing arguments");
-        cobj->update(arg0, 0, static_cast<uint>(dataLength));
+        cobj->update(arg0, static_cast<uint>(dataLength));
         return true;
     }
     if (argc == 2) {
         unsigned int arg1 = 0;
         ok &= seval_to_uint32(args[1], (uint32_t *)&arg1);
         SE_PRECONDITION2(ok, false, "js_gfx_GFXBuffer_update : Error processing arguments");
-        cobj->update(arg0, arg1, static_cast<uint>(dataLength));
-        return true;
-    }
-    if (argc == 3) {
-        unsigned int arg1 = 0;
-        unsigned int arg2 = 0;
-        ok &= seval_to_uint32(args[1], (uint32_t *)&arg1);
-        ok &= seval_to_uint32(args[2], (uint32_t *)&arg2);
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXBuffer_update : Error processing arguments");
-        cobj->update(arg0, arg1, arg2);
+        cobj->update(arg0, arg1);
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 3);
@@ -378,14 +369,7 @@ static bool js_gfx_CommandBuffer_updateBuffer(se::State &s) {
 
     if (argc == 2) {
         SE_PRECONDITION2(ok, false, "js_gfx_CommandBuffer_updateBuffer : Error processing arguments");
-        cobj->updateBuffer(arg0, arg1, static_cast<uint>(dataLength), 0);
-        return true;
-    }
-    if (argc == 3) {
-        unsigned int arg2 = 0;
-        ok &= seval_to_uint32(args[2], (uint32_t *)&arg2);
-        SE_PRECONDITION2(ok, false, "js_gfx_CommandBuffer_updateBuffer : Error processing arguments");
-        cobj->updateBuffer(arg0, arg1, static_cast<uint>(dataLength), arg2);
+        cobj->updateBuffer(arg0, arg1, static_cast<uint>(dataLength));
         return true;
     }
 

@@ -2,14 +2,14 @@
 #define CC_CORE_STL_ALLOC_H_
 
 #include "MemDef.h"
-#include <queue>
-#include <set>
+#include <deque>
 #include <list>
 #include <map>
 #include <queue>
-#include <deque>
-#include <unordered_map>
+#include <set>
 #include <string>
+#include <unordered_map>
+#include <unordered_set>
 
 namespace cc {
 
@@ -63,13 +63,14 @@ public:
     template <typename U, typename P>
     inline SA(SA<U, P> const &) {}
 
-    inline pointer allocate(size_type count, typename std::allocator<void>::const_pointer ptr = 0) {
-        (void)ptr;
+    // TODO: fix C++17 warning
+    //inline pointer allocate(size_type count, typename std::allocator<void>::const_pointer ptr = 0) {
+    //    (void)ptr;
 
-        // convert request to bytes
-        register size_type sz = count * sizeof(T);
-        return static_cast<pointer>(AllocPolicy::AllocateBytes(sz));
-    }
+    //    // convert request to bytes
+    //    register size_type sz = count * sizeof(T);
+    //    return static_cast<pointer>(AllocPolicy::AllocateBytes(sz));
+    //}
 
     inline void deallocate(pointer ptr, size_type) {
         AllocPolicy::DeallocateBytes(ptr);
@@ -142,62 +143,6 @@ inline bool operator!=(SA<T, P> const &, OtherAllocator const &) {
 
 ////////////////////////////////////////////////////////////////////
 extern CC_DLL SA<char, STLAP> stl_char_allocator;
-
-#if (CC_STL_MEMORY_ALLOCATOR == CC_STL_MEMORY_ALLOCATOR_CUSTOM)
-    template <typename T, typename A = SA<T, STLAP>>
-    using vector = std::vector<T, A>;
-
-    template <typename T, typename A = SA<T, STLAP>>
-    using list = std::list<T, A>;
-
-    template <typename T, typename A = SA<T, STLAP>>
-    using queue = std::queue<T, A>;
-
-    template <typename T, typename C = typename vector<T>::type, typename P = std::less<typename C::value_type>>
-    using priority_queue = std::priority_queue<T, C, P>;
-
-    template <typename T, typename A = SA<T, STLAP>>
-    using dequeue = std::deque<T, A>;
-
-    template <typename T, typename P = std::less<T>, typename A = SA<T, STLAP>>
-    using set = std::set<T, P, A>;
-
-    template <typename K, typename V, typename P = std::less<K>, typename A = SA<std::pair<const K, V>, STLAP>>
-    using map = std::map<K, V, P, A>;
-
-    template <typename K, typename V, typename P = std::less<K>, typename A = SA<std::pair<const K, V>, STLAP>>
-    using multimap = std::multimap<K, V, P, A>;
-
-    template <typename K, typename V, typename H = std::hash<K>, typename P = std::equal_to<K>, typename A = SA<std::pair<const K, V>, STLAP>>
-    using unordered_map = std::unordered_map<K, V, H, P, A>;
-#else
-    template <typename T>
-    using vector = std::vector<T>;
-
-    template <typename T>
-    using list = std::list<T>;
-
-    template <typename T>
-    using queue = std::queue<T>;
-
-    template <typename T, typename C = typename vector<T>::type, typename P = std::less<typename C::value_type>>
-    using priority_queue = std::priority_queue<T, C, P>;
-
-    template <typename T>
-    using dequeue = std::deque<T>;
-
-    template <typename T, typename P = std::less<T>>
-    using set = std::set<T, P>;
-
-    template <typename K, typename V, typename P = std::less<K>>
-    using map = std::map<K, V, P>;
-
-    template <typename K, typename V, typename P = std::less<K>>
-    using multimap = std::multimap<K, V, P>;
-
-    template <typename K, typename V, typename H = std::hash<K>, typename P = std::equal_to<K>>
-    using unordered_map = std::unordered_map<K, V, H, P>;
-#endif
 
 #define StdStringT(T)          std::basic_string<T, std::char_traits<T>, std::allocator<T>>
 #define CustomMemoryStringT(T) std::basic_string<T, std::char_traits<T>, SA<T, STLAP>>
@@ -281,9 +226,75 @@ CustomMemoryStringT(T) operator+(const T *l, const CustomMemoryStringT(T) & o) {
 #undef CustomMemoryStringT
 
 #if (CC_STL_MEMORY_ALLOCATOR == CC_STL_MEMORY_ALLOCATOR_CUSTOM)
+template <typename T, typename A = SA<T, STLAP>>
+using vector = std::vector<T, A>;
+
+template <typename T, typename A = SA<T, STLAP>>
+using list = std::list<T, A>;
+
+template <typename T, typename A = SA<T, STLAP>>
+using queue = std::queue<T, A>;
+
+template <typename T, typename C = typename vector<T>::type, typename P = std::less<typename C::value_type>>
+using priority_queue = std::priority_queue<T, C, P>;
+
+template <typename T, typename A = SA<T, STLAP>>
+using dequeue = std::deque<T, A>;
+
+template <typename T, typename P = std::less<T>, typename A = SA<T, STLAP>>
+using set = std::set<T, P, A>;
+
+template <typename K, typename V, typename P = std::less<K>, typename A = SA<std::pair<const K, V>, STLAP>>
+using map = std::map<K, V, P, A>;
+
+template <typename K, typename V, typename P = std::less<K>, typename A = SA<std::pair<const K, V>, STLAP>>
+using multimap = std::multimap<K, V, P, A>;
+
+template <typename K, typename V, typename H = std::hash<K>, typename P = std::equal_to<K>, typename A = SA<std::pair<const K, V>, STLAP>>
+using unordered_map = std::unordered_map<K, V, H, P, A>;
+
 typedef std::basic_string<char, std::char_traits<char>, SA<char, STLAP>> String;
 typedef std::basic_string<wchar_t, std::char_traits<wchar_t>, SA<wchar_t, STLAP>> WString;
 #else
+template <typename T>
+using vector = std::vector<T>;
+
+template <typename T>
+using list = std::list<T>;
+
+template <typename T>
+using queue = std::queue<T>;
+
+template <typename T, typename C = typename vector<T>::type, typename P = std::less<typename C::value_type>>
+using priority_queue = std::priority_queue<T, C, P>;
+
+template <typename T>
+using dequeue = std::deque<T>;
+
+template <typename T, typename P = std::less<T>>
+using set = std::set<T, P>;
+
+template <typename T, typename P = std::less<T>>
+using multiset = std::multiset<T, P>;
+
+template <typename T, typename H = std::hash<T>, typename P = std::equal_to<T>>
+using unordered_set = std::unordered_set<T, H, P>;
+
+template <typename T, typename H = std::hash<T>, typename P = std::equal_to<T>>
+using unordered_multiset = std::unordered_multiset<T, H, P>;
+
+template <typename K, typename V, typename P = std::less<K>>
+using map = std::map<K, V, P>;
+
+template <typename K, typename V, typename P = std::less<K>>
+using multimap = std::multimap<K, V, P>;
+
+template <typename K, typename V, typename H = std::hash<K>, typename P = std::equal_to<K>>
+using unordered_map = std::unordered_map<K, V, H, P>;
+
+template <typename K, typename V, typename H = std::hash<K>, typename P = std::equal_to<K>>
+using unordered_multimap = std::unordered_multimap<K, V, H, P>;
+
 typedef std::string String;
 typedef std::wstring WString;
 #endif

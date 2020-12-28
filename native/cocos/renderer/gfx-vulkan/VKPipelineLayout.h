@@ -6,7 +6,7 @@ namespace gfx {
 
 class CCVKGPUPipelineLayout;
 
-class CC_VULKAN_API CCVKPipelineLayout : public PipelineLayout {
+class CC_VULKAN_API CCVKPipelineLayout final : public PipelineLayout {
 public:
     CCVKPipelineLayout(Device *device);
     ~CCVKPipelineLayout();

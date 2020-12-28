@@ -6,7 +6,7 @@ namespace gfx {
 
 class GLES2GPUSampler;
 
-class CC_GLES2_API GLES2Sampler : public Sampler {
+class CC_GLES2_API GLES2Sampler final : public Sampler {
 public:
     GLES2Sampler(Device *device);
     ~GLES2Sampler();

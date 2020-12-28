@@ -34,6 +34,24 @@ static bool js_gles3_GLES3Device_checkExtension(se::State& s)
 }
 SE_BIND_FUNC(js_gles3_GLES3Device_checkExtension)
 
+static bool js_gles3_GLES3Device_getThreadID(se::State& s)
+{
+    cc::gfx::GLES3Device* cobj = SE_THIS_OBJECT<cc::gfx::GLES3Device>(s);
+    SE_PRECONDITION2(cobj, false, "js_gles3_GLES3Device_getThreadID : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        unsigned int result = cobj->getThreadID();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_gles3_GLES3Device_getThreadID : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_gles3_GLES3Device_getThreadID)
+
 SE_DECLARE_FINALIZE_FUNC(js_cc_gfx_GLES3Device_finalize)
 
 static bool js_gles3_GLES3Device_constructor(se::State& s) // constructor.c
@@ -67,6 +85,7 @@ bool js_register_gles3_GLES3Device(se::Object* obj)
     auto cls = se::Class::create("GLES3Device", obj, __jsb_cc_gfx_Device_proto, _SE(js_gles3_GLES3Device_constructor));
 
     cls->defineFunction("checkExtension", _SE(js_gles3_GLES3Device_checkExtension));
+    cls->defineFunction("getThreadID", _SE(js_gles3_GLES3Device_getThreadID));
     cls->defineFinalizeFunction(_SE(js_cc_gfx_GLES3Device_finalize));
     cls->install();
     JSBClassType::registerClass<cc::gfx::GLES3Device>(cls);

@@ -1,5 +1,8 @@
 #include "MTLStd.h"
 
+#import <Metal/Metal.h>
+#import <Foundation/Foundation.h>
+
 #include "MTLBuffer.h"
 #include "MTLCommandBuffer.h"
 #include "MTLDevice.h"
@@ -155,14 +158,14 @@ void CCMTLBuffer::resizeBuffer(uint8_t **buffer, uint size, uint oldSize) {
     status.bufferSize -= oldSize;
 }
 
-void CCMTLBuffer::update(void *buffer, uint offset, uint size) {
+void CCMTLBuffer::update(void *buffer, uint size) {
     if (_isBufferView) {
         CC_LOG_WARNING("Cannot update a buffer view.");
         return;
     }
 
     if (_buffer)
-        memcpy(_buffer + offset, buffer, size);
+        memcpy(_buffer, buffer, size);
 
     if (_usage & BufferUsageBit::INDIRECT) {
         if (_isIndirectDrawSupported) {
@@ -183,7 +186,7 @@ void CCMTLBuffer::update(void *buffer, uint offset, uint size) {
                         arguments.baseInstance = drawInfo->firstInstance;
                         ++drawInfo;
                     }
-                    updateMTLBuffer(_indexedPrimitivesIndirectArguments.data(), offset, drawInfoCount * stride);
+                    updateMTLBuffer(_indexedPrimitivesIndirectArguments.data(), 0, drawInfoCount * stride);
                 } else {
                     _isDrawIndirectByIndex = false;
                     uint stride = sizeof(MTLDrawIndexedPrimitivesIndirectArguments);
@@ -196,14 +199,14 @@ void CCMTLBuffer::update(void *buffer, uint offset, uint size) {
                         arguments.baseInstance = drawInfo->firstInstance;
                         ++drawInfo;
                     }
-                    updateMTLBuffer(_primitiveIndirectArguments.data(), offset, drawInfoCount * stride);
+                    updateMTLBuffer(_primitiveIndirectArguments.data(), 0, drawInfoCount * stride);
                 }
             }
         } else {
             memcpy(_drawInfos.data(), buffer, size);
         }
     } else {
-        updateMTLBuffer(buffer, offset, size);
+        updateMTLBuffer(buffer, 0, size);
     }
 }
 
@@ -211,7 +214,7 @@ void CCMTLBuffer::updateMTLBuffer(void *buffer, uint offset, uint size) {
     if (_mtlBuffer) {
         CommandBuffer *cmdBuffer = _device->getCommandBuffer();
         cmdBuffer->begin();
-        static_cast<CCMTLCommandBuffer *>(cmdBuffer)->updateBuffer(this, buffer, size, offset);
+        static_cast<CCMTLCommandBuffer *>(cmdBuffer)->updateBuffer(this, buffer, size);
 #if (CC_PLATFORM == CC_PLATFORM_MAC_OSX)
         if (_mtlResourceOptions == MTLResourceStorageModeManaged)
             [_mtlBuffer didModifyRange:NSMakeRange(0, _size)]; // Synchronize the managed buffer.

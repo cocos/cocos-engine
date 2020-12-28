@@ -11,6 +11,7 @@
 #include "GLES3InputAssembler.h"
 #include "GLES3PipelineLayout.h"
 #include "GLES3PipelineState.h"
+#include "GLES3PrimaryCommandBuffer.h"
 #include "GLES3Queue.h"
 #include "GLES3RenderPass.h"
 #include "GLES3Sampler.h"
@@ -44,18 +45,18 @@ bool GLES3Device::initialize(const DeviceInfo &info) {
     }
 
     _gpuStateCache = CC_NEW(GLES3GPUStateCache);
-    _gpuCmdAllocator = CC_NEW(GLES3GPUCommandAllocator);
     _gpuStagingBufferPool = CC_NEW(GLES3GPUStagingBufferPool);
 
     ContextInfo ctxInfo;
     ctxInfo.windowHandle = _windowHandle;
     ctxInfo.sharedCtx = info.sharedCtx;
 
-    _context = CC_NEW(GLES3Context(this));
-    if (!_context->initialize(ctxInfo)) {
+    _renderContext = CC_NEW(GLES3Context(this));
+    if (!_renderContext->initialize(ctxInfo)) {
         destroy();
         return false;
     }
+    bindRenderContext(true);
 
     String extStr = (const char *)glGetString(GL_EXTENSIONS);
     _extensions = StringUtil::Split(extStr, " ");
@@ -153,10 +154,10 @@ bool GLES3Device::initialize(const DeviceInfo &info) {
 void GLES3Device::destroy() {
     CC_SAFE_DESTROY(_queue);
     CC_SAFE_DESTROY(_cmdBuff);
-    CC_SAFE_DESTROY(_context);
     CC_SAFE_DELETE(_gpuStagingBufferPool);
-    CC_SAFE_DELETE(_gpuCmdAllocator);
     CC_SAFE_DELETE(_gpuStateCache);
+    CC_SAFE_DESTROY(_deviceContext);
+    CC_SAFE_DESTROY(_renderContext);
 }
 
 void GLES3Device::resize(uint width, uint height) {
@@ -165,7 +166,6 @@ void GLES3Device::resize(uint width, uint height) {
 }
 
 void GLES3Device::acquire() {
-    _gpuCmdAllocator->releaseCmds();
     _gpuStagingBufferPool->reset();
 }
 
@@ -183,148 +183,90 @@ void GLES3Device::present() {
     queue->_numTriangles = 0;
 }
 
-CommandBuffer *GLES3Device::createCommandBuffer(const CommandBufferInfo &info) {
-    CommandBuffer *cmd_buff = CC_NEW(GLES3CommandBuffer(this));
-    if (cmd_buff->initialize(info))
-        return cmd_buff;
+void GLES3Device::bindRenderContext(bool bound) {
+    _renderContext->MakeCurrent(bound);
+    _context = bound ? _renderContext : nullptr;
 
-    CC_SAFE_DESTROY(cmd_buff)
-    return nullptr;
+    if (bound) {
+        _threadID = std::hash<std::thread::id>()(std::this_thread::get_id());
+        _gpuStateCache->reset();
+    }
 }
 
-Fence *GLES3Device::createFence(const FenceInfo &info) {
-    Fence *fence = CC_NEW(GLES3Fence(this));
-    if (fence->initialize(info))
-        return fence;
+void GLES3Device::bindDeviceContext(bool bound) {
+    if (!_deviceContext) {
+        ContextInfo ctxInfo;
+        ctxInfo.windowHandle = _windowHandle;
+        ctxInfo.sharedCtx = _renderContext;
 
-    CC_SAFE_DESTROY(fence);
-    return nullptr;
+        _deviceContext = CC_NEW(GLES3Context(this));
+        _deviceContext->initialize(ctxInfo);
+    }
+    _deviceContext->MakeCurrent(bound);
+    _context = bound ? _deviceContext : nullptr;
+
+    if (bound) {
+        std::hash<std::thread::id> hasher;
+        _threadID = hasher(std::this_thread::get_id());
+        _gpuStateCache->reset();
+    }
 }
 
-Queue *GLES3Device::createQueue(const QueueInfo &info) {
-    Queue *queue = CC_NEW(GLES3Queue(this));
-    if (queue->initialize(info))
-        return queue;
-
-    CC_SAFE_DESTROY(queue);
-    return nullptr;
+CommandBuffer *GLES3Device::doCreateCommandBuffer(const CommandBufferInfo &info, bool hasAgent) {
+    if (hasAgent || info.type == CommandBufferType::PRIMARY) return CC_NEW(GLES3PrimaryCommandBuffer(this));
+    return CC_NEW(GLES3CommandBuffer(this));
 }
 
-Buffer *GLES3Device::createBuffer(const BufferInfo &info) {
-    Buffer *buffer = CC_NEW(GLES3Buffer(this));
-    if (buffer->initialize(info))
-        return buffer;
-
-    CC_SAFE_DESTROY(buffer);
-    return nullptr;
+Fence *GLES3Device::createFence() {
+    return CC_NEW(GLES3Fence(this));
 }
 
-Buffer *GLES3Device::createBuffer(const BufferViewInfo &info) {
-    Buffer *buffer = CC_NEW(GLES3Buffer(this));
-    if (buffer->initialize(info))
-        return buffer;
-
-    CC_SAFE_DESTROY(buffer);
-    return nullptr;
+Queue *GLES3Device::createQueue() {
+    return CC_NEW(GLES3Queue(this));
 }
 
-Texture *GLES3Device::createTexture(const TextureInfo &info) {
-    Texture *texture = CC_NEW(GLES3Texture(this));
-    if (texture->initialize(info))
-        return texture;
-
-    CC_SAFE_DESTROY(texture);
-    return nullptr;
+Buffer *GLES3Device::createBuffer() {
+    return CC_NEW(GLES3Buffer(this));
 }
 
-Texture *GLES3Device::createTexture(const TextureViewInfo &info) {
-    Texture *texture = CC_NEW(GLES3Texture(this));
-    if (texture->initialize(info))
-        return texture;
-
-    CC_SAFE_DESTROY(texture);
-    return nullptr;
+Texture *GLES3Device::createTexture() {
+    return CC_NEW(GLES3Texture(this));
 }
 
-Sampler *GLES3Device::createSampler(const SamplerInfo &info) {
-    Sampler *sampler = CC_NEW(GLES3Sampler(this));
-    if (sampler->initialize(info))
-        return sampler;
-
-    CC_SAFE_DESTROY(sampler);
-    return nullptr;
+Sampler *GLES3Device::createSampler() {
+    return CC_NEW(GLES3Sampler(this));
 }
 
-Shader *GLES3Device::createShader(const ShaderInfo &info) {
-    Shader *shader = CC_NEW(GLES3Shader(this));
-    if (shader->initialize(info))
-        return shader;
-
-    CC_SAFE_DESTROY(shader);
-    return nullptr;
+Shader *GLES3Device::createShader() {
+    return CC_NEW(GLES3Shader(this));
 }
 
-InputAssembler *GLES3Device::createInputAssembler(const InputAssemblerInfo &info) {
-    InputAssembler *inputAssembler = CC_NEW(GLES3InputAssembler(this));
-    if (inputAssembler->initialize(info))
-        return inputAssembler;
-
-    CC_SAFE_DESTROY(inputAssembler);
-    return nullptr;
+InputAssembler *GLES3Device::createInputAssembler() {
+    return CC_NEW(GLES3InputAssembler(this));
 }
 
-RenderPass *GLES3Device::createRenderPass(const RenderPassInfo &info) {
-    RenderPass *renderPass = CC_NEW(GLES3RenderPass(this));
-    if (renderPass->initialize(info))
-        return renderPass;
-
-    CC_SAFE_DESTROY(renderPass);
-    return nullptr;
+RenderPass *GLES3Device::createRenderPass() {
+    return CC_NEW(GLES3RenderPass(this));
 }
 
-Framebuffer *GLES3Device::createFramebuffer(const FramebufferInfo &info) {
-    Framebuffer *framebuffer = CC_NEW(GLES3Framebuffer(this));
-    if (framebuffer->initialize(info))
-        return framebuffer;
-
-    CC_SAFE_DESTROY(framebuffer);
-    return nullptr;
+Framebuffer *GLES3Device::createFramebuffer() {
+    return CC_NEW(GLES3Framebuffer(this));
 }
 
-DescriptorSet *GLES3Device::createDescriptorSet(const DescriptorSetInfo &info) {
-    DescriptorSet *descriptorSet = CC_NEW(GLES3DescriptorSet(this));
-    if (descriptorSet->initialize(info))
-        return descriptorSet;
-
-    CC_SAFE_DESTROY(descriptorSet);
-    return nullptr;
+DescriptorSet *GLES3Device::createDescriptorSet() {
+    return CC_NEW(GLES3DescriptorSet(this));
 }
 
-DescriptorSetLayout *GLES3Device::createDescriptorSetLayout(const DescriptorSetLayoutInfo &info) {
-    DescriptorSetLayout *descriptorSetLayout = CC_NEW(GLES3DescriptorSetLayout(this));
-    if (descriptorSetLayout->initialize(info))
-        return descriptorSetLayout;
-
-    CC_SAFE_DESTROY(descriptorSetLayout);
-    return nullptr;
+DescriptorSetLayout *GLES3Device::createDescriptorSetLayout() {
+    return CC_NEW(GLES3DescriptorSetLayout(this));
 }
 
-PipelineLayout *GLES3Device::createPipelineLayout(const PipelineLayoutInfo &info) {
-    PipelineLayout *pipelineLayout = CC_NEW(GLES3PipelineLayout(this));
-    if (pipelineLayout->initialize(info))
-        return pipelineLayout;
-
-    CC_SAFE_DESTROY(pipelineLayout);
-    return nullptr;
+PipelineLayout *GLES3Device::createPipelineLayout() {
+    return CC_NEW(GLES3PipelineLayout(this));
 }
 
-PipelineState *GLES3Device::createPipelineState(const PipelineStateInfo &info) {
-    PipelineState *pipelineState = CC_NEW(GLES3PipelineState(this));
-    if (pipelineState->initialize(info))
-        return pipelineState;
-
-    CC_SAFE_DESTROY(pipelineState);
-    return nullptr;
+PipelineState *GLES3Device::createPipelineState() {
+    return CC_NEW(GLES3PipelineState(this));
 }
 
 void GLES3Device::copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint count) {

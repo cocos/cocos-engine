@@ -13,6 +13,6 @@ bool register_all_gles2(se::Object* obj);
 
 JSB_REGISTER_OBJECT_TYPE(cc::gfx::GLES2Device);
 SE_DECLARE_FUNC(js_gles2_GLES2Device_checkExtension);
-SE_DECLARE_FUNC(js_gles2_GLES2Device_checkForETC2);
+SE_DECLARE_FUNC(js_gles2_GLES2Device_getThreadID);
 SE_DECLARE_FUNC(js_gles2_GLES2Device_GLES2Device);
 

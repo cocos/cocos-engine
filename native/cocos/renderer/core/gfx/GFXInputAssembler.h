@@ -31,13 +31,13 @@ public:
     CC_INLINE uint getFirstInstance() const { return _firstInstance; }
     CC_INLINE uint getAttributesHash() const { return _attributesHash; }
 
-    CC_INLINE void setVertexCount(uint count) { _vertexCount = count; }
-    CC_INLINE void setFirstVertex(uint first) { _firstVertex = first; }
-    CC_INLINE void setIndexCount(uint count) { _indexCount = count; }
-    CC_INLINE void setFirstIndex(uint first) { _firstIndex = first; }
-    CC_INLINE void setVertexOffset(uint offset) { _vertexOffset = offset; }
-    CC_INLINE void setInstanceCount(uint count) { _instanceCount = count; }
-    CC_INLINE void setFirstInstance(uint first) { _firstInstance = first; }
+    virtual void setVertexCount(uint count) { _vertexCount = count; }
+    virtual void setFirstVertex(uint first) { _firstVertex = first; }
+    virtual void setIndexCount(uint count) { _indexCount = count; }
+    virtual void setFirstIndex(uint first) { _firstIndex = first; }
+    virtual void setVertexOffset(uint offset) { _vertexOffset = offset; }
+    virtual void setInstanceCount(uint count) { _instanceCount = count; }
+    virtual void setFirstInstance(uint first) { _firstInstance = first; }
 
 protected:
     uint computeAttributesHash() const;

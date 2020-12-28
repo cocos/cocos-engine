@@ -7,7 +7,7 @@ namespace gfx {
 class CCVKGPUTexture;
 class CCVKGPUTextureView;
 
-class CC_VULKAN_API CCVKTexture : public Texture {
+class CC_VULKAN_API CCVKTexture final : public Texture {
 public:
     CCVKTexture(Device *device);
     ~CCVKTexture();

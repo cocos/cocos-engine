@@ -6,7 +6,7 @@ namespace gfx {
 
 class CCVKGPURenderPass;
 
-class CC_VULKAN_API CCVKRenderPass : public RenderPass {
+class CC_VULKAN_API CCVKRenderPass final : public RenderPass {
 public:
     CCVKRenderPass(Device *device);
     ~CCVKRenderPass();

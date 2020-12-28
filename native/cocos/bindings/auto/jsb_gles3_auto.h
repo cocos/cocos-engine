@@ -13,5 +13,6 @@ bool register_all_gles3(se::Object* obj);
 
 JSB_REGISTER_OBJECT_TYPE(cc::gfx::GLES3Device);
 SE_DECLARE_FUNC(js_gles3_GLES3Device_checkExtension);
+SE_DECLARE_FUNC(js_gles3_GLES3Device_getThreadID);
 SE_DECLARE_FUNC(js_gles3_GLES3Device_GLES3Device);
 

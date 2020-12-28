@@ -6,7 +6,7 @@ namespace gfx {
 
 class GLES2GPUDescriptorSet;
 
-class CC_GLES2_API GLES2DescriptorSet : public DescriptorSet {
+class CC_GLES2_API GLES2DescriptorSet final : public DescriptorSet {
 public:
     GLES2DescriptorSet(Device *device);
     ~GLES2DescriptorSet();

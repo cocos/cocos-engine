@@ -6,7 +6,7 @@ namespace gfx {
 
 class GLES2GPUFramebuffer;
 
-class CC_GLES2_API GLES2Framebuffer : public Framebuffer {
+class CC_GLES2_API GLES2Framebuffer final : public Framebuffer {
 public:
     GLES2Framebuffer(Device *device);
     ~GLES2Framebuffer();

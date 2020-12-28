@@ -6,7 +6,7 @@ namespace gfx {
 
 class CCVKGPUInputAssembler;
 
-class CC_VULKAN_API CCVKInputAssembler : public InputAssembler {
+class CC_VULKAN_API CCVKInputAssembler final : public InputAssembler {
 public:
     CCVKInputAssembler(Device *device);
     ~CCVKInputAssembler();

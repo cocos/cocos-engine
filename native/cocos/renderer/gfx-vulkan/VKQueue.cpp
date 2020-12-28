@@ -41,14 +41,15 @@ void CCVKQueue::submit(const CommandBuffer *const *cmdBuffs, uint count, Fence *
     device->gpuTransportHub()->depart();
 
     for (uint i = 0u; i < count; ++i) {
-        CCVKCommandBuffer *cmdBuffer = (CCVKCommandBuffer *)cmdBuffs[i];
-        _gpuQueue->commandBuffers.push(cmdBuffer->_gpuCommandBuffer->vkCommandBuffer);
-        _numDrawCalls += cmdBuffer->_numDrawCalls;
-        _numInstances += cmdBuffer->_numInstances;
-        _numTriangles += cmdBuffer->_numTriangles;
-        // prepare the next command buffer to use
-        device->gpuCommandBufferPool()->yield(cmdBuffer->_gpuCommandBuffer);
-        device->gpuCommandBufferPool()->request(cmdBuffer->_gpuCommandBuffer);
+        CCVKCommandBuffer *cmdBuff = (CCVKCommandBuffer *)cmdBuffs[i];
+        if (!cmdBuff->_pendingQueue.empty()) {
+            _gpuQueue->commandBuffers.push(cmdBuff->_pendingQueue.front());
+            cmdBuff->_pendingQueue.pop();
+
+            _numDrawCalls += cmdBuff->_numDrawCalls;
+            _numInstances += cmdBuff->_numInstances;
+            _numTriangles += cmdBuff->_numTriangles;
+        }
     }
 
     VkSubmitInfo submitInfo{VK_STRUCTURE_TYPE_SUBMIT_INFO};
@@ -63,7 +64,6 @@ void CCVKQueue::submit(const CommandBuffer *const *cmdBuffs, uint count, Fence *
     VkFence vkFence = fence ? ((CCVKFence *)fence)->gpuFence()->vkFence : device->gpuFencePool()->alloc();
     VK_CHECK(vkQueueSubmit(_gpuQueue->vkQueue, 1, &submitInfo, vkFence));
 
-    _gpuQueue->fences.push_back(vkFence);
     _gpuQueue->nextWaitSemaphore = _gpuQueue->nextSignalSemaphore;
     _gpuQueue->nextSignalSemaphore = device->gpuSemaphorePool()->alloc();
 }

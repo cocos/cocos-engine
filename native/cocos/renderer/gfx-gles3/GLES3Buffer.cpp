@@ -128,13 +128,13 @@ void GLES3Buffer::resize(uint size) {
     }
 }
 
-void GLES3Buffer::update(void *buffer, uint offset, uint size) {
+void GLES3Buffer::update(void *buffer, uint size) {
     CCASSERT(!_isBufferView, "Cannot update through buffer views");
 
     if (_buffer) {
-        memcpy(_buffer + offset, buffer, size);
+        memcpy(_buffer, buffer, size);
     }
-    GLES3CmdFuncUpdateBuffer((GLES3Device *)_device, _gpuBuffer, buffer, offset, size);
+    GLES3CmdFuncUpdateBuffer((GLES3Device *)_device, _gpuBuffer, buffer, 0u, size);
 }
 
 } // namespace gfx

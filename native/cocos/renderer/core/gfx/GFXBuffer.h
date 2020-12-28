@@ -16,7 +16,7 @@ public:
     virtual bool initialize(const BufferViewInfo &info) = 0;
     virtual void destroy() = 0;
     virtual void resize(uint size) = 0;
-    virtual void update(void *buffer, uint offset, uint size) = 0;
+    virtual void update(void *buffer, uint size) = 0;
 
     CC_INLINE Device *getDevice() const { return _device; }
     CC_INLINE BufferUsage getUsage() const { return _usage; }

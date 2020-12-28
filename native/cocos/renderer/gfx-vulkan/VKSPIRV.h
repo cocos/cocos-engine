@@ -87,7 +87,7 @@ const vector<unsigned int> GLSL2SPIRV(ShaderStageFlagBit type, const String &sou
     glslang::SpvOptions spvOptions;
     glslang::GlslangToSpv(*program.getIntermediate(stage), spirv, &logger, &spvOptions);
 
-    return std::move(spirv);
+    return spirv;
 }
 
 } // namespace

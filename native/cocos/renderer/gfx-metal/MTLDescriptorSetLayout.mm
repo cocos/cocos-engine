@@ -12,15 +12,15 @@ CCMTLDescriptorSetLayout::CCMTLDescriptorSetLayout(Device *device) : DescriptorS
 bool CCMTLDescriptorSetLayout::initialize(const DescriptorSetLayoutInfo &info) {
     _bindings = info.bindings;
     const auto bindingCount = _bindings.size();
-    uint descriptorCount = 0;
+    _descriptorCount = 0;
 
     if (bindingCount) {
         uint maxBinding = 0;
         vector<uint> flattenedIndices(bindingCount);
         for (auto i = 0; i < bindingCount; i++) {
             const DescriptorSetLayoutBinding &binding = _bindings[i];
-            flattenedIndices[i] = descriptorCount;
-            descriptorCount += binding.count;
+            flattenedIndices[i] = _descriptorCount;
+            _descriptorCount += binding.count;
             if (binding.binding > maxBinding) maxBinding = binding.binding;
         }
 
@@ -34,7 +34,7 @@ bool CCMTLDescriptorSetLayout::initialize(const DescriptorSetLayoutInfo &info) {
     }
 
     _gpuDescriptorSetLayout = CC_NEW(CCMTLGPUDescriptorSetLayout);
-    _gpuDescriptorSetLayout->descriptorCount = descriptorCount;
+    _gpuDescriptorSetLayout->descriptorCount = _descriptorCount;
     _gpuDescriptorSetLayout->descriptorIndices = _descriptorIndices;
     _gpuDescriptorSetLayout->bindingIndices = _bindingIndices;
     _gpuDescriptorSetLayout->bindings = _bindings;

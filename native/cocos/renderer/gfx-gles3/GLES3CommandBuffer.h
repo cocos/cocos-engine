@@ -15,13 +15,12 @@ public:
     GLES3CommandBuffer(Device *device);
     ~GLES3CommandBuffer();
 
-public:
     virtual bool initialize(const CommandBufferInfo &info) override;
     virtual void destroy() override;
 
-    virtual void begin(RenderPass *renderPass, uint subpass, Framebuffer *frameBuffer) override;
+    virtual void begin(RenderPass *renderPass, uint subpass, Framebuffer *frameBuffer, int submitIndex) override;
     virtual void end() override;
-    virtual void beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, int stencil) override;
+    virtual void beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, int stencil, bool fromSecondaryCB) override;
     virtual void endRenderPass() override;
     virtual void bindPipelineState(PipelineState *pso) override;
     virtual void bindDescriptorSet(uint set, DescriptorSet *descriptorSet, uint dynamicOffsetCount, const uint *dynamicOffsets) override;
@@ -35,16 +34,17 @@ public:
     virtual void setStencilWriteMask(StencilFace face, uint mask) override;
     virtual void setStencilCompareMask(StencilFace face, int ref, uint mask) override;
     virtual void draw(InputAssembler *ia) override;
-    virtual void updateBuffer(Buffer *buff, const void *data, uint size, uint offset) override;
+    virtual void updateBuffer(Buffer *buff, const void *data, uint size) override;
     virtual void copyBuffersToTexture(const uint8_t *const *buffers, Texture *texture, const BufferTextureCopy *regions, uint count) override;
     virtual void execute(const CommandBuffer *const *cmdBuffs, uint32_t count) override;
 
-private:
-    void BindStates();
+protected:
+    virtual void BindStates();
 
-private:
-    GLES3CmdPackage *_cmdPackage = nullptr;
-    GLES3GPUCommandAllocator *_gles3Allocator = nullptr;
+    GLES3GPUCommandAllocator *_cmdAllocator = nullptr;
+    GLES3CmdPackage *_curCmdPackage = nullptr;
+    queue<GLES3CmdPackage *> _pendingPackages, _freePackages;
+
     bool _isInRenderPass = false;
     GLES3GPUPipelineState *_curGPUPipelineState = nullptr;
     GLES3GPUInputAssembler *_curGPUInputAssember = nullptr;

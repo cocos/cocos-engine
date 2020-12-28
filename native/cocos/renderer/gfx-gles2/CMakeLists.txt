@@ -8,6 +8,8 @@ set(INCLUDE_FILES
   ${GFX_EXTERNAL_PATH}/khronos
   ${GFX_EXTERNAL_PATH}/glsl_optimizer/src
   ${GFX_EXTERNAL_PATH}/glsl_optimizer/src/mesa
+  ${GFX_EXTERNAL_PATH}/boost
+  ${GFX_EXTERNAL_PATH}/concurrentqueue
   ${COCOS_SRC_PATH}/renderer/core
   ${COCOS_SRC_PATH}/renderer/gfx-gles2
 )
@@ -49,7 +51,13 @@ if(COCOS_PLATFORM_IOS OR COCOS_PLATFORM_OSX)
 	file(GLOB_RECURSE SOURCE_MM_FILES *.m *.mm)
 endif()
 
-set(ALL_FILES ${HEADER_FILES} ${SOURCE_CPP_FILES} ${SOURCE_C_FILES})
+set(ALL_FILES
+  ${HEADER_FILES}
+  ${SOURCE_CPP_FILES}
+  ${SOURCE_C_FILES}
+  ${COCOS_SRC_PATH}/base/StringUtil.h
+  ${COCOS_SRC_PATH}/base/StringUtil.cpp
+  )
 
 if(COCOS_PLATFORM_IOS OR COCOS_PLATFORM_OSX)
 	set(ALL_FILES ${ALL_FILES} ${SOURCE_MM_FILES})
@@ -88,3 +96,7 @@ set_target_properties(${TARGET_NAME} PROPERTIES OUTPUT_NAME_DEBUG CCGFXGLES2_d)
 use_precompiled_header("${CMAKE_CURRENT_SOURCE_DIR}/GLES2Std.h" "${CMAKE_CURRENT_SOURCE_DIR}/GLES2Std.cpp" SOURCE_CPP_FILES)
 
 message(STATUS "${TARGET_NAME} configuration completed.")
+
+target_compile_definitions(${TARGET_NAME} PUBLIC
+    $<$<CONFIG:Debug>:CC_DEBUG=1>
+)

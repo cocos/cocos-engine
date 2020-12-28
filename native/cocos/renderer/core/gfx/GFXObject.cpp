@@ -1,4 +1,5 @@
 #include "CoreStd.h"
+
 #include "GFXObject.h"
 
 namespace cc {

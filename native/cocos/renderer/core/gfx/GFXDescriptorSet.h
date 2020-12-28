@@ -16,10 +16,10 @@ public:
     virtual void destroy() = 0;
     virtual void update() = 0;
 
-    void bindBuffer(uint binding, Buffer *buffer, uint index);
-    void bindTexture(uint binding, Texture *texture, uint index);
-    void bindSampler(uint binding, Sampler *sampler, uint index);
-    
+    virtual void bindBuffer(uint binding, Buffer *buffer, uint index);
+    virtual void bindTexture(uint binding, Texture *texture, uint index);
+    virtual void bindSampler(uint binding, Sampler *sampler, uint index);
+
     // Functions invoked by JSB adapter
     bool bindBufferJSB(uint binding, Buffer *buffer, uint index);
     bool bindTextureJSB(uint binding, Texture *texture, uint index);

@@ -29,6 +29,7 @@
 #include <cmath>
 #include <atomic>
 #include <mutex>
+#include <thread>
 #include <cstdint>
 
 #include "base/TypeDef.h"

@@ -2,12 +2,32 @@ set(TARGET_NAME Core)
 
 message(STATUS "Target: ${TARGET_NAME}...")
 
+# ---------------------------------------------
+# set cocos base files
+
+set(CC_BASE_HEADERS
+    ${COCOS_SRC_PATH}/base/TypeDef.h
+    ${COCOS_SRC_PATH}/base/Log.h
+    ${COCOS_SRC_PATH}/base/Object.h
+    ${COCOS_SRC_PATH}/base/memory/Memory.h
+    ${COCOS_SRC_PATH}/math/Math.h
+)
+
+set(CC_BASE_SOURCES
+    ${COCOS_SRC_PATH}/base/Log.cpp
+    ${COCOS_SRC_PATH}/base/memory/Memory.cpp
+    ${COCOS_SRC_PATH}/math/Math.cpp
+)
+
 # ---------------------------------------------------------------------
 # set include files
 
 set(INCLUDE_FILES
   ${GFX_EXTERNAL_PATH}/nedmalloc
   ${GFX_EXTERNAL_PATH}/tommyds
+  ${GFX_EXTERNAL_PATH}/concurrentqueue
+  ${GFX_EXTERNAL_PATH}/taskflow
+  ${COCOS_SRC_PATH}/base
   ${COCOS_SRC_PATH}/renderer/core
 )
 
@@ -80,7 +100,13 @@ macro(GROUP_FILES src_files out_del_files)
 	set(${out_del_files} ${del_files})
 endmacro(GROUP_FILES)
 
-set(ALL_FILES ${HEADER_FILES} ${SOURCE_CPP_FILES} ${SOURCE_C_FILES})
+set(ALL_FILES
+	${CC_BASE_HEADERS}
+	${CC_BASE_SOURCES}
+	${HEADER_FILES}
+	${SOURCE_CPP_FILES}
+	${SOURCE_C_FILES}
+)
 if(COCOS_PLATFORM_IOS)
 	set(ALL_FILES ${ALL_FILES} ${SOURCE_MM_FILES})
 	set(ALL_FILES ${ALL_FILES} ${SOURCE_M_FILES})
@@ -103,9 +129,9 @@ if(COCOS_UNICODE)
 endif()
 
 if (COCOS_STATIC)
-	add_library(${TARGET_NAME} STATIC ${HEADER_FILES} ${SOURCE_CPP_FILES} ${SOURCE_C_FILES})
+	add_library(${TARGET_NAME} STATIC ${CC_BASE_HEADERS} ${CC_BASE_SOURCES} ${HEADER_FILES} ${SOURCE_CPP_FILES} ${SOURCE_C_FILES})
 else()
-	add_library(${TARGET_NAME} SHARED ${HEADER_FILES} ${SOURCE_CPP_FILES} ${SOURCE_C_FILES})
+	add_library(${TARGET_NAME} SHARED ${CC_BASE_HEADERS} ${CC_BASE_SOURCES} ${HEADER_FILES} ${SOURCE_CPP_FILES} ${SOURCE_C_FILES})
 endif()
 
 if (COCOS_PLATFORM_WIN32)
@@ -113,12 +139,11 @@ if (COCOS_PLATFORM_WIN32)
 else()
 	target_link_libraries(${TARGET_NAME} ${COCOS_EXTERNAL_TARGETS})
 endif()
+target_link_libraries(${TARGET_NAME} TBBJobSystem TFJobSystem Threading)
 
 if(MSVC)
     set_property(TARGET ${TARGET_NAME} PROPERTY LINK_FLAGS "/SUBSYSTEM:WINDOWS")
-    target_compile_options(${TARGET_NAME}
-        PUBLIC /MP
-    )
+    target_compile_options(${TARGET_NAME} PUBLIC /MP)
 	target_link_directories(${TARGET_NAME} PUBLIC ${COCOS_EXTERNAL_PATH}/win32/libs)
 endif()
 
@@ -134,6 +159,7 @@ target_include_directories(${TARGET_NAME} PUBLIC
 	${COCOS_SRC_PATH}/renderer
 	${COCOS_SRC_PATH}
 	${COCOS_SRC_PATH}/..
+	${COCOS_SRC_PATH}/base
 	${COCOS_EXTERNAL_INCLUDE_PATH}
 )
 
@@ -143,3 +169,7 @@ set_target_properties(${TARGET_NAME} PROPERTIES OUTPUT_NAME_DEBUG CCCore_d)
 use_precompiled_header("${CMAKE_CURRENT_SOURCE_DIR}/CoreStd.h" "${CMAKE_CURRENT_SOURCE_DIR}/CoreStd.cpp" SOURCE_CPP_FILES)
 
 message(STATUS "${TARGET_NAME} configuration completed.")
+
+target_compile_definitions(${TARGET_NAME} PUBLIC
+    $<$<CONFIG:Debug>:CC_DEBUG=1>
+)

@@ -11088,331 +11088,13 @@ bool js_register_gfx_GFXObject(se::Object* obj)
     return true;
 }
 
-se::Object* __jsb_cc_gfx_Device_proto = nullptr;
-se::Class* __jsb_cc_gfx_Device_class = nullptr;
+se::Object* __jsb_cc_gfx_Buffer_proto = nullptr;
+se::Class* __jsb_cc_gfx_Buffer_class = nullptr;
 
-static bool js_gfx_Device_acquire(se::State& s)
+static bool js_gfx_Buffer_destroy(se::State& s)
 {
-    cc::gfx::Device* cobj = SE_THIS_OBJECT<cc::gfx::Device>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_Device_acquire : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    if (argc == 0) {
-        cobj->acquire();
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_Device_acquire)
-
-static bool js_gfx_Device_bindingMappingInfo(se::State& s)
-{
-    cc::gfx::Device* cobj = SE_THIS_OBJECT<cc::gfx::Device>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_Device_bindingMappingInfo : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        const cc::gfx::BindingMappingInfo& result = cobj->bindingMappingInfo();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_gfx_Device_bindingMappingInfo : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_Device_bindingMappingInfo)
-
-static bool js_gfx_Device_createCommandBuffer(se::State& s)
-{
-    cc::gfx::Device* cobj = SE_THIS_OBJECT<cc::gfx::Device>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_Device_createCommandBuffer : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        HolderType<cc::gfx::CommandBufferInfo, true> arg0 = {};
-        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_gfx_Device_createCommandBuffer : Error processing arguments");
-        cc::gfx::CommandBuffer* result = cobj->createCommandBuffer(arg0.value());
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_gfx_Device_createCommandBuffer : Error processing arguments");
-        se::NonRefNativePtrCreatedByCtorMap::emplace(result);
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_Device_createCommandBuffer)
-
-static bool js_gfx_Device_createDescriptorSet(se::State& s)
-{
-    cc::gfx::Device* cobj = SE_THIS_OBJECT<cc::gfx::Device>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_Device_createDescriptorSet : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        HolderType<cc::gfx::DescriptorSetInfo, true> arg0 = {};
-        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_gfx_Device_createDescriptorSet : Error processing arguments");
-        cc::gfx::DescriptorSet* result = cobj->createDescriptorSet(arg0.value());
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_gfx_Device_createDescriptorSet : Error processing arguments");
-        se::NonRefNativePtrCreatedByCtorMap::emplace(result);
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_Device_createDescriptorSet)
-
-static bool js_gfx_Device_createDescriptorSetLayout(se::State& s)
-{
-    cc::gfx::Device* cobj = SE_THIS_OBJECT<cc::gfx::Device>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_Device_createDescriptorSetLayout : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        HolderType<cc::gfx::DescriptorSetLayoutInfo, true> arg0 = {};
-        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_gfx_Device_createDescriptorSetLayout : Error processing arguments");
-        cc::gfx::DescriptorSetLayout* result = cobj->createDescriptorSetLayout(arg0.value());
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_gfx_Device_createDescriptorSetLayout : Error processing arguments");
-        se::NonRefNativePtrCreatedByCtorMap::emplace(result);
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_Device_createDescriptorSetLayout)
-
-static bool js_gfx_Device_createFence(se::State& s)
-{
-    cc::gfx::Device* cobj = SE_THIS_OBJECT<cc::gfx::Device>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_Device_createFence : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        HolderType<cc::gfx::FenceInfo, true> arg0 = {};
-        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_gfx_Device_createFence : Error processing arguments");
-        cc::gfx::Fence* result = cobj->createFence(arg0.value());
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_gfx_Device_createFence : Error processing arguments");
-        se::NonRefNativePtrCreatedByCtorMap::emplace(result);
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_Device_createFence)
-
-static bool js_gfx_Device_createFramebuffer(se::State& s)
-{
-    cc::gfx::Device* cobj = SE_THIS_OBJECT<cc::gfx::Device>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_Device_createFramebuffer : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        HolderType<cc::gfx::FramebufferInfo, true> arg0 = {};
-        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_gfx_Device_createFramebuffer : Error processing arguments");
-        cc::gfx::Framebuffer* result = cobj->createFramebuffer(arg0.value());
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_gfx_Device_createFramebuffer : Error processing arguments");
-        se::NonRefNativePtrCreatedByCtorMap::emplace(result);
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_Device_createFramebuffer)
-
-static bool js_gfx_Device_createInputAssembler(se::State& s)
-{
-    cc::gfx::Device* cobj = SE_THIS_OBJECT<cc::gfx::Device>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_Device_createInputAssembler : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        HolderType<cc::gfx::InputAssemblerInfo, true> arg0 = {};
-        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_gfx_Device_createInputAssembler : Error processing arguments");
-        cc::gfx::InputAssembler* result = cobj->createInputAssembler(arg0.value());
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_gfx_Device_createInputAssembler : Error processing arguments");
-        se::NonRefNativePtrCreatedByCtorMap::emplace(result);
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_Device_createInputAssembler)
-
-static bool js_gfx_Device_createPipelineLayout(se::State& s)
-{
-    cc::gfx::Device* cobj = SE_THIS_OBJECT<cc::gfx::Device>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_Device_createPipelineLayout : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        HolderType<cc::gfx::PipelineLayoutInfo, true> arg0 = {};
-        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_gfx_Device_createPipelineLayout : Error processing arguments");
-        cc::gfx::PipelineLayout* result = cobj->createPipelineLayout(arg0.value());
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_gfx_Device_createPipelineLayout : Error processing arguments");
-        se::NonRefNativePtrCreatedByCtorMap::emplace(result);
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_Device_createPipelineLayout)
-
-static bool js_gfx_Device_createPipelineState(se::State& s)
-{
-    cc::gfx::Device* cobj = SE_THIS_OBJECT<cc::gfx::Device>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_Device_createPipelineState : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        HolderType<cc::gfx::PipelineStateInfo, true> arg0 = {};
-        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_gfx_Device_createPipelineState : Error processing arguments");
-        cc::gfx::PipelineState* result = cobj->createPipelineState(arg0.value());
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_gfx_Device_createPipelineState : Error processing arguments");
-        se::NonRefNativePtrCreatedByCtorMap::emplace(result);
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_Device_createPipelineState)
-
-static bool js_gfx_Device_createQueue(se::State& s)
-{
-    cc::gfx::Device* cobj = SE_THIS_OBJECT<cc::gfx::Device>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_Device_createQueue : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        HolderType<cc::gfx::QueueInfo, true> arg0 = {};
-        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_gfx_Device_createQueue : Error processing arguments");
-        cc::gfx::Queue* result = cobj->createQueue(arg0.value());
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_gfx_Device_createQueue : Error processing arguments");
-        se::NonRefNativePtrCreatedByCtorMap::emplace(result);
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_Device_createQueue)
-
-static bool js_gfx_Device_createRenderPass(se::State& s)
-{
-    cc::gfx::Device* cobj = SE_THIS_OBJECT<cc::gfx::Device>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_Device_createRenderPass : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        HolderType<cc::gfx::RenderPassInfo, true> arg0 = {};
-        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_gfx_Device_createRenderPass : Error processing arguments");
-        cc::gfx::RenderPass* result = cobj->createRenderPass(arg0.value());
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_gfx_Device_createRenderPass : Error processing arguments");
-        se::NonRefNativePtrCreatedByCtorMap::emplace(result);
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_Device_createRenderPass)
-
-static bool js_gfx_Device_createSampler(se::State& s)
-{
-    cc::gfx::Device* cobj = SE_THIS_OBJECT<cc::gfx::Device>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_Device_createSampler : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        HolderType<cc::gfx::SamplerInfo, true> arg0 = {};
-        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_gfx_Device_createSampler : Error processing arguments");
-        cc::gfx::Sampler* result = cobj->createSampler(arg0.value());
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_gfx_Device_createSampler : Error processing arguments");
-        se::NonRefNativePtrCreatedByCtorMap::emplace(result);
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_Device_createSampler)
-
-static bool js_gfx_Device_createShader(se::State& s)
-{
-    cc::gfx::Device* cobj = SE_THIS_OBJECT<cc::gfx::Device>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_Device_createShader : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        HolderType<cc::gfx::ShaderInfo, true> arg0 = {};
-        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_gfx_Device_createShader : Error processing arguments");
-        cc::gfx::Shader* result = cobj->createShader(arg0.value());
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_gfx_Device_createShader : Error processing arguments");
-        se::NonRefNativePtrCreatedByCtorMap::emplace(result);
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_Device_createShader)
-
-static bool js_gfx_Device_defineMacro(se::State& s)
-{
-    cc::gfx::Device* cobj = SE_THIS_OBJECT<cc::gfx::Device>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_Device_defineMacro : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 2) {
-        HolderType<cc::String, true> arg0 = {};
-        HolderType<cc::String, true> arg1 = {};
-        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_gfx_Device_defineMacro : Error processing arguments");
-        cobj->defineMacro(arg0.value(), arg1.value());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_Device_defineMacro)
-
-static bool js_gfx_Device_destroy(se::State& s)
-{
-    cc::gfx::Device* cobj = SE_THIS_OBJECT<cc::gfx::Device>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_Device_destroy : Invalid Native Object");
+    cc::gfx::Buffer* cobj = SE_THIS_OBJECT<cc::gfx::Buffer>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_Buffer_destroy : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     if (argc == 0) {
@@ -11422,783 +11104,853 @@ static bool js_gfx_Device_destroy(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_FUNC(js_gfx_Device_destroy)
+SE_BIND_FUNC(js_gfx_Buffer_destroy)
 
-static bool js_gfx_Device_genShaderId(se::State& s)
+static bool js_gfx_Buffer_getCount(se::State& s)
 {
-    cc::gfx::Device* cobj = SE_THIS_OBJECT<cc::gfx::Device>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_Device_genShaderId : Invalid Native Object");
+    cc::gfx::Buffer* cobj = SE_THIS_OBJECT<cc::gfx::Buffer>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_Buffer_getCount : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        unsigned int result = cobj->genShaderId();
+        unsigned int result = cobj->getCount();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_gfx_Device_genShaderId : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_gfx_Buffer_getCount : Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_FUNC(js_gfx_Device_genShaderId)
+SE_BIND_PROP_GET(js_gfx_Buffer_getCount)
 
-static bool js_gfx_Device_getClipSpaceMinZ(se::State& s)
+static bool js_gfx_Buffer_getFlags(se::State& s)
 {
-    cc::gfx::Device* cobj = SE_THIS_OBJECT<cc::gfx::Device>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_Device_getClipSpaceMinZ : Invalid Native Object");
+    cc::gfx::Buffer* cobj = SE_THIS_OBJECT<cc::gfx::Buffer>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_Buffer_getFlags : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        float result = cobj->getClipSpaceMinZ();
+        int result = (int)cobj->getFlags();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_gfx_Device_getClipSpaceMinZ : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_gfx_Buffer_getFlags : Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_PROP_GET(js_gfx_Device_getClipSpaceMinZ)
+SE_BIND_PROP_GET(js_gfx_Buffer_getFlags)
 
-static bool js_gfx_Device_getColorFormat(se::State& s)
+static bool js_gfx_Buffer_getMemUsage(se::State& s)
 {
-    cc::gfx::Device* cobj = SE_THIS_OBJECT<cc::gfx::Device>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_Device_getColorFormat : Invalid Native Object");
+    cc::gfx::Buffer* cobj = SE_THIS_OBJECT<cc::gfx::Buffer>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_Buffer_getMemUsage : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        int result = (int)cobj->getColorFormat();
+        int result = (int)cobj->getMemUsage();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_gfx_Device_getColorFormat : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_gfx_Buffer_getMemUsage : Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_PROP_GET(js_gfx_Device_getColorFormat)
+SE_BIND_PROP_GET(js_gfx_Buffer_getMemUsage)
 
-static bool js_gfx_Device_getCommandBuffer(se::State& s)
+static bool js_gfx_Buffer_getSize(se::State& s)
 {
-    cc::gfx::Device* cobj = SE_THIS_OBJECT<cc::gfx::Device>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_Device_getCommandBuffer : Invalid Native Object");
+    cc::gfx::Buffer* cobj = SE_THIS_OBJECT<cc::gfx::Buffer>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_Buffer_getSize : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        cc::gfx::CommandBuffer* result = cobj->getCommandBuffer();
+        unsigned int result = cobj->getSize();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_gfx_Device_getCommandBuffer : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_gfx_Buffer_getSize : Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_PROP_GET(js_gfx_Device_getCommandBuffer)
+SE_BIND_PROP_GET(js_gfx_Buffer_getSize)
 
-static bool js_gfx_Device_getContext(se::State& s)
+static bool js_gfx_Buffer_getStride(se::State& s)
 {
-    cc::gfx::Device* cobj = SE_THIS_OBJECT<cc::gfx::Device>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_Device_getContext : Invalid Native Object");
+    cc::gfx::Buffer* cobj = SE_THIS_OBJECT<cc::gfx::Buffer>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_Buffer_getStride : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        cc::gfx::Context* result = cobj->getContext();
+        unsigned int result = cobj->getStride();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_gfx_Device_getContext : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_gfx_Buffer_getStride : Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_PROP_GET(js_gfx_Device_getContext)
+SE_BIND_PROP_GET(js_gfx_Buffer_getStride)
 
-static bool js_gfx_Device_getDepthBits(se::State& s)
+static bool js_gfx_Buffer_getUsage(se::State& s)
 {
-    cc::gfx::Device* cobj = SE_THIS_OBJECT<cc::gfx::Device>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_Device_getDepthBits : Invalid Native Object");
+    cc::gfx::Buffer* cobj = SE_THIS_OBJECT<cc::gfx::Buffer>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_Buffer_getUsage : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        int result = cobj->getDepthBits();
+        int result = (int)cobj->getUsage();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_gfx_Device_getDepthBits : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_gfx_Buffer_getUsage : Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_PROP_GET(js_gfx_Device_getDepthBits)
+SE_BIND_PROP_GET(js_gfx_Buffer_getUsage)
 
-static bool js_gfx_Device_getDepthStencilFormat(se::State& s)
+static bool js_gfx_Buffer_resize(se::State& s)
 {
-    cc::gfx::Device* cobj = SE_THIS_OBJECT<cc::gfx::Device>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_Device_getDepthStencilFormat : Invalid Native Object");
+    cc::gfx::Buffer* cobj = SE_THIS_OBJECT<cc::gfx::Buffer>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_Buffer_resize : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<unsigned int, false> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_gfx_Buffer_resize : Error processing arguments");
+        cobj->resize(arg0.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_gfx_Buffer_resize)
+
+SE_DECLARE_FINALIZE_FUNC(js_cc_gfx_Buffer_finalize)
+
+static bool js_gfx_Buffer_constructor(se::State& s) // constructor.c
+{
+    //#3 cc::gfx::Buffer: is_skip_construtor True
+    se::ScriptEngine::getInstance()->evalString("throw new Error(\"cc::gfx::Buffer constructor is skipped\")");
+    return false;
+}
+SE_BIND_CTOR(js_gfx_Buffer_constructor, __jsb_cc_gfx_Buffer_class, js_cc_gfx_Buffer_finalize)
+
+
+
+extern se::Object* __jsb_cc_gfx_GFXObject_proto;
+
+static bool js_cc_gfx_Buffer_finalize(se::State& s)
+{
+    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::gfx::Buffer>(s));
+    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
+    {
+        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
+        cc::gfx::Buffer* cobj = SE_THIS_OBJECT<cc::gfx::Buffer>(s);
+        JSB_FREE(cobj);
+    }
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_cc_gfx_Buffer_finalize)
+
+bool js_register_gfx_Buffer(se::Object* obj)
+{
+    auto cls = se::Class::create("Buffer", obj, __jsb_cc_gfx_GFXObject_proto, _SE(js_gfx_Buffer_constructor));
+
+    cls->defineProperty("count", _SE(js_gfx_Buffer_getCount), nullptr);
+    cls->defineProperty("memUsage", _SE(js_gfx_Buffer_getMemUsage), nullptr);
+    cls->defineProperty("stride", _SE(js_gfx_Buffer_getStride), nullptr);
+    cls->defineProperty("flags", _SE(js_gfx_Buffer_getFlags), nullptr);
+    cls->defineProperty("usage", _SE(js_gfx_Buffer_getUsage), nullptr);
+    cls->defineProperty("size", _SE(js_gfx_Buffer_getSize), nullptr);
+    cls->defineFunction("destroy", _SE(js_gfx_Buffer_destroy));
+    cls->defineFunction("resize", _SE(js_gfx_Buffer_resize));
+    cls->defineFinalizeFunction(_SE(js_cc_gfx_Buffer_finalize));
+    cls->install();
+    JSBClassType::registerClass<cc::gfx::Buffer>(cls);
+
+    __jsb_cc_gfx_Buffer_proto = cls->getProto();
+    __jsb_cc_gfx_Buffer_class = cls;
+
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
+
+se::Object* __jsb_cc_gfx_CommandBuffer_proto = nullptr;
+se::Class* __jsb_cc_gfx_CommandBuffer_class = nullptr;
+
+static bool js_gfx_CommandBuffer_begin(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::gfx::CommandBuffer* cobj = SE_THIS_OBJECT<cc::gfx::CommandBuffer>(s);
+    SE_PRECONDITION2( cobj, false, "js_gfx_CommandBuffer_begin : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    do {
+        if (argc == 0) {
+
+            cobj->begin();
+            return true;
+        }
+    } while(false);
+
+    do {
+        if (argc == 4) {
+            HolderType<cc::gfx::RenderPass*, false> arg0 = {};
+            HolderType<unsigned int, false> arg1 = {};
+            HolderType<cc::gfx::Framebuffer*, false> arg2 = {};
+            HolderType<int, false> arg3 = {};
+
+            ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+            if (!ok) { ok = true; break; }
+            ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+            if (!ok) { ok = true; break; }
+            ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+            if (!ok) { ok = true; break; }
+            ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
+            if (!ok) { ok = true; break; }
+            cobj->begin(arg0.value(), arg1.value(), arg2.value(), arg3.value());
+            return true;
+        }
+    } while(false);
+
+    do {
+        if (argc == 1) {
+            HolderType<int, false> arg0 = {};
+
+            ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+            if (!ok) { ok = true; break; }
+            cobj->begin(arg0.value());
+            return true;
+        }
+    } while(false);
+
+    do {
+        if (argc == 1) {
+            HolderType<cc::gfx::RenderPass*, false> arg0 = {};
+
+            ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+            if (!ok) { ok = true; break; }
+            cobj->begin(arg0.value());
+            return true;
+        }
+    } while(false);
+
+    do {
+        if (argc == 2) {
+            HolderType<cc::gfx::RenderPass*, false> arg0 = {};
+            HolderType<unsigned int, false> arg1 = {};
+
+            ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+            if (!ok) { ok = true; break; }
+            ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+            if (!ok) { ok = true; break; }
+            cobj->begin(arg0.value(), arg1.value());
+            return true;
+        }
+    } while(false);
+
+    do {
+        if (argc == 3) {
+            HolderType<cc::gfx::RenderPass*, false> arg0 = {};
+            HolderType<unsigned int, false> arg1 = {};
+            HolderType<cc::gfx::Framebuffer*, false> arg2 = {};
+
+            ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+            if (!ok) { ok = true; break; }
+            ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+            if (!ok) { ok = true; break; }
+            ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+            if (!ok) { ok = true; break; }
+            cobj->begin(arg0.value(), arg1.value(), arg2.value());
+            return true;
+        }
+    } while(false);
+
+    SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
+    return false;
+}
+SE_BIND_FUNC(js_gfx_CommandBuffer_begin)
+
+static bool js_gfx_CommandBuffer_beginRenderPass(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::gfx::CommandBuffer* cobj = SE_THIS_OBJECT<cc::gfx::CommandBuffer>(s);
+    SE_PRECONDITION2( cobj, false, "js_gfx_CommandBuffer_beginRenderPass : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    do {
+        if (argc == 6) {
+            HolderType<cc::gfx::RenderPass*, false> arg0 = {};
+            HolderType<cc::gfx::Framebuffer*, false> arg1 = {};
+            HolderType<cc::gfx::Rect, true> arg2 = {};
+            HolderType<cc::gfx::ColorList, true> arg3 = {};
+            HolderType<float, false> arg4 = {};
+            HolderType<int, false> arg5 = {};
+
+            ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+            if (!ok) { ok = true; break; }
+            ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+            if (!ok) { ok = true; break; }
+            ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+            if (!ok) { ok = true; break; }
+            ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
+            if (!ok) { ok = true; break; }
+            ok &= sevalue_to_native(args[4], &arg4, s.thisObject());
+            if (!ok) { ok = true; break; }
+            ok &= sevalue_to_native(args[5], &arg5, s.thisObject());
+            if (!ok) { ok = true; break; }
+            cobj->beginRenderPass(arg0.value(), arg1.value(), arg2.value(), arg3.value(), arg4.value(), arg5.value());
+            return true;
+        }
+    } while(false);
+
+    do {
+        if (argc == 7) {
+            HolderType<cc::gfx::RenderPass*, false> arg0 = {};
+            HolderType<cc::gfx::Framebuffer*, false> arg1 = {};
+            HolderType<cc::gfx::Rect, true> arg2 = {};
+            HolderType<const cc::gfx::Color*, false> arg3 = {};
+            HolderType<float, false> arg4 = {};
+            HolderType<int, false> arg5 = {};
+            HolderType<bool, false> arg6 = {};
+
+            ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+            if (!ok) { ok = true; break; }
+            ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+            if (!ok) { ok = true; break; }
+            ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+            if (!ok) { ok = true; break; }
+            ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
+            if (!ok) { ok = true; break; }
+            ok &= sevalue_to_native(args[4], &arg4, s.thisObject());
+            if (!ok) { ok = true; break; }
+            ok &= sevalue_to_native(args[5], &arg5, s.thisObject());
+            if (!ok) { ok = true; break; }
+            ok &= sevalue_to_native(args[6], &arg6, s.thisObject());
+            cobj->beginRenderPass(arg0.value(), arg1.value(), arg2.value(), arg3.value(), arg4.value(), arg5.value(), arg6.value());
+            return true;
+        }
+    } while(false);
+
+    do {
+        if (argc == 6) {
+            HolderType<cc::gfx::RenderPass*, false> arg0 = {};
+            HolderType<cc::gfx::Framebuffer*, false> arg1 = {};
+            HolderType<cc::gfx::Rect, true> arg2 = {};
+            HolderType<const cc::gfx::Color*, false> arg3 = {};
+            HolderType<float, false> arg4 = {};
+            HolderType<int, false> arg5 = {};
+
+            ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+            if (!ok) { ok = true; break; }
+            ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+            if (!ok) { ok = true; break; }
+            ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+            if (!ok) { ok = true; break; }
+            ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
+            if (!ok) { ok = true; break; }
+            ok &= sevalue_to_native(args[4], &arg4, s.thisObject());
+            if (!ok) { ok = true; break; }
+            ok &= sevalue_to_native(args[5], &arg5, s.thisObject());
+            if (!ok) { ok = true; break; }
+            cobj->beginRenderPass(arg0.value(), arg1.value(), arg2.value(), arg3.value(), arg4.value(), arg5.value());
+            return true;
+        }
+    } while(false);
+
+    SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
+    return false;
+}
+SE_BIND_FUNC(js_gfx_CommandBuffer_beginRenderPass)
+
+static bool js_gfx_CommandBuffer_bindDescriptorSetForJS(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::gfx::CommandBuffer* cobj = SE_THIS_OBJECT<cc::gfx::CommandBuffer>(s);
+    SE_PRECONDITION2( cobj, false, "js_gfx_CommandBuffer_bindDescriptorSetForJS : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    do {
+        if (argc == 3) {
+            HolderType<unsigned int, false> arg0 = {};
+            HolderType<cc::gfx::DescriptorSet*, false> arg1 = {};
+            HolderType<std::vector<unsigned int>, true> arg2 = {};
+
+            ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+            if (!ok) { ok = true; break; }
+            ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+            if (!ok) { ok = true; break; }
+            ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+            if (!ok) { ok = true; break; }
+            cobj->bindDescriptorSetForJS(arg0.value(), arg1.value(), arg2.value());
+            return true;
+        }
+    } while(false);
+
+    do {
+        if (argc == 2) {
+            HolderType<unsigned int, false> arg0 = {};
+            HolderType<cc::gfx::DescriptorSet*, false> arg1 = {};
+
+            ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+            if (!ok) { ok = true; break; }
+            ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+            if (!ok) { ok = true; break; }
+            cobj->bindDescriptorSetForJS(arg0.value(), arg1.value());
+            return true;
+        }
+    } while(false);
+
+    SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
+    return false;
+}
+SE_BIND_FUNC(js_gfx_CommandBuffer_bindDescriptorSetForJS)
+
+static bool js_gfx_CommandBuffer_bindInputAssembler(se::State& s)
+{
+    cc::gfx::CommandBuffer* cobj = SE_THIS_OBJECT<cc::gfx::CommandBuffer>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_CommandBuffer_bindInputAssembler : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<cc::gfx::InputAssembler*, false> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_gfx_CommandBuffer_bindInputAssembler : Error processing arguments");
+        cobj->bindInputAssembler(arg0.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_gfx_CommandBuffer_bindInputAssembler)
+
+static bool js_gfx_CommandBuffer_bindPipelineState(se::State& s)
+{
+    cc::gfx::CommandBuffer* cobj = SE_THIS_OBJECT<cc::gfx::CommandBuffer>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_CommandBuffer_bindPipelineState : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<cc::gfx::PipelineState*, false> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_gfx_CommandBuffer_bindPipelineState : Error processing arguments");
+        cobj->bindPipelineState(arg0.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_gfx_CommandBuffer_bindPipelineState)
+
+static bool js_gfx_CommandBuffer_destroy(se::State& s)
+{
+    cc::gfx::CommandBuffer* cobj = SE_THIS_OBJECT<cc::gfx::CommandBuffer>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_CommandBuffer_destroy : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
     if (argc == 0) {
-        int result = (int)cobj->getDepthStencilFormat();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_gfx_Device_getDepthStencilFormat : Error processing arguments");
+        cobj->destroy();
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_PROP_GET(js_gfx_Device_getDepthStencilFormat)
+SE_BIND_FUNC(js_gfx_CommandBuffer_destroy)
 
-static bool js_gfx_Device_getDeviceName(se::State& s)
+static bool js_gfx_CommandBuffer_draw(se::State& s)
 {
-    cc::gfx::Device* cobj = SE_THIS_OBJECT<cc::gfx::Device>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_Device_getDeviceName : Invalid Native Object");
+    cc::gfx::CommandBuffer* cobj = SE_THIS_OBJECT<cc::gfx::CommandBuffer>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_CommandBuffer_draw : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<cc::gfx::InputAssembler*, false> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_gfx_CommandBuffer_draw : Error processing arguments");
+        cobj->draw(arg0.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_gfx_CommandBuffer_draw)
+
+static bool js_gfx_CommandBuffer_end(se::State& s)
+{
+    cc::gfx::CommandBuffer* cobj = SE_THIS_OBJECT<cc::gfx::CommandBuffer>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_CommandBuffer_end : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
     if (argc == 0) {
-        const cc::String& result = cobj->getDeviceName();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_gfx_Device_getDeviceName : Error processing arguments");
+        cobj->end();
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_PROP_GET(js_gfx_Device_getDeviceName)
+SE_BIND_FUNC(js_gfx_CommandBuffer_end)
 
-static bool js_gfx_Device_getGfxAPI(se::State& s)
+static bool js_gfx_CommandBuffer_endRenderPass(se::State& s)
 {
-    cc::gfx::Device* cobj = SE_THIS_OBJECT<cc::gfx::Device>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_Device_getGfxAPI : Invalid Native Object");
+    cc::gfx::CommandBuffer* cobj = SE_THIS_OBJECT<cc::gfx::CommandBuffer>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_CommandBuffer_endRenderPass : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
-    CC_UNUSED bool ok = true;
     if (argc == 0) {
-        int result = (int)cobj->getGfxAPI();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_gfx_Device_getGfxAPI : Error processing arguments");
+        cobj->endRenderPass();
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_PROP_GET(js_gfx_Device_getGfxAPI)
+SE_BIND_FUNC(js_gfx_CommandBuffer_endRenderPass)
 
-static bool js_gfx_Device_getHeight(se::State& s)
+static bool js_gfx_CommandBuffer_getNumDrawCalls(se::State& s)
 {
-    cc::gfx::Device* cobj = SE_THIS_OBJECT<cc::gfx::Device>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_Device_getHeight : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        unsigned int result = cobj->getHeight();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_gfx_Device_getHeight : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_PROP_GET(js_gfx_Device_getHeight)
-
-static bool js_gfx_Device_getMaxCubeMapTextureSize(se::State& s)
-{
-    cc::gfx::Device* cobj = SE_THIS_OBJECT<cc::gfx::Device>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_Device_getMaxCubeMapTextureSize : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        int result = cobj->getMaxCubeMapTextureSize();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_gfx_Device_getMaxCubeMapTextureSize : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_PROP_GET(js_gfx_Device_getMaxCubeMapTextureSize)
-
-static bool js_gfx_Device_getMaxFragmentUniformVectors(se::State& s)
-{
-    cc::gfx::Device* cobj = SE_THIS_OBJECT<cc::gfx::Device>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_Device_getMaxFragmentUniformVectors : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        int result = cobj->getMaxFragmentUniformVectors();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_gfx_Device_getMaxFragmentUniformVectors : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_PROP_GET(js_gfx_Device_getMaxFragmentUniformVectors)
-
-static bool js_gfx_Device_getMaxTextureSize(se::State& s)
-{
-    cc::gfx::Device* cobj = SE_THIS_OBJECT<cc::gfx::Device>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_Device_getMaxTextureSize : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        int result = cobj->getMaxTextureSize();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_gfx_Device_getMaxTextureSize : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_PROP_GET(js_gfx_Device_getMaxTextureSize)
-
-static bool js_gfx_Device_getMaxTextureUnits(se::State& s)
-{
-    cc::gfx::Device* cobj = SE_THIS_OBJECT<cc::gfx::Device>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_Device_getMaxTextureUnits : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        int result = cobj->getMaxTextureUnits();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_gfx_Device_getMaxTextureUnits : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_PROP_GET(js_gfx_Device_getMaxTextureUnits)
-
-static bool js_gfx_Device_getMaxUniformBlockSize(se::State& s)
-{
-    cc::gfx::Device* cobj = SE_THIS_OBJECT<cc::gfx::Device>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_Device_getMaxUniformBlockSize : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        int result = cobj->getMaxUniformBlockSize();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_gfx_Device_getMaxUniformBlockSize : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_PROP_GET(js_gfx_Device_getMaxUniformBlockSize)
-
-static bool js_gfx_Device_getMaxUniformBufferBindings(se::State& s)
-{
-    cc::gfx::Device* cobj = SE_THIS_OBJECT<cc::gfx::Device>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_Device_getMaxUniformBufferBindings : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        int result = cobj->getMaxUniformBufferBindings();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_gfx_Device_getMaxUniformBufferBindings : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_PROP_GET(js_gfx_Device_getMaxUniformBufferBindings)
-
-static bool js_gfx_Device_getMaxVertexAttributes(se::State& s)
-{
-    cc::gfx::Device* cobj = SE_THIS_OBJECT<cc::gfx::Device>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_Device_getMaxVertexAttributes : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        int result = cobj->getMaxVertexAttributes();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_gfx_Device_getMaxVertexAttributes : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_PROP_GET(js_gfx_Device_getMaxVertexAttributes)
-
-static bool js_gfx_Device_getMaxVertexTextureUnits(se::State& s)
-{
-    cc::gfx::Device* cobj = SE_THIS_OBJECT<cc::gfx::Device>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_Device_getMaxVertexTextureUnits : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        int result = cobj->getMaxVertexTextureUnits();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_gfx_Device_getMaxVertexTextureUnits : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_PROP_GET(js_gfx_Device_getMaxVertexTextureUnits)
-
-static bool js_gfx_Device_getMaxVertexUniformVectors(se::State& s)
-{
-    cc::gfx::Device* cobj = SE_THIS_OBJECT<cc::gfx::Device>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_Device_getMaxVertexUniformVectors : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        int result = cobj->getMaxVertexUniformVectors();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_gfx_Device_getMaxVertexUniformVectors : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_PROP_GET(js_gfx_Device_getMaxVertexUniformVectors)
-
-static bool js_gfx_Device_getMemoryStatus(se::State& s)
-{
-    cc::gfx::Device* cobj = SE_THIS_OBJECT<cc::gfx::Device>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_Device_getMemoryStatus : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        cc::gfx::MemoryStatus& result = cobj->getMemoryStatus();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_gfx_Device_getMemoryStatus : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_PROP_GET(js_gfx_Device_getMemoryStatus)
-
-static bool js_gfx_Device_getNativeHeight(se::State& s)
-{
-    cc::gfx::Device* cobj = SE_THIS_OBJECT<cc::gfx::Device>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_Device_getNativeHeight : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        unsigned int result = cobj->getNativeHeight();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_gfx_Device_getNativeHeight : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_PROP_GET(js_gfx_Device_getNativeHeight)
-
-static bool js_gfx_Device_getNativeWidth(se::State& s)
-{
-    cc::gfx::Device* cobj = SE_THIS_OBJECT<cc::gfx::Device>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_Device_getNativeWidth : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        unsigned int result = cobj->getNativeWidth();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_gfx_Device_getNativeWidth : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_PROP_GET(js_gfx_Device_getNativeWidth)
-
-static bool js_gfx_Device_getNumDrawCalls(se::State& s)
-{
-    cc::gfx::Device* cobj = SE_THIS_OBJECT<cc::gfx::Device>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_Device_getNumDrawCalls : Invalid Native Object");
+    cc::gfx::CommandBuffer* cobj = SE_THIS_OBJECT<cc::gfx::CommandBuffer>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_CommandBuffer_getNumDrawCalls : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
         unsigned int result = cobj->getNumDrawCalls();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_gfx_Device_getNumDrawCalls : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_gfx_CommandBuffer_getNumDrawCalls : Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_PROP_GET(js_gfx_Device_getNumDrawCalls)
+SE_BIND_FUNC(js_gfx_CommandBuffer_getNumDrawCalls)
 
-static bool js_gfx_Device_getNumInstances(se::State& s)
+static bool js_gfx_CommandBuffer_getNumInstances(se::State& s)
 {
-    cc::gfx::Device* cobj = SE_THIS_OBJECT<cc::gfx::Device>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_Device_getNumInstances : Invalid Native Object");
+    cc::gfx::CommandBuffer* cobj = SE_THIS_OBJECT<cc::gfx::CommandBuffer>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_CommandBuffer_getNumInstances : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
         unsigned int result = cobj->getNumInstances();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_gfx_Device_getNumInstances : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_gfx_CommandBuffer_getNumInstances : Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_PROP_GET(js_gfx_Device_getNumInstances)
+SE_BIND_FUNC(js_gfx_CommandBuffer_getNumInstances)
 
-static bool js_gfx_Device_getNumTris(se::State& s)
+static bool js_gfx_CommandBuffer_getNumTris(se::State& s)
 {
-    cc::gfx::Device* cobj = SE_THIS_OBJECT<cc::gfx::Device>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_Device_getNumTris : Invalid Native Object");
+    cc::gfx::CommandBuffer* cobj = SE_THIS_OBJECT<cc::gfx::CommandBuffer>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_CommandBuffer_getNumTris : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
         unsigned int result = cobj->getNumTris();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_gfx_Device_getNumTris : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_gfx_CommandBuffer_getNumTris : Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_PROP_GET(js_gfx_Device_getNumTris)
+SE_BIND_FUNC(js_gfx_CommandBuffer_getNumTris)
 
-static bool js_gfx_Device_getQueue(se::State& s)
+static bool js_gfx_CommandBuffer_getQueue(se::State& s)
 {
-    cc::gfx::Device* cobj = SE_THIS_OBJECT<cc::gfx::Device>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_Device_getQueue : Invalid Native Object");
+    cc::gfx::CommandBuffer* cobj = SE_THIS_OBJECT<cc::gfx::CommandBuffer>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_CommandBuffer_getQueue : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
         cc::gfx::Queue* result = cobj->getQueue();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_gfx_Device_getQueue : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_gfx_CommandBuffer_getQueue : Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_PROP_GET(js_gfx_Device_getQueue)
+SE_BIND_FUNC(js_gfx_CommandBuffer_getQueue)
 
-static bool js_gfx_Device_getRenderer(se::State& s)
+static bool js_gfx_CommandBuffer_getType(se::State& s)
 {
-    cc::gfx::Device* cobj = SE_THIS_OBJECT<cc::gfx::Device>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_Device_getRenderer : Invalid Native Object");
+    cc::gfx::CommandBuffer* cobj = SE_THIS_OBJECT<cc::gfx::CommandBuffer>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_CommandBuffer_getType : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        const cc::String& result = cobj->getRenderer();
+        int result = (int)cobj->getType();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_gfx_Device_getRenderer : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_gfx_CommandBuffer_getType : Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_PROP_GET(js_gfx_Device_getRenderer)
+SE_BIND_FUNC(js_gfx_CommandBuffer_getType)
 
-static bool js_gfx_Device_getScreenSpaceSignY(se::State& s)
+static bool js_gfx_CommandBuffer_initialize(se::State& s)
 {
-    cc::gfx::Device* cobj = SE_THIS_OBJECT<cc::gfx::Device>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_Device_getScreenSpaceSignY : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        float result = cobj->getScreenSpaceSignY();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_gfx_Device_getScreenSpaceSignY : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_PROP_GET(js_gfx_Device_getScreenSpaceSignY)
-
-static bool js_gfx_Device_getShaderIdGen(se::State& s)
-{
-    cc::gfx::Device* cobj = SE_THIS_OBJECT<cc::gfx::Device>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_Device_getShaderIdGen : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        unsigned int result = cobj->getShaderIdGen();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_gfx_Device_getShaderIdGen : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_PROP_GET(js_gfx_Device_getShaderIdGen)
-
-static bool js_gfx_Device_getStencilBits(se::State& s)
-{
-    cc::gfx::Device* cobj = SE_THIS_OBJECT<cc::gfx::Device>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_Device_getStencilBits : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        int result = cobj->getStencilBits();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_gfx_Device_getStencilBits : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_PROP_GET(js_gfx_Device_getStencilBits)
-
-static bool js_gfx_Device_getSurfaceTransform(se::State& s)
-{
-    cc::gfx::Device* cobj = SE_THIS_OBJECT<cc::gfx::Device>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_Device_getSurfaceTransform : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        int result = (int)cobj->getSurfaceTransform();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_gfx_Device_getSurfaceTransform : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_PROP_GET(js_gfx_Device_getSurfaceTransform)
-
-static bool js_gfx_Device_getUVSpaceSignY(se::State& s)
-{
-    cc::gfx::Device* cobj = SE_THIS_OBJECT<cc::gfx::Device>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_Device_getUVSpaceSignY : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        float result = cobj->getUVSpaceSignY();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_gfx_Device_getUVSpaceSignY : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_PROP_GET(js_gfx_Device_getUVSpaceSignY)
-
-static bool js_gfx_Device_getUboOffsetAlignment(se::State& s)
-{
-    cc::gfx::Device* cobj = SE_THIS_OBJECT<cc::gfx::Device>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_Device_getUboOffsetAlignment : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        int result = cobj->getUboOffsetAlignment();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_gfx_Device_getUboOffsetAlignment : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_Device_getUboOffsetAlignment)
-
-static bool js_gfx_Device_getVendor(se::State& s)
-{
-    cc::gfx::Device* cobj = SE_THIS_OBJECT<cc::gfx::Device>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_Device_getVendor : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        const cc::String& result = cobj->getVendor();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_gfx_Device_getVendor : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_PROP_GET(js_gfx_Device_getVendor)
-
-static bool js_gfx_Device_getWidth(se::State& s)
-{
-    cc::gfx::Device* cobj = SE_THIS_OBJECT<cc::gfx::Device>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_Device_getWidth : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        unsigned int result = cobj->getWidth();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_gfx_Device_getWidth : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_PROP_GET(js_gfx_Device_getWidth)
-
-static bool js_gfx_Device_hasFeature(se::State& s)
-{
-    cc::gfx::Device* cobj = SE_THIS_OBJECT<cc::gfx::Device>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_Device_hasFeature : Invalid Native Object");
+    cc::gfx::CommandBuffer* cobj = SE_THIS_OBJECT<cc::gfx::CommandBuffer>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_CommandBuffer_initialize : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
-        HolderType<cc::gfx::Feature, false> arg0 = {};
+        HolderType<cc::gfx::CommandBufferInfo, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_gfx_Device_hasFeature : Error processing arguments");
-        bool result = cobj->hasFeature(arg0.value());
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_gfx_Device_hasFeature : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_Device_hasFeature)
-
-static bool js_gfx_Device_initialize(se::State& s)
-{
-    cc::gfx::Device* cobj = SE_THIS_OBJECT<cc::gfx::Device>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_Device_initialize : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        HolderType<cc::gfx::DeviceInfo, true> arg0 = {};
-        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_gfx_Device_initialize : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_gfx_CommandBuffer_initialize : Error processing arguments");
         bool result = cobj->initialize(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_gfx_Device_initialize : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_gfx_CommandBuffer_initialize : Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_FUNC(js_gfx_Device_initialize)
+SE_BIND_FUNC(js_gfx_CommandBuffer_initialize)
 
-static bool js_gfx_Device_present(se::State& s)
+static bool js_gfx_CommandBuffer_setBlendConstants(se::State& s)
 {
-    cc::gfx::Device* cobj = SE_THIS_OBJECT<cc::gfx::Device>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_Device_present : Invalid Native Object");
+    cc::gfx::CommandBuffer* cobj = SE_THIS_OBJECT<cc::gfx::CommandBuffer>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_CommandBuffer_setBlendConstants : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
-    if (argc == 0) {
-        cobj->present();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<cc::gfx::Color, true> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_gfx_CommandBuffer_setBlendConstants : Error processing arguments");
+        cobj->setBlendConstants(arg0.value());
         return true;
     }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_FUNC(js_gfx_Device_present)
+SE_BIND_FUNC(js_gfx_CommandBuffer_setBlendConstants)
 
-static bool js_gfx_Device_resize(se::State& s)
+static bool js_gfx_CommandBuffer_setDepthBias(se::State& s)
 {
-    cc::gfx::Device* cobj = SE_THIS_OBJECT<cc::gfx::Device>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_Device_resize : Invalid Native Object");
+    cc::gfx::CommandBuffer* cobj = SE_THIS_OBJECT<cc::gfx::CommandBuffer>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_CommandBuffer_setDepthBias : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 3) {
+        HolderType<float, false> arg0 = {};
+        HolderType<float, false> arg1 = {};
+        HolderType<float, false> arg2 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_gfx_CommandBuffer_setDepthBias : Error processing arguments");
+        cobj->setDepthBias(arg0.value(), arg1.value(), arg2.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 3);
+    return false;
+}
+SE_BIND_FUNC(js_gfx_CommandBuffer_setDepthBias)
+
+static bool js_gfx_CommandBuffer_setDepthBound(se::State& s)
+{
+    cc::gfx::CommandBuffer* cobj = SE_THIS_OBJECT<cc::gfx::CommandBuffer>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_CommandBuffer_setDepthBound : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 2) {
-        HolderType<unsigned int, false> arg0 = {};
-        HolderType<unsigned int, false> arg1 = {};
+        HolderType<float, false> arg0 = {};
+        HolderType<float, false> arg1 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_gfx_Device_resize : Error processing arguments");
-        cobj->resize(arg0.value(), arg1.value());
+        SE_PRECONDITION2(ok, false, "js_gfx_CommandBuffer_setDepthBound : Error processing arguments");
+        cobj->setDepthBound(arg0.value(), arg1.value());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
     return false;
 }
-SE_BIND_FUNC(js_gfx_Device_resize)
+SE_BIND_FUNC(js_gfx_CommandBuffer_setDepthBound)
 
-
-
-
-bool js_register_gfx_Device(se::Object* obj)
+static bool js_gfx_CommandBuffer_setLineWidth(se::State& s)
 {
-    auto cls = se::Class::create("GFXDevice", obj, nullptr, nullptr);
+    cc::gfx::CommandBuffer* cobj = SE_THIS_OBJECT<cc::gfx::CommandBuffer>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_CommandBuffer_setLineWidth : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<float, false> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_gfx_CommandBuffer_setLineWidth : Error processing arguments");
+        cobj->setLineWidth(arg0.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_gfx_CommandBuffer_setLineWidth)
 
-    cls->defineProperty("deviceName", _SE(js_gfx_Device_getDeviceName), nullptr);
-    cls->defineProperty("clipSpaceMinZ", _SE(js_gfx_Device_getClipSpaceMinZ), nullptr);
-    cls->defineProperty("numInstances", _SE(js_gfx_Device_getNumInstances), nullptr);
-    cls->defineProperty("maxTextureUnits", _SE(js_gfx_Device_getMaxTextureUnits), nullptr);
-    cls->defineProperty("height", _SE(js_gfx_Device_getHeight), nullptr);
-    cls->defineProperty("shaderIdGen", _SE(js_gfx_Device_getShaderIdGen), nullptr);
-    cls->defineProperty("renderer", _SE(js_gfx_Device_getRenderer), nullptr);
-    cls->defineProperty("maxUniformBufferBindings", _SE(js_gfx_Device_getMaxUniformBufferBindings), nullptr);
-    cls->defineProperty("UVSpaceSignY", _SE(js_gfx_Device_getUVSpaceSignY), nullptr);
-    cls->defineProperty("commandBuffer", _SE(js_gfx_Device_getCommandBuffer), nullptr);
-    cls->defineProperty("vendor", _SE(js_gfx_Device_getVendor), nullptr);
-    cls->defineProperty("depthBits", _SE(js_gfx_Device_getDepthBits), nullptr);
-    cls->defineProperty("maxFragmentUniformVectors", _SE(js_gfx_Device_getMaxFragmentUniformVectors), nullptr);
-    cls->defineProperty("maxVertexAttributes", _SE(js_gfx_Device_getMaxVertexAttributes), nullptr);
-    cls->defineProperty("width", _SE(js_gfx_Device_getWidth), nullptr);
-    cls->defineProperty("maxVertexUniformVectors", _SE(js_gfx_Device_getMaxVertexUniformVectors), nullptr);
-    cls->defineProperty("maxCubeMapTextureSize", _SE(js_gfx_Device_getMaxCubeMapTextureSize), nullptr);
-    cls->defineProperty("maxVertexTextureUnits", _SE(js_gfx_Device_getMaxVertexTextureUnits), nullptr);
-    cls->defineProperty("nativeWidth", _SE(js_gfx_Device_getNativeWidth), nullptr);
-    cls->defineProperty("numDrawCalls", _SE(js_gfx_Device_getNumDrawCalls), nullptr);
-    cls->defineProperty("memoryStatus", _SE(js_gfx_Device_getMemoryStatus), nullptr);
-    cls->defineProperty("gfxAPI", _SE(js_gfx_Device_getGfxAPI), nullptr);
-    cls->defineProperty("maxUniformBlockSize", _SE(js_gfx_Device_getMaxUniformBlockSize), nullptr);
-    cls->defineProperty("surfaceTransform", _SE(js_gfx_Device_getSurfaceTransform), nullptr);
-    cls->defineProperty("maxTextureSize", _SE(js_gfx_Device_getMaxTextureSize), nullptr);
-    cls->defineProperty("nativeHeight", _SE(js_gfx_Device_getNativeHeight), nullptr);
-    cls->defineProperty("depthStencilFormat", _SE(js_gfx_Device_getDepthStencilFormat), nullptr);
-    cls->defineProperty("numTris", _SE(js_gfx_Device_getNumTris), nullptr);
-    cls->defineProperty("screenSpaceSignY", _SE(js_gfx_Device_getScreenSpaceSignY), nullptr);
-    cls->defineProperty("stencilBits", _SE(js_gfx_Device_getStencilBits), nullptr);
-    cls->defineProperty("queue", _SE(js_gfx_Device_getQueue), nullptr);
-    cls->defineProperty("context", _SE(js_gfx_Device_getContext), nullptr);
-    cls->defineProperty("colorFormat", _SE(js_gfx_Device_getColorFormat), nullptr);
-    cls->defineFunction("acquire", _SE(js_gfx_Device_acquire));
-    cls->defineFunction("bindingMappingInfo", _SE(js_gfx_Device_bindingMappingInfo));
-    cls->defineFunction("createCommandBuffer", _SE(js_gfx_Device_createCommandBuffer));
-    cls->defineFunction("createDescriptorSet", _SE(js_gfx_Device_createDescriptorSet));
-    cls->defineFunction("createDescriptorSetLayout", _SE(js_gfx_Device_createDescriptorSetLayout));
-    cls->defineFunction("createFence", _SE(js_gfx_Device_createFence));
-    cls->defineFunction("createFramebuffer", _SE(js_gfx_Device_createFramebuffer));
-    cls->defineFunction("createInputAssembler", _SE(js_gfx_Device_createInputAssembler));
-    cls->defineFunction("createPipelineLayout", _SE(js_gfx_Device_createPipelineLayout));
-    cls->defineFunction("createPipelineState", _SE(js_gfx_Device_createPipelineState));
-    cls->defineFunction("createQueue", _SE(js_gfx_Device_createQueue));
-    cls->defineFunction("createRenderPass", _SE(js_gfx_Device_createRenderPass));
-    cls->defineFunction("createSampler", _SE(js_gfx_Device_createSampler));
-    cls->defineFunction("createShader", _SE(js_gfx_Device_createShader));
-    cls->defineFunction("defineMacro", _SE(js_gfx_Device_defineMacro));
-    cls->defineFunction("destroy", _SE(js_gfx_Device_destroy));
-    cls->defineFunction("genShaderId", _SE(js_gfx_Device_genShaderId));
-    cls->defineFunction("getUboOffsetAlignment", _SE(js_gfx_Device_getUboOffsetAlignment));
-    cls->defineFunction("hasFeature", _SE(js_gfx_Device_hasFeature));
-    cls->defineFunction("initialize", _SE(js_gfx_Device_initialize));
-    cls->defineFunction("present", _SE(js_gfx_Device_present));
-    cls->defineFunction("resize", _SE(js_gfx_Device_resize));
+static bool js_gfx_CommandBuffer_setScissor(se::State& s)
+{
+    cc::gfx::CommandBuffer* cobj = SE_THIS_OBJECT<cc::gfx::CommandBuffer>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_CommandBuffer_setScissor : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<cc::gfx::Rect, true> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_gfx_CommandBuffer_setScissor : Error processing arguments");
+        cobj->setScissor(arg0.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_gfx_CommandBuffer_setScissor)
+
+static bool js_gfx_CommandBuffer_setStencilCompareMask(se::State& s)
+{
+    cc::gfx::CommandBuffer* cobj = SE_THIS_OBJECT<cc::gfx::CommandBuffer>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_CommandBuffer_setStencilCompareMask : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 3) {
+        HolderType<cc::gfx::StencilFace, false> arg0 = {};
+        HolderType<int, false> arg1 = {};
+        HolderType<unsigned int, false> arg2 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_gfx_CommandBuffer_setStencilCompareMask : Error processing arguments");
+        cobj->setStencilCompareMask(arg0.value(), arg1.value(), arg2.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 3);
+    return false;
+}
+SE_BIND_FUNC(js_gfx_CommandBuffer_setStencilCompareMask)
+
+static bool js_gfx_CommandBuffer_setStencilWriteMask(se::State& s)
+{
+    cc::gfx::CommandBuffer* cobj = SE_THIS_OBJECT<cc::gfx::CommandBuffer>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_CommandBuffer_setStencilWriteMask : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 2) {
+        HolderType<cc::gfx::StencilFace, false> arg0 = {};
+        HolderType<unsigned int, false> arg1 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_gfx_CommandBuffer_setStencilWriteMask : Error processing arguments");
+        cobj->setStencilWriteMask(arg0.value(), arg1.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
+    return false;
+}
+SE_BIND_FUNC(js_gfx_CommandBuffer_setStencilWriteMask)
+
+static bool js_gfx_CommandBuffer_setViewport(se::State& s)
+{
+    cc::gfx::CommandBuffer* cobj = SE_THIS_OBJECT<cc::gfx::CommandBuffer>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_CommandBuffer_setViewport : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<cc::gfx::Viewport, true> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_gfx_CommandBuffer_setViewport : Error processing arguments");
+        cobj->setViewport(arg0.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_gfx_CommandBuffer_setViewport)
+
+SE_DECLARE_FINALIZE_FUNC(js_cc_gfx_CommandBuffer_finalize)
+
+static bool js_gfx_CommandBuffer_constructor(se::State& s) // constructor.c
+{
+    //#3 cc::gfx::CommandBuffer: is_skip_construtor True
+    se::ScriptEngine::getInstance()->evalString("throw new Error(\"cc::gfx::CommandBuffer constructor is skipped\")");
+    return false;
+}
+SE_BIND_CTOR(js_gfx_CommandBuffer_constructor, __jsb_cc_gfx_CommandBuffer_class, js_cc_gfx_CommandBuffer_finalize)
+
+
+
+extern se::Object* __jsb_cc_gfx_GFXObject_proto;
+
+static bool js_cc_gfx_CommandBuffer_finalize(se::State& s)
+{
+    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::gfx::CommandBuffer>(s));
+    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
+    {
+        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
+        cc::gfx::CommandBuffer* cobj = SE_THIS_OBJECT<cc::gfx::CommandBuffer>(s);
+        JSB_FREE(cobj);
+    }
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_cc_gfx_CommandBuffer_finalize)
+
+bool js_register_gfx_CommandBuffer(se::Object* obj)
+{
+    auto cls = se::Class::create("CommandBuffer", obj, __jsb_cc_gfx_GFXObject_proto, _SE(js_gfx_CommandBuffer_constructor));
+
+    cls->defineFunction("begin", _SE(js_gfx_CommandBuffer_begin));
+    cls->defineFunction("beginRenderPass", _SE(js_gfx_CommandBuffer_beginRenderPass));
+    cls->defineFunction("bindDescriptorSet", _SE(js_gfx_CommandBuffer_bindDescriptorSetForJS));
+    cls->defineFunction("bindInputAssembler", _SE(js_gfx_CommandBuffer_bindInputAssembler));
+    cls->defineFunction("bindPipelineState", _SE(js_gfx_CommandBuffer_bindPipelineState));
+    cls->defineFunction("destroy", _SE(js_gfx_CommandBuffer_destroy));
+    cls->defineFunction("draw", _SE(js_gfx_CommandBuffer_draw));
+    cls->defineFunction("end", _SE(js_gfx_CommandBuffer_end));
+    cls->defineFunction("endRenderPass", _SE(js_gfx_CommandBuffer_endRenderPass));
+    cls->defineFunction("getNumDrawCalls", _SE(js_gfx_CommandBuffer_getNumDrawCalls));
+    cls->defineFunction("getNumInstances", _SE(js_gfx_CommandBuffer_getNumInstances));
+    cls->defineFunction("getNumTris", _SE(js_gfx_CommandBuffer_getNumTris));
+    cls->defineFunction("getQueue", _SE(js_gfx_CommandBuffer_getQueue));
+    cls->defineFunction("getType", _SE(js_gfx_CommandBuffer_getType));
+    cls->defineFunction("initialize", _SE(js_gfx_CommandBuffer_initialize));
+    cls->defineFunction("setBlendConstants", _SE(js_gfx_CommandBuffer_setBlendConstants));
+    cls->defineFunction("setDepthBias", _SE(js_gfx_CommandBuffer_setDepthBias));
+    cls->defineFunction("setDepthBound", _SE(js_gfx_CommandBuffer_setDepthBound));
+    cls->defineFunction("setLineWidth", _SE(js_gfx_CommandBuffer_setLineWidth));
+    cls->defineFunction("setScissor", _SE(js_gfx_CommandBuffer_setScissor));
+    cls->defineFunction("setStencilCompareMask", _SE(js_gfx_CommandBuffer_setStencilCompareMask));
+    cls->defineFunction("setStencilWriteMask", _SE(js_gfx_CommandBuffer_setStencilWriteMask));
+    cls->defineFunction("setViewport", _SE(js_gfx_CommandBuffer_setViewport));
+    cls->defineFinalizeFunction(_SE(js_cc_gfx_CommandBuffer_finalize));
     cls->install();
-    JSBClassType::registerClass<cc::gfx::Device>(cls);
+    JSBClassType::registerClass<cc::gfx::CommandBuffer>(cls);
 
-    __jsb_cc_gfx_Device_proto = cls->getProto();
-    __jsb_cc_gfx_Device_class = cls;
+    __jsb_cc_gfx_CommandBuffer_proto = cls->getProto();
+    __jsb_cc_gfx_CommandBuffer_class = cls;
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
@@ -12397,13 +12149,217 @@ bool js_register_gfx_Context(se::Object* obj)
     return true;
 }
 
-se::Object* __jsb_cc_gfx_Buffer_proto = nullptr;
-se::Class* __jsb_cc_gfx_Buffer_class = nullptr;
+se::Object* __jsb_cc_gfx_DescriptorSet_proto = nullptr;
+se::Class* __jsb_cc_gfx_DescriptorSet_class = nullptr;
 
-static bool js_gfx_Buffer_destroy(se::State& s)
+static bool js_gfx_DescriptorSet_bindBuffer(se::State& s)
 {
-    cc::gfx::Buffer* cobj = SE_THIS_OBJECT<cc::gfx::Buffer>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_Buffer_destroy : Invalid Native Object");
+    CC_UNUSED bool ok = true;
+    cc::gfx::DescriptorSet* cobj = SE_THIS_OBJECT<cc::gfx::DescriptorSet>(s);
+    SE_PRECONDITION2( cobj, false, "js_gfx_DescriptorSet_bindBuffer : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    do {
+        if (argc == 2) {
+            HolderType<unsigned int, false> arg0 = {};
+            HolderType<cc::gfx::Buffer*, false> arg1 = {};
+
+            ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+            if (!ok) { ok = true; break; }
+            ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+            if (!ok) { ok = true; break; }
+            cobj->bindBuffer(arg0.value(), arg1.value());
+            return true;
+        }
+    } while(false);
+
+    do {
+        if (argc == 3) {
+            HolderType<unsigned int, false> arg0 = {};
+            HolderType<cc::gfx::Buffer*, false> arg1 = {};
+            HolderType<unsigned int, false> arg2 = {};
+
+            ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+            if (!ok) { ok = true; break; }
+            ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+            if (!ok) { ok = true; break; }
+            ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+            if (!ok) { ok = true; break; }
+            cobj->bindBuffer(arg0.value(), arg1.value(), arg2.value());
+            return true;
+        }
+    } while(false);
+
+    SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
+    return false;
+}
+SE_BIND_FUNC(js_gfx_DescriptorSet_bindBuffer)
+
+static bool js_gfx_DescriptorSet_bindBufferJSB(se::State& s)
+{
+    cc::gfx::DescriptorSet* cobj = SE_THIS_OBJECT<cc::gfx::DescriptorSet>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_DescriptorSet_bindBufferJSB : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 3) {
+        HolderType<unsigned int, false> arg0 = {};
+        HolderType<cc::gfx::Buffer*, false> arg1 = {};
+        HolderType<unsigned int, false> arg2 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_gfx_DescriptorSet_bindBufferJSB : Error processing arguments");
+        bool result = cobj->bindBufferJSB(arg0.value(), arg1.value(), arg2.value());
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_gfx_DescriptorSet_bindBufferJSB : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 3);
+    return false;
+}
+SE_BIND_FUNC(js_gfx_DescriptorSet_bindBufferJSB)
+
+static bool js_gfx_DescriptorSet_bindSampler(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::gfx::DescriptorSet* cobj = SE_THIS_OBJECT<cc::gfx::DescriptorSet>(s);
+    SE_PRECONDITION2( cobj, false, "js_gfx_DescriptorSet_bindSampler : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    do {
+        if (argc == 2) {
+            HolderType<unsigned int, false> arg0 = {};
+            HolderType<cc::gfx::Sampler*, false> arg1 = {};
+
+            ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+            if (!ok) { ok = true; break; }
+            ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+            if (!ok) { ok = true; break; }
+            cobj->bindSampler(arg0.value(), arg1.value());
+            return true;
+        }
+    } while(false);
+
+    do {
+        if (argc == 3) {
+            HolderType<unsigned int, false> arg0 = {};
+            HolderType<cc::gfx::Sampler*, false> arg1 = {};
+            HolderType<unsigned int, false> arg2 = {};
+
+            ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+            if (!ok) { ok = true; break; }
+            ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+            if (!ok) { ok = true; break; }
+            ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+            if (!ok) { ok = true; break; }
+            cobj->bindSampler(arg0.value(), arg1.value(), arg2.value());
+            return true;
+        }
+    } while(false);
+
+    SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
+    return false;
+}
+SE_BIND_FUNC(js_gfx_DescriptorSet_bindSampler)
+
+static bool js_gfx_DescriptorSet_bindSamplerJSB(se::State& s)
+{
+    cc::gfx::DescriptorSet* cobj = SE_THIS_OBJECT<cc::gfx::DescriptorSet>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_DescriptorSet_bindSamplerJSB : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 3) {
+        HolderType<unsigned int, false> arg0 = {};
+        HolderType<cc::gfx::Sampler*, false> arg1 = {};
+        HolderType<unsigned int, false> arg2 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_gfx_DescriptorSet_bindSamplerJSB : Error processing arguments");
+        bool result = cobj->bindSamplerJSB(arg0.value(), arg1.value(), arg2.value());
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_gfx_DescriptorSet_bindSamplerJSB : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 3);
+    return false;
+}
+SE_BIND_FUNC(js_gfx_DescriptorSet_bindSamplerJSB)
+
+static bool js_gfx_DescriptorSet_bindTexture(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::gfx::DescriptorSet* cobj = SE_THIS_OBJECT<cc::gfx::DescriptorSet>(s);
+    SE_PRECONDITION2( cobj, false, "js_gfx_DescriptorSet_bindTexture : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    do {
+        if (argc == 2) {
+            HolderType<unsigned int, false> arg0 = {};
+            HolderType<cc::gfx::Texture*, false> arg1 = {};
+
+            ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+            if (!ok) { ok = true; break; }
+            ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+            if (!ok) { ok = true; break; }
+            cobj->bindTexture(arg0.value(), arg1.value());
+            return true;
+        }
+    } while(false);
+
+    do {
+        if (argc == 3) {
+            HolderType<unsigned int, false> arg0 = {};
+            HolderType<cc::gfx::Texture*, false> arg1 = {};
+            HolderType<unsigned int, false> arg2 = {};
+
+            ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+            if (!ok) { ok = true; break; }
+            ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+            if (!ok) { ok = true; break; }
+            ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+            if (!ok) { ok = true; break; }
+            cobj->bindTexture(arg0.value(), arg1.value(), arg2.value());
+            return true;
+        }
+    } while(false);
+
+    SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
+    return false;
+}
+SE_BIND_FUNC(js_gfx_DescriptorSet_bindTexture)
+
+static bool js_gfx_DescriptorSet_bindTextureJSB(se::State& s)
+{
+    cc::gfx::DescriptorSet* cobj = SE_THIS_OBJECT<cc::gfx::DescriptorSet>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_DescriptorSet_bindTextureJSB : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 3) {
+        HolderType<unsigned int, false> arg0 = {};
+        HolderType<cc::gfx::Texture*, false> arg1 = {};
+        HolderType<unsigned int, false> arg2 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_gfx_DescriptorSet_bindTextureJSB : Error processing arguments");
+        bool result = cobj->bindTextureJSB(arg0.value(), arg1.value(), arg2.value());
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_gfx_DescriptorSet_bindTextureJSB : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 3);
+    return false;
+}
+SE_BIND_FUNC(js_gfx_DescriptorSet_bindTextureJSB)
+
+static bool js_gfx_DescriptorSet_destroy(se::State& s)
+{
+    cc::gfx::DescriptorSet* cobj = SE_THIS_OBJECT<cc::gfx::DescriptorSet>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_DescriptorSet_destroy : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     if (argc == 0) {
@@ -12413,192 +12369,228 @@ static bool js_gfx_Buffer_destroy(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_FUNC(js_gfx_Buffer_destroy)
+SE_BIND_FUNC(js_gfx_DescriptorSet_destroy)
 
-static bool js_gfx_Buffer_getCount(se::State& s)
+static bool js_gfx_DescriptorSet_getBuffer(se::State& s)
 {
-    cc::gfx::Buffer* cobj = SE_THIS_OBJECT<cc::gfx::Buffer>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_Buffer_getCount : Invalid Native Object");
+    CC_UNUSED bool ok = true;
+    cc::gfx::DescriptorSet* cobj = SE_THIS_OBJECT<cc::gfx::DescriptorSet>(s);
+    SE_PRECONDITION2( cobj, false, "js_gfx_DescriptorSet_getBuffer : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        unsigned int result = cobj->getCount();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_gfx_Buffer_getCount : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    do {
+        if (argc == 1) {
+            HolderType<unsigned int, false> arg0 = {};
+
+            ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+            if (!ok) { ok = true; break; }
+            cc::gfx::Buffer* result = cobj->getBuffer(arg0.value());
+            ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+            SE_PRECONDITION2(ok, false, "js_gfx_DescriptorSet_getBuffer : Error processing arguments");
+            return true;
+        }
+    } while(false);
+
+    do {
+        if (argc == 2) {
+            HolderType<unsigned int, false> arg0 = {};
+            HolderType<unsigned int, false> arg1 = {};
+
+            ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+            if (!ok) { ok = true; break; }
+            ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+            if (!ok) { ok = true; break; }
+            cc::gfx::Buffer* result = cobj->getBuffer(arg0.value(), arg1.value());
+            ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+            SE_PRECONDITION2(ok, false, "js_gfx_DescriptorSet_getBuffer : Error processing arguments");
+            return true;
+        }
+    } while(false);
+
+    SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
     return false;
 }
-SE_BIND_PROP_GET(js_gfx_Buffer_getCount)
+SE_BIND_FUNC(js_gfx_DescriptorSet_getBuffer)
 
-static bool js_gfx_Buffer_getFlags(se::State& s)
+static bool js_gfx_DescriptorSet_getSampler(se::State& s)
 {
-    cc::gfx::Buffer* cobj = SE_THIS_OBJECT<cc::gfx::Buffer>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_Buffer_getFlags : Invalid Native Object");
+    CC_UNUSED bool ok = true;
+    cc::gfx::DescriptorSet* cobj = SE_THIS_OBJECT<cc::gfx::DescriptorSet>(s);
+    SE_PRECONDITION2( cobj, false, "js_gfx_DescriptorSet_getSampler : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        int result = (int)cobj->getFlags();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_gfx_Buffer_getFlags : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    do {
+        if (argc == 1) {
+            HolderType<unsigned int, false> arg0 = {};
+
+            ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+            if (!ok) { ok = true; break; }
+            cc::gfx::Sampler* result = cobj->getSampler(arg0.value());
+            ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+            SE_PRECONDITION2(ok, false, "js_gfx_DescriptorSet_getSampler : Error processing arguments");
+            return true;
+        }
+    } while(false);
+
+    do {
+        if (argc == 2) {
+            HolderType<unsigned int, false> arg0 = {};
+            HolderType<unsigned int, false> arg1 = {};
+
+            ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+            if (!ok) { ok = true; break; }
+            ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+            if (!ok) { ok = true; break; }
+            cc::gfx::Sampler* result = cobj->getSampler(arg0.value(), arg1.value());
+            ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+            SE_PRECONDITION2(ok, false, "js_gfx_DescriptorSet_getSampler : Error processing arguments");
+            return true;
+        }
+    } while(false);
+
+    SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
     return false;
 }
-SE_BIND_PROP_GET(js_gfx_Buffer_getFlags)
+SE_BIND_FUNC(js_gfx_DescriptorSet_getSampler)
 
-static bool js_gfx_Buffer_getMemUsage(se::State& s)
+static bool js_gfx_DescriptorSet_getTexture(se::State& s)
 {
-    cc::gfx::Buffer* cobj = SE_THIS_OBJECT<cc::gfx::Buffer>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_Buffer_getMemUsage : Invalid Native Object");
+    CC_UNUSED bool ok = true;
+    cc::gfx::DescriptorSet* cobj = SE_THIS_OBJECT<cc::gfx::DescriptorSet>(s);
+    SE_PRECONDITION2( cobj, false, "js_gfx_DescriptorSet_getTexture : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        int result = (int)cobj->getMemUsage();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_gfx_Buffer_getMemUsage : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    do {
+        if (argc == 1) {
+            HolderType<unsigned int, false> arg0 = {};
+
+            ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+            if (!ok) { ok = true; break; }
+            cc::gfx::Texture* result = cobj->getTexture(arg0.value());
+            ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+            SE_PRECONDITION2(ok, false, "js_gfx_DescriptorSet_getTexture : Error processing arguments");
+            return true;
+        }
+    } while(false);
+
+    do {
+        if (argc == 2) {
+            HolderType<unsigned int, false> arg0 = {};
+            HolderType<unsigned int, false> arg1 = {};
+
+            ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+            if (!ok) { ok = true; break; }
+            ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+            if (!ok) { ok = true; break; }
+            cc::gfx::Texture* result = cobj->getTexture(arg0.value(), arg1.value());
+            ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
+            SE_PRECONDITION2(ok, false, "js_gfx_DescriptorSet_getTexture : Error processing arguments");
+            return true;
+        }
+    } while(false);
+
+    SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
     return false;
 }
-SE_BIND_PROP_GET(js_gfx_Buffer_getMemUsage)
+SE_BIND_FUNC(js_gfx_DescriptorSet_getTexture)
 
-static bool js_gfx_Buffer_getSize(se::State& s)
+static bool js_gfx_DescriptorSet_initialize(se::State& s)
 {
-    cc::gfx::Buffer* cobj = SE_THIS_OBJECT<cc::gfx::Buffer>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_Buffer_getSize : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        unsigned int result = cobj->getSize();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_gfx_Buffer_getSize : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_PROP_GET(js_gfx_Buffer_getSize)
-
-static bool js_gfx_Buffer_getStride(se::State& s)
-{
-    cc::gfx::Buffer* cobj = SE_THIS_OBJECT<cc::gfx::Buffer>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_Buffer_getStride : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        unsigned int result = cobj->getStride();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_gfx_Buffer_getStride : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_PROP_GET(js_gfx_Buffer_getStride)
-
-static bool js_gfx_Buffer_getUsage(se::State& s)
-{
-    cc::gfx::Buffer* cobj = SE_THIS_OBJECT<cc::gfx::Buffer>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_Buffer_getUsage : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        int result = (int)cobj->getUsage();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_gfx_Buffer_getUsage : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_PROP_GET(js_gfx_Buffer_getUsage)
-
-static bool js_gfx_Buffer_resize(se::State& s)
-{
-    cc::gfx::Buffer* cobj = SE_THIS_OBJECT<cc::gfx::Buffer>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_Buffer_resize : Invalid Native Object");
+    cc::gfx::DescriptorSet* cobj = SE_THIS_OBJECT<cc::gfx::DescriptorSet>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_DescriptorSet_initialize : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
-        HolderType<unsigned int, false> arg0 = {};
+        HolderType<cc::gfx::DescriptorSetInfo, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_gfx_Buffer_resize : Error processing arguments");
-        cobj->resize(arg0.value());
+        SE_PRECONDITION2(ok, false, "js_gfx_DescriptorSet_initialize : Error processing arguments");
+        bool result = cobj->initialize(arg0.value());
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_gfx_DescriptorSet_initialize : Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_FUNC(js_gfx_Buffer_resize)
+SE_BIND_FUNC(js_gfx_DescriptorSet_initialize)
 
-SE_DECLARE_FINALIZE_FUNC(js_cc_gfx_Buffer_finalize)
-
-static bool js_gfx_Buffer_constructor(se::State& s) // constructor.c
+static bool js_gfx_DescriptorSet_update(se::State& s)
 {
-    //#3 cc::gfx::Buffer: is_skip_construtor True
-    se::ScriptEngine::getInstance()->evalString("throw new Error(\"cc::gfx::Buffer constructor is skipped\")");
+    cc::gfx::DescriptorSet* cobj = SE_THIS_OBJECT<cc::gfx::DescriptorSet>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_DescriptorSet_update : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    if (argc == 0) {
+        cobj->update();
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_CTOR(js_gfx_Buffer_constructor, __jsb_cc_gfx_Buffer_class, js_cc_gfx_Buffer_finalize)
+SE_BIND_FUNC(js_gfx_DescriptorSet_update)
+
+SE_DECLARE_FINALIZE_FUNC(js_cc_gfx_DescriptorSet_finalize)
+
+static bool js_gfx_DescriptorSet_constructor(se::State& s) // constructor.c
+{
+    //#3 cc::gfx::DescriptorSet: is_skip_construtor True
+    se::ScriptEngine::getInstance()->evalString("throw new Error(\"cc::gfx::DescriptorSet constructor is skipped\")");
+    return false;
+}
+SE_BIND_CTOR(js_gfx_DescriptorSet_constructor, __jsb_cc_gfx_DescriptorSet_class, js_cc_gfx_DescriptorSet_finalize)
 
 
 
 extern se::Object* __jsb_cc_gfx_GFXObject_proto;
 
-static bool js_cc_gfx_Buffer_finalize(se::State& s)
+static bool js_cc_gfx_DescriptorSet_finalize(se::State& s)
 {
-    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::gfx::Buffer>(s));
+    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::gfx::DescriptorSet>(s));
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
         se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        cc::gfx::Buffer* cobj = SE_THIS_OBJECT<cc::gfx::Buffer>(s);
+        cc::gfx::DescriptorSet* cobj = SE_THIS_OBJECT<cc::gfx::DescriptorSet>(s);
         JSB_FREE(cobj);
     }
     return true;
 }
-SE_BIND_FINALIZE_FUNC(js_cc_gfx_Buffer_finalize)
+SE_BIND_FINALIZE_FUNC(js_cc_gfx_DescriptorSet_finalize)
 
-bool js_register_gfx_Buffer(se::Object* obj)
+bool js_register_gfx_DescriptorSet(se::Object* obj)
 {
-    auto cls = se::Class::create("Buffer", obj, __jsb_cc_gfx_GFXObject_proto, _SE(js_gfx_Buffer_constructor));
+    auto cls = se::Class::create("DescriptorSet", obj, __jsb_cc_gfx_GFXObject_proto, _SE(js_gfx_DescriptorSet_constructor));
 
-    cls->defineProperty("count", _SE(js_gfx_Buffer_getCount), nullptr);
-    cls->defineProperty("memUsage", _SE(js_gfx_Buffer_getMemUsage), nullptr);
-    cls->defineProperty("stride", _SE(js_gfx_Buffer_getStride), nullptr);
-    cls->defineProperty("flags", _SE(js_gfx_Buffer_getFlags), nullptr);
-    cls->defineProperty("usage", _SE(js_gfx_Buffer_getUsage), nullptr);
-    cls->defineProperty("size", _SE(js_gfx_Buffer_getSize), nullptr);
-    cls->defineFunction("destroy", _SE(js_gfx_Buffer_destroy));
-    cls->defineFunction("resize", _SE(js_gfx_Buffer_resize));
-    cls->defineFinalizeFunction(_SE(js_cc_gfx_Buffer_finalize));
+    cls->defineFunction("bindBuffer", _SE(js_gfx_DescriptorSet_bindBuffer));
+    cls->defineFunction("bindBufferJSB", _SE(js_gfx_DescriptorSet_bindBufferJSB));
+    cls->defineFunction("bindSampler", _SE(js_gfx_DescriptorSet_bindSampler));
+    cls->defineFunction("bindSamplerJSB", _SE(js_gfx_DescriptorSet_bindSamplerJSB));
+    cls->defineFunction("bindTexture", _SE(js_gfx_DescriptorSet_bindTexture));
+    cls->defineFunction("bindTextureJSB", _SE(js_gfx_DescriptorSet_bindTextureJSB));
+    cls->defineFunction("destroy", _SE(js_gfx_DescriptorSet_destroy));
+    cls->defineFunction("getBuffer", _SE(js_gfx_DescriptorSet_getBuffer));
+    cls->defineFunction("getSampler", _SE(js_gfx_DescriptorSet_getSampler));
+    cls->defineFunction("getTexture", _SE(js_gfx_DescriptorSet_getTexture));
+    cls->defineFunction("initialize", _SE(js_gfx_DescriptorSet_initialize));
+    cls->defineFunction("update", _SE(js_gfx_DescriptorSet_update));
+    cls->defineFinalizeFunction(_SE(js_cc_gfx_DescriptorSet_finalize));
     cls->install();
-    JSBClassType::registerClass<cc::gfx::Buffer>(cls);
+    JSBClassType::registerClass<cc::gfx::DescriptorSet>(cls);
 
-    __jsb_cc_gfx_Buffer_proto = cls->getProto();
-    __jsb_cc_gfx_Buffer_class = cls;
+    __jsb_cc_gfx_DescriptorSet_proto = cls->getProto();
+    __jsb_cc_gfx_DescriptorSet_class = cls;
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
 
-se::Object* __jsb_cc_gfx_Texture_proto = nullptr;
-se::Class* __jsb_cc_gfx_Texture_class = nullptr;
+se::Object* __jsb_cc_gfx_DescriptorSetLayout_proto = nullptr;
+se::Class* __jsb_cc_gfx_DescriptorSetLayout_class = nullptr;
 
-static bool js_gfx_Texture_destroy(se::State& s)
+static bool js_gfx_DescriptorSetLayout_destroy(se::State& s)
 {
-    cc::gfx::Texture* cobj = SE_THIS_OBJECT<cc::gfx::Texture>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_Texture_destroy : Invalid Native Object");
+    cc::gfx::DescriptorSetLayout* cobj = SE_THIS_OBJECT<cc::gfx::DescriptorSetLayout>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_DescriptorSetLayout_destroy : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     if (argc == 0) {
@@ -12608,315 +12600,397 @@ static bool js_gfx_Texture_destroy(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_FUNC(js_gfx_Texture_destroy)
+SE_BIND_FUNC(js_gfx_DescriptorSetLayout_destroy)
 
-static bool js_gfx_Texture_getBuffer(se::State& s)
+static bool js_gfx_DescriptorSetLayout_getBindings(se::State& s)
 {
-    cc::gfx::Texture* cobj = SE_THIS_OBJECT<cc::gfx::Texture>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_Texture_getBuffer : Invalid Native Object");
+    cc::gfx::DescriptorSetLayout* cobj = SE_THIS_OBJECT<cc::gfx::DescriptorSetLayout>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_DescriptorSetLayout_getBindings : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        unsigned char* result = cobj->getBuffer();
+        const std::vector<cc::gfx::DescriptorSetLayoutBinding>& result = cobj->getBindings();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_gfx_Texture_getBuffer : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_gfx_DescriptorSetLayout_getBindings : Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_PROP_GET(js_gfx_Texture_getBuffer)
+SE_BIND_FUNC(js_gfx_DescriptorSetLayout_getBindings)
 
-static bool js_gfx_Texture_getDepth(se::State& s)
+static bool js_gfx_DescriptorSetLayout_getDescriptorCount(se::State& s)
 {
-    cc::gfx::Texture* cobj = SE_THIS_OBJECT<cc::gfx::Texture>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_Texture_getDepth : Invalid Native Object");
+    cc::gfx::DescriptorSetLayout* cobj = SE_THIS_OBJECT<cc::gfx::DescriptorSetLayout>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_DescriptorSetLayout_getDescriptorCount : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        unsigned int result = cobj->getDepth();
+        const unsigned int result = cobj->getDescriptorCount();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_gfx_Texture_getDepth : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_gfx_DescriptorSetLayout_getDescriptorCount : Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_PROP_GET(js_gfx_Texture_getDepth)
+SE_BIND_FUNC(js_gfx_DescriptorSetLayout_getDescriptorCount)
 
-static bool js_gfx_Texture_getFlags(se::State& s)
+static bool js_gfx_DescriptorSetLayout_initialize(se::State& s)
 {
-    cc::gfx::Texture* cobj = SE_THIS_OBJECT<cc::gfx::Texture>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_Texture_getFlags : Invalid Native Object");
+    cc::gfx::DescriptorSetLayout* cobj = SE_THIS_OBJECT<cc::gfx::DescriptorSetLayout>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_DescriptorSetLayout_initialize : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        int result = (int)cobj->getFlags();
+    if (argc == 1) {
+        HolderType<cc::gfx::DescriptorSetLayoutInfo, true> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_gfx_DescriptorSetLayout_initialize : Error processing arguments");
+        bool result = cobj->initialize(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_gfx_Texture_getFlags : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_gfx_DescriptorSetLayout_initialize : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_gfx_DescriptorSetLayout_initialize)
+
+SE_DECLARE_FINALIZE_FUNC(js_cc_gfx_DescriptorSetLayout_finalize)
+
+static bool js_gfx_DescriptorSetLayout_constructor(se::State& s) // constructor.c
+{
+    //#3 cc::gfx::DescriptorSetLayout: is_skip_construtor True
+    se::ScriptEngine::getInstance()->evalString("throw new Error(\"cc::gfx::DescriptorSetLayout constructor is skipped\")");
+    return false;
+}
+SE_BIND_CTOR(js_gfx_DescriptorSetLayout_constructor, __jsb_cc_gfx_DescriptorSetLayout_class, js_cc_gfx_DescriptorSetLayout_finalize)
+
+
+
+extern se::Object* __jsb_cc_gfx_GFXObject_proto;
+
+static bool js_cc_gfx_DescriptorSetLayout_finalize(se::State& s)
+{
+    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::gfx::DescriptorSetLayout>(s));
+    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
+    {
+        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
+        cc::gfx::DescriptorSetLayout* cobj = SE_THIS_OBJECT<cc::gfx::DescriptorSetLayout>(s);
+        JSB_FREE(cobj);
+    }
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_cc_gfx_DescriptorSetLayout_finalize)
+
+bool js_register_gfx_DescriptorSetLayout(se::Object* obj)
+{
+    auto cls = se::Class::create("DescriptorSetLayout", obj, __jsb_cc_gfx_GFXObject_proto, _SE(js_gfx_DescriptorSetLayout_constructor));
+
+    cls->defineFunction("destroy", _SE(js_gfx_DescriptorSetLayout_destroy));
+    cls->defineFunction("getBindings", _SE(js_gfx_DescriptorSetLayout_getBindings));
+    cls->defineFunction("getDescriptorCount", _SE(js_gfx_DescriptorSetLayout_getDescriptorCount));
+    cls->defineFunction("initialize", _SE(js_gfx_DescriptorSetLayout_initialize));
+    cls->defineFinalizeFunction(_SE(js_cc_gfx_DescriptorSetLayout_finalize));
+    cls->install();
+    JSBClassType::registerClass<cc::gfx::DescriptorSetLayout>(cls);
+
+    __jsb_cc_gfx_DescriptorSetLayout_proto = cls->getProto();
+    __jsb_cc_gfx_DescriptorSetLayout_class = cls;
+
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
+
+se::Object* __jsb_cc_gfx_Fence_proto = nullptr;
+se::Class* __jsb_cc_gfx_Fence_class = nullptr;
+
+static bool js_gfx_Fence_destroy(se::State& s)
+{
+    cc::gfx::Fence* cobj = SE_THIS_OBJECT<cc::gfx::Fence>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_Fence_destroy : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    if (argc == 0) {
+        cobj->destroy();
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_PROP_GET(js_gfx_Texture_getFlags)
+SE_BIND_FUNC(js_gfx_Fence_destroy)
 
-static bool js_gfx_Texture_getFormat(se::State& s)
+static bool js_gfx_Fence_initialize(se::State& s)
 {
-    cc::gfx::Texture* cobj = SE_THIS_OBJECT<cc::gfx::Texture>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_Texture_getFormat : Invalid Native Object");
+    cc::gfx::Fence* cobj = SE_THIS_OBJECT<cc::gfx::Fence>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_Fence_initialize : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        int result = (int)cobj->getFormat();
+    if (argc == 1) {
+        HolderType<cc::gfx::FenceInfo, true> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_gfx_Fence_initialize : Error processing arguments");
+        bool result = cobj->initialize(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_gfx_Texture_getFormat : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_gfx_Fence_initialize : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_gfx_Fence_initialize)
+
+static bool js_gfx_Fence_reset(se::State& s)
+{
+    cc::gfx::Fence* cobj = SE_THIS_OBJECT<cc::gfx::Fence>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_Fence_reset : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    if (argc == 0) {
+        cobj->reset();
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_PROP_GET(js_gfx_Texture_getFormat)
+SE_BIND_FUNC(js_gfx_Fence_reset)
 
-static bool js_gfx_Texture_getHeight(se::State& s)
+static bool js_gfx_Fence_wait(se::State& s)
 {
-    cc::gfx::Texture* cobj = SE_THIS_OBJECT<cc::gfx::Texture>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_Texture_getHeight : Invalid Native Object");
+    cc::gfx::Fence* cobj = SE_THIS_OBJECT<cc::gfx::Fence>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_Fence_wait : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
-    CC_UNUSED bool ok = true;
     if (argc == 0) {
-        unsigned int result = cobj->getHeight();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_gfx_Texture_getHeight : Error processing arguments");
+        cobj->wait();
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_PROP_GET(js_gfx_Texture_getHeight)
+SE_BIND_FUNC(js_gfx_Fence_wait)
 
-static bool js_gfx_Texture_getLayerCount(se::State& s)
+SE_DECLARE_FINALIZE_FUNC(js_cc_gfx_Fence_finalize)
+
+static bool js_gfx_Fence_constructor(se::State& s) // constructor.c
 {
-    cc::gfx::Texture* cobj = SE_THIS_OBJECT<cc::gfx::Texture>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_Texture_getLayerCount : Invalid Native Object");
+    //#3 cc::gfx::Fence: is_skip_construtor True
+    se::ScriptEngine::getInstance()->evalString("throw new Error(\"cc::gfx::Fence constructor is skipped\")");
+    return false;
+}
+SE_BIND_CTOR(js_gfx_Fence_constructor, __jsb_cc_gfx_Fence_class, js_cc_gfx_Fence_finalize)
+
+
+
+extern se::Object* __jsb_cc_gfx_GFXObject_proto;
+
+static bool js_cc_gfx_Fence_finalize(se::State& s)
+{
+    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::gfx::Fence>(s));
+    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
+    {
+        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
+        cc::gfx::Fence* cobj = SE_THIS_OBJECT<cc::gfx::Fence>(s);
+        JSB_FREE(cobj);
+    }
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_cc_gfx_Fence_finalize)
+
+bool js_register_gfx_Fence(se::Object* obj)
+{
+    auto cls = se::Class::create("Fence", obj, __jsb_cc_gfx_GFXObject_proto, _SE(js_gfx_Fence_constructor));
+
+    cls->defineFunction("destroy", _SE(js_gfx_Fence_destroy));
+    cls->defineFunction("initialize", _SE(js_gfx_Fence_initialize));
+    cls->defineFunction("reset", _SE(js_gfx_Fence_reset));
+    cls->defineFunction("wait", _SE(js_gfx_Fence_wait));
+    cls->defineFinalizeFunction(_SE(js_cc_gfx_Fence_finalize));
+    cls->install();
+    JSBClassType::registerClass<cc::gfx::Fence>(cls);
+
+    __jsb_cc_gfx_Fence_proto = cls->getProto();
+    __jsb_cc_gfx_Fence_class = cls;
+
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
+
+se::Object* __jsb_cc_gfx_Queue_proto = nullptr;
+se::Class* __jsb_cc_gfx_Queue_class = nullptr;
+
+static bool js_gfx_Queue_destroy(se::State& s)
+{
+    cc::gfx::Queue* cobj = SE_THIS_OBJECT<cc::gfx::Queue>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_Queue_destroy : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
-    CC_UNUSED bool ok = true;
     if (argc == 0) {
-        unsigned int result = cobj->getLayerCount();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_gfx_Texture_getLayerCount : Error processing arguments");
+        cobj->destroy();
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_PROP_GET(js_gfx_Texture_getLayerCount)
+SE_BIND_FUNC(js_gfx_Queue_destroy)
 
-static bool js_gfx_Texture_getLevelCount(se::State& s)
+static bool js_gfx_Queue_getType(se::State& s)
 {
-    cc::gfx::Texture* cobj = SE_THIS_OBJECT<cc::gfx::Texture>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_Texture_getLevelCount : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        unsigned int result = cobj->getLevelCount();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_gfx_Texture_getLevelCount : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_PROP_GET(js_gfx_Texture_getLevelCount)
-
-static bool js_gfx_Texture_getSamples(se::State& s)
-{
-    cc::gfx::Texture* cobj = SE_THIS_OBJECT<cc::gfx::Texture>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_Texture_getSamples : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        int result = (int)cobj->getSamples();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_gfx_Texture_getSamples : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_PROP_GET(js_gfx_Texture_getSamples)
-
-static bool js_gfx_Texture_getSize(se::State& s)
-{
-    cc::gfx::Texture* cobj = SE_THIS_OBJECT<cc::gfx::Texture>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_Texture_getSize : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        unsigned int result = cobj->getSize();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_gfx_Texture_getSize : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_PROP_GET(js_gfx_Texture_getSize)
-
-static bool js_gfx_Texture_getType(se::State& s)
-{
-    cc::gfx::Texture* cobj = SE_THIS_OBJECT<cc::gfx::Texture>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_Texture_getType : Invalid Native Object");
+    cc::gfx::Queue* cobj = SE_THIS_OBJECT<cc::gfx::Queue>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_Queue_getType : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
         int result = (int)cobj->getType();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_gfx_Texture_getType : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_gfx_Queue_getType : Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_PROP_GET(js_gfx_Texture_getType)
+SE_BIND_PROP_GET(js_gfx_Queue_getType)
 
-static bool js_gfx_Texture_getUsage(se::State& s)
+static bool js_gfx_Queue_initialize(se::State& s)
 {
-    cc::gfx::Texture* cobj = SE_THIS_OBJECT<cc::gfx::Texture>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_Texture_getUsage : Invalid Native Object");
+    cc::gfx::Queue* cobj = SE_THIS_OBJECT<cc::gfx::Queue>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_Queue_initialize : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        int result = (int)cobj->getUsage();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_gfx_Texture_getUsage : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_PROP_GET(js_gfx_Texture_getUsage)
-
-static bool js_gfx_Texture_getWidth(se::State& s)
-{
-    cc::gfx::Texture* cobj = SE_THIS_OBJECT<cc::gfx::Texture>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_Texture_getWidth : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        unsigned int result = cobj->getWidth();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_gfx_Texture_getWidth : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_PROP_GET(js_gfx_Texture_getWidth)
-
-static bool js_gfx_Texture_isTextureView(se::State& s)
-{
-    cc::gfx::Texture* cobj = SE_THIS_OBJECT<cc::gfx::Texture>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_Texture_isTextureView : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        bool result = cobj->isTextureView();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_gfx_Texture_isTextureView : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_Texture_isTextureView)
-
-static bool js_gfx_Texture_resize(se::State& s)
-{
-    cc::gfx::Texture* cobj = SE_THIS_OBJECT<cc::gfx::Texture>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_Texture_resize : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 2) {
-        HolderType<unsigned int, false> arg0 = {};
-        HolderType<unsigned int, false> arg1 = {};
+    if (argc == 1) {
+        HolderType<cc::gfx::QueueInfo, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_gfx_Texture_resize : Error processing arguments");
-        cobj->resize(arg0.value(), arg1.value());
+        SE_PRECONDITION2(ok, false, "js_gfx_Queue_initialize : Error processing arguments");
+        bool result = cobj->initialize(arg0.value());
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_gfx_Queue_initialize : Error processing arguments");
         return true;
     }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_FUNC(js_gfx_Texture_resize)
+SE_BIND_FUNC(js_gfx_Queue_initialize)
 
-SE_DECLARE_FINALIZE_FUNC(js_cc_gfx_Texture_finalize)
-
-static bool js_gfx_Texture_constructor(se::State& s) // constructor.c
+static bool js_gfx_Queue_isAsync(se::State& s)
 {
-    //#3 cc::gfx::Texture: is_skip_construtor True
-    se::ScriptEngine::getInstance()->evalString("throw new Error(\"cc::gfx::Texture constructor is skipped\")");
+    cc::gfx::Queue* cobj = SE_THIS_OBJECT<cc::gfx::Queue>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_Queue_isAsync : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        bool result = cobj->isAsync();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_gfx_Queue_isAsync : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_CTOR(js_gfx_Texture_constructor, __jsb_cc_gfx_Texture_class, js_cc_gfx_Texture_finalize)
+SE_BIND_FUNC(js_gfx_Queue_isAsync)
+
+static bool js_gfx_Queue_submit(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    cc::gfx::Queue* cobj = SE_THIS_OBJECT<cc::gfx::Queue>(s);
+    SE_PRECONDITION2( cobj, false, "js_gfx_Queue_submit : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    do {
+        if (argc == 1) {
+            HolderType<std::vector<cc::gfx::CommandBuffer *>, true> arg0 = {};
+
+            ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+            if (!ok) { ok = true; break; }
+            cobj->submit(arg0.value());
+            return true;
+        }
+    } while(false);
+
+    do {
+        if (argc == 3) {
+            HolderType<const cc::gfx::CommandBuffer**, false> arg0 = {};
+            HolderType<unsigned int, false> arg1 = {};
+            HolderType<cc::gfx::Fence*, false> arg2 = {};
+
+            ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+            if (!ok) { ok = true; break; }
+            ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+            if (!ok) { ok = true; break; }
+            ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+            if (!ok) { ok = true; break; }
+            cobj->submit(arg0.value(), arg1.value(), arg2.value());
+            return true;
+        }
+    } while(false);
+
+    do {
+        if (argc == 2) {
+            HolderType<std::vector<cc::gfx::CommandBuffer *>, true> arg0 = {};
+            HolderType<cc::gfx::Fence*, false> arg1 = {};
+
+            ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+            if (!ok) { ok = true; break; }
+            ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+            if (!ok) { ok = true; break; }
+            cobj->submit(arg0.value(), arg1.value());
+            return true;
+        }
+    } while(false);
+
+    SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
+    return false;
+}
+SE_BIND_FUNC(js_gfx_Queue_submit)
+
+SE_DECLARE_FINALIZE_FUNC(js_cc_gfx_Queue_finalize)
+
+static bool js_gfx_Queue_constructor(se::State& s) // constructor.c
+{
+    //#3 cc::gfx::Queue: is_skip_construtor True
+    se::ScriptEngine::getInstance()->evalString("throw new Error(\"cc::gfx::Queue constructor is skipped\")");
+    return false;
+}
+SE_BIND_CTOR(js_gfx_Queue_constructor, __jsb_cc_gfx_Queue_class, js_cc_gfx_Queue_finalize)
 
 
 
 extern se::Object* __jsb_cc_gfx_GFXObject_proto;
 
-static bool js_cc_gfx_Texture_finalize(se::State& s)
+static bool js_cc_gfx_Queue_finalize(se::State& s)
 {
-    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::gfx::Texture>(s));
+    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::gfx::Queue>(s));
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
         se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        cc::gfx::Texture* cobj = SE_THIS_OBJECT<cc::gfx::Texture>(s);
+        cc::gfx::Queue* cobj = SE_THIS_OBJECT<cc::gfx::Queue>(s);
         JSB_FREE(cobj);
     }
     return true;
 }
-SE_BIND_FINALIZE_FUNC(js_cc_gfx_Texture_finalize)
+SE_BIND_FINALIZE_FUNC(js_cc_gfx_Queue_finalize)
 
-bool js_register_gfx_Texture(se::Object* obj)
+bool js_register_gfx_Queue(se::Object* obj)
 {
-    auto cls = se::Class::create("Texture", obj, __jsb_cc_gfx_GFXObject_proto, _SE(js_gfx_Texture_constructor));
+    auto cls = se::Class::create("Queue", obj, __jsb_cc_gfx_GFXObject_proto, _SE(js_gfx_Queue_constructor));
 
-    cls->defineProperty("samples", _SE(js_gfx_Texture_getSamples), nullptr);
-    cls->defineProperty("format", _SE(js_gfx_Texture_getFormat), nullptr);
-    cls->defineProperty("buffer", _SE(js_gfx_Texture_getBuffer), nullptr);
-    cls->defineProperty("levelCount", _SE(js_gfx_Texture_getLevelCount), nullptr);
-    cls->defineProperty("height", _SE(js_gfx_Texture_getHeight), nullptr);
-    cls->defineProperty("width", _SE(js_gfx_Texture_getWidth), nullptr);
-    cls->defineProperty("depth", _SE(js_gfx_Texture_getDepth), nullptr);
-    cls->defineProperty("flags", _SE(js_gfx_Texture_getFlags), nullptr);
-    cls->defineProperty("layerCount", _SE(js_gfx_Texture_getLayerCount), nullptr);
-    cls->defineProperty("usage", _SE(js_gfx_Texture_getUsage), nullptr);
-    cls->defineProperty("type", _SE(js_gfx_Texture_getType), nullptr);
-    cls->defineProperty("size", _SE(js_gfx_Texture_getSize), nullptr);
-    cls->defineFunction("destroy", _SE(js_gfx_Texture_destroy));
-    cls->defineFunction("isTextureView", _SE(js_gfx_Texture_isTextureView));
-    cls->defineFunction("resize", _SE(js_gfx_Texture_resize));
-    cls->defineFinalizeFunction(_SE(js_cc_gfx_Texture_finalize));
+    cls->defineProperty("type", _SE(js_gfx_Queue_getType), nullptr);
+    cls->defineFunction("destroy", _SE(js_gfx_Queue_destroy));
+    cls->defineFunction("initialize", _SE(js_gfx_Queue_initialize));
+    cls->defineFunction("isAsync", _SE(js_gfx_Queue_isAsync));
+    cls->defineFunction("submit", _SE(js_gfx_Queue_submit));
+    cls->defineFinalizeFunction(_SE(js_cc_gfx_Queue_finalize));
     cls->install();
-    JSBClassType::registerClass<cc::gfx::Texture>(cls);
+    JSBClassType::registerClass<cc::gfx::Queue>(cls);
 
-    __jsb_cc_gfx_Texture_proto = cls->getProto();
-    __jsb_cc_gfx_Texture_class = cls;
+    __jsb_cc_gfx_Queue_proto = cls->getProto();
+    __jsb_cc_gfx_Queue_class = cls;
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
@@ -13228,203 +13302,6 @@ bool js_register_gfx_Sampler(se::Object* obj)
 
     __jsb_cc_gfx_Sampler_proto = cls->getProto();
     __jsb_cc_gfx_Sampler_class = cls;
-
-    se::ScriptEngine::getInstance()->clearException();
-    return true;
-}
-
-se::Object* __jsb_cc_gfx_Shader_proto = nullptr;
-se::Class* __jsb_cc_gfx_Shader_class = nullptr;
-
-static bool js_gfx_Shader_destroy(se::State& s)
-{
-    cc::gfx::Shader* cobj = SE_THIS_OBJECT<cc::gfx::Shader>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_Shader_destroy : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    if (argc == 0) {
-        cobj->destroy();
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_Shader_destroy)
-
-static bool js_gfx_Shader_getAttributes(se::State& s)
-{
-    cc::gfx::Shader* cobj = SE_THIS_OBJECT<cc::gfx::Shader>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_Shader_getAttributes : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        const std::vector<cc::gfx::Attribute>& result = cobj->getAttributes();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_gfx_Shader_getAttributes : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_PROP_GET(js_gfx_Shader_getAttributes)
-
-static bool js_gfx_Shader_getBlocks(se::State& s)
-{
-    cc::gfx::Shader* cobj = SE_THIS_OBJECT<cc::gfx::Shader>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_Shader_getBlocks : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        const std::vector<cc::gfx::UniformBlock>& result = cobj->getBlocks();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_gfx_Shader_getBlocks : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_PROP_GET(js_gfx_Shader_getBlocks)
-
-static bool js_gfx_Shader_getID(se::State& s)
-{
-    cc::gfx::Shader* cobj = SE_THIS_OBJECT<cc::gfx::Shader>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_Shader_getID : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        unsigned int result = cobj->getID();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_gfx_Shader_getID : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_PROP_GET(js_gfx_Shader_getID)
-
-static bool js_gfx_Shader_getName(se::State& s)
-{
-    cc::gfx::Shader* cobj = SE_THIS_OBJECT<cc::gfx::Shader>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_Shader_getName : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        const cc::String& result = cobj->getName();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_gfx_Shader_getName : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_PROP_GET(js_gfx_Shader_getName)
-
-static bool js_gfx_Shader_getSamplers(se::State& s)
-{
-    cc::gfx::Shader* cobj = SE_THIS_OBJECT<cc::gfx::Shader>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_Shader_getSamplers : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        const std::vector<cc::gfx::UniformSampler>& result = cobj->getSamplers();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_gfx_Shader_getSamplers : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_PROP_GET(js_gfx_Shader_getSamplers)
-
-static bool js_gfx_Shader_getStages(se::State& s)
-{
-    cc::gfx::Shader* cobj = SE_THIS_OBJECT<cc::gfx::Shader>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_Shader_getStages : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        const std::vector<cc::gfx::ShaderStage>& result = cobj->getStages();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_gfx_Shader_getStages : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_PROP_GET(js_gfx_Shader_getStages)
-
-static bool js_gfx_Shader_initialize(se::State& s)
-{
-    cc::gfx::Shader* cobj = SE_THIS_OBJECT<cc::gfx::Shader>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_Shader_initialize : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        HolderType<cc::gfx::ShaderInfo, true> arg0 = {};
-        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_gfx_Shader_initialize : Error processing arguments");
-        bool result = cobj->initialize(arg0.value());
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_gfx_Shader_initialize : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_Shader_initialize)
-
-SE_DECLARE_FINALIZE_FUNC(js_cc_gfx_Shader_finalize)
-
-static bool js_gfx_Shader_constructor(se::State& s) // constructor.c
-{
-    //#3 cc::gfx::Shader: is_skip_construtor True
-    se::ScriptEngine::getInstance()->evalString("throw new Error(\"cc::gfx::Shader constructor is skipped\")");
-    return false;
-}
-SE_BIND_CTOR(js_gfx_Shader_constructor, __jsb_cc_gfx_Shader_class, js_cc_gfx_Shader_finalize)
-
-
-
-extern se::Object* __jsb_cc_gfx_GFXObject_proto;
-
-static bool js_cc_gfx_Shader_finalize(se::State& s)
-{
-    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::gfx::Shader>(s));
-    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
-    {
-        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        cc::gfx::Shader* cobj = SE_THIS_OBJECT<cc::gfx::Shader>(s);
-        JSB_FREE(cobj);
-    }
-    return true;
-}
-SE_BIND_FINALIZE_FUNC(js_cc_gfx_Shader_finalize)
-
-bool js_register_gfx_Shader(se::Object* obj)
-{
-    auto cls = se::Class::create("Shader", obj, __jsb_cc_gfx_GFXObject_proto, _SE(js_gfx_Shader_constructor));
-
-    cls->defineProperty("blocks", _SE(js_gfx_Shader_getBlocks), nullptr);
-    cls->defineProperty("name", _SE(js_gfx_Shader_getName), nullptr);
-    cls->defineProperty("samplers", _SE(js_gfx_Shader_getSamplers), nullptr);
-    cls->defineProperty("shaderID", _SE(js_gfx_Shader_getID), nullptr);
-    cls->defineProperty("attributes", _SE(js_gfx_Shader_getAttributes), nullptr);
-    cls->defineProperty("stages", _SE(js_gfx_Shader_getStages), nullptr);
-    cls->defineFunction("destroy", _SE(js_gfx_Shader_destroy));
-    cls->defineFunction("initialize", _SE(js_gfx_Shader_initialize));
-    cls->defineFinalizeFunction(_SE(js_cc_gfx_Shader_finalize));
-    cls->install();
-    JSBClassType::registerClass<cc::gfx::Shader>(cls);
-
-    __jsb_cc_gfx_Shader_proto = cls->getProto();
-    __jsb_cc_gfx_Shader_class = cls;
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
@@ -14154,108 +14031,6 @@ bool js_register_gfx_Framebuffer(se::Object* obj)
     return true;
 }
 
-se::Object* __jsb_cc_gfx_DescriptorSetLayout_proto = nullptr;
-se::Class* __jsb_cc_gfx_DescriptorSetLayout_class = nullptr;
-
-static bool js_gfx_DescriptorSetLayout_destroy(se::State& s)
-{
-    cc::gfx::DescriptorSetLayout* cobj = SE_THIS_OBJECT<cc::gfx::DescriptorSetLayout>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_DescriptorSetLayout_destroy : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    if (argc == 0) {
-        cobj->destroy();
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_DescriptorSetLayout_destroy)
-
-static bool js_gfx_DescriptorSetLayout_getBindings(se::State& s)
-{
-    cc::gfx::DescriptorSetLayout* cobj = SE_THIS_OBJECT<cc::gfx::DescriptorSetLayout>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_DescriptorSetLayout_getBindings : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        const std::vector<cc::gfx::DescriptorSetLayoutBinding>& result = cobj->getBindings();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_gfx_DescriptorSetLayout_getBindings : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_DescriptorSetLayout_getBindings)
-
-static bool js_gfx_DescriptorSetLayout_initialize(se::State& s)
-{
-    cc::gfx::DescriptorSetLayout* cobj = SE_THIS_OBJECT<cc::gfx::DescriptorSetLayout>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_DescriptorSetLayout_initialize : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        HolderType<cc::gfx::DescriptorSetLayoutInfo, true> arg0 = {};
-        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_gfx_DescriptorSetLayout_initialize : Error processing arguments");
-        bool result = cobj->initialize(arg0.value());
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_gfx_DescriptorSetLayout_initialize : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_DescriptorSetLayout_initialize)
-
-SE_DECLARE_FINALIZE_FUNC(js_cc_gfx_DescriptorSetLayout_finalize)
-
-static bool js_gfx_DescriptorSetLayout_constructor(se::State& s) // constructor.c
-{
-    //#3 cc::gfx::DescriptorSetLayout: is_skip_construtor True
-    se::ScriptEngine::getInstance()->evalString("throw new Error(\"cc::gfx::DescriptorSetLayout constructor is skipped\")");
-    return false;
-}
-SE_BIND_CTOR(js_gfx_DescriptorSetLayout_constructor, __jsb_cc_gfx_DescriptorSetLayout_class, js_cc_gfx_DescriptorSetLayout_finalize)
-
-
-
-extern se::Object* __jsb_cc_gfx_GFXObject_proto;
-
-static bool js_cc_gfx_DescriptorSetLayout_finalize(se::State& s)
-{
-    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::gfx::DescriptorSetLayout>(s));
-    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
-    {
-        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        cc::gfx::DescriptorSetLayout* cobj = SE_THIS_OBJECT<cc::gfx::DescriptorSetLayout>(s);
-        JSB_FREE(cobj);
-    }
-    return true;
-}
-SE_BIND_FINALIZE_FUNC(js_cc_gfx_DescriptorSetLayout_finalize)
-
-bool js_register_gfx_DescriptorSetLayout(se::Object* obj)
-{
-    auto cls = se::Class::create("DescriptorSetLayout", obj, __jsb_cc_gfx_GFXObject_proto, _SE(js_gfx_DescriptorSetLayout_constructor));
-
-    cls->defineFunction("destroy", _SE(js_gfx_DescriptorSetLayout_destroy));
-    cls->defineFunction("getBindings", _SE(js_gfx_DescriptorSetLayout_getBindings));
-    cls->defineFunction("initialize", _SE(js_gfx_DescriptorSetLayout_initialize));
-    cls->defineFinalizeFunction(_SE(js_cc_gfx_DescriptorSetLayout_finalize));
-    cls->install();
-    JSBClassType::registerClass<cc::gfx::DescriptorSetLayout>(cls);
-
-    __jsb_cc_gfx_DescriptorSetLayout_proto = cls->getProto();
-    __jsb_cc_gfx_DescriptorSetLayout_class = cls;
-
-    se::ScriptEngine::getInstance()->clearException();
-    return true;
-}
-
 se::Object* __jsb_cc_gfx_PipelineLayout_proto = nullptr;
 se::Class* __jsb_cc_gfx_PipelineLayout_class = nullptr;
 
@@ -14612,217 +14387,13 @@ bool js_register_gfx_PipelineState(se::Object* obj)
     return true;
 }
 
-se::Object* __jsb_cc_gfx_DescriptorSet_proto = nullptr;
-se::Class* __jsb_cc_gfx_DescriptorSet_class = nullptr;
+se::Object* __jsb_cc_gfx_Texture_proto = nullptr;
+se::Class* __jsb_cc_gfx_Texture_class = nullptr;
 
-static bool js_gfx_DescriptorSet_bindBuffer(se::State& s)
+static bool js_gfx_Texture_destroy(se::State& s)
 {
-    CC_UNUSED bool ok = true;
-    cc::gfx::DescriptorSet* cobj = SE_THIS_OBJECT<cc::gfx::DescriptorSet>(s);
-    SE_PRECONDITION2( cobj, false, "js_gfx_DescriptorSet_bindBuffer : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    do {
-        if (argc == 2) {
-            HolderType<unsigned int, false> arg0 = {};
-            HolderType<cc::gfx::Buffer*, false> arg1 = {};
-
-            ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-            if (!ok) { ok = true; break; }
-            ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
-            if (!ok) { ok = true; break; }
-            cobj->bindBuffer(arg0.value(), arg1.value());
-            return true;
-        }
-    } while(false);
-
-    do {
-        if (argc == 3) {
-            HolderType<unsigned int, false> arg0 = {};
-            HolderType<cc::gfx::Buffer*, false> arg1 = {};
-            HolderType<unsigned int, false> arg2 = {};
-
-            ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-            if (!ok) { ok = true; break; }
-            ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
-            if (!ok) { ok = true; break; }
-            ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
-            if (!ok) { ok = true; break; }
-            cobj->bindBuffer(arg0.value(), arg1.value(), arg2.value());
-            return true;
-        }
-    } while(false);
-
-    SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_DescriptorSet_bindBuffer)
-
-static bool js_gfx_DescriptorSet_bindBufferJSB(se::State& s)
-{
-    cc::gfx::DescriptorSet* cobj = SE_THIS_OBJECT<cc::gfx::DescriptorSet>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_DescriptorSet_bindBufferJSB : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 3) {
-        HolderType<unsigned int, false> arg0 = {};
-        HolderType<cc::gfx::Buffer*, false> arg1 = {};
-        HolderType<unsigned int, false> arg2 = {};
-        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
-        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_gfx_DescriptorSet_bindBufferJSB : Error processing arguments");
-        bool result = cobj->bindBufferJSB(arg0.value(), arg1.value(), arg2.value());
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_gfx_DescriptorSet_bindBufferJSB : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 3);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_DescriptorSet_bindBufferJSB)
-
-static bool js_gfx_DescriptorSet_bindSampler(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    cc::gfx::DescriptorSet* cobj = SE_THIS_OBJECT<cc::gfx::DescriptorSet>(s);
-    SE_PRECONDITION2( cobj, false, "js_gfx_DescriptorSet_bindSampler : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    do {
-        if (argc == 2) {
-            HolderType<unsigned int, false> arg0 = {};
-            HolderType<cc::gfx::Sampler*, false> arg1 = {};
-
-            ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-            if (!ok) { ok = true; break; }
-            ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
-            if (!ok) { ok = true; break; }
-            cobj->bindSampler(arg0.value(), arg1.value());
-            return true;
-        }
-    } while(false);
-
-    do {
-        if (argc == 3) {
-            HolderType<unsigned int, false> arg0 = {};
-            HolderType<cc::gfx::Sampler*, false> arg1 = {};
-            HolderType<unsigned int, false> arg2 = {};
-
-            ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-            if (!ok) { ok = true; break; }
-            ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
-            if (!ok) { ok = true; break; }
-            ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
-            if (!ok) { ok = true; break; }
-            cobj->bindSampler(arg0.value(), arg1.value(), arg2.value());
-            return true;
-        }
-    } while(false);
-
-    SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_DescriptorSet_bindSampler)
-
-static bool js_gfx_DescriptorSet_bindSamplerJSB(se::State& s)
-{
-    cc::gfx::DescriptorSet* cobj = SE_THIS_OBJECT<cc::gfx::DescriptorSet>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_DescriptorSet_bindSamplerJSB : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 3) {
-        HolderType<unsigned int, false> arg0 = {};
-        HolderType<cc::gfx::Sampler*, false> arg1 = {};
-        HolderType<unsigned int, false> arg2 = {};
-        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
-        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_gfx_DescriptorSet_bindSamplerJSB : Error processing arguments");
-        bool result = cobj->bindSamplerJSB(arg0.value(), arg1.value(), arg2.value());
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_gfx_DescriptorSet_bindSamplerJSB : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 3);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_DescriptorSet_bindSamplerJSB)
-
-static bool js_gfx_DescriptorSet_bindTexture(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    cc::gfx::DescriptorSet* cobj = SE_THIS_OBJECT<cc::gfx::DescriptorSet>(s);
-    SE_PRECONDITION2( cobj, false, "js_gfx_DescriptorSet_bindTexture : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    do {
-        if (argc == 2) {
-            HolderType<unsigned int, false> arg0 = {};
-            HolderType<cc::gfx::Texture*, false> arg1 = {};
-
-            ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-            if (!ok) { ok = true; break; }
-            ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
-            if (!ok) { ok = true; break; }
-            cobj->bindTexture(arg0.value(), arg1.value());
-            return true;
-        }
-    } while(false);
-
-    do {
-        if (argc == 3) {
-            HolderType<unsigned int, false> arg0 = {};
-            HolderType<cc::gfx::Texture*, false> arg1 = {};
-            HolderType<unsigned int, false> arg2 = {};
-
-            ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-            if (!ok) { ok = true; break; }
-            ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
-            if (!ok) { ok = true; break; }
-            ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
-            if (!ok) { ok = true; break; }
-            cobj->bindTexture(arg0.value(), arg1.value(), arg2.value());
-            return true;
-        }
-    } while(false);
-
-    SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_DescriptorSet_bindTexture)
-
-static bool js_gfx_DescriptorSet_bindTextureJSB(se::State& s)
-{
-    cc::gfx::DescriptorSet* cobj = SE_THIS_OBJECT<cc::gfx::DescriptorSet>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_DescriptorSet_bindTextureJSB : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 3) {
-        HolderType<unsigned int, false> arg0 = {};
-        HolderType<cc::gfx::Texture*, false> arg1 = {};
-        HolderType<unsigned int, false> arg2 = {};
-        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
-        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_gfx_DescriptorSet_bindTextureJSB : Error processing arguments");
-        bool result = cobj->bindTextureJSB(arg0.value(), arg1.value(), arg2.value());
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_gfx_DescriptorSet_bindTextureJSB : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 3);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_DescriptorSet_bindTextureJSB)
-
-static bool js_gfx_DescriptorSet_destroy(se::State& s)
-{
-    cc::gfx::DescriptorSet* cobj = SE_THIS_OBJECT<cc::gfx::DescriptorSet>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_DescriptorSet_destroy : Invalid Native Object");
+    cc::gfx::Texture* cobj = SE_THIS_OBJECT<cc::gfx::Texture>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_Texture_destroy : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     if (argc == 0) {
@@ -14832,957 +14403,821 @@ static bool js_gfx_DescriptorSet_destroy(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_FUNC(js_gfx_DescriptorSet_destroy)
+SE_BIND_FUNC(js_gfx_Texture_destroy)
 
-static bool js_gfx_DescriptorSet_getBuffer(se::State& s)
+static bool js_gfx_Texture_getBuffer(se::State& s)
 {
-    CC_UNUSED bool ok = true;
-    cc::gfx::DescriptorSet* cobj = SE_THIS_OBJECT<cc::gfx::DescriptorSet>(s);
-    SE_PRECONDITION2( cobj, false, "js_gfx_DescriptorSet_getBuffer : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    do {
-        if (argc == 1) {
-            HolderType<unsigned int, false> arg0 = {};
-
-            ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-            if (!ok) { ok = true; break; }
-            cc::gfx::Buffer* result = cobj->getBuffer(arg0.value());
-            ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
-            SE_PRECONDITION2(ok, false, "js_gfx_DescriptorSet_getBuffer : Error processing arguments");
-            return true;
-        }
-    } while(false);
-
-    do {
-        if (argc == 2) {
-            HolderType<unsigned int, false> arg0 = {};
-            HolderType<unsigned int, false> arg1 = {};
-
-            ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-            if (!ok) { ok = true; break; }
-            ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
-            if (!ok) { ok = true; break; }
-            cc::gfx::Buffer* result = cobj->getBuffer(arg0.value(), arg1.value());
-            ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
-            SE_PRECONDITION2(ok, false, "js_gfx_DescriptorSet_getBuffer : Error processing arguments");
-            return true;
-        }
-    } while(false);
-
-    SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_DescriptorSet_getBuffer)
-
-static bool js_gfx_DescriptorSet_getSampler(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    cc::gfx::DescriptorSet* cobj = SE_THIS_OBJECT<cc::gfx::DescriptorSet>(s);
-    SE_PRECONDITION2( cobj, false, "js_gfx_DescriptorSet_getSampler : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    do {
-        if (argc == 1) {
-            HolderType<unsigned int, false> arg0 = {};
-
-            ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-            if (!ok) { ok = true; break; }
-            cc::gfx::Sampler* result = cobj->getSampler(arg0.value());
-            ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
-            SE_PRECONDITION2(ok, false, "js_gfx_DescriptorSet_getSampler : Error processing arguments");
-            return true;
-        }
-    } while(false);
-
-    do {
-        if (argc == 2) {
-            HolderType<unsigned int, false> arg0 = {};
-            HolderType<unsigned int, false> arg1 = {};
-
-            ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-            if (!ok) { ok = true; break; }
-            ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
-            if (!ok) { ok = true; break; }
-            cc::gfx::Sampler* result = cobj->getSampler(arg0.value(), arg1.value());
-            ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
-            SE_PRECONDITION2(ok, false, "js_gfx_DescriptorSet_getSampler : Error processing arguments");
-            return true;
-        }
-    } while(false);
-
-    SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_DescriptorSet_getSampler)
-
-static bool js_gfx_DescriptorSet_getTexture(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    cc::gfx::DescriptorSet* cobj = SE_THIS_OBJECT<cc::gfx::DescriptorSet>(s);
-    SE_PRECONDITION2( cobj, false, "js_gfx_DescriptorSet_getTexture : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    do {
-        if (argc == 1) {
-            HolderType<unsigned int, false> arg0 = {};
-
-            ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-            if (!ok) { ok = true; break; }
-            cc::gfx::Texture* result = cobj->getTexture(arg0.value());
-            ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
-            SE_PRECONDITION2(ok, false, "js_gfx_DescriptorSet_getTexture : Error processing arguments");
-            return true;
-        }
-    } while(false);
-
-    do {
-        if (argc == 2) {
-            HolderType<unsigned int, false> arg0 = {};
-            HolderType<unsigned int, false> arg1 = {};
-
-            ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-            if (!ok) { ok = true; break; }
-            ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
-            if (!ok) { ok = true; break; }
-            cc::gfx::Texture* result = cobj->getTexture(arg0.value(), arg1.value());
-            ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
-            SE_PRECONDITION2(ok, false, "js_gfx_DescriptorSet_getTexture : Error processing arguments");
-            return true;
-        }
-    } while(false);
-
-    SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_DescriptorSet_getTexture)
-
-static bool js_gfx_DescriptorSet_initialize(se::State& s)
-{
-    cc::gfx::DescriptorSet* cobj = SE_THIS_OBJECT<cc::gfx::DescriptorSet>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_DescriptorSet_initialize : Invalid Native Object");
+    cc::gfx::Texture* cobj = SE_THIS_OBJECT<cc::gfx::Texture>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_Texture_getBuffer : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        HolderType<cc::gfx::DescriptorSetInfo, true> arg0 = {};
-        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_gfx_DescriptorSet_initialize : Error processing arguments");
-        bool result = cobj->initialize(arg0.value());
+    if (argc == 0) {
+        unsigned char* result = cobj->getBuffer();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_gfx_DescriptorSet_initialize : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_DescriptorSet_initialize)
-
-static bool js_gfx_DescriptorSet_update(se::State& s)
-{
-    cc::gfx::DescriptorSet* cobj = SE_THIS_OBJECT<cc::gfx::DescriptorSet>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_DescriptorSet_update : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    if (argc == 0) {
-        cobj->update();
+        SE_PRECONDITION2(ok, false, "js_gfx_Texture_getBuffer : Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_FUNC(js_gfx_DescriptorSet_update)
+SE_BIND_PROP_GET(js_gfx_Texture_getBuffer)
 
-SE_DECLARE_FINALIZE_FUNC(js_cc_gfx_DescriptorSet_finalize)
-
-static bool js_gfx_DescriptorSet_constructor(se::State& s) // constructor.c
+static bool js_gfx_Texture_getDepth(se::State& s)
 {
-    //#3 cc::gfx::DescriptorSet: is_skip_construtor True
-    se::ScriptEngine::getInstance()->evalString("throw new Error(\"cc::gfx::DescriptorSet constructor is skipped\")");
-    return false;
-}
-SE_BIND_CTOR(js_gfx_DescriptorSet_constructor, __jsb_cc_gfx_DescriptorSet_class, js_cc_gfx_DescriptorSet_finalize)
-
-
-
-extern se::Object* __jsb_cc_gfx_GFXObject_proto;
-
-static bool js_cc_gfx_DescriptorSet_finalize(se::State& s)
-{
-    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::gfx::DescriptorSet>(s));
-    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
-    {
-        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        cc::gfx::DescriptorSet* cobj = SE_THIS_OBJECT<cc::gfx::DescriptorSet>(s);
-        JSB_FREE(cobj);
-    }
-    return true;
-}
-SE_BIND_FINALIZE_FUNC(js_cc_gfx_DescriptorSet_finalize)
-
-bool js_register_gfx_DescriptorSet(se::Object* obj)
-{
-    auto cls = se::Class::create("DescriptorSet", obj, __jsb_cc_gfx_GFXObject_proto, _SE(js_gfx_DescriptorSet_constructor));
-
-    cls->defineFunction("bindBuffer", _SE(js_gfx_DescriptorSet_bindBuffer));
-    cls->defineFunction("bindBufferJSB", _SE(js_gfx_DescriptorSet_bindBufferJSB));
-    cls->defineFunction("bindSampler", _SE(js_gfx_DescriptorSet_bindSampler));
-    cls->defineFunction("bindSamplerJSB", _SE(js_gfx_DescriptorSet_bindSamplerJSB));
-    cls->defineFunction("bindTexture", _SE(js_gfx_DescriptorSet_bindTexture));
-    cls->defineFunction("bindTextureJSB", _SE(js_gfx_DescriptorSet_bindTextureJSB));
-    cls->defineFunction("destroy", _SE(js_gfx_DescriptorSet_destroy));
-    cls->defineFunction("getBuffer", _SE(js_gfx_DescriptorSet_getBuffer));
-    cls->defineFunction("getSampler", _SE(js_gfx_DescriptorSet_getSampler));
-    cls->defineFunction("getTexture", _SE(js_gfx_DescriptorSet_getTexture));
-    cls->defineFunction("initialize", _SE(js_gfx_DescriptorSet_initialize));
-    cls->defineFunction("update", _SE(js_gfx_DescriptorSet_update));
-    cls->defineFinalizeFunction(_SE(js_cc_gfx_DescriptorSet_finalize));
-    cls->install();
-    JSBClassType::registerClass<cc::gfx::DescriptorSet>(cls);
-
-    __jsb_cc_gfx_DescriptorSet_proto = cls->getProto();
-    __jsb_cc_gfx_DescriptorSet_class = cls;
-
-    se::ScriptEngine::getInstance()->clearException();
-    return true;
-}
-
-se::Object* __jsb_cc_gfx_CommandBuffer_proto = nullptr;
-se::Class* __jsb_cc_gfx_CommandBuffer_class = nullptr;
-
-static bool js_gfx_CommandBuffer_begin(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    cc::gfx::CommandBuffer* cobj = SE_THIS_OBJECT<cc::gfx::CommandBuffer>(s);
-    SE_PRECONDITION2( cobj, false, "js_gfx_CommandBuffer_begin : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    do {
-        if (argc == 0) {
-
-            cobj->begin();
-            return true;
-        }
-    } while(false);
-
-    do {
-        if (argc == 3) {
-            HolderType<cc::gfx::RenderPass*, false> arg0 = {};
-            HolderType<unsigned int, false> arg1 = {};
-            HolderType<cc::gfx::Framebuffer*, false> arg2 = {};
-
-            ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-            if (!ok) { ok = true; break; }
-            ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
-            if (!ok) { ok = true; break; }
-            ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
-            if (!ok) { ok = true; break; }
-            cobj->begin(arg0.value(), arg1.value(), arg2.value());
-            return true;
-        }
-    } while(false);
-
-    do {
-        if (argc == 1) {
-            HolderType<cc::gfx::RenderPass*, false> arg0 = {};
-
-            ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-            if (!ok) { ok = true; break; }
-            cobj->begin(arg0.value());
-            return true;
-        }
-    } while(false);
-
-    do {
-        if (argc == 2) {
-            HolderType<cc::gfx::RenderPass*, false> arg0 = {};
-            HolderType<unsigned int, false> arg1 = {};
-
-            ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-            if (!ok) { ok = true; break; }
-            ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
-            if (!ok) { ok = true; break; }
-            cobj->begin(arg0.value(), arg1.value());
-            return true;
-        }
-    } while(false);
-
-    SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_CommandBuffer_begin)
-
-static bool js_gfx_CommandBuffer_beginRenderPass(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    cc::gfx::CommandBuffer* cobj = SE_THIS_OBJECT<cc::gfx::CommandBuffer>(s);
-    SE_PRECONDITION2( cobj, false, "js_gfx_CommandBuffer_beginRenderPass : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    do {
-        if (argc == 6) {
-            HolderType<cc::gfx::RenderPass*, false> arg0 = {};
-            HolderType<cc::gfx::Framebuffer*, false> arg1 = {};
-            HolderType<cc::gfx::Rect, true> arg2 = {};
-            HolderType<cc::gfx::ColorList, true> arg3 = {};
-            HolderType<float, false> arg4 = {};
-            HolderType<int, false> arg5 = {};
-
-            ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-            if (!ok) { ok = true; break; }
-            ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
-            if (!ok) { ok = true; break; }
-            ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
-            if (!ok) { ok = true; break; }
-            ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
-            if (!ok) { ok = true; break; }
-            ok &= sevalue_to_native(args[4], &arg4, s.thisObject());
-            if (!ok) { ok = true; break; }
-            ok &= sevalue_to_native(args[5], &arg5, s.thisObject());
-            if (!ok) { ok = true; break; }
-            cobj->beginRenderPass(arg0.value(), arg1.value(), arg2.value(), arg3.value(), arg4.value(), arg5.value());
-            return true;
-        }
-    } while(false);
-
-    do {
-        if (argc == 6) {
-            HolderType<cc::gfx::RenderPass*, false> arg0 = {};
-            HolderType<cc::gfx::Framebuffer*, false> arg1 = {};
-            HolderType<cc::gfx::Rect, true> arg2 = {};
-            HolderType<const cc::gfx::Color*, false> arg3 = {};
-            HolderType<float, false> arg4 = {};
-            HolderType<int, false> arg5 = {};
-
-            ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-            if (!ok) { ok = true; break; }
-            ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
-            if (!ok) { ok = true; break; }
-            ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
-            if (!ok) { ok = true; break; }
-            ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
-            if (!ok) { ok = true; break; }
-            ok &= sevalue_to_native(args[4], &arg4, s.thisObject());
-            if (!ok) { ok = true; break; }
-            ok &= sevalue_to_native(args[5], &arg5, s.thisObject());
-            if (!ok) { ok = true; break; }
-            cobj->beginRenderPass(arg0.value(), arg1.value(), arg2.value(), arg3.value(), arg4.value(), arg5.value());
-            return true;
-        }
-    } while(false);
-
-    SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_CommandBuffer_beginRenderPass)
-
-static bool js_gfx_CommandBuffer_bindDescriptorSetForJS(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    cc::gfx::CommandBuffer* cobj = SE_THIS_OBJECT<cc::gfx::CommandBuffer>(s);
-    SE_PRECONDITION2( cobj, false, "js_gfx_CommandBuffer_bindDescriptorSetForJS : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    do {
-        if (argc == 3) {
-            HolderType<unsigned int, false> arg0 = {};
-            HolderType<cc::gfx::DescriptorSet*, false> arg1 = {};
-            HolderType<std::vector<unsigned int>, true> arg2 = {};
-
-            ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-            if (!ok) { ok = true; break; }
-            ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
-            if (!ok) { ok = true; break; }
-            ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
-            if (!ok) { ok = true; break; }
-            cobj->bindDescriptorSetForJS(arg0.value(), arg1.value(), arg2.value());
-            return true;
-        }
-    } while(false);
-
-    do {
-        if (argc == 2) {
-            HolderType<unsigned int, false> arg0 = {};
-            HolderType<cc::gfx::DescriptorSet*, false> arg1 = {};
-
-            ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-            if (!ok) { ok = true; break; }
-            ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
-            if (!ok) { ok = true; break; }
-            cobj->bindDescriptorSetForJS(arg0.value(), arg1.value());
-            return true;
-        }
-    } while(false);
-
-    SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_CommandBuffer_bindDescriptorSetForJS)
-
-static bool js_gfx_CommandBuffer_bindInputAssembler(se::State& s)
-{
-    cc::gfx::CommandBuffer* cobj = SE_THIS_OBJECT<cc::gfx::CommandBuffer>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_CommandBuffer_bindInputAssembler : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        HolderType<cc::gfx::InputAssembler*, false> arg0 = {};
-        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_gfx_CommandBuffer_bindInputAssembler : Error processing arguments");
-        cobj->bindInputAssembler(arg0.value());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_CommandBuffer_bindInputAssembler)
-
-static bool js_gfx_CommandBuffer_bindPipelineState(se::State& s)
-{
-    cc::gfx::CommandBuffer* cobj = SE_THIS_OBJECT<cc::gfx::CommandBuffer>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_CommandBuffer_bindPipelineState : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        HolderType<cc::gfx::PipelineState*, false> arg0 = {};
-        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_gfx_CommandBuffer_bindPipelineState : Error processing arguments");
-        cobj->bindPipelineState(arg0.value());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_CommandBuffer_bindPipelineState)
-
-static bool js_gfx_CommandBuffer_destroy(se::State& s)
-{
-    cc::gfx::CommandBuffer* cobj = SE_THIS_OBJECT<cc::gfx::CommandBuffer>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_CommandBuffer_destroy : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    if (argc == 0) {
-        cobj->destroy();
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_CommandBuffer_destroy)
-
-static bool js_gfx_CommandBuffer_draw(se::State& s)
-{
-    cc::gfx::CommandBuffer* cobj = SE_THIS_OBJECT<cc::gfx::CommandBuffer>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_CommandBuffer_draw : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        HolderType<cc::gfx::InputAssembler*, false> arg0 = {};
-        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_gfx_CommandBuffer_draw : Error processing arguments");
-        cobj->draw(arg0.value());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_CommandBuffer_draw)
-
-static bool js_gfx_CommandBuffer_end(se::State& s)
-{
-    cc::gfx::CommandBuffer* cobj = SE_THIS_OBJECT<cc::gfx::CommandBuffer>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_CommandBuffer_end : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    if (argc == 0) {
-        cobj->end();
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_CommandBuffer_end)
-
-static bool js_gfx_CommandBuffer_endRenderPass(se::State& s)
-{
-    cc::gfx::CommandBuffer* cobj = SE_THIS_OBJECT<cc::gfx::CommandBuffer>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_CommandBuffer_endRenderPass : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    if (argc == 0) {
-        cobj->endRenderPass();
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_CommandBuffer_endRenderPass)
-
-static bool js_gfx_CommandBuffer_getNumDrawCalls(se::State& s)
-{
-    cc::gfx::CommandBuffer* cobj = SE_THIS_OBJECT<cc::gfx::CommandBuffer>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_CommandBuffer_getNumDrawCalls : Invalid Native Object");
+    cc::gfx::Texture* cobj = SE_THIS_OBJECT<cc::gfx::Texture>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_Texture_getDepth : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        unsigned int result = cobj->getNumDrawCalls();
+        unsigned int result = cobj->getDepth();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_gfx_CommandBuffer_getNumDrawCalls : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_gfx_Texture_getDepth : Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_FUNC(js_gfx_CommandBuffer_getNumDrawCalls)
+SE_BIND_PROP_GET(js_gfx_Texture_getDepth)
 
-static bool js_gfx_CommandBuffer_getNumInstances(se::State& s)
+static bool js_gfx_Texture_getFlags(se::State& s)
 {
-    cc::gfx::CommandBuffer* cobj = SE_THIS_OBJECT<cc::gfx::CommandBuffer>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_CommandBuffer_getNumInstances : Invalid Native Object");
+    cc::gfx::Texture* cobj = SE_THIS_OBJECT<cc::gfx::Texture>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_Texture_getFlags : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        unsigned int result = cobj->getNumInstances();
+        int result = (int)cobj->getFlags();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_gfx_CommandBuffer_getNumInstances : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_gfx_Texture_getFlags : Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_FUNC(js_gfx_CommandBuffer_getNumInstances)
+SE_BIND_PROP_GET(js_gfx_Texture_getFlags)
 
-static bool js_gfx_CommandBuffer_getNumTris(se::State& s)
+static bool js_gfx_Texture_getFormat(se::State& s)
 {
-    cc::gfx::CommandBuffer* cobj = SE_THIS_OBJECT<cc::gfx::CommandBuffer>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_CommandBuffer_getNumTris : Invalid Native Object");
+    cc::gfx::Texture* cobj = SE_THIS_OBJECT<cc::gfx::Texture>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_Texture_getFormat : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        unsigned int result = cobj->getNumTris();
+        int result = (int)cobj->getFormat();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_gfx_CommandBuffer_getNumTris : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_gfx_Texture_getFormat : Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_FUNC(js_gfx_CommandBuffer_getNumTris)
+SE_BIND_PROP_GET(js_gfx_Texture_getFormat)
 
-static bool js_gfx_CommandBuffer_getQueue(se::State& s)
+static bool js_gfx_Texture_getHeight(se::State& s)
 {
-    cc::gfx::CommandBuffer* cobj = SE_THIS_OBJECT<cc::gfx::CommandBuffer>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_CommandBuffer_getQueue : Invalid Native Object");
+    cc::gfx::Texture* cobj = SE_THIS_OBJECT<cc::gfx::Texture>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_Texture_getHeight : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        cc::gfx::Queue* result = cobj->getQueue();
+        unsigned int result = cobj->getHeight();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_gfx_CommandBuffer_getQueue : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_gfx_Texture_getHeight : Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_FUNC(js_gfx_CommandBuffer_getQueue)
+SE_BIND_PROP_GET(js_gfx_Texture_getHeight)
 
-static bool js_gfx_CommandBuffer_getType(se::State& s)
+static bool js_gfx_Texture_getLayerCount(se::State& s)
 {
-    cc::gfx::CommandBuffer* cobj = SE_THIS_OBJECT<cc::gfx::CommandBuffer>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_CommandBuffer_getType : Invalid Native Object");
+    cc::gfx::Texture* cobj = SE_THIS_OBJECT<cc::gfx::Texture>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_Texture_getLayerCount : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        unsigned int result = cobj->getLayerCount();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_gfx_Texture_getLayerCount : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_PROP_GET(js_gfx_Texture_getLayerCount)
+
+static bool js_gfx_Texture_getLevelCount(se::State& s)
+{
+    cc::gfx::Texture* cobj = SE_THIS_OBJECT<cc::gfx::Texture>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_Texture_getLevelCount : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        unsigned int result = cobj->getLevelCount();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_gfx_Texture_getLevelCount : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_PROP_GET(js_gfx_Texture_getLevelCount)
+
+static bool js_gfx_Texture_getSamples(se::State& s)
+{
+    cc::gfx::Texture* cobj = SE_THIS_OBJECT<cc::gfx::Texture>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_Texture_getSamples : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        int result = (int)cobj->getSamples();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_gfx_Texture_getSamples : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_PROP_GET(js_gfx_Texture_getSamples)
+
+static bool js_gfx_Texture_getSize(se::State& s)
+{
+    cc::gfx::Texture* cobj = SE_THIS_OBJECT<cc::gfx::Texture>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_Texture_getSize : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        unsigned int result = cobj->getSize();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_gfx_Texture_getSize : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_PROP_GET(js_gfx_Texture_getSize)
+
+static bool js_gfx_Texture_getType(se::State& s)
+{
+    cc::gfx::Texture* cobj = SE_THIS_OBJECT<cc::gfx::Texture>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_Texture_getType : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
         int result = (int)cobj->getType();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_gfx_CommandBuffer_getType : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_gfx_Texture_getType : Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_FUNC(js_gfx_CommandBuffer_getType)
+SE_BIND_PROP_GET(js_gfx_Texture_getType)
 
-static bool js_gfx_CommandBuffer_initialize(se::State& s)
+static bool js_gfx_Texture_getUsage(se::State& s)
 {
-    cc::gfx::CommandBuffer* cobj = SE_THIS_OBJECT<cc::gfx::CommandBuffer>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_CommandBuffer_initialize : Invalid Native Object");
+    cc::gfx::Texture* cobj = SE_THIS_OBJECT<cc::gfx::Texture>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_Texture_getUsage : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        int result = (int)cobj->getUsage();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_gfx_Texture_getUsage : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_PROP_GET(js_gfx_Texture_getUsage)
+
+static bool js_gfx_Texture_getWidth(se::State& s)
+{
+    cc::gfx::Texture* cobj = SE_THIS_OBJECT<cc::gfx::Texture>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_Texture_getWidth : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        unsigned int result = cobj->getWidth();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_gfx_Texture_getWidth : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_PROP_GET(js_gfx_Texture_getWidth)
+
+static bool js_gfx_Texture_isTextureView(se::State& s)
+{
+    cc::gfx::Texture* cobj = SE_THIS_OBJECT<cc::gfx::Texture>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_Texture_isTextureView : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        bool result = cobj->isTextureView();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_gfx_Texture_isTextureView : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_gfx_Texture_isTextureView)
+
+static bool js_gfx_Texture_resize(se::State& s)
+{
+    cc::gfx::Texture* cobj = SE_THIS_OBJECT<cc::gfx::Texture>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_Texture_resize : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 2) {
+        HolderType<unsigned int, false> arg0 = {};
+        HolderType<unsigned int, false> arg1 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_gfx_Texture_resize : Error processing arguments");
+        cobj->resize(arg0.value(), arg1.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
+    return false;
+}
+SE_BIND_FUNC(js_gfx_Texture_resize)
+
+SE_DECLARE_FINALIZE_FUNC(js_cc_gfx_Texture_finalize)
+
+static bool js_gfx_Texture_constructor(se::State& s) // constructor.c
+{
+    //#3 cc::gfx::Texture: is_skip_construtor True
+    se::ScriptEngine::getInstance()->evalString("throw new Error(\"cc::gfx::Texture constructor is skipped\")");
+    return false;
+}
+SE_BIND_CTOR(js_gfx_Texture_constructor, __jsb_cc_gfx_Texture_class, js_cc_gfx_Texture_finalize)
+
+
+
+extern se::Object* __jsb_cc_gfx_GFXObject_proto;
+
+static bool js_cc_gfx_Texture_finalize(se::State& s)
+{
+    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::gfx::Texture>(s));
+    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
+    {
+        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
+        cc::gfx::Texture* cobj = SE_THIS_OBJECT<cc::gfx::Texture>(s);
+        JSB_FREE(cobj);
+    }
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_cc_gfx_Texture_finalize)
+
+bool js_register_gfx_Texture(se::Object* obj)
+{
+    auto cls = se::Class::create("Texture", obj, __jsb_cc_gfx_GFXObject_proto, _SE(js_gfx_Texture_constructor));
+
+    cls->defineProperty("samples", _SE(js_gfx_Texture_getSamples), nullptr);
+    cls->defineProperty("format", _SE(js_gfx_Texture_getFormat), nullptr);
+    cls->defineProperty("buffer", _SE(js_gfx_Texture_getBuffer), nullptr);
+    cls->defineProperty("levelCount", _SE(js_gfx_Texture_getLevelCount), nullptr);
+    cls->defineProperty("height", _SE(js_gfx_Texture_getHeight), nullptr);
+    cls->defineProperty("width", _SE(js_gfx_Texture_getWidth), nullptr);
+    cls->defineProperty("depth", _SE(js_gfx_Texture_getDepth), nullptr);
+    cls->defineProperty("flags", _SE(js_gfx_Texture_getFlags), nullptr);
+    cls->defineProperty("layerCount", _SE(js_gfx_Texture_getLayerCount), nullptr);
+    cls->defineProperty("usage", _SE(js_gfx_Texture_getUsage), nullptr);
+    cls->defineProperty("type", _SE(js_gfx_Texture_getType), nullptr);
+    cls->defineProperty("size", _SE(js_gfx_Texture_getSize), nullptr);
+    cls->defineFunction("destroy", _SE(js_gfx_Texture_destroy));
+    cls->defineFunction("isTextureView", _SE(js_gfx_Texture_isTextureView));
+    cls->defineFunction("resize", _SE(js_gfx_Texture_resize));
+    cls->defineFinalizeFunction(_SE(js_cc_gfx_Texture_finalize));
+    cls->install();
+    JSBClassType::registerClass<cc::gfx::Texture>(cls);
+
+    __jsb_cc_gfx_Texture_proto = cls->getProto();
+    __jsb_cc_gfx_Texture_class = cls;
+
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
+
+se::Object* __jsb_cc_gfx_Shader_proto = nullptr;
+se::Class* __jsb_cc_gfx_Shader_class = nullptr;
+
+static bool js_gfx_Shader_destroy(se::State& s)
+{
+    cc::gfx::Shader* cobj = SE_THIS_OBJECT<cc::gfx::Shader>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_Shader_destroy : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    if (argc == 0) {
+        cobj->destroy();
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_gfx_Shader_destroy)
+
+static bool js_gfx_Shader_getAttributes(se::State& s)
+{
+    cc::gfx::Shader* cobj = SE_THIS_OBJECT<cc::gfx::Shader>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_Shader_getAttributes : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        const std::vector<cc::gfx::Attribute>& result = cobj->getAttributes();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_gfx_Shader_getAttributes : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_PROP_GET(js_gfx_Shader_getAttributes)
+
+static bool js_gfx_Shader_getBlocks(se::State& s)
+{
+    cc::gfx::Shader* cobj = SE_THIS_OBJECT<cc::gfx::Shader>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_Shader_getBlocks : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        const std::vector<cc::gfx::UniformBlock>& result = cobj->getBlocks();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_gfx_Shader_getBlocks : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_PROP_GET(js_gfx_Shader_getBlocks)
+
+static bool js_gfx_Shader_getID(se::State& s)
+{
+    cc::gfx::Shader* cobj = SE_THIS_OBJECT<cc::gfx::Shader>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_Shader_getID : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        unsigned int result = cobj->getID();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_gfx_Shader_getID : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_PROP_GET(js_gfx_Shader_getID)
+
+static bool js_gfx_Shader_getName(se::State& s)
+{
+    cc::gfx::Shader* cobj = SE_THIS_OBJECT<cc::gfx::Shader>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_Shader_getName : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        const cc::String& result = cobj->getName();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_gfx_Shader_getName : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_PROP_GET(js_gfx_Shader_getName)
+
+static bool js_gfx_Shader_getSamplers(se::State& s)
+{
+    cc::gfx::Shader* cobj = SE_THIS_OBJECT<cc::gfx::Shader>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_Shader_getSamplers : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        const std::vector<cc::gfx::UniformSampler>& result = cobj->getSamplers();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_gfx_Shader_getSamplers : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_PROP_GET(js_gfx_Shader_getSamplers)
+
+static bool js_gfx_Shader_getStages(se::State& s)
+{
+    cc::gfx::Shader* cobj = SE_THIS_OBJECT<cc::gfx::Shader>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_Shader_getStages : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        const std::vector<cc::gfx::ShaderStage>& result = cobj->getStages();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_gfx_Shader_getStages : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_PROP_GET(js_gfx_Shader_getStages)
+
+static bool js_gfx_Shader_initialize(se::State& s)
+{
+    cc::gfx::Shader* cobj = SE_THIS_OBJECT<cc::gfx::Shader>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_Shader_initialize : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<cc::gfx::ShaderInfo, true> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_gfx_Shader_initialize : Error processing arguments");
+        bool result = cobj->initialize(arg0.value());
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_gfx_Shader_initialize : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_gfx_Shader_initialize)
+
+SE_DECLARE_FINALIZE_FUNC(js_cc_gfx_Shader_finalize)
+
+static bool js_gfx_Shader_constructor(se::State& s) // constructor.c
+{
+    //#3 cc::gfx::Shader: is_skip_construtor True
+    se::ScriptEngine::getInstance()->evalString("throw new Error(\"cc::gfx::Shader constructor is skipped\")");
+    return false;
+}
+SE_BIND_CTOR(js_gfx_Shader_constructor, __jsb_cc_gfx_Shader_class, js_cc_gfx_Shader_finalize)
+
+
+
+extern se::Object* __jsb_cc_gfx_GFXObject_proto;
+
+static bool js_cc_gfx_Shader_finalize(se::State& s)
+{
+    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::gfx::Shader>(s));
+    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
+    {
+        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
+        cc::gfx::Shader* cobj = SE_THIS_OBJECT<cc::gfx::Shader>(s);
+        JSB_FREE(cobj);
+    }
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_cc_gfx_Shader_finalize)
+
+bool js_register_gfx_Shader(se::Object* obj)
+{
+    auto cls = se::Class::create("Shader", obj, __jsb_cc_gfx_GFXObject_proto, _SE(js_gfx_Shader_constructor));
+
+    cls->defineProperty("blocks", _SE(js_gfx_Shader_getBlocks), nullptr);
+    cls->defineProperty("name", _SE(js_gfx_Shader_getName), nullptr);
+    cls->defineProperty("samplers", _SE(js_gfx_Shader_getSamplers), nullptr);
+    cls->defineProperty("shaderID", _SE(js_gfx_Shader_getID), nullptr);
+    cls->defineProperty("attributes", _SE(js_gfx_Shader_getAttributes), nullptr);
+    cls->defineProperty("stages", _SE(js_gfx_Shader_getStages), nullptr);
+    cls->defineFunction("destroy", _SE(js_gfx_Shader_destroy));
+    cls->defineFunction("initialize", _SE(js_gfx_Shader_initialize));
+    cls->defineFinalizeFunction(_SE(js_cc_gfx_Shader_finalize));
+    cls->install();
+    JSBClassType::registerClass<cc::gfx::Shader>(cls);
+
+    __jsb_cc_gfx_Shader_proto = cls->getProto();
+    __jsb_cc_gfx_Shader_class = cls;
+
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
+
+se::Object* __jsb_cc_gfx_Device_proto = nullptr;
+se::Class* __jsb_cc_gfx_Device_class = nullptr;
+
+static bool js_gfx_Device_acquire(se::State& s)
+{
+    cc::gfx::Device* cobj = SE_THIS_OBJECT<cc::gfx::Device>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_Device_acquire : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    if (argc == 0) {
+        cobj->acquire();
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_gfx_Device_acquire)
+
+static bool js_gfx_Device_bindingMappingInfo(se::State& s)
+{
+    cc::gfx::Device* cobj = SE_THIS_OBJECT<cc::gfx::Device>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_Device_bindingMappingInfo : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        const cc::gfx::BindingMappingInfo& result = cobj->bindingMappingInfo();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_gfx_Device_bindingMappingInfo : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_gfx_Device_bindingMappingInfo)
+
+static bool js_gfx_Device_createCommandBuffer(se::State& s)
+{
+    cc::gfx::Device* cobj = SE_THIS_OBJECT<cc::gfx::Device>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_Device_createCommandBuffer : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         HolderType<cc::gfx::CommandBufferInfo, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_gfx_CommandBuffer_initialize : Error processing arguments");
-        bool result = cobj->initialize(arg0.value());
+        SE_PRECONDITION2(ok, false, "js_gfx_Device_createCommandBuffer : Error processing arguments");
+        cc::gfx::CommandBuffer* result = cobj->createCommandBuffer(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_gfx_CommandBuffer_initialize : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_gfx_Device_createCommandBuffer : Error processing arguments");
+        se::NonRefNativePtrCreatedByCtorMap::emplace(result);
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_FUNC(js_gfx_CommandBuffer_initialize)
+SE_BIND_FUNC(js_gfx_Device_createCommandBuffer)
 
-static bool js_gfx_CommandBuffer_setBlendConstants(se::State& s)
+static bool js_gfx_Device_createDescriptorSet(se::State& s)
 {
-    cc::gfx::CommandBuffer* cobj = SE_THIS_OBJECT<cc::gfx::CommandBuffer>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_CommandBuffer_setBlendConstants : Invalid Native Object");
+    cc::gfx::Device* cobj = SE_THIS_OBJECT<cc::gfx::Device>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_Device_createDescriptorSet : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
-        HolderType<cc::gfx::Color, true> arg0 = {};
+        HolderType<cc::gfx::DescriptorSetInfo, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_gfx_CommandBuffer_setBlendConstants : Error processing arguments");
-        cobj->setBlendConstants(arg0.value());
+        SE_PRECONDITION2(ok, false, "js_gfx_Device_createDescriptorSet : Error processing arguments");
+        cc::gfx::DescriptorSet* result = cobj->createDescriptorSet(arg0.value());
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_gfx_Device_createDescriptorSet : Error processing arguments");
+        se::NonRefNativePtrCreatedByCtorMap::emplace(result);
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_FUNC(js_gfx_CommandBuffer_setBlendConstants)
+SE_BIND_FUNC(js_gfx_Device_createDescriptorSet)
 
-static bool js_gfx_CommandBuffer_setDepthBias(se::State& s)
+static bool js_gfx_Device_createDescriptorSetLayout(se::State& s)
 {
-    cc::gfx::CommandBuffer* cobj = SE_THIS_OBJECT<cc::gfx::CommandBuffer>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_CommandBuffer_setDepthBias : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 3) {
-        HolderType<float, false> arg0 = {};
-        HolderType<float, false> arg1 = {};
-        HolderType<float, false> arg2 = {};
-        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
-        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_gfx_CommandBuffer_setDepthBias : Error processing arguments");
-        cobj->setDepthBias(arg0.value(), arg1.value(), arg2.value());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 3);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_CommandBuffer_setDepthBias)
-
-static bool js_gfx_CommandBuffer_setDepthBound(se::State& s)
-{
-    cc::gfx::CommandBuffer* cobj = SE_THIS_OBJECT<cc::gfx::CommandBuffer>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_CommandBuffer_setDepthBound : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 2) {
-        HolderType<float, false> arg0 = {};
-        HolderType<float, false> arg1 = {};
-        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_gfx_CommandBuffer_setDepthBound : Error processing arguments");
-        cobj->setDepthBound(arg0.value(), arg1.value());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_CommandBuffer_setDepthBound)
-
-static bool js_gfx_CommandBuffer_setLineWidth(se::State& s)
-{
-    cc::gfx::CommandBuffer* cobj = SE_THIS_OBJECT<cc::gfx::CommandBuffer>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_CommandBuffer_setLineWidth : Invalid Native Object");
+    cc::gfx::Device* cobj = SE_THIS_OBJECT<cc::gfx::Device>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_Device_createDescriptorSetLayout : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
-        HolderType<float, false> arg0 = {};
+        HolderType<cc::gfx::DescriptorSetLayoutInfo, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_gfx_CommandBuffer_setLineWidth : Error processing arguments");
-        cobj->setLineWidth(arg0.value());
+        SE_PRECONDITION2(ok, false, "js_gfx_Device_createDescriptorSetLayout : Error processing arguments");
+        cc::gfx::DescriptorSetLayout* result = cobj->createDescriptorSetLayout(arg0.value());
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_gfx_Device_createDescriptorSetLayout : Error processing arguments");
+        se::NonRefNativePtrCreatedByCtorMap::emplace(result);
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_FUNC(js_gfx_CommandBuffer_setLineWidth)
+SE_BIND_FUNC(js_gfx_Device_createDescriptorSetLayout)
 
-static bool js_gfx_CommandBuffer_setScissor(se::State& s)
+static bool js_gfx_Device_createFence(se::State& s)
 {
-    cc::gfx::CommandBuffer* cobj = SE_THIS_OBJECT<cc::gfx::CommandBuffer>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_CommandBuffer_setScissor : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        HolderType<cc::gfx::Rect, true> arg0 = {};
-        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_gfx_CommandBuffer_setScissor : Error processing arguments");
-        cobj->setScissor(arg0.value());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_CommandBuffer_setScissor)
-
-static bool js_gfx_CommandBuffer_setStencilCompareMask(se::State& s)
-{
-    cc::gfx::CommandBuffer* cobj = SE_THIS_OBJECT<cc::gfx::CommandBuffer>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_CommandBuffer_setStencilCompareMask : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 3) {
-        HolderType<cc::gfx::StencilFace, false> arg0 = {};
-        HolderType<int, false> arg1 = {};
-        HolderType<unsigned int, false> arg2 = {};
-        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
-        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_gfx_CommandBuffer_setStencilCompareMask : Error processing arguments");
-        cobj->setStencilCompareMask(arg0.value(), arg1.value(), arg2.value());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 3);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_CommandBuffer_setStencilCompareMask)
-
-static bool js_gfx_CommandBuffer_setStencilWriteMask(se::State& s)
-{
-    cc::gfx::CommandBuffer* cobj = SE_THIS_OBJECT<cc::gfx::CommandBuffer>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_CommandBuffer_setStencilWriteMask : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 2) {
-        HolderType<cc::gfx::StencilFace, false> arg0 = {};
-        HolderType<unsigned int, false> arg1 = {};
-        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_gfx_CommandBuffer_setStencilWriteMask : Error processing arguments");
-        cobj->setStencilWriteMask(arg0.value(), arg1.value());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_CommandBuffer_setStencilWriteMask)
-
-static bool js_gfx_CommandBuffer_setViewport(se::State& s)
-{
-    cc::gfx::CommandBuffer* cobj = SE_THIS_OBJECT<cc::gfx::CommandBuffer>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_CommandBuffer_setViewport : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        HolderType<cc::gfx::Viewport, true> arg0 = {};
-        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_gfx_CommandBuffer_setViewport : Error processing arguments");
-        cobj->setViewport(arg0.value());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_CommandBuffer_setViewport)
-
-SE_DECLARE_FINALIZE_FUNC(js_cc_gfx_CommandBuffer_finalize)
-
-static bool js_gfx_CommandBuffer_constructor(se::State& s) // constructor.c
-{
-    //#3 cc::gfx::CommandBuffer: is_skip_construtor True
-    se::ScriptEngine::getInstance()->evalString("throw new Error(\"cc::gfx::CommandBuffer constructor is skipped\")");
-    return false;
-}
-SE_BIND_CTOR(js_gfx_CommandBuffer_constructor, __jsb_cc_gfx_CommandBuffer_class, js_cc_gfx_CommandBuffer_finalize)
-
-
-
-extern se::Object* __jsb_cc_gfx_GFXObject_proto;
-
-static bool js_cc_gfx_CommandBuffer_finalize(se::State& s)
-{
-    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::gfx::CommandBuffer>(s));
-    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
-    {
-        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        cc::gfx::CommandBuffer* cobj = SE_THIS_OBJECT<cc::gfx::CommandBuffer>(s);
-        JSB_FREE(cobj);
-    }
-    return true;
-}
-SE_BIND_FINALIZE_FUNC(js_cc_gfx_CommandBuffer_finalize)
-
-bool js_register_gfx_CommandBuffer(se::Object* obj)
-{
-    auto cls = se::Class::create("CommandBuffer", obj, __jsb_cc_gfx_GFXObject_proto, _SE(js_gfx_CommandBuffer_constructor));
-
-    cls->defineFunction("begin", _SE(js_gfx_CommandBuffer_begin));
-    cls->defineFunction("beginRenderPass", _SE(js_gfx_CommandBuffer_beginRenderPass));
-    cls->defineFunction("bindDescriptorSet", _SE(js_gfx_CommandBuffer_bindDescriptorSetForJS));
-    cls->defineFunction("bindInputAssembler", _SE(js_gfx_CommandBuffer_bindInputAssembler));
-    cls->defineFunction("bindPipelineState", _SE(js_gfx_CommandBuffer_bindPipelineState));
-    cls->defineFunction("destroy", _SE(js_gfx_CommandBuffer_destroy));
-    cls->defineFunction("draw", _SE(js_gfx_CommandBuffer_draw));
-    cls->defineFunction("end", _SE(js_gfx_CommandBuffer_end));
-    cls->defineFunction("endRenderPass", _SE(js_gfx_CommandBuffer_endRenderPass));
-    cls->defineFunction("getNumDrawCalls", _SE(js_gfx_CommandBuffer_getNumDrawCalls));
-    cls->defineFunction("getNumInstances", _SE(js_gfx_CommandBuffer_getNumInstances));
-    cls->defineFunction("getNumTris", _SE(js_gfx_CommandBuffer_getNumTris));
-    cls->defineFunction("getQueue", _SE(js_gfx_CommandBuffer_getQueue));
-    cls->defineFunction("getType", _SE(js_gfx_CommandBuffer_getType));
-    cls->defineFunction("initialize", _SE(js_gfx_CommandBuffer_initialize));
-    cls->defineFunction("setBlendConstants", _SE(js_gfx_CommandBuffer_setBlendConstants));
-    cls->defineFunction("setDepthBias", _SE(js_gfx_CommandBuffer_setDepthBias));
-    cls->defineFunction("setDepthBound", _SE(js_gfx_CommandBuffer_setDepthBound));
-    cls->defineFunction("setLineWidth", _SE(js_gfx_CommandBuffer_setLineWidth));
-    cls->defineFunction("setScissor", _SE(js_gfx_CommandBuffer_setScissor));
-    cls->defineFunction("setStencilCompareMask", _SE(js_gfx_CommandBuffer_setStencilCompareMask));
-    cls->defineFunction("setStencilWriteMask", _SE(js_gfx_CommandBuffer_setStencilWriteMask));
-    cls->defineFunction("setViewport", _SE(js_gfx_CommandBuffer_setViewport));
-    cls->defineFinalizeFunction(_SE(js_cc_gfx_CommandBuffer_finalize));
-    cls->install();
-    JSBClassType::registerClass<cc::gfx::CommandBuffer>(cls);
-
-    __jsb_cc_gfx_CommandBuffer_proto = cls->getProto();
-    __jsb_cc_gfx_CommandBuffer_class = cls;
-
-    se::ScriptEngine::getInstance()->clearException();
-    return true;
-}
-
-se::Object* __jsb_cc_gfx_Fence_proto = nullptr;
-se::Class* __jsb_cc_gfx_Fence_class = nullptr;
-
-static bool js_gfx_Fence_destroy(se::State& s)
-{
-    cc::gfx::Fence* cobj = SE_THIS_OBJECT<cc::gfx::Fence>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_Fence_destroy : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    if (argc == 0) {
-        cobj->destroy();
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_Fence_destroy)
-
-static bool js_gfx_Fence_initialize(se::State& s)
-{
-    cc::gfx::Fence* cobj = SE_THIS_OBJECT<cc::gfx::Fence>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_Fence_initialize : Invalid Native Object");
+    cc::gfx::Device* cobj = SE_THIS_OBJECT<cc::gfx::Device>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_Device_createFence : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         HolderType<cc::gfx::FenceInfo, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_gfx_Fence_initialize : Error processing arguments");
-        bool result = cobj->initialize(arg0.value());
+        SE_PRECONDITION2(ok, false, "js_gfx_Device_createFence : Error processing arguments");
+        cc::gfx::Fence* result = cobj->createFence(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_gfx_Fence_initialize : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_gfx_Device_createFence : Error processing arguments");
+        se::NonRefNativePtrCreatedByCtorMap::emplace(result);
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_FUNC(js_gfx_Fence_initialize)
+SE_BIND_FUNC(js_gfx_Device_createFence)
 
-static bool js_gfx_Fence_reset(se::State& s)
+static bool js_gfx_Device_createFramebuffer(se::State& s)
 {
-    cc::gfx::Fence* cobj = SE_THIS_OBJECT<cc::gfx::Fence>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_Fence_reset : Invalid Native Object");
+    cc::gfx::Device* cobj = SE_THIS_OBJECT<cc::gfx::Device>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_Device_createFramebuffer : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
-    if (argc == 0) {
-        cobj->reset();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<cc::gfx::FramebufferInfo, true> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_gfx_Device_createFramebuffer : Error processing arguments");
+        cc::gfx::Framebuffer* result = cobj->createFramebuffer(arg0.value());
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_gfx_Device_createFramebuffer : Error processing arguments");
+        se::NonRefNativePtrCreatedByCtorMap::emplace(result);
         return true;
     }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_FUNC(js_gfx_Fence_reset)
+SE_BIND_FUNC(js_gfx_Device_createFramebuffer)
 
-static bool js_gfx_Fence_wait(se::State& s)
+static bool js_gfx_Device_createInputAssembler(se::State& s)
 {
-    cc::gfx::Fence* cobj = SE_THIS_OBJECT<cc::gfx::Fence>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_Fence_wait : Invalid Native Object");
+    cc::gfx::Device* cobj = SE_THIS_OBJECT<cc::gfx::Device>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_Device_createInputAssembler : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
-    if (argc == 0) {
-        cobj->wait();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<cc::gfx::InputAssemblerInfo, true> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_gfx_Device_createInputAssembler : Error processing arguments");
+        cc::gfx::InputAssembler* result = cobj->createInputAssembler(arg0.value());
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_gfx_Device_createInputAssembler : Error processing arguments");
+        se::NonRefNativePtrCreatedByCtorMap::emplace(result);
         return true;
     }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_FUNC(js_gfx_Fence_wait)
+SE_BIND_FUNC(js_gfx_Device_createInputAssembler)
 
-SE_DECLARE_FINALIZE_FUNC(js_cc_gfx_Fence_finalize)
-
-static bool js_gfx_Fence_constructor(se::State& s) // constructor.c
+static bool js_gfx_Device_createPipelineLayout(se::State& s)
 {
-    //#3 cc::gfx::Fence: is_skip_construtor True
-    se::ScriptEngine::getInstance()->evalString("throw new Error(\"cc::gfx::Fence constructor is skipped\")");
-    return false;
-}
-SE_BIND_CTOR(js_gfx_Fence_constructor, __jsb_cc_gfx_Fence_class, js_cc_gfx_Fence_finalize)
-
-
-
-extern se::Object* __jsb_cc_gfx_GFXObject_proto;
-
-static bool js_cc_gfx_Fence_finalize(se::State& s)
-{
-    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::gfx::Fence>(s));
-    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
-    {
-        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        cc::gfx::Fence* cobj = SE_THIS_OBJECT<cc::gfx::Fence>(s);
-        JSB_FREE(cobj);
+    cc::gfx::Device* cobj = SE_THIS_OBJECT<cc::gfx::Device>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_Device_createPipelineLayout : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<cc::gfx::PipelineLayoutInfo, true> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_gfx_Device_createPipelineLayout : Error processing arguments");
+        cc::gfx::PipelineLayout* result = cobj->createPipelineLayout(arg0.value());
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_gfx_Device_createPipelineLayout : Error processing arguments");
+        se::NonRefNativePtrCreatedByCtorMap::emplace(result);
+        return true;
     }
-    return true;
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
 }
-SE_BIND_FINALIZE_FUNC(js_cc_gfx_Fence_finalize)
+SE_BIND_FUNC(js_gfx_Device_createPipelineLayout)
 
-bool js_register_gfx_Fence(se::Object* obj)
+static bool js_gfx_Device_createPipelineState(se::State& s)
 {
-    auto cls = se::Class::create("Fence", obj, __jsb_cc_gfx_GFXObject_proto, _SE(js_gfx_Fence_constructor));
-
-    cls->defineFunction("destroy", _SE(js_gfx_Fence_destroy));
-    cls->defineFunction("initialize", _SE(js_gfx_Fence_initialize));
-    cls->defineFunction("reset", _SE(js_gfx_Fence_reset));
-    cls->defineFunction("wait", _SE(js_gfx_Fence_wait));
-    cls->defineFinalizeFunction(_SE(js_cc_gfx_Fence_finalize));
-    cls->install();
-    JSBClassType::registerClass<cc::gfx::Fence>(cls);
-
-    __jsb_cc_gfx_Fence_proto = cls->getProto();
-    __jsb_cc_gfx_Fence_class = cls;
-
-    se::ScriptEngine::getInstance()->clearException();
-    return true;
+    cc::gfx::Device* cobj = SE_THIS_OBJECT<cc::gfx::Device>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_Device_createPipelineState : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<cc::gfx::PipelineStateInfo, true> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_gfx_Device_createPipelineState : Error processing arguments");
+        cc::gfx::PipelineState* result = cobj->createPipelineState(arg0.value());
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_gfx_Device_createPipelineState : Error processing arguments");
+        se::NonRefNativePtrCreatedByCtorMap::emplace(result);
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
 }
+SE_BIND_FUNC(js_gfx_Device_createPipelineState)
 
-se::Object* __jsb_cc_gfx_Queue_proto = nullptr;
-se::Class* __jsb_cc_gfx_Queue_class = nullptr;
-
-static bool js_gfx_Queue_destroy(se::State& s)
+static bool js_gfx_Device_createQueue(se::State& s)
 {
-    cc::gfx::Queue* cobj = SE_THIS_OBJECT<cc::gfx::Queue>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_Queue_destroy : Invalid Native Object");
+    cc::gfx::Device* cobj = SE_THIS_OBJECT<cc::gfx::Device>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_Device_createQueue : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<cc::gfx::QueueInfo, true> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_gfx_Device_createQueue : Error processing arguments");
+        cc::gfx::Queue* result = cobj->createQueue(arg0.value());
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_gfx_Device_createQueue : Error processing arguments");
+        se::NonRefNativePtrCreatedByCtorMap::emplace(result);
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_gfx_Device_createQueue)
+
+static bool js_gfx_Device_createRenderPass(se::State& s)
+{
+    cc::gfx::Device* cobj = SE_THIS_OBJECT<cc::gfx::Device>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_Device_createRenderPass : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<cc::gfx::RenderPassInfo, true> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_gfx_Device_createRenderPass : Error processing arguments");
+        cc::gfx::RenderPass* result = cobj->createRenderPass(arg0.value());
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_gfx_Device_createRenderPass : Error processing arguments");
+        se::NonRefNativePtrCreatedByCtorMap::emplace(result);
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_gfx_Device_createRenderPass)
+
+static bool js_gfx_Device_createSampler(se::State& s)
+{
+    cc::gfx::Device* cobj = SE_THIS_OBJECT<cc::gfx::Device>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_Device_createSampler : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<cc::gfx::SamplerInfo, true> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_gfx_Device_createSampler : Error processing arguments");
+        cc::gfx::Sampler* result = cobj->createSampler(arg0.value());
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_gfx_Device_createSampler : Error processing arguments");
+        se::NonRefNativePtrCreatedByCtorMap::emplace(result);
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_gfx_Device_createSampler)
+
+static bool js_gfx_Device_createShader(se::State& s)
+{
+    cc::gfx::Device* cobj = SE_THIS_OBJECT<cc::gfx::Device>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_Device_createShader : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<cc::gfx::ShaderInfo, true> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_gfx_Device_createShader : Error processing arguments");
+        cc::gfx::Shader* result = cobj->createShader(arg0.value());
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_gfx_Device_createShader : Error processing arguments");
+        se::NonRefNativePtrCreatedByCtorMap::emplace(result);
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_gfx_Device_createShader)
+
+static bool js_gfx_Device_destroy(se::State& s)
+{
+    cc::gfx::Device* cobj = SE_THIS_OBJECT<cc::gfx::Device>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_Device_destroy : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     if (argc == 0) {
@@ -15792,161 +15227,783 @@ static bool js_gfx_Queue_destroy(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_FUNC(js_gfx_Queue_destroy)
+SE_BIND_FUNC(js_gfx_Device_destroy)
 
-static bool js_gfx_Queue_getType(se::State& s)
+static bool js_gfx_Device_genShaderId(se::State& s)
 {
-    cc::gfx::Queue* cobj = SE_THIS_OBJECT<cc::gfx::Queue>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_Queue_getType : Invalid Native Object");
+    cc::gfx::Device* cobj = SE_THIS_OBJECT<cc::gfx::Device>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_Device_genShaderId : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        int result = (int)cobj->getType();
+        unsigned int result = cobj->genShaderId();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_gfx_Queue_getType : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_gfx_Device_genShaderId : Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_PROP_GET(js_gfx_Queue_getType)
+SE_BIND_FUNC(js_gfx_Device_genShaderId)
 
-static bool js_gfx_Queue_initialize(se::State& s)
+static bool js_gfx_Device_getClipSpaceMinZ(se::State& s)
 {
-    cc::gfx::Queue* cobj = SE_THIS_OBJECT<cc::gfx::Queue>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_Queue_initialize : Invalid Native Object");
+    cc::gfx::Device* cobj = SE_THIS_OBJECT<cc::gfx::Device>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_Device_getClipSpaceMinZ : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        float result = cobj->getClipSpaceMinZ();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_gfx_Device_getClipSpaceMinZ : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_PROP_GET(js_gfx_Device_getClipSpaceMinZ)
+
+static bool js_gfx_Device_getColorFormat(se::State& s)
+{
+    cc::gfx::Device* cobj = SE_THIS_OBJECT<cc::gfx::Device>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_Device_getColorFormat : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        int result = (int)cobj->getColorFormat();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_gfx_Device_getColorFormat : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_PROP_GET(js_gfx_Device_getColorFormat)
+
+static bool js_gfx_Device_getCommandBuffer(se::State& s)
+{
+    cc::gfx::Device* cobj = SE_THIS_OBJECT<cc::gfx::Device>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_Device_getCommandBuffer : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        cc::gfx::CommandBuffer* result = cobj->getCommandBuffer();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_gfx_Device_getCommandBuffer : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_PROP_GET(js_gfx_Device_getCommandBuffer)
+
+static bool js_gfx_Device_getContext(se::State& s)
+{
+    cc::gfx::Device* cobj = SE_THIS_OBJECT<cc::gfx::Device>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_Device_getContext : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        cc::gfx::Context* result = cobj->getContext();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_gfx_Device_getContext : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_PROP_GET(js_gfx_Device_getContext)
+
+static bool js_gfx_Device_getDepthBits(se::State& s)
+{
+    cc::gfx::Device* cobj = SE_THIS_OBJECT<cc::gfx::Device>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_Device_getDepthBits : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        int result = cobj->getDepthBits();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_gfx_Device_getDepthBits : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_PROP_GET(js_gfx_Device_getDepthBits)
+
+static bool js_gfx_Device_getDepthStencilFormat(se::State& s)
+{
+    cc::gfx::Device* cobj = SE_THIS_OBJECT<cc::gfx::Device>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_Device_getDepthStencilFormat : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        int result = (int)cobj->getDepthStencilFormat();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_gfx_Device_getDepthStencilFormat : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_PROP_GET(js_gfx_Device_getDepthStencilFormat)
+
+static bool js_gfx_Device_getDeviceName(se::State& s)
+{
+    cc::gfx::Device* cobj = SE_THIS_OBJECT<cc::gfx::Device>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_Device_getDeviceName : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        const cc::String& result = cobj->getDeviceName();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_gfx_Device_getDeviceName : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_PROP_GET(js_gfx_Device_getDeviceName)
+
+static bool js_gfx_Device_getGfxAPI(se::State& s)
+{
+    cc::gfx::Device* cobj = SE_THIS_OBJECT<cc::gfx::Device>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_Device_getGfxAPI : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        int result = (int)cobj->getGfxAPI();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_gfx_Device_getGfxAPI : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_PROP_GET(js_gfx_Device_getGfxAPI)
+
+static bool js_gfx_Device_getHeight(se::State& s)
+{
+    cc::gfx::Device* cobj = SE_THIS_OBJECT<cc::gfx::Device>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_Device_getHeight : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        unsigned int result = cobj->getHeight();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_gfx_Device_getHeight : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_PROP_GET(js_gfx_Device_getHeight)
+
+static bool js_gfx_Device_getMaxCubeMapTextureSize(se::State& s)
+{
+    cc::gfx::Device* cobj = SE_THIS_OBJECT<cc::gfx::Device>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_Device_getMaxCubeMapTextureSize : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        int result = cobj->getMaxCubeMapTextureSize();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_gfx_Device_getMaxCubeMapTextureSize : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_PROP_GET(js_gfx_Device_getMaxCubeMapTextureSize)
+
+static bool js_gfx_Device_getMaxFragmentUniformVectors(se::State& s)
+{
+    cc::gfx::Device* cobj = SE_THIS_OBJECT<cc::gfx::Device>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_Device_getMaxFragmentUniformVectors : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        int result = cobj->getMaxFragmentUniformVectors();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_gfx_Device_getMaxFragmentUniformVectors : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_PROP_GET(js_gfx_Device_getMaxFragmentUniformVectors)
+
+static bool js_gfx_Device_getMaxTextureSize(se::State& s)
+{
+    cc::gfx::Device* cobj = SE_THIS_OBJECT<cc::gfx::Device>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_Device_getMaxTextureSize : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        int result = cobj->getMaxTextureSize();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_gfx_Device_getMaxTextureSize : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_PROP_GET(js_gfx_Device_getMaxTextureSize)
+
+static bool js_gfx_Device_getMaxTextureUnits(se::State& s)
+{
+    cc::gfx::Device* cobj = SE_THIS_OBJECT<cc::gfx::Device>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_Device_getMaxTextureUnits : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        int result = cobj->getMaxTextureUnits();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_gfx_Device_getMaxTextureUnits : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_PROP_GET(js_gfx_Device_getMaxTextureUnits)
+
+static bool js_gfx_Device_getMaxUniformBlockSize(se::State& s)
+{
+    cc::gfx::Device* cobj = SE_THIS_OBJECT<cc::gfx::Device>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_Device_getMaxUniformBlockSize : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        int result = cobj->getMaxUniformBlockSize();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_gfx_Device_getMaxUniformBlockSize : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_PROP_GET(js_gfx_Device_getMaxUniformBlockSize)
+
+static bool js_gfx_Device_getMaxUniformBufferBindings(se::State& s)
+{
+    cc::gfx::Device* cobj = SE_THIS_OBJECT<cc::gfx::Device>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_Device_getMaxUniformBufferBindings : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        int result = cobj->getMaxUniformBufferBindings();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_gfx_Device_getMaxUniformBufferBindings : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_PROP_GET(js_gfx_Device_getMaxUniformBufferBindings)
+
+static bool js_gfx_Device_getMaxVertexAttributes(se::State& s)
+{
+    cc::gfx::Device* cobj = SE_THIS_OBJECT<cc::gfx::Device>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_Device_getMaxVertexAttributes : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        int result = cobj->getMaxVertexAttributes();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_gfx_Device_getMaxVertexAttributes : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_PROP_GET(js_gfx_Device_getMaxVertexAttributes)
+
+static bool js_gfx_Device_getMaxVertexTextureUnits(se::State& s)
+{
+    cc::gfx::Device* cobj = SE_THIS_OBJECT<cc::gfx::Device>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_Device_getMaxVertexTextureUnits : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        int result = cobj->getMaxVertexTextureUnits();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_gfx_Device_getMaxVertexTextureUnits : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_PROP_GET(js_gfx_Device_getMaxVertexTextureUnits)
+
+static bool js_gfx_Device_getMaxVertexUniformVectors(se::State& s)
+{
+    cc::gfx::Device* cobj = SE_THIS_OBJECT<cc::gfx::Device>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_Device_getMaxVertexUniformVectors : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        int result = cobj->getMaxVertexUniformVectors();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_gfx_Device_getMaxVertexUniformVectors : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_PROP_GET(js_gfx_Device_getMaxVertexUniformVectors)
+
+static bool js_gfx_Device_getMemoryStatus(se::State& s)
+{
+    cc::gfx::Device* cobj = SE_THIS_OBJECT<cc::gfx::Device>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_Device_getMemoryStatus : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        cc::gfx::MemoryStatus& result = cobj->getMemoryStatus();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_gfx_Device_getMemoryStatus : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_PROP_GET(js_gfx_Device_getMemoryStatus)
+
+static bool js_gfx_Device_getNativeHeight(se::State& s)
+{
+    cc::gfx::Device* cobj = SE_THIS_OBJECT<cc::gfx::Device>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_Device_getNativeHeight : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        unsigned int result = cobj->getNativeHeight();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_gfx_Device_getNativeHeight : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_PROP_GET(js_gfx_Device_getNativeHeight)
+
+static bool js_gfx_Device_getNativeWidth(se::State& s)
+{
+    cc::gfx::Device* cobj = SE_THIS_OBJECT<cc::gfx::Device>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_Device_getNativeWidth : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        unsigned int result = cobj->getNativeWidth();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_gfx_Device_getNativeWidth : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_PROP_GET(js_gfx_Device_getNativeWidth)
+
+static bool js_gfx_Device_getNumDrawCalls(se::State& s)
+{
+    cc::gfx::Device* cobj = SE_THIS_OBJECT<cc::gfx::Device>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_Device_getNumDrawCalls : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        unsigned int result = cobj->getNumDrawCalls();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_gfx_Device_getNumDrawCalls : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_PROP_GET(js_gfx_Device_getNumDrawCalls)
+
+static bool js_gfx_Device_getNumInstances(se::State& s)
+{
+    cc::gfx::Device* cobj = SE_THIS_OBJECT<cc::gfx::Device>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_Device_getNumInstances : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        unsigned int result = cobj->getNumInstances();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_gfx_Device_getNumInstances : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_PROP_GET(js_gfx_Device_getNumInstances)
+
+static bool js_gfx_Device_getNumTris(se::State& s)
+{
+    cc::gfx::Device* cobj = SE_THIS_OBJECT<cc::gfx::Device>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_Device_getNumTris : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        unsigned int result = cobj->getNumTris();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_gfx_Device_getNumTris : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_PROP_GET(js_gfx_Device_getNumTris)
+
+static bool js_gfx_Device_getQueue(se::State& s)
+{
+    cc::gfx::Device* cobj = SE_THIS_OBJECT<cc::gfx::Device>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_Device_getQueue : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        cc::gfx::Queue* result = cobj->getQueue();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_gfx_Device_getQueue : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_PROP_GET(js_gfx_Device_getQueue)
+
+static bool js_gfx_Device_getRenderer(se::State& s)
+{
+    cc::gfx::Device* cobj = SE_THIS_OBJECT<cc::gfx::Device>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_Device_getRenderer : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        const cc::String& result = cobj->getRenderer();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_gfx_Device_getRenderer : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_PROP_GET(js_gfx_Device_getRenderer)
+
+static bool js_gfx_Device_getScreenSpaceSignY(se::State& s)
+{
+    cc::gfx::Device* cobj = SE_THIS_OBJECT<cc::gfx::Device>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_Device_getScreenSpaceSignY : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        float result = cobj->getScreenSpaceSignY();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_gfx_Device_getScreenSpaceSignY : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_PROP_GET(js_gfx_Device_getScreenSpaceSignY)
+
+static bool js_gfx_Device_getStencilBits(se::State& s)
+{
+    cc::gfx::Device* cobj = SE_THIS_OBJECT<cc::gfx::Device>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_Device_getStencilBits : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        int result = cobj->getStencilBits();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_gfx_Device_getStencilBits : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_PROP_GET(js_gfx_Device_getStencilBits)
+
+static bool js_gfx_Device_getSurfaceTransform(se::State& s)
+{
+    cc::gfx::Device* cobj = SE_THIS_OBJECT<cc::gfx::Device>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_Device_getSurfaceTransform : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        int result = (int)cobj->getSurfaceTransform();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_gfx_Device_getSurfaceTransform : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_PROP_GET(js_gfx_Device_getSurfaceTransform)
+
+static bool js_gfx_Device_getUVSpaceSignY(se::State& s)
+{
+    cc::gfx::Device* cobj = SE_THIS_OBJECT<cc::gfx::Device>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_Device_getUVSpaceSignY : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        float result = cobj->getUVSpaceSignY();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_gfx_Device_getUVSpaceSignY : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_PROP_GET(js_gfx_Device_getUVSpaceSignY)
+
+static bool js_gfx_Device_getUboOffsetAlignment(se::State& s)
+{
+    cc::gfx::Device* cobj = SE_THIS_OBJECT<cc::gfx::Device>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_Device_getUboOffsetAlignment : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        int result = cobj->getUboOffsetAlignment();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_gfx_Device_getUboOffsetAlignment : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_gfx_Device_getUboOffsetAlignment)
+
+static bool js_gfx_Device_getVendor(se::State& s)
+{
+    cc::gfx::Device* cobj = SE_THIS_OBJECT<cc::gfx::Device>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_Device_getVendor : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        const cc::String& result = cobj->getVendor();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_gfx_Device_getVendor : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_PROP_GET(js_gfx_Device_getVendor)
+
+static bool js_gfx_Device_getWidth(se::State& s)
+{
+    cc::gfx::Device* cobj = SE_THIS_OBJECT<cc::gfx::Device>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_Device_getWidth : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        unsigned int result = cobj->getWidth();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_gfx_Device_getWidth : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_PROP_GET(js_gfx_Device_getWidth)
+
+static bool js_gfx_Device_hasFeature(se::State& s)
+{
+    cc::gfx::Device* cobj = SE_THIS_OBJECT<cc::gfx::Device>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_Device_hasFeature : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
-        HolderType<cc::gfx::QueueInfo, true> arg0 = {};
+        HolderType<cc::gfx::Feature, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_gfx_Queue_initialize : Error processing arguments");
-        bool result = cobj->initialize(arg0.value());
+        SE_PRECONDITION2(ok, false, "js_gfx_Device_hasFeature : Error processing arguments");
+        bool result = cobj->hasFeature(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_gfx_Queue_initialize : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_gfx_Device_hasFeature : Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_FUNC(js_gfx_Queue_initialize)
+SE_BIND_FUNC(js_gfx_Device_hasFeature)
 
-static bool js_gfx_Queue_isAsync(se::State& s)
+static bool js_gfx_Device_initialize(se::State& s)
 {
-    cc::gfx::Queue* cobj = SE_THIS_OBJECT<cc::gfx::Queue>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_Queue_isAsync : Invalid Native Object");
+    cc::gfx::Device* cobj = SE_THIS_OBJECT<cc::gfx::Device>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_Device_initialize : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        bool result = cobj->isAsync();
+    if (argc == 1) {
+        HolderType<cc::gfx::DeviceInfo, true> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_gfx_Device_initialize : Error processing arguments");
+        bool result = cobj->initialize(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_gfx_Queue_isAsync : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_gfx_Device_initialize : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_gfx_Device_initialize)
+
+static bool js_gfx_Device_present(se::State& s)
+{
+    cc::gfx::Device* cobj = SE_THIS_OBJECT<cc::gfx::Device>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_Device_present : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    if (argc == 0) {
+        cobj->present();
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_FUNC(js_gfx_Queue_isAsync)
+SE_BIND_FUNC(js_gfx_Device_present)
 
-static bool js_gfx_Queue_submit(se::State& s)
+static bool js_gfx_Device_resize(se::State& s)
 {
-    CC_UNUSED bool ok = true;
-    cc::gfx::Queue* cobj = SE_THIS_OBJECT<cc::gfx::Queue>(s);
-    SE_PRECONDITION2( cobj, false, "js_gfx_Queue_submit : Invalid Native Object");
+    cc::gfx::Device* cobj = SE_THIS_OBJECT<cc::gfx::Device>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_Device_resize : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
-    do {
-        if (argc == 1) {
-            HolderType<std::vector<cc::gfx::CommandBuffer *>, true> arg0 = {};
-
-            ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-            if (!ok) { ok = true; break; }
-            cobj->submit(arg0.value());
-            return true;
-        }
-    } while(false);
-
-    do {
-        if (argc == 3) {
-            HolderType<const cc::gfx::CommandBuffer**, false> arg0 = {};
-            HolderType<unsigned int, false> arg1 = {};
-            HolderType<cc::gfx::Fence*, false> arg2 = {};
-
-            ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-            if (!ok) { ok = true; break; }
-            ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
-            if (!ok) { ok = true; break; }
-            ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
-            if (!ok) { ok = true; break; }
-            cobj->submit(arg0.value(), arg1.value(), arg2.value());
-            return true;
-        }
-    } while(false);
-
-    do {
-        if (argc == 2) {
-            HolderType<std::vector<cc::gfx::CommandBuffer *>, true> arg0 = {};
-            HolderType<cc::gfx::Fence*, false> arg1 = {};
-
-            ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-            if (!ok) { ok = true; break; }
-            ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
-            if (!ok) { ok = true; break; }
-            cobj->submit(arg0.value(), arg1.value());
-            return true;
-        }
-    } while(false);
-
-    SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_Queue_submit)
-
-SE_DECLARE_FINALIZE_FUNC(js_cc_gfx_Queue_finalize)
-
-static bool js_gfx_Queue_constructor(se::State& s) // constructor.c
-{
-    //#3 cc::gfx::Queue: is_skip_construtor True
-    se::ScriptEngine::getInstance()->evalString("throw new Error(\"cc::gfx::Queue constructor is skipped\")");
-    return false;
-}
-SE_BIND_CTOR(js_gfx_Queue_constructor, __jsb_cc_gfx_Queue_class, js_cc_gfx_Queue_finalize)
-
-
-
-extern se::Object* __jsb_cc_gfx_GFXObject_proto;
-
-static bool js_cc_gfx_Queue_finalize(se::State& s)
-{
-    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::gfx::Queue>(s));
-    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
-    {
-        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        cc::gfx::Queue* cobj = SE_THIS_OBJECT<cc::gfx::Queue>(s);
-        JSB_FREE(cobj);
+    CC_UNUSED bool ok = true;
+    if (argc == 2) {
+        HolderType<unsigned int, false> arg0 = {};
+        HolderType<unsigned int, false> arg1 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_gfx_Device_resize : Error processing arguments");
+        cobj->resize(arg0.value(), arg1.value());
+        return true;
     }
-    return true;
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
+    return false;
 }
-SE_BIND_FINALIZE_FUNC(js_cc_gfx_Queue_finalize)
+SE_BIND_FUNC(js_gfx_Device_resize)
 
-bool js_register_gfx_Queue(se::Object* obj)
+static bool js_gfx_Device_setMultithreaded(se::State& s)
 {
-    auto cls = se::Class::create("Queue", obj, __jsb_cc_gfx_GFXObject_proto, _SE(js_gfx_Queue_constructor));
+    cc::gfx::Device* cobj = SE_THIS_OBJECT<cc::gfx::Device>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_Device_setMultithreaded : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<bool, false> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_gfx_Device_setMultithreaded : Error processing arguments");
+        cobj->setMultithreaded(arg0.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_gfx_Device_setMultithreaded)
 
-    cls->defineProperty("type", _SE(js_gfx_Queue_getType), nullptr);
-    cls->defineFunction("destroy", _SE(js_gfx_Queue_destroy));
-    cls->defineFunction("initialize", _SE(js_gfx_Queue_initialize));
-    cls->defineFunction("isAsync", _SE(js_gfx_Queue_isAsync));
-    cls->defineFunction("submit", _SE(js_gfx_Queue_submit));
-    cls->defineFinalizeFunction(_SE(js_cc_gfx_Queue_finalize));
+
+
+
+bool js_register_gfx_Device(se::Object* obj)
+{
+    auto cls = se::Class::create("GFXDevice", obj, nullptr, nullptr);
+
+    cls->defineProperty("deviceName", _SE(js_gfx_Device_getDeviceName), nullptr);
+    cls->defineProperty("clipSpaceMinZ", _SE(js_gfx_Device_getClipSpaceMinZ), nullptr);
+    cls->defineProperty("numInstances", _SE(js_gfx_Device_getNumInstances), nullptr);
+    cls->defineProperty("maxTextureUnits", _SE(js_gfx_Device_getMaxTextureUnits), nullptr);
+    cls->defineProperty("height", _SE(js_gfx_Device_getHeight), nullptr);
+    cls->defineProperty("renderer", _SE(js_gfx_Device_getRenderer), nullptr);
+    cls->defineProperty("maxUniformBufferBindings", _SE(js_gfx_Device_getMaxUniformBufferBindings), nullptr);
+    cls->defineProperty("UVSpaceSignY", _SE(js_gfx_Device_getUVSpaceSignY), nullptr);
+    cls->defineProperty("commandBuffer", _SE(js_gfx_Device_getCommandBuffer), nullptr);
+    cls->defineProperty("vendor", _SE(js_gfx_Device_getVendor), nullptr);
+    cls->defineProperty("depthBits", _SE(js_gfx_Device_getDepthBits), nullptr);
+    cls->defineProperty("maxFragmentUniformVectors", _SE(js_gfx_Device_getMaxFragmentUniformVectors), nullptr);
+    cls->defineProperty("maxVertexAttributes", _SE(js_gfx_Device_getMaxVertexAttributes), nullptr);
+    cls->defineProperty("width", _SE(js_gfx_Device_getWidth), nullptr);
+    cls->defineProperty("maxVertexUniformVectors", _SE(js_gfx_Device_getMaxVertexUniformVectors), nullptr);
+    cls->defineProperty("maxCubeMapTextureSize", _SE(js_gfx_Device_getMaxCubeMapTextureSize), nullptr);
+    cls->defineProperty("maxVertexTextureUnits", _SE(js_gfx_Device_getMaxVertexTextureUnits), nullptr);
+    cls->defineProperty("nativeWidth", _SE(js_gfx_Device_getNativeWidth), nullptr);
+    cls->defineProperty("numDrawCalls", _SE(js_gfx_Device_getNumDrawCalls), nullptr);
+    cls->defineProperty("memoryStatus", _SE(js_gfx_Device_getMemoryStatus), nullptr);
+    cls->defineProperty("gfxAPI", _SE(js_gfx_Device_getGfxAPI), nullptr);
+    cls->defineProperty("maxUniformBlockSize", _SE(js_gfx_Device_getMaxUniformBlockSize), nullptr);
+    cls->defineProperty("surfaceTransform", _SE(js_gfx_Device_getSurfaceTransform), nullptr);
+    cls->defineProperty("maxTextureSize", _SE(js_gfx_Device_getMaxTextureSize), nullptr);
+    cls->defineProperty("nativeHeight", _SE(js_gfx_Device_getNativeHeight), nullptr);
+    cls->defineProperty("depthStencilFormat", _SE(js_gfx_Device_getDepthStencilFormat), nullptr);
+    cls->defineProperty("numTris", _SE(js_gfx_Device_getNumTris), nullptr);
+    cls->defineProperty("screenSpaceSignY", _SE(js_gfx_Device_getScreenSpaceSignY), nullptr);
+    cls->defineProperty("stencilBits", _SE(js_gfx_Device_getStencilBits), nullptr);
+    cls->defineProperty("queue", _SE(js_gfx_Device_getQueue), nullptr);
+    cls->defineProperty("context", _SE(js_gfx_Device_getContext), nullptr);
+    cls->defineProperty("colorFormat", _SE(js_gfx_Device_getColorFormat), nullptr);
+    cls->defineFunction("acquire", _SE(js_gfx_Device_acquire));
+    cls->defineFunction("bindingMappingInfo", _SE(js_gfx_Device_bindingMappingInfo));
+    cls->defineFunction("createCommandBuffer", _SE(js_gfx_Device_createCommandBuffer));
+    cls->defineFunction("createDescriptorSet", _SE(js_gfx_Device_createDescriptorSet));
+    cls->defineFunction("createDescriptorSetLayout", _SE(js_gfx_Device_createDescriptorSetLayout));
+    cls->defineFunction("createFence", _SE(js_gfx_Device_createFence));
+    cls->defineFunction("createFramebuffer", _SE(js_gfx_Device_createFramebuffer));
+    cls->defineFunction("createInputAssembler", _SE(js_gfx_Device_createInputAssembler));
+    cls->defineFunction("createPipelineLayout", _SE(js_gfx_Device_createPipelineLayout));
+    cls->defineFunction("createPipelineState", _SE(js_gfx_Device_createPipelineState));
+    cls->defineFunction("createQueue", _SE(js_gfx_Device_createQueue));
+    cls->defineFunction("createRenderPass", _SE(js_gfx_Device_createRenderPass));
+    cls->defineFunction("createSampler", _SE(js_gfx_Device_createSampler));
+    cls->defineFunction("createShader", _SE(js_gfx_Device_createShader));
+    cls->defineFunction("destroy", _SE(js_gfx_Device_destroy));
+    cls->defineFunction("genShaderId", _SE(js_gfx_Device_genShaderId));
+    cls->defineFunction("getUboOffsetAlignment", _SE(js_gfx_Device_getUboOffsetAlignment));
+    cls->defineFunction("hasFeature", _SE(js_gfx_Device_hasFeature));
+    cls->defineFunction("initialize", _SE(js_gfx_Device_initialize));
+    cls->defineFunction("present", _SE(js_gfx_Device_present));
+    cls->defineFunction("resize", _SE(js_gfx_Device_resize));
+    cls->defineFunction("setMultithreaded", _SE(js_gfx_Device_setMultithreaded));
     cls->install();
-    JSBClassType::registerClass<cc::gfx::Queue>(cls);
+    JSBClassType::registerClass<cc::gfx::Device>(cls);
 
-    __jsb_cc_gfx_Queue_proto = cls->getProto();
-    __jsb_cc_gfx_Queue_class = cls;
+    __jsb_cc_gfx_Device_proto = cls->getProto();
+    __jsb_cc_gfx_Device_class = cls;
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
@@ -15991,9 +16048,8 @@ bool register_all_gfx(se::Object* obj)
     js_register_gfx_RenderPassInfo(ns);
     js_register_gfx_TextureLayout(ns);
     js_register_gfx_Offset(ns);
-    js_register_gfx_Device(ns);
-    js_register_gfx_Framebuffer(ns);
     js_register_gfx_CommandBuffer(ns);
+    js_register_gfx_Framebuffer(ns);
     js_register_gfx_Rect(ns);
     js_register_gfx_BufferViewInfo(ns);
     js_register_gfx_Extent(ns);
@@ -16002,6 +16058,7 @@ bool register_all_gfx(se::Object* obj)
     js_register_gfx_PipelineStateInfo(ns);
     js_register_gfx_Shader(ns);
     js_register_gfx_BlendState(ns);
+    js_register_gfx_Device(ns);
     js_register_gfx_DescriptorSetInfo(ns);
     js_register_gfx_DescriptorSetLayoutInfo(ns);
     js_register_gfx_ContextInfo(ns);

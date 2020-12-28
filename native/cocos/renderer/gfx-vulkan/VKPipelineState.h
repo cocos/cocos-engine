@@ -6,7 +6,7 @@ namespace gfx {
 
 class CCVKGPUPipelineState;
 
-class CC_VULKAN_API CCVKPipelineState : public PipelineState {
+class CC_VULKAN_API CCVKPipelineState final : public PipelineState {
 public:
     CCVKPipelineState(Device *device);
     ~CCVKPipelineState();

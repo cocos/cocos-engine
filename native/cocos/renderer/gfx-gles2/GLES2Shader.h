@@ -6,7 +6,7 @@ namespace gfx {
 
 class GLES2GPUShader;
 
-class CC_GLES2_API GLES2Shader : public Shader {
+class CC_GLES2_API GLES2Shader final : public Shader {
 public:
     GLES2Shader(Device *device);
     ~GLES2Shader();

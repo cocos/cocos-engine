@@ -98,6 +98,7 @@ enum class Feature {
     LINE_WIDTH,
     STENCIL_WRITE_MASK,
     STENCIL_COMPARE_MASK,
+    MULTITHREADED_SUBMISSION,
     COUNT,
 };
 
@@ -1017,7 +1018,7 @@ struct BlendState {
     uint32_t isA2C = 0;
     uint32_t isIndepend = 0;
     Color blendColor;
-    BlendTargetList targets;
+    BlendTargetList targets{1};
 };
 
 struct PipelineStateInfo {

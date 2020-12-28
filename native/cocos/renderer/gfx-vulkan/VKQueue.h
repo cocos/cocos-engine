@@ -6,7 +6,7 @@ namespace gfx {
 
 class CCVKGPUQueue;
 
-class CC_VULKAN_API CCVKQueue : public Queue {
+class CC_VULKAN_API CCVKQueue final : public Queue {
 public:
     CCVKQueue(Device *device);
     ~CCVKQueue();

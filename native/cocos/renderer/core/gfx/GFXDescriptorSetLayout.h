@@ -19,10 +19,12 @@ public:
     CC_INLINE const DescriptorSetLayoutBindingList &getBindings() const { return _bindings; }
     CC_INLINE const vector<uint> &getBindingIndices() const { return _bindingIndices; }
     CC_INLINE const vector<uint> &getDescriptorIndices() const { return _descriptorIndices; }
+    CC_INLINE const uint getDescriptorCount() const { return _descriptorCount; }
 
 protected:
     Device *_device = nullptr;
     DescriptorSetLayoutBindingList _bindings;
+    uint _descriptorCount = 0u;
     vector<uint> _bindingIndices;
     vector<uint> _descriptorIndices;
 };

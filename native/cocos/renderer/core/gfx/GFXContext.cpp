@@ -1,4 +1,5 @@
 #include "CoreStd.h"
+
 #include "GFXContext.h"
 
 namespace cc {

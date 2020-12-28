@@ -154,7 +154,7 @@ void BatchedBuffer::merge(const SubModelView *subModel, uint passIdx, const Mode
         });
         auto size = 0u;
         auto data = flatBuffer->getBuffer(&size);
-        newVB->update(data, 0, size);
+        newVB->update(data, size);
 
         vbs[i] = newVB;
         vbDatas[i] = static_cast<uint8_t *>(CC_MALLOC(newVB->getSize()));
@@ -171,7 +171,7 @@ void BatchedBuffer::merge(const SubModelView *subModel, uint passIdx, const Mode
     });
     float *indexData = static_cast<float *>(CC_MALLOC(indexBufferSize));
     memset(indexData, 0, indexBufferSize);
-    indexBuffer->update(indexData, 0, indexBufferSize);
+    indexBuffer->update(indexData, indexBufferSize);
     totalVBs[flatBuffersCount] = indexBuffer;
 
     vector<gfx::Attribute> attributes = subModel->getInputAssembler()->getAttributes();

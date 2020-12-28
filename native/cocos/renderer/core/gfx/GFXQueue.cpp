@@ -1,4 +1,5 @@
 #include "CoreStd.h"
+
 #include "GFXQueue.h"
 
 namespace cc {

@@ -18,22 +18,16 @@ namespace gfx {
 namespace {
 
 constexpr uint FORCE_MINOR_VERSION = 0;             // 0 for default version, otherwise minorVersion = (FORCE_MINOR_VERSION - 1)
-constexpr uint ALLOW_VALIDATION_ERRORS = 0;         // 0 for default behavior, otherwise assertions will be disabled
-constexpr uint PREFERRED_SWAPCHAIN_IMAGE_COUNT = 0; // 0 for default count, otherwise prefer the specified number
+constexpr uint DISABLE_VALIDATION_ASSERTIONS = 0;   // 0 for default behavior, otherwise assertions will be disabled
 
 #define FORCE_ENABLE_VALIDATION  0
-#define FORCE_DISABLE_VALIDATION 0
+#define FORCE_DISABLE_VALIDATION 1
 
 #if CC_DEBUG > 0 && !FORCE_DISABLE_VALIDATION || FORCE_ENABLE_VALIDATION
 VKAPI_ATTR VkBool32 VKAPI_CALL debugUtilsMessengerCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
                                                            VkDebugUtilsMessageTypeFlagsEXT messageType,
                                                            const VkDebugUtilsMessengerCallbackDataEXT *callbackData,
                                                            void *userData) {
-    // The current allocation strategy will have invalid requests, and we handle them explicitly
-    if (strstr(callbackData->pMessageIdName, "VUID-VkDescriptorSetAllocateInfo-descriptorPool-00307")) {
-        return VK_FALSE;
-    }
-
     // GPU-assisted validation might throw this due to driver reasons which is safe to ignore
     if (strstr(callbackData->pMessage, "Failure to instrument shader")) {
         return VK_FALSE;
@@ -44,7 +38,7 @@ VKAPI_ATTR VkBool32 VKAPI_CALL debugUtilsMessengerCallback(VkDebugUtilsMessageSe
         CC_LOG_WARNING("%s: %s", callbackData->pMessageIdName, callbackData->pMessage);
     } else if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT) {
         CC_LOG_ERROR("%s: %s", callbackData->pMessageIdName, callbackData->pMessage);
-        CCASSERT(ALLOW_VALIDATION_ERRORS, "Validation Error");
+        CCASSERT(DISABLE_VALIDATION_ASSERTIONS, "Validation Error");
     }
     return VK_FALSE;
 }
@@ -57,24 +51,20 @@ VKAPI_ATTR VkBool32 VKAPI_CALL debugReportCallback(VkDebugReportFlagsEXT flags,
                                                    const char *layerPrefix,
                                                    const char *message,
                                                    void *userData) {
-    // The current allocation strategy will have invalid requests, and we handle them explicitly
-    if (strstr(message, "VUID-VkDescriptorSetAllocateInfo-descriptorPool-00307")) {
-        return VK_FALSE;
-    }
-
     // GPU-assisted validation might throw this due to driver reasons which is safe to ignore
     if (strstr(message, "Failure to instrument shader")) {
         return VK_FALSE;
     }
 
-    // These are thrown when missing proper drivers, at which time we should try to shut down gracefully
+    // These are thrown randomly when missing proper vulkan drivers
+    // at which time we should try to shut down the backend gracefully instead of freezing at assertions
     if (strstr(message, "setupLoaderTermPhysDevs") || strstr(message, "setupLoaderTrampPhysDevs")) {
         return VK_FALSE;
     }
 
     if (flags & VK_DEBUG_REPORT_ERROR_BIT_EXT) {
         CC_LOG_ERROR("VError: %s: %s", layerPrefix, message);
-        CCASSERT(ALLOW_VALIDATION_ERRORS, "Validation Error");
+        CCASSERT(DISABLE_VALIDATION_ASSERTIONS, "Validation Error");
     } else if (flags & VK_DEBUG_REPORT_WARNING_BIT_EXT) {
         CC_LOG_ERROR("VWarning: %s: %s", layerPrefix, message);
     } else if (flags & VK_DEBUG_REPORT_PERFORMANCE_WARNING_BIT_EXT) {
@@ -133,10 +123,8 @@ bool CCVKContext::initialize(const ContextInfo &info) {
         requestedExtensions.push_back(VK_KHR_ANDROID_SURFACE_EXTENSION_NAME);
 #elif defined(VK_USE_PLATFORM_WIN32_KHR)
         requestedExtensions.push_back(VK_KHR_WIN32_SURFACE_EXTENSION_NAME);
-#elif defined(VK_USE_PLATFORM_IOS_MVK)
-        requestedExtensions.push_back(VK_MVK_IOS_SURFACE_EXTENSION_NAME);
-#elif defined(VK_USE_PLATFORM_MACOS_MVK)
-        requestedExtensions.push_back(VK_MVK_MACOS_SURFACE_EXTENSION_NAME);
+#elif defined(VK_USE_PLATFORM_METAL_EXT)
+        requestedExtensions.push_back(VK_EXT_METAL_SURFACE_EXTENSION_NAME);
 #elif defined(VK_USE_PLATFORM_WAYLAND_KHR)
         requestedExtensions.push_back(VK_KHR_WAYLAND_SURFACE_EXTENSION_NAME);
 #elif defined(VK_USE_PLATFORM_XCB_KHR)
@@ -269,6 +257,8 @@ bool CCVKContext::initialize(const ContextInfo &info) {
 
         ///////////////////// Surface Creation /////////////////////
 
+        CCVKDevice* device = (CCVKDevice*)_device;
+
 #if defined(VK_USE_PLATFORM_ANDROID_KHR)
         VkAndroidSurfaceCreateInfoKHR surfaceCreateInfo{VK_STRUCTURE_TYPE_ANDROID_SURFACE_CREATE_INFO_KHR};
         surfaceCreateInfo.window = (ANativeWindow *)_windowHandle;
@@ -277,13 +267,12 @@ bool CCVKContext::initialize(const ContextInfo &info) {
         EventDispatcher::addCustomEventListener(EVENT_DESTROY_WINDOW, [=](const CustomEvent &) -> void {
             if (_gpuContext && _gpuContext->vkSurface != VK_NULL_HANDLE) {
 
-                CCVKDevice* device = (CCVKDevice*)_device;
-                CCVKQueue *queue = (CCVKQueue *)device->_queue;
+                CCVKQueue *queue = (CCVKQueue *)device->getQueue();
 
-                if (!queue->gpuQueue()->fences.empty()) {
-                    VK_CHECK(vkWaitForFences(device->_gpuDevice->vkDevice, queue->gpuQueue()->fences.size(),
-                                             queue->gpuQueue()->fences.data(), VK_TRUE, DEFAULT_TIMEOUT));
-                    queue->gpuQueue()->fences.clear();
+                uint fenceCount = device->gpuFencePool()->size();
+                if (fenceCount) {
+                    VK_CHECK(vkWaitForFences(device->gpuDevice()->vkDevice, fenceCount,
+                                             device->gpuFencePool()->data(), VK_TRUE, DEFAULT_TIMEOUT));
                 }
 
                 device->destroySwapchain();
@@ -304,7 +293,6 @@ bool CCVKContext::initialize(const ContextInfo &info) {
                 VK_CHECK(vkCreateAndroidSurfaceKHR(_gpuContext->vkInstance, &surfaceCreateInfo,
                                                    nullptr, &_gpuContext->vkSurface));
 
-                CCVKDevice *device = (CCVKDevice *) _device;
                 device->checkSwapchainStatus();
             }
         });
@@ -313,14 +301,10 @@ bool CCVKContext::initialize(const ContextInfo &info) {
         surfaceCreateInfo.hinstance = (HINSTANCE)GetModuleHandle(0);
         surfaceCreateInfo.hwnd = (HWND)_windowHandle;
         VK_CHECK(vkCreateWin32SurfaceKHR(_gpuContext->vkInstance, &surfaceCreateInfo, nullptr, &_gpuContext->vkSurface));
-#elif defined(VK_USE_PLATFORM_IOS_MVK)
-        VkIOSSurfaceCreateInfoMVK surfaceCreateInfo{VK_STRUCTURE_TYPE_IOS_SURFACE_CREATE_INFO_MVK};
-        surfaceCreateInfo.pView = (void *)_windowHandle;
-        VK_CHECK(vkCreateIOSSurfaceMVK(_gpuContext->vkInstance, &surfaceCreateInfo, nullptr, &_gpuContext->vkSurface));
-#elif defined(VK_USE_PLATFORM_MACOS_MVK)
-        VkMacOSSurfaceCreateInfoMVK surfaceCreateInfo{VK_STRUCTURE_TYPE_MACOS_SURFACE_CREATE_INFO_MVK};
-        surfaceCreateInfo.pView = (void *)_windowHandle;
-        VK_CHECK(vkCreateMacOSSurfaceMVK(_gpuContext->vkInstance, &surfaceCreateInfo, nullptr, &_gpuContext->vkSurface));
+#elif defined(VK_USE_PLATFORM_METAL_EXT)
+        VkMetalSurfaceCreateInfoEXT surfaceCreateInfo{VK_STRUCTURE_TYPE_METAL_SURFACE_CREATE_INFO_EXT};
+        surfaceCreateInfo.pLayer = (CAMetalLayer *)_windowHandle;
+        VK_CHECK(vkCreateMetalSurfaceEXT(_gpuContext->vkInstance, &surfaceCreateInfo, nullptr, &_gpuContext->vkSurface));
 #elif defined(VK_USE_PLATFORM_WAYLAND_KHR)
         VkWaylandSurfaceCreateInfoKHR surfaceCreateInfo{VK_STRUCTURE_TYPE_WAYLAND_SURFACE_CREATE_INFO_KHR};
         surfaceCreateInfo.display = nullptr; // TODO
@@ -485,10 +469,7 @@ bool CCVKContext::initialize(const ContextInfo &info) {
         }
 
         // Determine the number of images
-        uint desiredNumberOfSwapchainImages = surfaceCapabilities.minImageCount + 1;
-        if (PREFERRED_SWAPCHAIN_IMAGE_COUNT) {
-            desiredNumberOfSwapchainImages = PREFERRED_SWAPCHAIN_IMAGE_COUNT;
-        }
+        uint desiredNumberOfSwapchainImages = std::max(3u, surfaceCapabilities.minImageCount + 1);
 
         if ((surfaceCapabilities.maxImageCount > 0) && (desiredNumberOfSwapchainImages > surfaceCapabilities.maxImageCount)) {
             desiredNumberOfSwapchainImages = surfaceCapabilities.maxImageCount;

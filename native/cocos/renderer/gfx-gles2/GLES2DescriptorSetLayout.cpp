@@ -17,15 +17,15 @@ bool GLES2DescriptorSetLayout::initialize(const DescriptorSetLayoutInfo &info) {
 
     _bindings = info.bindings;
     size_t bindingCount = _bindings.size();
-    uint descriptorCount = 0u;
+    _descriptorCount = 0u;
 
     if (bindingCount) {
         uint maxBinding = 0u;
         vector<uint> flattenedIndices(bindingCount);
         for (uint i = 0u; i < bindingCount; i++) {
             const DescriptorSetLayoutBinding &binding = _bindings[i];
-            flattenedIndices[i] = descriptorCount;
-            descriptorCount += binding.count;
+            flattenedIndices[i] = _descriptorCount;
+            _descriptorCount += binding.count;
             if (binding.binding > maxBinding) maxBinding = binding.binding;
         }
 
@@ -39,7 +39,7 @@ bool GLES2DescriptorSetLayout::initialize(const DescriptorSetLayoutInfo &info) {
     }
 
     _gpuDescriptorSetLayout = CC_NEW(GLES2GPUDescriptorSetLayout);
-    _gpuDescriptorSetLayout->descriptorCount = descriptorCount;
+    _gpuDescriptorSetLayout->descriptorCount = _descriptorCount;
     _gpuDescriptorSetLayout->bindingIndices = _bindingIndices;
     _gpuDescriptorSetLayout->descriptorIndices = _descriptorIndices;
     _gpuDescriptorSetLayout->bindings = _bindings;

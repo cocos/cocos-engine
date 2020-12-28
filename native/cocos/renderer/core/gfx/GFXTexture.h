@@ -17,6 +17,7 @@ public:
     virtual void destroy() = 0;
     virtual void resize(uint width, uint height) = 0;
 
+    CC_INLINE Device *getDevice() const { return _device; }
     CC_INLINE TextureType getType() const { return _type; }
     CC_INLINE TextureUsage getUsage() const { return _usage; }
     CC_INLINE Format getFormat() const { return _format; }

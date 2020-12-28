@@ -25,11 +25,17 @@ void GLES2Queue::destroy() {
 void GLES2Queue::submit(const CommandBuffer *const *cmdBuffs, uint count, Fence *fence) {
     if (!_isAsync) {
         for (uint i = 0; i < count; ++i) {
-            GLES2CommandBuffer *cmdBuffer = (GLES2CommandBuffer *)cmdBuffs[i];
-            GLES2CmdFuncExecuteCmds((GLES2Device *)_device, cmdBuffer->_cmdPackage);
-            _numDrawCalls += cmdBuffer->_numDrawCalls;
-            _numInstances += cmdBuffer->_numInstances;
-            _numTriangles += cmdBuffer->_numTriangles;
+            GLES2CommandBuffer *cmdBuff = (GLES2CommandBuffer *)cmdBuffs[i];
+            GLES2CmdPackage *cmdPackage = cmdBuff->_pendingPackages.front();
+
+            GLES2CmdFuncExecuteCmds((GLES2Device *)_device, cmdPackage);
+
+            _numDrawCalls += cmdBuff->_numDrawCalls;
+            _numInstances += cmdBuff->_numInstances;
+            _numTriangles += cmdBuff->_numTriangles;
+
+            cmdBuff->_pendingPackages.pop();
+            cmdBuff->_freePackages.push(cmdPackage);
         }
     }
 }

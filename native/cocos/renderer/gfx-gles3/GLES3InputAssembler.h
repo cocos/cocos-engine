@@ -7,7 +7,7 @@ namespace gfx {
 class GLES3GPUInputAssembler;
 class GLES3CmdDraw;
 
-class CC_GLES3_API GLES3InputAssembler : public InputAssembler {
+class CC_GLES3_API GLES3InputAssembler final : public InputAssembler {
 public:
     GLES3InputAssembler(Device *device);
     ~GLES3InputAssembler();

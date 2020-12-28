@@ -6,7 +6,7 @@ namespace gfx {
 
 class CCVKGPUSampler;
 
-class CC_VULKAN_API CCVKSampler : public Sampler {
+class CC_VULKAN_API CCVKSampler final : public Sampler {
 public:
     CCVKSampler(Device *device);
     ~CCVKSampler();

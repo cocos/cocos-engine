@@ -4,7 +4,7 @@
 namespace cc {
 namespace gfx {
 
-class CC_GLES3_API GLES3Queue : public Queue {
+class CC_GLES3_API GLES3Queue final : public Queue {
 public:
     GLES3Queue(Device *device);
     ~GLES3Queue();
