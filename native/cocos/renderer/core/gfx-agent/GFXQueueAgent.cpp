@@ -55,29 +55,22 @@ void QueueAgent::submit(const CommandBuffer *const *cmdBuffs, uint count, Fence 
         QueueSubmit,
         actor, getActor(),
         multiThreaded, multiThreaded,
-        cmdBuffs, cmdBuffs,
+        cmdBuffs, (CommandBufferAgent *const *)cmdBuffs,
         actorCmdBuffs, actorCmdBuffs,
         count, count,
         fence, fence,
         {
-            auto startTime = std::chrono::steady_clock::now();
-            if (count > 1) {
-                if (multiThreaded) {
-                    JobGraph g(JobSystem::getInstance());
-                    uint job = g.createForEachIndexJob(1u, count, 1u, [this](uint i) {
-                        ((CommandBufferAgent *)cmdBuffs[i])->getEncoder()->flushCommands();
-                    });
-                    g.run(job);
-                    ((CommandBufferAgent *)cmdBuffs[0])->getEncoder()->flushCommands();
-                    g.waitForAll();
-                } else {
-                    for (uint i = 0u; i < count; ++i) {
-                        ((CommandBufferAgent *)cmdBuffs[i])->getEncoder()->flushCommands();
-                    }
-                }
-            } else {
-                ((CommandBufferAgent *)cmdBuffs[0])->getEncoder()->flushCommands();
-            }
+            //auto startTime = std::chrono::steady_clock::now();
+
+            CommandBufferAgent::flushCommands(cmdBuffs, count, multiThreaded);
+
+            //auto endTime = std::chrono::steady_clock::now();
+            //float dt = std::chrono::duration_cast<std::chrono::nanoseconds>(endTime - startTime).count() / 1e6;
+            //static float timeAcc = 0.f;
+            //if (!timeAcc) timeAcc = dt;
+            //else timeAcc = timeAcc * 0.95f + dt * 0.05f;
+            //CC_LOG_INFO("---------- %.2fms", timeAcc);
+
             //CC_LOG_INFO("======== one round ========");
 
             auto endTime = std::chrono::steady_clock::now();

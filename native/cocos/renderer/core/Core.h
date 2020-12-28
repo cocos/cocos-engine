@@ -23,3 +23,18 @@
 #include "gfx/GFXSampler.h"
 #include "gfx/GFXShader.h"
 #include "gfx/GFXTexture.h"
+
+#include "threading/CommandEncoder.h"
+#include "threading/ThreadPool.h"
+
+#include "gfx-agent/GFXBufferAgent.h"
+#include "gfx-agent/GFXCommandBufferAgent.h"
+#include "gfx-agent/GFXDescriptorSetAgent.h"
+#include "gfx-agent/GFXDeviceAgent.h"
+#include "gfx-agent/GFXFramebufferAgent.h"
+#include "gfx-agent/GFXInputAssemblerAgent.h"
+#include "gfx-agent/GFXPipelineStateAgent.h"
+#include "gfx-agent/GFXQueueAgent.h"
+#include "gfx-agent/GFXRenderPassAgent.h"
+#include "gfx-agent/GFXShaderAgent.h"
+#include "gfx-agent/GFXTextureAgent.h"

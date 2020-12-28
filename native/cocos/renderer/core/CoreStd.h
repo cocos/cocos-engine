@@ -62,4 +62,9 @@ THE SOFTWARE.
 #include "base/Object.h"
 #include "gfx/GFXObject.h"
 
+#define CC_JOB_SYSTEM_TASKFLOW 1
+#define CC_JOB_SYSTEM_TBB      2
+
+#define CC_JOB_SYSTEM CC_JOB_SYSTEM_TBB
+
 #endif // CC_CORE_CORE_STD_H_

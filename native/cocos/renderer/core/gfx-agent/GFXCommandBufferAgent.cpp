@@ -17,6 +17,26 @@
 namespace cc {
 namespace gfx {
 
+void CommandBufferAgent::flushCommands(CommandBufferAgent *const *cmdBuffs, uint count, bool multiThreaded) {
+    if (count > 1) {
+        if (multiThreaded) {
+            JobGraph g(JobSystem::getInstance());
+            uint job = g.createForEachIndexJob(1u, count, 1u, [cmdBuffs](uint i) {
+                cmdBuffs[i]->getEncoder()->flushCommands();
+            });
+            g.run(job);
+            cmdBuffs[0]->getEncoder()->flushCommands();
+            g.waitForAll();
+        } else {
+            for (uint i = 0u; i < count; ++i) {
+                cmdBuffs[i]->getEncoder()->flushCommands();
+            }
+        }
+    } else {
+        cmdBuffs[0]->getEncoder()->flushCommands();
+    }
+}
+
 void CommandBufferAgent::initEncoder() {
     _allocatorPools.resize(MAX_CPU_FRAME_AHEAD + 1);
     for (uint i = 0u; i < MAX_CPU_FRAME_AHEAD + 1; ++i) {
@@ -159,28 +179,12 @@ void CommandBufferAgent::execute(const CommandBuffer *const *cmdBuffs, uint32_t 
         _encoder,
         CommandBufferExecute,
         actor, getActor(),
-        cmdBuffs, cmdBuffs,
+        cmdBuffs, (CommandBufferAgent *const *)cmdBuffs,
         actorCmdBuffs, actorCmdBuffs,
         count, count,
         multiThreaded, multiThreaded,
         {
-            if (count > 1) {
-                if (multiThreaded) {
-                    JobGraph g(JobSystem::getInstance());
-                    uint job = g.createForEachIndexJob(1u, count, 1u, [this](uint i) {
-                        ((CommandBufferAgent *)cmdBuffs[i])->getEncoder()->flushCommands();
-                    });
-                    g.run(job);
-                    ((CommandBufferAgent *)cmdBuffs[0])->getEncoder()->flushCommands();
-                    g.waitForAll();
-                } else {
-                    for (uint i = 0u; i < count; ++i) {
-                        ((CommandBufferAgent *)cmdBuffs[i])->getEncoder()->flushCommands();
-                    }
-                }
-            } else {
-                ((CommandBufferAgent *)cmdBuffs[0])->getEncoder()->flushCommands();
-            }
+            CommandBufferAgent::flushCommands(cmdBuffs, count, multiThreaded);
             actor->execute(actorCmdBuffs, count);
         });
 }

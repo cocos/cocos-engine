@@ -16,6 +16,8 @@ public:
     using Agent::Agent;
     CommandBufferAgent(Device *device) = delete;
 
+    static void flushCommands(CommandBufferAgent *const *cmdBuffs, uint count, bool multiThreaded);
+
     virtual bool initialize(const CommandBufferInfo &info) override;
     virtual void destroy() override;
     virtual void begin(RenderPass *renderPass, uint subpass, Framebuffer *frameBuffer, int submitIndex) override;
