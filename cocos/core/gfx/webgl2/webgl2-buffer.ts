@@ -35,7 +35,6 @@ import { WebGL2Device } from './webgl2-device';
 import { IWebGL2GPUBuffer } from './webgl2-gpu-objects';
 
 export class WebGL2Buffer extends Buffer {
-
     get gpuBuffer (): IWebGL2GPUBuffer {
         return  this._gpuBuffer!;
     }
@@ -43,9 +42,7 @@ export class WebGL2Buffer extends Buffer {
     private _gpuBuffer: IWebGL2GPUBuffer | null = null;
 
     public initialize (info: BufferInfo | BufferViewInfo): boolean {
-
         if ('buffer' in info) { // buffer view
-
             this._isBufferView = true;
 
             const buffer = info.buffer as WebGL2Buffer;
@@ -67,9 +64,7 @@ export class WebGL2Buffer extends Buffer {
                 glBuffer: buffer.gpuBuffer.glBuffer,
                 glOffset: info.offset,
             };
-
         } else { // native buffer
-
             this._usage = info.usage;
             this._memUsage = info.memUsage;
             this._size = info.size;
@@ -156,14 +151,14 @@ export class WebGL2Buffer extends Buffer {
         }
     }
 
-    public update (buffer: BufferSource, offset?: number, size?: number) {
+    public update (buffer: BufferSource, size?: number) {
         if (this._isBufferView) {
             console.warn('cannot update through buffer views!');
             return;
         }
 
         let buffSize: number;
-        if (size !== undefined ) {
+        if (size !== undefined) {
             buffSize = size;
         } else if (this._usage & BufferUsageBit.INDIRECT) {
             buffSize = 0;
@@ -172,14 +167,15 @@ export class WebGL2Buffer extends Buffer {
         }
         if (this._bakcupBuffer && buffer !== this._bakcupBuffer.buffer) {
             const view = new Uint8Array(buffer as ArrayBuffer, 0, size);
-            this._bakcupBuffer.set(view, offset);
+            this._bakcupBuffer.set(view);
         }
 
         WebGL2CmdFuncUpdateBuffer(
             this._device as WebGL2Device,
             this._gpuBuffer!,
             buffer,
-            offset || 0,
-            buffSize);
+            0,
+            buffSize,
+        );
     }
 }

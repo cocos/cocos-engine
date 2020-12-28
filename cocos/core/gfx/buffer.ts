@@ -93,7 +93,6 @@ export class BufferViewInfo {
  * @zh GFX 缓冲。
  */
 export abstract class Buffer extends Obj {
-
     /**
      * @en Usage type of the buffer.
      * @zh 缓冲使用方式。
@@ -177,8 +176,7 @@ export abstract class Buffer extends Obj {
      * @en Update the buffer data.
      * @zh 更新缓冲内容。
      * @param buffer The new buffer data.
-     * @param offset Offset into the buffer.
-     * @param size Size of the data to be updated.
+     * @param size Size in bytes to be updated.
      */
-    public abstract update (buffer: BufferSource, offset?: number, size?: number): void;
+    public abstract update (buffer: BufferSource, size?: number): void;
 }
