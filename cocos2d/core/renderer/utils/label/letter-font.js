@@ -117,6 +117,7 @@ LetterTexture.prototype = {
         context.fillText(this._char, startX, startY);
 
         this._texture.handleLoadedTexture();
+        this._texture.packable = true;
     },
 
     destroy () {
