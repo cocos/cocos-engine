@@ -68,8 +68,8 @@ export const tilled: IAssembler = {
         const bottomHeight = frame.insetBottom;
         const centerHeight = rect.height - topHeight - bottomHeight;
 
-        var sizableWidth = contentWidth - leftWidth - rightWidth;
-        var sizableHeight = contentHeight - topHeight - bottomHeight;
+        let sizableWidth = contentWidth - leftWidth - rightWidth;
+        let sizableHeight = contentHeight - topHeight - bottomHeight;
         sizableWidth = sizableWidth > 0 ? sizableWidth : 0;
         sizableHeight = sizableHeight > 0 ? sizableHeight : 0;
 
@@ -118,7 +118,7 @@ export const tilled: IAssembler = {
         const frame = sprite.spriteFrame!;
         const rotated = frame.isRotated();
         const uv = frame.uv;
-        const uvSliced = sprite.spriteFrame?.uvSliced!;
+        const uvSliced = sprite.spriteFrame?.uvSliced;
         const rect = frame.getRect();
         const leftWidth = frame.insetLeft;
         const rightWidth = frame.insetRight;
@@ -126,8 +126,8 @@ export const tilled: IAssembler = {
         const topHeight = frame.insetTop;
         const bottomHeight = frame.insetBottom;
         const centerHeight = rect.height - topHeight - bottomHeight;
-        var sizableWidth = contentWidth - leftWidth - rightWidth;
-        var sizableHeight = contentHeight - topHeight - bottomHeight;
+        let sizableWidth = contentWidth - leftWidth - rightWidth;
+        let sizableHeight = contentHeight - topHeight - bottomHeight;
         sizableWidth = sizableWidth > 0 ? sizableWidth : 0;
         sizableHeight = sizableHeight > 0 ? sizableHeight : 0;
 
@@ -143,7 +143,8 @@ export const tilled: IAssembler = {
         const offset = _perVertexLength;
         const offset1 = offset; const offset2 = offset * 2; const offset3 = offset * 3; const offset4 = offset * 4;
         let coefU = 0; let coefV = 0;
-        let tempXVerts :any = [], tempYVerts :any = [];
+        const tempXVerts :any = [];
+        const tempYVerts :any = [];
         for (let yIndex = 0, yLength = row; yIndex < yLength; ++yIndex) {
             if (sizableHeight > centerHeight) {
                 if (sizableHeight >= yIndex * centerHeight) {
@@ -197,8 +198,7 @@ export const tilled: IAssembler = {
                     }
                     tempXVerts[3] = tempXVerts[2];
                     tempYVerts[3] = tempYVerts[1];
-                }
-                else {
+                } else {
                     if (xIndex === 0) {
                         tempXVerts[0] = uvSliced[0].u;
                         tempXVerts[1] = uvSliced[1].u + (uvSliced[2].u - uvSliced[1].u) * coefU;
@@ -289,9 +289,9 @@ export const tilled: IAssembler = {
         }
     },
 
-    updateVerts (sprite: Sprite, sizableWidth, sizableHeight, row, col) {
+    updateVerts (sprite: Sprite, sizableWidth: number, sizableHeight: number, row: number, col: number) {
         const uiTrans = sprite.node._uiProps.uiTransformComp!;
-        const data = sprite.renderData?.data!;
+        const data = sprite.renderData?.data;
         const frame = sprite.spriteFrame!;
 
         const rect = frame.getRect();
