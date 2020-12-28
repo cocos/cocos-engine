@@ -1,7 +1,8 @@
 import { EDITOR } from 'internal:constants';
 import { ccclass, executeInEditMode, help, menu } from '../core/data/class-decorator';
 import { UIRenderable } from '../2d/framework/ui-renderable';
-import { Node, EventTarget, CCClass, Color, Enum, PrivateNode, ccenum, errorID, Texture2D, GFXBlendFactor, js, CCObject } from '../core';
+import { Node, EventTarget, CCClass, Color, Enum, PrivateNode, ccenum, errorID, Texture2D, js, CCObject } from '../core';
+import { BlendFactor } from '../core/gfx';
 import { displayName, editable, serializable, tooltip, type, visible } from '../core/data/decorators';
 import { AnimationCache, ArmatureCache, ArmatureFrame } from './ArmatureCache';
 import { AttachUtil } from './AttachUtil';
@@ -524,7 +525,7 @@ export class ArmatureDisplay extends UIRenderable {
         }
     }
 
-    public getMaterialForBlend (src: GFXBlendFactor, dst: GFXBlendFactor): MaterialInstance {
+    public getMaterialForBlend (src: BlendFactor, dst: BlendFactor): MaterialInstance {
         const key = `${src}/${dst}`;
         let inst = this._materialCache[key];
         if (inst) {
