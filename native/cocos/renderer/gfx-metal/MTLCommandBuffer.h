@@ -77,21 +77,20 @@ private:
     void bindDescriptorSets();
     bool isRenderingEntireDrawable(const Rect &rect, const CCMTLRenderPass *renderPass);
 
-    CCMTLGPUPipelineState *_gpuPipelineState = nullptr;
-
     vector<CCMTLGPUDescriptorSet *> _GPUDescriptorSets;
     vector<vector<uint>> _dynamicOffsets;
+    
     uint _firstDirtyDescriptorSet = UINT_MAX;
-
     bool _indirectDrawSuppotred = false;
     bool _commandBufferBegan = false;
-    bool _isSubCB = false;
+    bool _isSecondary = false;
     CCMTLDevice *_mtlDevice = nullptr;
 //    id<CAMetalDrawable> _currDrawable = nil;
     id<MTLCommandQueue> _mtlCommandQueue = nil;
     id<MTLCommandBuffer> _mtlCommandBuffer = nil;
     MTKView *_mtkView = nil;
     CCMTLRenderCommandEncoder _commandEncoder;
+    CCMTLGPUPipelineState *_gpuPipelineState = nullptr;
     CCMTLInputAssembler *_inputAssembler = nullptr;
     MTLIndexType _indexType = MTLIndexTypeUInt16;
     MTLPrimitiveType _mtlPrimitiveType = MTLPrimitiveType::MTLPrimitiveTypeTriangle;

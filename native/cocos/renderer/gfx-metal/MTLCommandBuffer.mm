@@ -40,10 +40,12 @@ THE SOFTWARE.
 #include "MTLTexture.h"
 #include "TargetConditionals.h"
 
+namespace tar {
+    thread_local NSAutoreleasePool *cbAutoreleasePool = nullptr;
+}
+
 namespace cc {
 namespace gfx {
-
-thread_local NSAutoreleasePool *cbAutoReleasePool = nullptr;
 
 CCMTLCommandBuffer::CCMTLCommandBuffer(Device *device)
 : CommandBuffer(device), _mtlDevice((CCMTLDevice *)device), _mtlCommandQueue(id<MTLCommandQueue>(((CCMTLDevice *)device)->getMTLCommandQueue())), _mtkView((MTKView *)(((CCMTLDevice *)device)->getMTKView())) {
@@ -60,24 +62,48 @@ bool CCMTLCommandBuffer::initialize(const CommandBufferInfo &info)
     return true;
 }
 
-void CCMTLCommandBuffer::destroy() {
+void CCMTLCommandBuffer::destroy()
+{
+    if (tar::cbAutoreleasePool)
+    {
+        [tar::cbAutoreleasePool release];
+        tar::cbAutoreleasePool = nullptr;
+    }
+}
+
+id<CAMetalDrawable> CCMTLCommandBuffer::getCurrentDrawable()
+{
+    if (!_currDrawable)
+    {
+        CAMetalLayer *layer = (CAMetalLayer*)_mtlDevice->getMTLLayer();
+        _currDrawable = [[layer nextDrawable] retain];
+    }
+    return _currDrawable;
+}
+
+bool CCMTLCommandBuffer::isRenderingEntireDrawable(const Rect &rect, const CCMTLRenderPass *renderPass)
+{
+    const int num = renderPass->getColorRenderTargetNums();
+    if (num == 0)
+    {
+        return true;
+    }
+    const auto &renderTargetSize = renderPass->getRenderTargetSizes()[0];
+    return rect.x == 0 && rect.y == 0 && rect.width == renderTargetSize.x && rect.height == renderTargetSize.y;
 }
 
 void CCMTLCommandBuffer::begin(RenderPass *renderPass, uint subpass, Framebuffer *frameBuffer, int submitIndex) {
     if (_commandBufferBegan) return;
     
-    cbAutoReleasePool = [[NSAutoreleasePool alloc] init];
-    
-    _isSubCB = renderPass != nullptr && _mtlCommandBuffer;
-    if (!_isSubCB)
+    tar::cbAutoreleasePool = [[NSAutoreleasePool alloc] init];
+//    CC_LOG_INFO("%d CB POOL: %p ALLOCED for %p", [NSThread currentThread], tar::cbAutoreleasePool,  this);
+
+    _isSecondary = renderPass != nullptr && _mtlCommandBuffer;
+    if (!_isSecondary)
     {
         // Sub command buffer for parallel shouldn't request any command buffer
         _mtlCommandBuffer = [[_mtlCommandQueue commandBuffer] retain];
         [_mtlCommandBuffer enqueue];
-    }
-    else
-    {
-        _commandEncoder.beginEncoding();
     }
     _numTriangles = 0;
     _numDrawCalls = 0;
@@ -95,24 +121,43 @@ void CCMTLCommandBuffer::begin(RenderPass *renderPass, uint subpass, Framebuffer
 void CCMTLCommandBuffer::end() {
     if (!_commandBufferBegan) return;
     _commandBufferBegan = false;
-}
+    
+    if (_isSecondary)
+    {
+        // Secondary command buffer should end encoding here
+        _commandEncoder.endEncoding();
+    }
 
 bool CCMTLCommandBuffer::isRenderingEntireDrawable(const Rect &rect, const CCMTLRenderPass *renderPass) {
     const int num = renderPass->getColorRenderTargetNums();
     if (num == 0) {
         return true;
     }
+//    CC_LOG_INFO("%d CB POOL: %p RELEASED for %p", [NSThread currentThread], tar::cbAutoreleasePool, this);
+    if (tar::cbAutoreleasePool)
+    {
+        [tar::cbAutoreleasePool drain];
+        tar::cbAutoreleasePool = nullptr;
+    }
 }
 
-void CCMTLCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, int stencil, bool fromSecondaryCB) {
+void CCMTLCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, int stencil, const CommandBuffer *const *cmdBuffs, uint32_t count)
+{
+    // Sub CommandBuffer shouldn't call begin render pass
+    if (_isSecondary)
+    {
+        return;
+    }
+    
     auto isOffscreen = static_cast<CCMTLFramebuffer *>(fbo)->isOffscreen();
     if (!isOffscreen) {
         static_cast<CCMTLRenderPass *>(renderPass)->setColorAttachment(0, _mtkView.currentDrawable.texture, 0);
         static_cast<CCMTLRenderPass *>(renderPass)->setDepthStencilAttachment(_mtkView.depthStencilTexture, 0);
     }
     MTLRenderPassDescriptor *mtlRenderPassDescriptor = static_cast<CCMTLRenderPass *>(renderPass)->getMTLRenderPassDescriptor();
-    if (!isRenderingEntireDrawable(renderArea, static_cast<CCMTLRenderPass *>(renderPass))) {
-        //Metal doesn't apply the viewports and scissors to renderpass load-action clearing.
+    if (!isRenderingEntireDrawable(renderArea, static_cast<CCMTLRenderPass *>(renderPass)))
+    {
+        // Metal doesn't apply the viewports and scissors to renderpass load-action clearing.
         mu::clearRenderArea(_mtlDevice, _mtlCommandBuffer, renderPass, renderArea, colors, depth, stencil);
     } else {
         const auto &colorAttachments = renderPass->getColorAttachments();

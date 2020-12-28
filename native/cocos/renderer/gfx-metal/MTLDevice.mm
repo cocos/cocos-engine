@@ -49,10 +49,12 @@ THE SOFTWARE.
 #import <MetalKit/MTKView.h>
 #include <dispatch/dispatch.h>
 
+namespace tar {
+    thread_local NSAutoreleasePool* autoreleasePool = nullptr;
+}
+
 namespace cc {
 namespace gfx {
-
-thread_local NSAutoreleasePool *autoReleasePool = nullptr;
 
 CCMTLDevice::CCMTLDevice() {
     _clipSpaceMinZ = 0.0f;
@@ -83,7 +85,7 @@ bool CCMTLDevice::initialize(const DeviceInfo &info) {
     _mtkView = (MTKView *)_windowHandle;
     id<MTLDevice> mtlDevice = ((MTKView *)_mtkView).device;
     _mtlDevice = mtlDevice;
-    _mtlCommandQueue = [mtlDevice newCommandQueue];
+    _mtlCommandQueue = [mtlDevice newCommandQueueWithMaxCommandBufferCount: MAX_COMMAND_BUFFER_COUNT];
 
     _mtlFeatureSet = mu::highestSupportedFeatureSet(mtlDevice);
     const auto gpuFamily = mu::getGPUFamily(MTLFeatureSet(_mtlFeatureSet));
@@ -177,6 +179,14 @@ bool CCMTLDevice::initialize(const DeviceInfo &info) {
 }
 
 void CCMTLDevice::destroy() {
+    if (_memoryAlarmListenerId != 0) {
+        EventDispatcher::removeCustomEventListener(EVENT_MEMORY_WARNING, _memoryAlarmListenerId);
+        _memoryAlarmListenerId = 0;
+    if (tar::autoreleasePool) {
+        [tar::autoreleasePool release];
+        tar::autoreleasePool = nullptr;
+    }
+    
     CC_SAFE_DESTROY(_queue);
     CC_SAFE_DESTROY(_cmdBuff);
     CC_SAFE_DESTROY(_context);
@@ -193,7 +203,7 @@ void CCMTLDevice::resize(uint width, uint height) {}
 void CCMTLDevice::acquire() {
     _inFlightSemaphore->wait();
 
-    autoReleasePool = [[NSAutoreleasePool alloc] init];
+    tar::autoreleasePool = [[NSAutoreleasePool alloc] init];
     // Clear queue stats
     CCMTLQueue *queue = static_cast<CCMTLQueue *>(_queue);
     queue->_numDrawCalls = 0;
@@ -220,8 +230,11 @@ void CCMTLDevice::present() {
         _inFlightSemaphore->signal();
     }];
     [mtlCommandBuffer commit];
-    [autoReleasePool release];
-    autoReleasePool = nullptr;
+
+    if (tar::autoreleasePool) {
+        [tar::autoreleasePool drain];
+        tar::autoreleasePool = nullptr;
+    }
 }
 
 Fence *CCMTLDevice::createFence() {

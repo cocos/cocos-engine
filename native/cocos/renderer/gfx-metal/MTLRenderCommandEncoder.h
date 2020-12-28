@@ -55,7 +55,6 @@ public:
 
     void initialize(id<MTLCommandBuffer> commandBuffer, MTLRenderPassDescriptor *descriptor);
     void initialize(id<MTLParallelRenderCommandEncoder> parallelEncoder);
-    void beginEncoding();
     void endEncoding();
     
     CC_INLINE void clearStates()
