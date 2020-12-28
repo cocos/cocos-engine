@@ -5,6 +5,11 @@ cocos2d-x-lite
 
 It used to be a compact version of cocos2d-x, but now it is the native backend of [Cocos Creator](https://www.cocos.com/en/creator). It works on `iOS`, `Android`, `Mac OS` and `Windows`.
 
+Coding format and coding style
+---------------------------------
+
+The coding format file is `.clang-format`, and the coding style fomat file is `.clang-tidy`. Please use [clang-format](https://clang.llvm.org/docs/ClangFormat.html) to format the codes and use [clang-tidy](http://clang.llvm.org/extra/index.html) to fix the coding style before commiting codes.
+
 Documentations
 --------------------------------
 * [Online documentation](https://docs.cocos.com/creator/3.0/manual/en/)
