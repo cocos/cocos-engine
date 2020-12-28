@@ -24,15 +24,14 @@
  THE SOFTWARE.
 */
 
-
-
 /**
  * @packageDocumentation
  * @module component
  */
 
+import { ccclass, tooltip, displayName, type, serializable, disallowAnimation } from 'cc.decorator';
+import { EDITOR, TEST, DEV } from 'internal:constants';
 import { Script } from '../assets/scripts';
-import { ccclass, tooltip, displayName, type, serializable, disallowAnimation} from 'cc.decorator';
 import { CCObject } from '../data/object';
 import IDGenerator from '../utils/id-generator';
 import { getClassName, value } from '../utils/js';
@@ -40,10 +39,9 @@ import { RenderScene } from '../renderer/scene/render-scene';
 import { Rect } from '../math';
 import * as RF from '../data/utils/requiring-frame';
 import { Node } from '../scene-graph';
-import { EDITOR, TEST, DEV } from 'internal:constants';
 import { legacyCC } from '../global-exports';
 import { errorID, warnID, assertID } from '../platform/debug';
-import { CompPrefabInfo } from '../utils';
+import { CompPrefabInfo } from '../utils/prefab-utils';
 
 const idGenerator = new IDGenerator('Comp');
 const IsOnLoadCalled = CCObject.Flags.IsOnLoadCalled;
@@ -72,7 +70,7 @@ class Component extends CCObject {
         if (trimLeft >= 0) {
             className = className.slice(trimLeft + 1);
         }
-        return this.node.name + '<' + className + '>';
+        return `${this.node.name}<${className}>`;
     }
     set name (value) {
         this._name = value;
@@ -119,8 +117,7 @@ class Component extends CCObject {
                 const compScheduler = legacyCC.director._compScheduler;
                 if (value) {
                     compScheduler.enableComp(this);
-                }
-                else {
+                } else {
                     compScheduler.disableComp(this);
                 }
             }
@@ -199,9 +196,8 @@ class Component extends CCObject {
     public _getRenderScene (): RenderScene {
         if (this._sceneGetter) {
             return this._sceneGetter();
-        } else {
-            return this.node.scene._renderScene!;
         }
+        return this.node.scene._renderScene!;
     }
 
     // PUBLIC
@@ -672,7 +668,6 @@ Component._requireComponent = null;
 Component._executionOrder = 0;
 
 if (EDITOR || TEST) {
-
     // INHERITABLE STATIC MEMBERS
     // @ts-expect-error
     Component._executeInEditMode = false;
@@ -696,7 +691,7 @@ if (EDITOR || TEST) {
 }
 
 // we make this non-enumerable, to prevent inherited by sub classes.
-value(Component, '_registerEditorProps', function (cls, props) {
+value(Component, '_registerEditorProps', (cls, props) => {
     const reqComp = props.requireComponent;
     if (reqComp) {
         cls._requireComponent = reqComp;
@@ -710,57 +705,56 @@ value(Component, '_registerEditorProps', function (cls, props) {
         for (const key in props) {
             const val = props[key];
             switch (key) {
-                case 'executeInEditMode':
-                    cls._executeInEditMode = !!val;
-                    break;
+            case 'executeInEditMode':
+                cls._executeInEditMode = !!val;
+                break;
 
-                case 'playOnFocus':
-                    if (val) {
-                        const willExecuteInEditMode = ('executeInEditMode' in props) ? props.executeInEditMode : cls._executeInEditMode;
-                        if (willExecuteInEditMode) {
-                            cls._playOnFocus = true;
-                        }
-                        else {
-                            warnID(3601, name);
-                        }
+            case 'playOnFocus':
+                if (val) {
+                    const willExecuteInEditMode = ('executeInEditMode' in props) ? props.executeInEditMode : cls._executeInEditMode;
+                    if (willExecuteInEditMode) {
+                        cls._playOnFocus = true;
+                    } else {
+                        warnID(3601, name);
                     }
-                    break;
+                }
+                break;
 
-                case 'inspector':
-                    value(cls, '_inspector', val, true);
-                    break;
+            case 'inspector':
+                value(cls, '_inspector', val, true);
+                break;
 
-                case 'icon':
-                    value(cls, '_icon', val, true);
-                    break;
+            case 'icon':
+                value(cls, '_icon', val, true);
+                break;
 
-                case 'menu':
-                    const frame = RF.peek();
-                    let menu = val;
-                    if (frame) {
-                        menu = 'i18n:menu.custom_script/' + menu;
-                    }
+            case 'menu':
+                const frame = RF.peek();
+                let menu = val;
+                if (frame) {
+                    menu = `i18n:menu.custom_script/${menu}`;
+                }
 
-                    EDITOR && EditorExtends.Component.removeMenu(cls);
-                    EDITOR && EditorExtends.Component.addMenu(cls, menu, props.menuPriority);
-                    break;
+                EDITOR && EditorExtends.Component.removeMenu(cls);
+                EDITOR && EditorExtends.Component.addMenu(cls, menu, props.menuPriority);
+                break;
 
-                case 'disallowMultiple':
-                    cls._disallowMultiple = cls;
-                    break;
+            case 'disallowMultiple':
+                cls._disallowMultiple = cls;
+                break;
 
-                case 'requireComponent':
-                case 'executionOrder':
-                    // skip here
-                    break;
+            case 'requireComponent':
+            case 'executionOrder':
+                // skip here
+                break;
 
-                case 'help':
-                    cls._help = val;
-                    break;
+            case 'help':
+                cls._help = val;
+                break;
 
-                default:
-                    warnID(3602, key, name);
-                    break;
+            default:
+                warnID(3602, key, name);
+                break;
             }
         }
     }
