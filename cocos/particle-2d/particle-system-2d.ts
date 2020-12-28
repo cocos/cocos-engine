@@ -1119,8 +1119,7 @@ export class ParticleSystem2D extends UIRenderable {
             } else {
                 this._renderSpriteFrame.once('load', this._onTextureLoaded, this);
             }
-        }
-        else {
+        } else {
             this.resetSystem();
         }
     }
