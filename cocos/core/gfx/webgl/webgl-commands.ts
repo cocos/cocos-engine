@@ -1486,7 +1486,8 @@ export function WebGLCmdFuncCreateShader (device: WebGLDevice, gpuShader: IWebGL
 
             if (!isSampler) {
                 const glLoc = gl.getUniformLocation(gpuShader.glProgram, uniformInfo.name);
-                if (glLoc !== null) {
+                // Note: getUniformLocation return Object on wechat platform.
+                if (glLoc !== null && (typeof glLoc === 'number' || (glLoc as any).id !== -1)) {
                     let varName: string;
                     const nameOffset = uniformInfo.name.indexOf('[');
                     if (nameOffset !== -1) {
@@ -1535,7 +1536,8 @@ export function WebGLCmdFuncCreateShader (device: WebGLDevice, gpuShader: IWebGL
     for (let i = 0; i < gpuShader.samplers.length; ++i) {
         const sampler = gpuShader.samplers[i];
         const glLoc = gl.getUniformLocation(gpuShader.glProgram, sampler.name);
-        if (glLoc) {
+        // Note: getUniformLocation return Object on wechat platform.
+        if (glLoc !== null && (typeof glLoc === 'number' || (glLoc as any).id !== -1)) {
             glActiveSamplers.push(gpuShader.glSamplers[i]);
             glActiveSamplerLocations.push(glLoc);
         }

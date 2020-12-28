@@ -28,43 +28,27 @@
  * @hidden
  */
 
+/* eslint-disable new-cap */
 import Ammo from '../ammo-instantiated';
-import { AmmoConstraint } from "./ammo-constraint";
-import { IHingeConstraint } from "../../spec/i-physics-constraint";
+import { AmmoConstraint } from './ammo-constraint';
+import { IHingeConstraint } from '../../spec/i-physics-constraint';
 import { IVec3Like, Quat, Vec3 } from '../../../core';
-import { cocos2AmmoVec3 } from '../ammo-util';
+import { cocos2AmmoQuat, cocos2AmmoVec3 } from '../ammo-util';
 import { HingeConstraint } from '../../framework';
 import { AmmoRigidBody } from '../ammo-rigid-body';
-import { CC_V3_0 } from '../ammo-const';
+import { AmmoConstant, CC_QUAT_0, CC_V3_0 } from '../ammo-const';
 
 export class AmmoHingeConstraint extends AmmoConstraint implements IHingeConstraint {
-
     setPivotA (v: IVec3Like): void {
-        if (this._pivotA) {
-            Vec3.multiply(CC_V3_0, v, this._com.node.worldScale);
-            cocos2AmmoVec3(this._pivotA, CC_V3_0);
-            // this.impl.setPivotA(this._pivotA);
-        }
+        this.updateFrames();
     }
 
     setPivotB (v: IVec3Like): void {
-        if (this._pivotB) {
-            Vec3.copy(CC_V3_0, v);
-            const cb = this._com.connectedBody;
-            if (cb) {
-                Vec3.multiply(CC_V3_0, v, cb.node.worldScale);
-            }
-            cocos2AmmoVec3(this._pivotB, CC_V3_0);
-            // this.impl.setPivotB(this._pivotB);
-        }
+        this.updateFrames();
     }
 
-    setAxisA (v: IVec3Like) {
-
-    }
-
-    setAxisB (v: IVec3Like) {
-
+    setAxis (v: IVec3Like) {
+        this.updateFrames();
     }
 
     get impl (): Ammo.btHingeConstraint {
@@ -75,39 +59,48 @@ export class AmmoHingeConstraint extends AmmoConstraint implements IHingeConstra
         return this._com as HingeConstraint;
     }
 
-    private _pivotA!: Ammo.btVector3;
-    private _pivotB!: Ammo.btVector3;
-    private _axisA!: Ammo.btVector3;
-    private _axisB!: Ammo.btVector3;
-
     onComponentSet () {
-        if (this._rigidBody) {
-            const bodyA = (this._rigidBody.body as AmmoRigidBody).impl;
-            const cb = this.constraint.connectedBody;
-            let bodyB: Ammo.btRigidBody | undefined;
-            if (cb) {
-                bodyB = (cb.body as AmmoRigidBody).impl;
-            }
-            this._pivotA = new Ammo.btVector3();
-            this._pivotB = new Ammo.btVector3();
-            this.setPivotA(this.constraint.pivotA);
-            this.setPivotB(this.constraint.pivotB);
-            this._axisA = new Ammo.btVector3();
-            this._axisB = new Ammo.btVector3();
-            cocos2AmmoVec3(this._axisA, this.constraint.axisA);
-            cocos2AmmoVec3(this._axisB, this.constraint.axisB);
-            if (bodyB) {
-                this._impl = new Ammo.btHingeConstraint(bodyA, bodyB, this._pivotA, this._pivotB, this._axisA, this._axisB);
-            } else {
-                const quat = new Quat();
-                Quat.rotationTo(quat, Vec3.UNIT_Z, this.constraint.axisA);
-                const qa = new Ammo.btQuaternion(quat.x, quat.y, quat.z, quat.w);
-                const rbAFrame = new Ammo.btTransform();
-                rbAFrame.setIdentity();
-                rbAFrame.setOrigin(this._pivotA);
-                rbAFrame.setRotation(qa);
-                this._impl = new Ammo.btHingeConstraint(bodyA, rbAFrame);
-            }
+        const sb0 = (this._rigidBody.body as AmmoRigidBody).sharedBody;
+        const cb = this.constraint.connectedBody;
+        const bodyB = cb ? (cb.body as AmmoRigidBody).impl : (sb0.wrappedWorld.impl as any).getFixedBody();
+        const trans0 = AmmoConstant.instance.TRANSFORM;
+        const trans1 = AmmoConstant.instance.TRANSFORM_1;
+        this._impl = new Ammo.btHingeConstraint(sb0.body, bodyB, trans0, trans1);
+        this.updateFrames();
+    }
+
+    updateFrames () {
+        const cs = this.constraint;
+        const node = cs.node;
+        const v3_0 = CC_V3_0;
+        const rot_0 = CC_QUAT_0;
+        const trans0 = AmmoConstant.instance.TRANSFORM;
+        Vec3.multiply(v3_0, node.worldScale, cs.pivotA);
+        cocos2AmmoVec3(trans0.getOrigin(), v3_0);
+        const quat = AmmoConstant.instance.QUAT_0;
+        Quat.rotationTo(rot_0, Vec3.UNIT_Z, cs.axis);
+        trans0.setRotation(cocos2AmmoQuat(quat, rot_0));
+
+        const trans1 = AmmoConstant.instance.TRANSFORM_1;
+        const cb = this.constraint.connectedBody;
+        if (cb) {
+            Vec3.multiply(v3_0, cb.node.worldScale, cs.pivotB);
+        } else {
+            Vec3.multiply(v3_0, node.worldScale, cs.pivotA);
+            Vec3.add(v3_0, v3_0, node.worldPosition);
+            Vec3.add(v3_0, v3_0, cs.pivotB);
+            Quat.multiply(rot_0, rot_0, node.worldRotation);
         }
+        cocos2AmmoVec3(trans1.getOrigin(), v3_0);
+        trans1.setRotation(cocos2AmmoQuat(quat, rot_0));
+        (this.impl as any).setFrames(trans0, trans1);
+    }
+
+    updateScale0 () {
+        this.updateFrames();
+    }
+
+    updateScale1 () {
+        this.updateFrames();
     }
 }

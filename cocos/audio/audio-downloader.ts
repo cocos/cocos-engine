@@ -34,11 +34,9 @@ import { AudioClip, AudioType } from './assets/clip';
 import { legacyCC } from '../core/global-exports';
 import { CompleteCallback, IDownloadParseOptions } from '../core/asset-manager/shared';
 import downloadFile from '../core/asset-manager/download-file';
-import { DownloadHandler } from '../core/asset-manager/downloader';
+import downloader, { DownloadHandler } from '../core/asset-manager/downloader';
 import { createDomAudio } from './audio-utils';
-
-const __audioSupport = sys.__audioSupport;
-const formatSupport = __audioSupport.format;
+import factory from '../core/asset-manager/factory';
 
 export function downloadDomAudio (
     url: string,
@@ -60,6 +58,8 @@ function downloadArrayBuffer (url: string, options: IDownloadParseOptions, onCom
 }
 
 export function downloadAudio (url: string, options: IDownloadParseOptions, onComplete: CompleteCallback) {
+    const __audioSupport = sys.__audioSupport;
+    const formatSupport = __audioSupport.format;
     if (formatSupport.length === 0) {
         onComplete(new Error(getError(4927)));
         return;
@@ -79,3 +79,32 @@ export function downloadAudio (url: string, options: IDownloadParseOptions, onCo
     }
     handler(url, options, onComplete);
 }
+
+function createAudioClip (id: string,
+    data: HTMLAudioElement | AudioBuffer,
+    options: IDownloadParseOptions,
+    onComplete: CompleteCallback<AudioClip>) {
+    const out = new AudioClip();
+    out._nativeUrl = id;
+    out._nativeAsset = data;
+    // @ts-expect-error assignment to private field
+    out._duration = data.duration;
+    onComplete(null, out);
+}
+
+downloader.register({
+    '.mp3': downloadAudio,
+    '.ogg': downloadAudio,
+    '.wav': downloadAudio,
+    '.m4a': downloadAudio,
+});
+
+downloader.downloadDomAudio = downloadDomAudio;
+
+factory.register({
+    // Audio
+    '.mp3': createAudioClip,
+    '.ogg': createAudioClip,
+    '.wav': createAudioClip,
+    '.m4a': createAudioClip,
+});

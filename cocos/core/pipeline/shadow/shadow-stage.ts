@@ -31,15 +31,15 @@
 import { ccclass } from 'cc.decorator';
 import { Color, Rect, Framebuffer } from '../../gfx';
 import { IRenderStageInfo, RenderStage } from '../render-stage';
-import { RenderView } from '../render-view';
 import { ForwardStagePriority } from '../forward/enum';
 import { RenderShadowMapBatchedQueue } from '../render-shadow-map-batched-queue';
 import { ForwardPipeline } from '../forward/forward-pipeline';
 import { SetIndex } from '../define';
 import { Light } from '../../renderer/scene/light';
 import { ShadowFlow } from './shadow-flow';
+import { Camera } from '../../renderer/scene';
 
-const colors: Color[] = [ new Color(1, 1, 1, 1) ];
+const colors: Color[] = [new Color(1, 1, 1, 1)];
 
 /**
  * @en Shadow map render stage
@@ -54,7 +54,7 @@ export class ShadowStage extends RenderStage {
     public static initInfo: IRenderStageInfo = {
         name: 'ShadowStage',
         priority: ForwardStagePriority.FORWARD,
-        tag: 0
+        tag: 0,
     };
 
     /**
@@ -77,28 +77,26 @@ export class ShadowStage extends RenderStage {
         this._additiveShadowQueue.clear();
     }
 
-    public render (view: RenderView) {
+    public render (camera: Camera) {
         const pipeline = this._pipeline as ForwardPipeline;
         const shadowInfo = pipeline.shadows;
 
-        if (!this._light || !this._shadowFrameBuffer) { return; }
-        this._additiveShadowQueue.gatherLightPasses(this._light);
-
-        const camera = view.camera;
-
         const cmdBuff = pipeline.commandBuffers[0];
+
+        if (!this._light || !this._shadowFrameBuffer) { return; }
+        this._additiveShadowQueue.gatherLightPasses(this._light, cmdBuff);
 
         const vp = camera.viewport;
         const shadowMapSize = shadowInfo.size;
-        this._renderArea!.x = vp.x * shadowMapSize.x;
-        this._renderArea!.y = vp.y * shadowMapSize.y;
-        this._renderArea!.width =  vp.width * shadowMapSize.x * pipeline.shadingScale;
-        this._renderArea!.height = vp.height * shadowMapSize.y * pipeline.shadingScale;
+        this._renderArea.x = vp.x * shadowMapSize.x;
+        this._renderArea.y = vp.y * shadowMapSize.y;
+        this._renderArea.width =  vp.width * shadowMapSize.x * pipeline.shadingScale;
+        this._renderArea.height = vp.height * shadowMapSize.y * pipeline.shadingScale;
 
         const device = pipeline.device;
-        const renderPass = this._shadowFrameBuffer!.renderPass;
+        const renderPass = this._shadowFrameBuffer.renderPass;
 
-        cmdBuff.beginRenderPass(renderPass, this._shadowFrameBuffer!, this._renderArea!,
+        cmdBuff.beginRenderPass(renderPass, this._shadowFrameBuffer, this._renderArea,
             colors, camera.clearDepth, camera.clearStencil);
 
         cmdBuff.bindDescriptorSet(SetIndex.GLOBAL, pipeline.descriptorSet);

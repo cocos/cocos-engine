@@ -23,11 +23,16 @@
  THE SOFTWARE.
  */
 
-import { IRigidBody } from "../spec/i-rigid-body";
-import { IVec3Like } from "../../core";
-import { RigidBody, PhysicsSystem, ERigidBodyType } from "../framework";
-import { BuiltinSharedBody } from "./builtin-shared-body";
-import { BuiltInWorld } from "./builtin-world";
+/**
+ * @packageDocumentation
+ * @hidden
+ */
+
+import { IRigidBody } from '../spec/i-rigid-body';
+import { IVec3Like } from '../../core';
+import { RigidBody, PhysicsSystem, ERigidBodyType } from '../framework';
+import { BuiltinSharedBody } from './builtin-shared-body';
+import { BuiltInWorld } from './builtin-world';
 
 export class BuiltinRigidBody implements IRigidBody {
     get impl () { return this; }
@@ -75,7 +80,7 @@ export class BuiltinRigidBody implements IRigidBody {
     clearForces (): void { }
     clearVelocity (): void { }
     setSleepThreshold (v: number): void { }
-    getSleepThreshold (): number { return 0 }
+    getSleepThreshold (): number { return 0; }
     getLinearVelocity (out: IVec3Like): void { }
     setLinearVelocity (value: IVec3Like): void { }
     getAngularVelocity (out: IVec3Like): void { }

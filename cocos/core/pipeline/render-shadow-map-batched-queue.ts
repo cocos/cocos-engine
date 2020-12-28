@@ -34,9 +34,9 @@ import { Device, RenderPass, Buffer, Shader, CommandBuffer, DescriptorSet } from
 import { getPhaseID } from './pass-phase';
 import { PipelineStateManager } from './pipeline-state-manager';
 import { ShaderPool, SubModelPool, SubModelView, ShaderHandle } from '../renderer/core/memory-pools';
-import { Pass } from '../renderer/core/pass';
+import { Pass, BatchingSchemes } from '../renderer/core/pass';
 import { RenderInstancedQueue } from './render-instanced-queue';
-import { BatchingSchemes } from '../renderer/core/pass';
+
 import { InstancedBuffer } from './instanced-buffer';
 import { RenderBatchedQueue } from './render-batched-queue';
 import { BatchedBuffer } from './batched-buffer';
@@ -54,18 +54,26 @@ const _matShadowView = new Mat4();
 const _matShadowViewProj = new Mat4();
 const _vec4ShadowInfo = new Vec4();
 const _vec3Center = new Vec3();
+let _shadowCameraView = new Mat4();
 
 const _phaseID = getPhaseID('shadow-caster');
-function getShadowPassIndex (subModels: SubModel[]) {
+const _shadowPassIndices: number[] = [];
+function getShadowPassIndex (subModels: SubModel[], shadowPassIndices: number[]) {
+    shadowPassIndices.length = 0;
+    let hasShadowPass = false;
     for (let j = 0; j < subModels.length; j++) {
-        const passes = subModels[j].passes;
+        const { passes } = subModels[j];
+        let shadowPassIndex = -1;
         for (let k = 0; k < passes.length; k++) {
             if (passes[k].phase === _phaseID) {
-                return k;
+                shadowPassIndex = k;
+                hasShadowPass = true;
+                break;
             }
         }
+        shadowPassIndices.push(shadowPassIndex);
     }
-    return -1;
+    return hasShadowPass;
 }
 
 /**
@@ -88,7 +96,6 @@ export class RenderShadowMapBatchedQueue {
     private _instancedQueue: RenderInstancedQueue;
     private _batchedQueue: RenderBatchedQueue;
 
-
     public constructor (pipeline: ForwardPipeline) {
         this._pipeline = pipeline;
         this._device = pipeline.device;
@@ -102,26 +109,27 @@ export class RenderShadowMapBatchedQueue {
         this._batchedQueue = new RenderBatchedQueue();
     }
 
-    public gatherLightPasses (light: Light) {
+    public gatherLightPasses (light: Light, cmdBuff: CommandBuffer) {
         this.clear();
-        if (light && this._shadowInfo.type === ShadowType.ShadowMap) {
+        if (light && this._shadowInfo.enabled && this._shadowInfo.type === ShadowType.ShadowMap) {
             this._updateUBOs(light);
 
             for (let i = 0; i < this._shadowObjects.length; i++) {
                 const ro = this._shadowObjects[i];
                 const model = ro.model;
+                if (!getShadowPassIndex(model.subModels, _shadowPassIndices)) { continue; }
 
                 switch (light.type) {
-                    case LightType.DIRECTIONAL:
-                        this.add(model);
-                        break;
-                    case LightType.SPOT:
-                        const spotLight = light as SpotLight;
-                        if ((model.worldBounds &&
-                            (!intersect.aabb_aabb(model.worldBounds, spotLight.aabb) ||
-                            !intersect.aabb_frustum(model.worldBounds, spotLight.frustum)))) continue;
-                        this.add(model);
-                        break;
+                case LightType.DIRECTIONAL:
+                    this.add(model, cmdBuff, _shadowPassIndices);
+                    break;
+                case LightType.SPOT:
+                    if ((model.worldBounds
+                                && (!intersect.aabbWithAABB(model.worldBounds, (light as SpotLight).aabb)
+                                    || !intersect.aabbFrustum(model.worldBounds, (light as SpotLight).frustum)))) continue;
+                    this.add(model, cmdBuff, _shadowPassIndices);
+                    break;
+                default:
                 }
             }
         }
@@ -139,15 +147,11 @@ export class RenderShadowMapBatchedQueue {
         this._batchedQueue.clear();
     }
 
-    public add (model: Model) {
+    public add (model: Model, cmdBuff: CommandBuffer, _shadowPassIndices: number[]) {
         const subModels = model.subModels;
-        // this assumes shadow pass index is the same for all submodels
-        const shadowPassIdx = getShadowPassIndex(subModels);
-
-        if (shadowPassIdx < 0) return;
-
         for (let j = 0; j < subModels.length; j++) {
             const subModel = subModels[j];
+            const shadowPassIdx = _shadowPassIndices[j];
             const pass = subModel.passes[shadowPassIdx];
             const batchingScheme = pass.batchingScheme;
             subModel.descriptorSet.bindBuffer(UBOShadow.BINDING, this._shadowMapBuffer);
@@ -168,6 +172,9 @@ export class RenderShadowMapBatchedQueue {
                 this._passArray.push(pass);
             }
         }
+
+        this._instancedQueue.uploadBuffers(cmdBuff);
+        this._batchedQueue.uploadBuffers(cmdBuff);
     }
 
     /**
@@ -182,7 +189,7 @@ export class RenderShadowMapBatchedQueue {
             const subModel = this._subModelsArray[i];
             const shader = this._shaderArray[i];
             const pass = this._passArray[i];
-            const ia = subModel.inputAssembler!;
+            const ia = subModel.inputAssembler;
             const pso = PipelineStateManager.getOrCreatePipelineState(device, pass, shader, renderPass, ia);
             const descriptorSet = pass.descriptorSet;
 
@@ -195,49 +202,49 @@ export class RenderShadowMapBatchedQueue {
     }
 
     private _updateUBOs (light: Light) {
+        let _x = 0;
+        let _y = 0;
+        let _far = 0;
         switch (light.type) {
-            case LightType.DIRECTIONAL:
-                // light view
-                let shadowCameraView: Mat4;
-                const mainLight = light as DirectionalLight;
-                mainLight.update();
+        case LightType.DIRECTIONAL:
+            // light view
+            (light as DirectionalLight).update();
 
-                // light proj
-                let x: number = 0;
-                let y: number = 0;
-                let far: number = 0;
-                if (this._shadowInfo.autoAdapt) {
-                    shadowCameraView = getShadowWorldMatrix(this._pipeline, mainLight.node?.getWorldRotation()!, mainLight.direction, _vec3Center);
-                    // if orthoSize is the smallest, auto calculate orthoSize.
-                    const radius = this._shadowInfo.sphere.radius;
-                    x = radius * this._shadowInfo.aspect;
-                    y = radius;
-
-                    const halfFar = Vec3.distance(this._shadowInfo.sphere.center, _vec3Center);
-                    far = Math.min(halfFar * Shadows.COEFFICIENT_OF_EXPANSION, Shadows.MAX_FAR);
-                } else {
-                    shadowCameraView = mainLight.node!.getWorldMatrix();
-
-                    x = this._shadowInfo.orthoSize * this._shadowInfo.aspect;
-                    y = this._shadowInfo.orthoSize;
-
-                    far = this._shadowInfo.far;
+            // light proj
+            if (this._shadowInfo.autoAdapt) {
+                const node = (light as DirectionalLight).node;
+                if (node) {
+                    _shadowCameraView = getShadowWorldMatrix(this._pipeline, node.getWorldRotation(), (light as DirectionalLight).direction, _vec3Center);
                 }
+                // if orthoSize is the smallest, auto calculate orthoSize.
+                const radius = this._shadowInfo.sphere.radius;
+                _x = radius * this._shadowInfo.aspect;
+                _y = radius;
 
-                Mat4.invert(_matShadowView, shadowCameraView!);
+                const halfFar = Vec3.distance(this._shadowInfo.sphere.center, _vec3Center);
+                _far = Math.min(halfFar * Shadows.COEFFICIENT_OF_EXPANSION, Shadows.MAX_FAR);
+            } else {
+                _shadowCameraView = (light as DirectionalLight).node!.getWorldMatrix();
 
-                const projectionSignY = this._device.screenSpaceSignY * this._device.UVSpaceSignY;
-                Mat4.ortho(_matShadowViewProj, -x, x, -y, y, this._shadowInfo.near, far,
-                    this._device.clipSpaceMinZ, projectionSignY);
-                break;
-            case LightType.SPOT:
-                const spotLight = light as SpotLight;
-                // light view
-                Mat4.invert(_matShadowView, spotLight.node!.getWorldMatrix());
+                _x = this._shadowInfo.orthoSize * this._shadowInfo.aspect;
+                _y = this._shadowInfo.orthoSize;
 
-                // light proj
-                Mat4.perspective(_matShadowViewProj, spotLight.spotAngle, spotLight.aspect, 0.001, spotLight.range);
-                break;
+                _far = this._shadowInfo.far;
+            }
+
+            Mat4.invert(_matShadowView, _shadowCameraView);
+
+            Mat4.ortho(_matShadowViewProj, -_x, _x, -_y, _y, this._shadowInfo.near, _far,
+                this._device.clipSpaceMinZ, this._device.screenSpaceSignY * this._device.UVSpaceSignY);
+            break;
+        case LightType.SPOT:
+            // light view
+            Mat4.invert(_matShadowView, (light as SpotLight).node!.getWorldMatrix());
+
+            // light proj
+            Mat4.perspective(_matShadowViewProj, (light as SpotLight).spotAngle, (light as SpotLight).aspect, 0.001, (light as SpotLight).range);
+            break;
+        default:
         }
         // light viewProj
         Mat4.multiply(_matShadowViewProj, _matShadowViewProj, _matShadowView);

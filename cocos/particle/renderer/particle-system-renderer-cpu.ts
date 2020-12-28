@@ -23,7 +23,7 @@
  THE SOFTWARE.
  */
 
-import { builtinResMgr } from '../../core/3d/builtin';
+import { builtinResMgr } from '../../core/builtin';
 import { Material } from '../../core/assets';
 import { AttributeName, Format, Attribute } from '../../core/gfx';
 import { Mat4, Vec2, Vec3, Vec4, pseudoRandom } from '../../core/math';
@@ -301,6 +301,10 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
             idx = i * 4;
             this._fillDataFunc(p, idx, fi);
         }
+      
+    }
+
+    public beforeRender () {
         // because we use index buffer, per particle index count = 6.
         this._model!.updateIA(this._particles!.length);
     }

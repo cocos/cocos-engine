@@ -117,8 +117,6 @@ function appendProp (cls, name) {
 }
 
 function defineProp (cls, className, propName, val) {
-    const defaultValue = val.default;
-
     if (DEV) {
         // check base prototype to avoid name collision
         if (CCClass.getInheritanceChain(cls)
@@ -127,9 +125,6 @@ function defineProp (cls, className, propName, val) {
             return;
         }
     }
-
-    // set default value
-    attributeUtils.setClassAttr(cls, propName, 'default', defaultValue);
 
     appendProp(cls, propName);
 
@@ -357,7 +352,7 @@ function declareProperties (cls, className, properties, baseClass, mixins) {
 
         for (const propName in properties) {
             const val = properties[propName];
-            if ('default' in val) {
+            if (!val.get && !val.set) {
                 defineProp(cls, className, propName, val);
             }
             else {
@@ -438,9 +433,11 @@ export function CCClass<TFunction> (options: {
  * @return {Boolean}
  * @private
  */
-CCClass._isCCClass = function (constructor) {
-    return constructor && constructor.hasOwnProperty &&
-        constructor.hasOwnProperty('__ctors__');     // is not inherited __ctors__
+CCClass._isCCClass = function isCCClass (constructor): boolean {
+    // Does not support fastDefined class (ValueType).
+    // Use `instanceof ValueType` if necessary.
+    // eslint-disable-next-line no-prototype-builtins, @typescript-eslint/no-unsafe-return
+    return constructor?.hasOwnProperty?.('__ctors__');     // __ctors__ is not inherited
 };
 
 //
@@ -504,7 +501,13 @@ interface IParsedAttribute extends IAcceptableAttributes {
 type OnAfterProp = (constructor: Function, mainPropertyName: string) => void;
 const onAfterProps_ET: OnAfterProp[] = [];
 
-function parseAttributes (constructor: Function, attributes: IAcceptableAttributes, className: string, propertyName: string, usedInGetter) {
+interface AttributesRecord {
+    get?: unknown;
+    set?: unknown;
+    default?: unknown;
+}
+
+function parseAttributes (constructor: Function, attributes: IAcceptableAttributes & AttributesRecord, className: string, propertyName: string, usedInGetter) {
     const ERR_Type = DEV ? 'The %s of %s must be type %s' : '';
 
     let attrs: IParsedAttribute | null = null;
@@ -521,6 +524,8 @@ function parseAttributes (constructor: Function, attributes: IAcceptableAttribut
     if ('type' in attributes && typeof attributes.type === 'undefined') {
         warnID(3660, propertyName, className);
     }
+
+    let warnOnNoDefault = true;
 
     const type = attributes.type;
     if (type) {
@@ -552,6 +557,8 @@ function parseAttributes (constructor: Function, attributes: IAcceptableAttribut
                 errorID(3645, className, propertyName, type);
             }
         } else if (typeof type === 'function') {
+            // Do not warn missing-default if the type is object
+            warnOnNoDefault = false;
             (attrs || initAttrs())[propertyNamePrefix + 'type'] = 'Object';
             attrs![propertyNamePrefix + 'ctor'] = type;
             if (((EDITOR && !window.Build) || TEST) && !attributes._short) {
@@ -560,6 +567,12 @@ function parseAttributes (constructor: Function, attributes: IAcceptableAttribut
         } else if (DEV) {
             errorID(3646, className, propertyName, type);
         }
+    }
+
+    if ('default' in attributes) {
+        (attrs || initAttrs())[`${propertyNamePrefix}default`] = attributes.default;
+    } else if (((EDITOR && !window.Build) || TEST) && warnOnNoDefault && !(attributes.get || attributes.set)) {
+        warnID(3654, className, propertyName);
     }
 
     const parseSimpleAttribute = (attributeName: keyof IAcceptableAttributes, expectType: string) => {
@@ -575,7 +588,7 @@ function parseAttributes (constructor: Function, attributes: IAcceptableAttribut
 
     if (attributes.editorOnly) {
         if (DEV && usedInGetter) {
-            errorID(3613, 'editorOnly', name, propertyName);
+            errorID(3613, 'editorOnly', className, propertyName);
         }
         else {
             (attrs || initAttrs())[propertyNamePrefix + 'editorOnly'] = true;
@@ -600,7 +613,7 @@ function parseAttributes (constructor: Function, attributes: IAcceptableAttribut
     } else {
         if (attributes.serializable === false) {
             if (DEV && usedInGetter) {
-                errorID(3613, 'serializable', name, propertyName);
+                errorID(3613, 'serializable', className, propertyName);
             }
             else {
                 (attrs || initAttrs())[propertyNamePrefix + 'serializable'] = false;

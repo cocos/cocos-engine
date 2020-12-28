@@ -6,6 +6,7 @@
       "sourceMap": true,
       "outDir": "./bin/.ts",
       "rootDir": "./",
+      "noEmit": true,
       "strict": true,
       "noImplicitAny": false,
       "downlevelIteration": true,
@@ -28,15 +29,12 @@
         "./@types/webGL2.extras",
         "./node_modules/@cocos/cannon/CANNON",
         "./node_modules/@cocos/ammo/Ammo",
+        "./node_modules/@cocos/physx/PhysX",
         "./node_modules/@types/jest/index"
       ]
     },
     "include": [
         "exports/**/*.ts",
-        "editor/exports/**/*.ts",
         "index.ts"
-    ],
-    "exclude": [
-      "**/*.jsb.ts"
     ]
   }

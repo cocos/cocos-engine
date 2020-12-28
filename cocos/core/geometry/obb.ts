@@ -50,7 +50,7 @@ const transform_extent_m3 = (out: Vec3, extent: Vec3, m3: Mat3) => {
  * 基础几何  方向包围盒。
  */
 
-export default class obb {
+export class OBB {
 
     /**
      * @en
@@ -80,7 +80,7 @@ export default class obb {
         ox_1: number, ox_2: number, ox_3: number,
         oy_1: number, oy_2: number, oy_3: number,
         oz_1: number, oz_2: number, oz_3: number) {
-        return new obb(cx, cy, cz, hw, hh, hl, ox_1, ox_2, ox_3, oy_1, oy_2, oy_3, oz_1, oz_2, oz_3);
+        return new OBB(cx, cy, cz, hw, hh, hl, ox_1, ox_2, ox_3, oy_1, oy_2, oy_3, oz_1, oz_2, oz_3);
     }
 
     /**
@@ -91,8 +91,8 @@ export default class obb {
      * @param a 克隆的目标。
      * @returns 克隆出的新对象。
      */
-    public static clone (a: obb) {
-        return new obb(a.center.x, a.center.y, a.center.z,
+    public static clone (a: OBB) {
+        return new OBB(a.center.x, a.center.y, a.center.z,
             a.halfExtents.x, a.halfExtents.y, a.halfExtents.z,
             a.orientation.m00, a.orientation.m01, a.orientation.m02,
             a.orientation.m03, a.orientation.m04, a.orientation.m05,
@@ -104,11 +104,11 @@ export default class obb {
      * copy the values from one obb to another
      * @zh
      * 将从一个 obb 的值复制到另一个 obb。
-     * @param {obb} out 接受操作的 obb。
-     * @param {obb} a 被复制的 obb。
-     * @return {obb} out 接受操作的 obb。
+     * @param {OBB} out 接受操作的 obb。
+     * @param {OBB} a 被复制的 obb。
+     * @return {OBB} out 接受操作的 obb。
      */
-    public static copy (out: obb, a: obb): obb {
+    public static copy (out: OBB, a: OBB): OBB {
         Vec3.copy(out.center, a.center);
         Vec3.copy(out.halfExtents, a.halfExtents);
         Mat3.copy(out.orientation, a.orientation);
@@ -124,9 +124,9 @@ export default class obb {
      * @param out - 接受操作的 obb。
      * @param minPos - obb 的最小点。
      * @param maxPos - obb 的最大点。
-     * @returns {obb} out 接受操作的 obb。
+     * @returns {OBB} out 接受操作的 obb。
      */
-    public static fromPoints (out: obb, minPos: Vec3, maxPos: Vec3): obb {
+    public static fromPoints (out: OBB, minPos: Vec3, maxPos: Vec3): OBB {
         Vec3.multiplyScalar(out.center, Vec3.add(_v3_tmp, minPos, maxPos), 0.5);
         Vec3.multiplyScalar(out.halfExtents, Vec3.subtract(_v3_tmp2, maxPos, minPos), 0.5);
         Mat3.identity(out.orientation);
@@ -153,15 +153,15 @@ export default class obb {
      * @param oz_1 方向矩阵参数。
      * @param oz_2 方向矩阵参数。
      * @param oz_3 方向矩阵参数。
-     * @return {obb} out
+     * @return {OBB} out
      */
     public static set (
-        out: obb,
+        out: OBB,
         cx: number, cy: number, cz: number,
         hw: number, hh: number, hl: number,
         ox_1: number, ox_2: number, ox_3: number,
         oy_1: number, oy_2: number, oy_3: number,
-        oz_1: number, oz_2: number, oz_3: number): obb {
+        oz_1: number, oz_2: number, oz_3: number): OBB {
         Vec3.set(out.center, cx, cy, cz);
         Vec3.set(out.halfExtents, hw, hh, hl);
         Mat3.set(out.orientation, ox_1, ox_2, ox_3, oy_1, oy_2, oy_3, oz_1, oz_2, oz_3);
@@ -234,7 +234,7 @@ export default class obb {
      * @param scale 变换的缩放部分。
      * @param out 变换的目标。
      */
-    public transform (m: Mat4, pos: Vec3, rot: Quat, scale: Vec3, out: obb) {
+    public transform (m: Mat4, pos: Vec3, rot: Quat, scale: Vec3, out: OBB) {
         Vec3.transformMat4(out.center, this.center, m);
         // parent shape doesn't contain rotations for now
         Mat3.fromQuat(out.orientation, rot);
@@ -248,7 +248,7 @@ export default class obb {
      * @param rot 变换的旋转部分。
      * @param out 变换的目标。
      */
-    public translateAndRotate (m: Mat4, rot: Quat, out: obb){
+    public translateAndRotate (m: Mat4, rot: Quat, out: OBB){
         Vec3.transformMat4(out.center, this.center, m);
         // parent shape doesn't contain rotations for now
         Mat3.fromQuat(out.orientation, rot);
@@ -260,7 +260,7 @@ export default class obb {
      * @param scale 缩放值。
      * @param out 缩放的目标。
      */
-    public setScale (scale: Vec3, out: obb) {
+    public setScale (scale: Vec3, out: OBB) {
         Vec3.multiply(out.halfExtents, this.halfExtents, scale);
     }
 }

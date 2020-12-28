@@ -28,10 +28,10 @@
  * @module scene-graph
  */
 
-import { UIComponent } from '../components/ui-base/ui-component';
-import { UITransform } from '../components/ui-base/ui-transform';
-import { UIRenderable } from '../components/ui-base/ui-renderable';
-import { warnID } from '../platform';
+import { UIComponent } from '../../2d/framework/ui-component';
+import { UIRenderable } from '../../2d/framework/ui-renderable';
+import { UITransform } from '../../2d/framework/ui-transform';
+import { warnID } from '../platform/debug';
 
 /**
  * @en Node's UI properties abstraction
@@ -44,12 +44,12 @@ export class NodeUIProperties {
      */
     get uiTransformComp () {
         if (!this._uiTransformComp) {
-            this._uiTransformComp = this._node.getComponent(UITransform);
+            this._uiTransformComp = this._node.getComponent('cc.UITransform') as UITransform;
         }
 
         return this._uiTransformComp;
     }
-    set uiTransformComp (value) {
+    set uiTransformComp (value: UITransform | null) {
         this._uiTransformComp = value;
     }
 
@@ -67,7 +67,7 @@ export class NodeUIProperties {
         }
         this._uiComp = comp;
     }
-    
+
     private _uiComp: UIComponent | UIRenderable | null = null;
 
     /**

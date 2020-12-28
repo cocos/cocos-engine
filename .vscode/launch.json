@@ -4,8 +4,26 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "Generate declaraions",
-            "program": "${workspaceFolder}/scripts/generate-declarations/generate-declarations-cli.js"
+            "name": "Build Declarations",
+            "program": "${workspaceFolder}/node_modules/gulp/bin/gulp.js",
+            "args": [
+                "build-declarations"
+            ],
+            "skipFiles": [
+                "<node_internals>/**"
+            ]
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Build Code",
+            "program": "${workspaceFolder}/node_modules/gulp/bin/gulp.js",
+            "args": [
+                "build-code"
+            ],
+            "skipFiles": [
+                "<node_internals>/**"
+            ]
         },
         {
             "type": "chrome",

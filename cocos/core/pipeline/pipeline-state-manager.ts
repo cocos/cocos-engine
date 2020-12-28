@@ -37,7 +37,6 @@ export class PipelineStateManager {
 
     // pass is only needed on TS.
     static getOrCreatePipelineState (device: Device, pass: Pass, shader: Shader, renderPass: RenderPass, ia: InputAssembler) {
-
         const hPass = pass.handle;
         const hash1 = PassPool.get(hPass, PassView.HASH);
         const hash2 = renderPass.hash;

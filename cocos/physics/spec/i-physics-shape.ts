@@ -28,13 +28,13 @@
  * @hidden
  */
 
-import { ILifecycle } from './i-lifecycle'
-import { IGroupMask } from './i-group-mask'
+import { ILifecycle } from './i-lifecycle';
+import { IGroupMask } from './i-group-mask';
 import { IVec3Like } from '../../core/math/type-define';
 import { Collider, RigidBody, PhysicMaterial, SimplexCollider } from '../../../exports/physics-framework';
-import { Mesh } from '../../core';
+import { Mesh } from '../../3d/assets';
 import { ITerrainAsset } from './i-external';
-import { aabb, sphere } from '../../core/geometry';
+import { AABB, Sphere } from '../../core/geometry';
 
 export interface IBaseShape extends ILifecycle, IGroupMask {
     readonly impl: any;
@@ -45,8 +45,9 @@ export interface IBaseShape extends ILifecycle, IGroupMask {
     setAsTrigger: (v: boolean) => void;
     setCenter: (v: IVec3Like) => void;
     // setAttachedBody: (body: RigidBody | null) => void;
-    getAABB: (v: aabb) => void;
-    getBoundingSphere: (v: sphere) => void;
+    getAABB: (v: AABB) => void;
+    getBoundingSphere: (v: Sphere) => void;
+    updateEventListener: () => void;
 }
 
 export interface IBoxShape extends IBaseShape {

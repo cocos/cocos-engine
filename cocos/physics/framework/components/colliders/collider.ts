@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-namespace */
 /*
  Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
 
@@ -29,6 +30,7 @@
  */
 
 import { ccclass, tooltip, displayOrder, displayName, readOnly, type, serializable } from 'cc.decorator';
+import { EDITOR } from 'internal:constants';
 import { Eventify } from '../../../../core/event';
 import { Vec3 } from '../../../../core/math';
 import { CollisionEventType, TriggerEventType } from '../../physics-interface';
@@ -37,8 +39,7 @@ import { PhysicsMaterial } from '../../assets/physics-material';
 import { PhysicsSystem } from '../../physics-system';
 import { Component, error, Node } from '../../../../core';
 import { IBaseShape } from '../../../spec/i-physics-shape';
-import { EDITOR } from 'internal:constants';
-import { aabb, sphere } from '../../../../core/geometry';
+import { AABB, Sphere } from '../../../../core/geometry';
 import { EColliderType, EAxisDirection } from '../../physics-enum';
 import { createShape } from '../../instance';
 
@@ -50,7 +51,6 @@ import { createShape } from '../../instance';
  */
 @ccclass('cc.Collider')
 export class Collider extends Eventify(Component) {
-
     /**
      * @en
      * Enumeration of collider types.
@@ -58,7 +58,7 @@ export class Collider extends Eventify(Component) {
      * 碰撞体类型的枚举。
      */
     static readonly Type = EColliderType;
-    
+
     /**
      * @en
      * Enumeration of axes.
@@ -125,7 +125,7 @@ export class Collider extends Eventify(Component) {
     public set material (value) {
         if (this._shape) {
             if (value != null && this._material != null) {
-                if (this._material._uuid != value._uuid) {
+                if (this._material._uuid !== value._uuid) {
                     this._material.off('physics_material_update', this._updateMaterial, this);
                     value.on('physics_material_update', this._updateMaterial, this);
                     this._isSharedMaterial = false;
@@ -135,7 +135,7 @@ export class Collider extends Eventify(Component) {
                 value.on('physics_material_update', this._updateMaterial, this);
                 this._material = value;
             } else if (value == null && this._material != null) {
-                this._material!.off('physics_material_update', this._updateMaterial, this);
+                this._material.off('physics_material_update', this._updateMaterial, this);
                 this._material = value;
             }
             this._updateMaterial();
@@ -191,14 +191,14 @@ export class Collider extends Eventify(Component) {
         return this._shape;
     }
 
-    public get worldBounds (): Readonly<aabb> {
-        if (this._aabb == null) this._aabb = new aabb();
+    public get worldBounds (): Readonly<AABB> {
+        if (this._aabb == null) this._aabb = new AABB();
         if (this._shape) this._shape.getAABB(this._aabb);
         return this._aabb;
     }
 
-    public get boundingSphere (): Readonly<sphere> {
-        if (this._boundingSphere == null) this._boundingSphere = new sphere();
+    public get boundingSphere (): Readonly<Sphere> {
+        if (this._boundingSphere == null) this._boundingSphere = new Sphere();
         if (this._shape) this._shape.getBoundingSphere(this._boundingSphere);
         return this._boundingSphere;
     }
@@ -216,24 +216,24 @@ export class Collider extends Eventify(Component) {
     /// PROTECTED PROPERTY ///
 
     protected _shape: IBaseShape | null = null;
-    protected _aabb: aabb | null = null;
-    protected _boundingSphere: sphere | null = null;
-    protected _isSharedMaterial: boolean = true;
-    protected _needTriggerEvent: boolean = false;
-    protected _needCollisionEvent: boolean = false;
+    protected _aabb: AABB | null = null;
+    protected _boundingSphere: Sphere | null = null;
+    protected _isSharedMaterial = true;
+    protected _needTriggerEvent = false;
+    protected _needCollisionEvent = false;
     // protected _attachedRigidBody: RigidBody | null = null;
 
     @type(PhysicsMaterial)
     protected _material: PhysicsMaterial | null = null;
 
     @serializable
-    protected _isTrigger: boolean = false;
+    protected _isTrigger = false;
 
     @serializable
     protected readonly _center: Vec3 = new Vec3();
 
     protected get _assertOnLoadCalled (): boolean {
-        const r = this._isOnLoadCalled == 0;
+        const r = this._isOnLoadCalled === 0;
         if (r) { error('[Physics]: Please make sure that the node has been added to the scene'); }
         return !r;
     }
@@ -254,7 +254,7 @@ export class Collider extends Eventify(Component) {
      * @param callback - The event callback, signature:`(event?:ICollisionEvent|ITriggerEvent)=>void`.
      * @param target - The event callback target.
      */
-    public on (type: TriggerEventType | CollisionEventType, callback: Function, target?: Object, once?: boolean): any {
+    public on<TFunction extends (...any) => void> (type: TriggerEventType | CollisionEventType, callback: TFunction, target?, once?: boolean): any {
         const ret = super.on(type, callback, target, once);
         this._updateNeedEvent(type);
         return ret;
@@ -269,7 +269,7 @@ export class Collider extends Eventify(Component) {
      * @param callback - The event callback, signature:`(event?:ICollisionEvent|ITriggerEvent)=>void`.
      * @param target - The event callback target.
      */
-    public off (type: TriggerEventType | CollisionEventType, callback?: Function, target?: Object) {
+    public off (type: TriggerEventType | CollisionEventType, callback?: (...any) => void, target?) {
         super.off(type, callback, target);
         this._updateNeedEvent();
     }
@@ -283,8 +283,8 @@ export class Collider extends Eventify(Component) {
      * @param callback - The event callback, signature:`(event?:ICollisionEvent|ITriggerEvent)=>void`.
      * @param target - The event callback target.
      */
-    public once (type: TriggerEventType | CollisionEventType, callback: Function, target?: Object): any {
-        //TODO: callback invoker now is a entity, after `once` will not calling the upper `off`.
+    public once<TFunction extends (...any) => void> (type: TriggerEventType | CollisionEventType, callback: TFunction, target?): any {
+        // TODO: callback invoker now is a entity, after `once` will not calling the upper `off`.
         const ret = super.once(type, callback, target);
         this._updateNeedEvent(type);
         return ret;
@@ -297,7 +297,7 @@ export class Collider extends Eventify(Component) {
      * 移除所有指定目标或类型的注册事件。
      * @param typeOrTarget - The event type or target.
      */
-    public removeAll (typeOrTarget: TriggerEventType | CollisionEventType | {}) {
+    public removeAll (typeOrTarget: TriggerEventType | CollisionEventType | Record<string, unknown>) {
         super.removeAll(typeOrTarget);
         this._updateNeedEvent();
     }
@@ -410,14 +410,13 @@ export class Collider extends Eventify(Component) {
         }
     }
 
-
     /// COMPONENT LIFECYCLE ///
 
     protected onLoad () {
         if (!EDITOR) {
             this._shape = createShape(this.TYPE);
-            this._shape.initialize(this);
             this.sharedMaterial = this._material == null ? PhysicsSystem.instance.defaultMaterial : this._material;
+            this._shape.initialize(this);
             this._shape.onLoad!();
         }
     }
@@ -453,20 +452,25 @@ export class Collider extends Eventify(Component) {
     private _updateNeedEvent (type?: string) {
         if (this.isValid) {
             if (type !== undefined) {
-                if (type == 'onCollisionEnter' || type == 'onCollisionStay' || type == 'onCollisionExit') {
+                if (type === 'onCollisionEnter' || type === 'onCollisionStay' || type === 'onCollisionExit') {
                     this._needCollisionEvent = true;
                 }
-                if (type == 'onTriggerEnter' || type == 'onTriggerStay' || type == 'onTriggerExit') {
+                if (type === 'onTriggerEnter' || type === 'onTriggerStay' || type === 'onTriggerExit') {
                     this._needTriggerEvent = true;
                 }
             } else {
-                if (!(this.hasEventListener('onTriggerEnter') || this.hasEventListener('onTriggerStay') || this.hasEventListener('onTriggerExit'))) {
+                if (!(this.hasEventListener('onTriggerEnter')
+                || this.hasEventListener('onTriggerStay')
+                || this.hasEventListener('onTriggerExit'))) {
                     this._needTriggerEvent = false;
                 }
-                if (!(this.hasEventListener('onCollisionEnter') || this.hasEventListener('onCollisionStay') || this.hasEventListener('onCollisionExit'))) {
+                if (!(this.hasEventListener('onCollisionEnter')
+                || this.hasEventListener('onCollisionStay')
+                || this.hasEventListener('onCollisionExit'))) {
                     this._needCollisionEvent = false;
                 }
             }
+            if (this._shape) this._shape.updateEventListener();
         }
     }
 }
@@ -480,9 +484,8 @@ function findAttachedBody (node: Node): RigidBody | null {
     const rb = node.getComponent(RigidBody);
     if (rb && rb.isValid) {
         return rb;
-    } else {
-        return null;
-        // if (node.parent == null || node.parent == node.scene) return null;
-        // return findAttachedBody(node.parent);
     }
+    return null;
+    // if (node.parent == null || node.parent == node.scene) return null;
+    // return findAttachedBody(node.parent);
 }

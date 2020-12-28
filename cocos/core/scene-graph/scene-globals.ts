@@ -97,9 +97,7 @@ export class AmbientInfo {
 
     public activate (resource: Ambient) {
         this._resource = resource;
-        this._resource.skyColor = this._skyColor;
-        this._resource.skyIllum = this._skyIllum;
-        this._resource.groundAlbedo = this._groundAlbedo;
+        this._resource.initialize(this);
     }
 }
 legacyCC.AmbientInfo = AmbientInfo;
@@ -127,8 +125,11 @@ export class SkyboxInfo {
      */
     @editable
     set enabled (val) {
+        if (this._enabled === val) return;
         this._enabled = val;
-        if (this._resource) { this._resource.enabled = this._enabled; }
+        if (this._resource) {
+            this._resource.enabled = this._enabled;
+        }
     }
     get enabled () {
         return this._enabled;
@@ -177,11 +178,8 @@ export class SkyboxInfo {
 
     public activate (resource: Skybox) {
         this._resource = resource;
+        this._resource.initialize(this);
         this._resource.activate(); // update global DS first
-        this._resource.enabled = this._enabled;
-        this._resource.isRGBE = this._isRGBE;
-        this._resource.envmap = this._envmap;
-        this._resource.useIBL = this._useIBL;
     }
 }
 legacyCC.SkyboxInfo = SkyboxInfo;
@@ -218,8 +216,14 @@ export class FogInfo {
      */
     @editable
     set enabled (val: boolean) {
+        if (this._enabled === val) return;
         this._enabled = val;
-        if (this._resource) { this._resource.enabled = val; }
+        if (this._resource) {
+            this._resource.enabled = val;
+            if (val) {
+                this._resource.type = this._type;
+            }
+        }
     }
 
     get enabled () {
@@ -364,15 +368,8 @@ export class FogInfo {
 
     public activate (resource: Fog) {
         this._resource = resource;
-        this._resource.enabled = this._enabled;
-        this._resource.fogColor = this._fogColor;
-        this._resource.type = this._type;
-        this._resource.fogDensity = this._fogDensity;
-        this._resource.fogStart = this._fogStart;
-        this._resource.fogEnd = this._fogEnd;
-        this._resource.fogAtten = this._fogAtten;
-        this._resource.fogTop = this._fogTop;
-        this._resource.fogRange = this._fogRange;
+        this._resource.initialize(this);
+        this._resource.activate();
     }
 }
 
@@ -419,8 +416,14 @@ export class ShadowsInfo {
      */
     @editable
     set enabled (val: boolean) {
+        if (this._enabled === val) return;
         this._enabled = val;
-        if (this._resource) { this._resource.enabled = val; }
+        if (this._resource) {
+            this._resource.enabled = val;
+            if (val) {
+                this._resource.type = this._type;
+            }
+        }
     }
     get enabled () {
         return this._enabled;
@@ -617,20 +620,8 @@ export class ShadowsInfo {
 
     public activate (resource: Shadows) {
         this._resource = resource;
-        this._resource.type = this._type;
-        this._resource.autoAdapt = this._autoAdapt;
-        this._resource.near = this._near;
-        this._resource.far = this._far;
-        this._resource.aspect = this._aspect;
-        this._resource.orthoSize = this._orthoSize;
-        this._resource.size = this._size;
-        this._resource.normal = this._normal;
-        this._resource.distance = this._distance;
-        this._resource.shadowColor = this._shadowColor;
-        this._resource.pcf = this._pcf;
-        this._resource.bias = this._bias;
-        this._resource.enabled = this._enabled;
-        this._resource.maxReceived = this._maxReceived;
+        this._resource.initialize(this);
+        this._resource.activate();
     }
 }
 legacyCC.ShadowsInfo = ShadowsInfo;

@@ -23,36 +23,33 @@
  THE SOFTWARE.
  */
 
-import { aabb, intersect} from '../../geometry';
-import { SetIndex} from '../../pipeline/define';
+import { AABB, intersect } from '../../geometry';
+import { SetIndex } from '../define';
 import { CommandBuffer, Device, RenderPass, Shader } from '../../gfx';
 import { InstancedBuffer } from '../instanced-buffer';
-import { PipelineStateManager } from '../../pipeline/pipeline-state-manager';
-import { Model } from '../../renderer/scene';
-import { DSPool, ShaderPool, PassPool, PassView } from '../../renderer/core/memory-pools';
+import { PipelineStateManager } from '../pipeline-state-manager';
+import { Model, Camera } from '../../renderer/scene';
+import { DSPool, ShaderPool, PassPool, PassView, ShadowsPool, ShadowsView } from '../../renderer/core/memory-pools';
 import { RenderInstancedQueue } from '../render-instanced-queue';
 import { ForwardPipeline } from './forward-pipeline';
 import { ShadowType } from '../../renderer/scene/shadows';
-import { RenderView } from '../render-view';
 import { Layers } from '../../scene-graph/layers';
 
-const _ab = new aabb();
+const _ab = new AABB();
 
 export class PlanarShadowQueue {
     private _pendingModels: Model[] = [];
     private _instancedQueue = new RenderInstancedQueue();
-    private _shaderCache = new Map<Model, Shader>();
     private _pipeline: ForwardPipeline;
 
     constructor (pipeline: ForwardPipeline) {
         this._pipeline = pipeline;
     }
 
-    public gatherShadowPasses (view: RenderView, cmdBuff: CommandBuffer) {
+    public gatherShadowPasses (camera: Camera, cmdBuff: CommandBuffer) {
         const shadows = this._pipeline.shadows;
         if (!shadows.enabled || shadows.type !== ShadowType.Planar) { return; }
 
-        const camera = view.camera;
         const scene = camera.scene!;
         const frstm = camera.frustum;
         const shadowVisible =  (camera.visibility & Layers.BitMask.DEFAULT) !== 0;
@@ -67,8 +64,8 @@ export class PlanarShadowQueue {
             const model = models[i];
             if (!model.enabled || !model.node || !model.castShadow) { continue; }
             if (model.worldBounds) {
-                aabb.transform(_ab, model.worldBounds, shadows.matLight);
-                if (!intersect.aabb_frustum(_ab, frstm)) { continue; }
+                AABB.transform(_ab, model.worldBounds, shadows.matLight);
+                if (!intersect.aabbFrustum(_ab, frstm)) { continue; }
             }
             if (model.isInstancingEnabled) {
                 for (let j = 0; j < model.subModels.length; j++) {
@@ -90,14 +87,14 @@ export class PlanarShadowQueue {
         const pass = shadows.material.passes[0];
         const descriptorSet = DSPool.get(PassPool.get(pass.handle, PassView.DESCRIPTOR_SET));
         cmdBuff.bindDescriptorSet(SetIndex.MATERIAL, descriptorSet);
+        const shader = ShaderPool.get(ShadowsPool.get(shadows.handle, ShadowsView.PLANAR_SHADER));
 
         const modelCount = this._pendingModels.length;
         for (let i = 0; i < modelCount; i++) {
             const model = this._pendingModels[i];
             for (let j = 0; j < model.subModels.length; j++) {
                 const subModel = model.subModels[j];
-                const shader = ShaderPool.get(pass.getShaderVariant(subModel.patches));
-                const ia = subModel.inputAssembler!;
+                const ia = subModel.inputAssembler;
                 const pso = PipelineStateManager.getOrCreatePipelineState(device, pass, shader, renderPass, ia);
                 cmdBuff.bindPipelineState(pso);
                 cmdBuff.bindDescriptorSet(SetIndex.LOCAL, subModel.descriptorSet);

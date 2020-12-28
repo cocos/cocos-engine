@@ -28,19 +28,19 @@
  * @hidden
  */
 
+/* eslint-disable new-cap */
 import Ammo from '../ammo-instantiated';
-import { IBaseConstraint } from "../../spec/i-physics-constraint";
-import { Constraint, RigidBody } from "../../framework";
+import { IBaseConstraint } from '../../spec/i-physics-constraint';
+import { Constraint, RigidBody } from '../../framework';
 import { AmmoRigidBody } from '../ammo-rigid-body';
 
 export class AmmoConstraint implements IBaseConstraint {
-
     setConnectedBody (v: RigidBody | null): void {
         // TODO: support dynamic change connected body
     }
 
     setEnableCollision (v: boolean): void {
-        if (this._collided != v) {
+        if (this._collided !== v) {
             this._collided = v;
             this.updateByReAdd();
         }
@@ -54,12 +54,12 @@ export class AmmoConstraint implements IBaseConstraint {
         return this._com;
     }
 
-    dirty: number = 0;
-    index: number = -1;
+    dirty = 0;
+    index = -1;
 
     protected _impl!: Ammo.btTypedConstraint;
     protected _com!: Constraint;
-    protected _rigidBody: RigidBody | null = null;
+    protected _rigidBody!: RigidBody;
     protected _collided = false;
 
     updateByReAdd () {
@@ -72,7 +72,7 @@ export class AmmoConstraint implements IBaseConstraint {
 
     initialize (v: Constraint): void {
         this._com = v;
-        this._rigidBody = v.attachedBody;
+        this._rigidBody = v.attachedBody!;
         this._collided = v.enableCollision;
         this.onComponentSet();
     }
@@ -80,21 +80,29 @@ export class AmmoConstraint implements IBaseConstraint {
     // virtual
     protected onComponentSet () { }
 
-    onLoad (): void {
-
-    }
+    // virtual
+    updateScale0 () { }
+    updateScale1 () { }
 
     onEnable (): void {
-        if (this._rigidBody) {
-            const sb = (this._rigidBody.body as AmmoRigidBody).sharedBody;
-            sb.wrappedWorld.addConstraint(this);
+        const sb = (this._rigidBody.body as AmmoRigidBody).sharedBody;
+        sb.wrappedWorld.addConstraint(this);
+        sb.addJoint(this, 0);
+        const connect = this.constraint.connectedBody;
+        if (connect) {
+            const sb2 = (connect.body as AmmoRigidBody).sharedBody;
+            sb2.addJoint(this, 1);
         }
     }
 
     onDisable (): void {
-        if (this._rigidBody) {
-            const sb = (this._rigidBody.body as AmmoRigidBody).sharedBody;
-            sb.wrappedWorld.removeConstraint(this);
+        const sb = (this._rigidBody.body as AmmoRigidBody).sharedBody;
+        sb.wrappedWorld.removeConstraint(this);
+        sb.removeJoint(this, 0);
+        const connect = this.constraint.connectedBody;
+        if (connect) {
+            const sb2 = (connect.body as AmmoRigidBody).sharedBody;
+            sb2.removeJoint(this, 1);
         }
     }
 

@@ -32,11 +32,10 @@ import { ccclass, serializable, type } from 'cc.decorator';
 import { Asset } from './asset';
 import { EffectAsset } from './effect-asset';
 import { RenderTexture } from './render-texture';
-import { RenderableComponent } from '../3d/framework/renderable-component';
-import { SpriteFrame } from './sprite-frame';
+import { RenderableComponent } from '../components/renderable-component';
 import { Texture } from '../gfx';
 import { TextureBase } from './texture-base';
-import { builtinResMgr } from '../3d/builtin/init';
+import { builtinResMgr } from '../builtin/builtin-res-mgr';
 import { legacyCC } from '../global-exports';
 import { IPassInfoFull, Pass, PassOverrides } from '../renderer/core/pass';
 import { MacroRecord, MaterialProperty, PropertyType } from '../renderer/core/pass-utils';
@@ -83,7 +82,7 @@ interface IMaterialInfo {
     states?: PassOverrides | PassOverrides[];
 }
 
-type MaterialPropertyFull = MaterialProperty | TextureBase | SpriteFrame | RenderTexture | Texture | null;
+type MaterialPropertyFull = MaterialProperty | TextureBase | RenderTexture | Texture | null;
 
 /**
  * @en The material asset, specifies in details how a model is drawn on screen.
@@ -405,7 +404,9 @@ export class Material extends Asset {
                 this._passes.forEach((pass, i) => {
                     let props = this._props[i];
                     if (!props) { props = this._props[i] = {}; }
-                    props = this._props[pass.propertyIndex];
+                    if (pass.propertyIndex !== undefined) {
+                        Object.assign(props, this._props[pass.propertyIndex]);
+                    }
                     for (const p in props) {
                         this._uploadProperty(pass, p, props[p]);
                     }
@@ -450,7 +451,7 @@ export class Material extends Asset {
         const binding = Pass.getBindingFromHandle(handle);
         if (val instanceof Texture) {
             pass.bindTexture(binding, val, index);
-        } else if (val instanceof TextureBase || val instanceof SpriteFrame || val instanceof RenderTexture) {
+        } else if (val instanceof TextureBase || val instanceof RenderTexture) {
             const texture: Texture | null = val.getGFXTexture();
             if (!texture || !texture.width || !texture.height) {
                 // console.warn(`material '${this._uuid}' received incomplete texture asset '${val._uuid}'`);

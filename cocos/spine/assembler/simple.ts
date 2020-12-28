@@ -1,12 +1,14 @@
 import spine from '../lib/spine-core.js';
-import { IAssembler } from '../../core/renderer/ui/base';
-import { UI } from '../../core/renderer/ui/ui';
+import { IAssembler } from '../../2d/renderer/base';
+import { UI } from '../../2d/renderer/ui';
 import { FrameColor } from '../skeleton-cache';
 import { MaterialInstance } from '../../core/renderer';
 import { SkeletonTexture } from '../skeleton-texture';
-import { vfmtPosUvColor, vfmtPosUvTwoColor } from '../../core/renderer/ui/ui-vertex-format';
+import { vfmtPosUvColor, vfmtPosUvTwoColor } from '../../2d/renderer/ui-vertex-format';
 import { Skeleton, SkeletonMeshData, SpineMaterialType } from '../skeleton';
-import { Color, GFXBlendFactor, Mat4, Material, Node, Texture2D, Vec3 } from '../../core';
+import { Color, Mat4, Material, Node, Texture2D, Vec3 } from '../../core';
+import { BlendFactor } from '../../core/gfx';
+import { legacyCC } from '../../core/global-exports';
 
 const FLAG_BATCH = 0x10;
 const FLAG_TWO_COLOR = 0x01;
@@ -23,7 +25,7 @@ const _darkColor: spine.Color | null = new spine.Color(1, 1, 1, 1);
 const _tempPos: spine.Vector2 | null = new spine.Vector2();
 const _tempUv: spine.Vector2 | null = new spine.Vector2();
 
-// let _premultipliedAlpha: boolean;
+let _premultipliedAlpha: boolean;
 let _multiplier;
 let _slotRangeStart: number;
 let _slotRangeEnd: number;
@@ -81,25 +83,25 @@ let _currentMaterial: Material | MaterialInstance | null = null;
 let _currentTexture: Texture2D | null = null;
 
 function _getSlotMaterial (blendMode: spine.BlendMode) {
-    let src: GFXBlendFactor;
-    let dst: GFXBlendFactor;
+    let src: BlendFactor;
+    let dst: BlendFactor;
     switch (blendMode) {
     case spine.BlendMode.Additive:
-        src = /* _premultipliedAlpha ? GFXBlendFactor.ONE : */  GFXBlendFactor.SRC_ALPHA;
-        dst = GFXBlendFactor.ONE;
+        src =  _premultipliedAlpha ? BlendFactor.ONE :  BlendFactor.SRC_ALPHA;
+        dst = BlendFactor.ONE;
         break;
     case spine.BlendMode.Multiply:
-        src = GFXBlendFactor.DST_COLOR;
-        dst = GFXBlendFactor.ONE_MINUS_SRC_ALPHA;
+        src = BlendFactor.DST_COLOR;
+        dst = BlendFactor.ONE_MINUS_SRC_ALPHA;
         break;
     case spine.BlendMode.Screen:
-        src = GFXBlendFactor.ONE;
-        dst = GFXBlendFactor.ONE_MINUS_SRC_COLOR;
+        src = BlendFactor.ONE;
+        dst = BlendFactor.ONE_MINUS_SRC_COLOR;
         break;
     case spine.BlendMode.Normal:
     default:
-        src = /* _premultipliedAlpha ? GFXBlendFactor.ONE : */ GFXBlendFactor.SRC_ALPHA;
-        dst = GFXBlendFactor.ONE_MINUS_SRC_ALPHA;
+        src = _premultipliedAlpha ? BlendFactor.ONE : BlendFactor.SRC_ALPHA;
+        dst = BlendFactor.ONE_MINUS_SRC_ALPHA;
         break;
     }
 
@@ -109,7 +111,7 @@ function _getSlotMaterial (blendMode: spine.BlendMode) {
 function _handleColor (color: FrameColor) {
     // temp rgb has multiply 255, so need divide 255;
     _fa = color.fa * _nodeA;
-    _multiplier = /* _premultipliedAlpha ? _fa / 255 : */ 1;
+    _multiplier = _premultipliedAlpha ? _fa / 255 :  1;
     _r = _nodeR * _multiplier;
     _g = _nodeG * _multiplier;
     _b = _nodeB * _multiplier;
@@ -125,7 +127,7 @@ function _handleColor (color: FrameColor) {
     _dr = color.dr * _r;
     _dg = color.dg * _g;
     _db = color.db * _b;
-    _da =  /* _premultipliedAlpha ? 255 : */ 0;
+    _da =   _premultipliedAlpha ? 255 :  0;
     _darkColor32[0] = _dr / 255.0;
     _darkColor32[1] = _dg / 255.0;
     _darkColor32[2] = _db / 255.0;
@@ -155,10 +157,11 @@ export const simple: IAssembler = {
 
     updateRenderData (comp: Skeleton, ui: UI) {
         _comp = comp;
-        // if (comp.isAnimationCached()) return;
         const skeleton = comp._skeleton;
-        if (skeleton) {
+        if (!comp.isAnimationCached() && skeleton) {
             skeleton.updateWorldTransform();
+        }
+        if (skeleton) {
             updateComponentRenderData(comp, ui);
         }
     },
@@ -178,16 +181,16 @@ export const simple: IAssembler = {
         const renderData = data.renderData;
 
         let buffer = renderer.acquireBufferBatch(renderData.floatStride === 9 ? vfmtPosUvColor : vfmtPosUvTwoColor)!;
-        let vertexOffset = buffer.byteOffset >> 2;
+        let floatOffset = buffer.byteOffset >> 2;
         let indicesOffset = buffer.indicesOffset;
-        let vertexId = buffer.vertexOffset;
+        let vertexOffset = buffer.vertexOffset;
 
         const isRecreate = buffer.request(renderData.vertexCount, renderData.indicesCount);
         if (!isRecreate) {
             buffer = renderer.currBufferBatch!;
-            vertexOffset = 0;
+            floatOffset = 0;
             indicesOffset = 0;
-            vertexId = 0;
+            vertexOffset = 0;
         }
 
         const vBuf = buffer.vData!;
@@ -200,9 +203,9 @@ export const simple: IAssembler = {
 
         // copy all vertexData
         const strideFloat = renderData.floatStride;
-        vBuf.set(srcVBuf.subarray(srcVIdx, srcVIdx + renderData.vertexCount * strideFloat), vertexOffset);
+        vBuf.set(srcVBuf.subarray(srcVIdx, srcVIdx + renderData.vertexCount * strideFloat), floatOffset);
         for (let i = 0; i < renderData.vertexCount; i++) {
-            const pOffset = vertexOffset + i * strideFloat;
+            const pOffset = floatOffset + i * strideFloat;
             _vec3u_temp.set(vBuf[pOffset], vBuf[pOffset + 1], vBuf[pOffset + 2]);
             _vec3u_temp.transformMat4(matrix);
             vBuf[pOffset] = _vec3u_temp.x;
@@ -241,13 +244,13 @@ function updateComponentRenderData (comp: Skeleton, ui: UI) {
     _currentMaterial = _comp.getBuiltinMaterial(_useTint ? SpineMaterialType.TWO_COLORED : SpineMaterialType.COLORED_TEXTURED);
 
     _mustFlush = true;
-    // _premultipliedAlpha = comp.premultipliedAlpha;
+    _premultipliedAlpha = comp.premultipliedAlpha;
     _multiplier = 1.0;
     _handleVal = 0x00;
     _needColor = false;
     _vertexEffect = comp._effectDelegate && comp._effectDelegate._vertexEffect as any;
 
-    if (nodeColor._val !== 0xffffffff /* || _premultipliedAlpha */) {
+    if (nodeColor._val !== 0xffffffff ||  _premultipliedAlpha) {
         _needColor = true;
     }
 
@@ -286,7 +289,7 @@ function fillVertices (skeletonColor: spine.Color, attachmentColor: spine.Color,
     let ibuf = _buffer!.renderData.iData;
 
     _finalColor!.a = slotColor.a * attachmentColor.a * skeletonColor.a * _nodeA * 255;
-    _multiplier = /* _premultipliedAlpha ? _finalColor!.a : */ 255;
+    _multiplier =  _premultipliedAlpha ? _finalColor!.a : 255;
     _tempr = _nodeR * attachmentColor.r * skeletonColor.r * _multiplier;
     _tempg = _nodeG * attachmentColor.g * skeletonColor.g * _multiplier;
     _tempb = _nodeB * attachmentColor.b * skeletonColor.b * _multiplier;
@@ -302,7 +305,7 @@ function fillVertices (skeletonColor: spine.Color, attachmentColor: spine.Color,
         _darkColor!.g = slot.darkColor.g * _tempg;
         _darkColor!.b = slot.darkColor.b * _tempb;
     }
-    _darkColor!.a = /* _premultipliedAlpha ? 255 : */ 0;
+    _darkColor!.a =  _premultipliedAlpha ? 255 : 0;
 
     if (!clipper.isClipping()) {
         if (_vertexEffect) {
@@ -426,8 +429,6 @@ function realTimeTraverse (worldMat?: Mat4) {
     const clipper = _comp!._clipper!;
     let material: Material | MaterialInstance | null = null;
     let attachment: spine.Attachment;
-    let attachmentColor: spine.Color;
-    let slotColor: spine.Color;
     let uvs: spine.ArrayLike<number>;
     let triangles: number[];
     let isRegion: boolean;
@@ -445,7 +446,7 @@ function realTimeTraverse (worldMat?: Mat4) {
     _debugMesh = _comp!.debugMesh;
     if (graphics && (_debugBones || _debugSlots || _debugMesh)) {
         graphics.clear();
-        graphics.lineWidth = 2;
+        graphics.lineWidth = 5;
     }
 
     // x y u v r1 g1 b1 a1 r2 g2 b2 a2 or x y u v r g b a
@@ -602,10 +603,7 @@ function realTimeTraverse (worldMat?: Mat4) {
             vbuf![v + 4] = uvs[u + 1];       // v
         }
 
-        attachmentColor = meshAttachment.color,
-        slotColor = slot.color;
-
-        fillVertices(skeletonColor, attachmentColor, slotColor, clipper, slot);
+        fillVertices(skeletonColor, meshAttachment.color, slot.color, clipper, slot);
 
         // reset buffer pointer, because clipper maybe realloc a new buffer in file Vertices function.
 
@@ -794,3 +792,5 @@ function cacheTraverse (worldMat?: Mat4) {
         }
     }
 }
+
+legacyCC.internal.SpineAssembler = simple;

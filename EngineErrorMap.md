@@ -569,7 +569,7 @@ cc._EventListenerTouchAllAtOnce.checkAvailable(): Invalid EventListenerTouchAllA
 
 ### 1803
 
-cc._EventListenerAcceleration.checkAvailable(): _onAccelerationEvent must be non-nil
+cc._EventListenerAcceleration.checkAvailable():_onAccelerationEvent must be non-nil
 
 ### 1900
 
@@ -700,7 +700,7 @@ setDisplayFrame is deprecated, please use setSpriteFrame instead.
 ### 2605
 
 <!-- DEPRECATED -->
-cc.Sprite._updateBlendFunc(): _updateBlendFunc doesn't work when the sprite is rendered using a cc.CCSpriteBatchNode
+cc.Sprite._updateBlendFunc():_updateBlendFunc doesn't work when the sprite is rendered using a cc.CCSpriteBatchNode
 
 ### 2606
 
@@ -1233,6 +1233,14 @@ event is undefined
 
 Event manager only support scene graph priority for ui nodes which contain UIComponent
 
+### 3520
+
+Device Motion Event request permission: %s
+
+### 3521
+
+Device Motion Event request permission failed: %s
+
 ### 3600
 
 <!-- DEPRECATED -->
@@ -1470,6 +1478,7 @@ Please ensure the constructor can be called during the script's initialization.
 
 Please do not specifiy "default" attribute in decorator of "%s" property in "%s" class.
 Default value must be initialized at their declaration:
+
 ```
 // Before:
 @property({
@@ -1487,6 +1496,7 @@ myProp = null;   // <--
 ### 3654
 
 Please specifiy a default value for "%s.%s" property at its declaration:
+
 ```
 // Before:
 @property(...)
@@ -1500,6 +1510,7 @@ myProp = 0;
 
 Can not specifiy "get" or "set"  attribute in decorator for "%s" property in "%s" class.
 Please use:
+
 ```
 @property(...)
 get %s () {
@@ -1521,6 +1532,7 @@ The default value of %s.%s must be an empty string.
 <!-- DEPRECATED -->
 The value assigned to %s should be Texture2D object, not url string. Since 1.8,
 you can declare a texture object directly in properties by using:
+
 ```
 {
     default: null,
@@ -1542,6 +1554,7 @@ Violation error: extending enumerations shall have non-overlaped member names or
 You are explicitly specifying `undefined` type to cc property "%s" of cc class "%s".
 Is this intended? If not, this may indicate a circular reference.
 For example:
+
 ```
 // foo.ts
 import { _decorator } from 'cc';
@@ -2475,7 +2488,7 @@ Failed to init builtin asset's raw path.
 
 ### 7101
 
-Sorry, 'cc.Enum' not available on this platform, please report this error here: https://github.com/cocos-creator/engine/issues/new
+Sorry, 'cc.Enum' not available on this platform, please report this error here: <https://github.com/cocos-creator/engine/issues/new>
 
 ### 7200
 

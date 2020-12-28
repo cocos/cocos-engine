@@ -28,19 +28,22 @@
  * @module physics
  */
 
+import { EDITOR, DEBUG } from 'internal:constants';
 import { Vec3 } from '../../core/math';
 import { IPhysicsWorld, IRaycastOptions } from '../spec/i-physics-world';
 import { createPhysicsWorld, checkPhysicsModule } from './instance';
 import { director, Director } from '../../core/director';
 import { System } from '../../core/components';
 import { PhysicsMaterial } from './assets/physics-material';
-import { RecyclePool, error, game, Enum } from '../../core';
-import { ray } from '../../core/geometry';
+import { RecyclePool, game } from '../../core';
+import { Ray } from '../../core/geometry';
 import { PhysicsRayResult } from './physics-ray-result';
-import { EDITOR, DEBUG } from 'internal:constants';
 import { IPhysicsConfig, ICollisionMatrix } from './physics-config';
 import { CollisionMatrix } from './collision-matrix';
 import { PhysicsGroup } from './physics-enum';
+
+import { legacyCC } from '../../core/global-exports';
+import { physicsEngineId } from './physics-selector';
 
 legacyCC.internal.PhysicsGroup = PhysicsGroup;
 
@@ -51,7 +54,6 @@ legacyCC.internal.PhysicsGroup = PhysicsGroup;
  * 物理系统。
  */
 export class PhysicsSystem extends System {
-
     static get PHYSICS_NONE () {
         return !physicsEngineId;
     }
@@ -66,6 +68,10 @@ export class PhysicsSystem extends System {
 
     static get PHYSICS_AMMO () {
         return physicsEngineId === 'ammo.js';
+    }
+
+    static get PHYSICS_PHYSX () {
+        return physicsEngineId === 'physx';
     }
 
     /**
@@ -93,6 +99,7 @@ export class PhysicsSystem extends System {
      * 获取物理系统实例。
      */
     static get instance (): PhysicsSystem {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
         if (DEBUG && checkPhysicsModule(PhysicsSystem._instance)) { return null as any; }
         return PhysicsSystem._instance;
     }
@@ -259,20 +266,18 @@ export class PhysicsSystem extends System {
     private readonly _material = new PhysicsMaterial();
 
     private readonly raycastOptions: IRaycastOptions = {
-        'group': -1,
-        'mask': -1,
-        'queryTrigger': true,
-        'maxDistance': 10000000
+        group: -1,
+        mask: -1,
+        queryTrigger: true,
+        maxDistance: 10000000,
     }
 
-    private readonly raycastResultPool = new RecyclePool<PhysicsRayResult>(() => {
-        return new PhysicsRayResult();
-    }, 1);
+    private readonly raycastResultPool = new RecyclePool<PhysicsRayResult>(() => new PhysicsRayResult(), 1);
 
     private constructor () {
         super();
         const config = game.config ? game.config.physics as IPhysicsConfig : null;
-        if (config) {
+        if (config && config.physicsEngine) {
             Vec3.copy(this._gravity, config.gravity);
             this._allowSleep = config.allowSleep;
             this._fixedTimeStep = config.fixedTimeStep;
@@ -334,7 +339,7 @@ export class PhysicsSystem extends System {
                     this._subStepCount++;
                     this.physicsWorld.emitEvents();
                     // TODO: nesting the dirty flag reset between the syncScenetoPhysics and the simulation to reduce calling syncScenetoPhysics.
-                    this.physicsWorld.syncSceneToPhysics();
+                    this.physicsWorld.syncAfterEvents();
                 } else {
                     this.physicsWorld.syncSceneToPhysics();
                     break;
@@ -396,10 +401,10 @@ export class PhysicsSystem extends System {
      * @param queryTrigger 是否检测触发器
      * @return boolean 表示是否有检测到碰撞盒
      */
-    raycast (worldRay: ray, mask: number = 0xffffffff, maxDistance = 10000000, queryTrigger = true): boolean {
+    raycast (worldRay: Ray, mask = 0xffffffff, maxDistance = 10000000, queryTrigger = true): boolean {
         this.raycastResultPool.reset();
         this.raycastResults.length = 0;
-        this.raycastOptions.mask = mask;
+        this.raycastOptions.mask = mask >>> 0;
         this.raycastOptions.maxDistance = maxDistance;
         this.raycastOptions.queryTrigger = queryTrigger;
         return this.physicsWorld.raycast(worldRay, this.raycastOptions, this.raycastResultPool, this.raycastResults);
@@ -407,7 +412,8 @@ export class PhysicsSystem extends System {
 
     /**
      * @en
-     * Collision detect all collider, and record and ray test results with the shortest distance by PhysicsSystem.Instance.RaycastClosestResult access to the results.
+     * Collision detect all collider, and record and ray test results with the shortest distance
+     * by PhysicsSystem.Instance.RaycastClosestResult access to the results.
      * @zh
      * 检测所有的碰撞盒，并记录与射线距离最短的检测结果，通过 PhysicsSystem.instance.raycastClosestResult 访问结果。
      * @param worldRay 世界空间下的一条射线
@@ -416,7 +422,7 @@ export class PhysicsSystem extends System {
      * @param queryTrigger 是否检测触发器
      * @return boolean 表示是否有检测到碰撞盒
      */
-    raycastClosest (worldRay: ray, mask: number = 0xffffffff, maxDistance = 10000000, queryTrigger = true): boolean {
+    raycastClosest (worldRay: Ray, mask = 0xffffffff, maxDistance = 10000000, queryTrigger = true): boolean {
         this.raycastOptions.mask = mask;
         this.raycastOptions.maxDistance = maxDistance;
         this.raycastOptions.queryTrigger = queryTrigger;
@@ -428,10 +434,7 @@ export class PhysicsSystem extends System {
     }
 }
 
-import { legacyCC } from '../../core/global-exports';
-import { physicsEngineId } from './physics-selector';
-
-director.once(Director.EVENT_INIT, function () {
+director.once(Director.EVENT_INIT, () => {
     initPhysicsSystem();
 });
 

@@ -33,7 +33,8 @@ import { PhysicsRayResult } from '../framework/physics-ray-result';
 import { BuiltinSharedBody } from './builtin-shared-body';
 import { BuiltinShape } from './shapes/builtin-shape';
 import { ArrayCollisionMatrix } from '../utils/array-collision-matrix';
-import { ray, intersect } from '../../core/geometry';
+import { ObjectCollisionMatrix } from '../utils/object-collision-matrix';
+import { Ray, intersect } from '../../core/geometry';
 import { RecyclePool, Node } from '../../core';
 import { IPhysicsWorld, IRaycastOptions } from '../spec/i-physics-world';
 import { IVec3Like } from '../../core/math/type-define';
@@ -41,6 +42,7 @@ import { PhysicsMaterial } from '../framework/assets/physics-material';
 import { TriggerEventType } from '../framework/physics-interface';
 import { Collider } from '../../../exports/physics-framework';
 import { BuiltinRigidBody } from './builtin-rigid-body';
+import { fastRemoveAt } from '../../core/utils/array';
 
 const hitPoint = new Vec3();
 const TriggerEventObject = {
@@ -81,8 +83,8 @@ export class BuiltInWorld implements IPhysicsWorld {
                 const bodyB = this.bodies[j];
 
                 // first, Check collision filter masks
-                if ((bodyA.collisionFilterGroup & bodyB.collisionFilterMask) === 0 ||
-                    (bodyB.collisionFilterGroup & bodyA.collisionFilterMask) === 0) {
+                if ((bodyA.collisionFilterGroup & bodyB.collisionFilterMask) === 0
+                    || (bodyB.collisionFilterGroup & bodyA.collisionFilterMask) === 0) {
                     continue;
                 }
                 bodyA.intersects(bodyB);
@@ -96,45 +98,49 @@ export class BuiltInWorld implements IPhysicsWorld {
         }
     }
 
+    syncAfterEvents (): void {
+        this.syncSceneToPhysics();
+    }
+
     emitEvents (): void {
         this.emitTriggerEvent();
     }
 
-    raycastClosest (worldRay: ray, options: IRaycastOptions, out: PhysicsRayResult): boolean {
+    raycastClosest (worldRay: Ray, options: IRaycastOptions, out: PhysicsRayResult): boolean {
         let tmp_d = Infinity;
-        const max_d = options.maxDistance!;
-        const mask = options.mask!;
+        const max_d = options.maxDistance;
+        const mask = options.mask;
         for (let i = 0; i < this.bodies.length; i++) {
-            const body = this.bodies[i] as BuiltinSharedBody;
+            const body = this.bodies[i];
             if (!(body.collisionFilterGroup & mask)) continue;
             for (let i = 0; i < body.shapes.length; i++) {
                 const shape = body.shapes[i];
                 const distance = intersect.resolve(worldRay, shape.worldShape);
-                if (distance == 0 || distance > max_d) {
+                if (distance === 0 || distance > max_d) {
                     continue;
                 }
                 if (tmp_d > distance) {
                     tmp_d = distance;
-                    Vec3.normalize(hitPoint, worldRay.d)
+                    Vec3.normalize(hitPoint, worldRay.d);
                     Vec3.scaleAndAdd(hitPoint, worldRay.o, hitPoint, distance);
                     out._assign(hitPoint, distance, shape.collider, Vec3.ZERO);
                 }
             }
         }
 
-        return !(tmp_d == Infinity);
+        return !(tmp_d === Infinity);
     }
 
-    raycast (worldRay: ray, options: IRaycastOptions, pool: RecyclePool<PhysicsRayResult>, results: PhysicsRayResult[]): boolean {
-        const max_d = options.maxDistance!;
-        const mask = options.mask!;
+    raycast (worldRay: Ray, options: IRaycastOptions, pool: RecyclePool<PhysicsRayResult>, results: PhysicsRayResult[]): boolean {
+        const max_d = options.maxDistance;
+        const mask = options.mask;
         for (let i = 0; i < this.bodies.length; i++) {
-            const body = this.bodies[i] as BuiltinSharedBody;
+            const body = this.bodies[i];
             if (!(body.collisionFilterGroup & mask)) continue;
             for (let i = 0; i < body.shapes.length; i++) {
                 const shape = body.shapes[i];
                 const distance = intersect.resolve(worldRay, shape.worldShape);
-                if (distance == 0 || distance > max_d) {
+                if (distance === 0 || distance > max_d) {
                     continue;
                 } else {
                     const r = pool.add();
@@ -161,16 +167,7 @@ export class BuiltInWorld implements IPhysicsWorld {
     removeSharedBody (body: BuiltinSharedBody) {
         const index = this.bodies.indexOf(body);
         if (index >= 0) {
-            this.bodies.splice(index, 1);
-        }
-    }
-
-    updateCollisionMatrix (group: number, mask: number) {
-        for (let i = 0; i < this.bodies.length; i++) {
-            const b = this.bodies[i];
-            if (b.collisionFilterGroup == group) {
-                b.collisionFilterMask = mask;
-            }
+            fastRemoveAt(this.bodies, index);
         }
     }
 
@@ -238,5 +235,4 @@ export class BuiltInWorld implements IPhysicsWorld {
         this._collisionMatrix.matrix = temp;
         this._collisionMatrix.reset();
     }
-
 }

@@ -23,8 +23,13 @@
  THE SOFTWARE.
  */
 
+/**
+ * @packageDocumentation
+ * @hidden
+ */
 
 import AmmoClosure, * as AmmoJs from '@cocos/ammo';
+import { WECHAT } from 'internal:constants';
 
 const Ammo: typeof AmmoClosure = {} as any;
 
@@ -36,11 +41,11 @@ const Ammo: typeof AmmoClosure = {} as any;
  * import Ammo from '@cocos/ammo';
  * const v = Ammo.btVector3(); // Error: Ammo is not instantiated!
  * ```
- * 
+ *
  * That's why this module comes ---
  * The default export `Ammo` from this module has the meaning:
  * when you got the export, it had been instantiated.
- * 
+ *
  */
 export { Ammo as default }; // Note: should not use `export default Ammo` since that's only a copy but we need live binding.
 
@@ -48,7 +53,7 @@ export { Ammo as default }; // Note: should not use `export default Ammo` since 
  * With the stage 3 proposal "top level await",
  * we may got a simple `await waitForAmmoInstantiation();` statement in this module.
  * It guarantees the promise `waitForAmmoInstantiation()`
- * is resolved before this module finished its execution. 
+ * is resolved before this module finished its execution.
  * But this technique is rarely implemented for now and can not be implemented in CommonJS.
  * We have to expose this waiting function to beg for earlier invocation by the external.
  * In Cocos Creator Editor's implementation,
@@ -58,15 +63,23 @@ export { Ammo as default }; // Note: should not use `export default Ammo` since 
  * await thisFunction();
  * ```
  * before `'cc.physics-ammo'` can be imported;
- * @param wasmBinary The .wasm file, if any.
+ * @param wasmBinary The .wasm file, if any.(In wechat, this is the path of wasm file.)
  */
-export function waitForAmmoInstantiation (wasmBinary?: ArrayBuffer) {
+export function waitForAmmoInstantiation (wasmBinary?: ArrayBuffer | string) {
     // `this` needed by ammo closure.
-    const ammoClosureThis: { Ammo: typeof import('@cocos/ammo') } = { } as any;
+    const ammoClosureThis: { Ammo: typeof import('@cocos/ammo') } = {} as any;
     if (typeof wasmBinary !== 'undefined') {
-        // See https://emscripten.org/docs/compiling/WebAssembly.html#wasm-files-and-compilation
-        Ammo['wasmBinary'] = wasmBinary;
+        if (WECHAT) {
+            const WASM_FILE_PATH = wasmBinary as string;
+            (Ammo as any).instantiateWasm = (importObjects: any, receiveInstance: (x: any) => void) => WebAssembly
+                .instantiate(WASM_FILE_PATH, importObjects)
+                .then((result: any) => receiveInstance(result.instance));
+        } else {
+            // See https://emscripten.org/docs/compiling/WebAssembly.html#wasm-files-and-compilation
+            (Ammo as any).wasmBinary = wasmBinary as ArrayBuffer;
+        }
     }
+
     return new Promise<void>((resolve, reject) => {
         (AmmoClosure as any).call(ammoClosureThis, Ammo).then(() => {
             resolve();
@@ -74,9 +87,16 @@ export function waitForAmmoInstantiation (wasmBinary?: ArrayBuffer) {
     });
 }
 
+// eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace waitForAmmoInstantiation {
     /**
      * True if the `'@cocos/ammo'` is the WebAssembly edition.
      */
-    export const isWasm = 'isWasm' in AmmoJs;
+    export const isWasm = (AmmoJs as any).isWasm;
+
+    /**
+     * The url to the WebAssembly binary.
+     * Either can be absolute or relative, depends on build options.
+     */
+    export const wasmBinaryURL = (AmmoJs as any).wasmBinaryURL;
 }

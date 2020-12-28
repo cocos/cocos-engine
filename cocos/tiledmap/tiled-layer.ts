@@ -1,3 +1,4 @@
+/* eslint-disable default-case */
 /*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
  Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
@@ -32,13 +33,14 @@
 import { ccclass } from 'cc.decorator';
 
 import { EDITOR } from 'internal:constants';
-import { UIRenderable } from '../core/components/ui-base/ui-renderable';
+import { UIRenderable } from '../2d/framework/ui-renderable';
+import { SpriteFrame } from '../2d/assets/sprite-frame';
 import { Component } from '../core/components';
 import { TMXMapInfo } from './tmx-xml-parser';
-import { Color, IVec2Like, Mat4, Size, SpriteFrame, SystemEventType, Texture2D, Vec2, Vec3, Node, warn, logID, CCBoolean } from '../core';
+import { Color, IVec2Like, Mat4, Size, SystemEventType, Texture2D, Vec2, Vec3, Node, warn, logID, CCBoolean } from '../core';
 import { TiledTile } from './tiled-tile';
-import { MeshRenderData } from '../core/renderer/ui/render-data';
-import { UI } from '../core/renderer/ui/ui';
+import { MeshRenderData } from '../2d/renderer/render-data';
+import { UI } from '../2d/renderer/ui';
 import {
     MixedGID, GID, Orientation, TiledTextureGrids, TMXTilesetInfo, RenderOrder, StaggerAxis, StaggerIndex, TileFlag,
     GIDFlags, TiledGrid, TiledAnimationType, PropertiesInfo, TMXLayerInfo,
@@ -68,10 +70,10 @@ export interface TiledMeshData {
 }
 
 interface TiledSubNodeData {
-    subNodes: (null|TiledUserNodeData)[] ;
+    subNodes: (null | TiledUserNodeData)[];
 }
 
-type TiledMeshDataArray = (TiledMeshData |TiledSubNodeData)[];
+type TiledMeshDataArray = (TiledMeshData | TiledSubNodeData)[];
 
 /**
  * @en Render the TMX layer.
@@ -316,6 +318,8 @@ export class TiledLayer extends UIRenderable {
         const node = dataComp.node;
         const self = dataComp._tiledLayer!;
         self._updateCullingOffsetByUserNode(node);
+        self._userNodeDirty = true;
+        self.markForUpdateRenderData();
     }
 
     protected _userNodePosChange () {
@@ -353,6 +357,7 @@ export class TiledLayer extends UIRenderable {
         dataComp._col = -1;
         dataComp._index = -1;
         this._userNodeDirty = true;
+        this.markForUpdateRenderData();
     }
 
     protected _limitInLayer (rowCol: { row: number, col: number }) {
@@ -390,13 +395,19 @@ export class TiledLayer extends UIRenderable {
         super.onEnable();
         this.node.on(SystemEventType.ANCHOR_CHANGED, this._syncAnchorPoint, this);
         this.node.on(SystemEventType.TRANSFORM_CHANGED, this.updateCulling, this);
+        this.node.on(SystemEventType.SIZE_CHANGED, this.updateCulling, this);
+        this.node.parent!.on(SystemEventType.TRANSFORM_CHANGED, this.updateCulling, this);
+        this.node.parent!.on(SystemEventType.SIZE_CHANGED, this.updateCulling, this);
         this.markForUpdateRenderData();
     }
 
     onDisable () {
         super.onDisable();
-        this.node.off(SystemEventType.ANCHOR_CHANGED, this._syncAnchorPoint, this);
+        this.node.parent!.off(SystemEventType.SIZE_CHANGED, this.updateCulling, this);
+        this.node.parent!.off(SystemEventType.TRANSFORM_CHANGED, this.updateCulling, this);
+        this.node.off(SystemEventType.SIZE_CHANGED, this.updateCulling, this);
         this.node.off(SystemEventType.TRANSFORM_CHANGED, this.updateCulling, this);
+        this.node.off(SystemEventType.ANCHOR_CHANGED, this._syncAnchorPoint, this);
     }
 
     protected _syncAnchorPoint () {
@@ -535,7 +546,7 @@ export class TiledLayer extends UIRenderable {
 
         const index = Math.floor(col) + Math.floor(row) * this._layerSize!.width;
         const gid = ((this.tiles[index] as unknown as number) & TileFlag.FLIPPED_MASK) >>> 0;
-        let offset;
+        let offset: IVec2Like;
         if (this.texGrids!.get(gid as unknown as GID)) {
             offset = this.texGrids!.get(gid as unknown as GID)!.tileset.tileOffset;
         } else {
@@ -694,7 +705,7 @@ export class TiledLayer extends UIRenderable {
      * @example
      * let tileGid = tiledLayer.getTileGIDAt(0, 0);
      */
-    public getTileFlagsAt (x:number, y:number) {
+    public getTileFlagsAt (x: number, y: number) {
         if (this.isInvalidPosition(x, y)) {
             throw new Error('TiledLayer.getTileFlagsAt: invalid position');
         }
@@ -905,7 +916,6 @@ export class TiledLayer extends UIRenderable {
         const cols = this._layerSize!.width;
         const grids = this.texGrids!;
 
-        let gid: MixedGID;
         let left = 0;
         let bottom = 0;
         let axis: StaggerAxis;
@@ -914,7 +924,6 @@ export class TiledLayer extends UIRenderable {
         let odd_even: number;
         let diffX2: number;
         let diffY2: number;
-        let grid: TiledGrid;
 
         if (layerOrientation === Orientation.HEX) {
             axis = this._staggerAxis!;
@@ -925,7 +934,6 @@ export class TiledLayer extends UIRenderable {
 
         let cullingCol = 0;
         let cullingRow = 0;
-        let tileOffset: Vec2;
         let gridGID: GID = 0 as unknown as GID;
 
         // grid border
@@ -933,9 +941,9 @@ export class TiledLayer extends UIRenderable {
         let downBorder = 0; let leftBorder = 0;
         let rightBorder = 0;
         const index = row * cols + col;
-        gid = tiles[index];
+        const gid = tiles[index];
         gridGID = (((gid as unknown as number) & FLIPPED_MASK) >>> 0) as unknown as GID;
-        grid = grids.get(gridGID)!;
+        const grid = grids.get(gridGID)!;
         if (!grid) {
             return;
         }
@@ -1004,9 +1012,9 @@ export class TiledLayer extends UIRenderable {
         // _offset is whole layer offset
         // tileOffset is tileset offset which is related to each grid
         // tileOffset coordinate system's y axis is opposite with engine's y axis.
-        tileOffset = grid.tileset.tileOffset;
-        left += this._offset!.x + tileOffset!.x + grid.offsetX;
-        bottom += this._offset!.y - tileOffset!.y - grid.offsetY;
+        const tileOffset = grid.tileset.tileOffset;
+        left += this._offset!.x + tileOffset.x + grid.offsetX;
+        bottom += this._offset!.y - tileOffset.y - grid.offsetY;
 
         topBorder = -tileOffset.y + grid.tileset._tileSize.height - mapth;
         topBorder = topBorder < 0 ? 0 : topBorder;
@@ -1270,14 +1278,13 @@ export class TiledLayer extends UIRenderable {
             }
         }
 
-        const self = this;
         loadAllTextures(textures, () => {
             for (let i = 0, l = tilesets.length; i < l; ++i) {
                 const tilesetInfo = tilesets[i];
                 if (!tilesetInfo) continue;
                 fillTextureGrids(tilesetInfo, texGrids, tilesetInfo.sourceImage);
             }
-            self._prepareToRender();
+            this._prepareToRender();
         });
     }
 
@@ -1365,6 +1372,17 @@ export class TiledLayer extends UIRenderable {
         if (!this._meshRenderDataArray) {
             this._meshRenderDataArray = [];
         }
+        const arr = this._meshRenderDataArray as any[];
+        while (arr.length > 0 && arr[arr.length - 1].subNodes && arr[arr.length - 1].subNodes.length === 0) {
+            arr.pop();
+        }
+        if (arr.length > 0) {
+            const last = arr[arr.length - 1];
+            if (last.renderData && last.renderData.byteCount === 0) {
+                return last as TiledMeshData;
+            }
+        }
+
         const renderData = new MeshRenderData();
         const comb = { renderData, texture: null };
         Object.defineProperty(renderData, 'material', { get: () => this.getRenderMaterial(0) });
@@ -1376,7 +1394,17 @@ export class TiledLayer extends UIRenderable {
         if (!this._meshRenderDataArray) {
             this._meshRenderDataArray = [];
         }
-        const renderData:(TiledUserNodeData|null)[] = [];
+        const arr = this._meshRenderDataArray as any[];
+        while (arr.length > 0 && arr[arr.length - 1].renderData && arr[arr.length - 1].renderData.byteCount === 0) {
+            arr.pop();
+        }
+        if (arr.length > 0) {
+            if (arr[arr.length - 1].subNodes && arr[arr.length - 1].subNodes.length === 0) {
+                return arr[arr.length - 1] as TiledSubNodeData;
+            }
+        }
+
+        const renderData: (TiledUserNodeData | null)[] = [];
         const comb = { subNodes: renderData };
         this._meshRenderDataArray.push(comb);
         return comb;
@@ -1385,22 +1413,7 @@ export class TiledLayer extends UIRenderable {
     public destroyRenderData () {
         if (this._meshRenderDataArray) {
             this._meshRenderDataArray.forEach((rd) => { if ((rd as TiledMeshData).renderData) (rd as TiledMeshData).renderData.reset(); });
-            this._meshRenderDataArray = null;
-        }
-    }
-
-    public resetRenderData () {
-        if (this._meshRenderDataArray) {
-            this._meshRenderDataArray.forEach((rd) => { if ((rd as TiledMeshData).renderData) (rd as TiledMeshData).renderData.reset(); });
-        }
-    }
-
-    public markForUpdateRenderData (enable = true) {
-        this._renderFlag = this._canRender();
-        if (enable && this._renderFlag) {
-            this._renderDataFlag = enable;
-        } else if (!enable) {
-            this._renderDataFlag = enable;
+            this._meshRenderDataArray.length = 0;
         }
     }
 

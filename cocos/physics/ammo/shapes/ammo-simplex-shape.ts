@@ -23,8 +23,14 @@
  THE SOFTWARE.
  */
 
+/**
+ * @packageDocumentation
+ * @hidden
+ */
+
+/* eslint-disable new-cap */
 import Ammo from '../ammo-instantiated';
-import { AmmoShape } from "./ammo-shape";
+import { AmmoShape } from './ammo-shape';
 import { SimplexCollider } from '../../../../exports/physics-framework';
 import { cocos2AmmoVec3 } from '../ammo-util';
 import { AmmoBroadphaseNativeTypes } from '../ammo-enum';
@@ -32,15 +38,13 @@ import { ISimplexShape } from '../../spec/i-physics-shape';
 import { IVec3Like } from '../../../core/math/type-define';
 
 export class AmmoSimplexShape extends AmmoShape implements ISimplexShape {
-
     setShapeType (v: SimplexCollider.ESimplexType) {
         if (this._isBinding) {
-            //TODO: 
+            // TODO:
         }
     }
 
     setVertices (v: IVec3Like[]) {
-        //TODO: Fix
         const length = this.VERTICES.length;
         for (let i = 0; i < length; i++) {
             cocos2AmmoVec3(this.VERTICES[i], v[i]);
@@ -101,5 +105,4 @@ export class AmmoSimplexShape extends AmmoShape implements ISimplexShape {
             this._btCompound.updateChildTransform(this.index, this.transform, true);
         }
     }
-
 }

@@ -30,12 +30,12 @@ import { Collider, RigidBody, PhysicMaterial, PhysicsSystem } from '../../../../
 import { IBaseShape } from '../../spec/i-physics-shape';
 import { IVec3Like } from '../../../core/math/type-define';
 import { BuiltInWorld } from '../builtin-world';
-import { Node } from '../../../core';
-import { aabb, sphere } from '../../../core/geometry';
+import { AABB, Sphere } from '../../../core/geometry';
 
 export class BuiltinShape implements IBaseShape {
-    getAABB (v: aabb) { }
-    getBoundingSphere (v: sphere) { }
+    getAABB (v: AABB) { }
+    getBoundingSphere (v: Sphere) { }
+    updateEventListener (): void { }
     setMaterial (v: PhysicMaterial | null) { }
     setAsTrigger (v: boolean) { }
     get attachedRigidBody (): RigidBody | null { return null; }
@@ -65,8 +65,8 @@ export class BuiltinShape implements IBaseShape {
     }
 
     /** id generator */
-    private static idCounter: number = 0;
-    readonly id: number = BuiltinShape.idCounter++;;
+    private static idCounter = 0;
+    readonly id: number = BuiltinShape.idCounter++;
 
     protected _sharedBody!: BuiltinSharedBody;
     protected _collider!: Collider;
@@ -75,7 +75,7 @@ export class BuiltinShape implements IBaseShape {
 
     initialize (comp: Collider) {
         this._collider = comp;
-        this._sharedBody = (PhysicsSystem.instance.physicsWorld as BuiltInWorld).getSharedBody(this._collider.node as Node);
+        this._sharedBody = (PhysicsSystem.instance.physicsWorld as BuiltInWorld).getSharedBody(this._collider.node);
         this._sharedBody.reference = true;
     }
 
@@ -137,5 +137,4 @@ export class BuiltinShape implements IBaseShape {
     public removeMask (v: number): void {
         this._sharedBody.removeMask(v);
     }
-
 }

@@ -29,11 +29,11 @@
  */
 
 // @ts-check
-import {ccclass, override} from 'cc.decorator';
+import { ccclass, override } from 'cc.decorator';
+import { EDITOR, MINIGAME, ALIPAY, XIAOMI, JSB, TEST, BAIDU } from 'internal:constants';
 import { Device, Feature } from '../gfx';
 import { Asset } from './asset';
 import { PixelFormat } from './asset-enum';
-import { EDITOR, MINIGAME, ALIPAY, XIAOMI, JSB, TEST } from 'internal:constants';
 import { legacyCC } from '../global-exports';
 import { warnID, getError } from '../platform/debug';
 
@@ -65,16 +65,15 @@ function fetchImageSource (imageSource: ImageSource) {
 
 // 返回该图像源是否是平台提供的图像对象。
 function isNativeImage (imageSource: ImageSource): imageSource is (HTMLImageElement | HTMLCanvasElement | ImageBitmap) {
-    if (ALIPAY || XIAOMI) {
+    if (ALIPAY || XIAOMI || BAIDU) {
         // We're unable to grab the constructors of Alipay native image or canvas object.
         return !('_data' in imageSource);
     }
-    else if (JSB && (imageSource as IMemoryImageSource)._compressed === true) {
+    if (JSB && (imageSource as IMemoryImageSource)._compressed === true) {
         return false;
     }
-    else {
-        return imageSource instanceof HTMLImageElement || imageSource instanceof HTMLCanvasElement || isImageBitmap(imageSource);
-    }
+
+    return imageSource instanceof HTMLImageElement || imageSource instanceof HTMLCanvasElement || isImageBitmap(imageSource);
 }
 
 /**
@@ -83,7 +82,6 @@ function isNativeImage (imageSource: ImageSource): imageSource is (HTMLImageElem
  */
 @ccclass('cc.ImageAsset')
 export class ImageAsset extends Asset {
-
     @override
     get _nativeAsset () {
         // Maybe returned to pool in webgl.
@@ -105,9 +103,8 @@ export class ImageAsset extends Asset {
         if (this._nativeData && isNativeImage(this._nativeData)) {
             return this._nativeData;
         }
-        else {
-            return this._nativeData && this._nativeData._data;
-        }
+
+        return this._nativeData && this._nativeData._data;
     }
 
     /**
@@ -139,8 +136,8 @@ export class ImageAsset extends Asset {
      * @zh 此图像资源是否为压缩像素格式。
      */
     get isCompressed () {
-        return (this._format >= PixelFormat.RGB_ETC1 && this._format <= PixelFormat.RGBA_ASTC_12x12) ||
-        (this._format >= PixelFormat.RGB_A_PVRTC_2BPPV1 && this._format <= PixelFormat.RGBA_ETC1);
+        return (this._format >= PixelFormat.RGB_ETC1 && this._format <= PixelFormat.RGBA_ASTC_12x12)
+        || (this._format >= PixelFormat.RGB_A_PVRTC_2BPPV1 && this._format <= PixelFormat.RGBA_ETC1);
     }
 
     /**
@@ -179,9 +176,9 @@ export class ImageAsset extends Asset {
 
     private _format: PixelFormat = PixelFormat.RGBA8888;
 
-    private _width: number = 0;
+    private _width = 0;
 
-    private _height: number = 0;
+    private _height = 0;
 
     constructor (nativeAsset?: ImageSource) {
         super();
@@ -237,8 +234,10 @@ export class ImageAsset extends Asset {
 
     public destroy () {
         if (this.data && this.data instanceof HTMLImageElement) {
-            this.data.src = "";
-            this._setRawAsset("");
+            this.data.src = '';
+            this._setRawAsset('');
+            // @ts-expect-error JSB element should destroy native data.
+            if (JSB) this.data.destroy();
         } else if (isImageBitmap(this.data)) {
             this.data.close && this.data.close();
         }
@@ -264,7 +263,7 @@ export class ImageAsset extends Asset {
                 const i = ImageAsset.extnames.indexOf(extensionFormat[0]);
                 let exportedExtensionID = i < 0 ? targetExtension : `${i}`;
                 if (extensionFormat[1]) {
-                    exportedExtensionID += '@' + extensionFormat[1];
+                    exportedExtensionID += `@${extensionFormat[1]}`;
                 }
                 extensionIndices.push(exportedExtensionID);
             }
@@ -276,8 +275,7 @@ export class ImageAsset extends Asset {
         let fmtStr = '';
         if (typeof data === 'string') {
             fmtStr = data;
-        }
-        else {
+        } else {
             this._width = data.w;
             this._height = data.h;
             fmtStr = data.fmt;
@@ -300,15 +298,15 @@ export class ImageAsset extends Asset {
             if (index !== -1 && index < preferedExtensionIndex) {
                 const fmt = extFormat[1] ? parseInt(extFormat[1]) : this._format;
                 // check whether or not support compressed texture
-                if ( tmpExt === '.astc' && (!device || !device.hasFeature(Feature.FORMAT_ASTC))) {
+                if (tmpExt === '.astc' && (!device || !device.hasFeature(Feature.FORMAT_ASTC))) {
                     continue;
-                } else if ( tmpExt === '.pvr' && (!device || !device.hasFeature(Feature.FORMAT_PVRTC))) {
+                } else if (tmpExt === '.pvr' && (!device || !device.hasFeature(Feature.FORMAT_PVRTC))) {
                     continue;
-                } else if ((fmt === PixelFormat.RGB_ETC1 || fmt === PixelFormat.RGBA_ETC1) &&
-                    (!device || !device.hasFeature(Feature.FORMAT_ETC1))) {
+                } else if ((fmt === PixelFormat.RGB_ETC1 || fmt === PixelFormat.RGBA_ETC1)
+                    && (!device || !device.hasFeature(Feature.FORMAT_ETC1))) {
                     continue;
-                } else if ((fmt === PixelFormat.RGB_ETC2 || fmt === PixelFormat.RGBA_ETC2) &&
-                    (!device || !device.hasFeature(Feature.FORMAT_ETC2))) {
+                } else if ((fmt === PixelFormat.RGB_ETC2 || fmt === PixelFormat.RGBA_ETC2)
+                    && (!device || !device.hasFeature(Feature.FORMAT_ETC2))) {
                     continue;
                 } else if (tmpExt === '.webp' && !legacyCC.sys.capabilities.webp) {
                     continue;
@@ -316,8 +314,7 @@ export class ImageAsset extends Asset {
                 preferedExtensionIndex = index;
                 ext = tmpExt;
                 format = fmt;
-            }
-            else if (!defaultExt) {
+            } else if (!defaultExt) {
                 defaultExt = tmpExt;
             }
         }
@@ -325,12 +322,10 @@ export class ImageAsset extends Asset {
         if (ext) {
             this._setRawAsset(ext);
             this._format = format;
-        }
-        else if (defaultExt) {
+        } else if (defaultExt) {
             this._setRawAsset(defaultExt);
             warnID(3120, defaultExt, defaultExt);
-        }
-        else {
+        } else {
             warnID(3121);
         }
     }
@@ -344,9 +339,8 @@ export class ImageAsset extends Asset {
 function _getGlobalDevice (): Device | null {
     if (legacyCC.director.root) {
         return legacyCC.director.root.device;
-    } else {
-        return null;
     }
+    return null;
 }
 
 /**

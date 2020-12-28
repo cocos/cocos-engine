@@ -29,12 +29,12 @@
  */
 
 import { ccclass, editable, type, menu, executeInEditMode, serializable, playOnFocus, tooltip } from 'cc.decorator';
-import { UIRenderable } from '../core/components/ui-base/ui-renderable';
-import { Color, Vec2 } from '../core/math';
 import { EDITOR } from 'internal:constants';
+import { UIRenderable } from '../2d/framework/ui-renderable';
+import { Color, Vec2 } from '../core/math';
 import { warnID, errorID, error } from '../core/platform/debug';
 import { Simulator } from './particle-simulator-2d';
-import { SpriteFrame } from '../core/assets/sprite-frame';
+import { SpriteFrame } from '../2d/assets/sprite-frame';
 import { ImageAsset } from '../core/assets/image-asset';
 import { ParticleAsset } from './particle-asset';
 import { BlendFactor } from '../core/gfx';
@@ -42,10 +42,9 @@ import { path } from '../core/utils';
 import { PNGReader } from './png-reader';
 import { TiffReader } from './tiff-reader';
 import codec from '../../external/compression/ZipUtils';
-import { UI } from '../core/renderer/ui/ui';
+import { UI } from '../2d/renderer/ui';
 import { assetManager } from '../core/asset-manager';
 import { PositionType, EmitterMode, DURATION_INFINITY, START_RADIUS_EQUAL_TO_END_RADIUS, START_SIZE_EQUAL_TO_END_SIZE } from './define';
-
 
 /**
  * Image formats
@@ -131,11 +130,11 @@ export function getImageFormatByData (imgData) {
     return ImageFormat.UNKNOWN;
 }
 
-function getParticleComponents (node) {
+function getParticleComponents (node): ParticleSystem2D[] {
     const parent = node.parent;
     const comp = node.getComponent(ParticleSystem2D);
     if (!parent || !comp) {
-        return node.getComponentsInChildren(ParticleSystem2D);
+        return node.getComponentsInChildren(ParticleSystem2D) as ParticleSystem2D[];
     }
     return getParticleComponents(parent);
 }
@@ -185,7 +184,6 @@ function getParticleComponents (node) {
 @playOnFocus
 @executeInEditMode
 export class ParticleSystem2D extends UIRenderable {
-
     static EmitterMode = EmitterMode;
     static PositionType = PositionType;
     static readonly DURATION_INFINITY = DURATION_INFINITY;
@@ -227,8 +225,7 @@ export class ParticleSystem2D extends UIRenderable {
             this._file = value;
             if (value) {
                 this._applyFile();
-            }
-            else {
+            } else {
                 this.custom = true;
             }
         }
@@ -668,9 +665,9 @@ export class ParticleSystem2D extends UIRenderable {
     }
 
     public get assembler () {
-        return this._assembler
+        return this._assembler;
     }
-    public aspectRatio: number = 1;
+    public aspectRatio = 1;
     // The temporary SpriteFrame object used for the renderer. Because there is no corresponding asset, it can't be serialized.
     public declare _renderSpriteFrame: SpriteFrame | null;
     public declare _simulator: Simulator;
@@ -722,11 +719,11 @@ export class ParticleSystem2D extends UIRenderable {
     private _positionType = PositionType.FREE;
 
     private _stopped = true;
+    private _deferredloaded = false;
     private declare _previewTimer;
     private declare _focused: boolean;
     private declare _plistFile;
     private declare _tiffReader;
-
 
     constructor () {
         super();
@@ -793,15 +790,13 @@ export class ParticleSystem2D extends UIRenderable {
 
         if (this._custom && this.spriteFrame && !this._renderSpriteFrame) {
             this._applySpriteFrame();
-        }
-        else if (this._file) {
+        } else if (this._file) {
             if (this._custom) {
                 const missCustomTexture = !this._getTexture();
                 if (missCustomTexture) {
                     this._applyFile();
                 }
-            }
-            else {
+            } else {
                 this._applyFile();
             }
         }
@@ -821,7 +816,7 @@ export class ParticleSystem2D extends UIRenderable {
             this._assembler = assembler;
         }
 
-        if (this._assembler && this._assembler.createData){
+        if (this._assembler && this._assembler.createData) {
             this._simulator.renderData = this._assembler.createData(this);
         }
     }
@@ -881,67 +876,69 @@ export class ParticleSystem2D extends UIRenderable {
     public _applyFile () {
         const file = this._file;
         if (file) {
-            const self = this;
-            assetManager.postLoadNative(file, function (err) {
+            const applyTemp = (err: any) => {
                 if (err || !file) {
                     errorID(6029);
                     return;
                 }
-                if (!self.isValid) {
+                if (!this.isValid) {
                     return;
                 }
-                self._plistFile = file.nativeUrl;
-                if (!self._custom) {
-                    var isDiffFrame = self._spriteFrame !== file.spriteFrame;
-                    if (isDiffFrame) self.spriteFrame = file.spriteFrame;
-                    self._initWithDictionary(file._nativeAsset);
+                this._plistFile = file.nativeUrl;
+                if (!this._custom) {
+                    const isDiffFrame = this._spriteFrame !== file.spriteFrame;
+                    if (isDiffFrame) this.spriteFrame = file.spriteFrame;
+                    this._initWithDictionary(file._nativeAsset);
                 }
 
-                if (!self._spriteFrame) {
+                if (!this._spriteFrame) {
                     if (file.spriteFrame) {
-                        self.spriteFrame = file.spriteFrame;
+                        this.spriteFrame = file.spriteFrame;
+                    } else if (this._custom) {
+                        this._initTextureWithDictionary(file._nativeAsset);
                     }
-                    else if (self._custom) {
-                        self._initTextureWithDictionary(file._nativeAsset);
-                    }
+                } else if (!this._renderSpriteFrame && this._spriteFrame) {
+                    this._applySpriteFrame();
                 }
-                else if (!self._renderSpriteFrame && self._spriteFrame) {
-                    self._applySpriteFrame();
-                }
-            });
+                this._deferredloaded = false;
+            };
+            if (file._nativeAsset) {
+                applyTemp(null);
+            } else {
+                this._deferredloaded = true;
+                assetManager.postLoadNative(file, applyTemp);
+            }
         }
     }
 
-    public _initTextureWithDictionary (dict) {
-        if (dict['spriteFrameUuid']) {
-            const spriteFrameUuid = dict['spriteFrameUuid'];
-            assetManager.loadAny(spriteFrameUuid, (error: Error, spriteFrame: SpriteFrame) => {
-                if (error) {
-                    dict['spriteFrameUuid'] = undefined;
+    public _initTextureWithDictionary (dict: any) {
+        if (dict.spriteFrameUuid) {
+            const spriteFrameUuid = dict.spriteFrameUuid;
+            assetManager.loadAny(spriteFrameUuid, (err: Error, spriteFrame: SpriteFrame) => {
+                if (err) {
+                    dict.spriteFrameUuid = undefined;
                     this._initTextureWithDictionary(dict);
-                    console.error(error);
-                }
-                else {
+                    error(err);
+                } else {
                     this.spriteFrame = spriteFrame;
                 }
             });
-        }
-        // texture
-        else {
-            const imgPath = path.changeBasename(this._plistFile, dict['textureFileName'] || '');
-            if (dict['textureFileName']) {
+        } else {
+            // texture
+            const imgPath = path.changeBasename(this._plistFile, dict.textureFileName || '');
+            if (dict.textureFileName) {
                 // Try to get the texture from the cache
-                assetManager.loadRemote<ImageAsset>(imgPath, (error: Error | null, imageAsset: ImageAsset) => {
-                    if (error) {
-                        dict['textureFileName'] = undefined;
+                assetManager.loadRemote<ImageAsset>(imgPath, (err: Error | null, imageAsset: ImageAsset) => {
+                    if (err) {
+                        dict.textureFileName = undefined;
                         this._initTextureWithDictionary(dict);
-                        console.error(error);
+                        error(err);
                     } else {
                         this.spriteFrame = SpriteFrame.createWithImage(imageAsset);
                     }
                 });
-            } else if (dict['textureImageData']) {
-                const textureData = dict['textureImageData'];
+            } else if (dict.textureImageData) {
+                const textureData = dict.textureImageData;
 
                 if (textureData && textureData.length > 0) {
                     let imageAsset = assetManager.assets.get(imgPath) as ImageAsset;
@@ -987,111 +984,109 @@ export class ParticleSystem2D extends UIRenderable {
     }
 
     // parsing process
-    public _initWithDictionary (dict) {
-        this.totalParticles = parseInt(dict['maxParticles'] || 0);
+    public _initWithDictionary (dict: any) {
+        this.totalParticles = parseInt(dict.maxParticles || 0);
 
         // life span
-        this.life = parseFloat(dict['particleLifespan'] || 0);
-        this.lifeVar = parseFloat(dict['particleLifespanVariance'] || 0);
+        this.life = parseFloat(dict.particleLifespan || 0);
+        this.lifeVar = parseFloat(dict.particleLifespanVariance || 0);
 
         // emission Rate
-        const _tempEmissionRate = dict['emissionRate'];
+        const _tempEmissionRate = dict.emissionRate;
         if (_tempEmissionRate) {
             this.emissionRate = _tempEmissionRate;
-        }
-        else {
+        } else {
             this.emissionRate = Math.min(this.totalParticles / this.life, Number.MAX_VALUE);
         }
 
         // duration
-        this.duration = parseFloat(dict['duration'] || 0);
+        this.duration = parseFloat(dict.duration || 0);
 
         // blend function
-        this.srcBlendFactor = parseInt(dict['blendFuncSource'] || BlendFactor.SRC_ALPHA);
-        this.dstBlendFactor = parseInt(dict['blendFuncDestination'] || BlendFactor.ONE_MINUS_SRC_ALPHA);
+        this.srcBlendFactor = parseInt(dict.blendFuncSource || BlendFactor.SRC_ALPHA);
+        this.dstBlendFactor = parseInt(dict.blendFuncDestination || BlendFactor.ONE_MINUS_SRC_ALPHA);
 
         // color
         const locStartColor = this._startColor;
-        locStartColor.r = parseFloat(dict['startColorRed'] || 0) * 255;
-        locStartColor.g = parseFloat(dict['startColorGreen'] || 0) * 255;
-        locStartColor.b = parseFloat(dict['startColorBlue'] || 0) * 255;
-        locStartColor.a = parseFloat(dict['startColorAlpha'] || 0) * 255;
+        locStartColor.r = parseFloat(dict.startColorRed || 0) * 255;
+        locStartColor.g = parseFloat(dict.startColorGreen || 0) * 255;
+        locStartColor.b = parseFloat(dict.startColorBlue || 0) * 255;
+        locStartColor.a = parseFloat(dict.startColorAlpha || 0) * 255;
 
         const locStartColorVar = this._startColorVar;
-        locStartColorVar.r = parseFloat(dict['startColorVarianceRed'] || 0) * 255;
-        locStartColorVar.g = parseFloat(dict['startColorVarianceGreen'] || 0) * 255;
-        locStartColorVar.b = parseFloat(dict['startColorVarianceBlue'] || 0) * 255;
-        locStartColorVar.a = parseFloat(dict['startColorVarianceAlpha'] || 0) * 255;
+        locStartColorVar.r = parseFloat(dict.startColorVarianceRed || 0) * 255;
+        locStartColorVar.g = parseFloat(dict.startColorVarianceGreen || 0) * 255;
+        locStartColorVar.b = parseFloat(dict.startColorVarianceBlue || 0) * 255;
+        locStartColorVar.a = parseFloat(dict.startColorVarianceAlpha || 0) * 255;
 
         const locEndColor = this._endColor;
-        locEndColor.r = parseFloat(dict['finishColorRed'] || 0) * 255;
-        locEndColor.g = parseFloat(dict['finishColorGreen'] || 0) * 255;
-        locEndColor.b = parseFloat(dict['finishColorBlue'] || 0) * 255;
-        locEndColor.a = parseFloat(dict['finishColorAlpha'] || 0) * 255;
+        locEndColor.r = parseFloat(dict.finishColorRed || 0) * 255;
+        locEndColor.g = parseFloat(dict.finishColorGreen || 0) * 255;
+        locEndColor.b = parseFloat(dict.finishColorBlue || 0) * 255;
+        locEndColor.a = parseFloat(dict.finishColorAlpha || 0) * 255;
 
         const locEndColorVar = this._endColorVar;
-        locEndColorVar.r = parseFloat(dict['finishColorVarianceRed'] || 0) * 255;
-        locEndColorVar.g = parseFloat(dict['finishColorVarianceGreen'] || 0) * 255;
-        locEndColorVar.b = parseFloat(dict['finishColorVarianceBlue'] || 0) * 255;
-        locEndColorVar.a = parseFloat(dict['finishColorVarianceAlpha'] || 0) * 255;
+        locEndColorVar.r = parseFloat(dict.finishColorVarianceRed || 0) * 255;
+        locEndColorVar.g = parseFloat(dict.finishColorVarianceGreen || 0) * 255;
+        locEndColorVar.b = parseFloat(dict.finishColorVarianceBlue || 0) * 255;
+        locEndColorVar.a = parseFloat(dict.finishColorVarianceAlpha || 0) * 255;
 
         // particle size
-        this.startSize = parseFloat(dict['startParticleSize'] || 0);
-        this.startSizeVar = parseFloat(dict['startParticleSizeVariance'] || 0);
-        this.endSize = parseFloat(dict['finishParticleSize'] || 0);
-        this.endSizeVar = parseFloat(dict['finishParticleSizeVariance'] || 0);
+        this.startSize = parseFloat(dict.startParticleSize || 0);
+        this.startSizeVar = parseFloat(dict.startParticleSizeVariance || 0);
+        this.endSize = parseFloat(dict.finishParticleSize || 0);
+        this.endSizeVar = parseFloat(dict.finishParticleSizeVariance || 0);
 
         // position
         // Make empty positionType value and old version compatible
         this.positionType = parseFloat(dict.positionType !== undefined ? dict.positionType : PositionType.FREE);
         // for
         this.sourcePos.set(0, 0);
-        this.posVar.set(parseFloat(dict['sourcePositionVariancex'] || 0), parseFloat(dict['sourcePositionVariancey'] || 0));
+        this.posVar.set(parseFloat(dict.sourcePositionVariancex || 0), parseFloat(dict.sourcePositionVariancey || 0));
         // angle
-        this.angle = parseFloat(dict['angle'] || 0);
-        this.angleVar = parseFloat(dict['angleVariance'] || 0);
+        this.angle = parseFloat(dict.angle || 0);
+        this.angleVar = parseFloat(dict.angleVariance || 0);
 
         // Spinning
-        this.startSpin = parseFloat(dict['rotationStart'] || 0);
-        this.startSpinVar = parseFloat(dict['rotationStartVariance'] || 0);
-        this.endSpin = parseFloat(dict['rotationEnd'] || 0);
-        this.endSpinVar = parseFloat(dict['rotationEndVariance'] || 0);
+        this.startSpin = parseFloat(dict.rotationStart || 0);
+        this.startSpinVar = parseFloat(dict.rotationStartVariance || 0);
+        this.endSpin = parseFloat(dict.rotationEnd || 0);
+        this.endSpinVar = parseFloat(dict.rotationEndVariance || 0);
 
-        this.emitterMode = parseInt(dict['emitterType'] || EmitterMode.GRAVITY);
+        this.emitterMode = parseInt(dict.emitterType || EmitterMode.GRAVITY);
 
         // Mode A: Gravity + tangential accel + radial accel
         if (this.emitterMode === EmitterMode.GRAVITY) {
             // gravity
-            this.gravity.set(parseFloat(dict['gravityx'] || 0), parseFloat(dict['gravityy'] || 0));
+            this.gravity.set(parseFloat(dict.gravityx || 0), parseFloat(dict.gravityy || 0));
             // speed
-            this.speed = parseFloat(dict['speed'] || 0);
-            this.speedVar = parseFloat(dict['speedVariance'] || 0);
+            this.speed = parseFloat(dict.speed || 0);
+            this.speedVar = parseFloat(dict.speedVariance || 0);
 
             // radial acceleration
-            this.radialAccel = parseFloat(dict['radialAcceleration'] || 0);
-            this.radialAccelVar = parseFloat(dict['radialAccelVariance'] || 0);
+            this.radialAccel = parseFloat(dict.radialAcceleration || 0);
+            this.radialAccelVar = parseFloat(dict.radialAccelVariance || 0);
 
             // tangential acceleration
-            this.tangentialAccel = parseFloat(dict['tangentialAcceleration'] || 0);
-            this.tangentialAccelVar = parseFloat(dict['tangentialAccelVariance'] || 0);
+            this.tangentialAccel = parseFloat(dict.tangentialAcceleration || 0);
+            this.tangentialAccelVar = parseFloat(dict.tangentialAccelVariance || 0);
 
             // rotation is dir
-            let locRotationIsDir = dict['rotationIsDir'] || '';
+            let locRotationIsDir = dict.rotationIsDir || '';
             if (locRotationIsDir !== null) {
                 locRotationIsDir = locRotationIsDir.toString().toLowerCase();
                 this.rotationIsDir = (locRotationIsDir === 'true' || locRotationIsDir === '1');
-            }
-            else {
+            } else {
                 this.rotationIsDir = false;
             }
         } else if (this.emitterMode === EmitterMode.RADIUS) {
             // or Mode B: radius movement
-            this.startRadius = parseFloat(dict['maxRadius'] || 0);
-            this.startRadiusVar = parseFloat(dict['maxRadiusVariance'] || 0);
-            this.endRadius = parseFloat(dict['minRadius'] || 0);
-            this.endRadiusVar = parseFloat(dict['minRadiusVariance'] || 0);
-            this.rotatePerS = parseFloat(dict['rotatePerSecond'] || 0);
-            this.rotatePerSVar = parseFloat(dict['rotatePerSecondVariance'] || 0);
+            this.startRadius = parseFloat(dict.maxRadius || 0);
+            this.startRadiusVar = parseFloat(dict.maxRadiusVariance || 0);
+            this.endRadius = parseFloat(dict.minRadius || 0);
+            this.endRadiusVar = parseFloat(dict.minRadiusVariance || 0);
+            this.rotatePerS = parseFloat(dict.rotatePerSecond || 0);
+            this.rotatePerSVar = parseFloat(dict.rotatePerSecondVariance || 0);
         } else {
             warnID(6009);
             return false;
@@ -1121,10 +1116,11 @@ export class ParticleSystem2D extends UIRenderable {
         if (this._renderSpriteFrame) {
             if (this._renderSpriteFrame.textureLoaded()) {
                 this._onTextureLoaded();
-            }
-            else {
+            } else {
                 this._renderSpriteFrame.once('load', this._onTextureLoaded, this);
             }
+        } else {
+            this.resetSystem();
         }
     }
 
@@ -1133,13 +1129,13 @@ export class ParticleSystem2D extends UIRenderable {
     }
 
     public _updateMaterial () {
-        let mat = this.getMaterialInstance(0);
+        const mat = this.getMaterialInstance(0);
         if (mat) mat.recompileShaders({ USE_LOCAL: this._positionType !== PositionType.FREE });
     }
 
     public _finishedSimulation () {
         if (EDITOR) {
-            if (this.preview && this._focused && !this.active /*&& !cc.engine.isPlaying*/) {
+            if (this.preview && this._focused && !this.active /* && !cc.engine.isPlaying */) {
                 this.resetSystem();
             }
             return;
@@ -1153,10 +1149,10 @@ export class ParticleSystem2D extends UIRenderable {
     }
 
     protected _canRender () {
-        return super._canRender() && !this._stopped;
+        return super._canRender() && !this._stopped && !this._deferredloaded && this._renderSpriteFrame !== null;
     }
 
     protected _render (render: UI) {
-        render.commitComp(this, this._spriteFrame!, this._assembler!, this._positionType === PositionType.RELATIVE ? this.node.parent : null);
+        render.commitComp(this, this._renderSpriteFrame, this._assembler!, this._positionType === PositionType.RELATIVE ? this.node.parent : null);
     }
 }

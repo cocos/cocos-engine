@@ -39,10 +39,10 @@ import {
     displayOrder,
     serializable,
 } from 'cc.decorator';
+import { EDITOR } from 'internal:constants';
 import { Component } from '../../../core/components/component';
 import { RigidBody } from './rigid-body';
 import { Vec3 } from '../../../core/math/vec3';
-import { EDITOR } from 'internal:constants';
 
 /**
  * @en
@@ -57,7 +57,6 @@ import { EDITOR } from 'internal:constants';
 @disallowMultiple
 @executeInEditMode
 export class ConstantForce extends Component {
-
     private _rigidBody: RigidBody | null = null;
 
     @serializable
@@ -72,7 +71,7 @@ export class ConstantForce extends Component {
     @serializable
     private readonly _localTorque: Vec3 = new Vec3();
 
-    private _mask: number = 0;
+    private _mask = 0;
 
     /**
      * @en
@@ -152,7 +151,7 @@ export class ConstantForce extends Component {
 
     public lateUpdate (dt: number) {
         if (!EDITOR) {
-            if (this._rigidBody != null && this._mask != 0) {
+            if (this._rigidBody != null && this._mask !== 0) {
                 if (this._mask & 1) this._rigidBody.applyForce(this._force);
                 if (this._mask & 2) this._rigidBody.applyLocalForce(this.localForce);
                 if (this._mask & 4) this._rigidBody.applyTorque(this._torque);

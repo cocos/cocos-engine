@@ -28,12 +28,12 @@
  * @module terrain
  */
 import { ccclass, disallowMultiple, executeInEditMode, help, visible, type, serializable, editable, disallowAnimation } from 'cc.decorator';
-import { builtinResMgr } from '../core/3d/builtin';
-import { RenderableComponent } from '../core/3d/framework/renderable-component';
+import { builtinResMgr } from '../core/builtin';
+import { RenderableComponent } from '../core/components/renderable-component';
 import { EffectAsset, Texture2D } from '../core/assets';
 import { Filter, PixelFormat, WrapMode } from '../core/assets/asset-enum';
 import { Material } from '../core/assets/material';
-import { RenderingSubMesh } from '../core/assets/mesh';
+import { RenderingSubMesh } from '../core/assets/rendering-sub-mesh';
 import { Component } from '../core/components';
 import { isValid } from '../core/data/object';
 import { director } from '../core/director';
@@ -144,12 +144,36 @@ export class TerrainLayer {
     public detailMap: Texture2D|null = null;
 
     /**
+     * @en normal texture
+     * @zh 法线纹理
+     */
+    @serializable
+    @editable
+    public normalMap: Texture2D|null = null;
+
+    /**
      * @en tile size
      * @zh 平铺大小
      */
     @serializable
     @editable
     public tileSize = 1;
+
+    /**
+     * @en metallic
+     * @zh 金属性
+     */
+    @serializable
+    @editable
+    public metallic = 0; /* [0, 1] */
+
+    /**
+     * @en roughness
+     * @zh 粗糙度
+     */
+    @serializable
+    @editable
+    public roughness = 1; /* [0, 1] */
 }
 
 /**
@@ -172,6 +196,14 @@ class TerrainRenderable extends RenderableComponent {
         }
 
         return super.destroy();
+    }
+
+    public _destroyModel () {
+        // this._invalidMaterial();
+        if (this._model != null) {
+            legacyCC.director.root.destroyModel(this._model);
+            this._model = null;
+        }
     }
 
     public _invalidMaterial () {
@@ -355,8 +387,8 @@ export class TerrainBlock {
             PrimitiveMode.TRIANGLE_LIST, this._terrain._getSharedIndexBuffer());
 
         const model = this._renderable._model = (legacyCC.director.root as Root).createModel(scene.Model);
-        model.node = model.transform = this._node;
         model.createBoundingShape(bbMin, bbMax);
+        model.node = model.transform = this._node;
         this._renderable._getRenderScene().addModel(model);
 
         // reset weightmap
@@ -375,9 +407,8 @@ export class TerrainBlock {
     }
 
     public destroy () {
-        if (this._renderable != null) {
-            this._renderable.destroy();
-        }
+        this._renderable._destroyModel();
+
         if (this._node != null) {
             this._node.destroy();
         }
@@ -389,85 +420,149 @@ export class TerrainBlock {
     public update () {
         this._updateMaterial(false);
 
+        const useNormalMap = this._terrain.useNormalMap;
+        const usePBR = this._terrain.usePBR;
+
+        // eslint-disable-next-line arrow-body-style
+        const getDetailTex = (layer: TerrainLayer|null) => {
+            return layer !== null ? layer.detailMap : null;
+        };
+
+        const getNormalTex = (layer: TerrainLayer|null) => {
+            let normalTex = layer !== null ? layer.normalMap : null;
+            if (normalTex === null) {
+                normalTex = legacyCC.builtinResMgr.get('normal-texture');
+            }
+
+            return normalTex;
+        };
+
         const mtl = this._renderable._currentMaterial;
-        if (mtl != null) {
+        if (mtl !== null) {
             const nlayers = this.getMaxLayer();
             const uvScale = new Vec4(1, 1, 1, 1);
+            const roughness = new Vec4(1, 1, 1, 1);
+            const metallic = new Vec4(0, 0, 0, 0);
 
             if (nlayers === 0) {
                 if (this.layers[0] !== -1) {
                     const l0 = this._terrain.getLayer(this.layers[0]);
 
-                    if (l0 != null) {
+                    if (l0 !== null) {
                         uvScale.x = 1.0 / l0.tileSize;
+                        roughness.x = l0.roughness;
+                        metallic.x = l0.metallic;
                     }
 
-                    mtl.setProperty('detailMap0', l0 != null ? l0.detailMap : null);
+                    mtl.setProperty('detailMap0', getDetailTex(l0));
+                    if (useNormalMap) {
+                        mtl.setProperty('normalMap0', getNormalTex(l0));
+                    }
                 } else {
                     mtl.setProperty('detailMap0', legacyCC.builtinResMgr.get('default-texture'));
+                    if (useNormalMap) {
+                        mtl.setProperty('normalMap0', legacyCC.builtinResMgr.get('normal-texture'));
+                    }
                 }
             } else if (nlayers === 1) {
                 const l0 = this._terrain.getLayer(this.layers[0]);
                 const l1 = this._terrain.getLayer(this.layers[1]);
 
-                if (l0 != null) {
+                if (l0 !== null) {
                     uvScale.x = 1.0 / l0.tileSize;
+                    roughness.x = l0.roughness;
+                    metallic.x = l0.metallic;
                 }
-                if (l1 != null) {
+                if (l1 !== null) {
                     uvScale.y = 1.0 / l1.tileSize;
+                    roughness.y = l1.roughness;
+                    metallic.y = l1.metallic;
                 }
 
                 mtl.setProperty('weightMap', this._weightMap);
-                mtl.setProperty('detailMap0', l0 != null ? l0.detailMap : null);
-                mtl.setProperty('detailMap1', l1 != null ? l1.detailMap : null);
+                mtl.setProperty('detailMap0', getDetailTex(l0));
+                mtl.setProperty('detailMap1', getDetailTex(l1));
+                if (useNormalMap) {
+                    mtl.setProperty('normalMap0', getNormalTex(l0));
+                    mtl.setProperty('normalMap1', getNormalTex(l1));
+                }
             } else if (nlayers === 2) {
                 const l0 = this._terrain.getLayer(this.layers[0]);
                 const l1 = this._terrain.getLayer(this.layers[1]);
                 const l2 = this._terrain.getLayer(this.layers[2]);
 
-                if (l0 != null) {
+                if (l0 !== null) {
                     uvScale.x = 1.0 / l0.tileSize;
+                    roughness.x = l0.roughness;
+                    metallic.x = l0.metallic;
                 }
-                if (l1 != null) {
+                if (l1 !== null) {
                     uvScale.y = 1.0 / l1.tileSize;
+                    roughness.y = l1.roughness;
+                    metallic.y = l1.metallic;
                 }
-                if (l2 != null) {
+                if (l2 !== null) {
                     uvScale.z = 1.0 / l2.tileSize;
+                    roughness.z = l2.roughness;
+                    metallic.z = l2.metallic;
                 }
 
                 mtl.setProperty('weightMap', this._weightMap);
-                mtl.setProperty('detailMap0', l0 != null ? l0.detailMap : null);
-                mtl.setProperty('detailMap1', l1 != null ? l1.detailMap : null);
-                mtl.setProperty('detailMap2', l2 != null ? l2.detailMap : null);
+                mtl.setProperty('detailMap0', getDetailTex(l0));
+                mtl.setProperty('detailMap1', getDetailTex(l1));
+                mtl.setProperty('detailMap2', getDetailTex(l2));
+                if (useNormalMap) {
+                    mtl.setProperty('normalMap0', getNormalTex(l0));
+                    mtl.setProperty('normalMap1', getNormalTex(l1));
+                    mtl.setProperty('normalMap2', getNormalTex(l2));
+                }
             } else if (nlayers === 3) {
                 const l0 = this._terrain.getLayer(this.layers[0]);
                 const l1 = this._terrain.getLayer(this.layers[1]);
                 const l2 = this._terrain.getLayer(this.layers[2]);
                 const l3 = this._terrain.getLayer(this.layers[3]);
 
-                if (l0 != null) {
+                if (l0 !== null) {
                     uvScale.x = 1.0 / l0.tileSize;
+                    roughness.x = l0.roughness;
+                    metallic.x = l0.metallic;
                 }
-                if (l1 != null) {
+                if (l1 !== null) {
                     uvScale.y = 1.0 / l1.tileSize;
+                    roughness.y = l1.roughness;
+                    metallic.y = l1.metallic;
                 }
-                if (l2 != null) {
+                if (l2 !== null) {
                     uvScale.z = 1.0 / l2.tileSize;
+                    roughness.z = l2.roughness;
+                    metallic.z = l2.metallic;
                 }
-                if (l3 != null) {
-                    uvScale.z = 1.0 / l3.tileSize;
+                if (l3 !== null) {
+                    uvScale.w = 1.0 / l3.tileSize;
+                    roughness.w = l3.roughness;
+                    metallic.w = l3.metallic;
                 }
 
                 mtl.setProperty('weightMap', this._weightMap);
-                mtl.setProperty('detailMap0', l0 != null ? l0.detailMap : null);
-                mtl.setProperty('detailMap1', l1 != null ? l1.detailMap : null);
-                mtl.setProperty('detailMap2', l2 != null ? l2.detailMap : null);
-                mtl.setProperty('detailMap3', l3 != null ? l3.detailMap : null);
+                mtl.setProperty('detailMap0', getDetailTex(l0));
+                mtl.setProperty('detailMap1', getDetailTex(l1));
+                mtl.setProperty('detailMap2', getDetailTex(l2));
+                mtl.setProperty('detailMap3', getDetailTex(l3));
+                if (useNormalMap) {
+                    mtl.setProperty('normalMap0', getNormalTex(l0));
+                    mtl.setProperty('normalMap1', getNormalTex(l1));
+                    mtl.setProperty('normalMap2', getNormalTex(l2));
+                    mtl.setProperty('normalMap3', getNormalTex(l3));
+                }
             }
 
             mtl.setProperty('UVScale', uvScale);
+            if (usePBR) {
+                mtl.setProperty('roughness', roughness);
+                mtl.setProperty('metallic', metallic);
+            }
 
-            if (this.lightmap != null) {
+            if (this.lightmap !== null) {
                 mtl.setProperty('lightMap', this.lightmap);
                 mtl.setProperty('lightMapUVParam', this.lightmapUVParam);
             }
@@ -581,6 +676,8 @@ export class TerrainBlock {
         return {
             LAYERS: nlayers + 1,
             USE_LIGHTMAP: this.lightmap !== null ? 1 : 0,
+            USE_NORMALMAP: this._terrain.useNormalMap ? 1 : 0,
+            USE_PBR: this._terrain.usePBR ? 1 : 0,
             // CC_RECEIVE_SHADOW: this._terrain.receiveShadow ? 1 : 0,
         };
     }
@@ -628,6 +725,7 @@ export class TerrainBlock {
 
         this._renderable._meshData.vertexBuffers[0].update(vertexData);
         this._renderable._model!.createBoundingShape(bbMin, bbMax);
+        this._renderable._model!.updateWorldBound();
     }
 
     public _updateWeightMap () {
@@ -714,6 +812,16 @@ export class Terrain extends Component {
     @disallowAnimation
     protected _receiveShadow = false;
 
+    @type(CCBoolean)
+    @serializable
+    @disallowAnimation
+    protected _useNormalmap = false;
+
+    @type(CCBoolean)
+    @serializable
+    @disallowAnimation
+    protected _usePBR = false;
+
     protected _tileSize = 1;
     protected _blockCount: number[] = [1, 1];
     protected _weightMapSize = 128;
@@ -740,8 +848,8 @@ export class Terrain extends Component {
             this.__asset = value;
             if (this.__asset != null && this.valid) {
                 // rebuild
-                for (const block of this._blocks) {
-                    block.destroy();
+                for (let i = 0; i < this._blocks.length; ++i) {
+                    this._blocks[i].destroy();
                 }
                 this._blocks = [];
                 this._blockInfos = [];
@@ -766,8 +874,8 @@ export class Terrain extends Component {
         }
 
         this._effectAsset = value;
-        for (const i of this._blocks) {
-            i._invalidMaterial();
+        for (let i = 0; i < this._blocks.length; ++i) {
+            this._blocks[i]._invalidMaterial();
         }
     }
 
@@ -786,6 +894,38 @@ export class Terrain extends Component {
 
     set receiveShadow (val) {
         this._receiveShadow = val;
+        for (let i = 0; i < this._blocks.length; i++) {
+            this._blocks[i]._invalidMaterial();
+        }
+    }
+
+    /**
+     * @en Use normal map
+     * @zh 是否使用法线贴图
+     */
+    @editable
+    get useNormalMap () {
+        return this._useNormalmap;
+    }
+
+    set useNormalMap (val) {
+        this._useNormalmap = val;
+        for (let i = 0; i < this._blocks.length; i++) {
+            this._blocks[i]._invalidMaterial();
+        }
+    }
+
+    /**
+     * @en Use pbr material
+     * @zh 是否使用物理材质
+     */
+    @editable
+    get usePBR () {
+        return this._usePBR;
+    }
+
+    set usePBR (val) {
+        this._usePBR = val;
         for (let i = 0; i < this._blocks.length; i++) {
             this._blocks[i]._invalidMaterial();
         }
@@ -932,8 +1072,8 @@ export class Terrain extends Component {
 
         this._blockInfos = blockInfos;
 
-        for (const block of this._blocks) {
-            block.destroy();
+        for (let i = 0; i < this._blocks.length; ++i) {
+            this._blocks[i].destroy();
         }
         this._blocks = [];
 
@@ -959,8 +1099,8 @@ export class Terrain extends Component {
             }
         }
 
-        for (const i of this._blocks) {
-            i.build();
+        for (let i = 0; i < this._blocks.length; ++i) {
+            this._blocks[i].build();
         }
     }
 
@@ -984,8 +1124,8 @@ export class Terrain extends Component {
         this._buildNormals();
 
         // rebuild all blocks
-        for (const i of this._blocks) {
-            i._updateHeight();
+        for (let i = 0; i < this._blocks.length; ++i) {
+            this._blocks[i]._updateHeight();
         }
     }
 
@@ -1093,13 +1233,18 @@ export class Terrain extends Component {
     }
 
     public onDisable () {
-        for (const i of this._blocks) {
-            i.destroy();
+        for (let i = 0; i < this._blocks.length; ++i) {
+            this._blocks[i].destroy();
         }
         this._blocks = [];
     }
 
     public onDestroy () {
+        for (let i = 0; i < this._blocks.length; ++i) {
+            this._blocks[i].destroy();
+        }
+        this._blocks = [];
+
         for (let i = 0; i < this._layers.length; ++i) {
             this._layers[i] = null;
         }
@@ -1116,8 +1261,8 @@ export class Terrain extends Component {
     }
 
     public update (deltaTime: number) {
-        for (const i of this._blocks) {
-            i.update();
+        for (let i = 0; i < this._blocks.length; ++i) {
+            this._blocks[i].update();
         }
     }
 
@@ -1566,7 +1711,7 @@ export class Terrain extends Component {
 
     private _buildImp (restore = false) {
         if (this.valid) {
-            return true;
+            return;
         }
 
         const terrainAsset = this.__asset;
@@ -1583,19 +1728,27 @@ export class Terrain extends Component {
                 this._layers[i] = null;
             }
 
-            for (const i of terrainAsset.layerInfos) {
+            for (let i = 0; i < terrainAsset.layerInfos.length; ++i) {
+                const layerInfo = terrainAsset.layerInfos[i];
                 const layer = new TerrainLayer();
-                layer.tileSize = i.tileSize;
-                legacyCC.assetManager.loadAny(i.detailMap, (err, asset) => {
+                layer.tileSize = layerInfo.tileSize;
+                legacyCC.assetManager.loadAny(layerInfo.detailMap, (err, asset) => {
                     layer.detailMap = asset;
                 });
+                if (layerInfo.normalMap !== '') {
+                    legacyCC.AssetLibrary.loadAny(layerInfo.normalMap, (err, asset) => {
+                        layer.normalMap = asset;
+                    });
+                }
+                layer.roughness = layerInfo.roughness;
+                layer.metallic = layerInfo.metallic;
 
-                this._layers[i.slot] = layer;
+                this._layers[layerInfo.slot] = layer;
             }
         }
 
         if (this._blockCount[0] === 0 || this._blockCount[1] === 0) {
-            return false;
+            return;
         }
 
         // build heights & normals
@@ -1664,8 +1817,8 @@ export class Terrain extends Component {
             }
         }
 
-        for (const i of this._blocks) {
-            i.build();
+        for (let i = 0; i < this._blocks.length; ++i) {
+            this._blocks[i].build();
         }
     }
 

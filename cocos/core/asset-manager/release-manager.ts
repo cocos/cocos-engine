@@ -33,8 +33,9 @@ import { Node, Scene } from '../scene-graph';
 import Cache from './cache';
 import dependUtil from './depend-util';
 import { assets, references } from './shared';
-import { legacyCC } from '../global-exports';
-import { EffectAsset } from '../assets/effect-asset';
+import { ImageAsset } from '../assets/image-asset';
+import { TextureBase } from '../assets/texture-base';
+import { callInNextTick } from '../utils/misc';
 
 function visitAsset (asset: Asset, deps: string[]) {
     // Skip assets generated programmatically or by user (e.g. label texture)
@@ -58,8 +59,7 @@ function visitComponent (comp: any, deps: string[]) {
                         visitAsset(val, deps);
                     }
                 }
-            }
-            else if (!value.constructor || value.constructor === Object) {
+            } else if (!value.constructor || value.constructor === Object) {
                 const keys = Object.getOwnPropertyNames(value);
                 for (let j = 0; j < keys.length; j++) {
                     const val = value[keys[j]];
@@ -67,8 +67,7 @@ function visitComponent (comp: any, deps: string[]) {
                         visitAsset(val, deps);
                     }
                 }
-            }
-            else if (value instanceof Asset) {
+            } else if (value instanceof Asset) {
                 visitAsset(value, deps);
             }
         }
@@ -93,8 +92,7 @@ function descendOpRef (asset: Asset, refs: Record<string, number>, exclude: stri
         const uuid = dependAsset._uuid;
         if (!(uuid in refs)) {
             refs[uuid] = dependAsset.refCount + op;
-        }
-        else {
+        } else {
             refs[uuid] += op;
         }
         if (exclude.includes(uuid)) { continue; }
@@ -103,9 +101,9 @@ function descendOpRef (asset: Asset, refs: Record<string, number>, exclude: stri
 }
 
 const _temp = [];
-function checkCircularReference (asset: Asset) {
+function checkCircularReference (asset: Asset): number {
     // check circular reference
-    const refs = Object.create(null);
+    const refs: Record<string, number> = Object.create(null);
     refs[asset._uuid] = asset.refCount;
     descendOpRef(asset, refs, _temp, -1);
     _temp.length = 0;
@@ -122,10 +120,9 @@ function checkCircularReference (asset: Asset) {
 }
 
 class ReleaseManager {
-
     private _persistNodeDeps = new Cache<string[]>();
     private _toDelete = new Cache<Asset>();
-    private _eventListener: boolean = false;
+    private _eventListener = false;
 
     public init (): void {
         this._persistNodeDeps.clear();
@@ -159,12 +156,10 @@ class ReleaseManager {
 
     // do auto release
     public _autoRelease (oldScene: Scene, newScene: Scene, persistNodes: Node[]) {
-
         // transfer refs from persist nodes to new scene
         for (let i = 0, l = persistNodes.length; i < l; i++) {
             const node = persistNodes[i];
-            // @ts-expect-error
-            const sceneDeps = dependUtil._depends.get(newScene._id);
+            const sceneDeps = dependUtil._depends.get(newScene.uuid);
             const deps = this._persistNodeDeps.get(node.uuid) as string[];
             for (const dep of deps) {
                 const dependAsset = assets.get(dep);
@@ -182,16 +177,15 @@ class ReleaseManager {
 
         if (!oldScene) { return; }
 
-        // @ts-expect-error
-        const childs = dependUtil.getDeps(oldScene._id);
+        const childs = dependUtil.getDeps(oldScene.uuid);
         for (let i = 0, l = childs.length; i < l; i++) {
             const asset = assets.get(childs[i]);
             if (asset) {
                 asset.decRef(TEST || oldScene.autoReleaseAssets);
             }
         }
-        // @ts-expect-error
-        const dependencies = dependUtil._depends.get(oldScene._id);
+
+        const dependencies = dependUtil._depends.get(oldScene.uuid);
         if (dependencies && dependencies.persistDeps) {
             const persistDeps = dependencies.persistDeps;
             for (let i = 0, l = persistDeps.length; i < l; i++) {
@@ -201,25 +195,22 @@ class ReleaseManager {
                 }
             }
         }
-        // @ts-expect-error
-        dependUtil.remove(oldScene._id);
+
+        dependUtil.remove(oldScene.uuid);
     }
 
     public tryRelease (asset: Asset, force = false): void {
         if (!(asset instanceof Asset)) { return; }
         if (force) {
-            return this._free(asset, force);
+            this._free(asset, force);
+            return;
         }
 
         this._toDelete.add(asset._uuid, asset);
         if (!this._eventListener) {
             this._eventListener = true;
-            legacyCC.director.once(legacyCC.Director.EVENT_AFTER_DRAW, this._freeAssets, this);
+            callInNextTick(this._freeAssets.bind(this));
         }
-    }
-
-    public removeFromDeleteQueue (asset: Asset): void {
-        this._toDelete.remove(asset._uuid);
     }
 
     private _freeAssets () {
@@ -235,8 +226,6 @@ class ReleaseManager {
         this._toDelete.remove(uuid);
 
         if (!isValid(asset, true)) { return; }
-        // HACK, don't release effect in runtime
-        if (!EDITOR && asset instanceof EffectAsset) { return; }
 
         if (!force) {
             if (asset.refCount > 0) {
@@ -251,10 +240,16 @@ class ReleaseManager {
             const dependAsset = assets.get(depends[i]);
             if (dependAsset) {
                 dependAsset.decRef(false);
-                this._free(dependAsset, false);
+                // no need to release dependencies recursively in editor
+                if (!EDITOR) {
+                    this._free(dependAsset, false);
+                }
             }
         }
-        asset.destroy();
+        // only release non-gc asset in editor
+        if (!EDITOR || (asset instanceof ImageAsset || asset instanceof TextureBase)) {
+            asset.destroy();
+        }
         dependUtil.remove(uuid);
         if (EDITOR) {
             references!.remove(uuid);

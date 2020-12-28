@@ -52,19 +52,16 @@ const AudioFmts = ['.mp3', '.ogg', '.wav', '.m4a'];
 function GetTrue () { return true; }
 
 const md5Pipe = {
-    transformURL (url) {
+    transformURL (url: string): string {
         const uuid = getUuidFromURL(url);
         if (!uuid) { return url; }
-        const bundle = bundles.find((b) => {
-            return !!b.getAssetInfo(uuid);
-        });
+        const bundle = bundles.find((b) => !!b.getAssetInfo(uuid));
         if (!bundle) { return url; }
         let hashValue = '';
         const info = bundle.getAssetInfo(uuid);
         if (url.startsWith(bundle.base + bundle.config.nativeBase)) {
             hashValue = info!.nativeVer || '';
-        }
-        else {
+        } else {
             hashValue = info!.ver || '';
         }
         if (!hashValue || url.indexOf(hashValue) !== -1) { return url; }
@@ -73,13 +70,11 @@ const md5Pipe = {
             hashPatchInFolder = true;
         }
         if (hashPatchInFolder) {
-            let dirname = path.dirname(url);
-            let basename = path.basename(url);
+            const dirname = path.dirname(url);
+            const basename = path.basename(url);
             url = `${dirname}.${hashValue}/${basename}`;
         } else {
-            url = url.replace(/.*[/\\][0-9a-fA-F]{2}[/\\]([0-9a-fA-F-@]{8,}).*/, (match, uuid) => {
-                return match + '.' + hashValue;
-            });
+            url = url.replace(/.*[/\\][0-9a-fA-F]{2}[/\\]([0-9a-fA-F-@]{8,}).*/, (match, uuid) => `${match}.${hashValue}`);
         }
 
         return url;
@@ -87,7 +82,8 @@ const md5Pipe = {
 };
 
 type LoadProgressCallback = (completedCount: number, totalCount: number, item: any) => void;
-type LoadCompleteCallback<T> = (error: Error | null | undefined, asset?: T | null) => void;
+type LoadCompleteCallback<T> = (error: Error | null, asset: T) => void;
+type LoadDirCompleteCallback<T> = (error: Error | null, asset: T[], urls: string[]) => void;
 
 /**
  * @en Loader for resource loading process. The engine automatically initialize its singleton object {{loader}}.
@@ -113,7 +109,7 @@ export class CCLoader {
     private _parseLoadResArgs = parseLoadResArgs;
 
     public get _cache () {
-        // @ts-expect-error
+        // @ts-expect-error return private property
         return assets._map;
     }
 
@@ -147,7 +143,7 @@ export class CCLoader {
      * @param completeCallback - Callback invoked when all resources loaded
      * @deprecated since v3.0, loader.load is deprecated, please use assetManager.loadRemote instead
      */
-    public load (res: string|string[]|Record<string, any>, progressCallback?: Function|null, completeCallback?: Function|null) {
+    public load (res: string|string[]|Record<string, any>, progressCallback?: ((...args) => void)|null, completeCallback?: ((...args) => void)|null) {
         if (completeCallback === undefined) {
             if (progressCallback !== undefined) {
                 completeCallback = progressCallback;
@@ -159,10 +155,9 @@ export class CCLoader {
             const item = requests[i];
             if (typeof item === 'string') {
                 requests[i] = { url: item, __isNative__: true };
-            }
-            else {
+            } else {
                 if (item.type) {
-                    item.ext = '.' + item.type;
+                    item.ext = `.${item.type}`;
                     item.type = undefined;
                 }
 
@@ -171,14 +166,13 @@ export class CCLoader {
                 }
             }
         }
-        const images: any[]= [];
+        const images: any[] = [];
         const audios: any[] = [];
         assetManager.loadAny(requests, null, (finish, total, item) => {
             if (item.content) {
                 if (ImageFmts.includes(item.ext)) {
                     images.push(item.content);
-                }
-                else if (AudioFmts.includes(item.ext)) {
+                } else if (AudioFmts.includes(item.ext)) {
                     audios.push(item.content);
                 }
             }
@@ -196,8 +190,7 @@ export class CCLoader {
                             factory.create(url, item, '.png', {}, (err, image) => {
                                 asset = native[i] = image;
                             });
-                        }
-                        else if (audios.includes(asset)) {
+                        } else if (audios.includes(asset)) {
                             factory.create(url, item, '.mp3', {}, (err, audio) => {
                                 asset = native[i] = audio;
                             });
@@ -211,8 +204,7 @@ export class CCLoader {
                         map[asset._uuid] = asset;
                     });
                     out = { isCompleted: GetTrue, _map: map };
-                }
-                else {
+                } else {
                     out = native[0];
                 }
             }
@@ -242,18 +234,6 @@ export class CCLoader {
         return assetManager.assets.has(id) ? { content: assetManager.assets.get(id) } : null;
     }
 
-    public loadRes<T> (
-        url: string,
-        type: Constructor<T>,
-        progressCallback: LoadProgressCallback,
-        completeCallback: LoadCompleteCallback<T>,
-    );
-
-    public loadRes<T> (
-        url: string,
-        type: Constructor<T>,
-        completeCallback: LoadCompleteCallback<T>,
-    );
     /**
      * @en
      * Load assets from the "resources" folder inside the "assets" folder of your project.<br>
@@ -296,16 +276,40 @@ export class CCLoader {
      * });
      *
      */
-    public loadRes (url: string, type: Function, progressCallback?: Function, completeCallback?: Function) {
-        const { type: _type, onProgress, onComplete } = this._parseLoadResArgs<Asset>(type as any,
+    public loadRes<T extends Asset> (
+        url: string,
+        type: Constructor<T>,
+        progressCallback: LoadProgressCallback,
+        completeCallback: LoadCompleteCallback<T>,
+    );
+    public loadRes<T extends Asset> (
+        url: string,
+        type: Constructor<T>,
+        completeCallback: LoadCompleteCallback<T>,
+    );
+    public loadRes<T extends Asset> (
+        url: string,
+        progressCallback: LoadProgressCallback,
+        completeCallback: LoadCompleteCallback<T>,
+    );
+    public loadRes<T extends Asset> (
+        url: string,
+        completeCallback: LoadCompleteCallback<T>,
+    );
+    public loadRes<T extends Asset> (
+        url: string, type?: Constructor<T> | LoadCompleteCallback<T> | LoadProgressCallback,
+        progressCallback?: LoadProgressCallback | LoadCompleteCallback<T>,
+        completeCallback?: LoadCompleteCallback<T>,
+    ) {
+        const { type: _type, onProgress, onComplete } = this._parseLoadResArgs(type as any,
                                                                         progressCallback as LoadProgressCallback,
-                                                                        completeCallback as LoadCompleteCallback<Asset>);
+                                                                        completeCallback as LoadCompleteCallback<T>);
         const extname = path.extname(url);
-        if (extname) {
+        if (extname && !resources.getInfoWithPath(url, _type)) {
             // strip extname
-            url = url.slice(0, - extname.length);
+            url = url.slice(0, -extname.length);
         }
-        resources.load(url, _type, onProgress, onComplete);
+        resources.load(url, _type as Constructor<T>, onProgress, onComplete);
     }
 
     /**
@@ -340,15 +344,20 @@ export class CCLoader {
      * });
      * ```
      */
-    public loadResArray (urls: string[], type?: Function, progressCallback?: Function, completeCallback?: Function) {
-        const { type: _type, onProgress, onComplete } = this._parseLoadResArgs<Asset[]>(type as any,
+    public loadResArray<T extends Asset> (
+        urls: string[],
+        type?: Constructor<T>,
+        progressCallback?: LoadProgressCallback,
+        completeCallback?: LoadCompleteCallback<T[]>,
+    ) {
+        const { type: _type, onProgress, onComplete } = this._parseLoadResArgs<LoadCompleteCallback<Asset[]>>(type as any,
                                                                         progressCallback as LoadProgressCallback,
                                                                         completeCallback as LoadCompleteCallback<Asset[]>);
         urls.forEach((url, i) => {
             const extname = path.extname(url);
-            if (extname) {
+            if (extname && !resources.getInfoWithPath(url, _type)) {
                 // strip extname
-                urls[i] = url.slice(0, - extname.length);
+                urls[i] = url.slice(0, -extname.length);
             }
         });
         resources.load(urls, _type, onProgress, onComplete);
@@ -361,7 +370,7 @@ export class CCLoader {
      * Note: All asset URLs in Creator use forward slashes, URLs using backslashes will not work.
      * @zh
      * 将所有资产加载到项目 “assets / resources” 文件夹中
-     * <br>
+     * <br>
      * 注意：Creator 中的所有资源 URL 都使用正斜杠，使用反斜杠的 URL 将不起作用。
      *
      * @deprecated since v3.0 loader.loadResDir is deprecated, please use resources.loadDir instead
@@ -402,19 +411,41 @@ export class CCLoader {
      * });
      * ```
      */
-    public loadResDir (url: string, type?: Function, progressCallback?: Function, completeCallback?: Function) {
-        const { type: _type, onProgress, onComplete } = this._parseLoadResArgs<Asset[]>(type as any,
+    public loadResDir<T extends Asset> (
+        url: string,
+        type: Constructor<T>,
+        progressCallback: LoadProgressCallback,
+        completeCallback: LoadDirCompleteCallback<T>,
+    );
+    public loadResDir<T extends Asset> (
+        url: string,
+        type: Constructor<T>,
+        completeCallback: LoadDirCompleteCallback<T>,
+    );
+    public loadResDir<T extends Asset> (
+        url: string,
+        progressCallback: LoadProgressCallback,
+        completeCallback: LoadDirCompleteCallback<T>,
+    );
+    public loadResDir<T extends Asset> (
+        url: string,
+        completeCallback: LoadDirCompleteCallback<T>,
+    );
+    public loadResDir<T extends Asset> (
+        url: string,
+        type?: Constructor<T> | LoadProgressCallback | LoadDirCompleteCallback<T>,
+        progressCallback?: LoadProgressCallback | LoadDirCompleteCallback<T>,
+        completeCallback?: LoadDirCompleteCallback<T>,
+    ) {
+        const { type: _type, onProgress, onComplete } = this._parseLoadResArgs<LoadDirCompleteCallback<Asset>>(type as any,
                                                                         progressCallback as LoadProgressCallback,
-                                                                        completeCallback as LoadCompleteCallback<Asset[]>);
+                                                                        completeCallback as LoadDirCompleteCallback<Asset>);
         resources.loadDir(url, _type, onProgress, (err, out) => {
             let urls: string[] = [];
             if (!err) {
                 const infos = resources.getDirWithPath(url, _type);
-                urls = infos.map((info) => {
-                    return info.path;
-                });
+                urls = infos.map((info) => info.path);
             }
-            // @ts-expect-error
             if (onComplete) { onComplete(err, out, urls); }
         });
     }
@@ -545,11 +576,11 @@ export class CCLoader {
      * @param extMap Handlers for corresponding type in a map
      * @deprecated since v3.0 loader.addDownloadHandlers is deprecated, please use assetManager.downloader.register instead
      */
-    public addDownloadHandlers (extMap: Map<string, Function>) {
+    public addDownloadHandlers (extMap: Record<string, (item: { url: string }, cb: CompleteCallback) => void>) {
         const handler = Object.create(null);
         for (const type in extMap) {
             const func = extMap[type];
-            handler['.' + type] = (url, options, onComplete) => {
+            handler[`.${type}`] = (url, options, onComplete) => {
                 func({ url }, onComplete);
             };
         }
@@ -569,12 +600,12 @@ export class CCLoader {
      * @param extMap Handlers for corresponding type in a map
      * @deprecated since v3.0 loader.addLoadHandlers is deprecated, please use assetManager.parser.register instead
      */
-    public addLoadHandlers (extMap: Map<string, Function>) {
+    public addLoadHandlers (extMap: Record<string, ({ content: any }, cb: CompleteCallback) => void>) {
         const handler = Object.create(null);
         for (const type in extMap) {
             const func = extMap[type];
-            handler['.' + type] = (file, options, onComplete) => {
-                func({content: file}, onComplete);
+            handler[`.${type}`] = (file, options, onComplete) => {
+                func({ content: file }, onComplete);
             };
         }
         parser.register(handler);
@@ -623,8 +654,7 @@ export class CCLoader {
                 if (typeof key === 'string') { key = assets.get(key) as Asset; }
                 assetManager.releaseAsset(key);
             }
-        }
-        else if (asset) {
+        } else if (asset) {
             if (typeof asset === 'string') { asset = assets.get(asset) as Asset; }
             assetManager.releaseAsset(asset);
         }
@@ -822,7 +852,7 @@ export const AssetLibrary = {
                 debug: true,
                 packs: {},
                 types: [],
-                versions: { import: [], native: []},
+                versions: { import: [], native: [] },
                 name: BuiltinBundleName.RESOURCES,
                 importBase: options.importBase,
                 nativeBase: options.nativeBase,
@@ -878,7 +908,7 @@ replaceProperty(url, 'url', [
                 }) as string;
             }
             return '';
-        }
+        },
     },
 ]);
 
@@ -913,12 +943,12 @@ replaceProperty(legacyCC, 'cc', [
         name: 'loader',
         newName: 'assetManager',
         logTimes: 1,
-        customGetter: () => { return loader; },
+        customGetter: () => loader,
     }, {
         name: 'AssetLibrary',
         newName: 'assetManager',
         logTimes: 1,
-        customGetter: () => { return AssetLibrary; },
+        customGetter: () => AssetLibrary,
     }, {
         name: 'Pipeline',
         target: AssetManager,
@@ -930,7 +960,7 @@ replaceProperty(legacyCC, 'cc', [
         targetName: 'assetManager',
         newName: 'utils',
         logTimes: 1,
-        customGetter: () => { return url; },
+        customGetter: () => url,
     },
 ]);
 
@@ -955,7 +985,7 @@ replaceProperty(director, 'director', [
         newName: 'getSceneInfo',
         customFunction: (sceneName) => {
             if (assetManager.main) {
-                return assetManager.main.getSceneInfo(sceneName)?.uuid; 
+                return assetManager.main.getSceneInfo(sceneName)?.uuid;
             }
             return '';
         },
@@ -976,7 +1006,7 @@ replaceProperty(game, 'game', [
             }
             return scenes;
         },
-    }
+    },
 ]);
 
 const _autoRelease = releaseManager._autoRelease;

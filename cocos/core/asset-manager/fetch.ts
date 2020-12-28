@@ -38,7 +38,6 @@ import { clear, forEach, getDepends } from './utilities';
 import { legacyCC } from '../global-exports';
 
 export default function fetch (task: Task, done: CompleteCallbackNoData) {
-
     let firstTask = false;
     if (!task.progress) {
         task.progress = { finish: 0, total: task.input.length, canInvoke: true };
@@ -53,13 +52,12 @@ export default function fetch (task: Task, done: CompleteCallbackNoData) {
     task.output = [];
 
     forEach(task.input as RequestItem[], (item, cb) => {
-
         if (!item.isNative && assets.has(item.uuid)) {
             const asset = assets.get(item.uuid);
             asset!.addRef();
-            // @ts-expect-error
-            handle(item, task, asset, null, asset.__asyncLoadAssets__, depends, total, done);
-            return cb();
+            handle(item, task, asset, null, asset!.__asyncLoadAssets__, depends, total);
+            cb();
+            return;
         }
 
         packManager.load(item, task.options, (err, data) => {
@@ -69,28 +67,22 @@ export default function fetch (task: Task, done: CompleteCallbackNoData) {
                         error(err.message, err.stack);
                         progress.canInvoke = false;
                         done(err);
-                    }
-                    else {
-                        handle(item, task, null, null, false, depends, total, done);
+                    } else {
+                        handle(item, task, null, null, false, depends, total);
                     }
                 }
-            }
-            else {
-                if (!task.isFinish) {
-                    handle(item, task, null, data, !item.isNative, depends, total, done);
-                }
+            } else if (!task.isFinish) {
+                handle(item, task, null, data, !item.isNative, depends, total);
             }
             cb();
         });
-
     }, () => {
-
         if (task.isFinish) {
             clear(task, true);
-            return task.dispatch('error');
+            task.dispatch('error');
+            return;
         }
         if (depends.length > 0) {
-
             // stage 2 , download depend asset
             const subTask = Task.create({
                 input: depends,
@@ -124,8 +116,7 @@ function decreaseRef (task: Task) {
     }
 }
 
-function handle (item: RequestItem, task: Task, content: any, file: any, loadDepends: boolean, depends: any[], last: number, done: CompleteCallbackNoData) {
-
+function handle (item: RequestItem, task: Task, content: any, file: any, loadDepends: boolean, depends: any[], last: number) {
     const exclude = task.options!.__exclude__;
     const progress = task.progress;
 
@@ -139,5 +130,7 @@ function handle (item: RequestItem, task: Task, content: any, file: any, loadDep
         progress.total = last + depends.length;
     }
 
-    progress.canInvoke && task.dispatch('progress', ++progress.finish, progress.total, item);
+    if (progress.canInvoke) {
+        task.dispatch('progress', ++progress.finish, progress.total, item);
+    }
 }

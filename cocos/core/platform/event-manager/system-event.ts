@@ -29,6 +29,7 @@
  * @module event
  */
 
+import { EDITOR } from 'internal:constants';
 import { EventTarget } from '../../event/event-target';
 import { EventAcceleration, EventKeyboard, EventMouse, EventTouch } from './events';
 import { SystemEventType } from './event-enum';
@@ -36,8 +37,8 @@ import { EventListener } from './event-listener';
 import eventManager from './event-manager';
 import inputManager from './input-manager';
 import { Touch } from './touch';
-import { EDITOR } from 'internal:constants';
 import { legacyCC } from '../../global-exports';
+import { logID, warnID } from '../debug';
 
 let keyboardListener: EventListener | null = null;
 let accelerationListener: EventListener | null = null;
@@ -78,9 +79,12 @@ export class SystemEvent extends EventTarget {
 
         // for iOS 13+
         if (isEnabled && window.DeviceMotionEvent && typeof DeviceMotionEvent.requestPermission === 'function') {
-            DeviceMotionEvent.requestPermission().then(response => {
-                console.log(`Device Motion Event request permission: ${response}`);
+            DeviceMotionEvent.requestPermission().then((response) => {
+                logID(3520, response);
                 inputManager.setAccelerometerEnabled(response === 'granted');
+            }).catch((error) => {
+                warnID(3521, error.message);
+                inputManager.setAccelerometerEnabled(false);
             });
         } else {
             inputManager.setAccelerometerEnabled(isEnabled);
@@ -101,13 +105,13 @@ export class SystemEvent extends EventTarget {
         inputManager.setAccelerometerInterval(interval);
     }
 
-    public on (type: SystemEventType.KEY_DOWN | SystemEventType.KEY_UP, callback: (event?: EventKeyboard) => void, target?: Object);
+    public on (type: SystemEventType.KEY_DOWN | SystemEventType.KEY_UP, callback: (event?: EventKeyboard) => void, target?);
     public on (type: SystemEventType.MOUSE_DOWN | SystemEventType.MOUSE_ENTER | SystemEventType.MOUSE_LEAVE |
-                     SystemEventType.MOUSE_MOVE | SystemEventType.MOUSE_UP | SystemEventType.MOUSE_WHEEL ,
-               callback: (event?: EventMouse) => void, target?: Object);
+                     SystemEventType.MOUSE_MOVE | SystemEventType.MOUSE_UP | SystemEventType.MOUSE_WHEEL,
+               callback: (event?: EventMouse) => void, target?);
     public on (type: SystemEventType.TOUCH_START | SystemEventType.TOUCH_MOVE | SystemEventType.TOUCH_END | SystemEventType.TOUCH_CANCEL,
-               callback: (touch?: Touch, event?: EventTouch) => void, target?: Object);
-    public on (type: SystemEventType.DEVICEMOTION, callback: (event?: EventAcceleration) => void, target?: Object);
+               callback: (touch?: Touch, event?: EventTouch) => void, target?);
+    public on (type: SystemEventType.DEVICEMOTION, callback: (event?: EventAcceleration) => void, target?);
     /**
      * @en
      * Register an callback of a specific system event type.
@@ -118,9 +122,9 @@ export class SystemEvent extends EventTarget {
      * @param callback - The event listener's callback
      * @param target - The event listener's target and callee
      */
-    public on (type: string, callback: Function, target?: Object, once?: boolean) {
+    public on<TFunction extends (...any) => void> (type: string, callback: TFunction, target?, once?: boolean) {
         if (EDITOR && !legacyCC.GAME_VIEW) {
-            return;
+            return callback;
         }
         super.on(type, callback, target, once);
 
@@ -147,20 +151,20 @@ export class SystemEvent extends EventTarget {
             if (!accelerationListener) {
                 accelerationListener = EventListener.create({
                     event: EventListener.ACCELERATION,
-                    callback (acc: Object, event: EventAcceleration) {
+                    callback (acc: any, event: EventAcceleration) {
                         event.type = SystemEventType.DEVICEMOTION;
                         legacyCC.systemEvent.emit(event.type, event);
                     },
                 });
-                eventManager.addListener(accelerationListener!, 256);
+                eventManager.addListener(accelerationListener, 256);
             }
         }
 
         // touch
-        if (type === SystemEventType.TOUCH_START ||
-            type === SystemEventType.TOUCH_MOVE ||
-            type === SystemEventType.TOUCH_END ||
-            type === SystemEventType.TOUCH_CANCEL
+        if (type === SystemEventType.TOUCH_START
+            || type === SystemEventType.TOUCH_MOVE
+            || type === SystemEventType.TOUCH_END
+            || type === SystemEventType.TOUCH_CANCEL
         ) {
             if (!touchListener) {
                 touchListener = EventListener.create({
@@ -188,10 +192,10 @@ export class SystemEvent extends EventTarget {
         }
 
         // mouse
-        if (type === SystemEventType.MOUSE_DOWN ||
-            type === SystemEventType.MOUSE_MOVE ||
-            type === SystemEventType.MOUSE_UP ||
-            type === SystemEventType.MOUSE_WHEEL
+        if (type === SystemEventType.MOUSE_DOWN
+            || type === SystemEventType.MOUSE_MOVE
+            || type === SystemEventType.MOUSE_UP
+            || type === SystemEventType.MOUSE_WHEEL
         ) {
             if (!mouseListener) {
                 mouseListener = EventListener.create({
@@ -231,7 +235,7 @@ export class SystemEvent extends EventTarget {
      * @param callback - The callback to remove.
      * @param target - The target (this object) to invoke the callback, if it's not given, only callback without target will be removed
      */
-    public off (type: string, callback?: Function, target?: Object) {
+    public off (type: string, callback?: (...any) => void, target?) {
         if (EDITOR && !legacyCC.GAME_VIEW) {
             return;
         }
@@ -253,21 +257,21 @@ export class SystemEvent extends EventTarget {
             accelerationListener = null;
         }
 
-        if (touchListener && (type === SystemEventType.TOUCH_START || type === SystemEventType.TOUCH_MOVE ||
-            type === SystemEventType.TOUCH_END || type === SystemEventType.TOUCH_CANCEL)
+        if (touchListener && (type === SystemEventType.TOUCH_START || type === SystemEventType.TOUCH_MOVE
+            || type === SystemEventType.TOUCH_END || type === SystemEventType.TOUCH_CANCEL)
         ) {
             const hasTouchStart = this.hasEventListener(SystemEventType.TOUCH_START);
             const hasTouchMove = this.hasEventListener(SystemEventType.TOUCH_MOVE);
             const hasTouchEnd = this.hasEventListener(SystemEventType.TOUCH_END);
             const hasTouchCancel = this.hasEventListener(SystemEventType.TOUCH_CANCEL);
-            if(!hasTouchStart && !hasTouchMove && !hasTouchEnd && !hasTouchCancel){
+            if (!hasTouchStart && !hasTouchMove && !hasTouchEnd && !hasTouchCancel) {
                 eventManager.removeListener(touchListener);
                 touchListener = null;
             }
         }
 
-        if (mouseListener && (type === SystemEventType.MOUSE_DOWN || type === SystemEventType.MOUSE_MOVE ||
-            type === SystemEventType.MOUSE_UP || type === SystemEventType.MOUSE_WHEEL)
+        if (mouseListener && (type === SystemEventType.MOUSE_DOWN || type === SystemEventType.MOUSE_MOVE
+            || type === SystemEventType.MOUSE_UP || type === SystemEventType.MOUSE_WHEEL)
         ) {
             const hasMouseDown = this.hasEventListener(SystemEventType.MOUSE_DOWN);
             const hasMouseMove = this.hasEventListener(SystemEventType.MOUSE_MOVE);

@@ -28,11 +28,11 @@
  * @hidden
  */
 
-import { IVec3Like } from "../../core/math/type-define";
+import { IVec3Like } from '../../core/math/type-define';
 import { PhysicsRayResult } from '../framework/physics-ray-result';
-import { ray } from '../../core/geometry';
+import { Ray } from '../../core/geometry';
 import { RecyclePool } from '../../core';
-import { PhysicMaterial } from "../framework";
+import { PhysicMaterial } from '../framework';
 
 export interface IRaycastOptions {
     mask: number;
@@ -47,9 +47,9 @@ export interface IPhysicsWorld {
     setAllowSleep: (v: boolean) => void;
     setDefaultMaterial: (v: PhysicMaterial) => void;
     step (fixedTimeStep: number, timeSinceLastCalled?: number, maxSubSteps?: number): void;
-    raycast (worldRay: ray, options: IRaycastOptions, pool: RecyclePool<PhysicsRayResult>, results: PhysicsRayResult[]): boolean
-    raycastClosest (worldRay: ray, options: IRaycastOptions, out: PhysicsRayResult): boolean;
+    raycast (worldRay: Ray, options: IRaycastOptions, pool: RecyclePool<PhysicsRayResult>, results: PhysicsRayResult[]): boolean
+    raycastClosest (worldRay: Ray, options: IRaycastOptions, out: PhysicsRayResult): boolean;
     emitEvents (): void;
     syncSceneToPhysics (): void;
-    updateCollisionMatrix (group: number, mask: number): void;
+    syncAfterEvents (): void;
 }

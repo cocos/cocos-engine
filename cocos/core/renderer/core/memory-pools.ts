@@ -42,7 +42,7 @@ import { BatchingSchemes } from './pass';
 import {
     Vec2, Vec3, Quat, Color, Rect, Mat4, IVec2Like, IVec3Like, IVec4Like, IMat4Like,
 } from '../../math';
-import { plane } from '../../geometry';
+import { Plane } from '../../geometry';
 
 interface IMemoryPool<P extends PoolType> {
     free (handle: IHandle<P>): void;
@@ -62,7 +62,8 @@ enum BufferDataType {
     NEVER,
 }
 
-type BufferManifest = { [key: string]: number | string; COUNT: number };
+// `| any` here work around this issue: microsoft/TypeScript#41931
+type BufferManifest = { [key: string]: number | string | any; COUNT: number };
 type StandardBufferElement = number | IHandle<PoolType>;
 type GeneralBufferElement = StandardBufferElement | IVec2Like | IVec3Like | IVec4Like | IMat4Like;
 type BufferTypeManifest<E extends BufferManifest> = { [key in E[keyof E]]: GeneralBufferElement };
@@ -73,33 +74,19 @@ class BufferPool<P extends PoolType, E extends BufferManifest, M extends BufferT
     // this._bufferViews[chunk][entry][element]
 
     private _dataType: BufferDataTypeManifest<E>;
-
     private _elementCount: number;
-
     private _entryBits: number;
-
     private _stride: number;
-
     private _entriesPerChunk: number;
-
     private _entryMask: number;
-
     private _chunkMask: number;
-
     private _poolFlag: number;
-
     private _arrayBuffers: ArrayBuffer[] = [];
-
     private _freelists: number[][] = [];
-
     private _uint32BufferViews: Uint32Array[][] = [];
-
     private _float32BufferViews: Float32Array[][] = [];
-
     private _hasUint32 = false;
-
     private _hasFloat32 = false;
-
     private _nativePool: NativeBufferPool;
 
     constructor (poolType: P, dataType: BufferDataTypeManifest<E>, enumType: E, entryBits = 8) {
@@ -554,6 +541,7 @@ export enum PoolType {
     DEPTH_STENCIL_STATE,
     BLEND_TARGET,
     BLEND_STATE,
+    UI_BATCH,
     // arrays
     SUB_MODEL_ARRAY = 200,
     MODEL_ARRAY,
@@ -562,6 +550,7 @@ export enum PoolType {
     INSTANCED_BUFFER_ARRAY,
     LIGHT_ARRAY,
     BLEND_TARGET_ARRAY,
+    UI_BATCH_ARRAY,
     // raw resources
     RAW_BUFFER = 300,
     RAW_OBJECT = 400,
@@ -605,6 +594,8 @@ export type RasterizerStateHandle = IHandle<PoolType.RASTERIZER_STATE>;
 export type DepthStencilStateHandle = IHandle<PoolType.DEPTH_STENCIL_STATE>;
 export type BlendTargetHandle = IHandle<PoolType.BLEND_TARGET>;
 export type BlendStateHandle = IHandle<PoolType.BLEND_STATE>;
+export type UIBatchHandle = IHandle<PoolType.UI_BATCH>;
+export type UIBatchArrayHandle = IHandle<PoolType.UI_BATCH_ARRAY>;
 
 // TODO: could use Labeled Tuple Element feature here after next babel update (required TS4.0+ support)
 export const ShaderPool = new ObjectPool(PoolType.SHADER,
@@ -640,6 +631,9 @@ export const LightArrayPool = new TypedArrayPool<PoolType.LIGHT_ARRAY, Uint32Arr
 );
 export const BlendTargetArrayPool = new TypedArrayPool<PoolType.BLEND_TARGET_ARRAY, Uint32ArrayConstructor, BlendTargetHandle>(
     PoolType.BLEND_TARGET_ARRAY, Uint32Array, 8, 4,
+);
+export const UIBatchArrayPool = new TypedArrayPool<PoolType.UI_BATCH_ARRAY, Uint32ArrayConstructor, UIBatchHandle>(
+    PoolType.UI_BATCH_ARRAY, Uint32Array, 32, 16,
 );
 
 export const RawBufferPool = new BufferAllocator(PoolType.RAW_BUFFER);
@@ -795,6 +789,54 @@ const modelViewDataType: BufferDataTypeManifest<typeof ModelView> = {
 // we'll have to explicitly declare all these types.
 export const ModelPool = new BufferPool<PoolType.MODEL, typeof ModelView, IModelViewType>(PoolType.MODEL, modelViewDataType, ModelView);
 
+export enum UIBatchView {
+    VIS_FLAGS,
+    PASS_COUNT,
+    PASS_0,          // handle
+    PASS_1,          // handle
+    PASS_2,          // handle
+    PASS_3,          // handle
+    SHADER_0,        // handle
+    SHADER_1,        // handle
+    SHADER_2,        // handle
+    SHADER_3,        // handle
+    DESCRIPTOR_SET,  // handle
+    INPUT_ASSEMBLER, // handle
+    COUNT,
+}
+interface IUIBatchViewType extends BufferTypeManifest<typeof ModelView> {
+    [UIBatchView.VIS_FLAGS]: number;
+    [UIBatchView.PASS_COUNT]: number;
+    [UIBatchView.PASS_0]: PassHandle;
+    [UIBatchView.PASS_1]: PassHandle;
+    [UIBatchView.PASS_2]: PassHandle;
+    [UIBatchView.PASS_3]: PassHandle;
+    [UIBatchView.SHADER_0]: ShaderHandle;
+    [UIBatchView.SHADER_1]: ShaderHandle;
+    [UIBatchView.SHADER_2]: ShaderHandle;
+    [UIBatchView.SHADER_3]: ShaderHandle;
+    [UIBatchView.DESCRIPTOR_SET]: DescriptorSetHandle;
+    [UIBatchView.INPUT_ASSEMBLER]: InputAssemblerHandle;
+    [UIBatchView.COUNT]: never;
+}
+const uiBatchViewDataType: BufferDataTypeManifest<typeof UIBatchView> = {
+    [UIBatchView.VIS_FLAGS]: BufferDataType.UINT32,
+    [UIBatchView.PASS_COUNT]: BufferDataType.UINT32,
+    [UIBatchView.PASS_0]: BufferDataType.UINT32,
+    [UIBatchView.PASS_1]: BufferDataType.UINT32,
+    [UIBatchView.PASS_2]: BufferDataType.UINT32,
+    [UIBatchView.PASS_3]: BufferDataType.UINT32,
+    [UIBatchView.SHADER_0]: BufferDataType.UINT32,
+    [UIBatchView.SHADER_1]: BufferDataType.UINT32,
+    [UIBatchView.SHADER_2]: BufferDataType.UINT32,
+    [UIBatchView.SHADER_3]: BufferDataType.UINT32,
+    [UIBatchView.DESCRIPTOR_SET]: BufferDataType.UINT32,
+    [UIBatchView.INPUT_ASSEMBLER]: BufferDataType.UINT32,
+    [UIBatchView.COUNT]: BufferDataType.NEVER,
+};
+
+export const UIBatchPool = new BufferPool<PoolType.UI_BATCH, typeof UIBatchView, IUIBatchViewType>(PoolType.UI_BATCH, uiBatchViewDataType, UIBatchView);
+
 export enum AABBView {
     CENTER,             // Vec3
     HALF_EXTENSION = 3, // Vec3
@@ -820,6 +862,7 @@ export enum SceneView {
     MODEL_ARRAY,   // array handle
     SPHERE_LIGHT_ARRAY, // array handle
     SPOT_LIGHT_ARRAY, // array handle
+    UI_BATCH_ARRAY, // array handle
     COUNT,
 }
 interface ISceneViewType extends BufferTypeManifest<typeof SceneView> {
@@ -827,6 +870,7 @@ interface ISceneViewType extends BufferTypeManifest<typeof SceneView> {
     [SceneView.MODEL_ARRAY]: ModelArrayHandle;
     [SceneView.SPHERE_LIGHT_ARRAY]: LightArrayHandle;
     [SceneView.SPOT_LIGHT_ARRAY]: LightArrayHandle;
+    [SceneView.UI_BATCH_ARRAY]: UIBatchArrayHandle;
     [SceneView.COUNT]: never;
 }
 const sceneViewDataType: BufferDataTypeManifest<typeof SceneView> = {
@@ -834,6 +878,7 @@ const sceneViewDataType: BufferDataTypeManifest<typeof SceneView> = {
     [SceneView.MODEL_ARRAY]: BufferDataType.UINT32,
     [SceneView.SPHERE_LIGHT_ARRAY]: BufferDataType.UINT32,
     [SceneView.SPOT_LIGHT_ARRAY]: BufferDataType.UINT32,
+    [SceneView.UI_BATCH_ARRAY]: BufferDataType.UINT32,
     [SceneView.COUNT]: BufferDataType.NEVER,
 };
 // Theoretically we only have to declare the type view here while all the other arguments can be inferred.
@@ -848,19 +893,21 @@ export enum CameraView {
     CLEAR_FLAG,
     CLEAR_DEPTH,
     CLEAR_STENCIL,
+    VISIBILITY,
     NODE,                   // handle
     SCENE,                  // handle
     FRUSTUM,                // handle
+    WINDOW,                 // handle
     FORWARD,                // Vec3
-    POSITION = 12,          // Vec3
-    VIEW_PORT = 15,         // Rect
-    CLEAR_COLOR = 19,       // Color
-    MAT_VIEW = 23,          // Mat4
-    MAT_VIEW_PROJ = 39,     // Mat4
-    MAT_VIEW_PROJ_INV = 55, // Mat4
-    MAT_PROJ = 71,          // Mat4
-    MAT_PROJ_INV = 87,      // Mat4
-    COUNT = 103
+    POSITION = 14,          // Vec3
+    VIEW_PORT = 17,         // Rect
+    CLEAR_COLOR = 21,       // Color
+    MAT_VIEW = 25,          // Mat4
+    MAT_VIEW_PROJ = 41,     // Mat4
+    MAT_VIEW_PROJ_INV = 57, // Mat4
+    MAT_PROJ = 73,          // Mat4
+    MAT_PROJ_INV = 89,      // Mat4
+    COUNT = 105
 }
 interface ICameraViewType extends BufferTypeManifest<typeof CameraView> {
     [CameraView.WIDTH]: number;
@@ -869,9 +916,11 @@ interface ICameraViewType extends BufferTypeManifest<typeof CameraView> {
     [CameraView.CLEAR_FLAG]: ClearFlag;
     [CameraView.CLEAR_DEPTH]: number;
     [CameraView.CLEAR_STENCIL]: number;
+    [CameraView.VISIBILITY]: number,
     [CameraView.NODE]: NodeHandle;
     [CameraView.SCENE]: SceneHandle;
     [CameraView.FRUSTUM]: FrustumHandle;
+    [CameraView.WINDOW]: RenderWindowHandle;
     [CameraView.FORWARD]: Vec3;
     [CameraView.POSITION]: Vec3;
     [CameraView.VIEW_PORT]: Rect;
@@ -890,9 +939,11 @@ const cameraViewDataType: BufferDataTypeManifest<typeof CameraView> = {
     [CameraView.CLEAR_FLAG]: BufferDataType.UINT32,
     [CameraView.CLEAR_DEPTH]: BufferDataType.FLOAT32,
     [CameraView.CLEAR_STENCIL]: BufferDataType.UINT32,
+    [CameraView.VISIBILITY]: BufferDataType.UINT32,
     [CameraView.NODE]: BufferDataType.UINT32,
     [CameraView.SCENE]: BufferDataType.UINT32,
     [CameraView.FRUSTUM]: BufferDataType.UINT32,
+    [CameraView.WINDOW]: BufferDataType.UINT32,
     [CameraView.FORWARD]: BufferDataType.FLOAT32,
     [CameraView.POSITION]: BufferDataType.FLOAT32,
     [CameraView.VIEW_PORT]: BufferDataType.FLOAT32,
@@ -995,7 +1046,7 @@ export enum FrustumView {
 }
 interface IFrustumViewType extends BufferTypeManifest<typeof FrustumView> {
     [FrustumView.VERTICES]: Vec3;
-    [FrustumView.PLANES]: plane;
+    [FrustumView.PLANES]: Plane;
     [FrustumView.COUNT]: never;
 }
 const frustumViewDataType: BufferDataTypeManifest<typeof FrustumView> = {
@@ -1114,6 +1165,7 @@ export enum ShadowsView {
     DISTANCE,
     INSTANCE_PASS,
     PLANAR_PASS,
+    PLANAR_SHADER,
     NEAR,
     FAR,
     ASPECT,
@@ -1122,11 +1174,11 @@ export enum ShadowsView {
     BIAS,
     ORTHO_SIZE,
     AUTO_ADAPT,         // boolean
-    COLOR = 14,         // Vec4
-    SIZE = 18,          // Vec2
-    NORMAL = 20,        // Vec3
-    MAT_LIGHT = 23,     // Mat4
-    COUNT = 39
+    COLOR = 15,         // Vec4
+    SIZE = 19,          // Vec2
+    NORMAL = 21,        // Vec3
+    MAT_LIGHT = 24,     // Mat4
+    COUNT = 40
 }
 interface IShadowsViewType extends BufferTypeManifest<typeof ShadowsView> {
     [ShadowsView.ENABLE]: number;
@@ -1135,6 +1187,7 @@ interface IShadowsViewType extends BufferTypeManifest<typeof ShadowsView> {
     [ShadowsView.DISTANCE]: number;
     [ShadowsView.INSTANCE_PASS]: PassHandle;
     [ShadowsView.PLANAR_PASS]: PassHandle;
+    [ShadowsView.PLANAR_SHADER]: ShaderHandle;
     [ShadowsView.NEAR]: number;
     [ShadowsView.FAR]: number;
     [ShadowsView.ASPECT]: number;
@@ -1156,6 +1209,7 @@ const shadowsViewDataType: BufferDataTypeManifest<typeof ShadowsView> = {
     [ShadowsView.DISTANCE]: BufferDataType.FLOAT32,
     [ShadowsView.INSTANCE_PASS]: BufferDataType.UINT32,
     [ShadowsView.PLANAR_PASS]: BufferDataType.UINT32,
+    [ShadowsView.PLANAR_SHADER]: BufferDataType.UINT32,
     [ShadowsView.NEAR]: BufferDataType.FLOAT32,
     [ShadowsView.FAR]: BufferDataType.FLOAT32,
     [ShadowsView.ASPECT]: BufferDataType.FLOAT32,

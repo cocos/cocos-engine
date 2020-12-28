@@ -133,16 +133,12 @@ export class Scene extends BaseNode {
 
     public _onHierarchyChanged () { }
 
-    public _onBatchCreated () {
-        super._onBatchCreated();
+    public _onBatchCreated (dontSyncChildPrefab: boolean) {
+        super._onBatchCreated(dontSyncChildPrefab);
         const len = this._children.length;
         for (let i = 0; i < len; ++i) {
-            this._children[i]._onBatchCreated();
+            this._children[i]._onBatchCreated(dontSyncChildPrefab);
         }
-    }
-
-    public _onBatchRestored () {
-        this._onBatchCreated();
     }
 
     // transform helpers
@@ -246,7 +242,7 @@ export class Scene extends BaseNode {
             if (TEST) {
                 assert(!this._activeInHierarchy, 'Should deactivate ActionManager and EventManager by default');
             }
-            this._onBatchCreated();
+            this._onBatchCreated(EDITOR && this._prefabSyncedInLiveReload);
             this._inited = true;
         }
         // static methode can't use this as parameter type

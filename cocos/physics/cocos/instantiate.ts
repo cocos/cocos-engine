@@ -40,7 +40,5 @@ select('builtin', {
     BoxShape: BuiltinBoxShape,
     SphereShape: BuiltinSphereShape,
     PhysicsWorld: BuiltInWorld,
-    CapsuleShape: BuiltinCapsuleShape
+    CapsuleShape: BuiltinCapsuleShape,
 });
-
-import './deprecated';

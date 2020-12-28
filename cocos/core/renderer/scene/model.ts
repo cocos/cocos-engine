@@ -24,10 +24,10 @@
  */
 
 // Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
-import { builtinResMgr } from '../../3d/builtin/init';
+import { builtinResMgr } from '../../builtin/builtin-res-mgr';
 import { Material } from '../../assets/material';
-import { RenderingSubMesh } from '../../assets/mesh';
-import { aabb } from '../../geometry';
+import { RenderingSubMesh } from '../../assets/rendering-sub-mesh';
+import { AABB } from '../../geometry';
 import { Pool } from '../../memop';
 import { Node } from '../../scene-graph';
 import { Layers } from '../../scene-graph/layers';
@@ -36,7 +36,7 @@ import { Texture2D } from '../../assets/texture-2d';
 import { SubModel } from './submodel';
 import { Pass, IMacroPatch, BatchingSchemes } from '../core/pass';
 import { legacyCC } from '../../global-exports';
-import { InstancedBuffer } from '../../pipeline';
+import { InstancedBuffer } from '../../pipeline/instanced-buffer';
 
 import { Mat4, Vec3, Vec4 } from '../../math';
 import { genSamplerHash, samplerLib } from '../core/sampler-lib';
@@ -191,8 +191,8 @@ export class Model {
     public isDynamicBatching = false;
     public instancedAttributes: IInstancedAttributeBlock = { buffer: null!, views: [], attributes: [] };
 
-    protected _worldBounds: aabb | null = null;
-    protected _modelBounds: aabb | null = null;
+    protected _worldBounds: AABB | null = null;
+    protected _modelBounds: AABB | null = null;
     protected _subModels: SubModel[] = [];
     protected _node: Node = null!;
     protected _transform: Node = null!;
@@ -297,6 +297,21 @@ export class Model {
         }
     }
 
+    public updateWorldBound () {
+        const node = this.transform;
+        if (node !== null) {
+            node.updateWorldTransform();
+            this._transformUpdated = true;
+            const worldBounds = this._worldBounds;
+            if (this._modelBounds && worldBounds) {
+                // @ts-expect-error TS2445
+                this._modelBounds.transform(node._mat, node._pos, node._rot, node._scale, worldBounds);
+                AABBPool.setVec3(this._hWorldBounds, AABBView.CENTER, worldBounds.center);
+                AABBPool.setVec3(this._hWorldBounds, AABBView.HALF_EXTENSION, worldBounds.halfExtents);
+            }
+        }
+    }
+
     public updateUBOs (stamp: number) {
         const subModels = this._subModels;
         for (let i = 0; i < subModels.length; i++) {
@@ -328,8 +343,8 @@ export class Model {
      */
     public createBoundingShape (minPos?: Vec3, maxPos?: Vec3) {
         if (!minPos || !maxPos) { return; }
-        this._modelBounds = aabb.fromPoints(aabb.create(), minPos, maxPos);
-        this._worldBounds = aabb.clone(this._modelBounds);
+        this._modelBounds = AABB.fromPoints(AABB.create(), minPos, maxPos);
+        this._worldBounds = AABB.clone(this._modelBounds);
         if (this._hWorldBounds === NULL_HANDLE) {
             this._hWorldBounds = AABBPool.alloc();
             ModelPool.set(this._handle, ModelView.WORLD_BOUNDS, this._hWorldBounds);

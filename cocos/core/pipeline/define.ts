@@ -36,8 +36,7 @@ import { legacyCC } from '../global-exports';
 import { BindingMappingInfo, DescriptorType, Type, ShaderStageFlagBit,
     DescriptorSetLayoutBinding, Uniform, UniformBlock, UniformSampler } from '../gfx';
 import { Camera } from '../renderer/scene';
-
-
+import { DescriptorSetHandle, InputAssemblerHandle } from '../renderer/core/memory-pools';
 
 export const PIPELINE_FLOW_FORWARD = 'ForwardFlow';
 export const PIPELINE_FLOW_SHADOW = 'ShadowFlow';
@@ -117,10 +116,12 @@ export const localDescriptorSetLayout: IDescriptorSetLayoutInfo = { bindings: []
  */
 export enum PipelineGlobalBindings {
     UBO_GLOBAL,
+    UBO_CAMERA,
     UBO_SHADOW,
 
     SAMPLER_SHADOWMAP,
     SAMPLER_ENVIRONMENT, // don't put this as the first sampler binding due to Mac GL driver issues: cubemap at texture unit 0 causes rendering issues
+    SAMPLER_SPOT_LIGHTING_MAP,
 
     COUNT,
 }
@@ -140,7 +141,6 @@ export enum ModelLocalBindings {
     SAMPLER_MORPH_TANGENT,
     SAMPLER_LIGHTMAP,
     SAMPLER_SPRITE,
-    SAMPLER_SPOT_LIGHTING_MAP,
 
     COUNT,
 }
@@ -163,27 +163,10 @@ bindingMappingInfo.flexibleSet = 1;
  * @zh 全局 UBO。
  */
 export class UBOGlobal {
-
     public static readonly TIME_OFFSET = 0;
-    public static readonly SCREEN_SIZE_OFFSET = UBOGlobal.TIME_OFFSET + 4;
-    public static readonly SCREEN_SCALE_OFFSET = UBOGlobal.SCREEN_SIZE_OFFSET + 4;
-    public static readonly NATIVE_SIZE_OFFSET = UBOGlobal.SCREEN_SCALE_OFFSET + 4;
-    public static readonly MAT_VIEW_OFFSET = UBOGlobal.NATIVE_SIZE_OFFSET + 4;
-    public static readonly MAT_VIEW_INV_OFFSET = UBOGlobal.MAT_VIEW_OFFSET + 16;
-    public static readonly MAT_PROJ_OFFSET = UBOGlobal.MAT_VIEW_INV_OFFSET + 16;
-    public static readonly MAT_PROJ_INV_OFFSET = UBOGlobal.MAT_PROJ_OFFSET + 16;
-    public static readonly MAT_VIEW_PROJ_OFFSET = UBOGlobal.MAT_PROJ_INV_OFFSET + 16;
-    public static readonly MAT_VIEW_PROJ_INV_OFFSET = UBOGlobal.MAT_VIEW_PROJ_OFFSET + 16;
-    public static readonly CAMERA_POS_OFFSET = UBOGlobal.MAT_VIEW_PROJ_INV_OFFSET + 16;
-    public static readonly EXPOSURE_OFFSET = UBOGlobal.CAMERA_POS_OFFSET + 4;
-    public static readonly MAIN_LIT_DIR_OFFSET = UBOGlobal.EXPOSURE_OFFSET + 4;
-    public static readonly MAIN_LIT_COLOR_OFFSET = UBOGlobal.MAIN_LIT_DIR_OFFSET + 4;
-    public static readonly AMBIENT_SKY_OFFSET = UBOGlobal.MAIN_LIT_COLOR_OFFSET + 4;
-    public static readonly AMBIENT_GROUND_OFFSET = UBOGlobal.AMBIENT_SKY_OFFSET + 4;
-    public static readonly GLOBAL_FOG_COLOR_OFFSET = UBOGlobal.AMBIENT_GROUND_OFFSET + 4;
-    public static readonly GLOBAL_FOG_BASE_OFFSET = UBOGlobal.GLOBAL_FOG_COLOR_OFFSET + 4;
-    public static readonly GLOBAL_FOG_ADD_OFFSET = UBOGlobal.GLOBAL_FOG_BASE_OFFSET + 4;
-    public static readonly COUNT = UBOGlobal.GLOBAL_FOG_ADD_OFFSET + 4;
+    public static readonly NATIVE_SIZE_OFFSET = UBOGlobal.TIME_OFFSET + 4;
+    public static readonly SCREEN_SIZE_OFFSET = UBOGlobal.NATIVE_SIZE_OFFSET + 4;
+    public static readonly COUNT = UBOGlobal.SCREEN_SIZE_OFFSET + 4;
     public static readonly SIZE = UBOGlobal.COUNT * 4;
 
     public static readonly NAME = 'CCGlobal';
@@ -192,8 +175,40 @@ export class UBOGlobal {
     public static readonly LAYOUT = new UniformBlock(SetIndex.GLOBAL, UBOGlobal.BINDING, UBOGlobal.NAME, [
         new Uniform('cc_time', Type.FLOAT4, 1),
         new Uniform('cc_screenSize', Type.FLOAT4, 1),
-        new Uniform('cc_screenScale', Type.FLOAT4, 1),
         new Uniform('cc_nativeSize', Type.FLOAT4, 1),
+    ], 1);
+}
+globalDescriptorSetLayout.layouts[UBOGlobal.NAME] = UBOGlobal.LAYOUT;
+globalDescriptorSetLayout.bindings[UBOGlobal.BINDING] = UBOGlobal.DESCRIPTOR;
+
+/**
+ * @en The global camera uniform buffer object
+ * @zh 全局相机 UBO。
+ */
+export class UBOCamera {
+    public static readonly MAT_VIEW_OFFSET = 0;
+    public static readonly MAT_VIEW_INV_OFFSET = UBOCamera.MAT_VIEW_OFFSET + 16;
+    public static readonly MAT_PROJ_OFFSET = UBOCamera.MAT_VIEW_INV_OFFSET + 16;
+    public static readonly MAT_PROJ_INV_OFFSET = UBOCamera.MAT_PROJ_OFFSET + 16;
+    public static readonly MAT_VIEW_PROJ_OFFSET = UBOCamera.MAT_PROJ_INV_OFFSET + 16;
+    public static readonly MAT_VIEW_PROJ_INV_OFFSET = UBOCamera.MAT_VIEW_PROJ_OFFSET + 16;
+    public static readonly CAMERA_POS_OFFSET = UBOCamera.MAT_VIEW_PROJ_INV_OFFSET + 16;
+    public static readonly SCREEN_SCALE_OFFSET = UBOCamera.CAMERA_POS_OFFSET + 4;
+    public static readonly EXPOSURE_OFFSET = UBOCamera.SCREEN_SCALE_OFFSET + 4;
+    public static readonly MAIN_LIT_DIR_OFFSET = UBOCamera.EXPOSURE_OFFSET + 4;
+    public static readonly MAIN_LIT_COLOR_OFFSET = UBOCamera.MAIN_LIT_DIR_OFFSET + 4;
+    public static readonly AMBIENT_SKY_OFFSET = UBOCamera.MAIN_LIT_COLOR_OFFSET + 4;
+    public static readonly AMBIENT_GROUND_OFFSET = UBOCamera.AMBIENT_SKY_OFFSET + 4;
+    public static readonly GLOBAL_FOG_COLOR_OFFSET = UBOCamera.AMBIENT_GROUND_OFFSET + 4;
+    public static readonly GLOBAL_FOG_BASE_OFFSET = UBOCamera.GLOBAL_FOG_COLOR_OFFSET + 4;
+    public static readonly GLOBAL_FOG_ADD_OFFSET = UBOCamera.GLOBAL_FOG_BASE_OFFSET + 4;
+    public static readonly COUNT = UBOCamera.GLOBAL_FOG_ADD_OFFSET + 4;
+    public static readonly SIZE = UBOCamera.COUNT * 4;
+
+    public static readonly NAME = 'CCCamera';
+    public static readonly BINDING = PipelineGlobalBindings.UBO_CAMERA;
+    public static readonly DESCRIPTOR = new DescriptorSetLayoutBinding(UBOCamera.BINDING, DescriptorType.UNIFORM_BUFFER, 1, ShaderStageFlagBit.ALL);
+    public static readonly LAYOUT = new UniformBlock(SetIndex.GLOBAL, UBOCamera.BINDING, UBOCamera.NAME, [
         new Uniform('cc_matView', Type.MAT4, 1),
         new Uniform('cc_matViewInv', Type.MAT4, 1),
         new Uniform('cc_matProj', Type.MAT4, 1),
@@ -201,6 +216,7 @@ export class UBOGlobal {
         new Uniform('cc_matViewProj', Type.MAT4, 1),
         new Uniform('cc_matViewProjInv', Type.MAT4, 1),
         new Uniform('cc_cameraPos', Type.FLOAT4, 1),
+        new Uniform('cc_screenScale', Type.FLOAT4, 1),
         new Uniform('cc_exposure', Type.FLOAT4, 1),
         new Uniform('cc_mainLitDir', Type.FLOAT4, 1),
         new Uniform('cc_mainLitColor', Type.FLOAT4, 1),
@@ -211,8 +227,8 @@ export class UBOGlobal {
         new Uniform('cc_fogAdd', Type.FLOAT4, 1),
     ], 1);
 }
-globalDescriptorSetLayout.layouts[UBOGlobal.NAME] = UBOGlobal.LAYOUT;
-globalDescriptorSetLayout.bindings[UBOGlobal.BINDING] = UBOGlobal.DESCRIPTOR;
+globalDescriptorSetLayout.layouts[UBOCamera.NAME] = UBOCamera.LAYOUT;
+globalDescriptorSetLayout.bindings[UBOCamera.BINDING] = UBOCamera.DESCRIPTOR;
 
 /**
  * @en The uniform buffer object for shadow
@@ -238,6 +254,10 @@ export class UBOShadow {
 globalDescriptorSetLayout.layouts[UBOShadow.NAME] = UBOShadow.LAYOUT;
 globalDescriptorSetLayout.bindings[UBOShadow.BINDING] = UBOShadow.DESCRIPTOR;
 
+/**
+ * @en The sampler for Main light shadow map
+ * @zn 主光源阴影纹理采样器
+ */
 const UNIFORM_SHADOWMAP_NAME = 'cc_shadowMap';
 export const UNIFORM_SHADOWMAP_BINDING = PipelineGlobalBindings.SAMPLER_SHADOWMAP;
 const UNIFORM_SHADOWMAP_DESCRIPTOR = new DescriptorSetLayoutBinding(UNIFORM_SHADOWMAP_BINDING, DescriptorType.SAMPLER, 1, ShaderStageFlagBit.FRAGMENT);
@@ -251,6 +271,17 @@ const UNIFORM_ENVIRONMENT_DESCRIPTOR = new DescriptorSetLayoutBinding(UNIFORM_EN
 const UNIFORM_ENVIRONMENT_LAYOUT = new UniformSampler(SetIndex.GLOBAL, UNIFORM_ENVIRONMENT_BINDING, UNIFORM_ENVIRONMENT_NAME, Type.SAMPLER_CUBE, 1);
 globalDescriptorSetLayout.layouts[UNIFORM_ENVIRONMENT_NAME] = UNIFORM_ENVIRONMENT_LAYOUT;
 globalDescriptorSetLayout.bindings[UNIFORM_ENVIRONMENT_BINDING] = UNIFORM_ENVIRONMENT_DESCRIPTOR;
+
+/**
+ * @en The sampler for spot light shadow map
+ * @zn 聚光灯阴影纹理采样器
+ */
+const UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_NAME = 'cc_spotLightingMap';
+export const UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING = PipelineGlobalBindings.SAMPLER_SPOT_LIGHTING_MAP;
+const UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_DESCRIPTOR = new DescriptorSetLayoutBinding(UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING, DescriptorType.SAMPLER, 1, ShaderStageFlagBit.FRAGMENT);
+const UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_LAYOUT = new UniformSampler(SetIndex.GLOBAL, UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING, UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_NAME, Type.SAMPLER2D, 1);
+globalDescriptorSetLayout.layouts[UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_NAME] = UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_LAYOUT;
+globalDescriptorSetLayout.bindings[UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING] = UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_DESCRIPTOR;
 
 /**
  * @en The local uniform buffer object
@@ -470,31 +501,9 @@ const UNIFORM_SPRITE_TEXTURE_LAYOUT = new UniformSampler(SetIndex.LOCAL, UNIFORM
 localDescriptorSetLayout.layouts[UNIFORM_SPRITE_TEXTURE_NAME] = UNIFORM_SPRITE_TEXTURE_LAYOUT;
 localDescriptorSetLayout.bindings[UNIFORM_SPRITE_TEXTURE_BINDING] = UNIFORM_SPRITE_TEXTURE_DESCRIPTOR;
 
-/**
- * @en The sampler for spot light shadow map
- * @zn 聚光灯阴影纹理采样器
- */
-const UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_NAME = 'cc_spotLightingMap';
-export const UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING = ModelLocalBindings.SAMPLER_SPOT_LIGHTING_MAP;
-const UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_DESCRIPTOR = new DescriptorSetLayoutBinding(UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING, DescriptorType.SAMPLER, 1, ShaderStageFlagBit.FRAGMENT);
-const UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_LAYOUT = new UniformSampler(SetIndex.LOCAL, UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING, UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_NAME, Type.SAMPLER2D, 1);
-localDescriptorSetLayout.layouts[UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_NAME] = UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_LAYOUT;
-localDescriptorSetLayout.bindings[UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING] = UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_DESCRIPTOR;
-
 export const CAMERA_DEFAULT_MASK = Layers.makeMaskExclude([Layers.BitMask.UI_2D, Layers.BitMask.GIZMOS, Layers.BitMask.EDITOR,
     Layers.BitMask.SCENE_GIZMO, Layers.BitMask.PROFILER]);
 
 export const CAMERA_EDITOR_MASK = Layers.makeMaskExclude([Layers.BitMask.UI_2D, Layers.BitMask.PROFILER]);
 
 export const MODEL_ALWAYS_MASK = Layers.Enum.ALL;
-
-/**
- * @en Render view information descriptor
- * @zh 渲染视图描述信息。
- */
-export interface IRenderViewInfo {
-    camera: Camera;
-    name: string;
-    priority: number;
-    flows?: string[];
-}

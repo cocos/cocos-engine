@@ -29,9 +29,9 @@
  */
 
 import { Mat4, Size, Vec3 } from '../../core/math';
-import { IAssembler } from '../../core/renderer/ui/base';
-import { MeshRenderData } from '../../core/renderer/ui/render-data';
-import { UI } from '../../core/renderer/ui/ui';
+import { IAssembler } from '../../2d/renderer/base';
+import { MeshRenderData } from '../../2d/renderer/render-data';
+import { UI } from '../../2d/renderer/ui';
 import { TiledLayer, TiledMeshData, TiledTile } from '..';
 import { GID, MixedGID, RenderOrder, TiledGrid, TileFlag } from '../tiled-types';
 import { Texture2D, Node } from '../../core';
@@ -84,7 +84,7 @@ export const simple: IAssembler = {
         if (comp.colorChanged || comp.isCullingDirty() || comp.isUserNodeDirty() || comp.hasAnimation() || comp.hasTiledNode()) {
             comp.colorChanged = false;
 
-            comp.resetRenderData();
+            comp.destroyRenderData();
 
             let leftDown: { col: number, row: number };
             let rightTop: { col: number, row: number };
@@ -112,6 +112,7 @@ export const simple: IAssembler = {
                 break;
                 // right down to left up, col sub, row add
             case RenderOrder.LeftUp:
+            default:
                 traverseGrids(leftDown, rightTop, 1, -1, comp);
                 break;
             }
@@ -327,13 +328,8 @@ function switchRenderData (curTexIdx: Texture2D | null, grid: TiledGrid, comp: T
         _renderData!.texture = curTexIdx;
     }
     // update material
-    _renderData = comp.requestMeshRenderData();
-    _renderData.texture = grid.texture;
-}
-
-function _renderNodes (row: number, col: number, comp: TiledLayer) {
-    const nodesInfo = comp.getNodesByRowCol(row, col);
-    if (!nodesInfo || nodesInfo.count === 0) return;
+    _renderData = comp.requestMeshRenderData() as any;
+    _renderData!.texture = grid.texture;
 }
 
 // rowMoveDir is -1 or 1, -1 means decrease, 1 means increase
@@ -342,6 +338,10 @@ function traverseGrids (leftDown: { col: number, row: number }, rightTop: { col:
     rowMoveDir: number, colMoveDir: number, comp: TiledLayer) {
     // show nothing
     if (rightTop.row < 0 || rightTop.col < 0) return;
+
+    if (!_renderData!.renderData) {
+        _renderData = comp.requestMeshRenderData();
+    }
 
     let vertexBuf: Float32Array = _renderData!.renderData.vData;
     // let idxBuf: Uint16Array = _renderData!.renderData.iData;
@@ -413,17 +413,19 @@ function traverseGrids (leftDown: { col: number, row: number }, rightTop: { col:
         // traverse col
         for (; (cols - col) * colMoveDir >= 0; col += colMoveDir) {
             colData = rowData && rowData[col];
+
+            if (colNodesCount > 0) {
+                const nodes = comp.requestSubNodesData();
+                const celData = comp.getNodesByRowCol(row, col);
+                if (celData && celData.count > 0) {
+                    (nodes as any).subNodes = comp.getNodesByRowCol(row, col)!.list as any;
+                    curTexIdx = null;
+                    _renderData = comp.requestMeshRenderData() as any;
+                }
+            }
+
             if (!colData) {
                 // only render users nodes because map data is empty
-                if (colNodesCount > 0) {
-                    const nodes = comp.requestSubNodesData();
-                    const celData = comp.getNodesByRowCol(row, col);
-                    if (celData) {
-                        nodes.subNodes = comp.getNodesByRowCol(row, col)!.list;
-                        curTexIdx = null;
-                        _renderData = comp.requestMeshRenderData();
-                    }
-                }
                 continue;
             }
 
@@ -493,7 +495,9 @@ function traverseGrids (leftDown: { col: number, row: number }, rightTop: { col:
                 vertexBuf.set(color, _vfOffset + vertStep2 + 5);
                 vertexBuf.set(color, _vfOffset + vertStep3 + 5);
             } else {
-                fillByTiledNode(tiledNode.node, color, vertexBuf, left, right, top, bottom, diamondTile);
+                if(tiledNode.node.active) {
+                    fillByTiledNode(tiledNode.node, color, vertexBuf, left, right, top, bottom, diamondTile);
+                }
             }
 
             flipTexture(grid, gid);

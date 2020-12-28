@@ -37,6 +37,8 @@ function tryDefineGlobal (name: string, value: boolean): boolean {
     }
 }
 
+// No export to global required since we have already done here.
+export const EXPORT_TO_GLOBAL = false;
 export const BUILD = tryDefineGlobal('CC_BUILD', false);
 export const TEST = tryDefineGlobal('CC_TEST', defined('tap') || defined('QUnit'));
 export const EDITOR = tryDefineGlobal('CC_EDITOR', defined('Editor') && defined('process') && ('electron' in process.versions));
@@ -44,6 +46,7 @@ export const PREVIEW = tryDefineGlobal('CC_PREVIEW', !EDITOR);
 export const DEV = tryDefineGlobal('CC_DEV', true); // (CC_EDITOR && !CC_BUILD) || CC_PREVIEW || CC_TEST
 export const DEBUG = tryDefineGlobal('CC_DEBUG', true); // CC_DEV || Debug Build
 export const JSB = tryDefineGlobal('CC_JSB', defined('jsb'));
+export const HTML5 = false;
 // @ts-expect-error
 export const WECHAT = tryDefineGlobal('CC_WECHAT', !!(defined('wx') && (wx.getSystemInfoSync || wx.getSharedCanvas)));
 export const MINIGAME = tryDefineGlobal('CC_MINIGAME', false);

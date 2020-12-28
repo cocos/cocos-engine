@@ -1217,6 +1217,7 @@ export class BaseNode extends CCObject implements ISchedulable {
     }
 
     public _updateSiblingIndex () {
+        this.emit(SystemEventType.SIBLING_ORDER_CHANGED);
         for (let i = 0; i < this._children.length; ++i) {
             this._children[i]._siblingIndex = i;
         }
@@ -1238,11 +1239,7 @@ export class BaseNode extends CCObject implements ISchedulable {
         return;
     }
 
-    protected _onBatchRestored () {
-        return;
-    }
-
-    protected _onBatchCreated (dontSyncChildPrefab?: boolean) {
+    protected _onBatchCreated (dontSyncChildPrefab: boolean) {
         if (this._parent) {
             this._siblingIndex = this._parent.children.indexOf(this);
         }
@@ -1257,27 +1254,31 @@ export class BaseNode extends CCObject implements ISchedulable {
         return this._onHierarchyChangedBase(oldParent);
     }
 
-    protected _instantiate (cloned) {
+    protected _instantiate (cloned, isSyncedNode) {
         if (!cloned) {
             cloned = legacyCC.instantiate._clone(this, this);
         }
 
-        const thisPrefabInfo = this._prefab;
-        if (EDITOR && thisPrefabInfo) {
-            if (this !== thisPrefabInfo.root) {}
+        const newPrefabInfo = cloned._prefab;
+        if (EDITOR && newPrefabInfo) {
+            if (cloned === newPrefabInfo.root) {
+                newPrefabInfo.fileId = '';
+            } else {
+                // var PrefabUtils = Editor.require('scene://utils/prefab');
+                // PrefabUtils.unlinkPrefab(cloned);
+            }
         }
-        const syncing = thisPrefabInfo && this === thisPrefabInfo.root && thisPrefabInfo.sync;
-        if (syncing) {
-            // if (thisPrefabInfo._synced) {
-            //    return clone;
-            // }
-        } else if (EDITOR && legacyCC.GAME_VIEW) {
-            cloned._name += ' (Clone)';
+        if (EDITOR && legacyCC.GAME_VIEW) {
+            const syncing = newPrefabInfo && cloned === newPrefabInfo.root && newPrefabInfo.sync;
+            if (!syncing) {
+                cloned._name += ' (Clone)';
+            }
         }
+
 
         // reset and init
         cloned._parent = null;
-        cloned._onBatchRestored();
+        cloned._onBatchCreated(isSyncedNode);
 
         return cloned;
     }
@@ -1337,6 +1338,7 @@ export class BaseNode extends CCObject implements ISchedulable {
                 const childIndex = parent._children.indexOf(this);
                 parent._children.splice(childIndex, 1);
                 this._siblingIndex = 0;
+                parent._updateSiblingIndex();
                 if (parent.emit) {
                     parent.emit(SystemEventType.CHILD_REMOVED, this);
                 }

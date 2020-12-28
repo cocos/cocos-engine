@@ -28,115 +28,115 @@
  * @module physics
  */
 
-import { PhysicsSystem } from "./physics-system";
-import { replaceProperty, removeProperty } from "../../core/utils/x-deprecated";
-import { BoxCollider } from "./components/colliders/box-collider";
-import { SphereCollider } from "./components/colliders/sphere-collider";
-import { CapsuleCollider } from "./components/colliders/capsule-collider";
-import { CylinderCollider } from "./components/colliders/cylinder-collider";
-import { MeshCollider } from "./components/colliders/mesh-collider";
-import { RigidBody } from "./components/rigid-body";
-import { Collider } from "./components/colliders/collider";
-import { js } from "../../core/utils/js";
+import { PhysicsSystem } from './physics-system';
+import { replaceProperty, removeProperty } from '../../core/utils/x-deprecated';
+import { BoxCollider } from './components/colliders/box-collider';
+import { SphereCollider } from './components/colliders/sphere-collider';
+import { CapsuleCollider } from './components/colliders/capsule-collider';
+import { CylinderCollider } from './components/colliders/cylinder-collider';
+import { MeshCollider } from './components/colliders/mesh-collider';
+import { RigidBody } from './components/rigid-body';
+import { Collider } from './components/colliders/collider';
+import { js } from '../../core/utils/js';
 import { legacyCC } from '../../core/global-exports';
-import { PhysicsMaterial } from "./assets/physics-material";
+import { PhysicsMaterial } from './assets/physics-material';
 
 replaceProperty(PhysicsSystem, 'PhysicsSystem', [
     {
-        "name": "ins",
-        "newName": "instance"
-    }
+        name: 'ins',
+        newName: 'instance',
+    },
 ]);
 
 replaceProperty(PhysicsSystem.prototype, 'PhysicsSystem.prototype', [
     {
-        "name": "deltaTime",
-        "newName": "fixedTimeStep"
+        name: 'deltaTime',
+        newName: 'fixedTimeStep',
     },
     {
-        "name": "maxSubStep",
-        "newName": "maxSubSteps"
-    }
+        name: 'maxSubStep',
+        newName: 'maxSubSteps',
+    },
 ]);
 
 removeProperty(PhysicsSystem.prototype, 'PhysicsSystem.prototype', [
     {
-        "name": "useFixedTime"
+        name: 'useFixedTime',
     },
     {
-        "name": "useCollisionMatrix"
+        name: 'useCollisionMatrix',
     },
     {
-        "name": "updateCollisionMatrix"
+        name: 'updateCollisionMatrix',
     },
     {
-        "name": "resetCollisionMatrix"
+        name: 'resetCollisionMatrix',
     },
     {
-        "name": "isCollisionGroup"
+        name: 'isCollisionGroup',
     },
     {
-        "name": "setCollisionGroup"
-    }
+        name: 'setCollisionGroup',
+    },
 ]);
 
 replaceProperty(Collider.prototype, 'Collider.prototype', [
     {
-        "name": "attachedRigidbody",
-        "newName": "attachedRigidBody"
-    }
+        name: 'attachedRigidbody',
+        newName: 'attachedRigidBody',
+    },
 ]);
 
 replaceProperty(Collider, 'Collider', [
     {
-        "name": "EColliderType",
-        "newName": "Type"
+        name: 'EColliderType',
+        newName: 'Type',
     },
     {
-        "name": "EAxisDirection",
-        "newName": "Axis"
+        name: 'EAxisDirection',
+        newName: 'Axis',
     },
 ]);
 
 replaceProperty(BoxCollider.prototype, 'BoxCollider.prototype', [
     {
-        "name": "boxShape",
-        "newName": "shape"
-    }
+        name: 'boxShape',
+        newName: 'shape',
+    },
 ]);
 
 replaceProperty(SphereCollider.prototype, 'SphereCollider.prototype', [
     {
-        "name": "sphereShape",
-        "newName": "shape"
-    }
+        name: 'sphereShape',
+        newName: 'shape',
+    },
 ]);
 
 replaceProperty(CapsuleCollider.prototype, 'CapsuleCollider.prototype', [
     {
-        "name": "capsuleShape",
-        "newName": "shape"
-    }
+        name: 'capsuleShape',
+        newName: 'shape',
+    },
 ]);
 
 replaceProperty(RigidBody.prototype, 'RigidBody.prototype', [
     {
-        "name": "rigidBody",
-        "newName": "body"
-    }
+        name: 'rigidBody',
+        newName: 'body',
+    },
 ]);
 
 replaceProperty(RigidBody, 'RigidBody', [
     {
-        "name": "ERigidBodyType",
-        "newName": "Type"
-    }
+        name: 'ERigidBodyType',
+        newName: 'Type',
+    },
 ]);
 
 removeProperty(RigidBody.prototype, 'RigidBody.prototype', [
     {
-        "name": "fixedRotation",
-    }
+        name: 'fixedRotation',
+    },
 ]);
 
 /**

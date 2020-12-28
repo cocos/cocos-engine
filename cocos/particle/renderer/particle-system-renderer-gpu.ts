@@ -23,7 +23,7 @@
  THE SOFTWARE.
  */
 
-import { builtinResMgr } from '../../core/3d/builtin';
+import { builtinResMgr } from '../../core/builtin';
 import { Material } from '../../core/assets';
 import { Texture2D } from '../../core';
 import { Component } from '../../core/components';
@@ -219,6 +219,9 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
 
     // internal function
     public updateRenderData () {
+    }
+
+    public beforeRender () {
         // update vertex buffer
         this._model!.updateIA(this._particleNum);
     }

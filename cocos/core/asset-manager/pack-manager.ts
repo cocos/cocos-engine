@@ -56,7 +56,6 @@ interface IUnpackRequest {
  *
  */
 export class PackManager {
-
     private _loading = new Cache<IUnpackRequest[]>();
     private _unpackers: Record<string, Unpacker> = {
         '.json': this.unpackJson,
@@ -83,23 +82,19 @@ export class PackManager {
      *
      */
     public unpackJson (pack: string[], json: any, options: IDownloadParseOptions, onComplete: CompleteCallback<Record<string, any>>): void {
-
         let out = js.createMap(true);
         let err: Error | null = null;
 
         if (Array.isArray(json)) {
-
-            // @ts-expect-error
-            json = unpackJSONs(json, MissingScript.safeFindClass);
+            json = unpackJSONs(json as any);
 
             if (json.length !== pack.length) {
                 errorID(4915);
             }
             for (let i = 0; i < pack.length; i++) {
-                out[pack[i] + '@import'] = json[i];
+                out[`${pack[i]}@import`] = json[i];
             }
-        }
-        else {
+        } else {
             const textureType = js._getClassId(Texture2D);
             if (json.type === textureType && json.data) {
                 const datas = json.data;
@@ -107,10 +102,9 @@ export class PackManager {
                     errorID(4915);
                 }
                 for (let i = 0; i < pack.length; i++) {
-                    out[pack[i] + '@import'] = packCustomObjData(textureType, { base: datas[i][0], mipmaps: datas[i][1] });
+                    out[`${pack[i]}@import`] = packCustomObjData(textureType, { base: datas[i][0], mipmaps: datas[i][1] });
                 }
-            }
-            else {
+            } else {
                 err = new Error('unmatched type pack!');
                 out = null;
             }
@@ -148,8 +142,7 @@ export class PackManager {
     public register (type: string | Record<string, Unpacker>, handler?: Unpacker) {
         if (typeof type === 'object') {
             js.mixin(this._unpackers, type);
-        }
-        else {
+        } else {
             this._unpackers[type] = handler!;
         }
     }
@@ -209,17 +202,19 @@ export class PackManager {
     public load (item: RequestItem, options: IDownloadParseOptions | null, onComplete: CompleteCallback): void {
         // if not in any package, download as uausl
         if (item.isNative || !item.info || !item.info.packs) {
-            return downloader.download(item.id, item.url, item.ext, item.options, onComplete);
+            downloader.download(item.id, item.url, item.ext, item.options, onComplete);
+            return;
         }
 
-        if (files.has(item.id)) { return onComplete(null, files.get(item.id)); }
+        if (files.has(item.id)) {
+            onComplete(null, files.get(item.id));
+            return;
+        }
 
         const packs = item.info.packs;
 
         // find a loading package
-        let pack = packs.find((val) => {
-            return this._loading.has(val.uuid);
-        });
+        let pack = packs.find((val) => this._loading.has(val.uuid));
 
         if (pack) {
             this._loading.get(pack.uuid)!.push({ onComplete, id: item.id });
@@ -256,8 +251,7 @@ export class PackManager {
                     const unpackedData = result[cb.id];
                     if (!unpackedData) {
                         cb.onComplete(new Error('can not retrieve data from package'));
-                    }
-                    else {
+                    } else {
                         cb.onComplete(null, unpackedData);
                     }
                 }

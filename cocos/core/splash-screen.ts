@@ -28,6 +28,7 @@
  * @hidden
  */
 
+/* eslint-disable no-restricted-globals */
 import { COCOSPLAY, XIAOMI, JSB } from 'internal:constants';
 import * as easing from './animation/easing';
 import { Material } from './assets/material';
@@ -44,6 +45,7 @@ import { legacyCC } from './global-exports';
 import { Root } from './root';
 import { DSPool, ShaderPool, PassPool, PassView } from './renderer/core/memory-pools';
 import { SetIndex } from './pipeline/define';
+import { error } from './platform';
 
 export type SplashEffectType = 'NONE' | 'FADE-INOUT';
 
@@ -108,18 +110,18 @@ export class SplashScreen {
 
     public main (root: Root) {
         if (root == null) {
-            console.error('RENDER ROOT IS NULL.');
+            error('RENDER ROOT IS NULL.');
             return;
         }
 
         if (window._CCSettings && window._CCSettings.splashScreen) {
             const setting: Writable<ISplashSetting> = this.setting = window._CCSettings.splashScreen;
-            (setting.totalTime) = this.setting.totalTime != null ? this.setting.totalTime : 3000;
-            (setting.base64src) = this.setting.base64src || '';
-            (setting.effect) = this.setting.effect || 'FADE-INOUT';
-            (setting.clearColor) = this.setting.clearColor || new Color(0.88, 0.88, 0.88, 1);
-            (setting.displayRatio) = this.setting.displayRatio != null ? this.setting.displayRatio : 0.4;
-            (setting.displayWatermark) = this.setting.displayWatermark != null ? this.setting.displayWatermark : true;
+            setting.totalTime = this.setting.totalTime != null ? this.setting.totalTime : 3000;
+            setting.base64src = this.setting.base64src || '';
+            setting.effect = this.setting.effect || 'FADE-INOUT';
+            setting.clearColor = this.setting.clearColor || new Color(0.88, 0.88, 0.88, 1);
+            setting.displayRatio = this.setting.displayRatio != null ? this.setting.displayRatio : 0.4;
+            setting.displayWatermark = this.setting.displayWatermark != null ? this.setting.displayWatermark : true;
         } else {
             this.setting = {
                 totalTime: 3000,
@@ -283,6 +285,14 @@ export class SplashScreen {
         const framebuffer = this.framebuffer;
         const renderArea = this.renderArea;
 
+        if (JSB && (sys.os === legacyCC.sys.OS_OSX || sys.os === legacyCC.sys.OS_IOS)) {
+            renderArea.height = device.nativeHeight;
+            renderArea.width = device.nativeWidth;
+        } else {
+            renderArea.height = device.height;
+            renderArea.width = device.width;
+        }
+
         cmdBuff.begin();
         cmdBuff.beginRenderPass(framebuffer.renderPass, framebuffer, renderArea,
             this.clearColors, 1.0, 0);
@@ -324,7 +334,7 @@ export class SplashScreen {
         ctx.textBaseline = 'top';
         ctx.textAlign = 'left';
         ctx.fillStyle = '`#424242`';
-        const text = 'Powered by Cocos Creator 3D';
+        const text = 'Powered by Cocos Creator';
         const textMetrics = ctx.measureText(text);
         ctx.fillText(text, (330 - textMetrics.width) / 2, 6);
 
@@ -547,52 +557,39 @@ export class SplashScreen {
         this.callBack = null;
         this.clearColors = null!;
         this.device = null!;
+        if (JSB) (this.image as any).destroy();
         this.image = null!;
         this.framebuffer = null!;
         this.renderArea = null!;
         this.region = null!;
-
         this.cmdBuff = null!;
-
         this.shader = null!;
-
         this.material.destroy();
         this.material = null!;
-
         this.texture.destroy();
         this.texture = null!;
-
         this.assmebler.destroy();
         this.assmebler = null!;
-
         this.vertexBuffers.destroy();
         this.vertexBuffers = null!;
-
         this.indicesBuffers.destroy();
         this.indicesBuffers = null!;
-
         this.sampler.destroy();
         this.sampler = null!;
 
         /** text */
-        if (this.setting.displayWatermark && this.textImg) {
+        if (this.textImg) {
             this.textImg = null!;
             this.textRegion = null!;
-
             this.textShader = null!;
-
             this.textMaterial.destroy();
             this.textMaterial = null!;
-
             this.textTexture.destroy();
             this.textTexture = null!;
-
             this.textAssmebler.destroy();
             this.textAssmebler = null!;
-
             this.textVB.destroy();
             this.textVB = null!;
-
             this.textIB.destroy();
             this.textIB = null!;
         }

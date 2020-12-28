@@ -1,5 +1,7 @@
+/* eslint-disable no-console */
 import fs from 'fs-extra';
 import ps from 'path';
+import * as babel from '@babel/core';
 import rpBabel, { RollupBabelInputPluginOptions } from '@rollup/plugin-babel';
 import json from '@rollup/plugin-json';
 import resolve from '@rollup/plugin-node-resolve';
@@ -16,17 +18,35 @@ import rpProgress from 'rollup-plugin-progress';
 // @ts-expect-error: No typing
 import rpVirtual from '@rollup/plugin-virtual';
 import nodeResolve from 'resolve';
-import JSON5 from 'json5';
 import babelPluginDynamicImportVars from '@cocos/babel-plugin-dynamic-import-vars';
+import realFs from 'fs';
+import { URL, pathToFileURL, fileURLToPath } from 'url';
 import { ModuleOption, enumerateModuleOptionReps, parseModuleOption } from './module-option';
-import { generateCCSource } from './make-cc';
-import { getModuleName } from './module-name';
 import tsConfigPaths from './ts-paths';
 import { getPlatformConstantNames, IBuildTimeConstants } from './build-time-constants';
 import removeDeprecatedFeatures from './remove-deprecated-features';
-import realFs from 'fs';
+import { StatsQuery } from './stats-query';
+import { filePathToModuleRequest } from './utils';
+import { assetRef as rpAssetRef, pathToAssetRefURL } from './rollup-plugins/asset-ref';
 
 export { ModuleOption, enumerateModuleOptionReps, parseModuleOption };
+
+function equalPathIgnoreDriverLetterCase (lhs: string, rhs: string) {
+    if (lhs.length !== rhs.length) {
+        return false;
+    }
+    if (lhs.length < 2 || lhs[1] !== '.' || rhs[1] !== '.') {
+        return lhs === rhs;
+    }
+    if (lhs[0].toLowerCase() !== rhs[0].toLowerCase()) {
+        return false;
+    }
+    return lhs.indexOf(rhs.substr(2), 2) === 2;
+}
+
+const equalPath = process.platform === 'win32'
+    ? equalPathIgnoreDriverLetterCase
+    : (lhs: string, rhs: string) => lhs === rhs;
 
 function makePathEqualityKey (path: string) {
     return process.platform === 'win32' ? path.toLocaleLowerCase() : path;
@@ -34,25 +54,12 @@ function makePathEqualityKey (path: string) {
 
 async function build (options: build.Options) {
     console.debug(`Build-engine options: ${JSON.stringify(options, undefined, 2)}`);
-
-    let moduleEntries: string[];
-    if (!options.moduleEntries || options.moduleEntries.length === 0) {
-        console.debug('No module entry specified, default module entries will be used.');
-        moduleEntries = await getDefaultModuleEntries(options.engine);
-    } else {
-        moduleEntries = options.moduleEntries;
-    }
-
-    if (moduleEntries) {
-        moduleEntries = Array.from(new Set(moduleEntries));
-    }
-
-    return await _doBuild({
-        moduleEntries,
+    return doBuild({
         options,
     });
 }
 
+// eslint-disable-next-line @typescript-eslint/no-namespace
 namespace build {
     export interface Options {
         /**
@@ -61,9 +68,9 @@ namespace build {
         engine: string;
 
         /**
-         * 模块入口。
+         * 包含的功能。
          */
-        moduleEntries?: string[];
+        features?: string[];
 
         /**
          * 输出目录。
@@ -102,6 +109,10 @@ namespace build {
          */
         split?: boolean;
 
+        mode?: string;
+
+        platform?: string;
+
         /**
          * 使用的 ammo.js 版本，也即 `@cocos/ammo` 映射到的版本。
          * - 为 `true` 时使用 WebAssembly 版本的 ammo.js；
@@ -137,6 +148,11 @@ namespace build {
          */
         loose?: boolean;
 
+        /**
+         * How to generate the URL of external assets.
+         */
+        assetURLFormat?: rpAssetRef.Format;
+
         visualize?: boolean | {
             file?: string;
         };
@@ -146,11 +162,11 @@ namespace build {
 
     export interface Result {
         /**
-         * 模块名与实际模块文件的映射，例如：
+         * Mappings between feature unit name and their actual chunk file, for example:
          * ```js
          * {
-         *   "cc.core": "./cc.core.js",
-         *   "cc.gfx-webgl": "./cc.gfx-webgl.js",
+         *   "core": "./core.js",
+         *   "gfx-webgl": "./gfx-webgl.js",
          * }
          * ```
          */
@@ -158,59 +174,40 @@ namespace build {
 
         dependencyGraph?: Record<string, string[]>;
     }
+
+    export async function transform (code: string, moduleOption: ModuleOption, loose?: boolean) {
+        const babelFormat = moduleOptionsToBabelEnvModules(moduleOption);
+        const babelFileResult = await babel.transformAsync(code, {
+            presets: [[babelPresetEnv, { modules: babelFormat, loose: loose ?? true } as babelPresetEnv.Options]],
+        });
+        if (!babelFileResult || !babelFileResult.code) {
+            throw new Error(`Failed to transform!`);
+        }
+        return {
+            code: babelFileResult.code,
+        };
+    }
 }
 
 export { build };
 
-async function getEngineEntries (
-    engine: string,
-    moduleEntries?: string[],
-) {
-    const result: Record<string, string> = {};
-    const entryRootDir = ps.join(engine, 'exports');
-    const entryFileNames = await fs.readdir(entryRootDir);
-    for (const entryFileName of entryFileNames) {
-        const entryExtName = ps.extname(entryFileName);
-        if (!entryExtName.toLowerCase().endsWith('.ts')) {
-            continue;
-        }
-        const entryBaseNameNoExt = ps.basename(entryFileName, entryExtName);
-        if (moduleEntries && !moduleEntries.includes(entryBaseNameNoExt)) {
-            continue;
-        }
-        const entryFile = ps.join(entryRootDir, entryFileName);
-        const entryName = getModuleName(entryBaseNameNoExt, engine);
-        result[entryName] = entryFile;
-    }
-    return result;
-}
-
-interface CCConfig {
-    platforms?: Record<string, {
-        moduleOverrides?: Record<string, string>;
-    }>;
-}
-
-async function _doBuild ({
-    moduleEntries,
+async function doBuild ({
     options,
 }: {
-    moduleEntries?: string[];
     options: build.Options;
 }): Promise<build.Result> {
     const realpath = typeof realFs.realpath.native === 'function' ? realFs.realpath.native : realFs.realpath;
     const realPath = (file: string) => new Promise<string>((resolve, reject) => {
-        realpath(file, function (err, path) {
+        realpath(file, (err, path) => {
             if (err && err.code !== 'ENOENT') {
                 reject(err);
             } else {
-                resolve(err ? file : path)
+                resolve(err ? file : path);
             }
         });
     });
 
     const doUglify = !!options.compress;
-    const split = options.split ?? false;
     const engineRoot = ps.resolve(options.engine);
 
     const moduleOption = options.moduleFormat ?? ModuleOption.iife;
@@ -223,39 +220,74 @@ async function _doBuild ({
         ammoJsWasm = false;
     }
 
-    const ccConfigFile = ps.join(engineRoot, 'cc.config.json');
-    const ccConfig: CCConfig = JSON5.parse(await fs.readFile(ccConfigFile, 'utf8'));
+    const statsQuery = await StatsQuery.create(engineRoot);
 
-    const engineEntries = await getEngineEntries(
-        engineRoot,
-        split ? undefined : moduleEntries,
-    );
+    if (options.features) {
+        for (const feature of options.features) {
+            if (!statsQuery.hasFeature(feature)) {
+                console.warn(`'${feature}' is not a valid feature.`);
+            }
+        }
+    }
+
+    let features: string[];
+    let split = options.split ?? false;
+    if (options.features && options.features.length !== 0) {
+        features = options.features;
+    } else {
+        features = statsQuery.getFeatures();
+        if (split !== true) {
+            split = true;
+            console.warn(
+                `You did not specify features which implies 'split: true'. `
+                + `Explicitly set 'split: true' to suppress this warning.`,
+            );
+        }
+    }
+
+    const moduleOverrides = Object.entries(statsQuery.evaluateModuleOverrides({
+        mode: options.mode,
+        platform: options.platform,
+    })).reduce((result, [k, v]) => {
+        result[makePathEqualityKey(k)] = v;
+        return result;
+    }, {} as Record<string, string>);
+
+    const featureUnits = statsQuery.getUnitsOfFeatures(features);
 
     const rpVirtualOptions: Record<string, string> = {};
-    const vmInternalConstants = getModuleSourceInternalConstants(options.buildTimeConstants);
+    const vmInternalConstants = statsQuery.evaluateEnvModuleSourceFromRecord({
+        EXPORT_TO_GLOBAL: true,
+        ...options.buildTimeConstants,
+    });
     console.debug(`Module source "internal-constants":\n${vmInternalConstants}`);
     rpVirtualOptions['internal:constants'] = vmInternalConstants;
 
-    const forceStandaloneModules = ['cc.wait-for-ammo-instantiation', 'cc.decorator'];
+    const forceStandaloneModules = ['wait-for-ammo-instantiation', 'decorator'];
 
     let rollupEntries: NonNullable<rollup.RollupOptions['input']> | undefined;
     if (split) {
-        rollupEntries = { ...engineEntries };
+        rollupEntries = featureUnits.reduce((result, featureUnit) => {
+            result[featureUnit] = statsQuery.getFeatureUnitFile(featureUnit);
+            return result;
+        }, {} as Record<string, string>);
     } else {
         rollupEntries = {
             cc: 'cc',
         };
-        const bundledModules = [];
-        for (const moduleName of Object.keys(engineEntries)) {
-            const moduleEntryFile = engineEntries[moduleName];
-            if (forceStandaloneModules.includes(moduleName)) {
-                rollupEntries[moduleName] = moduleEntryFile;
+        const selectedFeatureUnits = [];
+        for (const featureUnit of featureUnits) {
+            if (forceStandaloneModules.includes(featureUnit)) {
+                rollupEntries[featureUnit] = statsQuery.getFeatureUnitFile(featureUnit);
             } else {
-                bundledModules.push(filePathToModuleRequest(moduleEntryFile));
+                selectedFeatureUnits.push(featureUnit);
             }
         }
 
-        rpVirtualOptions.cc = generateCCSource(bundledModules);
+        rpVirtualOptions.cc = statsQuery.evaluateIndexModuleSource(
+            selectedFeatureUnits,
+            (featureUnit) => filePathToModuleRequest(statsQuery.getFeatureUnitFile(featureUnit)),
+        );
         rollupEntries.cc = 'cc';
 
         console.debug(`Module source "cc":\n${rpVirtualOptions.cc}`);
@@ -316,19 +348,6 @@ async function _doBuild ({
         ],
     };
 
-    const moduleRedirects: Record<string, string> = {};
-    const platformConstant = getPlatformConstantNames().find((name) => options.buildTimeConstants[name] === true);
-    if (platformConstant) {
-        const moduleOverrides = ccConfig.platforms?.[platformConstant]?.moduleOverrides;
-        if (moduleOverrides) {
-            for (const [source, override] of Object.entries(moduleOverrides)) {
-                const normalizedSource = makePathEqualityKey(ps.resolve(engineRoot, source));
-                const normalizedOverride = ps.resolve(engineRoot, override);
-                moduleRedirects[normalizedSource] = normalizedOverride;
-            }
-        }
-    }
-
     const rollupPlugins: rollup.Plugin[] = [];
     if (options.noDeprecatedFeatures) {
         rollupPlugins.push(removeDeprecatedFeatures(
@@ -337,14 +356,18 @@ async function _doBuild ({
     }
 
     rollupPlugins.push(
+        rpAssetRef({
+            format: options.assetURLFormat,
+        }),
+
         {
             name: '@cocos/build-engine|module-overrides',
             load (this, id: string) {
                 const key = makePathEqualityKey(id);
-                if (!(key in moduleRedirects)) {
+                if (!(key in moduleOverrides)) {
                     return null;
                 }
-                const replacement = moduleRedirects[key];
+                const replacement = moduleOverrides[key];
                 console.debug(`Redirect module ${id} to ${replacement}`);
                 return `export * from '${filePathToModuleRequest(replacement)}';`;
             },
@@ -420,7 +443,7 @@ async function _doBuild ({
             const visualizeFile = visualizeOptions.file ?? ps.join(options.out, 'visualize.html');
             rollupPlugins.push(rpVisualizer({
                 filename: visualizeFile,
-                title: 'Cocos Creator 3D build visualizer',
+                title: 'Cocos Creator build visualizer',
                 template: 'treemap',
             }));
         }
@@ -432,10 +455,12 @@ async function _doBuild ({
         cache: false,
     };
 
-    const ammoJsAsmJsModule = await nodeResolveAsync('@cocos/ammo/builds/ammo.full.js');
+    const ammoJsAsmJsModule = await nodeResolveAsync('@cocos/ammo/builds/ammo.js');
     const ammoJsWasmModule = await nodeResolveAsync('@cocos/ammo/builds/ammo.wasm.js');
+    const wasmBinaryPath = ps.join(ammoJsWasmModule, '..', 'ammo.wasm.wasm');
     if (ammoJsWasm === 'fallback') {
         rpVirtualOptions['@cocos/ammo'] = `
+import wasmBinaryURL from '${pathToAssetRefURL(wasmBinaryPath)}';
 let ammo;
 let isWasm = false;
 if (typeof WebAssembly === 'undefined') {
@@ -445,14 +470,15 @@ if (typeof WebAssembly === 'undefined') {
     isWasm = true;
 }
 export default ammo.default;
-export { isWasm };
+export { isWasm, wasmBinaryURL };
 `;
     } else if (ammoJsWasm === true) {
         rpVirtualOptions['@cocos/ammo'] = `
+import wasmBinaryURL from '${pathToAssetRefURL(wasmBinaryPath)}';
 import Ammo from '${filePathToModuleRequest(ammoJsWasmModule)}';
 export default Ammo;
-const isWasm = false;
-export { isWasm };
+const isWasm = true;
+export { isWasm, wasmBinaryURL };
 `;
     }
 
@@ -461,9 +487,7 @@ export { isWasm };
     const { incremental: incrementalFile } = options;
     if (incrementalFile) {
         const watchFiles: Record<string, number> = {};
-        const files = rollupBuild.watchFiles.concat([
-            ccConfigFile,
-        ]);
+        const files = rollupBuild.watchFiles;
         await Promise.all(files.map(async (watchFile) => {
             try {
                 const stat = await fs.stat(watchFile);
@@ -497,7 +521,7 @@ export { isWasm };
         if (output.type === 'chunk') {
             if (output.isEntry) {
                 const chunkName = output.name;
-                if (chunkName in engineEntries || chunkName === 'cc') {
+                if (chunkName in rollupEntries || chunkName === 'cc') {
                     validEntryChunks[chunkName] = output.fileName;
                 }
             }
@@ -506,26 +530,6 @@ export { isWasm };
 
     Object.assign(result.exports, validEntryChunks);
 
-    // // 构造模块 `"cc"`
-    // let ccModuleRequests: string[] | undefined;
-    // if (options.cc === 'bare') {
-    //     ccModuleRequests = [];
-    //     ccModuleRequests.push(...Object.keys(validEntryChunks));
-    // } else if (options.cc === 'unmapped') {
-    //     ccModuleRequests = [];
-    //     ccModuleRequests.push(...Object.values(validEntryChunks).map(fileName => `./${fileName}`));
-    // }
-    // if (ccModuleRequests !== undefined) {
-    //     let code = await makeModuleSourceCC(ccModuleRequests, moduleOption);
-    //     if (options.compress) {
-    //         code = terser.minify(code).code!;
-    //     }
-    //     const moduleCCFileName = 'cc.js';
-    //     await fs.ensureDir(options.out);
-    //     await fs.writeFile(ps.join(options.out, moduleCCFileName), code);
-    //     result.exports['cc'] = moduleCCFileName;
-    // }
-
     result.dependencyGraph = {};
     for (const output of rollupOutput.output) {
         if (output.type === 'chunk') {
@@ -533,21 +537,7 @@ export { isWasm };
         }
     }
 
-    if (ammoJsWasm === 'fallback' || ammoJsWasm === true) {
-        await fs.copy(
-            ps.join(ammoJsWasmModule, '..', 'ammo.wasm.wasm'),
-            ps.join(options.out, 'ammo.wasm.wasm'),
-        );
-    }
-
     return result;
-
-    async function copy (src: string) {
-        const rel = ps.relative(options.engine, src);
-        const target = ps.join(options.out, rel);
-        await fs.ensureDir(ps.dirname(target));
-        await fs.copy(src, target);
-    }
 
     async function nodeResolveAsync (specifier: string) {
         return new Promise<string>((r, reject) => {
@@ -564,20 +554,30 @@ export { isWasm };
     }
 }
 
-function filePathToModuleRequest (path: string) {
-    return path.replace(/\\/g, '\\\\');
-}
-
-function getModuleSourceInternalConstants (buildTimeConstants: IBuildTimeConstants) {
-    return Object.entries(buildTimeConstants).map(([k, v]) => `export const ${k} = ${v};`).join('\n');
-}
-
 function moduleOptionsToRollupFormat (moduleOptions: ModuleOption): rollup.ModuleFormat {
     switch (moduleOptions) {
     case ModuleOption.cjs: return 'cjs';
     case ModuleOption.esm: return 'esm';
     case ModuleOption.system: return 'system';
     case ModuleOption.iife: return 'iife';
+    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+    default: throw new Error(`Unknown module format ${moduleOptions}`);
+    }
+}
+
+function moduleOptionsToBabelEnvModules (moduleOptions: ModuleOption):
+| false
+| 'commonjs'
+| 'amd'
+| 'umd'
+| 'systemjs'
+| 'auto' {
+    switch (moduleOptions) {
+    case ModuleOption.cjs: return 'commonjs';
+    case ModuleOption.system: return 'systemjs';
+    case ModuleOption.iife:
+    case ModuleOption.esm: return false;
+    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
     default: throw new Error(`Unknown module format ${moduleOptions}`);
     }
 }

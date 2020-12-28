@@ -49,7 +49,7 @@ export interface IEventified {
      * @param callback - Callback function when event triggered.
      * @param target - Callback callee.
      */
-    hasEventListener (type: string, callback?: Function, target?: object): boolean;
+    hasEventListener (type: string, callback?: (...any) => void, target?: any): boolean;
 
     /**
      * @en
@@ -69,7 +69,7 @@ export interface IEventified {
      *     log("fire in the hole");
      * }, node);
      */
-    on<TFunction extends Function> (type: EventType, callback: TFunction, thisArg?: any, once?: boolean): typeof callback;
+    on<TFunction extends (...any) => void> (type: EventType, callback: TFunction, thisArg?: any, once?: boolean): typeof callback;
 
     /**
      * @en
@@ -88,7 +88,7 @@ export interface IEventified {
      *     log("this is the callback and will be invoked only once");
      * }, node);
      */
-    once<TFunction extends Function> (type: EventType, callback: TFunction, thisArg?: any): typeof callback;
+    once<TFunction extends (...any) => void> (type: EventType, callback: TFunction, thisArg?: any): typeof callback;
 
     /**
      * @en
@@ -111,7 +111,7 @@ export interface IEventified {
      * // remove all fire event listeners
      * eventTarget.off('fire');
      */
-    off<TFunction extends Function> (type: EventType, callback?: TFunction, thisArg?: any): void;
+    off<TFunction extends (...any) => void> (type: EventType, callback?: TFunction, thisArg?: any): void;
 
     /**
      * @en Removes all callbacks previously registered with the same target (passed as parameter).
@@ -123,14 +123,14 @@ export interface IEventified {
      * 这个函数只能删除 target 参数在当前 EventTarget 上注册的所有事件监听器。
      * @param typeOrTarget - The target to be searched for all related listeners
      */
-    targetOff (typeOrTarget: string | object): void;
+    targetOff (typeOrTarget: any): void;
 
     /**
      * @zh 移除在特定事件类型中注册的所有回调或在某个目标中注册的所有回调。
      * @en Removes all callbacks registered in a certain event type or all callbacks registered with a certain target
      * @param typeOrTarget - The event type or target with which the listeners will be removed
      */
-    removeAll (typeOrTarget: string | object): void;
+    removeAll (typeOrTarget: any): void;
 
     /**
      * @zh 派发一个指定事件，并传递需要的参数
@@ -159,20 +159,20 @@ export function Eventify<TBase> (base: Constructor<TBase>): Constructor<TBase & 
     class Eventified extends (base as unknown as any) {
         private _callbackTable = createMap(true);
 
-        public once<Callback extends Function> (type: EventType, callback: Callback, target?: object) {
-            return this.on(type, callback, target, true);
+        public once<Callback extends (...any) => void> (type: EventType, callback: Callback, target?: any) {
+            return this.on(type, callback, target, true) as Callback;
         }
 
-        public targetOff (typeOrTarget: string | object) {
+        public targetOff (typeOrTarget: any) {
             this.removeAll(typeOrTarget);
         }
-    };
+    }
 
     // Mixin with `CallbacksInvokers`'s prototype
     const callbacksInvokerPrototype = CallbacksInvoker.prototype;
-    const propertyKeys: (string | symbol)[] =
-        (Object.getOwnPropertyNames(callbacksInvokerPrototype) as (string | symbol)[]).concat(
-            Object.getOwnPropertySymbols(callbacksInvokerPrototype));
+    const propertyKeys: (string | symbol)[] =        (Object.getOwnPropertyNames(callbacksInvokerPrototype) as (string | symbol)[]).concat(
+        Object.getOwnPropertySymbols(callbacksInvokerPrototype),
+    );
     for (let iPropertyKey = 0; iPropertyKey < propertyKeys.length; ++iPropertyKey) {
         const propertyKey = propertyKeys[iPropertyKey];
         if (!(propertyKey in Eventified.prototype)) {

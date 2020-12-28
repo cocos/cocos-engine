@@ -29,11 +29,12 @@
 
 import { ccclass, help, executeInEditMode, menu, tooltip, type, displayOrder, serializable, requireComponent } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
-import { UITransform } from '../core/components/ui-base';
+import { UITransform } from '../2d/framework';
 import { Component, EventHandler as ComponentEventHandler } from '../core/components';
 import { WebViewImplManager } from './web-view-impl-manager';
 import { EventType } from './web-view-enums';
-import { legacyCC } from "../core/global-exports";
+import { legacyCC } from '../core/global-exports';
+import type { WebViewImpl  } from './web-view-impl';
 
 /**
  * @en
@@ -54,7 +55,7 @@ export class WebView extends Component {
     @serializable
     protected _url = 'https://cocos.com';
 
-    protected _impl: any;
+    protected _impl: WebViewImpl | null = null;
 
     /**
      * @en WebView event type
@@ -143,7 +144,7 @@ export class WebView extends Component {
      * @method setOnJSCallback
      * @param {Function} callback
      */
-    public setOnJSCallback (callback: Function) {
+    public setOnJSCallback (callback: () => void) {
         if (this._impl) {
             this._impl.setOnJSCallback(callback);
         }
@@ -188,9 +189,9 @@ export class WebView extends Component {
         this.node.emit(EventType.LOADED, this);
     }
 
-    onError () {
-        ComponentEventHandler.emitEvents(this.webviewEvents, this, EventType.ERROR);
-        this.node.emit(EventType.ERROR, this);
+    onError (...args: any[any]) {
+        ComponentEventHandler.emitEvents(this.webviewEvents, this, EventType.ERROR, args);
+        this.node.emit(EventType.ERROR, this, args);
     }
 
     public onEnable () {

@@ -1,5 +1,13 @@
+declare module 'internal:constants' {
+    /**
+     * This constant is private and used for internal purpose only.
+     *
+     * If true, some of the constants of `internal:constants` would be also export to the global namespace.
+     * For example would set `CC_EDITOR` on `globalThis` as `EDITOR`.
+     * This is due to we at present inherits the way how Creator prior to 3.0 deploys the build time constants.
+     */
+    export const EXPORT_TO_GLOBAL: boolean;
 
-declare module "internal:constants" {
     /**
      * Running in published project.
      */
@@ -34,6 +42,8 @@ declare module "internal:constants" {
      * Running in native platform (mobile app, desktop app, or simulator).
      */
     export const JSB: boolean;
+
+    export const HTML5: boolean;
 
     /**
      * Running in the Wechat's mini game.
@@ -79,7 +89,17 @@ declare module "internal:constants" {
      * Running in the vivo's mini game.
      */
     export const VIVO: boolean;
-    
+
+    /**
+     * Running in the qtt's quick game.
+     */
+    export const QTT: boolean;
+
+    /**
+     * Running in the linksure's quick game.
+     */
+    export const LINKSURE: boolean;
+
     /**
      * Running in mini game.
      */
@@ -89,7 +109,6 @@ declare module "internal:constants" {
      * Running in runtime environments.
      */
     export const RUNTIME_BASED: boolean;
-
 
     export const SUPPORT_JIT: boolean;
 }

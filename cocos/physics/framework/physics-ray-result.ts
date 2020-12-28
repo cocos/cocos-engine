@@ -39,7 +39,6 @@ import { IVec3Like } from '../../core/math/type-define';
  * 用于保存物理射线检测结果。
  */
 export class PhysicsRayResult {
-
     /**
      * @en
      * The hit point，in world space.
@@ -82,7 +81,7 @@ export class PhysicsRayResult {
 
     private _hitPoint: Vec3 = new Vec3();
     private _hitNormal: Vec3 = new Vec3();
-    private _distance: number = 0;
+    private _distance = 0;
     private _collider: Collider | null = null;
 
     /**

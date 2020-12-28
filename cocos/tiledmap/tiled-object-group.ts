@@ -24,16 +24,17 @@
  THE SOFTWARE.
  */
 
-import { Component } from '../core/components';
 import { ccclass, help, type, requireComponent } from 'cc.decorator';
-import { Sprite } from '../ui/components/sprite';
-import { Label } from '../ui/components/label';
+import { Component } from '../core/components';
+import { Sprite } from '../2d/components/sprite';
+import { Label } from '../2d/components/label';
 import { BlendFactor } from '../core/gfx';
 
 import { TMXMapInfo } from './tmx-xml-parser';
 import { TiledTextureGrids, GID, TileFlag, Orientation, StaggerAxis, TMXObjectType, PropertiesInfo, TiledAnimationType, TMXObject, TMXObjectGroupInfo } from './tiled-types';
-import { UITransform } from '../core/components/ui-base/ui-transform';
-import { CCBoolean, Node, Vec2, SpriteFrame, Color, PrivateNode } from '../core';
+import { UITransform } from '../2d/framework/ui-transform';
+import { CCBoolean, Node, Vec2, Color, PrivateNode } from '../core';
+import { SpriteFrame } from '../2d/assets';
 
 /**
  * @en Renders the TMX object group.
@@ -45,8 +46,7 @@ import { CCBoolean, Node, Vec2, SpriteFrame, Color, PrivateNode } from '../core'
 @help('i18n:cc.TiledObjectGroup')
 @requireComponent(UITransform)
 export class TiledObjectGroup extends Component {
-
-    protected _premultiplyAlpha: boolean = false;
+    protected _premultiplyAlpha = false;
 
     @type(CCBoolean)
     get premultiplyAlpha () {
@@ -55,7 +55,6 @@ export class TiledObjectGroup extends Component {
     set premultiplyAlpha (value:boolean) {
         this._premultiplyAlpha = value;
     }
-
 
     /**
      * @en Offset position of child objects.
@@ -114,7 +113,7 @@ export class TiledObjectGroup extends Component {
      * let object = tMXObjectGroup.getObject("Group");
      */
     public getObject (objectName:string) {
-        for (let i = 0, len = this._objects!.length; i < len; i++) {
+        for (let i = 0, len = this._objects.length; i < len; i++) {
             const obj = this._objects[i];
             if (obj && obj.name === objectName) {
                 return obj;
@@ -155,9 +154,7 @@ export class TiledObjectGroup extends Component {
     }[];
     protected _objects: TMXObject[] = [];
 
-
     public _init (groupInfo: TMXObjectGroupInfo, mapInfo: TMXMapInfo, texGrids: TiledTextureGrids) {
-
         const FLIPPED_MASK = TileFlag.FLIPPED_MASK;
         const FLAG_HORIZONTAL = TileFlag.HORIZONTAL;
         const FLAG_VERTICAL = TileFlag.VERTICAL;
@@ -233,7 +230,7 @@ export class TiledObjectGroup extends Component {
             }
 
             if (objType === TMXObjectType.TEXT) {
-                const textName = 'text' + object.id;
+                const textName = `text${object.id}`;
                 aliveNodes[textName] = true;
 
                 let textNode = this.node.getChildByName(textName);
@@ -246,7 +243,6 @@ export class TiledObjectGroup extends Component {
                 textNode.name = textName;
                 textNode.parent = this.node;
                 textNode.setSiblingIndex(i);
-
 
                 let label = textNode.getComponent(Label);
                 if (!label) {
@@ -267,7 +263,6 @@ export class TiledObjectGroup extends Component {
                     c.a *= this._opacity / 255;
                 }
 
-
                 label.overflow = Label.Overflow.SHRINK;
                 label.lineHeight = object.height;
                 label.string = object.text;
@@ -276,14 +271,13 @@ export class TiledObjectGroup extends Component {
                 label.fontSize = object.pixelsize;
 
                 textTransComp.setContentSize(object.width, object.height);
-
             } else if (objType === TMXObjectType.IMAGE) {
                 const gid = object.gid;
                 const gridGID: GID = (((gid as unknown as number) & FLIPPED_MASK) >>> 0) as any;
                 const grid = texGrids.get(gridGID);
                 if (!grid) continue;
                 const tileset = grid.tileset;
-                const imgName = 'img' + object.id;
+                const imgName = `img${object.id}`;
                 aliveNodes[imgName] = true;
                 let imgNode = this.node.getChildByName(imgName);
                 object.width = object.width || grid.width;
@@ -301,12 +295,12 @@ export class TiledObjectGroup extends Component {
                     imgNode = new Node();
                 }
 
-                if (this._animations!.get(gridGID)) {
+                if (this._animations.get(gridGID)) {
                     this.aniObjects.push({
                         object,
                         imgNode,
                         gridGID,
-                    })
+                    });
                     this._hasAniObj = true;
                 }
 
@@ -333,7 +327,6 @@ export class TiledObjectGroup extends Component {
                     imgTrans.anchorY = tileOffsetY / object.height;
                 }
 
-
                 if (this._tintColor) {
                     colorVal.set(this._tintColor);
                     colorVal.a *= this._opacity / 255;
@@ -343,30 +336,24 @@ export class TiledObjectGroup extends Component {
                     c.a *= this._opacity / 255;
                 }
 
-
                 sprite.sizeMode = Sprite.SizeMode.CUSTOM;
 
                 sprite.srcBlendFactor = this._premultiplyAlpha ? BlendFactor.ONE : BlendFactor.SRC_ALPHA;
                 sprite.dstBlendFactor = BlendFactor.ONE_MINUS_SRC_ALPHA;
                 sprite._updateBlendFunc();
 
-
-                let spf = grid.spriteFrame!;
+                let spf = grid.spriteFrame;
                 if (!spf) {
                     spf = new SpriteFrame();
+                } else {
+                    spf = spf.clone();
                 }
-                const scale = imgNode.getScale();
-                let scaleX = scale.x;
-                let scaleY = scale.y;
                 if (((gid as unknown as number) & FLAG_HORIZONTAL) >>> 0) {
-                    scaleX *= -1;
+                    spf.flipUVX = !spf.flipUVX;
                 }
-
                 if (((gid as unknown as number) & FLAG_VERTICAL) >>> 0) {
-                    scaleY *= -1;
+                    spf.flipUVY = !spf.flipUVY;
                 }
-                imgNode.setScale(scaleX, scaleY, scale.z);
-
                 spf.rotated = grid._rotated!;
                 spf.rect = grid._rect!;
                 sprite.spriteFrame = spf;
@@ -396,7 +383,7 @@ export class TiledObjectGroup extends Component {
 
         const aniObjects = this.aniObjects!;
         const _texGrids = this._texGrids!;
-        const iso = Orientation.ISO === this._mapInfo!.orientation
+        const iso = Orientation.ISO === this._mapInfo!.orientation;
 
         for (let i = 0, len = aniObjects.length; i < len; i++) {
             const aniObj = aniObjects[i];
@@ -431,5 +418,4 @@ export class TiledObjectGroup extends Component {
             sp.markForUpdateRenderData();
         }
     }
-
 }

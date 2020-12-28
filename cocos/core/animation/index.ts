@@ -47,9 +47,6 @@ export {
     AnimationState,
 } from './animation-state';
 export * from './animation-component';
-export * from './skeletal-animation-data-hub';
-export * from './skeletal-animation-state';
-export * from './skeletal-animation';
 export * from './transform-utils';
 export { animation };
 

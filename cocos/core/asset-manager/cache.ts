@@ -37,9 +37,8 @@ import { js } from '../utils/js';
  *
  */
 export default class Cache<T = any> {
-
     private _map: Record<string, T> | null = null;
-    private _count: number = 0;
+    private _count = 0;
 
     /**
      * @en
@@ -55,8 +54,7 @@ export default class Cache<T = any> {
         if (map) {
             this._map = map;
             this._count = Object.keys(map).length;
-        }
-        else {
+        } else {
             this._map = js.createMap(true);
             this._count = 0;
         }
