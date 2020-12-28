@@ -276,11 +276,43 @@ export class AnimationState extends Playable {
     public speed = 1;
 
     /**
-     * @en The current time of this animation in seconds.
-     * @zh 动画当前的时间，秒。
+     * @en The current accumulated time of this animation in seconds.
+     * @zh 动画当前**累计播放**的时间，单位为秒。
      * @default 0
      */
     public time = 0;
+
+    /**
+     * @en Gets the time progress, in seconds.
+     * @zh 获取动画的时间进度，单位为秒。
+     */
+    get current () {
+        return this.getWrappedInfo(this.time).time;
+    }
+
+    /**
+     * @en Sets the time progress, in seconds.
+     * @zh 设置动画的时间进度，单位为秒。
+     */
+    set current (value) {
+        this.setTime(value);
+    }
+
+    /**
+     * @en Gets the playback ratio.
+     * @zh 获取动画播放的比例时间。
+     */
+    get ratio () {
+        return this.current / this.duration;
+    }
+
+    /**
+     * @en Sets the playback ratio.
+     * @zh 设置动画播放的比例时间。
+     */
+    set ratio (value) {
+        this.current = this.duration * value;
+    }
 
     /**
      * The weight.
