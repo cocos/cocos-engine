@@ -74,6 +74,7 @@ static bool ${signature_name}(se::State& s)
                                 "ntype": str($ret_type),
                                 "level": 1})};
         SE_PRECONDITION2(ok, false, "${signature_name} : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         #end if
     #else
         ${namespaced_class_name}::${func_name}($arg_list);

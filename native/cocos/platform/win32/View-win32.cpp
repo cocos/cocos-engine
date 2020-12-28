@@ -193,8 +193,8 @@ bool View::pollEvent(bool * quit, bool *resume, bool *pause)
     {
         SDL_MouseButtonEvent& event = sdlEvent.button;
         mouse.type = MouseEvent::Type::DOWN;
-        mouse.x = event.x;
-        mouse.y = event.y;
+        mouse.x = static_cast<float>(event.x);
+        mouse.y = static_cast<float>(event.y);
         mouse.button = event.button - 1;
         cc::EventDispatcher::dispatchMouseEvent(mouse);
         break;
@@ -203,8 +203,8 @@ bool View::pollEvent(bool * quit, bool *resume, bool *pause)
     {
         SDL_MouseButtonEvent& event = sdlEvent.button;
         mouse.type = MouseEvent::Type::UP;
-        mouse.x = event.x;
-        mouse.y = event.y;
+        mouse.x = static_cast<float>(event.x);
+        mouse.y = static_cast<float>(event.y);
         mouse.button = event.button - 1;
         cc::EventDispatcher::dispatchMouseEvent(mouse);
         break;
@@ -213,8 +213,8 @@ bool View::pollEvent(bool * quit, bool *resume, bool *pause)
     {
         SDL_MouseMotionEvent& event = sdlEvent.motion;
         mouse.type = MouseEvent::Type::MOVE;
-        mouse.x = event.x;
-        mouse.y = event.y;
+        mouse.x = static_cast<float>(event.x);
+        mouse.y = static_cast<float>(event.y);
         mouse.button = 0;
         cc::EventDispatcher::dispatchMouseEvent(mouse);
         break;
@@ -223,8 +223,8 @@ bool View::pollEvent(bool * quit, bool *resume, bool *pause)
     {
         SDL_MouseWheelEvent& event = sdlEvent.wheel;
         mouse.type = MouseEvent::Type::WHEEL;
-        mouse.x = event.x;
-        mouse.y = event.y;
+        mouse.x = static_cast<float>(event.x);
+        mouse.y = static_cast<float>(event.y);
         mouse.button = 0; //TODO: direction
         cc::EventDispatcher::dispatchMouseEvent(mouse);
         break;

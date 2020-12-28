@@ -28,6 +28,7 @@ static bool ${signature_name}_get_${name}(se::State& s)
                          })};
     #end if
     s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->${pretty_name}, s.thisObject(), s.rval());
     return true;
 }
 SE_BIND_PROP_GET(${signature_name}_get_${name})

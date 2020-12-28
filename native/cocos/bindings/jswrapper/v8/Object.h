@@ -140,6 +140,10 @@ namespace se {
          */
         bool getProperty(const char *name, Value* value);
 
+        inline bool getProperty(const std::string& name, Value* value) {
+            return getProperty(name.c_str(), value);
+        }
+
         /**
          *  @brief Sets a property to an object.
          *  @param[in] name A utf-8 string containing the property's name.
@@ -147,6 +151,11 @@ namespace se {
          *  @return true if the property is set successfully, otherwise false.
          */
         bool setProperty(const char *name, const Value& value);
+
+        inline bool setProperty(const std::string &name, const Value &value) {
+            return setProperty(name.c_str(), value);
+        }
+
 
         /**
          *  @brief Delete a property of an object.

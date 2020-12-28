@@ -1104,8 +1104,8 @@ void toVec2(void *data, DataType type, se::Value *ret) {
     float *floatptr = (float *)data;
     cc::Vec2 vec2;
     if (DataType::INT == type) {
-        vec2.x = *intptr;
-        vec2.y = *(intptr + 1);
+        vec2.x = static_cast<float>(intptr[0]);
+        vec2.y = static_cast<float>(intptr[1]);
     } else {
         vec2.x = *floatptr;
         vec2.y = *(floatptr + 1);
@@ -1119,13 +1119,13 @@ void toVec3(void *data, DataType type, se::Value *ret) {
     float *floatptr = (float *)data;
     cc::Vec3 vec3;
     if (DataType::INT == type) {
-        vec3.x = *intptr;
-        vec3.y = *(intptr + 1);
-        vec3.z = *(intptr + 2);
+        vec3.x = static_cast<float>(intptr[0]);
+        vec3.y = static_cast<float>(intptr[1]);
+        vec3.z = static_cast<float>(intptr[2]);
     } else {
-        vec3.x = *floatptr;
-        vec3.y = *(floatptr + 1);
-        vec3.z = *(floatptr + 2);
+        vec3.x = floatptr[0];
+        vec3.y = floatptr[1];
+        vec3.z = floatptr[2];
     }
 
     Vec3_to_seval(vec3, ret);
@@ -1136,10 +1136,10 @@ void toVec4(void *data, DataType type, se::Value *ret) {
     float *floatptr = (float *)data;
     cc::Vec4 vec4;
     if (DataType::INT == type) {
-        vec4.x = *intptr;
-        vec4.y = *(intptr + 1);
-        vec4.z = *(intptr + 2);
-        vec4.w = *(intptr + 3);
+        vec4.x = static_cast<float>(intptr[0]);
+        vec4.y = static_cast<float>(intptr[1]);
+        vec4.z = static_cast<float>(intptr[2]);
+        vec4.w = static_cast<float>(intptr[3]);
     } else {
         vec4.x = *floatptr;
         vec4.y = *(floatptr + 1);

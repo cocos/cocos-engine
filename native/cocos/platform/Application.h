@@ -99,7 +99,7 @@ public:
         static std::chrono::steady_clock::time_point prevTime;
         static std::chrono::steady_clock::time_point now;
         static float dt = 0.f;
-        static long dtNS = NANOSECONDS_60FPS;
+        static double dtNS = NANOSECONDS_60FPS;
         
         ++_totalFrames;
 
@@ -107,7 +107,7 @@ public:
 #if (CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_WINDOWS)
         if (dtNS < _prefererredNanosecondsPerFrame) {
             std::this_thread::sleep_for(
-                    std::chrono::nanoseconds(_prefererredNanosecondsPerFrame - dtNS));
+                    std::chrono::nanoseconds(_prefererredNanosecondsPerFrame - static_cast<long>(dtNS)));
             dtNS = _prefererredNanosecondsPerFrame;
         }
 #endif

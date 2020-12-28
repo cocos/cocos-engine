@@ -12,7 +12,11 @@ import re
 import os
 import inspect
 import traceback
+import logging
 from Cheetah.Template import Template
+
+
+logger = None
 
 type_map = {
     cindex.TypeKind.VOID        : "void",
@@ -334,7 +338,7 @@ def native_name_from_type(ntype, underlying=False):
         decl = ntype.get_declaration()
         etype = ntype.element_type
         esize = ntype.element_count
-        print >> sys.stderr, "probably a function const array: " + str(etype.spelling) + "[" + str(esize) + "]"
+        logger.info("probably a function const array: " + str(etype.spelling) + "[" + str(esize) + "]")
         #return  "decltype(" + str(etype.spelling) + " _[" + str(esize) + "])"
         return "std::array<%s, %s>" % (etype.spelling, esize)
     else:
@@ -520,7 +524,7 @@ class NativeType(object):
                     else:
                         nt.enum_declare_type = 'int' # FIXME: cjh
                         # raise TypeError("Can't find (" + str(nt.enum_kind) + ") in type_map")
-                    # print("==> enum kind: " + nt.namespaced_class_name + ": " + str(cdecl.enum_type.kind))
+                    # logger.info("==> enum kind: " + nt.namespaced_class_name + ": " + str(cdecl.enum_type.kind))
 
                 if nt.name == "std::function":
                     nt.is_object = False
@@ -732,7 +736,7 @@ class NativeField(object):
     def can_parse(ntype, generator, cursor):
         native_type = NativeType.from_type(ntype, generator)
         if ntype.kind == cindex.TypeKind.UNEXPOSED and native_type.name != "std::string":
-            print('[ERROR] %s is ntype.kind %s' % (native_type.name, ntype.kind))
+            logger.error(' %s is ntype.kind %s' % (native_type.name, ntype.kind))
             return False
         return True
 
@@ -751,7 +755,7 @@ class NativeField(object):
 # return True if found default argument.
 def iterate_param_node(param_node, depth=1):
     for node in param_node.get_children():
-        # print(">"*depth+" "+str(node.kind))
+        # logger.info(">"*depth+" "+str(node.kind))
         if node.kind in default_arg_type_arr:
             return True
 
@@ -838,7 +842,7 @@ class NativeFunction(object):
         self.current_class = current_class
         gen = current_class.generator if current_class else generator
         config = gen.config
-        # print("NativeFunction: " + current_class.namespaced_class_name + ':' + self.func_name + ", is_constructor:" + str(self.is_constructor) + ", is_ctor:" + str(self.is_ctor))
+        # logger.info("NativeFunction: " + current_class.namespaced_class_name + ':' + self.func_name + ", is_constructor:" + str(self.is_constructor) + ", is_ctor:" + str(self.is_ctor))
         if not is_ctor:
             tpl = Template(file=os.path.join(gen.target, "templates", "function.h"),
                         searchList=[current_class, self])
@@ -933,7 +937,7 @@ class NativeOverloadedFunction(object):
         gen = current_class.generator
         config = gen.config
         static = self.implementations[0].static
-        # print("NativeOverloadedFunction: " + current_class.namespaced_class_name + ':' + self.func_name + ", is_constructor:" + str(self.is_constructor) + ", is_ctor:" + str(self.is_ctor))
+        # loggger.info("NativeOverloadedFunction: " + current_class.namespaced_class_name + ':' + self.func_name + ", is_constructor:" + str(self.is_constructor) + ", is_ctor:" + str(self.is_ctor))
     
         if not is_ctor:
             tpl = Template(file=os.path.join(gen.target, "templates", "function.h"),
@@ -994,7 +998,7 @@ class NativeClass(object):
         self.is_abstract = self.class_name in generator.abstract_classes
         self.is_persistent = self.class_name in generator.persistent_classes
         self.is_class_owned_by_cpp = self.class_name in self.generator.classes_owned_by_cpp
-        # print("class_name:" + self.class_name + ", is_class_owned_by_cpp:" + str(self.is_class_owned_by_cpp))
+        # logger.info("class_name:" + self.class_name + ", is_class_owned_by_cpp:" + str(self.is_class_owned_by_cpp))
         self._current_visibility = cindex.AccessSpecifier.PRIVATE
         if is_struct:
             self._current_visibility = cindex.AccessSpecifier.PUBLIC
@@ -1025,7 +1029,7 @@ class NativeClass(object):
                     "setter" : self.find_method(field["setter"]),
                 }
                 if item["getter"] is None and item["setter"] is None:
-                   #print("gettter %s, setter %s" % (field["getter"], field["setter"]))
+                   #logger.info("gettter %s, setter %s" % (field["getter"], field["setter"]))
                    raise Exception("getter_setter for %s.%s both None" %(self.class_name, field_name))
                 if item["getter"] is not None: 
                     self.getter_list.append(item["getter"].func_name) 
@@ -1047,7 +1051,7 @@ class NativeClass(object):
         if self.generator.is_reserved_function(self.class_name, method_name["name"]):
             return False
         if self.class_name in self.generator.shadowed_methods_by_getter_setter :
-            #print("??? skip %s contains %s" %(self.generator.shadowed_methods_by_getter_setter[self.class_name], method_name))
+            #logger.info("??? skip %s contains %s" %(self.generator.shadowed_methods_by_getter_setter[self.class_name], method_name))
             return method_name["name"] in self.generator.shadowed_methods_by_getter_setter[self.class_name]
         return False
 
@@ -1155,7 +1159,7 @@ class NativeClass(object):
 
     def _deep_iterate(self, cursor=None, depth=0):
         for node in cursor.get_children():
-            # print("%s%s - %s" % ("> " * depth, node.displayname, node.kind))
+            # logger.info("%s%s - %s" % ("> " * depth, node.displayname, node.kind))
             if self._process_node(node):
                 self._deep_iterate(node, depth + 1)
 
@@ -1276,7 +1280,7 @@ class NativeClass(object):
         elif self._current_visibility == cindex.AccessSpecifier.PUBLIC and cursor.kind == cindex.CursorKind.CONSTRUCTOR and not self.is_abstract:
             # Skip copy constructor
             if cursor.displayname == self.class_name + "(const " + self.namespaced_class_name + " &)":
-                # print "Skip copy constructor: " + cursor.displayname
+                # logger.debug("Skip copy constructor: " + cursor.displayname)
                 return True
 
             m = NativeFunction(cursor, self.generator)
@@ -1294,7 +1298,7 @@ class NativeClass(object):
                     self.methods['constructor'] = m
             return True
         # else:
-            # print >> sys.stderr, "unknown cursor: %s - %s" % (cursor.kind, cursor.displayname)
+            # logger.error("unknown cursor: %s - %s" % (cursor.kind, cursor.displayname))
         return False
 
 
@@ -1327,7 +1331,7 @@ class NativeEnum(object):
 
     def _deep_iterate(self, cursor=None, depth=0):
         for node in cursor.get_children():
-            #print("%s%s - %s" % ("> " * depth, node.displayname, node.kind))
+            #logger.info("%s%s - %s" % ("> " * depth, node.displayname, node.kind))
             if self._process_node(node):
                 self._deep_iterate(node, depth + 1)
 
@@ -1395,7 +1399,7 @@ class Generator(object):
         cocos_root = os.path.normpath(os.path.join(os.path.dirname(__file__),"../.."))
         for header in self.headers:
             reldir = os.path.relpath(header, cocos_root)
-            self.hpp_headers.append(reldir)
+            self.hpp_headers.append(reldir.replace(os.sep, '/'))
 
         for clang_arg in self.clang_args:
             if not os.path.exists(clang_arg.replace("-I","")):
@@ -1407,7 +1411,7 @@ class Generator(object):
                         #simply pickup first installed clang version
                         clang_arg = os.path.join(clang_versions, clang_folders[0], "include")
                         extend_clang_args.append("-I"+clang_arg)
-                        #print("  => append %s"%clang_arg)
+                        #logger.info("  => append %s"%clang_arg)
 
         if len(extend_clang_args) > 0:
             self.clang_args.extend(extend_clang_args)
@@ -1472,10 +1476,10 @@ class Generator(object):
                 self.replace_headers[header] = replaced_header
         
         if "getter_setter" in opts :
-            #print(" getter_setter : %s" % opts["getter_setter"])
+            #logger.info(" getter_setter : %s" % opts["getter_setter"])
             list_of_getter_setter = re.split(",\n?", opts['getter_setter'])
             for line in list_of_getter_setter:
-                #print(" line %s" % line)
+                #logger.info(" line %s" % line)
                 if len(line) == 0: 
                     continue
                 gs_kls, gs_fields_txt = line.split("::")
@@ -1516,27 +1520,27 @@ class Generator(object):
 
     def should_rename_function(self, class_name, method_name):
         if self.rename_functions.has_key(class_name) and self.rename_functions[class_name].has_key(method_name):
-            # print >> sys.stderr, "will rename %s to %s" % (method_name, self.rename_functions[class_name][method_name])
+            # logger.error("will rename %s to %s" % (method_name, self.rename_functions[class_name][method_name]))
             return self.rename_functions[class_name][method_name]
         return None
 
     def get_class_or_rename_class(self, class_name):
 
         if self.rename_classes.has_key(class_name):
-            # print >> sys.stderr, "will rename %s to %s" % (method_name, self.rename_functions[class_name][method_name])
+            # logger.error("will rename %s to %s" % (method_name, self.rename_functions[class_name][method_name]))
             return self.rename_classes[class_name]
         return class_name
 
     def should_obtain_return_value(self, class_name, method_name):
-        # print "should_obtain_return_value (%s, %s) in %s" % (class_name, method_name, self.obtain_return_value)
+        # logger.info("should_obtain_return_value (%s, %s) in %s" % (class_name, method_name, self.obtain_return_value))
         if self.obtain_return_value.has_key(class_name):
             methods = self.obtain_return_value[class_name]
-            # print "obtain_return_value %s:%s in %s" % (class_name, method_name, methods)
+            # logger.info("obtain_return_value %s:%s in %s" % (class_name, method_name, methods))
             for key in methods:
                 if key == method_name or re.match("^" + key + "$", method_name):
-                    # print " - yes"
+                    # logger.info(" - yes")
                     return True
-            # print " - no"
+            # print(" - no")
         return False
 
     def should_skip(self, class_name, method_name, verbose=False):
@@ -1550,19 +1554,19 @@ class Generator(object):
             for key in self.skip_classes.iterkeys():
                 if key == "*" or re.match("^" + key + "$", class_name):
                     if verbose:
-                        print "%s in skip_classes" % (class_name)
+                        logger.info("%s in skip_classes" % (class_name))
                     if len(self.skip_classes[key]) == 1 and self.skip_classes[key][0] == "*":
                         if verbose:
-                            print "%s will be skipped completely" % (class_name)
+                            logger.info("%s will be skipped completely" % (class_name))
                         return True
                     if method_name != None:
                         for func in self.skip_classes[key]:
                             if re.match(func, method_name):
                                 if verbose:
-                                    print "%s will skip method %s" % (class_name, method_name)
+                                    logger.info("%s will skip method %s" % (class_name, method_name))
                                 return True
         if verbose:
-            print "(%s:%s) will be accepted" % (class_name, method_name)
+            logger.info("(%s:%s) will be accepted" % (class_name, method_name))
         return False
 
     def should_skip_field(self, class_name, field_name):
@@ -1577,16 +1581,16 @@ class Generator(object):
             for key in self.bind_fields.iterkeys():
                 if key == "*" or re.match("^" + key + "$", class_name):
                     if verbose:
-                        print "%s in bind_fields" % (class_name)
+                        logger.info( "%s in bind_fields" % (class_name))
                     if len(self.bind_fields[key]) == 1 and self.bind_fields[key][0] == "*":
                         if verbose:
-                            print "All public fields of %s will be bound" % (class_name)
+                            logger.info( "All public fields of %s will be bound" % (class_name))
                         return True
                     if field_name != None:
                         for field in self.bind_fields[key]:
                             if re.match(field, field_name):
                                 if verbose:
-                                    print "Field %s of %s will be bound" % (field_name, class_name)
+                                    logger.info( "Field %s of %s will be bound" % (field_name, class_name))
                                 return True
         return False
 
@@ -1687,16 +1691,16 @@ class Generator(object):
                 errors.append(d)
         if len(errors) == 0:
             return
-        print("====\nErrors in parsing headers:")
+        logger.error("=== Errors in parsing headers:")
         severities=['Ignored', 'Note', 'Warning', 'Error', 'Fatal']
         for idx, d in enumerate(errors):
-            print "%s. <severity = %s,\n    location = %r,\n    details = %r>" % (
-                idx+1, severities[d.severity], d.location, d.spelling)
-        print("====\n")
+            logger.info("%s. <severity = %s,\n    location = %r,\n    details = %r>" % (
+                idx+1, severities[d.severity], d.location, d.spelling))
+        logger.info("====\n")
 
     def _parse_headers(self):
         for header in self.headers:
-            print(">>> parse_header: " + header)
+            logger.info(">>> parse_header: " + header)
             tu = self.index.parse(header, self.clang_args)
             if len(tu.diagnostics) > 0:
                 self._pretty_print(tu.diagnostics)
@@ -1705,7 +1709,7 @@ class Generator(object):
                     if d.severity >= cindex.Diagnostic.Error:
                         is_fatal = True
                 if is_fatal:
-                    print("*** Found errors - can not continue")
+                    logger.error("*** Found errors - can not continue")
                     raise Exception("Fatal error in parsing headers")
             self._deep_iterate(tu.cursor)
 
@@ -1893,7 +1897,7 @@ def main():
 
     userconfig = ConfigParser.SafeConfigParser()
     userconfig.read('userconf.ini')
-    print 'Using userconfig \n ', userconfig.items('DEFAULT')
+    # logger.info('Using userconfig \n %s' % (userconfig.items('DEFAULT')))
 
     clang_lib_path = os.path.join(userconfig.get('DEFAULT', 'cxxgeneratordir'), 'libclang')
     cindex.Config.set_library_path(clang_lib_path)
@@ -1912,7 +1916,7 @@ def main():
         else:
             raise Exception("Section %s not found in config file" % opts.section)
     else:
-        print("processing all sections")
+        logger.info("processing all sections")
         sections = config.sections()
 
     # find available targets
@@ -1936,14 +1940,15 @@ def main():
     if not os.path.exists(outdir):
         os.makedirs(outdir)
 
+
     for t in targets:
         # Fix for hidden '.svn', '.cvs' and '.git' etc. folders - these must be ignored or otherwise they will be interpreted as a target.
         if t == ".svn" or t == ".cvs" or t == ".git" or t == ".gitignore":
             continue
 
-        print "\n.... Generating bindings for target", t
+        logger.info(".... Generating bindings for target" + t)
         for s in sections:
-            print "\n.... .... Processing section", s, "\n"
+            logger.info(".... .... Processing section " + s)
             gen_opts = {
                 'prefix': config.get(s, 'prefix'),
                 'headers':    (config.get(s, 'headers'        , 0, dict(userconfig.items('DEFAULT')))),
@@ -1980,6 +1985,13 @@ def main():
 
 if __name__ == '__main__':
     try:
+        logger = logging.getLogger(os.path.basename(sys.argv[1]))
+        logger.setLevel(logging.INFO)
+        ch = logging.StreamHandler()
+        ch.setLevel(logging.INFO)
+        formatter = logging.Formatter('[%(name)s] - %(levelname)s: %(message)s')
+        ch.setFormatter(formatter)
+        logger.addHandler(ch)
         main()
     except Exception as e:
         traceback.print_exc()

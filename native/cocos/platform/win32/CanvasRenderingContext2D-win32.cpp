@@ -500,9 +500,9 @@ private:
             GetDIBits(_DC, _bmp, 0, _bufferHeight, dataBuf,
                       (LPBITMAPINFO)&bi, DIB_RGB_COLORS);
 
-            uint8_t r = _fillStyle[0] * 255;
-            uint8_t g = _fillStyle[1] * 255;
-            uint8_t b = _fillStyle[2] * 255;
+            uint8_t r = static_cast<uint8_t>(round(_fillStyle[0] * 255));
+            uint8_t g = static_cast<uint8_t>(round(_fillStyle[1] * 255));
+            uint8_t b = static_cast<uint8_t>(round(_fillStyle[2] * 255));
             COLORREF textColor = (b << 16 | g << 8 | r) & 0x00ffffff;
             COLORREF * pPixel = nullptr;
             COLORREF * pImage = nullptr;

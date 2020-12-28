@@ -641,7 +641,7 @@ static bool js_engine_FileUtils_listFilesRecursively(se::State &s) {
         cobj->listFilesRecursively(arg0, &arg1);
         se::Object *list = args[1].toObject();
         SE_PRECONDITION2(args[1].isObject() && list->isArray(), false, "js_engine_FileUtils_listFilesRecursively : 2nd argument should be an Array");
-        for (int i = 0; i < arg1.size(); i++) {
+        for (size_t i = 0; i < arg1.size(); i++) {
             list->setArrayElement(i, se::Value(arg1[i]));
         }
         list->setProperty("length", se::Value(arg1.size()));

@@ -47,7 +47,7 @@ namespace network {
 class HttpClient;
 class HttpResponse;
 
-typedef std::function<void(HttpClient*/* client*/, HttpResponse*/* response*/)> ccHttpRequestCallback;
+typedef std::function<void(HttpClient*, HttpResponse*)> ccHttpRequestCallback;
 
 /**
  * Defines the object which users must packed for HttpClient::send(HttpRequest*) method.

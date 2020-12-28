@@ -71,6 +71,7 @@ static bool ${signature_name}(se::State& s)
             #if $generator.should_obtain_return_value($class_name, $func_name)
         se::NonRefNativePtrCreatedByCtorMap::emplace(result);
             #end if
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         #else
         cobj->${func_name}($arg_list);
         #end if

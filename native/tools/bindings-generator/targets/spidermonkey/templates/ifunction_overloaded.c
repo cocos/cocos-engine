@@ -68,6 +68,7 @@ static bool ${signature_name}(se::State& s)
                                                       "ntype": str($func.ret_type),
                                                       "level": 2})};
             SE_PRECONDITION2(ok, false, "${signature_name} : Error processing arguments");
+            SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         #else
             cobj->${func.func_name}($arg_list);
         #end if

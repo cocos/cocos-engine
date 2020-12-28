@@ -241,7 +241,7 @@ if(APPLE)
     endif()
 
 elseif(WINDOWS)
-
+    set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${LIB_NAME})
     if(EXISTS ${GAME_RES_ROOT}/jsb-adapter)
         set(bin_dir ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR})
         add_custom_target(copy_resource ALL
