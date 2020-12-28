@@ -520,9 +520,11 @@ export class AnimationState extends Playable {
     /**
      * @zh
      * 是否允许触发 `LastFrame` 事件。
+     * 该方法仅用作内部用途。
      * @en
      * Whether `LastFrame` should be triggered.
      * @param allowed True if the last frame events may be triggered.
+     * This method is only used for internal purpose only.
      */
     public allowLastFrameEvent (allowed: boolean) {
         this._allowLastFrame = allowed;
