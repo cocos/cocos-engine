@@ -132,6 +132,9 @@ export class AudioSource extends Component {
 
     public onLoad () {
         this._syncStates();
+    }
+
+    public onEnable () {
         if (this._playOnAwake) { this.play(); }
     }
 
