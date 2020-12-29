@@ -162,6 +162,7 @@ static bool js_dragonbones_Matrix_get_a(se::State& s)
     se::Value jsret;
     ok &= nativevalue_to_se(cobj->a, jsret, s.thisObject() /*ctx*/);
     s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->a, s.thisObject(), s.rval());
     return true;
 }
 SE_BIND_PROP_GET(js_dragonbones_Matrix_get_a)
@@ -188,6 +189,7 @@ static bool js_dragonbones_Matrix_get_b(se::State& s)
     se::Value jsret;
     ok &= nativevalue_to_se(cobj->b, jsret, s.thisObject() /*ctx*/);
     s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->b, s.thisObject(), s.rval());
     return true;
 }
 SE_BIND_PROP_GET(js_dragonbones_Matrix_get_b)
@@ -214,6 +216,7 @@ static bool js_dragonbones_Matrix_get_c(se::State& s)
     se::Value jsret;
     ok &= nativevalue_to_se(cobj->c, jsret, s.thisObject() /*ctx*/);
     s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->c, s.thisObject(), s.rval());
     return true;
 }
 SE_BIND_PROP_GET(js_dragonbones_Matrix_get_c)
@@ -240,6 +243,7 @@ static bool js_dragonbones_Matrix_get_d(se::State& s)
     se::Value jsret;
     ok &= nativevalue_to_se(cobj->d, jsret, s.thisObject() /*ctx*/);
     s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->d, s.thisObject(), s.rval());
     return true;
 }
 SE_BIND_PROP_GET(js_dragonbones_Matrix_get_d)
@@ -266,6 +270,7 @@ static bool js_dragonbones_Matrix_get_tx(se::State& s)
     se::Value jsret;
     ok &= nativevalue_to_se(cobj->tx, jsret, s.thisObject() /*ctx*/);
     s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->tx, s.thisObject(), s.rval());
     return true;
 }
 SE_BIND_PROP_GET(js_dragonbones_Matrix_get_tx)
@@ -292,6 +297,7 @@ static bool js_dragonbones_Matrix_get_ty(se::State& s)
     se::Value jsret;
     ok &= nativevalue_to_se(cobj->ty, jsret, s.thisObject() /*ctx*/);
     s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->ty, s.thisObject(), s.rval());
     return true;
 }
 SE_BIND_PROP_GET(js_dragonbones_Matrix_get_ty)
@@ -347,6 +353,7 @@ static bool js_dragonbones_Transform_normalizeRadian(se::State& s)
         float result = dragonBones::Transform::normalizeRadian(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_Transform_normalizeRadian : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
@@ -363,6 +370,7 @@ static bool js_dragonbones_Transform_get_x(se::State& s)
     se::Value jsret;
     ok &= nativevalue_to_se(cobj->x, jsret, s.thisObject() /*ctx*/);
     s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->x, s.thisObject(), s.rval());
     return true;
 }
 SE_BIND_PROP_GET(js_dragonbones_Transform_get_x)
@@ -389,6 +397,7 @@ static bool js_dragonbones_Transform_get_y(se::State& s)
     se::Value jsret;
     ok &= nativevalue_to_se(cobj->y, jsret, s.thisObject() /*ctx*/);
     s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->y, s.thisObject(), s.rval());
     return true;
 }
 SE_BIND_PROP_GET(js_dragonbones_Transform_get_y)
@@ -415,6 +424,7 @@ static bool js_dragonbones_Transform_get_skew(se::State& s)
     se::Value jsret;
     ok &= nativevalue_to_se(cobj->skew, jsret, s.thisObject() /*ctx*/);
     s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->skew, s.thisObject(), s.rval());
     return true;
 }
 SE_BIND_PROP_GET(js_dragonbones_Transform_get_skew)
@@ -441,6 +451,7 @@ static bool js_dragonbones_Transform_get_rotation(se::State& s)
     se::Value jsret;
     ok &= nativevalue_to_se(cobj->rotation, jsret, s.thisObject() /*ctx*/);
     s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->rotation, s.thisObject(), s.rval());
     return true;
 }
 SE_BIND_PROP_GET(js_dragonbones_Transform_get_rotation)
@@ -467,6 +478,7 @@ static bool js_dragonbones_Transform_get_scaleX(se::State& s)
     se::Value jsret;
     ok &= nativevalue_to_se(cobj->scaleX, jsret, s.thisObject() /*ctx*/);
     s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->scaleX, s.thisObject(), s.rval());
     return true;
 }
 SE_BIND_PROP_GET(js_dragonbones_Transform_get_scaleX)
@@ -493,6 +505,7 @@ static bool js_dragonbones_Transform_get_scaleY(se::State& s)
     se::Value jsret;
     ok &= nativevalue_to_se(cobj->scaleY, jsret, s.thisObject() /*ctx*/);
     s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->scaleY, s.thisObject(), s.rval());
     return true;
 }
 SE_BIND_PROP_GET(js_dragonbones_Transform_get_scaleY)
@@ -567,6 +580,7 @@ static bool js_dragonbones_TextureAtlasData_createTexture(se::State& s)
         dragonBones::TextureData* result = cobj->createTexture();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_TextureAtlasData_createTexture : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -588,6 +602,7 @@ static bool js_dragonbones_TextureAtlasData_getTexture(se::State& s)
         dragonBones::TextureData* result = cobj->getTexture(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_TextureAtlasData_getTexture : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
@@ -604,6 +619,7 @@ static bool js_dragonbones_TextureAtlasData_get_name(se::State& s)
     se::Value jsret;
     ok &= nativevalue_to_se(cobj->name, jsret, s.thisObject() /*ctx*/);
     s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->name, s.thisObject(), s.rval());
     return true;
 }
 SE_BIND_PROP_GET(js_dragonbones_TextureAtlasData_get_name)
@@ -657,6 +673,7 @@ static bool js_dragonbones_TextureData_getFrame(se::State& s)
         const dragonBones::Rectangle* result = cobj->getFrame();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_TextureData_getFrame : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -675,6 +692,7 @@ static bool js_dragonbones_TextureData_getParent(se::State& s)
         const dragonBones::TextureAtlasData* result = cobj->getParent();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_TextureData_getParent : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -693,6 +711,7 @@ static bool js_dragonbones_TextureData_getRegion(se::State& s)
         dragonBones::Rectangle* result = cobj->getRegion();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_TextureData_getRegion : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -747,6 +766,7 @@ static bool js_dragonbones_TextureData_createRectangle(se::State& s)
         dragonBones::Rectangle* result = dragonBones::TextureData::createRectangle();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_TextureData_createRectangle : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -792,6 +812,7 @@ static bool js_dragonbones_ArmatureData_getAABB(se::State& s)
         dragonBones::Rectangle* result = cobj->getAABB();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_ArmatureData_getAABB : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -813,6 +834,7 @@ static bool js_dragonbones_ArmatureData_getAnimation(se::State& s)
         dragonBones::AnimationData* result = cobj->getAnimation(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_ArmatureData_getAnimation : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
@@ -831,6 +853,7 @@ static bool js_dragonbones_ArmatureData_getAnimationNames(se::State& s)
         const std::vector<std::string>& result = cobj->getAnimationNames();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_ArmatureData_getAnimationNames : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -852,6 +875,7 @@ static bool js_dragonbones_ArmatureData_getBone(se::State& s)
         dragonBones::BoneData* result = cobj->getBone(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_ArmatureData_getBone : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
@@ -870,6 +894,7 @@ static bool js_dragonbones_ArmatureData_getDefaultAnimation(se::State& s)
         dragonBones::AnimationData* result = cobj->getDefaultAnimation();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_ArmatureData_getDefaultAnimation : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -888,6 +913,7 @@ static bool js_dragonbones_ArmatureData_getDefaultSkin(se::State& s)
         dragonBones::SkinData* result = cobj->getDefaultSkin();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_ArmatureData_getDefaultSkin : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -913,6 +939,7 @@ static bool js_dragonbones_ArmatureData_getMesh(se::State& s)
         dragonBones::MeshDisplayData* result = cobj->getMesh(arg0.value(), arg1.value(), arg2.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_ArmatureData_getMesh : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 3);
@@ -931,6 +958,7 @@ static bool js_dragonbones_ArmatureData_getParent(se::State& s)
         const dragonBones::DragonBonesData* result = cobj->getParent();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_ArmatureData_getParent : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -952,6 +980,7 @@ static bool js_dragonbones_ArmatureData_getSkin(se::State& s)
         dragonBones::SkinData* result = cobj->getSkin(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_ArmatureData_getSkin : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
@@ -973,6 +1002,7 @@ static bool js_dragonbones_ArmatureData_getSlot(se::State& s)
         dragonBones::SlotData* result = cobj->getSlot(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_ArmatureData_getSlot : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
@@ -991,6 +1021,7 @@ static bool js_dragonbones_ArmatureData_getType(se::State& s)
         int result = cobj->getType();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_ArmatureData_getType : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -1098,6 +1129,7 @@ static bool js_dragonbones_ArmatureData_get_frameRate(se::State& s)
     se::Value jsret;
     ok &= nativevalue_to_se(cobj->frameRate, jsret, s.thisObject() /*ctx*/);
     s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->frameRate, s.thisObject(), s.rval());
     return true;
 }
 SE_BIND_PROP_GET(js_dragonbones_ArmatureData_get_frameRate)
@@ -1124,6 +1156,7 @@ static bool js_dragonbones_ArmatureData_get_name(se::State& s)
     se::Value jsret;
     ok &= nativevalue_to_se(cobj->name, jsret, s.thisObject() /*ctx*/);
     s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->name, s.thisObject(), s.rval());
     return true;
 }
 SE_BIND_PROP_GET(js_dragonbones_ArmatureData_get_name)
@@ -1191,6 +1224,7 @@ static bool js_dragonbones_BoneData_getParent(se::State& s)
         const dragonBones::BoneData* result = cobj->getParent();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_BoneData_getParent : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -1209,6 +1243,7 @@ static bool js_dragonbones_BoneData_getTransfrom(se::State& s)
         dragonBones::Transform* result = cobj->getTransfrom();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_BoneData_getTransfrom : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -1244,6 +1279,7 @@ static bool js_dragonbones_BoneData_get_name(se::State& s)
     se::Value jsret;
     ok &= nativevalue_to_se(cobj->name, jsret, s.thisObject() /*ctx*/);
     s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->name, s.thisObject(), s.rval());
     return true;
 }
 SE_BIND_PROP_GET(js_dragonbones_BoneData_get_name)
@@ -1270,6 +1306,7 @@ static bool js_dragonbones_BoneData_get_parent(se::State& s)
     se::Value jsret;
     ok &= nativevalue_to_se(cobj->parent, jsret, s.thisObject() /*ctx*/);
     s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->parent, s.thisObject(), s.rval());
     return true;
 }
 SE_BIND_PROP_GET(js_dragonbones_BoneData_get_parent)
@@ -1324,6 +1361,7 @@ static bool js_dragonbones_SlotData_getBlendMode(se::State& s)
         int result = cobj->getBlendMode();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_SlotData_getBlendMode : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -1342,6 +1380,7 @@ static bool js_dragonbones_SlotData_getParent(se::State& s)
         const dragonBones::BoneData* result = cobj->getParent();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_SlotData_getParent : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -1396,6 +1435,7 @@ static bool js_dragonbones_SlotData_get_name(se::State& s)
     se::Value jsret;
     ok &= nativevalue_to_se(cobj->name, jsret, s.thisObject() /*ctx*/);
     s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->name, s.thisObject(), s.rval());
     return true;
 }
 SE_BIND_PROP_GET(js_dragonbones_SlotData_get_name)
@@ -1422,6 +1462,7 @@ static bool js_dragonbones_SlotData_get_parent(se::State& s)
     se::Value jsret;
     ok &= nativevalue_to_se(cobj->parent, jsret, s.thisObject() /*ctx*/);
     s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->parent, s.thisObject(), s.rval());
     return true;
 }
 SE_BIND_PROP_GET(js_dragonbones_SlotData_get_parent)
@@ -1499,6 +1540,7 @@ static bool js_dragonbones_DragonBonesData_getArmature(se::State& s)
         dragonBones::ArmatureData* result = cobj->getArmature(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_DragonBonesData_getArmature : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
@@ -1517,6 +1559,7 @@ static bool js_dragonbones_DragonBonesData_getArmatureNames(se::State& s)
         const std::vector<std::string>& result = cobj->getArmatureNames();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_DragonBonesData_getArmatureNames : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -1535,6 +1578,7 @@ static bool js_dragonbones_DragonBonesData_getFrameIndices(se::State& s)
         std::vector<unsigned int>* result = cobj->getFrameIndices();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_DragonBonesData_getFrameIndices : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -1551,6 +1595,7 @@ static bool js_dragonbones_DragonBonesData_get_name(se::State& s)
     se::Value jsret;
     ok &= nativevalue_to_se(cobj->name, jsret, s.thisObject() /*ctx*/);
     s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->name, s.thisObject(), s.rval());
     return true;
 }
 SE_BIND_PROP_GET(js_dragonbones_DragonBonesData_get_name)
@@ -1603,6 +1648,7 @@ static bool js_dragonbones_SkinData_get_name(se::State& s)
     se::Value jsret;
     ok &= nativevalue_to_se(cobj->name, jsret, s.thisObject() /*ctx*/);
     s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->name, s.thisObject(), s.rval());
     return true;
 }
 SE_BIND_PROP_GET(js_dragonbones_SkinData_get_name)
@@ -1656,6 +1702,7 @@ static bool js_dragonbones_AnimationData_getBoneCachedFrameIndices(se::State& s)
         std::vector<int>* result = cobj->getBoneCachedFrameIndices(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_AnimationData_getBoneCachedFrameIndices : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
@@ -1674,6 +1721,7 @@ static bool js_dragonbones_AnimationData_getParent(se::State& s)
         dragonBones::ArmatureData* result = cobj->getParent();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_AnimationData_getParent : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -1695,6 +1743,7 @@ static bool js_dragonbones_AnimationData_getSlotCachedFrameIndices(se::State& s)
         std::vector<int>* result = cobj->getSlotCachedFrameIndices(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_AnimationData_getSlotCachedFrameIndices : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
@@ -1713,6 +1762,7 @@ static bool js_dragonbones_AnimationData_getZOrderTimeline(se::State& s)
         dragonBones::TimelineData* result = cobj->getZOrderTimeline();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_AnimationData_getZOrderTimeline : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -1748,6 +1798,7 @@ static bool js_dragonbones_AnimationData_get_frameCount(se::State& s)
     se::Value jsret;
     ok &= nativevalue_to_se(cobj->frameCount, jsret, s.thisObject() /*ctx*/);
     s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->frameCount, s.thisObject(), s.rval());
     return true;
 }
 SE_BIND_PROP_GET(js_dragonbones_AnimationData_get_frameCount)
@@ -1774,6 +1825,7 @@ static bool js_dragonbones_AnimationData_get_playTimes(se::State& s)
     se::Value jsret;
     ok &= nativevalue_to_se(cobj->playTimes, jsret, s.thisObject() /*ctx*/);
     s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->playTimes, s.thisObject(), s.rval());
     return true;
 }
 SE_BIND_PROP_GET(js_dragonbones_AnimationData_get_playTimes)
@@ -1800,6 +1852,7 @@ static bool js_dragonbones_AnimationData_get_duration(se::State& s)
     se::Value jsret;
     ok &= nativevalue_to_se(cobj->duration, jsret, s.thisObject() /*ctx*/);
     s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->duration, s.thisObject(), s.rval());
     return true;
 }
 SE_BIND_PROP_GET(js_dragonbones_AnimationData_get_duration)
@@ -1826,6 +1879,7 @@ static bool js_dragonbones_AnimationData_get_fadeInTime(se::State& s)
     se::Value jsret;
     ok &= nativevalue_to_se(cobj->fadeInTime, jsret, s.thisObject() /*ctx*/);
     s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->fadeInTime, s.thisObject(), s.rval());
     return true;
 }
 SE_BIND_PROP_GET(js_dragonbones_AnimationData_get_fadeInTime)
@@ -1852,6 +1906,7 @@ static bool js_dragonbones_AnimationData_get_name(se::State& s)
     se::Value jsret;
     ok &= nativevalue_to_se(cobj->name, jsret, s.thisObject() /*ctx*/);
     s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->name, s.thisObject(), s.rval());
     return true;
 }
 SE_BIND_PROP_GET(js_dragonbones_AnimationData_get_name)
@@ -1993,6 +2048,7 @@ static bool js_dragonbones_Armature_containsPoint(se::State& s)
         dragonBones::Slot* result = cobj->containsPoint(arg0.value(), arg1.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_Armature_containsPoint : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
@@ -2026,6 +2082,7 @@ static bool js_dragonbones_Armature_getAnimation(se::State& s)
         dragonBones::Animation* result = cobj->getAnimation();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_Armature_getAnimation : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -2044,6 +2101,7 @@ static bool js_dragonbones_Armature_getArmatureData(se::State& s)
         const dragonBones::ArmatureData* result = cobj->getArmatureData();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_Armature_getArmatureData : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -2065,6 +2123,7 @@ static bool js_dragonbones_Armature_getBone(se::State& s)
         dragonBones::Bone* result = cobj->getBone(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_Armature_getBone : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
@@ -2083,6 +2142,7 @@ static bool js_dragonbones_Armature_getCacheFrameRate(se::State& s)
         unsigned int result = cobj->getCacheFrameRate();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_Armature_getCacheFrameRate : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -2101,6 +2161,7 @@ static bool js_dragonbones_Armature_getClock(se::State& s)
         dragonBones::WorldClock* result = cobj->getClock();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_Armature_getClock : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -2119,6 +2180,7 @@ static bool js_dragonbones_Armature_getEventDispatcher(se::State& s)
         dragonBones::IEventDispatcher* result = cobj->getEventDispatcher();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_Armature_getEventDispatcher : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -2137,6 +2199,7 @@ static bool js_dragonbones_Armature_getFlipX(se::State& s)
         bool result = cobj->getFlipX();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_Armature_getFlipX : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -2155,6 +2218,7 @@ static bool js_dragonbones_Armature_getFlipY(se::State& s)
         bool result = cobj->getFlipY();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_Armature_getFlipY : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -2173,6 +2237,7 @@ static bool js_dragonbones_Armature_getName(se::State& s)
         const std::string& result = cobj->getName();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_Armature_getName : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -2191,6 +2256,7 @@ static bool js_dragonbones_Armature_getParent(se::State& s)
         dragonBones::Slot* result = cobj->getParent();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_Armature_getParent : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -2209,6 +2275,7 @@ static bool js_dragonbones_Armature_getProxy(se::State& s)
         dragonBones::IArmatureProxy* result = cobj->getProxy();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_Armature_getProxy : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -2230,6 +2297,7 @@ static bool js_dragonbones_Armature_getSlot(se::State& s)
         dragonBones::Slot* result = cobj->getSlot(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_Armature_getSlot : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
@@ -2416,6 +2484,7 @@ static bool js_dragonbones_TransformObject_getArmature(se::State& s)
         dragonBones::Armature* result = cobj->getArmature();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_TransformObject_getArmature : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -2434,6 +2503,7 @@ static bool js_dragonbones_TransformObject_getGlobal(se::State& s)
         dragonBones::Transform* result = cobj->getGlobal();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_TransformObject_getGlobal : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -2452,6 +2522,7 @@ static bool js_dragonbones_TransformObject_getGlobalTransformMatrix(se::State& s
         dragonBones::Matrix* result = cobj->getGlobalTransformMatrix();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_TransformObject_getGlobalTransformMatrix : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -2470,6 +2541,7 @@ static bool js_dragonbones_TransformObject_getOffset(se::State& s)
         dragonBones::Transform* result = cobj->getOffset();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_TransformObject_getOffset : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -2488,6 +2560,7 @@ static bool js_dragonbones_TransformObject_getOrigin(se::State& s)
         const dragonBones::Transform* result = cobj->getOrigin();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_TransformObject_getOrigin : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -2600,6 +2673,7 @@ static bool js_dragonbones_AnimationState_containsBoneMask(se::State& s)
         bool result = cobj->containsBoneMask(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_AnimationState_containsBoneMask : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
@@ -2646,6 +2720,7 @@ static bool js_dragonbones_AnimationState_getAnimationData(se::State& s)
         const dragonBones::AnimationData* result = cobj->getAnimationData();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_AnimationState_getAnimationData : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -2664,6 +2739,7 @@ static bool js_dragonbones_AnimationState_getCurrentPlayTimes(se::State& s)
         unsigned int result = cobj->getCurrentPlayTimes();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_AnimationState_getCurrentPlayTimes : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -2682,6 +2758,7 @@ static bool js_dragonbones_AnimationState_getCurrentTime(se::State& s)
         float result = cobj->getCurrentTime();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_AnimationState_getCurrentTime : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -2700,6 +2777,7 @@ static bool js_dragonbones_AnimationState_getName(se::State& s)
         const std::string& result = cobj->getName();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_AnimationState_getName : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -2718,6 +2796,7 @@ static bool js_dragonbones_AnimationState_getTotalTime(se::State& s)
         float result = cobj->getTotalTime();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_AnimationState_getTotalTime : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -2736,6 +2815,7 @@ static bool js_dragonbones_AnimationState_isCompleted(se::State& s)
         bool result = cobj->isCompleted();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_AnimationState_isCompleted : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -2754,6 +2834,7 @@ static bool js_dragonbones_AnimationState_isFadeComplete(se::State& s)
         bool result = cobj->isFadeComplete();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_AnimationState_isFadeComplete : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -2772,6 +2853,7 @@ static bool js_dragonbones_AnimationState_isFadeIn(se::State& s)
         bool result = cobj->isFadeIn();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_AnimationState_isFadeIn : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -2790,6 +2872,7 @@ static bool js_dragonbones_AnimationState_isFadeOut(se::State& s)
         bool result = cobj->isFadeOut();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_AnimationState_isFadeOut : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -2808,6 +2891,7 @@ static bool js_dragonbones_AnimationState_isPlaying(se::State& s)
         bool result = cobj->isPlaying();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_AnimationState_isPlaying : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -2916,6 +3000,7 @@ static bool js_dragonbones_AnimationState_get_additiveBlending(se::State& s)
     se::Value jsret;
     ok &= nativevalue_to_se(cobj->additiveBlending, jsret, s.thisObject() /*ctx*/);
     s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->additiveBlending, s.thisObject(), s.rval());
     return true;
 }
 SE_BIND_PROP_GET(js_dragonbones_AnimationState_get_additiveBlending)
@@ -2942,6 +3027,7 @@ static bool js_dragonbones_AnimationState_get_displayControl(se::State& s)
     se::Value jsret;
     ok &= nativevalue_to_se(cobj->displayControl, jsret, s.thisObject() /*ctx*/);
     s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->displayControl, s.thisObject(), s.rval());
     return true;
 }
 SE_BIND_PROP_GET(js_dragonbones_AnimationState_get_displayControl)
@@ -2968,6 +3054,7 @@ static bool js_dragonbones_AnimationState_get_playTimes(se::State& s)
     se::Value jsret;
     ok &= nativevalue_to_se(cobj->playTimes, jsret, s.thisObject() /*ctx*/);
     s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->playTimes, s.thisObject(), s.rval());
     return true;
 }
 SE_BIND_PROP_GET(js_dragonbones_AnimationState_get_playTimes)
@@ -2994,6 +3081,7 @@ static bool js_dragonbones_AnimationState_get_timeScale(se::State& s)
     se::Value jsret;
     ok &= nativevalue_to_se(cobj->timeScale, jsret, s.thisObject() /*ctx*/);
     s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->timeScale, s.thisObject(), s.rval());
     return true;
 }
 SE_BIND_PROP_GET(js_dragonbones_AnimationState_get_timeScale)
@@ -3020,6 +3108,7 @@ static bool js_dragonbones_AnimationState_get_weight(se::State& s)
     se::Value jsret;
     ok &= nativevalue_to_se(cobj->weight, jsret, s.thisObject() /*ctx*/);
     s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->weight, s.thisObject(), s.rval());
     return true;
 }
 SE_BIND_PROP_GET(js_dragonbones_AnimationState_get_weight)
@@ -3046,6 +3135,7 @@ static bool js_dragonbones_AnimationState_get_autoFadeOutTime(se::State& s)
     se::Value jsret;
     ok &= nativevalue_to_se(cobj->autoFadeOutTime, jsret, s.thisObject() /*ctx*/);
     s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->autoFadeOutTime, s.thisObject(), s.rval());
     return true;
 }
 SE_BIND_PROP_GET(js_dragonbones_AnimationState_get_autoFadeOutTime)
@@ -3072,6 +3162,7 @@ static bool js_dragonbones_AnimationState_get_fadeTotalTime(se::State& s)
     se::Value jsret;
     ok &= nativevalue_to_se(cobj->fadeTotalTime, jsret, s.thisObject() /*ctx*/);
     s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->fadeTotalTime, s.thisObject(), s.rval());
     return true;
 }
 SE_BIND_PROP_GET(js_dragonbones_AnimationState_get_fadeTotalTime)
@@ -3098,6 +3189,7 @@ static bool js_dragonbones_AnimationState_get_name(se::State& s)
     se::Value jsret;
     ok &= nativevalue_to_se(cobj->name, jsret, s.thisObject() /*ctx*/);
     s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->name, s.thisObject(), s.rval());
     return true;
 }
 SE_BIND_PROP_GET(js_dragonbones_AnimationState_get_name)
@@ -3177,6 +3269,7 @@ static bool js_dragonbones_Bone_contains(se::State& s)
         bool result = cobj->contains(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_Bone_contains : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
@@ -3195,6 +3288,7 @@ static bool js_dragonbones_Bone_getBoneData(se::State& s)
         const dragonBones::BoneData* result = cobj->getBoneData();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_Bone_getBoneData : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -3213,6 +3307,7 @@ static bool js_dragonbones_Bone_getName(se::State& s)
         const std::string& result = cobj->getName();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_Bone_getName : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -3231,6 +3326,7 @@ static bool js_dragonbones_Bone_getOffsetMode(se::State& s)
         int result = cobj->getOffsetMode();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_Bone_getOffsetMode : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -3249,6 +3345,7 @@ static bool js_dragonbones_Bone_getParent(se::State& s)
         dragonBones::Bone* result = cobj->getParent();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_Bone_getParent : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -3267,6 +3364,7 @@ static bool js_dragonbones_Bone_getVisible(se::State& s)
         bool result = cobj->getVisible();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_Bone_getVisible : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -3429,6 +3527,7 @@ static bool js_dragonbones_Slot__setZorder(se::State& s)
         bool result = cobj->_setZorder(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_Slot__setZorder : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
@@ -3467,6 +3566,7 @@ static bool js_dragonbones_Slot_containsPoint(se::State& s)
         bool result = cobj->containsPoint(arg0.value(), arg1.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_Slot_containsPoint : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
@@ -3485,6 +3585,7 @@ static bool js_dragonbones_Slot_getBoundingBoxData(se::State& s)
         dragonBones::BoundingBoxData* result = cobj->getBoundingBoxData();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_Slot_getBoundingBoxData : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -3503,6 +3604,7 @@ static bool js_dragonbones_Slot_getChildArmature(se::State& s)
         dragonBones::Armature* result = cobj->getChildArmature();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_Slot_getChildArmature : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -3521,6 +3623,7 @@ static bool js_dragonbones_Slot_getName(se::State& s)
         const std::string& result = cobj->getName();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_Slot_getName : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -3539,6 +3642,7 @@ static bool js_dragonbones_Slot_getParent(se::State& s)
         dragonBones::Bone* result = cobj->getParent();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_Slot_getParent : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -3557,6 +3661,7 @@ static bool js_dragonbones_Slot_getSlotData(se::State& s)
         const dragonBones::SlotData* result = cobj->getSlotData();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_Slot_getSlotData : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -3575,6 +3680,7 @@ static bool js_dragonbones_Slot_getVisible(se::State& s)
         bool result = cobj->getVisible();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_Slot_getVisible : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -3678,6 +3784,7 @@ static bool js_dragonbones_Slot_get_displayController(se::State& s)
     se::Value jsret;
     ok &= nativevalue_to_se(cobj->displayController, jsret, s.thisObject() /*ctx*/);
     s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->displayController, s.thisObject(), s.rval());
     return true;
 }
 SE_BIND_PROP_GET(js_dragonbones_Slot_get_displayController)
@@ -3704,6 +3811,7 @@ static bool js_dragonbones_Slot_get__zOrder(se::State& s)
     se::Value jsret;
     ok &= nativevalue_to_se(cobj->_zOrder, jsret, s.thisObject() /*ctx*/);
     s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->_zOrder, s.thisObject(), s.rval());
     return true;
 }
 SE_BIND_PROP_GET(js_dragonbones_Slot_get__zOrder)
@@ -3802,6 +3910,7 @@ static bool js_dragonbones_WorldClock_getClock(se::State& s)
         dragonBones::WorldClock* result = cobj->getClock();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_WorldClock_getClock : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -3852,6 +3961,7 @@ static bool js_dragonbones_WorldClock_getStaticClock(se::State& s)
         dragonBones::WorldClock* result = dragonBones::WorldClock::getStaticClock();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_WorldClock_getStaticClock : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -3918,6 +4028,7 @@ static bool js_dragonbones_Animation_fadeIn(se::State& s)
         dragonBones::AnimationState* result = cobj->fadeIn(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_Animation_fadeIn : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     if (argc == 2) {
@@ -3929,6 +4040,7 @@ static bool js_dragonbones_Animation_fadeIn(se::State& s)
         dragonBones::AnimationState* result = cobj->fadeIn(arg0.value(), arg1.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_Animation_fadeIn : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     if (argc == 3) {
@@ -3942,6 +4054,7 @@ static bool js_dragonbones_Animation_fadeIn(se::State& s)
         dragonBones::AnimationState* result = cobj->fadeIn(arg0.value(), arg1.value(), arg2.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_Animation_fadeIn : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     if (argc == 4) {
@@ -3957,6 +4070,7 @@ static bool js_dragonbones_Animation_fadeIn(se::State& s)
         dragonBones::AnimationState* result = cobj->fadeIn(arg0.value(), arg1.value(), arg2.value(), arg3.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_Animation_fadeIn : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     if (argc == 5) {
@@ -3974,6 +4088,7 @@ static bool js_dragonbones_Animation_fadeIn(se::State& s)
         dragonBones::AnimationState* result = cobj->fadeIn(arg0.value(), arg1.value(), arg2.value(), arg3.value(), arg4.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_Animation_fadeIn : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     if (argc == 6) {
@@ -3993,6 +4108,7 @@ static bool js_dragonbones_Animation_fadeIn(se::State& s)
         dragonBones::AnimationState* result = cobj->fadeIn(arg0.value(), arg1.value(), arg2.value(), arg3.value(), arg4.value(), arg5.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_Animation_fadeIn : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 6);
@@ -4011,6 +4127,7 @@ static bool js_dragonbones_Animation_getAnimationNames(se::State& s)
         const std::vector<std::string>& result = cobj->getAnimationNames();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_Animation_getAnimationNames : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -4029,6 +4146,7 @@ static bool js_dragonbones_Animation_getLastAnimationName(se::State& s)
         const std::string& result = cobj->getLastAnimationName();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_Animation_getLastAnimationName : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -4047,6 +4165,7 @@ static bool js_dragonbones_Animation_getLastAnimationState(se::State& s)
         dragonBones::AnimationState* result = cobj->getLastAnimationState();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_Animation_getLastAnimationState : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -4068,6 +4187,7 @@ static bool js_dragonbones_Animation_getState(se::State& s)
         dragonBones::AnimationState* result = cobj->getState(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_Animation_getState : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
@@ -4089,6 +4209,7 @@ static bool js_dragonbones_Animation_gotoAndPlayByFrame(se::State& s)
         dragonBones::AnimationState* result = cobj->gotoAndPlayByFrame(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_Animation_gotoAndPlayByFrame : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     if (argc == 2) {
@@ -4100,6 +4221,7 @@ static bool js_dragonbones_Animation_gotoAndPlayByFrame(se::State& s)
         dragonBones::AnimationState* result = cobj->gotoAndPlayByFrame(arg0.value(), arg1.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_Animation_gotoAndPlayByFrame : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     if (argc == 3) {
@@ -4113,6 +4235,7 @@ static bool js_dragonbones_Animation_gotoAndPlayByFrame(se::State& s)
         dragonBones::AnimationState* result = cobj->gotoAndPlayByFrame(arg0.value(), arg1.value(), arg2.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_Animation_gotoAndPlayByFrame : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 3);
@@ -4134,6 +4257,7 @@ static bool js_dragonbones_Animation_gotoAndPlayByProgress(se::State& s)
         dragonBones::AnimationState* result = cobj->gotoAndPlayByProgress(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_Animation_gotoAndPlayByProgress : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     if (argc == 2) {
@@ -4145,6 +4269,7 @@ static bool js_dragonbones_Animation_gotoAndPlayByProgress(se::State& s)
         dragonBones::AnimationState* result = cobj->gotoAndPlayByProgress(arg0.value(), arg1.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_Animation_gotoAndPlayByProgress : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     if (argc == 3) {
@@ -4158,6 +4283,7 @@ static bool js_dragonbones_Animation_gotoAndPlayByProgress(se::State& s)
         dragonBones::AnimationState* result = cobj->gotoAndPlayByProgress(arg0.value(), arg1.value(), arg2.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_Animation_gotoAndPlayByProgress : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 3);
@@ -4179,6 +4305,7 @@ static bool js_dragonbones_Animation_gotoAndPlayByTime(se::State& s)
         dragonBones::AnimationState* result = cobj->gotoAndPlayByTime(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_Animation_gotoAndPlayByTime : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     if (argc == 2) {
@@ -4190,6 +4317,7 @@ static bool js_dragonbones_Animation_gotoAndPlayByTime(se::State& s)
         dragonBones::AnimationState* result = cobj->gotoAndPlayByTime(arg0.value(), arg1.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_Animation_gotoAndPlayByTime : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     if (argc == 3) {
@@ -4203,6 +4331,7 @@ static bool js_dragonbones_Animation_gotoAndPlayByTime(se::State& s)
         dragonBones::AnimationState* result = cobj->gotoAndPlayByTime(arg0.value(), arg1.value(), arg2.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_Animation_gotoAndPlayByTime : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 3);
@@ -4224,6 +4353,7 @@ static bool js_dragonbones_Animation_gotoAndStopByFrame(se::State& s)
         dragonBones::AnimationState* result = cobj->gotoAndStopByFrame(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_Animation_gotoAndStopByFrame : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     if (argc == 2) {
@@ -4235,6 +4365,7 @@ static bool js_dragonbones_Animation_gotoAndStopByFrame(se::State& s)
         dragonBones::AnimationState* result = cobj->gotoAndStopByFrame(arg0.value(), arg1.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_Animation_gotoAndStopByFrame : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
@@ -4256,6 +4387,7 @@ static bool js_dragonbones_Animation_gotoAndStopByProgress(se::State& s)
         dragonBones::AnimationState* result = cobj->gotoAndStopByProgress(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_Animation_gotoAndStopByProgress : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     if (argc == 2) {
@@ -4267,6 +4399,7 @@ static bool js_dragonbones_Animation_gotoAndStopByProgress(se::State& s)
         dragonBones::AnimationState* result = cobj->gotoAndStopByProgress(arg0.value(), arg1.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_Animation_gotoAndStopByProgress : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
@@ -4288,6 +4421,7 @@ static bool js_dragonbones_Animation_gotoAndStopByTime(se::State& s)
         dragonBones::AnimationState* result = cobj->gotoAndStopByTime(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_Animation_gotoAndStopByTime : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     if (argc == 2) {
@@ -4299,6 +4433,7 @@ static bool js_dragonbones_Animation_gotoAndStopByTime(se::State& s)
         dragonBones::AnimationState* result = cobj->gotoAndStopByTime(arg0.value(), arg1.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_Animation_gotoAndStopByTime : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
@@ -4320,6 +4455,7 @@ static bool js_dragonbones_Animation_hasAnimation(se::State& s)
         bool result = cobj->hasAnimation(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_Animation_hasAnimation : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
@@ -4357,6 +4493,7 @@ static bool js_dragonbones_Animation_isCompleted(se::State& s)
         bool result = cobj->isCompleted();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_Animation_isCompleted : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -4375,6 +4512,7 @@ static bool js_dragonbones_Animation_isPlaying(se::State& s)
         bool result = cobj->isPlaying();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_Animation_isPlaying : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -4393,6 +4531,7 @@ static bool js_dragonbones_Animation_play(se::State& s)
         dragonBones::AnimationState* result = cobj->play();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_Animation_play : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     if (argc == 1) {
@@ -4402,6 +4541,7 @@ static bool js_dragonbones_Animation_play(se::State& s)
         dragonBones::AnimationState* result = cobj->play(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_Animation_play : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     if (argc == 2) {
@@ -4413,6 +4553,7 @@ static bool js_dragonbones_Animation_play(se::State& s)
         dragonBones::AnimationState* result = cobj->play(arg0.value(), arg1.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_Animation_play : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
@@ -4463,6 +4604,7 @@ static bool js_dragonbones_Animation_get_timeScale(se::State& s)
     se::Value jsret;
     ok &= nativevalue_to_se(cobj->timeScale, jsret, s.thisObject() /*ctx*/);
     s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->timeScale, s.thisObject(), s.rval());
     return true;
 }
 SE_BIND_PROP_GET(js_dragonbones_Animation_get_timeScale)
@@ -4532,6 +4674,7 @@ static bool js_dragonbones_EventObject_getAnimationState(se::State& s)
         dragonBones::AnimationState* result = cobj->getAnimationState();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_EventObject_getAnimationState : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -4550,6 +4693,7 @@ static bool js_dragonbones_EventObject_getArmature(se::State& s)
         dragonBones::Armature* result = cobj->getArmature();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_EventObject_getArmature : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -4568,6 +4712,7 @@ static bool js_dragonbones_EventObject_getBone(se::State& s)
         dragonBones::Bone* result = cobj->getBone();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_EventObject_getBone : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -4586,6 +4731,7 @@ static bool js_dragonbones_EventObject_getSlot(se::State& s)
         dragonBones::Slot* result = cobj->getSlot();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_EventObject_getSlot : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -4602,6 +4748,7 @@ static bool js_dragonbones_EventObject_get_type(se::State& s)
     se::Value jsret;
     ok &= nativevalue_to_se(cobj->type, jsret, s.thisObject() /*ctx*/);
     s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->type, s.thisObject(), s.rval());
     return true;
 }
 SE_BIND_PROP_GET(js_dragonbones_EventObject_get_type)
@@ -4628,6 +4775,7 @@ static bool js_dragonbones_EventObject_get_name(se::State& s)
     se::Value jsret;
     ok &= nativevalue_to_se(cobj->name, jsret, s.thisObject() /*ctx*/);
     s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->name, s.thisObject(), s.rval());
     return true;
 }
 SE_BIND_PROP_GET(js_dragonbones_EventObject_get_name)
@@ -4654,6 +4802,7 @@ static bool js_dragonbones_EventObject_get_armature(se::State& s)
     se::Value jsret;
     ok &= nativevalue_to_se(cobj->armature, jsret, s.thisObject() /*ctx*/);
     s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->armature, s.thisObject(), s.rval());
     return true;
 }
 SE_BIND_PROP_GET(js_dragonbones_EventObject_get_armature)
@@ -4680,6 +4829,7 @@ static bool js_dragonbones_EventObject_get_bone(se::State& s)
     se::Value jsret;
     ok &= nativevalue_to_se(cobj->bone, jsret, s.thisObject() /*ctx*/);
     s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->bone, s.thisObject(), s.rval());
     return true;
 }
 SE_BIND_PROP_GET(js_dragonbones_EventObject_get_bone)
@@ -4706,6 +4856,7 @@ static bool js_dragonbones_EventObject_get_slot(se::State& s)
     se::Value jsret;
     ok &= nativevalue_to_se(cobj->slot, jsret, s.thisObject() /*ctx*/);
     s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->slot, s.thisObject(), s.rval());
     return true;
 }
 SE_BIND_PROP_GET(js_dragonbones_EventObject_get_slot)
@@ -4732,6 +4883,7 @@ static bool js_dragonbones_EventObject_get_animationState(se::State& s)
     se::Value jsret;
     ok &= nativevalue_to_se(cobj->animationState, jsret, s.thisObject() /*ctx*/);
     s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->animationState, s.thisObject(), s.rval());
     return true;
 }
 SE_BIND_PROP_GET(js_dragonbones_EventObject_get_animationState)
@@ -4850,6 +5002,7 @@ static bool js_dragonbones_BaseFactory_buildArmature(se::State& s)
         dragonBones::Armature* result = cobj->buildArmature(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_BaseFactory_buildArmature : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     if (argc == 2) {
@@ -4861,6 +5014,7 @@ static bool js_dragonbones_BaseFactory_buildArmature(se::State& s)
         dragonBones::Armature* result = cobj->buildArmature(arg0.value(), arg1.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_BaseFactory_buildArmature : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     if (argc == 3) {
@@ -4874,6 +5028,7 @@ static bool js_dragonbones_BaseFactory_buildArmature(se::State& s)
         dragonBones::Armature* result = cobj->buildArmature(arg0.value(), arg1.value(), arg2.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_BaseFactory_buildArmature : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     if (argc == 4) {
@@ -4889,6 +5044,7 @@ static bool js_dragonbones_BaseFactory_buildArmature(se::State& s)
         dragonBones::Armature* result = cobj->buildArmature(arg0.value(), arg1.value(), arg2.value(), arg3.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_BaseFactory_buildArmature : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 4);
@@ -4914,6 +5070,7 @@ static bool js_dragonbones_BaseFactory_changeSkin(se::State& s)
         bool result = cobj->changeSkin(arg0.value(), arg1.value(), arg2.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_BaseFactory_changeSkin : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 3);
@@ -4958,6 +5115,7 @@ static bool js_dragonbones_BaseFactory_getArmatureData(se::State& s)
         dragonBones::ArmatureData* result = cobj->getArmatureData(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_BaseFactory_getArmatureData : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     if (argc == 2) {
@@ -4969,6 +5127,7 @@ static bool js_dragonbones_BaseFactory_getArmatureData(se::State& s)
         dragonBones::ArmatureData* result = cobj->getArmatureData(arg0.value(), arg1.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_BaseFactory_getArmatureData : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
@@ -4987,6 +5146,7 @@ static bool js_dragonbones_BaseFactory_getClock(se::State& s)
         dragonBones::WorldClock* result = cobj->getClock();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_BaseFactory_getClock : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -5008,6 +5168,7 @@ static bool js_dragonbones_BaseFactory_getDragonBonesData(se::State& s)
         dragonBones::DragonBonesData* result = cobj->getDragonBonesData(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_BaseFactory_getDragonBonesData : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
@@ -5029,6 +5190,7 @@ static bool js_dragonbones_BaseFactory_parseDragonBonesData(se::State& s)
         dragonBones::DragonBonesData* result = cobj->parseDragonBonesData(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_BaseFactory_parseDragonBonesData : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     if (argc == 2) {
@@ -5040,6 +5202,7 @@ static bool js_dragonbones_BaseFactory_parseDragonBonesData(se::State& s)
         dragonBones::DragonBonesData* result = cobj->parseDragonBonesData(arg0.value(), arg1.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_BaseFactory_parseDragonBonesData : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     if (argc == 3) {
@@ -5053,6 +5216,7 @@ static bool js_dragonbones_BaseFactory_parseDragonBonesData(se::State& s)
         dragonBones::DragonBonesData* result = cobj->parseDragonBonesData(arg0.value(), arg1.value(), arg2.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_BaseFactory_parseDragonBonesData : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 3);
@@ -5132,6 +5296,7 @@ static bool js_dragonbones_BaseFactory_replaceAnimation(se::State& s)
         bool result = cobj->replaceAnimation(arg0.value(), arg1.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_BaseFactory_replaceAnimation : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     if (argc == 3) {
@@ -5145,6 +5310,7 @@ static bool js_dragonbones_BaseFactory_replaceAnimation(se::State& s)
         bool result = cobj->replaceAnimation(arg0.value(), arg1.value(), arg2.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_BaseFactory_replaceAnimation : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 3);
@@ -5172,6 +5338,7 @@ static bool js_dragonbones_BaseFactory_replaceSkin(se::State& s)
         bool result = cobj->replaceSkin(arg0.value(), arg1.value(), arg2.value(), arg3.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_BaseFactory_replaceSkin : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 4);
@@ -5201,6 +5368,7 @@ static bool js_dragonbones_BaseFactory_replaceSlotDisplay(se::State& s)
         bool result = cobj->replaceSlotDisplay(arg0.value(), arg1.value(), arg2.value(), arg3.value(), arg4.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_BaseFactory_replaceSlotDisplay : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     if (argc == 6) {
@@ -5220,6 +5388,7 @@ static bool js_dragonbones_BaseFactory_replaceSlotDisplay(se::State& s)
         bool result = cobj->replaceSlotDisplay(arg0.value(), arg1.value(), arg2.value(), arg3.value(), arg4.value(), arg5.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_BaseFactory_replaceSlotDisplay : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 6);
@@ -5359,6 +5528,7 @@ static bool js_dragonbones_CCArmatureDisplay_getArmature(se::State& s)
         dragonBones::Armature* result = cobj->getArmature();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_CCArmatureDisplay_getArmature : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -5382,6 +5552,7 @@ static bool js_dragonbones_CCArmatureDisplay_convertToRootSpace(se::State& s)
         cc::Vec2 result = cobj->convertToRootSpace(arg0.value(), arg1.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_CCArmatureDisplay_convertToRootSpace : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
@@ -5508,6 +5679,7 @@ static bool js_dragonbones_CCArmatureDisplay_getAnimation(se::State& s)
         dragonBones::Animation* result = cobj->getAnimation();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_CCArmatureDisplay_getAnimation : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -5526,6 +5698,7 @@ static bool js_dragonbones_CCArmatureDisplay_getDebugData(se::State& s)
         se_object_ptr result = cobj->getDebugData();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_CCArmatureDisplay_getDebugData : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -5544,6 +5717,7 @@ static bool js_dragonbones_CCArmatureDisplay_getParamsBuffer(se::State& s)
         se_object_ptr result = cobj->getParamsBuffer();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_CCArmatureDisplay_getParamsBuffer : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -5562,6 +5736,7 @@ static bool js_dragonbones_CCArmatureDisplay_getRootDisplay(se::State& s)
         dragonBones::CCArmatureDisplay* result = cobj->getRootDisplay();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_CCArmatureDisplay_getRootDisplay : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -5580,6 +5755,7 @@ static bool js_dragonbones_CCArmatureDisplay_getSharedBufferOffset(se::State& s)
         se_object_ptr result = cobj->getSharedBufferOffset();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_CCArmatureDisplay_getSharedBufferOffset : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -5601,6 +5777,7 @@ static bool js_dragonbones_CCArmatureDisplay_hasDBEventListener(se::State& s)
         bool result = cobj->hasDBEventListener(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_CCArmatureDisplay_hasDBEventListener : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
@@ -5905,6 +6082,7 @@ static bool js_dragonbones_ArmatureCacheMgr_buildArmatureCache(se::State& s)
         dragonBones::ArmatureCache* result = cobj->buildArmatureCache(arg0.value(), arg1.value(), arg2.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_ArmatureCacheMgr_buildArmatureCache : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 3);
@@ -5953,6 +6131,7 @@ static bool js_dragonbones_ArmatureCacheMgr_getInstance(se::State& s)
         dragonBones::ArmatureCacheMgr* result = dragonBones::ArmatureCacheMgr::getInstance();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_ArmatureCacheMgr_getInstance : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -6027,6 +6206,7 @@ static bool js_dragonbones_CCArmatureCacheDisplay_getArmature(se::State& s)
         dragonBones::Armature* result = cobj->getArmature();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_CCArmatureCacheDisplay_getArmature : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -6096,6 +6276,7 @@ static bool js_dragonbones_CCArmatureCacheDisplay_getAnimation(se::State& s)
         dragonBones::Animation* result = cobj->getAnimation();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_CCArmatureCacheDisplay_getAnimation : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -6114,6 +6295,7 @@ static bool js_dragonbones_CCArmatureCacheDisplay_getParamsBuffer(se::State& s)
         se_object_ptr result = cobj->getParamsBuffer();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_CCArmatureCacheDisplay_getParamsBuffer : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -6132,6 +6314,7 @@ static bool js_dragonbones_CCArmatureCacheDisplay_getSharedBufferOffset(se::Stat
         se_object_ptr result = cobj->getSharedBufferOffset();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_CCArmatureCacheDisplay_getSharedBufferOffset : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -6150,6 +6333,7 @@ static bool js_dragonbones_CCArmatureCacheDisplay_getTimeScale(se::State& s)
         float result = cobj->getTimeScale();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_CCArmatureCacheDisplay_getTimeScale : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -6570,6 +6754,7 @@ static bool js_dragonbones_CCFactory_buildArmatureDisplay(se::State& s)
         dragonBones::CCArmatureDisplay* result = cobj->buildArmatureDisplay(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_CCFactory_buildArmatureDisplay : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     if (argc == 2) {
@@ -6581,6 +6766,7 @@ static bool js_dragonbones_CCFactory_buildArmatureDisplay(se::State& s)
         dragonBones::CCArmatureDisplay* result = cobj->buildArmatureDisplay(arg0.value(), arg1.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_CCFactory_buildArmatureDisplay : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     if (argc == 3) {
@@ -6594,6 +6780,7 @@ static bool js_dragonbones_CCFactory_buildArmatureDisplay(se::State& s)
         dragonBones::CCArmatureDisplay* result = cobj->buildArmatureDisplay(arg0.value(), arg1.value(), arg2.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_CCFactory_buildArmatureDisplay : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     if (argc == 4) {
@@ -6609,6 +6796,7 @@ static bool js_dragonbones_CCFactory_buildArmatureDisplay(se::State& s)
         dragonBones::CCArmatureDisplay* result = cobj->buildArmatureDisplay(arg0.value(), arg1.value(), arg2.value(), arg3.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_CCFactory_buildArmatureDisplay : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 4);
@@ -6627,6 +6815,7 @@ static bool js_dragonbones_CCFactory_getDragonBones(se::State& s)
         dragonBones::DragonBones* result = cobj->getDragonBones();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_CCFactory_getDragonBones : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -6645,6 +6834,7 @@ static bool js_dragonbones_CCFactory_getSoundEventManager(se::State& s)
         dragonBones::CCArmatureDisplay* result = cobj->getSoundEventManager();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_CCFactory_getSoundEventManager : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -6668,6 +6858,7 @@ static bool js_dragonbones_CCFactory_getTextureAtlasDataByIndex(se::State& s)
         dragonBones::CCTextureAtlasData* result = cobj->getTextureAtlasDataByIndex(arg0.value(), arg1.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_CCFactory_getTextureAtlasDataByIndex : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
@@ -6686,6 +6877,7 @@ static bool js_dragonbones_CCFactory_getTimeScale(se::State& s)
         float result = cobj->getTimeScale();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_CCFactory_getTimeScale : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -6707,6 +6899,7 @@ static bool js_dragonbones_CCFactory_parseDragonBonesDataByPath(se::State& s)
         dragonBones::DragonBonesData* result = cobj->parseDragonBonesDataByPath(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_CCFactory_parseDragonBonesDataByPath : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     if (argc == 2) {
@@ -6718,6 +6911,7 @@ static bool js_dragonbones_CCFactory_parseDragonBonesDataByPath(se::State& s)
         dragonBones::DragonBonesData* result = cobj->parseDragonBonesDataByPath(arg0.value(), arg1.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_CCFactory_parseDragonBonesDataByPath : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     if (argc == 3) {
@@ -6731,6 +6925,7 @@ static bool js_dragonbones_CCFactory_parseDragonBonesDataByPath(se::State& s)
         dragonBones::DragonBonesData* result = cobj->parseDragonBonesDataByPath(arg0.value(), arg1.value(), arg2.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_CCFactory_parseDragonBonesDataByPath : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 3);
@@ -6887,6 +7082,7 @@ static bool js_dragonbones_CCFactory_isInit(se::State& s)
         bool result = dragonBones::CCFactory::isInit();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_CCFactory_isInit : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -6916,6 +7112,7 @@ static bool js_dragonbones_CCFactory_getFactory(se::State& s)
         dragonBones::CCFactory* result = dragonBones::CCFactory::getFactory();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_CCFactory_getFactory : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -6932,6 +7129,7 @@ static bool js_dragonbones_CCFactory_getClock(se::State& s)
         dragonBones::WorldClock* result = dragonBones::CCFactory::getClock();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_CCFactory_getClock : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);

@@ -24,6 +24,7 @@ static bool js_spine_Animation_getDuration(se::State& s)
         float result = cobj->getDuration();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_Animation_getDuration : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -42,6 +43,7 @@ static bool js_spine_Animation_getName(se::State& s)
         const spine::String& result = cobj->getName();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_Animation_getName : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -60,6 +62,7 @@ static bool js_spine_Animation_getTimelines(se::State& s)
         spine::Vector<spine::Timeline *>& result = cobj->getTimelines();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_Animation_getTimelines : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -81,6 +84,7 @@ static bool js_spine_Animation_hasTimeline(se::State& s)
         bool result = cobj->hasTimeline(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_Animation_hasTimeline : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
@@ -143,6 +147,7 @@ static bool js_spine_TrackEntry_getAlpha(se::State& s)
         float result = cobj->getAlpha();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_TrackEntry_getAlpha : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -161,6 +166,7 @@ static bool js_spine_TrackEntry_getAnimation(se::State& s)
         spine::Animation* result = cobj->getAnimation();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_TrackEntry_getAnimation : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -179,6 +185,7 @@ static bool js_spine_TrackEntry_getAnimationEnd(se::State& s)
         float result = cobj->getAnimationEnd();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_TrackEntry_getAnimationEnd : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -197,6 +204,7 @@ static bool js_spine_TrackEntry_getAnimationLast(se::State& s)
         float result = cobj->getAnimationLast();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_TrackEntry_getAnimationLast : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -215,6 +223,7 @@ static bool js_spine_TrackEntry_getAnimationStart(se::State& s)
         float result = cobj->getAnimationStart();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_TrackEntry_getAnimationStart : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -233,6 +242,7 @@ static bool js_spine_TrackEntry_getAnimationTime(se::State& s)
         float result = cobj->getAnimationTime();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_TrackEntry_getAnimationTime : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -251,6 +261,7 @@ static bool js_spine_TrackEntry_getAttachmentThreshold(se::State& s)
         float result = cobj->getAttachmentThreshold();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_TrackEntry_getAttachmentThreshold : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -269,6 +280,7 @@ static bool js_spine_TrackEntry_getDelay(se::State& s)
         float result = cobj->getDelay();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_TrackEntry_getDelay : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -287,6 +299,7 @@ static bool js_spine_TrackEntry_getDrawOrderThreshold(se::State& s)
         float result = cobj->getDrawOrderThreshold();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_TrackEntry_getDrawOrderThreshold : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -305,6 +318,7 @@ static bool js_spine_TrackEntry_getEventThreshold(se::State& s)
         float result = cobj->getEventThreshold();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_TrackEntry_getEventThreshold : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -323,6 +337,7 @@ static bool js_spine_TrackEntry_getHoldPrevious(se::State& s)
         bool result = cobj->getHoldPrevious();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_TrackEntry_getHoldPrevious : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -341,6 +356,7 @@ static bool js_spine_TrackEntry_getLoop(se::State& s)
         bool result = cobj->getLoop();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_TrackEntry_getLoop : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -359,6 +375,7 @@ static bool js_spine_TrackEntry_getMixBlend(se::State& s)
         unsigned int result = (unsigned int)cobj->getMixBlend();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_TrackEntry_getMixBlend : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -377,6 +394,7 @@ static bool js_spine_TrackEntry_getMixDuration(se::State& s)
         float result = cobj->getMixDuration();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_TrackEntry_getMixDuration : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -395,6 +413,7 @@ static bool js_spine_TrackEntry_getMixTime(se::State& s)
         float result = cobj->getMixTime();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_TrackEntry_getMixTime : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -413,6 +432,7 @@ static bool js_spine_TrackEntry_getMixingFrom(se::State& s)
         spine::TrackEntry* result = cobj->getMixingFrom();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_TrackEntry_getMixingFrom : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -431,6 +451,7 @@ static bool js_spine_TrackEntry_getMixingTo(se::State& s)
         spine::TrackEntry* result = cobj->getMixingTo();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_TrackEntry_getMixingTo : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -449,6 +470,7 @@ static bool js_spine_TrackEntry_getNext(se::State& s)
         spine::TrackEntry* result = cobj->getNext();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_TrackEntry_getNext : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -467,6 +489,7 @@ static bool js_spine_TrackEntry_getTimeScale(se::State& s)
         float result = cobj->getTimeScale();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_TrackEntry_getTimeScale : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -485,6 +508,7 @@ static bool js_spine_TrackEntry_getTrackEnd(se::State& s)
         float result = cobj->getTrackEnd();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_TrackEntry_getTrackEnd : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -503,6 +527,7 @@ static bool js_spine_TrackEntry_getTrackIndex(se::State& s)
         int result = cobj->getTrackIndex();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_TrackEntry_getTrackIndex : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -521,6 +546,7 @@ static bool js_spine_TrackEntry_getTrackTime(se::State& s)
         float result = cobj->getTrackTime();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_TrackEntry_getTrackTime : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -539,6 +565,7 @@ static bool js_spine_TrackEntry_isComplete(se::State& s)
         bool result = cobj->isComplete();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_TrackEntry_isComplete : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -949,6 +976,7 @@ static bool js_spine_AnimationState_addAnimation(se::State& s)
             spine::TrackEntry* result = cobj->addAnimation(arg0.value(), arg1.value(), arg2.value(), arg3.value());
             ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
             SE_PRECONDITION2(ok, false, "js_spine_AnimationState_addAnimation : Error processing arguments");
+            SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
             return true;
         }
     } while(false);
@@ -970,6 +998,7 @@ static bool js_spine_AnimationState_addAnimation(se::State& s)
             spine::TrackEntry* result = cobj->addAnimation(arg0.value(), arg1.value(), arg2.value(), arg3.value());
             ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
             SE_PRECONDITION2(ok, false, "js_spine_AnimationState_addAnimation : Error processing arguments");
+            SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
             return true;
         }
     } while(false);
@@ -997,6 +1026,7 @@ static bool js_spine_AnimationState_addEmptyAnimation(se::State& s)
         spine::TrackEntry* result = cobj->addEmptyAnimation(arg0.value(), arg1.value(), arg2.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_AnimationState_addEmptyAnimation : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 3);
@@ -1082,6 +1112,7 @@ static bool js_spine_AnimationState_getCurrent(se::State& s)
         spine::TrackEntry* result = cobj->getCurrent(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_AnimationState_getCurrent : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
@@ -1100,6 +1131,7 @@ static bool js_spine_AnimationState_getData(se::State& s)
         spine::AnimationStateData* result = cobj->getData();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_AnimationState_getData : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -1118,6 +1150,7 @@ static bool js_spine_AnimationState_getTimeScale(se::State& s)
         float result = cobj->getTimeScale();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_AnimationState_getTimeScale : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -1136,6 +1169,7 @@ static bool js_spine_AnimationState_getTracks(se::State& s)
         spine::Vector<spine::TrackEntry *>& result = cobj->getTracks();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_AnimationState_getTracks : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -1164,6 +1198,7 @@ static bool js_spine_AnimationState_setAnimation(se::State& s)
             spine::TrackEntry* result = cobj->setAnimation(arg0.value(), arg1.value(), arg2.value());
             ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
             SE_PRECONDITION2(ok, false, "js_spine_AnimationState_setAnimation : Error processing arguments");
+            SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
             return true;
         }
     } while(false);
@@ -1182,6 +1217,7 @@ static bool js_spine_AnimationState_setAnimation(se::State& s)
             spine::TrackEntry* result = cobj->setAnimation(arg0.value(), arg1.value(), arg2.value());
             ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
             SE_PRECONDITION2(ok, false, "js_spine_AnimationState_setAnimation : Error processing arguments");
+            SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
             return true;
         }
     } while(false);
@@ -1207,6 +1243,7 @@ static bool js_spine_AnimationState_setEmptyAnimation(se::State& s)
         spine::TrackEntry* result = cobj->setEmptyAnimation(arg0.value(), arg1.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_AnimationState_setEmptyAnimation : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
@@ -1317,6 +1354,7 @@ static bool js_spine_AnimationStateData_getDefaultMix(se::State& s)
         float result = cobj->getDefaultMix();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_AnimationStateData_getDefaultMix : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -1340,6 +1378,7 @@ static bool js_spine_AnimationStateData_getMix(se::State& s)
         float result = cobj->getMix(arg0.value(), arg1.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_AnimationStateData_getMix : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
@@ -1358,6 +1397,7 @@ static bool js_spine_AnimationStateData_getSkeletonData(se::State& s)
         spine::SkeletonData* result = cobj->getSkeletonData();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_AnimationStateData_getSkeletonData : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -1466,6 +1506,7 @@ static bool js_spine_Attachment_copy(se::State& s)
         spine::Attachment* result = cobj->copy();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_Attachment_copy : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -1499,6 +1540,7 @@ static bool js_spine_Attachment_getName(se::State& s)
         const spine::String& result = cobj->getName();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_Attachment_getName : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -1517,6 +1559,7 @@ static bool js_spine_Attachment_getRefCount(se::State& s)
         int result = cobj->getRefCount();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_Attachment_getRefCount : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -1575,6 +1618,7 @@ static bool js_spine_Timeline_getPropertyId(se::State& s)
         int result = cobj->getPropertyId();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_Timeline_getPropertyId : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -1614,6 +1658,7 @@ static bool js_spine_AttachmentTimeline_getAttachmentNames(se::State& s)
         const spine::Vector<spine::String>& result = cobj->getAttachmentNames();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_AttachmentTimeline_getAttachmentNames : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -1632,6 +1677,7 @@ static bool js_spine_AttachmentTimeline_getFrameCount(se::State& s)
         size_t result = cobj->getFrameCount();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_AttachmentTimeline_getFrameCount : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -1650,6 +1696,7 @@ static bool js_spine_AttachmentTimeline_getFrames(se::State& s)
         const spine::Vector<float>& result = cobj->getFrames();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_AttachmentTimeline_getFrames : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -1668,6 +1715,7 @@ static bool js_spine_AttachmentTimeline_getPropertyId(se::State& s)
         int result = cobj->getPropertyId();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_AttachmentTimeline_getPropertyId : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -1686,6 +1734,7 @@ static bool js_spine_AttachmentTimeline_getSlotIndex(se::State& s)
         size_t result = cobj->getSlotIndex();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_AttachmentTimeline_getSlotIndex : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -1774,6 +1823,7 @@ static bool js_spine_Bone_getA(se::State& s)
         float result = cobj->getA();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_Bone_getA : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -1792,6 +1842,7 @@ static bool js_spine_Bone_getAScaleX(se::State& s)
         float result = cobj->getAScaleX();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_Bone_getAScaleX : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -1810,6 +1861,7 @@ static bool js_spine_Bone_getAScaleY(se::State& s)
         float result = cobj->getAScaleY();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_Bone_getAScaleY : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -1828,6 +1880,7 @@ static bool js_spine_Bone_getAShearX(se::State& s)
         float result = cobj->getAShearX();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_Bone_getAShearX : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -1846,6 +1899,7 @@ static bool js_spine_Bone_getAShearY(se::State& s)
         float result = cobj->getAShearY();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_Bone_getAShearY : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -1864,6 +1918,7 @@ static bool js_spine_Bone_getAX(se::State& s)
         float result = cobj->getAX();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_Bone_getAX : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -1882,6 +1937,7 @@ static bool js_spine_Bone_getAY(se::State& s)
         float result = cobj->getAY();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_Bone_getAY : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -1900,6 +1956,7 @@ static bool js_spine_Bone_getAppliedRotation(se::State& s)
         float result = cobj->getAppliedRotation();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_Bone_getAppliedRotation : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -1918,6 +1975,7 @@ static bool js_spine_Bone_getB(se::State& s)
         float result = cobj->getB();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_Bone_getB : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -1936,6 +1994,7 @@ static bool js_spine_Bone_getC(se::State& s)
         float result = cobj->getC();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_Bone_getC : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -1954,6 +2013,7 @@ static bool js_spine_Bone_getChildren(se::State& s)
         spine::Vector<spine::Bone *>& result = cobj->getChildren();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_Bone_getChildren : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -1972,6 +2032,7 @@ static bool js_spine_Bone_getD(se::State& s)
         float result = cobj->getD();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_Bone_getD : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -1990,6 +2051,7 @@ static bool js_spine_Bone_getData(se::State& s)
         spine::BoneData& result = cobj->getData();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_Bone_getData : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -2008,6 +2070,7 @@ static bool js_spine_Bone_getParent(se::State& s)
         spine::Bone* result = cobj->getParent();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_Bone_getParent : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -2026,6 +2089,7 @@ static bool js_spine_Bone_getRotation(se::State& s)
         float result = cobj->getRotation();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_Bone_getRotation : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -2044,6 +2108,7 @@ static bool js_spine_Bone_getScaleX(se::State& s)
         float result = cobj->getScaleX();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_Bone_getScaleX : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -2062,6 +2127,7 @@ static bool js_spine_Bone_getScaleY(se::State& s)
         float result = cobj->getScaleY();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_Bone_getScaleY : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -2080,6 +2146,7 @@ static bool js_spine_Bone_getShearX(se::State& s)
         float result = cobj->getShearX();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_Bone_getShearX : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -2098,6 +2165,7 @@ static bool js_spine_Bone_getShearY(se::State& s)
         float result = cobj->getShearY();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_Bone_getShearY : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -2116,6 +2184,7 @@ static bool js_spine_Bone_getSkeleton(se::State& s)
         spine::Skeleton& result = cobj->getSkeleton();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_Bone_getSkeleton : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -2134,6 +2203,7 @@ static bool js_spine_Bone_getWorldRotationX(se::State& s)
         float result = cobj->getWorldRotationX();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_Bone_getWorldRotationX : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -2152,6 +2222,7 @@ static bool js_spine_Bone_getWorldRotationY(se::State& s)
         float result = cobj->getWorldRotationY();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_Bone_getWorldRotationY : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -2170,6 +2241,7 @@ static bool js_spine_Bone_getWorldScaleX(se::State& s)
         float result = cobj->getWorldScaleX();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_Bone_getWorldScaleX : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -2188,6 +2260,7 @@ static bool js_spine_Bone_getWorldScaleY(se::State& s)
         float result = cobj->getWorldScaleY();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_Bone_getWorldScaleY : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -2206,6 +2279,7 @@ static bool js_spine_Bone_getWorldToLocalRotationX(se::State& s)
         float result = cobj->getWorldToLocalRotationX();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_Bone_getWorldToLocalRotationX : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -2224,6 +2298,7 @@ static bool js_spine_Bone_getWorldToLocalRotationY(se::State& s)
         float result = cobj->getWorldToLocalRotationY();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_Bone_getWorldToLocalRotationY : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -2242,6 +2317,7 @@ static bool js_spine_Bone_getWorldX(se::State& s)
         float result = cobj->getWorldX();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_Bone_getWorldX : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -2260,6 +2336,7 @@ static bool js_spine_Bone_getWorldY(se::State& s)
         float result = cobj->getWorldY();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_Bone_getWorldY : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -2278,6 +2355,7 @@ static bool js_spine_Bone_getX(se::State& s)
         float result = cobj->getX();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_Bone_getX : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -2296,6 +2374,7 @@ static bool js_spine_Bone_getY(se::State& s)
         float result = cobj->getY();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_Bone_getY : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -2314,6 +2393,7 @@ static bool js_spine_Bone_isActive(se::State& s)
         bool result = cobj->isActive();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_Bone_isActive : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -2332,6 +2412,7 @@ static bool js_spine_Bone_isAppliedValid(se::State& s)
         bool result = cobj->isAppliedValid();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_Bone_isAppliedValid : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -2864,6 +2945,7 @@ static bool js_spine_Bone_isYDown(se::State& s)
         bool result = spine::Bone::isYDown();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_Bone_isYDown : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -2979,6 +3061,7 @@ static bool js_spine_BoneData_getIndex(se::State& s)
         int result = cobj->getIndex();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_BoneData_getIndex : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -2997,6 +3080,7 @@ static bool js_spine_BoneData_getLength(se::State& s)
         float result = cobj->getLength();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_BoneData_getLength : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -3015,6 +3099,7 @@ static bool js_spine_BoneData_getName(se::State& s)
         const spine::String& result = cobj->getName();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_BoneData_getName : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -3033,6 +3118,7 @@ static bool js_spine_BoneData_getParent(se::State& s)
         spine::BoneData* result = cobj->getParent();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_BoneData_getParent : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -3051,6 +3137,7 @@ static bool js_spine_BoneData_getRotation(se::State& s)
         float result = cobj->getRotation();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_BoneData_getRotation : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -3069,6 +3156,7 @@ static bool js_spine_BoneData_getScaleX(se::State& s)
         float result = cobj->getScaleX();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_BoneData_getScaleX : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -3087,6 +3175,7 @@ static bool js_spine_BoneData_getScaleY(se::State& s)
         float result = cobj->getScaleY();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_BoneData_getScaleY : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -3105,6 +3194,7 @@ static bool js_spine_BoneData_getShearX(se::State& s)
         float result = cobj->getShearX();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_BoneData_getShearX : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -3123,6 +3213,7 @@ static bool js_spine_BoneData_getShearY(se::State& s)
         float result = cobj->getShearY();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_BoneData_getShearY : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -3141,6 +3232,7 @@ static bool js_spine_BoneData_getTransformMode(se::State& s)
         unsigned int result = (unsigned int)cobj->getTransformMode();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_BoneData_getTransformMode : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -3159,6 +3251,7 @@ static bool js_spine_BoneData_getX(se::State& s)
         float result = cobj->getX();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_BoneData_getX : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -3177,6 +3270,7 @@ static bool js_spine_BoneData_getY(se::State& s)
         float result = cobj->getY();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_BoneData_getY : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -3195,6 +3289,7 @@ static bool js_spine_BoneData_isSkinRequired(se::State& s)
         bool result = cobj->isSkinRequired();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_BoneData_isSkinRequired : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -3465,6 +3560,7 @@ static bool js_spine_VertexAttachment_getDeformAttachment(se::State& s)
         spine::VertexAttachment* result = cobj->getDeformAttachment();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_VertexAttachment_getDeformAttachment : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -3483,6 +3579,7 @@ static bool js_spine_VertexAttachment_getId(se::State& s)
         int result = cobj->getId();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_VertexAttachment_getId : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -3501,6 +3598,7 @@ static bool js_spine_VertexAttachment_getVertices(se::State& s)
         spine::Vector<float>& result = cobj->getVertices();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_VertexAttachment_getVertices : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -3519,6 +3617,7 @@ static bool js_spine_VertexAttachment_getWorldVerticesLength(se::State& s)
         size_t result = cobj->getWorldVerticesLength();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_VertexAttachment_getWorldVerticesLength : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -3603,6 +3702,7 @@ static bool js_spine_BoundingBoxAttachment_copy(se::State& s)
         spine::Attachment* result = cobj->copy();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_BoundingBoxAttachment_copy : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -3643,6 +3743,7 @@ static bool js_spine_ClippingAttachment_copy(se::State& s)
         spine::Attachment* result = cobj->copy();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_ClippingAttachment_copy : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -3661,6 +3762,7 @@ static bool js_spine_ClippingAttachment_getEndSlot(se::State& s)
         spine::SlotData* result = cobj->getEndSlot();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_ClippingAttachment_getEndSlot : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -3722,6 +3824,7 @@ static bool js_spine_Color_clamp(se::State& s)
         spine::Color& result = cobj->clamp();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_Color_clamp : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -3738,6 +3841,7 @@ static bool js_spine_Color_get_r(se::State& s)
     se::Value jsret;
     ok &= nativevalue_to_se(cobj->r, jsret, s.thisObject() /*ctx*/);
     s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->r, s.thisObject(), s.rval());
     return true;
 }
 SE_BIND_PROP_GET(js_spine_Color_get_r)
@@ -3764,6 +3868,7 @@ static bool js_spine_Color_get_g(se::State& s)
     se::Value jsret;
     ok &= nativevalue_to_se(cobj->g, jsret, s.thisObject() /*ctx*/);
     s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->g, s.thisObject(), s.rval());
     return true;
 }
 SE_BIND_PROP_GET(js_spine_Color_get_g)
@@ -3790,6 +3895,7 @@ static bool js_spine_Color_get_b(se::State& s)
     se::Value jsret;
     ok &= nativevalue_to_se(cobj->b, jsret, s.thisObject() /*ctx*/);
     s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->b, s.thisObject(), s.rval());
     return true;
 }
 SE_BIND_PROP_GET(js_spine_Color_get_b)
@@ -3816,6 +3922,7 @@ static bool js_spine_Color_get_a(se::State& s)
     se::Value jsret;
     ok &= nativevalue_to_se(cobj->a, jsret, s.thisObject() /*ctx*/);
     s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->a, s.thisObject(), s.rval());
     return true;
 }
 SE_BIND_PROP_GET(js_spine_Color_get_a)
@@ -3874,6 +3981,7 @@ static bool js_spine_CurveTimeline_getCurvePercent(se::State& s)
         float result = cobj->getCurvePercent(arg0.value(), arg1.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_CurveTimeline_getCurvePercent : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
@@ -3895,6 +4003,7 @@ static bool js_spine_CurveTimeline_getCurveType(se::State& s)
         float result = cobj->getCurveType(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_CurveTimeline_getCurveType : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
@@ -3913,6 +4022,7 @@ static bool js_spine_CurveTimeline_getFrameCount(se::State& s)
         size_t result = cobj->getFrameCount();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_CurveTimeline_getFrameCount : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -3931,6 +4041,7 @@ static bool js_spine_CurveTimeline_getPropertyId(se::State& s)
         int result = cobj->getPropertyId();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_CurveTimeline_getPropertyId : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -4042,6 +4153,7 @@ static bool js_spine_ColorTimeline_getFrames(se::State& s)
         spine::Vector<float>& result = cobj->getFrames();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_ColorTimeline_getFrames : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -4060,6 +4172,7 @@ static bool js_spine_ColorTimeline_getPropertyId(se::State& s)
         int result = cobj->getPropertyId();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_ColorTimeline_getPropertyId : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -4078,6 +4191,7 @@ static bool js_spine_ColorTimeline_getSlotIndex(se::State& s)
         int result = cobj->getSlotIndex();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_ColorTimeline_getSlotIndex : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -4170,6 +4284,7 @@ static bool js_spine_ConstraintData_getName(se::State& s)
         const spine::String& result = cobj->getName();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_ConstraintData_getName : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -4188,6 +4303,7 @@ static bool js_spine_ConstraintData_getOrder(se::State& s)
         size_t result = cobj->getOrder();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_ConstraintData_getOrder : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -4206,6 +4322,7 @@ static bool js_spine_ConstraintData_isSkinRequired(se::State& s)
         bool result = cobj->isSkinRequired();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_ConstraintData_isSkinRequired : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -4287,6 +4404,7 @@ static bool js_spine_DeformTimeline_getAttachment(se::State& s)
         spine::VertexAttachment* result = cobj->getAttachment();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_DeformTimeline_getAttachment : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -4305,6 +4423,7 @@ static bool js_spine_DeformTimeline_getFrames(se::State& s)
         spine::Vector<float>& result = cobj->getFrames();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_DeformTimeline_getFrames : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -4323,6 +4442,7 @@ static bool js_spine_DeformTimeline_getPropertyId(se::State& s)
         int result = cobj->getPropertyId();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_DeformTimeline_getPropertyId : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -4341,6 +4461,7 @@ static bool js_spine_DeformTimeline_getSlotIndex(se::State& s)
         int result = cobj->getSlotIndex();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_DeformTimeline_getSlotIndex : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -4424,6 +4545,7 @@ static bool js_spine_DrawOrderTimeline_getFrameCount(se::State& s)
         size_t result = cobj->getFrameCount();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_DrawOrderTimeline_getFrameCount : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -4442,6 +4564,7 @@ static bool js_spine_DrawOrderTimeline_getFrames(se::State& s)
         spine::Vector<float>& result = cobj->getFrames();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_DrawOrderTimeline_getFrames : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -4460,6 +4583,7 @@ static bool js_spine_DrawOrderTimeline_getPropertyId(se::State& s)
         int result = cobj->getPropertyId();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_DrawOrderTimeline_getPropertyId : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -4502,6 +4626,7 @@ static bool js_spine_Event_getBalance(se::State& s)
         float result = cobj->getBalance();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_Event_getBalance : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -4520,6 +4645,7 @@ static bool js_spine_Event_getData(se::State& s)
         const spine::EventData& result = cobj->getData();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_Event_getData : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -4538,6 +4664,7 @@ static bool js_spine_Event_getFloatValue(se::State& s)
         float result = cobj->getFloatValue();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_Event_getFloatValue : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -4556,6 +4683,7 @@ static bool js_spine_Event_getIntValue(se::State& s)
         int result = cobj->getIntValue();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_Event_getIntValue : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -4574,6 +4702,7 @@ static bool js_spine_Event_getStringValue(se::State& s)
         const spine::String& result = cobj->getStringValue();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_Event_getStringValue : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -4592,6 +4721,7 @@ static bool js_spine_Event_getTime(se::State& s)
         float result = cobj->getTime();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_Event_getTime : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -4610,6 +4740,7 @@ static bool js_spine_Event_getVolume(se::State& s)
         float result = cobj->getVolume();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_Event_getVolume : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -4755,6 +4886,7 @@ static bool js_spine_EventData_getAudioPath(se::State& s)
         const spine::String& result = cobj->getAudioPath();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_EventData_getAudioPath : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -4773,6 +4905,7 @@ static bool js_spine_EventData_getBalance(se::State& s)
         float result = cobj->getBalance();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_EventData_getBalance : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -4791,6 +4924,7 @@ static bool js_spine_EventData_getFloatValue(se::State& s)
         float result = cobj->getFloatValue();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_EventData_getFloatValue : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -4809,6 +4943,7 @@ static bool js_spine_EventData_getIntValue(se::State& s)
         int result = cobj->getIntValue();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_EventData_getIntValue : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -4827,6 +4962,7 @@ static bool js_spine_EventData_getName(se::State& s)
         const spine::String& result = cobj->getName();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_EventData_getName : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -4845,6 +4981,7 @@ static bool js_spine_EventData_getStringValue(se::State& s)
         const spine::String& result = cobj->getStringValue();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_EventData_getStringValue : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -4863,6 +5000,7 @@ static bool js_spine_EventData_getVolume(se::State& s)
         float result = cobj->getVolume();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_EventData_getVolume : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -5028,6 +5166,7 @@ static bool js_spine_EventTimeline_getEvents(se::State& s)
         spine::Vector<spine::Event *>& result = cobj->getEvents();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_EventTimeline_getEvents : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -5046,6 +5185,7 @@ static bool js_spine_EventTimeline_getFrameCount(se::State& s)
         size_t result = cobj->getFrameCount();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_EventTimeline_getFrameCount : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -5064,6 +5204,7 @@ static bool js_spine_EventTimeline_getFrames(se::State& s)
         spine::Vector<float> result = cobj->getFrames();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_EventTimeline_getFrames : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -5082,6 +5223,7 @@ static bool js_spine_EventTimeline_getPropertyId(se::State& s)
         int result = cobj->getPropertyId();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_EventTimeline_getPropertyId : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -5147,6 +5289,7 @@ static bool js_spine_IkConstraint_getBendDirection(se::State& s)
         int result = cobj->getBendDirection();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_IkConstraint_getBendDirection : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -5165,6 +5308,7 @@ static bool js_spine_IkConstraint_getBones(se::State& s)
         spine::Vector<spine::Bone *>& result = cobj->getBones();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_IkConstraint_getBones : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -5183,6 +5327,7 @@ static bool js_spine_IkConstraint_getCompress(se::State& s)
         bool result = cobj->getCompress();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_IkConstraint_getCompress : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -5201,6 +5346,7 @@ static bool js_spine_IkConstraint_getData(se::State& s)
         spine::IkConstraintData& result = cobj->getData();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_IkConstraint_getData : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -5219,6 +5365,7 @@ static bool js_spine_IkConstraint_getMix(se::State& s)
         float result = cobj->getMix();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_IkConstraint_getMix : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -5237,6 +5384,7 @@ static bool js_spine_IkConstraint_getOrder(se::State& s)
         int result = cobj->getOrder();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_IkConstraint_getOrder : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -5255,6 +5403,7 @@ static bool js_spine_IkConstraint_getSoftness(se::State& s)
         float result = cobj->getSoftness();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_IkConstraint_getSoftness : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -5273,6 +5422,7 @@ static bool js_spine_IkConstraint_getStretch(se::State& s)
         bool result = cobj->getStretch();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_IkConstraint_getStretch : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -5291,6 +5441,7 @@ static bool js_spine_IkConstraint_getTarget(se::State& s)
         spine::Bone* result = cobj->getTarget();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_IkConstraint_getTarget : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -5309,6 +5460,7 @@ static bool js_spine_IkConstraint_isActive(se::State& s)
         bool result = cobj->isActive();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_IkConstraint_isActive : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -5513,6 +5665,7 @@ static bool js_spine_IkConstraintData_getBendDirection(se::State& s)
         int result = cobj->getBendDirection();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_IkConstraintData_getBendDirection : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -5531,6 +5684,7 @@ static bool js_spine_IkConstraintData_getBones(se::State& s)
         spine::Vector<spine::BoneData *>& result = cobj->getBones();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_IkConstraintData_getBones : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -5549,6 +5703,7 @@ static bool js_spine_IkConstraintData_getCompress(se::State& s)
         bool result = cobj->getCompress();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_IkConstraintData_getCompress : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -5567,6 +5722,7 @@ static bool js_spine_IkConstraintData_getMix(se::State& s)
         float result = cobj->getMix();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_IkConstraintData_getMix : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -5585,6 +5741,7 @@ static bool js_spine_IkConstraintData_getSoftness(se::State& s)
         float result = cobj->getSoftness();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_IkConstraintData_getSoftness : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -5603,6 +5760,7 @@ static bool js_spine_IkConstraintData_getStretch(se::State& s)
         bool result = cobj->getStretch();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_IkConstraintData_getStretch : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -5621,6 +5779,7 @@ static bool js_spine_IkConstraintData_getTarget(se::State& s)
         spine::BoneData* result = cobj->getTarget();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_IkConstraintData_getTarget : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -5639,6 +5798,7 @@ static bool js_spine_IkConstraintData_getUniform(se::State& s)
         bool result = cobj->getUniform();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_IkConstraintData_getUniform : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -5826,6 +5986,7 @@ static bool js_spine_IkConstraintTimeline_getPropertyId(se::State& s)
         int result = cobj->getPropertyId();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_IkConstraintTimeline_getPropertyId : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -5898,6 +6059,7 @@ static bool js_spine_MeshAttachment_copy(se::State& s)
         spine::Attachment* result = cobj->copy();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_MeshAttachment_copy : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -5916,6 +6078,7 @@ static bool js_spine_MeshAttachment_getColor(se::State& s)
         spine::Color& result = cobj->getColor();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_MeshAttachment_getColor : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -5934,6 +6097,7 @@ static bool js_spine_MeshAttachment_getEdges(se::State& s)
         spine::Vector<unsigned short>& result = cobj->getEdges();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_MeshAttachment_getEdges : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -5952,6 +6116,7 @@ static bool js_spine_MeshAttachment_getHeight(se::State& s)
         float result = cobj->getHeight();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_MeshAttachment_getHeight : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -5970,6 +6135,7 @@ static bool js_spine_MeshAttachment_getHullLength(se::State& s)
         int result = cobj->getHullLength();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_MeshAttachment_getHullLength : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -5988,6 +6154,7 @@ static bool js_spine_MeshAttachment_getParentMesh(se::State& s)
         spine::MeshAttachment* result = cobj->getParentMesh();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_MeshAttachment_getParentMesh : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -6006,6 +6173,7 @@ static bool js_spine_MeshAttachment_getPath(se::State& s)
         const spine::String& result = cobj->getPath();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_MeshAttachment_getPath : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -6024,6 +6192,7 @@ static bool js_spine_MeshAttachment_getRegionDegrees(se::State& s)
         int result = cobj->getRegionDegrees();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_MeshAttachment_getRegionDegrees : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -6042,6 +6211,7 @@ static bool js_spine_MeshAttachment_getRegionHeight(se::State& s)
         float result = cobj->getRegionHeight();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_MeshAttachment_getRegionHeight : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -6060,6 +6230,7 @@ static bool js_spine_MeshAttachment_getRegionOffsetX(se::State& s)
         float result = cobj->getRegionOffsetX();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_MeshAttachment_getRegionOffsetX : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -6078,6 +6249,7 @@ static bool js_spine_MeshAttachment_getRegionOffsetY(se::State& s)
         float result = cobj->getRegionOffsetY();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_MeshAttachment_getRegionOffsetY : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -6096,6 +6268,7 @@ static bool js_spine_MeshAttachment_getRegionOriginalHeight(se::State& s)
         float result = cobj->getRegionOriginalHeight();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_MeshAttachment_getRegionOriginalHeight : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -6114,6 +6287,7 @@ static bool js_spine_MeshAttachment_getRegionOriginalWidth(se::State& s)
         float result = cobj->getRegionOriginalWidth();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_MeshAttachment_getRegionOriginalWidth : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -6132,6 +6306,7 @@ static bool js_spine_MeshAttachment_getRegionRotate(se::State& s)
         bool result = cobj->getRegionRotate();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_MeshAttachment_getRegionRotate : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -6150,6 +6325,7 @@ static bool js_spine_MeshAttachment_getRegionU(se::State& s)
         float result = cobj->getRegionU();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_MeshAttachment_getRegionU : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -6168,6 +6344,7 @@ static bool js_spine_MeshAttachment_getRegionU2(se::State& s)
         float result = cobj->getRegionU2();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_MeshAttachment_getRegionU2 : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -6186,6 +6363,7 @@ static bool js_spine_MeshAttachment_getRegionUVs(se::State& s)
         spine::Vector<float>& result = cobj->getRegionUVs();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_MeshAttachment_getRegionUVs : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -6204,6 +6382,7 @@ static bool js_spine_MeshAttachment_getRegionV(se::State& s)
         float result = cobj->getRegionV();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_MeshAttachment_getRegionV : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -6222,6 +6401,7 @@ static bool js_spine_MeshAttachment_getRegionV2(se::State& s)
         float result = cobj->getRegionV2();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_MeshAttachment_getRegionV2 : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -6240,6 +6420,7 @@ static bool js_spine_MeshAttachment_getRegionWidth(se::State& s)
         float result = cobj->getRegionWidth();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_MeshAttachment_getRegionWidth : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -6258,6 +6439,7 @@ static bool js_spine_MeshAttachment_getTriangles(se::State& s)
         spine::Vector<unsigned short>& result = cobj->getTriangles();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_MeshAttachment_getTriangles : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -6276,6 +6458,7 @@ static bool js_spine_MeshAttachment_getUVs(se::State& s)
         spine::Vector<float>& result = cobj->getUVs();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_MeshAttachment_getUVs : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -6294,6 +6477,7 @@ static bool js_spine_MeshAttachment_getWidth(se::State& s)
         float result = cobj->getWidth();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_MeshAttachment_getWidth : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -6312,6 +6496,7 @@ static bool js_spine_MeshAttachment_newLinkedMesh(se::State& s)
         spine::MeshAttachment* result = cobj->newLinkedMesh();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_MeshAttachment_newLinkedMesh : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -6731,6 +6916,7 @@ static bool js_spine_PathAttachment_copy(se::State& s)
         spine::Attachment* result = cobj->copy();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_PathAttachment_copy : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -6749,6 +6935,7 @@ static bool js_spine_PathAttachment_getLengths(se::State& s)
         spine::Vector<float>& result = cobj->getLengths();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_PathAttachment_getLengths : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -6767,6 +6954,7 @@ static bool js_spine_PathAttachment_isClosed(se::State& s)
         bool result = cobj->isClosed();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_PathAttachment_isClosed : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -6785,6 +6973,7 @@ static bool js_spine_PathAttachment_isConstantSpeed(se::State& s)
         bool result = cobj->isConstantSpeed();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_PathAttachment_isConstantSpeed : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -6883,6 +7072,7 @@ static bool js_spine_PathConstraint_getBones(se::State& s)
         spine::Vector<spine::Bone *>& result = cobj->getBones();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_PathConstraint_getBones : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -6901,6 +7091,7 @@ static bool js_spine_PathConstraint_getData(se::State& s)
         spine::PathConstraintData& result = cobj->getData();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_PathConstraint_getData : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -6919,6 +7110,7 @@ static bool js_spine_PathConstraint_getOrder(se::State& s)
         int result = cobj->getOrder();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_PathConstraint_getOrder : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -6937,6 +7129,7 @@ static bool js_spine_PathConstraint_getPosition(se::State& s)
         float result = cobj->getPosition();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_PathConstraint_getPosition : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -6955,6 +7148,7 @@ static bool js_spine_PathConstraint_getRotateMix(se::State& s)
         float result = cobj->getRotateMix();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_PathConstraint_getRotateMix : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -6973,6 +7167,7 @@ static bool js_spine_PathConstraint_getSpacing(se::State& s)
         float result = cobj->getSpacing();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_PathConstraint_getSpacing : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -6991,6 +7186,7 @@ static bool js_spine_PathConstraint_getTarget(se::State& s)
         spine::Slot* result = cobj->getTarget();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_PathConstraint_getTarget : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -7009,6 +7205,7 @@ static bool js_spine_PathConstraint_getTranslateMix(se::State& s)
         float result = cobj->getTranslateMix();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_PathConstraint_getTranslateMix : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -7027,6 +7224,7 @@ static bool js_spine_PathConstraint_isActive(se::State& s)
         bool result = cobj->isActive();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_PathConstraint_isActive : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -7211,6 +7409,7 @@ static bool js_spine_PathConstraintData_getBones(se::State& s)
         spine::Vector<spine::BoneData *>& result = cobj->getBones();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_PathConstraintData_getBones : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -7229,6 +7428,7 @@ static bool js_spine_PathConstraintData_getOffsetRotation(se::State& s)
         float result = cobj->getOffsetRotation();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_PathConstraintData_getOffsetRotation : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -7247,6 +7447,7 @@ static bool js_spine_PathConstraintData_getPosition(se::State& s)
         float result = cobj->getPosition();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_PathConstraintData_getPosition : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -7265,6 +7466,7 @@ static bool js_spine_PathConstraintData_getPositionMode(se::State& s)
         unsigned int result = (unsigned int)cobj->getPositionMode();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_PathConstraintData_getPositionMode : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -7283,6 +7485,7 @@ static bool js_spine_PathConstraintData_getRotateMix(se::State& s)
         float result = cobj->getRotateMix();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_PathConstraintData_getRotateMix : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -7301,6 +7504,7 @@ static bool js_spine_PathConstraintData_getRotateMode(se::State& s)
         unsigned int result = (unsigned int)cobj->getRotateMode();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_PathConstraintData_getRotateMode : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -7319,6 +7523,7 @@ static bool js_spine_PathConstraintData_getSpacing(se::State& s)
         float result = cobj->getSpacing();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_PathConstraintData_getSpacing : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -7337,6 +7542,7 @@ static bool js_spine_PathConstraintData_getSpacingMode(se::State& s)
         unsigned int result = (unsigned int)cobj->getSpacingMode();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_PathConstraintData_getSpacingMode : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -7355,6 +7561,7 @@ static bool js_spine_PathConstraintData_getTarget(se::State& s)
         spine::SlotData* result = cobj->getTarget();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_PathConstraintData_getTarget : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -7373,6 +7580,7 @@ static bool js_spine_PathConstraintData_getTranslateMix(se::State& s)
         float result = cobj->getTranslateMix();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_PathConstraintData_getTranslateMix : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -7602,6 +7810,7 @@ static bool js_spine_PathConstraintMixTimeline_getPropertyId(se::State& s)
         int result = cobj->getPropertyId();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_PathConstraintMixTimeline_getPropertyId : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -7642,6 +7851,7 @@ static bool js_spine_PathConstraintPositionTimeline_getPropertyId(se::State& s)
         int result = cobj->getPropertyId();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_PathConstraintPositionTimeline_getPropertyId : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -7706,6 +7916,7 @@ static bool js_spine_PathConstraintSpacingTimeline_getPropertyId(se::State& s)
         int result = cobj->getPropertyId();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_PathConstraintSpacingTimeline_getPropertyId : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -7746,6 +7957,7 @@ static bool js_spine_PointAttachment_copy(se::State& s)
         spine::Attachment* result = cobj->copy();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_PointAttachment_copy : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -7764,6 +7976,7 @@ static bool js_spine_PointAttachment_getRotation(se::State& s)
         float result = cobj->getRotation();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_PointAttachment_getRotation : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -7782,6 +7995,7 @@ static bool js_spine_PointAttachment_getX(se::State& s)
         float result = cobj->getX();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_PointAttachment_getX : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -7800,6 +8014,7 @@ static bool js_spine_PointAttachment_getY(se::State& s)
         float result = cobj->getY();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_PointAttachment_getY : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -7903,6 +8118,7 @@ static bool js_spine_RegionAttachment_copy(se::State& s)
         spine::Attachment* result = cobj->copy();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_RegionAttachment_copy : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -7921,6 +8137,7 @@ static bool js_spine_RegionAttachment_getColor(se::State& s)
         spine::Color& result = cobj->getColor();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_RegionAttachment_getColor : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -7939,6 +8156,7 @@ static bool js_spine_RegionAttachment_getHeight(se::State& s)
         float result = cobj->getHeight();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_RegionAttachment_getHeight : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -7957,6 +8175,7 @@ static bool js_spine_RegionAttachment_getOffset(se::State& s)
         spine::Vector<float>& result = cobj->getOffset();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_RegionAttachment_getOffset : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -7975,6 +8194,7 @@ static bool js_spine_RegionAttachment_getPath(se::State& s)
         const spine::String& result = cobj->getPath();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_RegionAttachment_getPath : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -7993,6 +8213,7 @@ static bool js_spine_RegionAttachment_getRegionHeight(se::State& s)
         float result = cobj->getRegionHeight();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_RegionAttachment_getRegionHeight : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -8011,6 +8232,7 @@ static bool js_spine_RegionAttachment_getRegionOffsetX(se::State& s)
         float result = cobj->getRegionOffsetX();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_RegionAttachment_getRegionOffsetX : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -8029,6 +8251,7 @@ static bool js_spine_RegionAttachment_getRegionOffsetY(se::State& s)
         float result = cobj->getRegionOffsetY();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_RegionAttachment_getRegionOffsetY : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -8047,6 +8270,7 @@ static bool js_spine_RegionAttachment_getRegionOriginalHeight(se::State& s)
         float result = cobj->getRegionOriginalHeight();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_RegionAttachment_getRegionOriginalHeight : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -8065,6 +8289,7 @@ static bool js_spine_RegionAttachment_getRegionOriginalWidth(se::State& s)
         float result = cobj->getRegionOriginalWidth();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_RegionAttachment_getRegionOriginalWidth : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -8083,6 +8308,7 @@ static bool js_spine_RegionAttachment_getRegionWidth(se::State& s)
         float result = cobj->getRegionWidth();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_RegionAttachment_getRegionWidth : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -8101,6 +8327,7 @@ static bool js_spine_RegionAttachment_getRotation(se::State& s)
         float result = cobj->getRotation();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_RegionAttachment_getRotation : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -8119,6 +8346,7 @@ static bool js_spine_RegionAttachment_getScaleX(se::State& s)
         float result = cobj->getScaleX();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_RegionAttachment_getScaleX : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -8137,6 +8365,7 @@ static bool js_spine_RegionAttachment_getScaleY(se::State& s)
         float result = cobj->getScaleY();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_RegionAttachment_getScaleY : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -8155,6 +8384,7 @@ static bool js_spine_RegionAttachment_getUVs(se::State& s)
         spine::Vector<float>& result = cobj->getUVs();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_RegionAttachment_getUVs : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -8173,6 +8403,7 @@ static bool js_spine_RegionAttachment_getWidth(se::State& s)
         float result = cobj->getWidth();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_RegionAttachment_getWidth : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -8191,6 +8422,7 @@ static bool js_spine_RegionAttachment_getX(se::State& s)
         float result = cobj->getX();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_RegionAttachment_getX : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -8209,6 +8441,7 @@ static bool js_spine_RegionAttachment_getY(se::State& s)
         float result = cobj->getY();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_RegionAttachment_getY : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -8590,6 +8823,7 @@ static bool js_spine_RotateTimeline_getBoneIndex(se::State& s)
         int result = cobj->getBoneIndex();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_RotateTimeline_getBoneIndex : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -8608,6 +8842,7 @@ static bool js_spine_RotateTimeline_getFrames(se::State& s)
         spine::Vector<float>& result = cobj->getFrames();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_RotateTimeline_getFrames : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -8626,6 +8861,7 @@ static bool js_spine_RotateTimeline_getPropertyId(se::State& s)
         int result = cobj->getPropertyId();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_RotateTimeline_getPropertyId : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -8712,6 +8948,7 @@ static bool js_spine_TranslateTimeline_getPropertyId(se::State& s)
         int result = cobj->getPropertyId();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_TranslateTimeline_getPropertyId : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -8778,6 +9015,7 @@ static bool js_spine_ScaleTimeline_getPropertyId(se::State& s)
         int result = cobj->getPropertyId();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_ScaleTimeline_getPropertyId : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -8818,6 +9056,7 @@ static bool js_spine_ShearTimeline_getPropertyId(se::State& s)
         int result = cobj->getPropertyId();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_ShearTimeline_getPropertyId : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -8861,6 +9100,7 @@ static bool js_spine_Skeleton_findBone(se::State& s)
         spine::Bone* result = cobj->findBone(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_Skeleton_findBone : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
@@ -8882,6 +9122,7 @@ static bool js_spine_Skeleton_findBoneIndex(se::State& s)
         int result = cobj->findBoneIndex(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_Skeleton_findBoneIndex : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
@@ -8903,6 +9144,7 @@ static bool js_spine_Skeleton_findIkConstraint(se::State& s)
         spine::IkConstraint* result = cobj->findIkConstraint(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_Skeleton_findIkConstraint : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
@@ -8924,6 +9166,7 @@ static bool js_spine_Skeleton_findPathConstraint(se::State& s)
         spine::PathConstraint* result = cobj->findPathConstraint(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_Skeleton_findPathConstraint : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
@@ -8945,6 +9188,7 @@ static bool js_spine_Skeleton_findSlot(se::State& s)
         spine::Slot* result = cobj->findSlot(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_Skeleton_findSlot : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
@@ -8966,6 +9210,7 @@ static bool js_spine_Skeleton_findSlotIndex(se::State& s)
         int result = cobj->findSlotIndex(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_Skeleton_findSlotIndex : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
@@ -8987,6 +9232,7 @@ static bool js_spine_Skeleton_findTransformConstraint(se::State& s)
         spine::TransformConstraint* result = cobj->findTransformConstraint(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_Skeleton_findTransformConstraint : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
@@ -9013,6 +9259,7 @@ static bool js_spine_Skeleton_getAttachment(se::State& s)
             spine::Attachment* result = cobj->getAttachment(arg0.value(), arg1.value());
             ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
             SE_PRECONDITION2(ok, false, "js_spine_Skeleton_getAttachment : Error processing arguments");
+            SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
             return true;
         }
     } while(false);
@@ -9029,6 +9276,7 @@ static bool js_spine_Skeleton_getAttachment(se::State& s)
             spine::Attachment* result = cobj->getAttachment(arg0.value(), arg1.value());
             ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
             SE_PRECONDITION2(ok, false, "js_spine_Skeleton_getAttachment : Error processing arguments");
+            SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
             return true;
         }
     } while(false);
@@ -9049,6 +9297,7 @@ static bool js_spine_Skeleton_getBones(se::State& s)
         spine::Vector<spine::Bone *>& result = cobj->getBones();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_Skeleton_getBones : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -9067,6 +9316,7 @@ static bool js_spine_Skeleton_getColor(se::State& s)
         spine::Color& result = cobj->getColor();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_Skeleton_getColor : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -9085,6 +9335,7 @@ static bool js_spine_Skeleton_getData(se::State& s)
         spine::SkeletonData* result = cobj->getData();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_Skeleton_getData : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -9103,6 +9354,7 @@ static bool js_spine_Skeleton_getDrawOrder(se::State& s)
         spine::Vector<spine::Slot *>& result = cobj->getDrawOrder();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_Skeleton_getDrawOrder : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -9121,6 +9373,7 @@ static bool js_spine_Skeleton_getIkConstraints(se::State& s)
         spine::Vector<spine::IkConstraint *>& result = cobj->getIkConstraints();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_Skeleton_getIkConstraints : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -9139,6 +9392,7 @@ static bool js_spine_Skeleton_getPathConstraints(se::State& s)
         spine::Vector<spine::PathConstraint *>& result = cobj->getPathConstraints();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_Skeleton_getPathConstraints : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -9157,6 +9411,7 @@ static bool js_spine_Skeleton_getRootBone(se::State& s)
         spine::Bone* result = cobj->getRootBone();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_Skeleton_getRootBone : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -9175,6 +9430,7 @@ static bool js_spine_Skeleton_getScaleX(se::State& s)
         float result = cobj->getScaleX();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_Skeleton_getScaleX : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -9193,6 +9449,7 @@ static bool js_spine_Skeleton_getScaleY(se::State& s)
         float result = cobj->getScaleY();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_Skeleton_getScaleY : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -9211,6 +9468,7 @@ static bool js_spine_Skeleton_getSkin(se::State& s)
         spine::Skin* result = cobj->getSkin();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_Skeleton_getSkin : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -9229,6 +9487,7 @@ static bool js_spine_Skeleton_getSlots(se::State& s)
         spine::Vector<spine::Slot *>& result = cobj->getSlots();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_Skeleton_getSlots : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -9247,6 +9506,7 @@ static bool js_spine_Skeleton_getTime(se::State& s)
         float result = cobj->getTime();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_Skeleton_getTime : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -9265,6 +9525,7 @@ static bool js_spine_Skeleton_getTransformConstraints(se::State& s)
         spine::Vector<spine::TransformConstraint *>& result = cobj->getTransformConstraints();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_Skeleton_getTransformConstraints : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -9283,6 +9544,7 @@ static bool js_spine_Skeleton_getUpdateCacheList(se::State& s)
         spine::Vector<spine::Updatable *>& result = cobj->getUpdateCacheList();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_Skeleton_getUpdateCacheList : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -9301,6 +9563,7 @@ static bool js_spine_Skeleton_getX(se::State& s)
         float result = cobj->getX();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_Skeleton_getX : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -9319,6 +9582,7 @@ static bool js_spine_Skeleton_getY(se::State& s)
         float result = cobj->getY();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_Skeleton_getY : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -9681,6 +9945,7 @@ static bool js_spine_SkeletonBounds_aabbcontainsPoint(se::State& s)
         bool result = cobj->aabbcontainsPoint(arg0.value(), arg1.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_SkeletonBounds_aabbcontainsPoint : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
@@ -9708,6 +9973,7 @@ static bool js_spine_SkeletonBounds_aabbintersectsSegment(se::State& s)
         bool result = cobj->aabbintersectsSegment(arg0.value(), arg1.value(), arg2.value(), arg3.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_SkeletonBounds_aabbintersectsSegment : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 4);
@@ -9734,6 +10000,7 @@ static bool js_spine_SkeletonBounds_containsPoint(se::State& s)
             spine::BoundingBoxAttachment* result = cobj->containsPoint(arg0.value(), arg1.value());
             ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
             SE_PRECONDITION2(ok, false, "js_spine_SkeletonBounds_containsPoint : Error processing arguments");
+            SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
             return true;
         }
     } while(false);
@@ -9753,6 +10020,7 @@ static bool js_spine_SkeletonBounds_containsPoint(se::State& s)
             bool result = cobj->containsPoint(arg0.value(), arg1.value(), arg2.value());
             ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
             SE_PRECONDITION2(ok, false, "js_spine_SkeletonBounds_containsPoint : Error processing arguments");
+            SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
             return true;
         }
     } while(false);
@@ -9773,6 +10041,7 @@ static bool js_spine_SkeletonBounds_getHeight(se::State& s)
         float result = cobj->getHeight();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_SkeletonBounds_getHeight : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -9794,6 +10063,7 @@ static bool js_spine_SkeletonBounds_getPolygon(se::State& s)
         spine::Polygon* result = cobj->getPolygon(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_SkeletonBounds_getPolygon : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
@@ -9812,6 +10082,7 @@ static bool js_spine_SkeletonBounds_getWidth(se::State& s)
         float result = cobj->getWidth();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_SkeletonBounds_getWidth : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -9847,6 +10118,7 @@ static bool js_spine_SkeletonBounds_intersectsSegment(se::State& s)
             bool result = cobj->intersectsSegment(arg0.value(), arg1.value(), arg2.value(), arg3.value(), arg4.value());
             ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
             SE_PRECONDITION2(ok, false, "js_spine_SkeletonBounds_intersectsSegment : Error processing arguments");
+            SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
             return true;
         }
     } while(false);
@@ -9869,6 +10141,7 @@ static bool js_spine_SkeletonBounds_intersectsSegment(se::State& s)
             spine::BoundingBoxAttachment* result = cobj->intersectsSegment(arg0.value(), arg1.value(), arg2.value(), arg3.value());
             ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
             SE_PRECONDITION2(ok, false, "js_spine_SkeletonBounds_intersectsSegment : Error processing arguments");
+            SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
             return true;
         }
     } while(false);
@@ -9939,6 +10212,7 @@ static bool js_spine_SkeletonData_findAnimation(se::State& s)
         spine::Animation* result = cobj->findAnimation(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_SkeletonData_findAnimation : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
@@ -9960,6 +10234,7 @@ static bool js_spine_SkeletonData_findBone(se::State& s)
         spine::BoneData* result = cobj->findBone(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_SkeletonData_findBone : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
@@ -9981,6 +10256,7 @@ static bool js_spine_SkeletonData_findBoneIndex(se::State& s)
         int result = cobj->findBoneIndex(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_SkeletonData_findBoneIndex : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
@@ -10002,6 +10278,7 @@ static bool js_spine_SkeletonData_findEvent(se::State& s)
         spine::EventData* result = cobj->findEvent(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_SkeletonData_findEvent : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
@@ -10023,6 +10300,7 @@ static bool js_spine_SkeletonData_findIkConstraint(se::State& s)
         spine::IkConstraintData* result = cobj->findIkConstraint(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_SkeletonData_findIkConstraint : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
@@ -10044,6 +10322,7 @@ static bool js_spine_SkeletonData_findPathConstraint(se::State& s)
         spine::PathConstraintData* result = cobj->findPathConstraint(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_SkeletonData_findPathConstraint : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
@@ -10065,6 +10344,7 @@ static bool js_spine_SkeletonData_findPathConstraintIndex(se::State& s)
         int result = cobj->findPathConstraintIndex(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_SkeletonData_findPathConstraintIndex : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
@@ -10086,6 +10366,7 @@ static bool js_spine_SkeletonData_findSkin(se::State& s)
         spine::Skin* result = cobj->findSkin(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_SkeletonData_findSkin : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
@@ -10107,6 +10388,7 @@ static bool js_spine_SkeletonData_findSlot(se::State& s)
         spine::SlotData* result = cobj->findSlot(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_SkeletonData_findSlot : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
@@ -10128,6 +10410,7 @@ static bool js_spine_SkeletonData_findSlotIndex(se::State& s)
         int result = cobj->findSlotIndex(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_SkeletonData_findSlotIndex : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
@@ -10149,6 +10432,7 @@ static bool js_spine_SkeletonData_findTransformConstraint(se::State& s)
         spine::TransformConstraintData* result = cobj->findTransformConstraint(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_SkeletonData_findTransformConstraint : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
@@ -10167,6 +10451,7 @@ static bool js_spine_SkeletonData_getAnimations(se::State& s)
         spine::Vector<spine::Animation *>& result = cobj->getAnimations();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_SkeletonData_getAnimations : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -10185,6 +10470,7 @@ static bool js_spine_SkeletonData_getAudioPath(se::State& s)
         const spine::String& result = cobj->getAudioPath();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_SkeletonData_getAudioPath : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -10203,6 +10489,7 @@ static bool js_spine_SkeletonData_getBones(se::State& s)
         spine::Vector<spine::BoneData *>& result = cobj->getBones();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_SkeletonData_getBones : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -10221,6 +10508,7 @@ static bool js_spine_SkeletonData_getDefaultSkin(se::State& s)
         spine::Skin* result = cobj->getDefaultSkin();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_SkeletonData_getDefaultSkin : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -10239,6 +10527,7 @@ static bool js_spine_SkeletonData_getEvents(se::State& s)
         spine::Vector<spine::EventData *>& result = cobj->getEvents();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_SkeletonData_getEvents : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -10257,6 +10546,7 @@ static bool js_spine_SkeletonData_getFps(se::State& s)
         float result = cobj->getFps();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_SkeletonData_getFps : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -10275,6 +10565,7 @@ static bool js_spine_SkeletonData_getHash(se::State& s)
         const spine::String& result = cobj->getHash();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_SkeletonData_getHash : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -10293,6 +10584,7 @@ static bool js_spine_SkeletonData_getHeight(se::State& s)
         float result = cobj->getHeight();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_SkeletonData_getHeight : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -10311,6 +10603,7 @@ static bool js_spine_SkeletonData_getIkConstraints(se::State& s)
         spine::Vector<spine::IkConstraintData *>& result = cobj->getIkConstraints();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_SkeletonData_getIkConstraints : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -10329,6 +10622,7 @@ static bool js_spine_SkeletonData_getImagesPath(se::State& s)
         const spine::String& result = cobj->getImagesPath();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_SkeletonData_getImagesPath : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -10347,6 +10641,7 @@ static bool js_spine_SkeletonData_getName(se::State& s)
         const spine::String& result = cobj->getName();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_SkeletonData_getName : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -10365,6 +10660,7 @@ static bool js_spine_SkeletonData_getPathConstraints(se::State& s)
         spine::Vector<spine::PathConstraintData *>& result = cobj->getPathConstraints();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_SkeletonData_getPathConstraints : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -10383,6 +10679,7 @@ static bool js_spine_SkeletonData_getSkins(se::State& s)
         spine::Vector<spine::Skin *>& result = cobj->getSkins();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_SkeletonData_getSkins : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -10401,6 +10698,7 @@ static bool js_spine_SkeletonData_getSlots(se::State& s)
         spine::Vector<spine::SlotData *>& result = cobj->getSlots();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_SkeletonData_getSlots : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -10419,6 +10717,7 @@ static bool js_spine_SkeletonData_getTransformConstraints(se::State& s)
         spine::Vector<spine::TransformConstraintData *>& result = cobj->getTransformConstraints();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_SkeletonData_getTransformConstraints : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -10437,6 +10736,7 @@ static bool js_spine_SkeletonData_getVersion(se::State& s)
         const spine::String& result = cobj->getVersion();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_SkeletonData_getVersion : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -10455,6 +10755,7 @@ static bool js_spine_SkeletonData_getWidth(se::State& s)
         float result = cobj->getWidth();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_SkeletonData_getWidth : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -10473,6 +10774,7 @@ static bool js_spine_SkeletonData_getX(se::State& s)
         float result = cobj->getX();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_SkeletonData_getX : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -10491,6 +10793,7 @@ static bool js_spine_SkeletonData_getY(se::State& s)
         float result = cobj->getY();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_SkeletonData_getY : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -10822,6 +11125,7 @@ static bool js_spine_Skin_getAttachment(se::State& s)
         spine::Attachment* result = cobj->getAttachment(arg0.value(), arg1.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_Skin_getAttachment : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
@@ -10840,6 +11144,7 @@ static bool js_spine_Skin_getBones(se::State& s)
         spine::Vector<spine::BoneData *>& result = cobj->getBones();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_Skin_getBones : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -10858,6 +11163,7 @@ static bool js_spine_Skin_getConstraints(se::State& s)
         spine::Vector<spine::ConstraintData *>& result = cobj->getConstraints();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_Skin_getConstraints : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -10876,6 +11182,7 @@ static bool js_spine_Skin_getName(se::State& s)
         const spine::String& result = cobj->getName();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_Skin_getName : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -10966,6 +11273,7 @@ static bool js_spine_Slot_getAttachment(se::State& s)
         spine::Attachment* result = cobj->getAttachment();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_Slot_getAttachment : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -10984,6 +11292,7 @@ static bool js_spine_Slot_getAttachmentTime(se::State& s)
         float result = cobj->getAttachmentTime();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_Slot_getAttachmentTime : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -11002,6 +11311,7 @@ static bool js_spine_Slot_getBone(se::State& s)
         spine::Bone& result = cobj->getBone();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_Slot_getBone : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -11020,6 +11330,7 @@ static bool js_spine_Slot_getColor(se::State& s)
         spine::Color& result = cobj->getColor();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_Slot_getColor : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -11038,6 +11349,7 @@ static bool js_spine_Slot_getDarkColor(se::State& s)
         spine::Color& result = cobj->getDarkColor();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_Slot_getDarkColor : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -11056,6 +11368,7 @@ static bool js_spine_Slot_getData(se::State& s)
         spine::SlotData& result = cobj->getData();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_Slot_getData : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -11074,6 +11387,7 @@ static bool js_spine_Slot_getDeform(se::State& s)
         spine::Vector<float>& result = cobj->getDeform();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_Slot_getDeform : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -11092,6 +11406,7 @@ static bool js_spine_Slot_getSkeleton(se::State& s)
         spine::Skeleton& result = cobj->getSkeleton();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_Slot_getSkeleton : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -11110,6 +11425,7 @@ static bool js_spine_Slot_hasDarkColor(se::State& s)
         bool result = cobj->hasDarkColor();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_Slot_hasDarkColor : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -11213,6 +11529,7 @@ static bool js_spine_SlotData_getAttachmentName(se::State& s)
         const spine::String& result = cobj->getAttachmentName();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_SlotData_getAttachmentName : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -11231,6 +11548,7 @@ static bool js_spine_SlotData_getBlendMode(se::State& s)
         unsigned int result = (unsigned int)cobj->getBlendMode();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_SlotData_getBlendMode : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -11249,6 +11567,7 @@ static bool js_spine_SlotData_getBoneData(se::State& s)
         spine::BoneData& result = cobj->getBoneData();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_SlotData_getBoneData : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -11267,6 +11586,7 @@ static bool js_spine_SlotData_getColor(se::State& s)
         spine::Color& result = cobj->getColor();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_SlotData_getColor : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -11285,6 +11605,7 @@ static bool js_spine_SlotData_getDarkColor(se::State& s)
         spine::Color& result = cobj->getDarkColor();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_SlotData_getDarkColor : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -11303,6 +11624,7 @@ static bool js_spine_SlotData_getIndex(se::State& s)
         int result = cobj->getIndex();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_SlotData_getIndex : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -11321,6 +11643,7 @@ static bool js_spine_SlotData_getName(se::State& s)
         const spine::String& result = cobj->getName();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_SlotData_getName : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -11339,6 +11662,7 @@ static bool js_spine_SlotData_hasDarkColor(se::State& s)
         bool result = cobj->hasDarkColor();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_SlotData_hasDarkColor : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -11460,6 +11784,7 @@ static bool js_spine_TransformConstraint_getBones(se::State& s)
         spine::Vector<spine::Bone *>& result = cobj->getBones();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_TransformConstraint_getBones : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -11478,6 +11803,7 @@ static bool js_spine_TransformConstraint_getData(se::State& s)
         spine::TransformConstraintData& result = cobj->getData();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_TransformConstraint_getData : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -11496,6 +11822,7 @@ static bool js_spine_TransformConstraint_getOrder(se::State& s)
         int result = cobj->getOrder();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_TransformConstraint_getOrder : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -11514,6 +11841,7 @@ static bool js_spine_TransformConstraint_getRotateMix(se::State& s)
         float result = cobj->getRotateMix();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_TransformConstraint_getRotateMix : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -11532,6 +11860,7 @@ static bool js_spine_TransformConstraint_getScaleMix(se::State& s)
         float result = cobj->getScaleMix();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_TransformConstraint_getScaleMix : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -11550,6 +11879,7 @@ static bool js_spine_TransformConstraint_getShearMix(se::State& s)
         float result = cobj->getShearMix();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_TransformConstraint_getShearMix : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -11568,6 +11898,7 @@ static bool js_spine_TransformConstraint_getTarget(se::State& s)
         spine::Bone* result = cobj->getTarget();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_TransformConstraint_getTarget : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -11586,6 +11917,7 @@ static bool js_spine_TransformConstraint_getTranslateMix(se::State& s)
         float result = cobj->getTranslateMix();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_TransformConstraint_getTranslateMix : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -11604,6 +11936,7 @@ static bool js_spine_TransformConstraint_isActive(se::State& s)
         bool result = cobj->isActive();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_TransformConstraint_isActive : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -11788,6 +12121,7 @@ static bool js_spine_TransformConstraintData_getBones(se::State& s)
         spine::Vector<spine::BoneData *>& result = cobj->getBones();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_TransformConstraintData_getBones : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -11806,6 +12140,7 @@ static bool js_spine_TransformConstraintData_getOffsetRotation(se::State& s)
         float result = cobj->getOffsetRotation();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_TransformConstraintData_getOffsetRotation : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -11824,6 +12159,7 @@ static bool js_spine_TransformConstraintData_getOffsetScaleX(se::State& s)
         float result = cobj->getOffsetScaleX();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_TransformConstraintData_getOffsetScaleX : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -11842,6 +12178,7 @@ static bool js_spine_TransformConstraintData_getOffsetScaleY(se::State& s)
         float result = cobj->getOffsetScaleY();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_TransformConstraintData_getOffsetScaleY : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -11860,6 +12197,7 @@ static bool js_spine_TransformConstraintData_getOffsetShearY(se::State& s)
         float result = cobj->getOffsetShearY();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_TransformConstraintData_getOffsetShearY : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -11878,6 +12216,7 @@ static bool js_spine_TransformConstraintData_getOffsetX(se::State& s)
         float result = cobj->getOffsetX();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_TransformConstraintData_getOffsetX : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -11896,6 +12235,7 @@ static bool js_spine_TransformConstraintData_getOffsetY(se::State& s)
         float result = cobj->getOffsetY();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_TransformConstraintData_getOffsetY : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -11914,6 +12254,7 @@ static bool js_spine_TransformConstraintData_getRotateMix(se::State& s)
         float result = cobj->getRotateMix();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_TransformConstraintData_getRotateMix : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -11932,6 +12273,7 @@ static bool js_spine_TransformConstraintData_getScaleMix(se::State& s)
         float result = cobj->getScaleMix();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_TransformConstraintData_getScaleMix : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -11950,6 +12292,7 @@ static bool js_spine_TransformConstraintData_getShearMix(se::State& s)
         float result = cobj->getShearMix();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_TransformConstraintData_getShearMix : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -11968,6 +12311,7 @@ static bool js_spine_TransformConstraintData_getTarget(se::State& s)
         spine::BoneData* result = cobj->getTarget();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_TransformConstraintData_getTarget : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -11986,6 +12330,7 @@ static bool js_spine_TransformConstraintData_getTranslateMix(se::State& s)
         float result = cobj->getTranslateMix();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_TransformConstraintData_getTranslateMix : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -12004,6 +12349,7 @@ static bool js_spine_TransformConstraintData_isLocal(se::State& s)
         bool result = cobj->isLocal();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_TransformConstraintData_isLocal : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -12022,6 +12368,7 @@ static bool js_spine_TransformConstraintData_isRelative(se::State& s)
         bool result = cobj->isRelative();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_TransformConstraintData_isRelative : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -12075,6 +12422,7 @@ static bool js_spine_TransformConstraintTimeline_getPropertyId(se::State& s)
         int result = cobj->getPropertyId();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_TransformConstraintTimeline_getPropertyId : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -12145,6 +12493,7 @@ static bool js_spine_TwoColorTimeline_getPropertyId(se::State& s)
         int result = cobj->getPropertyId();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_TwoColorTimeline_getPropertyId : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -12163,6 +12512,7 @@ static bool js_spine_TwoColorTimeline_getSlotIndex(se::State& s)
         int result = cobj->getSlotIndex();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_TwoColorTimeline_getSlotIndex : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -12280,6 +12630,7 @@ static bool js_spine_JitterVertexEffect_getJitterX(se::State& s)
         float result = cobj->getJitterX();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_JitterVertexEffect_getJitterX : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -12298,6 +12649,7 @@ static bool js_spine_JitterVertexEffect_getJitterY(se::State& s)
         float result = cobj->getJitterY();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_JitterVertexEffect_getJitterY : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -12379,6 +12731,7 @@ static bool js_spine_SwirlVertexEffect_getAngle(se::State& s)
         float result = cobj->getAngle();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_SwirlVertexEffect_getAngle : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -12397,6 +12750,7 @@ static bool js_spine_SwirlVertexEffect_getCenterX(se::State& s)
         float result = cobj->getCenterX();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_SwirlVertexEffect_getCenterX : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -12415,6 +12769,7 @@ static bool js_spine_SwirlVertexEffect_getCenterY(se::State& s)
         float result = cobj->getCenterY();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_SwirlVertexEffect_getCenterY : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -12433,6 +12788,7 @@ static bool js_spine_SwirlVertexEffect_getRadius(se::State& s)
         float result = cobj->getRadius();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_SwirlVertexEffect_getRadius : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -12451,6 +12807,7 @@ static bool js_spine_SwirlVertexEffect_getWorldX(se::State& s)
         float result = cobj->getWorldX();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_SwirlVertexEffect_getWorldX : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -12469,6 +12826,7 @@ static bool js_spine_SwirlVertexEffect_getWorldY(se::State& s)
         float result = cobj->getWorldY();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_SwirlVertexEffect_getWorldY : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -12649,6 +13007,7 @@ static bool js_spine_VertexEffectDelegate_getEffectType(se::State& s)
         const std::string& result = cobj->getEffectType();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_VertexEffectDelegate_getEffectType : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -12667,6 +13026,7 @@ static bool js_spine_VertexEffectDelegate_getJitterVertexEffect(se::State& s)
         spine::JitterVertexEffect* result = cobj->getJitterVertexEffect();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_VertexEffectDelegate_getJitterVertexEffect : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -12685,6 +13045,7 @@ static bool js_spine_VertexEffectDelegate_getSwirlVertexEffect(se::State& s)
         spine::SwirlVertexEffect* result = cobj->getSwirlVertexEffect();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_VertexEffectDelegate_getSwirlVertexEffect : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -12703,6 +13064,7 @@ static bool js_spine_VertexEffectDelegate_getVertexEffect(se::State& s)
         spine::VertexEffect* result = cobj->getVertexEffect();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_VertexEffectDelegate_getVertexEffect : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -12726,6 +13088,7 @@ static bool js_spine_VertexEffectDelegate_initJitter(se::State& s)
         spine::JitterVertexEffect* result = cobj->initJitter(arg0.value(), arg1.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_VertexEffectDelegate_initJitter : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
@@ -12749,6 +13112,7 @@ static bool js_spine_VertexEffectDelegate_initSwirlWithPow(se::State& s)
         spine::SwirlVertexEffect* result = cobj->initSwirlWithPow(arg0.value(), arg1.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_VertexEffectDelegate_initSwirlWithPow : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
@@ -12772,6 +13136,7 @@ static bool js_spine_VertexEffectDelegate_initSwirlWithPowOut(se::State& s)
         spine::SwirlVertexEffect* result = cobj->initSwirlWithPowOut(arg0.value(), arg1.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_VertexEffectDelegate_initSwirlWithPowOut : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
@@ -12855,6 +13220,7 @@ static bool js_spine_SkeletonRenderer_findBone(se::State& s)
         spine::Bone* result = cobj->findBone(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_SkeletonRenderer_findBone : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
@@ -12876,6 +13242,7 @@ static bool js_spine_SkeletonRenderer_findSlot(se::State& s)
         spine::Slot* result = cobj->findSlot(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_SkeletonRenderer_findSlot : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
@@ -12899,6 +13266,7 @@ static bool js_spine_SkeletonRenderer_getAttachment(se::State& s)
         spine::Attachment* result = cobj->getAttachment(arg0.value(), arg1.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_SkeletonRenderer_getAttachment : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
@@ -12917,6 +13285,7 @@ static bool js_spine_SkeletonRenderer_getBoundingBox(se::State& s)
         cc::Rect result = cobj->getBoundingBox();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_SkeletonRenderer_getBoundingBox : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -12935,6 +13304,7 @@ static bool js_spine_SkeletonRenderer_getDebugData(se::State& s)
         se_object_ptr result = cobj->getDebugData();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_SkeletonRenderer_getDebugData : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -12953,6 +13323,7 @@ static bool js_spine_SkeletonRenderer_getParamsBuffer(se::State& s)
         se_object_ptr result = cobj->getParamsBuffer();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_SkeletonRenderer_getParamsBuffer : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -12971,6 +13342,7 @@ static bool js_spine_SkeletonRenderer_getSharedBufferOffset(se::State& s)
         se_object_ptr result = cobj->getSharedBufferOffset();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_SkeletonRenderer_getSharedBufferOffset : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -12989,6 +13361,7 @@ static bool js_spine_SkeletonRenderer_getSkeleton(se::State& s)
         spine::Skeleton* result = cobj->getSkeleton();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_SkeletonRenderer_getSkeleton : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -13007,6 +13380,7 @@ static bool js_spine_SkeletonRenderer_getTimeScale(se::State& s)
         float result = cobj->getTimeScale();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_SkeletonRenderer_getTimeScale : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -13111,6 +13485,7 @@ static bool js_spine_SkeletonRenderer_isOpacityModifyRGB(se::State& s)
         bool result = cobj->isOpacityModifyRGB();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_SkeletonRenderer_isOpacityModifyRGB : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -13224,6 +13599,7 @@ static bool js_spine_SkeletonRenderer_setAttachment(se::State& s)
             bool result = cobj->setAttachment(arg0.value(), arg1.value());
             ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
             SE_PRECONDITION2(ok, false, "js_spine_SkeletonRenderer_setAttachment : Error processing arguments");
+            SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
             return true;
         }
     } while(false);
@@ -13240,6 +13616,7 @@ static bool js_spine_SkeletonRenderer_setAttachment(se::State& s)
             bool result = cobj->setAttachment(arg0.value(), arg1.value());
             ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
             SE_PRECONDITION2(ok, false, "js_spine_SkeletonRenderer_setAttachment : Error processing arguments");
+            SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
             return true;
         }
     } while(false);
@@ -13788,6 +14165,7 @@ static bool js_spine_SkeletonAnimation_addAnimation(se::State& s)
         spine::TrackEntry* result = cobj->addAnimation(arg0.value(), arg1.value(), arg2.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_SkeletonAnimation_addAnimation : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     if (argc == 4) {
@@ -13803,6 +14181,7 @@ static bool js_spine_SkeletonAnimation_addAnimation(se::State& s)
         spine::TrackEntry* result = cobj->addAnimation(arg0.value(), arg1.value(), arg2.value(), arg3.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_SkeletonAnimation_addAnimation : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 4);
@@ -13826,6 +14205,7 @@ static bool js_spine_SkeletonAnimation_addEmptyAnimation(se::State& s)
         spine::TrackEntry* result = cobj->addEmptyAnimation(arg0.value(), arg1.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_SkeletonAnimation_addEmptyAnimation : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     if (argc == 3) {
@@ -13839,6 +14219,7 @@ static bool js_spine_SkeletonAnimation_addEmptyAnimation(se::State& s)
         spine::TrackEntry* result = cobj->addEmptyAnimation(arg0.value(), arg1.value(), arg2.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_SkeletonAnimation_addEmptyAnimation : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 3);
@@ -13898,6 +14279,7 @@ static bool js_spine_SkeletonAnimation_findAnimation(se::State& s)
         spine::Animation* result = cobj->findAnimation(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_SkeletonAnimation_findAnimation : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
@@ -13916,6 +14298,7 @@ static bool js_spine_SkeletonAnimation_getCurrent(se::State& s)
         spine::TrackEntry* result = cobj->getCurrent();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_SkeletonAnimation_getCurrent : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     if (argc == 1) {
@@ -13925,6 +14308,7 @@ static bool js_spine_SkeletonAnimation_getCurrent(se::State& s)
         spine::TrackEntry* result = cobj->getCurrent(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_SkeletonAnimation_getCurrent : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
@@ -13943,6 +14327,7 @@ static bool js_spine_SkeletonAnimation_getState(se::State& s)
         spine::AnimationState* result = cobj->getState();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_SkeletonAnimation_getState : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -13968,6 +14353,7 @@ static bool js_spine_SkeletonAnimation_setAnimation(se::State& s)
         spine::TrackEntry* result = cobj->setAnimation(arg0.value(), arg1.value(), arg2.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_SkeletonAnimation_setAnimation : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 3);
@@ -14106,6 +14492,7 @@ static bool js_spine_SkeletonAnimation_setEmptyAnimation(se::State& s)
         spine::TrackEntry* result = cobj->setEmptyAnimation(arg0.value(), arg1.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_SkeletonAnimation_setEmptyAnimation : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
@@ -14900,6 +15287,7 @@ static bool js_spine_SkeletonCacheAnimation_findAnimation(se::State& s)
         spine::Animation* result = cobj->findAnimation(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_SkeletonCacheAnimation_findAnimation : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
@@ -14921,6 +15309,7 @@ static bool js_spine_SkeletonCacheAnimation_findBone(se::State& s)
         spine::Bone* result = cobj->findBone(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_SkeletonCacheAnimation_findBone : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
@@ -14942,6 +15331,7 @@ static bool js_spine_SkeletonCacheAnimation_findSlot(se::State& s)
         spine::Slot* result = cobj->findSlot(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_SkeletonCacheAnimation_findSlot : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
@@ -14965,6 +15355,7 @@ static bool js_spine_SkeletonCacheAnimation_getAttachment(se::State& s)
         spine::Attachment* result = cobj->getAttachment(arg0.value(), arg1.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_SkeletonCacheAnimation_getAttachment : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
@@ -14983,6 +15374,7 @@ static bool js_spine_SkeletonCacheAnimation_getParamsBuffer(se::State& s)
         se_object_ptr result = cobj->getParamsBuffer();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_SkeletonCacheAnimation_getParamsBuffer : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -15001,6 +15393,7 @@ static bool js_spine_SkeletonCacheAnimation_getSharedBufferOffset(se::State& s)
         se_object_ptr result = cobj->getSharedBufferOffset();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_SkeletonCacheAnimation_getSharedBufferOffset : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -15019,6 +15412,7 @@ static bool js_spine_SkeletonCacheAnimation_getSkeleton(se::State& s)
         spine::Skeleton* result = cobj->getSkeleton();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_SkeletonCacheAnimation_getSkeleton : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -15037,6 +15431,7 @@ static bool js_spine_SkeletonCacheAnimation_getTimeScale(se::State& s)
         float result = cobj->getTimeScale();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_SkeletonCacheAnimation_getTimeScale : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -15055,6 +15450,7 @@ static bool js_spine_SkeletonCacheAnimation_isOpacityModifyRGB(se::State& s)
         bool result = cobj->isOpacityModifyRGB();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_SkeletonCacheAnimation_isOpacityModifyRGB : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -15170,6 +15566,7 @@ static bool js_spine_SkeletonCacheAnimation_setAttachment(se::State& s)
             bool result = cobj->setAttachment(arg0.value(), arg1.value());
             ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
             SE_PRECONDITION2(ok, false, "js_spine_SkeletonCacheAnimation_setAttachment : Error processing arguments");
+            SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
             return true;
         }
     } while(false);
@@ -15186,6 +15583,7 @@ static bool js_spine_SkeletonCacheAnimation_setAttachment(se::State& s)
             bool result = cobj->setAttachment(arg0.value(), arg1.value());
             ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
             SE_PRECONDITION2(ok, false, "js_spine_SkeletonCacheAnimation_setAttachment : Error processing arguments");
+            SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
             return true;
         }
     } while(false);
@@ -15680,6 +16078,7 @@ static bool js_spine_SkeletonCacheMgr_buildSkeletonCache(se::State& s)
         spine::SkeletonCache* result = cobj->buildSkeletonCache(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_SkeletonCacheMgr_buildSkeletonCache : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
@@ -15728,6 +16127,7 @@ static bool js_spine_SkeletonCacheMgr_getInstance(se::State& s)
         spine::SkeletonCacheMgr* result = spine::SkeletonCacheMgr::getInstance();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_SkeletonCacheMgr_getInstance : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -15829,6 +16229,7 @@ static bool js_spine_SkeletonDataMgr_getInstance(se::State& s)
         spine::SkeletonDataMgr* result = spine::SkeletonDataMgr::getInstance();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_SkeletonDataMgr_getInstance : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);

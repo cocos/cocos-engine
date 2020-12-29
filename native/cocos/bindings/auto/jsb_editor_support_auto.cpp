@@ -26,6 +26,7 @@ static bool js_editor_support_Texture2D_getPixelsHigh(se::State& s)
         int result = cobj->getPixelsHigh();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_editor_support_Texture2D_getPixelsHigh : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -44,6 +45,7 @@ static bool js_editor_support_Texture2D_getPixelsWide(se::State& s)
         int result = cobj->getPixelsWide();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_editor_support_Texture2D_getPixelsWide : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -62,6 +64,7 @@ static bool js_editor_support_Texture2D_getRealTextureIndex(se::State& s)
         int result = cobj->getRealTextureIndex();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_editor_support_Texture2D_getRealTextureIndex : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -255,6 +258,7 @@ static bool js_editor_support_SharedBufferManager_getSharedBuffer(se::State& s)
         se_object_ptr result = cobj->getSharedBuffer();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_editor_support_SharedBufferManager_getSharedBuffer : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -369,6 +373,7 @@ static bool js_editor_support_MiddlewareManager_getAttachInfoMgr(se::State& s)
         cc::middleware::SharedBufferManager* result = cobj->getAttachInfoMgr();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_editor_support_MiddlewareManager_getAttachInfoMgr : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -390,6 +395,7 @@ static bool js_editor_support_MiddlewareManager_getBufferCount(se::State& s)
         size_t result = cobj->getBufferCount(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_editor_support_MiddlewareManager_getBufferCount : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
@@ -413,6 +419,7 @@ static bool js_editor_support_MiddlewareManager_getIBTypedArray(se::State& s)
         se_object_ptr result = cobj->getIBTypedArray(arg0.value(), arg1.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_editor_support_MiddlewareManager_getIBTypedArray : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
@@ -436,6 +443,7 @@ static bool js_editor_support_MiddlewareManager_getIBTypedArrayLength(se::State&
         size_t result = cobj->getIBTypedArrayLength(arg0.value(), arg1.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_editor_support_MiddlewareManager_getIBTypedArrayLength : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
@@ -454,6 +462,7 @@ static bool js_editor_support_MiddlewareManager_getRenderInfoMgr(se::State& s)
         cc::middleware::SharedBufferManager* result = cobj->getRenderInfoMgr();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_editor_support_MiddlewareManager_getRenderInfoMgr : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -477,6 +486,7 @@ static bool js_editor_support_MiddlewareManager_getVBTypedArray(se::State& s)
         se_object_ptr result = cobj->getVBTypedArray(arg0.value(), arg1.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_editor_support_MiddlewareManager_getVBTypedArray : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
@@ -500,6 +510,7 @@ static bool js_editor_support_MiddlewareManager_getVBTypedArrayLength(se::State&
         size_t result = cobj->getVBTypedArrayLength(arg0.value(), arg1.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_editor_support_MiddlewareManager_getVBTypedArrayLength : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
@@ -567,6 +578,7 @@ static bool js_editor_support_MiddlewareManager_generateModuleID(se::State& s)
         uint8_t result = cc::middleware::MiddlewareManager::generateModuleID();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_editor_support_MiddlewareManager_generateModuleID : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -583,6 +595,7 @@ static bool js_editor_support_MiddlewareManager_getInstance(se::State& s)
         cc::middleware::MiddlewareManager* result = cc::middleware::MiddlewareManager::getInstance();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_editor_support_MiddlewareManager_getInstance : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);

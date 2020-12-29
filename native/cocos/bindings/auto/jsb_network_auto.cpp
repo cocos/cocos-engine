@@ -67,6 +67,7 @@ static bool js_network_DownloaderHints_get_countOfMaxProcessingTasks(se::State& 
     se::Value jsret;
     ok &= nativevalue_to_se(cobj->countOfMaxProcessingTasks, jsret, s.thisObject() /*ctx*/);
     s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->countOfMaxProcessingTasks, s.thisObject(), s.rval());
     return true;
 }
 SE_BIND_PROP_GET(js_network_DownloaderHints_get_countOfMaxProcessingTasks)
@@ -93,6 +94,7 @@ static bool js_network_DownloaderHints_get_timeoutInSeconds(se::State& s)
     se::Value jsret;
     ok &= nativevalue_to_se(cobj->timeoutInSeconds, jsret, s.thisObject() /*ctx*/);
     s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->timeoutInSeconds, s.thisObject(), s.rval());
     return true;
 }
 SE_BIND_PROP_GET(js_network_DownloaderHints_get_timeoutInSeconds)
@@ -119,6 +121,7 @@ static bool js_network_DownloaderHints_get_tempFileNameSuffix(se::State& s)
     se::Value jsret;
     ok &= nativevalue_to_se(cobj->tempFileNameSuffix, jsret, s.thisObject() /*ctx*/);
     s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->tempFileNameSuffix, s.thisObject(), s.rval());
     return true;
 }
 SE_BIND_PROP_GET(js_network_DownloaderHints_get_tempFileNameSuffix)

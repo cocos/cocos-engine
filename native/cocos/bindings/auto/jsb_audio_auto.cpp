@@ -23,6 +23,7 @@ static bool js_audio_AudioProfile_get_name(se::State& s)
     se::Value jsret;
     ok &= nativevalue_to_se(cobj->name, jsret, s.thisObject() /*ctx*/);
     s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->name, s.thisObject(), s.rval());
     return true;
 }
 SE_BIND_PROP_GET(js_audio_AudioProfile_get_name)
@@ -49,6 +50,7 @@ static bool js_audio_AudioProfile_get_maxInstances(se::State& s)
     se::Value jsret;
     ok &= nativevalue_to_se(cobj->maxInstances, jsret, s.thisObject() /*ctx*/);
     s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->maxInstances, s.thisObject(), s.rval());
     return true;
 }
 SE_BIND_PROP_GET(js_audio_AudioProfile_get_maxInstances)
@@ -75,6 +77,7 @@ static bool js_audio_AudioProfile_get_minDelay(se::State& s)
     se::Value jsret;
     ok &= nativevalue_to_se(cobj->minDelay, jsret, s.thisObject() /*ctx*/);
     s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->minDelay, s.thisObject(), s.rval());
     return true;
 }
 SE_BIND_PROP_GET(js_audio_AudioProfile_get_minDelay)
@@ -149,6 +152,7 @@ static bool js_audio_AudioEngine_lazyInit(se::State& s)
         bool result = cc::AudioEngine::lazyInit();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_audio_AudioEngine_lazyInit : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -170,6 +174,7 @@ static bool js_audio_AudioEngine_setCurrentTime(se::State& s)
         bool result = cc::AudioEngine::setCurrentTime(arg0.value(), arg1.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_audio_AudioEngine_setCurrentTime : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
@@ -189,6 +194,7 @@ static bool js_audio_AudioEngine_getVolume(se::State& s)
         float result = cc::AudioEngine::getVolume(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_audio_AudioEngine_getVolume : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
@@ -278,6 +284,7 @@ static bool js_audio_AudioEngine_getMaxAudioInstance(se::State& s)
         int result = cc::AudioEngine::getMaxAudioInstance();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_audio_AudioEngine_getMaxAudioInstance : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -294,6 +301,7 @@ static bool js_audio_AudioEngine_isEnabled(se::State& s)
         bool result = cc::AudioEngine::isEnabled();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_audio_AudioEngine_isEnabled : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -313,6 +321,7 @@ static bool js_audio_AudioEngine_getDurationFromFile(se::State& s)
         float result = cc::AudioEngine::getDurationFromFile(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_audio_AudioEngine_getDurationFromFile : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
@@ -332,6 +341,7 @@ static bool js_audio_AudioEngine_getCurrentTime(se::State& s)
         float result = cc::AudioEngine::getCurrentTime(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_audio_AudioEngine_getCurrentTime : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
@@ -351,6 +361,7 @@ static bool js_audio_AudioEngine_setMaxAudioInstance(se::State& s)
         bool result = cc::AudioEngine::setMaxAudioInstance(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_audio_AudioEngine_setMaxAudioInstance : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
@@ -370,6 +381,7 @@ static bool js_audio_AudioEngine_isLoop(se::State& s)
         bool result = cc::AudioEngine::isLoop(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_audio_AudioEngine_isLoop : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
@@ -511,6 +523,7 @@ static bool js_audio_AudioEngine_play2d(se::State& s)
         int result = cc::AudioEngine::play2d(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_audio_AudioEngine_play2d : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     if (argc == 2) {
@@ -522,6 +535,7 @@ static bool js_audio_AudioEngine_play2d(se::State& s)
         int result = cc::AudioEngine::play2d(arg0.value(), arg1.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_audio_AudioEngine_play2d : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     if (argc == 3) {
@@ -535,6 +549,7 @@ static bool js_audio_AudioEngine_play2d(se::State& s)
         int result = cc::AudioEngine::play2d(arg0.value(), arg1.value(), arg2.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_audio_AudioEngine_play2d : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     if (argc == 4) {
@@ -550,6 +565,7 @@ static bool js_audio_AudioEngine_play2d(se::State& s)
         int result = cc::AudioEngine::play2d(arg0.value(), arg1.value(), arg2.value(), arg3.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_audio_AudioEngine_play2d : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 4);
@@ -569,6 +585,7 @@ static bool js_audio_AudioEngine_getState(se::State& s)
         int result = (int)cc::AudioEngine::getState(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_audio_AudioEngine_getState : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
@@ -622,6 +639,7 @@ static bool js_audio_AudioEngine_getDuration(se::State& s)
         float result = cc::AudioEngine::getDuration(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_audio_AudioEngine_getDuration : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
@@ -657,6 +675,7 @@ static bool js_audio_AudioEngine_getDefaultProfile(se::State& s)
         cc::AudioProfile* result = cc::AudioEngine::getDefaultProfile();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_audio_AudioEngine_getDefaultProfile : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
@@ -726,6 +745,7 @@ static bool js_audio_AudioEngine_getProfile(se::State& s)
             cc::AudioProfile* result = cc::AudioEngine::getProfile(arg0.value());
             ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
             SE_PRECONDITION2(ok, false, "js_audio_AudioEngine_getProfile : Error processing arguments");
+            SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
             return true;
         }
     } while (false);
@@ -737,6 +757,7 @@ static bool js_audio_AudioEngine_getProfile(se::State& s)
             cc::AudioProfile* result = cc::AudioEngine::getProfile(arg0.value());
             ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
             SE_PRECONDITION2(ok, false, "js_audio_AudioEngine_getProfile : Error processing arguments");
+            SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
             return true;
         }
     } while (false);
@@ -754,6 +775,7 @@ static bool js_audio_AudioEngine_getPlayingAudioCount(se::State& s)
         int result = cc::AudioEngine::getPlayingAudioCount();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_audio_AudioEngine_getPlayingAudioCount : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
