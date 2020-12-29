@@ -40,10 +40,6 @@ THE SOFTWARE.
 #include "MTLTexture.h"
 #include "TargetConditionals.h"
 
-namespace tar {
-    thread_local NSAutoreleasePool *cbAutoreleasePool = nullptr;
-}
-
 namespace cc {
 namespace gfx {
 
@@ -64,10 +60,10 @@ bool CCMTLCommandBuffer::initialize(const CommandBufferInfo &info)
 
 void CCMTLCommandBuffer::destroy()
 {
-    if (tar::cbAutoreleasePool)
+    if (_autoreleasePool)
     {
-        [tar::cbAutoreleasePool release];
-        tar::cbAutoreleasePool = nullptr;
+        [_autoreleasePool release];
+        _autoreleasePool = nullptr;
     }
 }
 
@@ -95,8 +91,11 @@ bool CCMTLCommandBuffer::isRenderingEntireDrawable(const Rect &rect, const CCMTL
 void CCMTLCommandBuffer::begin(RenderPass *renderPass, uint subpass, Framebuffer *frameBuffer, int submitIndex) {
     if (_commandBufferBegan) return;
 
-    tar::cbAutoreleasePool = [[NSAutoreleasePool alloc] init];
-//    CC_LOG_INFO("%d CB POOL: %p ALLOCED for %p", [NSThread currentThread], tar::cbAutoreleasePool,  this);
+    if (!_autoreleasePool) {
+        _mtlDevice->ensureAutoreleasePool();
+        _autoreleasePool = [[NSAutoreleasePool alloc] init];
+//        CC_LOG_INFO("%d CB POOL: %p ALLOCED for %p", [NSThread currentThread], _autoreleasePool, this);
+    }
 
     _isSecondary = renderPass != nullptr && _mtlCommandBuffer;
     if (!_isSecondary)
@@ -133,11 +132,11 @@ bool CCMTLCommandBuffer::isRenderingEntireDrawable(const Rect &rect, const CCMTL
     if (num == 0) {
         return true;
     }
-//    CC_LOG_INFO("%d CB POOL: %p RELEASED for %p", [NSThread currentThread], tar::cbAutoreleasePool, this);
-    if (tar::cbAutoreleasePool)
+    if (_autoreleasePool)
     {
-        [tar::cbAutoreleasePool drain];
-        tar::cbAutoreleasePool = nullptr;
+//        CC_LOG_INFO("%d CB POOL: %p RELEASED for %p", [NSThread currentThread], _autoreleasePool, this);
+        [_autoreleasePool drain];
+        _autoreleasePool = nullptr;
     }
 }
 

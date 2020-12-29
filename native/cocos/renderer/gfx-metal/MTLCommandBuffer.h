@@ -84,6 +84,7 @@ private:
     bool _indirectDrawSuppotred = false;
     bool _commandBufferBegan = false;
     bool _isSecondary = false;
+    NSAutoreleasePool *_autoreleasePool = nullptr;
     CCMTLDevice *_mtlDevice = nullptr;
 //    id<CAMetalDrawable> _currDrawable = nil;
     id<MTLCommandQueue> _mtlCommandQueue = nil;

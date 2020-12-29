@@ -49,10 +49,6 @@ THE SOFTWARE.
 #import <MetalKit/MTKView.h>
 #include <dispatch/dispatch.h>
 
-namespace tar {
-    thread_local NSAutoreleasePool* autoreleasePool = nullptr;
-}
-
 namespace cc {
 namespace gfx {
 
@@ -182,9 +178,9 @@ void CCMTLDevice::destroy() {
     if (_memoryAlarmListenerId != 0) {
         EventDispatcher::removeCustomEventListener(EVENT_MEMORY_WARNING, _memoryAlarmListenerId);
         _memoryAlarmListenerId = 0;
-    if (tar::autoreleasePool) {
-        [tar::autoreleasePool release];
-        tar::autoreleasePool = nullptr;
+    if (_autoreleasePool) {
+        [(NSAutoreleasePool*)_autoreleasePool drain];
+        _autoreleasePool = nullptr;
     }
     
     CC_SAFE_DESTROY(_queue);
@@ -200,10 +196,17 @@ void CCMTLDevice::destroy() {
 
 void CCMTLDevice::resize(uint width, uint height) {}
 
+void CCMTLDevice::ensureAutoreleasePool() {
+    if (!_autoreleasePool) {
+        _autoreleasePool = [[NSAutoreleasePool alloc] init];
+//        CC_LOG_INFO("POOL: %p ALLOCED", _autoreleasePool);
+    }
+}
+
 void CCMTLDevice::acquire() {
     _inFlightSemaphore->wait();
 
-    tar::autoreleasePool = [[NSAutoreleasePool alloc] init];
+    ensureAutoreleasePool();
     // Clear queue stats
     CCMTLQueue *queue = static_cast<CCMTLQueue *>(_queue);
     queue->_numDrawCalls = 0;
@@ -231,9 +234,10 @@ void CCMTLDevice::present() {
     }];
     [mtlCommandBuffer commit];
 
-    if (tar::autoreleasePool) {
-        [tar::autoreleasePool drain];
-        tar::autoreleasePool = nullptr;
+    if (_autoreleasePool) {
+//        CC_LOG_INFO("POOL: %p RELEASED", _autoreleasePool);
+        [(NSAutoreleasePool*)_autoreleasePool drain];
+        _autoreleasePool = nullptr;
     }
 }
 
