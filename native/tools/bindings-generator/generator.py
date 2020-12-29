@@ -1896,7 +1896,8 @@ def main():
         parser.error('invalid number of arguments')
 
     userconfig = ConfigParser.SafeConfigParser()
-    userconfig.read('userconf.ini')
+    userconfig_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), "../tojs", 'userconf.ini')
+    userconfig.read(userconfig_path)
     # logger.info('Using userconfig \n %s' % (userconfig.items('DEFAULT')))
 
     clang_lib_path = os.path.join(userconfig.get('DEFAULT', 'cxxgeneratordir'), 'libclang')

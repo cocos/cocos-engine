@@ -19,7 +19,7 @@ PROJECT_ROOT="$DIR/../.."
 TRAVIS_ROOT="$PROJECT_ROOT/tools/travis-scripts"
 JS_AUTO_GENERATED_DIR="$PROJECT_ROOT/cocos/bindings/auto"
 CCFILES_AUTO_GENERATED_DIR="$PROJECT_ROOT/templates/cocos2dx_files.json"
-COMMITTAG="[ci skip][AUTO]: updating jsbinding automatically"
+COMMITTAG="[ci skip][AUTO]: #$TRAVIS_PULL_REQUEST updating jsbinding automatically"
 ELAPSEDSECS=`date +%s`
 COCOS_BRANCH="update_js_bindings_$ELAPSEDSECS"
 COCOS_ROBOT_REMOTE="https://${GH_USER}:${GH_PASSWORD}@github.com/${GH_USER}/cocos2d-x-lite.git"
@@ -145,7 +145,7 @@ echo "  finish push ..."
 
 # 7.
 echo "Sending Pull Request to base repo ..."
-curl -H "Authorization: token $GH_TOKEN"  --request POST --data "{ \"title\": \"$COMMITTAG\", \"body\": \"\", \"head\": \"${GH_USER}:${COCOS_BRANCH}\", \"base\": \"${TRAVIS_BRANCH}\"}" "${PULL_REQUEST_REPO}" # 2> /dev/null > /dev/null
+curl -H "Authorization: token $GH_TOKEN"  --request POST --data "{ \"title\": \"$COMMITTAG\", \"body\": \"From #$TRAVIS_PULL_REQUEST\", \"head\": \"${GH_USER}:${COCOS_BRANCH}\", \"base\": \"${TRAVIS_BRANCH}\"}" "${PULL_REQUEST_REPO}" # 2> /dev/null > /dev/null
 
 echo "  finish sending PR ..."
 
