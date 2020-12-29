@@ -77,7 +77,7 @@ export class Canvas extends Component {
      * @zh
      * 清理屏幕缓冲标记。
      *
-     * @deprecated
+     * @deprecated since v3.0, please use [[canvas.cameraComponent.clearFlags]] instead
      */
     get clearFlag () {
         if (this._cameraComponent) {
@@ -100,7 +100,7 @@ export class Canvas extends Component {
      * @zh
      * 内置相机的颜色缓冲默认值。
      *
-     * @deprecated
+     * @deprecated since v3.0, please use [[canvas.cameraComponent.clearColor]] instead
      */
     @tooltip('清理颜色缓冲区后的颜色')
     get color () {
@@ -130,7 +130,7 @@ export class Canvas extends Component {
      * intersperse 下可以指定 Canvas 与场景中的相机的渲染顺序，overlay 下 Canvas 会在所有场景相机渲染完成后渲染。
      * 注意：场景里的相机（包括 Canvas 内置的相机）必须有一个的 ClearFlag 选择 SOLID_COLOR，否则在移动端可能会出现闪屏。
      *
-     * @deprecated
+     * @deprecated since v3.0, do not use.
      */
     get renderMode () {
         return this._renderMode;
@@ -155,7 +155,7 @@ export class Canvas extends Component {
      *
      * @param value - 渲染优先级。
      *
-     * @deprecated
+     * @deprecated since v3.0, please use [[canvas.cameraComponent.priority]] instead
      */
     get priority () {
         if (this._cameraComponent) {
@@ -178,7 +178,7 @@ export class Canvas extends Component {
      * @zh
      * 设置目标渲染纹理。
      *
-     * @deprecated
+     * @deprecated since v3.0, please use [[canvas.cameraComponent.targetTexture]] instead
      */
     get targetTexture () {
         if (this._cameraComponent) {
@@ -201,7 +201,7 @@ export class Canvas extends Component {
      * @zh
      * 获取Canvas 下 2D camera 的可见性。
      *
-     * @deprecated
+     * @deprecated since v3.0, please use [[canvas.cameraComponent.visibility]] instead
      */
     get visibility () {
         if (this._cameraComponent) {
