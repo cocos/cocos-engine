@@ -230,10 +230,7 @@ export function createNodeWithPrefab (node: Node) {
     // @ts-expect-error: private member access
     node._id = _id;
     // @ts-expect-error: private member access
-    if (node._prefab) {
-        // @ts-expect-error: private member access
-        node._prefab.instance = _prefab?.instance;
-    }
+    node._prefab = _prefab;
 }
 
 // TODO: more efficient id->Node/Component map
