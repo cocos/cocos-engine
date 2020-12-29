@@ -49,6 +49,7 @@ Game* game = nullptr;
     _viewController = [[ViewController alloc]init];
     _viewController.view = [[View alloc] initWithFrame:bounds];
     _viewController.view.contentScaleFactor = UIScreen.mainScreen.scale;
+    _viewController.view.multipleTouchEnabled = true;
     [self.window setRootViewController:_viewController];
 
     // cocos2d application instance
