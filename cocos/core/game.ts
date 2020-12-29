@@ -388,19 +388,6 @@ export class Game extends EventTarget {
             window.cAF(this._intervalId);
             this._intervalId = 0;
         }
-        // Because runtime platforms never actually stops the swap chain,
-        // we draw some more frames here to (try to) make sure swap chain consistency
-        if (RUNTIME_BASED || ALIPAY) {
-            let swapbuffers = 4;
-            const cb = () => {
-                if (--swapbuffers > 1) {
-                    window.rAF(cb);
-                }
-                const root = legacyCC.director.root;
-                root.frameMove(0); root.device.present();
-            };
-            window.rAF(cb);
-        }
     }
 
     /**
@@ -513,6 +500,7 @@ export class Game extends EventTarget {
         }
 
         return this._initEngine().then(() => {
+            this._setAnimFrame();
             if (!EDITOR) {
                 this._initEvents();
             }
@@ -855,9 +843,6 @@ export class Game extends EventTarget {
     private _initEvents () {
         const win = window;
         let hiddenPropName: string;
-
-        // Ensure rAF and cAF
-        this._setAnimFrame();
 
         if (typeof document.hidden !== 'undefined') {
             hiddenPropName = 'hidden';
