@@ -40,7 +40,6 @@ import { array } from '../core/utils/js';
 import { AlignFlags, AlignMode, computeInverseTransForTarget, getReadonlyNodeSize, Widget } from './widget';
 import { UITransform } from '../2d/framework';
 import { legacyCC } from '../core/global-exports';
-import { warnID } from '../core/platform/debug';
 
 const _tempPos = new Vec3();
 const _defaultAnchor = new Vec2();
