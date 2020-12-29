@@ -116,7 +116,7 @@ export class AudioSource extends Component {
     @range([0.0, 1.0])
     @tooltip('i18n:audio.volume')
     set volume (val) {
-        if (isNaN(val)) { console.warn('illegal audio volume!'); return; }
+        if (Number.isNaN(val)) { console.warn('illegal audio volume!'); return; }
         val = clamp(val, 0, 1);
         if (this._clip) {
             this._clip.setVolume(val);
@@ -215,7 +215,7 @@ export class AudioSource extends Component {
      * @param num playback time to jump to.
      */
     set currentTime (num: number) {
-        if (isNaN(num)) { console.warn('illegal audio time!'); return; }
+        if (Number.isNaN(num)) { console.warn('illegal audio time!'); return; }
         num = clamp(num, 0, this.duration);
         this._cachedCurrentTime = num;
         if (!this._clip) { return; }
