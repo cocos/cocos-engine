@@ -267,8 +267,9 @@ export class Mask extends UIRenderable {
         }
 
         this._alphaThreshold = value;
-        if (this.type === MaskType.IMAGE_STENCIL) {
-            this._graphics?.getMaterialInstance(0)?.setProperty('alphaThreshold', this._alphaThreshold);
+        if (this.type === MaskType.IMAGE_STENCIL && this._graphics) {
+            const mat = this._graphics.getMaterialInstance(0)!;
+            mat.setProperty('alphaThreshold', this._alphaThreshold);
         }
     }
 
@@ -370,10 +371,7 @@ export class Mask extends UIRenderable {
 
     public onEnable () {
         super.onEnable();
-
-        if (this._type === MaskType.ELLIPSE || this._type === MaskType.RECT) {
-            this._updateGraphics();
-        }
+        this._updateGraphics();
     }
 
     /**
@@ -456,9 +454,7 @@ export class Mask extends UIRenderable {
     protected _nodeStateChange (type: TransformBit) {
         super._nodeStateChange(type);
 
-        if (this._type === MaskType.RECT || this._type === MaskType.ELLIPSE) {
-            this._updateGraphics();
-        }
+        this._updateGraphics();
     }
 
     protected _canRender () {
@@ -500,7 +496,7 @@ export class Mask extends UIRenderable {
     }
 
     protected _updateGraphics () {
-        if (!this._graphics) {
+        if (!this._graphics || (this._type !== MaskType.RECT && this._type !== MaskType.ELLIPSE)) {
             return;
         }
 
@@ -544,10 +540,7 @@ export class Mask extends UIRenderable {
             });
 
             this._clearModel = director.root!.createModel(scene.Model);
-            // @ts-expect-error
-            this._clearModel.name = 'clear-model';
             this._clearModel.node = this._clearModel.transform = this.node;
-            let renderMesh: RenderingSubMesh;
             const stride = getAttributeStride(vfmt);
             const gfxDevice: Device = legacyCC.director.root.device;
             const vertexBuffer = gfxDevice.createBuffer(new BufferInfo(
@@ -568,7 +561,7 @@ export class Mask extends UIRenderable {
 
             const ib = new Uint16Array([0, 1, 2, 2, 1, 3]);
             indexBuffer.update(ib);
-            renderMesh = new RenderingSubMesh([vertexBuffer], vfmt, PrimitiveMode.TRIANGLE_LIST, indexBuffer);
+            const renderMesh = new RenderingSubMesh([vertexBuffer], vfmt, PrimitiveMode.TRIANGLE_LIST, indexBuffer);
             renderMesh.subMeshIdx = 0;
 
             this._clearModel.initSubModel(0, renderMesh, this._clearStencilMtl);

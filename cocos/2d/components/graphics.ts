@@ -587,7 +587,6 @@ export class Graphics extends UIRenderable {
         }
 
         if (this.model.subModels.length <= idx) {
-            let renderMesh: RenderingSubMesh;
             const gfxDevice: Device = legacyCC.director.root.device;
             const vertexBuffer = gfxDevice.createBuffer(new BufferInfo(
                 BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST,
@@ -602,7 +601,7 @@ export class Graphics extends UIRenderable {
                 Uint16Array.BYTES_PER_ELEMENT,
             ));
 
-            renderMesh = new RenderingSubMesh([vertexBuffer], attributes, PrimitiveMode.TRIANGLE_LIST, indexBuffer);
+            const renderMesh = new RenderingSubMesh([vertexBuffer], attributes, PrimitiveMode.TRIANGLE_LIST, indexBuffer);
             renderMesh.subMeshIdx = 0;
 
             this.model.initSubModel(idx, renderMesh, this.getMaterialInstance(0)!);
@@ -611,18 +610,13 @@ export class Graphics extends UIRenderable {
 
     protected _uploadData (render: UI) {
         const impl = this.impl;
-        const renderDataList = impl && impl.getRenderData();
-        if (!renderDataList || !this.model) {
+        if (!impl) {
             return;
         }
 
-        const subModelCount = this.model.subModels.length;
-        const listLength = renderDataList.length;
-        const delta = listLength - subModelCount;
-        if (delta > 0) {
-            for (let k = subModelCount; k < listLength; k++) {
-                this.activeSubModel(k);
-            }
+        const renderDataList = impl && impl.getRenderData();
+        if (renderDataList.length <= 0 || !this.model) {
+            return;
         }
 
         const subModelList = this.model.subModels;
