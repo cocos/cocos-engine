@@ -267,8 +267,9 @@ export class Mask extends UIRenderable {
         }
 
         this._alphaThreshold = value;
-        if (this.type === MaskType.IMAGE_STENCIL) {
-            this._graphics?.getMaterialInstance(0)?.setProperty('alphaThreshold', this._alphaThreshold);
+        if (this.type === MaskType.IMAGE_STENCIL && this._graphics) {
+            const mat = this._graphics.getMaterialInstance(0)!;
+            mat.setProperty('alphaThreshold', this._alphaThreshold);
         }
     }
 
@@ -539,8 +540,6 @@ export class Mask extends UIRenderable {
             });
 
             this._clearModel = director.root!.createModel(scene.Model);
-            // @ts-expect-error
-            this._clearModel.name = 'clear-model';
             this._clearModel.node = this._clearModel.transform = this.node;
             const stride = getAttributeStride(vfmt);
             const gfxDevice: Device = legacyCC.director.root.device;
