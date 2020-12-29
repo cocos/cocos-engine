@@ -65,7 +65,7 @@ void GLES3PrimaryCommandBuffer::draw(InputAssembler *ia) {
             vector<uint> &dynamicOffsetOffsets = _curGPUPipelineState->gpuPipelineLayout->dynamicOffsetOffsets;
             vector<uint> &dynamicOffsets = _curGPUPipelineState->gpuPipelineLayout->dynamicOffsets;
             for (size_t i = 0u; i < _curDynamicOffsets.size(); i++) {
-                uint count = dynamicOffsetOffsets[i + 1] - dynamicOffsetOffsets[i];
+                size_t count = dynamicOffsetOffsets[i + 1] - dynamicOffsetOffsets[i];
                 //CCASSERT(_curDynamicOffsets[i].size() >= count, "missing dynamic offsets?");
                 count = std::min(count, _curDynamicOffsets[i].size());
                 if (count) memcpy(&dynamicOffsets[dynamicOffsetOffsets[i]], _curDynamicOffsets[i].data(), count * sizeof(uint));

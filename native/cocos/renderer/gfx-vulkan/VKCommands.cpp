@@ -202,8 +202,10 @@ void CCVKCmdFuncCreateBuffer(CCVKDevice *device, CCVKGPUBuffer *gpuBuffer) {
         /* *
         gpuBuffer->instanceSize = roundUp(gpuBuffer->size, device->getUboOffsetAlignment());
         bufferInfo.size = gpuBuffer->instanceSize * device->gpuDevice()->backBufferCount;
-        /* */
         allocInfo.flags = VMA_ALLOCATION_CREATE_MAPPED_BIT;
+        /* */
+        bufferInfo.usage |= VK_BUFFER_USAGE_TRANSFER_DST_BIT;
+        /* */
         allocInfo.usage = VMA_MEMORY_USAGE_CPU_TO_GPU;
     }
 

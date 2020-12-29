@@ -448,7 +448,7 @@ void CCVKCommandBuffer::bindDescriptorSets() {
         } else {
             _curVkDescriptorSets[i] = pipelineLayout->setLayouts[i]->defaultDescriptorSet;
         }
-        uint count = dynamicOffsetOffsets[i + 1] - dynamicOffsetOffsets[i];
+        size_t count = dynamicOffsetOffsets[i + 1] - dynamicOffsetOffsets[i];
         //CCASSERT(_curDynamicOffsetCounts[i] >= count, "missing dynamic offsets?");
         count = std::min(count, _curDynamicOffsetCounts[i]);
         if (count > 0) memcpy(&_curDynamicOffsets[dynamicOffsetOffsets[i]], _curDynamicOffsetPtrs[i], count * sizeof(uint));
