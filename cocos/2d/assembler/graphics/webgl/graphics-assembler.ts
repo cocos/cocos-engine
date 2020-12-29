@@ -97,7 +97,7 @@ export const graphicsAssembler: IAssembler = {
             return null;
         }
 
-        const renderDataList = _impl.getRenderData();
+        const renderDataList = _impl.getRenderDataList();
         let renderData = renderDataList[_impl.dataOffset];
         if (!renderData) {
             return null;
@@ -159,7 +159,7 @@ export const graphicsAssembler: IAssembler = {
             return;
         }
 
-        const renderDataList = impl.getRenderData();
+        const renderDataList = impl.getRenderDataList();
         if (renderDataList.length <= 0 || !graphics.model) {
             return;
         }

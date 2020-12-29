@@ -614,7 +614,7 @@ export class Graphics extends UIRenderable {
             return;
         }
 
-        const renderDataList = impl && impl.getRenderData();
+        const renderDataList = impl && impl.getRenderDataList();
         if (renderDataList.length <= 0 || !this.model) {
             return;
         }
