@@ -28,8 +28,8 @@
  * @module component/audio
  */
 
-import { Component } from '../core/components/component';
 import { ccclass, help, menu, tooltip, type, range, serializable } from 'cc.decorator';
+import { Component } from '../core/components/component';
 import { clamp } from '../core/math';
 import { AudioClip } from './assets/clip';
 
