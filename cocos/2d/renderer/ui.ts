@@ -220,16 +220,6 @@ export class UI {
         }
 
         this._screens.push(comp);
-        this._screens.sort(this._screenSort);
-        for (let i = 0; i < screens.length; i++) {
-            const element = screens[i];
-            if (element.camera) {
-                element.camera.visibility = Layers.BitMask.UI_2D | (i + 1);
-                if (!this._canvasMaterials.has(element.camera.visibility)) {
-                    this._canvasMaterials.set(element.camera.visibility, new Map<number, number>());
-                }
-            }
-        }
     }
 
     /**
@@ -279,20 +269,6 @@ export class UI {
             }
 
             matRecord.clear();
-        }
-
-        for (let i = idx; i < this._screens.length; i++) {
-            const camera = this._screens[i].camera;
-            if (camera) {
-                const matRecord = this._canvasMaterials.get(camera.visibility)!;
-                camera.visibility = Layers.BitMask.UI_2D | (i + 1);
-                const newMatRecord = this._canvasMaterials.get(camera.visibility)!;
-                matRecord.forEach((value: number, key: number) => {
-                    newMatRecord.set(key, value);
-                });
-
-                matRecord.clear();
-            }
         }
     }
 

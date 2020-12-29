@@ -35,14 +35,21 @@ import { EDITOR } from 'internal:constants';
 import { Camera } from '../../core/components/camera-component';
 import { Widget } from '../../ui/widget';
 import { game } from '../../core/game';
-import { Vec3 } from '../../core/math';
+import { Color, Vec3 } from '../../core/math';
 import { view } from '../../core/platform/view';
 import { Component } from '../../core/components/component';
 import { UITransform } from './ui-transform';
 import { legacyCC } from '../../core/global-exports';
 import { SystemEventType } from '../../core/platform/event-manager';
+import { Enum } from '../../core/value-types/enum';
+import { CameraComponent } from '../../core';
 
 const _worldPos = new Vec3();
+
+const RenderMode = Enum({
+    OVERLAY: 0,
+    INTERSPERSE: 1,
+});
 
 /**
  * @en
@@ -63,6 +70,146 @@ const _worldPos = new Vec3();
 @executeInEditMode
 @disallowMultiple
 export class Canvas extends Component {
+    /**
+     * @en
+     * The flags to clear the built in camera.
+     *
+     * @zh
+     * 清理屏幕缓冲标记。
+     *
+     * @deprecated
+     */
+    get clearFlag () {
+        if (this._cameraComponent) {
+            return this._cameraComponent.clearFlags;
+        }
+
+        return 0;
+    }
+
+    set clearFlag (val) {
+        if (this._cameraComponent) {
+            this._cameraComponent.clearFlags = val;
+        }
+    }
+
+    /**
+     * @en
+     * The color clearing value of the builtin camera.
+     *
+     * @zh
+     * 内置相机的颜色缓冲默认值。
+     *
+     * @deprecated
+     */
+    @tooltip('清理颜色缓冲区后的颜色')
+    get color () {
+        if (this._cameraComponent) {
+            return this._cameraComponent.clearColor;
+        }
+
+        return new Color(0, 0, 0, 255);
+    }
+
+    set color (val) {
+        if (this._cameraComponent) {
+            this._cameraComponent.clearColor = val;
+        }
+    }
+
+    /**
+     * @en
+     * The render mode of Canvas.
+     * When you choose the mode of INTERSPERSE, You can specify the rendering order of the Canvas with the camera in the scene.
+     * When you choose the mode of OVERLAY, the builtin camera of Canvas will render after all scene cameras are rendered.
+     * NOTE: The cameras in the scene (including the Canvas built-in camera) must have a ClearFlag selection of SOLID_COLOR,
+     * otherwise a splash screen may appear on the mobile device.
+     *
+     * @zh
+     * Canvas 渲染模式。
+     * intersperse 下可以指定 Canvas 与场景中的相机的渲染顺序，overlay 下 Canvas 会在所有场景相机渲染完成后渲染。
+     * 注意：场景里的相机（包括 Canvas 内置的相机）必须有一个的 ClearFlag 选择 SOLID_COLOR，否则在移动端可能会出现闪屏。
+     *
+     * @deprecated
+     */
+    get renderMode () {
+        return this._renderMode;
+    }
+
+    set renderMode (val) {
+        this._renderMode = val;
+
+        if (this._cameraComponent) {
+            this._cameraComponent.priority = this._getViewPriority();
+        }
+    }
+
+    /**
+     * @en
+     * Camera render priority.
+     * When you choose the RenderModel of INTERSPERSE, specifies the render order with other cameras.
+     * When you choose the RenderModel of OVERLAY, specifies sorting with the rest of the Canvas.
+     *
+     * @zh
+     * 相机渲染优先级。当 RenderMode 为 intersperse 时，指定与其它相机的渲染顺序，当 RenderMode 为 overlay 时，指定跟其余 Canvas 做排序使用。需要对多 Canvas 设定 priority 以免出现不同平台下的闪屏问题。
+     *
+     * @param value - 渲染优先级。
+     *
+     * @deprecated
+     */
+    get priority () {
+        if (this._cameraComponent) {
+            return this._cameraComponent.priority;
+        }
+
+        return 0;
+    }
+
+    set priority (val: number) {
+        if (this._cameraComponent) {
+            this._cameraComponent.priority = val;
+        }
+    }
+
+    /**
+     * @en
+     * Set the target render texture.
+     *
+     * @zh
+     * 设置目标渲染纹理。
+     *
+     * @deprecated
+     */
+    get targetTexture () {
+        if (this._cameraComponent) {
+            return this._cameraComponent.targetTexture;
+        }
+
+        return null;
+    }
+
+    set targetTexture (value) {
+        if (this._cameraComponent) {
+            this._cameraComponent.targetTexture = value;
+        }
+    }
+
+    /**
+     * @en
+     * get canvas.camera visibility.
+     *
+     * @zh
+     * 获取Canvas 下 2D camera 的可见性。
+     *
+     * @deprecated
+     */
+    get visibility () {
+        if (this._cameraComponent) {
+            return this._cameraComponent.visibility;
+        }
+
+        return 0;
+    }
 
     @type(Camera)
     @tooltip('2D渲染相机')
@@ -109,6 +256,7 @@ export class Canvas extends Component {
     protected _fitDesignResolution: (() => void) | undefined;
 
     private _pos = new Vec3();
+    private _renderMode = RenderMode.OVERLAY;
 
     constructor () {
         super();
@@ -208,6 +356,14 @@ export class Canvas extends Component {
             this.node.getWorldPosition(_worldPos);
             this._cameraComponent.node.setWorldPosition(_worldPos.x, _worldPos.y, 1000);
         }
+    }
+
+    private _getViewPriority () {
+        if (this._cameraComponent) {
+            return this._renderMode === RenderMode.OVERLAY ? this._cameraComponent.priority | 1 << 30 : this._cameraComponent.priority;
+        }
+
+        return 0;
     }
 }
 
