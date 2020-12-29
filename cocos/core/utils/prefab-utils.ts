@@ -210,7 +210,7 @@ export function createNodeWithPrefab (node: Node) {
     legacyCC.game._isCloning = true;
     if (SUPPORT_JIT) {
         // @ts-expect-error: private member access
-        prefabInfo._doInstantiate(node);
+        prefabInfo.asset._doInstantiate(node);
     } else {
         // root in prefab asset is always synced
         const prefabRoot = prefabInfo.asset.data;
