@@ -185,11 +185,11 @@ template <typename T>
 std::enable_if_t<std::is_base_of<Message, T>::value, T *>
 MessageQueue::allocate(uint32_t const count) noexcept {
     uint32_t allocatedSize = 0;
-    T *const cmd = reinterpret_cast<T *>(allocateImpl(allocatedSize, sizeof(T)));
-    cmd->mNext = reinterpret_cast<Message *>(mW.mCurrentMemoryChunk + mW.mOffset);
+    T *const msg = reinterpret_cast<T *>(allocateImpl(allocatedSize, sizeof(T)));
+    msg->mNext = reinterpret_cast<Message *>(mW.mCurrentMemoryChunk + mW.mOffset);
     ++mW.mPendingMessageCount;
-    mW.mLastMessage = cmd;
-    return cmd;
+    mW.mLastMessage = msg;
+    return msg;
 }
 
 template <typename T>

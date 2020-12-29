@@ -67,10 +67,10 @@ MessageQueue::MessageQueue() {
     mR.mCurrentMemoryChunk = chunk;
 
     // sentinel node will not be executed
-    Message *const cmd = allocate<DummyMessage>(1);
+    Message *const msg = allocate<DummyMessage>(1);
     pushMessages();
     pullMessages();
-    mR.mLastMessage = cmd;
+    mR.mLastMessage = msg;
     --mR.mNewMessageCount;
 }
 
@@ -84,10 +84,10 @@ void MessageQueue::kickAndWait() noexcept {
     EventSem *const pEvent = &event;
 
     ENQUEUE_MESSAGE_1(this, WaitUntilFinish,
-                     pEvent, pEvent,
-                     {
-                         pEvent->Signal();
-                     });
+                      pEvent, pEvent,
+                      {
+                          pEvent->Signal();
+                      });
 
     kick();
     event.Wait();
@@ -124,15 +124,16 @@ void MessageQueue::finishWriting(bool wait) noexcept {
         bool *const flushingFinished = &mR.mFlushingFinished;
 
         ENQUEUE_MESSAGE_1(this, finishWriting,
-                         flushingFinished, flushingFinished,
-                         {
-                             *flushingFinished = true;
-                         });
+                          flushingFinished, flushingFinished,
+                          {
+                              *flushingFinished = true;
+                          });
 
-        if (wait)
+        if (wait) {
             kickAndWait();
-        else
+        } else {
             kick();
+        }
     }
 }
 
@@ -200,14 +201,14 @@ void MessageQueue::flushMessages() noexcept {
 }
 
 void MessageQueue::executeMessages() noexcept {
-    Message *const cmd = readMessage();
+    Message *const msg = readMessage();
 
-    if (!cmd) {
+    if (!msg) {
         return;
     }
 
-    cmd->execute();
-    cmd->~Message();
+    msg->execute();
+    msg->~Message();
 }
 
 Message *MessageQueue::readMessage() noexcept {
@@ -220,11 +221,11 @@ Message *MessageQueue::readMessage() noexcept {
         }
     }
 
-    Message *const cmd = mR.mLastMessage->getNext();
-    mR.mLastMessage = cmd;
+    Message *const msg = mR.mLastMessage->getNext();
+    mR.mLastMessage = msg;
     --mR.mNewMessageCount;
-    assert(cmd);
-    return cmd;
+    assert(msg);
+    return msg;
 }
 
 void MessageQueue::consumerThreadLoop() noexcept {
