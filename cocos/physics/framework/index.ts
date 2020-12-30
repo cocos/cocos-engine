@@ -75,7 +75,7 @@ export {
     PhysicsMaterial,
     ConstantForce,
 
-    selector
+    selector,
 };
 
 legacyCC.PhysicsSystem = PhysicsSystem;
