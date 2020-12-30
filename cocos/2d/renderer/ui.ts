@@ -435,14 +435,16 @@ export class UI {
 
         const uiCanvas = this._currCanvas;
         if (!uiCanvas?.camera) { return; }
-        const curDrawBatch = this._drawBatchPool.alloc();
+
         const stamp = legacyCC.director.getTotalFrames();
         if (model) {
             model.updateTransform(stamp);
             model.updateUBOs(stamp);
         }
-        const subModel = model!.subModels[0];
-        if (subModel) {
+
+        for (let i = 0; i < model!.subModels.length; i++) {
+            const curDrawBatch = this._drawBatchPool.alloc();
+            const subModel = model!.subModels[i];
             curDrawBatch.camera = uiCanvas && uiCanvas.camera;
             curDrawBatch.model = model;
             curDrawBatch.bufferBatch = null;
@@ -453,18 +455,17 @@ export class UI {
             curDrawBatch.fillPasses(mat, depthStencil, null);
             curDrawBatch.hDescriptorSet = SubModelPool.get(subModel.handle, SubModelView.DESCRIPTOR_SET);
             curDrawBatch.hInputAssembler = SubModelPool.get(subModel.handle, SubModelView.INPUT_ASSEMBLER);
-
-            // reset current render state to null
-            this._currMaterial = this._emptyMaterial;
-            this._currComponent = null;
-            this._currTransform = null;
-            this._currTexture = null;
-            this._currSampler = null;
-            this._currTextureHash = 0;
-            this._currSamplerHash = 0;
-
             this._batches.push(curDrawBatch);
         }
+
+        // reset current render state to null
+        this._currMaterial = this._emptyMaterial;
+        this._currComponent = null;
+        this._currTransform = null;
+        this._currTexture = null;
+        this._currSampler = null;
+        this._currTextureHash = 0;
+        this._currSamplerHash = 0;
     }
 
     /**

@@ -630,9 +630,9 @@ export class Graphics extends UIRenderable {
                 continue;
             }
 
-            ia.vertexBuffers[0].update(renderData.vData);
+            ia.vertexBuffers[0].update(renderData.vData, byteOffset >> 2);
             ia.vertexCount = renderData.vertexStart;
-            ia.indexBuffer!.update(renderData.iData);
+            ia.indexBuffer!.update(renderData.iData, renderData.indicesStart);
             ia.indexCount = renderData.indicesStart;
 
             renderData.lastFilledVertex = renderData.vertexStart;
@@ -645,6 +645,15 @@ export class Graphics extends UIRenderable {
 
     protected _render (render: UI) {
         if (this._isNeedUploadData) {
+            if (this.impl) {
+                const renderDataList = this.impl.getRenderDataList();
+                const len = this.model!.subModels.length;
+                if (renderDataList.length > len) {
+                    for (let i = len; i < renderDataList.length; i++) {
+                        this.activeSubModel(i);
+                    }
+                }
+            }
             render.addUploadBuffersFunc(this, this._uploadData);
         }
 
