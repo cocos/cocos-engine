@@ -75,7 +75,7 @@ export {
     PhysicsMaterial,
     ConstantForce,
 
-    selector,
+    selector
 };
 
 legacyCC.PhysicsSystem = PhysicsSystem;
@@ -85,6 +85,4 @@ legacyCC.PhysicsRayResult = PhysicsRayResult;
 legacyCC.ConstantForce = ConstantForce;
 
 export * from './physics-interface';
-export { EAxisDirection, ERigidBodyType } from './physics-enum';
-
-export * from './deprecated';
+export * from './physics-enum';

@@ -31,7 +31,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 import { IVec3Like, Quat, Vec3 } from '../../../core';
 import { aabb, sphere } from '../../../core/geometry';
-import { Collider, RigidBody, PhysicMaterial, PhysicsSystem } from '../../framework';
+import { Collider, RigidBody, PhysicsMaterial, PhysicsSystem } from '../../framework';
 import { IBaseShape } from '../../spec/i-physics-shape';
 import { EFilterDataWord3, getShapeFlags, getShapeMaterials, getTempTransform, PX, _pxtrans, _trans } from '../export-physx';
 import { PhysXSharedBody } from '../physx-shared-body';
@@ -130,14 +130,14 @@ export class PhysXShape implements IBaseShape {
         this._impl = null;
     }
 
-    setMaterial (v: PhysicMaterial | null): void {
+    setMaterial (v: PhysicsMaterial | null): void {
         if (!this._impl) return;
         if (v == null) v = PhysicsSystem.instance.defaultMaterial;
         const mat = this.getSharedMaterial(v);
         this._impl.setMaterials(getShapeMaterials(mat));
     }
 
-    protected getSharedMaterial (v: PhysicMaterial): any {
+    protected getSharedMaterial (v: PhysicsMaterial): any {
         if (!PX.CACHE_MAT[v._uuid]) {
             const physics = this._sharedBody.wrappedWorld.physics;
             const mat = physics.createMaterial(v.friction, v.friction, v.restitution);

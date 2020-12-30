@@ -31,7 +31,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 import { ray } from '../../core/geometry';
 import { IPhysicsWorld, IRaycastOptions } from '../spec/i-physics-world';
-import { CollisionEventType, PhysicMaterial, PhysicsRayResult, TriggerEventType } from '../framework';
+import { CollisionEventType, PhysicsMaterial, PhysicsRayResult, TriggerEventType } from '../framework';
 import { error, Node, RecyclePool } from '../../core';
 import { IVec3Like } from '../../core/math/type-define';
 import { IBaseConstraint } from '../spec/i-physics-constraint';
@@ -163,7 +163,7 @@ const queryCallback = {
 
 export class PhysXWorld implements IPhysicsWorld {
     setAllowSleep (_v: boolean): void { }
-    setDefaultMaterial (_v: PhysicMaterial): void { }
+    setDefaultMaterial (_v: PhysicsMaterial): void { }
     setGravity (gravity: IVec3Like): void {
         this.scene.setGravity(gravity);
     }

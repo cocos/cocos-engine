@@ -37,7 +37,7 @@ import { Ray } from '../../core/geometry';
 import { RecyclePool, Node, error } from '../../core';
 import { CannonSharedBody } from './cannon-shared-body';
 import { IPhysicsWorld, IRaycastOptions } from '../spec/i-physics-world';
-import { PhysicMaterial, PhysicsRayResult } from '../framework';
+import { PhysicsMaterial, PhysicsRayResult } from '../framework';
 import { IVec3Like } from '../../core/math/type-define';
 import { CannonRigidBody } from './cannon-rigid-body';
 import { fastRemoveAt } from '../../core/utils/array';
@@ -47,7 +47,7 @@ export class CannonWorld implements IPhysicsWorld {
         return this._world;
     }
 
-    setDefaultMaterial (mat: PhysicMaterial) {
+    setDefaultMaterial (mat: PhysicsMaterial) {
         this._world.defaultMaterial.friction = mat.friction;
         this._world.defaultMaterial.restitution = mat.restitution;
         if (CannonShape.idToMaterial[mat._uuid] != null) {

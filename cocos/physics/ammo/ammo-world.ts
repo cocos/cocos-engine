@@ -40,7 +40,7 @@ import { TriggerEventObject, CollisionEventObject, CC_V3_0, CC_V3_1, AmmoConstan
 import { ammo2CocosVec3, cocos2AmmoVec3, cocos2AmmoQuat } from './ammo-util';
 import { Ray } from '../../core/geometry';
 import { IRaycastOptions, IPhysicsWorld } from '../spec/i-physics-world';
-import { PhysicsRayResult, PhysicMaterial } from '../framework';
+import { PhysicsRayResult, PhysicsMaterial } from '../framework';
 import { error, Node, RecyclePool } from '../../core';
 import { AmmoInstance } from './ammo-instance';
 import { IVec3Like } from '../../core/math/type-define';
@@ -54,7 +54,7 @@ const v3_1 = CC_V3_1;
 
 export class AmmoWorld implements IPhysicsWorld {
     setAllowSleep (v: boolean) { }
-    setDefaultMaterial (v: PhysicMaterial) { }
+    setDefaultMaterial (v: PhysicsMaterial) { }
 
     setGravity (gravity: IVec3Like) {
         const TMP = AmmoConstant.instance.VECTOR3_0;
@@ -97,6 +97,8 @@ export class AmmoWorld implements IPhysicsWorld {
         this._btWorld.setGravity(TMP);
         if (!AmmoWorld.closeHitCB) AmmoWorld.closeHitCB = new Ammo.ClosestRayResultCallback(TMP, TMP);
         if (!AmmoWorld.allHitsCB) AmmoWorld.allHitsCB = new Ammo.AllHitsRayResultCallback(TMP, TMP);
+        (AmmoWorld.closeHitCB as any).setUseCC(true);
+        (AmmoWorld.allHitsCB as any).setUseCC(true);
     }
 
     destroy (): void {
@@ -152,7 +154,6 @@ export class AmmoWorld implements IPhysicsWorld {
         const from = cocos2AmmoVec3(allHitsCB.m_rayFromWorld, worldRay.o);
         worldRay.computeHit(v3_0, options.maxDistance);
         const to = cocos2AmmoVec3(allHitsCB.m_rayToWorld, v3_0);
-
         allHitsCB.m_collisionFilterGroup = -1;
         allHitsCB.m_collisionFilterMask = options.mask;
         allHitsCB.m_closestHitFraction = 1;
