@@ -154,25 +154,6 @@ export const graphicsAssembler: IAssembler = {
     },
 
     end (graphics: Graphics) {
-        const impl = graphics.impl;
-        if (!impl) {
-            return;
-        }
-
-        const renderDataList = impl.getRenderDataList();
-        if (renderDataList.length <= 0 || !graphics.model) {
-            return;
-        }
-
-        const subModelCount = graphics.model.subModels.length;
-        const listLength = renderDataList.length;
-        const delta = listLength - subModelCount;
-        if (delta > 0) {
-            for (let k = subModelCount; k < listLength; k++) {
-                graphics.activeSubModel(k);
-            }
-        }
-
         graphics.markForUpdateRenderData();
     },
 
