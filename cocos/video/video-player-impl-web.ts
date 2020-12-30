@@ -343,16 +343,18 @@ export class VideoPlayerImplWeb extends VideoPlayerImpl {
         // use stayOnBottom
         if (this._dirty) {
             this._dirty = false;
-            if (this._stayOnBottom) {
-                this._clearColorA = canvas.color.a;
-                this._clearFlag = canvas.clearFlag;
-                canvas.color.a = 0;
-                canvas.clearFlag = ClearFlag.ALL;
-            } else if (this._clearFlag) {
-                canvas.color.a = this._clearColorA;
-                canvas.clearFlag = this._clearFlag;
-                this._clearColorA = -1;
-                this._clearFlag = null;
+            if (canvas.camera) {
+                if (this._stayOnBottom) {
+                    this._clearColorA = canvas.camera.clearColor.w;
+                    this._clearFlag = canvas.camera.clearFlag;
+                    canvas.camera.clearColor.w = 0;
+                    canvas.camera.clearFlag = ClearFlag.ALL;
+                } else if (this._clearFlag) {
+                    canvas.camera.clearColor.w = this._clearColorA;
+                    canvas.camera.clearFlag = this._clearFlag;
+                    this._clearColorA = -1;
+                    this._clearFlag = null;
+                }
             }
         }
 

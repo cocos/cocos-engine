@@ -177,15 +177,8 @@ export class UI {
      * @param comp - 屏幕组件。
      */
     public addScreen (comp: Canvas) {
-        const screens = this._screens;
         this._screens.push(comp);
         this._screens.sort(this._screenSort);
-        for (let i = 0; i < screens.length; i++) {
-            const element = screens[i];
-            if (element.camera) {
-                element.camera.visibility = Layers.BitMask.UI_2D | (i + 1);
-            }
-        }
     }
 
     /**
@@ -224,12 +217,6 @@ export class UI {
         }
 
         this._screens.splice(idx, 1);
-        for (let i = idx; i < this._screens.length; i++) {
-            const camera = this._screens[i].camera;
-            if (camera) {
-                camera.visibility = Layers.BitMask.UI_2D | (i + 1);
-            }
-        }
     }
 
     public sortScreens () {
