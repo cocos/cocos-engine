@@ -119,6 +119,11 @@ if(NOT ANDROID AND NOT IOS)
     set(USE_WEBVIEW OFF)
 endif()
 
+## disable middleware when dragonbones and spine are disabled
+if(NOT USE_DRAGONBONES AND NOT USE_SPINE)
+	set(USE_MIDDLEWARE OFF)
+endif()
+
 ################################# list all option values ##############################
 
 inspect_values(
