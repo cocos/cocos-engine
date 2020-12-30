@@ -400,12 +400,15 @@ export class Root {
             }
 
             legacyCC.director.emit(legacyCC.Director.EVENT_BEFORE_COMMIT);
-
+            const cameraList: Camera[] = [];
             for (let i = 0; i < windows.length; i++) {
                 const window = windows[i];
                 const cameras = window.extractRenderCameras();
-                this._pipeline.render(cameras);
+                cameras.forEach((camera) => {
+                    cameraList.push(camera);
+                });
             }
+            this._pipeline.render(cameraList);
             this._device.present();
         }
 
