@@ -48,7 +48,7 @@ export class BlendStateBuffer {
         if (!propertyBlendState) {
             propertyBlendState = nodeBlendState.properties[property] = new PropertyBlendState(
                 nodeBlendState,
-                (isVec3Property(property) ? new Vec3() : new Quat()) as any,
+                (isVec3Property(property) ? new Vec3() : new Quat()) as any
             );
         }
         ++propertyBlendState.refCount;
@@ -142,10 +142,10 @@ export function createBlendStateWriter<P extends BlendingProperty> (
     /**
      * True if this writer will write constant value each time.
      */
-    constants: boolean,
+    constants: boolean
 ): IBlendStateWriter {
     const blendFunction: BlendFunction<BlendingPropertyValue<P>> =
-        isVec3Property(property) ? additive3D as any: additiveQuat as any;
+        isVec3Property(property) ? additive3D as any : additiveQuat as any;
     let propertyBlendState: PropertyBlendState<BlendingPropertyValue<P>> | null = blendState.ref(node, property);
     let isConstCacheValid = false;
     let lastWeight = -1;
