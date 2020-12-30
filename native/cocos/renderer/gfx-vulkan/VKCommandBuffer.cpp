@@ -448,7 +448,7 @@ void CCVKCommandBuffer::bindDescriptorSets() {
         } else {
             _curVkDescriptorSets[i] = pipelineLayout->setLayouts[i]->defaultDescriptorSet;
         }
-        size_t count = dynamicOffsetOffsets[i + 1] - dynamicOffsetOffsets[i];
+        uint count = dynamicOffsetOffsets[i + 1] - dynamicOffsetOffsets[i];
         //CCASSERT(_curDynamicOffsetCounts[i] >= count, "missing dynamic offsets?");
         count = std::min(count, _curDynamicOffsetCounts[i]);
         if (count > 0) memcpy(&_curDynamicOffsets[dynamicOffsetOffsets[i]], _curDynamicOffsetPtrs[i], count * sizeof(uint));
@@ -461,8 +461,8 @@ void CCVKCommandBuffer::bindDescriptorSets() {
                             VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout->vkPipelineLayout,
                             _firstDirtyDescriptorSet, dirtyDescriptorSetCount,
                             &_curVkDescriptorSets[_firstDirtyDescriptorSet],
-                            dynamicOffsetCount, &_curDynamicOffsetCounts[dynamicOffsetStartIndex]);
-    
+                            dynamicOffsetCount, _curDynamicOffsets.data() + dynamicOffsetStartIndex);
+
     _firstDirtyDescriptorSet = UINT_MAX;
 }
 

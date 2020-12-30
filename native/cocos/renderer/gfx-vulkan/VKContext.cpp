@@ -453,8 +453,8 @@ bool CCVKContext::initialize(const ContextInfo &info) {
         }
 
         vector<std::pair<Format, VkFormat>> depthFormatPriorityList = {
-            {Format::D32F_S8, VK_FORMAT_D32_SFLOAT_S8_UINT},
             {Format::D24S8, VK_FORMAT_D24_UNORM_S8_UINT},
+            {Format::D32F_S8, VK_FORMAT_D32_SFLOAT_S8_UINT},
             {Format::D16S8, VK_FORMAT_D16_UNORM_S8_UINT},
             {Format::D32F, VK_FORMAT_D32_SFLOAT},
             {Format::D16, VK_FORMAT_D16_UNORM},
