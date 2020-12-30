@@ -59,6 +59,7 @@ void UIPhase::render(Camera *camera, gfx::RenderPass *renderPass){
         const int count = batch->passCount;
         for (int j = 0; j < count; j++) {
             const auto pass = batch->getPassView(j);
+            if (pass->phase != _phaseID) continue;
             const auto shader = batch->getShader(j);
             const auto inputAssembler = batch->getInputAssembler();
             const auto ds = batch->getDescriptorSet();
