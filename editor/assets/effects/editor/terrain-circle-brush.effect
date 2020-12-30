@@ -93,7 +93,7 @@ CCProgram terrain-brush-fs %{
         k = max(0.0, 1.0 - (Distance - Radius) / Falloff);
       }
 
-      k = k*k*(3 - 2 * k);
+      k = k*k*(3.0 - 2.0 * k);
     #elif TIP
       if (Distance <= Radius) {
         k = 1.0;
@@ -108,7 +108,7 @@ CCProgram terrain-brush-fs %{
       }
     #endif
 
-    vec4 color = vec4(0, 0, 0, 0);
+    vec4 color = vec4(0.0, 0.0, 0.0, 0.0);
     color.rgb = vec3(100, 100, 135) / 255.0;
     color.a = 0.85 * k;
 
