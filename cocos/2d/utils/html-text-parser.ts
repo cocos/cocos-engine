@@ -49,7 +49,7 @@ export interface IHtmlTextParserResultObj{
 export interface IHtmlTextParserStack{
     color?: string;
     size?: number;
-    event?: Map<string, string>;
+    event?: { [k: string]: string};
     isNewLine?: boolean;
     isImage?: boolean;
     src?: string;
@@ -68,7 +68,7 @@ export class HtmlTextParser {
     private _stack: IHtmlTextParserStack[] = [];
     private _resultObjectArray: IHtmlTextParserResultObj[] = [];
 
-    constructor (){
+    constructor () {
         this._specialSymbolArray.push([/&lt;/g, '<']);
         this._specialSymbolArray.push([/&gt;/g, '>']);
         this._specialSymbolArray.push([/&amp;/g, '&']);
@@ -87,7 +87,7 @@ export class HtmlTextParser {
             let tagBeginIndex = -1;
             if (tagEndIndex >= 0) {
                 tagBeginIndex = htmlString.lastIndexOf('<', tagEndIndex);
-                var noTagBegin = tagBeginIndex < (startIndex - 1);
+                const noTagBegin = tagBeginIndex < (startIndex - 1);
 
                 if (noTagBegin) {
                     tagBeginIndex = htmlString.indexOf('<', tagEndIndex + 1);
@@ -100,13 +100,13 @@ export class HtmlTextParser {
                 startIndex = length;
             } else {
                 let newStr = htmlString.substring(startIndex, tagBeginIndex);
-                let tagStr = htmlString.substring(tagBeginIndex + 1, tagEndIndex);
-                if (tagStr === "") newStr = htmlString.substring(startIndex, tagEndIndex + 1);
+                const tagStr = htmlString.substring(tagBeginIndex + 1, tagEndIndex);
+                if (tagStr === '') newStr = htmlString.substring(startIndex, tagEndIndex + 1);
                 this._processResult(newStr);
                 if (tagEndIndex === -1) {
                     // cc.error('The HTML tag is invalid!');
                     tagEndIndex = tagBeginIndex;
-                } else if (htmlString.charAt(tagBeginIndex + 1) === '\/') {
+                } else if (htmlString.charAt(tagBeginIndex + 1) === '/') {
                     this._stack.pop();
                 } else {
                     this._addToStack(tagStr);
@@ -122,7 +122,7 @@ export class HtmlTextParser {
         attribute = attribute.trim();
 
         const obj: IHtmlTextParserStack = {};
-        let header = attribute.match(/^(color|size)(\s)*=/);
+        let header = /^(color|size)(\s)*=/.exec(attribute);
         let tagName = '';
         let nextSpace = 0;
         let eventHanlderString = '';
@@ -136,16 +136,18 @@ export class HtmlTextParser {
             // parse color
             nextSpace = attribute.indexOf(' ');
             switch (tagName[0]) {
-                case 'c':
-                    if (nextSpace > -1) {
-                        obj.color = attribute.substring(0, nextSpace).trim();
-                    } else {
-                        obj.color = attribute;
-                    }
-                    break;
-                case 's':
-                    obj.size = parseInt(attribute);
-                    break;
+            case 'c':
+                if (nextSpace > -1) {
+                    obj.color = attribute.substring(0, nextSpace).trim();
+                } else {
+                    obj.color = attribute;
+                }
+                break;
+            case 's':
+                obj.size = parseInt(attribute);
+                break;
+            default:
+                break;
             }
 
             // tag has event arguments
@@ -156,7 +158,7 @@ export class HtmlTextParser {
             return obj;
         }
 
-        header = attribute.match(/^(br(\s)*\/)/);
+        header = /^(br(\s)*\/)/.exec(attribute);
         if (header && header[0].length > 0) {
             tagName = header[0].trim();
             if (tagName.startsWith('br') && tagName[tagName.length - 1] === '/') {
@@ -166,12 +168,12 @@ export class HtmlTextParser {
             }
         }
 
-        header = attribute.match(/^(img(\s)*src(\s)*=[^>]+\/)/);
+        header = /^(img(\s)*src(\s)*=[^>]+\/)/.exec(attribute);
         let remainingArgument = '';
         if (header && header[0].length > 0) {
             tagName = header[0].trim();
             if (tagName.startsWith('img') && tagName[tagName.length - 1] === '/') {
-                header = attribute.match(imageAttrReg);
+                header = imageAttrReg.exec(attribute);
                 let tagValue;
                 let isValidImageTag = false;
                 while (header) {
@@ -187,45 +189,44 @@ export class HtmlTextParser {
                     tagName = tagName.toLowerCase();
 
                     attribute = remainingArgument.substring(nextSpace).trim();
-                    if ( tagValue.endsWith( '\/' ) ) tagValue = tagValue.slice( 0, -1 );
+                    if (tagValue.endsWith('/')) tagValue = tagValue.slice(0, -1);
                     if (tagName === 'src') {
                         switch (tagValue.charCodeAt(0)) {
-                            case 34: // "
-                            case 39: // '
-                                isValidImageTag = true;
-                                tagValue = tagValue.slice(1, -1);
-                                break;
+                        case 34: // "
+                        case 39: // '
+                            isValidImageTag = true;
+                            tagValue = tagValue.slice(1, -1);
+                            break;
+                        default:
+                            break;
                         }
                         obj.isImage = true;
                         obj.src = tagValue;
-                    }
-                    else if (tagName === 'height') {
+                    } else if (tagName === 'height') {
                         obj.imageHeight = parseInt(tagValue);
-                    }
-                    else if (tagName === 'width') {
+                    } else if (tagName === 'width') {
                         obj.imageWidth = parseInt(tagValue);
-                    }
-                    else if (tagName === "align") {
+                    } else if (tagName === 'align') {
                         switch (tagValue.charCodeAt(0)) {
-                            case 34: // "
-                            case 39: // '
-                                tagValue = tagValue.slice(1, -1);
-                                break;
+                        case 34: // "
+                        case 39: // '
+                            tagValue = tagValue.slice(1, -1);
+                            break;
+                        default:
+                            break;
                         }
                         obj.imageAlign = tagValue.toLowerCase();
-                    }
-                    else if (tagName === "offset") {
+                    } else if (tagName === 'offset') {
                         obj.imageOffset = tagValue;
-                    }
-                    else if (tagName === 'click') {
-                        obj.event = this._processEventHandler(tagName + '=' + tagValue);
+                    } else if (tagName === 'click') {
+                        obj.event = this._processEventHandler(`${tagName}=${tagValue}`);
                     }
 
                     if (obj.event && tagName === 'param') {
-                        obj.event[tagName] = tagValue.replace(/^\"|\"$/g, '');
+                        obj.event[tagName] = tagValue.replace(/^"|"$/g, '');
                     }
 
-                    header = attribute.match(imageAttrReg);
+                    header = imageAttrReg.exec(attribute);
                 }
 
                 if (isValidImageTag && obj.isImage) {
@@ -236,13 +237,13 @@ export class HtmlTextParser {
             }
         }
 
-        header = attribute.match(/^(outline(\s)*[^>]*)/);
+        header = /^(outline(\s)*[^>]*)/.exec(attribute);
         if (header) {
             attribute = header[0].substring('outline'.length).trim();
             const defaultOutlineObject = { color: '#ffffff', width: 1 };
             if (attribute) {
                 const outlineAttrReg = /(\s)*color(\s)*=|(\s)*width(\s)*=|(\s)*click(\s)*=|(\s)*param(\s)*=/;
-                header = attribute.match(outlineAttrReg);
+                header = outlineAttrReg.exec(attribute);
                 let tagValue;
                 while (header) {
                     // skip the invalid tags at first
@@ -261,39 +262,39 @@ export class HtmlTextParser {
 
                     attribute = remainingArgument.substring(nextSpace).trim();
                     if (tagName === 'click') {
-                        obj.event = this._processEventHandler(tagName + '=' + tagValue);
-                    }
-                    else if (tagName === 'color') {
+                        obj.event = this._processEventHandler(`${tagName}=${tagValue}`);
+                    } else if (tagName === 'color') {
                         defaultOutlineObject.color = tagValue;
-                    }
-                    else if (tagName === 'width') {
+                    } else if (tagName === 'width') {
                         defaultOutlineObject.width = parseInt(tagValue);
                     }
 
                     if (obj.event && tagName === 'param') {
-                        obj.event[tagName] = tagValue.replace(/^\"|\"$/g, '');
+                        obj.event[tagName] = tagValue.replace(/^"|"$/g, '');
                     }
 
-                    header = attribute.match(outlineAttrReg);
+                    header = outlineAttrReg.exec(attribute);
                 }
             }
             obj.outline = defaultOutlineObject;
         }
 
-        header = attribute.match(/^(on|u|b|i)(\s)*/);
+        header = /^(on|u|b|i)(\s)*/.exec(attribute);
         if (header && header[0].length > 0) {
             tagName = header[0];
             attribute = attribute.substring(tagName.length).trim();
             switch (tagName[0]) {
-                case 'u':
-                    obj.underline = true;
-                    break;
-                case 'i':
-                    obj.italic = true;
-                    break;
-                case 'b':
-                    obj.bold = true;
-                    break;
+            case 'u':
+                obj.underline = true;
+                break;
+            case 'i':
+                obj.italic = true;
+                break;
+            case 'b':
+                obj.bold = true;
+                break;
+            default:
+                break;
             }
             if (attribute === '') {
                 return obj;
@@ -306,17 +307,17 @@ export class HtmlTextParser {
     }
 
     private _processEventHandler (eventString: string) {
-        const obj = new Map<string, string>();
+        const obj = {};
         let index = 0;
         let isValidTag = false;
-        let eventNames = eventString.match(eventRegx);
+        let eventNames = eventRegx.exec(eventString);
         while (eventNames) {
             let eventName = eventNames[0];
             let eventValue = '';
             isValidTag = false;
             eventString = eventString.substring(eventName.length).trim();
-            if (eventString.charAt(0) === '\"') {
-                index = eventString.indexOf('\"', 1);
+            if (eventString.charAt(0) === '"') {
+                index = eventString.indexOf('"', 1);
                 if (index > -1) {
                     eventValue = eventString.substring(1, index).trim();
                     isValidTag = true;
@@ -331,7 +332,7 @@ export class HtmlTextParser {
                 index++;
             } else {
                 // skip the invalid attribute value
-                const match = eventString.match(/(\S)+/);
+                const match = /(\S)+/.exec(eventString);
                 if (match) {
                     eventValue = match[0];
                 } else {
@@ -346,7 +347,7 @@ export class HtmlTextParser {
             }
 
             eventString = eventString.substring(index).trim();
-            eventNames = eventString.match(eventRegx);
+            eventNames = eventRegx.exec(eventString);
         }
 
         return obj;

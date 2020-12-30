@@ -29,8 +29,9 @@
  * @module ui
  */
 
-import { Font, SpriteAtlas, TTFFont, SpriteFrame } from '../assets';
 import { ccclass, executeInEditMode, executionOrder, help, menu, tooltip, multiline, type, serializable } from 'cc.decorator';
+import { DEV, EDITOR } from 'internal:constants';
+import { Font, SpriteAtlas, TTFFont, SpriteFrame } from '../assets';
 import { assert, EventTouch, warnID } from '../../core/platform';
 import { BASELINE_RATIO, fragmentText, isUnicodeCJK, isUnicodeSpace } from '../utils/text-utils';
 import { HtmlTextParser, IHtmlTextParserResultObj, IHtmlTextParserStack } from '../utils/html-text-parser';
@@ -40,8 +41,7 @@ import { Node, PrivateNode } from '../../core/scene-graph';
 import { CacheMode, HorizontalTextAlignment, Label, VerticalTextAlignment } from './label';
 import { LabelOutline } from './label-outline';
 import { Sprite } from './sprite';
-import { UIComponent, UIRenderable, UITransform } from '../framework';
-import { DEV, EDITOR } from 'internal:constants';
+import { UIComponent, UITransform } from '../framework';
 import { legacyCC } from '../../core/global-exports';
 import { Component } from '../../core/components';
 import assetManager from '../../core/asset-manager/asset-manager';
@@ -59,8 +59,7 @@ const labelPool = new Pool((seg: ISegment) => {
     }
     if (!legacyCC.isValid(seg.node)) {
         return false;
-    }
-    else {
+    } else {
         const outline = seg.node.getComponent(LabelOutline);
         if (outline) {
             outline.width = 0;
@@ -73,7 +72,7 @@ const imagePool = new Pool((seg: ISegment) => {
     if (DEV) {
         assert(!seg.node.parent, 'Recycling node\'s parent should be null!');
     }
-    return legacyCC.isValid(seg.node);
+    return legacyCC.isValid(seg.node) as boolean;
 }, 10);
 
 //
@@ -86,7 +85,7 @@ function createSegment (type: string): ISegment {
         imageOffset: '',
         clickParam: '',
         clickHandler: '',
-        type: type,
+        type,
     };
 }
 
@@ -123,7 +122,7 @@ function getSegmentByPool (type: string, content: string | SpriteFrame) {
     seg.imageOffset = '';
     seg.clickParam = '';
     seg.clickHandler = '';
-    return seg;
+    return seg as ISegment | null;
 }
 
 interface ISegment {
@@ -150,7 +149,6 @@ interface ISegment {
 @menu('UI/Render/RichText')
 @executeInEditMode
 export class RichText extends UIComponent {
-
     /**
      * @en
      * Content string of RichText.
@@ -259,8 +257,7 @@ export class RichText extends UIComponent {
             }
             this.useSystemFont = false;
             this._onTTFLoaded();
-        }
-        else {
+        } else {
             this.useSystemFont = true;
         }
         this._updateRichTextStatus();
@@ -286,8 +283,7 @@ export class RichText extends UIComponent {
         if (EDITOR) {
             if (value) {
                 this._font = null;
-            }
-            else if (this._userDefinedFont) {
+            } else if (this._userDefinedFont) {
                 this._font = this._userDefinedFont;
                 return;
             }
@@ -404,7 +400,11 @@ export class RichText extends UIComponent {
 
         this._handleTouchEvent = value;
         if (this.enabledInHierarchy) {
-            this.handleTouchEvent ? this._addEventListeners() : this._removeEventListeners();
+            if (this.handleTouchEvent) {
+                this._addEventListeners();
+            } else {
+                this._removeEventListeners();
+            }
         }
     }
     public static HorizontalAlign = HorizontalTextAlignment;
@@ -487,8 +487,7 @@ export class RichText extends UIComponent {
         // we need call onEnable/onDisable manually to active/disactive children nodes.
         if (this.enabledInHierarchy) {
             this.onEnable();
-        }
-        else {
+        } else {
             this.onDisable();
         }
     }
@@ -498,8 +497,7 @@ export class RichText extends UIComponent {
             seg.node.removeFromParent();
             if (seg.type === RichTextChildName) {
                 labelPool.put(seg);
-            }
-            else if (seg.type === RichTextChildImageName) {
+            } else if (seg.type === RichTextChildImageName) {
                 imagePool.put(seg);
             }
         }
@@ -534,16 +532,14 @@ export class RichText extends UIComponent {
             if (this._font._nativeAsset) {
                 this._layoutDirty = true;
                 this._updateRichText();
-            }
-            else {
+            } else {
                 assetManager.postLoadNative(this._font, (err) => {
                     if (!this.isValid) { return; }
                     this._layoutDirty = true;
                     this._updateRichText();
                 });
             }
-        }
-        else {
+        } else {
             this._layoutDirty = true;
             this._updateRichText();
         }
@@ -555,8 +551,7 @@ export class RichText extends UIComponent {
             if (this._labelSegmentsCache.length === 0) {
                 label = this._createFontLabel(s);
                 this._labelSegmentsCache.push(label);
-            }
-            else {
+            } else {
                 label = this._labelSegmentsCache[0];
                 label.node.getComponent(Label)!.string = s;
             }
@@ -567,8 +562,7 @@ export class RichText extends UIComponent {
         };
         if (string) {
             return func(string);
-        }
-        else {
+        } else {
             return func;
         }
     }
@@ -602,7 +596,7 @@ export class RichText extends UIComponent {
     }
 
     protected _resetState () {
-        const children = this.node.children ;
+        const children = this.node.children;
 
         for (let i = children.length - 1; i >= 0; i--) {
             const child = children[i];
@@ -620,8 +614,7 @@ export class RichText extends UIComponent {
                 if (child.name === RichTextChildName) {
                     segment.comp = child.getComponent(Label);
                     labelPool.put(segment);
-                }
-                else {
+                } else {
                     segment.comp = child.getComponent(Sprite);
                     imagePool.put(segment);
                 }
@@ -686,9 +679,7 @@ export class RichText extends UIComponent {
                 if (this._lineOffsetX + checkStringWidth <= this._maxWidth) {
                     this._lineOffsetX += checkStringWidth;
                     checkStartIndex += checkEndIndex;
-                }
-                else {
-
+                } else {
                     if (checkStartIndex > 0) {
                         const remainingString = labelString.substr(0, checkStartIndex);
                         this._addLabelSegment(remainingString, styleIndex);
@@ -711,8 +702,7 @@ export class RichText extends UIComponent {
                     this._updateLineInfo();
                 }
             }
-        }
-        else {
+        } else {
             this._lineOffsetX += fragmentWidth;
             this._addLabelSegment(labelString, styleIndex);
         }
@@ -743,34 +733,30 @@ export class RichText extends UIComponent {
             if (oldItem.text !== newItem.text) {
                 return true;
             } else {
-                const oldStyle = oldItem.style, newStyle = newItem.style;
+                const oldStyle = oldItem.style; const newStyle = newItem.style;
                 if (oldStyle) {
                     if (newStyle) {
                         if (!!newStyle.outline !== !!oldStyle.outline) {
                             return true;
                         }
-                        if (oldStyle.size !== newStyle.size ||
-                            oldStyle.italic !== newStyle.italic ||
-                            oldStyle.isImage !== newStyle.isImage) {
+                        if (oldStyle.size !== newStyle.size
+                            || oldStyle.italic !== newStyle.italic
+                            || oldStyle.isImage !== newStyle.isImage) {
                             return true;
                         }
-                        if (oldStyle.src !== newStyle.src ||
-                            oldStyle.imageAlign !== newStyle.imageAlign ||
-                            oldStyle.imageHeight !== newStyle.imageHeight ||
-                            oldStyle.imageWidth !== newStyle.imageWidth ||
-                            oldStyle.imageOffset !== newStyle.imageOffset) {
+                        if (oldStyle.src !== newStyle.src
+                            || oldStyle.imageAlign !== newStyle.imageAlign
+                            || oldStyle.imageHeight !== newStyle.imageHeight
+                            || oldStyle.imageWidth !== newStyle.imageWidth
+                            || oldStyle.imageOffset !== newStyle.imageOffset) {
                             return true;
                         }
-                    } else {
-                        if (oldStyle.size || oldStyle.italic || oldStyle.isImage || oldStyle.outline) {
-                            return true;
-                        }
+                    } else if (oldStyle.size || oldStyle.italic || oldStyle.isImage || oldStyle.outline) {
+                        return true;
                     }
-                } else {
-                    if (newStyle) {
-                        if (newStyle.size || newStyle.italic || newStyle.isImage || newStyle.outline) {
-                            return true;
-                        }
+                } else if (newStyle) {
+                    if (newStyle.size || newStyle.italic || newStyle.isImage || newStyle.outline) {
+                        return true;
                     }
                 }
             }
@@ -792,15 +778,15 @@ export class RichText extends UIComponent {
             const segment = this._createImage(spriteFrame);
             const sprite = segment.comp;
             switch (style.imageAlign) {
-                case 'top':
+            case 'top':
                     segment.node._uiProps.uiTransformComp!.setAnchorPoint(0, 1);
-                    break;
-                case 'center':
+                break;
+            case 'center':
                     segment.node._uiProps.uiTransformComp!.setAnchorPoint(0, 0.5);
-                    break;
-                default:
+                break;
+            default:
                     segment.node._uiProps.uiTransformComp!.setAnchorPoint(0, 0);
-                    break;
+                break;
             }
 
             this.node.addChild(segment.node);
@@ -815,12 +801,12 @@ export class RichText extends UIComponent {
 
             if (expectHeight > 0) {
                 scaleFactor = expectHeight / spriteHeight;
-                spriteWidth = spriteWidth * scaleFactor;
-                spriteHeight = spriteHeight * scaleFactor;
+                spriteWidth *= scaleFactor;
+                spriteHeight *= scaleFactor;
             } else {
                 scaleFactor = this._lineHeight / spriteHeight;
-                spriteWidth = spriteWidth * scaleFactor;
-                spriteHeight = spriteHeight * scaleFactor;
+                spriteWidth *= scaleFactor;
+                spriteHeight *= scaleFactor;
             }
 
             if (expectWidth > 0) {
@@ -832,7 +818,6 @@ export class RichText extends UIComponent {
                     this._updateLineInfo();
                 }
                 this._lineOffsetX += spriteWidth;
-
             } else {
                 this._lineOffsetX += spriteWidth;
                 if (this._lineOffsetX > this._labelWidth) {
@@ -846,8 +831,8 @@ export class RichText extends UIComponent {
             segment.clickParam = '';
             const event = style.event;
             if (event) {
-                segment.clickHandler = event['click'];
-                segment.clickParam = event['param'];
+                segment.clickHandler = event.click;
+                segment.clickParam = event.param;
             }
         }
     }
@@ -976,23 +961,22 @@ export class RichText extends UIComponent {
 
             let lineOffsetX = this._labelWidth * (this._horizontalAlign * 0.5 - anchorX);
             switch (this._horizontalAlign) {
-                case HorizontalTextAlignment.LEFT:
-                    break;
-                case HorizontalTextAlignment.CENTER:
-                    lineOffsetX -= this._linesWidth[lineCount - 1] / 2;
-                    break;
-                case HorizontalTextAlignment.RIGHT:
-                    lineOffsetX -= this._linesWidth[lineCount - 1];
-                    break;
-                default:
-                    break;
+            case HorizontalTextAlignment.LEFT:
+                break;
+            case HorizontalTextAlignment.CENTER:
+                lineOffsetX -= this._linesWidth[lineCount - 1] / 2;
+                break;
+            case HorizontalTextAlignment.RIGHT:
+                lineOffsetX -= this._linesWidth[lineCount - 1];
+                break;
+            default:
+                break;
             }
 
             const pos = segment.node.position;
             segment.node.setPosition(nextTokenX + lineOffsetX,
                 this._lineHeight * (totalLineCount - lineCount) - this._labelHeight * anchorY,
-                pos.z,
-            );
+                pos.z);
 
             if (lineCount === nextLineIndex) {
                 nextTokenX += segment.node._uiProps.uiTransformComp!.width;
@@ -1003,17 +987,17 @@ export class RichText extends UIComponent {
                 const position = segment.node.position.clone();
                 // adjust img align (from <img align=top|center|bottom>)
                 const lineHeightSet = this._lineHeight;
-                const lineHeightReal = this._lineHeight * (1 + BASELINE_RATIO); //single line node height
+                const lineHeightReal = this._lineHeight * (1 + BASELINE_RATIO); // single line node height
                 switch (segment.node._uiProps.uiTransformComp!.anchorY) {
-                    case 1:
-                        position.y += (lineHeightSet + ((lineHeightReal - lineHeightSet) / 2));
-                        break;
-                    case 0.5:
-                        position.y += (lineHeightReal / 2);
-                        break;
-                    default:
-                        position.y += ((lineHeightReal - lineHeightSet) / 2);
-                        break;
+                case 1:
+                    position.y += (lineHeightSet + ((lineHeightReal - lineHeightSet) / 2));
+                    break;
+                case 0.5:
+                    position.y += (lineHeightReal / 2);
+                    break;
+                default:
+                    position.y += ((lineHeightReal - lineHeightSet) / 2);
+                    break;
                 }
                 // adjust img offset (from <img offset=12|12,34>)
                 if (segment.imageOffset) {
@@ -1021,8 +1005,7 @@ export class RichText extends UIComponent {
                     if (offsets.length === 1 && offsets[0]) {
                         const offsetY = parseFloat(offsets[0]);
                         if (Number.isInteger(offsetY)) position.y += offsetY;
-                    }
-                    else if (offsets.length === 2) {
+                    } else if (offsets.length === 2) {
                         const offsetX = parseFloat(offsets[0]);
                         const offsetY = parseFloat(offsets[1]);
                         if (Number.isInteger(offsetX)) position.x += offsetX;
@@ -1032,11 +1015,11 @@ export class RichText extends UIComponent {
                 segment.node.position = position;
             }
 
-            //adjust y for label with outline
+            // adjust y for label with outline
             const outline = segment.node.getComponent(LabelOutline);
             if (outline) {
                 const position = segment.node.position.clone();
-                position.y = position.y - outline.width;
+                position.y -= outline.width;
                 segment.node.position = position;
             }
         }
@@ -1045,9 +1028,9 @@ export class RichText extends UIComponent {
     protected _convertLiteralColorValue (color: string) {
         const colorValue = color.toUpperCase();
         if (Color[colorValue]) {
-            return Color[colorValue];
-        }
-        else {
+            const colorUse: Color = Color[colorValue];
+            return colorUse;
+        } else {
             const out = new Color();
             return out.fromHEX(color);
         }
@@ -1092,11 +1075,10 @@ export class RichText extends UIComponent {
             labelSeg.clickParam = '';
             const event = textStyle.event;
             if (event) {
-                labelSeg.clickHandler = event['click'] || '';
-                labelSeg.clickParam = event['param'] || '';
+                labelSeg.clickHandler = event.click || '';
+                labelSeg.clickParam = event.param || '';
             }
-        }
-        else {
+        } else {
             label.fontSize = this._fontSize;
         }
 
@@ -1112,5 +1094,11 @@ export class RichText extends UIComponent {
         label.lineHeight = this._lineHeight;
 
         label.updateRenderData(true);
+        // Todo: need update context size after this function call
+        // @ts-expect-error update assembler renderData for richText
+        const assembler = label._assembler;
+        if (assembler) {
+            assembler.updateRenderData(label);
+        }
     }
 }
