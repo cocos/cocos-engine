@@ -1,27 +1,32 @@
-// Learn TypeScript:
-//  - https://docs.cocos.com/creator/manual/en/scripting/typescript.html
-// Learn Attribute:
-//  - https://docs.cocos.com/creator/manual/en/scripting/reference/attributes.html
-// Learn life-cycle callbacks:
-//  - https://docs.cocos.com/creator/manual/en/scripting/life-cycle-callbacks.html
 
 import { _decorator, Component, Node } from 'cc';
 const { ccclass, property } = _decorator;
 
 @ccclass('<%Name%>')
 export class <%Name%> extends Component {
-    /* class member could be defined like this */
+    // [1]
     // dummy = '';
 
-    /* use `property` decorator if your want the member to be serializable */
+    // [2]
     // @property
     // serializableDummy = 0;
 
     start () {
-        // Your initialization goes here.
+        // [3]
     }
 
     // update (deltaTime: number) {
-    //     // Your update function goes here.
+    //     // [4]
     // }
 }
+
+/**
+ * [1] Class member could be defined like this.
+ * [2] Use `property` decorator if your want the member to be serializable.
+ * [3] Your initialization goes here.
+ * [4] Your update function goes here.
+ *
+ * Learn more about scripting: https://docs.cocos.com/creator/3.0/manual/en/scripting/
+ * Learn more about CCClass: https://docs.cocos.com/creator/3.0/manual/en/scripting/ccclass.html
+ * Learn more about life-cycle callbacks: https://docs.cocos.com/creator/3.0/manual/en/scripting/life-cycle-callbacks.html
+ */
