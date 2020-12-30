@@ -103,7 +103,6 @@ export class Canvas extends Component {
      *
      * @deprecated since v3.0, please use [[canvas.cameraComponent.clearColor]] instead
      */
-    @tooltip('清理颜色缓冲区后的颜色')
     get color () {
         if (this._cameraComponent) {
             return this._cameraComponent.clearColor;
