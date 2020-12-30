@@ -32,7 +32,7 @@
 import { ray } from '../../core/geometry';
 import { IPhysicsWorld, IRaycastOptions } from '../spec/i-physics-world';
 import { CollisionEventType, PhysicMaterial, PhysicsRayResult, TriggerEventType } from '../framework';
-import { Node, RecyclePool } from '../../core';
+import { error, Node, RecyclePool } from '../../core';
 import { IVec3Like } from '../../core/math/type-define';
 import { IBaseConstraint } from '../spec/i-physics-constraint';
 import { PhysXSharedBody } from './physx-shared-body';
@@ -269,6 +269,11 @@ export class PhysXWorld implements IPhysicsWorld {
             this.scene = this.physics.createScene(sceneDesc);
             PX.physics = this.physics;
         }
+    }
+
+    destroy (): void {
+        if (this.wrappedBodies.length) error('You should destroy all physics component first.');
+        this.scene.release();
     }
 
     step (deltaTime: number, _timeSinceLastCalled?: number, _maxSubStep = 0): void {

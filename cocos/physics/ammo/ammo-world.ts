@@ -41,7 +41,7 @@ import { ammo2CocosVec3, cocos2AmmoVec3, cocos2AmmoQuat } from './ammo-util';
 import { Ray } from '../../core/geometry';
 import { IRaycastOptions, IPhysicsWorld } from '../spec/i-physics-world';
 import { PhysicsRayResult, PhysicMaterial } from '../framework';
-import { Node, RecyclePool } from '../../core';
+import { error, Node, RecyclePool } from '../../core';
 import { AmmoInstance } from './ammo-instance';
 import { IVec3Like } from '../../core/math/type-define';
 import { AmmoContactEquation } from './ammo-contact-equation';
@@ -70,6 +70,7 @@ export class AmmoWorld implements IPhysicsWorld {
     private readonly _btBroadphase: Ammo.btDbvtBroadphase;
     private readonly _btSolver: Ammo.btSequentialImpulseConstraintSolver;
     private readonly _btDispatcher: Ammo.btCollisionDispatcher;
+    private readonly _btCollisionConfiguration: Ammo.btDefaultCollisionConfiguration;
 
     readonly bodies: AmmoSharedBody[] = [];
     readonly ghosts: AmmoSharedBody[] = [];
@@ -79,23 +80,45 @@ export class AmmoWorld implements IPhysicsWorld {
     readonly contactsDic = new TupleDictionary();
     readonly oldContactsDic = new TupleDictionary();
 
-    readonly closeHitCB: Ammo.ClosestRayResultCallback;
-    readonly allHitsCB: Ammo.AllHitsRayResultCallback;
+    static closeHitCB: Ammo.ClosestRayResultCallback;
+    static allHitsCB: Ammo.AllHitsRayResultCallback;
 
     constructor (options?: any) {
-        const collisionConfiguration = new Ammo.btDefaultCollisionConfiguration();
-        this._btDispatcher = new Ammo.btCollisionDispatcher(collisionConfiguration);
+        this._btCollisionConfiguration = new Ammo.btDefaultCollisionConfiguration();
+        this._btDispatcher = new Ammo.btCollisionDispatcher(this._btCollisionConfiguration);
         // this._btDispatcher.setDispatcherFlags(AmmoDispatcherFlags.CD_STATIC_STATIC_REPORTED);
         this._btBroadphase = new Ammo.btDbvtBroadphase();
         this._btSolver = new Ammo.btSequentialImpulseConstraintSolver();
-        this._btWorld = new Ammo.btDiscreteDynamicsWorld(this._btDispatcher, this._btBroadphase, this._btSolver, collisionConfiguration);
+        this._btWorld = new Ammo.btDiscreteDynamicsWorld(this._btDispatcher, this._btBroadphase, this._btSolver, this._btCollisionConfiguration);
         (this._btWorld.getPairCache() as any).setOverlapFilterCallback(new (Ammo as any).ccOverlapFilterCallback());
         // this._btWorld.setContactBreakingThreshold(0.04);
         const TMP = AmmoConstant.instance.VECTOR3_0;
         TMP.setValue(0, -10, 0);
         this._btWorld.setGravity(TMP);
-        this.closeHitCB = new Ammo.ClosestRayResultCallback(TMP, TMP);
-        this.allHitsCB = new Ammo.AllHitsRayResultCallback(TMP, TMP);
+        if (!AmmoWorld.closeHitCB) AmmoWorld.closeHitCB = new Ammo.ClosestRayResultCallback(TMP, TMP);
+        if (!AmmoWorld.allHitsCB) AmmoWorld.allHitsCB = new Ammo.AllHitsRayResultCallback(TMP, TMP);
+    }
+
+    destroy (): void {
+        if (this.constraints.length || this.bodies.length) error('You should destroy all physics component first.');
+        Ammo.destroy(this._btWorld);
+        Ammo.destroy(this._btSolver);
+        Ammo.destroy(this._btBroadphase);
+        Ammo.destroy(this._btDispatcher);
+        Ammo.destroy(this._btCollisionConfiguration);
+        (this as any)._btCollisionConfiguration = null;
+        (this as any)._btDispatcher = null;
+        (this as any)._btBroadphase = null;
+        (this as any)._btSolver = null;
+        (this as any)._btWorld = null;
+        (this as any).bodies = null;
+        (this as any).ghosts = null;
+        (this as any).constraints = null;
+        (this as any).triggerArrayMat = null;
+        (this as any).collisionArrayMat = null;
+        (this as any).contactsDic = null;
+        (this as any).oldContactsDic = null;
+        contactsPool.length = 0;
     }
 
     step (deltaTime: number, timeSinceLastCalled?: number, maxSubStep = 0) {
@@ -125,30 +148,31 @@ export class AmmoWorld implements IPhysicsWorld {
     }
 
     raycast (worldRay: Ray, options: IRaycastOptions, pool: RecyclePool<PhysicsRayResult>, results: PhysicsRayResult[]): boolean {
-        const from = cocos2AmmoVec3(this.allHitsCB.m_rayFromWorld, worldRay.o);
+        const allHitsCB = AmmoWorld.allHitsCB;
+        const from = cocos2AmmoVec3(allHitsCB.m_rayFromWorld, worldRay.o);
         worldRay.computeHit(v3_0, options.maxDistance);
-        const to = cocos2AmmoVec3(this.allHitsCB.m_rayToWorld, v3_0);
+        const to = cocos2AmmoVec3(allHitsCB.m_rayToWorld, v3_0);
 
-        this.allHitsCB.m_collisionFilterGroup = -1;
-        this.allHitsCB.m_collisionFilterMask = options.mask;
-        this.allHitsCB.m_closestHitFraction = 1;
-        this.allHitsCB.m_shapePart = -1;
-        (this.allHitsCB.m_collisionObject as any) = null;
-        this.allHitsCB.m_shapeParts.clear();
-        this.allHitsCB.m_hitFractions.clear();
-        this.allHitsCB.m_collisionObjects.clear();
-        const hp = this.allHitsCB.m_hitPointWorld;
-        const hn = this.allHitsCB.m_hitNormalWorld;
+        allHitsCB.m_collisionFilterGroup = -1;
+        allHitsCB.m_collisionFilterMask = options.mask;
+        allHitsCB.m_closestHitFraction = 1;
+        allHitsCB.m_shapePart = -1;
+        (allHitsCB.m_collisionObject as any) = null;
+        allHitsCB.m_shapeParts.clear();
+        allHitsCB.m_hitFractions.clear();
+        allHitsCB.m_collisionObjects.clear();
+        const hp = allHitsCB.m_hitPointWorld;
+        const hn = allHitsCB.m_hitNormalWorld;
         hp.clear();
         hn.clear();
-        this._btWorld.rayTest(from, to, this.allHitsCB);
-        if (this.allHitsCB.hasHit()) {
-            for (let i = 0, n = this.allHitsCB.m_collisionObjects.size(); i < n; i++) {
-                const btObj = this.allHitsCB.m_collisionObjects.at(i);
+        this._btWorld.rayTest(from, to, allHitsCB);
+        if (allHitsCB.hasHit()) {
+            for (let i = 0, n = allHitsCB.m_collisionObjects.size(); i < n; i++) {
+                const btObj = allHitsCB.m_collisionObjects.at(i);
                 const btCs = btObj.getCollisionShape();
                 let shape: AmmoShape;
                 if (btCs.isCompound()) {
-                    const shapeIndex = this.allHitsCB.m_shapeParts.at(i);
+                    const shapeIndex = allHitsCB.m_shapeParts.at(i);
                     const index = btObj.getUserIndex();
                     const shared = AmmoInstance.bodyAndGhosts[`KEY${index}`];
                     shape = shared.wrappedShapes[shapeIndex];
@@ -172,30 +196,31 @@ export class AmmoWorld implements IPhysicsWorld {
      * @return True if any body was hit.
      */
     raycastClosest (worldRay: Ray, options: IRaycastOptions, result: PhysicsRayResult): boolean {
-        const from = cocos2AmmoVec3(this.closeHitCB.m_rayFromWorld, worldRay.o);
+        const closeHitCB = AmmoWorld.closeHitCB;
+        const from = cocos2AmmoVec3(closeHitCB.m_rayFromWorld, worldRay.o);
         worldRay.computeHit(v3_0, options.maxDistance);
-        const to = cocos2AmmoVec3(this.closeHitCB.m_rayToWorld, v3_0);
+        const to = cocos2AmmoVec3(closeHitCB.m_rayToWorld, v3_0);
 
-        this.closeHitCB.m_collisionFilterGroup = -1;
-        this.closeHitCB.m_collisionFilterMask = options.mask;
-        this.closeHitCB.m_closestHitFraction = 1;
-        (this.closeHitCB.m_collisionObject as any) = null;
+        closeHitCB.m_collisionFilterGroup = -1;
+        closeHitCB.m_collisionFilterMask = options.mask;
+        closeHitCB.m_closestHitFraction = 1;
+        (closeHitCB.m_collisionObject as any) = null;
 
-        this._btWorld.rayTest(from, to, this.closeHitCB);
-        if (this.closeHitCB.hasHit()) {
-            const btObj = this.closeHitCB.m_collisionObject;
+        this._btWorld.rayTest(from, to, closeHitCB);
+        if (closeHitCB.hasHit()) {
+            const btObj = closeHitCB.m_collisionObject;
             const btCs = btObj.getCollisionShape();
             let shape: AmmoShape;
             if (btCs.isCompound()) {
                 const index = btObj.getUserIndex();
                 const shared = AmmoInstance.bodyAndGhosts[`KEY${index}`];
-                const shapeIndex = this.closeHitCB.m_shapePart;
+                const shapeIndex = closeHitCB.m_shapePart;
                 shape = shared.wrappedShapes[shapeIndex];
             } else {
                 shape = (btCs as any).wrapped;
             }
-            ammo2CocosVec3(v3_0, this.closeHitCB.m_hitPointWorld);
-            ammo2CocosVec3(v3_1, this.closeHitCB.m_hitNormalWorld);
+            ammo2CocosVec3(v3_0, closeHitCB.m_hitPointWorld);
+            ammo2CocosVec3(v3_1, closeHitCB.m_hitNormalWorld);
             const distance = Vec3.distance(worldRay.o, v3_0);
             result._assign(v3_0, distance, shape.collider, v3_1);
             return true;

@@ -29,41 +29,58 @@
  */
 
 /* eslint-disable import/no-mutable-exports */
+/* eslint-disable @typescript-eslint/restrict-template-expressions */
 import { warn } from '../../core';
 import { legacyCC } from '../../core/global-exports';
+import { IConeTwistConstraint, IHingeConstraint, IPointToPointConstraint } from '../spec/i-physics-constraint';
+import {
+    IBoxShape, ICapsuleShape, IConeShape, ICylinderShape, IPlaneShape,
+    ISimplexShape, ISphereShape, ITerrainShape, ITrimeshShape,
+} from '../spec/i-physics-shape';
+import { IPhysicsWorld } from '../spec/i-physics-world';
+import { IRigidBody } from '../spec/i-rigid-body';
+
+type IPhysicsEngineId = 'builtin' | 'cannon.js' | 'ammo.js' | 'physx' | string;
 
 interface IPhysicsWrapperObject {
-    PhysicsWorld: any,
-    RigidBody?: any,
-
-    BoxShape: any,
-    SphereShape: any,
-    CapsuleShape?: any,
-    TrimeshShape?: any,
-    CylinderShape?: any,
-    ConeShape?: any,
-    TerrainShape?: any,
-    SimplexShape?: any,
-    PlaneShape?: any,
-
-    PointToPointConstraint?: any,
-    HingeConstraint?: any,
-    ConeTwistConstraint?: any,
+    PhysicsWorld?: Constructor<IPhysicsWorld>,
+    RigidBody?: Constructor<IRigidBody>,
+    BoxShape?: Constructor<IBoxShape>,
+    SphereShape?: Constructor<ISphereShape>,
+    CapsuleShape?: Constructor<ICapsuleShape>,
+    TrimeshShape?: Constructor<ITrimeshShape>,
+    CylinderShape?: Constructor<ICylinderShape>,
+    ConeShape?: Constructor<IConeShape>,
+    TerrainShape?: Constructor<ITerrainShape>,
+    SimplexShape?: Constructor<ISimplexShape>,
+    PlaneShape?: Constructor<IPlaneShape>,
+    PointToPointConstraint?: Constructor<IPointToPointConstraint>,
+    HingeConstraint?: Constructor<IHingeConstraint>,
+    ConeTwistConstraint?: Constructor<IConeTwistConstraint>,
 }
 
-type IPhysicsEngineId = 'builtin' | 'cannon.js' | 'ammo.js' | 'physx' | string | undefined;
+type IPhysicsBackend = { [key: string]: IPhysicsWrapperObject; }
 
-export let WRAPPER: IPhysicsWrapperObject;
+interface IPhysicsSelector {
+    id: IPhysicsEngineId,
+    wrapper: IPhysicsWrapperObject,
+    backend: IPhysicsBackend,
+    select: (id: IPhysicsEngineId, wrapper: IPhysicsWrapperObject) => void,
+}
 
-export let physicsEngineId: IPhysicsEngineId;
-
-export function select (id: IPhysicsEngineId, wrapper: IPhysicsWrapperObject) {
-    physicsEngineId = id;
+function select (id: IPhysicsEngineId, wrapper: IPhysicsWrapperObject): void {
     legacyCC._global.CC_PHYSICS_BUILTIN = id === 'builtin';
     legacyCC._global.CC_PHYSICS_CANNON = id === 'cannon.js';
     legacyCC._global.CC_PHYSICS_AMMO = id === 'ammo.js';
-
-    WRAPPER = wrapper;
-    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
     warn(`[PHYSICS]: Using ${id}`);
+    selector.id = id;
+    selector.wrapper = wrapper;
+    if (id != null) selector.backend[id] = wrapper;
 }
+
+export const selector: IPhysicsSelector = {
+    id: '',
+    select,
+    wrapper: {} as any,
+    backend: {} as any,
+};

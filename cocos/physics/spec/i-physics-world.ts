@@ -52,4 +52,5 @@ export interface IPhysicsWorld {
     emitEvents (): void;
     syncSceneToPhysics (): void;
     syncAfterEvents (): void;
+    destroy (): void;
 }
