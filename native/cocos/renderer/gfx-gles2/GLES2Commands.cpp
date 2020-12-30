@@ -1953,62 +1953,46 @@ void GLES2CmdFuncBindState(GLES2Device *device, GLES2GPUPipelineState *gpuPipeli
                 }
 
                 // bind blend state
-                if (cache->bs.isA2C != gpuPipelineState->bs.isA2C) {
-                    if (cache->bs.isA2C) {
-                        GL_CHECK(glEnable(GL_SAMPLE_ALPHA_TO_COVERAGE));
-                    } else {
-                        GL_CHECK(glDisable(GL_SAMPLE_ALPHA_TO_COVERAGE));
+
+                if (gpuTexture->glWrapS != glWrapS) {
+                    if (cache->texUint != unit) {
+                        GL_CHECK(glActiveTexture(GL_TEXTURE0 + unit));
+                        cache->texUint = unit;
                     }
-                    cache->bs.isA2C = gpuPipelineState->bs.isA2C;
-                    if (gpuTexture->glWrapS != glWrapS) {
-                        if (cache->texUint != unit) {
-                            GL_CHECK(glActiveTexture(GL_TEXTURE0 + unit));
-                            cache->texUint = unit;
-                        }
-                        if (cache->bs.blendColor.x != gpuPipelineState->bs.blendColor.x ||
-                            cache->bs.blendColor.y != gpuPipelineState->bs.blendColor.y ||
-                            cache->bs.blendColor.z != gpuPipelineState->bs.blendColor.z ||
-                            cache->bs.blendColor.w != gpuPipelineState->bs.blendColor.w) {
-                            GL_CHECK(glTexParameteri(gpuTexture->glTarget, GL_TEXTURE_WRAP_S,
-                                                     glWrapS));
-                            gpuTexture->glWrapS = glWrapS;
-                        }
+                    
+                    GL_CHECK(glTexParameteri(gpuTexture->glTarget, GL_TEXTURE_WRAP_S,
+                                                glWrapS));
+                    gpuTexture->glWrapS = glWrapS;
+                }
 
-                        GL_CHECK(glBlendColor(gpuPipelineState->bs.blendColor.x,
-                                              gpuPipelineState->bs.blendColor.y,
-                                              gpuPipelineState->bs.blendColor.z,
-                                              gpuPipelineState->bs.blendColor.w));
-                        cache->bs.blendColor = gpuPipelineState->bs.blendColor;
-                        if (gpuTexture->glWrapT != glWrapT) {
-                            if (cache->texUint != unit) {
-                                GL_CHECK(glActiveTexture(GL_TEXTURE0 + unit));
-                                cache->texUint = unit;
-                            }
-                            GL_CHECK(glTexParameteri(gpuTexture->glTarget, GL_TEXTURE_WRAP_T,
-                                                     glWrapT));
-                            gpuTexture->glWrapT = glWrapT;
-                        }
-
-                        if (gpuTexture->glMinFilter != glMinFilter) {
-                            if (cache->texUint != unit) {
-                                GL_CHECK(glActiveTexture(GL_TEXTURE0 + unit));
-                                cache->texUint = unit;
-                            }
-                            GL_CHECK(glTexParameteri(gpuTexture->glTarget, GL_TEXTURE_MIN_FILTER,
-                                                     glMinFilter));
-                            gpuTexture->glMinFilter = glMinFilter;
-                        }
-
-                        if (gpuTexture->glMagFilter != gpuDescriptor->gpuSampler->glMagFilter) {
-                            if (cache->texUint != unit) {
-                                GL_CHECK(glActiveTexture(GL_TEXTURE0 + unit));
-                                cache->texUint = unit;
-                            }
-                            GL_CHECK(glTexParameteri(gpuTexture->glTarget, GL_TEXTURE_MAG_FILTER,
-                                                     gpuDescriptor->gpuSampler->glMagFilter));
-                            gpuTexture->glMagFilter = gpuDescriptor->gpuSampler->glMagFilter;
-                        }
+                if (gpuTexture->glWrapT != glWrapT) {
+                    if (cache->texUint != unit) {
+                        GL_CHECK(glActiveTexture(GL_TEXTURE0 + unit));
+                        cache->texUint = unit;
                     }
+                    GL_CHECK(glTexParameteri(gpuTexture->glTarget, GL_TEXTURE_WRAP_T,
+                                                glWrapT));
+                    gpuTexture->glWrapT = glWrapT;
+                }
+
+                if (gpuTexture->glMinFilter != glMinFilter) {
+                    if (cache->texUint != unit) {
+                        GL_CHECK(glActiveTexture(GL_TEXTURE0 + unit));
+                        cache->texUint = unit;
+                    }
+                    GL_CHECK(glTexParameteri(gpuTexture->glTarget, GL_TEXTURE_MIN_FILTER,
+                                                glMinFilter));
+                    gpuTexture->glMinFilter = glMinFilter;
+                }
+
+                if (gpuTexture->glMagFilter != gpuDescriptor->gpuSampler->glMagFilter) {
+                    if (cache->texUint != unit) {
+                        GL_CHECK(glActiveTexture(GL_TEXTURE0 + unit));
+                        cache->texUint = unit;
+                    }
+                    GL_CHECK(glTexParameteri(gpuTexture->glTarget, GL_TEXTURE_MAG_FILTER,
+                                                gpuDescriptor->gpuSampler->glMagFilter));
+                    gpuTexture->glMagFilter = gpuDescriptor->gpuSampler->glMagFilter;
                 }
             }
         }
