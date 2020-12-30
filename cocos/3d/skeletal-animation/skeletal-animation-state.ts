@@ -102,13 +102,13 @@ export class SkeletalAnimationState extends AnimationState {
         if (baked) {
             this._sampleCurves = this._sampleCurvesBaked;
             this.duration = this._bakedDuration;
-            this._animInfoMgr.switchClip(this._animInfo!, this._clip);
+            this._animInfoMgr.switchClip(this._animInfo!, this.clip);
             for (let i = 0; i < this._comps.length; ++i) {
                 this._comps[i].uploadAnimation(this.clip);
             }
         } else {
             this._sampleCurves = super._sampleCurves;
-            this.duration = this._clip.duration;
+            this.duration = this.clip.duration;
             if (!this._curvesInited) {
                 this._curveLoaded = false;
                 super.initialize(this._targetNode!);

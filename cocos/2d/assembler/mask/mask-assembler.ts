@@ -38,12 +38,12 @@ import { simple } from '../sprite';
 const _stencilManager = StencilManager.sharedManager!;
 
 function applyClearMask (mask: Mask, renderer: UI) {
-    _stencilManager.clear();
+    _stencilManager.clear(mask);
     renderer.commitModel(mask, mask._clearModel, mask._clearStencilMtl);
 }
 
 function applyAreaMask (mask: Mask, renderer: UI) {
-    _stencilManager.enterLevel();
+    _stencilManager.enterLevel(mask);
     if (mask.type === MaskType.IMAGE_STENCIL) {
         simple.fillBuffers(mask, renderer);
         const mat = mask.graphics!.getMaterialInstance(0)!;

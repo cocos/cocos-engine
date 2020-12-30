@@ -23,11 +23,10 @@
  THE SOFTWARE.
  */
 
-
 import { Color, Vec2 } from '../../../../core/math';
 import { MeshRenderData } from '../../../renderer/render-data';
 import { arc, ellipse, roundRect, tesselateBezier } from '../helper';
-import { LineCap, LineJoin, PointFlags} from '../types';
+import { LineCap, LineJoin, PointFlags } from '../types';
 
 export class Point extends Vec2 {
     public dx = 0;
@@ -206,7 +205,7 @@ export class Impl {
         return renderData;
     }
 
-    public getRenderData () {
+    public getRenderDataList () {
         if (this._renderDataList.length === 0) {
             this.requestRenderData();
         }

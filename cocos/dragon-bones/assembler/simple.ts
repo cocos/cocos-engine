@@ -1,6 +1,6 @@
 import { Color, Component, macro, Mat4, RenderTexture, Node, Texture2D, Vec3 } from '../../core';
-import { TextureBase } from '../../core/assets/texture-base';
 import { BlendFactor } from '../../core/gfx';
+import { TextureBase } from '../../core/assets/texture-base';
 import { MaterialInstance } from '../../core/renderer/core/material-instance';
 import { IAssembler } from '../../2d/renderer/base';
 import { UI } from '../../2d/renderer/ui';
@@ -8,6 +8,7 @@ import { ArmatureFrame, ArmatureFrameColor } from '../ArmatureCache';
 import { ArmatureDisplay, ArmatureDisplayMeshData } from '../ArmatureDisplay';
 import { CCSlot } from '../CCSlot';
 import { Armature, BlendMode } from '../lib/dragonBones.js';
+import { legacyCC } from '../../core/global-exports';
 
 const NEED_COLOR = 0x01;
 const NEED_BATCH = 0x10;
@@ -456,3 +457,5 @@ function updateComponentRenderData (comp: ArmatureDisplay, ui: UI) {
     _ui = undefined;
     _comp = undefined;
 }
+
+legacyCC.internal.DragonBonesAssembler = simple;

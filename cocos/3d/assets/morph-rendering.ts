@@ -41,7 +41,6 @@ import { log2, nextPow2 } from '../../core/math/bits';
 import { IMacroPatch } from '../../core/renderer';
 import { legacyCC } from '../../core/global-exports';
 import { PixelFormat } from '../../core/assets/asset-enum';
-import { DSPool } from '../../core/renderer/core/memory-pools';
 
 /**
  * True if force to use cpu computing based sub-mesh rendering.
@@ -115,16 +114,16 @@ export class StdMorphRendering implements MorphRendering {
                 assertIsNonNullable(subMeshMorph);
                 const patches: IMacroPatch[] = [
                     { name: 'CC_USE_MORPH', value: true },
-                    { name: 'CC_MORPH_TARGET_COUNT', value: subMeshMorph.targets.length }
+                    { name: 'CC_MORPH_TARGET_COUNT', value: subMeshMorph.targets.length },
                 ];
                 if (subMeshMorph.attributes.includes(AttributeName.ATTR_POSITION)) {
-                    patches.push({ name: 'CC_MORPH_TARGET_HAS_POSITION', value: true});
+                    patches.push({ name: 'CC_MORPH_TARGET_HAS_POSITION', value: true });
                 }
                 if (subMeshMorph.attributes.includes(AttributeName.ATTR_NORMAL)) {
-                    patches.push({ name: 'CC_MORPH_TARGET_HAS_NORMAL', value: true});
+                    patches.push({ name: 'CC_MORPH_TARGET_HAS_NORMAL', value: true });
                 }
                 if (subMeshMorph.attributes.includes(AttributeName.ATTR_TANGENT)) {
-                    patches.push({ name: 'CC_MORPH_TARGET_HAS_TANGENT', value: true});
+                    patches.push({ name: 'CC_MORPH_TARGET_HAS_TANGENT', value: true });
                 }
                 patches.push(...subMeshRenderingInstance.requiredPatches());
                 return patches;
@@ -261,19 +260,17 @@ class GpuComputing implements SubMeshMorphRendering {
                 morphUniforms.commit();
             },
 
-            requiredPatches: (): IMacroPatch[] => {
-                return [{ name: 'CC_MORPH_TARGET_USE_TEXTURE', value: true, }];
-            },
+            requiredPatches: (): IMacroPatch[] => [{ name: 'CC_MORPH_TARGET_USE_TEXTURE', value: true }],
 
             adaptPipelineState: (descriptorSet: DescriptorSet) => {
                 for (const attribute of this._attributes) {
                     let binding: number | undefined;
                     switch (attribute.name) {
-                        case AttributeName.ATTR_POSITION: binding = UNIFORM_POSITION_MORPH_TEXTURE_BINDING; break;
-                        case AttributeName.ATTR_NORMAL: binding = UNIFORM_NORMAL_MORPH_TEXTURE_BINDING; break;
-                        case AttributeName.ATTR_TANGENT: binding = UNIFORM_TANGENT_MORPH_TEXTURE_BINDING; break;
-                        default:
-                            warn(`Unexpected attribute!`); break;
+                    case AttributeName.ATTR_POSITION: binding = UNIFORM_POSITION_MORPH_TEXTURE_BINDING; break;
+                    case AttributeName.ATTR_NORMAL: binding = UNIFORM_NORMAL_MORPH_TEXTURE_BINDING; break;
+                    case AttributeName.ATTR_TANGENT: binding = UNIFORM_TANGENT_MORPH_TEXTURE_BINDING; break;
+                    default:
+                        warn('Unexpected attribute!'); break;
                     }
                     if (binding !== undefined) {
                         descriptorSet.bindSampler(binding, attribute.morphTexture.sampler);
@@ -310,17 +307,16 @@ class CpuComputing implements SubMeshMorphRendering {
         const subMeshMorph = morph.subMeshMorphs[subMeshIndex];
         assertIsNonNullable(subMeshMorph);
         enableVertexId(mesh, subMeshIndex, gfxDevice);
-        this._attributes = subMeshMorph.attributes.map((attributeName, attributeIndex) =>  {
-            return {
-                name: attributeName,
-                targets: subMeshMorph.targets.map((attributeDisplacement) => ({
-                    displacements: new Float32Array(
-                        mesh.data.buffer,
-                        mesh.data.byteOffset + attributeDisplacement.displacements[attributeIndex].offset,
-                        attributeDisplacement.displacements[attributeIndex].count),
-                })),
-            };
-        });
+        this._attributes = subMeshMorph.attributes.map((attributeName, attributeIndex) =>  ({
+            name: attributeName,
+            targets: subMeshMorph.targets.map((attributeDisplacement) => ({
+                displacements: new Float32Array(
+                    mesh.data.buffer,
+                    mesh.data.byteOffset + attributeDisplacement.displacements[attributeIndex].offset,
+                    attributeDisplacement.displacements[attributeIndex].count,
+                ),
+            })),
+        }));
     }
 
     /**
@@ -348,7 +344,7 @@ class CpuComputingRenderingInstance implements SubMeshMorphRenderingInstance {
 
     public constructor (owner: CpuComputing, nVertices: number, gfxDevice: Device) {
         this._owner = owner;
-        this._morphUniforms = new MorphUniforms(gfxDevice, 0 /* TODO? */ );
+        this._morphUniforms = new MorphUniforms(gfxDevice, 0 /* TODO? */);
 
         const vec4TextureFactory = createVec4TextureFactory(gfxDevice, nVertices);
         this._morphUniforms.setMorphTextureInfo(vec4TextureFactory.width, vec4TextureFactory.height);
@@ -388,46 +384,14 @@ class CpuComputingRenderingInstance implements SubMeshMorphRenderingInstance {
                 }
             }
 
-            // Normalize displacements to [0, 1].
-            if (false) {
-                const n = attributeMorph.targets[0].displacements.length / 3;
-                for (let c = 0; c < 3; ++c) {
-                    let min = Number.POSITIVE_INFINITY;
-                    let max = Number.NEGATIVE_INFINITY;
-                    for (let i = 0; i < n; ++i) {
-                        const x = valueView[i * 4 + c];
-                        max = Math.max(x, max);
-                        min = Math.min(x, min);
-                    }
-                    const d = max - min;
-                    if (d !== 0) {
-                        for (let i = 0; i < n; ++i) {
-                            const x = valueView[i * 4 + c];
-                            valueView[i * 4 + c] = (x - min) / d;
-                        }
-                    }
-                }
-            }
-
-            // Randomize displacements.
-            if (false) {
-                for (let i = 0; i < valueView.length; ++i) {
-                    if (i % 3 === 1) {
-                        valueView[i] = (legacyCC.director.getTotalFrames() % 500) * 0.001;
-                    } else {
-                        valueView[i] = 0;
-                    }
-                }
-            }
-
             myAttribute.morphTexture.updatePixels();
         }
     }
 
     public requiredPatches (): IMacroPatch[] {
         return [
-            { name: 'CC_MORPH_TARGET_USE_TEXTURE', value: true, },
-            { name: 'CC_MORPH_PRECOMPUTED', value: true, },
+            { name: 'CC_MORPH_TARGET_USE_TEXTURE', value: true },
+            { name: 'CC_MORPH_PRECOMPUTED', value: true },
         ];
     }
 
@@ -436,11 +400,11 @@ class CpuComputingRenderingInstance implements SubMeshMorphRenderingInstance {
             const attributeName = attribute.attributeName;
             let binding: number | undefined;
             switch (attributeName) {
-                case AttributeName.ATTR_POSITION: binding = UNIFORM_POSITION_MORPH_TEXTURE_BINDING; break;
-                case AttributeName.ATTR_NORMAL: binding = UNIFORM_NORMAL_MORPH_TEXTURE_BINDING; break;
-                case AttributeName.ATTR_TANGENT: binding = UNIFORM_TANGENT_MORPH_TEXTURE_BINDING; break;
-                default:
-                    warn(`Unexpected attribute!`); break;
+            case AttributeName.ATTR_POSITION: binding = UNIFORM_POSITION_MORPH_TEXTURE_BINDING; break;
+            case AttributeName.ATTR_NORMAL: binding = UNIFORM_NORMAL_MORPH_TEXTURE_BINDING; break;
+            case AttributeName.ATTR_TANGENT: binding = UNIFORM_TANGENT_MORPH_TEXTURE_BINDING; break;
+            default:
+                warn('Unexpected attribute!'); break;
             }
             if (binding !== undefined) {
                 descriptorSet.bindSampler(binding, attribute.morphTexture.sampler);
@@ -504,11 +468,7 @@ class MorphUniforms {
     }
 
     public commit () {
-        this._remoteBuffer.update(
-            this._localBuffer.buffer,
-            this._localBuffer.byteOffset,
-            this._localBuffer.byteLength,
-        );
+        this._remoteBuffer.update(this._localBuffer.buffer);
     }
 }
 
@@ -559,7 +519,7 @@ function createVec4TextureFactory (gfxDevice: Device, vec4Capacity: number) {
             textureAsset.setWrapMode(Texture2D.WrapMode.CLAMP_TO_EDGE, Texture2D.WrapMode.CLAMP_TO_EDGE, Texture2D.WrapMode.CLAMP_TO_EDGE);
             textureAsset.image = image;
             if (!textureAsset.getGFXTexture()) {
-                warn(`Unexpected: failed to create morph texture?`);
+                warn('Unexpected: failed to create morph texture?');
             }
             const sampler = samplerLib.getSampler(gfxDevice, textureAsset.getSamplerHash());
             return {

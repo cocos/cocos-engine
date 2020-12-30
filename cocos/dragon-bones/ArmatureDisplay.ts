@@ -2,6 +2,7 @@ import { EDITOR } from 'internal:constants';
 import { ccclass, executeInEditMode, help, menu } from '../core/data/class-decorator';
 import { UIRenderable } from '../2d/framework/ui-renderable';
 import { Node, EventTarget, CCClass, Color, Enum, PrivateNode, ccenum, errorID, Texture2D, js, CCObject } from '../core';
+import { BlendFactor } from '../core/gfx';
 import { displayName, editable, serializable, tooltip, type, visible } from '../core/data/decorators';
 import { AnimationCache, ArmatureCache, ArmatureFrame } from './ArmatureCache';
 import { AttachUtil } from './AttachUtil';
@@ -14,7 +15,7 @@ import { CCArmatureDisplay } from './CCArmatureDisplay';
 import { MeshRenderData } from '../2d/renderer/render-data';
 import { UI } from '../2d/renderer/ui';
 import { MaterialInstance } from '../core/renderer/core/material-instance';
-import { BlendFactor } from '../core/gfx';
+import { legacyCC } from '../core/global-exports';
 
 enum DefaultArmaturesEnum {
     default = -1,
@@ -192,13 +193,13 @@ export class ArmatureDisplay extends UIRenderable {
         }
 
         if (this._armature && !this.isAnimationCached()) {
-            this._factory._dragonBones.clock.remove(this._armature);
+            this._factory!._dragonBones.clock.remove(this._armature);
         }
 
         this._refresh();
 
         if (this._armature && !this.isAnimationCached()) {
-            this._factory._dragonBones.clock.add(this._armature);
+            this._factory!._dragonBones.clock.add(this._armature);
         }
     }
 
@@ -450,7 +451,7 @@ export class ArmatureDisplay extends UIRenderable {
 
     protected _eventTarget: EventTarget;
 
-    protected _factory: CCFactory;
+    protected _factory: CCFactory | null = null;
 
     protected _displayProxy: CCArmatureDisplay | null = null;
 
@@ -478,9 +479,13 @@ export class ArmatureDisplay extends UIRenderable {
         this._eventTarget = new EventTarget();
         this._inited = false;
         this.attachUtil = new AttachUtil();
-        this._factory = CCFactory.getInstance();
+        this.initFactory();
         setEnumAttr(this, '_animationIndex', this._enumAnimations);
         setEnumAttr(this, '_defaultArmatureIndex', this._enumArmatures);
+    }
+
+    initFactory () {
+        this._factory = CCFactory.getInstance();
     }
 
     onLoad () {
@@ -551,9 +556,7 @@ export class ArmatureDisplay extends UIRenderable {
             for (let i = 0; i < this._meshRenderDataArray.length; i++) {
                 this._meshRenderDataArrayIdx = i;
                 const m = this._meshRenderDataArray[i];
-                if (m.renderData.material) {
-                    this.material = m.renderData.material;
-                }
+                this.material = m.renderData.material;
                 if (m.texture) {
                     ui.commitComp(this, m.texture, this._assembler, null);
                 }
@@ -677,7 +680,7 @@ export class ArmatureDisplay extends UIRenderable {
             this._cacheMode = cacheMode;
             this._buildArmature();
             if (this._armature && !this.isAnimationCached()) {
-                this._factory._dragonBones.clock.add(this._armature);
+                this._factory!._dragonBones.clock.add(this._armature);
             }
             this._updateSocketBindings();
             this.markForUpdateRenderData();
@@ -699,7 +702,7 @@ export class ArmatureDisplay extends UIRenderable {
         super.onEnable();
         // If cache mode is cache, no need to update by dragonbones library.
         if (this._armature && !this.isAnimationCached()) {
-            this._factory._dragonBones.clock.add(this._armature);
+            this._factory!._dragonBones.clock.add(this._armature);
         }
         this._flushAssembler();
     }
@@ -708,7 +711,7 @@ export class ArmatureDisplay extends UIRenderable {
         super.onDisable();
         // If cache mode is cache, no need to update by dragonbones library.
         if (this._armature && !this.isAnimationCached()) {
-            this._factory._dragonBones.clock.remove(this._armature);
+            this._factory!._dragonBones.clock.remove(this._armature);
         }
     }
 
@@ -855,7 +858,7 @@ export class ArmatureDisplay extends UIRenderable {
         }
 
         const atlasUUID = this.dragonAtlasAsset._uuid;
-        this._armatureKey = this.dragonAsset.init(this._factory, atlasUUID);
+        this._armatureKey = this.dragonAsset.init(this._factory!, atlasUUID);
 
         if (this.isAnimationCached()) {
             this._armature = this._armatureCache!.getArmatureCache(this.armatureName, this._armatureKey, atlasUUID);
@@ -867,7 +870,7 @@ export class ArmatureDisplay extends UIRenderable {
 
         this._preCacheMode = this._cacheMode;
         if (EDITOR || this._cacheMode === AnimationCacheMode.REALTIME) {
-            this._displayProxy = this._factory.buildArmatureDisplay(this.armatureName, this._armatureKey, '', atlasUUID) as CCArmatureDisplay;
+            this._displayProxy = this._factory!.buildArmatureDisplay(this.armatureName, this._armatureKey, '', atlasUUID) as CCArmatureDisplay;
             if (!this._displayProxy) return;
             this._displayProxy._ccNode = this.node;
             this._displayProxy._ccComponent = this;
@@ -926,7 +929,7 @@ export class ArmatureDisplay extends UIRenderable {
 
     _parseDragonAtlasAsset () {
         if (this.dragonAtlasAsset) {
-            this.dragonAtlasAsset.init(this._factory);
+            this.dragonAtlasAsset.init(this._factory!);
         }
     }
 
@@ -1108,7 +1111,7 @@ export class ArmatureDisplay extends UIRenderable {
      * @returns {Array}
      */
     getArmatureNames () {
-        const dragonBonesData = this._factory.getDragonBonesData(this._armatureKey);
+        const dragonBonesData = this._factory!.getDragonBonesData(this._armatureKey);
         return (dragonBonesData && dragonBonesData.armatureNames) || [];
     }
 
@@ -1123,7 +1126,7 @@ export class ArmatureDisplay extends UIRenderable {
      */
     getAnimationNames (armatureName: string) {
         const ret: string[] = [];
-        const dragonBonesData = this._factory.getDragonBonesData(this._armatureKey);
+        const dragonBonesData = this._factory!.getDragonBonesData(this._armatureKey);
         if (dragonBonesData) {
             const armatureData = dragonBonesData.getArmature(armatureName);
             if (armatureData) {
@@ -1222,7 +1225,7 @@ export class ArmatureDisplay extends UIRenderable {
      * @return {dragonBones.ArmatureDisplay}
      */
     buildArmature (armatureName: string, node?: Node) {
-        return this._factory.createArmatureNode(this, armatureName, node);
+        return this._factory!.createArmatureNode(this, armatureName, node);
     }
 
     /**
@@ -1280,3 +1283,5 @@ export class ArmatureDisplay extends UIRenderable {
         }
     }
 }
+
+legacyCC.internal.ArmatureDisplay = ArmatureDisplay;

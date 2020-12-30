@@ -50,7 +50,7 @@ export class CommandBufferInfo {
 
     constructor (
         public queue: Queue,
-        public type: CommandBufferType = CommandBufferType.PRIMARY
+        public type: CommandBufferType = CommandBufferType.PRIMARY,
     ) {}
 }
 
@@ -60,7 +60,6 @@ export class CommandBufferInfo {
  */
 
 export abstract class CommandBuffer extends Obj {
-
     /**
      * @en Type of the command buffer.
      * @zh 命令缓冲类型。
@@ -107,11 +106,11 @@ export abstract class CommandBuffer extends Obj {
 
     protected _type: CommandBufferType = CommandBufferType.PRIMARY;
 
-    protected _numDrawCalls: number = 0;
+    protected _numDrawCalls = 0;
 
-    protected _numInstances: number = 0;
+    protected _numInstances = 0;
 
-    protected _numTris: number = 0;
+    protected _numTris = 0;
 
     constructor (device: Device) {
         super(ObjectType.COMMAND_BUFFER);
@@ -251,9 +250,9 @@ export abstract class CommandBuffer extends Obj {
      * @zh 更新缓冲。
      * @param buffer The buffer to be updated.
      * @param data The source data.
-     * @param offset Offset into the buffer.
+     * @param size Size in bytes to be updated.
      */
-    public abstract updateBuffer (buffer: Buffer, data: ArrayBuffer, offset?: number): void;
+    public abstract updateBuffer (buffer: Buffer, data: ArrayBuffer, size?: number): void;
 
     /**
      * @en Copy buffer to texture.

@@ -130,11 +130,11 @@ export function getImageFormatByData (imgData) {
     return ImageFormat.UNKNOWN;
 }
 
-function getParticleComponents (node) {
+function getParticleComponents (node): ParticleSystem2D[] {
     const parent = node.parent;
     const comp = node.getComponent(ParticleSystem2D);
     if (!parent || !comp) {
-        return node.getComponentsInChildren(ParticleSystem2D);
+        return node.getComponentsInChildren(ParticleSystem2D) as ParticleSystem2D[];
     }
     return getParticleComponents(parent);
 }
@@ -876,7 +876,7 @@ export class ParticleSystem2D extends UIRenderable {
     public _applyFile () {
         const file = this._file;
         if (file) {
-            const applyTemp = (err) => {
+            const applyTemp = (err: any) => {
                 if (err || !file) {
                     errorID(6029);
                     return;
@@ -911,29 +911,28 @@ export class ParticleSystem2D extends UIRenderable {
         }
     }
 
-    public _initTextureWithDictionary (dict) {
+    public _initTextureWithDictionary (dict: any) {
         if (dict.spriteFrameUuid) {
             const spriteFrameUuid = dict.spriteFrameUuid;
-            assetManager.loadAny(spriteFrameUuid, (error: Error, spriteFrame: SpriteFrame) => {
-                if (error) {
+            assetManager.loadAny(spriteFrameUuid, (err: Error, spriteFrame: SpriteFrame) => {
+                if (err) {
                     dict.spriteFrameUuid = undefined;
                     this._initTextureWithDictionary(dict);
-                    console.error(error);
+                    error(err);
                 } else {
                     this.spriteFrame = spriteFrame;
                 }
             });
-        }
-        // texture
-        else {
+        } else {
+            // texture
             const imgPath = path.changeBasename(this._plistFile, dict.textureFileName || '');
             if (dict.textureFileName) {
                 // Try to get the texture from the cache
-                assetManager.loadRemote<ImageAsset>(imgPath, (error: Error | null, imageAsset: ImageAsset) => {
-                    if (error) {
+                assetManager.loadRemote<ImageAsset>(imgPath, (err: Error | null, imageAsset: ImageAsset) => {
+                    if (err) {
                         dict.textureFileName = undefined;
                         this._initTextureWithDictionary(dict);
-                        console.error(error);
+                        error(err);
                     } else {
                         this.spriteFrame = SpriteFrame.createWithImage(imageAsset);
                     }
@@ -985,7 +984,7 @@ export class ParticleSystem2D extends UIRenderable {
     }
 
     // parsing process
-    public _initWithDictionary (dict) {
+    public _initWithDictionary (dict: any) {
         this.totalParticles = parseInt(dict.maxParticles || 0);
 
         // life span
@@ -1120,6 +1119,8 @@ export class ParticleSystem2D extends UIRenderable {
             } else {
                 this._renderSpriteFrame.once('load', this._onTextureLoaded, this);
             }
+        } else {
+            this.resetSystem();
         }
     }
 
@@ -1148,7 +1149,7 @@ export class ParticleSystem2D extends UIRenderable {
     }
 
     protected _canRender () {
-        return super._canRender() && !this._stopped && !this._deferredloaded;
+        return super._canRender() && !this._stopped && !this._deferredloaded && this._renderSpriteFrame !== null;
     }
 
     protected _render (render: UI) {

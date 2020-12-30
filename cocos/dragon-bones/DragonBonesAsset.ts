@@ -7,6 +7,7 @@ import { Enum, JsonAsset, Node } from '../core';
 import { CCFactory } from './CCFactory';
 import { BinaryDataParser, DragonBonesData } from './lib/dragonBones';
 import { property } from '../core/data/class-decorator';
+import { legacyCC } from '../core/global-exports';
 
 /**
  * !#en The skeleton data of dragonBones.
@@ -152,3 +153,5 @@ export class DragonBonesAsset extends Asset {
         }
     }
 }
+
+legacyCC.internal.DragonBonesAsset = DragonBonesAsset;

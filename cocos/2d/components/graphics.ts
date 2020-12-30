@@ -271,14 +271,10 @@ export class Graphics extends UIRenderable {
     public onEnable () {
         super.onEnable();
         this._updateMtlForGraphics();
-        if (this._isDrawing) {
-            this._attachToScene();
-        }
     }
 
     public onDisable () {
         super.onDisable();
-        this._detachFromScene();
     }
 
     public onDestroy () {
@@ -518,7 +514,6 @@ export class Graphics extends UIRenderable {
             }
         }
 
-        this._detachFromScene();
         this.markForUpdateRenderData();
     }
 
@@ -553,7 +548,6 @@ export class Graphics extends UIRenderable {
         this._isDrawing = true;
         this._isNeedUploadData = true;
         (this._assembler as IAssembler).stroke!(this);
-        this._attachToScene();
     }
 
     /**
@@ -571,7 +565,6 @@ export class Graphics extends UIRenderable {
         this._isDrawing = true;
         this._isNeedUploadData = true;
         (this._assembler as IAssembler).fill!(this);
-        this._attachToScene();
     }
 
     private _updateMtlForGraphics () {
@@ -594,7 +587,6 @@ export class Graphics extends UIRenderable {
         }
 
         if (this.model.subModels.length <= idx) {
-            let renderMesh: RenderingSubMesh;
             const gfxDevice: Device = legacyCC.director.root.device;
             const vertexBuffer = gfxDevice.createBuffer(new BufferInfo(
                 BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST,
@@ -609,7 +601,7 @@ export class Graphics extends UIRenderable {
                 Uint16Array.BYTES_PER_ELEMENT,
             ));
 
-            renderMesh = new RenderingSubMesh([vertexBuffer], attributes, PrimitiveMode.TRIANGLE_LIST, indexBuffer);
+            const renderMesh = new RenderingSubMesh([vertexBuffer], attributes, PrimitiveMode.TRIANGLE_LIST, indexBuffer);
             renderMesh.subMeshIdx = 0;
 
             this.model.initSubModel(idx, renderMesh, this.getMaterialInstance(0)!);
@@ -618,18 +610,13 @@ export class Graphics extends UIRenderable {
 
     protected _uploadData (render: UI) {
         const impl = this.impl;
-        const renderDataList = impl && impl.getRenderData();
-        if (!renderDataList || !this.model) {
+        if (!impl) {
             return;
         }
 
-        const subModelCount = this.model.subModels.length;
-        const listLength = renderDataList.length;
-        const delta = listLength - subModelCount;
-        if (delta > 0) {
-            for (let k = subModelCount; k < listLength; k++) {
-                this.activeSubModel(k);
-            }
+        const renderDataList = impl && impl.getRenderDataList();
+        if (renderDataList.length <= 0 || !this.model) {
+            return;
         }
 
         const subModelList = this.model.subModels;
@@ -643,11 +630,9 @@ export class Graphics extends UIRenderable {
                 continue;
             }
 
-            const verticesData = new Float32Array(renderData.vData.buffer, offset, (byteOffset - offset) >> 2);
-            ia.vertexBuffers[0].update(verticesData, offset);
+            ia.vertexBuffers[0].update(renderData.vData);
             ia.vertexCount = renderData.vertexStart;
-            const indicesData = new Uint16Array(renderData.iData.buffer, renderData.lastFilledIndices * Uint16Array.BYTES_PER_ELEMENT, renderData.indicesStart - renderData.lastFilledIndices);
-            ia.indexBuffer!.update(indicesData, renderData.lastFilledIndices * Uint16Array.BYTES_PER_ELEMENT);
+            ia.indexBuffer!.update(renderData.iData);
             ia.indexCount = renderData.indicesStart;
 
             renderData.lastFilledVertex = renderData.vertexStart;
@@ -680,24 +665,5 @@ export class Graphics extends UIRenderable {
         }
 
         return !!this.model && this._isDrawing;
-    }
-
-    protected _attachToScene () {
-        const renderScene = director.root!.ui.renderScene;
-        if (!this.model || this.model.scene === renderScene) {
-            return;
-        }
-
-        if (this.model.scene !== null) {
-            this._detachFromScene();
-        }
-        renderScene.addModel(this.model);
-    }
-
-    protected _detachFromScene () {
-        if (this.model && this.model.scene) {
-            this.model.scene.removeModel(this.model);
-            this.model.scene = null;
-        }
     }
 }

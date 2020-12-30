@@ -80,10 +80,9 @@ export interface IWebGL2StencilCompareMask {
 }
 
 export class WebGL2CommandBuffer extends CommandBuffer {
-
     public cmdPackage: WebGL2CmdPackage = new WebGL2CmdPackage();
     protected _webGLAllocator: WebGL2CommandAllocator | null = null;
-    protected _isInRenderPass: boolean = false;
+    protected _isInRenderPass = false;
     protected _curGPUPipelineState: IWebGL2GPUPipelineState | null = null;
     protected _curGPUDescriptorSets: IWebGL2GPUDescriptorSet[] = [];
     protected _curGPUInputAssembler: IWebGL2GPUInputAssembler | null = null;
@@ -96,11 +95,9 @@ export class WebGL2CommandBuffer extends CommandBuffer {
     protected _curDepthBounds: IWebGL2DepthBounds | null = null;
     protected _curStencilWriteMask: IWebGL2StencilWriteMask | null = null;
     protected _curStencilCompareMask: IWebGL2StencilCompareMask | null = null;
-    protected _isStateInvalied: boolean = false;
-
+    protected _isStateInvalied = false;
 
     public initialize (info: CommandBufferInfo): boolean {
-
         this._type = info.type;
         this._queue = info.queue;
 
@@ -157,7 +154,8 @@ export class WebGL2CommandBuffer extends CommandBuffer {
         renderArea: Rect,
         clearColors: Color[],
         clearDepth: number,
-        clearStencil: number) {
+        clearStencil: number,
+    ) {
         const cmd = this._webGLAllocator!.beginRenderPassCmdPool.alloc(WebGL2CmdBeginRenderPass);
         cmd.gpuRenderPass = (renderPass as WebGL2RenderPass).gpuRenderPass;
         cmd.gpuFramebuffer = (framebuffer as WebGL2Framebuffer).gpuFramebuffer;
@@ -209,40 +207,34 @@ export class WebGL2CommandBuffer extends CommandBuffer {
     public setViewport (viewport: Viewport) {
         if (!this._curViewport) {
             this._curViewport = new Viewport(viewport.left, viewport.top, viewport.width, viewport.height, viewport.minDepth, viewport.maxDepth);
-        } else {
-            if (this._curViewport.left !== viewport.left ||
-                this._curViewport.top !== viewport.top ||
-                this._curViewport.width !== viewport.width ||
-                this._curViewport.height !== viewport.height ||
-                this._curViewport.minDepth !== viewport.minDepth ||
-                this._curViewport.maxDepth !== viewport.maxDepth) {
-
-                this._curViewport.left = viewport.left;
-                this._curViewport.top = viewport.top;
-                this._curViewport.width = viewport.width;
-                this._curViewport.height = viewport.height;
-                this._curViewport.minDepth = viewport.minDepth;
-                this._curViewport.maxDepth = viewport.maxDepth;
-                this._isStateInvalied = true;
-            }
+        } else if (this._curViewport.left !== viewport.left
+                || this._curViewport.top !== viewport.top
+                || this._curViewport.width !== viewport.width
+                || this._curViewport.height !== viewport.height
+                || this._curViewport.minDepth !== viewport.minDepth
+                || this._curViewport.maxDepth !== viewport.maxDepth) {
+            this._curViewport.left = viewport.left;
+            this._curViewport.top = viewport.top;
+            this._curViewport.width = viewport.width;
+            this._curViewport.height = viewport.height;
+            this._curViewport.minDepth = viewport.minDepth;
+            this._curViewport.maxDepth = viewport.maxDepth;
+            this._isStateInvalied = true;
         }
     }
 
     public setScissor (scissor: Rect) {
         if (!this._curScissor) {
             this._curScissor = new Rect(scissor.x, scissor.y, scissor.width, scissor.height);
-        } else {
-            if (this._curScissor.x !== scissor.x ||
-                this._curScissor.y !== scissor.y ||
-                this._curScissor.width !== scissor.width ||
-                this._curScissor.height !== scissor.height) {
-
-                this._curScissor.x = scissor.x;
-                this._curScissor.y = scissor.y;
-                this._curScissor.width = scissor.width;
-                this._curScissor.height = scissor.height;
-                this._isStateInvalied = true;
-            }
+        } else if (this._curScissor.x !== scissor.x
+                || this._curScissor.y !== scissor.y
+                || this._curScissor.width !== scissor.width
+                || this._curScissor.height !== scissor.height) {
+            this._curScissor.x = scissor.x;
+            this._curScissor.y = scissor.y;
+            this._curScissor.width = scissor.width;
+            this._curScissor.height = scissor.height;
+            this._isStateInvalied = true;
         }
     }
 
@@ -261,25 +253,22 @@ export class WebGL2CommandBuffer extends CommandBuffer {
                 slopeFactor: depthBiasSlopeFactor,
             };
             this._isStateInvalied = true;
-        } else {
-            if (this._curDepthBias.constantFactor !== depthBiasConstantFactor ||
-                this._curDepthBias.clamp !== depthBiasClamp ||
-                this._curDepthBias.slopeFactor !== depthBiasSlopeFactor) {
-
-                this._curDepthBias.constantFactor = depthBiasConstantFactor;
-                this._curDepthBias.clamp = depthBiasClamp;
-                this._curDepthBias.slopeFactor = depthBiasSlopeFactor;
-                this._isStateInvalied = true;
-            }
+        } else if (this._curDepthBias.constantFactor !== depthBiasConstantFactor
+                || this._curDepthBias.clamp !== depthBiasClamp
+                || this._curDepthBias.slopeFactor !== depthBiasSlopeFactor) {
+            this._curDepthBias.constantFactor = depthBiasConstantFactor;
+            this._curDepthBias.clamp = depthBiasClamp;
+            this._curDepthBias.slopeFactor = depthBiasSlopeFactor;
+            this._isStateInvalied = true;
         }
     }
 
     public setBlendConstants (blendConstants: number[]) {
         if (blendConstants.length === 4 && (
-            this._curBlendConstants[0] !== blendConstants[0] ||
-            this._curBlendConstants[1] !== blendConstants[1] ||
-            this._curBlendConstants[2] !== blendConstants[2] ||
-            this._curBlendConstants[3] !== blendConstants[3])) {
+            this._curBlendConstants[0] !== blendConstants[0]
+            || this._curBlendConstants[1] !== blendConstants[1]
+            || this._curBlendConstants[2] !== blendConstants[2]
+            || this._curBlendConstants[3] !== blendConstants[3])) {
             this._curBlendConstants.length = 0;
             Array.prototype.push.apply(this._curBlendConstants, blendConstants);
             this._isStateInvalied = true;
@@ -293,15 +282,13 @@ export class WebGL2CommandBuffer extends CommandBuffer {
                 maxBounds: maxDepthBounds,
             };
             this._isStateInvalied = true;
-        } else {
-            if (this._curDepthBounds.minBounds !== minDepthBounds ||
-                this._curDepthBounds.maxBounds !== maxDepthBounds) {
-                this._curDepthBounds = {
-                    minBounds: minDepthBounds,
-                    maxBounds: maxDepthBounds,
-                };
-                this._isStateInvalied = true;
-            }
+        } else if (this._curDepthBounds.minBounds !== minDepthBounds
+                || this._curDepthBounds.maxBounds !== maxDepthBounds) {
+            this._curDepthBounds = {
+                minBounds: minDepthBounds,
+                maxBounds: maxDepthBounds,
+            };
+            this._isStateInvalied = true;
         }
     }
 
@@ -312,14 +299,11 @@ export class WebGL2CommandBuffer extends CommandBuffer {
                 writeMask,
             };
             this._isStateInvalied = true;
-        } else {
-            if (this._curStencilWriteMask.face !== face ||
-                this._curStencilWriteMask.writeMask !== writeMask) {
-
-                this._curStencilWriteMask.face = face;
-                this._curStencilWriteMask.writeMask = writeMask;
-                this._isStateInvalied = true;
-            }
+        } else if (this._curStencilWriteMask.face !== face
+                || this._curStencilWriteMask.writeMask !== writeMask) {
+            this._curStencilWriteMask.face = face;
+            this._curStencilWriteMask.writeMask = writeMask;
+            this._isStateInvalied = true;
         }
     }
 
@@ -331,22 +315,19 @@ export class WebGL2CommandBuffer extends CommandBuffer {
                 compareMask,
             };
             this._isStateInvalied = true;
-        } else {
-            if (this._curStencilCompareMask.face !== face ||
-                this._curStencilCompareMask.reference !== reference ||
-                this._curStencilCompareMask.compareMask !== compareMask) {
-
-                this._curStencilCompareMask.face = face;
-                this._curStencilCompareMask.reference = reference;
-                this._curStencilCompareMask.compareMask = compareMask;
-                this._isStateInvalied = true;
-            }
+        } else if (this._curStencilCompareMask.face !== face
+                || this._curStencilCompareMask.reference !== reference
+                || this._curStencilCompareMask.compareMask !== compareMask) {
+            this._curStencilCompareMask.face = face;
+            this._curStencilCompareMask.reference = reference;
+            this._curStencilCompareMask.compareMask = compareMask;
+            this._isStateInvalied = true;
         }
     }
 
     public draw (inputAssembler: InputAssembler) {
-        if (this._type === CommandBufferType.PRIMARY && this._isInRenderPass ||
-            this._type === CommandBufferType.SECONDARY) {
+        if (this._type === CommandBufferType.PRIMARY && this._isInRenderPass
+            || this._type === CommandBufferType.SECONDARY) {
             if (this._isStateInvalied) {
                 this.bindStates();
             }
@@ -370,15 +351,16 @@ export class WebGL2CommandBuffer extends CommandBuffer {
             if (this._curGPUPipelineState) {
                 const glPrimitive = this._curGPUPipelineState.glPrimitive;
                 switch (glPrimitive) {
-                    case 0x0004: { // WebGLRenderingContext.TRIANGLES
-                        this._numTris += indexCount / 3 * Math.max(inputAssembler.instanceCount, 1);
-                        break;
-                    }
-                    case 0x0005: // WebGLRenderingContext.TRIANGLE_STRIP
-                    case 0x0006: { // WebGLRenderingContext.TRIANGLE_FAN
-                        this._numTris += (indexCount - 2) * Math.max(inputAssembler.instanceCount, 1);
-                        break;
-                    }
+                case 0x0004: { // WebGLRenderingContext.TRIANGLES
+                    this._numTris += indexCount / 3 * Math.max(inputAssembler.instanceCount, 1);
+                    break;
+                }
+                case 0x0005: // WebGLRenderingContext.TRIANGLE_STRIP
+                case 0x0006: { // WebGLRenderingContext.TRIANGLE_FAN
+                    this._numTris += (indexCount - 2) * Math.max(inputAssembler.instanceCount, 1);
+                    break;
+                }
+                default:
                 }
             }
         } else {
@@ -386,9 +368,9 @@ export class WebGL2CommandBuffer extends CommandBuffer {
         }
     }
 
-    public updateBuffer (buffer: Buffer, data: BufferSource, offset?: number, size?: number) {
-        if (this._type === CommandBufferType.PRIMARY && !this._isInRenderPass ||
-            this._type === CommandBufferType.SECONDARY) {
+    public updateBuffer (buffer: Buffer, data: BufferSource, size?: number) {
+        if (this._type === CommandBufferType.PRIMARY && !this._isInRenderPass
+            || this._type === CommandBufferType.SECONDARY) {
             const gpuBuffer = (buffer as WebGL2Buffer).gpuBuffer;
             if (gpuBuffer) {
                 const cmd = this._webGLAllocator!.updateBufferCmdPool.alloc(WebGL2CmdUpdateBuffer);
@@ -410,7 +392,7 @@ export class WebGL2CommandBuffer extends CommandBuffer {
 
                 cmd.gpuBuffer = gpuBuffer;
                 cmd.buffer = buff;
-                cmd.offset = (offset !== undefined ? offset : 0);
+                cmd.offset = 0;
                 cmd.size = buffSize;
                 this.cmdPackage.updateBufferCmds.push(cmd);
 
@@ -422,8 +404,8 @@ export class WebGL2CommandBuffer extends CommandBuffer {
     }
 
     public copyBuffersToTexture (buffers: ArrayBufferView[], texture: Texture, regions: BufferTextureCopy[]) {
-        if (this._type === CommandBufferType.PRIMARY && !this._isInRenderPass ||
-            this._type === CommandBufferType.SECONDARY) {
+        if (this._type === CommandBufferType.PRIMARY && !this._isInRenderPass
+            || this._type === CommandBufferType.SECONDARY) {
             const gpuTexture = (texture as WebGL2Texture).gpuTexture;
             if (gpuTexture) {
                 const cmd = this._webGLAllocator!.copyBufferToTextureCmdPool.alloc(WebGL2CmdCopyBufferToTexture);

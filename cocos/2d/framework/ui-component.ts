@@ -33,6 +33,7 @@ import { UI } from '../renderer/ui';
 import { Component } from '../../core/components/component';
 import { UITransform } from './ui-transform';
 import { Node } from '../../core/scene-graph';
+import { Stage } from '../renderer/stencil-manager';
 
 /**
  * @en Legacy UI base class for rendering component, please use [[UIRenderable]] instead.
@@ -89,4 +90,6 @@ export class UIComponent extends Component {
      */
     public postUpdateAssembler (render: UI) {
     }
+
+    public stencilStage : Stage = Stage.DISABLED;
 }
