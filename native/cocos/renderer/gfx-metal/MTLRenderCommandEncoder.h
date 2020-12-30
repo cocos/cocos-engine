@@ -197,10 +197,14 @@ public:
     }
 
     CC_INLINE void setVertexBuffer(const id<MTLBuffer> buffer, uint offset, uint index) {
-        if (_vertexBufferMap.count(index) > 0 && (buffer == _vertexBufferMap[index]))
-            return;
+        if (_vertexBufferMap.count(index) > 0) {
+            const auto &bufferBinding = _vertexBufferMap[index];
+            if (buffer == bufferBinding.buffer && offset == bufferBinding.offset) {
+                return;
+            }
+        }
 
-        _vertexBufferMap[index] = buffer;
+        _vertexBufferMap[index] = {buffer, offset};
         [_mtlEncoder setVertexBuffer:buffer
                               offset:offset
                              atIndex:index];
@@ -209,8 +213,9 @@ public:
     CC_INLINE void setFragmentBuffer(const id<MTLBuffer> buffer, uint offset, uint index) {
         if (_fragmentBufferMap.count(index) > 0) {
             const auto &bufferBinding = _fragmentBufferMap[index];
-            if (buffer == bufferBinding.buffer && offset == bufferBinding.offset)
+            if (buffer == bufferBinding.buffer && offset == bufferBinding.offset) {
                 return;
+            }
         }
 
         _fragmentBufferMap[index] = {buffer, offset};
@@ -285,8 +290,7 @@ private:
     Viewport _viewport;
     Rect _scissorRect;
     Color _blendColor;
-    // Offset will always be 0 for vertex buffer.
-    std::unordered_map<uint, id<MTLBuffer>> _vertexBufferMap;
+    std::unordered_map<uint, BufferBinding> _vertexBufferMap;
     std::unordered_map<uint, BufferBinding> _fragmentBufferMap;
     std::unordered_map<uint, id<MTLTexture>> _vertexTextureMap;
     std::unordered_map<uint, id<MTLTexture>> _fragmentTextureMap;
