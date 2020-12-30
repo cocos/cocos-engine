@@ -192,3 +192,6 @@ export abstract class RenderPipeline extends Asset {
         return super.destroy();
     }
 }
+
+// Do not delete, for the class detection of editor
+legacyCC.RenderPipeline = RenderPipeline;
