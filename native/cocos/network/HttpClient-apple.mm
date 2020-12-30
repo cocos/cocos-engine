@@ -492,6 +492,10 @@ void HttpClient::processResponse(HttpResponse* response, char* responseMessage)
             requestType = @"PUT";
             break;
 
+        case HttpRequest::Type::HEAD:
+            requestType = @"HEAD";
+            break;
+
         case HttpRequest::Type::DELETE:
             requestType = @"DELETE";
             break;

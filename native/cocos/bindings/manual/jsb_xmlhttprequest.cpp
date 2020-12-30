@@ -265,6 +265,8 @@ bool XMLHttpRequest::open(const std::string& method, const std::string& url)
         requestType = HttpRequest::Type::POST;
     else if (_method == "put" || _method == "PUT")
         requestType = HttpRequest::Type::PUT;
+    else if (_method == "head" || _method == "HEAD")
+        requestType = HttpRequest::Type::HEAD;
     else if (_method == "delete" || _method == "DELETE")
         requestType = HttpRequest::Type::DELETE;
 

@@ -687,6 +687,7 @@ void HttpClient::processResponse(HttpResponse* response, char* responseMessage)
     if (HttpRequest::Type::GET != requestType &&
         HttpRequest::Type::POST != requestType &&
         HttpRequest::Type::PUT != requestType &&
+        HttpRequest::Type::HEAD != requestType &&
         HttpRequest::Type::DELETE != requestType)
     {
         CCASSERT(true, "CCHttpClient: unknown request type, only GET、POST、PUT、DELETE are supported");
@@ -716,6 +717,10 @@ void HttpClient::processResponse(HttpResponse* response, char* responseMessage)
 
         case HttpRequest::Type::PUT:
             urlConnection.setRequestMethod("PUT");
+            break;
+        
+        case HttpRequest::Type::HEAD:
+            urlConnection.setRequestMethod("HEAD");
             break;
 
         case HttpRequest::Type::DELETE:
