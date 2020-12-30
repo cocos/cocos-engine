@@ -500,7 +500,6 @@ export class Game extends EventTarget {
         }
 
         return this._initEngine().then(() => {
-            this._setAnimFrame();
             if (!EDITOR) {
                 this._initEvents();
             }
@@ -744,6 +743,8 @@ export class Game extends EventTarget {
 
         this.config = config as NormalizedGameConfig;
         this._configLoaded = true;
+
+        this._setAnimFrame();
     }
 
     private _determineRenderType () {
