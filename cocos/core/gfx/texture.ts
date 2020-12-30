@@ -54,7 +54,7 @@ export class TextureInfo {
         public layerCount: number = 1,
         public levelCount: number = 1,
         public samples: SampleCount = SampleCount.X1,
-        public depth: number = 1,
+        public depth: number = 1
     ) {}
 }
 
@@ -68,7 +68,7 @@ export class TextureViewInfo {
         public baseLevel: number = 0,
         public levelCount: number = 1,
         public baseLayer: number = 0,
-        public layerCount: number = 1,
+        public layerCount: number = 1
     ) {}
 }
 

@@ -28,7 +28,7 @@
  * @hidden
  */
 
-import { getTypedArrayConstructor, Format, FormatInfos, TextureType, TextureUsageBit } from '../../gfx/define';
+import { getTypedArrayConstructor, Format, FormatInfos, TextureType, TextureUsageBit, TextureFlagBit } from '../../gfx/define';
 import { Texture, TextureInfo, Device, BufferTextureCopy } from '../../gfx';
 
 export function nearestPOT (num: number): number {
@@ -175,6 +175,7 @@ export class TextureBufferPool {
             this._format,
             length,
             length,
+            TextureFlagBit.IMMUTABLE
         ));
 
         const chunk: ITextureBuffer = {

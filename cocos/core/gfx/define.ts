@@ -470,6 +470,7 @@ export enum TextureFlagBit {
     GEN_MIPMAP = 0x1,
     CUBEMAP = 0x2,
     BAKUP_BUFFER = 0x4,
+    IMMUTABLE = 0x8,
 }
 export type TextureFlags = TextureFlagBit;
 
@@ -635,7 +636,7 @@ export class FormatInfo {
         public readonly hasAlpha: boolean,
         public readonly hasDepth: boolean,
         public readonly hasStencil: boolean,
-        public readonly isCompressed: boolean,
+        public readonly isCompressed: boolean
     ) {}
 }
 
@@ -644,7 +645,7 @@ export class MemoryStatus {
 
     constructor (
         public bufferSize: number = 0,
-        public textureSize: number = 0,
+        public textureSize: number = 0
     ) {}
 }
 
