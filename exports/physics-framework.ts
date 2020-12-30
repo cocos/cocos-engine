@@ -28,6 +28,12 @@
  * @hidden
  */
 
+/// physics namespace ///
+
+import * as physics from '../cocos/physics/framework';
+
+export { physics };
+
 /// cc namespace ///
 
 export {
@@ -63,12 +69,7 @@ export type {
     CollisionEventType,
     CollisionCallback,
     TriggerEventType,
-    TriggerCallback
+    TriggerCallback,
 } from '../cocos/physics/framework';
 
 export * from '../cocos/physics/framework/deprecated';
-
-/// physics namespace ///
-
-import * as physics from '../cocos/physics/framework'
-export { physics };
