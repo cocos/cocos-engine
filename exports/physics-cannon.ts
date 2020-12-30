@@ -47,3 +47,7 @@ if (window) window.CANNON = CANNON;
         delete this.matrix[key];
     }
 };
+
+(CANNON.Ray as any).perBodyFilter = function (r: CANNON.Ray, b: CANNON.Body) {
+    return ((r as any).collisionFilterMask & b.collisionFilterGroup) !== 0;
+};

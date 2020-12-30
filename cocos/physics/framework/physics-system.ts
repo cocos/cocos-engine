@@ -28,10 +28,10 @@
  * @module physics
  */
 
-import { EDITOR, DEBUG } from 'internal:constants';
+import { EDITOR } from 'internal:constants';
 import { Vec3 } from '../../core/math';
 import { IPhysicsWorld, IRaycastOptions } from '../spec/i-physics-world';
-import { createPhysicsWorld, checkPhysicsModule } from './instance';
+import { createPhysicsWorld } from './instance';
 import { director, Director } from '../../core/director';
 import { System } from '../../core/components';
 import { PhysicsMaterial } from './assets/physics-material';
@@ -41,9 +41,8 @@ import { PhysicsRayResult } from './physics-ray-result';
 import { IPhysicsConfig, ICollisionMatrix } from './physics-config';
 import { CollisionMatrix } from './collision-matrix';
 import { PhysicsGroup } from './physics-enum';
-
+import { selector } from './physics-selector';
 import { legacyCC } from '../../core/global-exports';
-import { physicsEngineId } from './physics-selector';
 
 legacyCC.internal.PhysicsGroup = PhysicsGroup;
 
@@ -55,23 +54,23 @@ legacyCC.internal.PhysicsGroup = PhysicsGroup;
  */
 export class PhysicsSystem extends System {
     static get PHYSICS_NONE () {
-        return !physicsEngineId;
+        return !selector.id;
     }
 
     static get PHYSICS_BUILTIN () {
-        return physicsEngineId === 'builtin';
+        return selector.id === 'builtin';
     }
 
     static get PHYSICS_CANNON () {
-        return physicsEngineId === 'cannon.js';
+        return selector.id === 'cannon.js';
     }
 
     static get PHYSICS_AMMO () {
-        return physicsEngineId === 'ammo.js';
+        return selector.id === 'ammo.js';
     }
 
     static get PHYSICS_PHYSX () {
-        return physicsEngineId === 'physx';
+        return selector.id === 'physx';
     }
 
     /**
@@ -99,8 +98,6 @@ export class PhysicsSystem extends System {
      * 获取物理系统实例。
      */
     static get instance (): PhysicsSystem {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-        if (DEBUG && checkPhysicsModule(PhysicsSystem._instance)) { return null as any; }
         return PhysicsSystem._instance;
     }
 
@@ -440,6 +437,11 @@ director.once(Director.EVENT_INIT, () => {
 
 function initPhysicsSystem () {
     if (!PhysicsSystem.PHYSICS_NONE && !EDITOR) {
+        const oldIns = PhysicsSystem.instance;
+        if (oldIns) {
+            director.unregisterSystem(oldIns);
+            oldIns.physicsWorld.destroy();
+        }
         const sys = new legacyCC.PhysicsSystem();
         legacyCC.PhysicsSystem._instance = sys;
         director.registerSystem(PhysicsSystem.ID, sys, 0);

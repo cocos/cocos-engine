@@ -144,7 +144,7 @@
         "cc.PageViewIndicatorComponent",
         "cc.ParticleSystemComponent",
         "cc.ParticleUtils",
-        "cc.PhysicMaterial",
+        "cc.PhysicsMaterial",
         "cc.PhysicsRayResult",
         "cc.PhysicsSystem",
         "cc.Pipeline",
