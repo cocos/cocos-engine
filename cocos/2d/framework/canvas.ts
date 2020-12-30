@@ -365,7 +365,9 @@ export class Canvas extends Component {
 
     private _getViewPriority () {
         if (this._cameraComponent) {
-            return this._renderMode === RenderMode.OVERLAY ? this._cameraComponent.priority | 1 << 30 : this._cameraComponent.priority;
+            let priority = this.cameraComponent?.priority as number;
+            priority = this._renderMode === RenderMode.OVERLAY ? priority | 1 << 30 : priority & ~(1 << 30);
+            return priority;
         }
 
         return 0;
