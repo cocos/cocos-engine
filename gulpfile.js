@@ -38,7 +38,7 @@ gulp.task('build-debug-infos', async () => {
     return await Promise.resolve(require('./gulp/tasks/buildDebugInfos')());
 });
 
-gulp.task('build-src', async () => {
+gulp.task('build-source', async () => {
     const cli = require.resolve('@cocos/build-engine/dist/cli');
     return cp.spawn('node', [
         cli,
@@ -52,7 +52,7 @@ gulp.task('build-src', async () => {
     });
 });
 
-gulp.task('build-h5-src', gulp.series('build-debug-infos', () => {
+gulp.task('build-h5-source', gulp.series('build-debug-infos', () => {
     const cli = require.resolve('@cocos/build-engine/dist/cli');
     return cp.spawn('node', [
         cli,
