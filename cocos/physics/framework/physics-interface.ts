@@ -148,12 +148,30 @@ export interface IContactEquation {
 
     /**
      * @en
+     * Gets the contact normal relative to the rigid body A in the local coordinate system.
+     * @zh
+     * 获取本地坐标系中相对于刚体 A 的碰撞法线。
+     * @param out used to storage the output.
+     */
+    getLocalNormalOnA (out: IVec3Like): void;
+
+    /**
+     * @en
      * Gets the contact normal relative to the rigid body B in the local coordinate system.
      * @zh
      * 获取本地坐标系中相对于刚体 B 的碰撞法线。
      * @param out used to storage the output.
      */
     getLocalNormalOnB (out: IVec3Like): void;
+
+    /**
+     * @en
+     * Gets the contact normal relative to the rigid body A in the world coordinate system.
+     * @zh
+     * 获取世界坐标系中相对于刚体 A 的碰撞法线。
+     * @param out used to storage the output.
+     */
+    getWorldNormalOnA (out: IVec3Like): void;
 
     /**
      * @en
