@@ -194,8 +194,8 @@ export class UI {
         const screens = this._screens;
         for (let i = 0; i < screens.length; ++i) {
             const screen = screens[i];
-            if (screen.camera) {
-                if (screen.camera.visibility === visibility) {
+            if (screen.cameraComponent && screen.cameraComponent.camera) {
+                if (screen.cameraComponent.camera.visibility === visibility) {
                     return screen;
                 }
             }
@@ -421,7 +421,7 @@ export class UI {
         }
 
         const uiCanvas = this._currCanvas;
-        if (!uiCanvas?.camera) { return; }
+        if (!uiCanvas || !uiCanvas.cameraComponent) { return; }
 
         const stamp = legacyCC.director.getTotalFrames();
         if (model) {
@@ -432,7 +432,7 @@ export class UI {
         for (let i = 0; i < model!.subModels.length; i++) {
             const curDrawBatch = this._drawBatchPool.alloc();
             const subModel = model!.subModels[i];
-            curDrawBatch.camera = uiCanvas && uiCanvas.camera;
+            curDrawBatch.camera = uiCanvas && uiCanvas.cameraComponent.camera;
             curDrawBatch.model = model;
             curDrawBatch.bufferBatch = null;
             curDrawBatch.texture = null;
@@ -492,8 +492,8 @@ export class UI {
         }
 
         const curDrawBatch = this._currStaticRoot ? this._currStaticRoot._requireDrawBatch() : this._drawBatchPool.alloc();
-        if (!uiCanvas?.camera) { return; }
-        curDrawBatch.camera = uiCanvas && uiCanvas.camera;
+        if (!uiCanvas || !uiCanvas.cameraComponent) { return; }
+        curDrawBatch.camera = uiCanvas && uiCanvas.cameraComponent.camera;
         curDrawBatch.bufferBatch = buffer;
         curDrawBatch.texture = this._currTexture!;
         curDrawBatch.sampler = this._currSampler;
@@ -644,7 +644,9 @@ export class UI {
     }
 
     private _screenSort (a: Canvas, b: Canvas) {
-        const delta = a.priority - b.priority;
+        const aPriority = a.cameraComponent ? a.cameraComponent.priority : 0;
+        const bPriority = b.cameraComponent ? b.cameraComponent.priority : 0;
+        const delta = aPriority - bPriority;
         return delta === 0 ? a.node.getSiblingIndex() - b.node.getSiblingIndex() : delta;
     }
 
