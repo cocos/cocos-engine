@@ -221,15 +221,25 @@ export class UITransform extends Component {
     protected _priority = 0;
 
     /**
-     * @zh
-     * 查找被渲染相机。
+     * @en Get the visibility bit-mask of the rendering camera
+     * @zh 查找被渲染相机的可见性掩码。
      */
-    get visibility () {
-        if (!this._canvas) {
-            return -1;
+    get cameraVisibility () {
+        if (this._canvas && this._canvas.cameraComponent) {
+            return this._canvas.cameraComponent.visibility;
         }
+        return 0;
+    }
 
-        return this._canvas.visibility;
+    /**
+     * @en Get the priority of the rendering camera
+     * @zh 查找被渲染相机的渲染优先级。
+     */
+    get cameraPriority () {
+        if (this._canvas && this._canvas.cameraComponent) {
+            return this._canvas.cameraComponent.priority;
+        }
+        return 0;
     }
 
     public static EventType = SystemEventType;

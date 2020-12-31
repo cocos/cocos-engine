@@ -28,20 +28,28 @@
  * @module ui
  */
 
-import { removeProperty } from '../../core/utils';
+import { removeProperty, replaceProperty } from '../../core/utils';
 import { UIComponent } from './ui-component';
 import { UITransform } from './ui-transform';
 import { UIRenderable } from './ui-renderable';
 import { Canvas } from './canvas';
 import { js } from '../../core/utils/js';
 import { legacyCC } from '../../core/global-exports';
+import { Color } from '../../core/math/color';
 
-removeProperty(UIComponent.prototype, 'UIComponent',[
+removeProperty(UIComponent.prototype, 'UIComponent', [
     {
         name: '_visibility',
     },
     {
         name: 'setVisibility',
+    },
+]);
+
+replaceProperty(UITransform.prototype, 'UITransform.prototype', [
+    {
+        name: 'visibility',
+        newName: 'cameraVisibility',
     },
 ]);
 
