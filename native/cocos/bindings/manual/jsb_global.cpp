@@ -614,11 +614,9 @@ SE_BIND_FUNC(JSB_getOSVersion)
 
 static bool JSB_core_restartVM(se::State& s)
 {
-    //TODO: minggo
-    return true;
     //REFINE: release AudioEngine, waiting HttpClient & WebSocket threads to exit.
-//    Application::getInstance()->restart();
-//    return true;
+    Application::getInstance()->restart();
+    return true;
 }
 SE_BIND_FUNC(JSB_core_restartVM)
 

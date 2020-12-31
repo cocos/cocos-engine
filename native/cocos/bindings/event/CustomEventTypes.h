@@ -27,6 +27,7 @@
 #define EVENT_COME_TO_FOREGROUND    "event_come_to_foreground"
 #define EVENT_COME_TO_BACKGROUND    "event_come_to_background"
 #define EVENT_DESTROY_WINDOW        "event_destroy_window"
+#define EVENT_RESTART_VM            "event_restart_vm"
 #define EVENT_RECREATE_WINDOW       "event_recreate_window"
 #define EVENT_MEMORY_WARNING        "event_memory_warning"
 #define EVENT_RESIZE                "event_resize"

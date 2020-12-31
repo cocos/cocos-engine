@@ -444,6 +444,7 @@ endif()
 ##### platform
 cocos_source_files(
     cocos/platform/Application.h
+    cocos/platform/Application.cpp
     cocos/platform/CanvasRenderingContext2D.h
     cocos/platform/Device.h
     cocos/platform/FileUtils.cpp

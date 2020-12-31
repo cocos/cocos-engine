@@ -186,7 +186,6 @@ fi
 cd $COCOS2DX_ROOT/tools/travis-scripts
 generate_bindings_glue_codes
 
-
 # Compile pull request
 if [[ "$TRAVIS_PULL_REQUEST" != "false" ]]; then
     run_compile

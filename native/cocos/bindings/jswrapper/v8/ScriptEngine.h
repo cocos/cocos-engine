@@ -105,6 +105,13 @@ namespace se {
         void addRegisterCallback(RegisterCallback cb);
 
         /**
+         *  @brief Adds a callback for registering a native binding module, which will not be removed by ScriptEngine::cleanup.
+         *  @param[in] cb A callback for registering a native binding module.
+         *  @note This method just add a callback to a vector, callbacks is invoked in `start` method.
+         */
+        void addPermanentRegisterCallback(RegisterCallback cb);
+
+        /**
          *  @brief Starts the script engine.
          *  @return true if succeed, otherwise false.
          *  @note This method will invoke all callbacks of native binding modules by the order of registration.
@@ -328,6 +335,7 @@ namespace se {
 
         std::chrono::steady_clock::time_point _startTime;
         std::vector<RegisterCallback> _registerCallbackArray;
+        std::vector<RegisterCallback> _permRegisterCallbackArray;
         std::vector<std::function<void()>> _beforeInitHookArray;
         std::vector<std::function<void()>> _afterInitHookArray;
         std::vector<std::function<void()>> _beforeCleanupHookArray;
@@ -335,7 +343,6 @@ namespace se {
 
         v8::Persistent<v8::Context> _context;
 
-        v8::Platform* _platform;
         v8::Isolate* _isolate;
         v8::HandleScope* _handleScope;
         Object* _globalObj;

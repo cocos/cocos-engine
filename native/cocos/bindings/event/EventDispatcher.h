@@ -177,6 +177,7 @@ public:
     static void dispatchEnterBackgroundEvent();
     static void dispatchEnterForegroundEvent();
     static void dispatchMemoryWarningEvent();
+    static void dispatchRestartVM();
 
     using CustomEventListener = std::function<void(const CustomEvent &)>;
     static uint32_t addCustomEventListener(const std::string &eventName, const CustomEventListener &listener);

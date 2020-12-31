@@ -38,6 +38,7 @@
 namespace se {
 
     class Class;
+    class ScriptEngine;
 
     namespace internal {
         struct PrivateData;

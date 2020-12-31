@@ -86,7 +86,7 @@ void AppDelegage::start()
 {
 
     bool resume, pause;
-    se::ScriptEngine::getInstance()->addRegisterCallback(setCanvasCallback);
+    se::ScriptEngine::getInstance()->addPermanentRegisterCallback(setCanvasCallback);
 
     if(!_view->init()) return;
     if(!_game->init()) return;

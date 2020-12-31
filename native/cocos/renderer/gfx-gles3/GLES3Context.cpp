@@ -214,7 +214,8 @@ bool GLES3Context::initialize(const ContextInfo &info) {
 
         EGL_CHECK(_eglSurface = eglCreateWindowSurface(_eglDisplay, _eglConfig, (EGLNativeWindowType)_windowHandle, NULL));
         if (_eglSurface == EGL_NO_SURFACE) {
-            CC_LOG_ERROR("Window surface created failed.");
+            auto err = eglGetError();
+            CC_LOG_ERROR("Window surface created failed. code %d", err);
             return false;
         }
 
