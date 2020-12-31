@@ -311,12 +311,11 @@ export class Canvas extends Component {
         }
 
         this.node.on(SystemEventType.TRANSFORM_CHANGED, this._thisOnCameraResized);
-
-        legacyCC.director.root!.ui.addScreen(this);
     }
 
     public onEnable () {
         if (this._cameraComponent) {
+            legacyCC.director.root!.ui.addScreen(this);
             const camera = this._cameraComponent.camera;
             if (camera) {
                 legacyCC.director.root!.ui.renderScene.addCamera(camera);
@@ -328,6 +327,7 @@ export class Canvas extends Component {
     }
 
     public onDisable () {
+        legacyCC.director.root!.ui.removeScreen(this);
         if (this._cameraComponent) {
             const camera = this._cameraComponent.camera;
             if (camera) {
