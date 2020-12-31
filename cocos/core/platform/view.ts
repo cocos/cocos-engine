@@ -58,15 +58,17 @@ class BrowserGetter {
     public availWidth (frame) {
         if (legacyCC.sys.isMobile || !frame || frame === this.html) {
             return window.innerWidth;
+        } else {
+            return parseFloat(frame.clientWidth);
         }
-        return frame.clientWidth;
     }
 
     public availHeight (frame) {
         if (legacyCC.sys.isMobile || !frame || frame === this.html) {
             return window.innerHeight;
+        } else {
+            return parseFloat(frame.clientHeight);
         }
-        return frame.clientHeight;
     }
 }
 
@@ -79,18 +81,18 @@ if (legacyCC.sys.os === legacyCC.sys.OS_IOS) { // All browsers are WebView
 switch (__BrowserGetter.adaptationType) {
     case legacyCC.sys.BROWSER_TYPE_SAFARI: {
         __BrowserGetter.meta['minimal-ui'] = 'true';
-        __BrowserGetter.availWidth = (frame) => { return frame.clientWidth; };
-        __BrowserGetter.availHeight = (frame) => { return frame.clientHeight; };
+        __BrowserGetter.availWidth = (frame) => { return parseFloat(frame.clientWidth); };
+        __BrowserGetter.availHeight = (frame) => { return parseFloat(frame.clientHeight); };
         break;
     }
     case legacyCC.sys.BROWSER_TYPE_SOUGOU: {
-        __BrowserGetter.availWidth = (frame) => { return frame.clientWidth; };
-        __BrowserGetter.availHeight = (frame) => { return frame.clientHeight; };
+        __BrowserGetter.availWidth = (frame) => { return parseFloat(frame.clientWidth); };
+        __BrowserGetter.availHeight = (frame) => { return parseFloat(frame.clientHeight); };
         break;
     }
     case legacyCC.sys.BROWSER_TYPE_UC: {
-        __BrowserGetter.availWidth = (frame) => { return frame.clientWidth; };
-        __BrowserGetter.availHeight = (frame) => { return frame.clientHeight; };
+        __BrowserGetter.availWidth = (frame) => { return parseFloat(frame.clientWidth); };
+        __BrowserGetter.availHeight = (frame) => { return parseFloat(frame.clientHeight); };
         break;
     }
     default :
