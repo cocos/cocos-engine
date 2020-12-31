@@ -73,52 +73,6 @@ const RenderMode = Enum({
 export class Canvas extends Component {
     /**
      * @en
-     * The flags to clear the built in camera.
-     *
-     * @zh
-     * 清理屏幕缓冲标记。
-     *
-     * @deprecated since v3.0, please use [[canvas.cameraComponent.clearFlags]] instead
-     */
-    get clearFlag () {
-        if (this._cameraComponent) {
-            return this._cameraComponent.clearFlags;
-        }
-
-        return 0;
-    }
-
-    set clearFlag (val) {
-        if (this._cameraComponent) {
-            this._cameraComponent.clearFlags = val;
-        }
-    }
-
-    /**
-     * @en
-     * The color clearing value of the builtin camera.
-     *
-     * @zh
-     * 内置相机的颜色缓冲默认值。
-     *
-     * @deprecated since v3.0, please use [[canvas.cameraComponent.clearColor]] instead
-     */
-    get color () {
-        if (this._cameraComponent) {
-            return this._cameraComponent.clearColor;
-        }
-
-        return new Color(0, 0, 0, 255);
-    }
-
-    set color (val) {
-        if (this._cameraComponent) {
-            this._cameraComponent.clearColor = val;
-        }
-    }
-
-    /**
-     * @en
      * The render mode of Canvas.
      * When you choose the mode of INTERSPERSE, You can specify the rendering order of the Canvas with the camera in the scene.
      * When you choose the mode of OVERLAY, the builtin camera of Canvas will render after all scene cameras are rendered.
@@ -130,85 +84,17 @@ export class Canvas extends Component {
      * intersperse 下可以指定 Canvas 与场景中的相机的渲染顺序，overlay 下 Canvas 会在所有场景相机渲染完成后渲染。
      * 注意：场景里的相机（包括 Canvas 内置的相机）必须有一个的 ClearFlag 选择 SOLID_COLOR，否则在移动端可能会出现闪屏。
      *
-     * @deprecated since v3.0, do not use.
+     * @deprecated since v3.0, please use [[cameraComponent.priority]] to control overlapping between cameras.
      */
     get renderMode () {
         return this._renderMode;
     }
-
     set renderMode (val) {
         this._renderMode = val;
 
         if (this._cameraComponent) {
             this._cameraComponent.priority = this._getViewPriority();
         }
-    }
-
-    /**
-     * @en
-     * Camera render priority.
-     * When you choose the RenderModel of INTERSPERSE, specifies the render order with other cameras.
-     * When you choose the RenderModel of OVERLAY, specifies sorting with the rest of the Canvas.
-     *
-     * @zh
-     * 相机渲染优先级。当 RenderMode 为 intersperse 时，指定与其它相机的渲染顺序，当 RenderMode 为 overlay 时，指定跟其余 Canvas 做排序使用。需要对多 Canvas 设定 priority 以免出现不同平台下的闪屏问题。
-     *
-     * @param value - 渲染优先级。
-     *
-     * @deprecated since v3.0, please use [[canvas.cameraComponent.priority]] instead
-     */
-    get priority () {
-        if (this._cameraComponent) {
-            return this._cameraComponent.priority;
-        }
-
-        return 0;
-    }
-
-    set priority (val: number) {
-        if (this._cameraComponent) {
-            this._cameraComponent.priority = val;
-        }
-    }
-
-    /**
-     * @en
-     * Set the target render texture.
-     *
-     * @zh
-     * 设置目标渲染纹理。
-     *
-     * @deprecated since v3.0, please use [[canvas.cameraComponent.targetTexture]] instead
-     */
-    get targetTexture () {
-        if (this._cameraComponent) {
-            return this._cameraComponent.targetTexture;
-        }
-
-        return null;
-    }
-
-    set targetTexture (value) {
-        if (this._cameraComponent) {
-            this._cameraComponent.targetTexture = value;
-        }
-    }
-
-    /**
-     * @en
-     * get canvas.camera visibility.
-     *
-     * @zh
-     * 获取Canvas 下 2D camera 的可见性。
-     *
-     * @deprecated since v3.0, please use [[canvas.cameraComponent.visibility]] instead
-     */
-    get visibility () {
-        if (this._cameraComponent) {
-            return this._cameraComponent.visibility;
-        }
-
-        return 0;
     }
 
     @type(Camera)
@@ -234,10 +120,6 @@ export class Canvas extends Component {
         this._alignCanvasWithScreen = value;
 
         this._onResizeCamera();
-    }
-
-    get camera () {
-        return this._cameraComponent?.camera;
     }
 
     // /**

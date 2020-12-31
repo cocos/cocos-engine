@@ -122,7 +122,13 @@ export abstract class VideoPlayerImpl {
     public get video () { return this._video; }
     public get state () { return this._state; }
     get UICanvas () { return this._uiTrans && this._uiTrans._canvas; }
-    get UICamera () { return this._uiTrans && this._uiTrans._canvas && this._uiTrans._canvas.camera; }
+    get UICamera () {
+        if (this._uiTrans && this._uiTrans._canvas && this._uiTrans._canvas.cameraComponent) {
+            return this._uiTrans._canvas.cameraComponent.camera;
+        } else {
+            return null;
+        }
+    }
 
     // video player event
     public onLoadedMetadata (e: Event) {
