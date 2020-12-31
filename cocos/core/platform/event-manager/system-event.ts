@@ -105,13 +105,13 @@ export class SystemEvent extends EventTarget {
         inputManager.setAccelerometerInterval(interval);
     }
 
-    public on (type: SystemEventType.KEY_DOWN | SystemEventType.KEY_UP, callback: (event?: EventKeyboard) => void, target?);
+    public on (type: SystemEventType.KEY_DOWN | SystemEventType.KEY_UP, callback: (event: EventKeyboard) => void, target?: unknown): typeof callback;
     public on (type: SystemEventType.MOUSE_DOWN | SystemEventType.MOUSE_ENTER | SystemEventType.MOUSE_LEAVE |
                      SystemEventType.MOUSE_MOVE | SystemEventType.MOUSE_UP | SystemEventType.MOUSE_WHEEL,
-               callback: (event?: EventMouse) => void, target?);
+               callback: (event: EventMouse) => void, target?: unknown): typeof callback;
     public on (type: SystemEventType.TOUCH_START | SystemEventType.TOUCH_MOVE | SystemEventType.TOUCH_END | SystemEventType.TOUCH_CANCEL,
-               callback: (touch?: Touch, event?: EventTouch) => void, target?);
-    public on (type: SystemEventType.DEVICEMOTION, callback: (event?: EventAcceleration) => void, target?);
+               callback: (touch: Touch, event: EventTouch) => void, target?: unknown): typeof callback;
+    public on (type: SystemEventType.DEVICEMOTION, callback: (event: EventAcceleration) => void, target?: unknown): typeof callback;
     /**
      * @en
      * Register an callback of a specific system event type.
