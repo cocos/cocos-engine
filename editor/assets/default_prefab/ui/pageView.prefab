@@ -577,8 +577,6 @@
     "_enabled": true,
     "__prefab": null,
     "_resizeMode": 1,
-    "_N$layoutType": 1,
-    "_N$padding": 0,
     "_cellSize": {
       "__type__": "cc.Size",
       "width": 40,
@@ -594,7 +592,8 @@
     "_verticalDirection": 1,
     "_horizontalDirection": 0,
     "_affectedByScale": false,
-    "_id": ""
+    "_id": "",
+    "_layoutType": 1
   },
   {
     "__type__": "cc.PrefabInfo",
