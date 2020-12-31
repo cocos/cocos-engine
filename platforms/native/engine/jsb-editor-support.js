@@ -51,9 +51,6 @@
         let bufferCount = middlewareMgr.getBufferCount(nativeFormat);
         for(let i = 0; i < bufferCount; i++) {
             let ibBytesLength = middlewareMgr.getIBTypedArrayLength(nativeFormat, i);
-            // middleware common buffer was empty, no need to copy to js mesh buffer
-            if (ibBytesLength == 0) continue;
-
             let srcVertexCount = 65535;
             let srcIndicesCount = ibBytesLength / 2; // USHORT
             let srcVertexFloatCount = srcVertexCount * nativeFormat;
