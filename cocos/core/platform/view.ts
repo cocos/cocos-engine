@@ -31,17 +31,16 @@
  */
 
 import '../data/class';
+import { EDITOR, MINIGAME, JSB, RUNTIME_BASED } from 'internal:constants';
 import { EventTarget } from '../event/event-target';
 import '../game';
 import { Rect, Size, Vec2 } from '../math';
 import visibleRect from './visible-rect';
-import { EDITOR, MINIGAME, JSB, RUNTIME_BASED } from 'internal:constants';
 import { legacyCC } from '../global-exports';
 import { logID, errorID } from './debug';
 import { sys } from './sys';
 
 class BrowserGetter {
-
     public html: HTMLHtmlElement | undefined;
 
     public meta = {
@@ -60,18 +59,14 @@ class BrowserGetter {
         if (legacyCC.sys.isMobile || !frame || frame === this.html) {
             return window.innerWidth;
         }
-        else {
-            return frame.clientWidth;
-        }
+        return frame.clientWidth;
     }
 
     public availHeight (frame) {
         if (legacyCC.sys.isMobile || !frame || frame === this.html) {
             return window.innerHeight;
         }
-        else {
-            return frame.clientHeight;
-        }
+        return frame.clientHeight;
     }
 }
 
@@ -85,13 +80,14 @@ switch (__BrowserGetter.adaptationType) {
     case legacyCC.sys.BROWSER_TYPE_SAFARI:
         __BrowserGetter.meta['minimal-ui'] = 'true';
     case legacyCC.sys.BROWSER_TYPE_SOUGOU:
+        __BrowserGetter.availWidth = (frame) => { return frame.clientWidth; };
+        __BrowserGetter.availHeight = (frame) => { return frame.clientHeight; };
+        break;
     case legacyCC.sys.BROWSER_TYPE_UC:
-        __BrowserGetter.availWidth = (frame) => {
-            return frame.clientWidth;
-        };
-        __BrowserGetter.availHeight = (frame) => {
-            return frame.clientHeight;
-        };
+        __BrowserGetter.availWidth = (frame) => { return frame.clientWidth; };
+        __BrowserGetter.availHeight = (frame) => { return frame.clientHeight; };
+        break;
+    default :
         break;
 }
 
