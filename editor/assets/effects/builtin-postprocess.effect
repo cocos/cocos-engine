@@ -38,7 +38,7 @@ CCProgram postprocess-fs %{
   in vec2 v_uv;
 
   #pragma builtin(global)
-  layout (set = 0, binding = 9) uniform sampler2D cc_lighting_resultMap;
+  layout (set = 0, binding = 10) uniform sampler2D cc_lighting_resultMap;
 
   layout(location = 0) out vec4 fragColor;
 

@@ -5,7 +5,6 @@
 import { ccclass } from 'cc.decorator';
 import { PIPELINE_FLOW_LIGHTING } from '../define';
 import { IRenderFlowInfo, RenderFlow } from '../render-flow';
-import { RenderView } from '../render-view';
 import { DeferredFlowPriority } from './enum';
 import { LightingStage } from './lighting-stage';
 import { DeferredPipeline } from './deferred-pipeline';
@@ -16,6 +15,7 @@ import { Framebuffer, RenderPass, LoadOp,
 import { UNIFORM_LIGHTING_RESULTMAP_BINDING } from '../define';
 import { genSamplerHash, samplerLib } from '../../renderer/core/sampler-lib';
 import { Address, Filter} from '../../gfx/define';
+import { Camera } from 'cocos/core/renderer/scene';
 
 /**
  * @en The lighting flow in lighting render pipeline
@@ -121,10 +121,10 @@ export class LightingFlow extends RenderFlow {
         pipeline.descriptorSet.bindSampler(UNIFORM_LIGHTING_RESULTMAP_BINDING, sampler);
     }
 
-    public render (view: RenderView) {
+    public render (camera: Camera) {
         const pipeline = this._pipeline as DeferredPipeline;
-        pipeline.updateUBOs(view, true);
-        super.render(view);
+        pipeline.updateCameraUBO(camera, true);
+        super.render(camera);
     }
 
     public destroy () {

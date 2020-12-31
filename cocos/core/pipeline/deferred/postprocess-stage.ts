@@ -6,7 +6,6 @@ import { ccclass, displayOrder, type, serializable } from 'cc.decorator';
 import { SetIndex } from '../define';
 import { Color, Rect, Shader } from '../../gfx';
 import { IRenderStageInfo, RenderStage } from '../render-stage';
-import { RenderView } from '../render-view';
 import { DeferredStagePriority } from './enum';
 import { LightingFlow } from './lighting-flow';
 import { DeferredPipeline } from './deferred-pipeline';
@@ -14,8 +13,10 @@ import { Material } from '../../assets/material';
 import { ShaderPool } from '../../renderer/core/memory-pools';
 import { PipelineStateManager } from '../pipeline-state-manager';
 import { PipelineState } from '../../gfx/pipeline-state';
-import { builtinResMgr } from '../../3d/builtin/init';
 import { Pass } from '../../renderer';
+import { builtinResMgr } from 'cocos/core';
+import { UIPhase } from '../forward/ui-phase';
+import { Camera } from 'cocos/core/renderer/scene';
 
 const colors: Color[] = [ new Color(0, 0, 0, 1) ];
 const POSTPROCESSPASS_INDEX = 0;
@@ -39,6 +40,7 @@ export class PostprocessStage extends RenderStage {
     @serializable
     @displayOrder(3)
     private _postprocessMaterial: Material | null = null;
+    private _uiPhase: UIPhase;
 
     set material (val) {
         if (this._postprocessMaterial === val) {
@@ -50,6 +52,7 @@ export class PostprocessStage extends RenderStage {
 
     constructor () {
         super();
+        this._uiPhase = new UIPhase();
     }
 
     public initialize (info: IRenderStageInfo): boolean {
@@ -59,26 +62,26 @@ export class PostprocessStage extends RenderStage {
 
     public activate (pipeline: DeferredPipeline, flow: LightingFlow) {
         super.activate(pipeline, flow);
+        this._uiPhase.activate(pipeline);
     }
 
     public destroy () {
     }
 
-    public render (view: RenderView) {
+    public render (camera: Camera) {
         const pipeline = this._pipeline as DeferredPipeline;
         const device = pipeline.device;
 
         const cmdBuff = pipeline.commandBuffers[0];
 
-        const camera = view.camera;
-        pipeline.updateUBOs(view, false);
+        pipeline.updateCameraUBO(camera);
         const vp = camera.viewport;
         this._renderArea!.x = vp.x * camera.width;
         this._renderArea!.y = vp.y * camera.height;
         this._renderArea!.width = vp.width * camera.width * pipeline.shadingScale;
         this._renderArea!.height = vp.height * camera.height * pipeline.shadingScale;
 
-        const framebuffer = view.window.framebuffer;
+        const framebuffer = camera.window!.framebuffer;
         const renderPass = framebuffer.colorTextures[0] ? framebuffer.renderPass : pipeline.getRenderPass(camera.clearFlag);
 
         cmdBuff.beginRenderPass(renderPass, framebuffer, this._renderArea!,
@@ -111,6 +114,8 @@ export class PostprocessStage extends RenderStage {
             cmdBuff.bindInputAssembler(inputAssembler);
             cmdBuff.draw(inputAssembler);
         }
+
+        this._uiPhase.render(camera, renderPass);
 
         cmdBuff.endRenderPass();
     }

@@ -43,7 +43,6 @@ import { bindingMappingInfo } from './pipeline/define';
 import { SplashScreen } from './splash-screen';
 import { RenderPipeline } from './pipeline';
 import { Node } from './scene-graph/node';
-import { builtinResMgr } from './3d/builtin/init';
 
 interface ISceneInfo {
     url: string;
@@ -956,7 +955,6 @@ export class Game extends EventTarget {
             return this._setRenderPipeline();
         }
 
-        builtinResMgr._initDeferredMaterial();
         return new Promise<RenderPipeline>((resolve, reject) => {
             legacyCC.assetManager.loadAny(renderPipeline, (err, asset) => ((err || !(asset instanceof RenderPipeline))
                 ? reject(err)

@@ -907,7 +907,11 @@ export enum CameraView {
     MAT_VIEW_PROJ_INV = 57, // Mat4
     MAT_PROJ = 73,          // Mat4
     MAT_PROJ_INV = 89,      // Mat4
-    COUNT = 105
+    MAT_VIEW_PROJ_OFFSCREEN = 105,     // Mat4
+    MAT_VIEW_PROJ_INV_OFFSCREEN = 121, // Mat4
+    MAT_PROJ_OFFSCREEN = 137,          // Mat4
+    MAT_PROJ_INV_OFFSCREEN = 153,      // Mat4
+    COUNT = 169
 }
 interface ICameraViewType extends BufferTypeManifest<typeof CameraView> {
     [CameraView.WIDTH]: number;

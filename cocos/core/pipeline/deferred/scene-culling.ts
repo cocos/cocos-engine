@@ -28,18 +28,18 @@
  * @hidden
  */
 
-import { AABB, intersect, sphere } from '../../geometry';
+import { AABB, intersect, Sphere } from '../../geometry';
 import { Model } from '../../renderer/scene/model';
 import { Camera, SKYBOX_FLAG } from '../../renderer/scene/camera';
 import { Layers } from '../../scene-graph/layers';
-import { Vec3, Vec4, Mat4, Quat, Color, color } from '../../math';
+import { Vec3, Mat4, Quat, Color } from '../../math';
 import { DeferredPipeline } from './deferred-pipeline';
-import { RenderView } from '../';
 import { Pool } from '../../memop';
 import { IRenderObject, UBOShadow } from '../define';
 import { ShadowType, Shadows } from '../../renderer/scene/shadows';
 import { SphereLight, DirectionalLight, Light } from '../../renderer/scene';
 import { RenderPipeline } from '..';
+
 
 const _tempVec3 = new Vec3();
 const _dir_negate = new Vec3();
@@ -48,7 +48,7 @@ const _mat4_trans = new Mat4();
 const _castWorldBounds = new AABB();
 let _castBoundsInited = false;
 const _validLights: Light[] = [];
-const _sphere = sphere.create(0, 0, 0, 1);
+const _sphere = Sphere.create(0, 0, 0, 1);
 
 const roPool = new Pool<IRenderObject>(() => ({ model: null!, depth: 0 }), 128);
 const shadowPool = new Pool<IRenderObject>(() => ({ model: null!, depth: 0 }), 128);
@@ -115,6 +115,7 @@ function updateSphereLight (pipeline: DeferredPipeline, light: SphereLight) {
     m.m13 = ly * d;
     m.m14 = lz * d;
     m.m15 = NdL;
+
     Mat4.toArray(pipeline.shadowUBO, shadows.matLight, UBOShadow.MAT_LIGHT_PLANE_PROJ_OFFSET);
 }
 
@@ -147,19 +148,45 @@ function updateDirLight (pipeline: DeferredPipeline, light: DirectionalLight) {
     Mat4.toArray(pipeline.shadowUBO, shadows.matLight, UBOShadow.MAT_LIGHT_PLANE_PROJ_OFFSET);
 }
 
-export function lightCollecting (view: RenderView, lightNumber: number) {
+export function updatePlanarPROJ (shadowInfo: Shadows, light: DirectionalLight, shadowUBO: Float32Array) {
+    const dir = light.direction;
+    const n = shadowInfo.normal; const d = shadowInfo.distance + 0.001; // avoid z-fighting
+    const NdL = Vec3.dot(n, dir); const scale = 1 / NdL;
+    const lx = dir.x * scale; const ly = dir.y * scale; const lz = dir.z * scale;
+    const nx = n.x; const ny = n.y; const nz = n.z;
+    const m = shadowInfo.matLight;
+    m.m00 = 1 - nx * lx;
+    m.m01 = -nx * ly;
+    m.m02 = -nx * lz;
+    m.m03 = 0;
+    m.m04 = -ny * lx;
+    m.m05 = 1 - ny * ly;
+    m.m06 = -ny * lz;
+    m.m07 = 0;
+    m.m08 = -nz * lx;
+    m.m09 = -nz * ly;
+    m.m10 = 1 - nz * lz;
+    m.m11 = 0;
+    m.m12 = lx * d;
+    m.m13 = ly * d;
+    m.m14 = lz * d;
+    m.m15 = 1;
+
+    Mat4.toArray(shadowUBO, m, UBOShadow.MAT_LIGHT_PLANE_PROJ_OFFSET);
+}
+
+export function lightCollecting (camera: Camera, lightNumber: number) {
     _validLights.length = 0;
 
-    const camera = view.camera;
     const scene = camera.scene!;
     _validLights.push(scene.mainLight!);
 
     const spotLights = scene.spotLights;
     for (let i = 0; i < spotLights.length; i++) {
         const light = spotLights[i];
-        sphere.set(_sphere, light.position.x, light.position.y, light.position.z, light.range);
-        if (intersect.sphere_frustum(_sphere, view.camera.frustum) &&
-         lightNumber > _validLights.length) {
+        Sphere.set(_sphere, light.position.x, light.position.y, light.position.z, light.range);
+        if (intersect.sphereFrustum(_sphere, camera.frustum)
+         && lightNumber > _validLights.length) {
             _validLights.push(light);
         }
     }
@@ -167,8 +194,7 @@ export function lightCollecting (view: RenderView, lightNumber: number) {
     return _validLights;
 }
 
-export function shadowCollecting (pipeline: RenderPipeline, view: RenderView) {
-    const camera = view.camera;
+export function shadowCollecting (pipeline: DeferredPipeline, camera: Camera) {
     const scene = camera.scene!;
     const shadows = pipeline.shadows;
     const shadowObjects = pipeline.shadowObjects;
@@ -180,26 +206,23 @@ export function shadowCollecting (pipeline: RenderPipeline, view: RenderView) {
     for (let i = 0; i < models.length; i++) {
         const model = models[i];
         // filter model by view visibility
-        if (model.node && ((view.visibility & model.node.layer) === model.node.layer) ||
-            (view.visibility & model.visFlags)) {
-
+        if (model.node && ((camera.visibility & model.node.layer) === model.node.layer)
+            || (camera.visibility & model.visFlags)) {
             // shadow render Object
             if (model.castShadow && model.worldBounds) {
                 if (!_castBoundsInited) {
                     _castWorldBounds.copy(model.worldBounds);
                     _castBoundsInited = true;
                 }
-                aabb.merge(_castWorldBounds, _castWorldBounds, model.worldBounds);
+                AABB.merge(_castWorldBounds, _castWorldBounds, model.worldBounds);
                 shadowObjects.push(getCastShadowRenderObject(model, camera));
             }
         }
-
-        if (_castWorldBounds) { aabb.toBoundingSphere(shadows.sphere, _castWorldBounds); }
     }
+    if (_castWorldBounds) { AABB.toBoundingSphere(shadows.sphere, _castWorldBounds); }
 }
 
-export function sceneCulling (pipeline: DeferredPipeline, view: RenderView) {
-    const camera = view.camera;
+export function sceneCulling (pipeline: DeferredPipeline, camera: Camera) {
     const scene = camera.scene!;
     const mainLight = scene.mainLight;
     const shadows = pipeline.shadows;
@@ -228,23 +251,14 @@ export function sceneCulling (pipeline: DeferredPipeline, view: RenderView) {
 
         // filter model by view visibility
         if (model.enabled) {
-            const vis = view.visibility & Layers.BitMask.UI_2D;
-            if (vis) {
-                if ((model.node && (view.visibility === model.node.layer)) ||
-                    view.visibility === model.visFlags) {
-                    renderObjects.push(getRenderObject(model, camera));
+            if (model.node && ((camera.visibility & model.node.layer) === model.node.layer)
+                || (camera.visibility & model.visFlags)) {
+                // frustum culling
+                if (model.worldBounds && !intersect.aabbFrustum(model.worldBounds, camera.frustum)) {
+                    continue;
                 }
-            } else {
-                if (model.node && ((view.visibility & model.node.layer) === model.node.layer) ||
-                    (view.visibility & model.visFlags)) {
 
-                    // frustum culling
-                    if (model.worldBounds && !intersect.aabbFrustum(model.worldBounds, camera.frustum)) {
-                        continue;
-                    }
-
-                    renderObjects.push(getRenderObject(model, camera));
-                }
+                renderObjects.push(getRenderObject(model, camera));
             }
         }
     }

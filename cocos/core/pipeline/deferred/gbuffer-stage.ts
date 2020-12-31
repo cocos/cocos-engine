@@ -12,7 +12,6 @@ import { SRGBToLinear } from '../pipeline-funcs';
 import { RenderBatchedQueue } from '../render-batched-queue';
 import { RenderInstancedQueue } from '../render-instanced-queue';
 import { IRenderStageInfo, RenderStage } from '../render-stage';
-import { RenderView } from '../render-view';
 import { DeferredStagePriority } from './enum';
 import { RenderAdditiveLightQueue } from '../render-additive-light-queue';
 import { InstancedBuffer } from '../instanced-buffer';
@@ -23,6 +22,7 @@ import { DeferredPipeline } from './deferred-pipeline';
 import { RenderQueueDesc, RenderQueueSortMode } from '../pipeline-serialization';
 import { PlanarShadowQueue } from './planar-shadow-queue';
 import { Framebuffer } from '../../gfx';
+import { Camera } from 'cocos/core/renderer/scene';
 
 
 const colors: Color[] = [ new Color(0, 0, 0, 0), new Color(0, 0, 0, 0), new Color(0, 0, 0, 0), new Color(0, 0, 0, 0) ];
@@ -62,11 +62,13 @@ export class GbufferStage extends RenderStage {
     private _batchedQueue: RenderBatchedQueue;
     private _instancedQueue: RenderInstancedQueue;
     private _phaseID = getPhaseID('deferred-gbuffer');
+    //private declare _uiPhase: UIPhase;
 
     constructor () {
         super();
         this._batchedQueue = new RenderBatchedQueue();
         this._instancedQueue = new RenderInstancedQueue();
+        //this._uiPhase = new UIPhase();
     }
 
     public initialize (info: IRenderStageInfo): boolean {
@@ -106,8 +108,7 @@ export class GbufferStage extends RenderStage {
     public destroy () {
     }
 
-    public render (view: RenderView) {
-
+    public render (camera: Camera) {
         this._instancedQueue.clear();
         this._batchedQueue.clear();
         const pipeline = this._pipeline as DeferredPipeline;
@@ -115,6 +116,10 @@ export class GbufferStage extends RenderStage {
         this._renderQueues.forEach(this.renderQueueClearFunc);
 
         const renderObjects = pipeline.renderObjects;
+        if (renderObjects.length === 0) {
+            return;
+        }
+
         let m = 0; let p = 0; let k = 0;
         for (let i = 0; i < renderObjects.length; ++i) {
             const ro = renderObjects[i];
@@ -149,15 +154,30 @@ export class GbufferStage extends RenderStage {
         this._instancedQueue.uploadBuffers(cmdBuff);
         this._batchedQueue.uploadBuffers(cmdBuff);
 
-        const camera = view.camera;
         const vp = camera.viewport;
         // render area is not oriented
-        const w = view.window.hasOnScreenAttachments && device.surfaceTransform % 2 ? camera.height : camera.width;
-        const h = view.window.hasOnScreenAttachments && device.surfaceTransform % 2 ? camera.width : camera.height;
-        this._renderArea!.x = vp.x * w;
-        this._renderArea!.y = vp.y * h;
-        this._renderArea!.width = vp.width * w * pipeline.shadingScale;
-        this._renderArea!.height = vp.height * h * pipeline.shadingScale;
+        const w = camera.window!.hasOnScreenAttachments && device.surfaceTransform % 2 ? camera.height : camera.width;
+        const h = camera.window!.hasOnScreenAttachments && device.surfaceTransform % 2 ? camera.width : camera.height;
+        this._renderArea.x = vp.x * w;
+        this._renderArea.y = vp.y * h;
+        this._renderArea.width = vp.width * w * pipeline.shadingScale;
+        this._renderArea.height = vp.height * h * pipeline.shadingScale;
+
+        if (camera.clearFlag & ClearFlag.COLOR) {
+            if (pipeline.isHDR) {
+                SRGBToLinear(colors[0], camera.clearColor);
+                const scale = pipeline.fpScale / camera.exposure;
+                colors[0].x *= scale;
+                colors[0].y *= scale;
+                colors[0].z *= scale;
+            } else {
+                colors[0].x = camera.clearColor.x;
+                colors[0].y = camera.clearColor.y;
+                colors[0].z = camera.clearColor.z;
+            }
+        }
+
+        colors[0].w = camera.clearColor.w;
 
         const framebuffer = (this._flow as GbufferFlow).gbufferFrameBuffer;
         const renderPass = framebuffer.renderPass;

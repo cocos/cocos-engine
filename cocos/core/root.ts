@@ -30,7 +30,7 @@
 
 import { builtinResMgr } from './builtin';
 import { Pool } from './memop';
-import { RenderPipeline, ForwardPipeline } from './pipeline';
+import { RenderPipeline, ForwardPipeline, DeferredPipeline } from './pipeline';
 import { Camera, Light, Model } from './renderer/scene';
 import { DataPoolManager } from '../3d/skeletal-animation/data-pool-manager';
 import { LightType } from './renderer/scene/light';
@@ -329,7 +329,7 @@ export class Root {
     }
 
     public setRenderPipeline (rppl: RenderPipeline): boolean {
-        if ((rppl as Asset)._uuid == "5d45ba66-829a-46d3-948e-2ed3fa7ee421"){
+        if (rppl instanceof DeferredPipeline) {
             this._useDeferredPipeline = true;
         }
 
@@ -337,6 +337,10 @@ export class Root {
             rppl = this.createDefaultPipeline();
         }
         this._pipeline = rppl;
+        if (this._pipeline instanceof DeferredPipeline) {
+            builtinResMgr._initDeferredMaterial();
+        }
+
         if (!this._pipeline.activate()) {
             return false;
         }

@@ -35,5 +35,5 @@ require('./jsb-audio.js');
 require('./jsb-editbox.js');
 require('./jsb-pipeline.js');
 require('./jsb-safearea.js');
-require('./jsb-editor-support.js')
-require('./jsb-spine-skeleton.js')
+//require('./jsb-editor-support.js')
+//require('./jsb-spine-skeleton.js')

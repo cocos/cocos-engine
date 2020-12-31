@@ -6,7 +6,6 @@ import { ccclass } from 'cc.decorator';
 import { PIPELINE_FLOW_GBUFFER, UNIFORM_GBUFFER_ALBEDOMAP_BINDING, 
     UNIFORM_GBUFFER_POSITIONMAP_BINDING, UNIFORM_GBUFFER_NORMALMAP_BINDING, UNIFORM_GBUFFER_EMISSIVEMAP_BINDING } from '../define';
 import { IRenderFlowInfo, RenderFlow } from '../render-flow';
-import { RenderView } from '../render-view';
 import { DeferredFlowPriority } from './enum';
 import { GbufferStage } from './gbuffer-stage';
 import { DeferredPipeline } from './deferred-pipeline';
@@ -16,9 +15,9 @@ import { Framebuffer, RenderPass, LoadOp,
     TextureType, TextureUsageBit, ColorAttachment, DepthStencilAttachment, RenderPassInfo, TextureInfo, FramebufferInfo } from '../../gfx';
 import { genSamplerHash, samplerLib } from '../../renderer/core/sampler-lib';
 
-
 import { Address, Filter} from '../../gfx/define';
-
+import { Camera } from 'cocos/core/renderer/scene';
+import { sceneCulling } from './scene-culling';
 
 /**
  * @en The gbuffer flow in deferred render pipeline
@@ -184,10 +183,11 @@ export class GbufferFlow extends RenderFlow {
     
     }
 
-    public render (view: RenderView) {
+    public render (camera: Camera) {
         const pipeline = this._pipeline as DeferredPipeline;
-        pipeline.updateUBOs(view, true);
-        super.render(view);
+        sceneCulling(pipeline, camera);
+        pipeline.updateCameraUBO(camera, true);
+        super.render(camera);
     }
 
     public destroy () {

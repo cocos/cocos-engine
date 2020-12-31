@@ -8,7 +8,6 @@ import { getPhaseID } from '../pass-phase';
 import { opaqueCompareFn, RenderQueue, transparentCompareFn } from '../render-queue';
 import { Color, Rect, Shader } from '../../gfx';
 import { IRenderStageInfo, RenderStage } from '../render-stage';
-import { RenderView } from '../render-view';
 import { DeferredStagePriority } from './enum';
 import { RenderAdditiveLightQueue } from '../render-additive-light-queue';
 import { LightingFlow } from './lighting-flow';
@@ -26,8 +25,9 @@ import { Buffer, BufferUsageBit, MemoryUsageBit, BufferInfo, BufferViewInfo, Des
 import { UBOForwardLight } from '../define';
 import { ClearFlag } from '../../gfx/define';
 import { SRGBToLinear } from '../pipeline-funcs';
-import { builtinResMgr } from '../../3d/builtin/init';
 import { Pass } from '../../renderer/core/pass';
+import { Camera } from 'cocos/core/renderer/scene';
+import { builtinResMgr } from 'cocos/core';
 
 const colors: Color[] = [ new Color(0, 0, 0, 1) ];
 const LIGHTINGPASS_INDEX = 1;
@@ -102,15 +102,15 @@ export class LightingStage extends RenderStage {
         return true;
     }
 
-    public gatherLights(view: RenderView) {
+    public gatherLights(camera: Camera) {
         const pipeline = this._pipeline as DeferredPipeline;
         const cmdBuff = pipeline.commandBuffers[0];
 
-        const sphereLights = view.camera.scene!.sphereLights;
-        const spotLights = view.camera.scene!.spotLights;
+        const sphereLights = camera.scene!.sphereLights;
+        const spotLights = camera.scene!.spotLights;
         const _sphere = sphere.create(0, 0, 0, 1);
         const _vec4Array = new Float32Array(4);
-        const exposure = view.camera.exposure;
+        const exposure = camera.exposure;
 
         let idx = 0;
         let elementLen = 4; // vec4
@@ -119,7 +119,7 @@ export class LightingStage extends RenderStage {
         for (let i = 0; i < sphereLights.length && idx < this._maxDeferredLights; i++, ++idx) {
             const light = sphereLights[i];
             sphere.set(_sphere, light.position.x, light.position.y, light.position.z, light.range);
-            if (intersect.sphereFrustum(_sphere, view.camera.frustum)) {
+            if (intersect.sphereFrustum(_sphere, camera.frustum)) {
                 Vec3.toArray(_vec4Array, light.position);
                 _vec4Array[3] = 0;
                 this._lightBufferData.set(_vec4Array, idx * elementLen);
@@ -150,7 +150,7 @@ export class LightingStage extends RenderStage {
         for (let i = 0; i < spotLights.length && idx < this._maxDeferredLights; i++, ++idx) {
             const light = spotLights[i];
             sphere.set(_sphere, light.position.x, light.position.y, light.position.z, light.range);
-            if (intersect.sphereFrustum(_sphere, view.camera.frustum)) {
+            if (intersect.sphereFrustum(_sphere, camera.frustum)) {
                 Vec3.toArray(_vec4Array, light.position);
                 _vec4Array[3] = 1;
                 this._lightBufferData.set(_vec4Array, idx * elementLen + fieldLen * 0);
@@ -241,29 +241,28 @@ export class LightingStage extends RenderStage {
     public destroy () {
     }
 
-    public render (view: RenderView) {
+    public render (camera: Camera) {
         const pipeline = this._pipeline as DeferredPipeline;
         const device = pipeline.device;
 
         const cmdBuff = pipeline.commandBuffers[0];
 
         // light信息
-        this.gatherLights(view);
+        this.gatherLights(camera);
         this._descriptorSet.update();
-        this._planarQueue.gatherShadowPasses(view, cmdBuff);
+        this._planarQueue.gatherShadowPasses(camera, cmdBuff);
 
         const dynamicOffsets: number[] = [0];
         cmdBuff.bindDescriptorSet(SetIndex.LOCAL, this._descriptorSet, dynamicOffsets);
 
-        const camera = view.camera;
         const vp = camera.viewport;
         // render area is not oriented
-        const w = view.window.hasOnScreenAttachments && device.surfaceTransform % 2 ? camera.height : camera.width;
-        const h = view.window.hasOnScreenAttachments && device.surfaceTransform % 2 ? camera.width : camera.height;
-        this._renderArea!.x = vp.x * w;
-        this._renderArea!.y = vp.y * h;
-        this._renderArea!.width = vp.width * w * pipeline.shadingScale;
-        this._renderArea!.height = vp.height * h * pipeline.shadingScale;
+        const w = camera.window!.hasOnScreenAttachments && device.surfaceTransform % 2 ? camera.height : camera.width;
+        const h = camera.window!.hasOnScreenAttachments && device.surfaceTransform % 2 ? camera.width : camera.height;
+        this._renderArea.x = vp.x * w;
+        this._renderArea.y = vp.y * h;
+        this._renderArea.width = vp.width * w * pipeline.shadingScale;
+        this._renderArea.height = vp.height * h * pipeline.shadingScale;
 
         if (camera.clearFlag & ClearFlag.COLOR) {
             if (pipeline.isHDR) {

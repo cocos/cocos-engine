@@ -30,12 +30,11 @@ import { Texture2D } from '../assets/texture-2d';
 import { TextureCube } from '../assets/texture-cube';
 import { Device } from '../gfx';
 import effects from './effects';
-import { legacyCC } from '../../global-exports';
-import { getDeviceShaderVersion } from '../../renderer/core/program-lib';
-import { ccbitmask } from '../../value-types/bitmask';
-import { EffectAsset } from '../../assets';
-import { resources } from '../../asset-manager/bundle';
+import { legacyCC } from '../global-exports';
+import { getDeviceShaderVersion } from '../renderer/core/program-lib';
 import shaderSourceAssembly from './shader-source-assembly';
+import { resources } from '../asset-manager/bundle';
+import { EffectAsset } from '../assets/effect-asset';
 
 class BuiltinResMgr {
     protected _device: Device | null = null;
@@ -316,20 +315,20 @@ class BuiltinResMgr {
 
     public _initDeferredMaterial () {
         // builtin deferred material
-        resources.load('shader/builtin-deferred', EffectAsset, (err, ass) => {
-            if (ass) {
+        resources.load('shader/builtin-deferred', EffectAsset, (err, deferredMtl) => {
+            if (deferredMtl) {
                 const builtinDeferredMtl = new legacyCC.Material();
                 builtinDeferredMtl._uuid = 'builtin-deferred-material';
-                builtinDeferredMtl.initialize({effectAsset: ass});
+                builtinDeferredMtl.initialize({effectAsset: deferredMtl});
                 this._resources[builtinDeferredMtl._uuid] = builtinDeferredMtl;
             }
         });
 
-        resources.load('shader/builtin-postprocess', EffectAsset, (err, bss) => {
-            if (bss) {
+        resources.load('shader/builtin-postprocess', EffectAsset, (err, postMtl) => {
+            if (postMtl) {
                 const builtinPostProcessMtl = new legacyCC.Material();
                 builtinPostProcessMtl._uuid = 'builtin-post-process-material';
-                builtinPostProcessMtl.initialize({effectAsset: bss});
+                builtinPostProcessMtl.initialize({effectAsset: postMtl});
                 this._resources[builtinPostProcessMtl._uuid] = builtinPostProcessMtl;
             }
         });

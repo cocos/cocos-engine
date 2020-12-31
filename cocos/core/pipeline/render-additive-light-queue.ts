@@ -54,6 +54,7 @@ import { builtinResMgr } from '../builtin/builtin-res-mgr';
 import { Texture2D } from '../assets/texture-2d';
 import { updatePlanarPROJ } from './forward/scene-culling';
 import { Camera } from '../renderer/scene';
+import { view } from '../platform';
 
 const _samplerInfo = [
     Filter.LINEAR,
@@ -473,18 +474,24 @@ export class RenderAdditiveLightQueue {
             Vec3.toArray(cv, Vec3.UNIT_Z, UBOCamera.MAIN_LIT_DIR_OFFSET);
             Vec4.toArray(cv, Vec4.ZERO, UBOCamera.MAIN_LIT_COLOR_OFFSET);
         }
-        Mat4.toArray(cv, camera.matView, UBOCamera.MAT_VIEW_OFFSET);
-        Mat4.toArray(cv, camera.node.worldMatrix, UBOCamera.MAT_VIEW_INV_OFFSET);
-        Mat4.toArray(cv, camera.matProj, UBOCamera.MAT_PROJ_OFFSET);
-        Mat4.toArray(cv, camera.matProjInv, UBOCamera.MAT_PROJ_INV_OFFSET);
-        Mat4.toArray(cv, camera.matViewProj, UBOCamera.MAT_VIEW_PROJ_OFFSET);
-        Mat4.toArray(cv, camera.matViewProjInv, UBOCamera.MAT_VIEW_PROJ_INV_OFFSET);
-        Vec3.toArray(cv, camera.position, UBOCamera.CAMERA_POS_OFFSET);
-        let projectionSignY = device.screenSpaceSignY;
+
         if (camera.window!.hasOffScreenAttachments) {
-            projectionSignY *= device.UVSpaceSignY; // need flipping if drawing on render targets
+            Mat4.toArray(cv, camera.matProj_offscreen, UBOCamera.MAT_PROJ_OFFSET);
+            Mat4.toArray(cv, camera.matProjInv_offscreen, UBOCamera.MAT_PROJ_INV_OFFSET);
+            Mat4.toArray(cv, camera.matViewProj_offscreen, UBOCamera.MAT_VIEW_PROJ_OFFSET);
+            Mat4.toArray(cv, camera.matViewProjInv_offscreen, UBOCamera.MAT_VIEW_PROJ_INV_OFFSET);
+            cv[UBOCamera.CAMERA_POS_OFFSET + 3] = this._device.screenSpaceSignY * this._device.UVSpaceSignY;
+        } else {
+            Mat4.toArray(cv, camera.matProj, UBOCamera.MAT_PROJ_OFFSET);
+            Mat4.toArray(cv, camera.matProjInv, UBOCamera.MAT_PROJ_INV_OFFSET);
+            Mat4.toArray(cv, camera.matViewProj, UBOCamera.MAT_VIEW_PROJ_OFFSET);
+            Mat4.toArray(cv, camera.matViewProjInv, UBOCamera.MAT_VIEW_PROJ_INV_OFFSET);
+            cv[UBOCamera.CAMERA_POS_OFFSET + 3] = this._device.screenSpaceSignY;
         }
-        cv[UBOCamera.CAMERA_POS_OFFSET + 3] = projectionSignY;
+
+        Mat4.toArray(cv, camera.node.worldMatrix, UBOCamera.MAT_VIEW_INV_OFFSET);
+        Mat4.toArray(cv, camera.matView, UBOCamera.MAT_VIEW_OFFSET);
+        Vec3.toArray(cv, camera.position, UBOCamera.CAMERA_POS_OFFSET);
 
         const skyColor = ambient.colorArray;
         if (this._isHDR) {
