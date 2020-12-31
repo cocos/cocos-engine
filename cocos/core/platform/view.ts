@@ -417,8 +417,8 @@ export class View extends EventTarget {
     public setFrameSize (width: number, height: number) {
         this._frameSize.width = width;
         this._frameSize.height = height;
-        legacyCC.frame.style.width = width + 'px';
-        legacyCC.frame.style.height = height + 'px';
+        legacyCC.game.frame.style.width = width + 'px';
+        legacyCC.game.frame.style.height = height + 'px';
         this._resizeEvent();
     }
 
