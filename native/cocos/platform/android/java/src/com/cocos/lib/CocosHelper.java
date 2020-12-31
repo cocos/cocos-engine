@@ -119,7 +119,7 @@ public class CocosHelper {
         context.unregisterReceiver(sBatteryReceiver);
     }
 
-    static void runOnGameThread(final Runnable runnable) {
+    public static void runOnGameThread(final Runnable runnable) {
         sTaskOnGameThread.add(runnable);
     }
 

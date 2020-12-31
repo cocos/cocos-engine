@@ -155,6 +155,10 @@ public class CocosActivity extends Activity implements SurfaceHolder.Callback {
         }
     }
 
+    public CocosSurfaceView getSurfaceView() {
+        return this.mSurfaceView;
+    }
+
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
