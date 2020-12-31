@@ -475,6 +475,7 @@
         "cocos/network/WebSocket.h", 
         "cocos/network/WebSocketServer.cpp", 
         "cocos/network/WebSocketServer.h", 
+        "cocos/platform/Application.cpp", 
         "cocos/platform/Application.h", 
         "cocos/platform/CanvasRenderingContext2D.h", 
         "cocos/platform/Device.h", 
