@@ -314,8 +314,8 @@ export class Canvas extends Component {
     }
 
     public onEnable () {
+        legacyCC.director.root!.ui.addScreen(this);
         if (this._cameraComponent) {
-            legacyCC.director.root!.ui.addScreen(this);
             const camera = this._cameraComponent.camera;
             if (camera) {
                 legacyCC.director.root!.ui.renderScene.addCamera(camera);
