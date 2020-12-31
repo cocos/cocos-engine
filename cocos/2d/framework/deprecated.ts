@@ -22,6 +22,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
+/* eslint-disable @typescript-eslint/no-unsafe-return */
 
 /**
  * @packageDocumentation
@@ -43,6 +44,73 @@ removeProperty(UIComponent.prototype, 'UIComponent', [
     },
     {
         name: 'setVisibility',
+    },
+]);
+
+replaceProperty(Canvas.prototype, 'Canvas.prototype', [
+    {
+        name: 'camera',
+        newName: 'cameraComponent.camera',
+        customGetter () {
+            // @ts-expect-error deprecation method
+            return this._cameraComponent.camera;
+        },
+    },
+    {
+        name: 'clearFlag',
+        newName: 'cameraComponent.clearFlags',
+        customGetter () {
+            // @ts-expect-error deprecation method
+            return this._cameraComponent ? this._cameraComponent.clearFlags : 0;
+        },
+        customSetter (val) {
+            // @ts-expect-error deprecation method
+            if (this._cameraComponent) this._cameraComponent.clearFlags = val;
+        },
+    },
+    {
+        name: 'color',
+        newName: 'cameraComponent.clearColor',
+        customGetter () {
+            // @ts-expect-error deprecation method
+            return this._cameraComponent ? this._cameraComponent.clearColor : Color.BLACK;
+        },
+        customSetter (val) {
+            // @ts-expect-error deprecation method
+            if (this._cameraComponent) this._cameraComponent.clearColor = val;
+        },
+    },
+    {
+        name: 'priority',
+        newName: 'cameraComponent.priority',
+        customGetter () {
+            // @ts-expect-error deprecation method
+            return this._cameraComponent ? this._cameraComponent.priority : 0;
+        },
+        customSetter (val: number) {
+            // @ts-expect-error deprecation method
+            if (this._cameraComponent) this._cameraComponent.priority = val;
+        },
+    },
+    {
+        name: 'targetTexture',
+        newName: 'cameraComponent.targetTexture',
+        customGetter () {
+            // @ts-expect-error deprecation method
+            return this._cameraComponent ? this._cameraComponent.targetTexture : null;
+        },
+        customSetter (value) {
+            // @ts-expect-error deprecation method
+            if (this._cameraComponent) this._cameraComponent.targetTexture = value;
+        },
+    },
+    {
+        name: 'visibility',
+        newName: 'cameraComponent.visibility',
+        customGetter () {
+            // @ts-expect-error deprecation method
+            return this._cameraComponent ? this._cameraComponent.visibility : 0;
+        },
     },
 ]);
 

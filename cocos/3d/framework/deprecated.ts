@@ -23,13 +23,12 @@
  THE SOFTWARE.
  */
 
-
 /**
  * @packageDocumentation
  * @module component
  */
 
-import { removeProperty, replaceProperty } from '../../core/utils';
+import { removeProperty } from '../../core/utils';
 import { MeshRenderer } from './mesh-renderer';
 import { js } from '../../core/utils/js';
 import { legacyCC } from '../../core/global-exports';
