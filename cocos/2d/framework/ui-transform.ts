@@ -87,7 +87,7 @@ export class UITransform extends Component {
 
         this._contentSize.set(value);
         if (EDITOR) {
-            // @ts-expect-error
+            // @ts-expect-error EDITOR condition
             this.node.emit(SystemEventType.SIZE_CHANGED, clone);
         } else {
             this.node.emit(SystemEventType.SIZE_CHANGED);
@@ -110,7 +110,7 @@ export class UITransform extends Component {
 
         this._contentSize.width = value;
         if (EDITOR) {
-            // @ts-expect-error
+            // @ts-expect-error EDITOR condition
             this.node.emit(SystemEventType.SIZE_CHANGED, clone);
         } else {
             this.node.emit(SystemEventType.SIZE_CHANGED);
@@ -133,7 +133,7 @@ export class UITransform extends Component {
 
         this._contentSize.height = value;
         if (EDITOR) {
-            // @ts-expect-error
+            // @ts-expect-error EDITOR condition
             this.node.emit(SystemEventType.SIZE_CHANGED, clone);
         } else {
             this.node.emit(SystemEventType.SIZE_CHANGED);
@@ -326,7 +326,7 @@ export class UITransform extends Component {
         }
 
         if (EDITOR) {
-            // @ts-expect-error
+            // @ts-expect-error EDITOR condition
             this.node.emit(SystemEventType.SIZE_CHANGED, clone);
         } else {
             this.node.emit(SystemEventType.SIZE_CHANGED);
@@ -398,7 +398,7 @@ export class UITransform extends Component {
 
         const canvas = this._canvas;
         if (!canvas) {
-            return;
+            return false;
         }
 
         // 将一个摄像机坐标系下的点转换到世界坐标系下
@@ -425,11 +425,12 @@ export class UITransform extends Component {
                 const mask = listener.mask;
                 let parent: any = this.node;
                 // find mask parent, should hit test it
-                for (let i = 0; parent && i < mask.index; ++i, parent = parent.parent) {
+                for (let i = 0; parent && i < mask.index; ++i) {
+                    parent = parent.parent;
                 }
                 if (parent === mask.node) {
                     const comp = parent.getComponent(legacyCC.Mask);
-                    return (comp && comp.enabledInHierarchy) ? comp.isHit(cameraPt) : true;
+                    return (comp && comp.enabledInHierarchy) ? comp.isHit(cameraPt) as boolean : true;
                 }
                 listener.mask = null;
                 return true;
@@ -610,24 +611,21 @@ export class UITransform extends Component {
         const l = 0.001;
         if (out != null) {
             AABB.set(out, px, py, pz, w, h, l);
+            return out;
         } else {
             return new AABB(px, py, pz, w, h, l);
         }
     }
 
     public _updateVisibility () {
-        let parent = this.node;
+        let parent: Node | null = this.node;
         // 获取被渲染相机的 visibility
         while (parent) {
-            if (parent) {
-                const canvasComp = parent.getComponent('cc.Canvas') as Canvas;
-                if (canvasComp) {
-                    this._canvas = canvasComp;
-                    break;
-                }
+            const canvasComp = parent.getComponent('cc.Canvas') as Canvas;
+            if (canvasComp) {
+                this._canvas = canvasComp;
+                break;
             }
-
-            // @ts-expect-error
             parent = parent.parent;
         }
     }
