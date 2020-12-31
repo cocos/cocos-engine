@@ -130,7 +130,7 @@ export class View extends EventTarget {
     private _devicePixelRatio: number;
     private _maxPixelRatio: number;
     private _retinaEnabled: boolean;
-    private _resizeCallback: Function | null;
+    private _resizeCallback: (() => void) | null;
     private _resizing: boolean;
     private _orientationChanging: boolean;
     private _isRotated: boolean;
@@ -146,7 +146,6 @@ export class View extends EventTarget {
     constructor () {
         super();
 
-        const _t = this;
         const _strategyer = ContainerStrategy;
         const _strategy = ContentStrategy;
 
@@ -252,7 +251,7 @@ export class View extends EventTarget {
      * 仅在 Web 平台下有效。
      * @param callback - The callback function
      */
-    public setResizeCallback (callback: Function | null) {
+    public setResizeCallback (callback: (()=> void) | null) {
         if (typeof callback === 'function' || callback == null) {
             this._resizeCallback = callback;
         }
@@ -471,26 +470,25 @@ export class View extends EventTarget {
      * @see {{ResolutionPolicy}}
      */
     public setResolutionPolicy (resolutionPolicy: ResolutionPolicy|number) {
-        const _t = this;
         if (resolutionPolicy instanceof ResolutionPolicy) {
-            _t._resolutionPolicy = resolutionPolicy;
+            this._resolutionPolicy = resolutionPolicy;
         } else {
             // Ensure compatibility with JSB
             const _locPolicy = ResolutionPolicy;
             if (resolutionPolicy === _locPolicy.EXACT_FIT) {
-                _t._resolutionPolicy = _t._rpExactFit;
+                this._resolutionPolicy = this._rpExactFit;
             }
             if (resolutionPolicy === _locPolicy.SHOW_ALL) {
-                _t._resolutionPolicy = _t._rpShowAll;
+                this._resolutionPolicy = this._rpShowAll;
             }
             if (resolutionPolicy === _locPolicy.NO_BORDER) {
-                _t._resolutionPolicy = _t._rpNoBorder;
+                this._resolutionPolicy = this._rpNoBorder;
             }
             if (resolutionPolicy === _locPolicy.FIXED_HEIGHT) {
-                _t._resolutionPolicy = _t._rpFixedHeight;
+                this._resolutionPolicy = this._rpFixedHeight;
             }
             if (resolutionPolicy === _locPolicy.FIXED_WIDTH) {
-                _t._resolutionPolicy = _t._rpFixedWidth;
+                this._resolutionPolicy = this._rpFixedWidth;
             }
         }
     }
