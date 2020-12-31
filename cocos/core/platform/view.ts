@@ -77,16 +77,22 @@ if (legacyCC.sys.os === legacyCC.sys.OS_IOS) { // All browsers are WebView
 }
 
 switch (__BrowserGetter.adaptationType) {
-    case legacyCC.sys.BROWSER_TYPE_SAFARI:
+    case legacyCC.sys.BROWSER_TYPE_SAFARI: {
         __BrowserGetter.meta['minimal-ui'] = 'true';
-    case legacyCC.sys.BROWSER_TYPE_SOUGOU:
         __BrowserGetter.availWidth = (frame) => { return frame.clientWidth; };
         __BrowserGetter.availHeight = (frame) => { return frame.clientHeight; };
         break;
-    case legacyCC.sys.BROWSER_TYPE_UC:
+    }
+    case legacyCC.sys.BROWSER_TYPE_SOUGOU: {
         __BrowserGetter.availWidth = (frame) => { return frame.clientWidth; };
         __BrowserGetter.availHeight = (frame) => { return frame.clientHeight; };
         break;
+    }
+    case legacyCC.sys.BROWSER_TYPE_UC: {
+        __BrowserGetter.availWidth = (frame) => { return frame.clientWidth; };
+        __BrowserGetter.availHeight = (frame) => { return frame.clientHeight; };
+        break;
+    }
     default :
         break;
 }
