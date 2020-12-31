@@ -850,7 +850,11 @@ export class TiledLayer extends UIRenderable {
         } else if (this._enableCulling) {
             this.node.updateWorldTransform();
             Mat4.invert(_mat4_temp, this.node.getWorldMatrix());
-            const camera = this.node._uiProps.uiTransformComp!._canvas!.camera;
+            const uitrans = this.node._uiProps.uiTransformComp;
+            let camera;
+            if (uitrans && uitrans._canvas && uitrans._canvas.cameraComponent) {
+                camera = uitrans._canvas.cameraComponent.camera;
+            }
             if (camera) {
                 _vec3_temp.x = 0;
                 _vec3_temp.y = 0;

@@ -114,13 +114,6 @@ replaceProperty(Canvas.prototype, 'Canvas.prototype', [
     },
 ]);
 
-replaceProperty(UITransform.prototype, 'UITransform.prototype', [
-    {
-        name: 'visibility',
-        newName: 'cameraVisibility',
-    },
-]);
-
 /**
  * Alias of [[UITransform]]
  * @deprecated Since v1.2

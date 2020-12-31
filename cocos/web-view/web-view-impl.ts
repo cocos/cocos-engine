@@ -92,7 +92,11 @@ export abstract class WebViewImpl {
     get webview () { return this._webview; }
     get state () { return this._state; }
     get UICamera () {
-        return this._uiTrans && this._uiTrans._canvas && this._uiTrans._canvas.camera;
+        if (this._uiTrans && this._uiTrans._canvas && this._uiTrans._canvas.cameraComponent) {
+            return this._uiTrans._canvas.cameraComponent.camera;
+        } else {
+            return null;
+        }
     }
 
     protected dispatchEvent (key: EventType, ...args: any[any]) {

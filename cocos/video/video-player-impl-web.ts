@@ -328,10 +328,10 @@ export class VideoPlayerImplWeb extends VideoPlayerImpl {
         if (!this._video || !this._visible || !this._component) return;
 
         const canvas = this.UICanvas;
-        if (!canvas) {
+        if (!canvas || !canvas.cameraComponent) {
             return;
         }
-        const camera = canvas.camera;
+        const camera = canvas.cameraComponent.camera;
         if (!camera) {
             return;
         }
@@ -343,18 +343,16 @@ export class VideoPlayerImplWeb extends VideoPlayerImpl {
         // use stayOnBottom
         if (this._dirty) {
             this._dirty = false;
-            if (canvas.camera) {
-                if (this._stayOnBottom) {
-                    this._clearColorA = canvas.camera.clearColor.w;
-                    this._clearFlag = canvas.camera.clearFlag;
-                    canvas.camera.clearColor.w = 0;
-                    canvas.camera.clearFlag = ClearFlag.ALL;
-                } else if (this._clearFlag) {
-                    canvas.camera.clearColor.w = this._clearColorA;
-                    canvas.camera.clearFlag = this._clearFlag;
-                    this._clearColorA = -1;
-                    this._clearFlag = null;
-                }
+            if (this._stayOnBottom) {
+                this._clearColorA = camera.clearColor.w;
+                this._clearFlag = camera.clearFlag;
+                camera.clearColor.w = 0;
+                camera.clearFlag = ClearFlag.ALL;
+            } else if (this._clearFlag) {
+                camera.clearColor.w = this._clearColorA;
+                camera.clearFlag = this._clearFlag;
+                this._clearColorA = -1;
+                this._clearFlag = null;
             }
         }
 

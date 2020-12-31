@@ -223,7 +223,11 @@ export class UITransform extends Component {
     /**
      * @en Get the visibility bit-mask of the rendering camera
      * @zh 查找被渲染相机的可见性掩码。
+     * @depreacted since v3.0, please use [cameraVisibility] instead
      */
+    get visibility () {
+        return this.cameraVisibility;
+    }
     get cameraVisibility () {
         if (this._canvas && this._canvas.cameraComponent) {
             return this._canvas.cameraComponent.visibility;
