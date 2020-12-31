@@ -800,7 +800,9 @@ export class View extends EventTarget {
             if (content.indexOf(key) === -1) {
                 content += `,${key}=${metas[key]}`;
             } else if (overwrite) {
-                pattern = new RegExp(`${key}\s*=\s*[^,]+`);
+                /* eslint-disable */
+                pattern = new RegExp(key + '\s*=\s*[^,]+');
+                /* eslint-disable */
                 content = content.replace(pattern, `${key}=${metas[key]}`);
             }
         }
