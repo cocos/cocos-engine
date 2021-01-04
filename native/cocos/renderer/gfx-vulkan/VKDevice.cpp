@@ -640,6 +640,8 @@ bool CCVKDevice::checkSwapchainStatus() {
     VkSwapchainKHR vkSwapchain = VK_NULL_HANDLE;
     VK_CHECK(vkCreateSwapchainKHR(_gpuDevice->vkDevice, &context->swapchainCreateInfo, nullptr, &vkSwapchain));
 
+    VK_CHECK(vkDeviceWaitIdle(_gpuDevice->vkDevice));
+
     destroySwapchain();
 
     _gpuDevice->curBackBufferIndex = 0u;
