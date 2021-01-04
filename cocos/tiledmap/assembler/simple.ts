@@ -75,11 +75,10 @@ export const simple: IAssembler = {
 
     updateRenderData (comp: TiledLayer, ui: UI) {
         comp.updateCulling();
-        const renderData = comp.meshRenderDataArray![0];
-
+        const renderData = comp.requestMeshRenderData();
         _moveX = comp.leftDownToCenterX;
         _moveY = comp.leftDownToCenterY;
-        _renderData = renderData as TiledMeshData;
+        _renderData = renderData;
 
         if (comp.colorChanged || comp.isCullingDirty() || comp.isUserNodeDirty() || comp.hasAnimation() || comp.hasTiledNode()) {
             comp.colorChanged = false;
