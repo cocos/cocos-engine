@@ -149,8 +149,9 @@ var _checkNextPeriod = false;
 
 var updateTime = function () {
     var now = Date.now();
-    // use deltaTime as period
-    if (now - _lastDate > cc.director._deltaTime * 1000) {
+    // use deltaTime as interval
+    let interval = cc.director._deltaTime > downloader._maxInterval ? downloader._maxInterval : cc.director._deltaTime;
+    if (now - _lastDate > interval * 1000) {
         _totalNumThisPeriod = 0;
         _lastDate = now;
     }
@@ -205,6 +206,7 @@ var handleQueue = function (maxConcurrency, maxRequestsPerFrame) {
 var downloader = {
 
     _remoteServerAddress: '',
+    _maxInterval: 1 / 30,
     
     /**
      * !#en 
