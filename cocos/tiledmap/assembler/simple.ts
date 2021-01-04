@@ -337,13 +337,13 @@ function switchRenderData (curTexIdx: Texture2D | null, grid: TiledGrid, comp: T
 function traverseGrids (leftDown: { col: number, row: number }, rightTop: { col: number, row: number },
     rowMoveDir: number, colMoveDir: number, comp: TiledLayer) {
     // show nothing
-    if (rightTop.row < 0 || rightTop.col < 0) return;
+    if (!_renderData || rightTop.row < 0 || rightTop.col < 0) return;
 
-    if (!_renderData!.renderData) {
+    if (!_renderData.renderData) {
         _renderData = comp.requestMeshRenderData();
     }
 
-    let vertexBuf: Float32Array = _renderData!.renderData.vData;
+    let vertexBuf: Float32Array = _renderData.renderData.vData;
     // let idxBuf: Uint16Array = _renderData!.renderData.iData;
 
     _fillGrids = 0;
@@ -494,10 +494,8 @@ function traverseGrids (leftDown: { col: number, row: number }, rightTop: { col:
                 vertexBuf.set(color, _vfOffset + vertStep + 5);
                 vertexBuf.set(color, _vfOffset + vertStep2 + 5);
                 vertexBuf.set(color, _vfOffset + vertStep3 + 5);
-            } else {
-                if(tiledNode.node.active) {
-                    fillByTiledNode(tiledNode.node, color, vertexBuf, left, right, top, bottom, diamondTile);
-                }
+            } else if (tiledNode.node.active) {
+                fillByTiledNode(tiledNode.node, color, vertexBuf, left, right, top, bottom, diamondTile);
             }
 
             flipTexture(grid, gid);

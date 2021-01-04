@@ -399,6 +399,8 @@ export class TiledLayer extends UIRenderable {
         this.node.parent!.on(SystemEventType.TRANSFORM_CHANGED, this.updateCulling, this);
         this.node.parent!.on(SystemEventType.SIZE_CHANGED, this.updateCulling, this);
         this.markForUpdateRenderData();
+        // delay 1 frame, since camera's matrix data is dirty
+        this.scheduleOnce(this.updateCulling.bind(this));
     }
 
     onDisable () {
@@ -866,8 +868,8 @@ export class TiledLayer extends UIRenderable {
                 camera.screenToWorld(_vec3_temp2, _vec3_temp2);
                 // camera.getScreenToWorldPoint(_vec2_temp, _vec2_temp);
                 // camera.getScreenToWorldPoint(_vec2_temp2, _vec2_temp2);
-                Vec2.transformMat4(_vec3_temp, _vec3_temp, _mat4_temp);
-                Vec2.transformMat4(_vec3_temp2, _vec3_temp2, _mat4_temp);
+                Vec3.transformMat4(_vec3_temp, _vec3_temp, _mat4_temp);
+                Vec3.transformMat4(_vec3_temp2, _vec3_temp2, _mat4_temp);
                 this.updateViewPort(_vec3_temp.x, _vec3_temp.y, _vec3_temp2.x - _vec3_temp.x, _vec3_temp2.y - _vec3_temp.y);
             }
         }
