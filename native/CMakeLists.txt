@@ -907,6 +907,8 @@ cocos_source_files(
     cocos/bindings/auto/jsb_extension_auto.h
     cocos/bindings/auto/jsb_gfx_auto.cpp
     cocos/bindings/auto/jsb_gfx_auto.h
+    cocos/bindings/auto/jsb_gfx_agent_auto.cpp
+    cocos/bindings/auto/jsb_gfx_agent_auto.h
     cocos/bindings/auto/jsb_network_auto.cpp
     cocos/bindings/auto/jsb_network_auto.h
     cocos/bindings/auto/jsb_pipeline_auto.cpp

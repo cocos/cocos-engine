@@ -151,6 +151,7 @@ def main():
                     'extension.ini' : ('extension', 'jsb_extension_auto'),
                     'network.ini' : ('network', 'jsb_network_auto'),
                     'gfx.ini': ('gfx', 'jsb_gfx_auto'),
+                    # 'gfx-agent.ini': ('gfx-agent', 'jsb_gfx_agent_auto'), # CRTP not supported, turned to manual
                     'gles2.ini': ('gles2', 'jsb_gles2_auto'),
                     'gles3.ini': ('gles3', 'jsb_gles3_auto'),
                     'metal.ini': ('metal', 'jsb_mtl_auto'),
@@ -170,7 +171,7 @@ def main():
             command = '%s -W ignore %s %s -s %s -t %s -o %s -n %s' % (python_bin, generator_py, cfg, args[0], target, output_dir, args[1])
             # tasks.append(_run_cmd(command))
             _run_cmd(command).communicate()
-        
+
         # for t in tasks:
         #     t.communicate()
 

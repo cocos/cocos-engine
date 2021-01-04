@@ -23,6 +23,8 @@ struct SubmitContext final {
 class CC_DLL DeviceAgent final : public Agent<Device> {
 public:
     using Agent::Agent;
+    DeviceAgent(Device *const actor) noexcept
+    : Agent(actor, nullptr) {}
     ~DeviceAgent() override;
 
     bool initialize(const DeviceInfo &info) override;
