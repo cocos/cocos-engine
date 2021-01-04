@@ -1,26 +1,25 @@
 #include "CoreStd.h"
 
-#include "threading/MessageQueue.h"
 #include "GFXBufferAgent.h"
 #include "GFXDescriptorSetAgent.h"
+#include "GFXDescriptorSetLayoutAgent.h"
 #include "GFXDeviceAgent.h"
-#include "GFXPipelineLayoutAgent.h"
 #include "GFXSamplerAgent.h"
 #include "GFXTextureAgent.h"
+#include "threading/MessageQueue.h"
 
 namespace cc {
 namespace gfx {
 
 bool DescriptorSetAgent::initialize(const DescriptorSetInfo &info) {
-    _layout = info.layout->getSetLayouts()[info.setIndex];
+    _layout = info.layout;
     uint descriptorCount = _layout->getDescriptorCount();
     _buffers.resize(descriptorCount);
     _textures.resize(descriptorCount);
     _samplers.resize(descriptorCount);
 
     DescriptorSetInfo actorInfo;
-    actorInfo.layout = ((PipelineLayoutAgent *)info.layout)->getActor();
-    actorInfo.setIndex = info.setIndex;
+    actorInfo.layout = ((DescriptorSetLayoutAgent *)info.layout)->getActor();
 
     ENQUEUE_MESSAGE_2(
         ((DeviceAgent *)_device)->getMessageQueue(),

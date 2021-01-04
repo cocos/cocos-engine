@@ -42,7 +42,7 @@ public:
 
     virtual void begin(RenderPass *renderPass, uint subpass, Framebuffer *frameBuffer, int submitIndex) override;
     virtual void end() override;
-    virtual void beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, int stencil, bool fromSecondaryCB) override;
+    virtual void beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, int stencil, uint32_t secondaryCBCount, const CommandBuffer *const *secondaryCBs) override;
     virtual void endRenderPass() override;
     virtual void bindPipelineState(PipelineState *pso) override;
     virtual void bindDescriptorSet(uint set, DescriptorSet *descriptorSet, uint dynamicOffsetCount, const uint *dynamicOffsets) override;
@@ -86,7 +86,7 @@ private:
     CCVKDepthBounds _curDepthBounds;
     CCVKStencilWriteMask _curStencilWriteMask;
     CCVKStencilCompareMask _curStencilCompareMask;
-    
+
     vector<VkCommandBuffer> _vkCommandBuffers;
     queue<VkCommandBuffer> _pendingQueue;
 };

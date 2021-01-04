@@ -22,7 +22,7 @@ public:
     virtual void destroy() override;
     virtual void begin(RenderPass *renderPass, uint subpass, Framebuffer *frameBuffer, int submitIndex) override;
     virtual void end() override;
-    virtual void beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, int stencil, const CommandBuffer *const *cmdBuffs, uint32_t count) override;
+    virtual void beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, int stencil, uint32_t secondaryCBCount, const CommandBuffer *const *secondaryCBs) override;
     virtual void endRenderPass() override;
     virtual void bindPipelineState(PipelineState *pso) override;
     virtual void bindDescriptorSet(uint set, DescriptorSet *descriptorSet, uint dynamicOffsetCount, const uint *dynamicOffsets) override;
@@ -43,13 +43,13 @@ public:
     virtual uint getNumDrawCalls() const override { return _actor->getNumDrawCalls(); }
     virtual uint getNumInstances() const override { return _actor->getNumInstances(); }
     virtual uint getNumTris() const override { return _actor->getNumTris(); }
-    
+
     CC_INLINE MessageQueue *getMessageQueue() { return _messageQueue; }
     LinearAllocatorPool *getAllocator();
 
 private:
     friend class DeviceAgent;
-    
+
     void initMessageQueue();
     void destroyMessageQueue();
     MessageQueue *_messageQueue = nullptr;

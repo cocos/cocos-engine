@@ -41,7 +41,7 @@ void QueueAgent::destroy() {
 
 void QueueAgent::submit(const CommandBuffer *const *cmdBuffs, uint count, Fence *fence) {
     if (!count) return;
-    
+
     LinearAllocatorPool *allocator = ((DeviceAgent *)_device)->getMainAllocator();
     const CommandBuffer **actorCmdBuffs = allocator->allocate<const CommandBuffer *>(count);
     for (uint i = 0u; i < count; ++i) {
@@ -72,13 +72,6 @@ void QueueAgent::submit(const CommandBuffer *const *cmdBuffs, uint count, Fence 
             //CC_LOG_INFO("---------- %.2fms", timeAcc);
 
             //CC_LOG_INFO("======== one round ========");
-
-            auto endTime = std::chrono::steady_clock::now();
-            float dt = std::chrono::duration_cast<std::chrono::nanoseconds>(endTime - startTime).count() / 1e6;
-            static float timeAcc = 0.f;
-            if (!timeAcc) timeAcc = dt;
-            else timeAcc = timeAcc * 0.95f + dt * 0.05f;
-            CC_LOG_INFO("---------- %.2fms", timeAcc);
 
             actor->submit(actorCmdBuffs, count, fence);
         });

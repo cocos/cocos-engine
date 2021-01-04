@@ -63,6 +63,7 @@ private:
     NSMutableArray *_dynamicDataBuffers = nil;
     bool _tripleEnabled = true;
     bool _isDrawIndirectByIndex = false;
+    bool _isIndirectDrawSupported = false;
     uint _bufferViewOffset = 0;
 
     bool _isDrawIndirectByIndex = false;

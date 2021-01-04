@@ -44,6 +44,7 @@ CCVKDescriptorSet::~CCVKDescriptorSet() {
 }
 
 bool CCVKDescriptorSet::initialize(const DescriptorSetInfo &info) {
+
     _layout = info.layout;
 
     CCVKGPUDescriptorSetLayout *gpuDescriptorSetLayout = ((CCVKDescriptorSetLayout *)_layout)->gpuDescriptorSetLayout();

@@ -15,10 +15,10 @@ Device *Device::getInstance() {
 Device::Device() {
     Device::_instance = this;
     memset(_features, 0, sizeof(_features));
-    EventDispatcher::addCustomEventListener(EVENT_RESTART_VM, [=](const CustomEvent&) -> void {
-        // FIXME: wait & flush all pending gfx commands
-        Device::_instance->destroy();
-    });
+    //EventDispatcher::addCustomEventListener(EVENT_RESTART_VM, [=](const CustomEvent&) -> void {
+    //    // FIXME: wait & flush all pending gfx commands
+    //    Device::_instance->destroy();
+    //});
 }
 
 Device::~Device() {

@@ -899,33 +899,6 @@ private:
         }
     }
 
-    void erase(CCVKGPUBuffer *gpuBuffer) {
-        for (uint i = 0u; i < _device->backBufferCount; ++i) {
-            if (_buffersToBeUpdated[i].count(gpuBuffer)) {
-                _buffersToBeUpdated[i].erase(gpuBuffer);
-            }
-        }
-    }
-
-    void flush() {
-        unordered_map<CCVKGPUBuffer *, BufferUpdate> &buffers = _buffersToBeUpdated[_device->curBackBufferIndex];
-        for (unordered_map<CCVKGPUBuffer *, BufferUpdate>::iterator it = buffers.begin(); it != buffers.end(); ++it) {
-            update(it->first, it->second.src, it->second.size);
-        }
-        buffers.clear();
-    }
-
-private:
-    struct BufferUpdate {
-        const void *src = nullptr;
-        size_t size = 0u;
-    };
-    uint8_t *update(CCVKGPUBuffer *gpuBuffer, const void *src, size_t size) {
-        uint8_t *dst = gpuBuffer->mappedData + _device->curBackBufferIndex * gpuBuffer->instanceSize;
-        memcpy(dst, src, size);
-        return dst;
-    }
-
     CCVKGPUDevice *_device = nullptr;
     vector<unordered_set<CCVKGPUDescriptorSet *>> _setsToBeUpdated;
 };

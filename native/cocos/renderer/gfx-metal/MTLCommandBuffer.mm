@@ -94,7 +94,7 @@ bool CCMTLCommandBuffer::isRenderingEntireDrawable(const Rect &rect, const CCMTL
 
 void CCMTLCommandBuffer::begin(RenderPass *renderPass, uint subpass, Framebuffer *frameBuffer, int submitIndex) {
     if (_commandBufferBegan) return;
-    
+
     tar::cbAutoreleasePool = [[NSAutoreleasePool alloc] init];
 //    CC_LOG_INFO("%d CB POOL: %p ALLOCED for %p", [NSThread currentThread], tar::cbAutoreleasePool,  this);
 
@@ -121,7 +121,7 @@ void CCMTLCommandBuffer::begin(RenderPass *renderPass, uint subpass, Framebuffer
 void CCMTLCommandBuffer::end() {
     if (!_commandBufferBegan) return;
     _commandBufferBegan = false;
-    
+
     if (_isSecondary)
     {
         // Secondary command buffer should end encoding here
@@ -141,14 +141,14 @@ bool CCMTLCommandBuffer::isRenderingEntireDrawable(const Rect &rect, const CCMTL
     }
 }
 
-void CCMTLCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, int stencil, const CommandBuffer *const *cmdBuffs, uint32_t count)
+void CCMTLCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, int stencil, uint32_t secondaryCBCount, const CommandBuffer *const *secondaryCBs)
 {
     // Sub CommandBuffer shouldn't call begin render pass
     if (_isSecondary)
     {
         return;
     }
-    
+
     auto isOffscreen = static_cast<CCMTLFramebuffer *>(fbo)->isOffscreen();
     if (!isOffscreen) {
         static_cast<CCMTLRenderPass *>(renderPass)->setColorAttachment(0, _mtkView.currentDrawable.texture, 0);
