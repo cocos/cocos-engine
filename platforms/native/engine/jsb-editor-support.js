@@ -70,6 +70,9 @@
             vBuf.set(srcVBuf.subarray(0, srcVertexFloatCount), 0);
             iBuf.set(srcIBuf.subarray(0, srcIndicesCount), 0);
 
+            // forbid js upload data, call by middleware
+            buffer.uploadBuffers();
+            buffer._dirty = false;
             // forbid auto merge, because of it's meanless
             buffer.indicesOffset = 0;
             renderInfoLookup[nativeFormat][i] = buffer;

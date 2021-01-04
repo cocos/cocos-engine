@@ -324,6 +324,16 @@ export class UI {
             this._drawBatchPool.free(batch);
         }
 
+        const buffers = this._meshBuffers;
+        for (const i of buffers.keys()) {
+            const list = buffers.get(i);
+            if (list) {
+                list.forEach((bb) => {
+                    bb.reset();
+                });
+            }
+        }
+
         this._parentOpacity = 1;
         this._currMaterial = this._emptyMaterial;
         this._currCanvas = null;
