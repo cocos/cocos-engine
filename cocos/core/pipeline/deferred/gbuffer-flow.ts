@@ -67,7 +67,7 @@ export class GbufferFlow extends RenderFlow {
         if(!this._gbufferRenderPass) {
 
             const colorAttachment0 = new ColorAttachment();
-            colorAttachment0.format = Format.RGBA32F;
+            colorAttachment0.format = Format.RGBA16F;
             colorAttachment0.loadOp = LoadOp.CLEAR; // should clear color attachment
             colorAttachment0.storeOp = StoreOp.STORE;
             colorAttachment0.sampleCount = 1;
@@ -75,7 +75,7 @@ export class GbufferFlow extends RenderFlow {
             colorAttachment0.endLayout = TextureLayout.COLOR_ATTACHMENT_OPTIMAL;
 
             const colorAttachment1 = new ColorAttachment();
-            colorAttachment1.format = Format.RGBA32F;
+            colorAttachment1.format = Format.RGBA16F;
             colorAttachment1.loadOp = LoadOp.CLEAR; // should clear color attachment
             colorAttachment1.storeOp = StoreOp.STORE;
             colorAttachment1.sampleCount = 1;
@@ -83,7 +83,7 @@ export class GbufferFlow extends RenderFlow {
             colorAttachment1.endLayout = TextureLayout.COLOR_ATTACHMENT_OPTIMAL;
 
             const colorAttachment2 = new ColorAttachment();
-            colorAttachment2.format = Format.RGBA32F;
+            colorAttachment2.format = Format.RGBA16F;
             colorAttachment2.loadOp = LoadOp.CLEAR; // should clear color attachment
             colorAttachment2.storeOp = StoreOp.STORE;
             colorAttachment2.sampleCount = 1;
@@ -91,7 +91,7 @@ export class GbufferFlow extends RenderFlow {
             colorAttachment2.endLayout = TextureLayout.COLOR_ATTACHMENT_OPTIMAL;
 
             const colorAttachment3 = new ColorAttachment();
-            colorAttachment3.format = Format.RGBA32F;
+            colorAttachment3.format = Format.RGBA16F;
             colorAttachment3.loadOp = LoadOp.CLEAR; // should clear color attachment
             colorAttachment3.storeOp = StoreOp.STORE;
             colorAttachment3.sampleCount = 1;
@@ -116,28 +116,28 @@ export class GbufferFlow extends RenderFlow {
             this._gbufferRenderTargets.push(device.createTexture(new TextureInfo(
                 TextureType.TEX2D,
                 TextureUsageBit.COLOR_ATTACHMENT | TextureUsageBit.SAMPLED,
-                Format.RGBA32F,
+                Format.RGBA16F,
                 this._width,
                 this._height,
             )));
             this._gbufferRenderTargets.push(device.createTexture(new TextureInfo(
                 TextureType.TEX2D,
                 TextureUsageBit.COLOR_ATTACHMENT | TextureUsageBit.SAMPLED,
-                Format.RGBA32F,
+                Format.RGBA16F,
                 this._width,
                 this._height,
             )));
             this._gbufferRenderTargets.push(device.createTexture(new TextureInfo(
                 TextureType.TEX2D,
                 TextureUsageBit.COLOR_ATTACHMENT | TextureUsageBit.SAMPLED,
-                Format.RGBA32F,
+                Format.RGBA16F,
                 this._width,
                 this._height,
             )));
             this._gbufferRenderTargets.push(device.createTexture(new TextureInfo(
                 TextureType.TEX2D,
                 TextureUsageBit.COLOR_ATTACHMENT | TextureUsageBit.SAMPLED,
-                Format.RGBA32F,
+                Format.RGBA16F,
                 this._width,
                 this._height,
             )));

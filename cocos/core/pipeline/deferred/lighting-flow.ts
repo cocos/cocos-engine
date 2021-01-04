@@ -64,7 +64,7 @@ export class LightingFlow extends RenderFlow {
 
         if(!this._lightingRenderPass) {
             const colorAttachment = new ColorAttachment();
-            colorAttachment.format = Format.RGBA32F;
+            colorAttachment.format = Format.RGBA16F;
             colorAttachment.loadOp = LoadOp.CLEAR; // should clear color attachment
             colorAttachment.storeOp = StoreOp.STORE;
             colorAttachment.sampleCount = 1;
@@ -89,7 +89,7 @@ export class LightingFlow extends RenderFlow {
             this._lightingRenderTargets.push(device.createTexture(new TextureInfo(
                 TextureType.TEX2D,
                 TextureUsageBit.COLOR_ATTACHMENT | TextureUsageBit.SAMPLED,
-                Format.RGBA32F,
+                Format.RGBA16F,
                 this._width,
                 this._height,
             )));
