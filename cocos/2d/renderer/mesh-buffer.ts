@@ -115,8 +115,6 @@ export class MeshBuffer {
         const indicesOffset = this.indicesOffset + indicesCount;
 
         if (vertexCount + this.vertexOffset > 65535) {
-            // merge last state
-            this._batcher.autoMergeBatches();
             if (this._outOfCallback) {
                 this._outOfCallback.call(this._batcher, vertexCount, indicesCount);
             }

@@ -521,6 +521,7 @@ const cacheManager = require('./jsb-cache-manager');
         }
         this.syncTransform(true);
         this._flushAssembler();
+        middleware.retain();
     };
 
     let _onDisable = superProto.onDisable;
@@ -529,6 +530,7 @@ const cacheManager = require('./jsb-cache-manager');
         if (this._armature && !this.isAnimationCached()) {
             this._factory.remove(this._armature);
         }
+        middleware.release();
     };
 
     armatureDisplayProto.once = function (eventType, listener, target) {
