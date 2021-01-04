@@ -53,7 +53,9 @@ function load (task, done) {
             onComplete: function (err, item) {
                 if (err && !task.isFinish) {
                     if (!cc.assetManager.force || firstTask) {
-                        cc.error(err.message, err.stack);
+                        if (!CC_EDITOR) {
+                            cc.error(err.message, err.stack);
+                        }
                         progress.canInvoke = false;
                         done(err);
                     }
