@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Event.h"
-#include "concurrentqueue.h"
+#include "concurrentqueue/concurrentqueue.h"
 #include <cstdint>
 
 namespace cc {

@@ -1,6 +1,6 @@
 #include "CoreStd.h"
 
-#include "threading/MessageQueue.h"
+#include "base/threading/MessageQueue.h"
 #include "GFXDeviceAgent.h"
 #include "GFXFramebufferAgent.h"
 #include "GFXRenderPassAgent.h"
@@ -8,6 +8,16 @@
 
 namespace cc {
 namespace gfx {
+
+FramebufferAgent::~FramebufferAgent() {
+    ENQUEUE_MESSAGE_1(
+        ((DeviceAgent *)_device)->getMessageQueue(),
+        FramebufferDestruct,
+        actor, _actor,
+        {
+            CC_DELETE(actor);
+        });
+}
 
 bool FramebufferAgent::initialize(const FramebufferInfo &info) {
     _renderPass = info.renderPass;
@@ -38,17 +48,13 @@ bool FramebufferAgent::initialize(const FramebufferInfo &info) {
 }
 
 void FramebufferAgent::destroy() {
-    if (_actor) {
-        ENQUEUE_MESSAGE_1(
-            ((DeviceAgent *)_device)->getMessageQueue(),
-            FramebufferDestroy,
-            actor, getActor(),
-            {
-                CC_DESTROY(actor);
-            });
-
-        _actor = nullptr;
-    }
+    ENQUEUE_MESSAGE_1(
+        ((DeviceAgent *)_device)->getMessageQueue(),
+        FramebufferDestroy,
+        actor, getActor(),
+        {
+            actor->destroy();
+        });
 }
 
 } // namespace gfx

@@ -1,11 +1,21 @@
 #include "CoreStd.h"
 
-#include "threading/MessageQueue.h"
+#include "base/threading/MessageQueue.h"
 #include "GFXDeviceAgent.h"
 #include "GFXDescriptorSetLayoutAgent.h"
 
 namespace cc {
 namespace gfx {
+
+DescriptorSetLayoutAgent::~DescriptorSetLayoutAgent() {
+    ENQUEUE_MESSAGE_1(
+        ((DeviceAgent *)_device)->getMessageQueue(),
+        DescriptorSetLayoutDestruct,
+        actor, _actor,
+        {
+            CC_DELETE(actor);
+        });
+}
 
 bool DescriptorSetLayoutAgent::initialize(const DescriptorSetLayoutInfo &info) {
 
@@ -45,17 +55,13 @@ bool DescriptorSetLayoutAgent::initialize(const DescriptorSetLayoutInfo &info) {
 }
 
 void DescriptorSetLayoutAgent::destroy() {
-    if (_actor) {
-        ENQUEUE_MESSAGE_1(
-            ((DeviceAgent *)_device)->getMessageQueue(),
-            DescriptorSetLayoutDestroy,
-            actor, getActor(),
-            {
-                CC_DESTROY(actor);
-            });
-
-        _actor = nullptr;
-    }
+    ENQUEUE_MESSAGE_1(
+        ((DeviceAgent *)_device)->getMessageQueue(),
+        DescriptorSetLayoutDestroy,
+        actor, getActor(),
+        {
+            actor->destroy();
+        });
 }
 
 } // namespace gfx

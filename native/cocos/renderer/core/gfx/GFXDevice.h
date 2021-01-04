@@ -51,7 +51,7 @@ public:
     CC_INLINE PipelineLayout *createPipelineLayout(const PipelineLayoutInfo &info) { PipelineLayout *res = createPipelineLayout(); res->initialize(info); return res; }
     CC_INLINE PipelineState *createPipelineState(const PipelineStateInfo &info) { PipelineState *res = createPipelineState(); res->initialize(info); return res; }
     CC_INLINE void copyBuffersToTexture(const BufferDataList &buffers, Texture *dst, const BufferTextureCopyList &regions) {
-        copyBuffersToTexture(buffers.data(), dst, regions.data(), static_cast<uint>(regions.size()) );
+        copyBuffersToTexture(buffers.data(), dst, regions.data(), static_cast<uint>(regions.size()));
     }
 
     virtual void setMultithreaded(bool multithreaded) {}

@@ -1,7 +1,7 @@
 #include "CoreStd.h"
 
-#include "job-system/JobSystem.h"
-#include "threading/MessageQueue.h"
+#include "base/job-system/JobSystem.h"
+#include "base/threading/MessageQueue.h"
 #include "GFXBufferAgent.h"
 #include "GFXCommandBufferAgent.h"
 #include "GFXDescriptorSetAgent.h"
@@ -35,6 +35,16 @@ void CommandBufferAgent::flushCommands(CommandBufferAgent *const *cmdBuffs, uint
     } else {
         cmdBuffs[0]->getMessageQueue()->flushMessages();
     }
+}
+
+CommandBufferAgent::~CommandBufferAgent() {
+    ENQUEUE_MESSAGE_1(
+        ((DeviceAgent *)_device)->getMessageQueue(),
+        CommandBufferDestruct,
+        actor, _actor,
+        {
+            CC_DELETE(actor);
+        });
 }
 
 void CommandBufferAgent::initMessageQueue() {
@@ -86,17 +96,14 @@ bool CommandBufferAgent::initialize(const CommandBufferInfo &info) {
 
 void CommandBufferAgent::destroy() {
     destroyMessageQueue();
-    if (_actor) {
-        ENQUEUE_MESSAGE_1(
-            ((DeviceAgent *)_device)->getMessageQueue(),
-            CommandBufferDestroy,
-            actor, getActor(),
-            {
-                CC_DESTROY(actor);
-            });
 
-        _actor = nullptr;
-    }
+    ENQUEUE_MESSAGE_1(
+        ((DeviceAgent *)_device)->getMessageQueue(),
+        CommandBufferDestroy,
+        actor, getActor(),
+        {
+            actor->destroy();
+        });
 }
 
 void CommandBufferAgent::begin(RenderPass *renderPass, uint subpass, Framebuffer *frameBuffer, int submitIndex) {
@@ -171,9 +178,14 @@ void CommandBufferAgent::endRenderPass() {
 void CommandBufferAgent::execute(const CommandBuffer *const *cmdBuffs, uint32_t count) {
     if (!count) return;
 
-    const CommandBuffer **actorCmdBuffs = _messageQueue->allocate<const CommandBuffer *>(count);
+    const CommandBuffer **actorCmdBuffs = getAllocator()->allocate<const CommandBuffer *>(count);
     for (uint i = 0; i < count; ++i) {
         actorCmdBuffs[i] = ((CommandBufferAgent *)cmdBuffs[i])->getActor();
+    }
+
+    const CommandBufferAgent **agentCmdBuffs = getAllocator()->allocate<const CommandBufferAgent *>(count);
+    for (uint i = 0; i < count; ++i) {
+        agentCmdBuffs[i] = (CommandBufferAgent *)cmdBuffs[i];
     }
 
     bool multiThreaded = _device->hasFeature(Feature::MULTITHREADED_SUBMISSION);
@@ -182,7 +194,7 @@ void CommandBufferAgent::execute(const CommandBuffer *const *cmdBuffs, uint32_t 
         _messageQueue,
         CommandBufferExecute,
         actor, getActor(),
-        cmdBuffs, (CommandBufferAgent *const *)cmdBuffs,
+        cmdBuffs, (CommandBufferAgent *const *)agentCmdBuffs,
         actorCmdBuffs, actorCmdBuffs,
         count, count,
         multiThreaded, multiThreaded,

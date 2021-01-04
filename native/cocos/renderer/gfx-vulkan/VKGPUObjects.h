@@ -313,10 +313,10 @@ public:
 
     CCVKGPUSwapchain *swapchain = nullptr; // reference
 
-    /* *
+    /* */
     using CommandBufferPools = tbb::concurrent_unordered_map<
         std::thread::id, CCVKGPUCommandBufferPool *, std::hash<std::thread::id>>;
-    /* */
+    /* *
     using CommandBufferPools = unordered_map<std::thread::id, CCVKGPUCommandBufferPool *>;
     std::mutex mutex;
     /* */

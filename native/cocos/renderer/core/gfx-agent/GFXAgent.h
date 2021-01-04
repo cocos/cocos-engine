@@ -10,10 +10,10 @@ class CC_DLL Agent : public Actor {
 public:
     Agent() noexcept = delete;
 
-    explicit Agent(Actor *const actor, Device *const device) noexcept
+    Agent(Actor *const actor, Device *const device) noexcept
     : Actor(device), _actor(actor) {}
 
-    virtual ~Agent() {}
+    ~Agent() override {}
 
     Agent(Agent const &) = delete;
 
@@ -26,7 +26,7 @@ public:
     inline Actor *getActor() const noexcept { return _actor; }
 
 protected:
-    Actor * _actor{nullptr};
+    Actor *_actor{nullptr};
 };
 
 } // namespace gfx

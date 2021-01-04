@@ -1,11 +1,21 @@
 #include "CoreStd.h"
 
-#include "threading/MessageQueue.h"
+#include "base/threading/MessageQueue.h"
 #include "GFXDeviceAgent.h"
 #include "GFXShaderAgent.h"
 
 namespace cc {
 namespace gfx {
+
+ShaderAgent::~ShaderAgent() {
+    ENQUEUE_MESSAGE_1(
+        ((DeviceAgent *)_device)->getMessageQueue(),
+        ShaderDestruct,
+        actor, _actor,
+        {
+            CC_DELETE(actor);
+        });
+}
 
 bool ShaderAgent::initialize(const ShaderInfo &info) {
     _name = info.name;
@@ -27,17 +37,13 @@ bool ShaderAgent::initialize(const ShaderInfo &info) {
 }
 
 void ShaderAgent::destroy() {
-    if (_actor) {
-        ENQUEUE_MESSAGE_1(
-            ((DeviceAgent *)_device)->getMessageQueue(),
-            ShaderDestroy,
-            actor, getActor(),
-            {
-                CC_DESTROY(actor);
-            });
-
-        _actor = nullptr;
-    }
+    ENQUEUE_MESSAGE_1(
+        ((DeviceAgent *)_device)->getMessageQueue(),
+        ShaderDestroy,
+        actor, getActor(),
+        {
+            actor->destroy();
+        });
 }
 
 } // namespace gfx

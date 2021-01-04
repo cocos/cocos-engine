@@ -10,9 +10,10 @@ class CC_DLL SamplerAgent final : public Agent<Sampler> {
 public:
     using Agent::Agent;
     SamplerAgent(Device *device) = delete;
+    ~SamplerAgent() override;
 
-    virtual bool initialize(const SamplerInfo &info) override;
-    virtual void destroy() override;
+    bool initialize(const SamplerInfo &info) override;
+    void destroy() override;
 };
 
 } // namespace gfx

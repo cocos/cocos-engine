@@ -1,12 +1,22 @@
 #include "CoreStd.h"
 
-#include "threading/MessageQueue.h"
+#include "base/threading/MessageQueue.h"
 #include "GFXBufferAgent.h"
 #include "GFXDeviceAgent.h"
 #include "GFXLinearAllocatorPool.h"
 
 namespace cc {
 namespace gfx {
+
+BufferAgent::~BufferAgent() {
+    ENQUEUE_MESSAGE_1(
+        ((DeviceAgent *)_device)->getMessageQueue(),
+        BufferDestruct,
+        actor, _actor,
+        {
+            CC_DELETE(actor);
+        });
+}
 
 bool BufferAgent::initialize(const BufferInfo &info) {
     _usage = info.usage;
@@ -52,17 +62,13 @@ bool BufferAgent::initialize(const BufferViewInfo &info) {
 }
 
 void BufferAgent::destroy() {
-    if (_actor) {
-        ENQUEUE_MESSAGE_1(
-            ((DeviceAgent *)_device)->getMessageQueue(),
-            BufferDestroy,
-            actor, getActor(),
-            {
-                CC_DESTROY(actor);
-            });
-
-        _actor = nullptr;
-    }
+    ENQUEUE_MESSAGE_1(
+        ((DeviceAgent *)_device)->getMessageQueue(),
+        BufferDestroy,
+        actor, getActor(),
+        {
+            actor->destroy();
+        });
 }
 
 void BufferAgent::update(void *buffer, uint size) {

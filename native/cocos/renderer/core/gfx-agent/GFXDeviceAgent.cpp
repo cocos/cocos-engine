@@ -1,10 +1,9 @@
 #include "CoreStd.h"
 
-#include "threading/MessageQueue.h"
 #include "GFXBufferAgent.h"
 #include "GFXCommandBufferAgent.h"
-#include "GFXDescriptorSetLayoutAgent.h"
 #include "GFXDescriptorSetAgent.h"
+#include "GFXDescriptorSetLayoutAgent.h"
 #include "GFXDeviceAgent.h"
 #include "GFXFramebufferAgent.h"
 #include "GFXInputAssemblerAgent.h"
@@ -16,9 +15,14 @@
 #include "GFXSamplerAgent.h"
 #include "GFXShaderAgent.h"
 #include "GFXTextureAgent.h"
+#include "base/threading/MessageQueue.h"
 
 namespace cc {
 namespace gfx {
+
+DeviceAgent::~DeviceAgent() {
+    CC_SAFE_DELETE(_actor);
+}
 
 bool DeviceAgent::initialize(const DeviceInfo &info) {
     _clipSpaceMinZ = _actor->getClipSpaceMinZ();
@@ -79,17 +83,13 @@ bool DeviceAgent::initialize(const DeviceInfo &info) {
 }
 
 void DeviceAgent::destroy() {
-    if (_actor) {
-        ENQUEUE_MESSAGE_1(
-            getMessageQueue(),
-            DeviceDestroy,
-            actor, getActor(),
-            {
-                CC_DESTROY(actor);
-            });
-
-        _actor = nullptr;
-    }
+    ENQUEUE_MESSAGE_1(
+        getMessageQueue(),
+        DeviceDestroy,
+        actor, getActor(),
+        {
+            actor->destroy();
+        });
 
     ((CommandBufferAgent *)_cmdBuff)->destroyMessageQueue();
     CC_SAFE_DELETE(_cmdBuff);
@@ -146,7 +146,7 @@ void DeviceAgent::present() {
     _frameBoundarySemaphore.Wait();
 
     getMainAllocator()->reset();
-    for (LinearAllocatorPool **allocatorPools: _allocatorPoolRefs) {
+    for (LinearAllocatorPool **allocatorPools : _allocatorPoolRefs) {
         allocatorPools[_currentIndex]->reset();
     }
 }

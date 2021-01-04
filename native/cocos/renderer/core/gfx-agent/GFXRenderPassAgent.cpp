@@ -1,11 +1,21 @@
 #include "CoreStd.h"
 
-#include "threading/MessageQueue.h"
+#include "base/threading/MessageQueue.h"
 #include "GFXDeviceAgent.h"
 #include "GFXRenderPassAgent.h"
 
 namespace cc {
 namespace gfx {
+
+RenderPassAgent::~RenderPassAgent(){
+    ENQUEUE_MESSAGE_1(
+        ((DeviceAgent *)_device)->getMessageQueue(),
+        RenderPassDestruct,
+        actor, _actor,
+        {
+            CC_DELETE(actor);
+        });
+}
 
 bool RenderPassAgent::initialize(const RenderPassInfo &info) {
 
@@ -27,17 +37,13 @@ bool RenderPassAgent::initialize(const RenderPassInfo &info) {
 }
 
 void RenderPassAgent::destroy() {
-    if (_actor) {
-        ENQUEUE_MESSAGE_1(
-            ((DeviceAgent *)_device)->getMessageQueue(),
-            RenderPassDestroy,
-            actor, getActor(),
-            {
-                CC_DESTROY(actor);
-            });
-
-        _actor = nullptr;
-    }
+    ENQUEUE_MESSAGE_1(
+        ((DeviceAgent *)_device)->getMessageQueue(),
+        RenderPassDestroy,
+        actor, getActor(),
+        {
+            actor->destroy();
+        });
 }
 
 } // namespace gfx

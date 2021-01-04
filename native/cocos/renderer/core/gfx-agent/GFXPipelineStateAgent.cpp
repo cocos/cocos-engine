@@ -1,6 +1,6 @@
 #include "CoreStd.h"
 
-#include "threading/MessageQueue.h"
+#include "base/threading/MessageQueue.h"
 #include "GFXDeviceAgent.h"
 #include "GFXPipelineLayoutAgent.h"
 #include "GFXPipelineStateAgent.h"
@@ -9,6 +9,16 @@
 
 namespace cc {
 namespace gfx {
+
+PipelineStateAgent::~PipelineStateAgent() {
+    ENQUEUE_MESSAGE_1(
+        ((DeviceAgent *)_device)->getMessageQueue(),
+        PipelineStateDestruct,
+        actor, _actor,
+        {
+            CC_DELETE(actor);
+        });
+}
 
 bool PipelineStateAgent::initialize(const PipelineStateInfo &info) {
     _primitive = info.primitive;
@@ -39,17 +49,13 @@ bool PipelineStateAgent::initialize(const PipelineStateInfo &info) {
 }
 
 void PipelineStateAgent::destroy() {
-    if (_actor) {
-        ENQUEUE_MESSAGE_1(
-            ((DeviceAgent *)_device)->getMessageQueue(),
-            PipelineStateDestroy,
-            actor, getActor(),
-            {
-                CC_DESTROY(actor);
-            });
-
-        _actor = nullptr;
-    }
+    ENQUEUE_MESSAGE_1(
+        ((DeviceAgent *)_device)->getMessageQueue(),
+        PipelineStateDestroy,
+        actor, getActor(),
+        {
+            actor->destroy();
+        });
 }
 
 } // namespace gfx

@@ -10,9 +10,10 @@ class CC_DLL RenderPassAgent final : public Agent<RenderPass> {
 public:
     using Agent::Agent;
     RenderPassAgent(Device *device) = delete;
+    ~RenderPassAgent() override;
 
-    virtual bool initialize(const RenderPassInfo &info) override;
-    virtual void destroy() override;
+    bool initialize(const RenderPassInfo &info) override;
+    void destroy() override;
 };
 
 } // namespace gfx

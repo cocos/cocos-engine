@@ -50,7 +50,7 @@ endif()
 # set c++ standard
 set(CMAKE_C_STANDARD 99)
 set(CMAKE_C_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
@@ -320,6 +320,18 @@ cocos_source_files(
     cocos/base/memory/NedPooling.h
     cocos/base/memory/StdAlloc.h
     cocos/base/memory/StlAlloc.h
+    cocos/base/threading/ConditionVariable.h
+    cocos/base/threading/ConditionVariable.cpp
+    cocos/base/threading/Event.h
+    cocos/base/threading/MessageQueue.h
+    cocos/base/threading/MessageQueue.cpp
+    cocos/base/threading/Semaphore.h
+    cocos/base/threading/Semaphore.cpp
+    cocos/base/threading/ThreadPool.h
+    cocos/base/threading/ThreadPool.cpp
+    cocos/base/threading/ThreadSafeCounter.h
+    cocos/base/threading/ThreadSafeLinearAllocator.h
+    cocos/base/threading/ThreadSafeLinearAllocator.cpp
     cocos/base/Object.h
     cocos/base/TypeDef.h
     cocos/base/uthash.h
@@ -330,6 +342,21 @@ cocos_source_files(
     cocos/base/UTFString.h
     cocos/base/ZipUtils.cpp
     cocos/base/ZipUtils.h
+)
+
+##### job system
+cocos_source_files(
+    cocos/base/job-system/JobSystem.h
+
+    cocos/base/job-system/job-system-taskflow/TFJobGraph.h
+    cocos/base/job-system/job-system-taskflow/TFJobGraph.cpp
+    cocos/base/job-system/job-system-taskflow/TFJobSystem.h
+    cocos/base/job-system/job-system-taskflow/TFJobSystem.cpp
+
+    cocos/base/job-system/job-system-tbb/TBBJobGraph.h
+    cocos/base/job-system/job-system-tbb/TBBJobGraph.cpp
+    cocos/base/job-system/job-system-tbb/TBBJobSystem.h
+    cocos/base/job-system/job-system-tbb/TBBJobSystem.cpp
 )
 
 ##### math
@@ -567,6 +594,36 @@ cocos_source_files(
     cocos/renderer/core/gfx/GFXTexture.h
     cocos/renderer/core/gfx/GFXFence.h
     cocos/renderer/core/gfx/GFXFence.cpp
+    cocos/renderer/core/gfx-agent/GFXAgent.h
+    cocos/renderer/core/gfx-agent/GFXBufferAgent.h
+    cocos/renderer/core/gfx-agent/GFXBufferAgent.cpp
+    cocos/renderer/core/gfx-agent/GFXCommandBufferAgent.h
+    cocos/renderer/core/gfx-agent/GFXCommandBufferAgent.cpp
+    cocos/renderer/core/gfx-agent/GFXDescriptorSetAgent.h
+    cocos/renderer/core/gfx-agent/GFXDescriptorSetAgent.cpp
+    cocos/renderer/core/gfx-agent/GFXDescriptorSetLayoutAgent.h
+    cocos/renderer/core/gfx-agent/GFXDescriptorSetLayoutAgent.cpp
+    cocos/renderer/core/gfx-agent/GFXDeviceAgent.h
+    cocos/renderer/core/gfx-agent/GFXDeviceAgent.cpp
+    cocos/renderer/core/gfx-agent/GFXFramebufferAgent.h
+    cocos/renderer/core/gfx-agent/GFXFramebufferAgent.cpp
+    cocos/renderer/core/gfx-agent/GFXInputAssemblerAgent.h
+    cocos/renderer/core/gfx-agent/GFXInputAssemblerAgent.cpp
+    cocos/renderer/core/gfx-agent/GFXLinearAllocatorPool.h
+    cocos/renderer/core/gfx-agent/GFXPipelineLayoutAgent.h
+    cocos/renderer/core/gfx-agent/GFXPipelineLayoutAgent.cpp
+    cocos/renderer/core/gfx-agent/GFXPipelineStateAgent.h
+    cocos/renderer/core/gfx-agent/GFXPipelineStateAgent.cpp
+    cocos/renderer/core/gfx-agent/GFXQueueAgent.h
+    cocos/renderer/core/gfx-agent/GFXQueueAgent.cpp
+    cocos/renderer/core/gfx-agent/GFXRenderPassAgent.h
+    cocos/renderer/core/gfx-agent/GFXRenderPassAgent.cpp
+    cocos/renderer/core/gfx-agent/GFXSamplerAgent.h
+    cocos/renderer/core/gfx-agent/GFXSamplerAgent.cpp
+    cocos/renderer/core/gfx-agent/GFXShaderAgent.h
+    cocos/renderer/core/gfx-agent/GFXShaderAgent.cpp
+    cocos/renderer/core/gfx-agent/GFXTextureAgent.h
+    cocos/renderer/core/gfx-agent/GFXTextureAgent.cpp
     cocos/renderer/pipeline/BatchedBuffer.cpp
     cocos/renderer/pipeline/BatchedBuffer.h
     cocos/renderer/pipeline/Define.h
@@ -1099,19 +1156,19 @@ if(USE_MIDDLEWARE)
             cocos/editor-support/dragonbones/core/BaseObject.cpp
             cocos/editor-support/dragonbones/core/BaseObject.h
             cocos/editor-support/dragonbones/core/DragonBones.cpp
-            cocos/editor-support/dragonbones/core/DragonBones.h      
+            cocos/editor-support/dragonbones/core/DragonBones.h
             cocos/editor-support/dragonbones/event/EventObject.cpp
             cocos/editor-support/dragonbones/event/EventObject.h
-            cocos/editor-support/dragonbones/event/IEventDispatcher.h            
+            cocos/editor-support/dragonbones/event/IEventDispatcher.h
             cocos/editor-support/dragonbones/factory/BaseFactory.cpp
-            cocos/editor-support/dragonbones/factory/BaseFactory.h           
+            cocos/editor-support/dragonbones/factory/BaseFactory.h
             cocos/editor-support/dragonbones/geom/ColorTransform.h
             cocos/editor-support/dragonbones/geom/Matrix.h
             cocos/editor-support/dragonbones/geom/Point.cpp
             cocos/editor-support/dragonbones/geom/Point.h
             cocos/editor-support/dragonbones/geom/Rectangle.h
             cocos/editor-support/dragonbones/geom/Transform.cpp
-            cocos/editor-support/dragonbones/geom/Transform.h        
+            cocos/editor-support/dragonbones/geom/Transform.h
             cocos/editor-support/dragonbones/model/AnimationConfig.cpp
             cocos/editor-support/dragonbones/model/AnimationConfig.h
             cocos/editor-support/dragonbones/model/AnimationData.cpp
@@ -1139,7 +1196,7 @@ if(USE_MIDDLEWARE)
             cocos/editor-support/dragonbones/parser/DataParser.cpp
             cocos/editor-support/dragonbones/parser/DataParser.h
             cocos/editor-support/dragonbones/parser/JSONDataParser.cpp
-            cocos/editor-support/dragonbones/parser/JSONDataParser.h           
+            cocos/editor-support/dragonbones/parser/JSONDataParser.h
             cocos/editor-support/dragonbones-creator-support/ArmatureCache.cpp
             cocos/editor-support/dragonbones-creator-support/ArmatureCache.h
             cocos/editor-support/dragonbones-creator-support/ArmatureCacheMgr.cpp
@@ -1504,6 +1561,11 @@ target_include_directories(cocos2d
         ${CC_EXTERNAL_PRIVATE_INCLUDES}
 )
 
+target_compile_definitions(cocos2d
+    PRIVATE
+        ${CC_EXTERNAL_PRIVATE_DEFINITIONS}
+)
+
 if(WIN32)
     target_link_libraries(cocos2d PUBLIC
         ws2_32 userenv psapi winmm Version Iphlpapi opengl32
@@ -1523,7 +1585,6 @@ if(WIN32)
         _USRLIBSIMSTATIC
         SE_ENABLE_INSPECTOR
     )
-
 endif()
 
 if(ANDROID)

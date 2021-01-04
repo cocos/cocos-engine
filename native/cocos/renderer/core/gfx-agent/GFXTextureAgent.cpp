@@ -1,11 +1,21 @@
 #include "CoreStd.h"
 
-#include "threading/MessageQueue.h"
+#include "base/threading/MessageQueue.h"
 #include "GFXTextureAgent.h"
 #include "GFXDeviceAgent.h"
 
 namespace cc {
 namespace gfx {
+
+TextureAgent::~TextureAgent() {
+    ENQUEUE_MESSAGE_1(
+        ((DeviceAgent *)_device)->getMessageQueue(),
+        TextureDestruct,
+        actor, _actor,
+        {
+            CC_DELETE(actor);
+        });
+}
 
 bool TextureAgent::initialize(const TextureInfo &info) {
     _type = info.type;
@@ -66,17 +76,13 @@ bool TextureAgent::initialize(const TextureViewInfo &info) {
 }
 
 void TextureAgent::destroy() {
-    if (_actor) {
-        ENQUEUE_MESSAGE_1(
-            ((DeviceAgent *)_device)->getMessageQueue(),
-            TextureDestroy,
-            actor, getActor(),
-            {
-                CC_DESTROY(actor);
-            });
-
-        _actor = nullptr;
-    }
+    ENQUEUE_MESSAGE_1(
+        ((DeviceAgent *)_device)->getMessageQueue(),
+        TextureDestroy,
+        actor, getActor(),
+        {
+            actor->destroy();
+        });
 }
 
 void TextureAgent::resize(uint width, uint height) {

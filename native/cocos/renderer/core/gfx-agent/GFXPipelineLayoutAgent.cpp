@@ -1,12 +1,22 @@
 #include "CoreStd.h"
 
-#include "threading/MessageQueue.h"
+#include "base/threading/MessageQueue.h"
 #include "GFXDescriptorSetLayoutAgent.h"
 #include "GFXDeviceAgent.h"
 #include "GFXPipelineLayoutAgent.h"
 
 namespace cc {
 namespace gfx {
+
+PipelineLayoutAgent::~PipelineLayoutAgent() {
+    ENQUEUE_MESSAGE_1(
+        ((DeviceAgent *)_device)->getMessageQueue(),
+        PipelineLayoutDestruct,
+        actor, _actor,
+        {
+            CC_DELETE(actor);
+        });
+}
 
 bool PipelineLayoutAgent::initialize(const PipelineLayoutInfo &info) {
 
@@ -31,17 +41,13 @@ bool PipelineLayoutAgent::initialize(const PipelineLayoutInfo &info) {
 }
 
 void PipelineLayoutAgent::destroy() {
-    if (_actor) {
-        ENQUEUE_MESSAGE_1(
-            ((DeviceAgent *)_device)->getMessageQueue(),
-            PipelineLayoutDestroy,
-            actor, getActor(),
-            {
-                CC_DESTROY(actor);
-            });
-
-        _actor = nullptr;
-    }
+    ENQUEUE_MESSAGE_1(
+        ((DeviceAgent *)_device)->getMessageQueue(),
+        PipelineLayoutDestroy,
+        actor, getActor(),
+        {
+            actor->destroy();
+        });
 }
 
 } // namespace gfx

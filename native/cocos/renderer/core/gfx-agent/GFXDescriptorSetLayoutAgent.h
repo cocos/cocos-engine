@@ -10,9 +10,10 @@ class CC_DLL DescriptorSetLayoutAgent final : public Agent<DescriptorSetLayout> 
 public:
     using Agent::Agent;
     DescriptorSetLayoutAgent(Device *device) = delete;
+    ~DescriptorSetLayoutAgent() override;
 
-    virtual bool initialize(const DescriptorSetLayoutInfo &info) override;
-    virtual void destroy() override;
+    bool initialize(const DescriptorSetLayoutInfo &info) override;
+    void destroy() override;
 };
 
 } // namespace gfx

@@ -10,11 +10,12 @@ class CC_DLL TextureAgent final : public Agent<Texture> {
 public:
     using Agent::Agent;
     TextureAgent(Device *device) = delete;
+    ~TextureAgent() override;
 
-    virtual bool initialize(const TextureInfo &info) override;
-    virtual bool initialize(const TextureViewInfo &info) override;
-    virtual void destroy() override;
-    virtual void resize(uint width, uint height) override;
+    bool initialize(const TextureInfo &info) override;
+    bool initialize(const TextureViewInfo &info) override;
+    void destroy() override;
+    void resize(uint width, uint height) override;
 };
 
 } // namespace gfx

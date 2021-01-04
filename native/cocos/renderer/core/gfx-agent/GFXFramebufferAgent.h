@@ -10,9 +10,10 @@ class CC_DLL FramebufferAgent final : public Agent<Framebuffer> {
 public:
     using Agent::Agent;
     FramebufferAgent(Device *device) = delete;
+    ~FramebufferAgent() override;
 
-    virtual bool initialize(const FramebufferInfo &info) override;
-    virtual void destroy() override;
+    bool initialize(const FramebufferInfo &info) override;
+    void destroy() override;
 };
 
 } // namespace gfx

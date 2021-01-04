@@ -1,8 +1,8 @@
 #pragma once
 
 #include <cassert>
-#include "concurrentqueue.h"
-#include "lightweightsemaphore.h"
+#include "concurrentqueue/concurrentqueue.h"
+#include "concurrentqueue/lightweightsemaphore.h"
 
 namespace cc {
 

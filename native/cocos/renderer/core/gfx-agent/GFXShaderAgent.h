@@ -10,9 +10,10 @@ class CC_DLL ShaderAgent final : public Agent<Shader> {
 public:
     using Agent::Agent;
     ShaderAgent(Device *device) = delete;
+    ~ShaderAgent() override;
 
-    virtual bool initialize(const ShaderInfo &info) override;
-    virtual void destroy() override;
+    bool initialize(const ShaderInfo &info) override;
+    void destroy() override;
 };
 
 } // namespace gfx

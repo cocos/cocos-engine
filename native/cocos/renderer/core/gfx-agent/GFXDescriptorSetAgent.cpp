@@ -6,10 +6,20 @@
 #include "GFXDeviceAgent.h"
 #include "GFXSamplerAgent.h"
 #include "GFXTextureAgent.h"
-#include "threading/MessageQueue.h"
+#include "base/threading/MessageQueue.h"
 
 namespace cc {
 namespace gfx {
+
+DescriptorSetAgent::~DescriptorSetAgent() {
+    ENQUEUE_MESSAGE_1(
+        ((DeviceAgent *)_device)->getMessageQueue(),
+        DescriptorSetDestruct,
+        actor, _actor,
+        {
+            CC_DELETE(actor);
+        });
+}
 
 bool DescriptorSetAgent::initialize(const DescriptorSetInfo &info) {
     _layout = info.layout;
@@ -39,17 +49,13 @@ void DescriptorSetAgent::destroy() {
     _textures.clear();
     _samplers.clear();
 
-    if (_actor) {
-        ENQUEUE_MESSAGE_1(
-            ((DeviceAgent *)_device)->getMessageQueue(),
-            DescriptorSetDestroy,
-            actor, getActor(),
-            {
-                CC_DESTROY(actor);
-            });
-
-        _actor = nullptr;
-    }
+    ENQUEUE_MESSAGE_1(
+        ((DeviceAgent *)_device)->getMessageQueue(),
+        DescriptorSetDestroy,
+        actor, getActor(),
+        {
+            actor->destroy();
+        });
 }
 
 void DescriptorSetAgent::update() {

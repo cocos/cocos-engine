@@ -69,7 +69,6 @@ public:
     CC_INLINE bool isIndirectDrawSupported() const { return _indirectDrawSupported; }
     CC_INLINE CCMTLGPUStagingBufferPool *gpuStagingBufferPool() const { return _gpuStagingBufferPools[_currentFrameIndex]; }
     CC_INLINE bool isSamplerDescriptorCompareFunctionSupported() const { return _isSamplerDescriptorCompareFunctionSupported; }
-    CC_INLINE void *getDSSTexture() const { return _dssTex; }
 
     virtual void ensureAutoreleasePool();
 

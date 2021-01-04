@@ -8,7 +8,7 @@
 #include <queue>
 #include <cassert>
 #include <cstdint>
-#include "concurrentqueue.h"
+#include "concurrentqueue/concurrentqueue.h"
 #include "Event.h"
 
 namespace cc {

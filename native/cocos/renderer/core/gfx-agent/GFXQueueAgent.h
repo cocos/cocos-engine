@@ -12,11 +12,12 @@ public:
     using Queue::submit;
 
     QueueAgent(Device *device) = delete;
+    ~QueueAgent() override;
 
-    virtual bool initialize(const QueueInfo &info) override;
-    virtual void destroy() override;
+    bool initialize(const QueueInfo &info) override;
+    void destroy() override;
 
-    virtual void submit(const CommandBuffer *const *cmdBuffs, uint count, Fence *fence) override;
+    void submit(const CommandBuffer *const *cmdBuffs, uint count, Fence *fence) override;
 };
 
 } // namespace gfx

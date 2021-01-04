@@ -4,11 +4,21 @@
 #include "GFXDeviceAgent.h"
 #include "GFXLinearAllocatorPool.h"
 #include "GFXQueueAgent.h"
-#include "job-system/JobSystem.h"
-#include "threading/MessageQueue.h"
+#include "base/job-system/JobSystem.h"
+#include "base/threading/MessageQueue.h"
 
 namespace cc {
 namespace gfx {
+
+QueueAgent::~QueueAgent() {
+    ENQUEUE_MESSAGE_1(
+        ((DeviceAgent *)_device)->getMessageQueue(),
+        QueueDestruct,
+        actor, _actor,
+        {
+            CC_DELETE(actor);
+        });
+}
 
 bool QueueAgent::initialize(const QueueInfo &info) {
     _type = info.type;
@@ -26,17 +36,13 @@ bool QueueAgent::initialize(const QueueInfo &info) {
 }
 
 void QueueAgent::destroy() {
-    if (_actor) {
-        ENQUEUE_MESSAGE_1(
-            ((DeviceAgent *)_device)->getMessageQueue(),
-            QueueDestroy,
-            actor, getActor(),
-            {
-                CC_DESTROY(actor);
-            });
-
-        _actor = nullptr;
-    }
+    ENQUEUE_MESSAGE_1(
+        ((DeviceAgent *)_device)->getMessageQueue(),
+        QueueDestroy,
+        actor, getActor(),
+        {
+            actor->destroy();
+        });
 }
 
 void QueueAgent::submit(const CommandBuffer *const *cmdBuffs, uint count, Fence *fence) {
@@ -48,6 +54,11 @@ void QueueAgent::submit(const CommandBuffer *const *cmdBuffs, uint count, Fence 
         actorCmdBuffs[i] = ((CommandBufferAgent *)cmdBuffs[i])->getActor();
     }
 
+    const CommandBufferAgent **agentCmdBuffs = allocator->allocate<const CommandBufferAgent *>(count);
+    for (uint i = 0; i < count; ++i) {
+        agentCmdBuffs[i] = (CommandBufferAgent *)cmdBuffs[i];
+    }
+
     bool multiThreaded = _device->hasFeature(Feature::MULTITHREADED_SUBMISSION);
 
     ENQUEUE_MESSAGE_6(
@@ -55,7 +66,7 @@ void QueueAgent::submit(const CommandBuffer *const *cmdBuffs, uint count, Fence 
         QueueSubmit,
         actor, getActor(),
         multiThreaded, multiThreaded,
-        cmdBuffs, (CommandBufferAgent *const *)cmdBuffs,
+        cmdBuffs, (CommandBufferAgent *const *)agentCmdBuffs,
         actorCmdBuffs, actorCmdBuffs,
         count, count,
         fence, fence,

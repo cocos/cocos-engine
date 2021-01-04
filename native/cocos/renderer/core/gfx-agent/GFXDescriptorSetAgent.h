@@ -10,14 +10,15 @@ class CC_DLL DescriptorSetAgent final : public Agent<DescriptorSet> {
 public:
     using Agent::Agent;
     DescriptorSetAgent(Device *device) = delete;
+    ~DescriptorSetAgent() override;
 
-    virtual bool initialize(const DescriptorSetInfo &info) override;
-    virtual void destroy() override;
-    virtual void update() override;
+    bool initialize(const DescriptorSetInfo &info) override;
+    void destroy() override;
+    void update() override;
 
-    virtual void bindBuffer(uint binding, Buffer *buffer, uint index) override;
-    virtual void bindTexture(uint binding, Texture *texture, uint index) override;
-    virtual void bindSampler(uint binding, Sampler *sampler, uint index) override;
+    void bindBuffer(uint binding, Buffer *buffer, uint index) override;
+    void bindTexture(uint binding, Texture *texture, uint index) override;
+    void bindSampler(uint binding, Sampler *sampler, uint index) override;
 };
 
 } // namespace gfx

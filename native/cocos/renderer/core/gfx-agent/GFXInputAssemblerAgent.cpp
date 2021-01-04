@@ -1,12 +1,22 @@
 #include "CoreStd.h"
 
-#include "threading/MessageQueue.h"
+#include "base/threading/MessageQueue.h"
 #include "GFXBufferAgent.h"
 #include "GFXDeviceAgent.h"
 #include "GFXInputAssemblerAgent.h"
 
 namespace cc {
 namespace gfx {
+
+InputAssemblerAgent::~InputAssemblerAgent() {
+    ENQUEUE_MESSAGE_1(
+        ((DeviceAgent *)_device)->getMessageQueue(),
+        InputAssemblerDestruct,
+        actor, _actor,
+        {
+            CC_DELETE(actor);
+        });
+}
 
 bool InputAssemblerAgent::initialize(const InputAssemblerInfo &info) {
     _attributes = info.attributes;
@@ -48,17 +58,13 @@ bool InputAssemblerAgent::initialize(const InputAssemblerInfo &info) {
 }
 
 void InputAssemblerAgent::destroy() {
-    if (_actor) {
-        ENQUEUE_MESSAGE_1(
-            ((DeviceAgent *)_device)->getMessageQueue(),
-            InputAssemblerDestroy,
-            actor, getActor(),
-            {
-                CC_DESTROY(actor);
-            });
-
-        _actor = nullptr;
-    }
+    ENQUEUE_MESSAGE_1(
+        ((DeviceAgent *)_device)->getMessageQueue(),
+        InputAssemblerDestroy,
+        actor, getActor(),
+        {
+            actor->destroy();
+        });
 }
 
 } // namespace gfx

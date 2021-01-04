@@ -51,8 +51,6 @@ THE SOFTWARE.
 #include "base/Macros.h"
 #include "base/UTF8.h"
 #include "base/Utils.h"
-#include "base/job-system/JobSystem.h"
-
 
 // math
 #include "math/Geometry.h"

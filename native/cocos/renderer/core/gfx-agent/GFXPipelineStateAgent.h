@@ -10,9 +10,10 @@ class CC_DLL PipelineStateAgent final : public Agent<PipelineState> {
 public:
     using Agent::Agent;
     PipelineStateAgent(Device *device) = delete;
+    ~PipelineStateAgent() override;
 
-    virtual bool initialize(const PipelineStateInfo &info) override;
-    virtual void destroy() override;
+    bool initialize(const PipelineStateInfo &info) override;
+    void destroy() override;
 };
 
 } // namespace gfx

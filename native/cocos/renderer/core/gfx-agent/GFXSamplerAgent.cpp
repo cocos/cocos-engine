@@ -1,12 +1,22 @@
 #include "CoreStd.h"
 
-#include "threading/MessageQueue.h"
+#include "base/threading/MessageQueue.h"
 #include "GFXDescriptorSetLayoutAgent.h"
 #include "GFXDeviceAgent.h"
 #include "GFXSamplerAgent.h"
 
 namespace cc {
 namespace gfx {
+
+SamplerAgent::~SamplerAgent() {
+    ENQUEUE_MESSAGE_1(
+        ((DeviceAgent *)_device)->getMessageQueue(),
+        SamplerDestruct,
+        actor, _actor,
+        {
+            CC_DELETE(actor);
+        });
+}
 
 bool SamplerAgent::initialize(const SamplerInfo &info) {
 
@@ -36,17 +46,13 @@ bool SamplerAgent::initialize(const SamplerInfo &info) {
 }
 
 void SamplerAgent::destroy() {
-    if (_actor) {
-        ENQUEUE_MESSAGE_1(
-            ((DeviceAgent *)_device)->getMessageQueue(),
-            SamplerDestroy,
-            actor, getActor(),
-            {
-                CC_DESTROY(actor);
-            });
-
-        _actor = nullptr;
-    }
+    ENQUEUE_MESSAGE_1(
+        ((DeviceAgent *)_device)->getMessageQueue(),
+        SamplerDestroy,
+        actor, getActor(),
+        {
+            actor->destroy();
+        });
 }
 
 } // namespace gfx
