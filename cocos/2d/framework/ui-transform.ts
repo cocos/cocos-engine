@@ -647,11 +647,9 @@ export class UITransform extends Component {
                 const bComp = b._uiProps.uiTransformComp;
                 const ca = aComp ? aComp.priority : 0;
                 const cb = bComp ? bComp.priority : 0;
-                const diff = ca - cb;
+                let diff = ca - cb;
                 if (diff === 0) {
-                    const value = a.getSiblingIndex() - b.getSiblingIndex();
-                    changed = value > 0;
-                    return value;
+                    diff = a.getSiblingIndex() - b.getSiblingIndex();
                 }
 
                 changed = diff > 0;
