@@ -410,7 +410,7 @@ export class BaseNode extends CCObject implements ISchedulable {
         const oldParent = this._parent;
         const newParent = value as this;
         if (DEBUG && oldParent
-            // Change parent when old parent desactivating or activating
+            // Change parent when old parent deactivating or activating
             && (oldParent._objFlags & Deactivating)) {
             errorID(3821);
         }
@@ -643,7 +643,7 @@ export class BaseNode extends CCObject implements ISchedulable {
 
             // Avoid memory leak
             stack[index] = null;
-            // Do not repeatly visit child tree, just do post call and continue walk
+            // Do not repeatedly visit child tree, just do post call and continue walk
             if (afterChildren) {
                 if (parent === this._parent) break;
                 afterChildren = false;
@@ -1036,7 +1036,7 @@ export class BaseNode extends CCObject implements ISchedulable {
      * 1. Capturing phase: dispatch in capture targets (`_getCapturingTargets`), e.g. parents in node tree, from root to the real target
      * 2. At target phase: dispatch to the listeners of the real target
      * 3. Bubbling phase: dispatch in bubble targets (`_getBubblingTargets`), e.g. parents in node tree, from the real target to root
-     * In any moment of the dispatching process, it can be stopped via `event.stopPropagation()` or `event.stopPropagationImmidiate()`.
+     * In any moment of the dispatching process, it can be stopped via `event.stopPropagation()` or `event.stopPropagationImmediate()`.
      * It's the recommended way to register touch/mouse event for Node,
      * please do not use `eventManager` directly for Node.
      * You can also register custom event and use `emit` to trigger custom event on Node.
@@ -1052,7 +1052,7 @@ export class BaseNode extends CCObject implements ISchedulable {
      * 推荐使用这种方式来监听节点上的触摸或鼠标事件，请不要在节点上直接使用 `eventManager`。
      * 你也可以注册自定义事件到节点上，并通过 emit 方法触发此类事件，对于这类事件，不会发生捕获冒泡阶段，只会直接派发给注册在该节点上的监听器
      * 你可以通过在 emit 方法调用时在 type 之后传递额外的参数作为事件回调的参数列表
-     * @param type - A string representing the event type to listen for.<br>See {{#crossLink "Node/EventTyupe/POSITION_CHANGED"}}Node Events{{/crossLink}} for all builtin events.
+     * @param type - A string representing the event type to listen for.<br>See {{#crossLink "Node/EventType/POSITION_CHANGED"}}Node Events{{/crossLink}} for all builtin events.
      * @param callback - The callback that will be invoked when the event is dispatched. The callback is ignored if it is a duplicate (the callbacks are unique).
      * @param target - The target (this object) to invoke the callback, can be null
      * @param useCapture - When set to true, the listener will be triggered at capturing phase which is ahead of the final target emit, otherwise it will be triggered during bubbling phase.
@@ -1339,7 +1339,7 @@ export class BaseNode extends CCObject implements ISchedulable {
             // remove from parent
             if (parent) {
                 this.emit(SystemEventType.PARENT_CHANGED, this);
-                // During destroy process, siblingIndex is not relyable
+                // During destroy process, sibling index is not reliable
                 const childIndex = parent._children.indexOf(this);
                 parent._children.splice(childIndex, 1);
                 this._siblingIndex = 0;
