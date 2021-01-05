@@ -161,6 +161,8 @@ export class UI {
 
         this._meshBuffers.clear();
         legacyCC.director.root.destroyScene(this._scene);
+
+        StencilManager.sharedManager!.destroy();
     }
 
     public getRenderSceneGetter () {

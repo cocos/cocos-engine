@@ -619,6 +619,12 @@ export class Pass {
         Object.assign(directHandleMap, indirectHandleMap);
     }
 
+    protected _destroyHandle () {
+        if (this._handle) {
+            PassPool.free(this._handle); this._handle = NULL_HANDLE;
+        }
+    }
+
     protected _syncBatchingScheme (): void {
         if (this._defines.USE_INSTANCING) {
             if (this._device.hasFeature(Feature.INSTANCED_ARRAYS)) {

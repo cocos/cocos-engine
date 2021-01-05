@@ -364,6 +364,9 @@ export class UIRenderable extends RenderableComponent {
             }
         }
         this._renderData = null;
+        if (this._blendState) {
+            this._blendState.destroy();
+        }
     }
 
     /**
