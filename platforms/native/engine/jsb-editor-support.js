@@ -63,12 +63,13 @@
                 ui.unRegisterCustomBuffer(uvcBuffers[i]);
                 uvcBuffers[i].destroy();
             }
+            uvcBuffers.length = 0;
             const uvccBuffers = renderInfoLookup[nativeXYZUVCC];
             for (let i = 0; i < uvccBuffers.length; i++) {
                 ui.unRegisterCustomBuffer(uvccBuffers[i]);
                 uvccBuffers[i].destroy();
             }
-            renderInfoLookup = {};
+            uvccBuffers.length = 0;
         }
     }
 
