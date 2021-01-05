@@ -29,11 +29,12 @@
  * @module ui
  */
 
+import { ccclass, help, executeInEditMode, executionOrder, menu, requireComponent, tooltip, displayOrder, type, serializable } from 'cc.decorator';
+import { EDITOR, JSB, MINIGAME, RUNTIME_BASED } from 'internal:constants';
 import { UITransform } from '../../2d/framework';
 import { SpriteFrame } from '../../2d/assets/sprite-frame';
 import { Component } from '../../core/components/component';
 import { EventHandler as ComponentEventHandler } from '../../core/components/component-event-handler';
-import { ccclass, help, executeInEditMode, executionOrder, menu, requireComponent, tooltip, displayOrder, type, serializable } from 'cc.decorator';
 import { Color, Size, Vec3 } from '../../core/math';
 import { EventTouch } from '../../core/platform';
 import { SystemEventType } from '../../core/platform/event-manager/event-enum';
@@ -44,15 +45,12 @@ import { EditBoxImpl } from './edit-box-impl';
 import { EditBoxImplBase } from './edit-box-impl-base';
 import { InputFlag, InputMode, KeyboardReturnType } from './types';
 import { sys } from '../../core/platform/sys';
-import { EDITOR, JSB, MINIGAME, RUNTIME_BASED } from 'internal:constants';
 import { legacyCC } from '../../core/global-exports';
 
 const LEFT_PADDING = 2;
 
 function capitalize (str: string) {
-    return str.replace(/(?:^|\s)\S/g, (a) => {
-        return a.toUpperCase();
-    });
+    return str.replace(/(?:^|\s)\S/g, (a) => a.toUpperCase());
 }
 
 function capitalizeFirstLetter (str: string) {
@@ -80,7 +78,6 @@ enum EventType {
 @requireComponent(UITransform)
 @executeInEditMode
 export class EditBox extends Component {
-
     /**
      * @en
      * Input string of EditBox.
@@ -148,7 +145,7 @@ export class EditBox extends Component {
             }
         }
     }
-    
+
     /**
      * @en
      * The Label component attached to the node for EditBox's placeholder text label.
@@ -528,11 +525,10 @@ export class EditBox extends Component {
             if (!this._background) {
                 this._background = this.node.addComponent(Sprite);
             }
-
         }
 
-        this._background!.type = Sprite.Type.SLICED;
-        this._background!.spriteFrame = this._backgroundImage;
+        this._background.type = Sprite.Type.SLICED;
+        this._background.spriteFrame = this._backgroundImage;
     }
 
     protected _updateTextLabel () {
@@ -544,27 +540,25 @@ export class EditBox extends Component {
             if (!node) {
                 node = new Node('TEXT_LABEL');
             }
-            textLabel = node!.getComponent(Label);
+            textLabel = node.getComponent(Label);
             if (!textLabel) {
-                textLabel = node!.addComponent(Label);
+                textLabel = node.addComponent(Label);
             }
-            node!.parent = this.node;
+            node.parent = this.node;
             this._textLabel = textLabel;
         }
 
         // update
         const transformComp = this._textLabel!.node._uiProps.uiTransformComp;
         transformComp!.setAnchorPoint(0, 1);
-        textLabel!.overflow = Label.Overflow.CLAMP;
+        textLabel.overflow = Label.Overflow.CLAMP;
         if (this._inputMode === InputMode.ANY) {
-            textLabel!.verticalAlign = VerticalTextAlignment.TOP;
-            textLabel!.enableWrapText = true;
+            textLabel.verticalAlign = VerticalTextAlignment.TOP;
+            textLabel.enableWrapText = true;
+        } else {
+            textLabel.enableWrapText = false;
         }
-        else {
-            textLabel!.verticalAlign = VerticalTextAlignment.CENTER;
-            textLabel!.enableWrapText = false;
-        }
-        textLabel!.string = this._updateLabelStringStyle(this._string);
+        textLabel.string = this._updateLabelStringStyle(this._string);
     }
 
     protected _updatePlaceholderLabel () {
@@ -576,35 +570,33 @@ export class EditBox extends Component {
             if (!node) {
                 node = new Node('PLACEHOLDER_LABEL');
             }
-            placeholderLabel = node!.getComponent(Label);
+            placeholderLabel = node.getComponent(Label);
             if (!placeholderLabel) {
-                placeholderLabel = node!.addComponent(Label);
+                placeholderLabel = node.addComponent(Label);
             }
-            node!.parent = this.node;
+            node.parent = this.node;
             this._placeholderLabel = placeholderLabel;
         }
 
         // update
         const transform = this._placeholderLabel!.node._uiProps.uiTransformComp;
         transform!.setAnchorPoint(0, 1);
-        placeholderLabel!.overflow = Label.Overflow.CLAMP;
+        placeholderLabel.overflow = Label.Overflow.CLAMP;
         if (this._inputMode === InputMode.ANY) {
-            placeholderLabel!.verticalAlign = VerticalTextAlignment.TOP;
-            placeholderLabel!.enableWrapText = true;
+            placeholderLabel.verticalAlign = VerticalTextAlignment.TOP;
+            placeholderLabel.enableWrapText = true;
+        } else {
+            placeholderLabel.enableWrapText = false;
         }
-        else {
-            placeholderLabel!.verticalAlign = VerticalTextAlignment.CENTER;
-            placeholderLabel!.enableWrapText = false;
-        }
-        placeholderLabel!.string = this.placeholder;
+        placeholderLabel.string = this.placeholder;
     }
 
     protected _syncSize () {
-        let trans = this.node._uiProps.uiTransformComp!;
+        const trans = this.node._uiProps.uiTransformComp!;
         const size = trans.contentSize;
 
         if (this._background) {
-            let bgTrans = this._background.node._uiProps.uiTransformComp!;
+            const bgTrans = this._background.node._uiProps.uiTransformComp!;
             bgTrans.anchorPoint = trans.anchorPoint;
             bgTrans.setContentSize(size);
         }
@@ -644,7 +636,7 @@ export class EditBox extends Component {
         this._updateLabels();
     }
 
-    protected _updateLabelStringStyle (text: string, ignorePassword: boolean = false) {
+    protected _updateLabelStringStyle (text: string, ignorePassword = false) {
         const inputFlag = this._inputFlag;
         if (!ignorePassword && inputFlag === InputFlag.PASSWORD) {
             let passwordString = '';
@@ -675,7 +667,7 @@ export class EditBox extends Component {
     }
 
     protected _updateLabelPosition (size: Size) {
-        let trans = this.node._uiProps.uiTransformComp!;
+        const trans = this.node._uiProps.uiTransformComp!;
         const offX = -trans.anchorX * trans.width;
         const offY = -trans.anchorY * trans.height;
 
@@ -683,23 +675,26 @@ export class EditBox extends Component {
         const textLabel = this._textLabel;
         if (textLabel) {
             textLabel.node._uiProps.uiTransformComp!.setContentSize(size.width - LEFT_PADDING, size.height);
-            textLabel.node.position = new Vec3 (offX + LEFT_PADDING, offY + size.height, textLabel.node.position.z);
-            textLabel.verticalAlign = this._inputMode === InputMode.ANY ? VerticalTextAlignment.TOP : VerticalTextAlignment.CENTER;
-            textLabel.enableWrapText = this._inputMode === InputMode.ANY ? true : false;
+            textLabel.node.position = new Vec3(offX + LEFT_PADDING, offY + size.height, textLabel.node.position.z);
+            if (this._inputMode === InputMode.ANY) {
+                textLabel.verticalAlign = VerticalTextAlignment.TOP;
+            }
+            textLabel.enableWrapText = this._inputMode === InputMode.ANY;
         }
 
         if (placeholderLabel) {
             placeholderLabel.node._uiProps.uiTransformComp!.setContentSize(size.width - LEFT_PADDING, size.height);
             placeholderLabel.lineHeight = size.height;
-            placeholderLabel.node.position = new Vec3 (offX + LEFT_PADDING, offY + size.height, placeholderLabel.node.position.z);
-            placeholderLabel.verticalAlign = this._inputMode === InputMode.ANY ?
-                VerticalTextAlignment.TOP : VerticalTextAlignment.CENTER;
-            placeholderLabel.enableWrapText = this._inputMode === InputMode.ANY ? true : false;
+            placeholderLabel.node.position = new Vec3(offX + LEFT_PADDING, offY + size.height, placeholderLabel.node.position.z);
+            if (this._inputMode === InputMode.ANY) {
+                placeholderLabel.verticalAlign = VerticalTextAlignment.TOP;
+            }
+            placeholderLabel.enableWrapText = this._inputMode === InputMode.ANY;
         }
     }
 
     protected _resizeChildNodes () {
-        let trans = this.node._uiProps.uiTransformComp!;
+        const trans = this.node._uiProps.uiTransformComp!;
         const textLabelNode = this._textLabel && this._textLabel.node;
         if (textLabelNode) {
             textLabelNode.position = new Vec3(-trans.width / 2, trans.height / 2, textLabelNode.position.z);
