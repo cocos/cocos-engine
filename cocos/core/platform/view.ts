@@ -658,7 +658,7 @@ export class View extends EventTarget {
     public convertToLocationInView (tx: number, ty: number, relatedPos: any, out: Vec2): Vec2 {
         const result = out || new Vec2();
         const x = this._devicePixelRatio * (tx - relatedPos.left);
-        const y = this._devicePixelRatio * (parseFloat(relatedPos.top) + parseFloat(relatedPos.height) - ty);
+        const y = this._devicePixelRatio * ((relatedPos.top as number) + (relatedPos.height as number) - ty);
         if (this._isRotated) {
             result.x = legacyCC.game.canvas.width - y;
             result.y = x;
@@ -800,9 +800,8 @@ export class View extends EventTarget {
             if (content.indexOf(key) === -1) {
                 content += `,${key}=${metas[key]}`;
             } else if (overwrite) {
-                /* eslint-disable */
-                pattern = new RegExp(key + '\s*=\s*[^,]+');
-                /* eslint-disable */
+                // eslint-disable-next-line no-useless-escape
+                pattern = new RegExp(`${key}\s*=\s*[^,]+`);
                 content = content.replace(pattern, `${key}=${metas[key]}`);
             }
         }
@@ -828,7 +827,7 @@ export class View extends EventTarget {
 
     private _convertMouseToLocation (in_out_point, relatedPos) {
         in_out_point.x = this._devicePixelRatio * (in_out_point.x - relatedPos.left);
-        in_out_point.y = this._devicePixelRatio * (parseFloat(relatedPos.top) + parseFloat(relatedPos.height) - in_out_point.y);
+        in_out_point.y = this._devicePixelRatio * ((relatedPos.top as number) + (relatedPos.height as number) - in_out_point.y);
         if (legacyCC.GAME_VIEW) {
             in_out_point.x /= legacyCC.gameView.canvas.width / legacyCC.game.canvas.width;
             in_out_point.y /= legacyCC.gameView.canvas.height / legacyCC.game.canvas.height;
