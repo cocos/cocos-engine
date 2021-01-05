@@ -150,11 +150,11 @@ function _mouseMoveHandler (this: EventListener, event: EventMouse) {
     if (hit) {
         if (!this._previousIn) {
             // Fix issue when hover node switched, previous hovered node won't get MOUSE_LEAVE notification
-            if (_currentHovered && _currentHovered!.eventProcessor.mouseListener) {
+            if (_currentHovered && _currentHovered.eventProcessor.mouseListener) {
                 event.type = SystemEventType.MOUSE_LEAVE;
-                _currentHovered!.dispatchEvent(event);
-                if (_currentHovered!.eventProcessor.mouseListener) {
-                    _currentHovered!.eventProcessor.mouseListener!._previousIn = false;
+                _currentHovered.dispatchEvent(event);
+                if (_currentHovered.eventProcessor.mouseListener) {
+                    _currentHovered.eventProcessor.mouseListener._previousIn = false;
                 }
             }
             _currentHovered = node;
@@ -352,8 +352,7 @@ export class NodeEventProcessor {
             if (this.mouseListener) {
                 this.mouseListener.mask = mask;
             }
-        }
-        else if (this.mouseListener) {
+        } else if (this.mouseListener) {
             this.mouseListener.mask = _searchMaskInParent(this._node as Node);
         }
     }
@@ -378,8 +377,8 @@ export class NodeEventProcessor {
             }
         }
 
-        this.capturingTargets && this.capturingTargets.clear();
-        this.bubblingTargets && this.bubblingTargets.clear();
+        this.capturingTargets?.clear();
+        this.bubblingTargets?.clear();
     }
 
     /**
@@ -413,7 +412,7 @@ export class NodeEventProcessor {
      * this.node.on(Node.EventType.ANCHOR_CHANGED, callback);
      * ```
      */
-    public on (type: string, callback: Function, target?: Object, useCapture?: Object) {
+    public on (type: string, callback: AnyFunction, target?: unknown, useCapture?: boolean) {
         const forDispatch = this._checknSetupSysEvent(type);
         if (forDispatch) {
             return this._onDispatch(type, callback, target, useCapture);
@@ -462,14 +461,13 @@ export class NodeEventProcessor {
      * node.once(Node.EventType.ANCHOR_CHANGED, callback);
      * ```
      */
-    public once (type: string, callback: Function, target?: Object, useCapture?: Object) {
+    public once (type: string, callback: AnyFunction, target?: unknown, useCapture?: boolean) {
         const forDispatch = this._checknSetupSysEvent(type);
 
         let listeners: CallbacksInvoker;
         if (forDispatch && useCapture) {
             listeners = this.capturingTargets = this.capturingTargets || new CallbacksInvoker();
-        }
-        else {
+        } else {
             listeners = this.bubblingTargets = this.bubblingTargets || new CallbacksInvoker();
         }
 
@@ -496,7 +494,7 @@ export class NodeEventProcessor {
      * node.off(Node.EventType.ANCHOR_CHANGED, callback, this);
      * ```
      */
-    public off (type: string, callback?: Function, target?: Object, useCapture?: Object) {
+    public off (type: string, callback?: AnyFunction, target?: unknown, useCapture?: boolean) {
         const touchEvent = _touchEvents.indexOf(type) !== -1;
         const mouseEvent = !touchEvent && _mouseEvents.indexOf(type) !== -1;
         if (touchEvent || mouseEvent) {
@@ -556,7 +554,7 @@ export class NodeEventProcessor {
      * eventTarget.emit('fire', message, emitter);
      * ```
      */
-public emit (type: string, arg0?: any, arg1?: any, arg2?: any, arg3?: any, arg4?: any) {
+    public emit (type: string, arg0?: any, arg1?: any, arg2?: any, arg3?: any, arg4?: any) {
         if (this.bubblingTargets) {
             this.bubblingTargets.emit(type, arg0, arg1, arg2, arg3, arg4);
         }
@@ -582,7 +580,7 @@ public emit (type: string, arg0?: any, arg1?: any, arg2?: any, arg3?: any, arg4?
      * @param target - The callback callee of the event listener
      * @return - 返回是否当前节点已监听该事件类型。
      */
-    public hasEventListener (type: string, callback?: Function, target?: Object) {
+    public hasEventListener (type: string, callback?: AnyFunction, target?: unknown) {
         let has = false;
         if (this.bubblingTargets) {
             has = this.bubblingTargets.hasEventListener(type, callback, target);
@@ -599,7 +597,7 @@ public emit (type: string, arg0?: any, arg1?: any, arg2?: any, arg3?: any, arg4?
      *
      * @param target - 要删除的事件键或要删除的目标。
      */
-    public targetOff (target: string | Object) {
+    public targetOff (target: string | unknown) {
         if (this.capturingTargets) {
             this.capturingTargets.removeAll(target);
         }
@@ -704,7 +702,7 @@ public emit (type: string, arg0?: any, arg1?: any, arg2?: any, arg3?: any, arg4?
         return forDispatch;
     }
 
-    private _onDispatch (type: string, callback: Function, target?: Object, useCapture?: Object) {
+    private _onDispatch (type: string, callback: AnyFunction, target?: unknown, useCapture?: boolean) {
         // Accept also patameters like: (type, callback, useCapture)
         if (typeof target === 'boolean') {
             useCapture = target;
@@ -712,7 +710,7 @@ public emit (type: string, arg0?: any, arg1?: any, arg2?: any, arg3?: any, arg4?
         } else { useCapture = !!useCapture; }
         if (!callback) {
             errorID(6800);
-            return;
+            return undefined;
         }
 
         let listeners: CallbacksInvoker | null = null;
@@ -729,18 +727,18 @@ public emit (type: string, arg0?: any, arg1?: any, arg2?: any, arg3?: any, arg4?
         return callback;
     }
 
-    private _offDispatch (type: string, callback?: Function, target?: Object, useCapture?: Object) {
+    private _offDispatch (type: string, callback?: AnyFunction, target?: unknown, useCapture?: boolean) {
         // Accept also patameters like: (type, callback, useCapture)
         if (typeof target === 'boolean') {
             useCapture = target;
             target = undefined;
         } else { useCapture = !!useCapture; }
         if (!callback) {
-            if (this.capturingTargets){
+            if (this.capturingTargets) {
                 this.capturingTargets.removeAll(type);
             }
 
-            if (this.bubblingTargets){
+            if (this.bubblingTargets) {
                 this.bubblingTargets.removeAll(type);
             }
         } else {
