@@ -1557,7 +1557,7 @@ if(APPLE)
         "-framework GameController"
         "-framework Metal"
         "-framework MetalKit"
-        "-lSQLite3"
+        "-lsqlite3"
         "-framework Security"
         "-framework SystemConfiguration"
         ${CC_EXTERNAL_LIBS}
