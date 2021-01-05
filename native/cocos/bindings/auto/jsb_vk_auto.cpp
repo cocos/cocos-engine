@@ -13,28 +13,6 @@
 se::Object* __jsb_cc_gfx_CCVKDevice_proto = nullptr;
 se::Class* __jsb_cc_gfx_CCVKDevice_class = nullptr;
 
-static bool js_vk_CCVKDevice_checkExtension(se::State& s)
-{
-    cc::gfx::CCVKDevice* cobj = SE_THIS_OBJECT<cc::gfx::CCVKDevice>(s);
-    SE_PRECONDITION2(cobj, false, "js_vk_CCVKDevice_checkExtension : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        HolderType<cc::String, true> arg0 = {};
-        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_vk_CCVKDevice_checkExtension : Error processing arguments");
-        bool result = cobj->checkExtension(arg0.value());
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_vk_CCVKDevice_checkExtension : Error processing arguments");
-        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC(js_vk_CCVKDevice_checkExtension)
-
 SE_DECLARE_FINALIZE_FUNC(js_cc_gfx_CCVKDevice_finalize)
 
 static bool js_vk_CCVKDevice_constructor(se::State& s) // constructor.c
@@ -67,7 +45,6 @@ bool js_register_vk_CCVKDevice(se::Object* obj)
 {
     auto cls = se::Class::create("CCVKDevice", obj, __jsb_cc_gfx_Device_proto, _SE(js_vk_CCVKDevice_constructor));
 
-    cls->defineFunction("checkExtension", _SE(js_vk_CCVKDevice_checkExtension));
     cls->defineFinalizeFunction(_SE(js_cc_gfx_CCVKDevice_finalize));
     cls->install();
     JSBClassType::registerClass<cc::gfx::CCVKDevice>(cls);

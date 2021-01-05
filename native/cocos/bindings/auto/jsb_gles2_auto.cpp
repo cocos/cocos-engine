@@ -13,47 +13,6 @@
 se::Object* __jsb_cc_gfx_GLES2Device_proto = nullptr;
 se::Class* __jsb_cc_gfx_GLES2Device_class = nullptr;
 
-static bool js_gles2_GLES2Device_checkExtension(se::State& s)
-{
-    cc::gfx::GLES2Device* cobj = SE_THIS_OBJECT<cc::gfx::GLES2Device>(s);
-    SE_PRECONDITION2(cobj, false, "js_gles2_GLES2Device_checkExtension : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        HolderType<cc::String, true> arg0 = {};
-        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_gles2_GLES2Device_checkExtension : Error processing arguments");
-        bool result = cobj->checkExtension(arg0.value());
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_gles2_GLES2Device_checkExtension : Error processing arguments");
-        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC(js_gles2_GLES2Device_checkExtension)
-
-static bool js_gles2_GLES2Device_getThreadID(se::State& s)
-{
-    cc::gfx::GLES2Device* cobj = SE_THIS_OBJECT<cc::gfx::GLES2Device>(s);
-    SE_PRECONDITION2(cobj, false, "js_gles2_GLES2Device_getThreadID : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        unsigned int result = cobj->getThreadID();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_gles2_GLES2Device_getThreadID : Error processing arguments");
-        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_gles2_GLES2Device_getThreadID)
-
 SE_DECLARE_FINALIZE_FUNC(js_cc_gfx_GLES2Device_finalize)
 
 static bool js_gles2_GLES2Device_constructor(se::State& s) // constructor.c
@@ -86,8 +45,6 @@ bool js_register_gles2_GLES2Device(se::Object* obj)
 {
     auto cls = se::Class::create("GLES2Device", obj, __jsb_cc_gfx_Device_proto, _SE(js_gles2_GLES2Device_constructor));
 
-    cls->defineFunction("checkExtension", _SE(js_gles2_GLES2Device_checkExtension));
-    cls->defineFunction("getThreadID", _SE(js_gles2_GLES2Device_getThreadID));
     cls->defineFinalizeFunction(_SE(js_cc_gfx_GLES2Device_finalize));
     cls->install();
     JSBClassType::registerClass<cc::gfx::GLES2Device>(cls);

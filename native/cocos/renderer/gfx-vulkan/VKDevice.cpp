@@ -35,6 +35,8 @@ CCVKDevice::CCVKDevice() {
 }
 
 CCVKDevice::~CCVKDevice() {
+    int i = 1;
+    i++;
 }
 
 CCVKGPUContext *CCVKDevice::gpuContext() const {

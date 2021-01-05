@@ -18,6 +18,9 @@ public:
     void destroy() override;
 
     void submit(const CommandBuffer *const *cmdBuffs, uint count, Fence *fence) override;
+
+private:
+    friend class DeviceAgent;
 };
 
 } // namespace gfx

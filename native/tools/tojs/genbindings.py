@@ -151,7 +151,6 @@ def main():
                     'extension.ini' : ('extension', 'jsb_extension_auto'),
                     'network.ini' : ('network', 'jsb_network_auto'),
                     'gfx.ini': ('gfx', 'jsb_gfx_auto'),
-                    # 'gfx-agent.ini': ('gfx-agent', 'jsb_gfx_agent_auto'), # CRTP not supported, turned to manual
                     'gles2.ini': ('gles2', 'jsb_gles2_auto'),
                     'gles3.ini': ('gles3', 'jsb_gles3_auto'),
                     'metal.ini': ('metal', 'jsb_mtl_auto'),

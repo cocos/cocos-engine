@@ -12,6 +12,5 @@ bool js_register_cc_gfx_CCVKDevice(se::Object* obj);
 bool register_all_vk(se::Object* obj);
 
 JSB_REGISTER_OBJECT_TYPE(cc::gfx::CCVKDevice);
-SE_DECLARE_FUNC(js_vk_CCVKDevice_checkExtension);
 SE_DECLARE_FUNC(js_vk_CCVKDevice_CCVKDevice);
 

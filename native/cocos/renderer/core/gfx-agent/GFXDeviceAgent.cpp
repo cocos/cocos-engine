@@ -92,8 +92,16 @@ void DeviceAgent::destroy() {
         });
 
     ((CommandBufferAgent *)_cmdBuff)->destroyMessageQueue();
-    CC_SAFE_DELETE(_cmdBuff);
-    CC_SAFE_DELETE(_queue);
+    if (_cmdBuff) {
+        ((CommandBufferAgent *)_cmdBuff)->_actor = nullptr;
+        CC_DELETE(_cmdBuff);
+        _cmdBuff = nullptr;
+    }
+    if (_queue) {
+        ((QueueAgent *)_queue)->_actor = nullptr;
+        CC_DELETE(_queue);
+        _queue = nullptr;
+    }
 
     _mainEncoder->terminateConsumerThread();
     CC_SAFE_DELETE(_mainEncoder);

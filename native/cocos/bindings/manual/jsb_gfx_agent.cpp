@@ -1,4 +1,4 @@
-#include "cocos/bindings/auto/jsb_gfx_agent_auto.h"
+#include "cocos/bindings/manual/jsb_gfx_agent.h"
 #include "cocos/bindings/manual/jsb_conversions.h"
 #include "cocos/bindings/manual/jsb_global.h"
 #include "renderer/core/gfx-agent/GFXDeviceAgent.h"
@@ -24,6 +24,7 @@ static bool js_gfx_agent_DeviceAgent_constructor(se::State& s) // constructor.c
     SE_PRECONDITION2(ok, false, "js_gfx_agent_DeviceAgent_constructor : Error processing arguments");
     cc::gfx::DeviceAgent* cobj = JSB_ALLOC(cc::gfx::DeviceAgent, arg0);
     s.thisObject()->setPrivateData(cobj);
+    args[0].toObject()->clearPrivateData(true); // actor device is now under agent's full control (unique_ptr)
     se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
     return true;
 }
@@ -40,7 +41,8 @@ static bool js_cc_gfx_DeviceAgent_finalize(se::State& s)
     {
         se::NonRefNativePtrCreatedByCtorMap::erase(iter);
         cc::gfx::DeviceAgent* cobj = SE_THIS_OBJECT<cc::gfx::DeviceAgent>(s);
-        JSB_FREE(cobj);
+        // device destruction should happen after all resources which we have no way to control through JS object lifecycles
+        //JSB_FREE(cobj); // so just skip it here and do it manually
     }
     return true;
 }

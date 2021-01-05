@@ -907,8 +907,6 @@ cocos_source_files(
     cocos/bindings/auto/jsb_extension_auto.h
     cocos/bindings/auto/jsb_gfx_auto.cpp
     cocos/bindings/auto/jsb_gfx_auto.h
-    cocos/bindings/auto/jsb_gfx_agent_auto.cpp
-    cocos/bindings/auto/jsb_gfx_agent_auto.h
     cocos/bindings/auto/jsb_network_auto.cpp
     cocos/bindings/auto/jsb_network_auto.h
     cocos/bindings/auto/jsb_pipeline_auto.cpp
@@ -1234,6 +1232,8 @@ cocos_source_files(
     cocos/bindings/manual/jsb_conversions.h
     cocos/bindings/manual/jsb_gfx_manual.cpp
     cocos/bindings/manual/jsb_gfx_manual.h
+    cocos/bindings/manual/jsb_gfx_agent.cpp
+    cocos/bindings/manual/jsb_gfx_agent.h
     cocos/bindings/manual/jsb_global.cpp
     cocos/bindings/manual/jsb_global.h
     cocos/bindings/manual/jsb_helper.cpp
