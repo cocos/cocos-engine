@@ -49,8 +49,6 @@ import { PrefabInfo } from '../utils/prefab-utils';
 const Destroying = CCObject.Flags.Destroying;
 const DontDestroy = CCObject.Flags.DontDestroy;
 const Deactivating = CCObject.Flags.Deactivating;
-const Activating = CCObject.Flags.Activating;
-const ChangingState = Activating | Deactivating;
 
 export const TRANSFORM_ON = 1 << 0;
 
@@ -413,7 +411,7 @@ export class BaseNode extends CCObject implements ISchedulable {
         const newParent = value as this;
         if (DEBUG && oldParent
             // Change parent when old parent desactivating or activating
-            && (oldParent._objFlags & ChangingState)) {
+            && (oldParent._objFlags & Deactivating)) {
             errorID(3821);
         }
 
