@@ -619,12 +619,6 @@ export class Pass {
         Object.assign(directHandleMap, indirectHandleMap);
     }
 
-    protected _destroyHandle () {
-        if (this._handle) {
-            PassPool.free(this._handle); this._handle = NULL_HANDLE;
-        }
-    }
-
     protected _syncBatchingScheme (): void {
         if (this._defines.USE_INSTANCING) {
             if (this._device.hasFeature(Feature.INSTANCED_ARRAYS)) {
@@ -640,6 +634,14 @@ export class Pass {
         }
     }
 
+    // Only for UI
+    private _destroyHandle () {
+        if (this._handle) {
+            PassPool.free(this._handle); this._handle = NULL_HANDLE;
+        }
+    }
+
+    // Only for UI
     private _initPassFromTarget (target: Pass, dss: DepthStencilState, bs: BlendState) {
         PassPool.set(this.handle, PassView.PRIORITY, target.priority);
         PassPool.set(this.handle, PassView.STAGE, target.stage);
