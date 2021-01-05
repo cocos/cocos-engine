@@ -19,7 +19,7 @@ import { ShaderPool } from '../../renderer/core/memory-pools';
 import { PipelineStateManager } from '../pipeline-state-manager';
 import { PipelineState } from '../../gfx/pipeline-state';
 import { sphere, intersect } from '../../geometry';
-import { Vec3 } from '../../math';
+import { Vec3, Vec4 } from '../../math';
 import { Buffer, BufferUsageBit, MemoryUsageBit, BufferInfo, BufferViewInfo, DescriptorSet, DescriptorSetLayoutInfo,
     DescriptorSetLayout, DescriptorSetInfo } from '../../gfx';
 import { UBOForwardLight } from '../define';
@@ -113,17 +113,19 @@ export class LightingStage extends RenderStage {
         const exposure = camera.exposure;
 
         let idx = 0;
-        let elementLen = 4; // vec4
+        let elementLen = Vec4.length; // sizeof(vec4) / sizeof(float32) 
         let fieldLen = elementLen * this._maxDeferredLights;
 
         for (let i = 0; i < sphereLights.length && idx < this._maxDeferredLights; i++, ++idx) {
             const light = sphereLights[i];
             sphere.set(_sphere, light.position.x, light.position.y, light.position.z, light.range);
             if (intersect.sphereFrustum(_sphere, camera.frustum)) {
+                // cc_lightPos 
                 Vec3.toArray(_vec4Array, light.position);
                 _vec4Array[3] = 0;
                 this._lightBufferData.set(_vec4Array, idx * elementLen);
-
+                
+                // cc_lightColor
                 Vec3.toArray(_vec4Array, light.color);
                 if (light.useColorTemperature) {
                     const tempRGB = light.colorTemperatureRGB;
@@ -140,6 +142,7 @@ export class LightingStage extends RenderStage {
 
                 this._lightBufferData.set(_vec4Array, idx * elementLen + fieldLen * 1);
 
+                // cc_lightSizeRangeAngle
                 _vec4Array[0] = light.size;
                 _vec4Array[1] = light.range;
                 _vec4Array[2] = 0.0;
@@ -151,18 +154,12 @@ export class LightingStage extends RenderStage {
             const light = spotLights[i];
             sphere.set(_sphere, light.position.x, light.position.y, light.position.z, light.range);
             if (intersect.sphereFrustum(_sphere, camera.frustum)) {
+                // cc_lightPos
                 Vec3.toArray(_vec4Array, light.position);
                 _vec4Array[3] = 1;
                 this._lightBufferData.set(_vec4Array, idx * elementLen + fieldLen * 0);
 
-                _vec4Array[0] = light.size;
-                _vec4Array[1] = light.range;
-                _vec4Array[2] = light.spotAngle;
-                this._lightBufferData.set(_vec4Array, idx * elementLen + fieldLen * 2);
-
-                Vec3.toArray(_vec4Array, light.direction);
-                this._lightBufferData.set(_vec4Array, idx * elementLen + fieldLen * 3);
-
+                // cc_lightColor
                 Vec3.toArray(_vec4Array, light.color);
                 if (light.useColorTemperature) {
                     const tempRGB = light.colorTemperatureRGB;
@@ -175,11 +172,21 @@ export class LightingStage extends RenderStage {
                 } else {
                     _vec4Array[3] = light.luminance * exposure * this._lightMeterScale;
                 }
-                this._lightBufferData.set(_vec4Array, idx * elementLen + fieldLen * 1);
+                this._lightBufferData.set(_vec4Array, idx * elementLen + fieldLen * 1);                
+
+                //cc_lightSizeRangeAngle
+                _vec4Array[0] = light.size;
+                _vec4Array[1] = light.range;
+                _vec4Array[2] = light.spotAngle;
+                this._lightBufferData.set(_vec4Array, idx * elementLen + fieldLen * 2);
+
+                // cc_lightDir
+                Vec3.toArray(_vec4Array, light.direction);
+                this._lightBufferData.set(_vec4Array, idx * elementLen + fieldLen * 3);
             }
         }
 
-        // cc_lightDir[0].w
+        // the count of lights is set to cc_lightDir[0].w
         var offset = fieldLen * 3 + 3;
         this._lightBufferData.set([idx], offset);
 
@@ -191,20 +198,26 @@ export class LightingStage extends RenderStage {
 
         const device = pipeline.device;
 
-        // init descriptorSet
-        this._lightBufferStride = Math.ceil(UBOForwardLight.SIZE / device.uboOffsetAlignment) * device.uboOffsetAlignment;
-        this._lightBufferElementCount = this._lightBufferStride / Float32Array.BYTES_PER_ELEMENT;
+        // init descriptorSet 
+        //layout(set = 2, binding = 1) uniform CCForwardLight {
+        //        highp vec4 cc_lightPos[LIGHTS_PER_PASS]; // xyz: pos, w: isSpotLight
+        //        vec4 cc_lightColor[LIGHTS_PER_PASS]; // xyz: color, w: intensity
+        //        vec4 cc_lightSizeRangeAngle[LIGHTS_PER_PASS]; // x: size, y: range, z: spotAngle
+        //        vec4 cc_lightDir[LIGHTS_PER_PASS]; // xyz: dir
+        //};
+        // total buffer size = sizeof(vec4) * 4 * _maxDeferredLights
+        var totalSize = Float32Array.BYTES_PER_ELEMENT * 4 * 4 * this._maxDeferredLights;
+        totalSize = Math.ceil(totalSize / device.uboOffsetAlignment) * device.uboOffsetAlignment;
 
         this._deferredLitsBufs = this._flow.pipeline.device.createBuffer(new BufferInfo(
             BufferUsageBit.UNIFORM | BufferUsageBit.TRANSFER_DST,
             MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
-            this._lightBufferStride * this._maxDeferredLights,
-            this._lightBufferStride,
+            totalSize,
+            device.uboOffsetAlignment
         ));
 
-        let len = this._lightBufferElementCount * this._maxDeferredLights + 0;
-        const deferredLitsBufView = device.createBuffer(new BufferViewInfo(this._deferredLitsBufs, 0, len * 4));
-        this._lightBufferData = new Float32Array(this._lightBufferElementCount * this._maxDeferredLights + 0);
+        const deferredLitsBufView = device.createBuffer(new BufferViewInfo(this._deferredLitsBufs, 0, totalSize));
+        this._lightBufferData = new Float32Array(totalSize / Float32Array.BYTES_PER_ELEMENT);
 
         const layoutInfo = new DescriptorSetLayoutInfo(localDescriptorSetLayout.bindings);
         this._descriptorSetLayout = device.createDescriptorSetLayout(layoutInfo);
