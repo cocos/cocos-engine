@@ -4,14 +4,20 @@
 #include "../gfx/GFXCommandBuffer.h"
 
 namespace cc {
+
+class MessageQueue;
+
 namespace gfx {
 
-// For secondary command buffers
+class LinearAllocatorPool;
+
 class CC_DLL CommandBufferAgent final : public Agent<CommandBuffer> {
 public:
     using Agent::Agent;
     CommandBufferAgent(Device *device) = delete;
     ~CommandBufferAgent() override;
+
+    static void flushCommands(uint count, CommandBufferAgent *const *cmdBuffs, bool multiThreaded);
 
     bool initialize(const CommandBufferInfo &info) override;
     void destroy() override;
@@ -39,8 +45,16 @@ public:
     uint getNumInstances() const override { return _actor->getNumInstances(); }
     uint getNumTris() const override { return _actor->getNumTris(); }
 
+    CC_INLINE MessageQueue *getMessageQueue() { return _messageQueue; }
+    LinearAllocatorPool *getAllocator();
+
 private:
     friend class DeviceAgent;
+
+    void initMessageQueue();
+    void destroyMessageQueue();
+    MessageQueue *_messageQueue = nullptr;
+    vector<LinearAllocatorPool *> _allocatorPools;
 };
 
 } // namespace gfx

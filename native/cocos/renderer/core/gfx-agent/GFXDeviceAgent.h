@@ -1,8 +1,8 @@
 #pragma once
 
 #include "../gfx/GFXDevice.h"
-#include "base/threading/Semaphore.h"
 #include "GFXAgent.h"
+#include "base/threading/Semaphore.h"
 
 namespace cc {
 
@@ -33,7 +33,7 @@ public:
     void acquire() override;
     void present() override;
 
-    CommandBuffer *doCreateCommandBuffer(const CommandBufferInfo &info) override;
+    CommandBuffer *doCreateCommandBuffer(const CommandBufferInfo &info, bool hasAgent) override;
     Fence *createFence() override;
     Queue *createQueue() override;
     Buffer *createBuffer() override;
@@ -49,6 +49,7 @@ public:
     PipelineState *createPipelineState() override;
     void copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint count) override;
 
+    void flushCommands(uint count, CommandBuffer *const *cmdBuffs) override;
     void setMultithreaded(bool multithreaded) override;
     SurfaceTransform getSurfaceTransform() const override { return _actor->getSurfaceTransform(); }
     uint getWidth() const override { return _actor->getWidth(); }
@@ -65,14 +66,14 @@ public:
 
 protected:
     friend class CommandBufferAgent;
-    
+
     bool _multithreaded{false};
     MessageQueue *_mainEncoder{nullptr};
-    
+
     uint _currentIndex = 0u;
     vector<LinearAllocatorPool *> _allocatorPools;
     Semaphore _frameBoundarySemaphore{MAX_CPU_FRAME_AHEAD};
-    
+
     unordered_set<LinearAllocatorPool **> _allocatorPoolRefs;
 };
 

@@ -10,7 +10,6 @@
 #include "GFXLinearAllocatorPool.h"
 #include "GFXPipelineLayoutAgent.h"
 #include "GFXPipelineStateAgent.h"
-#include "GFXPrimaryCommandBufferAgent.h"
 #include "GFXQueueAgent.h"
 #include "GFXRenderPassAgent.h"
 #include "GFXSamplerAgent.h"
@@ -52,7 +51,7 @@ bool DeviceAgent::initialize(const DeviceInfo &info) {
     _API = _actor->getGfxAPI();
     _deviceName = _actor->getDeviceName();
     _queue = CC_NEW(QueueAgent(_actor->getQueue(), this));
-    _cmdBuff = CC_NEW(PrimaryCommandBufferAgent(_actor->getCommandBuffer(), this));
+    _cmdBuff = CC_NEW(CommandBufferAgent(_actor->getCommandBuffer(), this));
     _renderer = _actor->getRenderer();
     _vendor = _actor->getVendor();
     _maxVertexAttributes = _actor->getMaxVertexAttributes();
@@ -76,6 +75,7 @@ bool DeviceAgent::initialize(const DeviceInfo &info) {
     for (uint i = 0u; i < MAX_CPU_FRAME_AHEAD + 1; ++i) {
         _allocatorPools[i] = CC_NEW(LinearAllocatorPool);
     }
+    ((CommandBufferAgent *)_cmdBuff)->initMessageQueue();
 
     setMultithreaded(true);
 
@@ -92,6 +92,7 @@ void DeviceAgent::destroy() {
         });
 
     if (_cmdBuff) {
+        ((CommandBufferAgent *)_cmdBuff)->destroyMessageQueue();
         ((CommandBufferAgent *)_cmdBuff)->_actor = nullptr;
         CC_DELETE(_cmdBuff);
         _cmdBuff = nullptr;
@@ -186,9 +187,8 @@ void DeviceAgent::setMultithreaded(bool multithreaded) {
     }
 }
 
-CommandBuffer *DeviceAgent::doCreateCommandBuffer(const CommandBufferInfo &info) {
-    CommandBuffer *actor = _actor->doCreateCommandBuffer(info);
-    if (info.type == CommandBufferType::PRIMARY) return CC_NEW(PrimaryCommandBufferAgent(actor, this));
+CommandBuffer *DeviceAgent::doCreateCommandBuffer(const CommandBufferInfo &info, bool hasAgent) {
+    CommandBuffer *actor = _actor->doCreateCommandBuffer(info, true);
     return CC_NEW(CommandBufferAgent(actor, this));
 }
 
@@ -299,6 +299,25 @@ void DeviceAgent::copyBuffersToTexture(const uint8_t *const *buffers, Texture *d
         count, count,
         {
             actor->copyBuffersToTexture(buffers, dst, regions, count);
+        });
+}
+
+void DeviceAgent::flushCommands(uint count, CommandBuffer *const *cmdBuffs) {
+    bool multiThreaded = hasFeature(Feature::MULTITHREADED_SUBMISSION);
+
+    const CommandBufferAgent **agentCmdBuffs = getMainAllocator()->allocate<const CommandBufferAgent *>(count);
+    for (uint i = 0; i < count; ++i) {
+        agentCmdBuffs[i] = (const CommandBufferAgent *)cmdBuffs[i];
+    }
+
+    ENQUEUE_MESSAGE_3(
+        _mainEncoder,
+        DeviceFlushCommands,
+        count, count,
+        cmdBuffs, (CommandBufferAgent *const *)agentCmdBuffs,
+        multiThreaded, multiThreaded,
+        {
+            CommandBufferAgent::flushCommands(count, cmdBuffs, multiThreaded);
         });
 }
 

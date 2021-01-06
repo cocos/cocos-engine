@@ -232,8 +232,8 @@ void GLES3Device::bindDeviceContext(bool bound) {
     }
 }
 
-CommandBuffer *GLES3Device::doCreateCommandBuffer(const CommandBufferInfo &info) {
-    if (info.type == CommandBufferType::PRIMARY) return CC_NEW(GLES3PrimaryCommandBuffer(this));
+CommandBuffer *GLES3Device::doCreateCommandBuffer(const CommandBufferInfo &info, bool hasAgent) {
+    if (hasAgent || info.type == CommandBufferType::PRIMARY) return CC_NEW(GLES3PrimaryCommandBuffer(this));
     return CC_NEW(GLES3CommandBuffer(this));
 }
 

@@ -86,7 +86,7 @@ public:
     CC_INLINE uint getThreadID() const { return _threadID; }
 
 protected:
-    virtual CommandBuffer *doCreateCommandBuffer(const CommandBufferInfo &info) override;
+    virtual CommandBuffer *doCreateCommandBuffer(const CommandBufferInfo &info, bool hasAgent) override;
     virtual Fence *createFence() override;
     virtual Queue *createQueue() override;
     virtual Buffer *createBuffer() override;

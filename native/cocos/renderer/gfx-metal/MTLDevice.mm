@@ -231,7 +231,7 @@ Queue *CCMTLDevice::createQueue() {
     return CC_NEW(CCMTLQueue(this));
 }
 
-CommandBuffer *CCMTLDevice::doCreateCommandBuffer(const CommandBufferInfo &info) {
+CommandBuffer *CCMTLDevice::doCreateCommandBuffer(const CommandBufferInfo &info, bool hasAgent) {
     return CC_NEW(CCMTLCommandBuffer(this));
 }
 
