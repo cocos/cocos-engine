@@ -31,7 +31,7 @@
 
 // @ts-check
 import { EDITOR, TEST } from 'internal:constants';
-import {ccclass, serializable} from 'cc.decorator';
+import { ccclass, serializable } from 'cc.decorator';
 import { genSamplerHash, SamplerInfoIndex, samplerLib } from '../renderer/core/sampler-lib';
 import IDGenerator from '../utils/id-generator';
 import { Asset } from './asset';
@@ -53,7 +53,8 @@ export class TextureBase extends Asset {
      * @zh 此贴图是否为压缩的像素格式。
      */
     public get isCompressed (): boolean {
-        return this._format >= PixelFormat.RGB_ETC1 && this._format <= PixelFormat.RGBA_PVRTC_4BPPV1;
+        return (this._format >= PixelFormat.RGB_ETC1 && this._format <= PixelFormat.RGBA_ASTC_12x12)
+        || (this._format >= PixelFormat.RGB_A_PVRTC_2BPPV1 && this._format <= PixelFormat.RGBA_ETC1);
     }
 
     /**
@@ -114,16 +115,16 @@ export class TextureBase extends Asset {
     @serializable
     protected _anisotropy = 8;
 
-    protected _width: number = 1;
-    protected _height: number = 1;
+    protected _width = 1;
+    protected _height = 1;
 
     private _id: string;
     private _samplerInfo: (number | undefined)[] = [];
-    private _samplerHash: number = 0;
+    private _samplerHash = 0;
     private _gfxSampler: Sampler | null = null;
     private _gfxDevice: Device | null = null;
 
-    private _textureHash: number = 0;
+    private _textureHash = 0;
 
     constructor () {
         super();
@@ -241,7 +242,7 @@ export class TextureBase extends Asset {
      */
     public destroy () {
         const destroyed = super.destroy();
-        if(destroyed && legacyCC.director.root && legacyCC.director.root.ui) {
+        if (destroyed && legacyCC.director.root && legacyCC.director.root.ui) {
             legacyCC.director.root.ui._releaseDescriptorSetCache(this._textureHash);
         }
         return destroyed;
@@ -294,9 +295,9 @@ export class TextureBase extends Asset {
      */
     public _serialize (ctxForExporting: any): any {
         if (EDITOR || TEST) {
-            return this._minFilter + ',' + this._magFilter + ',' +
-                this._wrapS + ',' + this._wrapT + ',' +
-                this._mipFilter + ',' + this._anisotropy;
+            return `${this._minFilter},${this._magFilter},${
+                this._wrapS},${this._wrapT},${
+                this._mipFilter},${this._anisotropy}`;
         }
     }
 
@@ -335,11 +336,9 @@ export class TextureBase extends Asset {
     protected _getGFXPixelFormat (format) {
         if (format === PixelFormat.RGBA_ETC1) {
             format = PixelFormat.RGB_ETC1;
-        }
-        else if (format === PixelFormat.RGB_A_PVRTC_4BPPV1) {
+        } else if (format === PixelFormat.RGB_A_PVRTC_4BPPV1) {
             format = PixelFormat.RGB_PVRTC_4BPPV1;
-        }
-        else if (format === PixelFormat.RGB_A_PVRTC_2BPPV1) {
+        } else if (format === PixelFormat.RGB_A_PVRTC_2BPPV1) {
             format = PixelFormat.RGB_PVRTC_2BPPV1;
         }
         return format;
