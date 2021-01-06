@@ -23,13 +23,14 @@
  THE SOFTWARE.
  */
 
+import { EDITOR } from 'internal:constants';
 import { builtinResMgr } from '../../core/builtin';
 import { Material } from '../../core/assets';
 import { Texture2D } from '../../core';
 import { Component } from '../../core/components';
 import { AttributeName, Format } from '../../core/gfx/define';
 import { Attribute } from '../../core/gfx';
-import { Mat4, Vec2, Vec4, Quat} from '../../core/math';
+import { Mat4, Vec2, Vec4, Quat } from '../../core/math';
 import { MaterialInstance, IMaterialInstanceInfo } from '../../core/renderer/core/material-instance';
 import { MacroRecord } from '../../core/renderer/core/pass-utils';
 import { RenderMode, Space } from '../enum';
@@ -38,7 +39,6 @@ import { packGradientRange } from '../animator/gradient-range';
 import { Pass } from '../../core/renderer/core/pass';
 import { packCurveRangeXYZ, packCurveRangeZ, packCurveRangeXYZW, packCurveRangeN, packCurveRangeXY } from '../animator/curve-range';
 import { ParticleSystemRendererBase } from './particle-system-renderer-base';
-import { EDITOR } from 'internal:constants';
 
 const _tempWorldTrans = new Mat4();
 const _tempVec4 = new Vec4();
@@ -69,8 +69,8 @@ const _vert_attr_name = {
     VERT_ROTATION_UV: 'a_rotation_uv',
     COLOR: 'a_color',
     DIR_LIFE: 'a_dir_life',
-    RANDOM_SEED: 'a_rndSeed'
-  };
+    RANDOM_SEED: 'a_rndSeed',
+};
 
 const _gpu_vert_attr = [
     new Attribute(_vert_attr_name.POSITION_STARTTIME, Format.RGBA32F),
@@ -78,7 +78,7 @@ const _gpu_vert_attr = [
     new Attribute(_vert_attr_name.VERT_ROTATION_UV, Format.RGBA32F),
     new Attribute(_vert_attr_name.COLOR, Format.RGBA32F),
     new Attribute(_vert_attr_name.DIR_LIFE, Format.RGBA32F),
-    new Attribute(_vert_attr_name.RANDOM_SEED, Format.R32F)
+    new Attribute(_vert_attr_name.RANDOM_SEED, Format.R32F),
 ];
 
 const _gpu_vert_attr_mesh = [
@@ -106,17 +106,17 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
     private _node_scale: Vec4;
     protected _vertAttrs: Attribute[] = [];
     protected _defaultMat: Material | null = null;
-    private _particleNum: number = 0;
-    private _tempParticle: any = null;
+    private _particleNum = 0;
+    private _tempParticle: Particle | null = null;
     private _colorTexture: Texture2D | null = null;
     private _forceTexture: Texture2D | null = null;
     private _velocityTexture: Texture2D | null = null;
     private _rotationTexture: Texture2D | null = null;
     private _sizeTexture: Texture2D | null = null;
     private _animTexture: Texture2D | null = null;
-    private _uTimeHandle: number = 0;
-    private _uRotHandle: number = 0;
-    private _inited: boolean = false;
+    private _uTimeHandle = 0;
+    private _uRotHandle = 0;
+    private _inited = false;
 
     constructor (info: any) {
         super(info);
@@ -171,7 +171,7 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
         if (this._animTexture) this._animTexture.destroy();
     }
 
-    public enableModule (name: string, val: Boolean, pm: IParticleModule) {
+    public enableModule (name: string, val: boolean, pm: IParticleModule) {
         const mat: Material | null = this._particleSystem.getMaterialInstance(0) || this._defaultMat;
         if (!mat) {
             return;
@@ -202,18 +202,21 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
 
             this._particleSystem.node.getWorldMatrix(_tempWorldTrans);
             switch (this._particleSystem.scaleSpace) {
-                case Space.Local:
-                    this._particleSystem.node.getScale(this._node_scale);
-                    break;
-                case Space.World:
-                    this._particleSystem.node.getWorldScale(this._node_scale);
-                    break;
+            case Space.Local:
+                this._particleSystem.node.getScale(this._node_scale);
+                break;
+            case Space.World:
+                this._particleSystem.node.getWorldScale(this._node_scale);
+                break;
+            default:
+                break;
             }
 
             this.initShaderUniform(mat!);
         }
         this._particleNum = this._model!.updateGPUParticles(this._particleNum, this._particleSystem._time, dt);
         this.updateShaderUniform(dt);
+        this._model!.enabled = this._particleNum > 0;
         return this._particleNum;
     }
 
@@ -379,14 +382,14 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
 
     private _setVertexAttrib () {
         switch (this._renderInfo!.renderMode) {
-            case RenderMode.StrecthedBillboard:
-                this._vertAttrs = _gpu_vert_attr.slice();
-                break;
-            case RenderMode.Mesh:
-                this._vertAttrs = _gpu_vert_attr_mesh.slice();
-                break;
-            default:
-                this._vertAttrs = _gpu_vert_attr.slice();
+        case RenderMode.StrecthedBillboard:
+            this._vertAttrs = _gpu_vert_attr.slice();
+            break;
+        case RenderMode.Mesh:
+            this._vertAttrs = _gpu_vert_attr_mesh.slice();
+            break;
+        default:
+            this._vertAttrs = _gpu_vert_attr.slice();
         }
     }
 
@@ -419,12 +422,14 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
 
         ps.node.getWorldMatrix(_tempWorldTrans);
         switch (ps.scaleSpace) {
-            case Space.Local:
-                ps.node.getScale(this._node_scale);
-                break;
-            case Space.World:
-                ps.node.getWorldScale(this._node_scale);
-                break;
+        case Space.Local:
+            ps.node.getScale(this._node_scale);
+            break;
+        case Space.World:
+            ps.node.getWorldScale(this._node_scale);
+            break;
+        default:
+            break;
         }
 
         if (ps._simulationSpace === Space.World) {
