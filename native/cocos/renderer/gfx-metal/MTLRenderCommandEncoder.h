@@ -216,7 +216,7 @@ public:
 
     CC_INLINE void setVertexBuffer(const id<MTLBuffer> buffer, uint offset, uint index)
     {
-        if (_vertexBufferMap.count(index) > 0 && (buffer == _vertexBufferMap[index]))
+        if (_vertexBufferMap.count(index) > 0 && (buffer == _vertexBufferMap[index].buffer && offset == _vertexBufferMap[index].offset))
             return;
 
         _vertexBufferMap[index] = {buffer, offset};

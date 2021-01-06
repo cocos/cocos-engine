@@ -66,7 +66,6 @@ private:
     bool _isIndirectDrawSupported = false;
     uint _bufferViewOffset = 0;
 
-    bool _isDrawIndirectByIndex = false;
     std::vector<MTLDrawIndexedPrimitivesIndirectArguments> _indexedPrimitivesIndirectArguments;
     std::vector<MTLDrawPrimitivesIndirectArguments> _primitiveIndirectArguments;
     DrawInfoList _drawInfos;

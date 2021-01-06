@@ -82,7 +82,7 @@ bool CCMTLBuffer::initialize(const BufferInfo &info)
     else if (_usage & BufferUsageBit::INDIRECT)
     {
         _drawInfos.resize(_count);
-        if (_indirectDrawSupported)
+        if (_isIndirectDrawSupported)
         {
             createMTLBuffer(_size, _memUsage);
             _primitiveIndirectArguments.resize(_count);
@@ -174,7 +174,7 @@ void CCMTLBuffer::resize(uint size)
     if (_usage & BufferUsageBit::INDIRECT)
     {
         _drawInfos.resize(_count);
-        if (_indirectDrawSupported)
+        if (_isIndirectDrawSupported)
         {
             createMTLBuffer(size, _memUsage);
             _primitiveIndirectArguments.resize(_count);
@@ -257,7 +257,6 @@ void CCMTLBuffer::update(void *buffer, uint size) {
                     }
                     updateMTLBuffer(_primitiveIndirectArguments.data(), 0, drawInfoCount * stride);
                 }
-                memcpy(static_cast<uint8_t *>(_mtlBuffer.contents), arguments.data(), drawInfoCount * sizeof(MTLDrawPrimitivesIndirectArguments));
             }
         }
         else
@@ -267,7 +266,6 @@ void CCMTLBuffer::update(void *buffer, uint size) {
     } else {
         updateMTLBuffer(buffer, 0, size);
     }
-}
 
     if (_mtlBuffer)
     {

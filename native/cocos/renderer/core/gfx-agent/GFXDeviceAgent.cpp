@@ -171,6 +171,7 @@ void DeviceAgent::setMultithreaded(bool multithreaded) {
             actor, _actor,
             {
                 actor->bindDeviceContext(true);
+                CC_LOG_INFO("Device thread detached.");
             });
     } else {
         ENQUEUE_MESSAGE_1(
@@ -182,6 +183,7 @@ void DeviceAgent::setMultithreaded(bool multithreaded) {
         _mainEncoder->finishWriting(true); // wait till finished
         _mainEncoder->setImmediateMode(true);
         _actor->bindRenderContext(true);
+        CC_LOG_INFO("Device thread joined.");
     }
 }
 

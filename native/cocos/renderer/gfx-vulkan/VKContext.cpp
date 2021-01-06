@@ -285,19 +285,21 @@ bool CCVKContext::initialize(const ContextInfo &info) {
         surfaceCreateInfo.window = (ANativeWindow *)_windowHandle;
         VK_CHECK(vkCreateAndroidSurfaceKHR(_gpuContext->vkInstance, &surfaceCreateInfo, nullptr, &_gpuContext->vkSurface));
 
-        EventDispatcher::addCustomEventListener(EVENT_DESTROY_WINDOW, [this](const CustomEvent &) -> void {
+        EventDispatcher::addCustomEventListener(EVENT_DESTROY_WINDOW, [this](const CustomEvent &event) -> void {
             if (_gpuContext && _gpuContext->vkSurface != VK_NULL_HANDLE) {
+
+                CCVKDevice *device = (CCVKDevice *)_device;
 
                 CCVKQueue *queue = (CCVKQueue *)_device->getQueue();
 
-                uint fenceCount = _device->gpuFencePool()->size();
+                uint fenceCount = device->gpuFencePool()->size();
                 if (fenceCount) {
-                    VK_CHECK(vkWaitForFences(_device->gpuDevice()->vkDevice, fenceCount,
-                                             _device->gpuFencePool()->data(), VK_TRUE, DEFAULT_TIMEOUT));
+                    VK_CHECK(vkWaitForFences(device->gpuDevice()->vkDevice, fenceCount,
+                                             device->gpuFencePool()->data(), VK_TRUE, DEFAULT_TIMEOUT));
                 }
 
-                _device->destroySwapchain();
-                _device->_swapchainReady = false;
+                device->destroySwapchain();
+                device->_swapchainReady = false;
 
                 vkDestroySurfaceKHR(_gpuContext->vkInstance, _gpuContext->vkSurface, nullptr);
                 _gpuContext->vkSurface = VK_NULL_HANDLE;
@@ -314,7 +316,7 @@ bool CCVKContext::initialize(const ContextInfo &info) {
                 VK_CHECK(vkCreateAndroidSurfaceKHR(_gpuContext->vkInstance, &surfaceCreateInfo,
                                                    nullptr, &_gpuContext->vkSurface));
 
-                _device->checkSwapchainStatus();
+                ((CCVKDevice *)_device)->checkSwapchainStatus();
             }
         });
 #elif defined(VK_USE_PLATFORM_WIN32_KHR)

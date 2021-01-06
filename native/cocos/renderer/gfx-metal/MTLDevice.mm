@@ -178,6 +178,7 @@ void CCMTLDevice::destroy() {
     if (_memoryAlarmListenerId != 0) {
         EventDispatcher::removeCustomEventListener(EVENT_MEMORY_WARNING, _memoryAlarmListenerId);
         _memoryAlarmListenerId = 0;
+    }
     if (_autoreleasePool) {
         [(NSAutoreleasePool*)_autoreleasePool drain];
         _autoreleasePool = nullptr;
