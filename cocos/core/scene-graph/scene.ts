@@ -96,6 +96,10 @@ export class Scene extends BaseNode {
 
     protected _dirtyFlags = 0;
 
+    protected _updateScene () {
+        this._scene = this;
+    }
+
     constructor (name: string) {
         super(name);
         this._activeInHierarchy = false;
@@ -127,7 +131,13 @@ export class Scene extends BaseNode {
      * @en Only for compatibility purpose, user should not add any component to the scene
      * @zh 仅为兼容性保留，用户不应该在场景上直接添加任何组件
      */
-    public addComponent (typeOrClassName: string | Function): Component {
+    public addComponent(...args: any[]): Component;
+
+    /**
+     * @en Only for compatibility purpose, user should not add any component to the scene
+     * @zh 仅为兼容性保留，用户不应该在场景上直接添加任何组件
+     */
+    public addComponent (): Component {
         throw new Error(getError(3822));
     }
 

@@ -87,6 +87,9 @@
             if (!buffer)  {
                 buffer = renderer.registerCustomBuffer(jsFormat);
             }
+
+            buffer.reset();
+
             const isRecreate = buffer.request(srcVertexCount, srcIndicesCount);
             if (!isRecreate) {
                 buffer = renderer.registerCustomBuffer(jsFormat);
@@ -101,6 +104,10 @@
             vBuf.set(srcVBuf.subarray(0, srcVertexFloatCount), 0);
             iBuf.set(srcIBuf.subarray(0, srcIndicesCount), 0);
 
+            // forbid js upload data, call by middleware
+            buffer.uploadBuffers();
+            buffer.byteOffset = 0;
+            
             // forbid auto merge, because of it's meanless
             buffer.indicesOffset = 0;
             renderInfoLookup[nativeFormat][i] = buffer;
