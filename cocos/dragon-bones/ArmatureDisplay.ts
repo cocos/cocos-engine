@@ -782,6 +782,7 @@ export class ArmatureDisplay extends UIRenderable {
     }
 
     onDestroy () {
+        this._materialInstances = this._materialInstances.filter((instance) => !!instance);
         super.onDestroy();
         this._inited = false;
 
