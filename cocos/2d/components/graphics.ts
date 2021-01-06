@@ -632,7 +632,7 @@ export class Graphics extends UIRenderable {
 
             ia.vertexBuffers[0].update(renderData.vData, byteOffset);
             ia.vertexCount = renderData.vertexStart;
-            ia.indexBuffer!.update(renderData.iData, renderData.indicesStart * Uint32Array.BYTES_PER_ELEMENT);
+            ia.indexBuffer!.update(renderData.iData, renderData.indicesStart * Uint16Array.BYTES_PER_ELEMENT);
             ia.indexCount = renderData.indicesStart;
 
             renderData.lastFilledVertex = renderData.vertexStart;
