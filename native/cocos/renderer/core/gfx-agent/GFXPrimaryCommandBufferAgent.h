@@ -6,12 +6,11 @@
 namespace cc {
 namespace gfx {
 
-// For secondary command buffers
-class CC_DLL CommandBufferAgent final : public Agent<CommandBuffer> {
+class CC_DLL PrimaryCommandBufferAgent final : public Agent<CommandBuffer> {
 public:
     using Agent::Agent;
-    CommandBufferAgent(Device *device) = delete;
-    ~CommandBufferAgent() override;
+    PrimaryCommandBufferAgent(Device *device) = delete;
+    ~PrimaryCommandBufferAgent() override;
 
     bool initialize(const CommandBufferInfo &info) override;
     void destroy() override;

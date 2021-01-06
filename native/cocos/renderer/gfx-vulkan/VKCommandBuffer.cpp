@@ -65,13 +65,12 @@ bool CCVKCommandBuffer::initialize(const CommandBufferInfo &info) {
 
 void CCVKCommandBuffer::destroy() {
     if (_gpuCommandBuffer) {
-        ((CCVKDevice *)_device)->gpuDevice()->getCommandBufferPool(std::this_thread::get_id())->yield(_gpuCommandBuffer);
         CC_DELETE(_gpuCommandBuffer);
         _gpuCommandBuffer = nullptr;
     }
 }
 
-void CCVKCommandBuffer::begin(RenderPass *renderPass, uint subpass, Framebuffer *frameBuffer, int submitIndex) {
+void CCVKCommandBuffer::begin(RenderPass *renderPass, uint subpass, Framebuffer *frameBuffer) {
     if (_gpuCommandBuffer->began) return;
 
     ((CCVKDevice *)_device)->gpuDevice()->getCommandBufferPool(std::this_thread::get_id())->request(_gpuCommandBuffer);

@@ -34,7 +34,7 @@ public:
     virtual void acquire() = 0;
     virtual void present() = 0;
 
-    CC_INLINE CommandBuffer *createCommandBuffer(const CommandBufferInfo &info) { CommandBuffer *res = doCreateCommandBuffer(info, false); res->initialize(info); return res; }
+    CC_INLINE CommandBuffer *createCommandBuffer(const CommandBufferInfo &info) { CommandBuffer *res = doCreateCommandBuffer(info); res->initialize(info); return res; }
     CC_INLINE Fence *createFence(const FenceInfo &info) { Fence *res = createFence(); res->initialize(info); return res; }
     CC_INLINE Queue *createQueue(const QueueInfo &info) { Queue *res = createQueue(); res->initialize(info); return res; }
     CC_INLINE Buffer *createBuffer(const BufferInfo &info) { Buffer *res = createBuffer(); res->initialize(info); return res; }
@@ -96,7 +96,7 @@ public:
 protected:
     friend class DeviceAgent;
 
-    virtual CommandBuffer *doCreateCommandBuffer(const CommandBufferInfo &info, bool hasAgent) = 0;
+    virtual CommandBuffer *doCreateCommandBuffer(const CommandBufferInfo &info) = 0;
     virtual Fence *createFence() = 0;
     virtual Queue *createQueue() = 0;
     virtual Buffer *createBuffer() = 0;

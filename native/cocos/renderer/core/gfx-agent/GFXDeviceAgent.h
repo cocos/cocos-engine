@@ -33,7 +33,7 @@ public:
     void acquire() override;
     void present() override;
 
-    CommandBuffer *doCreateCommandBuffer(const CommandBufferInfo &info, bool hasAgent) override;
+    CommandBuffer *doCreateCommandBuffer(const CommandBufferInfo &info) override;
     Fence *createFence() override;
     Queue *createQueue() override;
     Buffer *createBuffer() override;

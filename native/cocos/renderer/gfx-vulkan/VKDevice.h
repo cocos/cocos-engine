@@ -92,7 +92,7 @@ public:
     CCVKGPUStagingBufferPool *gpuStagingBufferPool();
 
 private:
-    virtual CommandBuffer *doCreateCommandBuffer(const CommandBufferInfo &info, bool hasAgent) override;
+    virtual CommandBuffer *doCreateCommandBuffer(const CommandBufferInfo &info) override;
     virtual Fence *createFence() override;
     virtual Queue *createQueue() override;
     virtual Buffer *createBuffer() override;

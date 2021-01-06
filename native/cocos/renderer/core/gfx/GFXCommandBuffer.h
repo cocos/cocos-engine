@@ -15,7 +15,7 @@ public:
 public:
     virtual bool initialize(const CommandBufferInfo &info) = 0;
     virtual void destroy() = 0;
-    virtual void begin(RenderPass *renderPass, uint subpass, Framebuffer *frameBuffer, int submitIndex) = 0;
+    virtual void begin(RenderPass *renderPass, uint subpass, Framebuffer *frameBuffer) = 0;
     virtual void end() = 0;
     virtual void beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, int stencil, uint32_t secondaryCBCount, const CommandBuffer *const *secondaryCBs) = 0;
     virtual void endRenderPass() = 0;
@@ -42,12 +42,10 @@ public:
         bindDescriptorSet(set, descriptorSet, static_cast<uint>(dynamicOffsets.size()), dynamicOffsets.data());
     }
 
-    CC_INLINE void begin() { begin(nullptr, 0, nullptr, -1); }
-    CC_INLINE void begin(int submitIndex) { begin(nullptr, 0, nullptr, submitIndex); }
+    CC_INLINE void begin() { begin(nullptr, 0, nullptr); }
     // secondary command buffer specifics
-    CC_INLINE void begin(RenderPass *renderPass) { begin(renderPass, 0, nullptr, -1); }
-    CC_INLINE void begin(RenderPass *renderPass, uint subpass) { begin(renderPass, subpass, nullptr, -1); }
-    CC_INLINE void begin(RenderPass *renderPass, uint subpass, Framebuffer *frameBuffer) { begin(renderPass, subpass, frameBuffer, -1); }
+    CC_INLINE void begin(RenderPass *renderPass) { begin(renderPass, 0, nullptr); }
+    CC_INLINE void begin(RenderPass *renderPass, uint subpass) { begin(renderPass, subpass, nullptr); }
 
     CC_INLINE void updateBuffer(Buffer *buff, const void *data) { updateBuffer(buff, data, buff->getSize()); }
     CC_INLINE void execute(const CommandBufferList &cmdBuffs, uint32_t count) { execute(cmdBuffs.data(), count); }

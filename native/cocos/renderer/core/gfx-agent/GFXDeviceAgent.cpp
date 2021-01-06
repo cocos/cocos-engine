@@ -10,6 +10,7 @@
 #include "GFXLinearAllocatorPool.h"
 #include "GFXPipelineLayoutAgent.h"
 #include "GFXPipelineStateAgent.h"
+#include "GFXPrimaryCommandBufferAgent.h"
 #include "GFXQueueAgent.h"
 #include "GFXRenderPassAgent.h"
 #include "GFXSamplerAgent.h"
@@ -51,8 +52,7 @@ bool DeviceAgent::initialize(const DeviceInfo &info) {
     _API = _actor->getGfxAPI();
     _deviceName = _actor->getDeviceName();
     _queue = CC_NEW(QueueAgent(_actor->getQueue(), this));
-    _cmdBuff = CC_NEW(CommandBufferAgent(_actor->getCommandBuffer(), this));
-    ((CommandBufferAgent *)_cmdBuff)->initMessageQueue();
+    _cmdBuff = CC_NEW(PrimaryCommandBufferAgent(_actor->getCommandBuffer(), this));
     _renderer = _actor->getRenderer();
     _vendor = _actor->getVendor();
     _maxVertexAttributes = _actor->getMaxVertexAttributes();
@@ -91,7 +91,6 @@ void DeviceAgent::destroy() {
             actor->destroy();
         });
 
-    ((CommandBufferAgent *)_cmdBuff)->destroyMessageQueue();
     if (_cmdBuff) {
         ((CommandBufferAgent *)_cmdBuff)->_actor = nullptr;
         CC_DELETE(_cmdBuff);
@@ -187,10 +186,10 @@ void DeviceAgent::setMultithreaded(bool multithreaded) {
     }
 }
 
-CommandBuffer *DeviceAgent::doCreateCommandBuffer(const CommandBufferInfo &info, bool hasAgent) {
-    CommandBuffer *actor = _actor->doCreateCommandBuffer(info, true);
-    CommandBufferAgent *agent = CC_NEW(CommandBufferAgent(actor, this));
-    return agent;
+CommandBuffer *DeviceAgent::doCreateCommandBuffer(const CommandBufferInfo &info) {
+    CommandBuffer *actor = _actor->doCreateCommandBuffer(info);
+    if (info.type == CommandBufferType::PRIMARY) return CC_NEW(PrimaryCommandBufferAgent(actor, this));
+    return CC_NEW(CommandBufferAgent(actor, this));
 }
 
 Fence *DeviceAgent::createFence() {

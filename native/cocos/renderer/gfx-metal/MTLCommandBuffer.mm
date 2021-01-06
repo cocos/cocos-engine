@@ -60,7 +60,7 @@ bool CCMTLCommandBuffer::initialize(const CommandBufferInfo &info) {
 void CCMTLCommandBuffer::destroy() {
 }
 
-void CCMTLCommandBuffer::begin(RenderPass *renderPass, uint subpass, Framebuffer *frameBuffer, int submitIndex) {
+void CCMTLCommandBuffer::begin(RenderPass *renderPass, uint subpass, Framebuffer *frameBuffer) {
     if (_commandBufferBegan) return;
 
     _mtlCommandBuffer = [_mtlCommandQueue commandBuffer];

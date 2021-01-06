@@ -73,8 +73,6 @@ void QueueAgent::submit(const CommandBuffer *const *cmdBuffs, uint count, Fence 
         {
             //auto startTime = std::chrono::steady_clock::now();
 
-            CommandBufferAgent::flushCommands(cmdBuffs, count, multiThreaded);
-
             //auto endTime = std::chrono::steady_clock::now();
             //float dt = std::chrono::duration_cast<std::chrono::nanoseconds>(endTime - startTime).count() / 1e6;
             //static float timeAcc = 0.f;
