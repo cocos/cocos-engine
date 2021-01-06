@@ -634,6 +634,14 @@ export class Pass {
         }
     }
 
+    // Only for UI
+    private _destroyHandle () {
+        if (this._handle) {
+            PassPool.free(this._handle); this._handle = NULL_HANDLE;
+        }
+    }
+
+    // Only for UI
     private _initPassFromTarget (target: Pass, dss: DepthStencilState, bs: BlendState) {
         PassPool.set(this.handle, PassView.PRIORITY, target.priority);
         PassPool.set(this.handle, PassView.STAGE, target.stage);

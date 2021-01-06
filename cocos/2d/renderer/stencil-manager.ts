@@ -121,6 +121,13 @@ export class StencilManager {
         this.stage = Stage.DISABLED;
     }
 
+    public destroy () {
+        this.stencilStateMap.forEach((value, key) => {
+            value.destroy();
+        });
+        this.stencilStateMap.clear();
+    }
+
     private stencilStateMap = new Map<Stage, DepthStencilState>();
 
     public getStencilStage (stage: Stage) {

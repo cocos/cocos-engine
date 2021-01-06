@@ -89,6 +89,12 @@ export class UIDrawBatch {
 
     public destroy (ui: UI) {
         if (this._handle) {
+            const length = this.passes.length;
+            for (let i = 0; i < length; i++) {
+                // @ts-expect-error hack for UI destroyHandle
+                this.passes[i]._destroyHandle();
+            }
+            this._passes = [];
             UIBatchPool.free(this._handle);
             this._handle = NULL_HANDLE;
         }
@@ -105,7 +111,6 @@ export class UIDrawBatch {
         this.isStatic = false;
         this.useLocalData = null;
         this.visFlags = UI_VIS_FLAG;
-        this._passes = [];
     }
 
     // object version
