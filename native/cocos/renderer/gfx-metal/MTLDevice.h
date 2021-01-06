@@ -70,8 +70,6 @@ public:
     CC_INLINE CCMTLGPUStagingBufferPool *gpuStagingBufferPool() const { return _gpuStagingBufferPools[_currentFrameIndex]; }
     CC_INLINE bool isSamplerDescriptorCompareFunctionSupported() const { return _isSamplerDescriptorCompareFunctionSupported; }
 
-    virtual void ensureAutoreleasePool();
-
 protected:
     virtual CommandBuffer *doCreateCommandBuffer(const CommandBufferInfo &info, bool hasAgent) override;
     virtual Fence *createFence() override;
@@ -89,10 +87,10 @@ protected:
     virtual PipelineState *createPipelineState() override;
     virtual void copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint count) override;
 
+private:
     void onMemoryWarning();
 
 private:
-    void *_autoreleasePool = nullptr;
     void *_mtlCommandQueue = nullptr;
     void *_mtkView = nullptr;
     void *_mtlDevice = nullptr;

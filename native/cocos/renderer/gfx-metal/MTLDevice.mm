@@ -81,7 +81,7 @@ bool CCMTLDevice::initialize(const DeviceInfo &info) {
     _mtkView = (MTKView *)_windowHandle;
     id<MTLDevice> mtlDevice = ((MTKView *)_mtkView).device;
     _mtlDevice = mtlDevice;
-    _mtlCommandQueue = [mtlDevice newCommandQueueWithMaxCommandBufferCount: MAX_COMMAND_BUFFER_COUNT];
+    _mtlCommandQueue = [mtlDevice newCommandQueue];
 
     _mtlFeatureSet = mu::highestSupportedFeatureSet(mtlDevice);
     const auto gpuFamily = mu::getGPUFamily(MTLFeatureSet(_mtlFeatureSet));
@@ -179,11 +179,6 @@ void CCMTLDevice::destroy() {
         EventDispatcher::removeCustomEventListener(EVENT_MEMORY_WARNING, _memoryAlarmListenerId);
         _memoryAlarmListenerId = 0;
     }
-    if (_autoreleasePool) {
-        [(NSAutoreleasePool*)_autoreleasePool drain];
-        _autoreleasePool = nullptr;
-    }
-    
     CC_SAFE_DESTROY(_queue);
     CC_SAFE_DESTROY(_cmdBuff);
     CC_SAFE_DESTROY(_context);
@@ -197,17 +192,9 @@ void CCMTLDevice::destroy() {
 
 void CCMTLDevice::resize(uint width, uint height) {}
 
-void CCMTLDevice::ensureAutoreleasePool() {
-    if (!_autoreleasePool) {
-        _autoreleasePool = [[NSAutoreleasePool alloc] init];
-//        CC_LOG_INFO("POOL: %p ALLOCED", _autoreleasePool);
-    }
-}
-
 void CCMTLDevice::acquire() {
     _inFlightSemaphore->wait();
 
-    ensureAutoreleasePool();
     // Clear queue stats
     CCMTLQueue *queue = static_cast<CCMTLQueue *>(_queue);
     queue->_numDrawCalls = 0;
@@ -234,12 +221,6 @@ void CCMTLDevice::present() {
         _inFlightSemaphore->signal();
     }];
     [mtlCommandBuffer commit];
-
-    if (_autoreleasePool) {
-//        CC_LOG_INFO("POOL: %p RELEASED", _autoreleasePool);
-        [(NSAutoreleasePool*)_autoreleasePool drain];
-        _autoreleasePool = nullptr;
-    }
 }
 
 Fence *CCMTLDevice::createFence() {
