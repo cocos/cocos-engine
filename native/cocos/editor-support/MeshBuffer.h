@@ -78,7 +78,10 @@ public:
 
 private:
     void next();
-
+    void clear();
+    void init();
+    void afterCleanupHandle();
+    
 private:
     std::vector<IOTypedArray *> _ibArr;
     std::vector<IOTypedArray *> _vbArr;

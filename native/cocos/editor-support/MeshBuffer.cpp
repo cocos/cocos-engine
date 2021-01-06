@@ -42,14 +42,14 @@ MeshBuffer::MeshBuffer(int vertexFormat, size_t indexSize, size_t vertexSize)
         next();
     });
 
-    auto rIB = new IOTypedArray(se::Object::TypedArrayType::UINT16, _ib.getCapacity());
-    _ibArr.push_back(rIB);
-
-    auto rVB = new IOTypedArray(se::Object::TypedArrayType::FLOAT32, _vb.getCapacity());
-    _vbArr.push_back(rVB);
+    init();
 }
 
 MeshBuffer::~MeshBuffer() {
+    clear();
+}
+
+void MeshBuffer::clear() {
     auto num = _vbArr.size();
     for (auto i = 0; i < num; i++) {
         delete _ibArr[i];
@@ -57,6 +57,21 @@ MeshBuffer::~MeshBuffer() {
     }
     _ibArr.clear();
     _vbArr.clear();
+}
+
+void MeshBuffer::afterCleanupHandle() {
+    clear();
+    se::ScriptEngine::getInstance()->addAfterInitHook(std::bind(&MeshBuffer::init, this));
+}
+
+void MeshBuffer::init() {
+    auto rIB = new IOTypedArray(se::Object::TypedArrayType::UINT16, _ib.getCapacity());
+    _ibArr.push_back(rIB);
+
+    auto rVB = new IOTypedArray(se::Object::TypedArrayType::FLOAT32, _vb.getCapacity());
+    _vbArr.push_back(rVB);
+
+    se::ScriptEngine::getInstance()->addAfterCleanupHook(std::bind(&MeshBuffer::afterCleanupHandle, this));
 }
 
 void MeshBuffer::uploadVB() {
