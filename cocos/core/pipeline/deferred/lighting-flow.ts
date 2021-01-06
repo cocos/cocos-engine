@@ -14,7 +14,7 @@ import { Framebuffer, RenderPass, LoadOp,
     TextureType, TextureUsageBit, ColorAttachment, DepthStencilAttachment, RenderPassInfo, TextureInfo, FramebufferInfo } from '../../gfx';
 import { UNIFORM_LIGHTING_RESULTMAP_BINDING } from '../define';
 import { genSamplerHash, samplerLib } from '../../renderer/core/sampler-lib';
-import { Address, Filter} from '../../gfx/define';
+import { Address, Filter, SurfaceTransform} from '../../gfx/define';
 import { Camera } from 'cocos/core/renderer/scene';
 
 /**
@@ -59,8 +59,15 @@ export class LightingFlow extends RenderFlow {
         super.activate(pipeline);
 
         const device = pipeline.device;
-        this._width = device.width;
-        this._height = device.height;
+        if (device.surfaceTransform == SurfaceTransform.IDENTITY || 
+            device.surfaceTransform == SurfaceTransform.ROTATE_180) {
+                this._width = device.width;
+                this._height = device.height;
+            }
+        else {
+                this._width = device.height;
+                this._height = device.width;
+        }
 
         if(!this._lightingRenderPass) {
             const colorAttachment = new ColorAttachment();

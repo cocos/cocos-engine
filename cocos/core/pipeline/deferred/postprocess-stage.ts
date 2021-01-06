@@ -74,7 +74,7 @@ export class PostprocessStage extends RenderStage {
 
         const cmdBuff = pipeline.commandBuffers[0];
 
-        pipeline.updateCameraUBO(camera);
+        pipeline.updateCameraUBO(camera, camera.window!.hasOffScreenAttachments);
         const vp = camera.viewport;
         this._renderArea!.x = vp.x * camera.width;
         this._renderArea!.y = vp.y * camera.height;
@@ -101,7 +101,7 @@ export class PostprocessStage extends RenderStage {
             shader = ShaderPool.get(this._postprocessMaterial!.passes[POSTPROCESSPASS_INDEX].getShaderVariant());
         }
 
-        const inputAssembler = pipeline.quadIA;
+        const inputAssembler = camera.window!.hasOffScreenAttachments ? pipeline.quadIA_offscreen : pipeline.quadIA_onscreen;
         var pso:PipelineState|null = null;
         if (pass != null && shader != null && inputAssembler != null)
         {

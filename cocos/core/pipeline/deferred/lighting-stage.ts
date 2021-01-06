@@ -313,7 +313,7 @@ export class LightingStage extends RenderStage {
             shader = ShaderPool.get(this._deferredMaterial!.passes[LIGHTINGPASS_INDEX].getShaderVariant());
         }
 
-        const inputAssembler = pipeline.quadIA;
+        const inputAssembler = pipeline.quadIA_offscreen;
         var pso:PipelineState|null = null;
         if (pass != null && shader != null && inputAssembler != null)
         {

@@ -280,10 +280,6 @@ export class Camera {
         if (this._isProjDirty || this._curTransform !== orientation) {
             this._curTransform = orientation;
             let projectionSignY = this._device.screenSpaceSignY;
-            if (this._window && this._window.hasOffScreenAttachments) { // when  offscreen...
-                projectionSignY *= this._device.UVSpaceSignY; // apply sign-Y correction
-                orientation = SurfaceTransform.IDENTITY; // no pre-rotationdrawing
-            }
             if (this._proj === CameraProjection.PERSPECTIVE) {
                 Mat4.perspective(this._matProj, this._fov, this._aspect, this._nearClip, this._farClip,
                     this._fovAxis === CameraFOVAxis.VERTICAL, this._device.clipSpaceMinZ, projectionSignY, orientation);
@@ -301,7 +297,7 @@ export class Camera {
                     this._device.clipSpaceMinZ, projectionSignY * this._device.UVSpaceSignY, SurfaceTransform.IDENTITY);
             }
             Mat4.invert(this._matProjInv, this._matProj);
-            Mat4.invert(this._matProjInv_offscreen, this._matProjInv_offscreen);
+            Mat4.invert(this._matProjInv_offscreen, this._matProj_offscreen);
 
             CameraPool.setMat4(this._poolHandle, CameraView.MAT_PROJ, this._matProj);
             CameraPool.setMat4(this._poolHandle, CameraView.MAT_PROJ_INV, this._matProjInv);

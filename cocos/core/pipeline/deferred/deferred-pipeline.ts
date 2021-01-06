@@ -15,7 +15,8 @@ import {
     ClearFlag, 
     StoreOp,
     Filter,
-    Address} from '../../gfx/define';
+    Address,
+    SurfaceTransform} from '../../gfx/define';
 import { IRenderObject, UBOGlobal, UBOCamera, UBOShadow, UNIFORM_SHADOWMAP_BINDING, UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING } from '../define';
 import { ColorAttachment, DepthStencilAttachment, RenderPass, LoadOp, TextureLayout, RenderPassInfo, 
          BufferInfo, Texture } from '../../gfx';
@@ -35,7 +36,6 @@ import { genSamplerHash, samplerLib } from 'cocos/core/renderer/core/sampler-lib
 import { builtinResMgr } from 'cocos/core/builtin';
 import { Texture2D } from 'cocos/core/assets/texture-2d';
 import { updatePlanarPROJ } from '../forward/scene-culling';
-import { Layers } from '../../scene-graph/layers';
 
 const matShadowView = new Mat4();
 const matShadowViewProj = new Mat4();
@@ -49,6 +49,12 @@ const _samplerInfo = [
     Address.CLAMP,
     Address.CLAMP,
 ];
+
+class InputAssemblerData {
+    quadIB: Buffer|null = null;
+    quadVB: Buffer|null = null;
+    quadIA: InputAssembler|null = null;
+}
 
 /**
  * @en The deferred render pipeline
@@ -70,9 +76,11 @@ export class DeferredPipeline extends RenderPipeline {
     protected _globalUBO = new Float32Array(UBOGlobal.COUNT);
     protected _cameraUBO = new Float32Array(UBOCamera.COUNT);
     protected _shadowUBO = new Float32Array(UBOShadow.COUNT);
-    protected _quadVB: Buffer | null = null;
     protected _quadIB: Buffer | null = null;
-    protected _quadIA: InputAssembler | null = null;
+    protected _quadVB_onscreen: Buffer | null = null;
+    protected _quadVB_offscreen: Buffer | null = null;
+    protected _quadIA_onscreen: InputAssembler | null = null;
+    protected _quadIA_offscreen: InputAssembler | null = null;
     protected _gbufferDepth: Texture|null = null;
 
     public fog: Fog = new Fog();
@@ -115,8 +123,12 @@ export class DeferredPipeline extends RenderPipeline {
      * @zh
      * 四边形输入汇集器。
      */
-    public get quadIA (): InputAssembler {
-        return this._quadIA!;
+    public get quadIA_onscreen (): InputAssembler {
+        return this._quadIA_onscreen!;
+    }
+
+    public get quadIA_offscreen (): InputAssembler {
+        return this._quadIA_offscreen!;
     }
 
     get gbufferDepth () {
@@ -289,10 +301,23 @@ export class DeferredPipeline extends RenderPipeline {
         // update global defines when all states initialized.
         this.macros.CC_USE_HDR = this._isHDR;
         this.macros.CC_SUPPORT_FLOAT_TEXTURE = this.device.hasFeature(Feature.TEXTURE_FLOAT);
-            
-        if (!this.createQuadInputAssembler()) {
+        
+        var inputAssemblerData_offscreen = new InputAssemblerData;
+        inputAssemblerData_offscreen = this.createQuadInputAssembler(SurfaceTransform.IDENTITY);
+        if (!inputAssemblerData_offscreen.quadIB || !inputAssemblerData_offscreen.quadVB || !inputAssemblerData_offscreen.quadIA) {
             return false;
         }
+        this._quadIB = inputAssemblerData_offscreen.quadIB;
+        this._quadVB_offscreen =  inputAssemblerData_offscreen.quadVB;
+        this._quadIA_offscreen =  inputAssemblerData_offscreen.quadIA;
+
+        var inputAssemblerData_onscreen = new InputAssemblerData;
+        inputAssemblerData_onscreen = this.createQuadInputAssembler(device.surfaceTransform);
+        if (!inputAssemblerData_onscreen.quadIB || !inputAssemblerData_onscreen.quadVB || !inputAssemblerData_onscreen.quadIA) {
+            return false;
+        }
+        this._quadVB_onscreen =  inputAssemblerData_onscreen.quadVB;
+        this._quadIA_onscreen =  inputAssemblerData_onscreen.quadIA;
 
         return true;
     }
@@ -476,53 +501,83 @@ export class DeferredPipeline extends RenderPipeline {
      * @zh
      * 创建四边形输入汇集器。
      */
-    protected createQuadInputAssembler (): boolean {
+    protected createQuadInputAssembler (surfaceTransform: SurfaceTransform): InputAssemblerData {
 
         // create vertex buffer
+        var inputAssemblerData = new InputAssemblerData;
 
         const vbStride = Float32Array.BYTES_PER_ELEMENT * 4;
         const vbSize = vbStride * 4;
 
-        this._quadVB = this._device.createBuffer(new BufferInfo(
+        var quadVB = this._device.createBuffer(new BufferInfo(
             BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST,
             MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
             vbSize,
             vbStride,
         ));
 
-        if (!this._quadVB) {
-            return false;
+        if (!quadVB) {
+            return inputAssemblerData;
         }
 
-        const verts = new Float32Array(4 * 4);
-        let n = 0;
-        verts[n++] = -1.0; verts[n++] = -1.0; verts[n++] = 0.0; verts[n++] = 1.0;
-        verts[n++] = 1.0; verts[n++] = -1.0; verts[n++] = 1.0; verts[n++] = 1.0;
-        verts[n++] = -1.0; verts[n++] = 1.0; verts[n++] = 0.0; verts[n++] = 0.0;
-        verts[n++] = 1.0; verts[n++] = 1.0; verts[n++] = 1.0; verts[n++] = 0.0;
+        const vbData = new Float32Array(4 * 4);
 
-        this._quadVB.update(verts);
+        let n = 0;
+        switch (surfaceTransform) {
+            case (SurfaceTransform.IDENTITY):
+                n = 0;
+                vbData[n++] = -1.0; vbData[n++] = -1.0; vbData[n++] = 0.0; vbData[n++] = 1.0;
+                vbData[n++] = 1.0; vbData[n++] = -1.0; vbData[n++] = 1.0; vbData[n++] = 1.0;
+                vbData[n++] = -1.0; vbData[n++] = 1.0; vbData[n++] = 0.0; vbData[n++] = 0.0;
+                vbData[n++] = 1.0; vbData[n++] = 1.0; vbData[n++] = 1.0; vbData[n++] = 0.0;
+                break;
+            case (SurfaceTransform.ROTATE_90): 
+                n = 0;
+                vbData[n++] = -1.0; vbData[n++] = -1.0; vbData[n++] = 1.0; vbData[n++] = 1.0;
+                vbData[n++] = 1.0; vbData[n++] = -1.0; vbData[n++] = 1.0; vbData[n++] = 0.0;
+                vbData[n++] = -1.0; vbData[n++] = 1.0; vbData[n++] = 0.0; vbData[n++] = 1.0;
+                vbData[n++] = 1.0; vbData[n++] = 1.0; vbData[n++] = 0.0; vbData[n++] = 0.0;
+                break;
+            case (SurfaceTransform.ROTATE_180):
+                n = 0;
+                vbData[n++] = -1.0; vbData[n++] = -1.0; vbData[n++] = 0.0; vbData[n++] = 0.0;
+                vbData[n++] = 1.0; vbData[n++] = -1.0; vbData[n++] = 1.0; vbData[n++] = 0.0;
+                vbData[n++] = -1.0; vbData[n++] = 1.0; vbData[n++] = 0.0; vbData[n++] = 1.0;
+                vbData[n++] = 1.0; vbData[n++] = 1.0; vbData[n++] = 1.0; vbData[n++] = 1.0;
+                break;
+            case (SurfaceTransform.ROTATE_270):
+                n = 0;
+                vbData[n++] = -1.0; vbData[n++] = -1.0; vbData[n++] = 0.0; vbData[n++] = 0.0;
+                vbData[n++] = 1.0; vbData[n++] = -1.0; vbData[n++] = 0.0; vbData[n++] = 1.0;
+                vbData[n++] = -1.0; vbData[n++] = 1.0; vbData[n++] = 1.0; vbData[n++] = 0.0;
+                vbData[n++] = 1.0; vbData[n++] = 1.0; vbData[n++] = 1.0; vbData[n++] = 1.0;
+                break;
+            default:
+                break;
+        }
+
+        quadVB.update(vbData);
 
         // create index buffer
         const ibStride = Uint8Array.BYTES_PER_ELEMENT;
         const ibSize = ibStride * 6;
 
-        this._quadIB = this._device.createBuffer(new BufferInfo( 
+        var quadIB = this._device.createBuffer(new BufferInfo( 
             BufferUsageBit.INDEX | BufferUsageBit.TRANSFER_DST,
             MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
             ibSize,
             ibStride,
         ));
 
-        if (!this._quadIB) {
-            return false;
+        if (!quadIB) {
+            return inputAssemblerData;
         }
 
         const indices = new Uint8Array(6);
         indices[0] = 0; indices[1] = 1; indices[2] = 2;
         indices[3] = 1; indices[4] = 3; indices[5] = 2;
 
-        this._quadIB.update(indices);
+        quadIB.update(indices);
 
         // create input assembler
 
@@ -530,13 +585,16 @@ export class DeferredPipeline extends RenderPipeline {
         attributes[0] = new Attribute('a_position', Format.RG32F);
         attributes[1] = new Attribute('a_texCoord', Format.RG32F);
 
-        this._quadIA = this._device.createInputAssembler(new InputAssemblerInfo(
+        var quadIA = this._device.createInputAssembler(new InputAssemblerInfo(
             attributes,
-            [this._quadVB],
-            this._quadIB,
+            [quadVB],
+            quadIB,
         ));
 
-        return true;
+        inputAssemblerData.quadIB = quadIB;
+        inputAssemblerData.quadVB = quadVB;
+        inputAssemblerData.quadIA = quadIA;
+        return inputAssemblerData;
     }
 
     /**
@@ -544,19 +602,29 @@ export class DeferredPipeline extends RenderPipeline {
      * 销毁四边形输入汇集器。
      */
     protected destroyQuadInputAssembler () {
-        if (this._quadVB) {
-            this._quadVB.destroy();
-            this._quadVB = null;
-        }
-
         if (this._quadIB) {
             this._quadIB.destroy();
             this._quadIB = null;
         }
 
-        if (this._quadIA) {
-            this._quadIA.destroy();
-            this._quadIA = null;
+        if (this._quadVB_onscreen) {
+            this._quadVB_onscreen.destroy();
+            this._quadVB_onscreen = null;
+        }
+
+        if (this._quadVB_offscreen) {
+            this._quadVB_offscreen.destroy();
+            this._quadVB_offscreen = null;
+        }
+
+        if (this._quadIA_onscreen) {
+            this._quadIA_onscreen.destroy();
+            this._quadIA_onscreen = null;
+        }
+
+        if (this._quadIA_offscreen) {
+            this._quadIA_offscreen.destroy();
+            this._quadIA_offscreen = null;
         }
     }
 }

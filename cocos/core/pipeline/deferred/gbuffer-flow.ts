@@ -15,7 +15,7 @@ import { Framebuffer, RenderPass, LoadOp,
     TextureType, TextureUsageBit, ColorAttachment, DepthStencilAttachment, RenderPassInfo, TextureInfo, FramebufferInfo } from '../../gfx';
 import { genSamplerHash, samplerLib } from '../../renderer/core/sampler-lib';
 
-import { Address, Filter} from '../../gfx/define';
+import { Address, Filter, SurfaceTransform} from '../../gfx/define';
 import { Camera } from 'cocos/core/renderer/scene';
 import { sceneCulling } from './scene-culling';
 
@@ -63,6 +63,16 @@ export class GbufferFlow extends RenderFlow {
         const device = pipeline.device;
         this._width = device.width;
         this._height = device.height;
+
+        if (device.surfaceTransform == SurfaceTransform.IDENTITY || 
+            device.surfaceTransform == SurfaceTransform.ROTATE_180) {
+                this._width = device.width;
+                this._height = device.height;
+            }
+        else {
+                this._width = device.height;
+                this._height = device.width;
+        }
 
         if(!this._gbufferRenderPass) {
 
