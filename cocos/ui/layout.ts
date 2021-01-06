@@ -710,6 +710,11 @@ export class Layout extends Component {
         }
     }
 
+    protected _childChange () {
+        this._checkUsefulObj();
+        this._doLayoutDirty();
+    }
+
     protected _addEventListeners () {
         director.on(Director.EVENT_AFTER_UPDATE, this.updateLayout, this);
         this.node.on(NodeEvent.SIZE_CHANGED, this._resized, this);
@@ -737,7 +742,7 @@ export class Layout extends Component {
             child.on(NodeEvent.SIZE_CHANGED, this._doLayoutDirty, this);
             child.on(NodeEvent.TRANSFORM_CHANGED, this._transformDirty, this);
             child.on(NodeEvent.ANCHOR_CHANGED, this._doLayoutDirty, this);
-            child.on('active-in-hierarchy-changed', this._doLayoutDirty, this);
+            child.on('active-in-hierarchy-changed', this._childChange, this);
         }
     }
 
@@ -748,7 +753,7 @@ export class Layout extends Component {
             child.off(NodeEvent.SIZE_CHANGED, this._doLayoutDirty, this);
             child.off(NodeEvent.TRANSFORM_CHANGED, this._transformDirty, this);
             child.off(NodeEvent.ANCHOR_CHANGED, this._doLayoutDirty, this);
-            child.off('active-in-hierarchy-changed', this._doLayoutDirty, this);
+            child.off('active-in-hierarchy-changed', this._childChange, this);
         }
     }
 
@@ -756,17 +761,14 @@ export class Layout extends Component {
         child.on(NodeEvent.SIZE_CHANGED, this._doLayoutDirty, this);
         child.on(NodeEvent.TRANSFORM_CHANGED, this._transformDirty, this);
         child.on(NodeEvent.ANCHOR_CHANGED, this._doLayoutDirty, this);
-        child.on('active-in-hierarchy-changed', this._doLayoutDirty, this);
-
-        this._checkUsefulObj();
-        this._doLayoutDirty();
+        child.on('active-in-hierarchy-changed', this._childChange, this);
     }
 
     protected _childRemoved (child: Node) {
         child.off(NodeEvent.SIZE_CHANGED, this._doLayoutDirty, this);
         child.off(NodeEvent.TRANSFORM_CHANGED, this._transformDirty, this);
         child.off(NodeEvent.ANCHOR_CHANGED, this._doLayoutDirty, this);
-        child.off('active-in-hierarchy-changed', this._doLayoutDirty, this);
+        child.off('active-in-hierarchy-changed', this._childChange, this);
 
         const index = this._usefulLayoutObj.findIndex((target: UITransform, index: number) => {
             if (target.node === child) {
