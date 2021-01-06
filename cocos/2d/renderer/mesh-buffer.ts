@@ -174,7 +174,7 @@ export class MeshBuffer {
     public recordBatch (): InputAssemblerHandle {
         const vCount = this.indicesOffset - this.indicesStart;
         if (!vCount) {
-            return NULL_HANDLE;
+            return NULL_HANDLE as InputAssemblerHandle;
         }
 
         if (this._hInputAssemblers.length <= this._nextFreeIAHandle) {

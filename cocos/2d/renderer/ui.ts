@@ -520,7 +520,7 @@ export class UI {
         const uiCanvas = this._currCanvas;
         const hIA = buffer?.recordBatch();
         const mat = this._currMaterial;
-        if (!hIA || !mat) {
+        if (!hIA || !mat || !buffer) {
             return;
         }
         let blendState;
