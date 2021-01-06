@@ -28,14 +28,13 @@
  * @module scene-graph
  */
 
-import { EDITOR, DEV, TEST, SUPPORT_JIT } from 'internal:constants';
 import { CCObject, isValid } from '../data/object';
 import { array, Pool } from '../utils/js';
 import { tryCatchFunctor_EDITOR } from '../utils/misc';
 import { invokeOnEnable, createInvokeImpl, createInvokeImplJit, OneOffInvoker, LifeCycleInvoker } from './component-scheduler';
+import { EDITOR, DEV, TEST, SUPPORT_JIT } from 'internal:constants';
 import { legacyCC } from '../global-exports';
 import { assert, errorID } from '../platform/debug';
-import { SystemEventType } from '../platform';
 
 const MAX_POOL_SIZE = 4;
 
@@ -48,7 +47,8 @@ const callPreloadInTryCatch = EDITOR && tryCatchFunctor_EDITOR('__preload');
 const callOnLoadInTryCatch = EDITOR && function (c) {
     try {
         c.onLoad();
-    } catch (e) {
+    }
+    catch (e) {
         legacyCC._throw(e);
     }
     c._objFlags |= IsOnLoadCalled;
@@ -75,23 +75,23 @@ class UnsortedInvoker extends LifeCycleInvoker {
     }
 }
 
-const invokePreload = SUPPORT_JIT ? createInvokeImplJit('c.__preload();')
-    : createInvokeImpl(
-        (c) => { c.__preload(); },
-        (iterator) => {
+const invokePreload = SUPPORT_JIT ? createInvokeImplJit('c.__preload();') :
+    createInvokeImpl(
+        function (c) { c.__preload(); },
+        function (iterator) {
             const array = iterator.array;
             for (iterator.i = 0; iterator.i < array.length; ++iterator.i) {
                 array[iterator.i].__preload();
             }
-        },
+        }
     );
-const invokeOnLoad = SUPPORT_JIT ? createInvokeImplJit(`c.onLoad();c._objFlags|=${IsOnLoadCalled}`, false, IsOnLoadCalled)
-    : createInvokeImpl(
-        (c) => {
+const invokeOnLoad = SUPPORT_JIT ? createInvokeImplJit('c.onLoad();c._objFlags|=' + IsOnLoadCalled, false, IsOnLoadCalled) :
+    createInvokeImpl(
+        function (c) {
             c.onLoad();
             c._objFlags |= IsOnLoadCalled;
         },
-        (iterator) => {
+        function (iterator) {
             const array = iterator.array;
             for (iterator.i = 0; iterator.i < array.length; ++iterator.i) {
                 const comp = array[iterator.i];
@@ -99,7 +99,7 @@ const invokeOnLoad = SUPPORT_JIT ? createInvokeImplJit(`c.onLoad();c._objFlags|=
                 comp._objFlags |= IsOnLoadCalled;
             }
         },
-        IsOnLoadCalled,
+        IsOnLoadCalled
     );
 
 const activateTasksPool = new Pool(MAX_POOL_SIZE);
@@ -121,7 +121,7 @@ activateTasksPool.get = function getActivateTask () {
     invoker._neg.i = -1;
     invoker._pos.i = -1;
 
-    return task as unknown;
+    return task;
 };
 
 function _componentCorrupted (node, comp, index) {
@@ -131,25 +131,29 @@ function _componentCorrupted (node, comp, index) {
     }
     if (comp) {
         node._removeComponent(comp);
-    } else {
+    }
+    else {
         array.removeAt(node._components, index);
     }
 }
 
 function _onLoadInEditor (comp) {
     if (comp.onLoad && !legacyCC.GAME_VIEW) {
-        // @ts-expect-error Editor function
+        // @ts-expect-error
         const focused = Editor.Selection.getLastSelected('node') === comp.node.uuid;
         if (focused) {
             if (comp.onFocusInEditor && callOnFocusInTryCatch) {
                 callOnFocusInTryCatch(comp);
             }
-        } else if (comp.onLostFocusInEditor && callOnLostFocusInTryCatch) {
-            callOnLostFocusInTryCatch(comp);
+        }
+        else {
+            if (comp.onLostFocusInEditor && callOnLostFocusInTryCatch) {
+                callOnLostFocusInTryCatch(comp);
+            }
         }
     }
     if (!TEST) {
-        // @ts-expect-error Editor function
+        // @ts-expect-error
         _Scene.AssetsWatcher.start(comp);
     }
 }
@@ -193,7 +197,8 @@ export default class NodeActivator {
 
             this._activatingStack.pop();
             activateTasksPool.put(task);
-        } else {
+        }
+        else {
             this._deactivateNodeRecursively(node);
 
             // remove children of this node from previous activating tasks to debounce
@@ -205,7 +210,7 @@ export default class NodeActivator {
                 lastTask.onEnable.cancelInactive();
             }
         }
-        node.emit(SystemEventType.ACTIVE_IN_HIERARCHY_CHANGED, node);
+        node.emit('active-in-hierarchy-changed', node);
     }
 
     /**
@@ -226,7 +231,8 @@ export default class NodeActivator {
             if (comp.__preload) {
                 if (preloadInvoker) {
                     preloadInvoker.add(comp);
-                } else {
+                }
+                else {
                     comp.__preload();
                 }
             }
@@ -236,11 +242,13 @@ export default class NodeActivator {
             if (comp.onLoad) {
                 if (onLoadInvoker) {
                     onLoadInvoker.add(comp);
-                } else {
+                }
+                else {
                     comp.onLoad();
                     comp._objFlags |= IsOnLoadCalled;
                 }
-            } else {
+            }
+            else {
                 comp._objFlags |= IsOnLoadCalled;
             }
         }
@@ -289,7 +297,8 @@ export default class NodeActivator {
             const component = node._components[i];
             if (component instanceof legacyCC.Component) {
                 this.activateComp(component, preloadInvoker, onLoadInvoker, onEnableInvoker);
-            } else {
+            }
+            else {
                 _componentCorrupted(node, component, i);
                 --i;
                 --originCount;
@@ -360,7 +369,8 @@ if (EDITOR) {
                 if (comp.__preload) {
                     if (preloadInvoker) {
                         preloadInvoker.add(comp);
-                    } else if (callPreloadInTryCatch) {
+                    }
+                    else if (callPreloadInTryCatch) {
                         callPreloadInTryCatch(comp);
                     }
                 }
@@ -370,10 +380,12 @@ if (EDITOR) {
                 if (comp.onLoad) {
                     if (onLoadInvoker) {
                         onLoadInvoker.add(comp);
-                    } else if (callOnLoadInTryCatch) {
+                    }
+                    else if (callOnLoadInTryCatch) {
                         callOnLoadInTryCatch(comp);
                     }
-                } else {
+                }
+                else {
                     comp._objFlags |= IsOnLoadCalled;
                     _onLoadInEditor(comp);
                 }
@@ -394,9 +406,7 @@ if (EDITOR) {
 
         if (comp.onDestroy && (comp._objFlags & IsOnLoadCalled)) {
             if (legacyCC.GAME_VIEW || comp.constructor._executeInEditMode) {
-                if (callOnDestroyInTryCatch) {
-                    callOnDestroyInTryCatch(comp);
-                }
+                callOnDestroyInTryCatch && callOnDestroyInTryCatch(comp);
             }
         }
     };
@@ -405,7 +415,8 @@ if (EDITOR) {
         if (comp.resetInEditor) {
             try {
                 comp.resetInEditor(didResetToDefault);
-            } catch (e) {
+            }
+            catch (e) {
                 legacyCC._throw(e);
             }
         }

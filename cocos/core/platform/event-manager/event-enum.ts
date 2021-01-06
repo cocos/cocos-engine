@@ -246,12 +246,6 @@ export enum SystemEventType {
      * @zh 当节点在兄弟节点中的顺序发生变化时触发的事件。
      */
     SIBLING_ORDER_CHANGED = 'sibling-order-changed',
-
-    /**
-     * @en The event type for node's active state changed.
-     * @zh 当节点的活动状态发生变化时触发的事件。
-     */
-    ACTIVE_IN_HIERARCHY_CHANGED = 'active-in-hierarchy-changed',
 }
 
 ccenum(SystemEventType);
