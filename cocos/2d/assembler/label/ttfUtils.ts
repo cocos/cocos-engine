@@ -72,7 +72,7 @@ const _shadowColor = Color.BLACK.clone();
 
 const _canvasPadding = new Rect();
 const _contentSizeExtend = Size.ZERO.clone();
-let _nodeContentSize = Size.ZERO.clone();
+const _nodeContentSize = Size.ZERO.clone();
 const _startPosition = Vec2.ZERO.clone();
 
 const _drawUnderlinePos = Vec2.ZERO.clone();
@@ -167,9 +167,8 @@ export const ttfUtils =  {
         _fontSize = comp.fontSize;
         _drawFontsize = _fontSize;
         _overflow = comp.overflow;
-        _canvasSize.width = trans.width;
-        _canvasSize.height = trans.height;
-        _nodeContentSize = trans.contentSize;
+        _nodeContentSize.width = _canvasSize.width = trans.width;
+        _nodeContentSize.height = _canvasSize.height = trans.height;
         _underlineThickness = comp.underlineHeight;
         _lineHeight = comp.lineHeight;
         _hAlign = comp.horizontalAlign;
@@ -262,7 +261,7 @@ export const ttfUtils =  {
 
         firstLinelabelY += _BASELINE_OFFSET * _fontSize;
 
-        return _startPosition.set(labelX + _canvasPadding.x, firstLinelabelY + _canvasPadding.y);
+        _startPosition.set(labelX + _canvasPadding.x, firstLinelabelY + _canvasPadding.y);
     },
 
     _updateTexture () {
@@ -594,6 +593,9 @@ export const ttfUtils =  {
             // set node height
             _nodeContentSize.height = rawHeight + _contentSizeExtend.height;
             break;
+        }
+        default: {
+            // nop
         }
         }
     },
