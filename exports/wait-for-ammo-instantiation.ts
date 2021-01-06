@@ -24,4 +24,5 @@
  */
 
 import '../cocos/physics/ammo/polyfill-atob';
+
 export { waitForAmmoInstantiation as default } from '../cocos/physics/ammo/ammo-instantiated';
