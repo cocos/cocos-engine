@@ -10,7 +10,6 @@ using TFJobToken = void;
 class TFJobGraph final {
 public:
     TFJobGraph(TFJobSystem *system) : _executor(&system->_executor) {}
-    ~TFJobGraph() { _tasks.clear(); }
 
     template <typename Function>
     uint createJob(Function &&func) noexcept;
@@ -20,7 +19,7 @@ public:
 
     void makeEdge(uint j1, uint j2) noexcept;
 
-    void run(uint startJob) noexcept;
+    void run() noexcept;
 
     CC_INLINE void waitForAll() {
         if (_pending) {
@@ -33,7 +32,7 @@ private:
     tf::Executor *_executor = nullptr;
 
     tf::Taskflow _flow;
-    vector<tf::Task> _tasks;
+    deque<tf::Task> _tasks; // existing tasks cannot be invalidated
 
     std::future<void> _future;
     bool _pending = false;

@@ -239,7 +239,7 @@ template <typename T, typename C = typename vector<T>::type, typename P = std::l
 using priority_queue = std::priority_queue<T, C, P>;
 
 template <typename T, typename A = SA<T, STLAP>>
-using dequeue = std::deque<T, A>;
+using deque = std::deque<T, A>;
 
 template <typename T, typename P = std::less<T>, typename A = SA<T, STLAP>>
 using set = std::set<T, P, A>;
@@ -269,7 +269,7 @@ template <typename T, typename C = typename vector<T>::type, typename P = std::l
 using priority_queue = std::priority_queue<T, C, P>;
 
 template <typename T>
-using dequeue = std::deque<T>;
+using deque = std::deque<T>;
 
 template <typename T, typename P = std::less<T>>
 using set = std::set<T, P>;

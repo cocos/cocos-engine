@@ -16,12 +16,8 @@ void TBBJobGraph::makeEdge(uint j1, uint j2) noexcept {
     tbb::flow::make_edge(_nodes[j1], _nodes[j2]);
 }
 
-void TBBJobGraph::run(uint startJob) noexcept {
-    if (startJob & PARALLEL_JOB_FLAG) {
-        startJob = _parallelJobs[startJob & PARALLEL_JOB_MASK].predecessor;
-    }
-    if (startJob >= _nodes.size()) return;
-    _nodes[startJob].try_put(tbb::flow::continue_msg());
+void TBBJobGraph::run() noexcept {
+    _nodes.front().try_put(tbb::flow::continue_msg());
     _pending = true;
 }
 

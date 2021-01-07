@@ -23,11 +23,10 @@ void CommandBufferAgent::flushCommands(uint count, CommandBufferAgent *const *cm
 
     if (count > workForThisThread + 1 && multiThreaded) { // more than one job to dispatch
         JobGraph g(JobSystem::getInstance());
-
-        uint job = g.createForEachIndexJob(workForThisThread, count, 1u, [cmdBuffs](uint i) {
+        g.createForEachIndexJob(workForThisThread, count, 1u, [cmdBuffs](uint i) {
             cmdBuffs[i]->getMessageQueue()->flushMessages();
         });
-        g.run(job);
+        g.run();
 
         for (uint i = 0u; i < workForThisThread; ++i) {
             cmdBuffs[i]->getMessageQueue()->flushMessages();

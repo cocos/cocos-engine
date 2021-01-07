@@ -10,7 +10,9 @@ class TBBJobSystem;
 
 class TBBJobGraph final {
 public:
-    TBBJobGraph(TBBJobSystem *system) {}
+    TBBJobGraph(TBBJobSystem *system) {
+        _nodes.emplace_back(_graph, [](TBBJobToken t) {});
+    }
 
     template <typename Function>
     uint createJob(Function &&func) noexcept;
@@ -20,7 +22,7 @@ public:
 
     void makeEdge(uint j1, uint j2) noexcept;
 
-    void run(uint startJob) noexcept;
+    void run() noexcept;
 
     CC_INLINE void waitForAll() {
         if (_pending) {
@@ -36,7 +38,7 @@ private:
     tbb::flow::graph _graph;
 
     using TBBJobNode = tbb::flow::continue_node<tbb::flow::continue_msg>;
-    vector<TBBJobNode> _nodes;
+    deque<TBBJobNode> _nodes; // existing nodes cannot be invalidated
 
     struct TBBParallelJob {
         uint predecessor = 0u;
@@ -50,16 +52,17 @@ private:
 template <typename Function>
 uint TBBJobGraph::createJob(Function &&func) noexcept {
     _nodes.emplace_back(_graph, func);
+    tbb::flow::make_edge(_nodes.front(), _nodes.back());
     return _nodes.size() - 1u;
 }
 
 template <typename Function>
 uint TBBJobGraph::createForEachIndexJob(uint begin, uint end, uint step, Function &&func) noexcept {
-    _nodes.reserve(_nodes.size() + (end - begin) / step + 2);
-
     _nodes.emplace_back(_graph, [](TBBJobToken t) {});
     uint predecessorIdx = _nodes.size() - 1u;
     TBBJobNode &predecessor = _nodes.back();
+
+    tbb::flow::make_edge(_nodes.front(), predecessor);
 
     _nodes.emplace_back(_graph, [](TBBJobToken t) {});
     uint successorIdx = _nodes.size() - 1u;
