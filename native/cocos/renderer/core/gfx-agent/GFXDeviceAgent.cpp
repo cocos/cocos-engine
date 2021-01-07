@@ -52,6 +52,7 @@ bool DeviceAgent::initialize(const DeviceInfo &info) {
     _deviceName = _actor->getDeviceName();
     _queue = CC_NEW(QueueAgent(_actor->getQueue(), this));
     _cmdBuff = CC_NEW(CommandBufferAgent(_actor->getCommandBuffer(), this));
+    ((CommandBufferAgent *)_cmdBuff)->_queue = _queue;
     _renderer = _actor->getRenderer();
     _vendor = _actor->getVendor();
     _maxVertexAttributes = _actor->getMaxVertexAttributes();

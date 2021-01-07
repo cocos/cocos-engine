@@ -53,7 +53,7 @@ CommandBufferAgent::~CommandBufferAgent() {
 void CommandBufferAgent::initMessageQueue() {
     _allocatorPools.resize(MAX_CPU_FRAME_AHEAD + 1);
 
-    if (_actor->getType() == CommandBufferType::PRIMARY) {
+    if (_type == CommandBufferType::PRIMARY) {
         _messageQueue = ((DeviceAgent *)_device)->getMessageQueue();
         for (uint i = 0u; i < MAX_CPU_FRAME_AHEAD + 1; ++i) {
             _allocatorPools[i] = ((DeviceAgent *)_device)->_allocatorPools[i];
@@ -70,7 +70,7 @@ void CommandBufferAgent::initMessageQueue() {
 }
 
 void CommandBufferAgent::destroyMessageQueue() {
-    if (_actor->getType() == CommandBufferType::PRIMARY) {
+    if (_type == CommandBufferType::PRIMARY) {
         _messageQueue = nullptr;
     } else {
         ((DeviceAgent *)_device)->getMessageQueue()->kickAndWait();
@@ -89,10 +89,10 @@ LinearAllocatorPool *CommandBufferAgent::getAllocator() {
 }
 
 bool CommandBufferAgent::initialize(const CommandBufferInfo &info) {
-    initMessageQueue();
-
     _type = info.type;
     _queue = info.queue;
+
+    initMessageQueue();
 
     CommandBufferInfo actorInfo = info;
     actorInfo.queue = ((QueueAgent *)info.queue)->getActor();

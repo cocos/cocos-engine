@@ -24,14 +24,18 @@ if(COCOS_PLATFORM_IOS OR COCOS_PLATFORM_OSX)
 endif()
 
 set(CC_BASE_HEADERS
+    ${COCOS_SRC_PATH}/base/StringUtil.h
     ${COCOS_SRC_PATH}/base/TypeDef.h
     ${COCOS_SRC_PATH}/base/Log.h
     ${COCOS_SRC_PATH}/base/Object.h
+    ${COCOS_SRC_PATH}/base/UTFString.h
     ${COCOS_SRC_PATH}/base/memory/Memory.h
     ${COCOS_SRC_PATH}/math/Math.h
 )
 
 set(CC_BASE_SOURCES
+    ${COCOS_SRC_PATH}/base/StringUtil.cpp
+    ${COCOS_SRC_PATH}/base/UTFString.cpp
     ${COCOS_SRC_PATH}/base/Log.cpp
     ${COCOS_SRC_PATH}/base/memory/Memory.cpp
     ${COCOS_SRC_PATH}/math/Math.cpp
@@ -53,15 +57,9 @@ if(COCOS_UNICODE)
 	add_definitions("-DUNICODE -D_UNICODE")
 endif()
 
-if (COCOS_STATIC)
-	add_library(${TARGET_NAME} STATIC ${HEADER_FILES} ${ALL_FILES})
-	set(TBB_LIBRARIES tbb_static tbbmalloc_static tbbmalloc_proxy_static)
-else()
-	add_library(${TARGET_NAME} SHARED ${HEADER_FILES} ${ALL_FILES})
-	set(TBB_LIBRARIES tbb tbbmalloc tbbmalloc_proxy)
-endif()
-
-target_link_libraries(${TARGET_NAME} ${TBB_LIBRARIES})
+add_library(${TARGET_NAME} SHARED ${HEADER_FILES} ${ALL_FILES})
+target_link_libraries(${TARGET_NAME} tbb tbbmalloc tbbmalloc_proxy)
+target_compile_definitions(${TARGET_NAME} PRIVATE ${CC_EXTERNAL_PRIVATE_DEFINITIONS})
 
 set_target_properties(${TARGET_NAME} PROPERTIES OUTPUT_NAME CCTBBJobSystem)
 set_target_properties(${TARGET_NAME} PROPERTIES OUTPUT_NAME_DEBUG CCTBBJobSystem_d)
