@@ -53,33 +53,22 @@ CommandBufferAgent::~CommandBufferAgent() {
 void CommandBufferAgent::initMessageQueue() {
     _allocatorPools.resize(MAX_CPU_FRAME_AHEAD + 1);
 
-    if (_type == CommandBufferType::PRIMARY) {
-        _messageQueue = ((DeviceAgent *)_device)->getMessageQueue();
-        for (uint i = 0u; i < MAX_CPU_FRAME_AHEAD + 1; ++i) {
-            _allocatorPools[i] = ((DeviceAgent *)_device)->_allocatorPools[i];
-        }
-    } else {
-        for (uint i = 0u; i < MAX_CPU_FRAME_AHEAD + 1; ++i) {
-            _allocatorPools[i] = CC_NEW(LinearAllocatorPool);
-        }
-        ((DeviceAgent *)_device)->_allocatorPoolRefs.insert(_allocatorPools.data());
-
-        _messageQueue = CC_NEW(MessageQueue);
-        _messageQueue->setImmediateMode(false);
+    for (uint i = 0u; i < MAX_CPU_FRAME_AHEAD + 1; ++i) {
+        _allocatorPools[i] = CC_NEW(LinearAllocatorPool);
     }
+    ((DeviceAgent *)_device)->_allocatorPoolRefs.insert(_allocatorPools.data());
+
+    _messageQueue = CC_NEW(MessageQueue);
+    _messageQueue->setImmediateMode(false);
 }
 
 void CommandBufferAgent::destroyMessageQueue() {
-    if (_type == CommandBufferType::PRIMARY) {
-        _messageQueue = nullptr;
-    } else {
-        ((DeviceAgent *)_device)->getMessageQueue()->kickAndWait();
-        CC_SAFE_DELETE(_messageQueue);
+    ((DeviceAgent *)_device)->getMessageQueue()->kickAndWait();
+    CC_SAFE_DELETE(_messageQueue);
 
-        ((DeviceAgent *)_device)->_allocatorPoolRefs.erase(_allocatorPools.data());
-        for (LinearAllocatorPool *pool : _allocatorPools) {
-            CC_SAFE_DELETE(pool);
-        }
+    ((DeviceAgent *)_device)->_allocatorPoolRefs.erase(_allocatorPools.data());
+    for (LinearAllocatorPool *pool : _allocatorPools) {
+        CC_SAFE_DELETE(pool);
     }
     _allocatorPools.clear();
 }
@@ -142,8 +131,6 @@ void CommandBufferAgent::end() {
         {
             actor->end();
         });
-    MessageQueue::freeChunksInFreeQueue(_messageQueue);
-    _messageQueue->finishWriting();
 }
 
 void CommandBufferAgent::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, int stencil, uint32_t secondaryCBCount, const CommandBuffer *const *secondaryCBs) {

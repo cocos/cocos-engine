@@ -309,6 +309,8 @@ void DeviceAgent::flushCommands(uint count, CommandBuffer *const *cmdBuffs) {
     const CommandBufferAgent **agentCmdBuffs = getMainAllocator()->allocate<const CommandBufferAgent *>(count);
     for (uint i = 0; i < count; ++i) {
         agentCmdBuffs[i] = (const CommandBufferAgent *)cmdBuffs[i];
+        MessageQueue::freeChunksInFreeQueue(agentCmdBuffs[i]->_messageQueue);
+        agentCmdBuffs[i]->_messageQueue->finishWriting();
     }
 
     ENQUEUE_MESSAGE_3(
