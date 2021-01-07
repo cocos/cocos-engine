@@ -68,8 +68,9 @@ export function ammoEqualCocosQuat (a: Ammo.btQuaternion, b: IQuatLike) {
 }
 
 export function ammoDeletePtr (obj: Ammo.Type, klass: Constructor<Ammo.Type>): void {
-    delete (klass as any).gp[(obj as any).ep];
-    // delete (klass as any).__cache__[(obj as any).ptr];
+    const cache = Ammo.getCache(klass);
+    const ptr = Ammo.getPointer(obj) as any;
+    delete cache[ptr];
 }
 
 export function cocos2AmmoTriMesh (out: Ammo.btTriangleMesh, mesh: Mesh): Ammo.btTriangleMesh {
