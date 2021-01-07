@@ -148,8 +148,6 @@ export class Node extends BaseNode {
     constructor (name?: string) {
         super(name);
         this._poolHandle = NodePool.alloc();
-        NodePool.set(this._poolHandle, NodeView.LAYER, this._layer);
-        NodePool.setVec3(this._poolHandle, NodeView.WORLD_SCALE, this._scale);
     }
 
     /**
@@ -392,6 +390,9 @@ export class Node extends BaseNode {
 
     public _onBatchCreated (dontSyncChildPrefab: boolean) {
         super._onBatchCreated(dontSyncChildPrefab);
+
+        NodePool.set(this._poolHandle, NodeView.LAYER, this._layer);
+        NodePool.setVec3(this._poolHandle, NodeView.WORLD_SCALE, this._scale);
 
         const prefabInstance = this._prefab?.instance;
         if (!dontSyncChildPrefab && prefabInstance) {
