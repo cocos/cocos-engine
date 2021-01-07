@@ -24,3 +24,4 @@ THE SOFTWARE.
 #pragma once
 
 #define MAX_FRAMES_IN_FLIGHT 3
+#define MAX_COMMAND_BUFFER_COUNT 256

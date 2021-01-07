@@ -78,10 +78,16 @@ bool CCMTLDevice::initialize(const DeviceInfo &info) {
     _inFlightSemaphore = CC_NEW(CCMTLSemaphore(MAX_FRAMES_IN_FLIGHT));
     _currentFrameIndex = 0;
 
-    _mtkView = (MTKView *)_windowHandle;
-    id<MTLDevice> mtlDevice = ((MTKView *)_mtkView).device;
+#if CC_PLATFORM == CC_PLATFORM_MAC_OSX
+    NSView *view = (NSView *)_windowHandle;
+#else
+    UIView *view = (UIView *)_windowHandle;
+#endif
+    CAMetalLayer *layer = static_cast<CAMetalLayer *>(view.layer);
+    _mtlLayer = layer;
+    id<MTLDevice> mtlDevice = (id<MTLDevice>)layer.device;
     _mtlDevice = mtlDevice;
-    _mtlCommandQueue = [mtlDevice newCommandQueue];
+    _mtlCommandQueue = [mtlDevice newCommandQueueWithMaxCommandBufferCount: MAX_COMMAND_BUFFER_COUNT];
 
     _mtlFeatureSet = mu::highestSupportedFeatureSet(mtlDevice);
     const auto gpuFamily = mu::getGPUFamily(MTLFeatureSet(_mtlFeatureSet));
@@ -96,10 +102,18 @@ bool CCMTLDevice::initialize(const DeviceInfo &info) {
     _uboOffsetAlignment = mu::getMinBufferOffsetAlignment(gpuFamily);
     _icbSuppored = mu::isIndirectCommandBufferSupported(MTLFeatureSet(_mtlFeatureSet));
     _isSamplerDescriptorCompareFunctionSupported = mu::isSamplerDescriptorCompareFunctionSupported(gpuFamily);
-    MTKView *view = static_cast<MTKView *>(_mtkView);
-    if (view.colorPixelFormat == MTLPixelFormatInvalid) view.colorPixelFormat = MTLPixelFormatBGRA8Unorm;
-    view.depthStencilPixelFormat = mu::getSupportedDepthStencilFormat(mtlDevice, gpuFamily, _depthBits);
 
+    if (layer.pixelFormat == MTLPixelFormatInvalid) {
+        layer.pixelFormat = MTLPixelFormatBGRA8Unorm;
+    }
+    // Persistent depth stencil texture
+    MTLTextureDescriptor *dssDescriptor = [[MTLTextureDescriptor alloc] init];
+    dssDescriptor.pixelFormat = mu::getSupportedDepthStencilFormat(mtlDevice, gpuFamily, _depthBits);
+    dssDescriptor.width = info.width;
+    dssDescriptor.height = info.height;
+    dssDescriptor.storageMode = MTLStorageModePrivate;
+    dssDescriptor.usage = MTLTextureUsageRenderTarget;
+    _dssTex = [mtlDevice newTextureWithDescriptor:dssDescriptor];
     _stencilBits = 8;
 
     ContextInfo contextCreateInfo;
@@ -167,7 +181,7 @@ bool CCMTLDevice::initialize(const DeviceInfo &info) {
     _features[static_cast<uint>(Feature::FORMAT_D32F)] = mu::isDepthStencilFormatSupported(mtlDevice, Format::D32F, gpuFamily);
     _features[static_cast<uint>(Feature::FORMAT_D32FS8)] = mu::isDepthStencilFormatSupported(mtlDevice, Format::D32F_S8, gpuFamily);
 
-    _memoryAlarmListenerId = EventDispatcher::addCustomEventListener(EVENT_MEMORY_WARNING, std::bind(&CCMTLDevice::onMemoryWarning, this));
+//    _memoryAlarmListenerId = EventDispatcher::addCustomEventListener(EVENT_MEMORY_WARNING, std::bind(&CCMTLDevice::onMemoryWarning, this));
 
     CC_LOG_INFO("Metal Feature Set: %s", mu::featureSetToString(MTLFeatureSet(_mtlFeatureSet)).c_str());
 
@@ -175,10 +189,15 @@ bool CCMTLDevice::initialize(const DeviceInfo &info) {
 }
 
 void CCMTLDevice::destroy() {
-    if (_memoryAlarmListenerId != 0) {
-        EventDispatcher::removeCustomEventListener(EVENT_MEMORY_WARNING, _memoryAlarmListenerId);
-        _memoryAlarmListenerId = 0;
+//    if (_memoryAlarmListenerId != 0) {
+//        EventDispatcher::removeCustomEventListener(EVENT_MEMORY_WARNING, _memoryAlarmListenerId);
+//        _memoryAlarmListenerId = 0;
+//    }
+    if (_autoreleasePool) {
+        [(NSAutoreleasePool*)_autoreleasePool drain];
+        _autoreleasePool = nullptr;
     }
+
     CC_SAFE_DESTROY(_queue);
     CC_SAFE_DESTROY(_cmdBuff);
     CC_SAFE_DESTROY(_context);
@@ -192,9 +211,17 @@ void CCMTLDevice::destroy() {
 
 void CCMTLDevice::resize(uint width, uint height) {}
 
+void CCMTLDevice::ensureAutoreleasePool() {
+    if (!_autoreleasePool) {
+        _autoreleasePool = [[NSAutoreleasePool alloc] init];
+//        CC_LOG_INFO("POOL: %p ALLOCED", _autoreleasePool);
+    }
+}
+
 void CCMTLDevice::acquire() {
     _inFlightSemaphore->wait();
 
+    ensureAutoreleasePool();
     // Clear queue stats
     CCMTLQueue *queue = static_cast<CCMTLQueue *>(_queue);
     queue->_numDrawCalls = 0;
@@ -212,15 +239,21 @@ void CCMTLDevice::present() {
     CCMTLGPUStagingBufferPool *bufferPool = _gpuStagingBufferPools[_currentFrameIndex];
     _currentFrameIndex = (_currentFrameIndex + 1) % MAX_FRAMES_IN_FLIGHT;
 
-    auto mtlCommandBuffer = static_cast<CCMTLCommandBuffer *>(_cmdBuff)->getMTLCommandBuffer();
-    auto mtkView = static_cast<MTKView *>(_mtkView);
-    [mtlCommandBuffer presentDrawable:mtkView.currentDrawable];
+    CCMTLCommandBuffer *cmdBuff = static_cast<CCMTLCommandBuffer *>(_cmdBuff);
+    id<MTLCommandBuffer> mtlCommandBuffer = cmdBuff->getMTLCommandBuffer();
+    [mtlCommandBuffer presentDrawable:cmdBuff->getCurrentDrawable()];
     [mtlCommandBuffer addCompletedHandler:^(id<MTLCommandBuffer> commandBuffer) {
         [commandBuffer release];
         bufferPool->reset();
         _inFlightSemaphore->signal();
     }];
     [mtlCommandBuffer commit];
+
+    if (_autoreleasePool) {
+//        CC_LOG_INFO("POOL: %p RELEASED", _autoreleasePool);
+        [(NSAutoreleasePool*)_autoreleasePool drain];
+        _autoreleasePool = nullptr;
+    }
 }
 
 Fence *CCMTLDevice::createFence() {

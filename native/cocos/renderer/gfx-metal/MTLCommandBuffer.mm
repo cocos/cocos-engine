@@ -44,7 +44,9 @@ namespace cc {
 namespace gfx {
 
 CCMTLCommandBuffer::CCMTLCommandBuffer(Device *device)
-: CommandBuffer(device), _mtlDevice((CCMTLDevice *)device), _mtlCommandQueue(id<MTLCommandQueue>(((CCMTLDevice *)device)->getMTLCommandQueue())), _mtkView((MTKView *)(((CCMTLDevice *)device)->getMTKView())) {
+: CommandBuffer(device)
+, _mtlDevice((CCMTLDevice *)device)
+, _mtlCommandQueue(id<MTLCommandQueue>(((CCMTLDevice *)device)->getMTLCommandQueue())) {
     const auto setCount = device->bindingMappingInfo().bufferOffsets.size();
     _GPUDescriptorSets.resize(setCount);
     _dynamicOffsets.resize(setCount);
@@ -58,14 +60,44 @@ bool CCMTLCommandBuffer::initialize(const CommandBufferInfo &info) {
 }
 
 void CCMTLCommandBuffer::destroy() {
+    if (_autoreleasePool) {
+        [_autoreleasePool release];
+        _autoreleasePool = nullptr;
+    }
+}
+
+id<CAMetalDrawable> CCMTLCommandBuffer::getCurrentDrawable() {
+    if (!_currDrawable)	{
+        CAMetalLayer *layer = (CAMetalLayer*)_mtlDevice->getMTLLayer();
+        _currDrawable = [[layer nextDrawable] retain];
+    }
+    return _currDrawable;
+}
+
+bool CCMTLCommandBuffer::isRenderingEntireDrawable(const Rect &rect, const CCMTLRenderPass *renderPass) {
+    const int num = renderPass->getColorRenderTargetNums();
+    if (num == 0) {
+        return true;
+    }
+    const auto &renderTargetSize = renderPass->getRenderTargetSizes()[0];
+    return rect.x == 0 && rect.y == 0 && rect.width == renderTargetSize.x && rect.height == renderTargetSize.y;
 }
 
 void CCMTLCommandBuffer::begin(RenderPass *renderPass, uint subpass, Framebuffer *frameBuffer) {
     if (_commandBufferBegan) return;
 
-    _mtlCommandBuffer = [_mtlCommandQueue commandBuffer];
-    [_mtlCommandBuffer retain];
-    [_mtlCommandBuffer enqueue];
+    if (!_autoreleasePool) {
+        _mtlDevice->ensureAutoreleasePool();
+        _autoreleasePool = [[NSAutoreleasePool alloc] init];
+//        CC_LOG_INFO("%d CB POOL: %p ALLOCED for %p", [NSThread currentThread], _autoreleasePool, this);
+    }
+
+    _isSecondary = renderPass != nullptr && _mtlCommandBuffer;
+    if (!_isSecondary) {
+        // Sub command buffer for parallel shouldn't request any command buffer
+        _mtlCommandBuffer = [[_mtlCommandQueue commandBuffer] retain];
+        [_mtlCommandBuffer enqueue];
+    }
     _numTriangles = 0;
     _numDrawCalls = 0;
     _numInstances = 0;
@@ -80,24 +112,38 @@ void CCMTLCommandBuffer::begin(RenderPass *renderPass, uint subpass, Framebuffer
 
 void CCMTLCommandBuffer::end() {
     if (!_commandBufferBegan) return;
-
     _commandBufferBegan = false;
-}
 
-bool CCMTLCommandBuffer::isRenderingEntireDrawable(const Rect &rect, const CCMTLRenderPass *renderPass) {
-    const int num = renderPass->getColorRenderTargetNums();
-    if (num == 0) {
-        return true;
+    if (_isSecondary) {
+        // Secondary command buffer should end encoding here
+        _commandEncoder.endEncoding();
     }
-    const auto &renderTargetSize = renderPass->getRenderTargetSizes()[0];
-    return rect.x == 0 && rect.y == 0 && rect.width == renderTargetSize.x && rect.height == renderTargetSize.y;
+    
+    if (_currDrawable) {
+        [_currDrawable release];
+        _currDrawable = nil;
+    }
+
+    if (_autoreleasePool) {
+//        CC_LOG_INFO("%d CB POOL: %p RELEASED for %p", [NSThread currentThread], _autoreleasePool, this);
+        [_autoreleasePool drain];
+        _autoreleasePool = nullptr;
+    }
 }
 
 void CCMTLCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, int stencil, uint32_t secondaryCBCount, const CommandBuffer *const *secondaryCBs) {
+    // Sub CommandBuffer shouldn't call begin render pass
+    if (_isSecondary)
+    {
+        return;
+    }
+
     auto isOffscreen = static_cast<CCMTLFramebuffer *>(fbo)->isOffscreen();
     if (!isOffscreen) {
-        static_cast<CCMTLRenderPass *>(renderPass)->setColorAttachment(0, _mtkView.currentDrawable.texture, 0);
-        static_cast<CCMTLRenderPass *>(renderPass)->setDepthStencilAttachment(_mtkView.depthStencilTexture, 0);
+        id<CAMetalDrawable> drawable = getCurrentDrawable();
+        id<MTLTexture> dssTex = (id<MTLTexture>)_mtlDevice->getDSSTexture();
+        static_cast<CCMTLRenderPass *>(renderPass)->setColorAttachment(0, drawable.texture, 0);
+        static_cast<CCMTLRenderPass *>(renderPass)->setDepthStencilAttachment(dssTex, 0);
     }
     MTLRenderPassDescriptor *mtlRenderPassDescriptor = static_cast<CCMTLRenderPass *>(renderPass)->getMTLRenderPassDescriptor();
     if (!isRenderingEntireDrawable(renderArea, static_cast<CCMTLRenderPass *>(renderPass))) {
@@ -115,13 +161,31 @@ void CCMTLCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fb
         mtlRenderPassDescriptor.stencilAttachment.clearStencil = stencil;
     }
 
-    _commandEncoder.initialize(_mtlCommandBuffer, mtlRenderPassDescriptor);
+    if (secondaryCBCount > 0) {
+        _parallelEncoder = [[_mtlCommandBuffer parallelRenderCommandEncoderWithDescriptor:mtlRenderPassDescriptor] retain];
+        // Create command encoders from parallel encoder and assign to command buffers
+        for (uint i = 0u; i < secondaryCBCount; ++i) {
+            CCMTLCommandBuffer *cmdBuff = (CCMTLCommandBuffer *)secondaryCBs[i];
+            cmdBuff->_commandEncoder.initialize(_parallelEncoder);
+            cmdBuff->_mtlCommandBuffer = _mtlCommandBuffer;
+        }
+    }
+    else {
+        _commandEncoder.initialize(_mtlCommandBuffer, mtlRenderPassDescriptor);
+    }
     _commandEncoder.setViewport(renderArea);
     _commandEncoder.setScissor(renderArea);
 }
 
 void CCMTLCommandBuffer::endRenderPass() {
-    _commandEncoder.endEncoding();
+    if (_parallelEncoder) {
+        [_parallelEncoder endEncoding];
+        [_parallelEncoder release];
+        _parallelEncoder = nil;
+    }
+    else {
+        _commandEncoder.endEncoding();
+    }
 }
 
 void CCMTLCommandBuffer::bindPipelineState(PipelineState *pso) {
@@ -201,7 +265,7 @@ void CCMTLCommandBuffer::draw(InputAssembler *ia) {
     const auto indexBuffer = static_cast<CCMTLBuffer *>(ia->getIndexBuffer());
     auto mtlEncoder = _commandEncoder.getMTLEncoder();
 
-    if (_type == CommandBufferType::PRIMARY) {
+    if (_type == CommandBufferType::PRIMARY || _type == CommandBufferType::SECONDARY) {
         if (indirectBuffer) {
             const auto indirectMTLBuffer = indirectBuffer->getMTLBuffer();
 
@@ -306,8 +370,6 @@ void CCMTLCommandBuffer::draw(InputAssembler *ia) {
             }
         }
 
-    } else if (_type == CommandBufferType::SECONDARY) {
-        CC_LOG_ERROR("CommandBufferType::SECONDARY not implemented.");
     } else {
         CC_LOG_ERROR("Command 'draw' must be recorded inside a render pass.");
     }

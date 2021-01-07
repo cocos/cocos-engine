@@ -51,10 +51,16 @@ public:
     CCMTLRenderCommandEncoder &operator=(const CCMTLRenderCommandEncoder &) = delete;
     CCMTLRenderCommandEncoder &operator=(CCMTLRenderCommandEncoder &&) = delete;
 
-    CC_INLINE void initialize(id<MTLCommandBuffer> commandBuffer, MTLRenderPassDescriptor *descriptor) {
-        _mtlEncoder = [commandBuffer renderCommandEncoderWithDescriptor:descriptor];
-        [_mtlEncoder retain];
+    void initialize(id<MTLCommandBuffer> commandBuffer, MTLRenderPassDescriptor *descriptor) {
+        _mtlEncoder = [[commandBuffer renderCommandEncoderWithDescriptor:descriptor] retain];
+        clearStates();
+    }
+    void initialize(id<MTLParallelRenderCommandEncoder> parallelEncoder) {
+        _mtlEncoder = [[parallelEncoder renderCommandEncoder] retain];
+        clearStates();
+    }
 
+    CC_INLINE void clearStates() {
         _isViewportSet = false;
         _isScissorRectSet = false;
         _isCullModeSet = false;
@@ -285,7 +291,7 @@ private:
     float _slope = 0.f;
     MTLCullMode _cullMode = MTLCullModeNone;
     MTLWinding _frontFacingWinding = MTLWindingClockwise;
-    MTLDepthClipMode _depthClipMode = MTLDepthClipModeClip;
+    CC_UNUSED MTLDepthClipMode _depthClipMode = MTLDepthClipModeClip;
     MTLTriangleFillMode _triangleFillMode = MTLTriangleFillModeFill;
     Viewport _viewport;
     Rect _scissorRect;
