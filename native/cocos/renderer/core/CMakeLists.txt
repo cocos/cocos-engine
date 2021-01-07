@@ -141,6 +141,7 @@ else()
 	target_link_libraries(${TARGET_NAME} ${COCOS_EXTERNAL_TARGETS})
 endif()
 target_link_libraries(${TARGET_NAME} TBBJobSystem TFJobSystem Threading)
+target_compile_definitions(${TARGET_NAME} PRIVATE ${CC_EXTERNAL_PRIVATE_DEFINITIONS})
 
 if(MSVC)
     set_property(TARGET ${TARGET_NAME} PROPERTY LINK_FLAGS "/SUBSYSTEM:WINDOWS")

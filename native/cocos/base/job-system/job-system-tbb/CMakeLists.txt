@@ -57,7 +57,12 @@ if(COCOS_UNICODE)
 	add_definitions("-DUNICODE -D_UNICODE")
 endif()
 
-add_library(${TARGET_NAME} SHARED ${HEADER_FILES} ${ALL_FILES})
+if (COCOS_STATIC)
+	add_library(${TARGET_NAME} STATIC ${HEADER_FILES} ${ALL_FILES})
+else()
+	add_library(${TARGET_NAME} SHARED ${HEADER_FILES} ${ALL_FILES})
+endif()
+
 target_link_libraries(${TARGET_NAME} tbb tbbmalloc tbbmalloc_proxy)
 target_compile_definitions(${TARGET_NAME} PRIVATE ${CC_EXTERNAL_PRIVATE_DEFINITIONS})
 
