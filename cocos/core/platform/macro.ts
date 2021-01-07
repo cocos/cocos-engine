@@ -1001,7 +1001,7 @@ const macro = {
      * Label 使用的 canvas pool 的最大大小，请根据项目同场景的 label 数量进行调整
      * @default 20
      */
-    LABEL_CANVAS_POOL_LENGTH: 20,
+    MAX_LABEL_CANVAS_POOL_SIZE: 20,
 };
 
 legacyCC.macro = macro;

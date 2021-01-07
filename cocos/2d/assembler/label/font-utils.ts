@@ -68,7 +68,7 @@ export class CanvasPool {
     }
 
     public put (canvas: ISharedLabelData) {
-        if (this.pool.length >= macro.LABEL_CANVAS_POOL_LENGTH) {
+        if (this.pool.length >= macro.MAX_LABEL_CANVAS_POOL_SIZE) {
             return;
         }
         this.pool.push(canvas);
