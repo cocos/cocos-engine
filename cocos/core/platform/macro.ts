@@ -970,7 +970,8 @@ const macro = {
 
     /**
      * @en
-     * Whether to clear the original image cache after uploaded a texture to GPU. If cleared, [Dynamic Atlas](https://docs.cocos.com/creator/manual/en/advanced-topics/dynamic-atlas.html) will not be supported.
+     * Whether to clear the original image cache after uploaded a texture to GPU.
+     * If cleared, [Dynamic Atlas](https://docs.cocos.com/creator/manual/en/advanced-topics/dynamic-atlas.html) will not be supported.
      * Normally you don't need to enable this option on the web platform, because Image object doesn't consume too much memory.
      * But on Wechat Game platform, the current version cache decoded data in Image object, which has high memory usage.
      * So we enabled this option by default on Wechat, so that we can release Image cache immediately after uploaded to GPU.

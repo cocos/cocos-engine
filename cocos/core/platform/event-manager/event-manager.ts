@@ -134,7 +134,7 @@ class EventManager {
     private _nodeListenersMap: INodeListener = {};
     private _toAddedListeners: EventListener[] = [];
     private _toRemovedListeners: EventListener[] = [];
-    private _dirtyListeners: Node[] = [];
+    private _dirtyListeners: Record<string, boolean> = {};
     private _inDispatch = 0;
     private _isEnabled = false;
     private _internalCustomListenerIDs: string[] = [];
@@ -609,13 +609,13 @@ class EventManager {
 
     private _setDirtyForNode (node: Node) {
         // Mark the node dirty only when there is an event listener associated with it.
-        // @ts-expect-error
+        // @ts-expect-error private node._id access
         const selListeners = this._nodeListenersMap[node._id];
         if (selListeners !== undefined) {
             for (let j = 0, len = selListeners.length; j < len; j++) {
                 const selListener = selListeners[j];
                 const listenerID = selListener._getListenerID();
-                if (this._dirtyListeners[listenerID] == null) {
+                if (!this._dirtyListeners[listenerID]) {
                     this._dirtyListeners[listenerID] = true;
                 }
             }
@@ -671,8 +671,8 @@ class EventManager {
 
         for (const selKey in locDirtyListeners) {
             this._setDirty(selKey, DIRTY_SCENE_GRAPH_PRIORITY);
+            locDirtyListeners[selKey] = false;
         }
-        this._dirtyListeners.length = 0;
     }
 
     private _removeAllListenersInVector (listenerVector: EventListener[]) {
@@ -1104,7 +1104,7 @@ class EventManager {
         }
     }
 
-    private _dispatchEventToListeners (listeners: _EventListenerVector, onEvent: Function, eventOrArgs: any) {
+    private _dispatchEventToListeners (listeners: _EventListenerVector, onEvent: (listener:any, eventOrArgs:any)=>boolean, eventOrArgs: any) {
         let shouldStopPropagation = false;
         const fixedPriorityListeners = listeners.getFixedPriorityListeners();
         const sceneGraphPriorityListeners = listeners.getSceneGraphPriorityListeners();
