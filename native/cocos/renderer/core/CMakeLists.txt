@@ -27,6 +27,7 @@ set(INCLUDE_FILES
   ${GFX_EXTERNAL_PATH}/tommyds
   ${GFX_EXTERNAL_PATH}/concurrentqueue
   ${GFX_EXTERNAL_PATH}/taskflow
+  ${GFX_EXTERNAL_PATH}/tbb/include
   ${COCOS_SRC_PATH}/base
   ${COCOS_SRC_PATH}/renderer/core
 )
