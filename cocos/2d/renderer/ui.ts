@@ -579,7 +579,8 @@ export class UI {
         this._parentOpacity *= node._uiProps.opacity;
 
         this._preProcess(node);
-        if (len > 0 && !node._static) {
+
+        if (this.checkTraversal(node) && len > 0 && !node._static) {
             const children = node.children;
             for (let i = 0; i < children.length; ++i) {
                 const child = children[i];
@@ -611,6 +612,15 @@ export class UI {
         if (render && render.enabledInHierarchy) {
             render.postUpdateAssembler(this);
         }
+    }
+
+    // Todo: This function is hack for opacity, please remove this when finish opacity refactor
+    private checkTraversal (node: Node) {
+        const render = node._uiProps.uiComp;
+        if (render && render.enabledInHierarchy) {
+            return render.checkRenderable();
+        }
+        return true;
     }
 
     private _recursiveScreenNode (screen: Node) {

@@ -106,6 +106,10 @@ export class UIMeshRenderer extends UIComponent {
         return false;
     }
 
+    public checkRenderable () {
+        return this._models !== null;
+    }
+
     public update () {
         this._fitUIRenderQueue();
     }

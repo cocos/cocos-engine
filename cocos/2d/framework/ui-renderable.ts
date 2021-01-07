@@ -441,6 +441,10 @@ export class UIRenderable extends RenderableComponent {
         }
     }
 
+    public checkRenderable () {
+        return this._renderFlag;
+    }
+
     protected _render (render: UI) {}
 
     protected _postRender (render: UI) {}

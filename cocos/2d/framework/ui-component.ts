@@ -48,7 +48,6 @@ import { Stage } from '../renderer/stencil-manager';
 @disallowMultiple
 @executeInEditMode
 export class UIComponent extends Component {
-
     protected _lastParent: Node | null = null;
 
     public __preload () {
@@ -79,7 +78,6 @@ export class UIComponent extends Component {
     public updateAssembler (render: UI) {
     }
 
-
     /**
      * @en Post render data submission procedure, it's executed after assembler updated for all children.
      * It may assemble some extra render data to the geometry buffers, or it may only change some render states.
@@ -89,6 +87,9 @@ export class UIComponent extends Component {
      * 注意：不要手动调用该函数，除非你理解整个流程。
      */
     public postUpdateAssembler (render: UI) {
+    }
+
+    public checkRenderable () {
     }
 
     public stencilStage : Stage = Stage.DISABLED;
