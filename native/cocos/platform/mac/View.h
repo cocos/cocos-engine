@@ -21,16 +21,16 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
+
+#import <AppKit/NSView.h>
 #ifdef CC_USE_METAL
-    #import <MetalKit/MetalKit.h>
-#else
-    #import <AppKit/NSView.h>
+#import <MetalKit/MetalKit.h>
 #endif
 
-#ifdef CC_USE_METAL
-@interface View : MTKView <MTKViewDelegate>
-#else
 @interface View : NSView
+
+#ifdef CC_USE_METAL
+@property(nonatomic, assign) id<MTLDevice> device;
 #endif
 
 @end

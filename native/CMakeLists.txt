@@ -1620,6 +1620,7 @@ if(APPLE)
         "-framework GameController"
         "-framework Metal"
         "-framework MetalKit"
+        "-framework QuartzCore"
         "-lSQLite3"
         "-framework Security"
         "-framework SystemConfiguration"

@@ -30,7 +30,6 @@
 #include "bindings/jswrapper/SeApi.h"
 #include "audio/include/AudioEngine.h"
 
-#ifndef CC_USE_METAL
 @interface MyTimer : NSObject {
     cc::Application* _app;
     CADisplayLink* _displayLink;
@@ -76,7 +75,6 @@
 }
 
 @end
-#endif
 
 namespace cc {
 
@@ -106,10 +104,8 @@ namespace {
         se->evalString(commandBuf);
         return true;
     }
-    
-#ifndef CC_USE_METAL
+
     MyTimer* _timer;
-#endif
 }
 
 Application* Application::_instance = nullptr;
@@ -121,10 +117,8 @@ Application::Application(int width, int height) {
     EventDispatcher::init();
     _viewLogicalSize.x = width;
     _viewLogicalSize.y = height;
-    
-#ifndef CC_USE_METAL
+
     _timer = [[MyTimer alloc] initWithApp:this fps:_fps];
-#endif
 }
 
 Application::~Application() {
@@ -136,10 +130,8 @@ Application::~Application() {
     se::ScriptEngine::destroyInstance();
 
     Application::_instance = nullptr;
-    
-#ifndef CC_USE_METAL
+
     [_timer release];
-#endif
 }
 
 std::string Application::getCurrentLanguageCode() const {
@@ -220,24 +212,17 @@ void Application::copyTextToClipboard(const std::string &text) {
 bool Application::init() {
     se::ScriptEngine* se = se::ScriptEngine::getInstance();
     se->addRegisterCallback(setCanvasCallback);
-    
-#ifndef CC_USE_METAL
+
     [_timer start];
-#endif
-    
     return true;
 }
 
 void Application::onPause() {
-#ifndef CC_USE_METAL
     [_timer pause];
-#endif
 }
 
 void Application::onResume() {
-#ifndef CC_USE_METAL
     [_timer resume];
-#endif
 }
 
 std::string Application::getSystemVersion() {
@@ -247,9 +232,7 @@ std::string Application::getSystemVersion() {
 
 void Application::setPreferredFramesPerSecond(int fps) {
     _fps = fps;
-#ifndef CC_USE_METAL
     [_timer changeFPS:_fps];
-#endif
 }
 
 }

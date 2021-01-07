@@ -24,6 +24,7 @@
 #import "View.h"
 #include "bindings/event/EventDispatcher.h"
 #include "platform/Application.h"
+#include <UIKit/UIScreen.h>
 
 namespace {
 void dispatchEvents(cc::TouchEvent &touchEvent, NSSet *touches) {
@@ -43,7 +44,11 @@ void dispatchEvents(cc::TouchEvent &touchEvent, NSSet *touches) {
 
 @synthesize preventTouch;
 
-#ifndef CC_USE_METAL
+#ifdef CC_USE_METAL
++ (Class)layerClass {
+    return [CAMetalLayer class];
+}
+#else
 + (Class)layerClass {
     return [CAEAGLLayer class];
 }
@@ -51,10 +56,17 @@ void dispatchEvents(cc::TouchEvent &touchEvent, NSSet *touches) {
 
 - (id)initWithFrame:(CGRect)frame {
 #ifdef CC_USE_METAL
-    if (self = [super initWithFrame:frame device:MTLCreateSystemDefaultDevice()]) {
-        self.framebufferOnly = YES;
-        self.delegate = self;
+    if (self = [super initWithFrame:frame]) {
         self.preventTouch = FALSE;
+        
+        int pixelRatio = [[UIScreen mainScreen] scale];
+        CGSize size = CGSizeMake(frame.size.width * pixelRatio, frame.size.height * pixelRatio);
+        self.contentScaleFactor = pixelRatio;
+        // Config metal layer
+        CAMetalLayer *layer = (CAMetalLayer*)self.layer;
+        layer.pixelFormat = MTLPixelFormatBGRA8Unorm;
+        layer.device = self.device = MTLCreateSystemDefaultDevice();
+        layer.drawableSize = size;
     }
 #else
     if (self = [super initWithFrame:frame]) {
@@ -100,15 +112,5 @@ void dispatchEvents(cc::TouchEvent &touchEvent, NSSet *touches) {
 - (void)setPreventTouchEvent:(BOOL)flag {
     self.preventTouch = flag;
 }
-
-#ifdef CC_USE_METAL
-- (void)drawInMTKView:(nonnull MTKView *)view {
-    cc::Application::getInstance()->tick();
-}
-
-- (void)mtkView:(nonnull MTKView *)view drawableSizeWillChange:(CGSize)size {
-    //TODO
-}
-#endif
 
 @end

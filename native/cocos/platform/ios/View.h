@@ -29,13 +29,12 @@
 #import <MetalKit/MetalKit.h>
 #endif
 
-#ifdef CC_USE_METAL
-@interface View : MTKView<MTKViewDelegate>
-#else
 @interface View : UIView
-#endif
 
 @property(nonatomic, assign)BOOL preventTouch;
+#ifdef CC_USE_METAL
+@property(nonatomic, assign) id<MTLDevice> device;
+#endif
 
 -(void) setPreventTouchEvent:(BOOL) flag;
 

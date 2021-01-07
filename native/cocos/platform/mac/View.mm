@@ -27,33 +27,39 @@
 #include "platform/Application.h"
 #import <AppKit/NSEvent.h>
 #import <AppKit/NSTouch.h>
+#import <AppKit/NSScreen.h>
+#import <QuartzCore/QuartzCore.h>
 
 @implementation View {
     cc::MouseEvent _mouseEvent;
     cc::KeyboardEvent _keyboardEvent;
 }
 
+#ifdef CC_USE_METAL
+- (CALayer *)makeBackingLayer
+{
+    return [CAMetalLayer layer];
+}
+#endif
+
 - (instancetype)initWithFrame:(NSRect)frameRect {
     if (self = [super initWithFrame:frameRect]) {
         [self.window makeFirstResponder:self];
+
 #ifdef CC_USE_METAL
-        self.device = MTLCreateSystemDefaultDevice();
-        self.framebufferOnly = YES;
-        self.delegate = self;
+        int pixelRatio = [[NSScreen mainScreen] backingScaleFactor];
+        CGSize size = CGSizeMake(frameRect.size.width * pixelRatio, frameRect.size.height * pixelRatio);
+        // Create CAMetalLayer
+        self.wantsLayer = YES;
+        // Config metal layer
+        CAMetalLayer *layer = (CAMetalLayer*)self.layer;
+        layer.pixelFormat = MTLPixelFormatBGRA8Unorm;
+        layer.device = self.device = MTLCreateSystemDefaultDevice();
+        layer.drawableSize = size;
 #endif
     }
     return self;
 }
-
-#ifdef CC_USE_METAL
-- (void)drawInMTKView:(MTKView *)view {
-    cc::Application::getInstance()->tick();
-}
-
-- (void)mtkView:(nonnull MTKView *)view drawableSizeWillChange:(CGSize)size {
-    CC_LOG_WARNING("CCView::mtkView: drawable size will change: %f x %f", size.width, size.height);
-}
-#endif
 
 - (void)keyDown:(NSEvent *)event {
     _keyboardEvent.key = translateKeycode(event.keyCode);

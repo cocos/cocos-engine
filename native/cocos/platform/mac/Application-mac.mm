@@ -100,9 +100,7 @@ bool setCanvasCallback(se::Object *global) {
     return true;
 }
 
-#ifndef CC_USE_METAL
 MyTimer *_timer;
-#endif
 }
 
 Application *Application::_instance = nullptr;
@@ -117,9 +115,7 @@ Application::Application(int width, int height) {
     _scheduler = std::make_shared<Scheduler>();
     EventDispatcher::init();
 
-#ifndef CC_USE_METAL
     _timer = [[MyTimer alloc] initWithApp:this fps:_fps];
-#endif
 }
 
 Application::~Application() {
@@ -132,29 +128,19 @@ Application::~Application() {
     se::ScriptEngine::destroyInstance();
 
     Application::_instance = nullptr;
-
-#ifndef CC_USE_METAL
     [_timer release];
-#endif
 }
 
 bool Application::init() {
     se::ScriptEngine *se = se::ScriptEngine::getInstance();
     se->addRegisterCallback(setCanvasCallback);
-
-#ifndef CC_USE_METAL
     [_timer start];
-#endif
-
     return true;
 }
 
 void Application::setPreferredFramesPerSecond(int fps) {
     _fps = fps;
-
-#ifndef CC_USE_METAL
     [_timer changeFPS:_fps];
-#endif
 }
 
 Application::Platform Application::getPlatform() const {
@@ -236,15 +222,11 @@ void Application::copyTextToClipboard(const std::string &text) {
 }
 
 void Application::onPause() {
-#ifndef CC_USE_METAL
     [_timer pause];
-#endif
 }
 
 void Application::onResume() {
-#ifndef CC_USE_METAL
     [_timer resume];
-#endif
 }
 
 std::string Application::getSystemVersion() {

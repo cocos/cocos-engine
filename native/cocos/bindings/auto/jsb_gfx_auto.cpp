@@ -11512,37 +11512,6 @@ static bool js_gfx_CommandBuffer_begin(se::State& s)
     } while(false);
 
     do {
-        if (argc == 4) {
-            HolderType<cc::gfx::RenderPass*, false> arg0 = {};
-            HolderType<unsigned int, false> arg1 = {};
-            HolderType<cc::gfx::Framebuffer*, false> arg2 = {};
-            HolderType<int, false> arg3 = {};
-
-            ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-            if (!ok) { ok = true; break; }
-            ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
-            if (!ok) { ok = true; break; }
-            ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
-            if (!ok) { ok = true; break; }
-            ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
-            if (!ok) { ok = true; break; }
-            cobj->begin(arg0.value(), arg1.value(), arg2.value(), arg3.value());
-            return true;
-        }
-    } while(false);
-
-    do {
-        if (argc == 1) {
-            HolderType<int, false> arg0 = {};
-
-            ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-            if (!ok) { ok = true; break; }
-            cobj->begin(arg0.value());
-            return true;
-        }
-    } while(false);
-
-    do {
         if (argc == 1) {
             HolderType<cc::gfx::RenderPass*, false> arg0 = {};
 
