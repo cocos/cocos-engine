@@ -35,6 +35,7 @@ import { PixelFormat } from '../../../core/assets/asset-enum';
 import { BufferTextureCopy } from '../../../core/gfx';
 import { safeMeasureText, BASELINE_RATIO, MIDDLE_RATIO, getBaselineOffset } from '../../utils/text-utils';
 import { director, Director } from '../../../core/director';
+import { macro } from '../../../core';
 
 export interface ISharedLabelData {
     canvas: HTMLCanvasElement;
@@ -44,7 +45,7 @@ export interface ISharedLabelData {
 let _canvasPool: CanvasPool;
 
 export class CanvasPool {
-    static getInstance(): CanvasPool {
+    static getInstance (): CanvasPool {
         if (!_canvasPool) {
             _canvasPool = new CanvasPool();
         }
@@ -67,7 +68,7 @@ export class CanvasPool {
     }
 
     public put (canvas: ISharedLabelData) {
-        if (this.pool.length >= 32) {
+        if (this.pool.length >= macro.MAX_LABEL_CANVAS_POOL_SIZE) {
             return;
         }
         this.pool.push(canvas);
@@ -154,13 +155,13 @@ class LetterTexture {
         this.data = CanvasPool.getInstance().get();
         this.canvas = this.data.canvas;
         this.context = this.data.context;
-        if (this.context){
+        if (this.context) {
             this.context.font = this.labelInfo.fontDesc;
             const width = safeMeasureText(this.context, this.char, this.labelInfo.fontDesc);
             const blank = this.labelInfo.margin * 2 + bleed;
             this.width = parseFloat(width.toFixed(2)) + blank;
             this.height = (1 + BASELINE_RATIO) * this.labelInfo.fontSize + blank;
-            this.offsetY = - (this.labelInfo.fontSize * BASELINE_RATIO) / 2;
+            this.offsetY = -(this.labelInfo.fontSize * BASELINE_RATIO) / 2;
         }
 
         if (this.canvas.width !== this.width) {
@@ -179,7 +180,7 @@ class LetterTexture {
     }
 
     private _updateTexture () {
-        if (!this.context || !this.canvas){
+        if (!this.context || !this.canvas) {
             return;
         }
 
@@ -198,7 +199,7 @@ class LetterTexture {
 
         const fontSize = labelInfo.fontSize;
         const startX = width / 2;
-        const startY = height / 2 + fontSize * MIDDLE_RATIO + fontSize * BASELINE_OFFSET;;
+        const startY = height / 2 + fontSize * MIDDLE_RATIO + fontSize * BASELINE_OFFSET;
         const color = labelInfo.color;
         // use round for line join to avoid sharp intersect point
         context.lineJoin = 'round';
@@ -213,7 +214,6 @@ class LetterTexture {
 
         // this.texture.handleLoadedTexture();
         // (this.image as Texture2D).updateImage();
-
     }
 }
 
@@ -288,7 +288,7 @@ export class LetterAtlas {
         texture.initWithSize(width, height);
 
         this.fontDefDictionary = new FontAtlas(texture);
-        this._halfBleed = bleed/2;
+        this._halfBleed = bleed / 2;
         this._width = width;
         this._height = height;
         director.on(Director.EVENT_BEFORE_SCENE_LAUNCH, this.beforeSceneLoad, this);
@@ -372,7 +372,7 @@ export class LetterAtlas {
 
     public destroy () {
         this.reset();
-        if (this.fontDefDictionary){
+        if (this.fontDefDictionary) {
             this.fontDefDictionary.texture.destroy();
             this.fontDefDictionary.texture = null;
         }
@@ -430,18 +430,18 @@ export interface IShareLabelInfo {
 
 export const shareLabelInfo: IShareLabelInfo = {
     fontAtlas: null,
-    fontSize:0,
-    lineHeight:0,
-    hAlign:0,
-    vAlign:0,
-    hash:'',
-    fontFamily:'',
-    fontDesc:'Arial',
+    fontSize: 0,
+    lineHeight: 0,
+    hAlign: 0,
+    vAlign: 0,
+    hash: '',
+    fontFamily: '',
+    fontDesc: 'Arial',
     color: Color.WHITE.clone(),
-    isOutlined:false,
+    isOutlined: false,
     out: Color.WHITE.clone(),
-    margin:0,
-}
+    margin: 0,
+};
 
 export function computeHash (labelInfo) {
     const hashData = '';
