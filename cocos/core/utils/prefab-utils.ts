@@ -74,7 +74,7 @@ export class PrefabInfo {
 
 legacyCC._PrefabInfo = PrefabInfo;
 
-@ccclass('cc.CompPrefabInfo ')
+@ccclass('cc.CompPrefabInfo')
 export class CompPrefabInfo {
     // To identify current component in a prefab asset, so only needs to be unique.
     @serializable
