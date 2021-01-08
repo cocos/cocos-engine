@@ -971,7 +971,7 @@ export enum NodeView {
 }
 interface INodeViewType extends BufferTypeManifest<typeof NodeView> {
     [NodeView.FLAGS_CHANGED]: number;
-    [NodeView.LAYER]: Layers.Enum;
+    [NodeView.LAYER]: number;
     [NodeView.WORLD_SCALE]: Vec3;
     [NodeView.WORLD_POSITION]: Vec3;
     [NodeView.WORLD_ROTATION]: Quat;
