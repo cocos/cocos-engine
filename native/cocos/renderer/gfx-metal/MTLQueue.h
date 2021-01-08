@@ -34,7 +34,7 @@ public:
 
     virtual bool initialize(const QueueInfo &info) override;
     virtual void destroy() override;
-    virtual void submit(const CommandBuffer *const *cmdBuffs, uint count, Fence *fence) override;
+    virtual void submit(CommandBuffer *const *cmdBuffs, uint count) override;
 
 private:
     uint _numDrawCalls = 0;

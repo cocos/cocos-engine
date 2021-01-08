@@ -303,7 +303,7 @@ void DeviceAgent::copyBuffersToTexture(const uint8_t *const *buffers, Texture *d
         });
 }
 
-void DeviceAgent::flushCommands(uint count, CommandBuffer *const *cmdBuffs) {
+void DeviceAgent::flushCommands(CommandBuffer *const *cmdBuffs, uint count) {
     bool multiThreaded = hasFeature(Feature::MULTITHREADED_SUBMISSION);
 
     const CommandBufferAgent **agentCmdBuffs = getMainAllocator()->allocate<const CommandBufferAgent *>(count);

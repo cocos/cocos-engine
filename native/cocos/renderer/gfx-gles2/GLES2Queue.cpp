@@ -45,7 +45,7 @@ bool GLES2Queue::initialize(const QueueInfo &info) {
 void GLES2Queue::destroy() {
 }
 
-void GLES2Queue::submit(const CommandBuffer *const *cmdBuffs, uint count, Fence *fence) {
+void GLES2Queue::submit(CommandBuffer *const *cmdBuffs, uint count) {
     if (!_isAsync) {
         for (uint i = 0; i < count; ++i) {
             GLES2CommandBuffer *cmdBuff = (GLES2CommandBuffer *)cmdBuffs[i];

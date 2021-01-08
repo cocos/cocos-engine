@@ -53,8 +53,7 @@ public:
     CC_INLINE void copyBuffersToTexture(const BufferDataList &buffers, Texture *dst, const BufferTextureCopyList &regions) {
         copyBuffersToTexture(buffers.data(), dst, regions.data(), static_cast<uint>(regions.size()));
     }
-
-    virtual void flushCommands(uint count, CommandBuffer *const *cmdBuffs) {}
+    virtual void flushCommands(CommandBuffer *const *cmdBuffs, uint count) {}
     virtual void setMultithreaded(bool multithreaded) {}
     virtual SurfaceTransform getSurfaceTransform() const { return _transform; }
     virtual uint getWidth() const { return _width; }
@@ -65,6 +64,10 @@ public:
     virtual uint getNumDrawCalls() const { return _numDrawCalls; }
     virtual uint getNumInstances() const { return _numInstances; }
     virtual uint getNumTris() const { return _numTriangles; }
+
+    CC_INLINE void flushCommands(const vector<CommandBuffer *> &cmdBuffs) { flushCommands(cmdBuffs.data(), cmdBuffs.size()); }
+
+    CC_INLINE void flushCommandsForJS(const vector<CommandBuffer *> &cmdBuffs) { flushCommands(cmdBuffs.data(), cmdBuffs.size()); }
 
     Format getColorFormat() const;
     Format getDepthStencilFormat() const;

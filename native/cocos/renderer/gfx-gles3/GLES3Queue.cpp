@@ -45,7 +45,7 @@ bool GLES3Queue::initialize(const QueueInfo &info) {
 void GLES3Queue::destroy() {
 }
 
-void GLES3Queue::submit(const CommandBuffer *const *cmdBuffs, uint count, Fence *fence) {
+void GLES3Queue::submit(CommandBuffer *const *cmdBuffs, uint count) {
     if (!_isAsync) {
         for (uint i = 0; i < count; ++i) {
             GLES3CommandBuffer *cmdBuff = (GLES3CommandBuffer *)cmdBuffs[i];

@@ -118,7 +118,7 @@ void CCMTLCommandBuffer::end() {
         // Secondary command buffer should end encoding here
         _commandEncoder.endEncoding();
     }
-    
+
     if (_currDrawable) {
         [_currDrawable release];
         _currDrawable = nil;
@@ -131,7 +131,7 @@ void CCMTLCommandBuffer::end() {
     }
 }
 
-void CCMTLCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, int stencil, uint32_t secondaryCBCount, const CommandBuffer *const *secondaryCBs) {
+void CCMTLCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, int stencil, CommandBuffer *const *secondaryCBs, uint32_t secondaryCBCount) {
     // Sub CommandBuffer shouldn't call begin render pass
     if (_isSecondary)
     {
@@ -453,7 +453,7 @@ void CCMTLCommandBuffer::copyBuffersToTexture(const uint8_t *const *buffers, Tex
     [encoder endEncoding];
 }
 
-void CCMTLCommandBuffer::execute(const CommandBuffer *const *commandBuffs, uint32_t count) {
+void CCMTLCommandBuffer::execute(CommandBuffer *const *commandBuffs, uint32_t count) {
     for (uint i = 0; i < count; ++i) {
         auto commandBuffer = static_cast<const CCMTLCommandBuffer *>(commandBuffs[i]);
         _numDrawCalls += commandBuffer->_numDrawCalls;

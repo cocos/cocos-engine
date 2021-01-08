@@ -132,7 +132,7 @@ void CommandBufferAgent::end() {
         });
 }
 
-void CommandBufferAgent::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, int stencil, uint32_t secondaryCBCount, const CommandBuffer *const *secondaryCBs) {
+void CommandBufferAgent::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, int stencil, CommandBuffer *const *secondaryCBs, uint32_t secondaryCBCount) {
     uint attachmentCount = (uint)renderPass->getColorAttachments().size();
     Color *actorColors = nullptr;
     if (attachmentCount) {
@@ -140,9 +140,9 @@ void CommandBufferAgent::beginRenderPass(RenderPass *renderPass, Framebuffer *fb
         memcpy(actorColors, colors, sizeof(Color) * attachmentCount);
     }
 
-    const CommandBuffer **actorSecondaryCBs = nullptr;
+    CommandBuffer **actorSecondaryCBs = nullptr;
     if (secondaryCBCount) {
-        actorSecondaryCBs = getAllocator()->allocate<const CommandBuffer *>(secondaryCBCount);
+        actorSecondaryCBs = getAllocator()->allocate<CommandBuffer *>(secondaryCBCount);
         for (uint i = 0; i < secondaryCBCount; ++i) {
             actorSecondaryCBs[i] = ((CommandBufferAgent *)secondaryCBs[i])->getActor();
         }
@@ -161,7 +161,7 @@ void CommandBufferAgent::beginRenderPass(RenderPass *renderPass, Framebuffer *fb
         secondaryCBCount, secondaryCBCount,
         secondaryCBs, actorSecondaryCBs,
         {
-            actor->beginRenderPass(renderPass, fbo, renderArea, colors, depth, stencil, secondaryCBCount, secondaryCBs);
+            actor->beginRenderPass(renderPass, fbo, renderArea, colors, depth, stencil, secondaryCBs, secondaryCBCount);
         });
 }
 
@@ -175,17 +175,12 @@ void CommandBufferAgent::endRenderPass() {
         });
 }
 
-void CommandBufferAgent::execute(const CommandBuffer *const *cmdBuffs, uint32_t count) {
+void CommandBufferAgent::execute(CommandBuffer *const *cmdBuffs, uint32_t count) {
     if (!count) return;
 
-    const CommandBuffer **actorCmdBuffs = getAllocator()->allocate<const CommandBuffer *>(count);
+    CommandBuffer **actorCmdBuffs = getAllocator()->allocate<CommandBuffer *>(count);
     for (uint i = 0; i < count; ++i) {
         actorCmdBuffs[i] = ((CommandBufferAgent *)cmdBuffs[i])->getActor();
-    }
-
-    const CommandBufferAgent **agentCmdBuffs = getAllocator()->allocate<const CommandBufferAgent *>(count);
-    for (uint i = 0; i < count; ++i) {
-        agentCmdBuffs[i] = (CommandBufferAgent *)cmdBuffs[i];
     }
 
     ENQUEUE_MESSAGE_3(

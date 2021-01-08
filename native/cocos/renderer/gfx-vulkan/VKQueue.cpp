@@ -58,7 +58,7 @@ void CCVKQueue::destroy() {
     }
 }
 
-void CCVKQueue::submit(const CommandBuffer *const *cmdBuffs, uint count, Fence *fence) {
+void CCVKQueue::submit(CommandBuffer *const *cmdBuffs, uint count) {
     CCVKDevice *device = (CCVKDevice *)_device;
     _gpuQueue->commandBuffers.clear();
     device->gpuTransportHub()->depart();
@@ -84,7 +84,7 @@ void CCVKQueue::submit(const CommandBuffer *const *cmdBuffs, uint count, Fence *
     submitInfo.signalSemaphoreCount = _gpuQueue->nextSignalSemaphore ? 1 : 0;
     submitInfo.pSignalSemaphores = &_gpuQueue->nextSignalSemaphore;
 
-    VkFence vkFence = fence ? ((CCVKFence *)fence)->gpuFence()->vkFence : device->gpuFencePool()->alloc();
+    VkFence vkFence = device->gpuFencePool()->alloc();
     VK_CHECK(vkQueueSubmit(_gpuQueue->vkQueue, 1, &submitInfo, vkFence));
 
     _gpuQueue->nextWaitSemaphore = _gpuQueue->nextSignalSemaphore;

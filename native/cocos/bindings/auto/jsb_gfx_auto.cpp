@@ -11512,6 +11512,23 @@ static bool js_gfx_CommandBuffer_begin(se::State& s)
     } while(false);
 
     do {
+        if (argc == 3) {
+            HolderType<cc::gfx::RenderPass*, false> arg0 = {};
+            HolderType<unsigned int, false> arg1 = {};
+            HolderType<cc::gfx::Framebuffer*, false> arg2 = {};
+
+            ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+            if (!ok) { ok = true; break; }
+            ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+            if (!ok) { ok = true; break; }
+            ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+            if (!ok) { ok = true; break; }
+            cobj->begin(arg0.value(), arg1.value(), arg2.value());
+            return true;
+        }
+    } while(false);
+
+    do {
         if (argc == 1) {
             HolderType<cc::gfx::RenderPass*, false> arg0 = {};
 
@@ -11536,33 +11553,16 @@ static bool js_gfx_CommandBuffer_begin(se::State& s)
         }
     } while(false);
 
-    do {
-        if (argc == 3) {
-            HolderType<cc::gfx::RenderPass*, false> arg0 = {};
-            HolderType<unsigned int, false> arg1 = {};
-            HolderType<cc::gfx::Framebuffer*, false> arg2 = {};
-
-            ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-            if (!ok) { ok = true; break; }
-            ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
-            if (!ok) { ok = true; break; }
-            ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
-            if (!ok) { ok = true; break; }
-            cobj->begin(arg0.value(), arg1.value(), arg2.value());
-            return true;
-        }
-    } while(false);
-
     SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
     return false;
 }
 SE_BIND_FUNC(js_gfx_CommandBuffer_begin)
 
-static bool js_gfx_CommandBuffer_beginRenderPass(se::State& s)
+static bool js_gfx_CommandBuffer_beginRenderPassForJS(se::State& s)
 {
     CC_UNUSED bool ok = true;
     cc::gfx::CommandBuffer* cobj = SE_THIS_OBJECT<cc::gfx::CommandBuffer>(s);
-    SE_PRECONDITION2( cobj, false, "js_gfx_CommandBuffer_beginRenderPass : Invalid Native Object");
+    SE_PRECONDITION2( cobj, false, "js_gfx_CommandBuffer_beginRenderPassForJS : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     do {
@@ -11586,21 +11586,20 @@ static bool js_gfx_CommandBuffer_beginRenderPass(se::State& s)
             if (!ok) { ok = true; break; }
             ok &= sevalue_to_native(args[5], &arg5, s.thisObject());
             if (!ok) { ok = true; break; }
-            cobj->beginRenderPass(arg0.value(), arg1.value(), arg2.value(), arg3.value(), arg4.value(), arg5.value());
+            cobj->beginRenderPassForJS(arg0.value(), arg1.value(), arg2.value(), arg3.value(), arg4.value(), arg5.value());
             return true;
         }
     } while(false);
 
     do {
-        if (argc == 8) {
+        if (argc == 7) {
             HolderType<cc::gfx::RenderPass*, false> arg0 = {};
             HolderType<cc::gfx::Framebuffer*, false> arg1 = {};
             HolderType<cc::gfx::Rect, true> arg2 = {};
-            HolderType<const cc::gfx::Color*, false> arg3 = {};
+            HolderType<cc::gfx::ColorList, true> arg3 = {};
             HolderType<float, false> arg4 = {};
             HolderType<int, false> arg5 = {};
-            HolderType<unsigned int, false> arg6 = {};
-            HolderType<const cc::gfx::CommandBuffer**, false> arg7 = {};
+            HolderType<std::vector<cc::gfx::CommandBuffer *>, true> arg6 = {};
 
             ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
             if (!ok) { ok = true; break; }
@@ -11616,35 +11615,7 @@ static bool js_gfx_CommandBuffer_beginRenderPass(se::State& s)
             if (!ok) { ok = true; break; }
             ok &= sevalue_to_native(args[6], &arg6, s.thisObject());
             if (!ok) { ok = true; break; }
-            ok &= sevalue_to_native(args[7], &arg7, s.thisObject());
-            if (!ok) { ok = true; break; }
-            cobj->beginRenderPass(arg0.value(), arg1.value(), arg2.value(), arg3.value(), arg4.value(), arg5.value(), arg6.value(), arg7.value());
-            return true;
-        }
-    } while(false);
-
-    do {
-        if (argc == 6) {
-            HolderType<cc::gfx::RenderPass*, false> arg0 = {};
-            HolderType<cc::gfx::Framebuffer*, false> arg1 = {};
-            HolderType<cc::gfx::Rect, true> arg2 = {};
-            HolderType<const cc::gfx::Color*, false> arg3 = {};
-            HolderType<float, false> arg4 = {};
-            HolderType<int, false> arg5 = {};
-
-            ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-            if (!ok) { ok = true; break; }
-            ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
-            if (!ok) { ok = true; break; }
-            ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
-            if (!ok) { ok = true; break; }
-            ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
-            if (!ok) { ok = true; break; }
-            ok &= sevalue_to_native(args[4], &arg4, s.thisObject());
-            if (!ok) { ok = true; break; }
-            ok &= sevalue_to_native(args[5], &arg5, s.thisObject());
-            if (!ok) { ok = true; break; }
-            cobj->beginRenderPass(arg0.value(), arg1.value(), arg2.value(), arg3.value(), arg4.value(), arg5.value());
+            cobj->beginRenderPassForJS(arg0.value(), arg1.value(), arg2.value(), arg3.value(), arg4.value(), arg5.value(), arg6.value());
             return true;
         }
     } while(false);
@@ -11652,7 +11623,7 @@ static bool js_gfx_CommandBuffer_beginRenderPass(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
     return false;
 }
-SE_BIND_FUNC(js_gfx_CommandBuffer_beginRenderPass)
+SE_BIND_FUNC(js_gfx_CommandBuffer_beginRenderPassForJS)
 
 static bool js_gfx_CommandBuffer_bindDescriptorSetForJS(se::State& s)
 {
@@ -12112,7 +12083,7 @@ bool js_register_gfx_CommandBuffer(se::Object* obj)
     auto cls = se::Class::create("CommandBuffer", obj, __jsb_cc_gfx_GFXObject_proto, _SE(js_gfx_CommandBuffer_constructor));
 
     cls->defineFunction("begin", _SE(js_gfx_CommandBuffer_begin));
-    cls->defineFunction("beginRenderPass", _SE(js_gfx_CommandBuffer_beginRenderPass));
+    cls->defineFunction("beginRenderPass", _SE(js_gfx_CommandBuffer_beginRenderPassForJS));
     cls->defineFunction("bindDescriptorSet", _SE(js_gfx_CommandBuffer_bindDescriptorSetForJS));
     cls->defineFunction("bindInputAssembler", _SE(js_gfx_CommandBuffer_bindInputAssembler));
     cls->defineFunction("bindPipelineState", _SE(js_gfx_CommandBuffer_bindPipelineState));
@@ -13107,59 +13078,24 @@ static bool js_gfx_Queue_isAsync(se::State& s)
 }
 SE_BIND_FUNC(js_gfx_Queue_isAsync)
 
-static bool js_gfx_Queue_submit(se::State& s)
+static bool js_gfx_Queue_submitForJS(se::State& s)
 {
-    CC_UNUSED bool ok = true;
     cc::gfx::Queue* cobj = SE_THIS_OBJECT<cc::gfx::Queue>(s);
-    SE_PRECONDITION2( cobj, false, "js_gfx_Queue_submit : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_gfx_Queue_submitForJS : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
-    do {
-        if (argc == 1) {
-            HolderType<std::vector<cc::gfx::CommandBuffer *>, true> arg0 = {};
-
-            ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-            if (!ok) { ok = true; break; }
-            cobj->submit(arg0.value());
-            return true;
-        }
-    } while(false);
-
-    do {
-        if (argc == 3) {
-            HolderType<const cc::gfx::CommandBuffer**, false> arg0 = {};
-            HolderType<unsigned int, false> arg1 = {};
-            HolderType<cc::gfx::Fence*, false> arg2 = {};
-
-            ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-            if (!ok) { ok = true; break; }
-            ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
-            if (!ok) { ok = true; break; }
-            ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
-            if (!ok) { ok = true; break; }
-            cobj->submit(arg0.value(), arg1.value(), arg2.value());
-            return true;
-        }
-    } while(false);
-
-    do {
-        if (argc == 2) {
-            HolderType<std::vector<cc::gfx::CommandBuffer *>, true> arg0 = {};
-            HolderType<cc::gfx::Fence*, false> arg1 = {};
-
-            ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-            if (!ok) { ok = true; break; }
-            ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
-            if (!ok) { ok = true; break; }
-            cobj->submit(arg0.value(), arg1.value());
-            return true;
-        }
-    } while(false);
-
-    SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<std::vector<cc::gfx::CommandBuffer *>, true> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_gfx_Queue_submitForJS : Error processing arguments");
+        cobj->submitForJS(arg0.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_FUNC(js_gfx_Queue_submit)
+SE_BIND_FUNC(js_gfx_Queue_submitForJS)
 
 SE_DECLARE_FINALIZE_FUNC(js_cc_gfx_Queue_finalize)
 
@@ -13196,7 +13132,7 @@ bool js_register_gfx_Queue(se::Object* obj)
     cls->defineFunction("destroy", _SE(js_gfx_Queue_destroy));
     cls->defineFunction("initialize", _SE(js_gfx_Queue_initialize));
     cls->defineFunction("isAsync", _SE(js_gfx_Queue_isAsync));
-    cls->defineFunction("submit", _SE(js_gfx_Queue_submit));
+    cls->defineFunction("submit", _SE(js_gfx_Queue_submitForJS));
     cls->defineFinalizeFunction(_SE(js_cc_gfx_Queue_finalize));
     cls->install();
     JSBClassType::registerClass<cc::gfx::Queue>(cls);
@@ -15520,6 +15456,25 @@ static bool js_gfx_Device_destroy(se::State& s)
 }
 SE_BIND_FUNC(js_gfx_Device_destroy)
 
+static bool js_gfx_Device_flushCommandsForJS(se::State& s)
+{
+    cc::gfx::Device* cobj = SE_THIS_OBJECT<cc::gfx::Device>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_Device_flushCommandsForJS : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<std::vector<cc::gfx::CommandBuffer *>, true> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_gfx_Device_flushCommandsForJS : Error processing arguments");
+        cobj->flushCommandsForJS(arg0.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_gfx_Device_flushCommandsForJS)
+
 static bool js_gfx_Device_genShaderId(se::State& s)
 {
     cc::gfx::Device* cobj = SE_THIS_OBJECT<cc::gfx::Device>(s);
@@ -16319,6 +16274,7 @@ bool js_register_gfx_Device(se::Object* obj)
     cls->defineFunction("createSampler", _SE(js_gfx_Device_createSampler));
     cls->defineFunction("createShader", _SE(js_gfx_Device_createShader));
     cls->defineFunction("destroy", _SE(js_gfx_Device_destroy));
+    cls->defineFunction("flushCommands", _SE(js_gfx_Device_flushCommandsForJS));
     cls->defineFunction("genShaderId", _SE(js_gfx_Device_genShaderId));
     cls->defineFunction("getUboOffsetAlignment", _SE(js_gfx_Device_getUboOffsetAlignment));
     cls->defineFunction("hasFeature", _SE(js_gfx_Device_hasFeature));

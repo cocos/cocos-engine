@@ -39,7 +39,7 @@ public:
 public:
     bool initialize(const QueueInfo &info);
     void destroy();
-    void submit(const CommandBuffer *const *cmdBuffs, uint count, Fence *fence);
+    void submit(CommandBuffer *const *cmdBuffs, uint count);
 
     CC_INLINE CCVKGPUQueue *gpuQueue() const { return _gpuQueue; }
 

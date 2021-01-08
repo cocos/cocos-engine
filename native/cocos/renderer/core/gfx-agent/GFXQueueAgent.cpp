@@ -45,31 +45,21 @@ void QueueAgent::destroy() {
         });
 }
 
-void QueueAgent::submit(const CommandBuffer *const *cmdBuffs, uint count, Fence *fence) {
+void QueueAgent::submit(CommandBuffer *const *cmdBuffs, uint count) {
     if (!count) return;
 
     LinearAllocatorPool *allocator = ((DeviceAgent *)_device)->getMainAllocator();
-    const CommandBuffer **actorCmdBuffs = allocator->allocate<const CommandBuffer *>(count);
+    CommandBuffer **actorCmdBuffs = allocator->allocate<CommandBuffer *>(count);
     for (uint i = 0u; i < count; ++i) {
         actorCmdBuffs[i] = ((CommandBufferAgent *)cmdBuffs[i])->getActor();
     }
 
-    const CommandBufferAgent **agentCmdBuffs = allocator->allocate<const CommandBufferAgent *>(count);
-    for (uint i = 0; i < count; ++i) {
-        agentCmdBuffs[i] = (CommandBufferAgent *)cmdBuffs[i];
-    }
-
-    bool multiThreaded = _device->hasFeature(Feature::MULTITHREADED_SUBMISSION);
-
-    ENQUEUE_MESSAGE_6(
+    ENQUEUE_MESSAGE_3(
         ((DeviceAgent *)_device)->getMessageQueue(),
         QueueSubmit,
         actor, getActor(),
-        multiThreaded, multiThreaded,
-        cmdBuffs, (CommandBufferAgent *const *)agentCmdBuffs,
         actorCmdBuffs, actorCmdBuffs,
         count, count,
-        fence, fence,
         {
             //auto startTime = std::chrono::steady_clock::now();
 
@@ -82,7 +72,7 @@ void QueueAgent::submit(const CommandBuffer *const *cmdBuffs, uint count, Fence 
 
             //CC_LOG_INFO("======== one round ========");
 
-            actor->submit(actorCmdBuffs, count, fence);
+            actor->submit(actorCmdBuffs, count);
         });
 }
 

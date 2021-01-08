@@ -17,7 +17,7 @@ public:
     bool initialize(const QueueInfo &info) override;
     void destroy() override;
 
-    void submit(const CommandBuffer *const *cmdBuffs, uint count, Fence *fence) override;
+    void submit(CommandBuffer *const *cmdBuffs, uint count) override;
 
 private:
     friend class DeviceAgent;

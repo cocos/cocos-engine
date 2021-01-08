@@ -14,13 +14,14 @@ public:
 public:
     virtual bool initialize(const QueueInfo &info) = 0;
     virtual void destroy() = 0;
-    virtual void submit(const CommandBuffer *const *cmdBuffs, uint count, Fence *fence) = 0;
+    virtual void submit(CommandBuffer *const *cmdBuffs, uint count) = 0;
 
-    CC_INLINE void submit(const vector<CommandBuffer *> &cmdBuffs) { submit(cmdBuffs, nullptr); }
-    CC_INLINE void submit(const vector<CommandBuffer *> &cmdBuffs, Fence *fence) { submit(cmdBuffs.data(), static_cast<uint>(cmdBuffs.size()), fence); }
+    CC_INLINE void submit(const CommandBufferList &cmdBuffs) { submit(cmdBuffs.data(), cmdBuffs.size()); }
     CC_INLINE Device *getDevice() const { return _device; }
     CC_INLINE QueueType getType() const { return _type; }
     CC_INLINE bool isAsync() const { return _isAsync; }
+
+    CC_INLINE void submitForJS(const CommandBufferList &cmdBuffs) { submit(cmdBuffs.data(), cmdBuffs.size()); }
 
 protected:
     Device *_device = nullptr;

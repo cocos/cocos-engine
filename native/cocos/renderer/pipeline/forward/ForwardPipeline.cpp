@@ -151,6 +151,7 @@ void ForwardPipeline::render(const vector<uint> &cameras) {
         }
     }
     _commandBuffers[0]->end();
+    _device->flushCommands(_commandBuffers);
     _device->getQueue()->submit(_commandBuffers);
 }
 

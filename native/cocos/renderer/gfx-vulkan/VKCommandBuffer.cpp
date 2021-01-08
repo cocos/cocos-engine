@@ -125,7 +125,7 @@ void CCVKCommandBuffer::end() {
     ((CCVKDevice *)_device)->gpuDevice()->getCommandBufferPool(std::this_thread::get_id())->yield(_gpuCommandBuffer);
 }
 
-void CCVKCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, int stencil, uint32_t secondaryCBCount, const CommandBuffer *const *secondaryCBs) {
+void CCVKCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, int stencil, CommandBuffer *const *secondaryCBs, uint32_t secondaryCBCount) {
     _curGPUFBO = ((CCVKFramebuffer *)fbo)->gpuFBO();
     CCVKGPURenderPass *gpuRenderPass = ((CCVKRenderPass *)renderPass)->gpuRenderPass();
     VkFramebuffer framebuffer = _curGPUFBO->vkFramebuffer;
@@ -402,7 +402,7 @@ void CCVKCommandBuffer::draw(InputAssembler *ia) {
     }
 }
 
-void CCVKCommandBuffer::execute(const CommandBuffer *const *cmdBuffs, uint count) {
+void CCVKCommandBuffer::execute(CommandBuffer *const *cmdBuffs, uint count) {
     if (!count) return;
     _vkCommandBuffers.resize(count);
 

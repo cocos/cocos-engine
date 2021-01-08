@@ -423,7 +423,7 @@ bool register_all_gfx(se::Object* obj);
 
 JSB_REGISTER_OBJECT_TYPE(cc::gfx::CommandBuffer);
 SE_DECLARE_FUNC(js_gfx_CommandBuffer_begin);
-SE_DECLARE_FUNC(js_gfx_CommandBuffer_beginRenderPass);
+SE_DECLARE_FUNC(js_gfx_CommandBuffer_beginRenderPassForJS);
 SE_DECLARE_FUNC(js_gfx_CommandBuffer_bindDescriptorSetForJS);
 SE_DECLARE_FUNC(js_gfx_CommandBuffer_bindInputAssembler);
 SE_DECLARE_FUNC(js_gfx_CommandBuffer_bindPipelineState);
@@ -517,7 +517,7 @@ JSB_REGISTER_OBJECT_TYPE(cc::gfx::Queue);
 SE_DECLARE_FUNC(js_gfx_Queue_destroy);
 SE_DECLARE_FUNC(js_gfx_Queue_initialize);
 SE_DECLARE_FUNC(js_gfx_Queue_isAsync);
-SE_DECLARE_FUNC(js_gfx_Queue_submit);
+SE_DECLARE_FUNC(js_gfx_Queue_submitForJS);
 SE_DECLARE_FUNC(js_gfx_Queue_Queue);
 
 extern se::Object* __jsb_cc_gfx_Sampler_proto;
@@ -636,6 +636,7 @@ SE_DECLARE_FUNC(js_gfx_Device_createRenderPass);
 SE_DECLARE_FUNC(js_gfx_Device_createSampler);
 SE_DECLARE_FUNC(js_gfx_Device_createShader);
 SE_DECLARE_FUNC(js_gfx_Device_destroy);
+SE_DECLARE_FUNC(js_gfx_Device_flushCommandsForJS);
 SE_DECLARE_FUNC(js_gfx_Device_genShaderId);
 SE_DECLARE_FUNC(js_gfx_Device_getUboOffsetAlignment);
 SE_DECLARE_FUNC(js_gfx_Device_hasFeature);
