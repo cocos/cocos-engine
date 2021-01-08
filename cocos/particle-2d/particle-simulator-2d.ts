@@ -26,7 +26,7 @@ import { Vec2, Vec3, Color } from '../core/math';
 import Pool from '../core/utils/pool';
 import { clampf, degreesToRadians, radiansToDegrees } from '../core/utils/misc';
 import { director } from '../core/director';
-import { vfmtPosUvColor, getAttributeFormatBytes } from '../2d/renderer/ui-vertex-format';
+import { vfmtPosUvColor, getComponentPerVertex } from '../2d/renderer/ui-vertex-format';
 import { PositionType, EmitterMode, START_SIZE_EQUAL_TO_END_SIZE, START_RADIUS_EQUAL_TO_END_RADIUS } from './define';
 
 const ZERO_VEC2 = new Vec2(0, 0);
@@ -35,7 +35,7 @@ const _tpa = new Vec2();
 const _tpb = new Vec2();
 const _tpc = new Vec2();
 
-const formatBytes = getAttributeFormatBytes(vfmtPosUvColor);
+const formatBytes = getComponentPerVertex(vfmtPosUvColor);
 
 // In the Free mode to get emit real rotation in the world coordinate.
 function getWorldRotation (node) {

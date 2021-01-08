@@ -41,7 +41,7 @@ import { LineCap, LineJoin } from '../assembler/graphics/types';
 import { Impl } from '../assembler/graphics/webgl/impl';
 import { RenderingSubMesh } from '../../core/assets';
 import { Format, PrimitiveMode, Attribute, Device, BufferUsageBit, BufferInfo, MemoryUsageBit } from '../../core/gfx';
-import { vfmtPosColor, getAttributeStride, getAttributeFormatBytes } from '../renderer/ui-vertex-format';
+import { vfmtPosColor, getAttributeStride, getComponentPerVertex } from '../renderer/ui-vertex-format';
 import { legacyCC } from '../../core/global-exports';
 
 const _matInsInfo: IMaterialInstanceInfo = {
@@ -54,7 +54,7 @@ const attributes = vfmtPosColor.concat([
     new Attribute('a_dist', Format.R32F),
 ]);
 
-const formatBytes = getAttributeFormatBytes(attributes);
+const componentPerVertex = getComponentPerVertex(attributes);
 
 const stride = getAttributeStride(attributes);
 
@@ -627,7 +627,7 @@ export class Graphics extends UIRenderable {
                 continue;
             }
 
-            const vb = new Float32Array(renderData.vData.buffer, 0, renderData.vertexStart * formatBytes);
+            const vb = new Float32Array(renderData.vData.buffer, 0, renderData.vertexStart * componentPerVertex);
             ia.vertexBuffers[0].update(vb);
             ia.vertexCount = renderData.vertexStart;
             const ib = new Uint16Array(renderData.iData.buffer, 0, renderData.indicesStart);
