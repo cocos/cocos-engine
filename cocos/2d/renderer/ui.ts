@@ -420,6 +420,10 @@ export class UI {
                 comp.stencilStage = StencilManager.sharedManager!.stage;
             }
             depthStencil = StencilManager.sharedManager!.getStencilStage(comp.stencilStage);
+            // ui model gets the depth state of the first pass by default
+            depthStencil.depthTest = mat.passes[0].depthStencilState.depthTest;
+            depthStencil.depthWrite = mat.passes[0].depthStencilState.depthWrite;
+            depthStencil.depthFunc = mat.passes[0].depthStencilState.depthFunc;
         }
 
         const uiCanvas = this._currCanvas;
