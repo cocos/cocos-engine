@@ -27,8 +27,8 @@ endif()
 set(DEVELOPMENT_TEAM "" CACHE STRING "APPLE Developtment Team")
 set(RES_DIR "" CACHE STRING          "Resource path")
 
-set(TARGET_IOS_VERSION "9.0")
-set(TARGET_OSX_VERSION "10.10")
+set(TARGET_IOS_VERSION "12.0")
+set(TARGET_OSX_VERSION "10.14")
 
 if(RES_DIR)
     include(${RES_DIR}/proj/cfg.cmake)
