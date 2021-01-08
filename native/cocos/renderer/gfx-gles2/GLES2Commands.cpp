@@ -2550,7 +2550,7 @@ void GLES2CmdFuncExecuteCmds(GLES2Device *device, GLES2CmdPackage *cmdPackage) {
                 GLES2CmdBindStates *cmd = cmdPackage->bindStatesCmds[cmdIdx];
                 GLES2CmdFuncBindState(device, cmd->gpuPipelineState, cmd->gpuInputAssembler, cmd->gpuDescriptorSets, cmd->dynamicOffsets, cmd->viewport, cmd->scissor, cmd->lineWidth, cmd->depthBiasEnabled, cmd->depthBias, cmd->blendConstants, cmd->depthBounds, cmd->stencilWriteMask, cmd->stencilCompareMask);
                 break;
-            } // namespace gfx
+            }
             case GFXCmdType::DRAW: {
                 GLES2CmdDraw *cmd = cmdPackage->drawCmds[cmdIdx];
                 GLES2CmdFuncDraw(device, cmd->drawInfo);

@@ -864,7 +864,7 @@ void GLES3CmdFuncCreateTexture(GLES3Device *device, GLES3GPUTexture *gpuTexture)
             CCASSERT(false, "Unsupported TextureType, create texture failed.");
             break;
     }
-} // namespace gfx
+}
 
 void GLES3CmdFuncDestroyTexture(GLES3Device *device, GLES3GPUTexture *gpuTexture) {
     if (gpuTexture->glTexture) {
