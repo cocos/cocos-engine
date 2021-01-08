@@ -130,12 +130,30 @@ export class UIDrawBatch {
                 }
                 const mtlPass = passes[i];
                 const passInUse = this._passes[i];
-                if (!dss) { dss = mtlPass.depthStencilState; }
+                const dsState = mtlPass.depthStencilState;
+                if (dss) {
+                    dsState.stencilTestFront = dss.stencilTestFront;
+                    dsState.stencilFuncFront = dss.stencilFuncFront;
+                    dsState.stencilReadMaskFront = dss.stencilReadMaskFront;
+                    dsState.stencilWriteMaskFront = dss.stencilWriteMaskFront;
+                    dsState.stencilFailOpFront = dss.stencilFailOpFront;
+                    dsState.stencilZFailOpFront = dss.stencilZFailOpFront;
+                    dsState.stencilPassOpFront = dss.stencilPassOpFront;
+                    dsState.stencilRefFront = dss.stencilRefFront;
+                    dsState.stencilTestBack = dss.stencilTestBack;
+                    dsState.stencilFuncBack = dss.stencilFuncBack;
+                    dsState.stencilReadMaskBack = dss.stencilReadMaskBack;
+                    dsState.stencilWriteMaskBack = dss.stencilWriteMaskBack;
+                    dsState.stencilFailOpBack = dss.stencilFailOpBack;
+                    dsState.stencilZFailOpBack = dss.stencilZFailOpBack;
+                    dsState.stencilPassOpBack = dss.stencilPassOpBack;
+                    dsState.stencilRefBack = dss.stencilRefBack;
+                }
                 if (!bs) { bs = mtlPass.blendState; }
 
                 mtlPass.update();
                 // @ts-expect-error hack for UI use pass object
-                passInUse._initPassFromTarget(mtlPass, dss, bs);
+                passInUse._initPassFromTarget(mtlPass, dsState, bs);
                 UIBatchPool.set(this._handle, passOffset, passInUse.handle);
                 UIBatchPool.set(this._handle, shaderOffset, passInUse.getShaderVariant());
             }
