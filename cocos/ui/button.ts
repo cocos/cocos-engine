@@ -30,6 +30,7 @@
  */
 
 import { ccclass, help, executionOrder, menu, requireComponent, tooltip, displayOrder, type, rangeMin, rangeMax, serializable, executeInEditMode } from 'cc.decorator';
+import { EDITOR } from 'internal:constants';
 import { SpriteFrame } from '../2d/assets';
 import { Component, EventHandler as ComponentEventHandler } from '../core/components';
 import { UITransform, UIRenderable } from '../2d/framework';
@@ -39,7 +40,6 @@ import { ccenum } from '../core/value-types/enum';
 import { lerp } from '../core/math/utils';
 import { Node } from '../core/scene-graph/node';
 import { Sprite } from '../2d/components/sprite';
-import { EDITOR } from 'internal:constants';
 import { legacyCC } from '../core/global-exports';
 import { TransformBit } from '../core/scene-graph/node-enum';
 
@@ -176,7 +176,6 @@ export enum EventType {
 @requireComponent(UITransform)
 @executeInEditMode
 export class Button extends Component {
-
     /**
      * @en
      * Transition target.<br/>
@@ -271,8 +270,7 @@ export class Button extends Component {
         // Reset to normal data when change transition.
         if (this._transition === Transition.COLOR) {
             this._updateColorTransition(State.NORMAL);
-        }
-        else if (this._transition === Transition.SPRITE) {
+        } else if (this._transition === Transition.SPRITE) {
             this._updateSpriteTransition(State.NORMAL);
         }
         this._transition = value;
@@ -626,7 +624,7 @@ export class Button extends Component {
         if (this._transition === Transition.COLOR) {
             const renderComp = target._uiProps.uiComp as UIRenderable;
             Color.lerp(_tempColor, this._fromColor, this._toColor, ratio);
-            if(renderComp){
+            if (renderComp) {
                 renderComp.color = _tempColor;
             }
         } else if (this.transition === Transition.SCALE) {
@@ -645,7 +643,7 @@ export class Button extends Component {
         if (!this.target) {
             return;
         }
-        let targetTrans = this.target._uiProps.uiTransformComp;
+        const targetTrans = this.target._uiProps.uiTransformComp;
         if (EDITOR && targetTrans) {
             this.node._uiProps.uiTransformComp!.setContentSize(targetTrans.contentSize);
         }
@@ -738,18 +736,20 @@ export class Button extends Component {
             return;
         }
         switch (this._getButtonState()) {
-            case State.NORMAL:
-                this._normalSprite = spriteFrame;
-                break;
-            case State.HOVER:
-                this._hoverSprite = spriteFrame;
-                break;
-            case State.PRESSED:
-                this._pressedSprite = spriteFrame;
-                break;
-            case State.DISABLED:
-                this._disabledSprite = spriteFrame;
-                break;
+        case State.NORMAL:
+            this._normalSprite = spriteFrame;
+            break;
+        case State.HOVER:
+            this._hoverSprite = spriteFrame;
+            break;
+        case State.PRESSED:
+            this._pressedSprite = spriteFrame;
+            break;
+        case State.DISABLED:
+            this._disabledSprite = spriteFrame;
+            break;
+        default:
+            break;
         }
     }
 
@@ -759,20 +759,22 @@ export class Button extends Component {
         }
     }
 
-    private _setCurrentStateColor(color: Color) {
+    private _setCurrentStateColor (color: Color) {
         switch (this._getButtonState()) {
-            case State.NORMAL:
-                this._normalColor = color;
-                break;
-            case State.HOVER:
-                this._hoverColor = color;
-                break;
-            case State.PRESSED:
-                this._pressedColor = color;
-                break;
-            case State.DISABLED:
-                this._disabledColor = color;
-                break;
+        case State.NORMAL:
+            this._normalColor = color;
+            break;
+        case State.HOVER:
+            this._hoverColor = color;
+            break;
+        case State.PRESSED:
+            this._pressedColor = color;
+            break;
+        case State.DISABLED:
+            this._disabledColor = color;
+            break;
+        default:
+            break;
         }
     }
 
@@ -795,15 +797,15 @@ export class Button extends Component {
         }
     }
 
-    protected _onTouchMove (event?: EventTouch) {
-        if (!this._interactable || !this.enabledInHierarchy || !this._pressed) { return; }
+    protected _onTouchMove (event?: EventTouch) : boolean {
+        if (!this._interactable || !this.enabledInHierarchy || !this._pressed) { return false; }
         // mobile phone will not emit _onMouseMoveOut,
         // so we have to do hit test when touch moving
         if (!event) {
             return false;
         }
 
-        const touch = (event as EventTouch).touch;
+        const touch = (event).touch;
         if (!touch) {
             return false;
         }
@@ -833,6 +835,8 @@ export class Button extends Component {
         if (event) {
             event.propagationStopped = true;
         }
+
+        return true;
     }
 
     protected _onTouchEnded (event?: EventTouch) {
@@ -895,7 +899,7 @@ export class Button extends Component {
     }
 
     protected _updateColorTransition (state: string) {
-        const color = this[state + 'Color'];
+        const color = this[`${state}Color`];
 
         const renderComp = this.target?.getComponent(UIRenderable);
         if (!renderComp) {
@@ -913,7 +917,7 @@ export class Button extends Component {
     }
 
     protected _updateSpriteTransition (state: string) {
-        const sprite = this[state + 'Sprite'];
+        const sprite = this[`${state}Sprite`];
         if (this._sprite && sprite) {
             this._sprite.spriteFrame = sprite;
         }
@@ -962,5 +966,4 @@ export class Button extends Component {
             this._updateScaleTransition(state);
         }
     }
-
 }

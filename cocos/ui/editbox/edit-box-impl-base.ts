@@ -60,8 +60,7 @@ export class EditBoxImplBase {
     public setFocus (value) {
         if (value) {
             this.beginEditing();
-        }
-        else {
+        } else {
             this.endEditing();
         }
     }

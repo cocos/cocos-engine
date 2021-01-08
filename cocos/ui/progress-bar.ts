@@ -29,9 +29,9 @@
  * @module ui
  */
 
+import { ccclass, help, executionOrder, menu, requireComponent, tooltip, type, range, slide, serializable } from 'cc.decorator';
 import { Component } from '../core/components/component';
 import { UITransform } from '../2d/framework';
-import { ccclass, help, executionOrder, menu, requireComponent, tooltip, type, range, slide, serializable } from 'cc.decorator';
 import { Size, Vec2, Vec3 } from '../core/math';
 import { Enum } from '../core/value-types';
 import { clamp01 } from '../core/math/utils';
@@ -106,7 +106,6 @@ Enum(Mode);
 @requireComponent(UITransform)
 // @executeInEditMode
 export class ProgressBar extends Component {
-
     /**
      * @en
      * The targeted Sprite which will be changed progressively.
@@ -270,7 +269,7 @@ export class ProgressBar extends Component {
             }
 
             if (entity.parent === this.node) {
-                const x = - nodeSize.width * nodeAnchor.x;
+                const x = -nodeSize.width * nodeAnchor.x;
                 entity.setPosition(x, 0, 0);
             }
         }
@@ -282,7 +281,7 @@ export class ProgressBar extends Component {
 
             if (!entity) { return; }
 
-            const entTrans = entity._uiProps.uiTransformComp!
+            const entTrans = entity._uiProps.uiTransformComp!;
             const entityAnchorPoint = entTrans.anchorPoint;
             const entitySize = entTrans.contentSize;
             const entityPosition = entity.getPosition();
@@ -294,26 +293,28 @@ export class ProgressBar extends Component {
             let totalWidth = 0;
             let totalHeight = 0;
             switch (this._mode) {
-                case Mode.HORIZONTAL:
-                    if (this._reverse) {
-                        anchorPoint = new Vec2(1, 0.5);
-                    }
+            case Mode.HORIZONTAL:
+                if (this._reverse) {
+                    anchorPoint = new Vec2(1, 0.5);
+                }
 
-                    finalContentSize = new Size(actualLenth, entitySize.height);
-                    totalWidth = this._totalLength;
-                    totalHeight = entitySize.height;
-                    break;
-                case Mode.VERTICAL:
-                    if (this._reverse) {
-                        anchorPoint = new Vec2(0.5, 1);
-                    } else {
-                        anchorPoint = new Vec2(0.5, 0);
-                    }
+                finalContentSize = new Size(actualLenth, entitySize.height);
+                totalWidth = this._totalLength;
+                totalHeight = entitySize.height;
+                break;
+            case Mode.VERTICAL:
+                if (this._reverse) {
+                    anchorPoint = new Vec2(0.5, 1);
+                } else {
+                    anchorPoint = new Vec2(0.5, 0);
+                }
 
-                    finalContentSize = new Size(entitySize.width, actualLenth);
-                    totalWidth = entitySize.width;
-                    totalHeight = this._totalLength;
-                    break;
+                finalContentSize = new Size(entitySize.width, actualLenth);
+                totalWidth = entitySize.width;
+                totalHeight = this._totalLength;
+                break;
+            default:
+                break;
             }
 
             // handling filled mode
@@ -322,24 +323,21 @@ export class ProgressBar extends Component {
                     warn('ProgressBar FILLED mode only works when barSprite\'s Type is FILLED!');
                 } else {
                     if (this._reverse) {
-                        actualLenth = actualLenth * -1;
+                        actualLenth *= -1;
                     }
                     this._barSprite.fillRange = actualLenth;
                 }
+            } else if (this._barSprite.type !== Sprite.Type.FILLED) {
+                const anchorOffsetX = anchorPoint.x - entityAnchorPoint.x;
+                const anchorOffsetY = anchorPoint.y - entityAnchorPoint.y;
+                const finalPosition = new Vec3(totalWidth * anchorOffsetX, totalHeight * anchorOffsetY, 0);
+
+                entity.setPosition(entityPosition.x + finalPosition.x, entityPosition.y + finalPosition.y, entityPosition.z);
+
+                entTrans.setAnchorPoint(anchorPoint);
+                entTrans.setContentSize(finalContentSize);
             } else {
-                if (this._barSprite.type !== Sprite.Type.FILLED) {
-
-                    const anchorOffsetX = anchorPoint.x - entityAnchorPoint.x;
-                    const anchorOffsetY = anchorPoint.y - entityAnchorPoint.y;
-                    const finalPosition = new Vec3(totalWidth * anchorOffsetX, totalHeight * anchorOffsetY, 0);
-
-                    entity.setPosition(entityPosition.x + finalPosition.x, entityPosition.y + finalPosition.y, entityPosition.z);
-
-                    entTrans.setAnchorPoint(anchorPoint);
-                    entTrans.setContentSize(finalContentSize);
-                } else {
-                    warn('ProgressBar non-FILLED mode only works when barSprite\'s Type is non-FILLED!');
-                }
+                warn('ProgressBar non-FILLED mode only works when barSprite\'s Type is non-FILLED!');
             }
         }
     }

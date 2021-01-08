@@ -29,15 +29,15 @@
  * @module ui
  */
 
+import { ccclass, help, executionOrder, menu, requireComponent, tooltip, type, slide, range, serializable } from 'cc.decorator';
+import { EDITOR } from 'internal:constants';
 import { Component, EventHandler } from '../core/components';
 import { UITransform } from '../2d/framework';
-import { ccclass, help, executionOrder, menu, requireComponent, tooltip, type, slide, range, serializable } from 'cc.decorator';
 import { EventTouch, SystemEventType, Touch } from '../core/platform';
 import { Vec3 } from '../core/math';
 import { ccenum } from '../core/value-types/enum';
 import { clamp01 } from '../core/math/utils';
 import { Sprite } from '../2d/components/sprite';
-import { EDITOR } from 'internal:constants';
 import { legacyCC } from '../core/global-exports';
 
 const _tempPos = new Vec3();
@@ -82,7 +82,6 @@ ccenum(Direction);
 @menu('UI/Slider')
 @requireComponent(UITransform)
 export class Slider extends Component {
-
     /**
      * @en
      * The "handle" part of the slider.
@@ -308,7 +307,7 @@ export class Slider extends Component {
         const uiTrans = this.node._uiProps.uiTransformComp!;
         const contentSize = uiTrans.contentSize;
         uiTrans.setContentSize(contentSize.height, contentSize.width);
-        if(this._handle){
+        if (this._handle) {
             const pos = this._handle.node.position;
             if (this._direction === Direction.Horizontal) {
                 this._handle.node.setPosition(pos.x, 0, pos.z);

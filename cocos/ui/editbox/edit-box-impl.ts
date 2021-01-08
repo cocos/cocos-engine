@@ -86,12 +86,12 @@ export class EditBoxImpl extends EditBoxImplBase {
     private _domId = `EditBoxId_${++_domCount}`;
 
     public init (delegate: EditBox) {
-        if (!delegate){
+        if (!delegate) {
             return;
         }
 
         this._delegate = delegate;
-        if (delegate.inputMode === InputMode.ANY){
+        if (delegate.inputMode === InputMode.ANY) {
             this._createTextArea();
         } else {
             this._createInput();
@@ -133,10 +133,9 @@ export class EditBoxImpl extends EditBoxImplBase {
     public setSize (width: number, height: number) {
         const elem = this._edTxt;
         if (elem) {
-            elem.style.width = width + 'px';
-            elem.style.height = height + 'px';
+            elem.style.width = `${width}px`;
+            elem.style.height = `${height}px`;
         }
-
     }
 
     public beginEditing () {
@@ -166,7 +165,7 @@ export class EditBoxImpl extends EditBoxImplBase {
     }
 
     private _addDomToGameContainer () {
-        if(legacyCC.GAME_VIEW && this._edTxt) {
+        if (legacyCC.GAME_VIEW && this._edTxt) {
             legacyCC.gameView.container.appendChild(this._edTxt);
             legacyCC.gameView.head.appendChild(this._placeholderStyleSheet!);
         } else if (game.container && this._edTxt) {
@@ -177,16 +176,22 @@ export class EditBoxImpl extends EditBoxImplBase {
 
     private _removeDomFromGameContainer () {
         const hasElem = legacyCC.GAME_VIEW ? contains(legacyCC.gameView.container, this._edTxt)
-        : contains(game.container, this._edTxt);
+            : contains(game.container, this._edTxt);
         if (hasElem && this._edTxt) {
-            legacyCC.GAME_VIEW ? legacyCC.gameView.container.removeChild(this._edTxt) 
-            : game.container!.removeChild(this._edTxt);
+            if (legacyCC.GAME_VIEW) {
+                legacyCC.gameView.container.removeChild(this._edTxt);
+            } else {
+                game.container!.removeChild(this._edTxt);
+            }
         }
         const hasStyleSheet = legacyCC.GAME_VIEW ? contains(legacyCC.gameView.head, this._placeholderStyleSheet)
-        : contains(document.head, this._placeholderStyleSheet);
+            : contains(document.head, this._placeholderStyleSheet);
         if (hasStyleSheet) {
-            legacyCC.GAME_VIEW ? legacyCC.gameView.head.removeChild(this._placeholderStyleSheet)
-            : document.head.removeChild(this._placeholderStyleSheet!);
+            if (legacyCC.GAME_VIEW) {
+                legacyCC.gameView.head.removeChild(this._placeholderStyleSheet);
+            } else {
+                document.head.removeChild(this._placeholderStyleSheet!);
+            }
         }
 
         this._edTxt = null;
@@ -197,7 +202,7 @@ export class EditBoxImpl extends EditBoxImplBase {
         this._updateMaxLength();
         this._updateInputType();
         this._updateStyleSheet();
-        if (this._edTxt && this._delegate){
+        if (this._edTxt && this._delegate) {
             this._edTxt.style.display = '';
             this._delegate._hideLabels();
         }
@@ -224,6 +229,7 @@ export class EditBoxImpl extends EditBoxImplBase {
 
         if (this.__fullscreen) {
             view.enableAutoFullScreen(false);
+            // eslint-disable-next-line @typescript-eslint/no-floating-promises
             screen.exitFullScreen();
         }
         if (this.__autoResize) {
@@ -252,10 +258,11 @@ export class EditBoxImpl extends EditBoxImplBase {
     }
 
     private _adjustWindowScroll () {
+        // eslint-disable-next-line @typescript-eslint/no-this-alias
         const self = this;
         setTimeout(() => {
             if (window.scrollY < SCROLLY) {
-                self._edTxt!.scrollIntoView({block: 'start', inline: 'nearest', behavior: 'smooth'});
+                self._edTxt!.scrollIntoView({ block: 'start', inline: 'nearest', behavior: 'smooth' });
             }
         }, DELAY_TIME);
     }
@@ -284,7 +291,7 @@ export class EditBoxImpl extends EditBoxImplBase {
         let scaleY = view.getScaleY();
         let widthRatio = 1;
         let heightRatio = 1;
-        if(legacyCC.GAME_VIEW) {
+        if (legacyCC.GAME_VIEW) {
             widthRatio = legacyCC.gameView.canvas.width / legacyCC.game.canvas.width;
             heightRatio = legacyCC.gameView.canvas.height / legacyCC.game.canvas.height;
         }
@@ -294,7 +301,7 @@ export class EditBoxImpl extends EditBoxImplBase {
         const dpr = view.getDevicePixelRatio();
 
         node.getWorldMatrix(_matrix);
-        const transform = node!._uiProps.uiTransformComp;
+        const transform = node._uiProps.uiTransformComp;
         if (transform) {
             Vec3.set(_vec3, -transform.anchorX * transform.width, -transform.anchorY * transform.height, _vec3.z);
         }
@@ -302,10 +309,10 @@ export class EditBoxImpl extends EditBoxImplBase {
         Mat4.transform(_matrix, _matrix, _vec3);
 
         if (!node._uiProps.uiTransformComp) {
-            return false;
+            return;
         }
         let canvas = director.root!.ui.getScreen(node._uiProps.uiTransformComp.visibility);
-        if(legacyCC.GAME_VIEW) {
+        if (legacyCC.GAME_VIEW) {
             canvas = legacyCC.gameView.preview.canvasComp;
         }
         if (!canvas) {
@@ -337,7 +344,7 @@ export class EditBoxImpl extends EditBoxImplBase {
         const tx = _matrix_temp.m12 * scaleX + offsetX;
         const ty = _matrix_temp.m13 * scaleY + offsetY;
 
-        const matrix = 'matrix(' + a + ',' + -b + ',' + -c + ',' + d + ',' + tx + ',' + -ty + ')';
+        const matrix = `matrix(${a},${-b},${-c},${d},${tx},${-ty})`;
         this._edTxt.style.transform = matrix;
         this._edTxt.style['-webkit-transform'] = matrix;
         this._edTxt.style['transform-origin'] = '0px 100% 0px';
@@ -351,9 +358,9 @@ export class EditBoxImpl extends EditBoxImplBase {
         const returnType = delegate!.returnType;
         let elem = this._edTxt;
 
-        if (this._inputMode === inputMode &&
-            this._inputFlag === inputFlag &&
-            this._returnType === returnType) {
+        if (this._inputMode === inputMode
+            && this._inputFlag === inputFlag
+            && this._returnType === returnType) {
             return;
         }
 
@@ -368,8 +375,7 @@ export class EditBoxImpl extends EditBoxImplBase {
             let transform = 'none';
             if (inputFlag === InputFlag.INITIAL_CAPS_ALL_CHARACTERS) {
                 transform = 'uppercase';
-            }
-            else if (inputFlag === InputFlag.INITIAL_CAPS_WORD) {
+            } else if (inputFlag === InputFlag.INITIAL_CAPS_WORD) {
                 transform = 'capitalize';
             }
             elem!.style.textTransform = transform;
@@ -402,7 +408,7 @@ export class EditBoxImpl extends EditBoxImplBase {
                 type = 'search';
             }
         }
-        elem!.type = type;
+        elem.type = type;
 
         // input flag
         let textTransform = 'none';
@@ -438,7 +444,7 @@ export class EditBoxImpl extends EditBoxImplBase {
         elem.style.display = 'none';
         elem.style.position = 'absolute';
         elem.style.bottom = '0px';
-        elem.style.left = LEFT_PADDING + 'px';
+        elem.style.left = `${LEFT_PADDING}px`;
         elem.className = 'cocosEditBox';
         elem.style.fontFamily = 'Arial';
         elem.id = this._domId;
@@ -447,8 +453,7 @@ export class EditBoxImpl extends EditBoxImplBase {
             elem = elem as HTMLInputElement;
             elem.type = 'text';
             elem.style['-moz-appearance'] = 'textfield';
-        }
-        else {
+        } else {
             elem.style.resize = 'none';
             elem.style.overflowY = 'scroll';
         }
@@ -459,7 +464,7 @@ export class EditBoxImpl extends EditBoxImplBase {
     private _updateStyleSheet () {
         const delegate = this._delegate;
         const elem = this._edTxt;
-        if (elem && delegate){
+        if (elem && delegate) {
             elem.value = delegate.string;
             elem.placeholder = delegate.placeholder;
 
@@ -476,8 +481,7 @@ export class EditBoxImpl extends EditBoxImplBase {
         let font = textLabel.font;
         if (font && !(font instanceof BitmapFont)) {
             font = font._fontFamily;
-        }
-        else {
+        } else {
             font = textLabel.fontFamily;
         }
 
@@ -487,7 +491,7 @@ export class EditBoxImpl extends EditBoxImplBase {
             && this._textLabelFontSize === fontSize
             && this._textLabelFontColor === textLabel.fontColor
             && this._textLabelAlign === textLabel.horizontalAlign) {
-                return;
+            return;
         }
 
         this._textLabelFont = font;
@@ -505,15 +509,17 @@ export class EditBoxImpl extends EditBoxImplBase {
         elem.style.fontFamily = font;
 
         switch (textLabel.horizontalAlign) {
-            case Label.HorizontalAlign.LEFT:
-                elem.style.textAlign = 'left';
-                break;
-            case Label.HorizontalAlign.CENTER:
-                elem.style.textAlign = 'center';
-                break;
-            case Label.HorizontalAlign.RIGHT:
-                elem.style.textAlign = 'right';
-                break;
+        case Label.HorizontalAlign.LEFT:
+            elem.style.textAlign = 'left';
+            break;
+        case Label.HorizontalAlign.CENTER:
+            elem.style.textAlign = 'center';
+            break;
+        case Label.HorizontalAlign.RIGHT:
+            elem.style.textAlign = 'right';
+            break;
+        default:
+            break;
         }
     }
 
@@ -525,11 +531,9 @@ export class EditBoxImpl extends EditBoxImplBase {
         let font = placeholderLabel.font;
         if (font && !(font instanceof BitmapFont)) {
             font = placeholderLabel.font._fontFamily;
-        }
-        else {
+        } else {
             font = placeholderLabel.fontFamily;
         }
-
 
         const fontSize = placeholderLabel.fontSize * placeholderLabel.node.scale.y;
 
@@ -538,7 +542,7 @@ export class EditBoxImpl extends EditBoxImplBase {
             && this._placeholderLabelFontColor === placeholderLabel.fontColor
             && this._placeholderLabelAlign === placeholderLabel.horizontalAlign
             && this._placeholderLineHeight === placeholderLabel.fontSize) {
-                return;
+            return;
         }
 
         this._placeholderLabelFont = font;
@@ -553,20 +557,22 @@ export class EditBoxImpl extends EditBoxImplBase {
 
         let horizontalAlign = '';
         switch (placeholderLabel.horizontalAlign) {
-            case Label.HorizontalAlign.LEFT:
-                horizontalAlign = 'left';
-                break;
-            case Label.HorizontalAlign.CENTER:
-                horizontalAlign = 'center';
-                break;
-            case Label.HorizontalAlign.RIGHT:
-                horizontalAlign = 'right';
-                break;
+        case Label.HorizontalAlign.LEFT:
+            horizontalAlign = 'left';
+            break;
+        case Label.HorizontalAlign.CENTER:
+            horizontalAlign = 'center';
+            break;
+        case Label.HorizontalAlign.RIGHT:
+            horizontalAlign = 'right';
+            break;
+        default:
+            break;
         }
 
-        styleEl!.innerHTML = `#${this._domId}::-webkit-input-placeholder{text-transform: initial;-family: ${font};font-size: ${fontSize}px;color: ${fontColor};line-height: ${lineHeight}px;text-align: ${horizontalAlign};}` +
-                            `#${this._domId}::-moz-placeholder{text-transform: initial;-family: ${font};font-size: ${fontSize}px;color: ${fontColor};line-height: ${lineHeight}px;text-align: ${horizontalAlign};}` +
-                            `#${this._domId}::-ms-input-placeholder{text-transform: initial;-family: ${font};font-size: ${fontSize}px;color: ${fontColor};line-height: ${lineHeight}px;text-align: ${horizontalAlign};}`;
+        styleEl!.innerHTML = `#${this._domId}::-webkit-input-placeholder{text-transform: initial;-family: ${font};font-size: ${fontSize}px;color: ${fontColor};line-height: ${lineHeight}px;text-align: ${horizontalAlign};}`
+                            + `#${this._domId}::-moz-placeholder{text-transform: initial;-family: ${font};font-size: ${fontSize}px;color: ${fontColor};line-height: ${lineHeight}px;text-align: ${horizontalAlign};}`
+                            + `#${this._domId}::-ms-input-placeholder{text-transform: initial;-family: ${font};font-size: ${fontSize}px;color: ${fontColor};line-height: ${lineHeight}px;text-align: ${horizontalAlign};}`;
         // EDGE_BUG_FIX: hide clear button, because clearing input box in Edge does not emit input event
         // issue refference: https://github.com/angular/angular/issues/26307
         if (legacyCC.sys.browserType === legacyCC.sys.BROWSER_TYPE_EDGE) {
@@ -575,10 +581,11 @@ export class EditBoxImpl extends EditBoxImplBase {
     }
 
     private _registerEventListeners () {
-        if (!this._edTxt){
+        if (!this._edTxt) {
             return;
         }
 
+        // eslint-disable-next-line @typescript-eslint/no-this-alias
         const impl = this;
         const elem = this._edTxt;
         let inputLock = false;
@@ -590,7 +597,7 @@ export class EditBoxImpl extends EditBoxImplBase {
 
         cbs.compositionEnd = () => {
             inputLock = false;
-            impl._delegate!._editBoxTextChanged(elem!.value);
+            impl._delegate!._editBoxTextChanged(elem.value);
         };
 
         cbs.onInput = () => {
@@ -603,7 +610,7 @@ export class EditBoxImpl extends EditBoxImplBase {
             if (maxLength >= 0) {
                 elem.value = elem.value.slice(0, maxLength);
             }
-            delegate!._editBoxTextChanged(elem!.value);
+            delegate!._editBoxTextChanged(elem.value);
         };
 
         cbs.onClick = () => {
@@ -649,7 +656,7 @@ export class EditBoxImpl extends EditBoxImplBase {
         elem.addEventListener('touchstart', cbs.onClick);
     }
     private _removeEventListeners () {
-        if (!this._edTxt){
+        if (!this._edTxt) {
             return;
         }
 

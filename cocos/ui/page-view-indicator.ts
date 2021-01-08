@@ -29,9 +29,9 @@
  * @module ui
  */
 
+import { ccclass, help, executionOrder, menu, tooltip, type, serializable } from 'cc.decorator';
 import { SpriteFrame } from '../2d/assets';
 import { Component } from '../core/components';
-import { ccclass, help, executionOrder, menu, tooltip, type, serializable } from 'cc.decorator';
 import { Color, Size } from '../core/math';
 import { ccenum } from '../core/value-types/enum';
 import { Node } from '../core/scene-graph';
@@ -191,8 +191,7 @@ export class PageViewIndicator extends Component {
         if (this.direction === Direction.HORIZONTAL) {
             layout.type = Layout.Type.HORIZONTAL;
             layout.spacingX = this.spacing;
-        }
-        else if (this.direction === Direction.VERTICAL) {
+        } else if (this.direction === Direction.VERTICAL) {
             layout.type = Layout.Type.VERTICAL;
             layout.spacingY = this.spacing;
         }
@@ -202,8 +201,8 @@ export class PageViewIndicator extends Component {
     public _createIndicator () {
         const node = new Node();
         const sprite = node.addComponent(Sprite);
-        sprite!.spriteFrame = this.spriteFrame;
-        sprite!.sizeMode = Sprite.SizeMode.CUSTOM;
+        sprite.spriteFrame = this.spriteFrame;
+        sprite.sizeMode = Sprite.SizeMode.CUSTOM;
         node.parent = this.node;
         node._uiProps.uiTransformComp!.setContentSize(this._cellSize);
         return node;
@@ -248,8 +247,7 @@ export class PageViewIndicator extends Component {
                     indicators[i] = this._createIndicator();
                 }
             }
-        }
-        else {
+        } else {
             const count = indicators.length - pages.length;
             for (i = count; i > 0; --i) {
                 const node = indicators[i - 1];
