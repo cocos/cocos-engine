@@ -136,7 +136,7 @@ export class PrefabInstance {
 
     // 记录PrefabInstance所属的Prefab的Root节点信息
     @serializable
-    @type([legacyCC.Node])
+    @type(legacyCC.Node)
     public prefabRootNode?: Node;
 
     // 实例化的Prefab中额外增加的子节点数据
