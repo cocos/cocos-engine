@@ -41,7 +41,7 @@ import { LineCap, LineJoin } from '../assembler/graphics/types';
 import { Impl } from '../assembler/graphics/webgl/impl';
 import { RenderingSubMesh } from '../../core/assets';
 import { Format, PrimitiveMode, Attribute, Device, BufferUsageBit, BufferInfo, MemoryUsageBit } from '../../core/gfx';
-import { vfmtPosColor, getAttributeStride, getAttributeFormatBytes } from '../renderer/ui-vertex-format';
+import { vfmtPosColor, getAttributeStride, getComponentPerVertex } from '../renderer/ui-vertex-format';
 import { legacyCC } from '../../core/global-exports';
 
 const _matInsInfo: IMaterialInstanceInfo = {
@@ -54,7 +54,7 @@ const attributes = vfmtPosColor.concat([
     new Attribute('a_dist', Format.R32F),
 ]);
 
-const formatBytes = getAttributeFormatBytes(attributes);
+const componentPerVertex = getComponentPerVertex(attributes);
 
 const stride = getAttributeStride(attributes);
 
@@ -623,18 +623,16 @@ export class Graphics extends UIRenderable {
         for (let i = 0; i < renderDataList.length; i++) {
             const renderData = renderDataList[i];
             const ia = subModelList[i].inputAssembler;
-            const vertexFormatBytes = formatBytes * Float32Array.BYTES_PER_ELEMENT;
-            const offset = renderData.lastFilledVertex * vertexFormatBytes;
-            const byteOffset = renderData.vertexStart * vertexFormatBytes;
-            if (offset === byteOffset) {
+            if (renderData.lastFilledVertex === renderData.vertexStart) {
                 continue;
             }
 
-            ia.vertexBuffers[0].update(renderData.vData, byteOffset);
+            const vb = new Float32Array(renderData.vData.buffer, 0, renderData.vertexStart * componentPerVertex);
+            ia.vertexBuffers[0].update(vb);
             ia.vertexCount = renderData.vertexStart;
-            ia.indexBuffer!.update(renderData.iData, renderData.indicesStart * Uint16Array.BYTES_PER_ELEMENT);
+            const ib = new Uint16Array(renderData.iData.buffer, 0, renderData.indicesStart);
+            ia.indexBuffer!.update(ib);
             ia.indexCount = renderData.indicesStart;
-
             renderData.lastFilledVertex = renderData.vertexStart;
             renderData.lastFilledIndices = renderData.indicesStart;
         }
