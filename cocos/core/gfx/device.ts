@@ -28,6 +28,7 @@
  * @module gfx
  */
 
+import { Command } from 'commander';
 import { ccenum } from '../value-types/enum';
 import { gfx } from '../../../exports/base';
 import { API, Feature, Filter, Format, MemoryStatus, SurfaceTransform } from './define';
@@ -419,16 +420,22 @@ export abstract class Device {
     public abstract resize (width: number, height: number): void;
 
     /**
-     * @en Begin current frame.
-     * @zh 开始当前帧。
+     * @en Acquire next swapchain image.
+     * @zh 获取下一个交换链缓冲。
      */
     public abstract acquire (): void;
 
     /**
-     * @en Present current frame.
-     * @zh 呈现当前帧。
+     * @en Present current swapchain image.
+     * @zh 上屏当前交换链缓冲。
      */
     public abstract present (): void;
+
+    /**
+     * @en Flush the specified command buffers.
+     * @zh 实际录制指定的命令缓冲。
+     */
+    public abstract flushCommands (cmdBuffs: CommandBuffer[]): void;
 
     /**
      * @en Create command buffer.

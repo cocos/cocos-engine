@@ -114,6 +114,7 @@ export class ForwardPipeline extends RenderPipeline {
             }
         }
         this._commandBuffers[0].end();
+        this._device.flushCommands(this._commandBuffers);
         this._device.queue.submit(this._commandBuffers);
     }
 

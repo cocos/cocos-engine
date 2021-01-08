@@ -362,6 +362,7 @@ export class WebGLDevice extends Device {
         this._ANGLE_instanced_arrays = this.getExtension('ANGLE_instanced_arrays');
 
         // platform-specific hacks
+        // eslint-disable-next-line no-lone-blocks
         {
             // iOS 14 browsers crash on getExtension('WEBGL_compressed_texture_astc')
             if (sys.os !== sys.OS_IOS || sys.osMainVersion !== 14 || !sys.isBrowser) {
@@ -584,6 +585,8 @@ export class WebGLDevice extends Device {
         }
     }
 
+    public flushCommands (cmdBuffs: CommandBuffer[]) {}
+
     public acquire () {
         this.cmdAllocator.releaseCmds();
     }
@@ -597,9 +600,9 @@ export class WebGLDevice extends Device {
     }
 
     public createCommandBuffer (info: CommandBufferInfo): CommandBuffer {
-        // const ctor = WebGLCommandBuffer; // opt to instant invocation
-        const ctor = info.type === CommandBufferType.PRIMARY ? WebGLPrimaryCommandBuffer : WebGLCommandBuffer;
-        const cmdBuff = new ctor(this);
+        // const Ctor = WebGLCommandBuffer; // opt to instant invocation
+        const Ctor = info.type === CommandBufferType.PRIMARY ? WebGLPrimaryCommandBuffer : WebGLCommandBuffer;
+        const cmdBuff = new Ctor(this);
         cmdBuff.initialize(info);
         return cmdBuff;
     }
@@ -740,7 +743,7 @@ export class WebGLDevice extends Device {
         const format = gpuFramebuffer.gpuColorTextures[0].format;
         const glFormat = GFXFormatToWebGLFormat(format, gl);
         const glType = GFXFormatToWebGLType(format, gl);
-        const ctor = getTypedArrayConstructor(FormatInfos[format]);
+        const Ctor = getTypedArrayConstructor(FormatInfos[format]);
 
         const curFBO = this.stateCache.glFramebuffer;
 
@@ -749,7 +752,7 @@ export class WebGLDevice extends Device {
             this.stateCache.glFramebuffer = gpuFramebuffer.glFramebuffer;
         }
 
-        const view = new ctor(dstBuffer);
+        const view = new Ctor(dstBuffer);
 
         for (const region of regions) {
             const w = region.texExtent.width;
@@ -772,6 +775,7 @@ export class WebGLDevice extends Device {
         for (let i = 0; i < prefixes.length; ++i) {
             const _ext = this.gl.getExtension(prefixes[i] + ext);
             if (_ext) {
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-return
                 return _ext;
             }
         }

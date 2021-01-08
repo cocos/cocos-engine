@@ -317,6 +317,7 @@ export class SplashScreen {
         cmdBuff.endRenderPass();
         cmdBuff.end();
 
+        device.flushCommands([cmdBuff]);
         device.queue.submit([cmdBuff]);
         device.present();
     }
