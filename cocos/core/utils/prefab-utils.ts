@@ -74,7 +74,7 @@ export class PrefabInfo {
 
 legacyCC._PrefabInfo = PrefabInfo;
 
-@ccclass('cc.CompPrefabInfo ')
+@ccclass('cc.CompPrefabInfo')
 export class CompPrefabInfo {
     // To identify current component in a prefab asset, so only needs to be unique.
     @serializable
@@ -296,11 +296,11 @@ export function applyMountedChildren (node: Node, mountedChildren: MountedChildr
             if (childInfo.nodes) {
                 for (let i = 0; i < childInfo.nodes.length; i++) {
                     const childNode = childInfo.nodes[i];
-                    childNode._onBatchCreated(false);
                     // @ts-expect-error private member access
                     target._children.push(childNode);
                     // @ts-expect-error private member access
                     childNode._parent = target;
+                    childNode._onBatchCreated(false);
                 }
             }
         }
