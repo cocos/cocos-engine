@@ -1225,10 +1225,11 @@ export class BaseNode extends CCObject implements ISchedulable {
     }
 
     public _updateSiblingIndex () {
-        this.emit(SystemEventType.SIBLING_ORDER_CHANGED);
         for (let i = 0; i < this._children.length; ++i) {
             this._children[i]._siblingIndex = i;
         }
+
+        this.emit(SystemEventType.SIBLING_ORDER_CHANGED);
     }
 
     protected _onSetParent (oldParent: this | null, keepWorldTransform = false) {
