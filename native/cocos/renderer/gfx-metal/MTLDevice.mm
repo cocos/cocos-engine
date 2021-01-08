@@ -248,6 +248,7 @@ void CCMTLDevice::present() {
         _inFlightSemaphore->signal();
     }];
     [mtlCommandBuffer commit];
+    cmdBuff->disposeCurrentDrawable();
 
     if (_autoreleasePool) {
 //        CC_LOG_INFO("POOL: %p RELEASED", _autoreleasePool);

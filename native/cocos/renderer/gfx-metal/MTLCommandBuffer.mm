@@ -74,6 +74,13 @@ id<CAMetalDrawable> CCMTLCommandBuffer::getCurrentDrawable() {
     return _currDrawable;
 }
 
+void CCMTLCommandBuffer::disposeCurrentDrawable() {
+    if (_currDrawable) {
+        [_currDrawable release];
+        _currDrawable = nil;
+    }
+}
+
 bool CCMTLCommandBuffer::isRenderingEntireDrawable(const Rect &rect, const CCMTLRenderPass *renderPass) {
     const int num = renderPass->getColorRenderTargetNums();
     if (num == 0) {
@@ -118,11 +125,7 @@ void CCMTLCommandBuffer::end() {
         // Secondary command buffer should end encoding here
         _commandEncoder.endEncoding();
     }
-
-    if (_currDrawable) {
-        [_currDrawable release];
-        _currDrawable = nil;
-    }
+    disposeCurrentDrawable();
 
     if (_autoreleasePool) {
 //        CC_LOG_INFO("%d CB POOL: %p RELEASED for %p", [NSThread currentThread], _autoreleasePool, this);

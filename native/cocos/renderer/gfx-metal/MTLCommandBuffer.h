@@ -72,6 +72,7 @@ public:
     CC_INLINE bool isCommandBufferBegan() const { return _commandBufferBegan; }
     CC_INLINE id<MTLCommandBuffer> getMTLCommandBuffer() const { return _mtlCommandBuffer; }
     id<CAMetalDrawable> getCurrentDrawable();
+    void disposeCurrentDrawable();
 
 private:
     void bindDescriptorSets();
