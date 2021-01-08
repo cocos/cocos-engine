@@ -59,6 +59,8 @@ void GLES3Queue::submit(const CommandBuffer *const *cmdBuffs, uint count, Fence 
 
             cmdBuff->_pendingPackages.pop();
             cmdBuff->_freePackages.push(cmdPackage);
+            cmdBuff->_cmdAllocator->clearCmds(cmdPackage);
+            cmdBuff->_cmdAllocator->reset();
         }
     }
 }

@@ -320,6 +320,8 @@ void GLES3CommandBuffer::copyBuffersToTexture(const uint8_t *const *buffers, Tex
 }
 
 void GLES3CommandBuffer::execute(const CommandBuffer *const *cmdBuffs, uint32_t count) {
+    CCASSERT(false, "Command 'execute' must be recorded in primary command buffers.");
+
     for (uint i = 0; i < count; ++i) {
         GLES3CommandBuffer *cmdBuff = (GLES3CommandBuffer *)cmdBuffs[i];
         GLES3CmdPackage *cmdPackage = cmdBuff->_pendingPackages.front();
@@ -357,6 +359,11 @@ void GLES3CommandBuffer::execute(const CommandBuffer *const *cmdBuffs, uint32_t 
 
         cmdBuff->_pendingPackages.pop();
         cmdBuff->_freePackages.push(cmdPackage);
+
+        // current cmd allocator strategy will not work here: (but it doesn't matter anyways)
+        // allocators are designed to only free the cmds they allocated
+        // but here we are essentially ¡®transfering' the owner ship
+        //cmdBuff->_cmdAllocator->clearCmds(cmdPackage);
     }
 }
 

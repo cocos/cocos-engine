@@ -141,6 +141,8 @@ void GLES2PrimaryCommandBuffer::execute(const CommandBuffer *const *cmdBuffs, ui
 
         cmdBuff->_pendingPackages.pop();
         cmdBuff->_freePackages.push(cmdPackage);
+        cmdBuff->_cmdAllocator->clearCmds(cmdPackage);
+        cmdBuff->_cmdAllocator->reset();
     }
 }
 
