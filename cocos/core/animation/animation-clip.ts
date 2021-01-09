@@ -407,9 +407,6 @@ export class AnimationClip extends Asset {
     }
 
     protected _applyStepness () {
-        if (!this._runtimeCurves) {
-
-        }
         // for (const propertyCurve of this._propertyCurves) {
         //     propertyCurve.curve.stepfy(this._stepness);
         // }
