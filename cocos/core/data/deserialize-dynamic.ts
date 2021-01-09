@@ -486,7 +486,11 @@ class _Deserializer {
             for (let i = 0; i < serialized.length; i++) {
                 prop = serialized[i];
                 if (typeof prop === 'object' && prop) {
-                    this._deserializeObjField(obj, prop, `${i}`);
+                    const isAssetType = this._deserializeObjField(obj, prop, `${i}`);
+                    if (isAssetType) {
+                        // fill default value for primitive objects (no constructor)
+                        obj[i] = null;
+                    }
                 } else {
                     obj[i] = prop;
                 }
@@ -496,12 +500,13 @@ class _Deserializer {
     }
 
     // 和 _deserializeObject 不同的地方在于会判断 id 和 uuid
-    private _deserializeObjField (obj, jsonObj, propName) {
+    private _deserializeObjField (obj, jsonObj, propName): boolean {
         const id = jsonObj.__id__;
         if (id === undefined) {
             const uuid = jsonObj.__uuid__;
             if (uuid) {
                 this.result.push(obj, propName, uuid);
+                return true;
             } else if (EDITOR || TEST) {
                 obj[propName] = this._deserializeObject(jsonObj, obj, propName);
             } else {
@@ -517,6 +522,7 @@ class _Deserializer {
                 this._idPropList.push(propName);
             }
         }
+        return false;
     }
 
     private _deserializePrimitiveObject (instance, serialized) {
@@ -528,7 +534,11 @@ class _Deserializer {
                         instance[propName] = prop;
                     }
                 } else if (prop) {
-                    this._deserializeObjField(instance, prop, propName);
+                    const isAssetType = this._deserializeObjField(instance, prop, propName);
+                    if (isAssetType) {
+                        // fill default value for primitive objects (no constructor)
+                        instance[propName] = null;
+                    }
                 } else {
                     instance[propName] = null;
                 }
