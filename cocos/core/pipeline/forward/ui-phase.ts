@@ -23,15 +23,10 @@ export class UIPhase {
         const cmdBuff = pipeline.commandBuffers[0];
         const scene = camera.scene!;
         const batches = scene.batches;
-        const vis = camera.visibility & Layers.BitMask.UI_2D;
         for (let i = 0; i < batches.length; i++) {
             const batch = batches[i];
             let visible = false;
-            if (vis) {
-                if (camera.visibility === batch.visFlags) {
-                    visible = true;
-                }
-            } else if (camera.visibility & batch.visFlags) {
+            if (camera.visibility & batch.visFlags) {
                 visible = true;
             }
 
