@@ -180,12 +180,14 @@ public class CocosVideoView extends SurfaceView {
     }
 
     public int getCurrentPosition() {
-        if (! (mCurrentState == State.ERROR |
-                mMediaPlayer == null) ) {
-            return mMediaPlayer.getCurrentPosition();
+        if (mCurrentState == State.ERROR ||
+            mCurrentState == State.IDLE ||
+            mCurrentState == State.INITIALIZED ||
+            mMediaPlayer == null
+        ) {
+            return -1;
         }
-
-        return -1;
+        return mMediaPlayer.getCurrentPosition();
     }
 
     public int getDuration() {
