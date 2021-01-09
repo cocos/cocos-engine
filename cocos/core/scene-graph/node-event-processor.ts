@@ -40,6 +40,8 @@ import { Node } from './node';
 import { CallbacksInvoker } from '../event/callbacks-invoker';
 import { errorID } from '../platform/debug';
 import { legacyCC } from '../global-exports';
+import { Component } from '../components/component';
+import { Mask } from '../../2d/components/mask';
 
 const _cachedArray = new Array<BaseNode>(16);
 let _currentHovered: BaseNode | null = null;
@@ -91,6 +93,7 @@ function _touchMoveHandler (this: EventListener, touch: Touch, event: EventTouch
     event.touch = touch;
     event.bubbles = true;
     node.dispatchEvent(event);
+    return true;
 }
 
 function _touchEndHandler (this: EventListener, touch: Touch, event: EventTouch) {
@@ -272,19 +275,28 @@ function _doDispatchEvent (owner: BaseNode, event: Event) {
     _cachedArray.length = 0;
 }
 
-function _searchMaskInParent (node: Node | null) {
-    const Mask = legacyCC.Mask;
-    if (Mask) {
+function _searchComponentsInParent<T extends Component> (node: Node | null, comp: Constructor<T>) {
+    if (comp) {
         let index = 0;
-        for (let curr = node; curr && legacyCC.Node.isNode(curr); curr = curr.parent, ++index) {
-            if (curr.getComponent(Mask)) {
-                return {
+        let list: any[] = [];
+        for (let curr = node; curr && Node.isNode(curr); curr = curr.parent, ++index) {
+            if (curr.getComponent(comp)) {
+                const next = {
                     index,
                     node: curr,
                 };
+
+                if (list) {
+                    list.push(next);
+                } else {
+                    list = [next];
+                }
             }
         }
+
+        return list.length > 0 ? list : null;
     }
+
     return null;
 }
 
@@ -348,12 +360,12 @@ export class NodeEventProcessor {
 
     public reattach (): void {
         if (this.touchListener) {
-            const mask = this.touchListener.mask = _searchMaskInParent(this._node as Node);
+            const mask = this.touchListener.mask = _searchComponentsInParent(this._node as Node, Mask);
             if (this.mouseListener) {
                 this.mouseListener.mask = mask;
             }
         } else if (this.mouseListener) {
-            this.mouseListener.mask = _searchMaskInParent(this._node as Node);
+            this.mouseListener.mask = _searchComponentsInParent(this._node as Node, Mask);
         }
     }
 
@@ -377,8 +389,8 @@ export class NodeEventProcessor {
             }
         }
 
-        this.capturingTargets?.clear();
-        this.bubblingTargets?.clear();
+        if (this.capturingTargets) this.capturingTargets.clear();
+        if (this.bubblingTargets) this.bubblingTargets.clear();
     }
 
     /**
@@ -665,7 +677,7 @@ export class NodeEventProcessor {
                     event: legacyCC.EventListener.TOUCH_ONE_BY_ONE,
                     swallowTouches: true,
                     owner: this._node,
-                    mask: _searchMaskInParent(this._node as Node),
+                    mask: _searchComponentsInParent(this._node as Node, Mask),
                     onTouchBegan: _touchStartHandler,
                     onTouchMoved: _touchMoveHandler,
                     onTouchEnded: _touchEndHandler,
@@ -681,7 +693,7 @@ export class NodeEventProcessor {
                     event: legacyCC.EventListener.MOUSE,
                     _previousIn: false,
                     owner: this._node,
-                    mask: _searchMaskInParent(this._node as Node),
+                    mask: _searchComponentsInParent(this._node as Node, Mask),
                     onMouseDown: _mouseDownHandler,
                     onMouseMove: _mouseMoveHandler,
                     onMouseUp: _mouseUpHandler,
