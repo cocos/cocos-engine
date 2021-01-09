@@ -32,18 +32,9 @@ import {
     ccclass, type, serializable, override,
 } from 'cc.decorator';
 import { Asset } from '../../core/assets/asset';
-import { Enum } from '../../core/value-types';
-import { AudioPlayer, PlayingState } from './player';
-import { AudioPlayerDOM } from './player-dom';
-import { AudioPlayerWeb } from './player-web';
 import { legacyCC } from '../../core/global-exports';
-
-export const AudioType = Enum({
-    WEB_AUDIO: 0,
-    DOM_AUDIO: 1,
-    JSB_AUDIO: 2,
-    UNKNOWN_AUDIO: 3,
-});
+import { AudioState, AudioType } from 'pal/audio/type';
+import { AudioPlayer } from 'pal:audio';
 
 /**
  * @en
@@ -59,17 +50,15 @@ export const AudioType = Enum({
  */
 @ccclass('cc.AudioClip')
 export class AudioClip extends Asset {
-    public static PlayingState = PlayingState;
+    public static AudioState = AudioState;  // TODO:  PlayingState
     public static AudioType = AudioType;
     public static preventDeferredLoadDependents = true;
 
     @serializable
     protected _duration = 0; // we serialize this because it's unavailable at runtime on some platforms
 
-    @type(AudioType)
     protected _loadMode = AudioType.UNKNOWN_AUDIO;
 
-    protected _nativeAudio: any = null;
     protected _player: AudioPlayer | null = null;
 
     constructor () {
@@ -82,12 +71,11 @@ export class AudioClip extends Asset {
         return super.destroy();
     }
 
-    set _nativeAsset (nativeAudio: any) {
-        this._nativeAudio = nativeAudio;
-        if (nativeAudio) {
-            const ctor = this._getPlayer(nativeAudio);
-            this._player = new ctor({ nativeAudio, duration: this._duration, audioClip: this });
+    set _nativeAsset (player: AudioPlayer | null) {
+        this._player = player;
+        if (player) {
             this.loaded = true;
+            this._loadMode = player.type;
             this.emit('load');
         } else {
             this._player = null;
@@ -98,7 +86,7 @@ export class AudioClip extends Asset {
     }
 
     get _nativeAsset () {
-        return this._nativeAudio;
+        return this._player;
     }
 
     @override
@@ -115,33 +103,23 @@ export class AudioClip extends Asset {
         return this._loadMode;
     }
 
-    get state () {
-        return this._player ? this._player.getState() : PlayingState.INITIALIZING;
-    }
+    // TODO: deprecated
 
-    public play () { if (this._player) { this._player.play(); } }
-    public pause () { if (this._player) { this._player.pause(); } }
-    public stop () { if (this._player) { this._player.stop(); } }
-    public playOneShot (volume: number) { if (this._player) { this._player.playOneShot(volume); } }
-    public setCurrentTime (val: number) { if (this._player) { this._player.setCurrentTime(val); } }
-    public getCurrentTime () { if (this._player) { return this._player.getCurrentTime(); } return 0; }
-    public getDuration () { if (this._player) { return this._player.getDuration(); } return this._duration; }
-    public setVolume (val: number, immediate?: boolean) { if (this._player) { this._player.setVolume(val, immediate || false); } }
-    public getVolume () { if (this._player) { return this._player.getVolume(); } return 1; }
-    public setLoop (val: boolean) { if (this._player) { this._player.setLoop(val); } }
-    public getLoop () { if (this._player) { return this._player.getLoop(); } return false; }
+    // get state () {
+    //     return this._player ? this._player.state : AudioState.INIT;
+    // }
 
-    private _getPlayer (clip: any) {
-        let ctor: Constructor<AudioPlayer>;
-        if (typeof AudioBuffer !== 'undefined' && clip instanceof AudioBuffer) {
-            ctor = AudioPlayerWeb;
-            this._loadMode = AudioType.WEB_AUDIO;
-        } else {
-            ctor = AudioPlayerDOM;
-            this._loadMode = AudioType.DOM_AUDIO;
-        }
-        return ctor;
-    }
+    public getDuration () { return this._player ? this._player.duration : this._duration; }
+    // public play () { if (this._player) { this._player.play(); } }
+    // public pause () { if (this._player) { this._player.pause(); } }
+    // public stop () { if (this._player) { this._player.stop(); } }
+    // public playOneShot (volume: number = 1) { if (this._player) { this._player.playOneShot(volume); } }
+    // public setCurrentTime (val: number) { if (this._player) { this._player.seek(val); } }
+    // public getCurrentTime () { return this._player ? this._player.currentTime : 0; }
+    // public setVolume (val: number) { this._player && (this._player.volume = val); }
+    // public getVolume () { return this._player ? this._player.volume : 1; }
+    // public setLoop (val: boolean) { this._player && (this._player.loop = val); }
+    // public getLoop () { this._player ? this._player.loop : false; }
 }
 
 legacyCC.AudioClip = AudioClip;

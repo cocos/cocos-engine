@@ -645,22 +645,6 @@ export const sys: Record<string, any> = {
     localStorage: null,
 
     /**
-     * Audio support in the browser
-     *
-     * MULTI_CHANNEL        : Multiple audio while playing - If it doesn't, you can only play background music
-     * WEB_AUDIO            : Support for WebAudio - Support W3C WebAudio standards, all of the audio can be played
-     * AUTOPLAY             : Supports auto-play audio - if Don‘t support it, On a touch detecting background music canvas, and then replay
-     * REPLAY_AFTER_TOUCH   : The first music will fail, must be replay after touchstart
-     * USE_EMPTIED_EVENT    : Whether to use the emptied event to replace load callback
-     * DELAY_CREATE_CTX     : delay created the context object - only webAudio
-     * NEED_MANUAL_LOOP     : loop attribute failure, need to perform loop manually
-     *
-     * May be modifications for a few browser version
-     * @private
-     */
-    __audioSupport: null,
-
-    /**
      * Video support in the browser
      * @private
      */
@@ -949,81 +933,6 @@ export const sys: Record<string, any> = {
         if (win.DeviceMotionEvent || win.DeviceOrientationEvent) {
             capabilities.accelerometer = true;
         }
-
-        let __audioSupport;
-        (function () {
-            const DEBUG = false;
-            const version = sys.browserVersion;
-
-            // check if browser supports Web Audio
-            // check Web Audio's context
-            const supportWebAudio = !!(window.AudioContext || window.webkitAudioContext || window.mozAudioContext);
-
-            __audioSupport = { ONLY_ONE: false, WEB_AUDIO: supportWebAudio, DELAY_CREATE_CTX: false };
-
-            if (sys.os === sys.OS_IOS) {
-                // IOS no event that used to parse completed callback
-                // this time is not complete, can not play
-                //
-                __audioSupport.USE_LOADER_EVENT = 'loadedmetadata';
-            }
-
-            if (sys.browserType === sys.BROWSER_TYPE_FIREFOX) {
-                __audioSupport.DELAY_CREATE_CTX = true;
-                __audioSupport.USE_LOADER_EVENT = 'canplay';
-            }
-
-            if (sys.os === sys.OS_ANDROID) {
-                if (sys.browserType === sys.BROWSER_TYPE_UC) {
-                    __audioSupport.ONE_SOURCE = true;
-                }
-            }
-
-            if (DEBUG) {
-                setTimeout(() => {
-                    log(`browse type: ${sys.browserType}`);
-                    log(`browse version: ${version}`);
-                    log(`MULTI_CHANNEL: ${__audioSupport.MULTI_CHANNEL}`);
-                    log(`WEB_AUDIO: ${__audioSupport.WEB_AUDIO}`);
-                    log(`AUTOPLAY: ${__audioSupport.AUTOPLAY}`);
-                }, 0);
-            }
-        }());
-
-        try {
-            if (__audioSupport.WEB_AUDIO) {
-                __audioSupport._context = null;
-                Object.defineProperty(__audioSupport, 'context', {
-                    get () {
-                        if (this._context) { return this._context as AudioContext; }
-                        return this._context = new (window.AudioContext || window.webkitAudioContext || window.mozAudioContext)();
-                    },
-                });
-            }
-        } catch (error) {
-            __audioSupport.WEB_AUDIO = false;
-            logID(5201);
-        }
-
-        const formatSupport: string[] = [];
-        (function () {
-            const audio = document.createElement('audio');
-            if (audio.canPlayType) {
-                const ogg = audio.canPlayType('audio/ogg; codecs="vorbis"');
-                if (ogg) { formatSupport.push('.ogg'); }
-                const mp3 = audio.canPlayType('audio/mpeg');
-                if (mp3) { formatSupport.push('.mp3'); }
-                const wav = audio.canPlayType('audio/wav; codecs="1"');
-                if (wav) { formatSupport.push('.wav'); }
-                const mp4 = audio.canPlayType('audio/mp4');
-                if (mp4) { formatSupport.push('.mp4'); }
-                const m4a = audio.canPlayType('audio/x-m4a');
-                if (m4a) { formatSupport.push('.m4a'); }
-            }
-        }());
-        __audioSupport.format = formatSupport;
-
-        sys.__audioSupport = __audioSupport;
 
         sys.__videoSupport = {
             format: [],

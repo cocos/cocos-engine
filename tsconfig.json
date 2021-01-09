@@ -30,11 +30,15 @@
         "./node_modules/@cocos/cannon/CANNON",
         "./node_modules/@cocos/ammo/Ammo",
         "./node_modules/@cocos/physx/PhysX",
-        "./node_modules/@types/jest/index"
+        "./node_modules/@types/jest/index",
+
+        // pal
+        "./@types/pal/audio"
       ]
     },
     "include": [
         "exports/**/*.ts",
-        "index.ts"
+        "index.ts",
+        "pal/**/*.ts"
     ]
   }
