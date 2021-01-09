@@ -212,14 +212,17 @@ export class AnimCurve {
         if (this._array === undefined) {
             const value = this._values[index];
             if (value && value.getNoLerp) {
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-return
                 return value.getNoLerp();
             } else {
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-return
                 return value;
             }
         } else {
             for (let i = 0; i < this._array.length; ++i) {
                 this._array[i] = this._values[this._array.length * index + i];
             }
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-return
             return this._array;
         }
     }
@@ -237,6 +240,7 @@ export class AnimCurve {
                 const fromVal = this._values[from];
                 const toVal = this._values[to];
                 const value = this._lerp(fromVal, toVal, ratioBetweenFrames, dRatio * this._duration);
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-return
                 return value;
             } else {
                 for (let i = 0; i < this._array.length; ++i) {
@@ -244,14 +248,17 @@ export class AnimCurve {
                     const toVal = this._values[this._array.length * to + i];
                     this._array[i] = this._lerp(fromVal, toVal, ratioBetweenFrames, dRatio * this._duration);
                 }
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-return
                 return this._array;
             }
         } else if (this._array === undefined) {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-return
             return this.valueAt(from);
         } else {
             for (let i = 0; i < this._array.length; ++i) {
                 this._array[i] = this._values[this._array.length *  from + i];
             }
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-return
             return this._array;
         }
     }
@@ -299,11 +306,13 @@ export function sampleAnimationCurve (curve: AnimCurve, sampler: RatioSampler, r
         } else if (index >= sampler.ratios.length) {
             index = sampler.ratios.length - 1;
         } else {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-return
             return curve.valueBetween(
                 ratio, index - 1, sampler.ratios[index - 1], index, sampler.ratios[index],
             );
         }
     }
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return curve.valueAt(index);
 }
 legacyCC.sampleAnimationCurve = sampleAnimationCurve;
@@ -364,13 +373,14 @@ const selectLerpFx = (() => {
     function makeValueTypeLerpFx<T extends ValueType> (constructor: Constructor<T>) {
         const tempValue = new constructor();
         return (from: T, to: T, ratio: number) => {
-            // @ts-expect-error
+            // @ts-expect-error Hard to typing
             constructor.lerp(tempValue, from, to, ratio);
             return tempValue;
         };
     }
 
     function callLerpable (from: ILerpable, to: ILerpable, t: number, dt: number): any {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
         return from.lerp(to, t, dt);
     }
 
