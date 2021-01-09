@@ -260,7 +260,11 @@ var _Deserializer = (function () {
             for (let i = 0; i < serialized.length; i++) {
                 prop = serialized[i];
                 if (typeof prop === 'object' && prop) {
-                    this._deserializeObjField(obj, prop, '' + i);
+                    let isAssetType = this._deserializeObjField(obj, prop, '' + i);
+                    if (isAssetType) {
+                        // fill default value for primitive objects (no constructor)
+                        obj[i] = null;
+                    }
                 }
                 else {
                     obj[i] = prop;
@@ -277,6 +281,7 @@ var _Deserializer = (function () {
             var uuid = jsonObj.__uuid__;
             if (uuid) {
                 this.result.push(obj, propName, uuid);
+                return true;
             }
             else {
                 if (CC_EDITOR || CC_TEST) {
@@ -311,7 +316,11 @@ var _Deserializer = (function () {
                 }
                 else {
                     if (prop) {
-                        this._deserializeObjField(instance, prop, propName);
+                        let isAssetType = this._deserializeObjField(instance, prop, propName);
+                        if (isAssetType) {
+                            // fill default value for primitive objects (no constructor)
+                            instance[propName] = null;
+                        }
                     }
                     else {
                         instance[propName] = null;
