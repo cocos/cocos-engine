@@ -35,7 +35,7 @@ import { Touch } from './touch';
 import { Acceleration } from './input-manager';
 import { legacyCC } from '../../global-exports';
 
-let _vec2 = new Vec2();
+const _vec2 = new Vec2();
 
 /**
  * @en The mouse event
@@ -132,13 +132,13 @@ export class EventMouse extends Event {
      * @en Mouse movement on x axis of the UI coordinate system.
      * @zh 鼠标在 UI 坐标系下 X 轴上的移动距离
      */
-    public movementX: number = 0;
+    public movementX = 0;
 
     /**
      * @en Mouse movement on y axis of the UI coordinate system.
      * @zh 鼠标在 UI 坐标系下 Y 轴上的移动距离
      */
-    public movementY: number = 0;
+    public movementY = 0;
 
     /**
      * @en The type of the event, possible values are UP, DOWN, MOVE, SCROLL
@@ -148,17 +148,17 @@ export class EventMouse extends Event {
 
     private _button: number = EventMouse.BUTTON_MISSING;
 
-    private _x: number = 0;
+    private _x = 0;
 
-    private _y: number = 0;
+    private _y = 0;
 
-    private _prevX: number = 0;
+    private _prevX = 0;
 
-    private _prevY: number = 0;
+    private _prevY = 0;
 
-    private _scrollX: number = 0;
+    private _scrollX = 0;
 
-    private _scrollY: number = 0;
+    private _scrollY = 0;
 
     /**
      * @param eventType - The type of the event, possible values are UP, DOWN, MOVE, SCROLL
@@ -244,7 +244,7 @@ export class EventMouse extends Event {
      * @zh 获取当前事件在 UI 窗口内的坐标位置，对象包含 x 和 y 属性。
      * @param out - Pass the out object to avoid object creation, very good practice
      */
-    public getUILocation (out?: Vec2){
+    public getUILocation (out?: Vec2) {
         if (!out) {
             out = new Vec2();
         }
@@ -512,7 +512,7 @@ export class EventTouch extends Event {
      * @zh 获取 UI 坐标系下的触点位置。
      * @param out - Pass the out object to avoid object creation, very good practice
      */
-    public getUILocation(out?: Vec2) {
+    public getUILocation (out?: Vec2) {
         return this.touch ? this.touch.getUILocation(out) : new Vec2();
     }
 
@@ -548,7 +548,7 @@ export class EventTouch extends Event {
      * @zh 获取触点落下时的 UI 世界下位置对象，对象包含 x 和 y 属性。
      * @param out - Pass the out object to avoid object creation, very good practice
      */
-    public getUIStartLocation(out?: Vec2) {
+    public getUIStartLocation (out?: Vec2) {
         return this.touch ? this.touch.getUIStartLocation(out) : new Vec2();
     }
 
@@ -574,7 +574,7 @@ export class EventTouch extends Event {
      * @zh 获取触点距离上一次事件 UI 世界下移动的距离对象，对象包含 x 和 y 属性。
      * @param out - Pass the out object to avoid object creation, very good practice
     */
-    public getUIDelta(out?: Vec2) {
+    public getUIDelta (out?: Vec2) {
         return this.touch ? this.touch.getUIDelta(out) : new Vec2();
     }
 

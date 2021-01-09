@@ -6,17 +6,17 @@ import { PHYSICS_2D_PTM_RATIO } from '../../framework/physics-types';
 import { IVec2Like, systemEvent, SystemEventType, Touch, Vec2, find } from '../../../core';
 import { b2PhysicsWorld } from '../physics-world';
 
-let tempB2Vec2 = new b2.Vec2();
+const tempB2Vec2 = new b2.Vec2();
 
 export class b2MouseJoint extends b2Joint implements IMouseJoint {
-    _touchPoint = new Vec2;
+    _touchPoint = new Vec2();
     _isTouched = false;
 
     setTarget (v: IVec2Like) {
         if (this._b2joint) {
             tempB2Vec2.x = v.x / PHYSICS_2D_PTM_RATIO;
             tempB2Vec2.y = v.y / PHYSICS_2D_PTM_RATIO;
-            (this._b2joint as b2.MouseJoint).SetTarget(tempB2Vec2 as b2.Vec2);
+            (this._b2joint as b2.MouseJoint).SetTarget(tempB2Vec2);
         }
     }
     setDampingRatio (v: number) {
@@ -36,8 +36,8 @@ export class b2MouseJoint extends b2Joint implements IMouseJoint {
     }
 
     _createJointDef () {
-        let def = new b2.MouseJointDef();
-        let comp = this._jointComp as MouseJoint2D;
+        const def = new b2.MouseJointDef();
+        const comp = this._jointComp as MouseJoint2D;
         def.target.Set(this._touchPoint.x / PHYSICS_2D_PTM_RATIO, this._touchPoint.y / PHYSICS_2D_PTM_RATIO);
         def.maxForce = comp.maxForce;
         def.dampingRatio = comp.dampingRatio;
@@ -48,7 +48,7 @@ export class b2MouseJoint extends b2Joint implements IMouseJoint {
     initialize (comp: Joint2D) {
         super.initialize(comp);
 
-        let canvas = find('Canvas');
+        const canvas = find('Canvas');
         if (canvas) {
             canvas.on(SystemEventType.TOUCH_START, this.onTouchBegan, this);
             canvas.on(SystemEventType.TOUCH_MOVE, this.onTouchMove, this);
@@ -66,17 +66,17 @@ export class b2MouseJoint extends b2Joint implements IMouseJoint {
     onTouchBegan (event: Touch) {
         this._isTouched = true;
 
-        let target = this._touchPoint.set(event.getUILocation());
+        const target = this._touchPoint.set(event.getUILocation());
 
-        let world = (PhysicsSystem2D.instance.physicsWorld as b2PhysicsWorld);
-        let colliders = world.testPoint(target);
+        const world = (PhysicsSystem2D.instance.physicsWorld as b2PhysicsWorld);
+        const colliders = world.testPoint(target);
         if (colliders.length <= 0) return;
 
-        let body = colliders[0].body;
+        const body = colliders[0].body;
         body!.wakeUp();
 
-        let comp = this._jointComp as MouseJoint2D;
-        comp!.connectedBody = body;
+        const comp = this._jointComp as MouseJoint2D;
+        comp.connectedBody = body;
 
         this._init();
 

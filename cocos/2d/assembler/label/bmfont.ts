@@ -53,7 +53,7 @@ export const bmfont: IAssembler = {
 
     appendQuad (comp: Label, spriteFrame: SpriteFrame, rect: Rect, rotated: boolean, x: number, y: number, scale: number) {
         const renderData = comp.renderData;
-        if (!renderData){
+        if (!renderData) {
             return;
         }
 

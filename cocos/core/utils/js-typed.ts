@@ -28,9 +28,9 @@
  * @module core
  */
 
+import { EDITOR, DEV, TEST } from 'internal:constants';
 import { warnID, error, errorID } from '../platform/debug';
 import IDGenerator from './id-generator';
-import { EDITOR, DEV, TEST } from 'internal:constants';
 
 const tempCIDGenerator = new IDGenerator('TmpCId.');
 
@@ -207,8 +207,7 @@ export function getClassName (objOrCtor: Object | Function): string {
             if (str.charAt(0) === '[') {
                 // str is "[object objectClass]"
                 arr = str.match(/\[\w+\s*(\w+)\]/);
-            }
-            else {
+            } else {
                 // str is function objectClass () {} for IE Firefox
                 arr = str.match(/function\s*(\w+)/);
             }
@@ -249,8 +248,7 @@ export function obsolete (object: any, obsoleted: string, newExpr: string, writa
 
     if (writable) {
         getset(object, oldProp, getter, setter);
-    }
-    else {
+    } else {
         get(object, oldProp, getter);
     }
 }
@@ -265,7 +263,7 @@ export function obsolete (object: any, obsoleted: string, newExpr: string, writa
 export function obsoletes (obj, objName, props, writable) {
     for (const obsoleted in props) {
         const newName = props[obsoleted];
-        obsolete(obj, objName + '.' + obsoleted, newName, writable);
+        obsolete(obj, `${objName}.${obsoleted}`, newName, writable);
     }
 }
 
@@ -289,7 +287,7 @@ export function formatStr (msg: string | any, ...subst: any[]) {
         return '';
     }
     if (subst.length === 0) {
-        return '' + msg;
+        return `${msg}`;
     }
 
     const hasSubstitution = typeof msg === 'string' && REGEXP_NUM_OR_STR.test(msg);
@@ -297,16 +295,15 @@ export function formatStr (msg: string | any, ...subst: any[]) {
         for (const arg of subst) {
             const regExpToTest = typeof arg === 'number' ? REGEXP_NUM_OR_STR : REGEXP_STR;
             if (regExpToTest.test(msg)) {
-                const notReplaceFunction = '' + arg;
+                const notReplaceFunction = `${arg}`;
                 msg = msg.replace(regExpToTest, notReplaceFunction);
-            }
-            else {
-                msg += ' ' + arg;
+            } else {
+                msg += ` ${arg}`;
             }
         }
     } else {
         for (const arg of subst) {
-            msg += ' ' + arg;
+            msg += ` ${arg}`;
         }
     }
     return msg;
@@ -487,15 +484,14 @@ function setup (tag: string, table: object) {
         if (id) {
             const registered = table[id];
             if (registered && registered !== constructor) {
-                let err = 'A Class already exists with the same ' + tag + ' : "' + id + '".';
+                let err = `A Class already exists with the same ${tag} : "${id}".`;
                 if (TEST) {
                     err += ' (This may be caused by error of unit test.) \
 If you dont need serialization, you can set class id to "". You can also call \
 js.unregisterClass to remove the id of unused class';
                 }
                 error(err);
-            }
-            else {
+            } else {
                 table[id] = constructor;
             }
             // if (id === "") {
@@ -626,7 +622,7 @@ export function getClassByName (classname) {
  * @return
  * @private
  */
-export function _getClassId (obj, allowTempId?: Boolean) {
+export function _getClassId (obj, allowTempId?: boolean) {
     allowTempId = (typeof allowTempId !== 'undefined' ? allowTempId : true);
 
     let res;

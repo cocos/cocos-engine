@@ -36,21 +36,20 @@ import { AudioManager } from './audio-manager';
 
 type ManagedAudio = AudioPlayerDOM | HTMLAudioElement;
 class AudioManagerDom extends AudioManager<ManagedAudio> {
-    public discardOnePlayingIfNeeded() {
+    public discardOnePlayingIfNeeded () {
         if (this._playingAudios.length < AudioManager.maxAudioChannel) {
             return;
         }
 
         // a played audio has a higher priority than a played shot
         let audioToDiscard: ManagedAudio | undefined;
-        let oldestOneShotIndex = this._playingAudios.findIndex(audio => audio instanceof HTMLAudioElement);
+        const oldestOneShotIndex = this._playingAudios.findIndex((audio) => audio instanceof HTMLAudioElement);
         if (oldestOneShotIndex > -1) {
             audioToDiscard = this._playingAudios[oldestOneShotIndex] as HTMLAudioElement;
             this._playingAudios.splice(oldestOneShotIndex, 1);
             audioToDiscard.pause();
             audioToDiscard.src = '';
-        }
-        else {
+        } else {
             audioToDiscard = this._playingAudios.shift();
             (<AudioPlayerDOM>audioToDiscard)?.stop();
         }
@@ -87,8 +86,7 @@ export class AudioPlayerDOM extends AudioPlayer {
         };
 
         this._post_gesture = () => {
-            if (this._interrupted) { this._post_play(); this._interrupted = false; }
-            else { this._nativeAudio!.pause(); this._nativeAudio!.currentTime = 0; }
+            if (this._interrupted) { this._post_play(); this._interrupted = false; } else { this._nativeAudio.pause(); this._nativeAudio.currentTime = 0; }
         };
 
         this._on_gesture = () => {
@@ -109,7 +107,7 @@ export class AudioPlayerDOM extends AudioPlayer {
         // callback on audio ended
         this._nativeAudio.addEventListener('ended', () => {
             this._state = PlayingState.STOPPED;
-            this._nativeAudio!.currentTime = 0;
+            this._nativeAudio.currentTime = 0;
             this._clip.emit('ended');
             AudioPlayerDOM._manager.removePlaying(this);
         });
@@ -161,7 +159,7 @@ export class AudioPlayerDOM extends AudioPlayer {
     }
 
     public playOneShot (volume = 1) {
-        createDomAudio(this._nativeAudio.src).then(dom => {
+        createDomAudio(this._nativeAudio.src).then((dom) => {
             AudioPlayerDOM._manager.discardOnePlayingIfNeeded();
             dom.volume = volume;
             dom.play();
@@ -169,7 +167,7 @@ export class AudioPlayerDOM extends AudioPlayer {
             dom.addEventListener('ended', () => {
                 AudioPlayerDOM._manager.removePlaying(dom);
             });
-        }, errMsg => {
+        }, (errMsg) => {
             console.error(errMsg);
         });
     }

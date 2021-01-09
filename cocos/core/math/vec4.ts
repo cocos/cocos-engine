@@ -41,7 +41,6 @@ import { legacyCC } from '../global-exports';
  * @zh 四维向量。
  */
 export class Vec4 extends ValueType {
-
     public static ZERO = Object.freeze(new Vec4(0, 0, 0, 0));
     public static ONE = Object.freeze(new Vec4(1, 1, 1, 1));
     public static NEG_ONE = Object.freeze(new Vec4(-1, -1, -1, -1));
@@ -399,7 +398,7 @@ export class Vec4 extends ValueType {
      * @zh 向量仿射变换
      */
     public static transformAffine<Out extends IVec4Like, VecLike extends IVec4Like, MatLike extends IMat4Like>
-        (out: Out, v: VecLike, m: MatLike) {
+    (out: Out, v: VecLike, m: MatLike) {
         const x = v.x;
         const y = v.y;
         const z = v.z;
@@ -476,10 +475,10 @@ export class Vec4 extends ValueType {
      * @zh 排除浮点数误差的向量近似等价判断
      */
     public static equals <Out extends IVec4Like> (a: Out, b: Out, epsilon = EPSILON) {
-        return (Math.abs(a.x - b.x) <= epsilon * Math.max(1.0, Math.abs(a.x), Math.abs(b.x)) &&
-            Math.abs(a.y - b.y) <= epsilon * Math.max(1.0, Math.abs(a.y), Math.abs(b.y)) &&
-            Math.abs(a.z - b.z) <= epsilon * Math.max(1.0, Math.abs(a.z), Math.abs(b.z)) &&
-            Math.abs(a.w - b.w) <= epsilon * Math.max(1.0, Math.abs(a.w), Math.abs(b.w)));
+        return (Math.abs(a.x - b.x) <= epsilon * Math.max(1.0, Math.abs(a.x), Math.abs(b.x))
+            && Math.abs(a.y - b.y) <= epsilon * Math.max(1.0, Math.abs(a.y), Math.abs(b.y))
+            && Math.abs(a.z - b.z) <= epsilon * Math.max(1.0, Math.abs(a.z), Math.abs(b.z))
+            && Math.abs(a.w - b.w) <= epsilon * Math.max(1.0, Math.abs(a.w), Math.abs(b.w)));
     }
 
     /**
@@ -575,10 +574,10 @@ export class Vec4 extends ValueType {
      * @returns Returns `true` when the components of both vectors are equal within the specified range of error; otherwise it returns `false`.
      */
     public equals (other: Vec4, epsilon = EPSILON) {
-        return (Math.abs(this.x - other.x) <= epsilon * Math.max(1.0, Math.abs(this.x), Math.abs(other.x)) &&
-            Math.abs(this.y - other.y) <= epsilon * Math.max(1.0, Math.abs(this.y), Math.abs(other.y)) &&
-            Math.abs(this.z - other.z) <= epsilon * Math.max(1.0, Math.abs(this.z), Math.abs(other.z)) &&
-            Math.abs(this.w - other.w) <= epsilon * Math.max(1.0, Math.abs(this.w), Math.abs(other.w)));
+        return (Math.abs(this.x - other.x) <= epsilon * Math.max(1.0, Math.abs(this.x), Math.abs(other.x))
+            && Math.abs(this.y - other.y) <= epsilon * Math.max(1.0, Math.abs(this.y), Math.abs(other.y))
+            && Math.abs(this.z - other.z) <= epsilon * Math.max(1.0, Math.abs(this.z), Math.abs(other.z))
+            && Math.abs(this.w - other.w) <= epsilon * Math.max(1.0, Math.abs(this.w), Math.abs(other.w)));
     }
 
     /**
@@ -592,10 +591,10 @@ export class Vec4 extends ValueType {
      * @returns Returns `true` when the components of both vectors are equal within the specified range of error; otherwise it returns `false`.
      */
     public equals4f (x: number, y: number, z: number, w: number, epsilon = EPSILON) {
-        return (Math.abs(this.x - x) <= epsilon * Math.max(1.0, Math.abs(this.x), Math.abs(x)) &&
-            Math.abs(this.y - y) <= epsilon * Math.max(1.0, Math.abs(this.y), Math.abs(y)) &&
-            Math.abs(this.z - z) <= epsilon * Math.max(1.0, Math.abs(this.z), Math.abs(z)) &&
-            Math.abs(this.w - w) <= epsilon * Math.max(1.0, Math.abs(this.w), Math.abs(w)));
+        return (Math.abs(this.x - x) <= epsilon * Math.max(1.0, Math.abs(this.x), Math.abs(x))
+            && Math.abs(this.y - y) <= epsilon * Math.max(1.0, Math.abs(this.y), Math.abs(y))
+            && Math.abs(this.z - z) <= epsilon * Math.max(1.0, Math.abs(this.z), Math.abs(z))
+            && Math.abs(this.w - w) <= epsilon * Math.max(1.0, Math.abs(this.w), Math.abs(w)));
     }
 
     /**
@@ -669,10 +668,10 @@ export class Vec4 extends ValueType {
      * @param other specified vector
      */
     public add (other: Vec4) {
-        this.x = this.x + other.x;
-        this.y = this.y + other.y;
-        this.z = this.z + other.z;
-        this.w = this.w + other.w;
+        this.x += other.x;
+        this.y += other.y;
+        this.z += other.z;
+        this.w += other.w;
         return this;
     }
 
@@ -685,10 +684,10 @@ export class Vec4 extends ValueType {
      * @param w The w value of specified vector
      */
     public add4f (x: number, y: number, z: number, w: number) {
-        this.x = this.x + x;
-        this.y = this.y + y;
-        this.z = this.z + z;
-        this.w = this.w + w;
+        this.x += x;
+        this.y += y;
+        this.z += z;
+        this.w += w;
         return this;
     }
 
@@ -698,10 +697,10 @@ export class Vec4 extends ValueType {
      * @param other specified vector
      */
     public subtract (other: Vec4) {
-        this.x = this.x - other.x;
-        this.y = this.y - other.y;
-        this.z = this.z - other.z;
-        this.w = this.w - other.w;
+        this.x -= other.x;
+        this.y -= other.y;
+        this.z -= other.z;
+        this.w -= other.w;
         return this;
     }
 
@@ -714,10 +713,10 @@ export class Vec4 extends ValueType {
      * @param w The w value of specified vector
      */
     public subtract4f (x: number, y: number, z: number, w: number) {
-        this.x = this.x - x;
-        this.y = this.y - y;
-        this.z = this.z - z;
-        this.w = this.w - w;
+        this.x -= x;
+        this.y -= y;
+        this.z -= z;
+        this.w -= w;
         return this;
     }
 
@@ -728,10 +727,10 @@ export class Vec4 extends ValueType {
      */
     public multiplyScalar (scalar: number) {
         if (typeof scalar === 'object') { console.warn('should use Vec4.multiply for vector * vector operation'); }
-        this.x = this.x * scalar;
-        this.y = this.y * scalar;
-        this.z = this.z * scalar;
-        this.w = this.w * scalar;
+        this.x *= scalar;
+        this.y *= scalar;
+        this.z *= scalar;
+        this.w *= scalar;
         return this;
     }
 
@@ -742,10 +741,10 @@ export class Vec4 extends ValueType {
      */
     public multiply (other: Vec4) {
         if (typeof other !== 'object') { console.warn('should use Vec4.scale for vector * scalar operation'); }
-        this.x = this.x * other.x;
-        this.y = this.y * other.y;
-        this.z = this.z * other.z;
-        this.w = this.w * other.w;
+        this.x *= other.x;
+        this.y *= other.y;
+        this.z *= other.z;
+        this.w *= other.w;
         return this;
     }
 
@@ -758,10 +757,10 @@ export class Vec4 extends ValueType {
      * @param w The w value of specified vector
      */
     public multiply4f (x: number, y: number, z: number, w: number) {
-        this.x = this.x * x;
-        this.y = this.y * y;
-        this.z = this.z * z;
-        this.w = this.w * w;
+        this.x *= x;
+        this.y *= y;
+        this.z *= z;
+        this.w *= w;
         return this;
     }
 
@@ -771,10 +770,10 @@ export class Vec4 extends ValueType {
      * @param other specified vector
      */
     public divide (other: Vec4) {
-        this.x = this.x / other.x;
-        this.y = this.y / other.y;
-        this.z = this.z / other.z;
-        this.w = this.w / other.w;
+        this.x /= other.x;
+        this.y /= other.y;
+        this.z /= other.z;
+        this.w /= other.w;
         return this;
     }
 
@@ -787,10 +786,10 @@ export class Vec4 extends ValueType {
      * @param w The w value of specified vector
      */
     public divide4f (x: number, y: number, z: number, w: number) {
-        this.x = this.x / x;
-        this.y = this.y / y;
-        this.z = this.z / z;
-        this.w = this.w / w;
+        this.x /= x;
+        this.y /= y;
+        this.z /= z;
+        this.w /= w;
         return this;
     }
 

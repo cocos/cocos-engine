@@ -68,21 +68,21 @@ export function WorldNode3DToLocalNodeUI (mainCamera: Camera, wpos: Vec3, uiNode
  * @param wpos 世界空间位置。
  * @param out 返回世界坐标。
  */
-export function WorldNode3DToWorldNodeUI (mainCamera: Camera, wpos: Vec3, out?: Vec3){
+export function WorldNode3DToWorldNodeUI (mainCamera: Camera, wpos: Vec3, out?: Vec3) {
     if (!out) {
         out = new Vec3();
     }
 
     mainCamera.worldToScreen(wpos, out);
-    out.x = out.x / legacyCC.view.getScaleX();
-    out.y = out.y / legacyCC.view.getScaleY();
+    out.x /= legacyCC.view.getScaleX();
+    out.y /= legacyCC.view.getScaleY();
     return out;
 }
 
 /**
  * @en It will be removed in v1.2. Please use [[Camera.convertToUINode]]。
  * @zh 将在 v1.2 移除，请使用 Camera 的 `convertToUINode`。
- * @deprecated 
+ * @deprecated
  */
 const convertUtils = {
     WorldNode3DToLocalNodeUI,
@@ -94,10 +94,10 @@ legacyCC.pipelineUtils = convertUtils;
 
 replaceProperty(legacyCC.pipelineUtils, 'cc.pipelineUtils', [
     {
-        'name': 'WorldNode3DToLocalNodeUI',
-        'newName': 'convertToUINode',
-        'targetName': 'cc.Camera.prototype',
-        'customFunction': function (...args: any[]) {
+        name: 'WorldNode3DToLocalNodeUI',
+        newName: 'convertToUINode',
+        targetName: 'cc.Camera.prototype',
+        customFunction (...args: any[]) {
             const camera = args[0] as Camera;
             const out = args[3] || _vec3;
             camera.convertToUINode(args[1], args[2], out);

@@ -5,7 +5,6 @@ import { FrameBoneInfo } from './skeleton-cache';
 
 const _tempMat4 = new Mat4();
 
-
 /**
  * !#en Attach node tool
  * !#zh 挂点工具类

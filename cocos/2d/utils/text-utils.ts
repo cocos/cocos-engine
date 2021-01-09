@@ -24,8 +24,8 @@
  THE SOFTWARE.
 */
 
-import Pool from '../../core/utils/pool';
 import { RUNTIME_BASED } from 'internal:constants';
+import Pool from '../../core/utils/pool';
 
 /**
  * @packageDocumentation
@@ -57,7 +57,7 @@ pool.get = function () {
         key: '',
         value: 0,
         prev: null,
-        next: null
+        next: null,
     };
 };
 
@@ -75,15 +75,12 @@ class LRUCache {
     public moveToHead (node) {
         node.next = this.head;
         node.prev = null;
-        if (this.head)
-            this.head.prev = node;
+        if (this.head) this.head.prev = node;
         this.head = node;
-        if (!this.tail)
-            this.tail = node;
+        if (!this.tail) this.tail = node;
         this.count++;
         this.datas[node.key] = node;
     }
-
 
     public put (key, value) {
         const node = pool.get();
@@ -169,22 +166,22 @@ export function isUnicodeCJK (ch: string) {
 // Checking whether the character is a whitespace
 export function isUnicodeSpace (ch: string) {
     const chCode = ch.charCodeAt(0);
-    return ((chCode >= 9 && chCode <= 13) ||
-    chCode === 32 ||
-    chCode === 133 ||
-    chCode === 160 ||
-    chCode === 5760 ||
-    (chCode >= 8192 && chCode <= 8202) ||
-    chCode === 8232 ||
-    chCode === 8233 ||
-    chCode === 8239 ||
-    chCode === 8287 ||
-    chCode === 12288);
+    return ((chCode >= 9 && chCode <= 13)
+    || chCode === 32
+    || chCode === 133
+    || chCode === 160
+    || chCode === 5760
+    || (chCode >= 8192 && chCode <= 8202)
+    || chCode === 8232
+    || chCode === 8233
+    || chCode === 8239
+    || chCode === 8287
+    || chCode === 12288);
 }
 
 export function safeMeasureText (ctx: CanvasRenderingContext2D, string: string, desc?: string) {
     const font = desc || ctx.font;
-    const key = font + '\uD83C\uDFAE' + string;
+    const key = `${font}\uD83C\uDFAE${string}`;
     const cache = measureCache.get(key);
     if (cache !== null) {
         return cache;
@@ -241,8 +238,7 @@ export function fragmentText (stringToken: string, allWidth: number, maxWidth: n
 
     let text = stringToken;
     while (allWidth > maxWidth && text.length > 1) {
-
-        let fuzzyLen = text.length * ( maxWidth / allWidth ) | 0;
+        let fuzzyLen = text.length * (maxWidth / allWidth) | 0;
         let tmpText = _safeSubstring(text, fuzzyLen);
         let width = allWidth - measureText(tmpText);
         let sLine = tmpText;
@@ -254,7 +250,7 @@ export function fragmentText (stringToken: string, allWidth: number, maxWidth: n
         // Exceeded the size
         while (width > maxWidth && checkWhile++ < checkCount) {
             fuzzyLen *= maxWidth / width;
-            fuzzyLen = fuzzyLen | 0;
+            fuzzyLen |= 0;
             tmpText = _safeSubstring(text, fuzzyLen);
             width = allWidth - measureText(tmpText);
         }
@@ -269,7 +265,7 @@ export function fragmentText (stringToken: string, allWidth: number, maxWidth: n
                 sLine = tmpText;
             }
 
-            fuzzyLen = fuzzyLen + pushNum;
+            fuzzyLen += pushNum;
             tmpText = _safeSubstring(text, fuzzyLen);
             width = allWidth - measureText(tmpText);
         }
@@ -314,8 +310,7 @@ export function fragmentText (stringToken: string, allWidth: number, maxWidth: n
         // The first line And do not wrap should not remove the space
         if (wrappedWords.length === 0) {
             wrappedWords.push(sText);
-        }
-        else {
+        } else {
             sText = sText.trim();
             if (sText.length > 0) {
                 wrappedWords.push(sText);
@@ -327,8 +322,7 @@ export function fragmentText (stringToken: string, allWidth: number, maxWidth: n
 
     if (wrappedWords.length === 0) {
         wrappedWords.push(text);
-    }
-    else {
+    } else {
         text = text.trim();
         if (text.length > 0) {
             wrappedWords.push(text);

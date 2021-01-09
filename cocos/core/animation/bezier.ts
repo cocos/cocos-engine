@@ -23,7 +23,6 @@
  THE SOFTWARE.
  */
 
-
 /**
  * @packageDocumentation
  * @module animation
@@ -51,8 +50,7 @@ const sqrt = Math.sqrt;
 function crt (v: number) {
     if (v < 0) {
         return -Math.pow(-v, 1 / 3);
-    }
-    else {
+    } else {
         return Math.pow(v, 1 / 3);
     }
 }
@@ -61,14 +59,14 @@ function crt (v: number) {
 // The origin Cardano's algorithm is based on http://www.trans4mind.com/personal_development/mathematics/polynomials/cubicAlgebra.htm
 function cardano (curve: BezierControlPoints, x: number) {
     // align curve with the intersecting line:
-        // var line = {p1: {x: x, y: 0}, p2: {x: x, y: 1}};
-        // var aligned = align(curve, line);
-        //// and rewrite from [a(1-t)^3 + 3bt(1-t)^2 + 3c(1-t)t^2 + dt^3] form
-        //    pa = aligned[0].y,
-        //    pb = aligned[1].y,
-        //    pc = aligned[2].y,
-        //    pd = aligned[3].y;
-        ////// curve = [{x:0, y:1}, {x: curve[0], y: 1-curve[1]}, {x: curve[2], y: 1-curve[3]}, {x:1, y:0}];
+    // var line = {p1: {x: x, y: 0}, p2: {x: x, y: 1}};
+    // var aligned = align(curve, line);
+    /// / and rewrite from [a(1-t)^3 + 3bt(1-t)^2 + 3c(1-t)t^2 + dt^3] form
+    //    pa = aligned[0].y,
+    //    pb = aligned[1].y,
+    //    pc = aligned[2].y,
+    //    pd = aligned[3].y;
+    /// /// curve = [{x:0, y:1}, {x: curve[0], y: 1-curve[1]}, {x: curve[2], y: 1-curve[3]}, {x:1, y:0}];
     const pa = x - 0;
     const pb = x - curve[0];
     const pc = x - curve[2];
@@ -116,51 +114,40 @@ function cardano (curve: BezierControlPoints, x: number) {
         x3 = t1 * cos((phi + 2 * tau) * r3) - a3;
 
         // choose best percentage
-        if (0 <= x1 && x1 <= 1) {
-            if (0 <= x2 && x2 <= 1) {
-                if (0 <= x3 && x3 <= 1) {
+        if (x1 >= 0 && x1 <= 1) {
+            if (x2 >= 0 && x2 <= 1) {
+                if (x3 >= 0 && x3 <= 1) {
                     return max(x1, x2, x3);
-                }
-                else {
+                } else {
                     return max(x1, x2);
                 }
-            }
-            else if (0 <= x3 && x3 <= 1) {
+            } else if (x3 >= 0 && x3 <= 1) {
                 return max(x1, x3);
-            }
-            else {
+            } else {
                 return x1;
             }
-        }
-        else {
-            if (0 <= x2 && x2 <= 1) {
-                if (0 <= x3 && x3 <= 1) {
-                    return max(x2, x3);
-                }
-                else {
-                    return x2;
-                }
+        } else if (x2 >= 0 && x2 <= 1) {
+            if (x3 >= 0 && x3 <= 1) {
+                return max(x2, x3);
+            } else {
+                return x2;
             }
-            else {
-                return x3;
-            }
+        } else {
+            return x3;
         }
-    }
-    else if (discriminant === 0) {
+    } else if (discriminant === 0) {
         u1 = q2 < 0 ? crt(-q2) : -crt(q2);
         x1 = 2 * u1 - a3;
         x2 = -u1 - a3;
 
         // choose best percentage
-        if (0 <= x1 && x1 <= 1) {
-            if (0 <= x2 && x2 <= 1) {
+        if (x1 >= 0 && x1 <= 1) {
+            if (x2 >= 0 && x2 <= 1) {
                 return max(x1, x2);
-            }
-            else {
+            } else {
                 return x1;
             }
-        }
-        else {
+        } else {
             return x2;
         }
     }

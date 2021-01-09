@@ -28,10 +28,10 @@
  * @module core/data
  */
 
+import { SUPPORT_JIT, EDITOR, TEST } from 'internal:constants';
 import * as js from '../utils/js';
 import { CCClass } from './class';
 import { errorID, warnID } from '../platform/debug';
-import { SUPPORT_JIT, EDITOR, TEST } from 'internal:constants';
 import { legacyCC } from '../global-exports';
 
 // definitions for CCObject.Flags
@@ -64,11 +64,11 @@ const IsPositionLocked = 1 << 21;
 
 // var Hide = HideInGame | HideInEditor;
 // should not clone or serialize these flags
-const PersistentMask = ~(ToDestroy | Dirty | Destroying | DontDestroy | Deactivating |
-                       IsPreloadStarted | IsOnLoadStarted | IsOnLoadCalled | IsStartCalled |
-                       IsOnEnableCalled | IsEditorOnEnableCalled |
-                       IsRotationLocked | IsScaleLocked | IsAnchorLocked | IsSizeLocked | IsPositionLocked
-                       /*RegisteredInEditor*/);
+const PersistentMask = ~(ToDestroy | Dirty | Destroying | DontDestroy | Deactivating
+                       | IsPreloadStarted | IsOnLoadStarted | IsOnLoadCalled | IsStartCalled
+                       | IsOnEnableCalled | IsEditorOnEnableCalled
+                       | IsRotationLocked | IsScaleLocked | IsAnchorLocked | IsSizeLocked | IsPositionLocked
+/* RegisteredInEditor */);
 
 const objectsToDestroy: any = [];
 let deferredDestroyTimer = null;
@@ -85,13 +85,13 @@ function compileDestruct (obj, ctor) {
                 continue;
             }
             switch (typeof obj[key]) {
-                case 'string':
-                    propsToReset[key] = '';
-                    break;
-                case 'object':
-                case 'function':
-                    propsToReset[key] = null;
-                    break;
+            case 'string':
+                propsToReset[key] = '';
+                break;
+            case 'object':
+            case 'function':
+                propsToReset[key] = null;
+                break;
             }
         }
     }
@@ -102,22 +102,22 @@ function compileDestruct (obj, ctor) {
 
         for (let i = 0; i < propList.length; i++) {
             key = propList[i];
-            const attrKey = key + legacyCC.Class.Attr.DELIMETER + 'default';
+            const attrKey = `${key + legacyCC.Class.Attr.DELIMETER}default`;
             if (attrKey in attrs) {
                 if (shouldSkipId && key === '_id') {
                     continue;
                 }
                 switch (typeof attrs[attrKey]) {
-                    case 'string':
-                        propsToReset[key] = '';
-                        break;
-                    case 'object':
-                    case 'function':
-                        propsToReset[key] = null;
-                        break;
-                    case 'undefined':
-                        propsToReset[key] = undefined;
-                        break;
+                case 'string':
+                    propsToReset[key] = '';
+                    break;
+                case 'object':
+                case 'function':
+                    propsToReset[key] = null;
+                    break;
+                case 'undefined':
+                    propsToReset[key] = undefined;
+                    break;
                 }
             }
         }
@@ -130,20 +130,18 @@ function compileDestruct (obj, ctor) {
         for (key in propsToReset) {
             let statement;
             if (CCClass.IDENTIFIER_RE.test(key)) {
-                statement = 'o.' + key + '=';
-            }
-            else {
-                statement = 'o[' + CCClass.escapeForJS(key) + ']=';
+                statement = `o.${key}=`;
+            } else {
+                statement = `o[${CCClass.escapeForJS(key)}]=`;
             }
             let val = propsToReset[key];
             if (val === '') {
                 val = '""';
             }
-            func += (statement + val + ';\n');
+            func += (`${statement + val};\n`);
         }
         return Function('o', func);
-    }
-    else {
+    } else {
         return (o) => {
             for (const _key in propsToReset) {
                 o[_key] = propsToReset[_key];
@@ -160,7 +158,6 @@ function compileDestruct (obj, ctor) {
  * @private
  */
 class CCObject {
-
     public static _deferredDestroy () {
         const deleteCount = objectsToDestroy.length;
         for (let i = 0; i < deleteCount; ++i) {
@@ -173,8 +170,7 @@ class CCObject {
         // but we only destroy the objects which called destory in this frame.
         if (deleteCount === objectsToDestroy.length) {
             objectsToDestroy.length = 0;
-        }
-        else {
+        } else {
             objectsToDestroy.splice(0, deleteCount);
         }
 
@@ -275,7 +271,7 @@ class CCObject {
         this._objFlags |= ToDestroy;
         objectsToDestroy.push(this);
 
-        if (EDITOR && deferredDestroyTimer === null && legacyCC.engine && ! legacyCC.engine._isUpdating) {
+        if (EDITOR && deferredDestroyTimer === null && legacyCC.engine && !legacyCC.engine._isUpdating) {
             // auto destroy immediate in edit mode
             // @ts-expect-error
             deferredDestroyTimer = setImmediate(CCObject._deferredDestroy);
@@ -352,7 +348,7 @@ if (EDITOR || TEST) {
     */
     // @ts-expect-error
     prototype.realDestroyInEditor = function () {
-        if ( !(this._objFlags & Destroyed) ) {
+        if (!(this._objFlags & Destroyed)) {
             warnID(5001);
             return;
         }
@@ -560,17 +556,14 @@ declare namespace CCObject {
 export function isValid (value: any, strictMode?: boolean) {
     if (typeof value === 'object') {
         return !!value && !(value._objFlags & (strictMode ? (Destroyed | ToDestroy) : Destroyed));
-    }
-    else {
+    } else {
         return typeof value !== 'undefined';
     }
 }
 legacyCC.isValid = isValid;
 
 if (EDITOR || TEST) {
-    js.value(CCObject, '_willDestroy', (obj) => {
-        return !(obj._objFlags & Destroyed) && (obj._objFlags & ToDestroy) > 0;
-    });
+    js.value(CCObject, '_willDestroy', (obj) => !(obj._objFlags & Destroyed) && (obj._objFlags & ToDestroy) > 0);
     js.value(CCObject, '_cancelDestroy', (obj) => {
         obj._objFlags &= ~ToDestroy;
         js.array.fastRemove(objectsToDestroy, obj);

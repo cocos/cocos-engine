@@ -32,7 +32,6 @@ const _forward = new Vec3(0, 0, -1);
 const _v3 = new Vec3();
 
 export class DirectionalLight extends Light {
-
     public set shadowRange (shadowRange: number) {
         this._shadowRange = shadowRange;
     }
@@ -92,15 +91,15 @@ export class DirectionalLight extends Light {
     protected _dir: Vec3 = new Vec3(1.0, -1.0, -1.0);
 
     // shadow
-    private _shadowRange: number = 1000.0;
-    private _shadowIntensity: number = 0.0;
-    private _shadowFadeDistance: number = 0.0;
-    private _shadowDistance: number = 0.0;
+    private _shadowRange = 1000.0;
+    private _shadowIntensity = 0.0;
+    private _shadowFadeDistance = 0.0;
+    private _shadowDistance = 0.0;
 
     // Cascaded shadow map parameters.
-    private _fadeStart: number = 0.8;
+    private _fadeStart = 0.8;
     private _splits: Vec4 = new Vec4(1.0, 0.0, 0.0, 0.0);
-    private _biasAutoAdjust: number = 1.0;
+    private _biasAutoAdjust = 1.0;
 
     set direction (dir: Vec3) {
         Vec3.normalize(this._dir, dir);

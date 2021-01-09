@@ -28,8 +28,8 @@
  * @module animation
  */
 
-import System from '../components/system';
 import { ccclass } from 'cc.decorator';
+import System from '../components/system';
 import { director, Director } from '../director';
 import { errorID } from '../platform/debug';
 import { Node } from '../scene-graph';
@@ -49,7 +49,6 @@ interface ISocketData {
 
 @ccclass
 export class AnimationManager extends System {
-
     public get blendState () {
         return this._blendStateBuffer;
     }

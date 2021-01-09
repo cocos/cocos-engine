@@ -28,8 +28,8 @@
  * @module decorator
  */
 
-import { js } from '../../utils/js';
 import { DEV } from 'internal:constants';
+import { js } from '../../utils/js';
 import { CCClass } from '../class';
 import { doValidateMethodWithProps_DEV } from '../utils/preprocess-class';
 import { CACHE_KEY, makeSmartClassDecorator } from './utils';
@@ -96,4 +96,3 @@ export const ccclass: ((name?: string) => ClassDecorator) & ClassDecorator = mak
 
     return res;
 });
-

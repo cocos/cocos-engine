@@ -29,9 +29,10 @@
 
 /* eslint-disable no-console */
 
-import debugInfos from '../../../DebugInfos';
 import { EDITOR, JSB, DEV, DEBUG } from 'internal:constants';
+import debugInfos from '../../../DebugInfos';
 import { legacyCC } from '../global-exports';
+
 const ERROR_MAP_URL = 'https://github.com/cocos-creator/engine/blob/3d/EngineErrorMap.md';
 
 // The html element displays log in web page (DebugMode.INFO_FOR_WEB_PAGE)
@@ -45,7 +46,7 @@ let ccError = ccLog;
 
 let ccAssert = (condition: any, message?: any, ...optionalParams: any[]) => {
     if (!condition) {
-        console.log('ASSERT: ' + formatString(message, ...optionalParams));
+        console.log(`ASSERT: ${formatString(message, ...optionalParams)}`);
     }
 };
 
@@ -154,21 +155,21 @@ export function _resetDebugSetting (mode: DebugMode) {
                 legacyCC.game.canvas.parentNode.appendChild(logDiv);
             }
 
-            logList.value = logList.value + msg + '\r\n';
+            logList.value = `${logList.value + msg}\r\n`;
             logList.scrollTop = logList.scrollHeight;
         };
 
         ccError = (message?: any, ...optionalParams: any[]) => {
-            logToWebPage('ERROR :  ' + formatString(message, ...optionalParams));
+            logToWebPage(`ERROR :  ${formatString(message, ...optionalParams)}`);
         };
         ccAssert = (condition: any, message?: any, ...optionalParams: any[]) => {
             if (!condition) {
-                logToWebPage('ASSERT: ' + formatString(message, ...optionalParams));
+                logToWebPage(`ASSERT: ${formatString(message, ...optionalParams)}`);
             }
         };
         if (mode !== DebugMode.ERROR_FOR_WEB_PAGE) {
             ccWarn = (message?: any, ...optionalParams: any[]) => {
-                logToWebPage('WARN :  ' + formatString(message, ...optionalParams));
+                logToWebPage(`WARN :  ${formatString(message, ...optionalParams)}`);
             };
         }
         if (mode === DebugMode.INFO_FOR_WEB_PAGE) {
@@ -176,8 +177,7 @@ export function _resetDebugSetting (mode: DebugMode) {
                 logToWebPage(formatString(message, ...optionalParams));
             };
         }
-    }
-    else if (console && console.log.apply) {// console is null when user doesn't open dev tool on IE9
+    } else if (console && console.log.apply) { // console is null when user doesn't open dev tool on IE9
         // Log to console.
 
         // For JSB
@@ -191,20 +191,15 @@ export function _resetDebugSetting (mode: DebugMode) {
         if (EDITOR || console.error.bind) {
             // use bind to avoid pollute call stacks
             ccError = console.error.bind(console);
-        }
-        else {
-            ccError = JSB ? console.error : (message?: any, ...optionalParams: any[]) => {
-                return console.error.apply(console, [message, ...optionalParams]);
-            };
+        } else {
+            ccError = JSB ? console.error : (message?: any, ...optionalParams: any[]) => console.error.apply(console, [message, ...optionalParams]);
         }
         ccAssert = (condition: any, message?: any, ...optionalParams: any[]) => {
             if (!condition) {
                 const errorText = formatString(message, ...optionalParams);
                 if (DEV) {
-
                     debugger;
-                }
-                else {
+                } else {
                     throw new Error(errorText);
                 }
             }
@@ -214,41 +209,30 @@ export function _resetDebugSetting (mode: DebugMode) {
     if (mode !== DebugMode.ERROR) {
         if (EDITOR) {
             ccWarn = console.warn.bind(console);
-        }
-        else if (console.warn.bind) {
+        } else if (console.warn.bind) {
             // use bind to avoid pollute call stacks
             ccWarn = console.warn.bind(console);
-        }
-        else {
-            ccWarn = JSB ? console.warn : (message?: any, ...optionalParams: any[]) => {
-                return console.warn.apply(console, [message, ...optionalParams]);
-            };
+        } else {
+            ccWarn = JSB ? console.warn : (message?: any, ...optionalParams: any[]) => console.warn.apply(console, [message, ...optionalParams]);
         }
     }
 
     if (EDITOR) {
         ccLog = console.log.bind(console);
-    }
-    else if (mode === DebugMode.INFO) {
+    } else if (mode === DebugMode.INFO) {
         if (JSB) {
             // @ts-expect-error
             if (scriptEngineType === 'JavaScriptCore') {
                 // console.log has to use `console` as its context for iOS 8~9. Therefore, apply it.
-                ccLog = (message?: any, ...optionalParams: any[]) => {
-                    return console.log.apply(console, [message, ...optionalParams]);
-                };
+                ccLog = (message?: any, ...optionalParams: any[]) => console.log.apply(console, [message, ...optionalParams]);
             } else {
                 ccLog = console.log;
             }
-        }
-        else if (console.log.bind) {
+        } else if (console.log.bind) {
             // use bind to avoid pollute call stacks
             ccLog = console.log.bind(console);
-        }
-        else {
-            ccLog = (message?: any, ...optionalParams: any[]) => {
-                return console.log.apply(console, [message, ...optionalParams]);
-            };
+        } else {
+            ccLog = (message?: any, ...optionalParams: any[]) => console.log.apply(console, [message, ...optionalParams]);
         }
     }
 }
@@ -259,9 +243,8 @@ export function _throw (error_: any) {
     } else {
         const stack = error_.stack;
         if (stack) {
-            error(JSB ? (error_ + '\n' + stack) : stack);
-        }
-        else {
+            error(JSB ? (`${error_}\n${stack}`) : stack);
+        } else {
             error(error_);
         }
     }
@@ -273,7 +256,7 @@ function getTypedFormatter (type: 'Log' | 'Warning' | 'Error' | 'Assert') {
         if (args.length === 0) {
             return msg;
         }
-        return DEBUG ? formatString(msg, ...args) : msg + ' Arguments: ' + args.join(', ');
+        return DEBUG ? formatString(msg, ...args) : `${msg} Arguments: ${args.join(', ')}`;
     };
 }
 

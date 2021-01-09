@@ -45,7 +45,6 @@ export interface IMaterialInstanceInfo {
  * 材质实例，当有材质修改需求时，根据材质资源创建的，可任意定制的实例。
  */
 export class MaterialInstance extends Material {
-
     get parent () {
         return this._parent;
     }

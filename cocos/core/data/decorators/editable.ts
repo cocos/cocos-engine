@@ -28,9 +28,9 @@
  * @module decorator
  */
 
-import { IPropertyOptions } from './property';
-import { property } from './property';
 import { DEV, EDITOR } from 'internal:constants';
+import { IPropertyOptions, property } from './property';
+
 import { LegacyPropertyDecorator, emptyDecorator, makeSmartEditorClassDecorator, makeEditorClassDecoratorFn, emptySmartClassDecorator, emptyDecoratorFn } from './utils';
 
 /**
@@ -51,8 +51,7 @@ import { LegacyPropertyDecorator, emptyDecorator, makeSmartEditorClassDecorator,
  * }
  * ```
  */
-export const executeInEditMode: ClassDecorator & ((yes?: boolean) => ClassDecorator) =
-    DEV ? makeSmartEditorClassDecorator('executeInEditMode', true) : emptySmartClassDecorator;
+export const executeInEditMode: ClassDecorator & ((yes?: boolean) => ClassDecorator) =    DEV ? makeSmartEditorClassDecorator('executeInEditMode', true) : emptySmartClassDecorator;
 
 /**
  * @en Add the current component to the specific menu path in `Add Component` selector of the inspector panel
@@ -70,8 +69,7 @@ export const executeInEditMode: ClassDecorator & ((yes?: boolean) => ClassDecora
  * }
  * ```
  */
-export const menu: (path: string) => ClassDecorator =
-    DEV ? makeEditorClassDecoratorFn('menu') : emptyDecoratorFn;
+export const menu: (path: string) => ClassDecorator =    DEV ? makeEditorClassDecoratorFn('menu') : emptyDecoratorFn;
 
 /**
  * @en When {{executeInEditMode}} is set, this decorator will decide when a node with the component is on focus whether the editor should running in high FPS mode.
@@ -89,8 +87,7 @@ export const menu: (path: string) => ClassDecorator =
  * }
  * ```
  */
-export const playOnFocus: ClassDecorator & ((yes?: boolean) => ClassDecorator) =
-    DEV ? makeSmartEditorClassDecorator<boolean>('playOnFocus', true) : emptySmartClassDecorator;
+export const playOnFocus: ClassDecorator & ((yes?: boolean) => ClassDecorator) =    DEV ? makeSmartEditorClassDecorator<boolean>('playOnFocus', true) : emptySmartClassDecorator;
 
 /**
  * @en Use a customized inspector page in the **inspector**
@@ -108,8 +105,7 @@ export const playOnFocus: ClassDecorator & ((yes?: boolean) => ClassDecorator) =
  * }
  * ```
  */
-export const inspector: (url: string) => ClassDecorator =
-    DEV ? makeEditorClassDecoratorFn('inspector') : emptyDecoratorFn;
+export const inspector: (url: string) => ClassDecorator =    DEV ? makeEditorClassDecoratorFn('inspector') : emptyDecoratorFn;
 
 /**
  * @en Define the icon of the component.
@@ -128,8 +124,7 @@ export const inspector: (url: string) => ClassDecorator =
  * }
  * ```
  */
-export const icon: (url: string) => ClassDecorator =
-    DEV ? makeEditorClassDecoratorFn('icon') : emptyDecoratorFn;
+export const icon: (url: string) => ClassDecorator =    DEV ? makeEditorClassDecoratorFn('icon') : emptyDecoratorFn;
 
 /**
  * @en Define the help documentation url, if given, the component section in the **inspector** will have a help documentation icon reference to the web page given.
@@ -147,8 +142,7 @@ export const icon: (url: string) => ClassDecorator =
  * }
  * ```
  */
-export const help: (url: string) => ClassDecorator =
-    DEV ? makeEditorClassDecoratorFn('help') : emptyDecoratorFn;
+export const help: (url: string) => ClassDecorator =    DEV ? makeEditorClassDecoratorFn('help') : emptyDecoratorFn;
 
 /**
  * @en
@@ -156,9 +150,7 @@ export const help: (url: string) => ClassDecorator =
  * @zh
  * 允许该属性与编辑器交互。
  */
-export const editable: LegacyPropertyDecorator = !DEV ? emptyDecorator: (target, propertyKey, descriptor) => {
-    return property(makeEditable({ }))(target, propertyKey, descriptor);
-};
+export const editable: LegacyPropertyDecorator = !DEV ? emptyDecorator : (target, propertyKey, descriptor) => property(makeEditable({ }))(target, propertyKey, descriptor);
 
 /**
  * @en
@@ -167,12 +159,10 @@ export const editable: LegacyPropertyDecorator = !DEV ? emptyDecorator: (target,
  * 设置在编辑器展示该属性的条件。
  * @param condition 展示条件，当返回 `true` 时展示；否则不展示。
  */
-export const visible: (condition: boolean | (() => boolean)) => LegacyPropertyDecorator = !DEV ? emptyDecoratorFn:
-    (condition) => {
-        return property(makeEditable({
-            visible: condition,
-        }));
-    };
+export const visible: (condition: boolean | (() => boolean)) => LegacyPropertyDecorator = !DEV ? emptyDecoratorFn
+    : (condition) => property(makeEditable({
+        visible: condition,
+    }));
 
 /**
  * @en
@@ -180,11 +170,9 @@ export const visible: (condition: boolean | (() => boolean)) => LegacyPropertyDe
  * @zh
  * 设置该属性在编辑器中仅是可读的。
  */
-export const readOnly: LegacyPropertyDecorator = !DEV ? emptyDecorator: (target, propertyKey, descriptor) => {
-    return property(makeEditable({
-        readonly: true,
-    }))(target, propertyKey, descriptor);
-};
+export const readOnly: LegacyPropertyDecorator = !DEV ? emptyDecorator : (target, propertyKey, descriptor) => property(makeEditable({
+    readonly: true,
+}))(target, propertyKey, descriptor);
 
 /**
  * @en
@@ -193,12 +181,10 @@ export const readOnly: LegacyPropertyDecorator = !DEV ? emptyDecorator: (target,
  * 设置该属性在编辑器中的显示名称。
  * @param text 显示名称。
  */
-export const displayName: (text: string) => LegacyPropertyDecorator = !DEV ? emptyDecoratorFn:
-    (text) => {
-        return property(makeEditable({
-            displayName: text,
-        }));
-    };
+export const displayName: (text: string) => LegacyPropertyDecorator = !DEV ? emptyDecoratorFn
+    : (text) => property(makeEditable({
+        displayName: text,
+    }));
 
 /**
  * @en
@@ -207,12 +193,10 @@ export const displayName: (text: string) => LegacyPropertyDecorator = !DEV ? emp
  * 设置该属性在编辑器中的工具提示内容。
  * @param text 工具提示。
  */
-export const tooltip: (text: string) => LegacyPropertyDecorator = !DEV ? emptyDecoratorFn:
-    (text) => {
-        return property(makeEditable({
-            tooltip: text,
-        }));
-    };
+export const tooltip: (text: string) => LegacyPropertyDecorator = !DEV ? emptyDecoratorFn
+    : (text) => property(makeEditable({
+        tooltip: text,
+    }));
 
 /**
  * @en
@@ -221,12 +205,10 @@ export const tooltip: (text: string) => LegacyPropertyDecorator = !DEV ? emptyDe
  * 设置该属性在编辑器中允许设置的范围。
  * @param values 范围。
  */
-export const range: (values: [number, number, number] | [number, number]) => LegacyPropertyDecorator = !DEV ? emptyDecoratorFn:
-    (values) => {
-        return property(makeEditable({
-            range: values,
-        }));
-    };
+export const range: (values: [number, number, number] | [number, number]) => LegacyPropertyDecorator = !DEV ? emptyDecoratorFn
+    : (values) => property(makeEditable({
+        range: values,
+    }));
 
 /**
  * @en
@@ -235,12 +217,10 @@ export const range: (values: [number, number, number] | [number, number]) => Leg
  * 设置该属性在编辑器中允许的最小值。
  * @param value 最小值。
  */
-export const rangeMin: (value: number) => LegacyPropertyDecorator = !DEV ? emptyDecoratorFn:
-    (value) => {
-        return property(makeEditable({
-            min: value,
-        }));
-    };
+export const rangeMin: (value: number) => LegacyPropertyDecorator = !DEV ? emptyDecoratorFn
+    : (value) => property(makeEditable({
+        min: value,
+    }));
 
 /**
  * @en
@@ -249,12 +229,10 @@ export const rangeMin: (value: number) => LegacyPropertyDecorator = !DEV ? empty
  * 设置该属性在编辑器中允许的最大值。
  * @param value 最大值。
  */
-export const rangeMax: (value: number) => LegacyPropertyDecorator = !DEV ? emptyDecoratorFn:
-    (value) => {
-        return property(makeEditable({
-            max: value,
-        }));
-    };
+export const rangeMax: (value: number) => LegacyPropertyDecorator = !DEV ? emptyDecoratorFn
+    : (value) => property(makeEditable({
+        max: value,
+    }));
 
 /**
  * @en
@@ -263,12 +241,10 @@ export const rangeMax: (value: number) => LegacyPropertyDecorator = !DEV ? empty
  * 设置该属性在编辑器中的步进值。
  * @param value 步进值。
  */
-export const rangeStep: (value: number) => LegacyPropertyDecorator = !DEV ? emptyDecoratorFn:
-    (value) => {
-        return property(makeEditable({
-            step: value,
-        }));
-    };
+export const rangeStep: (value: number) => LegacyPropertyDecorator = !DEV ? emptyDecoratorFn
+    : (value) => property(makeEditable({
+        step: value,
+    }));
 
 /**
  * @en
@@ -276,12 +252,10 @@ export const rangeStep: (value: number) => LegacyPropertyDecorator = !DEV ? empt
  * @zh
  * 允许在编辑器中提供滑动条来调节值
  */
-export const slide: LegacyPropertyDecorator = !DEV ? emptyDecorator:
-    (target, propertyKey, descriptor) => {
-        return property(makeEditable({
-            slide: true,
-        }))(target, propertyKey, descriptor);
-    };
+export const slide: LegacyPropertyDecorator = !DEV ? emptyDecorator
+    : (target, propertyKey, descriptor) => property(makeEditable({
+        slide: true,
+    }))(target, propertyKey, descriptor);
 
 /**
  * @en
@@ -290,12 +264,10 @@ export const slide: LegacyPropertyDecorator = !DEV ? emptyDecorator:
  * 设置该属性在编辑器中的显示顺序。
  * @param order 显示顺序。
  */
-export const displayOrder: (order: number) => LegacyPropertyDecorator = !DEV ? emptyDecoratorFn:
-    (order) => {
-        return property(makeEditable({
-            displayOrder: order,
-        }));
-    };
+export const displayOrder: (order: number) => LegacyPropertyDecorator = !DEV ? emptyDecoratorFn
+    : (order) => property(makeEditable({
+        displayOrder: order,
+    }));
 
 /**
  * @en
@@ -308,12 +280,10 @@ export const unit: (name:
 | 'lm'
 | 'lx'
 | 'cd/m²'
-) => LegacyPropertyDecorator = !DEV ? emptyDecoratorFn:
-    (name) => {
-        return property(makeEditable({
-            unit: name,
-        }));
-    };
+) => LegacyPropertyDecorator = !DEV ? emptyDecoratorFn
+    : (name) => property(makeEditable({
+        unit: name,
+    }));
 
 /**
  * @en
@@ -321,12 +291,10 @@ export const unit: (name:
  * @zh
  * 设置在编辑器中赋值该属性前将值先转换为弧度制。
  */
-export const radian: LegacyPropertyDecorator = !DEV ? emptyDecorator:
-    (target, propertyKey, descriptor) => {
-        return property(makeEditable({
-            radian: true,
-        }))(target, propertyKey, descriptor);
-    };
+export const radian: LegacyPropertyDecorator = !DEV ? emptyDecorator
+    : (target, propertyKey, descriptor) => property(makeEditable({
+        radian: true,
+    }))(target, propertyKey, descriptor);
 
 /**
  * @en
@@ -334,12 +302,10 @@ export const radian: LegacyPropertyDecorator = !DEV ? emptyDecorator:
  * @zh
  * 允许在编辑器中对该属性进行多行显示。
  */
-export const multiline: LegacyPropertyDecorator = !DEV ? emptyDecorator:
-    (target, propertyKey, descriptor) => {
-        return property(makeEditable({
-            multiline: true,
-        }))(target, propertyKey, descriptor);
-    };
+export const multiline: LegacyPropertyDecorator = !DEV ? emptyDecorator
+    : (target, propertyKey, descriptor) => property(makeEditable({
+        multiline: true,
+    }))(target, propertyKey, descriptor);
 
 /**
  * @en
@@ -347,13 +313,10 @@ export const multiline: LegacyPropertyDecorator = !DEV ? emptyDecorator:
  * @zh
  * 设置该属性不参与编辑器中动画相关的交互。
  */
-export const disallowAnimation: LegacyPropertyDecorator = !EDITOR ? emptyDecorator: (target, propertyKey, descriptor) => {
-    return property({
-        __noImplicit: true,
-        animatable: false,
-    })(target, propertyKey, descriptor);
-};
-
+export const disallowAnimation: LegacyPropertyDecorator = !EDITOR ? emptyDecorator : (target, propertyKey, descriptor) => property({
+    __noImplicit: true,
+    animatable: false,
+})(target, propertyKey, descriptor);
 
 function makeEditable (options: IPropertyOptions) {
     options.__noImplicit = true;

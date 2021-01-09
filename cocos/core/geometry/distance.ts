@@ -32,6 +32,7 @@ import { Vec3 } from '../math';
 import { AABB } from './aabb';
 import { OBB } from './obb';
 import { Plane } from './plane';
+
 const X = new Vec3();
 const Y = new Vec3();
 const Z = new Vec3();
@@ -123,7 +124,6 @@ export function pt_point_obb (out: Vec3, point: Vec3, obb_: OBB): Vec3 {
 
     // For each OBB axis...
     for (let i = 0; i < 3; i++) {
-
         // ...project d onto that axis to get the distance
         // along the axis of d from the obb center
         let dist = Vec3.dot(d, u[i]);

@@ -31,7 +31,6 @@ import { WebGL2Texture } from './webgl2-texture';
 import { WebGL2DescriptorSetLayout } from './webgl2-descriptor-set-layout';
 
 export class WebGL2DescriptorSet extends DescriptorSet {
-
     get gpuDescriptorSet (): IWebGL2GPUDescriptorSet {
         return this._gpuDescriptorSet as IWebGL2GPUDescriptorSet;
     }
@@ -39,7 +38,6 @@ export class WebGL2DescriptorSet extends DescriptorSet {
     private _gpuDescriptorSet: IWebGL2GPUDescriptorSet | null = null;
 
     public initialize (info: DescriptorSetInfo): boolean {
-
         this._layout = info.layout;
         const { bindings, descriptorIndices, descriptorCount } = (info.layout as WebGL2DescriptorSetLayout).gpuDescriptorSetLayout;
 
@@ -72,7 +70,7 @@ export class WebGL2DescriptorSet extends DescriptorSet {
 
     public update () {
         if (this._isDirty && this._gpuDescriptorSet) {
-            const descriptors = this._gpuDescriptorSet!.gpuDescriptors;
+            const descriptors = this._gpuDescriptorSet.gpuDescriptors;
             for (let i = 0; i < descriptors.length; ++i) {
                 if (descriptors[i].type & DESCRIPTOR_BUFFER_TYPE) {
                     if (this._buffers[i]) {

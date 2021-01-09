@@ -23,7 +23,6 @@
  THE SOFTWARE.
  */
 
-
 /**
  * @packageDocumentation
  * @module animation
@@ -361,17 +360,18 @@ export class AnimationClip extends Asset {
         this._ratioSamplers = this._keys.map(
             (keys) => new RatioSampler(
                 keys.map(
-                    (key) => key / this._duration)));
+                    (key) => key / this._duration,
+                ),
+            ),
+        );
 
-        this._runtimeCurves = this._curves.map((targetCurve): IRuntimeCurve => {
-            return {
-                curve: new AnimCurve(targetCurve.data, this._duration),
-                modifiers: targetCurve.modifiers,
-                valueAdapter: targetCurve.valueAdapter,
-                sampler: this._ratioSamplers[targetCurve.data.keys],
-                commonTarget: targetCurve.commonTarget,
-            };
-        });
+        this._runtimeCurves = this._curves.map((targetCurve): IRuntimeCurve => ({
+            curve: new AnimCurve(targetCurve.data, this._duration),
+            modifiers: targetCurve.modifiers,
+            valueAdapter: targetCurve.valueAdapter,
+            sampler: this._ratioSamplers[targetCurve.data.keys],
+            commonTarget: targetCurve.commonTarget,
+        }));
 
         this._applyStepness();
     }
@@ -408,7 +408,7 @@ export class AnimationClip extends Asset {
 
     protected _applyStepness () {
         if (!this._runtimeCurves) {
-            return;
+
         }
         // for (const propertyCurve of this._propertyCurves) {
         //     propertyCurve.curve.stepfy(this._stepness);

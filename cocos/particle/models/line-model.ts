@@ -48,18 +48,17 @@ const _temp_v1 = new Vec3();
 const _temp_v2 = new Vec3();
 
 export class LineModel extends scene.Model {
-
     private _capacity: number;
-    private _vertSize: number = 0;
+    private _vertSize = 0;
     private _vBuffer: ArrayBuffer | null = null;
-    private _vertAttrsFloatCount: number = 0;
+    private _vertAttrsFloatCount = 0;
     private _vdataF32: Float32Array | null = null;
     private _vdataUint32: Uint32Array | null = null;
     private _iaInfo: IndirectBuffer;
     private _iaInfoBuffer: Buffer;
     private _subMeshData: RenderingSubMesh | null = null;
-    private _vertCount: number = 0;
-    private _indexCount: number = 0;
+    private _vertCount = 0;
+    private _indexCount = 0;
     private _material: Material | null = null;
 
     constructor () {
@@ -144,7 +143,7 @@ export class LineModel extends scene.Model {
 
     public addLineVertexData (positions: Vec3[], width: CurveRange, color: GradientRange) {
         if (positions.length > 1) {
-            let offset: number = 0;
+            let offset = 0;
             Vec3.subtract(_temp_v1, positions[1], positions[0]);
             this._vdataF32![offset++] = positions[0].x;
             this._vdataF32![offset++] = positions[0].y;

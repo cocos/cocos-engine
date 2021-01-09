@@ -30,7 +30,6 @@ import { WebGLDevice } from './webgl-device';
 import { IWebGLGPUTexture } from './webgl-gpu-objects';
 
 export class WebGLTexture extends Texture {
-
     get gpuTexture (): IWebGLGPUTexture {
         return  this._gpuTexture!;
     }
@@ -105,7 +104,6 @@ export class WebGLTexture extends Texture {
     }
 
     public resize (width: number, height: number) {
-
         const oldSize = this._size;
         this._width = width;
         this._height = height;

@@ -41,7 +41,6 @@ import { legacyCC } from '../global-exports';
  * @zh 三维向量。
  */
 export class Vec3 extends ValueType {
-
     public static UNIT_X = Object.freeze(new Vec3(1, 0, 0));
     public static UNIT_Y = Object.freeze(new Vec3(0, 1, 0));
     public static UNIT_Z = Object.freeze(new Vec3(0, 0, 1));
@@ -620,12 +619,12 @@ export class Vec3 extends ValueType {
         const { x: a0, y: a1, z: a2 } = a;
         const { x: b0, y: b1, z: b2 } = b;
         return (
-            Math.abs(a0 - b0) <=
-            epsilon * Math.max(1.0, Math.abs(a0), Math.abs(b0)) &&
-            Math.abs(a1 - b1) <=
-            epsilon * Math.max(1.0, Math.abs(a1), Math.abs(b1)) &&
-            Math.abs(a2 - b2) <=
-            epsilon * Math.max(1.0, Math.abs(a2), Math.abs(b2))
+            Math.abs(a0 - b0)
+            <= epsilon * Math.max(1.0, Math.abs(a0), Math.abs(b0))
+            && Math.abs(a1 - b1)
+            <= epsilon * Math.max(1.0, Math.abs(a1), Math.abs(b1))
+            && Math.abs(a2 - b2)
+            <= epsilon * Math.max(1.0, Math.abs(a2), Math.abs(b2))
         );
     }
 
@@ -754,12 +753,12 @@ export class Vec3 extends ValueType {
      */
     public equals (other: Vec3, epsilon = EPSILON) {
         return (
-            Math.abs(this.x - other.x) <=
-            epsilon * Math.max(1.0, Math.abs(this.x), Math.abs(other.x)) &&
-            Math.abs(this.y - other.y) <=
-            epsilon * Math.max(1.0, Math.abs(this.y), Math.abs(other.y)) &&
-            Math.abs(this.z - other.z) <=
-            epsilon * Math.max(1.0, Math.abs(this.z), Math.abs(other.z))
+            Math.abs(this.x - other.x)
+            <= epsilon * Math.max(1.0, Math.abs(this.x), Math.abs(other.x))
+            && Math.abs(this.y - other.y)
+            <= epsilon * Math.max(1.0, Math.abs(this.y), Math.abs(other.y))
+            && Math.abs(this.z - other.z)
+            <= epsilon * Math.max(1.0, Math.abs(this.z), Math.abs(other.z))
         );
     }
 
@@ -774,12 +773,12 @@ export class Vec3 extends ValueType {
      */
     public equals3f (x: number, y: number, z: number, epsilon = EPSILON) {
         return (
-            Math.abs(this.x - x) <=
-            epsilon * Math.max(1.0, Math.abs(this.x), Math.abs(x)) &&
-            Math.abs(this.y - y) <=
-            epsilon * Math.max(1.0, Math.abs(this.y), Math.abs(y)) &&
-            Math.abs(this.z - z) <=
-            epsilon * Math.max(1.0, Math.abs(this.z), Math.abs(z))
+            Math.abs(this.x - x)
+            <= epsilon * Math.max(1.0, Math.abs(this.x), Math.abs(x))
+            && Math.abs(this.y - y)
+            <= epsilon * Math.max(1.0, Math.abs(this.y), Math.abs(y))
+            && Math.abs(this.z - z)
+            <= epsilon * Math.max(1.0, Math.abs(this.z), Math.abs(z))
         );
     }
 
@@ -821,9 +820,9 @@ export class Vec3 extends ValueType {
      * @param ratio The interpolation coefficient.The range is [0,1].
      */
     public lerp (to: Vec3, ratio: number) {
-        this.x = this.x + ratio * (to.x - this.x);
-        this.y = this.y + ratio * (to.y - this.y);
-        this.z = this.z + ratio * (to.z - this.z);
+        this.x += ratio * (to.x - this.x);
+        this.y += ratio * (to.y - this.y);
+        this.z += ratio * (to.z - this.z);
         return this;
     }
 
@@ -833,9 +832,9 @@ export class Vec3 extends ValueType {
      * @param other specified vector
      */
     public add (other: Vec3) {
-        this.x = this.x + other.x;
-        this.y = this.y + other.y;
-        this.z = this.z + other.z;
+        this.x += other.x;
+        this.y += other.y;
+        this.z += other.z;
         return this;
     }
 
@@ -847,9 +846,9 @@ export class Vec3 extends ValueType {
      * @param z The z value of specified vector
      */
     public add3f (x: number, y: number, z: number) {
-        this.x = this.x + x;
-        this.y = this.y + y;
-        this.z = this.z + z;
+        this.x += x;
+        this.y += y;
+        this.z += z;
         return this;
     }
 
@@ -859,9 +858,9 @@ export class Vec3 extends ValueType {
      * @param other specified vector
      */
     public subtract (other: Vec3) {
-        this.x = this.x - other.x;
-        this.y = this.y - other.y;
-        this.z = this.z - other.z;
+        this.x -= other.x;
+        this.y -= other.y;
+        this.z -= other.z;
         return this;
     }
 
@@ -873,9 +872,9 @@ export class Vec3 extends ValueType {
      * @param z The z value of specified vector
      */
     public subtract3f (x: number, y: number, z: number) {
-        this.x = this.x - x;
-        this.y = this.y - y;
-        this.z = this.z - z;
+        this.x -= x;
+        this.y -= y;
+        this.z -= z;
         return this;
     }
 
@@ -886,9 +885,9 @@ export class Vec3 extends ValueType {
      */
     public multiplyScalar (scalar: number) {
         if (typeof scalar === 'object') { console.warn('should use Vec3.multiply for vector * vector operation'); }
-        this.x = this.x * scalar;
-        this.y = this.y * scalar;
-        this.z = this.z * scalar;
+        this.x *= scalar;
+        this.y *= scalar;
+        this.z *= scalar;
         return this;
     }
 
@@ -899,9 +898,9 @@ export class Vec3 extends ValueType {
      */
     public multiply (other: Vec3) {
         if (typeof other !== 'object') { console.warn('should use Vec3.scale for vector * scalar operation'); }
-        this.x = this.x * other.x;
-        this.y = this.y * other.y;
-        this.z = this.z * other.z;
+        this.x *= other.x;
+        this.y *= other.y;
+        this.z *= other.z;
         return this;
     }
 
@@ -913,9 +912,9 @@ export class Vec3 extends ValueType {
      * @param z The z value of specified vector
      */
     public multiply3f (x: number, y: number, z: number) {
-        this.x = this.x * x;
-        this.y = this.y * y;
-        this.z = this.z * z;
+        this.x *= x;
+        this.y *= y;
+        this.z *= z;
         return this;
     }
 
@@ -925,9 +924,9 @@ export class Vec3 extends ValueType {
      * @param other specified vector
      */
     public divide (other: Vec3) {
-        this.x = this.x / other.x;
-        this.y = this.y / other.y;
-        this.z = this.z / other.z;
+        this.x /= other.x;
+        this.y /= other.y;
+        this.z /= other.z;
         return this;
     }
 
@@ -939,9 +938,9 @@ export class Vec3 extends ValueType {
      * @param z The z value of specified vector
      */
     public divide3f (x: number, y: number, z: number) {
-        this.x = this.x / x;
-        this.y = this.y / y;
-        this.z = this.z / z;
+        this.x /= x;
+        this.y /= y;
+        this.z /= z;
         return this;
     }
 

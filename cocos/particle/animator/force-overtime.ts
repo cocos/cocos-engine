@@ -23,7 +23,6 @@
  THE SOFTWARE.
  */
 
-
 /**
  * @packageDocumentation
  * @module particle
@@ -31,12 +30,11 @@
 
 import { ccclass, tooltip, displayOrder, range, type, serializable } from 'cc.decorator';
 import { pseudoRandom, Quat, Vec3 } from '../../core/math';
-import { Space } from '../enum';
+import { Space, ModuleRandSeed } from '../enum';
 import { calculateTransform } from '../particle-general-function';
 import CurveRange from './curve-range';
-import { ModuleRandSeed } from '../enum';
-import { ParticleModuleBase, PARTICLE_MODULE_NAME} from '../particle';
 
+import { ParticleModuleBase, PARTICLE_MODULE_NAME } from '../particle';
 
 const FORCE_OVERTIME_RAND_OFFSET = ModuleRandSeed.FORCE;
 
@@ -45,7 +43,7 @@ const _temp_v3 = new Vec3();
 @ccclass('cc.ForceOvertimeModule')
 export default class ForceOvertimeModule extends ParticleModuleBase {
     @serializable
-    _enable: Boolean = false;
+    _enable = false;
     /**
      * @zh 是否启用。
      */

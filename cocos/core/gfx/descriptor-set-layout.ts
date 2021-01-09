@@ -48,7 +48,7 @@ export class DescriptorSetLayoutInfo {
     declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
     constructor (
-        public bindings: DescriptorSetLayoutBinding[] = []
+        public bindings: DescriptorSetLayoutBinding[] = [],
     ) {}
 }
 
@@ -59,7 +59,6 @@ export const DESCRIPTOR_DYNAMIC_TYPE = DescriptorType.DYNAMIC_STORAGE_BUFFER | D
  * @zh GFX 描述符集布局。
  */
 export abstract class DescriptorSetLayout extends Obj {
-
     get bindings () {
         return this._bindings;
     }

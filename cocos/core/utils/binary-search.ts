@@ -24,8 +24,6 @@
  THE SOFTWARE.
 */
 
-
-
 const EPSILON = 1e-6;
 
 /**
@@ -90,11 +88,9 @@ export default function binarySearchEpsilon (array, value) {
         const test = array[m];
         if (test > value + EPSILON) {
             h = m - 1;
-        }
-        else if (test < value - EPSILON) {
+        } else if (test < value - EPSILON) {
             l = m + 1;
-        }
-        else {
+        } else {
             return m;
         }
     }

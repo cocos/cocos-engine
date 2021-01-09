@@ -40,17 +40,16 @@ import { IVec2Like, Vec2 } from '../../../core';
 /// For more information about this algorithm, see http://mnbayazit.com/406/bayazit
 /// </summary>
 
-function At(i: number, vertices: IVec2Like[]) {
-    let s = vertices.length;
+function At (i: number, vertices: IVec2Like[]) {
+    const s = vertices.length;
     return vertices[i < 0 ? s - (-i % s) : i % s];
 }
 
-function Copy(i: number, j: number, vertices: IVec2Like[]) {
-    let p: IVec2Like[] = [];
+function Copy (i: number, j: number, vertices: IVec2Like[]) {
+    const p: IVec2Like[] = [];
     while (j < i) j += vertices.length;
     // p.reserve(j - i + 1);
-    for (; i <= j; ++i)
-    {
+    for (; i <= j; ++i) {
         p.push(At(i, vertices));
     }
     return p;
@@ -63,28 +62,28 @@ function Copy(i: number, j: number, vertices: IVec2Like[]) {
 /// </summary>
 /// <param name="vertices"></param>
 /// <returns></returns>
-export function ConvexPartition(vertices: IVec2Like[]) {
+export function ConvexPartition (vertices: IVec2Like[]) {
     // We force it to CCW as it is a precondition in this algorithm.
-    ForceCounterClockWise (vertices);
+    ForceCounterClockWise(vertices);
 
     let list: IVec2Like[][] = [];
-    let d, lowerDist, upperDist;
+    let d; let lowerDist; let upperDist;
     let p;
     let lowerInt = new Vec2();
     let upperInt = new Vec2(); // intersection points
-    let lowerIndex = 0, upperIndex = 0;
-    let lowerPoly, upperPoly;
+    let lowerIndex = 0; let upperIndex = 0;
+    let lowerPoly; let upperPoly;
 
     for (let i = 0; i < vertices.length; ++i) {
         if (Reflex(i, vertices)) {
             lowerDist = upperDist = 10e7; // std::numeric_limits<qreal>::max();
             for (let j = 0; j < vertices.length; ++j) {
                 // if line intersects with an edge
-                if (Left(At(i - 1, vertices), At(i, vertices), At(j, vertices)) &&
-                    RightOn(At(i - 1, vertices), At(i, vertices), At(j - 1, vertices))) {
+                if (Left(At(i - 1, vertices), At(i, vertices), At(j, vertices))
+                    && RightOn(At(i - 1, vertices), At(i, vertices), At(j - 1, vertices))) {
                     // find the povar of intersection
                     p = LineIntersect(At(i - 1, vertices), At(i, vertices), At(j, vertices),
-                                                At(j - 1, vertices));
+                        At(j - 1, vertices));
                     if (Right(At(i + 1, vertices), At(i, vertices), p)) {
                         // make sure it's inside the poly
                         d = SquareDist(At(i, vertices), p);
@@ -97,10 +96,10 @@ export function ConvexPartition(vertices: IVec2Like[]) {
                     }
                 }
 
-                if (Left(At(i + 1, vertices), At(i, vertices), At(j + 1, vertices)) &&
-                    RightOn(At(i + 1, vertices), At(i, vertices), At(j, vertices))) {
+                if (Left(At(i + 1, vertices), At(i, vertices), At(j + 1, vertices))
+                    && RightOn(At(i + 1, vertices), At(i, vertices), At(j, vertices))) {
                     p = LineIntersect(At(i + 1, vertices), At(i, vertices), At(j, vertices),
-                                                At(j + 1, vertices));
+                        At(j + 1, vertices));
                     if (Left(At(i - 1, vertices), At(i, vertices), p)) {
                         d = SquareDist(At(i, vertices), p);
                         if (d < upperDist) {
@@ -114,15 +113,14 @@ export function ConvexPartition(vertices: IVec2Like[]) {
 
             // if there are no vertices to connect to, choose a povar in the middle
             if (lowerIndex == (upperIndex + 1) % vertices.length) {
-                let sp = lowerInt.add(upperInt).multiplyScalar(1 / 2);
+                const sp = lowerInt.add(upperInt).multiplyScalar(1 / 2);
 
                 lowerPoly = Copy(i, upperIndex, vertices);
                 lowerPoly.push(sp);
                 upperPoly = Copy(lowerIndex, i, vertices);
                 upperPoly.push(sp);
-            }
-            else {
-                let highestScore = 0, bestIndex = lowerIndex;
+            } else {
+                let highestScore = 0; let bestIndex = lowerIndex;
 
                 while (upperIndex < lowerIndex) {
                     upperIndex += vertices.length;
@@ -132,15 +130,13 @@ export function ConvexPartition(vertices: IVec2Like[]) {
                     if (CanSee(i, j, vertices)) {
                         let score = 1 / (SquareDist(At(i, vertices), At(j, vertices)) + 1);
                         if (Reflex(j, vertices)) {
-                            if (RightOn(At(j - 1, vertices), At(j, vertices), At(i, vertices)) &&
-                                LeftOn(At(j + 1, vertices), At(j, vertices), At(i, vertices))) {
+                            if (RightOn(At(j - 1, vertices), At(j, vertices), At(i, vertices))
+                                && LeftOn(At(j + 1, vertices), At(j, vertices), At(i, vertices))) {
                                 score += 3;
-                            }
-                            else {
+                            } else {
                                 score += 2;
                             }
-                        }
-                        else {
+                        } else {
                             score += 1;
                         }
 
@@ -163,41 +159,31 @@ export function ConvexPartition(vertices: IVec2Like[]) {
     list.push(vertices);
 
     // Remove empty vertice collections
-    for (let i = list.length - 1; i >= 0; i--)
-    {
-        if (list[i].length == 0)
-            list.splice(i, 0);
+    for (let i = list.length - 1; i >= 0; i--) {
+        if (list[i].length == 0) list.splice(i, 0);
     }
 
     return list;
 }
 
-function CanSee(i, j, vertices) {
+function CanSee (i, j, vertices) {
     if (Reflex(i, vertices)) {
-        if (LeftOn(At(i, vertices), At(i - 1, vertices), At(j, vertices)) &&
-            RightOn(At(i, vertices), At(i + 1, vertices), At(j, vertices))) return false;
-    }
-    else {
-        if (RightOn(At(i, vertices), At(i + 1, vertices), At(j, vertices)) ||
-            LeftOn(At(i, vertices), At(i - 1, vertices), At(j, vertices))) return false;
-    }
+        if (LeftOn(At(i, vertices), At(i - 1, vertices), At(j, vertices))
+            && RightOn(At(i, vertices), At(i + 1, vertices), At(j, vertices))) return false;
+    } else if (RightOn(At(i, vertices), At(i + 1, vertices), At(j, vertices))
+            || LeftOn(At(i, vertices), At(i - 1, vertices), At(j, vertices))) return false;
     if (Reflex(j, vertices)) {
-        if (LeftOn(At(j, vertices), At(j - 1, vertices), At(i, vertices)) &&
-            RightOn(At(j, vertices), At(j + 1, vertices), At(i, vertices))) return false;
-    }
-    else {
-        if (RightOn(At(j, vertices), At(j + 1, vertices), At(i, vertices)) ||
-            LeftOn(At(j, vertices), At(j - 1, vertices), At(i, vertices))) return false;
-    }
+        if (LeftOn(At(j, vertices), At(j - 1, vertices), At(i, vertices))
+            && RightOn(At(j, vertices), At(j + 1, vertices), At(i, vertices))) return false;
+    } else if (RightOn(At(j, vertices), At(j + 1, vertices), At(i, vertices))
+            || LeftOn(At(j, vertices), At(j - 1, vertices), At(i, vertices))) return false;
 
     for (let k = 0; k < vertices.length; ++k) {
-        if ((k + 1) % vertices.length == i || k == i || (k + 1) % vertices.length == j || k == j)
-        {
+        if ((k + 1) % vertices.length == i || k == i || (k + 1) % vertices.length == j || k == j) {
             continue; // ignore incident edges
         }
-        let intersectionPoint = new Vec2();
-        if (LineIntersect2(At(i, vertices), At(j, vertices), At(k, vertices), At(k + 1, vertices), intersectionPoint))
-        {
+        const intersectionPoint = new Vec2();
+        if (LineIntersect2(At(i, vertices), At(j, vertices), At(k, vertices), At(k + 1, vertices), intersectionPoint)) {
             return false;
         }
     }
@@ -205,13 +191,13 @@ function CanSee(i, j, vertices) {
 }
 
 // precondition: ccw
-function Reflex(i: number, vertices: IVec2Like[]) {
+function Reflex (i: number, vertices: IVec2Like[]) {
     return Right(i, vertices);
 }
 
-function Right(a: number | IVec2Like, b: IVec2Like | IVec2Like[], c?: IVec2Like) {
+function Right (a: number | IVec2Like, b: IVec2Like | IVec2Like[], c?: IVec2Like) {
     if (typeof c === 'undefined') {
-        let i = a as number, vertices = b as IVec2Like[];
+        const i = a as number; const vertices = b as IVec2Like[];
 
         a = At(i - 1, vertices);
         b = At(i, vertices);
@@ -221,47 +207,45 @@ function Right(a: number | IVec2Like, b: IVec2Like | IVec2Like[], c?: IVec2Like)
     return Area(a as IVec2Like, b as IVec2Like, c) < 0;
 }
 
-function Left(a: IVec2Like, b: IVec2Like, c: IVec2Like) {
+function Left (a: IVec2Like, b: IVec2Like, c: IVec2Like) {
     return Area(a, b, c) > 0;
 }
 
-function LeftOn(a: IVec2Like, b: IVec2Like, c: IVec2Like) {
+function LeftOn (a: IVec2Like, b: IVec2Like, c: IVec2Like) {
     return Area(a, b, c) >= 0;
 }
 
-
-function RightOn(a: IVec2Like, b: IVec2Like, c: IVec2Like) {
+function RightOn (a: IVec2Like, b: IVec2Like, c: IVec2Like) {
     return Area(a, b, c) <= 0;
 }
 
-function SquareDist(a: IVec2Like, b: IVec2Like) {
-    let dx = b.x - a.x;
-    let dy = b.y - a.y;
+function SquareDist (a: IVec2Like, b: IVec2Like) {
+    const dx = b.x - a.x;
+    const dy = b.y - a.y;
     return dx * dx + dy * dy;
 }
 
 // forces counter clock wise order.
-export function ForceCounterClockWise(vertices) {
+export function ForceCounterClockWise (vertices) {
     if (!IsCounterClockWise(vertices)) {
         vertices.reverse();
     }
 }
 
-export function IsCounterClockWise(vertices) {
+export function IsCounterClockWise (vertices) {
     // We just return true for lines
-    if (vertices.length < 3)
-        return true;
+    if (vertices.length < 3) return true;
 
     return (GetSignedArea(vertices) > 0);
 }
 
 // gets the signed area.
-function GetSignedArea(vertices) {
+function GetSignedArea (vertices) {
     let i;
     let area = 0;
 
     for (i = 0; i < vertices.length; i++) {
-        let j = (i + 1) % vertices.length;
+        const j = (i + 1) % vertices.length;
         area += vertices[i].x * vertices[j].y;
         area -= vertices[i].y * vertices[j].x;
     }
@@ -270,15 +254,15 @@ function GetSignedArea(vertices) {
 }
 
 // From Mark Bayazit's convex decomposition algorithm
-function LineIntersect(p1, p2, q1, q2) {
-    let i = new Vec2();
-    let a1 = p2.y - p1.y;
-    let b1 = p1.x - p2.x;
-    let c1 = a1 * p1.x + b1 * p1.y;
-    let a2 = q2.y - q1.y;
-    let b2 = q1.x - q2.x;
-    let c2 = a2 * q1.x + b2 * q1.y;
-    let det = a1 * b2 - a2 * b1;
+function LineIntersect (p1, p2, q1, q2) {
+    const i = new Vec2();
+    const a1 = p2.y - p1.y;
+    const b1 = p1.x - p2.x;
+    const c1 = a1 * p1.x + b1 * p1.y;
+    const a2 = q2.y - q1.y;
+    const b2 = q1.x - q2.x;
+    const c2 = a2 * q1.x + b2 * q1.y;
+    const det = a1 * b2 - a2 * b1;
 
     if (!FloatEquals(det, 0)) {
         // lines are not parallel
@@ -290,29 +274,26 @@ function LineIntersect(p1, p2, q1, q2) {
 
 // from Eric Jordan's convex decomposition library, it checks if the lines a0->a1 and b0->b1 cross.
 // if they do, intersectionPovar will be filled with the povar of crossing. Grazing lines should not return true.
-function LineIntersect2(a0, a1, b0, b1, intersectionPoint) {
-    if (a0 == b0 || a0 == b1 || a1 == b0 || a1 == b1)
-        return false;
+function LineIntersect2 (a0, a1, b0, b1, intersectionPoint) {
+    if (a0 == b0 || a0 == b1 || a1 == b0 || a1 == b1) return false;
 
-    let x1 = a0.x;
-    let y1 = a0.y;
-    let x2 = a1.x;
-    let y2 = a1.y;
-    let x3 = b0.x;
-    let y3 = b0.y;
-    let x4 = b1.x;
-    let y4 = b1.y;
+    const x1 = a0.x;
+    const y1 = a0.y;
+    const x2 = a1.x;
+    const y2 = a1.y;
+    const x3 = b0.x;
+    const y3 = b0.y;
+    const x4 = b1.x;
+    const y4 = b1.y;
 
     // AABB early exit
-    if (Math.max(x1, x2) < Math.min(x3, x4) || Math.max(x3, x4) < Math.min(x1, x2))
-        return false;
+    if (Math.max(x1, x2) < Math.min(x3, x4) || Math.max(x3, x4) < Math.min(x1, x2)) return false;
 
-    if (Math.max(y1, y2) < Math.min(y3, y4) || Math.max(y3, y4) < Math.min(y1, y2))
-        return false;
+    if (Math.max(y1, y2) < Math.min(y3, y4) || Math.max(y3, y4) < Math.min(y1, y2)) return false;
 
     let ua = ((x4 - x3) * (y1 - y3) - (y4 - y3) * (x1 - x3));
     let ub = ((x2 - x1) * (y1 - y3) - (y2 - y1) * (x1 - x3));
-    let denom = (y4 - y3) * (x2 - x1) - (x4 - x3) * (y2 - y1);
+    const denom = (y4 - y3) * (x2 - x1) - (x4 - x3) * (y2 - y1);
     if (Math.abs(denom) < 10e-7) {
         // Lines are too close to parallel to call
         return false;
@@ -320,7 +301,7 @@ function LineIntersect2(a0, a1, b0, b1, intersectionPoint) {
     ua /= denom;
     ub /= denom;
 
-    if ((0 < ua) && (ua < 1) && (0 < ub) && (ub < 1)) {
+    if ((ua > 0) && (ua < 1) && (ub > 0) && (ub < 1)) {
         intersectionPoint.x = (x1 + ua * (x2 - x1));
         intersectionPoint.y = (y1 + ua * (y2 - y1));
         return true;
@@ -329,12 +310,11 @@ function LineIntersect2(a0, a1, b0, b1, intersectionPoint) {
     return false;
 }
 
-function FloatEquals(value1, value2) {
+function FloatEquals (value1, value2) {
     return Math.abs(value1 - value2) <= 10e-7;
 }
 
-
 // returns a positive number if c is to the left of the line going from a to b. Positive number if povar is left, negative if povar is right, and 0 if points are collinear.</returns>
-function Area(a: IVec2Like, b: IVec2Like, c: IVec2Like) {
+function Area (a: IVec2Like, b: IVec2Like, c: IVec2Like) {
     return a.x * (b.y - c.y) + b.x * (c.y - a.y) + c.x * (a.y - b.y);
 }

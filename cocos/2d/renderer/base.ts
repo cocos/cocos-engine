@@ -28,7 +28,6 @@
  * @module ui
  */
 
-
 import { UIRenderable } from '../framework/ui-renderable';
 
 export interface IAssembler {

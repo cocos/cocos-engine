@@ -23,7 +23,6 @@
  THE SOFTWARE.
  */
 
-
 /**
  * @packageDocumentation
  * @module memop
@@ -36,7 +35,6 @@
  * @see [[RecyclePool]]
  */
 export class Pool<T> {
-
     private _ctor: () => T;
     private _elementsPerBatch: number;
     private _nextAvail: number;

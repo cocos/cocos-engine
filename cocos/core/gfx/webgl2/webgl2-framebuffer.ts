@@ -31,7 +31,6 @@ import { WebGL2RenderPass } from './webgl2-render-pass';
 import { WebGL2Texture } from './webgl2-texture';
 
 export class WebGL2Framebuffer extends Framebuffer {
-
     get gpuFramebuffer (): IWebGL2GPUFramebuffer {
         return  this._gpuFramebuffer!;
     }
@@ -39,7 +38,6 @@ export class WebGL2Framebuffer extends Framebuffer {
     private _gpuFramebuffer: IWebGL2GPUFramebuffer | null = null;
 
     public initialize (info: FramebufferInfo): boolean {
-
         this._renderPass = info.renderPass;
         this._colorTextures = info.colorTextures || [];
         this._depthStencilTexture = info.depthStencilTexture || null;

@@ -28,7 +28,7 @@
  * @hidden
  */
 
-import { ISchedulable } from "../scheduler";
+import { ISchedulable } from '../scheduler';
 
 /**
  * @en Base class for all functional system managed by [[Director]].
@@ -62,11 +62,9 @@ export default class System implements ISchedulable {
     public static sortByPriority (a:System, b:System) {
         if (a._priority < b._priority) {
             return 1;
-        }
-        else if (a._priority > b.priority) {
+        } else if (a._priority > b.priority) {
             return -1;
-        }
-        else {
+        } else {
             return 0;
         }
     }

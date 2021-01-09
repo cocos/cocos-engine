@@ -42,7 +42,6 @@ import { legacyCC } from '../../core/global-exports';
  */
 @ccclass('cc.Skeleton')
 export class Skeleton extends Asset {
-
     @type([CCString])
     private _joints: string[] = [];
 
@@ -104,11 +103,11 @@ export class Skeleton extends Asset {
             let str = '';
             for (let i = 0; i < this._bindposes.length; i++) {
                 const ibm = this._bindposes[i];
-                str +=
-                    ibm.m00.toPrecision(2) + ' ' + ibm.m01.toPrecision(2) + ' ' + ibm.m02.toPrecision(2) + ' ' + ibm.m03.toPrecision(2) + ' ' +
-                    ibm.m04.toPrecision(2) + ' ' + ibm.m05.toPrecision(2) + ' ' + ibm.m06.toPrecision(2) + ' ' + ibm.m07.toPrecision(2) + ' ' +
-                    ibm.m08.toPrecision(2) + ' ' + ibm.m09.toPrecision(2) + ' ' + ibm.m10.toPrecision(2) + ' ' + ibm.m11.toPrecision(2) + ' ' +
-                    ibm.m12.toPrecision(2) + ' ' + ibm.m13.toPrecision(2) + ' ' + ibm.m14.toPrecision(2) + ' ' + ibm.m15.toPrecision(2) + '\n';
+                str
+                    += `${ibm.m00.toPrecision(2)} ${ibm.m01.toPrecision(2)} ${ibm.m02.toPrecision(2)} ${ibm.m03.toPrecision(2)} ${
+                        ibm.m04.toPrecision(2)} ${ibm.m05.toPrecision(2)} ${ibm.m06.toPrecision(2)} ${ibm.m07.toPrecision(2)} ${
+                        ibm.m08.toPrecision(2)} ${ibm.m09.toPrecision(2)} ${ibm.m10.toPrecision(2)} ${ibm.m11.toPrecision(2)} ${
+                        ibm.m12.toPrecision(2)} ${ibm.m13.toPrecision(2)} ${ibm.m14.toPrecision(2)} ${ibm.m15.toPrecision(2)}\n`;
             }
             this._hash = murmurhash2_32_gc(str, 666);
         }

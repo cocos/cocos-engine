@@ -45,7 +45,6 @@ const temp_vec4 = legacyCC.v4();
  */
 
 export class Plane {
-
     /**
      * @en
      * create a new plane

@@ -103,9 +103,9 @@ export function log2 (v: number) {
  * @zh 计算以 10 为底的 v 的对数。
  */
 export function log10 (v: number) {
-    return (v >= 1000000000) ? 9 : (v >= 100000000) ? 8 : (v >= 10000000) ? 7 :
-        (v >= 1000000) ? 6 : (v >= 100000) ? 5 : (v >= 10000) ? 4 :
-            (v >= 1000) ? 3 : (v >= 100) ? 2 : (v >= 10) ? 1 : 0;
+    return (v >= 1000000000) ? 9 : (v >= 100000000) ? 8 : (v >= 10000000) ? 7
+        : (v >= 1000000) ? 6 : (v >= 100000) ? 5 : (v >= 10000) ? 4
+            : (v >= 1000) ? 3 : (v >= 100) ? 2 : (v >= 10) ? 1 : 0;
 }
 
 /**
@@ -113,7 +113,7 @@ export function log10 (v: number) {
  * @en 计算传入数字二进制表示中 1 的数量。
  */
 export function popCount (v: number) {
-    v = v - ((v >>> 1) & 0x55555555);
+    v -= ((v >>> 1) & 0x55555555);
     v = (v & 0x33333333) + ((v >>> 2) & 0x33333333);
     return ((v + (v >>> 4) & 0xF0F0F0F) * 0x1010101) >>> 24;
 }
@@ -195,10 +195,10 @@ const REVERSE_TABLE: number[] = new Array(256);
  * @zh 翻转 32 位二进制数字。
  */
 export function reverse (v: number) {
-    return (REVERSE_TABLE[v & 0xff] << 24) |
-        (REVERSE_TABLE[(v >>> 8) & 0xff] << 16) |
-        (REVERSE_TABLE[(v >>> 16) & 0xff] << 8) |
-        REVERSE_TABLE[(v >>> 24) & 0xff];
+    return (REVERSE_TABLE[v & 0xff] << 24)
+        | (REVERSE_TABLE[(v >>> 8) & 0xff] << 16)
+        | (REVERSE_TABLE[(v >>> 16) & 0xff] << 8)
+        | REVERSE_TABLE[(v >>> 24) & 0xff];
 }
 
 /**

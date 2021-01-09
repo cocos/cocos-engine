@@ -38,11 +38,11 @@ import { legacyCC } from '../core/global-exports';
 
 removeProperty(Burst.prototype, 'Burst.prototype', [
     {
-        'name': 'minCount'
+        name: 'minCount',
     },
     {
-        'name': 'maxCount',
-    }
+        name: 'maxCount',
+    },
 ]);
 
 /**

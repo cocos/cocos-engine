@@ -213,14 +213,13 @@ const special = {
     // GFXFormatToWebGLType: '',
     // GFXFormatToWebGLInternalFormat: '',
     // GFXFormatToWebGLFormat: '',
-}
+};
 for (const api in polyfillCC) {
     let deprecated = special[api];
     if (deprecated === '') {
         continue;
-    }
-    else if (deprecated === undefined) {
-        deprecated = 'GFX' + api;
+    } else if (deprecated === undefined) {
+        deprecated = `GFX${api}`;
     }
     // Deprecation
     replaceProperty(legacyCC, 'cc', [
@@ -228,7 +227,7 @@ for (const api in polyfillCC) {
             name: deprecated,
             newName: api,
             target: legacyCC.gfx,
-            targetName: 'cc.gfx'
-        }
+            targetName: 'cc.gfx',
+        },
     ]);
 }

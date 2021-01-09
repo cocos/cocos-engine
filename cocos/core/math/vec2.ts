@@ -33,8 +33,8 @@ import { CCClass } from '../data/class';
 import { ValueType } from '../value-types/value-type';
 import { Mat4 } from './mat4';
 import { IMat3Like, IMat4Like, IVec2Like } from './type-define';
-import { clamp } from './utils';
-import { EPSILON, random } from './utils';
+import { clamp, EPSILON, random } from './utils';
+
 import { Vec3 } from './vec3';
 import { legacyCC } from '../global-exports';
 
@@ -43,7 +43,6 @@ import { legacyCC } from '../global-exports';
  * @zh 二维向量。
  */
 export class Vec2 extends ValueType {
-
     public static ZERO = Object.freeze(new Vec2(0, 0));
     public static ONE = Object.freeze(new Vec2(1, 1));
     public static NEG_ONE = Object.freeze(new Vec2(-1, -1));
@@ -398,10 +397,10 @@ export class Vec2 extends ValueType {
      */
     public static equals <Out extends IVec2Like> (a: Out, b: Out,  epsilon = EPSILON) {
         return (
-            Math.abs(a.x - b.x) <=
-            epsilon * Math.max(1.0, Math.abs(a.x), Math.abs(b.x)) &&
-            Math.abs(a.y - b.y) <=
-            epsilon * Math.max(1.0, Math.abs(a.y), Math.abs(b.y))
+            Math.abs(a.x - b.x)
+            <= epsilon * Math.max(1.0, Math.abs(a.x), Math.abs(b.x))
+            && Math.abs(a.y - b.y)
+            <= epsilon * Math.max(1.0, Math.abs(a.y), Math.abs(b.y))
         );
     }
 
@@ -494,10 +493,10 @@ export class Vec2 extends ValueType {
      */
     public equals (other: Vec2, epsilon = EPSILON) {
         return (
-            Math.abs(this.x - other.x) <=
-            epsilon * Math.max(1.0, Math.abs(this.x), Math.abs(other.x)) &&
-            Math.abs(this.y - other.y) <=
-            epsilon * Math.max(1.0, Math.abs(this.y), Math.abs(other.y))
+            Math.abs(this.x - other.x)
+            <= epsilon * Math.max(1.0, Math.abs(this.x), Math.abs(other.x))
+            && Math.abs(this.y - other.y)
+            <= epsilon * Math.max(1.0, Math.abs(this.y), Math.abs(other.y))
         );
     }
 
@@ -511,10 +510,10 @@ export class Vec2 extends ValueType {
      */
     public equals2f (x: number, y: number, epsilon = EPSILON) {
         return (
-            Math.abs(this.x - x) <=
-            epsilon * Math.max(1.0, Math.abs(this.x), Math.abs(x)) &&
-            Math.abs(this.y - y) <=
-            epsilon * Math.max(1.0, Math.abs(this.y), Math.abs(y))
+            Math.abs(this.x - x)
+            <= epsilon * Math.max(1.0, Math.abs(this.x), Math.abs(x))
+            && Math.abs(this.y - y)
+            <= epsilon * Math.max(1.0, Math.abs(this.y), Math.abs(y))
         );
     }
 
@@ -581,8 +580,8 @@ export class Vec2 extends ValueType {
      * @param other specified vector
      */
     public add (other: Vec2) {
-        this.x = this.x + other.x;
-        this.y = this.y + other.y;
+        this.x += other.x;
+        this.y += other.y;
         return this;
     }
 
@@ -593,8 +592,8 @@ export class Vec2 extends ValueType {
      * @param y The y value of specified vector
      */
     public add2f (x: number, y: number) {
-        this.x = this.x + x;
-        this.y = this.y + y;
+        this.x += x;
+        this.y += y;
         return this;
     }
 
@@ -604,8 +603,8 @@ export class Vec2 extends ValueType {
      * @param other specified vector
      */
     public subtract (other: Vec2) {
-        this.x = this.x - other.x;
-        this.y = this.y - other.y;
+        this.x -= other.x;
+        this.y -= other.y;
         return this;
     }
 
@@ -616,8 +615,8 @@ export class Vec2 extends ValueType {
      * @param y The y value of specified vector
      */
     public subtract2f (x: number, y: number) {
-        this.x = this.x - x;
-        this.y = this.y - y;
+        this.x -= x;
+        this.y -= y;
         return this;
     }
 
@@ -628,8 +627,8 @@ export class Vec2 extends ValueType {
      */
     public multiplyScalar (scalar: number) {
         if (typeof scalar === 'object') { console.warn('should use Vec2.multiply for vector * vector operation'); }
-        this.x = this.x * scalar;
-        this.y = this.y * scalar;
+        this.x *= scalar;
+        this.y *= scalar;
         return this;
     }
 
@@ -640,8 +639,8 @@ export class Vec2 extends ValueType {
      */
     public multiply (other: Vec2) {
         if (typeof other !== 'object') { console.warn('should use Vec2.scale for vector * scalar operation'); }
-        this.x = this.x * other.x;
-        this.y = this.y * other.y;
+        this.x *= other.x;
+        this.y *= other.y;
         return this;
     }
 
@@ -652,8 +651,8 @@ export class Vec2 extends ValueType {
      * @param y The y value of specified vector
      */
     public multiply2f (x: number, y: number) {
-        this.x = this.x * x;
-        this.y = this.y * y;
+        this.x *= x;
+        this.y *= y;
         return this;
     }
 
@@ -663,8 +662,8 @@ export class Vec2 extends ValueType {
      * @param other specified vector
      */
     public divide (other: Vec2) {
-        this.x = this.x / other.x;
-        this.y = this.y / other.y;
+        this.x /= other.x;
+        this.y /= other.y;
         return this;
     }
 
@@ -675,8 +674,8 @@ export class Vec2 extends ValueType {
      * @param y The y value of specified vector
      */
     public divide2f (x: number, y: number) {
-        this.x = this.x / x;
-        this.y = this.y / y;
+        this.x /= x;
+        this.y /= y;
         return this;
     }
 
@@ -738,8 +737,8 @@ export class Vec2 extends ValueType {
         let len = x * x + y * y;
         if (len > 0) {
             len = 1 / Math.sqrt(len);
-            this.x = this.x * len;
-            this.y = this.y * len;
+            this.x *= len;
+            this.y *= len;
         }
         return this;
     }

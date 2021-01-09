@@ -70,7 +70,6 @@ function _calcIntersectedPoints (left, right, bottom, top, center, angle, inters
             intersectPoints[2].x = right;
             intersectPoints[2].y = yRight;
         }
-
     }
 
     if (sinAngle !== 0) {
@@ -86,7 +85,6 @@ function _calcIntersectedPoints (left, right, bottom, top, center, angle, inters
             intersectPoints[1].x = xBottom;
             intersectPoints[1].y = bottom;
         }
-
     }
 }
 
@@ -331,8 +329,7 @@ export const radialFilled: IAssembler = {
                             } else {
                                 // startAngle to endAngle
                                 _generateTriangle(dataList, offset, _center,
-                                    _vertPos[triangle.x], _vertPos[triangle.y],
-                                );
+                                    _vertPos[triangle.x], _vertPos[triangle.y]);
                             }
                             offset += 3;
                         } else {
@@ -344,16 +341,14 @@ export const radialFilled: IAssembler = {
                                 // fillStart to endAngle
                                 _generateTriangle(dataList, offset, _center,
                                     _intersectPoint_1[triangleIndex],
-                                    _vertPos[triangle.y],
-                                );
+                                    _vertPos[triangle.y]);
                                 offset += 3;
                             } else {
                                 renderData.dataLength = offset + 3;
                                 // fillStart to fillEnd
                                 _generateTriangle(dataList, offset, _center,
                                     _intersectPoint_1[triangleIndex],
-                                    _intersectPoint_2[triangleIndex],
-                                );
+                                    _intersectPoint_2[triangleIndex]);
                                 offset += 3;
                             }
                         }

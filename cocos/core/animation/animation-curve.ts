@@ -114,8 +114,7 @@ export class RatioSampler {
             currRatioDif = ratios[i] - ratios[i - 1];
             if (i === 1) {
                 lastRatioDif = currRatioDif;
-            }
-            else if (Math.abs(currRatioDif - lastRatioDif) > EPSILON) {
+            } else if (Math.abs(currRatioDif - lastRatioDif) > EPSILON) {
                 canOptimize = false;
                 break;
             }
@@ -167,8 +166,8 @@ export class AnimCurve {
             if (typeof easingMethod === 'string') {
                 return easingMethod;
             } else if (Array.isArray(easingMethod)) {
-                if (easingMethod[0] === easingMethod[1] &&
-                    easingMethod[2] === easingMethod[3]) {
+                if (easingMethod[0] === easingMethod[1]
+                    && easingMethod[2] === easingMethod[3]) {
                     return AnimCurve.Linear;
                 } else {
                     return AnimCurve.Bezier(easingMethod);
@@ -192,8 +191,8 @@ export class AnimCurve {
 
         const firstValue = propertyCurveData.values[0];
 
-        const interpolate = propertyCurveData.interpolate === undefined ?
-            true : propertyCurveData.interpolate;
+        const interpolate = propertyCurveData.interpolate === undefined
+            ? true : propertyCurveData.interpolate;
 
         // Setup the lerp function.
         if (interpolate) {
@@ -247,15 +246,13 @@ export class AnimCurve {
                 }
                 return this._array;
             }
+        } else if (this._array === undefined) {
+            return this.valueAt(from);
         } else {
-            if (this._array === undefined) {
-                return this.valueAt(from);
-            } else {
-                for (let i = 0; i < this._array.length; ++i) {
-                    this._array[i] = this._values[this._array.length *  from + i];
-                }
-                return this._array;
+            for (let i = 0; i < this._array.length; ++i) {
+                this._array[i] = this._values[this._array.length *  from + i];
             }
+            return this._array;
         }
     }
 
@@ -303,7 +300,8 @@ export function sampleAnimationCurve (curve: AnimCurve, sampler: RatioSampler, r
             index = sampler.ratios.length - 1;
         } else {
             return curve.valueBetween(
-                ratio, index - 1, sampler.ratios[index - 1], index, sampler.ratios[index]);
+                ratio, index - 1, sampler.ratios[index - 1], index, sampler.ratios[index],
+            );
         }
     }
     return curve.valueAt(index);
@@ -355,8 +353,7 @@ function quickFindIndex (ratios: number[], ratio: number) {
 
     if ((index - floorIndex) < EPSILON) {
         return floorIndex;
-    }
-    else if ((floorIndex + 1 - index) < EPSILON) {
+    } else if ((floorIndex + 1 - index) < EPSILON) {
         return floorIndex + 1;
     }
 
@@ -379,9 +376,7 @@ const selectLerpFx = (() => {
 
     function makeQuatSlerpFx () {
         const tempValue = new Quat();
-        return (from: Quat, to: Quat, t: number, dt: number) => {
-            return Quat.slerp(tempValue, from, to, t);
-        };
+        return (from: Quat, to: Quat, t: number, dt: number) => Quat.slerp(tempValue, from, to, t);
     }
 
     return (value: any): LerpFunction<any> | undefined => {

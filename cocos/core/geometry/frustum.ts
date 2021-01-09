@@ -51,7 +51,6 @@ _v[7] = new Vec3(1, -1, -1);
  */
 
 export class Frustum {
-
     /**
      * @en
      * Set whether to use accurate intersection testing function on this frustum.

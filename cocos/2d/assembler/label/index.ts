@@ -42,7 +42,7 @@ const labelAssembler: IAssemblerManager = {
 
         if (comp.font instanceof BitmapFont) {
             assembler = bmfont;
-        }else if (comp.cacheMode === Label.CacheMode.CHAR){
+        } else if (comp.cacheMode === Label.CacheMode.CHAR) {
             assembler = letter;
         }
 

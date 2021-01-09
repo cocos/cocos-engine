@@ -46,33 +46,29 @@ export class BuiltinContact {
 
         this.touching = false;
 
-        let isShape1Polygon = (shape1 instanceof BuiltinBoxShape) || (shape1 instanceof BuiltinPolygonShape);
-        let isShape2Polygon = (shape2 instanceof BuiltinBoxShape) || (shape2 instanceof BuiltinPolygonShape);
-        let isShape1Circle = shape1 instanceof BuiltinCircleShape;
-        let isShape2Circle = shape2 instanceof BuiltinCircleShape;
+        const isShape1Polygon = (shape1 instanceof BuiltinBoxShape) || (shape1 instanceof BuiltinPolygonShape);
+        const isShape2Polygon = (shape2 instanceof BuiltinBoxShape) || (shape2 instanceof BuiltinPolygonShape);
+        const isShape1Circle = shape1 instanceof BuiltinCircleShape;
+        const isShape2Circle = shape2 instanceof BuiltinCircleShape;
 
         if (isShape1Polygon && isShape2Polygon) {
             this.testFunc = Intersection2D.polygonPolygon;
-        }
-        else if (isShape1Circle && isShape2Circle) {
+        } else if (isShape1Circle && isShape2Circle) {
             this.testFunc = Intersection2D.circleCircle;
-        }
-        else if (isShape1Polygon && isShape2Circle) {
+        } else if (isShape1Polygon && isShape2Circle) {
             this.testFunc = Intersection2D.polygonCircle;
-        }
-        else if (isShape1Circle && isShape2Polygon) {
+        } else if (isShape1Circle && isShape2Polygon) {
             this.testFunc = Intersection2D.polygonCircle;
             this.shape1 = shape2;
             this.shape2 = shape1;
-        }
-        else {
+        } else {
             error(`Can not find contact for builtin shape: ${shape1.constructor.name}, ${shape2.constructor.name}`);
         }
     }
 
     test () {
-        let s1 = this.shape1!;
-        let s2 = this.shape2!;
+        const s1 = this.shape1!;
+        const s2 = this.shape2!;
 
         if (!s1.worldAABB.intersects(s2.worldAABB)) {
             return false;
@@ -80,19 +76,17 @@ export class BuiltinContact {
 
         if (this.testFunc === Intersection2D.polygonPolygon) {
             return Intersection2D.polygonPolygon((s1 as BuiltinPolygonShape).worldPoints, (s2 as BuiltinPolygonShape).worldPoints);
-        }
-        else if (this.testFunc === Intersection2D.circleCircle) {
+        } else if (this.testFunc === Intersection2D.circleCircle) {
             return Intersection2D.circleCircle(
                 (s1 as BuiltinCircleShape).worldPosition,
                 (s1 as BuiltinCircleShape).worldRadius,
                 (s2 as BuiltinCircleShape).worldPosition,
                 (s2 as BuiltinCircleShape).worldRadius,
             );
-        }
-        else if (this.testFunc === Intersection2D.polygonCircle) {
+        } else if (this.testFunc === Intersection2D.polygonCircle) {
             return Intersection2D.polygonCircle(
-                (s1 as BuiltinPolygonShape).worldPoints, 
-                (s2 as BuiltinCircleShape).worldPosition, (s2 as BuiltinCircleShape).worldRadius
+                (s1 as BuiltinPolygonShape).worldPoints,
+                (s2 as BuiltinCircleShape).worldPosition, (s2 as BuiltinCircleShape).worldRadius,
             );
         }
 
@@ -100,14 +94,13 @@ export class BuiltinContact {
     }
 
     updateState () {
-        let result = this.test();
+        const result = this.test();
 
         let type = Contact2DType.None;
         if (result && !this.touching) {
             this.touching = true;
             type = Contact2DType.BEGIN_CONTACT;
-        }
-        else if (!result && this.touching) {
+        } else if (!result && this.touching) {
             this.touching = false;
             type = Contact2DType.END_CONTACT;
         }

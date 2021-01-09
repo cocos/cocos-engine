@@ -60,7 +60,6 @@ type ConstructorType<T> = OmitType<T, Function>;
  *   .start()
  */
 export class Tween<T> {
-
     private _actions: Action[] = [];
     private _finalAction: Action | null = null;
     private _target: T | null = null;
@@ -88,8 +87,7 @@ export class Tween<T> {
     then (other: Tween<T>): Tween<T> {
         if (other instanceof Action) {
             this._actions.push(other.clone());
-        }
-        else {
+        } else {
             this._actions.push(other._union());
         }
         return this;
@@ -146,7 +144,7 @@ export class Tween<T> {
      * 克隆当前 tween。
      */
     clone (target: T): Tween<T> {
-        let action = this._union();
+        const action = this._union();
         return tween(target).then(action.clone() as any);
     }
 
@@ -157,7 +155,7 @@ export class Tween<T> {
      * 将之前所有的 action 整合为一个 action。
      */
     union (): Tween<T> {
-        let action = this._union();
+        const action = this._union();
         this._actions.length = 0;
         this._actions.push(action);
         return this;
@@ -225,7 +223,7 @@ export class Tween<T> {
      * @zh
      * 添加一个延时 action。
      * @method delay
-     * @param {number} duration 
+     * @param {number} duration
      * @return {Tween}
      */
     delay (duration: number): Tween<T> {
@@ -354,7 +352,7 @@ export class Tween<T> {
      * 添加一个隐藏 action，只适用于 target 是节点类型的。
      */
     hide (): Tween<T> {
-        let action = hide();
+        const action = hide();
         this._actions.push(action);
         return this;
     }
@@ -366,7 +364,7 @@ export class Tween<T> {
      * 添加一个显示 action，只适用于 target 是节点类型的。
      */
     show (): Tween<T> {
-        let action = show();
+        const action = show();
         this._actions.push(action);
         return this;
     }
@@ -378,33 +376,33 @@ export class Tween<T> {
      * 添加一个移除自己 action，只适用于 target 是节点类型的。
      */
     removeSelf (): Tween<T> {
-        let action = removeSelf(false);
+        const action = removeSelf(false);
         this._actions.push(action);
         return this;
     }
 
     /**
-     * @en 
+     * @en
      * Stop all tweens
-     * @zh 
+     * @zh
      * 停止所有缓动
      */
     static stopAll () {
         TweenSystem.instance.ActionManager.removeAllActions();
     }
     /**
-     * @en 
+     * @en
      * Stop all tweens by tag
-     * @zh 
+     * @zh
      * 停止所有指定标签的缓动
      */
     static stopAllByTag (tag: number, target?: object) {
         TweenSystem.instance.ActionManager.removeActionByTag(tag, target as any);
     }
     /**
-     * @en 
+     * @en
      * Stop all tweens by target
-     * @zh 
+     * @zh
      * 停止所有指定对象的缓动
      */
     static stopAllByTarget (target?: object) {
@@ -412,12 +410,11 @@ export class Tween<T> {
     }
 
     private _union () {
-        let actions = this._actions;
+        const actions = this._actions;
         let action: Action;
         if (actions.length === 1) {
             action = actions[0];
-        }
-        else {
+        } else {
             action = sequence(actions);
         }
 
@@ -434,7 +431,7 @@ export class Tween<T> {
         const tmp_args = Tween._tmp_args;
         tmp_args.length = 0;
         for (let l = args.length, i = 0; i < l; i++) {
-            let arg = tmp_args[i] = args[i];
+            const arg = tmp_args[i] = args[i];
             if (arg instanceof Tween) {
                 tmp_args[i] = arg._union();
             }
@@ -447,7 +444,7 @@ export class Tween<T> {
         const tmp_args = Tween._tmp_args;
         tmp_args.length = 0;
         for (let l = args.length, i = 0; i < l; i++) {
-            let arg = tmp_args[i] = args[i];
+            const arg = tmp_args[i] = args[i];
             if (arg instanceof Tween) {
                 tmp_args[i] = arg._union();
             }
@@ -457,7 +454,6 @@ export class Tween<T> {
     }
 }
 legacyCC.Tween = Tween;
-
 
 /**
  * @en
@@ -486,7 +482,7 @@ legacyCC.tween = tween;
  * @deprecated please use `tween` instead.
  */
 export function tweenUtil<T> (target?: T) {
-    warn("tweenUtil' is deprecated, please use 'tween' instead ");
+    warn('tweenUtil\' is deprecated, please use \'tween\' instead ');
     return new Tween<T>(target);
 }
 legacyCC.tweenUtil = tweenUtil;

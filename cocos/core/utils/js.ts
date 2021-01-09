@@ -63,11 +63,11 @@ import Pool from './pool';
 import { legacyCC } from '../global-exports';
 
 export * from './js-typed';
-export {default as IDGenerator} from './id-generator';
-export {default as Pool} from './pool';
+export { default as IDGenerator } from './id-generator';
+export { default as Pool } from './pool';
 export const array = jsarray;
 
-export const js = {    
+export const js = {
     IDGenerator,
     Pool,
     array: jsarray,
@@ -108,7 +108,7 @@ export const js = {
      * ```
      */
     get _registeredClassNames (): typeof _nameToClass {
-        return Object.assign({}, _nameToClass);
+        return { ..._nameToClass };
     },
     set _registeredClassNames (value: typeof _nameToClass) {
         clear(_nameToClass);
@@ -132,7 +132,7 @@ export const js = {
      * ```
      */
     get _registeredClassIds (): typeof _idToClass {
-        return Object.assign({}, _idToClass);
+        return { ..._idToClass };
     },
     set _registeredClassIds (value: typeof _idToClass) {
         clear(_idToClass);

@@ -29,10 +29,8 @@
  * @hidden
  */
 
-
-
-import { getClassName, getset, isEmptyObject } from './js';
 import { EDITOR, DEV } from 'internal:constants';
+import { getClassName, getset, isEmptyObject } from './js';
 import { legacyCC } from '../global-exports';
 import { warnID } from '../platform/debug';
 import { macro } from '../platform/macro';
@@ -58,25 +56,23 @@ export function propertyDefine (ctor, sameNameGetSets, diffNameGetSets) {
         if (pd) {
             if (pd.get) { np[getter] = pd.get; }
             if (pd.set && setter) { np[setter] = pd.set; }
-        }
-        else {
+        } else {
             const getterFunc = np[getter];
             if (DEV && !getterFunc) {
-                const clsName = (legacyCC.Class._isCCClass(ctor) && getClassName(ctor)) ||
-                    ctor.name ||
-                    '(anonymous class)';
+                const clsName = (legacyCC.Class._isCCClass(ctor) && getClassName(ctor))
+                    || ctor.name
+                    || '(anonymous class)';
                 warnID(5700, propName, getter, clsName);
-            }
-            else {
+            } else {
                 getset(np, propName, getterFunc, np[setter]);
             }
         }
     }
-    let propName, np = ctor.prototype;
+    let propName; const np = ctor.prototype;
     for (let i = 0; i < sameNameGetSets.length; i++) {
         propName = sameNameGetSets[i];
         const suffix = propName[0].toUpperCase() + propName.slice(1);
-        define(np, propName, 'get' + suffix, 'set' + suffix);
+        define(np, propName, `get${suffix}`, `set${suffix}`);
     }
     for (propName in diffNameGetSets) {
         const gs = diffNameGetSets[propName];
@@ -92,16 +88,13 @@ export function pushToMap (map, key, value, pushFront) {
             if (pushFront) {
                 exists.push(exists[0]);
                 exists[0] = value;
-            }
-            else {
+            } else {
                 exists.push(value);
             }
-        }
-        else {
+        } else {
             map[key] = (pushFront ? [value, exists] : [exists, value]);
         }
-    }
-    else {
+    } else {
         map[key] = value;
     }
 }
@@ -131,12 +124,11 @@ export function isDomNode (obj) {
         // If "TypeError: Right-hand side of 'instanceof' is not callback" is thrown,
         // it should because window.Node was overwritten.
         return obj instanceof Node;
-    }
-    else {
-        return obj &&
-            typeof obj === 'object' &&
-            typeof obj.nodeType === 'number' &&
-            typeof obj.nodeName === 'string';
+    } else {
+        return obj
+            && typeof obj === 'object'
+            && typeof obj.nodeType === 'number'
+            && typeof obj.nodeName === 'string';
     }
 }
 
@@ -144,29 +136,26 @@ export function callInNextTick (callback, p1?: any, p2?: any) {
     if (EDITOR) {
         if (callback) {
             // @ts-expect-error
-            process.nextTick(function () {
+            process.nextTick(() => {
                 callback(p1, p2);
             });
         }
-    }
-    else {
-        if (callback) {
-            setTimeout(function () {
-                callback(p1, p2);
-            }, 0);
-        }
+    } else if (callback) {
+        setTimeout(() => {
+            callback(p1, p2);
+        }, 0);
     }
 }
 
 // use anonymous function here to ensure it will not being hoisted without EDITOR
 export function tryCatchFunctor_EDITOR (funcName) {
     return Function('target',
-        'try {\n' +
-        '  target.' + funcName + '();\n' +
-        '}\n' +
-        'catch (e) {\n' +
-        '  cc._throw(e);\n' +
-        '}');
+        `${'try {\n'
+        + '  target.'}${funcName}();\n`
+        + `}\n`
+        + `catch (e) {\n`
+        + `  cc._throw(e);\n`
+        + `}`);
 }
 
 export function isPlainEmptyObj_DEV (obj) {

@@ -50,7 +50,6 @@ export class FramebufferInfo {
  * @zh GFX 帧缓冲。
  */
 export abstract class Framebuffer extends Obj {
-
     /**
      * @en Get current render pass.
      * @zh GFX 渲染过程。

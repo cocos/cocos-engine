@@ -478,7 +478,7 @@ export class JointAnimationInfo {
             BufferUsageBit.UNIFORM | BufferUsageBit.TRANSFER_DST,
             MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
             UBOSkinningAnimation.SIZE,
-            UBOSkinningAnimation.SIZE
+            UBOSkinningAnimation.SIZE,
         ));
         const data = new Float32Array([0, 0, 0, 0]);
         buffer.update(data);

@@ -7,7 +7,6 @@
 
  http://www.cocos2d-x.org
 
-
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
  in the Software without restriction, including without limitation the rights
@@ -61,7 +60,7 @@ export class PNGReader {
             indexed: [],
             rgb: 0,
             grayscale: 0,
-        }
+        };
 
         let frame: any;
         let i = 0; let _i = 0; let _j = 0; let chunkSize = 0;
@@ -76,112 +75,112 @@ export class PNGReader {
                 return _results;
             }).call(this)).join('');
             switch (section) {
-                case 'IHDR':
-                    this.width = this.readUInt32();
-                    this.height = this.readUInt32();
-                    this.bits = this.data[this.pos++];
-                    this.colorType = this.data[this.pos++];
-                    this.compressionMethod = this.data[this.pos++];
-                    this.filterMethod = this.data[this.pos++];
-                    this.interlaceMethod = this.data[this.pos++];
-                    break;
-                case 'acTL':
-                    this.animation = {
-                        numFrames: this.readUInt32(),
-                        numPlays: this.readUInt32() || Infinity,
-                        frames: []
-                    };
-                    break;
-                case 'PLTE':
-                    this.palette = this.read(chunkSize);
-                    break;
-                case 'fcTL':
-                    if (frame) {
-                        this.animation.frames.push(frame);
-                    }
+            case 'IHDR':
+                this.width = this.readUInt32();
+                this.height = this.readUInt32();
+                this.bits = this.data[this.pos++];
+                this.colorType = this.data[this.pos++];
+                this.compressionMethod = this.data[this.pos++];
+                this.filterMethod = this.data[this.pos++];
+                this.interlaceMethod = this.data[this.pos++];
+                break;
+            case 'acTL':
+                this.animation = {
+                    numFrames: this.readUInt32(),
+                    numPlays: this.readUInt32() || Infinity,
+                    frames: [],
+                };
+                break;
+            case 'PLTE':
+                this.palette = this.read(chunkSize);
+                break;
+            case 'fcTL':
+                if (frame) {
+                    this.animation.frames.push(frame);
+                }
+                this.pos += 4;
+                frame = {
+                    width: this.readUInt32(),
+                    height: this.readUInt32(),
+                    xOffset: this.readUInt32(),
+                    yOffset: this.readUInt32(),
+                };
+                const delayNum = this.readUInt16();
+                const delayDen = this.readUInt16() || 100;
+                frame.delay = 1000 * delayNum / delayDen;
+                frame.disposeOp = this.data[this.pos++];
+                frame.blendOp = this.data[this.pos++];
+                frame.data = [];
+                break;
+            case 'IDAT':
+            case 'fdAT':
+                if (section === 'fdAT') {
                     this.pos += 4;
-                    frame = {
-                        width: this.readUInt32(),
-                        height: this.readUInt32(),
-                        xOffset: this.readUInt32(),
-                        yOffset: this.readUInt32()
-                    };
-                    const delayNum = this.readUInt16();
-                    const delayDen = this.readUInt16() || 100;
-                    frame.delay = 1000 * delayNum / delayDen;
-                    frame.disposeOp = this.data[this.pos++];
-                    frame.blendOp = this.data[this.pos++];
-                    frame.data = [];
-                    break;
-                case 'IDAT':
-                case 'fdAT':
-                    if (section === 'fdAT') {
-                        this.pos += 4;
-                        chunkSize -= 4;
-                    }
-                    data = (frame != null ? frame.data : void 0) || this.imgData;
-                    for (i = _i = 0; 0 <= chunkSize ? _i < chunkSize : _i > chunkSize; i = 0 <= chunkSize ? ++_i : --_i) {
-                        data.push(this.data[this.pos++]);
+                    chunkSize -= 4;
+                }
+                data = (frame != null ? frame.data : void 0) || this.imgData;
+                for (i = _i = 0; chunkSize >= 0 ? _i < chunkSize : _i > chunkSize; i = chunkSize >= 0 ? ++_i : --_i) {
+                    data.push(this.data[this.pos++]);
+                }
+                break;
+            case 'tRNS':
+                this.transparency = {};
+                switch (this.colorType) {
+                case 3:
+                    this.transparency.indexed = this.read(chunkSize);
+                    const ccshort = 255 - this.transparency.indexed.length;
+                    if (ccshort > 0) {
+                        for (i = _j = 0; ccshort >= 0 ? _j < ccshort : _j > ccshort; i = ccshort >= 0 ? ++_j : --_j) {
+                            this.transparency.indexed.push(255);
+                        }
                     }
                     break;
-                case 'tRNS':
-                    this.transparency = {};
+                case 0:
+                    this.transparency.grayscale = this.read(chunkSize)[0];
+                    break;
+                case 2:
+                    this.transparency.rgb = this.read(chunkSize);
+                }
+                break;
+            case 'tEXt':
+                const text = this.read(chunkSize);
+                const index = text.indexOf(0);
+                const key = String.fromCharCode.apply(String, text.slice(0, index));
+                this.text[key] = String.fromCharCode.apply(String, text.slice(index + 1));
+                break;
+            case 'IEND':
+                if (frame) {
+                    this.animation.frames.push(frame);
+                }
+                this.colors = (() => {
                     switch (this.colorType) {
-                        case 3:
-                            this.transparency.indexed = this.read(chunkSize);
-                            const ccshort = 255 - this.transparency.indexed.length;
-                            if (ccshort > 0) {
-                                for (i = _j = 0; 0 <= ccshort ? _j < ccshort : _j > ccshort; i = 0 <= ccshort ? ++_j : --_j) {
-                                    this.transparency.indexed.push(255);
-                                }
-                            }
-                            break;
-                        case 0:
-                            this.transparency.grayscale = this.read(chunkSize)[0];
-                            break;
-                        case 2:
-                            this.transparency.rgb = this.read(chunkSize);
+                    case 0:
+                    case 3:
+                    case 4:
+                        return 1;
+                    case 2:
+                    case 6:
+                        return 3;
                     }
-                    break;
-                case 'tEXt':
-                    const text = this.read(chunkSize);
-                    const index = text.indexOf(0);
-                    const key = String.fromCharCode.apply(String, text.slice(0, index));
-                    this.text[key] = String.fromCharCode.apply(String, text.slice(index + 1));
-                    break;
-                case 'IEND':
-                    if (frame) {
-                        this.animation.frames.push(frame);
+                }).call(this);
+                const _ref = this.colorType;
+                this.hasAlphaChannel = _ref === 4 || _ref === 6;
+                const colors = this.colors + (this.hasAlphaChannel ? 1 : 0);
+                this.pixelBitlength = this.bits * colors;
+                this.colorSpace = (() => {
+                    switch (this.colors) {
+                    case 1:
+                        return 'DeviceGray';
+                    case 3:
+                        return 'DeviceRGB';
                     }
-                    this.colors = (() => {
-                        switch (this.colorType) {
-                            case 0:
-                            case 3:
-                            case 4:
-                                return 1;
-                            case 2:
-                            case 6:
-                                return 3;
-                        }
-                    }).call(this);
-                    const _ref = this.colorType;
-                    this.hasAlphaChannel = _ref === 4 || _ref === 6;
-                    const colors = this.colors + (this.hasAlphaChannel ? 1 : 0);
-                    this.pixelBitlength = this.bits * colors;
-                    this.colorSpace = (() => {
-                        switch (this.colors) {
-                            case 1:
-                                return 'DeviceGray';
-                            case 3:
-                                return 'DeviceRGB';
-                        }
-                    }).call(this);
-                    if(!(this.imgData instanceof Uint8Array)) {
-                        this.imgData = new Uint8Array(this.imgData);
-                    }
-                    return;
-                default:
-                    this.pos += chunkSize;
+                }).call(this);
+                if (!(this.imgData instanceof Uint8Array)) {
+                    this.imgData = new Uint8Array(this.imgData);
+                }
+                return;
+            default:
+                this.pos += chunkSize;
             }
             this.pos += 4;
             if (this.pos > this.data.length) {
@@ -193,7 +192,7 @@ export class PNGReader {
     public read (bytes) {
         let i = 0; let _i = 0;
         const _results: any[] = [];
-        for (i = _i = 0; 0 <= bytes ? _i < bytes : _i > bytes; i = 0 <= bytes ? ++_i : --_i) {
+        for (i = _i = 0; bytes >= 0 ? _i < bytes : _i > bytes; i = bytes >= 0 ? ++_i : --_i) {
             _results.push(this.data[this.pos++]);
         }
         return _results;
@@ -220,7 +219,7 @@ export class PNGReader {
         if (data.length === 0) {
             return new Uint8Array(0);
         }
-        const inflate = new zlib.Inflate(data, {index:0, verify:false});
+        const inflate = new zlib.Inflate(data, { index: 0, verify: false });
         data = inflate.decompress();
         const pixelBytes = this.pixelBitlength / 8;
         const scanlineLength = pixelBytes * this.width;
@@ -231,62 +230,62 @@ export class PNGReader {
         let left = 0; let p = 0; let pa = 0; let paeth = 0; let pb = 0; let pc = 0; let upper = 0; let upperLeft = 0;
         while (pos < length) {
             switch (data[pos++]) {
-                case 0:
-                    for (i = _i = 0; _i < scanlineLength; i = _i += 1) {
-                        pixels[c++] = data[pos++];
+            case 0:
+                for (i = _i = 0; _i < scanlineLength; i = _i += 1) {
+                    pixels[c++] = data[pos++];
+                }
+                break;
+            case 1:
+                for (i = _j = 0; _j < scanlineLength; i = _j += 1) {
+                    ccbyte = data[pos++];
+                    left = i < pixelBytes ? 0 : pixels[c - pixelBytes];
+                    pixels[c++] = (ccbyte + left) % 256;
+                }
+                break;
+            case 2:
+                for (i = _k = 0; _k < scanlineLength; i = _k += 1) {
+                    ccbyte = data[pos++];
+                    col = (i - (i % pixelBytes)) / pixelBytes;
+                    upper = row && pixels[(row - 1) * scanlineLength + col * pixelBytes + (i % pixelBytes)];
+                    pixels[c++] = (upper + ccbyte) % 256;
+                }
+                break;
+            case 3:
+                for (i = _l = 0; _l < scanlineLength; i = _l += 1) {
+                    ccbyte = data[pos++];
+                    col = (i - (i % pixelBytes)) / pixelBytes;
+                    left = i < pixelBytes ? 0 : pixels[c - pixelBytes];
+                    upper = row && pixels[(row - 1) * scanlineLength + col * pixelBytes + (i % pixelBytes)];
+                    pixels[c++] = (ccbyte + Math.floor((left + upper) / 2)) % 256;
+                }
+                break;
+            case 4:
+                for (i = _m = 0; _m < scanlineLength; i = _m += 1) {
+                    ccbyte = data[pos++];
+                    col = (i - (i % pixelBytes)) / pixelBytes;
+                    left = i < pixelBytes ? 0 : pixels[c - pixelBytes];
+                    if (row === 0) {
+                        upper = upperLeft = 0;
+                    } else {
+                        upper = pixels[(row - 1) * scanlineLength + col * pixelBytes + (i % pixelBytes)];
+                        upperLeft = col && pixels[(row - 1) * scanlineLength + (col - 1) * pixelBytes + (i % pixelBytes)];
                     }
-                    break;
-                case 1:
-                    for (i = _j = 0; _j < scanlineLength; i = _j += 1) {
-                        ccbyte = data[pos++];
-                        left = i < pixelBytes ? 0 : pixels[c - pixelBytes];
-                        pixels[c++] = (ccbyte + left) % 256;
+                    p = left + upper - upperLeft;
+                    pa = Math.abs(p - left);
+                    pb = Math.abs(p - upper);
+                    pc = Math.abs(p - upperLeft);
+                    if (pa <= pb && pa <= pc) {
+                        paeth = left;
+                    } else if (pb <= pc) {
+                        paeth = upper;
+                    } else {
+                        paeth = upperLeft;
                     }
-                    break;
-                case 2:
-                    for (i = _k = 0; _k < scanlineLength; i = _k += 1) {
-                        ccbyte = data[pos++];
-                        col = (i - (i % pixelBytes)) / pixelBytes;
-                        upper = row && pixels[(row - 1) * scanlineLength + col * pixelBytes + (i % pixelBytes)];
-                        pixels[c++] = (upper + ccbyte) % 256;
-                    }
-                    break;
-                case 3:
-                    for (i = _l = 0; _l < scanlineLength; i = _l += 1) {
-                        ccbyte = data[pos++];
-                        col = (i - (i % pixelBytes)) / pixelBytes;
-                        left = i < pixelBytes ? 0 : pixels[c - pixelBytes];
-                        upper = row && pixels[(row - 1) * scanlineLength + col * pixelBytes + (i % pixelBytes)];
-                        pixels[c++] = (ccbyte + Math.floor((left + upper) / 2)) % 256;
-                    }
-                    break;
-                case 4:
-                    for (i = _m = 0; _m < scanlineLength; i = _m += 1) {
-                        ccbyte = data[pos++];
-                        col = (i - (i % pixelBytes)) / pixelBytes;
-                        left = i < pixelBytes ? 0 : pixels[c - pixelBytes];
-                        if (row === 0) {
-                            upper = upperLeft = 0;
-                        } else {
-                            upper = pixels[(row - 1) * scanlineLength + col * pixelBytes + (i % pixelBytes)];
-                            upperLeft = col && pixels[(row - 1) * scanlineLength + (col - 1) * pixelBytes + (i % pixelBytes)];
-                        }
-                        p = left + upper - upperLeft;
-                        pa = Math.abs(p - left);
-                        pb = Math.abs(p - upper);
-                        pc = Math.abs(p - upperLeft);
-                        if (pa <= pb && pa <= pc) {
-                            paeth = left;
-                        } else if (pb <= pc) {
-                            paeth = upper;
-                        } else {
-                            paeth = upperLeft;
-                        }
-                        pixels[c++] = (ccbyte + paeth) % 256;
-                    }
-                    break;
-                default:
-                    throw new Error(getError(6018, data[pos - 1]));
+                    pixels[c++] = (ccbyte + paeth) % 256;
+                }
+                break;
+            default:
+                throw new Error(getError(6018, data[pos - 1]));
             }
             row++;
         }
@@ -348,7 +347,7 @@ export class PNGReader {
     render (canvas) {
         canvas.width = this.width;
         canvas.height = this.height;
-        const ctx = canvas.getContext("2d");
+        const ctx = canvas.getContext('2d');
         const data = ctx.createImageData(this.width, this.height);
         this.copyToImageData(data, this.decodePixels(null));
         return ctx.putImageData(data, 0, 0);

@@ -37,7 +37,6 @@ import { Light } from './light-component';
 @menu('Light/DirectionalLight')
 @executeInEditMode
 export class DirectionalLight extends Light {
-
     @serializable
     protected _illuminance = 65000;
 

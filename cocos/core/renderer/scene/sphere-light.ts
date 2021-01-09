@@ -29,7 +29,6 @@ import { Light, LightType, nt2lm } from './light';
 import { AABBHandle, AABBPool, AABBView, LightPool, LightView, NULL_HANDLE } from '../core/memory-pools';
 
 export class SphereLight extends Light {
-
     protected _needUpdate = false;
 
     get position () {

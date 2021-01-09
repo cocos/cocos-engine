@@ -66,15 +66,13 @@ export class Path {
 
         if (this.points) {
             this.points.length = 0;
-        }
-        else {
+        } else {
             this.points = [];
         }
     }
 }
 
 export class Impl {
-
     public dataOffset = 0;
     public updatePathOffset = false;
 

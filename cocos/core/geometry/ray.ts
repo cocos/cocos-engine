@@ -40,7 +40,6 @@ import { IVec3Like } from '../math/type-define';
  */
 
 export class Ray {
-
     /**
      * @en
      * create a new ray
@@ -186,7 +185,7 @@ export class Ray {
      * @param distance 给定距离。
      */
     public computeHit (out: IVec3Like, distance: number) {
-        Vec3.normalize(out, this.d)
+        Vec3.normalize(out, this.d);
         Vec3.scaleAndAdd(out, this.o, out, distance);
     }
 }

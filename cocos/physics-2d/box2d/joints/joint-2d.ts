@@ -40,25 +40,25 @@ export class b2Joint implements IJoint2D {
     _init () {
         if (this._inited) return;
 
-        let comp = this._jointComp!;
+        const comp = this._jointComp!;
         if (!comp.isValid) {
             return;
         }
 
         this._body = comp.getComponent(RigidBody2D);
 
-        let def = this._createJointDef();
+        const def = this._createJointDef();
         if (!def) {
             return;
         }
 
-        let connectedBody = comp.connectedBody;
+        const connectedBody = comp.connectedBody;
         if (!connectedBody || !connectedBody.enabledInHierarchy) {
             return;
         }
 
         def.bodyA = this._body!.impl!.impl;
-        def.bodyB = connectedBody!.impl!.impl;
+        def.bodyB = connectedBody.impl!.impl;
         def.collideConnected = comp.collideConnected;
 
         this._b2joint = (PhysicsSystem2D.instance.physicsWorld as b2PhysicsWorld).impl.CreateJoint(def);
@@ -80,7 +80,7 @@ export class b2Joint implements IJoint2D {
     }
 
     isValid () {
-        return this._b2joint && this._body && this._body.impl &&
-            this._jointComp && this._jointComp.connectedBody && this._jointComp.connectedBody.impl;
+        return this._b2joint && this._body && this._body.impl
+            && this._jointComp && this._jointComp.connectedBody && this._jointComp.connectedBody.impl;
     }
 }
