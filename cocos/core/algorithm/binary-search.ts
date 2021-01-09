@@ -25,7 +25,7 @@
 */
 
 /**
- * Searches the sorted number array for an element and returns the index of the element.
+ * Searches the sorted number array for an element and returns the index of that element.
  * @param array The array to sort.
  * @param value The value to search.
  * @return The index of the searched element in the sorted array, if one is found;
@@ -37,7 +37,7 @@ export function binarySearch (array: number[], value: number) {
 }
 
 /**
- * Searches the sorted number array for an element and returns the index of the element.
+ * Searches the sorted number array for an element and returns the index of that element.
  * @param array The array to sort.
  * @param value The value to search.
  * @param EPSILON The epsilon to compare the numbers. Default to `1e-6`.
@@ -63,7 +63,7 @@ export function binarySearchEpsilon (array: number[], value: number, EPSILON = 1
 }
 
 /**
- * Searches the sorted array for an element and returns the index of the element.
+ * Searches the sorted array for an element and returns the index of that element.
  * @param array The array to sort.
  * @param value The value to search.
  * @param lessThan The predicate which implements the less than semantic.
