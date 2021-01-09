@@ -35,7 +35,7 @@ import { SpriteFrame } from '../../2d/assets/sprite-frame';
 import { CompactValueTypeArray } from '../data/utils/compact-value-type-array';
 import { errorID } from '../platform/debug';
 import { DataPoolManager } from '../../3d/skeletal-animation/data-pool-manager';
-import binarySearchEpsilon from '../utils/binary-search';
+import { binarySearchEpsilon } from '../algorithm/binary-search';
 import { murmurhash2_32_gc } from '../utils/murmurhash2_gc';
 import { AnimCurve, IPropertyCurveData, RatioSampler } from './animation-curve';
 import { SkelAnimDataHub } from '../../3d/skeletal-animation/skeletal-animation-data-hub';

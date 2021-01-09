@@ -28,7 +28,7 @@
  * @module animation
  */
 
-import { binarySearchEpsilon as binarySearch } from '../data/utils/binary-search';
+import { binarySearchEpsilon as binarySearch } from '../algorithm/binary-search';
 import { lerp, Quat } from '../math';
 import { errorID } from '../platform/debug';
 import { ValueType } from '../value-types';
