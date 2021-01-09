@@ -408,6 +408,7 @@ export class Root {
                     cameraList.push(camera);
                 });
             }
+            cameraList.sort((a: Camera, b: Camera) => a.priority - b.priority);
             this._pipeline.render(cameraList);
             this._device.present();
         }
