@@ -115,6 +115,10 @@
                    event:event];
 }
 
+- (void)mouseDragged:(NSEvent *)event {
+    [self mouseMoved:event];
+}
+
 - (void)mouseMoved:(NSEvent *)event {
     [self sendMouseEvent:0
                     type:cc::MouseEvent::Type::MOVE
