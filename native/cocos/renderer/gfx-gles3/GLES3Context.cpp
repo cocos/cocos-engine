@@ -49,7 +49,7 @@ void GL_APIENTRY GLES3EGLDebugProc(GLenum source, GLenum type, GLuint id, GLenum
     }
 
     String typeDesc;
-    switch (severity) {
+    switch (type) {
         case GL_DEBUG_TYPE_ERROR_KHR: typeDesc = "ERROR"; break;
         case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR_KHR: typeDesc = "PEPRECATED_BEHAVIOR"; break;
         case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR_KHR: typeDesc = "UNDEFINED_BEHAVIOR"; break;
@@ -73,11 +73,7 @@ void GL_APIENTRY GLES3EGLDebugProc(GLenum source, GLenum type, GLuint id, GLenum
                                     sourceDesc.c_str(), typeDesc.c_str(), severityDesc.c_str(), message);
 
     if (severity == GL_DEBUG_SEVERITY_HIGH_KHR) {
-    #if (CC_PLATFORM == CC_PLATFORM_WINDOWS)
-        CCASSERT(false, msg.c_str());
-    #else
-        CC_LOG_ERROR(msg.c_str());
-    #endif
+        CC_LOG_WARNING(msg.c_str());
     } else {
         CC_LOG_DEBUG(msg.c_str());
     }
