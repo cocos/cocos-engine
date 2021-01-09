@@ -88,6 +88,7 @@ Enum.update = <T> (obj: T): T => {
         }
     }
     // auto update list if __enums__ is array
+    // @ts-expect-error Injected properties
     if (Array.isArray(obj.__enums__)) {
         updateList(obj);
     }

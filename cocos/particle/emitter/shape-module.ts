@@ -38,7 +38,7 @@ import { fixedAngleUnitVector2, particleEmitZAxis, randomPointBetweenCircleAtFix
 import { ParticleSystem } from '../particle-system';
 
 const _intermediVec = new Vec3(0, 0, 0);
-const _intermediArr = [];
+const _intermediArr: number[] = [];
 const _unitBoxExtent = new Vec3(0.5, 0.5, 0.5);
 
 @ccclass('cc.ShapeModule')
