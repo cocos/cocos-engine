@@ -26,12 +26,9 @@
 #include "AppDelegate.h"
 #import "ViewController.h"
 #include "platform/ios/View.h"
-#include "cocos/bindings/event/EventDispatcher.h"
 
 #include "SDKWrapper.h"
 #include "Game.h"
-
-cc::Device::Orientation _lastOrientation;
 
 @implementation AppDelegate
 
@@ -57,39 +54,10 @@ Game* game = nullptr;
     // cocos2d application instance
     game = new Game(bounds.size.width, bounds.size.height);
     game->init();
-
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                          selector:@selector(orientationChanged:)name:UIDeviceOrientationDidChangeNotification object:nil];
-
+    
     [self.window makeKeyAndVisible];
 
     return YES;
-}
-
-
-- (void) orientationChanged:(NSNotification *)note {
-    cc::Device::Orientation orientation = cc::Device::Orientation::PORTRAIT;
-    UIDevice * device = note.object;
-    switch(device.orientation) {
-        case UIDeviceOrientationPortrait:
-            orientation = cc::Device::Orientation::PORTRAIT;
-            break;
-        case UIDeviceOrientationLandscapeRight:
-            orientation = cc::Device::Orientation::LANDSCAPE_RIGHT;
-            break;
-        case UIDeviceOrientationPortraitUpsideDown:
-            orientation = cc::Device::Orientation::PORTRAIT_UPSIDE_DOWN;
-            break;
-        case UIDeviceOrientationLandscapeLeft:
-            orientation = cc::Device::Orientation::LANDSCAPE_LEFT;
-            break;
-        default:
-            break;
-    }
-    if (_lastOrientation != orientation) {
-        cc::EventDispatcher::dispatchOrientationChangeEvent((int) orientation);
-        _lastOrientation = orientation;
-    }
 }
 
 - (void)applicationWillResignActive:(UIApplication *)application {

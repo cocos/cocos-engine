@@ -24,6 +24,11 @@
  THE SOFTWARE.
 ****************************************************************************/
 #import "ViewController.h"
+#include "cocos/bindings/event/EventDispatcher.h"
+
+namespace {
+    cc::Device::Orientation _lastOrientation;
+}
 
 @interface ViewController ()
 
@@ -45,5 +50,31 @@
     return YES;
 }
 
+- (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator {
+    cc::Device::Orientation orientation = _lastOrientation;
+    // reference: https://developer.apple.com/documentation/uikit/uiinterfaceorientation?language=objc
+    // UIInterfaceOrientationLandscapeRight = UIDeviceOrientationLandscapeLeft
+    // UIInterfaceOrientationLandscapeLeft = UIDeviceOrientationLandscapeRight
+    switch ([UIDevice currentDevice].orientation) {
+        case UIDeviceOrientationPortrait:
+            orientation = cc::Device::Orientation::PORTRAIT;
+            break;
+        case UIDeviceOrientationLandscapeRight:
+            orientation = cc::Device::Orientation::LANDSCAPE_LEFT;
+            break;
+        case UIDeviceOrientationPortraitUpsideDown:
+            orientation = cc::Device::Orientation::PORTRAIT_UPSIDE_DOWN;
+            break;
+        case UIDeviceOrientationLandscapeLeft:
+            orientation = cc::Device::Orientation::LANDSCAPE_RIGHT;
+            break;
+        default:
+            break;
+    }
+    if (_lastOrientation != orientation) {
+        cc::EventDispatcher::dispatchOrientationChangeEvent((int) orientation);
+        _lastOrientation = orientation;
+    }
+}
 
 @end
