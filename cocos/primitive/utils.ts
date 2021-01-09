@@ -71,10 +71,10 @@ export function invWinding (indices: number[]) {
  * @deprecated
  */
 export function toWavefrontOBJ (primitive: IGeometry, scale = 1) {
-    if (!primitive.indices ||
-        !primitive.uvs ||
-        !primitive.normals ||
-        (primitive.primitiveMode !== undefined && primitive.primitiveMode !== PrimitiveMode.TRIANGLE_LIST)) {
+    if (!primitive.indices
+        || !primitive.uvs
+        || !primitive.normals
+        || (primitive.primitiveMode !== undefined && primitive.primitiveMode !== PrimitiveMode.TRIANGLE_LIST)) {
         return '';
     }
     const v = primitive.positions;

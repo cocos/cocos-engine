@@ -43,7 +43,6 @@ export class FenceInfo {
  * @zh GFX 同步信号。
  */
 export abstract class Fence extends Obj {
-
     protected _device: Device;
 
     constructor (device: Device) {

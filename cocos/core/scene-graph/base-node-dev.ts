@@ -28,9 +28,9 @@
  * @hidden
  */
 
+import { EDITOR, DEV, TEST } from 'internal:constants';
 import { CCObject } from '../data/object';
 import * as js from '../utils/js';
-import { EDITOR, DEV, TEST } from 'internal:constants';
 import { legacyCC } from '../global-exports';
 import { error, errorID, getError } from '../platform/debug';
 
@@ -105,7 +105,6 @@ export function baseNodePolyfill (BaseNode) {
          * @return {Component}
          */
         BaseNode.prototype._getDependComponent = function (depended) {
-
             for (let i = 0; i < this._components.length; i++) {
                 const comp = this._components[i];
                 if (comp !== depended && comp.isValid && !legacyCC.Object._willDestroy(comp)) {
@@ -148,7 +147,7 @@ export function baseNodePolyfill (BaseNode) {
                     const comp = this._components[i];
                     if (!comp) {
                         this._components.splice(i, 1);
-                        console.error('component attached to node:' + this.name + ' is invalid for some reason');
+                        console.error(`component attached to node:${this.name} is invalid for some reason`);
                         continue;
                     }
                     attachedObjsForEditor[comp._id] = comp;
@@ -177,14 +176,14 @@ export function baseNodePolyfill (BaseNode) {
             let node = this;
             while (node && !(node instanceof legacyCC.Scene)) {
                 if (path) {
-                    path = node.name + '/' + path;
+                    path = `${node.name}/${path}`;
                 } else {
                     path = node.name;
                 }
                 node = node._parent;
             }
             // @ts-expect-error
-            return this.name + ', path: ' + path;
+            return `${this.name}, path: ${path}`;
         });
     }
 }

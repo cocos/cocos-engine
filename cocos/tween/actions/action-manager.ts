@@ -45,9 +45,9 @@ let ID_COUNTER = 0;
  */
 class HashElement {
     actions = [];
-    target: object | null = null; //ccobject
+    target: object | null = null; // ccobject
     actionIndex = 0;
-    currentAction = null; //CCAction
+    currentAction = null; // CCAction
     paused = false;
     lock = false;
 }
@@ -78,15 +78,14 @@ export class ActionManager {
     private _elementPool: HashElement[] = [];
 
     private _searchElementByTarget (arr: HashElement[], target: object) {
-        for (var k = 0; k < arr.length; k++) {
-            if (target === arr[k].target)
-                return arr[k];
+        for (let k = 0; k < arr.length; k++) {
+            if (target === arr[k].target) return arr[k];
         }
         return null;
     }
 
     private _getElement (target: object, paused: boolean) {
-        var element = this._elementPool.pop();
+        let element = this._elementPool.pop();
         if (!element) {
             element = new HashElement();
         }
@@ -129,18 +128,17 @@ export class ActionManager {
         }
 
         if (target.uuid == null) {
-            (target as any).uuid = '_TWEEN_UUID_' + ID_COUNTER++;
+            (target as any).uuid = `_TWEEN_UUID_${ID_COUNTER++}`;
         }
 
-        //check if the action target already exists
-        var element = this._hashTargets.get(target);
-        //if doesn't exists, create a hashelement and push in mpTargets
+        // check if the action target already exists
+        let element = this._hashTargets.get(target);
+        // if doesn't exists, create a hashelement and push in mpTargets
         if (!element) {
             element = this._getElement(target, paused);
             this._hashTargets.set(target, element);
             this._arrayTargets.push(element);
-        }
-        else if (!element.actions) {
+        } else if (!element.actions) {
             element.actions = [];
         }
         // update target due to the same UUID is allowed for different scenarios
@@ -155,11 +153,10 @@ export class ActionManager {
      * @method removeAllActions
      */
     removeAllActions () {
-        var locTargets = this._arrayTargets;
-        for (var i = 0; i < locTargets.length; i++) {
-            var element = locTargets[i];
-            if (element)
-                this._putElement(element);
+        const locTargets = this._arrayTargets;
+        for (let i = 0; i < locTargets.length; i++) {
+            const element = locTargets[i];
+            if (element) this._putElement(element);
         }
         this._arrayTargets.length = 0;
         this._hashTargets = new Map();
@@ -176,9 +173,8 @@ export class ActionManager {
      */
     removeAllActionsFromTarget (target: Node) {
         // explicit null handling
-        if (target == null)
-            return;
-        var element = this._hashTargets.get(target);
+        if (target == null) return;
+        const element = this._hashTargets.get(target);
         if (element) {
             element.actions.length = 0;
             this._deleteHashElement(element);
@@ -192,18 +188,16 @@ export class ActionManager {
      */
     removeAction (action: Action) {
         // explicit null handling
-        if (action == null)
-            return;
-        var target = action.getOriginalTarget()!;
-        var element = this._hashTargets.get(target);
+        if (action == null) return;
+        const target = action.getOriginalTarget()!;
+        const element = this._hashTargets.get(target);
 
         if (element) {
-            for (var i = 0; i < element.actions.length; i++) {
+            for (let i = 0; i < element.actions.length; i++) {
                 if (element.actions[i] === action) {
                     element.actions.splice(i, 1);
                     // update actionIndex in case we are in tick. looping over the actions
-                    if (element.actionIndex >= i)
-                        element.actionIndex--;
+                    if (element.actionIndex >= i) element.actionIndex--;
                     break;
                 }
             }
@@ -211,8 +205,8 @@ export class ActionManager {
     }
 
     _removeActionByTag (tag: number, element: any, target?: Node) {
-        for (var i = 0, l = element.actions.length; i < l; ++i) {
-            var action = element.actions[i];
+        for (let i = 0, l = element.actions.length; i < l; ++i) {
+            const action = element.actions[i];
             if (action && action.getTag() === tag) {
                 if (target && action.getOriginalTarget() !== target) {
                     continue;
@@ -231,20 +225,18 @@ export class ActionManager {
      * @param {Node} target
      */
     removeActionByTag (tag: number, target?: Node) {
-        if (tag === legacyCC.Action.TAG_INVALID)
-            logID(1002);
+        if (tag === legacyCC.Action.TAG_INVALID) logID(1002);
 
-        let hashTargets = this._hashTargets;
+        const hashTargets = this._hashTargets;
         if (target) {
-            var element = hashTargets.get(target);
+            const element = hashTargets.get(target);
             if (element) {
                 this._removeActionByTag(tag, element, target);
             }
-        }
-        else {
-            hashTargets.forEach(element => {
+        } else {
+            hashTargets.forEach((element) => {
                 this._removeActionByTag(tag, element);
-            })
+            });
         }
     }
 
@@ -257,23 +249,20 @@ export class ActionManager {
      * @return {Action|null}  return the Action with the given tag on success
      */
     getActionByTag (tag: number, target: Node): Action | null {
-        if (tag === legacyCC.Action.TAG_INVALID)
-            logID(1004);
+        if (tag === legacyCC.Action.TAG_INVALID) logID(1004);
 
-        var element = this._hashTargets.get(target);
+        const element = this._hashTargets.get(target);
         if (element) {
             if (element.actions != null) {
-                for (var i = 0; i < element.actions.length; ++i) {
-                    var action = element.actions[i];
-                    if (action && action.getTag() === tag)
-                        return action;
+                for (let i = 0; i < element.actions.length; ++i) {
+                    const action = element.actions[i];
+                    if (action && action.getTag() === tag) return action;
                 }
             }
             logID(1005, tag);
         }
         return null;
     }
-
 
     /**
      * @en
@@ -294,9 +283,8 @@ export class ActionManager {
      * @return {Number}
      */
     getNumberOfRunningActionsInTarget (target: Node): number {
-        var element = this._hashTargets.get(target);
-        if (element)
-            return (element.actions) ? element.actions.length : 0;
+        const element = this._hashTargets.get(target);
+        if (element) return (element.actions) ? element.actions.length : 0;
 
         return 0;
     }
@@ -307,9 +295,8 @@ export class ActionManager {
      * @param {Node} target
      */
     pauseTarget (target: Node) {
-        var element = this._hashTargets.get(target);
-        if (element)
-            element.paused = true;
+        const element = this._hashTargets.get(target);
+        if (element) element.paused = true;
     }
     /**
      * @en Resumes the target. All queued actions will be resumed.
@@ -318,9 +305,8 @@ export class ActionManager {
      * @param {Node} target
      */
     resumeTarget (target: Node) {
-        var element = this._hashTargets.get(target);
-        if (element)
-            element.paused = false;
+        const element = this._hashTargets.get(target);
+        if (element) element.paused = false;
     }
 
     /**
@@ -330,10 +316,10 @@ export class ActionManager {
      * @return {Array}  a list of targets whose actions were paused.
      */
     pauseAllRunningActions (): Array<any> {
-        var idsWithActions: object[] = [];
-        var locTargets = this._arrayTargets;
-        for (var i = 0; i < locTargets.length; i++) {
-            var element = locTargets[i];
+        const idsWithActions: object[] = [];
+        const locTargets = this._arrayTargets;
+        for (let i = 0; i < locTargets.length; i++) {
+            const element = locTargets[i];
             if (element && !element.paused) {
                 element.paused = true;
                 idsWithActions.push(element.target!);
@@ -349,12 +335,10 @@ export class ActionManager {
      * @param {Array} targetsToResume
      */
     resumeTargets (targetsToResume: Array<any>) {
-        if (!targetsToResume)
-            return;
+        if (!targetsToResume) return;
 
-        for (var i = 0; i < targetsToResume.length; i++) {
-            if (targetsToResume[i])
-                this.resumeTarget(targetsToResume[i]);
+        for (let i = 0; i < targetsToResume.length; i++) {
+            if (targetsToResume[i]) this.resumeTarget(targetsToResume[i]);
         }
     }
 
@@ -365,12 +349,10 @@ export class ActionManager {
      * @param {Array} targetsToPause
      */
     pauseTargets (targetsToPause: Array<any>) {
-        if (!targetsToPause)
-            return;
+        if (!targetsToPause) return;
 
-        for (var i = 0; i < targetsToPause.length; i++) {
-            if (targetsToPause[i])
-                this.pauseTarget(targetsToPause[i]);
+        for (let i = 0; i < targetsToPause.length; i++) {
+            if (targetsToPause[i]) this.pauseTarget(targetsToPause[i]);
         }
     }
 
@@ -387,15 +369,14 @@ export class ActionManager {
         legacyCC.director.getScheduler().unscheduleUpdate(this);
     }
 
-    //protected
+    // protected
     private _removeActionAtIndex (index, element) {
-        var action = element.actions[index];
+        const action = element.actions[index];
 
         element.actions.splice(index, 1);
 
         // update actionIndex in case we are in tick. looping over the actions
-        if (element.actionIndex >= index)
-            element.actionIndex--;
+        if (element.actionIndex >= index) element.actionIndex--;
 
         if (element.actions.length === 0) {
             this._deleteHashElement(element);
@@ -403,12 +384,12 @@ export class ActionManager {
     }
 
     private _deleteHashElement (element) {
-        var ret = false;
+        let ret = false;
         if (element && !element.lock) {
             if (this._hashTargets.get(element.target)) {
                 this._hashTargets.delete(element.target);
-                var targets = this._arrayTargets;
-                for (var i = 0, l = targets.length; i < l; i++) {
+                const targets = this._arrayTargets;
+                for (let i = 0, l = targets.length; i < l; i++) {
                     if (targets[i] === element) {
                         targets.splice(i, 1);
                         break;
@@ -428,13 +409,13 @@ export class ActionManager {
      * @param {Number} dt delta time in seconds
      */
     update (dt: number) {
-        var locTargets = this._arrayTargets;
-        var locCurrTarget;
-        for (var elt = 0; elt < locTargets.length; elt++) {
+        const locTargets = this._arrayTargets;
+        let locCurrTarget;
+        for (let elt = 0; elt < locTargets.length; elt++) {
             this._currentTarget = locTargets[elt];
             locCurrTarget = this._currentTarget;
 
-            let target = locCurrTarget.target;
+            const target = locCurrTarget.target;
             if (target instanceof CCObject && !target.isValid) {
                 this.removeAllActionsFromTarget(target as any);
                 elt--;
@@ -446,15 +427,14 @@ export class ActionManager {
                 // The 'actions' CCMutableArray may change while inside this loop.
                 for (locCurrTarget.actionIndex = 0; locCurrTarget.actionIndex < locCurrTarget.actions.length; locCurrTarget.actionIndex++) {
                     locCurrTarget.currentAction = locCurrTarget.actions[locCurrTarget.actionIndex];
-                    if (!locCurrTarget.currentAction)
-                        continue;
+                    if (!locCurrTarget.currentAction) continue;
 
-                    //use for speed
+                    // use for speed
                     locCurrTarget.currentAction.step(dt * (locCurrTarget.currentAction._speedMethod ? locCurrTarget.currentAction._speed : 1));
 
                     if (locCurrTarget.currentAction && locCurrTarget.currentAction.isDone()) {
                         locCurrTarget.currentAction.stop();
-                        var action = locCurrTarget.currentAction;
+                        const action = locCurrTarget.currentAction;
                         // Make currentAction nil to prevent removeAction from salvaging it.
                         locCurrTarget.currentAction = null;
                         this.removeAction(action);
@@ -470,4 +450,4 @@ export class ActionManager {
             }
         }
     }
-};
+}

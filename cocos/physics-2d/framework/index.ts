@@ -1,6 +1,8 @@
-export * from "./physics-types";
+import * as PolygonSeparator from './utils/polygon-separator';
 
-export * from "./physics-system";
+export * from './physics-types';
+
+export * from './physics-system';
 
 export * from '../spec/i-physics-contact';
 
@@ -24,8 +26,6 @@ export * from './components/joints/fixed-joint-2d';
 export * from './components/joints/wheel-joint-2d';
 export * from './components/joints/hinge-joint-2d';
 
-import * as PolygonSeparator from './utils/polygon-separator';
-
 export const Physics2DUtils = {
-    PolygonSeparator
-}
+    PolygonSeparator,
+};

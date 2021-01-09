@@ -28,10 +28,8 @@ import { SpriteFrame } from '../2d/assets';
 import { ccenum } from '../core/value-types/enum';
 import { HorizontalTextAlignment, VerticalTextAlignment } from '../2d/components/label';
 
-
 export type PropertiesInfo = { [key: string]: number | string };
 export type TiledAnimationType = Map<GID, TiledAnimation>;
-
 
 export interface TiledAnimation {
     frames: { grid: TiledGrid | null, tileid: GID, duration: number }[];
@@ -384,14 +382,13 @@ export class TMXTilesetInfo {
         rect.height = this._tileSize.height;
         let gid = gid_ as unknown as number;
         gid &= TileFlag.FLIPPED_MASK;
-        gid = gid - (this.firstGid as unknown as number);
+        gid -= (this.firstGid as unknown as number);
         const max_x = Math.floor((this.imageSize.width - this.margin * 2 + this.spacing) / (this._tileSize.width + this.spacing));
         rect.x = Math.round((gid % max_x) * (this._tileSize.width + this.spacing) + this.margin);
         rect.y = Math.round(Math.floor(gid / max_x) * (this._tileSize.height + this.spacing) + this.margin);
         return rect;
     }
-};
-
+}
 
 /**
  * <p>cc.TMXObjectGroupInfo contains the information about the object group like:
@@ -405,13 +402,12 @@ export class TMXTilesetInfo {
  */
 
 export class TMXObjectGroupInfo {
-
     /**
      * Properties of the ObjectGroup info.
      * @property {Array} properties
      */
     properties: PropertiesInfo = {} as any;
-    name: string = '';
+    name = '';
     objects: TMXObject[] = [];
     visible = true;
     opacity = 0;
@@ -435,8 +431,7 @@ export class TMXObjectGroupInfo {
     setProperties (value: PropertiesInfo) {
         this.properties = value;
     }
-};
-
+}
 
 export interface TMXObject {
     id: number | string;
@@ -461,7 +456,6 @@ export interface TMXObject {
     offset?: Vec2;
 }
 
-
 /**
  * cc.TMXLayerInfo contains the information about the layers like:
  * - Layer name
@@ -472,7 +466,6 @@ export interface TMXObject {
  * @class TMXLayerInfo
  */
 export class TMXLayerInfo {
-
     /**
      * Properties of the layer info.
      * @property {Object} properties
@@ -504,7 +497,6 @@ export class TMXLayerInfo {
     setProperties (value: PropertiesInfo) {
         this.properties = value;
     }
-
 
     /**
      * @property ATTRIB_NONE
@@ -540,7 +532,6 @@ export class TMXLayerInfo {
     static ATTRIB_ZLIB = 1 << 3;
 }
 
-
 /**
  * cc.TMXImageLayerInfo contains the information about the image layers.
  * This information is obtained from the TMX file.
@@ -560,7 +551,6 @@ export class TMXImageLayerInfo {
 }
 
 type DrawOrder = 'topdown' | 'bottomup';
-
 
 export interface TiledGrid {
 
@@ -589,6 +579,5 @@ export interface TiledGrid {
     _rect?: Rect;
     _rotated?: boolean;
 }
-
 
 export type TiledTextureGrids = Map<GID, TiledGrid>;

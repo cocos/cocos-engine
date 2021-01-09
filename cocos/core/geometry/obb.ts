@@ -51,7 +51,6 @@ const transform_extent_m3 = (out: Vec3, extent: Vec3, m3: Mat3) => {
  */
 
 export class OBB {
-
     /**
      * @en
      * create a new obb
@@ -79,7 +78,8 @@ export class OBB {
         hw: number, hh: number, hl: number,
         ox_1: number, ox_2: number, ox_3: number,
         oy_1: number, oy_2: number, oy_3: number,
-        oz_1: number, oz_2: number, oz_3: number) {
+        oz_1: number, oz_2: number, oz_3: number,
+    ) {
         return new OBB(cx, cy, cz, hw, hh, hl, ox_1, ox_2, ox_3, oy_1, oy_2, oy_3, oz_1, oz_2, oz_3);
     }
 
@@ -161,7 +161,8 @@ export class OBB {
         hw: number, hh: number, hl: number,
         ox_1: number, ox_2: number, ox_3: number,
         oy_1: number, oy_2: number, oy_3: number,
-        oz_1: number, oz_2: number, oz_3: number): OBB {
+        oz_1: number, oz_2: number, oz_3: number,
+    ): OBB {
         Vec3.set(out.center, cx, cy, cz);
         Vec3.set(out.halfExtents, hw, hh, hl);
         Mat3.set(out.orientation, ox_1, ox_2, ox_3, oy_1, oy_2, oy_3, oz_1, oz_2, oz_3);
@@ -198,12 +199,11 @@ export class OBB {
 
     protected readonly _type: number;
 
-
     constructor (cx = 0, cy = 0, cz = 0,
-                 hw = 1, hh = 1, hl = 1,
-                 ox_1 = 1, ox_2 = 0, ox_3 = 0,
-                 oy_1 = 0, oy_2 = 1, oy_3 = 0,
-                 oz_1 = 0, oz_2 = 0, oz_3 = 1) {
+        hw = 1, hh = 1, hl = 1,
+        ox_1 = 1, ox_2 = 0, ox_3 = 0,
+        oy_1 = 0, oy_2 = 1, oy_3 = 0,
+        oz_1 = 0, oz_2 = 0, oz_3 = 1) {
         this._type = enums.SHAPE_OBB;
         this.center = new Vec3(cx, cy, cz);
         this.halfExtents = new Vec3(hw, hh, hl);
@@ -248,7 +248,7 @@ export class OBB {
      * @param rot 变换的旋转部分。
      * @param out 变换的目标。
      */
-    public translateAndRotate (m: Mat4, rot: Quat, out: OBB){
+    public translateAndRotate (m: Mat4, rot: Quat, out: OBB) {
         Vec3.transformMat4(out.center, this.center, m);
         // parent shape doesn't contain rotations for now
         Mat3.fromQuat(out.orientation, rot);

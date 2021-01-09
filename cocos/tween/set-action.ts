@@ -28,10 +28,9 @@
  * @hidden
  */
 
-import { ActionInstant} from './actions/action-instant';
+import { ActionInstant } from './actions/action-instant';
 
 export class SetAction extends ActionInstant {
-
     private _props: any;
 
     constructor (props?: any) {
@@ -41,22 +40,22 @@ export class SetAction extends ActionInstant {
     }
 
     init (props) {
-        for (let name in props) {
+        for (const name in props) {
             this._props[name] = props[name];
         }
         return true;
     }
 
     update () {
-        let props = this._props;
-        let target = this.target;
-        for (let name in props) {
+        const props = this._props;
+        const target = this.target;
+        for (const name in props) {
             target![name] = props[name];
         }
     }
 
     clone () {
-        var action = new SetAction();
+        const action = new SetAction();
         action.init(this._props);
         return action;
     }

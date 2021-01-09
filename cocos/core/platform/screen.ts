@@ -81,7 +81,7 @@ const screen = {
             'MSFullscreenChange',
             'msFullscreenEnabled',
             'msFullscreenElement',
-        ]
+        ],
     ],
 
     /**
@@ -90,7 +90,7 @@ const screen = {
      */
     init () {
         this._fn = {};
-        let i, l, val, map = this._fnMap, valL;
+        let i; let l; let val; const map = this._fnMap; let valL;
         for (i = 0, l = map.length; i < l; i++) {
             val = map[i];
             if (val && (typeof document[val[1]] !== 'undefined')) {
@@ -120,11 +120,9 @@ const screen = {
      * @returns {Boolean}
      */
     fullScreen () {
-        if (!this._supportsFullScreen) { return false; }
-        else if (document[this._fn.fullscreenElement] === undefined || document[this._fn.fullscreenElement] === null) {
+        if (!this._supportsFullScreen) { return false; } else if (document[this._fn.fullscreenElement] === undefined || document[this._fn.fullscreenElement] === null) {
             return false;
-        }
-        else {
+        } else {
             return true;
         }
     },
@@ -157,7 +155,7 @@ const screen = {
         }
 
         if (onFullScreenError) {
-            let eventName = this._fn.fullscreenerror;
+            const eventName = this._fn.fullscreenerror;
             if (this._onfullscreenerror) {
                 document.removeEventListener(eventName, this._onfullscreenerror);
             }
@@ -165,10 +163,10 @@ const screen = {
             document.addEventListener(eventName, onFullScreenError, { once: true });
         }
 
-        let requestPromise = element[this._fn.requestFullscreen]();
+        const requestPromise = element[this._fn.requestFullscreen]();
         // the requestFullscreen API can only be initiated by user gesture.
         if (window.Promise && requestPromise instanceof Promise) {
-            requestPromise.catch(err => {
+            requestPromise.catch((err) => {
                 // do nothing ...
             });
         }
@@ -184,7 +182,7 @@ const screen = {
         let requestPromise;
         if (this.fullScreen()) {
             requestPromise = document[this._fn.exitFullscreen]();
-            requestPromise.catch(err => {
+            requestPromise.catch((err) => {
                 // do nothing ...
             });
         }
@@ -206,8 +204,8 @@ const screen = {
 
     disableAutoFullScreen (element) {
         if (this._preOnTouch) {
-            let touchTarget = legacyCC.game.canvas || element;
-            let touchEventName = this._touchEvent;
+            const touchTarget = legacyCC.game.canvas || element;
+            const touchEventName = this._touchEvent;
             touchTarget.removeEventListener(touchEventName, this._preOnTouch);
             this._preOnTouch = null;
         }
@@ -215,15 +213,15 @@ const screen = {
 
     // Register touch event if request full screen failed
     _ensureFullScreen (element: HTMLElement, onFullScreenChange: (this: Document, ev: any) => any) {
-        let touchTarget = legacyCC.game.canvas || element;
-        let fullScreenErrorEventName = this._fn.fullscreenerror;
-        let touchEventName = this._touchEvent;
+        const touchTarget = legacyCC.game.canvas || element;
+        const fullScreenErrorEventName = this._fn.fullscreenerror;
+        const touchEventName = this._touchEvent;
 
-        let onFullScreenError = () => {
+        const onFullScreenError = () => {
             this._preOnFullScreenError = null;
 
             // handle touch event listener
-            let onTouch = () => {
+            const onTouch = () => {
                 this._preOnTouch = null;
                 this.requestFullScreen(element, onFullScreenChange);
             };

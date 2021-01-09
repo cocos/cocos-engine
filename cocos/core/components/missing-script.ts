@@ -29,11 +29,11 @@
  * @module component
  */
 
-import {ccclass, inspector, editorOnly, serializable, editable} from 'cc.decorator';
-import {_getClassById} from '../utils/js';
-import {BUILTIN_CLASSID_RE} from '../utils/misc';
-import { Component } from './component';
+import { ccclass, inspector, editorOnly, serializable, editable } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
+import { _getClassById } from '../utils/js';
+import { BUILTIN_CLASSID_RE } from '../utils/misc';
+import { Component } from './component';
 import { legacyCC } from '../global-exports';
 import { warnID } from '../platform/debug';
 
@@ -46,7 +46,6 @@ import { warnID } from '../platform/debug';
 @ccclass('cc.MissingScript')
 @inspector('packages://inspector/inspectors/comps/missing-script.js')
 export default class MissingScript extends Component {
-
     // _scriptUuid: {
     //    get: function () {
     //        var id = this._$erialized.__type__;

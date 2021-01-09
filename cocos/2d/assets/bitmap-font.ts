@@ -102,7 +102,7 @@ export class FontAtlas {
     public clear () {
         this.letterDefinitions = {};
     }
-};
+}
 
 /**
  * @en Class for BitmapFont handling.
@@ -161,7 +161,7 @@ export class BitmapFont extends Font {
             letter.h = rect.height;
             letter.u = rect.x;
             letter.v = rect.y;
-            //FIXME: only one texture supported for now
+            // FIXME: only one texture supported for now
             letter.textureID = 0;
             letter.valid = true;
             letter.xAdvance = fontDict[fontDef].xAdvance;

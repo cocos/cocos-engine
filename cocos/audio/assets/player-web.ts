@@ -37,19 +37,18 @@ import { AudioManager } from './audio-manager';
 type ManagedAudio = AudioPlayerWeb | AudioBufferSourceNode;
 
 class AudioManagerWeb extends AudioManager<ManagedAudio> {
-    public discardOnePlayingIfNeeded() {
+    public discardOnePlayingIfNeeded () {
         if (this._playingAudios.length < AudioManager.maxAudioChannel) {
             return;
         }
 
         // a played audio has a higher priority than a played shot
         let audioToDiscard: ManagedAudio | undefined;
-        let oldestOneShotIndex = this._playingAudios.findIndex(audio => audio instanceof AudioBufferSourceNode);
+        const oldestOneShotIndex = this._playingAudios.findIndex((audio) => audio instanceof AudioBufferSourceNode);
         if (oldestOneShotIndex > -1) {
             audioToDiscard = this._playingAudios[oldestOneShotIndex];
             this._playingAudios.splice(oldestOneShotIndex, 1);
-        }
-        else {
+        } else {
             audioToDiscard = this._playingAudios.shift();
         }
         audioToDiscard?.stop();
@@ -107,7 +106,7 @@ export class AudioPlayerWeb extends AudioPlayer {
         }
         if (this._blocking || this._context.state !== 'running') {
             this._interrupted = true;
-            if (('interrupted' === this._context.state as string || 'suspended' === this._context.state as string)
+            if ((this._context.state as string === 'interrupted' || this._context.state as string === 'suspended')
                 && this._context.resume) {
                 this._onGesture();
             }
@@ -147,7 +146,7 @@ export class AudioPlayerWeb extends AudioPlayer {
         AudioPlayerWeb._manager.addPlaying(sourceNode);
         sourceNode.onended = () => {
             AudioPlayerWeb._manager.removePlaying(sourceNode);
-        }
+        };
     }
 
     public setCurrentTime (val: number) {
@@ -168,8 +167,7 @@ export class AudioPlayerWeb extends AudioPlayer {
         if (!immediate && this._gainNode.gain.setTargetAtTime) {
             try {
                 this._gainNode.gain.setTargetAtTime(val, this._context.currentTime, 0);
-            }
-            catch (e) {
+            } catch (e) {
                 // Some other unknown browsers may crash if TIME_CONSTANT is 0
                 this._gainNode.gain.setTargetAtTime(val, this._context.currentTime, 0.01);
             }
@@ -219,8 +217,7 @@ export class AudioPlayerWeb extends AudioPlayer {
 
     private _doStop () {
         // stop can only be called after play
-        if (this._startInvoked) { this._sourceNode.stop(); }
-        else { legacyCC.director.off(legacyCC.Director.EVENT_AFTER_UPDATE, this._playAndEmit, this); }
+        if (this._startInvoked) { this._sourceNode.stop(); } else { legacyCC.director.off(legacyCC.Director.EVENT_AFTER_UPDATE, this._playAndEmit, this); }
         AudioPlayerWeb._manager.removePlaying(this);
     }
 

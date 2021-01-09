@@ -28,11 +28,11 @@
  * @module pipeline
  */
 
-import { CCString } from '../data/utils/attribute';
 import { ccclass, type, serializable, editable } from 'cc.decorator';
-import { Format, LoadOp, StoreOp, TextureLayout, TextureType, TextureUsageBit} from '../gfx/define';
+import { CCString } from '../data/utils/attribute';
+import { Format, LoadOp, StoreOp, TextureLayout, TextureType, TextureUsageBit } from '../gfx/define';
 import { ccenum } from '../value-types/enum';
-import { RenderTexture } from './../assets/render-texture';
+import { RenderTexture } from '../assets/render-texture';
 import { Material } from '../assets/material';
 
 ccenum(TextureType);
@@ -57,7 +57,7 @@ ccenum(RenderFlowTag);
 export class RenderTextureDesc {
     @serializable
     @editable
-    public name: string = '';
+    public name = '';
     @type(TextureType)
     public type: TextureType = TextureType.TEX2D;
     @type(TextureUsageBit)
@@ -66,17 +66,17 @@ export class RenderTextureDesc {
     public format: Format = Format.UNKNOWN;
     @serializable
     @editable
-    public width: number = -1;
+    public width = -1;
     @serializable
     @editable
-    public height: number = -1;
+    public height = -1;
 }
 
 @ccclass('RenderTextureConfig')
 export class RenderTextureConfig {
     @serializable
     @editable
-    public name: string = '';
+    public name = '';
     @type(RenderTexture)
     public texture: RenderTexture | null = null;
 }
@@ -85,7 +85,7 @@ export class RenderTextureConfig {
 export class MaterialConfig {
     @serializable
     @editable
-    public name: string = '';
+    public name = '';
     @type(Material)
     public material: Material | null = null;
 }
@@ -94,15 +94,15 @@ export class MaterialConfig {
 export class FrameBufferDesc {
     @serializable
     @editable
-    public name: string = '';
+    public name = '';
     @serializable
     @editable
-    public renderPass: number = 0;
+    public renderPass = 0;
     @type([CCString])
     public colorTextures: string[] = [];
     @serializable
     @editable
-    public depthStencilTexture: string = '';
+    public depthStencilTexture = '';
     @type(RenderTexture)
     public texture: RenderTexture | null = null;
 }
@@ -117,7 +117,7 @@ export class ColorDesc {
     public storeOp: StoreOp = StoreOp.STORE;
     @serializable
     @editable
-    public sampleCount: number = 1;
+    public sampleCount = 1;
     @type(TextureLayout)
     public beginLayout: TextureLayout = TextureLayout.UNDEFINED;
     @type(TextureLayout)
@@ -138,7 +138,7 @@ export class DepthStencilDesc {
     public stencilStoreOp: StoreOp = StoreOp.STORE;
     @serializable
     @editable
-    public sampleCount: number = 1;
+    public sampleCount = 1;
     @type(TextureLayout)
     public beginLayout: TextureLayout = TextureLayout.UNDEFINED;
     @type(TextureLayout)
@@ -149,7 +149,7 @@ export class DepthStencilDesc {
 export class RenderPassDesc {
     @serializable
     @editable
-    public index: number = -1;
+    public index = -1;
     @type([ColorDesc])
     public colorAttachments = [];
     @type(DepthStencilDesc)
@@ -169,14 +169,13 @@ ccenum(RenderQueueSortMode);
  */
 @ccclass('RenderQueueDesc')
 export class RenderQueueDesc {
-
     /**
      * @en Whether the render queue is a transparent queue
      * @zh 当前队列是否是半透明队列
      */
     @serializable
     @editable
-    public isTransparent: boolean = false;
+    public isTransparent = false;
 
     /**
      * @en The sort mode of the render queue

@@ -102,7 +102,7 @@ export default class Pool<T> {
      */
     public get () {
         return this._get();
-    };
+    }
 
     private _pool: Array<T | null>;
     private _cleanup: CleanUpFunction<T> | null;

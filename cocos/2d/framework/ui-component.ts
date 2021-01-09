@@ -48,7 +48,6 @@ import { Stage } from '../renderer/stencil-manager';
 @disallowMultiple
 @executeInEditMode
 export class UIComponent extends Component {
-
     protected _lastParent: Node | null = null;
 
     public __preload () {
@@ -78,7 +77,6 @@ export class UIComponent extends Component {
      */
     public updateAssembler (render: UI) {
     }
-
 
     /**
      * @en Post render data submission procedure, it's executed after assembler updated for all children.

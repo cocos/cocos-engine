@@ -43,9 +43,9 @@ export default function quad (options?: IGeometryOptions): IGeometry {
         positions: [
             -0.5, -0.5, 0, // bottom-left
             -0.5,  0.5, 0, // top-left
-             0.5,  0.5, 0, // top-right
-             0.5, -0.5, 0, // bottom-right
-          ],
+            0.5,  0.5, 0, // top-right
+            0.5, -0.5, 0, // bottom-right
+        ],
         indices: [
             0, 3, 1,
             3, 2, 1,
@@ -64,7 +64,7 @@ export default function quad (options?: IGeometryOptions): IGeometry {
             0, 0, 1,
             0, 0, 1,
             0, 0, 1,
-          ];
+        ];
     }
     if (normalizedOptions.includeUV !== false) {
         result.uvs = [

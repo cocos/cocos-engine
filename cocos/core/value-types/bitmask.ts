@@ -28,8 +28,8 @@
  * @module core/value-types
  */
 
-import { value } from '../utils/js';
 import { EDITOR, TEST } from 'internal:constants';
+import { value } from '../utils/js';
 import { legacyCC } from '../global-exports';
 import { errorID } from '../platform/debug';
 
@@ -56,16 +56,12 @@ export function BitMask<T> (obj: T): T {
         if (val === -1) {
             val = ++lastIndex;
             obj[key] = val;
+        } else if (typeof val === 'number') {
+            lastIndex = val;
+        } else if (typeof val === 'string' && Number.isInteger(parseFloat(key))) {
+            continue;
         }
-        else {
-            if (typeof val === 'number') {
-                lastIndex = val;
-            }
-            else if (typeof val === 'string' && Number.isInteger(parseFloat(key))) {
-                continue;
-            }
-        }
-        const reverseKey: string = '' + val;
+        const reverseKey = `${val}`;
         if (key !== reverseKey) {
             if ((EDITOR || TEST) && reverseKey in obj && obj[reverseKey] !== key) {
                 errorID(7100, reverseKey);
@@ -77,9 +73,7 @@ export function BitMask<T> (obj: T): T {
     return obj;
 }
 
-BitMask.isBitMask = (BitMaskType) => {
-    return BitMaskType && BitMaskType.hasOwnProperty('__bitmask__');
-};
+BitMask.isBitMask = (BitMaskType) => BitMaskType && BitMaskType.hasOwnProperty('__bitmask__');
 
 BitMask.getList = (BitMaskDef) => {
     if (BitMaskDef.__bitmask__) {

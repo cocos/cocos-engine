@@ -17,10 +17,10 @@ export class b2FixedJoint extends b2Joint implements IFixedJoint {
     }
 
     _createJointDef () {
-        let comp = this._jointComp as FixedJoint2D;
-        let def = new b2.WeldJointDef();
-        def.localAnchorA.Set(comp.anchor.x/PHYSICS_2D_PTM_RATIO, comp.anchor.y/PHYSICS_2D_PTM_RATIO);
-        def.localAnchorB.Set(comp.connectedAnchor.x/PHYSICS_2D_PTM_RATIO, comp.connectedAnchor.y/PHYSICS_2D_PTM_RATIO);
+        const comp = this._jointComp as FixedJoint2D;
+        const def = new b2.WeldJointDef();
+        def.localAnchorA.Set(comp.anchor.x / PHYSICS_2D_PTM_RATIO, comp.anchor.y / PHYSICS_2D_PTM_RATIO);
+        def.localAnchorB.Set(comp.connectedAnchor.x / PHYSICS_2D_PTM_RATIO, comp.connectedAnchor.y / PHYSICS_2D_PTM_RATIO);
         def.referenceAngle = 0;
         def.frequencyHz = comp.frequency;
         def.dampingRatio = comp.dampingRatio;

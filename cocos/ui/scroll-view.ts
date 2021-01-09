@@ -29,9 +29,10 @@
  * @module ui
  */
 
+import { ccclass, help, executionOrder, menu, requireComponent, tooltip, displayOrder, range, type, serializable } from 'cc.decorator';
+import { EDITOR } from 'internal:constants';
 import { EventHandler as ComponentEventHandler } from '../core/components/component-event-handler';
 import { UITransform } from '../2d/framework';
-import { ccclass, help, executionOrder, menu, requireComponent, tooltip, displayOrder, range, type, serializable } from 'cc.decorator';
 import { Event } from '../core/event';
 import { EventMouse, EventTouch, Touch, logID } from '../core/platform';
 import { Size, Vec2, Vec3 } from '../core/math';
@@ -41,7 +42,6 @@ import { ViewGroup } from './view-group';
 import { Node } from '../core/scene-graph/node';
 import { director, Director } from '../core/director';
 import { TransformBit } from '../core/scene-graph/node-enum';
-import { EDITOR } from 'internal:constants';
 import { legacyCC } from '../core/global-exports';
 
 const NUMBER_OF_GATHERED_TOUCHES_FOR_MOVE_SPEED = 5;
@@ -70,7 +70,7 @@ const eventMap = {
     'scroll-to-bottom': 1,
     'scroll-to-left': 2,
     'scroll-to-right': 3,
-    'scrolling': 4,
+    scrolling: 4,
     'bounce-bottom': 6,
     'bounce-left': 7,
     'bounce-right': 8,
@@ -280,7 +280,7 @@ export class ScrollView extends ViewGroup {
         if (this._content === value) {
             return;
         }
-        let viewTrans = value && value.parent && value.parent._uiProps.uiTransformComp;
+        const viewTrans = value && value.parent && value.parent._uiProps.uiTransformComp;
         if (value && (!value || !viewTrans)) {
             logID(4302);
             return;
@@ -316,7 +316,7 @@ export class ScrollView extends ViewGroup {
     }
 
     set horizontalScrollBar (value: ScrollBar | null) {
-        if (this._horizontalScrollBar === value){
+        if (this._horizontalScrollBar === value) {
             return;
         }
 
@@ -395,7 +395,7 @@ export class ScrollView extends ViewGroup {
     public scrollEvents: ComponentEventHandler[] = [];
 
     get view () {
-        let parent = this._content && this._content.parent;
+        const parent = this._content && this._content.parent;
         if (!parent) {
             return null;
         }
@@ -738,7 +738,7 @@ export class ScrollView extends ViewGroup {
         if (!this._content || !this.view) {
             return ZERO;
         }
-        const contentSize = this._content!._uiProps.uiTransformComp!.contentSize;
+        const contentSize = this._content._uiProps.uiTransformComp!.contentSize;
         let horizontalMaximizeOffset = contentSize.width - this.view.width;
         let verticalMaximizeOffset = contentSize.height - this.view.height;
         horizontalMaximizeOffset = horizontalMaximizeOffset >= 0 ? horizontalMaximizeOffset : 0;
@@ -883,7 +883,7 @@ export class ScrollView extends ViewGroup {
      * @returns - 当前视图内容的坐标点.
      */
     public getContentPosition () {
-        if (!this._content){
+        if (!this._content) {
             return ZERO;
         }
 
@@ -1103,7 +1103,6 @@ export class ScrollView extends ViewGroup {
 
             this._moveContentToTopLeft(viewTrans.contentSize);
         }
-
     }
 
     protected _hasNestedViewGroup (event: Event, captureListeners?: Node[]) {
@@ -1150,7 +1149,7 @@ export class ScrollView extends ViewGroup {
         const targetDelta = new Vec3(deltaMove);
         targetDelta.normalize();
         if (this._content && this.view) {
-            const contentSize = this._content!._uiProps.uiTransformComp!.contentSize;
+            const contentSize = this._content._uiProps.uiTransformComp!.contentSize;
             const scrollViewSize = this.view.contentSize;
 
             const totalMoveWidth = (contentSize.width - scrollViewSize.width);
@@ -1179,11 +1178,11 @@ export class ScrollView extends ViewGroup {
         let time = this._calculateAutoScrollTimeByInitialSpeed(initialVelocity.length());
         if (this.brake > 0 && factor > 3) {
             factor = 3;
-            time = time * factor;
+            time *= factor;
         }
 
         if (this.brake === 0 && factor > 1) {
-            time = time * factor;
+            time *= factor;
         }
 
         this._startAutoScroll(targetDelta, time, true);
@@ -1193,7 +1192,7 @@ export class ScrollView extends ViewGroup {
         return Math.sqrt(Math.sqrt(initialSpeed / 5));
     }
 
-    protected _startAutoScroll (deltaMove: Vec3, timeInSecond: number, attenuated: boolean = false) {
+    protected _startAutoScroll (deltaMove: Vec3, timeInSecond: number, attenuated = false) {
         const adjustedDeltaMove = this._flattenVectorByDirection(deltaMove);
 
         this._autoScrolling = true;
@@ -1214,9 +1213,7 @@ export class ScrollView extends ViewGroup {
 
     protected _calculateTouchMoveVelocity () {
         let totalTime = 0;
-        totalTime = this._touchMoveTimeDeltas.reduce((a, b) => {
-            return a + b;
-        }, totalTime);
+        totalTime = this._touchMoveTimeDeltas.reduce((a, b) => a + b, totalTime);
 
         if (totalTime <= 0 || totalTime >= 0.5) {
             return new Vec3();
@@ -1258,7 +1255,7 @@ export class ScrollView extends ViewGroup {
             return -1;
         }
         const contentPos = this.getContentPosition();
-        const uiTrans = this._content!._uiProps.uiTransformComp!;
+        const uiTrans = this._content._uiProps.uiTransformComp!;
         return contentPos.x - uiTrans.anchorX * uiTrans.width;
     }
 
@@ -1266,7 +1263,7 @@ export class ScrollView extends ViewGroup {
         if (!this._content) {
             return -1;
         }
-        const uiTrans = this._content!._uiProps.uiTransformComp!;
+        const uiTrans = this._content._uiProps.uiTransformComp!;
         return this._getContentLeftBoundary() + uiTrans.width;
     }
 
@@ -1274,7 +1271,7 @@ export class ScrollView extends ViewGroup {
         if (!this._content) {
             return -1;
         }
-        const uiTrans = this._content!._uiProps.uiTransformComp!;
+        const uiTrans = this._content._uiProps.uiTransformComp!;
         return this._getContentBottomBoundary() + uiTrans.height;
     }
 
@@ -1283,7 +1280,7 @@ export class ScrollView extends ViewGroup {
             return -1;
         }
         const contentPos = this.getContentPosition();
-        const uiTrans = this._content!._uiProps.uiTransformComp!;
+        const uiTrans = this._content._uiProps.uiTransformComp!;
         return contentPos.y - uiTrans.anchorY * uiTrans.height;
     }
 
@@ -1348,12 +1345,10 @@ export class ScrollView extends ViewGroup {
     protected _dispatchEvent (event: string) {
         if (event === EventType.SCROLL_ENDED) {
             this._scrollEventEmitMask = 0;
-
         } else if (event === EventType.SCROLL_TO_TOP
             || event === EventType.SCROLL_TO_BOTTOM
             || event === EventType.SCROLL_TO_LEFT
             || event === EventType.SCROLL_TO_RIGHT) {
-
             const flag = (1 << eventMap[event]);
             if (this._scrollEventEmitMask & flag) {
                 return;
@@ -1367,7 +1362,7 @@ export class ScrollView extends ViewGroup {
     }
 
     protected _adjustContentOutOfBoundary () {
-        if (!this._content){
+        if (!this._content) {
             return;
         }
 
@@ -1396,7 +1391,7 @@ export class ScrollView extends ViewGroup {
             return;
         }
         const viewTrans = this.view;
-        const uiTrans = this._content!._uiProps.uiTransformComp!;
+        const uiTrans = this._content._uiProps.uiTransformComp!;
         if (this.verticalScrollBar) {
             if (uiTrans.height < viewTrans.height) {
                 this.verticalScrollBar.hide();
@@ -1412,7 +1407,6 @@ export class ScrollView extends ViewGroup {
                 this.horizontalScrollBar.show();
             }
         }
-
     }
 
     // This is for ScrollView as children of a Button
@@ -1445,7 +1439,7 @@ export class ScrollView extends ViewGroup {
         }
     }
 
-    protected _getLocalAxisAlignDelta (touch: Touch){
+    protected _getLocalAxisAlignDelta (touch: Touch) {
         const uiTransformComp = this.node._uiProps.uiTransformComp;
         const vec = new Vec3();
 
@@ -1480,7 +1474,7 @@ export class ScrollView extends ViewGroup {
 
         let scrollEventType;
         if (this._content) {
-            const { anchorX, anchorY, width, height } = this._content!._uiProps.uiTransformComp!;
+            const { anchorX, anchorY, width, height } = this._content._uiProps.uiTransformComp!;
             const pos = this._content.position || ZERO;
             if (realMove.y > 0) { // up
                 const icBottomPos = pos.y - anchorY * height;
@@ -1521,7 +1515,6 @@ export class ScrollView extends ViewGroup {
         if (scrollEventType && scrollEventType.length > 0) {
             this._dispatchEvent(scrollEventType);
         }
-
     }
 
     protected _handlePressLogic () {
@@ -1542,7 +1535,7 @@ export class ScrollView extends ViewGroup {
     protected _clampDelta (delta: Vec3) {
         if (this._content && this.view) {
             const scrollViewSize = this.view.contentSize;
-            const uiTrans = this._content!._uiProps.uiTransformComp!;
+            const uiTrans = this._content._uiProps.uiTransformComp!;
             if (uiTrans.width < scrollViewSize.width) {
                 delta.x = 0;
             }
@@ -1625,7 +1618,6 @@ export class ScrollView extends ViewGroup {
                 this._autoScrollBrakingStartPosition = this.getContentPosition();
                 return true;
             }
-
         } else {
             this._autoScrollCurrentlyOutOfBoundary = false;
         }
@@ -1729,7 +1721,7 @@ export class ScrollView extends ViewGroup {
         const moveDelta = new Vec3();
         if (this._content && this.view) {
             let totalScrollDelta = 0;
-            const uiTrans = this._content!._uiProps.uiTransformComp!;
+            const uiTrans = this._content._uiProps.uiTransformComp!;
             const contentSize = uiTrans.contentSize;
             const scrollSize = this.view.contentSize;
             if (applyToHorizontal) {
@@ -1756,7 +1748,7 @@ export class ScrollView extends ViewGroup {
 
         // 是否限制在上视区上边
         if (this._content) {
-            const uiTrans = this._content!._uiProps.uiTransformComp!;
+            const uiTrans = this._content._uiProps.uiTransformComp!;
             const contentSize = uiTrans.contentSize;
             if (contentSize.height < scrollViewSize.height) {
                 totalScrollDelta = contentSize.height - scrollViewSize.height;
@@ -1775,7 +1767,7 @@ export class ScrollView extends ViewGroup {
         this._adjustContentOutOfBoundary();
     }
 
-    protected _scaleChanged (value: TransformBit){
+    protected _scaleChanged (value: TransformBit) {
         if (value === TransformBit.SCALE) {
             this._calculateBoundary();
         }

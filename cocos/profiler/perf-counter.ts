@@ -33,14 +33,14 @@ export class PerfCounter extends Counter {
         super(id, opts, now);
         this._time = now;
     }
-    public start (now: number = 0) {
+    public start (now = 0) {
         this._time = now;
 
         // DISABLE: long time running will cause performance drop down
         // window.performance.mark(this._idstart);
     }
 
-    public end (now: number = 0) {
+    public end (now = 0) {
         this._value = now - this._time;
 
         // DISABLE: long time running will cause performance drop down

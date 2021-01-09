@@ -23,7 +23,6 @@
  THE SOFTWARE.
  */
 
-
 /**
  * @packageDocumentation
  * @module particle
@@ -35,13 +34,12 @@ import { Particle, ParticleModuleBase, PARTICLE_MODULE_NAME } from '../particle'
 import CurveRange from './curve-range';
 import { ModuleRandSeed } from '../enum';
 
-
 const SIZE_OVERTIME_RAND_OFFSET = ModuleRandSeed.SIZE;
 
 @ccclass('cc.SizeOvertimeModule')
 export default class SizeOvertimeModule extends ParticleModuleBase {
     @serializable
-    _enable: Boolean = false;
+    _enable = false;
     /**
      * @zh 是否启用。
      */

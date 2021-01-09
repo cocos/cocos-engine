@@ -38,14 +38,12 @@ export function calculateTransform (systemSpace: number, moduleSpace: number, wo
     if (moduleSpace !== systemSpace) {
         if (systemSpace === Space.World) {
             Mat4.getRotation(outQuat, worldTransform);
-        }
-        else {
+        } else {
             Mat4.invert(worldTransform, worldTransform);
             Mat4.getRotation(outQuat, worldTransform);
         }
         return true;
-    }
-    else {
+    } else {
         Quat.set(outQuat, 0, 0, 0, 1);
         return false;
     }
@@ -117,8 +115,7 @@ export function randomPointBetweenCube (out: Vec3, minBox: Vec3, maxBox: Vec3) {
         const x = random() * 2 - 1;
         if (x < 0) {
             out[subscript[i]] = -minBox[subscript[i]] + x * (maxBox[subscript[i]] - minBox[subscript[i]]);
-        }
-        else {
+        } else {
             out[subscript[i]] = minBox[subscript[i]] + x * (maxBox[subscript[i]] - minBox[subscript[i]]);
         }
     }

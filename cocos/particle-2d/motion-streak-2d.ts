@@ -137,7 +137,7 @@ export class MotionStreak extends UIRenderable {
     }
 
     @serializable
-    private _preview: boolean = false;
+    private _preview = false;
     @serializable
     private _fadeTime = 1;
     @serializable
@@ -147,7 +147,7 @@ export class MotionStreak extends UIRenderable {
     @serializable
     private _texture: Texture2D | null  = null;
     @serializable
-    private _fastMode: boolean = false;
+    private _fastMode = false;
     private _points: any[] = [];
 
     public onEnable () {
@@ -163,7 +163,7 @@ export class MotionStreak extends UIRenderable {
         }
 
         if (!this._renderData) {
-            if (this._assembler && this._assembler.createData){
+            if (this._assembler && this._assembler.createData) {
                 this._renderData = this._assembler.createData(this);
                 this._renderData!.material = this.material;
             }
@@ -200,6 +200,6 @@ export class MotionStreak extends UIRenderable {
     }
 
     public _render (render: UI) {
-        render.commitComp(this, this._texture!, this._assembler, null);
+        render.commitComp(this, this._texture, this._assembler, null);
     }
 }

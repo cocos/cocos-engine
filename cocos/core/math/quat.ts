@@ -41,7 +41,6 @@ import { legacyCC } from '../global-exports';
  * @zh 四元数
  */
 export class Quat extends ValueType {
-
     public static IDENTITY = Object.freeze(new Quat());
 
     /**
@@ -271,7 +270,6 @@ export class Quat extends ValueType {
      * @zh 根据 xyz 分量计算 w 分量，默认已归一化
      */
     public static calculateW<Out extends IQuatLike> (out: Out, a: Out) {
-
         out.x = a.x;
         out.y = a.y;
         out.z = a.z;
@@ -304,7 +302,7 @@ export class Quat extends ValueType {
      * @zh 四元数球面插值
      */
     public static slerp<Out extends IQuatLike, QuatLike_1 extends IQuatLike, QuatLike_2 extends IQuatLike>
-        (out: Out, a: QuatLike_1, b: QuatLike_2, t: number) {
+    (out: Out, a: QuatLike_1, b: QuatLike_2, t: number) {
         // benchmarks:
         //    http://jsperf.com/quaternion-slerp-implementations
 
@@ -427,8 +425,7 @@ export class Quat extends ValueType {
         Mat3.set(m3_1,
             xAxis.x, xAxis.y, xAxis.z,
             yAxis.x, yAxis.y, yAxis.z,
-            zAxis.x, zAxis.y, zAxis.z,
-        );
+            zAxis.x, zAxis.y, zAxis.z);
         return Quat.normalize(out, Quat.fromMat3(out, m3_1));
     }
 
@@ -448,7 +445,7 @@ export class Quat extends ValueType {
      * @zh 根据旋转轴和旋转弧度计算四元数
      */
     public static fromAxisAngle<Out extends IQuatLike, VecLike extends IVec3Like> (out: Out, axis: VecLike, rad: number) {
-        rad = rad * 0.5;
+        rad *= 0.5;
         const s = Math.sin(rad);
         out.x = s * axis.x;
         out.y = s * axis.y;
@@ -463,7 +460,7 @@ export class Quat extends ValueType {
      */
     public static fromMat3<Out extends IQuatLike> (out: Out, m: Mat3) {
         const {
-            m00: m00, m03: m01, m06: m02,
+            m00, m03: m01, m06: m02,
             m01: m10, m04: m11, m07: m12,
             m02: m20, m05: m21, m08: m22,
         } = m;
@@ -477,7 +474,6 @@ export class Quat extends ValueType {
             out.x = (m21 - m12) * s;
             out.y = (m02 - m20) * s;
             out.z = (m10 - m01) * s;
-
         } else if ((m00 > m11) && (m00 > m22)) {
             const s = 2.0 * Math.sqrt(1.0 + m00 - m11 - m22);
 
@@ -485,7 +481,6 @@ export class Quat extends ValueType {
             out.x = 0.25 * s;
             out.y = (m01 + m10) / s;
             out.z = (m02 + m20) / s;
-
         } else if (m11 > m22) {
             const s = 2.0 * Math.sqrt(1.0 + m11 - m00 - m22);
 
@@ -493,7 +488,6 @@ export class Quat extends ValueType {
             out.x = (m01 + m10) / s;
             out.y = 0.25 * s;
             out.z = (m12 + m21) / s;
-
         } else {
             const s = 2.0 * Math.sqrt(1.0 + m22 - m00 - m11);
 
@@ -537,7 +531,7 @@ export class Quat extends ValueType {
      * @param out Output quaternion
      * @param z Angle to rotate around Z axis in degrees.
      */
-    public static fromAngleZ<Out extends IQuatLike>(out: Out, z: number) {
+    public static fromAngleZ<Out extends IQuatLike> (out: Out, z: number) {
         z *= halfToRad;
         out.x = out.y = 0;
         out.z = Math.sin(z);
@@ -664,10 +658,10 @@ export class Quat extends ValueType {
      * @zh 排除浮点数误差的四元数近似等价判断
      */
     public static equals (a: IQuatLike, b: IQuatLike, epsilon = EPSILON) {
-        return (Math.abs(a.x - b.x) <= epsilon * Math.max(1.0, Math.abs(a.x), Math.abs(b.x)) &&
-            Math.abs(a.y - b.y) <= epsilon * Math.max(1.0, Math.abs(a.y), Math.abs(b.y)) &&
-            Math.abs(a.z - b.z) <= epsilon * Math.max(1.0, Math.abs(a.z), Math.abs(b.z)) &&
-            Math.abs(a.w - b.w) <= epsilon * Math.max(1.0, Math.abs(a.w), Math.abs(b.w)));
+        return (Math.abs(a.x - b.x) <= epsilon * Math.max(1.0, Math.abs(a.x), Math.abs(b.x))
+            && Math.abs(a.y - b.y) <= epsilon * Math.max(1.0, Math.abs(a.y), Math.abs(b.y))
+            && Math.abs(a.z - b.z) <= epsilon * Math.max(1.0, Math.abs(a.z), Math.abs(b.z))
+            && Math.abs(a.w - b.w) <= epsilon * Math.max(1.0, Math.abs(a.w), Math.abs(b.w)));
     }
 
     /**
@@ -759,10 +753,10 @@ export class Quat extends ValueType {
      * @returns Returns `true' when the components of the two quaternions are equal within the specified error range; otherwise, returns `false'.
      */
     public equals (other: Quat, epsilon = EPSILON) {
-        return (Math.abs(this.x - other.x) <= epsilon * Math.max(1.0, Math.abs(this.x), Math.abs(other.x)) &&
-            Math.abs(this.y - other.y) <= epsilon * Math.max(1.0, Math.abs(this.y), Math.abs(other.y)) &&
-            Math.abs(this.z - other.z) <= epsilon * Math.max(1.0, Math.abs(this.z), Math.abs(other.z)) &&
-            Math.abs(this.w - other.w) <= epsilon * Math.max(1.0, Math.abs(this.w), Math.abs(other.w)));
+        return (Math.abs(this.x - other.x) <= epsilon * Math.max(1.0, Math.abs(this.x), Math.abs(other.x))
+            && Math.abs(this.y - other.y) <= epsilon * Math.max(1.0, Math.abs(this.y), Math.abs(other.y))
+            && Math.abs(this.z - other.z) <= epsilon * Math.max(1.0, Math.abs(this.z), Math.abs(other.z))
+            && Math.abs(this.w - other.w) <= epsilon * Math.max(1.0, Math.abs(this.w), Math.abs(other.w)));
     }
 
     /**
@@ -791,10 +785,10 @@ export class Quat extends ValueType {
      * @param ratio The interpolation coefficient. The range is [0,1].
      */
     public lerp (to: Quat, ratio: number) {
-        this.x = this.x + ratio * (to.x - this.x);
-        this.y = this.y + ratio * (to.y - this.y);
-        this.z = this.z + ratio * (to.z - this.z);
-        this.w = this.w + ratio * (to.w - this.w);
+        this.x += ratio * (to.x - this.x);
+        this.y += ratio * (to.y - this.y);
+        this.z += ratio * (to.z - this.z);
+        this.w += ratio * (to.w - this.w);
         return this;
     }
 
@@ -837,7 +831,7 @@ legacyCC.Quat = Quat;
 export function quat (other: Quat): Quat;
 export function quat (x?: number, y?: number, z?: number, w?: number): Quat;
 
-export function quat (x: number | Quat = 0, y: number = 0, z: number = 0, w: number = 1) {
+export function quat (x: number | Quat = 0, y = 0, z = 0, w = 1) {
     return new Quat(x as any, y, z, w);
 }
 

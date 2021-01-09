@@ -123,20 +123,20 @@ export function wireframed (geometry: IGeometry) {
     const lineIDs = {};
 
     for (let i = 0; i < indices.length; i += 3) {
-      for (let k = 0; k < 3; ++k) {
-        const i1 = indices[i + offsets[k][0]];
-        const i2 = indices[i + offsets[k][1]];
+        for (let k = 0; k < 3; ++k) {
+            const i1 = indices[i + offsets[k][0]];
+            const i2 = indices[i + offsets[k][1]];
 
-        // check if we already have the line in our lines
-        const id = (i1 > i2) ? ((i2 << 16) | i1) : ((i1 << 16) | i2);
-        if (lineIDs[id] === undefined) {
-          lineIDs[id] = 0;
-          lines.push(i1, i2);
+            // check if we already have the line in our lines
+            const id = (i1 > i2) ? ((i2 << 16) | i1) : ((i1 << 16) | i2);
+            if (lineIDs[id] === undefined) {
+                lineIDs[id] = 0;
+                lines.push(i1, i2);
+            }
         }
-      }
     }
 
     geometry.indices = lines;
     geometry.primitiveMode = PrimitiveMode.LINE_LIST;
     return geometry;
-  }
+}

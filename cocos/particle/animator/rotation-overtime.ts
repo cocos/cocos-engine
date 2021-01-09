@@ -23,7 +23,6 @@
  THE SOFTWARE.
  */
 
-
 /**
  * @packageDocumentation
  * @module particle
@@ -35,13 +34,12 @@ import { Particle, ParticleModuleBase, PARTICLE_MODULE_NAME } from '../particle'
 import CurveRange from './curve-range';
 import { ModuleRandSeed } from '../enum';
 
-
 const ROTATION_OVERTIME_RAND_OFFSET = ModuleRandSeed.ROTATION;
 
 @ccclass('cc.RotationOvertimeModule')
 export default class RotationOvertimeModule extends ParticleModuleBase {
     @serializable
-    _enable: Boolean = false;
+    _enable = false;
     /**
      * @zh 是否启用。
      */
@@ -112,8 +110,7 @@ export default class RotationOvertimeModule extends ParticleModuleBase {
         const normalizedTime = 1 - p.remainingLifetime / p.startLifetime;
         if (!this._separateAxes) {
             p.rotation.z += this.z.evaluate(normalizedTime, pseudoRandom(p.randomSeed + ROTATION_OVERTIME_RAND_OFFSET))! * dt;
-        }
-        else {
+        } else {
             // TODO: separateAxes is temporarily not supported!
             const rotationRand = pseudoRandom(p.randomSeed + ROTATION_OVERTIME_RAND_OFFSET);
             p.rotation.x += this.x.evaluate(normalizedTime, rotationRand)! * dt;

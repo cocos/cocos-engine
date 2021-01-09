@@ -89,13 +89,13 @@ class ModelLightmapSettings {
     @serializable
     public uvParam: Vec4 = new Vec4();
     @serializable
-    protected _bakeable: boolean = false;
+    protected _bakeable = false;
     @serializable
-    protected _castShadow: boolean = false;
+    protected _castShadow = false;
     @formerlySerializedAs('_recieveShadow')
-    protected _receiveShadow: boolean = false;
+    protected _receiveShadow = false;
     @serializable
-    protected _lightmapSize: number = 64;
+    protected _lightmapSize = 64;
 
     /**
      * @en bakeable.
@@ -237,9 +237,9 @@ export class MeshRenderer extends RenderableComponent {
 
     @visible(function (this: MeshRenderer) {
         return !!(
-            this.mesh &&
-            this.mesh.struct.morph &&
-            this.mesh.struct.morph.subMeshMorphs.some((subMeshMorph) => !!subMeshMorph)
+            this.mesh
+            && this.mesh.struct.morph
+            && this.mesh.struct.morph.subMeshMorphs.some((subMeshMorph) => !!subMeshMorph)
         );
     })
     @disallowAnimation
@@ -501,9 +501,9 @@ export class MeshRenderer extends RenderableComponent {
             return;
         }
 
-        if (!this._mesh ||
-            !this._mesh.struct.morph ||
-            !this._mesh.morphRendering) {
+        if (!this._mesh
+            || !this._mesh.struct.morph
+            || !this._mesh.morphRendering) {
             return;
         }
 
@@ -516,9 +516,9 @@ export class MeshRenderer extends RenderableComponent {
                 continue;
             }
             const initialWeights = subMeshMorph.weights || morph.weights;
-            const weights = initialWeights ?
-                initialWeights.slice() :
-                new Array<number>(subMeshMorph.targets.length).fill(0);
+            const weights = initialWeights
+                ? initialWeights.slice()
+                : new Array<number>(subMeshMorph.targets.length).fill(0);
             this._morphInstance.setWeights(iSubMesh, weights);
         }
 

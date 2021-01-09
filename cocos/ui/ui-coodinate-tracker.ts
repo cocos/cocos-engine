@@ -29,9 +29,9 @@
  * @module component
  */
 
+import { ccclass, help, menu, executionOrder, tooltip, type, serializable } from 'cc.decorator';
 import { Component } from '../core/components/component';
 import { EventHandler } from '../core/components/component-event-handler';
-import { ccclass, help, menu, executionOrder, tooltip, type, serializable } from 'cc.decorator';
 import { Node } from '../core/scene-graph/node';
 import { Camera } from '../core/components';
 import { Vec3 } from '../core/math';

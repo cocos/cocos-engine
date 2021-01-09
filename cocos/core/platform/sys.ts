@@ -529,7 +529,7 @@ export const sys: Record<string, any> = {
      * @readOnly
      * @default "huawei"
      */
-    BROWSER_TYPE_HUAWEI: "huawei",
+    BROWSER_TYPE_HUAWEI: 'huawei',
     /**
      * @en Browser Type - Unknown
      * @zh 浏览器类型 - 未知
@@ -773,7 +773,7 @@ export const sys: Record<string, any> = {
         // browser or runtime
         const win = window; const nav = win.navigator; const doc = document; const docEle = doc.documentElement;
         const ua = nav.userAgent.toLowerCase();
-    
+
         if (EDITOR) {
             sys.isMobile = false;
             sys.platform = sys.EDITOR_PAGE;
@@ -781,14 +781,14 @@ export const sys: Record<string, any> = {
             sys.isMobile = /mobile|android|iphone|ipad/.test(ua);
             sys.platform = sys.isMobile ? sys.MOBILE_BROWSER : sys.DESKTOP_BROWSER;
         }
-    
+
         let currLanguage = nav.language;
         sys.languageCode = currLanguage.toLowerCase();
         // @ts-expect-error
         currLanguage = currLanguage || nav.browserLanguage;
         currLanguage = currLanguage ? currLanguage.split('-')[0] : sys.LANGUAGE_ENGLISH;
         sys.language = currLanguage;
-    
+
         // Get the os of system
         let isAndroid = false; let iOS = false; let osVersion = ''; let osMajorVersion = 0;
         let uaResult = /android\s*(\d+(?:\.\d+)*)/i.exec(ua) || /android\s*(\d+(?:\.\d+)*)/i.exec(nav.platform);
@@ -814,14 +814,14 @@ export const sys: Record<string, any> = {
             osVersion = '';
             osMajorVersion = 0;
         }
-    
+
         let osName = sys.OS_UNKNOWN;
         if (nav.appVersion.indexOf('Win') !== -1) { osName = sys.OS_WINDOWS; } else if (iOS) { osName = sys.OS_IOS; } else if (nav.appVersion.indexOf('Mac') !== -1) { osName = sys.OS_OSX; } else if (nav.appVersion.indexOf('X11') !== -1 && nav.appVersion.indexOf('Linux') === -1) { osName = sys.OS_UNIX; } else if (isAndroid) { osName = sys.OS_ANDROID; } else if (nav.appVersion.indexOf('Linux') !== -1 || ua.indexOf('ubuntu') !== -1) { osName = sys.OS_LINUX; }
-    
+
         sys.os = osName;
         sys.osVersion = osVersion;
         sys.osMainVersion = osMajorVersion;
-    
+
         sys.browserType = sys.BROWSER_TYPE_UNKNOWN;
         /* Determine the browser type */
         (function () {
@@ -829,7 +829,7 @@ export const sys: Record<string, any> = {
             const typeReg2 = /qq|qqbrowser|ucbrowser|ubrowser|edge|HuaweiBrowser/i;
             const typeReg3 = /chrome|safari|firefox|trident|opera|opr\/|oupeng/i;
             const browserTypes = typeReg1.exec(ua) || typeReg2.exec(ua) || typeReg3.exec(ua);
-    
+
             let browserType = browserTypes ? browserTypes[0].toLowerCase() : sys.BROWSER_TYPE_UNKNOWN;
             if (browserType === 'safari' && isAndroid) {
                 browserType = sys.BROWSER_TYPE_ANDROID;
@@ -846,10 +846,10 @@ export const sys: Record<string, any> = {
                 ubrowser: sys.BROWSER_TYPE_UC,
                 huaweibrowser: sys.BROWSER_TYPE_HUAWEI,
             };
-    
+
             sys.browserType = typeMap[browserType] || browserType;
         }());
-    
+
         sys.browserVersion = '';
         /* Determine the browser version number */
         (function () {
@@ -859,18 +859,18 @@ export const sys: Record<string, any> = {
             if (!tmp) { tmp = ua.match(versionReg2); }
             sys.browserVersion = tmp ? tmp[4] : '';
         }());
-    
+
         const w = window.innerWidth || document.documentElement.clientWidth;
         const h = window.innerHeight || document.documentElement.clientHeight;
         const ratio = window.devicePixelRatio || 1;
-    
+
         sys.windowPixelResolution = {
             width: ratio * w,
             height: ratio * h,
         };
-    
+
         const _tmpCanvas1 = document.createElement('canvas');
-    
+
         const create3DContext = function (canvas, opt_attribs, opt_contextType) {
             if (opt_contextType) {
                 try {
@@ -886,7 +886,7 @@ export const sys: Record<string, any> = {
                     || null;
             }
         };
-    
+
         try {
             let localStorage: Storage | null = sys.localStorage = win.localStorage;
             localStorage.setItem('storage', '');
@@ -903,14 +903,13 @@ export const sys: Record<string, any> = {
                 clear: warn,
             };
         }
-    
+
         let _supportWebp;
         try {
             _supportWebp = TEST ? false : _tmpCanvas1.toDataURL('image/webp').startsWith('data:image/webp');
-        }
-        catch (e) {
+        } catch (e) {
             _supportWebp  = false;
-        }  
+        }
         const _supportCanvas = TEST ? false : !!_tmpCanvas1.getContext('2d');
         let _supportWebGL = false;
         if (TEST) {
@@ -918,7 +917,7 @@ export const sys: Record<string, any> = {
         } else if (win.WebGLRenderingContext) {
             _supportWebGL = true;
         }
-    
+
         const capabilities = sys.capabilities = {
             canvas: _supportCanvas,
             opengl: _supportWebGL,
@@ -929,7 +928,7 @@ export const sys: Record<string, any> = {
             keyboard: false,
             accelerometer: false,
         } as { [x: string]: any; };
-    
+
         if (!TEST && typeof createImageBitmap !== 'undefined' && typeof Blob !== 'undefined') {
             _tmpCanvas1.width = _tmpCanvas1.height = 2;
             createImageBitmap(_tmpCanvas1, {}).then((imageBitmap) => {
@@ -951,36 +950,36 @@ export const sys: Record<string, any> = {
         if (win.DeviceMotionEvent || win.DeviceOrientationEvent) {
             capabilities.accelerometer = true;
         }
-    
+
         let __audioSupport;
         (function () {
             const DEBUG = false;
             const version = sys.browserVersion;
-    
+
             // check if browser supports Web Audio
             // check Web Audio's context
             const supportWebAudio = !!(window.AudioContext || window.webkitAudioContext || window.mozAudioContext);
-    
+
             __audioSupport = { ONLY_ONE: false, WEB_AUDIO: supportWebAudio, DELAY_CREATE_CTX: false };
-    
+
             if (sys.os === sys.OS_IOS) {
                 // IOS no event that used to parse completed callback
                 // this time is not complete, can not play
                 //
                 __audioSupport.USE_LOADER_EVENT = 'loadedmetadata';
             }
-    
+
             if (sys.browserType === sys.BROWSER_TYPE_FIREFOX) {
                 __audioSupport.DELAY_CREATE_CTX = true;
                 __audioSupport.USE_LOADER_EVENT = 'canplay';
             }
-    
+
             if (sys.os === sys.OS_ANDROID) {
                 if (sys.browserType === sys.BROWSER_TYPE_UC) {
                     __audioSupport.ONE_SOURCE = true;
                 }
             }
-    
+
             if (DEBUG) {
                 setTimeout(() => {
                     log(`browse type: ${sys.browserType}`);
@@ -991,7 +990,7 @@ export const sys: Record<string, any> = {
                 }, 0);
             }
         }());
-    
+
         try {
             if (__audioSupport.WEB_AUDIO) {
                 __audioSupport._context = null;
@@ -1006,7 +1005,7 @@ export const sys: Record<string, any> = {
             __audioSupport.WEB_AUDIO = false;
             logID(5201);
         }
-    
+
         const formatSupport: string[] = [];
         (function () {
             const audio = document.createElement('audio');
@@ -1024,9 +1023,9 @@ export const sys: Record<string, any> = {
             }
         }());
         __audioSupport.format = formatSupport;
-    
+
         sys.__audioSupport = __audioSupport;
-    
+
         sys.__videoSupport = {
             format: [],
         };
@@ -1046,7 +1045,7 @@ export const sys: Record<string, any> = {
         // HACK: this private property only needed on web
         sys.__isWebIOS14OrIPadOS14Env = sys.os === sys.OS_IOS && sys.isBrowser
             && /(iPhone OS 1[4-9])|(Version\/1[4-9][\.\d]*)|(iOS 1[4-9])/.test(window.navigator.userAgent);
-    }
+    },
 };
 
 // this equals to sys.isBrowser

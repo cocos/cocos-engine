@@ -28,8 +28,9 @@
  * @module ui
  */
 
-import { EventHandler as ComponentEventHandler } from '../core/components';
 import { ccclass, help, executionOrder, menu, tooltip, type, slide, range, visible, override, serializable, editable } from 'cc.decorator';
+import { EDITOR } from 'internal:constants';
+import { EventHandler as ComponentEventHandler } from '../core/components';
 import { EventTouch, SystemEventType } from '../core/platform';
 import { Vec2, Vec3 } from '../core/math';
 import { ccenum } from '../core/value-types/enum';
@@ -40,7 +41,6 @@ import { ScrollBar } from './scroll-bar';
 import { warnID, logID } from '../core/platform/debug';
 import { extendsEnum } from '../core/data/utils/extends-enum';
 import { Node } from '../core/scene-graph';
-import { EDITOR } from 'internal:constants';
 import { legacyCC } from '../core/global-exports';
 
 const _temp_vec2 = new Vec2();
@@ -422,8 +422,7 @@ export class PageView extends ScrollView {
         const pageCount = this._pages.length;
         if (index >= pageCount) {
             this.addPage(page);
-        }
-        else {
+        } else {
             if (!page._uiProps.uiTransformComp) {
                 logID(4301);
                 return;
@@ -540,8 +539,7 @@ export class PageView extends ScrollView {
             const pos = page.position;
             if (this.direction === Direction.Horizontal) {
                 this._scrollCenterOffsetX[i] = Math.abs(contentPos.x + pos.x);
-            }
-            else {
+            } else {
                 this._scrollCenterOffsetY[i] = Math.abs(contentPos.y + pos.y);
             }
         }
@@ -619,8 +617,7 @@ export class PageView extends ScrollView {
                 if (this.direction === Direction.Horizontal) {
                     layout.paddingLeft = (viewTrans.width - firstPageTrans.width) / 2;
                     layout.paddingRight = (viewTrans.width - lastPageTrans.width) / 2;
-                }
-                else if (this.direction === Direction.Vertical) {
+                } else if (this.direction === Direction.Vertical) {
                     layout.paddingTop = (viewTrans.height - firstPageTrans.height) / 2;
                     layout.paddingBottom = (viewTrans.height - lastPageTrans.height) / 2;
                 }
@@ -657,8 +654,7 @@ export class PageView extends ScrollView {
             if (Math.abs(touchMoveVelocity.x) > this.autoPageTurningThreshold) {
                 return true;
             }
-        }
-        else if (this.direction === Direction.Vertical) {
+        } else if (this.direction === Direction.Vertical) {
             if (Math.abs(touchMoveVelocity.y) > this.autoPageTurningThreshold) {
                 return true;
             }
@@ -672,8 +668,7 @@ export class PageView extends ScrollView {
         if (this._sizeMode === SizeMode.Free) {
             if (this.direction === Direction.Horizontal) {
                 offset.x = this._scrollCenterOffsetX[idx];
-            }
-            else if (this.direction === Direction.Vertical) {
+            } else if (this.direction === Direction.Vertical) {
                 offset.y = this._scrollCenterOffsetY[idx];
             }
         } else {
@@ -683,8 +678,7 @@ export class PageView extends ScrollView {
             }
             if (this.direction === Direction.Horizontal) {
                 offset.x = idx * viewTrans.width;
-            }
-            else if (this.direction === Direction.Vertical) {
+            } else if (this.direction === Direction.Vertical) {
                 offset.y = idx * viewTrans.height;
             }
         }
@@ -698,8 +692,7 @@ export class PageView extends ScrollView {
             }
 
             return (moveOffset.x > 0 ? 1 : -1);
-        }
-        else {
+        } else {
             // 由于滚动 Y 轴的原点在在右上角所以应该是小于 0
             if (moveOffset.y === 0) {
                 return 0;
@@ -718,22 +711,19 @@ export class PageView extends ScrollView {
                 curPageCenter = this._scrollCenterOffsetX[index];
                 nextPageCenter = this._scrollCenterOffsetX[nextIndex];
                 return Math.abs(offset.x) >= Math.abs(curPageCenter - nextPageCenter) * this.scrollThreshold;
-            }
-            else if (this.direction === Direction.Vertical) {
+            } else if (this.direction === Direction.Vertical) {
                 curPageCenter = this._scrollCenterOffsetY[index];
                 nextPageCenter = this._scrollCenterOffsetY[nextIndex];
                 return Math.abs(offset.y) >= Math.abs(curPageCenter - nextPageCenter) * this.scrollThreshold;
             }
-        }
-        else {
+        } else {
             const viewTrans = this.view;
             if (!viewTrans) {
                 return;
             }
             if (this.direction === Direction.Horizontal) {
                 return Math.abs(offset.x) >= viewTrans.width * this.scrollThreshold;
-            }
-            else if (this.direction === Direction.Vertical) {
+            } else if (this.direction === Direction.Vertical) {
                 return Math.abs(offset.y) >= viewTrans.height * this.scrollThreshold;
             }
         }
@@ -748,14 +738,13 @@ export class PageView extends ScrollView {
                 this._curPageIdx = this._pages.length === 0 ? 0 : this._pages.length - 1;
             }
             if (bounceBackAmount.x < 0 || bounceBackAmount.y > 0) {
-                this._curPageIdx = 0
+                this._curPageIdx = 0;
             }
 
             if (this.indicator) {
                 this.indicator._changedState();
             }
-        }
-        else {
+        } else {
             const moveOffset = new Vec3();
             Vec3.subtract(moveOffset, this._touchBeganPosition, this._touchEndPosition);
             const index = this._curPageIdx;
@@ -765,8 +754,7 @@ export class PageView extends ScrollView {
                 if (this._isScrollable(moveOffset, index, nextIndex)) {
                     this.scrollToPage(nextIndex, timeInSecond);
                     return;
-                }
-                else {
+                } else {
                     const touchMoveVelocity = this._calculateTouchMoveVelocity();
                     if (this._isQuicklyScrollable(touchMoveVelocity)) {
                         this.scrollToPage(nextIndex, timeInSecond);
@@ -777,7 +765,6 @@ export class PageView extends ScrollView {
             this.scrollToPage(index, timeInSecond);
         }
     }
-
 }
 
 /**

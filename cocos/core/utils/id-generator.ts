@@ -57,7 +57,7 @@ export default class IDGenerator {
 
     public getNewId () {
         if (EDITOR && (this.prefix === 'Node.' || this.prefix === 'Comp.')) {
-            return EditorExtends.UuidUtils.uuid() as string;
+            return EditorExtends.UuidUtils.uuid();
         }
         return this.prefix + (++this.id);
     }

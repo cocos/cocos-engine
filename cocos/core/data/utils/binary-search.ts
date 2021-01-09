@@ -23,7 +23,6 @@
  THE SOFTWARE.
  */
 
-
 const EPSILON = 1e-6;
 
 export function binarySearchEpsilon (array: number[], value: number) {

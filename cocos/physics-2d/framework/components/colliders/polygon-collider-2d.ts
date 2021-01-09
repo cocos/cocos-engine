@@ -17,7 +17,7 @@ export class PolygonCollider2D extends Collider2D {
      * @en Polygon points
      * @zh 多边形顶点数组
      */
-    @property({type: Vec2})
+    @property({ type: Vec2 })
     get points () {
         return this._points;
     }

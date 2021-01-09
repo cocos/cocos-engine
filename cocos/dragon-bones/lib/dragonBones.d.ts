@@ -2637,8 +2637,8 @@ export class Armature extends BaseObject implements IAnimatable {
      * @private
      */
     _cacheFrameIndex: number;
-        /* private */ readonly _bones;
-        /* private */ public readonly _slots: Array<Slot>;
+    /* private */ readonly _bones;
+    /* private */ public readonly _slots: Array<Slot>;
     /**
      * @internal
      * @private
@@ -2655,12 +2655,12 @@ export class Armature extends BaseObject implements IAnimatable {
      * @private
      */
     _armatureData: ArmatureData;
-        /* private */ _animation;
+    /* private */ _animation;
     private _proxy;
     public _display: DisplayData;
 
-        /* private */ _skinData: SkinData;
-        /* private */ _isChildArmature: boolean;
+    /* private */ _skinData: SkinData;
+    /* private */ _isChildArmature: boolean;
     /**
      * @internal
      * @private
@@ -3615,14 +3615,14 @@ export abstract class Slot extends TransformObject {
      * @private
      */
     protected _transformDirty: boolean;
-        /**
+    /**
          * @private
          */
-        /* protected */ _visible: boolean;
-        /**
+    /* protected */ _visible: boolean;
+    /**
          * @private
          */
-        /* protected */ _blendMode: BlendMode;
+    /* protected */ _blendMode: BlendMode;
     /**
      * @private
      */
@@ -3690,10 +3690,10 @@ export abstract class Slot extends TransformObject {
      * @private
      */
     protected _rawDisplayDatas: Array<DisplayData | null> | null;
-        /**
+    /**
          * @private
          */
-        /* protected */ _displayData: DisplayData | null;
+    /* protected */ _displayData: DisplayData | null;
     /**
      * @private
      */
@@ -6161,10 +6161,10 @@ export abstract class BaseFactory {
      * @private
      */
     protected readonly _textureAtlasDataMap: Map<Array<TextureAtlasData>>;
-        /**
+    /**
          * @private
          */
-        /* protected */ _dragonBones: DragonBones;
+    /* protected */ _dragonBones: DragonBones;
     /**
      * @private
      */

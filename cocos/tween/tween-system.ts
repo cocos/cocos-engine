@@ -28,19 +28,18 @@
  * @module tween
  */
 
-import { System, Director, director } from "../core";
-import { ActionManager } from "./actions/action-manager";
 import { EDITOR } from 'internal:constants';
-import { legacyCC } from "../core/global-exports";
+import { System, Director, director } from '../core';
+import { ActionManager } from './actions/action-manager';
+import { legacyCC } from '../core/global-exports';
 
 /**
- * @en 
+ * @en
  * Tween system.
  * @zh
  * 缓动系统。
  */
 export class TweenSystem extends System {
-    
     /**
      * @en
      * The ID flag of the system.
@@ -83,8 +82,8 @@ export class TweenSystem extends System {
     }
 }
 
-director.on(Director.EVENT_INIT, function () {
-    let sys = new TweenSystem();
+director.on(Director.EVENT_INIT, () => {
+    const sys = new TweenSystem();
     (TweenSystem.instance as any) = sys;
     director.registerSystem(TweenSystem.ID, sys, 100);
 });

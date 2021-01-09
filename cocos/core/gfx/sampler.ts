@@ -56,7 +56,6 @@ export class SamplerInfo {
  * @zh GFX 采样器。
  */
 export abstract class Sampler extends Obj {
-
     get minFilter () { return this._minFilter; }
     get magFilter () { return this._magFilter; }
     get mipFilter () { return this._mipFilter; }

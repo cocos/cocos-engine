@@ -37,7 +37,7 @@ export function setDefaultLogTimes (times: number): void {
     if (times > 0) {
         defaultLogTimes = times;
     }
-};
+}
 
 interface IReplacement {
     /** 废弃属性的名称 */
@@ -111,9 +111,8 @@ replaceProperty = (owner: object, ownerName: string, properties: IReplacement[])
     if (owner == null) return;
 
     properties.forEach((item: IReplacement) => {
-
         const id = messageID++;
-        messageMap.set(id, { id, count: 0, logTimes: item.logTimes !== undefined ? item.logTimes : defaultLogTimes, });
+        messageMap.set(id, { id, count: 0, logTimes: item.logTimes !== undefined ? item.logTimes : defaultLogTimes });
 
         const target = item.target != null ? item.target : owner;
         const newName = item.newName != null ? item.newName : item.name;
@@ -175,14 +174,13 @@ replaceProperty = (owner: object, ownerName: string, properties: IReplacement[])
             });
         }
     });
-
 };
 
 removePropertyLog = (n: string, dp: string, f: Function, id: number, s?: string) => {
     const item = messageMap.get(id);
-    const ss = s === undefined ? '' : '(' + s + ')';
+    const ss = s === undefined ? '' : `(${s})`;
     if (item && item.logTimes > item.count) {
-        f('\'%s\' has been removed. ' + ss, `${n}.${dp}`);
+        f(`'%s' has been removed. ${ss}`, `${n}.${dp}`);
         item.count++;
     }
 };
@@ -192,7 +190,7 @@ removeProperty = (owner: object, ownerName: string, properties: IRemoveItem[]) =
 
     properties.forEach((item: IRemoveItem) => {
         const id = messageID++;
-        messageMap.set(id, { id, count: 0, logTimes: item.logTimes !== undefined ? item.logTimes : defaultLogTimes, });
+        messageMap.set(id, { id, count: 0, logTimes: item.logTimes !== undefined ? item.logTimes : defaultLogTimes });
 
         Object.defineProperty(owner, item.name, {
             get (this) {
@@ -208,9 +206,9 @@ removeProperty = (owner: object, ownerName: string, properties: IRemoveItem[]) =
 
 markAsWarningLog = (n: string, dp: string, f: Function, id: number, s?: string) => {
     const item = messageMap.get(id);
-    const ss = s === undefined ? '' : '(' + s + ')';
+    const ss = s === undefined ? '' : `(${s})`;
     if (item && item.logTimes > item.count) {
-        f('\'%s\' is deprecated. ' + ss, `${n}.${dp}`);
+        f(`'%s' is deprecated. ${ss}`, `${n}.${dp}`);
         item.count++;
     }
 };
@@ -240,7 +238,7 @@ markAsWarning = (owner: object, ownerName: string, properties: IMarkItem[]) => {
         const descriptor = Object.getOwnPropertyDescriptor(owner, deprecatedProp);
         if (!descriptor) { return; }
         const id = messageID++;
-        messageMap.set(id, { id, count: 0, logTimes: item.logTimes !== undefined ? item.logTimes : defaultLogTimes, });
+        messageMap.set(id, { id, count: 0, logTimes: item.logTimes !== undefined ? item.logTimes : defaultLogTimes });
         if (descriptor.value != null) {
             if (typeof descriptor.value === 'function') {
                 const oldValue = descriptor.value as Function;

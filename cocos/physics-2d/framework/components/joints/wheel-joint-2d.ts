@@ -1,7 +1,7 @@
-import { Joint2D } from "./joint-2d";
-import { ccclass, property, menu, type } from "../../../../core/data/class-decorator";
-import { IWheelJoint } from "../../../spec/i-physics-joint";
-import { EJoint2DType } from "../../physics-types";
+import { Joint2D } from './joint-2d';
+import { ccclass, property, menu, type } from '../../../../core/data/class-decorator';
+import { IWheelJoint } from '../../../spec/i-physics-joint';
+import { EJoint2DType } from '../../physics-types';
 
 @ccclass('cc.WheelJoint2D')
 @menu('Physics2D/Joints/WheelJoint2D')
@@ -84,7 +84,7 @@ export class WheelJoint2D extends Joint2D {
     set frequency (v: number) {
         this._frequency = v;
         if (this._joint) {
-            (this._joint! as IWheelJoint).setFrequency(v);
+            (this._joint as IWheelJoint).setFrequency(v);
         }
     }
 
@@ -101,7 +101,7 @@ export class WheelJoint2D extends Joint2D {
     set dampingRatio (v: number) {
         this._dampingRatio = v;
         if (this._joint) {
-            (this._joint! as IWheelJoint).setDampingRatio(v);
+            (this._joint as IWheelJoint).setDampingRatio(v);
         }
     }
 

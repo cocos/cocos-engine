@@ -29,11 +29,11 @@
  * @module event
  */
 
+import './deprecated';
+
 export * from './event-manager';
 export * from './input-manager';
 export * from './system-event';
 export * from './events';
 export * from './touch';
 export * from './event-enum';
-
-import './deprecated';

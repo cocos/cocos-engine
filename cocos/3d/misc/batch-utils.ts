@@ -69,11 +69,11 @@ export class BatchingUtility {
         }
         for (let i = 1; i < models.length; i++) {
             if (!models[0].mesh!.validateMergingMesh(models[i].mesh!)) {
-                console.error('the meshes of ' + models[0].node.name + ' and ' + models[i].node.name + ' can\'t be merged');
+                console.error(`the meshes of ${models[0].node.name} and ${models[i].node.name} can't be merged`);
                 return false;
             }
             if (!checkMaterialisSame(models[0], models[i])) {
-                console.error('the materials of ' + models[0].node.name + ' and ' + models[i].node.name + ' can\'t be merged');
+                console.error(`the materials of ${models[0].node.name} and ${models[i].node.name} can't be merged`);
                 return false;
             }
         }

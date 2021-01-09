@@ -29,7 +29,7 @@
  * @module asset
  */
 
-import {ccclass, serializable, editable} from 'cc.decorator';
+import { ccclass, serializable, editable } from 'cc.decorator';
 import { Asset } from './asset';
 import { legacyCC } from '../global-exports';
 

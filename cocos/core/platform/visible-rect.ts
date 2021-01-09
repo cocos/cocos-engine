@@ -96,7 +96,6 @@ const visibleRect = {
      * initialize
      */
     init (visibleRect_: Rect) {
-
         const w = this.width = visibleRect_.width;
         const h = this.height = visibleRect_.height;
         const l = visibleRect_.x;

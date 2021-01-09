@@ -28,8 +28,8 @@
  * @module decorator
  */
 
-import { CCClass } from '../class';
 import { DEV } from 'internal:constants';
+import { CCClass } from '../class';
 import { error } from '../../platform/debug';
 import { js } from '../../utils/js';
 
@@ -75,16 +75,16 @@ export const emptySmartClassDecorator = makeSmartClassDecorator(() => {});
  * Make a smart class decorator which can properly handle the following form decorator syntax:
  * - `@x`
  * - `@x(arg0)`
- * 
+ *
  * and forward both the decorated class and the `arg0` (in first form, `arg0` is forward as `undefined`) to
  * `decorate`.
  * @zh
  * 创建一个智能类装饰器，它能正确地处理以下形式的装饰器语法：
  * - `@x`
  * - `@x(arg0)`
- * 
+ *
  * 并且，将被装饰的类和 `arg0`（若是第一种形式，`arg0` 就是 `undefined`）一起转发给 `decorate`。
- * @param decorate 
+ * @param decorate
  */
 export function makeSmartClassDecorator<TArg> (
     decorate: <TFunction extends Function>(constructor: TFunction, arg?: TArg) => ReturnType<ClassDecorator>,
@@ -122,10 +122,8 @@ function writeEditorClassProperty<TValue> (constructor: Function, propertyName: 
  * @param propertyName The editor property.
  */
 export function makeEditorClassDecoratorFn<TValue> (propertyName: string): (value: TValue) => ClassDecorator {
-    return (value: TValue) => {
-        return <TFunction extends Function>(constructor: TFunction) => {
-            writeEditorClassProperty(constructor, propertyName, value);
-        };
+    return (value: TValue) => <TFunction extends Function>(constructor: TFunction) => {
+        writeEditorClassProperty(constructor, propertyName, value);
     };
 }
 

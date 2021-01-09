@@ -24,10 +24,10 @@
  THE SOFTWARE.
 */
 
+import { DEV, EDITOR, TEST } from 'internal:constants';
 import { error, errorID, warn, warnID } from '../../platform/debug';
 import * as js from '../../utils/js';
 import { PrimitiveType } from './attribute';
-import { DEV, EDITOR, TEST } from 'internal:constants';
 import { legacyCC } from '../../global-exports';
 
 // 增加预处理属性这个步骤的目的是降低 CCClass 的实现难度，将比较稳定的通用逻辑和一些需求比较灵活的属性需求分隔开。
@@ -52,7 +52,7 @@ function parseNotify (val, propName, notify, properties) {
     if (val.hasOwnProperty('default')) {
         // 添加新的内部属性，将原来的属性修改为 getter/setter 形式
         // （以 _ 开头将自动设置property 为 visible: false）
-        const newKey = '_N$' + propName;
+        const newKey = `_N$${propName}`;
 
         val.get = function () {
             return this[newKey];
@@ -76,8 +76,7 @@ function parseNotify (val, propName, notify, properties) {
                 }
             }
         }
-    }
-    else if (DEV) {
+    } else if (DEV) {
         warnID(5501);
     }
 }
@@ -116,24 +115,24 @@ function parseType (val, type, className, propName) {
         }
     } else if (STATIC_CHECK) {
         switch (type) {
-            case 'Number':
-                warnID(5510, className, propName);
-                break;
-            case 'String':
-                warn(`The type of "${className}.${propName}" must be CCString, not "String".`);
-                break;
-            case 'Boolean':
-                warn(`The type of "${className}.${propName}" must be CCBoolean, not "Boolean".`);
-                break;
-            case 'Float':
-                warn(`The type of "${className}.${propName}" must be CCFloat, not "Float".`);
-                break;
-            case 'Integer':
-                warn(`The type of "${className}.${propName}" must be CCInteger, not "Integer".`);
-                break;
-            case null:
-                warnID(5511, className, propName);
-                break;
+        case 'Number':
+            warnID(5510, className, propName);
+            break;
+        case 'String':
+            warn(`The type of "${className}.${propName}" must be CCString, not "String".`);
+            break;
+        case 'Boolean':
+            warn(`The type of "${className}.${propName}" must be CCBoolean, not "Boolean".`);
+            break;
+        case 'Float':
+            warn(`The type of "${className}.${propName}" must be CCFloat, not "Float".`);
+            break;
+        case 'Integer':
+            warn(`The type of "${className}.${propName}" must be CCInteger, not "Integer".`);
+            break;
+        case null:
+            warnID(5511, className, propName);
+            break;
         }
     }
 
@@ -157,10 +156,8 @@ function getBaseClassWherePropertyDefined_DEV (propName, cls) {
     }
 }
 
-
-
 function _wrapOptions (isGetset: boolean, _default, type?: Function | Function[]) {
-    let res: {
+    const res: {
         default?: any,
         _short?: boolean,
         type?: any,
@@ -173,7 +170,7 @@ function _wrapOptions (isGetset: boolean, _default, type?: Function | Function[]
 
 export function getFullFormOfProperty (options, isGetset) {
     const isLiteral = options && options.constructor === Object;
-    if ( !isLiteral ) {
+    if (!isLiteral) {
         if (Array.isArray(options) && options.length > 0) {
             return _wrapOptions(isGetset, [], options);
         } else if (typeof options === 'function') {
@@ -200,11 +197,9 @@ export function preprocessAttrs (properties, className, cls) {
                 if ('default' in val) {
                     if (val.get) {
                         errorID(5513, className, propName);
-                    }
-                    else if (val.set) {
+                    } else if (val.set) {
                         errorID(5514, className, propName);
-                    }
-                    else if (legacyCC.Class._isCCClass(val.default)) {
+                    } else if (legacyCC.Class._isCCClass(val.default)) {
                         val.default = null;
                         errorID(5515, className, propName);
                     }
@@ -219,8 +214,7 @@ export function preprocessAttrs (properties, className, cls) {
             if (notify) {
                 if (DEV) {
                     error('not yet support notify attributes.');
-                }
-                else {
+                } else {
                     parseNotify(val, propName, notify, properties);
                 }
             }
@@ -240,11 +234,10 @@ export function doValidateMethodWithProps_DEV (func, funcName, className, cls, b
         errorID(3648, className, funcName, baseClassName);
         return false;
     }
-    if (funcName === 'destroy' &&
-        js.isChildClassOf(base, legacyCC.Component) &&
-        !CALL_SUPER_DESTROY_REG_DEV.test(func)
+    if (funcName === 'destroy'
+        && js.isChildClassOf(base, legacyCC.Component)
+        && !CALL_SUPER_DESTROY_REG_DEV.test(func)
     ) {
-
         error(`Overwriting '${funcName}' function in '${className}' class without calling super is not allowed. Call the super function in '${funcName}' please.`);
     }
 }

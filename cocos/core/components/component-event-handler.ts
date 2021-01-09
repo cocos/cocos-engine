@@ -29,7 +29,7 @@
  * @module event
  */
 
-import {ccclass, type, serializable, editable} from 'cc.decorator';
+import { ccclass, type, serializable, editable } from 'cc.decorator';
 import { Node } from '../scene-graph';
 import { legacyCC } from '../global-exports';
 
@@ -63,7 +63,6 @@ import { legacyCC } from '../global-exports';
  */
 @ccclass('cc.ClickEvent')
 export class EventHandler {
-
     get _componentName () {
         this._genCompIdIfNeeded();
 
@@ -159,7 +158,7 @@ export class EventHandler {
         if (!legacyCC.isValid(comp)) { return; }
 
         const handler = comp![this.handler];
-        if (typeof(handler) !== 'function') { return; }
+        if (typeof (handler) !== 'function') { return; }
 
         if (this.customEventData != null && this.customEventData !== '') {
             params = params.slice();
