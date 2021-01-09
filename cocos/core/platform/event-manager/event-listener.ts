@@ -144,7 +144,7 @@ export class EventListener {
     // hack: How to solve the problem of uncertain attribute
     // callback's this object
     public owner: Object | null = null;
-    public mask: IListenerMask | null = null;
+    public mask: IListenerMask[] | null = null;
     public _previousIn?: boolean = false;
 
     public _target: any = null;

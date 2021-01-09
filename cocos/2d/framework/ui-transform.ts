@@ -39,6 +39,7 @@ import { Canvas } from './canvas';
 import { Node } from '../../core/scene-graph';
 import { legacyCC } from '../../core/global-exports';
 import { warnID } from '../../core/platform/debug';
+import { Mask } from '../components/mask';
 
 const _vec2a = new Vec2();
 const _vec2b = new Vec2();
@@ -419,25 +420,39 @@ export class UITransform extends Component {
         Vec2.transformMat4(testPt, cameraPt, _mat4_temp);
         testPt.x += this._anchorPoint.x * w;
         testPt.y += this._anchorPoint.y * h;
-
+        let hit = false;
         if (testPt.x >= 0 && testPt.y >= 0 && testPt.x <= w && testPt.y <= h) {
+            hit = true;
             if (listener && listener.mask) {
                 const mask = listener.mask;
                 let parent: any = this.node;
+                const length = mask ? mask.length : 0;
                 // find mask parent, should hit test it
-                for (let i = 0; parent && i < mask.index; ++i) {
-                    parent = parent.parent;
+                for (let i = 0, j = 0; parent && j < length; ++i, parent = parent.parent) {
+                    const temp = mask[j];
+                    if (i === temp.index) {
+                        if (parent === temp.node) {
+                            const comp = parent.getComponent(Mask);
+                            if (comp && comp._enabled && !comp.isHit(cameraPt)) {
+                                hit = false;
+                                break;
+                            }
+
+                            j++;
+                        } else {
+                            // mask parent no longer exists
+                            mask.length = j;
+                            break;
+                        }
+                    } else if (i > temp.index) {
+                        // mask parent no longer exists
+                        mask.length = j;
+                        break;
+                    }
                 }
-                if (parent === mask.node) {
-                    const comp = parent.getComponent(legacyCC.Mask);
-                    return (comp && comp.enabledInHierarchy) ? comp.isHit(cameraPt) as boolean : true;
-                }
-                listener.mask = null;
-                return true;
             }
-            return true;
         }
-        return false;
+        return hit;
     }
 
     /**
