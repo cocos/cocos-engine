@@ -58,7 +58,11 @@ const _dsInfo = new DescriptorSetInfo(null!);
  */
 export class UI {
     get renderScene (): RenderScene {
-        return this._scene;
+        return this._scene!;
+    }
+
+    set renderScene (val) {
+        this._scene = val;
     }
 
     get currBufferBatch () {
@@ -99,7 +103,7 @@ export class UI {
     private _screens: Canvas[] = [];
     private _bufferBatchPool: RecyclePool<MeshBuffer> = new RecyclePool(() => new MeshBuffer(this), 128);
     private _drawBatchPool: Pool<UIDrawBatch>;
-    private _scene: RenderScene;
+    private _scene: RenderScene | null = null;
     private _meshBuffers: Map<number, MeshBuffer[]> = new Map();
     private _meshBufferUseCount: Map<number, number> = new Map();
     private _batches: CachedArray<UIDrawBatch>;
@@ -124,9 +128,6 @@ export class UI {
 
     constructor (private _root: Root) {
         this.device = _root.device;
-        this._scene = this._root.createScene({
-            name: 'GUIScene',
-        });
         this._batches = new CachedArray(64);
         this._drawBatchPool = new Pool(() => new UIDrawBatch(), 128);
     }
@@ -161,7 +162,6 @@ export class UI {
         }
 
         this._meshBuffers.clear();
-        legacyCC.director.root.destroyScene(this._scene);
 
         StencilManager.sharedManager!.destroy();
     }
@@ -247,6 +247,7 @@ export class UI {
         }
 
         let batchPriority = 0;
+        if (!this._scene) { return; }
         this._scene.removeBatches();
         if (this._batches.length) {
             for (let i = 0; i < this._batches.length; ++i) {

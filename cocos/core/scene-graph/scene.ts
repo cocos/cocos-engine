@@ -105,6 +105,7 @@ export class Scene extends BaseNode {
         this._activeInHierarchy = false;
         if (legacyCC.director && legacyCC.director.root) {
             this._renderScene = legacyCC.director.root.createScene({});
+            legacyCC.director.root.ui.renderScene = this._renderScene;
         }
         this._inited = legacyCC.game ? !legacyCC.game._isCloning : true;
     }
