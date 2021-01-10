@@ -144,6 +144,7 @@ bool ForwardPipeline::activate() {
 
 void ForwardPipeline::render(const vector<uint> &cameras) {
     _commandBuffers[0]->begin();
+    updateGlobalUBO();
     for (const auto flow : _flows) {
         for (const auto cameraId : cameras) {
             Camera *camera = GET_CAMERA(cameraId);
