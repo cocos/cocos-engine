@@ -5,15 +5,6 @@
 #include "cocos/bindings/manual/jsb_conversions.h"
 #include "cocos/network/Downloader.h"
 
-extern se::Object* __jsb_cc_network_DownloadTask_proto;
-extern se::Class* __jsb_cc_network_DownloadTask_class;
-
-bool js_register_cc_network_DownloadTask(se::Object* obj);
-bool register_all_network(se::Object* obj);
-
-JSB_REGISTER_OBJECT_TYPE(cc::network::DownloadTask);
-SE_DECLARE_FUNC(js_network_DownloadTask_DownloadTask);
-
 extern se::Object* __jsb_cc_network_DownloaderHints_proto;
 extern se::Class* __jsb_cc_network_DownloaderHints_class;
 
