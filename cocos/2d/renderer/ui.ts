@@ -116,6 +116,7 @@ export class UI {
     private _currTextureHash = 0;
     private _currSamplerHash = 0;
     private _currBlendTargetHash = 0;
+    private _currLayer = 0;
     private _currDepthStencilStateStage: any|null = null;
     private _parentOpacity = 1;
     // DescriptorSet Cache Map
@@ -252,12 +253,6 @@ export class UI {
                 const batch = this._batches.array[i];
 
                 if (batch.model) {
-                    const camera = batch.camera || this._scene.cameras[0];
-                    if (camera) {
-                        const visFlags = camera.visibility;
-                        batch.model.visFlags = visFlags;
-                        batch.model.node.layer = visFlags;
-                    }
                     const subModels = batch.model.subModels;
                     for (let j = 0; j < subModels.length; j++) {
                         subModels[j].priority = batchPriority++;
@@ -283,12 +278,6 @@ export class UI {
                         }
                     }
                 }
-
-                if (batch.camera) {
-                    const visibility = batch.camera.visibility;
-                    batch.visFlags = visibility;
-                }
-
                 this._scene.addBatch(batch);
             }
         }
@@ -327,6 +316,7 @@ export class UI {
         }
 
         this._parentOpacity = 1;
+        this._currLayer = 0;
         this._currMaterial = this._emptyMaterial;
         this._currCanvas = null;
         this._currTexture = null;
@@ -374,7 +364,7 @@ export class UI {
         const blendTargetHash = renderComp.blendHash;
         const depthStencilStateStage = renderComp.stencilStage;
 
-        if (this._currMaterial !== mat || this._currBlendTargetHash !== blendTargetHash || this._currDepthStencilStateStage !== depthStencilStateStage
+        if (this._currLayer !== comp.node.layer || this._currMaterial !== mat || this._currBlendTargetHash !== blendTargetHash || this._currDepthStencilStateStage !== depthStencilStateStage
             || this._currTextureHash !== textureHash || this._currSamplerHash !== samplerHash || this._currTransform !== transform) {
             this.autoMergeBatches(this._currComponent!);
             this._currComponent = renderComp;
@@ -386,6 +376,7 @@ export class UI {
             this._currSamplerHash = samplerHash;
             this._currBlendTargetHash = blendTargetHash;
             this._currDepthStencilStateStage = depthStencilStateStage;
+            this._currLayer = comp.node.layer;
         }
 
         if (assembler) {
@@ -422,9 +413,6 @@ export class UI {
             depthStencil = StencilManager.sharedManager!.getStencilStage(comp.stencilStage);
         }
 
-        const uiCanvas = this._currCanvas;
-        if (!uiCanvas || !uiCanvas.cameraComponent) { return; }
-
         const stamp = legacyCC.director.getTotalFrames();
         if (model) {
             model.updateTransform(stamp);
@@ -434,7 +422,7 @@ export class UI {
         for (let i = 0; i < model!.subModels.length; i++) {
             const curDrawBatch = this._drawBatchPool.alloc();
             const subModel = model!.subModels[i];
-            curDrawBatch.camera = uiCanvas && uiCanvas.cameraComponent.camera;
+            curDrawBatch.visFlags = comp.node.layer;
             curDrawBatch.model = model;
             curDrawBatch.bufferBatch = null;
             curDrawBatch.texture = null;
@@ -444,6 +432,8 @@ export class UI {
             curDrawBatch.fillPasses(mat, depthStencil, null);
             curDrawBatch.hDescriptorSet = SubModelPool.get(subModel.handle, SubModelView.DESCRIPTOR_SET);
             curDrawBatch.hInputAssembler = SubModelPool.get(subModel.handle, SubModelView.INPUT_ASSEMBLER);
+            curDrawBatch.model!.visFlags = curDrawBatch.visFlags;
+            curDrawBatch.model!.node.layer = curDrawBatch.visFlags;
             this._batches.push(curDrawBatch);
         }
 
@@ -455,6 +445,7 @@ export class UI {
         this._currSampler = null;
         this._currTextureHash = 0;
         this._currSamplerHash = 0;
+        this._currLayer = 0;
     }
 
     /**
@@ -494,8 +485,7 @@ export class UI {
         }
 
         const curDrawBatch = this._currStaticRoot ? this._currStaticRoot._requireDrawBatch() : this._drawBatchPool.alloc();
-        if (!uiCanvas || !uiCanvas.cameraComponent) { return; }
-        curDrawBatch.camera = uiCanvas && uiCanvas.cameraComponent.camera;
+        curDrawBatch.visFlags = this._currLayer;
         curDrawBatch.bufferBatch = buffer;
         curDrawBatch.texture = this._currTexture!;
         curDrawBatch.sampler = this._currSampler;
@@ -559,6 +549,7 @@ export class UI {
         this._currTransform = null;
         this._currTextureHash = 0;
         this._currSamplerHash = 0;
+        this._currLayer = 0;
     }
 
     /**
