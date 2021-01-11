@@ -77,11 +77,13 @@ export class ShadowFlow extends RenderFlow {
     public render (camera: Camera) {
         const pipeline = this._pipeline as ForwardPipeline;
         const shadowInfo = pipeline.shadows;
-        if (!shadowInfo.enabled || shadowInfo.type !== ShadowType.ShadowMap) { return; }
+        if (!shadowInfo.enabled) { return; }
 
-        pipeline.updateShadowUBO(camera);
         const validLights = lightCollecting(camera, shadowInfo.maxReceived);
         shadowCollecting(pipeline, camera);
+        pipeline.updateShadowUBO(camera);
+
+        if (shadowInfo.type !== ShadowType.ShadowMap || pipeline.shadowObjects.length === 0) return;
 
         for (let l = 0; l < validLights.length; l++) {
             const light = validLights[l];
