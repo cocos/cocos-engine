@@ -23,10 +23,10 @@
  ****************************************************************************/
 #pragma once
 
-#include <vector>
-#include <unordered_map>
 #include <functional>
 #include <string>
+#include <unordered_map>
+#include <vector>
 
 namespace se {
 class Value;
@@ -183,6 +183,7 @@ public:
     static uint32_t addCustomEventListener(const std::string &eventName, const CustomEventListener &listener);
     static void removeCustomEventListener(const std::string &eventName, uint32_t listenerID);
     static void removeAllCustomEventListeners(const std::string &eventName);
+    static void removeAllEventListeners();
     static void dispatchCustomEvent(const CustomEvent &event);
 
 private:
@@ -194,6 +195,7 @@ private:
         struct Node *next = nullptr;
     };
     static std::unordered_map<std::string, Node *> _listeners;
+    static uint32_t _hashListenerID; //simple increment hash
 };
 
 } // end of namespace cc

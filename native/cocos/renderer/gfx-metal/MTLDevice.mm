@@ -179,6 +179,10 @@ void CCMTLDevice::destroy() {
         EventDispatcher::removeCustomEventListener(EVENT_MEMORY_WARNING, _memoryAlarmListenerId);
         _memoryAlarmListenerId = 0;
     }
+    if (_inFlightSemaphore) {
+        _inFlightSemaphore->syncAll();
+    }
+
     CC_SAFE_DESTROY(_queue);
     CC_SAFE_DESTROY(_cmdBuff);
     CC_SAFE_DESTROY(_context);

@@ -23,9 +23,9 @@
  ****************************************************************************/
 #include "EventDispatcher.h"
 
+#include "cocos/bindings/event/CustomEventTypes.h"
 #include "cocos/bindings/jswrapper/SeApi.h"
 #include "cocos/bindings/manual/jsb_global.h"
-#include "cocos/bindings/event/CustomEventTypes.h"
 
 namespace {
 se::Value _tickVal;
@@ -34,12 +34,13 @@ se::Object *_jsTouchObjArray = nullptr;
 se::Object *_jsMouseEventObj = nullptr;
 se::Object *_jsKeyboardEventObj = nullptr;
 se::Object *_jsResizeEventObj = nullptr;
-se::Object* _jsOrientationEventObj = nullptr;
+se::Object *_jsOrientationEventObj = nullptr;
 bool _inited = false;
 } // namespace
 
 namespace cc {
 std::unordered_map<std::string, EventDispatcher::Node *> EventDispatcher::_listeners;
+uint32_t EventDispatcher::_hashListenerID = 1;
 
 void EventDispatcher::init() {
     _inited = true;
@@ -49,6 +50,8 @@ void EventDispatcher::init() {
 }
 
 void EventDispatcher::destroy() {
+    removeAllEventListeners();
+    
     for (auto touchObj : _jsTouchObjPool) {
         touchObj->unroot();
         touchObj->decRef();
@@ -251,24 +254,21 @@ void EventDispatcher::dispatchResizeEvent(int width, int height) {
     EventDispatcher::doDispatchEvent(EVENT_RESIZE, "onResize", args);
 }
 
-void EventDispatcher::dispatchOrientationChangeEvent(int orientation)
-{
+void EventDispatcher::dispatchOrientationChangeEvent(int orientation) {
     if (!se::ScriptEngine::getInstance()->isValid())
         return;
 
     se::AutoHandleScope scope;
     assert(_inited);
 
-    if (_jsOrientationEventObj == nullptr)
-    {
+    if (_jsOrientationEventObj == nullptr) {
         _jsOrientationEventObj = se::Object::createPlainObject();
         _jsOrientationEventObj->root();
     }
 
     se::Value func;
     __jsbObj->getProperty("onOrientationChanged", &func);
-    if (func.isObject() && func.toObject()->isFunction())
-    {
+    if (func.isObject() && func.toObject()->isFunction()) {
         _jsOrientationEventObj->setProperty("orientation", se::Value(orientation));
 
         se::ValueArray args;
@@ -318,13 +318,9 @@ void EventDispatcher::doDispatchEvent(const char *eventName, const char *jsFunct
 }
 
 uint32_t EventDispatcher::addCustomEventListener(const std::string &eventName, const CustomEventListener &listener) {
-    static uint32_t __listenerIDCounter = 0;
-    uint32_t listenerID = ++__listenerIDCounter;
-    listenerID = listenerID == 0 ? 1 : listenerID;
-
     Node *newNode = new Node();
     newNode->listener = listener;
-    newNode->listenerID = listenerID;
+    newNode->listenerID = _hashListenerID;
     newNode->next = nullptr;
 
     auto iter = _listeners.find(eventName);
@@ -340,7 +336,7 @@ uint32_t EventDispatcher::addCustomEventListener(const std::string &eventName, c
         }
         prev->next = newNode;
     }
-    return listenerID;
+    return _hashListenerID++;
 }
 
 void EventDispatcher::removeCustomEventListener(const std::string &eventName, uint32_t listenerID) {
@@ -385,6 +381,15 @@ void EventDispatcher::removeAllCustomEventListeners(const std::string &eventName
         }
         _listeners.erase(iter);
     }
+}
+
+void EventDispatcher::removeAllEventListeners() {
+    for (auto &&node : _listeners) {
+        delete node.second;
+    }
+    _listeners.clear();
+    //start from 1 cuz 0 represents pause and resume
+    _hashListenerID = 1;
 }
 
 void EventDispatcher::dispatchCustomEvent(const CustomEvent &event) {

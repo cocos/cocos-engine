@@ -137,10 +137,6 @@ bool GLES2Context::initialize(const ContextInfo &info) {
         //    rather than any other API (such as OpenVG).
         EGL_CHECK(eglBindAPI(EGL_OPENGL_ES_API));
 
-        if (!gles2wInit()) {
-            return false;
-        }
-
         _colorFmt = Format::RGBA8;
         _depthStencilFmt = Format::D24S8;
 
@@ -286,6 +282,10 @@ bool GLES2Context::initialize(const ContextInfo &info) {
             ((GLES2Context *)_device->getContext())->MakeCurrent();
         });
     #endif
+         
+        if (!gles2wInit()) {
+            return false;
+        }
 
     } else {
         GLES2Context *sharedCtx = (GLES2Context *)info.sharedCtx;
@@ -342,6 +342,8 @@ bool GLES2Context::initialize(const ContextInfo &info) {
 }
 
 void GLES2Context::destroy() {
+    EGL_CHECK(eglMakeCurrent(_eglDisplay, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT));
+
     if (_eglContext != EGL_NO_CONTEXT) {
         EGL_CHECK(eglDestroyContext(_eglDisplay, _eglContext));
         _eglContext = EGL_NO_CONTEXT;
@@ -352,7 +354,10 @@ void GLES2Context::destroy() {
         _eglSurface = EGL_NO_SURFACE;
     }
 
-    EGL_CHECK(eglMakeCurrent(_eglDisplay, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT));
+    if (_eglDisplay != EGL_NO_DISPLAY) {
+        EGL_CHECK(eglTerminate(_eglDisplay));
+        _eglDisplay = EGL_NO_DISPLAY;
+    }
 
     #if (CC_PLATFORM == CC_PLATFORM_WINDOWS)
     if (_isPrimaryContex && _nativeDisplay) {
