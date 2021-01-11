@@ -207,6 +207,7 @@ export class MeshBuffer {
             this.indexBuffer.resize(this.indicesOffset * 2);
         }
         this.indexBuffer.update(indicesData);
+        this._dirty = false;
     }
 
     private _reallocBuffer () {
