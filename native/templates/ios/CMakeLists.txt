@@ -31,9 +31,8 @@ set(UI_RESOURCES
 list(APPEND PROJ_SOURCES
     ${CMAKE_CURRENT_LIST_DIR}/AppDelegate.mm
     ${CMAKE_CURRENT_LIST_DIR}/AppDelegate.h
-    ${CMAKE_CURRENT_LIST_DIR}/SDKWrapper.m
-    ${CMAKE_CURRENT_LIST_DIR}/SDKWrapper.h
-    ${CMAKE_CURRENT_LIST_DIR}/service/SDKDelegate.h
+    ${CMAKE_CURRENT_LIST_DIR}/service/SDKWrapper.m
+    ${CMAKE_CURRENT_LIST_DIR}/service/SDKWrapper.h
     ${CMAKE_CURRENT_LIST_DIR}/main.m
     ${CMAKE_CURRENT_LIST_DIR}/ViewController.mm
     ${CMAKE_CURRENT_LIST_DIR}/ViewController.h

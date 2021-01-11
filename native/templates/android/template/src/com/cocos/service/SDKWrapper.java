@@ -1,8 +1,6 @@
 /****************************************************************************
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
-
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
  http://www.cocos.com
-
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
@@ -10,10 +8,8 @@
  not use Cocos Creator software for developing other software or tools that's
  used for developing games. You are not granted to publish, distribute,
  sublicense, and/or sell copies of Cocos Creator.
-
  The software or tools in this License Agreement are licensed, not sold.
  Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
-
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -23,149 +19,167 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-package com.cocos.game;
+package com.cocos.service;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.AssetManager;
 import android.content.res.Configuration;
 import android.os.Bundle;
-import com.cocos.game.service.SDKClass;
-import org.json.*;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SDKWrapper {
-    private Context mainActive = null;
-    private static SDKWrapper mInstace = null;
-    private List<SDKClass> sdkClasses;
+public final class SDKWrapper {
+    private SDKWrapper() {}
+    private static class SDKWrapperInstance {
+        private static final SDKWrapper mInstance = new SDKWrapper();
+    }
+    public static SDKWrapper shared() { return SDKWrapperInstance.mInstance; }
 
-    public static SDKWrapper getInstance() {
-        if (null == mInstace) {
-            mInstace = new SDKWrapper();
-        }
-        return mInstace;
+    @SuppressWarnings("unused")
+    public interface SDKInterface {
+        default void init(Context context) {}
+        default void onStart() {}
+        default void onPause() {}
+        default void onResume() {}
+        default void onStop() {}
+        default void onDestroy() {}
+        default void onRestart() {}
+        default void onNewIntent(Intent intent) {}
+        default void onActivityResult(int requestCode, int resultCode, Intent data) {}
+        default void onConfigurationChanged(Configuration newConfig) {}
+        default void onRestoreInstanceState(Bundle savedInstanceState) {}
+        default void onSaveInstanceState(Bundle outState) {}
+        default void onBackPressed() {}
+        default void onLowMemory() {}
     }
 
-    public void init(Context context) {
-        this.mainActive = context;
-        this.loadSDKClass();
-        for (SDKClass sdk : this.sdkClasses) {
-            sdk.init(context);
-        }
-    }
+    private WeakReference<Activity> mActivity = null;
+    private List<SDKInterface> serviceInstances;
 
-    public Context getContext() {
-        return this.mainActive;
-    }
-
-    public void loadSDKClass() {
-        ArrayList<SDKClass> classes = new ArrayList<SDKClass>();
+    private void loadSDKInterface() {
+        ArrayList<SDKInterface> instances = new ArrayList<>();
         try {
-            String json = this.getJson(this.mainActive, "project.json");
+            String json = this.getJson("service.json");
             JSONObject jsonObject = new JSONObject(json);
-            JSONArray serviceClassPath = jsonObject.getJSONArray("serviceClassPath");
-            if (serviceClassPath == null) return;
-            int length = serviceClassPath.length();
+            JSONArray serviceClasses = jsonObject.getJSONArray("serviceClasses");
+            if (serviceClasses == null) return;
+            int length = serviceClasses.length();
             for (int i = 0; i < length; i++) {
-                String classPath = serviceClassPath.getString(i);
-                SDKClass sdk = (SDKClass) Class.forName(classPath).newInstance();
-                classes.add(sdk);
+                instances.add((SDKInterface) Class.forName(serviceClasses.getString(i)).newInstance());
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        this.sdkClasses = classes;
+        } catch (Exception ignored) { }
+        this.serviceInstances = instances;
     }
 
-    private String getJson(Context mContext, String fileName) {
+    @SuppressWarnings("SameParameterValue")
+    private String getJson(String fileName) {
         StringBuilder sb = new StringBuilder();
-        AssetManager am = mContext.getAssets();
         try {
+            AssetManager am = this.mActivity.get().getAssets();
             BufferedReader br = new BufferedReader(new InputStreamReader(am.open(fileName)));
-            String next = "";
-            while (null != (next = br.readLine())) {
-                sb.append(next);
-            }
+            String next;
+            while (null != (next = br.readLine())) { sb.append(next); }
         } catch (IOException e) {
-            e.printStackTrace();
             sb.delete(0, sb.length());
         }
         return sb.toString().trim();
     }
 
+    public Activity getActivity() { return this.mActivity.get(); }
+
+    public void init(Activity activity) {
+        this.mActivity = new WeakReference<>(activity);
+        this.loadSDKInterface();
+        for (SDKInterface sdk : this.serviceInstances) {
+            sdk.init(activity);
+        }
+    }
+
     public void onResume() {
-        for (SDKClass sdk : this.sdkClasses) {
+        for (SDKInterface sdk : this.serviceInstances) {
             sdk.onResume();
         }
     }
 
     public void onPause() {
-        for (SDKClass sdk : this.sdkClasses) {
+        for (SDKInterface sdk : this.serviceInstances) {
             sdk.onPause();
         }
     }
 
     public void onDestroy() {
-        for (SDKClass sdk : this.sdkClasses) {
+        for (SDKInterface sdk : this.serviceInstances) {
             sdk.onDestroy();
         }
     }
 
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        for (SDKClass sdk : this.sdkClasses) {
+        for (SDKInterface sdk : this.serviceInstances) {
             sdk.onActivityResult(requestCode, resultCode, data);
         }
     }
 
     public void onNewIntent(Intent intent) {
-        for (SDKClass sdk : this.sdkClasses) {
+        for (SDKInterface sdk : this.serviceInstances) {
             sdk.onNewIntent(intent);
         }
     }
 
     public void onRestart() {
-        for (SDKClass sdk : this.sdkClasses) {
+        for (SDKInterface sdk : this.serviceInstances) {
             sdk.onRestart();
         }
     }
 
     public void onStop() {
-        for (SDKClass sdk : this.sdkClasses) {
+        for (SDKInterface sdk : this.serviceInstances) {
             sdk.onStop();
         }
     }
 
     public void onBackPressed() {
-        for (SDKClass sdk : this.sdkClasses) {
+        for (SDKInterface sdk : this.serviceInstances) {
             sdk.onBackPressed();
         }
     }
 
     public void onConfigurationChanged(Configuration newConfig) {
-        for (SDKClass sdk : this.sdkClasses) {
+        for (SDKInterface sdk : this.serviceInstances) {
             sdk.onConfigurationChanged(newConfig);
         }
     }
 
     public void onRestoreInstanceState(Bundle savedInstanceState) {
-        for (SDKClass sdk : this.sdkClasses) {
+        for (SDKInterface sdk : this.serviceInstances) {
             sdk.onRestoreInstanceState(savedInstanceState);
         }
     }
 
     public void onSaveInstanceState(Bundle outState) {
-        for (SDKClass sdk : this.sdkClasses) {
+        for (SDKInterface sdk : this.serviceInstances) {
             sdk.onSaveInstanceState(outState);
         }
     }
 
     public void onStart() {
-        for (SDKClass sdk : this.sdkClasses) {
+        for (SDKInterface sdk : this.serviceInstances) {
             sdk.onStart();
+        }
+    }
+
+    public void onLowMemory() {
+        for (SDKInterface sdk : this.serviceInstances) {
+            sdk.onLowMemory();
         }
     }
 }
