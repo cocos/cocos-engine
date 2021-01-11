@@ -129,7 +129,7 @@ if (cc.internal.WebView) {
         }
 
         syncMatrix() {
-            if (!this._webview || !this._component) return;
+            if (!this._webview || !this._component || !this._uiTrans) return;
 
             const camera = this.UICamera;
             if (!camera) {
@@ -166,13 +166,16 @@ if (cc.internal.WebView) {
             // Convert to world space
             vec3.transformMat4(_topLeft, _topLeft, _mat4_temp);
             vec3.transformMat4(_bottomRight, _bottomRight, _mat4_temp);
+            // need update camera data
+            camera.update();
             // Convert to Screen space
-            camera.worldToScreen(_topLeft, _topLeft, canvas_width, canvas_height);
-            camera.worldToScreen(_bottomRight, _bottomRight, canvas_width, canvas_height);
+            camera.worldToScreen(_topLeft, _topLeft);
+            camera.worldToScreen(_bottomRight, _bottomRight);
 
             let finalWidth = _bottomRight.x - _topLeft.x;
             let finalHeight = _topLeft.y - _bottomRight.y;
             this._webview.setFrame(_topLeft.x, canvas_height - _topLeft.y, finalWidth, finalHeight);
+            this._forceUpdate = false;
         }
     }
 }

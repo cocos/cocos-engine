@@ -251,6 +251,8 @@ if (cc.internal.VideoPlayer) {
             // Convert to world space
             vec3.transformMat4(_topLeft, _topLeft, _mat4_temp);
             vec3.transformMat4(_bottomRight, _bottomRight, _mat4_temp);
+            // need update camera data
+            camera.update();
             // Convert to Screen space
             camera.worldToScreen(_topLeft, _topLeft);
             camera.worldToScreen(_bottomRight, _bottomRight);
