@@ -376,7 +376,8 @@ void RenderAdditiveLightQueue::updateLightDescriptorSet(const Camera *camera, gf
         descriptorSet->update();
 
         cmdBuffer->updateBuffer(descriptorSet->getBuffer(UBOShadow::BINDING), _shadowUBO.data(), UBOShadow::SIZE);
-        cmdBuffer->updateBuffer(descriptorSet->getBuffer(UBOGlobal::BINDING), _globalUBO.data(),UBOGlobal::SIZE);
+        cmdBuffer->updateBuffer(descriptorSet->getBuffer(UBOGlobal::BINDING), _globalUBO.data(), UBOGlobal::SIZE);
+        cmdBuffer->updateBuffer(descriptorSet->getBuffer(UBOCamera::BINDING), _cameraUBO.data(), UBOCamera::SIZE);
     }
 }
 
@@ -543,6 +544,15 @@ gfx::DescriptorSet *RenderAdditiveLightQueue::getOrCreateDescriptorSet(const Lig
             gfx::BufferFlagBit::NONE,
         });
         descriptorSet->bindBuffer(UBOGlobal::BINDING, globalUBO);
+        
+        auto cameraUBO = device->createBuffer({
+            gfx::BufferUsageBit::UNIFORM | gfx::BufferUsageBit::TRANSFER_DST,
+            gfx::MemoryUsageBit::HOST | gfx::MemoryUsageBit::DEVICE,
+            UBOCamera::SIZE,
+            UBOCamera::SIZE,
+            gfx::BufferFlagBit::NONE,
+        });
+        descriptorSet->bindBuffer(UBOCamera::BINDING, cameraUBO);
 
         auto shadowUBO = device->createBuffer({
             gfx::BufferUsageBit::UNIFORM | gfx::BufferUsageBit::TRANSFER_DST,

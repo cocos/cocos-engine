@@ -58,7 +58,6 @@ void ForwardFlow::activate(RenderPipeline *pipeline) {
 void ForwardFlow::render(Camera *camera) {
     auto pipeline = static_cast<ForwardPipeline *>(_pipeline);
     sceneCulling(pipeline, camera);
-    pipeline->updateCameraUBO(camera);
     RenderFlow::render(camera);
 }
 
