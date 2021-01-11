@@ -433,7 +433,6 @@ export class UI {
             curDrawBatch.hDescriptorSet = SubModelPool.get(subModel.handle, SubModelView.DESCRIPTOR_SET);
             curDrawBatch.hInputAssembler = SubModelPool.get(subModel.handle, SubModelView.INPUT_ASSEMBLER);
             curDrawBatch.model!.visFlags = curDrawBatch.visFlags;
-            curDrawBatch.model!.node.layer = curDrawBatch.visFlags;
             this._batches.push(curDrawBatch);
         }
 
