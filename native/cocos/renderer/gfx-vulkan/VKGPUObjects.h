@@ -887,9 +887,11 @@ private:
     void update(CCVKGPUDescriptorSet *gpuDescriptorSet) {
         CCVKGPUDescriptorSet::DescriptorSetInstance &instance = gpuDescriptorSet->instances[_device->curBackBufferIndex];
         if (gpuDescriptorSet->pUpdateTemplate) {
-            vkUpdateDescriptorSetWithTemplateKHR(_device->vkDevice,
-                                                 instance.vkDescriptorSet,
-                                                 *gpuDescriptorSet->pUpdateTemplate, instance.descriptorInfos.data());
+            if (*gpuDescriptorSet->pUpdateTemplate) { // skip empty descriptor sets
+                vkUpdateDescriptorSetWithTemplateKHR(_device->vkDevice,
+                                                     instance.vkDescriptorSet,
+                                                     *gpuDescriptorSet->pUpdateTemplate, instance.descriptorInfos.data());
+            }
         } else {
             vector<VkWriteDescriptorSet> &entries = instance.descriptorUpdateEntries;
             vkUpdateDescriptorSets(_device->vkDevice, entries.size(), entries.data(), 0, nullptr);
