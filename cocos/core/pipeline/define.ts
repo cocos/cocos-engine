@@ -502,8 +502,8 @@ localDescriptorSetLayout.layouts[UNIFORM_SPRITE_TEXTURE_NAME] = UNIFORM_SPRITE_T
 localDescriptorSetLayout.bindings[UNIFORM_SPRITE_TEXTURE_BINDING] = UNIFORM_SPRITE_TEXTURE_DESCRIPTOR;
 
 export const CAMERA_DEFAULT_MASK = Layers.makeMaskExclude([Layers.BitMask.UI_2D, Layers.BitMask.GIZMOS, Layers.BitMask.EDITOR,
-    Layers.BitMask.SCENE_GIZMO, Layers.BitMask.PROFILER]);
+    Layers.BitMask.SCENE_GIZMO, Layers.BitMask.PROFILER, 0x000fffff]);
 
-export const CAMERA_EDITOR_MASK = Layers.makeMaskExclude([Layers.BitMask.UI_2D, Layers.BitMask.PROFILER]);
+export const CAMERA_EDITOR_MASK = Layers.makeMaskExclude([Layers.BitMask.PROFILER]);
 
 export const MODEL_ALWAYS_MASK = Layers.Enum.ALL;
