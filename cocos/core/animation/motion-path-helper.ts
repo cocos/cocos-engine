@@ -28,7 +28,7 @@
  * @hidden
  */
 
-import { binarySearchEpsilon as binarySearch } from '../data/utils/binary-search';
+import { binarySearchEpsilon as binarySearch } from '../algorithm/binary-search';
 import { errorID } from '../platform/debug';
 import { Vec2, Vec3 } from '../math';
 import { AnimCurve, computeRatioByType, CurveValue, EasingMethod } from './animation-curve';
