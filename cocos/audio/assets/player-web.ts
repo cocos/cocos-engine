@@ -134,6 +134,9 @@ export class AudioPlayerWeb extends AudioPlayer {
 
     public playOneShot (volume = 1) {
         if (!this._nativeAudio) { return; }
+        if (this._context.state as string === 'interrupted' || this._context.state as string === 'suspended') {
+            this._context.resume?.().catch(err => console.error(err));
+        }
         AudioPlayerWeb._manager.discardOnePlayingIfNeeded();
         const gainNode = this._context.createGain();
         gainNode.connect(this._context.destination);
