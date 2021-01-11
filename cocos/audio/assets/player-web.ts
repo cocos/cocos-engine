@@ -51,7 +51,7 @@ class AudioManagerWeb extends AudioManager<ManagedAudio> {
         } else {
             audioToDiscard = this._playingAudios.shift();
         }
-        audioToDiscard?.stop();
+        audioToDiscard && audioToDiscard.stop();
     }
 }
 
@@ -135,7 +135,7 @@ export class AudioPlayerWeb extends AudioPlayer {
     public playOneShot (volume = 1) {
         if (!this._nativeAudio) { return; }
         if (this._context.state as string === 'interrupted' || this._context.state as string === 'suspended') {
-            this._context.resume?.().catch((err) => { console.error(err); } );
+            this._context.resume && this._context.resume().catch((err) => { console.error(err); } );
         }
         AudioPlayerWeb._manager.discardOnePlayingIfNeeded();
         const gainNode = this._context.createGain();
@@ -248,7 +248,7 @@ export class AudioPlayerWeb extends AudioPlayer {
 
     private _onGesture () {
         if (this._context.state !== 'running') {
-            this._context.resume().then(this._onGestureProceedCB);
+            this._context.resume().then(this._onGestureProceedCB).catch((err) => { console.error(err); });
         } else {
             this._onGestureProceed();
         }
