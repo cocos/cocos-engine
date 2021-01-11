@@ -96,7 +96,7 @@ export abstract class WebViewImpl {
     get webview () { return this._webview; }
     get state () { return this._state; }
     get UICamera () {
-        return director.root!.ui.getRenderCamera(this._node!);
+        return director.root!.ui.getFirstRenderCamera(this._node!);
     }
 
     protected dispatchEvent (key: EventType, ...args: any[any]) {

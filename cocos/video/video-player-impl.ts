@@ -126,7 +126,7 @@ export abstract class VideoPlayerImpl {
     public get video () { return this._video; }
     public get state () { return this._state; }
     get UICamera () {
-        return director.root!.ui.getRenderCamera(this._node!);
+        return director.root!.ui.getFirstRenderCamera(this._node!);
     }
 
     // video player event
