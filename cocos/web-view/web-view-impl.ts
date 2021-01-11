@@ -31,6 +31,8 @@ import { legacyCC } from '../core/global-exports';
 import { WebView } from './web-view';
 import { EventType } from './web-view-enums';
 import { UITransform } from '../2d/framework';
+import { director } from '../core/director';
+import { Node } from '../core/scene-graph';
 
 export abstract class WebViewImpl {
     protected _componentEventList: Map<EventType, (...args: any[any]) => void> = new Map();
@@ -43,6 +45,7 @@ export abstract class WebViewImpl {
 
     protected _component: WebView | null = null;
     protected _uiTrans: UITransform | null = null;
+    protected _node: Node | null = null;
 
     protected _w = 0;
     protected _h = 0;
@@ -55,6 +58,7 @@ export abstract class WebViewImpl {
 
     constructor (component: WebView) {
         this._component = component;
+        this._node = component.node;
         this._uiTrans = component.node.getComponent(UITransform);
         this.reset();
         this.createWebView();
@@ -92,11 +96,7 @@ export abstract class WebViewImpl {
     get webview () { return this._webview; }
     get state () { return this._state; }
     get UICamera () {
-        if (this._uiTrans && this._uiTrans._canvas && this._uiTrans._canvas.cameraComponent) {
-            return this._uiTrans._canvas.cameraComponent.camera;
-        } else {
-            return null;
-        }
+        return director.root!.ui.getRenderCamera(this._node!);
     }
 
     protected dispatchEvent (key: EventType, ...args: any[any]) {
