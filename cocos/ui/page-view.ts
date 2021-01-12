@@ -43,7 +43,7 @@ import { extendsEnum } from '../core/data/utils/extends-enum';
 import { Node } from '../core/scene-graph';
 import { legacyCC } from '../core/global-exports';
 
-const _temp_vec2 = new Vec2();
+const _tempVec2 = new Vec2();
 
 /**
  * @en Enum for Page View Size Mode.
@@ -578,8 +578,8 @@ export class PageView extends ScrollView {
     }
 
     protected _onTouchBegan (event: EventTouch, captureListeners: any) {
-        event.touch!.getUILocation(_temp_vec2);
-        Vec2.set(this._touchBeganPosition, _temp_vec2.x, _temp_vec2.y);
+        event.touch!.getUILocation(_tempVec2);
+        Vec2.set(this._touchBeganPosition, _tempVec2.x, _tempVec2.y);
         super._onTouchBegan(event, captureListeners);
     }
 
@@ -588,14 +588,14 @@ export class PageView extends ScrollView {
     }
 
     protected _onTouchEnded (event: EventTouch, captureListeners: any) {
-        event.touch!.getUILocation(_temp_vec2);
-        Vec2.set(this._touchEndPosition, _temp_vec2.x, _temp_vec2.y);
+        event.touch!.getUILocation(_tempVec2);
+        Vec2.set(this._touchEndPosition, _tempVec2.x, _tempVec2.y);
         super._onTouchEnded(event, captureListeners);
     }
 
     protected _onTouchCancelled (event: EventTouch, captureListeners: any) {
-        event.touch!.getUILocation(_temp_vec2);
-        Vec2.set(this._touchEndPosition, _temp_vec2.x, _temp_vec2.y);
+        event.touch!.getUILocation(_tempVec2);
+        Vec2.set(this._touchEndPosition, _tempVec2.x, _tempVec2.y);
         super._onTouchCancelled(event, captureListeners);
     }
 
@@ -664,7 +664,7 @@ export class PageView extends ScrollView {
 
     // 通过 idx 获取偏移值数值
     protected _moveOffsetValue (idx: number) {
-        const offset = _temp_vec2;
+        const offset = _tempVec2;
         if (this._sizeMode === SizeMode.Free) {
             if (this.direction === Direction.Horizontal) {
                 offset.x = this._scrollCenterOffsetX[idx];
