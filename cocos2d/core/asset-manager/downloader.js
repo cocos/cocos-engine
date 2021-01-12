@@ -38,7 +38,7 @@ const { files } = require('./shared');
 const { __audioSupport, capabilities } = require('../platform/CCSys');
 const { urlAppendTimestamp, retry } = require('./utilities');
 
-const REGEX = /^(\w+:\/\/)|(\.\/)|(\.\.\/).*/;
+const REGEX = /^(?:\w+:\/\/|\.+\/).+/;
 
 
 var formatSupport = __audioSupport.format || [];
