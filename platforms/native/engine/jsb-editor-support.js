@@ -106,7 +106,6 @@
 
             // forbid js upload data, call by middleware
             buffer.uploadBuffers();
-            buffer.byteOffset = 0;
             
             // forbid auto merge, because of it's meanless
             buffer.indicesOffset = 0;
