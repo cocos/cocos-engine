@@ -383,6 +383,7 @@ const cacheManager = require('./jsb-cache-manager');
         if (this._nativeSkeleton) {
             this._nativeSkeleton.onEnable();
         }
+        middleware.retain();
     };
 
     let _onDisable = skeleton.onDisable;
@@ -391,6 +392,7 @@ const cacheManager = require('./jsb-cache-manager');
         if (this._nativeSkeleton) {
             this._nativeSkeleton.onDisable();
         }
+        middleware.release();
     };
 
     skeleton.setVertexEffectDelegate = function (effectDelegate) {

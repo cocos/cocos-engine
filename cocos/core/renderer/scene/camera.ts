@@ -163,7 +163,7 @@ export class Camera {
     private _ec = 0.0;
     private _poolHandle: CameraHandle = NULL_HANDLE;
     private _frustumHandle: FrustumHandle = NULL_HANDLE;
-    private _window: Window | null = null;
+    private _window: RenderWindow | null = null;
 
     constructor (device: Device) {
         this._device = device;

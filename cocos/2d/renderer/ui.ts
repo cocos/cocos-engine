@@ -91,6 +91,33 @@ export class UI {
         return this._currMeshBuffer;
     }
 
+    public registerCustomBuffer (attributes: MeshBuffer | Attribute[], callback: ((...args: number[]) => void) | null) {
+        let batch: MeshBuffer;
+        if (attributes instanceof MeshBuffer) {
+            batch = attributes;
+        } else {
+            batch = this._bufferBatchPool.add();
+            batch.initialize(attributes, callback || this._recreateMeshBuffer.bind(this, attributes));
+        }
+        const strideBytes = batch.vertexFormatBytes;
+        let buffers = this._customMeshBuffers.get(strideBytes);
+        if (!buffers) { buffers = []; this._customMeshBuffers.set(strideBytes, buffers); }
+        buffers.push(batch);
+        return batch;
+    }
+
+    public unRegisterCustomBuffer (buffer: MeshBuffer) {
+        const buffers = this._customMeshBuffers.get(buffer.vertexFormatBytes);
+        if (buffers) {
+            for (let i = 0; i < buffers.length; i++) {
+                if (buffers[i] === buffer) {
+                    buffers.splice(i, 1);
+                    break;
+                }
+            }
+        }
+    }
+
     set currStaticRoot (value: UIStaticBatch | null) {
         this._currStaticRoot = value;
     }
@@ -101,6 +128,7 @@ export class UI {
     private _drawBatchPool: Pool<UIDrawBatch>;
     private _scene: RenderScene;
     private _meshBuffers: Map<number, MeshBuffer[]> = new Map();
+    private _customMeshBuffers: Map<number, MeshBuffer[]> = new Map();
     private _meshBufferUseCount: Map<number, number> = new Map();
     private _batches: CachedArray<UIDrawBatch>;
     private _doUploadBuffersCall: Map<any, ((ui:UI) => void)> = new Map();
@@ -286,6 +314,17 @@ export class UI {
                     });
                 }
             }
+
+            const customs = this._customMeshBuffers;
+            for (const i of customs.keys()) {
+                const list = customs.get(i);
+                if (list) {
+                    list.forEach((bb) => {
+                        bb.uploadBuffers();
+                        bb.reset();
+                    });
+                }
+            }
         }
     }
 
@@ -456,7 +495,7 @@ export class UI {
         const buffer = this.currBufferBatch;
         const hIA = buffer?.recordBatch();
         const mat = this._currMaterial;
-        if (!hIA || !mat) {
+        if (!hIA || !mat || !buffer) {
             return;
         }
         let blendState;
@@ -479,9 +518,9 @@ export class UI {
 
         this._batches.push(curDrawBatch);
 
-        buffer!.vertexStart = buffer!.vertexOffset;
-        buffer!.indicesStart = buffer!.indicesOffset;
-        buffer!.byteStart = buffer!.byteOffset;
+        buffer.vertexStart = buffer.vertexOffset;
+        buffer.indicesStart = buffer.indicesOffset;
+        buffer.byteStart = buffer.byteOffset;
 
         // HACK: After sharing buffer between drawcalls, the performance degradation a lots on iOS 14 or iPad OS 14 device
         // TODO: Maybe it can be removed after Apple fixes it?
@@ -591,7 +630,7 @@ export class UI {
 
     private _createMeshBuffer (attributes: Attribute[]): MeshBuffer {
         const batch = this._bufferBatchPool.add();
-        batch.initialize(attributes, this._requireBufferBatch.bind(this, attributes));
+        batch.initialize(attributes, this._recreateMeshBuffer.bind(this, attributes));
         const strideBytes = UIVertexFormat.getAttributeStride(attributes);
         let buffers = this._meshBuffers.get(strideBytes);
         if (!buffers) { buffers = []; this._meshBuffers.set(strideBytes, buffers); }
@@ -599,7 +638,12 @@ export class UI {
         return batch;
     }
 
-    private _requireBufferBatch (attributes: Attribute[]) {
+    private _recreateMeshBuffer (attributes, vertexCount, indexCount) {
+        this.autoMergeBatches();
+        this._requireBufferBatch(attributes, vertexCount, indexCount);
+    }
+
+    private _requireBufferBatch (attributes: Attribute[], vertexCount?: number, indexCount?: number) {
         const strideBytes = UIVertexFormat.getAttributeStride(attributes);
         let buffers = this._meshBuffers.get(strideBytes);
         if (!buffers) { buffers = []; this._meshBuffers.set(strideBytes, buffers); }
@@ -611,8 +655,8 @@ export class UI {
             this._currMeshBuffer = buffers[meshBufferUseCount];
         }
         this._meshBufferUseCount.set(strideBytes, meshBufferUseCount + 1);
-        if (arguments.length === 3) {
-            this._currMeshBuffer.request(arguments[1], arguments[2]);
+        if (vertexCount && indexCount) {
+            this._currMeshBuffer.request(vertexCount, indexCount);
         }
     }
 
