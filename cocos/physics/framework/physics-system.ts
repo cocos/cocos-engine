@@ -436,7 +436,7 @@ director.once(Director.EVENT_INIT, () => {
 });
 
 function initPhysicsSystem () {
-    if (!PhysicsSystem.PHYSICS_NONE && !EDITOR) {
+    if (!EDITOR) {
         const oldIns = PhysicsSystem.instance;
         if (oldIns) {
             director.unregisterSystem(oldIns);

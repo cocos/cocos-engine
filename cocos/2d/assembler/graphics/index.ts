@@ -24,6 +24,4 @@
  THE SOFTWARE.
 */
 
-'use strict';
-
 export * from './webgl';

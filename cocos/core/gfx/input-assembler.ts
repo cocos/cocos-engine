@@ -71,7 +71,6 @@ export class InputAssemblerInfo {
  * @zh GFX 输入汇集器。
  */
 export abstract class InputAssembler extends Obj {
-
     /**
      * @en Get current vertex buffers.
      * @zh 顶点缓冲数组。

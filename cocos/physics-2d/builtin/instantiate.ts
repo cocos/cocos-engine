@@ -4,7 +4,6 @@ import { BuiltinBoxShape } from './shapes/box-shape-2d';
 import { BuiltinCircleShape } from './shapes/circle-shape-2d';
 import { BuiltinPolygonShape } from './shapes/polygon-shape-2d';
 
-
 select('builtin', {
     PhysicsWorld: BuiltinPhysicsWorld,
     RigidBody: null,
@@ -21,4 +20,4 @@ select('builtin', {
     FixedJoint: null,
     WheelJoint: null,
     HingeJoint: null,
-})
+});

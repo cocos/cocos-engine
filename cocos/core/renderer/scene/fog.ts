@@ -24,7 +24,7 @@
  */
 
 import { Enum } from '../../value-types';
-import { Color } from '../../../core/math';
+import { Color } from '../../math';
 import { legacyCC } from '../../global-exports';
 import { FogPool, NULL_HANDLE, FogView, FogHandle } from '../core/memory-pools';
 import { FogInfo } from '../../scene-graph/scene-globals';
@@ -228,7 +228,7 @@ export class Fog {
     }
 
     protected _updatePipeline () {
-        const root = legacyCC.director.root
+        const root = legacyCC.director.root;
         const value = this.enabled ? this.type : FOG_TYPE_NONE;
         const pipeline = root.pipeline;
         if (pipeline.macros.CC_USE_FOG === value) { return; }

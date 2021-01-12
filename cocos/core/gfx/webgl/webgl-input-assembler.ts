@@ -30,7 +30,6 @@ import { WebGLDevice } from './webgl-device';
 import { IWebGLGPUInputAssembler, IWebGLGPUBuffer } from './webgl-gpu-objects';
 
 export class WebGLInputAssembler extends InputAssembler {
-
     get gpuInputAssembler (): IWebGLGPUInputAssembler {
         return  this._gpuInputAssembler!;
     }
@@ -38,7 +37,6 @@ export class WebGLInputAssembler extends InputAssembler {
     private _gpuInputAssembler: IWebGLGPUInputAssembler | null = null;
 
     public initialize (info: InputAssemblerInfo): boolean {
-
         if (info.vertexBuffers.length === 0) {
             console.error('InputAssemblerInfo.vertexBuffers is null.');
             return false;
@@ -77,12 +75,12 @@ export class WebGLInputAssembler extends InputAssembler {
             gpuIndexBuffer = (info.indexBuffer as WebGLBuffer).gpuBuffer;
             if (gpuIndexBuffer) {
                 switch (gpuIndexBuffer.stride) {
-                    case 1: glIndexType = 0x1401; break; // WebGLRenderingContext.UNSIGNED_BYTE
-                    case 2: glIndexType = 0x1403; break; // WebGLRenderingContext.UNSIGNED_SHORT
-                    case 4: glIndexType = 0x1405; break; // WebGLRenderingContext.UNSIGNED_INT
-                    default: {
-                        console.error('Error index buffer stride.');
-                    }
+                case 1: glIndexType = 0x1401; break; // WebGLRenderingContext.UNSIGNED_BYTE
+                case 2: glIndexType = 0x1403; break; // WebGLRenderingContext.UNSIGNED_SHORT
+                case 4: glIndexType = 0x1405; break; // WebGLRenderingContext.UNSIGNED_INT
+                default: {
+                    console.error('Error index buffer stride.');
+                }
                 }
             }
         }

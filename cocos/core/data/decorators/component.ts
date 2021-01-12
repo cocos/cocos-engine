@@ -32,7 +32,7 @@ import { DEV } from 'internal:constants';
 import { makeEditorClassDecoratorFn, makeSmartEditorClassDecorator, emptySmartClassDecorator } from './utils';
 
 /**
- * @en Declare that the current component relies on another type of component. 
+ * @en Declare that the current component relies on another type of component.
  * If the required component doesn't exist, the engine will create a new empty instance of the required component and add to the node.
  * @zh 为声明为 CCClass 的组件添加依赖的其它组件。当组件添加到节点上时，如果依赖的组件不存在，引擎将会自动将依赖组件添加到同一个节点，防止脚本出错。该设置在运行时同样有效。
  * @param requiredComponent The required component type
@@ -84,5 +84,4 @@ export const executionOrder: (priority: number) => ClassDecorator = makeEditorCl
  * }
  * ```
  */
-export const disallowMultiple: ClassDecorator & ((yes?: boolean) => ClassDecorator) =
-    DEV ? makeSmartEditorClassDecorator('disallowMultiple', true): emptySmartClassDecorator;
+export const disallowMultiple: ClassDecorator & ((yes?: boolean) => ClassDecorator) =    DEV ? makeSmartEditorClassDecorator('disallowMultiple', true) : emptySmartClassDecorator;

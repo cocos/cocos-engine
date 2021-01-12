@@ -55,7 +55,6 @@ ccenum(PrimitiveType);
  */
 @ccclass('cc.Primitive')
 export class Primitive extends Mesh {
-
     public static PrimitiveType = PrimitiveType;
 
     /**

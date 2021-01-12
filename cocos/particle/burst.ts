@@ -34,9 +34,8 @@ import CurveRange from './animator/curve-range';
 
 @ccclass('cc.Burst')
 export default class Burst {
-
     @serializable
-    private _time: number = 0;
+    private _time = 0;
 
     /**
      * @zh 粒子系统开始运行到触发此次 Brust 的时间。
@@ -52,7 +51,7 @@ export default class Burst {
     }
 
     @serializable
-    private _repeatCount: number = 1;
+    private _repeatCount = 1;
 
     /**
      * @zh Burst 的触发次数。
@@ -72,7 +71,7 @@ export default class Burst {
      */
     @serializable
     @editable
-    public repeatInterval: number = 1;
+    public repeatInterval = 1;
 
     /**
      * @zh 发射的粒子的数量。

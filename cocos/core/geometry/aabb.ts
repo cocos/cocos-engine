@@ -28,7 +28,7 @@
  * @module geometry
  */
 
-import { Mat3, Mat4, Quat, Vec3 } from '../../core/math';
+import { Mat3, Mat4, Quat, Vec3 } from '../math';
 import enums from './enums';
 import { IVec3Like } from '../math/type-define';
 import { Sphere } from './sphere';
@@ -55,7 +55,6 @@ const transform_extent_m4 = (out: Vec3, extent: Vec3, m4: Mat4) => {
  */
 
 export class AABB {
-
     /**
      * @en
      * create a new AABB

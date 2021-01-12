@@ -39,7 +39,6 @@ import enums from './enums';
  */
 
 export class Line {
-
     /**
      * @en
      * create a new line

@@ -55,7 +55,7 @@ export function isCustomPath<T extends ICustomTargetPath> (path: TargetPath, con
 @ccclass('cc.animation.HierarchyPath')
 export class HierarchyPath implements ICustomTargetPath {
     @serializable
-    public path: string = '';
+    public path = '';
 
     constructor (path?: string) {
         this.path = path || '';
@@ -78,7 +78,7 @@ export class HierarchyPath implements ICustomTargetPath {
 @ccclass('cc.animation.ComponentPath')
 export class ComponentPath implements ICustomTargetPath {
     @serializable
-    public component: string = '';
+    public component = '';
 
     constructor (component?: string) {
         this.component = component || '';

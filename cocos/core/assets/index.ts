@@ -29,6 +29,8 @@
  * @hidden
  */
 import { legacyCC } from '../global-exports';
+import './deprecation';
+
 export { Asset } from './asset';
 export { BufferAsset } from './buffer-asset';
 export { default as Prefab } from './prefab';
@@ -43,4 +45,3 @@ export { TextureCube } from './texture-cube';
 export { EffectAsset } from './effect-asset';
 export { Material } from './material';
 export { RenderTexture } from './render-texture';
-import './deprecation';

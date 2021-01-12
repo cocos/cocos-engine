@@ -48,6 +48,7 @@ export class PlanarShadowQueue {
 
     public gatherShadowPasses (camera: Camera, cmdBuff: CommandBuffer) {
         const shadows = this._pipeline.shadows;
+        this._pendingModels.length = 0;
         if (!shadows.enabled || shadows.type !== ShadowType.Planar) { return; }
 
         const scene = camera.scene!;
@@ -55,13 +56,12 @@ export class PlanarShadowQueue {
         const shadowVisible =  (camera.visibility & Layers.BitMask.DEFAULT) !== 0;
         if (!scene.mainLight || !shadowVisible) { return; }
 
-        const models = scene.models;
-        this._pendingModels.length = 0;
+        const models = this._pipeline.renderObjects;
         const instancedBuffer = InstancedBuffer.get(shadows.instancingMaterial.passes[0]);
         this._instancedQueue.clear(); this._instancedQueue.queue.add(instancedBuffer);
 
         for (let i = 0; i < models.length; i++) {
-            const model = models[i];
+            const model = models[i].model;
             if (!model.enabled || !model.node || !model.castShadow) { continue; }
             if (model.worldBounds) {
                 AABB.transform(_ab, model.worldBounds, shadows.matLight);

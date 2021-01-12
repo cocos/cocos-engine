@@ -354,9 +354,15 @@ export class Skeleton extends UIRenderable {
      * !#zh 当前骨骼中所有动画的时间缩放率。
      */
     @serializable
+    private _timeScale = 1;
     @tooltip('i18n:COMPONENT.skeleton.time_scale')
     @editable
-    public timeScale = 1;
+    get timeScale () { return this._timeScale; }
+    set timeScale (value) {
+        if (value !== this._timeScale) {
+            this._timeScale = value;
+        }
+    }
 
     /**
      * !#en Indicates whether open debug slots.
@@ -726,8 +732,7 @@ export class Skeleton extends UIRenderable {
         if (EDITOR) return;
         if (this.paused) return;
 
-        dt *= this.timeScale * timeScale;
-
+        dt *= this._timeScale * timeScale;
         if (this.isAnimationCached()) {
             // Cache mode and has animation queue.
             if (this._isAniComplete) {

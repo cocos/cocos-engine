@@ -66,7 +66,6 @@ const myPatches = [
  * 预烘焙动画的蒙皮模型。
  */
 export class BakedSkinningModel extends MorphModel {
-
     public uploadedAnim: AnimationClip | null | undefined = undefined; // uninitialized
 
     private _jointsMedium: IJointsInfo;
@@ -149,11 +148,11 @@ export class BakedSkinningModel extends MorphModel {
         const resMgr = this._dataPoolManager;
         let texture: IJointTextureHandle | null = null;
         if (anim) {
-            texture = resMgr.jointTexturePool.getSequencePoseTexture(this._skeleton, anim, this._mesh, this.transform!);
+            texture = resMgr.jointTexturePool.getSequencePoseTexture(this._skeleton, anim, this._mesh, this.transform);
             this._jointsMedium.boundsInfo = texture && texture.bounds.get(this._mesh.hash)!;
             this._modelBounds = null; // don't calc bounds again in Model
         } else {
-            texture = resMgr.jointTexturePool.getDefaultPoseTexture(this._skeleton, this._mesh, this.transform!);
+            texture = resMgr.jointTexturePool.getDefaultPoseTexture(this._skeleton, this._mesh, this.transform);
             this._jointsMedium.boundsInfo = null;
             this._modelBounds = texture && texture.bounds.get(this._mesh.hash)![0];
         }

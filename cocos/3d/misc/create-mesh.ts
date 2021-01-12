@@ -71,7 +71,6 @@ export function createMesh (geometry: IGeometry, out?: Mesh, options?: createMes
         vertCount = Math.max(vertCount, Math.floor(positions.length / info.count));
         channels.push({ offset: stride, data: positions, attribute: attr });
         stride += info.size;
-
     }
 
     if (geometry.normals && geometry.normals.length > 0) {

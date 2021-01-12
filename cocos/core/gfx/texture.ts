@@ -54,7 +54,7 @@ export class TextureInfo {
         public layerCount: number = 1,
         public levelCount: number = 1,
         public samples: SampleCount = SampleCount.X1,
-        public depth: number = 1
+        public depth: number = 1,
     ) {}
 }
 
@@ -68,7 +68,7 @@ export class TextureViewInfo {
         public baseLevel: number = 0,
         public levelCount: number = 1,
         public baseLayer: number = 0,
-        public layerCount: number = 1
+        public layerCount: number = 1,
     ) {}
 }
 
@@ -81,7 +81,6 @@ export function IsPowerOf2 (x: number): boolean {
  * @zh GFX 纹理。
  */
 export abstract class Texture extends Obj {
-
     /**
      * @en Get texture type.
      * @zh 纹理类型。

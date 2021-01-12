@@ -56,16 +56,16 @@ function applyAreaMask (mask: Mask, renderer: UI) {
 export const maskAssembler: IAssembler = {
     createData (mask: Mask) {
         const renderData = mask.requestRenderData();
-        renderData!.dataLength = 4;
-        renderData!.vertexCount = 4;
-        renderData!.indicesCount = 6;
+        renderData.dataLength = 4;
+        renderData.vertexCount = 4;
+        renderData.indicesCount = 6;
 
         renderData.vData = new Float32Array(4 * 9);
-        return renderData as RenderData;
+        return renderData;
     },
 
-    updateRenderData (mask: Mask){
-        if (mask.type === MaskType.IMAGE_STENCIL){
+    updateRenderData (mask: Mask) {
+        if (mask.type === MaskType.IMAGE_STENCIL) {
             simple.updateRenderData(mask);
             simple.updateColor(mask);
         }

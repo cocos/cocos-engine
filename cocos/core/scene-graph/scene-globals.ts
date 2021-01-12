@@ -24,8 +24,8 @@
  * @module scene-graph
  */
 
-import { TextureCube } from '../assets/texture-cube';
 import { ccclass, visible, type, displayOrder, slide, range, rangeStep, editable, serializable, rangeMin } from 'cc.decorator';
+import { TextureCube } from '../assets/texture-cube';
 import { CCFloat, CCBoolean, CCInteger } from '../data/utils/attribute';
 import { Color, Quat, Vec3, Vec2 } from '../math';
 import { Ambient } from '../renderer/scene/ambient';
@@ -396,15 +396,15 @@ export class ShadowsInfo {
     @serializable
     protected _bias = 0.00001;
     @serializable
-    protected _near: number = 1;
+    protected _near = 1;
     @serializable
-    protected _far: number = 30;
+    protected _far = 30;
     @serializable
-    protected _aspect: number = 1;
+    protected _aspect = 1;
     @serializable
-    protected _orthoSize: number = 5;
+    protected _orthoSize = 5;
     @serializable
-    protected _maxReceived: number = 4;
+    protected _maxReceived = 4;
     @serializable
     protected _size: Vec2 = new Vec2(512, 512);
 
@@ -496,13 +496,13 @@ export class ShadowsInfo {
      * @en get or set shadow Map sampler auto adapt
      * @zh 阴影纹理生成是否自适应
      */
-    @type (CCBoolean)
-    @visible(function (this: ShadowsInfo) {return this._type === ShadowType.ShadowMap; })
+    @type(CCBoolean)
+    @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap; })
     set autoAdapt (val) {
         this._autoAdapt = val;
         if (this._resource) { this._resource.autoAdapt = val; }
     }
-    get autoAdapt (){
+    get autoAdapt () {
         return this._autoAdapt;
     }
 
@@ -556,7 +556,7 @@ export class ShadowsInfo {
     @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap && this._autoAdapt === false; })
     set maxReceived (val: number) {
         this._maxReceived = val;
-        if (this._resource) {this._resource.maxReceived = val;}
+        if (this._resource) { this._resource.maxReceived = val; }
     }
     get maxReceived () {
         return this._maxReceived;

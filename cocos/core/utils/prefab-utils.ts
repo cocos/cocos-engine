@@ -29,7 +29,7 @@
  * @hidden
  */
 
-import { ccclass, serializable, editable } from 'cc.decorator';
+import { ccclass, serializable, editable, type } from 'cc.decorator';
 import { EDITOR, SUPPORT_JIT } from 'internal:constants';
 import { legacyCC } from '../global-exports';
 import { Prefab } from '../assets';
@@ -74,7 +74,7 @@ export class PrefabInfo {
 
 legacyCC._PrefabInfo = PrefabInfo;
 
-@ccclass('cc.CompPrefabInfo ')
+@ccclass('cc.CompPrefabInfo')
 export class CompPrefabInfo {
     // To identify current component in a prefab asset, so only needs to be unique.
     @serializable
@@ -92,6 +92,7 @@ export class TargetInfo {
 @ccclass('CCPropertyOverrideInfo')
 export class PropertyOverrideInfo {
     @serializable
+    @type(TargetInfo)
     public targetInfo: TargetInfo|null = null;
     @serializable
     public propertyPath: string[] = [];
@@ -110,8 +111,10 @@ export class PropertyOverrideInfo {
 @ccclass('cc.MountedChildrenInfo')
 export class MountedChildrenInfo {
     @serializable
+    @type(TargetInfo)
     public targetInfo: TargetInfo|null = null;
     @serializable
+    @type([legacyCC.Node])
     public nodes: Node[] = [];
 
     // eslint-disable-next-line consistent-return
@@ -133,17 +136,21 @@ export class PrefabInstance {
 
     // 记录PrefabInstance所属的Prefab的Root节点信息
     @serializable
+    @type(legacyCC.Node)
     public prefabRootNode?: Node;
 
     // 实例化的Prefab中额外增加的子节点数据
     @serializable
+    @type([MountedChildrenInfo])
     public mountedChildren: MountedChildrenInfo[] = [];
 
     // 属性的覆盖数据
     @serializable
+    @type([PropertyOverrideInfo])
     public propertyOverrides: PropertyOverrideInfo[] = [];
 
     @serializable
+    @type([TargetInfo])
     public removedComponents: TargetInfo[] = [];
 
     // eslint-disable-next-line consistent-return
@@ -296,11 +303,12 @@ export function applyMountedChildren (node: Node, mountedChildren: MountedChildr
             if (childInfo.nodes) {
                 for (let i = 0; i < childInfo.nodes.length; i++) {
                     const childNode = childInfo.nodes[i];
-                    childNode._onBatchCreated(false);
                     // @ts-expect-error private member access
                     target._children.push(childNode);
                     // @ts-expect-error private member access
                     childNode._parent = target;
+                    // siblingIndex update is in _onBatchCreated function, and it needs a parent.
+                    childNode._onBatchCreated(false);
                 }
             }
         }

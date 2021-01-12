@@ -33,7 +33,7 @@ import { UI } from '../../renderer/ui';
 import { Label } from '../../components/label';
 import { fillMeshVertices3D } from '../utils';
 import { bmfont } from './bmfont';
-import { letterFont} from './letter-font';
+import { letterFont } from './letter-font';
 import { Color } from '../../../core/math/color';
 
 const WHITE = new Color(255, 255, 255, 255);
@@ -48,7 +48,7 @@ export const letter = {
     },
 
     fillBuffers (comp: Label, renderer: UI) {
-        if (!comp.renderData){
+        if (!comp.renderData) {
             return;
         }
 

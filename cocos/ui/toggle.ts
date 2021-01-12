@@ -134,7 +134,7 @@ export class Toggle extends Button {
     }
 
     protected _set (value: boolean, emitEvent = true) {
-        if (this._isChecked == value) { return; }
+        if (this._isChecked == value) return;
 
         this._isChecked = value;
 

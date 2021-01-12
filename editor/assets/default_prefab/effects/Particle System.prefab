@@ -154,7 +154,10 @@
     "_prewarm": false,
     "_capacity": 100,
     "_simulationSpace": 1,
-    "_id": ""
+    "_id": "",
+    "__prefab": {
+      "__id__": 53
+    }
   },
   {
     "__type__": "cc.GradientRange",
@@ -610,11 +613,10 @@
     "asset": {
       "__id__": 0
     },
-    "fileId": "d8TRONhORDRpCXbQBSi+LM",
-    "sync": false,
-    "_synced": {
-      "default": false,
-      "serializable": false
-    }
+    "fileId": "d8TRONhORDRpCXbQBSi+LM"
+  },
+  {
+    "__type__": "cc.CompPrefabInfo",
+    "fileId": "0b7a7v3FVOCpzmec7amMlB"
   }
 ]

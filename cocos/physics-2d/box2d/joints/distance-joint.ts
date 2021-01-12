@@ -12,8 +12,8 @@ export class b2DistanceJoint extends b2Joint implements IDistanceJoint {
     }
 
     _createJointDef () {
-        let comp = this._jointComp as DistanceJoint2D;
-        let def = new b2.RopeJointDef();
+        const comp = this._jointComp as DistanceJoint2D;
+        const def = new b2.RopeJointDef();
         def.localAnchorA.Set(comp.anchor.x / PHYSICS_2D_PTM_RATIO, comp.anchor.y / PHYSICS_2D_PTM_RATIO);
         def.localAnchorB.Set(comp.connectedAnchor.x / PHYSICS_2D_PTM_RATIO, comp.connectedAnchor.y / PHYSICS_2D_PTM_RATIO);
         def.maxLength = comp.maxLength / PHYSICS_2D_PTM_RATIO;

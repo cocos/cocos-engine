@@ -144,7 +144,7 @@ export class EventListener {
     // hack: How to solve the problem of uncertain attribute
     // callback's this object
     public owner: Object | null = null;
-    public mask: IListenerMask | null = null;
+    public mask: IListenerMask[] | null = null;
     public _previousIn?: boolean = false;
 
     public _target: any = null;
@@ -355,28 +355,28 @@ export class Mouse extends EventListener {
     public _callback (event: EventMouse) {
         const eventType = legacyCC.Event.EventMouse;
         switch (event.eventType) {
-            case eventType.DOWN:
-                if (this.onMouseDown) {
-                    this.onMouseDown(event);
-                }
-                break;
-            case eventType.UP:
-                if (this.onMouseUp) {
-                    this.onMouseUp(event);
-                }
-                break;
-            case eventType.MOVE:
-                if (this.onMouseMove) {
-                    this.onMouseMove(event);
-                }
-                break;
-            case eventType.SCROLL:
-                if (this.onMouseScroll) {
-                    this.onMouseScroll(event);
-                }
-                break;
-            default:
-                break;
+        case eventType.DOWN:
+            if (this.onMouseDown) {
+                this.onMouseDown(event);
+            }
+            break;
+        case eventType.UP:
+            if (this.onMouseUp) {
+                this.onMouseUp(event);
+            }
+            break;
+        case eventType.MOVE:
+            if (this.onMouseMove) {
+                this.onMouseMove(event);
+            }
+            break;
+        case eventType.SCROLL:
+            if (this.onMouseScroll) {
+                this.onMouseScroll(event);
+            }
+            break;
+        default:
+            break;
         }
     }
 
@@ -504,10 +504,8 @@ export class Keyboard extends EventListener {
             if (this.onKeyPressed) {
                 this.onKeyPressed(event.keyCode, event);
             }
-        } else {
-            if (this.onKeyReleased) {
-                this.onKeyReleased(event.keyCode, event);
-            }
+        } else if (this.onKeyReleased) {
+            this.onKeyReleased(event.keyCode, event);
         }
     }
 

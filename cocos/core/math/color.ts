@@ -44,7 +44,6 @@ const toFloat = 1 / 255;
  * 每个通道都为取值范围 [0, 255] 的整数。<br/>
  */
 export class Color extends ValueType {
-
     public static WHITE = Object.freeze(new Color(255, 255, 255, 255));
     public static GRAY = Object.freeze(new Color(127, 127, 127, 255));
     public static BLACK = Object.freeze(new Color(0, 0, 0, 255));
@@ -177,10 +176,10 @@ export class Color extends ValueType {
         let g = from.g;
         let b = from.b;
         let a = from.a;
-        r = r + (to.r - r) * ratio;
-        g = g + (to.g - g) * ratio;
-        b = b + (to.b - b) * ratio;
-        a = a + (to.a - a) * ratio;
+        r += (to.r - r) * ratio;
+        g += (to.g - g) * ratio;
+        b += (to.b - b) * ratio;
+        a += (to.a - a) * ratio;
         out._val = Math.floor(((a << 24) >>> 0) + (b << 16) + (g << 8) + r);
         return out;
     }
@@ -225,10 +224,10 @@ export class Color extends ValueType {
      * @zh 排除浮点数误差的颜色近似等价判断
      */
     public static equals<Out extends IColorLike> (a: Out, b: Out, epsilon = EPSILON) {
-        return (Math.abs(a.r - b.r) <= epsilon * Math.max(1.0, Math.abs(a.r), Math.abs(b.r)) &&
-            Math.abs(a.g - b.g) <= epsilon * Math.max(1.0, Math.abs(a.g), Math.abs(b.g)) &&
-            Math.abs(a.b - b.b) <= epsilon * Math.max(1.0, Math.abs(a.b), Math.abs(b.b)) &&
-            Math.abs(a.a - b.a) <= epsilon * Math.max(1.0, Math.abs(a.a), Math.abs(b.a)));
+        return (Math.abs(a.r - b.r) <= epsilon * Math.max(1.0, Math.abs(a.r), Math.abs(b.r))
+            && Math.abs(a.g - b.g) <= epsilon * Math.max(1.0, Math.abs(a.g), Math.abs(b.g))
+            && Math.abs(a.b - b.b) <= epsilon * Math.max(1.0, Math.abs(a.b), Math.abs(b.b))
+            && Math.abs(a.a - b.a) <= epsilon * Math.max(1.0, Math.abs(a.a), Math.abs(b.a)));
     }
 
     /**
@@ -278,7 +277,7 @@ export class Color extends ValueType {
         this._val = ((this._val & 0xff00ffff) | (blue << 16)) >>> 0;
     }
 
-    /**@en Get or set alpha channel value.
+    /** @en Get or set alpha channel value.
      * @zh 获取或设置当前颜色的透明度通道。
      */
     get a () {
@@ -369,10 +368,10 @@ export class Color extends ValueType {
         let g = this.g;
         let b = this.b;
         let a = this.a;
-        r = r + (to.r - r) * ratio;
-        g = g + (to.g - g) * ratio;
-        b = b + (to.b - b) * ratio;
-        a = a + (to.a - a) * ratio;
+        r += (to.r - r) * ratio;
+        g += (to.g - g) * ratio;
+        b += (to.b - b) * ratio;
+        a += (to.a - a) * ratio;
         this._val = Math.floor(((a << 24) >>> 0) + (b << 16) + (g << 8) + r);
         return this;
     }
@@ -383,11 +382,11 @@ export class Color extends ValueType {
      * @returns A string representation of the current color.
      */
     public toString () {
-        return 'rgba(' +
-            this.r.toFixed() + ', ' +
-            this.g.toFixed() + ', ' +
-            this.b.toFixed() + ', ' +
-            this.a.toFixed() + ')';
+        return `rgba(${
+            this.r.toFixed()}, ${
+            this.g.toFixed()}, ${
+            this.b.toFixed()}, ${
+            this.a.toFixed()})`;
     }
 
     /**
@@ -407,20 +406,18 @@ export class Color extends ValueType {
      */
     public toCSS (opt: ('rgba' | 'rgb' | '#rrggbb' | '#rrggbbaa') = 'rgba') {
         if (opt === 'rgba') {
-            return 'rgba(' +
-                this.r + ',' +
-                this.g + ',' +
-                this.b + ',' +
-                (this.a * toFloat).toFixed(2) + ')'
-                ;
+            return `rgba(${
+                this.r},${
+                this.g},${
+                this.b},${
+                (this.a * toFloat).toFixed(2)})`;
         } else if (opt === 'rgb') {
-            return 'rgb(' +
-                this.r + ',' +
-                this.g + ',' +
-                this.b + ')'
-                ;
+            return `rgb(${
+                this.r},${
+                this.g},${
+                this.b})`;
         } else {
-            return '#' + this.toHEX(opt);
+            return `#${this.toHEX(opt)}`;
         }
     }
 
@@ -439,7 +436,7 @@ export class Color extends ValueType {
         const g = parseInt(hexString.substr(2, 2), 16) || 0;
         const b = parseInt(hexString.substr(4, 2), 16) || 0;
         const a = parseInt(hexString.substr(6, 2), 16) || 255;
-        this._val = ((a << 24) >>> 0) + (b << 16) + (g << 8) + (r|0);
+        this._val = ((a << 24) >>> 0) + (b << 16) + (g << 8) + (r | 0);
         return this;
     }
 
@@ -471,8 +468,7 @@ export class Color extends ValueType {
             hex[0] = hex[0][0];
             hex[1] = hex[1][0];
             hex[2] = hex[2][0];
-        }
-        else if (fmt === '#rrggbbaa') {
+        } else if (fmt === '#rrggbbaa') {
             hex.push((this.a < 16 ? prefix : '') + (this.a).toString(16));
         }
         return hex.join('');
@@ -511,60 +507,58 @@ export class Color extends ValueType {
         let b = 0;
         if (s === 0) {
             r = g = b = v;
+        } else if (v === 0) {
+            r = g = b = 0;
         } else {
-            if (v === 0) {
-                r = g = b = 0;
-            } else {
-                if (h === 1) { h = 0; }
-                h *= 6;
-                const i = Math.floor(h);
-                const f = h - i;
-                const p = v * (1 - s);
-                const q = v * (1 - (s * f));
-                const t = v * (1 - (s * (1 - f)));
-                switch (i) {
-                    case 0:
-                        r = v;
-                        g = t;
-                        b = p;
-                        break;
+            if (h === 1) { h = 0; }
+            h *= 6;
+            const i = Math.floor(h);
+            const f = h - i;
+            const p = v * (1 - s);
+            const q = v * (1 - (s * f));
+            const t = v * (1 - (s * (1 - f)));
+            switch (i) {
+            case 0:
+                r = v;
+                g = t;
+                b = p;
+                break;
 
-                    case 1:
-                        r = q;
-                        g = v;
-                        b = p;
-                        break;
+            case 1:
+                r = q;
+                g = v;
+                b = p;
+                break;
 
-                    case 2:
-                        r = p;
-                        g = v;
-                        b = t;
-                        break;
+            case 2:
+                r = p;
+                g = v;
+                b = t;
+                break;
 
-                    case 3:
-                        r = p;
-                        g = q;
-                        b = v;
-                        break;
+            case 3:
+                r = p;
+                g = q;
+                b = v;
+                break;
 
-                    case 4:
-                        r = t;
-                        g = p;
-                        b = v;
-                        break;
+            case 4:
+                r = t;
+                g = p;
+                b = v;
+                break;
 
-                    case 5:
-                        r = v;
-                        g = p;
-                        b = q;
-                        break;
-                }
+            case 5:
+                r = v;
+                g = p;
+                b = q;
+                break;
             }
         }
         r *= 255;
         g *= 255;
         b *= 255;
-        this._val = ((this.a << 24) >>> 0) + (b << 16) + (g << 8) + (r|0);
+        this._val = ((this.a << 24) >>> 0) + (b << 16) + (g << 8) + (r | 0);
         return this;
     }
 
@@ -626,14 +620,14 @@ export class Color extends ValueType {
                 b = r.b || 0;
                 a = typeof r.a === 'number' ? r.a : 255;
                 r = r.r || 0;
-                this._val = ((a << 24) >>> 0) + (b << 16) + (g << 8) + (r|0);
+                this._val = ((a << 24) >>> 0) + (b << 16) + (g << 8) + (r | 0);
             }
         } else {
             r = r || 0;
             g = g || 0;
             b = b || 0;
             a = typeof a === 'number' ? a : 255;
-            this._val = ((a << 24) >>> 0) + (b << 16) + (g << 8) + (r|0);
+            this._val = ((a << 24) >>> 0) + (b << 16) + (g << 8) + (r | 0);
         }
         return this;
     }

@@ -35,9 +35,8 @@ import { Sampler } from './sampler';
 import { Texture } from './texture';
 import { DescriptorType, Obj, ObjectType } from './define';
 
-export const DESCRIPTOR_BUFFER_TYPE =
-    DescriptorType.UNIFORM_BUFFER | DescriptorType.DYNAMIC_UNIFORM_BUFFER |
-    DescriptorType.STORAGE_BUFFER | DescriptorType.DYNAMIC_STORAGE_BUFFER;
+export const DESCRIPTOR_BUFFER_TYPE =    DescriptorType.UNIFORM_BUFFER | DescriptorType.DYNAMIC_UNIFORM_BUFFER
+    | DescriptorType.STORAGE_BUFFER | DescriptorType.DYNAMIC_STORAGE_BUFFER;
 
 export const DESCRIPTOR_SAMPLER_TYPE = DescriptorType.SAMPLER;
 
@@ -54,7 +53,6 @@ export class DescriptorSetInfo {
  * @zh GFX 描述符集组。
  */
 export abstract class DescriptorSet extends Obj {
-
     get layout () {
         return this._layout!;
     }

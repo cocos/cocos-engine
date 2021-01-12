@@ -104,7 +104,7 @@ export const MotionStreakAssembler: IAssembler = {
 
         let cur;
         if (points.length > 1) {
-            const point = points[0] as any;
+            const point = points[0];
             const difx = point.x - tx;
             const dify = point.y - ty;
             if ((difx * difx + dify * dify) < comp.minSeg) {

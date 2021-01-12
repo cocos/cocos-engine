@@ -3,7 +3,7 @@ import { Vec2, Rect } from '../../../core';
 import { PolygonCollider2D } from '../../framework';
 import Intersection2D from '../intersection-2d';
 
-let tempVec2 = new Vec2;
+const tempVec2 = new Vec2();
 
 export class BuiltinPolygonShape extends BuiltinShape2D {
     private _worldPoints: Vec2[] = []
@@ -12,21 +12,21 @@ export class BuiltinPolygonShape extends BuiltinShape2D {
     }
 
     update () {
-        let aabb = this._worldAabb;
+        const aabb = this._worldAabb;
 
-        let collider = this.collider as PolygonCollider2D;
-        let points = collider.points;
-        let offset = collider.offset;
-        let worldMatrix = collider.node.worldMatrix;
+        const collider = this.collider as PolygonCollider2D;
+        const points = collider.points;
+        const offset = collider.offset;
+        const worldMatrix = collider.node.worldMatrix;
 
-        let worldPoints = this._worldPoints;
+        const worldPoints = this._worldPoints;
 
         worldPoints.length = points.length;
 
-        let minx = 1e6, miny = 1e6, maxx = -1e6, maxy = -1e6;
+        let minx = 1e6; let miny = 1e6; let maxx = -1e6; let maxy = -1e6;
         for (let i = 0, l = points.length; i < l; i++) {
             if (!worldPoints[i]) {
-                worldPoints[i] = new Vec2;
+                worldPoints[i] = new Vec2();
             }
 
             tempVec2.x = points[i].x + offset.x;
@@ -34,8 +34,8 @@ export class BuiltinPolygonShape extends BuiltinShape2D {
 
             Vec2.transformMat4(tempVec2, tempVec2, worldMatrix);
 
-            let x = tempVec2.x;
-            let y = tempVec2.y;
+            const x = tempVec2.x;
+            const y = tempVec2.y;
 
             worldPoints[i].x = x;
             worldPoints[i].y = y;

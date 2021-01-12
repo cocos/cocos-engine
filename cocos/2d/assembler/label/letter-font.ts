@@ -35,7 +35,7 @@ import { shareLabelInfo, LetterAtlas, computeHash } from './font-utils';
 
 const _atlasWidth = 1024;
 const _atlasHeight = 1024;
-let _isBold = false;
+const _isBold = false;
 
 let _shareAtlas: LetterAtlas | null  = null;
 
@@ -59,8 +59,7 @@ export const letterFont = mixin(bmfontUtils, {
             shareLabelInfo.margin = outline.width;
             shareLabelInfo.out = outline.color.clone();
             shareLabelInfo.out.a = outline.color.a * comp.color.a / 255.0;
-        }
-        else {
+        } else {
             shareLabelInfo.isOutlined = false;
             shareLabelInfo.margin = 0;
         }
@@ -72,17 +71,15 @@ export const letterFont = mixin(bmfontUtils, {
             if (comp.font) {
                 if (comp.font._nativeAsset) {
                     fontFamily = comp.font._nativeAsset;
-                }
-                else {
+                } else {
                     assetManager.postLoadNative(comp.font, (err) => {
-                        if (!comp.isValid) { return; } 
+                        if (!comp.isValid) { return; }
                         fontFamily = comp.font!._nativeAsset || 'Arial';
                         comp.updateRenderData(true);
                     });
                 }
             }
-        }
-        else {
+        } else {
             fontFamily = comp.fontFamily || 'Arial';
         }
 
@@ -96,10 +93,10 @@ export const letterFont = mixin(bmfontUtils, {
     },
 
     _getFontDesc () {
-        let fontDesc = shareLabelInfo.fontSize.toString() + 'px ';
-        fontDesc = fontDesc + shareLabelInfo.fontFamily;
+        let fontDesc = `${shareLabelInfo.fontSize.toString()}px `;
+        fontDesc += shareLabelInfo.fontFamily;
         if (_isBold) {
-            fontDesc = 'bold ' + fontDesc;
+            fontDesc = `bold ${fontDesc}`;
         }
 
         return fontDesc;
@@ -107,5 +104,5 @@ export const letterFont = mixin(bmfontUtils, {
     _computeHorizontalKerningForText () {},
     _determineRect (tempRect) {
         return false;
-    }
+    },
 });

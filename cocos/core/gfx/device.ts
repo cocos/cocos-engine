@@ -87,7 +87,6 @@ export class DeviceInfo {
  * @zh GFX 设备。
  */
 export abstract class Device {
-
     /**
      * @en The HTML canvas element.
      * @zh HTML 画布。

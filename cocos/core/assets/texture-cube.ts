@@ -28,7 +28,7 @@
  * @module asset
  */
 
-import { EDITOR, TEST } from "internal:constants";
+import { EDITOR, TEST } from 'internal:constants';
 import { ccclass, serializable } from 'cc.decorator';
 import { TextureFlagBit, TextureType } from '../gfx/define';
 import { ImageAsset } from './image-asset';
@@ -188,14 +188,15 @@ export class TextureCube extends SimpleTexture {
         this._tryReset();
     }
 
-    public updateMipmaps (firstLevel: number = 0, count?: number) {
+    public updateMipmaps (firstLevel = 0, count?: number) {
         if (firstLevel >= this._mipmaps.length) {
             return;
         }
 
         const nUpdate = Math.min(
             count === undefined ? this._mipmaps.length : count,
-            this._mipmaps.length - firstLevel);
+            this._mipmaps.length - firstLevel,
+        );
 
         for (let i = 0; i < nUpdate; ++i) {
             const level = firstLevel + i;
@@ -226,7 +227,7 @@ export class TextureCube extends SimpleTexture {
         if (EDITOR || TEST) {
             return {
                 base: super._serialize(ctxForExporting),
-                mipmaps: this._mipmaps.map((mipmap) => (ctxForExporting && ctxForExporting._compressUuid) ? {
+                mipmaps: this._mipmaps.map((mipmap) => ((ctxForExporting && ctxForExporting._compressUuid) ? {
                     front: EditorExtends.UuidUtils.compressUuid(mipmap.front._uuid, true),
                     back: EditorExtends.UuidUtils.compressUuid(mipmap.back._uuid, true),
                     left: EditorExtends.UuidUtils.compressUuid(mipmap.left._uuid, true),
@@ -240,13 +241,13 @@ export class TextureCube extends SimpleTexture {
                     right: mipmap.right._uuid,
                     top: mipmap.top._uuid,
                     bottom: mipmap.bottom._uuid,
-                }),
+                })),
             };
         }
     }
 
     public _deserialize (serializedData: ITextureCubeSerializeData, handle: any) {
-        const data = serializedData as ITextureCubeSerializeData;
+        const data = serializedData;
         super._deserialize(data.base, handle);
 
         this._mipmaps = new Array(data.mipmaps.length);
@@ -276,7 +277,7 @@ export class TextureCube extends SimpleTexture {
         texInfo.height = this._height;
         texInfo.layerCount = 6;
         Object.assign(texInfo, presumed);
-        texInfo.flags = texInfo.flags | TextureFlagBit.CUBEMAP;
+        texInfo.flags |= TextureFlagBit.CUBEMAP;
         return texInfo;
     }
 }

@@ -34,7 +34,7 @@ export class WebGLStateCache {
     public glArrayBuffer: WebGLBuffer | null = null;
     public glElementArrayBuffer: WebGLBuffer | null = null;
     public glVAO: WebGLVertexArrayObjectOES | null = null;
-    public texUnit: number = 0;
+    public texUnit = 0;
     public glTexUnits: IWebGLTexUnit[] = [];
     public glRenderbuffer: WebGLRenderbuffer | null = null;
     public glFramebuffer: WebGLFramebuffer | null = null;

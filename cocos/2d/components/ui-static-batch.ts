@@ -121,7 +121,7 @@ export class UIStaticBatch extends UIRenderable {
 
         const attr = vfmtPosUvColor;
         const buffer = new MeshBuffer(ui);
-        buffer.initialize(attr, this._arrivalMaxBuffer);
+        buffer.initialize(attr, this._arrivalMaxBuffer.bind(this));
         this._meshBuffer = buffer;
     }
 
@@ -216,6 +216,10 @@ export class UIStaticBatch extends UIRenderable {
     }
 
     protected _arrivalMaxBuffer () {
+        const ui = this._getUI();
+        if (ui) {
+            ui.autoMergeBatches();
+        }
         warnID(9300);
     }
 }

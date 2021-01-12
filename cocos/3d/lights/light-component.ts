@@ -28,8 +28,8 @@
  * @module component/light
  */
 
-import { Component } from '../../core/components/component';
 import { ccclass, tooltip, range, slide, type, serializable, editable } from 'cc.decorator';
+import { Component } from '../../core/components/component';
 import { Color, Vec3 } from '../../core/math';
 import { Enum } from '../../core/value-types';
 
@@ -49,11 +49,11 @@ const _color_tmp = new Vec3();
 @ccclass('cc.StaticLightSettings')
 class StaticLightSettings {
     @serializable
-    protected _editorOnly: boolean = false;
+    protected _editorOnly = false;
     @serializable
-    protected _bakeable: boolean = false;
+    protected _bakeable = false;
     @serializable
-    protected _castShadow: boolean = false;
+    protected _castShadow = false;
 
     /**
      * @en editor only.
@@ -64,7 +64,7 @@ class StaticLightSettings {
         return this._editorOnly;
     }
     set editorOnly (val) {
-       this._editorOnly = val;
+        this._editorOnly = val;
     }
 
     /**
@@ -94,12 +94,10 @@ class StaticLightSettings {
     }
 }
 
-
 export declare namespace Light {
     export type Type = EnumAlias<typeof scene.LightType>;
     export type PhotometricTerm = EnumAlias<typeof PhotometricTerm>;
 }
-
 
 @ccclass('cc.Light')
 export class Light extends Component {
@@ -202,7 +200,7 @@ export class Light extends Component {
         this._lightType = scene.Light;
     }
 
-    public onLoad (){
+    public onLoad () {
         this._createLight();
     }
 
@@ -240,16 +238,16 @@ export class Light extends Component {
         if (this._light && !this._light.scene && this.node.scene) {
             const renderScene = this._getRenderScene();
             switch (this._type) {
-                case scene.LightType.DIRECTIONAL:
-                    renderScene.addDirectionalLight(this._light as scene.DirectionalLight);
-                    renderScene.setMainLight(this._light as scene.DirectionalLight);
-                    break;
-                case scene.LightType.SPHERE:
-                    renderScene.addSphereLight(this._light as scene.SphereLight);
-                    break;
-                case scene.LightType.SPOT:
-                    renderScene.addSpotLight(this._light as scene.SpotLight);
-                    break;
+            case scene.LightType.DIRECTIONAL:
+                renderScene.addDirectionalLight(this._light as scene.DirectionalLight);
+                renderScene.setMainLight(this._light as scene.DirectionalLight);
+                break;
+            case scene.LightType.SPHERE:
+                renderScene.addSphereLight(this._light as scene.SphereLight);
+                break;
+            case scene.LightType.SPOT:
+                renderScene.addSpotLight(this._light as scene.SpotLight);
+                break;
             }
         }
     }
@@ -258,16 +256,16 @@ export class Light extends Component {
         if (this._light && this._light.scene) {
             const renderScene = this._light.scene;
             switch (this._type) {
-                case scene.LightType.DIRECTIONAL:
-                    renderScene.removeDirectionalLight(this._light as scene.DirectionalLight);
-                    renderScene.unsetMainLight(this._light as scene.DirectionalLight);
-                    break;
-                case scene.LightType.SPHERE:
-                    renderScene.removeSphereLight(this._light as scene.SphereLight);
-                    break;
-                case scene.LightType.SPOT:
-                    renderScene.removeSpotLight(this._light as scene.SpotLight);
-                    break;
+            case scene.LightType.DIRECTIONAL:
+                renderScene.removeDirectionalLight(this._light as scene.DirectionalLight);
+                renderScene.unsetMainLight(this._light as scene.DirectionalLight);
+                break;
+            case scene.LightType.SPHERE:
+                renderScene.removeSphereLight(this._light as scene.SphereLight);
+                break;
+            case scene.LightType.SPOT:
+                renderScene.removeSpotLight(this._light as scene.SpotLight);
+                break;
             }
         }
     }

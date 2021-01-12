@@ -46,7 +46,6 @@ export class QueueInfo {
  * @zh GFX 队列。
  */
 export abstract class Queue extends Obj {
-
     /**
      * @en Get current type.
      * @zh 队列类型。

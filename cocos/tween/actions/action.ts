@@ -38,7 +38,6 @@ import { logID, errorID, Node } from '../../core';
  * @class Action
  */
 export class Action {
-
     /**
      * @en Default Action tag.
      * @zh 默认动作标签。
@@ -46,7 +45,7 @@ export class Action {
      * @static
      * @default -1
      */
-    static TAG_INVALID: number = -1;
+    static TAG_INVALID = -1;
 
     protected originalTarget: Node | null = null;
     protected target: Node | null = null;
@@ -61,7 +60,7 @@ export class Action {
      * @return {Action}
      */
     clone (): Action {
-        var action = new Action();
+        const action = new Action();
         action.originalTarget = null;
         action.target = null;
         action.tag = this.tag;
@@ -197,9 +196,8 @@ export class Action {
  * @extends Action
  */
 export class FiniteTimeAction extends Action {
-
-    _duration: number = 0;
-    _timesForRepeat: number = 1;
+    _duration = 0;
+    _timesForRepeat = 1;
 
     /**
      * @en get duration of the action. (seconds).
@@ -240,14 +238,13 @@ export class FiniteTimeAction extends Action {
  * Useful to simulate 'slow motion' or 'fast forward' effect.
  */
 export class Speed extends Action {
-
     protected _speed = 0;
     protected _innerAction: Action | null = null;
 
     /**
      * @warning This action can't be `Sequence-able` because it is not an `IntervalAction`
      */
-    constructor (action?: Action, speed: number = 1) {
+    constructor (action?: Action, speed = 1) {
         super();
         action && this.initWithAction(action, speed);
     }
@@ -291,7 +288,7 @@ export class Speed extends Action {
     }
 
     clone () {
-        var action = new Speed();
+        const action = new Speed();
         action.initWithAction(this._innerAction!.clone(), this._speed);
         return action;
     }

@@ -30,7 +30,7 @@
 
 import { logID } from '../platform/debug';
 
-export {default as MutableForwardIterator} from './mutable-forward-iterator';
+export { default as MutableForwardIterator } from './mutable-forward-iterator';
 
 /**
  * @zh
@@ -169,7 +169,6 @@ export function appendObjectsAt<T> (array: T[], objects: T[], index: number) {
     array.splice.apply(array, [index, 0, ...objects]);
     return array;
 }
-
 
 /**
  * @zh

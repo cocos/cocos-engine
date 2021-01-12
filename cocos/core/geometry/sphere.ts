@@ -47,7 +47,6 @@ function maxComponent (v: Vec3) { return Math.max(Math.max(v.x, v.y), v.z); }
  */
 
 export class Sphere {
-
     /**
      * @en
      * create a new sphere
@@ -185,7 +184,7 @@ export class Sphere {
         SpherePool.setVec3(this._poolHandle, SphereView.CENTER, this._center);
     }
 
-     /**
+    /**
       * @en
       * The radius of this sphere.
       * @zh

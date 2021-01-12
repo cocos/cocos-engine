@@ -39,7 +39,6 @@ import { UIOpacity } from './ui-opacity';
 import { js } from '../../core/utils/js';
 import { legacyCC } from '../../core/global-exports';
 
-
 /**
  * Alias of [[Mask]]
  * @deprecated Since v1.2

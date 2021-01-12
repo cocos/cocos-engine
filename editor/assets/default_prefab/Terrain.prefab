@@ -66960,7 +66960,10 @@
         "__id__": 4
       }
     ],
-    "_id": "cbqSAfqt9PBb18GTThCTUP"
+    "_id": "cbqSAfqt9PBb18GTThCTUP",
+    "__prefab": {
+      "__id__": 6
+    }
   },
   {
     "__type__": "cc.TerrainInfo",
@@ -66989,11 +66992,10 @@
     "asset": {
       "__id__": 0
     },
-    "fileId": "0cVtTfa61GVq2E3ZL5+7Tf",
-    "sync": false,
-    "_synced": {
-      "default": false,
-      "serializable": false
-    }
+    "fileId": "0cVtTfa61GVq2E3ZL5+7Tf"
+  },
+  {
+    "__type__": "cc.CompPrefabInfo",
+    "fileId": "af82Rx80RL5J4w+bDUekBo"
   }
 ]

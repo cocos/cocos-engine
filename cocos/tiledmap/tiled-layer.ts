@@ -37,7 +37,7 @@ import { UIRenderable } from '../2d/framework/ui-renderable';
 import { SpriteFrame } from '../2d/assets/sprite-frame';
 import { Component } from '../core/components';
 import { TMXMapInfo } from './tmx-xml-parser';
-import { Color, IVec2Like, Mat4, Size, SystemEventType, Texture2D, Vec2, Vec3, Node, warn, logID, CCBoolean } from '../core';
+import { Color, IVec2Like, Mat4, Size, SystemEventType, Texture2D, Vec2, Vec3, Node, warn, logID, CCBoolean, director } from '../core';
 import { TiledTile } from './tiled-tile';
 import { MeshRenderData } from '../2d/renderer/render-data';
 import { UI } from '../2d/renderer/ui';
@@ -852,11 +852,7 @@ export class TiledLayer extends UIRenderable {
         } else if (this._enableCulling) {
             this.node.updateWorldTransform();
             Mat4.invert(_mat4_temp, this.node.getWorldMatrix());
-            const uitrans = this.node._uiProps.uiTransformComp;
-            let camera;
-            if (uitrans && uitrans._canvas && uitrans._canvas.cameraComponent) {
-                camera = uitrans._canvas.cameraComponent.camera;
-            }
+            const camera = director.root!.ui.getFirstRenderCamera(this.node);
             if (camera) {
                 _vec3_temp.x = 0;
                 _vec3_temp.y = 0;

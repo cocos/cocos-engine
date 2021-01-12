@@ -27,7 +27,6 @@ import { DescriptorSetLayout, DescriptorSetLayoutInfo, DESCRIPTOR_DYNAMIC_TYPE }
 import { IWebGL2GPUDescriptorSetLayout } from './webgl2-gpu-objects';
 
 export class WebGL2DescriptorSetLayout extends DescriptorSetLayout {
-
     get gpuDescriptorSetLayout () { return this._gpuDescriptorSetLayout!; }
 
     private _gpuDescriptorSetLayout: IWebGL2GPUDescriptorSetLayout | null = null;

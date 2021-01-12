@@ -45,7 +45,6 @@ export class PipelineLayoutInfo {
  * @zh GFX 管线布局。
  */
 export abstract class PipelineLayout extends Obj {
-
     get setLayouts () {
         return this._setLayouts;
     }

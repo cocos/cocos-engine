@@ -86,7 +86,7 @@ export const barFilled: IAssembler = {
 
             fillRange = fillRange > 1.0 ? 1.0 : fillRange;
             fillRange = fillRange < 0.0 ? 0.0 : fillRange;
-            fillRange = fillRange - fillStart;
+            fillRange -= fillStart;
             fillRange = fillRange < 0 ? 0 : fillRange;
 
             let fillEnd = fillStart + fillRange;
@@ -149,29 +149,29 @@ export const barFilled: IAssembler = {
         }
 
         switch (sprite.fillType) {
-            case FillType.HORIZONTAL:
-                dataList[0].u = quadUV0 + (quadUV2 - quadUV0) * fillStart;
-                dataList[0].v = quadUV1 + (quadUV3 - quadUV1) * fillStart;
-                dataList[1].u = quadUV0 + (quadUV2 - quadUV0) * fillEnd;
-                dataList[1].v = quadUV1 + (quadUV3 - quadUV1) * fillEnd;
-                dataList[2].u = quadUV4 + (quadUV6 - quadUV4) * fillStart;
-                dataList[2].v = quadUV5 + (quadUV7 - quadUV5) * fillStart;
-                dataList[3].u = quadUV4 + (quadUV6 - quadUV4) * fillEnd;
-                dataList[3].v = quadUV5 + (quadUV7 - quadUV5) * fillEnd;
-                break;
-            case FillType.VERTICAL:
-                dataList[0].u = quadUV0 + (quadUV4 - quadUV0) * fillStart;
-                dataList[0].v = quadUV1 + (quadUV5 - quadUV1) * fillStart;
-                dataList[1].u = quadUV2 + (quadUV6 - quadUV2) * fillStart;
-                dataList[1].v = quadUV3 + (quadUV7 - quadUV3) * fillStart;
-                dataList[2].u = quadUV0 + (quadUV4 - quadUV0) * fillEnd;
-                dataList[2].v = quadUV1 + (quadUV5 - quadUV1) * fillEnd;
-                dataList[3].u = quadUV2 + (quadUV6 - quadUV2) * fillEnd;
-                dataList[3].v = quadUV3 + (quadUV7 - quadUV3) * fillEnd;
-                break;
-            default:
-                errorID(2626);
-                break;
+        case FillType.HORIZONTAL:
+            dataList[0].u = quadUV0 + (quadUV2 - quadUV0) * fillStart;
+            dataList[0].v = quadUV1 + (quadUV3 - quadUV1) * fillStart;
+            dataList[1].u = quadUV0 + (quadUV2 - quadUV0) * fillEnd;
+            dataList[1].v = quadUV1 + (quadUV3 - quadUV1) * fillEnd;
+            dataList[2].u = quadUV4 + (quadUV6 - quadUV4) * fillStart;
+            dataList[2].v = quadUV5 + (quadUV7 - quadUV5) * fillStart;
+            dataList[3].u = quadUV4 + (quadUV6 - quadUV4) * fillEnd;
+            dataList[3].v = quadUV5 + (quadUV7 - quadUV5) * fillEnd;
+            break;
+        case FillType.VERTICAL:
+            dataList[0].u = quadUV0 + (quadUV4 - quadUV0) * fillStart;
+            dataList[0].v = quadUV1 + (quadUV5 - quadUV1) * fillStart;
+            dataList[1].u = quadUV2 + (quadUV6 - quadUV2) * fillStart;
+            dataList[1].v = quadUV3 + (quadUV7 - quadUV3) * fillStart;
+            dataList[2].u = quadUV0 + (quadUV4 - quadUV0) * fillEnd;
+            dataList[2].v = quadUV1 + (quadUV5 - quadUV1) * fillEnd;
+            dataList[3].u = quadUV2 + (quadUV6 - quadUV2) * fillEnd;
+            dataList[3].v = quadUV3 + (quadUV7 - quadUV3) * fillEnd;
+            break;
+        default:
+            errorID(2626);
+            break;
         }
 
         renderData!.uvDirty = false;
@@ -194,23 +194,23 @@ export const barFilled: IAssembler = {
         let progressStart = 0;
         let progressEnd = 0;
         switch (sprite.fillType) {
-            case FillType.HORIZONTAL:
-                progressStart = l + (r - l) * fillStart;
-                progressEnd = l + (r - l) * fillEnd;
+        case FillType.HORIZONTAL:
+            progressStart = l + (r - l) * fillStart;
+            progressEnd = l + (r - l) * fillEnd;
 
-                l = progressStart;
-                r = progressEnd;
-                break;
-            case FillType.VERTICAL:
-                progressStart = b + (t - b) * fillStart;
-                progressEnd = b + (t - b) * fillEnd;
+            l = progressStart;
+            r = progressEnd;
+            break;
+        case FillType.VERTICAL:
+            progressStart = b + (t - b) * fillStart;
+            progressEnd = b + (t - b) * fillEnd;
 
-                b = progressStart;
-                t = progressEnd;
-                break;
-            default:
-                errorID(2626);
-                break;
+            b = progressStart;
+            t = progressEnd;
+            break;
+        default:
+            errorID(2626);
+            break;
         }
 
         dataList[4].x = l;
@@ -229,16 +229,16 @@ export const barFilled: IAssembler = {
         const renderData: RenderData|null = sprite.requestRenderData();
         // 0-4 for world vertex
         // 5-8 for local vertex
-        renderData!.dataLength = 8;
-        renderData!.vertexCount = 4;
-        renderData!.indicesCount = 6;
+        renderData.dataLength = 8;
+        renderData.vertexCount = 4;
+        renderData.indicesCount = 6;
 
-        const dataList = renderData!.data;
+        const dataList = renderData.data;
         for (const data of dataList) {
             data.z = 0;
         }
 
-        return renderData as RenderData;
+        return renderData;
     },
 
     updateWorldVertexData (sprite: Sprite) {

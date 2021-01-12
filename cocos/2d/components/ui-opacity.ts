@@ -28,8 +28,8 @@
  * @module ui
  */
 
-import { Component } from '../../core/components/component';
 import { ccclass, help, executeInEditMode, executionOrder, menu, editable, serializable } from 'cc.decorator';
+import { Component } from '../../core/components/component';
 import { clampf } from '../../core/utils/misc';
 
 /**
@@ -75,7 +75,7 @@ export class UIOpacity extends Component {
         this.node._uiProps.opacity = this._opacity / 255;
     }
 
-    public onDisable (){
+    public onDisable () {
         this.node._uiProps.opacity = 1;
     }
 }

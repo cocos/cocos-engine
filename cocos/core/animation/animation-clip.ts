@@ -23,7 +23,6 @@
  THE SOFTWARE.
  */
 
-
 /**
  * @packageDocumentation
  * @module animation
@@ -36,7 +35,7 @@ import { SpriteFrame } from '../../2d/assets/sprite-frame';
 import { CompactValueTypeArray } from '../data/utils/compact-value-type-array';
 import { errorID } from '../platform/debug';
 import { DataPoolManager } from '../../3d/skeletal-animation/data-pool-manager';
-import binarySearchEpsilon from '../utils/binary-search';
+import { binarySearchEpsilon } from '../algorithm/binary-search';
 import { murmurhash2_32_gc } from '../utils/murmurhash2_gc';
 import { AnimCurve, IPropertyCurveData, RatioSampler } from './animation-curve';
 import { SkelAnimDataHub } from '../../3d/skeletal-animation/skeletal-animation-data-hub';
@@ -361,17 +360,18 @@ export class AnimationClip extends Asset {
         this._ratioSamplers = this._keys.map(
             (keys) => new RatioSampler(
                 keys.map(
-                    (key) => key / this._duration)));
+                    (key) => key / this._duration,
+                ),
+            ),
+        );
 
-        this._runtimeCurves = this._curves.map((targetCurve): IRuntimeCurve => {
-            return {
-                curve: new AnimCurve(targetCurve.data, this._duration),
-                modifiers: targetCurve.modifiers,
-                valueAdapter: targetCurve.valueAdapter,
-                sampler: this._ratioSamplers[targetCurve.data.keys],
-                commonTarget: targetCurve.commonTarget,
-            };
-        });
+        this._runtimeCurves = this._curves.map((targetCurve): IRuntimeCurve => ({
+            curve: new AnimCurve(targetCurve.data, this._duration),
+            modifiers: targetCurve.modifiers,
+            valueAdapter: targetCurve.valueAdapter,
+            sampler: this._ratioSamplers[targetCurve.data.keys],
+            commonTarget: targetCurve.commonTarget,
+        }));
 
         this._applyStepness();
     }
@@ -407,9 +407,6 @@ export class AnimationClip extends Asset {
     }
 
     protected _applyStepness () {
-        if (!this._runtimeCurves) {
-            return;
-        }
         // for (const propertyCurve of this._propertyCurves) {
         //     propertyCurve.curve.stepfy(this._stepness);
         // }

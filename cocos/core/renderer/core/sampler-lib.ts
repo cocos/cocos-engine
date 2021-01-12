@@ -48,15 +48,15 @@ export enum SamplerInfoIndex {
 }
 
 const defaultInfo = [
-  Filter.LINEAR,
-  Filter.LINEAR,
-  Filter.NONE,
-  Address.WRAP,
-  Address.WRAP,
-  Address.WRAP,
-  8,
-  ComparisonFunc.NEVER,
-  0, 0, 0,
+    Filter.LINEAR,
+    Filter.LINEAR,
+    Filter.NONE,
+    Address.WRAP,
+    Address.WRAP,
+    Address.WRAP,
+    8,
+    ComparisonFunc.NEVER,
+    0, 0, 0,
 ];
 export const defaultSamplerHash = genSamplerHash(defaultInfo);
 
@@ -70,17 +70,17 @@ export function genSamplerHash (info: (number | undefined)[]): number {
     for (let i = 0; i < defaultInfo.length; i++) {
         value = (info[i] || defaultInfo[i]);
         switch (i) {
-            case SamplerInfoIndex.minFilter: hash |= value; break;
-            case SamplerInfoIndex.magFilter: hash |= (value << 2); break;
-            case SamplerInfoIndex.mipFilter: hash |= (value << 4); break;
-            case SamplerInfoIndex.addressU: hash |= (value << 6); break;
-            case SamplerInfoIndex.addressV: hash |= (value << 8); break;
-            case SamplerInfoIndex.addressW: hash |= (value << 10); break;
-            case SamplerInfoIndex.maxAnisotropy: hash |= (value << 12); break;
-            case SamplerInfoIndex.cmpFunc: hash |= (value << 16); break;
-            case SamplerInfoIndex.minLOD: hash |= (value << 20); break;
-            case SamplerInfoIndex.maxLOD: hash |= (value << 24); break;
-            case SamplerInfoIndex.mipLODBias: hash |= (value << 28); break;
+        case SamplerInfoIndex.minFilter: hash |= value; break;
+        case SamplerInfoIndex.magFilter: hash |= (value << 2); break;
+        case SamplerInfoIndex.mipFilter: hash |= (value << 4); break;
+        case SamplerInfoIndex.addressU: hash |= (value << 6); break;
+        case SamplerInfoIndex.addressV: hash |= (value << 8); break;
+        case SamplerInfoIndex.addressW: hash |= (value << 10); break;
+        case SamplerInfoIndex.maxAnisotropy: hash |= (value << 12); break;
+        case SamplerInfoIndex.cmpFunc: hash |= (value << 16); break;
+        case SamplerInfoIndex.minLOD: hash |= (value << 20); break;
+        case SamplerInfoIndex.maxLOD: hash |= (value << 24); break;
+        case SamplerInfoIndex.mipLODBias: hash |= (value << 28); break;
         }
     }
     return hash;
@@ -91,7 +91,6 @@ export function genSamplerHash (info: (number | undefined)[]): number {
  * 维护 sampler 资源实例的全局管理器。
  */
 class SamplerLib {
-
     protected _cache: Record<number, Sampler> = {};
 
     /**

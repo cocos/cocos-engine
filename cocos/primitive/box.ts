@@ -126,11 +126,11 @@ export default function box (options?: IBoxOptions): IGeometry {
     ];
 
     const faceNormals = [
-        [ 0,  0,  1], // FRONT
-        [ 0,  0, -1], // BACK
-        [ 0,  1,  0], // TOP
-        [ 0, -1,  0], // BOTTOM
-        [ 1,  0,  0], // RIGHT
+        [0,  0,  1], // FRONT
+        [0,  0, -1], // BACK
+        [0,  1,  0], // TOP
+        [0, -1,  0], // BOTTOM
+        [1,  0,  0], // RIGHT
         [-1,  0,  0],  // LEFT
     ];
 
@@ -139,8 +139,8 @@ export default function box (options?: IBoxOptions): IGeometry {
         [-1, 0,  0, 1], // BACK
         [-1, 0,  0, 1], // TOP
         [-1, 0,  0, 1], // BOTTOM
-        [ 0, 0, -1, 1], // RIGHT
-        [ 0, 0,  1, 1], // LEFT
+        [0, 0, -1, 1], // RIGHT
+        [0, 0,  1, 1], // LEFT
     ];
 
     const positions: number[] = [];

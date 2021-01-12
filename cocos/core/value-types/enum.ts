@@ -29,8 +29,8 @@
  * @module core/value-types
  */
 
-import { value } from '../utils/js';
 import { EDITOR, TEST, DEV } from 'internal:constants';
+import { value } from '../utils/js';
 import { legacyCC } from '../global-exports';
 import { errorID } from '../platform/debug';
 import { assertIsTrue } from '../data/utils/asserts';
@@ -67,23 +67,18 @@ Enum.update = <T> (obj: T): T => {
     let lastIndex = -1;
     const keys: string[] = Object.keys(obj);
 
-
     for (let i = 0; i < keys.length; i++) {
         const key = keys[i];
         let val = obj[key];
         if (val === -1) {
             val = ++lastIndex;
             obj[key] = val;
+        } else if (typeof val === 'number') {
+            lastIndex = val;
+        } else if (typeof val === 'string' && Number.isInteger(parseFloat(key))) {
+            continue;
         }
-        else {
-            if (typeof val === 'number') {
-                lastIndex = val;
-            }
-            else if (typeof val === 'string' && Number.isInteger(parseFloat(key))) {
-                continue;
-            }
-        }
-        const reverseKey: string = '' + val;
+        const reverseKey = `${val}`;
         if (key !== reverseKey) {
             if ((EDITOR || TEST) && reverseKey in obj && obj[reverseKey] !== key) {
                 errorID(7100, reverseKey);
@@ -93,11 +88,12 @@ Enum.update = <T> (obj: T): T => {
         }
     }
     // auto update list if __enums__ is array
-    if (Array.isArray(obj['__enums__'])) {
+    // @ts-expect-error Injected properties
+    if (Array.isArray(obj.__enums__)) {
         updateList(obj);
     }
     return obj;
-}
+};
 
 namespace Enum {
     export interface Enumerator<EnumT> {
@@ -121,9 +117,7 @@ interface EnumExtras<EnumT> {
  * Determines if the object is an enum type.
  * @param enumType The object to judge.
  */
-Enum.isEnum = <EnumT extends {}>(enumType: EnumT) => {
-    return enumType && enumType.hasOwnProperty('__enums__');
-};
+Enum.isEnum = <EnumT extends {}>(enumType: EnumT) => enumType && enumType.hasOwnProperty('__enums__');
 
 function assertIsEnum <EnumT extends {}> (enumType: EnumT): asserts enumType is EnumT & EnumExtras<EnumT> {
     assertIsTrue(enumType.hasOwnProperty('__enums__'));

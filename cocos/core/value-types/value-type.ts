@@ -50,7 +50,7 @@ export class ValueType {
      * @returns The cloned object
      */
     public clone (): ValueType {
-        errorID(100, js.getClassName(this) + '.clone');
+        errorID(100, `${js.getClassName(this)}.clone`);
         return this;
     }
 
@@ -80,7 +80,7 @@ export class ValueType {
      * @param other The other object
      */
     public set (other: this) {
-        errorID(100, js.getClassName(this) + '.set');
+        errorID(100, `${js.getClassName(this)}.set`);
     }
 
     /**
@@ -93,7 +93,7 @@ export class ValueType {
      * @returns The string representation of the current object
      */
     public toString () {
-        return '' + {};
+        return `${{}}`;
     }
 }
 js.setClassName('cc.ValueType', ValueType);

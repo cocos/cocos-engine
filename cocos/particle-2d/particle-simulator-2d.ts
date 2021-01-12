@@ -26,7 +26,7 @@ import { Vec2, Vec3, Color } from '../core/math';
 import Pool from '../core/utils/pool';
 import { clampf, degreesToRadians, radiansToDegrees } from '../core/utils/misc';
 import { director } from '../core/director';
-import { vfmtPosUvColor, getAttributeFormatBytes } from '../2d/renderer/ui-vertex-format';
+import { vfmtPosUvColor, getComponentPerVertex } from '../2d/renderer/ui-vertex-format';
 import { PositionType, EmitterMode, START_SIZE_EQUAL_TO_END_SIZE, START_RADIUS_EQUAL_TO_END_RADIUS } from './define';
 
 const ZERO_VEC2 = new Vec2(0, 0);
@@ -35,7 +35,7 @@ const _tpa = new Vec2();
 const _tpb = new Vec2();
 const _tpc = new Vec2();
 
-const formatBytes = getAttributeFormatBytes(vfmtPosUvColor);
+const formatBytes = getComponentPerVertex(vfmtPosUvColor);
 
 // In the Free mode to get emit real rotation in the world coordinate.
 function getWorldRotation (node) {
@@ -52,7 +52,7 @@ class Particle {
     public pos = new Vec2(0, 0);
     public startPos = new Vec2(0, 0);
     public color = new Color(0, 0, 0, 255);
-    public deltaColor = {r: 0, g: 0, b: 0, a: 255};
+    public deltaColor = { r: 0, g: 0, b: 0, a: 255 };
     public size = 0;
     public deltaSize = 0;
     public rotation = 0;
@@ -139,8 +139,7 @@ export class Simulator {
         this.emitCounter = 0;
         this.finished = false;
         const particles = this.particles;
-        for (let id = 0; id < particles.length; ++id)
-            pool.put(particles[id]);
+        for (let id = 0; id < particles.length; ++id) pool.put(particles[id]);
         particles.length = 0;
     }
 
@@ -160,10 +159,10 @@ export class Simulator {
         particle.pos.y = psys.sourcePos.y + psys.posVar.y * (Math.random() - 0.5) * 2;
 
         // Color
-        let sr: number = 0;
-        let sg: number = 0;
-        let sb: number = 0;
-        let sa: number = 0;
+        let sr = 0;
+        let sg = 0;
+        let sb = 0;
+        let sa = 0;
         const startColor = psys.startColor;
         const startColorVar = psys.startColorVar;
         const endColor = psys.endColor;
@@ -218,7 +217,7 @@ export class Simulator {
             particle.tangentialAccel = psys.tangentialAccel + psys.tangentialAccelVar * (Math.random() - 0.5) * 2;
             // rotation is dir
             if (psys.rotationIsDir) {
-                particle.rotation = - radiansToDegrees(Math.atan2(particle.dir.y, particle.dir.x));
+                particle.rotation = -radiansToDegrees(Math.atan2(particle.dir.y, particle.dir.x));
             }
         }
         // Mode Radius: B
@@ -231,7 +230,7 @@ export class Simulator {
             particle.angle = a;
             particle.degreesPerSecond = degreesToRadians(psys.rotatePerS + psys.rotatePerSVar * (Math.random() - 0.5) * 2);
         }
-    };
+    }
 
     public updateUVs (force?: boolean) {
         const renderData = this.renderData;
@@ -274,7 +273,7 @@ export class Simulator {
             const y1 = -halfHeight;
             const x2 = halfWidth;
             const y2 = halfHeight;
-            const rad = - degreesToRadians(particle.rotation);
+            const rad = -degreesToRadians(particle.rotation);
             const cr = Math.cos(rad);
             const sr = Math.sin(rad);
             // bl
@@ -293,8 +292,7 @@ export class Simulator {
             vbuf[offset + 27] = x2 * cr - y2 * sr + x;
             vbuf[offset + 28] = x2 * sr + y2 * cr + y;
             vbuf[offset + 29] = 0;
-        }
-        else {
+        } else {
             // bl
             vbuf[offset] = x - halfWidth;
             vbuf[offset + 1] = y - halfHeight;
@@ -317,7 +315,7 @@ export class Simulator {
         Color.toArray(vbuf, particle.color, offset + 14);
         Color.toArray(vbuf, particle.color, offset + 23);
         Color.toArray(vbuf, particle.color, offset + 32);
-    };
+    }
 
     public step (dt) {
         const assembler = this.sys.assembler;
@@ -344,8 +342,7 @@ export class Simulator {
         if (this.active && psys.emissionRate) {
             const rate = 1.0 / psys.emissionRate;
             // issue #1201, prevent bursts of particles, due to too high emitCounter
-            if (particles.length < psys.totalParticles)
-                this.emitCounter += dt;
+            if (particles.length < psys.totalParticles) this.emitCounter += dt;
 
             while ((particles.length < psys.totalParticles) && (this.emitCounter > rate)) {
                 this.emitParticle(_pos);
@@ -460,8 +457,7 @@ export class Simulator {
         }
 
         if (particles.length > 0) {
-        }
-        else if (!this.active && !this.readyToPlay) {
+        } else if (!this.active && !this.readyToPlay) {
             this.finished = true;
             psys._finishedSimulation();
         }

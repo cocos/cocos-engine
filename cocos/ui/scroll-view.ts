@@ -76,8 +76,7 @@ const eventMap = {
     'scroll-to-bottom': 1,
     'scroll-to-left': 2,
     'scroll-to-right': 3,
-    // eslint-disable-next-line quote-props
-    'scrolling': 4,
+    scrolling: 4,
     'bounce-bottom': 6,
     'bounce-left': 7,
     'bounce-right': 8,

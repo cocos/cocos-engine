@@ -32,8 +32,6 @@ import { ccclass, serializable, editable } from 'cc.decorator';
 import { Color, lerp, repeat } from '../../core/math';
 import { Enum } from '../../core/value-types';
 
-
-
 const Mode = Enum({
     Blend: 0,
     Fixed: 1,
@@ -78,7 +76,6 @@ export class AlphaKey {
 
 @ccclass('cc.Gradient')
 export default class Gradient {
-
     public static Mode = Mode;
     /**
      * @en Array of color key.
@@ -178,7 +175,7 @@ export default class Gradient {
                         return this.alphaKeys[i].alpha;
                     }
                     const factor = (time - preTime) / (curTime - preTime);
-                    return lerp(this.alphaKeys[i - 1].alpha , this.alphaKeys[i].alpha , factor);
+                    return lerp(this.alphaKeys[i - 1].alpha, this.alphaKeys[i].alpha, factor);
                 }
             }
             const lastIndex = this.alphaKeys.length - 1;

@@ -64,12 +64,10 @@ export function arc (ctx: Impl, cx: number, cy: number, r: number, startAngle: n
         } else {
             while (da < 0) { da += PI * 2; }
         }
+    } else if (abs(da) >= PI * 2) {
+        da = -PI * 2;
     } else {
-        if (abs(da) >= PI * 2) {
-            da = -PI * 2;
-        } else {
-            while (da > 0) { da -= PI * 2; }
-        }
+        while (da > 0) { da -= PI * 2; }
     }
 
     // Split arc into max 90 degree segments.
@@ -112,7 +110,6 @@ export function ellipse (ctx: Impl, cx: number, cy: number, rx: number, ry: numb
 export function roundRect (ctx: Impl, x: number, y: number, w: number, h: number, r: number) {
     if (r < 0.1) {
         ctx.rect(x, y, w, h);
-        return;
     } else {
         const rx = min(r, abs(w) * 0.5) * sign(w);
         const ry = min(r, abs(h) * 0.5) * sign(h);
