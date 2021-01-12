@@ -1277,7 +1277,7 @@ class NativeClass(object):
 
             return True
 
-        elif self._current_visibility == cindex.AccessSpecifier.PUBLIC and cursor.kind == cindex.CursorKind.CONSTRUCTOR and not self.is_abstract:
+        elif self._current_visibility == cindex.AccessSpecifier.PUBLIC and cursor.kind == cindex.CursorKind.CONSTRUCTOR and get_availability(cursor) != AvailabilityKind.NOT_AVAILABLE and not self.is_abstract:
             # Skip copy constructor
             if cursor.displayname == self.class_name + "(const " + self.namespaced_class_name + " &)":
                 # logger.debug("Skip copy constructor: " + cursor.displayname)
