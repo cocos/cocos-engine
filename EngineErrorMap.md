@@ -2428,7 +2428,7 @@ Argument must be non-nil
 
 ### 6706
 
-Priority can't be set in Canvas node
+Priority can't be set in RenderRoot2D node
 
 ### 6800
 

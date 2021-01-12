@@ -327,11 +327,7 @@ export class VideoPlayerImplWeb extends VideoPlayerImpl {
     public syncMatrix () {
         if (!this._video || !this._visible || !this._component) return;
 
-        const canvas = this.UICanvas;
-        if (!canvas || !canvas.cameraComponent) {
-            return;
-        }
-        const camera = canvas.cameraComponent.camera;
+        const camera = this.UICamera;
         if (!camera) {
             return;
         }

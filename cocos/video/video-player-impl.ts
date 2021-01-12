@@ -28,6 +28,8 @@ import { UITransform } from '../2d/framework';
 import { VideoPlayer } from './video-player';
 import { EventType } from './video-player-enums';
 import { error } from '../core/platform';
+import { director } from '../core/director';
+import { Node } from '../core/scene-graph';
 
 export abstract class VideoPlayerImpl {
     protected _componentEventList: Map<string, () => void> = new Map();
@@ -55,6 +57,7 @@ export abstract class VideoPlayerImpl {
 
     protected _component: VideoPlayer | null = null;
     protected _uiTrans: UITransform | null = null;
+    protected _node: Node | null = null;
 
     protected _stayOnBottom = false;
     protected _dirty = false;
@@ -70,6 +73,7 @@ export abstract class VideoPlayerImpl {
 
     constructor (component) {
         this._component = component;
+        this._node = component.node;
         this._uiTrans = component.node.getComponent(UITransform);
         this._onHide = () => {
             if (!this.video || this._state !== EventType.PLAYING) { return; }
@@ -121,13 +125,8 @@ export abstract class VideoPlayerImpl {
     public get componentEventList () { return this._componentEventList; }
     public get video () { return this._video; }
     public get state () { return this._state; }
-    get UICanvas () { return this._uiTrans && this._uiTrans._canvas; }
     get UICamera () {
-        if (this._uiTrans && this._uiTrans._canvas && this._uiTrans._canvas.cameraComponent) {
-            return this._uiTrans._canvas.cameraComponent.camera;
-        } else {
-            return null;
-        }
+        return director.root!.ui.getFirstRenderCamera(this._node!);
     }
 
     // video player event

@@ -29,7 +29,7 @@
 
 import { UIStaticBatch } from '../components';
 import { Material } from '../../core/assets/material';
-import { Canvas, UIComponent, UIRenderable } from '../framework';
+import { Canvas, RenderRoot2D, UIComponent, UIRenderable } from '../framework';
 import { Texture, Device, Attribute, Sampler, DescriptorSetInfo, DescriptorSet, Buffer, BufferInfo } from '../../core/gfx';
 import { Pool, RecyclePool } from '../../core/memop';
 import { CachedArray } from '../../core/memop/cached-array';
@@ -94,16 +94,44 @@ export class UI {
         return this._currMeshBuffer;
     }
 
+    public registerCustomBuffer (attributes: MeshBuffer | Attribute[], callback: ((...args: number[]) => void) | null) {
+        let batch: MeshBuffer;
+        if (attributes instanceof MeshBuffer) {
+            batch = attributes;
+        } else {
+            batch = this._bufferBatchPool.add();
+            batch.initialize(attributes, callback || this._recreateMeshBuffer.bind(this, attributes));
+        }
+        const strideBytes = batch.vertexFormatBytes;
+        let buffers = this._customMeshBuffers.get(strideBytes);
+        if (!buffers) { buffers = []; this._customMeshBuffers.set(strideBytes, buffers); }
+        buffers.push(batch);
+        return batch;
+    }
+
+    public unRegisterCustomBuffer (buffer: MeshBuffer) {
+        const buffers = this._customMeshBuffers.get(buffer.vertexFormatBytes);
+        if (buffers) {
+            for (let i = 0; i < buffers.length; i++) {
+                if (buffers[i] === buffer) {
+                    buffers.splice(i, 1);
+                    break;
+                }
+            }
+        }
+    }
+
     set currStaticRoot (value: UIStaticBatch | null) {
         this._currStaticRoot = value;
     }
 
     public device: Device;
-    private _screens: Canvas[] = [];
+    private _screens: RenderRoot2D[] = [];
     private _bufferBatchPool: RecyclePool<MeshBuffer> = new RecyclePool(() => new MeshBuffer(this), 128);
     private _drawBatchPool: Pool<UIDrawBatch>;
     private _scene: RenderScene;
     private _meshBuffers: Map<number, MeshBuffer[]> = new Map();
+    private _customMeshBuffers: Map<number, MeshBuffer[]> = new Map();
     private _meshBufferUseCount: Map<number, number> = new Map();
     private _batches: CachedArray<UIDrawBatch>;
     private _doUploadBuffersCall: Map<any, ((ui:UI) => void)> = new Map();
@@ -111,7 +139,6 @@ export class UI {
     private _currMaterial: Material = this._emptyMaterial;
     private _currTexture: Texture | null = null;
     private _currSampler: Sampler | null = null;
-    private _currCanvas: Canvas | null = null;
     private _currMeshBuffer: MeshBuffer | null = null;
     private _currStaticRoot: UIStaticBatch | null = null;
     private _currComponent: UIRenderable | null = null;
@@ -180,31 +207,19 @@ export class UI {
      *
      * @param comp - 屏幕组件。
      */
-    public addScreen (comp: Canvas) {
+    public addScreen (comp: RenderRoot2D) {
         this._screens.push(comp);
         this._screens.sort(this._screenSort);
     }
 
-    /**
-     * @en
-     * Get the Canvas by number.
-     *
-     * @zh
-     * 通过屏幕编号获得屏幕组件。
-     *
-     * @param visibility - 屏幕编号。
-     */
-    public getScreen (visibility: number) {
-        const screens = this._screens;
-        for (let i = 0; i < screens.length; ++i) {
-            const screen = screens[i];
-            if (screen.cameraComponent && screen.cameraComponent.camera) {
-                if (screen.cameraComponent.camera.visibility === visibility) {
-                    return screen;
-                }
+    public getFirstRenderCamera (node: Node) {
+        const cameras = this.renderScene.cameras;
+        for (let i = 0; i < cameras.length; i++) {
+            const camera = cameras[i];
+            if (camera.visibility & node.layer) {
+                return camera;
             }
         }
-
         return null;
     }
 
@@ -214,7 +229,7 @@ export class UI {
      *
      * @param comp - 被移除的屏幕。
      */
-    public removeScreen (comp: Canvas) {
+    public removeScreen (comp: RenderRoot2D) {
         const idx = this._screens.indexOf(comp);
         if (idx === -1) {
             return;
@@ -242,8 +257,6 @@ export class UI {
             if (!screen.enabledInHierarchy) {
                 continue;
             }
-
-            this._currCanvas = screen;
             this._recursiveScreenNode(screen.node);
         }
 
@@ -285,6 +298,17 @@ export class UI {
                 }
             }
 
+            const customs = this._customMeshBuffers;
+            for (const i of customs.keys()) {
+                const list = customs.get(i);
+                if (list) {
+                    list.forEach((bb) => {
+                        bb.uploadBuffers();
+                        bb.reset();
+                    });
+                }
+            }
+
             this._descriptorSetCache.update();
         }
     }
@@ -303,7 +327,6 @@ export class UI {
         this._parentOpacity = 1;
         this._currLayer = 0;
         this._currMaterial = this._emptyMaterial;
-        this._currCanvas = null;
         this._currTexture = null;
         this._currSampler = null;
         this._currComponent = null;
@@ -456,10 +479,9 @@ export class UI {
      */
     public autoMergeBatches (renderComp?: UIRenderable) {
         const buffer = this.currBufferBatch;
-        const uiCanvas = this._currCanvas;
         const hIA = buffer?.recordBatch();
         const mat = this._currMaterial;
-        if (!hIA || !mat) {
+        if (!hIA || !mat || !buffer) {
             return;
         }
         let blendState;
@@ -482,9 +504,9 @@ export class UI {
 
         this._batches.push(curDrawBatch);
 
-        buffer!.vertexStart = buffer!.vertexOffset;
-        buffer!.indicesStart = buffer!.indicesOffset;
-        buffer!.byteStart = buffer!.byteOffset;
+        buffer.vertexStart = buffer.vertexOffset;
+        buffer.indicesStart = buffer.indicesOffset;
+        buffer.byteStart = buffer.byteOffset;
 
         // HACK: After sharing buffer between drawcalls, the performance degradation a lots on iOS 14 or iPad OS 14 device
         // TODO: Maybe it can be removed after Apple fixes it?
@@ -574,8 +596,6 @@ export class UI {
             return;
         }
 
-        // parent changed can flush child visibility
-        node._uiProps.uiTransformComp._canvas = this._currCanvas;
         const render = node._uiProps.uiComp;
         if (render && render.enabledInHierarchy) {
             render.updateAssembler(this);
@@ -596,7 +616,7 @@ export class UI {
 
     private _createMeshBuffer (attributes: Attribute[]): MeshBuffer {
         const batch = this._bufferBatchPool.add();
-        batch.initialize(attributes, this._requireBufferBatch.bind(this, attributes));
+        batch.initialize(attributes, this._recreateMeshBuffer.bind(this, attributes));
         const strideBytes = UIVertexFormat.getAttributeStride(attributes);
         let buffers = this._meshBuffers.get(strideBytes);
         if (!buffers) { buffers = []; this._meshBuffers.set(strideBytes, buffers); }
@@ -604,7 +624,12 @@ export class UI {
         return batch;
     }
 
-    private _requireBufferBatch (attributes: Attribute[]) {
+    private _recreateMeshBuffer (attributes, vertexCount, indexCount) {
+        this.autoMergeBatches();
+        this._requireBufferBatch(attributes, vertexCount, indexCount);
+    }
+
+    private _requireBufferBatch (attributes: Attribute[], vertexCount?: number, indexCount?: number) {
         const strideBytes = UIVertexFormat.getAttributeStride(attributes);
         let buffers = this._meshBuffers.get(strideBytes);
         if (!buffers) { buffers = []; this._meshBuffers.set(strideBytes, buffers); }
@@ -616,16 +641,13 @@ export class UI {
             this._currMeshBuffer = buffers[meshBufferUseCount];
         }
         this._meshBufferUseCount.set(strideBytes, meshBufferUseCount + 1);
-        if (arguments.length === 3) {
-            this._currMeshBuffer.request(arguments[1], arguments[2]);
+        if (vertexCount && indexCount) {
+            this._currMeshBuffer.request(vertexCount, indexCount);
         }
     }
 
-    private _screenSort (a: Canvas, b: Canvas) {
-        const aPriority = a.cameraComponent ? a.cameraComponent.priority : 0;
-        const bPriority = b.cameraComponent ? b.cameraComponent.priority : 0;
-        const delta = aPriority - bPriority;
-        return delta === 0 ? a.node.getSiblingIndex() - b.node.getSiblingIndex() : delta;
+    private _screenSort (a: RenderRoot2D, b: RenderRoot2D) {
+        return a.node.getSiblingIndex() - b.node.getSiblingIndex();
     }
 
     private _applyOpacity (comp: UIRenderable) {

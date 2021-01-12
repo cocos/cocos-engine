@@ -32,14 +32,15 @@ import { ccclass, help, executeInEditMode, executionOrder, menu, tooltip, displa
 import { EDITOR } from 'internal:constants';
 import { Component } from '../../core/components';
 import { SystemEventType } from '../../core/platform/event-manager/event-enum';
-import { EventListener, IListenerMask } from '../../core/platform/event-manager/event-listener';
+import { EventListener } from '../../core/platform/event-manager/event-listener';
 import { Mat4, Rect, Size, Vec2, Vec3 } from '../../core/math';
 import { AABB } from '../../core/geometry';
-import { Canvas } from './canvas';
 import { Node } from '../../core/scene-graph';
 import { legacyCC } from '../../core/global-exports';
-import { warnID } from '../../core/platform/debug';
 import { Mask } from '../components/mask';
+import { director } from '../../core/director';
+import { RenderRoot2D } from './render-root-2d';
+import { warnID } from '../../core/platform/debug';
 
 const _vec2a = new Vec2();
 const _vec2b = new Vec2();
@@ -208,7 +209,7 @@ export class UITransform extends Component {
             return;
         }
 
-        if (this._canvas && this._canvas.node === this.node) {
+        if (this.node.getComponent(RenderRoot2D)) {
             warnID(6706);
             return;
         }
@@ -224,16 +225,11 @@ export class UITransform extends Component {
     /**
      * @en Get the visibility bit-mask of the rendering camera
      * @zh 查找被渲染相机的可见性掩码。
-     * @depreacted since v3.0, please use [cameraVisibility] instead
+     * @deprecated since v3.0
      */
     get visibility () {
-        return this.cameraVisibility;
-    }
-    get cameraVisibility () {
-        if (this._canvas && this._canvas.cameraComponent) {
-            return this._canvas.cameraComponent.visibility;
-        }
-        return 0;
+        const camera = director.root?.ui.getFirstRenderCamera(this.node);
+        return camera ? camera.visibility : 0;
     }
 
     /**
@@ -241,15 +237,11 @@ export class UITransform extends Component {
      * @zh 查找被渲染相机的渲染优先级。
      */
     get cameraPriority () {
-        if (this._canvas && this._canvas.cameraComponent) {
-            return this._canvas.cameraComponent.priority;
-        }
-        return 0;
+        const camera = director.root?.ui.getFirstRenderCamera(this.node);
+        return camera ? camera.priority : 0;
     }
 
     public static EventType = SystemEventType;
-
-    public _canvas: Canvas | null = null;
 
     @serializable
     protected _contentSize = new Size(100, 100);
@@ -261,8 +253,6 @@ export class UITransform extends Component {
     }
 
     public onEnable () {
-        this._updateVisibility();
-
         this.node.on(SystemEventType.PARENT_CHANGED, this._parentChanged, this);
 
         const changed = this._checkAndSortSiblings();
@@ -273,7 +263,6 @@ export class UITransform extends Component {
 
     public onDisable () {
         this.node.off(SystemEventType.PARENT_CHANGED, this._parentChanged, this);
-        this._canvas = null;
     }
 
     public onDestroy () {
@@ -397,62 +386,66 @@ export class UITransform extends Component {
         const cameraPt = _vec2a;
         const testPt = _vec2b;
 
-        const canvas = this._canvas;
-        if (!canvas) {
-            return false;
-        }
+        const cameras = director.root!.ui.renderScene.cameras;
+        for (let i = 0; i < cameras.length; i++) {
+            const camera = cameras[i];
+            if (!(camera.visibility & this.node.layer)) continue;
 
-        // 将一个摄像机坐标系下的点转换到世界坐标系下
-        canvas.node.getWorldRT(_mat4_temp);
-        const m12 = _mat4_temp.m12;
-        const m13 = _mat4_temp.m13;
-        const center = legacyCC.visibleRect.center;
-        _mat4_temp.m12 = center.x - (_mat4_temp.m00 * m12 + _mat4_temp.m04 * m13);
-        _mat4_temp.m13 = center.y - (_mat4_temp.m01 * m12 + _mat4_temp.m05 * m13);
-        Mat4.invert(_mat4_temp, _mat4_temp);
-        Vec2.transformMat4(cameraPt, point, _mat4_temp);
+            // 将一个摄像机坐标系下的点转换到世界坐标系下
+            camera.node.getWorldRT(_mat4_temp);
+            const m12 = _mat4_temp.m12;
+            const m13 = _mat4_temp.m13;
+            const center = legacyCC.visibleRect.center;
+            _mat4_temp.m12 = center.x - (_mat4_temp.m00 * m12 + _mat4_temp.m04 * m13);
+            _mat4_temp.m13 = center.y - (_mat4_temp.m01 * m12 + _mat4_temp.m05 * m13);
+            Mat4.invert(_mat4_temp, _mat4_temp);
+            Vec2.transformMat4(cameraPt, point, _mat4_temp);
 
-        this.node.getWorldMatrix(_worldMatrix);
-        Mat4.invert(_mat4_temp, _worldMatrix);
-        if (Mat4.strictEquals(_mat4_temp, _zeroMatrix)) {
-            return false;
-        }
-        Vec2.transformMat4(testPt, cameraPt, _mat4_temp);
-        testPt.x += this._anchorPoint.x * w;
-        testPt.y += this._anchorPoint.y * h;
-        let hit = false;
-        if (testPt.x >= 0 && testPt.y >= 0 && testPt.x <= w && testPt.y <= h) {
-            hit = true;
-            if (listener && listener.mask) {
-                const mask = listener.mask;
-                let parent: any = this.node;
-                const length = mask ? mask.length : 0;
-                // find mask parent, should hit test it
-                for (let i = 0, j = 0; parent && j < length; ++i, parent = parent.parent) {
-                    const temp = mask[j];
-                    if (i === temp.index) {
-                        if (parent === temp.node) {
-                            const comp = parent.getComponent(Mask);
-                            if (comp && comp._enabled && !comp.isHit(cameraPt)) {
-                                hit = false;
+            this.node.getWorldMatrix(_worldMatrix);
+            Mat4.invert(_mat4_temp, _worldMatrix);
+            if (Mat4.strictEquals(_mat4_temp, _zeroMatrix)) {
+                continue;
+            }
+            Vec2.transformMat4(testPt, cameraPt, _mat4_temp);
+            testPt.x += this._anchorPoint.x * w;
+            testPt.y += this._anchorPoint.y * h;
+            let hit = false;
+            if (testPt.x >= 0 && testPt.y >= 0 && testPt.x <= w && testPt.y <= h) {
+                hit = true;
+                if (listener && listener.mask) {
+                    const mask = listener.mask;
+                    let parent: any = this.node;
+                    const length = mask ? mask.length : 0;
+                    // find mask parent, should hit test it
+                    for (let i = 0, j = 0; parent && j < length; ++i, parent = parent.parent) {
+                        const temp = mask[j];
+                        if (i === temp.index) {
+                            if (parent === temp.node) {
+                                const comp = parent.getComponent(Mask);
+                                if (comp && comp._enabled && !comp.isHit(cameraPt)) {
+                                    hit = false;
+                                    break;
+                                }
+
+                                j++;
+                            } else {
+                                // mask parent no longer exists
+                                mask.length = j;
                                 break;
                             }
-
-                            j++;
-                        } else {
+                        } else if (i > temp.index) {
                             // mask parent no longer exists
                             mask.length = j;
                             break;
                         }
-                    } else if (i > temp.index) {
-                        // mask parent no longer exists
-                        mask.length = j;
-                        break;
                     }
                 }
             }
+            if (hit) {
+                return true;
+            }
         }
-        return hit;
+        return false;
     }
 
     /**
@@ -632,21 +625,8 @@ export class UITransform extends Component {
         }
     }
 
-    public _updateVisibility () {
-        let parent: Node | null = this.node;
-        // 获取被渲染相机的 visibility
-        while (parent) {
-            const canvasComp = parent.getComponent('cc.Canvas') as Canvas;
-            if (canvasComp) {
-                this._canvas = canvasComp;
-                break;
-            }
-            parent = parent.parent;
-        }
-    }
-
     protected _parentChanged (node: Node) {
-        if (this._canvas && this._canvas.node === this.node) {
+        if (this.node.getComponent(RenderRoot2D)) {
             return;
         }
 

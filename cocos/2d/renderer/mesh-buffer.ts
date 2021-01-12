@@ -115,8 +115,6 @@ export class MeshBuffer {
         const indicesOffset = this.indicesOffset + indicesCount;
 
         if (vertexCount + this.vertexOffset > 65535) {
-            // merge last state
-            this._batcher.autoMergeBatches();
             if (this._outOfCallback) {
                 this._outOfCallback.call(this._batcher, vertexCount, indicesCount);
             }
@@ -176,7 +174,7 @@ export class MeshBuffer {
     public recordBatch (): InputAssemblerHandle {
         const vCount = this.indicesOffset - this.indicesStart;
         if (!vCount) {
-            return NULL_HANDLE;
+            return NULL_HANDLE as InputAssemblerHandle;
         }
 
         if (this._hInputAssemblers.length <= this._nextFreeIAHandle) {
@@ -209,6 +207,7 @@ export class MeshBuffer {
             this.indexBuffer.resize(this.indicesOffset * 2);
         }
         this.indexBuffer.update(indicesData);
+        this._dirty = false;
     }
 
     private _reallocBuffer () {

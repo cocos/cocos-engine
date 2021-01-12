@@ -303,16 +303,12 @@ export class EditBoxImpl extends EditBoxImplBase {
         if (!node._uiProps.uiTransformComp) {
             return false;
         }
-        let canvas = director.root!.ui.getScreen(node._uiProps.uiTransformComp.visibility);
-        if (legacyCC.GAME_VIEW) {
-            canvas = legacyCC.gameView.preview.canvasComp;
-        }
-        if (!canvas) {
-            return;
-        }
+
+        const camera = director.root!.ui.getFirstRenderCamera(node);
+        if (!camera) return;
 
         // camera.getWorldToCameraMatrix(_matrix_temp);
-        canvas.node.getWorldRT(_matrix_temp);
+        camera.node.getWorldRT(_matrix_temp);
         const m12 = _matrix_temp.m12;
         const m13 = _matrix_temp.m13;
         const center = visibleRect.center;
