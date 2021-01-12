@@ -39,7 +39,6 @@ import { Node } from '../../core/scene-graph';
 import { legacyCC } from '../../core/global-exports';
 import { Mask } from '../components/mask';
 import { director } from '../../core/director';
-import { RenderRoot2D } from './render-root-2d';
 import { warnID } from '../../core/platform/debug';
 
 const _vec2a = new Vec2();
@@ -209,7 +208,7 @@ export class UITransform extends Component {
             return;
         }
 
-        if (this.node.getComponent(RenderRoot2D)) {
+        if (this.node.getComponent('cc.RenderRoot2D')) {
             warnID(6706);
             return;
         }
@@ -626,7 +625,7 @@ export class UITransform extends Component {
     }
 
     protected _parentChanged (node: Node) {
-        if (this.node.getComponent(RenderRoot2D)) {
+        if (this.node.getComponent('cc.RenderRoot2D')) {
             return;
         }
 
