@@ -41,13 +41,8 @@ THE SOFTWARE.
 #include "MTLSemaphore.h"
 #include "MTLShader.h"
 #include "MTLTexture.h"
-#include "MTLUtils.h"
-#include "TargetConditionals.h"
 #include "cocos/bindings/event/CustomEventTypes.h"
 #include "cocos/bindings/event/EventDispatcher.h"
-
-#import <MetalKit/MTKView.h>
-#include <dispatch/dispatch.h>
 
 namespace cc {
 namespace gfx {
@@ -91,10 +86,8 @@ bool CCMTLDevice::initialize(const DeviceInfo &info) {
     _maxSamplerUnits = mu::getMaxEntriesInSamplerStateArgumentTable(gpuFamily);
     _maxTextureSize = mu::getMaxTexture2DWidthHeight(gpuFamily);
     _maxCubeMapTextureSize = mu::getMaxCubeMapTextureWidthHeight(gpuFamily);
-    _maxColorRenderTargets = mu::getMaxColorRenderTarget(gpuFamily);
     _maxBufferBindingIndex = mu::getMaxEntriesInBufferArgumentTable(gpuFamily);
     _uboOffsetAlignment = mu::getMinBufferOffsetAlignment(gpuFamily);
-    _icbSuppored = mu::isIndirectCommandBufferSupported(MTLFeatureSet(_mtlFeatureSet));
     _isSamplerDescriptorCompareFunctionSupported = mu::isSamplerDescriptorCompareFunctionSupported(gpuFamily);
     MTKView *view = static_cast<MTKView *>(_mtkView);
     if (view.colorPixelFormat == MTLPixelFormatInvalid) view.colorPixelFormat = MTLPixelFormatBGRA8Unorm;
@@ -194,7 +187,7 @@ void CCMTLDevice::destroy() {
     }
 }
 
-void CCMTLDevice::resize(uint width, uint height) {}
+void CCMTLDevice::resize(uint /*width*/, uint /*height*/) {}
 
 void CCMTLDevice::acquire() {
     _inFlightSemaphore->wait();
@@ -235,7 +228,7 @@ Queue *CCMTLDevice::createQueue() {
     return CC_NEW(CCMTLQueue(this));
 }
 
-CommandBuffer *CCMTLDevice::doCreateCommandBuffer(const CommandBufferInfo &info, bool hasAgent) {
+CommandBuffer *CCMTLDevice::doCreateCommandBuffer(const CommandBufferInfo &info, bool /*hasAgent*/) {
     return CC_NEW(CCMTLCommandBuffer(this));
 }
 
@@ -285,9 +278,9 @@ PipelineState *CCMTLDevice::createPipelineState() {
 
 void CCMTLDevice::copyBuffersToTexture(const uint8_t *const *buffers, Texture *texture, const BufferTextureCopy *regions, uint count) {
     // This assumes the default command buffer will get submitted every frame,
-    // which is true for now but may change in the future. This appoach gives us
+    // which is true for now but may change in the future. This approach gives us
     // the wiggle room to leverage immediate update vs. copy-upload strategies without
-    // breaking compatabilities. When we reached some conclusion on this subject,
+    // breaking compatibilities. When we reached some conclusion on this subject,
     // getting rid of this interface all together may become a better option.
     _cmdBuff->begin();
     static_cast<CCMTLCommandBuffer *>(_cmdBuff)->copyBuffersToTexture(buffers, texture, regions, count);

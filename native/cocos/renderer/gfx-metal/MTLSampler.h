@@ -28,10 +28,14 @@ THE SOFTWARE.
 namespace cc {
 namespace gfx {
 
-class CCMTLSampler : public Sampler {
+class CCMTLSampler final : public Sampler {
 public:
-    CCMTLSampler(Device *device);
-    ~CCMTLSampler() = default;
+    explicit CCMTLSampler(Device *device);
+    ~CCMTLSampler() override = default;
+    CCMTLSampler(const CCMTLSampler &)=delete;
+    CCMTLSampler(CCMTLSampler &&)=delete;
+    CCMTLSampler &operator=(const CCMTLSampler &)=delete;
+    CCMTLSampler &operator=(CCMTLSampler &&)=delete;
 
     bool initialize(const SamplerInfo &info) override;
     void destroy() override;

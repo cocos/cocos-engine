@@ -23,7 +23,6 @@ THE SOFTWARE.
 ****************************************************************************/
 #include "MTLStd.h"
 
-#include "MTLDevice.h"
 #include "MTLFence.h"
 
 namespace cc {

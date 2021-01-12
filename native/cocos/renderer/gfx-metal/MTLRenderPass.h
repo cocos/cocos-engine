@@ -31,26 +31,24 @@ THE SOFTWARE.
 namespace cc {
 namespace gfx {
 
-class TextureView;
-
-class CCMTLRenderPass : public RenderPass {
+class CCMTLRenderPass final : public RenderPass {
 public:
-    CCMTLRenderPass(Device *device);
-    ~CCMTLRenderPass() = default;
+    explicit CCMTLRenderPass(Device *device);
+    ~CCMTLRenderPass() override = default;
 
-    virtual bool initialize(const RenderPassInfo &info) override;
-    virtual void destroy() override;
+    bool initialize(const RenderPassInfo &info) override;
+    void destroy() override;
 
     void setColorAttachment(size_t slot, id<MTLTexture> texture, int level);
     void setDepthStencilAttachment(id<MTLTexture> texture, int level);
 
     CC_INLINE MTLRenderPassDescriptor *getMTLRenderPassDescriptor() const { return _mtlRenderPassDescriptor; }
-    CC_INLINE size_t getColorRenderTargetNums() const { return _colorRenderTargetNums; }
+    CC_INLINE uint getColorRenderTargetNums() const { return _colorRenderTargetNums; }
     CC_INLINE const vector<Vec2> &getRenderTargetSizes() const { return _renderTargetSizes; }
 
 private:
     MTLRenderPassDescriptor *_mtlRenderPassDescriptor = nil;
-    size_t _colorRenderTargetNums = 0;
+    uint _colorRenderTargetNums = 0;
     vector<Vec2> _renderTargetSizes;
 };
 

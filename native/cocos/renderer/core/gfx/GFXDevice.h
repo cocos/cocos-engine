@@ -25,7 +25,6 @@ public:
     static Device *getInstance();
 
     Device();
-    Device(Device* device): Device() {}
     virtual ~Device();
 
     virtual bool initialize(const DeviceInfo &info) = 0;

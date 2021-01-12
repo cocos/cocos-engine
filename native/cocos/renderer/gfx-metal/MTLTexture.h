@@ -28,15 +28,19 @@ THE SOFTWARE.
 namespace cc {
 namespace gfx {
 
-class CCMTLTexture : public Texture {
+class CCMTLTexture final : public Texture {
 public:
-    CCMTLTexture(Device *device);
-    ~CCMTLTexture() = default;
+    explicit CCMTLTexture(Device *device);
+    ~CCMTLTexture() override = default;
+    CCMTLTexture(const CCMTLTexture &)=delete;
+    CCMTLTexture(CCMTLTexture &&)=delete;
+    CCMTLTexture &operator=(const CCMTLTexture &)=delete;
+    CCMTLTexture &operator=(CCMTLTexture &&)=delete;
 
-    virtual bool initialize(const TextureInfo &info) override;
-    virtual bool initialize(const TextureViewInfo &info) override;
-    virtual void destroy() override;
-    virtual void resize(uint width, uint height) override;
+    bool initialize(const TextureInfo &info) override;
+    bool initialize(const TextureViewInfo &info) override;
+    void destroy() override;
+    void resize(uint width, uint height) override;
 
     CC_INLINE id<MTLTexture> getMTLTexture() const { return _mtlTexture; }
     CC_INLINE Format getConvertedFormat() const { return _convertedFormat; }
@@ -45,7 +49,6 @@ public:
 
 private:
     bool createMTLTexture();
-    void generateMipmaps();
 
 private:
     id<MTLTexture> _mtlTexture = nil;

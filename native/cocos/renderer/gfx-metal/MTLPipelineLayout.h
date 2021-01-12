@@ -26,7 +26,7 @@ namespace cc {
 namespace gfx {
 class CCMTLGPUPipelineLayout;
 
-class CCMTLPipelineLayout : public PipelineLayout {
+class CCMTLPipelineLayout final : public PipelineLayout {
 public:
     CCMTLPipelineLayout(Device *device);
     virtual ~CCMTLPipelineLayout() = default;

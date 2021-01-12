@@ -54,7 +54,7 @@ CCMTLContext::CCMTLContext(Device *device)
 bool CCMTLContext::initialize(const ContextInfo &info) {
     _vsyncMode = info.vsyncMode;
     _windowHandle = info.windowHandle;
-    MTKView *view = (MTKView *)((CCMTLDevice *)_device)->getMTKView();
+    auto *view = (MTKView *)static_cast<CCMTLDevice *>(_device)->getMTKView();
     _colorFmt = toFormat(view.colorPixelFormat);
     _depthStencilFmt = toFormat(view.depthStencilPixelFormat);
 

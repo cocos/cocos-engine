@@ -49,7 +49,7 @@ public:
     virtual void bindInputAssembler(InputAssembler *ia) override;
     virtual void setViewport(const Viewport &vp) override;
     virtual void setScissor(const Rect &rect) override;
-    virtual void setLineWidth(const float width) override;
+    virtual void setLineWidth(float width) override;
     virtual void setDepthBias(float constant, float clamp, float slope) override;
     virtual void setBlendConstants(const Color &constants) override;
     virtual void setDepthBound(float minBounds, float maxBounds) override;

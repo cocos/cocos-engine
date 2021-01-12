@@ -29,7 +29,6 @@ THE SOFTWARE.
 #import "MTLConfig.h"
 #import <Metal/MTLBuffer.h>
 #import <Metal/MTLRenderCommandEncoder.h>
-#import <Metal/MTLRenderPipeline.h>
 #import <Metal/MTLSampler.h>
 
 namespace cc {
@@ -38,26 +37,6 @@ class CCMTLBuffer;
 class CCMTLTexture;
 class CCMTLSampler;
 class CCMTLShader;
-
-struct CCMTLGPUTexture {
-    uint mtlBinding = 0;
-    uint originBinding = 0;
-    id<MTLTexture> texture = nil;
-
-    CCMTLGPUTexture(uint _mtlBinding, uint _originBinding, id<MTLTexture> _texture)
-    : mtlBinding(_mtlBinding), originBinding(_originBinding), texture(_texture) {}
-};
-typedef vector<CCMTLGPUTexture> CCMTLGPUTextureList;
-
-struct CCMTLGPUSamplerState {
-    uint mtlBinding = 0;
-    uint originBinding = 0;
-    id<MTLSamplerState> samplerState = nil;
-
-    CCMTLGPUSamplerState(uint _mtlBinding, uint _originBinding, id<MTLSamplerState> _samplerState)
-    : mtlBinding(_mtlBinding), originBinding(_originBinding), samplerState(_samplerState) {}
-};
-typedef vector<CCMTLGPUSamplerState> CCMTLGPUSamplerStateList;
 
 class CCMTLGPUDescriptorSetLayout : public Object {
 public:
@@ -84,7 +63,6 @@ struct CCMTLGPUUniformBlock {
     size_t size = 0;
     uint count = 0;
 };
-typedef vector<CCMTLGPUUniformBlock> CCMTLGPUUniformBlockList;
 
 struct CCMTLGPUSamplerBlock {
     String name;
@@ -96,7 +74,6 @@ struct CCMTLGPUSamplerBlock {
     Type type = Type::UNKNOWN;
     uint count = 0;
 };
-typedef vector<CCMTLGPUSamplerBlock> CCMTLGPUSamplerBlockList;
 
 class CCMTLGPUShader : public Object {
 public:
@@ -175,7 +152,7 @@ public:
     void alloc(CCMTLGPUBuffer *gpuBuffer, uint alignment) {
         size_t bufferCount = _pool.size();
         Buffer *buffer = nullptr;
-        size_t offset = 0;
+        uint offset = 0;
         for (size_t idx = 0; idx < bufferCount; idx++) {
             auto *cur = &_pool[idx];
             offset = mu::alignUp(cur->curOffset, alignment);
@@ -244,7 +221,7 @@ private:
         id<MTLBuffer> mtlBuffer = nil;
         vector<id<MTLBuffer>> dynamicDataBuffers{MAX_FRAMES_IN_FLIGHT};
         uint8_t *mappedData = nullptr;
-        size_t curOffset = 0;
+        uint curOffset = 0;
     };
 
     bool _tripleEnabled = false;

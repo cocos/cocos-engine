@@ -260,7 +260,7 @@ void CCVKCommandBuffer::setScissor(const Rect &rect) {
     }
 }
 
-void CCVKCommandBuffer::setLineWidth(const float width) {
+void CCVKCommandBuffer::setLineWidth(float width) {
     if (math::IsNotEqualF(_curLineWidth, width)) {
         _curLineWidth = width;
         vkCmdSetLineWidth(_gpuCommandBuffer->vkCommandBuffer, width);

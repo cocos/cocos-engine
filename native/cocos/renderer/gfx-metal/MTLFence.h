@@ -28,12 +28,12 @@ namespace gfx {
 class CCMTLFence : public Fence {
 public:
     CCMTLFence(Device *device);
-    ~CCMTLFence() = default;
+    ~CCMTLFence() override = default;
 
-    virtual bool initialize(const FenceInfo &info) override;
-    virtual void destroy() override;
-    virtual void wait() override;
-    virtual void reset() override;
+    bool initialize(const FenceInfo &info) override;
+    void destroy() override;
+    void wait() override;
+    void reset() override;
 
 private:
 };

@@ -24,7 +24,7 @@ public:
     virtual void bindInputAssembler(InputAssembler *ia) = 0;
     virtual void setViewport(const Viewport &vp) = 0;
     virtual void setScissor(const Rect &rect) = 0;
-    virtual void setLineWidth(const float width) = 0;
+    virtual void setLineWidth(float width) = 0;
     virtual void setDepthBias(float constant, float clamp, float slope) = 0;
     virtual void setBlendConstants(const Color &constants) = 0;
     virtual void setDepthBound(float minBounds, float maxBounds) = 0;

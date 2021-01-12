@@ -177,7 +177,7 @@ void GLES2CommandBuffer::setScissor(const Rect &rect) {
     }
 }
 
-void GLES2CommandBuffer::setLineWidth(const float width) {
+void GLES2CommandBuffer::setLineWidth(float width) {
     if (math::IsNotEqualF(_curLineWidth, width)) {
         _curLineWidth = width;
         _isStateInvalid = true;

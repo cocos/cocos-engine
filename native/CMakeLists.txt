@@ -739,8 +739,6 @@ if(CC_USE_METAL)
         cocos/renderer/gfx-metal/MTLBuffer.mm
         cocos/renderer/gfx-metal/MTLCommandBuffer.h
         cocos/renderer/gfx-metal/MTLCommandBuffer.mm
-        cocos/renderer/gfx-metal/MTLCommands.h
-        cocos/renderer/gfx-metal/MTLCommands.mm
         cocos/renderer/gfx-metal/MTLContext.h
         cocos/renderer/gfx-metal/MTLContext.mm
         cocos/renderer/gfx-metal/MTLDevice.h

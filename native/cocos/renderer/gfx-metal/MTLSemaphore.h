@@ -30,23 +30,20 @@ namespace gfx {
 
 class CCMTLSemaphore final {
 public:
-    CCMTLSemaphore(uint initialValue) {
+    explicit CCMTLSemaphore(uint initialValue) : _semaphoreCount(initialValue) {
         _semaphore = dispatch_semaphore_create(initialValue);
-        _semaphoreCount = initialValue;
     }
-
     ~CCMTLSemaphore() = default;
-
     CCMTLSemaphore(const CCMTLSemaphore &) = delete;
     CCMTLSemaphore(CCMTLSemaphore &&) = delete;
     CCMTLSemaphore &operator=(const CCMTLSemaphore &) = delete;
     CCMTLSemaphore &operator=(CCMTLSemaphore &&) = delete;
-
-    void signal() {
+    
+    void signal() const {
         dispatch_semaphore_signal(_semaphore);
     }
-
-    void wait() {
+    
+    void wait() const {
         dispatch_semaphore_wait(_semaphore, DISPATCH_TIME_FOREVER);
     }
 
@@ -57,7 +54,7 @@ public:
     }
 
 private:
-    dispatch_semaphore_t _semaphore = nil;
+    dispatch_semaphore_t _semaphore = nullptr;
     uint _semaphoreCount = 0;
 };
 

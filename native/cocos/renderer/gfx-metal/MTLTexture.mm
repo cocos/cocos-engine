@@ -149,7 +149,6 @@ bool CCMTLTexture::initialize(const TextureViewInfo &info) {
 
 bool CCMTLTexture::createMTLTexture() {
     if (_width == 0 || _height == 0) {
-
         CC_LOG_ERROR("CCMTLTexture: width or height should not be zero.");
         return false;
     }
@@ -163,7 +162,7 @@ bool CCMTLTexture::createMTLTexture() {
     switch (mtlTextureType) {
         case MTLTextureType2D:
         case MTLTextureType2DArray:
-            //No need to set mipmapped flag since mipmapLevelCount was explicty set via `_levelCount`.
+            // No need to set mipmapped flag since mipmapLevelCount was explicty set via `_levelCount`.
             descriptor = [MTLTextureDescriptor texture2DDescriptorWithPixelFormat:mtlFormat
                                                                             width:_width
                                                                            height:_height

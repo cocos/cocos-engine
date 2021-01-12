@@ -28,14 +28,17 @@ THE SOFTWARE.
 namespace cc {
 namespace gfx {
 
-class CCMTLCommandAllocator;
 class CCMTLGPUStagingBufferPool;
 class CCMTLSemaphore;
 
-class CCMTLDevice : public Device {
+class CCMTLDevice final : public Device {
 public:
     CCMTLDevice();
-    ~CCMTLDevice() = default;
+    ~CCMTLDevice() override = default;
+    CCMTLDevice(const CCMTLDevice &)=delete;
+    CCMTLDevice(CCMTLDevice &&)=delete;
+    CCMTLDevice &operator=(const CCMTLDevice &)=delete;
+    CCMTLDevice &operator=(CCMTLDevice &&)=delete;
 
     using Device::createCommandBuffer;
     using Device::createFence;
@@ -53,39 +56,36 @@ public:
     using Device::createPipelineState;
     using Device::copyBuffersToTexture;
 
-    virtual bool initialize(const DeviceInfo &info) override;
-    virtual void destroy() override;
-    virtual void resize(uint width, uint height) override;
-    virtual void acquire() override;
-    virtual void present() override;
+    bool initialize(const DeviceInfo &info) override;
+    void destroy() override;
+    void resize(uint width, uint height) override;
+    void acquire() override;
+    void present() override;
 
     CC_INLINE void *getMTLCommandQueue() const { return _mtlCommandQueue; }
     CC_INLINE void *getMTKView() const { return _mtkView; }
     CC_INLINE void *getMTLDevice() const { return _mtlDevice; }
     CC_INLINE uint getMaximumSamplerUnits() const { return _maxSamplerUnits; }
-    CC_INLINE uint getMaximumColorRenderTargets() const { return _maxColorRenderTargets; }
     CC_INLINE uint getMaximumBufferBindingIndex() const { return _maxBufferBindingIndex; }
-    CC_INLINE bool isIndirectCommandBufferSupported() const { return _icbSuppored; }
     CC_INLINE bool isIndirectDrawSupported() const { return _indirectDrawSupported; }
     CC_INLINE CCMTLGPUStagingBufferPool *gpuStagingBufferPool() const { return _gpuStagingBufferPools[_currentFrameIndex]; }
     CC_INLINE bool isSamplerDescriptorCompareFunctionSupported() const { return _isSamplerDescriptorCompareFunctionSupported; }
 
 protected:
-    virtual CommandBuffer *doCreateCommandBuffer(const CommandBufferInfo &info, bool hasAgent) override;
-    virtual Fence *createFence() override;
-    virtual Queue *createQueue() override;
-    virtual Buffer *createBuffer() override;
-    virtual Texture *createTexture() override;
-    virtual Sampler *createSampler() override;
-    virtual Shader *createShader() override;
-    virtual InputAssembler *createInputAssembler() override;
-    virtual RenderPass *createRenderPass() override;
-    virtual Framebuffer *createFramebuffer() override;
-    virtual DescriptorSet *createDescriptorSet() override;
-    virtual DescriptorSetLayout *createDescriptorSetLayout() override;
-    virtual PipelineLayout *createPipelineLayout() override;
-    virtual PipelineState *createPipelineState() override;
-    virtual void copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint count) override;
+    CommandBuffer *doCreateCommandBuffer(const CommandBufferInfo &info, bool hasAgent) override;
+    Fence *createFence() override;
+    Queue *createQueue() override;
+    Buffer *createBuffer() override;
+    Texture *createTexture() override;
+    Sampler *createSampler() override;
+    Shader *createShader() override;InputAssembler *createInputAssembler() override;
+    RenderPass *createRenderPass() override;
+    Framebuffer *createFramebuffer() override;
+    DescriptorSet *createDescriptorSet() override;
+    DescriptorSetLayout *createDescriptorSetLayout() override;
+    PipelineLayout *createPipelineLayout() override;
+    PipelineState *createPipelineState() override;
+    void copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint count) override;
 
 private:
     void onMemoryWarning();
@@ -96,9 +96,7 @@ private:
     void *_mtlDevice = nullptr;
     unsigned long _mtlFeatureSet = 0;
     uint _maxSamplerUnits = 0;
-    uint _maxColorRenderTargets = 0;
     uint _maxBufferBindingIndex = 0;
-    bool _icbSuppored = false;
     bool _indirectDrawSupported = false;
     bool _isSamplerDescriptorCompareFunctionSupported = false;
     CCMTLGPUStagingBufferPool *_gpuStagingBufferPools[MAX_FRAMES_IN_FLIGHT] = {nullptr};

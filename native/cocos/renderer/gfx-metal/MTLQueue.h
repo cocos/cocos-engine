@@ -25,16 +25,20 @@ THE SOFTWARE.
 
 namespace cc {
 namespace gfx {
-class CCMTLQueue : public Queue {
+class CCMTLQueue final : public Queue {
     friend class CCMTLDevice;
 
 public:
-    CCMTLQueue(Device *device);
-    ~CCMTLQueue() = default;
+    explicit CCMTLQueue(Device *device);
+    ~CCMTLQueue() override = default;
+    CCMTLQueue(const CCMTLQueue &)=delete;
+    CCMTLQueue(CCMTLQueue &&)=delete;
+    CCMTLQueue &operator=(const CCMTLQueue &)=delete;
+    CCMTLQueue &operator=(CCMTLQueue &&)=delete;
 
-    virtual bool initialize(const QueueInfo &info) override;
-    virtual void destroy() override;
-    virtual void submit(const CommandBuffer *const *cmdBuffs, uint count, Fence *fence) override;
+    bool initialize(const QueueInfo &info) override;
+    void destroy() override;
+    void submit(const CommandBuffer *const *cmdBuffs, uint count, Fence *fence) override;
 
 private:
     uint _numDrawCalls = 0;

@@ -39,7 +39,7 @@ bool CCMTLRenderPass::initialize(const RenderPassInfo &info) {
 
     _mtlRenderPassDescriptor = [[MTLRenderPassDescriptor alloc] init];
 
-    int i = 0;
+    uint i = 0;
     for (const auto &colorAttachment : _colorAttachments) {
         _mtlRenderPassDescriptor.colorAttachments[i].loadAction = mu::toMTLLoadAction(colorAttachment.loadOp);
         _mtlRenderPassDescriptor.colorAttachments[i].storeAction = mu::toMTLStoreAction(colorAttachment.storeOp);
