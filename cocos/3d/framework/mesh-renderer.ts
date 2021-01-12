@@ -222,13 +222,15 @@ export class MeshRenderer extends RenderableComponent {
     set mesh (val) {
         const old = this._mesh;
         this._mesh = val;
-        this._mesh?.initialize();
+        this._mesh!.initialize();
         this._watchMorphInMesh();
         this._onMeshChanged(old);
         this._updateModels();
         if (this.enabledInHierarchy) {
             this._attachToScene();
         }
+        this._updateCastShadow();
+        this._updateReceiveShadow();
     }
 
     get model () {
@@ -266,7 +268,7 @@ export class MeshRenderer extends RenderableComponent {
     }
 
     public onLoad () {
-        this._mesh?.initialize();
+        this._mesh!.initialize();
         this._watchMorphInMesh();
         this._updateModels();
         this._updateCastShadow();
