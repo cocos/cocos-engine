@@ -75,7 +75,10 @@
     "_size": 0.3,
     "_range": 5,
     "_spotAngle": 30,
-    "_id": ""
+    "_id": "",
+    "__prefab": {
+      "__id__": 4
+    }
   },
   {
     "__type__": "cc.PrefabInfo",
@@ -85,11 +88,10 @@
     "asset": {
       "__id__": 0
     },
-    "fileId": "35C2xAi5dG/btOADE1TC8p",
-    "sync": false,
-    "_synced": {
-      "default": false,
-      "serializable": false
-    }
+    "fileId": "35C2xAi5dG/btOADE1TC8p"
+  },
+  {
+    "__type__": "cc.CompPrefabInfo",
+    "fileId": "42FuKkPeBOSLyZuICQqfaf"
   }
 ]
