@@ -71,7 +71,6 @@ export class ForwardFlow extends RenderFlow {
     public render (camera: Camera) {
         const pipeline = this._pipeline as ForwardPipeline;
         sceneCulling(pipeline, camera);
-        pipeline.updateShadowUBO(camera);
         super.render(camera);
     }
 
