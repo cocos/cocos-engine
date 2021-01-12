@@ -44,10 +44,6 @@ import { ccenum } from '../core/value-types/enum';
 import { TransformBit } from '../core/scene-graph/node-enum';
 import { legacyCC } from '../core/global-exports';
 
-const _tempVec2_1 = new Vec2();
-const _tempVec2_2 = new Vec2();
-const _tempVec2_3 = new Vec2();
-const _tempVec2_4 = new Vec2();
 const _tempScale = new Vec2();
 
 // returns a readonly size of the node
