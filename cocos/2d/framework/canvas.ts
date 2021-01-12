@@ -30,14 +30,13 @@
  */
 
 import { ccclass, help, disallowMultiple, executeInEditMode,
-    executionOrder, menu, requireComponent, tooltip, type, serializable } from 'cc.decorator';
+    executionOrder, menu, tooltip, type, serializable } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
 import { Camera } from '../../core/components/camera-component';
 import { Widget } from '../../ui/widget';
 import { game } from '../../core/game';
 import { Vec3 } from '../../core/math';
 import { view } from '../../core/platform/view';
-import { UITransform } from './ui-transform';
 import { legacyCC } from '../../core/global-exports';
 import { SystemEventType } from '../../core/platform/event-manager';
 import { Enum } from '../../core/value-types/enum';
