@@ -33,7 +33,7 @@ import { ccclass, help, executeInEditMode, executionOrder, menu, requireComponen
 import { EDITOR, DEV } from 'internal:constants';
 import { Component } from '../core/components';
 import { UITransform } from '../2d/framework/ui-transform';
-import { Size, Vec3 } from '../core/math';
+import { Size, Vec2, Vec3 } from '../core/math';
 import { errorID, warnID } from '../core/platform/debug';
 import { SystemEventType } from '../core/platform/event-manager/event-enum';
 import { View } from '../core/platform/view';
@@ -44,7 +44,11 @@ import { ccenum } from '../core/value-types/enum';
 import { TransformBit } from '../core/scene-graph/node-enum';
 import { legacyCC } from '../core/global-exports';
 
-const _zeroVec3 = new Vec3();
+const _tempVec2_1 = new Vec2();
+const _tempVec2_2 = new Vec2();
+const _tempVec2_3 = new Vec2();
+const _tempVec2_4 = new Vec2();
+const _tempScale = new Vec2();
 
 // returns a readonly size of the node
 export function getReadonlyNodeSize (parent: Node | Scene) {
@@ -66,8 +70,14 @@ export function getReadonlyNodeSize (parent: Node | Scene) {
     }
 }
 
-export function computeInverseTransForTarget (widgetNode: Node, target: Node, out_inverseTranslate: Vec3, out_inverseScale: Vec3) {
-    let scale = widgetNode.parent ? widgetNode.parent.getScale() : _zeroVec3;
+export function computeInverseTransForTarget (widgetNode: Node, target: Node, out_inverseTranslate: Vec2, out_inverseScale: Vec2) {
+    const scale = _tempScale;
+    if (widgetNode.parent) {
+        scale.x = widgetNode.parent.getScale().x;
+        scale.y = widgetNode.parent.getScale().y;
+    } else {
+        scale.set(0, 0);
+    }
     let scaleX = scale.x;
     let scaleY = scale.y;
     let translateX = 0;
@@ -86,7 +96,12 @@ export function computeInverseTransForTarget (widgetNode: Node, target: Node, ou
         node = node.parent;    // loop increment
 
         if (node !== target) {
-            scale = node ? node.getScale() : _zeroVec3;
+            if (node) {
+                scale.x = node.getScale().x;
+                scale.y = node.getScale().y;
+            } else {
+                scale.set(0, 0);
+            }
             const sx = scale.x;
             const sy = scale.y;
             translateX *= sx;

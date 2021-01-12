@@ -49,11 +49,17 @@ const OUT_OF_BOUNDARY_BREAKING_FACTOR = 0.05;
 const EPSILON = 1e-4;
 const TOLERANCE = 1e4;
 const MOVEMENT_FACTOR = 0.7;
-const ZERO = new Vec3();
+const ZERO = new Vec2();
+const ONE = new Vec2(1, 1);
 const _tempVec3 = new Vec3();
 const _tempVec3_1 = new Vec3();
+const _tempVec3_2 = new Vec3();
 const _tempVec2 = new Vec2();
 const _tempVec2_1 = new Vec2();
+const _tempVec2_2 = new Vec2();
+const _tempVec2_3 = new Vec2();
+const _tempVec2_4 = new Vec2();
+const _tempAnchorVec2 = new Vec2();
 
 const quintEaseOut = (time: number) => {
     time -= 1;
@@ -417,20 +423,20 @@ export class ScrollView extends ViewGroup {
     protected _leftBoundary = 0;
     protected _rightBoundary = 0;
 
-    protected _touchMoveDisplacements: Vec3[] = [];
+    protected _touchMoveDisplacements: Vec2[] = [];
     protected _touchMoveTimeDeltas: number[] = [];
     protected _touchMovePreviousTimestamp = 0;
     protected _touchMoved = false;
     protected _autoScrollAttenuate = false;
-    protected _autoScrollStartPosition = new Vec3();
-    protected _autoScrollTargetDelta = new Vec3();
+    protected _autoScrollStartPosition = new Vec2();
+    protected _autoScrollTargetDelta = new Vec2();
     protected _autoScrollTotalTime = 0;
     protected _autoScrollAccumulatedTime = 0;
     protected _autoScrollCurrentlyOutOfBoundary = false;
     protected _autoScrollBraking = false;
-    protected _autoScrollBrakingStartPosition = new Vec3();
+    protected _autoScrollBrakingStartPosition = new Vec2();
 
-    protected _outOfBoundaryAmount = new Vec3();
+    protected _outOfBoundaryAmount = new Vec2();
     protected _outOfBoundaryAmountDirty = true;
     protected _stopMouseWheel = false;
     protected _mouseWheelEventElapsedTime = 0.0;
@@ -439,7 +445,7 @@ export class ScrollView extends ViewGroup {
     protected _scrollEventEmitMask = 0;
     protected _isBouncing = false;
     protected _contentPos = new Vec3();
-    protected _deltaPos = new Vec3();
+    protected _deltaPos = new Vec2();
 
     /**
      * @en
@@ -457,8 +463,9 @@ export class ScrollView extends ViewGroup {
      * ```
      */
     public scrollToBottom (timeInSecond?: number, attenuated = true) {
+        _tempAnchorVec2.set(0, 0);
         const moveDelta = this._calculateMovePercentDelta({
-            anchor: new Vec2(0, 0),
+            anchor: _tempAnchorVec2,
             applyToHorizontal: false,
             applyToVertical: true,
         });
@@ -486,8 +493,9 @@ export class ScrollView extends ViewGroup {
      * ```
      */
     public scrollToTop (timeInSecond?: number, attenuated = true) {
+        _tempAnchorVec2.set(0, 1);
         const moveDelta = this._calculateMovePercentDelta({
-            anchor: new Vec2(0, 1),
+            anchor: _tempAnchorVec2,
             applyToHorizontal: false,
             applyToVertical: true,
         });
@@ -515,8 +523,9 @@ export class ScrollView extends ViewGroup {
      * ```
      */
     public scrollToLeft (timeInSecond?: number, attenuated = true) {
+        _tempAnchorVec2.set(0, 0);
         const moveDelta = this._calculateMovePercentDelta({
-            anchor: new Vec2(0, 0),
+            anchor: _tempAnchorVec2,
             applyToHorizontal: true,
             applyToVertical: false,
         });
@@ -544,8 +553,9 @@ export class ScrollView extends ViewGroup {
      * ```
      */
     public scrollToRight (timeInSecond?: number, attenuated = true) {
+        _tempAnchorVec2.set(1, 0);
         const moveDelta = this._calculateMovePercentDelta({
-            anchor: new Vec2(1, 0),
+            anchor: _tempAnchorVec2,
             applyToHorizontal: true,
             applyToVertical: false,
         });
@@ -573,8 +583,9 @@ export class ScrollView extends ViewGroup {
      * ```
      */
     public scrollToTopLeft (timeInSecond?: number, attenuated = true) {
+        _tempAnchorVec2.set(0, 1);
         const moveDelta = this._calculateMovePercentDelta({
-            anchor: new Vec2(0, 1),
+            anchor: _tempAnchorVec2,
             applyToHorizontal: true,
             applyToVertical: true,
         });
@@ -602,8 +613,9 @@ export class ScrollView extends ViewGroup {
      * ```
      */
     public scrollToTopRight (timeInSecond?: number, attenuated = true) {
+        _tempAnchorVec2.set(1, 1);
         const moveDelta = this._calculateMovePercentDelta({
-            anchor: new Vec2(1, 1),
+            anchor: _tempAnchorVec2,
             applyToHorizontal: true,
             applyToVertical: true,
         });
@@ -631,8 +643,9 @@ export class ScrollView extends ViewGroup {
      * ```
      */
     public scrollToBottomLeft (timeInSecond?: number, attenuated = true) {
+        _tempAnchorVec2.set(0, 0);
         const moveDelta = this._calculateMovePercentDelta({
-            anchor: new Vec2(0, 0),
+            anchor: _tempAnchorVec2,
             applyToHorizontal: true,
             applyToVertical: true,
         });
@@ -660,8 +673,9 @@ export class ScrollView extends ViewGroup {
      * ```
      */
     public scrollToBottomRight (timeInSecond?: number, attenuated = true) {
+        _tempAnchorVec2.set(1, 0);
         const moveDelta = this._calculateMovePercentDelta({
-            anchor: new Vec2(1, 0),
+            anchor: _tempAnchorVec2,
             applyToHorizontal: true,
             applyToVertical: true,
         });
@@ -687,13 +701,14 @@ export class ScrollView extends ViewGroup {
      * ```ts
      * // Scroll to middle position in 0.1 second in x-axis
      * let maxScrollOffset = this.getMaxScrollOffset();
-     * scrollView.scrollToOffset(new Vec3(maxScrollOffset.x / 2, 0, 0), 0.1);
+     * scrollView.scrollToOffset(new Vec2(maxScrollOffset.x / 2, 0), 0.1);
      * ```
      */
-    public scrollToOffset (offset: Vec3, timeInSecond?: number, attenuated = true) {
+    public scrollToOffset (offset: Vec2, timeInSecond?: number, attenuated = true) {
         const maxScrollOffset = this.getMaxScrollOffset();
 
-        const anchor = new Vec2(0, 0);
+        _tempAnchorVec2.set(0, 0);
+        const anchor = _tempAnchorVec2;
         // if maxScrollOffset is 0, then always align the content's top left origin to the top left corner of its parent
         if (maxScrollOffset.x === 0) {
             anchor.x = 0;
@@ -723,7 +738,7 @@ export class ScrollView extends ViewGroup {
         const topDelta = this._getContentTopBoundary() - this._topBoundary;
         const leftDelta = this._getContentLeftBoundary() - this._leftBoundary;
 
-        return new Vec3(leftDelta, topDelta, 0);
+        return new Vec2(leftDelta, topDelta);
     }
 
     /**
@@ -745,7 +760,7 @@ export class ScrollView extends ViewGroup {
         horizontalMaximizeOffset = horizontalMaximizeOffset >= 0 ? horizontalMaximizeOffset : 0;
         verticalMaximizeOffset = verticalMaximizeOffset >= 0 ? verticalMaximizeOffset : 0;
 
-        return new Vec3(horizontalMaximizeOffset, verticalMaximizeOffset, 0);
+        return new Vec2(horizontalMaximizeOffset, verticalMaximizeOffset);
     }
 
     /**
@@ -765,8 +780,9 @@ export class ScrollView extends ViewGroup {
      * ```
      */
     public scrollToPercentHorizontal (percent: number, timeInSecond: number, attenuated: boolean) {
+        _tempAnchorVec2.set(percent, 0);
         const moveDelta = this._calculateMovePercentDelta({
-            anchor: new Vec2(percent, 0),
+            anchor: _tempAnchorVec2,
             applyToHorizontal: true,
             applyToVertical: false,
         });
@@ -798,8 +814,9 @@ export class ScrollView extends ViewGroup {
      * ```
      */
     public scrollTo (anchor: Vec2, timeInSecond?: number, attenuated?: boolean) {
+        _tempAnchorVec2.set(anchor);
         const moveDelta = this._calculateMovePercentDelta({
-            anchor: new Vec2(anchor),
+            anchor: _tempAnchorVec2,
             applyToHorizontal: true,
             applyToVertical: true,
         });
@@ -827,8 +844,9 @@ export class ScrollView extends ViewGroup {
      * ```
      */
     public scrollToPercentVertical (percent: number, timeInSecond?: number, attenuated?: boolean) {
+        _tempAnchorVec2.set(0, percent);
         const moveDelta = this._calculateMovePercentDelta({
-            anchor: new Vec2(0, percent),
+            anchor: _tempAnchorVec2,
             applyToHorizontal: false,
             applyToVertical: true,
         });
@@ -859,18 +877,24 @@ export class ScrollView extends ViewGroup {
      * @zh
      * 设置当前视图内容的坐标点。
      *
-     * @param position - 当前视图坐标点.
+     * @param position - current content position.
+     * @deprecated Since 3.0, setContentPosition is deprecated, please use scrollToOffset instead.
      */
     public setContentPosition (position: Vec3) {
+        _tempVec2_3.set(position.x, position.y);
+        this._setContentPosition(_tempVec2_3);
+    }
+
+    private _setContentPosition (position: Vec2) {
         if (!this._content) {
             return;
         }
-        const contentPos = this.getContentPosition();
+        const contentPos = this._getContentPosition();
         if (Math.abs(position.x - contentPos.x) < EPSILON && Math.abs(position.y - contentPos.y) < EPSILON) {
             return;
         }
 
-        this._content.setPosition(position);
+        this._content.setPosition(position.x, position.y, 0);
         this._outOfBoundaryAmountDirty = true;
     }
 
@@ -881,15 +905,21 @@ export class ScrollView extends ViewGroup {
      * @zh
      * 获取当前视图内容的坐标点。
      *
-     * @returns - 当前视图内容的坐标点.
+     * @returns - current content position.
+     * @deprecated Since 3.0, getContentPosition is deprecated.
      */
     public getContentPosition () {
+        return this._getContentPosition();
+    }
+
+    private _getContentPosition () {
         if (!this._content) {
             return ZERO;
         }
 
         this._contentPos.set(this._content.position);
-        return this._contentPos;
+        _tempVec2_2.set(this._contentPos.x, this._contentPos.y);
+        return _tempVec2_2;
     }
 
     /**
@@ -996,13 +1026,13 @@ export class ScrollView extends ViewGroup {
             return;
         }
 
-        const deltaMove = new Vec3();
+        const deltaMove = _tempVec2_3;
         const wheelPrecision = -0.1;
         const scrollY = event.getScrollY();
         if (this.vertical) {
-            deltaMove.set(0, scrollY * wheelPrecision, 0);
+            deltaMove.set(0, scrollY * wheelPrecision);
         } else if (this.horizontal) {
-            deltaMove.set(scrollY * wheelPrecision, 0, 0);
+            deltaMove.set(scrollY * wheelPrecision, 0);
         }
 
         this._mouseWheelEventElapsedTime = 0;
@@ -1131,8 +1161,9 @@ export class ScrollView extends ViewGroup {
         return false;
     }
 
-    protected _startInertiaScroll (touchMoveVelocity: Vec3) {
-        const inertiaTotalMovement = new Vec3(touchMoveVelocity);
+    protected _startInertiaScroll (touchMoveVelocity: Vec2) {
+        _tempVec2_3.set(touchMoveVelocity);
+        const inertiaTotalMovement = _tempVec2_3;
         inertiaTotalMovement.multiplyScalar(MOVEMENT_FACTOR);
         this._startAttenuatingAutoScroll(inertiaTotalMovement, touchMoveVelocity);
     }
@@ -1146,8 +1177,9 @@ export class ScrollView extends ViewGroup {
         return (1 - this.brake) * (1 / (1 + distance * 0.000014 + distance * distance * 0.000000008));
     }
 
-    protected _startAttenuatingAutoScroll (deltaMove: Vec3, initialVelocity: Vec3) {
-        const targetDelta = new Vec3(deltaMove);
+    protected _startAttenuatingAutoScroll (deltaMove: Vec2, initialVelocity: Vec2) {
+        _tempVec2_3.set(deltaMove);
+        const targetDelta = _tempVec2_3;
         targetDelta.normalize();
         if (this._content && this.view) {
             const contentSize = this._content._uiProps.uiTransformComp!.contentSize;
@@ -1161,7 +1193,6 @@ export class ScrollView extends ViewGroup {
 
             targetDelta.x = targetDelta.x * totalMoveWidth * (1 - this.brake) * attenuatedFactorX;
             targetDelta.y = targetDelta.y * totalMoveHeight * attenuatedFactorY * (1 - this.brake);
-            targetDelta.z = 0;
         }
 
         const originalMoveLength = deltaMove.length();
@@ -1170,7 +1201,8 @@ export class ScrollView extends ViewGroup {
 
         if (this.brake > 0 && factor > 7) {
             factor = Math.sqrt(factor);
-            const a = new Vec3(deltaMove);
+            _tempVec2_4.set(deltaMove);
+            const a = _tempVec2_4;
             a.multiplyScalar(factor);
             targetDelta.set(a);
             targetDelta.add(deltaMove);
@@ -1193,18 +1225,18 @@ export class ScrollView extends ViewGroup {
         return Math.sqrt(Math.sqrt(initialSpeed / 5));
     }
 
-    protected _startAutoScroll (deltaMove: Vec3, timeInSecond: number, attenuated = false) {
+    protected _startAutoScroll (deltaMove: Vec2, timeInSecond: number, attenuated = false) {
         const adjustedDeltaMove = this._flattenVectorByDirection(deltaMove);
 
         this._autoScrolling = true;
         this._autoScrollTargetDelta = adjustedDeltaMove;
         this._autoScrollAttenuate = attenuated;
-        Vec3.copy(this._autoScrollStartPosition, this.getContentPosition());
+        Vec2.copy(this._autoScrollStartPosition, this._getContentPosition());
         this._autoScrollTotalTime = timeInSecond;
         this._autoScrollAccumulatedTime = 0;
         this._autoScrollBraking = false;
         this._isScrollEndedWithThresholdEventFired = false;
-        this._autoScrollBrakingStartPosition = new Vec3();
+        this._autoScrollBrakingStartPosition.set(0, 0);
 
         const currentOutOfBoundary = this._getHowMuchOutOfBoundary();
         if (!currentOutOfBoundary.equals(ZERO, EPSILON)) {
@@ -1217,32 +1249,34 @@ export class ScrollView extends ViewGroup {
         totalTime = this._touchMoveTimeDeltas.reduce((a, b) => a + b, totalTime);
 
         if (totalTime <= 0 || totalTime >= 0.5) {
-            return new Vec3();
+            return ZERO;
         }
 
-        let totalMovement = new Vec3();
+        let totalMovement = _tempVec2_3;
         totalMovement = this._touchMoveDisplacements.reduce((a, b) => {
             a.add(b);
             return a;
         }, totalMovement);
 
-        return new Vec3(totalMovement.x * (1 - this.brake) / totalTime,
-            totalMovement.y * (1 - this.brake) / totalTime, 0);
+        _tempVec2_4.set(totalMovement.x * (1 - this.brake) / totalTime,
+            totalMovement.y * (1 - this.brake) / totalTime);
+        return _tempVec2_4;
     }
 
-    protected _flattenVectorByDirection (vector: Vec3) {
+    protected _flattenVectorByDirection (vector: Vec2) {
         const result = vector;
         result.x = this.horizontal ? result.x : 0;
         result.y = this.vertical ? result.y : 0;
         return result;
     }
 
-    protected _moveContent (deltaMove: Vec3, canStartBounceBack?: boolean) {
+    protected _moveContent (deltaMove: Vec2, canStartBounceBack?: boolean) {
         const adjustedMove = this._flattenVectorByDirection(deltaMove);
-        _tempVec3.set(this.getContentPosition());
-        _tempVec3.add(adjustedMove);
-        _tempVec3.set(Math.floor(_tempVec3.x * TOLERANCE) * EPSILON, Math.floor(_tempVec3.y * TOLERANCE) * EPSILON, _tempVec3.z);
-        this.setContentPosition(_tempVec3);
+        _tempVec2.set(this._getContentPosition());
+        _tempVec2.add(adjustedMove);
+        _tempVec2.set(Math.floor(_tempVec3.x * TOLERANCE) * EPSILON, Math.floor(_tempVec3.y * TOLERANCE) * EPSILON);
+        _tempVec3.set(_tempVec2.x, _tempVec2.y, 0);
+        this._setContentPosition(_tempVec2);
         const outOfBoundary = this._getHowMuchOutOfBoundary();
         this._updateScrollBar(outOfBoundary);
 
@@ -1255,7 +1289,7 @@ export class ScrollView extends ViewGroup {
         if (!this._content) {
             return -1;
         }
-        const contentPos = this.getContentPosition();
+        const contentPos = this._getContentPosition();
         const uiTrans = this._content._uiProps.uiTransformComp!;
         return contentPos.x - uiTrans.anchorX * uiTrans.width;
     }
@@ -1280,18 +1314,18 @@ export class ScrollView extends ViewGroup {
         if (!this._content) {
             return -1;
         }
-        const contentPos = this.getContentPosition();
+        const contentPos = this._getContentPosition();
         const uiTrans = this._content._uiProps.uiTransformComp!;
         return contentPos.y - uiTrans.anchorY * uiTrans.height;
     }
 
-    protected _getHowMuchOutOfBoundary (addition?: Vec3) {
-        addition = addition || new Vec3();
+    protected _getHowMuchOutOfBoundary (addition?: Vec2) {
+        addition = addition || new Vec2();
         if (addition.equals(ZERO, EPSILON) && !this._outOfBoundaryAmountDirty) {
             return this._outOfBoundaryAmount;
         }
 
-        let outOfBoundaryAmount = new Vec3();
+        let outOfBoundaryAmount = new Vec2();
         if (this._getContentLeftBoundary() + addition.x > this._leftBoundary) {
             outOfBoundaryAmount.x = this._leftBoundary - (this._getContentLeftBoundary() + addition.x);
         } else if (this._getContentRightBoundary() + addition.x < this._rightBoundary) {
@@ -1313,7 +1347,7 @@ export class ScrollView extends ViewGroup {
         return outOfBoundaryAmount;
     }
 
-    protected _updateScrollBar (outOfBoundary: Vec3) {
+    protected _updateScrollBar (outOfBoundary: Vec2) {
         if (this._horizontalScrollBar) {
             this._horizontalScrollBar.onScroll(outOfBoundary);
         }
@@ -1370,8 +1404,9 @@ export class ScrollView extends ViewGroup {
         this._outOfBoundaryAmountDirty = true;
         if (this._isOutOfBoundary()) {
             const outOfBoundary = this._getHowMuchOutOfBoundary();
-            _tempVec3.set(this.getContentPosition());
-            _tempVec3.add(outOfBoundary);
+            _tempVec2.set(this._getContentPosition());
+            _tempVec2.add(outOfBoundary);
+            _tempVec3.set(_tempVec2.x, _tempVec2.y, 0);
             this._content.setPosition(_tempVec3);
             this._updateScrollBar(ZERO);
         }
@@ -1417,7 +1452,7 @@ export class ScrollView extends ViewGroup {
         }
     }
 
-    protected _processDeltaMove (deltaMove: Vec3) {
+    protected _processDeltaMove (deltaMove: Vec2) {
         this._scrollChildren(deltaMove);
         this._gatherTouchMove(deltaMove);
     }
@@ -1442,7 +1477,7 @@ export class ScrollView extends ViewGroup {
 
     protected _getLocalAxisAlignDelta (touch: Touch) {
         const uiTransformComp = this.node._uiProps.uiTransformComp;
-        const vec = new Vec3();
+        const vec = _tempVec3_2;
 
         if (uiTransformComp) {
             touch.getUILocation(_tempVec2);
@@ -1454,14 +1489,15 @@ export class ScrollView extends ViewGroup {
             Vec3.subtract(vec, _tempVec3, _tempVec3_1);
         }
 
-        return vec;
+        _tempVec2_3.set(vec.x, vec.y);
+        return _tempVec2_3;
     }
 
-    protected _scrollChildren (deltaMove: Vec3) {
+    protected _scrollChildren (deltaMove: Vec2) {
         deltaMove = this._clampDelta(deltaMove);
 
         const realMove = deltaMove;
-        let outOfBoundary: Vec3;
+        let outOfBoundary: Vec2;
         if (this.elastic) {
             outOfBoundary = this._getHowMuchOutOfBoundary();
             realMove.x *= (outOfBoundary.x === 0 ? 1 : 0.5);
@@ -1533,7 +1569,7 @@ export class ScrollView extends ViewGroup {
         this._onScrollBarTouchBegan();
     }
 
-    protected _clampDelta (delta: Vec3) {
+    protected _clampDelta (delta: Vec2) {
         if (this._content && this.view) {
             const scrollViewSize = this.view.contentSize;
             const uiTrans = this._content._uiProps.uiTransformComp!;
@@ -1548,7 +1584,7 @@ export class ScrollView extends ViewGroup {
         return delta;
     }
 
-    protected _gatherTouchMove (delta: Vec3) {
+    protected _gatherTouchMove (delta: Vec2) {
         const clampDt = delta.clone();
         this._clampDelta(clampDt);
 
@@ -1594,7 +1630,7 @@ export class ScrollView extends ViewGroup {
         const bounceBackStarted = this._startBounceBackIfNeeded();
         if (!bounceBackStarted && this.inertia) {
             const touchMoveVelocity = this._calculateTouchMoveVelocity();
-            if (!touchMoveVelocity.equals(_tempVec3, EPSILON) && this.brake < 1) {
+            if (!touchMoveVelocity.equals(_tempVec2, EPSILON) && this.brake < 1) {
                 this._startInertiaScroll(touchMoveVelocity);
             }
         }
@@ -1616,7 +1652,7 @@ export class ScrollView extends ViewGroup {
             if (!this._autoScrollCurrentlyOutOfBoundary) {
                 this._autoScrollCurrentlyOutOfBoundary = true;
                 this._autoScrollBraking = true;
-                this._autoScrollBrakingStartPosition = this.getContentPosition();
+                this._autoScrollBrakingStartPosition = this._getContentPosition();
                 return true;
             }
         } else {
@@ -1636,9 +1672,11 @@ export class ScrollView extends ViewGroup {
             percentage = quintEaseOut(percentage);
         }
 
-        const a = new Vec3(this._autoScrollTargetDelta);
+        _tempVec2_3.set(this._autoScrollTargetDelta);
+        const a = _tempVec2_3;
         a.multiplyScalar(percentage);
-        const newPosition = new Vec3(this._autoScrollStartPosition);
+        _tempVec2_4.set(this._autoScrollStartPosition);
+        const newPosition = _tempVec2_4;
         newPosition.add(a);
         let reachedEnd = Math.abs(percentage - 1) <= EPSILON;
 
@@ -1649,7 +1687,8 @@ export class ScrollView extends ViewGroup {
         }
 
         if (this.elastic) {
-            const brakeOffsetPosition = new Vec3(newPosition);
+            _tempVec2_3.set(newPosition);
+            const brakeOffsetPosition = _tempVec2_3;
             brakeOffsetPosition.subtract(this._autoScrollBrakingStartPosition);
             if (isAutoScrollBrake) {
                 brakeOffsetPosition.multiplyScalar(brakingFactor);
@@ -1657,8 +1696,9 @@ export class ScrollView extends ViewGroup {
             newPosition.set(this._autoScrollBrakingStartPosition);
             newPosition.add(brakeOffsetPosition);
         } else {
-            const moveDelta = new Vec3(newPosition);
-            moveDelta.subtract(this.getContentPosition());
+            _tempVec2_3.set(newPosition);
+            const moveDelta = _tempVec2_3;
+            moveDelta.subtract(this._getContentPosition());
             const outOfBoundary = this._getHowMuchOutOfBoundary(moveDelta);
             if (!outOfBoundary.equals(ZERO, EPSILON)) {
                 newPosition.add(outOfBoundary);
@@ -1670,8 +1710,9 @@ export class ScrollView extends ViewGroup {
             this._autoScrolling = false;
         }
 
-        const deltaMove = new Vec3(newPosition);
-        deltaMove.subtract(this.getContentPosition());
+        _tempVec2_3.set(newPosition);
+        const deltaMove = _tempVec2_3;
+        deltaMove.subtract(this._getContentPosition());
         this._moveContent(this._clampDelta(deltaMove), reachedEnd);
         this._dispatchEvent(EventType.SCROLLING);
 
@@ -1711,7 +1752,7 @@ export class ScrollView extends ViewGroup {
         const applyToVertical = options.applyToVertical;
         this._calculateBoundary();
 
-        anchor.clampf(new Vec2(0, 0), new Vec2(1, 1));
+        anchor.clampf(ZERO, ONE);
 
         let bottomDelta = this._getContentBottomBoundary() - this._bottomBoundary;
         bottomDelta = -bottomDelta;
@@ -1719,7 +1760,8 @@ export class ScrollView extends ViewGroup {
         let leftDelta = this._getContentLeftBoundary() - this._leftBoundary;
         leftDelta = -leftDelta;
 
-        const moveDelta = new Vec3();
+        const moveDelta = _tempVec2_3;
+        moveDelta.set(0, 0);
         if (this._content && this.view) {
             let totalScrollDelta = 0;
             const uiTrans = this._content._uiProps.uiTransformComp!;
@@ -1741,7 +1783,8 @@ export class ScrollView extends ViewGroup {
     protected _moveContentToTopLeft (scrollViewSize: Size) {
         let bottomDelta = this._getContentBottomBoundary() - this._bottomBoundary;
         bottomDelta = -bottomDelta;
-        const moveDelta = new Vec3();
+        const moveDelta = _tempVec2_3;
+        moveDelta.set(0, 0);
         let totalScrollDelta = 0;
 
         let leftDelta = this._getContentLeftBoundary() - this._leftBoundary;
