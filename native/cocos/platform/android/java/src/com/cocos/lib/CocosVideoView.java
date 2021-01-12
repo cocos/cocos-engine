@@ -72,6 +72,7 @@ public class CocosVideoView extends SurfaceView {
 
     private Uri         mVideoUri;
     private int         mDuration;
+    private int         mPosition;
 
     private State mCurrentState = State.IDLE;
 
@@ -180,20 +181,21 @@ public class CocosVideoView extends SurfaceView {
     }
 
     public int getCurrentPosition() {
-        if (mCurrentState == State.ERROR ||
-            mCurrentState == State.IDLE ||
-            mCurrentState == State.INITIALIZED ||
-            mMediaPlayer == null
-        ) {
-            return -1;
+        if (! (mCurrentState == State.IDLE ||
+                mCurrentState == State.ERROR ||
+                mCurrentState == State.INITIALIZED ||
+                mCurrentState == State.STOPPED ||
+                mMediaPlayer == null) ) {
+            mPosition = mMediaPlayer.getCurrentPosition();
         }
-        return mMediaPlayer.getCurrentPosition();
+        return mPosition;
     }
 
     public int getDuration() {
         if (! (mCurrentState == State.IDLE ||
                 mCurrentState == State.ERROR ||
                 mCurrentState == State.INITIALIZED ||
+                mCurrentState == State.STOPPED ||
                 mMediaPlayer == null) ) {
             mDuration = mMediaPlayer.getDuration();
         }
