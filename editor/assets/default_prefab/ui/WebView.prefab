@@ -47,7 +47,7 @@
       "y": 1,
       "z": 1
     },
-    "_layer": 1073741824,
+    "_layer": 33554432,
     "_euler": {
       "__type__": "cc.Vec3",
       "x": 0,
@@ -65,7 +65,7 @@
     },
     "_enabled": true,
     "__prefab": {
-      "__id__": 7
+      "__id__": 3
     },
     "_priority": 0,
     "_contentSize": {
@@ -82,7 +82,7 @@
   },
   {
     "__type__": "cc.CompPrefabInfo",
-    "fileId": "f8vvYOuJJPMpDZ0V7jUnx7"
+    "fileId": "a1D+jicHZPDJe8HsX34jia"
   },
   {
     "__type__": "cc.WebView",
@@ -93,7 +93,7 @@
     },
     "_enabled": true,
     "__prefab": {
-      "__id__": 8
+      "__id__": 5
     },
     "_url": "https://cocos.com",
     "webviewEvents": [],
@@ -101,7 +101,7 @@
   },
   {
     "__type__": "cc.CompPrefabInfo",
-    "fileId": "56z0QooUVAnqSSs975NkzA"
+    "fileId": "abdA5skhVLkY1+gRdDYTFK"
   },
   {
     "__type__": "cc.PrefabInfo",
@@ -109,16 +109,8 @@
       "__id__": 1
     },
     "asset": {
-      "__id__": 0
+      "__uuid__": "9c541fa2-1dc8-4d8b-813a-aec89133f5b1"
     },
     "fileId": "02LVpQNydBDY4ip8CPqdof"
-  },
-  {
-    "__type__": "cc.CompPrefabInfo",
-    "fileId": "a1D+jicHZPDJe8HsX34jia"
-  },
-  {
-    "__type__": "cc.CompPrefabInfo",
-    "fileId": "abdA5skhVLkY1+gRdDYTFK"
   }
 ]
