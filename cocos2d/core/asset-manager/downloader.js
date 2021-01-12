@@ -38,7 +38,7 @@ const { files } = require('./shared');
 const { __audioSupport, capabilities } = require('../platform/CCSys');
 const { urlAppendTimestamp, retry } = require('./utilities');
 
-const REGEX = /^\w+:\/\/.*/;
+const REGEX = /^(\w+:\/\/)|(\.\/)|(\.\.\/).*/;
 
 
 var formatSupport = __audioSupport.format || [];
@@ -102,7 +102,7 @@ var downloadVideo = function (url, options, onComplete) {
 var downloadBundle = function (nameOrUrl, options, onComplete) {
     let bundleName = cc.path.basename(nameOrUrl);
     let url = nameOrUrl;
-    if (!REGEX.test(url) && !url.startsWith('./') && !url.startsWith('../')) url = 'assets/' + bundleName;
+    if (!REGEX.test(url)) url = 'assets/' + bundleName;
     var version = options.version || downloader.bundleVers[bundleName];
     var count = 0;
     var config = `${url}/config.${version ? version + '.' : ''}json`;
