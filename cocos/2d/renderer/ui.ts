@@ -30,7 +30,7 @@
 import { UIStaticBatch } from '../components';
 import { Material } from '../../core/assets/material';
 import { Canvas, UIComponent, UIRenderable } from '../framework';
-import { Texture, Device, Attribute, Sampler, DescriptorSetInfo } from '../../core/gfx';
+import { Texture, Device, Attribute, Sampler, DescriptorSetInfo, DescriptorSet, Buffer, BufferInfo } from '../../core/gfx';
 import { Pool, RecyclePool } from '../../core/memop';
 import { CachedArray } from '../../core/memop/cached-array';
 import { Camera } from '../../core/renderer/scene/camera';
@@ -44,12 +44,15 @@ import { UIDrawBatch } from './ui-draw-batch';
 import * as UIVertexFormat from './ui-vertex-format';
 import { legacyCC } from '../../core/global-exports';
 import { DescriptorSetHandle, DSPool, SubModelPool, SubModelView } from '../../core/renderer/core/memory-pools';
-import { ModelLocalBindings } from '../../core/pipeline/define';
+import { ModelLocalBindings, UBOLocal } from '../../core/pipeline/define';
 import { RenderTexture } from '../../core/assets';
 import { SpriteFrame } from '../assets';
 import { TextureBase } from '../../core/assets/texture-base';
 import { sys } from '../../core/platform/sys';
+import { BufferUsageBit, MemoryUsageBit } from '../../core/gfx/define';
+import { Mat4 } from '../../core/math';
 
+const m4_1 = new Mat4();
 const _dsInfo = new DescriptorSetInfo(null!);
 
 /**
@@ -120,7 +123,7 @@ export class UI {
     private _currDepthStencilStateStage: any|null = null;
     private _parentOpacity = 1;
     // DescriptorSet Cache Map
-    private _descriptorSetCacheMap = new Map<number, Map<number, DescriptorSetHandle>>();
+    private _descriptorSetCache = new DescriptorSetCache();
 
     constructor (private _root: Root) {
         this.device = _root.device;
@@ -156,9 +159,7 @@ export class UI {
             });
         }
 
-        if (this._descriptorSetCacheMap) {
-            this._destroyDescriptorSet();
-        }
+        this._descriptorSetCache.destroy();
 
         this._meshBuffers.clear();
         legacyCC.director.root.destroyScene(this._scene);
@@ -258,25 +259,7 @@ export class UI {
                         subModels[j].priority = batchPriority++;
                     }
                 } else {
-                    // TODO: particle 2d not finish
-                    const descriptorSetTextureMap = this._descriptorSetCacheMap.get(batch.textureHash);
-                    if (descriptorSetTextureMap && descriptorSetTextureMap.has(batch.samplerHash)) {
-                        batch.hDescriptorSet = descriptorSetTextureMap.get(batch.samplerHash)!;
-                    } else {
-                        this._initDescriptorSet(batch);
-                        const descriptorSet = DSPool.get(batch.hDescriptorSet);
-
-                        const binding = ModelLocalBindings.SAMPLER_SPRITE;
-                        descriptorSet.bindTexture(binding, batch.texture!);
-                        descriptorSet.bindSampler(binding, batch.sampler!);
-                        descriptorSet.update();
-
-                        if (descriptorSetTextureMap) {
-                            this._descriptorSetCacheMap.get(batch.textureHash)!.set(batch.samplerHash, batch.hDescriptorSet);
-                        } else {
-                            this._descriptorSetCacheMap.set(batch.textureHash, new Map([[batch.samplerHash, batch.hDescriptorSet]]));
-                        }
-                    }
+                    batch.hDescriptorSet = this._descriptorSetCache.getDescriptorSet(batch);
                 }
                 this._scene.addBatch(batch);
             }
@@ -301,6 +284,8 @@ export class UI {
                     });
                 }
             }
+
+            this._descriptorSetCache.update();
         }
     }
 
@@ -326,6 +311,7 @@ export class UI {
         this._meshBufferUseCount.clear();
         this._batches.clear();
         StencilManager.sharedManager!.reset();
+        this._descriptorSetCache.reset();
     }
 
     /**
@@ -657,29 +643,186 @@ export class UI {
         currMeshBuffer.lastByteOffset = currMeshBuffer.byteOffset;
     }
 
-    private _initDescriptorSet (batch: UIDrawBatch) {
-        const root = legacyCC.director.root;
+    private _releaseDescriptorSetCache (textureHash: number) {
+        this._descriptorSetCache.releaseDescriptorSetCache(textureHash);
+    }
+}
 
-        _dsInfo.layout = batch.passes[0].localSetLayout;
-        batch.hDescriptorSet = DSPool.alloc(root.device, _dsInfo);
+class LocalDescriptorSet  {
+    public get handle () {
+        return this._handle;
+    }
+    private _handle: DescriptorSetHandle | null = null;
+    private _transform: Node | null = null;
+    private _textureHash = 0;
+    private _samplerHash = 0;
+    private _localBuffer: Buffer | null = null;
+    private _transformUpdate = true;
+    private declare _localData;
+    private declare _descriptorSet;
+
+    constructor () {
+        const device = legacyCC.director.root.device;
+        this._localData = new Float32Array(UBOLocal.COUNT);
+        this._localBuffer = device.createBuffer(new BufferInfo(
+            BufferUsageBit.UNIFORM | BufferUsageBit.TRANSFER_DST,
+            MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
+            UBOLocal.SIZE,
+            UBOLocal.SIZE,
+        ));
     }
 
-    private _releaseDescriptorSetCache (textureHash: number) {
-        if (this._descriptorSetCacheMap.has(textureHash)) {
-            this._descriptorSetCacheMap.get(textureHash)!.forEach((value) => {
-                DSPool.free(value);
-            });
-            this._descriptorSetCacheMap.delete(textureHash);
+    public initialize (batch) {
+        const device = legacyCC.director.root.device;
+        this._transform = batch.useLocalData;
+        this._textureHash = batch.textureHash;
+        this._samplerHash = batch.samplerHash;
+        _dsInfo.layout = batch.passes[0].localSetLayout;
+        if (this._handle) {
+            DSPool.free(this._handle);
+            this._handle = null;
+        }
+        this._handle = DSPool.alloc(device, _dsInfo);
+        this._descriptorSet = DSPool.get(this._handle);
+        this._descriptorSet.bindBuffer(UBOLocal.BINDING, this._localBuffer);
+        const binding = ModelLocalBindings.SAMPLER_SPRITE;
+        this._descriptorSet.bindTexture(binding, batch.texture!);
+        this._descriptorSet.bindSampler(binding, batch.sampler!);
+        this._descriptorSet.update();
+        this._transformUpdate = true;
+    }
+
+    public updateTransform (transform: Node) {
+        if (transform === this._transform) return;
+        this._transform = transform;
+        this._transformUpdate = true;
+        this.uploadLocalData();
+    }
+
+    public updateLocal () {
+        if (!this._transform) return;
+        this.uploadLocalData();
+    }
+
+    public equals (transform, textureHash, samplerHash) {
+        return this._transform === transform && this._textureHash === textureHash && this._samplerHash === samplerHash;
+    }
+
+    public reset () {
+        this._transform = null;
+        this._textureHash = 0;
+        this._samplerHash = 0;
+    }
+
+    public destroy () {
+        if (this._localBuffer) {
+            this._localBuffer.destroy();
+            this._localBuffer = null;
+        }
+
+        if (this._handle) {
+            DSPool.free(this._handle);
+            this._handle = null;
         }
     }
 
-    private _destroyDescriptorSet () {
-        this._descriptorSetCacheMap.forEach((value, key, map) => {
+    private uploadLocalData () {
+        const node = this._transform!;
+        // @ts-expect-error TS2445
+        if (node.hasChangedFlags || node._dirtyFlags) {
+            node.updateWorldTransform();
+        }
+        if (this._transformUpdate) {
+            // @ts-expect-error TS2445
+            const worldMatrix = node._mat;
+            Mat4.toArray(this._localData, worldMatrix, UBOLocal.MAT_WORLD_OFFSET);
+            Mat4.inverseTranspose(m4_1, worldMatrix);
+            Mat4.toArray(this._localData, m4_1, UBOLocal.MAT_WORLD_IT_OFFSET);
+            this._localBuffer!.update(this._localData);
+            this._transformUpdate = false;
+        }
+    }
+}
+
+class DescriptorSetCache {
+    private _descriptorSetCache = new Map<number, Map<number, DescriptorSetHandle>>();
+    private _localDescriptorSetCache: LocalDescriptorSet[] = [];
+    private _localCachePool: Pool<LocalDescriptorSet>;
+
+    constructor () {
+        this._localCachePool = new Pool(() => new LocalDescriptorSet(), 16);
+    }
+
+    public getDescriptorSet (batch): DescriptorSetHandle {
+        const root = legacyCC.director.root;
+        if (batch.useLocalData) {
+            const caches = this._localDescriptorSetCache;
+            for (let i = 0, len = caches.length; i < len; i++) {
+                const cache: LocalDescriptorSet = caches[i];
+                if (cache.equals(batch.useLocalData, batch.textureHash, batch.samplerHash)) {
+                    return cache.handle as DescriptorSetHandle;
+                }
+            }
+            const localDs = this._localCachePool.alloc();
+            localDs.initialize(batch);
+            this._localDescriptorSetCache.push(localDs);
+            return localDs.handle as DescriptorSetHandle;
+        } else {
+            const descriptorSetTextureMap = this._descriptorSetCache.get(batch.textureHash);
+            if (descriptorSetTextureMap && descriptorSetTextureMap.has(batch.samplerHash)) {
+                return descriptorSetTextureMap.get(batch.samplerHash)!;
+            } else {
+                _dsInfo.layout = batch.passes[0].localSetLayout;
+                const handle = DSPool.alloc(root.device, _dsInfo);
+                const descriptorSet = DSPool.get(handle);
+                const binding = ModelLocalBindings.SAMPLER_SPRITE;
+                descriptorSet.bindTexture(binding, batch.texture!);
+                descriptorSet.bindSampler(binding, batch.sampler!);
+                descriptorSet.update();
+
+                if (descriptorSetTextureMap) {
+                    this._descriptorSetCache.get(batch.textureHash)!.set(batch.samplerHash, handle);
+                } else {
+                    this._descriptorSetCache.set(batch.textureHash, new Map([[batch.samplerHash, handle]]));
+                }
+                return handle;
+            }
+        }
+    }
+
+    public update () {
+        const caches = this._localDescriptorSetCache;
+        caches.forEach((value) => {
+            value.updateLocal();
+        });
+    }
+
+    public reset () {
+        const caches = this._localDescriptorSetCache;
+        caches.forEach((value) => {
+            this._localCachePool.free(value);
+        });
+        this._localDescriptorSetCache.length = 0;
+    }
+
+    public releaseDescriptorSetCache (textureHash) {
+        if (this._descriptorSetCache.has(textureHash)) {
+            this._descriptorSetCache.get(textureHash)!.forEach((value) => {
+                DSPool.free(value);
+            });
+            this._descriptorSetCache.delete(textureHash);
+        }
+    }
+
+    public destroy () {
+        this._descriptorSetCache.forEach((value, key, map) => {
             value.forEach((hDescriptorSet) => {
                 DSPool.free(hDescriptorSet);
             });
         });
-        this._descriptorSetCacheMap.clear();
+        this._descriptorSetCache.clear();
+        this._localDescriptorSetCache.length = 0;
+        this._localCachePool.destroy((obj) => { obj.destroy(); });
     }
 }
 
