@@ -65,7 +65,6 @@ const RenderMode = Enum({
 @ccclass('cc.Canvas')
 @help('i18n:cc.Canvas')
 @executionOrder(100)
-@requireComponent(UITransform)
 @menu('UI/Canvas')
 @executeInEditMode
 @disallowMultiple

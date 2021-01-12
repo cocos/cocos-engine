@@ -29,16 +29,17 @@
  */
 
 import { ccclass, disallowMultiple, executeInEditMode,
-    executionOrder, menu } from 'cc.decorator';
+    executionOrder, menu, requireComponent } from 'cc.decorator';
 import { Component } from '../../core/components/component';
 import { legacyCC } from '../../core/global-exports';
+import { UITransform } from './ui-transform';
 
 @ccclass('cc.RenderRoot2D')
-// help('i18n:cc.RenderRoot2D')
 @executionOrder(100)
 @menu('UI/RenderRoot2D')
-@executeInEditMode
+@requireComponent(UITransform)
 @disallowMultiple
+@executeInEditMode
 export class RenderRoot2D extends Component {
     public onEnable () {
         legacyCC.director.root!.ui.addScreen(this);
