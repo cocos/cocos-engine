@@ -99,10 +99,6 @@ export class ShadowFlow extends RenderFlow {
                 shadowStage.render(camera);
             }
         }
-
-        // After the shadowMap rendering of all lights is completed,
-        // restore the ShadowUBO data of the main light.
-        pipeline.updateShadowUBO(camera);
     }
 
     public destroy () {
