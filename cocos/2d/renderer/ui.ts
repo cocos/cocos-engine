@@ -29,7 +29,7 @@
 
 import { UIStaticBatch } from '../components';
 import { Material } from '../../core/assets/material';
-import { Canvas, UIComponent, UIRenderable } from '../framework';
+import { Canvas, RenderRoot2D, UIComponent, UIRenderable } from '../framework';
 import { Texture, Device, Attribute, Sampler, DescriptorSetInfo } from '../../core/gfx';
 import { Pool, RecyclePool } from '../../core/memop';
 import { CachedArray } from '../../core/memop/cached-array';
@@ -96,7 +96,7 @@ export class UI {
     }
 
     public device: Device;
-    private _screens: Canvas[] = [];
+    private _screens: RenderRoot2D[] = [];
     private _bufferBatchPool: RecyclePool<MeshBuffer> = new RecyclePool(() => new MeshBuffer(this), 128);
     private _drawBatchPool: Pool<UIDrawBatch>;
     private _scene: RenderScene;
@@ -108,7 +108,6 @@ export class UI {
     private _currMaterial: Material = this._emptyMaterial;
     private _currTexture: Texture | null = null;
     private _currSampler: Sampler | null = null;
-    private _currCanvas: Canvas | null = null;
     private _currMeshBuffer: MeshBuffer | null = null;
     private _currStaticRoot: UIStaticBatch | null = null;
     private _currComponent: UIRenderable | null = null;
@@ -179,31 +178,19 @@ export class UI {
      *
      * @param comp - 屏幕组件。
      */
-    public addScreen (comp: Canvas) {
+    public addScreen (comp: RenderRoot2D) {
         this._screens.push(comp);
         this._screens.sort(this._screenSort);
     }
 
-    /**
-     * @en
-     * Get the Canvas by number.
-     *
-     * @zh
-     * 通过屏幕编号获得屏幕组件。
-     *
-     * @param visibility - 屏幕编号。
-     */
-    public getScreen (visibility: number) {
-        const screens = this._screens;
-        for (let i = 0; i < screens.length; ++i) {
-            const screen = screens[i];
-            if (screen.cameraComponent && screen.cameraComponent.camera) {
-                if (screen.cameraComponent.camera.visibility === visibility) {
-                    return screen;
-                }
+    public getFirstRenderCamera (node: Node) {
+        const cameras = this.renderScene.cameras;
+        for (let i = 0; i < cameras.length; i++) {
+            const camera = cameras[i];
+            if (camera.visibility & node.layer) {
+                return camera;
             }
         }
-
         return null;
     }
 
@@ -213,7 +200,7 @@ export class UI {
      *
      * @param comp - 被移除的屏幕。
      */
-    public removeScreen (comp: Canvas) {
+    public removeScreen (comp: RenderRoot2D) {
         const idx = this._screens.indexOf(comp);
         if (idx === -1) {
             return;
@@ -241,8 +228,6 @@ export class UI {
             if (!screen.enabledInHierarchy) {
                 continue;
             }
-
-            this._currCanvas = screen;
             this._recursiveScreenNode(screen.node);
         }
 
@@ -318,7 +303,6 @@ export class UI {
         this._parentOpacity = 1;
         this._currLayer = 0;
         this._currMaterial = this._emptyMaterial;
-        this._currCanvas = null;
         this._currTexture = null;
         this._currSampler = null;
         this._currComponent = null;
@@ -470,7 +454,6 @@ export class UI {
      */
     public autoMergeBatches (renderComp?: UIRenderable) {
         const buffer = this.currBufferBatch;
-        const uiCanvas = this._currCanvas;
         const hIA = buffer?.recordBatch();
         const mat = this._currMaterial;
         if (!hIA || !mat) {
@@ -588,8 +571,6 @@ export class UI {
             return;
         }
 
-        // parent changed can flush child visibility
-        node._uiProps.uiTransformComp._canvas = this._currCanvas;
         const render = node._uiProps.uiComp;
         if (render && render.enabledInHierarchy) {
             render.updateAssembler(this);
@@ -635,11 +616,8 @@ export class UI {
         }
     }
 
-    private _screenSort (a: Canvas, b: Canvas) {
-        const aPriority = a.cameraComponent ? a.cameraComponent.priority : 0;
-        const bPriority = b.cameraComponent ? b.cameraComponent.priority : 0;
-        const delta = aPriority - bPriority;
-        return delta === 0 ? a.node.getSiblingIndex() - b.node.getSiblingIndex() : delta;
+    private _screenSort (a: RenderRoot2D, b: RenderRoot2D) {
+        return a.node.getSiblingIndex() - b.node.getSiblingIndex();
     }
 
     private _applyOpacity (comp: UIRenderable) {

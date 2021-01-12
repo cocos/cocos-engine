@@ -35,15 +35,14 @@ import { EDITOR } from 'internal:constants';
 import { Camera } from '../../core/components/camera-component';
 import { Widget } from '../../ui/widget';
 import { game } from '../../core/game';
-import { Color, Vec3 } from '../../core/math';
+import { Vec3 } from '../../core/math';
 import { view } from '../../core/platform/view';
-import { Component } from '../../core/components/component';
 import { UITransform } from './ui-transform';
 import { legacyCC } from '../../core/global-exports';
 import { SystemEventType } from '../../core/platform/event-manager';
 import { Enum } from '../../core/value-types/enum';
-import { CameraComponent } from '../../core';
 import visibleRect from '../../core/platform/visible-rect';
+import { RenderRoot2D } from './render-root-2d';
 
 const _worldPos = new Vec3();
 
@@ -66,11 +65,10 @@ const RenderMode = Enum({
 @ccclass('cc.Canvas')
 @help('i18n:cc.Canvas')
 @executionOrder(100)
-@requireComponent(UITransform)
 @menu('UI/Canvas')
 @executeInEditMode
 @disallowMultiple
-export class Canvas extends Component {
+export class Canvas extends RenderRoot2D {
     /**
      * @en
      * The render mode of Canvas.
@@ -196,7 +194,7 @@ export class Canvas extends Component {
     }
 
     public onEnable () {
-        legacyCC.director.root!.ui.addScreen(this);
+        super.onEnable();
         if (this._cameraComponent) {
             const camera = this._cameraComponent.camera;
             if (camera) {
@@ -209,7 +207,7 @@ export class Canvas extends Component {
     }
 
     public onDisable () {
-        legacyCC.director.root!.ui.removeScreen(this);
+        super.onDisable();
         if (this._cameraComponent) {
             const camera = this._cameraComponent.camera;
             if (camera) {
@@ -219,7 +217,7 @@ export class Canvas extends Component {
     }
 
     public onDestroy () {
-        legacyCC.director.root!.ui.removeScreen(this);
+        super.onDestroy();
 
         if (EDITOR) {
             legacyCC.director.off(legacyCC.Director.EVENT_AFTER_UPDATE, this._fitDesignResolution!, this);
