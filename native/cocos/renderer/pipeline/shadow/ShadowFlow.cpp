@@ -67,7 +67,6 @@ void ShadowFlow::render(Camera *camera) {
     if (!shadowInfo->enabled) return;
     lightCollecting(camera, _validLights);
     shadowCollecting(pipeline, camera);
-    pipeline->updateShadowUBO(camera);
     if (shadowInfo->getShadowType() != ShadowType::SHADOWMAP || pipeline->getShadowObjects().size() == 0) return;
     const auto &shadowFramebufferMap = pipeline->getShadowFramebufferMap();
     for (const auto *light : _validLights) {
@@ -85,6 +84,10 @@ void ShadowFlow::render(Camera *camera) {
             shadowStage->render(camera);
         }
     }
+
+    // After the shadowMap rendering of all lights is completed,
+    // restore the ShadowUBO data of the main light.
+    pipeline->updateShadowUBO(camera);
 }
 
 void ShadowFlow::resizeShadowMap(const Light *light, const uint width, const uint height) const {
