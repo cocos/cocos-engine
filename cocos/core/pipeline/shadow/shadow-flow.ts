@@ -81,7 +81,6 @@ export class ShadowFlow extends RenderFlow {
 
         const validLights = lightCollecting(camera, shadowInfo.maxReceived);
         shadowCollecting(pipeline, camera);
-        pipeline.updateShadowUBO(camera);
 
         if (shadowInfo.type !== ShadowType.ShadowMap || pipeline.shadowObjects.length === 0) return;
 
@@ -100,6 +99,10 @@ export class ShadowFlow extends RenderFlow {
                 shadowStage.render(camera);
             }
         }
+
+        // After the shadowMap rendering of all lights is completed,
+        // restore the ShadowUBO data of the main light.
+        pipeline.updateShadowUBO(camera);
     }
 
     public destroy () {
