@@ -25,39 +25,36 @@
 
 #pragma once
 
-#include "renderer/core/CoreStd.h"
 #include "base/memory/Memory.h"
+#include "renderer/core/CoreStd.h"
 #include <string>
 #include <type_traits>
+#include <utility>
 
 template <typename T, class... Args>
-inline
-    typename std::enable_if<std::is_base_of<cc::Object, T>::value, T>::type *
-    jsb_override_new(Args... args) {
+inline typename std::enable_if<std::is_base_of<cc::Object, T>::value, T>::type *
+jsb_override_new(Args &&...args) {
     //create object in gfx way
-    return CC_NEW(T(args...));
+    return CC_NEW(T(std::forward<Args>(args)...));
 }
 
 template <typename T>
-inline
-    typename std::enable_if<std::is_base_of<cc::Object, T>::value, void>::type
-    jsb_override_delete(T *arg) {
+inline typename std::enable_if<std::is_base_of<cc::Object, T>::value, void>::type
+jsb_override_delete(T *arg) {
     //create object in gfx way
     CC_DELETE(arg);
 }
 
 template <typename T, class... Args>
-inline
-    typename std::enable_if<!std::is_base_of<cc::Object, T>::value, T>::type *
-    jsb_override_new(Args... args) {
+inline typename std::enable_if<!std::is_base_of<cc::Object, T>::value, T>::type *
+jsb_override_new(Args &&...args) {
     //create object in the default way
-    return new T(args...);
+    return new T(std::forward<Args>(args)...);
 }
 
 template <typename T>
-inline
-    typename std::enable_if<!std::is_base_of<cc::Object, T>::value, void>::type
-    jsb_override_delete(T *arg) {
+inline typename std::enable_if<!std::is_base_of<cc::Object, T>::value, void>::type
+jsb_override_delete(T *arg) {
     //create object in gfx way
     delete (arg);
 }
