@@ -28,6 +28,7 @@ THE SOFTWARE.
 
 #include "vk_mem_alloc.h"
 #include "volk.h"
+
 #include "thsvs_simpler_vulkan_synchronization.h"
 
 #define DEFAULT_TIMEOUT 1000000000 // 1 second
@@ -282,18 +283,6 @@ VkPipelineStageFlags MapVkPipelineStageFlags(BufferUsage usage) {
     if (usage & BufferUsage::TRANSFER_SRC) return VK_PIPELINE_STAGE_TRANSFER_BIT;
     if (usage & BufferUsage::TRANSFER_DST) return VK_PIPELINE_STAGE_TRANSFER_BIT;
     return VK_PIPELINE_STAGE_VERTEX_SHADER_BIT;
-}
-
-VkPipelineBindPoint MapVkPipelineBindPoint(PipelineBindPoint bindPoint) {
-    switch (bindPoint) {
-        case PipelineBindPoint::GRAPHICS: return VK_PIPELINE_BIND_POINT_GRAPHICS;
-        case PipelineBindPoint::COMPUTE: return VK_PIPELINE_BIND_POINT_COMPUTE;
-        case PipelineBindPoint::RAY_TRACING: return VK_PIPELINE_BIND_POINT_RAY_TRACING_NV;
-        default: {
-            CCASSERT(false, "Unsupported PipelineBindPoint, convert to VkPipelineBindPoint failed.");
-            return VK_PIPELINE_BIND_POINT_GRAPHICS;
-        }
-    }
 }
 
 VkBufferUsageFlagBits MapVkBufferUsageFlagBits(BufferUsage usage) {
@@ -669,6 +658,42 @@ const VkAccessFlags FULL_ACCESS_FLAGS = VK_ACCESS_INDIRECT_COMMAND_READ_BIT |
                                         VK_ACCESS_TRANSFER_WRITE_BIT |
                                         VK_ACCESS_HOST_READ_BIT |
                                         VK_ACCESS_HOST_WRITE_BIT;
+
+const VkPipelineBindPoint VK_PIPELINE_BIND_POINTS[] = {
+    VK_PIPELINE_BIND_POINT_GRAPHICS,
+    VK_PIPELINE_BIND_POINT_COMPUTE,
+    VK_PIPELINE_BIND_POINT_RAY_TRACING_KHR,
+};
+
+const ThsvsAccessType THSVS_ACCESS_TYPES[] = {
+    THSVS_ACCESS_INDIRECT_BUFFER,                                            // INDIRECT_BUFFER
+    THSVS_ACCESS_INDEX_BUFFER,                                               // INDEX_BUFFER
+    THSVS_ACCESS_VERTEX_BUFFER,                                              // VERTEX_BUFFER
+    THSVS_ACCESS_VERTEX_SHADER_READ_UNIFORM_BUFFER,                          // VERTEX_SHADER_READ_UNIFORM_BUFFER
+    THSVS_ACCESS_VERTEX_SHADER_READ_SAMPLED_IMAGE_OR_UNIFORM_TEXEL_BUFFER,   // VERTEX_SHADER_READ_TEXTURE
+    THSVS_ACCESS_VERTEX_SHADER_READ_OTHER,                                   // VERTEX_SHADER_READ_OTHER
+    THSVS_ACCESS_FRAGMENT_SHADER_READ_UNIFORM_BUFFER,                        // FRAGMENT_SHADER_READ_UNIFORM_BUFFER
+    THSVS_ACCESS_FRAGMENT_SHADER_READ_SAMPLED_IMAGE_OR_UNIFORM_TEXEL_BUFFER, // FRAGMENT_SHADER_READ_TEXTURE
+    THSVS_ACCESS_FRAGMENT_SHADER_READ_COLOR_INPUT_ATTACHMENT,                // FRAGMENT_SHADER_READ_COLOR_INPUT_ATTACHMENT
+    THSVS_ACCESS_FRAGMENT_SHADER_READ_DEPTH_STENCIL_INPUT_ATTACHMENT,        // FRAGMENT_SHADER_READ_DEPTH_STENCIL_INPUT_ATTACHMENT
+    THSVS_ACCESS_FRAGMENT_SHADER_READ_OTHER,                                 // FRAGMENT_SHADER_READ_OTHER
+    THSVS_ACCESS_COLOR_ATTACHMENT_READ,                                      // COLOR_ATTACHMENT_READ
+    THSVS_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ,                              // DEPTH_STENCIL_ATTACHMENT_READ
+    THSVS_ACCESS_COMPUTE_SHADER_READ_UNIFORM_BUFFER,                         // COMPUTE_SHADER_READ_UNIFORM_BUFFER
+    THSVS_ACCESS_COMPUTE_SHADER_READ_SAMPLED_IMAGE_OR_UNIFORM_TEXEL_BUFFER,  // COMPUTE_SHADER_READ_TEXTURE
+    THSVS_ACCESS_COMPUTE_SHADER_READ_OTHER,                                  // COMPUTE_SHADER_READ_OTHER
+    THSVS_ACCESS_TRANSFER_READ,                                              // TRANSFER_READ
+    THSVS_ACCESS_HOST_READ,                                                  // HOST_READ
+    THSVS_ACCESS_PRESENT,                                                    // PRESENT
+    THSVS_ACCESS_VERTEX_SHADER_WRITE,                                        // VERTEX_SHADER_WRITE
+    THSVS_ACCESS_FRAGMENT_SHADER_WRITE,                                      // FRAGMENT_SHADER_WRITE
+    THSVS_ACCESS_COLOR_ATTACHMENT_WRITE,                                     // COLOR_ATTACHMENT_WRITE
+    THSVS_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE,                             // DEPTH_STENCIL_ATTACHMENT_WRITE
+    THSVS_ACCESS_COMPUTE_SHADER_WRITE,                                       // COMPUTE_SHADER_WRITE
+    THSVS_ACCESS_TRANSFER_WRITE,                                             // TRANSFER_WRITE
+    THSVS_ACCESS_HOST_PREINITIALIZED,                                        // HOST_PREINITIALIZED
+    THSVS_ACCESS_HOST_WRITE,                                                 // HOST_WRITE
+};
 
 void fullPipelineBarrier(VkCommandBuffer cmdBuff) {
 #if CC_DEBUG > 0

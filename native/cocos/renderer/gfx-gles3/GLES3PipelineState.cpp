@@ -57,12 +57,12 @@ GLES3PipelineState::~GLES3PipelineState() {
 }
 
 bool GLES3PipelineState::initialize(const PipelineStateInfo &info) {
-
     _primitive = info.primitive;
     _shader = info.shader;
     _inputState = info.inputState;
     _rasterizerState = info.rasterizerState;
     _depthStencilState = info.depthStencilState;
+    _bindPoint = info.bindPoint;
     _blendState = info.blendState;
     _dynamicStates = info.dynamicStates;
     _renderPass = info.renderPass;

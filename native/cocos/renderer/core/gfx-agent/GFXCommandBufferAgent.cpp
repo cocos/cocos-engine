@@ -407,18 +407,14 @@ void CommandBufferAgent::dispatch(const DispatchInfo& info) {
         });
 }
 
-void CommandBufferAgent::pipelineBarrier(const GlobalBarrier *barriers, uint count) {
-    GlobalBarrier *actorBarriers = getAllocator()->allocate<GlobalBarrier>(count);
-    memcpy(actorBarriers, barriers, count * sizeof(GlobalBarrier));
-
-    ENQUEUE_MESSAGE_3(
+void CommandBufferAgent::pipelineBarrier(const GlobalBarrier& barrier) {
+    ENQUEUE_MESSAGE_2(
         _messageQueue,
         CommandBufferDispatch,
         actor, getActor(),
-        barriers, actorBarriers,
-        count, count,
+        barrier, barrier,
         {
-            actor->pipelineBarrier(barriers, count);
+            actor->pipelineBarrier(barrier);
         });
 }
 

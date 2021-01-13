@@ -47,6 +47,7 @@ bool CCMTLPipelineState::initialize(const PipelineStateInfo &info) {
     _inputState = info.inputState;
     _rasterizerState = info.rasterizerState;
     _depthStencilState = info.depthStencilState;
+    _bindPoint = info.bindPoint;
     _blendState = info.blendState;
     _dynamicStates = info.dynamicStates;
     _renderPass = info.renderPass;

@@ -46,20 +46,22 @@ bool CCVKPipelineState::initialize(const PipelineStateInfo &info) {
     _inputState = info.inputState;
     _rasterizerState = info.rasterizerState;
     _depthStencilState = info.depthStencilState;
+    _bindPoint = info.bindPoint;
     _blendState = info.blendState;
     _dynamicStates = info.dynamicStates;
     _renderPass = info.renderPass;
     _pipelineLayout = info.pipelineLayout;
 
     _gpuPipelineState = CC_NEW(CCVKGPUPipelineState);
+    _gpuPipelineState->bindPoint = _bindPoint;
     _gpuPipelineState->primitive = _primitive;
     _gpuPipelineState->gpuShader = ((CCVKShader *)_shader)->gpuShader();
     _gpuPipelineState->inputState = _inputState;
     _gpuPipelineState->rs = _rasterizerState;
     _gpuPipelineState->dss = _depthStencilState;
     _gpuPipelineState->bs = _blendState;
-    _gpuPipelineState->gpuRenderPass = ((CCVKRenderPass *)_renderPass)->gpuRenderPass();
     _gpuPipelineState->gpuPipelineLayout = ((CCVKPipelineLayout *)_pipelineLayout)->gpuPipelineLayout();
+    if (_renderPass) _gpuPipelineState->gpuRenderPass = ((CCVKRenderPass *)_renderPass)->gpuRenderPass();
 
     for (uint i = 0; i < 31; i++) {
         if ((uint)_dynamicStates & (1 << i)) {
@@ -67,7 +69,11 @@ bool CCVKPipelineState::initialize(const PipelineStateInfo &info) {
         }
     }
 
-    CCVKCmdFuncCreatePipelineState((CCVKDevice *)_device, _gpuPipelineState);
+    if (_bindPoint == PipelineBindPoint::GRAPHICS) {
+        CCVKCmdFuncCreateGraphicsPipelineState((CCVKDevice *)_device, _gpuPipelineState);
+    } else {
+        CCVKCmdFuncCreateComputePipelineState((CCVKDevice *)_device, _gpuPipelineState);
+    }
 
     return true;
 }

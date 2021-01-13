@@ -273,6 +273,7 @@ public:
 
 class CCVKGPUPipelineState final : public Object {
 public:
+    PipelineBindPoint bindPoint = PipelineBindPoint::GRAPHICS;
     PrimitiveMode primitive = PrimitiveMode::TRIANGLE_LIST;
     CCVKGPUShader *gpuShader = nullptr;
     CCVKGPUPipelineLayout *gpuPipelineLayout = nullptr;

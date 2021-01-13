@@ -270,7 +270,7 @@ public:
     }
 };
 
-CC_GLES3_API void MapGLBarriers(const GlobalBarrier *barriers, uint count, GLbitfield &glBarriers, GLbitfield &glBarriersByRegion);
+CC_GLES3_API void MapGLBarriers(const GlobalBarrier &barrier, GLbitfield &glBarriers, GLbitfield &glBarriersByRegion);
 CC_GLES3_API void GLES3CmdFuncCreateBuffer(GLES3Device *device, GLES3GPUBuffer *gpuBuffer);
 CC_GLES3_API void GLES3CmdFuncDestroyBuffer(GLES3Device *device, GLES3GPUBuffer *gpuBuffer);
 CC_GLES3_API void GLES3CmdFuncResizeBuffer(GLES3Device *device, GLES3GPUBuffer *gpuBuffer);

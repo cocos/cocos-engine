@@ -193,7 +193,7 @@ void CCVKCommandBuffer::bindPipelineState(PipelineState *pso) {
     CCVKGPUPipelineState *gpuPipelineState = ((CCVKPipelineState *)pso)->gpuPipelineState();
 
     if (_curGPUPipelineState != gpuPipelineState) {
-        vkCmdBindPipeline(_gpuCommandBuffer->vkCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, gpuPipelineState->vkPipeline);
+        vkCmdBindPipeline(_gpuCommandBuffer->vkCommandBuffer, VK_PIPELINE_BIND_POINTS[(uint)gpuPipelineState->bindPoint], gpuPipelineState->vkPipeline);
         _curGPUPipelineState = gpuPipelineState;
     }
 }
@@ -325,7 +325,7 @@ void CCVKCommandBuffer::setStencilCompareMask(StencilFace face, int reference, u
 
 void CCVKCommandBuffer::draw(InputAssembler *ia) {
     if (_firstDirtyDescriptorSet < _curGPUDescriptorSets.size()) {
-        bindDescriptorSets();
+        bindDescriptorSets(VK_PIPELINE_BIND_POINT_GRAPHICS);
     }
 
     CCVKGPUInputAssembler *gpuInputAssembler = ((CCVKInputAssembler *)ia)->gpuInputAssembler();
@@ -432,7 +432,7 @@ void CCVKCommandBuffer::copyBuffersToTexture(const uint8_t *const *buffers, Text
     CCVKCmdFuncCopyBuffersToTexture((CCVKDevice *)_device, buffers, ((CCVKTexture *)texture)->gpuTexture(), regions, count, _gpuCommandBuffer);
 }
 
-void CCVKCommandBuffer::bindDescriptorSets() {
+void CCVKCommandBuffer::bindDescriptorSets(VkPipelineBindPoint bindPoint) {
     CCVKDevice *device = (CCVKDevice *)_device;
     CCVKGPUDevice *gpuDevice = device->gpuDevice();
     CCVKGPUPipelineLayout *pipelineLayout = _curGPUPipelineState->gpuPipelineLayout;
@@ -457,7 +457,7 @@ void CCVKCommandBuffer::bindDescriptorSets() {
     uint dynamicOffsetEndIndex = dynamicOffsetOffsets[_firstDirtyDescriptorSet + dirtyDescriptorSetCount];
     uint dynamicOffsetCount = dynamicOffsetEndIndex - dynamicOffsetStartIndex;
     vkCmdBindDescriptorSets(_gpuCommandBuffer->vkCommandBuffer,
-                            VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout->vkPipelineLayout,
+                            bindPoint, pipelineLayout->vkPipelineLayout,
                             _firstDirtyDescriptorSet, dirtyDescriptorSetCount,
                             &_curVkDescriptorSets[_firstDirtyDescriptorSet],
                             dynamicOffsetCount, _curDynamicOffsets.data() + dynamicOffsetStartIndex);
@@ -466,13 +466,33 @@ void CCVKCommandBuffer::bindDescriptorSets() {
 }
 
 void CCVKCommandBuffer::dispatch(const DispatchInfo &info) {
+    if (_firstDirtyDescriptorSet < _curGPUDescriptorSets.size()) {
+        bindDescriptorSets(VK_PIPELINE_BIND_POINT_COMPUTE);
+    }
+
     if (info.indirectBuffer) {
         CCVKBuffer *indirectBuffer = (CCVKBuffer *)info.indirectBuffer;
-        vkCmdDispatchIndirect(_gpuCommandBuffer->vkCommandBuffer, indirectBuffer->gpuBuffer()->vkBuffer, 
-            indirectBuffer->gpuBuffer()->startOffset + indirectBuffer->gpuBufferView()->offset + info.indirectOffset);
+        vkCmdDispatchIndirect(_gpuCommandBuffer->vkCommandBuffer, indirectBuffer->gpuBuffer()->vkBuffer,
+                              indirectBuffer->gpuBuffer()->startOffset + indirectBuffer->gpuBufferView()->offset + info.indirectOffset);
     } else {
         vkCmdDispatch(_gpuCommandBuffer->vkCommandBuffer, info.groupCountX, info.groupCountY, info.groupCountZ);
     }
+}
+
+void CCVKCommandBuffer::pipelineBarrier(const GlobalBarrier &barrier) {
+    uint prevCount = barrier.prevAccesses.size();
+    uint nextCount = barrier.nextAccesses.size();
+    _accessTypes.resize(prevCount + nextCount);
+
+    for (uint i = 0u; i < prevCount; ++i) _accessTypes[i] = THSVS_ACCESS_TYPES[(uint)barrier.prevAccesses[i]];
+    for (uint i = 0u; i < nextCount; ++i) _accessTypes[i + prevCount] = THSVS_ACCESS_TYPES[(uint)barrier.nextAccesses[i]];
+
+    ThsvsGlobalBarrier vkBarrier;
+    vkBarrier.prevAccessCount = barrier.prevAccesses.size();
+    vkBarrier.pPrevAccesses = _accessTypes.data();
+    vkBarrier.nextAccessCount = barrier.nextAccesses.size();
+    vkBarrier.pNextAccesses = _accessTypes.data() + prevCount;
+    thsvsCmdPipelineBarrier(_gpuCommandBuffer->vkCommandBuffer, &vkBarrier, 0, nullptr, 0, nullptr);
 }
 
 } // namespace gfx

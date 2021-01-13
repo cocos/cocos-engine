@@ -423,12 +423,12 @@ void GLES3CommandBuffer::dispatch(const DispatchInfo &info) {
     }
 }
 
-void GLES3CommandBuffer::pipelineBarrier(const GlobalBarrier *barriers, uint count) {
+void GLES3CommandBuffer::pipelineBarrier(const GlobalBarrier& barrier) {
     if ((_type == CommandBufferType::PRIMARY && !_isInRenderPass) ||
         (_type == CommandBufferType::SECONDARY)) {
 
         GLES3CmdBarrier *cmd = _cmdAllocator->barrierCmdPool.alloc();
-        MapGLBarriers(barriers, count, cmd->barriers, cmd->barriersByRegion);
+        MapGLBarriers(barrier, cmd->barriers, cmd->barriersByRegion);
         _curCmdPackage->barrierCmds.push(cmd);
         _curCmdPackage->cmds.push(GLES3CmdType::BARRIER);
     } else {

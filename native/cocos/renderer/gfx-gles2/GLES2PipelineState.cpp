@@ -57,12 +57,12 @@ GLES2PipelineState::~GLES2PipelineState() {
 }
 
 bool GLES2PipelineState::initialize(const PipelineStateInfo &info) {
-
     _primitive = info.primitive;
     _shader = info.shader;
     _inputState = info.inputState;
     _rasterizerState = info.rasterizerState;
     _depthStencilState = info.depthStencilState;
+    _bindPoint = info.bindPoint;
     _blendState = info.blendState;
     _dynamicStates = info.dynamicStates;
     _renderPass = info.renderPass;
@@ -74,8 +74,8 @@ bool GLES2PipelineState::initialize(const PipelineStateInfo &info) {
     _gpuPipelineState->rs = _rasterizerState;
     _gpuPipelineState->dss = _depthStencilState;
     _gpuPipelineState->bs = _blendState;
-    _gpuPipelineState->gpuRenderPass = ((GLES2RenderPass *)_renderPass)->gpuRenderPass();
     _gpuPipelineState->gpuPipelineLayout = ((GLES2PipelineLayout *)_pipelineLayout)->gpuPipelineLayout();
+    if (_renderPass) _gpuPipelineState->gpuRenderPass = ((GLES2RenderPass *)_renderPass)->gpuRenderPass();
 
     for (uint i = 0; i < 31; i++) {
         if ((uint)_dynamicStates & (1 << i)) {

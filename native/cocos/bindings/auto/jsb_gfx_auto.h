@@ -265,6 +265,16 @@ template<>
 bool sevalue_to_native(const se::Value &, cc::gfx::RenderPassInfo *, se::Object *ctx);
 JSB_REGISTER_OBJECT_TYPE(cc::gfx::RenderPassInfo);
 
+extern se::Object* __jsb_cc_gfx_GlobalBarrier_proto;
+extern se::Class* __jsb_cc_gfx_GlobalBarrier_class;
+
+bool js_register_cc_gfx_GlobalBarrier(se::Object* obj);
+bool register_all_gfx(se::Object* obj);
+
+template<>
+bool sevalue_to_native(const se::Value &, cc::gfx::GlobalBarrier *, se::Object *ctx);
+JSB_REGISTER_OBJECT_TYPE(cc::gfx::GlobalBarrier);
+
 extern se::Object* __jsb_cc_gfx_FramebufferInfo_proto;
 extern se::Class* __jsb_cc_gfx_FramebufferInfo_class;
 
@@ -428,6 +438,7 @@ SE_DECLARE_FUNC(js_gfx_CommandBuffer_bindDescriptorSetForJS);
 SE_DECLARE_FUNC(js_gfx_CommandBuffer_bindInputAssembler);
 SE_DECLARE_FUNC(js_gfx_CommandBuffer_bindPipelineState);
 SE_DECLARE_FUNC(js_gfx_CommandBuffer_destroy);
+SE_DECLARE_FUNC(js_gfx_CommandBuffer_dispatch);
 SE_DECLARE_FUNC(js_gfx_CommandBuffer_draw);
 SE_DECLARE_FUNC(js_gfx_CommandBuffer_end);
 SE_DECLARE_FUNC(js_gfx_CommandBuffer_endRenderPass);
@@ -437,6 +448,7 @@ SE_DECLARE_FUNC(js_gfx_CommandBuffer_getNumTris);
 SE_DECLARE_FUNC(js_gfx_CommandBuffer_getQueue);
 SE_DECLARE_FUNC(js_gfx_CommandBuffer_getType);
 SE_DECLARE_FUNC(js_gfx_CommandBuffer_initialize);
+SE_DECLARE_FUNC(js_gfx_CommandBuffer_pipelineBarrier);
 SE_DECLARE_FUNC(js_gfx_CommandBuffer_setBlendConstants);
 SE_DECLARE_FUNC(js_gfx_CommandBuffer_setDepthBias);
 SE_DECLARE_FUNC(js_gfx_CommandBuffer_setDepthBound);
@@ -611,6 +623,7 @@ bool register_all_gfx(se::Object* obj);
 
 JSB_REGISTER_OBJECT_TYPE(cc::gfx::Shader);
 SE_DECLARE_FUNC(js_gfx_Shader_destroy);
+SE_DECLARE_FUNC(js_gfx_Shader_getBuffers);
 SE_DECLARE_FUNC(js_gfx_Shader_initialize);
 SE_DECLARE_FUNC(js_gfx_Shader_Shader);
 

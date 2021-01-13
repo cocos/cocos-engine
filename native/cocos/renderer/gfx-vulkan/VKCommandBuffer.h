@@ -60,12 +60,12 @@ public:
     virtual void copyBuffersToTexture(const uint8_t *const *buffers, Texture *texture, const BufferTextureCopy *regions, uint count) override;
     virtual void execute(CommandBuffer *const *cmdBuffs, uint count) override;
     virtual void dispatch(const DispatchInfo &info) override;
-    virtual void pipelineBarrier(const GlobalBarrier *barriers, uint count) override;
+    virtual void pipelineBarrier(const GlobalBarrier& barrier) override;
 
     CCVKGPUCommandBuffer *gpuCommandBuffer() const { return _gpuCommandBuffer; }
 
 private:
-    void bindDescriptorSets();
+    void bindDescriptorSets(VkPipelineBindPoint bindPoint);
 
     CCVKGPUCommandBuffer *_gpuCommandBuffer = nullptr;
 
@@ -89,6 +89,7 @@ private:
     CCVKStencilWriteMask _curStencilWriteMask;
     CCVKStencilCompareMask _curStencilCompareMask;
 
+    vector<ThsvsAccessType> _accessTypes;
     vector<VkCommandBuffer> _vkCommandBuffers;
     queue<VkCommandBuffer> _pendingQueue;
 };

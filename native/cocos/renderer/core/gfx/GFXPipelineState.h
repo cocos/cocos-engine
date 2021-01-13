@@ -17,6 +17,7 @@ public:
 
     CC_INLINE Device *getDevice() const { return _device; }
     CC_INLINE Shader *getShader() const { return _shader; }
+    CC_INLINE PipelineBindPoint getBindPoint() const { return _bindPoint; }
     CC_INLINE PrimitiveMode getPrimitive() const { return _primitive; }
     CC_INLINE DynamicStateFlags getDynamicStates() const { return _dynamicStates; }
     CC_INLINE const InputState &getInputState() const { return _inputState; }
@@ -29,6 +30,7 @@ public:
 protected:
     Device *_device = nullptr;
     Shader *_shader = nullptr;
+    PipelineBindPoint _bindPoint = PipelineBindPoint::GRAPHICS;
     PrimitiveMode _primitive = PrimitiveMode::TRIANGLE_LIST;
     DynamicStateFlags _dynamicStates = DynamicStateFlags::NONE;
     InputState _inputState;

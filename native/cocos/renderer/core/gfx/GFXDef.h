@@ -497,23 +497,25 @@ enum class TextureLayout {
 
 enum class AccessType {
     // Read access
-    INDIRECT_BUFFER,                     // Read as an indirect buffer for drawing or dispatch
-    INDEX_BUFFER,                        // Read as an index buffer for drawing
-    VERTEX_BUFFER,                       // Read as a vertex buffer for drawing
-    VERTEX_SHADER_READ_UNIFORM_BUFFER,   // Read as a uniform buffer in a vertex shader
-    VERTEX_SHADER_READ_TEXTURE,          // Read as a sampled image/uniform texel buffer in a vertex shader
-    VERTEX_SHADER_READ_OTHER,            // Read as any other resource in a vertex shader
-    FRAGMENT_SHADER_READ_UNIFORM_BUFFER, // Read as a uniform buffer in a fragment shader
-    FRAGMENT_SHADER_READ_TEXTURE,        // Read as a sampled image/uniform texel buffer in a fragment shader
-    FRAGMENT_SHADER_READ_OTHER,          // Read as any other resource in a fragment shader
-    COLOR_ATTACHMENT_READ,               // Read by standard blending/logic operations or subpass load operations
-    DEPTH_STENCIL_ATTACHMENT_READ,       // Read by depth/stencil tests or subpass load operations
-    COMPUTE_SHADER_READ_UNIFORM_BUFFER,  // Read as a uniform buffer in a compute shader
-    COMPUTE_SHADER_READ_TEXTURE,         // Read as a sampled image/uniform texel buffer in a compute shader
-    COMPUTE_SHADER_READ_OTHER,           // Read as any other resource in a compute shader
-    TRANSFER_READ,                       // Read as the source of a transfer operation
-    HOST_READ,                           // Read on the host
-    PRESENT,                             // Read by the presentation engine
+    INDIRECT_BUFFER,                                     // Read as an indirect buffer for drawing or dispatch
+    INDEX_BUFFER,                                        // Read as an index buffer for drawing
+    VERTEX_BUFFER,                                       // Read as a vertex buffer for drawing
+    VERTEX_SHADER_READ_UNIFORM_BUFFER,                   // Read as a uniform buffer in a vertex shader
+    VERTEX_SHADER_READ_TEXTURE,                          // Read as a sampled image/uniform texel buffer in a vertex shader
+    VERTEX_SHADER_READ_OTHER,                            // Read as any other resource in a vertex shader
+    FRAGMENT_SHADER_READ_UNIFORM_BUFFER,                 // Read as a uniform buffer in a fragment shader
+    FRAGMENT_SHADER_READ_TEXTURE,                        // Read as a sampled image/uniform texel buffer in a fragment shader
+    FRAGMENT_SHADER_READ_COLOR_INPUT_ATTACHMENT,         // Read as an input attachment with a color format in a fragment shader
+    FRAGMENT_SHADER_READ_DEPTH_STENCIL_INPUT_ATTACHMENT, // Read as an input attachment with a depth/stencil format in a fragment shader
+    FRAGMENT_SHADER_READ_OTHER,                          // Read as any other resource in a fragment shader
+    COLOR_ATTACHMENT_READ,                               // Read by standard blending/logic operations or subpass load operations
+    DEPTH_STENCIL_ATTACHMENT_READ,                       // Read by depth/stencil tests or subpass load operations
+    COMPUTE_SHADER_READ_UNIFORM_BUFFER,                  // Read as a uniform buffer in a compute shader
+    COMPUTE_SHADER_READ_TEXTURE,                         // Read as a sampled image/uniform texel buffer in a compute shader
+    COMPUTE_SHADER_READ_OTHER,                           // Read as any other resource in a compute shader
+    TRANSFER_READ,                                       // Read as the source of a transfer operation
+    HOST_READ,                                           // Read on the host
+    PRESENT,                                             // Read by the presentation engine
 
     // Write access
     VERTEX_SHADER_WRITE,            // Written as any resource in a vertex shader

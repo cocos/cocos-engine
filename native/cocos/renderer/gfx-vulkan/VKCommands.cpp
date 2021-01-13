@@ -266,7 +266,7 @@ void CCVKCmdFuncCreateRenderPass(CCVKDevice *device, CCVKGPURenderPass *gpuRende
         subpassDescriptions.resize(subpassCount);
         for (size_t i = 0u; i < subpassCount; i++) {
             const SubPassInfo &subPassInfo = gpuRenderPass->subPasses[i];
-            subpassDescriptions[i].pipelineBindPoint = MapVkPipelineBindPoint(subPassInfo.bindPoint);
+            subpassDescriptions[i].pipelineBindPoint = VK_PIPELINE_BIND_POINTS[(uint)subPassInfo.bindPoint];
             // TODO
         }
     } else { // generate a default subpass from attachment info
@@ -433,7 +433,27 @@ void CCVKCmdFuncCreatePipelineLayout(CCVKDevice *device, CCVKGPUPipelineLayout *
     VK_CHECK(vkCreatePipelineLayout(gpuDevice->vkDevice, &pipelineLayoutCreateInfo, nullptr, &gpuPipelineLayout->vkPipelineLayout));
 }
 
-void CCVKCmdFuncCreatePipelineState(CCVKDevice *device, CCVKGPUPipelineState *gpuPipelineState) {
+void CCVKCmdFuncCreateComputePipelineState(CCVKDevice *device, CCVKGPUPipelineState *gpuPipelineState) {
+    VkComputePipelineCreateInfo createInfo{VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO};
+
+    ///////////////////// Shader Stage /////////////////////
+
+    const CCVKGPUShaderStageList &stages = gpuPipelineState->gpuShader->gpuStages;
+    VkPipelineShaderStageCreateInfo stageInfo{VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO};
+    stageInfo.stage = MapVkShaderStageFlagBits(stages[0].type);
+    stageInfo.module = stages[0].vkShader;
+    stageInfo.pName = "main";
+
+    createInfo.stage = stageInfo;
+    createInfo.layout = gpuPipelineState->gpuPipelineLayout->vkPipelineLayout;
+
+    ///////////////////// Creation /////////////////////
+
+    VK_CHECK(vkCreateComputePipelines(device->gpuDevice()->vkDevice, device->gpuDevice()->vkPipelineCache,
+                                       1, &createInfo, nullptr, &gpuPipelineState->vkPipeline));
+}
+
+void CCVKCmdFuncCreateGraphicsPipelineState(CCVKDevice * device, CCVKGPUPipelineState * gpuPipelineState) {
     VkGraphicsPipelineCreateInfo createInfo{VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO};
 
     ///////////////////// Shader Stage /////////////////////

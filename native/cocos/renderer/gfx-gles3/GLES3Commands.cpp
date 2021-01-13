@@ -600,60 +600,60 @@ const GLenum GLES3_BLEND_FACTORS[] = {
 };
 } // namespace
 
-void MapGLBarriers(const GlobalBarrier *barriers, uint count, GLbitfield &glBarriers, GLbitfield &glBarriersByRegion) {
-    for (uint i = 0u; i < count; ++i) {
-        const AccessTypeList &list = barriers[i].nextAccesses;
-        for (size_t j = 0u; j < list.size(); ++j) {
-            switch (list[j]) {
-                case AccessType::INDIRECT_BUFFER:
-                    glBarriers |= GL_COMMAND_BARRIER_BIT;
-                    break;
-                case AccessType::INDEX_BUFFER:
-                    glBarriers |= GL_ELEMENT_ARRAY_BARRIER_BIT;
-                    break;
-                case AccessType::VERTEX_BUFFER:
-                    glBarriers |= GL_VERTEX_ATTRIB_ARRAY_BARRIER_BIT;
-                    break;
-                case AccessType::COMPUTE_SHADER_READ_UNIFORM_BUFFER:
-                case AccessType::VERTEX_SHADER_READ_UNIFORM_BUFFER:
-                case AccessType::FRAGMENT_SHADER_READ_UNIFORM_BUFFER:
-                    glBarriersByRegion |= GL_UNIFORM_BARRIER_BIT;
-                    break;
-                case AccessType::COMPUTE_SHADER_READ_TEXTURE:
-                case AccessType::VERTEX_SHADER_READ_TEXTURE:
-                case AccessType::FRAGMENT_SHADER_READ_TEXTURE:
-                    glBarriersByRegion |= GL_SHADER_IMAGE_ACCESS_BARRIER_BIT;
-                    glBarriersByRegion |= GL_TEXTURE_FETCH_BARRIER_BIT;
-                    break;
-                case AccessType::COMPUTE_SHADER_READ_OTHER:
-                case AccessType::VERTEX_SHADER_READ_OTHER:
-                case AccessType::FRAGMENT_SHADER_READ_OTHER:
-                    glBarriersByRegion |= GL_SHADER_STORAGE_BARRIER_BIT;
-                    break;
-                case AccessType::COLOR_ATTACHMENT_READ:
-                case AccessType::COLOR_ATTACHMENT_WRITE:
-                case AccessType::DEPTH_STENCIL_ATTACHMENT_READ:
-                case AccessType::DEPTH_STENCIL_ATTACHMENT_WRITE:
-                    glBarriersByRegion |= GL_FRAMEBUFFER_BARRIER_BIT;
-                    break;
-                case AccessType::TRANSFER_READ:
-                    glBarriers |= GL_PIXEL_BUFFER_BARRIER_BIT;
-                    break;
-                case AccessType::VERTEX_SHADER_WRITE:
-                case AccessType::FRAGMENT_SHADER_WRITE:
-                case AccessType::COMPUTE_SHADER_WRITE:
-                    glBarriersByRegion |= GL_SHADER_STORAGE_BARRIER_BIT;
-                    break;
-                case AccessType::TRANSFER_WRITE:
-                    glBarriers |= GL_TEXTURE_UPDATE_BARRIER_BIT;
-                    glBarriers |= GL_BUFFER_UPDATE_BARRIER_BIT;
-                    break;
-                case AccessType::HOST_PREINITIALIZED:
-                case AccessType::HOST_WRITE:
-                case AccessType::PRESENT:
-                default:
-                    break;
-            }
+void MapGLBarriers(const GlobalBarrier &barrier, GLbitfield &glBarriers, GLbitfield &glBarriersByRegion) {
+    const AccessTypeList &list = barrier.nextAccesses;
+    for (size_t j = 0u; j < list.size(); ++j) {
+        switch (list[j]) {
+            case AccessType::INDIRECT_BUFFER:
+                glBarriers |= GL_COMMAND_BARRIER_BIT;
+                break;
+            case AccessType::INDEX_BUFFER:
+                glBarriers |= GL_ELEMENT_ARRAY_BARRIER_BIT;
+                break;
+            case AccessType::VERTEX_BUFFER:
+                glBarriers |= GL_VERTEX_ATTRIB_ARRAY_BARRIER_BIT;
+                break;
+            case AccessType::COMPUTE_SHADER_READ_UNIFORM_BUFFER:
+            case AccessType::VERTEX_SHADER_READ_UNIFORM_BUFFER:
+            case AccessType::FRAGMENT_SHADER_READ_UNIFORM_BUFFER:
+                glBarriersByRegion |= GL_UNIFORM_BARRIER_BIT;
+                break;
+            case AccessType::COMPUTE_SHADER_READ_TEXTURE:
+            case AccessType::VERTEX_SHADER_READ_TEXTURE:
+            case AccessType::FRAGMENT_SHADER_READ_TEXTURE:
+                glBarriersByRegion |= GL_SHADER_IMAGE_ACCESS_BARRIER_BIT;
+                glBarriersByRegion |= GL_TEXTURE_FETCH_BARRIER_BIT;
+                break;
+            case AccessType::COMPUTE_SHADER_READ_OTHER:
+            case AccessType::VERTEX_SHADER_READ_OTHER:
+            case AccessType::FRAGMENT_SHADER_READ_OTHER:
+                glBarriersByRegion |= GL_SHADER_STORAGE_BARRIER_BIT;
+                break;
+            case AccessType::COLOR_ATTACHMENT_READ:
+            case AccessType::COLOR_ATTACHMENT_WRITE:
+            case AccessType::DEPTH_STENCIL_ATTACHMENT_READ:
+            case AccessType::DEPTH_STENCIL_ATTACHMENT_WRITE:
+                glBarriersByRegion |= GL_FRAMEBUFFER_BARRIER_BIT;
+                break;
+            case AccessType::TRANSFER_READ:
+                glBarriers |= GL_PIXEL_BUFFER_BARRIER_BIT;
+                break;
+            case AccessType::VERTEX_SHADER_WRITE:
+            case AccessType::FRAGMENT_SHADER_WRITE:
+            case AccessType::COMPUTE_SHADER_WRITE:
+                glBarriersByRegion |= GL_SHADER_STORAGE_BARRIER_BIT;
+                break;
+            case AccessType::TRANSFER_WRITE:
+                glBarriers |= GL_TEXTURE_UPDATE_BARRIER_BIT;
+                glBarriers |= GL_BUFFER_UPDATE_BARRIER_BIT;
+                break;
+            case AccessType::FRAGMENT_SHADER_READ_COLOR_INPUT_ATTACHMENT:
+            case AccessType::FRAGMENT_SHADER_READ_DEPTH_STENCIL_INPUT_ATTACHMENT:
+            case AccessType::HOST_PREINITIALIZED:
+            case AccessType::HOST_WRITE:
+            case AccessType::PRESENT:
+            default:
+                break;
         }
     }
 }
