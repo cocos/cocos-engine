@@ -1,7 +1,6 @@
 [
     "./index.js",
     "./predefine.js",
-    "./CCBoot.js",
 
     "./cocos2d/actions/**/*",
 
