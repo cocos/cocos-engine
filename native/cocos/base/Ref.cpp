@@ -29,14 +29,14 @@ THE SOFTWARE.
 #include "base/Macros.h"
 
 #if CC_REF_LEAK_DETECTION
-#include <algorithm>    // std::find
+    #include <algorithm> // std::find
 #endif
 
 namespace cc {
 
 #if CC_REF_LEAK_DETECTION
-static void trackRef(Ref* ref);
-static void untrackRef(Ref* ref);
+static void trackRef(Ref *ref);
+static void untrackRef(Ref *ref);
 #endif
 
 Ref::Ref()
@@ -47,31 +47,26 @@ Ref::Ref()
 #endif
 }
 
-Ref::~Ref()
-{
+Ref::~Ref() {
 #if CC_REF_LEAK_DETECTION
     if (_referenceCount != 0)
         untrackRef(this);
 #endif
 }
 
-void Ref::retain()
-{
+void Ref::retain() {
     CCASSERT(_referenceCount > 0, "reference count should be greater than 0");
     ++_referenceCount;
 }
 
-void Ref::release()
-{
+void Ref::release() {
     CCASSERT(_referenceCount > 0, "reference count should be greater than 0");
     --_referenceCount;
 
-    if (_referenceCount == 0)
-    {
+    if (_referenceCount == 0) {
 #if defined(CC_DEBUG) && (CC_DEBUG > 0)
         auto poolManager = PoolManager::getInstance();
-        if (!poolManager->getCurrentPool()->isClearing() && poolManager->isObjectInPools(this))
-        {
+        if (!poolManager->getCurrentPool()->isClearing() && poolManager->isObjectInPools(this)) {
             // Trigger an assert if the reference count is 0 but the Ref is still in autorelease pool.
             // This happens when 'autorelease/release' were not used in pairs with 'new/retain'.
             //
@@ -110,54 +105,44 @@ void Ref::release()
     }
 }
 
-Ref* Ref::autorelease()
-{
+Ref *Ref::autorelease() {
     PoolManager::getInstance()->getCurrentPool()->addObject(this);
     return this;
 }
 
-unsigned int Ref::getReferenceCount() const
-{
+unsigned int Ref::getReferenceCount() const {
     return _referenceCount;
 }
 
 #if CC_REF_LEAK_DETECTION
 
-static std::list<Ref*> __refAllocationList;
+static std::list<Ref *> __refAllocationList;
 
-void Ref::printLeaks()
-{
+void Ref::printLeaks() {
     // Dump Ref object memory leaks
-    if (__refAllocationList.empty())
-    {
+    if (__refAllocationList.empty()) {
         log("[memory] All Ref objects successfully cleaned up (no leaks detected).\n");
-    }
-    else
-    {
+    } else {
         log("[memory] WARNING: %d Ref objects still active in memory.\n", (int)__refAllocationList.size());
 
-        for (const auto& ref : __refAllocationList)
-        {
+        for (const auto &ref : __refAllocationList) {
             CC_ASSERT(ref);
-            const char* type = typeid(*ref).name();
+            const char *type = typeid(*ref).name();
             log("[memory] LEAK: Ref object '%s' still active with reference count %d.\n", (type ? type : ""), ref->getReferenceCount());
         }
     }
 }
 
-static void trackRef(Ref* ref)
-{
+static void trackRef(Ref *ref) {
     CCASSERT(ref, "Invalid parameter, ref should not be null!");
 
     // Create memory allocation record.
     __refAllocationList.push_back(ref);
 }
 
-static void untrackRef(Ref* ref)
-{
+static void untrackRef(Ref *ref) {
     auto iter = std::find(__refAllocationList.begin(), __refAllocationList.end(), ref);
-    if (iter == __refAllocationList.end())
-    {
+    if (iter == __refAllocationList.end()) {
         log("[memory] CORRUPTION: Attempting to free (%s) with invalid ref tracking record.\n", typeid(*ref).name());
         return;
     }
@@ -167,5 +152,4 @@ static void untrackRef(Ref* ref)
 
 #endif // #if CC_REF_LEAK_DETECTION
 
-
-}
+} // namespace cc

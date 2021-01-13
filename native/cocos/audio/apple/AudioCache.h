@@ -22,10 +22,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-
 #pragma once
-
-#if CC_PLATFORM == CC_PLATFORM_MAC_IOS || CC_PLATFORM == CC_PLATFORM_MAC_OSX
 
 #import <OpenAL/al.h>
 
@@ -40,12 +37,9 @@ namespace cc {
 class AudioEngineImpl;
 class AudioPlayer;
 
-class AudioCache
-{
+class AudioCache {
 public:
-
-    enum class State
-    {
+    enum class State {
         INITIAL,
         LOADING,
         READY,
@@ -55,9 +49,9 @@ public:
     AudioCache();
     ~AudioCache();
 
-    void addPlayCallback(const std::function<void()>& callback);
+    void addPlayCallback(const std::function<void()> &callback);
 
-    void addLoadCallback(const std::function<void(bool)>& callback);
+    void addLoadCallback(const std::function<void(bool)> &callback);
 
 protected:
     void setSkipReadDataTask(bool isSkip) { _isSkipReadDataTask = isSkip; };
@@ -78,20 +72,20 @@ protected:
      * Cache pcm data when sizeInBytes less than PCMDATA_CACHEMAXSIZE
      */
     ALuint _alBufferId;
-    char* _pcmData;
+    char *_pcmData;
 
     /*Queue buffer related stuff
      *  Streaming in openal when sizeInBytes greater then PCMDATA_CACHEMAXSIZE
      */
-    char* _queBuffers[QUEUEBUFFER_NUM];
+    char *_queBuffers[QUEUEBUFFER_NUM];
     ALsizei _queBufferSize[QUEUEBUFFER_NUM];
     uint32_t _queBufferFrames;
 
     std::mutex _playCallbackMutex;
-    std::vector< std::function<void()> > _playCallbacks;
+    std::vector<std::function<void()>> _playCallbacks;
 
     // loadCallbacks doesn't need mutex since it's invoked only in Cocos thread.
-    std::vector< std::function<void(bool)> > _loadCallbacks;
+    std::vector<std::function<void(bool)>> _loadCallbacks;
 
     std::mutex _readDataTaskMutex;
 
@@ -107,6 +101,4 @@ protected:
     friend class AudioPlayer;
 };
 
-}
-
-#endif
+} // namespace cc

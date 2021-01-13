@@ -45,7 +45,7 @@ __BEGIN_DECLS
  * The out and sums buffers must either be completely separate (non-overlapping), or
  * they must both start at the same address.  Partially overlapping buffers are not supported.
  */
-void ditherAndClamp(int32_t* out, const int32_t *sums, size_t c);
+void ditherAndClamp(int32_t *out, const int32_t *sums, size_t c);
 
 /* Expand and copy samples from unsigned 8-bit offset by 0x80 to signed 16-bit.
  * Parameters:
@@ -400,7 +400,7 @@ size_t nonZeroStereo16(const int16_t *frames, size_t count);
  * If the sample size is not in range, the function will abort.
  */
 void memcpy_by_channel_mask(void *dst, uint32_t dst_mask,
-        const void *src, uint32_t src_mask, size_t sample_size, size_t count);
+                            const void *src, uint32_t src_mask, size_t sample_size, size_t count);
 
 /* Copy frames, selecting source samples based on an index array (idxary).
  * The idxary[] consists of dst_channels number of elements.
@@ -434,8 +434,8 @@ void memcpy_by_channel_mask(void *dst, uint32_t dst_mask,
  * If the sample size is not in range, the function will abort.
  */
 void memcpy_by_index_array(void *dst, uint32_t dst_channels,
-        const void *src, uint32_t src_channels,
-        const int8_t *idxary, size_t sample_size, size_t count);
+                           const void *src, uint32_t src_channels,
+                           const int8_t *idxary, size_t sample_size, size_t count);
 
 /* Prepares an index array (idxary) from channel masks, which can be later
  * used by memcpy_by_index_array(). Returns the number of array elements required.
@@ -455,7 +455,7 @@ void memcpy_by_index_array(void *dst, uint32_t dst_channels,
  *  src_mask    Bit mask corresponding to source channels present
  */
 size_t memcpy_by_index_array_initialization(int8_t *idxary, size_t idxcount,
-        uint32_t dst_mask, uint32_t src_mask);
+                                            uint32_t dst_mask, uint32_t src_mask);
 
 /* Prepares an index array (idxary) from channel masks, which can be later
  * used by memcpy_by_index_array(). Returns the number of array elements required.
@@ -473,7 +473,7 @@ size_t memcpy_by_index_array_initialization(int8_t *idxary, size_t idxcount,
  *  src_mask    Bit mask corresponding to source channels present
  */
 size_t memcpy_by_index_array_initialization_src_index(int8_t *idxary, size_t idxcount,
-        uint32_t dst_mask, uint32_t src_mask);
+                                                      uint32_t dst_mask, uint32_t src_mask);
 
 /* Prepares an index array (idxary) from channel mask bits, which can be later
  * used by memcpy_by_index_array(). Returns the number of array elements required.
@@ -494,15 +494,14 @@ size_t memcpy_by_index_array_initialization_src_index(int8_t *idxary, size_t idx
  *  src_mask    Bit mask corresponding to source channels present
  */
 size_t memcpy_by_index_array_initialization_dst_index(int8_t *idxary, size_t idxcount,
-        uint32_t dst_mask, uint32_t src_mask);
+                                                      uint32_t dst_mask, uint32_t src_mask);
 
 /**
  * Clamp (aka hard limit or clip) a signed 32-bit sample to 16-bit range.
  */
-static inline int16_t clamp16(int32_t sample)
-{
-    if ((sample>>15) ^ (sample>>31))
-        sample = 0x7FFF ^ (sample>>31);
+static inline int16_t clamp16(int32_t sample) {
+    if ((sample >> 15) ^ (sample >> 31))
+        sample = 0x7FFF ^ (sample >> 31);
     return sample;
 }
 
@@ -518,8 +517,7 @@ static inline int16_t clamp16(int32_t sample)
  *
  * Rounding of 0.5 lsb is to even (default for IEEE 754).
  */
-static inline int16_t clamp16_from_float(float f)
-{
+static inline int16_t clamp16_from_float(float f) {
     /* Offset is used to expand the valid range of [-1.0, 1.0) into the 16 lsbs of the
      * floating point significand. The normal shift is 3<<22, but the -15 offset
      * is used to multiply by 32768.
@@ -557,8 +555,7 @@ static inline int16_t clamp16_from_float(float f)
  *
  * Rounding of 0.5 lsb is to even (default for IEEE 754).
  */
-static inline uint8_t clamp8_from_float(float f)
-{
+static inline uint8_t clamp8_from_float(float f) {
     /* Offset is used to expand the valid range of [-1.0, 1.0) into the 16 lsbs of the
      * floating point significand. The normal shift is 3<<22, but the -7 offset
      * is used to multiply by 128.
@@ -593,8 +590,7 @@ static inline uint8_t clamp8_from_float(float f)
  * including -Inf and +Inf. NaN values are considered undefined, and behavior may change
  * depending on hardware and future implementation of this function.
  */
-static inline int32_t clamp24_from_float(float f)
-{
+static inline int32_t clamp24_from_float(float f) {
     static const float scale = (float)(1 << 23);
     static const float limpos = 0x7fffff / (float)(1 << 23);
     static const float limneg = -0x800000 / (float)(1 << 23);
@@ -616,8 +612,7 @@ static inline int32_t clamp24_from_float(float f)
  *
  * Values outside the range [-0x800000, 0x7fffff] are clamped to that range.
  */
-static inline int32_t clamp24_from_q8_23(int32_t ival)
-{
+static inline int32_t clamp24_from_q8_23(int32_t ival) {
     static const int32_t limpos = 0x7fffff;
     static const int32_t limneg = -0x800000;
     if (ival < limneg) {
@@ -636,8 +631,7 @@ static inline int32_t clamp24_from_q8_23(int32_t ival)
  * including -Inf and +Inf. NaN values are considered undefined, and behavior may change
  * depending on hardware and future implementation of this function.
  */
-static inline int32_t clampq4_27_from_float(float f)
-{
+static inline int32_t clampq4_27_from_float(float f) {
     static const float scale = (float)(1UL << 27);
     static const float limpos = 16.;
     static const float limneg = -16.;
@@ -661,8 +655,7 @@ static inline int32_t clampq4_27_from_float(float f)
  * including -Inf and +Inf. NaN values are considered undefined, and behavior may change
  * depending on hardware and future implementation of this function.
  */
-static inline int32_t clamp32_from_float(float f)
-{
+static inline int32_t clamp32_from_float(float f) {
     static const float scale = (float)(1UL << 31);
     static const float limpos = 1.;
     static const float limneg = -1.;
@@ -688,8 +681,7 @@ static inline int32_t clamp32_from_float(float f)
  * precision floating point, the 0.5 lsb in the significand conversion will round
  * towards even, as per IEEE 754 default.
  */
-static inline float float_from_q4_27(int32_t ival)
-{
+static inline float float_from_q4_27(int32_t ival) {
     /* The scale factor is the reciprocal of the fractional bits.
      *
      * Since the scale factor is a power of 2, the scaling is exact, and there
@@ -711,8 +703,7 @@ static inline float float_from_q4_27(int32_t ival)
  * precision floating point, the 0.5 lsb in the significand conversion will round
  * towards even, as per IEEE 754 default.
  */
-static inline float float_from_u4_28(uint32_t uval)
-{
+static inline float float_from_u4_28(uint32_t uval) {
     static const float scale = 1. / (float)(1UL << 28);
 
     return uval * scale;
@@ -722,8 +713,7 @@ static inline float float_from_u4_28(uint32_t uval)
  * The nominal output float range is [0.0, 1.0] if the fixed-point range is
  * [0x0000, 0x1000].  The full float range is [0.0, 16.0).
  */
-static inline float float_from_u4_12(uint16_t uval)
-{
+static inline float float_from_u4_12(uint16_t uval) {
     static const float scale = 1. / (float)(1UL << 12);
 
     return uval * scale;
@@ -736,8 +726,7 @@ static inline float float_from_u4_12(uint16_t uval)
  * including -Inf and +Inf. NaN values are considered undefined, and behavior may change
  * depending on hardware and future implementation of this function.
  */
-static inline uint32_t u4_28_from_float(float f)
-{
+static inline uint32_t u4_28_from_float(float f) {
     static const float scale = (float)(1 << 28);
     static const float limpos = 0xffffffffUL / (float)(1 << 28);
 
@@ -759,8 +748,7 @@ static inline uint32_t u4_28_from_float(float f)
  * including -Inf and +Inf. NaN values are considered undefined, and behavior may change
  * depending on hardware and future implementation of this function.
  */
-static inline uint16_t u4_12_from_float(float f)
-{
+static inline uint16_t u4_12_from_float(float f) {
     static const float scale = (float)(1 << 12);
     static const float limpos = 0xffff / (float)(1 << 12);
 
@@ -781,8 +769,7 @@ static inline uint16_t u4_12_from_float(float f)
  *
  * There is no rounding, the conversion and representation is exact.
  */
-static inline float float_from_i16(int16_t ival)
-{
+static inline float float_from_i16(int16_t ival) {
     /* The scale factor is the reciprocal of the nominal 16 bit integer
      * half-sided range (32768).
      *
@@ -798,8 +785,7 @@ static inline float float_from_i16(int16_t ival)
  * The nominal output float range is [-1.0, 1.0) if the fixed-point range is
  * [0x00, 0xff].
  */
-static inline float float_from_u8(uint8_t uval)
-{
+static inline float float_from_u8(uint8_t uval) {
     static const float scale = 1. / (float)(1UL << 7);
 
     return ((int)uval - 128) * scale;
@@ -814,8 +800,7 @@ static inline float float_from_u8(uint8_t uval)
  * Avoid relying on the limited output range, as future implementations may go
  * to full range.
  */
-static inline int32_t i32_from_p24(const uint8_t *packed24)
-{
+static inline int32_t i32_from_p24(const uint8_t *packed24) {
     /* convert to 32b */
     return (packed24[0] << 8) | (packed24[1] << 16) | (packed24[2] << 24);
 }
@@ -828,8 +813,7 @@ static inline int32_t i32_from_p24(const uint8_t *packed24)
  * values due to storage into the 24-bit floating-point significand.
  * Rounding will be to nearest, ties to even.
  */
-static inline float float_from_i32(int32_t ival)
-{
+static inline float float_from_i32(int32_t ival) {
     static const float scale = 1. / (float)(1UL << 31);
 
     return ival * scale;
@@ -841,8 +825,7 @@ static inline float float_from_i32(int32_t ival)
  *
  * There is no rounding, the conversion and representation is exact.
  */
-static inline float float_from_p24(const uint8_t *packed24)
-{
+static inline float float_from_p24(const uint8_t *packed24) {
     return float_from_i32(i32_from_p24(packed24));
 }
 
@@ -853,8 +836,7 @@ static inline float float_from_p24(const uint8_t *packed24)
  * There is no rounding in the nominal range, the conversion and representation
  * is exact. For values outside the nominal range, rounding is to nearest, ties to even.
  */
-static inline float float_from_q8_23(int32_t ival)
-{
+static inline float float_from_q8_23(int32_t ival) {
     static const float scale = 1. / (float)(1UL << 23);
 
     return ival * scale;
@@ -863,15 +845,13 @@ static inline float float_from_q8_23(int32_t ival)
 /**
  * Multiply-accumulate 16-bit terms with 32-bit result: return a + in*v.
  */
-static inline
-int32_t mulAdd(int16_t in, int16_t v, int32_t a)
-{
+static inline int32_t mulAdd(int16_t in, int16_t v, int32_t a) {
 #if defined(__arm__) && !defined(__thumb__)
     int32_t out;
-    asm( "smlabb %[out], %[in], %[v], %[a] \n"
-         : [out]"=r"(out)
-         : [in]"%r"(in), [v]"r"(v), [a]"r"(a)
-         : );
+    asm("smlabb %[out], %[in], %[v], %[a] \n"
+        : [ out ] "=r"(out)
+        : [ in ] "%r"(in), [ v ] "r"(v), [ a ] "r"(a)
+        :);
     return out;
 #else
     return a + in * (int32_t)v;
@@ -881,15 +861,13 @@ int32_t mulAdd(int16_t in, int16_t v, int32_t a)
 /**
  * Multiply 16-bit terms with 32-bit result: return in*v.
  */
-static inline
-int32_t mul(int16_t in, int16_t v)
-{
+static inline int32_t mul(int16_t in, int16_t v) {
 #if defined(__arm__) && !defined(__thumb__)
     int32_t out;
-    asm( "smulbb %[out], %[in], %[v] \n"
-         : [out]"=r"(out)
-         : [in]"%r"(in), [v]"r"(v)
-         : );
+    asm("smulbb %[out], %[in], %[v] \n"
+        : [ out ] "=r"(out)
+        : [ in ] "%r"(in), [ v ] "r"(v)
+        :);
     return out;
 #else
     return in * (int32_t)v;
@@ -899,28 +877,26 @@ int32_t mul(int16_t in, int16_t v)
 /**
  * Similar to mulAdd, but the 16-bit terms are extracted from a 32-bit interleaved stereo pair.
  */
-static inline
-int32_t mulAddRL(int left, uint32_t inRL, uint32_t vRL, int32_t a)
-{
+static inline int32_t mulAddRL(int left, uint32_t inRL, uint32_t vRL, int32_t a) {
 #if defined(__arm__) && !defined(__thumb__)
     int32_t out;
     if (left) {
-        asm( "smlabb %[out], %[inRL], %[vRL], %[a] \n"
-             : [out]"=r"(out)
-             : [inRL]"%r"(inRL), [vRL]"r"(vRL), [a]"r"(a)
-             : );
+        asm("smlabb %[out], %[inRL], %[vRL], %[a] \n"
+            : [ out ] "=r"(out)
+            : [ inRL ] "%r"(inRL), [ vRL ] "r"(vRL), [ a ] "r"(a)
+            :);
     } else {
-        asm( "smlatt %[out], %[inRL], %[vRL], %[a] \n"
-             : [out]"=r"(out)
-             : [inRL]"%r"(inRL), [vRL]"r"(vRL), [a]"r"(a)
-             : );
+        asm("smlatt %[out], %[inRL], %[vRL], %[a] \n"
+            : [ out ] "=r"(out)
+            : [ inRL ] "%r"(inRL), [ vRL ] "r"(vRL), [ a ] "r"(a)
+            :);
     }
     return out;
 #else
     if (left) {
-        return a + (int16_t)(inRL&0xFFFF) * (int16_t)(vRL&0xFFFF);
+        return a + (int16_t)(inRL & 0xFFFF) * (int16_t)(vRL & 0xFFFF);
     } else {
-        return a + (int16_t)(inRL>>16) * (int16_t)(vRL>>16);
+        return a + (int16_t)(inRL >> 16) * (int16_t)(vRL >> 16);
     }
 #endif
 }
@@ -928,32 +904,30 @@ int32_t mulAddRL(int left, uint32_t inRL, uint32_t vRL, int32_t a)
 /**
  * Similar to mul, but the 16-bit terms are extracted from a 32-bit interleaved stereo pair.
  */
-static inline
-int32_t mulRL(int left, uint32_t inRL, uint32_t vRL)
-{
+static inline int32_t mulRL(int left, uint32_t inRL, uint32_t vRL) {
 #if defined(__arm__) && !defined(__thumb__)
     int32_t out;
     if (left) {
-        asm( "smulbb %[out], %[inRL], %[vRL] \n"
-             : [out]"=r"(out)
-             : [inRL]"%r"(inRL), [vRL]"r"(vRL)
-             : );
+        asm("smulbb %[out], %[inRL], %[vRL] \n"
+            : [ out ] "=r"(out)
+            : [ inRL ] "%r"(inRL), [ vRL ] "r"(vRL)
+            :);
     } else {
-        asm( "smultt %[out], %[inRL], %[vRL] \n"
-             : [out]"=r"(out)
-             : [inRL]"%r"(inRL), [vRL]"r"(vRL)
-             : );
+        asm("smultt %[out], %[inRL], %[vRL] \n"
+            : [ out ] "=r"(out)
+            : [ inRL ] "%r"(inRL), [ vRL ] "r"(vRL)
+            :);
     }
     return out;
 #else
     if (left) {
-        return (int16_t)(inRL&0xFFFF) * (int16_t)(vRL&0xFFFF);
+        return (int16_t)(inRL & 0xFFFF) * (int16_t)(vRL & 0xFFFF);
     } else {
-        return (int16_t)(inRL>>16) * (int16_t)(vRL>>16);
+        return (int16_t)(inRL >> 16) * (int16_t)(vRL >> 16);
     }
 #endif
 }
 
 __END_DECLS
 
-#endif  // COCOS_AUDIO_PRIMITIVES_H
+#endif // COCOS_AUDIO_PRIMITIVES_H

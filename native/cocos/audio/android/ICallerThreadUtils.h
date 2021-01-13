@@ -27,16 +27,14 @@ THE SOFTWARE.
 #include <functional>
 #include <thread>
 
-namespace cc { 
+namespace cc {
 
-class ICallerThreadUtils
-{
+class ICallerThreadUtils {
 public:
-    virtual ~ICallerThreadUtils()
-    { };
+    virtual ~ICallerThreadUtils(){};
 
-    virtual void performFunctionInCallerThread(const std::function<void()>& func) = 0;
+    virtual void performFunctionInCallerThread(const std::function<void()> &func) = 0;
     virtual std::thread::id getCallerThreadId() = 0;
 };
 
-} // namespace cc { 
+} // namespace cc

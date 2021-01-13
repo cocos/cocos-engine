@@ -33,27 +33,21 @@ THE SOFTWARE.
 #include <memory>
 #include <thread>
 
-namespace cc { 
+namespace cc {
 
 class ICallerThreadUtils;
 class AssetFd;
 
-class UrlAudioPlayer : public IAudioPlayer
-{
+class UrlAudioPlayer : public IAudioPlayer {
 public:
-
     // Override Functions Begin
-    virtual int getId() const override
-    { return _id; };
+    virtual int getId() const override { return _id; };
 
-    virtual void setId(int id) override
-    { _id = id; };
+    virtual void setId(int id) override { _id = id; };
 
-    virtual std::string getUrl() const override
-    { return _url; };
+    virtual std::string getUrl() const override { return _url; };
 
-    virtual State getState() const override
-    { return _state; };
+    virtual State getState() const override { return _state; };
 
     virtual void play() override;
 
@@ -86,7 +80,7 @@ public:
     // Override Functions EndOv
 
 private:
-    UrlAudioPlayer(SLEngineItf engineItf, SLObjectItf outputMixObject, ICallerThreadUtils* callerThreadUtils);
+    UrlAudioPlayer(SLEngineItf engineItf, SLObjectItf outputMixObject, ICallerThreadUtils *callerThreadUtils);
     virtual ~UrlAudioPlayer();
 
     bool prepare(const std::string &url, SLuint32 locatorType, std::shared_ptr<AssetFd> assetFd, int start, int length);
@@ -95,8 +89,7 @@ private:
 
     void destroy();
 
-    inline void setState(State state)
-    { _state = state; };
+    inline void setState(State state) { _state = state; };
 
     void playEventCallback(SLPlayItf caller, SLuint32 playEvent);
 
@@ -105,7 +98,7 @@ private:
 private:
     SLEngineItf _engineItf;
     SLObjectItf _outputMixObj;
-    ICallerThreadUtils* _callerThreadUtils;
+    ICallerThreadUtils *_callerThreadUtils;
 
     int _id;
     std::string _url;
@@ -132,4 +125,4 @@ private:
     friend class AudioPlayerProvider;
 };
 
-} // namespace cc { 
+} // namespace cc

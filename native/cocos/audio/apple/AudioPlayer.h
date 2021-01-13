@@ -22,11 +22,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-
 #pragma once
-
-
-#if CC_PLATFORM == CC_PLATFORM_MAC_IOS || CC_PLATFORM == CC_PLATFORM_MAC_OSX
 
 #include "base/Macros.h"
 #include "audio/apple/AudioMacros.h"
@@ -41,8 +37,7 @@ namespace cc {
 class AudioCache;
 class AudioEngineImpl;
 
-class AudioPlayer
-{
+class AudioPlayer {
 public:
     AudioPlayer();
     ~AudioPlayer();
@@ -51,20 +46,20 @@ public:
 
     //queue buffer related stuff
     bool setTime(float time);
-    float getTime() { return _currTime;}
+    float getTime() { return _currTime; }
     bool setLoop(bool loop);
 
 protected:
-    void setCache(AudioCache* cache);
+    void setCache(AudioCache *cache);
     void rotateBufferThread(int offsetFrame);
     bool play2d();
     void wakeupRotateThread();
 
-    AudioCache* _audioCache;
+    AudioCache *_audioCache;
 
     float _volume;
     bool _loop;
-    std::function<void (int, const std::string &)> _finishCallbak;
+    std::function<void(int, const std::string &)> _finishCallbak;
 
     bool _isDestroyed;
     bool _removeByAudioEngine;
@@ -75,7 +70,7 @@ protected:
     float _currTime;
     bool _streamingSource;
     ALuint _bufferIds[QUEUEBUFFER_NUM];
-    std::thread* _rotateBufferThread;
+    std::thread *_rotateBufferThread;
     std::condition_variable _sleepCondition;
     std::mutex _sleepMutex;
     bool _timeDirty;
@@ -89,6 +84,4 @@ protected:
     friend class AudioEngineImpl;
 };
 
-}
-
-#endif
+} // namespace cc

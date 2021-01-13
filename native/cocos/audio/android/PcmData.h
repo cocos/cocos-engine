@@ -30,10 +30,9 @@ THE SOFTWARE.
 #include <vector>
 #include <memory>
 
-namespace cc { 
+namespace cc {
 
-struct PcmData
-{
+struct PcmData {
     std::shared_ptr<std::vector<char>> pcmBuffer;
     int numChannels;
     int sampleRate;
@@ -63,4 +62,4 @@ struct PcmData
     std::string toString() const;
 };
 
-} // namespace cc { 
+} // namespace cc

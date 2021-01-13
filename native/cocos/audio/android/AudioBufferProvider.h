@@ -13,28 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 #pragma once
 
 #include <stddef.h>
 #include <stdint.h>
 #include "audio/android/utils/Errors.h"
 
-namespace cc { 
+namespace cc {
 // ----------------------------------------------------------------------------
 
-class AudioBufferProvider
-{
+class AudioBufferProvider {
 public:
-
     // IDEA: merge with AudioTrackShared::Buffer, AudioTrack::Buffer, and AudioRecord::Buffer
     //       and rename getNextBuffer() to obtainBuffer()
     struct Buffer {
-        Buffer() : raw(NULL), frameCount(0) { }
+        Buffer() : raw(NULL), frameCount(0) {}
         union {
-            void*       raw;
-            short*      i16;
-            int8_t*     i8;
+            void *raw;
+            short *i16;
+            int8_t *i8;
         };
         size_t frameCount;
     };
@@ -42,7 +39,7 @@ public:
     virtual ~AudioBufferProvider() {}
 
     // value representing an invalid presentation timestamp
-    static const int64_t kInvalidPTS = 0x7FFFFFFFFFFFFFFFLL;    // <stdint.h> is too painful
+    static const int64_t kInvalidPTS = 0x7FFFFFFFFFFFFFFFLL; // <stdint.h> is too painful
 
     // pts is the local time when the next sample yielded by getNextBuffer
     // will be rendered.
@@ -60,7 +57,7 @@ public:
     //  status              != NO_ERROR
     //  buffer->raw         NULL
     //  buffer->frameCount  0
-    virtual status_t getNextBuffer(Buffer* buffer, int64_t pts = kInvalidPTS) = 0;
+    virtual status_t getNextBuffer(Buffer *buffer, int64_t pts = kInvalidPTS) = 0;
 
     // Release (a portion of) the buffer previously obtained by getNextBuffer().
     // It is permissible to call releaseBuffer() multiple times per getNextBuffer().
@@ -73,8 +70,8 @@ public:
     //  buffer->raw         undefined; implementation is PERMITTED to set to any value,
     //                      so if caller needs to continue using this buffer it must
     //                      keep track of the pointer itself
-    virtual void releaseBuffer(Buffer* buffer) = 0;
+    virtual void releaseBuffer(Buffer *buffer) = 0;
 };
 
 // ----------------------------------------------------------------------------
-} // namespace cc { 
+} // namespace cc

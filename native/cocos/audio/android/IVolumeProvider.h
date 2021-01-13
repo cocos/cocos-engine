@@ -26,20 +26,17 @@ THE SOFTWARE.
 
 #include "audio/android/audio_utils/include/audio_utils/minifloat.h"
 
-namespace cc { 
+namespace cc {
 
-class IVolumeProvider
-{
+class IVolumeProvider {
 public:
     // The provider implementation is responsible for validating that the return value is in range.
     virtual gain_minifloat_packed_t getVolumeLR() = 0;
 
 protected:
-    IVolumeProvider()
-    { }
+    IVolumeProvider() {}
 
-    virtual ~IVolumeProvider()
-    { }
+    virtual ~IVolumeProvider() {}
 };
 
-} // namespace cc { 
+} // namespace cc

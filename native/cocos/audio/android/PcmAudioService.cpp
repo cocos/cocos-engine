@@ -28,47 +28,36 @@ THE SOFTWARE.
 #include "audio/android/PcmAudioService.h"
 #include "audio/android/AudioMixerController.h"
 
-namespace cc { 
+namespace cc {
 
 static std::vector<char> __silenceData;
 
 #define AUDIO_PLAYER_BUFFER_COUNT (2)
 
-class SLPcmAudioPlayerCallbackProxy
-{
+class SLPcmAudioPlayerCallbackProxy {
 public:
-    static void samplePlayerCallback(SLAndroidSimpleBufferQueueItf bq, void *context)
-    {
+    static void samplePlayerCallback(SLAndroidSimpleBufferQueueItf bq, void *context) {
         PcmAudioService *thiz = reinterpret_cast<PcmAudioService *>(context);
         thiz->bqFetchBufferCallback(bq);
     }
 };
 
 PcmAudioService::PcmAudioService(SLEngineItf engineItf, SLObjectItf outputMixObject)
-        : _engineItf(engineItf), _outputMixObj(outputMixObject), _playObj(nullptr),
-          _playItf(nullptr), _volumeItf(nullptr), _bufferQueueItf(nullptr), _numChannels(-1),
-          _sampleRate(-1), _bufferSizeInBytes(0), _controller(nullptr)
-{
+: _engineItf(engineItf), _outputMixObj(outputMixObject), _playObj(nullptr), _playItf(nullptr), _volumeItf(nullptr), _bufferQueueItf(nullptr), _numChannels(-1), _sampleRate(-1), _bufferSizeInBytes(0), _controller(nullptr) {
 }
 
-PcmAudioService::~PcmAudioService()
-{
+PcmAudioService::~PcmAudioService() {
     ALOGV("PcmAudioServicee() (%p), before destroy play object", this);
     SL_DESTROY_OBJ(_playObj);
     ALOGV("PcmAudioServicee() end");
 }
 
-bool PcmAudioService::enqueue()
-{
-    if (_controller->hasPlayingTacks())
-    {
-        if (_controller->isPaused())
-        {
+bool PcmAudioService::enqueue() {
+    if (_controller->hasPlayingTacks()) {
+        if (_controller->isPaused()) {
             SLresult r = (*_bufferQueueItf)->Enqueue(_bufferQueueItf, __silenceData.data(), __silenceData.size());
             SL_RETURN_VAL_IF_FAILED(r, false, "enqueue silent data failed!");
-        }
-        else
-        {
+        } else {
             _controller->mixOneFrame();
 
             auto current = _controller->current();
@@ -76,9 +65,7 @@ bool PcmAudioService::enqueue()
             SLresult r = (*_bufferQueueItf)->Enqueue(_bufferQueueItf, current->buf, current->size);
             SL_RETURN_VAL_IF_FAILED(r, false, "enqueue failed!");
         }
-    }
-    else
-    {
+    } else {
         SLresult r = (*_bufferQueueItf)->Enqueue(_bufferQueueItf, __silenceData.data(), __silenceData.size());
         SL_RETURN_VAL_IF_FAILED(r, false, "enqueue silent data failed!");
     }
@@ -86,15 +73,13 @@ bool PcmAudioService::enqueue()
     return true;
 }
 
-void PcmAudioService::bqFetchBufferCallback(SLAndroidSimpleBufferQueueItf bq)
-{
+void PcmAudioService::bqFetchBufferCallback(SLAndroidSimpleBufferQueueItf bq) {
     // IDEA: PcmAudioService instance may be destroyed, we need to find a way to wait...
     // It's in sub thread
     enqueue();
 }
 
-bool PcmAudioService::init(AudioMixerController* controller, int numChannels, int sampleRate, int bufferSizeInBytes)
-{
+bool PcmAudioService::init(AudioMixerController *controller, int numChannels, int sampleRate, int bufferSizeInBytes) {
     _controller = controller;
     _numChannels = numChannels;
     _sampleRate = sampleRate;
@@ -102,49 +87,44 @@ bool PcmAudioService::init(AudioMixerController* controller, int numChannels, in
 
     SLuint32 channelMask = SL_SPEAKER_FRONT_CENTER;
 
-    if (numChannels > 1)
-    {
+    if (numChannels > 1) {
         channelMask = SL_SPEAKER_FRONT_LEFT | SL_SPEAKER_FRONT_RIGHT;
     }
 
     SLDataFormat_PCM formatPcm = {
-            SL_DATAFORMAT_PCM,
-            (SLuint32) numChannels,
-            (SLuint32) sampleRate * 1000,
-            SL_PCMSAMPLEFORMAT_FIXED_16,
-            SL_PCMSAMPLEFORMAT_FIXED_16,
-            channelMask,
-            SL_BYTEORDER_LITTLEENDIAN
-    };
+        SL_DATAFORMAT_PCM,
+        (SLuint32)numChannels,
+        (SLuint32)sampleRate * 1000,
+        SL_PCMSAMPLEFORMAT_FIXED_16,
+        SL_PCMSAMPLEFORMAT_FIXED_16,
+        channelMask,
+        SL_BYTEORDER_LITTLEENDIAN};
 
     SLDataLocator_AndroidSimpleBufferQueue locBufQueue = {
-            SL_DATALOCATOR_ANDROIDSIMPLEBUFFERQUEUE,
-            AUDIO_PLAYER_BUFFER_COUNT
-    };
+        SL_DATALOCATOR_ANDROIDSIMPLEBUFFERQUEUE,
+        AUDIO_PLAYER_BUFFER_COUNT};
     SLDataSource source = {&locBufQueue, &formatPcm};
 
     SLDataLocator_OutputMix locOutmix = {
-            SL_DATALOCATOR_OUTPUTMIX,
-            _outputMixObj
-    };
+        SL_DATALOCATOR_OUTPUTMIX,
+        _outputMixObj};
     SLDataSink sink = {&locOutmix, nullptr};
 
     const SLInterfaceID ids[] = {
-            SL_IID_PLAY,
-            SL_IID_VOLUME,
-            SL_IID_ANDROIDSIMPLEBUFFERQUEUE,
+        SL_IID_PLAY,
+        SL_IID_VOLUME,
+        SL_IID_ANDROIDSIMPLEBUFFERQUEUE,
     };
 
     const SLboolean req[] = {
-            SL_BOOLEAN_TRUE,
-            SL_BOOLEAN_TRUE,
-            SL_BOOLEAN_TRUE,
+        SL_BOOLEAN_TRUE,
+        SL_BOOLEAN_TRUE,
+        SL_BOOLEAN_TRUE,
     };
 
     SLresult r;
 
-    r = (*_engineItf)->CreateAudioPlayer(_engineItf, &_playObj, &source, &sink,
-                                         sizeof(ids) / sizeof(ids[0]), ids, req);
+    r = (*_engineItf)->CreateAudioPlayer(_engineItf, &_playObj, &source, &sink, sizeof(ids) / sizeof(ids[0]), ids, req);
     SL_RETURN_VAL_IF_FAILED(r, false, "CreateAudioPlayer failed");
 
     r = (*_playObj)->Realize(_playObj, SL_BOOLEAN_FALSE);
@@ -159,13 +139,10 @@ bool PcmAudioService::init(AudioMixerController* controller, int numChannels, in
     r = (*_playObj)->GetInterface(_playObj, SL_IID_ANDROIDSIMPLEBUFFERQUEUE, &_bufferQueueItf);
     SL_RETURN_VAL_IF_FAILED(r, false, "GetInterface SL_IID_ANDROIDSIMPLEBUFFERQUEUE failed");
 
-    r = (*_bufferQueueItf)->RegisterCallback(_bufferQueueItf,
-                                             SLPcmAudioPlayerCallbackProxy::samplePlayerCallback,
-                                             this);
+    r = (*_bufferQueueItf)->RegisterCallback(_bufferQueueItf, SLPcmAudioPlayerCallbackProxy::samplePlayerCallback, this);
     SL_RETURN_VAL_IF_FAILED(r, false, "_bufferQueueItf RegisterCallback failed");
 
-    if (__silenceData.empty())
-    {
+    if (__silenceData.empty()) {
         __silenceData.resize(_numChannels * _bufferSizeInBytes, 0x00);
     }
 
@@ -178,16 +155,14 @@ bool PcmAudioService::init(AudioMixerController* controller, int numChannels, in
     return true;
 }
 
-void PcmAudioService::pause()
-{
+void PcmAudioService::pause() {
     SLresult r = (*_playItf)->SetPlayState(_playItf, SL_PLAYSTATE_PAUSED);
     SL_RETURN_IF_FAILED(r, "PcmAudioService::pause failed");
 }
 
-void PcmAudioService::resume()
-{
+void PcmAudioService::resume() {
     SLresult r = (*_playItf)->SetPlayState(_playItf, SL_PLAYSTATE_PLAYING);
     SL_RETURN_IF_FAILED(r, "PcmAudioService::resume failed");
 }
 
-} // namespace cc { 
+} // namespace cc

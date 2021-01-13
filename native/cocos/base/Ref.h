@@ -38,7 +38,6 @@ THE SOFTWARE.
  */
 namespace cc {
 
-
 class Ref;
 
 /**
@@ -46,17 +45,16 @@ class Ref;
   * @lua NA
   * @js NA
   */
-class CC_DLL Clonable
-{
+class CC_DLL Clonable {
 public:
     /** Returns a copy of the Ref. */
-    virtual Clonable* clone() const = 0;
+    virtual Clonable *clone() const = 0;
 
     /**
      * @js NA
      * @lua NA
      */
-    virtual ~Clonable() {};
+    virtual ~Clonable(){};
 };
 
 /**
@@ -64,8 +62,7 @@ public:
  * then it is easy to be shared in different places.
  * @js NA
  */
-class CC_DLL Ref
-{
+class CC_DLL Ref {
 public:
     /**
      * Retains the ownership.
@@ -105,7 +102,7 @@ public:
      * @js NA
      * @lua NA
      */
-    Ref* autorelease();
+    Ref *autorelease();
 
     /**
      * Returns the Ref's current reference count.
@@ -145,10 +142,8 @@ public:
 #endif
 };
 
-
-}
+} // namespace cc
 // end of base group
 /** @} */
 
 #endif // __BASE_CCREF_H__
-

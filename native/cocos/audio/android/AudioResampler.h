@@ -31,8 +31,7 @@
 #include <assert.h>
 #include "audio/android/audio.h"
 
-namespace cc { 
-
+namespace cc {
 
 class AudioResampler {
 public:
@@ -44,17 +43,17 @@ public:
     // certain fixed rate conversions. Sample rate cannot be
     // changed dynamically.
     enum src_quality {
-        DEFAULT_QUALITY=0,
-        LOW_QUALITY=1,
-        MED_QUALITY=2,
-        HIGH_QUALITY=3,
-        VERY_HIGH_QUALITY=4,
+        DEFAULT_QUALITY = 0,
+        LOW_QUALITY = 1,
+        MED_QUALITY = 2,
+        HIGH_QUALITY = 3,
+        VERY_HIGH_QUALITY = 4,
     };
 
     static const CONSTEXPR float UNITY_GAIN_FLOAT = 1.0f;
 
-    static AudioResampler* create(audio_format_t format, int inChannelCount,
-            int32_t sampleRate, src_quality quality=DEFAULT_QUALITY);
+    static AudioResampler *create(audio_format_t format, int inChannelCount,
+                                  int32_t sampleRate, src_quality quality = DEFAULT_QUALITY);
 
     virtual ~AudioResampler();
 
@@ -80,8 +79,8 @@ public:
     // DYN_MED_QUALITY, and DYN_HIGH_QUALITY.
     //
     // Returns the number of frames resampled into the out buffer.
-    virtual size_t resample(int32_t* out, size_t outFrameCount,
-            AudioBufferProvider* provider) = 0;
+    virtual size_t resample(int32_t *out, size_t outFrameCount,
+                            AudioBufferProvider *provider) = 0;
 
     virtual void reset();
     virtual size_t getUnreleasedFrames() const { return mInputIndex; }
@@ -94,7 +93,7 @@ protected:
     static const int kNumPhaseBits = 30;
 
     // phase mask for fraction
-    static const uint32_t kPhaseMask = (1LU<<kNumPhaseBits)-1;
+    static const uint32_t kPhaseMask = (1LU << kNumPhaseBits) - 1;
 
     // multiplier to calculate fixed point phase increment
     static const double kPhaseMultiplier;
@@ -102,8 +101,8 @@ protected:
     AudioResampler(int inChannelCount, int32_t sampleRate, src_quality quality);
 
     // prevent copying
-    AudioResampler(const AudioResampler&);
-    AudioResampler& operator=(const AudioResampler&);
+    AudioResampler(const AudioResampler &);
+    AudioResampler &operator=(const AudioResampler &);
 
     int64_t calculateOutputPTS(int outputFrameIndex);
 
@@ -150,8 +149,7 @@ protected:
     //  phaseWrapLimit is the wraparound (1 << kNumPhaseBits), if not specified explicitly.
     //
     inline size_t getInFrameCountRequired(size_t outFrameCount) {
-        return (static_cast<uint64_t>(outFrameCount)*mInSampleRate
-                + (mSampleRate - 1))/mSampleRate;
+        return (static_cast<uint64_t>(outFrameCount) * mInSampleRate + (mSampleRate - 1)) / mSampleRate;
     }
 
     inline float clampFloatVol(float volume) {
@@ -160,7 +158,7 @@ protected:
         } else if (volume >= 0.) {
             return volume;
         }
-        return 0.;  // NaN or negative volume maps to 0.
+        return 0.; // NaN or negative volume maps to 0.
     }
 
 private:
@@ -178,4 +176,4 @@ private:
 };
 
 // ----------------------------------------------------------------------------
-} // namespace cc { 
+} // namespace cc

@@ -22,25 +22,23 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 ****************************************************************************/
-
 #pragma once
 
 #include "audio/android/AudioDecoder.h"
 
 #include "tremolo/Tremolo/ivorbisfile.h"
 
-namespace cc { 
+namespace cc {
 
-class AudioDecoderOgg : public AudioDecoder
-{
+class AudioDecoderOgg : public AudioDecoder {
 protected:
     AudioDecoderOgg();
     virtual ~AudioDecoderOgg();
 
-    static int fseek64Wrap(void* datasource, ogg_int64_t off, int whence);
+    static int fseek64Wrap(void *datasource, ogg_int64_t off, int whence);
     virtual bool decodeToPcm() override;
 
     friend class AudioDecoderProvider;
 };
 
-} // namespace cc { 
+} // namespace cc

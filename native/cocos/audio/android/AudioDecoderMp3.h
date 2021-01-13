@@ -22,15 +22,13 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 ****************************************************************************/
-
 #pragma once
 
 #include "audio/android/AudioDecoder.h"
 
-namespace cc { 
+namespace cc {
 
-class AudioDecoderMp3 : public AudioDecoder
-{
+class AudioDecoderMp3 : public AudioDecoder {
 protected:
     AudioDecoderMp3();
     virtual ~AudioDecoderMp3();
@@ -40,4 +38,4 @@ protected:
     friend class AudioDecoderProvider;
 };
 
-} // namespace cc { 
+} // namespace cc

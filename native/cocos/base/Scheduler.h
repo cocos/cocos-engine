@@ -44,8 +44,7 @@ typedef std::function<void(float)> ccSchedulerFunc;
 /**
  * @cond
  */
-class CC_DLL Timer : public Ref
-{
+class CC_DLL Timer : public Ref {
 public:
     /** get interval in seconds */
     inline float getInterval() const { return _interval; };
@@ -59,13 +58,12 @@ public:
 
     /** triggers the timer */
     void update(float dt);
-    
+
 protected:
     Timer();
 
 protected:
-
-    Scheduler* _scheduler = nullptr;
+    Scheduler *_scheduler = nullptr;
     float _elapsed = 0.f;
     bool _runForever = false;
     bool _useDelay = false;
@@ -75,22 +73,21 @@ protected:
     float _interval = 0.f;
 };
 
-class CC_DLL TimerTargetCallback final : public Timer
-{
+class CC_DLL TimerTargetCallback final : public Timer {
 public:
     TimerTargetCallback();
 
     // Initializes a timer with a target, a lambda and an interval in seconds, repeat in number of times to repeat, delay in seconds.
-    bool initWithCallback(Scheduler* scheduler, const ccSchedulerFunc& callback, void *target, const std::string& key, float seconds, unsigned int repeat, float delay);
+    bool initWithCallback(Scheduler *scheduler, const ccSchedulerFunc &callback, void *target, const std::string &key, float seconds, unsigned int repeat, float delay);
 
-    inline const ccSchedulerFunc& getCallback() const { return _callback; };
-    inline const std::string& getKey() const { return _key; };
+    inline const ccSchedulerFunc &getCallback() const { return _callback; };
+    inline const std::string &getKey() const { return _key; };
 
     virtual void trigger(float dt) override;
     virtual void cancel() override;
 
 protected:
-    void* _target = nullptr;
+    void *_target = nullptr;
     ccSchedulerFunc _callback = nullptr;
     std::string _key;
 };
@@ -119,8 +116,7 @@ There are 2 different types of callbacks (selectors):
 The 'custom selectors' should be avoided when possible. It is faster, and consumes less memory to use the 'update selector'.
 
 */
-class CC_DLL Scheduler final
-{
+class CC_DLL Scheduler final {
 public:
     /**
      * Constructor
@@ -135,8 +131,7 @@ public:
      * @js NA
      * @lua NA
      */
-     ~Scheduler();
-
+    ~Scheduler();
 
     /** 'update' the scheduler.
      * You should NEVER call this method, unless you know what you are doing.
@@ -164,7 +159,7 @@ public:
      @param key The key to identify the callback function, because there is not way to identify a std::function<>.
      @since v3.0
      */
-    void schedule(const ccSchedulerFunc& callback, void *target, float interval, unsigned int repeat, float delay, bool paused, const std::string& key);
+    void schedule(const ccSchedulerFunc &callback, void *target, float interval, unsigned int repeat, float delay, bool paused, const std::string &key);
 
     /** The scheduled method will be called every 'interval' seconds for ever.
      @param callback The callback function.
@@ -174,7 +169,7 @@ public:
      @param key The key to identify the callback function, because there is not way to identify a std::function<>.
      @since v3.0
      */
-    void schedule(const ccSchedulerFunc& callback, void *target, float interval, bool paused, const std::string& key);
+    void schedule(const ccSchedulerFunc &callback, void *target, float interval, bool paused, const std::string &key);
 
     /////////////////////////////////////
 
@@ -186,7 +181,7 @@ public:
      @param target The target to be unscheduled.
      @since v3.0
      */
-    void unschedule(const std::string& key, void *target);
+    void unschedule(const std::string &key, void *target);
 
     /** Unschedules all selectors for a given target.
      This also includes the "update" selector.
@@ -220,7 +215,7 @@ public:
      @return True if the specified callback is invoked, false if not.
      @since v3.0.0
      */
-    bool isScheduled(const std::string& key, void *target);
+    bool isScheduled(const std::string &key, void *target);
 
     /////////////////////////////////////
 
@@ -252,7 +247,7 @@ public:
       You should NEVER call this method, unless you know what you are doing.
      @since v2.0.0
       */
-    std::set<void*> pauseAllTargets();
+    std::set<void *> pauseAllTargets();
 
     /** Pause all selectors from all targets with a minimum priority.
       You should only call this with PRIORITY_NON_SYSTEM_MIN or higher.
@@ -260,14 +255,14 @@ public:
             priority is higher than minPriority will be paused.
       @since v2.0.0
       */
-    std::set<void*> pauseAllTargetsWithMinPriority(int minPriority);
+    std::set<void *> pauseAllTargetsWithMinPriority(int minPriority);
 
     /** Resume selectors on a set of targets.
      This can be useful for undoing a call to pauseAllSelectors.
      @param targetsToResume The set of targets to be resumed.
      @since v2.0.0
       */
-    void resumeTargets(const std::set<void*>& targetsToResume);
+    void resumeTargets(const std::set<void *> &targetsToResume);
 
     /** Calls a function on the cocos2d thread. Useful when you need to call a cocos2d function from another thread.
      This function is thread safe.
@@ -275,7 +270,7 @@ public:
      @since v3.0
      @js NA
      */
-    void performFunctionInCocosThread( const std::function<void()> &function);
+    void performFunctionInCocosThread(const std::function<void()> &function);
 
     /**
      * Remove all pending functions queued to be performed with Scheduler::performFunctionInCocosThread
@@ -285,8 +280,8 @@ public:
      * @js NA
      */
     void removeAllFunctionsToBePerformedInCocosThread();
-    
-    bool isCurrentTargetSalvaged () const { return _currentTargetSalvaged; };
+
+    bool isCurrentTargetSalvaged() const { return _currentTargetSalvaged; };
 
 private:
     void removeHashElement(struct _hashSelectorEntry *element);
@@ -309,4 +304,4 @@ private:
 // end of base group
 /** @} */
 
-}
+} // namespace cc

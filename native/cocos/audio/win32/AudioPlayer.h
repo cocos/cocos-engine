@@ -22,11 +22,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-
 #pragma once
-
-
-#if CC_PLATFORM == CC_PLATFORM_WINDOWS
 
 #include <string>
 #include <condition_variable>
@@ -34,9 +30,9 @@
 #include <thread>
 #include <functional>
 #ifdef OPENAL_PLAIN_INCLUDES
-#include <al.h>
+    #include <al.h>
 #else
-#include <OpenalSoft/al.h>
+    #include <OpenalSoft/al.h>
 #endif
 #include "base/Macros.h"
 
@@ -45,8 +41,7 @@ namespace cc {
 class AudioCache;
 class AudioEngineImpl;
 
-class CC_DLL AudioPlayer
-{
+class CC_DLL AudioPlayer {
 public:
     AudioPlayer();
     ~AudioPlayer();
@@ -55,19 +50,19 @@ public:
 
     //queue buffer related stuff
     bool setTime(float time);
-    float getTime() { return _currTime;}
+    float getTime() { return _currTime; }
     bool setLoop(bool loop);
 
 protected:
-    void setCache(AudioCache* cache);
+    void setCache(AudioCache *cache);
     void rotateBufferThread(int offsetFrame);
     bool play2d();
 
-    AudioCache* _audioCache;
+    AudioCache *_audioCache;
 
     float _volume;
     bool _loop;
-    std::function<void (int, const std::string &)> _finishCallbak;
+    std::function<void(int, const std::string &)> _finishCallbak;
 
     bool _isDestroyed;
     bool _removeByAudioEngine;
@@ -78,7 +73,7 @@ protected:
     float _currTime;
     bool _streamingSource;
     ALuint _bufferIds[3];
-    std::thread* _rotateBufferThread;
+    std::thread *_rotateBufferThread;
     std::condition_variable _sleepCondition;
     std::mutex _sleepMutex;
     bool _timeDirty;
@@ -91,7 +86,4 @@ protected:
     friend class AudioEngineImpl;
 };
 
-}
-
-#endif //CC_PLATFORM == CC_PLATFORM_WINDOWS
-
+} // namespace cc

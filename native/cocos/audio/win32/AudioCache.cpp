@@ -22,12 +22,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-
 #define LOG_TAG "AudioCache"
-
-
-
-#if CC_PLATFORM == CC_PLATFORM_WINDOWS
 
 #include "audio/win32/AudioCache.h"
 #include <thread>
@@ -39,9 +34,11 @@
 
 #define VERY_VERY_VERBOSE_LOGGING
 #ifdef VERY_VERY_VERBOSE_LOGGING
-#define ALOGVV ALOGV
+    #define ALOGVV ALOGV
 #else
-#define ALOGVV(...) do{} while(false)
+    #define ALOGVV(...) \
+        do {            \
+        } while (false)
 #endif
 
 namespace {
@@ -54,35 +51,19 @@ unsigned int __idIndex = 0;
 using namespace cc;
 
 AudioCache::AudioCache()
-: _totalFrames(0)
-, _framesRead(0)
-, _format(-1)
-, _duration(0.0f)
-, _alBufferId(INVALID_AL_BUFFER_ID)
-, _pcmData(nullptr)
-, _queBufferFrames(0)
-, _state(State::INITIAL)
-, _isDestroyed(std::make_shared<bool>(false))
-, _id(++__idIndex)
-, _isLoadingFinished(false)
-, _isSkipReadDataTask(false)
-{
+: _totalFrames(0), _framesRead(0), _format(-1), _duration(0.0f), _alBufferId(INVALID_AL_BUFFER_ID), _pcmData(nullptr), _queBufferFrames(0), _state(State::INITIAL), _isDestroyed(std::make_shared<bool>(false)), _id(++__idIndex), _isLoadingFinished(false), _isSkipReadDataTask(false) {
     ALOGVV("AudioCache() %p, id=%u", this, _id);
-    for (int i = 0; i < QUEUEBUFFER_NUM; ++i)
-    {
+    for (int i = 0; i < QUEUEBUFFER_NUM; ++i) {
         _queBuffers[i] = nullptr;
         _queBufferSize[i] = 0;
     }
 }
 
-AudioCache::~AudioCache()
-{
+AudioCache::~AudioCache() {
     ALOGVV("~AudioCache() %p, id=%u, begin", this, _id);
     *_isDestroyed = true;
-    while (!_isLoadingFinished)
-    {
-        if (_isSkipReadDataTask)
-        {
+    while (!_isLoadingFinished) {
+        if (_isSkipReadDataTask) {
             ALOGV("id=%u, Skip read data task, don't continue to wait!", _id);
             break;
         }
@@ -93,46 +74,37 @@ AudioCache::~AudioCache()
     _readDataTaskMutex.lock();
     _readDataTaskMutex.unlock();
 
-    if (_pcmData)
-    {
-        if (_state == State::READY)
-        {
-            if (_alBufferId != INVALID_AL_BUFFER_ID && alIsBuffer(_alBufferId))
-            {
+    if (_pcmData) {
+        if (_state == State::READY) {
+            if (_alBufferId != INVALID_AL_BUFFER_ID && alIsBuffer(_alBufferId)) {
                 ALOGV("~AudioCache(id=%u), delete buffer: %u", _id, _alBufferId);
                 alDeleteBuffers(1, &_alBufferId);
                 _alBufferId = INVALID_AL_BUFFER_ID;
             }
-        }
-        else
-        {
+        } else {
             ALOGW("AudioCache (%p), id=%u, buffer isn't ready, state=%d", this, _id, _state);
         }
 
         free(_pcmData);
     }
 
-    if (_queBufferFrames > 0)
-    {
-        for (int index = 0; index < QUEUEBUFFER_NUM; ++index)
-        {
+    if (_queBufferFrames > 0) {
+        for (int index = 0; index < QUEUEBUFFER_NUM; ++index) {
             free(_queBuffers[index]);
         }
     }
     ALOGVV("~AudioCache() %p, id=%u, end", this, _id);
 }
 
-void AudioCache::readDataTask(unsigned int selfId)
-{
+void AudioCache::readDataTask(unsigned int selfId) {
     //Note: It's in sub thread
     ALOGVV("readDataTask begin, cache id=%u", selfId);
 
     _readDataTaskMutex.lock();
     _state = State::LOADING;
 
-    AudioDecoder* decoder = AudioDecoderManager::createDecoder(_fileFullPath.c_str());
-    do
-    {
+    AudioDecoder *decoder = AudioDecoderManager::createDecoder(_fileFullPath.c_str());
+    do {
         if (decoder == nullptr || !decoder->open(_fileFullPath.c_str()))
             break;
 
@@ -151,33 +123,28 @@ void AudioCache::readDataTask(unsigned int selfId)
         _duration = 1.0f * totalFrames / sampleRate;
         _totalFrames = totalFrames;
 
-        if (dataSize <= PCMDATA_CACHEMAXSIZE)
-        {
+        if (dataSize <= PCMDATA_CACHEMAXSIZE) {
             uint32_t framesRead = 0;
             const uint32_t framesToReadOnce = std::min(totalFrames, static_cast<uint32_t>(sampleRate * QUEUEBUFFER_TIME_STEP * QUEUEBUFFER_NUM));
 
             std::vector<char> adjustFrameBuf;
 
-            if (decoder->seek(totalFrames))
-            {
-                char* tmpBuf = (char*)malloc(framesToReadOnce * bytesPerFrame);
+            if (decoder->seek(totalFrames)) {
+                char *tmpBuf = (char *)malloc(framesToReadOnce * bytesPerFrame);
                 adjustFrameBuf.reserve(framesToReadOnce * bytesPerFrame);
 
                 // Adjust total frames by setting position to the end of frames and try to read more data.
                 // This is a workaround for https://github.com/cocos2d/cocos2d-x/issues/16938
-                do
-                {
+                do {
                     framesRead = decoder->read(framesToReadOnce, tmpBuf);
-                    if (framesRead > 0)
-                    {
+                    if (framesRead > 0) {
                         adjustFrames += framesRead;
                         adjustFrameBuf.insert(adjustFrameBuf.end(), tmpBuf, tmpBuf + framesRead * bytesPerFrame);
                     }
 
                 } while (framesRead > 0);
 
-                if (adjustFrames > 0)
-                {
+                if (adjustFrames > 0) {
                     ALOGV("Orignal total frames: %u, adjust frames: %u, current total frames: %u", totalFrames, adjustFrames, totalFrames + adjustFrames);
                     totalFrames += adjustFrames;
                     _totalFrames = remainingFrames = totalFrames;
@@ -191,11 +158,10 @@ void AudioCache::readDataTask(unsigned int selfId)
             // Reset to frame 0
             BREAK_IF_ERR_LOG(!decoder->seek(0), "AudioDecoder::seek(0) failed!");
 
-            _pcmData = (char*)malloc(dataSize);
+            _pcmData = (char *)malloc(dataSize);
             memset(_pcmData, 0x00, dataSize);
 
-            if (adjustFrames > 0)
-            {
+            if (adjustFrames > 0) {
                 memcpy(_pcmData + (dataSize - adjustFrameBuf.size()), adjustFrameBuf.data(), adjustFrameBuf.size());
             }
 
@@ -217,11 +183,9 @@ void AudioCache::readDataTask(unsigned int selfId)
                 break;
 
             uint32_t frames = 0;
-            while (!*_isDestroyed && _framesRead < originalTotalFrames)
-            {
+            while (!*_isDestroyed && _framesRead < originalTotalFrames) {
                 frames = std::min(framesToReadOnce, remainingFrames);
-                if (_framesRead + frames > originalTotalFrames)
-                {
+                if (_framesRead + frames > originalTotalFrames) {
                     frames = originalTotalFrames - _framesRead;
                 }
                 framesRead = decoder->read(frames, _pcmData + _framesRead * bytesPerFrame);
@@ -234,8 +198,7 @@ void AudioCache::readDataTask(unsigned int selfId)
             if (*_isDestroyed)
                 break;
 
-            if (_framesRead < originalTotalFrames)
-            {
+            if (_framesRead < originalTotalFrames) {
                 memset(_pcmData + _framesRead * bytesPerFrame, 0x00, (totalFrames - _framesRead) * bytesPerFrame);
             }
             ALOGV("pcm buffer was loaded successfully, total frames: %u, total read frames: %u, adjust frames: %u, remainingFrames: %u", totalFrames, _framesRead, adjustFrames, remainingFrames);
@@ -245,17 +208,14 @@ void AudioCache::readDataTask(unsigned int selfId)
             alBufferData(_alBufferId, _format, _pcmData, (ALsizei)dataSize, (ALsizei)sampleRate);
 
             _state = State::READY;
-        }
-        else
-        {
+        } else {
             _queBufferFrames = sampleRate * QUEUEBUFFER_TIME_STEP;
             BREAK_IF_ERR_LOG(_queBufferFrames == 0, "_queBufferFrames == 0");
 
             const uint32_t queBufferBytes = _queBufferFrames * bytesPerFrame;
 
-            for (int index = 0; index < QUEUEBUFFER_NUM; ++index)
-            {
-                _queBuffers[index] = (char*)malloc(queBufferBytes);
+            for (int index = 0; index < QUEUEBUFFER_NUM; ++index) {
+                _queBuffers[index] = (char *)malloc(queBufferBytes);
                 _queBufferSize[index] = queBufferBytes;
 
                 decoder->readFixedFrames(_queBufferFrames, _queBuffers[index]);
@@ -266,18 +226,15 @@ void AudioCache::readDataTask(unsigned int selfId)
 
     } while (false);
 
-    if (decoder != nullptr)
-    {
+    if (decoder != nullptr) {
         decoder->close();
     }
 
     AudioDecoderManager::destroyDecoder(decoder);
 
-    if (_state != State::READY)
-    {
+    if (_state != State::READY) {
         _state = State::FAILED;
-        if (_alBufferId != INVALID_AL_BUFFER_ID && alIsBuffer(_alBufferId))
-        {
+        if (_alBufferId != INVALID_AL_BUFFER_ID && alIsBuffer(_alBufferId)) {
             ALOGV("readDataTask failed, delete buffer: %u", _alBufferId);
             alDeleteBuffers(1, &_alBufferId);
             _alBufferId = INVALID_AL_BUFFER_ID;
@@ -293,11 +250,9 @@ void AudioCache::readDataTask(unsigned int selfId)
     ALOGVV("readDataTask end, cache id=%u", selfId);
 }
 
-void AudioCache::addPlayCallback(const std::function<void()>& callback)
-{
+void AudioCache::addPlayCallback(const std::function<void()> &callback) {
     std::lock_guard<std::mutex> lk(_playCallbackMutex);
-    switch (_state)
-    {
+    switch (_state) {
         case State::INITIAL:
         case State::LOADING:
             _playCallbacks.push_back(callback);
@@ -316,22 +271,18 @@ void AudioCache::addPlayCallback(const std::function<void()>& callback)
     }
 }
 
-void AudioCache::invokingPlayCallbacks()
-{
+void AudioCache::invokingPlayCallbacks() {
     std::lock_guard<std::mutex> lk(_playCallbackMutex);
 
-    for (auto&& cb : _playCallbacks)
-    {
+    for (auto &&cb : _playCallbacks) {
         cb();
     }
 
     _playCallbacks.clear();
 }
 
-void AudioCache::addLoadCallback(const std::function<void(bool)>& callback)
-{
-    switch (_state)
-    {
+void AudioCache::addLoadCallback(const std::function<void(bool)> &callback) {
+    switch (_state) {
         case State::INITIAL:
         case State::LOADING:
             _loadCallbacks.push_back(callback);
@@ -350,30 +301,24 @@ void AudioCache::addLoadCallback(const std::function<void(bool)>& callback)
     }
 }
 
-void AudioCache::invokingLoadCallbacks()
-{
-    if (*_isDestroyed)
-    {
+void AudioCache::invokingLoadCallbacks() {
+    if (*_isDestroyed) {
         ALOGV("AudioCache (%p) was destroyed, don't invoke preload callback ...", this);
         return;
     }
 
     auto isDestroyed = _isDestroyed;
     auto scheduler = Application::getInstance()->getScheduler();
-    scheduler->performFunctionInCocosThread([&, isDestroyed](){
-        if (*isDestroyed)
-        {
+    scheduler->performFunctionInCocosThread([&, isDestroyed]() {
+        if (*isDestroyed) {
             ALOGV("invokingLoadCallbacks perform in cocos thread, AudioCache (%p) was destroyed!", this);
             return;
         }
 
-        for (auto&& cb : _loadCallbacks)
-        {
+        for (auto &&cb : _loadCallbacks) {
             cb(_state == State::READY);
         }
 
         _loadCallbacks.clear();
     });
 }
-
-#endif

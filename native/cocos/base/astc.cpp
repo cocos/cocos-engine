@@ -32,13 +32,13 @@ static const astc_byte ASTC_HEADER_SIZE_X_BEGIN = 7;
 static const astc_byte ASTC_HEADER_SIZE_Y_BEGIN = 10;
 static const astc_byte ASTC_HEADER_SIZE_Z_BEGIN = 13;
 
-bool astcIsValid(const astc_byte* pHeader) {
+bool astcIsValid(const astc_byte *pHeader) {
     uint32_t magicval = (uint32_t)(pHeader[0]) +
                         (uint32_t)(pHeader[1]) * 256 +
                         (uint32_t)(pHeader[2]) * 65536 +
                         (uint32_t)(pHeader[3]) * 16777216;
 
-    if(magicval != MAGIC) {
+    if (magicval != MAGIC) {
         return false;
     }
 
@@ -46,21 +46,20 @@ bool astcIsValid(const astc_byte* pHeader) {
     int ydim = pHeader[ASTC_HEADER_MAGIC + 1];
     int zdim = pHeader[ASTC_HEADER_MAGIC + 2];
     if ((xdim < 3 || xdim > 6 || ydim < 3 || ydim > 6 || zdim < 3 || zdim > 6) &&
-	    (xdim < 4 || xdim == 7 || xdim == 9 || xdim == 11 || xdim > 12 ||
-	     ydim < 4 || ydim == 7 || ydim == 9 || ydim == 11 || ydim > 12 || zdim != 1))
-    {
+        (xdim < 4 || xdim == 7 || xdim == 9 || xdim == 11 || xdim > 12 ||
+         ydim < 4 || ydim == 7 || ydim == 9 || ydim == 11 || ydim > 12 || zdim != 1)) {
         return false;
     }
 
     return true;
 }
 
-int astcGetWidth(const astc_byte* pHeader) {
+int astcGetWidth(const astc_byte *pHeader) {
     int xsize = pHeader[ASTC_HEADER_SIZE_X_BEGIN] + (pHeader[ASTC_HEADER_SIZE_X_BEGIN + 1] * 256) + (pHeader[ASTC_HEADER_SIZE_X_BEGIN + 2] * 65536);
     return xsize;
 }
 
-int astcGetHeight(const astc_byte* pHeader) {
+int astcGetHeight(const astc_byte *pHeader) {
     int ysize = pHeader[ASTC_HEADER_SIZE_Y_BEGIN] + (pHeader[ASTC_HEADER_SIZE_Y_BEGIN + 1] * 256) + (pHeader[ASTC_HEADER_SIZE_Y_BEGIN + 2] * 65536);
     return ysize;
 }

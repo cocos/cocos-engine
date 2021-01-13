@@ -29,15 +29,13 @@ THE SOFTWARE.
 #include "audio/android/PcmData.h"
 #include "audio/android/Track.h"
 
-namespace cc { 
+namespace cc {
 
 class ICallerThreadUtils;
 class AudioMixerController;
 
-class PcmAudioPlayer : public IAudioPlayer
-{
+class PcmAudioPlayer : public IAudioPlayer {
 public:
-
     bool prepare(const std::string &url, const PcmData &decResult);
 
     // Override Functions Begin
@@ -80,19 +78,19 @@ public:
     // Override Functions End
 
 private:
-    PcmAudioPlayer(AudioMixerController * controller, ICallerThreadUtils* callerThreadUtils);
+    PcmAudioPlayer(AudioMixerController *controller, ICallerThreadUtils *callerThreadUtils);
     virtual ~PcmAudioPlayer();
 
 private:
     int _id;
     std::string _url;
     PcmData _decResult;
-    Track* _track;
+    Track *_track;
     PlayEventCallback _playEventCallback;
-    AudioMixerController * _controller;
-    ICallerThreadUtils* _callerThreadUtils;
+    AudioMixerController *_controller;
+    ICallerThreadUtils *_callerThreadUtils;
 
     friend class AudioPlayerProvider;
 };
 
-} // namespace cc { 
+} // namespace cc

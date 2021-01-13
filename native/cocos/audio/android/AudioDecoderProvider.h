@@ -27,15 +27,14 @@ THE SOFTWARE.
 
 #include "audio/android/OpenSLHelper.h"
 
-namespace cc { 
+namespace cc {
 
 class AudioDecoder;
 
-class AudioDecoderProvider
-{
+class AudioDecoderProvider {
 public:
-    static AudioDecoder* createAudioDecoder(SLEngineItf engineItf, const std::string &url, int bufferSizeInFrames, int sampleRate, const FdGetterCallback &fdGetterCallback);
-    static void destroyAudioDecoder(AudioDecoder** decoder);
+    static AudioDecoder *createAudioDecoder(SLEngineItf engineItf, const std::string &url, int bufferSizeInFrames, int sampleRate, const FdGetterCallback &fdGetterCallback);
+    static void destroyAudioDecoder(AudioDecoder **decoder);
 };
 
-} // namespace cc { 
+} // namespace cc

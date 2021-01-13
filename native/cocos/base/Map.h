@@ -29,9 +29,9 @@
 #include <vector>
 
 #if USE_STD_UNORDERED_MAP
-#include <unordered_map>
+    #include <unordered_map>
 #else
-#include <map>
+    #include <map>
 #endif
 
 #include "base/Log.h"
@@ -44,7 +44,7 @@
  */
 namespace cc {
 
- /**
+/**
  * Similar to std::unordered_map, but it will manage reference count automatically internally.
  * Which means it will invoke Ref::retain() when adding an element, and invoke Ref::release() when removing an element.
  * @warning The element should be `Ref` or its sub-class.
@@ -52,8 +52,7 @@ namespace cc {
  * @lua NA
  */
 template <class K, class V>
-class Map
-{
+class Map {
 public:
 #if USE_STD_UNORDERED_MAP
     typedef std::unordered_map<K, V> RefMap;
@@ -69,7 +68,7 @@ public:
     typedef typename RefMap::iterator iterator;
     /** Const iterator, can be used to loop the Map. */
     typedef typename RefMap::const_iterator const_iterator;
-    
+
     /** Return iterator to beginning. */
     iterator begin() { return _data.begin(); }
     /** Return const_iterator to beginning. */
@@ -87,34 +86,30 @@ public:
 
     /** Default constructor */
     Map<K, V>()
-    : _data()
-    {
-        static_assert(std::is_convertible<V, Ref*>::value, "Invalid Type for cc::Map<K, V>!");
+    : _data() {
+        static_assert(std::is_convertible<V, Ref *>::value, "Invalid Type for cc::Map<K, V>!");
         CC_LOG_INFO("In the default constructor of Map!");
     }
 
     /** Constructor with capacity. */
     explicit Map<K, V>(ssize_t capacity)
-    : _data()
-    {
-        static_assert(std::is_convertible<V, Ref*>::value, "Invalid Type for cc::Map<K, V>!");
+    : _data() {
+        static_assert(std::is_convertible<V, Ref *>::value, "Invalid Type for cc::Map<K, V>!");
         CC_LOG_INFO("In the constructor with capacity of Map!");
         _data.reserve(capacity);
     }
 
     /** Copy constructor. */
-    Map<K, V>(const Map<K, V>& other)
-    {
-        static_assert(std::is_convertible<V, Ref*>::value, "Invalid Type for cc::Map<K, V>!");
+    Map<K, V>(const Map<K, V> &other) {
+        static_assert(std::is_convertible<V, Ref *>::value, "Invalid Type for cc::Map<K, V>!");
         CC_LOG_INFO("In the copy constructor of Map!");
         _data = other._data;
         addRefForAllObjects();
     }
 
     /** Move constructor. */
-    Map<K, V>(Map<K, V>&& other)
-    {
-        static_assert(std::is_convertible<V, Ref*>::value, "Invalid Type for cc::Map<K, V>!");
+    Map<K, V>(Map<K, V> &&other) {
+        static_assert(std::is_convertible<V, Ref *>::value, "Invalid Type for cc::Map<K, V>!");
         CC_LOG_INFO("In the move constructor of Map!");
         _data = std::move(other._data);
     }
@@ -123,23 +118,20 @@ public:
      * Destructor.
      * It will release all objects in map.
      */
-    ~Map<K, V>()
-    {
+    ~Map<K, V>() {
         CC_LOG_INFO("In the destructor of Map!");
         clear();
     }
 
     /** Sets capacity of the map. */
-    void reserve(ssize_t capacity)
-    {
+    void reserve(ssize_t capacity) {
 #if USE_STD_UNORDERED_MAP
         _data.reserve(capacity);
 #endif
     }
 
     /** Returns the number of buckets in the Map container. */
-    ssize_t bucketCount() const
-    {
+    ssize_t bucketCount() const {
 #if USE_STD_UNORDERED_MAP
         return _data.bucket_count();
 #else
@@ -148,8 +140,7 @@ public:
     }
 
     /** Returns the number of elements in bucket n. */
-    ssize_t bucketSize(ssize_t n) const
-    {
+    ssize_t bucketSize(ssize_t n) const {
 #if USE_STD_UNORDERED_MAP
         return _data.bucket_size(n);
 #else
@@ -158,8 +149,7 @@ public:
     }
 
     /** Returns the bucket number where the element with key k is located. */
-    ssize_t bucket(const K& k) const
-    {
+    ssize_t bucket(const K &k) const {
 #if USE_STD_UNORDERED_MAP
         return _data.bucket(k);
 #else
@@ -168,8 +158,7 @@ public:
     }
 
     /** The number of elements in the map. */
-    ssize_t size() const
-    {
+    ssize_t size() const {
         return _data.size();
     }
 
@@ -178,22 +167,18 @@ public:
      *  @note This function does not modify the content of the container in any way.
      *        To clear the content of an array object, member function unordered_map::clear exists.
      */
-    bool empty() const
-    {
+    bool empty() const {
         return _data.empty();
     }
 
     /** Returns all keys in the map. */
-    std::vector<K> keys() const
-    {
+    std::vector<K> keys() const {
         std::vector<K> keys;
 
-        if (!_data.empty())
-        {
+        if (!_data.empty()) {
             keys.reserve(_data.size());
 
-            for (auto iter = _data.cbegin(); iter != _data.cend(); ++iter)
-            {
+            for (auto iter = _data.cbegin(); iter != _data.cend(); ++iter) {
                 keys.push_back(iter->first);
             }
         }
@@ -201,18 +186,14 @@ public:
     }
 
     /** Returns all keys that matches the object. */
-    std::vector<K> keys(V object) const
-    {
+    std::vector<K> keys(V object) const {
         std::vector<K> keys;
 
-        if (!_data.empty())
-        {
+        if (!_data.empty()) {
             keys.reserve(_data.size() / 10);
 
-            for (auto iter = _data.cbegin(); iter != _data.cend(); ++iter)
-            {
-                if (iter->second == object)
-                {
+            for (auto iter = _data.cbegin(); iter != _data.cend(); ++iter) {
+                if (iter->second == object) {
                     keys.push_back(iter->first);
                 }
             }
@@ -230,16 +211,14 @@ public:
      *  @param key Key value of the element whose mapped value is accessed.
      *       Member type K is the keys for the elements in the container. defined in Map<K, V> as an alias of its first template parameter (Key).
      */
-    const V at(const K& key) const
-    {
+    const V at(const K &key) const {
         auto iter = _data.find(key);
         if (iter != _data.end())
             return iter->second;
         return nullptr;
     }
 
-    V at(const K& key)
-    {
+    V at(const K &key) {
         auto iter = _data.find(key);
         if (iter != _data.end())
             return iter->second;
@@ -254,13 +233,11 @@ public:
      *        Member type 'K' is the type of the keys for the elements in the container,
      *        defined in Map<K, V> as an alias of its first template parameter (Key).
      */
-    const_iterator find(const K& key) const
-    {
+    const_iterator find(const K &key) const {
         return _data.find(key);
     }
 
-    iterator find(const K& key)
-    {
+    iterator find(const K &key) {
         return _data.find(key);
     }
 
@@ -271,8 +248,7 @@ public:
      * @param key The key to be inserted.
      * @param object The object to be inserted.
      */
-    void insert(const K& key, V object)
-    {
+    void insert(const K &key, V object) {
         CCASSERT(object != nullptr, "Object is nullptr!");
         object->retain();
         erase(key);
@@ -285,8 +261,7 @@ public:
      * @param position Iterator pointing to a single element to be removed from the Map<K, V>.
      *        Member type const_iterator is a forward iterator type.
      */
-    iterator erase(const_iterator position)
-    {
+    iterator erase(const_iterator position) {
         CCASSERT(position != _data.cend(), "Invalid iterator!");
         position->second->release();
         return _data.erase(position);
@@ -299,11 +274,9 @@ public:
      *        Member type 'K' is the type of the keys for the elements in the container,
      *        defined in Map<K, V> as an alias of its first template parameter (Key).
      */
-    size_t erase(const K& k)
-    {
+    size_t erase(const K &k) {
         auto iter = _data.find(k);
-        if (iter != _data.end())
-        {
+        if (iter != _data.end()) {
             iter->second->release();
             _data.erase(iter);
             return 1;
@@ -316,9 +289,8 @@ public:
      *
      * @param keys Keys of elements to be erased.
      */
-    void erase(const std::vector<K>& keys)
-    {
-        for(const auto &key : keys) {
+    void erase(const std::vector<K> &keys) {
+        for (const auto &key : keys) {
             this->erase(key);
         }
     }
@@ -328,10 +300,8 @@ public:
      *  their reference count will be decreased, and they are removed from the container,
      *  leaving it with a size of 0.
      */
-    void clear()
-    {
-        for (auto iter = _data.cbegin(); iter != _data.cend(); ++iter)
-        {
+    void clear() {
+        for (auto iter = _data.cbegin(); iter != _data.cend(); ++iter) {
             iter->second->release();
         }
 
@@ -342,13 +312,11 @@ public:
      * Gets a random object in the map.
      * @return Returns the random object if the map isn't empty, otherwise it returns nullptr.
      */
-    V getRandomObject() const
-    {
-        if (!_data.empty())
-        {
+    V getRandomObject() const {
+        if (!_data.empty()) {
             ssize_t randIdx = RandomHelper::random_int<int>(0, static_cast<int>(_data.size()) - 1);
             const_iterator randIter = _data.begin();
-            std::advance(randIter , randIdx);
+            std::advance(randIter, randIdx);
             return randIter->second;
         }
         return nullptr;
@@ -380,8 +348,7 @@ public:
     //    }
 
     /** Copy assignment operator. */
-    Map<K, V>& operator= ( const Map<K, V>& other )
-    {
+    Map<K, V> &operator=(const Map<K, V> &other) {
         if (this != &other) {
             CC_LOG_INFO("In the copy assignment operator of Map!");
             clear();
@@ -392,8 +359,7 @@ public:
     }
 
     /** Move assignment operator. */
-    Map<K, V>& operator= ( Map<K, V>&& other )
-    {
+    Map<K, V> &operator=(Map<K, V> &&other) {
         if (this != &other) {
             CC_LOG_INFO("In the move assignment operator of Map!");
             clear();
@@ -403,12 +369,9 @@ public:
     }
 
 protected:
-
     /** Retains all the objects in the map */
-    void addRefForAllObjects()
-    {
-        for (auto iter = _data.begin(); iter != _data.end(); ++iter)
-        {
+    void addRefForAllObjects() {
+        for (auto iter = _data.begin(); iter != _data.end(); ++iter) {
             iter->second->retain();
         }
     }
@@ -416,7 +379,6 @@ protected:
     RefMap _data;
 };
 
-
-}
+} // namespace cc
 // end group
 /// @}

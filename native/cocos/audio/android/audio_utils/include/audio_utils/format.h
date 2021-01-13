@@ -53,8 +53,7 @@ __BEGIN_DECLS
  * Logs a fatal error if dst or src format is not allowed by the conversion rules above.
  */
 void memcpy_by_audio_format(void *dst, audio_format_t dst_format,
-        const void *src, audio_format_t src_format, size_t count);
-
+                            const void *src, audio_format_t src_format, size_t count);
 
 /* This function creates an index array for converting audio data with different
  * channel position and index masks, used by memcpy_by_index_array().
@@ -72,8 +71,8 @@ void memcpy_by_audio_format(void *dst, audio_format_t dst_format,
  *  src_mask    Bit mask corresponding to source channels present
  */
 size_t memcpy_by_index_array_initialization_from_channel_mask(int8_t *idxary, size_t arysize,
-        audio_channel_mask_t dst_channel_mask, audio_channel_mask_t src_channel_mask);
+                                                              audio_channel_mask_t dst_channel_mask, audio_channel_mask_t src_channel_mask);
 
 __END_DECLS
 
-#endif  // COCOS_AUDIO_FORMAT_H
+#endif // COCOS_AUDIO_FORMAT_H

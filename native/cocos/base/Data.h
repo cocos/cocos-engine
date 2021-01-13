@@ -38,8 +38,7 @@
  */
 namespace cc {
 
-class CC_DLL Data
-{
+class CC_DLL Data {
     friend class Properties;
 
 public:
@@ -56,12 +55,12 @@ public:
     /**
      * Copy constructor of Data.
      */
-    Data(const Data& other);
+    Data(const Data &other);
 
     /**
      * Copy constructor of Data.
      */
-    Data(Data&& other);
+    Data(Data &&other);
 
     /**
      * Destructor of Data.
@@ -71,19 +70,19 @@ public:
     /**
      * Overloads of operator=.
      */
-    Data& operator= (const Data& other);
+    Data &operator=(const Data &other);
 
     /**
      * Overloads of operator=.
      */
-    Data& operator= (Data&& other);
+    Data &operator=(Data &&other);
 
     /**
      * Gets internal bytes of Data. It will return the pointer directly used in Data, so don't delete it.
      *
      * @return Pointer of bytes used internal in Data.
      */
-    unsigned char* getBytes() const;
+    unsigned char *getBytes() const;
 
     /**
      * Gets the size of the bytes.
@@ -97,7 +96,7 @@ public:
      *        Developer should free the pointer after invoking this method.
      *  @see Data::fastSet
      */
-    void copy(const unsigned char* bytes, const ssize_t size);
+    void copy(const unsigned char *bytes, const ssize_t size);
 
     /** Fast set the buffer pointer and its size. Please use it carefully.
      *  @param bytes The buffer pointer, note that it have to be allocated by 'malloc' or 'calloc',
@@ -106,7 +105,7 @@ public:
      *        2. The pointer should not be used outside after it was passed to this method.
      *  @see Data::copy
      */
-    void fastSet(unsigned char* bytes, const ssize_t size);
+    void fastSet(unsigned char *bytes, const ssize_t size);
 
     /**
      * Clears data, free buffer and reset data size.
@@ -140,17 +139,17 @@ public:
      * @param size Will fill with the data buffer size in bytes, if you do not care buffer size, pass nullptr.
      * @return the internal data buffer, free it after use.
      */
-    unsigned char* takeBuffer(ssize_t* size = nullptr);
-private:
-    void move(Data& other);
+    unsigned char *takeBuffer(ssize_t *size = nullptr);
 
 private:
-    unsigned char* _bytes;
+    void move(Data &other);
+
+private:
+    unsigned char *_bytes;
     ssize_t _size;
 };
 
-
-}
+} // namespace cc
 
 /** @} */
 #endif // __CCDATA_H__

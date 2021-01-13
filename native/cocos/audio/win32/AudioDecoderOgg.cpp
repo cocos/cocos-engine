@@ -22,66 +22,56 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-
 #include "audio/win32/AudioDecoderOgg.h"
 #include "audio/win32/AudioMacros.h"
 #include "platform/FileUtils.h"
 
 #define LOG_TAG "AudioDecoderOgg"
 
-namespace cc { 
+namespace cc {
 
-    AudioDecoderOgg::AudioDecoderOgg()
-    {
+AudioDecoderOgg::AudioDecoderOgg() {
+}
+
+AudioDecoderOgg::~AudioDecoderOgg() {
+    close();
+}
+
+bool AudioDecoderOgg::open(const char *path) {
+    std::string fullPath = FileUtils::getInstance()->fullPathForFilename(path);
+    if (0 == ov_fopen(FileUtils::getInstance()->getSuitableFOpen(fullPath).c_str(), &_vf)) {
+        // header
+        vorbis_info *vi = ov_info(&_vf, -1);
+        _sampleRate = static_cast<uint32_t>(vi->rate);
+        _channelCount = vi->channels;
+        _bytesPerFrame = vi->channels * sizeof(short);
+        _totalFrames = static_cast<uint32_t>(ov_pcm_total(&_vf, -1));
+        _isOpened = true;
+        return true;
     }
+    return false;
+}
 
-    AudioDecoderOgg::~AudioDecoderOgg()
-    {
-        close();
+void AudioDecoderOgg::close() {
+    if (isOpened()) {
+        ov_clear(&_vf);
+        _isOpened = false;
     }
+}
 
-    bool AudioDecoderOgg::open(const char* path)
-    {
-        std::string fullPath = FileUtils::getInstance()->fullPathForFilename(path);
-        if (0 == ov_fopen(FileUtils::getInstance()->getSuitableFOpen(fullPath).c_str(), &_vf))
-        {
-            // header
-            vorbis_info* vi = ov_info(&_vf, -1);
-            _sampleRate = static_cast<uint32_t>(vi->rate);
-            _channelCount = vi->channels;
-            _bytesPerFrame = vi->channels * sizeof(short);
-            _totalFrames = static_cast<uint32_t>(ov_pcm_total(&_vf, -1));
-            _isOpened = true;
-            return true;
-        }
-        return false;
-    }
+uint32_t AudioDecoderOgg::read(uint32_t framesToRead, char *pcmBuf) {
+    int currentSection = 0;
+    int bytesToRead = framesToRead * _bytesPerFrame;
+    long bytesRead = ov_read(&_vf, pcmBuf, bytesToRead, 0, 2, 1, &currentSection);
+    return static_cast<uint32_t>(bytesRead / _bytesPerFrame);
+}
 
-    void AudioDecoderOgg::close()
-    {
-        if (isOpened())
-        {
-            ov_clear(&_vf);
-            _isOpened = false;
-        }
-    }
+bool AudioDecoderOgg::seek(uint32_t frameOffset) {
+    return 0 == ov_pcm_seek(&_vf, frameOffset);
+}
 
-    uint32_t AudioDecoderOgg::read(uint32_t framesToRead, char* pcmBuf)
-    {
-        int currentSection = 0;
-        int bytesToRead = framesToRead * _bytesPerFrame;
-        long bytesRead = ov_read(&_vf, pcmBuf, bytesToRead, 0, 2, 1, &currentSection);
-        return static_cast<uint32_t>(bytesRead / _bytesPerFrame);
-    }
+uint32_t AudioDecoderOgg::tell() const {
+    return static_cast<uint32_t>(ov_pcm_tell(const_cast<OggVorbis_File *>(&_vf)));
+}
 
-    bool AudioDecoderOgg::seek(uint32_t frameOffset)
-    {
-        return 0 == ov_pcm_seek(&_vf, frameOffset);
-    }
-
-    uint32_t AudioDecoderOgg::tell() const
-    {
-        return static_cast<uint32_t>(ov_pcm_tell(const_cast<OggVorbis_File*>(&_vf)));
-    }
-
-} // namespace cc { 
+} // namespace cc

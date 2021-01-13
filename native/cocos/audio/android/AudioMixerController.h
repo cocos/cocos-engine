@@ -33,18 +33,15 @@ THE SOFTWARE.
 #include <atomic>
 #include <vector>
 
-namespace cc { 
+namespace cc {
 
 class Track;
 class AudioMixer;
 
-class AudioMixerController
-{
+class AudioMixerController {
 public:
-
-    struct OutputBuffer
-    {
-        void* buf;
+    struct OutputBuffer {
+        void *buf;
         size_t size;
     };
 
@@ -54,7 +51,7 @@ public:
 
     bool init();
 
-    bool addTrack(Track* track);
+    bool addTrack(Track *track);
     bool hasPlayingTacks();
 
     void pause();
@@ -63,21 +60,21 @@ public:
 
     void mixOneFrame();
 
-    inline OutputBuffer* current() { return &_mixingBuffer; }
+    inline OutputBuffer *current() { return &_mixingBuffer; }
 
 private:
     void destroy();
-    void initTrack(Track* track, std::vector<Track*>& tracksToRemove);
+    void initTrack(Track *track, std::vector<Track *> &tracksToRemove);
 
 private:
     int _bufferSizeInFrames;
     int _sampleRate;
     int _channelCount;
 
-    AudioMixer* _mixer;
+    AudioMixer *_mixer;
 
     std::mutex _activeTracksMutex;
-    std::vector<Track*> _activeTracks;
+    std::vector<Track *> _activeTracks;
 
     OutputBuffer _mixingBuffer;
 
@@ -85,4 +82,4 @@ private:
     std::atomic_bool _isMixingFrame;
 };
 
-} // namespace cc { 
+} // namespace cc

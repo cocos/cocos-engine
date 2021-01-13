@@ -26,18 +26,17 @@ THE SOFTWARE.
 
 #include <unistd.h>
 
-namespace cc { 
+namespace cc {
 
-class AssetFd
-{
+class AssetFd {
 public:
     AssetFd(int assetFd);
     ~AssetFd();
 
     inline int getFd() const { return _assetFd; };
+
 private:
     int _assetFd;
 };
 
-} // namespace cc { 
-
+} // namespace cc

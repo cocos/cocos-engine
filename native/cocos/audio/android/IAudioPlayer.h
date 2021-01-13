@@ -27,13 +27,11 @@ THE SOFTWARE.
 
 #include <functional>
 
-namespace cc { 
+namespace cc {
 
-class IAudioPlayer
-{
+class IAudioPlayer {
 public:
-    enum class State
-    {
+    enum class State {
         INVALID = 0,
         INITIALIZED,
         PLAYING,
@@ -44,8 +42,7 @@ public:
 
     using PlayEventCallback = std::function<void(State)>;
 
-    virtual ~IAudioPlayer()
-    { };
+    virtual ~IAudioPlayer(){};
 
     virtual int getId() const = 0;
 
@@ -86,4 +83,4 @@ public:
     virtual void setPlayEventCallback(const PlayEventCallback &playEventCallback) = 0;
 };
 
-} // namespace cc { 
+} // namespace cc

@@ -41,25 +41,25 @@ typedef struct {
 typedef struct SNDFILE_ SNDFILE;
 
 // Format
-#define SF_FORMAT_TYPEMASK  1
-#define SF_FORMAT_WAV       1
-#define SF_FORMAT_SUBMASK   14
-#define SF_FORMAT_PCM_16    2
-#define SF_FORMAT_PCM_U8    4
-#define SF_FORMAT_FLOAT     6
-#define SF_FORMAT_PCM_32    8
-#define SF_FORMAT_PCM_24    10
+#define SF_FORMAT_TYPEMASK 1
+#define SF_FORMAT_WAV      1
+#define SF_FORMAT_SUBMASK  14
+#define SF_FORMAT_PCM_16   2
+#define SF_FORMAT_PCM_U8   4
+#define SF_FORMAT_FLOAT    6
+#define SF_FORMAT_PCM_32   8
+#define SF_FORMAT_PCM_24   10
 
 typedef struct {
-    void* (*open)(const char* path, void* user);
-    size_t (*read)  (void* ptr, size_t size, size_t nmemb, void* datasource);
-    int    (*seek)  (void* datasource, long offset, int whence);
-    int    (*close) (void* datasource);
-    long   (*tell)  (void* datasource);
+    void *(*open)(const char *path, void *user);
+    size_t (*read)(void *ptr, size_t size, size_t nmemb, void *datasource);
+    int (*seek)(void *datasource, long offset, int whence);
+    int (*close)(void *datasource);
+    long (*tell)(void *datasource);
 } snd_callbacks;
 
 // Open stream
-SNDFILE *sf_open_read(const char *path, SF_INFO *info, snd_callbacks* cb, void* user);
+SNDFILE *sf_open_read(const char *path, SF_INFO *info, snd_callbacks *cb, void *user);
 
 // Close stream
 void sf_close(SNDFILE *handle);

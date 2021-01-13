@@ -30,25 +30,20 @@ THE SOFTWARE.
 
 //#define VERY_VERY_VERBOSE_LOGGING
 #ifdef VERY_VERY_VERBOSE_LOGGING
-#define ALOGVV ALOGV
+    #define ALOGVV ALOGV
 #else
-#define ALOGVV(a...) do { } while (0)
+    #define ALOGVV(a...) \
+        do {             \
+        } while (0)
 #endif
 
-namespace cc { 
+namespace cc {
 
 PcmBufferProvider::PcmBufferProvider()
-        : _addr(nullptr)
-        , _numFrames(0)
-        , _frameSize(0)
-        , _nextFrame(0)
-        , _unrel(0)
-{
-    
+: _addr(nullptr), _numFrames(0), _frameSize(0), _nextFrame(0), _unrel(0) {
 }
 
-bool PcmBufferProvider::init(const void *addr, size_t frames, size_t frameSize)
-{
+bool PcmBufferProvider::init(const void *addr, size_t frames, size_t frameSize) {
     _addr = addr;
     _numFrames = frames;
     _frameSize = frameSize;
@@ -58,20 +53,20 @@ bool PcmBufferProvider::init(const void *addr, size_t frames, size_t frameSize)
 }
 
 status_t PcmBufferProvider::getNextBuffer(Buffer *buffer,
-                                          int64_t pts/* = kInvalidPTS*/) {
-    (void) pts; // suppress warning
+                                          int64_t pts /* = kInvalidPTS*/) {
+    (void)pts; // suppress warning
     size_t requestedFrames = buffer->frameCount;
     if (requestedFrames > _numFrames - _nextFrame) {
         buffer->frameCount = _numFrames - _nextFrame;
     }
 
     ALOGVV("getNextBuffer() requested %zu frames out of %zu frames available,"
-                  " and returned %zu frames",
-              requestedFrames, (size_t) (_numFrames - _nextFrame), buffer->frameCount);
+           " and returned %zu frames",
+           requestedFrames, (size_t)(_numFrames - _nextFrame), buffer->frameCount);
 
     _unrel = buffer->frameCount;
     if (buffer->frameCount > 0) {
-        buffer->raw = (char *) _addr + _frameSize * _nextFrame;
+        buffer->raw = (char *)_addr + _frameSize * _nextFrame;
         return NO_ERROR;
     } else {
         buffer->raw = NULL;
@@ -82,12 +77,14 @@ status_t PcmBufferProvider::getNextBuffer(Buffer *buffer,
 void PcmBufferProvider::releaseBuffer(Buffer *buffer) {
     if (buffer->frameCount > _unrel) {
         ALOGVV("ERROR releaseBuffer() released %zu frames but only %zu available "
-                "to release", buffer->frameCount, _unrel);
+               "to release",
+               buffer->frameCount, _unrel);
         _nextFrame += _unrel;
         _unrel = 0;
     } else {
         ALOGVV("releaseBuffer() released %zu frames out of %zu frames available "
-                           "to release", buffer->frameCount, _unrel);
+               "to release",
+               buffer->frameCount, _unrel);
         _nextFrame += buffer->frameCount;
         _unrel -= buffer->frameCount;
     }
@@ -99,4 +96,4 @@ void PcmBufferProvider::reset() {
     _nextFrame = 0;
 }
 
-} // namespace cc { 
+} // namespace cc

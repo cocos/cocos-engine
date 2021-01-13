@@ -20,7 +20,7 @@
 #define ETC1_DECODED_BLOCK_SIZE 48
 
 #ifndef ETC1_RGB8_OES
-#define ETC1_RGB8_OES 0x8D64
+    #define ETC1_RGB8_OES 0x8D64
 #endif
 
 typedef unsigned char etc1_byte;
@@ -36,15 +36,15 @@ extern "C" {
 
 // Check if a PKM header is correctly formatted.
 
-etc1_bool etc1_pkm_is_valid(const etc1_byte* pHeader);
+etc1_bool etc1_pkm_is_valid(const etc1_byte *pHeader);
 
 // Read the image width from a PKM header
 
-etc1_uint32 etc1_pkm_get_width(const etc1_byte* pHeader);
+etc1_uint32 etc1_pkm_get_width(const etc1_byte *pHeader);
 
 // Read the image height from a PKM header
 
-etc1_uint32 etc1_pkm_get_height(const etc1_byte* pHeader);
+etc1_uint32 etc1_pkm_get_height(const etc1_byte *pHeader);
 
 #ifdef __cplusplus
 }
@@ -52,4 +52,3 @@ etc1_uint32 etc1_pkm_get_height(const etc1_byte* pHeader);
 
 /// @endcond
 #endif
-

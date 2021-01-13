@@ -38,26 +38,26 @@ THE SOFTWARE.
 */
 namespace cc {
 
-
 /**
  * @class RandomHelper
  * @brief A helper class for creating random number.
  */
 class CC_DLL RandomHelper {
 public:
-    template<typename T>
+    template <typename T>
     static inline T random_real(T min, T max) {
         std::uniform_real_distribution<T> dist(min, max);
         auto &mt = RandomHelper::getEngine();
         return dist(mt);
     }
 
-    template<typename T>
+    template <typename T>
     static inline T random_int(T min, T max) {
         std::uniform_int_distribution<T> dist(min, max);
         auto &mt = RandomHelper::getEngine();
         return dist(mt);
     }
+
 private:
     static inline std::mt19937 &getEngine() {
         static std::random_device seed_gen;
@@ -69,22 +69,22 @@ private:
 /**
  * Returns a random value between `min` and `max`.
  */
-template<typename T>
+template <typename T>
 inline T random(T min, T max) {
     return RandomHelper::random_int<T>(min, max);
 }
 
-template<>
+template <>
 inline float random(float min, float max) {
     return RandomHelper::random_real(min, max);
 }
 
-template<>
+template <>
 inline long double random(long double min, long double max) {
     return RandomHelper::random_real(min, max);
 }
 
-template<>
+template <>
 inline double random(double min, double max) {
     return RandomHelper::random_real(min, max);
 }
@@ -105,9 +105,9 @@ inline float rand_minus1_1() {
     // without a proper way to set a seed is not useful.
     // Resorting to the old random method since it can
     // be seeded using std::srand()
-    return ((std::rand() / (float)RAND_MAX) * 2) -1;
+    return ((std::rand() / (float)RAND_MAX) * 2) - 1;
 
-//    return cc::random(-1.f, 1.f);
+    //    return cc::random(-1.f, 1.f);
 };
 
 /**
@@ -121,12 +121,10 @@ inline float rand_0_1() {
     // be seeded using std::srand()
     return std::rand() / (float)RAND_MAX;
 
-//    return cc::random(0.f, 1.f);
+    //    return cc::random(0.f, 1.f);
 };
 
-
-}
+} // namespace cc
 // end group
 /// @}
 #endif //__ccRandom_H_
-

@@ -28,8 +28,7 @@ THE SOFTWARE.
 
 namespace cc {
 
-int getSDKVersion()
-{
+int getSDKVersion() {
     return cocosApp.sdkVersion;
 }
 
