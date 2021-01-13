@@ -66,6 +66,8 @@ export default class MissingScript extends Component {
             return cls;
         }
         legacyCC.deserialize.reportMissingClass(id);
+
+        return undefined;
     }
 
     // the serialized data for original script object
