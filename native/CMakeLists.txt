@@ -92,14 +92,28 @@ endfunction()
 
 ################################# options ############################################
 
-
+# default fallback options 
+set_if_undefined(USE_SE_V8                ON)
+set_if_undefined(USE_V8_DEBUGGER          ON)
+set_if_undefined(USE_SOCKET               ON)
+set_if_undefined(USE_AUDIO                ON)
+set_if_undefined(USE_EDIT_BOX             ON)
+set_if_undefined(USE_SE_JSC               OFF)
+set_if_undefined(USE_VIDEO                ON)
+set_if_undefined(USE_WEBVIEW              ON)
+set_if_undefined(USE_MIDDLEWARE           ON)
+set_if_undefined(USE_DRAGONBONES          ON)
+set_if_undefined(USE_SPINE                ON)
+set_if_undefined(USE_WEBSOCKET_SERVER     OFF)
 
 if(ANDROID OR WINDOWS)
-    set_if_undefined(CC_USE_VULKAN OFF)
     set_if_undefined(CC_USE_GLES3 ON)
+    set_if_undefined(CC_USE_VULKAN OFF)
     set_if_undefined(CC_USE_GLES2 OFF)
+    set_if_undefined(CC_USE_METAL OFF)
 elseif(MACOSX OR IOS)
     set_if_undefined(CC_USE_METAL ON)
+    set_if_undefined(CC_USE_VULKAN OFF)
     set_if_undefined(CC_USE_GLES3 OFF)
     set_if_undefined(CC_USE_GLES2 OFF)
 endif()
@@ -123,6 +137,11 @@ endif()
 if(NOT USE_DRAGONBONES AND NOT USE_SPINE)
 	set(USE_MIDDLEWARE OFF)
 endif()
+
+if(USE_DRAGONBONES OR USE_SPINE)
+	set(USE_MIDDLEWARE ON)
+endif()
+
 
 ################################# list all option values ##############################
 
