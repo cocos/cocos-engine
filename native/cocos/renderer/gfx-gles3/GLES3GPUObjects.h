@@ -122,6 +122,7 @@ struct GLES3GPUUniformBlock final {
     String name;
     uint size = 0;
     uint glBinding = GFX_INVALID_BINDING;
+    bool isStorage = false;
     GLES3GPUUniformList glUniforms;
     GLES3GPUUniformList glActiveUniforms;
 };
@@ -153,6 +154,7 @@ class GLES3GPUShader final : public Object {
 public:
     String name;
     UniformBlockList blocks;
+    StorageBufferList buffers;
     UniformSamplerList samplers;
     GLuint glProgram = 0;
     GLES3GPUShaderStageList gpuStages;
@@ -256,6 +258,15 @@ class GLES3GPUFence final : public Object {
 public:
 };
 
+struct GLES3GPUDispatchInfo final : public Object {
+    uint groupCountX = 0;
+    uint groupCountY = 0;
+    uint groupCountZ = 0;
+
+    GLES3GPUBuffer *indirectBuffer = nullptr;
+    uint indirectOffset = 0;
+};
+
 struct GLES3ObjectCache final {
     size_t numClearColors = 0u;
     GLES3GPURenderPass *gpuRenderPass = nullptr;
@@ -274,6 +285,10 @@ public:
     GLuint glUniformBuffer = 0;
     vector<GLuint> glBindUBOs;
     vector<GLuint> glBindUBOOffsets;
+    GLuint glShaderStorageBuffer = 0;
+    vector<GLuint> glBindSSBOs;
+    vector<GLuint> glBindSSBOOffsets;
+    GLuint glDispatchIndirectBuffer = 0;
     GLuint glVAO = 0;
     uint texUint = 0;
     vector<GLuint> glTextures;
@@ -293,9 +308,11 @@ public:
     map<String, uint> texUnitCacheMap;
     GLES3ObjectCache gfxStateCache;
 
-    void initialize(size_t texUnits, size_t bufferBindings, size_t vertexAttributes) {
-        glBindUBOs.resize(bufferBindings, 0u);
-        glBindUBOOffsets.resize(bufferBindings, 0u);
+    void initialize(size_t texUnits, size_t uboBindings, size_t ssboBindings, size_t vertexAttributes) {
+        glBindUBOs.resize(uboBindings, 0u);
+        glBindUBOOffsets.resize(uboBindings, 0u);
+        glBindSSBOs.resize(ssboBindings, 0u);
+        glBindSSBOOffsets.resize(ssboBindings, 0u);
         glTextures.resize(texUnits, 0u);
         glSamplers.resize(texUnits, 0u);
         glEnabledAttribLocs.resize(vertexAttributes, false);
@@ -308,6 +325,10 @@ public:
         glUniformBuffer = 0;
         glBindUBOs.assign(glBindUBOs.size(), 0u);
         glBindUBOOffsets.assign(glBindUBOOffsets.size(), 0u);
+        glShaderStorageBuffer = 0;
+        glBindSSBOs.assign(glBindSSBOs.size(), 0u);
+        glBindSSBOOffsets.assign(glBindSSBOOffsets.size(), 0u);
+        glDispatchIndirectBuffer = 0;
         glVAO = 0;
         texUint = 0;
         glTextures.assign(glTextures.size(), 0u);

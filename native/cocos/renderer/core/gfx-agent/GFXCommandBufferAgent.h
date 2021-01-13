@@ -40,6 +40,8 @@ public:
     void updateBuffer(Buffer *buff, const void *data, uint size) override;
     void copyBuffersToTexture(const uint8_t *const *buffers, Texture *texture, const BufferTextureCopy *regions, uint count) override;
     void execute(CommandBuffer *const *cmdBuffs, uint32_t count) override;
+    void dispatch(const DispatchInfo &info) override;
+    void pipelineBarrier(const GlobalBarrier *barriers, uint count) override;
 
     uint getNumDrawCalls() const override { return _actor->getNumDrawCalls(); }
     uint getNumInstances() const override { return _actor->getNumInstances(); }

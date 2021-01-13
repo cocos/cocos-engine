@@ -33,8 +33,8 @@ bool PipelineStateAgent::initialize(const PipelineStateInfo &info) {
 
     PipelineStateInfo actorInfo = info;
     actorInfo.shader = ((ShaderAgent *)info.shader)->getActor();
-    actorInfo.renderPass = ((RenderPassAgent *)info.renderPass)->getActor();
     actorInfo.pipelineLayout = ((PipelineLayoutAgent *)info.pipelineLayout)->getActor();
+    if (info.renderPass) actorInfo.renderPass = ((RenderPassAgent *)info.renderPass)->getActor();
 
     ENQUEUE_MESSAGE_2(
         ((DeviceAgent *)_device)->getMessageQueue(),

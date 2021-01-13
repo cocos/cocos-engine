@@ -309,8 +309,6 @@ bool GLES3Context::initialize(const ContextInfo &info) {
         _eglSurface = sharedCtx->egl_surface();
         _colorFmt = sharedCtx->getColorFormat();
         _depthStencilFmt = sharedCtx->getDepthStencilFormat();
-        _majorVersion = sharedCtx->major_ver();
-        _minorVersion = sharedCtx->minor_ver();
         _extensions = sharedCtx->_extensions;
         _isInitialized = sharedCtx->_isInitialized;
 

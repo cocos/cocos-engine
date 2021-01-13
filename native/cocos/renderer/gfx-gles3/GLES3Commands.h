@@ -29,6 +29,29 @@ THE SOFTWARE.
 namespace cc {
 namespace gfx {
 
+enum class GLES3CmdType : uint8_t {
+    BEGIN_RENDER_PASS,
+    END_RENDER_PASS,
+    BIND_STATES,
+    DRAW,
+    UPDATE_BUFFER,
+    COPY_BUFFER_TO_TEXTURE,
+    DISPATCH,
+    BARRIER,
+    COUNT,
+};
+
+class GLES3Cmd : public Object {
+public:
+    GLES3CmdType type;
+    uint refCount = 0;
+
+    GLES3Cmd(GLES3CmdType _type) : type(_type) {}
+    virtual ~GLES3Cmd() {}
+
+    virtual void clear() = 0;
+};
+
 class GLES3Device;
 
 struct GLES3DepthBias final {
@@ -69,7 +92,7 @@ struct GLES3BufferTextureCopy final {
     GLES3TextureSubres texSubres;
 };
 
-class GLES3CmdBeginRenderPass final : public GFXCmd {
+class GLES3CmdBeginRenderPass final : public GLES3Cmd {
 public:
     GLES3GPURenderPass *gpuRenderPass = nullptr;
     GLES3GPUFramebuffer *gpuFBO = nullptr;
@@ -79,7 +102,7 @@ public:
     float clearDepth = 1.0f;
     int clearStencil = 0;
 
-    GLES3CmdBeginRenderPass() : GFXCmd(GFXCmdType::BEGIN_RENDER_PASS) {}
+    GLES3CmdBeginRenderPass() : GLES3Cmd(GLES3CmdType::BEGIN_RENDER_PASS) {}
 
     virtual void clear() override {
         gpuFBO = nullptr;
@@ -99,7 +122,7 @@ enum class GLES3State {
     COUNT,
 };
 
-class GLES3CmdBindStates final : public GFXCmd {
+class GLES3CmdBindStates final : public GLES3Cmd {
 public:
     GLES3GPUPipelineState *gpuPipelineState = nullptr;
     GLES3GPUInputAssembler *gpuInputAssembler = nullptr;
@@ -115,7 +138,7 @@ public:
     GLES3StencilWriteMask stencilWriteMask;
     GLES3StencilCompareMask stencilCompareMask;
 
-    GLES3CmdBindStates() : GFXCmd(GFXCmdType::BIND_STATES) {}
+    GLES3CmdBindStates() : GLES3Cmd(GLES3CmdType::BIND_STATES) {}
 
     virtual void clear() override {
         gpuPipelineState = nullptr;
@@ -125,22 +148,45 @@ public:
     }
 };
 
-class GLES3CmdDraw final : public GFXCmd {
+class GLES3CmdDraw final : public GLES3Cmd {
 public:
     DrawInfo drawInfo;
 
-    GLES3CmdDraw() : GFXCmd(GFXCmdType::DRAW) {}
+    GLES3CmdDraw() : GLES3Cmd(GLES3CmdType::DRAW) {}
     virtual void clear() override {}
 };
 
-class GLES3CmdUpdateBuffer final : public GFXCmd {
+class GLES3CmdDispatch final : public GLES3Cmd {
+public:
+    GLES3GPUDispatchInfo dispatchInfo;
+
+    GLES3CmdDispatch() : GLES3Cmd(GLES3CmdType::DISPATCH) {}
+    virtual void clear() override {
+        dispatchInfo.indirectBuffer = nullptr;
+        dispatchInfo.indirectOffset = 0;
+    }
+};
+
+class GLES3CmdBarrier final : public GLES3Cmd {
+public:
+    GLbitfield barriers = 0u;
+    GLbitfield barriersByRegion = 0u;
+
+    GLES3CmdBarrier() : GLES3Cmd(GLES3CmdType::BARRIER) {}
+    virtual void clear() override {
+        barriers = 0u;
+        barriersByRegion = 0u;
+    }
+};
+
+class GLES3CmdUpdateBuffer final : public GLES3Cmd {
 public:
     GLES3GPUBuffer *gpuBuffer = nullptr;
     uint8_t *buffer = nullptr;
     uint size = 0;
     uint offset = 0;
 
-    GLES3CmdUpdateBuffer() : GFXCmd(GFXCmdType::UPDATE_BUFFER) {}
+    GLES3CmdUpdateBuffer() : GLES3Cmd(GLES3CmdType::UPDATE_BUFFER) {}
 
     virtual void clear() override {
         gpuBuffer = nullptr;
@@ -148,14 +194,14 @@ public:
     }
 };
 
-class GLES3CmdCopyBufferToTexture final : public GFXCmd {
+class GLES3CmdCopyBufferToTexture final : public GLES3Cmd {
 public:
     GLES3GPUTexture *gpuTexture = nullptr;
     const BufferTextureCopy *regions = nullptr;
     uint count = 0u;
     const uint8_t *const *buffers;
 
-    GLES3CmdCopyBufferToTexture() : GFXCmd(GFXCmdType::COPY_BUFFER_TO_TEXTURE) {}
+    GLES3CmdCopyBufferToTexture() : GLES3Cmd(GLES3CmdType::COPY_BUFFER_TO_TEXTURE) {}
 
     virtual void clear() override {
         gpuTexture = nullptr;
@@ -167,10 +213,12 @@ public:
 
 class GLES3CmdPackage final : public Object {
 public:
-    CachedArray<GFXCmdType> cmds;
+    CachedArray<GLES3CmdType> cmds;
     CachedArray<GLES3CmdBeginRenderPass *> beginRenderPassCmds;
     CachedArray<GLES3CmdBindStates *> bindStatesCmds;
     CachedArray<GLES3CmdDraw *> drawCmds;
+    CachedArray<GLES3CmdDispatch *> dispatchCmds;
+    CachedArray<GLES3CmdBarrier *> barrierCmds;
     CachedArray<GLES3CmdUpdateBuffer *> updateBufferCmds;
     CachedArray<GLES3CmdCopyBufferToTexture *> copyBufferToTextureCmds;
 };
@@ -180,6 +228,8 @@ public:
     CommandPool<GLES3CmdBeginRenderPass> beginRenderPassCmdPool;
     CommandPool<GLES3CmdBindStates> bindStatesCmdPool;
     CommandPool<GLES3CmdDraw> drawCmdPool;
+    CommandPool<GLES3CmdDispatch> dispatchCmdPool;
+    CommandPool<GLES3CmdBarrier> barrierCmdPool;
     CommandPool<GLES3CmdUpdateBuffer> updateBufferCmdPool;
     CommandPool<GLES3CmdCopyBufferToTexture> copyBufferToTextureCmdPool;
 
@@ -192,6 +242,12 @@ public:
         }
         if (cmd_package->drawCmds.size()) {
             drawCmdPool.freeCmds(cmd_package->drawCmds);
+        }
+        if (cmd_package->dispatchCmds.size()) {
+            dispatchCmdPool.freeCmds(cmd_package->dispatchCmds);
+        }
+        if (cmd_package->barrierCmds.size()) {
+            barrierCmdPool.freeCmds(cmd_package->barrierCmds);
         }
         if (cmd_package->updateBufferCmds.size()) {
             updateBufferCmdPool.freeCmds(cmd_package->updateBufferCmds);
@@ -207,11 +263,14 @@ public:
         beginRenderPassCmdPool.release();
         bindStatesCmdPool.release();
         drawCmdPool.release();
+        dispatchCmdPool.release();
+        barrierCmdPool.release();
         updateBufferCmdPool.release();
         copyBufferToTextureCmdPool.release();
     }
 };
 
+CC_GLES3_API void MapGLBarriers(const GlobalBarrier *barriers, uint count, GLbitfield &glBarriers, GLbitfield &glBarriersByRegion);
 CC_GLES3_API void GLES3CmdFuncCreateBuffer(GLES3Device *device, GLES3GPUBuffer *gpuBuffer);
 CC_GLES3_API void GLES3CmdFuncDestroyBuffer(GLES3Device *device, GLES3GPUBuffer *gpuBuffer);
 CC_GLES3_API void GLES3CmdFuncResizeBuffer(GLES3Device *device, GLES3GPUBuffer *gpuBuffer);
@@ -239,6 +298,8 @@ CC_GLES3_API void GLES3CmdFuncUpdateBuffer(GLES3Device *device, GLES3GPUBuffer *
 CC_GLES3_API void GLES3CmdFuncCopyBuffersToTexture(GLES3Device *device, const uint8_t *const *buffers,
                                                    GLES3GPUTexture *gpuTexture, const BufferTextureCopy *regions, uint count);
 CC_GLES3_API void GLES3CmdFuncExecuteCmds(GLES3Device *device, GLES3CmdPackage *cmdPackage);
+CC_GLES3_API void GLES3CmdFuncDispatch(GLES3Device *device, const GLES3GPUDispatchInfo &info);
+CC_GLES3_API void GLES3CmdFuncMemoryBarrier(GLES3Device *device, GLbitfield barriers, GLbitfield barriersByRegion);
 
 } // namespace gfx
 } // namespace cc

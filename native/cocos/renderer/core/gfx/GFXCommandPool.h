@@ -1,13 +1,11 @@
 #pragma once
 
-#include "GFXCommand.h"
-
 namespace cc {
 namespace gfx {
 
 #define INITIAL_CAPACITY 1
 
-template <typename T, typename = std::enable_if<std::is_base_of<GFXCmd, T>::value>>
+template <typename T>
 class CommandPool {
 public:
     CommandPool() : _freeCmds(INITIAL_CAPACITY) {

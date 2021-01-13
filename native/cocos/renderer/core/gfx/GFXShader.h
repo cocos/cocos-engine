@@ -21,6 +21,7 @@ public:
     CC_INLINE const ShaderStageList &getStages() const { return _stages; }
     CC_INLINE const AttributeList &getAttributes() const { return _attributes; }
     CC_INLINE const UniformBlockList &getBlocks() const { return _blocks; }
+    CC_INLINE const StorageBufferList &getBuffers() const { return _buffers; }
     CC_INLINE const UniformSamplerList &getSamplers() const { return _samplers; }
 
 protected:
@@ -30,6 +31,7 @@ protected:
     ShaderStageList _stages;
     AttributeList _attributes;
     UniformBlockList _blocks;
+    StorageBufferList _buffers;
     UniformSamplerList _samplers;
 };
 

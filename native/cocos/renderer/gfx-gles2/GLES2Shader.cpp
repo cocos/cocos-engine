@@ -40,6 +40,7 @@ bool GLES2Shader::initialize(const ShaderInfo &info) {
     _stages = info.stages;
     _attributes = info.attributes;
     _blocks = info.blocks;
+    _buffers = info.buffers;
     _samplers = info.samplers;
 
     _gpuShader = CC_NEW(GLES2GPUShader);

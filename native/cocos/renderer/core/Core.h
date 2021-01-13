@@ -29,7 +29,6 @@ THE SOFTWARE.
 #include "base/StringUtil.h"
 
 #include "gfx/GFXBuffer.h"
-#include "gfx/GFXCommand.h"
 #include "gfx/GFXCommandBuffer.h"
 #include "gfx/GFXCommandPool.h"
 #include "gfx/GFXContext.h"

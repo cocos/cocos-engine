@@ -143,6 +143,8 @@ protected:
     uint _maxFragmentUniformVectors = 0u;
     uint _maxTextureUnits = 0u;
     uint _maxVertexTextureUnits = 0u;
+    uint _maxShaderStorageBufferBindings = 0u;
+    uint _maxShaderStorageBlockSize = 0u;
     uint _maxUniformBufferBindings = 0u;
     uint _maxUniformBlockSize = 0u;
     uint _maxTextureSize = 0u;

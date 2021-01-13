@@ -74,8 +74,8 @@ bool GLES3PipelineState::initialize(const PipelineStateInfo &info) {
     _gpuPipelineState->rs = _rasterizerState;
     _gpuPipelineState->dss = _depthStencilState;
     _gpuPipelineState->bs = _blendState;
-    _gpuPipelineState->gpuRenderPass = ((GLES3RenderPass *)_renderPass)->gpuRenderPass();
     _gpuPipelineState->gpuPipelineLayout = ((GLES3PipelineLayout *)_pipelineLayout)->gpuPipelineLayout();
+    if (_renderPass) _gpuPipelineState->gpuRenderPass = ((GLES3RenderPass *)_renderPass)->gpuRenderPass();
 
     for (uint i = 0; i < 31; i++) {
         if ((uint)_dynamicStates & (1 << i)) {

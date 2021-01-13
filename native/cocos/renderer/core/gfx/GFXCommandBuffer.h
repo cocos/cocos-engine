@@ -34,6 +34,8 @@ public:
     virtual void updateBuffer(Buffer *buff, const void *data, uint size) = 0;
     virtual void copyBuffersToTexture(const uint8_t *const *buffers, Texture *texture, const BufferTextureCopy *regions, uint count) = 0;
     virtual void execute(CommandBuffer *const *cmdBuffs, uint32_t count) = 0;
+    virtual void dispatch(const DispatchInfo &info) = 0;
+    virtual void pipelineBarrier(const GlobalBarrier *barriers, uint count) = 0;
 
     CC_INLINE void begin() { begin(nullptr, 0, nullptr); }
     // secondary command buffer specifics
@@ -58,6 +60,7 @@ public:
     CC_INLINE void copyBuffersToTexture(const BufferDataList &buffers, Texture *texture, const BufferTextureCopyList &regions) {
         copyBuffersToTexture(buffers.data(), texture, regions.data(), static_cast<uint>(regions.size()));
     }
+    CC_INLINE void pipelineBarrier(const GlobalBarrierList &barriers) { pipelineBarrier(barriers.data(), barriers.size()); }
 
     CC_INLINE void bindDescriptorSetForJS(uint set, DescriptorSet *descriptorSet) {
         bindDescriptorSet(set, descriptorSet, 0, nullptr);

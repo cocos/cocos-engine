@@ -28,6 +28,7 @@ THE SOFTWARE.
 
 #include "vk_mem_alloc.h"
 #include "volk.h"
+#include "thsvs_simpler_vulkan_synchronization.h"
 
 #define DEFAULT_TIMEOUT 1000000000 // 1 second
 

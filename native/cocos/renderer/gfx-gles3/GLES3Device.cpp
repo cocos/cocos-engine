@@ -84,14 +84,17 @@ bool GLES3Device::initialize(const DeviceInfo &info) {
     String extStr = (const char *)glGetString(GL_EXTENSIONS);
     _extensions = StringUtil::Split(extStr, " ");
 
-    _features[(int)Feature::TEXTURE_FLOAT] = true;
-    _features[(int)Feature::TEXTURE_HALF_FLOAT] = true;
-    _features[(int)Feature::FORMAT_R11G11B10F] = true;
-    _features[(int)Feature::FORMAT_D24S8] = true;
-    _features[(int)Feature::MSAA] = true;
-    _features[(int)Feature::INSTANCED_ARRAYS] = true;
-    _features[(int)Feature::MULTIPLE_RENDER_TARGETS] = true;
+    _features[(uint)Feature::TEXTURE_FLOAT] = true;
+    _features[(uint)Feature::TEXTURE_HALF_FLOAT] = true;
+    _features[(uint)Feature::FORMAT_R11G11B10F] = true;
+    _features[(uint)Feature::FORMAT_D24S8] = true;
+    _features[(uint)Feature::MSAA] = true;
+    _features[(uint)Feature::INSTANCED_ARRAYS] = true;
+    _features[(uint)Feature::MULTIPLE_RENDER_TARGETS] = true;
     _features[(uint)Feature::BLEND_MINMAX] = true;
+
+    if (((GLES3Context *)_context)->minor_ver())
+        _features[(uint)Feature::COMPUTE_SHADER] = true;
 
     if (checkExtension("color_buffer_float"))
         _features[(int)Feature::COLOR_FLOAT] = true;
@@ -160,6 +163,8 @@ bool GLES3Device::initialize(const DeviceInfo &info) {
     glGetIntegerv(GL_MAX_VERTEX_UNIFORM_VECTORS, (GLint *)&_maxVertexUniformVectors);
     glGetIntegerv(GL_MAX_FRAGMENT_UNIFORM_VECTORS, (GLint *)&_maxFragmentUniformVectors);
     glGetIntegerv(GL_MAX_UNIFORM_BUFFER_BINDINGS, (GLint *)&_maxUniformBufferBindings);
+    glGetIntegerv(GL_MAX_SHADER_STORAGE_BLOCK_SIZE, (GLint *)&_maxShaderStorageBlockSize);
+    glGetIntegerv(GL_MAX_SHADER_STORAGE_BUFFER_BINDINGS, (GLint *)&_maxShaderStorageBufferBindings);
     glGetIntegerv(GL_MAX_UNIFORM_BLOCK_SIZE, (GLint *)&_maxUniformBlockSize);
     glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, (GLint *)&_maxTextureUnits);
     glGetIntegerv(GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS, (GLint *)&_maxVertexTextureUnits);
@@ -169,7 +174,7 @@ bool GLES3Device::initialize(const DeviceInfo &info) {
     glGetIntegerv(GL_DEPTH_BITS, (GLint *)&_depthBits);
     glGetIntegerv(GL_STENCIL_BITS, (GLint *)&_stencilBits);
 
-    _gpuStateCache->initialize(_maxTextureUnits, _maxUniformBufferBindings, _maxVertexAttributes);
+    _gpuStateCache->initialize(_maxTextureUnits, _maxUniformBufferBindings, _maxShaderStorageBufferBindings, _maxVertexAttributes);
 
     return true;
 }

@@ -171,7 +171,7 @@ void CCVKCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo
     passBeginInfo.pClearValues = clearValues.data();
     passBeginInfo.renderArea = {{(int)renderArea.x, (int)renderArea.y}, {renderArea.width, renderArea.height}};
     vkCmdBeginRenderPass(_gpuCommandBuffer->vkCommandBuffer, &passBeginInfo,
-        secondaryCBCount ? VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS : VK_SUBPASS_CONTENTS_INLINE);
+                         secondaryCBCount ? VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS : VK_SUBPASS_CONTENTS_INLINE);
 
     if (!secondaryCBCount) {
         VkViewport viewport{(float)renderArea.x, (float)renderArea.y, (float)renderArea.width, (float)renderArea.height, 0.f, 1.f};
@@ -463,6 +463,16 @@ void CCVKCommandBuffer::bindDescriptorSets() {
                             dynamicOffsetCount, _curDynamicOffsets.data() + dynamicOffsetStartIndex);
 
     _firstDirtyDescriptorSet = UINT_MAX;
+}
+
+void CCVKCommandBuffer::dispatch(const DispatchInfo &info) {
+    if (info.indirectBuffer) {
+        CCVKBuffer *indirectBuffer = (CCVKBuffer *)info.indirectBuffer;
+        vkCmdDispatchIndirect(_gpuCommandBuffer->vkCommandBuffer, indirectBuffer->gpuBuffer()->vkBuffer, 
+            indirectBuffer->gpuBuffer()->startOffset + indirectBuffer->gpuBufferView()->offset + info.indirectOffset);
+    } else {
+        vkCmdDispatch(_gpuCommandBuffer->vkCommandBuffer, info.groupCountX, info.groupCountY, info.groupCountZ);
+    }
 }
 
 } // namespace gfx

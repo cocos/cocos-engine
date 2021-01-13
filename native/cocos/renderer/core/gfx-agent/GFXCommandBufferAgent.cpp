@@ -393,5 +393,34 @@ void CommandBufferAgent::copyBuffersToTexture(const uint8_t *const *buffers, Tex
         });
 }
 
+void CommandBufferAgent::dispatch(const DispatchInfo& info) {
+    DispatchInfo actorInfo = info;
+    if (info.indirectBuffer) actorInfo.indirectBuffer = ((BufferAgent *)info.indirectBuffer)->getActor();
+
+    ENQUEUE_MESSAGE_2(
+        _messageQueue,
+        CommandBufferDispatch,
+        actor, getActor(),
+        info, actorInfo,
+        {
+            actor->dispatch(info);
+        });
+}
+
+void CommandBufferAgent::pipelineBarrier(const GlobalBarrier *barriers, uint count) {
+    GlobalBarrier *actorBarriers = getAllocator()->allocate<GlobalBarrier>(count);
+    memcpy(actorBarriers, barriers, count * sizeof(GlobalBarrier));
+
+    ENQUEUE_MESSAGE_3(
+        _messageQueue,
+        CommandBufferDispatch,
+        actor, getActor(),
+        barriers, actorBarriers,
+        count, count,
+        {
+            actor->pipelineBarrier(barriers, count);
+        });
+}
+
 } // namespace gfx
 } // namespace cc

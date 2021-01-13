@@ -21,6 +21,11 @@
 CC_DISABLE_WARNINGS()
 #define VMA_IMPLEMENTATION
 #include "vk_mem_alloc.h"
+#define THSVS_ERROR_CHECK_MIXED_IMAGE_LAYOUT
+#define THSVS_ERROR_CHECK_COULD_USE_GLOBAL_BARRIER
+#define THSVS_ERROR_CHECK_POTENTIAL_HAZARD
+#define THSVS_SIMPLER_VULKAN_SYNCHRONIZATION_IMPLEMENTATION
+#include "thsvs_simpler_vulkan_synchronization.h"
 CC_ENABLE_WARNINGS()
 
 namespace cc {
@@ -189,6 +194,7 @@ bool CCVKDevice::initialize(const DeviceInfo &info) {
     _features[(uint)Feature::STENCIL_COMPARE_MASK] = true;
     _features[(uint)Feature::STENCIL_WRITE_MASK] = true;
     _features[(uint)Feature::MULTITHREADED_SUBMISSION] = true;
+    _features[(uint)Feature::COMPUTE_SHADER] = true;
 
     _gpuDevice->useMultiDrawIndirect = deviceFeatures.multiDrawIndirect;
     _gpuDevice->useDescriptorUpdateTemplate = checkExtension(VK_KHR_DESCRIPTOR_UPDATE_TEMPLATE_EXTENSION_NAME);

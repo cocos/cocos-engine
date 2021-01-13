@@ -40,11 +40,13 @@ bool GLES3Shader::initialize(const ShaderInfo &info) {
     _stages = info.stages;
     _attributes = info.attributes;
     _blocks = info.blocks;
+    _buffers = info.buffers;
     _samplers = info.samplers;
 
     _gpuShader = CC_NEW(GLES3GPUShader);
     _gpuShader->name = _name;
     _gpuShader->blocks = _blocks;
+    _gpuShader->buffers = _buffers;
     _gpuShader->samplers = _samplers;
     for (const auto &stage : _stages) {
         GLES3GPUShaderStage gpuShaderStage = {stage.stage, stage.source};

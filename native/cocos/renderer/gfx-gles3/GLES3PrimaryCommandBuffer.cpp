@@ -62,18 +62,7 @@ void GLES3PrimaryCommandBuffer::draw(InputAssembler *ia) {
         (_type == CommandBufferType::SECONDARY)) {
 
         if (_isStateInvalid) {
-            vector<uint> &dynamicOffsetOffsets = _curGPUPipelineState->gpuPipelineLayout->dynamicOffsetOffsets;
-            vector<uint> &dynamicOffsets = _curGPUPipelineState->gpuPipelineLayout->dynamicOffsets;
-            for (size_t i = 0u; i < _curDynamicOffsets.size(); i++) {
-                size_t count = dynamicOffsetOffsets[i + 1] - dynamicOffsetOffsets[i];
-                //CCASSERT(_curDynamicOffsets[i].size() >= count, "missing dynamic offsets?");
-                count = std::min(count, _curDynamicOffsets[i].size());
-                if (count) memcpy(&dynamicOffsets[dynamicOffsetOffsets[i]], _curDynamicOffsets[i].data(), count * sizeof(uint));
-            }
-            GLES3CmdFuncBindState((GLES3Device *)_device, _curGPUPipelineState, _curGPUInputAssember, _curGPUDescriptorSets, dynamicOffsets,
-                                  _curViewport, _curScissor, _curLineWidth, false, _curDepthBias, _curBlendConstants, _curDepthBounds, _curStencilWriteMask, _curStencilCompareMask);
-
-            _isStateInvalid = false;
+            BindStates();
         }
 
         DrawInfo drawInfo;
@@ -143,6 +132,57 @@ void GLES3PrimaryCommandBuffer::execute(CommandBuffer *const *cmdBuffs, uint32_t
         cmdBuff->_freePackages.push(cmdPackage);
         cmdBuff->_cmdAllocator->clearCmds(cmdPackage);
         cmdBuff->_cmdAllocator->reset();
+    }
+}
+
+void GLES3PrimaryCommandBuffer::BindStates() {
+    vector<uint> &dynamicOffsetOffsets = _curGPUPipelineState->gpuPipelineLayout->dynamicOffsetOffsets;
+    vector<uint> &dynamicOffsets = _curGPUPipelineState->gpuPipelineLayout->dynamicOffsets;
+    for (size_t i = 0u; i < _curDynamicOffsets.size(); i++) {
+        size_t count = dynamicOffsetOffsets[i + 1] - dynamicOffsetOffsets[i];
+        //CCASSERT(_curDynamicOffsets[i].size() >= count, "missing dynamic offsets?");
+        count = std::min(count, _curDynamicOffsets[i].size());
+        if (count) memcpy(&dynamicOffsets[dynamicOffsetOffsets[i]], _curDynamicOffsets[i].data(), count * sizeof(uint));
+    }
+    GLES3CmdFuncBindState((GLES3Device *)_device, _curGPUPipelineState, _curGPUInputAssember, _curGPUDescriptorSets, dynamicOffsets,
+                            _curViewport, _curScissor, _curLineWidth, false, _curDepthBias, _curBlendConstants, _curDepthBounds, _curStencilWriteMask, _curStencilCompareMask);
+
+    _isStateInvalid = false;
+}
+
+void GLES3PrimaryCommandBuffer::dispatch(const DispatchInfo &info) {
+    if ((_type == CommandBufferType::PRIMARY && !_isInRenderPass) ||
+        (_type == CommandBufferType::SECONDARY)) {
+
+        if (_isStateInvalid) {
+            BindStates();
+        }
+
+        GLES3GPUDispatchInfo gpuInfo;
+        if (info.indirectBuffer) {
+            gpuInfo.indirectBuffer = ((GLES3Buffer *)info.indirectBuffer)->gpuBuffer();
+            gpuInfo.indirectOffset = info.indirectOffset;
+        } else {
+            gpuInfo.groupCountX = info.groupCountX;
+            gpuInfo.groupCountY = info.groupCountY;
+            gpuInfo.groupCountZ = info.groupCountZ;
+        }
+        GLES3CmdFuncDispatch((GLES3Device *)_device, gpuInfo);
+    } else {
+        CC_LOG_ERROR("Command 'dispatch' must be recorded outside a render pass.");
+    }
+}
+
+void GLES3PrimaryCommandBuffer::pipelineBarrier(const GlobalBarrier *barriers, uint count) {
+    if ((_type == CommandBufferType::PRIMARY && !_isInRenderPass) ||
+        (_type == CommandBufferType::SECONDARY)) {
+
+        GLbitfield glBarriers = 0u;
+        GLbitfield glBarriersByRegion = 0u;
+        MapGLBarriers(barriers, count, glBarriers, glBarriersByRegion);
+        GLES3CmdFuncMemoryBarrier((GLES3Device *)_device, glBarriers, glBarriersByRegion);
+    } else {
+        CC_LOG_ERROR("Command 'pipelineBarrier' must be recorded outside a render pass.");
     }
 }
 

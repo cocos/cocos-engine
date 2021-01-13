@@ -523,5 +523,11 @@ void CCMTLCommandBuffer::bindDescriptorSets() {
     }
 }
 
+void CCMTLCommandBuffer::dispatch(const DispatchInfo &info) {
+}
+
+void CCMTLCommandBuffer::pipelineBarrier(const GlobalBarrier *barriers, uint count) {
+}
+
 } // namespace gfx
 } // namespace cc

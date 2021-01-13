@@ -99,6 +99,7 @@ enum class Feature {
     STENCIL_WRITE_MASK,
     STENCIL_COMPARE_MASK,
     MULTITHREADED_SUBMISSION,
+    COMPUTE_SHADER,
     COUNT,
 };
 
@@ -494,6 +495,39 @@ enum class TextureLayout {
     PRESENT_SRC,
 };
 
+enum class AccessType {
+    // Read access
+    INDIRECT_BUFFER,                     // Read as an indirect buffer for drawing or dispatch
+    INDEX_BUFFER,                        // Read as an index buffer for drawing
+    VERTEX_BUFFER,                       // Read as a vertex buffer for drawing
+    VERTEX_SHADER_READ_UNIFORM_BUFFER,   // Read as a uniform buffer in a vertex shader
+    VERTEX_SHADER_READ_TEXTURE,          // Read as a sampled image/uniform texel buffer in a vertex shader
+    VERTEX_SHADER_READ_OTHER,            // Read as any other resource in a vertex shader
+    FRAGMENT_SHADER_READ_UNIFORM_BUFFER, // Read as a uniform buffer in a fragment shader
+    FRAGMENT_SHADER_READ_TEXTURE,        // Read as a sampled image/uniform texel buffer in a fragment shader
+    FRAGMENT_SHADER_READ_OTHER,          // Read as any other resource in a fragment shader
+    COLOR_ATTACHMENT_READ,               // Read by standard blending/logic operations or subpass load operations
+    DEPTH_STENCIL_ATTACHMENT_READ,       // Read by depth/stencil tests or subpass load operations
+    COMPUTE_SHADER_READ_UNIFORM_BUFFER,  // Read as a uniform buffer in a compute shader
+    COMPUTE_SHADER_READ_TEXTURE,         // Read as a sampled image/uniform texel buffer in a compute shader
+    COMPUTE_SHADER_READ_OTHER,           // Read as any other resource in a compute shader
+    TRANSFER_READ,                       // Read as the source of a transfer operation
+    HOST_READ,                           // Read on the host
+    PRESENT,                             // Read by the presentation engine
+
+    // Write access
+    VERTEX_SHADER_WRITE,            // Written as any resource in a vertex shader
+    FRAGMENT_SHADER_WRITE,          // Written as any resource in a fragment shader
+    COLOR_ATTACHMENT_WRITE,         // Written as a color attachment during rendering, or via a subpass store op
+    DEPTH_STENCIL_ATTACHMENT_WRITE, // Written as a depth/stencil attachment during rendering, or via a subpass store op
+    COMPUTE_SHADER_WRITE,           // Written as any resource in a compute shader
+    TRANSFER_WRITE,                 // Written as the destination of a transfer operation
+    HOST_PREINITIALIZED,            // Data pre-filled by host before device access starts
+    HOST_WRITE,                     // Written on the host
+};
+
+typedef cc::vector<AccessType> AccessTypeList;
+
 enum class PipelineBindPoint {
     GRAPHICS,
     COMPUTE,
@@ -772,6 +806,19 @@ struct DrawInfo {
 
 typedef cc::vector<DrawInfo> DrawInfoList;
 
+#pragma pack(push, 1)
+struct DispatchInfo {
+    uint groupCountX = 0;
+    uint groupCountY = 0;
+    uint groupCountZ = 0;
+
+    Buffer *indirectBuffer = nullptr;
+    uint indirectOffset = 0;
+};
+#pragma pack(pop)
+
+typedef cc::vector<DispatchInfo> DispatchInfoList;
+
 struct IndirectBuffer {
     DrawInfoList drawInfos;
 };
@@ -824,14 +871,14 @@ typedef cc::vector<ShaderMacro> ShaderMacroList;
 struct Uniform {
     String name;
     Type type = Type::UNKNOWN;
-    uint count = 0;
+    uint count = 0u;
 };
 
 typedef cc::vector<Uniform> UniformList;
 
 struct UniformBlock {
-    uint set = 0;
-    uint binding = 0;
+    uint set = 0u;
+    uint binding = 0u;
     String name;
     UniformList members;
     uint count = 0u;
@@ -840,14 +887,32 @@ struct UniformBlock {
 typedef cc::vector<UniformBlock> UniformBlockList;
 
 struct UniformSampler {
-    uint set = 0;
-    uint binding = 0;
+    uint set = 0u;
+    uint binding = 0u;
     String name;
     Type type = Type::UNKNOWN;
-    uint count = 0;
+    uint count = 0u;
 };
 
 typedef cc::vector<UniformSampler> UniformSamplerList;
+
+struct StorageBufferMember {
+    String name;
+    Type type = Type::UNKNOWN;
+    uint count = 0u;
+};
+
+typedef cc::vector<StorageBufferMember> StorageBufferMemberList;
+
+struct StorageBuffer {
+    uint set = 0u;
+    uint binding = 0u;
+    String name;
+    StorageBufferMemberList members;
+    uint count = 0u;
+};
+
+typedef cc::vector<StorageBuffer> StorageBufferList;
 
 struct ShaderStage {
     ShaderStageFlagBit stage;
@@ -873,6 +938,7 @@ struct ShaderInfo {
     ShaderStageList stages;
     AttributeList attributes;
     UniformBlockList blocks;
+    StorageBufferList buffers;
     UniformSamplerList samplers;
 };
 
@@ -921,6 +987,13 @@ struct RenderPassInfo {
     DepthStencilAttachment depthStencilAttachment;
     SubPassInfoList subPasses;
 };
+
+struct GlobalBarrier {
+    // using vectors here because there is just too many access types to fit into one integer bits
+    AccessTypeList prevAccesses;
+    AccessTypeList nextAccesses;
+};
+typedef cc::vector<GlobalBarrier> GlobalBarrierList;
 
 typedef cc::vector<Buffer *> BufferList;
 typedef cc::vector<Texture *> TextureList;
@@ -1032,6 +1105,7 @@ struct PipelineStateInfo {
     BlendState blendState;
     PrimitiveMode primitive = PrimitiveMode::TRIANGLE_LIST;
     DynamicStateFlags dynamicStates = DynamicStateFlagBit::NONE;
+    PipelineBindPoint bindPoint = PipelineBindPoint::GRAPHICS;
 };
 
 struct CommandBufferInfo {

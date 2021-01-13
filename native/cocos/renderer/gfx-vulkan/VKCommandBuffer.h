@@ -59,6 +59,8 @@ public:
     virtual void updateBuffer(Buffer *buffer, const void *data, uint size) override;
     virtual void copyBuffersToTexture(const uint8_t *const *buffers, Texture *texture, const BufferTextureCopy *regions, uint count) override;
     virtual void execute(CommandBuffer *const *cmdBuffs, uint count) override;
+    virtual void dispatch(const DispatchInfo &info) override;
+    virtual void pipelineBarrier(const GlobalBarrier *barriers, uint count) override;
 
     CCVKGPUCommandBuffer *gpuCommandBuffer() const { return _gpuCommandBuffer; }
 

@@ -119,12 +119,12 @@ void GLES2CommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fb
     cmd->clearDepth = depth;
     cmd->clearStencil = stencil;
     _curCmdPackage->beginRenderPassCmds.push(cmd);
-    _curCmdPackage->cmds.push(GFXCmdType::BEGIN_RENDER_PASS);
+    _curCmdPackage->cmds.push(GLES2CmdType::BEGIN_RENDER_PASS);
 }
 
 void GLES2CommandBuffer::endRenderPass() {
     _isInRenderPass = false;
-    _curCmdPackage->cmds.push(GFXCmdType::END_RENDER_PASS);
+    _curCmdPackage->cmds.push(GLES2CmdType::END_RENDER_PASS);
 }
 
 void GLES2CommandBuffer::bindPipelineState(PipelineState *pso) {
@@ -247,7 +247,7 @@ void GLES2CommandBuffer::draw(InputAssembler *ia) {
         GLES2CmdDraw *cmd = _cmdAllocator->drawCmdPool.alloc();
         ((GLES2InputAssembler *)ia)->ExtractCmdDraw(cmd);
         _curCmdPackage->drawCmds.push(cmd);
-        _curCmdPackage->cmds.push(GFXCmdType::DRAW);
+        _curCmdPackage->cmds.push(GLES2CmdType::DRAW);
 
         ++_numDrawCalls;
         _numInstances += ia->getInstanceCount();
@@ -286,7 +286,7 @@ void GLES2CommandBuffer::updateBuffer(Buffer *buff, const void *data, uint size)
             cmd->buffer = (uint8_t *)data;
 
             _curCmdPackage->updateBufferCmds.push(cmd);
-            _curCmdPackage->cmds.push(GFXCmdType::UPDATE_BUFFER);
+            _curCmdPackage->cmds.push(GLES2CmdType::UPDATE_BUFFER);
         }
     } else {
         CC_LOG_ERROR("Command 'updateBuffer' must be recorded outside a render pass.");
@@ -305,7 +305,7 @@ void GLES2CommandBuffer::copyBuffersToTexture(const uint8_t *const *buffers, Tex
             cmd->buffers = buffers;
 
             _curCmdPackage->copyBufferToTextureCmds.push(cmd);
-            _curCmdPackage->cmds.push(GFXCmdType::COPY_BUFFER_TO_TEXTURE);
+            _curCmdPackage->cmds.push(GLES2CmdType::COPY_BUFFER_TO_TEXTURE);
         }
     } else {
         CC_LOG_ERROR("Command 'copyBuffersToTexture' must be recorded outside a render pass.");
@@ -388,7 +388,7 @@ void GLES2CommandBuffer::BindStates() {
     cmd->stencilCompareMask = _curStencilCompareMask;
 
     _curCmdPackage->bindStatesCmds.push(cmd);
-    _curCmdPackage->cmds.push(GFXCmdType::BIND_STATES);
+    _curCmdPackage->cmds.push(GLES2CmdType::BIND_STATES);
     _isStateInvalid = false;
 }
 
