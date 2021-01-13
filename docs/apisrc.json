@@ -7,7 +7,6 @@
     "./cocos2d/animation/bezier.js",
     "./cocos2d/animation/types.js",
     "./cocos2d/animation/animation-clip.js",
-    "./cocos2d/animation/animators.js",
     "./cocos2d/animation/animation-manager.js",
     "./cocos2d/animation/animation-state.js",
     "./cocos2d/animation/animation-animator.js",
