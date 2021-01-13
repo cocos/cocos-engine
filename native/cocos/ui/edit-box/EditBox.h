@@ -29,11 +29,9 @@
 
 namespace cc {
 
-class EditBox 
-{
+class EditBox {
 public:
-    struct ShowInfo
-    {
+    struct ShowInfo {
         std::string defaultValue = "";
         std::string confirmType = "";
         std::string inputType = "";
@@ -45,21 +43,21 @@ public:
         bool confirmHold = false;
         bool isMultiline = false;
     };
-    
-	static void show(const ShowInfo& showInfo);
-	static void hide();
-    
+
+    static void show(const ShowInfo &showInfo);
+    static void hide();
+
     // It is internally to send a complete message to JS.
     // Don't call it by yourself untile you know the effect.
     static bool complete();
-    
+
 #if (CC_PLATFORM == CC_PLATFORM_MAC_OSX)
     static uint32_t mouseDownListenerId;
-    static void onMouseDown(const CustomEvent&);
+    static void onMouseDown(const CustomEvent &);
 #endif
-        
+
 private:
     static bool _isShown;
 };
 
-}
+} // namespace cc

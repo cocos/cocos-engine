@@ -43,25 +43,20 @@ extern std::shared_ptr<cc::View> cc_get_application_view();
 
 namespace cc {
 
-Application* Application::_instance = nullptr;
+Application *Application::_instance = nullptr;
 std::shared_ptr<Scheduler> Application::_scheduler = nullptr;
 
-
-
-Application::Application(int width, int height)
-{
+Application::Application(int width, int height) {
     Application::_instance = this;
     _scheduler = std::make_shared<Scheduler>();
 
     FileUtils::getInstance()->addSearchPath("Resources", true);
 
-
     EventDispatcher::init();
     se::ScriptEngine::getInstance();
 }
 
-Application::~Application()
-{
+Application::~Application() {
 
 #if USE_AUDIO
     AudioEngine::end();
@@ -73,8 +68,7 @@ Application::~Application()
     Application::_instance = nullptr;
 }
 
-bool Application::init()
-{
+bool Application::init() {
     auto scheduler = Application::getInstance()->getScheduler();
     scheduler->removeAllFunctionsToBePerformedInCocosThread();
     scheduler->unscheduleAll();
@@ -84,8 +78,7 @@ bool Application::init()
     return true;
 }
 
-void Application::setPreferredFramesPerSecond(int fps)
-{
+void Application::setPreferredFramesPerSecond(int fps) {
     if (fps == 0)
         return;
 
@@ -93,15 +86,13 @@ void Application::setPreferredFramesPerSecond(int fps)
     _prefererredNanosecondsPerFrame = (long)(1.0 / _fps * NANOSECONDS_PER_SECOND);
 }
 
-Application::LanguageType Application::getCurrentLanguage() const
-{
+Application::LanguageType Application::getCurrentLanguage() const {
     LanguageType ret = LanguageType::ENGLISH;
 
     LCID localeID = GetUserDefaultLCID();
     unsigned short primaryLanguageID = localeID & 0xFF;
 
-    switch (primaryLanguageID)
-    {
+    switch (primaryLanguageID) {
         case LANG_CHINESE:
             ret = LanguageType::CHINESE;
             break;
@@ -164,8 +155,7 @@ Application::LanguageType Application::getCurrentLanguage() const
     return ret;
 }
 
-std::string Application::getCurrentLanguageCode() const
-{
+std::string Application::getCurrentLanguageCode() const {
     LANGID lid = GetUserDefaultUILanguage();
     const LCID locale_id = MAKELCID(lid, SORT_DEFAULT);
     int length = GetLocaleInfoA(locale_id, LOCALE_SISO639LANGNAME, nullptr, 0);
@@ -178,8 +168,7 @@ std::string Application::getCurrentLanguageCode() const
     return code;
 }
 
-bool Application::isDisplayStats()
-{
+bool Application::isDisplayStats() {
     se::AutoHandleScope hs;
     se::Value ret;
     char commandBuf[100] = "cc.profiler.isShowingStats();";
@@ -187,55 +176,46 @@ bool Application::isDisplayStats()
     return ret.toBoolean();
 }
 
-void Application::setDisplayStats(bool isShow)
-{
+void Application::setDisplayStats(bool isShow) {
     se::AutoHandleScope hs;
     char commandBuf[100] = {0};
-    sprintf(commandBuf, isShow ? "cc.profiler.showStats();"  : "cc.profiler.hideStats();");
+    sprintf(commandBuf, isShow ? "cc.profiler.showStats();" : "cc.profiler.hideStats();");
     se::ScriptEngine::getInstance()->evalString(commandBuf);
 }
 
-void Application::setCursorEnabled(bool value)
-{
+void Application::setCursorEnabled(bool value) {
     cc_get_application_view()->setCursorEnabeld(value);
 }
 
-Application::Platform Application::getPlatform() const
-{
+Application::Platform Application::getPlatform() const {
     return Platform::WINDOWS;
 }
 
-bool Application::openURL(const std::string &url)
-{
+bool Application::openURL(const std::string &url) {
     WCHAR *temp = new WCHAR[url.size() + 1];
     int wchars_num = MultiByteToWideChar(CP_UTF8, 0, url.c_str(), url.size() + 1, temp, url.size() + 1);
     HINSTANCE r = ShellExecuteW(NULL, L"open", temp, NULL, NULL, SW_SHOWNORMAL);
     delete[] temp;
-    return (size_t)r>32;
+    return (size_t)r > 32;
 }
 
-void Application::copyTextToClipboard(const std::string &text)
-{
+void Application::copyTextToClipboard(const std::string &text) {
     //TODO
 }
 
-void Application::onPause()
-{
+void Application::onPause() {
 }
 
-void Application::onResume()
-{
+void Application::onResume() {
 }
 
-
-std::string Application::getSystemVersion()
-{
+std::string Application::getSystemVersion() {
     OSVERSIONINFO osvi;
     memset(&osvi, 0, sizeof(osvi));
     osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
     GetVersionEx(&osvi);
-    char buff[256] = { 0 };
+    char buff[256] = {0};
     snprintf(buff, sizeof(buff), "Windows version %d.%d.%d", osvi.dwMajorVersion, osvi.dwMinorVersion, osvi.dwBuildNumber);
     return buff;
 }
-}
+} // namespace cc

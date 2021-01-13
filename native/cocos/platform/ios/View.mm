@@ -35,7 +35,7 @@ void dispatchEvents(cc::TouchEvent &touchEvent, NSSet *touches) {
     cc::EventDispatcher::dispatchTouchEvent(touchEvent);
     touchEvent.touches.clear();
 }
-}
+} // namespace
 
 @implementation View {
     cc::TouchEvent _touchEvent;

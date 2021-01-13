@@ -33,62 +33,61 @@
 
 namespace cc {
 
-    class WebView;
+class WebView;
 
-    class WebViewImpl {
+class WebViewImpl {
 
-    public:
-        WebViewImpl(WebView *webView);
+public:
+    WebViewImpl(WebView *webView);
 
-        virtual ~WebViewImpl();
+    virtual ~WebViewImpl();
 
-        void setJavascriptInterfaceScheme(const std::string &scheme);
+    void setJavascriptInterfaceScheme(const std::string &scheme);
 
-        void loadData(const cc::Data &data, const std::string &MIMEType,
-                      const std::string &encoding, const std::string &baseURL);
+    void loadData(const cc::Data &data, const std::string &MIMEType,
+                  const std::string &encoding, const std::string &baseURL);
 
-        void loadHTMLString(const std::string &string, const std::string &baseURL);
+    void loadHTMLString(const std::string &string, const std::string &baseURL);
 
-        void loadURL(const std::string &url);
+    void loadURL(const std::string &url);
 
-        void loadFile(const std::string &fileName);
+    void loadFile(const std::string &fileName);
 
-        void stopLoading();
+    void stopLoading();
 
-        void reload();
+    void reload();
 
-        bool canGoBack();
+    bool canGoBack();
 
-        bool canGoForward();
+    bool canGoForward();
 
-        void goBack();
+    void goBack();
 
-        void goForward();
+    void goForward();
 
-        void evaluateJS(const std::string &js);
+    void evaluateJS(const std::string &js);
 
-        void setScalesPageToFit(const bool scalesPageToFit);
+    void setScalesPageToFit(const bool scalesPageToFit);
 
-        virtual void setVisible(bool visible);
+    virtual void setVisible(bool visible);
 
-        virtual void setFrame(float x, float y, float width, float height);
+    virtual void setFrame(float x, float y, float width, float height);
 
-        void setBounces(bool bounces);
+    void setBounces(bool bounces);
 
-        void setBackgroundTransparent(bool isTransparent);
+    void setBackgroundTransparent(bool isTransparent);
 
-        static bool shouldStartLoading(const int viewTag, const std::string &url);
+    static bool shouldStartLoading(const int viewTag, const std::string &url);
 
-        static void didFinishLoading(const int viewTag, const std::string &url);
+    static void didFinishLoading(const int viewTag, const std::string &url);
 
-        static void didFailLoading(const int viewTag, const std::string &url);
+    static void didFailLoading(const int viewTag, const std::string &url);
 
-        static void onJsCallback(const int viewTag, const std::string &message);
+    static void onJsCallback(const int viewTag, const std::string &message);
 
-    private:
-        int _viewTag;
-        WebView *_webView;
-    };
+private:
+    int _viewTag;
+    WebView *_webView;
+};
 
-}
-
+} // namespace cc

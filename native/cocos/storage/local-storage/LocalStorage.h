@@ -38,19 +38,19 @@ THE SOFTWARE.
 /** Local Storage support for the JS Bindings.*/
 
 /** Initializes the database. If path is null, it will create an in-memory DB. */
-void CC_DLL localStorageInit( const std::string& fullpath = "");
+void CC_DLL localStorageInit(const std::string &fullpath = "");
 
 /** Frees the allocated resources. */
 void CC_DLL localStorageFree();
 
 /** Sets an item in the JS. */
-void CC_DLL localStorageSetItem( const std::string& key, const std::string& value);
+void CC_DLL localStorageSetItem(const std::string &key, const std::string &value);
 
 /** Gets an item from the JS. */
-bool CC_DLL localStorageGetItem( const std::string& key, std::string *outItem );
+bool CC_DLL localStorageGetItem(const std::string &key, std::string *outItem);
 
 /** Removes an item from the JS. */
-void CC_DLL localStorageRemoveItem( const std::string& key );
+void CC_DLL localStorageRemoveItem(const std::string &key);
 
 /** Removes all items from the JS. */
 void CC_DLL localStorageClear();
@@ -59,7 +59,7 @@ void CC_DLL localStorageClear();
 void CC_DLL localStorageGetKey(const int nIndex, std::string *outKey);
 
 /** Gets all items count in the JS. */
-void CC_DLL localStorageGetLength(int& outLength);
+void CC_DLL localStorageGetLength(int &outLength);
 
 // end group
 /// @}

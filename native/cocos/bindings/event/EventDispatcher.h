@@ -42,7 +42,9 @@ struct TouchInfo {
     int index = 0;
 
     TouchInfo(float _x, float _y, int _index)
-    : x(_x), y(_y), index(_index) {}
+    : x(_x),
+      y(_y),
+      index(_index) {}
 };
 
 struct TouchEvent {

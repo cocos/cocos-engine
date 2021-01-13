@@ -64,13 +64,11 @@ class Mat4;
  * q4 = (-0.8, 0.0, -0.6, 0.0).
  * For the point p = (1.0, 1.0, 1.0), the following figures show the trajectories of p using lerp, slerp, and squad.
  */
-class CC_DLL Quaternion
-{
+class CC_DLL Quaternion {
     friend class Curve;
     friend class Transform;
 
 public:
-
     /**
      * The x-value of the quaternion's vector component.
      */
@@ -108,14 +106,14 @@ public:
      *
      * @param array The values for the new quaternion.
      */
-    Quaternion(float* array);
+    Quaternion(float *array);
 
     /**
      * Constructs a quaternion equal to the rotational part of the specified matrix.
      *
      * @param m The matrix.
      */
-    Quaternion(const Mat4& m);
+    Quaternion(const Mat4 &m);
 
     /**
      * Constructs a quaternion equal to the rotation from the specified axis and angle.
@@ -123,14 +121,14 @@ public:
      * @param axis A vector describing the axis of rotation.
      * @param angle The angle of rotation (in radians).
      */
-    Quaternion(const Vec3& axis, float angle);
+    Quaternion(const Vec3 &axis, float angle);
 
     /**
      * Constructs a new quaternion that is a copy of the specified one.
      *
      * @param copy The quaternion to copy.
      */
-    Quaternion(const Quaternion& copy);
+    Quaternion(const Quaternion &copy);
 
     /**
      * Destructor.
@@ -142,14 +140,14 @@ public:
      *
      * @return The identity quaternion.
      */
-    static const Quaternion& identity();
+    static const Quaternion &identity();
 
     /**
      * Returns the quaternion with all zeros.
      *
      * @return The quaternion.
      */
-    static const Quaternion& zero();
+    static const Quaternion &zero();
 
     /**
      * Determines if this quaternion is equal to the identity quaternion.
@@ -172,7 +170,7 @@ public:
      * @param m The matrix.
      * @param dst A quaternion to store the conjugate in.
      */
-    static void createFromRotationMatrix(const Mat4& m, Quaternion* dst);
+    static void createFromRotationMatrix(const Mat4 &m, Quaternion *dst);
 
     /**
      * Creates this quaternion equal to the rotation from the specified axis and angle
@@ -182,7 +180,7 @@ public:
      * @param angle The angle of rotation (in radians).
      * @param dst A quaternion to store the conjugate in.
      */
-    static void createFromAxisAngle(const Vec3& axis, float angle, Quaternion* dst);
+    static void createFromAxisAngle(const Vec3 &axis, float angle, Quaternion *dst);
 
     /**
      * Sets this quaternion to the conjugate of itself.
@@ -222,7 +220,7 @@ public:
      *
      * @param q The quaternion to multiply.
      */
-    void multiply(const Quaternion& q);
+    void multiply(const Quaternion &q);
 
     /**
      * Multiplies the specified quaternions and stores the result in dst.
@@ -231,7 +229,7 @@ public:
      * @param q2 The second quaternion.
      * @param dst A quaternion to store the result in.
      */
-    static void multiply(const Quaternion& q1, const Quaternion& q2, Quaternion* dst);
+    static void multiply(const Quaternion &q1, const Quaternion &q2, Quaternion *dst);
 
     /**
      * Normalizes this quaternion to have unit length.
@@ -265,14 +263,14 @@ public:
      *
      * @param array An array containing the elements of the quaternion in the order x, y, z, w.
      */
-    void set(float* array);
+    void set(float *array);
 
     /**
      * Sets the quaternion equal to the rotational part of the specified matrix.
      *
      * @param m The matrix.
      */
-    void set(const Mat4& m);
+    void set(const Mat4 &m);
 
     /**
      * Sets the quaternion equal to the rotation from the specified axis and angle.
@@ -280,14 +278,14 @@ public:
      * @param axis The axis of rotation.
      * @param angle The angle of rotation (in radians).
      */
-    void set(const Vec3& axis, float angle);
+    void set(const Vec3 &axis, float angle);
 
     /**
      * Sets the elements of this quaternion to a copy of the specified quaternion.
      *
      * @param q The quaternion to copy.
      */
-    void set(const Quaternion& q);
+    void set(const Quaternion &q);
 
     /**
      * Sets this quaternion to be equal to the identity quaternion.
@@ -301,7 +299,7 @@ public:
      *
      * @return The angle (in radians).
      */
-    float toAxisAngle(Vec3* e) const;
+    float toAxisAngle(Vec3 *e) const;
 
     /**
      * Interpolates between two quaternions using linear interpolation.
@@ -314,7 +312,7 @@ public:
      * @param t The interpolation coefficient.
      * @param dst A quaternion to store the result in.
      */
-    static void lerp(const Quaternion& q1, const Quaternion& q2, float t, Quaternion* dst);
+    static void lerp(const Quaternion &q1, const Quaternion &q2, float t, Quaternion *dst);
 
     /**
      * Interpolates between two quaternions using spherical linear interpolation.
@@ -331,7 +329,7 @@ public:
      * @param t The interpolation coefficient.
      * @param dst A quaternion to store the result in.
      */
-    static void slerp(const Quaternion& q1, const Quaternion& q2, float t, Quaternion* dst);
+    static void slerp(const Quaternion &q1, const Quaternion &q2, float t, Quaternion *dst);
 
     /**
      * Interpolates over a series of quaternions using spherical spline interpolation.
@@ -350,7 +348,7 @@ public:
      * @param t The interpolation coefficient.
      * @param dst A quaternion to store the result in.
      */
-    static void squad(const Quaternion& q1, const Quaternion& q2, const Quaternion& s1, const Quaternion& s2, float t, Quaternion* dst);
+    static void squad(const Quaternion &q1, const Quaternion &q2, const Quaternion &s1, const Quaternion &s2, float t, Quaternion *dst);
 
     /**
      * Calculates the quaternion product of this quaternion with the given quaternion.
@@ -360,14 +358,14 @@ public:
      * @param q The quaternion to multiply.
      * @return The quaternion product.
      */
-    inline const Quaternion operator*(const Quaternion& q) const;
+    inline const Quaternion operator*(const Quaternion &q) const;
 
     /**
      * Calculates the quaternion product of this quaternion with the given vec3.
      * @param v The vec3 to multiply.
      * @return The vec3 product.
      */
-    inline Vec3 operator*(const Vec3& v) const;
+    inline Vec3 operator*(const Vec3 &v) const;
 
     /**
      * Multiplies this quaternion with the given quaternion.
@@ -375,13 +373,12 @@ public:
      * @param q The quaternion to multiply.
      * @return This quaternion, after the multiplication occurs.
      */
-    inline Quaternion& operator*=(const Quaternion& q);
+    inline Quaternion &operator*=(const Quaternion &q);
 
     /** equals to Quaternion(0,0,0, 0) */
     static const Quaternion ZERO;
 
 private:
-
     /**
      * Interpolates between two quaternions using spherical linear interpolation.
      *
@@ -406,9 +403,9 @@ private:
      * @param dstz A pointer to store the z component of the slerp in.
      * @param dstw A pointer to store the w component of the slerp in.
      */
-    static void slerp(float q1x, float q1y, float q1z, float q1w, float q2x, float q2y, float q2z, float q2w, float t, float* dstx, float* dsty, float* dstz, float* dstw);
+    static void slerp(float q1x, float q1y, float q1z, float q1w, float q2x, float q2y, float q2z, float q2w, float t, float *dstx, float *dsty, float *dstz, float *dstw);
 
-    static void slerpForSquad(const Quaternion& q1, const Quaternion& q2, float t, Quaternion* dst);
+    static void slerpForSquad(const Quaternion &q1, const Quaternion &q2, float t, Quaternion *dst);
 };
 
 NS_CC_MATH_END

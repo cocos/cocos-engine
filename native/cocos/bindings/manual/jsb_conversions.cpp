@@ -757,8 +757,6 @@ bool seval_to_DownloaderHints(const se::Value &v, cc::network::DownloaderHints *
     return ok;
 }
 
-
-
 //////////////////////////////////////////////////////////////////////////////////
 // native to seval
 
@@ -1204,29 +1202,25 @@ bool DownloadTask_to_seval(const cc::network::DownloadTask &v, se::Value *ret) {
 
 ////////////////// custom types
 
-template<>
-bool nativevalue_to_se(const cc::Data& from, se::Value& to, se::Object*)
-{
-    se::Object* buffer = se::Object::createArrayBufferObject(from.getBytes(), from.getSize());
+template <>
+bool nativevalue_to_se(const cc::Data &from, se::Value &to, se::Object *) {
+    se::Object *buffer = se::Object::createArrayBufferObject(from.getBytes(), from.getSize());
     to.setObject(buffer);
     return true;
 }
 
-template<>
-bool nativevalue_to_se(const cc::Value& from, se::Value& to, se::Object*)
-{
+template <>
+bool nativevalue_to_se(const cc::Value &from, se::Value &to, se::Object *) {
     return ccvalue_to_seval(from, &to);
 }
 
-template<>
-bool nativevalue_to_se(const std::unordered_map<std::string, cc::Value>& from, se::Value& to, se::Object*)
-{
+template <>
+bool nativevalue_to_se(const std::unordered_map<std::string, cc::Value> &from, se::Value &to, se::Object *) {
     return ccvaluemap_to_seval(from, &to);
 }
 
-template<>
-bool nativevalue_to_se(const cc::Vec4& from, se::Value& to, se::Object*)
-{
+template <>
+bool nativevalue_to_se(const cc::Vec4 &from, se::Value &to, se::Object *) {
     return Vec4_to_seval(from, &to);
 }
 
@@ -1235,27 +1229,24 @@ bool nativevalue_to_se(const cc::Vec2 &from, se::Value &to, se::Object *) {
     return Vec2_to_seval(from, &to);
 }
 
-template<>
-bool nativevalue_to_se(const cc::Vec3& from, se::Value& to, se::Object*)
-{
+template <>
+bool nativevalue_to_se(const cc::Vec3 &from, se::Value &to, se::Object *) {
     return Vec3_to_seval(from, &to);
 }
 
-template<>
-bool nativevalue_to_se(const cc::Size& from, se::Value& to, se::Object*)
-{
+template <>
+bool nativevalue_to_se(const cc::Size &from, se::Value &to, se::Object *) {
     return Size_to_seval(from, &to);
 }
 
-template<>
-bool nativevalue_to_se(const cc::extension::ManifestAsset& from, se::Value& to, se::Object*)
-{
+template <>
+bool nativevalue_to_se(const cc::extension::ManifestAsset &from, se::Value &to, se::Object *) {
     return ManifestAsset_to_seval(from, &to);
 }
 
-template<>
-bool nativevalue_to_se(const cc::Rect& from, se::Value& to, se::Object*) {
-	return Rect_to_seval(from, &to);
+template <>
+bool nativevalue_to_se(const cc::Rect &from, se::Value &to, se::Object *) {
+    return Rect_to_seval(from, &to);
 }
 
 #if USE_SPINE

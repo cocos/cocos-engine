@@ -26,13 +26,12 @@ THE SOFTWARE.
 #ifndef __CC_FILEUTILS_WIN32_H__
 #define __CC_FILEUTILS_WIN32_H__
 
-
 #if CC_PLATFORM == CC_PLATFORM_WINDOWS
 
-#include "platform/FileUtils.h"
-#include "base/Macros.h"
-#include <string>
-#include <vector>
+    #include "platform/FileUtils.h"
+    #include "base/Macros.h"
+    #include <string>
+    #include <vector>
 
 namespace cc {
 
@@ -42,20 +41,20 @@ namespace cc {
  */
 
 //! @brief  Helper class to handle file operations
-class CC_DLL FileUtilsWin32 : public FileUtils
-{
+class CC_DLL FileUtilsWin32 : public FileUtils {
     friend class FileUtils;
     FileUtilsWin32();
+
 public:
     /* override functions */
     bool init();
     virtual std::string getWritablePath() const override;
-    virtual bool isAbsolutePath(const std::string& strPath) const override;
-    virtual std::string getSuitableFOpen(const std::string& filenameUtf8) const override;
+    virtual bool isAbsolutePath(const std::string &strPath) const override;
+    virtual std::string getSuitableFOpen(const std::string &filenameUtf8) const override;
     virtual long getFileSize(const std::string &filepath);
-protected:
 
-    virtual bool isFileExistInternal(const std::string& strFilePath) const override;
+protected:
+    virtual bool isFileExistInternal(const std::string &strFilePath) const override;
 
     /**
     *  Renames a file under the given directory.
@@ -81,7 +80,7 @@ protected:
     *  @param dirPath The directory (with absolute path) to look up for
     *  @return Returns true if the directory found at the given absolute path, otherwise returns false
     */
-    virtual bool isDirectoryExistInternal(const std::string& dirPath) const override;
+    virtual bool isDirectoryExistInternal(const std::string &dirPath) const override;
 
     /**
     *  Removes a file.
@@ -97,7 +96,7 @@ protected:
     *  @param dirPath The path of the directory, it must be an absolute path.
     *  @return True if the directory have been created successfully, false if not.
     */
-    virtual bool createDirectory(const std::string& dirPath) override;
+    virtual bool createDirectory(const std::string &dirPath) override;
 
     /**
     *  Removes a directory.
@@ -105,10 +104,9 @@ protected:
     *  @param dirPath  The full path of the directory, it must be an absolute path.
     *  @return True if the directory have been removed successfully, false if not.
     */
-    virtual bool removeDirectory(const std::string& dirPath) override;
+    virtual bool removeDirectory(const std::string &dirPath) override;
 
-
-	virtual FileUtils::Status getContents(const std::string& filename, ResizableBuffer* buffer) override;
+    virtual FileUtils::Status getContents(const std::string &filename, ResizableBuffer *buffer) override;
 
     /**
      *  Gets full path for filename, resolution directory and search path.
@@ -117,7 +115,7 @@ protected:
      *  @param searchPath The search path.
      *  @return The full path of the file. It will return an empty string if the full path of the file doesn't exist.
      */
-    virtual std::string getPathForFilename(const std::string& filename, const std::string& searchPath) const override;
+    virtual std::string getPathForFilename(const std::string &filename, const std::string &searchPath) const override;
 
     /**
      *  Gets full path for the directory and the filename.
@@ -129,14 +127,14 @@ protected:
      *  @param filename  The name of the file.
      *  @return The full path of the file, if the file can't be found, it will return an empty string.
      */
-    virtual std::string getFullPathForDirectoryAndFilename(const std::string& directory, const std::string& filename) const override;
+    virtual std::string getFullPathForDirectoryAndFilename(const std::string &directory, const std::string &filename) const override;
 };
 
 // end of platform group
 /// @}
 
-}
+} // namespace cc
 
 #endif // CC_PLATFORM == CC_PLATFORM_WINDOWS
 
-#endif    // __CC_FILEUTILS_WIN32_H__
+#endif // __CC_FILEUTILS_WIN32_H__

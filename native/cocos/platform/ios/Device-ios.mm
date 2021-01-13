@@ -39,29 +39,27 @@
 #include <sys/utsname.h>
 
 static const float g = 9.80665;
-static const float radToDeg = (180/M_PI);
+static const float radToDeg = (180 / M_PI);
 
-@interface CCMotionDispatcher : NSObject<UIAccelerometerDelegate>
-{
-    CMMotionManager* _motionManager;
+@interface CCMotionDispatcher : NSObject <UIAccelerometerDelegate> {
+    CMMotionManager *_motionManager;
     cc::Device::MotionValue _motionValue;
     float _interval; // unit: seconds
     bool _enabled;
 }
 
-+ (id) sharedMotionDispatcher;
-- (id) init;
-- (void) setMotionEnabled: (bool) isEnabled;
-- (void) setMotionInterval:(float) interval;
++ (id)sharedMotionDispatcher;
+- (id)init;
+- (void)setMotionEnabled:(bool)isEnabled;
+- (void)setMotionInterval:(float)interval;
 
 @end
 
 @implementation CCMotionDispatcher
 
-static CCMotionDispatcher* __motionDispatcher = nullptr;
+static CCMotionDispatcher *__motionDispatcher = nullptr;
 
-+ (id) sharedMotionDispatcher
-{
++ (id)sharedMotionDispatcher {
     if (__motionDispatcher == nil) {
         __motionDispatcher = [[CCMotionDispatcher alloc] init];
     }
@@ -69,9 +67,8 @@ static CCMotionDispatcher* __motionDispatcher = nullptr;
     return __motionDispatcher;
 }
 
-- (id) init
-{
-    if( (self = [super init]) ) {
+- (id)init {
+    if ((self = [super init])) {
         _enabled = false;
         _interval = 1.0f / 60.0f;
         _motionManager = [[CMMotionManager alloc] init];
@@ -79,21 +76,18 @@ static CCMotionDispatcher* __motionDispatcher = nullptr;
     return self;
 }
 
-- (void) dealloc
-{
+- (void)dealloc {
     __motionDispatcher = nullptr;
     [_motionManager release];
     [super dealloc];
 }
 
-- (void) setMotionEnabled: (bool) enabled
-{
+- (void)setMotionEnabled:(bool)enabled {
     if (_enabled == enabled)
         return;
 
     bool isDeviceMotionAvailable = _motionManager.isDeviceMotionAvailable;
-    if (enabled)
-    {
+    if (enabled) {
         // Has Gyro? (iPhone4 and newer)
         if (isDeviceMotionAvailable) {
             [_motionManager startDeviceMotionUpdates];
@@ -104,9 +98,7 @@ static CCMotionDispatcher* __motionDispatcher = nullptr;
             [_motionManager startAccelerometerUpdates];
             _motionManager.accelerometerUpdateInterval = _interval;
         }
-    }
-    else
-    {
+    } else {
         // Has Gyro? (iPhone4 and newer)
         if (isDeviceMotionAvailable) {
             [_motionManager stopDeviceMotionUpdates];
@@ -119,24 +111,21 @@ static CCMotionDispatcher* __motionDispatcher = nullptr;
     _enabled = enabled;
 }
 
--(void) setMotionInterval:(float)interval
-{
+- (void)setMotionInterval:(float)interval {
     _interval = interval;
-    if (_enabled)
-    {
+    if (_enabled) {
         if (_motionManager.isDeviceMotionAvailable) {
             _motionManager.deviceMotionUpdateInterval = _interval;
-        }
-        else {
+        } else {
             _motionManager.accelerometerUpdateInterval = _interval;
         }
     }
 }
 
--(const cc::Device::MotionValue&) getMotionValue {
+- (const cc::Device::MotionValue &)getMotionValue {
 
     if (_motionManager.isDeviceMotionAvailable) {
-        CMDeviceMotion* motion = _motionManager.deviceMotion;
+        CMDeviceMotion *motion = _motionManager.deviceMotion;
         _motionValue.accelerationX = motion.userAcceleration.x * g;
         _motionValue.accelerationY = motion.userAcceleration.y * g;
         _motionValue.accelerationZ = motion.userAcceleration.z * g;
@@ -148,9 +137,8 @@ static CCMotionDispatcher* __motionDispatcher = nullptr;
         _motionValue.rotationRateAlpha = motion.rotationRate.x * radToDeg;
         _motionValue.rotationRateBeta = motion.rotationRate.y * radToDeg;
         _motionValue.rotationRateGamma = motion.rotationRate.z * radToDeg;
-    }
-    else {
-        CMAccelerometerData* acc = _motionManager.accelerometerData;
+    } else {
+        CMAccelerometerData *acc = _motionManager.accelerometerData;
         _motionValue.accelerationIncludingGravityX = acc.acceleration.x * g;
         _motionValue.accelerationIncludingGravityY = acc.acceleration.y * g;
         _motionValue.accelerationIncludingGravityZ = acc.acceleration.z * g;
@@ -165,12 +153,10 @@ static CCMotionDispatcher* __motionDispatcher = nullptr;
 
 namespace cc {
 
-int Device::getDPI()
-{
+int Device::getDPI() {
     static int dpi = -1;
 
-    if (dpi == -1)
-    {
+    if (dpi == -1) {
         float scale = 1.0f;
 
         if ([[UIScreen mainScreen] respondsToSelector:@selector(scale)]) {
@@ -188,23 +174,19 @@ int Device::getDPI()
     return dpi;
 }
 
-
-void Device::setAccelerometerEnabled(bool isEnabled)
-{
+void Device::setAccelerometerEnabled(bool isEnabled) {
 #if !defined(CC_TARGET_OS_TVOS)
     [[CCMotionDispatcher sharedMotionDispatcher] setMotionEnabled:isEnabled];
 #endif
 }
 
-void Device::setAccelerometerInterval(float interval)
-{
+void Device::setAccelerometerInterval(float interval) {
 #if !defined(CC_TARGET_OS_TVOS)
     [[CCMotionDispatcher sharedMotionDispatcher] setMotionInterval:interval];
 #endif
 }
 
-const Device::MotionValue& Device::getDeviceMotionValue()
-{
+const Device::MotionValue &Device::getDeviceMotionValue() {
 #if !defined(CC_TARGET_OS_TVOS)
     return [[CCMotionDispatcher sharedMotionDispatcher] getMotionValue];
 #else
@@ -213,11 +195,9 @@ const Device::MotionValue& Device::getDeviceMotionValue()
 #endif
 }
 
-Device::Orientation Device::getDeviceOrientation()
-{
+Device::Orientation Device::getDeviceOrientation() {
     Orientation orientation = Device::Orientation::LANDSCAPE_RIGHT;
-    switch ([[UIApplication sharedApplication] statusBarOrientation])
-    {
+    switch ([[UIApplication sharedApplication] statusBarOrientation]) {
         case UIInterfaceOrientationLandscapeRight:
             orientation = Device::Orientation::LANDSCAPE_RIGHT;
             break;
@@ -241,15 +221,13 @@ Device::Orientation Device::getDeviceOrientation()
     return orientation;
 }
 
-std::string Device::getDeviceModel()
-{
+std::string Device::getDeviceModel() {
     struct utsname systemInfo;
     uname(&systemInfo);
     return systemInfo.machine;
 }
 
-void Device::setKeepScreenOn(bool value)
-{
+void Device::setKeepScreenOn(bool value) {
     [[UIApplication sharedApplication] setIdleTimerDisabled:(BOOL)value];
 }
 
@@ -257,8 +235,7 @@ void Device::setKeepScreenOn(bool value)
  @brief Only works on iOS devices that support vibration (such as iPhone). Should only be used for important alerts. Use risks rejection in iTunes Store.
  @param duration ignored for iOS
  */
-void Device::vibrate(float duration)
-{
+void Device::vibrate(float duration) {
     // See https://developer.apple.com/library/ios/documentation/AudioToolbox/Reference/SystemSoundServicesReference/index.html#//apple_ref/c/econst/kSystemSoundID_Vibrate
     CC_UNUSED_PARAM(duration);
 
@@ -266,16 +243,13 @@ void Device::vibrate(float duration)
     AudioServicesPlayAlertSound(kSystemSoundID_Vibrate);
 }
 
-float Device::getBatteryLevel()
-{
+float Device::getBatteryLevel() {
     return [UIDevice currentDevice].batteryLevel;
 }
 
-Device::NetworkType Device::getNetworkType()
-{
-    static Reachability* __reachability = nullptr;
-    if (__reachability == nullptr)
-    {
+Device::NetworkType Device::getNetworkType() {
+    static Reachability *__reachability = nullptr;
+    if (__reachability == nullptr) {
         __reachability = Reachability::createForInternetConnection();
         __reachability->retain();
     }
@@ -297,16 +271,14 @@ Device::NetworkType Device::getNetworkType()
     return ret;
 }
 
-cc::Vec4 Device::getSafeAreaEdge()
-{
-   UIView* screenView = UIApplication.sharedApplication.delegate.window.rootViewController.view;
+cc::Vec4 Device::getSafeAreaEdge() {
+    UIView *screenView = UIApplication.sharedApplication.delegate.window.rootViewController.view;
 
-   if (@available(iOS 11.0, *))
-   {
-       UIEdgeInsets safeAreaEdge = screenView.safeAreaInsets;
-       return cc::Vec4(safeAreaEdge.top, safeAreaEdge.left, safeAreaEdge.bottom, safeAreaEdge.right);
-   }
-   // If running on iOS devices lower than 11.0, return ZERO Vec4.
+    if (@available(iOS 11.0, *)) {
+        UIEdgeInsets safeAreaEdge = screenView.safeAreaInsets;
+        return cc::Vec4(safeAreaEdge.top, safeAreaEdge.left, safeAreaEdge.bottom, safeAreaEdge.right);
+    }
+    // If running on iOS devices lower than 11.0, return ZERO Vec4.
     return cc::Vec4();
 }
-}
+} // namespace cc

@@ -27,24 +27,20 @@
 
 namespace se {
 
-HandleObject::HandleObject(Object* obj)
-: _obj(obj)
-{
-    if (_obj != nullptr)
-    {
+HandleObject::HandleObject(Object *obj)
+: _obj(obj) {
+    if (_obj != nullptr) {
         // se::HandleObject could not be used for native binding object.
         assert(!_obj->_getClass());
         _obj->root();
     }
 }
 
-HandleObject::~HandleObject()
-{
-    if (_obj != nullptr)
-    {
+HandleObject::~HandleObject() {
+    if (_obj != nullptr) {
         _obj->unroot();
         _obj->decRef();
     }
 }
 
-} // namespace se {
+} // namespace se

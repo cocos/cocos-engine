@@ -43,7 +43,6 @@
 
 #include "HelperMacros.h"
 
-
 namespace se {
-    using V8FinalizeFunc = void (*)(void* nativeObj);
+using V8FinalizeFunc = void (*)(void *nativeObj);
 }

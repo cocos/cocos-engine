@@ -44,8 +44,7 @@ struct FontDefinition;
  * @class Device
  * @brief
  */
-class CC_DLL Device
-{
+class CC_DLL Device {
 public:
     // https://developer.mozilla.org/en-US/docs/Web/API/Window/orientation
     enum class Orientation {
@@ -79,7 +78,7 @@ public:
      * Get device pixel ratio.
      */
     static float getDevicePixelRatio();
-    
+
     /**
      * To enable or disable accelerometer.
      */
@@ -93,7 +92,7 @@ public:
     /**
      *  Gets the motion value of current device.
      */
-    static const MotionValue& getDeviceMotionValue();
+    static const MotionValue &getDeviceMotionValue();
 
     /**
      *  Gets the orientation of device.
@@ -127,8 +126,7 @@ public:
      */
     static float getBatteryLevel();
 
-    enum class NetworkType
-    {
+    enum class NetworkType {
         NONE,
         LAN,
         WWAN
@@ -143,13 +141,13 @@ public:
     static Vec4 getSafeAreaEdge();
 
 private:
-	Device();
-	CC_DISALLOW_COPY_AND_ASSIGN(Device);
+    Device();
+    CC_DISALLOW_COPY_AND_ASSIGN(Device);
 };
 
 // end group
 /// @}
 
-}
+} // namespace cc
 
 #endif /* __CCDEVICE_H__ */

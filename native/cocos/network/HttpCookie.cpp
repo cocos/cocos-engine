@@ -28,37 +28,32 @@
 #include <sstream>
 #include <stdio.h>
 
-void HttpCookie::readFile()
-{
+void HttpCookie::readFile() {
     std::string inString = cc::FileUtils::getInstance()->getStringFromFile(_cookieFileName);
-    if(!inString.empty())
-    {
+    if (!inString.empty()) {
         std::vector<std::string> cookiesVec;
         cookiesVec.clear();
 
         std::stringstream stream(inString);
         std::string item;
-        while(std::getline(stream, item, '\n'))
-        {
+        while (std::getline(stream, item, '\n')) {
             cookiesVec.push_back(item);
         }
 
-        if(cookiesVec.empty())
+        if (cookiesVec.empty())
             return;
 
         _cookies.clear();
 
-        for(auto& cookie : cookiesVec)
-        {
-            if(cookie.length() == 0)
+        for (auto &cookie : cookiesVec) {
+            if (cookie.length() == 0)
                 continue;
 
-            if(cookie.find("#HttpOnly_") != std::string::npos)
-            {
+            if (cookie.find("#HttpOnly_") != std::string::npos) {
                 cookie = cookie.substr(10);
             }
 
-            if(cookie.at(0) == '#')
+            if (cookie.at(0) == '#')
                 continue;
 
             CookiesInfo co;
@@ -66,19 +61,17 @@ void HttpCookie::readFile()
             std::vector<std::string> elems;
             std::string elemsItem;
 
-            while (std::getline(streamInfo, elemsItem, '\t'))
-            {
+            while (std::getline(streamInfo, elemsItem, '\t')) {
                 elems.push_back(elemsItem);
             }
 
             co.domain = elems[0];
-            if (co.domain.at(0) == '.')
-            {
+            if (co.domain.at(0) == '.') {
                 co.domain = co.domain.substr(1);
             }
-            co.tailmatch = strcmp("TRUE", elems[1].c_str())?true: false;
-            co.path   = elems[2];
-            co.secure = strcmp("TRUE", elems[3].c_str())?true: false;
+            co.tailmatch = strcmp("TRUE", elems[1].c_str()) ? true : false;
+            co.path = elems[2];
+            co.secure = strcmp("TRUE", elems[3].c_str()) ? true : false;
             co.expires = elems[4];
             co.name = elems[5];
             co.value = elems[6];
@@ -87,28 +80,22 @@ void HttpCookie::readFile()
     }
 }
 
-const std::vector<CookiesInfo>* HttpCookie::getCookies() const
-{
+const std::vector<CookiesInfo> *HttpCookie::getCookies() const {
     return &_cookies;
 }
 
-const CookiesInfo* HttpCookie::getMatchCookie(const std::string& url) const
-{
-    for(auto& cookie : _cookies)
-    {
-        if(url.find(cookie.domain) != std::string::npos)
+const CookiesInfo *HttpCookie::getMatchCookie(const std::string &url) const {
+    for (auto &cookie : _cookies) {
+        if (url.find(cookie.domain) != std::string::npos)
             return &cookie;
     }
 
     return nullptr;
 }
 
-void HttpCookie::updateOrAddCookie(CookiesInfo* cookie)
-{
-    for(auto& _cookie : _cookies)
-    {
-        if(cookie->domain == _cookie.domain)
-        {
+void HttpCookie::updateOrAddCookie(CookiesInfo *cookie) {
+    for (auto &_cookie : _cookies) {
+        if (cookie->domain == _cookie.domain) {
             _cookie = *cookie;
             return;
         }
@@ -116,8 +103,7 @@ void HttpCookie::updateOrAddCookie(CookiesInfo* cookie)
     _cookies.push_back(*cookie);
 }
 
-void HttpCookie::writeFile()
-{
+void HttpCookie::writeFile() {
     FILE *out;
     out = fopen(_cookieFileName.c_str(), "w");
     fputs("# Netscape HTTP Cookie File\n"
@@ -127,8 +113,7 @@ void HttpCookie::writeFile()
           out);
 
     std::string line;
-    for(auto& cookie : _cookies)
-    {
+    for (auto &cookie : _cookies) {
         line.clear();
         line.append(cookie.domain);
         line.append(1, '\t');
@@ -151,8 +136,6 @@ void HttpCookie::writeFile()
     fclose(out);
 }
 
-void HttpCookie::setCookieFileName(const std::string& filename)
-{
+void HttpCookie::setCookieFileName(const std::string &filename) {
     _cookieFileName = filename;
 }
-

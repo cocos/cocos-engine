@@ -33,23 +33,22 @@
 
 #if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_V8
 
-#if defined(CC_DEBUG) & defined(RECORD_JSB_INVOKING)
+    #if defined(CC_DEBUG) & defined(RECORD_JSB_INVOKING)
 extern unsigned int __jsbInvocationCount;
 extern std::map<std::string, unsigned int> __jsbFunctionInvokedRecords;
-#endif
+    #endif
 
-
-template<typename T, typename STATE>
-constexpr inline T * SE_THIS_OBJECT(STATE& s) {
-    return (T*) s.nativeThisObject();
+template <typename T, typename STATE>
+constexpr inline T *SE_THIS_OBJECT(STATE &s) {
+    return (T *)s.nativeThisObject();
 }
 
-template<typename T>
+template <typename T>
 constexpr const typename std::enable_if<std::is_enum<T>::value, char *>::type SE_UNDERLYING_TYPE_NAME() {
-   return typeid(std::underlying_type_t<T>).name();
+    return typeid(std::underlying_type_t<T>).name();
 }
 
-template<typename T>
+template <typename T>
 constexpr const typename std::enable_if<!std::is_enum<T>::value, char *>::type SE_UNDERLYING_TYPE_NAME() {
     return typeid(T).name();
 }

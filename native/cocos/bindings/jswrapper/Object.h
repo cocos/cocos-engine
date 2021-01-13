@@ -27,18 +27,17 @@
 #include "config.h"
 
 #if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_SM
-#include "sm/Object.h"
+    #include "sm/Object.h"
 #endif
 
 #if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_V8
-#include "v8/Object.h"
+    #include "v8/Object.h"
 #endif
 
 #if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_JSC
-#include "jsc/Object.h"
+    #include "jsc/Object.h"
 #endif
 
 #if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_CHAKRACORE
-#include "chakracore/Object.h"
+    #include "chakracore/Object.h"
 #endif
-

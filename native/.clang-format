@@ -19,6 +19,7 @@ ColumnLimit: 0
 AlignTrailingComments: true  
 
 AllowShortCaseLabelsOnASingleLine: true
+AllowAllConstructorInitializersOnNextLine: false
 
 AccessModifierOffset: -4
 

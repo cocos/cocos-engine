@@ -56,14 +56,13 @@ class Object;
  should be holded by JavaScript VM and released in finalize callback internally.
 
  */
-class HandleObject
-{
+class HandleObject {
 public:
     /**
      *  @brief The constructor of HandleObject
      *  @param[in] obj The se::Object to attach.
      */
-    HandleObject(Object* obj);
+    HandleObject(Object *obj);
 
     /**
      *  @brief The destructor of HandleObject
@@ -74,8 +73,7 @@ public:
      *  @brief The pointer operator
      *  @return The se::Object attached.
      */
-    inline Object* operator->() const
-    {
+    inline Object *operator->() const {
         return _obj;
     }
 
@@ -83,8 +81,7 @@ public:
      *  @brief Gets the se::Object attached.
      *  @return The se::Object attached.
      */
-    inline Object* get() const
-    {
+    inline Object *get() const {
         return _obj;
     }
 
@@ -92,22 +89,21 @@ public:
      *  @brief Tests whether HandleObject holds an invalid se::Object.
      *  @return true if HandleObject holds an invalid se::Object, otherwise false.
      */
-    inline bool isEmpty() const
-    {
+    inline bool isEmpty() const {
         return (_obj == nullptr);
     }
 
 private:
-    HandleObject(const HandleObject&) = delete;
-    void operator=(const HandleObject&) = delete;
-    HandleObject(HandleObject&&) = delete;
-    void operator=(HandleObject&&) = delete;
+    HandleObject(const HandleObject &) = delete;
+    void operator=(const HandleObject &) = delete;
+    HandleObject(HandleObject &&) = delete;
+    void operator=(HandleObject &&) = delete;
 
-    void* operator new(size_t size) = delete;
-    void operator delete(void*, size_t) = delete;
+    void *operator new(size_t size) = delete;
+    void operator delete(void *, size_t) = delete;
 
-    Object* _obj;
+    Object *_obj;
     friend class Object;
 };
 
-} // namespace se {
+} // namespace se

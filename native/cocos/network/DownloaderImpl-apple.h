@@ -27,21 +27,20 @@
 
 #include "network/DownloaderImpl.h"
 
-namespace cc { namespace network
-{
-    struct DownloaderHints;
-    class DownloaderApple : public IDownloaderImpl
-    {
-    public:
-        DownloaderApple(const DownloaderHints& hints);
-        virtual ~DownloaderApple();
+namespace cc {
+namespace network {
+struct DownloaderHints;
+class DownloaderApple : public IDownloaderImpl {
+public:
+    DownloaderApple(const DownloaderHints &hints);
+    virtual ~DownloaderApple();
 
-        virtual IDownloadTask *createCoTask(std::shared_ptr<const DownloadTask>& task) override;
-        
-        virtual void abort(const std::unique_ptr<IDownloadTask>& task) override;
+    virtual IDownloadTask *createCoTask(std::shared_ptr<const DownloadTask> &task) override;
 
-    private:
-        void* _impl;
-    };
-}}  // namespace cc::network
+    virtual void abort(const std::unique_ptr<IDownloadTask> &task) override;
 
+private:
+    void *_impl;
+};
+} // namespace network
+} // namespace cc

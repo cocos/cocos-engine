@@ -103,7 +103,7 @@ bool setCanvasCallback(se::Object *global) {
 #ifndef CC_USE_METAL
 MyTimer *_timer;
 #endif
-}
+} // namespace
 
 Application *Application::_instance = nullptr;
 std::shared_ptr<Scheduler> Application::_scheduler = nullptr;
@@ -254,4 +254,4 @@ std::string Application::getSystemVersion() {
     return version;
 }
 
-}
+} // namespace cc

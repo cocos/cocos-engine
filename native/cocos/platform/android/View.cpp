@@ -30,96 +30,89 @@ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 #include "platform/Application.h"
 #include "platform/android/jni/JniCocosActivity.h"
 
-namespace
-{
-	struct cc::TouchEvent touchEvent;
-    struct cc::KeyboardEvent keyboardEvent;
+namespace {
+struct cc::TouchEvent touchEvent;
+struct cc::KeyboardEvent keyboardEvent;
 
-	// key values in web, refer to http://docs.cocos.com/creator/api/en/enums/KEY.html
-    std::unordered_map<int, int> keyCodeMap = {
-            {AKEYCODE_BACK, 6},
-            {AKEYCODE_ENTER, 13},
-            {AKEYCODE_MENU, 18},
-            {AKEYCODE_DPAD_UP, 1003},
-            {AKEYCODE_DPAD_DOWN, 1004},
-            {AKEYCODE_DPAD_LEFT, 1000},
-            {AKEYCODE_DPAD_RIGHT, 1001},
-            {AKEYCODE_DPAD_CENTER, 1005}
-    };
+// key values in web, refer to http://docs.cocos.com/creator/api/en/enums/KEY.html
+std::unordered_map<int, int> keyCodeMap = {
+    {AKEYCODE_BACK, 6},
+    {AKEYCODE_ENTER, 13},
+    {AKEYCODE_MENU, 18},
+    {AKEYCODE_DPAD_UP, 1003},
+    {AKEYCODE_DPAD_DOWN, 1004},
+    {AKEYCODE_DPAD_LEFT, 1000},
+    {AKEYCODE_DPAD_RIGHT, 1001},
+    {AKEYCODE_DPAD_CENTER, 1005}};
 
-	void dispatchTouchEvent(int index, AInputEvent* event, cc::TouchEvent& touchEvent) {
-        int pointerID = AMotionEvent_getPointerId(event, index);
-        touchEvent.touches.push_back({
-            AMotionEvent_getX(event, index), // x
-            AMotionEvent_getY(event, index), // y
-            pointerID});
+void dispatchTouchEvent(int index, AInputEvent *event, cc::TouchEvent &touchEvent) {
+    int pointerID = AMotionEvent_getPointerId(event, index);
+    touchEvent.touches.push_back({AMotionEvent_getX(event, index), // x
+                                  AMotionEvent_getY(event, index), // y
+                                  pointerID});
 
-        cc::EventDispatcher::dispatchTouchEvent(touchEvent);
-        touchEvent.touches.clear();
-    }
-
-    void dispatchTouchEvents(AInputEvent* event, cc::TouchEvent& touchEvent) {
-        size_t pointerCount = AMotionEvent_getPointerCount(event);
-        for (size_t i = 0; i < pointerCount; ++i) {
-            touchEvent.touches.push_back({
-                AMotionEvent_getX(event, i),
-                AMotionEvent_getY(event, i),
-                AMotionEvent_getPointerId(event, i)
-            });
-        }
-
-        cc::EventDispatcher::dispatchTouchEvent(touchEvent);
-        touchEvent.touches.clear();
-    }
+    cc::EventDispatcher::dispatchTouchEvent(touchEvent);
+    touchEvent.touches.clear();
 }
+
+void dispatchTouchEvents(AInputEvent *event, cc::TouchEvent &touchEvent) {
+    size_t pointerCount = AMotionEvent_getPointerCount(event);
+    for (size_t i = 0; i < pointerCount; ++i) {
+        touchEvent.touches.push_back({AMotionEvent_getX(event, i),
+                                      AMotionEvent_getY(event, i),
+                                      AMotionEvent_getPointerId(event, i)});
+    }
+
+    cc::EventDispatcher::dispatchTouchEvent(touchEvent);
+    touchEvent.touches.clear();
+}
+} // namespace
 
 namespace cc {
 
-void View::engineHandleCmd(int cmd)
-{
+void View::engineHandleCmd(int cmd) {
     static bool isWindowInitialized = false;
-	// Handle CMD here if needed.
-	switch (cmd) {
-	    case APP_CMD_INIT_WINDOW:
-	        if (!isWindowInitialized) {
+    // Handle CMD here if needed.
+    switch (cmd) {
+        case APP_CMD_INIT_WINDOW:
+            if (!isWindowInitialized) {
                 isWindowInitialized = true;
-	            return;
-	        } else {
+                return;
+            } else {
                 cc::CustomEvent event;
                 event.name = EVENT_RECREATE_WINDOW;
                 event.args->ptrVal = cocosApp.window;
                 cc::EventDispatcher::dispatchCustomEvent(event);
-	        }
-	        break;
-	    case APP_CMD_TERM_WINDOW: {
+            }
+            break;
+        case APP_CMD_TERM_WINDOW: {
             cc::CustomEvent event;
             event.name = EVENT_DESTROY_WINDOW;
             cc::EventDispatcher::dispatchCustomEvent(event);
-        }
-	        break;
-	    case APP_CMD_RESUME:
-	        if (Application::getInstance())
-	            Application::getInstance()->onResume();
-	        break;
-	    case APP_CMD_PAUSE:
+        } break;
+        case APP_CMD_RESUME:
+            if (Application::getInstance())
+                Application::getInstance()->onResume();
+            break;
+        case APP_CMD_PAUSE:
             if (Application::getInstance())
                 Application::getInstance()->onPause();
-	        break;
-	    case APP_CMD_LOW_MEMORY:
-	        cc::EventDispatcher::dispatchMemoryWarningEvent();
-	        break;
+            break;
+        case APP_CMD_LOW_MEMORY:
+            cc::EventDispatcher::dispatchMemoryWarningEvent();
+            break;
         default:
             break;
-	}
+    }
 }
 
 /**
  * Process the next input event.
  */
-int32_t View::engineHandleInput(struct android_app* app, AInputEvent* event) {
+int32_t View::engineHandleInput(struct android_app *app, AInputEvent *event) {
     int type = AInputEvent_getType(event);
 
-    if(type == AINPUT_EVENT_TYPE_KEY){
+    if (type == AINPUT_EVENT_TYPE_KEY) {
         int action = AKeyEvent_getAction(event);
         if (action == AKEY_EVENT_ACTION_MULTIPLE)
             return 0;
@@ -132,12 +125,12 @@ int32_t View::engineHandleInput(struct android_app* app, AInputEvent* event) {
 
         keyboardEvent.key = keyCode;
         keyboardEvent.action = action == AKEY_EVENT_ACTION_DOWN
-                                         ? cc::KeyboardEvent::Action::RELEASE
-                                         : cc::KeyboardEvent::Action::PRESS;
+                                   ? cc::KeyboardEvent::Action::RELEASE
+                                   : cc::KeyboardEvent::Action::PRESS;
         cc::EventDispatcher::dispatchKeyboardEvent(keyboardEvent);
 
         return 1;
-    } else if (type == AINPUT_EVENT_TYPE_MOTION){
+    } else if (type == AINPUT_EVENT_TYPE_MOTION) {
         int action = AMotionEvent_getAction(event);
 
         switch (action & AMOTION_EVENT_ACTION_MASK) {
@@ -148,8 +141,8 @@ int32_t View::engineHandleInput(struct android_app* app, AInputEvent* event) {
             case AMOTION_EVENT_ACTION_POINTER_DOWN:
                 touchEvent.type = cc::TouchEvent::Type::BEGAN;
                 dispatchTouchEvent((action & AMOTION_EVENT_ACTION_POINTER_INDEX_MASK) >> AMOTION_EVENT_ACTION_POINTER_INDEX_SHIFT,
-                                    event,
-                                    touchEvent);
+                                   event,
+                                   touchEvent);
                 break;
             case AMOTION_EVENT_ACTION_UP:
                 touchEvent.type = cc::TouchEvent::Type::ENDED;
@@ -179,4 +172,4 @@ int32_t View::engineHandleInput(struct android_app* app, AInputEvent* event) {
     return 0;
 }
 
-}
+} // namespace cc

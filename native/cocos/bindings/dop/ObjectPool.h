@@ -36,7 +36,7 @@ namespace se {
 class CC_DLL ObjectPool final : public cc::Object {
 public:
     CC_INLINE static const cc::map<PoolType, ObjectPool *> &getPoolMap() { return ObjectPool::_poolMap; }
-    
+
     ObjectPool(PoolType type, Object *jsArr);
     ~ObjectPool();
 
@@ -61,7 +61,7 @@ public:
 
 private:
     static cc::map<PoolType, ObjectPool *> _poolMap;
-    
+
     PoolType _type = PoolType::SHADER;
     Object *_jsArr = nullptr;
     uint _poolFlag = 1 << 29;

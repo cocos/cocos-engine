@@ -27,7 +27,7 @@
 #include "cocos/bindings/jswrapper/SeApi.h"
 
 namespace se {
-    class Object;
+class Object;
 }
 
-bool register_all_spine_manual(se::Object* obj);
+bool register_all_spine_manual(se::Object *obj);

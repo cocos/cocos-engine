@@ -24,7 +24,6 @@
  ****************************************************************************/
 #pragma once
 
-
 #include "ChakraCore.h"
 #include "ChakraCoreVersion.h"
 

@@ -51,7 +51,7 @@ void EventDispatcher::init() {
 
 void EventDispatcher::destroy() {
     removeAllEventListeners();
-    
+
     for (auto touchObj : _jsTouchObjPool) {
         touchObj->unroot();
         touchObj->decRef();

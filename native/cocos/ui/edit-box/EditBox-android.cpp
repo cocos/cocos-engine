@@ -30,53 +30,48 @@
 #include "cocos/bindings/manual/jsb_global.h"
 
 #ifndef JCLS_EDITBOX
-#define JCLS_EDITBOX  "com/cocos/lib/CocosEditBoxActivity"
+    #define JCLS_EDITBOX "com/cocos/lib/CocosEditBoxActivity"
 #endif
 
 #ifndef ORG_EDITBOX_CLASS_NAME
-#define ORG_EDITBOX_CLASS_NAME com_cocos_lib_CocosEditBoxActivity
+    #define ORG_EDITBOX_CLASS_NAME com_cocos_lib_CocosEditBoxActivity
 #endif
-#define JNI_EDITBOX(FUNC) JNI_METHOD1(ORG_EDITBOX_CLASS_NAME,FUNC)
+#define JNI_EDITBOX(FUNC) JNI_METHOD1(ORG_EDITBOX_CLASS_NAME, FUNC)
 
-namespace
-{
-    se::Value textInputCallback;
+namespace {
+se::Value textInputCallback;
 
-    void getTextInputCallback()
-    {
-        if (! textInputCallback.isUndefined())
-            return;
+void getTextInputCallback() {
+    if (!textInputCallback.isUndefined())
+        return;
 
-        auto global = se::ScriptEngine::getInstance()->getGlobalObject();
-        se::Value jsbVal;
-        if (global->getProperty("jsb", &jsbVal) && jsbVal.isObject())
-        {
-            jsbVal.toObject()->getProperty("onTextInput", &textInputCallback);
-            // free globle se::Value before ScriptEngine clean up
-            se::ScriptEngine::getInstance()->addBeforeCleanupHook([](){
-                textInputCallback.setUndefined();
-            });
-        }
-    }
-
-    void callJSFunc(const std::string& type, const std::string& text)
-    {
-        getTextInputCallback();
-
-        se::AutoHandleScope scope;
-        se::ValueArray args;
-        args.push_back(se::Value(type));
-        args.push_back(se::Value(text));
-        textInputCallback.toObject()->call(args, nullptr);
+    auto global = se::ScriptEngine::getInstance()->getGlobalObject();
+    se::Value jsbVal;
+    if (global->getProperty("jsb", &jsbVal) && jsbVal.isObject()) {
+        jsbVal.toObject()->getProperty("onTextInput", &textInputCallback);
+        // free globle se::Value before ScriptEngine clean up
+        se::ScriptEngine::getInstance()->addBeforeCleanupHook([]() {
+            textInputCallback.setUndefined();
+        });
     }
 }
+
+void callJSFunc(const std::string &type, const std::string &text) {
+    getTextInputCallback();
+
+    se::AutoHandleScope scope;
+    se::ValueArray args;
+    args.push_back(se::Value(type));
+    args.push_back(se::Value(text));
+    textInputCallback.toObject()->call(args, nullptr);
+}
+} // namespace
 
 namespace cc {
 
 bool EditBox::_isShown = false;
 
-void EditBox::show(const cc::EditBox::ShowInfo& showInfo)
-{
+void EditBox::show(const cc::EditBox::ShowInfo &showInfo) {
     JniHelper::callStaticVoidMethod(JCLS_EDITBOX,
                                     "showNative",
                                     showInfo.defaultValue,
@@ -88,14 +83,12 @@ void EditBox::show(const cc::EditBox::ShowInfo& showInfo)
     _isShown = true;
 }
 
-void EditBox::hide()
-{
+void EditBox::hide() {
     JniHelper::callStaticVoidMethod(JCLS_EDITBOX, "hideNative");
     _isShown = false;
 }
 
-bool EditBox::complete()
-{
+bool EditBox::complete() {
     if (!_isShown)
         return false;
 
@@ -104,26 +97,21 @@ bool EditBox::complete()
     return true;
 }
 
+} // namespace cc
+
+extern "C" {
+JNIEXPORT void JNICALL JNI_EDITBOX(onKeyboardInputNative)(JNIEnv *env, jclass, jstring text) {
+    auto textStr = cc::JniHelper::jstring2string(text);
+    callJSFunc("input", textStr);
 }
 
-extern "C" 
-{
-    JNIEXPORT void JNICALL JNI_EDITBOX(onKeyboardInputNative)(JNIEnv* env, jclass, jstring text)
-    {
-        auto textStr = cc::JniHelper::jstring2string(text);
-            callJSFunc("input", textStr);
+JNIEXPORT void JNICALL JNI_EDITBOX(onKeyboardCompleteNative)(JNIEnv *env, jclass, jstring text) {
+    auto textStr = cc::JniHelper::jstring2string(text);
+    callJSFunc("complete", textStr);
+}
 
-    }
-
-    JNIEXPORT void JNICALL JNI_EDITBOX(onKeyboardCompleteNative)(JNIEnv* env, jclass, jstring text)
-    {
-        auto textStr = cc::JniHelper::jstring2string(text);
-        callJSFunc("complete", textStr);
-    }
-
-    JNIEXPORT void JNICALL JNI_EDITBOX(onKeyboardConfirmNative)(JNIEnv* env, jclass, jstring text)
-    {
-        auto textStr = cc::JniHelper::jstring2string(text);
-        callJSFunc("confirm", textStr);
-    }
+JNIEXPORT void JNICALL JNI_EDITBOX(onKeyboardConfirmNative)(JNIEnv *env, jclass, jstring text) {
+    auto textStr = cc::JniHelper::jstring2string(text);
+    callJSFunc("confirm", textStr);
+}
 }

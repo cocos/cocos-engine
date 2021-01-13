@@ -40,128 +40,116 @@ namespace cc {
  Global variables and functions.
 ************************************************************************/
 
-namespace
-{
-    HWND g_hwndEditBox = nullptr;
-    WNDPROC g_prevMainWindowProc = nullptr;
-    se::Value g_textInputCallback;
+namespace {
+HWND g_hwndEditBox = nullptr;
+WNDPROC g_prevMainWindowProc = nullptr;
+se::Value g_textInputCallback;
 
-     int getCocosWindowHeight()
-    {
-        HWND parent = cc_get_application_view()->getWindowHandler();
-        RECT rect;
-        GetClientRect(parent, &rect);
-        return (rect.bottom - rect.top);
-    }
+int getCocosWindowHeight() {
+    HWND parent = cc_get_application_view()->getWindowHandler();
+    RECT rect;
+    GetClientRect(parent, &rect);
+    return (rect.bottom - rect.top);
+}
 
-    void getTextInputCallback()
-    {
-        if (!g_textInputCallback.isUndefined())
-            return;
+void getTextInputCallback() {
+    if (!g_textInputCallback.isUndefined())
+        return;
 
-        auto global = se::ScriptEngine::getInstance()->getGlobalObject();
-        se::Value jsbVal;
-        if (global->getProperty("jsb", &jsbVal) && jsbVal.isObject())
-        {
-            jsbVal.toObject()->getProperty("onTextInput", &g_textInputCallback);
-            // free globle se::Value before ScriptEngine clean up
-            se::ScriptEngine::getInstance()->addBeforeCleanupHook([](){
-                g_textInputCallback.setUndefined();
-            });
-        }
-    }
-
-    void callJSFunc(const std::string& type, const std::string& text)
-    {
-        getTextInputCallback();
-
-        se::AutoHandleScope scope;
-        se::ValueArray args;
-        args.push_back(se::Value(type));
-        args.push_back(se::Value(text));
-        g_textInputCallback.toObject()->call(args, nullptr);
-    }
-
-    std::string getText(HWND hwnd)
-    {
-        int length = GetWindowTextLength(hwnd);
-        LPWSTR str = (LPWSTR)malloc(sizeof(WCHAR) * (length+1));
-        GetWindowText(hwnd, str, length + 1);
-
-        std::wstring_convert<std::codecvt_utf8<wchar_t>> convert;
-        std::string ret(convert.to_bytes(str));
-        free(str);
-
-        return ret;
-    }
-
-    std::wstring str2ws(const std::string& text)
-    {
-        if (text.empty())
-            return std::wstring();
-
-        int sz = MultiByteToWideChar(CP_UTF8, 0, &text[0], (int)text.size(), 0, 0);
-        std::wstring res(sz, 0);
-        MultiByteToWideChar(CP_UTF8, 0, &text[0], (int)text.size(), &res[0], sz);
-        return res;
-    }
-
-    LRESULT mainWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
-    {
-        switch (msg)
-        {
-          case WM_LBUTTONDOWN:
-              EditBox::complete();
-              EditBox::hide();
-              SetFocus(cc_get_application_view()->getWindowHandler());
-              break;
-          case WM_COMMAND:
-              if (EN_CHANGE == HIWORD(wParam))
-                  callJSFunc("input", getText(g_hwndEditBox).c_str());
-
-              break;
-          default:
-              break;
-        }
-
-        return CallWindowProc(g_prevMainWindowProc, hwnd, msg, wParam, lParam);
+    auto global = se::ScriptEngine::getInstance()->getGlobalObject();
+    se::Value jsbVal;
+    if (global->getProperty("jsb", &jsbVal) && jsbVal.isObject()) {
+        jsbVal.toObject()->getProperty("onTextInput", &g_textInputCallback);
+        // free globle se::Value before ScriptEngine clean up
+        se::ScriptEngine::getInstance()->addBeforeCleanupHook([]() {
+            g_textInputCallback.setUndefined();
+        });
     }
 }
+
+void callJSFunc(const std::string &type, const std::string &text) {
+    getTextInputCallback();
+
+    se::AutoHandleScope scope;
+    se::ValueArray args;
+    args.push_back(se::Value(type));
+    args.push_back(se::Value(text));
+    g_textInputCallback.toObject()->call(args, nullptr);
+}
+
+std::string getText(HWND hwnd) {
+    int length = GetWindowTextLength(hwnd);
+    LPWSTR str = (LPWSTR)malloc(sizeof(WCHAR) * (length + 1));
+    GetWindowText(hwnd, str, length + 1);
+
+    std::wstring_convert<std::codecvt_utf8<wchar_t>> convert;
+    std::string ret(convert.to_bytes(str));
+    free(str);
+
+    return ret;
+}
+
+std::wstring str2ws(const std::string &text) {
+    if (text.empty())
+        return std::wstring();
+
+    int sz = MultiByteToWideChar(CP_UTF8, 0, &text[0], (int)text.size(), 0, 0);
+    std::wstring res(sz, 0);
+    MultiByteToWideChar(CP_UTF8, 0, &text[0], (int)text.size(), &res[0], sz);
+    return res;
+}
+
+LRESULT mainWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
+    switch (msg) {
+        case WM_LBUTTONDOWN:
+            EditBox::complete();
+            EditBox::hide();
+            SetFocus(cc_get_application_view()->getWindowHandler());
+            break;
+        case WM_COMMAND:
+            if (EN_CHANGE == HIWORD(wParam))
+                callJSFunc("input", getText(g_hwndEditBox).c_str());
+
+            break;
+        default:
+            break;
+    }
+
+    return CallWindowProc(g_prevMainWindowProc, hwnd, msg, wParam, lParam);
+}
+} // namespace
 
 /*************************************************************************
 Implementation of EditBox.
 ************************************************************************/
-void EditBox::show(const EditBox::ShowInfo& showInfo)
-{
+void EditBox::show(const EditBox::ShowInfo &showInfo) {
     int windowHeight = getCocosWindowHeight();
-    if (! g_hwndEditBox)
-    {
+    if (!g_hwndEditBox) {
         HWND parent = cc_get_application_view()->getWindowHandler();
         g_prevMainWindowProc = (WNDPROC)SetWindowLongPtr(parent, GWL_WNDPROC, (LONG_PTR)mainWindowProc);
 
         UINT32 flags = WS_CHILD | ES_LEFT | WS_TABSTOP | ES_AUTOHSCROLL;
         if (showInfo.isMultiline)
-          flags |= ES_MULTILINE;
+            flags |= ES_MULTILINE;
         if (showInfo.inputType == "password")
-          flags |= WS_EX_TRANSPARENT;
-        
-        g_hwndEditBox = CreateWindowEx(
-          WS_EX_WINDOWEDGE,
-          L"EDIT",
-          NULL,
-          flags,
-          0,
-          0,
-          0,
-          0,
-          parent,
-          0,
-          NULL,
-          NULL);
+            flags |= WS_EX_TRANSPARENT;
 
-        if (! g_hwndEditBox)
-        {
-            wchar_t buffer[256] = { 0 };
+        g_hwndEditBox = CreateWindowEx(
+            WS_EX_WINDOWEDGE,
+            L"EDIT",
+            NULL,
+            flags,
+            0,
+            0,
+            0,
+            0,
+            parent,
+            0,
+            NULL,
+            NULL);
+
+        if (!g_hwndEditBox) {
+            wchar_t buffer[256] = {0};
             FormatMessageW(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
                            NULL,
                            GetLastError(),
@@ -189,18 +177,16 @@ void EditBox::show(const EditBox::ShowInfo& showInfo)
     SetFocus(g_hwndEditBox);
 }
 
-void EditBox::hide()
-{
+void EditBox::hide() {
     DestroyWindow(g_hwndEditBox);
     g_hwndEditBox = nullptr;
 
     SetWindowLongPtr(cc_get_application_view()->getWindowHandler(), GWL_WNDPROC, (LONG_PTR)g_prevMainWindowProc);
 }
 
-bool EditBox::complete()
-{
+bool EditBox::complete() {
     callJSFunc("complete", getText(g_hwndEditBox).c_str());
     return true;
 }
 
-}
+} // namespace cc

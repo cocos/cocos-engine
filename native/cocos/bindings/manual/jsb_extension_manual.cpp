@@ -36,13 +36,11 @@
 using namespace cc;
 using namespace cc::extension;
 
-static bool js_cocos2dx_extension_loadRemoteImage(se::State& s)
-{
-    const auto& args = s.args();
+static bool js_cocos2dx_extension_loadRemoteImage(se::State &s) {
+    const auto &args = s.args();
     int argc = (int)args.size();
 
-    if (argc == 2)
-    {
+    if (argc == 2) {
         bool ok = false;
         std::string url;
         ok = seval_to_std_string(args[0], &url);
@@ -53,22 +51,18 @@ static bool js_cocos2dx_extension_loadRemoteImage(se::State& s)
 
         func.toObject()->root();
 
-        auto onSuccess = [func](Texture2D* tex) -> bool {
-
+        auto onSuccess = [func](Texture2D *tex) -> bool {
             se::ScriptEngine::getInstance()->clearException();
             se::AutoHandleScope hs;
 
             se::ValueArray args;
             args.resize(2);
 
-            if (tex != nullptr)
-            {
+            if (tex != nullptr) {
                 args[0].setBoolean(true);
                 bool ok = native_ptr_to_seval<Texture2D>(tex, &args[1]);
                 SE_PRECONDITION2(ok, false, "Converting 'tex' argument failed!");
-            }
-            else
-            {
+            } else {
                 args[0].setBoolean(false);
                 args[1].setNull();
             }
@@ -76,8 +70,7 @@ static bool js_cocos2dx_extension_loadRemoteImage(se::State& s)
             return func.toObject()->call(args, nullptr);
         };
 
-        auto onError = [func](){
-
+        auto onError = [func]() {
             se::ScriptEngine::getInstance()->clearException();
             se::AutoHandleScope hs;
 
@@ -87,19 +80,15 @@ static bool js_cocos2dx_extension_loadRemoteImage(se::State& s)
             func.toObject()->call(args, nullptr);
         };
 
-        Texture2D* texture = Director::getInstance()->getTextureCache()->getTextureForKey(url);
-        if (texture != nullptr)
-        {
+        Texture2D *texture = Director::getInstance()->getTextureCache()->getTextureForKey(url);
+        if (texture != nullptr) {
             onSuccess(texture);
-        }
-        else
-        {
+        } else {
             auto downloader = new (std::nothrow) cc::network::Downloader();
-            downloader->onDataTaskSuccess = [downloader, url, onSuccess, onError](const cc::network::DownloadTask& task, std::vector<unsigned char>& data){
-                Image* img = new (std::nothrow) Image();
-                Texture2D* tex = nullptr;
-                do
-                {
+            downloader->onDataTaskSuccess = [downloader, url, onSuccess, onError](const cc::network::DownloadTask &task, std::vector<unsigned char> &data) {
+                Image *img = new (std::nothrow) Image();
+                Texture2D *tex = nullptr;
+                do {
                     if (!img->initWithImageData(data.data(), data.size()))
                         break;
                     tex = Director::getInstance()->getTextureCache()->addImage(img, url);
@@ -107,29 +96,25 @@ static bool js_cocos2dx_extension_loadRemoteImage(se::State& s)
 
                 CC_SAFE_RELEASE(img);
 
-                if (tex)
-                {
+                if (tex) {
                     onSuccess(tex);
-                }
-                else
-                {
+                } else {
                     onError();
                 }
 
                 // Downloader may use its member variables after this callback,
                 // therefore, we need to execute `delete` operation asynchronously, otherwise crash will be triggered.
-                Director::getInstance()->getScheduler()->performFunctionInCocosThread([downloader](){
+                Director::getInstance()->getScheduler()->performFunctionInCocosThread([downloader]() {
                     delete downloader;
                 });
             };
 
-            downloader->onTaskError = [downloader, onError](const cc::network::DownloadTask& task, int errorCode, int errorCodeInternal, const std::string& errorStr)
-            {
+            downloader->onTaskError = [downloader, onError](const cc::network::DownloadTask &task, int errorCode, int errorCodeInternal, const std::string &errorStr) {
                 onError();
 
                 // Downloader may use its member variables after this callback,
                 // therefore, we need to execute `delete` operation asynchronously, otherwise crash will be triggered.
-                Director::getInstance()->getScheduler()->performFunctionInCocosThread([downloader](){
+                Director::getInstance()->getScheduler()->performFunctionInCocosThread([downloader]() {
                     delete downloader;
                 });
             };
@@ -143,12 +128,10 @@ static bool js_cocos2dx_extension_loadRemoteImage(se::State& s)
 }
 SE_BIND_FUNC(js_cocos2dx_extension_loadRemoteImage)
 
-static bool js_cocos2dx_extension_initRemoteImage(se::State& s)
-{
-    const auto& args = s.args();
+static bool js_cocos2dx_extension_initRemoteImage(se::State &s) {
+    const auto &args = s.args();
     int argc = (int)args.size();
-    if (argc != 3)
-    {
+    if (argc != 3) {
         SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", argc, 3);
         return false;
     }
@@ -156,7 +139,7 @@ static bool js_cocos2dx_extension_initRemoteImage(se::State& s)
     bool ok = false;
 
     // get texture
-    cc::Texture2D* texture = nullptr;
+    cc::Texture2D *texture = nullptr;
     ok = seval_to_native_ptr(args[0], &texture);
     SE_PRECONDITION2(ok, false, "Converting 'texture' failed!");
 
@@ -170,7 +153,7 @@ static bool js_cocos2dx_extension_initRemoteImage(se::State& s)
     assert(func.isObject() && func.toObject()->isFunction());
     func.toObject()->root();
 
-    auto onCallback = [=](bool success){
+    auto onCallback = [=](bool success) {
         se::ScriptEngine::getInstance()->clearException();
         se::AutoHandleScope hs;
 
@@ -182,34 +165,28 @@ static bool js_cocos2dx_extension_initRemoteImage(se::State& s)
     };
 
     auto downloader = new (std::nothrow) cc::network::Downloader();
-    downloader->onDataTaskSuccess = [=](const cc::network::DownloadTask& task, std::vector<unsigned char>& data)
-    {
+    downloader->onDataTaskSuccess = [=](const cc::network::DownloadTask &task, std::vector<unsigned char> &data) {
         bool success = false;
 
-        Image* image = new (std::nothrow) Image();
-        if (image->initWithImageData(data.data(), data.size()))
-        {
-            if (texture->initWithImage(image))
-            {
+        Image *image = new (std::nothrow) Image();
+        if (image->initWithImageData(data.data(), data.size())) {
+            if (texture->initWithImage(image)) {
                 success = true;
-            }
-            else
-            {
+            } else {
                 CC_LOG_ERROR("js_extension_loadRemoteImageOn: Failed to initWithImage.");
             }
         }
         CC_SAFE_RELEASE_NULL(image);
 
         onCallback(success);
-        Director::getInstance()->getScheduler()->performFunctionInCocosThread([downloader](){
+        Director::getInstance()->getScheduler()->performFunctionInCocosThread([downloader]() {
             delete downloader;
         });
     };
 
-    downloader->onTaskError = [=](const cc::network::DownloadTask& task, int errorCode, int errorCodeInternal, const std::string& errorStr)
-    {
+    downloader->onTaskError = [=](const cc::network::DownloadTask &task, int errorCode, int errorCodeInternal, const std::string &errorStr) {
         onCallback(false);
-        Director::getInstance()->getScheduler()->performFunctionInCocosThread([downloader](){
+        Director::getInstance()->getScheduler()->performFunctionInCocosThread([downloader]() {
             delete downloader;
         });
     };
@@ -219,14 +196,12 @@ static bool js_cocos2dx_extension_initRemoteImage(se::State& s)
 }
 SE_BIND_FUNC(js_cocos2dx_extension_initRemoteImage)
 
-static ThreadPool* _threadPool = nullptr;
-static EventListenerCustom* _resetThreadPoolListener = nullptr;
-static ThreadPool* getThreadPool()
-{
-    if (_threadPool == nullptr)
-    {
+static ThreadPool *_threadPool = nullptr;
+static EventListenerCustom *_resetThreadPoolListener = nullptr;
+static ThreadPool *getThreadPool() {
+    if (_threadPool == nullptr) {
         _threadPool = ThreadPool::newSingleThreadPool();
-        _resetThreadPoolListener = Director::getInstance()->getEventDispatcher()->addCustomEventListener(Director::EVENT_RESET, [](cc::EventCustom*){
+        _resetThreadPoolListener = Director::getInstance()->getEventDispatcher()->addCustomEventListener(Director::EVENT_RESET, [](cc::EventCustom *) {
             CC_SAFE_DELETE(_threadPool);
             cc::Director::getInstance()->getEventDispatcher()->removeEventListener(_resetThreadPoolListener);
             _resetThreadPoolListener = nullptr;
@@ -235,8 +210,7 @@ static ThreadPool* getThreadPool()
     return _threadPool;
 }
 
-bool register_all_cocos2dx_extension_manual(se::Object* obj)
-{
+bool register_all_cocos2dx_extension_manual(se::Object *obj) {
     __jsbObj->defineFunction("loadRemoteImg", _SE(js_cocos2dx_extension_loadRemoteImage));
     __jsbObj->defineFunction("initRemoteImg", _SE(js_cocos2dx_extension_initRemoteImage));
 

@@ -26,7 +26,7 @@
 #pragma once
 
 namespace se {
-    class Object;
+class Object;
 }
 
-bool register_all_xmlhttprequest(se::Object* global);
+bool register_all_xmlhttprequest(se::Object *global);

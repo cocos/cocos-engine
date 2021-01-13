@@ -31,27 +31,25 @@
 #include <string>
 
 #ifndef OBJC_CLASS
-#ifdef __OBJC__
-#define OBJC_CLASS(name) @class name
-#else
-#define OBJC_CLASS(name) class name
-#endif
+    #ifdef __OBJC__
+        #define OBJC_CLASS(name) @class name
+    #else
+        #define OBJC_CLASS(name) class name
+    #endif
 #endif // OBJC_CLASS
 
 OBJC_CLASS(CanvasRenderingContext2DImpl);
 
 namespace cc {
 
-class CC_DLL CanvasGradient
-{
+class CC_DLL CanvasGradient {
 public:
     CanvasGradient();
     ~CanvasGradient();
-    void addColorStop(float offset, const std::string& color);
+    void addColorStop(float offset, const std::string &color);
 };
 
-class CC_DLL CanvasRenderingContext2D
-{
+class CC_DLL CanvasRenderingContext2D {
 public:
     CanvasRenderingContext2D(float width, float height);
     ~CanvasRenderingContext2D();
@@ -61,10 +59,10 @@ public:
     void clearRect(float x, float y, float width, float height);
     void fillRect(float x, float y, float width, float height);
 
-    void fillText(const std::string& text, float x, float y, float maxWidth = -1.0f);
-    void strokeText(const std::string& text, float x, float y, float maxWidth = -1.0f);
-    Size measureText(const std::string& text);
-    CanvasGradient* createLinearGradient(float x0, float y0, float x1, float y1);
+    void fillText(const std::string &text, float x, float y, float maxWidth = -1.0f);
+    void strokeText(const std::string &text, float x, float y, float maxWidth = -1.0f);
+    Size measureText(const std::string &text);
+    CanvasGradient *createLinearGradient(float x0, float y0, float x1, float y1);
     void save();
     // Paths
     void beginPath();
@@ -76,24 +74,24 @@ public:
     void restore();
 
     // callback
-    using CanvasBufferUpdatedCallback = std::function<void(const cc::Data&) > ;
-    void setCanvasBufferUpdatedCallback(const CanvasBufferUpdatedCallback& cb);
+    using CanvasBufferUpdatedCallback = std::function<void(const cc::Data &)>;
+    void setCanvasBufferUpdatedCallback(const CanvasBufferUpdatedCallback &cb);
 
     // functions for properties
     void set_width(float width);
     void set_height(float height);
     void set_lineWidth(float lineWidth);
-    void set_lineJoin(const std::string& lineJoin);
-    void set_lineCap(const std::string& lineCap);
-    void set_font(const std::string& font);
-    void set_textAlign(const std::string& textAlign);
-    void set_textBaseline(const std::string& textBaseline);
-    void set_fillStyle(const std::string& fillStyle);
-    void set_strokeStyle(const std::string& strokeStyle);
-    void set_globalCompositeOperation(const std::string& globalCompositeOperation);
+    void set_lineJoin(const std::string &lineJoin);
+    void set_lineCap(const std::string &lineCap);
+    void set_font(const std::string &font);
+    void set_textAlign(const std::string &textAlign);
+    void set_textBaseline(const std::string &textBaseline);
+    void set_fillStyle(const std::string &fillStyle);
+    void set_strokeStyle(const std::string &strokeStyle);
+    void set_globalCompositeOperation(const std::string &globalCompositeOperation);
 
     // fill image data into Context2D
-    void _fillImageData(const Data& imageData, float imageWidth, float imageHeight, float offsetX, float offsetY);
+    void _fillImageData(const Data &imageData, float imageWidth, float imageHeight, float offsetX, float offsetY);
 
     // transform
     void translate(float x, float y);
@@ -107,7 +105,6 @@ private:
     void recreateBufferIfNeeded();
 
 public:
-
     float _width = 0.0f;
     float _height = 0.0f;
 
@@ -129,11 +126,10 @@ public:
     std::string _globalCompositeOperation = "source-over";
 
 private:
-
     CanvasBufferUpdatedCallback _canvasBufferUpdatedCB = nullptr;
-    CanvasRenderingContext2DImpl* _impl = nullptr;
+    CanvasRenderingContext2DImpl *_impl = nullptr;
 
     bool _isBufferSizeDirty = true;
 };
 
-}
+} // namespace cc

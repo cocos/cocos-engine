@@ -41,8 +41,8 @@ float Device::getDevicePixelRatio() {
     return [[[[NSApplication sharedApplication] delegate] getWindow] backingScaleFactor];
     ;
 #else
-    return  [[UIScreen mainScreen] nativeScale];
+    return [[UIScreen mainScreen] nativeScale];
 #endif //CC_USE_METAL
 }
 
-}
+} // namespace cc

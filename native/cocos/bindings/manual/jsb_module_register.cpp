@@ -77,21 +77,21 @@
 #endif // (CC_PLATFORM == CC_PLATFORM_MAC_IOS || CC_PLATFORM == CC_PLATFORM_ANDROID)
 
 #if USE_SOCKET && USE_WEBSOCKET_SERVER
-#include "cocos/bindings/manual/jsb_websocket_server.h"
+    #include "cocos/bindings/manual/jsb_websocket_server.h"
 #endif
 
 #if USE_MIDDLEWARE
-#include "cocos/bindings/auto/jsb_editor_support_auto.h"
+    #include "cocos/bindings/auto/jsb_editor_support_auto.h"
 
-#if USE_SPINE
-#include "cocos/bindings/auto/jsb_spine_auto.h"
-#include "cocos/bindings/manual/jsb_spine_manual.h"
-#endif
+    #if USE_SPINE
+        #include "cocos/bindings/auto/jsb_spine_auto.h"
+        #include "cocos/bindings/manual/jsb_spine_manual.h"
+    #endif
 
-#if USE_DRAGONBONES
-#include "cocos/bindings/auto/jsb_dragonbones_auto.h"
-#include "cocos/bindings/manual/jsb_dragonbones_manual.h"
-#endif
+    #if USE_DRAGONBONES
+        #include "cocos/bindings/auto/jsb_dragonbones_auto.h"
+        #include "cocos/bindings/manual/jsb_dragonbones_manual.h"
+    #endif
 
 #endif // USE_MIDDLEWARE
 
@@ -147,26 +147,26 @@ bool jsb_register_all_modules() {
 #if USE_MIDDLEWARE
     se->addRegisterCallback(register_all_editor_support);
 
-#if USE_SPINE
+    #if USE_SPINE
     se->addRegisterCallback(register_all_spine);
     se->addRegisterCallback(register_all_spine_manual);
-#endif
+    #endif
 
-#if USE_DRAGONBONES
+    #if USE_DRAGONBONES
     se->addRegisterCallback(register_all_dragonbones);
     se->addRegisterCallback(register_all_dragonbones_manual);
-#endif
+    #endif
 
 #endif // USE_MIDDLEWARE
 
 #if (CC_PLATFORM == CC_PLATFORM_MAC_IOS || CC_PLATFORM == CC_PLATFORM_ANDROID)
 
     #if USE_VIDEO
-        se->addRegisterCallback(register_all_video);
+    se->addRegisterCallback(register_all_video);
     #endif
 
     #if USE_WEBVIEW
-        se->addRegisterCallback(register_all_webview);
+    se->addRegisterCallback(register_all_webview);
     #endif
 
 #endif // (CC_PLATFORM == CC_PLATFORM_MAC_IOS || CC_PLATFORM == CC_PLATFORM_ANDROID)

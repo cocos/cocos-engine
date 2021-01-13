@@ -45,16 +45,13 @@ namespace cc {
 
 namespace network {
 
-
-
 /** Singleton that handles asynchronous http requests.
  *
  * Once the request completed, a callback will issued in main thread when it provided during make request.
  *
  * @lua NA
  */
-class CC_DLL HttpClient
-{
+class CC_DLL HttpClient {
 public:
     /**
     * The buffer size of _responseMessage
@@ -78,28 +75,28 @@ public:
      *
      * @param cookieFile the filepath of cookie file.
      */
-    void enableCookies(const char* cookieFile);
+    void enableCookies(const char *cookieFile);
 
     /**
      * Get the cookie filename
      *
      * @return the cookie filename
      */
-    const std::string& getCookieFilename();
+    const std::string &getCookieFilename();
 
     /**
      * Set root certificate path for SSL verification.
      *
      * @param caFile a full path of root certificate.if it is empty, SSL verification is disabled.
      */
-    void setSSLVerification(const std::string& caFile);
+    void setSSLVerification(const std::string &caFile);
 
     /**
      * Get the ssl CA filename
      *
      * @return the ssl CA filename
      */
-    const std::string& getSSLVerification();
+    const std::string &getSSLVerification();
 
     /**
      * Add a get request to task queue
@@ -107,7 +104,7 @@ public:
      * @param request a HttpRequest object, which includes url, response callback etc.
                       please make sure request->_requestData is clear before calling "send" here.
      */
-    void send(HttpRequest* request);
+    void send(HttpRequest *request);
 
     /**
      * Immediate send a request
@@ -115,7 +112,7 @@ public:
      * @param request a HttpRequest object, which includes url, response callback etc.
                       please make sure request->_requestData is clear before calling "sendImmediate" here.
      */
-    void sendImmediate(HttpRequest* request);
+    void sendImmediate(HttpRequest *request);
 
     /**
      * Set the timeout value for connecting.
@@ -149,11 +146,12 @@ public:
      */
     CC_DEPRECATED_ATTRIBUTE int getTimeoutForRead();
 
-    HttpCookie* getCookie() const {return _cookie; }
+    HttpCookie *getCookie() const { return _cookie; }
 
-    std::mutex& getCookieFileMutex() {return _cookieFileMutex;}
+    std::mutex &getCookieFileMutex() { return _cookieFileMutex; }
 
-    std::mutex& getSSLCaFileMutex() {return _sslCaFileMutex;}
+    std::mutex &getSSLCaFileMutex() { return _sslCaFileMutex; }
+
 private:
     HttpClient();
     virtual ~HttpClient();
@@ -165,11 +163,11 @@ private:
      */
     bool lazyInitThreadSemaphore();
     void networkThread();
-    void networkThreadAlone(HttpRequest* request, HttpResponse* response);
+    void networkThreadAlone(HttpRequest *request, HttpResponse *response);
     /** Poll function called from main thread to dispatch callbacks when http requests finished **/
     void dispatchResponseCallbacks();
 
-    void processResponse(HttpResponse* response, char* responseMessage);
+    void processResponse(HttpResponse *response, char *responseMessage);
     void increaseThreadCount();
     void decreaseThreadCountAndMayDeleteThis();
 
@@ -182,16 +180,16 @@ private:
     int _timeoutForRead;
     std::mutex _timeoutForReadMutex;
 
-    int  _threadCount;
+    int _threadCount;
     std::mutex _threadCountMutex;
 
     std::weak_ptr<Scheduler> _scheduler;
     std::mutex _schedulerMutex;
 
-    Vector<HttpRequest*>  _requestQueue;
+    Vector<HttpRequest *> _requestQueue;
     std::mutex _requestQueueMutex;
 
-    Vector<HttpResponse*> _responseQueue;
+    Vector<HttpResponse *> _responseQueue;
     std::mutex _responseQueueMutex;
 
     std::string _cookieFilename;
@@ -200,21 +198,20 @@ private:
     std::string _sslCaFilename;
     std::mutex _sslCaFileMutex;
 
-    HttpCookie* _cookie;
+    HttpCookie *_cookie;
 
     std::condition_variable_any _sleepCondition;
 
     char _responseMessage[RESPONSE_BUFFER_SIZE];
 
-    HttpRequest* _requestSentinel;
+    HttpRequest *_requestSentinel;
 };
 
 } // namespace network
 
-}
+} // namespace cc
 
 // end group
 /// @}
 
 #endif //__CCHTTPCLIENT_H__
-

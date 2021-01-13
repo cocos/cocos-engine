@@ -32,11 +32,11 @@
 
 #ifndef CC_USE_METAL
 @interface MyTimer : NSObject {
-    cc::Application* _app;
-    CADisplayLink* _displayLink;
+    cc::Application *_app;
+    CADisplayLink *_displayLink;
     int _fps;
 }
-- (instancetype)initWithApp:(cc::Application*)app fps:(int)fps;
+- (instancetype)initWithApp:(cc::Application *)app fps:(int)fps;
 - (void)start;
 - (void)changeFPS:(int)fps;
 - (void)pause;
@@ -45,7 +45,7 @@
 
 @implementation MyTimer
 
-- (instancetype)initWithApp:(cc::Application*)app fps:(int)fps {
+- (instancetype)initWithApp:(cc::Application *)app fps:(int)fps {
     if (self = [super init]) {
         _fps = fps;
         _app = app;
@@ -81,38 +81,38 @@
 namespace cc {
 
 namespace {
-    bool setCanvasCallback(se::Object* global) {
-        auto viewLogicalSize = cc::Application::getInstance()->getViewLogicalSize();
-        
-        CGRect nativeBounds = [[UIScreen mainScreen] nativeBounds];
-        int nativeWidth = static_cast<int>(nativeBounds.size.width);
-        int nativeHeight = static_cast<int>(nativeBounds.size.height);
-        auto orientation = cc::Device::getDeviceOrientation();
-        bool isLandscape = (orientation == cc::Device::Orientation::LANDSCAPE_RIGHT || orientation == cc::Device::Orientation::LANDSCAPE_LEFT);
-        if (isLandscape) std::swap(nativeWidth, nativeHeight);
-        
-        char commandBuf[200] = {0};
-        // https://stackoverflow.com/questions/5795978/string-format-for-intptr-t-and-uintptr-t/41897226#41897226
-        // format intptr_t
-        //set window.innerWidth/innerHeight in css pixel units
-        sprintf(commandBuf, "window.innerWidth = %d; window.innerHeight = %d; window.nativeWidth = %d; window.nativeHeight = %d; window.windowHandler = 0x%" PRIxPTR ";",
-                static_cast<int>(viewLogicalSize.x),
-                static_cast<int>(viewLogicalSize.y),
-                nativeWidth,
-                nativeHeight,
-                reinterpret_cast<uintptr_t>(UIApplication.sharedApplication.delegate.window.rootViewController.view));
-        
-        se::ScriptEngine* se = se::ScriptEngine::getInstance();
-        se->evalString(commandBuf);
-        return true;
-    }
-    
-#ifndef CC_USE_METAL
-    MyTimer* _timer;
-#endif
+bool setCanvasCallback(se::Object *global) {
+    auto viewLogicalSize = cc::Application::getInstance()->getViewLogicalSize();
+
+    CGRect nativeBounds = [[UIScreen mainScreen] nativeBounds];
+    int nativeWidth = static_cast<int>(nativeBounds.size.width);
+    int nativeHeight = static_cast<int>(nativeBounds.size.height);
+    auto orientation = cc::Device::getDeviceOrientation();
+    bool isLandscape = (orientation == cc::Device::Orientation::LANDSCAPE_RIGHT || orientation == cc::Device::Orientation::LANDSCAPE_LEFT);
+    if (isLandscape) std::swap(nativeWidth, nativeHeight);
+
+    char commandBuf[200] = {0};
+    // https://stackoverflow.com/questions/5795978/string-format-for-intptr-t-and-uintptr-t/41897226#41897226
+    // format intptr_t
+    //set window.innerWidth/innerHeight in css pixel units
+    sprintf(commandBuf, "window.innerWidth = %d; window.innerHeight = %d; window.nativeWidth = %d; window.nativeHeight = %d; window.windowHandler = 0x%" PRIxPTR ";",
+            static_cast<int>(viewLogicalSize.x),
+            static_cast<int>(viewLogicalSize.y),
+            nativeWidth,
+            nativeHeight,
+            reinterpret_cast<uintptr_t>(UIApplication.sharedApplication.delegate.window.rootViewController.view));
+
+    se::ScriptEngine *se = se::ScriptEngine::getInstance();
+    se->evalString(commandBuf);
+    return true;
 }
 
-Application* Application::_instance = nullptr;
+#ifndef CC_USE_METAL
+MyTimer *_timer;
+#endif
+} // namespace
+
+Application *Application::_instance = nullptr;
 std::shared_ptr<Scheduler> Application::_scheduler = nullptr;
 
 Application::Application(int width, int height) {
@@ -121,7 +121,7 @@ Application::Application(int width, int height) {
     EventDispatcher::init();
     _viewLogicalSize.x = width;
     _viewLogicalSize.y = height;
-    
+
 #ifndef CC_USE_METAL
     _timer = [[MyTimer alloc] initWithApp:this fps:_fps];
 #endif
@@ -136,7 +136,7 @@ Application::~Application() {
     se::ScriptEngine::destroyInstance();
 
     Application::_instance = nullptr;
-    
+
 #ifndef CC_USE_METAL
     [_timer release];
 #endif
@@ -174,8 +174,8 @@ Application::LanguageType Application::getCurrentLanguage() const {
     NSString *currentLanguage = [languages objectAtIndex:0];
 
     // get the current language code.(such as English is "en", Chinese is "zh" and so on)
-    NSDictionary* temp = [NSLocale componentsFromLocaleIdentifier:currentLanguage];
-    NSString * languageCode = [temp objectForKey:NSLocaleLanguageCode];
+    NSDictionary *temp = [NSLocale componentsFromLocaleIdentifier:currentLanguage];
+    NSString *languageCode = [temp objectForKey:NSLocaleLanguageCode];
 
     if ([languageCode isEqualToString:@"zh"]) return LanguageType::CHINESE;
     if ([languageCode isEqualToString:@"en"]) return LanguageType::ENGLISH;
@@ -207,8 +207,8 @@ Application::Platform Application::getPlatform() const {
 }
 
 bool Application::openURL(const std::string &url) {
-    NSString* msg = [NSString stringWithCString:url.c_str() encoding:NSUTF8StringEncoding];
-    NSURL* nsUrl = [NSURL URLWithString:msg];
+    NSString *msg = [NSString stringWithCString:url.c_str() encoding:NSUTF8StringEncoding];
+    NSURL *nsUrl = [NSURL URLWithString:msg];
     return [[UIApplication sharedApplication] openURL:nsUrl];
 }
 
@@ -218,13 +218,13 @@ void Application::copyTextToClipboard(const std::string &text) {
 }
 
 bool Application::init() {
-    se::ScriptEngine* se = se::ScriptEngine::getInstance();
+    se::ScriptEngine *se = se::ScriptEngine::getInstance();
     se->addRegisterCallback(setCanvasCallback);
-    
+
 #ifndef CC_USE_METAL
     [_timer start];
 #endif
-    
+
     return true;
 }
 
@@ -241,7 +241,7 @@ void Application::onResume() {
 }
 
 std::string Application::getSystemVersion() {
-    NSString* systemVersion = [UIDevice currentDevice].systemVersion;
+    NSString *systemVersion = [UIDevice currentDevice].systemVersion;
     return [systemVersion UTF8String];
 }
 
@@ -252,4 +252,4 @@ void Application::setPreferredFramesPerSecond(int fps) {
 #endif
 }
 
-}
+} // namespace cc

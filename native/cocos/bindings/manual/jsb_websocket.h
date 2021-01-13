@@ -29,9 +29,9 @@
 #include "cocos/network/WebSocket.h"
 
 namespace se {
-    class Object;
-    class Value;
-}
+class Object;
+class Value;
+} // namespace se
 
 class JSB_WebSocketDelegate : public cc::Ref, public cc::network::WebSocket::Delegate {
 public:
@@ -63,6 +63,4 @@ SE_DECLARE_FUNC(WebSocket_send);
 
 SE_DECLARE_FUNC(WebSocket_close);
 
-
 bool register_all_websocket(se::Object *obj);
-

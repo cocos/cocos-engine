@@ -44,15 +44,13 @@ void CC_DLL ccVertexLineToPolygon(Vec2 *points, float stroke, Vec2 *vertices, un
 
 /** returns whether or not the line intersects */
 bool CC_DLL ccVertexLineIntersect(float Ax, float Ay,
-                             float Bx, float By,
-                             float Cx, float Cy,
-                             float Dx, float Dy, float *T);
+                                  float Bx, float By,
+                                  float Cx, float Cy,
+                                  float Dx, float Dy, float *T);
 
-}
-
+} // namespace cc
 
 // end of base group
 /// @}
 
 #endif /* __CCVERTEX_H__ */
-

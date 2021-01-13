@@ -29,7 +29,8 @@ using namespace se;
 cc::map<PoolType, ObjectPool *> ObjectPool::_poolMap;
 
 ObjectPool::ObjectPool(PoolType type, Object *jsArr)
-: _type(type), _jsArr(jsArr) {
+: _type(type),
+  _jsArr(jsArr) {
     CCASSERT(jsArr->isArray(), "ObjectPool: It must be initialized with a JavaScript array");
     CCASSERT(ObjectPool::_poolMap.count(type) == 0, "This type of ObjectPool already exists.");
 

@@ -191,7 +191,7 @@ SE_BIND_FINALIZE_FUNC(jsb_BufferAllocator_finalize)
 static bool jsb_BufferAllocator_alloc(se::State &s) {
     se::BufferAllocator *bufferAllocator = (se::BufferAllocator *)s.nativeThisObject();
     SE_PRECONDITION2(bufferAllocator, false, "jsb_Array_alloc : Invalid Native Object");
-    
+
     const auto &args = s.args();
     size_t argc = args.size();
     if (argc == 2) {

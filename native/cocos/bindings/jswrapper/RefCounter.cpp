@@ -26,32 +26,26 @@
 
 namespace se {
 
-    void RefCounter::incRef()
-    {
-        ++_refCount;
-    }
+void RefCounter::incRef() {
+    ++_refCount;
+}
 
-    void RefCounter::decRef()
-    {
-        --_refCount;
-        if (_refCount == 0)
-        {
-            delete this;
-        }
+void RefCounter::decRef() {
+    --_refCount;
+    if (_refCount == 0) {
+        delete this;
     }
+}
 
-    unsigned int RefCounter::getRefCount()
-    {
-        return _refCount;
-    }
+unsigned int RefCounter::getRefCount() {
+    return _refCount;
+}
 
-    RefCounter::RefCounter()
-    : _refCount(1)
-    {
-    }
+RefCounter::RefCounter()
+: _refCount(1) {
+}
 
-    RefCounter::~RefCounter()
-    {
-    }
+RefCounter::~RefCounter() {
+}
 
-} // namespace se {
+} // namespace se

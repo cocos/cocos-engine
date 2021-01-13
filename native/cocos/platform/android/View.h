@@ -33,11 +33,10 @@ namespace cc {
 
 class TouchEvent;
 
-class View
-{
+class View {
 public:
-	static void engineHandleCmd(int cmd);
-	static int32_t engineHandleInput(struct android_app* app, AInputEvent* event);
+    static void engineHandleCmd(int cmd);
+    static int32_t engineHandleInput(struct android_app *app, AInputEvent *event);
 };
 
-}
+} // namespace cc

@@ -26,15 +26,14 @@ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 #ifndef __CC_FILEUTILS_ANDROID_H__
 #define __CC_FILEUTILS_ANDROID_H__
 
-
 #if CC_PLATFORM == CC_PLATFORM_ANDROID
 
-#include "platform/FileUtils.h"
-#include "base/Macros.h"
-#include <string>
-#include <vector>
-#include "jni.h"
-#include "android/asset_manager.h"
+    #include "platform/FileUtils.h"
+    #include "base/Macros.h"
+    #include <string>
+    #include <vector>
+    #include "jni.h"
+    #include "android/asset_manager.h"
 
 namespace cc {
 
@@ -46,9 +45,9 @@ class ZipFile;
  */
 
 //! @brief  Helper class to handle file operations
-class CC_DLL FileUtilsAndroid : public FileUtils
-{
+class CC_DLL FileUtilsAndroid : public FileUtils {
     friend class FileUtils;
+
 public:
     FileUtilsAndroid();
     /**
@@ -57,29 +56,29 @@ public:
      */
     virtual ~FileUtilsAndroid();
 
-    static void setassetmanager(AAssetManager* a);
-    static AAssetManager* getAssetManager() { return assetmanager; }
-    static ZipFile* getObbFile() { return obbfile; }
+    static void setassetmanager(AAssetManager *a);
+    static AAssetManager *getAssetManager() { return assetmanager; }
+    static ZipFile *getObbFile() { return obbfile; }
 
     /* override functions */
     bool init() override;
-    virtual FileUtils::Status getContents(const std::string& filename, ResizableBuffer* buffer) override;
+    virtual FileUtils::Status getContents(const std::string &filename, ResizableBuffer *buffer) override;
 
     virtual std::string getWritablePath() const override;
-    virtual bool isAbsolutePath(const std::string& strPath) const override;
+    virtual bool isAbsolutePath(const std::string &strPath) const override;
 
 private:
-    virtual bool isFileExistInternal(const std::string& strFilePath) const override;
-    virtual bool isDirectoryExistInternal(const std::string& dirPath) const override;
+    virtual bool isFileExistInternal(const std::string &strFilePath) const override;
+    virtual bool isDirectoryExistInternal(const std::string &dirPath) const override;
 
-    static AAssetManager* assetmanager;
-    static ZipFile* obbfile;
+    static AAssetManager *assetmanager;
+    static ZipFile *obbfile;
 };
 
 // end of platform group
 /// @}
 
-}
+} // namespace cc
 
 #endif // CC_PLATFORM == CC_PLATFORM_ANDROID
 

@@ -29,4 +29,3 @@ int inet_pton(int af, const char *src, void *dst);
 #endif
 
 #endif /* HEADER_CURL_INET_PTON_MINGW_H */
-

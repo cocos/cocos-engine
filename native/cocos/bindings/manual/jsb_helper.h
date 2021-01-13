@@ -29,10 +29,9 @@
 
 #include <functional>
 
-class CleanupTask : public cc::Ref
-{
+class CleanupTask : public cc::Ref {
 public:
-    static void pushTaskToAutoReleasePool(const std::function<void()>& cb);
+    static void pushTaskToAutoReleasePool(const std::function<void()> &cb);
 
     CleanupTask();
     virtual ~CleanupTask();

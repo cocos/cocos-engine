@@ -24,15 +24,15 @@
 
 #pragma once
 
-#define EVENT_COME_TO_FOREGROUND    "event_come_to_foreground"
-#define EVENT_COME_TO_BACKGROUND    "event_come_to_background"
-#define EVENT_DESTROY_WINDOW        "event_destroy_window"
-#define EVENT_RESTART_VM            "event_restart_vm"
-#define EVENT_RECREATE_WINDOW       "event_recreate_window"
-#define EVENT_MEMORY_WARNING        "event_memory_warning"
-#define EVENT_RESIZE                "event_resize"
+#define EVENT_COME_TO_FOREGROUND "event_come_to_foreground"
+#define EVENT_COME_TO_BACKGROUND "event_come_to_background"
+#define EVENT_DESTROY_WINDOW     "event_destroy_window"
+#define EVENT_RESTART_VM         "event_restart_vm"
+#define EVENT_RECREATE_WINDOW    "event_recreate_window"
+#define EVENT_MEMORY_WARNING     "event_memory_warning"
+#define EVENT_RESIZE             "event_resize"
 
-#define EVENT_MOUSE_DOWN            "event_mouse_down"
-#define EVENT_MOUSE_UP              "event_mouse_up"
-#define EVENT_MOUSE_MOVE            "event_mouse_move"
-#define EVENT_MOUSE_WHEEL           "event_mouse_wheel"
+#define EVENT_MOUSE_DOWN  "event_mouse_down"
+#define EVENT_MOUSE_UP    "event_mouse_up"
+#define EVENT_MOUSE_MOVE  "event_mouse_move"
+#define EVENT_MOUSE_WHEEL "event_mouse_wheel"

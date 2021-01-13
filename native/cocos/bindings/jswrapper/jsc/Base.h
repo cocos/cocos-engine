@@ -24,7 +24,6 @@
  ****************************************************************************/
 #pragma once
 
-
 #include <JavaScriptCore/JavaScript.h>
 
 #include <string>

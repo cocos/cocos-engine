@@ -27,55 +27,51 @@
 #include "../config.h"
 
 #if defined(__APPLE__)
-#include <TargetConditionals.h>
+    #include <TargetConditionals.h>
 #endif
 
 #if TARGET_OS_IPHONE
-#import <UIKit/UIKit.h>
+    #import <UIKit/UIKit.h>
 #elif TARGET_OS_MAC
-#import <Foundation/Foundation.h>
+    #import <Foundation/Foundation.h>
 #endif
 
 namespace se {
 
-    bool isSupportTypedArrayAPI()
-    {
-        static bool isSupported = false;
-        static bool isInited = false;
-        if (!isInited)
-        {
+bool isSupportTypedArrayAPI() {
+    static bool isSupported = false;
+    static bool isInited = false;
+    if (!isInited) {
 #if TARGET_OS_IPHONE
-            float version = [[UIDevice currentDevice].systemVersion floatValue];
-            isSupported = (version >= 10.0f);
+        float version = [[UIDevice currentDevice].systemVersion floatValue];
+        isSupported = (version >= 10.0f);
 #elif TARGET_OS_MAC
-            NSOperatingSystemVersion minimumSupportedOSVersion = { .majorVersion = 10, .minorVersion = 12, .patchVersion = 0 };
-            isSupported = [NSProcessInfo.processInfo isOperatingSystemAtLeastVersion:minimumSupportedOSVersion] ? true : false;
+        NSOperatingSystemVersion minimumSupportedOSVersion = {.majorVersion = 10, .minorVersion = 12, .patchVersion = 0};
+        isSupported = [NSProcessInfo.processInfo isOperatingSystemAtLeastVersion:minimumSupportedOSVersion] ? true : false;
 #else
-            SE_LOGE("isSupportTypedArrayAPI: Unknown system!");
+        SE_LOGE("isSupportTypedArrayAPI: Unknown system!");
 #endif
-            isInited = true;
-        }
-        return isSupported;
+        isInited = true;
     }
+    return isSupported;
+}
 
-    bool isSupportArrayTestAPI()
-    {
-        static bool isSupported = false;
-        static bool isInited = false;
-        if (!isInited)
-        {
+bool isSupportArrayTestAPI() {
+    static bool isSupported = false;
+    static bool isInited = false;
+    if (!isInited) {
 #if TARGET_OS_IPHONE
-            float version = [[UIDevice currentDevice].systemVersion floatValue];
-            isSupported = (version >= 9.0f);
+        float version = [[UIDevice currentDevice].systemVersion floatValue];
+        isSupported = (version >= 9.0f);
 #elif TARGET_OS_MAC
-            NSOperatingSystemVersion minimumSupportedOSVersion = { .majorVersion = 10, .minorVersion = 11, .patchVersion = 0 };
-            isSupported = [NSProcessInfo.processInfo isOperatingSystemAtLeastVersion:minimumSupportedOSVersion] ? true : false;
+        NSOperatingSystemVersion minimumSupportedOSVersion = {.majorVersion = 10, .minorVersion = 11, .patchVersion = 0};
+        isSupported = [NSProcessInfo.processInfo isOperatingSystemAtLeastVersion:minimumSupportedOSVersion] ? true : false;
 #else
-            SE_LOGE("isSupportArrayTestAPI: Unknown system!");
+        SE_LOGE("isSupportArrayTestAPI: Unknown system!");
 #endif
-            isInited = true;
-        }
-        return isSupported;
+        isInited = true;
     }
+    return isSupported;
+}
 
 } // namespace se

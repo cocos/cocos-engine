@@ -42,28 +42,27 @@ namespace cc {
  * @{
  */
 
-
 class ResizableBuffer {
 public:
     virtual ~ResizableBuffer() {}
     virtual void resize(size_t size) = 0;
-    virtual void* buffer() const = 0;
+    virtual void *buffer() const = 0;
 };
 
-template<typename T>
-class ResizableBufferAdapter { };
+template <typename T>
+class ResizableBufferAdapter {};
 
-
-template<typename CharT, typename Traits, typename Allocator>
-class ResizableBufferAdapter< std::basic_string<CharT, Traits, Allocator> > : public ResizableBuffer {
+template <typename CharT, typename Traits, typename Allocator>
+class ResizableBufferAdapter<std::basic_string<CharT, Traits, Allocator>> : public ResizableBuffer {
     typedef std::basic_string<CharT, Traits, Allocator> BufferType;
-    BufferType* _buffer;
+    BufferType *_buffer;
+
 public:
-    explicit ResizableBufferAdapter(BufferType* buffer) : _buffer(buffer) {}
+    explicit ResizableBufferAdapter(BufferType *buffer) : _buffer(buffer) {}
     virtual void resize(size_t size) override {
         _buffer->resize((size + sizeof(CharT) - 1) / sizeof(CharT));
     }
-    virtual void* buffer() const override {
+    virtual void *buffer() const override {
         // can not invoke string::front() if it is empty
 
         if (_buffer->empty())
@@ -73,16 +72,17 @@ public:
     }
 };
 
-template<typename T, typename Allocator>
-class ResizableBufferAdapter< std::vector<T, Allocator> > : public ResizableBuffer {
+template <typename T, typename Allocator>
+class ResizableBufferAdapter<std::vector<T, Allocator>> : public ResizableBuffer {
     typedef std::vector<T, Allocator> BufferType;
-    BufferType* _buffer;
+    BufferType *_buffer;
+
 public:
-    explicit ResizableBufferAdapter(BufferType* buffer) : _buffer(buffer) {}
+    explicit ResizableBufferAdapter(BufferType *buffer) : _buffer(buffer) {}
     virtual void resize(size_t size) override {
         _buffer->resize((size + sizeof(T) - 1) / sizeof(T));
     }
-    virtual void* buffer() const override {
+    virtual void *buffer() const override {
         // can not invoke vector::front() if it is empty
 
         if (_buffer->empty())
@@ -92,36 +92,35 @@ public:
     }
 };
 
-
-template<>
+template <>
 class ResizableBufferAdapter<Data> : public ResizableBuffer {
     typedef Data BufferType;
-    BufferType* _buffer;
+    BufferType *_buffer;
+
 public:
-    explicit ResizableBufferAdapter(BufferType* buffer) : _buffer(buffer) {}
+    explicit ResizableBufferAdapter(BufferType *buffer) : _buffer(buffer) {}
     virtual void resize(size_t size) override {
         size_t oldSize = static_cast<size_t>(_buffer->getSize());
         if (oldSize != size) {
             // need to take buffer ownership for outer memory control
             auto old = _buffer->takeBuffer();
-            void* buffer = realloc(old, size);
+            void *buffer = realloc(old, size);
             if (buffer)
-                _buffer->fastSet((unsigned char*)buffer, size);
+                _buffer->fastSet((unsigned char *)buffer, size);
         }
     }
-    virtual void* buffer() const override {
+    virtual void *buffer() const override {
         return _buffer->getBytes();
     }
 };
 
 /** Helper class to handle file operations. */
-class CC_DLL FileUtils
-{
+class CC_DLL FileUtils {
 public:
     /**
      *  Gets the instance of FileUtils.
      */
-    static FileUtils* getInstance();
+    static FileUtils *getInstance();
 
     /**
      *  Destroys the instance of FileUtils.
@@ -158,23 +157,21 @@ public:
     /**
      *  Gets string from a file.
      */
-    virtual std::string getStringFromFile(const std::string& filename);
+    virtual std::string getStringFromFile(const std::string &filename);
 
     /**
      *  Creates binary data from a file.
      *  @return A data object.
      */
-    virtual Data getDataFromFile(const std::string& filename);
+    virtual Data getDataFromFile(const std::string &filename);
 
-
-    enum class Status
-    {
+    enum class Status {
         OK = 0,
-        NotExists = 1, // File not exists
-        OpenFailed = 2, // Open file failed.
-        ReadFailed = 3, // Read failed
-        NotInitialized = 4, // FileUtils is not initializes
-        TooLarge = 5, // The file is too large (great than 2^32-1)
+        NotExists = 1,       // File not exists
+        OpenFailed = 2,      // Open file failed.
+        ReadFailed = 3,      // Read failed
+        NotInitialized = 4,  // FileUtils is not initializes
+        TooLarge = 5,        // The file is too large (great than 2^32-1)
         ObtainSizeFailed = 6 // Failed to obtain the file size.
     };
 
@@ -236,14 +233,12 @@ public:
     template <
         typename T,
         typename Enable = typename std::enable_if<
-            std::is_base_of< ResizableBuffer, ResizableBufferAdapter<T> >::value
-        >::type
-    >
-    Status getContents(const std::string& filename, T* buffer) {
+            std::is_base_of<ResizableBuffer, ResizableBufferAdapter<T>>::value>::type>
+    Status getContents(const std::string &filename, T *buffer) {
         ResizableBufferAdapter<T> buf(buffer);
         return getContents(filename, &buf);
     }
-    virtual Status getContents(const std::string& filename, ResizableBuffer* buffer);
+    virtual Status getContents(const std::string &filename, ResizableBuffer *buffer);
 
     /**
      *  Gets resource file data from a zip file.
@@ -253,8 +248,7 @@ public:
      *  @return Upon success, a pointer to the data is returned, otherwise nullptr.
      *  @warning Recall: you are responsible for calling free() on any Non-nullptr pointer returned.
      */
-    virtual unsigned char* getFileDataFromZip(const std::string& zipFilePath, const std::string& filename, ssize_t *size);
-
+    virtual unsigned char *getFileDataFromZip(const std::string &zipFilePath, const std::string &filename, ssize_t *size);
 
     /** Returns the fullpath for a given filename.
 
@@ -333,24 +327,24 @@ public:
      *  In js:var setSearchPaths(var jsval);
      *  @lua NA
      */
-    virtual void setSearchPaths(const std::vector<std::string>& searchPaths);
+    virtual void setSearchPaths(const std::vector<std::string> &searchPaths);
 
     /**
      * Get default resource root path.
      */
-    const std::string& getDefaultResourceRootPath() const;
+    const std::string &getDefaultResourceRootPath() const;
 
     /**
      * Set default resource root path.
      */
-    void setDefaultResourceRootPath(const std::string& path);
+    void setDefaultResourceRootPath(const std::string &path);
 
     /**
       * Add search path.
       *
       * @since v2.1
       */
-    void addSearchPath(const std::string & path, const bool front=false);
+    void addSearchPath(const std::string &path, const bool front = false);
 
     /**
      *  Gets the array of search paths.
@@ -362,13 +356,13 @@ public:
      *  @see fullPathForFilename(const char*).
      *  @lua NA
      */
-    virtual const std::vector<std::string>& getSearchPaths() const;
+    virtual const std::vector<std::string> &getSearchPaths() const;
 
     /**
      *  Gets the original search path array set by 'setSearchPaths' or 'addSearchPath'.
      *  @return The array of the original search paths
      */
-    virtual const std::vector<std::string>& getOriginalSearchPaths() const;
+    virtual const std::vector<std::string> &getOriginalSearchPaths() const;
 
     /**
      *  Gets the writable path.
@@ -379,7 +373,7 @@ public:
     /**
      *  Sets writable path.
      */
-    virtual void setWritablePath(const std::string& writablePath);
+    virtual void setWritablePath(const std::string &writablePath);
 
     /**
      *  Converts the contents of a file to a ValueMap.
@@ -387,13 +381,12 @@ public:
      *  @return ValueMap of the file contents.
      *  @note This method is used internally.
      */
-    virtual ValueMap getValueMapFromFile(const std::string& filename);
-
+    virtual ValueMap getValueMapFromFile(const std::string &filename);
 
     /** Converts the contents of a file to a ValueMap.
      *  This method is used internally.
      */
-    virtual ValueMap getValueMapFromData(const char* filedata, int filesize);
+    virtual ValueMap getValueMapFromData(const char *filedata, int filesize);
 
     /**
     * write a ValueMap into a plist file
@@ -402,7 +395,7 @@ public:
     *@param fullPath The full path to the file you want to save a string
     *@return bool
     */
-    virtual bool writeToFile(const ValueMap& dict, const std::string& fullPath);
+    virtual bool writeToFile(const ValueMap &dict, const std::string &fullPath);
 
     /**
      *  write a string into a file
@@ -411,8 +404,7 @@ public:
      * @param fullPath The full path to the file you want to save a string
      * @return bool True if write success
      */
-    virtual bool writeStringToFile(const std::string& dataStr, const std::string& fullPath);
-
+    virtual bool writeStringToFile(const std::string &dataStr, const std::string &fullPath);
 
     /**
      * write Data into a file
@@ -421,7 +413,7 @@ public:
      *@param fullPath The full path to the file you want to save a string
      *@return bool
      */
-    virtual bool writeDataToFile(const Data& data, const std::string& fullPath);
+    virtual bool writeDataToFile(const Data &data, const std::string &fullPath);
 
     /**
     * write ValueMap into a plist file
@@ -430,7 +422,7 @@ public:
     *@param fullPath The full path to the file you want to save a string
     *@return bool
     */
-    virtual bool writeValueMapToFile(const ValueMap& dict, const std::string& fullPath);
+    virtual bool writeValueMapToFile(const ValueMap &dict, const std::string &fullPath);
 
     /**
     * write ValueVector into a plist file
@@ -439,7 +431,7 @@ public:
     *@param fullPath The full path to the file you want to save a string
     *@return bool
     */
-    virtual bool writeValueVectorToFile(const ValueVector& vecData, const std::string& fullPath);
+    virtual bool writeValueVectorToFile(const ValueVector &vecData, const std::string &fullPath);
 
     /**
     * Windows fopen can't support UTF-8 filename
@@ -448,11 +440,11 @@ public:
     * @param filenameUtf8 std::string name file for conversion from utf-8
     * @return std::string ansi filename in current locale
     */
-    virtual std::string getSuitableFOpen(const std::string& filenameUtf8) const;
+    virtual std::string getSuitableFOpen(const std::string &filenameUtf8) const;
 
     // Converts the contents of a file to a ValueVector.
     // This method is used internally.
-    virtual ValueVector getValueVectorFromFile(const std::string& filename);
+    virtual ValueVector getValueVectorFromFile(const std::string &filename);
 
     /**
      *  Checks whether a file exists.
@@ -461,7 +453,7 @@ public:
      *  @param filename The path of the file, it could be a relative or absolute path.
      *  @return True if the file exists, false if not.
      */
-    virtual bool isFileExist(const std::string& filename) const;
+    virtual bool isFileExist(const std::string &filename) const;
 
     /**
     *  Gets filename extension is a suffix (separated from the base filename by a dot) in lower case.
@@ -469,7 +461,7 @@ public:
     *  @param filePath The path of the file, it could be a relative or absolute path.
     *  @return suffix for filename in lower case or empty if a dot not found.
     */
-    virtual std::string getFileExtension(const std::string& filePath) const;
+    virtual std::string getFileExtension(const std::string &filePath) const;
 
     /**
      *  Checks whether the path is an absolute path.
@@ -480,7 +472,7 @@ public:
      *  @param path The path that needs to be checked.
      *  @return True if it's an absolute path, false if not.
      */
-    virtual bool isAbsolutePath(const std::string& path) const;
+    virtual bool isAbsolutePath(const std::string &path) const;
 
     /**
      *  Checks whether the path is a directory.
@@ -488,23 +480,23 @@ public:
      *  @param dirPath The path of the directory, it could be a relative or an absolute path.
      *  @return True if the directory exists, false if not.
      */
-    virtual bool isDirectoryExist(const std::string& dirPath) const;
-    
+    virtual bool isDirectoryExist(const std::string &dirPath) const;
+
     /**
      *  List all files in a directory.
      *
      *  @param dirPath The path of the directory, it could be a relative or an absolute path.
      *  @return File paths in a string vector
      */
-    virtual std::vector<std::string> listFiles(const std::string& dirPath) const;
-    
+    virtual std::vector<std::string> listFiles(const std::string &dirPath) const;
+
     /**
      *  List all files recursively in a directory.
      *
      *  @param dirPath The path of the directory, it could be a relative or an absolute path.
      *  @return File paths in a string vector
      */
-    virtual void listFilesRecursively(const std::string& dirPath, std::vector<std::string> *files) const;
+    virtual void listFilesRecursively(const std::string &dirPath, std::vector<std::string> *files) const;
 
     /**
      *  Creates a directory.
@@ -512,7 +504,7 @@ public:
      *  @param dirPath The path of the directory, it must be an absolute path.
      *  @return True if the directory have been created successfully, false if not.
      */
-    virtual bool createDirectory(const std::string& dirPath);
+    virtual bool createDirectory(const std::string &dirPath);
 
     /**
      *  Removes a directory.
@@ -520,7 +512,7 @@ public:
      *  @param dirPath  The full path of the directory, it must be an absolute path.
      *  @return True if the directory have been removed successfully, false if not.
      */
-    virtual bool removeDirectory(const std::string& dirPath);
+    virtual bool removeDirectory(const std::string &dirPath);
 
     /**
      *  Removes a file.
@@ -559,10 +551,10 @@ public:
     virtual long getFileSize(const std::string &filepath);
 
     /** Returns the full path cache. */
-    const std::unordered_map<std::string, std::string>& getFullPathCache() const { return _fullPathCache; }
+    const std::unordered_map<std::string, std::string> &getFullPathCache() const { return _fullPathCache; }
 
-    std::string normalizePath(const std::string& path) const;
-    std::string getFileDir(const std::string& path) const;
+    std::string normalizePath(const std::string &path) const;
+    std::string getFileDir(const std::string &path) const;
 
 protected:
     /**
@@ -585,14 +577,14 @@ protected:
      *  @param filename The file (with absolute path) to look up for
      *  @return Returns true if the file found at the given absolute path, otherwise returns false
      */
-    virtual bool isFileExistInternal(const std::string& filename) const = 0;
+    virtual bool isFileExistInternal(const std::string &filename) const = 0;
 
     /**
      *  Checks whether a directory exists without considering search paths and resolution orders.
      *  @param dirPath The directory (with absolute path) to look up for
      *  @return Returns true if the directory found at the given absolute path, otherwise returns false
      */
-    virtual bool isDirectoryExistInternal(const std::string& dirPath) const;
+    virtual bool isDirectoryExistInternal(const std::string &dirPath) const;
 
     /**
      *  Gets full path for filename, resolution directory and search path.
@@ -601,7 +593,7 @@ protected:
      *  @param searchPath The search path.
      *  @return The full path of the file. It will return an empty string if the full path of the file doesn't exist.
      */
-    virtual std::string getPathForFilename(const std::string& filename, const std::string& searchPath) const;
+    virtual std::string getPathForFilename(const std::string &filename, const std::string &searchPath) const;
 
     /**
      *  Gets full path for the directory and the filename.
@@ -613,7 +605,7 @@ protected:
      *  @param filename  The name of the file.
      *  @return The full path of the file, if the file can't be found, it will return an empty string.
      */
-    virtual std::string getFullPathForDirectoryAndFilename(const std::string& directory, const std::string& filename) const;
+    virtual std::string getFullPathForDirectoryAndFilename(const std::string &directory, const std::string &filename) const;
 
     /**
      * The vector contains search paths.
@@ -649,18 +641,18 @@ protected:
     /**
      *  The singleton pointer of FileUtils.
      */
-    static FileUtils* s_sharedFileUtils;
+    static FileUtils *s_sharedFileUtils;
 
     /**
      *  Remove null value key (for iOS)
      */
-    virtual void valueMapCompact(ValueMap& valueMap);
-    virtual void valueVectorCompact(ValueVector& valueVector);
+    virtual void valueMapCompact(ValueMap &valueMap);
+    virtual void valueVectorCompact(ValueVector &valueVector);
 };
 
 // end of support group
 /** @} */
 
-}
+} // namespace cc
 
-#endif    // __CC_FILEUTILS_H__
+#endif // __CC_FILEUTILS_H__

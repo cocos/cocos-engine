@@ -24,78 +24,64 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 ****************************************************************************/
 
-
 #if CC_PLATFORM == CC_PLATFORM_MAC_OSX
 
-#include "platform/Device.h"
-#include "platform/apple/Device-apple.h"
-#include "Reachability.h"
+    #include "platform/Device.h"
+    #include "platform/apple/Device-apple.h"
+    #include "Reachability.h"
 
-#include <Foundation/Foundation.h>
-#include <Cocoa/Cocoa.h>
-#include <sys/utsname.h>
-#include <string>
+    #include <Foundation/Foundation.h>
+    #include <Cocoa/Cocoa.h>
+    #include <sys/utsname.h>
+    #include <string>
 
 namespace cc {
 
-int Device::getDPI()
-{
+int Device::getDPI() {
     NSScreen *screen = [NSScreen mainScreen];
     NSDictionary *description = [screen deviceDescription];
     NSSize displayPixelSize = [[description objectForKey:NSDeviceSize] sizeValue];
     CGSize displayPhysicalSize = CGDisplayScreenSize([[description objectForKey:@"NSScreenNumber"] unsignedIntValue]);
-    
+
     return ((displayPixelSize.width / displayPhysicalSize.width) * 25.4f);
 }
 
-void Device::setAccelerometerEnabled(bool isEnabled)
-{
-
+void Device::setAccelerometerEnabled(bool isEnabled) {
 }
 
-void Device::setAccelerometerInterval(float interval)
-{
-
+void Device::setAccelerometerInterval(float interval) {
 }
 
-const Device::MotionValue& Device::getDeviceMotionValue()
-{
+const Device::MotionValue &Device::getDeviceMotionValue() {
     static MotionValue __motionValue;
     return __motionValue;
 }
 
-Device::Orientation Device::getDeviceOrientation()
-{
+Device::Orientation Device::getDeviceOrientation() {
     return Device::Orientation::LANDSCAPE_RIGHT;
 }
 
-std::string Device::getDeviceModel()
-{
+std::string Device::getDeviceModel() {
     struct utsname systemInfo;
     uname(&systemInfo);
     return systemInfo.machine;
 }
 
-void Device::setKeepScreenOn(bool value)
-{
+void Device::setKeepScreenOn(bool value) {
     CC_UNUSED_PARAM(value);
 }
 
-void Device::vibrate(float duration)
-{
+void Device::vibrate(float duration) {
     CC_UNUSED_PARAM(duration);
 }
 
-float Device::getBatteryLevel()
-{
+float Device::getBatteryLevel() {
     return 1.0f;
 }
 
-Device::NetworkType Device::getNetworkType()
-{
-    static Reachability* __reachability = nullptr;
-    if (__reachability == nullptr)
-    {
+Device::NetworkType Device::getNetworkType() {
+    static Reachability *__reachability = nullptr;
+    if (__reachability == nullptr) {
         __reachability = Reachability::createForInternetConnection();
         __reachability->retain();
     }
@@ -116,12 +102,11 @@ Device::NetworkType Device::getNetworkType()
     return ret;
 }
 
-Vec4 Device::getSafeAreaEdge()
-{
+Vec4 Device::getSafeAreaEdge() {
     // no SafeArea concept on mac, return ZERO Vec4.
     return Vec4();
 }
 
-}
+} // namespace cc
 
 #endif // CC_PLATFORM == CC_PLATFORM_MAC_OSX

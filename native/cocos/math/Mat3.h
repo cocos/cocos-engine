@@ -25,7 +25,7 @@
 #ifndef MATH_MAT3_H
 #define MATH_MAT3_H
 
-#define MATRIX3_SIZE ( sizeof(float) * 9)
+#define MATRIX3_SIZE (sizeof(float) * 9)
 
 #include "base/Macros.h"
 
@@ -41,14 +41,13 @@
 
 NS_CC_MATH_BEGIN
 
-class CC_DLL Mat3
-{
+class CC_DLL Mat3 {
 public:
     /**
      * Stores the columns of this 3x3 matrix.
      * */
     float m[9];
-    
+
     /**
      * Default constructor.
      * Constructs a matrix initialized to the identity matrix:
@@ -58,7 +57,7 @@ public:
      *     0  0  1
      */
     Mat3();
-    
+
     /**
      * Constructs a matrix initialized to the specified value.
      *
@@ -73,7 +72,7 @@ public:
      * @param m33 The third element of the third row.
      */
     Mat3(float m11, float m12, float m13, float m21, float m22, float m23, float m31, float m32, float m33);
-    
+
     /**
      * Creates a matrix initialized to the specified column-major array.
      *
@@ -85,20 +84,20 @@ public:
      *
      * @param mat An array containing 16 elements in column-major order.
      */
-    Mat3(const float* mat);
-    
+    Mat3(const float *mat);
+
     /**
      * Constructs a new matrix by copying the values from the specified matrix.
      *
      * @param copy The matrix to copy.
      */
-    Mat3(const Mat3& copy);
-    
+    Mat3(const Mat3 &copy);
+
     /**
      * Destructor.
      */
     ~Mat3();
-    
+
     /**
      * Sets the values of this matrix.
      *
@@ -114,119 +113,118 @@ public:
      */
     void set(float m11, float m12, float m13, float m21, float m22, float m23,
              float m31, float m32, float m33);
-    
+
     /**
      * Sets the values of this matrix to those in the specified column-major array.
      *
      * @param mat An array containing 9 elements in column-major format.
      */
-    void set(const float* mat);
-    
+    void set(const float *mat);
+
     /**
      * Sets the values of this matrix to those of the specified matrix.
      *
      * @param mat The source matrix.
      */
-    void set(const Mat3& mat);
-    
+    void set(const Mat3 &mat);
+
     /**
      * return an identity matrix.
      */
-    static void identity(Mat3& mat);
-    
+    static void identity(Mat3 &mat);
+
     /**
      * Transposes matrix.
      */
     void transpose();
-    
+
     /**
      * Transposes a matrix.
      */
-    static void transpose(Mat3& out, const Mat3& mat);
-    
+    static void transpose(Mat3 &out, const Mat3 &mat);
+
     /**
      * Inverts a matrix.
      */
     void inverse();
-    
+
     /**
      * Calculates the adjugate of a matrix.
      */
-    static void adjoint(Mat3& out, const Mat3& mat);
-    
+    static void adjoint(Mat3 &out, const Mat3 &mat);
+
     /**
      * Calculates the determinant of a matrix.
      */
     float determinant();
-    
+
     /**
      * Multiply two matrices explicitly.
      */
-    static void multiply(Mat3& out, const Mat3& a, const Mat3& b);
-    
+    static void multiply(Mat3 &out, const Mat3 &a, const Mat3 &b);
+
     /**
      * Multiply a matrix with a translation matrix given by a translation offset.
      */
-    static void translate(Mat3& out, const Mat3& mat, const Vec2& vec);
-    
+    static void translate(Mat3 &out, const Mat3 &mat, const Vec2 &vec);
+
     /**
      * Rotates a matrix by the given angle.
      */
-    static void rotate(Mat3& out, const Mat3& mat, float rad);
-    
+    static void rotate(Mat3 &out, const Mat3 &mat, float rad);
+
     /**
      * Multiply a matrix with a scale matrix given by a scale vector.
      */
-    static void scale(Mat3& out, const Mat3& mat, const Vec2& vec);
-    
+    static void scale(Mat3 &out, const Mat3 &mat, const Vec2 &vec);
+
     /**
      * Copies the upper-left 3x3 values of a 4x4 matrix into a 3x3 matrix.
      */
-    static void fromMat4(Mat3& out, const Mat4& mat);
-    
+    static void fromMat4(Mat3 &out, const Mat4 &mat);
+
     /**
      * Creates a matrix from a translation offset.
      */
-    static void fromTranslation(Mat3& out, const Vec2& vec);
-    
+    static void fromTranslation(Mat3 &out, const Vec2 &vec);
+
     /**
      * Creates a matrix from a given angle.
      */
-    static void fromRotation(Mat3& out, float rad);
-    
+    static void fromRotation(Mat3 &out, float rad);
+
     /**
      * Creates a matrix from a scale vector.
      */
-    static void fromScaling(Mat3& out, const Vec2& vec);
-    
+    static void fromScaling(Mat3 &out, const Vec2 &vec);
+
     /**
      * Calculates a 3x3 matrix from the given quaternion.
      */
-    
-    static void fromQuat(Mat3& out, const Quaternion& quat);
-     
+
+    static void fromQuat(Mat3 &out, const Quaternion &quat);
+
     /**
      * Adds two matrices.
      */
-    static void add(Mat3& out, const Mat3& a, const Mat3& b);
-    
+    static void add(Mat3 &out, const Mat3 &a, const Mat3 &b);
+
     /**
      * Subtracts matrix b from matrix a.
      */
-    static void subtract(Mat3& out, const Mat3& a, const Mat3& b);
+    static void subtract(Mat3 &out, const Mat3 &a, const Mat3 &b);
 
     /** equals to a matrix full of zeros */
     static const Mat3 ZERO;
     /** equals to the identity matrix */
     static const Mat3 IDENTITY;
 };
-    
+
 NS_CC_MATH_END
-    
+
 /**
  end of base group
  @}
  */
-    
-#endif
 
+#endif

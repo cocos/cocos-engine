@@ -36,14 +36,12 @@ using namespace cc;
 
 static std::unordered_map<std::string, std::string> _fontFamilyNameMap;
 
-const std::unordered_map<std::string, std::string>& getFontFamilyNameMap()
-{
+const std::unordered_map<std::string, std::string> &getFontFamilyNameMap() {
     return _fontFamilyNameMap;
 }
 
-static bool JSB_loadFont(se::State& s)
-{
-    const auto& args = s.args();
+static bool JSB_loadFont(se::State &s) {
+    const auto &args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc >= 1) {
@@ -60,24 +58,21 @@ static bool JSB_loadFont(se::State& s)
         std::string fontFilePath;
         std::regex re("url\\(\\s*'\\s*(.*?)\\s*'\\s*\\)");
         std::match_results<std::string::const_iterator> results;
-        if (std::regex_search(source.cbegin(), source.cend(), results, re))
-        {
+        if (std::regex_search(source.cbegin(), source.cend(), results, re)) {
             fontFilePath = results[1].str();
         }
 
         fontFilePath = FileUtils::getInstance()->fullPathForFilename(fontFilePath);
-        if (fontFilePath.empty())
-        {
+        if (fontFilePath.empty()) {
             SE_LOGE("Font (%s) doesn't exist!", fontFilePath.c_str());
             return true;
         }
 
         // just put the path info, used at CanvasRenderingContext2DImpl::updateFont()
         _fontFamilyNameMap.emplace(originalFamilyName, fontFilePath);
-        
 
         s.rval().setString(originalFamilyName);
-        
+
         return true;
     }
 
@@ -86,8 +81,7 @@ static bool JSB_loadFont(se::State& s)
 }
 SE_BIND_FUNC(JSB_loadFont)
 
-bool register_platform_bindings(se::Object* obj)
-{
+bool register_platform_bindings(se::Object *obj) {
     __jsbObj->defineFunction("loadFont", _SE(JSB_loadFont));
     return true;
 }

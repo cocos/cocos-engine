@@ -28,39 +28,38 @@
 
 #if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_SM
 
-#include "Base.h"
+    #include "Base.h"
 
-#include "../Value.h"
+    #include "../Value.h"
 
 namespace se {
 
-    class Class;
+class Class;
 
-    namespace internal {
+namespace internal {
 
-        struct PrivateData
-        {
-            void* data;
-            JSFinalizeOp finalizeCb;
-        };
+struct PrivateData {
+    void *data;
+    JSFinalizeOp finalizeCb;
+};
 
-        void forceConvertJsValueToStdString(JSContext* cx, JS::HandleValue jsval, std::string* ret);
-        std::string jsToStdString(JSContext* cx, JS::HandleString jsStr);
+void forceConvertJsValueToStdString(JSContext *cx, JS::HandleValue jsval, std::string *ret);
+std::string jsToStdString(JSContext *cx, JS::HandleString jsStr);
 
-        void jsToSeArgs(JSContext* cx, int argc, const JS::CallArgs& argv, ValueArray* outArr);
-        void jsToSeValue(JSContext *cx, JS::HandleValue jsval, Value* v);
-        void seToJsArgs(JSContext* cx, const ValueArray& args, JS::AutoValueVector* outArr);
-        void seToJsValue(JSContext* cx, const Value& v, JS::MutableHandleValue outVal);
-        
-        void setReturnValue(JSContext* cx, const Value& data, const JS::CallArgs& argv);
+void jsToSeArgs(JSContext *cx, int argc, const JS::CallArgs &argv, ValueArray *outArr);
+void jsToSeValue(JSContext *cx, JS::HandleValue jsval, Value *v);
+void seToJsArgs(JSContext *cx, const ValueArray &args, JS::AutoValueVector *outArr);
+void seToJsValue(JSContext *cx, const Value &v, JS::MutableHandleValue outVal);
 
-        bool hasPrivate(JSContext* cx, JS::HandleObject obj);
-        void* getPrivate(JSContext* cx, JS::HandleObject obj);
-        void setPrivate(JSContext* cx, JS::HandleObject obj, void* data, JSFinalizeOp finalizeCb);
-        void clearPrivate(JSContext* cx, JS::HandleObject obj);
+void setReturnValue(JSContext *cx, const Value &data, const JS::CallArgs &argv);
 
-    } // namespace internal {
+bool hasPrivate(JSContext *cx, JS::HandleObject obj);
+void *getPrivate(JSContext *cx, JS::HandleObject obj);
+void setPrivate(JSContext *cx, JS::HandleObject obj, void *data, JSFinalizeOp finalizeCb);
+void clearPrivate(JSContext *cx, JS::HandleObject obj);
 
-} // namespace se {
+} // namespace internal
+
+} // namespace se
 
 #endif // #if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_SM

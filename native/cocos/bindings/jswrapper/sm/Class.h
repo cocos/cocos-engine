@@ -28,19 +28,18 @@
 
 #if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_SM
 
-#include "Base.h"
+    #include "Base.h"
 
 namespace se {
 
-    class Object;
+class Object;
 
-    /**
+/**
      * se::Class represents a definition of how to create a native binding object.
      */
-    class Class final
-    {
-    public:
-        /**
+class Class final {
+public:
+    /**
          *  @brief Creates a class used for creating relevant native binding objects.
          *  @param[in] className A null-terminated UTF8 string containing the class's name.
          *  @param[in] obj The object that current class proto object attaches to. Should not be nullptr.
@@ -49,106 +48,105 @@ namespace se {
          *  @return A class instance used for creating relevant native binding objects.
          *  @note Don't need to delete the pointer return by this method, it's managed internally.
          */
-        static Class* create(const char* className, Object* obj, Object* parentProto, JSNative ctor);
+    static Class *create(const char *className, Object *obj, Object *parentProto, JSNative ctor);
 
-        /**
+    /**
          *  @brief Defines a member function with a callback. Each objects created by class will have this function property.
          *  @param[in] name A null-terminated UTF8 string containing the function name.
          *  @param[in] func A callback to invoke when the property is called as a function.
          *  @return true if succeed, otherwise false.
          */
-        bool defineFunction(const char *name, JSNative func);
+    bool defineFunction(const char *name, JSNative func);
 
-        /**
+    /**
          *  @brief Defines a property with accessor callbacks. Each objects created by class will have this property.
          *  @param[in] name A null-terminated UTF8 string containing the property name.
          *  @param[in] getter A callback to invoke when the property is read.
          *  @param[in] setter A callback to invoke when the property is set.
          *  @return true if succeed, otherwise false.
          */
-        bool defineProperty(const char *name, JSNative getter, JSNative setter);
+    bool defineProperty(const char *name, JSNative getter, JSNative setter);
 
-        /**
+    /**
          *  @brief Defines a static function with a callback. Only JavaScript constructor object will have this function.
          *  @param[in] name A null-terminated UTF8 string containing the function name.
          *  @param[in] func A callback to invoke when the constructor's property is called as a function.
          *  @return true if succeed, otherwise false.
          */
-        bool defineStaticFunction(const char *name, JSNative func);
+    bool defineStaticFunction(const char *name, JSNative func);
 
-        /**
+    /**
          *  @brief Defines a static property with accessor callbacks. Only JavaScript constructor object will have this property.
          *  @param[in] name A null-terminated UTF8 string containing the property name.
          *  @param[in] getter A callback to invoke when the constructor's property is read.
          *  @param[in] setter A callback to invoke when the constructor's property is set.
          *  @return true if succeed, otherwise false.
          */
-        bool defineStaticProperty(const char *name, JSNative getter, JSNative setter);
+    bool defineStaticProperty(const char *name, JSNative getter, JSNative setter);
 
-        /**
+    /**
          *  @brief Defines the finalize function with a callback.
          *  @param[in] func The callback to invoke when a JavaScript object is garbage collected.
          *  @return true if succeed, otherwise false.
          */
-        bool defineFinalizeFunction(JSFinalizeOp func);
+    bool defineFinalizeFunction(JSFinalizeOp func);
 
-        /**
+    /**
          *  @brief Installs class to JavaScript VM.
          *  @return true if succeed, otherwise false.
          *  @note After this method, an object could be created by `var foo = new Foo();`.
          */
-        bool install();
+    bool install();
 
-        /**
+    /**
          *  @brief Gets the proto object of this class.
          *  @return The proto object of this class.
          *  @note Don't need to be released in user code.
          */
-        Object* getProto();
+    Object *getProto();
 
-        /**
+    /**
          *  @brief Gets the class name.
          *  @return The class name.
          */
-        const char* getName() const { return _name; }
+    const char *getName() const { return _name; }
 
-        // Private API used in wrapper
-        JSFinalizeOp _getFinalizeCb() const;
-        //
-    private:
-        Class();
-        ~Class();
+    // Private API used in wrapper
+    JSFinalizeOp _getFinalizeCb() const;
+    //
+private:
+    Class();
+    ~Class();
 
-        bool init(const char* clsName, Object* obj, Object* parentProto, JSNative ctor);
-        void destroy();
+    bool init(const char *clsName, Object *obj, Object *parentProto, JSNative ctor);
+    void destroy();
 
-//        static JSObject* _createJSObject(const std::string &clsName, Class** outCls);
-        static JSObject* _createJSObjectWithClass(Class* cls);
+    //        static JSObject* _createJSObject(const std::string &clsName, Class** outCls);
+    static JSObject *_createJSObjectWithClass(Class *cls);
 
-        static void setContext(JSContext* cx);
-        static void cleanup();
+    static void setContext(JSContext *cx);
+    static void cleanup();
 
-        const char* _name;
-        Object* _parent;
-        Object* _proto;
-        Object* _parentProto;
+    const char *_name;
+    Object *_parent;
+    Object *_proto;
+    Object *_parentProto;
 
-        JSNative _ctor;
+    JSNative _ctor;
 
-        JSClass _jsCls;
-        JSClassOps _classOps;
+    JSClass _jsCls;
+    JSClassOps _classOps;
 
-        std::vector<JSFunctionSpec> _funcs;
-        std::vector<JSFunctionSpec> _staticFuncs;
-        std::vector<JSPropertySpec> _properties;
-        std::vector<JSPropertySpec> _staticProperties;
-        JSFinalizeOp _finalizeOp;
+    std::vector<JSFunctionSpec> _funcs;
+    std::vector<JSFunctionSpec> _staticFuncs;
+    std::vector<JSPropertySpec> _properties;
+    std::vector<JSPropertySpec> _staticProperties;
+    JSFinalizeOp _finalizeOp;
 
-        friend class ScriptEngine;
-        friend class Object;
-    };
+    friend class ScriptEngine;
+    friend class Object;
+};
 
-} // namespace se {
+} // namespace se
 
 #endif // #if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_SM
-

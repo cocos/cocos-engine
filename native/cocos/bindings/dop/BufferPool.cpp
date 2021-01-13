@@ -31,7 +31,10 @@ using namespace se;
 cc::map<PoolType, BufferPool *> BufferPool::_poolMap;
 
 BufferPool::BufferPool(PoolType type, uint entryBits, uint bytesPerEntry)
-: _allocator(type), _entryBits(entryBits), _bytesPerEntry(bytesPerEntry), _type(type) {
+: _allocator(type),
+  _entryBits(entryBits),
+  _bytesPerEntry(bytesPerEntry),
+  _type(type) {
     CCASSERT(BufferPool::_poolMap.count(type) == 0, "The type of pool is already exist");
 
     _entriesPerChunk = 1 << entryBits;
