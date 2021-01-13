@@ -37,7 +37,6 @@ import { Mat4, Rect, Size, Vec2, Vec3 } from '../../core/math';
 import { AABB } from '../../core/geometry';
 import { Node } from '../../core/scene-graph';
 import { legacyCC } from '../../core/global-exports';
-import { Mask } from '../components/mask';
 import { director } from '../../core/director';
 import { warnID } from '../../core/platform/debug';
 
@@ -419,9 +418,9 @@ export class UITransform extends Component {
                     for (let i = 0, j = 0; parent && j < length; ++i, parent = parent.parent) {
                         const temp = mask[j];
                         if (i === temp.index) {
-                            if (parent === temp.node) {
-                                const comp = parent.getComponent(Mask);
-                                if (comp && comp._enabled && !comp.isHit(cameraPt)) {
+                            if (parent === temp.comp.node) {
+                                const comp = temp.comp;
+                                if (comp && comp._enabled && !(comp as any).isHit(cameraPt)) {
                                     hit = false;
                                     break;
                                 }
