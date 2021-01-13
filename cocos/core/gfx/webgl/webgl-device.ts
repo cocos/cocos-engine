@@ -382,7 +382,7 @@ export class WebGLDevice extends Device {
                 // VAO implementations doesn't work well on some runtime platforms
                 if (LINKSURE || QTT || COCOSPLAY || HUAWEI) {
                     this._OES_vertex_array_object = null;
-                }                
+                }
             }
 
             // some earlier version of iOS and android wechat implement gl.detachShader incorrectly
