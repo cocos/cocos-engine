@@ -47,10 +47,11 @@ export class PlanarShadowQueue {
     }
 
     public gatherShadowPasses (camera: Camera, cmdBuff: CommandBuffer) {
-        this._pipeline.updateShadowUBO(camera);
         const shadows = this._pipeline.shadows;
         this._pendingModels.length = 0;
         if (!shadows.enabled || shadows.type !== ShadowType.Planar) { return; }
+
+        this._pipeline.updateShadowUBO(camera);
 
         const scene = camera.scene!;
         const frstm = camera.frustum;
