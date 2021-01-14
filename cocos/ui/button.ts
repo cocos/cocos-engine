@@ -748,6 +748,7 @@ export class Button extends Component {
         case State.DISABLED:
             this._disabledSprite = spriteFrame;
             break;
+        default:
         }
     }
 
@@ -771,6 +772,7 @@ export class Button extends Component {
         case State.DISABLED:
             this._disabledColor = color;
             break;
+        default:
         }
     }
 
@@ -798,12 +800,12 @@ export class Button extends Component {
         // mobile phone will not emit _onMouseMoveOut,
         // so we have to do hit test when touch moving
         if (!event) {
-            return false;
+            return;
         }
 
         const touch = (event).touch;
         if (!touch) {
-            return false;
+            return;
         }
 
         const hit = this.node._uiProps.uiTransformComp!.isHit(touch.getUILocation());

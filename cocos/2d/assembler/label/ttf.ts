@@ -87,7 +87,7 @@ export const ttf: IAssembler = {
         const data3 = dataList[3];
         /* */
         node.updateWorldTransform();
-        // @ts-expect-error
+        // @ts-expect-error private property access
         const pos = node._pos; const rot = node._rot; const scale = node._scale;
         const ax = data0.x * scale.x; const bx = data3.x * scale.x;
         const ay = data0.y * scale.y; const by = data3.y * scale.y;

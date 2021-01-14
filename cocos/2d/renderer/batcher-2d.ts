@@ -378,9 +378,9 @@ export class Batcher2D {
         const blendTargetHash = renderComp.blendHash;
         const depthStencilStateStage = renderComp.stencilStage;
 
-        if ( this._currScene !== renderScene || this._currLayer !== comp.node.layer || this._currMaterial !== mat
+        if (this._currScene !== renderScene || this._currLayer !== comp.node.layer || this._currMaterial !== mat
              || this._currBlendTargetHash !== blendTargetHash || this._currDepthStencilStateStage !== depthStencilStateStage
-             || this._currTextureHash !== textureHash || this._currSamplerHash !== samplerHash || this._currTransform !== transform ) {
+             || this._currTextureHash !== textureHash || this._currSamplerHash !== samplerHash || this._currTransform !== transform) {
             this.autoMergeBatches(this._currComponent!);
             this._currScene = renderScene;
             this._currComponent = renderComp;

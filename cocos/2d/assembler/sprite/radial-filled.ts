@@ -48,7 +48,7 @@ const _intersectPoint_2: Vec2[] = [new Vec2(), new Vec2(), new Vec2(), new Vec2(
 const _center = new Vec2();
 const _triangles: Vec2[] = [new Vec2(), new Vec2(), new Vec2(), new Vec2()];
 
-function _calcIntersectedPoints (left, right, bottom, top, center, angle, intersectPoints) {
+function _calcIntersectedPoints (left, right, bottom, top, center: Vec2, angle, intersectPoints: Vec2[]) {
     // left bottom, right, top
     let sinAngle = Math.sin(angle);
     sinAngle = Math.abs(sinAngle) > EPSILON ? sinAngle : 0;
@@ -332,11 +332,9 @@ export const radialFilled: IAssembler = {
                                     _vertPos[triangle.x], _vertPos[triangle.y]);
                             }
                             offset += 3;
-                        } else {
+                        } else if (endAngle > fillStart) {
                             // startAngle < fillStart
-                            if (endAngle <= fillStart) {
-                                // all out
-                            } else if (endAngle <= fillEnd) {
+                            if (endAngle <= fillEnd) {
                                 renderData.dataLength = offset + 3;
                                 // fillStart to endAngle
                                 _generateTriangle(dataList, offset, _center,

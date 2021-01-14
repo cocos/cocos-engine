@@ -64,6 +64,8 @@ const spriteAssembler: IAssemblerManager = {
             // case SpriteType.MESH:
             //     util = meshRenderUtil;
             //     break;
+        default:
+            break;
         }
 
         return util;

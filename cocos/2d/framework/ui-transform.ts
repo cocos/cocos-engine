@@ -228,7 +228,7 @@ export class UITransform extends Component {
      */
     get visibility () {
         const camera = director.root!.batcher2D.getFirstRenderCamera(this.node);
-        return camera ? camera.visibility as number : 0;
+        return camera ? camera.visibility : 0;
     }
 
     /**
@@ -237,7 +237,7 @@ export class UITransform extends Component {
      */
     get cameraPriority () {
         const camera = director.root!.batcher2D.getFirstRenderCamera(this.node);
-        return camera ? camera.priority as number : 0;
+        return camera ? camera.priority : 0;
     }
 
     public static EventType = SystemEventType;

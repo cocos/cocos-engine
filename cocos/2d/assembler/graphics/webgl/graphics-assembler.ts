@@ -183,8 +183,7 @@ export const graphicsAssembler: IAssembler = {
 
             if (lineJoin === LineJoin.ROUND) {
                 vertexCount += (pointsLength + path.bevel * (nCap + 2) + 1) * 2;
-            } // plus one for loop
-            else {
+            } else {
                 vertexCount += (pointsLength + path.bevel * 5 + 1) * 2;
             } // plus one for loop
 

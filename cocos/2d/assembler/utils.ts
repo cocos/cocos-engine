@@ -31,7 +31,7 @@
 import { Color, Mat4, Vec3 } from '../../core/math';
 import { RenderData } from '../renderer/render-data';
 import { Batcher2D } from '../renderer/batcher-2d';
-import { Node } from '../../core/';
+import { Node } from '../../core/scene-graph/node';
 
 const vec3_temp = new Vec3();
 const _worldMatrix = new Mat4();

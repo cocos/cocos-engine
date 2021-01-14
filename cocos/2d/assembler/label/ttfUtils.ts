@@ -349,7 +349,7 @@ export const ttfUtils =  {
         _context!.shadowOffsetY = -_shadowComp!.offset.y;
     },
 
-    _drawTextEffect (startPosition, lineHeight) {
+    _drawTextEffect (startPosition: Vec2, lineHeight: number) {
         if (!_shadowComp && !_outlineComp && !_isUnderline) return;
 
         const isMultiple = _splitStrings.length > 1 && _shadowComp;
@@ -456,6 +456,7 @@ export const ttfUtils =  {
     },
 
     _measureText (ctx: CanvasRenderingContext2D, fontDesc) {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
         return (string: string) => safeMeasureText(ctx, string, fontDesc);
     },
 
