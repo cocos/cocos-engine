@@ -600,8 +600,7 @@ const GLenum GLES3_BLEND_FACTORS[] = {
 };
 } // namespace
 
-void MapGLBarriers(const GlobalBarrier &barrier, GLbitfield &glBarriers, GLbitfield &glBarriersByRegion) {
-    const AccessTypeList &list = barrier.nextAccesses;
+void MapGLBarriers(const AccessTypeList &list, GLbitfield &glBarriers, GLbitfield &glBarriersByRegion) {
     for (size_t j = 0u; j < list.size(); ++j) {
         switch (list[j]) {
             case AccessType::INDIRECT_BUFFER:
@@ -638,8 +637,9 @@ void MapGLBarriers(const GlobalBarrier &barrier, GLbitfield &glBarriers, GLbitfi
             case AccessType::TRANSFER_READ:
                 glBarriers |= GL_PIXEL_BUFFER_BARRIER_BIT;
                 break;
-            case AccessType::VERTEX_SHADER_WRITE:
             case AccessType::FRAGMENT_SHADER_WRITE:
+                glBarriersByRegion |= GL_FRAMEBUFFER_BARRIER_BIT;
+                break;
             case AccessType::COMPUTE_SHADER_WRITE:
                 glBarriersByRegion |= GL_SHADER_STORAGE_BARRIER_BIT;
                 break;
@@ -647,6 +647,7 @@ void MapGLBarriers(const GlobalBarrier &barrier, GLbitfield &glBarriers, GLbitfi
                 glBarriers |= GL_TEXTURE_UPDATE_BARRIER_BIT;
                 glBarriers |= GL_BUFFER_UPDATE_BARRIER_BIT;
                 break;
+            case AccessType::VERTEX_SHADER_WRITE:
             case AccessType::FRAGMENT_SHADER_READ_COLOR_INPUT_ATTACHMENT:
             case AccessType::FRAGMENT_SHADER_READ_DEPTH_STENCIL_INPUT_ATTACHMENT:
             case AccessType::HOST_PREINITIALIZED:
@@ -713,6 +714,18 @@ void GLES3CmdFuncCreateBuffer(GLES3Device *device, GLES3GPUBuffer *gpuBuffer) {
             GL_CHECK(glBufferData(GL_UNIFORM_BUFFER, gpuBuffer->size, nullptr, glUsage));
             GL_CHECK(glBindBuffer(GL_UNIFORM_BUFFER, 0));
             device->stateCache()->glUniformBuffer = 0;
+        }
+    } else if (gpuBuffer->usage & BufferUsageBit::STORAGE) {
+        gpuBuffer->glTarget = GL_SHADER_STORAGE_BUFFER;
+        GL_CHECK(glGenBuffers(1, &gpuBuffer->glBuffer));
+        if (gpuBuffer->size) {
+            if (device->stateCache()->glShaderStorageBuffer != gpuBuffer->glBuffer) {
+                GL_CHECK(glBindBuffer(GL_SHADER_STORAGE_BUFFER, gpuBuffer->glBuffer));
+            }
+
+            GL_CHECK(glBufferData(GL_SHADER_STORAGE_BUFFER, gpuBuffer->size, nullptr, glUsage));
+            GL_CHECK(glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0));
+            device->stateCache()->glShaderStorageBuffer = 0;
         }
     } else if (gpuBuffer->usage & BufferUsageBit::INDIRECT) {
         gpuBuffer->glTarget = GL_NONE;
@@ -1270,7 +1283,6 @@ void GLES3CmdFuncCreateShader(GLES3Device *device, GLES3GPUShader *gpuShader) {
         gpuBlock.binding = buffer.binding;
         gpuBlock.glBinding = buffer.binding + device->bindingMappingInfo().bufferOffsets[buffer.set];
         gpuBlock.isStorage = true;
-        break;
     }
 
     // create uniform samplers
@@ -2372,6 +2384,14 @@ void GLES3CmdFuncUpdateBuffer(GLES3Device *device, GLES3GPUBuffer *gpuBuffer, co
                     device->stateCache()->glUniformBuffer = gpuBuffer->glBuffer;
                 }
                 GL_CHECK(glBufferSubData(GL_UNIFORM_BUFFER, offset, size, buffer));
+                break;
+            }
+            case GL_SHADER_STORAGE_BUFFER: {
+                if (device->stateCache()->glShaderStorageBuffer != gpuBuffer->glBuffer) {
+                    GL_CHECK(glBindBuffer(GL_SHADER_STORAGE_BUFFER, gpuBuffer->glBuffer));
+                    device->stateCache()->glShaderStorageBuffer = gpuBuffer->glBuffer;
+                }
+                GL_CHECK(glBufferSubData(GL_SHADER_STORAGE_BUFFER, offset, size, buffer));
                 break;
             }
             default:

@@ -179,7 +179,7 @@ void GLES3PrimaryCommandBuffer::pipelineBarrier(const GlobalBarrier& barrier) {
 
         GLbitfield glBarriers = 0u;
         GLbitfield glBarriersByRegion = 0u;
-        MapGLBarriers(barrier, glBarriers, glBarriersByRegion);
+        MapGLBarriers(barrier.nextAccesses, glBarriers, glBarriersByRegion);
         GLES3CmdFuncMemoryBarrier((GLES3Device *)_device, glBarriers, glBarriersByRegion);
     } else {
         CC_LOG_ERROR("Command 'pipelineBarrier' must be recorded outside a render pass.");

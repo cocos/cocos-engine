@@ -472,7 +472,7 @@ void CCVKDevice::destroy() {
     CC_SAFE_DESTROY(_context);
 }
 
-// op-op since we maintain surface size internally
+// no-op since we maintain surface size internally
 void CCVKDevice::resize(uint width, uint height) {}
 
 void CCVKDevice::acquire() {

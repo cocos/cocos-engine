@@ -1959,7 +1959,7 @@ void GLES2CmdFuncBindState(GLES2Device *device, GLES2GPUPipelineState *gpuPipeli
                     }
 
                     GL_CHECK(glTexParameteri(gpuTexture->glTarget, GL_TEXTURE_WRAP_S,
-                                                glWrapS));
+                                             glWrapS));
                     gpuTexture->glWrapS = glWrapS;
                 }
 
@@ -1969,7 +1969,7 @@ void GLES2CmdFuncBindState(GLES2Device *device, GLES2GPUPipelineState *gpuPipeli
                         cache->texUint = unit;
                     }
                     GL_CHECK(glTexParameteri(gpuTexture->glTarget, GL_TEXTURE_WRAP_T,
-                                                glWrapT));
+                                             glWrapT));
                     gpuTexture->glWrapT = glWrapT;
                 }
 
@@ -1979,7 +1979,7 @@ void GLES2CmdFuncBindState(GLES2Device *device, GLES2GPUPipelineState *gpuPipeli
                         cache->texUint = unit;
                     }
                     GL_CHECK(glTexParameteri(gpuTexture->glTarget, GL_TEXTURE_MIN_FILTER,
-                                                glMinFilter));
+                                             glMinFilter));
                     gpuTexture->glMinFilter = glMinFilter;
                 }
 
@@ -1989,7 +1989,7 @@ void GLES2CmdFuncBindState(GLES2Device *device, GLES2GPUPipelineState *gpuPipeli
                         cache->texUint = unit;
                     }
                     GL_CHECK(glTexParameteri(gpuTexture->glTarget, GL_TEXTURE_MAG_FILTER,
-                                                gpuDescriptor->gpuSampler->glMagFilter));
+                                             gpuDescriptor->gpuSampler->glMagFilter));
                     gpuTexture->glMagFilter = gpuDescriptor->gpuSampler->glMagFilter;
                 }
             }

@@ -898,19 +898,10 @@ struct UniformSampler {
 
 typedef cc::vector<UniformSampler> UniformSamplerList;
 
-struct StorageBufferMember {
-    String name;
-    Type type = Type::UNKNOWN;
-    uint count = 0u;
-};
-
-typedef cc::vector<StorageBufferMember> StorageBufferMemberList;
-
 struct StorageBuffer {
     uint set = 0u;
     uint binding = 0u;
     String name;
-    StorageBufferMemberList members;
     uint count = 0u;
 };
 
