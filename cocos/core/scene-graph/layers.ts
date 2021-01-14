@@ -43,6 +43,7 @@ const layerList = {
 
     PROFILER: (1 << 28),
     DEFAULT: (1 << 30),
+    CUSTOM: 0x000fffff,
     ALL: 0xffffffff,
 };
 
