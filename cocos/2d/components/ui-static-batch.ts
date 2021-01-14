@@ -207,8 +207,8 @@ export class UIStaticBatch extends Renderable2D {
     }
 
     protected _getBatcher () {
-        if (director.root && director.root.ui) {
-            return director.root.ui;
+        if (director.root && director.root.batcher2D) {
+            return director.root.batcher2D;
         }
 
         warnID(9301);

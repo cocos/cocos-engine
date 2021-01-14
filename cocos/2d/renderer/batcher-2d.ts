@@ -704,4 +704,4 @@ export class Batcher2D {
     }
 }
 
-legacyCC.internal.UI = Batcher2D;
+legacyCC.internal.Batcher2D = Batcher2D;

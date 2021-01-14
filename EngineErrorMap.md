@@ -248,7 +248,7 @@ Director._initOnEngineInitialized: renderer root initialization failed
 
 ### 1300
 
-element type is wrong!
+%s is not in the model pool and cannot be destroyed by destroyModel.
 
 ### 1400
 
@@ -290,6 +290,10 @@ cc.pool is being removed from v2.0, you are getting cc.js.Pool instead
 ### 1408
 
 '%s' is removed
+
+### 1409
+
+element type is wrong!
 
 ### 1500
 

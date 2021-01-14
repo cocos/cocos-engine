@@ -1,10 +1,10 @@
-import { Color, Component, macro, Mat4, RenderTexture, Node, Texture2D, Vec3 } from '../../core';
+import { Color, Mat4, RenderTexture, Node, Texture2D, Vec3 } from '../../core';
 import { BlendFactor } from '../../core/gfx';
 import { TextureBase } from '../../core/assets/texture-base';
 import { MaterialInstance } from '../../core/renderer/core/material-instance';
 import { IAssembler } from '../../2d/renderer/base';
 import { Batcher2D } from '../../2d/renderer/batcher-2d';
-import { ArmatureFrame, ArmatureFrameColor } from '../ArmatureCache';
+import { ArmatureFrame } from '../ArmatureCache';
 import { ArmatureDisplay, ArmatureDisplayMeshData } from '../ArmatureDisplay';
 import { CCSlot } from '../CCSlot';
 import { Armature, BlendMode } from '../lib/dragonBones.js';
@@ -33,7 +33,7 @@ let _multiply: number;
 let _mustFlush: boolean;
 let _buffer: ArmatureDisplayMeshData | undefined;
 let _node: Node | undefined;
-let _ui: Batcher2D | undefined;
+let _batcher: Batcher2D | undefined;
 let _comp: ArmatureDisplay | undefined;
 let _vfOffset: number;
 let _indexOffset: number;
@@ -375,7 +375,7 @@ function cacheTraverse (frame: ArmatureFrame | null, parentMat?: Mat4) {
     }
 }
 
-function updateComponentRenderData (comp: ArmatureDisplay, ui: Batcher2D) {
+function updateComponentRenderData (comp: ArmatureDisplay, batcher: Batcher2D) {
     // comp.node._renderFlag |= RenderFlow.FLAG_UPDATE_RENDER_DATA;
 
     const armature = comp._armature;
@@ -389,7 +389,7 @@ function updateComponentRenderData (comp: ArmatureDisplay, ui: Batcher2D) {
     _premultipliedAlpha = comp.premultipliedAlpha;
     _node = comp.node;
     _buffer = comp.requestMeshRenderData();
-    _ui = ui;
+    _batcher = batcher;
     _comp = comp;
     _handleVal = 0;
 
@@ -454,7 +454,7 @@ function updateComponentRenderData (comp: ArmatureDisplay, ui: Batcher2D) {
     // Clear temp var.
     _node = undefined;
     _buffer = undefined;
-    _ui = undefined;
+    _batcher = undefined;
     _comp = undefined;
 }
 

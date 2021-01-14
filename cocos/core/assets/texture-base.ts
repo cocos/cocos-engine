@@ -242,8 +242,8 @@ export class TextureBase extends Asset {
      */
     public destroy () {
         const destroyed = super.destroy();
-        if (destroyed && legacyCC.director.root && legacyCC.director.root.ui) {
-            legacyCC.director.root.ui._releaseDescriptorSetCache(this._textureHash);
+        if (destroyed && legacyCC.director.root && legacyCC.director.root.batcher2D) {
+            legacyCC.director.root.batcher2D._releaseDescriptorSetCache(this._textureHash);
         }
         return destroyed;
     }
@@ -299,6 +299,7 @@ export class TextureBase extends Asset {
                 this._wrapS},${this._wrapT},${
                 this._mipFilter},${this._anisotropy}`;
         }
+        return '';
     }
 
     /**
@@ -322,7 +323,10 @@ export class TextureBase extends Asset {
     }
 
     protected _getGFXDevice (): Device | null {
-        return legacyCC.director.root && legacyCC.director.root.device;
+        if (legacyCC.director.root) {
+            return legacyCC.director.root.device as Device;
+        }
+        return null;
     }
 
     protected _getGFXFormat () {
@@ -341,7 +345,7 @@ export class TextureBase extends Asset {
         } else if (format === PixelFormat.RGB_A_PVRTC_2BPPV1) {
             format = PixelFormat.RGB_PVRTC_2BPPV1;
         }
-        return format;
+        return format as PixelFormat;
     }
 }
 

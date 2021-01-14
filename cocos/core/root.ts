@@ -42,6 +42,7 @@ import { legacyCC } from './global-exports';
 import { RenderWindow, IRenderWindowInfo } from './renderer/core/render-window';
 import { ColorAttachment, DepthStencilAttachment, RenderPassInfo, StoreOp, Device } from './gfx';
 import { RootHandle, RootPool, RootView, NULL_HANDLE } from './renderer/core/memory-pools';
+import { warnID } from './platform/debug';
 
 /**
  * @zh
@@ -125,8 +126,8 @@ export class Root {
      * UI实例
      * 引擎内部使用，用户无需调用此接口
      */
-    public get ui (): Batcher2D {
-        return this._ui as UI;
+    public get batcher2D (): Batcher2D {
+        return this._batcher as Batcher2D;
     }
 
     /**
@@ -203,7 +204,7 @@ export class Root {
     private _curWindow: RenderWindow | null = null;
     private _tempWindow: RenderWindow | null = null;
     private _pipeline: RenderPipeline | null = null;
-    private _ui: Batcher2D | null = null;
+    private _batcher: Batcher2D | null = null;
     private _dataPoolMgr: DataPoolManager;
     private _scenes: RenderScene[] = [];
     private _modelPools = new Map<Constructor<Model>, Pool<Model>>();
@@ -268,9 +269,9 @@ export class Root {
             this._pipeline = null;
         }
 
-        if (this._ui) {
-            this._ui.destroy();
-            this._ui = null;
+        if (this._batcher) {
+            this._batcher.destroy();
+            this._batcher = null;
         }
 
         this._curWindow = null;
@@ -319,9 +320,9 @@ export class Root {
         }
 
         this.onGlobalPipelineStateChanged();
-        if (!this._ui && legacyCC.internal.UI) {
-            this._ui = new legacyCC.internal.UI(this) as UI;
-            if (!this._ui.initialize()) {
+        if (!this._batcher && legacyCC.internal.Batcher2D) {
+            this._batcher = new legacyCC.internal.Batcher2D(this) as Batcher2D;
+            if (!this._batcher.initialize()) {
                 this.destroy();
                 return false;
             }
@@ -386,14 +387,14 @@ export class Root {
             this._frameCount = 0;
             this._fpsTime = 0.0;
         }
-        if (this._ui) this._ui.update();
+        if (this._batcher) this._batcher.update();
 
         if (this._pipeline) {
             this._device.acquire();
             const windows = this._windows;
             const scenes = this._scenes;
             const stamp = legacyCC.director.getTotalFrames();
-            if (this._ui) this._ui.uploadBuffers();
+            if (this._batcher) this._batcher.uploadBuffers();
 
             for (let i = 0; i < scenes.length; i++) {
                 scenes[i].update(stamp);
@@ -413,7 +414,7 @@ export class Root {
             this._device.present();
         }
 
-        if (this._ui) this._ui.reset();
+        if (this._batcher) this._batcher.reset();
     }
 
     /**
@@ -512,7 +513,7 @@ export class Root {
                 m.scene.removeModel(m);
             }
         } else {
-            console.warn(`'${m.constructor.name}'is not in the model pool and cannot be destroyed by destroyModel.`);
+            warnID(1300, m.constructor.name);
         }
     }
 
