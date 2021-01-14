@@ -852,7 +852,7 @@ export class TiledLayer extends Renderable2D {
         } else if (this._enableCulling) {
             this.node.updateWorldTransform();
             Mat4.invert(_mat4_temp, this.node.getWorldMatrix());
-            const camera = director.root!.ui.getFirstRenderCamera(this.node);
+            const camera = director.root!.batcher2D.getFirstRenderCamera(this.node);
             if (camera) {
                 _vec3_temp.x = 0;
                 _vec3_temp.y = 0;

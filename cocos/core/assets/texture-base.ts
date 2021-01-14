@@ -36,7 +36,7 @@ import { genSamplerHash, SamplerInfoIndex, samplerLib } from '../renderer/core/s
 import IDGenerator from '../utils/id-generator';
 import { Asset } from './asset';
 import { Filter, PixelFormat, WrapMode } from './asset-enum';
-import { Sampler, Texture, Device } from '../gfx';
+import { Sampler, Texture, Device, Format } from '../gfx';
 import { legacyCC } from '../global-exports';
 import { errorID } from '../platform/debug';
 import { murmurhash2_32_gc } from '../utils/murmurhash2_gc';
@@ -345,7 +345,7 @@ export class TextureBase extends Asset {
         } else if (format === PixelFormat.RGB_A_PVRTC_2BPPV1) {
             format = PixelFormat.RGB_PVRTC_2BPPV1;
         }
-        return format as PixelFormat;
+        return format as Format;
     }
 }
 

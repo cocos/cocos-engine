@@ -227,7 +227,7 @@ export class UITransform extends Component {
      * @deprecated since v3.0
      */
     get visibility () {
-        const camera = director.root!.ui.getFirstRenderCamera(this.node);
+        const camera = director.root!.batcher2D.getFirstRenderCamera(this.node);
         return camera ? camera.visibility as number : 0;
     }
 
@@ -236,7 +236,7 @@ export class UITransform extends Component {
      * @zh 查找被渲染相机的渲染优先级。
      */
     get cameraPriority () {
-        const camera = director.root!.ui.getFirstRenderCamera(this.node);
+        const camera = director.root!.batcher2D.getFirstRenderCamera(this.node);
         return camera ? camera.priority as number : 0;
     }
 
@@ -385,7 +385,7 @@ export class UITransform extends Component {
         const cameraPt = _vec2a;
         const testPt = _vec2b;
 
-        const cameras = director.root!.ui.renderScene.cameras;
+        const cameras = this._getRenderScene().cameras;
         for (let i = 0; i < cameras.length; i++) {
             const camera = cameras[i];
             if (!(camera.visibility & this.node.layer)) continue;

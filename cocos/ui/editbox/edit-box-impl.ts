@@ -304,7 +304,7 @@ export class EditBoxImpl extends EditBoxImplBase {
             return false;
         }
 
-        const camera = director.root!.ui.getFirstRenderCamera(node);
+        const camera = director.root!.batcher2D.getFirstRenderCamera(node);
         if (!camera) return;
 
         // camera.getWorldToCameraMatrix(_matrix_temp);
