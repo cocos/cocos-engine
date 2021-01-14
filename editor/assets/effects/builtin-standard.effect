@@ -219,7 +219,7 @@ CCProgram standard-fs %{
   void surf (out StandardSurface s) {
     vec4 baseColor = albedo;
     #if USE_VERTEX_COLOR
-      baseColor.rgba *= v_color;
+      baseColor *= v_color;
     #endif
     #if USE_ALBEDO_MAP
       vec4 texColor = texture(albedoMap, ALBEDO_UV);
