@@ -31,7 +31,7 @@
 import { IUV, SpriteFrame } from '../../assets';
 import { Color, Mat4, Vec3 } from '../../../core/math';
 import { IRenderData, RenderData } from '../../renderer/render-data';
-import { UI } from '../../renderer/ui';
+import { Batcher2D } from '../../renderer/batcher-2d';
 import { Sprite } from '../../components';
 import { IAssembler } from '../../renderer/base';
 import { dynamicAtlasManager } from '../../utils/dynamic-atlas/atlas-manager';
@@ -118,7 +118,7 @@ export const sliced: IAssembler = {
         renderData!.vertDirty = false;
     },
 
-    fillBuffers (sprite: Sprite, renderer: UI) {
+    fillBuffers (sprite: Sprite, renderer: Batcher2D) {
         if (sprite.node.hasChangedFlags) {
             this.updateWorldVertexData(sprite);
         }

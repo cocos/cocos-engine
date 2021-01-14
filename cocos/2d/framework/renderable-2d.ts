@@ -38,14 +38,13 @@ import { BlendFactor } from '../../core/gfx/define';
 import { IMaterialInstanceInfo } from '../../core/renderer/core/material-instance';
 import { IAssembler, IAssemblerManager } from '../renderer/base';
 import { RenderData } from '../renderer/render-data';
-import { UI } from '../renderer/ui';
+import { Batcher2D } from '../renderer/batcher-2d';
 import { Node } from '../../core/scene-graph';
 import { TransformBit } from '../../core/scene-graph/node-enum';
 import { UITransform } from './ui-transform';
 import { RenderableComponent } from '../../core/components/renderable-component';
 import { Stage } from '../renderer/stencil-manager';
 import { warnID } from '../../core/platform/debug';
-import { murmurhash2_32_gc } from '../../core/utils';
 import { BlendState, BlendTarget } from '../../core/gfx/pipeline-state';
 import { legacyCC } from '../../core/global-exports';
 
@@ -119,11 +118,11 @@ const _matInsInfo: IMaterialInstanceInfo = {
  * @zh 所有支持渲染的 2D 组件的基类。
  * 这个组件会设置 [[Node]] 上的 [[NodeUIProperties.uiComp]]。
  */
-@ccclass('cc.UIRenderable')
+@ccclass('cc.Renderable2D')
 @requireComponent(UITransform)
 @disallowMultiple
 @executeInEditMode
-export class UIRenderable extends RenderableComponent {
+export class Renderable2D extends RenderableComponent {
     @override
     protected _materials: (Material | null)[] = [];
 
@@ -186,7 +185,7 @@ export class UIRenderable extends RenderableComponent {
      * sprite.srcBlendFactor = BlendFactor.ONE;
      * ```
      */
-    @visible(function (this: UIRenderable) { if (this._customMaterial) { return false; } return true; })
+    @visible(function (this: Renderable2D) { if (this._customMaterial) { return false; } return true; })
     @type(BlendFactor)
     @displayOrder(0)
     @tooltip('Source blend factor')
@@ -218,7 +217,7 @@ export class UIRenderable extends RenderableComponent {
      * sprite.dstBlendFactor = BlendFactor.ONE_MINUS_SRC_ALPHA;
      * ```
      */
-    @visible(function (this: UIRenderable) { if (this._customMaterial) { return false; } return true; })
+    @visible(function (this: Renderable2D) { if (this._customMaterial) { return false; } return true; })
     @type(BlendFactor)
     @displayOrder(1)
     @tooltip('destination blend factor')
@@ -420,7 +419,7 @@ export class UIRenderable extends RenderableComponent {
      * 一般在 UI 渲染流程中调用，用于组装所有的渲染数据到顶点数据缓冲区。
      * 注意：不要手动调用该函数，除非你理解整个流程。
      */
-    public updateAssembler (render: UI) {
+    public updateAssembler (render: Batcher2D) {
         if (this._renderFlag) {
             this._checkAndUpdateRenderData();
             this._render(render);
@@ -435,15 +434,15 @@ export class UIRenderable extends RenderableComponent {
      * 它可能会组装额外的渲染数据到顶点数据缓冲区，也可能只是重置一些渲染状态。
      * 注意：不要手动调用该函数，除非你理解整个流程。
      */
-    public postUpdateAssembler (render: UI) {
+    public postUpdateAssembler (render: Batcher2D) {
         if (this._renderFlag) {
             this._postRender(render);
         }
     }
 
-    protected _render (render: UI) {}
+    protected _render (render: Batcher2D) {}
 
-    protected _postRender (render: UI) {}
+    protected _postRender (render: Batcher2D) {}
 
     protected _checkAndUpdateRenderData () {
         if (this._renderDataFlag) {
@@ -496,7 +495,7 @@ export class UIRenderable extends RenderableComponent {
 
         for (let i = 0; i < this.node.children.length; ++i) {
             const child = this.node.children[i];
-            const renderComp = child.getComponent(UIRenderable);
+            const renderComp = child.getComponent(Renderable2D);
             if (renderComp) {
                 renderComp.markForUpdateRenderData();
             }
@@ -528,4 +527,4 @@ export class UIRenderable extends RenderableComponent {
     protected _flushAssembler? (): void;
 }
 
-legacyCC.internal.UIRenderable = UIRenderable;
+legacyCC.internal.Renderable2D = Renderable2D;

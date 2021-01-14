@@ -3,7 +3,7 @@ import { BlendFactor } from '../../core/gfx';
 import { TextureBase } from '../../core/assets/texture-base';
 import { MaterialInstance } from '../../core/renderer/core/material-instance';
 import { IAssembler } from '../../2d/renderer/base';
-import { UI } from '../../2d/renderer/ui';
+import { Batcher2D } from '../../2d/renderer/batcher-2d';
 import { ArmatureFrame, ArmatureFrameColor } from '../ArmatureCache';
 import { ArmatureDisplay, ArmatureDisplayMeshData } from '../ArmatureDisplay';
 import { CCSlot } from '../CCSlot';
@@ -33,7 +33,7 @@ let _multiply: number;
 let _mustFlush: boolean;
 let _buffer: ArmatureDisplayMeshData | undefined;
 let _node: Node | undefined;
-let _ui: UI | undefined;
+let _ui: Batcher2D | undefined;
 let _comp: ArmatureDisplay | undefined;
 let _vfOffset: number;
 let _indexOffset: number;
@@ -106,7 +106,7 @@ export const simple: IAssembler = {
     createData () {
     },
 
-    updateRenderData (comp: ArmatureDisplay, ui: UI) {
+    updateRenderData (comp: ArmatureDisplay, ui: Batcher2D) {
         _comp = comp;
         updateComponentRenderData(comp, ui);
     },
@@ -114,7 +114,7 @@ export const simple: IAssembler = {
     updateColor (comp: ArmatureDisplay) {
     },
 
-    fillBuffers (comp: ArmatureDisplay, renderer: UI) {
+    fillBuffers (comp: ArmatureDisplay, renderer: Batcher2D) {
         if (!comp || comp.meshRenderDataArray.length === 0) return;
 
         const dataArray = comp.meshRenderDataArray;
@@ -375,7 +375,7 @@ function cacheTraverse (frame: ArmatureFrame | null, parentMat?: Mat4) {
     }
 }
 
-function updateComponentRenderData (comp: ArmatureDisplay, ui: UI) {
+function updateComponentRenderData (comp: ArmatureDisplay, ui: Batcher2D) {
     // comp.node._renderFlag |= RenderFlow.FLAG_UPDATE_RENDER_DATA;
 
     const armature = comp._armature;

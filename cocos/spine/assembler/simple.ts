@@ -1,10 +1,10 @@
 import spine from '../lib/spine-core.js';
 import { IAssembler } from '../../2d/renderer/base';
-import { UI } from '../../2d/renderer/ui';
+import { Batcher2D } from '../../2d/renderer/batcher-2d';
 import { FrameColor } from '../skeleton-cache';
 import { MaterialInstance } from '../../core/renderer';
 import { SkeletonTexture } from '../skeleton-texture';
-import { vfmtPosUvColor, vfmtPosUvTwoColor } from '../../2d/renderer/ui-vertex-format';
+import { vfmtPosUvColor, vfmtPosUvTwoColor } from '../../2d/renderer/vertex-format';
 import { Skeleton, SkeletonMeshData, SpineMaterialType } from '../skeleton';
 import { Color, Mat4, Material, Node, Texture2D, Vec3 } from '../../core';
 import { BlendFactor } from '../../core/gfx';
@@ -155,7 +155,7 @@ export const simple: IAssembler = {
     createData () {
     },
 
-    updateRenderData (comp: Skeleton, ui: UI) {
+    updateRenderData (comp: Skeleton, ui: Batcher2D) {
         _comp = comp;
         const skeleton = comp._skeleton;
         if (!comp.isAnimationCached() && skeleton) {
@@ -170,7 +170,7 @@ export const simple: IAssembler = {
         _comp = comp;
     },
 
-    fillBuffers (comp: Skeleton, renderer: UI) {
+    fillBuffers (comp: Skeleton, renderer: Batcher2D) {
         if (!comp || !comp.meshRenderDataArray) return;
         _comp = comp;
         const dataArray = comp.meshRenderDataArray;
@@ -220,7 +220,7 @@ export const simple: IAssembler = {
     },
 };
 
-function updateComponentRenderData (comp: Skeleton, ui: UI) {
+function updateComponentRenderData (comp: Skeleton, ui: Batcher2D) {
     if (!comp._skeleton) return;
 
     const nodeColor = comp.color;

@@ -32,7 +32,7 @@
 import { removeProperty, replaceProperty } from '../../core/utils';
 import { UIComponent } from './ui-component';
 import { UITransform } from './ui-transform';
-import { UIRenderable } from './ui-renderable';
+import { Renderable2D } from './renderable-2d';
 import { Canvas } from './canvas';
 import { js } from '../../core/utils/js';
 import { legacyCC } from '../../core/global-exports';
@@ -123,11 +123,16 @@ legacyCC.UITransformComponent = UITransform;
 js.setClassAlias(UITransform, 'cc.UITransformComponent');
 
 /**
- * Alias of [[UIRenderable]]
+ * Alias of [[Renderable2D]]
  * @deprecated Since v1.2
  */
-export { UIRenderable as RenderComponent };
-js.setClassAlias(UIRenderable, 'cc.RenderComponent');
+export { Renderable2D as RenderComponent };
+/**
+ * Alias of [[Renderable2D]]
+ * @deprecated Since v3.0
+ */
+export { Renderable2D as UIRenderable };
+js.setClassAlias(Renderable2D, 'cc.RenderComponent');
 
 /**
  * Alias of [[Canvas]]

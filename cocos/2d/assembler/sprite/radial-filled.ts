@@ -31,7 +31,7 @@
 import { SpriteFrame } from '../../assets';
 import { Vec2 } from '../../../core/math';
 import { IRenderData, RenderData } from '../../renderer/render-data';
-import { UI } from '../../renderer/ui';
+import { Batcher2D } from '../../renderer/batcher-2d';
 import { Sprite } from '../../components';
 import { IAssembler } from '../../renderer/base';
 import { fillVertices3D } from '../utils';
@@ -364,7 +364,7 @@ export const radialFilled: IAssembler = {
         }
     },
 
-    fillBuffers (comp: Sprite, renderer: UI) {
+    fillBuffers (comp: Sprite, renderer: Batcher2D) {
         const node = comp.node;
         const renderData: RenderData = comp.renderData!;
         fillVertices3D(node, renderer, renderData, comp.color);

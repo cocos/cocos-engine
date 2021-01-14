@@ -31,7 +31,7 @@
 import { Color, Vec3 } from '../../../../core/math';
 import { IAssembler } from '../../../renderer/base';
 import { MeshRenderData } from '../../../renderer/render-data';
-import { UI } from '../../../renderer/ui';
+import { Batcher2D } from '../../../renderer/batcher-2d';
 import { Graphics } from '../../../components';
 import { LineCap, LineJoin, PointFlags } from '../types';
 import { earcut as Earcut } from './earcut';
@@ -85,11 +85,11 @@ export const graphicsAssembler: IAssembler = {
 
     },
 
-    fillBuffers (graphics: Graphics, renderer: UI) {
+    fillBuffers (graphics: Graphics, renderer: Batcher2D) {
         // this.renderIA!(graphics, renderer);
     },
 
-    renderIA (graphics: Graphics, renderer: UI) {
+    renderIA (graphics: Graphics, renderer: Batcher2D) {
     },
 
     getRenderData (graphics: Graphics, vertexCount: number) {

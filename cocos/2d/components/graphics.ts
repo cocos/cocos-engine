@@ -31,17 +31,17 @@
 
 import { ccclass, help, executionOrder, menu, tooltip, type, visible, override, editable, serializable } from 'cc.decorator';
 import { builtinResMgr } from '../../core/builtin';
-import { InstanceMaterialType, UIRenderable } from '../framework/ui-renderable';
+import { InstanceMaterialType, Renderable2D } from '../framework/renderable-2d';
 import { director } from '../../core/director';
 import { Color } from '../../core/math';
 import { IMaterialInstanceInfo, scene } from '../../core/renderer';
 import { IAssembler } from '../renderer/base';
-import { UI } from '../renderer/ui';
+import { Batcher2D } from '../renderer/batcher-2d';
 import { LineCap, LineJoin } from '../assembler/graphics/types';
 import { Impl } from '../assembler/graphics/webgl/impl';
 import { RenderingSubMesh } from '../../core/assets';
 import { Format, PrimitiveMode, Attribute, Device, BufferUsageBit, BufferInfo, MemoryUsageBit } from '../../core/gfx';
-import { vfmtPosColor, getAttributeStride, getComponentPerVertex } from '../renderer/ui-vertex-format';
+import { vfmtPosColor, getAttributeStride, getComponentPerVertex } from '../renderer/vertex-format';
 import { legacyCC } from '../../core/global-exports';
 
 const _matInsInfo: IMaterialInstanceInfo = {
@@ -69,7 +69,7 @@ const stride = getAttributeStride(attributes);
 @help('i18n:cc.Graphics')
 @executionOrder(110)
 @menu('UI/Render/Graphics')
-export class Graphics extends UIRenderable {
+export class Graphics extends Renderable2D {
     /**
      * @en
      * Current line width.
@@ -608,7 +608,7 @@ export class Graphics extends UIRenderable {
         }
     }
 
-    protected _uploadData (render: UI) {
+    protected _uploadData (render: Batcher2D) {
         const impl = this.impl;
         if (!impl) {
             return;
@@ -641,7 +641,7 @@ export class Graphics extends UIRenderable {
         this._isNeedUploadData = false;
     }
 
-    protected _render (render: UI) {
+    protected _render (render: Batcher2D) {
         if (this._isNeedUploadData) {
             if (this.impl) {
                 const renderDataList = this.impl.getRenderDataList();

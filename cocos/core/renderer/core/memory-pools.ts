@@ -541,7 +541,7 @@ export enum PoolType {
     DEPTH_STENCIL_STATE,
     BLEND_TARGET,
     BLEND_STATE,
-    UI_BATCH,
+    BATCH_2D,
     // arrays
     SUB_MODEL_ARRAY = 200,
     MODEL_ARRAY,
@@ -550,7 +550,7 @@ export enum PoolType {
     INSTANCED_BUFFER_ARRAY,
     LIGHT_ARRAY,
     BLEND_TARGET_ARRAY,
-    UI_BATCH_ARRAY,
+    BATCH_ARRAY_2D,
     // raw resources
     RAW_BUFFER = 300,
     RAW_OBJECT = 400,
@@ -594,8 +594,8 @@ export type RasterizerStateHandle = IHandle<PoolType.RASTERIZER_STATE>;
 export type DepthStencilStateHandle = IHandle<PoolType.DEPTH_STENCIL_STATE>;
 export type BlendTargetHandle = IHandle<PoolType.BLEND_TARGET>;
 export type BlendStateHandle = IHandle<PoolType.BLEND_STATE>;
-export type UIBatchHandle = IHandle<PoolType.UI_BATCH>;
-export type UIBatchArrayHandle = IHandle<PoolType.UI_BATCH_ARRAY>;
+export type BatchHandle2D = IHandle<PoolType.BATCH_2D>;
+export type UIBatchArrayHandle = IHandle<PoolType.BATCH_ARRAY_2D>;
 
 // TODO: could use Labeled Tuple Element feature here after next babel update (required TS4.0+ support)
 export const ShaderPool = new ObjectPool(PoolType.SHADER,
@@ -632,8 +632,8 @@ export const LightArrayPool = new TypedArrayPool<PoolType.LIGHT_ARRAY, Uint32Arr
 export const BlendTargetArrayPool = new TypedArrayPool<PoolType.BLEND_TARGET_ARRAY, Uint32ArrayConstructor, BlendTargetHandle>(
     PoolType.BLEND_TARGET_ARRAY, Uint32Array, 8, 4,
 );
-export const UIBatchArrayPool = new TypedArrayPool<PoolType.UI_BATCH_ARRAY, Uint32ArrayConstructor, UIBatchHandle>(
-    PoolType.UI_BATCH_ARRAY, Uint32Array, 32, 16,
+export const UIBatchArrayPool = new TypedArrayPool<PoolType.BATCH_ARRAY_2D, Uint32ArrayConstructor, BatchHandle2D>(
+    PoolType.BATCH_ARRAY_2D, Uint32Array, 32, 16,
 );
 
 export const RawBufferPool = new BufferAllocator(PoolType.RAW_BUFFER);
@@ -789,7 +789,7 @@ const modelViewDataType: BufferDataTypeManifest<typeof ModelView> = {
 // we'll have to explicitly declare all these types.
 export const ModelPool = new BufferPool<PoolType.MODEL, typeof ModelView, IModelViewType>(PoolType.MODEL, modelViewDataType, ModelView);
 
-export enum UIBatchView {
+export enum BatchView2D {
     VIS_FLAGS,
     PASS_COUNT,
     PASS_0,          // handle
@@ -805,37 +805,37 @@ export enum UIBatchView {
     COUNT,
 }
 interface IUIBatchViewType extends BufferTypeManifest<typeof ModelView> {
-    [UIBatchView.VIS_FLAGS]: number;
-    [UIBatchView.PASS_COUNT]: number;
-    [UIBatchView.PASS_0]: PassHandle;
-    [UIBatchView.PASS_1]: PassHandle;
-    [UIBatchView.PASS_2]: PassHandle;
-    [UIBatchView.PASS_3]: PassHandle;
-    [UIBatchView.SHADER_0]: ShaderHandle;
-    [UIBatchView.SHADER_1]: ShaderHandle;
-    [UIBatchView.SHADER_2]: ShaderHandle;
-    [UIBatchView.SHADER_3]: ShaderHandle;
-    [UIBatchView.DESCRIPTOR_SET]: DescriptorSetHandle;
-    [UIBatchView.INPUT_ASSEMBLER]: InputAssemblerHandle;
-    [UIBatchView.COUNT]: never;
+    [BatchView2D.VIS_FLAGS]: number;
+    [BatchView2D.PASS_COUNT]: number;
+    [BatchView2D.PASS_0]: PassHandle;
+    [BatchView2D.PASS_1]: PassHandle;
+    [BatchView2D.PASS_2]: PassHandle;
+    [BatchView2D.PASS_3]: PassHandle;
+    [BatchView2D.SHADER_0]: ShaderHandle;
+    [BatchView2D.SHADER_1]: ShaderHandle;
+    [BatchView2D.SHADER_2]: ShaderHandle;
+    [BatchView2D.SHADER_3]: ShaderHandle;
+    [BatchView2D.DESCRIPTOR_SET]: DescriptorSetHandle;
+    [BatchView2D.INPUT_ASSEMBLER]: InputAssemblerHandle;
+    [BatchView2D.COUNT]: never;
 }
-const uiBatchViewDataType: BufferDataTypeManifest<typeof UIBatchView> = {
-    [UIBatchView.VIS_FLAGS]: BufferDataType.UINT32,
-    [UIBatchView.PASS_COUNT]: BufferDataType.UINT32,
-    [UIBatchView.PASS_0]: BufferDataType.UINT32,
-    [UIBatchView.PASS_1]: BufferDataType.UINT32,
-    [UIBatchView.PASS_2]: BufferDataType.UINT32,
-    [UIBatchView.PASS_3]: BufferDataType.UINT32,
-    [UIBatchView.SHADER_0]: BufferDataType.UINT32,
-    [UIBatchView.SHADER_1]: BufferDataType.UINT32,
-    [UIBatchView.SHADER_2]: BufferDataType.UINT32,
-    [UIBatchView.SHADER_3]: BufferDataType.UINT32,
-    [UIBatchView.DESCRIPTOR_SET]: BufferDataType.UINT32,
-    [UIBatchView.INPUT_ASSEMBLER]: BufferDataType.UINT32,
-    [UIBatchView.COUNT]: BufferDataType.NEVER,
+const uiBatchViewDataType: BufferDataTypeManifest<typeof BatchView2D> = {
+    [BatchView2D.VIS_FLAGS]: BufferDataType.UINT32,
+    [BatchView2D.PASS_COUNT]: BufferDataType.UINT32,
+    [BatchView2D.PASS_0]: BufferDataType.UINT32,
+    [BatchView2D.PASS_1]: BufferDataType.UINT32,
+    [BatchView2D.PASS_2]: BufferDataType.UINT32,
+    [BatchView2D.PASS_3]: BufferDataType.UINT32,
+    [BatchView2D.SHADER_0]: BufferDataType.UINT32,
+    [BatchView2D.SHADER_1]: BufferDataType.UINT32,
+    [BatchView2D.SHADER_2]: BufferDataType.UINT32,
+    [BatchView2D.SHADER_3]: BufferDataType.UINT32,
+    [BatchView2D.DESCRIPTOR_SET]: BufferDataType.UINT32,
+    [BatchView2D.INPUT_ASSEMBLER]: BufferDataType.UINT32,
+    [BatchView2D.COUNT]: BufferDataType.NEVER,
 };
 
-export const UIBatchPool = new BufferPool<PoolType.UI_BATCH, typeof UIBatchView, IUIBatchViewType>(PoolType.UI_BATCH, uiBatchViewDataType, UIBatchView);
+export const BatchPool2D = new BufferPool<PoolType.BATCH_2D, typeof BatchView2D, IUIBatchViewType>(PoolType.BATCH_2D, uiBatchViewDataType, BatchView2D);
 
 export enum AABBView {
     CENTER,             // Vec3
@@ -862,7 +862,7 @@ export enum SceneView {
     MODEL_ARRAY,   // array handle
     SPHERE_LIGHT_ARRAY, // array handle
     SPOT_LIGHT_ARRAY, // array handle
-    UI_BATCH_ARRAY, // array handle
+    BATCH_ARRAY_2D, // array handle
     COUNT,
 }
 interface ISceneViewType extends BufferTypeManifest<typeof SceneView> {
@@ -870,7 +870,7 @@ interface ISceneViewType extends BufferTypeManifest<typeof SceneView> {
     [SceneView.MODEL_ARRAY]: ModelArrayHandle;
     [SceneView.SPHERE_LIGHT_ARRAY]: LightArrayHandle;
     [SceneView.SPOT_LIGHT_ARRAY]: LightArrayHandle;
-    [SceneView.UI_BATCH_ARRAY]: UIBatchArrayHandle;
+    [SceneView.BATCH_ARRAY_2D]: UIBatchArrayHandle;
     [SceneView.COUNT]: never;
 }
 const sceneViewDataType: BufferDataTypeManifest<typeof SceneView> = {
@@ -878,7 +878,7 @@ const sceneViewDataType: BufferDataTypeManifest<typeof SceneView> = {
     [SceneView.MODEL_ARRAY]: BufferDataType.UINT32,
     [SceneView.SPHERE_LIGHT_ARRAY]: BufferDataType.UINT32,
     [SceneView.SPOT_LIGHT_ARRAY]: BufferDataType.UINT32,
-    [SceneView.UI_BATCH_ARRAY]: BufferDataType.UINT32,
+    [SceneView.BATCH_ARRAY_2D]: BufferDataType.UINT32,
     [SceneView.COUNT]: BufferDataType.NEVER,
 };
 // Theoretically we only have to declare the type view here while all the other arguments can be inferred.
