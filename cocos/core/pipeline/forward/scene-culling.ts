@@ -200,22 +200,20 @@ export function shadowCollecting (pipeline: ForwardPipeline, camera: Camera) {
 
     _castBoundsInited = false;
 
-    if (shadows.type === ShadowType.ShadowMap) {
-        const models = scene.models;
-        for (let i = 0; i < models.length; i++) {
-            const model = models[i];
-            // filter model by view visibility
-            if (model.node && ((camera.visibility & model.node.layer) === model.node.layer)
+    const models = scene.models;
+    for (let i = 0; i < models.length; i++) {
+        const model = models[i];
+        // filter model by view visibility
+        if (model.node && ((camera.visibility & model.node.layer) === model.node.layer)
                 || (camera.visibility & model.visFlags)) {
-                // shadow render Object
-                if (model.castShadow && model.worldBounds) {
-                    if (!_castBoundsInited) {
-                        _castWorldBounds.copy(model.worldBounds);
-                        _castBoundsInited = true;
-                    }
-                    AABB.merge(_castWorldBounds, _castWorldBounds, model.worldBounds);
-                    shadowObjects.push(getCastShadowRenderObject(model, camera));
+            // shadow render Object
+            if (model.castShadow && model.worldBounds) {
+                if (!_castBoundsInited) {
+                    _castWorldBounds.copy(model.worldBounds);
+                    _castBoundsInited = true;
                 }
+                AABB.merge(_castWorldBounds, _castWorldBounds, model.worldBounds);
+                shadowObjects.push(getCastShadowRenderObject(model, camera));
             }
         }
     }
