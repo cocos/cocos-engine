@@ -5,6 +5,9 @@ set(DEVELOPMENT_TEAM    ""  CACHE STRING "APPLE Developtment Team")
 set(RES_DIR             ""  CACHE STRING "Resource path")
 set(COCOS_X_PATH        ""  CACHE STRING "Path to cocos2d-x-lite/")
 
+set(TARGET_OSX_VERSION "10.10" CACHE STRING "Target MacOSX version")
+set(TARGET_IOS_VERSION "10.0"  CACHE STRING "Target iOS version" )
+
 set(CMAKE_CXX_STANDARD 14)
 option(USE_SE_V8                "USE V8 JavaScript Engine"          ON)
 option(USE_V8_DEBUGGER          "Enable Chrome Remote inspector"    ON)
@@ -19,7 +22,6 @@ option(USE_DRAGONBONES          "Enable Dragonbones"                ON)
 option(USE_SPINE                "Enable Spine"                      ON)
 option(USE_WEBSOCKET_SERVER     "Enable WebSocket Server"           OFF)
 
-
 if(NOT RES_DIR)
     message(FATAL_ERROR "RES_DIR is not set!")
 endif()
@@ -29,10 +31,6 @@ include(${RES_DIR}/proj/cfg.cmake)
 if(NOT COCOS_X_PATH)
     message(FATAL_ERROR "COCOS_X_PATH is not set!")
 endif()
-
-
-set(TARGET_OSX_VERSION "10.10")
-set(TARGET_IOS_VERSION "9.0")
 
 include(${COCOS_X_PATH}/CMakeLists.txt)
 

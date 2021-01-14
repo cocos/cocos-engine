@@ -7,7 +7,6 @@ include(${CMAKE_CURRENT_LIST_DIR}/../common/CMakeLists.txt)
 
 
 set(LIB_NAME cocos)
-set(PROJ_SRC_DIR ${CMAKE_CURRENT_LIST_DIR})
 
 set(PROJ_SOURCES
     ${CMAKE_CURRENT_LIST_DIR}/../common/Classes/Game.h
