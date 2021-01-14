@@ -51,6 +51,8 @@ void PlanarShadowQueue::gatherShadowPasses(Camera *camera, gfx::CommandBuffer *c
     const auto *shadowInfo = _pipeline->getShadows();
     if (!shadowInfo->enabled || shadowInfo->getShadowType() != ShadowType::PLANAR) { return; }
 
+    _pipeline->updateShadowUBO(camera);
+
     const auto *scene = camera->getScene();
     const bool shadowVisible = camera->visibility & static_cast<uint>(LayerList::DEFAULT);
 

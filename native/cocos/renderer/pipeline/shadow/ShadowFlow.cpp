@@ -64,10 +64,12 @@ void ShadowFlow::activate(RenderPipeline *pipeline) {
 void ShadowFlow::render(Camera *camera) {
     auto *pipeline = static_cast<ForwardPipeline *>(_pipeline);
     const auto *shadowInfo = pipeline->getShadows();
-    if (!shadowInfo->enabled) return;
+    if (!shadowInfo->enabled || shadowInfo->getShadowType() != ShadowType::SHADOWMAP) return;
+
     lightCollecting(camera, _validLights);
     shadowCollecting(pipeline, camera);
-    if (shadowInfo->getShadowType() != ShadowType::SHADOWMAP || pipeline->getShadowObjects().size() == 0) return;
+    if (pipeline->getShadowObjects().size() == 0) return;
+
     const auto &shadowFramebufferMap = pipeline->getShadowFramebufferMap();
     for (const auto *light : _validLights) {
         if (!shadowFramebufferMap.count(light)) {

@@ -159,7 +159,6 @@ void updateDirLight(Shadows *shadows, const Light *light, std::array<float, UBOS
 }
 
 void shadowCollecting(ForwardPipeline *pipeline, Camera *camera) {
-    if (pipeline->getShadows()->getShadowType() != ShadowType::SHADOWMAP) return;
     const auto scene = camera->getScene();
 
     castBoundsInitialized = false;
