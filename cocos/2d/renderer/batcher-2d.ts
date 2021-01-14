@@ -56,10 +56,6 @@ const _dsInfo = new DescriptorSetInfo(null!);
  * UI 渲染流程
  */
 export class Batcher2D {
-    get renderScene (): RenderScene {
-        return this._scene;
-    }
-
     get currBufferBatch () {
         if (this._currMeshBuffer) return this._currMeshBuffer;
         // create if not set
@@ -125,13 +121,13 @@ export class Batcher2D {
     private _screens: RenderRoot2D[] = [];
     private _bufferBatchPool: RecyclePool<MeshBuffer> = new RecyclePool(() => new MeshBuffer(this), 128);
     private _drawBatchPool: Pool<DrawBatch2D>;
-    private _scene: RenderScene;
     private _meshBuffers: Map<number, MeshBuffer[]> = new Map();
     private _customMeshBuffers: Map<number, MeshBuffer[]> = new Map();
     private _meshBufferUseCount: Map<number, number> = new Map();
     private _batches: CachedArray<DrawBatch2D>;
     private _doUploadBuffersCall: Map<any, ((ui:Batcher2D) => void)> = new Map();
     private _emptyMaterial = new Material();
+    private _currScene: RenderScene | null = null;
     private _currMaterial: Material = this._emptyMaterial;
     private _currTexture: Texture | null = null;
     private _currSampler: Sampler | null = null;
@@ -150,9 +146,6 @@ export class Batcher2D {
 
     constructor (private _root: Root) {
         this.device = _root.device;
-        this._scene = this._root.createScene({
-            name: 'GUIScene',
-        });
         this._batches = new CachedArray(64);
         this._drawBatchPool = new Pool(() => new DrawBatch2D(), 128);
     }
@@ -187,13 +180,8 @@ export class Batcher2D {
         }
 
         this._meshBuffers.clear();
-        legacyCC.director.root.destroyScene(this._scene);
 
         StencilManager.sharedManager!.destroy();
-    }
-
-    public getRenderSceneGetter () {
-        return Object.getOwnPropertyDescriptor(Object.getPrototypeOf(this), 'renderScene')!.get!.bind(this);
     }
 
     /**
@@ -211,11 +199,13 @@ export class Batcher2D {
     }
 
     public getFirstRenderCamera (node: Node): Camera | null {
-        const cameras = this.renderScene.cameras;
-        for (let i = 0; i < cameras.length; i++) {
-            const camera = cameras[i];
-            if (camera.visibility & node.layer) {
-                return camera;
+        if (node.scene.renderScene) {
+            const cameras = node.scene.renderScene.cameras;
+            for (let i = 0; i < cameras.length; i++) {
+                const camera = cameras[i];
+                if (camera.visibility & node.layer) {
+                    return camera;
+                }
             }
         }
         return null;
@@ -259,10 +249,10 @@ export class Batcher2D {
         }
 
         let batchPriority = 0;
-        this._scene.removeBatches();
         if (this._batches.length) {
             for (let i = 0; i < this._batches.length; ++i) {
                 const batch = this._batches.array[i];
+                if (!batch.renderScene) continue;
 
                 if (batch.model) {
                     const subModels = batch.model.subModels;
@@ -290,7 +280,7 @@ export class Batcher2D {
                         }
                     }
                 }
-                this._scene.addBatch(batch);
+                batch.renderScene.addBatch(batch);
             }
         }
     }
@@ -345,6 +335,7 @@ export class Batcher2D {
         this._currSampler = null;
         this._currComponent = null;
         this._currTransform = null;
+        this._currScene = null;
         this._meshBufferUseCount.clear();
         this._batches.clear();
         StencilManager.sharedManager!.reset();
@@ -380,15 +371,18 @@ export class Batcher2D {
             samp = null;
         }
 
+        const renderScene = renderComp._getRenderScene();
         const mat = renderComp.getRenderMaterial(0);
         renderComp.stencilStage = StencilManager.sharedManager!.stage;
 
         const blendTargetHash = renderComp.blendHash;
         const depthStencilStateStage = renderComp.stencilStage;
 
-        if (this._currLayer !== comp.node.layer || this._currMaterial !== mat || this._currBlendTargetHash !== blendTargetHash || this._currDepthStencilStateStage !== depthStencilStateStage
-            || this._currTextureHash !== textureHash || this._currSamplerHash !== samplerHash || this._currTransform !== transform) {
+        if ( this._currScene !== renderScene || this._currLayer !== comp.node.layer || this._currMaterial !== mat
+             || this._currBlendTargetHash !== blendTargetHash || this._currDepthStencilStateStage !== depthStencilStateStage
+             || this._currTextureHash !== textureHash || this._currSamplerHash !== samplerHash || this._currTransform !== transform ) {
             this.autoMergeBatches(this._currComponent!);
+            this._currScene = renderScene;
             this._currComponent = renderComp;
             this._currTransform = transform;
             this._currMaterial = mat!;
@@ -444,6 +438,7 @@ export class Batcher2D {
         for (let i = 0; i < model!.subModels.length; i++) {
             const curDrawBatch = this._drawBatchPool.alloc();
             const subModel = model!.subModels[i];
+            curDrawBatch.renderScene = comp._getRenderScene();
             curDrawBatch.visFlags = comp.node.layer;
             curDrawBatch.model = model;
             curDrawBatch.bufferBatch = null;
@@ -460,6 +455,7 @@ export class Batcher2D {
 
         // reset current render state to null
         this._currMaterial = this._emptyMaterial;
+        this._currScene = null;
         this._currComponent = null;
         this._currTransform = null;
         this._currTexture = null;
@@ -505,6 +501,7 @@ export class Batcher2D {
         }
 
         const curDrawBatch = this._currStaticRoot ? this._currStaticRoot._requireDrawBatch() : this._drawBatchPool.alloc();
+        curDrawBatch.renderScene = this._currScene;
         curDrawBatch.visFlags = this._currLayer;
         curDrawBatch.bufferBatch = buffer;
         curDrawBatch.texture = this._currTexture!;

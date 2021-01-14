@@ -33,6 +33,7 @@ import { Material } from '../../core/assets/material';
 import { Texture, Sampler } from '../../core/gfx';
 import { Node } from '../../core/scene-graph';
 import { Camera } from '../../core/renderer/scene/camera';
+import { RenderScene } from '../../core/renderer/scene/render-scene';
 import { Model } from '../../core/renderer/scene/model';
 import { Batcher2D } from './batcher-2d';
 import { NULL_HANDLE, BatchHandle2D, BatchPool2D, BatchView2D, PassPool } from '../../core/renderer/core/memory-pools';
@@ -70,6 +71,7 @@ export class DrawBatch2D {
 
     public bufferBatch: MeshBuffer | null = null;
     public camera: Camera | null = null;
+    public renderScene: RenderScene | null = null;
     public model: Model | null = null;
     public texture: Texture | null = null;
     public sampler: Sampler | null = null;

@@ -192,29 +192,6 @@ export class Canvas extends RenderRoot2D {
         this.node.on(SystemEventType.TRANSFORM_CHANGED, this._thisOnCameraResized);
     }
 
-    public onEnable () {
-        super.onEnable();
-        if (this._cameraComponent) {
-            const camera = this._cameraComponent.camera;
-            if (camera) {
-                legacyCC.director.root!.ui.renderScene.addCamera(camera);
-            } else {
-                this._cameraComponent._createCamera();
-                legacyCC.director.root!.ui.renderScene.addCamera(this._cameraComponent.camera);
-            }
-        }
-    }
-
-    public onDisable () {
-        super.onDisable();
-        if (this._cameraComponent) {
-            const camera = this._cameraComponent.camera;
-            if (camera) {
-                legacyCC.director.root!.ui.renderScene.removeCamera(camera);
-            }
-        }
-    }
-
     public onDestroy () {
         super.onDestroy();
 

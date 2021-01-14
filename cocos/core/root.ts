@@ -387,6 +387,9 @@ export class Root {
             this._frameCount = 0;
             this._fpsTime = 0.0;
         }
+        for (let i = 0; i < this._scenes.length; ++i) {
+            this._scenes[i].removeBatches();
+        }
         if (this._batcher) this._batcher.update();
 
         if (this._pipeline) {

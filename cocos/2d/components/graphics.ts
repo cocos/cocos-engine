@@ -262,7 +262,6 @@ export class Graphics extends Renderable2D {
     }
 
     public onLoad () {
-        this._sceneGetter = director.root!.ui.getRenderSceneGetter();
         this.model = director.root!.createModel(scene.Model);
         this.model.node = this.model.transform = this.node;
         this._flushAssembler();
