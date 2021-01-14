@@ -29,7 +29,6 @@
  */
 
 import { DEBUG, JSB } from 'internal:constants';
-import { Layers } from 'cocos/core';
 import { NativeBufferPool, NativeObjectPool, NativeBufferAllocator } from './native-pools';
 import {
     DescriptorSetInfo,
@@ -804,7 +803,7 @@ export enum BatchView2D {
     INPUT_ASSEMBLER, // handle
     COUNT,
 }
-interface IUIBatchViewType extends BufferTypeManifest<typeof ModelView> {
+interface IBatchView2DType extends BufferTypeManifest<typeof ModelView> {
     [BatchView2D.VIS_FLAGS]: number;
     [BatchView2D.PASS_COUNT]: number;
     [BatchView2D.PASS_0]: PassHandle;
@@ -819,7 +818,7 @@ interface IUIBatchViewType extends BufferTypeManifest<typeof ModelView> {
     [BatchView2D.INPUT_ASSEMBLER]: InputAssemblerHandle;
     [BatchView2D.COUNT]: never;
 }
-const uiBatchViewDataType: BufferDataTypeManifest<typeof BatchView2D> = {
+const batchView2DDataType: BufferDataTypeManifest<typeof BatchView2D> = {
     [BatchView2D.VIS_FLAGS]: BufferDataType.UINT32,
     [BatchView2D.PASS_COUNT]: BufferDataType.UINT32,
     [BatchView2D.PASS_0]: BufferDataType.UINT32,
@@ -835,7 +834,7 @@ const uiBatchViewDataType: BufferDataTypeManifest<typeof BatchView2D> = {
     [BatchView2D.COUNT]: BufferDataType.NEVER,
 };
 
-export const BatchPool2D = new BufferPool<PoolType.BATCH_2D, typeof BatchView2D, IUIBatchViewType>(PoolType.BATCH_2D, uiBatchViewDataType, BatchView2D);
+export const BatchPool2D = new BufferPool<PoolType.BATCH_2D, typeof BatchView2D, IBatchView2DType>(PoolType.BATCH_2D, batchView2DDataType, BatchView2D);
 
 export enum AABBView {
     CENTER,             // Vec3
