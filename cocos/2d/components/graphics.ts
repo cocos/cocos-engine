@@ -43,6 +43,7 @@ import { RenderingSubMesh } from '../../core/assets';
 import { Format, PrimitiveMode, Attribute, Device, BufferUsageBit, BufferInfo, MemoryUsageBit } from '../../core/gfx';
 import { vfmtPosColor, getAttributeStride, getComponentPerVertex } from '../renderer/vertex-format';
 import { legacyCC } from '../../core/global-exports';
+import { warnID } from '../../core/platform/debug';
 
 const _matInsInfo: IMaterialInstanceInfo = {
     parent: null!,
@@ -581,7 +582,7 @@ export class Graphics extends Renderable2D {
 
     public activeSubModel (idx: number) {
         if (!this.model) {
-            console.warn(`There is no model in ${this.node.name}`);
+            warnID(4500, this.node.name);
             return;
         }
 

@@ -29,16 +29,15 @@
  * @module ui
  */
 
-import { ccclass, help, executionOrder, menu, tooltip, displayOrder, visible, displayName, multiline, type, readOnly, override, serializable, editable } from 'cc.decorator';
+import { ccclass, help, executionOrder, menu, tooltip, displayOrder, visible, multiline, type, serializable, editable } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
 import { BitmapFont, Font, SpriteFrame } from '../assets';
-import { ImageAsset, Texture2D, Material } from '../../core/assets';
+import { ImageAsset, Texture2D } from '../../core/assets';
 import { ccenum } from '../../core/value-types/enum';
 import { Batcher2D } from '../renderer/batcher-2d';
 import { FontAtlas } from '../assets/bitmap-font';
 import { CanvasPool, ISharedLabelData, LetterRenderTexture } from '../assembler/label/font-utils';
 import { Renderable2D } from '../framework/renderable-2d';
-import { warnID } from '../../core/platform/debug';
 
 /**
  * @en Enum for horizontal text alignment.

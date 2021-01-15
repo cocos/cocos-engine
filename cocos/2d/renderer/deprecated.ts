@@ -24,5 +24,11 @@
  */
 
 import * as VertexFormat from './vertex-format';
+import { Batcher2D } from './batcher-2d';
+import { DrawBatch2D } from './draw-batch';
 
 export { VertexFormat as UIVertexFormat };
+
+export { Batcher2D as UI };
+
+export { DrawBatch2D as UIDrawBatch };
