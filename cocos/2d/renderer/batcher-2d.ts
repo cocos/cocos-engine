@@ -38,7 +38,7 @@ import { RenderScene } from '../../core/renderer/scene/render-scene';
 import { Root } from '../../core/root';
 import { Node } from '../../core/scene-graph';
 import { MeshBuffer } from './mesh-buffer';
-import { StencilManager } from './stencil-manager';
+import { Stage, StencilManager } from './stencil-manager';
 import { DrawBatch2D } from './draw-batch';
 import * as VertexFormat from './vertex-format';
 import { legacyCC } from '../../core/global-exports';
@@ -422,8 +422,8 @@ export class Batcher2D {
 
         let depthStencil;
         if (mat) {
-            // Todo: Graphics Node behind Mask need set Stage
-            if (comp instanceof UIComponent) {
+            // Notice: A little hack, if not this two stage, not need update here, while control by stencilManger
+            if (comp.stencilStage === Stage.ENABLED || comp.stencilStage === Stage.DISABLED) {
                 comp.stencilStage = StencilManager.sharedManager!.stage;
             }
             depthStencil = StencilManager.sharedManager!.getStencilStage(comp.stencilStage);
@@ -535,7 +535,7 @@ export class Batcher2D {
      * @param material - 当前批次的材质。
      * @param sprite - 当前批次的精灵帧。
      */
-    public forceMergeBatches (material: Material, frame: TextureBase | SpriteFrame | RenderTexture | null, renderComp?: Renderable2D) {
+    public forceMergeBatches (material: Material, frame: TextureBase | SpriteFrame | RenderTexture | null, renderComp: Renderable2D) {
         this._currMaterial = material;
 
         if (frame) {
@@ -547,6 +547,8 @@ export class Batcher2D {
             this._currTexture = this._currSampler = null;
             this._currTextureHash = this._currSamplerHash = 0;
         }
+        this._currLayer = renderComp.node.layer;
+        this._currScene = renderComp._getRenderScene();
 
         this.autoMergeBatches(renderComp);
     }

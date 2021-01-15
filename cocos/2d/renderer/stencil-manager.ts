@@ -128,11 +128,12 @@ export class StencilManager {
         this.stencilStateMap.clear();
     }
 
-    private stencilStateMap = new Map<Stage, DepthStencilState>();
+    private stencilStateMap = new Map<number, DepthStencilState>();
 
     public getStencilStage (stage: Stage) {
-        if (this.stencilStateMap && this.stencilStateMap.has(stage)) {
-            return this.stencilStateMap.get(stage);
+        const key = (stage << 16) | this._maskStack.length;
+        if (this.stencilStateMap && this.stencilStateMap.has(key)) {
+            return this.stencilStateMap.get(key);
         }
         this.setStateFromStage(stage);
         const depthStencilState = new DepthStencilState(
