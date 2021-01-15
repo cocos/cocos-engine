@@ -286,7 +286,7 @@ CCProgram shadow-caster-vs %{
     worldPos.z = cc_matWorld[3][2] + a_position.z;
     worldPos.w = 1.0;
 
-    vec4 clipPos = cc_matLightViewProj * worldPos;
+    vec4 clipPos = worldPos;
 
     v_clip_depth = clipPos.zw;
 

@@ -155,7 +155,7 @@ CCProgram standard-vs %{
       CCLightingMapCaclUV();
     #endif
 
-    CCPassShadowParams(pos);
+    //CCPassShadowParams(pos);
 
     return cc_matProj * (cc_matView * matWorld) * In.position;
   }
@@ -305,7 +305,7 @@ CCProgram shadow-caster-vs %{
     CCGetWorldMatrixFull(matWorld, matWorldIT);
 
     vec4 worldPos = matWorld * In.position;
-    vec4 clipPos = cc_matLightViewProj * worldPos;
+    vec4 clipPos = worldPos;
 
     v_uv = a_texCoord * tilingOffset.xy + tilingOffset.zw;
     #if HAS_SECOND_UV

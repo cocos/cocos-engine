@@ -95,11 +95,6 @@ struct StandardSurface {
       }
 
       vec3 lightColor = cc_lightColor[i].rgb;
-    #if CC_RECEIVE_SHADOW
-      if (cc_lightPos[i].w > 0.0) {
-          CC_DIR_SHADOW_FACTOR(lightColor);
-      }
-    #endif
 
       finalColor += SNL * lightColor * cc_lightColor[i].w * illum * att * (diffuseContrib + lspec);
     }
@@ -157,10 +152,6 @@ struct StandardSurface {
       s.emissive *= cc_exposure.w;
     #endif
     finalColor += s.emissive;
-
-    #if CC_RECEIVE_SHADOW
-      CC_SHADOW_FACTOR(finalColor, NL);
-    #endif
 
     return vec4(finalColor, s.albedo.a);
   }

@@ -253,7 +253,7 @@ CCProgram shadow-caster-vs %{
     CCGetWorldMatrixFull(matWorld, matWorldIT);
 
     vec4 worldPos = matWorld * In.position;
-    vec4 clipPos = cc_matLightViewProj * worldPos;
+    vec4 clipPos = worldPos;
 
     v_uv = a_texCoord * tilingOffset.xy + tilingOffset.zw;
     v_clip_depth = clipPos.zw;
