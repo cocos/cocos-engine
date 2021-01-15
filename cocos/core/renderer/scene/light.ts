@@ -68,6 +68,14 @@ export enum LightType {
 export const nt2lm = (size: number) => 4 * Math.PI * Math.PI * size * size;
 
 export class Light {
+    get baked () {
+        return this._baked;
+    }
+
+    set baked (val) {
+        this._baked = val;
+    }
+
     set color (color: Vec3) {
         this._color.set(color);
         LightPool.setVec3(this._handle, LightView.COLOR, color);
@@ -130,6 +138,8 @@ export class Light {
     get handle () {
         return this._handle;
     }
+
+    protected _baked = false;
 
     protected _color: Vec3 = new Vec3(1, 1, 1);
 
