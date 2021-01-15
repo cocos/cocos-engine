@@ -49,6 +49,8 @@ const _color_tmp = new Vec3();
 @ccclass('cc.StaticLightSettings')
 class StaticLightSettings {
     @serializable
+    protected _baked = false;
+    @serializable
     protected _editorOnly = false;
     @serializable
     protected _bakeable = false;
@@ -65,6 +67,17 @@ class StaticLightSettings {
     }
     set editorOnly (val) {
         this._editorOnly = val;
+    }
+
+    /**
+     * bake state
+     */
+    get baked () {
+        return this._baked;
+    }
+
+    set baked (val) {
+        this._baked = val;
     }
 
     /**
@@ -195,6 +208,20 @@ export class Light extends Component {
         return this._type;
     }
 
+    /**
+     * bake state
+     */
+    get baked () {
+        return this.staticSettings.baked;
+    }
+
+    set baked (val) {
+        this.staticSettings.baked = val;
+        if (this._light !== null) {
+            this._light.baked = val;
+        }
+    }
+
     constructor () {
         super();
         this._lightType = scene.Light;
@@ -224,6 +251,7 @@ export class Light extends Component {
         this.useColorTemperature = this._useColorTemperature;
         this.colorTemperature = this._colorTemperature;
         this._light.node = this.node;
+        this._light.baked = this.baked;
     }
 
     protected _destroyLight () {
