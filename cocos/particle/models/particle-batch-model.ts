@@ -125,7 +125,7 @@ export default class ParticleBatchModel extends scene.Model {
         const vBuffer: ArrayBuffer = new ArrayBuffer(this._vertSize * this._capacity * this._vertCount);
         if (this._mesh) {
             let vOffset = (this._vertAttrs![this._vertAttrs!.findIndex((val) => val.name === AttributeName.ATTR_TEX_COORD)] as any).offset;
-            this._mesh.copyAttribute(0, AttributeName.ATTR_TEX_COORD, vBuffer, this._vertSize, vOffset);  // copy mesh uv to ATTR_TEX_COORD            
+            this._mesh.copyAttribute(0, AttributeName.ATTR_TEX_COORD, vBuffer, this._vertSize, vOffset);  // copy mesh uv to ATTR_TEX_COORD
             let vIdx = this._vertAttrs!.findIndex((val) => val.name === AttributeName.ATTR_TEX_COORD3);
             vOffset = (this._vertAttrs![vIdx++] as any).offset;
             this._mesh.copyAttribute(0, AttributeName.ATTR_POSITION, vBuffer, this._vertSize, vOffset);  // copy mesh position to ATTR_TEX_COORD3
