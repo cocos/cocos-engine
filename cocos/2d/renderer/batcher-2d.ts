@@ -446,7 +446,7 @@ export class Batcher2D {
             curDrawBatch.sampler = null;
             curDrawBatch.useLocalData = null;
             if (!depthStencil) { depthStencil = null; }
-            curDrawBatch.fillPasses(mat, depthStencil, null);
+            curDrawBatch.fillPasses(mat, depthStencil, null, subModel.patches);
             curDrawBatch.hDescriptorSet = SubModelPool.get(subModel.handle, SubModelView.DESCRIPTOR_SET);
             curDrawBatch.hInputAssembler = SubModelPool.get(subModel.handle, SubModelView.INPUT_ASSEMBLER);
             curDrawBatch.model!.visFlags = curDrawBatch.visFlags;
@@ -510,7 +510,7 @@ export class Batcher2D {
         curDrawBatch.useLocalData = this._currTransform;
         curDrawBatch.textureHash = this._currTextureHash;
         curDrawBatch.samplerHash = this._currSamplerHash;
-        curDrawBatch.fillPasses(mat, depthStencil, blendState);
+        curDrawBatch.fillPasses(mat, depthStencil, blendState, null);
 
         this._batches.push(curDrawBatch);
 

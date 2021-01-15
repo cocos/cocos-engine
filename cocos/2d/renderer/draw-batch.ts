@@ -116,7 +116,7 @@ export class DrawBatch2D {
     }
 
     // object version
-    public fillPasses (mat: Material | null, dss, bs) {
+    public fillPasses (mat: Material | null, dss, bs, patches) {
         if (mat) {
             const passes = mat.passes;
             if (!passes) { return; }
@@ -139,7 +139,7 @@ export class DrawBatch2D {
                 // @ts-expect-error hack for UI use pass object
                 passInUse._initPassFromTarget(mtlPass, dss, bs);
                 BatchPool2D.set(this._handle, passOffset, passInUse.handle);
-                BatchPool2D.set(this._handle, shaderOffset, passInUse.getShaderVariant());
+                BatchPool2D.set(this._handle, shaderOffset, passInUse.getShaderVariant(patches));
             }
         }
     }
