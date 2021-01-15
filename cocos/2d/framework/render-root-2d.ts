@@ -42,14 +42,14 @@ import { UITransform } from './ui-transform';
 @executeInEditMode
 export class RenderRoot2D extends Component {
     public onEnable () {
-        legacyCC.director.root!.ui.addScreen(this);
+        legacyCC.director.root!.batcher2D.addScreen(this);
     }
 
     public onDisable () {
-        legacyCC.director.root!.ui.removeScreen(this);
+        legacyCC.director.root!.batcher2D.removeScreen(this);
     }
 
     public onDestroy () {
-        legacyCC.director.root!.ui.removeScreen(this);
+        legacyCC.director.root!.batcher2D.removeScreen(this);
     }
 }

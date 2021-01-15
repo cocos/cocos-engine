@@ -22,12 +22,12 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
-import { Vec2, Vec3, Color } from '../core/math';
+import { Vec2, Color } from '../core/math';
 import Pool from '../core/utils/pool';
 import { clampf, degreesToRadians, radiansToDegrees } from '../core/utils/misc';
-import { director } from '../core/director';
-import { vfmtPosUvColor, getComponentPerVertex } from '../2d/renderer/ui-vertex-format';
+import { vfmtPosUvColor, getComponentPerVertex } from '../2d/renderer/vertex-format';
 import { PositionType, EmitterMode, START_SIZE_EQUAL_TO_END_SIZE, START_RADIUS_EQUAL_TO_END_RADIUS } from './define';
+import { ParticleSystem2D } from './particle-system-2d';
 
 const ZERO_VEC2 = new Vec2(0, 0);
 const _pos = new Vec2();
@@ -111,7 +111,7 @@ export class Simulator {
     private elapsed = 0;
     private emitCounter = 0;
     private _worldRotation = 0;
-    private declare sys;
+    private declare sys: ParticleSystem2D;
 
     constructor (system) {
         this.sys = system;
@@ -219,9 +219,8 @@ export class Simulator {
             if (psys.rotationIsDir) {
                 particle.rotation = -radiansToDegrees(Math.atan2(particle.dir.y, particle.dir.x));
             }
-        }
-        // Mode Radius: B
-        else {
+        } else {
+            // Mode Radius: B
             // Set the default diameter of the particle from the source position
             const startRadius = psys.startRadius + psys.startRadiusVar * (Math.random() - 0.5) * 2;
             const endRadius = psys.endRadius + psys.endRadiusVar * (Math.random() - 0.5) * 2;
@@ -255,16 +254,20 @@ export class Simulator {
         }
     }
 
-    public updateParticleBuffer (particle, pos, buffer, offset) {
+    public updateParticleBuffer (particle, pos, buffer, offset: number) {
         const vbuf = buffer.vData;
         // const uintbuf = buffer._uintVData;
 
-        const x = pos.x;
-        const y = pos.y;
+        const x: number = pos.x;
+        const y: number = pos.y;
         let width = particle.size;
         let height = width;
         const aspectRatio = particle.aspectRatio;
-        aspectRatio > 1 ? (height = width / aspectRatio) : (width = height * aspectRatio);
+        if (aspectRatio > 1) {
+            height = width / aspectRatio;
+        } else {
+            width = height * aspectRatio;
+        }
         const halfWidth = width / 2;
         const halfHeight = height / 2;
         // pos
@@ -318,7 +321,7 @@ export class Simulator {
     }
 
     public step (dt) {
-        const assembler = this.sys.assembler;
+        const assembler = this.sys.assembler!;
         const psys = this.sys;
         const node = psys.node;
         const particles = this.particles;
@@ -407,9 +410,8 @@ export class Simulator {
                     tmp.set(particle.dir);
                     tmp.multiplyScalar(dt);
                     particle.pos.add(tmp);
-                }
-                // Mode B: radius movement
-                else {
+                } else {
+                    // Mode B: radius movement
                     // Update the angle and radius of the particle.
                     particle.angle += particle.degreesPerSecond * dt;
                     particle.radius += particle.deltaRadius * dt;
@@ -456,8 +458,7 @@ export class Simulator {
             }
         }
 
-        if (particles.length > 0) {
-        } else if (!this.active && !this.readyToPlay) {
+        if (particles.length === 0 && !this.active && !this.readyToPlay) {
             this.finished = true;
             psys._finishedSimulation();
         }

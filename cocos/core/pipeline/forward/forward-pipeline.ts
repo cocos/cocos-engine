@@ -166,9 +166,11 @@ export class ForwardPipeline extends RenderPipeline {
         this.updateGlobalUBO();
         for (let i = 0; i < cameras.length; i++) {
             const camera = cameras[i];
-            this.updateCameraUBO(camera);
-            for (let j = 0; j < this._flows.length; j++) {
-                this._flows[j].render(camera);
+            if (camera.scene) {
+                this.updateCameraUBO(camera);
+                for (let j = 0; j < this._flows.length; j++) {
+                    this._flows[j].render(camera);
+                }
             }
         }
         this._commandBuffers[0].end();
@@ -344,7 +346,8 @@ export class ForwardPipeline extends RenderPipeline {
 
     public updateCameraUBO (camera: Camera) {
         const device = this.device;
-        const scene = camera.scene!;
+        // const root = legacyCC.director.;
+        const scene = camera.scene ? camera.scene : legacyCC.director.getScene().renderScene;
         const mainLight = scene.mainLight;
         const ambient = this.ambient;
         const fog = this.fog;
