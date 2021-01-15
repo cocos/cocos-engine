@@ -134,6 +134,7 @@ struct GLES3GPUUniformSampler final {
     String name;
     Type type = Type::UNKNOWN;
     uint count = 0u;
+    UniformSamplerType uniformType = UniformSamplerType::COMBINED_IMAGE_SAMPLER;
 
     vector<int> units;
     GLenum glType = 0;
@@ -273,7 +274,7 @@ struct GLES3ObjectCache final {
     GLES3GPUFramebuffer *gpuFramebuffer = nullptr;
     GLES3GPUPipelineState *gpuPipelineState = nullptr;
     GLES3GPUInputAssembler *gpuInputAssembler = nullptr;
-    bool reverseCW = false;
+    uint reverseCW = 0u;
     GLenum glPrimitive = 0;
     GLenum invalidAttachments[GFX_MAX_ATTACHMENTS];
 };
@@ -292,6 +293,7 @@ public:
     GLuint glVAO = 0;
     uint texUint = 0;
     vector<GLuint> glTextures;
+    vector<GLuint> glImages;
     vector<GLuint> glSamplers;
     GLuint glProgram = 0;
     vector<bool> glEnabledAttribLocs;
@@ -308,13 +310,14 @@ public:
     map<String, uint> texUnitCacheMap;
     GLES3ObjectCache gfxStateCache;
 
-    void initialize(size_t texUnits, size_t uboBindings, size_t ssboBindings, size_t vertexAttributes) {
+    void initialize(size_t texUnits, size_t imageUnits, size_t uboBindings, size_t ssboBindings, size_t vertexAttributes) {
         glBindUBOs.resize(uboBindings, 0u);
         glBindUBOOffsets.resize(uboBindings, 0u);
         glBindSSBOs.resize(ssboBindings, 0u);
         glBindSSBOOffsets.resize(ssboBindings, 0u);
         glTextures.resize(texUnits, 0u);
         glSamplers.resize(texUnits, 0u);
+        glImages.resize(imageUnits, 0u);
         glEnabledAttribLocs.resize(vertexAttributes, false);
         glCurrentAttribLocs.resize(vertexAttributes, false);
     }
@@ -332,6 +335,7 @@ public:
         glVAO = 0;
         texUint = 0;
         glTextures.assign(glTextures.size(), 0u);
+        glImages.assign(glImages.size(), 0u);
         glSamplers.assign(glSamplers.size(), 0u);
         glProgram = 0;
         glEnabledAttribLocs.assign(glEnabledAttribLocs.size(), 0u);

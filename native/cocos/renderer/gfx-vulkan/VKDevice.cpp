@@ -34,9 +34,9 @@ namespace gfx {
 //#define DISABLE_PRE_TRANSFORM
 
 CCVKDevice::CCVKDevice() {
-    _clipSpaceMinZ = 0.0f;
-    _screenSpaceSignY = -1.0f;
-    _UVSpaceSignY = 1.0f;
+    _caps.clipSpaceMinZ = 0.0f;
+    _caps.screenSpaceSignY = -1.0f;
+    _caps.UVSpaceSignY = 1.0f;
 }
 
 CCVKDevice::~CCVKDevice() {
@@ -242,17 +242,24 @@ bool CCVKDevice::initialize(const DeviceInfo &info) {
     }
 
     const VkPhysicalDeviceLimits &limits = gpuContext->physicalDeviceProperties.limits;
-    _maxVertexAttributes = limits.maxVertexInputAttributes;
-    _maxVertexUniformVectors = limits.maxPerStageDescriptorUniformBuffers;
-    _maxFragmentUniformVectors = limits.maxPerStageDescriptorUniformBuffers;
-    _maxUniformBufferBindings = limits.maxDescriptorSetUniformBuffers;
-    _maxUniformBlockSize = limits.maxUniformBufferRange;
-    _maxTextureUnits = limits.maxDescriptorSetSampledImages;
-    _maxVertexTextureUnits = limits.maxPerStageDescriptorSampledImages;
-    _maxTextureSize = limits.maxImageDimension2D;
-    _maxCubeMapTextureSize = limits.maxImageDimensionCube;
-    _uboOffsetAlignment = (uint)limits.minUniformBufferOffsetAlignment;
-    MapDepthStencilBits(_context->getDepthStencilFormat(), _depthBits, _stencilBits);
+    _caps.maxVertexAttributes = limits.maxVertexInputAttributes;
+    _caps.maxVertexUniformVectors = limits.maxPerStageDescriptorUniformBuffers;
+    _caps.maxFragmentUniformVectors = limits.maxPerStageDescriptorUniformBuffers;
+    _caps.maxUniformBufferBindings = limits.maxDescriptorSetUniformBuffers;
+    _caps.maxUniformBlockSize = limits.maxUniformBufferRange;
+    _caps.maxShaderStorageBlockSize = limits.maxStorageBufferRange;
+    _caps.maxShaderStorageBufferBindings = limits.maxDescriptorSetStorageBuffers;
+    _caps.maxTextureUnits = limits.maxDescriptorSetSampledImages;
+    _caps.maxVertexTextureUnits = limits.maxPerStageDescriptorSampledImages;
+    _caps.maxTextureSize = limits.maxImageDimension2D;
+    _caps.maxCubeMapTextureSize = limits.maxImageDimensionCube;
+    _caps.uboOffsetAlignment = (uint)limits.minUniformBufferOffsetAlignment;
+    // compute shaders
+    _caps.maxComputeSharedMemorySize = limits.maxComputeSharedMemorySize;
+    _caps.maxComputeWorkGroupInvocations = limits.maxComputeWorkGroupInvocations;
+    _caps.maxComputeWorkGroupCount = {limits.maxComputeWorkGroupCount[0], limits.maxComputeWorkGroupCount[1], limits.maxComputeWorkGroupCount[2]};
+    _caps.maxComputeWorkGroupSize = {limits.maxComputeWorkGroupSize[0], limits.maxComputeWorkGroupSize[1], limits.maxComputeWorkGroupSize[2]};
+    MapDepthStencilBits(_context->getDepthStencilFormat(), _caps.depthBits, _caps.stencilBits);
 
     ///////////////////// Resource Initialization /////////////////////
 

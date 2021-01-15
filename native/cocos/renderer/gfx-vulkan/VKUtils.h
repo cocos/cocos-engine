@@ -210,25 +210,6 @@ VkAttachmentStoreOp MapVkStoreOp(StoreOp storeOp) {
     }
 }
 
-VkImageLayout MapVkImageLayout(TextureLayout layout) {
-    switch (layout) {
-        case TextureLayout::UNDEFINED: return VK_IMAGE_LAYOUT_UNDEFINED;
-        case TextureLayout::GENERAL: return VK_IMAGE_LAYOUT_GENERAL;
-        case TextureLayout::COLOR_ATTACHMENT_OPTIMAL: return VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-        case TextureLayout::DEPTH_STENCIL_ATTACHMENT_OPTIMAL: return VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-        case TextureLayout::DEPTH_STENCIL_READONLY_OPTIMAL: return VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL;
-        case TextureLayout::SHADER_READONLY_OPTIMAL: return VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-        case TextureLayout::TRANSFER_SRC_OPTIMAL: return VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
-        case TextureLayout::TRANSFER_DST_OPTIMAL: return VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
-        case TextureLayout::PREINITIALIZED: return VK_IMAGE_LAYOUT_PREINITIALIZED;
-        case TextureLayout::PRESENT_SRC: return VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
-        default: {
-            CCASSERT(false, "Unsupported TextureLayout, convert to VkImageLayout failed.");
-            return VK_IMAGE_LAYOUT_GENERAL;
-        }
-    }
-}
-
 VkAccessFlags MapVkAccessFlags(TextureLayout layout) {
     switch (layout) {
         case TextureLayout::UNDEFINED: return 0;
@@ -448,6 +429,7 @@ VkDescriptorType MapVkDescriptorType(DescriptorType type) {
         case DescriptorType::DYNAMIC_STORAGE_BUFFER: return VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC;
         case DescriptorType::STORAGE_BUFFER: return VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
         case DescriptorType::SAMPLER: return VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+        case DescriptorType::STORAGE_IMAGE: return VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
         default: {
             CCASSERT(false, "Unsupported DescriptorType, convert to VkDescriptorType failed.");
             return VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
@@ -693,6 +675,19 @@ const ThsvsAccessType THSVS_ACCESS_TYPES[] = {
     THSVS_ACCESS_TRANSFER_WRITE,                                             // TRANSFER_WRITE
     THSVS_ACCESS_HOST_PREINITIALIZED,                                        // HOST_PREINITIALIZED
     THSVS_ACCESS_HOST_WRITE,                                                 // HOST_WRITE
+};
+
+const VkImageLayout VK_IMAGE_LAYOUTS[] = {
+    VK_IMAGE_LAYOUT_UNDEFINED,                        // UNDEFINED
+    VK_IMAGE_LAYOUT_GENERAL,                          // GENERAL
+    VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,         // COLOR_ATTACHMENT_OPTIMAL
+    VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL, // DEPTH_STENCIL_ATTACHMENT_OPTIMAL
+    VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL,  // DEPTH_STENCIL_READONLY_OPTIMAL
+    VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,         // SHADER_READONLY_OPTIMAL
+    VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,             // TRANSFER_SRC_OPTIMAL
+    VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,             // TRANSFER_DST_OPTIMAL
+    VK_IMAGE_LAYOUT_PREINITIALIZED,                   // PREINITIALIZED
+    VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,                  // PRESENT_SRC
 };
 
 void fullPipelineBarrier(VkCommandBuffer cmdBuff) {

@@ -36,6 +36,8 @@ public:
     GLES3PrimaryCommandBuffer(Device *device);
     ~GLES3PrimaryCommandBuffer();
 
+    virtual void begin(RenderPass *renderPass, uint subpass, Framebuffer *frameBuffer) override;
+    virtual void end() override;
     virtual void beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, int stencil, CommandBuffer *const *secondaryCBs, uint32_t secondaryCBCount) override;
     virtual void endRenderPass() override;
     virtual void draw(InputAssembler *ia) override;
@@ -43,7 +45,7 @@ public:
     virtual void copyBuffersToTexture(const uint8_t *const *buffers, Texture *texture, const BufferTextureCopy *regions, uint count) override;
     virtual void execute(CommandBuffer *const *cmdBuffs, uint32_t count) override;
     virtual void dispatch(const DispatchInfo &info) override;
-    virtual void pipelineBarrier(const GlobalBarrier& barrier) override;
+    virtual void pipelineBarrier(const GlobalBarrier *barrier, const TextureBarrier *textureBarriers, uint textureBarrierCount) override;
 protected:
     virtual void BindStates();
 };

@@ -36,6 +36,8 @@ public:
     GLES2PrimaryCommandBuffer(Device *device);
     ~GLES2PrimaryCommandBuffer();
 
+    virtual void begin(RenderPass *renderPass, uint subpass, Framebuffer *frameBuffer) override;
+    virtual void end() override;
     virtual void beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, int stencil, CommandBuffer *const *secondaryCBs, uint32_t secondaryCBCount) override;
     virtual void endRenderPass() override;
     virtual void draw(InputAssembler *ia) override;

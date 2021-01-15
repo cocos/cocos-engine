@@ -43,6 +43,23 @@ GLES2PrimaryCommandBuffer::GLES2PrimaryCommandBuffer(Device *device)
 GLES2PrimaryCommandBuffer::~GLES2PrimaryCommandBuffer() {
 }
 
+void GLES2PrimaryCommandBuffer::begin(RenderPass *renderPass, uint subpass, Framebuffer *frameBuffer) {
+    _curGPUPipelineState = nullptr;
+    _curGPUInputAssember = nullptr;
+    _curGPUDescriptorSets.assign(_curGPUDescriptorSets.size(), nullptr);
+
+    _numDrawCalls = 0;
+    _numInstances = 0;
+    _numTriangles = 0;
+}
+
+void GLES2PrimaryCommandBuffer::end() {
+    if (_isStateInvalid) {
+        BindStates();
+    }
+    _isInRenderPass = false;
+}
+
 void GLES2PrimaryCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, int stencil, CommandBuffer *const *secondaryCBs, uint32_t secondaryCBCount) {
     _isInRenderPass = true;
     GLES2GPURenderPass *gpuRenderPass = ((GLES2RenderPass *)renderPass)->gpuRenderPass();
@@ -131,18 +148,21 @@ void GLES2PrimaryCommandBuffer::copyBuffersToTexture(const uint8_t *const *buffe
 void GLES2PrimaryCommandBuffer::execute(CommandBuffer *const *cmdBuffs, uint32_t count) {
     for (uint i = 0; i < count; ++i) {
         GLES2PrimaryCommandBuffer *cmdBuff = (GLES2PrimaryCommandBuffer *)cmdBuffs[i];
-        GLES2CmdPackage *cmdPackage = cmdBuff->_pendingPackages.front();
 
-        GLES2CmdFuncExecuteCmds((GLES2Device *)_device, cmdPackage);
+        if (!cmdBuff->_pendingPackages.empty()) {
+            GLES2CmdPackage *cmdPackage = cmdBuff->_pendingPackages.front();
+
+            GLES2CmdFuncExecuteCmds((GLES2Device *)_device, cmdPackage);
+
+            cmdBuff->_pendingPackages.pop();
+            cmdBuff->_freePackages.push(cmdPackage);
+            cmdBuff->_cmdAllocator->clearCmds(cmdPackage);
+            cmdBuff->_cmdAllocator->reset();
+        }
 
         _numDrawCalls += cmdBuff->_numDrawCalls;
         _numInstances += cmdBuff->_numInstances;
         _numTriangles += cmdBuff->_numTriangles;
-
-        cmdBuff->_pendingPackages.pop();
-        cmdBuff->_freePackages.push(cmdPackage);
-        cmdBuff->_cmdAllocator->clearCmds(cmdPackage);
-        cmdBuff->_cmdAllocator->reset();
     }
 }
 

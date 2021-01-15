@@ -479,20 +479,63 @@ void CCVKCommandBuffer::dispatch(const DispatchInfo &info) {
     }
 }
 
-void CCVKCommandBuffer::pipelineBarrier(const GlobalBarrier &barrier) {
-    uint prevCount = barrier.prevAccesses.size();
-    uint nextCount = barrier.nextAccesses.size();
-    _accessTypes.resize(prevCount + nextCount);
-
-    for (uint i = 0u; i < prevCount; ++i) _accessTypes[i] = THSVS_ACCESS_TYPES[(uint)barrier.prevAccesses[i]];
-    for (uint i = 0u; i < nextCount; ++i) _accessTypes[i + prevCount] = THSVS_ACCESS_TYPES[(uint)barrier.nextAccesses[i]];
+void CCVKCommandBuffer::pipelineBarrier(const GlobalBarrier *barrier, const TextureBarrier *textureBarriers, uint textureBarrierCount) {
+    uint count = 0u;
+    if (barrier) count += barrier->prevAccessCount + barrier->nextAccessCount;
+    for (uint b = 0u; b < textureBarrierCount; ++b) {
+        count += textureBarriers[b].prevAccessCount + textureBarriers[b].nextAccessCount;
+    }
+    _accessTypes.resize(count);
 
     ThsvsGlobalBarrier vkBarrier;
-    vkBarrier.prevAccessCount = barrier.prevAccesses.size();
-    vkBarrier.pPrevAccesses = _accessTypes.data();
-    vkBarrier.nextAccessCount = barrier.nextAccesses.size();
-    vkBarrier.pNextAccesses = _accessTypes.data() + prevCount;
-    thsvsCmdPipelineBarrier(_gpuCommandBuffer->vkCommandBuffer, &vkBarrier, 0, nullptr, 0, nullptr);
+    _textureBarriers.resize(textureBarrierCount);
+    uint index = 0u;
+
+    if (barrier) {
+        vkBarrier.prevAccessCount = barrier->prevAccessCount;
+        vkBarrier.pPrevAccesses = _accessTypes.data() + index;
+        for (uint i = 0u; i < barrier->prevAccessCount; ++i, ++index) {
+            _accessTypes[index] = THSVS_ACCESS_TYPES[(uint)barrier->prevAccesses[i]];
+        }
+
+        vkBarrier.nextAccessCount = barrier->nextAccessCount;
+        vkBarrier.pNextAccesses = _accessTypes.data() + index;
+        for (uint i = 0u; i < barrier->nextAccessCount; ++i, ++index) {
+            _accessTypes[index] = THSVS_ACCESS_TYPES[(uint)barrier->nextAccesses[i]];
+        }
+    }
+
+    for (uint b = 0u; b < textureBarrierCount; ++b) {
+        const TextureBarrier &textureBarrier = textureBarriers[b];
+
+        _textureBarriers[b].prevAccessCount = textureBarrier.prevAccessCount;
+        _textureBarriers[b].pPrevAccesses = _accessTypes.data() + index;
+        for (uint i = 0u; i < textureBarrier.prevAccessCount; ++i, ++index) {
+            _accessTypes[index] = THSVS_ACCESS_TYPES[(uint)textureBarrier.prevAccesses[i]];
+        }
+
+        _textureBarriers[b].nextAccessCount = textureBarrier.nextAccessCount;
+        _textureBarriers[b].pNextAccesses = _accessTypes.data() + index;
+        for (uint i = 0u; i < textureBarrier.nextAccessCount; ++i, ++index) {
+            _accessTypes[index] = THSVS_ACCESS_TYPES[(uint)textureBarrier.nextAccesses[i]];
+        }
+
+        _textureBarriers[b].prevLayout = textureBarrier.isPrevLayoutOptimal ? THSVS_IMAGE_LAYOUT_OPTIMAL : THSVS_IMAGE_LAYOUT_GENERAL;
+        _textureBarriers[b].nextLayout = textureBarrier.isNextLayoutOptimal ? THSVS_IMAGE_LAYOUT_OPTIMAL : THSVS_IMAGE_LAYOUT_GENERAL;
+        _textureBarriers[b].discardContents = textureBarrier.discardContents;
+        _textureBarriers[b].srcQueueFamilyIndex = textureBarrier.srcQueue ? ((CCVKQueue *)textureBarrier.srcQueue)->gpuQueue()->queueFamilyIndex : VK_QUEUE_FAMILY_IGNORED;
+        _textureBarriers[b].dstQueueFamilyIndex = textureBarrier.dstQueue ? ((CCVKQueue *)textureBarrier.dstQueue)->gpuQueue()->queueFamilyIndex : VK_QUEUE_FAMILY_IGNORED;
+
+        const CCVKGPUTexture *gpuTexture = ((CCVKTexture *)textureBarrier.texture)->gpuTexture();
+        _textureBarriers[b].image = gpuTexture->vkImage;
+        _textureBarriers[b].subresourceRange.aspectMask = gpuTexture->aspectMask;
+        _textureBarriers[b].subresourceRange.baseMipLevel = textureBarrier.subresRange.baseMipLevel;
+        _textureBarriers[b].subresourceRange.levelCount = textureBarrier.subresRange.levelCount;
+        _textureBarriers[b].subresourceRange.baseArrayLayer = textureBarrier.subresRange.baseArrayLayer;
+        _textureBarriers[b].subresourceRange.layerCount = textureBarrier.subresRange.layerCount;
+    }
+
+    thsvsCmdPipelineBarrier(_gpuCommandBuffer->vkCommandBuffer, barrier ? &vkBarrier : nullptr, 0, nullptr, textureBarrierCount, _textureBarriers.data());
 }
 
 } // namespace gfx

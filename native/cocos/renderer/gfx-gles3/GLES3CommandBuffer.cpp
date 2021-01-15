@@ -80,7 +80,6 @@ void GLES3CommandBuffer::destroy() {
 }
 
 void GLES3CommandBuffer::begin(RenderPass *renderPass, uint subpass, Framebuffer *frameBuffer) {
-    _cmdAllocator->clearCmds(_curCmdPackage);
     _curGPUPipelineState = nullptr;
     _curGPUInputAssember = nullptr;
     _curGPUDescriptorSets.assign(_curGPUDescriptorSets.size(), nullptr);
@@ -88,6 +87,8 @@ void GLES3CommandBuffer::begin(RenderPass *renderPass, uint subpass, Framebuffer
     _numDrawCalls = 0;
     _numInstances = 0;
     _numTriangles = 0;
+
+    _cmdAllocator->clearCmds(_curCmdPackage);
 }
 
 void GLES3CommandBuffer::end() {
@@ -423,12 +424,13 @@ void GLES3CommandBuffer::dispatch(const DispatchInfo &info) {
     }
 }
 
-void GLES3CommandBuffer::pipelineBarrier(const GlobalBarrier& barrier) {
+void GLES3CommandBuffer::pipelineBarrier(const GlobalBarrier *barrier, const TextureBarrier *textureBarriers, uint textureBarrierCount) {
     if ((_type == CommandBufferType::PRIMARY && !_isInRenderPass) ||
         (_type == CommandBufferType::SECONDARY)) {
+        if (!barrier) return;
 
         GLES3CmdBarrier *cmd = _cmdAllocator->barrierCmdPool.alloc();
-        MapGLBarriers(barrier.nextAccesses, cmd->barriers, cmd->barriersByRegion);
+        MapGLBarriers(barrier->nextAccesses, barrier->nextAccessCount, cmd->barriers, cmd->barriersByRegion);
         _curCmdPackage->barrierCmds.push(cmd);
         _curCmdPackage->cmds.push(GLES3CmdType::BARRIER);
     } else {

@@ -43,6 +43,23 @@ GLES3PrimaryCommandBuffer::GLES3PrimaryCommandBuffer(Device *device)
 GLES3PrimaryCommandBuffer::~GLES3PrimaryCommandBuffer() {
 }
 
+void GLES3PrimaryCommandBuffer::begin(RenderPass *renderPass, uint subpass, Framebuffer *frameBuffer) {
+    _curGPUPipelineState = nullptr;
+    _curGPUInputAssember = nullptr;
+    _curGPUDescriptorSets.assign(_curGPUDescriptorSets.size(), nullptr);
+
+    _numDrawCalls = 0;
+    _numInstances = 0;
+    _numTriangles = 0;
+}
+
+void GLES3PrimaryCommandBuffer::end() {
+    if (_isStateInvalid) {
+        BindStates();
+    }
+    _isInRenderPass = false;
+}
+
 void GLES3PrimaryCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, int stencil, CommandBuffer *const *secondaryCBs, uint32_t secondaryCBCount) {
     _isInRenderPass = true;
     GLES3GPURenderPass *gpuRenderPass = ((GLES3RenderPass *)renderPass)->gpuRenderPass();
@@ -120,18 +137,21 @@ void GLES3PrimaryCommandBuffer::copyBuffersToTexture(const uint8_t *const *buffe
 void GLES3PrimaryCommandBuffer::execute(CommandBuffer *const *cmdBuffs, uint32_t count) {
     for (uint i = 0; i < count; ++i) {
         GLES3PrimaryCommandBuffer *cmdBuff = (GLES3PrimaryCommandBuffer *)cmdBuffs[i];
-        GLES3CmdPackage *cmdPackage = cmdBuff->_pendingPackages.front();
 
-        GLES3CmdFuncExecuteCmds((GLES3Device *)_device, cmdPackage);
+        if (!cmdBuff->_pendingPackages.empty()) {
+            GLES3CmdPackage *cmdPackage = cmdBuff->_pendingPackages.front();
+
+            GLES3CmdFuncExecuteCmds((GLES3Device *)_device, cmdPackage);
+
+            cmdBuff->_pendingPackages.pop();
+            cmdBuff->_freePackages.push(cmdPackage);
+            cmdBuff->_cmdAllocator->clearCmds(cmdPackage);
+            cmdBuff->_cmdAllocator->reset();
+        }
 
         _numDrawCalls += cmdBuff->_numDrawCalls;
         _numInstances += cmdBuff->_numInstances;
         _numTriangles += cmdBuff->_numTriangles;
-
-        cmdBuff->_pendingPackages.pop();
-        cmdBuff->_freePackages.push(cmdPackage);
-        cmdBuff->_cmdAllocator->clearCmds(cmdPackage);
-        cmdBuff->_cmdAllocator->reset();
     }
 }
 
@@ -173,13 +193,14 @@ void GLES3PrimaryCommandBuffer::dispatch(const DispatchInfo &info) {
     }
 }
 
-void GLES3PrimaryCommandBuffer::pipelineBarrier(const GlobalBarrier& barrier) {
+void GLES3PrimaryCommandBuffer::pipelineBarrier(const GlobalBarrier *barrier, const TextureBarrier *textureBarriers, uint textureBarrierCount) {
     if ((_type == CommandBufferType::PRIMARY && !_isInRenderPass) ||
         (_type == CommandBufferType::SECONDARY)) {
+        if (!barrier) return;
 
         GLbitfield glBarriers = 0u;
         GLbitfield glBarriersByRegion = 0u;
-        MapGLBarriers(barrier.nextAccesses, glBarriers, glBarriersByRegion);
+        MapGLBarriers(barrier->nextAccesses, barrier->nextAccessCount, glBarriers, glBarriersByRegion);
         GLES3CmdFuncMemoryBarrier((GLES3Device *)_device, glBarriers, glBarriersByRegion);
     } else {
         CC_LOG_ERROR("Command 'pipelineBarrier' must be recorded outside a render pass.");

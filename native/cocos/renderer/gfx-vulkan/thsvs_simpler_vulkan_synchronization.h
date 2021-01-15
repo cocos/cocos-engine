@@ -1056,7 +1056,8 @@ void thsvsGetVulkanImageMemoryBarrier(
         }
 
 #ifdef THSVS_ERROR_CHECK_COULD_USE_GLOBAL_BARRIER
-    assert(pVkBarrier->srcQueueFamilyIndex != pVkBarrier->dstQueueFamilyIndex);
+        assert(pVkBarrier->srcQueueFamilyIndex != pVkBarrier->dstQueueFamilyIndex || 
+               pVkBarrier->srcQueueFamilyIndex == VK_QUEUE_FAMILY_IGNORED);
 #endif
     }
 
@@ -1108,8 +1109,7 @@ void thsvsGetVulkanImageMemoryBarrier(
     }
 
 #ifdef THSVS_ERROR_CHECK_COULD_USE_GLOBAL_BARRIER
-    assert(pVkBarrier->newLayout != pVkBarrier->oldLayout ||
-           pVkBarrier->srcQueueFamilyIndex != pVkBarrier->dstQueueFamilyIndex);
+    assert(pVkBarrier->newLayout != pVkBarrier->oldLayout);
 #endif
 
     // Ensure that the stage masks are valid if no stages were determined

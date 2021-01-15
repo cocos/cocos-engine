@@ -168,18 +168,18 @@ bool GLES2Device::initialize(const DeviceInfo &info) {
     cmdBuffInfo.queue = _queue;
     _cmdBuff = createCommandBuffer(cmdBuffInfo);
 
-    glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, (GLint *)&_maxVertexAttributes);
-    glGetIntegerv(GL_MAX_VERTEX_UNIFORM_VECTORS, (GLint *)&_maxVertexUniformVectors);
-    glGetIntegerv(GL_MAX_FRAGMENT_UNIFORM_VECTORS, (GLint *)&_maxFragmentUniformVectors);
-    glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, (GLint *)&_maxTextureUnits);
-    glGetIntegerv(GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS, (GLint *)&_maxVertexTextureUnits);
-    glGetIntegerv(GL_MAX_TEXTURE_SIZE, (GLint *)&_maxTextureSize);
-    glGetIntegerv(GL_MAX_CUBE_MAP_TEXTURE_SIZE, (GLint *)&_maxCubeMapTextureSize);
-    glGetIntegerv(GL_DEPTH_BITS, (GLint *)&_depthBits);
-    glGetIntegerv(GL_STENCIL_BITS, (GLint *)&_stencilBits);
-    _uboOffsetAlignment = 1u;
+    glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, (GLint *)&_caps.maxVertexAttributes);
+    glGetIntegerv(GL_MAX_VERTEX_UNIFORM_VECTORS, (GLint *)&_caps.maxVertexUniformVectors);
+    glGetIntegerv(GL_MAX_FRAGMENT_UNIFORM_VECTORS, (GLint *)&_caps.maxFragmentUniformVectors);
+    glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, (GLint *)&_caps.maxTextureUnits);
+    glGetIntegerv(GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS, (GLint *)&_caps.maxVertexTextureUnits);
+    glGetIntegerv(GL_MAX_TEXTURE_SIZE, (GLint *)&_caps.maxTextureSize);
+    glGetIntegerv(GL_MAX_CUBE_MAP_TEXTURE_SIZE, (GLint *)&_caps.maxCubeMapTextureSize);
+    glGetIntegerv(GL_DEPTH_BITS, (GLint *)&_caps.depthBits);
+    glGetIntegerv(GL_STENCIL_BITS, (GLint *)&_caps.stencilBits);
+    _caps.uboOffsetAlignment = 1u;
 
-    _gpuStateCache->initialize(_maxTextureUnits, _maxVertexAttributes);
+    _gpuStateCache->initialize(_caps.maxTextureUnits, _caps.maxVertexAttributes);
 
     return true;
 }

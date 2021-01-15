@@ -16,8 +16,6 @@ set(INCLUDE_FILES
 )
 
 if(WIN32)
-  list(APPEND INCLUDE_FILES ${GFX_EXTERNAL_PATH}/pvrsdk/include)
-
   if(COCOS_CPU_X64)
     set(PVRSDK_LIB_DIR ${GFX_EXTERNAL_PATH}/pvrsdk/lib/Windows_x86_64)
   else()

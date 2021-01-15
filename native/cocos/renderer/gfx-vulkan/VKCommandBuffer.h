@@ -60,7 +60,7 @@ public:
     virtual void copyBuffersToTexture(const uint8_t *const *buffers, Texture *texture, const BufferTextureCopy *regions, uint count) override;
     virtual void execute(CommandBuffer *const *cmdBuffs, uint count) override;
     virtual void dispatch(const DispatchInfo &info) override;
-    virtual void pipelineBarrier(const GlobalBarrier& barrier) override;
+    virtual void pipelineBarrier(const GlobalBarrier *barrier, const TextureBarrier *textureBarriers, uint textureBarrierCount) override;
 
     CCVKGPUCommandBuffer *gpuCommandBuffer() const { return _gpuCommandBuffer; }
 
@@ -90,6 +90,7 @@ private:
     CCVKStencilCompareMask _curStencilCompareMask;
 
     vector<ThsvsAccessType> _accessTypes;
+    vector<ThsvsImageBarrier> _textureBarriers;
     vector<VkCommandBuffer> _vkCommandBuffers;
     queue<VkCommandBuffer> _pendingQueue;
 };

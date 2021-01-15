@@ -69,33 +69,20 @@ public:
 
     CC_INLINE void flushCommandsForJS(const vector<CommandBuffer *> &cmdBuffs) { flushCommands(cmdBuffs.data(), cmdBuffs.size()); }
 
-    Format getColorFormat() const;
-    Format getDepthStencilFormat() const;
-    CC_INLINE API getGfxAPI() const { return _API; }
-    CC_INLINE const String &getDeviceName() const { return _deviceName; }
     CC_INLINE Context *getContext() const { return _context; }
     CC_INLINE Queue *getQueue() const { return _queue; }
     CC_INLINE CommandBuffer *getCommandBuffer() const { return _cmdBuff; }
+    CC_INLINE const DeviceCaps &getCapabilities() const { return _caps; }
+    CC_INLINE bool hasFeature(Feature feature) const { return _features[static_cast<uint8_t>(feature)]; }
+    CC_INLINE const BindingMappingInfo &bindingMappingInfo() const { return _bindingMappingInfo; }
+
+    CC_INLINE API getGfxAPI() const { return _API; }
+    CC_INLINE const String &getDeviceName() const { return _deviceName; }
     CC_INLINE const String &getRenderer() const { return _renderer; }
     CC_INLINE const String &getVendor() const { return _vendor; }
-    CC_INLINE int getMaxVertexAttributes() const { return _maxVertexAttributes; }
-    CC_INLINE int getMaxVertexUniformVectors() const { return _maxVertexUniformVectors; }
-    CC_INLINE int getMaxFragmentUniformVectors() const { return _maxFragmentUniformVectors; }
-    CC_INLINE int getMaxTextureUnits() const { return _maxTextureUnits; }
-    CC_INLINE int getMaxVertexTextureUnits() const { return _maxVertexTextureUnits; }
-    CC_INLINE int getMaxUniformBufferBindings() const { return _maxUniformBufferBindings; }
-    CC_INLINE int getMaxUniformBlockSize() const { return _maxUniformBlockSize; }
-    CC_INLINE int getMaxTextureSize() const { return _maxTextureSize; }
-    CC_INLINE int getMaxCubeMapTextureSize() const { return _maxCubeMapTextureSize; }
-    CC_INLINE int getUboOffsetAlignment() const { return _uboOffsetAlignment; }
-    CC_INLINE int getDepthBits() const { return _depthBits; }
-    CC_INLINE int getStencilBits() const { return _stencilBits; }
-    CC_INLINE bool hasFeature(Feature feature) const { return _features[static_cast<uint8_t>(feature)]; }
-    CC_INLINE float getClipSpaceMinZ() const { return _clipSpaceMinZ; }
-    CC_INLINE float getScreenSpaceSignY() const { return _screenSpaceSignY; }
-    CC_INLINE float getUVSpaceSignY() const { return _UVSpaceSignY; }
-    CC_INLINE const BindingMappingInfo &bindingMappingInfo() const { return _bindingMappingInfo; }
     CC_INLINE uint genShaderId() { return _shaderIdGen++; }
+    Format getColorFormat() const;
+    Format getDepthStencilFormat() const;
 
 protected:
     friend class DeviceAgent;
@@ -138,26 +125,9 @@ protected:
     uint _numDrawCalls = 0u;
     uint _numInstances = 0u;
     uint _numTriangles = 0u;
-    uint _maxVertexAttributes = 0u;
-    uint _maxVertexUniformVectors = 0u;
-    uint _maxFragmentUniformVectors = 0u;
-    uint _maxTextureUnits = 0u;
-    uint _maxVertexTextureUnits = 0u;
-    uint _maxShaderStorageBufferBindings = 0u;
-    uint _maxShaderStorageBlockSize = 0u;
-    uint _maxUniformBufferBindings = 0u;
-    uint _maxUniformBlockSize = 0u;
-    uint _maxTextureSize = 0u;
-    uint _maxCubeMapTextureSize = 0u;
-    uint _uboOffsetAlignment = 0u;
-    uint _depthBits = 0u;
-    uint _stencilBits = 0u;
     uint _shaderIdGen = 0u;
-    unordered_map<String, String> _macros;
-    float _clipSpaceMinZ = -1.0f;
-    float _screenSpaceSignY = 1.0f;
-    float _UVSpaceSignY = -1.0f;
     BindingMappingInfo _bindingMappingInfo;
+    DeviceCaps _caps;
 
 private:
     static Device *_instance;

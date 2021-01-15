@@ -25,10 +25,6 @@ DeviceAgent::~DeviceAgent() {
 }
 
 bool DeviceAgent::initialize(const DeviceInfo &info) {
-    _clipSpaceMinZ = _actor->getClipSpaceMinZ();
-    _screenSpaceSignY = _actor->getScreenSpaceSignY();
-    _UVSpaceSignY = _actor->getUVSpaceSignY();
-
     _width = info.width;
     _height = info.height;
     _nativeWidth = info.nativeWidth;
@@ -55,18 +51,7 @@ bool DeviceAgent::initialize(const DeviceInfo &info) {
     ((CommandBufferAgent *)_cmdBuff)->_queue = _queue;
     _renderer = _actor->getRenderer();
     _vendor = _actor->getVendor();
-    _maxVertexAttributes = _actor->getMaxVertexAttributes();
-    _maxVertexUniformVectors = _actor->getMaxVertexUniformVectors();
-    _maxFragmentUniformVectors = _actor->getMaxFragmentUniformVectors();
-    _maxTextureUnits = _actor->getMaxTextureUnits();
-    _maxVertexTextureUnits = _actor->getMaxVertexTextureUnits();
-    _maxUniformBufferBindings = _actor->getMaxUniformBufferBindings();
-    _maxUniformBlockSize = _actor->getMaxUniformBlockSize();
-    _maxTextureSize = _actor->getMaxTextureSize();
-    _maxCubeMapTextureSize = _actor->getMaxCubeMapTextureSize();
-    _uboOffsetAlignment = _actor->getUboOffsetAlignment();
-    _depthBits = _actor->getDepthBits();
-    _stencilBits = _actor->getStencilBits();
+    _caps = _actor->_caps;
     memcpy(_features, _actor->_features, (uint)Feature::COUNT * sizeof(bool));
 
     _mainEncoder = CC_NEW(MessageQueue);

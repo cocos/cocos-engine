@@ -227,8 +227,8 @@ void CCVKCmdFuncCreateRenderPass(CCVKDevice *device, CCVKGPURenderPass *gpuRende
     gpuRenderPass->clearValues.resize(colorAttachmentCount + hasDepth);
     for (size_t i = 0u; i < colorAttachmentCount; i++) {
         const ColorAttachment &attachment = gpuRenderPass->colorAttachments[i];
-        const VkImageLayout beginLayout = MapVkImageLayout(attachment.beginLayout);
-        const VkImageLayout endLayout = MapVkImageLayout(attachment.endLayout);
+        const VkImageLayout beginLayout = VK_IMAGE_LAYOUTS[(uint)attachment.beginLayout];
+        const VkImageLayout endLayout = VK_IMAGE_LAYOUTS[(uint)attachment.endLayout];
         const VkAccessFlags beginAccessMask = MapVkAccessFlags(attachment.beginLayout);
         const VkAccessFlags endAccessMask = MapVkAccessFlags(attachment.endLayout);
         attachmentDescriptions[i].format = MapVkFormat(attachment.format);
@@ -242,8 +242,8 @@ void CCVKCmdFuncCreateRenderPass(CCVKDevice *device, CCVKGPURenderPass *gpuRende
     }
     if (hasDepth) {
         const DepthStencilAttachment &depthStencilAttachment = gpuRenderPass->depthStencilAttachment;
-        const VkImageLayout beginLayout = MapVkImageLayout(depthStencilAttachment.beginLayout);
-        const VkImageLayout endLayout = MapVkImageLayout(depthStencilAttachment.endLayout);
+        const VkImageLayout beginLayout = VK_IMAGE_LAYOUTS[(uint)depthStencilAttachment.beginLayout];
+        const VkImageLayout endLayout = VK_IMAGE_LAYOUTS[(uint)depthStencilAttachment.endLayout];
         const VkAccessFlags beginAccessMask = MapVkAccessFlags(depthStencilAttachment.beginLayout);
         const VkAccessFlags endAccessMask = MapVkAccessFlags(depthStencilAttachment.endLayout);
         const bool hasStencil = GFX_FORMAT_INFOS[(uint)depthStencilAttachment.format].hasStencil;

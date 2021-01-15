@@ -7,7 +7,7 @@ namespace gfx {
 
 const uint DESCRIPTOR_BUFFER_TYPE = (uint)DescriptorType::STORAGE_BUFFER | (uint)DescriptorType::DYNAMIC_STORAGE_BUFFER |
                                     (uint)DescriptorType::UNIFORM_BUFFER | (uint)DescriptorType::DYNAMIC_UNIFORM_BUFFER;
-const uint DESCRIPTOR_SAMPLER_TYPE = (uint)DescriptorType::SAMPLER;
+const uint DESCRIPTOR_SAMPLER_TYPE = (uint)DescriptorType::SAMPLER | (uint)DescriptorType::STORAGE_IMAGE;
 const uint DESCRIPTOR_DYNAMIC_TYPE = (uint)DescriptorType::DYNAMIC_STORAGE_BUFFER | (uint)DescriptorType::DYNAMIC_UNIFORM_BUFFER;
 
 const FormatInfo GFX_FORMAT_INFOS[] = {

@@ -307,6 +307,14 @@ enum class Type {
     COUNT,
 };
 
+enum class UniformSamplerType {
+    SAMPLER,
+    COMBINED_IMAGE_SAMPLER,
+    SAMPLED_IMAGE,
+    STORAGE_IMAGE,
+    INPUT_ATTACHMENT,
+};
+
 enum class BufferUsageBit : FlagBits {
     NONE = 0,
     TRANSFER_SRC = 0x1,
@@ -599,6 +607,7 @@ enum class DescriptorType : FlagBits {
     STORAGE_BUFFER = 0x4,
     DYNAMIC_STORAGE_BUFFER = 0x8,
     SAMPLER = 0x10,
+    STORAGE_IMAGE = 0x20,
 };
 
 enum class QueueType {
@@ -636,6 +645,37 @@ enum class VsyncMode {
     HALF,
 };
 
+struct Size {
+    uint x = 0u;
+    uint y = 0u;
+    uint z = 0u;
+};
+
+struct DeviceCaps {
+    uint maxVertexAttributes = 0u;
+    uint maxVertexUniformVectors = 0u;
+    uint maxFragmentUniformVectors = 0u;
+    uint maxTextureUnits = 0u;
+    uint maxImageUnits = 0u;
+    uint maxVertexTextureUnits = 0u;
+    uint maxShaderStorageBufferBindings = 0u;
+    uint maxShaderStorageBlockSize = 0u;
+    uint maxUniformBufferBindings = 0u;
+    uint maxUniformBlockSize = 0u;
+    uint maxTextureSize = 0u;
+    uint maxCubeMapTextureSize = 0u;
+    uint uboOffsetAlignment = 0u;
+    uint depthBits = 0u;
+    uint stencilBits = 0u;
+    uint maxComputeSharedMemorySize = 0u;
+    uint maxComputeWorkGroupInvocations = 0u;
+    Size maxComputeWorkGroupSize;
+    Size maxComputeWorkGroupCount;
+    float clipSpaceMinZ = -1.0f;
+    float screenSpaceSignY = 1.0f;
+    float UVSpaceSignY = -1.0f;
+};
+
 struct Offset {
     int x = 0;
     int y = 0;
@@ -669,16 +709,23 @@ struct Extent {
     uint depth = 1;
 };
 
-struct TextureSubres {
+struct TextureSubresLayers {
     uint mipLevel = 0u;
     uint baseArrayLayer = 0u;
     uint layerCount = 1u;
 };
 
+struct TextureSubresRange {
+    uint baseMipLevel = 0u;
+    uint levelCount = 1u;
+    uint baseArrayLayer = 0u;
+    uint layerCount = 1u;
+};
+
 struct TextureCopy {
-    TextureSubres srcSubres;
+    TextureSubresLayers srcSubres;
     Offset srcOffset;
-    TextureSubres dstSubres;
+    TextureSubresLayers dstSubres;
     Offset dstOffset;
     Extent extent;
 };
@@ -688,7 +735,7 @@ struct BufferTextureCopy {
     uint buffTexHeight = 0;
     Offset texOffset;
     Extent texExtent;
-    TextureSubres texSubres;
+    TextureSubresLayers texSubres;
 };
 typedef cc::vector<BufferTextureCopy> BufferTextureCopyList;
 typedef cc::vector<const uint8_t *> BufferDataList;
@@ -894,6 +941,7 @@ struct UniformSampler {
     String name;
     Type type = Type::UNKNOWN;
     uint count = 0u;
+    UniformSamplerType uniformType = UniformSamplerType::COMBINED_IMAGE_SAMPLER;
 };
 
 typedef cc::vector<UniformSampler> UniformSamplerList;
@@ -982,11 +1030,28 @@ struct RenderPassInfo {
 };
 
 struct GlobalBarrier {
-    // using vectors here because there is just too many access types to fit into one integer bits
-    AccessTypeList prevAccesses;
-    AccessTypeList nextAccesses;
+    AccessType *prevAccesses = nullptr;
+    uint prevAccessCount = 0u;
+    AccessType *nextAccesses = nullptr;
+    uint nextAccessCount = 0u;
 };
 typedef cc::vector<GlobalBarrier> GlobalBarrierList;
+
+struct TextureBarrier {
+    AccessType *prevAccesses;
+    uint prevAccessCount;
+    AccessType *nextAccesses;
+    uint nextAccessCount;
+
+    bool isPrevLayoutOptimal = true;
+    bool isNextLayoutOptimal = true;
+    bool discardContents = false;
+    Texture *texture = nullptr;
+    TextureSubresRange subresRange;
+    Queue *srcQueue = nullptr;
+    Queue *dstQueue = nullptr;
+};
+typedef cc::vector<TextureBarrier> ImageBarrierList;
 
 typedef cc::vector<Buffer *> BufferList;
 typedef cc::vector<Texture *> TextureList;

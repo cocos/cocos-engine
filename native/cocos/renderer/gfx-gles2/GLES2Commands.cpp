@@ -973,7 +973,6 @@ void GLES2CmdFuncCreateShader(GLES2Device *device, GLES2GPUShader *gpuShader) {
             GLchar *logs = (GLchar *)CC_MALLOC(logSize);
             GL_CHECK(glGetProgramInfoLog(gpuShader->glProgram, logSize, nullptr, logs));
 
-            CC_LOG_ERROR("Failed to link shader '%s'.", gpuShader->name.c_str());
             CC_LOG_ERROR(logs);
             CC_FREE(logs);
             return;
@@ -1126,13 +1125,13 @@ void GLES2CmdFuncCreateShader(GLES2Device *device, GLES2GPUShader *gpuShader) {
         if (!texUnitCacheMap.count(sampler.name)) {
             uint binding = sampler.binding + bindingMappingInfo.samplerOffsets[sampler.set] + arrayOffset;
             if (sampler.set == bindingMappingInfo.flexibleSet) binding -= flexibleSetBaseOffset;
-            texUnitCacheMap[sampler.name] = binding % device->getMaxTextureUnits();
+            texUnitCacheMap[sampler.name] = binding % device->getCapabilities().maxTextureUnits;
             arrayOffset += sampler.count - 1;
         }
     }
 
     if (glActiveSamplers.size()) {
-        vector<bool> usedTexUnits(device->getMaxTextureUnits(), false);
+        vector<bool> usedTexUnits(device->getCapabilities().maxTextureUnits, false);
         // try to reuse existing mappings first
         for (uint i = 0u; i < glActiveSamplers.size(); i++) {
             GLES2GPUUniformSampler &glSampler = glActiveSamplers[i];
@@ -1217,7 +1216,7 @@ void GLES2CmdFuncCreateInputAssembler(GLES2Device *device, GLES2GPUInputAssemble
         }
     }
 
-    vector<uint> streamOffsets(device->getMaxVertexAttributes(), 0u);
+    vector<uint> streamOffsets(device->getCapabilities().maxVertexAttributes, 0u);
 
     gpuInputAssembler->glAttribs.resize(gpuInputAssembler->attributes.size());
     for (size_t i = 0; i < gpuInputAssembler->glAttribs.size(); ++i) {

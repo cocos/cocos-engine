@@ -600,8 +600,8 @@ const GLenum GLES3_BLEND_FACTORS[] = {
 };
 } // namespace
 
-void MapGLBarriers(const AccessTypeList &list, GLbitfield &glBarriers, GLbitfield &glBarriersByRegion) {
-    for (size_t j = 0u; j < list.size(); ++j) {
+void MapGLBarriers(const AccessType *list, uint count, GLbitfield &glBarriers, GLbitfield &glBarriersByRegion) {
+    for (size_t j = 0u; j < count; ++j) {
         switch (list[j]) {
             case AccessType::INDIRECT_BUFFER:
                 glBarriers |= GL_COMMAND_BARRIER_BIT;
@@ -1158,7 +1158,6 @@ void GLES3CmdFuncCreateShader(GLES3Device *device, GLES3GPUShader *gpuShader) {
             GLchar *logs = (GLchar *)CC_MALLOC(logSize);
             GL_CHECK(glGetProgramInfoLog(gpuShader->glProgram, logSize, nullptr, logs));
 
-            CC_LOG_ERROR("Failed to link shader '%s'.", gpuShader->name.c_str());
             CC_LOG_ERROR(logs);
             CC_FREE(logs);
             return;
@@ -1297,6 +1296,7 @@ void GLES3CmdFuncCreateShader(GLES3Device *device, GLES3GPUShader *gpuShader) {
             gpuSampler.name = sampler.name;
             gpuSampler.type = sampler.type;
             gpuSampler.count = sampler.count;
+            gpuSampler.uniformType = sampler.uniformType;
             gpuSampler.glType = MapGLType(gpuSampler.type);
             gpuSampler.glLoc = -1;
         }
@@ -1328,26 +1328,28 @@ void GLES3CmdFuncCreateShader(GLES3Device *device, GLES3GPUShader *gpuShader) {
         if (!texUnitCacheMap.count(sampler.name)) {
             uint binding = sampler.binding + bindingMappingInfo.samplerOffsets[sampler.set] + arrayOffset;
             if (sampler.set == bindingMappingInfo.flexibleSet) binding -= flexibleSetBaseOffset;
-            texUnitCacheMap[sampler.name] = binding % device->getMaxTextureUnits();
+            texUnitCacheMap[sampler.name] = binding % device->getCapabilities().maxTextureUnits;
             arrayOffset += sampler.count - 1;
         }
     }
 
     if (glActiveSamplers.size()) {
-        vector<bool> usedTexUnits(device->getMaxTextureUnits(), false);
+        vector<bool> usedTexUnits(device->getCapabilities().maxTextureUnits, false);
+        vector<bool> usedImageUnits(device->getCapabilities().maxImageUnits, false);
         // try to reuse existing mappings first
         for (uint i = 0u; i < glActiveSamplers.size(); i++) {
             GLES3GPUUniformSampler &glSampler = glActiveSamplers[i];
+            vector<bool> &usedUnits = glSampler.uniformType == UniformSamplerType::STORAGE_IMAGE ? usedImageUnits : usedTexUnits;
 
             if (texUnitCacheMap.count(glSampler.name)) {
                 uint cachedUnit = texUnitCacheMap[glSampler.name];
                 glSampler.glLoc = glActiveSamplerLocations[i];
                 for (uint t = 0u; t < glSampler.count; t++) {
-                    while (usedTexUnits[cachedUnit]) {
-                        cachedUnit = (cachedUnit + 1) % device->getMaxTextureUnits();
+                    while (usedUnits[cachedUnit]) { // the shader already compiles so we should be safe to do this here
+                        cachedUnit = (cachedUnit + 1) % device->getCapabilities().maxTextureUnits;
                     }
                     glSampler.units.push_back(cachedUnit);
-                    usedTexUnits[cachedUnit] = true;
+                    usedUnits[cachedUnit] = true;
                 }
             }
         }
@@ -1355,18 +1357,19 @@ void GLES3CmdFuncCreateShader(GLES3Device *device, GLES3GPUShader *gpuShader) {
         uint unitIdx = 0u;
         for (uint i = 0u; i < glActiveSamplers.size(); i++) {
             GLES3GPUUniformSampler &glSampler = glActiveSamplers[i];
+            vector<bool> &usedUnits = glSampler.uniformType == UniformSamplerType::STORAGE_IMAGE ? usedImageUnits : usedTexUnits;
 
             if (glSampler.glLoc < 0) {
                 glSampler.glLoc = glActiveSamplerLocations[i];
                 for (uint t = 0u; t < glSampler.count; t++) {
-                    while (usedTexUnits[unitIdx]) {
-                        unitIdx = (unitIdx + 1) % device->getMaxTextureUnits();
+                    while (usedUnits[unitIdx]) {
+                        unitIdx = (unitIdx + 1) % device->getCapabilities().maxTextureUnits;
                     }
                     if (!texUnitCacheMap.count(glSampler.name)) {
                         texUnitCacheMap[glSampler.name] = unitIdx;
                     }
                     glSampler.units.push_back(unitIdx);
-                    usedTexUnits[unitIdx] = true;
+                    usedUnits[unitIdx] = true;
                 }
             }
         }
@@ -1415,7 +1418,7 @@ void GLES3CmdFuncCreateInputAssembler(GLES3Device *device, GLES3GPUInputAssemble
         }
     }
 
-    vector<uint> streamOffsets(device->getMaxVertexAttributes(), 0u);
+    vector<uint> streamOffsets(device->getCapabilities().maxVertexAttributes, 0u);
 
     gpuInputAssembler->glAttribs.resize(gpuInputAssembler->attributes.size());
     for (size_t i = 0; i < gpuInputAssembler->glAttribs.size(); ++i) {
@@ -2024,11 +2027,12 @@ void GLES3CmdFuncBindState(GLES3Device *device, GLES3GPUPipelineState *gpuPipeli
             const GLES3GPUDescriptorSet *gpuDescriptorSet = gpuDescriptorSets[glSampler.set];
             const uint descriptorIndex = gpuDescriptorSet->descriptorIndices->at(glSampler.binding);
             const GLES3GPUDescriptor *gpuDescriptor = &gpuDescriptorSet->gpuDescriptors[descriptorIndex];
+            bool isStorage = glSampler.uniformType == UniformSamplerType::STORAGE_IMAGE;
 
             for (size_t u = 0; u < glSampler.units.size(); u++, gpuDescriptor++) {
                 uint unit = (uint)glSampler.units[u];
 
-                if (!gpuDescriptor->gpuTexture || !gpuDescriptor->gpuSampler) {
+                if (!gpuDescriptor->gpuTexture || (!isStorage && !gpuDescriptor->gpuSampler)) {
                     CC_LOG_ERROR("Sampler binding '%s' at set %d binding %d index %d is not bounded",
                                  glSampler.name.c_str(), glSampler.set, glSampler.binding, u);
                     continue;
@@ -2036,18 +2040,25 @@ void GLES3CmdFuncBindState(GLES3Device *device, GLES3GPUPipelineState *gpuPipeli
 
                 if (gpuDescriptor->gpuTexture->size > 0) {
                     GLuint glTexture = gpuDescriptor->gpuTexture->glTexture;
-                    if (cache->glTextures[unit] != glTexture) {
-                        if (cache->texUint != unit) {
-                            GL_CHECK(glActiveTexture(GL_TEXTURE0 + unit));
-                            cache->texUint = unit;
-                        }
-                        GL_CHECK(glBindTexture(gpuDescriptor->gpuTexture->glTarget, glTexture));
-                        cache->glTextures[unit] = glTexture;
-                    }
 
-                    if (cache->glSamplers[unit] != gpuDescriptor->gpuSampler->glSampler) {
-                        GL_CHECK(glBindSampler(unit, gpuDescriptor->gpuSampler->glSampler));
-                        cache->glSamplers[unit] = gpuDescriptor->gpuSampler->glSampler;
+                    if (isStorage) {
+                        if (cache->glImages[unit] != glTexture) {
+                            GL_CHECK(glBindImageTexture(unit, glTexture, 0, GL_TRUE, 0, GL_READ_WRITE, gpuDescriptor->gpuTexture->glInternelFmt));
+                        }
+                    } else {
+                        if (cache->glTextures[unit] != glTexture) {
+                            if (cache->texUint != unit) {
+                                GL_CHECK(glActiveTexture(GL_TEXTURE0 + unit));
+                                cache->texUint = unit;
+                            }
+                            GL_CHECK(glBindTexture(gpuDescriptor->gpuTexture->glTarget, glTexture));
+                            cache->glTextures[unit] = glTexture;
+                        }
+
+                        if (cache->glSamplers[unit] != gpuDescriptor->gpuSampler->glSampler) {
+                            GL_CHECK(glBindSampler(unit, gpuDescriptor->gpuSampler->glSampler));
+                            cache->glSamplers[unit] = gpuDescriptor->gpuSampler->glSampler;
+                        }
                     }
                 }
             }

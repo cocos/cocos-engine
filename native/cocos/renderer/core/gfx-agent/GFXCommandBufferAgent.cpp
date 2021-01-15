@@ -1,7 +1,5 @@
 #include "CoreStd.h"
 
-#include "base/job-system/JobSystem.h"
-#include "base/threading/MessageQueue.h"
 #include "GFXBufferAgent.h"
 #include "GFXCommandBufferAgent.h"
 #include "GFXDescriptorSetAgent.h"
@@ -13,6 +11,8 @@
 #include "GFXQueueAgent.h"
 #include "GFXRenderPassAgent.h"
 #include "GFXTextureAgent.h"
+#include "base/job-system/JobSystem.h"
+#include "base/threading/MessageQueue.h"
 
 namespace cc {
 namespace gfx {
@@ -393,7 +393,7 @@ void CommandBufferAgent::copyBuffersToTexture(const uint8_t *const *buffers, Tex
         });
 }
 
-void CommandBufferAgent::dispatch(const DispatchInfo& info) {
+void CommandBufferAgent::dispatch(const DispatchInfo &info) {
     DispatchInfo actorInfo = info;
     if (info.indirectBuffer) actorInfo.indirectBuffer = ((BufferAgent *)info.indirectBuffer)->getActor();
 
@@ -407,14 +407,53 @@ void CommandBufferAgent::dispatch(const DispatchInfo& info) {
         });
 }
 
-void CommandBufferAgent::pipelineBarrier(const GlobalBarrier& barrier) {
-    ENQUEUE_MESSAGE_2(
+void CommandBufferAgent::pipelineBarrier(const GlobalBarrier *barrier, const TextureBarrier *textureBarriers, uint textureBarrierCount) {
+    uint count = 0u;
+    if (barrier) count += barrier->prevAccessCount + barrier->nextAccessCount;
+    for (uint b = 0u; b < textureBarrierCount; ++b) {
+        count += textureBarriers[b].prevAccessCount + textureBarriers[b].nextAccessCount;
+    }
+    AccessType *accessTypes = getAllocator()->allocate<AccessType>(count);
+
+    GlobalBarrier *actorBarrier = nullptr;
+    TextureBarrier *actorTextureBarriers = getAllocator()->allocate<TextureBarrier>(textureBarrierCount);
+    uint index = 0u;
+
+    if (barrier) {
+        actorBarrier = getAllocator()->allocate<GlobalBarrier>(1);
+        actorBarrier->prevAccessCount = barrier->prevAccessCount;
+        actorBarrier->prevAccesses = accessTypes + index;
+        for (uint i = 0u; i < barrier->prevAccessCount; ++i, ++index) accessTypes[index] = barrier->prevAccesses[i];
+
+        actorBarrier->nextAccessCount = barrier->nextAccessCount;
+        actorBarrier->nextAccesses = accessTypes + index;
+        for (uint i = 0u; i < barrier->nextAccessCount; ++i, ++index) accessTypes[index] = barrier->nextAccesses[i];
+    }
+
+    for (uint b = 0u; b < textureBarrierCount; ++b) {
+        const TextureBarrier &textureBarrier = textureBarriers[b];
+        actorTextureBarriers[b] = textureBarrier;
+
+        actorTextureBarriers[b].prevAccesses = accessTypes + index;
+        for (uint i = 0u; i < textureBarrier.prevAccessCount; ++i, ++index) accessTypes[index] = textureBarrier.prevAccesses[i];
+
+        actorTextureBarriers[b].nextAccesses = accessTypes + index;
+        for (uint i = 0u; i < textureBarrier.nextAccessCount; ++i, ++index) accessTypes[index] = textureBarrier.nextAccesses[i];
+
+        actorTextureBarriers[b].texture = ((TextureAgent *)textureBarrier.texture)->getActor();
+        if (textureBarrier.srcQueue) actorTextureBarriers[b].srcQueue = ((QueueAgent *)textureBarrier.srcQueue)->getActor();
+        if (textureBarrier.dstQueue) actorTextureBarriers[b].dstQueue = ((QueueAgent *)textureBarrier.dstQueue)->getActor();
+    }
+
+    ENQUEUE_MESSAGE_4(
         _messageQueue,
         CommandBufferDispatch,
         actor, getActor(),
-        barrier, barrier,
+        barrier, actorBarrier,
+        textureBarriers, actorTextureBarriers,
+        textureBarrierCount, textureBarrierCount,
         {
-            actor->pipelineBarrier(barrier);
+            actor->pipelineBarrier(barrier, textureBarriers, textureBarrierCount);
         });
 }
 

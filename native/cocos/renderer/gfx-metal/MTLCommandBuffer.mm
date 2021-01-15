@@ -526,7 +526,7 @@ void CCMTLCommandBuffer::bindDescriptorSets() {
 void CCMTLCommandBuffer::dispatch(const DispatchInfo &info) {
 }
 
-void CCMTLCommandBuffer::pipelineBarrier(const GlobalBarrier& barrier) {
+void CCMTLCommandBuffer::pipelineBarrier(const GlobalBarrier& barrier, const ImageBarrierList &imageBarriers) {
 }
 
 } // namespace gfx

@@ -53,9 +53,9 @@ namespace cc {
 namespace gfx {
 
 CCMTLDevice::CCMTLDevice() {
-    _clipSpaceMinZ = 0.0f;
-    _screenSpaceSignY = 1.0f;
-    _UVSpaceSignY = 1.0f;
+    _caps.clipSpaceMinZ = 0.0f;
+    _caps.screenSpaceSignY = 1.0f;
+    _caps.UVSpaceSignY = 1.0f;
 }
 
 bool CCMTLDevice::initialize(const DeviceInfo &info) {
@@ -92,13 +92,13 @@ bool CCMTLDevice::initialize(const DeviceInfo &info) {
     _mtlFeatureSet = mu::highestSupportedFeatureSet(mtlDevice);
     const auto gpuFamily = mu::getGPUFamily(MTLFeatureSet(_mtlFeatureSet));
     _indirectDrawSupported = mu::isIndirectDrawSupported(gpuFamily);
-    _maxVertexAttributes = mu::getMaxVertexAttributes(gpuFamily);
-    _maxTextureUnits = _maxVertexTextureUnits = mu::getMaxEntriesInTextureArgumentTable(gpuFamily);
-    _maxSamplerUnits = mu::getMaxEntriesInSamplerStateArgumentTable(gpuFamily);
-    _maxTextureSize = mu::getMaxTexture2DWidthHeight(gpuFamily);
-    _maxCubeMapTextureSize = mu::getMaxCubeMapTextureWidthHeight(gpuFamily);
-    _maxColorRenderTargets = mu::getMaxColorRenderTarget(gpuFamily);
-    _maxBufferBindingIndex = mu::getMaxEntriesInBufferArgumentTable(gpuFamily);
+    _caps.maxVertexAttributes = mu::getMaxVertexAttributes(gpuFamily);
+    _caps.maxTextureUnits = _caps.maxVertexTextureUnits = mu::getMaxEntriesInTextureArgumentTable(gpuFamily);
+    _caps.maxSamplerUnits = mu::getMaxEntriesInSamplerStateArgumentTable(gpuFamily);
+    _caps.maxTextureSize = mu::getMaxTexture2DWidthHeight(gpuFamily);
+    _caps.maxCubeMapTextureSize = mu::getMaxCubeMapTextureWidthHeight(gpuFamily);
+    _caps.maxColorRenderTargets = mu::getMaxColorRenderTarget(gpuFamily);
+    _caps.maxBufferBindingIndex = mu::getMaxEntriesInBufferArgumentTable(gpuFamily);
     _uboOffsetAlignment = mu::getMinBufferOffsetAlignment(gpuFamily);
     _icbSuppored = mu::isIndirectCommandBufferSupported(MTLFeatureSet(_mtlFeatureSet));
     _isSamplerDescriptorCompareFunctionSupported = mu::isSamplerDescriptorCompareFunctionSupported(gpuFamily);
