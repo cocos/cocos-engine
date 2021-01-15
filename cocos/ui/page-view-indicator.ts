@@ -38,7 +38,7 @@ import { Node } from '../core/scene-graph';
 import { Layout } from './layout';
 import { PageView } from './page-view';
 import { Sprite } from '../2d/components/sprite';
-import { UIRenderable } from '../2d/framework/ui-renderable';
+import { Renderable2D } from '../2d/framework/renderable-2d';
 import { legacyCC } from '../core/global-exports';
 
 const _color = new Color();
@@ -219,14 +219,14 @@ export class PageViewIndicator extends Component {
                 continue;
             }
 
-            const uiComp = node._uiProps.uiComp as UIRenderable;
+            const uiComp = node._uiProps.uiComp as Renderable2D;
             _color.set(uiComp.color);
             _color.a = 255 / 2;
             uiComp.color = _color;
         }
 
         if (indicators[idx]._uiProps.uiComp) {
-            const comp = indicators[idx]._uiProps.uiComp as UIRenderable;
+            const comp = indicators[idx]._uiProps.uiComp as Renderable2D;
             _color.set(comp.color);
             _color.a = 255;
             comp.color = _color;

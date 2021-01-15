@@ -316,8 +316,8 @@ export const ttfUtils =  {
                     _texture.rect = new Rect(0, 0, _canvas.width, _canvas.height);
                     _texture._calculateUV();
                 }
-                if (legacyCC.director.root && legacyCC.director.root.ui) {
-                    legacyCC.director.root.ui._releaseDescriptorSetCache(tex.getHash());
+                if (legacyCC.director.root && legacyCC.director.root.batcher2D) {
+                    legacyCC.director.root.batcher2D._releaseDescriptorSetCache(tex.getHash());
                 }
             }
         }
@@ -349,7 +349,7 @@ export const ttfUtils =  {
         _context!.shadowOffsetY = -_shadowComp!.offset.y;
     },
 
-    _drawTextEffect (startPosition, lineHeight) {
+    _drawTextEffect (startPosition: Vec2, lineHeight: number) {
         if (!_shadowComp && !_outlineComp && !_isUnderline) return;
 
         const isMultiple = _splitStrings.length > 1 && _shadowComp;
@@ -456,6 +456,7 @@ export const ttfUtils =  {
     },
 
     _measureText (ctx: CanvasRenderingContext2D, fontDesc) {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
         return (string: string) => safeMeasureText(ctx, string, fontDesc);
     },
 

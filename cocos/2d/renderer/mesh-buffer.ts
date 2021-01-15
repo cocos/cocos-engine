@@ -29,9 +29,9 @@
  */
 import { BufferUsageBit, MemoryUsageBit } from '../../core/gfx/define';
 import { InputAssemblerInfo, Attribute, Buffer, BufferInfo } from '../../core/gfx';
-import { UI } from './ui';
+import { Batcher2D } from './batcher-2d';
 import { InputAssemblerHandle, NULL_HANDLE, IAPool } from '../../core/renderer/core/memory-pools';
-import { getComponentPerVertex } from './ui-vertex-format';
+import { getComponentPerVertex } from './vertex-format';
 
 export class MeshBuffer {
     public static OPACITY_OFFSET = 8;
@@ -59,7 +59,7 @@ export class MeshBuffer {
     // NOTE:
     // actually 256 * 4 * (vertexFormat._bytes / 4)
     // include pos, uv, color in ui attributes
-    private _batcher: UI;
+    private _batcher: Batcher2D;
     private _dirty = false;
     private _vertexFormatBytes = 0;
     private _initVDataCount = 0;
@@ -68,7 +68,7 @@ export class MeshBuffer {
     private _hInputAssemblers: InputAssemblerHandle[] = [];
     private _nextFreeIAHandle = 0;
 
-    constructor (batcher: UI) {
+    constructor (batcher: Batcher2D) {
         this._batcher = batcher;
     }
 

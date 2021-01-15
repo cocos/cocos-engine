@@ -64,7 +64,7 @@ pool.get = function () {
 class LRUCache {
     private count = 0;
     private limit = 0;
-    private datas = {};
+    private datas: Record<string, ICacheNode> = {};
     private declare head;
     private declare tail;
 
@@ -145,6 +145,7 @@ class LRUCache {
 const measureCache = new LRUCache(MAX_CACHE_SIZE);
 
 const WORD_REG = /([a-zA-Z0-9ÄÖÜäöüßéèçàùêâîôûа-яА-ЯЁё]+|\S)/;
+// eslint-disable-next-line no-useless-escape
 const SYMBOL_REG = /^[!,.:;'}\]%\?>、‘“》？。，！]/;
 const LAST_WORD_REG = /([a-zA-Z0-9ÄÖÜäöüßéèçàùêâîôûаíìÍÌïÁÀáàÉÈÒÓòóŐőÙÚŰúűñÑæÆœŒÃÂãÔõěščřžýáíéóúůťďňĚŠČŘŽÁÍÉÓÚŤżźśóńłęćąŻŹŚÓŃŁĘĆĄ-яА-ЯЁё]+|\S)$/;
 const LAST_ENGLISH_REG = /[a-zA-Z0-9ÄÖÜäöüßéèçàùêâîôûаíìÍÌïÁÀáàÉÈÒÓòóŐőÙÚŰúűñÑæÆœŒÃÂãÔõěščřžýáíéóúůťďňĚŠČŘŽÁÍÉÓÚŤżźśóńłęćąŻŹŚÓŃŁĘĆĄ-яА-ЯЁё]+$/;
@@ -218,13 +219,12 @@ function _safeSubstring (targetString, startIndex, endIndex?) {
             if (endChar >= '\uD800' && endChar <= '\uDBFF') {
                 newEndIndex--;
             }
-        }
-        // highSurrogateRex
-        else if (startChar >= '\uD800' && startChar <= '\uDBFF') {
+        } else if (startChar >= '\uD800' && startChar <= '\uDBFF') {
+            // highSurrogateRex
             newEndIndex++;
         }
     }
-    return targetString.substring(newStartIndex, newEndIndex);
+    return targetString.substring(newStartIndex, newEndIndex) as string;
 }
 
 export function fragmentText (stringToken: string, allWidth: number, maxWidth: number, measureText: (string: string) => number) {
@@ -275,9 +275,8 @@ export function fragmentText (stringToken: string, allWidth: number, maxWidth: n
         if (fuzzyLen === 0) {
             fuzzyLen = 1;
             sLine = _safeSubstring(text, 1);
-        }
-        // highSurrogateRex
-        else if (fuzzyLen === 1 && text[0] >= '\uD800' && text[0] <= '\uDBFF') {
+        } else if (fuzzyLen === 1 && text[0] >= '\uD800' && text[0] <= '\uDBFF') {
+            // highSurrogateRex
             fuzzyLen = 2;
             sLine = _safeSubstring(text, 2);
         }

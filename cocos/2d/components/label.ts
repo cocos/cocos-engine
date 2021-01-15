@@ -34,10 +34,10 @@ import { EDITOR } from 'internal:constants';
 import { BitmapFont, Font, SpriteFrame } from '../assets';
 import { ImageAsset, Texture2D, Material } from '../../core/assets';
 import { ccenum } from '../../core/value-types/enum';
-import { UI } from '../renderer/ui';
+import { Batcher2D } from '../renderer/batcher-2d';
 import { FontAtlas } from '../assets/bitmap-font';
 import { CanvasPool, ISharedLabelData, LetterRenderTexture } from '../assembler/label/font-utils';
-import { UIRenderable } from '../framework/ui-renderable';
+import { Renderable2D } from '../framework/renderable-2d';
 import { warnID } from '../../core/platform/debug';
 
 /**
@@ -190,7 +190,7 @@ ccenum(CacheMode);
 @help('i18n:cc.Label')
 @executionOrder(110)
 @menu('UI/Render/Label')
-export class Label extends UIRenderable {
+export class Label extends Renderable2D {
     /**
      * @en
      * Content string of label.
@@ -729,7 +729,7 @@ export class Label extends UIRenderable {
         }
     }
 
-    protected _render (render: UI) {
+    protected _render (render: Batcher2D) {
         render.commitComp(this, this._texture, this._assembler!, null);
     }
 
