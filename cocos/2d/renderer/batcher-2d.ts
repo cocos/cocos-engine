@@ -548,6 +548,7 @@ export class Batcher2D {
             this._currTextureHash = this._currSamplerHash = 0;
         }
         this._currLayer = renderComp.node.layer;
+        this._currScene = renderComp._getRenderScene();
 
         this.autoMergeBatches(renderComp);
     }
