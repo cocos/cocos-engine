@@ -38,7 +38,3 @@
 -dontwarn android.webkit.WebView
 -dontwarn android.net.http.SslError
 -dontwarn android.webkit.WebViewClient
-
-# keep anysdk for release. you can comment if you are not using anysdk
--keep public class com.anysdk.** { *; }
--dontwarn com.anysdk.**
