@@ -665,6 +665,7 @@ export class PageView extends ScrollView {
     // 通过 idx 获取偏移值数值
     protected _moveOffsetValue (idx: number) {
         const offset = _tempVec2;
+        offset.set(0, 0);
         if (this._sizeMode === SizeMode.Free) {
             if (this.direction === Direction.Horizontal) {
                 offset.x = this._scrollCenterOffsetX[idx];

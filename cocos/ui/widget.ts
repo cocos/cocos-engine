@@ -67,15 +67,13 @@ export function getReadonlyNodeSize (parent: Node | Scene) {
 }
 
 export function computeInverseTransForTarget (widgetNode: Node, target: Node, out_inverseTranslate: Vec2, out_inverseScale: Vec2) {
-    const scale = _tempScale;
     if (widgetNode.parent) {
-        scale.x = widgetNode.parent.getScale().x;
-        scale.y = widgetNode.parent.getScale().y;
+        _tempScale.set(widgetNode.parent.getScale().x, widgetNode.parent.getScale().y);
     } else {
-        scale.set(0, 0);
+        _tempScale.set(0, 0);
     }
-    let scaleX = scale.x;
-    let scaleY = scale.y;
+    let scaleX = _tempScale.x;
+    let scaleY = _tempScale.y;
     let translateX = 0;
     let translateY = 0;
     for (let node = widgetNode.parent; ;) {
@@ -93,13 +91,12 @@ export function computeInverseTransForTarget (widgetNode: Node, target: Node, ou
 
         if (node !== target) {
             if (node) {
-                scale.x = node.getScale().x;
-                scale.y = node.getScale().y;
+                _tempScale.set(node.getScale().x, node.getScale().y);
             } else {
-                scale.set(0, 0);
+                _tempScale.set(0, 0);
             }
-            const sx = scale.x;
-            const sy = scale.y;
+            const sx = _tempScale.x;
+            const sy = _tempScale.y;
             translateX *= sx;
             translateY *= sy;
             scaleX *= sx;

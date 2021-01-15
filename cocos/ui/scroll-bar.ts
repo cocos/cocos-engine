@@ -47,8 +47,7 @@ const _tempPos_2 = new Vec3();
 const _tempVec3 = new Vec3();
 const defaultAnchor = new Vec2();
 const _tempColor = new Color();
-const _tempVec2_1 = new Vec2();
-const _tempVec2_2 = new Vec2();
+const _tempVec2 = new Vec2();
 
 /**
  * @en
@@ -261,6 +260,8 @@ export class ScrollBar extends Component {
         let outOfBoundaryValue = 0;
         let contentPosition = 0;
         let handleNodeMeasure = 0;
+        const outOfContentPosition = _tempVec2;
+        outOfContentPosition.set(0, 0);
 
         if (this._direction === Direction.HORIZONTAL) {
             contentMeasure = contentSize.width;
@@ -268,18 +269,22 @@ export class ScrollBar extends Component {
             handleNodeMeasure = barSize.width;
             outOfBoundaryValue = outOfBoundary.x;
 
-            contentPosition = -this._convertToScrollViewSpace(content).x;
+            this._convertToScrollViewSpace(outOfContentPosition, content);
+            contentPosition = -outOfContentPosition.x;
         } else if (this._direction === Direction.VERTICAL) {
             contentMeasure = contentSize.height;
             scrollViewMeasure = scrollViewSize.height;
             handleNodeMeasure = barSize.height;
             outOfBoundaryValue = outOfBoundary.y;
 
-            contentPosition = -this._convertToScrollViewSpace(content).y;
+            this._convertToScrollViewSpace(outOfContentPosition, content);
+            contentPosition = -outOfContentPosition.y;
         }
 
         const length = this._calculateLength(contentMeasure, scrollViewMeasure, handleNodeMeasure, outOfBoundaryValue);
-        const position = this._calculatePosition(contentMeasure, scrollViewMeasure, handleNodeMeasure, contentPosition, outOfBoundaryValue, length);
+        const position = _tempVec2;
+        position.set(0, 0);
+        this._calculatePosition(position, contentMeasure, scrollViewMeasure, handleNodeMeasure, contentPosition, outOfBoundaryValue, length);
 
         this._updateLength(length);
         this._updateHandlerPosition(position);
@@ -344,19 +349,20 @@ export class ScrollBar extends Component {
         this._processAutoHide(dt);
     }
 
-    protected _convertToScrollViewSpace (content: Node) {
+    protected _convertToScrollViewSpace (out: Vec2, content: Node) {
         const scrollTrans = this._scrollView && this._scrollView.node._uiProps.uiTransformComp;
         const contentTrans = content._uiProps.uiTransformComp;
         if (!scrollTrans || !contentTrans) {
-            return ZERO;
+            out.set(ZERO);
+        } else {
+            _tempPos_1.set(-contentTrans.anchorX * contentTrans.width, -contentTrans.anchorY * contentTrans.height, 0);
+            contentTrans.convertToWorldSpaceAR(_tempPos_1, _tempPos_2);
+            const scrollViewSpacePos = scrollTrans.convertToNodeSpaceAR(_tempPos_2);
+            scrollViewSpacePos.x += scrollTrans.anchorX * scrollTrans.width;
+            scrollViewSpacePos.y += scrollTrans.anchorY * scrollTrans.height;
+
+            out.set(scrollViewSpacePos.x, scrollViewSpacePos.y);
         }
-        _tempPos_1.set(-contentTrans.anchorX * contentTrans.width, -contentTrans.anchorY * contentTrans.height, 0);
-        contentTrans.convertToWorldSpaceAR(_tempPos_1, _tempPos_2);
-        const scrollViewSpacePos = scrollTrans.convertToNodeSpaceAR(_tempPos_2);
-        scrollViewSpacePos.x += scrollTrans.anchorX * scrollTrans.width;
-        scrollViewSpacePos.y += scrollTrans.anchorY * scrollTrans.height;
-        _tempVec2_1.set(scrollViewSpacePos.x, scrollViewSpacePos.y);
-        return _tempVec2_1;
     }
 
     protected _setOpacity (opacity: number) {
@@ -379,13 +385,14 @@ export class ScrollBar extends Component {
 
     protected _updateHandlerPosition (position: Vec2) {
         if (this._handle) {
-            const oldPosition = this._fixupHandlerPosition();
+            const oldPosition = _tempVec3;
+            this._fixupHandlerPosition(oldPosition);
 
-            this._handle.node.setPosition(position.x + oldPosition.x, position.y + oldPosition.y, 0);
+            this._handle.node.setPosition(position.x + oldPosition.x, position.y + oldPosition.y, oldPosition.z);
         }
     }
 
-    protected _fixupHandlerPosition () {
+    protected _fixupHandlerPosition (out: Vec3) {
         const uiTrans = this.node._uiProps.uiTransformComp!;
         const barSize = uiTrans.contentSize;
         const barAnchor = uiTrans.anchorPoint;
@@ -395,21 +402,17 @@ export class ScrollBar extends Component {
 
         Vec3.set(_tempPos_1, -barSize.width * barAnchor.x, -barSize.height * barAnchor.y, 0);
         const leftBottomWorldPosition = this.node._uiProps.uiTransformComp!.convertToWorldSpaceAR(_tempPos_1, _tempPos_2);
-        const fixupPosition = _tempVec3;
+        const fixupPosition = out;
         fixupPosition.set(0, 0, 0);
         handleParent._uiProps.uiTransformComp!.convertToNodeSpaceAR(leftBottomWorldPosition, fixupPosition);
 
         if (this.direction === Direction.HORIZONTAL) {
-            fixupPosition.set(fixupPosition.x, fixupPosition.y + (barSize.height - handleSize.height) / 2, 0);
-            _tempVec2_1.set(fixupPosition.x, fixupPosition.y);
+            fixupPosition.set(fixupPosition.x, fixupPosition.y + (barSize.height - handleSize.height) / 2, fixupPosition.z);
         } else if (this.direction === Direction.VERTICAL) {
-            fixupPosition.set(fixupPosition.x + (barSize.width - handleSize.width) / 2, fixupPosition.y, 0);
-            _tempVec2_1.set(fixupPosition.x, fixupPosition.y);
+            fixupPosition.set(fixupPosition.x + (barSize.width - handleSize.width) / 2, fixupPosition.y, fixupPosition.z);
         }
 
         this.handle!.node.setPosition(fixupPosition);
-
-        return _tempVec2_1;
     }
 
     protected _conditionalDisableScrollBar (contentSize: Size, scrollViewSize: Size) {
@@ -434,6 +437,7 @@ export class ScrollBar extends Component {
     }
 
     protected _calculatePosition (
+        out: Vec2,
         contentMeasure: number,
         scrollViewMeasure: number,
         handleNodeMeasure: number,
@@ -454,11 +458,9 @@ export class ScrollBar extends Component {
 
         const position = (handleNodeMeasure - actualLenth) * positionRatio;
         if (this._direction === Direction.VERTICAL) {
-            _tempVec2_2.set(0, position);
-            return _tempVec2_2;
+            out.set(0, position);
         } else {
-            _tempVec2_2.set(position, 0);
-            return _tempVec2_2;
+            out.set(position, 0);
         }
     }
 
