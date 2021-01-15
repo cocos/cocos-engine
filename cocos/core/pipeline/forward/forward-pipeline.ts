@@ -39,7 +39,7 @@ import { ColorAttachment, DepthStencilAttachment, RenderPass, LoadOp, TextureLay
     RenderPassInfo, BufferInfo, Feature, Framebuffer } from '../../gfx';
 import { SKYBOX_FLAG } from '../../renderer/scene/camera';
 import { legacyCC } from '../../global-exports';
-import { Color, color, Mat4, Vec3, Vec4 } from '../../math';
+import { Color, Mat4, Vec3, Vec4 } from '../../math';
 import { Fog } from '../../renderer/scene/fog';
 import { Ambient } from '../../renderer/scene/ambient';
 import { Skybox } from '../../renderer/scene/skybox';
@@ -50,6 +50,7 @@ import { genSamplerHash, samplerLib } from '../../renderer/core/sampler-lib';
 import { builtinResMgr } from '../../builtin';
 import { Texture2D } from '../../assets/texture-2d';
 import { Camera } from '../../renderer/scene';
+import { errorID } from '../../platform/debug';
 
 const matShadowView = new Mat4();
 const matShadowViewProj = new Mat4();
@@ -154,7 +155,7 @@ export class ForwardPipeline extends RenderPipeline {
         }
 
         if (!this._activeRenderer()) {
-            console.error('ForwardPipeline startup failed!');
+            errorID(2402);
             return false;
         }
 
@@ -346,7 +347,6 @@ export class ForwardPipeline extends RenderPipeline {
 
     public updateCameraUBO (camera: Camera) {
         const device = this.device;
-        // const root = legacyCC.director.;
         const scene = camera.scene ? camera.scene : legacyCC.director.getScene().renderScene;
         const mainLight = scene.mainLight;
         const ambient = this.ambient;
