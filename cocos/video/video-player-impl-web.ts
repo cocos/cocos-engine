@@ -101,6 +101,7 @@ export class VideoPlayerImplWeb extends VideoPlayerImpl {
             this._ignorePause = true;
             this.video.currentTime = 0;
             this.video.pause();
+            this._cachedCurrentTime = 0;
             setTimeout(() => {
                 this._ignorePause = false;
                 this.dispatchEvent(EventType.STOPPED);
