@@ -35,7 +35,7 @@ import { createPhysicsWorld } from './instance';
 import { director, Director } from '../../core/director';
 import { System } from '../../core/components';
 import { PhysicsMaterial } from './assets/physics-material';
-import { RecyclePool, game } from '../../core';
+import { RecyclePool, game, Enum } from '../../core';
 import { Ray } from '../../core/geometry';
 import { PhysicsRayResult } from './physics-ray-result';
 import { IPhysicsConfig, ICollisionMatrix } from './physics-config';
@@ -420,7 +420,7 @@ export class PhysicsSystem extends System {
      * @return boolean 表示是否有检测到碰撞盒
      */
     raycastClosest (worldRay: Ray, mask = 0xffffffff, maxDistance = 10000000, queryTrigger = true): boolean {
-        this.raycastOptions.mask = mask;
+        this.raycastOptions.mask = mask >>> 0;
         this.raycastOptions.maxDistance = maxDistance;
         this.raycastOptions.queryTrigger = queryTrigger;
         return this.physicsWorld.raycastClosest(worldRay, this.raycastOptions, this.raycastClosestResult);
@@ -437,6 +437,16 @@ director.once(Director.EVENT_INIT, () => {
 
 function initPhysicsSystem () {
     if (!EDITOR) {
+        const physics = game.config.physics;
+        if (physics) {
+            const cg = physics.collisionGroups;
+            if (cg instanceof Array) {
+                cg.forEach((v) => {
+                    PhysicsGroup[v.name] = 1 << v.index;
+                });
+                Enum.update(PhysicsGroup);
+            }
+        }
         const oldIns = PhysicsSystem.instance;
         if (oldIns) {
             director.unregisterSystem(oldIns);
