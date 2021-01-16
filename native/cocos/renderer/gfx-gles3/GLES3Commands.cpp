@@ -2612,8 +2612,6 @@ void GLES3CmdFuncBlitTexture(GLES3Device *device, GLES3GPUTexture *gpuTextureSrc
             GL_CHECK(glBindFramebuffer(GL_READ_FRAMEBUFFER, srcFramebuffer));
             cache->glReadFramebuffer = srcFramebuffer;
         }
-        GLint sample = 0;
-        glGetIntegerv(GL_SAMPLE_BUFFERS, &sample);
 
         GLuint dstFramebuffer = 0u;
         if (gpuTextureDst) dstFramebuffer = device->framebufferCacheMap()->getFramebufferFromTexture(gpuTextureDst, region.srcSubres);
@@ -2625,8 +2623,6 @@ void GLES3CmdFuncBlitTexture(GLES3Device *device, GLES3GPUTexture *gpuTextureSrc
             GL_CHECK(glBindFramebuffer(GL_DRAW_FRAMEBUFFER, dstFramebuffer));
             cache->glDrawFramebuffer = dstFramebuffer;
         }
-
-        glGetIntegerv(GL_SAMPLE_BUFFERS, &sample);
 
         GL_CHECK(glBlitFramebuffer(
             region.srcOffset.x, region.srcOffset.y, region.srcOffset.x + region.srcExtent.width, region.srcOffset.y + region.srcExtent.height,

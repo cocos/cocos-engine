@@ -175,6 +175,8 @@ public:
     VkSwapchainKHR vkSwapchain = VK_NULL_HANDLE;
     vector<VkImageView> vkSwapchainImageViews;
     FramebufferListMap vkSwapchainFramebufferListMap;
+    vector<VkImageLayout> swapchainImageLayouts;
+    vector<VkImageLayout> depthStencilImageLayouts;
     // external references
     vector<VkImage> swapchainImages;
     vector<VkImage> depthStencilImages;
@@ -242,22 +244,22 @@ struct CCVKGPUDescriptor {
 };
 typedef vector<CCVKGPUDescriptor> CCVKGPUDescriptorList;
 
+class CCVKGPUDescriptorSetLayout;
 class CCVKGPUDescriptorSet final : public Object {
 public:
     CCVKGPUDescriptorList gpuDescriptors;
 
     // references
-    VkDescriptorUpdateTemplate *pUpdateTemplate = nullptr;
+    CCVKGPUDescriptorSetLayout *gpuLayout = nullptr;
 
-    struct DescriptorSetInstance {
+    struct Instance {
         VkDescriptorSet vkDescriptorSet = VK_NULL_HANDLE;
         vector<CCVKDescriptorInfo> descriptorInfos;
         vector<VkWriteDescriptorSet> descriptorUpdateEntries;
     };
-    vector<DescriptorSetInstance> instances; // per swapchain image
+    vector<Instance> instances; // per swapchain image
 };
 
-class CCVKGPUDescriptorSetLayout;
 typedef vector<CCVKGPUDescriptorSetLayout *> CCVKGPUDescriptorSetLayoutList;
 
 class CCVKGPUPipelineLayout final : public Object {
@@ -889,11 +891,10 @@ public:
 
 private:
     void update(CCVKGPUDescriptorSet *gpuDescriptorSet) {
-        CCVKGPUDescriptorSet::DescriptorSetInstance &instance = gpuDescriptorSet->instances[_device->curBackBufferIndex];
-        if (gpuDescriptorSet->pUpdateTemplate) {
-            vkUpdateDescriptorSetWithTemplateKHR(_device->vkDevice,
-                                                 instance.vkDescriptorSet,
-                                                 *gpuDescriptorSet->pUpdateTemplate, instance.descriptorInfos.data());
+        CCVKGPUDescriptorSet::Instance &instance = gpuDescriptorSet->instances[_device->curBackBufferIndex];
+        if (gpuDescriptorSet->gpuLayout->vkDescriptorUpdateTemplate) {
+            vkUpdateDescriptorSetWithTemplateKHR(_device->vkDevice, instance.vkDescriptorSet,
+                                                 gpuDescriptorSet->gpuLayout->vkDescriptorUpdateTemplate, instance.descriptorInfos.data());
         } else {
             vector<VkWriteDescriptorSet> &entries = instance.descriptorUpdateEntries;
             vkUpdateDescriptorSets(_device->vkDevice, entries.size(), entries.data(), 0, nullptr);

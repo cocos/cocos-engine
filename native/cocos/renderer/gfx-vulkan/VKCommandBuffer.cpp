@@ -143,6 +143,7 @@ void CCVKCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo
         clearValues[attachmentCount - 1].depthStencil = {depth, (uint)stencil};
     }
 
+#if BARRIER_DEDUCTION_LEVEL >= BARRIER_DEDUCTION_LEVEL_BASIC
     // make previous framebuffer visible for load op
     if (gpuRenderPass->colorAttachments.size() && gpuRenderPass->colorAttachments[0].loadOp == LoadOp::LOAD) {
         VkMemoryBarrier barrier{VK_STRUCTURE_TYPE_MEMORY_BARRIER};
@@ -163,6 +164,7 @@ void CCVKCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo
                              VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT,
                              0, 1, &barrier, 0, nullptr, 0, nullptr);
     }
+#endif
 
     VkRenderPassBeginInfo passBeginInfo{VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO};
     passBeginInfo.renderPass = gpuRenderPass->vkRenderPass;
@@ -183,8 +185,28 @@ void CCVKCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo
 void CCVKCommandBuffer::endRenderPass() {
     vkCmdEndRenderPass(_gpuCommandBuffer->vkCommandBuffer);
 
+#if BARRIER_DEDUCTION_LEVEL >= BARRIER_DEDUCTION_LEVEL_BASIC
     // guard against WAR hazard
     vkCmdPipelineBarrier(_gpuCommandBuffer->vkCommandBuffer, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0, 0, nullptr, 0, nullptr, 0, nullptr);
+#endif
+
+    for (size_t i = 0u; i < _curGPUFBO->gpuRenderPass->colorAttachments.size(); ++i) {
+        VkImageLayout layout = VK_IMAGE_LAYOUTS[(uint)_curGPUFBO->gpuRenderPass->colorAttachments[i].endLayout];
+        if (_curGPUFBO->gpuColorViews[i]) {
+            _curGPUFBO->gpuColorViews[i]->gpuTexture->currentLayout = layout;
+        } else {
+            _curGPUFBO->swapchain->swapchainImageLayouts[_curGPUFBO->swapchain->curImageIndex] = layout;
+        }
+    }
+
+    if (_curGPUFBO->gpuRenderPass->depthStencilAttachment.format != Format::UNKNOWN) {
+        VkImageLayout layout = VK_IMAGE_LAYOUTS[(uint)_curGPUFBO->gpuRenderPass->depthStencilAttachment.endLayout];
+        if (_curGPUFBO->gpuDepthStencilView) {
+            _curGPUFBO->gpuDepthStencilView->gpuTexture->currentLayout = layout;
+        } else {
+            _curGPUFBO->swapchain->depthStencilImageLayouts[_curGPUFBO->swapchain->curImageIndex] = layout;
+        }
+    }
 
     _curGPUFBO = nullptr;
 }
@@ -433,15 +455,78 @@ void CCVKCommandBuffer::copyBuffersToTexture(const uint8_t *const *buffers, Text
 }
 
 void CCVKCommandBuffer::blitTexture(Texture *srcTexture, Texture *dstTexture, const TextureBlit *regions, uint count, Filter filter) {
-    CCVKGPUTexture *gpuTextureSrc = nullptr;
-    if (srcTexture) gpuTextureSrc = ((CCVKTexture *)srcTexture)->gpuTexture();
-    CCVKGPUTexture *gpuTextureDst = nullptr;
-    if (dstTexture) gpuTextureDst = ((CCVKTexture *)dstTexture)->gpuTexture();
+    VkImageAspectFlags srcAspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+    VkImageAspectFlags dstAspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+    VkImage srcImage = VK_NULL_HANDLE;
+    VkImage dstImage = VK_NULL_HANDLE;
+    VkImageLayout srcImageLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+    VkImageLayout dstImageLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+    CCVKGPUSwapchain *swapchain = ((CCVKDevice *)_device)->gpuSwapchain();
+
+    if (srcTexture) {
+        CCVKGPUTexture *gpuTextureSrc = ((CCVKTexture *)srcTexture)->gpuTexture();
+        srcAspectMask = gpuTextureSrc->aspectMask;
+        srcImage = gpuTextureSrc->vkImage;
+        srcImageLayout = gpuTextureSrc->currentLayout;
+    } else {
+        srcAspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+        srcImage = swapchain->swapchainImages[swapchain->curImageIndex];
+        srcImageLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+
+#if BARRIER_DEDUCTION_LEVEL >= BARRIER_DEDUCTION_LEVEL_FULL
+        if (swapchain->swapchainImageLayouts[swapchain->curImageIndex] != srcImageLayout) {
+            VkImageMemoryBarrier barrier{VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER};
+            barrier.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+            barrier.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
+            barrier.oldLayout = swapchain->swapchainImageLayouts[swapchain->curImageIndex];
+            barrier.newLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+            barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+            barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+            barrier.image = srcImage;
+            barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+            barrier.subresourceRange.levelCount = VK_REMAINING_MIP_LEVELS;
+            barrier.subresourceRange.layerCount = VK_REMAINING_ARRAY_LAYERS;
+            vkCmdPipelineBarrier(_gpuCommandBuffer->vkCommandBuffer, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0, 0, nullptr, 0, nullptr, 1, &barrier);
+
+            swapchain->swapchainImageLayouts[swapchain->curImageIndex] = srcImageLayout;
+        }
+#endif
+    }
+
+    if (dstTexture) {
+        CCVKGPUTexture *gpuTextureDst = ((CCVKTexture *)dstTexture)->gpuTexture();
+        dstAspectMask = gpuTextureDst->aspectMask;
+        dstImage = gpuTextureDst->vkImage;
+        dstImageLayout = gpuTextureDst->currentLayout;
+    } else {
+        dstAspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+        dstImage = swapchain->swapchainImages[swapchain->curImageIndex];
+        dstImageLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+
+#if BARRIER_DEDUCTION_LEVEL >= BARRIER_DEDUCTION_LEVEL_FULL
+        if (swapchain->swapchainImageLayouts[swapchain->curImageIndex] != dstImageLayout) {
+            VkImageMemoryBarrier barrier{VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER};
+            barrier.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+            barrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+            barrier.oldLayout = swapchain->swapchainImageLayouts[swapchain->curImageIndex];
+            barrier.newLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+            barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+            barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+            barrier.image = dstImage;
+            barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+            barrier.subresourceRange.levelCount = VK_REMAINING_MIP_LEVELS;
+            barrier.subresourceRange.layerCount = VK_REMAINING_ARRAY_LAYERS;
+            vkCmdPipelineBarrier(_gpuCommandBuffer->vkCommandBuffer, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0, 0, nullptr, 0, nullptr, 1, &barrier);
+
+            swapchain->swapchainImageLayouts[swapchain->curImageIndex] = dstImageLayout;
+        }
+#endif
+    }
 
     _blitRegions.resize(count);
     for (uint i = 0u; i < count; ++i) {
         const TextureBlit &region = regions[i];
-        _blitRegions[i].srcSubresource.aspectMask = gpuTextureSrc ? gpuTextureSrc->aspectMask : VK_IMAGE_ASPECT_COLOR_BIT;
+        _blitRegions[i].srcSubresource.aspectMask = srcAspectMask;
         _blitRegions[i].srcSubresource.mipLevel = region.srcSubres.mipLevel;
         _blitRegions[i].srcSubresource.baseArrayLayer = region.srcSubres.baseArrayLayer;
         _blitRegions[i].srcSubresource.layerCount = region.srcSubres.layerCount;
@@ -452,7 +537,7 @@ void CCVKCommandBuffer::blitTexture(Texture *srcTexture, Texture *dstTexture, co
         _blitRegions[i].srcOffsets[1].y = region.srcExtent.height;
         _blitRegions[i].srcOffsets[1].z = region.srcExtent.depth;
 
-        _blitRegions[i].dstSubresource.aspectMask = gpuTextureDst ? gpuTextureDst->aspectMask : VK_IMAGE_ASPECT_COLOR_BIT;
+        _blitRegions[i].dstSubresource.aspectMask = dstAspectMask;
         _blitRegions[i].dstSubresource.mipLevel = region.dstSubres.mipLevel;
         _blitRegions[i].dstSubresource.baseArrayLayer = region.dstSubres.baseArrayLayer;
         _blitRegions[i].dstSubresource.layerCount = region.dstSubres.layerCount;
@@ -464,13 +549,9 @@ void CCVKCommandBuffer::blitTexture(Texture *srcTexture, Texture *dstTexture, co
         _blitRegions[i].dstOffsets[1].z = region.dstExtent.depth;
     }
 
-    CCVKGPUSwapchain *swapchain = ((CCVKDevice *)_device)->gpuSwapchain();
-    VkImage srcImage = gpuTextureSrc ? gpuTextureSrc->vkImage : swapchain->swapchainImages[swapchain->curImageIndex];
-    VkImage dstImage = gpuTextureDst ? gpuTextureDst->vkImage : swapchain->swapchainImages[swapchain->curImageIndex];
-
     vkCmdBlitImage(_gpuCommandBuffer->vkCommandBuffer,
-                   srcImage, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-                   dstImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                   srcImage, srcImageLayout,
+                   dstImage, dstImageLayout,
                    count, _blitRegions.data(), VK_FILTERS[(uint)filter]);
 }
 
@@ -485,7 +566,36 @@ void CCVKCommandBuffer::bindDescriptorSets(VkPipelineBindPoint bindPoint) {
     uint dirtyDescriptorSetCount = descriptorSetCount - _firstDirtyDescriptorSet;
     for (uint i = _firstDirtyDescriptorSet; i < descriptorSetCount; ++i) {
         if (_curGPUDescriptorSets[i]) {
-            _curVkDescriptorSets[i] = _curGPUDescriptorSets[i]->instances[gpuDevice->curBackBufferIndex].vkDescriptorSet;
+            const CCVKGPUDescriptorSet::Instance &instance = _curGPUDescriptorSets[i]->instances[gpuDevice->curBackBufferIndex];
+            _curVkDescriptorSets[i] = instance.vkDescriptorSet;
+
+#if BARRIER_DEDUCTION_LEVEL >= BARRIER_DEDUCTION_LEVEL_FULL
+            const CCVKGPUDescriptorList &descriptors = _curGPUDescriptorSets[i]->gpuDescriptors;
+            for (size_t j = 0u; j < descriptors.size(); ++j) {
+                if (descriptors[j].type & DESCRIPTOR_SAMPLER_TYPE) {
+                    VkImageLayout &currentLayout = descriptors[j].gpuTextureView->gpuTexture->currentLayout;
+                    VkImageLayout expectedLayout = instance.descriptorInfos[j].image.imageLayout;
+                    if (currentLayout != expectedLayout) {
+
+                        VkImageMemoryBarrier barrier{VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER};
+                        barrier.srcAccessMask = 0;
+                        barrier.dstAccessMask = descriptors[j].gpuTextureView->gpuTexture->accessMask;
+                        barrier.oldLayout = currentLayout;
+                        barrier.newLayout = expectedLayout;
+                        barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+                        barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+                        barrier.image = descriptors[j].gpuTextureView->gpuTexture->vkImage;
+                        barrier.subresourceRange.aspectMask = descriptors[j].gpuTextureView->gpuTexture->aspectMask;
+                        barrier.subresourceRange.levelCount = VK_REMAINING_MIP_LEVELS;
+                        barrier.subresourceRange.layerCount = VK_REMAINING_ARRAY_LAYERS;
+                        vkCmdPipelineBarrier(_gpuCommandBuffer->vkCommandBuffer, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+                                             descriptors[j].gpuTextureView->gpuTexture->targetStage, 0, 0, nullptr, 0, nullptr, 1, &barrier);
+
+                        currentLayout = expectedLayout;
+                    }
+                }
+            }
+#endif
         } else {
             _curVkDescriptorSets[i] = pipelineLayout->setLayouts[i]->defaultDescriptorSet;
         }
@@ -529,68 +639,94 @@ void CCVKCommandBuffer::pipelineBarrier(const GlobalBarrier *barrier, const Text
     }
     _accessTypes.resize(count);
 
-    ThsvsGlobalBarrier vkBarrier;
-    _textureBarriers.resize(textureBarrierCount);
+    VkMemoryBarrier memoryBarrier;
+    VkPipelineStageFlags srcStageMask = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+    VkPipelineStageFlags dstStageMask = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
+    uint32_t memoryBarrierCount = barrier ? 1 : 0;
+    VkMemoryBarrier *pMemoryBarriers = barrier ? &memoryBarrier : nullptr;
+    uint32_t imageMemoryBarrierCount = textureBarrierCount;
+    VkImageMemoryBarrier *pImageMemoryBarriers = nullptr;
     uint index = 0u;
 
     if (barrier) {
-        vkBarrier.prevAccessCount = barrier->prevAccessCount;
-        vkBarrier.pPrevAccesses = _accessTypes.data() + index;
+        ThsvsGlobalBarrier globalBarrier;
+        globalBarrier.prevAccessCount = barrier->prevAccessCount;
+        globalBarrier.pPrevAccesses = _accessTypes.data() + index;
         for (uint i = 0u; i < barrier->prevAccessCount; ++i, ++index) {
             _accessTypes[index] = THSVS_ACCESS_TYPES[(uint)barrier->prevAccesses[i]];
         }
 
-        vkBarrier.nextAccessCount = barrier->nextAccessCount;
-        vkBarrier.pNextAccesses = _accessTypes.data() + index;
+        globalBarrier.nextAccessCount = barrier->nextAccessCount;
+        globalBarrier.pNextAccesses = _accessTypes.data() + index;
         for (uint i = 0u; i < barrier->nextAccessCount; ++i, ++index) {
             _accessTypes[index] = THSVS_ACCESS_TYPES[(uint)barrier->nextAccesses[i]];
         }
+
+        VkPipelineStageFlags tempSrcStageMask = 0;
+        VkPipelineStageFlags tempDstStageMask = 0;
+        thsvsGetVulkanMemoryBarrier(globalBarrier, &tempSrcStageMask, &tempDstStageMask, pMemoryBarriers);
+        srcStageMask |= tempSrcStageMask;
+        dstStageMask |= tempDstStageMask;
     }
 
-    for (uint b = 0u; b < textureBarrierCount; ++b) {
-        const TextureBarrier &textureBarrier = textureBarriers[b];
+    if (textureBarrierCount > 0) {
+        _imageMemoryBarriers.resize(textureBarrierCount);
+        pImageMemoryBarriers = _imageMemoryBarriers.data();
 
-        _textureBarriers[b].prevAccessCount = textureBarrier.prevAccessCount;
-        _textureBarriers[b].pPrevAccesses = _accessTypes.data() + index;
-        for (uint i = 0u; i < textureBarrier.prevAccessCount; ++i, ++index) {
-            _accessTypes[index] = THSVS_ACCESS_TYPES[(uint)textureBarrier.prevAccesses[i]];
+        VkPipelineStageFlags tempSrcStageMask = 0;
+        VkPipelineStageFlags tempDstStageMask = 0;
+        for (uint b = 0u; b < textureBarrierCount; ++b) {
+            const TextureBarrier &textureBarrier = textureBarriers[b];
+            ThsvsImageBarrier imageBarrier;
+
+            imageBarrier.prevAccessCount = textureBarrier.prevAccessCount;
+            imageBarrier.pPrevAccesses = _accessTypes.data() + index;
+            for (uint i = 0u; i < textureBarrier.prevAccessCount; ++i, ++index) {
+                _accessTypes[index] = THSVS_ACCESS_TYPES[(uint)textureBarrier.prevAccesses[i]];
+            }
+
+            imageBarrier.nextAccessCount = textureBarrier.nextAccessCount;
+            imageBarrier.pNextAccesses = _accessTypes.data() + index;
+            for (uint i = 0u; i < textureBarrier.nextAccessCount; ++i, ++index) {
+                _accessTypes[index] = THSVS_ACCESS_TYPES[(uint)textureBarrier.nextAccesses[i]];
+            }
+
+            imageBarrier.prevLayout = THSVS_IMAGE_LAYOUTS[(uint)textureBarrier.prevLayout];
+            imageBarrier.nextLayout = THSVS_IMAGE_LAYOUTS[(uint)textureBarrier.nextLayout];
+            imageBarrier.discardContents = textureBarrier.discardContents;
+
+            if (textureBarrier.texture) {
+                CCVKGPUTexture *gpuTexture = ((CCVKTexture *)textureBarrier.texture)->gpuTexture();
+                imageBarrier.image = gpuTexture->vkImage;
+                imageBarrier.subresourceRange.aspectMask = gpuTexture->aspectMask;
+            } else {
+                const CCVKGPUSwapchain *swapchain = ((CCVKDevice *)_device)->gpuSwapchain();
+                imageBarrier.image = swapchain->swapchainImages[swapchain->curImageIndex];
+                imageBarrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+            }
+
+            imageBarrier.subresourceRange.baseMipLevel = 0u;
+            imageBarrier.subresourceRange.levelCount = VK_REMAINING_MIP_LEVELS;
+            imageBarrier.subresourceRange.baseArrayLayer = 0u;
+            imageBarrier.subresourceRange.layerCount = VK_REMAINING_ARRAY_LAYERS;
+
+            imageBarrier.srcQueueFamilyIndex = textureBarrier.srcQueue
+                                                   ? ((CCVKQueue *)textureBarrier.srcQueue)->gpuQueue()->queueFamilyIndex
+                                                   : VK_QUEUE_FAMILY_IGNORED;
+            imageBarrier.dstQueueFamilyIndex = textureBarrier.dstQueue
+                                                   ? ((CCVKQueue *)textureBarrier.dstQueue)->gpuQueue()->queueFamilyIndex
+                                                   : VK_QUEUE_FAMILY_IGNORED;
+
+            thsvsGetVulkanImageMemoryBarrier(imageBarrier, &tempSrcStageMask, &tempDstStageMask, &_imageMemoryBarriers[b]);
+            srcStageMask |= tempSrcStageMask;
+            dstStageMask |= tempDstStageMask;
+
+            if (textureBarrier.texture) ((CCVKTexture *)textureBarrier.texture)->gpuTexture()->currentLayout = _imageMemoryBarriers[b].newLayout;
         }
-
-        _textureBarriers[b].nextAccessCount = textureBarrier.nextAccessCount;
-        _textureBarriers[b].pNextAccesses = _accessTypes.data() + index;
-        for (uint i = 0u; i < textureBarrier.nextAccessCount; ++i, ++index) {
-            _accessTypes[index] = THSVS_ACCESS_TYPES[(uint)textureBarrier.nextAccesses[i]];
-        }
-
-        _textureBarriers[b].prevLayout = THSVS_IMAGE_LAYOUTS[(uint)textureBarrier.prevLayout];
-        _textureBarriers[b].nextLayout = THSVS_IMAGE_LAYOUTS[(uint)textureBarrier.nextLayout];
-        _textureBarriers[b].discardContents = textureBarrier.discardContents;
-
-        if (textureBarrier.texture) {
-            const CCVKGPUTexture *gpuTexture = ((CCVKTexture *)textureBarrier.texture)->gpuTexture();
-            _textureBarriers[b].image = gpuTexture->vkImage;
-            _textureBarriers[b].subresourceRange.aspectMask = gpuTexture->aspectMask;
-        } else {
-            const CCVKGPUSwapchain *swapchain = ((CCVKDevice *)_device)->gpuSwapchain();
-            _textureBarriers[b].image = swapchain->swapchainImages[swapchain->curImageIndex];
-            _textureBarriers[b].subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-        }
-
-        _textureBarriers[b].subresourceRange.baseMipLevel = textureBarrier.subresRange.baseMipLevel;
-        _textureBarriers[b].subresourceRange.levelCount = textureBarrier.subresRange.levelCount;
-        _textureBarriers[b].subresourceRange.baseArrayLayer = textureBarrier.subresRange.baseArrayLayer;
-        _textureBarriers[b].subresourceRange.layerCount = textureBarrier.subresRange.layerCount;
-
-        _textureBarriers[b].srcQueueFamilyIndex = textureBarrier.srcQueue
-                                                      ? ((CCVKQueue *)textureBarrier.srcQueue)->gpuQueue()->queueFamilyIndex
-                                                      : VK_QUEUE_FAMILY_IGNORED;
-        _textureBarriers[b].dstQueueFamilyIndex = textureBarrier.dstQueue
-                                                      ? ((CCVKQueue *)textureBarrier.dstQueue)->gpuQueue()->queueFamilyIndex
-                                                      : VK_QUEUE_FAMILY_IGNORED;
     }
 
-    thsvsCmdPipelineBarrier(_gpuCommandBuffer->vkCommandBuffer, barrier ? &vkBarrier : nullptr,
-                            0, nullptr, textureBarrierCount, _textureBarriers.data());
+    vkCmdPipelineBarrier(_gpuCommandBuffer->vkCommandBuffer, srcStageMask, dstStageMask, 0, memoryBarrierCount, pMemoryBarriers,
+                         0, nullptr, imageMemoryBarrierCount, pImageMemoryBarriers);
 }
 
 } // namespace gfx

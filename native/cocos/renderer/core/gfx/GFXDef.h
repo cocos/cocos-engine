@@ -1065,7 +1065,6 @@ struct TextureBarrier {
     TextureBarrierLayout nextLayout = TextureBarrierLayout::OPTIMAL;
     bool discardContents = false;
     Texture *texture = nullptr;
-    TextureSubresRange subresRange;
 
     Queue *srcQueue = nullptr;
     Queue *dstQueue = nullptr;
@@ -1209,9 +1208,9 @@ struct FormatInfo {
     bool isCompressed = false;
 };
 
-extern CC_DLL const uint DESCRIPTOR_BUFFER_TYPE;
-extern CC_DLL const uint DESCRIPTOR_SAMPLER_TYPE;
-extern CC_DLL const uint DESCRIPTOR_DYNAMIC_TYPE;
+extern CC_DLL const DescriptorType DESCRIPTOR_BUFFER_TYPE;
+extern CC_DLL const DescriptorType DESCRIPTOR_SAMPLER_TYPE;
+extern CC_DLL const DescriptorType DESCRIPTOR_DYNAMIC_TYPE;
 
 extern CC_DLL const FormatInfo GFX_FORMAT_INFOS[];
 extern CC_DLL const uint GFX_TYPE_SIZES[];

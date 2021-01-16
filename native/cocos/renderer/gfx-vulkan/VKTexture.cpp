@@ -23,6 +23,7 @@ THE SOFTWARE.
 ****************************************************************************/
 #include "VKStd.h"
 
+#include "VKCommandBuffer.h"
 #include "VKCommands.h"
 #include "VKDevice.h"
 #include "VKTexture.h"
@@ -177,7 +178,7 @@ void CCVKTexture::destroy() {
 
 void CCVKTexture::resize(uint width, uint height) {
     CCASSERT(!_isTextureView, "Cannot resize texture views");
-    
+
     if (_width != width || _height != height) {
         uint size = FormatSize(_format, width, height, _depth);
         const uint old_size = _size;

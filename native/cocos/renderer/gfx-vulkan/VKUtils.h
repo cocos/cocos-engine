@@ -33,6 +33,12 @@ THE SOFTWARE.
 
 #define DEFAULT_TIMEOUT 1000000000 // 1 second
 
+#define BARRIER_DEDUCTION_LEVEL_NONE  0
+#define BARRIER_DEDUCTION_LEVEL_BASIC 1
+#define BARRIER_DEDUCTION_LEVEL_FULL  2
+
+#define BARRIER_DEDUCTION_LEVEL BARRIER_DEDUCTION_LEVEL_FULL
+
 namespace cc {
 namespace gfx {
 
@@ -229,16 +235,12 @@ VkAccessFlags MapVkAccessFlags(TextureLayout layout) {
     }
 }
 
-VkAccessFlags MapVkAccessFlags(TextureUsage usage, Format format) {
+VkAccessFlags MapVkAccessFlags(TextureUsage usage) {
     if (usage & TextureUsage::COLOR_ATTACHMENT) return VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
     if (usage & TextureUsage::DEPTH_STENCIL_ATTACHMENT) return VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
     if (usage & TextureUsage::INPUT_ATTACHMENT) return VK_ACCESS_INPUT_ATTACHMENT_READ_BIT;
-    if (usage & TextureUsage::SAMPLED) {
-        if (GFX_FORMAT_INFOS[(uint)format].hasDepth)
-            return VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT;
-        else
-            return VK_ACCESS_SHADER_READ_BIT;
-    }
+    if (usage & TextureUsage::STORAGE) return VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_SHADER_WRITE_BIT;
+    if (usage & TextureUsage::SAMPLED) return VK_ACCESS_SHADER_READ_BIT;
     if (usage & TextureUsage::TRANSFER_SRC) return VK_ACCESS_TRANSFER_READ_BIT;
     if (usage & TextureUsage::TRANSFER_DST) return VK_ACCESS_TRANSFER_WRITE_BIT;
     return VK_ACCESS_SHADER_READ_BIT;
@@ -249,7 +251,7 @@ VkAccessFlags MapVkAccessFlags(BufferUsage usage) {
     if (usage & BufferUsage::INDEX) return VK_ACCESS_INDEX_READ_BIT;
     if (usage & BufferUsage::UNIFORM) return VK_ACCESS_UNIFORM_READ_BIT;
     if (usage & BufferUsage::INDIRECT) return VK_ACCESS_INDIRECT_COMMAND_READ_BIT;
-    if (usage & BufferUsage::STORAGE) return VK_ACCESS_SHADER_READ_BIT;
+    if (usage & BufferUsage::STORAGE) return VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_SHADER_WRITE_BIT;
     if (usage & BufferUsage::TRANSFER_SRC) return VK_ACCESS_TRANSFER_READ_BIT;
     if (usage & BufferUsage::TRANSFER_DST) return VK_ACCESS_TRANSFER_WRITE_BIT;
     return VK_ACCESS_UNIFORM_READ_BIT;
@@ -336,6 +338,7 @@ VkImageUsageFlagBits MapVkImageUsageFlagBits(TextureUsage usage) {
 
 VkImageLayout MapVkImageLayout(TextureUsage usage, Format format) {
     const FormatInfo &info = GFX_FORMAT_INFOS[(uint)format];
+    if (usage & TextureUsage::STORAGE) return VK_IMAGE_LAYOUT_GENERAL; // storage image has to be general
     if (usage & TextureUsage::SAMPLED) {
         if (info.hasDepth && info.hasStencil)
             return VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL;
@@ -371,6 +374,7 @@ VkImageAspectFlags MapVkImageAspectFlags(Format format) {
 VkPipelineStageFlags MapVkPipelineStageFlags(TextureUsage usage) {
     if (usage & TextureUsage::COLOR_ATTACHMENT) return VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
     if (usage & TextureUsage::DEPTH_STENCIL_ATTACHMENT) return VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT;
+    if (usage & TextureUsage::STORAGE) return VK_PIPELINE_STAGE_VERTEX_SHADER_BIT;
     if (usage & TextureUsage::SAMPLED) return VK_PIPELINE_STAGE_VERTEX_SHADER_BIT;
     if (usage & TextureUsage::TRANSFER_SRC) return VK_PIPELINE_STAGE_TRANSFER_BIT;
     if (usage & TextureUsage::TRANSFER_DST) return VK_PIPELINE_STAGE_TRANSFER_BIT;

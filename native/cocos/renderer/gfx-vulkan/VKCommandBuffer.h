@@ -93,7 +93,7 @@ private:
     // temp storage
     vector<VkImageBlit> _blitRegions;
     vector<ThsvsAccessType> _accessTypes;
-    vector<ThsvsImageBarrier> _textureBarriers;
+    vector<VkImageMemoryBarrier> _imageMemoryBarriers;
     vector<VkCommandBuffer> _vkCommandBuffers;
 
     queue<VkCommandBuffer> _pendingQueue;

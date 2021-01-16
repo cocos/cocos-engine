@@ -718,6 +718,9 @@ bool CCVKDevice::checkSwapchainStatus() {
         },
         true); // submit immediately
 
+    _gpuSwapchain->swapchainImageLayouts.assign(imageCount, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
+    _gpuSwapchain->depthStencilImageLayouts.assign(imageCount, hasStencil ? VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL : VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL);
+
     for (FramebufferListMapIter it = _gpuSwapchain->vkSwapchainFramebufferListMap.begin();
          it != _gpuSwapchain->vkSwapchainFramebufferListMap.end(); it++) {
         CCVKCmdFuncCreateFramebuffer(this, it->first);
@@ -728,6 +731,9 @@ bool CCVKDevice::checkSwapchainStatus() {
 
 void CCVKDevice::destroySwapchain() {
     if (_gpuSwapchain->vkSwapchain != VK_NULL_HANDLE) {
+        _gpuSwapchain->swapchainImageLayouts.clear();
+        _gpuSwapchain->depthStencilImageLayouts.clear();
+
         _gpuSwapchain->depthStencilImageViews.clear();
         _gpuSwapchain->depthStencilImages.clear();
 

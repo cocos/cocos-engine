@@ -81,11 +81,11 @@ void GLES3DescriptorSet::update() {
     if (_isDirty && _gpuDescriptorSet) {
         const GLES3GPUDescriptorList &descriptors = _gpuDescriptorSet->gpuDescriptors;
         for (size_t i = 0; i < descriptors.size(); i++) {
-            if ((uint)descriptors[i].type & DESCRIPTOR_BUFFER_TYPE) {
+            if (descriptors[i].type & DESCRIPTOR_BUFFER_TYPE) {
                 if (_buffers[i]) {
                     _gpuDescriptorSet->gpuDescriptors[i].gpuBuffer = ((GLES3Buffer *)_buffers[i])->gpuBuffer();
                 }
-            } else if ((uint)descriptors[i].type & DESCRIPTOR_SAMPLER_TYPE) {
+            } else if (descriptors[i].type & DESCRIPTOR_SAMPLER_TYPE) {
                 if (_textures[i]) {
                     _gpuDescriptorSet->gpuDescriptors[i].gpuTexture = ((GLES3Texture *)_textures[i])->gpuTexture();
                 }

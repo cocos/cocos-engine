@@ -19,7 +19,7 @@ void DescriptorSet::bindBuffer(uint binding, Buffer *buffer, uint index) {
     if (binding >= bindingIndices.size() || bindingIndices[binding] >= bindings.size()) return;
 
     const DescriptorSetLayoutBinding &info = bindings[bindingIndices[binding]];
-    if ((uint)info.descriptorType & DESCRIPTOR_BUFFER_TYPE) {
+    if (info.descriptorType & DESCRIPTOR_BUFFER_TYPE) {
         const uint descriptorIndex = _layout->getDescriptorIndices()[binding];
         if (_buffers[descriptorIndex + index] != buffer) {
             _buffers[descriptorIndex + index] = buffer;
@@ -36,7 +36,7 @@ void DescriptorSet::bindTexture(uint binding, Texture *texture, uint index) {
     if (binding >= bindingIndices.size() || bindingIndices[binding] >= bindings.size()) return;
 
     const DescriptorSetLayoutBinding &info = bindings[bindingIndices[binding]];
-    if ((uint)info.descriptorType & DESCRIPTOR_SAMPLER_TYPE) {
+    if (info.descriptorType & DESCRIPTOR_SAMPLER_TYPE) {
         const uint descriptorIndex = _layout->getDescriptorIndices()[binding];
         if (_textures[descriptorIndex + index] != texture) {
             _textures[descriptorIndex + index] = texture;
@@ -53,7 +53,7 @@ void DescriptorSet::bindSampler(uint binding, Sampler *sampler, uint index) {
     if (binding >= bindingIndices.size() || bindingIndices[binding] >= bindings.size()) return;
 
     const DescriptorSetLayoutBinding &info = bindings[bindingIndices[binding]];
-    if ((uint)info.descriptorType & DESCRIPTOR_SAMPLER_TYPE) {
+    if (info.descriptorType & DESCRIPTOR_SAMPLER_TYPE) {
         const uint descriptorIndex = _layout->getDescriptorIndices()[binding];
         if (_samplers[descriptorIndex + index] != sampler) {
             _samplers[descriptorIndex + index] = sampler;

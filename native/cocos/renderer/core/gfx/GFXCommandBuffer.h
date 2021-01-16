@@ -64,6 +64,7 @@ public:
     CC_INLINE void blitTexture(Texture *srcTexture, Texture *dstTexture, const TextureBlitList &regions, Filter filter) {
         blitTexture(srcTexture, dstTexture, regions.data(), regions.size(), filter);
     }
+    CC_INLINE void pipelineBarrier(const GlobalBarrier *barrier) { pipelineBarrier(barrier, nullptr, 0u); }
     CC_INLINE void pipelineBarrier(const GlobalBarrier *barrier, const ImageBarrierList &textureBarriers) { pipelineBarrier(barrier, textureBarriers.data(), textureBarriers.size()); }
 
     CC_INLINE void bindDescriptorSetForJS(uint set, DescriptorSet *descriptorSet) {

@@ -131,7 +131,7 @@ void CCVKCmdFuncCreateTexture(CCVKDevice *device, CCVKGPUTexture *gpuTexture) {
     //CC_LOG_DEBUG("Allocated texture: %llu %llx %llx %llu %x", res.size, gpuTexture->vkImage, res.deviceMemory, res.offset, res.pMappedData);
 
     gpuTexture->layout = MapVkImageLayout(gpuTexture->usage, gpuTexture->format);
-    gpuTexture->accessMask = MapVkAccessFlags(gpuTexture->usage, gpuTexture->format);
+    gpuTexture->accessMask = MapVkAccessFlags(gpuTexture->usage);
     gpuTexture->aspectMask = MapVkImageAspectFlags(gpuTexture->format);
     gpuTexture->targetStage = MapVkPipelineStageFlags(gpuTexture->usage);
 }
@@ -450,10 +450,10 @@ void CCVKCmdFuncCreateComputePipelineState(CCVKDevice *device, CCVKGPUPipelineSt
     ///////////////////// Creation /////////////////////
 
     VK_CHECK(vkCreateComputePipelines(device->gpuDevice()->vkDevice, device->gpuDevice()->vkPipelineCache,
-                                       1, &createInfo, nullptr, &gpuPipelineState->vkPipeline));
+                                      1, &createInfo, nullptr, &gpuPipelineState->vkPipeline));
 }
 
-void CCVKCmdFuncCreateGraphicsPipelineState(CCVKDevice * device, CCVKGPUPipelineState * gpuPipelineState) {
+void CCVKCmdFuncCreateGraphicsPipelineState(CCVKDevice *device, CCVKGPUPipelineState *gpuPipelineState) {
     VkGraphicsPipelineCreateInfo createInfo{VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO};
 
     ///////////////////// Shader Stage /////////////////////
@@ -706,6 +706,7 @@ void CCVKCmdFuncUpdateBuffer(CCVKDevice *device, CCVKGPUBuffer *gpuBuffer, const
     auto upload = [&stagingBuffer, &gpuBuffer, &region](const CCVKGPUCommandBuffer *cmdBuffer) {
         vkCmdCopyBuffer(cmdBuffer->vkCommandBuffer, stagingBuffer.vkBuffer, gpuBuffer->vkBuffer, 1, &region);
 
+#if BARRIER_DEDUCTION_LEVEL >= BARRIER_DEDUCTION_LEVEL_BASIC
         // guard against RAW hazard
         VkBufferMemoryBarrier barrier{VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER};
         barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
@@ -716,6 +717,7 @@ void CCVKCmdFuncUpdateBuffer(CCVKDevice *device, CCVKGPUBuffer *gpuBuffer, const
         barrier.offset = region.dstOffset;
         barrier.size = region.size;
         vkCmdPipelineBarrier(cmdBuffer->vkCommandBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT, gpuBuffer->targetStage, 0, 0, nullptr, 1, &barrier, 0, nullptr);
+#endif
     };
 
     if (cmdBuffer) {
@@ -739,8 +741,11 @@ void CCVKCmdFuncCopyBuffersToTexture(CCVKDevice *device, const uint8_t *const *b
     barriers[0].dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
     barriers[0].oldLayout = gpuTexture->currentLayout;
     barriers[0].newLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
-    vkCmdPipelineBarrier(cmdBuff->vkCommandBuffer, gpuTexture->targetStage, VK_PIPELINE_STAGE_TRANSFER_BIT,
-                         VK_DEPENDENCY_BY_REGION_BIT, 0, nullptr, 0, nullptr, 1, barriers);
+
+    if (gpuTexture->currentLayout != VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL) {
+        vkCmdPipelineBarrier(cmdBuff->vkCommandBuffer, gpuTexture->targetStage, VK_PIPELINE_STAGE_TRANSFER_BIT,
+                             VK_DEPENDENCY_BY_REGION_BIT, 0, nullptr, 0, nullptr, 1, barriers);
+    }
 
     uint totalSize = 0u;
     vector<uint> regionSizes(count);
@@ -801,7 +806,7 @@ void CCVKCmdFuncCopyBuffersToTexture(CCVKDevice *device, const uint8_t *const *b
             for (uint i = 1u; i < gpuTexture->mipLevels; i++) {
                 barriers[0].subresourceRange.baseMipLevel = i - 1;
                 vkCmdPipelineBarrier(cmdBuff->vkCommandBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                     VK_DEPENDENCY_BY_REGION_BIT, 0, nullptr, 0, nullptr, 1, barriers);
+                                     VK_DEPENDENCY_BY_REGION_BIT, 0, nullptr, 0, nullptr, 1, barriers); 
 
                 blitInfo.srcSubresource.mipLevel = i - 1;
                 blitInfo.dstSubresource.mipLevel = i;
@@ -840,7 +845,7 @@ void CCVKCmdFuncCopyBuffersToTexture(CCVKDevice *device, const uint8_t *const *b
         }
     }
 
-    if (!layoutReady) {
+    if (!layoutReady && gpuTexture->layout != VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL) {
         barriers[0].srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
         barriers[0].dstAccessMask = gpuTexture->accessMask;
         barriers[0].oldLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
@@ -894,7 +899,7 @@ void CCVKCmdFuncDestroyFramebuffer(CCVKGPUDevice *gpuDevice, CCVKGPUFramebuffer 
 
 void CCVKCmdFuncDestroyDescriptorSetLayout(CCVKGPUDevice *gpuDevice, CCVKGPUDescriptorSetLayout *gpuDescriptorSetLayout) {
     if (gpuDescriptorSetLayout->defaultDescriptorSet != VK_NULL_HANDLE) {
-         gpuDescriptorSetLayout->pool.yield(gpuDescriptorSetLayout->defaultDescriptorSet);
+        gpuDescriptorSetLayout->pool.yield(gpuDescriptorSetLayout->defaultDescriptorSet);
         gpuDescriptorSetLayout->defaultDescriptorSet = VK_NULL_HANDLE;
     }
 

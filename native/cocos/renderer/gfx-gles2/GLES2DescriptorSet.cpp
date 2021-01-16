@@ -81,7 +81,7 @@ void GLES2DescriptorSet::update() {
     if (_isDirty && _gpuDescriptorSet) {
         const GLES2GPUDescriptorList &descriptors = _gpuDescriptorSet->gpuDescriptors;
         for (size_t i = 0; i < descriptors.size(); i++) {
-            if ((uint)descriptors[i].type & DESCRIPTOR_BUFFER_TYPE) {
+            if (descriptors[i].type & DESCRIPTOR_BUFFER_TYPE) {
                 GLES2Buffer *buffer = (GLES2Buffer *)_buffers[i];
                 if (buffer) {
                     if (buffer->gpuBuffer()) {
@@ -90,7 +90,7 @@ void GLES2DescriptorSet::update() {
                         _gpuDescriptorSet->gpuDescriptors[i].gpuBufferView = buffer->gpuBufferView();
                     }
                 }
-            } else if ((uint)descriptors[i].type & DESCRIPTOR_SAMPLER_TYPE) {
+            } else if (descriptors[i].type & DESCRIPTOR_SAMPLER_TYPE) {
                 if (_textures[i]) {
                     _gpuDescriptorSet->gpuDescriptors[i].gpuTexture = ((GLES2Texture *)_textures[i])->gpuTexture();
                 }

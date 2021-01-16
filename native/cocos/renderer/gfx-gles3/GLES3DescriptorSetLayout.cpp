@@ -69,7 +69,7 @@ bool GLES3DescriptorSetLayout::initialize(const DescriptorSetLayoutInfo &info) {
 
     for (uint i = 0u; i < bindingCount; i++) {
         const DescriptorSetLayoutBinding &binding = _bindings[i];
-        if ((uint)binding.descriptorType & DESCRIPTOR_DYNAMIC_TYPE) {
+        if (binding.descriptorType & DESCRIPTOR_DYNAMIC_TYPE) {
             for (uint j = 0u; j < binding.count; j++) {
                 _gpuDescriptorSetLayout->dynamicBindings.push_back(binding.binding);
             }
