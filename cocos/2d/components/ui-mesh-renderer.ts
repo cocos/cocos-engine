@@ -70,7 +70,6 @@ export class UIMeshRenderer extends UIComponent {
             return;
         }
 
-        this._modelComponent._sceneGetter = null;
         this._models = this._modelComponent._collectModels();
     }
 
@@ -95,6 +94,8 @@ export class UIMeshRenderer extends UIComponent {
 
     public updateAssembler (render: Batcher2D) {
         if (this._models) {
+            // @ts-expect-error: UIMeshRenderer do not attachToScene
+            this._modelComponent._detachFromScene();
             for (const m of this._models) {
                 render.commitModel.call(render, this, m, this._modelComponent!.material);
             }

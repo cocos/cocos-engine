@@ -222,6 +222,9 @@ export class Pass {
 
     protected _rs: RasterizerState = new RasterizerState();
 
+    // data for UI
+    protected _depthHash = -1;
+
     constructor (root: Root) {
         this._root = root;
         this._device = root.device;
@@ -671,6 +674,23 @@ export class Pass {
 
         // Todo: Or getHash?
         this.tryCompile();
+    }
+
+    // Only for UI
+    protected updateDepthHash () {
+        let depthTest = 0;
+        let depthWrite = 0;
+        if (this._dss.depthTest) depthTest = 1;
+        if (this._dss.depthWrite) depthWrite = 1;
+        this._depthHash = (depthTest) | (depthWrite << 1) | (this._dss.depthFunc << 2);
+    }
+
+    // Only for UI
+    public getDepthHash () {
+        if (this._depthHash === -1) {
+            this.updateDepthHash();
+        }
+        return this._depthHash;
     }
 
     // infos
