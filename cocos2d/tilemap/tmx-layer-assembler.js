@@ -393,6 +393,10 @@ export default class TmxAssembler extends Assembler {
         _curMaterial = null;
 
         let layerNode = _comp.node;
+        let pOpacity = layerNode.parent ? layerNode.parent._opacity / 255 : 1.0;
+        let opacity = pOpacity * layerNode._opacity;
+        layerNode._color._fastSetA(opacity);
+
         let color = layerNode._color._val;
         let tiledTiles = _comp._tiledTiles;
         let texGrids = _comp._texGrids;
@@ -520,7 +524,10 @@ export default class TmxAssembler extends Assembler {
                     }
 
                 } else {
-                    this.fillByTiledNode(tiledNode.node, _vbuf, _uintbuf, left, right, top, bottom, diamondTile, withColor);
+                    if (tiledNode.node._active) {
+                        tiledNode.node._color._fastSetA(tiledNode.node._opacity * opacity / 255);
+                        this.fillByTiledNode(tiledNode.node, _vbuf, _uintbuf, left, right, top, bottom, diamondTile, withColor);
+                    }
                 }
 
                 this._flipTexture(grid, gid, comp.shrink || 0);
