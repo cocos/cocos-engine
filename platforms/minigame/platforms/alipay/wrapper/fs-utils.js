@@ -23,10 +23,15 @@
  THE SOFTWARE.
  ****************************************************************************/
 var fs = my.getFileSystemManager ? my.getFileSystemManager() : null;
+var outOfStorageRegExp = /the maximum size of the file storage/;  // not exactly right
 
 var fsUtils = {
 
     fs,
+
+    isOutOfStorage (errMsg) {
+        return outOfStorageRegExp.test(errMsg);
+    },
 
     getUserDataPath () {
         return my.env.USER_DATA_PATH;
