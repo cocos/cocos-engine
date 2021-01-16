@@ -113,7 +113,7 @@ export default class TiledAssembler extends Assembler2D {
         let offsetWidth = 0, offsetHeight = 0;
         if (centerWidth > 0) {
             /*
-             * Because the float numerical calculation in javascript is not accurate enough, 
+             * Because the float numerical calculation in javascript is not accurate enough,
              * there is an expected result of 1.0, but the actual result is 1.000001.
              */
             offsetWidth = Math.floor(this.sizableWidth * 1000) / 1000 % centerWidth === 0 ? centerWidth : this.sizableWidth % centerWidth;
@@ -183,7 +183,7 @@ export default class TiledAssembler extends Assembler2D {
 
         this.updateWorldVerts(sprite);
     }
-    
+
     updateWorldVerts (sprite) {
         let renderData = this._renderData;
         let local = this._local;
@@ -228,7 +228,7 @@ export default class TiledAssembler extends Assembler2D {
     updateUVs (sprite) {
         let verts = this._renderData.vDatas[0];
         if (!verts) return;
-        
+
         let frame = sprite._spriteFrame;
         let rect = frame._rect;
         let leftWidth = frame.insetLeft, rightWidth = frame.insetRight, centerWidth = rect.width - leftWidth - rightWidth,
@@ -265,93 +265,83 @@ export default class TiledAssembler extends Assembler2D {
                     coefu = hRepeat;
                 }
 
-                // UV
                 if (rotated) {
-                    // lb
-                    verts[uvOffset] = uv[0];
-                    verts[uvOffset + 1] = uv[1];
-                    uvOffset += floatsPerVert;
-                    // rb
-                    verts[uvOffset] = uv[0];
-                    verts[uvOffset + 1] = uv[1] + (uv[7] - uv[1]) * coefu;
-                    uvOffset += floatsPerVert;
-                    // lt
-                    verts[uvOffset] = uv[0] + (uv[6] - uv[0]) * coefv;
-                    verts[uvOffset + 1] = uv[1];
-                    uvOffset += floatsPerVert;
-                    // rt
-                    verts[uvOffset] = verts[uvOffset - floatsPerVert];
-                    verts[uvOffset + 1] = verts[uvOffset + 1 - floatsPerVert * 2];
-                    uvOffset += floatsPerVert;
+                    if (yindex === 0) {
+                        tempXVerts[0] = uvSliced[0].u;
+                        tempXVerts[1] = uvSliced[0].u;
+                        tempXVerts[2] = uvSliced[4].u + (uvSliced[8].u - uvSliced[4].u) * coefv;
+                    } else if (yindex < (row - 1)) {
+                        tempXVerts[0] = uvSliced[4].u;
+                        tempXVerts[1] = uvSliced[4].u;
+                        tempXVerts[2] = uvSliced[4].u + (uvSliced[8].u - uvSliced[4].u) * coefv;
+                    } else if (yindex === (row - 1)) {
+                        tempXVerts[0] = uvSliced[8].u;
+                        tempXVerts[1] = uvSliced[8].u;
+                        tempXVerts[2] = uvSliced[12].u;
+                    }
+                    if (xindex === 0) {
+                        tempYVerts[0] = uvSliced[0].v;
+                        tempYVerts[1] = uvSliced[1].v + (uvSliced[2].v - uvSliced[1].v) * coefu;
+                        tempYVerts[2] = uvSliced[0].v;
+                    } else if (xindex < (col - 1)) {
+                        tempYVerts[0] = uvSliced[1].v;
+                        tempYVerts[1] = uvSliced[1].v + (uvSliced[2].v - uvSliced[1].v) * coefu;
+                        tempYVerts[2] = uvSliced[1].v;
+                    } else if (xindex === (col - 1)) {
+                        tempYVerts[0] = uvSliced[2].v;
+                        tempYVerts[1] = uvSliced[3].v;
+                        tempYVerts[2] = uvSliced[2].v;
+                    }
+                    tempXVerts[3] = tempXVerts[2];
+                    tempYVerts[3] = tempYVerts[1];
                 }
                 else {
-                    // lb
                     if (xindex === 0) {
-                        verts[uvOffset] = uv[0];
-                    }
-                    else if (xindex > 0 && xindex < (col - 1)) {
-                        verts[uvOffset] = uvSliced[1].u;
-                    }
-                    else if(xindex === (col - 1)) {
-                        verts[uvOffset] = uvSliced[2].u;
+                        tempXVerts[0] = uvSliced[0].u;
+                        tempXVerts[1] = uvSliced[1].u + (uvSliced[2].u - uvSliced[1].u) * coefu;
+                        tempXVerts[2] = uv[0];
+                    } else if (xindex < (col - 1)) {
+                        tempXVerts[0] = uvSliced[1].u;
+                        tempXVerts[1] = uvSliced[1].u + (uvSliced[2].u - uvSliced[1].u) * coefu;
+                        tempXVerts[2] = uvSliced[1].u;
+                    } else if (xindex === (col - 1)) {
+                        tempXVerts[0] = uvSliced[2].u;
+                        tempXVerts[1] = uvSliced[3].u;
+                        tempXVerts[2] = uvSliced[2].u;
                     }
                     if (yindex === 0) {
-                        verts[uvOffset + 1] = uvSliced[0].v;
+                        tempYVerts[0] = uvSliced[0].v;
+                        tempYVerts[1] = uvSliced[0].v;
+                        tempYVerts[2] = uvSliced[4].v + (uvSliced[8].v - uvSliced[4].v) * coefv;
+                    } else if (yindex < (row - 1)) {
+                        tempYVerts[0] = uvSliced[4].v;
+                        tempYVerts[1] = uvSliced[4].v;
+                        tempYVerts[2] = uvSliced[4].v + (uvSliced[8].v - uvSliced[4].v) * coefv;
+                    } else if (yindex === (row - 1)) {
+                        tempYVerts[0] = uvSliced[8].v;
+                        tempYVerts[1] = uvSliced[8].v;
+                        tempYVerts[2] = uvSliced[12].v;
                     }
-                    else if (yindex > 0 && yindex < (row - 1)) {
-                        verts[uvOffset + 1] = uvSliced[4].v;
-                    }
-                    else if (yindex === (row - 1)) {
-                        verts[uvOffset + 1] = uvSliced[8].v;
-                    }
-                    uvOffset += floatsPerVert;
-                    // rb
-                    if (xindex === 0) {
-                        verts[uvOffset] = uvSliced[1].u + (uvSliced[2].u - uvSliced[1].u) * coefu;
-                    }
-                    else if (xindex > 0 && xindex < (col - 1)) {
-                        verts[uvOffset] = uvSliced[1].u + (uvSliced[2].u - uvSliced[1].u) * coefu;
-                    }
-                    else if (xindex === (col - 1)){
-                        verts[uvOffset] = uvSliced[3].u;
-                    }
-                    if (yindex === 0) {
-                        verts[uvOffset + 1] = uvSliced[0].v;
-                    }
-                    else if (yindex > 0 && yindex < (row - 1)) {
-                        verts[uvOffset + 1] = uvSliced[4].v;
-                    }
-                    else if (yindex === (row - 1)) {
-                        verts[uvOffset + 1] = uvSliced[8].v;
-                    }
-                    uvOffset += floatsPerVert;
-                    // lt
-                    if (xindex === 0) {
-                        verts[uvOffset] = uv[0];
-                    }
-                    else if (xindex > 0 && xindex < (col - 1)) {
-                        verts[uvOffset] = uvSliced[1].u;
-                    }
-                    else if (xindex === (col - 1)) {
-                        verts[uvOffset] = uvSliced[2].u;
-                    }
-                    if (yindex === 0) {
-                        verts[uvOffset + 1] = uvSliced[4].v + (uvSliced[8].v - uvSliced[4].v) * coefv;
-                    }
-                    else if (yindex > 0 && yindex < (row - 1)) {
-                        verts[uvOffset + 1] = uvSliced[4].v + (uvSliced[8].v - uvSliced[4].v) * coefv;
-                    }
-                    else if (yindex === (row - 1)) {
-                        verts[uvOffset + 1] = uvSliced[12].v;
-                    }
-                    uvOffset += floatsPerVert;
-                    // rt
-                    verts[uvOffset] = verts[uvOffset - floatsPerVert * 2];
-                    verts[uvOffset + 1] = verts[uvOffset + 1 - floatsPerVert];
-                    uvOffset += floatsPerVert;
+                    tempXVerts[3] = tempXVerts[1];
+                    tempYVerts[3] = tempYVerts[2];
                 }
+                // lb
+                verts[uvOffset] = tempXVerts[0];
+                verts[uvOffset + 1] = tempYVerts[0];
+                uvOffset += floatsPerVert;
+                // rb
+                verts[uvOffset] = tempXVerts[1];
+                verts[uvOffset + 1] = tempYVerts[1];
+                uvOffset += floatsPerVert;
+                // lt
+                verts[uvOffset] = tempXVerts[2];
+                verts[uvOffset + 1] = tempYVerts[2];
+                uvOffset += floatsPerVert;
+                // rt
+                verts[uvOffset] = tempXVerts[3];
+                verts[uvOffset + 1] = tempYVerts[3];
+                uvOffset += floatsPerVert;
             }
         }
     }
 }
-
