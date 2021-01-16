@@ -14,6 +14,7 @@ export type EngineFeature =
     | 'physics-cannon'
     | 'physics-ammo'
     | 'physics-builtin'
+    | 'physics-physx'
     | 'particle-2d'
     | 'webview'
     | 'tween'

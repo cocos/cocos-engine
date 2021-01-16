@@ -143,6 +143,9 @@
                 "physics-cannon": {
                     "$ref": "#/definitions/BaseItem"
                 },
+                "physics-physx": {
+                    "$ref": "#/definitions/BaseItem"
+                },
                 "primitive": {
                     "$ref": "#/definitions/BaseItem"
                 },
@@ -228,6 +231,9 @@
                     "$ref": "#/definitions/Item"
                 },
                 "physics-cannon": {
+                    "$ref": "#/definitions/Item"
+                },
+                "physics-physx": {
                     "$ref": "#/definitions/Item"
                 },
                 "primitive": {
