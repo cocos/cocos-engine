@@ -298,8 +298,8 @@ public:
     GLuint glProgram = 0;
     vector<bool> glEnabledAttribLocs;
     vector<bool> glCurrentAttribLocs;
-    GLuint glFramebuffer = 0;
-    GLuint glReadFBO = 0;
+    GLuint glReadFramebuffer = 0;
+    GLuint glDrawFramebuffer = 0;
     Viewport viewport;
     Rect scissor;
     RasterizerState rs;
@@ -307,7 +307,7 @@ public:
     BlendState bs;
     bool isCullFaceEnabled = true;
     bool isStencilTestEnabled = false;
-    map<String, uint> texUnitCacheMap;
+    unordered_map<String, uint> texUnitCacheMap;
     GLES3ObjectCache gfxStateCache;
 
     void initialize(size_t texUnits, size_t imageUnits, size_t uboBindings, size_t ssboBindings, size_t vertexAttributes) {
@@ -340,8 +340,8 @@ public:
         glProgram = 0;
         glEnabledAttribLocs.assign(glEnabledAttribLocs.size(), 0u);
         glCurrentAttribLocs.assign(glCurrentAttribLocs.size(), 0u);
-        glFramebuffer = 0;
-        glReadFBO = 0;
+        glReadFramebuffer = 0;
+        glDrawFramebuffer = 0;
         isCullFaceEnabled = true;
         isStencilTestEnabled = false;
 
@@ -359,6 +359,65 @@ public:
         gfxStateCache.glPrimitive = 0u;
         gfxStateCache.reverseCW = false;
     }
+};
+
+class GLES3GPUFramebufferCacheMap final : public Object {
+public:
+    GLES3GPUFramebufferCacheMap(GLES3GPUStateCache *cache) : _cache(cache) {}
+
+    ~GLES3GPUFramebufferCacheMap() {
+    }
+
+    GLuint getFramebufferFromTexture(const GLES3GPUTexture *gpuTexture, const TextureSubresLayers &subres) {
+        // TODO: single layer support using glFramebufferTextureLayer
+
+        if (_map[gpuTexture->glTexture].empty()) _map[gpuTexture->glTexture].resize(gpuTexture->mipLevel, 0u);
+
+        if (!_map[gpuTexture->glTexture][subres.mipLevel]) {
+            GLuint glFramebuffer = 0u;
+            GL_CHECK(glGenFramebuffers(1, &glFramebuffer));
+            if (_cache->glDrawFramebuffer != glFramebuffer) {
+                GL_CHECK(glBindFramebuffer(GL_DRAW_FRAMEBUFFER, glFramebuffer));
+                _cache->glDrawFramebuffer = glFramebuffer;
+            }
+
+            const FormatInfo &info = GFX_FORMAT_INFOS[(uint)gpuTexture->format];
+            GLenum attachment = GL_COLOR_ATTACHMENT0;
+            if (info.hasStencil) {
+                attachment = GL_DEPTH_STENCIL_ATTACHMENT;
+            } else if (info.hasDepth) {
+                attachment = GL_DEPTH_ATTACHMENT;
+            }
+            GL_CHECK(glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, attachment, gpuTexture->glTarget, gpuTexture->glTexture, subres.mipLevel));
+
+            GLenum status;
+            GL_CHECK(status = glCheckFramebufferStatus(GL_DRAW_FRAMEBUFFER));
+            CCASSERT(status == GL_FRAMEBUFFER_COMPLETE, "frambuffer incomplete");
+
+            _map[gpuTexture->glTexture][subres.mipLevel] = glFramebuffer;
+        }
+
+        return _map[gpuTexture->glTexture][subres.mipLevel]; 
+    }
+
+    void onTextureDestroy(const GLES3GPUTexture *gpuTexture) {
+        if (_map.count(gpuTexture->glTexture)) {
+            for (GLuint glFramebuffer : _map[gpuTexture->glTexture]) {
+                if (!glFramebuffer) continue;
+
+                if (_cache->glDrawFramebuffer == glFramebuffer) {
+                    GL_CHECK(glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0));
+                    _cache->glDrawFramebuffer = 0;
+                }
+                GL_CHECK(glDeleteFramebuffers(1, &glFramebuffer));
+            }
+            _map.erase(gpuTexture->glTexture);
+        }
+    }
+
+private:
+    GLES3GPUStateCache *_cache = nullptr;
+    unordered_map<GLuint, vector<GLuint>> _map; // texture -> mip level -> framebuffer
 };
 
 constexpr size_t chunkSize = 16 * 1024 * 1024; // 16M per block by default

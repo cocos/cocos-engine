@@ -312,6 +312,9 @@ void GLES2CommandBuffer::copyBuffersToTexture(const uint8_t *const *buffers, Tex
     }
 }
 
+void GLES2CommandBuffer::blitTexture(Texture *srcTexture, Texture *dstTexture, const TextureBlit *regions, uint count, Filter filter) {
+}
+
 void GLES2CommandBuffer::execute(CommandBuffer *const *cmdBuffs, uint32_t count) {
     CCASSERT(false, "Command 'execute' must be recorded in primary command buffers.");
 

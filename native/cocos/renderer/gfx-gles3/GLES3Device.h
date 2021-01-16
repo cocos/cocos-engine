@@ -30,6 +30,7 @@ namespace gfx {
 class GLES3Context;
 class GLES3GPUStateCache;
 class GLES3GPUStagingBufferPool;
+class GLES3GPUFramebufferCacheMap;
 
 class CC_GLES3_API GLES3Device final : public Device {
 public:
@@ -60,6 +61,7 @@ public:
 
     CC_INLINE GLES3GPUStateCache *stateCache() const { return _gpuStateCache; }
     CC_INLINE GLES3GPUStagingBufferPool *stagingBufferPool() const { return _gpuStagingBufferPool; }
+    CC_INLINE GLES3GPUFramebufferCacheMap *framebufferCacheMap() const { return _gpuFramebufferCacheMap; }
 
     CC_INLINE bool checkExtension(const String &extension) const {
         for (size_t i = 0; i < _extensions.size(); ++i) {
@@ -97,6 +99,7 @@ private:
     GLES3Context *_deviceContext = nullptr;
     GLES3GPUStateCache *_gpuStateCache = nullptr;
     GLES3GPUStagingBufferPool *_gpuStagingBufferPool = nullptr;
+    GLES3GPUFramebufferCacheMap *_gpuFramebufferCacheMap = nullptr;
 
     StringArray _extensions;
 

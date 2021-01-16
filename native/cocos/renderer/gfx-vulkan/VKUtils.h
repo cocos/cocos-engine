@@ -677,6 +677,11 @@ const ThsvsAccessType THSVS_ACCESS_TYPES[] = {
     THSVS_ACCESS_HOST_WRITE,                                                 // HOST_WRITE
 };
 
+const ThsvsImageLayout THSVS_IMAGE_LAYOUTS[] = {
+    THSVS_IMAGE_LAYOUT_OPTIMAL,
+    THSVS_IMAGE_LAYOUT_GENERAL,
+};
+
 const VkImageLayout VK_IMAGE_LAYOUTS[] = {
     VK_IMAGE_LAYOUT_UNDEFINED,                        // UNDEFINED
     VK_IMAGE_LAYOUT_GENERAL,                          // GENERAL

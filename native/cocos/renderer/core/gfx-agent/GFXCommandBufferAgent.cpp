@@ -393,6 +393,29 @@ void CommandBufferAgent::copyBuffersToTexture(const uint8_t *const *buffers, Tex
         });
 }
 
+void CommandBufferAgent::blitTexture(Texture* srcTexture, Texture* dstTexture, const TextureBlit* regions, uint count, Filter filter) {
+    Texture *actorSrcTexture = nullptr;
+    Texture *actorDstTexture = nullptr;
+    if (srcTexture) actorSrcTexture = ((TextureAgent *)srcTexture)->getActor();
+    if (dstTexture) actorDstTexture = ((TextureAgent *)dstTexture)->getActor();
+
+    TextureBlit *actorRegions = getAllocator()->allocate<TextureBlit>(count);
+    memcpy(actorRegions, regions, count * sizeof(TextureBlit));
+
+    ENQUEUE_MESSAGE_6(
+        _messageQueue,
+        CommandBufferBlitTexture,
+        actor, getActor(),
+        srcTexture, actorSrcTexture,
+        dstTexture, actorDstTexture,
+        regions, actorRegions,
+        count, count,
+        filter, filter,
+        {
+            actor->blitTexture(srcTexture, dstTexture, regions, count, filter);
+        });
+}
+
 void CommandBufferAgent::dispatch(const DispatchInfo &info) {
     DispatchInfo actorInfo = info;
     if (info.indirectBuffer) actorInfo.indirectBuffer = ((BufferAgent *)info.indirectBuffer)->getActor();
@@ -440,14 +463,14 @@ void CommandBufferAgent::pipelineBarrier(const GlobalBarrier *barrier, const Tex
         actorTextureBarriers[b].nextAccesses = accessTypes + index;
         for (uint i = 0u; i < textureBarrier.nextAccessCount; ++i, ++index) accessTypes[index] = textureBarrier.nextAccesses[i];
 
-        actorTextureBarriers[b].texture = ((TextureAgent *)textureBarrier.texture)->getActor();
+        if (textureBarrier.texture) actorTextureBarriers[b].texture = ((TextureAgent *)textureBarrier.texture)->getActor();
         if (textureBarrier.srcQueue) actorTextureBarriers[b].srcQueue = ((QueueAgent *)textureBarrier.srcQueue)->getActor();
         if (textureBarrier.dstQueue) actorTextureBarriers[b].dstQueue = ((QueueAgent *)textureBarrier.dstQueue)->getActor();
     }
 
     ENQUEUE_MESSAGE_4(
         _messageQueue,
-        CommandBufferDispatch,
+        CommandBufferPipelineBarrier,
         actor, getActor(),
         barrier, actorBarrier,
         textureBarriers, actorTextureBarriers,

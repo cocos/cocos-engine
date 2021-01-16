@@ -36,6 +36,7 @@ enum class GLES3CmdType : uint8_t {
     DRAW,
     UPDATE_BUFFER,
     COPY_BUFFER_TO_TEXTURE,
+    BLIT_TEXTURE,
     DISPATCH,
     BARRIER,
     COUNT,
@@ -211,6 +212,24 @@ public:
     }
 };
 
+class GLES3CmdBlitTexture final : public GLES3Cmd {
+public:
+    GLES3GPUTexture *gpuTextureSrc = nullptr;
+    GLES3GPUTexture *gpuTextureDst = nullptr;
+    const TextureBlit *regions = nullptr;
+    uint count = 0u;
+    Filter filter = Filter::POINT;
+
+    GLES3CmdBlitTexture() : GLES3Cmd(GLES3CmdType::BLIT_TEXTURE) {}
+
+    virtual void clear() override {
+        gpuTextureSrc = nullptr;
+        gpuTextureDst = nullptr;
+        regions = nullptr;
+        count = 0u;
+    }
+};
+
 class GLES3CmdPackage final : public Object {
 public:
     CachedArray<GLES3CmdType> cmds;
@@ -221,6 +240,7 @@ public:
     CachedArray<GLES3CmdBarrier *> barrierCmds;
     CachedArray<GLES3CmdUpdateBuffer *> updateBufferCmds;
     CachedArray<GLES3CmdCopyBufferToTexture *> copyBufferToTextureCmds;
+    CachedArray<GLES3CmdBlitTexture *> blitTextureCmds;
 };
 
 class GLES3GPUCommandAllocator final : public Object {
@@ -232,6 +252,7 @@ public:
     CommandPool<GLES3CmdBarrier> barrierCmdPool;
     CommandPool<GLES3CmdUpdateBuffer> updateBufferCmdPool;
     CommandPool<GLES3CmdCopyBufferToTexture> copyBufferToTextureCmdPool;
+    CommandPool<GLES3CmdBlitTexture> blitTextureCmdPool;
 
     void clearCmds(GLES3CmdPackage *cmd_package) {
         if (cmd_package->beginRenderPassCmds.size()) {
@@ -255,6 +276,9 @@ public:
         if (cmd_package->copyBufferToTextureCmds.size()) {
             copyBufferToTextureCmdPool.freeCmds(cmd_package->copyBufferToTextureCmds);
         }
+        if (cmd_package->blitTextureCmds.size()) {
+            blitTextureCmdPool.freeCmds(cmd_package->blitTextureCmds);
+        }
 
         cmd_package->cmds.clear();
     }
@@ -267,6 +291,7 @@ public:
         barrierCmdPool.release();
         updateBufferCmdPool.release();
         copyBufferToTextureCmdPool.release();
+        blitTextureCmdPool.release();
     }
 };
 
@@ -297,6 +322,7 @@ CC_GLES3_API void GLES3CmdFuncDraw(GLES3Device *device, DrawInfo &drawInfo);
 CC_GLES3_API void GLES3CmdFuncUpdateBuffer(GLES3Device *device, GLES3GPUBuffer *gpuBuffer, const void *buffer, uint offset, uint size);
 CC_GLES3_API void GLES3CmdFuncCopyBuffersToTexture(GLES3Device *device, const uint8_t *const *buffers,
                                                    GLES3GPUTexture *gpuTexture, const BufferTextureCopy *regions, uint count);
+CC_GLES3_API void GLES3CmdFuncBlitTexture(GLES3Device *device, GLES3GPUTexture *gpuTextureSrc, GLES3GPUTexture *gpuTextureDst, const TextureBlit *regions, uint count, Filter filter);
 CC_GLES3_API void GLES3CmdFuncExecuteCmds(GLES3Device *device, GLES3CmdPackage *cmdPackage);
 CC_GLES3_API void GLES3CmdFuncDispatch(GLES3Device *device, const GLES3GPUDispatchInfo &info);
 CC_GLES3_API void GLES3CmdFuncMemoryBarrier(GLES3Device *device, GLbitfield barriers, GLbitfield barriersByRegion);

@@ -33,6 +33,7 @@ public:
     virtual void draw(InputAssembler *ia) = 0;
     virtual void updateBuffer(Buffer *buff, const void *data, uint size) = 0;
     virtual void copyBuffersToTexture(const uint8_t *const *buffers, Texture *texture, const BufferTextureCopy *regions, uint count) = 0;
+    virtual void blitTexture(Texture *srcTexture, Texture *dstTexture, const TextureBlit *regions, uint count, Filter filter) = 0;
     virtual void execute(CommandBuffer *const *cmdBuffs, uint32_t count) = 0;
     virtual void dispatch(const DispatchInfo &info) = 0;
     virtual void pipelineBarrier(const GlobalBarrier *barrier, const TextureBarrier *textureBarriers, uint textureBarrierCount) = 0;
@@ -59,6 +60,9 @@ public:
     }
     CC_INLINE void copyBuffersToTexture(const BufferDataList &buffers, Texture *texture, const BufferTextureCopyList &regions) {
         copyBuffersToTexture(buffers.data(), texture, regions.data(), static_cast<uint>(regions.size()));
+    }
+    CC_INLINE void blitTexture(Texture *srcTexture, Texture *dstTexture, const TextureBlitList &regions, Filter filter) {
+        blitTexture(srcTexture, dstTexture, regions.data(), regions.size(), filter);
     }
     CC_INLINE void pipelineBarrier(const GlobalBarrier *barrier, const ImageBarrierList &textureBarriers) { pipelineBarrier(barrier, textureBarriers.data(), textureBarriers.size()); }
 

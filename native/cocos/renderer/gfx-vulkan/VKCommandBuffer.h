@@ -58,6 +58,7 @@ public:
     virtual void draw(InputAssembler *ia) override;
     virtual void updateBuffer(Buffer *buffer, const void *data, uint size) override;
     virtual void copyBuffersToTexture(const uint8_t *const *buffers, Texture *texture, const BufferTextureCopy *regions, uint count) override;
+    virtual void blitTexture(Texture *srcTexture, Texture *dstTexture, const TextureBlit *regions, uint count, Filter filter) override;
     virtual void execute(CommandBuffer *const *cmdBuffs, uint count) override;
     virtual void dispatch(const DispatchInfo &info) override;
     virtual void pipelineBarrier(const GlobalBarrier *barrier, const TextureBarrier *textureBarriers, uint textureBarrierCount) override;
@@ -89,9 +90,12 @@ private:
     CCVKStencilWriteMask _curStencilWriteMask;
     CCVKStencilCompareMask _curStencilCompareMask;
 
+    // temp storage
+    vector<VkImageBlit> _blitRegions;
     vector<ThsvsAccessType> _accessTypes;
     vector<ThsvsImageBarrier> _textureBarriers;
     vector<VkCommandBuffer> _vkCommandBuffers;
+
     queue<VkCommandBuffer> _pendingQueue;
 };
 

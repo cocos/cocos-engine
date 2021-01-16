@@ -438,7 +438,7 @@ bool GLES3Context::MakeCurrent(bool bound) {
 
         GL_CHECK(glFrontFace(GL_CCW));
 
-        //GL_CHECK(glDisable(GL_MULTISAMPLE));
+        GL_CHECK(glDisable(GL_SAMPLE_COVERAGE));
 
         //////////////////////////////////////////////////////////////////////////
         // DepthStencilState

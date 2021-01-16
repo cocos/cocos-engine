@@ -69,6 +69,7 @@ bool GLES3Device::initialize(const DeviceInfo &info) {
 
     _gpuStateCache = CC_NEW(GLES3GPUStateCache);
     _gpuStagingBufferPool = CC_NEW(GLES3GPUStagingBufferPool);
+    _gpuFramebufferCacheMap = CC_NEW(GLES3GPUFramebufferCacheMap(_gpuStateCache));
 
     ContextInfo ctxInfo;
     ctxInfo.windowHandle = _windowHandle;
@@ -192,6 +193,7 @@ bool GLES3Device::initialize(const DeviceInfo &info) {
 void GLES3Device::destroy() {
     CC_SAFE_DESTROY(_queue);
     CC_SAFE_DESTROY(_cmdBuff);
+    CC_SAFE_DELETE(_gpuFramebufferCacheMap);
     CC_SAFE_DELETE(_gpuStagingBufferPool);
     CC_SAFE_DELETE(_gpuStateCache);
     CC_SAFE_DESTROY(_deviceContext);

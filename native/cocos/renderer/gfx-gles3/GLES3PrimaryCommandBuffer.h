@@ -46,8 +46,10 @@ public:
     virtual void execute(CommandBuffer *const *cmdBuffs, uint32_t count) override;
     virtual void dispatch(const DispatchInfo &info) override;
     virtual void pipelineBarrier(const GlobalBarrier *barrier, const TextureBarrier *textureBarriers, uint textureBarrierCount) override;
+    virtual void blitTexture(Texture *srcTexture, Texture *dstTexture, const TextureBlit *regions, uint count, Filter filter) override;
+
 protected:
-    virtual void BindStates();
+    virtual void BindStates() override;
 };
 
 } // namespace gfx

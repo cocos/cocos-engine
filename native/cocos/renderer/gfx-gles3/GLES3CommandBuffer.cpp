@@ -299,6 +299,24 @@ void GLES3CommandBuffer::updateBuffer(Buffer *buff, const void *data, uint size)
     }
 }
 
+void GLES3CommandBuffer::blitTexture(Texture *srcTexture, Texture *dstTexture, const TextureBlit *regions, uint count, Filter filter) {
+    if ((_type == CommandBufferType::PRIMARY && !_isInRenderPass) ||
+        (_type == CommandBufferType::SECONDARY)) {
+
+        GLES3CmdBlitTexture *cmd = _cmdAllocator->blitTextureCmdPool.alloc();
+        if (srcTexture) cmd->gpuTextureSrc = ((GLES3Texture *)srcTexture)->gpuTexture();
+        if (dstTexture) cmd->gpuTextureDst = ((GLES3Texture *)dstTexture)->gpuTexture();
+        cmd->regions = regions;
+        cmd->count = count;
+        cmd->filter = filter;
+
+        _curCmdPackage->blitTextureCmds.push(cmd);
+        _curCmdPackage->cmds.push(GLES3CmdType::BLIT_TEXTURE);
+    } else {
+        CC_LOG_ERROR("Command 'blitTexture' must be recorded outside a render pass.");
+    }
+}
+
 void GLES3CommandBuffer::copyBuffersToTexture(const uint8_t *const *buffers, Texture *texture, const BufferTextureCopy *regions, uint count) {
     if ((_type == CommandBufferType::PRIMARY && !_isInRenderPass) ||
         (_type == CommandBufferType::SECONDARY)) {
@@ -342,6 +360,16 @@ void GLES3CommandBuffer::execute(CommandBuffer *const *cmdBuffs, uint32_t count)
             ++cmd->refCount;
             _curCmdPackage->drawCmds.push(cmd);
         }
+        for (uint j = 0; j < cmdPackage->dispatchCmds.size(); ++j) {
+            GLES3CmdDispatch *cmd = cmdPackage->dispatchCmds[j];
+            ++cmd->refCount;
+            _curCmdPackage->dispatchCmds.push(cmd);
+        }
+        for (uint j = 0; j < cmdPackage->barrierCmds.size(); ++j) {
+            GLES3CmdBarrier *cmd = cmdPackage->barrierCmds[j];
+            ++cmd->refCount;
+            _curCmdPackage->barrierCmds.push(cmd);
+        }
         for (uint j = 0; j < cmdPackage->updateBufferCmds.size(); ++j) {
             GLES3CmdUpdateBuffer *cmd = cmdPackage->updateBufferCmds[j];
             ++cmd->refCount;
@@ -351,6 +379,11 @@ void GLES3CommandBuffer::execute(CommandBuffer *const *cmdBuffs, uint32_t count)
             GLES3CmdCopyBufferToTexture *cmd = cmdPackage->copyBufferToTextureCmds[j];
             ++cmd->refCount;
             _curCmdPackage->copyBufferToTextureCmds.push(cmd);
+        }
+        for (uint j = 0; j < cmdPackage->blitTextureCmds.size(); ++j) {
+            GLES3CmdBlitTexture *cmd = cmdPackage->blitTextureCmds[j];
+            ++cmd->refCount;
+            _curCmdPackage->blitTextureCmds.push(cmd);
         }
         _curCmdPackage->cmds.concat(cmdPackage->cmds);
 
@@ -363,7 +396,7 @@ void GLES3CommandBuffer::execute(CommandBuffer *const *cmdBuffs, uint32_t count)
 
         // current cmd allocator strategy will not work here: (but it doesn't matter anyways)
         // allocators are designed to only free the cmds they allocated
-        // but here we are essentially ��transfering' the owner ship
+        // but here we are essentially 'transfering' the owner ship
         //cmdBuff->_cmdAllocator->clearCmds(cmdPackage);
     }
 }

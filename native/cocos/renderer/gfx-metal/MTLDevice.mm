@@ -94,12 +94,12 @@ bool CCMTLDevice::initialize(const DeviceInfo &info) {
     _indirectDrawSupported = mu::isIndirectDrawSupported(gpuFamily);
     _caps.maxVertexAttributes = mu::getMaxVertexAttributes(gpuFamily);
     _caps.maxTextureUnits = _caps.maxVertexTextureUnits = mu::getMaxEntriesInTextureArgumentTable(gpuFamily);
-    _caps.maxSamplerUnits = mu::getMaxEntriesInSamplerStateArgumentTable(gpuFamily);
+//    _caps.maxSamplerUnits = mu::getMaxEntriesInSamplerStateArgumentTable(gpuFamily);
     _caps.maxTextureSize = mu::getMaxTexture2DWidthHeight(gpuFamily);
     _caps.maxCubeMapTextureSize = mu::getMaxCubeMapTextureWidthHeight(gpuFamily);
-    _caps.maxColorRenderTargets = mu::getMaxColorRenderTarget(gpuFamily);
-    _caps.maxBufferBindingIndex = mu::getMaxEntriesInBufferArgumentTable(gpuFamily);
-    _uboOffsetAlignment = mu::getMinBufferOffsetAlignment(gpuFamily);
+//    _caps.maxColorRenderTargets = mu::getMaxColorRenderTarget(gpuFamily);
+//    _caps.maxBufferBindingIndex = mu::getMaxEntriesInBufferArgumentTable(gpuFamily);
+    _caps.uboOffsetAlignment = mu::getMinBufferOffsetAlignment(gpuFamily);
     _icbSuppored = mu::isIndirectCommandBufferSupported(MTLFeatureSet(_mtlFeatureSet));
     _isSamplerDescriptorCompareFunctionSupported = mu::isSamplerDescriptorCompareFunctionSupported(gpuFamily);
 
@@ -108,13 +108,13 @@ bool CCMTLDevice::initialize(const DeviceInfo &info) {
     }
     // Persistent depth stencil texture
     MTLTextureDescriptor *dssDescriptor = [[MTLTextureDescriptor alloc] init];
-    dssDescriptor.pixelFormat = mu::getSupportedDepthStencilFormat(mtlDevice, gpuFamily, _depthBits);
+    dssDescriptor.pixelFormat = mu::getSupportedDepthStencilFormat(mtlDevice, gpuFamily, _caps.depthBits);
     dssDescriptor.width = info.width;
     dssDescriptor.height = info.height;
     dssDescriptor.storageMode = MTLStorageModePrivate;
     dssDescriptor.usage = MTLTextureUsageRenderTarget;
     _dssTex = [mtlDevice newTextureWithDescriptor:dssDescriptor];
-    _stencilBits = 8;
+    _caps.stencilBits = 8;
 
     ContextInfo contextCreateInfo;
     contextCreateInfo.windowHandle = _windowHandle;

@@ -1104,7 +1104,7 @@ void GLES2CmdFuncCreateShader(GLES2Device *device, GLES2GPUShader *gpuShader) {
     vector<GLES2GPUUniformSampler> glActiveSamplers;
     vector<GLint> glActiveSamplerLocations;
     const BindingMappingInfo &bindingMappingInfo = device->bindingMappingInfo();
-    map<String, uint> &texUnitCacheMap = device->stateCache()->texUnitCacheMap;
+    unordered_map<String, uint> &texUnitCacheMap = device->stateCache()->texUnitCacheMap;
 
     uint flexibleSetBaseOffset = 0u;
     for (uint i = 0u; i < gpuShader->blocks.size(); i++) {

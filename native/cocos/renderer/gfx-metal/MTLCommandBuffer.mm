@@ -523,10 +523,13 @@ void CCMTLCommandBuffer::bindDescriptorSets() {
     }
 }
 
+void CCMTLCommandBuffer::blitTexture(Texture *srcTexture, Texture *dstTexture, const TextureBlit *regions, uint count, Filter filter) {
+}
+
 void CCMTLCommandBuffer::dispatch(const DispatchInfo &info) {
 }
 
-void CCMTLCommandBuffer::pipelineBarrier(const GlobalBarrier& barrier, const ImageBarrierList &imageBarriers) {
+void CCMTLCommandBuffer::pipelineBarrier(const GlobalBarrier *barrier, const TextureBarrier *textureBarriers, uint textureBarrierCount) {
 }
 
 } // namespace gfx

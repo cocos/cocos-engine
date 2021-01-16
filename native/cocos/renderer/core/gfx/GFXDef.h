@@ -538,6 +538,12 @@ enum class AccessType {
 
 typedef cc::vector<AccessType> AccessTypeList;
 
+// for texture barriers the exact layout can be inferred from access types
+enum class TextureBarrierLayout { 
+    OPTIMAL,
+    GENERAL,
+};
+
 enum class PipelineBindPoint {
     GRAPHICS,
     COMPUTE,
@@ -591,6 +597,7 @@ enum class DynamicStateFlagBit : FlagBits {
     STENCIL_COMPARE_MASK = 0x80,
 };
 typedef DynamicStateFlagBit DynamicStateFlags;
+CC_ENUM_OPERATORS(DynamicStateFlagBit);
 
 typedef cc::vector<DynamicStateFlagBit> DynamicStateList;
 
@@ -609,6 +616,7 @@ enum class DescriptorType : FlagBits {
     SAMPLER = 0x10,
     STORAGE_IMAGE = 0x20,
 };
+CC_ENUM_OPERATORS(DescriptorType);
 
 enum class QueueType {
     GRAPHICS,
@@ -630,7 +638,7 @@ enum class ClearFlagBit : FlagBits {
     ALL = COLOR | DEPTH | STENCIL,
 };
 typedef ClearFlagBit ClearFlags;
-CC_ENUM_OPERATORS(ClearFlags);
+CC_ENUM_OPERATORS(ClearFlagBit);
 
 enum class VsyncMode {
     // The application does not synchronizes with the vertical sync. If application renders faster than the display refreshes, frames are wasted and tearing may be observed. FPS is uncapped. Maximum power consumption. If unsupported, "ON" value will be used instead. Minimum latency.
@@ -729,6 +737,16 @@ struct TextureCopy {
     Offset dstOffset;
     Extent extent;
 };
+
+struct TextureBlit {
+    TextureSubresLayers srcSubres;
+    Offset srcOffset;
+    Extent srcExtent;
+    TextureSubresLayers dstSubres;
+    Offset dstOffset;
+    Extent dstExtent;
+};
+typedef cc::vector<TextureBlit> TextureBlitList;
 
 struct BufferTextureCopy {
     uint buffStride = 0;
@@ -1043,11 +1061,12 @@ struct TextureBarrier {
     AccessType *nextAccesses;
     uint nextAccessCount;
 
-    bool isPrevLayoutOptimal = true;
-    bool isNextLayoutOptimal = true;
+    TextureBarrierLayout prevLayout = TextureBarrierLayout::OPTIMAL;
+    TextureBarrierLayout nextLayout = TextureBarrierLayout::OPTIMAL;
     bool discardContents = false;
     Texture *texture = nullptr;
     TextureSubresRange subresRange;
+
     Queue *srcQueue = nullptr;
     Queue *dstQueue = nullptr;
 };

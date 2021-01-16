@@ -134,6 +134,21 @@ void GLES3PrimaryCommandBuffer::copyBuffersToTexture(const uint8_t *const *buffe
     }
 }
 
+void GLES3PrimaryCommandBuffer::blitTexture(Texture* srcTexture, Texture* dstTexture, const TextureBlit* regions, uint count, Filter filter) {
+    if ((_type == CommandBufferType::PRIMARY && !_isInRenderPass) ||
+        (_type == CommandBufferType::SECONDARY)) {
+
+        GLES3GPUTexture *gpuTextureSrc = nullptr;
+        GLES3GPUTexture *gpuTextureDst = nullptr;
+        if (srcTexture) gpuTextureSrc = ((GLES3Texture *)srcTexture)->gpuTexture();
+        if (dstTexture) gpuTextureDst = ((GLES3Texture *)dstTexture)->gpuTexture();
+
+        GLES3CmdFuncBlitTexture((GLES3Device *)_device, gpuTextureSrc, gpuTextureDst, regions, count, filter);
+    } else {
+        CC_LOG_ERROR("Command 'blitTexture' must be recorded outside a render pass.");
+    }
+}
+
 void GLES3PrimaryCommandBuffer::execute(CommandBuffer *const *cmdBuffs, uint32_t count) {
     for (uint i = 0; i < count; ++i) {
         GLES3PrimaryCommandBuffer *cmdBuff = (GLES3PrimaryCommandBuffer *)cmdBuffs[i];

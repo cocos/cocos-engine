@@ -321,7 +321,7 @@ public:
     BlendState bs;
     bool isCullFaceEnabled = true;
     bool isStencilTestEnabled = false;
-    map<String, uint> texUnitCacheMap;
+    unordered_map<String, uint> texUnitCacheMap;
     GLES2ObjectCache gfxStateCache;
 
     void initialize(size_t texUnits, size_t vertexAttributes) {
