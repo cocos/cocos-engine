@@ -156,10 +156,36 @@ class ReleaseManager {
 
     // do auto release
     public _autoRelease (oldScene: Scene, newScene: Scene, persistNodes: Node[]) {
+        if (oldScene) {
+            const childs = dependUtil.getDeps(oldScene.uuid);
+            for (let i = 0, l = childs.length; i < l; i++) {
+                const asset = assets.get(childs[i]);
+                if (asset) {
+                    asset.decRef(TEST || oldScene.autoReleaseAssets);
+                }
+            }
+
+            const dependencies = dependUtil._depends.get(oldScene.uuid);
+            if (dependencies && dependencies.persistDeps) {
+                const persistDeps = dependencies.persistDeps;
+                for (let i = 0, l = persistDeps.length; i < l; i++) {
+                    const asset = assets.get(persistDeps[i]);
+                    if (asset) {
+                        asset.decRef(TEST || oldScene.autoReleaseAssets);
+                    }
+                }
+            }
+
+            if (oldScene.uuid !== newScene.uuid) {
+                dependUtil.remove(oldScene.uuid);
+            }
+        }
+
         // transfer refs from persist nodes to new scene
+        const sceneDeps = dependUtil._depends.get(newScene.uuid);
+        if (sceneDeps) { sceneDeps.persistDeps = []; }
         for (let i = 0, l = persistNodes.length; i < l; i++) {
             const node = persistNodes[i];
-            const sceneDeps = dependUtil._depends.get(newScene.uuid);
             const deps = this._persistNodeDeps.get(node.uuid) as string[];
             for (const dep of deps) {
                 const dependAsset = assets.get(dep);
@@ -168,35 +194,8 @@ class ReleaseManager {
                 }
             }
             if (!sceneDeps) { continue; }
-
-            if (!sceneDeps.persistDeps) {
-                sceneDeps.persistDeps = [];
-            }
-            sceneDeps.persistDeps.push(...deps);
+            sceneDeps.persistDeps!.push(...deps);
         }
-
-        if (!oldScene) { return; }
-
-        const childs = dependUtil.getDeps(oldScene.uuid);
-        for (let i = 0, l = childs.length; i < l; i++) {
-            const asset = assets.get(childs[i]);
-            if (asset) {
-                asset.decRef(TEST || oldScene.autoReleaseAssets);
-            }
-        }
-
-        const dependencies = dependUtil._depends.get(oldScene.uuid);
-        if (dependencies && dependencies.persistDeps) {
-            const persistDeps = dependencies.persistDeps;
-            for (let i = 0, l = persistDeps.length; i < l; i++) {
-                const asset = assets.get(persistDeps[i]);
-                if (asset) {
-                    asset.decRef(TEST || oldScene.autoReleaseAssets);
-                }
-            }
-        }
-
-        dependUtil.remove(oldScene.uuid);
     }
 
     public tryRelease (asset: Asset, force = false): void {
