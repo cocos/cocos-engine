@@ -161,23 +161,6 @@ var releaseManager = {
     // do auto release
     _autoRelease (oldScene, newScene, persistNodes) { 
 
-        // transfer refs from persist nodes to new scene
-        for (let i = 0, l = persistNodes.length; i < l; i++) {
-            var node = persistNodes[i];
-            var sceneDeps = dependUtil._depends.get(newScene._id);
-            var deps = _persistNodeDeps.get(node.uuid);
-            for (let i = 0, l = deps.length; i < l; i++) {
-                var dependAsset = assets.get(deps[i]);
-                if (dependAsset) {
-                    dependAsset.addRef();
-                }
-            }
-            if (sceneDeps) {
-                !sceneDeps.persistDeps && (sceneDeps.persistDeps = []);
-                sceneDeps.persistDeps.push.apply(sceneDeps.persistDeps, deps);
-            }
-        }
-
         if (oldScene) {
             var childs = dependUtil.getDeps(oldScene._id);
             for (let i = 0, l = childs.length; i < l; i++) {
@@ -192,7 +175,24 @@ var releaseManager = {
                     asset && asset.decRef(CC_TEST || oldScene.autoReleaseAssets);
                 }
             }
-            dependUtil.remove(oldScene._id);
+            oldScene._id !== newScene._id && dependUtil.remove(oldScene._id);
+        }
+
+        var sceneDeps = dependUtil._depends.get(newScene._id);
+        sceneDeps && (sceneDeps.persistDeps = []);
+        // transfer refs from persist nodes to new scene
+        for (let i = 0, l = persistNodes.length; i < l; i++) {
+            var node = persistNodes[i];
+            var deps = _persistNodeDeps.get(node.uuid);
+            for (let i = 0, l = deps.length; i < l; i++) {
+                var dependAsset = assets.get(deps[i]);
+                if (dependAsset) {
+                    dependAsset.addRef();
+                }
+            }
+            if (sceneDeps) {
+                sceneDeps.persistDeps.push.apply(sceneDeps.persistDeps, deps);
+            }
         }
     },
 
