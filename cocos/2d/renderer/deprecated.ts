@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2021 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
@@ -21,43 +21,14 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
-*/
-
-/**
- * @packageDocumentation
- * @module ui-assembler
  */
 
-import { addon } from '../../../core/utils/js';
-import { Batcher2D } from '../../renderer/batcher-2d';
-import { Label } from '../../components/label';
-import { fillMeshVertices3D } from '../utils';
-import { bmfont } from './bmfont';
-import { letterFont } from './letter-font';
-import { Color } from '../../../core/math/color';
+import * as VertexFormat from './vertex-format';
+import { Batcher2D } from './batcher-2d';
+import { DrawBatch2D } from './draw-batch';
 
-const WHITE = new Color(255, 255, 255, 255);
+export { VertexFormat as UIVertexFormat };
 
-/**
- * letter 组装器
- * 可通过 `UI.letter` 获取该组装器。
- */
-export const letter = {
-    createData (comp: Label) {
-        return comp.requestRenderData();
-    },
+export { Batcher2D as UI };
 
-    fillBuffers (comp: Label, renderer: Batcher2D) {
-        if (!comp.renderData) {
-            return;
-        }
-
-        const node = comp.node;
-        WHITE.a = comp.color.a;
-        fillMeshVertices3D(node, renderer, comp.renderData, WHITE);
-    },
-
-    appendQuad: bmfont.appendQuad,
-};
-
-addon(letter, letterFont);
+export { DrawBatch2D as UIDrawBatch };

@@ -32,11 +32,9 @@
 import { ccclass, help, executionOrder, menu } from 'cc.decorator';
 import { RenderableComponent } from '../../core/components/renderable-component';
 import { UIComponent } from '../framework/ui-component';
-import { director } from '../../core/director';
 import { RenderPriority } from '../../core/pipeline/define';
-import { UI } from '../renderer/ui';
+import { Batcher2D } from '../renderer/batcher-2d';
 import { scene } from '../../core/renderer';
-import { legacyCC } from '../../core/global-exports';
 
 /**
  * @en
@@ -95,7 +93,7 @@ export class UIMeshRenderer extends UIComponent {
         this._models = null;
     }
 
-    public updateAssembler (render: UI) {
+    public updateAssembler (render: Batcher2D) {
         if (this._models) {
             for (const m of this._models) {
                 render.commitModel.call(render, this, m, this._modelComponent!.material);
@@ -124,7 +122,7 @@ export class UIMeshRenderer extends UIComponent {
             const passNum = passes.length;
             for (let j = 0; j < passNum; j++) {
                 const pass = passes[j];
-                // @ts-expect-error
+                // @ts-expect-error private property access
                 pass._priority = RenderPriority.MAX - 11;
                 if (!pass.blendState.targets[0].blend) {
                     material.overridePipelineStates({ blendState: { targets: [{ blend: true }] } }, j);

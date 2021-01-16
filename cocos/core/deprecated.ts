@@ -34,6 +34,7 @@ import { Scheduler } from './scheduler';
 import { EventTouch } from './platform/event-manager/events';
 import { legacyCC } from './global-exports';
 import { SubModel } from './renderer/scene/submodel';
+import { Root } from './root';
 
 // VMATH
 
@@ -233,5 +234,14 @@ removeProperty(SubModel.prototype, 'SubModel.prototype', [
     {
         name: 'subModelNum',
         suggest: 'Use `subModels.length` instead',
+    },
+]);
+
+// Root
+
+replaceProperty(Root.prototype, 'Root.prototype', [
+    {
+        name: 'ui',
+        newName: 'batcher2D',
     },
 ]);

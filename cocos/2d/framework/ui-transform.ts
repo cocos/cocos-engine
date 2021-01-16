@@ -39,7 +39,6 @@ import { Node } from '../../core/scene-graph';
 import { legacyCC } from '../../core/global-exports';
 import { Mask } from '../components/mask';
 import { director } from '../../core/director';
-import { RenderRoot2D } from './render-root-2d';
 import { warnID } from '../../core/platform/debug';
 
 const _vec2a = new Vec2();
@@ -209,7 +208,7 @@ export class UITransform extends Component {
             return;
         }
 
-        if (this.node.getComponent(RenderRoot2D)) {
+        if (this.node.getComponent('cc.RenderRoot2D')) {
             warnID(6706);
             return;
         }
@@ -228,7 +227,7 @@ export class UITransform extends Component {
      * @deprecated since v3.0
      */
     get visibility () {
-        const camera = director.root?.ui.getFirstRenderCamera(this.node);
+        const camera = director.root!.batcher2D.getFirstRenderCamera(this.node);
         return camera ? camera.visibility : 0;
     }
 
@@ -237,7 +236,7 @@ export class UITransform extends Component {
      * @zh 查找被渲染相机的渲染优先级。
      */
     get cameraPriority () {
-        const camera = director.root?.ui.getFirstRenderCamera(this.node);
+        const camera = director.root!.batcher2D.getFirstRenderCamera(this.node);
         return camera ? camera.priority : 0;
     }
 
@@ -386,7 +385,7 @@ export class UITransform extends Component {
         const cameraPt = _vec2a;
         const testPt = _vec2b;
 
-        const cameras = director.root!.ui.renderScene.cameras;
+        const cameras = this._getRenderScene().cameras;
         for (let i = 0; i < cameras.length; i++) {
             const camera = cameras[i];
             if (!(camera.visibility & this.node.layer)) continue;
@@ -626,7 +625,7 @@ export class UITransform extends Component {
     }
 
     protected _parentChanged (node: Node) {
-        if (this.node.getComponent(RenderRoot2D)) {
+        if (this.node.getComponent('cc.RenderRoot2D')) {
             return;
         }
 

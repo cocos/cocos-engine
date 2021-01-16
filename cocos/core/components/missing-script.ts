@@ -60,31 +60,26 @@ export default class MissingScript extends Component {
      * @param {string} id
      * @return {function} constructor
      */
-    public static safeFindClass (id: string) {
+    public static safeFindClass(id: string) {
         const cls = _getClassById(id);
         if (cls) {
             return cls;
         }
         legacyCC.deserialize.reportMissingClass(id);
-    }
 
-    @editable
-    public compiled = false;
+        return undefined;
+    }
 
     // the serialized data for original script object
     @serializable
     @editorOnly
     public _$erialized = null;
 
-    constructor () {
+    constructor() {
         super();
-        if (EDITOR) {
-            // @ts-expect-error
-            this.compiled = _Scene.Sandbox.compiled;
-        }
     }
 
-    public onLoad () {
+    public onLoad() {
         warnID(4600, this.node.name);
     }
 }

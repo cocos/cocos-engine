@@ -29,16 +29,15 @@
  * @module ui
  */
 
-import { ccclass, help, executionOrder, menu, tooltip, displayOrder, visible, displayName, multiline, type, readOnly, override, serializable, editable } from 'cc.decorator';
+import { ccclass, help, executionOrder, menu, tooltip, displayOrder, visible, multiline, type, serializable, editable } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
 import { BitmapFont, Font, SpriteFrame } from '../assets';
-import { ImageAsset, Texture2D, Material } from '../../core/assets';
+import { ImageAsset, Texture2D } from '../../core/assets';
 import { ccenum } from '../../core/value-types/enum';
-import { UI } from '../renderer/ui';
+import { Batcher2D } from '../renderer/batcher-2d';
 import { FontAtlas } from '../assets/bitmap-font';
 import { CanvasPool, ISharedLabelData, LetterRenderTexture } from '../assembler/label/font-utils';
-import { UIRenderable } from '../framework/ui-renderable';
-import { warnID } from '../../core/platform/debug';
+import { Renderable2D } from '../framework/renderable-2d';
 
 /**
  * @en Enum for horizontal text alignment.
@@ -190,7 +189,7 @@ ccenum(CacheMode);
 @help('i18n:cc.Label')
 @executionOrder(110)
 @menu('UI/Render/Label')
-export class Label extends UIRenderable {
+export class Label extends Renderable2D {
     /**
      * @en
      * Content string of label.
@@ -729,7 +728,7 @@ export class Label extends UIRenderable {
         }
     }
 
-    protected _render (render: UI) {
+    protected _render (render: Batcher2D) {
         render.commitComp(this, this._texture, this._assembler!, null);
     }
 

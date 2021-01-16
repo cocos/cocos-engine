@@ -57,16 +57,16 @@
         }
         reference--;
         if (reference === 0) {
-            const ui = director.root.ui;
+            const batcher2D = director.root.batcher2D;
             const uvcBuffers = renderInfoLookup[nativeXYZUVC];
             for (let i = 0; i < uvcBuffers.length; i++) {
-                ui.unRegisterCustomBuffer(uvcBuffers[i]);
+                batcher2D.unRegisterCustomBuffer(uvcBuffers[i]);
                 uvcBuffers[i].destroy();
             }
             uvcBuffers.length = 0;
             const uvccBuffers = renderInfoLookup[nativeXYZUVCC];
             for (let i = 0; i < uvccBuffers.length; i++) {
-                ui.unRegisterCustomBuffer(uvccBuffers[i]);
+                batcher2D.unRegisterCustomBuffer(uvccBuffers[i]);
                 uvccBuffers[i].destroy();
             }
             uvccBuffers.length = 0;
@@ -130,9 +130,9 @@
         middleware.indicesStart = 0;
         middleware.resetIndicesStart = false;
 
-        let ui = director.root.ui;
-        CopyNativeBufferToJS(ui, nativeXYZUVC, vfmtPosUvColor);
-        CopyNativeBufferToJS(ui, nativeXYZUVCC, vfmtPosUvTwoColor);
+        let batcher2D = director.root.batcher2D;
+        CopyNativeBufferToJS(batcher2D, nativeXYZUVC, vfmtPosUvColor);
+        CopyNativeBufferToJS(batcher2D, nativeXYZUVCC, vfmtPosUvTwoColor);
     });
 
     let renderInfoMgr = middlewareMgr.getRenderInfoMgr();

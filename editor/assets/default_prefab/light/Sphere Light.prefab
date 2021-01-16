@@ -74,7 +74,10 @@
     "_intensity": 1700,
     "_size": 0.15,
     "_range": 2,
-    "_id": ""
+    "_id": "",
+    "__prefab": {
+      "__id__": 4
+    }
   },
   {
     "__type__": "cc.PrefabInfo",
@@ -84,11 +87,10 @@
     "asset": {
       "__id__": 0
     },
-    "fileId": "59eikBZx5K9aR06hUuVC37",
-    "sync": false,
-    "_synced": {
-      "default": false,
-      "serializable": false
-    }
+    "fileId": "59eikBZx5K9aR06hUuVC37"
+  },
+  {
+    "__type__": "cc.CompPrefabInfo",
+    "fileId": "5b6a86+adN0IKor4mk41YN"
   }
 ]

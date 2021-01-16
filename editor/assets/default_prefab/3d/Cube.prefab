@@ -72,7 +72,10 @@
     },
     "_shadowCastingMode": 0,
     "_receiveShadows": false,
-    "_id": ""
+    "_id": "",
+    "__prefab": {
+      "__id__": 4
+    }
   },
   {
     "__type__": "cc.PrefabInfo",
@@ -82,11 +85,10 @@
     "asset": {
       "__id__": 0
     },
-    "fileId": "18p7R2TC1PDpDQlq3lim9E",
-    "sync": false,
-    "_synced": {
-      "default": false,
-      "serializable": false
-    }
+    "fileId": "18p7R2TC1PDpDQlq3lim9E"
+  },
+  {
+    "__type__": "cc.CompPrefabInfo",
+    "fileId": "e8DOT5UJ1F/ZgplWYyCxRs"
   }
 ]

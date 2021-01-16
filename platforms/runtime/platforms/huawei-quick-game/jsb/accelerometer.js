@@ -6,11 +6,14 @@
 
 window.jsb = window.jsb || {};
 
-const PORTRAIT = 0;
-const LANDSCAPE_LEFT = -90;
-const PORTRAIT_UPSIDE_DOWN = 180;
-const LANDSCAPE_RIGHT = 90;
+// const PORTRAIT = 0;
+// const LANDSCAPE_LEFT = -90;
+// const PORTRAIT_UPSIDE_DOWN = 180;
+// const LANDSCAPE_RIGHT = 90;
 let _didAccelerateFun;
+
+let sysInfo = hbs.getSystemInfoSync();
+let isLandscape = sysInfo.screenWidth > sysInfo.screenHeight;
 
 // API for event listner maybe overwritten on DOM-adapter
 let nativeAddEventListener = window.addEventListener.bind(window);
@@ -26,18 +29,15 @@ Object.assign(jsb, {
             let x = (eventAcceleration.x || 0) * 0.1;
             let y = (eventAcceleration.y || 0) * 0.1;
             let z = (eventAcceleration.z || 0) * 0.1;
-        
-            // FIXME: not supported to detect the orientation
-            const tmpX = x;
-            if (window.orientation === LANDSCAPE_RIGHT) {
+
+            // KNOWN_ISSUE: don't know LANDSCAPE_RIGHT or LANDSCAPE_LEFT
+            // here isLandscape means isLandscapeRight
+            if (isLandscape) {
+                const tmpX = x;
                 x = y;
                 y = -tmpX;
             }
-            else if (window.orientation === LANDSCAPE_LEFT) {
-                x = -y;
-                y = tmpX;
-            }
-            else if (window.orientation === PORTRAIT) {
+            else {
                 x = -x;
                 y = -y;
             }

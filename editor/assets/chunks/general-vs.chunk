@@ -7,7 +7,7 @@ precision highp float;
 #include <cc-fog>
 #include <cc-shadow-map-vs>
 
-in vec3 a_color;
+in vec4 a_color;
 #if HAS_SECOND_UV
   in vec2 a_texCoord1;
 #endif
@@ -18,7 +18,7 @@ out vec3 v_tangent;
 out vec3 v_bitangent;
 out vec2 v_uv;
 out vec2 v_uv1;
-out vec3 v_color;
+out vec4 v_color;
 out float factor_fog;
 
 vec4 vert () {

@@ -67,7 +67,7 @@ export enum ModelType {
     DEFAULT,
     SKINNING,
     BAKED_SKINNING,
-    UI_BATCH,
+    BATCH_2D,
     PARTICLE_BATCH,
     LINE,
 }

@@ -50,7 +50,7 @@ interface IDownloadRequest {
     handler: DownloadHandler;
 }
 
-const REGEX = /^\w+:\/\/.*/;
+const REGEX = /^(?:\w+:\/\/|\.+\/).+/;
 
 const downloadImage = (url: string, options: IDownloadParseOptions, onComplete: CompleteCallback) => {
     // if createImageBitmap is valid, we can transform blob to ImageBitmap. Otherwise, just use HTMLImageElement to load

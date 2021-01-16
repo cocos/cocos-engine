@@ -30,14 +30,13 @@
  */
 
 import { ccclass, help, disallowMultiple, executeInEditMode,
-    executionOrder, menu, requireComponent, tooltip, type, serializable } from 'cc.decorator';
+    executionOrder, menu, tooltip, type, serializable } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
 import { Camera } from '../../core/components/camera-component';
 import { Widget } from '../../ui/widget';
 import { game } from '../../core/game';
 import { Vec3 } from '../../core/math';
 import { view } from '../../core/platform/view';
-import { UITransform } from './ui-transform';
 import { legacyCC } from '../../core/global-exports';
 import { SystemEventType } from '../../core/platform/event-manager';
 import { Enum } from '../../core/value-types/enum';
@@ -191,29 +190,6 @@ export class Canvas extends RenderRoot2D {
         }
 
         this.node.on(SystemEventType.TRANSFORM_CHANGED, this._thisOnCameraResized);
-    }
-
-    public onEnable () {
-        super.onEnable();
-        if (this._cameraComponent) {
-            const camera = this._cameraComponent.camera;
-            if (camera) {
-                legacyCC.director.root!.ui.renderScene.addCamera(camera);
-            } else {
-                this._cameraComponent._createCamera();
-                legacyCC.director.root!.ui.renderScene.addCamera(this._cameraComponent.camera);
-            }
-        }
-    }
-
-    public onDisable () {
-        super.onDisable();
-        if (this._cameraComponent) {
-            const camera = this._cameraComponent.camera;
-            if (camera) {
-                legacyCC.director.root!.ui.renderScene.removeCamera(camera);
-            }
-        }
     }
 
     public onDestroy () {
