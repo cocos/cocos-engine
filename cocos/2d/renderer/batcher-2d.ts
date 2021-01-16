@@ -145,7 +145,7 @@ export class Batcher2D {
     private _currDepthStencilStateStage: any|null = null;
     private _parentOpacity = 1;
     // DescriptorSet Cache Map
-    private _descriptorSetCache = new DescriptorSetCache();c
+    private _descriptorSetCache = new DescriptorSetCache();
 
     constructor (private _root: Root) {
         this.device = _root.device;
@@ -744,6 +744,8 @@ class LocalDescriptorSet  {
             DSPool.free(this._handle);
             this._handle = null;
         }
+
+        this._localData = null;
     }
 
     private uploadLocalData () {
