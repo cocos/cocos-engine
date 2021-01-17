@@ -44,7 +44,7 @@ import {
     NULL_HANDLE, NodeHandle, NodePool, NodeView,
 } from '../renderer/core/memory-pools';
 import { NodeSpace, TransformBit } from './node-enum';
-import { applyMountedChildren, applyPropertyOverrides, createNodeWithPrefab, generateTargetMap } from '../utils/prefab-utils';
+import { applyMountedChildren, applyPropertyOverrides, applyTargetOverrides, createNodeWithPrefab, generateTargetMap } from '../utils/prefab-utils';
 import { Component } from '../components';
 
 const v3_a = new Vec3();
@@ -409,11 +409,14 @@ export class Node extends BaseNode {
         // apply mounted children and property overrides after all the nodes in prefabAsset are instantiated
         if (!dontSyncChildPrefab && prefabInstance) {
             const targetMap: Record<string, any | Node | Component> = {};
+            prefabInstance.targetMap = targetMap;
             generateTargetMap(this, targetMap, true);
 
             applyMountedChildren(this, prefabInstance.mountedChildren, targetMap);
             applyPropertyOverrides(this, prefabInstance.propertyOverrides, targetMap);
         }
+
+        applyTargetOverrides(this);
     }
 
     public _onBeforeSerialize () {
