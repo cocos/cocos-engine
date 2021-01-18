@@ -36,6 +36,8 @@ import { Prefab } from '../assets';
 import type { Node } from '../scene-graph/node';
 import { errorID, warn } from '../platform/debug';
 import { Component } from '../components';
+import { CCObject } from '../data';
+import type { BaseNode } from '../scene-graph/base-node';
 
 function compareStringArray (array1: string[]|undefined, array2: string[]|undefined) {
     if (!array1 || !array2) {
@@ -49,6 +51,31 @@ function compareStringArray (array1: string[]|undefined, array2: string[]|undefi
     return array1.every((value, index) => value === array2[index]);
 }
 
+@ccclass('cc.TargetInfo')
+export class TargetInfo {
+    // 用于标识目标在prefab 资源中的ID，区别于UUID
+    @serializable
+    public localID: string[] = [];
+}
+@ccclass('cc.TargetOverrideInfo')
+export class TargetOverrideInfo {
+    @serializable
+    @type(CCObject)
+    public source: Component|Node|null = null;
+    // if owner is in a prefab, use TargetInfo to index it
+    @serializable
+    @type(TargetInfo)
+    public sourceInfo: TargetInfo|null = null;
+    @serializable
+    public propertyPath: string[] = [];
+    @serializable
+    @type(legacyCC.Node)
+    public target: Node|null = null;
+    // if target is in a prefab, use TargetInfo to index it
+    @serializable
+    @type(TargetInfo)
+    public targetInfo: TargetInfo|null = null;
+}
 @ccclass('cc.PrefabInfo')
 export class PrefabInfo {
     // the most top node of this prefab in the scene
@@ -70,6 +97,10 @@ export class PrefabInfo {
     // Instance of a prefabAsset
     @serializable
     public instance?: PrefabInstance;
+
+    @serializable
+    @type([TargetOverrideInfo])
+    public targetOverrides?: TargetOverrideInfo[];
 }
 
 legacyCC._PrefabInfo = PrefabInfo;
@@ -80,13 +111,6 @@ export class CompPrefabInfo {
     @serializable
     @editable
     public fileId = '';
-}
-
-@ccclass('cc.TargetInfo')
-export class TargetInfo {
-    // 用于标识目标在prefab 资源中的ID，区别于UUID
-    @serializable
-    public localID: string[] = [];
 }
 
 @ccclass('CCPropertyOverrideInfo')
@@ -152,6 +176,8 @@ export class PrefabInstance {
     @serializable
     @type([TargetInfo])
     public removedComponents: TargetInfo[] = [];
+
+    public targetMap: Record<string, any | Node | Component> = {};
 
     // eslint-disable-next-line consistent-return
     public findPropertyOverride (localID: string[], propPath: string[]) {
@@ -236,8 +262,13 @@ export function createNodeWithPrefab (node: Node) {
     node._parent = _parent;
     // @ts-expect-error: private member access
     node._id = _id;
+
     // @ts-expect-error: private member access
-    node._prefab = _prefab;
+    if (node._prefab) {
+        // just keep the instance
+        // @ts-expect-error: private member access
+        node._prefab.instance = _prefab?.instance;
+    }
 }
 
 // TODO: more efficient id->Node/Component map
@@ -271,18 +302,21 @@ export function generateTargetMap (node: Node, targetMap: any, isRoot: boolean) 
     }
 }
 
-export function getTarget (localID: string[], targetMap: any): unknown {
+export function getTarget (localID: string[], targetMap: any) {
     if (!localID) {
         return null;
     }
 
-    let target: any = targetMap;
+    let target: Component|Node|null = null;
+    let targetIter: any = targetMap;
     for (let i = 0; i < localID.length; i++) {
-        if (!target) {
+        if (!targetIter) {
             return null;
         }
-        target = target[localID[i]];
+        targetIter = targetIter[localID[i]];
     }
+
+    target = targetIter;
 
     return target;
 }
@@ -356,6 +390,64 @@ export function applyPropertyOverrides (node: Node, propertyOverrides: PropertyO
                 }
             } else if (EDITOR) {
                 warn('property path is empty');
+            }
+        }
+    }
+}
+
+export function applyTargetOverrides (node: BaseNode) {
+    // @ts-expect-error private member access
+    const targetOverrides = node._prefab?.targetOverrides;
+    if (targetOverrides) {
+        for (let i = 0;  i < targetOverrides.length; i++) {
+            const targetOverride = targetOverrides[i];
+
+            let source: Node|Component|null = targetOverride.source;
+            const sourceInfo = targetOverride.sourceInfo;
+            if (sourceInfo) {
+                // @ts-expect-error private member access
+                const sourceInstance = targetOverride.source?._prefab?.instance;
+                if (sourceInstance && sourceInstance.targetMap) {
+                    source = getTarget(sourceInfo.localID, sourceInstance.targetMap);
+                }
+
+                if (!source) {
+                    // Can't find source
+                    continue;
+                }
+            }
+
+            let target: Node|Component|null = null;
+            const targetInfo = targetOverride.targetInfo;
+            if (!targetInfo) {
+                continue;
+            }
+
+            // @ts-expect-error private member access
+            const targetInstance = targetOverride.target?._prefab?.instance;
+            if (!targetInstance || !targetInstance.targetMap) {
+                continue;
+            }
+            target = getTarget(targetInfo.localID, targetInstance.targetMap);
+            if (!target) {
+                // Can't find target
+                continue;
+            }
+
+            const propertyPath = targetOverride.propertyPath.slice();
+            let targetPropOwner: any = source;
+            if (propertyPath.length > 0) {
+                const targetPropName = propertyPath.pop();
+                if (!targetPropName) {
+                    return;
+                }
+
+                for (let i = 0; i < propertyPath.length; i++) {
+                    const propName = propertyPath[i];
+                    targetPropOwner = targetPropOwner[propName];
+                }
+
+                targetPropOwner[targetPropName] = target;
             }
         }
     }
