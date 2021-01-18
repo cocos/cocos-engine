@@ -40,7 +40,6 @@ import { ISchedulable } from '../scheduler';
 import IdGenerator from '../utils/id-generator';
 import * as js from '../utils/js';
 import { baseNodePolyfill } from './base-node-dev';
-import { NodeEventProcessor } from './node-event-processor';
 import { legacyCC } from '../global-exports';
 import { Node } from './node';
 import type { Scene } from './scene';
@@ -213,6 +212,7 @@ export class BaseNode extends CCObject implements ISchedulable {
      * @readonly
      */
     get eventProcessor () {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
         return this._eventProcessor;
     }
 
@@ -323,7 +323,7 @@ export class BaseNode extends CCObject implements ISchedulable {
 
     protected _name: string;
 
-    protected _eventProcessor: NodeEventProcessor = new NodeEventProcessor(this);
+    protected _eventProcessor: any = new legacyCC.NodeEventProcessor(this);
     protected _eventMask = 0;
 
     protected _siblingIndex = 0;
@@ -1164,6 +1164,7 @@ export class BaseNode extends CCObject implements ISchedulable {
      * @return True if a callback of the specified type is registered; false otherwise.
      */
     public hasEventListener (type: string, callback?: AnyFunction, target?: unknown) {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
         return this._eventProcessor.hasEventListener(type, callback, target);
     }
 

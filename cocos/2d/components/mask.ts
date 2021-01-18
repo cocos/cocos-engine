@@ -372,6 +372,7 @@ export class Mask extends Renderable2D {
     public onEnable () {
         super.onEnable();
         this._updateGraphics();
+        this._broadcastToNode(this.node);
     }
 
     /**
@@ -606,6 +607,14 @@ export class Mask extends Renderable2D {
                 this._renderData = this._assembler.createData(this);
                 this.markForUpdateRenderData();
             }
+        }
+    }
+
+    protected _broadcastToNode (node) {
+        const children = node.children;
+        node.eventProcessor.registerComponentHitList(Mask);
+        for (let i = 0, len = children.length; i < len; i++) {
+            this._broadcastToNode(children[i]);
         }
     }
 }
