@@ -302,18 +302,21 @@ export function generateTargetMap (node: Node, targetMap: any, isRoot: boolean) 
     }
 }
 
-export function getTarget (localID: string[], targetMap: any): unknown {
+export function getTarget (localID: string[], targetMap: any) {
     if (!localID) {
         return null;
     }
 
-    let target: any = targetMap;
+    let target: Component|Node|null = null;
+    let targetIter: any = targetMap;
     for (let i = 0; i < localID.length; i++) {
-        if (!target) {
+        if (!targetIter) {
             return null;
         }
-        target = target[localID[i]];
+        targetIter = targetIter[localID[i]];
     }
+
+    target = targetIter;
 
     return target;
 }
@@ -399,7 +402,7 @@ export function applyTargetOverrides (node: BaseNode) {
         for (let i = 0;  i < targetOverrides.length; i++) {
             const targetOverride = targetOverrides[i];
 
-            let source: any = targetOverride.source;
+            let source: Node|Component|null = targetOverride.source;
             const sourceInfo = targetOverride.sourceInfo;
             if (sourceInfo) {
                 // @ts-expect-error private member access
@@ -414,7 +417,7 @@ export function applyTargetOverrides (node: BaseNode) {
                 }
             }
 
-            let target: any = null;
+            let target: Node|Component|null = null;
             const targetInfo = targetOverride.targetInfo;
             if (!targetInfo) {
                 continue;
