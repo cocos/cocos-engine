@@ -1,6 +1,6 @@
 import { EDITOR } from 'internal:constants';
 import { ccclass, executeInEditMode, help, menu } from '../core/data/class-decorator';
-import { UIRenderable } from '../2d/framework/ui-renderable';
+import { Renderable2D } from '../2d/framework/renderable-2d';
 import { Node, EventTarget, CCClass, Color, Enum, PrivateNode, ccenum, errorID, Texture2D, js, CCObject } from '../core';
 import { BlendFactor } from '../core/gfx';
 import { displayName, editable, serializable, tooltip, type, visible } from '../core/data/decorators';
@@ -13,7 +13,7 @@ import { DragonBonesAtlasAsset } from './DragonBonesAtlasAsset';
 import { Graphics } from '../2d/components';
 import { CCArmatureDisplay } from './CCArmatureDisplay';
 import { MeshRenderData } from '../2d/renderer/render-data';
-import { UI } from '../2d/renderer/ui';
+import { Batcher2D } from '../2d/renderer/batcher-2d';
 import { MaterialInstance } from '../core/renderer/core/material-instance';
 import { legacyCC } from '../core/global-exports';
 
@@ -126,7 +126,7 @@ interface BoneIndex extends Number {
 @help('i18n:dragonBones.ArmatureDisplay')
 @menu('Components/ArmatureDisplay')
 @executeInEditMode
-export class ArmatureDisplay extends UIRenderable {
+export class ArmatureDisplay extends Renderable2D {
     static AnimationCacheMode = AnimationCacheMode;
 
     /**
@@ -551,7 +551,7 @@ export class ArmatureDisplay extends UIRenderable {
     }
 
     public _meshRenderDataArrayIdx = 0;
-    protected _render (ui: UI) {
+    protected _render (ui: Batcher2D) {
         if (this._meshRenderDataArray) {
             for (let i = 0; i < this._meshRenderDataArray.length; i++) {
                 this._meshRenderDataArrayIdx = i;

@@ -23,10 +23,15 @@
  THE SOFTWARE.
  ****************************************************************************/
 var fs = swan.getFileSystemManager ? swan.getFileSystemManager() : null;
+var outOfStorageRegExp = /file size over/;
 
 var fsUtils = {
 
     fs,
+
+    isOutOfStorage (errMsg) {
+        return outOfStorageRegExp.test(errMsg);
+    },
 
     getUserDataPath () {
         return swan.env.USER_DATA_PATH;

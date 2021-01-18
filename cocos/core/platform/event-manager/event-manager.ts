@@ -134,7 +134,7 @@ class EventManager {
     private _nodeListenersMap: INodeListener = {};
     private _toAddedListeners: EventListener[] = [];
     private _toRemovedListeners: EventListener[] = [];
-    private _dirtyListeners: Node[] = [];
+    private _dirtyListeners: Record<string, boolean> = {};
     private _inDispatch = 0;
     private _isEnabled = false;
     private _internalCustomListenerIDs: string[] = [];
@@ -609,13 +609,13 @@ class EventManager {
 
     private _setDirtyForNode (node: Node) {
         // Mark the node dirty only when there is an event listener associated with it.
-        // @ts-expect-error
+        // @ts-expect-error assignment to private field
         const selListeners = this._nodeListenersMap[node._id];
         if (selListeners !== undefined) {
             for (let j = 0, len = selListeners.length; j < len; j++) {
                 const selListener = selListeners[j];
                 const listenerID = selListener._getListenerID();
-                if (this._dirtyListeners[listenerID] == null) {
+                if (!this._dirtyListeners[listenerID]) {
                     this._dirtyListeners[listenerID] = true;
                 }
             }
@@ -648,7 +648,7 @@ class EventManager {
         if (listener._getFixedPriority() === 0) {
             this._setDirty(listenerID, DIRTY_SCENE_GRAPH_PRIORITY);
 
-            const node = listener._getSceneGraphPriority();
+            const node: any = listener._getSceneGraphPriority();
             if (node === null) {
                 logID(3507);
             }
@@ -669,10 +669,11 @@ class EventManager {
     private _updateDirtyFlagForSceneGraph () {
         const locDirtyListeners = this._dirtyListeners;
 
+        // eslint-disable-next-line @typescript-eslint/no-for-in-array
         for (const selKey in locDirtyListeners) {
             this._setDirty(selKey, DIRTY_SCENE_GRAPH_PRIORITY);
+            locDirtyListeners[selKey] = false;
         }
-        this._dirtyListeners.length = 0;
     }
 
     private _removeAllListenersInVector (listenerVector: EventListener[]) {
@@ -762,8 +763,8 @@ class EventManager {
     }
 
     private _sortEventListenersOfSceneGraphPriorityDes (l1: EventListener, l2: EventListener) {
-        const node1 = l1._getSceneGraphPriority();
-        const node2 = l2._getSceneGraphPriority();
+        const node1: any = l1._getSceneGraphPriority();
+        const node2: any = l2._getSceneGraphPriority();
         // Event manager should only care about ui node in the current scene hierarchy
         if (!l2 || !node2 || !node2._activeInHierarchy || !node2._uiProps.uiTransformComp) {
             return -1;
@@ -777,12 +778,10 @@ class EventManager {
         if (trans1.cameraPriority !== trans2.cameraPriority) {
             return trans2.cameraPriority - trans1.cameraPriority;
         }
-
         while (p1.parent._id !== p2.parent._id) {
             p1 = p1.parent.parent === null ? (ex = true) && node2 : p1.parent;
             p2 = p2.parent.parent === null ? (ex = true) && node1 : p2.parent;
         }
-
         if (p1._id === p2._id) {
             if (p1._id === node2._id) {
                 return -1;
@@ -1104,7 +1103,7 @@ class EventManager {
         }
     }
 
-    private _dispatchEventToListeners (listeners: _EventListenerVector, onEvent: Function, eventOrArgs: any) {
+    private _dispatchEventToListeners (listeners: _EventListenerVector, onEvent: (listener:any, eventOrArgs:any)=>boolean, eventOrArgs: any) {
         let shouldStopPropagation = false;
         const fixedPriorityListeners = listeners.getFixedPriorityListeners();
         const sceneGraphPriorityListeners = listeners.getSceneGraphPriorityListeners();
@@ -1167,7 +1166,7 @@ class EventManager {
             if (selListener._onCustomEvent === callback || selListener.onEvent === callback) {
                 selListener._setRegistered(false);
                 if (selListener._getSceneGraphPriority() != null) {
-                    this._dissociateNodeAndEventListener(selListener._getSceneGraphPriority(), selListener);
+                    this._dissociateNodeAndEventListener((selListener as any)._getSceneGraphPriority(), selListener);
                     // NULL out the node pointer so we don't have any dangling pointers to destroyed nodes.
                     selListener._setSceneGraphPriority(null);
                 }
@@ -1193,7 +1192,7 @@ class EventManager {
             if (selListener === listener) {
                 selListener._setRegistered(false);
                 if (selListener._getSceneGraphPriority() != null) {
-                    this._dissociateNodeAndEventListener(selListener._getSceneGraphPriority(), selListener);
+                    this._dissociateNodeAndEventListener((selListener as any)._getSceneGraphPriority(), selListener);
                     // NULL out the node pointer so we don't have any dangling pointers to destroyed nodes.
                     selListener._setSceneGraphPriority(null);
                 }

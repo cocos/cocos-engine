@@ -1,4 +1,5 @@
 CCEffect %{
+  hideInEditor: true
   techniques:
   - passes:
     - vert: gizmo-vs:vert

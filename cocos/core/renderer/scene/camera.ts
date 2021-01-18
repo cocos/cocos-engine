@@ -118,7 +118,6 @@ export interface ICameraInfo {
 const v_a = new Vec3();
 const v_b = new Vec3();
 const _tempMat1 = new Mat4();
-const _tempMat2 = new Mat4();
 
 export const SKYBOX_FLAG = ClearFlag.STENCIL << 1;
 
@@ -537,10 +536,10 @@ export class Camera {
         return this._position;
     }
 
-    set visibility (vis) {
+    set visibility (vis: number) {
         CameraPool.set(this._poolHandle, CameraView.VISIBILITY, vis);
     }
-    get visibility () {
+    get visibility (): number {
         return CameraPool.get(this._poolHandle, CameraView.VISIBILITY);
     }
 

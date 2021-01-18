@@ -30,7 +30,7 @@
 
 import { ccclass, editable, type, menu, executeInEditMode, serializable, playOnFocus, tooltip } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
-import { UIRenderable } from '../2d/framework/ui-renderable';
+import { Renderable2D } from '../2d/framework/renderable-2d';
 import { Color, Vec2 } from '../core/math';
 import { warnID, errorID, error } from '../core/platform/debug';
 import { Simulator } from './particle-simulator-2d';
@@ -42,7 +42,7 @@ import { path } from '../core/utils';
 import { PNGReader } from './png-reader';
 import { TiffReader } from './tiff-reader';
 import codec from '../../external/compression/ZipUtils';
-import { UI } from '../2d/renderer/ui';
+import { Batcher2D } from '../2d/renderer/batcher-2d';
 import { assetManager } from '../core/asset-manager';
 import { PositionType, EmitterMode, DURATION_INFINITY, START_RADIUS_EQUAL_TO_END_RADIUS, START_SIZE_EQUAL_TO_END_SIZE } from './define';
 
@@ -183,7 +183,7 @@ function getParticleComponents (node): ParticleSystem2D[] {
 @menu('Components/ParticleSystem2D')
 @playOnFocus
 @executeInEditMode
-export class ParticleSystem2D extends UIRenderable {
+export class ParticleSystem2D extends Renderable2D {
     static EmitterMode = EmitterMode;
     static PositionType = PositionType;
     static readonly DURATION_INFINITY = DURATION_INFINITY;
@@ -1152,7 +1152,7 @@ export class ParticleSystem2D extends UIRenderable {
         return super._canRender() && !this._stopped && !this._deferredloaded && this._renderSpriteFrame !== null;
     }
 
-    protected _render (render: UI) {
+    protected _render (render: Batcher2D) {
         render.commitComp(this, this._renderSpriteFrame, this._assembler!, this._positionType === PositionType.RELATIVE ? this.node.parent : null);
     }
 }

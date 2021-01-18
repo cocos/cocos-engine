@@ -41,7 +41,6 @@ import { CallbacksInvoker } from '../event/callbacks-invoker';
 import { errorID } from '../platform/debug';
 import { legacyCC } from '../global-exports';
 import { Component } from '../components/component';
-import { Mask } from '../../2d/components/mask';
 
 const _cachedArray = new Array<BaseNode>(16);
 let _currentHovered: BaseNode | null = null;
@@ -275,15 +274,16 @@ function _doDispatchEvent (owner: BaseNode, event: Event) {
     _cachedArray.length = 0;
 }
 
-function _searchComponentsInParent<T extends Component> (node: Node | null, comp: Constructor<T>) {
-    if (comp) {
+function _searchComponentsInParent<T extends Component> (node: Node | null, ctor: Constructor<T> | null) {
+    if (ctor) {
         let index = 0;
         let list: any[] = [];
         for (let curr = node; curr && Node.isNode(curr); curr = curr.parent, ++index) {
-            if (curr.getComponent(comp)) {
+            const comp = curr.getComponent(ctor);
+            if (comp) {
                 const next = {
                     index,
-                    node: curr,
+                    comp,
                 };
 
                 if (list) {
@@ -353,23 +353,29 @@ export class NodeEventProcessor {
     public mouseListener: EventListener | null = null;
 
     private _node: BaseNode;
+    private _comp: Constructor<Component> | null = null;
 
     constructor (node: BaseNode) {
         this._node = node;
     }
 
     public reattach (): void {
+        if (!this._comp) return;
         if (this.touchListener) {
-            const mask = this.touchListener.mask = _searchComponentsInParent(this._node as Node, Mask);
+            const mask = this.touchListener.mask = _searchComponentsInParent(this._node as Node, this._comp);
             if (this.mouseListener) {
                 this.mouseListener.mask = mask;
             }
         } else if (this.mouseListener) {
-            this.mouseListener.mask = _searchComponentsInParent(this._node as Node, Mask);
+            this.mouseListener.mask = _searchComponentsInParent(this._node as Node, this._comp);
         }
     }
 
-    public destroy (): void{
+    public registerComponentHitList (ctor: Constructor<Component>) {
+        this._comp = ctor;
+    }
+
+    public destroy (): void {
         if (_currentHovered === this._node) {
             _currentHovered = null;
         }
@@ -677,7 +683,7 @@ export class NodeEventProcessor {
                     event: legacyCC.EventListener.TOUCH_ONE_BY_ONE,
                     swallowTouches: true,
                     owner: this._node,
-                    mask: _searchComponentsInParent(this._node as Node, Mask),
+                    mask: _searchComponentsInParent(this._node as Node, this._comp),
                     onTouchBegan: _touchStartHandler,
                     onTouchMoved: _touchMoveHandler,
                     onTouchEnded: _touchEndHandler,
@@ -693,7 +699,7 @@ export class NodeEventProcessor {
                     event: legacyCC.EventListener.MOUSE,
                     _previousIn: false,
                     owner: this._node,
-                    mask: _searchComponentsInParent(this._node as Node, Mask),
+                    mask: _searchComponentsInParent(this._node as Node, this._comp),
                     onMouseDown: _mouseDownHandler,
                     onMouseMove: _mouseMoveHandler,
                     onMouseUp: _mouseUpHandler,

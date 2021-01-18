@@ -258,11 +258,9 @@ export class EditBoxImpl extends EditBoxImplBase {
     }
 
     private _adjustWindowScroll () {
-        // eslint-disable-next-line @typescript-eslint/no-this-alias
-        const self = this;
         setTimeout(() => {
             if (window.scrollY < SCROLLY) {
-                self._edTxt!.scrollIntoView({ block: 'start', inline: 'nearest', behavior: 'smooth' });
+                this._edTxt!.scrollIntoView({ block: 'start', inline: 'nearest', behavior: 'smooth' });
             }
         }, DELAY_TIME);
     }
@@ -312,7 +310,7 @@ export class EditBoxImpl extends EditBoxImplBase {
             return;
         }
 
-        const camera = director.root!.ui.getFirstRenderCamera(node);
+        const camera = director.root!.batcher2D.getFirstRenderCamera(node);
         if (!camera) return;
 
         // camera.getWorldToCameraMatrix(_matrix_temp);
@@ -581,8 +579,6 @@ export class EditBoxImpl extends EditBoxImplBase {
             return;
         }
 
-        // eslint-disable-next-line @typescript-eslint/no-this-alias
-        const impl = this;
         const elem = this._edTxt;
         let inputLock = false;
         const cbs = this.__eventListeners;
@@ -593,14 +589,14 @@ export class EditBoxImpl extends EditBoxImplBase {
 
         cbs.compositionEnd = () => {
             inputLock = false;
-            impl._delegate!._editBoxTextChanged(elem.value);
+            this._delegate!._editBoxTextChanged(elem.value);
         };
 
         cbs.onInput = () => {
             if (inputLock) {
                 return;
             }
-            const delegate = impl._delegate;
+            const delegate = this._delegate;
             // input of number type doesn't support maxLength attribute
             const maxLength = delegate!.maxLength;
             if (maxLength >= 0) {
@@ -610,9 +606,9 @@ export class EditBoxImpl extends EditBoxImplBase {
         };
 
         cbs.onClick = () => {
-            if (impl._editing) {
+            if (this._editing) {
                 if (sys.isMobile) {
-                    impl._adjustWindowScroll();
+                    this._adjustWindowScroll();
                 }
             }
         };
@@ -620,16 +616,16 @@ export class EditBoxImpl extends EditBoxImplBase {
         cbs.onKeydown = (e) => {
             if (e.keyCode === macro.KEY.enter) {
                 e.propagationStopped = true;
-                impl._delegate!._editBoxEditingReturn();
+                this._delegate!._editBoxEditingReturn();
 
-                if (!impl._isTextArea) {
+                if (!this._isTextArea) {
                     elem.blur();
                 }
             } else if (e.keyCode === macro.KEY.tab) {
                 e.propagationStopped = true;
                 e.preventDefault();
 
-                tabIndexUtil.next(impl);
+                tabIndexUtil.next(this);
             }
         };
 
@@ -638,10 +634,10 @@ export class EditBoxImpl extends EditBoxImplBase {
             if (sys.isMobile && inputLock) {
                 cbs.compositionEnd();
             }
-            impl._editing = false;
+            this._editing = false;
             _currentEditBoxImpl = null;
-            impl._hideDom();
-            impl._delegate!._editBoxEditingDidEnded();
+            this._hideDom();
+            this._delegate!._editBoxEditingDidEnded();
         };
 
         elem.addEventListener('compositionstart', cbs.compositionStart);

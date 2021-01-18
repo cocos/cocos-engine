@@ -4,13 +4,13 @@ import spine from './lib/spine-core.js';
 import SkeletonCache, { AnimationCache, AnimationFrame } from './skeleton-cache';
 import { AttachUtil } from './attach-util';
 import { ccclass, executeInEditMode, help, menu } from '../core/data/class-decorator';
-import { UIRenderable } from '../2d/framework/ui-renderable';
+import { Renderable2D } from '../2d/framework/renderable-2d';
 import { Node, CCClass, CCObject, Color, Enum, Material, PrivateNode, Texture2D, builtinResMgr, ccenum, errorID, logID, warn } from '../core';
 import { displayName, editable, override, serializable, tooltip, type, visible } from '../core/data/decorators';
 import { SkeletonData } from './skeleton-data';
 import { VertexEffectDelegate } from './vertex-effect-delegate';
 import { MeshRenderData } from '../2d/renderer/render-data';
-import { UI } from '../2d/renderer/ui';
+import { Batcher2D } from '../2d/renderer/batcher-2d';
 import { Graphics } from '../2d/components/graphics';
 import { MaterialInstance } from '../core/renderer';
 import { js } from '../core/utils/js';
@@ -119,13 +119,13 @@ js.setClassAlias(SpineSocket, 'sp.Skeleton.SpineSocket');
  * 多个 Skeleton 可以使用相同的骨骼数据，其中包括所有的动画，皮肤和 attachments。
  *
  * @class Skeleton
- * @extends UIRenderable
+ * @extends Renderable2D
  */
 @ccclass('sp.Skeleton')
 @help('i18n:sp.Skeleton')
 @menu('Components/SpineSkeleton')
 @executeInEditMode
-export class Skeleton extends UIRenderable {
+export class Skeleton extends Renderable2D {
     public static SpineSocket = SpineSocket;
 
     public static AnimationCacheMode = AnimationCacheMode;
@@ -1271,7 +1271,7 @@ export class Skeleton extends UIRenderable {
     }
 
     public requestMeshRenderData (vertexFloatCnt: number) {
-        if (this._meshRenderDataArray.length > 0 && this._meshRenderDataArray[this._meshRenderDataArray.length - 1].renderData.vertexStart == 0) {
+        if (this._meshRenderDataArray.length > 0 && this._meshRenderDataArray[this._meshRenderDataArray.length - 1].renderData.vertexCount === 0) {
             return this._meshRenderDataArray[this._meshRenderDataArray.length - 1];
         }
 
@@ -1334,7 +1334,7 @@ export class Skeleton extends UIRenderable {
     }
 
     public _meshRenderDataArrayIdx = 0;
-    protected _render (ui: UI) {
+    protected _render (ui: Batcher2D) {
         if (this._meshRenderDataArray) {
             for (let i = 0; i < this._meshRenderDataArray.length; i++) {
                 this._meshRenderDataArrayIdx = i;

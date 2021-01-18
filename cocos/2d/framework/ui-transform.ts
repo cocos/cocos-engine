@@ -37,7 +37,6 @@ import { Mat4, Rect, Size, Vec2, Vec3 } from '../../core/math';
 import { AABB } from '../../core/geometry';
 import { Node } from '../../core/scene-graph';
 import { legacyCC } from '../../core/global-exports';
-import { Mask } from '../components/mask';
 import { director } from '../../core/director';
 import { warnID } from '../../core/platform/debug';
 
@@ -227,7 +226,7 @@ export class UITransform extends Component {
      * @deprecated since v3.0
      */
     get visibility () {
-        const camera = director.root?.ui.getFirstRenderCamera(this.node);
+        const camera = director.root!.batcher2D.getFirstRenderCamera(this.node);
         return camera ? camera.visibility : 0;
     }
 
@@ -236,7 +235,7 @@ export class UITransform extends Component {
      * @zh 查找被渲染相机的渲染优先级。
      */
     get cameraPriority () {
-        const camera = director.root?.ui.getFirstRenderCamera(this.node);
+        const camera = director.root!.batcher2D.getFirstRenderCamera(this.node);
         return camera ? camera.priority : 0;
     }
 
@@ -385,7 +384,7 @@ export class UITransform extends Component {
         const cameraPt = _vec2a;
         const testPt = _vec2b;
 
-        const cameras = director.root!.ui.renderScene.cameras;
+        const cameras = this._getRenderScene().cameras;
         for (let i = 0; i < cameras.length; i++) {
             const camera = cameras[i];
             if (!(camera.visibility & this.node.layer)) continue;
@@ -419,9 +418,9 @@ export class UITransform extends Component {
                     for (let i = 0, j = 0; parent && j < length; ++i, parent = parent.parent) {
                         const temp = mask[j];
                         if (i === temp.index) {
-                            if (parent === temp.node) {
-                                const comp = parent.getComponent(Mask);
-                                if (comp && comp._enabled && !comp.isHit(cameraPt)) {
+                            if (parent === temp.comp.node) {
+                                const comp = temp.comp;
+                                if (comp && comp._enabled && !(comp as any).isHit(cameraPt)) {
                                     hit = false;
                                     break;
                                 }

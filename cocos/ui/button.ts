@@ -33,7 +33,7 @@ import { ccclass, help, executionOrder, menu, requireComponent, tooltip, display
 import { EDITOR } from 'internal:constants';
 import { SpriteFrame } from '../2d/assets';
 import { Component, EventHandler as ComponentEventHandler } from '../core/components';
-import { UITransform, UIRenderable } from '../2d/framework';
+import { UITransform, Renderable2D } from '../2d/framework';
 import { EventMouse, EventTouch, SystemEventType } from '../core/platform';
 import { Color, Vec3 } from '../core/math';
 import { ccenum } from '../core/value-types/enum';
@@ -622,7 +622,7 @@ export class Button extends Component {
         }
 
         if (this._transition === Transition.COLOR) {
-            const renderComp = target._uiProps.uiComp as UIRenderable;
+            const renderComp = target._uiProps.uiComp as Renderable2D;
             Color.lerp(_tempColor, this._fromColor, this._toColor, ratio);
             if (renderComp) {
                 renderComp.color = _tempColor;
@@ -657,7 +657,7 @@ export class Button extends Component {
         if (!target) {
             return;
         }
-        const renderComp = target.getComponent(UIRenderable);
+        const renderComp = target.getComponent(Renderable2D);
         if (!renderComp) {
             return;
         }
@@ -802,12 +802,12 @@ export class Button extends Component {
         // mobile phone will not emit _onMouseMoveOut,
         // so we have to do hit test when touch moving
         if (!event) {
-            return false;
+            return;
         }
 
         const touch = (event).touch;
         if (!touch) {
-            return false;
+            return;
         }
 
         const hit = this.node._uiProps.uiTransformComp!.isHit(touch.getUILocation());
@@ -901,7 +901,7 @@ export class Button extends Component {
     protected _updateColorTransition (state: string) {
         const color = this[`${state}Color`];
 
-        const renderComp = this.target?.getComponent(UIRenderable);
+        const renderComp = this.target?.getComponent(Renderable2D);
         if (!renderComp) {
             return;
         }

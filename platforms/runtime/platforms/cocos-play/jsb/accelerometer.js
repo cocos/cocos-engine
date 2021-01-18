@@ -5,10 +5,17 @@
 
 window.jsb = window.jsb || {};
 
-const PORTRAIT = 0;
-const LANDSCAPE_LEFT = -90;
-const PORTRAIT_UPSIDE_DOWN = 180;
-const LANDSCAPE_RIGHT = 90;
+// KNOW_ISSUE: on COCOS_PLAY, systemInfo can't provide with accurate screenWidth or screenHeight
+// so we need to read game config to access the screen orientation
+let _rt = loadRuntime();
+let fs = _rt.getFileSystemManager();
+let gameConfig = JSON.parse(fs.readFileSync('./game.config.json', 'utf8'));
+let isLandscape = gameConfig.deviceOrientation === 'landscape';
+
+// const PORTRAIT = 0;
+// const LANDSCAPE_LEFT = -90;
+// const PORTRAIT_UPSIDE_DOWN = 180;
+// const LANDSCAPE_RIGHT = 90;
 let _didAccelerateFun;
 
 // API for event listner is overwritten on DOM-adapter
@@ -26,16 +33,14 @@ Object.assign(jsb, {
             let y = (eventAcceleration.y || 0) * 0.1;
             let z = (eventAcceleration.z || 0) * 0.1;
         
-            const tmpX = x;
-            if (window.orientation === LANDSCAPE_RIGHT) {
+            // KNOWN_ISSUE: don't know LANDSCAPE_RIGHT or LANDSCAPE_LEFT
+            // here isLandscape means isLandscapeRight
+            if (isLandscape) {
+                const tmpX = x;
                 x = y;
                 y = -tmpX;
             }
-            else if (window.orientation === LANDSCAPE_LEFT) {
-                x = -y;
-                y = tmpX;
-            }
-            else if (window.orientation === PORTRAIT) {
+            else {
                 x = -x;
                 y = -y;
             }

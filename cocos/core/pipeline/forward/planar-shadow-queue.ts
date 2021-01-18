@@ -51,6 +51,8 @@ export class PlanarShadowQueue {
         this._pendingModels.length = 0;
         if (!shadows.enabled || shadows.type !== ShadowType.Planar) { return; }
 
+        this._pipeline.updateShadowUBO(camera);
+
         const scene = camera.scene!;
         const frstm = camera.frustum;
         const shadowVisible =  (camera.visibility & Layers.BitMask.DEFAULT) !== 0;
