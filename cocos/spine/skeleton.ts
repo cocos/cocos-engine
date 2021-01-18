@@ -1271,7 +1271,7 @@ export class Skeleton extends Renderable2D {
     }
 
     public requestMeshRenderData (vertexFloatCnt: number) {
-        if (this._meshRenderDataArray.length > 0 && this._meshRenderDataArray[this._meshRenderDataArray.length - 1].renderData.vertexStart == 0) {
+        if (this._meshRenderDataArray.length > 0 && this._meshRenderDataArray[this._meshRenderDataArray.length - 1].renderData.vertexCount === 0) {
             return this._meshRenderDataArray[this._meshRenderDataArray.length - 1];
         }
 
