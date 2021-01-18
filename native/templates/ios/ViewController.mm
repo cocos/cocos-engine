@@ -25,6 +25,7 @@
 ****************************************************************************/
 #import "ViewController.h"
 #include "cocos/bindings/event/EventDispatcher.h"
+#include "cocos/platform/Device.h"
 
 namespace {
     cc::Device::Orientation _lastOrientation;

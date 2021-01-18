@@ -27,7 +27,6 @@ THE SOFTWARE.
 ****************************************************************************/
 #include "base/Scheduler.h"
 #include "base/Macros.h"
-#include "base/utlist.h"
 #include "base/Array.h"
 
 #define CC_REPEAT_FOREVER (UINT_MAX - 1)

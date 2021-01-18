@@ -22,15 +22,16 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-
 #include "jsb_global.h"
 #include "jsb_conversions.h"
 #include "xxtea/xxtea.h"
-
+#include "base/ZipUtils.h"
 #include "base/Scheduler.h"
 #include "base/ThreadPool.h"
+#include "base/base64.h"
 #include "network/HttpClient.h"
 #include "platform/Application.h"
+#include "platform/Image.h"
 #include "renderer/core/Core.h"
 #include "ui/edit-box/EditBox.h"
 

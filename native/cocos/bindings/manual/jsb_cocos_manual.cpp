@@ -31,7 +31,6 @@
 #include "cocos/bindings/auto/jsb_cocos_auto.h"
 
 #include "storage/local-storage/LocalStorage.h"
-#include "cocos2d.h"
 
 using namespace cc;
 

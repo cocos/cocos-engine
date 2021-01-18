@@ -22,14 +22,10 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-
-#include "cocos2d.h"
-
 #include "cocos/bindings/jswrapper/SeApi.h"
 #include "cocos/bindings/manual/jsb_module_register.h"
-
 #include "cocos/bindings/auto/jsb_cocos_auto.h"
-
+#include "cocos/base/AutoreleasePool.h"
 #include "cocos/bindings/dop/jsb_dop.h"
 #include "cocos/bindings/auto/jsb_extension_auto.h"
 #include "cocos/bindings/auto/jsb_network_auto.h"

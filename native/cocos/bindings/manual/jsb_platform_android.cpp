@@ -22,13 +22,13 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-
 #include "jsb_platform.h"
 
 #include "cocos/bindings/jswrapper/SeApi.h"
 #include "cocos/bindings/manual/jsb_conversions.h"
 #include "cocos/bindings/manual/jsb_global.h"
 #include "cocos/platform/FileUtils.h"
+#include "cocos/platform/android/jni/JniHelper.h"
 
 #include <regex>
 

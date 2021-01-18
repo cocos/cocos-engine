@@ -29,6 +29,7 @@
 #include "bindings/event/EventDispatcher.h"
 #include "bindings/jswrapper/SeApi.h"
 #include "audio/include/AudioEngine.h"
+#include "platform/Device.h"
 
 #ifndef CC_USE_METAL
 @interface MyTimer : NSObject {

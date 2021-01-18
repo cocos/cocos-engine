@@ -3,7 +3,10 @@
 #include <type_traits>
 #include "cocos/bindings/jswrapper/SeApi.h"
 #include "cocos/bindings/manual/jsb_conversions.h"
-#include "cocos/cocos2d.h"
+#include "cocos/platform/FileUtils.h"
+#include "cocos/platform/CanvasRenderingContext2D.h"
+#include "cocos/platform/Device.h"
+#include "cocos/platform/SAXParser.h"
 
 extern se::Object* __jsb_cc_FileUtils_proto;
 extern se::Class* __jsb_cc_FileUtils_class;
@@ -49,34 +52,6 @@ SE_DECLARE_FUNC(js_engine_FileUtils_writeValueVectorToFile);
 SE_DECLARE_FUNC(js_engine_FileUtils_setDelegate);
 SE_DECLARE_FUNC(js_engine_FileUtils_getInstance);
 
-extern se::Object* __jsb_cc_Device_proto;
-extern se::Class* __jsb_cc_Device_class;
-
-bool js_register_cc_Device(se::Object* obj);
-bool register_all_engine(se::Object* obj);
-
-JSB_REGISTER_OBJECT_TYPE(cc::Device);
-SE_DECLARE_FUNC(js_engine_Device_getDevicePixelRatio);
-SE_DECLARE_FUNC(js_engine_Device_setAccelerometerEnabled);
-SE_DECLARE_FUNC(js_engine_Device_setAccelerometerInterval);
-SE_DECLARE_FUNC(js_engine_Device_vibrate);
-SE_DECLARE_FUNC(js_engine_Device_setKeepScreenOn);
-SE_DECLARE_FUNC(js_engine_Device_getNetworkType);
-SE_DECLARE_FUNC(js_engine_Device_getBatteryLevel);
-SE_DECLARE_FUNC(js_engine_Device_getDeviceOrientation);
-SE_DECLARE_FUNC(js_engine_Device_getDPI);
-SE_DECLARE_FUNC(js_engine_Device_getSafeAreaEdge);
-SE_DECLARE_FUNC(js_engine_Device_getDeviceModel);
-
-extern se::Object* __jsb_cc_SAXParser_proto;
-extern se::Class* __jsb_cc_SAXParser_class;
-
-bool js_register_cc_SAXParser(se::Object* obj);
-bool register_all_engine(se::Object* obj);
-
-JSB_REGISTER_OBJECT_TYPE(cc::SAXParser);
-SE_DECLARE_FUNC(js_engine_SAXParser_init);
-
 extern se::Object* __jsb_cc_CanvasGradient_proto;
 extern se::Class* __jsb_cc_CanvasGradient_class;
 
@@ -112,4 +87,32 @@ SE_DECLARE_FUNC(js_engine_CanvasRenderingContext2D_stroke);
 SE_DECLARE_FUNC(js_engine_CanvasRenderingContext2D_transform);
 SE_DECLARE_FUNC(js_engine_CanvasRenderingContext2D_translate);
 SE_DECLARE_FUNC(js_engine_CanvasRenderingContext2D_CanvasRenderingContext2D);
+
+extern se::Object* __jsb_cc_Device_proto;
+extern se::Class* __jsb_cc_Device_class;
+
+bool js_register_cc_Device(se::Object* obj);
+bool register_all_engine(se::Object* obj);
+
+JSB_REGISTER_OBJECT_TYPE(cc::Device);
+SE_DECLARE_FUNC(js_engine_Device_getDevicePixelRatio);
+SE_DECLARE_FUNC(js_engine_Device_setAccelerometerEnabled);
+SE_DECLARE_FUNC(js_engine_Device_setAccelerometerInterval);
+SE_DECLARE_FUNC(js_engine_Device_vibrate);
+SE_DECLARE_FUNC(js_engine_Device_setKeepScreenOn);
+SE_DECLARE_FUNC(js_engine_Device_getNetworkType);
+SE_DECLARE_FUNC(js_engine_Device_getBatteryLevel);
+SE_DECLARE_FUNC(js_engine_Device_getDeviceOrientation);
+SE_DECLARE_FUNC(js_engine_Device_getDPI);
+SE_DECLARE_FUNC(js_engine_Device_getSafeAreaEdge);
+SE_DECLARE_FUNC(js_engine_Device_getDeviceModel);
+
+extern se::Object* __jsb_cc_SAXParser_proto;
+extern se::Class* __jsb_cc_SAXParser_class;
+
+bool js_register_cc_SAXParser(se::Object* obj);
+bool register_all_engine(se::Object* obj);
+
+JSB_REGISTER_OBJECT_TYPE(cc::SAXParser);
+SE_DECLARE_FUNC(js_engine_SAXParser_init);
 

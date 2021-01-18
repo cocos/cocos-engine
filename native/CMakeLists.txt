@@ -174,12 +174,6 @@ endif()
 
 include(${CMAKE_CURRENT_LIST_DIR}/external/CMakeLists.txt)
 
-
-cocos_source_files(
-    cocos/cocos2d.h
-    cocos/cocos2d.cpp
-)
-
 ##### audio
 if(USE_AUDIO)
     cocos_source_files(
@@ -342,7 +336,6 @@ cocos_source_files(
     cocos/base/Object.h
     cocos/base/TypeDef.h
     cocos/base/uthash.h
-    cocos/base/utlist.h
     cocos/base/StringUtil.cpp
     cocos/base/StringUtil.h
     cocos/base/UTFString.cpp
@@ -1635,8 +1628,8 @@ if(MSVC)
     target_compile_options(cocos2d PUBLIC /MP)
 endif()
 
-if(COMMAND target_precompile_headers)
-    target_precompile_headers(cocos2d PUBLIC
-        $<$<COMPILE_LANGUAGE:CXX>:${CWD}/cocos/cocos2d.h>
-    )
-endif()
+#if(COMMAND target_precompile_headers)
+    #target_precompile_headers(cocos2d PUBLIC
+        #$<$<COMPILE_LANGUAGE:CXX>:${CWD}/cocos/cocos2d.h>
+    #)
+#endif()
