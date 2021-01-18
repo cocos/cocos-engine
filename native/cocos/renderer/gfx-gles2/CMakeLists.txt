@@ -15,31 +15,6 @@ set(INCLUDE_FILES
   ${COCOS_SRC_PATH}/renderer/gfx-gles2
 )
 
-if(WIN32)
-  list(APPEND INCLUDE_FILES ${GFX_EXTERNAL_PATH}/pvrsdk/include)
-
-if(COCOS_CPU_X64)
-  set(PVRSDK_LIB_DIR ${GFX_EXTERNAL_PATH}/pvrsdk/lib/Windows_x86_64)
-else()
-  set(PVRSDK_LIB_DIR ${GFX_EXTERNAL_PATH}/pvrsdk/lib/Windows_x86_32)
-endif()
-
-  link_libraries(
-    ${PVRSDK_LIB_DIR}/libEGL.lib
-	  ${PVRSDK_LIB_DIR}/libGLESv2.lib
-  )
-endif()
-
-if(COCOS_PLATFORM_OSX)
-  list(APPEND INCLUDE_FILES ${GFX_EXTERNAL_PATH}/pvrsdk/include)
-  set(PVRSDK_LIB_DIR ${GFX_EXTERNAL_PATH}/pvrsdk/lib/OSX_x86)
-
-  link_libraries(
-    ${PVRSDK_LIB_DIR}/libEGL.dylib
-    ${PVRSDK_LIB_DIR}/libGLESv2.dylib
-  )
-endif()
-
 include_directories( ${INCLUDE_FILES} )
 
 # ---------------------------------------------------------------------
@@ -89,7 +64,6 @@ else()
 endif()
 
 target_link_libraries(${TARGET_NAME} Core)
-target_include_directories(${TARGET_NAME} PUBLIC ${GFX_EXTERNAL_PATH}/khronos)
 
 set_target_properties(${TARGET_NAME} PROPERTIES OUTPUT_NAME CCGFXGLES2)
 set_target_properties(${TARGET_NAME} PROPERTIES OUTPUT_NAME_DEBUG CCGFXGLES2_d)
