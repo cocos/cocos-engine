@@ -27,8 +27,8 @@
 #include "base/TypeDef.h"
 #include "math/Math.h"
 #include "renderer/core/gfx/GFXDef.h"
-#include <sstream>
 #include <regex>
+#include <sstream>
 
 // seval to native
 
@@ -1304,12 +1304,6 @@ bool nativevalue_to_se(const spine::Vector<spine::String> &v, se::Value &ret, se
         ret.setObject(obj);
 
     return ok;
-}
-
-template <>
-bool nativevalue_to_se(const se_object_ptr &obj, se::Value &val, se::Object *) {
-    val.setObject(const_cast<se::Object *>(obj));
-    return true;
 }
 
 template <>

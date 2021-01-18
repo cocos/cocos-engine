@@ -1438,12 +1438,12 @@ bool nativevalue_to_se_args(se::ValueArray &array, T &x) {
     return nativevalue_to_se(x, array[i], (se::Object *)nullptr);
 }
 template <int i, typename T, typename... Args>
-bool nativevalue_to_se_args(se::ValueArray &array, T &x, Args &... args) {
+bool nativevalue_to_se_args(se::ValueArray &array, T &x, Args &...args) {
     return nativevalue_to_se_args<i, T>(array, x) && nativevalue_to_se_args<i + 1, Args...>(array, args...);
 }
 
 template <typename... Args>
-bool nativevalue_to_se_args_v(se::ValueArray &array, Args &... args) {
+bool nativevalue_to_se_args_v(se::ValueArray &array, Args &...args) {
     return nativevalue_to_se_args<0, Args...>(array, args...);
 }
 
@@ -1575,9 +1575,6 @@ template <>
 bool nativevalue_to_se(const spine::Vector<spine::String> &v, se::Value &ret, se::Object *);
 
 template <>
-bool nativevalue_to_se(const se_object_ptr &obj, se::Value &val, se::Object *);
-
-template <>
 bool nativevalue_to_se(const spine::String &obj, se::Value &val, se::Object *);
 
 template <>
@@ -1585,4 +1582,12 @@ bool sevalue_to_native(const se::Value &v, spine::Vector<spine::String> *ret, se
 
 template <>
 bool seval_to_Map_string_key(const se::Value &v, cc::Map<std::string, cc::middleware::Texture2D *> *ret);
-#endif
+#endif //USE_SPINE
+
+#if USE_MIDDLEWARE
+template <>
+inline bool nativevalue_to_se(const se_object_ptr &from, se::Value &to, se::Object *) {
+    to.setObject(const_cast<se::Object *>(from));
+    return true;
+}
+#endif //USE_MIDDLEWARE
