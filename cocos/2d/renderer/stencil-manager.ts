@@ -134,7 +134,7 @@ export class StencilManager {
 
     public getStencilStage (stage: Stage, mat?: Material) {
         let key = 0;
-        let depthTest = false;
+        let depthTest = true;
         let depthWrite = false;
         let depthFunc = ComparisonFunc.LESS;
         let cacheMap = this.stencilStateMap;
