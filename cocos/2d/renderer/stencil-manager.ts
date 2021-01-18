@@ -140,10 +140,15 @@ export class StencilManager {
         let cacheMap = this.stencilStateMap;
         if (mat && mat.passes[0]) {
             const pass = mat.passes[0];
-            key = pass.getDepthHash() | (stage << 6) | (this._maskStack.length << 9);
-            depthTest = pass.depthStencilState.depthTest;
-            depthWrite = pass.depthStencilState.depthWrite;
-            depthFunc = pass.depthStencilState.depthFunc;
+            const dss = pass.depthStencilState;
+            let depthTestValue = 0;
+            let depthWriteValue = 0;
+            if (dss.depthTest) depthTestValue = 1;
+            if (dss.depthWrite) depthWriteValue = 1;
+            key = (depthTestValue) | (depthWriteValue << 1) | (dss.depthFunc << 2)  | (stage << 6) | (this._maskStack.length << 9);
+            depthTest = dss.depthTest;
+            depthWrite = dss.depthWrite;
+            depthFunc = dss.depthFunc;
             cacheMap = this.stencilStateMapWithDepth;
         } else {
             key = (stage << 16) | this._maskStack.length;
