@@ -91,7 +91,7 @@ const _gpu_vert_attr_mesh = [
     new Attribute(AttributeName.ATTR_TEX_COORD, Format.RGB32F),      // uv,frame idx
     new Attribute(AttributeName.ATTR_TEX_COORD3, Format.RGB32F),     // mesh position
     new Attribute(AttributeName.ATTR_NORMAL, Format.RGB32F),         // mesh normal
-    new Attribute(AttributeName.ATTR_COLOR1, Format.RGBA32F, true),  // mesh color
+    new Attribute(AttributeName.ATTR_COLOR1, Format.RGBA8, true),    // mesh color
 ];
 
 const _matInsInfo: IMaterialInstanceInfo = {

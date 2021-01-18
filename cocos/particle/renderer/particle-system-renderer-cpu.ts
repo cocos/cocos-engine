@@ -77,8 +77,8 @@ const _vertex_attrs_stretch = [
     new Attribute(AttributeName.ATTR_TEX_COORD, Format.RGB32F),      // uv,frame idx
     new Attribute(AttributeName.ATTR_TEX_COORD1, Format.RGB32F),     // size
     new Attribute(AttributeName.ATTR_TEX_COORD2, Format.RGB32F),     // rotation
-    new Attribute(AttributeName.ATTR_COLOR, Format.RGBA32F, true),     // color
-    new Attribute(AttributeName.ATTR_COLOR1, Format.RGBA32F),         // particle velocity
+    new Attribute(AttributeName.ATTR_COLOR, Format.RGBA8, true),     // color
+    new Attribute(AttributeName.ATTR_COLOR1, Format.RGB32F),         // particle velocity
 ];
 
 const _vertex_attrs_mesh = [
@@ -89,7 +89,7 @@ const _vertex_attrs_mesh = [
     new Attribute(AttributeName.ATTR_COLOR, Format.RGBA8, true),     // particle color
     new Attribute(AttributeName.ATTR_TEX_COORD3, Format.RGB32F),     // mesh position
     new Attribute(AttributeName.ATTR_NORMAL, Format.RGB32F),         // mesh normal
-    new Attribute(AttributeName.ATTR_COLOR1, Format.RGBA32F, true),    // mesh color
+    new Attribute(AttributeName.ATTR_COLOR1, Format.RGBA8, true),    // mesh color
 ];
 
 const _matInsInfo: IMaterialInstanceInfo = {
