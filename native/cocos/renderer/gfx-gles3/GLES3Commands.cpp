@@ -605,6 +605,12 @@ const GLenum GLES3_FILTERS[] = {
     GL_LINEAR,
     GL_NONE,
 };
+
+const GLenum GL_MEMORY_ACCESS[] = {
+    GL_READ_ONLY,
+    GL_WRITE_ONLY,
+    GL_READ_WRITE,
+};
 } // namespace
 
 void MapGLBarriers(const AccessType *list, uint count, GLbitfield &glBarriers, GLbitfield &glBarriersByRegion) {
@@ -1205,149 +1211,125 @@ void GLES3CmdFuncCreateShader(GLES3Device *device, GLES3GPUShader *gpuShader) {
         gpuInput.glType = glType;
     }
 
-    // create uniform blocks
+    // create buffers
     GLint blockCount;
     GL_CHECK(glGetProgramiv(gpuShader->glProgram, GL_ACTIVE_UNIFORM_BLOCKS, &blockCount));
 
-    uint bufferCount = gpuShader->buffers.size(); // no way to extract storage buffer infos out of GL programs
-    gpuShader->glBlocks.resize(blockCount + bufferCount);
-
-    if (blockCount) {
-        GLint glBlockSize = 0;
-        GLint glBlockUniforms = 0;
-        uint32_t blockIdx = 0;
-
-        for (GLint i = 0; i < blockCount; ++i) {
-            GLES3GPUUniformBlock &gpuBlock = gpuShader->glBlocks[i];
-            memset(glName, 0, sizeof(glName));
-            GL_CHECK(glGetActiveUniformBlockName(gpuShader->glProgram, i, 255, &glLength, glName));
-
-            char *offset = strchr(glName, '[');
-            if (offset) {
-                glName[offset - glName] = '\0';
-            }
-
-            gpuBlock.name = glName;
-            gpuBlock.binding = GFX_INVALID_BINDING;
-            for (size_t b = 0; b < gpuShader->blocks.size(); ++b) {
-                UniformBlock &block = gpuShader->blocks[b];
-                if (block.name == gpuBlock.name) {
-                    gpuBlock.set = block.set;
-                    gpuBlock.binding = block.binding;
-                    gpuBlock.glBinding = block.binding + device->bindingMappingInfo().bufferOffsets[block.set];
-                    break;
-                }
-            }
-
-            if (gpuBlock.binding != GFX_INVALID_BINDING) {
-                blockIdx = i;
-
-                GL_CHECK(glUniformBlockBinding(gpuShader->glProgram, blockIdx, gpuBlock.glBinding));
-
-                GL_CHECK(glGetActiveUniformBlockiv(gpuShader->glProgram, i, GL_UNIFORM_BLOCK_DATA_SIZE, &glBlockSize));
-                GL_CHECK(glGetActiveUniformBlockiv(gpuShader->glProgram, i, GL_UNIFORM_BLOCK_ACTIVE_UNIFORMS, &glBlockUniforms));
-                GL_CHECK(glUniformBlockBinding(gpuShader->glProgram, blockIdx, gpuBlock.glBinding));
-
-                gpuBlock.size = glBlockSize;
-                gpuBlock.glUniforms.resize(glBlockUniforms);
-
-                vector<GLint> indices(glBlockUniforms);
-                GL_CHECK(glGetActiveUniformBlockiv(gpuShader->glProgram, i, GL_UNIFORM_BLOCK_ACTIVE_UNIFORM_INDICES, &indices[0]));
-                // vector<GLint> sizes(glBlockUniforms);
-                // GL_CHECK(glGetActiveUniformsiv(gpuShader->glProgram, glBlockUniforms, (const GLuint*)indices.data(), GL_UNIFORM_SIZE, &sizes[0]));
-                vector<GLint> offsets(glBlockUniforms);
-                GL_CHECK(glGetActiveUniformsiv(gpuShader->glProgram, glBlockUniforms, (const GLuint *)indices.data(), GL_UNIFORM_OFFSET, &offsets[0]));
-
-                for (GLint u = 0; u < glBlockUniforms; ++u) {
-                    GLES3GPUUniform &uniform = gpuBlock.glUniforms[u];
-
-                    GLint idx = indices[u];
-                    memset(glName, 0, sizeof(glName));
-                    GL_CHECK(glGetActiveUniform(gpuShader->glProgram, idx, 255, &glLength, &glSize, &glType, glName));
-                    offset = strchr(glName, '[');
-                    if (offset) {
-                        glName[offset - glName] = '\0';
-                    }
-
-                    uniform.binding = GFX_INVALID_BINDING;
-                    uniform.name = glName;
-                    uniform.type = MapType(glType);
-                    uniform.stride = GFX_TYPE_SIZES[(int)uniform.type];
-                    uniform.count = glSize;
-                    uniform.size = uniform.stride * uniform.count;
-                    uniform.offset = offsets[u];
-                    uniform.glType = glType;
-                    uniform.glLoc = -1;
-                }
-            } // if
-        }
-    } // if
-
-    // create shader storage buffers
-    for (size_t b = 0; b < bufferCount; ++b) {
-        StorageBuffer &buffer = gpuShader->buffers[b];
-        GLES3GPUUniformBlock &gpuBlock = gpuShader->glBlocks[blockCount + b];
-        gpuBlock.set = buffer.set;
-        gpuBlock.binding = buffer.binding;
-        gpuBlock.glBinding = buffer.binding + device->bindingMappingInfo().bufferOffsets[buffer.set];
-        gpuBlock.isStorage = true;
+    GLint bufferCount = 0;
+    if (device->getMinorVersion() > 0) {
+        GL_CHECK(glGetProgramInterfaceiv(gpuShader->glProgram, GL_SHADER_STORAGE_BLOCK, GL_ACTIVE_RESOURCES, &bufferCount));
     }
 
-    // create uniform samplers
-    if (gpuShader->samplers.size()) {
-        gpuShader->glSamplers.resize(gpuShader->samplers.size());
+    gpuShader->glBuffers.resize(blockCount + bufferCount);
 
-        for (size_t i = 0; i < gpuShader->glSamplers.size(); ++i) {
-            UniformSampler &sampler = gpuShader->samplers[i];
-            GLES3GPUUniformSampler &gpuSampler = gpuShader->glSamplers[i];
-            gpuSampler.set = sampler.set;
-            gpuSampler.binding = sampler.binding;
-            gpuSampler.name = sampler.name;
-            gpuSampler.type = sampler.type;
-            gpuSampler.count = sampler.count;
-            gpuSampler.uniformType = sampler.uniformType;
-            gpuSampler.glType = MapGLType(gpuSampler.type);
-            gpuSampler.glLoc = -1;
+    for (GLint i = 0; i < blockCount; ++i) {
+        GLES3GPUUniformBuffer &glBlock = gpuShader->glBuffers[i];
+        memset(glName, 0, sizeof(glName));
+        GL_CHECK(glGetActiveUniformBlockName(gpuShader->glProgram, i, 255, &glLength, glName));
+
+        char *offset = strchr(glName, '[');
+        if (offset) {
+            glName[offset - glName] = '\0';
+        }
+
+        glBlock.name = glName;
+        glBlock.set = GFX_INVALID_BINDING;
+        glBlock.binding = GFX_INVALID_BINDING;
+        for (size_t b = 0; b < gpuShader->blocks.size(); ++b) {
+            UniformBlock &block = gpuShader->blocks[b];
+            if (block.name == glBlock.name) {
+                glBlock.set = block.set;
+                glBlock.binding = block.binding;
+                glBlock.glBinding = block.binding + device->bindingMappingInfo().bufferOffsets[block.set];
+                GL_CHECK(glUniformBlockBinding(gpuShader->glProgram, i, glBlock.glBinding));
+                break;
+            }
+        }
+    }
+
+    for (GLint i = 0; i < bufferCount; ++i) {
+        GLES3GPUUniformBuffer &glBuffer = gpuShader->glBuffers[blockCount + i];
+        memset(glName, 0, sizeof(glName));
+        GL_CHECK(glGetProgramResourceName(gpuShader->glProgram, GL_SHADER_STORAGE_BLOCK, i, 255, &glLength, glName));
+
+        char *offset = strchr(glName, '[');
+        if (offset) {
+            glName[offset - glName] = '\0';
+        }
+
+        glBuffer.name = glName;
+        glBuffer.set = GFX_INVALID_BINDING;
+        glBuffer.binding = GFX_INVALID_BINDING;
+        glBuffer.isStorage = true;
+        for (size_t b = 0; b < gpuShader->blocks.size(); ++b) {
+            UniformStorageBuffer &buffer = gpuShader->buffers[b];
+            if (buffer.name == glBuffer.name) {
+                glBuffer.set = buffer.set;
+                glBuffer.binding = buffer.binding;
+
+                // no way to specify SSBO bindings here until 4.3 core
+                GLenum prop = GL_BUFFER_BINDING;
+                GL_CHECK(glGetProgramResourceiv(gpuShader->glProgram, GL_SHADER_STORAGE_BLOCK, i, 1, &prop, 1, nullptr, (GLint *)&glBuffer.glBinding));
+                break;
+            }
+        }
+    }
+
+    // create uniform sampler textures
+    if (gpuShader->samplerTextures.size()) {
+        gpuShader->glSamplerTextures.resize(gpuShader->samplerTextures.size());
+
+        for (size_t i = 0; i < gpuShader->glSamplerTextures.size(); ++i) {
+            UniformSamplerTexture &samplerTexture = gpuShader->samplerTextures[i];
+            GLES3GPUUniformSamplerTexture &gpuSamplerTexture = gpuShader->glSamplerTextures[i];
+            gpuSamplerTexture.set = samplerTexture.set;
+            gpuSamplerTexture.binding = samplerTexture.binding;
+            gpuSamplerTexture.name = samplerTexture.name;
+            gpuSamplerTexture.type = samplerTexture.type;
+            gpuSamplerTexture.count = samplerTexture.count;
+            gpuSamplerTexture.glType = MapGLType(gpuSamplerTexture.type);
+            gpuSamplerTexture.glLoc = -1;
         }
     }
 
     // texture unit index mapping optimization
-    vector<GLES3GPUUniformSampler> glActiveSamplers;
+    vector<GLES3GPUUniformSamplerTexture> glActiveSamplerTextures;
     vector<GLint> glActiveSamplerLocations;
     const BindingMappingInfo &bindingMappingInfo = device->bindingMappingInfo();
     unordered_map<String, uint> &texUnitCacheMap = device->stateCache()->texUnitCacheMap;
 
+    // sampler bindings in the flexible set comes strictly after buffer bindings
+    // so we need to subtract the buffer count for these samplers
     uint flexibleSetBaseOffset = 0u;
-    for (UniformBlock &block : gpuShader->blocks) {
-        if (block.set == bindingMappingInfo.flexibleSet) {
+    for (GLES3GPUUniformBuffer &buffer : gpuShader->glBuffers) {
+        if (buffer.set == bindingMappingInfo.flexibleSet) {
             flexibleSetBaseOffset++;
         }
     }
 
     uint arrayOffset = 0u;
 
-    for (uint i = 0u; i < gpuShader->samplers.size(); i++) {
-        const UniformSampler &sampler = gpuShader->samplers[i];
-        GLint glLoc = 0;
-        GL_CHECK(glLoc = glGetUniformLocation(gpuShader->glProgram, sampler.name.c_str()));
+    for (uint i = 0u; i < gpuShader->samplerTextures.size(); i++) {
+        const UniformSamplerTexture &samplerTexture = gpuShader->samplerTextures[i];
+        GLint glLoc = -1;
+        GL_CHECK(glLoc = glGetUniformLocation(gpuShader->glProgram, samplerTexture.name.c_str()));
         if (glLoc >= 0) {
-            glActiveSamplers.push_back(gpuShader->glSamplers[i]);
+            glActiveSamplerTextures.push_back(gpuShader->glSamplerTextures[i]);
             glActiveSamplerLocations.push_back(glLoc);
         }
-        if (sampler.uniformType == UniformSamplerType::STORAGE_IMAGE) continue;
-        if (texUnitCacheMap.count(sampler.name) == 0u) {
-            uint binding = sampler.binding + bindingMappingInfo.samplerOffsets[sampler.set] + arrayOffset;
-            if (sampler.set == bindingMappingInfo.flexibleSet) binding -= flexibleSetBaseOffset;
-            texUnitCacheMap[sampler.name] = binding % device->getCapabilities().maxTextureUnits;
-            arrayOffset += sampler.count - 1;
+        if (texUnitCacheMap.count(samplerTexture.name) == 0u) {
+            uint binding = samplerTexture.binding + bindingMappingInfo.samplerOffsets[samplerTexture.set] + arrayOffset;
+            if (samplerTexture.set == bindingMappingInfo.flexibleSet) binding -= flexibleSetBaseOffset;
+            texUnitCacheMap[samplerTexture.name] = binding % device->getCapabilities().maxTextureUnits;
+            arrayOffset += samplerTexture.count - 1;
         }
     }
 
-    if (!glActiveSamplers.empty()) {
+    if (!glActiveSamplerTextures.empty()) {
         vector<bool> usedTexUnits(device->getCapabilities().maxTextureUnits, false);
         // try to reuse existing mappings first
-        for (uint i = 0u; i < glActiveSamplers.size(); i++) {
-            GLES3GPUUniformSampler &glSampler = glActiveSamplers[i];
+        for (uint i = 0u; i < glActiveSamplerTextures.size(); i++) {
+            GLES3GPUUniformSamplerTexture &glSampler = glActiveSamplerTextures[i];
 
             if (texUnitCacheMap.count(glSampler.name) != 0u) {
                 uint cachedUnit = texUnitCacheMap[glSampler.name];
@@ -1363,26 +1345,20 @@ void GLES3CmdFuncCreateShader(GLES3Device *device, GLES3GPUShader *gpuShader) {
         }
         // fill in the rest sequencially
         uint unitIdx = 0u;
-        for (uint i = 0u; i < glActiveSamplers.size(); i++) {
-            GLES3GPUUniformSampler &glSampler = glActiveSamplers[i];
+        for (uint i = 0u; i < glActiveSamplerTextures.size(); i++) {
+            GLES3GPUUniformSamplerTexture &glSampler = glActiveSamplerTextures[i];
 
             if (glSampler.glLoc < 0) {
                 glSampler.glLoc = glActiveSamplerLocations[i];
-                // storage image units are immutable
-                if (glSampler.uniformType == UniformSamplerType::STORAGE_IMAGE) {
-                    glSampler.units.resize(glSampler.count);
-                    GL_CHECK(glGetUniformiv(gpuShader->glProgram, glSampler.glLoc, glSampler.units.data()));
-                } else {
-                    for (uint t = 0u; t < glSampler.count; t++) {
-                        while (usedTexUnits[unitIdx]) {
-                            unitIdx = (unitIdx + 1) % device->getCapabilities().maxTextureUnits;
-                        }
-                        if (texUnitCacheMap.count(glSampler.name) == 0u) {
-                            texUnitCacheMap[glSampler.name] = unitIdx;
-                        }
-                        glSampler.units.push_back(unitIdx);
-                        usedTexUnits[unitIdx] = true;
+                for (uint t = 0u; t < glSampler.count; t++) {
+                    while (usedTexUnits[unitIdx]) {
+                        unitIdx = (unitIdx + 1) % device->getCapabilities().maxTextureUnits;
                     }
+                    if (texUnitCacheMap.count(glSampler.name) == 0u) {
+                        texUnitCacheMap[glSampler.name] = unitIdx;
+                    }
+                    glSampler.units.push_back(unitIdx);
+                    usedTexUnits[unitIdx] = true;
                 }
             }
         }
@@ -1391,18 +1367,38 @@ void GLES3CmdFuncCreateShader(GLES3Device *device, GLES3GPUShader *gpuShader) {
             GL_CHECK(glUseProgram(gpuShader->glProgram));
         }
 
-        for (GLES3GPUUniformSampler &gpuSampler : glActiveSamplers) {
-            if (gpuSampler.uniformType == UniformSamplerType::STORAGE_IMAGE) continue;
-            GL_CHECK(glUniform1iv(gpuSampler.glLoc, (GLsizei)gpuSampler.units.size(), gpuSampler.units.data()));
+        for (GLES3GPUUniformSamplerTexture &gpuSamplerTexture : glActiveSamplerTextures) {
+            GL_CHECK(glUniform1iv(gpuSamplerTexture.glLoc, (GLsizei)gpuSamplerTexture.units.size(), gpuSamplerTexture.units.data()));
         }
 
         if (device->stateCache()->glProgram != gpuShader->glProgram) {
             GL_CHECK(glUseProgram(device->stateCache()->glProgram));
         }
     }
+    gpuShader->glSamplerTextures = glActiveSamplerTextures;
 
-    // strip out the inactive ones
-    gpuShader->glSamplers = glActiveSamplers;
+    // create uniform storage images
+    if (gpuShader->images.size()) {
+        for (size_t i = 0; i < gpuShader->images.size(); ++i) {
+            UniformStorageImage &image = gpuShader->images[i];
+            GLint glLoc = -1;
+            GL_CHECK(glLoc = glGetUniformLocation(gpuShader->glProgram, image.name.c_str()));
+            if (glLoc >= 0) {
+                GLES3GPUUniformStorageImage gpuImage;
+                gpuImage.set = image.set;
+                gpuImage.binding = image.binding;
+                gpuImage.name = image.name;
+                gpuImage.type = image.type;
+                gpuImage.count = image.count;
+                gpuImage.glMemoryAccess = GL_MEMORY_ACCESS[(uint)image.memoryAccess];
+                gpuImage.units.resize(gpuImage.count);
+                gpuImage.glLoc = glLoc;
+                // storage image units are immutable
+                GL_CHECK(glGetUniformiv(gpuShader->glProgram, gpuImage.glLoc, gpuImage.units.data()));
+                gpuShader->glImages.push_back(gpuImage);
+            }
+        }
+    }
 }
 
 void GLES3CmdFuncDestroyShader(GLES3Device *device, GLES3GPUShader *gpuShader) {
@@ -1982,96 +1978,117 @@ void GLES3CmdFuncBindState(GLES3Device *device, GLES3GPUPipelineState *gpuPipeli
     // bind descriptor sets
     if (gpuPipelineState && gpuPipelineState->gpuShader && gpuPipelineState->gpuPipelineLayout) {
 
-        size_t blockLen = gpuPipelineState->gpuShader->glBlocks.size();
         const vector<vector<int>> &dynamicOffsetIndices = gpuPipelineState->gpuPipelineLayout->dynamicOffsetIndices;
 
-        for (size_t j = 0; j < blockLen; j++) {
-            const GLES3GPUUniformBlock &glBlock = gpuPipelineState->gpuShader->glBlocks[j];
+        size_t bufferLen = gpuPipelineState->gpuShader->glBuffers.size();
+        for (size_t j = 0; j < bufferLen; j++) {
+            const GLES3GPUUniformBuffer &glBuffer = gpuPipelineState->gpuShader->glBuffers[j];
 
-            CCASSERT(gpuDescriptorSets.size() > glBlock.set, "Invalid set index");
-            const GLES3GPUDescriptorSet *gpuDescriptorSet = gpuDescriptorSets[glBlock.set];
-            const uint descriptorIndex = gpuDescriptorSet->descriptorIndices->at(glBlock.binding);
+            CCASSERT(gpuDescriptorSets.size() > glBuffer.set, "Invalid set index");
+            const GLES3GPUDescriptorSet *gpuDescriptorSet = gpuDescriptorSets[glBuffer.set];
+            const uint descriptorIndex = gpuDescriptorSet->descriptorIndices->at(glBuffer.binding);
             const GLES3GPUDescriptor &gpuDescriptor = gpuDescriptorSet->gpuDescriptors[descriptorIndex];
 
             if (!gpuDescriptor.gpuBuffer) {
                 CC_LOG_ERROR("Buffer binding '%s' at set %d binding %d is not bounded",
-                             glBlock.name.c_str(), glBlock.set, glBlock.binding);
+                             glBuffer.name.c_str(), glBuffer.set, glBuffer.binding);
                 continue;
             }
 
             uint offset = gpuDescriptor.gpuBuffer->glOffset;
 
-            const vector<int> &dynamicOffsetSetIndices = dynamicOffsetIndices[glBlock.set];
-            int dynamicOffsetIndex = glBlock.binding < dynamicOffsetSetIndices.size() ? dynamicOffsetSetIndices[glBlock.binding] : -1;
+            const vector<int> &dynamicOffsetSetIndices = dynamicOffsetIndices[glBuffer.set];
+            int dynamicOffsetIndex = glBuffer.binding < dynamicOffsetSetIndices.size() ? dynamicOffsetSetIndices[glBuffer.binding] : -1;
             if (dynamicOffsetIndex >= 0) offset += dynamicOffsets[dynamicOffsetIndex];
 
-            if (glBlock.isStorage) {
-                if (cache->glBindSSBOs[glBlock.glBinding] != gpuDescriptor.gpuBuffer->glBuffer ||
-                    cache->glBindSSBOOffsets[glBlock.glBinding] != offset) {
+            if (glBuffer.isStorage) {
+                if (cache->glBindSSBOs[glBuffer.glBinding] != gpuDescriptor.gpuBuffer->glBuffer ||
+                    cache->glBindSSBOOffsets[glBuffer.glBinding] != offset) {
                     if (offset) {
-                        GL_CHECK(glBindBufferRange(GL_SHADER_STORAGE_BUFFER, glBlock.glBinding, gpuDescriptor.gpuBuffer->glBuffer,
+                        GL_CHECK(glBindBufferRange(GL_SHADER_STORAGE_BUFFER, glBuffer.glBinding, gpuDescriptor.gpuBuffer->glBuffer,
                                                    offset, gpuDescriptor.gpuBuffer->size));
                     } else {
-                        GL_CHECK(glBindBufferBase(GL_SHADER_STORAGE_BUFFER, glBlock.glBinding, gpuDescriptor.gpuBuffer->glBuffer));
+                        GL_CHECK(glBindBufferBase(GL_SHADER_STORAGE_BUFFER, glBuffer.glBinding, gpuDescriptor.gpuBuffer->glBuffer));
                     }
-                    cache->glShaderStorageBuffer = cache->glBindSSBOs[glBlock.glBinding] = gpuDescriptor.gpuBuffer->glBuffer;
-                    cache->glBindSSBOOffsets[glBlock.glBinding] = offset;
+                    cache->glShaderStorageBuffer = cache->glBindSSBOs[glBuffer.glBinding] = gpuDescriptor.gpuBuffer->glBuffer;
+                    cache->glBindSSBOOffsets[glBuffer.glBinding] = offset;
                 }
             } else {
-                if (cache->glBindUBOs[glBlock.glBinding] != gpuDescriptor.gpuBuffer->glBuffer ||
-                    cache->glBindUBOOffsets[glBlock.glBinding] != offset) {
+                if (cache->glBindUBOs[glBuffer.glBinding] != gpuDescriptor.gpuBuffer->glBuffer ||
+                    cache->glBindUBOOffsets[glBuffer.glBinding] != offset) {
                     if (offset) {
-                        GL_CHECK(glBindBufferRange(GL_UNIFORM_BUFFER, glBlock.glBinding, gpuDescriptor.gpuBuffer->glBuffer,
+                        GL_CHECK(glBindBufferRange(GL_UNIFORM_BUFFER, glBuffer.glBinding, gpuDescriptor.gpuBuffer->glBuffer,
                                                    offset, gpuDescriptor.gpuBuffer->size));
                     } else {
-                        GL_CHECK(glBindBufferBase(GL_UNIFORM_BUFFER, glBlock.glBinding, gpuDescriptor.gpuBuffer->glBuffer));
+                        GL_CHECK(glBindBufferBase(GL_UNIFORM_BUFFER, glBuffer.glBinding, gpuDescriptor.gpuBuffer->glBuffer));
                     }
-                    cache->glUniformBuffer = cache->glBindUBOs[glBlock.glBinding] = gpuDescriptor.gpuBuffer->glBuffer;
-                    cache->glBindUBOOffsets[glBlock.glBinding] = offset;
+                    cache->glUniformBuffer = cache->glBindUBOs[glBuffer.glBinding] = gpuDescriptor.gpuBuffer->glBuffer;
+                    cache->glBindUBOOffsets[glBuffer.glBinding] = offset;
                 }
             }
         }
 
-        size_t samplerLen = gpuPipelineState->gpuShader->glSamplers.size();
-        for (size_t j = 0; j < samplerLen; j++) {
-            const GLES3GPUUniformSampler &glSampler = gpuPipelineState->gpuShader->glSamplers[j];
+        size_t samplerTextureLen = gpuPipelineState->gpuShader->glSamplerTextures.size();
+        for (size_t j = 0; j < samplerTextureLen; j++) {
+            const GLES3GPUUniformSamplerTexture &glSamplerTexture = gpuPipelineState->gpuShader->glSamplerTextures[j];
 
-            CCASSERT(gpuDescriptorSets.size() > glSampler.set, "Invalid set index");
-            const GLES3GPUDescriptorSet *gpuDescriptorSet = gpuDescriptorSets[glSampler.set];
-            const uint descriptorIndex = gpuDescriptorSet->descriptorIndices->at(glSampler.binding);
+            CCASSERT(gpuDescriptorSets.size() > glSamplerTexture.set, "Invalid set index");
+            const GLES3GPUDescriptorSet *gpuDescriptorSet = gpuDescriptorSets[glSamplerTexture.set];
+            const uint descriptorIndex = gpuDescriptorSet->descriptorIndices->at(glSamplerTexture.binding);
             const GLES3GPUDescriptor *gpuDescriptor = &gpuDescriptorSet->gpuDescriptors[descriptorIndex];
-            bool isStorage = glSampler.uniformType == UniformSamplerType::STORAGE_IMAGE;
 
-            for (size_t u = 0; u < glSampler.units.size(); u++, gpuDescriptor++) {
-                uint unit = (uint)glSampler.units[u];
+            for (size_t u = 0; u < glSamplerTexture.units.size(); u++, gpuDescriptor++) {
+                uint unit = (uint)glSamplerTexture.units[u];
 
-                if (!gpuDescriptor->gpuTexture || (!isStorage && !gpuDescriptor->gpuSampler)) {
-                    CC_LOG_ERROR("Sampler binding '%s' at set %d binding %d index %d is not bounded",
-                                 glSampler.name.c_str(), glSampler.set, glSampler.binding, u);
+                if (!gpuDescriptor->gpuTexture || !gpuDescriptor->gpuSampler) {
+                    CC_LOG_ERROR("Sampler texture '%s' at binding %d set %d index %d is not bounded",
+                                 glSamplerTexture.name.c_str(), glSamplerTexture.set, glSamplerTexture.binding, u);
                     continue;
                 }
 
                 if (gpuDescriptor->gpuTexture->size > 0) {
                     GLuint glTexture = gpuDescriptor->gpuTexture->glTexture;
 
-                    if (isStorage) {
-                        if (cache->glImages[unit] != glTexture) {
-                            GL_CHECK(glBindImageTexture(unit, glTexture, 0, GL_TRUE, 0, GL_READ_WRITE, gpuDescriptor->gpuTexture->glInternelFmt));
+                    if (cache->glTextures[unit] != glTexture) {
+                        if (cache->texUint != unit) {
+                            GL_CHECK(glActiveTexture(GL_TEXTURE0 + unit));
+                            cache->texUint = unit;
                         }
-                    } else {
-                        if (cache->glTextures[unit] != glTexture) {
-                            if (cache->texUint != unit) {
-                                GL_CHECK(glActiveTexture(GL_TEXTURE0 + unit));
-                                cache->texUint = unit;
-                            }
-                            GL_CHECK(glBindTexture(gpuDescriptor->gpuTexture->glTarget, glTexture));
-                            cache->glTextures[unit] = glTexture;
-                        }
+                        GL_CHECK(glBindTexture(gpuDescriptor->gpuTexture->glTarget, glTexture));
+                        cache->glTextures[unit] = glTexture;
+                    }
 
-                        if (cache->glSamplers[unit] != gpuDescriptor->gpuSampler->glSampler) {
-                            GL_CHECK(glBindSampler(unit, gpuDescriptor->gpuSampler->glSampler));
-                            cache->glSamplers[unit] = gpuDescriptor->gpuSampler->glSampler;
-                        }
+                    if (cache->glSamplers[unit] != gpuDescriptor->gpuSampler->glSampler) {
+                        GL_CHECK(glBindSampler(unit, gpuDescriptor->gpuSampler->glSampler));
+                        cache->glSamplers[unit] = gpuDescriptor->gpuSampler->glSampler;
+                    }
+                }
+            }
+        }
+
+        size_t imageLen = gpuPipelineState->gpuShader->glImages.size();
+        for (size_t j = 0; j < imageLen; j++) {
+            const GLES3GPUUniformStorageImage &glImage = gpuPipelineState->gpuShader->glImages[j];
+
+            CCASSERT(gpuDescriptorSets.size() > glImage.set, "Invalid set index");
+            const GLES3GPUDescriptorSet *gpuDescriptorSet = gpuDescriptorSets[glImage.set];
+            const uint descriptorIndex = gpuDescriptorSet->descriptorIndices->at(glImage.binding);
+            const GLES3GPUDescriptor *gpuDescriptor = &gpuDescriptorSet->gpuDescriptors[descriptorIndex];
+
+            for (size_t u = 0; u < glImage.units.size(); u++, gpuDescriptor++) {
+                uint unit = (uint)glImage.units[u];
+
+                if (!gpuDescriptor->gpuTexture) {
+                    CC_LOG_ERROR("Storage image '%s' at binding %d set %d index %d is not bounded",
+                                 glImage.name.c_str(), glImage.set, glImage.binding, u);
+                    continue;
+                }
+
+                if (gpuDescriptor->gpuTexture->size > 0) {
+                    GLuint glTexture = gpuDescriptor->gpuTexture->glTexture;
+
+                    if (cache->glImages[unit] != glTexture) {
+                        GL_CHECK(glBindImageTexture(unit, glTexture, 0, GL_TRUE, 0, glImage.glMemoryAccess, gpuDescriptor->gpuTexture->glInternelFmt));
                     }
                 }
             }

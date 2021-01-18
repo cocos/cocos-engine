@@ -81,7 +81,7 @@ bool CCVKDescriptorSet::initialize(const DescriptorSetInfo &info) {
                     instance.descriptorInfos[k].buffer.buffer = gpuDevice->defaultBuffer.vkBuffer;
                     instance.descriptorInfos[k].buffer.offset = gpuDevice->defaultBuffer.startOffset;
                     instance.descriptorInfos[k].buffer.range = gpuDevice->defaultBuffer.size;
-                } else if (binding.descriptorType & DESCRIPTOR_SAMPLER_TYPE) {
+                } else if (binding.descriptorType & DESCRIPTOR_TEXTURE_TYPE) {
                     instance.descriptorInfos[k].image.sampler = gpuDevice->defaultSampler.vkSampler;
                     instance.descriptorInfos[k].image.imageView = gpuDevice->defaultTextureView.vkImageView;
                     instance.descriptorInfos[k].image.imageLayout = binding.descriptorType == DescriptorType::STORAGE_IMAGE ? VK_IMAGE_LAYOUT_GENERAL : VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
@@ -195,7 +195,7 @@ void CCVKDescriptorSet::update() {
                         binding.gpuBufferView = bufferView;
                     }
                 }
-            } else if (binding.type & DESCRIPTOR_SAMPLER_TYPE) {
+            } else if (binding.type & DESCRIPTOR_TEXTURE_TYPE) {
                 if (_textures[i]) {
                     CCVKGPUTextureView *textureView = ((CCVKTexture *)_textures[i])->gpuTextureView();
                     if (binding.gpuTextureView != textureView) {

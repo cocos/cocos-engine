@@ -7,7 +7,7 @@ namespace gfx {
 
 const DescriptorType DESCRIPTOR_BUFFER_TYPE = DescriptorType::STORAGE_BUFFER | DescriptorType::DYNAMIC_STORAGE_BUFFER |
                                               DescriptorType::UNIFORM_BUFFER | DescriptorType::DYNAMIC_UNIFORM_BUFFER;
-const DescriptorType DESCRIPTOR_SAMPLER_TYPE = DescriptorType::SAMPLER | DescriptorType::STORAGE_IMAGE;
+const DescriptorType DESCRIPTOR_TEXTURE_TYPE = DescriptorType::SAMPLER_TEXTURE | DescriptorType::SAMPLER | DescriptorType::TEXTURE | DescriptorType::STORAGE_IMAGE | DescriptorType::INPUT_ATTACHMENT;
 const DescriptorType DESCRIPTOR_DYNAMIC_TYPE = DescriptorType::DYNAMIC_STORAGE_BUFFER | DescriptorType::DYNAMIC_UNIFORM_BUFFER;
 
 const FormatInfo GFX_FORMAT_INFOS[] = {
@@ -142,6 +142,10 @@ const FormatInfo GFX_FORMAT_INFOS[] = {
     {"ASTC_SRGBA_12x10", 1, 4, FormatType::UNORM, true, false, false, true},
     {"ASTC_SRGBA_12x12", 1, 4, FormatType::UNORM, true, false, false, true},
 };
+
+bool isCombinedImageSampler(Type type) { return type >= Type::SAMPLER1D && type <= Type::SAMPLER_CUBE; }
+bool isSampledImage(Type type) { return type >= Type::TEXTURE1D && type <= Type::TEXTURE_CUBE; }
+bool isStorageImage(Type type) { return type >= Type::IMAGE1D && type <= Type::IMAGE_CUBE; }
 
 uint FormatSize(Format format, uint width, uint height, uint depth) {
 

@@ -85,7 +85,7 @@ void GLES3DescriptorSet::update() {
                 if (_buffers[i]) {
                     _gpuDescriptorSet->gpuDescriptors[i].gpuBuffer = ((GLES3Buffer *)_buffers[i])->gpuBuffer();
                 }
-            } else if (descriptors[i].type & DESCRIPTOR_SAMPLER_TYPE) {
+            } else if (descriptors[i].type & DESCRIPTOR_TEXTURE_TYPE) {
                 if (_textures[i]) {
                     _gpuDescriptorSet->gpuDescriptors[i].gpuTexture = ((GLES3Texture *)_textures[i])->gpuTexture();
                 }

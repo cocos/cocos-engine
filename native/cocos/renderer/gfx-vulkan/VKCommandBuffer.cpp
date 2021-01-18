@@ -572,7 +572,7 @@ void CCVKCommandBuffer::bindDescriptorSets(VkPipelineBindPoint bindPoint) {
 #if BARRIER_DEDUCTION_LEVEL >= BARRIER_DEDUCTION_LEVEL_FULL
             const CCVKGPUDescriptorList &descriptors = _curGPUDescriptorSets[i]->gpuDescriptors;
             for (size_t j = 0u; j < descriptors.size(); ++j) {
-                if (descriptors[j].type & DESCRIPTOR_SAMPLER_TYPE) {
+                if (descriptors[j].type & DESCRIPTOR_TEXTURE_TYPE) {
                     VkImageLayout &currentLayout = descriptors[j].gpuTextureView->gpuTexture->currentLayout;
                     VkImageLayout expectedLayout = instance.descriptorInfos[j].image.imageLayout;
                     if (currentLayout != expectedLayout) {

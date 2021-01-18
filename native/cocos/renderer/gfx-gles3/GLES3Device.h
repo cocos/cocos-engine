@@ -73,6 +73,7 @@ public:
     }
 
     CC_INLINE uint getThreadID() const { return _threadID; }
+    uint getMinorVersion() const;
 
 protected:
     virtual CommandBuffer *doCreateCommandBuffer(const CommandBufferInfo &info, bool hasAgent) override;

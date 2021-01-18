@@ -75,6 +75,7 @@ extern PFNEGLQUERYSTRINGPROC eglQueryString;
 extern PFNEGLSWAPBUFFERSPROC eglSwapBuffers;
 extern PFNEGLSWAPINTERVALPROC eglSwapInterval;
 extern PFNEGLBINDAPIPROC eglBindAPI;
+extern PFNEGLGETCONFIGATTRIBPROC eglGetConfigAttrib;
 
 /* gles api */
 extern PFNGLACTIVETEXTUREPROC glActiveTexture;

@@ -298,21 +298,41 @@ enum class Type {
     MAT4X2,
     MAT4X3,
     MAT4,
+    // combined image samplers
     SAMPLER1D,
     SAMPLER1D_ARRAY,
     SAMPLER2D,
     SAMPLER2D_ARRAY,
     SAMPLER3D,
     SAMPLER_CUBE,
+    // sampler
+    SAMPLER,
+    // sampled textures
+    TEXTURE1D,
+    TEXTURE1D_ARRAY,
+    TEXTURE2D,
+    TEXTURE2D_ARRAY,
+    TEXTURE3D,
+    TEXTURE_CUBE,
+    // storage images
+    IMAGE1D,
+    IMAGE1D_ARRAY,
+    IMAGE2D,
+    IMAGE2D_ARRAY,
+    IMAGE3D,
+    IMAGE_CUBE,
+    // input attachment
+    SUBPASS_INPUT,
     COUNT,
 };
+bool isCombinedImageSampler(Type type);
+bool isSampledImage(Type type);
+bool isStorageImage(Type type);
 
-enum class UniformSamplerType {
-    SAMPLER,
-    COMBINED_IMAGE_SAMPLER,
-    SAMPLED_IMAGE,
-    STORAGE_IMAGE,
-    INPUT_ATTACHMENT,
+enum class UniformMemoryAccessType {
+    READ_ONLY,
+    WRITE_ONLY,
+    READ_WRITE,
 };
 
 enum class BufferUsageBit : FlagBits {
@@ -539,7 +559,7 @@ enum class AccessType {
 typedef cc::vector<AccessType> AccessTypeList;
 
 // for texture barriers the exact layout can be inferred from access types
-enum class TextureBarrierLayout { 
+enum class TextureBarrierLayout {
     OPTIMAL,
     GENERAL,
 };
@@ -613,8 +633,11 @@ enum class DescriptorType : FlagBits {
     DYNAMIC_UNIFORM_BUFFER = 0x2,
     STORAGE_BUFFER = 0x4,
     DYNAMIC_STORAGE_BUFFER = 0x8,
-    SAMPLER = 0x10,
-    STORAGE_IMAGE = 0x20,
+    SAMPLER_TEXTURE = 0x10,
+    SAMPLER = 0x20,
+    TEXTURE = 0x40,
+    STORAGE_IMAGE = 0x80,
+    INPUT_ATTACHMENT = 0x100,
 };
 CC_ENUM_OPERATORS(DescriptorType);
 
@@ -641,15 +664,26 @@ typedef ClearFlagBit ClearFlags;
 CC_ENUM_OPERATORS(ClearFlagBit);
 
 enum class VsyncMode {
-    // The application does not synchronizes with the vertical sync. If application renders faster than the display refreshes, frames are wasted and tearing may be observed. FPS is uncapped. Maximum power consumption. If unsupported, "ON" value will be used instead. Minimum latency.
+    // The application does not synchronizes with the vertical sync.
+    // If application renders faster than the display refreshes, frames are wasted and tearing may be observed.
+    // FPS is uncapped. Maximum power consumption. If unsupported, "ON" value will be used instead. Minimum latency.
     OFF,
-    // The application is always synchronized with the vertical sync. Tearing does not happen. FPS is capped to the display's refresh rate. For fast applications, battery life is improved. Always supported.
+    // The application is always synchronized with the vertical sync. Tearing does not happen.
+    // FPS is capped to the display's refresh rate. For fast applications, battery life is improved. Always supported.
     ON,
-    // The application synchronizes with the vertical sync, but only if the application rendering speed is greater than refresh rate. Compared to OFF, there is no tearing. Compared to ON, the FPS will be improved for "slower" applications. If unsupported, "ON" value will be used instead. Recommended for most applications. Default if supported.
+    // The application synchronizes with the vertical sync, but only if the application rendering speed is greater than refresh rate.
+    // Compared to OFF, there is no tearing. Compared to ON, the FPS will be improved for "slower" applications.
+    // If unsupported, "ON" value will be used instead. Recommended for most applications. Default if supported.
     RELAXED,
-    // The presentation engine will always use the latest fully rendered image. Compared to OFF, no tearing will be observed. Compared to ON, battery power will be worse, especially for faster applications. If unsupported,  "OFF" will be attempted next.
+    // The presentation engine will always use the latest fully rendered image.
+    // Compared to OFF, no tearing will be observed.
+    // Compared to ON, battery power will be worse, especially for faster applications.
+    // If unsupported,  "OFF" will be attempted next.
     MAILBOX,
-    // The application is capped to using half the vertical sync time. FPS artificially capped to Half the display speed (usually 30fps) to maintain battery. Best possible battery savings. Worst possible performance. Recommended for specific applications where battery saving is critical.
+    // The application is capped to using half the vertical sync time.
+    // FPS artificially capped to Half the display speed (usually 30fps) to maintain battery.
+    // Best possible battery savings. Worst possible performance.
+    // Recommended for specific applications where battery saving is critical.
     HALF,
 };
 
@@ -953,25 +987,64 @@ struct UniformBlock {
 
 typedef cc::vector<UniformBlock> UniformBlockList;
 
-struct UniformSampler {
+struct UniformSamplerTexture {
     uint set = 0u;
     uint binding = 0u;
     String name;
     Type type = Type::UNKNOWN;
     uint count = 0u;
-    UniformSamplerType uniformType = UniformSamplerType::COMBINED_IMAGE_SAMPLER;
 };
 
-typedef cc::vector<UniformSampler> UniformSamplerList;
+typedef cc::vector<UniformSamplerTexture> UniformSamplerTextureList;
 
-struct StorageBuffer {
+struct UniformSampler {
     uint set = 0u;
     uint binding = 0u;
     String name;
     uint count = 0u;
 };
 
-typedef cc::vector<StorageBuffer> StorageBufferList;
+typedef cc::vector<UniformSampler> UniformSamplerList;
+
+struct UniformTexture {
+    uint set = 0u;
+    uint binding = 0u;
+    String name;
+    Type type = Type::UNKNOWN;
+    uint count = 0u;
+};
+
+typedef cc::vector<UniformTexture> UniformTextureList;
+
+struct UniformStorageImage {
+    uint set = 0u;
+    uint binding = 0u;
+    String name;
+    Type type = Type::UNKNOWN;
+    uint count = 0u;
+    UniformMemoryAccessType memoryAccess = UniformMemoryAccessType::READ_WRITE;
+};
+
+typedef cc::vector<UniformStorageImage> UniformStorageImageList;
+
+struct UniformStorageBuffer {
+    uint set = 0u;
+    uint binding = 0u;
+    String name;
+    uint count = 0u;
+    UniformMemoryAccessType memoryAccess = UniformMemoryAccessType::READ_WRITE;
+};
+
+typedef cc::vector<UniformStorageBuffer> UniformStorageBufferList;
+
+struct UniformInputAttachment {
+    uint set = 0u;
+    uint binding = 0u;
+    String name;
+    uint count = 0u;
+};
+
+typedef cc::vector<UniformInputAttachment> UniformInputAttachmentList;
 
 struct ShaderStage {
     ShaderStageFlagBit stage;
@@ -990,16 +1063,21 @@ struct Attribute {
 };
 
 typedef cc::vector<Attribute> AttributeList;
-typedef cc::vector<Buffer *> BufferList;
 
 struct ShaderInfo {
     String name;
     ShaderStageList stages;
     AttributeList attributes;
     UniformBlockList blocks;
-    StorageBufferList buffers;
+    UniformStorageBufferList buffers;
+    UniformSamplerTextureList samplerTextures;
     UniformSamplerList samplers;
+    UniformTextureList textures;
+    UniformStorageImageList images;
+    UniformInputAttachmentList subpassInputs;
 };
+
+typedef cc::vector<Buffer *> BufferList;
 
 struct InputAssemblerInfo {
     AttributeList attributes;
@@ -1209,7 +1287,7 @@ struct FormatInfo {
 };
 
 extern CC_DLL const DescriptorType DESCRIPTOR_BUFFER_TYPE;
-extern CC_DLL const DescriptorType DESCRIPTOR_SAMPLER_TYPE;
+extern CC_DLL const DescriptorType DESCRIPTOR_TEXTURE_TYPE;
 extern CC_DLL const DescriptorType DESCRIPTOR_DYNAMIC_TYPE;
 
 extern CC_DLL const FormatInfo GFX_FORMAT_INFOS[];

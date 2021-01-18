@@ -26,7 +26,6 @@ THE SOFTWARE.
 #include "GLES3Context.h"
 #include "GLES3Device.h"
 #include "GLES3GPUObjects.h"
-#include "gles3w.h"
 
 #if (CC_PLATFORM == CC_PLATFORM_ANDROID)
     #include "android/native_window.h"
@@ -103,6 +102,10 @@ bool GLES3Context::initialize(const ContextInfo &info) {
 
     //////////////////////////////////////////////////////////////////////////
 
+    if (!gles3wInit()) {
+        return false;
+    }
+
     if (!info.sharedCtx) {
         _isPrimaryContex = true;
         _windowHandle = info.windowHandle;
@@ -133,14 +136,10 @@ bool GLES3Context::initialize(const ContextInfo &info) {
             return false;
         }
 
-        //    Make OpenGL ES the current API.
-        //    EGL needs a way to know that any subsequent EGL calls are going to be affecting OpenGL ES,
-        //    rather than any other API (such as OpenVG).
+        // Make OpenGL ES the current API.
+        // EGL needs a way to know that any subsequent EGL calls are going to be affecting OpenGL ES,
+        // rather than any other API (such as OpenVG).
         EGL_CHECK(eglBindAPI(EGL_OPENGL_ES_API));
-
-        if (!gles3wInit()) {
-            return false;
-        }
 
         _colorFmt = Format::RGBA8;
         _depthStencilFmt = Format::D24S8;
@@ -422,7 +421,6 @@ bool GLES3Context::MakeCurrent(bool bound) {
         GL_CHECK(glDebugMessageControlKHR(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, NULL, GL_TRUE));
         GL_CHECK(glDebugMessageCallbackKHR(GLES3EGLDebugProc, NULL));
 #endif
-
 
         //////////////////////////////////////////////////////////////////////////
 

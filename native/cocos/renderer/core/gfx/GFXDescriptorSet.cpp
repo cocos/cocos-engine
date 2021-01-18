@@ -36,14 +36,14 @@ void DescriptorSet::bindTexture(uint binding, Texture *texture, uint index) {
     if (binding >= bindingIndices.size() || bindingIndices[binding] >= bindings.size()) return;
 
     const DescriptorSetLayoutBinding &info = bindings[bindingIndices[binding]];
-    if (info.descriptorType & DESCRIPTOR_SAMPLER_TYPE) {
+    if (info.descriptorType & DESCRIPTOR_TEXTURE_TYPE) {
         const uint descriptorIndex = _layout->getDescriptorIndices()[binding];
         if (_textures[descriptorIndex + index] != texture) {
             _textures[descriptorIndex + index] = texture;
             _isDirty = true;
         }
     } else {
-        CCASSERT(false, "Setting binding is not DESCRIPTOR_SAMPLER_TYPE.");
+        CCASSERT(false, "Setting binding is not DESCRIPTOR_TEXTURE_TYPE.");
     }
 }
 
@@ -53,14 +53,14 @@ void DescriptorSet::bindSampler(uint binding, Sampler *sampler, uint index) {
     if (binding >= bindingIndices.size() || bindingIndices[binding] >= bindings.size()) return;
 
     const DescriptorSetLayoutBinding &info = bindings[bindingIndices[binding]];
-    if (info.descriptorType & DESCRIPTOR_SAMPLER_TYPE) {
+    if (info.descriptorType & DESCRIPTOR_TEXTURE_TYPE) {
         const uint descriptorIndex = _layout->getDescriptorIndices()[binding];
         if (_samplers[descriptorIndex + index] != sampler) {
             _samplers[descriptorIndex + index] = sampler;
             _isDirty = true;
         }
     } else {
-        CCASSERT(false, "Setting binding is not DESCRIPTOR_SAMPLER_TYPE.");
+        CCASSERT(false, "Setting binding is not DESCRIPTOR_TEXTURE_TYPE.");
     }
 }
 

@@ -1056,7 +1056,6 @@ void GLES2CmdFuncCreateShader(GLES2Device *device, GLES2GPUShader *gpuShader) {
             gpuSampler.set = sampler.set;
             gpuSampler.binding = sampler.binding;
             gpuSampler.name = sampler.name;
-            gpuSampler.type = sampler.type;
             gpuSampler.count = sampler.count;
             gpuSampler.glType = MapGLType(gpuSampler.type);
             gpuSampler.glLoc = -1;
@@ -1106,6 +1105,8 @@ void GLES2CmdFuncCreateShader(GLES2Device *device, GLES2GPUShader *gpuShader) {
     const BindingMappingInfo &bindingMappingInfo = device->bindingMappingInfo();
     unordered_map<String, uint> &texUnitCacheMap = device->stateCache()->texUnitCacheMap;
 
+    // sampler bindings in the flexible set comes strictly after buffer bindings
+    // so we need to subtract the buffer count for these samplers
     uint flexibleSetBaseOffset = 0u;
     for (uint i = 0u; i < gpuShader->blocks.size(); i++) {
         if (gpuShader->blocks[i].set == bindingMappingInfo.flexibleSet) {

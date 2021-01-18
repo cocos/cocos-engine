@@ -115,32 +115,41 @@ struct GLES3GPUUniform final {
 };
 typedef vector<GLES3GPUUniform> GLES3GPUUniformList;
 
-struct GLES3GPUUniformBlock final {
+struct GLES3GPUUniformBuffer final {
     uint set = GFX_INVALID_BINDING;
     uint binding = GFX_INVALID_BINDING;
-    uint idx = 0;
     String name;
     uint size = 0;
-    uint glBinding = GFX_INVALID_BINDING;
+    uint glBinding = 0xffffffff;
     bool isStorage = false;
-    GLES3GPUUniformList glUniforms;
-    GLES3GPUUniformList glActiveUniforms;
 };
-typedef vector<GLES3GPUUniformBlock> GLES3GPUUniformBlockList;
+typedef vector<GLES3GPUUniformBuffer> GLES3GPUUniformBufferList;
 
-struct GLES3GPUUniformSampler final {
+struct GLES3GPUUniformSamplerTexture final {
     uint set = 0;
     uint binding = 0;
     String name;
     Type type = Type::UNKNOWN;
     uint count = 0u;
-    UniformSamplerType uniformType = UniformSamplerType::COMBINED_IMAGE_SAMPLER;
 
     vector<int> units;
     GLenum glType = 0;
     GLint glLoc = -1;
 };
-typedef vector<GLES3GPUUniformSampler> GLES3GPUUniformSamplerList;
+typedef vector<GLES3GPUUniformSamplerTexture> GLES3GPUUniformSamplerTextureList;
+
+struct GLES3GPUUniformStorageImage final {
+    uint set = 0;
+    uint binding = 0;
+    String name;
+    Type type = Type::UNKNOWN;
+    uint count = 0u;
+
+    vector<int> units;
+    GLenum glMemoryAccess = GL_READ_WRITE;
+    GLint glLoc = -1;
+};
+typedef vector<GLES3GPUUniformStorageImage> GLES3GPUUniformStorageImageList;
 
 struct GLES3GPUShaderStage final {
     GLES3GPUShaderStage(ShaderStageFlagBit t, String s, GLuint shader = 0)
@@ -155,13 +164,19 @@ class GLES3GPUShader final : public Object {
 public:
     String name;
     UniformBlockList blocks;
-    StorageBufferList buffers;
+    UniformStorageBufferList buffers;
+    UniformSamplerTextureList samplerTextures;
     UniformSamplerList samplers;
-    GLuint glProgram = 0;
+    UniformTextureList textures;
+    UniformStorageImageList images;
+    UniformInputAttachmentList subpassInputs;
+
     GLES3GPUShaderStageList gpuStages;
+    GLuint glProgram = 0;
     GLES3GPUInputList glInputs;
-    GLES3GPUUniformBlockList glBlocks;
-    GLES3GPUUniformSamplerList glSamplers;
+    GLES3GPUUniformBufferList glBuffers;
+    GLES3GPUUniformSamplerTextureList glSamplerTextures;
+    GLES3GPUUniformStorageImageList glImages;
 };
 
 struct GLES3GPUAttribute final {
@@ -397,7 +412,7 @@ public:
             _map[gpuTexture->glTexture][subres.mipLevel] = glFramebuffer;
         }
 
-        return _map[gpuTexture->glTexture][subres.mipLevel]; 
+        return _map[gpuTexture->glTexture][subres.mipLevel];
     }
 
     void onTextureDestroy(const GLES3GPUTexture *gpuTexture) {

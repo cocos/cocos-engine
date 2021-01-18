@@ -21,8 +21,12 @@ public:
     CC_INLINE const ShaderStageList &getStages() const { return _stages; }
     CC_INLINE const AttributeList &getAttributes() const { return _attributes; }
     CC_INLINE const UniformBlockList &getBlocks() const { return _blocks; }
-    CC_INLINE const StorageBufferList &getBuffers() const { return _buffers; }
+    CC_INLINE const UniformStorageBufferList &getBuffers() const { return _buffers; }
+    CC_INLINE const UniformSamplerTextureList &getSamplerTextures() const { return _samplerTextures; }
     CC_INLINE const UniformSamplerList &getSamplers() const { return _samplers; }
+    CC_INLINE const UniformTextureList &getTextures() const { return _textures; }
+    CC_INLINE const UniformStorageImageList &getImages() const { return _images; }
+    CC_INLINE const UniformInputAttachmentList &getSubpassInputs() const { return _subpassInputs; }
 
 protected:
     Device *_device = nullptr;
@@ -31,11 +35,15 @@ protected:
     ShaderStageList _stages;
     AttributeList _attributes;
     UniformBlockList _blocks;
-    StorageBufferList _buffers;
+    UniformStorageBufferList _buffers;
+    UniformSamplerTextureList _samplerTextures;
     UniformSamplerList _samplers;
+    UniformTextureList _textures;
+    UniformStorageImageList _images;
+    UniformInputAttachmentList _subpassInputs;
 };
 
 } // namespace gfx
 } // namespace cc
 
-#endif // CC_CORE_GFX_TEXTURE_VIEW_H_
+#endif // CC_CORE_GFX_SHADER_H_

@@ -38,91 +38,21 @@ static bool open_libgl(void) {
 
 static void *get_egl_proc(const char *proc) {
     void *res = nullptr;
-    if (eglGetProcAddress) res = eglGetProcAddress(proc);
+    if (eglGetProcAddress) res = (void *)eglGetProcAddress(proc);
     if (!res) res = (void *)GetProcAddress(libegl, proc);
     return res;
 }
 
 static void *get_gles_proc(const char *proc) {
-    void *res = eglGetProcAddress(proc);
+    void *res = (void *)eglGetProcAddress(proc);
     if (!res) res = (void *)GetProcAddress(libgles, proc);
-    return res;
-}
-#elif defined(__APPLE__) || defined(__APPLE_CC__)
-    #import <CoreFoundation/CoreFoundation.h>
-    #import <UIKit/UIDevice.h>
-    #import <string>
-    #import <iostream>
-    #import <stdio.h>
-
-// Routine to run a system command and retrieve the output.
-// From http://stackoverflow.com/questions/478898/how-to-execute-a-command-and-get-output-of-command-within-c
-std::string ES2_EXEC(const char *cmd) {
-    FILE *pipe = popen(cmd, "r");
-    if (!pipe) return "ERROR";
-    char buffer[128];
-    std::string result = "";
-    while (!feof(pipe)) {
-        if (fgets(buffer, 128, pipe) != NULL)
-            result += buffer;
-    }
-    pclose(pipe);
-    return result;
-}
-
-static CFBundleRef g_es2Bundle;
-static CFURLRef g_es2BundleURL;
-
-static bool open_libgl(void) {
-    CFStringRef frameworkPath = CFSTR("/System/Library/Frameworks/OpenGLES.framework");
-    NSString *sysVersion = [UIDevice currentDevice].systemVersion;
-    NSArray *sysVersionComponents = [sysVersion componentsSeparatedByString:@"."];
-    //BOOL isSimulator = ([[UIDevice currentDevice].model rangeOfString:@"Simulator"].location != NSNotFound);
-
-    #if TARGET_IPHONE_SIMULATOR
-    bool isSimulator = true;
-    #else
-    bool isSimulator = false;
-    #endif
-    if (isSimulator) {
-        // Ask where Xcode is installed
-        std::string xcodePath = "/Applications/Xcode.app/Contents/Developer\n";
-
-        // The result contains an end line character. Remove it.
-        size_t pos = xcodePath.find("\n");
-        xcodePath.erase(pos);
-
-        char tempPath[PATH_MAX];
-        sprintf(tempPath,
-                "%s/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator%s.%s.sdk/System/Library/Frameworks/OpenGLES.framework",
-                xcodePath.c_str(),
-                [[sysVersionComponents objectAtIndex:0] cStringUsingEncoding:NSUTF8StringEncoding],
-                [[sysVersionComponents objectAtIndex:1] cStringUsingEncoding:NSUTF8StringEncoding]);
-        frameworkPath = CFStringCreateWithCString(kCFAllocatorDefault, tempPath, kCFStringEncodingUTF8);
-    }
-
-    g_es2BundleURL = CFURLCreateWithFileSystemPath(kCFAllocatorDefault,
-                                                   frameworkPath,
-                                                   kCFURLPOSIXPathStyle, true);
-
-    CFRelease(frameworkPath);
-
-    g_es2Bundle = CFBundleCreate(kCFAllocatorDefault, g_es2BundleURL);
-
-    return (g_es2Bundle != NULL);
-}
-
-static void *get_gles_proc(const char *proc) {
-    void *res;
-
-    CFStringRef procname = CFStringCreateWithCString(kCFAllocatorDefault, proc,
-                                                     kCFStringEncodingASCII);
-    res = CFBundleGetFunctionPointerForName(g_es2Bundle, procname);
-    CFRelease(procname);
     return res;
 }
 #elif defined(__EMSCRIPTEN__)
 static void open_libgl() {}
+static void *get_egl_proc(const char *proc) {
+    return (void *)eglGetProcAddress(proc);
+}
 static void *get_gles_proc(const char *proc) {
     return (void *)eglGetProcAddress(proc);
 }
@@ -140,13 +70,13 @@ static bool open_libgl(void) {
 
 static void *get_egl_proc(const char *proc) {
     void *res = nullptr;
-    if (eglGetProcAddress) res = eglGetProcAddress(proc);
+    if (eglGetProcAddress) res = (void *)eglGetProcAddress(proc);
     if (!res) res = dlsym(libegl, proc);
     return res;
 }
 
 static void *get_gles_proc(const char *proc) {
-    void *res = eglGetProcAddress(proc);
+    void *res = (void *)eglGetProcAddress(proc);
     if (!res) res = dlsym(libgles, proc);
     return res;
 }
@@ -178,6 +108,7 @@ PFNEGLQUERYSTRINGPROC eglQueryString;
 PFNEGLSWAPBUFFERSPROC eglSwapBuffers;
 PFNEGLSWAPINTERVALPROC eglSwapInterval;
 PFNEGLBINDAPIPROC eglBindAPI;
+PFNEGLGETCONFIGATTRIBPROC eglGetConfigAttrib;
 
 PFNGLACTIVETEXTUREPROC glActiveTexture;
 PFNGLATTACHSHADERPROC glAttachShader;
@@ -498,6 +429,7 @@ static void load_procs(void) {
     eglSwapBuffers = (PFNEGLSWAPBUFFERSPROC)get_egl_proc("eglSwapBuffers");
     eglSwapInterval = (PFNEGLSWAPINTERVALPROC)get_egl_proc("eglSwapInterval");
     eglBindAPI = (PFNEGLBINDAPIPROC)get_egl_proc("eglBindAPI");
+    eglGetConfigAttrib = (PFNEGLGETCONFIGATTRIBPROC)get_egl_proc("eglGetConfigAttrib");
 
     glActiveTexture = (PFNGLACTIVETEXTUREPROC)get_gles_proc("glActiveTexture");
     glAttachShader = (PFNGLATTACHSHADERPROC)get_gles_proc("glAttachShader");

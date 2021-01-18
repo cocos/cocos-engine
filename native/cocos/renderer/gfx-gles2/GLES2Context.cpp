@@ -26,7 +26,6 @@ THE SOFTWARE.
 #include "GLES2Context.h"
 #include "GLES2Device.h"
 #include "GLES2GPUObjects.h"
-#include "gles2w.h"
 
 #if (CC_PLATFORM == CC_PLATFORM_ANDROID)
     #include "android/native_window.h"
@@ -108,6 +107,10 @@ bool GLES2Context::initialize(const ContextInfo &info) {
 
     //////////////////////////////////////////////////////////////////////////
 
+    if (!gles2wInit()) {
+        return false;
+    }
+
     if (!info.sharedCtx) {
         _isPrimaryContex = true;
         _windowHandle = info.windowHandle;
@@ -142,10 +145,6 @@ bool GLES2Context::initialize(const ContextInfo &info) {
         //    EGL needs a way to know that any subsequent EGL calls are going to be affecting OpenGL ES,
         //    rather than any other API (such as OpenVG).
         EGL_CHECK(eglBindAPI(EGL_OPENGL_ES_API));
-
-        if (!gles2wInit()) {
-            return false;
-        }
 
         _colorFmt = Format::RGBA8;
         _depthStencilFmt = Format::D24S8;

@@ -41,13 +41,21 @@ bool GLES3Shader::initialize(const ShaderInfo &info) {
     _attributes = info.attributes;
     _blocks = info.blocks;
     _buffers = info.buffers;
+    _samplerTextures = info.samplerTextures;
     _samplers = info.samplers;
+    _textures = info.textures;
+    _images = info.images;
+    _subpassInputs = info.subpassInputs;
 
     _gpuShader = CC_NEW(GLES3GPUShader);
     _gpuShader->name = _name;
     _gpuShader->blocks = _blocks;
     _gpuShader->buffers = _buffers;
+    _gpuShader->samplerTextures = _samplerTextures;
     _gpuShader->samplers = _samplers;
+    _gpuShader->textures = _textures;
+    _gpuShader->images = _images;
+    _gpuShader->subpassInputs = _subpassInputs;
     for (const auto &stage : _stages) {
         GLES3GPUShaderStage gpuShaderStage = {stage.stage, stage.source};
         _gpuShader->gpuStages.emplace_back(std::move(gpuShaderStage));

@@ -61,6 +61,7 @@ THE SOFTWARE.
 bool gles2wInit();
 
 /* egl api */
+extern PFNEGLGETPROCADDRESSPROC eglGetProcAddress;
 extern PFNEGLCHOOSECONFIGPROC eglChooseConfig;
 extern PFNEGLCREATECONTEXTPROC eglCreateContext;
 extern PFNEGLCREATEWINDOWSURFACEPROC eglCreateWindowSurface;
@@ -74,7 +75,7 @@ extern PFNEGLQUERYSTRINGPROC eglQueryString;
 extern PFNEGLSWAPBUFFERSPROC eglSwapBuffers;
 extern PFNEGLSWAPINTERVALPROC eglSwapInterval;
 extern PFNEGLBINDAPIPROC eglBindAPI;
-extern PFNEGLGETPROCADDRESSPROC eglGetProcAddress;
+extern PFNEGLGETCONFIGATTRIBPROC eglGetConfigAttrib;
 
 /* gles api */
 extern PFNGLACTIVETEXTUREPROC glActiveTexture;

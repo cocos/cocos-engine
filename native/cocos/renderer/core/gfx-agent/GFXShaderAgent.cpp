@@ -1,8 +1,8 @@
 #include "CoreStd.h"
 
-#include "base/threading/MessageQueue.h"
 #include "GFXDeviceAgent.h"
 #include "GFXShaderAgent.h"
+#include "base/threading/MessageQueue.h"
 
 namespace cc {
 namespace gfx {
@@ -23,7 +23,11 @@ bool ShaderAgent::initialize(const ShaderInfo &info) {
     _attributes = info.attributes;
     _blocks = info.blocks;
     _buffers = info.buffers;
+    _samplerTextures = info.samplerTextures;
     _samplers = info.samplers;
+    _textures = info.textures;
+    _images = info.images;
+    _subpassInputs = info.subpassInputs;
 
     ENQUEUE_MESSAGE_2(
         ((DeviceAgent *)_device)->getMessageQueue(),

@@ -185,7 +185,7 @@ bool GLES3Device::initialize(const DeviceInfo &info) {
     glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_COUNT, 1, (GLint *)&_caps.maxComputeWorkGroupCount.y);
     glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_COUNT, 2, (GLint *)&_caps.maxComputeWorkGroupCount.z);
 
-    _gpuStateCache->initialize(_caps.maxTextureUnits, _caps.maxTextureUnits, _caps.maxUniformBufferBindings, _caps.maxShaderStorageBufferBindings, _caps.maxVertexAttributes);
+    _gpuStateCache->initialize(_caps.maxTextureUnits, _caps.maxImageUnits, _caps.maxUniformBufferBindings, _caps.maxShaderStorageBufferBindings, _caps.maxVertexAttributes);
 
     return true;
 }
@@ -250,6 +250,8 @@ void GLES3Device::bindDeviceContext(bool bound) {
         _gpuStateCache->reset();
     }
 }
+
+uint GLES3Device::getMinorVersion() const { return ((GLES3Context *)_context)->minor_ver(); }
 
 CommandBuffer *GLES3Device::doCreateCommandBuffer(const CommandBufferInfo &info, bool hasAgent) {
     if (hasAgent || info.type == CommandBufferType::PRIMARY) return CC_NEW(GLES3PrimaryCommandBuffer(this));

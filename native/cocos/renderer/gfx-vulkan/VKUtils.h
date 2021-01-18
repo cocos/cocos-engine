@@ -37,7 +37,7 @@ THE SOFTWARE.
 #define BARRIER_DEDUCTION_LEVEL_BASIC 1
 #define BARRIER_DEDUCTION_LEVEL_FULL  2
 
-#define BARRIER_DEDUCTION_LEVEL BARRIER_DEDUCTION_LEVEL_FULL
+#define BARRIER_DEDUCTION_LEVEL BARRIER_DEDUCTION_LEVEL_BASIC
 
 namespace cc {
 namespace gfx {
@@ -432,8 +432,11 @@ VkDescriptorType MapVkDescriptorType(DescriptorType type) {
         case DescriptorType::UNIFORM_BUFFER: return VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
         case DescriptorType::DYNAMIC_STORAGE_BUFFER: return VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC;
         case DescriptorType::STORAGE_BUFFER: return VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
-        case DescriptorType::SAMPLER: return VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+        case DescriptorType::SAMPLER_TEXTURE: return VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+        case DescriptorType::SAMPLER: return VK_DESCRIPTOR_TYPE_SAMPLER;
+        case DescriptorType::TEXTURE: return VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
         case DescriptorType::STORAGE_IMAGE: return VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
+        case DescriptorType::INPUT_ATTACHMENT: return VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT;
         default: {
             CCASSERT(false, "Unsupported DescriptorType, convert to VkDescriptorType failed.");
             return VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
