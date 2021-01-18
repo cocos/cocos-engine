@@ -412,7 +412,7 @@ export class Batcher2D {
             if (comp.stencilStage === Stage.ENABLED || comp.stencilStage === Stage.DISABLED) {
                 comp.stencilStage = StencilManager.sharedManager!.stage;
             }
-            depthStencil = StencilManager.sharedManager!.getStencilStage(comp.stencilStage);
+            depthStencil = StencilManager.sharedManager!.getStencilStage(comp.stencilStage, mat);
         }
 
         const stamp = legacyCC.director.getTotalFrames();
