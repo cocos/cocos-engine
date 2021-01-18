@@ -33,36 +33,37 @@ import { Material } from '../../core/assets/material';
 import { Texture, Sampler } from '../../core/gfx';
 import { Node } from '../../core/scene-graph';
 import { Camera } from '../../core/renderer/scene/camera';
+import { RenderScene } from '../../core/renderer/scene/render-scene';
 import { Model } from '../../core/renderer/scene/model';
-import { UI } from './ui';
-import { NULL_HANDLE, UIBatchHandle, UIBatchPool, UIBatchView, PassPool } from '../../core/renderer/core/memory-pools';
+import { Batcher2D } from './batcher-2d';
+import { NULL_HANDLE, BatchHandle2D, BatchPool2D, BatchView2D, PassPool } from '../../core/renderer/core/memory-pools';
 import { Layers } from '../../core/scene-graph/layers';
 import { legacyCC } from '../../core/global-exports';
 import { Pass } from '../../core/renderer/core/pass';
 
 const UI_VIS_FLAG = Layers.Enum.NONE | Layers.Enum.UI_3D;
 
-export class UIDrawBatch {
+export class DrawBatch2D {
     public get handle () {
         return this._handle;
     }
     public get hInputAssembler () {
-        return UIBatchPool.get(this._handle, UIBatchView.INPUT_ASSEMBLER);
+        return BatchPool2D.get(this._handle, BatchView2D.INPUT_ASSEMBLER);
     }
     public set hInputAssembler (handle) {
-        UIBatchPool.set(this._handle, UIBatchView.INPUT_ASSEMBLER, handle);
+        BatchPool2D.set(this._handle, BatchView2D.INPUT_ASSEMBLER, handle);
     }
     public get hDescriptorSet () {
-        return UIBatchPool.get(this._handle, UIBatchView.DESCRIPTOR_SET);
+        return BatchPool2D.get(this._handle, BatchView2D.DESCRIPTOR_SET);
     }
     public set hDescriptorSet (handle) {
-        UIBatchPool.set(this._handle, UIBatchView.DESCRIPTOR_SET, handle);
+        BatchPool2D.set(this._handle, BatchView2D.DESCRIPTOR_SET, handle);
     }
     public get visFlags () {
-        return UIBatchPool.get(this._handle, UIBatchView.VIS_FLAGS);
+        return BatchPool2D.get(this._handle, BatchView2D.VIS_FLAGS);
     }
     public set visFlags (vis) {
-        UIBatchPool.set(this._handle, UIBatchView.VIS_FLAGS, vis);
+        BatchPool2D.set(this._handle, BatchView2D.VIS_FLAGS, vis);
     }
     public get passes () {
         return this._passes;
@@ -70,6 +71,7 @@ export class UIDrawBatch {
 
     public bufferBatch: MeshBuffer | null = null;
     public camera: Camera | null = null;
+    public renderScene: RenderScene | null = null;
     public model: Model | null = null;
     public texture: Texture | null = null;
     public sampler: Sampler | null = null;
@@ -77,17 +79,17 @@ export class UIDrawBatch {
     public isStatic = false;
     public textureHash = 0;
     public samplerHash = 0;
-    private _handle: UIBatchHandle = NULL_HANDLE;
+    private _handle: BatchHandle2D = NULL_HANDLE;
     private _passes: Pass[] = [];
 
     constructor () {
-        this._handle = UIBatchPool.alloc();
-        UIBatchPool.set(this._handle, UIBatchView.VIS_FLAGS, UI_VIS_FLAG);
-        UIBatchPool.set(this._handle, UIBatchView.INPUT_ASSEMBLER, NULL_HANDLE);
-        UIBatchPool.set(this._handle, UIBatchView.DESCRIPTOR_SET, NULL_HANDLE);
+        this._handle = BatchPool2D.alloc();
+        BatchPool2D.set(this._handle, BatchView2D.VIS_FLAGS, UI_VIS_FLAG);
+        BatchPool2D.set(this._handle, BatchView2D.INPUT_ASSEMBLER, NULL_HANDLE);
+        BatchPool2D.set(this._handle, BatchView2D.DESCRIPTOR_SET, NULL_HANDLE);
     }
 
-    public destroy (ui: UI) {
+    public destroy (ui: Batcher2D) {
         if (this._handle) {
             const length = this.passes.length;
             for (let i = 0; i < length; i++) {
@@ -95,7 +97,7 @@ export class UIDrawBatch {
                 this.passes[i]._destroyHandle();
             }
             this._passes = [];
-            UIBatchPool.free(this._handle);
+            BatchPool2D.free(this._handle);
             this._handle = NULL_HANDLE;
         }
     }
@@ -114,14 +116,14 @@ export class UIDrawBatch {
     }
 
     // object version
-    public fillPasses (mat: Material | null, dss, bs) {
+    public fillPasses (mat: Material | null, dss, bs, patches) {
         if (mat) {
             const passes = mat.passes;
             if (!passes) { return; }
 
-            UIBatchPool.set(this._handle, UIBatchView.PASS_COUNT, passes.length);
-            let passOffset = UIBatchView.PASS_0;
-            let shaderOffset = UIBatchView.SHADER_0;
+            BatchPool2D.set(this._handle, BatchView2D.PASS_COUNT, passes.length);
+            let passOffset = BatchView2D.PASS_0;
+            let shaderOffset = BatchView2D.SHADER_0;
             for (let i = 0; i < passes.length; i++, passOffset++, shaderOffset++) {
                 if (!this._passes[i]) {
                     this._passes[i] = new Pass(legacyCC.director.root);
@@ -136,8 +138,8 @@ export class UIDrawBatch {
                 mtlPass.update();
                 // @ts-expect-error hack for UI use pass object
                 passInUse._initPassFromTarget(mtlPass, dss, bs);
-                UIBatchPool.set(this._handle, passOffset, passInUse.handle);
-                UIBatchPool.set(this._handle, shaderOffset, passInUse.getShaderVariant());
+                BatchPool2D.set(this._handle, passOffset, passInUse.handle);
+                BatchPool2D.set(this._handle, shaderOffset, passInUse.getShaderVariant(patches));
             }
         }
     }

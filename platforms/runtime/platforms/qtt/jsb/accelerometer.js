@@ -4,6 +4,9 @@
 */
 
 window.jsb = window.jsb || {};
+let _rt = loadRuntime();
+let sysInfo = _rt.getSystemInfoSync();
+let isLandscape = sysInfo.screenWidth > sysInfo.screenHeight;
 
 const PORTRAIT = 0;
 const LANDSCAPE_LEFT = -90;
@@ -26,17 +29,14 @@ Object.assign(jsb, {
             let y = (eventAcceleration.y || 0) * 0.1;
             let z = (eventAcceleration.z || 0) * 0.1;
         
-            // FIXME: not supported to detect the orientation
-            const tmpX = x;
-            if (window.orientation === LANDSCAPE_RIGHT) {
+            // KNOWN_ISSUE: don't know LANDSCAPE_RIGHT or LANDSCAPE_LEFT
+            // here isLandscape means isLandscapeRight
+            if (isLandscape) {
+                const tmpX = x;
                 x = y;
                 y = -tmpX;
             }
-            else if (window.orientation === LANDSCAPE_LEFT) {
-                x = -y;
-                y = tmpX;
-            }
-            else if (window.orientation === PORTRAIT) {
+            else {
                 x = -x;
                 y = -y;
             }

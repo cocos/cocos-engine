@@ -29,7 +29,7 @@
  */
 
 import { addon } from '../../../core/utils/js';
-import { UI } from '../../renderer/ui';
+import { Batcher2D } from '../../renderer/batcher-2d';
 import { Label } from '../../components/label';
 import { fillMeshVertices3D } from '../utils';
 import { bmfont } from './bmfont';
@@ -47,7 +47,7 @@ export const letter = {
         return comp.requestRenderData();
     },
 
-    fillBuffers (comp: Label, renderer: UI) {
+    fillBuffers (comp: Label, renderer: Batcher2D) {
         if (!comp.renderData) {
             return;
         }

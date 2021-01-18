@@ -23,10 +23,15 @@
  THE SOFTWARE.
  ****************************************************************************/
 var fs = tt.getFileSystemManager ? tt.getFileSystemManager() : null;
+var outOfStorageRegExp = /size.*limit.*exceeded/;
 
 var fsUtils = {
 
     fs,
+
+    isOutOfStorage (errMsg) {
+        return outOfStorageRegExp.test(errMsg);
+    },
 
     getUserDataPath () {
         return tt.env.USER_DATA_PATH;

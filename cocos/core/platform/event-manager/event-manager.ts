@@ -134,7 +134,7 @@ class EventManager {
     private _nodeListenersMap: INodeListener = {};
     private _toAddedListeners: EventListener[] = [];
     private _toRemovedListeners: EventListener[] = [];
-    private _dirtyListeners: Node[] = [];
+    private _dirtyListeners: Record<string, boolean> = {};
     private _inDispatch = 0;
     private _isEnabled = false;
     private _internalCustomListenerIDs: string[] = [];
@@ -615,7 +615,7 @@ class EventManager {
             for (let j = 0, len = selListeners.length; j < len; j++) {
                 const selListener = selListeners[j];
                 const listenerID = selListener._getListenerID();
-                if (this._dirtyListeners[listenerID] == null) {
+                if (!this._dirtyListeners[listenerID]) {
                     this._dirtyListeners[listenerID] = true;
                 }
             }
@@ -672,8 +672,8 @@ class EventManager {
         // eslint-disable-next-line @typescript-eslint/no-for-in-array
         for (const selKey in locDirtyListeners) {
             this._setDirty(selKey, DIRTY_SCENE_GRAPH_PRIORITY);
+            locDirtyListeners[selKey] = false;
         }
-        this._dirtyListeners.length = 0;
     }
 
     private _removeAllListenersInVector (listenerVector: EventListener[]) {
@@ -1103,8 +1103,7 @@ class EventManager {
         }
     }
 
-    // eslint-disable-next-line @typescript-eslint/ban-types
-    private _dispatchEventToListeners (listeners: _EventListenerVector, onEvent: Function, eventOrArgs: any) {
+    private _dispatchEventToListeners (listeners: _EventListenerVector, onEvent: (listener:any, eventOrArgs:any)=>boolean, eventOrArgs: any) {
         let shouldStopPropagation = false;
         const fixedPriorityListeners = listeners.getFixedPriorityListeners();
         const sceneGraphPriorityListeners = listeners.getSceneGraphPriorityListeners();

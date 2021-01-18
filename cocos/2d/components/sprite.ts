@@ -37,8 +37,8 @@ import { SystemEventType } from '../../core/platform/event-manager/event-enum';
 import { Vec2 } from '../../core/math';
 import { ccenum } from '../../core/value-types/enum';
 import { clamp } from '../../core/math/utils';
-import { UI } from '../renderer/ui';
-import { UIRenderable, InstanceMaterialType } from '../framework/ui-renderable';
+import { Batcher2D } from '../renderer/batcher-2d';
+import { Renderable2D, InstanceMaterialType } from '../framework/renderable-2d';
 import { legacyCC } from '../../core/global-exports';
 import { PixelFormat } from '../../core/assets/asset-enum';
 import { TextureBase } from '../../core/assets/texture-base';
@@ -177,7 +177,7 @@ enum EventType {
 @help('i18n:cc.Sprite')
 @executionOrder(110)
 @menu('UI/Render/Sprite')
-export class Sprite extends UIRenderable {
+export class Sprite extends Renderable2D {
     /**
      * @en
      * The sprite atlas where the sprite is.
@@ -568,7 +568,7 @@ export class Sprite extends UIRenderable {
         this.updateMaterial();
     }
 
-    protected _render (render: UI) {
+    protected _render (render: Batcher2D) {
         render.commitComp(this, this._spriteFrame, this._assembler!, null);
     }
 

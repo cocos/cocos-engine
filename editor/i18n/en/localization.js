@@ -565,6 +565,10 @@ module.exports = {
             label: "ammo.js Based Physics System",
             description: "Physics system that based on ammo.js.",
         },
+        physics_physx: {
+            label: "PhysX Based Physics System",
+            description: "Physics system that based on PhysX.",
+        },
         primitives: {
             label: "Primitive Geometries",
             description: "Libraries that used to create primitive geometries.",

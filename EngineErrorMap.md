@@ -192,11 +192,11 @@ cocos2d: Director: Error in gettimeofday
 
 ### 1204
 
-running scene should not null
+Running scene should not be null
 
 ### 1205
 
-the scene should not null
+The scene should not be null
 
 ### 1206
 
@@ -248,7 +248,7 @@ Director._initOnEngineInitialized: renderer root initialization failed
 
 ### 1300
 
-element type is wrong!
+%s is not in the model pool and cannot be destroyed by destroyModel.
 
 ### 1400
 
@@ -290,6 +290,10 @@ cc.pool is being removed from v2.0, you are getting cc.js.Pool instead
 ### 1408
 
 '%s' is removed
+
+### 1409
+
+element type is wrong!
 
 ### 1500
 
@@ -621,6 +625,10 @@ WebGL error %s
 
 <!-- DEPRECATED -->
 Too many graphics vertices generated, only 65536 vertices support.
+
+### 2402
+
+Forward pipeline startup failed!
 
 ### 2500
 
@@ -1829,6 +1837,10 @@ Can not set the scroll view content when it hasn't UITransform or its parent has
 ### 4400
 
 Invalid RichText img tag! The sprite frame name can't be found in the ImageAtlas!
+
+### 4500
+
+Graphics: There is no model in %s.
 
 ### 4600
 

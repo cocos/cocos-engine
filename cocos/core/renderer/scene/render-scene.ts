@@ -41,7 +41,7 @@ import { TransformBit } from '../../scene-graph/node-enum';
 import { legacyCC } from '../../global-exports';
 import { ScenePool, SceneView, ModelArrayPool, ModelArrayHandle, SceneHandle, NULL_HANDLE,
     UIBatchArrayHandle, UIBatchArrayPool, LightArrayHandle, LightArrayPool } from '../core/memory-pools';
-import { UIDrawBatch } from '../../../2d/renderer/ui-draw-batch';
+import { DrawBatch2D } from '../../../2d/renderer/draw-batch';
 
 export interface IRenderSceneInfo {
     name: string;
@@ -103,7 +103,7 @@ export class RenderScene {
     private _name = '';
     private _cameras: Camera[] = [];
     private _models: Model[] = [];
-    private _batches: UIDrawBatch[] = [];
+    private _batches: DrawBatch2D[] = [];
     private _directionalLights: DirectionalLight[] = [];
     private _sphereLights: SphereLight[] = [];
     private _spotLights: SpotLight[] = [];
@@ -314,12 +314,12 @@ export class RenderScene {
         ModelArrayPool.clear(this._modelArrayHandle);
     }
 
-    public addBatch (batch: UIDrawBatch) {
+    public addBatch (batch: DrawBatch2D) {
         this._batches.push(batch);
         UIBatchArrayPool.push(this._batchArrayHandle, batch.handle);
     }
 
-    public removeBatch (batch: UIDrawBatch) {
+    public removeBatch (batch: DrawBatch2D) {
         for (let i = 0; i < this._batches.length; ++i) {
             if (this._batches[i] === batch) {
                 this._batches.splice(i, 1);
@@ -359,7 +359,7 @@ export class RenderScene {
 
         if (!this._batchArrayHandle) {
             this._batchArrayHandle = UIBatchArrayPool.alloc();
-            ScenePool.set(this._scenePoolHandle, SceneView.UI_BATCH_ARRAY, this._batchArrayHandle);
+            ScenePool.set(this._scenePoolHandle, SceneView.BATCH_ARRAY_2D, this._batchArrayHandle);
         }
     }
 }

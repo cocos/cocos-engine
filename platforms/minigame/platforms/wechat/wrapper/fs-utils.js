@@ -23,10 +23,15 @@
  THE SOFTWARE.
  ****************************************************************************/
 var fs = wx.getFileSystemManager ? wx.getFileSystemManager() : null;
+var outOfStorageRegExp = /the maximum size of the file storage/;
 
 var fsUtils = {
 
     fs,
+
+    isOutOfStorage (errMsg) {
+        return outOfStorageRegExp.test(errMsg);
+    },
 
     getUserDataPath () {
         return wx.env.USER_DATA_PATH;

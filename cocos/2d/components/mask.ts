@@ -30,10 +30,10 @@
  */
 
 import { ccclass, help, executionOrder, menu, tooltip, displayOrder, type, visible, override, serializable, range, slide } from 'cc.decorator';
-import { InstanceMaterialType, UIRenderable } from '../framework/ui-renderable';
+import { InstanceMaterialType, Renderable2D } from '../framework/renderable-2d';
 import { clamp, Color, Mat4, Vec2, Vec3 } from '../../core/math';
 import { warnID } from '../../core/platform';
-import { UI } from '../renderer/ui';
+import { Batcher2D } from '../renderer/batcher-2d';
 import { ccenum } from '../../core/value-types/enum';
 import { Graphics } from './graphics';
 import { TransformBit } from '../../core/scene-graph/node-enum';
@@ -43,7 +43,7 @@ import { Device, BufferInfo, BufferUsageBit, MemoryUsageBit, PrimitiveMode } fro
 import { legacyCC } from '../../core/global-exports';
 import { MaterialInstance, scene } from '../../core/renderer';
 import { Model } from '../../core/renderer/scene';
-import { vfmt, getAttributeStride } from '../renderer/ui-vertex-format';
+import { vfmt, getAttributeStride } from '../renderer/vertex-format';
 import { Stage } from '../renderer/stencil-manager';
 
 const _worldMatrix = new Mat4();
@@ -116,7 +116,7 @@ const SEGMENTS_MAX = 10000;
 @help('i18n:cc.Mask')
 @executionOrder(110)
 @menu('UI/Render/Mask')
-export class Mask extends UIRenderable {
+export class Mask extends Renderable2D {
     /**
      * @en
      * The mask type.
@@ -440,11 +440,11 @@ export class Mask extends UIRenderable {
         return result;
     }
 
-    protected _render (render: UI) {
+    protected _render (render: Batcher2D) {
         render.commitComp(this, null, this._assembler!, null);
     }
 
-    protected _postRender (render: UI) {
+    protected _postRender (render: Batcher2D) {
         if (!this._postAssembler) {
             return;
         }

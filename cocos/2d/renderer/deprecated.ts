@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2021 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
@@ -23,39 +23,12 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @hidden
- */
+import * as VertexFormat from './vertex-format';
+import { Batcher2D } from './batcher-2d';
+import { DrawBatch2D } from './draw-batch';
 
-import { IVec3Like } from '../../core';
+export { VertexFormat as UIVertexFormat };
 
-export interface ICollisionMatrix {
-    [x: string]: number;
-}
+export { Batcher2D as UI };
 
-export interface IPhysicsMaterial {
-    friction: number;
-    rollingFriction: number;
-    spinningFriction: number;
-    restitution: number;
-}
-
-export interface ICollisionGroup {
-    index: number,
-    name: string,
-}
-
-export interface IPhysicsConfig {
-    gravity: IVec3Like;
-    allowSleep: boolean;
-    fixedTimeStep: number;
-    maxSubSteps: number;
-    sleepThreshold: number;
-    collisionMatrix: ICollisionMatrix;
-    collisionGroups: ICollisionGroup[];
-    defaultMaterial: IPhysicsMaterial;
-    autoSimulation: boolean;
-    useNodeChains: boolean;
-    physicsEngine: 'builtin' | 'cannon.js' | 'ammo.js' | string;
-}
+export { DrawBatch2D as UIDrawBatch };

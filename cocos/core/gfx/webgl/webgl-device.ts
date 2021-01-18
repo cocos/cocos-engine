@@ -23,7 +23,7 @@
  THE SOFTWARE.
  */
 
-import { ALIPAY, RUNTIME_BASED, BYTEDANCE, WECHAT, VIVO } from 'internal:constants';
+import { ALIPAY, RUNTIME_BASED, BYTEDANCE, WECHAT, LINKSURE, QTT, COCOSPLAY, HUAWEI } from 'internal:constants';
 import { macro, warnID, warn } from '../../platform';
 import { sys } from '../../platform/sys';
 import { DescriptorSet, DescriptorSetInfo } from '../descriptor-set';
@@ -378,11 +378,9 @@ export class WebGLDevice extends Device {
                 this._WEBGL_depth_texture = null;
             }
 
-            // earlier runtime VAO implementations doesn't work
-            if (RUNTIME_BASED && !VIVO) {
-                // @ts-expect-error
-                if (typeof loadRuntime !== 'function' || !loadRuntime() || typeof loadRuntime().getFeature !== 'function' || loadRuntime()
-                    .getFeature('webgl.extensions.oes_vertex_array_object.revision') <= 0) {
+            if (RUNTIME_BASED) {
+                // VAO implementations doesn't work well on some runtime platforms
+                if (LINKSURE || QTT || COCOSPLAY || HUAWEI) {
                     this._OES_vertex_array_object = null;
                 }
             }
