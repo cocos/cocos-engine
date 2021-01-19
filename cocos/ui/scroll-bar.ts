@@ -41,7 +41,7 @@ import { Node } from '../core';
 import { legacyCC } from '../core/global-exports';
 
 const GETTING_SHORTER_FACTOR = 20;
-const ZERO = new Vec2();
+const _zeroVec2 = new Vec2();
 const _tempPos_1 = new Vec3();
 const _tempPos_2 = new Vec3();
 const _tempVec3 = new Vec3();
@@ -110,7 +110,7 @@ export class ScrollBar extends Component {
             return;
         }
         this._handle = value;
-        this.onScroll(ZERO);
+        this.onScroll(_zeroVec2);
     }
 
     /**
@@ -133,7 +133,7 @@ export class ScrollBar extends Component {
         }
 
         this._direction = value;
-        this.onScroll(ZERO);
+        this.onScroll(_zeroVec2);
     }
 
     /**
@@ -353,7 +353,7 @@ export class ScrollBar extends Component {
         const scrollTrans = this._scrollView && this._scrollView.node._uiProps.uiTransformComp;
         const contentTrans = content._uiProps.uiTransformComp;
         if (!scrollTrans || !contentTrans) {
-            out.set(ZERO);
+            out.set(_zeroVec2);
         } else {
             _tempPos_1.set(-contentTrans.anchorX * contentTrans.width, -contentTrans.anchorY * contentTrans.height, 0);
             contentTrans.convertToWorldSpaceAR(_tempPos_1, _tempPos_2);
