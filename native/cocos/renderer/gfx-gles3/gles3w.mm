@@ -23,87 +23,36 @@ THE SOFTWARE.
 ****************************************************************************/
 #include "gles3w.h"
 
-#if defined(_WIN32) && !defined(ANDROID)
-#define WIN32_LEAN_AND_MEAN 1
-#include <windows.h>
-#include <EGL/egl.h>
-
-static HMODULE libgl;
-
-static int open_libgl(void)
-{
-    libgl = LoadLibraryA("libGLESv2.dll");
-	return (libgl != NULL);
-}
-
-static void close_libgl(void)
-{
-    FreeLibrary(libgl);
-}
-
-static void *get_proc(const char *proc)
-{
-    void *res;
-
-    res = (void*)eglGetProcAddress(proc);
-    if (!res)
-		res = (void*)GetProcAddress(libgl, proc);
-    return res;
-}
-#elif defined(__APPLE__) || defined(__APPLE_CC__)
 #if TARGET_OS_IPHONE
-#import <TargetConditionals.h>
-#import <CoreFoundation/CoreFoundation.h>
-#import <UIKit/UIDevice.h>
-#import <string>
-#import <iostream>
-#import <stdio.h>
-
-// Routine to run a system command and retrieve the output.
-// From http://stackoverflow.com/questions/478898/how-to-execute-a-command-and-get-output-of-command-within-c
-std::string ES3_EXEC(const char* cmd) {
-    FILE* pipe = popen(cmd, "r");
-    if (!pipe) return "ERROR";
-    char buffer[128];
-    std::string result = "";
-    while(!feof(pipe)) {
-        if(fgets(buffer, 128, pipe) != NULL)
-            result += buffer;
-    }
-    pclose(pipe);
-    return result;
-}
+    #import <TargetConditionals.h>
+    #import <CoreFoundation/CoreFoundation.h>
+    #import <UIKit/UIDevice.h>
+    #import <string>
+    #import <iostream>
+    #import <stdio.h>
 
 static CFBundleRef g_es3Bundle;
 static CFURLRef g_es3BundleURL;
 
-static int open_libgl(void)
-{
-#if TARGET_IPHONE_SIMULATOR
+static int gles3wOpen(void) {
+    #if TARGET_IPHONE_SIMULATOR
     CFStringRef frameworkPath = CFSTR("/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/Frameworks/OpenGLES.framework");
-#else
+    #else
     CFStringRef frameworkPath = CFSTR("/System/Library/Frameworks/OpenGLES.framework");
-#endif
-    
+    #endif
+
     g_es3BundleURL = CFURLCreateWithFileSystemPath(kCFAllocatorDefault,
                                                    frameworkPath,
                                                    kCFURLPOSIXPathStyle, true);
-    
+
     CFRelease(frameworkPath);
-    
+
     g_es3Bundle = CFBundleCreate(kCFAllocatorDefault, g_es3BundleURL);
-    
+
     return (g_es3Bundle != NULL);
 }
 
-static void close_libgl(void)
-{
-    CFRelease(g_es3Bundle);
-    CFRelease(g_es3BundleURL);
-}
-
-static void *get_proc(const char *proc)
-{
+static void *gles3wLoad(const char *proc) {
     void *res;
 
     CFStringRef procname = CFStringCreateWithCString(kCFAllocatorDefault, proc,
@@ -113,708 +62,3324 @@ static void *get_proc(const char *proc)
     return res;
 }
 #else
-// macos
-#include <dlfcn.h>
-#include <EGL/egl.h>
-#include <string>
-#import <Foundation/NSURL.h>
-#import <Foundation/NSBundle.h>
+    // macos
+    #include <dlfcn.h>
+    #include <EGL/egl.h>
+    #include <string>
+    #import <Foundation/NSURL.h>
+    #import <Foundation/NSBundle.h>
 
-static void* libgl;
+static void *libegl;
+static void *libgl;
 
-static int open_libgl(void)
-{
+static int gles3wOpen(void) {
     NSURL *appURL = [[NSBundle mainBundle] bundleURL];
+
     std::string libPath(appURL.resourceSpecifier.UTF8String);
+    libPath.append("/Contents/Frameworks/libEGL.dylib");
+    libegl = dlopen(libPath.c_str(), RTLD_LOCAL | RTLD_LAZY);
+    if (!libegl) printf("%s\n", dlerror());
+
+    libPath = appURL.resourceSpecifier.UTF8String;
     libPath.append("/Contents/Frameworks/libGLESv2.dylib");
-    
-    libgl = dlopen(libPath.c_str(), RTLD_LOCAL|RTLD_LAZY);
-    if (!libgl)
-        printf("%s\n", dlerror());
-    return (libgl != NULL);
+    libgl = dlopen(libPath.c_str(), RTLD_LOCAL | RTLD_LAZY);
+    if (!libgl) printf("%s\n", dlerror());
+
+    return (libegl && libgl);
 }
 
-static void close_libgl(void)
-{
-    dlclose(libgl);
-}
-
-static void *get_proc(const char *proc)
-{
-    void *res;
-    
-    res = (void*)eglGetProcAddress(proc);
-    if (!res)
-        res = (void*)dlsym(libgl, proc);
+static void *gles3wLoad(const char *proc) {
+    void *res = nullptr;
+    if (eglGetProcAddress) res = (void *)eglGetProcAddress(proc);
+    if (!res) res = (void *)dlsym(libegl, proc);
     return res;
 }
 #endif // #if TARGET_OS_IPHONE
-#elif defined(__EMSCRIPTEN__)
-#include <EGL/egl.h>
-static void open_libgl() {}
-static void close_libgl() {}
-static void *get_proc(const char *proc)
-{
-    return (void*)eglGetProcAddress(proc);
-}
-#else
-#include <dlfcn.h>
-#include <EGL/egl.h>
 
-static void *libgl;
+static void gles3wLoadProcs();
 
-static int open_libgl(void)
-{
-    libgl = dlopen("libGLESv2.so", RTLD_LAZY | RTLD_GLOBAL);
-	return (libgl != NULL);
+bool gles3wInit() {
+    if (!gles3wOpen()) {
+        return false;
+    }
+
+    gles3wLoadProcs();
+
+    return true;
 }
 
-static void close_libgl(void)
-{
-    dlclose(libgl);
-}
+/* GLES3W_GENERATE_IMPLEMENTATION */
 
-static void *get_proc(const char *proc)
-{
-    void *res;
-    res = dlsym(libgl, proc);
-    return res;
-}
-#endif
+PFNEGLGETPROCADDRESSPROC eglGetProcAddress;
 
-static struct {
-    int major, minor;
-} version;
+/* EGL_VERSION_1_0 */
+PFNEGLCHOOSECONFIGPROC eglChooseConfig;
+PFNEGLCOPYBUFFERSPROC eglCopyBuffers;
+PFNEGLCREATECONTEXTPROC eglCreateContext;
+PFNEGLCREATEPBUFFERSURFACEPROC eglCreatePbufferSurface;
+PFNEGLCREATEPIXMAPSURFACEPROC eglCreatePixmapSurface;
+PFNEGLCREATEWINDOWSURFACEPROC eglCreateWindowSurface;
+PFNEGLDESTROYCONTEXTPROC eglDestroyContext;
+PFNEGLDESTROYSURFACEPROC eglDestroySurface;
+PFNEGLGETCONFIGATTRIBPROC eglGetConfigAttrib;
+PFNEGLGETCONFIGSPROC eglGetConfigs;
+PFNEGLGETCURRENTDISPLAYPROC eglGetCurrentDisplay;
+PFNEGLGETCURRENTSURFACEPROC eglGetCurrentSurface;
+PFNEGLGETDISPLAYPROC eglGetDisplay;
+PFNEGLGETERRORPROC eglGetError;
+PFNEGLINITIALIZEPROC eglInitialize;
+PFNEGLMAKECURRENTPROC eglMakeCurrent;
+PFNEGLQUERYCONTEXTPROC eglQueryContext;
+PFNEGLQUERYSTRINGPROC eglQueryString;
+PFNEGLQUERYSURFACEPROC eglQuerySurface;
+PFNEGLSWAPBUFFERSPROC eglSwapBuffers;
+PFNEGLTERMINATEPROC eglTerminate;
+PFNEGLWAITGLPROC eglWaitGL;
+PFNEGLWAITNATIVEPROC eglWaitNative;
 
-static int parse_version(void)
-{
-    if (!glGetIntegerv)
-        return -1;
 
-    glGetIntegerv(GL_MAJOR_VERSION, &version.major);
-    glGetIntegerv(GL_MINOR_VERSION, &version.minor);
+/* EGL_VERSION_1_1 */
+PFNEGLBINDTEXIMAGEPROC eglBindTexImage;
+PFNEGLRELEASETEXIMAGEPROC eglReleaseTexImage;
+PFNEGLSURFACEATTRIBPROC eglSurfaceAttrib;
+PFNEGLSWAPINTERVALPROC eglSwapInterval;
 
-    if (version.major < 3)
-        return -1;
-    return 0;
-}
 
-static void load_procs(void);
+/* EGL_VERSION_1_2 */
+PFNEGLBINDAPIPROC eglBindAPI;
+PFNEGLQUERYAPIPROC eglQueryAPI;
+PFNEGLCREATEPBUFFERFROMCLIENTBUFFERPROC eglCreatePbufferFromClientBuffer;
+PFNEGLRELEASETHREADPROC eglReleaseThread;
+PFNEGLWAITCLIENTPROC eglWaitClient;
 
-int gles3wInit(void)
-{
-	if (!open_libgl())
-	{
-        NSLog(@"Failed to open libgl");
-        return 0;
-	}
 
-    load_procs();
-    close_libgl();
-	parse_version();
+/* EGL_VERSION_1_3 */
 
-    return 1;
-}
+/* EGL_VERSION_1_4 */
+PFNEGLGETCURRENTCONTEXTPROC eglGetCurrentContext;
 
-int gles3wIsSupported(int major, int minor)
-{
-    if (major <= 3)
-        return 0;
-    if (version.major == major)
-        return version.minor >= minor;
-    return version.major >= major;
-}
 
-void *gles3wGetProcAddress(const char *proc)
-{
-    return get_proc(proc);
-}
+/* EGL_VERSION_1_5 */
+PFNEGLCREATESYNCPROC eglCreateSync;
+PFNEGLDESTROYSYNCPROC eglDestroySync;
+PFNEGLCLIENTWAITSYNCPROC eglClientWaitSync;
+PFNEGLGETSYNCATTRIBPROC eglGetSyncAttrib;
 
-PFNGLACTIVETEXTUREPROC gles3wActiveTexture;
-PFNGLATTACHSHADERPROC gles3wAttachShader;
-PFNGLBINDATTRIBLOCATIONPROC gles3wBindAttribLocation;
-PFNGLBINDBUFFERPROC gles3wBindBuffer;
-PFNGLBINDFRAMEBUFFERPROC gles3wBindFramebuffer;
-PFNGLBINDRENDERBUFFERPROC gles3wBindRenderbuffer;
-PFNGLBINDTEXTUREPROC gles3wBindTexture;
-PFNGLBLENDCOLORPROC gles3wBlendColor;
-PFNGLBLENDEQUATIONPROC gles3wBlendEquation;
-PFNGLBLENDEQUATIONSEPARATEPROC gles3wBlendEquationSeparate;
-PFNGLBLENDFUNCPROC gles3wBlendFunc;
-PFNGLBLENDFUNCSEPARATEPROC gles3wBlendFuncSeparate;
-PFNGLBUFFERDATAPROC gles3wBufferData;
-PFNGLBUFFERSUBDATAPROC gles3wBufferSubData;
-PFNGLCHECKFRAMEBUFFERSTATUSPROC gles3wCheckFramebufferStatus;
-PFNGLCLEARPROC gles3wClear;
-PFNGLCLEARCOLORPROC gles3wClearColor;
-PFNGLCLEARDEPTHFPROC gles3wClearDepthf;
-PFNGLCLEARSTENCILPROC gles3wClearStencil;
-PFNGLCOLORMASKPROC gles3wColorMask;
-PFNGLCOMPILESHADERPROC gles3wCompileShader;
-PFNGLCOMPRESSEDTEXIMAGE2DPROC gles3wCompressedTexImage2D;
-PFNGLCOMPRESSEDTEXSUBIMAGE2DPROC gles3wCompressedTexSubImage2D;
-PFNGLCOPYTEXIMAGE2DPROC gles3wCopyTexImage2D;
-PFNGLCOPYTEXSUBIMAGE2DPROC gles3wCopyTexSubImage2D;
-PFNGLCREATEPROGRAMPROC gles3wCreateProgram;
-PFNGLCREATESHADERPROC gles3wCreateShader;
-PFNGLCULLFACEPROC gles3wCullFace;
-PFNGLDELETEBUFFERSPROC gles3wDeleteBuffers;
-PFNGLDELETEFRAMEBUFFERSPROC gles3wDeleteFramebuffers;
-PFNGLDELETEPROGRAMPROC gles3wDeleteProgram;
-PFNGLDELETERENDERBUFFERSPROC gles3wDeleteRenderbuffers;
-PFNGLDELETESHADERPROC gles3wDeleteShader;
-PFNGLDELETETEXTURESPROC gles3wDeleteTextures;
-PFNGLDEPTHFUNCPROC gles3wDepthFunc;
-PFNGLDEPTHMASKPROC gles3wDepthMask;
-PFNGLDEPTHRANGEFPROC gles3wDepthRangef;
-PFNGLDETACHSHADERPROC gles3wDetachShader;
-PFNGLDISABLEPROC gles3wDisable;
-PFNGLDISABLEVERTEXATTRIBARRAYPROC gles3wDisableVertexAttribArray;
-PFNGLDRAWARRAYSPROC gles3wDrawArrays;
-PFNGLDRAWELEMENTSPROC gles3wDrawElements;
-PFNGLENABLEPROC gles3wEnable;
-PFNGLENABLEVERTEXATTRIBARRAYPROC gles3wEnableVertexAttribArray;
-PFNGLFINISHPROC gles3wFinish;
-PFNGLFLUSHPROC gles3wFlush;
-PFNGLFRAMEBUFFERRENDERBUFFERPROC gles3wFramebufferRenderbuffer;
-PFNGLFRAMEBUFFERTEXTURE2DPROC gles3wFramebufferTexture2D;
-PFNGLFRONTFACEPROC gles3wFrontFace;
-PFNGLGENBUFFERSPROC gles3wGenBuffers;
-PFNGLGENERATEMIPMAPPROC gles3wGenerateMipmap;
-PFNGLGENFRAMEBUFFERSPROC gles3wGenFramebuffers;
-PFNGLGENRENDERBUFFERSPROC gles3wGenRenderbuffers;
-PFNGLGENTEXTURESPROC gles3wGenTextures;
-PFNGLGETACTIVEATTRIBPROC gles3wGetActiveAttrib;
-PFNGLGETACTIVEUNIFORMPROC gles3wGetActiveUniform;
-PFNGLGETATTACHEDSHADERSPROC gles3wGetAttachedShaders;
-PFNGLGETATTRIBLOCATIONPROC gles3wGetAttribLocation;
-PFNGLGETBOOLEANVPROC gles3wGetBooleanv;
-PFNGLGETBUFFERPARAMETERIVPROC gles3wGetBufferParameteriv;
-PFNGLGETERRORPROC gles3wGetError;
-PFNGLGETFLOATVPROC gles3wGetFloatv;
-PFNGLGETFRAMEBUFFERATTACHMENTPARAMETERIVPROC gles3wGetFramebufferAttachmentParameteriv;
-PFNGLGETINTEGERVPROC gles3wGetIntegerv;
-PFNGLGETPROGRAMIVPROC gles3wGetProgramiv;
-PFNGLGETPROGRAMINFOLOGPROC gles3wGetProgramInfoLog;
-PFNGLGETRENDERBUFFERPARAMETERIVPROC gles3wGetRenderbufferParameteriv;
-PFNGLGETSHADERIVPROC gles3wGetShaderiv;
-PFNGLGETSHADERINFOLOGPROC gles3wGetShaderInfoLog;
-PFNGLGETSHADERPRECISIONFORMATPROC gles3wGetShaderPrecisionFormat;
-PFNGLGETSHADERSOURCEPROC gles3wGetShaderSource;
-PFNGLGETSTRINGPROC gles3wGetString;
-PFNGLGETTEXPARAMETERFVPROC gles3wGetTexParameterfv;
-PFNGLGETTEXPARAMETERIVPROC gles3wGetTexParameteriv;
-PFNGLGETUNIFORMFVPROC gles3wGetUniformfv;
-PFNGLGETUNIFORMIVPROC gles3wGetUniformiv;
-PFNGLGETUNIFORMLOCATIONPROC gles3wGetUniformLocation;
-PFNGLGETVERTEXATTRIBFVPROC gles3wGetVertexAttribfv;
-PFNGLGETVERTEXATTRIBIVPROC gles3wGetVertexAttribiv;
-PFNGLGETVERTEXATTRIBPOINTERVPROC gles3wGetVertexAttribPointerv;
-PFNGLHINTPROC gles3wHint;
-PFNGLISBUFFERPROC gles3wIsBuffer;
-PFNGLISENABLEDPROC gles3wIsEnabled;
-PFNGLISFRAMEBUFFERPROC gles3wIsFramebuffer;
-PFNGLISPROGRAMPROC gles3wIsProgram;
-PFNGLISRENDERBUFFERPROC gles3wIsRenderbuffer;
-PFNGLISSHADERPROC gles3wIsShader;
-PFNGLISTEXTUREPROC gles3wIsTexture;
-PFNGLLINEWIDTHPROC gles3wLineWidth;
-PFNGLLINKPROGRAMPROC gles3wLinkProgram;
-PFNGLPIXELSTOREIPROC gles3wPixelStorei;
-PFNGLPOLYGONOFFSETPROC gles3wPolygonOffset;
-PFNGLREADPIXELSPROC gles3wReadPixels;
-PFNGLRELEASESHADERCOMPILERPROC gles3wReleaseShaderCompiler;
-PFNGLRENDERBUFFERSTORAGEPROC gles3wRenderbufferStorage;
-PFNGLSAMPLECOVERAGEPROC gles3wSampleCoverage;
-PFNGLSCISSORPROC gles3wScissor;
-PFNGLSHADERBINARYPROC gles3wShaderBinary;
-PFNGLSHADERSOURCEPROC gles3wShaderSource;
-PFNGLSTENCILFUNCPROC gles3wStencilFunc;
-PFNGLSTENCILFUNCSEPARATEPROC gles3wStencilFuncSeparate;
-PFNGLSTENCILMASKPROC gles3wStencilMask;
-PFNGLSTENCILMASKSEPARATEPROC gles3wStencilMaskSeparate;
-PFNGLSTENCILOPPROC gles3wStencilOp;
-PFNGLSTENCILOPSEPARATEPROC gles3wStencilOpSeparate;
-PFNGLTEXIMAGE2DPROC gles3wTexImage2D;
-PFNGLTEXPARAMETERFPROC gles3wTexParameterf;
-PFNGLTEXPARAMETERFVPROC gles3wTexParameterfv;
-PFNGLTEXPARAMETERIPROC gles3wTexParameteri;
-PFNGLTEXPARAMETERIVPROC gles3wTexParameteriv;
-PFNGLTEXSUBIMAGE2DPROC gles3wTexSubImage2D;
-PFNGLUNIFORM1FPROC gles3wUniform1f;
-PFNGLUNIFORM1FVPROC gles3wUniform1fv;
-PFNGLUNIFORM1IPROC gles3wUniform1i;
-PFNGLUNIFORM1IVPROC gles3wUniform1iv;
-PFNGLUNIFORM2FPROC gles3wUniform2f;
-PFNGLUNIFORM2FVPROC gles3wUniform2fv;
-PFNGLUNIFORM2IPROC gles3wUniform2i;
-PFNGLUNIFORM2IVPROC gles3wUniform2iv;
-PFNGLUNIFORM3FPROC gles3wUniform3f;
-PFNGLUNIFORM3FVPROC gles3wUniform3fv;
-PFNGLUNIFORM3IPROC gles3wUniform3i;
-PFNGLUNIFORM3IVPROC gles3wUniform3iv;
-PFNGLUNIFORM4FPROC gles3wUniform4f;
-PFNGLUNIFORM4FVPROC gles3wUniform4fv;
-PFNGLUNIFORM4IPROC gles3wUniform4i;
-PFNGLUNIFORM4IVPROC gles3wUniform4iv;
-PFNGLUNIFORMMATRIX2FVPROC gles3wUniformMatrix2fv;
-PFNGLUNIFORMMATRIX3FVPROC gles3wUniformMatrix3fv;
-PFNGLUNIFORMMATRIX4FVPROC gles3wUniformMatrix4fv;
-PFNGLUSEPROGRAMPROC gles3wUseProgram;
-PFNGLVALIDATEPROGRAMPROC gles3wValidateProgram;
-PFNGLVERTEXATTRIB1FPROC gles3wVertexAttrib1f;
-PFNGLVERTEXATTRIB1FVPROC gles3wVertexAttrib1fv;
-PFNGLVERTEXATTRIB2FPROC gles3wVertexAttrib2f;
-PFNGLVERTEXATTRIB2FVPROC gles3wVertexAttrib2fv;
-PFNGLVERTEXATTRIB3FPROC gles3wVertexAttrib3f;
-PFNGLVERTEXATTRIB3FVPROC gles3wVertexAttrib3fv;
-PFNGLVERTEXATTRIB4FPROC gles3wVertexAttrib4f;
-PFNGLVERTEXATTRIB4FVPROC gles3wVertexAttrib4fv;
-PFNGLVERTEXATTRIBPOINTERPROC gles3wVertexAttribPointer;
-PFNGLVIEWPORTPROC gles3wViewport;
-PFNGLREADBUFFERPROC gles3wReadBuffer;
-PFNGLDRAWRANGEELEMENTSPROC gles3wDrawRangeElements;
-PFNGLTEXIMAGE3DPROC gles3wTexImage3D;
-PFNGLTEXSUBIMAGE3DPROC gles3wTexSubImage3D;
-PFNGLCOPYTEXSUBIMAGE3DPROC gles3wCopyTexSubImage3D;
-PFNGLCOMPRESSEDTEXIMAGE3DPROC gles3wCompressedTexImage3D;
-PFNGLCOMPRESSEDTEXSUBIMAGE3DPROC gles3wCompressedTexSubImage3D;
-PFNGLGENQUERIESPROC gles3wGenQueries;
-PFNGLDELETEQUERIESPROC gles3wDeleteQueries;
-PFNGLISQUERYPROC gles3wIsQuery;
-PFNGLBEGINQUERYPROC gles3wBeginQuery;
-PFNGLENDQUERYPROC gles3wEndQuery;
-PFNGLGETQUERYIVPROC gles3wGetQueryiv;
-PFNGLGETQUERYOBJECTUIVPROC gles3wGetQueryObjectuiv;
-PFNGLUNMAPBUFFERPROC gles3wUnmapBuffer;
-PFNGLGETBUFFERPOINTERVPROC gles3wGetBufferPointerv;
-PFNGLDRAWBUFFERSPROC gles3wDrawBuffers;
-PFNGLUNIFORMMATRIX2X3FVPROC gles3wUniformMatrix2x3fv;
-PFNGLUNIFORMMATRIX3X2FVPROC gles3wUniformMatrix3x2fv;
-PFNGLUNIFORMMATRIX2X4FVPROC gles3wUniformMatrix2x4fv;
-PFNGLUNIFORMMATRIX4X2FVPROC gles3wUniformMatrix4x2fv;
-PFNGLUNIFORMMATRIX3X4FVPROC gles3wUniformMatrix3x4fv;
-PFNGLUNIFORMMATRIX4X3FVPROC gles3wUniformMatrix4x3fv;
-PFNGLBLITFRAMEBUFFERPROC gles3wBlitFramebuffer;
-PFNGLRENDERBUFFERSTORAGEMULTISAMPLEPROC gles3wRenderbufferStorageMultisample;
-PFNGLFRAMEBUFFERTEXTURELAYERPROC gles3wFramebufferTextureLayer;
-PFNGLMAPBUFFERRANGEPROC gles3wMapBufferRange;
-PFNGLFLUSHMAPPEDBUFFERRANGEPROC gles3wFlushMappedBufferRange;
-PFNGLBINDVERTEXARRAYPROC gles3wBindVertexArray;
-PFNGLDELETEVERTEXARRAYSPROC gles3wDeleteVertexArrays;
-PFNGLGENVERTEXARRAYSPROC gles3wGenVertexArrays;
-PFNGLISVERTEXARRAYPROC gles3wIsVertexArray;
-PFNGLGETINTEGERI_VPROC gles3wGetIntegeri_v;
-PFNGLBEGINTRANSFORMFEEDBACKPROC gles3wBeginTransformFeedback;
-PFNGLENDTRANSFORMFEEDBACKPROC gles3wEndTransformFeedback;
-PFNGLBINDBUFFERRANGEPROC gles3wBindBufferRange;
-PFNGLBINDBUFFERBASEPROC gles3wBindBufferBase;
-PFNGLTRANSFORMFEEDBACKVARYINGSPROC gles3wTransformFeedbackVaryings;
-PFNGLGETTRANSFORMFEEDBACKVARYINGPROC gles3wGetTransformFeedbackVarying;
-PFNGLVERTEXATTRIBIPOINTERPROC gles3wVertexAttribIPointer;
-PFNGLGETVERTEXATTRIBIIVPROC gles3wGetVertexAttribIiv;
-PFNGLGETVERTEXATTRIBIUIVPROC gles3wGetVertexAttribIuiv;
-PFNGLVERTEXATTRIBI4IPROC gles3wVertexAttribI4i;
-PFNGLVERTEXATTRIBI4UIPROC gles3wVertexAttribI4ui;
-PFNGLVERTEXATTRIBI4IVPROC gles3wVertexAttribI4iv;
-PFNGLVERTEXATTRIBI4UIVPROC gles3wVertexAttribI4uiv;
-PFNGLGETUNIFORMUIVPROC gles3wGetUniformuiv;
-PFNGLGETFRAGDATALOCATIONPROC gles3wGetFragDataLocation;
-PFNGLUNIFORM1UIPROC gles3wUniform1ui;
-PFNGLUNIFORM2UIPROC gles3wUniform2ui;
-PFNGLUNIFORM3UIPROC gles3wUniform3ui;
-PFNGLUNIFORM4UIPROC gles3wUniform4ui;
-PFNGLUNIFORM1UIVPROC gles3wUniform1uiv;
-PFNGLUNIFORM2UIVPROC gles3wUniform2uiv;
-PFNGLUNIFORM3UIVPROC gles3wUniform3uiv;
-PFNGLUNIFORM4UIVPROC gles3wUniform4uiv;
-PFNGLCLEARBUFFERIVPROC gles3wClearBufferiv;
-PFNGLCLEARBUFFERUIVPROC gles3wClearBufferuiv;
-PFNGLCLEARBUFFERFVPROC gles3wClearBufferfv;
-PFNGLCLEARBUFFERFIPROC gles3wClearBufferfi;
-PFNGLGETSTRINGIPROC gles3wGetStringi;
-PFNGLCOPYBUFFERSUBDATAPROC gles3wCopyBufferSubData;
-PFNGLGETUNIFORMINDICESPROC gles3wGetUniformIndices;
-PFNGLGETACTIVEUNIFORMSIVPROC gles3wGetActiveUniformsiv;
-PFNGLGETUNIFORMBLOCKINDEXPROC gles3wGetUniformBlockIndex;
-PFNGLGETACTIVEUNIFORMBLOCKIVPROC gles3wGetActiveUniformBlockiv;
-PFNGLGETACTIVEUNIFORMBLOCKNAMEPROC gles3wGetActiveUniformBlockName;
-PFNGLUNIFORMBLOCKBINDINGPROC gles3wUniformBlockBinding;
-PFNGLDRAWARRAYSINSTANCEDPROC gles3wDrawArraysInstanced;
-PFNGLDRAWELEMENTSINSTANCEDPROC gles3wDrawElementsInstanced;
-PFNGLFENCESYNCPROC gles3wFenceSync;
-PFNGLISSYNCPROC gles3wIsSync;
-PFNGLDELETESYNCPROC gles3wDeleteSync;
-PFNGLCLIENTWAITSYNCPROC gles3wClientWaitSync;
-PFNGLWAITSYNCPROC gles3wWaitSync;
-PFNGLGETINTEGER64VPROC gles3wGetInteger64v;
-PFNGLGETSYNCIVPROC gles3wGetSynciv;
-PFNGLGETINTEGER64I_VPROC gles3wGetInteger64i_v;
-PFNGLGETBUFFERPARAMETERI64VPROC gles3wGetBufferParameteri64v;
-PFNGLGENSAMPLERSPROC gles3wGenSamplers;
-PFNGLDELETESAMPLERSPROC gles3wDeleteSamplers;
-PFNGLISSAMPLERPROC gles3wIsSampler;
-PFNGLBINDSAMPLERPROC gles3wBindSampler;
-PFNGLSAMPLERPARAMETERIPROC gles3wSamplerParameteri;
-PFNGLSAMPLERPARAMETERIVPROC gles3wSamplerParameteriv;
-PFNGLSAMPLERPARAMETERFPROC gles3wSamplerParameterf;
-PFNGLSAMPLERPARAMETERFVPROC gles3wSamplerParameterfv;
-PFNGLGETSAMPLERPARAMETERIVPROC gles3wGetSamplerParameteriv;
-PFNGLGETSAMPLERPARAMETERFVPROC gles3wGetSamplerParameterfv;
-PFNGLVERTEXATTRIBDIVISORPROC gles3wVertexAttribDivisor;
-PFNGLBINDTRANSFORMFEEDBACKPROC gles3wBindTransformFeedback;
-PFNGLDELETETRANSFORMFEEDBACKSPROC gles3wDeleteTransformFeedbacks;
-PFNGLGENTRANSFORMFEEDBACKSPROC gles3wGenTransformFeedbacks;
-PFNGLISTRANSFORMFEEDBACKPROC gles3wIsTransformFeedback;
-PFNGLPAUSETRANSFORMFEEDBACKPROC gles3wPauseTransformFeedback;
-PFNGLRESUMETRANSFORMFEEDBACKPROC gles3wResumeTransformFeedback;
-PFNGLGETPROGRAMBINARYPROC gles3wGetProgramBinary;
-PFNGLPROGRAMBINARYPROC gles3wProgramBinary;
-PFNGLPROGRAMPARAMETERIPROC gles3wProgramParameteri;
-PFNGLINVALIDATEFRAMEBUFFERPROC gles3wInvalidateFramebuffer;
-PFNGLINVALIDATESUBFRAMEBUFFERPROC gles3wInvalidateSubFramebuffer;
-PFNGLTEXSTORAGE2DPROC gles3wTexStorage2D;
-PFNGLTEXSTORAGE3DPROC gles3wTexStorage3D;
-PFNGLGETINTERNALFORMATIVPROC gles3wGetInternalformativ;
-PFNGLUSEPROGRAMSTAGESEXTPROC gles3wUseProgramStagesEXT;
-PFNGLACTIVESHADERPROGRAMEXTPROC gles3wActiveShaderProgramEXT;
-PFNGLCREATESHADERPROGRAMVEXTPROC gles3wCreateShaderProgramvEXT;
-PFNGLBINDPROGRAMPIPELINEEXTPROC gles3wBindProgramPipelineEXT;
-PFNGLDELETEPROGRAMPIPELINESEXTPROC gles3wDeleteProgramPipelinesEXT;
-PFNGLGENPROGRAMPIPELINESEXTPROC gles3wGenProgramPipelinesEXT;
-PFNGLISPROGRAMPIPELINEEXTPROC gles3wIsProgramPipelineEXT;
-PFNGLPROGRAMPARAMETERIEXTPROC gles3wProgramParameteriEXT;
-PFNGLGETPROGRAMPIPELINEIVEXTPROC gles3wGetProgramPipelineivEXT;
-PFNGLPROGRAMUNIFORM1IEXTPROC gles3wProgramUniform1iEXT;
-PFNGLPROGRAMUNIFORM2IEXTPROC gles3wProgramUniform2iEXT;
-PFNGLPROGRAMUNIFORM3IEXTPROC gles3wProgramUniform3iEXT;
-PFNGLPROGRAMUNIFORM4IEXTPROC gles3wProgramUniform4iEXT;
-PFNGLPROGRAMUNIFORM1FEXTPROC gles3wProgramUniform1fEXT;
-PFNGLPROGRAMUNIFORM2FEXTPROC gles3wProgramUniform2fEXT;
-PFNGLPROGRAMUNIFORM3FEXTPROC gles3wProgramUniform3fEXT;
-PFNGLPROGRAMUNIFORM4FEXTPROC gles3wProgramUniform4fEXT;
-PFNGLPROGRAMUNIFORM1IVEXTPROC gles3wProgramUniform1ivEXT;
-PFNGLPROGRAMUNIFORM2IVEXTPROC gles3wProgramUniform2ivEXT;
-PFNGLPROGRAMUNIFORM3IVEXTPROC gles3wProgramUniform3ivEXT;
-PFNGLPROGRAMUNIFORM4IVEXTPROC gles3wProgramUniform4ivEXT;
-PFNGLPROGRAMUNIFORM1FVEXTPROC gles3wProgramUniform1fvEXT;
-PFNGLPROGRAMUNIFORM2FVEXTPROC gles3wProgramUniform2fvEXT;
-PFNGLPROGRAMUNIFORM3FVEXTPROC gles3wProgramUniform3fvEXT;
-PFNGLPROGRAMUNIFORM4FVEXTPROC gles3wProgramUniform4fvEXT;
-PFNGLPROGRAMUNIFORMMATRIX2FVEXTPROC gles3wProgramUniformMatrix2fvEXT;
-PFNGLPROGRAMUNIFORMMATRIX3FVEXTPROC gles3wProgramUniformMatrix3fvEXT;
-PFNGLPROGRAMUNIFORMMATRIX4FVEXTPROC gles3wProgramUniformMatrix4fvEXT;
-PFNGLPROGRAMUNIFORMMATRIX2X3FVEXTPROC gles3wProgramUniformMatrix2x3fvEXT;
-PFNGLPROGRAMUNIFORMMATRIX3X2FVEXTPROC gles3wProgramUniformMatrix3x2fvEXT;
-PFNGLPROGRAMUNIFORMMATRIX2X4FVEXTPROC gles3wProgramUniformMatrix2x4fvEXT;
-PFNGLPROGRAMUNIFORMMATRIX4X2FVEXTPROC gles3wProgramUniformMatrix4x2fvEXT;
-PFNGLPROGRAMUNIFORMMATRIX3X4FVEXTPROC gles3wProgramUniformMatrix3x4fvEXT;
-PFNGLPROGRAMUNIFORMMATRIX4X3FVEXTPROC gles3wProgramUniformMatrix4x3fvEXT;
-PFNGLVALIDATEPROGRAMPIPELINEEXTPROC gles3wValidateProgramPipelineEXT;
-PFNGLGETPROGRAMPIPELINEINFOLOGEXTPROC gles3wGetProgramPipelineInfoLogEXT;
-PFNGLLABELOBJECTEXTPROC gles3wLabelObjectEXT;
-PFNGLGETOBJECTLABELEXTPROC gles3wGetObjectLabelEXT;
-PFNGLINSERTEVENTMARKEREXTPROC gles3wInsertEventMarkerEXT;
-PFNGLPUSHGROUPMARKEREXTPROC gles3wPushGroupMarkerEXT;
-PFNGLPOPGROUPMARKEREXTPROC gles3wPopGroupMarkerEXT;
+PFNEGLCREATEIMAGEPROC eglCreateImage;
+PFNEGLDESTROYIMAGEPROC eglDestroyImage;
 
-PFNGLDEBUGMESSAGECONTROLKHRPROC gles3wDebugMessageControlKHR;
-PFNGLDEBUGMESSAGECALLBACKKHRPROC gles3wDebugMessageCallbackKHR;
-PFNGLFRAMEBUFFERTEXTURE2DMULTISAMPLEEXTPROC gles3wFramebufferTexture2DMultisampleEXT;
-PFNGLFRAMEBUFFERTEXTURE2DMULTISAMPLEIMGPROC gles3wFramebufferTexture2DMultisampleIMG;
+PFNEGLGETPLATFORMDISPLAYPROC eglGetPlatformDisplay;
+PFNEGLCREATEPLATFORMWINDOWSURFACEPROC eglCreatePlatformWindowSurface;
+PFNEGLCREATEPLATFORMPIXMAPSURFACEPROC eglCreatePlatformPixmapSurface;
 
-static void load_procs(void)
-{
-    gles3wActiveTexture = (PFNGLACTIVETEXTUREPROC) get_proc("glActiveTexture");
-    gles3wAttachShader = (PFNGLATTACHSHADERPROC) get_proc("glAttachShader");
-    gles3wBindAttribLocation = (PFNGLBINDATTRIBLOCATIONPROC) get_proc("glBindAttribLocation");
-    gles3wBindBuffer = (PFNGLBINDBUFFERPROC) get_proc("glBindBuffer");
-    gles3wBindFramebuffer = (PFNGLBINDFRAMEBUFFERPROC) get_proc("glBindFramebuffer");
-    gles3wBindRenderbuffer = (PFNGLBINDRENDERBUFFERPROC) get_proc("glBindRenderbuffer");
-    gles3wBindTexture = (PFNGLBINDTEXTUREPROC) get_proc("glBindTexture");
-    gles3wBlendColor = (PFNGLBLENDCOLORPROC) get_proc("glBlendColor");
-    gles3wBlendEquation = (PFNGLBLENDEQUATIONPROC) get_proc("glBlendEquation");
-    gles3wBlendEquationSeparate = (PFNGLBLENDEQUATIONSEPARATEPROC) get_proc("glBlendEquationSeparate");
-    gles3wBlendFunc = (PFNGLBLENDFUNCPROC) get_proc("glBlendFunc");
-    gles3wBlendFuncSeparate = (PFNGLBLENDFUNCSEPARATEPROC) get_proc("glBlendFuncSeparate");
-    gles3wBufferData = (PFNGLBUFFERDATAPROC) get_proc("glBufferData");
-    gles3wBufferSubData = (PFNGLBUFFERSUBDATAPROC) get_proc("glBufferSubData");
-    gles3wCheckFramebufferStatus = (PFNGLCHECKFRAMEBUFFERSTATUSPROC) get_proc("glCheckFramebufferStatus");
-    gles3wClear = (PFNGLCLEARPROC) get_proc("glClear");
-    gles3wClearColor = (PFNGLCLEARCOLORPROC) get_proc("glClearColor");
-    gles3wClearDepthf = (PFNGLCLEARDEPTHFPROC) get_proc("glClearDepthf");
-    gles3wClearStencil = (PFNGLCLEARSTENCILPROC) get_proc("glClearStencil");
-    gles3wColorMask = (PFNGLCOLORMASKPROC) get_proc("glColorMask");
-    gles3wCompileShader = (PFNGLCOMPILESHADERPROC) get_proc("glCompileShader");
-    gles3wCompressedTexImage2D = (PFNGLCOMPRESSEDTEXIMAGE2DPROC) get_proc("glCompressedTexImage2D");
-    gles3wCompressedTexSubImage2D = (PFNGLCOMPRESSEDTEXSUBIMAGE2DPROC) get_proc("glCompressedTexSubImage2D");
-    gles3wCopyTexImage2D = (PFNGLCOPYTEXIMAGE2DPROC) get_proc("glCopyTexImage2D");
-    gles3wCopyTexSubImage2D = (PFNGLCOPYTEXSUBIMAGE2DPROC) get_proc("glCopyTexSubImage2D");
-    gles3wCreateProgram = (PFNGLCREATEPROGRAMPROC) get_proc("glCreateProgram");
-    gles3wCreateShader = (PFNGLCREATESHADERPROC) get_proc("glCreateShader");
-    gles3wCullFace = (PFNGLCULLFACEPROC) get_proc("glCullFace");
-    gles3wDeleteBuffers = (PFNGLDELETEBUFFERSPROC) get_proc("glDeleteBuffers");
-    gles3wDeleteFramebuffers = (PFNGLDELETEFRAMEBUFFERSPROC) get_proc("glDeleteFramebuffers");
-    gles3wDeleteProgram = (PFNGLDELETEPROGRAMPROC) get_proc("glDeleteProgram");
-    gles3wDeleteRenderbuffers = (PFNGLDELETERENDERBUFFERSPROC) get_proc("glDeleteRenderbuffers");
-    gles3wDeleteShader = (PFNGLDELETESHADERPROC) get_proc("glDeleteShader");
-    gles3wDeleteTextures = (PFNGLDELETETEXTURESPROC) get_proc("glDeleteTextures");
-    gles3wDepthFunc = (PFNGLDEPTHFUNCPROC) get_proc("glDepthFunc");
-    gles3wDepthMask = (PFNGLDEPTHMASKPROC) get_proc("glDepthMask");
-    gles3wDepthRangef = (PFNGLDEPTHRANGEFPROC) get_proc("glDepthRangef");
-    gles3wDetachShader = (PFNGLDETACHSHADERPROC) get_proc("glDetachShader");
-    gles3wDisable = (PFNGLDISABLEPROC) get_proc("glDisable");
-    gles3wDisableVertexAttribArray = (PFNGLDISABLEVERTEXATTRIBARRAYPROC) get_proc("glDisableVertexAttribArray");
-    gles3wDrawArrays = (PFNGLDRAWARRAYSPROC) get_proc("glDrawArrays");
-    gles3wDrawElements = (PFNGLDRAWELEMENTSPROC) get_proc("glDrawElements");
-    gles3wEnable = (PFNGLENABLEPROC) get_proc("glEnable");
-    gles3wEnableVertexAttribArray = (PFNGLENABLEVERTEXATTRIBARRAYPROC) get_proc("glEnableVertexAttribArray");
-    gles3wFinish = (PFNGLFINISHPROC) get_proc("glFinish");
-    gles3wFlush = (PFNGLFLUSHPROC) get_proc("glFlush");
-    gles3wFramebufferRenderbuffer = (PFNGLFRAMEBUFFERRENDERBUFFERPROC) get_proc("glFramebufferRenderbuffer");
-    gles3wFramebufferTexture2D = (PFNGLFRAMEBUFFERTEXTURE2DPROC) get_proc("glFramebufferTexture2D");
-    gles3wFrontFace = (PFNGLFRONTFACEPROC) get_proc("glFrontFace");
-    gles3wGenBuffers = (PFNGLGENBUFFERSPROC) get_proc("glGenBuffers");
-    gles3wGenerateMipmap = (PFNGLGENERATEMIPMAPPROC) get_proc("glGenerateMipmap");
-    gles3wGenFramebuffers = (PFNGLGENFRAMEBUFFERSPROC) get_proc("glGenFramebuffers");
-    gles3wGenRenderbuffers = (PFNGLGENRENDERBUFFERSPROC) get_proc("glGenRenderbuffers");
-    gles3wGenTextures = (PFNGLGENTEXTURESPROC) get_proc("glGenTextures");
-    gles3wGetActiveAttrib = (PFNGLGETACTIVEATTRIBPROC) get_proc("glGetActiveAttrib");
-    gles3wGetActiveUniform = (PFNGLGETACTIVEUNIFORMPROC) get_proc("glGetActiveUniform");
-    gles3wGetAttachedShaders = (PFNGLGETATTACHEDSHADERSPROC) get_proc("glGetAttachedShaders");
-    gles3wGetAttribLocation = (PFNGLGETATTRIBLOCATIONPROC) get_proc("glGetAttribLocation");
-    gles3wGetBooleanv = (PFNGLGETBOOLEANVPROC) get_proc("glGetBooleanv");
-    gles3wGetBufferParameteriv = (PFNGLGETBUFFERPARAMETERIVPROC) get_proc("glGetBufferParameteriv");
-    gles3wGetError = (PFNGLGETERRORPROC) get_proc("glGetError");
-    gles3wGetFloatv = (PFNGLGETFLOATVPROC) get_proc("glGetFloatv");
-    gles3wGetFramebufferAttachmentParameteriv = (PFNGLGETFRAMEBUFFERATTACHMENTPARAMETERIVPROC) get_proc("glGetFramebufferAttachmentParameteriv");
-    gles3wGetIntegerv = (PFNGLGETINTEGERVPROC) get_proc("glGetIntegerv");
-    gles3wGetProgramiv = (PFNGLGETPROGRAMIVPROC) get_proc("glGetProgramiv");
-    gles3wGetProgramInfoLog = (PFNGLGETPROGRAMINFOLOGPROC) get_proc("glGetProgramInfoLog");
-    gles3wGetRenderbufferParameteriv = (PFNGLGETRENDERBUFFERPARAMETERIVPROC) get_proc("glGetRenderbufferParameteriv");
-    gles3wGetShaderiv = (PFNGLGETSHADERIVPROC) get_proc("glGetShaderiv");
-    gles3wGetShaderInfoLog = (PFNGLGETSHADERINFOLOGPROC) get_proc("glGetShaderInfoLog");
-    gles3wGetShaderPrecisionFormat = (PFNGLGETSHADERPRECISIONFORMATPROC) get_proc("glGetShaderPrecisionFormat");
-    gles3wGetShaderSource = (PFNGLGETSHADERSOURCEPROC) get_proc("glGetShaderSource");
-    gles3wGetString = (PFNGLGETSTRINGPROC) get_proc("glGetString");
-    gles3wGetTexParameterfv = (PFNGLGETTEXPARAMETERFVPROC) get_proc("glGetTexParameterfv");
-    gles3wGetTexParameteriv = (PFNGLGETTEXPARAMETERIVPROC) get_proc("glGetTexParameteriv");
-    gles3wGetUniformfv = (PFNGLGETUNIFORMFVPROC) get_proc("glGetUniformfv");
-    gles3wGetUniformiv = (PFNGLGETUNIFORMIVPROC) get_proc("glGetUniformiv");
-    gles3wGetUniformLocation = (PFNGLGETUNIFORMLOCATIONPROC) get_proc("glGetUniformLocation");
-    gles3wGetVertexAttribfv = (PFNGLGETVERTEXATTRIBFVPROC) get_proc("glGetVertexAttribfv");
-    gles3wGetVertexAttribiv = (PFNGLGETVERTEXATTRIBIVPROC) get_proc("glGetVertexAttribiv");
-    gles3wGetVertexAttribPointerv = (PFNGLGETVERTEXATTRIBPOINTERVPROC) get_proc("glGetVertexAttribPointerv");
-    gles3wHint = (PFNGLHINTPROC) get_proc("glHint");
-    gles3wIsBuffer = (PFNGLISBUFFERPROC) get_proc("glIsBuffer");
-    gles3wIsEnabled = (PFNGLISENABLEDPROC) get_proc("glIsEnabled");
-    gles3wIsFramebuffer = (PFNGLISFRAMEBUFFERPROC) get_proc("glIsFramebuffer");
-    gles3wIsProgram = (PFNGLISPROGRAMPROC) get_proc("glIsProgram");
-    gles3wIsRenderbuffer = (PFNGLISRENDERBUFFERPROC) get_proc("glIsRenderbuffer");
-    gles3wIsShader = (PFNGLISSHADERPROC) get_proc("glIsShader");
-    gles3wIsTexture = (PFNGLISTEXTUREPROC) get_proc("glIsTexture");
-    gles3wLineWidth = (PFNGLLINEWIDTHPROC) get_proc("glLineWidth");
-    gles3wLinkProgram = (PFNGLLINKPROGRAMPROC) get_proc("glLinkProgram");
-    gles3wPixelStorei = (PFNGLPIXELSTOREIPROC) get_proc("glPixelStorei");
-    gles3wPolygonOffset = (PFNGLPOLYGONOFFSETPROC) get_proc("glPolygonOffset");
-    gles3wReadPixels = (PFNGLREADPIXELSPROC) get_proc("glReadPixels");
-    gles3wReleaseShaderCompiler = (PFNGLRELEASESHADERCOMPILERPROC) get_proc("glReleaseShaderCompiler");
-    gles3wRenderbufferStorage = (PFNGLRENDERBUFFERSTORAGEPROC) get_proc("glRenderbufferStorage");
-    gles3wSampleCoverage = (PFNGLSAMPLECOVERAGEPROC) get_proc("glSampleCoverage");
-    gles3wScissor = (PFNGLSCISSORPROC) get_proc("glScissor");
-    gles3wShaderBinary = (PFNGLSHADERBINARYPROC) get_proc("glShaderBinary");
-    gles3wShaderSource = (PFNGLSHADERSOURCEPROC) get_proc("glShaderSource");
-    gles3wStencilFunc = (PFNGLSTENCILFUNCPROC) get_proc("glStencilFunc");
-    gles3wStencilFuncSeparate = (PFNGLSTENCILFUNCSEPARATEPROC) get_proc("glStencilFuncSeparate");
-    gles3wStencilMask = (PFNGLSTENCILMASKPROC) get_proc("glStencilMask");
-    gles3wStencilMaskSeparate = (PFNGLSTENCILMASKSEPARATEPROC) get_proc("glStencilMaskSeparate");
-    gles3wStencilOp = (PFNGLSTENCILOPPROC) get_proc("glStencilOp");
-    gles3wStencilOpSeparate = (PFNGLSTENCILOPSEPARATEPROC) get_proc("glStencilOpSeparate");
-    gles3wTexImage2D = (PFNGLTEXIMAGE2DPROC) get_proc("glTexImage2D");
-    gles3wTexParameterf = (PFNGLTEXPARAMETERFPROC) get_proc("glTexParameterf");
-    gles3wTexParameterfv = (PFNGLTEXPARAMETERFVPROC) get_proc("glTexParameterfv");
-    gles3wTexParameteri = (PFNGLTEXPARAMETERIPROC) get_proc("glTexParameteri");
-    gles3wTexParameteriv = (PFNGLTEXPARAMETERIVPROC) get_proc("glTexParameteriv");
-    gles3wTexSubImage2D = (PFNGLTEXSUBIMAGE2DPROC) get_proc("glTexSubImage2D");
-    gles3wUniform1f = (PFNGLUNIFORM1FPROC) get_proc("glUniform1f");
-    gles3wUniform1fv = (PFNGLUNIFORM1FVPROC) get_proc("glUniform1fv");
-    gles3wUniform1i = (PFNGLUNIFORM1IPROC) get_proc("glUniform1i");
-    gles3wUniform1iv = (PFNGLUNIFORM1IVPROC) get_proc("glUniform1iv");
-    gles3wUniform2f = (PFNGLUNIFORM2FPROC) get_proc("glUniform2f");
-    gles3wUniform2fv = (PFNGLUNIFORM2FVPROC) get_proc("glUniform2fv");
-    gles3wUniform2i = (PFNGLUNIFORM2IPROC) get_proc("glUniform2i");
-    gles3wUniform2iv = (PFNGLUNIFORM2IVPROC) get_proc("glUniform2iv");
-    gles3wUniform3f = (PFNGLUNIFORM3FPROC) get_proc("glUniform3f");
-    gles3wUniform3fv = (PFNGLUNIFORM3FVPROC) get_proc("glUniform3fv");
-    gles3wUniform3i = (PFNGLUNIFORM3IPROC) get_proc("glUniform3i");
-    gles3wUniform3iv = (PFNGLUNIFORM3IVPROC) get_proc("glUniform3iv");
-    gles3wUniform4f = (PFNGLUNIFORM4FPROC) get_proc("glUniform4f");
-    gles3wUniform4fv = (PFNGLUNIFORM4FVPROC) get_proc("glUniform4fv");
-    gles3wUniform4i = (PFNGLUNIFORM4IPROC) get_proc("glUniform4i");
-    gles3wUniform4iv = (PFNGLUNIFORM4IVPROC) get_proc("glUniform4iv");
-    gles3wUniformMatrix2fv = (PFNGLUNIFORMMATRIX2FVPROC) get_proc("glUniformMatrix2fv");
-    gles3wUniformMatrix3fv = (PFNGLUNIFORMMATRIX3FVPROC) get_proc("glUniformMatrix3fv");
-    gles3wUniformMatrix4fv = (PFNGLUNIFORMMATRIX4FVPROC) get_proc("glUniformMatrix4fv");
-    gles3wUseProgram = (PFNGLUSEPROGRAMPROC) get_proc("glUseProgram");
-    gles3wValidateProgram = (PFNGLVALIDATEPROGRAMPROC) get_proc("glValidateProgram");
-    gles3wVertexAttrib1f = (PFNGLVERTEXATTRIB1FPROC) get_proc("glVertexAttrib1f");
-    gles3wVertexAttrib1fv = (PFNGLVERTEXATTRIB1FVPROC) get_proc("glVertexAttrib1fv");
-    gles3wVertexAttrib2f = (PFNGLVERTEXATTRIB2FPROC) get_proc("glVertexAttrib2f");
-    gles3wVertexAttrib2fv = (PFNGLVERTEXATTRIB2FVPROC) get_proc("glVertexAttrib2fv");
-    gles3wVertexAttrib3f = (PFNGLVERTEXATTRIB3FPROC) get_proc("glVertexAttrib3f");
-    gles3wVertexAttrib3fv = (PFNGLVERTEXATTRIB3FVPROC) get_proc("glVertexAttrib3fv");
-    gles3wVertexAttrib4f = (PFNGLVERTEXATTRIB4FPROC) get_proc("glVertexAttrib4f");
-    gles3wVertexAttrib4fv = (PFNGLVERTEXATTRIB4FVPROC) get_proc("glVertexAttrib4fv");
-    gles3wVertexAttribPointer = (PFNGLVERTEXATTRIBPOINTERPROC) get_proc("glVertexAttribPointer");
-    gles3wViewport = (PFNGLVIEWPORTPROC) get_proc("glViewport");
-    gles3wReadBuffer = (PFNGLREADBUFFERPROC) get_proc("glReadBuffer");
-    gles3wDrawRangeElements = (PFNGLDRAWRANGEELEMENTSPROC) get_proc("glDrawRangeElements");
-    gles3wTexImage3D = (PFNGLTEXIMAGE3DPROC) get_proc("glTexImage3D");
-    gles3wTexSubImage3D = (PFNGLTEXSUBIMAGE3DPROC) get_proc("glTexSubImage3D");
-    gles3wCopyTexSubImage3D = (PFNGLCOPYTEXSUBIMAGE3DPROC) get_proc("glCopyTexSubImage3D");
-    gles3wCompressedTexImage3D = (PFNGLCOMPRESSEDTEXIMAGE3DPROC) get_proc("glCompressedTexImage3D");
-    gles3wCompressedTexSubImage3D = (PFNGLCOMPRESSEDTEXSUBIMAGE3DPROC) get_proc("glCompressedTexSubImage3D");
-    gles3wGenQueries = (PFNGLGENQUERIESPROC) get_proc("glGenQueries");
-    gles3wDeleteQueries = (PFNGLDELETEQUERIESPROC) get_proc("glDeleteQueries");
-    gles3wIsQuery = (PFNGLISQUERYPROC) get_proc("glIsQuery");
-    gles3wBeginQuery = (PFNGLBEGINQUERYPROC) get_proc("glBeginQuery");
-    gles3wEndQuery = (PFNGLENDQUERYPROC) get_proc("glEndQuery");
-    gles3wGetQueryiv = (PFNGLGETQUERYIVPROC) get_proc("glGetQueryiv");
-    gles3wGetQueryObjectuiv = (PFNGLGETQUERYOBJECTUIVPROC) get_proc("glGetQueryObjectuiv");
-    gles3wUnmapBuffer = (PFNGLUNMAPBUFFERPROC) get_proc("glUnmapBuffer");
-    gles3wGetBufferPointerv = (PFNGLGETBUFFERPOINTERVPROC) get_proc("glGetBufferPointerv");
-    gles3wDrawBuffers = (PFNGLDRAWBUFFERSPROC) get_proc("glDrawBuffers");
-    gles3wUniformMatrix2x3fv = (PFNGLUNIFORMMATRIX2X3FVPROC) get_proc("glUniformMatrix2x3fv");
-    gles3wUniformMatrix3x2fv = (PFNGLUNIFORMMATRIX3X2FVPROC) get_proc("glUniformMatrix3x2fv");
-    gles3wUniformMatrix2x4fv = (PFNGLUNIFORMMATRIX2X4FVPROC) get_proc("glUniformMatrix2x4fv");
-    gles3wUniformMatrix4x2fv = (PFNGLUNIFORMMATRIX4X2FVPROC) get_proc("glUniformMatrix4x2fv");
-    gles3wUniformMatrix3x4fv = (PFNGLUNIFORMMATRIX3X4FVPROC) get_proc("glUniformMatrix3x4fv");
-    gles3wUniformMatrix4x3fv = (PFNGLUNIFORMMATRIX4X3FVPROC) get_proc("glUniformMatrix4x3fv");
-    gles3wBlitFramebuffer = (PFNGLBLITFRAMEBUFFERPROC) get_proc("glBlitFramebuffer");
-    gles3wRenderbufferStorageMultisample = (PFNGLRENDERBUFFERSTORAGEMULTISAMPLEPROC) get_proc("glRenderbufferStorageMultisample");
-    gles3wFramebufferTextureLayer = (PFNGLFRAMEBUFFERTEXTURELAYERPROC) get_proc("glFramebufferTextureLayer");
-    gles3wMapBufferRange = (PFNGLMAPBUFFERRANGEPROC) get_proc("glMapBufferRange");
-    gles3wFlushMappedBufferRange = (PFNGLFLUSHMAPPEDBUFFERRANGEPROC) get_proc("glFlushMappedBufferRange");
-    gles3wBindVertexArray = (PFNGLBINDVERTEXARRAYPROC) get_proc("glBindVertexArray");
-    gles3wDeleteVertexArrays = (PFNGLDELETEVERTEXARRAYSPROC) get_proc("glDeleteVertexArrays");
-    gles3wGenVertexArrays = (PFNGLGENVERTEXARRAYSPROC) get_proc("glGenVertexArrays");
-    gles3wIsVertexArray = (PFNGLISVERTEXARRAYPROC) get_proc("glIsVertexArray");
-    gles3wGetIntegeri_v = (PFNGLGETINTEGERI_VPROC) get_proc("glGetIntegeri_v");
-    gles3wBeginTransformFeedback = (PFNGLBEGINTRANSFORMFEEDBACKPROC) get_proc("glBeginTransformFeedback");
-    gles3wEndTransformFeedback = (PFNGLENDTRANSFORMFEEDBACKPROC) get_proc("glEndTransformFeedback");
-    gles3wBindBufferRange = (PFNGLBINDBUFFERRANGEPROC) get_proc("glBindBufferRange");
-    gles3wBindBufferBase = (PFNGLBINDBUFFERBASEPROC) get_proc("glBindBufferBase");
-    gles3wTransformFeedbackVaryings = (PFNGLTRANSFORMFEEDBACKVARYINGSPROC) get_proc("glTransformFeedbackVaryings");
-    gles3wGetTransformFeedbackVarying = (PFNGLGETTRANSFORMFEEDBACKVARYINGPROC) get_proc("glGetTransformFeedbackVarying");
-    gles3wVertexAttribIPointer = (PFNGLVERTEXATTRIBIPOINTERPROC) get_proc("glVertexAttribIPointer");
-    gles3wGetVertexAttribIiv = (PFNGLGETVERTEXATTRIBIIVPROC) get_proc("glGetVertexAttribIiv");
-    gles3wGetVertexAttribIuiv = (PFNGLGETVERTEXATTRIBIUIVPROC) get_proc("glGetVertexAttribIuiv");
-    gles3wVertexAttribI4i = (PFNGLVERTEXATTRIBI4IPROC) get_proc("glVertexAttribI4i");
-    gles3wVertexAttribI4ui = (PFNGLVERTEXATTRIBI4UIPROC) get_proc("glVertexAttribI4ui");
-    gles3wVertexAttribI4iv = (PFNGLVERTEXATTRIBI4IVPROC) get_proc("glVertexAttribI4iv");
-    gles3wVertexAttribI4uiv = (PFNGLVERTEXATTRIBI4UIVPROC) get_proc("glVertexAttribI4uiv");
-    gles3wGetUniformuiv = (PFNGLGETUNIFORMUIVPROC) get_proc("glGetUniformuiv");
-    gles3wGetFragDataLocation = (PFNGLGETFRAGDATALOCATIONPROC) get_proc("glGetFragDataLocation");
-    gles3wUniform1ui = (PFNGLUNIFORM1UIPROC) get_proc("glUniform1ui");
-    gles3wUniform2ui = (PFNGLUNIFORM2UIPROC) get_proc("glUniform2ui");
-    gles3wUniform3ui = (PFNGLUNIFORM3UIPROC) get_proc("glUniform3ui");
-    gles3wUniform4ui = (PFNGLUNIFORM4UIPROC) get_proc("glUniform4ui");
-    gles3wUniform1uiv = (PFNGLUNIFORM1UIVPROC) get_proc("glUniform1uiv");
-    gles3wUniform2uiv = (PFNGLUNIFORM2UIVPROC) get_proc("glUniform2uiv");
-    gles3wUniform3uiv = (PFNGLUNIFORM3UIVPROC) get_proc("glUniform3uiv");
-    gles3wUniform4uiv = (PFNGLUNIFORM4UIVPROC) get_proc("glUniform4uiv");
-    gles3wClearBufferiv = (PFNGLCLEARBUFFERIVPROC) get_proc("glClearBufferiv");
-    gles3wClearBufferuiv = (PFNGLCLEARBUFFERUIVPROC) get_proc("glClearBufferuiv");
-    gles3wClearBufferfv = (PFNGLCLEARBUFFERFVPROC) get_proc("glClearBufferfv");
-    gles3wClearBufferfi = (PFNGLCLEARBUFFERFIPROC) get_proc("glClearBufferfi");
-    gles3wGetStringi = (PFNGLGETSTRINGIPROC) get_proc("glGetStringi");
-    gles3wCopyBufferSubData = (PFNGLCOPYBUFFERSUBDATAPROC) get_proc("glCopyBufferSubData");
-    gles3wGetUniformIndices = (PFNGLGETUNIFORMINDICESPROC) get_proc("glGetUniformIndices");
-    gles3wGetActiveUniformsiv = (PFNGLGETACTIVEUNIFORMSIVPROC) get_proc("glGetActiveUniformsiv");
-    gles3wGetUniformBlockIndex = (PFNGLGETUNIFORMBLOCKINDEXPROC) get_proc("glGetUniformBlockIndex");
-    gles3wGetActiveUniformBlockiv = (PFNGLGETACTIVEUNIFORMBLOCKIVPROC) get_proc("glGetActiveUniformBlockiv");
-    gles3wGetActiveUniformBlockName = (PFNGLGETACTIVEUNIFORMBLOCKNAMEPROC) get_proc("glGetActiveUniformBlockName");
-    gles3wUniformBlockBinding = (PFNGLUNIFORMBLOCKBINDINGPROC) get_proc("glUniformBlockBinding");
-    gles3wDrawArraysInstanced = (PFNGLDRAWARRAYSINSTANCEDPROC) get_proc("glDrawArraysInstanced");
-    gles3wDrawElementsInstanced = (PFNGLDRAWELEMENTSINSTANCEDPROC) get_proc("glDrawElementsInstanced");
-    gles3wFenceSync = (PFNGLFENCESYNCPROC) get_proc("glFenceSync");
-    gles3wIsSync = (PFNGLISSYNCPROC) get_proc("glIsSync");
-    gles3wDeleteSync = (PFNGLDELETESYNCPROC) get_proc("glDeleteSync");
-    gles3wClientWaitSync = (PFNGLCLIENTWAITSYNCPROC) get_proc("glClientWaitSync");
-    gles3wWaitSync = (PFNGLWAITSYNCPROC) get_proc("glWaitSync");
-    gles3wGetInteger64v = (PFNGLGETINTEGER64VPROC) get_proc("glGetInteger64v");
-    gles3wGetSynciv = (PFNGLGETSYNCIVPROC) get_proc("glGetSynciv");
-    gles3wGetInteger64i_v = (PFNGLGETINTEGER64I_VPROC) get_proc("glGetInteger64i_v");
-    gles3wGetBufferParameteri64v = (PFNGLGETBUFFERPARAMETERI64VPROC) get_proc("glGetBufferParameteri64v");
-    gles3wGenSamplers = (PFNGLGENSAMPLERSPROC) get_proc("glGenSamplers");
-    gles3wDeleteSamplers = (PFNGLDELETESAMPLERSPROC) get_proc("glDeleteSamplers");
-    gles3wIsSampler = (PFNGLISSAMPLERPROC) get_proc("glIsSampler");
-    gles3wBindSampler = (PFNGLBINDSAMPLERPROC) get_proc("glBindSampler");
-    gles3wSamplerParameteri = (PFNGLSAMPLERPARAMETERIPROC) get_proc("glSamplerParameteri");
-    gles3wSamplerParameteriv = (PFNGLSAMPLERPARAMETERIVPROC) get_proc("glSamplerParameteriv");
-    gles3wSamplerParameterf = (PFNGLSAMPLERPARAMETERFPROC) get_proc("glSamplerParameterf");
-    gles3wSamplerParameterfv = (PFNGLSAMPLERPARAMETERFVPROC) get_proc("glSamplerParameterfv");
-    gles3wGetSamplerParameteriv = (PFNGLGETSAMPLERPARAMETERIVPROC) get_proc("glGetSamplerParameteriv");
-    gles3wGetSamplerParameterfv = (PFNGLGETSAMPLERPARAMETERFVPROC) get_proc("glGetSamplerParameterfv");
-    gles3wVertexAttribDivisor = (PFNGLVERTEXATTRIBDIVISORPROC) get_proc("glVertexAttribDivisor");
-    gles3wBindTransformFeedback = (PFNGLBINDTRANSFORMFEEDBACKPROC) get_proc("glBindTransformFeedback");
-    gles3wDeleteTransformFeedbacks = (PFNGLDELETETRANSFORMFEEDBACKSPROC) get_proc("glDeleteTransformFeedbacks");
-    gles3wGenTransformFeedbacks = (PFNGLGENTRANSFORMFEEDBACKSPROC) get_proc("glGenTransformFeedbacks");
-    gles3wIsTransformFeedback = (PFNGLISTRANSFORMFEEDBACKPROC) get_proc("glIsTransformFeedback");
-    gles3wPauseTransformFeedback = (PFNGLPAUSETRANSFORMFEEDBACKPROC) get_proc("glPauseTransformFeedback");
-    gles3wResumeTransformFeedback = (PFNGLRESUMETRANSFORMFEEDBACKPROC) get_proc("glResumeTransformFeedback");
-    gles3wGetProgramBinary = (PFNGLGETPROGRAMBINARYPROC) get_proc("glGetProgramBinary");
-    gles3wProgramBinary = (PFNGLPROGRAMBINARYPROC) get_proc("glProgramBinary");
-    gles3wProgramParameteri = (PFNGLPROGRAMPARAMETERIPROC) get_proc("glProgramParameteri");
-    gles3wInvalidateFramebuffer = (PFNGLINVALIDATEFRAMEBUFFERPROC) get_proc("glInvalidateFramebuffer");
-    gles3wInvalidateSubFramebuffer = (PFNGLINVALIDATESUBFRAMEBUFFERPROC) get_proc("glInvalidateSubFramebuffer");
-    gles3wTexStorage2D = (PFNGLTEXSTORAGE2DPROC) get_proc("glTexStorage2D");
-    gles3wTexStorage3D = (PFNGLTEXSTORAGE3DPROC) get_proc("glTexStorage3D");
-    gles3wGetInternalformativ = (PFNGLGETINTERNALFORMATIVPROC) get_proc("glGetInternalformativ");
-    gles3wLabelObjectEXT = (PFNGLLABELOBJECTEXTPROC) get_proc("glLabelObjectEXT");
-    gles3wGetObjectLabelEXT = (PFNGLGETOBJECTLABELEXTPROC) get_proc("glGetObjectLabelEXT");
-    gles3wInsertEventMarkerEXT = (PFNGLINSERTEVENTMARKEREXTPROC) get_proc("glInsertEventMarkerEXT");
-    gles3wPushGroupMarkerEXT = (PFNGLPUSHGROUPMARKEREXTPROC) get_proc("glPushGroupMarkerEXT");
-    gles3wPopGroupMarkerEXT = (PFNGLPOPGROUPMARKEREXTPROC) get_proc("glPopGroupMarkerEXT");
-    gles3wUseProgramStagesEXT = (PFNGLUSEPROGRAMSTAGESEXTPROC) get_proc("glUseProgramStagesEXT");
-    gles3wActiveShaderProgramEXT = (PFNGLACTIVESHADERPROGRAMEXTPROC) get_proc("glActiveShaderProgramEXT");
-    gles3wCreateShaderProgramvEXT = (PFNGLCREATESHADERPROGRAMVEXTPROC) get_proc("glCreateShaderProgramvEXT");
-    gles3wBindProgramPipelineEXT = (PFNGLBINDPROGRAMPIPELINEEXTPROC) get_proc("glBindProgramPipelineEXT");
-    gles3wDeleteProgramPipelinesEXT = (PFNGLDELETEPROGRAMPIPELINESEXTPROC) get_proc("glDeleteProgramPipelinesEXT");
-    gles3wGenProgramPipelinesEXT = (PFNGLGENPROGRAMPIPELINESEXTPROC) get_proc("glGenProgramPipelinesEXT");
-    gles3wIsProgramPipelineEXT = (PFNGLISPROGRAMPIPELINEEXTPROC) get_proc("glIsProgramPipelineEXT");
-    gles3wProgramParameteriEXT = (PFNGLPROGRAMPARAMETERIEXTPROC) get_proc("glProgramParameteriEXT");
-    gles3wGetProgramPipelineivEXT = (PFNGLGETPROGRAMPIPELINEIVEXTPROC) get_proc("glGetProgramPipelineivEXT");
-    gles3wProgramUniform1iEXT = (PFNGLPROGRAMUNIFORM1IEXTPROC) get_proc("glProgramUniform1iEXT");
-    gles3wProgramUniform2iEXT = (PFNGLPROGRAMUNIFORM2IEXTPROC) get_proc("glProgramUniform2iEXT");
-    gles3wProgramUniform3iEXT = (PFNGLPROGRAMUNIFORM3IEXTPROC) get_proc("glProgramUniform3iEXT");
-    gles3wProgramUniform4iEXT = (PFNGLPROGRAMUNIFORM4IEXTPROC) get_proc("glProgramUniform4iEXT");
-    gles3wProgramUniform1fEXT = (PFNGLPROGRAMUNIFORM1FEXTPROC) get_proc("glProgramUniform1fEXT");
-    gles3wProgramUniform2fEXT = (PFNGLPROGRAMUNIFORM2FEXTPROC) get_proc("glProgramUniform2fEXT");
-    gles3wProgramUniform3fEXT = (PFNGLPROGRAMUNIFORM3FEXTPROC) get_proc("glProgramUniform3fEXT");
-    gles3wProgramUniform4fEXT = (PFNGLPROGRAMUNIFORM4FEXTPROC) get_proc("glProgramUniform4fEXT");
-    gles3wProgramUniform1ivEXT = (PFNGLPROGRAMUNIFORM1IVEXTPROC) get_proc("glProgramUniform1ivEXT");
-    gles3wProgramUniform2ivEXT = (PFNGLPROGRAMUNIFORM2IVEXTPROC) get_proc("glProgramUniform2ivEXT");
-    gles3wProgramUniform3ivEXT = (PFNGLPROGRAMUNIFORM3IVEXTPROC) get_proc("glProgramUniform3ivEXT");
-    gles3wProgramUniform4ivEXT = (PFNGLPROGRAMUNIFORM4IVEXTPROC) get_proc("glProgramUniform4ivEXT");
-    gles3wProgramUniform1fvEXT = (PFNGLPROGRAMUNIFORM1FVEXTPROC) get_proc("glProgramUniform1fvEXT");
-    gles3wProgramUniform2fvEXT = (PFNGLPROGRAMUNIFORM2FVEXTPROC) get_proc("glProgramUniform2fvEXT");
-    gles3wProgramUniform3fvEXT = (PFNGLPROGRAMUNIFORM3FVEXTPROC) get_proc("glProgramUniform3fvEXT");
-    gles3wProgramUniform4fvEXT = (PFNGLPROGRAMUNIFORM4FVEXTPROC) get_proc("glProgramUniform4fvEXT");
-    gles3wProgramUniformMatrix2fvEXT = (PFNGLPROGRAMUNIFORMMATRIX2FVEXTPROC) get_proc("glProgramUniformMatrix2fvEXT");
-    gles3wProgramUniformMatrix3fvEXT = (PFNGLPROGRAMUNIFORMMATRIX3FVEXTPROC) get_proc("glProgramUniformMatrix3fvEXT");
-    gles3wProgramUniformMatrix4fvEXT = (PFNGLPROGRAMUNIFORMMATRIX4FVEXTPROC) get_proc("glProgramUniformMatrix4fvEXT");
-    gles3wProgramUniformMatrix2x3fvEXT = (PFNGLPROGRAMUNIFORMMATRIX2X3FVEXTPROC) get_proc("glProgramUniformMatrix2x3fvEXT");
-    gles3wProgramUniformMatrix4x2fvEXT = (PFNGLPROGRAMUNIFORMMATRIX3X2FVEXTPROC) get_proc("glProgramUniformMatrix3x2fvEXT");
-    gles3wProgramUniformMatrix2x4fvEXT = (PFNGLPROGRAMUNIFORMMATRIX2X4FVEXTPROC) get_proc("glProgramUniformMatrix2x4fvEXT");
-    gles3wProgramUniformMatrix4x2fvEXT = (PFNGLPROGRAMUNIFORMMATRIX4X2FVEXTPROC) get_proc("glProgramUniformMatrix4x2fvEXT");
-    gles3wProgramUniformMatrix3x4fvEXT = (PFNGLPROGRAMUNIFORMMATRIX3X4FVEXTPROC) get_proc("glProgramUniformMatrix3x4fvEXT");
-    gles3wProgramUniformMatrix4x3fvEXT = (PFNGLPROGRAMUNIFORMMATRIX4X3FVEXTPROC) get_proc("glProgramUniformMatrix4x3fvEXT");
-    gles3wValidateProgramPipelineEXT = (PFNGLVALIDATEPROGRAMPIPELINEEXTPROC) get_proc("glValidateProgramPipelineEXT");
-    gles3wGetProgramPipelineInfoLogEXT = (PFNGLGETPROGRAMPIPELINEINFOLOGEXTPROC) get_proc("glGetProgramPipelineInfoLogEXT");
+PFNEGLWAITSYNCPROC eglWaitSync;
 
-	gles3wDebugMessageControlKHR = (PFNGLDEBUGMESSAGECONTROLKHRPROC)get_proc("glDebugMessageControlKHR");
-	gles3wDebugMessageCallbackKHR = (PFNGLDEBUGMESSAGECALLBACKKHRPROC)get_proc("glDebugMessageCallbackKHR");
-	gles3wFramebufferTexture2DMultisampleEXT = (PFNGLFRAMEBUFFERTEXTURE2DMULTISAMPLEEXTPROC)get_proc("glFramebufferTexture2DMultisampleEXT");
-	gles3wFramebufferTexture2DMultisampleIMG = (PFNGLFRAMEBUFFERTEXTURE2DMULTISAMPLEIMGPROC)get_proc("glFramebufferTexture2DMultisampleIMG");
+
+#if defined(EGL_ANDROID_blob_cache)
+PFNEGLSETBLOBCACHEFUNCSANDROIDPROC eglSetBlobCacheFuncsANDROID;
+#endif /* defined(EGL_ANDROID_blob_cache) */
+
+#if defined(EGL_ANDROID_create_native_client_buffer)
+PFNEGLCREATENATIVECLIENTBUFFERANDROIDPROC eglCreateNativeClientBufferANDROID;
+#endif /* defined(EGL_ANDROID_create_native_client_buffer) */
+
+#if defined(EGL_ANDROID_get_native_client_buffer)
+PFNEGLGETNATIVECLIENTBUFFERANDROIDPROC eglGetNativeClientBufferANDROID;
+#endif /* defined(EGL_ANDROID_get_native_client_buffer) */
+
+#if defined(EGL_ANDROID_native_fence_sync)
+PFNEGLDUPNATIVEFENCEFDANDROIDPROC eglDupNativeFenceFDANDROID;
+#endif /* defined(EGL_ANDROID_native_fence_sync) */
+
+#if defined(EGL_ANDROID_presentation_time)
+PFNEGLPRESENTATIONTIMEANDROIDPROC eglPresentationTimeANDROID;
+#endif /* defined(EGL_ANDROID_presentation_time) */
+
+#if defined(EGL_ANDROID_get_frame_timestamps)
+PFNEGLGETCOMPOSITORTIMINGSUPPORTEDANDROIDPROC eglGetCompositorTimingSupportedANDROID;
+PFNEGLGETCOMPOSITORTIMINGANDROIDPROC eglGetCompositorTimingANDROID;
+PFNEGLGETNEXTFRAMEIDANDROIDPROC eglGetNextFrameIdANDROID;
+PFNEGLGETFRAMETIMESTAMPSUPPORTEDANDROIDPROC eglGetFrameTimestampSupportedANDROID;
+PFNEGLGETFRAMETIMESTAMPSANDROIDPROC eglGetFrameTimestampsANDROID;
+#endif /* defined(EGL_ANDROID_get_frame_timestamps) */
+
+#if defined(EGL_ANGLE_query_surface_pointer)
+PFNEGLQUERYSURFACEPOINTERANGLEPROC eglQuerySurfacePointerANGLE;
+#endif /* defined(EGL_ANGLE_query_surface_pointer) */
+
+#if defined(EGL_EXT_client_sync)
+PFNEGLCLIENTSIGNALSYNCEXTPROC eglClientSignalSyncEXT;
+#endif /* defined(EGL_EXT_client_sync) */
+
+#if defined(EGL_EXT_device_base)
+PFNEGLQUERYDEVICEATTRIBEXTPROC eglQueryDeviceAttribEXT;
+PFNEGLQUERYDEVICESTRINGEXTPROC eglQueryDeviceStringEXT;
+PFNEGLQUERYDEVICESEXTPROC eglQueryDevicesEXT;
+PFNEGLQUERYDISPLAYATTRIBEXTPROC eglQueryDisplayAttribEXT;
+#endif /* defined(EGL_EXT_device_base) */
+
+#if defined(EGL_EXT_image_dma_buf_import_modifiers)
+PFNEGLQUERYDMABUFFORMATSEXTPROC eglQueryDmaBufFormatsEXT;
+PFNEGLQUERYDMABUFMODIFIERSEXTPROC eglQueryDmaBufModifiersEXT;
+#endif /* defined(EGL_EXT_image_dma_buf_import_modifiers) */
+
+#if defined(EGL_EXT_output_base)
+PFNEGLGETOUTPUTLAYERSEXTPROC eglGetOutputLayersEXT;
+PFNEGLGETOUTPUTPORTSEXTPROC eglGetOutputPortsEXT;
+PFNEGLOUTPUTLAYERATTRIBEXTPROC eglOutputLayerAttribEXT;
+PFNEGLQUERYOUTPUTLAYERATTRIBEXTPROC eglQueryOutputLayerAttribEXT;
+PFNEGLQUERYOUTPUTLAYERSTRINGEXTPROC eglQueryOutputLayerStringEXT;
+PFNEGLOUTPUTPORTATTRIBEXTPROC eglOutputPortAttribEXT;
+PFNEGLQUERYOUTPUTPORTATTRIBEXTPROC eglQueryOutputPortAttribEXT;
+PFNEGLQUERYOUTPUTPORTSTRINGEXTPROC eglQueryOutputPortStringEXT;
+#endif /* defined(EGL_EXT_output_base) */
+
+#if defined(EGL_EXT_platform_base)
+PFNEGLGETPLATFORMDISPLAYEXTPROC eglGetPlatformDisplayEXT;
+PFNEGLCREATEPLATFORMWINDOWSURFACEEXTPROC eglCreatePlatformWindowSurfaceEXT;
+PFNEGLCREATEPLATFORMPIXMAPSURFACEEXTPROC eglCreatePlatformPixmapSurfaceEXT;
+#endif /* defined(EGL_EXT_platform_base) */
+
+#if defined(EGL_EXT_stream_consumer_egloutput)
+PFNEGLSTREAMCONSUMEROUTPUTEXTPROC eglStreamConsumerOutputEXT;
+#endif /* defined(EGL_EXT_stream_consumer_egloutput) */
+
+#if defined(EGL_EXT_swap_buffers_with_damage)
+PFNEGLSWAPBUFFERSWITHDAMAGEEXTPROC eglSwapBuffersWithDamageEXT;
+#endif /* defined(EGL_EXT_swap_buffers_with_damage) */
+
+#if defined(EGL_EXT_sync_reuse)
+PFNEGLUNSIGNALSYNCEXTPROC eglUnsignalSyncEXT;
+#endif /* defined(EGL_EXT_sync_reuse) */
+
+#if defined(EGL_HI_clientpixmap)
+PFNEGLCREATEPIXMAPSURFACEHIPROC eglCreatePixmapSurfaceHI;
+#endif /* defined(EGL_HI_clientpixmap) */
+
+#if defined(EGL_KHR_cl_event2)
+PFNEGLCREATESYNC64KHRPROC eglCreateSync64KHR;
+#endif /* defined(EGL_KHR_cl_event2) */
+
+#if defined(EGL_KHR_debug)
+PFNEGLDEBUGMESSAGECONTROLKHRPROC eglDebugMessageControlKHR;
+PFNEGLQUERYDEBUGKHRPROC eglQueryDebugKHR;
+PFNEGLLABELOBJECTKHRPROC eglLabelObjectKHR;
+#endif /* defined(EGL_KHR_debug) */
+
+#if defined(EGL_KHR_display_reference)
+PFNEGLQUERYDISPLAYATTRIBKHRPROC eglQueryDisplayAttribKHR;
+#endif /* defined(EGL_KHR_display_reference) */
+
+#if defined(EGL_KHR_fence_sync)
+PFNEGLCREATESYNCKHRPROC eglCreateSyncKHR;
+PFNEGLDESTROYSYNCKHRPROC eglDestroySyncKHR;
+PFNEGLCLIENTWAITSYNCKHRPROC eglClientWaitSyncKHR;
+PFNEGLGETSYNCATTRIBKHRPROC eglGetSyncAttribKHR;
+#endif /* defined(EGL_KHR_fence_sync) */
+
+#if defined(EGL_KHR_image)
+PFNEGLCREATEIMAGEKHRPROC eglCreateImageKHR;
+PFNEGLDESTROYIMAGEKHRPROC eglDestroyImageKHR;
+#endif /* defined(EGL_KHR_image) */
+
+#if defined(EGL_KHR_lock_surface)
+PFNEGLLOCKSURFACEKHRPROC eglLockSurfaceKHR;
+PFNEGLUNLOCKSURFACEKHRPROC eglUnlockSurfaceKHR;
+#endif /* defined(EGL_KHR_lock_surface) */
+
+#if defined(EGL_KHR_lock_surface3)
+PFNEGLQUERYSURFACE64KHRPROC eglQuerySurface64KHR;
+#endif /* defined(EGL_KHR_lock_surface3) */
+
+#if defined(EGL_KHR_partial_update)
+PFNEGLSETDAMAGEREGIONKHRPROC eglSetDamageRegionKHR;
+#endif /* defined(EGL_KHR_partial_update) */
+
+#if defined(EGL_KHR_reusable_sync)
+PFNEGLSIGNALSYNCKHRPROC eglSignalSyncKHR;
+#endif /* defined(EGL_KHR_reusable_sync) */
+
+#if defined(EGL_KHR_stream)
+PFNEGLCREATESTREAMKHRPROC eglCreateStreamKHR;
+PFNEGLDESTROYSTREAMKHRPROC eglDestroyStreamKHR;
+PFNEGLSTREAMATTRIBKHRPROC eglStreamAttribKHR;
+PFNEGLQUERYSTREAMKHRPROC eglQueryStreamKHR;
+PFNEGLQUERYSTREAMU64KHRPROC eglQueryStreamu64KHR;
+#endif /* defined(EGL_KHR_stream) */
+
+#if defined(EGL_KHR_stream_attrib)
+PFNEGLCREATESTREAMATTRIBKHRPROC eglCreateStreamAttribKHR;
+PFNEGLSETSTREAMATTRIBKHRPROC eglSetStreamAttribKHR;
+PFNEGLQUERYSTREAMATTRIBKHRPROC eglQueryStreamAttribKHR;
+PFNEGLSTREAMCONSUMERACQUIREATTRIBKHRPROC eglStreamConsumerAcquireAttribKHR;
+PFNEGLSTREAMCONSUMERRELEASEATTRIBKHRPROC eglStreamConsumerReleaseAttribKHR;
+#endif /* defined(EGL_KHR_stream_attrib) */
+
+#if defined(EGL_KHR_stream_consumer_gltexture)
+PFNEGLSTREAMCONSUMERGLTEXTUREEXTERNALKHRPROC eglStreamConsumerGLTextureExternalKHR;
+PFNEGLSTREAMCONSUMERACQUIREKHRPROC eglStreamConsumerAcquireKHR;
+PFNEGLSTREAMCONSUMERRELEASEKHRPROC eglStreamConsumerReleaseKHR;
+#endif /* defined(EGL_KHR_stream_consumer_gltexture) */
+
+#if defined(EGL_KHR_stream_cross_process_fd)
+PFNEGLGETSTREAMFILEDESCRIPTORKHRPROC eglGetStreamFileDescriptorKHR;
+PFNEGLCREATESTREAMFROMFILEDESCRIPTORKHRPROC eglCreateStreamFromFileDescriptorKHR;
+#endif /* defined(EGL_KHR_stream_cross_process_fd) */
+
+#if defined(EGL_KHR_stream_fifo)
+PFNEGLQUERYSTREAMTIMEKHRPROC eglQueryStreamTimeKHR;
+#endif /* defined(EGL_KHR_stream_fifo) */
+
+#if defined(EGL_KHR_stream_producer_eglsurface)
+PFNEGLCREATESTREAMPRODUCERSURFACEKHRPROC eglCreateStreamProducerSurfaceKHR;
+#endif /* defined(EGL_KHR_stream_producer_eglsurface) */
+
+#if defined(EGL_KHR_swap_buffers_with_damage)
+PFNEGLSWAPBUFFERSWITHDAMAGEKHRPROC eglSwapBuffersWithDamageKHR;
+#endif /* defined(EGL_KHR_swap_buffers_with_damage) */
+
+#if defined(EGL_KHR_wait_sync)
+PFNEGLWAITSYNCKHRPROC eglWaitSyncKHR;
+#endif /* defined(EGL_KHR_wait_sync) */
+
+#if defined(EGL_MESA_drm_image)
+PFNEGLCREATEDRMIMAGEMESAPROC eglCreateDRMImageMESA;
+PFNEGLEXPORTDRMIMAGEMESAPROC eglExportDRMImageMESA;
+#endif /* defined(EGL_MESA_drm_image) */
+
+#if defined(EGL_MESA_image_dma_buf_export)
+PFNEGLEXPORTDMABUFIMAGEQUERYMESAPROC eglExportDMABUFImageQueryMESA;
+PFNEGLEXPORTDMABUFIMAGEMESAPROC eglExportDMABUFImageMESA;
+#endif /* defined(EGL_MESA_image_dma_buf_export) */
+
+#if defined(EGL_MESA_query_driver)
+PFNEGLGETDISPLAYDRIVERCONFIGPROC eglGetDisplayDriverConfig;
+PFNEGLGETDISPLAYDRIVERNAMEPROC eglGetDisplayDriverName;
+#endif /* defined(EGL_MESA_query_driver) */
+
+#if defined(EGL_NOK_swap_region)
+PFNEGLSWAPBUFFERSREGIONNOKPROC eglSwapBuffersRegionNOK;
+#endif /* defined(EGL_NOK_swap_region) */
+
+#if defined(EGL_NOK_swap_region2)
+PFNEGLSWAPBUFFERSREGION2NOKPROC eglSwapBuffersRegion2NOK;
+#endif /* defined(EGL_NOK_swap_region2) */
+
+#if defined(EGL_NV_native_query)
+PFNEGLQUERYNATIVEDISPLAYNVPROC eglQueryNativeDisplayNV;
+PFNEGLQUERYNATIVEWINDOWNVPROC eglQueryNativeWindowNV;
+PFNEGLQUERYNATIVEPIXMAPNVPROC eglQueryNativePixmapNV;
+#endif /* defined(EGL_NV_native_query) */
+
+#if defined(EGL_NV_post_sub_buffer)
+PFNEGLPOSTSUBBUFFERNVPROC eglPostSubBufferNV;
+#endif /* defined(EGL_NV_post_sub_buffer) */
+
+#if defined(EGL_NV_stream_consumer_gltexture_yuv)
+PFNEGLSTREAMCONSUMERGLTEXTUREEXTERNALATTRIBSNVPROC eglStreamConsumerGLTextureExternalAttribsNV;
+#endif /* defined(EGL_NV_stream_consumer_gltexture_yuv) */
+
+#if defined(EGL_NV_stream_consumer_eglimage)
+PFNEGLSTREAMIMAGECONSUMERCONNECTNVPROC eglStreamImageConsumerConnectNV;
+PFNEGLQUERYSTREAMCONSUMEREVENTNVPROC eglQueryStreamConsumerEventNV;
+PFNEGLSTREAMACQUIREIMAGENVPROC eglStreamAcquireImageNV;
+PFNEGLSTREAMRELEASEIMAGENVPROC eglStreamReleaseImageNV;
+#endif /* defined(EGL_NV_stream_consumer_eglimage) */
+
+#if defined(EGL_NV_stream_flush)
+PFNEGLSTREAMFLUSHNVPROC eglStreamFlushNV;
+#endif /* defined(EGL_NV_stream_flush) */
+
+#if defined(EGL_NV_stream_metadata)
+PFNEGLQUERYDISPLAYATTRIBNVPROC eglQueryDisplayAttribNV;
+PFNEGLSETSTREAMMETADATANVPROC eglSetStreamMetadataNV;
+PFNEGLQUERYSTREAMMETADATANVPROC eglQueryStreamMetadataNV;
+#endif /* defined(EGL_NV_stream_metadata) */
+
+#if defined(EGL_NV_stream_reset)
+PFNEGLRESETSTREAMNVPROC eglResetStreamNV;
+#endif /* defined(EGL_NV_stream_reset) */
+
+#if defined(EGL_NV_stream_sync)
+PFNEGLCREATESTREAMSYNCNVPROC eglCreateStreamSyncNV;
+#endif /* defined(EGL_NV_stream_sync) */
+
+#if defined(EGL_NV_sync)
+PFNEGLCREATEFENCESYNCNVPROC eglCreateFenceSyncNV;
+PFNEGLDESTROYSYNCNVPROC eglDestroySyncNV;
+PFNEGLFENCENVPROC eglFenceNV;
+PFNEGLCLIENTWAITSYNCNVPROC eglClientWaitSyncNV;
+PFNEGLSIGNALSYNCNVPROC eglSignalSyncNV;
+PFNEGLGETSYNCATTRIBNVPROC eglGetSyncAttribNV;
+#endif /* defined(EGL_NV_sync) */
+
+#if defined(EGL_NV_system_time)
+PFNEGLGETSYSTEMTIMEFREQUENCYNVPROC eglGetSystemTimeFrequencyNV;
+PFNEGLGETSYSTEMTIMENVPROC eglGetSystemTimeNV;
+#endif /* defined(EGL_NV_system_time) */
+
+#if defined(EGL_EXT_compositor)
+PFNEGLCOMPOSITORSETCONTEXTLISTEXTPROC eglCompositorSetContextListEXT;
+PFNEGLCOMPOSITORSETCONTEXTATTRIBUTESEXTPROC eglCompositorSetContextAttributesEXT;
+PFNEGLCOMPOSITORSETWINDOWLISTEXTPROC eglCompositorSetWindowListEXT;
+PFNEGLCOMPOSITORSETWINDOWATTRIBUTESEXTPROC eglCompositorSetWindowAttributesEXT;
+PFNEGLCOMPOSITORBINDTEXWINDOWEXTPROC eglCompositorBindTexWindowEXT;
+PFNEGLCOMPOSITORSETSIZEEXTPROC eglCompositorSetSizeEXT;
+PFNEGLCOMPOSITORSWAPPOLICYEXTPROC eglCompositorSwapPolicyEXT;
+#endif /* defined(EGL_EXT_compositor) */
+
+#if defined(EGL_WL_bind_wayland_display)
+PFNEGLBINDWAYLANDDISPLAYWLPROC eglBindWaylandDisplayWL;
+PFNEGLUNBINDWAYLANDDISPLAYWLPROC eglUnbindWaylandDisplayWL;
+PFNEGLQUERYWAYLANDBUFFERWLPROC eglQueryWaylandBufferWL;
+#endif /* defined(EGL_WL_bind_wayland_display) */
+
+#if defined(EGL_WL_create_wayland_buffer_from_image)
+PFNEGLCREATEWAYLANDBUFFERFROMIMAGEWLPROC eglCreateWaylandBufferFromImageWL;
+#endif /* defined(EGL_WL_create_wayland_buffer_from_image) */
+
+
+/* GL_ES_VERSION_2_0 */
+PFNGLACTIVETEXTUREPROC glActiveTexture;
+PFNGLATTACHSHADERPROC glAttachShader;
+PFNGLBINDATTRIBLOCATIONPROC glBindAttribLocation;
+PFNGLBINDBUFFERPROC glBindBuffer;
+PFNGLBINDFRAMEBUFFERPROC glBindFramebuffer;
+PFNGLBINDRENDERBUFFERPROC glBindRenderbuffer;
+PFNGLBINDTEXTUREPROC glBindTexture;
+PFNGLBLENDCOLORPROC glBlendColor;
+PFNGLBLENDEQUATIONPROC glBlendEquation;
+PFNGLBLENDEQUATIONSEPARATEPROC glBlendEquationSeparate;
+PFNGLBLENDFUNCPROC glBlendFunc;
+PFNGLBLENDFUNCSEPARATEPROC glBlendFuncSeparate;
+PFNGLBUFFERDATAPROC glBufferData;
+PFNGLBUFFERSUBDATAPROC glBufferSubData;
+PFNGLCHECKFRAMEBUFFERSTATUSPROC glCheckFramebufferStatus;
+PFNGLCLEARPROC glClear;
+PFNGLCLEARCOLORPROC glClearColor;
+PFNGLCLEARDEPTHFPROC glClearDepthf;
+PFNGLCLEARSTENCILPROC glClearStencil;
+PFNGLCOLORMASKPROC glColorMask;
+PFNGLCOMPILESHADERPROC glCompileShader;
+PFNGLCOMPRESSEDTEXIMAGE2DPROC glCompressedTexImage2D;
+PFNGLCOMPRESSEDTEXSUBIMAGE2DPROC glCompressedTexSubImage2D;
+PFNGLCOPYTEXIMAGE2DPROC glCopyTexImage2D;
+PFNGLCOPYTEXSUBIMAGE2DPROC glCopyTexSubImage2D;
+PFNGLCREATEPROGRAMPROC glCreateProgram;
+PFNGLCREATESHADERPROC glCreateShader;
+PFNGLCULLFACEPROC glCullFace;
+PFNGLDELETEBUFFERSPROC glDeleteBuffers;
+PFNGLDELETEFRAMEBUFFERSPROC glDeleteFramebuffers;
+PFNGLDELETEPROGRAMPROC glDeleteProgram;
+PFNGLDELETERENDERBUFFERSPROC glDeleteRenderbuffers;
+PFNGLDELETESHADERPROC glDeleteShader;
+PFNGLDELETETEXTURESPROC glDeleteTextures;
+PFNGLDEPTHFUNCPROC glDepthFunc;
+PFNGLDEPTHMASKPROC glDepthMask;
+PFNGLDEPTHRANGEFPROC glDepthRangef;
+PFNGLDETACHSHADERPROC glDetachShader;
+PFNGLDISABLEPROC glDisable;
+PFNGLDISABLEVERTEXATTRIBARRAYPROC glDisableVertexAttribArray;
+PFNGLDRAWARRAYSPROC glDrawArrays;
+PFNGLDRAWELEMENTSPROC glDrawElements;
+PFNGLENABLEPROC glEnable;
+PFNGLENABLEVERTEXATTRIBARRAYPROC glEnableVertexAttribArray;
+PFNGLFINISHPROC glFinish;
+PFNGLFLUSHPROC glFlush;
+PFNGLFRAMEBUFFERRENDERBUFFERPROC glFramebufferRenderbuffer;
+PFNGLFRAMEBUFFERTEXTURE2DPROC glFramebufferTexture2D;
+PFNGLFRONTFACEPROC glFrontFace;
+PFNGLGENBUFFERSPROC glGenBuffers;
+PFNGLGENERATEMIPMAPPROC glGenerateMipmap;
+PFNGLGENFRAMEBUFFERSPROC glGenFramebuffers;
+PFNGLGENRENDERBUFFERSPROC glGenRenderbuffers;
+PFNGLGENTEXTURESPROC glGenTextures;
+PFNGLGETACTIVEATTRIBPROC glGetActiveAttrib;
+PFNGLGETACTIVEUNIFORMPROC glGetActiveUniform;
+PFNGLGETATTACHEDSHADERSPROC glGetAttachedShaders;
+PFNGLGETATTRIBLOCATIONPROC glGetAttribLocation;
+PFNGLGETBOOLEANVPROC glGetBooleanv;
+PFNGLGETBUFFERPARAMETERIVPROC glGetBufferParameteriv;
+PFNGLGETERRORPROC glGetError;
+PFNGLGETFLOATVPROC glGetFloatv;
+PFNGLGETFRAMEBUFFERATTACHMENTPARAMETERIVPROC glGetFramebufferAttachmentParameteriv;
+PFNGLGETINTEGERVPROC glGetIntegerv;
+PFNGLGETPROGRAMIVPROC glGetProgramiv;
+PFNGLGETPROGRAMINFOLOGPROC glGetProgramInfoLog;
+PFNGLGETRENDERBUFFERPARAMETERIVPROC glGetRenderbufferParameteriv;
+PFNGLGETSHADERIVPROC glGetShaderiv;
+PFNGLGETSHADERINFOLOGPROC glGetShaderInfoLog;
+PFNGLGETSHADERPRECISIONFORMATPROC glGetShaderPrecisionFormat;
+PFNGLGETSHADERSOURCEPROC glGetShaderSource;
+PFNGLGETSTRINGPROC glGetString;
+PFNGLGETTEXPARAMETERFVPROC glGetTexParameterfv;
+PFNGLGETTEXPARAMETERIVPROC glGetTexParameteriv;
+PFNGLGETUNIFORMFVPROC glGetUniformfv;
+PFNGLGETUNIFORMIVPROC glGetUniformiv;
+PFNGLGETUNIFORMLOCATIONPROC glGetUniformLocation;
+PFNGLGETVERTEXATTRIBFVPROC glGetVertexAttribfv;
+PFNGLGETVERTEXATTRIBIVPROC glGetVertexAttribiv;
+PFNGLGETVERTEXATTRIBPOINTERVPROC glGetVertexAttribPointerv;
+PFNGLHINTPROC glHint;
+PFNGLISBUFFERPROC glIsBuffer;
+PFNGLISENABLEDPROC glIsEnabled;
+PFNGLISFRAMEBUFFERPROC glIsFramebuffer;
+PFNGLISPROGRAMPROC glIsProgram;
+PFNGLISRENDERBUFFERPROC glIsRenderbuffer;
+PFNGLISSHADERPROC glIsShader;
+PFNGLISTEXTUREPROC glIsTexture;
+PFNGLLINEWIDTHPROC glLineWidth;
+PFNGLLINKPROGRAMPROC glLinkProgram;
+PFNGLPIXELSTOREIPROC glPixelStorei;
+PFNGLPOLYGONOFFSETPROC glPolygonOffset;
+PFNGLREADPIXELSPROC glReadPixels;
+PFNGLRELEASESHADERCOMPILERPROC glReleaseShaderCompiler;
+PFNGLRENDERBUFFERSTORAGEPROC glRenderbufferStorage;
+PFNGLSAMPLECOVERAGEPROC glSampleCoverage;
+PFNGLSCISSORPROC glScissor;
+PFNGLSHADERBINARYPROC glShaderBinary;
+PFNGLSHADERSOURCEPROC glShaderSource;
+PFNGLSTENCILFUNCPROC glStencilFunc;
+PFNGLSTENCILFUNCSEPARATEPROC glStencilFuncSeparate;
+PFNGLSTENCILMASKPROC glStencilMask;
+PFNGLSTENCILMASKSEPARATEPROC glStencilMaskSeparate;
+PFNGLSTENCILOPPROC glStencilOp;
+PFNGLSTENCILOPSEPARATEPROC glStencilOpSeparate;
+PFNGLTEXIMAGE2DPROC glTexImage2D;
+PFNGLTEXPARAMETERFPROC glTexParameterf;
+PFNGLTEXPARAMETERFVPROC glTexParameterfv;
+PFNGLTEXPARAMETERIPROC glTexParameteri;
+PFNGLTEXPARAMETERIVPROC glTexParameteriv;
+PFNGLTEXSUBIMAGE2DPROC glTexSubImage2D;
+PFNGLUNIFORM1FPROC glUniform1f;
+PFNGLUNIFORM1FVPROC glUniform1fv;
+PFNGLUNIFORM1IPROC glUniform1i;
+PFNGLUNIFORM1IVPROC glUniform1iv;
+PFNGLUNIFORM2FPROC glUniform2f;
+PFNGLUNIFORM2FVPROC glUniform2fv;
+PFNGLUNIFORM2IPROC glUniform2i;
+PFNGLUNIFORM2IVPROC glUniform2iv;
+PFNGLUNIFORM3FPROC glUniform3f;
+PFNGLUNIFORM3FVPROC glUniform3fv;
+PFNGLUNIFORM3IPROC glUniform3i;
+PFNGLUNIFORM3IVPROC glUniform3iv;
+PFNGLUNIFORM4FPROC glUniform4f;
+PFNGLUNIFORM4FVPROC glUniform4fv;
+PFNGLUNIFORM4IPROC glUniform4i;
+PFNGLUNIFORM4IVPROC glUniform4iv;
+PFNGLUNIFORMMATRIX2FVPROC glUniformMatrix2fv;
+PFNGLUNIFORMMATRIX3FVPROC glUniformMatrix3fv;
+PFNGLUNIFORMMATRIX4FVPROC glUniformMatrix4fv;
+PFNGLUSEPROGRAMPROC glUseProgram;
+PFNGLVALIDATEPROGRAMPROC glValidateProgram;
+PFNGLVERTEXATTRIB1FPROC glVertexAttrib1f;
+PFNGLVERTEXATTRIB1FVPROC glVertexAttrib1fv;
+PFNGLVERTEXATTRIB2FPROC glVertexAttrib2f;
+PFNGLVERTEXATTRIB2FVPROC glVertexAttrib2fv;
+PFNGLVERTEXATTRIB3FPROC glVertexAttrib3f;
+PFNGLVERTEXATTRIB3FVPROC glVertexAttrib3fv;
+PFNGLVERTEXATTRIB4FPROC glVertexAttrib4f;
+PFNGLVERTEXATTRIB4FVPROC glVertexAttrib4fv;
+PFNGLVERTEXATTRIBPOINTERPROC glVertexAttribPointer;
+PFNGLVIEWPORTPROC glViewport;
+
+
+/* GL_ES_VERSION_3_0 */
+PFNGLREADBUFFERPROC glReadBuffer;
+PFNGLDRAWRANGEELEMENTSPROC glDrawRangeElements;
+PFNGLTEXIMAGE3DPROC glTexImage3D;
+PFNGLTEXSUBIMAGE3DPROC glTexSubImage3D;
+PFNGLCOPYTEXSUBIMAGE3DPROC glCopyTexSubImage3D;
+PFNGLCOMPRESSEDTEXIMAGE3DPROC glCompressedTexImage3D;
+PFNGLCOMPRESSEDTEXSUBIMAGE3DPROC glCompressedTexSubImage3D;
+PFNGLGENQUERIESPROC glGenQueries;
+PFNGLDELETEQUERIESPROC glDeleteQueries;
+PFNGLISQUERYPROC glIsQuery;
+PFNGLBEGINQUERYPROC glBeginQuery;
+PFNGLENDQUERYPROC glEndQuery;
+PFNGLGETQUERYIVPROC glGetQueryiv;
+PFNGLGETQUERYOBJECTUIVPROC glGetQueryObjectuiv;
+PFNGLUNMAPBUFFERPROC glUnmapBuffer;
+PFNGLGETBUFFERPOINTERVPROC glGetBufferPointerv;
+PFNGLDRAWBUFFERSPROC glDrawBuffers;
+PFNGLUNIFORMMATRIX2X3FVPROC glUniformMatrix2x3fv;
+PFNGLUNIFORMMATRIX3X2FVPROC glUniformMatrix3x2fv;
+PFNGLUNIFORMMATRIX2X4FVPROC glUniformMatrix2x4fv;
+PFNGLUNIFORMMATRIX4X2FVPROC glUniformMatrix4x2fv;
+PFNGLUNIFORMMATRIX3X4FVPROC glUniformMatrix3x4fv;
+PFNGLUNIFORMMATRIX4X3FVPROC glUniformMatrix4x3fv;
+PFNGLBLITFRAMEBUFFERPROC glBlitFramebuffer;
+PFNGLRENDERBUFFERSTORAGEMULTISAMPLEPROC glRenderbufferStorageMultisample;
+PFNGLFRAMEBUFFERTEXTURELAYERPROC glFramebufferTextureLayer;
+PFNGLMAPBUFFERRANGEPROC glMapBufferRange;
+PFNGLFLUSHMAPPEDBUFFERRANGEPROC glFlushMappedBufferRange;
+PFNGLBINDVERTEXARRAYPROC glBindVertexArray;
+PFNGLDELETEVERTEXARRAYSPROC glDeleteVertexArrays;
+PFNGLGENVERTEXARRAYSPROC glGenVertexArrays;
+PFNGLISVERTEXARRAYPROC glIsVertexArray;
+PFNGLGETINTEGERI_VPROC glGetIntegeri_v;
+PFNGLBEGINTRANSFORMFEEDBACKPROC glBeginTransformFeedback;
+PFNGLENDTRANSFORMFEEDBACKPROC glEndTransformFeedback;
+PFNGLBINDBUFFERRANGEPROC glBindBufferRange;
+PFNGLBINDBUFFERBASEPROC glBindBufferBase;
+PFNGLTRANSFORMFEEDBACKVARYINGSPROC glTransformFeedbackVaryings;
+PFNGLGETTRANSFORMFEEDBACKVARYINGPROC glGetTransformFeedbackVarying;
+PFNGLVERTEXATTRIBIPOINTERPROC glVertexAttribIPointer;
+PFNGLGETVERTEXATTRIBIIVPROC glGetVertexAttribIiv;
+PFNGLGETVERTEXATTRIBIUIVPROC glGetVertexAttribIuiv;
+PFNGLVERTEXATTRIBI4IPROC glVertexAttribI4i;
+PFNGLVERTEXATTRIBI4UIPROC glVertexAttribI4ui;
+PFNGLVERTEXATTRIBI4IVPROC glVertexAttribI4iv;
+PFNGLVERTEXATTRIBI4UIVPROC glVertexAttribI4uiv;
+PFNGLGETUNIFORMUIVPROC glGetUniformuiv;
+PFNGLGETFRAGDATALOCATIONPROC glGetFragDataLocation;
+PFNGLUNIFORM1UIPROC glUniform1ui;
+PFNGLUNIFORM2UIPROC glUniform2ui;
+PFNGLUNIFORM3UIPROC glUniform3ui;
+PFNGLUNIFORM4UIPROC glUniform4ui;
+PFNGLUNIFORM1UIVPROC glUniform1uiv;
+PFNGLUNIFORM2UIVPROC glUniform2uiv;
+PFNGLUNIFORM3UIVPROC glUniform3uiv;
+PFNGLUNIFORM4UIVPROC glUniform4uiv;
+PFNGLCLEARBUFFERIVPROC glClearBufferiv;
+PFNGLCLEARBUFFERUIVPROC glClearBufferuiv;
+PFNGLCLEARBUFFERFVPROC glClearBufferfv;
+PFNGLCLEARBUFFERFIPROC glClearBufferfi;
+PFNGLGETSTRINGIPROC glGetStringi;
+PFNGLCOPYBUFFERSUBDATAPROC glCopyBufferSubData;
+PFNGLGETUNIFORMINDICESPROC glGetUniformIndices;
+PFNGLGETACTIVEUNIFORMSIVPROC glGetActiveUniformsiv;
+PFNGLGETUNIFORMBLOCKINDEXPROC glGetUniformBlockIndex;
+PFNGLGETACTIVEUNIFORMBLOCKIVPROC glGetActiveUniformBlockiv;
+PFNGLGETACTIVEUNIFORMBLOCKNAMEPROC glGetActiveUniformBlockName;
+PFNGLUNIFORMBLOCKBINDINGPROC glUniformBlockBinding;
+PFNGLDRAWARRAYSINSTANCEDPROC glDrawArraysInstanced;
+PFNGLDRAWELEMENTSINSTANCEDPROC glDrawElementsInstanced;
+PFNGLFENCESYNCPROC glFenceSync;
+PFNGLISSYNCPROC glIsSync;
+PFNGLDELETESYNCPROC glDeleteSync;
+PFNGLCLIENTWAITSYNCPROC glClientWaitSync;
+PFNGLWAITSYNCPROC glWaitSync;
+PFNGLGETINTEGER64VPROC glGetInteger64v;
+PFNGLGETSYNCIVPROC glGetSynciv;
+PFNGLGETINTEGER64I_VPROC glGetInteger64i_v;
+PFNGLGETBUFFERPARAMETERI64VPROC glGetBufferParameteri64v;
+PFNGLGENSAMPLERSPROC glGenSamplers;
+PFNGLDELETESAMPLERSPROC glDeleteSamplers;
+PFNGLISSAMPLERPROC glIsSampler;
+PFNGLBINDSAMPLERPROC glBindSampler;
+PFNGLSAMPLERPARAMETERIPROC glSamplerParameteri;
+PFNGLSAMPLERPARAMETERIVPROC glSamplerParameteriv;
+PFNGLSAMPLERPARAMETERFPROC glSamplerParameterf;
+PFNGLSAMPLERPARAMETERFVPROC glSamplerParameterfv;
+PFNGLGETSAMPLERPARAMETERIVPROC glGetSamplerParameteriv;
+PFNGLGETSAMPLERPARAMETERFVPROC glGetSamplerParameterfv;
+PFNGLVERTEXATTRIBDIVISORPROC glVertexAttribDivisor;
+PFNGLBINDTRANSFORMFEEDBACKPROC glBindTransformFeedback;
+PFNGLDELETETRANSFORMFEEDBACKSPROC glDeleteTransformFeedbacks;
+PFNGLGENTRANSFORMFEEDBACKSPROC glGenTransformFeedbacks;
+PFNGLISTRANSFORMFEEDBACKPROC glIsTransformFeedback;
+PFNGLPAUSETRANSFORMFEEDBACKPROC glPauseTransformFeedback;
+PFNGLRESUMETRANSFORMFEEDBACKPROC glResumeTransformFeedback;
+PFNGLGETPROGRAMBINARYPROC glGetProgramBinary;
+PFNGLPROGRAMBINARYPROC glProgramBinary;
+PFNGLPROGRAMPARAMETERIPROC glProgramParameteri;
+PFNGLINVALIDATEFRAMEBUFFERPROC glInvalidateFramebuffer;
+PFNGLINVALIDATESUBFRAMEBUFFERPROC glInvalidateSubFramebuffer;
+PFNGLTEXSTORAGE2DPROC glTexStorage2D;
+PFNGLTEXSTORAGE3DPROC glTexStorage3D;
+PFNGLGETINTERNALFORMATIVPROC glGetInternalformativ;
+
+
+/* GL_ES_VERSION_3_1 */
+PFNGLDISPATCHCOMPUTEPROC glDispatchCompute;
+PFNGLDISPATCHCOMPUTEINDIRECTPROC glDispatchComputeIndirect;
+
+PFNGLDRAWARRAYSINDIRECTPROC glDrawArraysIndirect;
+PFNGLDRAWELEMENTSINDIRECTPROC glDrawElementsIndirect;
+
+PFNGLFRAMEBUFFERPARAMETERIPROC glFramebufferParameteri;
+PFNGLGETFRAMEBUFFERPARAMETERIVPROC glGetFramebufferParameteriv;
+
+PFNGLGETPROGRAMINTERFACEIVPROC glGetProgramInterfaceiv;
+PFNGLGETPROGRAMRESOURCEINDEXPROC glGetProgramResourceIndex;
+PFNGLGETPROGRAMRESOURCENAMEPROC glGetProgramResourceName;
+PFNGLGETPROGRAMRESOURCEIVPROC glGetProgramResourceiv;
+PFNGLGETPROGRAMRESOURCELOCATIONPROC glGetProgramResourceLocation;
+
+PFNGLUSEPROGRAMSTAGESPROC glUseProgramStages;
+PFNGLACTIVESHADERPROGRAMPROC glActiveShaderProgram;
+PFNGLCREATESHADERPROGRAMVPROC glCreateShaderProgramv;
+PFNGLBINDPROGRAMPIPELINEPROC glBindProgramPipeline;
+PFNGLDELETEPROGRAMPIPELINESPROC glDeleteProgramPipelines;
+PFNGLGENPROGRAMPIPELINESPROC glGenProgramPipelines;
+PFNGLISPROGRAMPIPELINEPROC glIsProgramPipeline;
+PFNGLGETPROGRAMPIPELINEIVPROC glGetProgramPipelineiv;
+PFNGLPROGRAMUNIFORM1IPROC glProgramUniform1i;
+PFNGLPROGRAMUNIFORM2IPROC glProgramUniform2i;
+PFNGLPROGRAMUNIFORM3IPROC glProgramUniform3i;
+PFNGLPROGRAMUNIFORM4IPROC glProgramUniform4i;
+PFNGLPROGRAMUNIFORM1UIPROC glProgramUniform1ui;
+PFNGLPROGRAMUNIFORM2UIPROC glProgramUniform2ui;
+PFNGLPROGRAMUNIFORM3UIPROC glProgramUniform3ui;
+PFNGLPROGRAMUNIFORM4UIPROC glProgramUniform4ui;
+PFNGLPROGRAMUNIFORM1FPROC glProgramUniform1f;
+PFNGLPROGRAMUNIFORM2FPROC glProgramUniform2f;
+PFNGLPROGRAMUNIFORM3FPROC glProgramUniform3f;
+PFNGLPROGRAMUNIFORM4FPROC glProgramUniform4f;
+PFNGLPROGRAMUNIFORM1IVPROC glProgramUniform1iv;
+PFNGLPROGRAMUNIFORM2IVPROC glProgramUniform2iv;
+PFNGLPROGRAMUNIFORM3IVPROC glProgramUniform3iv;
+PFNGLPROGRAMUNIFORM4IVPROC glProgramUniform4iv;
+PFNGLPROGRAMUNIFORM1UIVPROC glProgramUniform1uiv;
+PFNGLPROGRAMUNIFORM2UIVPROC glProgramUniform2uiv;
+PFNGLPROGRAMUNIFORM3UIVPROC glProgramUniform3uiv;
+PFNGLPROGRAMUNIFORM4UIVPROC glProgramUniform4uiv;
+PFNGLPROGRAMUNIFORM1FVPROC glProgramUniform1fv;
+PFNGLPROGRAMUNIFORM2FVPROC glProgramUniform2fv;
+PFNGLPROGRAMUNIFORM3FVPROC glProgramUniform3fv;
+PFNGLPROGRAMUNIFORM4FVPROC glProgramUniform4fv;
+PFNGLPROGRAMUNIFORMMATRIX2FVPROC glProgramUniformMatrix2fv;
+PFNGLPROGRAMUNIFORMMATRIX3FVPROC glProgramUniformMatrix3fv;
+PFNGLPROGRAMUNIFORMMATRIX4FVPROC glProgramUniformMatrix4fv;
+PFNGLPROGRAMUNIFORMMATRIX2X3FVPROC glProgramUniformMatrix2x3fv;
+PFNGLPROGRAMUNIFORMMATRIX3X2FVPROC glProgramUniformMatrix3x2fv;
+PFNGLPROGRAMUNIFORMMATRIX2X4FVPROC glProgramUniformMatrix2x4fv;
+PFNGLPROGRAMUNIFORMMATRIX4X2FVPROC glProgramUniformMatrix4x2fv;
+PFNGLPROGRAMUNIFORMMATRIX3X4FVPROC glProgramUniformMatrix3x4fv;
+PFNGLPROGRAMUNIFORMMATRIX4X3FVPROC glProgramUniformMatrix4x3fv;
+PFNGLVALIDATEPROGRAMPIPELINEPROC glValidateProgramPipeline;
+PFNGLGETPROGRAMPIPELINEINFOLOGPROC glGetProgramPipelineInfoLog;
+
+PFNGLBINDIMAGETEXTUREPROC glBindImageTexture;
+PFNGLGETBOOLEANI_VPROC glGetBooleani_v;
+PFNGLMEMORYBARRIERPROC glMemoryBarrier;
+PFNGLMEMORYBARRIERBYREGIONPROC glMemoryBarrierByRegion;
+
+PFNGLTEXSTORAGE2DMULTISAMPLEPROC glTexStorage2DMultisample;
+PFNGLGETMULTISAMPLEFVPROC glGetMultisamplefv;
+PFNGLSAMPLEMASKIPROC glSampleMaski;
+PFNGLGETTEXLEVELPARAMETERIVPROC glGetTexLevelParameteriv;
+PFNGLGETTEXLEVELPARAMETERFVPROC glGetTexLevelParameterfv;
+
+PFNGLBINDVERTEXBUFFERPROC glBindVertexBuffer;
+PFNGLVERTEXATTRIBFORMATPROC glVertexAttribFormat;
+PFNGLVERTEXATTRIBIFORMATPROC glVertexAttribIFormat;
+PFNGLVERTEXATTRIBBINDINGPROC glVertexAttribBinding;
+PFNGLVERTEXBINDINGDIVISORPROC glVertexBindingDivisor;
+
+
+/* GL_ES_VERSION_3_2 */
+PFNGLBLENDBARRIERPROC glBlendBarrier;
+
+PFNGLCOPYIMAGESUBDATAPROC glCopyImageSubData;
+
+PFNGLDEBUGMESSAGECONTROLPROC glDebugMessageControl;
+PFNGLDEBUGMESSAGEINSERTPROC glDebugMessageInsert;
+PFNGLDEBUGMESSAGECALLBACKPROC glDebugMessageCallback;
+PFNGLGETDEBUGMESSAGELOGPROC glGetDebugMessageLog;
+PFNGLPUSHDEBUGGROUPPROC glPushDebugGroup;
+PFNGLPOPDEBUGGROUPPROC glPopDebugGroup;
+PFNGLOBJECTLABELPROC glObjectLabel;
+PFNGLGETOBJECTLABELPROC glGetObjectLabel;
+PFNGLOBJECTPTRLABELPROC glObjectPtrLabel;
+PFNGLGETOBJECTPTRLABELPROC glGetObjectPtrLabel;
+PFNGLGETPOINTERVPROC glGetPointerv;
+
+PFNGLENABLEIPROC glEnablei;
+PFNGLDISABLEIPROC glDisablei;
+PFNGLBLENDEQUATIONIPROC glBlendEquationi;
+PFNGLBLENDEQUATIONSEPARATEIPROC glBlendEquationSeparatei;
+PFNGLBLENDFUNCIPROC glBlendFunci;
+PFNGLBLENDFUNCSEPARATEIPROC glBlendFuncSeparatei;
+PFNGLCOLORMASKIPROC glColorMaski;
+PFNGLISENABLEDIPROC glIsEnabledi;
+
+PFNGLDRAWELEMENTSBASEVERTEXPROC glDrawElementsBaseVertex;
+PFNGLDRAWRANGEELEMENTSBASEVERTEXPROC glDrawRangeElementsBaseVertex;
+PFNGLDRAWELEMENTSINSTANCEDBASEVERTEXPROC glDrawElementsInstancedBaseVertex;
+
+PFNGLFRAMEBUFFERTEXTUREPROC glFramebufferTexture;
+
+PFNGLPRIMITIVEBOUNDINGBOXPROC glPrimitiveBoundingBox;
+
+PFNGLGETGRAPHICSRESETSTATUSPROC glGetGraphicsResetStatus;
+PFNGLREADNPIXELSPROC glReadnPixels;
+PFNGLGETNUNIFORMFVPROC glGetnUniformfv;
+PFNGLGETNUNIFORMIVPROC glGetnUniformiv;
+PFNGLGETNUNIFORMUIVPROC glGetnUniformuiv;
+
+PFNGLMINSAMPLESHADINGPROC glMinSampleShading;
+
+PFNGLPATCHPARAMETERIPROC glPatchParameteri;
+
+PFNGLTEXPARAMETERIIVPROC glTexParameterIiv;
+PFNGLTEXPARAMETERIUIVPROC glTexParameterIuiv;
+PFNGLGETTEXPARAMETERIIVPROC glGetTexParameterIiv;
+PFNGLGETTEXPARAMETERIUIVPROC glGetTexParameterIuiv;
+PFNGLSAMPLERPARAMETERIIVPROC glSamplerParameterIiv;
+PFNGLSAMPLERPARAMETERIUIVPROC glSamplerParameterIuiv;
+PFNGLGETSAMPLERPARAMETERIIVPROC glGetSamplerParameterIiv;
+PFNGLGETSAMPLERPARAMETERIUIVPROC glGetSamplerParameterIuiv;
+
+PFNGLTEXBUFFERPROC glTexBuffer;
+PFNGLTEXBUFFERRANGEPROC glTexBufferRange;
+
+PFNGLTEXSTORAGE3DMULTISAMPLEPROC glTexStorage3DMultisample;
+
+
+#if defined(GL_AMD_framebuffer_multisample_advanced)
+PFNGLRENDERBUFFERSTORAGEMULTISAMPLEADVANCEDAMDPROC glRenderbufferStorageMultisampleAdvancedAMD;
+PFNGLNAMEDRENDERBUFFERSTORAGEMULTISAMPLEADVANCEDAMDPROC glNamedRenderbufferStorageMultisampleAdvancedAMD;
+#endif /* defined(GL_AMD_framebuffer_multisample_advanced) */
+
+#if defined(GL_AMD_performance_monitor)
+PFNGLGETPERFMONITORGROUPSAMDPROC glGetPerfMonitorGroupsAMD;
+PFNGLGETPERFMONITORCOUNTERSAMDPROC glGetPerfMonitorCountersAMD;
+PFNGLGETPERFMONITORGROUPSTRINGAMDPROC glGetPerfMonitorGroupStringAMD;
+PFNGLGETPERFMONITORCOUNTERSTRINGAMDPROC glGetPerfMonitorCounterStringAMD;
+PFNGLGETPERFMONITORCOUNTERINFOAMDPROC glGetPerfMonitorCounterInfoAMD;
+PFNGLGENPERFMONITORSAMDPROC glGenPerfMonitorsAMD;
+PFNGLDELETEPERFMONITORSAMDPROC glDeletePerfMonitorsAMD;
+PFNGLSELECTPERFMONITORCOUNTERSAMDPROC glSelectPerfMonitorCountersAMD;
+PFNGLBEGINPERFMONITORAMDPROC glBeginPerfMonitorAMD;
+PFNGLENDPERFMONITORAMDPROC glEndPerfMonitorAMD;
+PFNGLGETPERFMONITORCOUNTERDATAAMDPROC glGetPerfMonitorCounterDataAMD;
+#endif /* defined(GL_AMD_performance_monitor) */
+
+#if defined(GL_ANGLE_framebuffer_blit)
+PFNGLBLITFRAMEBUFFERANGLEPROC glBlitFramebufferANGLE;
+#endif /* defined(GL_ANGLE_framebuffer_blit) */
+
+#if defined(GL_ANGLE_framebuffer_multisample)
+PFNGLRENDERBUFFERSTORAGEMULTISAMPLEANGLEPROC glRenderbufferStorageMultisampleANGLE;
+#endif /* defined(GL_ANGLE_framebuffer_multisample) */
+
+#if defined(GL_ANGLE_instanced_arrays)
+PFNGLDRAWARRAYSINSTANCEDANGLEPROC glDrawArraysInstancedANGLE;
+PFNGLDRAWELEMENTSINSTANCEDANGLEPROC glDrawElementsInstancedANGLE;
+PFNGLVERTEXATTRIBDIVISORANGLEPROC glVertexAttribDivisorANGLE;
+#endif /* defined(GL_ANGLE_instanced_arrays) */
+
+#if defined(GL_ANGLE_translated_shader_source)
+PFNGLGETTRANSLATEDSHADERSOURCEANGLEPROC glGetTranslatedShaderSourceANGLE;
+#endif /* defined(GL_ANGLE_translated_shader_source) */
+
+#if defined(GL_APPLE_copy_texture_levels)
+PFNGLCOPYTEXTURELEVELSAPPLEPROC glCopyTextureLevelsAPPLE;
+#endif /* defined(GL_APPLE_copy_texture_levels) */
+
+#if defined(GL_APPLE_framebuffer_multisample)
+PFNGLRENDERBUFFERSTORAGEMULTISAMPLEAPPLEPROC glRenderbufferStorageMultisampleAPPLE;
+PFNGLRESOLVEMULTISAMPLEFRAMEBUFFERAPPLEPROC glResolveMultisampleFramebufferAPPLE;
+#endif /* defined(GL_APPLE_framebuffer_multisample) */
+
+#if defined(GL_APPLE_sync)
+PFNGLFENCESYNCAPPLEPROC glFenceSyncAPPLE;
+PFNGLISSYNCAPPLEPROC glIsSyncAPPLE;
+PFNGLDELETESYNCAPPLEPROC glDeleteSyncAPPLE;
+PFNGLCLIENTWAITSYNCAPPLEPROC glClientWaitSyncAPPLE;
+PFNGLWAITSYNCAPPLEPROC glWaitSyncAPPLE;
+PFNGLGETINTEGER64VAPPLEPROC glGetInteger64vAPPLE;
+PFNGLGETSYNCIVAPPLEPROC glGetSyncivAPPLE;
+#endif /* defined(GL_APPLE_sync) */
+
+#if defined(GL_EXT_EGL_image_storage)
+PFNGLEGLIMAGETARGETTEXSTORAGEEXTPROC glEGLImageTargetTexStorageEXT;
+
+PFNGLEGLIMAGETARGETTEXTURESTORAGEEXTPROC glEGLImageTargetTextureStorageEXT;
+#endif /* defined(GL_EXT_EGL_image_storage) */
+
+#if defined(GL_EXT_base_instance)
+PFNGLDRAWARRAYSINSTANCEDBASEINSTANCEEXTPROC glDrawArraysInstancedBaseInstanceEXT;
+PFNGLDRAWELEMENTSINSTANCEDBASEINSTANCEEXTPROC glDrawElementsInstancedBaseInstanceEXT;
+PFNGLDRAWELEMENTSINSTANCEDBASEVERTEXBASEINSTANCEEXTPROC glDrawElementsInstancedBaseVertexBaseInstanceEXT;
+#endif /* defined(GL_EXT_base_instance) */
+
+#if defined(GL_EXT_blend_func_extended)
+PFNGLBINDFRAGDATALOCATIONINDEXEDEXTPROC glBindFragDataLocationIndexedEXT;
+PFNGLBINDFRAGDATALOCATIONEXTPROC glBindFragDataLocationEXT;
+PFNGLGETPROGRAMRESOURCELOCATIONINDEXEXTPROC glGetProgramResourceLocationIndexEXT;
+PFNGLGETFRAGDATAINDEXEXTPROC glGetFragDataIndexEXT;
+#endif /* defined(GL_EXT_blend_func_extended) */
+
+#if defined(GL_EXT_buffer_storage)
+PFNGLBUFFERSTORAGEEXTPROC glBufferStorageEXT;
+#endif /* defined(GL_EXT_buffer_storage) */
+
+#if defined(GL_EXT_clear_texture)
+PFNGLCLEARTEXIMAGEEXTPROC glClearTexImageEXT;
+PFNGLCLEARTEXSUBIMAGEEXTPROC glClearTexSubImageEXT;
+#endif /* defined(GL_EXT_clear_texture) */
+
+#if defined(GL_EXT_clip_control)
+PFNGLCLIPCONTROLEXTPROC glClipControlEXT;
+#endif /* defined(GL_EXT_clip_control) */
+
+#if defined(GL_EXT_copy_image)
+PFNGLCOPYIMAGESUBDATAEXTPROC glCopyImageSubDataEXT;
+#endif /* defined(GL_EXT_copy_image) */
+
+#if defined(GL_EXT_debug_label)
+PFNGLLABELOBJECTEXTPROC glLabelObjectEXT;
+PFNGLGETOBJECTLABELEXTPROC glGetObjectLabelEXT;
+#endif /* defined(GL_EXT_debug_label) */
+
+#if defined(GL_EXT_debug_marker)
+PFNGLINSERTEVENTMARKEREXTPROC glInsertEventMarkerEXT;
+PFNGLPUSHGROUPMARKEREXTPROC glPushGroupMarkerEXT;
+PFNGLPOPGROUPMARKEREXTPROC glPopGroupMarkerEXT;
+#endif /* defined(GL_EXT_debug_marker) */
+
+#if defined(GL_EXT_discard_framebuffer)
+PFNGLDISCARDFRAMEBUFFEREXTPROC glDiscardFramebufferEXT;
+#endif /* defined(GL_EXT_discard_framebuffer) */
+
+#if defined(GL_EXT_disjoint_timer_query)
+PFNGLGENQUERIESEXTPROC glGenQueriesEXT;
+PFNGLDELETEQUERIESEXTPROC glDeleteQueriesEXT;
+PFNGLISQUERYEXTPROC glIsQueryEXT;
+PFNGLBEGINQUERYEXTPROC glBeginQueryEXT;
+PFNGLENDQUERYEXTPROC glEndQueryEXT;
+PFNGLQUERYCOUNTEREXTPROC glQueryCounterEXT;
+PFNGLGETQUERYIVEXTPROC glGetQueryivEXT;
+PFNGLGETQUERYOBJECTIVEXTPROC glGetQueryObjectivEXT;
+PFNGLGETQUERYOBJECTUIVEXTPROC glGetQueryObjectuivEXT;
+PFNGLGETQUERYOBJECTI64VEXTPROC glGetQueryObjecti64vEXT;
+PFNGLGETQUERYOBJECTUI64VEXTPROC glGetQueryObjectui64vEXT;
+PFNGLGETINTEGER64VEXTPROC glGetInteger64vEXT;
+#endif /* defined(GL_EXT_disjoint_timer_query) */
+
+#if defined(GL_EXT_draw_buffers)
+PFNGLDRAWBUFFERSEXTPROC glDrawBuffersEXT;
+#endif /* defined(GL_EXT_draw_buffers) */
+
+#if defined(GL_EXT_draw_buffers_indexed)
+PFNGLENABLEIEXTPROC glEnableiEXT;
+PFNGLDISABLEIEXTPROC glDisableiEXT;
+PFNGLBLENDEQUATIONIEXTPROC glBlendEquationiEXT;
+PFNGLBLENDEQUATIONSEPARATEIEXTPROC glBlendEquationSeparateiEXT;
+PFNGLBLENDFUNCIEXTPROC glBlendFunciEXT;
+PFNGLBLENDFUNCSEPARATEIEXTPROC glBlendFuncSeparateiEXT;
+PFNGLCOLORMASKIEXTPROC glColorMaskiEXT;
+PFNGLISENABLEDIEXTPROC glIsEnablediEXT;
+#endif /* defined(GL_EXT_draw_buffers_indexed) */
+
+#if defined(GL_EXT_draw_elements_base_vertex)
+PFNGLDRAWELEMENTSBASEVERTEXEXTPROC glDrawElementsBaseVertexEXT;
+PFNGLDRAWRANGEELEMENTSBASEVERTEXEXTPROC glDrawRangeElementsBaseVertexEXT;
+PFNGLDRAWELEMENTSINSTANCEDBASEVERTEXEXTPROC glDrawElementsInstancedBaseVertexEXT;
+PFNGLMULTIDRAWELEMENTSBASEVERTEXEXTPROC glMultiDrawElementsBaseVertexEXT;
+#endif /* defined(GL_EXT_draw_elements_base_vertex) */
+
+#if defined(GL_EXT_draw_instanced)
+PFNGLDRAWARRAYSINSTANCEDEXTPROC glDrawArraysInstancedEXT;
+PFNGLDRAWELEMENTSINSTANCEDEXTPROC glDrawElementsInstancedEXT;
+#endif /* defined(GL_EXT_draw_instanced) */
+
+#if defined(GL_EXT_draw_transform_feedback)
+PFNGLDRAWTRANSFORMFEEDBACKEXTPROC glDrawTransformFeedbackEXT;
+PFNGLDRAWTRANSFORMFEEDBACKINSTANCEDEXTPROC glDrawTransformFeedbackInstancedEXT;
+#endif /* defined(GL_EXT_draw_transform_feedback) */
+
+#if defined(GL_EXT_external_buffer)
+PFNGLBUFFERSTORAGEEXTERNALEXTPROC glBufferStorageExternalEXT;
+PFNGLNAMEDBUFFERSTORAGEEXTERNALEXTPROC glNamedBufferStorageExternalEXT;
+#endif /* defined(GL_EXT_external_buffer) */
+
+#if defined(GL_EXT_geometry_shader)
+PFNGLFRAMEBUFFERTEXTUREEXTPROC glFramebufferTextureEXT;
+#endif /* defined(GL_EXT_geometry_shader) */
+
+#if defined(GL_EXT_instanced_arrays)
+PFNGLVERTEXATTRIBDIVISOREXTPROC glVertexAttribDivisorEXT;
+#endif /* defined(GL_EXT_instanced_arrays) */
+
+#if defined(GL_EXT_map_buffer_range)
+PFNGLMAPBUFFERRANGEEXTPROC glMapBufferRangeEXT;
+PFNGLFLUSHMAPPEDBUFFERRANGEEXTPROC glFlushMappedBufferRangeEXT;
+#endif /* defined(GL_EXT_map_buffer_range) */
+
+#if defined(GL_EXT_memory_object)
+PFNGLGETUNSIGNEDBYTEVEXTPROC glGetUnsignedBytevEXT;
+PFNGLGETUNSIGNEDBYTEI_VEXTPROC glGetUnsignedBytei_vEXT;
+PFNGLDELETEMEMORYOBJECTSEXTPROC glDeleteMemoryObjectsEXT;
+PFNGLISMEMORYOBJECTEXTPROC glIsMemoryObjectEXT;
+PFNGLCREATEMEMORYOBJECTSEXTPROC glCreateMemoryObjectsEXT;
+PFNGLMEMORYOBJECTPARAMETERIVEXTPROC glMemoryObjectParameterivEXT;
+PFNGLGETMEMORYOBJECTPARAMETERIVEXTPROC glGetMemoryObjectParameterivEXT;
+PFNGLTEXSTORAGEMEM2DEXTPROC glTexStorageMem2DEXT;
+PFNGLTEXSTORAGEMEM2DMULTISAMPLEEXTPROC glTexStorageMem2DMultisampleEXT;
+PFNGLTEXSTORAGEMEM3DEXTPROC glTexStorageMem3DEXT;
+PFNGLTEXSTORAGEMEM3DMULTISAMPLEEXTPROC glTexStorageMem3DMultisampleEXT;
+PFNGLBUFFERSTORAGEMEMEXTPROC glBufferStorageMemEXT;
+
+PFNGLTEXTURESTORAGEMEM2DEXTPROC glTextureStorageMem2DEXT;
+PFNGLTEXTURESTORAGEMEM2DMULTISAMPLEEXTPROC glTextureStorageMem2DMultisampleEXT;
+PFNGLTEXTURESTORAGEMEM3DEXTPROC glTextureStorageMem3DEXT;
+PFNGLTEXTURESTORAGEMEM3DMULTISAMPLEEXTPROC glTextureStorageMem3DMultisampleEXT;
+PFNGLNAMEDBUFFERSTORAGEMEMEXTPROC glNamedBufferStorageMemEXT;
+#endif /* defined(GL_EXT_memory_object) */
+
+#if defined(GL_EXT_memory_object_fd)
+PFNGLIMPORTMEMORYFDEXTPROC glImportMemoryFdEXT;
+#endif /* defined(GL_EXT_memory_object_fd) */
+
+#if defined(GL_EXT_memory_object_win32)
+PFNGLIMPORTMEMORYWIN32HANDLEEXTPROC glImportMemoryWin32HandleEXT;
+PFNGLIMPORTMEMORYWIN32NAMEEXTPROC glImportMemoryWin32NameEXT;
+#endif /* defined(GL_EXT_memory_object_win32) */
+
+#if defined(GL_EXT_multi_draw_arrays)
+PFNGLMULTIDRAWARRAYSEXTPROC glMultiDrawArraysEXT;
+PFNGLMULTIDRAWELEMENTSEXTPROC glMultiDrawElementsEXT;
+#endif /* defined(GL_EXT_multi_draw_arrays) */
+
+#if defined(GL_EXT_multi_draw_indirect)
+PFNGLMULTIDRAWARRAYSINDIRECTEXTPROC glMultiDrawArraysIndirectEXT;
+PFNGLMULTIDRAWELEMENTSINDIRECTEXTPROC glMultiDrawElementsIndirectEXT;
+#endif /* defined(GL_EXT_multi_draw_indirect) */
+
+#if defined(GL_EXT_multisampled_render_to_texture)
+PFNGLRENDERBUFFERSTORAGEMULTISAMPLEEXTPROC glRenderbufferStorageMultisampleEXT;
+PFNGLFRAMEBUFFERTEXTURE2DMULTISAMPLEEXTPROC glFramebufferTexture2DMultisampleEXT;
+#endif /* defined(GL_EXT_multisampled_render_to_texture) */
+
+#if defined(GL_EXT_multiview_draw_buffers)
+PFNGLREADBUFFERINDEXEDEXTPROC glReadBufferIndexedEXT;
+PFNGLDRAWBUFFERSINDEXEDEXTPROC glDrawBuffersIndexedEXT;
+PFNGLGETINTEGERI_VEXTPROC glGetIntegeri_vEXT;
+#endif /* defined(GL_EXT_multiview_draw_buffers) */
+
+#if defined(GL_EXT_polygon_offset_clamp)
+PFNGLPOLYGONOFFSETCLAMPEXTPROC glPolygonOffsetClampEXT;
+#endif /* defined(GL_EXT_polygon_offset_clamp) */
+
+#if defined(GL_EXT_primitive_bounding_box)
+PFNGLPRIMITIVEBOUNDINGBOXEXTPROC glPrimitiveBoundingBoxEXT;
+#endif /* defined(GL_EXT_primitive_bounding_box) */
+
+#if defined(GL_EXT_raster_multisample)
+PFNGLRASTERSAMPLESEXTPROC glRasterSamplesEXT;
+#endif /* defined(GL_EXT_raster_multisample) */
+
+#if defined(GL_EXT_robustness)
+PFNGLGETGRAPHICSRESETSTATUSEXTPROC glGetGraphicsResetStatusEXT;
+PFNGLREADNPIXELSEXTPROC glReadnPixelsEXT;
+PFNGLGETNUNIFORMFVEXTPROC glGetnUniformfvEXT;
+PFNGLGETNUNIFORMIVEXTPROC glGetnUniformivEXT;
+#endif /* defined(GL_EXT_robustness) */
+
+#if defined(GL_EXT_semaphore)
+PFNGLGENSEMAPHORESEXTPROC glGenSemaphoresEXT;
+PFNGLDELETESEMAPHORESEXTPROC glDeleteSemaphoresEXT;
+PFNGLISSEMAPHOREEXTPROC glIsSemaphoreEXT;
+PFNGLSEMAPHOREPARAMETERUI64VEXTPROC glSemaphoreParameterui64vEXT;
+PFNGLGETSEMAPHOREPARAMETERUI64VEXTPROC glGetSemaphoreParameterui64vEXT;
+PFNGLWAITSEMAPHOREEXTPROC glWaitSemaphoreEXT;
+PFNGLSIGNALSEMAPHOREEXTPROC glSignalSemaphoreEXT;
+#endif /* defined(GL_EXT_semaphore) */
+
+#if defined(GL_EXT_semaphore_fd)
+PFNGLIMPORTSEMAPHOREFDEXTPROC glImportSemaphoreFdEXT;
+#endif /* defined(GL_EXT_semaphore_fd) */
+
+#if defined(GL_EXT_semaphore_win32)
+PFNGLIMPORTSEMAPHOREWIN32HANDLEEXTPROC glImportSemaphoreWin32HandleEXT;
+PFNGLIMPORTSEMAPHOREWIN32NAMEEXTPROC glImportSemaphoreWin32NameEXT;
+#endif /* defined(GL_EXT_semaphore_win32) */
+
+#if defined(GL_EXT_separate_shader_objects)
+PFNGLACTIVESHADERPROGRAMEXTPROC glActiveShaderProgramEXT;
+PFNGLBINDPROGRAMPIPELINEEXTPROC glBindProgramPipelineEXT;
+PFNGLCREATESHADERPROGRAMVEXTPROC glCreateShaderProgramvEXT;
+PFNGLDELETEPROGRAMPIPELINESEXTPROC glDeleteProgramPipelinesEXT;
+PFNGLGENPROGRAMPIPELINESEXTPROC glGenProgramPipelinesEXT;
+PFNGLGETPROGRAMPIPELINEINFOLOGEXTPROC glGetProgramPipelineInfoLogEXT;
+PFNGLGETPROGRAMPIPELINEIVEXTPROC glGetProgramPipelineivEXT;
+PFNGLISPROGRAMPIPELINEEXTPROC glIsProgramPipelineEXT;
+PFNGLPROGRAMPARAMETERIEXTPROC glProgramParameteriEXT;
+PFNGLPROGRAMUNIFORM1FEXTPROC glProgramUniform1fEXT;
+PFNGLPROGRAMUNIFORM1FVEXTPROC glProgramUniform1fvEXT;
+PFNGLPROGRAMUNIFORM1IEXTPROC glProgramUniform1iEXT;
+PFNGLPROGRAMUNIFORM1IVEXTPROC glProgramUniform1ivEXT;
+PFNGLPROGRAMUNIFORM2FEXTPROC glProgramUniform2fEXT;
+PFNGLPROGRAMUNIFORM2FVEXTPROC glProgramUniform2fvEXT;
+PFNGLPROGRAMUNIFORM2IEXTPROC glProgramUniform2iEXT;
+PFNGLPROGRAMUNIFORM2IVEXTPROC glProgramUniform2ivEXT;
+PFNGLPROGRAMUNIFORM3FEXTPROC glProgramUniform3fEXT;
+PFNGLPROGRAMUNIFORM3FVEXTPROC glProgramUniform3fvEXT;
+PFNGLPROGRAMUNIFORM3IEXTPROC glProgramUniform3iEXT;
+PFNGLPROGRAMUNIFORM3IVEXTPROC glProgramUniform3ivEXT;
+PFNGLPROGRAMUNIFORM4FEXTPROC glProgramUniform4fEXT;
+PFNGLPROGRAMUNIFORM4FVEXTPROC glProgramUniform4fvEXT;
+PFNGLPROGRAMUNIFORM4IEXTPROC glProgramUniform4iEXT;
+PFNGLPROGRAMUNIFORM4IVEXTPROC glProgramUniform4ivEXT;
+PFNGLPROGRAMUNIFORMMATRIX2FVEXTPROC glProgramUniformMatrix2fvEXT;
+PFNGLPROGRAMUNIFORMMATRIX3FVEXTPROC glProgramUniformMatrix3fvEXT;
+PFNGLPROGRAMUNIFORMMATRIX4FVEXTPROC glProgramUniformMatrix4fvEXT;
+PFNGLUSEPROGRAMSTAGESEXTPROC glUseProgramStagesEXT;
+PFNGLVALIDATEPROGRAMPIPELINEEXTPROC glValidateProgramPipelineEXT;
+
+PFNGLPROGRAMUNIFORM1UIEXTPROC glProgramUniform1uiEXT;
+PFNGLPROGRAMUNIFORM2UIEXTPROC glProgramUniform2uiEXT;
+PFNGLPROGRAMUNIFORM3UIEXTPROC glProgramUniform3uiEXT;
+PFNGLPROGRAMUNIFORM4UIEXTPROC glProgramUniform4uiEXT;
+PFNGLPROGRAMUNIFORM1UIVEXTPROC glProgramUniform1uivEXT;
+PFNGLPROGRAMUNIFORM2UIVEXTPROC glProgramUniform2uivEXT;
+PFNGLPROGRAMUNIFORM3UIVEXTPROC glProgramUniform3uivEXT;
+PFNGLPROGRAMUNIFORM4UIVEXTPROC glProgramUniform4uivEXT;
+PFNGLPROGRAMUNIFORMMATRIX2X3FVEXTPROC glProgramUniformMatrix2x3fvEXT;
+PFNGLPROGRAMUNIFORMMATRIX3X2FVEXTPROC glProgramUniformMatrix3x2fvEXT;
+PFNGLPROGRAMUNIFORMMATRIX2X4FVEXTPROC glProgramUniformMatrix2x4fvEXT;
+PFNGLPROGRAMUNIFORMMATRIX4X2FVEXTPROC glProgramUniformMatrix4x2fvEXT;
+PFNGLPROGRAMUNIFORMMATRIX3X4FVEXTPROC glProgramUniformMatrix3x4fvEXT;
+PFNGLPROGRAMUNIFORMMATRIX4X3FVEXTPROC glProgramUniformMatrix4x3fvEXT;
+#endif /* defined(GL_EXT_separate_shader_objects) */
+
+#if defined(GL_EXT_shader_framebuffer_fetch_non_coherent)
+PFNGLFRAMEBUFFERFETCHBARRIEREXTPROC glFramebufferFetchBarrierEXT;
+#endif /* defined(GL_EXT_shader_framebuffer_fetch_non_coherent) */
+
+#if defined(GL_EXT_shader_pixel_local_storage2)
+PFNGLFRAMEBUFFERPIXELLOCALSTORAGESIZEEXTPROC glFramebufferPixelLocalStorageSizeEXT;
+PFNGLGETFRAMEBUFFERPIXELLOCALSTORAGESIZEEXTPROC glGetFramebufferPixelLocalStorageSizeEXT;
+PFNGLCLEARPIXELLOCALSTORAGEUIEXTPROC glClearPixelLocalStorageuiEXT;
+#endif /* defined(GL_EXT_shader_pixel_local_storage2) */
+
+#if defined(GL_EXT_sparse_texture)
+PFNGLTEXPAGECOMMITMENTEXTPROC glTexPageCommitmentEXT;
+#endif /* defined(GL_EXT_sparse_texture) */
+
+#if defined(GL_EXT_tessellation_shader)
+PFNGLPATCHPARAMETERIEXTPROC glPatchParameteriEXT;
+#endif /* defined(GL_EXT_tessellation_shader) */
+
+#if defined(GL_EXT_texture_border_clamp)
+PFNGLTEXPARAMETERIIVEXTPROC glTexParameterIivEXT;
+PFNGLTEXPARAMETERIUIVEXTPROC glTexParameterIuivEXT;
+PFNGLGETTEXPARAMETERIIVEXTPROC glGetTexParameterIivEXT;
+PFNGLGETTEXPARAMETERIUIVEXTPROC glGetTexParameterIuivEXT;
+PFNGLSAMPLERPARAMETERIIVEXTPROC glSamplerParameterIivEXT;
+PFNGLSAMPLERPARAMETERIUIVEXTPROC glSamplerParameterIuivEXT;
+PFNGLGETSAMPLERPARAMETERIIVEXTPROC glGetSamplerParameterIivEXT;
+PFNGLGETSAMPLERPARAMETERIUIVEXTPROC glGetSamplerParameterIuivEXT;
+#endif /* defined(GL_EXT_texture_border_clamp) */
+
+#if defined(GL_EXT_texture_buffer)
+PFNGLTEXBUFFEREXTPROC glTexBufferEXT;
+PFNGLTEXBUFFERRANGEEXTPROC glTexBufferRangeEXT;
+#endif /* defined(GL_EXT_texture_buffer) */
+
+#if defined(GL_EXT_texture_storage)
+PFNGLTEXSTORAGE1DEXTPROC glTexStorage1DEXT;
+PFNGLTEXSTORAGE2DEXTPROC glTexStorage2DEXT;
+PFNGLTEXSTORAGE3DEXTPROC glTexStorage3DEXT;
+
+PFNGLTEXTURESTORAGE1DEXTPROC glTextureStorage1DEXT;
+PFNGLTEXTURESTORAGE2DEXTPROC glTextureStorage2DEXT;
+PFNGLTEXTURESTORAGE3DEXTPROC glTextureStorage3DEXT;
+#endif /* defined(GL_EXT_texture_storage) */
+
+#if defined(GL_EXT_texture_view)
+PFNGLTEXTUREVIEWEXTPROC glTextureViewEXT;
+#endif /* defined(GL_EXT_texture_view) */
+
+#if defined(GL_NV_timeline_semaphore)
+PFNGLCREATESEMAPHORESNVPROC glCreateSemaphoresNV;
+PFNGLSEMAPHOREPARAMETERIVNVPROC glSemaphoreParameterivNV;
+PFNGLGETSEMAPHOREPARAMETERIVNVPROC glGetSemaphoreParameterivNV;
+#endif /* defined(GL_NV_timeline_semaphore) */
+
+#if defined(GL_EXT_win32_keyed_mutex)
+PFNGLACQUIREKEYEDMUTEXWIN32EXTPROC glAcquireKeyedMutexWin32EXT;
+PFNGLRELEASEKEYEDMUTEXWIN32EXTPROC glReleaseKeyedMutexWin32EXT;
+#endif /* defined(GL_EXT_win32_keyed_mutex) */
+
+#if defined(GL_EXT_window_rectangles)
+PFNGLWINDOWRECTANGLESEXTPROC glWindowRectanglesEXT;
+#endif /* defined(GL_EXT_window_rectangles) */
+
+#if defined(GL_IMG_bindless_texture)
+PFNGLGETTEXTUREHANDLEIMGPROC glGetTextureHandleIMG;
+PFNGLGETTEXTURESAMPLERHANDLEIMGPROC glGetTextureSamplerHandleIMG;
+PFNGLUNIFORMHANDLEUI64IMGPROC glUniformHandleui64IMG;
+PFNGLUNIFORMHANDLEUI64VIMGPROC glUniformHandleui64vIMG;
+PFNGLPROGRAMUNIFORMHANDLEUI64IMGPROC glProgramUniformHandleui64IMG;
+PFNGLPROGRAMUNIFORMHANDLEUI64VIMGPROC glProgramUniformHandleui64vIMG;
+#endif /* defined(GL_IMG_bindless_texture) */
+
+#if defined(GL_IMG_framebuffer_downsample)
+PFNGLFRAMEBUFFERTEXTURE2DDOWNSAMPLEIMGPROC glFramebufferTexture2DDownsampleIMG;
+PFNGLFRAMEBUFFERTEXTURELAYERDOWNSAMPLEIMGPROC glFramebufferTextureLayerDownsampleIMG;
+#endif /* defined(GL_IMG_framebuffer_downsample) */
+
+#if defined(GL_IMG_multisampled_render_to_texture)
+PFNGLRENDERBUFFERSTORAGEMULTISAMPLEIMGPROC glRenderbufferStorageMultisampleIMG;
+PFNGLFRAMEBUFFERTEXTURE2DMULTISAMPLEIMGPROC glFramebufferTexture2DMultisampleIMG;
+#endif /* defined(GL_IMG_multisampled_render_to_texture) */
+
+#if defined(GL_INTEL_framebuffer_CMAA)
+PFNGLAPPLYFRAMEBUFFERATTACHMENTCMAAINTELPROC glApplyFramebufferAttachmentCMAAINTEL;
+#endif /* defined(GL_INTEL_framebuffer_CMAA) */
+
+#if defined(GL_INTEL_performance_query)
+PFNGLBEGINPERFQUERYINTELPROC glBeginPerfQueryINTEL;
+PFNGLCREATEPERFQUERYINTELPROC glCreatePerfQueryINTEL;
+PFNGLDELETEPERFQUERYINTELPROC glDeletePerfQueryINTEL;
+PFNGLENDPERFQUERYINTELPROC glEndPerfQueryINTEL;
+PFNGLGETFIRSTPERFQUERYIDINTELPROC glGetFirstPerfQueryIdINTEL;
+PFNGLGETNEXTPERFQUERYIDINTELPROC glGetNextPerfQueryIdINTEL;
+PFNGLGETPERFCOUNTERINFOINTELPROC glGetPerfCounterInfoINTEL;
+PFNGLGETPERFQUERYDATAINTELPROC glGetPerfQueryDataINTEL;
+PFNGLGETPERFQUERYIDBYNAMEINTELPROC glGetPerfQueryIdByNameINTEL;
+PFNGLGETPERFQUERYINFOINTELPROC glGetPerfQueryInfoINTEL;
+#endif /* defined(GL_INTEL_performance_query) */
+
+#if defined(GL_KHR_blend_equation_advanced)
+PFNGLBLENDBARRIERKHRPROC glBlendBarrierKHR;
+#endif /* defined(GL_KHR_blend_equation_advanced) */
+
+#if defined(GL_KHR_debug)
+PFNGLDEBUGMESSAGECONTROLKHRPROC glDebugMessageControlKHR;
+PFNGLDEBUGMESSAGEINSERTKHRPROC glDebugMessageInsertKHR;
+PFNGLDEBUGMESSAGECALLBACKKHRPROC glDebugMessageCallbackKHR;
+PFNGLGETDEBUGMESSAGELOGKHRPROC glGetDebugMessageLogKHR;
+PFNGLPUSHDEBUGGROUPKHRPROC glPushDebugGroupKHR;
+PFNGLPOPDEBUGGROUPKHRPROC glPopDebugGroupKHR;
+PFNGLOBJECTLABELKHRPROC glObjectLabelKHR;
+PFNGLGETOBJECTLABELKHRPROC glGetObjectLabelKHR;
+PFNGLOBJECTPTRLABELKHRPROC glObjectPtrLabelKHR;
+PFNGLGETOBJECTPTRLABELKHRPROC glGetObjectPtrLabelKHR;
+PFNGLGETPOINTERVKHRPROC glGetPointervKHR;
+#endif /* defined(GL_KHR_debug) */
+
+#if defined(GL_KHR_robustness)
+PFNGLGETGRAPHICSRESETSTATUSKHRPROC glGetGraphicsResetStatusKHR;
+PFNGLREADNPIXELSKHRPROC glReadnPixelsKHR;
+PFNGLGETNUNIFORMFVKHRPROC glGetnUniformfvKHR;
+PFNGLGETNUNIFORMIVKHRPROC glGetnUniformivKHR;
+PFNGLGETNUNIFORMUIVKHRPROC glGetnUniformuivKHR;
+#endif /* defined(GL_KHR_robustness) */
+
+#if defined(GL_KHR_parallel_shader_compile)
+PFNGLMAXSHADERCOMPILERTHREADSKHRPROC glMaxShaderCompilerThreadsKHR;
+#endif /* defined(GL_KHR_parallel_shader_compile) */
+
+#if defined(GL_MESA_framebuffer_flip_y)
+PFNGLFRAMEBUFFERPARAMETERIMESAPROC glFramebufferParameteriMESA;
+PFNGLGETFRAMEBUFFERPARAMETERIVMESAPROC glGetFramebufferParameterivMESA;
+#endif /* defined(GL_MESA_framebuffer_flip_y) */
+
+#if defined(GL_NV_bindless_texture)
+PFNGLGETTEXTUREHANDLENVPROC glGetTextureHandleNV;
+PFNGLGETTEXTURESAMPLERHANDLENVPROC glGetTextureSamplerHandleNV;
+PFNGLMAKETEXTUREHANDLERESIDENTNVPROC glMakeTextureHandleResidentNV;
+PFNGLMAKETEXTUREHANDLENONRESIDENTNVPROC glMakeTextureHandleNonResidentNV;
+PFNGLGETIMAGEHANDLENVPROC glGetImageHandleNV;
+PFNGLMAKEIMAGEHANDLERESIDENTNVPROC glMakeImageHandleResidentNV;
+PFNGLMAKEIMAGEHANDLENONRESIDENTNVPROC glMakeImageHandleNonResidentNV;
+PFNGLUNIFORMHANDLEUI64NVPROC glUniformHandleui64NV;
+PFNGLUNIFORMHANDLEUI64VNVPROC glUniformHandleui64vNV;
+PFNGLPROGRAMUNIFORMHANDLEUI64NVPROC glProgramUniformHandleui64NV;
+PFNGLPROGRAMUNIFORMHANDLEUI64VNVPROC glProgramUniformHandleui64vNV;
+PFNGLISTEXTUREHANDLERESIDENTNVPROC glIsTextureHandleResidentNV;
+PFNGLISIMAGEHANDLERESIDENTNVPROC glIsImageHandleResidentNV;
+#endif /* defined(GL_NV_bindless_texture) */
+
+#if defined(GL_NV_blend_equation_advanced)
+PFNGLBLENDPARAMETERINVPROC glBlendParameteriNV;
+PFNGLBLENDBARRIERNVPROC glBlendBarrierNV;
+#endif /* defined(GL_NV_blend_equation_advanced) */
+
+#if defined(GL_NV_clip_space_w_scaling)
+PFNGLVIEWPORTPOSITIONWSCALENVPROC glViewportPositionWScaleNV;
+#endif /* defined(GL_NV_clip_space_w_scaling) */
+
+#if defined(GL_NV_conditional_render)
+PFNGLBEGINCONDITIONALRENDERNVPROC glBeginConditionalRenderNV;
+PFNGLENDCONDITIONALRENDERNVPROC glEndConditionalRenderNV;
+#endif /* defined(GL_NV_conditional_render) */
+
+#if defined(GL_NV_conservative_raster)
+PFNGLSUBPIXELPRECISIONBIASNVPROC glSubpixelPrecisionBiasNV;
+#endif /* defined(GL_NV_conservative_raster) */
+
+#if defined(GL_NV_conservative_raster_pre_snap_triangles)
+PFNGLCONSERVATIVERASTERPARAMETERINVPROC glConservativeRasterParameteriNV;
+#endif /* defined(GL_NV_conservative_raster_pre_snap_triangles) */
+
+#if defined(GL_NV_copy_buffer)
+PFNGLCOPYBUFFERSUBDATANVPROC glCopyBufferSubDataNV;
+#endif /* defined(GL_NV_copy_buffer) */
+
+#if defined(GL_NV_coverage_sample)
+PFNGLCOVERAGEMASKNVPROC glCoverageMaskNV;
+PFNGLCOVERAGEOPERATIONNVPROC glCoverageOperationNV;
+#endif /* defined(GL_NV_coverage_sample) */
+
+#if defined(GL_NV_draw_buffers)
+PFNGLDRAWBUFFERSNVPROC glDrawBuffersNV;
+#endif /* defined(GL_NV_draw_buffers) */
+
+#if defined(GL_NV_draw_instanced)
+PFNGLDRAWARRAYSINSTANCEDNVPROC glDrawArraysInstancedNV;
+PFNGLDRAWELEMENTSINSTANCEDNVPROC glDrawElementsInstancedNV;
+#endif /* defined(GL_NV_draw_instanced) */
+
+#if defined(GL_NV_draw_vulkan_image)
+PFNGLDRAWVKIMAGENVPROC glDrawVkImageNV;
+PFNGLGETVKPROCADDRNVPROC glGetVkProcAddrNV;
+PFNGLWAITVKSEMAPHORENVPROC glWaitVkSemaphoreNV;
+PFNGLSIGNALVKSEMAPHORENVPROC glSignalVkSemaphoreNV;
+PFNGLSIGNALVKFENCENVPROC glSignalVkFenceNV;
+#endif /* defined(GL_NV_draw_vulkan_image) */
+
+#if defined(GL_NV_fence)
+PFNGLDELETEFENCESNVPROC glDeleteFencesNV;
+PFNGLGENFENCESNVPROC glGenFencesNV;
+PFNGLISFENCENVPROC glIsFenceNV;
+PFNGLTESTFENCENVPROC glTestFenceNV;
+PFNGLGETFENCEIVNVPROC glGetFenceivNV;
+PFNGLFINISHFENCENVPROC glFinishFenceNV;
+PFNGLSETFENCENVPROC glSetFenceNV;
+#endif /* defined(GL_NV_fence) */
+
+#if defined(GL_NV_fragment_coverage_to_color)
+PFNGLFRAGMENTCOVERAGECOLORNVPROC glFragmentCoverageColorNV;
+#endif /* defined(GL_NV_fragment_coverage_to_color) */
+
+#if defined(GL_NV_framebuffer_blit)
+PFNGLBLITFRAMEBUFFERNVPROC glBlitFramebufferNV;
+#endif /* defined(GL_NV_framebuffer_blit) */
+
+#if defined(GL_NV_framebuffer_mixed_samples)
+PFNGLCOVERAGEMODULATIONTABLENVPROC glCoverageModulationTableNV;
+PFNGLGETCOVERAGEMODULATIONTABLENVPROC glGetCoverageModulationTableNV;
+PFNGLCOVERAGEMODULATIONNVPROC glCoverageModulationNV;
+#endif /* defined(GL_NV_framebuffer_mixed_samples) */
+
+#if defined(GL_NV_framebuffer_multisample)
+PFNGLRENDERBUFFERSTORAGEMULTISAMPLENVPROC glRenderbufferStorageMultisampleNV;
+#endif /* defined(GL_NV_framebuffer_multisample) */
+
+#if defined(GL_NV_gpu_shader5)
+PFNGLUNIFORM1I64NVPROC glUniform1i64NV;
+PFNGLUNIFORM2I64NVPROC glUniform2i64NV;
+PFNGLUNIFORM3I64NVPROC glUniform3i64NV;
+PFNGLUNIFORM4I64NVPROC glUniform4i64NV;
+PFNGLUNIFORM1I64VNVPROC glUniform1i64vNV;
+PFNGLUNIFORM2I64VNVPROC glUniform2i64vNV;
+PFNGLUNIFORM3I64VNVPROC glUniform3i64vNV;
+PFNGLUNIFORM4I64VNVPROC glUniform4i64vNV;
+PFNGLUNIFORM1UI64NVPROC glUniform1ui64NV;
+PFNGLUNIFORM2UI64NVPROC glUniform2ui64NV;
+PFNGLUNIFORM3UI64NVPROC glUniform3ui64NV;
+PFNGLUNIFORM4UI64NVPROC glUniform4ui64NV;
+PFNGLUNIFORM1UI64VNVPROC glUniform1ui64vNV;
+PFNGLUNIFORM2UI64VNVPROC glUniform2ui64vNV;
+PFNGLUNIFORM3UI64VNVPROC glUniform3ui64vNV;
+PFNGLUNIFORM4UI64VNVPROC glUniform4ui64vNV;
+PFNGLGETUNIFORMI64VNVPROC glGetUniformi64vNV;
+
+PFNGLPROGRAMUNIFORM1I64NVPROC glProgramUniform1i64NV;
+PFNGLPROGRAMUNIFORM2I64NVPROC glProgramUniform2i64NV;
+PFNGLPROGRAMUNIFORM3I64NVPROC glProgramUniform3i64NV;
+PFNGLPROGRAMUNIFORM4I64NVPROC glProgramUniform4i64NV;
+PFNGLPROGRAMUNIFORM1I64VNVPROC glProgramUniform1i64vNV;
+PFNGLPROGRAMUNIFORM2I64VNVPROC glProgramUniform2i64vNV;
+PFNGLPROGRAMUNIFORM3I64VNVPROC glProgramUniform3i64vNV;
+PFNGLPROGRAMUNIFORM4I64VNVPROC glProgramUniform4i64vNV;
+PFNGLPROGRAMUNIFORM1UI64NVPROC glProgramUniform1ui64NV;
+PFNGLPROGRAMUNIFORM2UI64NVPROC glProgramUniform2ui64NV;
+PFNGLPROGRAMUNIFORM3UI64NVPROC glProgramUniform3ui64NV;
+PFNGLPROGRAMUNIFORM4UI64NVPROC glProgramUniform4ui64NV;
+PFNGLPROGRAMUNIFORM1UI64VNVPROC glProgramUniform1ui64vNV;
+PFNGLPROGRAMUNIFORM2UI64VNVPROC glProgramUniform2ui64vNV;
+PFNGLPROGRAMUNIFORM3UI64VNVPROC glProgramUniform3ui64vNV;
+PFNGLPROGRAMUNIFORM4UI64VNVPROC glProgramUniform4ui64vNV;
+#endif /* defined(GL_NV_gpu_shader5) */
+
+#if defined(GL_NV_instanced_arrays)
+PFNGLVERTEXATTRIBDIVISORNVPROC glVertexAttribDivisorNV;
+#endif /* defined(GL_NV_instanced_arrays) */
+
+#if defined(GL_NV_internalformat_sample_query)
+PFNGLGETINTERNALFORMATSAMPLEIVNVPROC glGetInternalformatSampleivNV;
+#endif /* defined(GL_NV_internalformat_sample_query) */
+
+#if defined(GL_NV_memory_attachment)
+PFNGLGETMEMORYOBJECTDETACHEDRESOURCESUIVNVPROC glGetMemoryObjectDetachedResourcesuivNV;
+PFNGLRESETMEMORYOBJECTPARAMETERNVPROC glResetMemoryObjectParameterNV;
+PFNGLTEXATTACHMEMORYNVPROC glTexAttachMemoryNV;
+PFNGLBUFFERATTACHMEMORYNVPROC glBufferAttachMemoryNV;
+
+PFNGLTEXTUREATTACHMEMORYNVPROC glTextureAttachMemoryNV;
+PFNGLNAMEDBUFFERATTACHMEMORYNVPROC glNamedBufferAttachMemoryNV;
+#endif /* defined(GL_NV_memory_attachment) */
+
+#if defined(GL_NV_memory_object_sparse)
+PFNGLBUFFERPAGECOMMITMENTMEMNVPROC glBufferPageCommitmentMemNV;
+PFNGLTEXPAGECOMMITMENTMEMNVPROC glTexPageCommitmentMemNV;
+
+PFNGLNAMEDBUFFERPAGECOMMITMENTMEMNVPROC glNamedBufferPageCommitmentMemNV;
+PFNGLTEXTUREPAGECOMMITMENTMEMNVPROC glTexturePageCommitmentMemNV;
+#endif /* defined(GL_NV_memory_object_sparse) */
+
+#if defined(GL_NV_mesh_shader)
+PFNGLDRAWMESHTASKSNVPROC glDrawMeshTasksNV;
+PFNGLDRAWMESHTASKSINDIRECTNVPROC glDrawMeshTasksIndirectNV;
+PFNGLMULTIDRAWMESHTASKSINDIRECTNVPROC glMultiDrawMeshTasksIndirectNV;
+PFNGLMULTIDRAWMESHTASKSINDIRECTCOUNTNVPROC glMultiDrawMeshTasksIndirectCountNV;
+#endif /* defined(GL_NV_mesh_shader) */
+
+#if defined(GL_NV_non_square_matrices)
+PFNGLUNIFORMMATRIX2X3FVNVPROC glUniformMatrix2x3fvNV;
+PFNGLUNIFORMMATRIX3X2FVNVPROC glUniformMatrix3x2fvNV;
+PFNGLUNIFORMMATRIX2X4FVNVPROC glUniformMatrix2x4fvNV;
+PFNGLUNIFORMMATRIX4X2FVNVPROC glUniformMatrix4x2fvNV;
+PFNGLUNIFORMMATRIX3X4FVNVPROC glUniformMatrix3x4fvNV;
+PFNGLUNIFORMMATRIX4X3FVNVPROC glUniformMatrix4x3fvNV;
+#endif /* defined(GL_NV_non_square_matrices) */
+
+#if defined(GL_NV_path_rendering)
+PFNGLGENPATHSNVPROC glGenPathsNV;
+PFNGLDELETEPATHSNVPROC glDeletePathsNV;
+PFNGLISPATHNVPROC glIsPathNV;
+PFNGLPATHCOMMANDSNVPROC glPathCommandsNV;
+PFNGLPATHCOORDSNVPROC glPathCoordsNV;
+PFNGLPATHSUBCOMMANDSNVPROC glPathSubCommandsNV;
+PFNGLPATHSUBCOORDSNVPROC glPathSubCoordsNV;
+PFNGLPATHSTRINGNVPROC glPathStringNV;
+PFNGLPATHGLYPHSNVPROC glPathGlyphsNV;
+PFNGLPATHGLYPHRANGENVPROC glPathGlyphRangeNV;
+PFNGLWEIGHTPATHSNVPROC glWeightPathsNV;
+PFNGLCOPYPATHNVPROC glCopyPathNV;
+PFNGLINTERPOLATEPATHSNVPROC glInterpolatePathsNV;
+PFNGLTRANSFORMPATHNVPROC glTransformPathNV;
+PFNGLPATHPARAMETERIVNVPROC glPathParameterivNV;
+PFNGLPATHPARAMETERINVPROC glPathParameteriNV;
+PFNGLPATHPARAMETERFVNVPROC glPathParameterfvNV;
+PFNGLPATHPARAMETERFNVPROC glPathParameterfNV;
+PFNGLPATHDASHARRAYNVPROC glPathDashArrayNV;
+PFNGLPATHSTENCILFUNCNVPROC glPathStencilFuncNV;
+PFNGLPATHSTENCILDEPTHOFFSETNVPROC glPathStencilDepthOffsetNV;
+PFNGLSTENCILFILLPATHNVPROC glStencilFillPathNV;
+PFNGLSTENCILSTROKEPATHNVPROC glStencilStrokePathNV;
+PFNGLSTENCILFILLPATHINSTANCEDNVPROC glStencilFillPathInstancedNV;
+PFNGLSTENCILSTROKEPATHINSTANCEDNVPROC glStencilStrokePathInstancedNV;
+PFNGLPATHCOVERDEPTHFUNCNVPROC glPathCoverDepthFuncNV;
+PFNGLCOVERFILLPATHNVPROC glCoverFillPathNV;
+PFNGLCOVERSTROKEPATHNVPROC glCoverStrokePathNV;
+PFNGLCOVERFILLPATHINSTANCEDNVPROC glCoverFillPathInstancedNV;
+PFNGLCOVERSTROKEPATHINSTANCEDNVPROC glCoverStrokePathInstancedNV;
+PFNGLGETPATHPARAMETERIVNVPROC glGetPathParameterivNV;
+PFNGLGETPATHPARAMETERFVNVPROC glGetPathParameterfvNV;
+PFNGLGETPATHCOMMANDSNVPROC glGetPathCommandsNV;
+PFNGLGETPATHCOORDSNVPROC glGetPathCoordsNV;
+PFNGLGETPATHDASHARRAYNVPROC glGetPathDashArrayNV;
+PFNGLGETPATHMETRICSNVPROC glGetPathMetricsNV;
+PFNGLGETPATHMETRICRANGENVPROC glGetPathMetricRangeNV;
+PFNGLGETPATHSPACINGNVPROC glGetPathSpacingNV;
+PFNGLISPOINTINFILLPATHNVPROC glIsPointInFillPathNV;
+PFNGLISPOINTINSTROKEPATHNVPROC glIsPointInStrokePathNV;
+PFNGLGETPATHLENGTHNVPROC glGetPathLengthNV;
+PFNGLPOINTALONGPATHNVPROC glPointAlongPathNV;
+
+PFNGLMATRIXLOAD3X2FNVPROC glMatrixLoad3x2fNV;
+PFNGLMATRIXLOAD3X3FNVPROC glMatrixLoad3x3fNV;
+PFNGLMATRIXLOADTRANSPOSE3X3FNVPROC glMatrixLoadTranspose3x3fNV;
+PFNGLMATRIXMULT3X2FNVPROC glMatrixMult3x2fNV;
+PFNGLMATRIXMULT3X3FNVPROC glMatrixMult3x3fNV;
+PFNGLMATRIXMULTTRANSPOSE3X3FNVPROC glMatrixMultTranspose3x3fNV;
+PFNGLSTENCILTHENCOVERFILLPATHNVPROC glStencilThenCoverFillPathNV;
+PFNGLSTENCILTHENCOVERSTROKEPATHNVPROC glStencilThenCoverStrokePathNV;
+PFNGLSTENCILTHENCOVERFILLPATHINSTANCEDNVPROC glStencilThenCoverFillPathInstancedNV;
+PFNGLSTENCILTHENCOVERSTROKEPATHINSTANCEDNVPROC glStencilThenCoverStrokePathInstancedNV;
+PFNGLPATHGLYPHINDEXRANGENVPROC glPathGlyphIndexRangeNV;
+
+PFNGLPATHGLYPHINDEXARRAYNVPROC glPathGlyphIndexArrayNV;
+PFNGLPATHMEMORYGLYPHINDEXARRAYNVPROC glPathMemoryGlyphIndexArrayNV;
+PFNGLPROGRAMPATHFRAGMENTINPUTGENNVPROC glProgramPathFragmentInputGenNV;
+PFNGLGETPROGRAMRESOURCEFVNVPROC glGetProgramResourcefvNV;
+
+PFNGLMATRIXFRUSTUMEXTPROC glMatrixFrustumEXT;
+PFNGLMATRIXLOADIDENTITYEXTPROC glMatrixLoadIdentityEXT;
+PFNGLMATRIXLOADTRANSPOSEFEXTPROC glMatrixLoadTransposefEXT;
+PFNGLMATRIXLOADTRANSPOSEDEXTPROC glMatrixLoadTransposedEXT;
+PFNGLMATRIXLOADFEXTPROC glMatrixLoadfEXT;
+PFNGLMATRIXLOADDEXTPROC glMatrixLoaddEXT;
+PFNGLMATRIXMULTTRANSPOSEFEXTPROC glMatrixMultTransposefEXT;
+PFNGLMATRIXMULTTRANSPOSEDEXTPROC glMatrixMultTransposedEXT;
+PFNGLMATRIXMULTFEXTPROC glMatrixMultfEXT;
+PFNGLMATRIXMULTDEXTPROC glMatrixMultdEXT;
+PFNGLMATRIXORTHOEXTPROC glMatrixOrthoEXT;
+PFNGLMATRIXPOPEXTPROC glMatrixPopEXT;
+PFNGLMATRIXPUSHEXTPROC glMatrixPushEXT;
+PFNGLMATRIXROTATEFEXTPROC glMatrixRotatefEXT;
+PFNGLMATRIXROTATEDEXTPROC glMatrixRotatedEXT;
+PFNGLMATRIXSCALEFEXTPROC glMatrixScalefEXT;
+PFNGLMATRIXSCALEDEXTPROC glMatrixScaledEXT;
+PFNGLMATRIXTRANSLATEFEXTPROC glMatrixTranslatefEXT;
+PFNGLMATRIXTRANSLATEDEXTPROC glMatrixTranslatedEXT;
+#endif /* defined(GL_NV_path_rendering) */
+
+#if defined(GL_NV_polygon_mode)
+PFNGLPOLYGONMODENVPROC glPolygonModeNV;
+#endif /* defined(GL_NV_polygon_mode) */
+
+#if defined(GL_NV_read_buffer)
+PFNGLREADBUFFERNVPROC glReadBufferNV;
+#endif /* defined(GL_NV_read_buffer) */
+
+#if defined(GL_NV_sample_locations)
+PFNGLFRAMEBUFFERSAMPLELOCATIONSFVNVPROC glFramebufferSampleLocationsfvNV;
+PFNGLNAMEDFRAMEBUFFERSAMPLELOCATIONSFVNVPROC glNamedFramebufferSampleLocationsfvNV;
+PFNGLRESOLVEDEPTHVALUESNVPROC glResolveDepthValuesNV;
+#endif /* defined(GL_NV_sample_locations) */
+
+#if defined(GL_NV_scissor_exclusive)
+PFNGLSCISSOREXCLUSIVENVPROC glScissorExclusiveNV;
+PFNGLSCISSOREXCLUSIVEARRAYVNVPROC glScissorExclusiveArrayvNV;
+#endif /* defined(GL_NV_scissor_exclusive) */
+
+#if defined(GL_NV_shading_rate_image)
+PFNGLBINDSHADINGRATEIMAGENVPROC glBindShadingRateImageNV;
+PFNGLGETSHADINGRATEIMAGEPALETTENVPROC glGetShadingRateImagePaletteNV;
+PFNGLGETSHADINGRATESAMPLELOCATIONIVNVPROC glGetShadingRateSampleLocationivNV;
+PFNGLSHADINGRATEIMAGEBARRIERNVPROC glShadingRateImageBarrierNV;
+PFNGLSHADINGRATEIMAGEPALETTENVPROC glShadingRateImagePaletteNV;
+PFNGLSHADINGRATESAMPLEORDERNVPROC glShadingRateSampleOrderNV;
+PFNGLSHADINGRATESAMPLEORDERCUSTOMNVPROC glShadingRateSampleOrderCustomNV;
+#endif /* defined(GL_NV_shading_rate_image) */
+
+#if defined(GL_NV_viewport_array)
+PFNGLVIEWPORTARRAYVNVPROC glViewportArrayvNV;
+PFNGLVIEWPORTINDEXEDFNVPROC glViewportIndexedfNV;
+PFNGLVIEWPORTINDEXEDFVNVPROC glViewportIndexedfvNV;
+PFNGLSCISSORARRAYVNVPROC glScissorArrayvNV;
+PFNGLSCISSORINDEXEDNVPROC glScissorIndexedNV;
+PFNGLSCISSORINDEXEDVNVPROC glScissorIndexedvNV;
+PFNGLDEPTHRANGEARRAYFVNVPROC glDepthRangeArrayfvNV;
+PFNGLDEPTHRANGEINDEXEDFNVPROC glDepthRangeIndexedfNV;
+PFNGLGETFLOATI_VNVPROC glGetFloati_vNV;
+PFNGLENABLEINVPROC glEnableiNV;
+PFNGLDISABLEINVPROC glDisableiNV;
+PFNGLISENABLEDINVPROC glIsEnablediNV;
+#endif /* defined(GL_NV_viewport_array) */
+
+#if defined(GL_NV_viewport_swizzle)
+PFNGLVIEWPORTSWIZZLENVPROC glViewportSwizzleNV;
+#endif /* defined(GL_NV_viewport_swizzle) */
+
+#if defined(GL_OES_EGL_image)
+PFNGLEGLIMAGETARGETTEXTURE2DOESPROC glEGLImageTargetTexture2DOES;
+PFNGLEGLIMAGETARGETRENDERBUFFERSTORAGEOESPROC glEGLImageTargetRenderbufferStorageOES;
+#endif /* defined(GL_OES_EGL_image) */
+
+#if defined(GL_OES_copy_image)
+PFNGLCOPYIMAGESUBDATAOESPROC glCopyImageSubDataOES;
+#endif /* defined(GL_OES_copy_image) */
+
+#if defined(GL_OES_draw_buffers_indexed)
+PFNGLENABLEIOESPROC glEnableiOES;
+PFNGLDISABLEIOESPROC glDisableiOES;
+PFNGLBLENDEQUATIONIOESPROC glBlendEquationiOES;
+PFNGLBLENDEQUATIONSEPARATEIOESPROC glBlendEquationSeparateiOES;
+PFNGLBLENDFUNCIOESPROC glBlendFunciOES;
+PFNGLBLENDFUNCSEPARATEIOESPROC glBlendFuncSeparateiOES;
+PFNGLCOLORMASKIOESPROC glColorMaskiOES;
+PFNGLISENABLEDIOESPROC glIsEnablediOES;
+#endif /* defined(GL_OES_draw_buffers_indexed) */
+
+#if defined(GL_OES_draw_elements_base_vertex)
+PFNGLDRAWELEMENTSBASEVERTEXOESPROC glDrawElementsBaseVertexOES;
+PFNGLDRAWRANGEELEMENTSBASEVERTEXOESPROC glDrawRangeElementsBaseVertexOES;
+PFNGLDRAWELEMENTSINSTANCEDBASEVERTEXOESPROC glDrawElementsInstancedBaseVertexOES;
+#endif /* defined(GL_OES_draw_elements_base_vertex) */
+
+#if defined(GL_OES_geometry_shader)
+PFNGLFRAMEBUFFERTEXTUREOESPROC glFramebufferTextureOES;
+#endif /* defined(GL_OES_geometry_shader) */
+
+#if defined(GL_OES_get_program_binary)
+PFNGLGETPROGRAMBINARYOESPROC glGetProgramBinaryOES;
+PFNGLPROGRAMBINARYOESPROC glProgramBinaryOES;
+#endif /* defined(GL_OES_get_program_binary) */
+
+#if defined(GL_OES_mapbuffer)
+PFNGLMAPBUFFEROESPROC glMapBufferOES;
+PFNGLUNMAPBUFFEROESPROC glUnmapBufferOES;
+PFNGLGETBUFFERPOINTERVOESPROC glGetBufferPointervOES;
+#endif /* defined(GL_OES_mapbuffer) */
+
+#if defined(GL_OES_primitive_bounding_box)
+PFNGLPRIMITIVEBOUNDINGBOXOESPROC glPrimitiveBoundingBoxOES;
+#endif /* defined(GL_OES_primitive_bounding_box) */
+
+#if defined(GL_OES_sample_shading)
+PFNGLMINSAMPLESHADINGOESPROC glMinSampleShadingOES;
+#endif /* defined(GL_OES_sample_shading) */
+
+#if defined(GL_OES_tessellation_shader)
+PFNGLPATCHPARAMETERIOESPROC glPatchParameteriOES;
+#endif /* defined(GL_OES_tessellation_shader) */
+
+#if defined(GL_OES_texture_3D)
+PFNGLTEXIMAGE3DOESPROC glTexImage3DOES;
+PFNGLTEXSUBIMAGE3DOESPROC glTexSubImage3DOES;
+PFNGLCOPYTEXSUBIMAGE3DOESPROC glCopyTexSubImage3DOES;
+PFNGLCOMPRESSEDTEXIMAGE3DOESPROC glCompressedTexImage3DOES;
+PFNGLCOMPRESSEDTEXSUBIMAGE3DOESPROC glCompressedTexSubImage3DOES;
+PFNGLFRAMEBUFFERTEXTURE3DOESPROC glFramebufferTexture3DOES;
+#endif /* defined(GL_OES_texture_3D) */
+
+#if defined(GL_OES_texture_border_clamp)
+PFNGLTEXPARAMETERIIVOESPROC glTexParameterIivOES;
+PFNGLTEXPARAMETERIUIVOESPROC glTexParameterIuivOES;
+PFNGLGETTEXPARAMETERIIVOESPROC glGetTexParameterIivOES;
+PFNGLGETTEXPARAMETERIUIVOESPROC glGetTexParameterIuivOES;
+PFNGLSAMPLERPARAMETERIIVOESPROC glSamplerParameterIivOES;
+PFNGLSAMPLERPARAMETERIUIVOESPROC glSamplerParameterIuivOES;
+PFNGLGETSAMPLERPARAMETERIIVOESPROC glGetSamplerParameterIivOES;
+PFNGLGETSAMPLERPARAMETERIUIVOESPROC glGetSamplerParameterIuivOES;
+#endif /* defined(GL_OES_texture_border_clamp) */
+
+#if defined(GL_OES_texture_buffer)
+PFNGLTEXBUFFEROESPROC glTexBufferOES;
+PFNGLTEXBUFFERRANGEOESPROC glTexBufferRangeOES;
+#endif /* defined(GL_OES_texture_buffer) */
+
+#if defined(GL_OES_texture_storage_multisample_2d_array)
+PFNGLTEXSTORAGE3DMULTISAMPLEOESPROC glTexStorage3DMultisampleOES;
+#endif /* defined(GL_OES_texture_storage_multisample_2d_array) */
+
+#if defined(GL_OES_texture_view)
+PFNGLTEXTUREVIEWOESPROC glTextureViewOES;
+#endif /* defined(GL_OES_texture_view) */
+
+#if defined(GL_OES_vertex_array_object)
+PFNGLBINDVERTEXARRAYOESPROC glBindVertexArrayOES;
+PFNGLDELETEVERTEXARRAYSOESPROC glDeleteVertexArraysOES;
+PFNGLGENVERTEXARRAYSOESPROC glGenVertexArraysOES;
+PFNGLISVERTEXARRAYOESPROC glIsVertexArrayOES;
+#endif /* defined(GL_OES_vertex_array_object) */
+
+#if defined(GL_OES_viewport_array)
+PFNGLVIEWPORTARRAYVOESPROC glViewportArrayvOES;
+PFNGLVIEWPORTINDEXEDFOESPROC glViewportIndexedfOES;
+PFNGLVIEWPORTINDEXEDFVOESPROC glViewportIndexedfvOES;
+PFNGLSCISSORARRAYVOESPROC glScissorArrayvOES;
+PFNGLSCISSORINDEXEDOESPROC glScissorIndexedOES;
+PFNGLSCISSORINDEXEDVOESPROC glScissorIndexedvOES;
+PFNGLDEPTHRANGEARRAYFVOESPROC glDepthRangeArrayfvOES;
+PFNGLDEPTHRANGEINDEXEDFOESPROC glDepthRangeIndexedfOES;
+PFNGLGETFLOATI_VOESPROC glGetFloati_vOES;
+#endif /* defined(GL_OES_viewport_array) */
+
+#if defined(GL_OVR_multiview)
+PFNGLFRAMEBUFFERTEXTUREMULTIVIEWOVRPROC glFramebufferTextureMultiviewOVR;
+#endif /* defined(GL_OVR_multiview) */
+
+#if defined(GL_OVR_multiview_multisampled_render_to_texture)
+PFNGLFRAMEBUFFERTEXTUREMULTISAMPLEMULTIVIEWOVRPROC glFramebufferTextureMultisampleMultiviewOVR;
+#endif /* defined(GL_OVR_multiview_multisampled_render_to_texture) */
+
+#if defined(GL_QCOM_alpha_test)
+PFNGLALPHAFUNCQCOMPROC glAlphaFuncQCOM;
+#endif /* defined(GL_QCOM_alpha_test) */
+
+#if defined(GL_QCOM_driver_control)
+PFNGLGETDRIVERCONTROLSQCOMPROC glGetDriverControlsQCOM;
+PFNGLGETDRIVERCONTROLSTRINGQCOMPROC glGetDriverControlStringQCOM;
+PFNGLENABLEDRIVERCONTROLQCOMPROC glEnableDriverControlQCOM;
+PFNGLDISABLEDRIVERCONTROLQCOMPROC glDisableDriverControlQCOM;
+#endif /* defined(GL_QCOM_driver_control) */
+
+#if defined(GL_QCOM_extended_get)
+PFNGLEXTGETTEXTURESQCOMPROC glExtGetTexturesQCOM;
+PFNGLEXTGETBUFFERSQCOMPROC glExtGetBuffersQCOM;
+PFNGLEXTGETRENDERBUFFERSQCOMPROC glExtGetRenderbuffersQCOM;
+PFNGLEXTGETFRAMEBUFFERSQCOMPROC glExtGetFramebuffersQCOM;
+PFNGLEXTGETTEXLEVELPARAMETERIVQCOMPROC glExtGetTexLevelParameterivQCOM;
+PFNGLEXTTEXOBJECTSTATEOVERRIDEIQCOMPROC glExtTexObjectStateOverrideiQCOM;
+PFNGLEXTGETTEXSUBIMAGEQCOMPROC glExtGetTexSubImageQCOM;
+PFNGLEXTGETBUFFERPOINTERVQCOMPROC glExtGetBufferPointervQCOM;
+#endif /* defined(GL_QCOM_extended_get) */
+
+#if defined(GL_QCOM_extended_get2)
+PFNGLEXTGETSHADERSQCOMPROC glExtGetShadersQCOM;
+PFNGLEXTGETPROGRAMSQCOMPROC glExtGetProgramsQCOM;
+PFNGLEXTISPROGRAMBINARYQCOMPROC glExtIsProgramBinaryQCOM;
+PFNGLEXTGETPROGRAMBINARYSOURCEQCOMPROC glExtGetProgramBinarySourceQCOM;
+#endif /* defined(GL_QCOM_extended_get2) */
+
+#if defined(GL_QCOM_framebuffer_foveated)
+PFNGLFRAMEBUFFERFOVEATIONCONFIGQCOMPROC glFramebufferFoveationConfigQCOM;
+PFNGLFRAMEBUFFERFOVEATIONPARAMETERSQCOMPROC glFramebufferFoveationParametersQCOM;
+#endif /* defined(GL_QCOM_framebuffer_foveated) */
+
+#if defined(GL_QCOM_motion_estimation)
+PFNGLTEXESTIMATEMOTIONQCOMPROC glTexEstimateMotionQCOM;
+PFNGLTEXESTIMATEMOTIONREGIONSQCOMPROC glTexEstimateMotionRegionsQCOM;
+#endif /* defined(GL_QCOM_motion_estimation) */
+
+#if defined(GL_QCOM_frame_extrapolation)
+PFNGLEXTRAPOLATETEX2DQCOMPROC glExtrapolateTex2DQCOM;
+#endif /* defined(GL_QCOM_frame_extrapolation) */
+
+#if defined(GL_QCOM_texture_foveated)
+PFNGLTEXTUREFOVEATIONPARAMETERSQCOMPROC glTextureFoveationParametersQCOM;
+#endif /* defined(GL_QCOM_texture_foveated) */
+
+#if defined(GL_QCOM_shader_framebuffer_fetch_noncoherent)
+PFNGLFRAMEBUFFERFETCHBARRIERQCOMPROC glFramebufferFetchBarrierQCOM;
+#endif /* defined(GL_QCOM_shader_framebuffer_fetch_noncoherent) */
+
+#if defined(GL_QCOM_shading_rate)
+PFNGLSHADINGRATEQCOMPROC glShadingRateQCOM;
+#endif /* defined(GL_QCOM_shading_rate) */
+
+#if defined(GL_QCOM_tiled_rendering)
+PFNGLSTARTTILINGQCOMPROC glStartTilingQCOM;
+PFNGLENDTILINGQCOMPROC glEndTilingQCOM;
+#endif /* defined(GL_QCOM_tiled_rendering) */
+
+
+static void gles3wLoadProcs() {
+    eglGetProcAddress = (PFNEGLGETPROCADDRESSPROC)gles3wLoad("eglGetProcAddress");
+
+    /* EGL_VERSION_1_0 */
+    eglChooseConfig = (PFNEGLCHOOSECONFIGPROC)gles3wLoad("eglChooseConfig");
+    eglCopyBuffers = (PFNEGLCOPYBUFFERSPROC)gles3wLoad("eglCopyBuffers");
+    eglCreateContext = (PFNEGLCREATECONTEXTPROC)gles3wLoad("eglCreateContext");
+    eglCreatePbufferSurface = (PFNEGLCREATEPBUFFERSURFACEPROC)gles3wLoad("eglCreatePbufferSurface");
+    eglCreatePixmapSurface = (PFNEGLCREATEPIXMAPSURFACEPROC)gles3wLoad("eglCreatePixmapSurface");
+    eglCreateWindowSurface = (PFNEGLCREATEWINDOWSURFACEPROC)gles3wLoad("eglCreateWindowSurface");
+    eglDestroyContext = (PFNEGLDESTROYCONTEXTPROC)gles3wLoad("eglDestroyContext");
+    eglDestroySurface = (PFNEGLDESTROYSURFACEPROC)gles3wLoad("eglDestroySurface");
+    eglGetConfigAttrib = (PFNEGLGETCONFIGATTRIBPROC)gles3wLoad("eglGetConfigAttrib");
+    eglGetConfigs = (PFNEGLGETCONFIGSPROC)gles3wLoad("eglGetConfigs");
+    eglGetCurrentDisplay = (PFNEGLGETCURRENTDISPLAYPROC)gles3wLoad("eglGetCurrentDisplay");
+    eglGetCurrentSurface = (PFNEGLGETCURRENTSURFACEPROC)gles3wLoad("eglGetCurrentSurface");
+    eglGetDisplay = (PFNEGLGETDISPLAYPROC)gles3wLoad("eglGetDisplay");
+    eglGetError = (PFNEGLGETERRORPROC)gles3wLoad("eglGetError");
+    eglInitialize = (PFNEGLINITIALIZEPROC)gles3wLoad("eglInitialize");
+    eglMakeCurrent = (PFNEGLMAKECURRENTPROC)gles3wLoad("eglMakeCurrent");
+    eglQueryContext = (PFNEGLQUERYCONTEXTPROC)gles3wLoad("eglQueryContext");
+    eglQueryString = (PFNEGLQUERYSTRINGPROC)gles3wLoad("eglQueryString");
+    eglQuerySurface = (PFNEGLQUERYSURFACEPROC)gles3wLoad("eglQuerySurface");
+    eglSwapBuffers = (PFNEGLSWAPBUFFERSPROC)gles3wLoad("eglSwapBuffers");
+    eglTerminate = (PFNEGLTERMINATEPROC)gles3wLoad("eglTerminate");
+    eglWaitGL = (PFNEGLWAITGLPROC)gles3wLoad("eglWaitGL");
+    eglWaitNative = (PFNEGLWAITNATIVEPROC)gles3wLoad("eglWaitNative");
+
+
+    /* EGL_VERSION_1_1 */
+    eglBindTexImage = (PFNEGLBINDTEXIMAGEPROC)gles3wLoad("eglBindTexImage");
+    eglReleaseTexImage = (PFNEGLRELEASETEXIMAGEPROC)gles3wLoad("eglReleaseTexImage");
+    eglSurfaceAttrib = (PFNEGLSURFACEATTRIBPROC)gles3wLoad("eglSurfaceAttrib");
+    eglSwapInterval = (PFNEGLSWAPINTERVALPROC)gles3wLoad("eglSwapInterval");
+
+
+    /* EGL_VERSION_1_2 */
+    eglBindAPI = (PFNEGLBINDAPIPROC)gles3wLoad("eglBindAPI");
+    eglQueryAPI = (PFNEGLQUERYAPIPROC)gles3wLoad("eglQueryAPI");
+    eglCreatePbufferFromClientBuffer = (PFNEGLCREATEPBUFFERFROMCLIENTBUFFERPROC)gles3wLoad("eglCreatePbufferFromClientBuffer");
+    eglReleaseThread = (PFNEGLRELEASETHREADPROC)gles3wLoad("eglReleaseThread");
+    eglWaitClient = (PFNEGLWAITCLIENTPROC)gles3wLoad("eglWaitClient");
+
+
+    /* EGL_VERSION_1_3 */
+
+    /* EGL_VERSION_1_4 */
+    eglGetCurrentContext = (PFNEGLGETCURRENTCONTEXTPROC)gles3wLoad("eglGetCurrentContext");
+
+
+    /* EGL_VERSION_1_5 */
+    eglCreateSync = (PFNEGLCREATESYNCPROC)gles3wLoad("eglCreateSync");
+    eglDestroySync = (PFNEGLDESTROYSYNCPROC)gles3wLoad("eglDestroySync");
+    eglClientWaitSync = (PFNEGLCLIENTWAITSYNCPROC)gles3wLoad("eglClientWaitSync");
+    eglGetSyncAttrib = (PFNEGLGETSYNCATTRIBPROC)gles3wLoad("eglGetSyncAttrib");
+
+    eglCreateImage = (PFNEGLCREATEIMAGEPROC)gles3wLoad("eglCreateImage");
+    eglDestroyImage = (PFNEGLDESTROYIMAGEPROC)gles3wLoad("eglDestroyImage");
+
+    eglGetPlatformDisplay = (PFNEGLGETPLATFORMDISPLAYPROC)gles3wLoad("eglGetPlatformDisplay");
+    eglCreatePlatformWindowSurface = (PFNEGLCREATEPLATFORMWINDOWSURFACEPROC)gles3wLoad("eglCreatePlatformWindowSurface");
+    eglCreatePlatformPixmapSurface = (PFNEGLCREATEPLATFORMPIXMAPSURFACEPROC)gles3wLoad("eglCreatePlatformPixmapSurface");
+
+    eglWaitSync = (PFNEGLWAITSYNCPROC)gles3wLoad("eglWaitSync");
+
+
+#if defined(EGL_ANDROID_blob_cache)
+    eglSetBlobCacheFuncsANDROID = (PFNEGLSETBLOBCACHEFUNCSANDROIDPROC)gles3wLoad("eglSetBlobCacheFuncsANDROID");
+#endif /* defined(EGL_ANDROID_blob_cache) */
+
+#if defined(EGL_ANDROID_create_native_client_buffer)
+    eglCreateNativeClientBufferANDROID = (PFNEGLCREATENATIVECLIENTBUFFERANDROIDPROC)gles3wLoad("eglCreateNativeClientBufferANDROID");
+#endif /* defined(EGL_ANDROID_create_native_client_buffer) */
+
+#if defined(EGL_ANDROID_get_native_client_buffer)
+    eglGetNativeClientBufferANDROID = (PFNEGLGETNATIVECLIENTBUFFERANDROIDPROC)gles3wLoad("eglGetNativeClientBufferANDROID");
+#endif /* defined(EGL_ANDROID_get_native_client_buffer) */
+
+#if defined(EGL_ANDROID_native_fence_sync)
+    eglDupNativeFenceFDANDROID = (PFNEGLDUPNATIVEFENCEFDANDROIDPROC)gles3wLoad("eglDupNativeFenceFDANDROID");
+#endif /* defined(EGL_ANDROID_native_fence_sync) */
+
+#if defined(EGL_ANDROID_presentation_time)
+    eglPresentationTimeANDROID = (PFNEGLPRESENTATIONTIMEANDROIDPROC)gles3wLoad("eglPresentationTimeANDROID");
+#endif /* defined(EGL_ANDROID_presentation_time) */
+
+#if defined(EGL_ANDROID_get_frame_timestamps)
+    eglGetCompositorTimingSupportedANDROID = (PFNEGLGETCOMPOSITORTIMINGSUPPORTEDANDROIDPROC)gles3wLoad("eglGetCompositorTimingSupportedANDROID");
+    eglGetCompositorTimingANDROID = (PFNEGLGETCOMPOSITORTIMINGANDROIDPROC)gles3wLoad("eglGetCompositorTimingANDROID");
+    eglGetNextFrameIdANDROID = (PFNEGLGETNEXTFRAMEIDANDROIDPROC)gles3wLoad("eglGetNextFrameIdANDROID");
+    eglGetFrameTimestampSupportedANDROID = (PFNEGLGETFRAMETIMESTAMPSUPPORTEDANDROIDPROC)gles3wLoad("eglGetFrameTimestampSupportedANDROID");
+    eglGetFrameTimestampsANDROID = (PFNEGLGETFRAMETIMESTAMPSANDROIDPROC)gles3wLoad("eglGetFrameTimestampsANDROID");
+#endif /* defined(EGL_ANDROID_get_frame_timestamps) */
+
+#if defined(EGL_ANGLE_query_surface_pointer)
+    eglQuerySurfacePointerANGLE = (PFNEGLQUERYSURFACEPOINTERANGLEPROC)gles3wLoad("eglQuerySurfacePointerANGLE");
+#endif /* defined(EGL_ANGLE_query_surface_pointer) */
+
+#if defined(EGL_EXT_client_sync)
+    eglClientSignalSyncEXT = (PFNEGLCLIENTSIGNALSYNCEXTPROC)gles3wLoad("eglClientSignalSyncEXT");
+#endif /* defined(EGL_EXT_client_sync) */
+
+#if defined(EGL_EXT_device_base)
+    eglQueryDeviceAttribEXT = (PFNEGLQUERYDEVICEATTRIBEXTPROC)gles3wLoad("eglQueryDeviceAttribEXT");
+    eglQueryDeviceStringEXT = (PFNEGLQUERYDEVICESTRINGEXTPROC)gles3wLoad("eglQueryDeviceStringEXT");
+    eglQueryDevicesEXT = (PFNEGLQUERYDEVICESEXTPROC)gles3wLoad("eglQueryDevicesEXT");
+    eglQueryDisplayAttribEXT = (PFNEGLQUERYDISPLAYATTRIBEXTPROC)gles3wLoad("eglQueryDisplayAttribEXT");
+#endif /* defined(EGL_EXT_device_base) */
+
+#if defined(EGL_EXT_image_dma_buf_import_modifiers)
+    eglQueryDmaBufFormatsEXT = (PFNEGLQUERYDMABUFFORMATSEXTPROC)gles3wLoad("eglQueryDmaBufFormatsEXT");
+    eglQueryDmaBufModifiersEXT = (PFNEGLQUERYDMABUFMODIFIERSEXTPROC)gles3wLoad("eglQueryDmaBufModifiersEXT");
+#endif /* defined(EGL_EXT_image_dma_buf_import_modifiers) */
+
+#if defined(EGL_EXT_output_base)
+    eglGetOutputLayersEXT = (PFNEGLGETOUTPUTLAYERSEXTPROC)gles3wLoad("eglGetOutputLayersEXT");
+    eglGetOutputPortsEXT = (PFNEGLGETOUTPUTPORTSEXTPROC)gles3wLoad("eglGetOutputPortsEXT");
+    eglOutputLayerAttribEXT = (PFNEGLOUTPUTLAYERATTRIBEXTPROC)gles3wLoad("eglOutputLayerAttribEXT");
+    eglQueryOutputLayerAttribEXT = (PFNEGLQUERYOUTPUTLAYERATTRIBEXTPROC)gles3wLoad("eglQueryOutputLayerAttribEXT");
+    eglQueryOutputLayerStringEXT = (PFNEGLQUERYOUTPUTLAYERSTRINGEXTPROC)gles3wLoad("eglQueryOutputLayerStringEXT");
+    eglOutputPortAttribEXT = (PFNEGLOUTPUTPORTATTRIBEXTPROC)gles3wLoad("eglOutputPortAttribEXT");
+    eglQueryOutputPortAttribEXT = (PFNEGLQUERYOUTPUTPORTATTRIBEXTPROC)gles3wLoad("eglQueryOutputPortAttribEXT");
+    eglQueryOutputPortStringEXT = (PFNEGLQUERYOUTPUTPORTSTRINGEXTPROC)gles3wLoad("eglQueryOutputPortStringEXT");
+#endif /* defined(EGL_EXT_output_base) */
+
+#if defined(EGL_EXT_platform_base)
+    eglGetPlatformDisplayEXT = (PFNEGLGETPLATFORMDISPLAYEXTPROC)gles3wLoad("eglGetPlatformDisplayEXT");
+    eglCreatePlatformWindowSurfaceEXT = (PFNEGLCREATEPLATFORMWINDOWSURFACEEXTPROC)gles3wLoad("eglCreatePlatformWindowSurfaceEXT");
+    eglCreatePlatformPixmapSurfaceEXT = (PFNEGLCREATEPLATFORMPIXMAPSURFACEEXTPROC)gles3wLoad("eglCreatePlatformPixmapSurfaceEXT");
+#endif /* defined(EGL_EXT_platform_base) */
+
+#if defined(EGL_EXT_stream_consumer_egloutput)
+    eglStreamConsumerOutputEXT = (PFNEGLSTREAMCONSUMEROUTPUTEXTPROC)gles3wLoad("eglStreamConsumerOutputEXT");
+#endif /* defined(EGL_EXT_stream_consumer_egloutput) */
+
+#if defined(EGL_EXT_swap_buffers_with_damage)
+    eglSwapBuffersWithDamageEXT = (PFNEGLSWAPBUFFERSWITHDAMAGEEXTPROC)gles3wLoad("eglSwapBuffersWithDamageEXT");
+#endif /* defined(EGL_EXT_swap_buffers_with_damage) */
+
+#if defined(EGL_EXT_sync_reuse)
+    eglUnsignalSyncEXT = (PFNEGLUNSIGNALSYNCEXTPROC)gles3wLoad("eglUnsignalSyncEXT");
+#endif /* defined(EGL_EXT_sync_reuse) */
+
+#if defined(EGL_HI_clientpixmap)
+    eglCreatePixmapSurfaceHI = (PFNEGLCREATEPIXMAPSURFACEHIPROC)gles3wLoad("eglCreatePixmapSurfaceHI");
+#endif /* defined(EGL_HI_clientpixmap) */
+
+#if defined(EGL_KHR_cl_event2)
+    eglCreateSync64KHR = (PFNEGLCREATESYNC64KHRPROC)gles3wLoad("eglCreateSync64KHR");
+#endif /* defined(EGL_KHR_cl_event2) */
+
+#if defined(EGL_KHR_debug)
+    eglDebugMessageControlKHR = (PFNEGLDEBUGMESSAGECONTROLKHRPROC)gles3wLoad("eglDebugMessageControlKHR");
+    eglQueryDebugKHR = (PFNEGLQUERYDEBUGKHRPROC)gles3wLoad("eglQueryDebugKHR");
+    eglLabelObjectKHR = (PFNEGLLABELOBJECTKHRPROC)gles3wLoad("eglLabelObjectKHR");
+#endif /* defined(EGL_KHR_debug) */
+
+#if defined(EGL_KHR_display_reference)
+    eglQueryDisplayAttribKHR = (PFNEGLQUERYDISPLAYATTRIBKHRPROC)gles3wLoad("eglQueryDisplayAttribKHR");
+#endif /* defined(EGL_KHR_display_reference) */
+
+#if defined(EGL_KHR_fence_sync)
+    eglCreateSyncKHR = (PFNEGLCREATESYNCKHRPROC)gles3wLoad("eglCreateSyncKHR");
+    eglDestroySyncKHR = (PFNEGLDESTROYSYNCKHRPROC)gles3wLoad("eglDestroySyncKHR");
+    eglClientWaitSyncKHR = (PFNEGLCLIENTWAITSYNCKHRPROC)gles3wLoad("eglClientWaitSyncKHR");
+    eglGetSyncAttribKHR = (PFNEGLGETSYNCATTRIBKHRPROC)gles3wLoad("eglGetSyncAttribKHR");
+#endif /* defined(EGL_KHR_fence_sync) */
+
+#if defined(EGL_KHR_image)
+    eglCreateImageKHR = (PFNEGLCREATEIMAGEKHRPROC)gles3wLoad("eglCreateImageKHR");
+    eglDestroyImageKHR = (PFNEGLDESTROYIMAGEKHRPROC)gles3wLoad("eglDestroyImageKHR");
+#endif /* defined(EGL_KHR_image) */
+
+#if defined(EGL_KHR_lock_surface)
+    eglLockSurfaceKHR = (PFNEGLLOCKSURFACEKHRPROC)gles3wLoad("eglLockSurfaceKHR");
+    eglUnlockSurfaceKHR = (PFNEGLUNLOCKSURFACEKHRPROC)gles3wLoad("eglUnlockSurfaceKHR");
+#endif /* defined(EGL_KHR_lock_surface) */
+
+#if defined(EGL_KHR_lock_surface3)
+    eglQuerySurface64KHR = (PFNEGLQUERYSURFACE64KHRPROC)gles3wLoad("eglQuerySurface64KHR");
+#endif /* defined(EGL_KHR_lock_surface3) */
+
+#if defined(EGL_KHR_partial_update)
+    eglSetDamageRegionKHR = (PFNEGLSETDAMAGEREGIONKHRPROC)gles3wLoad("eglSetDamageRegionKHR");
+#endif /* defined(EGL_KHR_partial_update) */
+
+#if defined(EGL_KHR_reusable_sync)
+    eglSignalSyncKHR = (PFNEGLSIGNALSYNCKHRPROC)gles3wLoad("eglSignalSyncKHR");
+#endif /* defined(EGL_KHR_reusable_sync) */
+
+#if defined(EGL_KHR_stream)
+    eglCreateStreamKHR = (PFNEGLCREATESTREAMKHRPROC)gles3wLoad("eglCreateStreamKHR");
+    eglDestroyStreamKHR = (PFNEGLDESTROYSTREAMKHRPROC)gles3wLoad("eglDestroyStreamKHR");
+    eglStreamAttribKHR = (PFNEGLSTREAMATTRIBKHRPROC)gles3wLoad("eglStreamAttribKHR");
+    eglQueryStreamKHR = (PFNEGLQUERYSTREAMKHRPROC)gles3wLoad("eglQueryStreamKHR");
+    eglQueryStreamu64KHR = (PFNEGLQUERYSTREAMU64KHRPROC)gles3wLoad("eglQueryStreamu64KHR");
+#endif /* defined(EGL_KHR_stream) */
+
+#if defined(EGL_KHR_stream_attrib)
+    eglCreateStreamAttribKHR = (PFNEGLCREATESTREAMATTRIBKHRPROC)gles3wLoad("eglCreateStreamAttribKHR");
+    eglSetStreamAttribKHR = (PFNEGLSETSTREAMATTRIBKHRPROC)gles3wLoad("eglSetStreamAttribKHR");
+    eglQueryStreamAttribKHR = (PFNEGLQUERYSTREAMATTRIBKHRPROC)gles3wLoad("eglQueryStreamAttribKHR");
+    eglStreamConsumerAcquireAttribKHR = (PFNEGLSTREAMCONSUMERACQUIREATTRIBKHRPROC)gles3wLoad("eglStreamConsumerAcquireAttribKHR");
+    eglStreamConsumerReleaseAttribKHR = (PFNEGLSTREAMCONSUMERRELEASEATTRIBKHRPROC)gles3wLoad("eglStreamConsumerReleaseAttribKHR");
+#endif /* defined(EGL_KHR_stream_attrib) */
+
+#if defined(EGL_KHR_stream_consumer_gltexture)
+    eglStreamConsumerGLTextureExternalKHR = (PFNEGLSTREAMCONSUMERGLTEXTUREEXTERNALKHRPROC)gles3wLoad("eglStreamConsumerGLTextureExternalKHR");
+    eglStreamConsumerAcquireKHR = (PFNEGLSTREAMCONSUMERACQUIREKHRPROC)gles3wLoad("eglStreamConsumerAcquireKHR");
+    eglStreamConsumerReleaseKHR = (PFNEGLSTREAMCONSUMERRELEASEKHRPROC)gles3wLoad("eglStreamConsumerReleaseKHR");
+#endif /* defined(EGL_KHR_stream_consumer_gltexture) */
+
+#if defined(EGL_KHR_stream_cross_process_fd)
+    eglGetStreamFileDescriptorKHR = (PFNEGLGETSTREAMFILEDESCRIPTORKHRPROC)gles3wLoad("eglGetStreamFileDescriptorKHR");
+    eglCreateStreamFromFileDescriptorKHR = (PFNEGLCREATESTREAMFROMFILEDESCRIPTORKHRPROC)gles3wLoad("eglCreateStreamFromFileDescriptorKHR");
+#endif /* defined(EGL_KHR_stream_cross_process_fd) */
+
+#if defined(EGL_KHR_stream_fifo)
+    eglQueryStreamTimeKHR = (PFNEGLQUERYSTREAMTIMEKHRPROC)gles3wLoad("eglQueryStreamTimeKHR");
+#endif /* defined(EGL_KHR_stream_fifo) */
+
+#if defined(EGL_KHR_stream_producer_eglsurface)
+    eglCreateStreamProducerSurfaceKHR = (PFNEGLCREATESTREAMPRODUCERSURFACEKHRPROC)gles3wLoad("eglCreateStreamProducerSurfaceKHR");
+#endif /* defined(EGL_KHR_stream_producer_eglsurface) */
+
+#if defined(EGL_KHR_swap_buffers_with_damage)
+    eglSwapBuffersWithDamageKHR = (PFNEGLSWAPBUFFERSWITHDAMAGEKHRPROC)gles3wLoad("eglSwapBuffersWithDamageKHR");
+#endif /* defined(EGL_KHR_swap_buffers_with_damage) */
+
+#if defined(EGL_KHR_wait_sync)
+    eglWaitSyncKHR = (PFNEGLWAITSYNCKHRPROC)gles3wLoad("eglWaitSyncKHR");
+#endif /* defined(EGL_KHR_wait_sync) */
+
+#if defined(EGL_MESA_drm_image)
+    eglCreateDRMImageMESA = (PFNEGLCREATEDRMIMAGEMESAPROC)gles3wLoad("eglCreateDRMImageMESA");
+    eglExportDRMImageMESA = (PFNEGLEXPORTDRMIMAGEMESAPROC)gles3wLoad("eglExportDRMImageMESA");
+#endif /* defined(EGL_MESA_drm_image) */
+
+#if defined(EGL_MESA_image_dma_buf_export)
+    eglExportDMABUFImageQueryMESA = (PFNEGLEXPORTDMABUFIMAGEQUERYMESAPROC)gles3wLoad("eglExportDMABUFImageQueryMESA");
+    eglExportDMABUFImageMESA = (PFNEGLEXPORTDMABUFIMAGEMESAPROC)gles3wLoad("eglExportDMABUFImageMESA");
+#endif /* defined(EGL_MESA_image_dma_buf_export) */
+
+#if defined(EGL_MESA_query_driver)
+    eglGetDisplayDriverConfig = (PFNEGLGETDISPLAYDRIVERCONFIGPROC)gles3wLoad("eglGetDisplayDriverConfig");
+    eglGetDisplayDriverName = (PFNEGLGETDISPLAYDRIVERNAMEPROC)gles3wLoad("eglGetDisplayDriverName");
+#endif /* defined(EGL_MESA_query_driver) */
+
+#if defined(EGL_NOK_swap_region)
+    eglSwapBuffersRegionNOK = (PFNEGLSWAPBUFFERSREGIONNOKPROC)gles3wLoad("eglSwapBuffersRegionNOK");
+#endif /* defined(EGL_NOK_swap_region) */
+
+#if defined(EGL_NOK_swap_region2)
+    eglSwapBuffersRegion2NOK = (PFNEGLSWAPBUFFERSREGION2NOKPROC)gles3wLoad("eglSwapBuffersRegion2NOK");
+#endif /* defined(EGL_NOK_swap_region2) */
+
+#if defined(EGL_NV_native_query)
+    eglQueryNativeDisplayNV = (PFNEGLQUERYNATIVEDISPLAYNVPROC)gles3wLoad("eglQueryNativeDisplayNV");
+    eglQueryNativeWindowNV = (PFNEGLQUERYNATIVEWINDOWNVPROC)gles3wLoad("eglQueryNativeWindowNV");
+    eglQueryNativePixmapNV = (PFNEGLQUERYNATIVEPIXMAPNVPROC)gles3wLoad("eglQueryNativePixmapNV");
+#endif /* defined(EGL_NV_native_query) */
+
+#if defined(EGL_NV_post_sub_buffer)
+    eglPostSubBufferNV = (PFNEGLPOSTSUBBUFFERNVPROC)gles3wLoad("eglPostSubBufferNV");
+#endif /* defined(EGL_NV_post_sub_buffer) */
+
+#if defined(EGL_NV_stream_consumer_gltexture_yuv)
+    eglStreamConsumerGLTextureExternalAttribsNV = (PFNEGLSTREAMCONSUMERGLTEXTUREEXTERNALATTRIBSNVPROC)gles3wLoad("eglStreamConsumerGLTextureExternalAttribsNV");
+#endif /* defined(EGL_NV_stream_consumer_gltexture_yuv) */
+
+#if defined(EGL_NV_stream_consumer_eglimage)
+    eglStreamImageConsumerConnectNV = (PFNEGLSTREAMIMAGECONSUMERCONNECTNVPROC)gles3wLoad("eglStreamImageConsumerConnectNV");
+    eglQueryStreamConsumerEventNV = (PFNEGLQUERYSTREAMCONSUMEREVENTNVPROC)gles3wLoad("eglQueryStreamConsumerEventNV");
+    eglStreamAcquireImageNV = (PFNEGLSTREAMACQUIREIMAGENVPROC)gles3wLoad("eglStreamAcquireImageNV");
+    eglStreamReleaseImageNV = (PFNEGLSTREAMRELEASEIMAGENVPROC)gles3wLoad("eglStreamReleaseImageNV");
+#endif /* defined(EGL_NV_stream_consumer_eglimage) */
+
+#if defined(EGL_NV_stream_flush)
+    eglStreamFlushNV = (PFNEGLSTREAMFLUSHNVPROC)gles3wLoad("eglStreamFlushNV");
+#endif /* defined(EGL_NV_stream_flush) */
+
+#if defined(EGL_NV_stream_metadata)
+    eglQueryDisplayAttribNV = (PFNEGLQUERYDISPLAYATTRIBNVPROC)gles3wLoad("eglQueryDisplayAttribNV");
+    eglSetStreamMetadataNV = (PFNEGLSETSTREAMMETADATANVPROC)gles3wLoad("eglSetStreamMetadataNV");
+    eglQueryStreamMetadataNV = (PFNEGLQUERYSTREAMMETADATANVPROC)gles3wLoad("eglQueryStreamMetadataNV");
+#endif /* defined(EGL_NV_stream_metadata) */
+
+#if defined(EGL_NV_stream_reset)
+    eglResetStreamNV = (PFNEGLRESETSTREAMNVPROC)gles3wLoad("eglResetStreamNV");
+#endif /* defined(EGL_NV_stream_reset) */
+
+#if defined(EGL_NV_stream_sync)
+    eglCreateStreamSyncNV = (PFNEGLCREATESTREAMSYNCNVPROC)gles3wLoad("eglCreateStreamSyncNV");
+#endif /* defined(EGL_NV_stream_sync) */
+
+#if defined(EGL_NV_sync)
+    eglCreateFenceSyncNV = (PFNEGLCREATEFENCESYNCNVPROC)gles3wLoad("eglCreateFenceSyncNV");
+    eglDestroySyncNV = (PFNEGLDESTROYSYNCNVPROC)gles3wLoad("eglDestroySyncNV");
+    eglFenceNV = (PFNEGLFENCENVPROC)gles3wLoad("eglFenceNV");
+    eglClientWaitSyncNV = (PFNEGLCLIENTWAITSYNCNVPROC)gles3wLoad("eglClientWaitSyncNV");
+    eglSignalSyncNV = (PFNEGLSIGNALSYNCNVPROC)gles3wLoad("eglSignalSyncNV");
+    eglGetSyncAttribNV = (PFNEGLGETSYNCATTRIBNVPROC)gles3wLoad("eglGetSyncAttribNV");
+#endif /* defined(EGL_NV_sync) */
+
+#if defined(EGL_NV_system_time)
+    eglGetSystemTimeFrequencyNV = (PFNEGLGETSYSTEMTIMEFREQUENCYNVPROC)gles3wLoad("eglGetSystemTimeFrequencyNV");
+    eglGetSystemTimeNV = (PFNEGLGETSYSTEMTIMENVPROC)gles3wLoad("eglGetSystemTimeNV");
+#endif /* defined(EGL_NV_system_time) */
+
+#if defined(EGL_EXT_compositor)
+    eglCompositorSetContextListEXT = (PFNEGLCOMPOSITORSETCONTEXTLISTEXTPROC)gles3wLoad("eglCompositorSetContextListEXT");
+    eglCompositorSetContextAttributesEXT = (PFNEGLCOMPOSITORSETCONTEXTATTRIBUTESEXTPROC)gles3wLoad("eglCompositorSetContextAttributesEXT");
+    eglCompositorSetWindowListEXT = (PFNEGLCOMPOSITORSETWINDOWLISTEXTPROC)gles3wLoad("eglCompositorSetWindowListEXT");
+    eglCompositorSetWindowAttributesEXT = (PFNEGLCOMPOSITORSETWINDOWATTRIBUTESEXTPROC)gles3wLoad("eglCompositorSetWindowAttributesEXT");
+    eglCompositorBindTexWindowEXT = (PFNEGLCOMPOSITORBINDTEXWINDOWEXTPROC)gles3wLoad("eglCompositorBindTexWindowEXT");
+    eglCompositorSetSizeEXT = (PFNEGLCOMPOSITORSETSIZEEXTPROC)gles3wLoad("eglCompositorSetSizeEXT");
+    eglCompositorSwapPolicyEXT = (PFNEGLCOMPOSITORSWAPPOLICYEXTPROC)gles3wLoad("eglCompositorSwapPolicyEXT");
+#endif /* defined(EGL_EXT_compositor) */
+
+#if defined(EGL_WL_bind_wayland_display)
+    eglBindWaylandDisplayWL = (PFNEGLBINDWAYLANDDISPLAYWLPROC)gles3wLoad("eglBindWaylandDisplayWL");
+    eglUnbindWaylandDisplayWL = (PFNEGLUNBINDWAYLANDDISPLAYWLPROC)gles3wLoad("eglUnbindWaylandDisplayWL");
+    eglQueryWaylandBufferWL = (PFNEGLQUERYWAYLANDBUFFERWLPROC)gles3wLoad("eglQueryWaylandBufferWL");
+#endif /* defined(EGL_WL_bind_wayland_display) */
+
+#if defined(EGL_WL_create_wayland_buffer_from_image)
+    eglCreateWaylandBufferFromImageWL = (PFNEGLCREATEWAYLANDBUFFERFROMIMAGEWLPROC)gles3wLoad("eglCreateWaylandBufferFromImageWL");
+#endif /* defined(EGL_WL_create_wayland_buffer_from_image) */
+
+
+    /* GL_ES_VERSION_2_0 */
+    glActiveTexture = (PFNGLACTIVETEXTUREPROC)gles3wLoad("glActiveTexture");
+    glAttachShader = (PFNGLATTACHSHADERPROC)gles3wLoad("glAttachShader");
+    glBindAttribLocation = (PFNGLBINDATTRIBLOCATIONPROC)gles3wLoad("glBindAttribLocation");
+    glBindBuffer = (PFNGLBINDBUFFERPROC)gles3wLoad("glBindBuffer");
+    glBindFramebuffer = (PFNGLBINDFRAMEBUFFERPROC)gles3wLoad("glBindFramebuffer");
+    glBindRenderbuffer = (PFNGLBINDRENDERBUFFERPROC)gles3wLoad("glBindRenderbuffer");
+    glBindTexture = (PFNGLBINDTEXTUREPROC)gles3wLoad("glBindTexture");
+    glBlendColor = (PFNGLBLENDCOLORPROC)gles3wLoad("glBlendColor");
+    glBlendEquation = (PFNGLBLENDEQUATIONPROC)gles3wLoad("glBlendEquation");
+    glBlendEquationSeparate = (PFNGLBLENDEQUATIONSEPARATEPROC)gles3wLoad("glBlendEquationSeparate");
+    glBlendFunc = (PFNGLBLENDFUNCPROC)gles3wLoad("glBlendFunc");
+    glBlendFuncSeparate = (PFNGLBLENDFUNCSEPARATEPROC)gles3wLoad("glBlendFuncSeparate");
+    glBufferData = (PFNGLBUFFERDATAPROC)gles3wLoad("glBufferData");
+    glBufferSubData = (PFNGLBUFFERSUBDATAPROC)gles3wLoad("glBufferSubData");
+    glCheckFramebufferStatus = (PFNGLCHECKFRAMEBUFFERSTATUSPROC)gles3wLoad("glCheckFramebufferStatus");
+    glClear = (PFNGLCLEARPROC)gles3wLoad("glClear");
+    glClearColor = (PFNGLCLEARCOLORPROC)gles3wLoad("glClearColor");
+    glClearDepthf = (PFNGLCLEARDEPTHFPROC)gles3wLoad("glClearDepthf");
+    glClearStencil = (PFNGLCLEARSTENCILPROC)gles3wLoad("glClearStencil");
+    glColorMask = (PFNGLCOLORMASKPROC)gles3wLoad("glColorMask");
+    glCompileShader = (PFNGLCOMPILESHADERPROC)gles3wLoad("glCompileShader");
+    glCompressedTexImage2D = (PFNGLCOMPRESSEDTEXIMAGE2DPROC)gles3wLoad("glCompressedTexImage2D");
+    glCompressedTexSubImage2D = (PFNGLCOMPRESSEDTEXSUBIMAGE2DPROC)gles3wLoad("glCompressedTexSubImage2D");
+    glCopyTexImage2D = (PFNGLCOPYTEXIMAGE2DPROC)gles3wLoad("glCopyTexImage2D");
+    glCopyTexSubImage2D = (PFNGLCOPYTEXSUBIMAGE2DPROC)gles3wLoad("glCopyTexSubImage2D");
+    glCreateProgram = (PFNGLCREATEPROGRAMPROC)gles3wLoad("glCreateProgram");
+    glCreateShader = (PFNGLCREATESHADERPROC)gles3wLoad("glCreateShader");
+    glCullFace = (PFNGLCULLFACEPROC)gles3wLoad("glCullFace");
+    glDeleteBuffers = (PFNGLDELETEBUFFERSPROC)gles3wLoad("glDeleteBuffers");
+    glDeleteFramebuffers = (PFNGLDELETEFRAMEBUFFERSPROC)gles3wLoad("glDeleteFramebuffers");
+    glDeleteProgram = (PFNGLDELETEPROGRAMPROC)gles3wLoad("glDeleteProgram");
+    glDeleteRenderbuffers = (PFNGLDELETERENDERBUFFERSPROC)gles3wLoad("glDeleteRenderbuffers");
+    glDeleteShader = (PFNGLDELETESHADERPROC)gles3wLoad("glDeleteShader");
+    glDeleteTextures = (PFNGLDELETETEXTURESPROC)gles3wLoad("glDeleteTextures");
+    glDepthFunc = (PFNGLDEPTHFUNCPROC)gles3wLoad("glDepthFunc");
+    glDepthMask = (PFNGLDEPTHMASKPROC)gles3wLoad("glDepthMask");
+    glDepthRangef = (PFNGLDEPTHRANGEFPROC)gles3wLoad("glDepthRangef");
+    glDetachShader = (PFNGLDETACHSHADERPROC)gles3wLoad("glDetachShader");
+    glDisable = (PFNGLDISABLEPROC)gles3wLoad("glDisable");
+    glDisableVertexAttribArray = (PFNGLDISABLEVERTEXATTRIBARRAYPROC)gles3wLoad("glDisableVertexAttribArray");
+    glDrawArrays = (PFNGLDRAWARRAYSPROC)gles3wLoad("glDrawArrays");
+    glDrawElements = (PFNGLDRAWELEMENTSPROC)gles3wLoad("glDrawElements");
+    glEnable = (PFNGLENABLEPROC)gles3wLoad("glEnable");
+    glEnableVertexAttribArray = (PFNGLENABLEVERTEXATTRIBARRAYPROC)gles3wLoad("glEnableVertexAttribArray");
+    glFinish = (PFNGLFINISHPROC)gles3wLoad("glFinish");
+    glFlush = (PFNGLFLUSHPROC)gles3wLoad("glFlush");
+    glFramebufferRenderbuffer = (PFNGLFRAMEBUFFERRENDERBUFFERPROC)gles3wLoad("glFramebufferRenderbuffer");
+    glFramebufferTexture2D = (PFNGLFRAMEBUFFERTEXTURE2DPROC)gles3wLoad("glFramebufferTexture2D");
+    glFrontFace = (PFNGLFRONTFACEPROC)gles3wLoad("glFrontFace");
+    glGenBuffers = (PFNGLGENBUFFERSPROC)gles3wLoad("glGenBuffers");
+    glGenerateMipmap = (PFNGLGENERATEMIPMAPPROC)gles3wLoad("glGenerateMipmap");
+    glGenFramebuffers = (PFNGLGENFRAMEBUFFERSPROC)gles3wLoad("glGenFramebuffers");
+    glGenRenderbuffers = (PFNGLGENRENDERBUFFERSPROC)gles3wLoad("glGenRenderbuffers");
+    glGenTextures = (PFNGLGENTEXTURESPROC)gles3wLoad("glGenTextures");
+    glGetActiveAttrib = (PFNGLGETACTIVEATTRIBPROC)gles3wLoad("glGetActiveAttrib");
+    glGetActiveUniform = (PFNGLGETACTIVEUNIFORMPROC)gles3wLoad("glGetActiveUniform");
+    glGetAttachedShaders = (PFNGLGETATTACHEDSHADERSPROC)gles3wLoad("glGetAttachedShaders");
+    glGetAttribLocation = (PFNGLGETATTRIBLOCATIONPROC)gles3wLoad("glGetAttribLocation");
+    glGetBooleanv = (PFNGLGETBOOLEANVPROC)gles3wLoad("glGetBooleanv");
+    glGetBufferParameteriv = (PFNGLGETBUFFERPARAMETERIVPROC)gles3wLoad("glGetBufferParameteriv");
+    glGetError = (PFNGLGETERRORPROC)gles3wLoad("glGetError");
+    glGetFloatv = (PFNGLGETFLOATVPROC)gles3wLoad("glGetFloatv");
+    glGetFramebufferAttachmentParameteriv = (PFNGLGETFRAMEBUFFERATTACHMENTPARAMETERIVPROC)gles3wLoad("glGetFramebufferAttachmentParameteriv");
+    glGetIntegerv = (PFNGLGETINTEGERVPROC)gles3wLoad("glGetIntegerv");
+    glGetProgramiv = (PFNGLGETPROGRAMIVPROC)gles3wLoad("glGetProgramiv");
+    glGetProgramInfoLog = (PFNGLGETPROGRAMINFOLOGPROC)gles3wLoad("glGetProgramInfoLog");
+    glGetRenderbufferParameteriv = (PFNGLGETRENDERBUFFERPARAMETERIVPROC)gles3wLoad("glGetRenderbufferParameteriv");
+    glGetShaderiv = (PFNGLGETSHADERIVPROC)gles3wLoad("glGetShaderiv");
+    glGetShaderInfoLog = (PFNGLGETSHADERINFOLOGPROC)gles3wLoad("glGetShaderInfoLog");
+    glGetShaderPrecisionFormat = (PFNGLGETSHADERPRECISIONFORMATPROC)gles3wLoad("glGetShaderPrecisionFormat");
+    glGetShaderSource = (PFNGLGETSHADERSOURCEPROC)gles3wLoad("glGetShaderSource");
+    glGetString = (PFNGLGETSTRINGPROC)gles3wLoad("glGetString");
+    glGetTexParameterfv = (PFNGLGETTEXPARAMETERFVPROC)gles3wLoad("glGetTexParameterfv");
+    glGetTexParameteriv = (PFNGLGETTEXPARAMETERIVPROC)gles3wLoad("glGetTexParameteriv");
+    glGetUniformfv = (PFNGLGETUNIFORMFVPROC)gles3wLoad("glGetUniformfv");
+    glGetUniformiv = (PFNGLGETUNIFORMIVPROC)gles3wLoad("glGetUniformiv");
+    glGetUniformLocation = (PFNGLGETUNIFORMLOCATIONPROC)gles3wLoad("glGetUniformLocation");
+    glGetVertexAttribfv = (PFNGLGETVERTEXATTRIBFVPROC)gles3wLoad("glGetVertexAttribfv");
+    glGetVertexAttribiv = (PFNGLGETVERTEXATTRIBIVPROC)gles3wLoad("glGetVertexAttribiv");
+    glGetVertexAttribPointerv = (PFNGLGETVERTEXATTRIBPOINTERVPROC)gles3wLoad("glGetVertexAttribPointerv");
+    glHint = (PFNGLHINTPROC)gles3wLoad("glHint");
+    glIsBuffer = (PFNGLISBUFFERPROC)gles3wLoad("glIsBuffer");
+    glIsEnabled = (PFNGLISENABLEDPROC)gles3wLoad("glIsEnabled");
+    glIsFramebuffer = (PFNGLISFRAMEBUFFERPROC)gles3wLoad("glIsFramebuffer");
+    glIsProgram = (PFNGLISPROGRAMPROC)gles3wLoad("glIsProgram");
+    glIsRenderbuffer = (PFNGLISRENDERBUFFERPROC)gles3wLoad("glIsRenderbuffer");
+    glIsShader = (PFNGLISSHADERPROC)gles3wLoad("glIsShader");
+    glIsTexture = (PFNGLISTEXTUREPROC)gles3wLoad("glIsTexture");
+    glLineWidth = (PFNGLLINEWIDTHPROC)gles3wLoad("glLineWidth");
+    glLinkProgram = (PFNGLLINKPROGRAMPROC)gles3wLoad("glLinkProgram");
+    glPixelStorei = (PFNGLPIXELSTOREIPROC)gles3wLoad("glPixelStorei");
+    glPolygonOffset = (PFNGLPOLYGONOFFSETPROC)gles3wLoad("glPolygonOffset");
+    glReadPixels = (PFNGLREADPIXELSPROC)gles3wLoad("glReadPixels");
+    glReleaseShaderCompiler = (PFNGLRELEASESHADERCOMPILERPROC)gles3wLoad("glReleaseShaderCompiler");
+    glRenderbufferStorage = (PFNGLRENDERBUFFERSTORAGEPROC)gles3wLoad("glRenderbufferStorage");
+    glSampleCoverage = (PFNGLSAMPLECOVERAGEPROC)gles3wLoad("glSampleCoverage");
+    glScissor = (PFNGLSCISSORPROC)gles3wLoad("glScissor");
+    glShaderBinary = (PFNGLSHADERBINARYPROC)gles3wLoad("glShaderBinary");
+    glShaderSource = (PFNGLSHADERSOURCEPROC)gles3wLoad("glShaderSource");
+    glStencilFunc = (PFNGLSTENCILFUNCPROC)gles3wLoad("glStencilFunc");
+    glStencilFuncSeparate = (PFNGLSTENCILFUNCSEPARATEPROC)gles3wLoad("glStencilFuncSeparate");
+    glStencilMask = (PFNGLSTENCILMASKPROC)gles3wLoad("glStencilMask");
+    glStencilMaskSeparate = (PFNGLSTENCILMASKSEPARATEPROC)gles3wLoad("glStencilMaskSeparate");
+    glStencilOp = (PFNGLSTENCILOPPROC)gles3wLoad("glStencilOp");
+    glStencilOpSeparate = (PFNGLSTENCILOPSEPARATEPROC)gles3wLoad("glStencilOpSeparate");
+    glTexImage2D = (PFNGLTEXIMAGE2DPROC)gles3wLoad("glTexImage2D");
+    glTexParameterf = (PFNGLTEXPARAMETERFPROC)gles3wLoad("glTexParameterf");
+    glTexParameterfv = (PFNGLTEXPARAMETERFVPROC)gles3wLoad("glTexParameterfv");
+    glTexParameteri = (PFNGLTEXPARAMETERIPROC)gles3wLoad("glTexParameteri");
+    glTexParameteriv = (PFNGLTEXPARAMETERIVPROC)gles3wLoad("glTexParameteriv");
+    glTexSubImage2D = (PFNGLTEXSUBIMAGE2DPROC)gles3wLoad("glTexSubImage2D");
+    glUniform1f = (PFNGLUNIFORM1FPROC)gles3wLoad("glUniform1f");
+    glUniform1fv = (PFNGLUNIFORM1FVPROC)gles3wLoad("glUniform1fv");
+    glUniform1i = (PFNGLUNIFORM1IPROC)gles3wLoad("glUniform1i");
+    glUniform1iv = (PFNGLUNIFORM1IVPROC)gles3wLoad("glUniform1iv");
+    glUniform2f = (PFNGLUNIFORM2FPROC)gles3wLoad("glUniform2f");
+    glUniform2fv = (PFNGLUNIFORM2FVPROC)gles3wLoad("glUniform2fv");
+    glUniform2i = (PFNGLUNIFORM2IPROC)gles3wLoad("glUniform2i");
+    glUniform2iv = (PFNGLUNIFORM2IVPROC)gles3wLoad("glUniform2iv");
+    glUniform3f = (PFNGLUNIFORM3FPROC)gles3wLoad("glUniform3f");
+    glUniform3fv = (PFNGLUNIFORM3FVPROC)gles3wLoad("glUniform3fv");
+    glUniform3i = (PFNGLUNIFORM3IPROC)gles3wLoad("glUniform3i");
+    glUniform3iv = (PFNGLUNIFORM3IVPROC)gles3wLoad("glUniform3iv");
+    glUniform4f = (PFNGLUNIFORM4FPROC)gles3wLoad("glUniform4f");
+    glUniform4fv = (PFNGLUNIFORM4FVPROC)gles3wLoad("glUniform4fv");
+    glUniform4i = (PFNGLUNIFORM4IPROC)gles3wLoad("glUniform4i");
+    glUniform4iv = (PFNGLUNIFORM4IVPROC)gles3wLoad("glUniform4iv");
+    glUniformMatrix2fv = (PFNGLUNIFORMMATRIX2FVPROC)gles3wLoad("glUniformMatrix2fv");
+    glUniformMatrix3fv = (PFNGLUNIFORMMATRIX3FVPROC)gles3wLoad("glUniformMatrix3fv");
+    glUniformMatrix4fv = (PFNGLUNIFORMMATRIX4FVPROC)gles3wLoad("glUniformMatrix4fv");
+    glUseProgram = (PFNGLUSEPROGRAMPROC)gles3wLoad("glUseProgram");
+    glValidateProgram = (PFNGLVALIDATEPROGRAMPROC)gles3wLoad("glValidateProgram");
+    glVertexAttrib1f = (PFNGLVERTEXATTRIB1FPROC)gles3wLoad("glVertexAttrib1f");
+    glVertexAttrib1fv = (PFNGLVERTEXATTRIB1FVPROC)gles3wLoad("glVertexAttrib1fv");
+    glVertexAttrib2f = (PFNGLVERTEXATTRIB2FPROC)gles3wLoad("glVertexAttrib2f");
+    glVertexAttrib2fv = (PFNGLVERTEXATTRIB2FVPROC)gles3wLoad("glVertexAttrib2fv");
+    glVertexAttrib3f = (PFNGLVERTEXATTRIB3FPROC)gles3wLoad("glVertexAttrib3f");
+    glVertexAttrib3fv = (PFNGLVERTEXATTRIB3FVPROC)gles3wLoad("glVertexAttrib3fv");
+    glVertexAttrib4f = (PFNGLVERTEXATTRIB4FPROC)gles3wLoad("glVertexAttrib4f");
+    glVertexAttrib4fv = (PFNGLVERTEXATTRIB4FVPROC)gles3wLoad("glVertexAttrib4fv");
+    glVertexAttribPointer = (PFNGLVERTEXATTRIBPOINTERPROC)gles3wLoad("glVertexAttribPointer");
+    glViewport = (PFNGLVIEWPORTPROC)gles3wLoad("glViewport");
+
+
+    /* GL_ES_VERSION_3_0 */
+    glReadBuffer = (PFNGLREADBUFFERPROC)gles3wLoad("glReadBuffer");
+    glDrawRangeElements = (PFNGLDRAWRANGEELEMENTSPROC)gles3wLoad("glDrawRangeElements");
+    glTexImage3D = (PFNGLTEXIMAGE3DPROC)gles3wLoad("glTexImage3D");
+    glTexSubImage3D = (PFNGLTEXSUBIMAGE3DPROC)gles3wLoad("glTexSubImage3D");
+    glCopyTexSubImage3D = (PFNGLCOPYTEXSUBIMAGE3DPROC)gles3wLoad("glCopyTexSubImage3D");
+    glCompressedTexImage3D = (PFNGLCOMPRESSEDTEXIMAGE3DPROC)gles3wLoad("glCompressedTexImage3D");
+    glCompressedTexSubImage3D = (PFNGLCOMPRESSEDTEXSUBIMAGE3DPROC)gles3wLoad("glCompressedTexSubImage3D");
+    glGenQueries = (PFNGLGENQUERIESPROC)gles3wLoad("glGenQueries");
+    glDeleteQueries = (PFNGLDELETEQUERIESPROC)gles3wLoad("glDeleteQueries");
+    glIsQuery = (PFNGLISQUERYPROC)gles3wLoad("glIsQuery");
+    glBeginQuery = (PFNGLBEGINQUERYPROC)gles3wLoad("glBeginQuery");
+    glEndQuery = (PFNGLENDQUERYPROC)gles3wLoad("glEndQuery");
+    glGetQueryiv = (PFNGLGETQUERYIVPROC)gles3wLoad("glGetQueryiv");
+    glGetQueryObjectuiv = (PFNGLGETQUERYOBJECTUIVPROC)gles3wLoad("glGetQueryObjectuiv");
+    glUnmapBuffer = (PFNGLUNMAPBUFFERPROC)gles3wLoad("glUnmapBuffer");
+    glGetBufferPointerv = (PFNGLGETBUFFERPOINTERVPROC)gles3wLoad("glGetBufferPointerv");
+    glDrawBuffers = (PFNGLDRAWBUFFERSPROC)gles3wLoad("glDrawBuffers");
+    glUniformMatrix2x3fv = (PFNGLUNIFORMMATRIX2X3FVPROC)gles3wLoad("glUniformMatrix2x3fv");
+    glUniformMatrix3x2fv = (PFNGLUNIFORMMATRIX3X2FVPROC)gles3wLoad("glUniformMatrix3x2fv");
+    glUniformMatrix2x4fv = (PFNGLUNIFORMMATRIX2X4FVPROC)gles3wLoad("glUniformMatrix2x4fv");
+    glUniformMatrix4x2fv = (PFNGLUNIFORMMATRIX4X2FVPROC)gles3wLoad("glUniformMatrix4x2fv");
+    glUniformMatrix3x4fv = (PFNGLUNIFORMMATRIX3X4FVPROC)gles3wLoad("glUniformMatrix3x4fv");
+    glUniformMatrix4x3fv = (PFNGLUNIFORMMATRIX4X3FVPROC)gles3wLoad("glUniformMatrix4x3fv");
+    glBlitFramebuffer = (PFNGLBLITFRAMEBUFFERPROC)gles3wLoad("glBlitFramebuffer");
+    glRenderbufferStorageMultisample = (PFNGLRENDERBUFFERSTORAGEMULTISAMPLEPROC)gles3wLoad("glRenderbufferStorageMultisample");
+    glFramebufferTextureLayer = (PFNGLFRAMEBUFFERTEXTURELAYERPROC)gles3wLoad("glFramebufferTextureLayer");
+    glMapBufferRange = (PFNGLMAPBUFFERRANGEPROC)gles3wLoad("glMapBufferRange");
+    glFlushMappedBufferRange = (PFNGLFLUSHMAPPEDBUFFERRANGEPROC)gles3wLoad("glFlushMappedBufferRange");
+    glBindVertexArray = (PFNGLBINDVERTEXARRAYPROC)gles3wLoad("glBindVertexArray");
+    glDeleteVertexArrays = (PFNGLDELETEVERTEXARRAYSPROC)gles3wLoad("glDeleteVertexArrays");
+    glGenVertexArrays = (PFNGLGENVERTEXARRAYSPROC)gles3wLoad("glGenVertexArrays");
+    glIsVertexArray = (PFNGLISVERTEXARRAYPROC)gles3wLoad("glIsVertexArray");
+    glGetIntegeri_v = (PFNGLGETINTEGERI_VPROC)gles3wLoad("glGetIntegeri_v");
+    glBeginTransformFeedback = (PFNGLBEGINTRANSFORMFEEDBACKPROC)gles3wLoad("glBeginTransformFeedback");
+    glEndTransformFeedback = (PFNGLENDTRANSFORMFEEDBACKPROC)gles3wLoad("glEndTransformFeedback");
+    glBindBufferRange = (PFNGLBINDBUFFERRANGEPROC)gles3wLoad("glBindBufferRange");
+    glBindBufferBase = (PFNGLBINDBUFFERBASEPROC)gles3wLoad("glBindBufferBase");
+    glTransformFeedbackVaryings = (PFNGLTRANSFORMFEEDBACKVARYINGSPROC)gles3wLoad("glTransformFeedbackVaryings");
+    glGetTransformFeedbackVarying = (PFNGLGETTRANSFORMFEEDBACKVARYINGPROC)gles3wLoad("glGetTransformFeedbackVarying");
+    glVertexAttribIPointer = (PFNGLVERTEXATTRIBIPOINTERPROC)gles3wLoad("glVertexAttribIPointer");
+    glGetVertexAttribIiv = (PFNGLGETVERTEXATTRIBIIVPROC)gles3wLoad("glGetVertexAttribIiv");
+    glGetVertexAttribIuiv = (PFNGLGETVERTEXATTRIBIUIVPROC)gles3wLoad("glGetVertexAttribIuiv");
+    glVertexAttribI4i = (PFNGLVERTEXATTRIBI4IPROC)gles3wLoad("glVertexAttribI4i");
+    glVertexAttribI4ui = (PFNGLVERTEXATTRIBI4UIPROC)gles3wLoad("glVertexAttribI4ui");
+    glVertexAttribI4iv = (PFNGLVERTEXATTRIBI4IVPROC)gles3wLoad("glVertexAttribI4iv");
+    glVertexAttribI4uiv = (PFNGLVERTEXATTRIBI4UIVPROC)gles3wLoad("glVertexAttribI4uiv");
+    glGetUniformuiv = (PFNGLGETUNIFORMUIVPROC)gles3wLoad("glGetUniformuiv");
+    glGetFragDataLocation = (PFNGLGETFRAGDATALOCATIONPROC)gles3wLoad("glGetFragDataLocation");
+    glUniform1ui = (PFNGLUNIFORM1UIPROC)gles3wLoad("glUniform1ui");
+    glUniform2ui = (PFNGLUNIFORM2UIPROC)gles3wLoad("glUniform2ui");
+    glUniform3ui = (PFNGLUNIFORM3UIPROC)gles3wLoad("glUniform3ui");
+    glUniform4ui = (PFNGLUNIFORM4UIPROC)gles3wLoad("glUniform4ui");
+    glUniform1uiv = (PFNGLUNIFORM1UIVPROC)gles3wLoad("glUniform1uiv");
+    glUniform2uiv = (PFNGLUNIFORM2UIVPROC)gles3wLoad("glUniform2uiv");
+    glUniform3uiv = (PFNGLUNIFORM3UIVPROC)gles3wLoad("glUniform3uiv");
+    glUniform4uiv = (PFNGLUNIFORM4UIVPROC)gles3wLoad("glUniform4uiv");
+    glClearBufferiv = (PFNGLCLEARBUFFERIVPROC)gles3wLoad("glClearBufferiv");
+    glClearBufferuiv = (PFNGLCLEARBUFFERUIVPROC)gles3wLoad("glClearBufferuiv");
+    glClearBufferfv = (PFNGLCLEARBUFFERFVPROC)gles3wLoad("glClearBufferfv");
+    glClearBufferfi = (PFNGLCLEARBUFFERFIPROC)gles3wLoad("glClearBufferfi");
+    glGetStringi = (PFNGLGETSTRINGIPROC)gles3wLoad("glGetStringi");
+    glCopyBufferSubData = (PFNGLCOPYBUFFERSUBDATAPROC)gles3wLoad("glCopyBufferSubData");
+    glGetUniformIndices = (PFNGLGETUNIFORMINDICESPROC)gles3wLoad("glGetUniformIndices");
+    glGetActiveUniformsiv = (PFNGLGETACTIVEUNIFORMSIVPROC)gles3wLoad("glGetActiveUniformsiv");
+    glGetUniformBlockIndex = (PFNGLGETUNIFORMBLOCKINDEXPROC)gles3wLoad("glGetUniformBlockIndex");
+    glGetActiveUniformBlockiv = (PFNGLGETACTIVEUNIFORMBLOCKIVPROC)gles3wLoad("glGetActiveUniformBlockiv");
+    glGetActiveUniformBlockName = (PFNGLGETACTIVEUNIFORMBLOCKNAMEPROC)gles3wLoad("glGetActiveUniformBlockName");
+    glUniformBlockBinding = (PFNGLUNIFORMBLOCKBINDINGPROC)gles3wLoad("glUniformBlockBinding");
+    glDrawArraysInstanced = (PFNGLDRAWARRAYSINSTANCEDPROC)gles3wLoad("glDrawArraysInstanced");
+    glDrawElementsInstanced = (PFNGLDRAWELEMENTSINSTANCEDPROC)gles3wLoad("glDrawElementsInstanced");
+    glFenceSync = (PFNGLFENCESYNCPROC)gles3wLoad("glFenceSync");
+    glIsSync = (PFNGLISSYNCPROC)gles3wLoad("glIsSync");
+    glDeleteSync = (PFNGLDELETESYNCPROC)gles3wLoad("glDeleteSync");
+    glClientWaitSync = (PFNGLCLIENTWAITSYNCPROC)gles3wLoad("glClientWaitSync");
+    glWaitSync = (PFNGLWAITSYNCPROC)gles3wLoad("glWaitSync");
+    glGetInteger64v = (PFNGLGETINTEGER64VPROC)gles3wLoad("glGetInteger64v");
+    glGetSynciv = (PFNGLGETSYNCIVPROC)gles3wLoad("glGetSynciv");
+    glGetInteger64i_v = (PFNGLGETINTEGER64I_VPROC)gles3wLoad("glGetInteger64i_v");
+    glGetBufferParameteri64v = (PFNGLGETBUFFERPARAMETERI64VPROC)gles3wLoad("glGetBufferParameteri64v");
+    glGenSamplers = (PFNGLGENSAMPLERSPROC)gles3wLoad("glGenSamplers");
+    glDeleteSamplers = (PFNGLDELETESAMPLERSPROC)gles3wLoad("glDeleteSamplers");
+    glIsSampler = (PFNGLISSAMPLERPROC)gles3wLoad("glIsSampler");
+    glBindSampler = (PFNGLBINDSAMPLERPROC)gles3wLoad("glBindSampler");
+    glSamplerParameteri = (PFNGLSAMPLERPARAMETERIPROC)gles3wLoad("glSamplerParameteri");
+    glSamplerParameteriv = (PFNGLSAMPLERPARAMETERIVPROC)gles3wLoad("glSamplerParameteriv");
+    glSamplerParameterf = (PFNGLSAMPLERPARAMETERFPROC)gles3wLoad("glSamplerParameterf");
+    glSamplerParameterfv = (PFNGLSAMPLERPARAMETERFVPROC)gles3wLoad("glSamplerParameterfv");
+    glGetSamplerParameteriv = (PFNGLGETSAMPLERPARAMETERIVPROC)gles3wLoad("glGetSamplerParameteriv");
+    glGetSamplerParameterfv = (PFNGLGETSAMPLERPARAMETERFVPROC)gles3wLoad("glGetSamplerParameterfv");
+    glVertexAttribDivisor = (PFNGLVERTEXATTRIBDIVISORPROC)gles3wLoad("glVertexAttribDivisor");
+    glBindTransformFeedback = (PFNGLBINDTRANSFORMFEEDBACKPROC)gles3wLoad("glBindTransformFeedback");
+    glDeleteTransformFeedbacks = (PFNGLDELETETRANSFORMFEEDBACKSPROC)gles3wLoad("glDeleteTransformFeedbacks");
+    glGenTransformFeedbacks = (PFNGLGENTRANSFORMFEEDBACKSPROC)gles3wLoad("glGenTransformFeedbacks");
+    glIsTransformFeedback = (PFNGLISTRANSFORMFEEDBACKPROC)gles3wLoad("glIsTransformFeedback");
+    glPauseTransformFeedback = (PFNGLPAUSETRANSFORMFEEDBACKPROC)gles3wLoad("glPauseTransformFeedback");
+    glResumeTransformFeedback = (PFNGLRESUMETRANSFORMFEEDBACKPROC)gles3wLoad("glResumeTransformFeedback");
+    glGetProgramBinary = (PFNGLGETPROGRAMBINARYPROC)gles3wLoad("glGetProgramBinary");
+    glProgramBinary = (PFNGLPROGRAMBINARYPROC)gles3wLoad("glProgramBinary");
+    glProgramParameteri = (PFNGLPROGRAMPARAMETERIPROC)gles3wLoad("glProgramParameteri");
+    glInvalidateFramebuffer = (PFNGLINVALIDATEFRAMEBUFFERPROC)gles3wLoad("glInvalidateFramebuffer");
+    glInvalidateSubFramebuffer = (PFNGLINVALIDATESUBFRAMEBUFFERPROC)gles3wLoad("glInvalidateSubFramebuffer");
+    glTexStorage2D = (PFNGLTEXSTORAGE2DPROC)gles3wLoad("glTexStorage2D");
+    glTexStorage3D = (PFNGLTEXSTORAGE3DPROC)gles3wLoad("glTexStorage3D");
+    glGetInternalformativ = (PFNGLGETINTERNALFORMATIVPROC)gles3wLoad("glGetInternalformativ");
+
+
+    /* GL_ES_VERSION_3_1 */
+    glDispatchCompute = (PFNGLDISPATCHCOMPUTEPROC)gles3wLoad("glDispatchCompute");
+    glDispatchComputeIndirect = (PFNGLDISPATCHCOMPUTEINDIRECTPROC)gles3wLoad("glDispatchComputeIndirect");
+
+    glDrawArraysIndirect = (PFNGLDRAWARRAYSINDIRECTPROC)gles3wLoad("glDrawArraysIndirect");
+    glDrawElementsIndirect = (PFNGLDRAWELEMENTSINDIRECTPROC)gles3wLoad("glDrawElementsIndirect");
+
+    glFramebufferParameteri = (PFNGLFRAMEBUFFERPARAMETERIPROC)gles3wLoad("glFramebufferParameteri");
+    glGetFramebufferParameteriv = (PFNGLGETFRAMEBUFFERPARAMETERIVPROC)gles3wLoad("glGetFramebufferParameteriv");
+
+    glGetProgramInterfaceiv = (PFNGLGETPROGRAMINTERFACEIVPROC)gles3wLoad("glGetProgramInterfaceiv");
+    glGetProgramResourceIndex = (PFNGLGETPROGRAMRESOURCEINDEXPROC)gles3wLoad("glGetProgramResourceIndex");
+    glGetProgramResourceName = (PFNGLGETPROGRAMRESOURCENAMEPROC)gles3wLoad("glGetProgramResourceName");
+    glGetProgramResourceiv = (PFNGLGETPROGRAMRESOURCEIVPROC)gles3wLoad("glGetProgramResourceiv");
+    glGetProgramResourceLocation = (PFNGLGETPROGRAMRESOURCELOCATIONPROC)gles3wLoad("glGetProgramResourceLocation");
+
+    glUseProgramStages = (PFNGLUSEPROGRAMSTAGESPROC)gles3wLoad("glUseProgramStages");
+    glActiveShaderProgram = (PFNGLACTIVESHADERPROGRAMPROC)gles3wLoad("glActiveShaderProgram");
+    glCreateShaderProgramv = (PFNGLCREATESHADERPROGRAMVPROC)gles3wLoad("glCreateShaderProgramv");
+    glBindProgramPipeline = (PFNGLBINDPROGRAMPIPELINEPROC)gles3wLoad("glBindProgramPipeline");
+    glDeleteProgramPipelines = (PFNGLDELETEPROGRAMPIPELINESPROC)gles3wLoad("glDeleteProgramPipelines");
+    glGenProgramPipelines = (PFNGLGENPROGRAMPIPELINESPROC)gles3wLoad("glGenProgramPipelines");
+    glIsProgramPipeline = (PFNGLISPROGRAMPIPELINEPROC)gles3wLoad("glIsProgramPipeline");
+    glGetProgramPipelineiv = (PFNGLGETPROGRAMPIPELINEIVPROC)gles3wLoad("glGetProgramPipelineiv");
+    glProgramUniform1i = (PFNGLPROGRAMUNIFORM1IPROC)gles3wLoad("glProgramUniform1i");
+    glProgramUniform2i = (PFNGLPROGRAMUNIFORM2IPROC)gles3wLoad("glProgramUniform2i");
+    glProgramUniform3i = (PFNGLPROGRAMUNIFORM3IPROC)gles3wLoad("glProgramUniform3i");
+    glProgramUniform4i = (PFNGLPROGRAMUNIFORM4IPROC)gles3wLoad("glProgramUniform4i");
+    glProgramUniform1ui = (PFNGLPROGRAMUNIFORM1UIPROC)gles3wLoad("glProgramUniform1ui");
+    glProgramUniform2ui = (PFNGLPROGRAMUNIFORM2UIPROC)gles3wLoad("glProgramUniform2ui");
+    glProgramUniform3ui = (PFNGLPROGRAMUNIFORM3UIPROC)gles3wLoad("glProgramUniform3ui");
+    glProgramUniform4ui = (PFNGLPROGRAMUNIFORM4UIPROC)gles3wLoad("glProgramUniform4ui");
+    glProgramUniform1f = (PFNGLPROGRAMUNIFORM1FPROC)gles3wLoad("glProgramUniform1f");
+    glProgramUniform2f = (PFNGLPROGRAMUNIFORM2FPROC)gles3wLoad("glProgramUniform2f");
+    glProgramUniform3f = (PFNGLPROGRAMUNIFORM3FPROC)gles3wLoad("glProgramUniform3f");
+    glProgramUniform4f = (PFNGLPROGRAMUNIFORM4FPROC)gles3wLoad("glProgramUniform4f");
+    glProgramUniform1iv = (PFNGLPROGRAMUNIFORM1IVPROC)gles3wLoad("glProgramUniform1iv");
+    glProgramUniform2iv = (PFNGLPROGRAMUNIFORM2IVPROC)gles3wLoad("glProgramUniform2iv");
+    glProgramUniform3iv = (PFNGLPROGRAMUNIFORM3IVPROC)gles3wLoad("glProgramUniform3iv");
+    glProgramUniform4iv = (PFNGLPROGRAMUNIFORM4IVPROC)gles3wLoad("glProgramUniform4iv");
+    glProgramUniform1uiv = (PFNGLPROGRAMUNIFORM1UIVPROC)gles3wLoad("glProgramUniform1uiv");
+    glProgramUniform2uiv = (PFNGLPROGRAMUNIFORM2UIVPROC)gles3wLoad("glProgramUniform2uiv");
+    glProgramUniform3uiv = (PFNGLPROGRAMUNIFORM3UIVPROC)gles3wLoad("glProgramUniform3uiv");
+    glProgramUniform4uiv = (PFNGLPROGRAMUNIFORM4UIVPROC)gles3wLoad("glProgramUniform4uiv");
+    glProgramUniform1fv = (PFNGLPROGRAMUNIFORM1FVPROC)gles3wLoad("glProgramUniform1fv");
+    glProgramUniform2fv = (PFNGLPROGRAMUNIFORM2FVPROC)gles3wLoad("glProgramUniform2fv");
+    glProgramUniform3fv = (PFNGLPROGRAMUNIFORM3FVPROC)gles3wLoad("glProgramUniform3fv");
+    glProgramUniform4fv = (PFNGLPROGRAMUNIFORM4FVPROC)gles3wLoad("glProgramUniform4fv");
+    glProgramUniformMatrix2fv = (PFNGLPROGRAMUNIFORMMATRIX2FVPROC)gles3wLoad("glProgramUniformMatrix2fv");
+    glProgramUniformMatrix3fv = (PFNGLPROGRAMUNIFORMMATRIX3FVPROC)gles3wLoad("glProgramUniformMatrix3fv");
+    glProgramUniformMatrix4fv = (PFNGLPROGRAMUNIFORMMATRIX4FVPROC)gles3wLoad("glProgramUniformMatrix4fv");
+    glProgramUniformMatrix2x3fv = (PFNGLPROGRAMUNIFORMMATRIX2X3FVPROC)gles3wLoad("glProgramUniformMatrix2x3fv");
+    glProgramUniformMatrix3x2fv = (PFNGLPROGRAMUNIFORMMATRIX3X2FVPROC)gles3wLoad("glProgramUniformMatrix3x2fv");
+    glProgramUniformMatrix2x4fv = (PFNGLPROGRAMUNIFORMMATRIX2X4FVPROC)gles3wLoad("glProgramUniformMatrix2x4fv");
+    glProgramUniformMatrix4x2fv = (PFNGLPROGRAMUNIFORMMATRIX4X2FVPROC)gles3wLoad("glProgramUniformMatrix4x2fv");
+    glProgramUniformMatrix3x4fv = (PFNGLPROGRAMUNIFORMMATRIX3X4FVPROC)gles3wLoad("glProgramUniformMatrix3x4fv");
+    glProgramUniformMatrix4x3fv = (PFNGLPROGRAMUNIFORMMATRIX4X3FVPROC)gles3wLoad("glProgramUniformMatrix4x3fv");
+    glValidateProgramPipeline = (PFNGLVALIDATEPROGRAMPIPELINEPROC)gles3wLoad("glValidateProgramPipeline");
+    glGetProgramPipelineInfoLog = (PFNGLGETPROGRAMPIPELINEINFOLOGPROC)gles3wLoad("glGetProgramPipelineInfoLog");
+
+    glBindImageTexture = (PFNGLBINDIMAGETEXTUREPROC)gles3wLoad("glBindImageTexture");
+    glGetBooleani_v = (PFNGLGETBOOLEANI_VPROC)gles3wLoad("glGetBooleani_v");
+    glMemoryBarrier = (PFNGLMEMORYBARRIERPROC)gles3wLoad("glMemoryBarrier");
+    glMemoryBarrierByRegion = (PFNGLMEMORYBARRIERBYREGIONPROC)gles3wLoad("glMemoryBarrierByRegion");
+
+    glTexStorage2DMultisample = (PFNGLTEXSTORAGE2DMULTISAMPLEPROC)gles3wLoad("glTexStorage2DMultisample");
+    glGetMultisamplefv = (PFNGLGETMULTISAMPLEFVPROC)gles3wLoad("glGetMultisamplefv");
+    glSampleMaski = (PFNGLSAMPLEMASKIPROC)gles3wLoad("glSampleMaski");
+    glGetTexLevelParameteriv = (PFNGLGETTEXLEVELPARAMETERIVPROC)gles3wLoad("glGetTexLevelParameteriv");
+    glGetTexLevelParameterfv = (PFNGLGETTEXLEVELPARAMETERFVPROC)gles3wLoad("glGetTexLevelParameterfv");
+
+    glBindVertexBuffer = (PFNGLBINDVERTEXBUFFERPROC)gles3wLoad("glBindVertexBuffer");
+    glVertexAttribFormat = (PFNGLVERTEXATTRIBFORMATPROC)gles3wLoad("glVertexAttribFormat");
+    glVertexAttribIFormat = (PFNGLVERTEXATTRIBIFORMATPROC)gles3wLoad("glVertexAttribIFormat");
+    glVertexAttribBinding = (PFNGLVERTEXATTRIBBINDINGPROC)gles3wLoad("glVertexAttribBinding");
+    glVertexBindingDivisor = (PFNGLVERTEXBINDINGDIVISORPROC)gles3wLoad("glVertexBindingDivisor");
+
+
+    /* GL_ES_VERSION_3_2 */
+    glBlendBarrier = (PFNGLBLENDBARRIERPROC)gles3wLoad("glBlendBarrier");
+
+    glCopyImageSubData = (PFNGLCOPYIMAGESUBDATAPROC)gles3wLoad("glCopyImageSubData");
+
+    glDebugMessageControl = (PFNGLDEBUGMESSAGECONTROLPROC)gles3wLoad("glDebugMessageControl");
+    glDebugMessageInsert = (PFNGLDEBUGMESSAGEINSERTPROC)gles3wLoad("glDebugMessageInsert");
+    glDebugMessageCallback = (PFNGLDEBUGMESSAGECALLBACKPROC)gles3wLoad("glDebugMessageCallback");
+    glGetDebugMessageLog = (PFNGLGETDEBUGMESSAGELOGPROC)gles3wLoad("glGetDebugMessageLog");
+    glPushDebugGroup = (PFNGLPUSHDEBUGGROUPPROC)gles3wLoad("glPushDebugGroup");
+    glPopDebugGroup = (PFNGLPOPDEBUGGROUPPROC)gles3wLoad("glPopDebugGroup");
+    glObjectLabel = (PFNGLOBJECTLABELPROC)gles3wLoad("glObjectLabel");
+    glGetObjectLabel = (PFNGLGETOBJECTLABELPROC)gles3wLoad("glGetObjectLabel");
+    glObjectPtrLabel = (PFNGLOBJECTPTRLABELPROC)gles3wLoad("glObjectPtrLabel");
+    glGetObjectPtrLabel = (PFNGLGETOBJECTPTRLABELPROC)gles3wLoad("glGetObjectPtrLabel");
+    glGetPointerv = (PFNGLGETPOINTERVPROC)gles3wLoad("glGetPointerv");
+
+    glEnablei = (PFNGLENABLEIPROC)gles3wLoad("glEnablei");
+    glDisablei = (PFNGLDISABLEIPROC)gles3wLoad("glDisablei");
+    glBlendEquationi = (PFNGLBLENDEQUATIONIPROC)gles3wLoad("glBlendEquationi");
+    glBlendEquationSeparatei = (PFNGLBLENDEQUATIONSEPARATEIPROC)gles3wLoad("glBlendEquationSeparatei");
+    glBlendFunci = (PFNGLBLENDFUNCIPROC)gles3wLoad("glBlendFunci");
+    glBlendFuncSeparatei = (PFNGLBLENDFUNCSEPARATEIPROC)gles3wLoad("glBlendFuncSeparatei");
+    glColorMaski = (PFNGLCOLORMASKIPROC)gles3wLoad("glColorMaski");
+    glIsEnabledi = (PFNGLISENABLEDIPROC)gles3wLoad("glIsEnabledi");
+
+    glDrawElementsBaseVertex = (PFNGLDRAWELEMENTSBASEVERTEXPROC)gles3wLoad("glDrawElementsBaseVertex");
+    glDrawRangeElementsBaseVertex = (PFNGLDRAWRANGEELEMENTSBASEVERTEXPROC)gles3wLoad("glDrawRangeElementsBaseVertex");
+    glDrawElementsInstancedBaseVertex = (PFNGLDRAWELEMENTSINSTANCEDBASEVERTEXPROC)gles3wLoad("glDrawElementsInstancedBaseVertex");
+
+    glFramebufferTexture = (PFNGLFRAMEBUFFERTEXTUREPROC)gles3wLoad("glFramebufferTexture");
+
+    glPrimitiveBoundingBox = (PFNGLPRIMITIVEBOUNDINGBOXPROC)gles3wLoad("glPrimitiveBoundingBox");
+
+    glGetGraphicsResetStatus = (PFNGLGETGRAPHICSRESETSTATUSPROC)gles3wLoad("glGetGraphicsResetStatus");
+    glReadnPixels = (PFNGLREADNPIXELSPROC)gles3wLoad("glReadnPixels");
+    glGetnUniformfv = (PFNGLGETNUNIFORMFVPROC)gles3wLoad("glGetnUniformfv");
+    glGetnUniformiv = (PFNGLGETNUNIFORMIVPROC)gles3wLoad("glGetnUniformiv");
+    glGetnUniformuiv = (PFNGLGETNUNIFORMUIVPROC)gles3wLoad("glGetnUniformuiv");
+
+    glMinSampleShading = (PFNGLMINSAMPLESHADINGPROC)gles3wLoad("glMinSampleShading");
+
+    glPatchParameteri = (PFNGLPATCHPARAMETERIPROC)gles3wLoad("glPatchParameteri");
+
+    glTexParameterIiv = (PFNGLTEXPARAMETERIIVPROC)gles3wLoad("glTexParameterIiv");
+    glTexParameterIuiv = (PFNGLTEXPARAMETERIUIVPROC)gles3wLoad("glTexParameterIuiv");
+    glGetTexParameterIiv = (PFNGLGETTEXPARAMETERIIVPROC)gles3wLoad("glGetTexParameterIiv");
+    glGetTexParameterIuiv = (PFNGLGETTEXPARAMETERIUIVPROC)gles3wLoad("glGetTexParameterIuiv");
+    glSamplerParameterIiv = (PFNGLSAMPLERPARAMETERIIVPROC)gles3wLoad("glSamplerParameterIiv");
+    glSamplerParameterIuiv = (PFNGLSAMPLERPARAMETERIUIVPROC)gles3wLoad("glSamplerParameterIuiv");
+    glGetSamplerParameterIiv = (PFNGLGETSAMPLERPARAMETERIIVPROC)gles3wLoad("glGetSamplerParameterIiv");
+    glGetSamplerParameterIuiv = (PFNGLGETSAMPLERPARAMETERIUIVPROC)gles3wLoad("glGetSamplerParameterIuiv");
+
+    glTexBuffer = (PFNGLTEXBUFFERPROC)gles3wLoad("glTexBuffer");
+    glTexBufferRange = (PFNGLTEXBUFFERRANGEPROC)gles3wLoad("glTexBufferRange");
+
+    glTexStorage3DMultisample = (PFNGLTEXSTORAGE3DMULTISAMPLEPROC)gles3wLoad("glTexStorage3DMultisample");
+
+
+#if defined(GL_AMD_framebuffer_multisample_advanced)
+    glRenderbufferStorageMultisampleAdvancedAMD = (PFNGLRENDERBUFFERSTORAGEMULTISAMPLEADVANCEDAMDPROC)gles3wLoad("glRenderbufferStorageMultisampleAdvancedAMD");
+    glNamedRenderbufferStorageMultisampleAdvancedAMD = (PFNGLNAMEDRENDERBUFFERSTORAGEMULTISAMPLEADVANCEDAMDPROC)gles3wLoad("glNamedRenderbufferStorageMultisampleAdvancedAMD");
+#endif /* defined(GL_AMD_framebuffer_multisample_advanced) */
+
+#if defined(GL_AMD_performance_monitor)
+    glGetPerfMonitorGroupsAMD = (PFNGLGETPERFMONITORGROUPSAMDPROC)gles3wLoad("glGetPerfMonitorGroupsAMD");
+    glGetPerfMonitorCountersAMD = (PFNGLGETPERFMONITORCOUNTERSAMDPROC)gles3wLoad("glGetPerfMonitorCountersAMD");
+    glGetPerfMonitorGroupStringAMD = (PFNGLGETPERFMONITORGROUPSTRINGAMDPROC)gles3wLoad("glGetPerfMonitorGroupStringAMD");
+    glGetPerfMonitorCounterStringAMD = (PFNGLGETPERFMONITORCOUNTERSTRINGAMDPROC)gles3wLoad("glGetPerfMonitorCounterStringAMD");
+    glGetPerfMonitorCounterInfoAMD = (PFNGLGETPERFMONITORCOUNTERINFOAMDPROC)gles3wLoad("glGetPerfMonitorCounterInfoAMD");
+    glGenPerfMonitorsAMD = (PFNGLGENPERFMONITORSAMDPROC)gles3wLoad("glGenPerfMonitorsAMD");
+    glDeletePerfMonitorsAMD = (PFNGLDELETEPERFMONITORSAMDPROC)gles3wLoad("glDeletePerfMonitorsAMD");
+    glSelectPerfMonitorCountersAMD = (PFNGLSELECTPERFMONITORCOUNTERSAMDPROC)gles3wLoad("glSelectPerfMonitorCountersAMD");
+    glBeginPerfMonitorAMD = (PFNGLBEGINPERFMONITORAMDPROC)gles3wLoad("glBeginPerfMonitorAMD");
+    glEndPerfMonitorAMD = (PFNGLENDPERFMONITORAMDPROC)gles3wLoad("glEndPerfMonitorAMD");
+    glGetPerfMonitorCounterDataAMD = (PFNGLGETPERFMONITORCOUNTERDATAAMDPROC)gles3wLoad("glGetPerfMonitorCounterDataAMD");
+#endif /* defined(GL_AMD_performance_monitor) */
+
+#if defined(GL_ANGLE_framebuffer_blit)
+    glBlitFramebufferANGLE = (PFNGLBLITFRAMEBUFFERANGLEPROC)gles3wLoad("glBlitFramebufferANGLE");
+#endif /* defined(GL_ANGLE_framebuffer_blit) */
+
+#if defined(GL_ANGLE_framebuffer_multisample)
+    glRenderbufferStorageMultisampleANGLE = (PFNGLRENDERBUFFERSTORAGEMULTISAMPLEANGLEPROC)gles3wLoad("glRenderbufferStorageMultisampleANGLE");
+#endif /* defined(GL_ANGLE_framebuffer_multisample) */
+
+#if defined(GL_ANGLE_instanced_arrays)
+    glDrawArraysInstancedANGLE = (PFNGLDRAWARRAYSINSTANCEDANGLEPROC)gles3wLoad("glDrawArraysInstancedANGLE");
+    glDrawElementsInstancedANGLE = (PFNGLDRAWELEMENTSINSTANCEDANGLEPROC)gles3wLoad("glDrawElementsInstancedANGLE");
+    glVertexAttribDivisorANGLE = (PFNGLVERTEXATTRIBDIVISORANGLEPROC)gles3wLoad("glVertexAttribDivisorANGLE");
+#endif /* defined(GL_ANGLE_instanced_arrays) */
+
+#if defined(GL_ANGLE_translated_shader_source)
+    glGetTranslatedShaderSourceANGLE = (PFNGLGETTRANSLATEDSHADERSOURCEANGLEPROC)gles3wLoad("glGetTranslatedShaderSourceANGLE");
+#endif /* defined(GL_ANGLE_translated_shader_source) */
+
+#if defined(GL_APPLE_copy_texture_levels)
+    glCopyTextureLevelsAPPLE = (PFNGLCOPYTEXTURELEVELSAPPLEPROC)gles3wLoad("glCopyTextureLevelsAPPLE");
+#endif /* defined(GL_APPLE_copy_texture_levels) */
+
+#if defined(GL_APPLE_framebuffer_multisample)
+    glRenderbufferStorageMultisampleAPPLE = (PFNGLRENDERBUFFERSTORAGEMULTISAMPLEAPPLEPROC)gles3wLoad("glRenderbufferStorageMultisampleAPPLE");
+    glResolveMultisampleFramebufferAPPLE = (PFNGLRESOLVEMULTISAMPLEFRAMEBUFFERAPPLEPROC)gles3wLoad("glResolveMultisampleFramebufferAPPLE");
+#endif /* defined(GL_APPLE_framebuffer_multisample) */
+
+#if defined(GL_APPLE_sync)
+    glFenceSyncAPPLE = (PFNGLFENCESYNCAPPLEPROC)gles3wLoad("glFenceSyncAPPLE");
+    glIsSyncAPPLE = (PFNGLISSYNCAPPLEPROC)gles3wLoad("glIsSyncAPPLE");
+    glDeleteSyncAPPLE = (PFNGLDELETESYNCAPPLEPROC)gles3wLoad("glDeleteSyncAPPLE");
+    glClientWaitSyncAPPLE = (PFNGLCLIENTWAITSYNCAPPLEPROC)gles3wLoad("glClientWaitSyncAPPLE");
+    glWaitSyncAPPLE = (PFNGLWAITSYNCAPPLEPROC)gles3wLoad("glWaitSyncAPPLE");
+    glGetInteger64vAPPLE = (PFNGLGETINTEGER64VAPPLEPROC)gles3wLoad("glGetInteger64vAPPLE");
+    glGetSyncivAPPLE = (PFNGLGETSYNCIVAPPLEPROC)gles3wLoad("glGetSyncivAPPLE");
+#endif /* defined(GL_APPLE_sync) */
+
+#if defined(GL_EXT_EGL_image_storage)
+    glEGLImageTargetTexStorageEXT = (PFNGLEGLIMAGETARGETTEXSTORAGEEXTPROC)gles3wLoad("glEGLImageTargetTexStorageEXT");
+
+    glEGLImageTargetTextureStorageEXT = (PFNGLEGLIMAGETARGETTEXTURESTORAGEEXTPROC)gles3wLoad("glEGLImageTargetTextureStorageEXT");
+#endif /* defined(GL_EXT_EGL_image_storage) */
+
+#if defined(GL_EXT_base_instance)
+    glDrawArraysInstancedBaseInstanceEXT = (PFNGLDRAWARRAYSINSTANCEDBASEINSTANCEEXTPROC)gles3wLoad("glDrawArraysInstancedBaseInstanceEXT");
+    glDrawElementsInstancedBaseInstanceEXT = (PFNGLDRAWELEMENTSINSTANCEDBASEINSTANCEEXTPROC)gles3wLoad("glDrawElementsInstancedBaseInstanceEXT");
+    glDrawElementsInstancedBaseVertexBaseInstanceEXT = (PFNGLDRAWELEMENTSINSTANCEDBASEVERTEXBASEINSTANCEEXTPROC)gles3wLoad("glDrawElementsInstancedBaseVertexBaseInstanceEXT");
+#endif /* defined(GL_EXT_base_instance) */
+
+#if defined(GL_EXT_blend_func_extended)
+    glBindFragDataLocationIndexedEXT = (PFNGLBINDFRAGDATALOCATIONINDEXEDEXTPROC)gles3wLoad("glBindFragDataLocationIndexedEXT");
+    glBindFragDataLocationEXT = (PFNGLBINDFRAGDATALOCATIONEXTPROC)gles3wLoad("glBindFragDataLocationEXT");
+    glGetProgramResourceLocationIndexEXT = (PFNGLGETPROGRAMRESOURCELOCATIONINDEXEXTPROC)gles3wLoad("glGetProgramResourceLocationIndexEXT");
+    glGetFragDataIndexEXT = (PFNGLGETFRAGDATAINDEXEXTPROC)gles3wLoad("glGetFragDataIndexEXT");
+#endif /* defined(GL_EXT_blend_func_extended) */
+
+#if defined(GL_EXT_buffer_storage)
+    glBufferStorageEXT = (PFNGLBUFFERSTORAGEEXTPROC)gles3wLoad("glBufferStorageEXT");
+#endif /* defined(GL_EXT_buffer_storage) */
+
+#if defined(GL_EXT_clear_texture)
+    glClearTexImageEXT = (PFNGLCLEARTEXIMAGEEXTPROC)gles3wLoad("glClearTexImageEXT");
+    glClearTexSubImageEXT = (PFNGLCLEARTEXSUBIMAGEEXTPROC)gles3wLoad("glClearTexSubImageEXT");
+#endif /* defined(GL_EXT_clear_texture) */
+
+#if defined(GL_EXT_clip_control)
+    glClipControlEXT = (PFNGLCLIPCONTROLEXTPROC)gles3wLoad("glClipControlEXT");
+#endif /* defined(GL_EXT_clip_control) */
+
+#if defined(GL_EXT_copy_image)
+    glCopyImageSubDataEXT = (PFNGLCOPYIMAGESUBDATAEXTPROC)gles3wLoad("glCopyImageSubDataEXT");
+#endif /* defined(GL_EXT_copy_image) */
+
+#if defined(GL_EXT_debug_label)
+    glLabelObjectEXT = (PFNGLLABELOBJECTEXTPROC)gles3wLoad("glLabelObjectEXT");
+    glGetObjectLabelEXT = (PFNGLGETOBJECTLABELEXTPROC)gles3wLoad("glGetObjectLabelEXT");
+#endif /* defined(GL_EXT_debug_label) */
+
+#if defined(GL_EXT_debug_marker)
+    glInsertEventMarkerEXT = (PFNGLINSERTEVENTMARKEREXTPROC)gles3wLoad("glInsertEventMarkerEXT");
+    glPushGroupMarkerEXT = (PFNGLPUSHGROUPMARKEREXTPROC)gles3wLoad("glPushGroupMarkerEXT");
+    glPopGroupMarkerEXT = (PFNGLPOPGROUPMARKEREXTPROC)gles3wLoad("glPopGroupMarkerEXT");
+#endif /* defined(GL_EXT_debug_marker) */
+
+#if defined(GL_EXT_discard_framebuffer)
+    glDiscardFramebufferEXT = (PFNGLDISCARDFRAMEBUFFEREXTPROC)gles3wLoad("glDiscardFramebufferEXT");
+#endif /* defined(GL_EXT_discard_framebuffer) */
+
+#if defined(GL_EXT_disjoint_timer_query)
+    glGenQueriesEXT = (PFNGLGENQUERIESEXTPROC)gles3wLoad("glGenQueriesEXT");
+    glDeleteQueriesEXT = (PFNGLDELETEQUERIESEXTPROC)gles3wLoad("glDeleteQueriesEXT");
+    glIsQueryEXT = (PFNGLISQUERYEXTPROC)gles3wLoad("glIsQueryEXT");
+    glBeginQueryEXT = (PFNGLBEGINQUERYEXTPROC)gles3wLoad("glBeginQueryEXT");
+    glEndQueryEXT = (PFNGLENDQUERYEXTPROC)gles3wLoad("glEndQueryEXT");
+    glQueryCounterEXT = (PFNGLQUERYCOUNTEREXTPROC)gles3wLoad("glQueryCounterEXT");
+    glGetQueryivEXT = (PFNGLGETQUERYIVEXTPROC)gles3wLoad("glGetQueryivEXT");
+    glGetQueryObjectivEXT = (PFNGLGETQUERYOBJECTIVEXTPROC)gles3wLoad("glGetQueryObjectivEXT");
+    glGetQueryObjectuivEXT = (PFNGLGETQUERYOBJECTUIVEXTPROC)gles3wLoad("glGetQueryObjectuivEXT");
+    glGetQueryObjecti64vEXT = (PFNGLGETQUERYOBJECTI64VEXTPROC)gles3wLoad("glGetQueryObjecti64vEXT");
+    glGetQueryObjectui64vEXT = (PFNGLGETQUERYOBJECTUI64VEXTPROC)gles3wLoad("glGetQueryObjectui64vEXT");
+    glGetInteger64vEXT = (PFNGLGETINTEGER64VEXTPROC)gles3wLoad("glGetInteger64vEXT");
+#endif /* defined(GL_EXT_disjoint_timer_query) */
+
+#if defined(GL_EXT_draw_buffers)
+    glDrawBuffersEXT = (PFNGLDRAWBUFFERSEXTPROC)gles3wLoad("glDrawBuffersEXT");
+#endif /* defined(GL_EXT_draw_buffers) */
+
+#if defined(GL_EXT_draw_buffers_indexed)
+    glEnableiEXT = (PFNGLENABLEIEXTPROC)gles3wLoad("glEnableiEXT");
+    glDisableiEXT = (PFNGLDISABLEIEXTPROC)gles3wLoad("glDisableiEXT");
+    glBlendEquationiEXT = (PFNGLBLENDEQUATIONIEXTPROC)gles3wLoad("glBlendEquationiEXT");
+    glBlendEquationSeparateiEXT = (PFNGLBLENDEQUATIONSEPARATEIEXTPROC)gles3wLoad("glBlendEquationSeparateiEXT");
+    glBlendFunciEXT = (PFNGLBLENDFUNCIEXTPROC)gles3wLoad("glBlendFunciEXT");
+    glBlendFuncSeparateiEXT = (PFNGLBLENDFUNCSEPARATEIEXTPROC)gles3wLoad("glBlendFuncSeparateiEXT");
+    glColorMaskiEXT = (PFNGLCOLORMASKIEXTPROC)gles3wLoad("glColorMaskiEXT");
+    glIsEnablediEXT = (PFNGLISENABLEDIEXTPROC)gles3wLoad("glIsEnablediEXT");
+#endif /* defined(GL_EXT_draw_buffers_indexed) */
+
+#if defined(GL_EXT_draw_elements_base_vertex)
+    glDrawElementsBaseVertexEXT = (PFNGLDRAWELEMENTSBASEVERTEXEXTPROC)gles3wLoad("glDrawElementsBaseVertexEXT");
+    glDrawRangeElementsBaseVertexEXT = (PFNGLDRAWRANGEELEMENTSBASEVERTEXEXTPROC)gles3wLoad("glDrawRangeElementsBaseVertexEXT");
+    glDrawElementsInstancedBaseVertexEXT = (PFNGLDRAWELEMENTSINSTANCEDBASEVERTEXEXTPROC)gles3wLoad("glDrawElementsInstancedBaseVertexEXT");
+    glMultiDrawElementsBaseVertexEXT = (PFNGLMULTIDRAWELEMENTSBASEVERTEXEXTPROC)gles3wLoad("glMultiDrawElementsBaseVertexEXT");
+#endif /* defined(GL_EXT_draw_elements_base_vertex) */
+
+#if defined(GL_EXT_draw_instanced)
+    glDrawArraysInstancedEXT = (PFNGLDRAWARRAYSINSTANCEDEXTPROC)gles3wLoad("glDrawArraysInstancedEXT");
+    glDrawElementsInstancedEXT = (PFNGLDRAWELEMENTSINSTANCEDEXTPROC)gles3wLoad("glDrawElementsInstancedEXT");
+#endif /* defined(GL_EXT_draw_instanced) */
+
+#if defined(GL_EXT_draw_transform_feedback)
+    glDrawTransformFeedbackEXT = (PFNGLDRAWTRANSFORMFEEDBACKEXTPROC)gles3wLoad("glDrawTransformFeedbackEXT");
+    glDrawTransformFeedbackInstancedEXT = (PFNGLDRAWTRANSFORMFEEDBACKINSTANCEDEXTPROC)gles3wLoad("glDrawTransformFeedbackInstancedEXT");
+#endif /* defined(GL_EXT_draw_transform_feedback) */
+
+#if defined(GL_EXT_external_buffer)
+    glBufferStorageExternalEXT = (PFNGLBUFFERSTORAGEEXTERNALEXTPROC)gles3wLoad("glBufferStorageExternalEXT");
+    glNamedBufferStorageExternalEXT = (PFNGLNAMEDBUFFERSTORAGEEXTERNALEXTPROC)gles3wLoad("glNamedBufferStorageExternalEXT");
+#endif /* defined(GL_EXT_external_buffer) */
+
+#if defined(GL_EXT_geometry_shader)
+    glFramebufferTextureEXT = (PFNGLFRAMEBUFFERTEXTUREEXTPROC)gles3wLoad("glFramebufferTextureEXT");
+#endif /* defined(GL_EXT_geometry_shader) */
+
+#if defined(GL_EXT_instanced_arrays)
+    glVertexAttribDivisorEXT = (PFNGLVERTEXATTRIBDIVISOREXTPROC)gles3wLoad("glVertexAttribDivisorEXT");
+#endif /* defined(GL_EXT_instanced_arrays) */
+
+#if defined(GL_EXT_map_buffer_range)
+    glMapBufferRangeEXT = (PFNGLMAPBUFFERRANGEEXTPROC)gles3wLoad("glMapBufferRangeEXT");
+    glFlushMappedBufferRangeEXT = (PFNGLFLUSHMAPPEDBUFFERRANGEEXTPROC)gles3wLoad("glFlushMappedBufferRangeEXT");
+#endif /* defined(GL_EXT_map_buffer_range) */
+
+#if defined(GL_EXT_memory_object)
+    glGetUnsignedBytevEXT = (PFNGLGETUNSIGNEDBYTEVEXTPROC)gles3wLoad("glGetUnsignedBytevEXT");
+    glGetUnsignedBytei_vEXT = (PFNGLGETUNSIGNEDBYTEI_VEXTPROC)gles3wLoad("glGetUnsignedBytei_vEXT");
+    glDeleteMemoryObjectsEXT = (PFNGLDELETEMEMORYOBJECTSEXTPROC)gles3wLoad("glDeleteMemoryObjectsEXT");
+    glIsMemoryObjectEXT = (PFNGLISMEMORYOBJECTEXTPROC)gles3wLoad("glIsMemoryObjectEXT");
+    glCreateMemoryObjectsEXT = (PFNGLCREATEMEMORYOBJECTSEXTPROC)gles3wLoad("glCreateMemoryObjectsEXT");
+    glMemoryObjectParameterivEXT = (PFNGLMEMORYOBJECTPARAMETERIVEXTPROC)gles3wLoad("glMemoryObjectParameterivEXT");
+    glGetMemoryObjectParameterivEXT = (PFNGLGETMEMORYOBJECTPARAMETERIVEXTPROC)gles3wLoad("glGetMemoryObjectParameterivEXT");
+    glTexStorageMem2DEXT = (PFNGLTEXSTORAGEMEM2DEXTPROC)gles3wLoad("glTexStorageMem2DEXT");
+    glTexStorageMem2DMultisampleEXT = (PFNGLTEXSTORAGEMEM2DMULTISAMPLEEXTPROC)gles3wLoad("glTexStorageMem2DMultisampleEXT");
+    glTexStorageMem3DEXT = (PFNGLTEXSTORAGEMEM3DEXTPROC)gles3wLoad("glTexStorageMem3DEXT");
+    glTexStorageMem3DMultisampleEXT = (PFNGLTEXSTORAGEMEM3DMULTISAMPLEEXTPROC)gles3wLoad("glTexStorageMem3DMultisampleEXT");
+    glBufferStorageMemEXT = (PFNGLBUFFERSTORAGEMEMEXTPROC)gles3wLoad("glBufferStorageMemEXT");
+
+    glTextureStorageMem2DEXT = (PFNGLTEXTURESTORAGEMEM2DEXTPROC)gles3wLoad("glTextureStorageMem2DEXT");
+    glTextureStorageMem2DMultisampleEXT = (PFNGLTEXTURESTORAGEMEM2DMULTISAMPLEEXTPROC)gles3wLoad("glTextureStorageMem2DMultisampleEXT");
+    glTextureStorageMem3DEXT = (PFNGLTEXTURESTORAGEMEM3DEXTPROC)gles3wLoad("glTextureStorageMem3DEXT");
+    glTextureStorageMem3DMultisampleEXT = (PFNGLTEXTURESTORAGEMEM3DMULTISAMPLEEXTPROC)gles3wLoad("glTextureStorageMem3DMultisampleEXT");
+    glNamedBufferStorageMemEXT = (PFNGLNAMEDBUFFERSTORAGEMEMEXTPROC)gles3wLoad("glNamedBufferStorageMemEXT");
+#endif /* defined(GL_EXT_memory_object) */
+
+#if defined(GL_EXT_memory_object_fd)
+    glImportMemoryFdEXT = (PFNGLIMPORTMEMORYFDEXTPROC)gles3wLoad("glImportMemoryFdEXT");
+#endif /* defined(GL_EXT_memory_object_fd) */
+
+#if defined(GL_EXT_memory_object_win32)
+    glImportMemoryWin32HandleEXT = (PFNGLIMPORTMEMORYWIN32HANDLEEXTPROC)gles3wLoad("glImportMemoryWin32HandleEXT");
+    glImportMemoryWin32NameEXT = (PFNGLIMPORTMEMORYWIN32NAMEEXTPROC)gles3wLoad("glImportMemoryWin32NameEXT");
+#endif /* defined(GL_EXT_memory_object_win32) */
+
+#if defined(GL_EXT_multi_draw_arrays)
+    glMultiDrawArraysEXT = (PFNGLMULTIDRAWARRAYSEXTPROC)gles3wLoad("glMultiDrawArraysEXT");
+    glMultiDrawElementsEXT = (PFNGLMULTIDRAWELEMENTSEXTPROC)gles3wLoad("glMultiDrawElementsEXT");
+#endif /* defined(GL_EXT_multi_draw_arrays) */
+
+#if defined(GL_EXT_multi_draw_indirect)
+    glMultiDrawArraysIndirectEXT = (PFNGLMULTIDRAWARRAYSINDIRECTEXTPROC)gles3wLoad("glMultiDrawArraysIndirectEXT");
+    glMultiDrawElementsIndirectEXT = (PFNGLMULTIDRAWELEMENTSINDIRECTEXTPROC)gles3wLoad("glMultiDrawElementsIndirectEXT");
+#endif /* defined(GL_EXT_multi_draw_indirect) */
+
+#if defined(GL_EXT_multisampled_render_to_texture)
+    glRenderbufferStorageMultisampleEXT = (PFNGLRENDERBUFFERSTORAGEMULTISAMPLEEXTPROC)gles3wLoad("glRenderbufferStorageMultisampleEXT");
+    glFramebufferTexture2DMultisampleEXT = (PFNGLFRAMEBUFFERTEXTURE2DMULTISAMPLEEXTPROC)gles3wLoad("glFramebufferTexture2DMultisampleEXT");
+#endif /* defined(GL_EXT_multisampled_render_to_texture) */
+
+#if defined(GL_EXT_multiview_draw_buffers)
+    glReadBufferIndexedEXT = (PFNGLREADBUFFERINDEXEDEXTPROC)gles3wLoad("glReadBufferIndexedEXT");
+    glDrawBuffersIndexedEXT = (PFNGLDRAWBUFFERSINDEXEDEXTPROC)gles3wLoad("glDrawBuffersIndexedEXT");
+    glGetIntegeri_vEXT = (PFNGLGETINTEGERI_VEXTPROC)gles3wLoad("glGetIntegeri_vEXT");
+#endif /* defined(GL_EXT_multiview_draw_buffers) */
+
+#if defined(GL_EXT_polygon_offset_clamp)
+    glPolygonOffsetClampEXT = (PFNGLPOLYGONOFFSETCLAMPEXTPROC)gles3wLoad("glPolygonOffsetClampEXT");
+#endif /* defined(GL_EXT_polygon_offset_clamp) */
+
+#if defined(GL_EXT_primitive_bounding_box)
+    glPrimitiveBoundingBoxEXT = (PFNGLPRIMITIVEBOUNDINGBOXEXTPROC)gles3wLoad("glPrimitiveBoundingBoxEXT");
+#endif /* defined(GL_EXT_primitive_bounding_box) */
+
+#if defined(GL_EXT_raster_multisample)
+    glRasterSamplesEXT = (PFNGLRASTERSAMPLESEXTPROC)gles3wLoad("glRasterSamplesEXT");
+#endif /* defined(GL_EXT_raster_multisample) */
+
+#if defined(GL_EXT_robustness)
+    glGetGraphicsResetStatusEXT = (PFNGLGETGRAPHICSRESETSTATUSEXTPROC)gles3wLoad("glGetGraphicsResetStatusEXT");
+    glReadnPixelsEXT = (PFNGLREADNPIXELSEXTPROC)gles3wLoad("glReadnPixelsEXT");
+    glGetnUniformfvEXT = (PFNGLGETNUNIFORMFVEXTPROC)gles3wLoad("glGetnUniformfvEXT");
+    glGetnUniformivEXT = (PFNGLGETNUNIFORMIVEXTPROC)gles3wLoad("glGetnUniformivEXT");
+#endif /* defined(GL_EXT_robustness) */
+
+#if defined(GL_EXT_semaphore)
+    glGenSemaphoresEXT = (PFNGLGENSEMAPHORESEXTPROC)gles3wLoad("glGenSemaphoresEXT");
+    glDeleteSemaphoresEXT = (PFNGLDELETESEMAPHORESEXTPROC)gles3wLoad("glDeleteSemaphoresEXT");
+    glIsSemaphoreEXT = (PFNGLISSEMAPHOREEXTPROC)gles3wLoad("glIsSemaphoreEXT");
+    glSemaphoreParameterui64vEXT = (PFNGLSEMAPHOREPARAMETERUI64VEXTPROC)gles3wLoad("glSemaphoreParameterui64vEXT");
+    glGetSemaphoreParameterui64vEXT = (PFNGLGETSEMAPHOREPARAMETERUI64VEXTPROC)gles3wLoad("glGetSemaphoreParameterui64vEXT");
+    glWaitSemaphoreEXT = (PFNGLWAITSEMAPHOREEXTPROC)gles3wLoad("glWaitSemaphoreEXT");
+    glSignalSemaphoreEXT = (PFNGLSIGNALSEMAPHOREEXTPROC)gles3wLoad("glSignalSemaphoreEXT");
+#endif /* defined(GL_EXT_semaphore) */
+
+#if defined(GL_EXT_semaphore_fd)
+    glImportSemaphoreFdEXT = (PFNGLIMPORTSEMAPHOREFDEXTPROC)gles3wLoad("glImportSemaphoreFdEXT");
+#endif /* defined(GL_EXT_semaphore_fd) */
+
+#if defined(GL_EXT_semaphore_win32)
+    glImportSemaphoreWin32HandleEXT = (PFNGLIMPORTSEMAPHOREWIN32HANDLEEXTPROC)gles3wLoad("glImportSemaphoreWin32HandleEXT");
+    glImportSemaphoreWin32NameEXT = (PFNGLIMPORTSEMAPHOREWIN32NAMEEXTPROC)gles3wLoad("glImportSemaphoreWin32NameEXT");
+#endif /* defined(GL_EXT_semaphore_win32) */
+
+#if defined(GL_EXT_separate_shader_objects)
+    glActiveShaderProgramEXT = (PFNGLACTIVESHADERPROGRAMEXTPROC)gles3wLoad("glActiveShaderProgramEXT");
+    glBindProgramPipelineEXT = (PFNGLBINDPROGRAMPIPELINEEXTPROC)gles3wLoad("glBindProgramPipelineEXT");
+    glCreateShaderProgramvEXT = (PFNGLCREATESHADERPROGRAMVEXTPROC)gles3wLoad("glCreateShaderProgramvEXT");
+    glDeleteProgramPipelinesEXT = (PFNGLDELETEPROGRAMPIPELINESEXTPROC)gles3wLoad("glDeleteProgramPipelinesEXT");
+    glGenProgramPipelinesEXT = (PFNGLGENPROGRAMPIPELINESEXTPROC)gles3wLoad("glGenProgramPipelinesEXT");
+    glGetProgramPipelineInfoLogEXT = (PFNGLGETPROGRAMPIPELINEINFOLOGEXTPROC)gles3wLoad("glGetProgramPipelineInfoLogEXT");
+    glGetProgramPipelineivEXT = (PFNGLGETPROGRAMPIPELINEIVEXTPROC)gles3wLoad("glGetProgramPipelineivEXT");
+    glIsProgramPipelineEXT = (PFNGLISPROGRAMPIPELINEEXTPROC)gles3wLoad("glIsProgramPipelineEXT");
+    glProgramParameteriEXT = (PFNGLPROGRAMPARAMETERIEXTPROC)gles3wLoad("glProgramParameteriEXT");
+    glProgramUniform1fEXT = (PFNGLPROGRAMUNIFORM1FEXTPROC)gles3wLoad("glProgramUniform1fEXT");
+    glProgramUniform1fvEXT = (PFNGLPROGRAMUNIFORM1FVEXTPROC)gles3wLoad("glProgramUniform1fvEXT");
+    glProgramUniform1iEXT = (PFNGLPROGRAMUNIFORM1IEXTPROC)gles3wLoad("glProgramUniform1iEXT");
+    glProgramUniform1ivEXT = (PFNGLPROGRAMUNIFORM1IVEXTPROC)gles3wLoad("glProgramUniform1ivEXT");
+    glProgramUniform2fEXT = (PFNGLPROGRAMUNIFORM2FEXTPROC)gles3wLoad("glProgramUniform2fEXT");
+    glProgramUniform2fvEXT = (PFNGLPROGRAMUNIFORM2FVEXTPROC)gles3wLoad("glProgramUniform2fvEXT");
+    glProgramUniform2iEXT = (PFNGLPROGRAMUNIFORM2IEXTPROC)gles3wLoad("glProgramUniform2iEXT");
+    glProgramUniform2ivEXT = (PFNGLPROGRAMUNIFORM2IVEXTPROC)gles3wLoad("glProgramUniform2ivEXT");
+    glProgramUniform3fEXT = (PFNGLPROGRAMUNIFORM3FEXTPROC)gles3wLoad("glProgramUniform3fEXT");
+    glProgramUniform3fvEXT = (PFNGLPROGRAMUNIFORM3FVEXTPROC)gles3wLoad("glProgramUniform3fvEXT");
+    glProgramUniform3iEXT = (PFNGLPROGRAMUNIFORM3IEXTPROC)gles3wLoad("glProgramUniform3iEXT");
+    glProgramUniform3ivEXT = (PFNGLPROGRAMUNIFORM3IVEXTPROC)gles3wLoad("glProgramUniform3ivEXT");
+    glProgramUniform4fEXT = (PFNGLPROGRAMUNIFORM4FEXTPROC)gles3wLoad("glProgramUniform4fEXT");
+    glProgramUniform4fvEXT = (PFNGLPROGRAMUNIFORM4FVEXTPROC)gles3wLoad("glProgramUniform4fvEXT");
+    glProgramUniform4iEXT = (PFNGLPROGRAMUNIFORM4IEXTPROC)gles3wLoad("glProgramUniform4iEXT");
+    glProgramUniform4ivEXT = (PFNGLPROGRAMUNIFORM4IVEXTPROC)gles3wLoad("glProgramUniform4ivEXT");
+    glProgramUniformMatrix2fvEXT = (PFNGLPROGRAMUNIFORMMATRIX2FVEXTPROC)gles3wLoad("glProgramUniformMatrix2fvEXT");
+    glProgramUniformMatrix3fvEXT = (PFNGLPROGRAMUNIFORMMATRIX3FVEXTPROC)gles3wLoad("glProgramUniformMatrix3fvEXT");
+    glProgramUniformMatrix4fvEXT = (PFNGLPROGRAMUNIFORMMATRIX4FVEXTPROC)gles3wLoad("glProgramUniformMatrix4fvEXT");
+    glUseProgramStagesEXT = (PFNGLUSEPROGRAMSTAGESEXTPROC)gles3wLoad("glUseProgramStagesEXT");
+    glValidateProgramPipelineEXT = (PFNGLVALIDATEPROGRAMPIPELINEEXTPROC)gles3wLoad("glValidateProgramPipelineEXT");
+
+    glProgramUniform1uiEXT = (PFNGLPROGRAMUNIFORM1UIEXTPROC)gles3wLoad("glProgramUniform1uiEXT");
+    glProgramUniform2uiEXT = (PFNGLPROGRAMUNIFORM2UIEXTPROC)gles3wLoad("glProgramUniform2uiEXT");
+    glProgramUniform3uiEXT = (PFNGLPROGRAMUNIFORM3UIEXTPROC)gles3wLoad("glProgramUniform3uiEXT");
+    glProgramUniform4uiEXT = (PFNGLPROGRAMUNIFORM4UIEXTPROC)gles3wLoad("glProgramUniform4uiEXT");
+    glProgramUniform1uivEXT = (PFNGLPROGRAMUNIFORM1UIVEXTPROC)gles3wLoad("glProgramUniform1uivEXT");
+    glProgramUniform2uivEXT = (PFNGLPROGRAMUNIFORM2UIVEXTPROC)gles3wLoad("glProgramUniform2uivEXT");
+    glProgramUniform3uivEXT = (PFNGLPROGRAMUNIFORM3UIVEXTPROC)gles3wLoad("glProgramUniform3uivEXT");
+    glProgramUniform4uivEXT = (PFNGLPROGRAMUNIFORM4UIVEXTPROC)gles3wLoad("glProgramUniform4uivEXT");
+    glProgramUniformMatrix2x3fvEXT = (PFNGLPROGRAMUNIFORMMATRIX2X3FVEXTPROC)gles3wLoad("glProgramUniformMatrix2x3fvEXT");
+    glProgramUniformMatrix3x2fvEXT = (PFNGLPROGRAMUNIFORMMATRIX3X2FVEXTPROC)gles3wLoad("glProgramUniformMatrix3x2fvEXT");
+    glProgramUniformMatrix2x4fvEXT = (PFNGLPROGRAMUNIFORMMATRIX2X4FVEXTPROC)gles3wLoad("glProgramUniformMatrix2x4fvEXT");
+    glProgramUniformMatrix4x2fvEXT = (PFNGLPROGRAMUNIFORMMATRIX4X2FVEXTPROC)gles3wLoad("glProgramUniformMatrix4x2fvEXT");
+    glProgramUniformMatrix3x4fvEXT = (PFNGLPROGRAMUNIFORMMATRIX3X4FVEXTPROC)gles3wLoad("glProgramUniformMatrix3x4fvEXT");
+    glProgramUniformMatrix4x3fvEXT = (PFNGLPROGRAMUNIFORMMATRIX4X3FVEXTPROC)gles3wLoad("glProgramUniformMatrix4x3fvEXT");
+#endif /* defined(GL_EXT_separate_shader_objects) */
+
+#if defined(GL_EXT_shader_framebuffer_fetch_non_coherent)
+    glFramebufferFetchBarrierEXT = (PFNGLFRAMEBUFFERFETCHBARRIEREXTPROC)gles3wLoad("glFramebufferFetchBarrierEXT");
+#endif /* defined(GL_EXT_shader_framebuffer_fetch_non_coherent) */
+
+#if defined(GL_EXT_shader_pixel_local_storage2)
+    glFramebufferPixelLocalStorageSizeEXT = (PFNGLFRAMEBUFFERPIXELLOCALSTORAGESIZEEXTPROC)gles3wLoad("glFramebufferPixelLocalStorageSizeEXT");
+    glGetFramebufferPixelLocalStorageSizeEXT = (PFNGLGETFRAMEBUFFERPIXELLOCALSTORAGESIZEEXTPROC)gles3wLoad("glGetFramebufferPixelLocalStorageSizeEXT");
+    glClearPixelLocalStorageuiEXT = (PFNGLCLEARPIXELLOCALSTORAGEUIEXTPROC)gles3wLoad("glClearPixelLocalStorageuiEXT");
+#endif /* defined(GL_EXT_shader_pixel_local_storage2) */
+
+#if defined(GL_EXT_sparse_texture)
+    glTexPageCommitmentEXT = (PFNGLTEXPAGECOMMITMENTEXTPROC)gles3wLoad("glTexPageCommitmentEXT");
+#endif /* defined(GL_EXT_sparse_texture) */
+
+#if defined(GL_EXT_tessellation_shader)
+    glPatchParameteriEXT = (PFNGLPATCHPARAMETERIEXTPROC)gles3wLoad("glPatchParameteriEXT");
+#endif /* defined(GL_EXT_tessellation_shader) */
+
+#if defined(GL_EXT_texture_border_clamp)
+    glTexParameterIivEXT = (PFNGLTEXPARAMETERIIVEXTPROC)gles3wLoad("glTexParameterIivEXT");
+    glTexParameterIuivEXT = (PFNGLTEXPARAMETERIUIVEXTPROC)gles3wLoad("glTexParameterIuivEXT");
+    glGetTexParameterIivEXT = (PFNGLGETTEXPARAMETERIIVEXTPROC)gles3wLoad("glGetTexParameterIivEXT");
+    glGetTexParameterIuivEXT = (PFNGLGETTEXPARAMETERIUIVEXTPROC)gles3wLoad("glGetTexParameterIuivEXT");
+    glSamplerParameterIivEXT = (PFNGLSAMPLERPARAMETERIIVEXTPROC)gles3wLoad("glSamplerParameterIivEXT");
+    glSamplerParameterIuivEXT = (PFNGLSAMPLERPARAMETERIUIVEXTPROC)gles3wLoad("glSamplerParameterIuivEXT");
+    glGetSamplerParameterIivEXT = (PFNGLGETSAMPLERPARAMETERIIVEXTPROC)gles3wLoad("glGetSamplerParameterIivEXT");
+    glGetSamplerParameterIuivEXT = (PFNGLGETSAMPLERPARAMETERIUIVEXTPROC)gles3wLoad("glGetSamplerParameterIuivEXT");
+#endif /* defined(GL_EXT_texture_border_clamp) */
+
+#if defined(GL_EXT_texture_buffer)
+    glTexBufferEXT = (PFNGLTEXBUFFEREXTPROC)gles3wLoad("glTexBufferEXT");
+    glTexBufferRangeEXT = (PFNGLTEXBUFFERRANGEEXTPROC)gles3wLoad("glTexBufferRangeEXT");
+#endif /* defined(GL_EXT_texture_buffer) */
+
+#if defined(GL_EXT_texture_storage)
+    glTexStorage1DEXT = (PFNGLTEXSTORAGE1DEXTPROC)gles3wLoad("glTexStorage1DEXT");
+    glTexStorage2DEXT = (PFNGLTEXSTORAGE2DEXTPROC)gles3wLoad("glTexStorage2DEXT");
+    glTexStorage3DEXT = (PFNGLTEXSTORAGE3DEXTPROC)gles3wLoad("glTexStorage3DEXT");
+
+    glTextureStorage1DEXT = (PFNGLTEXTURESTORAGE1DEXTPROC)gles3wLoad("glTextureStorage1DEXT");
+    glTextureStorage2DEXT = (PFNGLTEXTURESTORAGE2DEXTPROC)gles3wLoad("glTextureStorage2DEXT");
+    glTextureStorage3DEXT = (PFNGLTEXTURESTORAGE3DEXTPROC)gles3wLoad("glTextureStorage3DEXT");
+#endif /* defined(GL_EXT_texture_storage) */
+
+#if defined(GL_EXT_texture_view)
+    glTextureViewEXT = (PFNGLTEXTUREVIEWEXTPROC)gles3wLoad("glTextureViewEXT");
+#endif /* defined(GL_EXT_texture_view) */
+
+#if defined(GL_NV_timeline_semaphore)
+    glCreateSemaphoresNV = (PFNGLCREATESEMAPHORESNVPROC)gles3wLoad("glCreateSemaphoresNV");
+    glSemaphoreParameterivNV = (PFNGLSEMAPHOREPARAMETERIVNVPROC)gles3wLoad("glSemaphoreParameterivNV");
+    glGetSemaphoreParameterivNV = (PFNGLGETSEMAPHOREPARAMETERIVNVPROC)gles3wLoad("glGetSemaphoreParameterivNV");
+#endif /* defined(GL_NV_timeline_semaphore) */
+
+#if defined(GL_EXT_win32_keyed_mutex)
+    glAcquireKeyedMutexWin32EXT = (PFNGLACQUIREKEYEDMUTEXWIN32EXTPROC)gles3wLoad("glAcquireKeyedMutexWin32EXT");
+    glReleaseKeyedMutexWin32EXT = (PFNGLRELEASEKEYEDMUTEXWIN32EXTPROC)gles3wLoad("glReleaseKeyedMutexWin32EXT");
+#endif /* defined(GL_EXT_win32_keyed_mutex) */
+
+#if defined(GL_EXT_window_rectangles)
+    glWindowRectanglesEXT = (PFNGLWINDOWRECTANGLESEXTPROC)gles3wLoad("glWindowRectanglesEXT");
+#endif /* defined(GL_EXT_window_rectangles) */
+
+#if defined(GL_IMG_bindless_texture)
+    glGetTextureHandleIMG = (PFNGLGETTEXTUREHANDLEIMGPROC)gles3wLoad("glGetTextureHandleIMG");
+    glGetTextureSamplerHandleIMG = (PFNGLGETTEXTURESAMPLERHANDLEIMGPROC)gles3wLoad("glGetTextureSamplerHandleIMG");
+    glUniformHandleui64IMG = (PFNGLUNIFORMHANDLEUI64IMGPROC)gles3wLoad("glUniformHandleui64IMG");
+    glUniformHandleui64vIMG = (PFNGLUNIFORMHANDLEUI64VIMGPROC)gles3wLoad("glUniformHandleui64vIMG");
+    glProgramUniformHandleui64IMG = (PFNGLPROGRAMUNIFORMHANDLEUI64IMGPROC)gles3wLoad("glProgramUniformHandleui64IMG");
+    glProgramUniformHandleui64vIMG = (PFNGLPROGRAMUNIFORMHANDLEUI64VIMGPROC)gles3wLoad("glProgramUniformHandleui64vIMG");
+#endif /* defined(GL_IMG_bindless_texture) */
+
+#if defined(GL_IMG_framebuffer_downsample)
+    glFramebufferTexture2DDownsampleIMG = (PFNGLFRAMEBUFFERTEXTURE2DDOWNSAMPLEIMGPROC)gles3wLoad("glFramebufferTexture2DDownsampleIMG");
+    glFramebufferTextureLayerDownsampleIMG = (PFNGLFRAMEBUFFERTEXTURELAYERDOWNSAMPLEIMGPROC)gles3wLoad("glFramebufferTextureLayerDownsampleIMG");
+#endif /* defined(GL_IMG_framebuffer_downsample) */
+
+#if defined(GL_IMG_multisampled_render_to_texture)
+    glRenderbufferStorageMultisampleIMG = (PFNGLRENDERBUFFERSTORAGEMULTISAMPLEIMGPROC)gles3wLoad("glRenderbufferStorageMultisampleIMG");
+    glFramebufferTexture2DMultisampleIMG = (PFNGLFRAMEBUFFERTEXTURE2DMULTISAMPLEIMGPROC)gles3wLoad("glFramebufferTexture2DMultisampleIMG");
+#endif /* defined(GL_IMG_multisampled_render_to_texture) */
+
+#if defined(GL_INTEL_framebuffer_CMAA)
+    glApplyFramebufferAttachmentCMAAINTEL = (PFNGLAPPLYFRAMEBUFFERATTACHMENTCMAAINTELPROC)gles3wLoad("glApplyFramebufferAttachmentCMAAINTEL");
+#endif /* defined(GL_INTEL_framebuffer_CMAA) */
+
+#if defined(GL_INTEL_performance_query)
+    glBeginPerfQueryINTEL = (PFNGLBEGINPERFQUERYINTELPROC)gles3wLoad("glBeginPerfQueryINTEL");
+    glCreatePerfQueryINTEL = (PFNGLCREATEPERFQUERYINTELPROC)gles3wLoad("glCreatePerfQueryINTEL");
+    glDeletePerfQueryINTEL = (PFNGLDELETEPERFQUERYINTELPROC)gles3wLoad("glDeletePerfQueryINTEL");
+    glEndPerfQueryINTEL = (PFNGLENDPERFQUERYINTELPROC)gles3wLoad("glEndPerfQueryINTEL");
+    glGetFirstPerfQueryIdINTEL = (PFNGLGETFIRSTPERFQUERYIDINTELPROC)gles3wLoad("glGetFirstPerfQueryIdINTEL");
+    glGetNextPerfQueryIdINTEL = (PFNGLGETNEXTPERFQUERYIDINTELPROC)gles3wLoad("glGetNextPerfQueryIdINTEL");
+    glGetPerfCounterInfoINTEL = (PFNGLGETPERFCOUNTERINFOINTELPROC)gles3wLoad("glGetPerfCounterInfoINTEL");
+    glGetPerfQueryDataINTEL = (PFNGLGETPERFQUERYDATAINTELPROC)gles3wLoad("glGetPerfQueryDataINTEL");
+    glGetPerfQueryIdByNameINTEL = (PFNGLGETPERFQUERYIDBYNAMEINTELPROC)gles3wLoad("glGetPerfQueryIdByNameINTEL");
+    glGetPerfQueryInfoINTEL = (PFNGLGETPERFQUERYINFOINTELPROC)gles3wLoad("glGetPerfQueryInfoINTEL");
+#endif /* defined(GL_INTEL_performance_query) */
+
+#if defined(GL_KHR_blend_equation_advanced)
+    glBlendBarrierKHR = (PFNGLBLENDBARRIERKHRPROC)gles3wLoad("glBlendBarrierKHR");
+#endif /* defined(GL_KHR_blend_equation_advanced) */
+
+#if defined(GL_KHR_debug)
+    glDebugMessageControlKHR = (PFNGLDEBUGMESSAGECONTROLKHRPROC)gles3wLoad("glDebugMessageControlKHR");
+    glDebugMessageInsertKHR = (PFNGLDEBUGMESSAGEINSERTKHRPROC)gles3wLoad("glDebugMessageInsertKHR");
+    glDebugMessageCallbackKHR = (PFNGLDEBUGMESSAGECALLBACKKHRPROC)gles3wLoad("glDebugMessageCallbackKHR");
+    glGetDebugMessageLogKHR = (PFNGLGETDEBUGMESSAGELOGKHRPROC)gles3wLoad("glGetDebugMessageLogKHR");
+    glPushDebugGroupKHR = (PFNGLPUSHDEBUGGROUPKHRPROC)gles3wLoad("glPushDebugGroupKHR");
+    glPopDebugGroupKHR = (PFNGLPOPDEBUGGROUPKHRPROC)gles3wLoad("glPopDebugGroupKHR");
+    glObjectLabelKHR = (PFNGLOBJECTLABELKHRPROC)gles3wLoad("glObjectLabelKHR");
+    glGetObjectLabelKHR = (PFNGLGETOBJECTLABELKHRPROC)gles3wLoad("glGetObjectLabelKHR");
+    glObjectPtrLabelKHR = (PFNGLOBJECTPTRLABELKHRPROC)gles3wLoad("glObjectPtrLabelKHR");
+    glGetObjectPtrLabelKHR = (PFNGLGETOBJECTPTRLABELKHRPROC)gles3wLoad("glGetObjectPtrLabelKHR");
+    glGetPointervKHR = (PFNGLGETPOINTERVKHRPROC)gles3wLoad("glGetPointervKHR");
+#endif /* defined(GL_KHR_debug) */
+
+#if defined(GL_KHR_robustness)
+    glGetGraphicsResetStatusKHR = (PFNGLGETGRAPHICSRESETSTATUSKHRPROC)gles3wLoad("glGetGraphicsResetStatusKHR");
+    glReadnPixelsKHR = (PFNGLREADNPIXELSKHRPROC)gles3wLoad("glReadnPixelsKHR");
+    glGetnUniformfvKHR = (PFNGLGETNUNIFORMFVKHRPROC)gles3wLoad("glGetnUniformfvKHR");
+    glGetnUniformivKHR = (PFNGLGETNUNIFORMIVKHRPROC)gles3wLoad("glGetnUniformivKHR");
+    glGetnUniformuivKHR = (PFNGLGETNUNIFORMUIVKHRPROC)gles3wLoad("glGetnUniformuivKHR");
+#endif /* defined(GL_KHR_robustness) */
+
+#if defined(GL_KHR_parallel_shader_compile)
+    glMaxShaderCompilerThreadsKHR = (PFNGLMAXSHADERCOMPILERTHREADSKHRPROC)gles3wLoad("glMaxShaderCompilerThreadsKHR");
+#endif /* defined(GL_KHR_parallel_shader_compile) */
+
+#if defined(GL_MESA_framebuffer_flip_y)
+    glFramebufferParameteriMESA = (PFNGLFRAMEBUFFERPARAMETERIMESAPROC)gles3wLoad("glFramebufferParameteriMESA");
+    glGetFramebufferParameterivMESA = (PFNGLGETFRAMEBUFFERPARAMETERIVMESAPROC)gles3wLoad("glGetFramebufferParameterivMESA");
+#endif /* defined(GL_MESA_framebuffer_flip_y) */
+
+#if defined(GL_NV_bindless_texture)
+    glGetTextureHandleNV = (PFNGLGETTEXTUREHANDLENVPROC)gles3wLoad("glGetTextureHandleNV");
+    glGetTextureSamplerHandleNV = (PFNGLGETTEXTURESAMPLERHANDLENVPROC)gles3wLoad("glGetTextureSamplerHandleNV");
+    glMakeTextureHandleResidentNV = (PFNGLMAKETEXTUREHANDLERESIDENTNVPROC)gles3wLoad("glMakeTextureHandleResidentNV");
+    glMakeTextureHandleNonResidentNV = (PFNGLMAKETEXTUREHANDLENONRESIDENTNVPROC)gles3wLoad("glMakeTextureHandleNonResidentNV");
+    glGetImageHandleNV = (PFNGLGETIMAGEHANDLENVPROC)gles3wLoad("glGetImageHandleNV");
+    glMakeImageHandleResidentNV = (PFNGLMAKEIMAGEHANDLERESIDENTNVPROC)gles3wLoad("glMakeImageHandleResidentNV");
+    glMakeImageHandleNonResidentNV = (PFNGLMAKEIMAGEHANDLENONRESIDENTNVPROC)gles3wLoad("glMakeImageHandleNonResidentNV");
+    glUniformHandleui64NV = (PFNGLUNIFORMHANDLEUI64NVPROC)gles3wLoad("glUniformHandleui64NV");
+    glUniformHandleui64vNV = (PFNGLUNIFORMHANDLEUI64VNVPROC)gles3wLoad("glUniformHandleui64vNV");
+    glProgramUniformHandleui64NV = (PFNGLPROGRAMUNIFORMHANDLEUI64NVPROC)gles3wLoad("glProgramUniformHandleui64NV");
+    glProgramUniformHandleui64vNV = (PFNGLPROGRAMUNIFORMHANDLEUI64VNVPROC)gles3wLoad("glProgramUniformHandleui64vNV");
+    glIsTextureHandleResidentNV = (PFNGLISTEXTUREHANDLERESIDENTNVPROC)gles3wLoad("glIsTextureHandleResidentNV");
+    glIsImageHandleResidentNV = (PFNGLISIMAGEHANDLERESIDENTNVPROC)gles3wLoad("glIsImageHandleResidentNV");
+#endif /* defined(GL_NV_bindless_texture) */
+
+#if defined(GL_NV_blend_equation_advanced)
+    glBlendParameteriNV = (PFNGLBLENDPARAMETERINVPROC)gles3wLoad("glBlendParameteriNV");
+    glBlendBarrierNV = (PFNGLBLENDBARRIERNVPROC)gles3wLoad("glBlendBarrierNV");
+#endif /* defined(GL_NV_blend_equation_advanced) */
+
+#if defined(GL_NV_clip_space_w_scaling)
+    glViewportPositionWScaleNV = (PFNGLVIEWPORTPOSITIONWSCALENVPROC)gles3wLoad("glViewportPositionWScaleNV");
+#endif /* defined(GL_NV_clip_space_w_scaling) */
+
+#if defined(GL_NV_conditional_render)
+    glBeginConditionalRenderNV = (PFNGLBEGINCONDITIONALRENDERNVPROC)gles3wLoad("glBeginConditionalRenderNV");
+    glEndConditionalRenderNV = (PFNGLENDCONDITIONALRENDERNVPROC)gles3wLoad("glEndConditionalRenderNV");
+#endif /* defined(GL_NV_conditional_render) */
+
+#if defined(GL_NV_conservative_raster)
+    glSubpixelPrecisionBiasNV = (PFNGLSUBPIXELPRECISIONBIASNVPROC)gles3wLoad("glSubpixelPrecisionBiasNV");
+#endif /* defined(GL_NV_conservative_raster) */
+
+#if defined(GL_NV_conservative_raster_pre_snap_triangles)
+    glConservativeRasterParameteriNV = (PFNGLCONSERVATIVERASTERPARAMETERINVPROC)gles3wLoad("glConservativeRasterParameteriNV");
+#endif /* defined(GL_NV_conservative_raster_pre_snap_triangles) */
+
+#if defined(GL_NV_copy_buffer)
+    glCopyBufferSubDataNV = (PFNGLCOPYBUFFERSUBDATANVPROC)gles3wLoad("glCopyBufferSubDataNV");
+#endif /* defined(GL_NV_copy_buffer) */
+
+#if defined(GL_NV_coverage_sample)
+    glCoverageMaskNV = (PFNGLCOVERAGEMASKNVPROC)gles3wLoad("glCoverageMaskNV");
+    glCoverageOperationNV = (PFNGLCOVERAGEOPERATIONNVPROC)gles3wLoad("glCoverageOperationNV");
+#endif /* defined(GL_NV_coverage_sample) */
+
+#if defined(GL_NV_draw_buffers)
+    glDrawBuffersNV = (PFNGLDRAWBUFFERSNVPROC)gles3wLoad("glDrawBuffersNV");
+#endif /* defined(GL_NV_draw_buffers) */
+
+#if defined(GL_NV_draw_instanced)
+    glDrawArraysInstancedNV = (PFNGLDRAWARRAYSINSTANCEDNVPROC)gles3wLoad("glDrawArraysInstancedNV");
+    glDrawElementsInstancedNV = (PFNGLDRAWELEMENTSINSTANCEDNVPROC)gles3wLoad("glDrawElementsInstancedNV");
+#endif /* defined(GL_NV_draw_instanced) */
+
+#if defined(GL_NV_draw_vulkan_image)
+    glDrawVkImageNV = (PFNGLDRAWVKIMAGENVPROC)gles3wLoad("glDrawVkImageNV");
+    glGetVkProcAddrNV = (PFNGLGETVKPROCADDRNVPROC)gles3wLoad("glGetVkProcAddrNV");
+    glWaitVkSemaphoreNV = (PFNGLWAITVKSEMAPHORENVPROC)gles3wLoad("glWaitVkSemaphoreNV");
+    glSignalVkSemaphoreNV = (PFNGLSIGNALVKSEMAPHORENVPROC)gles3wLoad("glSignalVkSemaphoreNV");
+    glSignalVkFenceNV = (PFNGLSIGNALVKFENCENVPROC)gles3wLoad("glSignalVkFenceNV");
+#endif /* defined(GL_NV_draw_vulkan_image) */
+
+#if defined(GL_NV_fence)
+    glDeleteFencesNV = (PFNGLDELETEFENCESNVPROC)gles3wLoad("glDeleteFencesNV");
+    glGenFencesNV = (PFNGLGENFENCESNVPROC)gles3wLoad("glGenFencesNV");
+    glIsFenceNV = (PFNGLISFENCENVPROC)gles3wLoad("glIsFenceNV");
+    glTestFenceNV = (PFNGLTESTFENCENVPROC)gles3wLoad("glTestFenceNV");
+    glGetFenceivNV = (PFNGLGETFENCEIVNVPROC)gles3wLoad("glGetFenceivNV");
+    glFinishFenceNV = (PFNGLFINISHFENCENVPROC)gles3wLoad("glFinishFenceNV");
+    glSetFenceNV = (PFNGLSETFENCENVPROC)gles3wLoad("glSetFenceNV");
+#endif /* defined(GL_NV_fence) */
+
+#if defined(GL_NV_fragment_coverage_to_color)
+    glFragmentCoverageColorNV = (PFNGLFRAGMENTCOVERAGECOLORNVPROC)gles3wLoad("glFragmentCoverageColorNV");
+#endif /* defined(GL_NV_fragment_coverage_to_color) */
+
+#if defined(GL_NV_framebuffer_blit)
+    glBlitFramebufferNV = (PFNGLBLITFRAMEBUFFERNVPROC)gles3wLoad("glBlitFramebufferNV");
+#endif /* defined(GL_NV_framebuffer_blit) */
+
+#if defined(GL_NV_framebuffer_mixed_samples)
+    glCoverageModulationTableNV = (PFNGLCOVERAGEMODULATIONTABLENVPROC)gles3wLoad("glCoverageModulationTableNV");
+    glGetCoverageModulationTableNV = (PFNGLGETCOVERAGEMODULATIONTABLENVPROC)gles3wLoad("glGetCoverageModulationTableNV");
+    glCoverageModulationNV = (PFNGLCOVERAGEMODULATIONNVPROC)gles3wLoad("glCoverageModulationNV");
+#endif /* defined(GL_NV_framebuffer_mixed_samples) */
+
+#if defined(GL_NV_framebuffer_multisample)
+    glRenderbufferStorageMultisampleNV = (PFNGLRENDERBUFFERSTORAGEMULTISAMPLENVPROC)gles3wLoad("glRenderbufferStorageMultisampleNV");
+#endif /* defined(GL_NV_framebuffer_multisample) */
+
+#if defined(GL_NV_gpu_shader5)
+    glUniform1i64NV = (PFNGLUNIFORM1I64NVPROC)gles3wLoad("glUniform1i64NV");
+    glUniform2i64NV = (PFNGLUNIFORM2I64NVPROC)gles3wLoad("glUniform2i64NV");
+    glUniform3i64NV = (PFNGLUNIFORM3I64NVPROC)gles3wLoad("glUniform3i64NV");
+    glUniform4i64NV = (PFNGLUNIFORM4I64NVPROC)gles3wLoad("glUniform4i64NV");
+    glUniform1i64vNV = (PFNGLUNIFORM1I64VNVPROC)gles3wLoad("glUniform1i64vNV");
+    glUniform2i64vNV = (PFNGLUNIFORM2I64VNVPROC)gles3wLoad("glUniform2i64vNV");
+    glUniform3i64vNV = (PFNGLUNIFORM3I64VNVPROC)gles3wLoad("glUniform3i64vNV");
+    glUniform4i64vNV = (PFNGLUNIFORM4I64VNVPROC)gles3wLoad("glUniform4i64vNV");
+    glUniform1ui64NV = (PFNGLUNIFORM1UI64NVPROC)gles3wLoad("glUniform1ui64NV");
+    glUniform2ui64NV = (PFNGLUNIFORM2UI64NVPROC)gles3wLoad("glUniform2ui64NV");
+    glUniform3ui64NV = (PFNGLUNIFORM3UI64NVPROC)gles3wLoad("glUniform3ui64NV");
+    glUniform4ui64NV = (PFNGLUNIFORM4UI64NVPROC)gles3wLoad("glUniform4ui64NV");
+    glUniform1ui64vNV = (PFNGLUNIFORM1UI64VNVPROC)gles3wLoad("glUniform1ui64vNV");
+    glUniform2ui64vNV = (PFNGLUNIFORM2UI64VNVPROC)gles3wLoad("glUniform2ui64vNV");
+    glUniform3ui64vNV = (PFNGLUNIFORM3UI64VNVPROC)gles3wLoad("glUniform3ui64vNV");
+    glUniform4ui64vNV = (PFNGLUNIFORM4UI64VNVPROC)gles3wLoad("glUniform4ui64vNV");
+    glGetUniformi64vNV = (PFNGLGETUNIFORMI64VNVPROC)gles3wLoad("glGetUniformi64vNV");
+
+    glProgramUniform1i64NV = (PFNGLPROGRAMUNIFORM1I64NVPROC)gles3wLoad("glProgramUniform1i64NV");
+    glProgramUniform2i64NV = (PFNGLPROGRAMUNIFORM2I64NVPROC)gles3wLoad("glProgramUniform2i64NV");
+    glProgramUniform3i64NV = (PFNGLPROGRAMUNIFORM3I64NVPROC)gles3wLoad("glProgramUniform3i64NV");
+    glProgramUniform4i64NV = (PFNGLPROGRAMUNIFORM4I64NVPROC)gles3wLoad("glProgramUniform4i64NV");
+    glProgramUniform1i64vNV = (PFNGLPROGRAMUNIFORM1I64VNVPROC)gles3wLoad("glProgramUniform1i64vNV");
+    glProgramUniform2i64vNV = (PFNGLPROGRAMUNIFORM2I64VNVPROC)gles3wLoad("glProgramUniform2i64vNV");
+    glProgramUniform3i64vNV = (PFNGLPROGRAMUNIFORM3I64VNVPROC)gles3wLoad("glProgramUniform3i64vNV");
+    glProgramUniform4i64vNV = (PFNGLPROGRAMUNIFORM4I64VNVPROC)gles3wLoad("glProgramUniform4i64vNV");
+    glProgramUniform1ui64NV = (PFNGLPROGRAMUNIFORM1UI64NVPROC)gles3wLoad("glProgramUniform1ui64NV");
+    glProgramUniform2ui64NV = (PFNGLPROGRAMUNIFORM2UI64NVPROC)gles3wLoad("glProgramUniform2ui64NV");
+    glProgramUniform3ui64NV = (PFNGLPROGRAMUNIFORM3UI64NVPROC)gles3wLoad("glProgramUniform3ui64NV");
+    glProgramUniform4ui64NV = (PFNGLPROGRAMUNIFORM4UI64NVPROC)gles3wLoad("glProgramUniform4ui64NV");
+    glProgramUniform1ui64vNV = (PFNGLPROGRAMUNIFORM1UI64VNVPROC)gles3wLoad("glProgramUniform1ui64vNV");
+    glProgramUniform2ui64vNV = (PFNGLPROGRAMUNIFORM2UI64VNVPROC)gles3wLoad("glProgramUniform2ui64vNV");
+    glProgramUniform3ui64vNV = (PFNGLPROGRAMUNIFORM3UI64VNVPROC)gles3wLoad("glProgramUniform3ui64vNV");
+    glProgramUniform4ui64vNV = (PFNGLPROGRAMUNIFORM4UI64VNVPROC)gles3wLoad("glProgramUniform4ui64vNV");
+#endif /* defined(GL_NV_gpu_shader5) */
+
+#if defined(GL_NV_instanced_arrays)
+    glVertexAttribDivisorNV = (PFNGLVERTEXATTRIBDIVISORNVPROC)gles3wLoad("glVertexAttribDivisorNV");
+#endif /* defined(GL_NV_instanced_arrays) */
+
+#if defined(GL_NV_internalformat_sample_query)
+    glGetInternalformatSampleivNV = (PFNGLGETINTERNALFORMATSAMPLEIVNVPROC)gles3wLoad("glGetInternalformatSampleivNV");
+#endif /* defined(GL_NV_internalformat_sample_query) */
+
+#if defined(GL_NV_memory_attachment)
+    glGetMemoryObjectDetachedResourcesuivNV = (PFNGLGETMEMORYOBJECTDETACHEDRESOURCESUIVNVPROC)gles3wLoad("glGetMemoryObjectDetachedResourcesuivNV");
+    glResetMemoryObjectParameterNV = (PFNGLRESETMEMORYOBJECTPARAMETERNVPROC)gles3wLoad("glResetMemoryObjectParameterNV");
+    glTexAttachMemoryNV = (PFNGLTEXATTACHMEMORYNVPROC)gles3wLoad("glTexAttachMemoryNV");
+    glBufferAttachMemoryNV = (PFNGLBUFFERATTACHMEMORYNVPROC)gles3wLoad("glBufferAttachMemoryNV");
+
+    glTextureAttachMemoryNV = (PFNGLTEXTUREATTACHMEMORYNVPROC)gles3wLoad("glTextureAttachMemoryNV");
+    glNamedBufferAttachMemoryNV = (PFNGLNAMEDBUFFERATTACHMEMORYNVPROC)gles3wLoad("glNamedBufferAttachMemoryNV");
+#endif /* defined(GL_NV_memory_attachment) */
+
+#if defined(GL_NV_memory_object_sparse)
+    glBufferPageCommitmentMemNV = (PFNGLBUFFERPAGECOMMITMENTMEMNVPROC)gles3wLoad("glBufferPageCommitmentMemNV");
+    glTexPageCommitmentMemNV = (PFNGLTEXPAGECOMMITMENTMEMNVPROC)gles3wLoad("glTexPageCommitmentMemNV");
+
+    glNamedBufferPageCommitmentMemNV = (PFNGLNAMEDBUFFERPAGECOMMITMENTMEMNVPROC)gles3wLoad("glNamedBufferPageCommitmentMemNV");
+    glTexturePageCommitmentMemNV = (PFNGLTEXTUREPAGECOMMITMENTMEMNVPROC)gles3wLoad("glTexturePageCommitmentMemNV");
+#endif /* defined(GL_NV_memory_object_sparse) */
+
+#if defined(GL_NV_mesh_shader)
+    glDrawMeshTasksNV = (PFNGLDRAWMESHTASKSNVPROC)gles3wLoad("glDrawMeshTasksNV");
+    glDrawMeshTasksIndirectNV = (PFNGLDRAWMESHTASKSINDIRECTNVPROC)gles3wLoad("glDrawMeshTasksIndirectNV");
+    glMultiDrawMeshTasksIndirectNV = (PFNGLMULTIDRAWMESHTASKSINDIRECTNVPROC)gles3wLoad("glMultiDrawMeshTasksIndirectNV");
+    glMultiDrawMeshTasksIndirectCountNV = (PFNGLMULTIDRAWMESHTASKSINDIRECTCOUNTNVPROC)gles3wLoad("glMultiDrawMeshTasksIndirectCountNV");
+#endif /* defined(GL_NV_mesh_shader) */
+
+#if defined(GL_NV_non_square_matrices)
+    glUniformMatrix2x3fvNV = (PFNGLUNIFORMMATRIX2X3FVNVPROC)gles3wLoad("glUniformMatrix2x3fvNV");
+    glUniformMatrix3x2fvNV = (PFNGLUNIFORMMATRIX3X2FVNVPROC)gles3wLoad("glUniformMatrix3x2fvNV");
+    glUniformMatrix2x4fvNV = (PFNGLUNIFORMMATRIX2X4FVNVPROC)gles3wLoad("glUniformMatrix2x4fvNV");
+    glUniformMatrix4x2fvNV = (PFNGLUNIFORMMATRIX4X2FVNVPROC)gles3wLoad("glUniformMatrix4x2fvNV");
+    glUniformMatrix3x4fvNV = (PFNGLUNIFORMMATRIX3X4FVNVPROC)gles3wLoad("glUniformMatrix3x4fvNV");
+    glUniformMatrix4x3fvNV = (PFNGLUNIFORMMATRIX4X3FVNVPROC)gles3wLoad("glUniformMatrix4x3fvNV");
+#endif /* defined(GL_NV_non_square_matrices) */
+
+#if defined(GL_NV_path_rendering)
+    glGenPathsNV = (PFNGLGENPATHSNVPROC)gles3wLoad("glGenPathsNV");
+    glDeletePathsNV = (PFNGLDELETEPATHSNVPROC)gles3wLoad("glDeletePathsNV");
+    glIsPathNV = (PFNGLISPATHNVPROC)gles3wLoad("glIsPathNV");
+    glPathCommandsNV = (PFNGLPATHCOMMANDSNVPROC)gles3wLoad("glPathCommandsNV");
+    glPathCoordsNV = (PFNGLPATHCOORDSNVPROC)gles3wLoad("glPathCoordsNV");
+    glPathSubCommandsNV = (PFNGLPATHSUBCOMMANDSNVPROC)gles3wLoad("glPathSubCommandsNV");
+    glPathSubCoordsNV = (PFNGLPATHSUBCOORDSNVPROC)gles3wLoad("glPathSubCoordsNV");
+    glPathStringNV = (PFNGLPATHSTRINGNVPROC)gles3wLoad("glPathStringNV");
+    glPathGlyphsNV = (PFNGLPATHGLYPHSNVPROC)gles3wLoad("glPathGlyphsNV");
+    glPathGlyphRangeNV = (PFNGLPATHGLYPHRANGENVPROC)gles3wLoad("glPathGlyphRangeNV");
+    glWeightPathsNV = (PFNGLWEIGHTPATHSNVPROC)gles3wLoad("glWeightPathsNV");
+    glCopyPathNV = (PFNGLCOPYPATHNVPROC)gles3wLoad("glCopyPathNV");
+    glInterpolatePathsNV = (PFNGLINTERPOLATEPATHSNVPROC)gles3wLoad("glInterpolatePathsNV");
+    glTransformPathNV = (PFNGLTRANSFORMPATHNVPROC)gles3wLoad("glTransformPathNV");
+    glPathParameterivNV = (PFNGLPATHPARAMETERIVNVPROC)gles3wLoad("glPathParameterivNV");
+    glPathParameteriNV = (PFNGLPATHPARAMETERINVPROC)gles3wLoad("glPathParameteriNV");
+    glPathParameterfvNV = (PFNGLPATHPARAMETERFVNVPROC)gles3wLoad("glPathParameterfvNV");
+    glPathParameterfNV = (PFNGLPATHPARAMETERFNVPROC)gles3wLoad("glPathParameterfNV");
+    glPathDashArrayNV = (PFNGLPATHDASHARRAYNVPROC)gles3wLoad("glPathDashArrayNV");
+    glPathStencilFuncNV = (PFNGLPATHSTENCILFUNCNVPROC)gles3wLoad("glPathStencilFuncNV");
+    glPathStencilDepthOffsetNV = (PFNGLPATHSTENCILDEPTHOFFSETNVPROC)gles3wLoad("glPathStencilDepthOffsetNV");
+    glStencilFillPathNV = (PFNGLSTENCILFILLPATHNVPROC)gles3wLoad("glStencilFillPathNV");
+    glStencilStrokePathNV = (PFNGLSTENCILSTROKEPATHNVPROC)gles3wLoad("glStencilStrokePathNV");
+    glStencilFillPathInstancedNV = (PFNGLSTENCILFILLPATHINSTANCEDNVPROC)gles3wLoad("glStencilFillPathInstancedNV");
+    glStencilStrokePathInstancedNV = (PFNGLSTENCILSTROKEPATHINSTANCEDNVPROC)gles3wLoad("glStencilStrokePathInstancedNV");
+    glPathCoverDepthFuncNV = (PFNGLPATHCOVERDEPTHFUNCNVPROC)gles3wLoad("glPathCoverDepthFuncNV");
+    glCoverFillPathNV = (PFNGLCOVERFILLPATHNVPROC)gles3wLoad("glCoverFillPathNV");
+    glCoverStrokePathNV = (PFNGLCOVERSTROKEPATHNVPROC)gles3wLoad("glCoverStrokePathNV");
+    glCoverFillPathInstancedNV = (PFNGLCOVERFILLPATHINSTANCEDNVPROC)gles3wLoad("glCoverFillPathInstancedNV");
+    glCoverStrokePathInstancedNV = (PFNGLCOVERSTROKEPATHINSTANCEDNVPROC)gles3wLoad("glCoverStrokePathInstancedNV");
+    glGetPathParameterivNV = (PFNGLGETPATHPARAMETERIVNVPROC)gles3wLoad("glGetPathParameterivNV");
+    glGetPathParameterfvNV = (PFNGLGETPATHPARAMETERFVNVPROC)gles3wLoad("glGetPathParameterfvNV");
+    glGetPathCommandsNV = (PFNGLGETPATHCOMMANDSNVPROC)gles3wLoad("glGetPathCommandsNV");
+    glGetPathCoordsNV = (PFNGLGETPATHCOORDSNVPROC)gles3wLoad("glGetPathCoordsNV");
+    glGetPathDashArrayNV = (PFNGLGETPATHDASHARRAYNVPROC)gles3wLoad("glGetPathDashArrayNV");
+    glGetPathMetricsNV = (PFNGLGETPATHMETRICSNVPROC)gles3wLoad("glGetPathMetricsNV");
+    glGetPathMetricRangeNV = (PFNGLGETPATHMETRICRANGENVPROC)gles3wLoad("glGetPathMetricRangeNV");
+    glGetPathSpacingNV = (PFNGLGETPATHSPACINGNVPROC)gles3wLoad("glGetPathSpacingNV");
+    glIsPointInFillPathNV = (PFNGLISPOINTINFILLPATHNVPROC)gles3wLoad("glIsPointInFillPathNV");
+    glIsPointInStrokePathNV = (PFNGLISPOINTINSTROKEPATHNVPROC)gles3wLoad("glIsPointInStrokePathNV");
+    glGetPathLengthNV = (PFNGLGETPATHLENGTHNVPROC)gles3wLoad("glGetPathLengthNV");
+    glPointAlongPathNV = (PFNGLPOINTALONGPATHNVPROC)gles3wLoad("glPointAlongPathNV");
+
+    glMatrixLoad3x2fNV = (PFNGLMATRIXLOAD3X2FNVPROC)gles3wLoad("glMatrixLoad3x2fNV");
+    glMatrixLoad3x3fNV = (PFNGLMATRIXLOAD3X3FNVPROC)gles3wLoad("glMatrixLoad3x3fNV");
+    glMatrixLoadTranspose3x3fNV = (PFNGLMATRIXLOADTRANSPOSE3X3FNVPROC)gles3wLoad("glMatrixLoadTranspose3x3fNV");
+    glMatrixMult3x2fNV = (PFNGLMATRIXMULT3X2FNVPROC)gles3wLoad("glMatrixMult3x2fNV");
+    glMatrixMult3x3fNV = (PFNGLMATRIXMULT3X3FNVPROC)gles3wLoad("glMatrixMult3x3fNV");
+    glMatrixMultTranspose3x3fNV = (PFNGLMATRIXMULTTRANSPOSE3X3FNVPROC)gles3wLoad("glMatrixMultTranspose3x3fNV");
+    glStencilThenCoverFillPathNV = (PFNGLSTENCILTHENCOVERFILLPATHNVPROC)gles3wLoad("glStencilThenCoverFillPathNV");
+    glStencilThenCoverStrokePathNV = (PFNGLSTENCILTHENCOVERSTROKEPATHNVPROC)gles3wLoad("glStencilThenCoverStrokePathNV");
+    glStencilThenCoverFillPathInstancedNV = (PFNGLSTENCILTHENCOVERFILLPATHINSTANCEDNVPROC)gles3wLoad("glStencilThenCoverFillPathInstancedNV");
+    glStencilThenCoverStrokePathInstancedNV = (PFNGLSTENCILTHENCOVERSTROKEPATHINSTANCEDNVPROC)gles3wLoad("glStencilThenCoverStrokePathInstancedNV");
+    glPathGlyphIndexRangeNV = (PFNGLPATHGLYPHINDEXRANGENVPROC)gles3wLoad("glPathGlyphIndexRangeNV");
+
+    glPathGlyphIndexArrayNV = (PFNGLPATHGLYPHINDEXARRAYNVPROC)gles3wLoad("glPathGlyphIndexArrayNV");
+    glPathMemoryGlyphIndexArrayNV = (PFNGLPATHMEMORYGLYPHINDEXARRAYNVPROC)gles3wLoad("glPathMemoryGlyphIndexArrayNV");
+    glProgramPathFragmentInputGenNV = (PFNGLPROGRAMPATHFRAGMENTINPUTGENNVPROC)gles3wLoad("glProgramPathFragmentInputGenNV");
+    glGetProgramResourcefvNV = (PFNGLGETPROGRAMRESOURCEFVNVPROC)gles3wLoad("glGetProgramResourcefvNV");
+
+    glMatrixFrustumEXT = (PFNGLMATRIXFRUSTUMEXTPROC)gles3wLoad("glMatrixFrustumEXT");
+    glMatrixLoadIdentityEXT = (PFNGLMATRIXLOADIDENTITYEXTPROC)gles3wLoad("glMatrixLoadIdentityEXT");
+    glMatrixLoadTransposefEXT = (PFNGLMATRIXLOADTRANSPOSEFEXTPROC)gles3wLoad("glMatrixLoadTransposefEXT");
+    glMatrixLoadTransposedEXT = (PFNGLMATRIXLOADTRANSPOSEDEXTPROC)gles3wLoad("glMatrixLoadTransposedEXT");
+    glMatrixLoadfEXT = (PFNGLMATRIXLOADFEXTPROC)gles3wLoad("glMatrixLoadfEXT");
+    glMatrixLoaddEXT = (PFNGLMATRIXLOADDEXTPROC)gles3wLoad("glMatrixLoaddEXT");
+    glMatrixMultTransposefEXT = (PFNGLMATRIXMULTTRANSPOSEFEXTPROC)gles3wLoad("glMatrixMultTransposefEXT");
+    glMatrixMultTransposedEXT = (PFNGLMATRIXMULTTRANSPOSEDEXTPROC)gles3wLoad("glMatrixMultTransposedEXT");
+    glMatrixMultfEXT = (PFNGLMATRIXMULTFEXTPROC)gles3wLoad("glMatrixMultfEXT");
+    glMatrixMultdEXT = (PFNGLMATRIXMULTDEXTPROC)gles3wLoad("glMatrixMultdEXT");
+    glMatrixOrthoEXT = (PFNGLMATRIXORTHOEXTPROC)gles3wLoad("glMatrixOrthoEXT");
+    glMatrixPopEXT = (PFNGLMATRIXPOPEXTPROC)gles3wLoad("glMatrixPopEXT");
+    glMatrixPushEXT = (PFNGLMATRIXPUSHEXTPROC)gles3wLoad("glMatrixPushEXT");
+    glMatrixRotatefEXT = (PFNGLMATRIXROTATEFEXTPROC)gles3wLoad("glMatrixRotatefEXT");
+    glMatrixRotatedEXT = (PFNGLMATRIXROTATEDEXTPROC)gles3wLoad("glMatrixRotatedEXT");
+    glMatrixScalefEXT = (PFNGLMATRIXSCALEFEXTPROC)gles3wLoad("glMatrixScalefEXT");
+    glMatrixScaledEXT = (PFNGLMATRIXSCALEDEXTPROC)gles3wLoad("glMatrixScaledEXT");
+    glMatrixTranslatefEXT = (PFNGLMATRIXTRANSLATEFEXTPROC)gles3wLoad("glMatrixTranslatefEXT");
+    glMatrixTranslatedEXT = (PFNGLMATRIXTRANSLATEDEXTPROC)gles3wLoad("glMatrixTranslatedEXT");
+#endif /* defined(GL_NV_path_rendering) */
+
+#if defined(GL_NV_polygon_mode)
+    glPolygonModeNV = (PFNGLPOLYGONMODENVPROC)gles3wLoad("glPolygonModeNV");
+#endif /* defined(GL_NV_polygon_mode) */
+
+#if defined(GL_NV_read_buffer)
+    glReadBufferNV = (PFNGLREADBUFFERNVPROC)gles3wLoad("glReadBufferNV");
+#endif /* defined(GL_NV_read_buffer) */
+
+#if defined(GL_NV_sample_locations)
+    glFramebufferSampleLocationsfvNV = (PFNGLFRAMEBUFFERSAMPLELOCATIONSFVNVPROC)gles3wLoad("glFramebufferSampleLocationsfvNV");
+    glNamedFramebufferSampleLocationsfvNV = (PFNGLNAMEDFRAMEBUFFERSAMPLELOCATIONSFVNVPROC)gles3wLoad("glNamedFramebufferSampleLocationsfvNV");
+    glResolveDepthValuesNV = (PFNGLRESOLVEDEPTHVALUESNVPROC)gles3wLoad("glResolveDepthValuesNV");
+#endif /* defined(GL_NV_sample_locations) */
+
+#if defined(GL_NV_scissor_exclusive)
+    glScissorExclusiveNV = (PFNGLSCISSOREXCLUSIVENVPROC)gles3wLoad("glScissorExclusiveNV");
+    glScissorExclusiveArrayvNV = (PFNGLSCISSOREXCLUSIVEARRAYVNVPROC)gles3wLoad("glScissorExclusiveArrayvNV");
+#endif /* defined(GL_NV_scissor_exclusive) */
+
+#if defined(GL_NV_shading_rate_image)
+    glBindShadingRateImageNV = (PFNGLBINDSHADINGRATEIMAGENVPROC)gles3wLoad("glBindShadingRateImageNV");
+    glGetShadingRateImagePaletteNV = (PFNGLGETSHADINGRATEIMAGEPALETTENVPROC)gles3wLoad("glGetShadingRateImagePaletteNV");
+    glGetShadingRateSampleLocationivNV = (PFNGLGETSHADINGRATESAMPLELOCATIONIVNVPROC)gles3wLoad("glGetShadingRateSampleLocationivNV");
+    glShadingRateImageBarrierNV = (PFNGLSHADINGRATEIMAGEBARRIERNVPROC)gles3wLoad("glShadingRateImageBarrierNV");
+    glShadingRateImagePaletteNV = (PFNGLSHADINGRATEIMAGEPALETTENVPROC)gles3wLoad("glShadingRateImagePaletteNV");
+    glShadingRateSampleOrderNV = (PFNGLSHADINGRATESAMPLEORDERNVPROC)gles3wLoad("glShadingRateSampleOrderNV");
+    glShadingRateSampleOrderCustomNV = (PFNGLSHADINGRATESAMPLEORDERCUSTOMNVPROC)gles3wLoad("glShadingRateSampleOrderCustomNV");
+#endif /* defined(GL_NV_shading_rate_image) */
+
+#if defined(GL_NV_viewport_array)
+    glViewportArrayvNV = (PFNGLVIEWPORTARRAYVNVPROC)gles3wLoad("glViewportArrayvNV");
+    glViewportIndexedfNV = (PFNGLVIEWPORTINDEXEDFNVPROC)gles3wLoad("glViewportIndexedfNV");
+    glViewportIndexedfvNV = (PFNGLVIEWPORTINDEXEDFVNVPROC)gles3wLoad("glViewportIndexedfvNV");
+    glScissorArrayvNV = (PFNGLSCISSORARRAYVNVPROC)gles3wLoad("glScissorArrayvNV");
+    glScissorIndexedNV = (PFNGLSCISSORINDEXEDNVPROC)gles3wLoad("glScissorIndexedNV");
+    glScissorIndexedvNV = (PFNGLSCISSORINDEXEDVNVPROC)gles3wLoad("glScissorIndexedvNV");
+    glDepthRangeArrayfvNV = (PFNGLDEPTHRANGEARRAYFVNVPROC)gles3wLoad("glDepthRangeArrayfvNV");
+    glDepthRangeIndexedfNV = (PFNGLDEPTHRANGEINDEXEDFNVPROC)gles3wLoad("glDepthRangeIndexedfNV");
+    glGetFloati_vNV = (PFNGLGETFLOATI_VNVPROC)gles3wLoad("glGetFloati_vNV");
+    glEnableiNV = (PFNGLENABLEINVPROC)gles3wLoad("glEnableiNV");
+    glDisableiNV = (PFNGLDISABLEINVPROC)gles3wLoad("glDisableiNV");
+    glIsEnablediNV = (PFNGLISENABLEDINVPROC)gles3wLoad("glIsEnablediNV");
+#endif /* defined(GL_NV_viewport_array) */
+
+#if defined(GL_NV_viewport_swizzle)
+    glViewportSwizzleNV = (PFNGLVIEWPORTSWIZZLENVPROC)gles3wLoad("glViewportSwizzleNV");
+#endif /* defined(GL_NV_viewport_swizzle) */
+
+#if defined(GL_OES_EGL_image)
+    glEGLImageTargetTexture2DOES = (PFNGLEGLIMAGETARGETTEXTURE2DOESPROC)gles3wLoad("glEGLImageTargetTexture2DOES");
+    glEGLImageTargetRenderbufferStorageOES = (PFNGLEGLIMAGETARGETRENDERBUFFERSTORAGEOESPROC)gles3wLoad("glEGLImageTargetRenderbufferStorageOES");
+#endif /* defined(GL_OES_EGL_image) */
+
+#if defined(GL_OES_copy_image)
+    glCopyImageSubDataOES = (PFNGLCOPYIMAGESUBDATAOESPROC)gles3wLoad("glCopyImageSubDataOES");
+#endif /* defined(GL_OES_copy_image) */
+
+#if defined(GL_OES_draw_buffers_indexed)
+    glEnableiOES = (PFNGLENABLEIOESPROC)gles3wLoad("glEnableiOES");
+    glDisableiOES = (PFNGLDISABLEIOESPROC)gles3wLoad("glDisableiOES");
+    glBlendEquationiOES = (PFNGLBLENDEQUATIONIOESPROC)gles3wLoad("glBlendEquationiOES");
+    glBlendEquationSeparateiOES = (PFNGLBLENDEQUATIONSEPARATEIOESPROC)gles3wLoad("glBlendEquationSeparateiOES");
+    glBlendFunciOES = (PFNGLBLENDFUNCIOESPROC)gles3wLoad("glBlendFunciOES");
+    glBlendFuncSeparateiOES = (PFNGLBLENDFUNCSEPARATEIOESPROC)gles3wLoad("glBlendFuncSeparateiOES");
+    glColorMaskiOES = (PFNGLCOLORMASKIOESPROC)gles3wLoad("glColorMaskiOES");
+    glIsEnablediOES = (PFNGLISENABLEDIOESPROC)gles3wLoad("glIsEnablediOES");
+#endif /* defined(GL_OES_draw_buffers_indexed) */
+
+#if defined(GL_OES_draw_elements_base_vertex)
+    glDrawElementsBaseVertexOES = (PFNGLDRAWELEMENTSBASEVERTEXOESPROC)gles3wLoad("glDrawElementsBaseVertexOES");
+    glDrawRangeElementsBaseVertexOES = (PFNGLDRAWRANGEELEMENTSBASEVERTEXOESPROC)gles3wLoad("glDrawRangeElementsBaseVertexOES");
+    glDrawElementsInstancedBaseVertexOES = (PFNGLDRAWELEMENTSINSTANCEDBASEVERTEXOESPROC)gles3wLoad("glDrawElementsInstancedBaseVertexOES");
+#endif /* defined(GL_OES_draw_elements_base_vertex) */
+
+#if defined(GL_OES_geometry_shader)
+    glFramebufferTextureOES = (PFNGLFRAMEBUFFERTEXTUREOESPROC)gles3wLoad("glFramebufferTextureOES");
+#endif /* defined(GL_OES_geometry_shader) */
+
+#if defined(GL_OES_get_program_binary)
+    glGetProgramBinaryOES = (PFNGLGETPROGRAMBINARYOESPROC)gles3wLoad("glGetProgramBinaryOES");
+    glProgramBinaryOES = (PFNGLPROGRAMBINARYOESPROC)gles3wLoad("glProgramBinaryOES");
+#endif /* defined(GL_OES_get_program_binary) */
+
+#if defined(GL_OES_mapbuffer)
+    glMapBufferOES = (PFNGLMAPBUFFEROESPROC)gles3wLoad("glMapBufferOES");
+    glUnmapBufferOES = (PFNGLUNMAPBUFFEROESPROC)gles3wLoad("glUnmapBufferOES");
+    glGetBufferPointervOES = (PFNGLGETBUFFERPOINTERVOESPROC)gles3wLoad("glGetBufferPointervOES");
+#endif /* defined(GL_OES_mapbuffer) */
+
+#if defined(GL_OES_primitive_bounding_box)
+    glPrimitiveBoundingBoxOES = (PFNGLPRIMITIVEBOUNDINGBOXOESPROC)gles3wLoad("glPrimitiveBoundingBoxOES");
+#endif /* defined(GL_OES_primitive_bounding_box) */
+
+#if defined(GL_OES_sample_shading)
+    glMinSampleShadingOES = (PFNGLMINSAMPLESHADINGOESPROC)gles3wLoad("glMinSampleShadingOES");
+#endif /* defined(GL_OES_sample_shading) */
+
+#if defined(GL_OES_tessellation_shader)
+    glPatchParameteriOES = (PFNGLPATCHPARAMETERIOESPROC)gles3wLoad("glPatchParameteriOES");
+#endif /* defined(GL_OES_tessellation_shader) */
+
+#if defined(GL_OES_texture_3D)
+    glTexImage3DOES = (PFNGLTEXIMAGE3DOESPROC)gles3wLoad("glTexImage3DOES");
+    glTexSubImage3DOES = (PFNGLTEXSUBIMAGE3DOESPROC)gles3wLoad("glTexSubImage3DOES");
+    glCopyTexSubImage3DOES = (PFNGLCOPYTEXSUBIMAGE3DOESPROC)gles3wLoad("glCopyTexSubImage3DOES");
+    glCompressedTexImage3DOES = (PFNGLCOMPRESSEDTEXIMAGE3DOESPROC)gles3wLoad("glCompressedTexImage3DOES");
+    glCompressedTexSubImage3DOES = (PFNGLCOMPRESSEDTEXSUBIMAGE3DOESPROC)gles3wLoad("glCompressedTexSubImage3DOES");
+    glFramebufferTexture3DOES = (PFNGLFRAMEBUFFERTEXTURE3DOESPROC)gles3wLoad("glFramebufferTexture3DOES");
+#endif /* defined(GL_OES_texture_3D) */
+
+#if defined(GL_OES_texture_border_clamp)
+    glTexParameterIivOES = (PFNGLTEXPARAMETERIIVOESPROC)gles3wLoad("glTexParameterIivOES");
+    glTexParameterIuivOES = (PFNGLTEXPARAMETERIUIVOESPROC)gles3wLoad("glTexParameterIuivOES");
+    glGetTexParameterIivOES = (PFNGLGETTEXPARAMETERIIVOESPROC)gles3wLoad("glGetTexParameterIivOES");
+    glGetTexParameterIuivOES = (PFNGLGETTEXPARAMETERIUIVOESPROC)gles3wLoad("glGetTexParameterIuivOES");
+    glSamplerParameterIivOES = (PFNGLSAMPLERPARAMETERIIVOESPROC)gles3wLoad("glSamplerParameterIivOES");
+    glSamplerParameterIuivOES = (PFNGLSAMPLERPARAMETERIUIVOESPROC)gles3wLoad("glSamplerParameterIuivOES");
+    glGetSamplerParameterIivOES = (PFNGLGETSAMPLERPARAMETERIIVOESPROC)gles3wLoad("glGetSamplerParameterIivOES");
+    glGetSamplerParameterIuivOES = (PFNGLGETSAMPLERPARAMETERIUIVOESPROC)gles3wLoad("glGetSamplerParameterIuivOES");
+#endif /* defined(GL_OES_texture_border_clamp) */
+
+#if defined(GL_OES_texture_buffer)
+    glTexBufferOES = (PFNGLTEXBUFFEROESPROC)gles3wLoad("glTexBufferOES");
+    glTexBufferRangeOES = (PFNGLTEXBUFFERRANGEOESPROC)gles3wLoad("glTexBufferRangeOES");
+#endif /* defined(GL_OES_texture_buffer) */
+
+#if defined(GL_OES_texture_storage_multisample_2d_array)
+    glTexStorage3DMultisampleOES = (PFNGLTEXSTORAGE3DMULTISAMPLEOESPROC)gles3wLoad("glTexStorage3DMultisampleOES");
+#endif /* defined(GL_OES_texture_storage_multisample_2d_array) */
+
+#if defined(GL_OES_texture_view)
+    glTextureViewOES = (PFNGLTEXTUREVIEWOESPROC)gles3wLoad("glTextureViewOES");
+#endif /* defined(GL_OES_texture_view) */
+
+#if defined(GL_OES_vertex_array_object)
+    glBindVertexArrayOES = (PFNGLBINDVERTEXARRAYOESPROC)gles3wLoad("glBindVertexArrayOES");
+    glDeleteVertexArraysOES = (PFNGLDELETEVERTEXARRAYSOESPROC)gles3wLoad("glDeleteVertexArraysOES");
+    glGenVertexArraysOES = (PFNGLGENVERTEXARRAYSOESPROC)gles3wLoad("glGenVertexArraysOES");
+    glIsVertexArrayOES = (PFNGLISVERTEXARRAYOESPROC)gles3wLoad("glIsVertexArrayOES");
+#endif /* defined(GL_OES_vertex_array_object) */
+
+#if defined(GL_OES_viewport_array)
+    glViewportArrayvOES = (PFNGLVIEWPORTARRAYVOESPROC)gles3wLoad("glViewportArrayvOES");
+    glViewportIndexedfOES = (PFNGLVIEWPORTINDEXEDFOESPROC)gles3wLoad("glViewportIndexedfOES");
+    glViewportIndexedfvOES = (PFNGLVIEWPORTINDEXEDFVOESPROC)gles3wLoad("glViewportIndexedfvOES");
+    glScissorArrayvOES = (PFNGLSCISSORARRAYVOESPROC)gles3wLoad("glScissorArrayvOES");
+    glScissorIndexedOES = (PFNGLSCISSORINDEXEDOESPROC)gles3wLoad("glScissorIndexedOES");
+    glScissorIndexedvOES = (PFNGLSCISSORINDEXEDVOESPROC)gles3wLoad("glScissorIndexedvOES");
+    glDepthRangeArrayfvOES = (PFNGLDEPTHRANGEARRAYFVOESPROC)gles3wLoad("glDepthRangeArrayfvOES");
+    glDepthRangeIndexedfOES = (PFNGLDEPTHRANGEINDEXEDFOESPROC)gles3wLoad("glDepthRangeIndexedfOES");
+    glGetFloati_vOES = (PFNGLGETFLOATI_VOESPROC)gles3wLoad("glGetFloati_vOES");
+#endif /* defined(GL_OES_viewport_array) */
+
+#if defined(GL_OVR_multiview)
+    glFramebufferTextureMultiviewOVR = (PFNGLFRAMEBUFFERTEXTUREMULTIVIEWOVRPROC)gles3wLoad("glFramebufferTextureMultiviewOVR");
+#endif /* defined(GL_OVR_multiview) */
+
+#if defined(GL_OVR_multiview_multisampled_render_to_texture)
+    glFramebufferTextureMultisampleMultiviewOVR = (PFNGLFRAMEBUFFERTEXTUREMULTISAMPLEMULTIVIEWOVRPROC)gles3wLoad("glFramebufferTextureMultisampleMultiviewOVR");
+#endif /* defined(GL_OVR_multiview_multisampled_render_to_texture) */
+
+#if defined(GL_QCOM_alpha_test)
+    glAlphaFuncQCOM = (PFNGLALPHAFUNCQCOMPROC)gles3wLoad("glAlphaFuncQCOM");
+#endif /* defined(GL_QCOM_alpha_test) */
+
+#if defined(GL_QCOM_driver_control)
+    glGetDriverControlsQCOM = (PFNGLGETDRIVERCONTROLSQCOMPROC)gles3wLoad("glGetDriverControlsQCOM");
+    glGetDriverControlStringQCOM = (PFNGLGETDRIVERCONTROLSTRINGQCOMPROC)gles3wLoad("glGetDriverControlStringQCOM");
+    glEnableDriverControlQCOM = (PFNGLENABLEDRIVERCONTROLQCOMPROC)gles3wLoad("glEnableDriverControlQCOM");
+    glDisableDriverControlQCOM = (PFNGLDISABLEDRIVERCONTROLQCOMPROC)gles3wLoad("glDisableDriverControlQCOM");
+#endif /* defined(GL_QCOM_driver_control) */
+
+#if defined(GL_QCOM_extended_get)
+    glExtGetTexturesQCOM = (PFNGLEXTGETTEXTURESQCOMPROC)gles3wLoad("glExtGetTexturesQCOM");
+    glExtGetBuffersQCOM = (PFNGLEXTGETBUFFERSQCOMPROC)gles3wLoad("glExtGetBuffersQCOM");
+    glExtGetRenderbuffersQCOM = (PFNGLEXTGETRENDERBUFFERSQCOMPROC)gles3wLoad("glExtGetRenderbuffersQCOM");
+    glExtGetFramebuffersQCOM = (PFNGLEXTGETFRAMEBUFFERSQCOMPROC)gles3wLoad("glExtGetFramebuffersQCOM");
+    glExtGetTexLevelParameterivQCOM = (PFNGLEXTGETTEXLEVELPARAMETERIVQCOMPROC)gles3wLoad("glExtGetTexLevelParameterivQCOM");
+    glExtTexObjectStateOverrideiQCOM = (PFNGLEXTTEXOBJECTSTATEOVERRIDEIQCOMPROC)gles3wLoad("glExtTexObjectStateOverrideiQCOM");
+    glExtGetTexSubImageQCOM = (PFNGLEXTGETTEXSUBIMAGEQCOMPROC)gles3wLoad("glExtGetTexSubImageQCOM");
+    glExtGetBufferPointervQCOM = (PFNGLEXTGETBUFFERPOINTERVQCOMPROC)gles3wLoad("glExtGetBufferPointervQCOM");
+#endif /* defined(GL_QCOM_extended_get) */
+
+#if defined(GL_QCOM_extended_get2)
+    glExtGetShadersQCOM = (PFNGLEXTGETSHADERSQCOMPROC)gles3wLoad("glExtGetShadersQCOM");
+    glExtGetProgramsQCOM = (PFNGLEXTGETPROGRAMSQCOMPROC)gles3wLoad("glExtGetProgramsQCOM");
+    glExtIsProgramBinaryQCOM = (PFNGLEXTISPROGRAMBINARYQCOMPROC)gles3wLoad("glExtIsProgramBinaryQCOM");
+    glExtGetProgramBinarySourceQCOM = (PFNGLEXTGETPROGRAMBINARYSOURCEQCOMPROC)gles3wLoad("glExtGetProgramBinarySourceQCOM");
+#endif /* defined(GL_QCOM_extended_get2) */
+
+#if defined(GL_QCOM_framebuffer_foveated)
+    glFramebufferFoveationConfigQCOM = (PFNGLFRAMEBUFFERFOVEATIONCONFIGQCOMPROC)gles3wLoad("glFramebufferFoveationConfigQCOM");
+    glFramebufferFoveationParametersQCOM = (PFNGLFRAMEBUFFERFOVEATIONPARAMETERSQCOMPROC)gles3wLoad("glFramebufferFoveationParametersQCOM");
+#endif /* defined(GL_QCOM_framebuffer_foveated) */
+
+#if defined(GL_QCOM_motion_estimation)
+    glTexEstimateMotionQCOM = (PFNGLTEXESTIMATEMOTIONQCOMPROC)gles3wLoad("glTexEstimateMotionQCOM");
+    glTexEstimateMotionRegionsQCOM = (PFNGLTEXESTIMATEMOTIONREGIONSQCOMPROC)gles3wLoad("glTexEstimateMotionRegionsQCOM");
+#endif /* defined(GL_QCOM_motion_estimation) */
+
+#if defined(GL_QCOM_frame_extrapolation)
+    glExtrapolateTex2DQCOM = (PFNGLEXTRAPOLATETEX2DQCOMPROC)gles3wLoad("glExtrapolateTex2DQCOM");
+#endif /* defined(GL_QCOM_frame_extrapolation) */
+
+#if defined(GL_QCOM_texture_foveated)
+    glTextureFoveationParametersQCOM = (PFNGLTEXTUREFOVEATIONPARAMETERSQCOMPROC)gles3wLoad("glTextureFoveationParametersQCOM");
+#endif /* defined(GL_QCOM_texture_foveated) */
+
+#if defined(GL_QCOM_shader_framebuffer_fetch_noncoherent)
+    glFramebufferFetchBarrierQCOM = (PFNGLFRAMEBUFFERFETCHBARRIERQCOMPROC)gles3wLoad("glFramebufferFetchBarrierQCOM");
+#endif /* defined(GL_QCOM_shader_framebuffer_fetch_noncoherent) */
+
+#if defined(GL_QCOM_shading_rate)
+    glShadingRateQCOM = (PFNGLSHADINGRATEQCOMPROC)gles3wLoad("glShadingRateQCOM");
+#endif /* defined(GL_QCOM_shading_rate) */
+
+#if defined(GL_QCOM_tiled_rendering)
+    glStartTilingQCOM = (PFNGLSTARTTILINGQCOMPROC)gles3wLoad("glStartTilingQCOM");
+    glEndTilingQCOM = (PFNGLENDTILINGQCOMPROC)gles3wLoad("glEndTilingQCOM");
+#endif /* defined(GL_QCOM_tiled_rendering) */
+
 }
