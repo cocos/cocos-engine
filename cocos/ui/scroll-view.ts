@@ -1188,6 +1188,7 @@ export class ScrollView extends ViewGroup {
 
             targetDelta.x = targetDelta.x * totalMoveWidth * (1 - this.brake) * attenuatedFactorX;
             targetDelta.y = targetDelta.y * totalMoveHeight * attenuatedFactorY * (1 - this.brake);
+            targetDelta.z = 0;
         }
 
         const originalMoveLength = deltaMove.length();
@@ -1231,7 +1232,7 @@ export class ScrollView extends ViewGroup {
         this._autoScrollAccumulatedTime = 0;
         this._autoScrollBraking = false;
         this._isScrollEndedWithThresholdEventFired = false;
-        this._autoScrollBrakingStartPosition.set(0, 0);
+        this._autoScrollBrakingStartPosition.set(0, 0, 0);
 
         const currentOutOfBoundary = this._getHowMuchOutOfBoundary();
         if (!currentOutOfBoundary.equals(_zeroVec3, EPSILON)) {
