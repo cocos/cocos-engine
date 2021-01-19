@@ -62,7 +62,7 @@
                 this._registerKeyboardEvent();
                 this._editing = true;
                 _currentEditBoxImpl = this;
-                delegate.editBoxEditingDidBegan();
+                delegate._editBoxEditingDidBegan();
             });
         },
 
