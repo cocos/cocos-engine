@@ -39,8 +39,8 @@ public:
     ~CCMTLBuffer() override = default;
     CCMTLBuffer(const CCMTLBuffer &) = delete;
     CCMTLBuffer(CCMTLBuffer &&) = delete;
-    CCMTLBuffer &operator =(const CCMTLBuffer &) = default;
-    CCMTLBuffer &operator =(CCMTLBuffer &&) = delete;
+    CCMTLBuffer &operator=(const CCMTLBuffer &) = default;
+    CCMTLBuffer &operator=(CCMTLBuffer &&) = delete;
 
     bool initialize(const BufferInfo &info) override;
     bool initialize(const BufferViewInfo &info) override;
@@ -60,7 +60,6 @@ private:
     bool createMTLBuffer(uint size, MemoryUsage usage);
     void updateMTLBuffer(void *buffer, uint offset, uint size);
 
-    id<MTLDevice> _mtlDevice = nil;
     id<MTLBuffer> _mtlBuffer = nullptr;
     MTLIndexType _indexType = MTLIndexTypeUInt16;
     MTLResourceOptions _mtlResourceOptions = MTLResourceStorageModePrivate;

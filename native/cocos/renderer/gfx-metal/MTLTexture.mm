@@ -24,6 +24,7 @@ THE SOFTWARE.
 #include "MTLStd.h"
 
 #include "MTLDevice.h"
+#include "MTLGPUObjects.h"
 #include "MTLTexture.h"
 #include "MTLUtils.h"
 
@@ -200,17 +201,29 @@ bool CCMTLTexture::createMTLTexture() {
 }
 
 void CCMTLTexture::destroy() {
+    if (_isTextureView) {
+        return;
+    }
+
     if (_buffer) {
         CC_FREE(_buffer);
         _device->getMemoryStatus().textureSize -= _size;
         _buffer = nullptr;
     }
 
-    if (_mtlTexture) {
-        [_mtlTexture release];
-        _mtlTexture = nil;
-        _device->getMemoryStatus().textureSize -= _size;
-    }
+    Device *device = _device;
+    id<MTLTexture> mtlTexure = _mtlTexture;
+    _mtlTexture = nil;
+    uint size = _size;
+
+    std::function<void(void)> destroyFunc = [=]() {
+        if (mtlTexure) {
+            [mtlTexure release];
+            device->getMemoryStatus().textureSize -= size;
+        }
+    };
+    //gpu object only
+    CCMTLGPUGarbageCollectionPool::getInstance()->collect(destroyFunc);
 }
 
 void CCMTLTexture::resize(uint width, uint height) {
@@ -235,7 +248,15 @@ void CCMTLTexture::resize(uint width, uint height) {
     }
 
     if (oldMTLTexture) {
-        [oldMTLTexture release];
+        Device *device = _device;
+        std::function<void(void)> destroyFunc = [=]() {
+            if (oldMTLTexture) {
+                [oldMTLTexture release];
+                device->getMemoryStatus().bufferSize -= oldSize;
+            }
+        };
+        //gpu object only
+        CCMTLGPUGarbageCollectionPool::getInstance()->collect(destroyFunc);
     }
 
     _device->getMemoryStatus().textureSize -= oldSize;

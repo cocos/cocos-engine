@@ -24,9 +24,9 @@ THE SOFTWARE.
 #include "MTLStd.h"
 
 #include "MTLDevice.h"
+#include "MTLGPUObjects.h"
 #include "MTLSampler.h"
 #include "MTLUtils.h"
-
 #import <Metal/MTLDevice.h>
 
 namespace cc {
@@ -61,7 +61,7 @@ bool CCMTLSampler::initialize(const SamplerInfo &info) {
     descriptor.maxAnisotropy = _maxAnisotropy == 0 ? 1 : _maxAnisotropy;
     descriptor.lodMinClamp = _minLOD;
     descriptor.lodMaxClamp = _maxLOD;
-    if(static_cast<CCMTLDevice*>(_device)->isSamplerDescriptorCompareFunctionSupported()) {
+    if (static_cast<CCMTLDevice *>(_device)->isSamplerDescriptorCompareFunctionSupported()) {
         descriptor.compareFunction = mu::toMTLCompareFunction(_cmpFunc);
     }
 
@@ -74,10 +74,15 @@ bool CCMTLSampler::initialize(const SamplerInfo &info) {
 }
 
 void CCMTLSampler::destroy() {
-    if (_mtlSamplerState) {
-        [_mtlSamplerState release];
-        _mtlSamplerState = nil;
-    }
+    id<MTLSamplerState> samplerState = _mtlSamplerState;
+    _mtlSamplerState = nil;
+
+    std::function<void(void)> destroyFunc = [=]() {
+        if (samplerState) {
+            [samplerState release];
+        }
+    };
+    CCMTLGPUGarbageCollectionPool::getInstance()->collect(destroyFunc);
 }
 
 } // namespace gfx

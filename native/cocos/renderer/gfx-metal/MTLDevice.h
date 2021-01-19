@@ -35,26 +35,26 @@ class CCMTLDevice final : public Device {
 public:
     CCMTLDevice();
     ~CCMTLDevice() override = default;
-    CCMTLDevice(const CCMTLDevice &)=delete;
-    CCMTLDevice(CCMTLDevice &&)=delete;
-    CCMTLDevice &operator=(const CCMTLDevice &)=delete;
-    CCMTLDevice &operator=(CCMTLDevice &&)=delete;
+    CCMTLDevice(const CCMTLDevice &) = delete;
+    CCMTLDevice(CCMTLDevice &&) = delete;
+    CCMTLDevice &operator=(const CCMTLDevice &) = delete;
+    CCMTLDevice &operator=(CCMTLDevice &&) = delete;
 
-    using Device::createCommandBuffer;
-    using Device::createFence;
-    using Device::createQueue;
+    using Device::copyBuffersToTexture;
     using Device::createBuffer;
-    using Device::createTexture;
-    using Device::createSampler;
-    using Device::createShader;
-    using Device::createInputAssembler;
-    using Device::createRenderPass;
-    using Device::createFramebuffer;
+    using Device::createCommandBuffer;
     using Device::createDescriptorSet;
     using Device::createDescriptorSetLayout;
+    using Device::createFence;
+    using Device::createFramebuffer;
+    using Device::createInputAssembler;
     using Device::createPipelineLayout;
     using Device::createPipelineState;
-    using Device::copyBuffersToTexture;
+    using Device::createQueue;
+    using Device::createRenderPass;
+    using Device::createSampler;
+    using Device::createShader;
+    using Device::createTexture;
 
     bool initialize(const DeviceInfo &info) override;
     void destroy() override;
@@ -70,6 +70,7 @@ public:
     CC_INLINE bool isIndirectDrawSupported() const { return _indirectDrawSupported; }
     CC_INLINE CCMTLGPUStagingBufferPool *gpuStagingBufferPool() const { return _gpuStagingBufferPools[_currentFrameIndex]; }
     CC_INLINE bool isSamplerDescriptorCompareFunctionSupported() const { return _isSamplerDescriptorCompareFunctionSupported; }
+    CC_INLINE uint currentFrameIndex() const { return _currentFrameIndex; }
 
 protected:
     CommandBuffer *doCreateCommandBuffer(const CommandBufferInfo &info, bool hasAgent) override;
@@ -78,7 +79,8 @@ protected:
     Buffer *createBuffer() override;
     Texture *createTexture() override;
     Sampler *createSampler() override;
-    Shader *createShader() override;InputAssembler *createInputAssembler() override;
+    Shader *createShader() override;
+    InputAssembler *createInputAssembler() override;
     RenderPass *createRenderPass() override;
     Framebuffer *createFramebuffer() override;
     DescriptorSet *createDescriptorSet() override;

@@ -58,17 +58,22 @@ bool CCMTLPipelineState::initialize(const PipelineStateInfo &info) {
 }
 
 void CCMTLPipelineState::destroy() {
-    if (_mtlRenderPipelineState) {
-        [_mtlRenderPipelineState release];
-        _mtlRenderPipelineState = nil;
-    }
-
-    if (_mtlDepthStencilState) {
-        [_mtlDepthStencilState release];
-        _mtlDepthStencilState = nil;
-    }
-
     CC_SAFE_DELETE(_GPUPipelineState);
+
+    id<MTLRenderPipelineState> renderPipelineState = _mtlRenderPipelineState;
+    _mtlRenderPipelineState = nil;
+    id<MTLDepthStencilState> depthStencilState = _mtlDepthStencilState;
+    _mtlDepthStencilState = nil;
+
+    std::function<void(void)> destroyFunc = [=]() {
+        if (renderPipelineState) {
+            [renderPipelineState release];
+        }
+        if (depthStencilState) {
+            [depthStencilState release];
+        }
+    };
+    CCMTLGPUGarbageCollectionPool::getInstance()->collect(destroyFunc);
 }
 
 bool CCMTLPipelineState::createGPUPipelineState() {

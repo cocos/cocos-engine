@@ -56,17 +56,22 @@ bool CCMTLShader::initialize(const ShaderInfo &info) {
 }
 
 void CCMTLShader::destroy() {
-    if (_vertexMTLFunction) {
-        [_vertexMTLFunction release];
-        _vertexMTLFunction = nil;
-    }
-
-    if (_fragmentMTLFunction) {
-        [_fragmentMTLFunction release];
-        _fragmentMTLFunction = nil;
-    }
+    id<MTLFunction> vertFunc = _vertexMTLFunction;
+    _vertexMTLFunction = nil;
+    id<MTLFunction> fragFunc = _fragmentMTLFunction;
+    _fragmentMTLFunction = nil;
 
     CC_SAFE_DELETE(_gpuShader);
+
+    std::function<void(void)> destroyFunc = [=]() {
+        if (vertFunc) {
+            [vertFunc release];
+        }
+        if (fragFunc) {
+            [fragFunc release];
+        }
+    };
+    CCMTLGPUGarbageCollectionPool::getInstance()->collect(destroyFunc);
 }
 
 bool CCMTLShader::createMTLFunction(const ShaderStage &stage) {

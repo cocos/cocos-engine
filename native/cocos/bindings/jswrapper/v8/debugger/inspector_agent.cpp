@@ -2,12 +2,12 @@
 
 #if (SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_V8) && SE_ENABLE_INSPECTOR
 
-    #include "inspector_io.h"
     #include "env.h"
+    #include "inspector_io.h"
     #include "node.h"
+    #include "util.h"
     #include "v8-inspector.h"
     #include "v8-platform.h"
-    #include "util.h"
     #include "zlib.h"
 
     #include "libplatform/libplatform.h"
@@ -550,6 +550,7 @@ public:
     }
 
     void dispatchMessageFromFrontend(const StringView &message) {
+        if (channel_ == nullptr) return;
         CHECK_NE(channel_, nullptr);
         channel_->dispatchProtocolMessage(message);
     }
@@ -718,6 +719,7 @@ void Agent::FatalException(Local<Value> error, Local<v8::Message> message) {
 }
 
 void Agent::Dispatch(const StringView &message) {
+    if (client_ == nullptr) return;
     CHECK_NE(client_, nullptr);
     client_->dispatchMessageFromFrontend(message);
 }

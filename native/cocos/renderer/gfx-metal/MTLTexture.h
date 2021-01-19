@@ -32,10 +32,10 @@ class CCMTLTexture final : public Texture {
 public:
     explicit CCMTLTexture(Device *device);
     ~CCMTLTexture() override = default;
-    CCMTLTexture(const CCMTLTexture &)=delete;
-    CCMTLTexture(CCMTLTexture &&)=delete;
-    CCMTLTexture &operator=(const CCMTLTexture &)=delete;
-    CCMTLTexture &operator=(CCMTLTexture &&)=delete;
+    CCMTLTexture(const CCMTLTexture &) = delete;
+    CCMTLTexture(CCMTLTexture &&) = delete;
+    CCMTLTexture &operator=(const CCMTLTexture &) = delete;
+    CCMTLTexture &operator=(CCMTLTexture &&) = delete;
 
     bool initialize(const TextureInfo &info) override;
     bool initialize(const TextureViewInfo &info) override;

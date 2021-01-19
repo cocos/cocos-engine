@@ -35,8 +35,7 @@ THE SOFTWARE.
 namespace cc {
 namespace gfx {
 
-CCMTLBuffer::CCMTLBuffer(Device *device) : Buffer(device),
-                                           _mtlDevice(id<MTLDevice>(static_cast<CCMTLDevice *>(_device)->getMTLDevice())) {
+CCMTLBuffer::CCMTLBuffer(Device *device) : Buffer(device) {
 }
 
 bool CCMTLBuffer::initialize(const BufferInfo &info) {
@@ -59,10 +58,9 @@ bool CCMTLBuffer::initialize(const BufferInfo &info) {
 
     if ((_flags & BufferFlagBit::BAKUP_BUFFER) && _size > 0) {
         _buffer = static_cast<uint8_t *>(CC_MALLOC(_size));
-        if (_buffer){
+        if (_buffer) {
             _device->getMemoryStatus().bufferSize += _size;
-        }
-        else {
+        } else {
             CC_LOG_ERROR("CCMTLBuffer: Failed to create backup buffer.");
             return false;
         }
@@ -96,9 +94,22 @@ bool CCMTLBuffer::createMTLBuffer(uint size, MemoryUsage usage) {
     _mtlResourceOptions = mu::toMTLResourceOption(usage);
 
     if (_mtlBuffer) {
-        [_mtlBuffer release];
+        Device *device = _device;
+        id<MTLBuffer> mtlBuffer = _mtlBuffer;
+        uint oldSize = [_mtlBuffer length];
+
+        std::function<void(void)> destroyFunc = [=]() {
+            if (mtlBuffer) {
+                [mtlBuffer release];
+                device->getMemoryStatus().bufferSize -= oldSize;
+            }
+        };
+        //gpu object only
+        CCMTLGPUGarbageCollectionPool::getInstance()->collect(destroyFunc);
     }
-    _mtlBuffer = [_mtlDevice newBufferWithLength:size options:_mtlResourceOptions];
+
+    id<MTLDevice> mtlDevice = id<MTLDevice>(static_cast<CCMTLDevice *>(_device)->getMTLDevice());
+    _mtlBuffer = [mtlDevice newBufferWithLength:size options:_mtlResourceOptions];
     if (_mtlBuffer == nil) {
         return false;
     }
@@ -113,21 +124,37 @@ void CCMTLBuffer::destroy() {
         return;
     }
 
-    if (_mtlBuffer) {
-        [_mtlBuffer release];
-        _mtlBuffer = nil;
-    }
-
     if (_buffer) {
         CC_FREE(_buffer);
         _device->getMemoryStatus().bufferSize -= _size;
         _buffer = nullptr;
     }
-    _indexedPrimitivesIndirectArguments.clear();
-    _primitiveIndirectArguments.clear();
-    _drawInfos.clear();
 
-    _device->getMemoryStatus().bufferSize -= _size;
+    if (!_indexedPrimitivesIndirectArguments.empty()) {
+        _indexedPrimitivesIndirectArguments.clear();
+    }
+
+    if (!_primitiveIndirectArguments.empty()) {
+        _primitiveIndirectArguments.clear();
+    }
+
+    if (!_drawInfos.empty()) {
+        _drawInfos.clear();
+    }
+
+    Device *device = _device;
+    id<MTLBuffer> mtlBuffer = _mtlBuffer;
+    _mtlBuffer = nil;
+    uint size = _size;
+
+    std::function<void(void)> destroyFunc = [=]() {
+        if (mtlBuffer) {
+            [mtlBuffer release];
+            device->getMemoryStatus().bufferSize -= size;
+        }
+    };
+    //gpu object only
+    CCMTLGPUGarbageCollectionPool::getInstance()->collect(destroyFunc);
 }
 
 void CCMTLBuffer::resize(uint size) {
