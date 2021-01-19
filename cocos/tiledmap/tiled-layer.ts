@@ -197,6 +197,7 @@ export class TiledLayer extends Renderable2D {
         if (this._enableCulling !== value) {
             this._enableCulling = value;
             this._cullingDirty = true;
+            this.markForUpdateRenderData();
         }
     }
     get enableCulling () { return this._enableCulling!; }

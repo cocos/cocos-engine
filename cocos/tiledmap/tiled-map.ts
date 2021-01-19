@@ -28,7 +28,7 @@
  * @module ui
  */
 
-import { ccclass, displayOrder, executeInEditMode, help, menu, requireComponent, type, serializable } from 'cc.decorator';
+import { ccclass, displayOrder, executeInEditMode, help, menu, requireComponent, type, serializable, editable } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
 import { Component } from '../core/components';
 import { UITransform } from '../2d/framework';
@@ -123,6 +123,7 @@ export class TiledMap extends Component {
      */
     @serializable
     protected _enableCulling = true;
+    @editable
     get enableCulling () {
         return this._enableCulling;
     }
@@ -590,13 +591,11 @@ export class TiledMap extends Component {
             totalTextures.push(imageLayer.sourceImage);
         }
 
-        const self = this;
         loadAllTextures(totalTextures, () => {
-            self._buildLayerAndGroup();
-            if (self.cleanupImageCache) {
-                const tiledMap = self;
-                self._textures.forEach((tex) => {
-                    tiledMap.doCleanupImageCache(tex);
+            this._buildLayerAndGroup();
+            if (this.cleanupImageCache) {
+                this._textures.forEach((tex) => {
+                    this.doCleanupImageCache(tex);
                 });
             }
         });
@@ -606,7 +605,7 @@ export class TiledMap extends Component {
         if (texture._image instanceof HTMLImageElement) {
             texture._image.src = '';
         } else if (sys.capabilities.imageBitmap && texture._image instanceof ImageBitmap) {
-            texture._image.close && texture._image.close();
+            if (texture._image.close) texture._image.close();
         }
         texture._image = null;
     }
