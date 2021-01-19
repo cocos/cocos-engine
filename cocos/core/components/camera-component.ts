@@ -467,7 +467,7 @@ export class Camera extends Component {
 
     public onDestroy () {
         if (this._camera) {
-            this._camera.detachCamera();
+            this._camera.destroy();
             this._camera = null;
         }
 
