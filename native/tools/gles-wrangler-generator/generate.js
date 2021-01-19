@@ -5,7 +5,7 @@ const axios = require('axios');
 const eglRegistry = { local: `${__dirname}/specs/egl.xml`, remote: 'https://www.khronos.org/registry/EGL/api/egl.xml' };
 const glRegistry = { local: `${__dirname}/specs/gl.xml`, remote: 'https://www.khronos.org/registry/OpenGL/xml/gl.xml' };
 
-async function downloadSpec(specInfo) {
+const downloadSpec = async (specInfo) => {
     if (fs.existsSync(specInfo.local)) return;
     fs.writeFileSync(specInfo.local, (await axios.get(specInfo.remote)).data);
 }
@@ -29,21 +29,21 @@ async function downloadSpec(specInfo) {
     const glSpec = parser.parse(fs.readFileSync(glRegistry.local).toString(), parseOpt).registry[0];
     const eglSpec = parser.parse(fs.readFileSync(eglRegistry.local).toString(), parseOpt).registry[0];
 
-    function generate(spec, featureNames, moduleName, bootstraps = []) {
+    const generate = (spec, featureNames, moduleName, bootstraps = []) => {
         const nameRecord = new Set();
         let headerDecl = '';
-        let implDef = '';
-        let implLoad = '';
+        let sourceDef = '';
+        let sourceLoad = '';
         const writeCommand = (name) => {
             headerDecl += `extern PFN${name.toUpperCase()}PROC ${name};\n`;
-            implDef += `PFN${name.toUpperCase()}PROC ${name};\n`;
-            implLoad += `    ${name} = (PFN${name.toUpperCase()}PROC)${moduleName}Load("${name}");\n`;
+            sourceDef += `PFN${name.toUpperCase()}PROC ${name};\n`;
+            sourceLoad += `    ${name} = (PFN${name.toUpperCase()}PROC)${moduleName}Load("${name}");\n`;
             nameRecord.add(name);
         };
         const append = (content) => {
             headerDecl += content;
-            implDef += content;
-            implLoad += content;
+            sourceDef += content;
+            sourceLoad += content;
         };
         for (const bootstrap of bootstraps) {
             writeCommand(bootstrap);
@@ -51,8 +51,8 @@ async function downloadSpec(specInfo) {
         }
         for (const featureName of featureNames) {
             headerDecl += `/* ${featureName} */\n`;
-            implDef += `/* ${featureName} */\n`;
-            implLoad += `    /* ${featureName} */\n`;
+            sourceDef += `/* ${featureName} */\n`;
+            sourceLoad += `    /* ${featureName} */\n`;
             const feature = spec.feature.find((f) => f.name === featureName);
             for (const manifest of feature.require) {
                 if (!manifest.command) continue;
@@ -87,14 +87,23 @@ async function downloadSpec(specInfo) {
                 append(`#endif /* defined(${extension.name}) */\n\n`);
             }
         }
-        if (!fs.existsSync('output')) fs.mkdirSync('output');
-        fs.writeFileSync(`${__dirname}/output/${moduleName}_auto.h`, `#pragma once\n\nvoid ${moduleName}LoadProcs();\n\n${headerDecl}`);
-        fs.writeFileSync(`${__dirname}/output/${moduleName}_auto.cpp`, `#include "${moduleName}.h"\n\n${implDef}void ${moduleName}LoadProcs() {\n${implLoad}}\n`);
+        return { headerDecl, sourceDef, sourceLoad };
     }
 
-    generate(eglSpec, ['EGL_VERSION_1_0', 'EGL_VERSION_1_1', 'EGL_VERSION_1_2', 'EGL_VERSION_1_3', 'EGL_VERSION_1_4', 'EGL_VERSION_1_5'], 'eglw', ['eglGetProcAddress']);
-    generate(glSpec, ['GL_ES_VERSION_2_0'], 'gles2w');
-    generate(glSpec, ['GL_ES_VERSION_2_0', 'GL_ES_VERSION_3_0', 'GL_ES_VERSION_3_1', 'GL_ES_VERSION_3_2'], 'gles3w');
+    const eglSrc = generate(eglSpec, ['EGL_VERSION_1_0', 'EGL_VERSION_1_1', 'EGL_VERSION_1_2', 'EGL_VERSION_1_3', 'EGL_VERSION_1_4', 'EGL_VERSION_1_5'], 'eglw', ['eglGetProcAddress']);
+    const es2Src = generate(glSpec, ['GL_ES_VERSION_2_0'], 'gles2w');
+    const es3Src = generate(glSpec, ['GL_ES_VERSION_2_0', 'GL_ES_VERSION_3_0', 'GL_ES_VERSION_3_1', 'GL_ES_VERSION_3_2'], 'gles3w');
+
+    /* *
+    const output = (moduleName, generatedSrc) => {
+        if (!fs.existsSync('output')) fs.mkdirSync('output');
+        fs.writeFileSync(`${__dirname}/output/${moduleName}_auto.h`, `#pragma once\n\nvoid ${moduleName}LoadProcs();\n\n${generatedSrc.headerDecl}`);
+        fs.writeFileSync(`${__dirname}/output/${moduleName}_auto.cpp`, `#include "${moduleName}.h"\n\n` +
+                         `${generatedSrc.sourceDef}void ${moduleName}LoadProcs() {\n${generatedSrc.sourceLoad}}\n`);
+    };
+    output('eglw', eglSrc);
+    output('gles2w', es2Src);
+    output('gles3w', es3Src);
 
     fs.createReadStream(`${__dirname}/output/eglw_auto.h`).pipe(fs.createWriteStream(`${__dirname}/../../cocos/renderer/gfx-gles2/eglw_auto.h`));
     fs.createReadStream(`${__dirname}/output/eglw_auto.cpp`).pipe(fs.createWriteStream(`${__dirname}/../../cocos/renderer/gfx-gles2/eglw_auto.cpp`));
@@ -105,4 +114,25 @@ async function downloadSpec(specInfo) {
     fs.createReadStream(`${__dirname}/output/eglw_auto.cpp`).pipe(fs.createWriteStream(`${__dirname}/../../cocos/renderer/gfx-gles3/eglw_auto.cpp`));
     fs.createReadStream(`${__dirname}/output/gles3w_auto.h`).pipe(fs.createWriteStream(`${__dirname}/../../cocos/renderer/gfx-gles3/gles3w_auto.h`));
     fs.createReadStream(`${__dirname}/output/gles3w_auto.cpp`).pipe(fs.createWriteStream(`${__dirname}/../../cocos/renderer/gfx-gles3/gles3w_auto.cpp`));
+    /* */
+    const update = (path, moduleName, generatedSrc) => {
+        let header = fs.readFileSync(`${path}.h`);
+        let source = fs.readFileSync(`${path}.cpp`);
+        let flag = `/\* ${moduleName.toUpperCase()}_GENERATE_DECLARATION *\/`;
+        header = header.slice(0, header.indexOf(flag) + flag.length);
+        header += `\n\n${eglSrc.headerDecl}\n${generatedSrc.headerDecl}\n`;
+
+        flag = `/\* ${moduleName.toUpperCase()}_GENERATE_IMPLEMENTATION *\/`;
+        source = source.slice(0, source.indexOf(flag) + flag.length);
+        const eglLoad = eglSrc.sourceLoad.replace(/eglwLoad/g, `${moduleName}Load`);
+        source += `\n\n${eglSrc.sourceDef}\n${generatedSrc.sourceDef}\n` +
+                  `static void ${moduleName}LoadProcs() {\n${eglLoad}\n${generatedSrc.sourceLoad}}\n`;
+
+        fs.writeFileSync(`${path}.h`, header);
+        fs.writeFileSync(`${path}.cpp`, source);
+    };
+
+    update(`${__dirname}/../../cocos/renderer/gfx-gles2/gles2w`, 'gles2w', es2Src);
+    update(`${__dirname}/../../cocos/renderer/gfx-gles3/gles3w`, 'gles3w', es3Src);
+    /* */
 })();
