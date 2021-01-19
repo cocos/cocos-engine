@@ -44,6 +44,7 @@ import { Node } from '../core/scene-graph';
 import { legacyCC } from '../core/global-exports';
 
 const _tempVec2 = new Vec2();
+const _tempVec3 = new Vec3();
 
 /**
  * @en Enum for Page View Size Mode.
@@ -649,7 +650,7 @@ export class PageView extends ScrollView {
     }
 
     // 快速滑动
-    protected _isQuicklyScrollable (touchMoveVelocity: Vec2) {
+    protected _isQuicklyScrollable (touchMoveVelocity: Vec3) {
         if (this.direction === Direction.Horizontal) {
             if (Math.abs(touchMoveVelocity.x) > this.autoPageTurningThreshold) {
                 return true;
@@ -734,8 +735,8 @@ export class PageView extends ScrollView {
     protected _autoScrollToPage () {
         const bounceBackStarted = this._startBounceBackIfNeeded();
         if (bounceBackStarted) {
-            let bounceBackAmount = this._getHowMuchOutOfBoundary();
-            bounceBackAmount = this._clampDelta(bounceBackAmount);
+            const bounceBackAmount = this._getHowMuchOutOfBoundary();
+            this._clampDelta(bounceBackAmount);
             if (bounceBackAmount.x > 0 || bounceBackAmount.y < 0) {
                 this._curPageIdx = this._pages.length === 0 ? 0 : this._pages.length - 1;
             }
@@ -757,7 +758,8 @@ export class PageView extends ScrollView {
                     this.scrollToPage(nextIndex, timeInSecond);
                     return;
                 } else {
-                    const touchMoveVelocity = this._calculateTouchMoveVelocity();
+                    const touchMoveVelocity = _tempVec3;
+                    this._calculateTouchMoveVelocity(touchMoveVelocity);
                     if (this._isQuicklyScrollable(touchMoveVelocity)) {
                         this.scrollToPage(nextIndex, timeInSecond);
                         return;
