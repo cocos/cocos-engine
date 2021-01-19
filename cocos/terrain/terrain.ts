@@ -1740,7 +1740,7 @@ export class Terrain extends Component {
                     layer.detailMap = asset;
                 });
                 if (layerInfo.normalMap !== '') {
-                    legacyCC.AssetLibrary.loadAny(layerInfo.normalMap, (err, asset) => {
+                    legacyCC.assetManager.loadAny(layerInfo.normalMap, (err, asset) => {
                         layer.normalMap = asset;
                     });
                 }
