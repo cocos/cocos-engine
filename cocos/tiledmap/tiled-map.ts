@@ -591,13 +591,11 @@ export class TiledMap extends Component {
             totalTextures.push(imageLayer.sourceImage);
         }
 
-        const self = this;
         loadAllTextures(totalTextures, () => {
-            self._buildLayerAndGroup();
-            if (self.cleanupImageCache) {
-                const tiledMap = self;
-                self._textures.forEach((tex) => {
-                    tiledMap.doCleanupImageCache(tex);
+            this._buildLayerAndGroup();
+            if (this.cleanupImageCache) {
+                this._textures.forEach((tex) => {
+                    this.doCleanupImageCache(tex);
                 });
             }
         });
@@ -607,7 +605,7 @@ export class TiledMap extends Component {
         if (texture._image instanceof HTMLImageElement) {
             texture._image.src = '';
         } else if (sys.capabilities.imageBitmap && texture._image instanceof ImageBitmap) {
-            texture._image.close && texture._image.close();
+            if (texture._image.close) texture._image.close();
         }
         texture._image = null;
     }
