@@ -10,12 +10,23 @@ const downloadSpec = async (specInfo) => {
     fs.writeFileSync(specInfo.local, (await axios.get(specInfo.remote)).data);
 }
 
+const options = {
+    clear: false,
+};
+const argc = process.argv.length;
+for (let i = 2; i < argc; i++) {
+    const arg = process.argv[i];
+    if (arg === '--clear') {
+        options.clear = true;
+    }
+}
+
 (async () => {
     if (!fs.existsSync('specs')) fs.mkdirSync('specs');
     await downloadSpec(eglRegistry);
     await downloadSpec(glRegistry);
     const parseOpt = {
-        attributeNamePrefix : "",
+        attributeNamePrefix : '',
         ignoreAttributes : false,
         ignoreNameSpace : false,
         allowBooleanAttributes : true,
@@ -50,9 +61,8 @@ const downloadSpec = async (specInfo) => {
             append(`\n`);
         }
         for (const featureName of featureNames) {
-            headerDecl += `/* ${featureName} */\n`;
-            sourceDef += `/* ${featureName} */\n`;
-            sourceLoad += `    /* ${featureName} */\n`;
+            sourceLoad += `    `;
+            append(`/* ${featureName} */\n`);
             const feature = spec.feature.find((f) => f.name === featureName);
             for (const manifest of feature.require) {
                 if (!manifest.command) continue;
@@ -94,22 +104,34 @@ const downloadSpec = async (specInfo) => {
     const es2Src = generate(glSpec, ['GL_ES_VERSION_2_0'], 'gles2w');
     const es3Src = generate(glSpec, ['GL_ES_VERSION_2_0', 'GL_ES_VERSION_3_0', 'GL_ES_VERSION_3_1', 'GL_ES_VERSION_3_2'], 'gles3w');
 
+    const updateBlock = (source, moduleName, keyword, content, indentEnd) => {
+        const flag = `/\\* ${moduleName.toUpperCase()}_GENERATE_${keyword} \\*/\n`;
+        const flagRE = new RegExp(flag, 'g');
+        const indices = [];
+        while (flagRE.exec(source)) indices.push(flagRE.lastIndex);
+        indices[1] -= flag.length - 2; // two escape characters
+        if (options.clear) content = '';
+        if (indentEnd) content += '    ';
+        return source.slice(0, indices[0]) + content + source.slice(indices[1]);
+    };
+
     const update = (path, moduleName, generatedSrc) => {
         let header = fs.readFileSync(`${path}.h`);
         let source = fs.readFileSync(`${path}.cpp`);
         let sourceOC = fs.readFileSync(`${path}.mm`);
 
-        let flag = `/\* ${moduleName.toUpperCase()}_GENERATE_DECLARATION *\/`;
-        header = header.slice(0, header.indexOf(flag) + flag.length);
-        header += `\n\n${eglSrc.headerDecl}\n${generatedSrc.headerDecl}\n`;
+        header = updateBlock(header, moduleName, 'EGL_DECLARATION', eglSrc.headerDecl);
+        header = updateBlock(header, moduleName, 'GLES_DECLARATION', generatedSrc.headerDecl);
 
-        flag = `/\* ${moduleName.toUpperCase()}_GENERATE_IMPLEMENTATION *\/`;
-        const eglLoad = eglSrc.sourceLoad.replace(/eglwLoad/g, `${moduleName}Load`);
-        const generatedSource = `\n\n${eglSrc.sourceDef}\n${generatedSrc.sourceDef}\n` +
-            `static void ${moduleName}LoadProcs() {\n${eglLoad}\n${generatedSrc.sourceLoad}}\n`;
+        source = updateBlock(source, moduleName, 'EGL_DEFINITION', eglSrc.sourceDef);
+        source = updateBlock(source, moduleName, 'GLES_DEFINITION', generatedSrc.sourceDef);
+        source = updateBlock(source, moduleName, 'EGL_LOAD', eglSrc.sourceLoad.replace(/eglwLoad/g, `${moduleName}Load`), true);
+        source = updateBlock(source, moduleName, 'GLES_LOAD', generatedSrc.sourceLoad, true);
 
-        source = source.slice(0, source.indexOf(flag) + flag.length) + generatedSource;
-        sourceOC = sourceOC.slice(0, sourceOC.indexOf(flag) + flag.length) + generatedSource;
+        sourceOC = updateBlock(sourceOC, moduleName, 'EGL_DEFINITION', eglSrc.sourceDef);
+        sourceOC = updateBlock(sourceOC, moduleName, 'GLES_DEFINITION', generatedSrc.sourceDef);
+        sourceOC = updateBlock(sourceOC, moduleName, 'EGL_LOAD', eglSrc.sourceLoad.replace(/eglwLoad/g, `${moduleName}Load`), true);
+        sourceOC = updateBlock(sourceOC, moduleName, 'GLES_LOAD', generatedSrc.sourceLoad, true);
 
         fs.writeFileSync(`${path}.h`, header);
         fs.writeFileSync(`${path}.cpp`, source);

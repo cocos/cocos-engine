@@ -23,7 +23,7 @@ THE SOFTWARE.
 ****************************************************************************/
 #include "gles2w.h"
 
-#if TARGET_OS_IPHONE
+#if (CC_PLATFORM == CC_PLATFORM_MAC_IOS)
     #import <TargetConditionals.h>
     #import <CoreFoundation/CoreFoundation.h>
     #import <UIKit/UIDevice.h>
@@ -34,7 +34,7 @@ THE SOFTWARE.
 static CFBundleRef g_es2Bundle;
 static CFURLRef g_es2BundleURL;
 
-static int gles2wOpen(void) {
+static int gles2wOpen() {
     #if TARGET_IPHONE_SIMULATOR
     CFStringRef frameworkPath = CFSTR("/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/Frameworks/OpenGLES.framework");
     #else
@@ -72,7 +72,7 @@ static void *gles2wLoad(const char *proc) {
 static void *libegl;
 static void *libgl;
 
-static int gles2wOpen(void) {
+static int gles2wOpen() {
     NSURL *appURL = [[NSBundle mainBundle] bundleURL];
 
     std::string libPath(appURL.resourceSpecifier.UTF8String);
@@ -94,7 +94,7 @@ static void *gles2wLoad(const char *proc) {
     if (!res) res = (void *)dlsym(libegl, proc);
     return res;
 }
-#endif // #if TARGET_OS_IPHONE
+#endif
 
 static void gles2wLoadProcs();
 
@@ -108,8 +108,8 @@ bool gles2wInit() {
     return true;
 }
 
-/* GLES2W_GENERATE_IMPLEMENTATION */
-
+#if (CC_PLATFORM != CC_PLATFORM_MAC_IOS)
+/* GLES2W_GENERATE_EGL_DEFINITION */
 PFNEGLGETPROCADDRESSPROC eglGetProcAddress;
 
 /* EGL_VERSION_1_0 */
@@ -438,7 +438,10 @@ PFNEGLQUERYWAYLANDBUFFERWLPROC eglQueryWaylandBufferWL;
 PFNEGLCREATEWAYLANDBUFFERFROMIMAGEWLPROC eglCreateWaylandBufferFromImageWL;
 #endif /* defined(EGL_WL_create_wayland_buffer_from_image) */
 
+/* GLES2W_GENERATE_EGL_DEFINITION */
+#endif
 
+/* GLES2W_GENERATE_GLES_DEFINITION */
 /* GL_ES_VERSION_2_0 */
 PFNGLACTIVETEXTUREPROC glActiveTexture;
 PFNGLATTACHSHADERPROC glAttachShader;
@@ -1501,8 +1504,11 @@ PFNGLSTARTTILINGQCOMPROC glStartTilingQCOM;
 PFNGLENDTILINGQCOMPROC glEndTilingQCOM;
 #endif /* defined(GL_QCOM_tiled_rendering) */
 
+/* GLES2W_GENERATE_GLES_DEFINITION */
 
 static void gles2wLoadProcs() {
+#if (CC_PLATFORM != CC_PLATFORM_MAC_IOS)
+    /* GLES2W_GENERATE_EGL_LOAD */
     eglGetProcAddress = (PFNEGLGETPROCADDRESSPROC)gles2wLoad("eglGetProcAddress");
 
     /* EGL_VERSION_1_0 */
@@ -1831,7 +1837,10 @@ static void gles2wLoadProcs() {
     eglCreateWaylandBufferFromImageWL = (PFNEGLCREATEWAYLANDBUFFERFROMIMAGEWLPROC)gles2wLoad("eglCreateWaylandBufferFromImageWL");
 #endif /* defined(EGL_WL_create_wayland_buffer_from_image) */
 
+    /* GLES2W_GENERATE_EGL_LOAD */
+#endif
 
+    /* GLES2W_GENERATE_GLES_LOAD */
     /* GL_ES_VERSION_2_0 */
     glActiveTexture = (PFNGLACTIVETEXTUREPROC)gles2wLoad("glActiveTexture");
     glAttachShader = (PFNGLATTACHSHADERPROC)gles2wLoad("glAttachShader");
@@ -2894,4 +2903,5 @@ static void gles2wLoadProcs() {
     glEndTilingQCOM = (PFNGLENDTILINGQCOMPROC)gles2wLoad("glEndTilingQCOM");
 #endif /* defined(GL_QCOM_tiled_rendering) */
 
+    /* GLES2W_GENERATE_GLES_LOAD */
 }

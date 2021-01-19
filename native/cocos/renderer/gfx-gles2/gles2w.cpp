@@ -79,8 +79,7 @@ bool gles2wInit(void) {
     return true;
 }
 
-/* GLES2W_GENERATE_IMPLEMENTATION */
-
+/* GLES2W_GENERATE_EGL_DEFINITION */
 PFNEGLGETPROCADDRESSPROC eglGetProcAddress;
 
 /* EGL_VERSION_1_0 */
@@ -409,7 +408,9 @@ PFNEGLQUERYWAYLANDBUFFERWLPROC eglQueryWaylandBufferWL;
 PFNEGLCREATEWAYLANDBUFFERFROMIMAGEWLPROC eglCreateWaylandBufferFromImageWL;
 #endif /* defined(EGL_WL_create_wayland_buffer_from_image) */
 
+/* GLES2W_GENERATE_EGL_DEFINITION */
 
+/* GLES2W_GENERATE_GLES_DEFINITION */
 /* GL_ES_VERSION_2_0 */
 PFNGLACTIVETEXTUREPROC glActiveTexture;
 PFNGLATTACHSHADERPROC glAttachShader;
@@ -1472,8 +1473,10 @@ PFNGLSTARTTILINGQCOMPROC glStartTilingQCOM;
 PFNGLENDTILINGQCOMPROC glEndTilingQCOM;
 #endif /* defined(GL_QCOM_tiled_rendering) */
 
+/* GLES2W_GENERATE_GLES_DEFINITION */
 
 static void gles2wLoadProcs() {
+    /* GLES2W_GENERATE_EGL_LOAD */
     eglGetProcAddress = (PFNEGLGETPROCADDRESSPROC)gles2wLoad("eglGetProcAddress");
 
     /* EGL_VERSION_1_0 */
@@ -1802,7 +1805,9 @@ static void gles2wLoadProcs() {
     eglCreateWaylandBufferFromImageWL = (PFNEGLCREATEWAYLANDBUFFERFROMIMAGEWLPROC)gles2wLoad("eglCreateWaylandBufferFromImageWL");
 #endif /* defined(EGL_WL_create_wayland_buffer_from_image) */
 
+    /* GLES2W_GENERATE_EGL_LOAD */
 
+    /* GLES2W_GENERATE_GLES_LOAD */
     /* GL_ES_VERSION_2_0 */
     glActiveTexture = (PFNGLACTIVETEXTUREPROC)gles2wLoad("glActiveTexture");
     glAttachShader = (PFNGLATTACHSHADERPROC)gles2wLoad("glAttachShader");
@@ -2865,4 +2870,5 @@ static void gles2wLoadProcs() {
     glEndTilingQCOM = (PFNGLENDTILINGQCOMPROC)gles2wLoad("glEndTilingQCOM");
 #endif /* defined(GL_QCOM_tiled_rendering) */
 
+    /* GLES2W_GENERATE_GLES_LOAD */
 }

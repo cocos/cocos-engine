@@ -23,7 +23,7 @@ THE SOFTWARE.
 ****************************************************************************/
 #include "gles3w.h"
 
-#if TARGET_OS_IPHONE
+#if (CC_PLATFORM == CC_PLATFORM_MAC_IOS)
     #import <TargetConditionals.h>
     #import <CoreFoundation/CoreFoundation.h>
     #import <UIKit/UIDevice.h>
@@ -34,7 +34,7 @@ THE SOFTWARE.
 static CFBundleRef g_es3Bundle;
 static CFURLRef g_es3BundleURL;
 
-static int gles3wOpen(void) {
+static int gles3wOpen() {
     #if TARGET_IPHONE_SIMULATOR
     CFStringRef frameworkPath = CFSTR("/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/Frameworks/OpenGLES.framework");
     #else
@@ -62,7 +62,6 @@ static void *gles3wLoad(const char *proc) {
     return res;
 }
 #else
-    // macos
     #include <dlfcn.h>
     #include <EGL/egl.h>
     #include <string>
@@ -72,7 +71,7 @@ static void *gles3wLoad(const char *proc) {
 static void *libegl;
 static void *libgl;
 
-static int gles3wOpen(void) {
+static int gles3wOpen() {
     NSURL *appURL = [[NSBundle mainBundle] bundleURL];
 
     std::string libPath(appURL.resourceSpecifier.UTF8String);
@@ -94,7 +93,7 @@ static void *gles3wLoad(const char *proc) {
     if (!res) res = (void *)dlsym(libegl, proc);
     return res;
 }
-#endif // #if TARGET_OS_IPHONE
+#endif
 
 static void gles3wLoadProcs();
 
@@ -108,8 +107,8 @@ bool gles3wInit() {
     return true;
 }
 
-/* GLES3W_GENERATE_IMPLEMENTATION */
-
+#if (CC_PLATFORM != CC_PLATFORM_MAC_IOS)
+/* GLES3W_GENERATE_EGL_DEFINITION */
 PFNEGLGETPROCADDRESSPROC eglGetProcAddress;
 
 /* EGL_VERSION_1_0 */
@@ -438,7 +437,10 @@ PFNEGLQUERYWAYLANDBUFFERWLPROC eglQueryWaylandBufferWL;
 PFNEGLCREATEWAYLANDBUFFERFROMIMAGEWLPROC eglCreateWaylandBufferFromImageWL;
 #endif /* defined(EGL_WL_create_wayland_buffer_from_image) */
 
+/* GLES3W_GENERATE_EGL_DEFINITION */
+#endif
 
+/* GLES3W_GENERATE_GLES_DEFINITION */
 /* GL_ES_VERSION_2_0 */
 PFNGLACTIVETEXTUREPROC glActiveTexture;
 PFNGLATTACHSHADERPROC glAttachShader;
@@ -1745,8 +1747,11 @@ PFNGLSTARTTILINGQCOMPROC glStartTilingQCOM;
 PFNGLENDTILINGQCOMPROC glEndTilingQCOM;
 #endif /* defined(GL_QCOM_tiled_rendering) */
 
+/* GLES3W_GENERATE_GLES_DEFINITION */
 
 static void gles3wLoadProcs() {
+#if (CC_PLATFORM != CC_PLATFORM_MAC_IOS)
+    /* GLES3W_GENERATE_EGL_LOAD */
     eglGetProcAddress = (PFNEGLGETPROCADDRESSPROC)gles3wLoad("eglGetProcAddress");
 
     /* EGL_VERSION_1_0 */
@@ -2075,7 +2080,10 @@ static void gles3wLoadProcs() {
     eglCreateWaylandBufferFromImageWL = (PFNEGLCREATEWAYLANDBUFFERFROMIMAGEWLPROC)gles3wLoad("eglCreateWaylandBufferFromImageWL");
 #endif /* defined(EGL_WL_create_wayland_buffer_from_image) */
 
+    /* GLES3W_GENERATE_EGL_LOAD */
+#endif
 
+    /* GLES3W_GENERATE_GLES_LOAD */
     /* GL_ES_VERSION_2_0 */
     glActiveTexture = (PFNGLACTIVETEXTUREPROC)gles3wLoad("glActiveTexture");
     glAttachShader = (PFNGLATTACHSHADERPROC)gles3wLoad("glAttachShader");
@@ -3382,4 +3390,5 @@ static void gles3wLoadProcs() {
     glEndTilingQCOM = (PFNGLENDTILINGQCOMPROC)gles3wLoad("glEndTilingQCOM");
 #endif /* defined(GL_QCOM_tiled_rendering) */
 
+    /* GLES3W_GENERATE_GLES_LOAD */
 }
