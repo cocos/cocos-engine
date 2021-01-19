@@ -28,7 +28,7 @@
  * @module ui
  */
 
-import { ccclass, displayOrder, executeInEditMode, help, menu, requireComponent, type, serializable } from 'cc.decorator';
+import { ccclass, displayOrder, executeInEditMode, help, menu, requireComponent, type, serializable, editable } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
 import { Component } from '../core/components';
 import { UITransform } from '../2d/framework';
@@ -123,6 +123,7 @@ export class TiledMap extends Component {
      */
     @serializable
     protected _enableCulling = true;
+    @editable
     get enableCulling () {
         return this._enableCulling;
     }
