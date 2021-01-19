@@ -29,7 +29,7 @@
  */
 
 import { ccclass, displayOrder, executeInEditMode, help, menu, requireComponent, type, serializable, editable } from 'cc.decorator';
-import { EDITOR } from 'internal:constants';
+import { EDITOR, JSB } from 'internal:constants';
 import { Component } from '../core/components';
 import { UITransform } from '../2d/framework';
 import { GID, Orientation, PropertiesInfo, Property, RenderOrder, StaggerAxis, StaggerIndex, TiledAnimationType, TiledTextureGrids, TileFlag,
@@ -604,6 +604,7 @@ export class TiledMap extends Component {
     doCleanupImageCache (texture) {
         if (texture._image instanceof HTMLImageElement) {
             texture._image.src = '';
+            if (JSB) texture._image.destroy();
         } else if (sys.capabilities.imageBitmap && texture._image instanceof ImageBitmap) {
             if (texture._image.close) texture._image.close();
         }
