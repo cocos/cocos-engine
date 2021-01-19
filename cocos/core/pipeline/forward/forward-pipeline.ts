@@ -392,10 +392,10 @@ export class ForwardPipeline extends RenderPipeline {
         cv.set(ambient.albedoArray, UBOCamera.AMBIENT_GROUND_OFFSET);
 
         if (hasOffScreenAttachments) {
-            Mat4.toArray(cv, camera.matProj_offscreen, UBOCamera.MAT_PROJ_OFFSET);
-            Mat4.toArray(cv, camera.matProjInv_offscreen, UBOCamera.MAT_PROJ_INV_OFFSET);
-            Mat4.toArray(cv, camera.matViewProj_offscreen, UBOCamera.MAT_VIEW_PROJ_OFFSET);
-            Mat4.toArray(cv, camera.matViewProjInv_offscreen, UBOCamera.MAT_VIEW_PROJ_INV_OFFSET);
+            Mat4.toArray(cv, camera.matProjOffscreen, UBOCamera.MAT_PROJ_OFFSET);
+            Mat4.toArray(cv, camera.matProjInvOffscreen, UBOCamera.MAT_PROJ_INV_OFFSET);
+            Mat4.toArray(cv, camera.matViewProjOffscreen, UBOCamera.MAT_VIEW_PROJ_OFFSET);
+            Mat4.toArray(cv, camera.matViewProjInvOffscreen, UBOCamera.MAT_VIEW_PROJ_INV_OFFSET);
             cv[UBOCamera.CAMERA_POS_OFFSET + 3] = this._device.screenSpaceSignY * this._device.UVSpaceSignY;
         } else {
             Mat4.toArray(cv, camera.matProj, UBOCamera.MAT_PROJ_OFFSET);

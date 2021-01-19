@@ -101,7 +101,7 @@ export class PostprocessStage extends RenderStage {
             shader = ShaderPool.get(this._postprocessMaterial!.passes[POSTPROCESSPASS_INDEX].getShaderVariant());
         }
 
-        const inputAssembler = camera.window!.hasOffScreenAttachments ? pipeline.quadIA_offscreen : pipeline.quadIA_onscreen;
+        const inputAssembler = camera.window!.hasOffScreenAttachments ? pipeline.quadIAOffscreen : pipeline.quadIAOnscreen;
         var pso:PipelineState|null = null;
         if (pass != null && shader != null && inputAssembler != null)
         {

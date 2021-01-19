@@ -77,10 +77,10 @@ export class DeferredPipeline extends RenderPipeline {
     protected _cameraUBO = new Float32Array(UBOCamera.COUNT);
     protected _shadowUBO = new Float32Array(UBOShadow.COUNT);
     protected _quadIB: Buffer | null = null;
-    protected _quadVB_onscreen: Buffer | null = null;
-    protected _quadVB_offscreen: Buffer | null = null;
-    protected _quadIA_onscreen: InputAssembler | null = null;
-    protected _quadIA_offscreen: InputAssembler | null = null;
+    protected _quadVBOnscreen: Buffer | null = null;
+    protected _quadVBOffscreen: Buffer | null = null;
+    protected _quadIAOnscreen: InputAssembler | null = null;
+    protected _quadIAOffscreen: InputAssembler | null = null;
     protected _gbufferDepth: Texture|null = null;
 
     public fog: Fog = new Fog();
@@ -123,12 +123,12 @@ export class DeferredPipeline extends RenderPipeline {
      * @zh
      * 四边形输入汇集器。
      */
-    public get quadIA_onscreen (): InputAssembler {
-        return this._quadIA_onscreen!;
+    public get quadIAOnscreen (): InputAssembler {
+        return this._quadIAOnscreen!;
     }
 
-    public get quadIA_offscreen (): InputAssembler {
-        return this._quadIA_offscreen!;
+    public get quadIAOffscreen (): InputAssembler {
+        return this._quadIAOffscreen!;
     }
 
     get gbufferDepth () {
@@ -302,22 +302,22 @@ export class DeferredPipeline extends RenderPipeline {
         this.macros.CC_USE_HDR = this._isHDR;
         this.macros.CC_SUPPORT_FLOAT_TEXTURE = this.device.hasFeature(Feature.TEXTURE_FLOAT);
         
-        var inputAssemblerData_offscreen = new InputAssemblerData;
-        inputAssemblerData_offscreen = this.createQuadInputAssembler(SurfaceTransform.IDENTITY);
-        if (!inputAssemblerData_offscreen.quadIB || !inputAssemblerData_offscreen.quadVB || !inputAssemblerData_offscreen.quadIA) {
+        var inputAssemblerDataOffscreen = new InputAssemblerData;
+        inputAssemblerDataOffscreen = this.createQuadInputAssembler(SurfaceTransform.IDENTITY);
+        if (!inputAssemblerDataOffscreen.quadIB || !inputAssemblerDataOffscreen.quadVB || !inputAssemblerDataOffscreen.quadIA) {
             return false;
         }
-        this._quadIB = inputAssemblerData_offscreen.quadIB;
-        this._quadVB_offscreen =  inputAssemblerData_offscreen.quadVB;
-        this._quadIA_offscreen =  inputAssemblerData_offscreen.quadIA;
+        this._quadIB = inputAssemblerDataOffscreen.quadIB;
+        this._quadVBOffscreen =  inputAssemblerDataOffscreen.quadVB;
+        this._quadIAOffscreen =  inputAssemblerDataOffscreen.quadIA;
 
-        var inputAssemblerData_onscreen = new InputAssemblerData;
-        inputAssemblerData_onscreen = this.createQuadInputAssembler(device.surfaceTransform);
-        if (!inputAssemblerData_onscreen.quadIB || !inputAssemblerData_onscreen.quadVB || !inputAssemblerData_onscreen.quadIA) {
+        var inputAssemblerDataOnscreen = new InputAssemblerData;
+        inputAssemblerDataOnscreen = this.createQuadInputAssembler(device.surfaceTransform);
+        if (!inputAssemblerDataOnscreen.quadIB || !inputAssemblerDataOnscreen.quadVB || !inputAssemblerDataOnscreen.quadIA) {
             return false;
         }
-        this._quadVB_onscreen =  inputAssemblerData_onscreen.quadVB;
-        this._quadIA_onscreen =  inputAssemblerData_onscreen.quadIA;
+        this._quadVBOnscreen =  inputAssemblerDataOnscreen.quadVB;
+        this._quadIAOnscreen =  inputAssemblerDataOnscreen.quadIA;
 
         return true;
     }
@@ -432,10 +432,10 @@ export class DeferredPipeline extends RenderPipeline {
         cv.set(ambient.albedoArray, UBOCamera.AMBIENT_GROUND_OFFSET);
 
         if (hasOffScreenAttachments) {
-            Mat4.toArray(cv, camera.matProj_offscreen, UBOCamera.MAT_PROJ_OFFSET);
-            Mat4.toArray(cv, camera.matProjInv_offscreen, UBOCamera.MAT_PROJ_INV_OFFSET);
-            Mat4.toArray(cv, camera.matViewProj_offscreen, UBOCamera.MAT_VIEW_PROJ_OFFSET);
-            Mat4.toArray(cv, camera.matViewProjInv_offscreen, UBOCamera.MAT_VIEW_PROJ_INV_OFFSET);
+            Mat4.toArray(cv, camera.matProjOffscreen, UBOCamera.MAT_PROJ_OFFSET);
+            Mat4.toArray(cv, camera.matProjInvOffscreen, UBOCamera.MAT_PROJ_INV_OFFSET);
+            Mat4.toArray(cv, camera.matViewProjOffscreen, UBOCamera.MAT_VIEW_PROJ_OFFSET);
+            Mat4.toArray(cv, camera.matViewProjInvOffscreen, UBOCamera.MAT_VIEW_PROJ_INV_OFFSET);
             cv[UBOCamera.CAMERA_POS_OFFSET + 3] = this._device.screenSpaceSignY * this._device.UVSpaceSignY;
         } else {
             Mat4.toArray(cv, camera.matProj, UBOCamera.MAT_PROJ_OFFSET);
@@ -607,24 +607,24 @@ export class DeferredPipeline extends RenderPipeline {
             this._quadIB = null;
         }
 
-        if (this._quadVB_onscreen) {
-            this._quadVB_onscreen.destroy();
-            this._quadVB_onscreen = null;
+        if (this._quadVBOnscreen) {
+            this._quadVBOnscreen.destroy();
+            this._quadVBOnscreen = null;
         }
 
-        if (this._quadVB_offscreen) {
-            this._quadVB_offscreen.destroy();
-            this._quadVB_offscreen = null;
+        if (this._quadVBOffscreen) {
+            this._quadVBOffscreen.destroy();
+            this._quadVBOffscreen = null;
         }
 
-        if (this._quadIA_onscreen) {
-            this._quadIA_onscreen.destroy();
-            this._quadIA_onscreen = null;
+        if (this._quadIAOnscreen) {
+            this._quadIAOnscreen.destroy();
+            this._quadIAOnscreen = null;
         }
 
-        if (this._quadIA_offscreen) {
-            this._quadIA_offscreen.destroy();
-            this._quadIA_offscreen = null;
+        if (this._quadIAOffscreen) {
+            this._quadIAOffscreen.destroy();
+            this._quadIAOffscreen = null;
         }
     }
 }

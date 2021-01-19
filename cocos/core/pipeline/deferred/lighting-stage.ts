@@ -42,8 +42,6 @@ export class LightingStage extends RenderStage {
     private _deferredLitsBufs: Buffer = null!;
     private _maxDeferredLights = UBODeferredLight.LIGHTS_PER_PASS;
     private _lightBufferData!: Float32Array;
-    private _lightBufferStride: number = 0;
-    private _lightBufferElementCount: number = 0;
     private _lightMeterScale: number = 10000.0;
     private _descriptorSet: DescriptorSet = null!;
     private _descriptorSetLayout!: DescriptorSetLayout;
@@ -88,10 +86,6 @@ export class LightingStage extends RenderStage {
         }
 
         this._deferredMaterial = val;
-    }
-
-    constructor () {
-        super();
     }
 
     public initialize (info: IRenderStageInfo): boolean {
@@ -209,7 +203,7 @@ export class LightingStage extends RenderStage {
         var totalSize = Float32Array.BYTES_PER_ELEMENT * 4 * 4 * this._maxDeferredLights;
         totalSize = Math.ceil(totalSize / device.uboOffsetAlignment) * device.uboOffsetAlignment;
 
-        this._deferredLitsBufs = this._flow.pipeline.device.createBuffer(new BufferInfo(
+        this._deferredLitsBufs = device.createBuffer(new BufferInfo(
             BufferUsageBit.UNIFORM | BufferUsageBit.TRANSFER_DST,
             MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
             totalSize,
@@ -252,6 +246,9 @@ export class LightingStage extends RenderStage {
 
 
     public destroy () {
+        this._deferredLitsBufs.destroy();
+        this._deferredLitsBufs = null!;
+        this._descriptorSet = null!;
     }
 
     public render (camera: Camera) {
@@ -313,7 +310,7 @@ export class LightingStage extends RenderStage {
             shader = ShaderPool.get(this._deferredMaterial!.passes[LIGHTINGPASS_INDEX].getShaderVariant());
         }
 
-        const inputAssembler = pipeline.quadIA_offscreen;
+        const inputAssembler = pipeline.quadIAOffscreen;
         var pso:PipelineState|null = null;
         if (pass != null && shader != null && inputAssembler != null)
         {

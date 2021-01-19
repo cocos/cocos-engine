@@ -151,10 +151,10 @@ export class Camera {
     private _matProjInv: Mat4 = new Mat4();
     private _matViewProj: Mat4 = new Mat4();
     private _matViewProjInv: Mat4 = new Mat4();
-    private _matProj_offscreen: Mat4 = new Mat4();
-    private _matProjInv_offscreen: Mat4 = new Mat4();
-    private _matViewProj_offscreen: Mat4 = new Mat4();
-    private _matViewProjInv_offscreen: Mat4 = new Mat4();
+    private _matProjOffscreen: Mat4 = new Mat4();
+    private _matProjInvOffscreen: Mat4 = new Mat4();
+    private _matViewProjOffscreen: Mat4 = new Mat4();
+    private _matViewProjInvOffscreen: Mat4 = new Mat4();
     private _frustum: Frustum = new Frustum();
     private _forward: Vec3 = new Vec3();
     private _position: Vec3 = new Vec3();
@@ -284,7 +284,7 @@ export class Camera {
                 Mat4.perspective(this._matProj, this._fov, this._aspect, this._nearClip, this._farClip,
                     this._fovAxis === CameraFOVAxis.VERTICAL, this._device.clipSpaceMinZ, projectionSignY, orientation);
             
-                Mat4.perspective(this._matProj_offscreen, this._fov, this._aspect, this._nearClip, this._farClip,
+                Mat4.perspective(this._matProjOffscreen, this._fov, this._aspect, this._nearClip, this._farClip,
                     this._fovAxis === CameraFOVAxis.VERTICAL, this._device.clipSpaceMinZ, projectionSignY * this._device.UVSpaceSignY, 
                     SurfaceTransform.IDENTITY);
             } else {
@@ -293,16 +293,16 @@ export class Camera {
                 Mat4.ortho(this._matProj, -x, x, -y, y, this._nearClip, this._farClip,
                     this._device.clipSpaceMinZ, projectionSignY, orientation);
                 
-                Mat4.ortho(this._matProj_offscreen, -x, x, -y, y, this._nearClip, this._farClip,
+                Mat4.ortho(this._matProjOffscreen, -x, x, -y, y, this._nearClip, this._farClip,
                     this._device.clipSpaceMinZ, projectionSignY * this._device.UVSpaceSignY, SurfaceTransform.IDENTITY);
             }
             Mat4.invert(this._matProjInv, this._matProj);
-            Mat4.invert(this._matProjInv_offscreen, this._matProj_offscreen);
+            Mat4.invert(this._matProjInvOffscreen, this._matProjOffscreen);
 
             CameraPool.setMat4(this._poolHandle, CameraView.MAT_PROJ, this._matProj);
             CameraPool.setMat4(this._poolHandle, CameraView.MAT_PROJ_INV, this._matProjInv);
-            CameraPool.setMat4(this._poolHandle, CameraView.MAT_PROJ_OFFSCREEN, this._matProj_offscreen);
-            CameraPool.setMat4(this._poolHandle, CameraView.MAT_PROJ_INV_OFFSCREEN, this._matProjInv_offscreen);
+            CameraPool.setMat4(this._poolHandle, CameraView.MAT_PROJ_OFFSCREEN, this._matProjOffscreen);
+            CameraPool.setMat4(this._poolHandle, CameraView.MAT_PROJ_INV_OFFSCREEN, this._matProjInvOffscreen);
             viewProjDirty = true;
             this._isProjDirty = false;
         }
@@ -310,14 +310,14 @@ export class Camera {
         // view-projection
         if (viewProjDirty) {
             Mat4.multiply(this._matViewProj, this._matProj, this._matView);
-            Mat4.multiply(this._matViewProj_offscreen, this._matProj_offscreen, this._matView);
+            Mat4.multiply(this._matViewProjOffscreen, this._matProjOffscreen, this._matView);
             Mat4.invert(this._matViewProjInv, this._matViewProj);
-            Mat4.invert(this._matViewProjInv_offscreen, this._matViewProj_offscreen);
+            Mat4.invert(this._matViewProjInvOffscreen, this._matViewProjOffscreen);
             this._frustum.update(this._matViewProj, this._matViewProjInv);
             CameraPool.setMat4(this._poolHandle, CameraView.MAT_VIEW_PROJ, this._matViewProj);
             CameraPool.setMat4(this._poolHandle, CameraView.MAT_VIEW_PROJ_INV, this._matViewProjInv);
-            CameraPool.setMat4(this._poolHandle, CameraView.MAT_VIEW_PROJ_OFFSCREEN, this._matViewProj_offscreen);
-            CameraPool.setMat4(this._poolHandle, CameraView.MAT_VIEW_PROJ_INV_OFFSCREEN, this._matViewProjInv_offscreen);
+            CameraPool.setMat4(this._poolHandle, CameraView.MAT_VIEW_PROJ_OFFSCREEN, this._matViewProjOffscreen);
+            CameraPool.setMat4(this._poolHandle, CameraView.MAT_VIEW_PROJ_INV_OFFSCREEN, this._matViewProjInvOffscreen);
             recordFrustumToSharedMemory(this._frustumHandle, this._frustum);
         }
     }
@@ -517,20 +517,20 @@ export class Camera {
         return this._matViewProjInv;
     }
 
-    get matProj_offscreen () {
-        return this._matProj_offscreen;
+    get matProjOffscreen () {
+        return this._matProjOffscreen;
     }
 
-    get matProjInv_offscreen () {
-        return this._matProjInv_offscreen;
+    get matProjInvOffscreen () {
+        return this._matProjInvOffscreen;
     }
 
-    get matViewProj_offscreen () {
-        return this._matViewProj_offscreen;
+    get matViewProjOffscreen () {
+        return this._matViewProjOffscreen;
     }
 
-    get matViewProjInv_offscreen () {
-        return this._matViewProjInv_offscreen;
+    get matViewProjInvOffscreen () {
+        return this._matViewProjInvOffscreen;
     }
 
     set frustum (val) {
