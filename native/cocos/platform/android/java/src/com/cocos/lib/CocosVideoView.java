@@ -463,8 +463,8 @@ public class CocosVideoView extends SurfaceView {
             mCurrentState = State.PREPARED;
 
             if (mPositionBeforeRelease > 0) {
-                CocosVideoView.this.seekTo(mPositionBeforeRelease);
                 CocosVideoView.this.start();
+                CocosVideoView.this.seekTo(mPositionBeforeRelease);
                 mPositionBeforeRelease = 0;
             }
         }
@@ -557,6 +557,7 @@ public class CocosVideoView extends SurfaceView {
         if (mMediaPlayer != null) {
             mMediaPlayer.release();
             mMediaPlayer = null;
+            mCurrentState = State.IDLE;
         }
     }
 
