@@ -51,6 +51,7 @@ import { UIPhase } from './ui-phase';
 import { Camera } from '../../renderer/scene';
 
 const colors: Color[] = [new Color(0, 0, 0, 1)];
+const _dynamicOffsets: number[] = [];
 
 /**
  * @en The forward render stage
@@ -215,8 +216,9 @@ export class ForwardStage extends RenderStage {
 
         cmdBuff.beginRenderPass(renderPass, framebuffer, this._renderArea,
             colors, camera.clearDepth, camera.clearStencil);
-
-        cmdBuff.bindDescriptorSet(SetIndex.GLOBAL, pipeline.descriptorSet);
+        // @ts-expect-error Private property access
+        _dynamicOffsets[0] = pipeline._cameraOffset.get(camera);
+        cmdBuff.bindDescriptorSet(SetIndex.GLOBAL, pipeline.descriptorSet, _dynamicOffsets);
 
         this._renderQueues[0].recordCommandBuffer(device, renderPass, cmdBuff);
         this._instancedQueue.recordCommandBuffer(device, renderPass, cmdBuff);
@@ -225,6 +227,18 @@ export class ForwardStage extends RenderStage {
         this._planarQueue.recordCommandBuffer(device, renderPass, cmdBuff);
         this._renderQueues[1].recordCommandBuffer(device, renderPass, cmdBuff);
         this._uiPhase.render(camera, renderPass);
+        // @ts-expect-error Private property access
+        const subViews = pipeline._subViews;
+        const subView = subViews.get(camera);
+        if (subView) {
+            for (let i = 0, len = subView.length; i < len; i++) {
+                const view = subView[i];
+                // @ts-expect-error Private property access
+                _dynamicOffsets[0] = pipeline._cameraOffset.get(view);
+                cmdBuff.bindDescriptorSet(SetIndex.GLOBAL, pipeline.descriptorSet, _dynamicOffsets);
+                this._uiPhase.render(view, renderPass);
+            }
+        }
 
         cmdBuff.endRenderPass();
     }

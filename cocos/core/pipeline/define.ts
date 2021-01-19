@@ -186,6 +186,7 @@ globalDescriptorSetLayout.bindings[UBOGlobal.BINDING] = UBOGlobal.DESCRIPTOR;
  * @zh 全局相机 UBO。
  */
 export class UBOCamera {
+    public static readonly CAMERA_COUNT = 8;
     public static readonly MAT_VIEW_OFFSET = 0;
     public static readonly MAT_VIEW_INV_OFFSET = UBOCamera.MAT_VIEW_OFFSET + 16;
     public static readonly MAT_PROJ_OFFSET = UBOCamera.MAT_VIEW_INV_OFFSET + 16;
@@ -202,12 +203,12 @@ export class UBOCamera {
     public static readonly GLOBAL_FOG_COLOR_OFFSET = UBOCamera.AMBIENT_GROUND_OFFSET + 4;
     public static readonly GLOBAL_FOG_BASE_OFFSET = UBOCamera.GLOBAL_FOG_COLOR_OFFSET + 4;
     public static readonly GLOBAL_FOG_ADD_OFFSET = UBOCamera.GLOBAL_FOG_BASE_OFFSET + 4;
-    public static readonly COUNT = UBOCamera.GLOBAL_FOG_ADD_OFFSET + 4;
+    public static readonly COUNT = 256;
     public static readonly SIZE = UBOCamera.COUNT * 4;
 
     public static readonly NAME = 'CCCamera';
     public static readonly BINDING = PipelineGlobalBindings.UBO_CAMERA;
-    public static readonly DESCRIPTOR = new DescriptorSetLayoutBinding(UBOCamera.BINDING, DescriptorType.UNIFORM_BUFFER, 1, ShaderStageFlagBit.ALL);
+    public static readonly DESCRIPTOR = new DescriptorSetLayoutBinding(UBOCamera.BINDING, DescriptorType.DYNAMIC_UNIFORM_BUFFER, 1, ShaderStageFlagBit.ALL);
     public static readonly LAYOUT = new UniformBlock(SetIndex.GLOBAL, UBOCamera.BINDING, UBOCamera.NAME, [
         new Uniform('cc_matView', Type.MAT4, 1),
         new Uniform('cc_matViewInv', Type.MAT4, 1),

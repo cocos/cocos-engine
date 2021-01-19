@@ -36,10 +36,10 @@ import { ShadowFlow } from '../shadow/shadow-flow';
 import { IRenderObject, UBOGlobal, UBOShadow, UBOCamera, UNIFORM_SHADOWMAP_BINDING, UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING } from '../define';
 import { BufferUsageBit, MemoryUsageBit, ClearFlag, Filter, Address, StoreOp } from '../../gfx/define';
 import { ColorAttachment, DepthStencilAttachment, RenderPass, LoadOp, TextureLayout,
-    RenderPassInfo, BufferInfo, Feature, Framebuffer } from '../../gfx';
+    RenderPassInfo, BufferInfo, Feature, Framebuffer, Buffer, BufferViewInfo } from '../../gfx';
 import { SKYBOX_FLAG } from '../../renderer/scene/camera';
 import { legacyCC } from '../../global-exports';
-import { Color, Mat4, Vec3, Vec4 } from '../../math';
+import { Color, Mat4, Vec3, Vec4, nextPow2 } from '../../math';
 import { Fog } from '../../renderer/scene/fog';
 import { Ambient } from '../../renderer/scene/ambient';
 import { Skybox } from '../../renderer/scene/skybox';
@@ -51,6 +51,7 @@ import { builtinResMgr } from '../../builtin';
 import { Texture2D } from '../../assets/texture-2d';
 import { Camera } from '../../renderer/scene';
 import { errorID } from '../../platform/debug';
+import { Layers } from '../../scene-graph/layers';
 
 const matShadowView = new Mat4();
 const matShadowViewProj = new Mat4();
@@ -128,8 +129,14 @@ export class ForwardPipeline extends RenderPipeline {
     protected _fpScale: number = 1.0 / 1024.0;
     protected _renderPasses = new Map<ClearFlag, RenderPass>();
     protected _globalUBO = new Float32Array(UBOGlobal.COUNT);
-    protected _cameraUBO = new Float32Array(UBOCamera.COUNT);
+    protected _cameraUBO = new Float32Array(UBOCamera.COUNT * UBOCamera.CAMERA_COUNT);
     protected _shadowUBO = new Float32Array(UBOShadow.COUNT);
+    protected _cameraCount = UBOCamera.CAMERA_COUNT;
+    protected _cameras: Camera[] = [];
+    protected _subViews: Map<Camera, Camera[]> = new Map();
+    protected _cameraOffset: Map<Camera, number> = new Map();
+    protected declare _cameraBuffer: Buffer;
+    protected declare _cameraBufferView: Buffer;
 
     public initialize (info: IRenderPipelineInfo): boolean {
         super.initialize(info);
@@ -165,10 +172,11 @@ export class ForwardPipeline extends RenderPipeline {
     public render (cameras: Camera[]) {
         this._commandBuffers[0].begin();
         this.updateGlobalUBO();
-        for (let i = 0; i < cameras.length; i++) {
-            const camera = cameras[i];
+        this.updateCameraUBO(cameras);
+        this.mergeCameras(cameras);
+        for (let i = 0; i < this._cameras.length; i++) {
+            const camera = this._cameras[i];
             if (camera.scene) {
-                this.updateCameraUBO(camera);
                 for (let j = 0; j < this._flows.length; j++) {
                     this._flows[j].render(camera);
                 }
@@ -256,13 +264,14 @@ export class ForwardPipeline extends RenderPipeline {
         ));
         this._descriptorSet.bindBuffer(UBOGlobal.BINDING, globalUBO);
 
-        const cameraUBO = device.createBuffer(new BufferInfo(
+        this._cameraBuffer = device.createBuffer(new BufferInfo(
             BufferUsageBit.UNIFORM | BufferUsageBit.TRANSFER_DST,
             MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
-            UBOCamera.SIZE,
+            UBOCamera.SIZE * UBOCamera.CAMERA_COUNT,
             UBOCamera.SIZE,
         ));
-        this._descriptorSet.bindBuffer(UBOCamera.BINDING, cameraUBO);
+        this._cameraBufferView = this._device.createBuffer(new BufferViewInfo(this._cameraBuffer, 0, UBOCamera.SIZE));
+        this._descriptorSet.bindBuffer(UBOCamera.BINDING, this._cameraBufferView);
 
         const shadowUBO = device.createBuffer(new BufferInfo(
             BufferUsageBit.UNIFORM | BufferUsageBit.TRANSFER_DST,
@@ -345,83 +354,125 @@ export class ForwardPipeline extends RenderPipeline {
         }
     }
 
-    public updateCameraUBO (camera: Camera) {
+    public updateCameraUBO (cameras: Camera[]) {
         const device = this.device;
-        const scene = camera.scene ? camera.scene : legacyCC.director.getScene().renderScene;
-        const mainLight = scene.mainLight;
+        this._cameraOffset.clear();
+
+        if (cameras.length > this._cameraCount) {
+            this._cameraBufferView.destroy();
+            this._cameraCount = nextPow2(cameras.length);
+            this._cameraBuffer.resize(UBOCamera.SIZE * this._cameraCount);
+            this._cameraUBO = new Float32Array(UBOCamera.SIZE * this._cameraCount);
+            this._cameraBufferView.initialize(new BufferViewInfo(this._cameraBuffer, 0, UBOCamera.SIZE));
+        }
+
         const ambient = this.ambient;
         const fog = this.fog;
         const shadingWidth = Math.floor(device.width);
         const shadingHeight = Math.floor(device.height);
-        // update camera ubo
         const cv = this._cameraUBO;
-        const exposure = camera.exposure;
 
-        cv[UBOCamera.SCREEN_SCALE_OFFSET] = camera.width / shadingWidth * this.shadingScale;
-        cv[UBOCamera.SCREEN_SCALE_OFFSET + 1] = camera.height / shadingHeight * this.shadingScale;
-        cv[UBOCamera.SCREEN_SCALE_OFFSET + 2] = 1.0 / cv[UBOCamera.SCREEN_SCALE_OFFSET];
-        cv[UBOCamera.SCREEN_SCALE_OFFSET + 3] = 1.0 / cv[UBOCamera.SCREEN_SCALE_OFFSET + 1];
+        for (let i = 0, len = cameras.length; i < len; i++) {
+            const camera = cameras[i];
+            const scene = camera.scene ? camera.scene : legacyCC.director.getScene().renderScene;
+            const mainLight = scene.mainLight;
 
-        cv[UBOCamera.EXPOSURE_OFFSET] = exposure;
-        cv[UBOCamera.EXPOSURE_OFFSET + 1] = 1.0 / exposure;
-        cv[UBOCamera.EXPOSURE_OFFSET + 2] = this._isHDR ? 1.0 : 0.0;
-        cv[UBOCamera.EXPOSURE_OFFSET + 3] = this._fpScale / exposure;
+            // update camera ubo
+            this._cameraOffset.set(camera, UBOCamera.SIZE * i);
+            const exposure = camera.exposure;
+            const offset = UBOCamera.COUNT * i;
+            const SCALE_OFFSET = offset + UBOCamera.SCREEN_SCALE_OFFSET;
+            cv[SCALE_OFFSET] = camera.width / shadingWidth * this.shadingScale;
+            cv[SCALE_OFFSET + 1] = camera.height / shadingHeight * this.shadingScale;
+            cv[SCALE_OFFSET + 2] = 1.0 / cv[SCALE_OFFSET];
+            cv[SCALE_OFFSET + 3] = 1.0 / cv[SCALE_OFFSET + 1];
 
-        if (mainLight) {
-            Vec3.toArray(cv, mainLight.direction, UBOCamera.MAIN_LIT_DIR_OFFSET);
-            Vec3.toArray(cv, mainLight.color, UBOCamera.MAIN_LIT_COLOR_OFFSET);
-            if (mainLight.useColorTemperature) {
-                const colorTempRGB = mainLight.colorTemperatureRGB;
-                cv[UBOCamera.MAIN_LIT_COLOR_OFFSET] *= colorTempRGB.x;
-                cv[UBOCamera.MAIN_LIT_COLOR_OFFSET + 1] *= colorTempRGB.y;
-                cv[UBOCamera.MAIN_LIT_COLOR_OFFSET + 2] *= colorTempRGB.z;
-            }
+            const EXPOSURE_OFFSET = offset + UBOCamera.EXPOSURE_OFFSET;
+            cv[EXPOSURE_OFFSET] = exposure;
+            cv[EXPOSURE_OFFSET + 1] = 1.0 / exposure;
+            cv[EXPOSURE_OFFSET + 2] = this._isHDR ? 1.0 : 0.0;
+            cv[EXPOSURE_OFFSET + 3] = this._fpScale / exposure;
 
-            if (this._isHDR) {
-                cv[UBOCamera.MAIN_LIT_COLOR_OFFSET + 3] = mainLight.illuminance * this._fpScale;
+            const MAIN_LIT_DIR_OFFSET = UBOCamera.MAIN_LIT_DIR_OFFSET;
+            const MAIN_LIT_COLOR_OFFSET = offset + UBOCamera.MAIN_LIT_COLOR_OFFSET;
+            if (mainLight) {
+                Vec3.toArray(cv, mainLight.direction, MAIN_LIT_DIR_OFFSET);
+                Vec3.toArray(cv, mainLight.color, MAIN_LIT_COLOR_OFFSET);
+                if (mainLight.useColorTemperature) {
+                    const colorTempRGB = mainLight.colorTemperatureRGB;
+                    cv[MAIN_LIT_COLOR_OFFSET] *= colorTempRGB.x;
+                    cv[MAIN_LIT_COLOR_OFFSET + 1] *= colorTempRGB.y;
+                    cv[MAIN_LIT_COLOR_OFFSET + 2] *= colorTempRGB.z;
+                }
+
+                if (this._isHDR) {
+                    cv[MAIN_LIT_COLOR_OFFSET + 3] = mainLight.illuminance * this._fpScale;
+                } else {
+                    cv[MAIN_LIT_COLOR_OFFSET + 3] = mainLight.illuminance * exposure;
+                }
             } else {
-                cv[UBOCamera.MAIN_LIT_COLOR_OFFSET + 3] = mainLight.illuminance * exposure;
+                Vec3.toArray(cv, Vec3.UNIT_Z, MAIN_LIT_DIR_OFFSET);
+                Vec4.toArray(cv, Vec4.ZERO, MAIN_LIT_COLOR_OFFSET);
             }
-        } else {
-            Vec3.toArray(cv, Vec3.UNIT_Z, UBOCamera.MAIN_LIT_DIR_OFFSET);
-            Vec4.toArray(cv, Vec4.ZERO, UBOCamera.MAIN_LIT_COLOR_OFFSET);
+
+            const skyColor = ambient.colorArray;
+            if (this._isHDR) {
+                skyColor[3] = ambient.skyIllum * this._fpScale;
+            } else {
+                skyColor[3] = ambient.skyIllum * exposure;
+            }
+            cv.set(skyColor, offset + UBOCamera.AMBIENT_SKY_OFFSET);
+            cv.set(ambient.albedoArray, offset + UBOCamera.AMBIENT_GROUND_OFFSET);
+
+            Mat4.toArray(cv, camera.matView, offset + UBOCamera.MAT_VIEW_OFFSET);
+            Mat4.toArray(cv, camera.node.worldMatrix, offset + UBOCamera.MAT_VIEW_INV_OFFSET);
+            Mat4.toArray(cv, camera.matProj, offset + UBOCamera.MAT_PROJ_OFFSET);
+            Mat4.toArray(cv, camera.matProjInv, offset + UBOCamera.MAT_PROJ_INV_OFFSET);
+            Mat4.toArray(cv, camera.matViewProj, offset + UBOCamera.MAT_VIEW_PROJ_OFFSET);
+            Mat4.toArray(cv, camera.matViewProjInv, offset + UBOCamera.MAT_VIEW_PROJ_INV_OFFSET);
+            Vec3.toArray(cv, camera.position, offset + UBOCamera.CAMERA_POS_OFFSET);
+            let projectionSignY = device.screenSpaceSignY;
+            if (camera.window!.hasOffScreenAttachments) {
+                projectionSignY *= device.UVSpaceSignY; // need flipping if drawing on render targets
+            }
+            cv[offset + UBOCamera.CAMERA_POS_OFFSET + 3] = projectionSignY;
+
+            if (fog.enabled) {
+                cv.set(fog.colorArray, offset + UBOCamera.GLOBAL_FOG_COLOR_OFFSET);
+
+                const GLOBAL_FOG_BASE_OFFSET = offset + UBOCamera.GLOBAL_FOG_BASE_OFFSET;
+                cv[GLOBAL_FOG_BASE_OFFSET] = fog.fogStart;
+                cv[GLOBAL_FOG_BASE_OFFSET + 1] = fog.fogEnd;
+                cv[GLOBAL_FOG_BASE_OFFSET + 2] = fog.fogDensity;
+
+                const GLOBAL_FOG_ADD_OFFSET = offset + UBOCamera.GLOBAL_FOG_ADD_OFFSET;
+                cv[GLOBAL_FOG_ADD_OFFSET] = fog.fogTop;
+                cv[GLOBAL_FOG_ADD_OFFSET + 1] = fog.fogRange;
+                cv[GLOBAL_FOG_ADD_OFFSET + 2] = fog.fogAtten;
+            }
         }
 
-        const skyColor = ambient.colorArray;
-        if (this._isHDR) {
-            skyColor[3] = ambient.skyIllum * this._fpScale;
-        } else {
-            skyColor[3] = ambient.skyIllum * exposure;
+        this._commandBuffers[0].updateBuffer(this._cameraBuffer, this._cameraUBO);
+    }
+
+    private mergeCameras (cameras: Camera[]) {
+        this._subViews.clear();
+        this._cameras.length = 0;
+        if (cameras.length === 0) return;
+        let prev = cameras[0];
+        this._cameras.push(prev);
+        for (let i = 1, len = cameras.length; i < len; i++) {
+            const cur = cameras[i];
+            if (prev.window === cur.window && (cur.visibility & Layers.BitMask.UI_2D)) {
+                if (!this._subViews.get(prev)) {
+                    this._subViews.set(prev, []);
+                }
+                this._subViews.get(prev)!.push(cur);
+            } else {
+                prev = cur;
+                this._cameras.push(prev);
+            }
         }
-        cv.set(skyColor, UBOCamera.AMBIENT_SKY_OFFSET);
-        cv.set(ambient.albedoArray, UBOCamera.AMBIENT_GROUND_OFFSET);
-
-        Mat4.toArray(cv, camera.matView, UBOCamera.MAT_VIEW_OFFSET);
-        Mat4.toArray(cv, camera.node.worldMatrix, UBOCamera.MAT_VIEW_INV_OFFSET);
-        Mat4.toArray(cv, camera.matProj, UBOCamera.MAT_PROJ_OFFSET);
-        Mat4.toArray(cv, camera.matProjInv, UBOCamera.MAT_PROJ_INV_OFFSET);
-        Mat4.toArray(cv, camera.matViewProj, UBOCamera.MAT_VIEW_PROJ_OFFSET);
-        Mat4.toArray(cv, camera.matViewProjInv, UBOCamera.MAT_VIEW_PROJ_INV_OFFSET);
-        Vec3.toArray(cv, camera.position, UBOCamera.CAMERA_POS_OFFSET);
-        let projectionSignY = device.screenSpaceSignY;
-        if (camera.window!.hasOffScreenAttachments) {
-            projectionSignY *= device.UVSpaceSignY; // need flipping if drawing on render targets
-        }
-        cv[UBOCamera.CAMERA_POS_OFFSET + 3] = projectionSignY;
-
-        if (fog.enabled) {
-            cv.set(fog.colorArray, UBOCamera.GLOBAL_FOG_COLOR_OFFSET);
-
-            cv[UBOCamera.GLOBAL_FOG_BASE_OFFSET] = fog.fogStart;
-            cv[UBOCamera.GLOBAL_FOG_BASE_OFFSET + 1] = fog.fogEnd;
-            cv[UBOCamera.GLOBAL_FOG_BASE_OFFSET + 2] = fog.fogDensity;
-
-            cv[UBOCamera.GLOBAL_FOG_ADD_OFFSET] = fog.fogTop;
-            cv[UBOCamera.GLOBAL_FOG_ADD_OFFSET + 1] = fog.fogRange;
-            cv[UBOCamera.GLOBAL_FOG_ADD_OFFSET + 2] = fog.fogAtten;
-        }
-
-        this._commandBuffers[0].updateBuffer(this._descriptorSet.getBuffer(UBOCamera.BINDING), this._cameraUBO);
     }
 
     private destroyUBOs () {
@@ -452,6 +503,10 @@ export class ForwardPipeline extends RenderPipeline {
         this.skybox.destroy();
         this.fog.destroy();
         this.shadows.destroy();
+
+        this._subViews.clear();
+        this._cameras.clear();
+        this._cameraOffset.clear();
 
         return super.destroy();
     }
