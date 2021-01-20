@@ -74,8 +74,6 @@ public:
     
     CC_INLINE bool isCommandBufferBegan() const { return _commandBufferBegan; }
     CC_INLINE id<MTLCommandBuffer> getMTLCommandBuffer() const { return _mtlCommandBuffer; }
-    id<CAMetalDrawable> getCurrentDrawable();
-    void disposeCurrentDrawable();
 
 private:
     void bindDescriptorSets();
@@ -92,7 +90,6 @@ private:
     bool _isSecondary = false;
     NSAutoreleasePool *_autoreleasePool = nullptr;
     CCMTLDevice *_mtlDevice = nullptr;
-    id<CAMetalDrawable> _currDrawable = nil;
     id<MTLCommandQueue> _mtlCommandQueue = nil;
     id<MTLCommandBuffer> _mtlCommandBuffer = nil;
     MTKView *_mtkView = nil;

@@ -66,21 +66,6 @@ void CCMTLCommandBuffer::destroy() {
     }
 }
 
-id<CAMetalDrawable> CCMTLCommandBuffer::getCurrentDrawable() {
-    if (!_currDrawable)	{
-        CAMetalLayer *layer = (CAMetalLayer*)_mtlDevice->getMTLLayer();
-        _currDrawable = [[layer nextDrawable] retain];
-    }
-    return _currDrawable;
-}
-
-void CCMTLCommandBuffer::disposeCurrentDrawable() {
-    if (_currDrawable) {
-        [_currDrawable release];
-        _currDrawable = nil;
-    }
-}
-
 bool CCMTLCommandBuffer::isRenderingEntireDrawable(const Rect &rect, const CCMTLRenderPass *renderPass) {
     const int num = renderPass->getColorRenderTargetNums();
     if (num == 0) {
@@ -145,7 +130,7 @@ void CCMTLCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fb
 
     auto isOffscreen = static_cast<CCMTLFramebuffer *>(fbo)->isOffscreen();
     if (!isOffscreen) {
-        id<CAMetalDrawable> drawable = getCurrentDrawable();
+        id<CAMetalDrawable> drawable = (id<CAMetalDrawable>)_mtlDevice->getCurrentDrawable();
         id<MTLTexture> dssTex = (id<MTLTexture>)_mtlDevice->getDSSTexture();
         static_cast<CCMTLRenderPass *>(renderPass)->setColorAttachment(0, drawable.texture, 0);
         static_cast<CCMTLRenderPass *>(renderPass)->setDepthStencilAttachment(dssTex, 0);

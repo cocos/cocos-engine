@@ -216,7 +216,7 @@ void CCMTLDevice::acquire() {
 
     if (!_autoreleasePool) {
         _autoreleasePool = [[NSAutoreleasePool alloc] init];
-        CC_LOG_INFO("POOL: %p ALLOCED", _autoreleasePool);
+//        CC_LOG_INFO("POOL: %p ALLOCED", _autoreleasePool);
     }
     // Clear queue stats
     CCMTLQueue *queue = static_cast<CCMTLQueue *>(_queue);
@@ -232,24 +232,36 @@ void CCMTLDevice::present() {
     _numTriangles = queue->_numTriangles;
 
     //hold this pointer before update _currentFrameIndex
-    CCMTLGPUStagingBufferPool *bufferPool = _gpuStagingBufferPools[_currentFrameIndex];
+    _currentBufferPool = _gpuStagingBufferPools[_currentFrameIndex];
     _currentFrameIndex = (_currentFrameIndex + 1) % MAX_FRAMES_IN_FLIGHT;
-
-    CCMTLCommandBuffer *cmdBuff = static_cast<CCMTLCommandBuffer *>(_cmdBuff);
-    id<MTLCommandBuffer> mtlCommandBuffer = cmdBuff->getMTLCommandBuffer();
-    [mtlCommandBuffer presentDrawable:cmdBuff->getCurrentDrawable()];
-    [mtlCommandBuffer addCompletedHandler:^(id<MTLCommandBuffer> commandBuffer) {
-        [commandBuffer release];
-        bufferPool->reset();
-        _inFlightSemaphore->signal();
-    }];
-    [mtlCommandBuffer commit];
-    cmdBuff->disposeCurrentDrawable();
 
     if (_autoreleasePool) {
 //        CC_LOG_INFO("POOL: %p RELEASED", _autoreleasePool);
         [(NSAutoreleasePool*)_autoreleasePool drain];
         _autoreleasePool = nullptr;
+    }
+}
+
+void CCMTLDevice::presentCompleted() {
+    if (_currentBufferPool) {
+        _currentBufferPool->reset();
+        _currentBufferPool = nullptr;
+    }
+    _inFlightSemaphore->signal();
+}
+
+void *CCMTLDevice::getCurrentDrawable() {
+    if (!_activeDrawable)    {
+        CAMetalLayer *layer = (CAMetalLayer*)getMTLLayer();
+        _activeDrawable = [[layer nextDrawable] retain];
+    }
+    return _activeDrawable;
+}
+
+void CCMTLDevice::disposeCurrentDrawable() {
+    if (_activeDrawable) {
+        [(id<CAMetalDrawable>)_activeDrawable release];
+        _activeDrawable = nil;
     }
 }
 

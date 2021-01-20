@@ -24,6 +24,8 @@ THE SOFTWARE.
 #include "MTLStd.h"
 
 #include "MTLQueue.h"
+#include "MTLDevice.h"
+#include "MTLCommandBuffer.h"
 
 namespace cc {
 namespace gfx {
@@ -43,10 +45,25 @@ void CCMTLQueue::destroy() {
 
 void CCMTLQueue::submit(CommandBuffer *const *cmdBuffs, uint count) {
     for (uint i = 0u; i < count; ++i) {
-        const auto *cmdBuffer = cmdBuffs[i];
+        CCMTLCommandBuffer *cmdBuffer = (CCMTLCommandBuffer *)cmdBuffs[i];
         _numDrawCalls += cmdBuffer->getNumDrawCalls();
         _numInstances += cmdBuffer->getNumInstances();
         _numTriangles += cmdBuffer->getNumTris();
+        id<MTLCommandBuffer> mtlCmdBuffer = cmdBuffer->getMTLCommandBuffer();
+        
+        // Must do present before commit last command buffer.
+        if (i == count-1) {
+            CCMTLDevice* device = (CCMTLDevice*)_device;
+            id<CAMetalDrawable> currDrawable = (id<CAMetalDrawable>)device->getCurrentDrawable();
+            
+            [mtlCmdBuffer presentDrawable:currDrawable];
+            [mtlCmdBuffer addCompletedHandler:^(id<MTLCommandBuffer> commandBuffer) {
+                [commandBuffer release];
+                device->presentCompleted();
+            }];
+            device->disposeCurrentDrawable();
+        }
+        [mtlCmdBuffer commit];
     }
 }
 

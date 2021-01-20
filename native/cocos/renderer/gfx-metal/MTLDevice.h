@@ -58,6 +58,10 @@ public:
     virtual void resize(uint width, uint height) override;
     virtual void acquire() override;
     virtual void present() override;
+    
+    void presentCompleted();
+    void* getCurrentDrawable();
+    void disposeCurrentDrawable();
 
     CC_INLINE void *getMTLCommandQueue() const { return _mtlCommandQueue; }
     CC_INLINE void *getMTLLayer() const { return _mtlLayer; }
@@ -96,6 +100,7 @@ private:
     void *_mtlDevice = nullptr;
     void *_mtlLayer = nullptr;
     void *_dssTex = nullptr;
+    void *_activeDrawable = nullptr;
     unsigned long _mtlFeatureSet = 0;
     uint _maxSamplerUnits = 0;
     uint _maxColorRenderTargets = 0;
@@ -104,8 +109,9 @@ private:
     bool _indirectDrawSupported = false;
     bool _isSamplerDescriptorCompareFunctionSupported = false;
     CCMTLGPUStagingBufferPool *_gpuStagingBufferPools[MAX_FRAMES_IN_FLIGHT] = {nullptr};
-    CCMTLSemaphore *_inFlightSemaphore = nullptr;
+    CCMTLGPUStagingBufferPool *_currentBufferPool = nullptr;
     uint _currentFrameIndex = 0;
+    CCMTLSemaphore *_inFlightSemaphore = nullptr;
     uint32_t _memoryAlarmListenerId = 0;
 };
 
