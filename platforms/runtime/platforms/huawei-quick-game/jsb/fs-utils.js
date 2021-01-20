@@ -20,10 +20,15 @@
  ****************************************************************************/
 window.jsb = window.jsb || {};
 var fs = hbs.getFileSystemManager ? hbs.getFileSystemManager() : null;
+var outOfStorageRegExp = /the maximum size of the file storage/;  // not exactly right
 
 var fsUtils = {
 
     fs,
+
+    isOutOfStorage (errMsg) {
+        return outOfStorageRegExp.test(errMsg);
+    },
 
     _subpackagesPath: 'subpackages/',
 
