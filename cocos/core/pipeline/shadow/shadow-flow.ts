@@ -82,8 +82,6 @@ export class ShadowFlow extends RenderFlow {
         const validLights = lightCollecting(camera, shadowInfo.maxReceived);
         shadowCollecting(pipeline, camera);
 
-        if (pipeline.shadowObjects.length === 0) return;
-
         for (let l = 0; l < validLights.length; l++) {
             const light = validLights[l];
 
