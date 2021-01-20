@@ -251,12 +251,14 @@ public:
         return &gcPoolSingleton;
     }
 
+    void initialize(std::function<uint8_t(void)> getFrameIndex) {
+        CC_ASSERT(getFrameIndex);
+        _getFrameIndex = getFrameIndex;
+    }
+
     void collect(std::function<void(void)> destroyFunc) {
-        static uint64_t frameCounter = 0;
-        //equally distribute into MAX_FRAMES_IN_FLIGHT queues.
-        uint8_t frameDispatchIndex = frameCounter % MAX_FRAMES_IN_FLIGHT;
-        _releaseQueue[frameDispatchIndex].push(destroyFunc);
-        frameCounter++;
+        uint8_t curFrameIndex = _getFrameIndex();
+        _releaseQueue[curFrameIndex].push(destroyFunc);
     }
 
     void clear(uint8_t currentFrameIndex) {
@@ -268,7 +270,19 @@ public:
         }
     }
 
+    void flush() {
+        for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+            while (!_releaseQueue[i].empty()) {
+                auto &&gcFunc = _releaseQueue[i].front();
+                gcFunc();
+                _releaseQueue[i].pop();
+            }
+        }
+    }
+
 private:
+    //avoid cross-reference with CCMTLDevice
+    std::function<uint8_t(void)> _getFrameIndex;
     std::queue<GCFunc> _releaseQueue[MAX_FRAMES_IN_FLIGHT];
 };
 

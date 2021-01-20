@@ -162,6 +162,8 @@ bool CCMTLDevice::initialize(const DeviceInfo &info) {
 
     _memoryAlarmListenerId = EventDispatcher::addCustomEventListener(EVENT_MEMORY_WARNING, std::bind(&CCMTLDevice::onMemoryWarning, this));
 
+    CCMTLGPUGarbageCollectionPool::getInstance()->initialize(std::bind(&CCMTLDevice::currentFrameIndex, this));
+
     CC_LOG_INFO("Metal Feature Set: %s", mu::featureSetToString(MTLFeatureSet(_mtlFeatureSet)).c_str());
 
     return true;
@@ -172,6 +174,9 @@ void CCMTLDevice::destroy() {
         EventDispatcher::removeCustomEventListener(EVENT_MEMORY_WARNING, _memoryAlarmListenerId);
         _memoryAlarmListenerId = 0;
     }
+
+    CCMTLGPUGarbageCollectionPool::getInstance()->flush();
+
     if (_inFlightSemaphore) {
         _inFlightSemaphore->syncAll();
     }
