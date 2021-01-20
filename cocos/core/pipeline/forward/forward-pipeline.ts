@@ -505,8 +505,8 @@ export class ForwardPipeline extends RenderPipeline {
         this.shadows.destroy();
 
         this._subViews.clear();
-        this._cameras.clear();
         this._cameraOffset.clear();
+        this._cameras.length = 0;
 
         return super.destroy();
     }
