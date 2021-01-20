@@ -27,7 +27,7 @@
  * @packageDocumentation
  * @hidden
  */
-import { Vec3 } from '../../core';
+import { equals, Vec3 } from '../../core';
 import { IVec3Like, IQuatLike } from '../../core/math/type-define';
 import { Collider, CollisionEventType, IContactEquation, TriggerEventType } from '../framework';
 
@@ -62,4 +62,29 @@ export const CollisionEventObject = {
     otherCollider: null as unknown as Collider,
     contacts: [] as IContactEquation[],
     impl: null as any,
+};
+
+export function shrinkPositions (buffer: Float32Array | number[]): number[] {
+    const pos: number[] = [];
+    if (buffer.length >= 3) {
+        pos[0] = buffer[0], pos[1] = buffer[1], pos[2] = buffer[2];
+        const len = buffer.length
+        for (let i = 3; i < len; i += 3) {
+            const p0 = buffer[i];
+            const p1 = buffer[i + 1];
+            const p2 = buffer[i + 2];
+            const len2 = pos.length;
+            let isNew = true;
+            for (let j = 0; j < len2; j += 3) {
+                if (equals(p0, pos[j]) && equals(p1, pos[j + 1]) && equals(p2, pos[j + 2])) {
+                    isNew = false;
+                    break;
+                }
+            }
+            if (isNew) {
+                pos.push(p0); pos.push(p1); pos.push(p2);
+            }
+        }
+    }
+    return pos;
 };
