@@ -33,4 +33,6 @@
 @interface View : NSView
 #endif
 
+-(void)start;
+
 @end
