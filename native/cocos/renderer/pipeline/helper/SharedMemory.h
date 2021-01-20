@@ -83,7 +83,7 @@ extern gfx::BlendState *getBlendStateImpl(uint index);
 #define GET_INSTANCED_ATTRIBUTE_ARRAY(index) SharedMemory::getHandleArray(se::PoolType::INSTANCED_ATTRIBUTE_ARRAY, index)
 #define GET_LIGHT_ARRAY(index)               SharedMemory::getHandleArray(se::PoolType::LIGHT_ARRAY, index)
 #define GET_BLEND_TARGET_ARRAY(index)        SharedMemory::getHandleArray(se::PoolType::BLEND_TARGET_ARRAY, index)
-#define GET_UI_BATCH_ARRAY(index)        SharedMemory::getHandleArray(se::PoolType::UI_BATCH_ARRAY, index)
+#define GET_UI_BATCH_ARRAY(index)            SharedMemory::getHandleArray(se::PoolType::UI_BATCH_ARRAY, index)
 
 // Get raw buffer or gfx object.
 #define GET_RAW_BUFFER(index, size) SharedMemory::getRawBuffer<uint8_t>(se::PoolType::RAW_BUFFER, index, size)

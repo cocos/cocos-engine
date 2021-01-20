@@ -55,7 +55,6 @@ bool DeviceAgent::initialize(const DeviceInfo &info) {
     memcpy(_features, _actor->_features, (uint)Feature::COUNT * sizeof(bool));
 
     _mainEncoder = CC_NEW(MessageQueue);
-    _mainEncoder->runConsumerThread();
 
     _allocatorPools.resize(MAX_CPU_FRAME_AHEAD + 1);
     for (uint i = 0u; i < MAX_CPU_FRAME_AHEAD + 1; ++i) {
@@ -152,6 +151,7 @@ void DeviceAgent::setMultithreaded(bool multithreaded) {
     if (multithreaded) {
         _mainEncoder->setImmediateMode(false);
         _actor->bindRenderContext(false);
+        _mainEncoder->runConsumerThread();
         ENQUEUE_MESSAGE_1(
             _mainEncoder, DeviceMakeCurrent,
             actor, _actor,
@@ -166,6 +166,7 @@ void DeviceAgent::setMultithreaded(bool multithreaded) {
             {
                 actor->bindDeviceContext(false);
             });
+        _mainEncoder->terminateConsumerThread();
         _mainEncoder->finishWriting(true); // wait till finished
         _mainEncoder->setImmediateMode(true);
         _actor->bindRenderContext(true);
