@@ -66,8 +66,8 @@ public:
     CC_INLINE void *getMTLCommandQueue() const { return _mtlCommandQueue; }
     CC_INLINE void *getMTLLayer() const { return _mtlLayer; }
     CC_INLINE void *getMTLDevice() const { return _mtlDevice; }
-    CC_INLINE uint getMaximumSamplerUnits() const { return _maxSamplerUnits; }
-    CC_INLINE uint getMaximumColorRenderTargets() const { return _maxColorRenderTargets; }
+    CC_INLINE uint getMaximumSamplerUnits() const { return _caps.maxTextureUnits; }
+    CC_INLINE uint getMaximumColorRenderTargets() const { return _caps.maxColorRenderTargets; }
     CC_INLINE uint getMaximumBufferBindingIndex() const { return _maxBufferBindingIndex; }
     CC_INLINE bool isIndirectCommandBufferSupported() const { return _icbSuppored; }
     CC_INLINE bool isIndirectDrawSupported() const { return _indirectDrawSupported; }
@@ -102,8 +102,6 @@ private:
     void *_dssTex = nullptr;
     void *_activeDrawable = nullptr;
     unsigned long _mtlFeatureSet = 0;
-    uint _maxSamplerUnits = 0;
-    uint _maxColorRenderTargets = 0;
     uint _maxBufferBindingIndex = 0;
     bool _icbSuppored = false;
     bool _indirectDrawSupported = false;
@@ -112,7 +110,7 @@ private:
     CCMTLGPUStagingBufferPool *_currentBufferPool = nullptr;
     uint _currentFrameIndex = 0;
     CCMTLSemaphore *_inFlightSemaphore = nullptr;
-    uint32_t _memoryAlarmListenerId = 0;
+    CC_UNUSED uint32_t _memoryAlarmListenerId = 0;
 };
 
 } // namespace gfx

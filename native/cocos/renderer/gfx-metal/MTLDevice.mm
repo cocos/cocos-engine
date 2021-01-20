@@ -94,12 +94,12 @@ bool CCMTLDevice::initialize(const DeviceInfo &info) {
     _indirectDrawSupported = mu::isIndirectDrawSupported(gpuFamily);
     _caps.maxVertexAttributes = mu::getMaxVertexAttributes(gpuFamily);
     _caps.maxTextureUnits = _caps.maxVertexTextureUnits = mu::getMaxEntriesInTextureArgumentTable(gpuFamily);
-//    _caps.maxSamplerUnits = mu::getMaxEntriesInSamplerStateArgumentTable(gpuFamily);
+    _caps.maxTextureUnits = mu::getMaxEntriesInSamplerStateArgumentTable(gpuFamily);
     _caps.maxTextureSize = mu::getMaxTexture2DWidthHeight(gpuFamily);
     _caps.maxCubeMapTextureSize = mu::getMaxCubeMapTextureWidthHeight(gpuFamily);
-//    _caps.maxColorRenderTargets = mu::getMaxColorRenderTarget(gpuFamily);
-//    _caps.maxBufferBindingIndex = mu::getMaxEntriesInBufferArgumentTable(gpuFamily);
+    _caps.maxColorRenderTargets = mu::getMaxColorRenderTarget(gpuFamily);
     _caps.uboOffsetAlignment = mu::getMinBufferOffsetAlignment(gpuFamily);
+    _maxBufferBindingIndex = mu::getMaxEntriesInBufferArgumentTable(gpuFamily);
     _icbSuppored = mu::isIndirectCommandBufferSupported(MTLFeatureSet(_mtlFeatureSet));
     _isSamplerDescriptorCompareFunctionSupported = mu::isSamplerDescriptorCompareFunctionSupported(gpuFamily);
 

@@ -700,6 +700,7 @@ struct DeviceCaps {
     uint maxTextureUnits = 0u;
     uint maxImageUnits = 0u;
     uint maxVertexTextureUnits = 0u;
+    uint maxColorRenderTargets = 0u;
     uint maxShaderStorageBufferBindings = 0u;
     uint maxShaderStorageBlockSize = 0u;
     uint maxUniformBufferBindings = 0u;
