@@ -51,11 +51,15 @@ void CCMTLQueue::submit(CommandBuffer *const *cmdBuffs, uint count) {
         _numTriangles += cmdBuffer->getNumTris();
         id<MTLCommandBuffer> mtlCmdBuffer = cmdBuffer->getMTLCommandBuffer();
         
-        // Must do present before commit last command buffer.
-        if (i == count-1) {
+        if (i < count-1) {
+            [mtlCmdBuffer addCompletedHandler:^(id<MTLCommandBuffer> commandBuffer) {
+                [commandBuffer release];
+            }];
+        }
+        else {
+            // Must do present before commit last command buffer.
             CCMTLDevice* device = (CCMTLDevice*)_device;
             id<CAMetalDrawable> currDrawable = (id<CAMetalDrawable>)device->getCurrentDrawable();
-            
             [mtlCmdBuffer presentDrawable:currDrawable];
             [mtlCmdBuffer addCompletedHandler:^(id<MTLCommandBuffer> commandBuffer) {
                 [commandBuffer release];
