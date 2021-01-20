@@ -29,7 +29,7 @@
  */
 
 import { ccclass } from 'cc.decorator';
-import { PIPELINE_FLOW_SHADOW } from '../define';
+import { PIPELINE_FLOW_SHADOW, UNIFORM_SHADOWMAP_BINDING } from '../define';
 import { IRenderFlowInfo, RenderFlow } from '../render-flow';
 import { ForwardFlowPriority } from '../forward/enum';
 import { ShadowStage } from './shadow-stage';
@@ -43,6 +43,7 @@ import { Light } from '../../renderer/scene/light';
 import { lightCollecting, shadowCollecting } from '../forward/scene-culling';
 import { Vec2 } from '../../math';
 import { Camera } from '../../renderer/scene';
+import { legacyCC } from '../../global-exports';
 
 /**
  * @en Shadow map render flow
@@ -81,6 +82,8 @@ export class ShadowFlow extends RenderFlow {
 
         const validLights = lightCollecting(camera, shadowInfo.maxReceived);
         shadowCollecting(pipeline, camera);
+
+        if (!this._enableShadowDefine(pipeline.shadowObjects.length)) { return; }
 
         for (let l = 0; l < validLights.length; l++) {
             const light = validLights[l];
@@ -180,6 +183,18 @@ export class ShadowFlow extends RenderFlow {
 
         // Cache frameBuffer
         pipeline.shadowFrameBufferMap.set(light, shadowFrameBuffer);
+    }
+
+    private _enableShadowDefine (numb: number) {
+        if (numb > 0) {
+            this._pipeline.macros.CC_RECEIVE_SHADOW = 1;
+            legacyCC.director.root.onGlobalPipelineStateChanged();
+            return true;
+        }
+
+        this._pipeline.macros.CC_RECEIVE_SHADOW = 0;
+        legacyCC.director.root.onGlobalPipelineStateChanged();
+        return false;
     }
 
     private resizeShadowMap (light: Light, size: Vec2) {
