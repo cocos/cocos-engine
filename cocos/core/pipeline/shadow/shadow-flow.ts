@@ -83,8 +83,6 @@ export class ShadowFlow extends RenderFlow {
         const validLights = lightCollecting(camera, shadowInfo.maxReceived);
         shadowCollecting(pipeline, camera);
 
-        if (!this._enableShadowDefine(pipeline.shadowObjects.length)) { return; }
-
         for (let l = 0; l < validLights.length; l++) {
             const light = validLights[l];
 
@@ -183,18 +181,6 @@ export class ShadowFlow extends RenderFlow {
 
         // Cache frameBuffer
         pipeline.shadowFrameBufferMap.set(light, shadowFrameBuffer);
-    }
-
-    private _enableShadowDefine (numb: number) {
-        if (numb > 0) {
-            this._pipeline.macros.CC_RECEIVE_SHADOW = 1;
-            legacyCC.director.root.onGlobalPipelineStateChanged();
-            return true;
-        }
-
-        this._pipeline.macros.CC_RECEIVE_SHADOW = 0;
-        legacyCC.director.root.onGlobalPipelineStateChanged();
-        return false;
     }
 
     private resizeShadowMap (light: Light, size: Vec2) {
