@@ -211,17 +211,13 @@ void CCMTLDevice::destroy() {
 
 void CCMTLDevice::resize(uint width, uint height) {}
 
-void CCMTLDevice::ensureAutoreleasePool() {
-    if (!_autoreleasePool) {
-        _autoreleasePool = [[NSAutoreleasePool alloc] init];
-//        CC_LOG_INFO("POOL: %p ALLOCED", _autoreleasePool);
-    }
-}
-
 void CCMTLDevice::acquire() {
     _inFlightSemaphore->wait();
 
-    ensureAutoreleasePool();
+    if (!_autoreleasePool) {
+        _autoreleasePool = [[NSAutoreleasePool alloc] init];
+        CC_LOG_INFO("POOL: %p ALLOCED", _autoreleasePool);
+    }
     // Clear queue stats
     CCMTLQueue *queue = static_cast<CCMTLQueue *>(_queue);
     queue->_numDrawCalls = 0;
