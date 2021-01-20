@@ -70,12 +70,7 @@ export class StdMorphRendering implements MorphRendering {
                 continue;
             }
 
-            if (subMeshMorph.targets.length > UBOMorph.MAX_MORPH_TARGET_COUNT) {
-                warnID(10002, UBOMorph.MAX_MORPH_TARGET_COUNT, subMeshMorph.targets.length);
-                continue;
-            }
-
-            if (preferCpuComputing) {
+            if (preferCpuComputing || subMeshMorph.targets.length > UBOMorph.MAX_MORPH_TARGET_COUNT) {
                 this._subMeshRenderings[iSubMesh] = new CpuComputing(
                     this._mesh,
                     iSubMesh,
