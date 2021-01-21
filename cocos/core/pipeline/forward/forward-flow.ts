@@ -36,7 +36,7 @@ import { ForwardStage } from './forward-stage';
 import { ForwardPipeline } from './forward-pipeline';
 import { RenderPipeline } from '../render-pipeline';
 import { Camera } from '../../renderer/scene';
-import { sceneCulling } from './scene-culling';
+import { sceneCulling } from '../scene-culling';
 
 /**
  * @en The forward flow in forward render pipeline

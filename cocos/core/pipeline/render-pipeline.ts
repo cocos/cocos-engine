@@ -36,6 +36,8 @@ import { MacroRecord } from '../renderer/core/pass-utils';
 import { Device, DescriptorSet, CommandBuffer, DescriptorSetLayout, DescriptorSetLayoutInfo, DescriptorSetInfo } from '../gfx';
 import { globalDescriptorSetLayout } from './define';
 import { Camera } from '../renderer/scene/camera';
+import { PipelineUBO } from './pipeline-ubo';
+import { PipelineSceneData } from './pipeline-scene-data';
 
 /**
  * @en Render pipeline information descriptor
@@ -120,10 +122,20 @@ export abstract class RenderPipeline extends Asset {
         return this._commandBuffers;
     }
 
+    get pipelineUBO () {
+        return this._pipelineUBO;
+    }
+
+    get pipelineSceneData () {
+        return this._pipelineSceneData;
+    }
+
     protected _device!: Device;
     protected _descriptorSetLayout!: DescriptorSetLayout;
     protected _descriptorSet!: DescriptorSet;
     protected _commandBuffers: CommandBuffer[] = [];
+    protected _pipelineUBO = new PipelineUBO();
+    protected _pipelineSceneData = new PipelineSceneData();
 
     /**
      * @en The initialization process, user shouldn't use it in most case, only useful when need to generate render pipeline programmatically.
@@ -142,11 +154,11 @@ export abstract class RenderPipeline extends Asset {
      */
     public activate (): boolean {
         this._device = legacyCC.director.root.device;
-
         const layoutInfo = new DescriptorSetLayoutInfo(globalDescriptorSetLayout.bindings);
         this._descriptorSetLayout = this._device.createDescriptorSetLayout(layoutInfo);
-
         this._descriptorSet = this._device.createDescriptorSet(new DescriptorSetInfo(this._descriptorSetLayout));
+        this._pipelineUBO.activate(this._device, this);
+        this._pipelineSceneData.activate(this._device, this);
 
         for (let i = 0; i < this._flows.length; i++) {
             this._flows[i].activate(this);
@@ -188,6 +200,8 @@ export abstract class RenderPipeline extends Asset {
             this._commandBuffers[i].destroy();
         }
         this._commandBuffers.length = 0;
+        this._pipelineUBO.destroy();
+        this._pipelineSceneData.destroy();
 
         return super.destroy();
     }

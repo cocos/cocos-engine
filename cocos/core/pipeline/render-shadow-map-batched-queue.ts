@@ -29,32 +29,22 @@
  */
 
 import { SubModel } from '../renderer/scene/submodel';
-import { IRenderObject, SetIndex, UBOShadow } from './define';
-import { Device, RenderPass, Buffer, Shader, CommandBuffer, DescriptorSet } from '../gfx';
+import { SetIndex, UBOShadow } from './define';
+import { Device, RenderPass, Buffer, Shader, CommandBuffer } from '../gfx';
 import { getPhaseID } from './pass-phase';
 import { PipelineStateManager } from './pipeline-state-manager';
 import { ShaderPool, SubModelPool, SubModelView, ShaderHandle } from '../renderer/core/memory-pools';
 import { Pass, BatchingSchemes } from '../renderer/core/pass';
 import { RenderInstancedQueue } from './render-instanced-queue';
-
 import { InstancedBuffer } from './instanced-buffer';
 import { RenderBatchedQueue } from './render-batched-queue';
 import { BatchedBuffer } from './batched-buffer';
-import { Color, Mat4, Vec4, Vec3 } from '../math';
-import { Shadows, ShadowType } from '../renderer/scene/shadows';
+import { ShadowType } from '../renderer/scene/shadows';
 import { ForwardPipeline } from './forward/forward-pipeline';
 import { Light, LightType } from '../renderer/scene/light';
 import { SpotLight } from '../renderer/scene/spot-light';
 import { intersect } from '../geometry';
 import { Model } from '../renderer/scene/model';
-import { DirectionalLight } from '../renderer/scene/directional-light';
-import { getShadowWorldMatrix } from './forward/scene-culling';
-
-const _matShadowView = new Mat4();
-const _matShadowViewProj = new Mat4();
-const _vec4ShadowInfo = new Vec4();
-const _vec3Center = new Vec3();
-let _shadowCameraView = new Mat4();
 
 const _phaseID = getPhaseID('shadow-caster');
 const _shadowPassIndices: number[] = [];
@@ -85,37 +75,24 @@ export class RenderShadowMapBatchedQueue {
     private _subModelsArray: SubModel[] = [];
     private _passArray: Pass[] = [];
     private _shaderArray: Shader[] = [];
-    private _shadowMapBuffer: Buffer;
-
-    // changes
-    private _device: Device;
-    private _shadowInfo: Shadows;
-    private _descriptorSet: DescriptorSet;
-    private _shadowObjects: IRenderObject[];
-    private _shadowUBO: Float32Array;
     private _instancedQueue: RenderInstancedQueue;
     private _batchedQueue: RenderBatchedQueue;
 
     public constructor (pipeline: ForwardPipeline) {
         this._pipeline = pipeline;
-        this._device = pipeline.device;
-        this._shadowInfo = pipeline.shadows;
-        this._descriptorSet = pipeline.descriptorSet;
-        this._shadowObjects = pipeline.shadowObjects;
-        this._shadowUBO = pipeline.shadowUBO;
-        this._shadowMapBuffer = pipeline.descriptorSet.getBuffer(UBOShadow.BINDING);
-
         this._instancedQueue = new RenderInstancedQueue();
         this._batchedQueue = new RenderBatchedQueue();
     }
 
     public gatherLightPasses (light: Light, cmdBuff: CommandBuffer) {
         this.clear();
-        if (light && this._shadowInfo.enabled && this._shadowInfo.type === ShadowType.ShadowMap) {
-            this._updateUBOs(light);
+        const shadowInfo = this._pipeline.pipelineSceneData.shadows;
+        const shadowObjects = this._pipeline.pipelineSceneData.shadowObjects;
+        if (light && shadowInfo.enabled && shadowInfo.type === ShadowType.ShadowMap) {
+            this._pipeline.pipelineUBO.updateShadowUBOLight(light);
 
-            for (let i = 0; i < this._shadowObjects.length; i++) {
-                const ro = this._shadowObjects[i];
+            for (let i = 0; i < shadowObjects.length; i++) {
+                const ro = shadowObjects[i];
                 const model = ro.model;
                 if (!getShadowPassIndex(model.subModels, _shadowPassIndices)) { continue; }
 
@@ -149,12 +126,13 @@ export class RenderShadowMapBatchedQueue {
 
     public add (model: Model, cmdBuff: CommandBuffer, _shadowPassIndices: number[]) {
         const subModels = model.subModels;
+        const shadowMapBuffer = this._pipeline.descriptorSet.getBuffer(UBOShadow.BINDING);
         for (let j = 0; j < subModels.length; j++) {
             const subModel = subModels[j];
             const shadowPassIdx = _shadowPassIndices[j];
             const pass = subModel.passes[shadowPassIdx];
             const batchingScheme = pass.batchingScheme;
-            subModel.descriptorSet.bindBuffer(UBOShadow.BINDING, this._shadowMapBuffer);
+            subModel.descriptorSet.bindBuffer(UBOShadow.BINDING, shadowMapBuffer);
             subModel.descriptorSet.update();
 
             if (batchingScheme === BatchingSchemes.INSTANCING) {            // instancing
@@ -199,63 +177,5 @@ export class RenderShadowMapBatchedQueue {
             cmdBuff.bindInputAssembler(ia);
             cmdBuff.draw(ia);
         }
-    }
-
-    private _updateUBOs (light: Light) {
-        let _x = 0;
-        let _y = 0;
-        let _far = 0;
-        switch (light.type) {
-        case LightType.DIRECTIONAL:
-            // light view
-            (light as DirectionalLight).update();
-
-            // light proj
-            if (this._shadowInfo.autoAdapt) {
-                const node = (light as DirectionalLight).node;
-                if (node) {
-                    _shadowCameraView = getShadowWorldMatrix(this._pipeline, node.getWorldRotation(), (light as DirectionalLight).direction, _vec3Center);
-                }
-                // if orthoSize is the smallest, auto calculate orthoSize.
-                const radius = this._shadowInfo.sphere.radius;
-                _x = radius * this._shadowInfo.aspect;
-                _y = radius;
-
-                const halfFar = Vec3.distance(this._shadowInfo.sphere.center, _vec3Center);
-                _far = Math.min(halfFar * Shadows.COEFFICIENT_OF_EXPANSION, Shadows.MAX_FAR);
-            } else {
-                _shadowCameraView = (light as DirectionalLight).node!.getWorldMatrix();
-
-                _x = this._shadowInfo.orthoSize * this._shadowInfo.aspect;
-                _y = this._shadowInfo.orthoSize;
-
-                _far = this._shadowInfo.far;
-            }
-
-            Mat4.invert(_matShadowView, _shadowCameraView);
-
-            Mat4.ortho(_matShadowViewProj, -_x, _x, -_y, _y, this._shadowInfo.near, _far,
-                this._device.clipSpaceMinZ, this._device.screenSpaceSignY * this._device.UVSpaceSignY);
-            break;
-        case LightType.SPOT:
-            // light view
-            Mat4.invert(_matShadowView, (light as SpotLight).node!.getWorldMatrix());
-
-            // light proj
-            Mat4.perspective(_matShadowViewProj, (light as SpotLight).spotAngle, (light as SpotLight).aspect, 0.001, (light as SpotLight).range);
-            break;
-        default:
-        }
-        // light viewProj
-        Mat4.multiply(_matShadowViewProj, _matShadowViewProj, _matShadowView);
-
-        Mat4.toArray(this._shadowUBO, _matShadowViewProj, UBOShadow.MAT_LIGHT_VIEW_PROJ_OFFSET);
-
-        Color.toArray(this._shadowUBO, this._shadowInfo.shadowColor, UBOShadow.SHADOW_COLOR_OFFSET);
-
-        _vec4ShadowInfo.set(this._shadowInfo.size.x, this._shadowInfo.size.y, this._shadowInfo.pcf, this._shadowInfo.bias);
-        Vec4.toArray(this._shadowUBO, _vec4ShadowInfo, UBOShadow.SHADOW_INFO_OFFSET);
-
-        this._descriptorSet.getBuffer(UBOShadow.BINDING).update(this._shadowUBO);
     }
 }

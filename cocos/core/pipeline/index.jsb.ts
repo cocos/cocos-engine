@@ -28,18 +28,14 @@ declare const nr: any;
 
 import { getPhaseID } from './pass-phase'
 import { RenderWindow } from '../renderer/core/render-window';
+import { setClassName } from '../../core/utils/js';
+import { PipelineSceneData } from './pipeline-scene-data';
+import { Root } from '../root';
 nr.getPhaseID = getPhaseID;
 
 export const RenderPipeline = nr.RenderPipeline;
 export const RenderFlow = nr.RenderFlow;
 export const RenderStage = nr.RenderStage;
-
-export const ForwardPipeline = nr.ForwardPipeline;
-export const ForwardFlow = nr.ForwardFlow;
-export const ForwardStage = nr.ForwardStage;
-export const ShadowFlow = nr.ShadowFlow;
-export const ShadowStage = nr.ShadowStage;
-
 export const InstancedBuffer = nr.InstancedBuffer;
 export const PipelineStateManager = nr.PipelineStateManager;
 
@@ -57,3 +53,140 @@ Object.assign(RenderWindowProto, {
         return cameras;
     },
 })
+
+let instancedBufferProto = nr.InstancedBuffer;
+let oldGetFunc = instancedBufferProto.get;
+instancedBufferProto.get = function(pass) {
+    return oldGetFunc.call(this, pass.handle);
+};
+
+let getOrCreatePipelineState = nr.PipelineStateManager.getOrCreatePipelineState;
+nr.PipelineStateManager.getOrCreatePipelineState = function(device, pass, shader, renderPass, ia) {
+    return getOrCreatePipelineState.call(this, pass.handle, shader, renderPass, ia);
+}
+  
+const RootProto = Root.prototype;
+Object.assign(RootProto, {
+    createDefaultPipeline() {
+        const pipeline = new nr.ForwardPipeline();
+        const info = new nr.RenderPipelineInfo(0, []);
+        pipeline.initialize(info);
+        return pipeline;
+    },
+})
+
+// ForwardPipeline
+export class ForwardPipeline extends nr.ForwardPipeline {
+    public pipelineSceneData = new PipelineSceneData();
+
+    constructor() {
+      super();
+      this._tag = 0;
+      this._flows = [];
+      this.renderTextures = [];
+      this.materials = [];
+    }
+  
+    public init() {
+        this.setPipelineSharedSceneData(this.pipelineSceneData.handle);
+        for (let i = 0; i < this._flows.length; i++) {
+            this._flows[i].init();
+        }
+        const info = new nr.RenderPipelineInfo(this._tag, this._flows);
+        this.initialize(info);
+    }
+
+    public destroy () {
+        this.pipelineSceneData.destroy();
+    }
+}
+// hook to invoke init after deserialization
+ForwardPipeline.prototype.onAfterDeserialize_JSB = ForwardPipeline.prototype.init;
+
+export class ForwardFlow extends nr.ForwardFlow {
+    constructor() {
+        super();
+        this._name = 0;
+        this._priority = 0;
+        this._tag = 0;
+        this._stages = [];
+    }
+    init() {
+        for (let i = 0; i < this._stages.length; i++) {
+            this._stages[i].init();
+        }
+        const info = new nr.RenderFlowInfo(this._name, this._priority, this._tag, this._stages);
+        this.initialize(info);
+    }
+}
+
+export class ShadowFlow extends nr.ShadowFlow {
+    constructor() {
+        super();
+        this._name = 0;
+        this._priority = 0;
+        this._tag = 0;
+        this._stages = [];
+    }
+    init() {
+        for (let i = 0; i < this._stages.length; i++) {
+            this._stages[i].init();
+        }
+        const info = new nr.RenderFlowInfo(this._name, this._priority, this._tag, this._stages);
+        this.initialize(info);
+    }
+}
+
+export class ForwardStage extends nr.ForwardStage {
+    constructor() {
+        super();
+        this._name = 0;
+        this._priority = 0;
+        this._tag = 0;
+        this.renderQueues = [];
+    }
+    public init() {
+        const queues = [];
+        for (let i = 0; i < this.renderQueues.length; i++) {
+            queues.push(this.renderQueues[i].init());
+        }
+        const info = new nr.RenderStageInfo(this._name, this._priority, this._tag, queues);
+        this.initialize(info);
+    }
+}
+
+export class ShadowStage extends nr.ShadowStage {
+    constructor() {
+        super();
+        this._name = 0;
+        this._priority = 0;
+        this._tag = 0;
+    }
+    public init() {
+        const info = new nr.RenderStageInfo(this._name, this._priority, this._tag, []);
+        this.initialize(info);
+    }
+}
+
+export class RenderQueueDesc {
+    public isTransparent = false;
+    public sortMode = 0;
+    public stages = [];
+
+    constructor() {
+        this.isTransparent = false;
+        this.sortMode = 0;
+        this.stages = [];
+    }
+
+    public init() {
+        return new nr.RenderQueueDesc(this.isTransparent, this.sortMode, this.stages);
+    }
+}
+
+setClassName('ForwardPipeline', ForwardPipeline);
+setClassName('ForwardFlow', ForwardFlow);
+setClassName('ShadowFlow', ShadowFlow);
+setClassName('ForwardStage', ForwardStage);
+setClassName('ShadowStage', ShadowStage);
+setClassName('RenderQueueDesc', RenderQueueDesc);

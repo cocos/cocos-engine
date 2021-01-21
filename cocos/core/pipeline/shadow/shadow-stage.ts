@@ -78,8 +78,10 @@ export class ShadowStage extends RenderStage {
     }
 
     public render (camera: Camera) {
-        const pipeline = this._pipeline as ForwardPipeline;
-        const shadowInfo = pipeline.shadows;
+        const pipeline = this._pipeline;
+        const pipelineSceneData = pipeline.pipelineSceneData;
+        const shadowInfo = pipelineSceneData.shadows;
+        const shadingScale = pipelineSceneData.shadingScale;
 
         const cmdBuff = pipeline.commandBuffers[0];
 
@@ -90,8 +92,8 @@ export class ShadowStage extends RenderStage {
         const shadowMapSize = shadowInfo.size;
         this._renderArea.x = vp.x * shadowMapSize.x;
         this._renderArea.y = vp.y * shadowMapSize.y;
-        this._renderArea.width =  vp.width * shadowMapSize.x * pipeline.shadingScale;
-        this._renderArea.height = vp.height * shadowMapSize.y * pipeline.shadingScale;
+        this._renderArea.width =  vp.width * shadowMapSize.x * shadingScale;
+        this._renderArea.height = vp.height * shadowMapSize.y * shadingScale;
 
         const device = pipeline.device;
         const renderPass = this._shadowFrameBuffer.renderPass;
