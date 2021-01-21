@@ -1467,6 +1467,13 @@ if(ANDROID)
     )
 endif()
 
+if(IOS)
+    set_target_properties(cocos2d PROPERTIES
+        ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/archives
+        OSX_ARCHITECTURES "arm64;x86_64"
+    )
+endif()
+
 # setup default flags
 target_compile_definitions(cocos2d PUBLIC
     $<IF:$<BOOL:${USE_VIDEO}>,USE_VIDEO=1,USE_VIDEO=0>
