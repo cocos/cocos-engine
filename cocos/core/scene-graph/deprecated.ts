@@ -121,7 +121,11 @@ replaceProperty(Node.prototype, 'Node', [
         name: 'setContentSize',
         targetName: 'node.getComponent(UITransform)',
         customFunction (this: Node, size: Size | number, height?: number) {
-            this._uiProps.uiTransformComp!.setContentSize(size, height);
+            if (typeof size === 'number') {
+                this._uiProps.uiTransformComp!.setContentSize(size, height!);
+            } else {
+                this._uiProps.uiTransformComp!.setContentSize(size);
+            }
         },
     },
 ]);
