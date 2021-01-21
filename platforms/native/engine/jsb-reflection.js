@@ -25,10 +25,22 @@
  ****************************************************************************/
 
 // JS to Native bridges
-if(window.JavascriptJavaBridge && cc.sys.os == cc.sys.OS_ANDROID){
-    jsb.reflection = new JavascriptJavaBridge();
-    cc.sys.capabilities["keyboard"] = true;
-}
-else if(window.JavaScriptObjCBridge && (cc.sys.os == cc.sys.OS_IOS || cc.sys.os == cc.sys.OS_OSX)){
-    jsb.reflection = new JavaScriptObjCBridge();
-}
+// set to lazy
+Object.defineProperty(jsb, "reflection", {
+    get: function () {
+        if (jsb.__bridge !== undefined) return jsb.__bridge;
+        if (window.JavascriptJavaBridge && cc.sys.os === cc.sys.OS_ANDROID) {
+            jsb.__bridge = new JavascriptJavaBridge();
+        } else if (window.JavaScriptObjCBridge && (cc.sys.os === cc.sys.OS_IOS || cc.sys.os === cc.sys.OS_OSX)) {
+            jsb.__bridge = new JavaScriptObjCBridge();
+        }else   {
+            jsb.__bridge = null;
+        }
+        return jsb.__bridge;
+    },
+    enumerable: true,
+    configurable: true,
+    set: function (value) {
+        jsb.__bridge = value;
+    }
+})

@@ -72,7 +72,7 @@ Object.assign(sys, {
             imageBitmap: false,
             touches: this.isMobile,
             mouse: !this.isMobile,
-            keyboard: !this.isMobile,
+            keyboard: !this.isMobile || (window.JavascriptJavaBridge && cc.sys.os === cc.sys.OS_ANDROID),
             accelerometer: this.isMobile,
         };
 
