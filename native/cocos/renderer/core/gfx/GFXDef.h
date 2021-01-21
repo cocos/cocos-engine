@@ -329,12 +329,6 @@ bool isCombinedImageSampler(Type type);
 bool isSampledImage(Type type);
 bool isStorageImage(Type type);
 
-enum class UniformMemoryAccessType {
-    READ_ONLY,
-    WRITE_ONLY,
-    READ_WRITE,
-};
-
 enum class BufferUsageBit : FlagBits {
     NONE = 0,
     TRANSFER_SRC = 0x1,
@@ -355,13 +349,13 @@ enum class BufferFlagBit : FlagBits {
 typedef BufferFlagBit BufferFlags;
 CC_ENUM_OPERATORS(BufferFlagBit);
 
-enum class BufferAccessBit : FlagBits {
+enum class MemoryAccessBit : FlagBits {
     NONE = 0,
-    READ = 0x1,
-    WRITE = 0x2,
+    READ_ONLY = 0x1,
+    WRITE_ONLY = 0x2,
+    READ_WRITE = READ_ONLY | WRITE_ONLY,
 };
-typedef BufferAccessBit BufferAccess;
-CC_ENUM_OPERATORS(BufferAccessBit);
+typedef MemoryAccessBit MemoryAccess;
 
 enum class MemoryUsageBit : FlagBits {
     NONE = 0,
@@ -397,9 +391,8 @@ CC_ENUM_OPERATORS(TextureUsageBit);
 enum class TextureFlagBit : FlagBits {
     NONE = 0,
     GEN_MIPMAP = 0x1,
-    CUBEMAP = 0x2,
-    BAKUP_BUFFER = 0x4,
-    IMMUTABLE = 0x8,
+    BAKUP_BUFFER = 0x2,
+    IMMUTABLE = 0x4,
 };
 typedef TextureFlagBit TextureFlags;
 CC_ENUM_OPERATORS(TextureFlagBit);
@@ -510,20 +503,9 @@ enum class StoreOp {
     DISCARD, // Don't write the source to the destination
 };
 
-enum class TextureLayout {
-    UNDEFINED,
-    GENERAL,
-    COLOR_ATTACHMENT_OPTIMAL,
-    DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
-    DEPTH_STENCIL_READONLY_OPTIMAL,
-    SHADER_READONLY_OPTIMAL,
-    TRANSFER_SRC_OPTIMAL,
-    TRANSFER_DST_OPTIMAL,
-    PREINITIALIZED,
-    PRESENT_SRC,
-};
-
 enum class AccessType {
+    NONE,
+
     // Read access
     INDIRECT_BUFFER,                                     // Read as an indirect buffer for drawing or dispatch
     INDEX_BUFFER,                                        // Read as an index buffer for drawing
@@ -556,13 +538,37 @@ enum class AccessType {
     HOST_WRITE,                     // Written on the host
 };
 
-typedef cc::vector<AccessType> AccessTypeList;
+namespace AccessTypeV {
+extern const AccessType INDIRECT_BUFFER;
+extern const AccessType INDEX_BUFFER;
+extern const AccessType VERTEX_BUFFER;
+extern const AccessType VERTEX_SHADER_READ_UNIFORM_BUFFER;
+extern const AccessType VERTEX_SHADER_READ_TEXTURE;
+extern const AccessType VERTEX_SHADER_READ_OTHER;
+extern const AccessType FRAGMENT_SHADER_READ_UNIFORM_BUFFER;
+extern const AccessType FRAGMENT_SHADER_READ_TEXTURE;
+extern const AccessType FRAGMENT_SHADER_READ_COLOR_INPUT_ATTACHMENT;
+extern const AccessType FRAGMENT_SHADER_READ_DEPTH_STENCIL_INPUT_ATTACHMENT;
+extern const AccessType FRAGMENT_SHADER_READ_OTHER;
+extern const AccessType COLOR_ATTACHMENT_READ;
+extern const AccessType DEPTH_STENCIL_ATTACHMENT_READ;
+extern const AccessType COMPUTE_SHADER_READ_UNIFORM_BUFFER;
+extern const AccessType COMPUTE_SHADER_READ_TEXTURE;
+extern const AccessType COMPUTE_SHADER_READ_OTHER;
+extern const AccessType TRANSFER_READ;
+extern const AccessType HOST_READ;
+extern const AccessType PRESENT;
+extern const AccessType VERTEX_SHADER_WRITE;
+extern const AccessType FRAGMENT_SHADER_WRITE;
+extern const AccessType COLOR_ATTACHMENT_WRITE;
+extern const AccessType DEPTH_STENCIL_ATTACHMENT_WRITE;
+extern const AccessType COMPUTE_SHADER_WRITE;
+extern const AccessType TRANSFER_WRITE;
+extern const AccessType HOST_PREINITIALIZED;
+extern const AccessType HOST_WRITE;
+} // namespace AccessTypeV
 
-// for texture barriers the exact layout can be inferred from access types
-enum class TextureBarrierLayout {
-    OPTIMAL,
-    GENERAL,
-};
+typedef cc::vector<AccessType> AccessTypeList;
 
 enum class PipelineBindPoint {
     GRAPHICS,
@@ -815,7 +821,6 @@ struct Viewport {
     }
 };
 
-#pragma pack(push, 1)
 struct Color {
     float x = 0.0f;
     float y = 0.0f;
@@ -829,7 +834,6 @@ struct Color {
                 math::IsEqualF(w, rhs.w));
     }
 };
-#pragma pack(pop)
 typedef cc::vector<Color> ColorList;
 
 /**
@@ -894,7 +898,6 @@ struct BufferViewInfo {
     uint range = 0u;
 };
 
-#pragma pack(push, 1)
 struct DrawInfo {
     uint vertexCount = 0;
     uint firstVertex = 0;
@@ -904,11 +907,9 @@ struct DrawInfo {
     uint instanceCount = 0;
     uint firstInstance = 0;
 };
-#pragma pack(pop)
 
 typedef cc::vector<DrawInfo> DrawInfoList;
 
-#pragma pack(push, 1)
 struct DispatchInfo {
     uint groupCountX = 0;
     uint groupCountY = 0;
@@ -917,7 +918,6 @@ struct DispatchInfo {
     Buffer *indirectBuffer = nullptr;
     uint indirectOffset = 0;
 };
-#pragma pack(pop)
 
 typedef cc::vector<DispatchInfo> DispatchInfoList;
 
@@ -1023,7 +1023,7 @@ struct UniformStorageImage {
     String name;
     Type type = Type::UNKNOWN;
     uint count = 0u;
-    UniformMemoryAccessType memoryAccess = UniformMemoryAccessType::READ_WRITE;
+    MemoryAccess memoryAccess = MemoryAccess::READ_WRITE;
 };
 
 typedef cc::vector<UniformStorageImage> UniformStorageImageList;
@@ -1033,7 +1033,7 @@ struct UniformStorageBuffer {
     uint binding = 0u;
     String name;
     uint count = 0u;
-    UniformMemoryAccessType memoryAccess = UniformMemoryAccessType::READ_WRITE;
+    MemoryAccess memoryAccess = MemoryAccess::READ_WRITE;
 };
 
 typedef cc::vector<UniformStorageBuffer> UniformStorageBufferList;
@@ -1048,7 +1048,7 @@ struct UniformInputAttachment {
 typedef cc::vector<UniformInputAttachment> UniformInputAttachmentList;
 
 struct ShaderStage {
-    ShaderStageFlagBit stage;
+    ShaderStageFlagBit stage = ShaderStageFlagBit::NONE;
     String source;
 };
 
@@ -1089,24 +1089,24 @@ struct InputAssemblerInfo {
 
 struct ColorAttachment {
     Format format = Format::UNKNOWN;
-    uint sampleCount = 1;
+    SampleCount sampleCount = SampleCount::X1;
     LoadOp loadOp = LoadOp::CLEAR;
     StoreOp storeOp = StoreOp::STORE;
-    TextureLayout beginLayout = TextureLayout::UNDEFINED;
-    TextureLayout endLayout = TextureLayout::PRESENT_SRC;
+    AccessType beginAccess = AccessType::NONE;
+    AccessType endAccess = AccessType::PRESENT;
 };
 
 typedef cc::vector<ColorAttachment> ColorAttachmentList;
 
 struct DepthStencilAttachment {
     Format format = Format::UNKNOWN;
-    uint sampleCount = 1;
+    SampleCount sampleCount = SampleCount::X1;
     LoadOp depthLoadOp = LoadOp::CLEAR;
     StoreOp depthStoreOp = StoreOp::STORE;
     LoadOp stencilLoadOp = LoadOp::CLEAR;
     StoreOp stencilStoreOp = StoreOp::STORE;
-    TextureLayout beginLayout = TextureLayout::UNDEFINED;
-    TextureLayout endLayout = TextureLayout::DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+    AccessType beginAccess = AccessType::NONE;
+    AccessType endAccess = AccessType::DEPTH_STENCIL_ATTACHMENT_WRITE;
 };
 
 struct SubPassInfo {
@@ -1127,28 +1127,39 @@ struct RenderPassInfo {
 };
 
 struct GlobalBarrier {
-    AccessType *prevAccesses = nullptr;
+    AccessType const *prevAccesses = nullptr;
     uint prevAccessCount = 0u;
-    AccessType *nextAccesses = nullptr;
+    AccessType const *nextAccesses = nullptr;
     uint nextAccessCount = 0u;
 };
 typedef cc::vector<GlobalBarrier> GlobalBarrierList;
 
 struct TextureBarrier {
-    AccessType *prevAccesses;
-    uint prevAccessCount;
-    AccessType *nextAccesses;
-    uint nextAccessCount;
+    AccessType const *prevAccesses = nullptr;
+    uint prevAccessCount = 0u;
+    AccessType const *nextAccesses = nullptr;
+    uint nextAccessCount = 0u;
 
-    TextureBarrierLayout prevLayout = TextureBarrierLayout::OPTIMAL;
-    TextureBarrierLayout nextLayout = TextureBarrierLayout::OPTIMAL;
     bool discardContents = false;
     Texture *texture = nullptr;
 
     Queue *srcQueue = nullptr;
     Queue *dstQueue = nullptr;
 };
-typedef cc::vector<TextureBarrier> ImageBarrierList;
+typedef cc::vector<TextureBarrier> TextureBarrierList;
+
+struct BufferBarrier {
+    AccessType const *prevAccesses = nullptr;
+    uint prevAccessCount = 0u;
+    AccessType const *nextAccesses = nullptr;
+    uint nextAccessCount = 0u;
+
+    Buffer *buffer = nullptr;
+
+    Queue *srcQueue = nullptr;
+    Queue *dstQueue = nullptr;
+};
+typedef cc::vector<BufferBarrier> BufferBarrierList;
 
 typedef cc::vector<Buffer *> BufferList;
 typedef cc::vector<Texture *> TextureList;
@@ -1166,7 +1177,7 @@ struct DescriptorSetLayoutBinding {
     uint binding = GFX_INVALID_BINDING;
     DescriptorType descriptorType = DescriptorType::UNKNOWN;
     uint count = 0;
-    ShaderStageFlagBit stageFlags = ShaderStageFlagBit::NONE;
+    ShaderStageFlags stageFlags = ShaderStageFlagBit::NONE;
     SamplerList immutableSamplers;
 };
 typedef cc::vector<DescriptorSetLayoutBinding> DescriptorSetLayoutBindingList;
@@ -1287,21 +1298,21 @@ struct FormatInfo {
     bool isCompressed = false;
 };
 
-extern CC_DLL const DescriptorType DESCRIPTOR_BUFFER_TYPE;
-extern CC_DLL const DescriptorType DESCRIPTOR_TEXTURE_TYPE;
-extern CC_DLL const DescriptorType DESCRIPTOR_DYNAMIC_TYPE;
+extern const DescriptorType DESCRIPTOR_BUFFER_TYPE;
+extern const DescriptorType DESCRIPTOR_TEXTURE_TYPE;
+extern const DescriptorType DESCRIPTOR_DYNAMIC_TYPE;
 
-extern CC_DLL const FormatInfo GFX_FORMAT_INFOS[];
-extern CC_DLL const uint GFX_TYPE_SIZES[];
+extern const FormatInfo GFX_FORMAT_INFOS[];
+extern const uint GFX_TYPE_SIZES[];
 
 struct MemoryStatus {
     uint bufferSize = 0;
     uint textureSize = 0;
 };
 
-extern CC_DLL uint FormatSize(Format format, uint width, uint height, uint depth);
+extern uint FormatSize(Format format, uint width, uint height, uint depth);
 
-extern CC_DLL uint FormatSurfaceSize(Format format, uint width, uint height, uint depth, uint mips);
+extern uint FormatSurfaceSize(Format format, uint width, uint height, uint depth, uint mips);
 
 } // namespace gfx
 } // namespace cc

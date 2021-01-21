@@ -27,8 +27,8 @@ THE SOFTWARE.
 #include "VKCommands.h"
 #include "VKDescriptorSet.h"
 #include "VKDescriptorSetLayout.h"
-#include "VKPipelineLayout.h"
 #include "VKDevice.h"
+#include "VKPipelineLayout.h"
 #include "VKSampler.h"
 #include "VKShader.h"
 #include "VKTexture.h"
@@ -60,8 +60,37 @@ bool CCVKDescriptorSet::initialize(const DescriptorSetInfo &info) {
 
     for (size_t i = 0u, k = 0u; i < bindingCount; ++i) {
         const DescriptorSetLayoutBinding &binding = gpuDescriptorSetLayout->bindings[i];
+        CCVKGPUDescriptor &gpuDescriptor = _gpuDescriptorSet->gpuDescriptors[k];
         for (uint j = 0; j < binding.count; ++j, ++k) {
-            _gpuDescriptorSet->gpuDescriptors[k].type = binding.descriptorType;
+            gpuDescriptor.type = binding.descriptorType;
+            switch (binding.descriptorType) {
+                case DescriptorType::UNIFORM_BUFFER:
+                case DescriptorType::DYNAMIC_UNIFORM_BUFFER:
+                    if (binding.stageFlags & ShaderStageFlags::COMPUTE) gpuDescriptor.accessTypes.push_back(THSVS_ACCESS_COMPUTE_SHADER_READ_UNIFORM_BUFFER);
+                    if (binding.stageFlags & ShaderStageFlags::VERTEX) gpuDescriptor.accessTypes.push_back(THSVS_ACCESS_VERTEX_SHADER_READ_UNIFORM_BUFFER);
+                    if (binding.stageFlags & ShaderStageFlags::FRAGMENT) gpuDescriptor.accessTypes.push_back(THSVS_ACCESS_FRAGMENT_SHADER_READ_UNIFORM_BUFFER);
+                    break;
+                case DescriptorType::STORAGE_BUFFER:
+                case DescriptorType::DYNAMIC_STORAGE_BUFFER:
+                case DescriptorType::STORAGE_IMAGE:
+                    // here we don't handle write accesses, which should be handled manually
+                    if (binding.stageFlags & ShaderStageFlags::COMPUTE) gpuDescriptor.accessTypes.push_back(THSVS_ACCESS_COMPUTE_SHADER_READ_OTHER);
+                    if (binding.stageFlags & ShaderStageFlags::VERTEX) gpuDescriptor.accessTypes.push_back(THSVS_ACCESS_VERTEX_SHADER_READ_OTHER);
+                    if (binding.stageFlags & ShaderStageFlags::FRAGMENT) gpuDescriptor.accessTypes.push_back(THSVS_ACCESS_FRAGMENT_SHADER_READ_OTHER);
+                    break;
+                case DescriptorType::SAMPLER_TEXTURE:
+                case DescriptorType::TEXTURE:
+                    if (binding.stageFlags & ShaderStageFlags::COMPUTE) gpuDescriptor.accessTypes.push_back(THSVS_ACCESS_COMPUTE_SHADER_READ_SAMPLED_IMAGE_OR_UNIFORM_TEXEL_BUFFER);
+                    if (binding.stageFlags & ShaderStageFlags::VERTEX) gpuDescriptor.accessTypes.push_back(THSVS_ACCESS_VERTEX_SHADER_READ_SAMPLED_IMAGE_OR_UNIFORM_TEXEL_BUFFER);
+                    if (binding.stageFlags & ShaderStageFlags::FRAGMENT) gpuDescriptor.accessTypes.push_back(THSVS_ACCESS_FRAGMENT_SHADER_READ_SAMPLED_IMAGE_OR_UNIFORM_TEXEL_BUFFER);
+                    break;
+                case DescriptorType::INPUT_ATTACHMENT:
+                    gpuDescriptor.accessTypes.push_back(THSVS_ACCESS_FRAGMENT_SHADER_READ_COLOR_INPUT_ATTACHMENT);
+                    break;
+                case DescriptorType::SAMPLER:
+                default:
+                    break;
+            }
         }
     }
 
@@ -172,6 +201,7 @@ void CCVKDescriptorSet::destroy() {
 void CCVKDescriptorSet::update() {
     if (_isDirty && _gpuDescriptorSet) {
         CCVKGPUDescriptorHub *descriptorHub = ((CCVKDevice *)_device)->gpuDescriptorHub();
+        CCVKGPUTextureLayoutManager *layoutMgr = ((CCVKDevice *)_device)->gpuTextureLayoutManager();
         uint descriptorCount = _gpuDescriptorSet->gpuDescriptors.size();
 
         for (size_t i = 0u; i < descriptorCount; i++) {
@@ -207,6 +237,7 @@ void CCVKDescriptorSet::update() {
                             if (textureView) {
                                 descriptorHub->connect(textureView, &descriptorInfo.image);
                                 descriptorHub->update(textureView, &descriptorInfo.image);
+                                layoutMgr->checkIn(textureView->gpuTexture, binding.accessTypes.data(), binding.accessTypes.size());
                             }
                         }
                         binding.gpuTextureView = textureView;

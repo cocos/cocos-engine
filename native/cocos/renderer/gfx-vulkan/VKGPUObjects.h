@@ -58,7 +58,10 @@ public:
     ColorAttachmentList colorAttachments;
     DepthStencilAttachment depthStencilAttachment;
     SubPassInfoList subPasses;
+
     VkRenderPass vkRenderPass;
+
+    // helper storage
     vector<VkClearValue> clearValues;
 };
 
@@ -75,15 +78,15 @@ public:
     uint mipLevels = 1u;
     SampleCount samples = SampleCount::X1;
     TextureFlags flags = TextureFlagBit::NONE;
+    VkImageAspectFlags aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+    ThsvsImageLayout layoutRule = THSVS_IMAGE_LAYOUT_OPTIMAL;
     bool isPowerOf2 = false;
 
     VkImage vkImage = VK_NULL_HANDLE;
     VmaAllocation vmaAllocation = VK_NULL_HANDLE;
-    VkImageLayout layout = VK_IMAGE_LAYOUT_UNDEFINED;
-    VkImageLayout currentLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-    VkAccessFlags accessMask = VK_ACCESS_SHADER_READ_BIT;
-    VkImageAspectFlags aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-    VkPipelineStageFlags targetStage = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+
+    vector<ThsvsAccessType> currentAccessTypes;
+    vector<ThsvsAccessType> renderAccessTypes; // gathered from desriptor sets
 };
 
 class CCVKGPUTextureView final : public Object {
@@ -132,9 +135,6 @@ public:
     vector<VkDrawIndirectCommand> indirectCmds;
     vector<VkDrawIndexedIndirectCommand> indexedIndirectCmds;
 
-    VkAccessFlags accessMask = VK_ACCESS_SHADER_READ_BIT;
-    VkPipelineStageFlags targetStage = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
-
     uint8_t *mappedData = nullptr;
     VmaAllocation vmaAllocation = VK_NULL_HANDLE;
 
@@ -175,8 +175,8 @@ public:
     VkSwapchainKHR vkSwapchain = VK_NULL_HANDLE;
     vector<VkImageView> vkSwapchainImageViews;
     FramebufferListMap vkSwapchainFramebufferListMap;
-    vector<VkImageLayout> swapchainImageLayouts;
-    vector<VkImageLayout> depthStencilImageLayouts;
+    vector<vector<ThsvsAccessType>> swapchainImageAccessTypes;
+    vector<vector<ThsvsAccessType>> depthStencilImageAccessTypes;
     // external references
     vector<VkImage> swapchainImages;
     vector<VkImage> depthStencilImages;
@@ -206,7 +206,7 @@ struct CCVKGPUShaderStage {
     CCVKGPUShaderStage(ShaderStageFlagBit t, String s)
     : type(t), source(s) {
     }
-    ShaderStageFlagBit type;
+    ShaderStageFlagBit type = ShaderStageFlagBit::NONE;
     String source;
     VkShaderModule vkShader = VK_NULL_HANDLE;
 };
@@ -238,6 +238,7 @@ union CCVKDescriptorInfo {
 };
 struct CCVKGPUDescriptor {
     DescriptorType type = DescriptorType::UNKNOWN;
+    vector<ThsvsAccessType> accessTypes;
     CCVKGPUBufferView *gpuBufferView = nullptr;
     CCVKGPUTextureView *gpuTextureView = nullptr;
     CCVKGPUSampler *gpuSampler = nullptr;
@@ -326,7 +327,7 @@ public:
 
     CommandBufferPools commandBufferPools;
 
-    CCVKGPUCommandBufferPool *getCommandBufferPool(std::thread::id threadID);
+    CCVKGPUCommandBufferPool *getCommandBufferPool();
 };
 
 /**
@@ -905,6 +906,60 @@ private:
     vector<unordered_set<CCVKGPUDescriptorSet *>> _setsToBeUpdated;
 };
 
+class CCVKGPUTextureLayoutManager final : public Object {
+public:
+    CCVKGPUTextureLayoutManager(CCVKGPUDevice *device)
+    : _device(device) {}
+
+    void checkIn(CCVKGPUTexture *gpuTexture, const ThsvsAccessType *newTypes = nullptr, uint newTypeCount = 0) {
+        vector<ThsvsAccessType> &target = gpuTexture->renderAccessTypes;
+        for (uint i = 0u; i < newTypeCount; ++i) {
+            if (std::find(target.begin(), target.end(), newTypes[i]) == target.end()) {
+                target.push_back(newTypes[i]);
+            }
+        }
+        if (!std::is_permutation(gpuTexture->currentAccessTypes.begin(), gpuTexture->currentAccessTypes.end(), target.begin(), target.end())) {
+            _texturesToBeChecked.insert(gpuTexture);
+        }
+    }
+
+    void update(CCVKGPUCommandBuffer *cmdBuffer) {
+        ThsvsImageBarrier barrier{};
+        VkPipelineStageFlags srcStages = 0;
+        VkPipelineStageFlags dstStages = 0;
+        VkImageMemoryBarrier vkBarrier;
+
+        for (CCVKGPUTexture *gpuTexture : _texturesToBeChecked) {
+            barrier.prevAccessCount = gpuTexture->currentAccessTypes.size();
+            barrier.pPrevAccesses = gpuTexture->currentAccessTypes.data();
+            barrier.nextAccessCount = gpuTexture->renderAccessTypes.size();
+            barrier.pNextAccesses = gpuTexture->renderAccessTypes.data();
+            barrier.discardContents = false;
+            barrier.prevLayout = gpuTexture->layoutRule;
+            barrier.nextLayout = gpuTexture->layoutRule;
+            barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+            barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+            barrier.image = gpuTexture->vkImage;
+            barrier.subresourceRange.aspectMask = gpuTexture->aspectMask;
+            barrier.subresourceRange.levelCount = VK_REMAINING_MIP_LEVELS;
+            barrier.subresourceRange.layerCount = VK_REMAINING_ARRAY_LAYERS;
+            thsvsGetVulkanImageMemoryBarrier(barrier, &srcStages, &dstStages, &vkBarrier);
+
+            if (vkBarrier.oldLayout != vkBarrier.newLayout) {
+                vkCmdPipelineBarrier(cmdBuffer->vkCommandBuffer, srcStages, dstStages, 0, 0, nullptr, 0, nullptr, 1, &vkBarrier);
+            }
+            gpuTexture->currentAccessTypes = gpuTexture->renderAccessTypes;
+        }
+        _texturesToBeChecked.clear();
+    }
+
+    CC_INLINE bool needUpdate() { return !_texturesToBeChecked.empty(); }
+
+private:
+    unordered_set<CCVKGPUTexture *> _texturesToBeChecked;
+    CCVKGPUDevice *_device = nullptr;
+};
+
 /**
  * Manages buffer update events, across all back buffer instances.
  */
@@ -1046,8 +1101,13 @@ private:
 //#define ASYNC_BUFFER_UPDATE
 class CCVKGPUTransportHub final : public Object {
 public:
-    CCVKGPUTransportHub(CCVKGPUDevice *device)
-    : _device(device) {
+    CCVKGPUTransportHub(CCVKGPUDevice *device, CCVKGPUQueue *queue)
+    : _device(device), _queue(queue) {
+        _cmdBuff.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+        _cmdBuff.queueFamilyIndex = _queue->queueFamilyIndex;
+
+        VkFenceCreateInfo createInfo{VK_STRUCTURE_TYPE_FENCE_CREATE_INFO};
+        VK_CHECK(vkCreateFence(_device->vkDevice, &createInfo, nullptr, &_fence));
     }
 
     ~CCVKGPUTransportHub() {
@@ -1057,23 +1117,13 @@ public:
         }
     }
 
-    void link(CCVKGPUQueue *queue) {
-        _queue = queue;
-
-        _cmdBuff.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-        _cmdBuff.queueFamilyIndex = _queue->queueFamilyIndex;
-
-        VkFenceCreateInfo createInfo{VK_STRUCTURE_TYPE_FENCE_CREATE_INFO};
-        VK_CHECK(vkCreateFence(_device->vkDevice, &createInfo, nullptr, &_fence));
-    }
-
     CC_INLINE bool empty() {
         return !_cmdBuff.vkCommandBuffer;
     }
 
     template <typename TFunc>
     void checkIn(const TFunc &record, bool immediateSubmission = false) {
-        CCVKGPUCommandBufferPool *commandBufferPool = _device->getCommandBufferPool(std::this_thread::get_id());
+        CCVKGPUCommandBufferPool *commandBufferPool = _device->getCommandBufferPool();
 
         if (!_cmdBuff.vkCommandBuffer) {
             commandBufferPool->request(&_cmdBuff);
@@ -1097,21 +1147,19 @@ public:
         }
     }
 
-    void depart() {
-        if (_cmdBuff.vkCommandBuffer) {
-            CCVKGPUCommandBufferPool *commandBufferPool = _device->getCommandBufferPool(std::this_thread::get_id());
-
-            VK_CHECK(vkEndCommandBuffer(_cmdBuff.vkCommandBuffer));
-            _queue->commandBuffers.push(_cmdBuff.vkCommandBuffer);
-            commandBufferPool->yield(&_cmdBuff);
-            _cmdBuff.vkCommandBuffer = VK_NULL_HANDLE;
+    VkCommandBuffer readyForFlight() {
+        VkCommandBuffer vkCommandBuffer = _cmdBuff.vkCommandBuffer;
+        if (vkCommandBuffer) {
+            VK_CHECK(vkEndCommandBuffer(vkCommandBuffer));
+            _device->getCommandBufferPool()->yield(&_cmdBuff);
         }
+        return vkCommandBuffer;
     }
 
 private:
     CCVKGPUDevice *_device = nullptr;
-    CCVKGPUQueue *_queue = nullptr;
 
+    CCVKGPUQueue *_queue = nullptr;
     CCVKGPUCommandBuffer _cmdBuff;
     VkFence _fence = VK_NULL_HANDLE;
 };

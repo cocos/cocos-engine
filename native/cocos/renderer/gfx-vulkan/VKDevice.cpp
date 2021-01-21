@@ -309,11 +309,11 @@ bool CCVKDevice::initialize(const DeviceInfo &info) {
     }
 
     _gpuBufferHub = CC_NEW(CCVKGPUBufferHub(_gpuDevice));
-    _gpuTransportHub = CC_NEW(CCVKGPUTransportHub(_gpuDevice));
-    _gpuTransportHub->link(((CCVKQueue *)_queue)->gpuQueue());
+    _gpuTransportHub = CC_NEW(CCVKGPUTransportHub(_gpuDevice, ((CCVKQueue *)_queue)->gpuQueue()));
     _gpuDescriptorHub = CC_NEW(CCVKGPUDescriptorHub(_gpuDevice));
     _gpuSemaphorePool = CC_NEW(CCVKGPUSemaphorePool(_gpuDevice));
     _gpuDescriptorSetHub = CC_NEW(CCVKGPUDescriptorSetHub(_gpuDevice));
+    _gpuTextureLayoutManager = CC_NEW(CCVKGPUTextureLayoutManager(_gpuDevice));
 
     CommandBufferInfo cmdBuffInfo;
     cmdBuffInfo.type = CommandBufferType::PRIMARY;
@@ -411,6 +411,7 @@ void CCVKDevice::destroy() {
     CC_SAFE_DELETE(_gpuSemaphorePool);
     CC_SAFE_DELETE(_gpuDescriptorHub);
     CC_SAFE_DELETE(_gpuDescriptorSetHub);
+    CC_SAFE_DELETE(_gpuTextureLayoutManager);
 
     uint backBufferCount = ((CCVKContext *)_context)->gpuContext()->swapchainCreateInfo.minImageCount;
     for (uint i = 0u; i < backBufferCount; i++) {
@@ -718,8 +719,8 @@ bool CCVKDevice::checkSwapchainStatus() {
         },
         true); // submit immediately
 
-    _gpuSwapchain->swapchainImageLayouts.assign(imageCount, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
-    _gpuSwapchain->depthStencilImageLayouts.assign(imageCount, hasStencil ? VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL : VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL);
+    _gpuSwapchain->swapchainImageAccessTypes.assign(imageCount, {THSVS_ACCESS_PRESENT});
+    _gpuSwapchain->depthStencilImageAccessTypes.assign(imageCount, {THSVS_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ});
 
     for (FramebufferListMapIter it = _gpuSwapchain->vkSwapchainFramebufferListMap.begin();
          it != _gpuSwapchain->vkSwapchainFramebufferListMap.end(); it++) {
@@ -731,8 +732,8 @@ bool CCVKDevice::checkSwapchainStatus() {
 
 void CCVKDevice::destroySwapchain() {
     if (_gpuSwapchain->vkSwapchain != VK_NULL_HANDLE) {
-        _gpuSwapchain->swapchainImageLayouts.clear();
-        _gpuSwapchain->depthStencilImageLayouts.clear();
+        _gpuSwapchain->swapchainImageAccessTypes.clear();
+        _gpuSwapchain->depthStencilImageAccessTypes.clear();
 
         _gpuSwapchain->depthStencilImageViews.clear();
         _gpuSwapchain->depthStencilImages.clear();

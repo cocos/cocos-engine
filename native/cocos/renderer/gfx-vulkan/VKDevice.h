@@ -38,6 +38,7 @@ class CCVKGPUTransportHub;
 class CCVKGPUDescriptorHub;
 class CCVKGPUSemaphorePool;
 class CCVKGPUDescriptorSetHub;
+class CCVKGPUTextureLayoutManager;
 
 class CCVKGPUFencePool;
 class CCVKGPURecycleBin;
@@ -86,6 +87,7 @@ public:
     CC_INLINE CCVKGPUDescriptorHub *gpuDescriptorHub() { return _gpuDescriptorHub; }
     CC_INLINE CCVKGPUSemaphorePool *gpuSemaphorePool() { return _gpuSemaphorePool; }
     CC_INLINE CCVKGPUDescriptorSetHub *gpuDescriptorSetHub() { return _gpuDescriptorSetHub; }
+    CC_INLINE CCVKGPUTextureLayoutManager *gpuTextureLayoutManager() { return _gpuTextureLayoutManager; }
 
     CCVKGPUFencePool *gpuFencePool();
     CCVKGPURecycleBin *gpuRecycleBin();
@@ -124,6 +126,7 @@ private:
     CCVKGPUDescriptorHub *_gpuDescriptorHub = nullptr;
     CCVKGPUSemaphorePool *_gpuSemaphorePool = nullptr;
     CCVKGPUDescriptorSetHub *_gpuDescriptorSetHub = nullptr;
+    CCVKGPUTextureLayoutManager *_gpuTextureLayoutManager = nullptr;
 
     vector<const char *> _layers;
     vector<const char *> _extensions;

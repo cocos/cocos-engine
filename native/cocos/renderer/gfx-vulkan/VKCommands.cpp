@@ -37,7 +37,8 @@ THE SOFTWARE.
 namespace cc {
 namespace gfx {
 
-CCVKGPUCommandBufferPool *CCVKGPUDevice::getCommandBufferPool(std::thread::id threadID) {
+CCVKGPUCommandBufferPool *CCVKGPUDevice::getCommandBufferPool() {
+    std::thread::id threadID = std::this_thread::get_id();
     if (!commandBufferPools.count(threadID)) {
         //std::scoped_lock<std::mutex> guard(mutex);
         commandBufferPools[threadID] = CC_NEW(CCVKGPUCommandBufferPool(this));
@@ -130,10 +131,8 @@ void CCVKCmdFuncCreateTexture(CCVKDevice *device, CCVKGPUTexture *gpuTexture) {
     VK_CHECK(vmaCreateImage(device->gpuDevice()->memoryAllocator, &createInfo, &allocInfo, &gpuTexture->vkImage, &gpuTexture->vmaAllocation, &res));
     //CC_LOG_DEBUG("Allocated texture: %llu %llx %llx %llu %x", res.size, gpuTexture->vkImage, res.deviceMemory, res.offset, res.pMappedData);
 
-    gpuTexture->layout = MapVkImageLayout(gpuTexture->usage, gpuTexture->format);
-    gpuTexture->accessMask = MapVkAccessFlags(gpuTexture->usage);
     gpuTexture->aspectMask = MapVkImageAspectFlags(gpuTexture->format);
-    gpuTexture->targetStage = MapVkPipelineStageFlags(gpuTexture->usage);
+    gpuTexture->layoutRule = gpuTexture->usage & TextureUsage::STORAGE ? THSVS_IMAGE_LAYOUT_GENERAL : THSVS_IMAGE_LAYOUT_OPTIMAL; // as per vulkan spec
 }
 
 void CCVKCmdFuncCreateTextureView(CCVKDevice *device, CCVKGPUTextureView *gpuTextureView) {
@@ -215,9 +214,6 @@ void CCVKCmdFuncCreateBuffer(CCVKDevice *device, CCVKGPUBuffer *gpuBuffer) {
 
     gpuBuffer->mappedData = (uint8_t *)res.pMappedData;
     gpuBuffer->startOffset = 0; // we are creating one VkBuffer each for now
-
-    gpuBuffer->accessMask = MapVkAccessFlags(gpuBuffer->usage);
-    gpuBuffer->targetStage = MapVkPipelineStageFlags(gpuBuffer->usage);
 }
 
 void CCVKCmdFuncCreateRenderPass(CCVKDevice *device, CCVKGPURenderPass *gpuRenderPass) {
@@ -225,37 +221,42 @@ void CCVKCmdFuncCreateRenderPass(CCVKDevice *device, CCVKGPURenderPass *gpuRende
     const size_t hasDepth = gpuRenderPass->depthStencilAttachment.format != Format::UNKNOWN ? 1 : 0;
     vector<VkAttachmentDescription> attachmentDescriptions(colorAttachmentCount + hasDepth);
     gpuRenderPass->clearValues.resize(colorAttachmentCount + hasDepth);
+
+    ThsvsImageBarrier barrier{1, nullptr, 1, nullptr, THSVS_IMAGE_LAYOUT_OPTIMAL, THSVS_IMAGE_LAYOUT_OPTIMAL, false};
+    VkPipelineStageFlags srcStages = 0;
+    VkPipelineStageFlags dstStages = 0;
+    VkImageMemoryBarrier vkBarrier;
     for (size_t i = 0u; i < colorAttachmentCount; i++) {
         const ColorAttachment &attachment = gpuRenderPass->colorAttachments[i];
-        const VkImageLayout beginLayout = VK_IMAGE_LAYOUTS[(uint)attachment.beginLayout];
-        const VkImageLayout endLayout = VK_IMAGE_LAYOUTS[(uint)attachment.endLayout];
-        const VkAccessFlags beginAccessMask = MapVkAccessFlags(attachment.beginLayout);
-        const VkAccessFlags endAccessMask = MapVkAccessFlags(attachment.endLayout);
+        barrier.pPrevAccesses = &THSVS_ACCESS_TYPES[(uint)attachment.beginAccess];
+        barrier.pNextAccesses = &THSVS_ACCESS_TYPES[(uint)attachment.endAccess];
+        if (attachment.loadOp != LoadOp::LOAD) barrier.discardContents = true;
+        thsvsGetVulkanImageMemoryBarrier(barrier, &srcStages, &dstStages, &vkBarrier);
+
         attachmentDescriptions[i].format = MapVkFormat(attachment.format);
         attachmentDescriptions[i].samples = MapVkSampleCount(attachment.sampleCount);
         attachmentDescriptions[i].loadOp = MapVkLoadOp(attachment.loadOp);
         attachmentDescriptions[i].storeOp = MapVkStoreOp(attachment.storeOp);
         attachmentDescriptions[i].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
         attachmentDescriptions[i].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-        attachmentDescriptions[i].initialLayout = beginLayout;
-        attachmentDescriptions[i].finalLayout = endLayout;
+        attachmentDescriptions[i].initialLayout = vkBarrier.oldLayout;
+        attachmentDescriptions[i].finalLayout = vkBarrier.newLayout;
     }
     if (hasDepth) {
         const DepthStencilAttachment &depthStencilAttachment = gpuRenderPass->depthStencilAttachment;
-        const VkImageLayout beginLayout = VK_IMAGE_LAYOUTS[(uint)depthStencilAttachment.beginLayout];
-        const VkImageLayout endLayout = VK_IMAGE_LAYOUTS[(uint)depthStencilAttachment.endLayout];
-        const VkAccessFlags beginAccessMask = MapVkAccessFlags(depthStencilAttachment.beginLayout);
-        const VkAccessFlags endAccessMask = MapVkAccessFlags(depthStencilAttachment.endLayout);
-        const bool hasStencil = GFX_FORMAT_INFOS[(uint)depthStencilAttachment.format].hasStencil;
-        const VkImageAspectFlags aspectMask = hasStencil ? VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT : VK_IMAGE_ASPECT_DEPTH_BIT;
+        barrier.pPrevAccesses = &THSVS_ACCESS_TYPES[(uint)depthStencilAttachment.beginAccess];
+        barrier.pNextAccesses = &THSVS_ACCESS_TYPES[(uint)depthStencilAttachment.endAccess];
+        if (depthStencilAttachment.depthLoadOp != LoadOp::LOAD && depthStencilAttachment.stencilLoadOp != LoadOp::LOAD) barrier.discardContents = true;
+        thsvsGetVulkanImageMemoryBarrier(barrier, &srcStages, &dstStages, &vkBarrier);
+
         attachmentDescriptions[colorAttachmentCount].format = MapVkFormat(depthStencilAttachment.format);
         attachmentDescriptions[colorAttachmentCount].samples = MapVkSampleCount(depthStencilAttachment.sampleCount);
         attachmentDescriptions[colorAttachmentCount].loadOp = MapVkLoadOp(depthStencilAttachment.depthLoadOp);
         attachmentDescriptions[colorAttachmentCount].storeOp = MapVkStoreOp(depthStencilAttachment.depthStoreOp);
         attachmentDescriptions[colorAttachmentCount].stencilLoadOp = MapVkLoadOp(depthStencilAttachment.stencilLoadOp);
         attachmentDescriptions[colorAttachmentCount].stencilStoreOp = MapVkStoreOp(depthStencilAttachment.stencilStoreOp);
-        attachmentDescriptions[colorAttachmentCount].initialLayout = beginLayout;
-        attachmentDescriptions[colorAttachmentCount].finalLayout = endLayout;
+        attachmentDescriptions[colorAttachmentCount].initialLayout = vkBarrier.oldLayout;
+        attachmentDescriptions[colorAttachmentCount].finalLayout = vkBarrier.newLayout;
     }
 
     const size_t subpassCount = gpuRenderPass->subPasses.size();
@@ -705,19 +706,6 @@ void CCVKCmdFuncUpdateBuffer(CCVKDevice *device, CCVKGPUBuffer *gpuBuffer, const
     VkBufferCopy region{stagingBuffer.startOffset, gpuBuffer->startOffset, sizeToUpload};
     auto upload = [&stagingBuffer, &gpuBuffer, &region](const CCVKGPUCommandBuffer *cmdBuffer) {
         vkCmdCopyBuffer(cmdBuffer->vkCommandBuffer, stagingBuffer.vkBuffer, gpuBuffer->vkBuffer, 1, &region);
-
-#if BARRIER_DEDUCTION_LEVEL >= BARRIER_DEDUCTION_LEVEL_BASIC
-        // guard against RAW hazard
-        VkBufferMemoryBarrier barrier{VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER};
-        barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
-        barrier.dstAccessMask = gpuBuffer->accessMask;
-        barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-        barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-        barrier.buffer = gpuBuffer->vkBuffer;
-        barrier.offset = region.dstOffset;
-        barrier.size = region.size;
-        vkCmdPipelineBarrier(cmdBuffer->vkCommandBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT, gpuBuffer->targetStage, 0, 0, nullptr, 1, &barrier, 0, nullptr);
-#endif
     };
 
     if (cmdBuffer) {
@@ -729,22 +717,23 @@ void CCVKCmdFuncUpdateBuffer(CCVKDevice *device, CCVKGPUBuffer *gpuBuffer, const
 
 void CCVKCmdFuncCopyBuffersToTexture(CCVKDevice *device, const uint8_t *const *buffers, CCVKGPUTexture *gpuTexture,
                                      const BufferTextureCopy *regions, uint count, const CCVKGPUCommandBuffer *cmdBuff) {
-    VkImageMemoryBarrier barriers[2]{};
-    barriers[0].sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-    barriers[0].image = gpuTexture->vkImage;
-    barriers[0].srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-    barriers[0].dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-    barriers[0].subresourceRange.levelCount = VK_REMAINING_MIP_LEVELS;
-    barriers[0].subresourceRange.layerCount = VK_REMAINING_ARRAY_LAYERS;
-    barriers[0].subresourceRange.aspectMask = gpuTexture->aspectMask;
-    barriers[0].srcAccessMask = gpuTexture->accessMask;
-    barriers[0].dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
-    barriers[0].oldLayout = gpuTexture->currentLayout;
-    barriers[0].newLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+    vector<ThsvsAccessType> &curTypes = gpuTexture->currentAccessTypes;
 
-    if (gpuTexture->currentLayout != VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL) {
-        vkCmdPipelineBarrier(cmdBuff->vkCommandBuffer, gpuTexture->targetStage, VK_PIPELINE_STAGE_TRANSFER_BIT,
-                             VK_DEPENDENCY_BY_REGION_BIT, 0, nullptr, 0, nullptr, 1, barriers);
+    ThsvsImageBarrier barrier{};
+    barrier.image = gpuTexture->vkImage;
+    barrier.discardContents = false;
+    barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+    barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+    barrier.subresourceRange.levelCount = VK_REMAINING_MIP_LEVELS;
+    barrier.subresourceRange.layerCount = VK_REMAINING_ARRAY_LAYERS;
+    barrier.subresourceRange.aspectMask = gpuTexture->aspectMask;
+    barrier.prevAccessCount = curTypes.size();
+    barrier.pPrevAccesses = curTypes.data();
+    barrier.nextAccessCount = 1;
+    barrier.pNextAccesses = &THSVS_ACCESS_TYPES[(uint)AccessType::TRANSFER_WRITE];
+
+    if (std::find(curTypes.begin(), curTypes.end(), THSVS_ACCESS_TRANSFER_WRITE) == curTypes.end()) {
+        thsvsCmdPipelineBarrier(cmdBuff->vkCommandBuffer, nullptr, 0, nullptr, 1, &barrier);
     }
 
     uint totalSize = 0u;
@@ -780,7 +769,6 @@ void CCVKCmdFuncCopyBuffersToTexture(CCVKDevice *device, const uint8_t *const *b
     vkCmdCopyBufferToImage(cmdBuff->vkCommandBuffer, stagingBuffer.vkBuffer, gpuTexture->vkImage,
                            VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, stagingRegions.size(), stagingRegions.data());
 
-    bool layoutReady = false;
     if (gpuTexture->flags & TextureFlags::GEN_MIPMAP) {
         VkFormatProperties formatProperties;
         vkGetPhysicalDeviceFormatProperties(device->gpuContext()->physicalDevice, MapVkFormat(gpuTexture->format), &formatProperties);
@@ -797,16 +785,14 @@ void CCVKCmdFuncCopyBuffersToTexture(CCVKDevice *device, const uint8_t *const *b
             blitInfo.dstSubresource.layerCount = gpuTexture->arrayLayers;
             blitInfo.srcOffsets[1] = {width, height, 1};
             blitInfo.dstOffsets[1] = {std::max(width >> 1, 1), std::max(height >> 1, 1), 1};
-            barriers[0].subresourceRange.levelCount = 1;
-            barriers[0].srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
-            barriers[0].dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
-            barriers[0].oldLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
-            barriers[0].newLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+            barrier.subresourceRange.levelCount = 1;
+            barrier.prevAccessCount = 1;
+            barrier.pPrevAccesses = &THSVS_ACCESS_TYPES[(uint)AccessType::TRANSFER_WRITE];
+            barrier.pNextAccesses = &THSVS_ACCESS_TYPES[(uint)AccessType::TRANSFER_READ];
 
             for (uint i = 1u; i < gpuTexture->mipLevels; i++) {
-                barriers[0].subresourceRange.baseMipLevel = i - 1;
-                vkCmdPipelineBarrier(cmdBuff->vkCommandBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                     VK_DEPENDENCY_BY_REGION_BIT, 0, nullptr, 0, nullptr, 1, barriers); 
+                barrier.subresourceRange.baseMipLevel = i - 1;
+                thsvsCmdPipelineBarrier(cmdBuff->vkCommandBuffer, nullptr, 0, nullptr, 1, &barrier);
 
                 blitInfo.srcSubresource.mipLevel = i - 1;
                 blitInfo.dstSubresource.mipLevel = i;
@@ -819,42 +805,20 @@ void CCVKCmdFuncCopyBuffersToTexture(CCVKDevice *device, const uint8_t *const *b
                 blitInfo.dstOffsets[1].y = std::max(h >> 1, 1);
             }
 
-            barriers[0].subresourceRange.baseMipLevel = gpuTexture->mipLevels - 1;
-            barriers[0].dstAccessMask = gpuTexture->accessMask;
-            barriers[0].newLayout = gpuTexture->layout;
+            barrier.subresourceRange.baseMipLevel = 0;
+            barrier.subresourceRange.levelCount = gpuTexture->mipLevels - 1;
+            barrier.pPrevAccesses = &THSVS_ACCESS_TYPES[(uint)AccessType::TRANSFER_READ];
+            barrier.pNextAccesses = &THSVS_ACCESS_TYPES[(uint)AccessType::TRANSFER_WRITE];
 
-            barriers[1].sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-            barriers[1].image = gpuTexture->vkImage;
-            barriers[1].srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-            barriers[1].dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-            barriers[1].subresourceRange.aspectMask = gpuTexture->aspectMask;
-            barriers[1].subresourceRange.baseMipLevel = 0;
-            barriers[1].subresourceRange.levelCount = gpuTexture->mipLevels - 1;
-            barriers[1].subresourceRange.layerCount = VK_REMAINING_ARRAY_LAYERS;
-            barriers[1].srcAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
-            barriers[1].dstAccessMask = gpuTexture->accessMask;
-            barriers[1].oldLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
-            barriers[1].newLayout = gpuTexture->layout;
-
-            vkCmdPipelineBarrier(cmdBuff->vkCommandBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT, gpuTexture->targetStage,
-                                 VK_DEPENDENCY_BY_REGION_BIT, 0, nullptr, 0, nullptr, 2, barriers);
-            layoutReady = true;
+            thsvsCmdPipelineBarrier(cmdBuff->vkCommandBuffer, nullptr, 0, nullptr, 1, &barrier);
         } else {
             const char *formatName = GFX_FORMAT_INFOS[(uint)gpuTexture->format].name.c_str();
             CC_LOG_WARNING("CCVKCmdFuncCopyBuffersToTexture: generate mipmap for %s is not supported on this platform", formatName);
         }
     }
 
-    if (!layoutReady && gpuTexture->layout != VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL) {
-        barriers[0].srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
-        barriers[0].dstAccessMask = gpuTexture->accessMask;
-        barriers[0].oldLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
-        barriers[0].newLayout = gpuTexture->layout;
-        vkCmdPipelineBarrier(cmdBuff->vkCommandBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT, gpuTexture->targetStage,
-                             VK_DEPENDENCY_BY_REGION_BIT, 0, nullptr, 0, nullptr, 1, barriers);
-    }
-
-    gpuTexture->currentLayout = gpuTexture->layout;
+    curTypes.assign({THSVS_ACCESS_TRANSFER_WRITE});
+    device->gpuTextureLayoutManager()->checkIn(gpuTexture);
 }
 
 void CCVKCmdFuncDestroyRenderPass(CCVKGPUDevice *gpuDevice, CCVKGPURenderPass *gpuRenderPass) {

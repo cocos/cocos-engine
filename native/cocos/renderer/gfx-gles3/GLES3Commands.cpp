@@ -613,9 +613,25 @@ const GLenum GL_MEMORY_ACCESS[] = {
 };
 } // namespace
 
-void MapGLBarriers(const AccessType *list, uint count, GLbitfield &glBarriers, GLbitfield &glBarriersByRegion) {
-    for (size_t j = 0u; j < count; ++j) {
-        switch (list[j]) {
+void MapGLBarriers(const GlobalBarrier *barrier, GLbitfield &glBarriers, GLbitfield &glBarriersByRegion) {
+    bool hasShaderWrites = false;
+    for (size_t i = 0u; i < barrier->prevAccessCount; ++i) {
+        switch (barrier->prevAccesses[i]) {
+            case AccessType::COMPUTE_SHADER_WRITE:
+            case AccessType::VERTEX_SHADER_WRITE:
+            case AccessType::FRAGMENT_SHADER_WRITE:
+            case AccessType::COLOR_ATTACHMENT_WRITE:
+            case AccessType::DEPTH_STENCIL_ATTACHMENT_WRITE:
+                hasShaderWrites = true;
+                break;
+            default:
+                break;
+        }
+    }
+    if (!hasShaderWrites) return;
+
+    for (size_t i = 0u; i < barrier->nextAccessCount; ++i) {
+        switch (barrier->nextAccesses[i]) {
             case AccessType::INDIRECT_BUFFER:
                 glBarriers |= GL_COMMAND_BARRIER_BIT;
                 break;
@@ -633,6 +649,8 @@ void MapGLBarriers(const AccessType *list, uint count, GLbitfield &glBarriers, G
             case AccessType::COMPUTE_SHADER_READ_TEXTURE:
             case AccessType::VERTEX_SHADER_READ_TEXTURE:
             case AccessType::FRAGMENT_SHADER_READ_TEXTURE:
+            case AccessType::FRAGMENT_SHADER_READ_COLOR_INPUT_ATTACHMENT:
+            case AccessType::FRAGMENT_SHADER_READ_DEPTH_STENCIL_INPUT_ATTACHMENT:
                 glBarriersByRegion |= GL_SHADER_IMAGE_ACCESS_BARRIER_BIT;
                 glBarriersByRegion |= GL_TEXTURE_FETCH_BARRIER_BIT;
                 break;
@@ -642,27 +660,26 @@ void MapGLBarriers(const AccessType *list, uint count, GLbitfield &glBarriers, G
                 glBarriersByRegion |= GL_SHADER_STORAGE_BARRIER_BIT;
                 break;
             case AccessType::COLOR_ATTACHMENT_READ:
-            case AccessType::COLOR_ATTACHMENT_WRITE:
             case AccessType::DEPTH_STENCIL_ATTACHMENT_READ:
-            case AccessType::DEPTH_STENCIL_ATTACHMENT_WRITE:
                 glBarriersByRegion |= GL_FRAMEBUFFER_BARRIER_BIT;
                 break;
             case AccessType::TRANSFER_READ:
                 glBarriers |= GL_PIXEL_BUFFER_BARRIER_BIT;
                 break;
-            case AccessType::FRAGMENT_SHADER_WRITE:
-                glBarriersByRegion |= GL_FRAMEBUFFER_BARRIER_BIT;
-                break;
             case AccessType::COMPUTE_SHADER_WRITE:
+            case AccessType::VERTEX_SHADER_WRITE:
+            case AccessType::FRAGMENT_SHADER_WRITE:
+                glBarriersByRegion |= GL_SHADER_IMAGE_ACCESS_BARRIER_BIT;
                 glBarriersByRegion |= GL_SHADER_STORAGE_BARRIER_BIT;
+                break;
+            case AccessType::COLOR_ATTACHMENT_WRITE:
+            case AccessType::DEPTH_STENCIL_ATTACHMENT_WRITE:
+                glBarriersByRegion |= GL_FRAMEBUFFER_BARRIER_BIT;
                 break;
             case AccessType::TRANSFER_WRITE:
                 glBarriers |= GL_TEXTURE_UPDATE_BARRIER_BIT;
                 glBarriers |= GL_BUFFER_UPDATE_BARRIER_BIT;
                 break;
-            case AccessType::VERTEX_SHADER_WRITE:
-            case AccessType::FRAGMENT_SHADER_READ_COLOR_INPUT_ATTACHMENT:
-            case AccessType::FRAGMENT_SHADER_READ_DEPTH_STENCIL_INPUT_ATTACHMENT:
             case AccessType::HOST_PREINITIALIZED:
             case AccessType::HOST_WRITE:
             case AccessType::PRESENT:

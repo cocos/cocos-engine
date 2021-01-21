@@ -930,6 +930,10 @@ void thsvsGetVulkanBufferMemoryBarrier(
     pVkBarrier->offset              = thBarrier.offset;
     pVkBarrier->size                = thBarrier.size;
 
+#ifdef THSVS_ERROR_CHECK_COULD_USE_GLOBAL_BARRIER
+    assert(pVkBarrier->srcQueueFamilyIndex != pVkBarrier->dstQueueFamilyIndex);
+#endif
+
     for (uint32_t i = 0; i < thBarrier.prevAccessCount; ++i)
     {
         ThsvsAccessType prevAccess = thBarrier.pPrevAccesses[i];
@@ -1054,11 +1058,6 @@ void thsvsGetVulkanImageMemoryBarrier(
 #endif
             pVkBarrier->oldLayout = layout;
         }
-
-#ifdef THSVS_ERROR_CHECK_COULD_USE_GLOBAL_BARRIER
-        assert(pVkBarrier->srcQueueFamilyIndex != pVkBarrier->dstQueueFamilyIndex || 
-               pVkBarrier->srcQueueFamilyIndex == VK_QUEUE_FAMILY_IGNORED);
-#endif
     }
 
     for (uint32_t i = 0; i < thBarrier.nextAccessCount; ++i)
@@ -1109,7 +1108,8 @@ void thsvsGetVulkanImageMemoryBarrier(
     }
 
 #ifdef THSVS_ERROR_CHECK_COULD_USE_GLOBAL_BARRIER
-    assert(pVkBarrier->newLayout != pVkBarrier->oldLayout);
+    assert(pVkBarrier->newLayout != pVkBarrier->oldLayout ||
+           pVkBarrier->srcQueueFamilyIndex != pVkBarrier->dstQueueFamilyIndex);
 #endif
 
     // Ensure that the stage masks are valid if no stages were determined

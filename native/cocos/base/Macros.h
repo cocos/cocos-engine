@@ -320,7 +320,7 @@ It should work same as apples CFSwapInt32LittleToHost(..)
 #elif CC_PLATFORM == CC_PLATFORM_MAC_OSX && CC_ENDIAN == CC_ENDIAN_BIG
     #define CC_CPU CC_CPU_PPC
 #elif CC_PLATFORM == CC_PLATFORM_MAC_OSX
-    #define COCOS_CPU CC_CPU_X86
+    #define CC_CPU CC_CPU_X86
 #elif CC_PLATFORM == CC_PLATFORM_MAC_IOS && (defined(__i386__) || defined(__x86_64__))
     #define CC_CPU CC_CPU_X86
 #elif defined(__arm__) || defined(_M_ARM) || defined(__arm64__) || defined(_aarch64_)

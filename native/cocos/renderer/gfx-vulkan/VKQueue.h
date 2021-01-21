@@ -36,7 +36,6 @@ public:
 
     friend class CCVKDevice;
 
-public:
     bool initialize(const QueueInfo &info);
     void destroy();
     void submit(CommandBuffer *const *cmdBuffs, uint count);
@@ -44,7 +43,8 @@ public:
     CC_INLINE CCVKGPUQueue *gpuQueue() const { return _gpuQueue; }
 
 private:
-    CCVKGPUQueue *_gpuQueue;
+    CCVKGPUQueue *_gpuQueue = nullptr;
+
     uint _numDrawCalls = 0;
     uint _numInstances = 0;
     uint _numTriangles = 0;

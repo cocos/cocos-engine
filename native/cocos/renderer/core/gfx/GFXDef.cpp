@@ -10,6 +10,34 @@ const DescriptorType DESCRIPTOR_BUFFER_TYPE = DescriptorType::STORAGE_BUFFER | D
 const DescriptorType DESCRIPTOR_TEXTURE_TYPE = DescriptorType::SAMPLER_TEXTURE | DescriptorType::SAMPLER | DescriptorType::TEXTURE | DescriptorType::STORAGE_IMAGE | DescriptorType::INPUT_ATTACHMENT;
 const DescriptorType DESCRIPTOR_DYNAMIC_TYPE = DescriptorType::DYNAMIC_STORAGE_BUFFER | DescriptorType::DYNAMIC_UNIFORM_BUFFER;
 
+const AccessType AccessTypeV::INDIRECT_BUFFER = AccessType::INDIRECT_BUFFER;
+const AccessType AccessTypeV::INDEX_BUFFER = AccessType::INDEX_BUFFER;
+const AccessType AccessTypeV::VERTEX_BUFFER = AccessType::VERTEX_BUFFER;
+const AccessType AccessTypeV::VERTEX_SHADER_READ_UNIFORM_BUFFER = AccessType::VERTEX_SHADER_READ_UNIFORM_BUFFER;
+const AccessType AccessTypeV::VERTEX_SHADER_READ_TEXTURE = AccessType::VERTEX_SHADER_READ_TEXTURE;
+const AccessType AccessTypeV::VERTEX_SHADER_READ_OTHER = AccessType::VERTEX_SHADER_READ_OTHER;
+const AccessType AccessTypeV::FRAGMENT_SHADER_READ_UNIFORM_BUFFER = AccessType::FRAGMENT_SHADER_READ_UNIFORM_BUFFER;
+const AccessType AccessTypeV::FRAGMENT_SHADER_READ_TEXTURE = AccessType::FRAGMENT_SHADER_READ_TEXTURE;
+const AccessType AccessTypeV::FRAGMENT_SHADER_READ_COLOR_INPUT_ATTACHMENT = AccessType::FRAGMENT_SHADER_READ_COLOR_INPUT_ATTACHMENT;
+const AccessType AccessTypeV::FRAGMENT_SHADER_READ_DEPTH_STENCIL_INPUT_ATTACHMENT = AccessType::FRAGMENT_SHADER_READ_DEPTH_STENCIL_INPUT_ATTACHMENT;
+const AccessType AccessTypeV::FRAGMENT_SHADER_READ_OTHER = AccessType::FRAGMENT_SHADER_READ_OTHER;
+const AccessType AccessTypeV::COLOR_ATTACHMENT_READ = AccessType::COLOR_ATTACHMENT_READ;
+const AccessType AccessTypeV::DEPTH_STENCIL_ATTACHMENT_READ = AccessType::DEPTH_STENCIL_ATTACHMENT_READ;
+const AccessType AccessTypeV::COMPUTE_SHADER_READ_UNIFORM_BUFFER = AccessType::COMPUTE_SHADER_READ_UNIFORM_BUFFER;
+const AccessType AccessTypeV::COMPUTE_SHADER_READ_TEXTURE = AccessType::COMPUTE_SHADER_READ_TEXTURE;
+const AccessType AccessTypeV::COMPUTE_SHADER_READ_OTHER = AccessType::COMPUTE_SHADER_READ_OTHER;
+const AccessType AccessTypeV::TRANSFER_READ = AccessType::TRANSFER_READ;
+const AccessType AccessTypeV::HOST_READ = AccessType::HOST_READ;
+const AccessType AccessTypeV::PRESENT = AccessType::PRESENT;
+const AccessType AccessTypeV::VERTEX_SHADER_WRITE = AccessType::VERTEX_SHADER_WRITE;
+const AccessType AccessTypeV::FRAGMENT_SHADER_WRITE = AccessType::FRAGMENT_SHADER_WRITE;
+const AccessType AccessTypeV::COLOR_ATTACHMENT_WRITE = AccessType::COLOR_ATTACHMENT_WRITE;
+const AccessType AccessTypeV::DEPTH_STENCIL_ATTACHMENT_WRITE = AccessType::DEPTH_STENCIL_ATTACHMENT_WRITE;
+const AccessType AccessTypeV::COMPUTE_SHADER_WRITE = AccessType::COMPUTE_SHADER_WRITE;
+const AccessType AccessTypeV::TRANSFER_WRITE = AccessType::TRANSFER_WRITE;
+const AccessType AccessTypeV::HOST_PREINITIALIZED = AccessType::HOST_PREINITIALIZED;
+const AccessType AccessTypeV::HOST_WRITE = AccessType::HOST_WRITE;
+
 const FormatInfo GFX_FORMAT_INFOS[] = {
     {"UNKNOWN", 0, 0, FormatType::NONE, false, false, false, false},
     {"A8", 1, 1, FormatType::UNORM, true, false, false, false},

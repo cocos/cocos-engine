@@ -22,27 +22,27 @@ uint RenderPass::computeHash() const {
                 if (iaIndex >= _colorAttachments.size()) break;
                 const auto ia = _colorAttachments[iaIndex];
                 seed ^= (uint)(ia.format) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-                seed ^= ia.sampleCount + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+                seed ^= (uint)ia.sampleCount + 0x9e3779b9 + (seed << 6) + (seed >> 2);
             }
             for (const auto &caIndex : subPass.colors) {
                 if (caIndex >= _colorAttachments.size()) break;
                 const auto ca = _colorAttachments[caIndex];
                 seed ^= (uint)(ca.format) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-                seed ^= ca.sampleCount + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+                seed ^= (uint)ca.sampleCount + 0x9e3779b9 + (seed << 6) + (seed >> 2);
             }
             if (subPass.depthStencil < _colorAttachments.size()) {
                 const auto ds = _colorAttachments[subPass.depthStencil];
                 seed ^= (uint)(ds.format) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-                seed ^= ds.sampleCount + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+                seed ^= (uint)ds.sampleCount + 0x9e3779b9 + (seed << 6) + (seed >> 2);
             }
         }
     } else {
         for (const auto &colorAttachment : _colorAttachments) {
             seed ^= (uint)(colorAttachment.format) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-            seed ^= colorAttachment.sampleCount + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+            seed ^= (uint)colorAttachment.sampleCount + 0x9e3779b9 + (seed << 6) + (seed >> 2);
         }
         seed ^= (uint)(_depthStencilAttachment.format) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-        seed ^= _depthStencilAttachment.sampleCount + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+        seed ^= (uint)_depthStencilAttachment.sampleCount + 0x9e3779b9 + (seed << 6) + (seed >> 2);
     }
 
     return static_cast<uint>(seed);

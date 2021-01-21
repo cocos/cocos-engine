@@ -34,7 +34,6 @@ public:
     CCVKDescriptorSet(Device *device);
     ~CCVKDescriptorSet();
 
-public:
     virtual bool initialize(const DescriptorSetInfo &info) override;
     virtual void destroy() override;
     virtual void update() override;

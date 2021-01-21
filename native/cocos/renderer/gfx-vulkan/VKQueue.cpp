@@ -61,7 +61,17 @@ void CCVKQueue::destroy() {
 void CCVKQueue::submit(CommandBuffer *const *cmdBuffs, uint count) {
     CCVKDevice *device = (CCVKDevice *)_device;
     _gpuQueue->commandBuffers.clear();
-    device->gpuTransportHub()->depart();
+
+    CCVKGPUTextureLayoutManager *layoutMgr = device->gpuTextureLayoutManager();
+    if (layoutMgr->needUpdate()) {
+        device->gpuTransportHub()->checkIn([layoutMgr](CCVKGPUCommandBuffer *cmdBuffer) {
+            layoutMgr->update(cmdBuffer);
+        });
+    }
+
+    if (!device->gpuTransportHub()->empty()) {
+        _gpuQueue->commandBuffers.push(device->gpuTransportHub()->readyForFlight());
+    }
 
     for (uint i = 0u; i < count; ++i) {
         CCVKCommandBuffer *cmdBuff = (CCVKCommandBuffer *)cmdBuffs[i];

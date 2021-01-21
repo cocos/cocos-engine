@@ -463,7 +463,7 @@ void GLES3CommandBuffer::pipelineBarrier(const GlobalBarrier *barrier, const Tex
         if (!barrier) return;
 
         GLES3CmdBarrier *cmd = _cmdAllocator->barrierCmdPool.alloc();
-        MapGLBarriers(barrier->nextAccesses, barrier->nextAccessCount, cmd->barriers, cmd->barriersByRegion);
+        MapGLBarriers(barrier, cmd->barriers, cmd->barriersByRegion);
         _curCmdPackage->barrierCmds.push(cmd);
         _curCmdPackage->cmds.push(GLES3CmdType::BARRIER);
     } else {
