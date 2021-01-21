@@ -32,7 +32,7 @@
 import { ccclass, executeInEditMode, executionOrder, help, menu, tooltip, multiline, type, serializable } from 'cc.decorator';
 import { DEV, EDITOR } from 'internal:constants';
 import { Font, SpriteAtlas, TTFFont, SpriteFrame } from '../assets';
-import { assert, EventTouch, warnID } from '../../core/platform';
+import { assert, EventTouch, SystemEventType, warnID } from '../../core/platform';
 import { BASELINE_RATIO, fragmentText, isUnicodeCJK, isUnicodeSpace } from '../utils/text-utils';
 import { HtmlTextParser, IHtmlTextParserResultObj, IHtmlTextParserStack } from '../utils/html-text-parser';
 import Pool from '../../core/utils/pool';
@@ -455,6 +455,10 @@ export class RichText extends UIComponent {
         this._updateRichTextStatus = this._updateRichText;
     }
 
+    public onLoad () {
+        this.node.on(SystemEventType.LAYER_CHANGED, this._applyLayer, this);
+    }
+
     public onEnable () {
         if (this.handleTouchEvent) {
             this._addEventListeners();
@@ -503,6 +507,7 @@ export class RichText extends UIComponent {
         }
 
         this.node.off(Node.EventType.ANCHOR_CHANGED, this._updateRichTextPosition, this);
+        this.node.off(SystemEventType.LAYER_CHANGED, this._applyLayer, this);
     }
 
     protected _addEventListeners () {
@@ -657,6 +662,7 @@ export class RichText extends UIComponent {
         labelSegment.styleIndex = styleIndex;
         labelSegment.lineCount = this._lineCount;
         labelSegment.node._uiProps.uiTransformComp!.setAnchorPoint(0, 0);
+        labelSegment.node.layer = this.node.layer;
         this._applyTextAttribute(labelSegment);
         this.node.addChild(labelSegment.node);
         this._segments.push(labelSegment);
@@ -789,6 +795,7 @@ export class RichText extends UIComponent {
                 break;
             }
 
+            segment.node.layer = this.node.layer;
             this.node.addChild(segment.node);
             this._segments.push(segment);
 
@@ -1099,6 +1106,12 @@ export class RichText extends UIComponent {
         const assembler = label._assembler;
         if (assembler) {
             assembler.updateRenderData(label);
+        }
+    }
+
+    protected _applyLayer () {
+        for (const seg of this._segments) {
+            seg.node.layer = this.node.layer;
         }
     }
 }

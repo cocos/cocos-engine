@@ -31,6 +31,7 @@
 
 import { EDITOR, TEST, JSB, MINIGAME, RUNTIME_BASED, DEV } from 'internal:constants';
 import { legacyCC } from '../global-exports';
+import { Rect } from '../math/rect';
 import { warnID, log, logID } from './debug';
 
 enum NetworkType {
@@ -722,7 +723,7 @@ export const sys: Record<string, any> = {
         str += `os : ${this.os}\r\n`;
         str += `osVersion : ${this.osVersion}\r\n`;
         str += `platform : ${this.platform}\r\n`;
-        str += `Using ${legacyCC.game.renderType === legacyCC.game.RENDER_TYPE_WEBGL ? 'WEBGL' : 'CANVAS'} renderer.` + '\r\n';
+        str += `Using ${legacyCC.game.renderType === legacyCC.game.RENDER_TYPE_WEBGL ? 'WEBGL' : 'CANVAS'} renderer.\r\n`;
         log(str);
     },
 
@@ -765,7 +766,7 @@ export const sys: Record<string, any> = {
      */
     getSafeAreaRect () {
         const visibleSize = legacyCC.view.getVisibleSize();
-        return legacyCC.rect(0, 0, visibleSize.width, visibleSize.height);
+        return legacyCC.rect(0, 0, visibleSize.width, visibleSize.height) as Rect;
     },
 
     // this is a web based implement, please reimplemenet it on other platforms
@@ -784,8 +785,7 @@ export const sys: Record<string, any> = {
 
         let currLanguage = nav.language;
         sys.languageCode = currLanguage.toLowerCase();
-        // @ts-expect-error
-        currLanguage = currLanguage || nav.browserLanguage;
+        currLanguage = currLanguage || (nav as any).browserLanguage;
         currLanguage = currLanguage ? currLanguage.split('-')[0] : sys.LANGUAGE_ENGLISH;
         sys.language = currLanguage;
 
@@ -802,14 +802,13 @@ export const sys: Record<string, any> = {
             iOS = true;
             osVersion = uaResult[2] || '';
             osMajorVersion = parseInt(osVersion) || 0;
-        }
-        // refer to https://github.com/cocos-creator/engine/pull/5542 , thanks for contribition from @krapnikkk
-        // ipad OS 13 safari identifies itself as "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15) AppleWebKit/605.1.15 (KHTML, like Gecko)"
-        // so use maxTouchPoints to check whether it's desktop safari or not.
-        // reference: https://stackoverflow.com/questions/58019463/how-to-detect-device-name-in-safari-on-ios-13-while-it-doesnt-show-the-correct
-        // FIXME: should remove it when touch-enabled mac are available
-        // TODO: due to compatibility issues, it is still determined to be ios, and a new operating system type ipados may be added later？
-        else if (/(iPhone|iPad|iPod)/.exec(nav.platform) || (nav.platform === 'MacIntel' && nav.maxTouchPoints && nav.maxTouchPoints > 1)) {
+            // refer to https://github.com/cocos-creator/engine/pull/5542 , thanks for contribition from @krapnikkk
+            // ipad OS 13 safari identifies itself as "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15) AppleWebKit/605.1.15 (KHTML, like Gecko)"
+            // so use maxTouchPoints to check whether it's desktop safari or not.
+            // reference: https://stackoverflow.com/questions/58019463/how-to-detect-device-name-in-safari-on-ios-13-while-it-doesnt-show-the-correct
+            // FIXME: should remove it when touch-enabled mac are available
+            // TODO: due to compatibility issues, it is still determined to be ios, and a new operating system type ipados may be added later？
+        } else if (/(iPhone|iPad|iPod)/.exec(nav.platform) || (nav.platform === 'MacIntel' && nav.maxTouchPoints && nav.maxTouchPoints > 1)) {
             iOS = true;
             osVersion = '';
             osMajorVersion = 0;
@@ -833,7 +832,7 @@ export const sys: Record<string, any> = {
             let browserType = browserTypes ? browserTypes[0].toLowerCase() : sys.BROWSER_TYPE_UNKNOWN;
             if (browserType === 'safari' && isAndroid) {
                 browserType = sys.BROWSER_TYPE_ANDROID;
-            } else if (browserType === 'qq' && ua.match(/android.*applewebkit/i)) {
+            } else if (browserType === 'qq' && /android.*applewebkit/i.test(ua)) {
                 browserType = sys.BROWSER_TYPE_ANDROID;
             }
             const typeMap = {
@@ -855,8 +854,8 @@ export const sys: Record<string, any> = {
         (function () {
             const versionReg1 = /(mqqbrowser|micromessenger|qqbrowser|sogou|qzone|liebao|maxthon|uc|ucbs|360 aphone|360|baiduboxapp|baidu|maxthon|mxbrowser|miui(?:.hybrid)?)(mobile)?(browser)?\/?([\d.]+)/i;
             const versionReg2 = /(qq|chrome|safari|firefox|trident|opera|opr\/|oupeng)(mobile)?(browser)?\/?([\d.]+)/i;
-            let tmp = ua.match(versionReg1);
-            if (!tmp) { tmp = ua.match(versionReg2); }
+            let tmp = versionReg1.exec(ua);
+            if (!tmp) { tmp = versionReg2.exec(ua); }
             sys.browserVersion = tmp ? tmp[4] : '';
         }());
 
@@ -871,7 +870,7 @@ export const sys: Record<string, any> = {
 
         const _tmpCanvas1 = document.createElement('canvas');
 
-        const create3DContext = function (canvas, opt_attribs, opt_contextType) {
+        const create3DContext = function (canvas: HTMLCanvasElement, opt_attribs, opt_contextType): RenderingContext | null {
             if (opt_contextType) {
                 try {
                     return canvas.getContext(opt_contextType, opt_attribs);
@@ -996,7 +995,7 @@ export const sys: Record<string, any> = {
                 __audioSupport._context = null;
                 Object.defineProperty(__audioSupport, 'context', {
                     get () {
-                        if (this._context) { return this._context; }
+                        if (this._context) { return this._context as AudioContext; }
                         return this._context = new (window.AudioContext || window.webkitAudioContext || window.mozAudioContext)();
                     },
                 });
@@ -1044,7 +1043,7 @@ export const sys: Record<string, any> = {
         }());
         // HACK: this private property only needed on web
         sys.__isWebIOS14OrIPadOS14Env = sys.os === sys.OS_IOS && sys.isBrowser
-            && /(iPhone OS 1[4-9])|(Version\/1[4-9][\.\d]*)|(iOS 1[4-9])/.test(window.navigator.userAgent);
+            && /(OS 1[4-9])|(Version\/1[4-9])/.test(window.navigator.userAgent);
     },
 };
 
