@@ -25,10 +25,15 @@
 window.jsb = window.jsb || {};
 var rt = loadRuntime();
 var fs = rt.getFileSystemManager ? rt.getFileSystemManager() : null;
+var outOfStorageRegExp = /the maximum size of the file storage/;  // not exactly right
 
 var fsUtils = {
 
     fs,
+
+    isOutOfStorage (errMsg) {
+        return outOfStorageRegExp.test(errMsg);
+    },
 
     _subpackagesPath: '',
 

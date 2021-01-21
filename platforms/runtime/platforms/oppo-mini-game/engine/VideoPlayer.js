@@ -166,7 +166,7 @@ if (cc.internal.VideoPlayer) {
                 self._loaded = true;
                 self._playing = false;
                 self._currentTime = 0;
-                self._dispatchEvent(_impl.EventType.READY_TO_PLAY);
+                self.dispatchEvent(EventType.READY_TO_PLAY);
             }
     
             var timeCallBack = function (res) {
