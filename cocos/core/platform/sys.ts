@@ -1044,7 +1044,7 @@ export const sys: Record<string, any> = {
         }());
         // HACK: this private property only needed on web
         sys.__isWebIOS14OrIPadOS14Env = sys.os === sys.OS_IOS && sys.isBrowser
-            && /(iPhone OS 1[4-9])|(Version\/1[4-9][\.\d]*)|(iOS 1[4-9])/.test(window.navigator.userAgent);
+            && /(OS 1[4-9])|(Version\/1[4-9])/.test(window.navigator.userAgent);
     },
 };
 
