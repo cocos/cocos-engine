@@ -62,7 +62,7 @@ bool DeviceAgent::initialize(const DeviceInfo &info) {
     }
     ((CommandBufferAgent *)_cmdBuff)->initMessageQueue();
 
-    setMultithreaded(true);
+    //setMultithreaded(true);
 
     return true;
 }
@@ -139,8 +139,8 @@ void DeviceAgent::present() {
     _frameBoundarySemaphore.Wait();
 
     getMainAllocator()->reset();
-    for (LinearAllocatorPool **allocatorPools : _allocatorPoolRefs) {
-        allocatorPools[_currentIndex]->reset();
+    for (CommandBufferAgent *cmdBuff : _cmdBuffRefs) {
+        cmdBuff->_allocatorPools[_currentIndex]->reset();
     }
 }
 
@@ -159,6 +159,9 @@ void DeviceAgent::setMultithreaded(bool multithreaded) {
                 actor->bindDeviceContext(true);
                 CC_LOG_INFO("Device thread detached.");
             });
+        for (CommandBufferAgent *cmdBuff : _cmdBuffRefs) {
+            cmdBuff->_messageQueue->setImmediateMode(false);
+        }
     } else {
         ENQUEUE_MESSAGE_1(
             _mainEncoder, DeviceMakeCurrent,
@@ -167,9 +170,11 @@ void DeviceAgent::setMultithreaded(bool multithreaded) {
                 actor->bindDeviceContext(false);
             });
         _mainEncoder->terminateConsumerThread();
-        _mainEncoder->finishWriting(true); // wait till finished
         _mainEncoder->setImmediateMode(true);
         _actor->bindRenderContext(true);
+        for (CommandBufferAgent *cmdBuff : _cmdBuffRefs) {
+            cmdBuff->_messageQueue->setImmediateMode(true);
+        }
         CC_LOG_INFO("Device thread joined.");
     }
 }
@@ -290,6 +295,8 @@ void DeviceAgent::copyBuffersToTexture(const uint8_t *const *buffers, Texture *d
 }
 
 void DeviceAgent::flushCommands(CommandBuffer *const *cmdBuffs, uint count) {
+    if (!_multithreaded) return; // all command buffers are immediately executed
+
     bool multiThreaded = hasFeature(Feature::MULTITHREADED_SUBMISSION);
 
     const CommandBufferAgent **agentCmdBuffs = getMainAllocator()->allocate<const CommandBufferAgent *>(count);

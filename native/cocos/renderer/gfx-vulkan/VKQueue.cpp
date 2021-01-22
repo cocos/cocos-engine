@@ -40,10 +40,10 @@ CCVKQueue::~CCVKQueue() {
 }
 
 bool CCVKQueue::initialize(const QueueInfo &info) {
-    _type = info.type;
+    _type    = info.type;
     _isAsync = true;
 
-    _gpuQueue = CC_NEW(CCVKGPUQueue);
+    _gpuQueue       = CC_NEW(CCVKGPUQueue);
     _gpuQueue->type = _type;
     CCVKCmdFuncGetDeviceQueue((CCVKDevice *)_device, _gpuQueue);
 
@@ -62,12 +62,14 @@ void CCVKQueue::submit(CommandBuffer *const *cmdBuffs, uint count) {
     CCVKDevice *device = (CCVKDevice *)_device;
     _gpuQueue->commandBuffers.clear();
 
+#if BARRIER_DEDUCTION_LEVEL >= BARRIER_DEDUCTION_LEVEL_BASIC
     CCVKGPUTextureLayoutManager *layoutMgr = device->gpuTextureLayoutManager();
     if (layoutMgr->needUpdate()) {
         device->gpuTransportHub()->checkIn([layoutMgr](CCVKGPUCommandBuffer *cmdBuffer) {
             layoutMgr->update(cmdBuffer);
         });
     }
+#endif
 
     if (!device->gpuTransportHub()->empty()) {
         _gpuQueue->commandBuffers.push(device->gpuTransportHub()->readyForFlight());
@@ -86,18 +88,18 @@ void CCVKQueue::submit(CommandBuffer *const *cmdBuffs, uint count) {
     }
 
     VkSubmitInfo submitInfo{VK_STRUCTURE_TYPE_SUBMIT_INFO};
-    submitInfo.waitSemaphoreCount = _gpuQueue->nextWaitSemaphore ? 1 : 0;
-    submitInfo.pWaitSemaphores = &_gpuQueue->nextWaitSemaphore;
-    submitInfo.pWaitDstStageMask = &_gpuQueue->submitStageMask;
-    submitInfo.commandBufferCount = _gpuQueue->commandBuffers.size();
-    submitInfo.pCommandBuffers = &_gpuQueue->commandBuffers[0];
+    submitInfo.waitSemaphoreCount   = _gpuQueue->nextWaitSemaphore ? 1 : 0;
+    submitInfo.pWaitSemaphores      = &_gpuQueue->nextWaitSemaphore;
+    submitInfo.pWaitDstStageMask    = &_gpuQueue->submitStageMask;
+    submitInfo.commandBufferCount   = _gpuQueue->commandBuffers.size();
+    submitInfo.pCommandBuffers      = &_gpuQueue->commandBuffers[0];
     submitInfo.signalSemaphoreCount = _gpuQueue->nextSignalSemaphore ? 1 : 0;
-    submitInfo.pSignalSemaphores = &_gpuQueue->nextSignalSemaphore;
+    submitInfo.pSignalSemaphores    = &_gpuQueue->nextSignalSemaphore;
 
     VkFence vkFence = device->gpuFencePool()->alloc();
     VK_CHECK(vkQueueSubmit(_gpuQueue->vkQueue, 1, &submitInfo, vkFence));
 
-    _gpuQueue->nextWaitSemaphore = _gpuQueue->nextSignalSemaphore;
+    _gpuQueue->nextWaitSemaphore   = _gpuQueue->nextSignalSemaphore;
     _gpuQueue->nextSignalSemaphore = device->gpuSemaphorePool()->alloc();
 }
 

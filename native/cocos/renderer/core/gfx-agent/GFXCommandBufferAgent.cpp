@@ -18,7 +18,7 @@ namespace cc {
 namespace gfx {
 
 void CommandBufferAgent::flushCommands(uint count, CommandBufferAgent *const *cmdBuffs, bool multiThreaded) {
-    uint jobThreadCount = JobSystem::getInstance()->threadCount();
+    uint jobThreadCount    = JobSystem::getInstance()->threadCount();
     uint workForThisThread = (count - 1) / jobThreadCount + 1; // ceil(count / jobThreadCount)
 
     if (count > workForThisThread + 1 && multiThreaded) { // more than one job to dispatch
@@ -55,17 +55,18 @@ void CommandBufferAgent::initMessageQueue() {
     for (uint i = 0u; i < MAX_CPU_FRAME_AHEAD + 1; ++i) {
         _allocatorPools[i] = CC_NEW(LinearAllocatorPool);
     }
-    ((DeviceAgent *)_device)->_allocatorPoolRefs.insert(_allocatorPools.data());
+    DeviceAgent *device = (DeviceAgent *)_device;
+    device->_cmdBuffRefs.insert(this);
 
     _messageQueue = CC_NEW(MessageQueue);
-    _messageQueue->setImmediateMode(false);
+    if (device->_multithreaded) _messageQueue->setImmediateMode(false);
 }
 
 void CommandBufferAgent::destroyMessageQueue() {
     ((DeviceAgent *)_device)->getMessageQueue()->kickAndWait();
     CC_SAFE_DELETE(_messageQueue);
 
-    ((DeviceAgent *)_device)->_allocatorPoolRefs.erase(_allocatorPools.data());
+    ((DeviceAgent *)_device)->_cmdBuffRefs.erase(this);
     for (LinearAllocatorPool *pool : _allocatorPools) {
         CC_SAFE_DELETE(pool);
     }
@@ -77,13 +78,13 @@ LinearAllocatorPool *CommandBufferAgent::getAllocator() {
 }
 
 bool CommandBufferAgent::initialize(const CommandBufferInfo &info) {
-    _type = info.type;
+    _type  = info.type;
     _queue = info.queue;
 
     initMessageQueue();
 
     CommandBufferInfo actorInfo = info;
-    actorInfo.queue = ((QueueAgent *)info.queue)->getActor();
+    actorInfo.queue             = ((QueueAgent *)info.queue)->getActor();
 
     ENQUEUE_MESSAGE_2(
         ((DeviceAgent *)_device)->getMessageQueue(),
@@ -133,8 +134,8 @@ void CommandBufferAgent::end() {
 }
 
 void CommandBufferAgent::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, int stencil, CommandBuffer *const *secondaryCBs, uint32_t secondaryCBCount) {
-    uint attachmentCount = (uint)renderPass->getColorAttachments().size();
-    Color *actorColors = nullptr;
+    uint   attachmentCount = (uint)renderPass->getColorAttachments().size();
+    Color *actorColors     = nullptr;
     if (attachmentCount) {
         actorColors = getAllocator()->allocate<Color>(attachmentCount);
         memcpy(actorColors, colors, sizeof(Color) * attachmentCount);
@@ -372,7 +373,7 @@ void CommandBufferAgent::copyBuffersToTexture(const uint8_t *const *buffers, Tex
     const uint8_t **actorBuffers = allocator->allocate<const uint8_t *>(bufferCount);
     for (uint i = 0u, n = 0u; i < count; i++) {
         const BufferTextureCopy &region = regions[i];
-        uint size = FormatSize(texture->getFormat(), region.texExtent.width, region.texExtent.height, 1);
+        uint                     size   = FormatSize(texture->getFormat(), region.texExtent.width, region.texExtent.height, 1);
         for (uint l = 0; l < region.texSubres.layerCount; l++) {
             uint8_t *buffer = allocator->allocate<uint8_t>(size);
             memcpy(buffer, buffers[n], size);
@@ -393,7 +394,7 @@ void CommandBufferAgent::copyBuffersToTexture(const uint8_t *const *buffers, Tex
         });
 }
 
-void CommandBufferAgent::blitTexture(Texture* srcTexture, Texture* dstTexture, const TextureBlit* regions, uint count, Filter filter) {
+void CommandBufferAgent::blitTexture(Texture *srcTexture, Texture *dstTexture, const TextureBlit *regions, uint count, Filter filter) {
     Texture *actorSrcTexture = nullptr;
     Texture *actorDstTexture = nullptr;
     if (srcTexture) actorSrcTexture = ((TextureAgent *)srcTexture)->getActor();
@@ -438,24 +439,24 @@ void CommandBufferAgent::pipelineBarrier(const GlobalBarrier *barrier, const Tex
     }
     AccessType *accessTypes = getAllocator()->allocate<AccessType>(count);
 
-    GlobalBarrier *actorBarrier = nullptr;
+    GlobalBarrier * actorBarrier         = nullptr;
     TextureBarrier *actorTextureBarriers = getAllocator()->allocate<TextureBarrier>(textureBarrierCount);
-    uint index = 0u;
+    uint            index                = 0u;
 
     if (barrier) {
-        actorBarrier = getAllocator()->allocate<GlobalBarrier>(1);
+        actorBarrier                  = getAllocator()->allocate<GlobalBarrier>(1);
         actorBarrier->prevAccessCount = barrier->prevAccessCount;
-        actorBarrier->prevAccesses = accessTypes + index;
+        actorBarrier->prevAccesses    = accessTypes + index;
         for (uint i = 0u; i < barrier->prevAccessCount; ++i, ++index) accessTypes[index] = barrier->prevAccesses[i];
 
         actorBarrier->nextAccessCount = barrier->nextAccessCount;
-        actorBarrier->nextAccesses = accessTypes + index;
+        actorBarrier->nextAccesses    = accessTypes + index;
         for (uint i = 0u; i < barrier->nextAccessCount; ++i, ++index) accessTypes[index] = barrier->nextAccesses[i];
     }
 
     for (uint b = 0u; b < textureBarrierCount; ++b) {
         const TextureBarrier &textureBarrier = textureBarriers[b];
-        actorTextureBarriers[b] = textureBarrier;
+        actorTextureBarriers[b]              = textureBarrier;
 
         actorTextureBarriers[b].prevAccesses = accessTypes + index;
         for (uint i = 0u; i < textureBarrier.prevAccessCount; ++i, ++index) accessTypes[index] = textureBarrier.prevAccesses[i];

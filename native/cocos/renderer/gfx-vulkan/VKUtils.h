@@ -37,7 +37,7 @@ THE SOFTWARE.
 #define BARRIER_DEDUCTION_LEVEL_BASIC 1
 #define BARRIER_DEDUCTION_LEVEL_FULL  2
 
-#define BARRIER_DEDUCTION_LEVEL BARRIER_DEDUCTION_LEVEL_FULL
+#define BARRIER_DEDUCTION_LEVEL BARRIER_DEDUCTION_LEVEL_NONE
 
 namespace cc {
 namespace gfx {
@@ -267,7 +267,7 @@ VkImageUsageFlagBits MapVkImageUsageFlagBits(TextureUsage usage) {
 
 VkImageAspectFlags MapVkImageAspectFlags(Format format) {
     VkImageAspectFlags aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-    const FormatInfo &info = GFX_FORMAT_INFOS[(uint)format];
+    const FormatInfo & info       = GFX_FORMAT_INFOS[(uint)format];
     if (info.hasDepth) {
         aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
     }
@@ -390,27 +390,27 @@ String MapVendorName(uint32_t vendorID) {
 void MapDepthStencilBits(Format format, uint &depthBits, uint &stencilBits) {
     switch (format) {
         case Format::D16:
-            depthBits = 16;
+            depthBits   = 16;
             stencilBits = 0;
             break;
         case Format::D16S8:
-            depthBits = 16;
+            depthBits   = 16;
             stencilBits = 8;
             break;
         case Format::D24:
-            depthBits = 24;
+            depthBits   = 24;
             stencilBits = 0;
             break;
         case Format::D24S8:
-            depthBits = 24;
+            depthBits   = 24;
             stencilBits = 8;
             break;
         case Format::D32F:
-            depthBits = 32;
+            depthBits   = 32;
             stencilBits = 0;
             break;
         case Format::D32F_S8:
-            depthBits = 32;
+            depthBits   = 32;
             stencilBits = 8;
             break;
         default: break;

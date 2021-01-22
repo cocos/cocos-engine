@@ -471,73 +471,6 @@ void thsvsCmdWaitEvents(
     uint32_t                  imageBarrierCount,
     const ThsvsImageBarrier*  pImageBarriers);
 
-#endif // THSVS_SIMPLER_VULKAN_SYNCHRONIZATION_H
-
-#ifdef THSVS_SIMPLER_VULKAN_SYNCHRONIZATION_IMPLEMENTATION
-
-#include <stdlib.h>
-
-//// Optional Error Checking ////
-/*
-Checks for barriers defining multiple usages that have different layouts
-*/
-// #define THSVS_ERROR_CHECK_MIXED_IMAGE_LAYOUT
-
-/*
-Checks if an image/buffer barrier is used when a global barrier would suffice
-*/
-// #define THSVS_ERROR_CHECK_COULD_USE_GLOBAL_BARRIER
-
-/*
-Checks if a write access is listed alongside any other access - if so it
-points to a potential data hazard that you need to synchronize separately.
-In some cases it may simply be over-synchronization however, but it's usually
-worth checking.
-*/
-// #define THSVS_ERROR_CHECK_POTENTIAL_HAZARD
-
-/*
-Checks if a variety of table lookups (like the access map) are within
-a valid range.
-*/
-// #define THSVS_ERROR_CHECK_ACCESS_TYPE_IN_RANGE
-
-//// Temporary Memory Allocation ////
-/*
-Override these if you can't afford the stack space or just want to use a
-custom temporary allocator.
-These are currently used exclusively to allocate Vulkan memory barriers in
-the API, one for each Buffer or Image barrier passed into the pipeline and
-event functions.
-May consider other allocation strategies in future.
-*/
-
-// Alloca inclusion code below copied from
-// https://github.com/nothings/stb/blob/master/stb_vorbis.c
-
-// find definition of alloca if it's not in stdlib.h:
-#if defined(_MSC_VER) || defined(__MINGW32__)
-  #include <malloc.h>
-#endif
-#if defined(__linux__) || defined(__linux) || defined(__EMSCRIPTEN__)
-  #include <alloca.h>
-#endif
-
-#if defined(THSVS_ERROR_CHECK_ACCESS_TYPE_IN_RANGE) || \
-    defined(THSVS_ERROR_CHECK_COULD_USE_GLOBAL_BARRIER) || \
-    defined(THSVS_ERROR_CHECK_MIXED_IMAGE_LAYOUT) || \
-    defined(THSVS_ERROR_CHECK_POTENTIAL_HAZARD)
-  #include <assert.h>
-#endif
-
-#if !defined(THSVS_TEMP_ALLOC)
-#define THSVS_TEMP_ALLOC(size)              (alloca(size))
-#endif
-
-#if !defined(THSVS_TEMP_FREE)
-#define THSVS_TEMP_FREE(x)                  ((void)(x))
-#endif
-
 typedef struct ThsvsVkAccessInfo {
     VkPipelineStageFlags    stageMask;
     VkAccessFlags           accessMask;
@@ -846,6 +779,73 @@ const ThsvsVkAccessInfo ThsvsAccessMap[THSVS_NUM_ACCESS_TYPES] = {
         VK_ACCESS_MEMORY_READ_BIT | VK_ACCESS_MEMORY_WRITE_BIT,
         VK_IMAGE_LAYOUT_GENERAL}
 };
+
+#endif // THSVS_SIMPLER_VULKAN_SYNCHRONIZATION_H
+
+#ifdef THSVS_SIMPLER_VULKAN_SYNCHRONIZATION_IMPLEMENTATION
+
+#include <stdlib.h>
+
+//// Optional Error Checking ////
+/*
+Checks for barriers defining multiple usages that have different layouts
+*/
+// #define THSVS_ERROR_CHECK_MIXED_IMAGE_LAYOUT
+
+/*
+Checks if an image/buffer barrier is used when a global barrier would suffice
+*/
+// #define THSVS_ERROR_CHECK_COULD_USE_GLOBAL_BARRIER
+
+/*
+Checks if a write access is listed alongside any other access - if so it
+points to a potential data hazard that you need to synchronize separately.
+In some cases it may simply be over-synchronization however, but it's usually
+worth checking.
+*/
+// #define THSVS_ERROR_CHECK_POTENTIAL_HAZARD
+
+/*
+Checks if a variety of table lookups (like the access map) are within
+a valid range.
+*/
+// #define THSVS_ERROR_CHECK_ACCESS_TYPE_IN_RANGE
+
+//// Temporary Memory Allocation ////
+/*
+Override these if you can't afford the stack space or just want to use a
+custom temporary allocator.
+These are currently used exclusively to allocate Vulkan memory barriers in
+the API, one for each Buffer or Image barrier passed into the pipeline and
+event functions.
+May consider other allocation strategies in future.
+*/
+
+// Alloca inclusion code below copied from
+// https://github.com/nothings/stb/blob/master/stb_vorbis.c
+
+// find definition of alloca if it's not in stdlib.h:
+#if defined(_MSC_VER) || defined(__MINGW32__)
+  #include <malloc.h>
+#endif
+#if defined(__linux__) || defined(__linux) || defined(__EMSCRIPTEN__)
+  #include <alloca.h>
+#endif
+
+#if defined(THSVS_ERROR_CHECK_ACCESS_TYPE_IN_RANGE) || \
+    defined(THSVS_ERROR_CHECK_COULD_USE_GLOBAL_BARRIER) || \
+    defined(THSVS_ERROR_CHECK_MIXED_IMAGE_LAYOUT) || \
+    defined(THSVS_ERROR_CHECK_POTENTIAL_HAZARD)
+  #include <assert.h>
+#endif
+
+#if !defined(THSVS_TEMP_ALLOC)
+#define THSVS_TEMP_ALLOC(size)              (alloca(size))
+#endif
+
+#if !defined(THSVS_TEMP_FREE)
+#define THSVS_TEMP_FREE(x)                  ((void)(x))
+#endif
 
 void thsvsGetVulkanMemoryBarrier(
     ThsvsGlobalBarrier      thBarrier,

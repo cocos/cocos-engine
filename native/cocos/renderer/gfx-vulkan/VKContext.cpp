@@ -40,60 +40,51 @@ namespace gfx {
 
 namespace {
 
-constexpr uint FORCE_MINOR_VERSION = 0;             // 0 for default version, otherwise minorVersion = (FORCE_MINOR_VERSION - 1)
-constexpr uint DISABLE_VALIDATION_ASSERTIONS = 0;   // 0 for default behavior, otherwise assertions will be disabled
+constexpr uint FORCE_MINOR_VERSION           = 0; // 0 for default version, otherwise minorVersion = (FORCE_MINOR_VERSION - 1)
+constexpr uint DISABLE_VALIDATION_ASSERTIONS = 0; // 0 for default behavior, otherwise assertions will be disabled
 
 #define FORCE_ENABLE_VALIDATION  0
 #define FORCE_DISABLE_VALIDATION 0
 
 #if CC_DEBUG > 0 && !FORCE_DISABLE_VALIDATION || FORCE_ENABLE_VALIDATION
-VKAPI_ATTR VkBool32 VKAPI_CALL debugUtilsMessengerCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
-                                                           VkDebugUtilsMessageTypeFlagsEXT messageType,
+VKAPI_ATTR VkBool32 VKAPI_CALL debugUtilsMessengerCallback(VkDebugUtilsMessageSeverityFlagBitsEXT      messageSeverity,
+                                                           VkDebugUtilsMessageTypeFlagsEXT             messageType,
                                                            const VkDebugUtilsMessengerCallbackDataEXT *callbackData,
-                                                           void *userData) {
-    // GPU-assisted validation might throw this due to driver reasons which is safe to ignore
-    if (strstr(callbackData->pMessage, "Failure to instrument shader")) {
-        return VK_FALSE;
-    }
-
-    // Log debug messge
-    if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT) {
-        CC_LOG_WARNING("%s: %s", callbackData->pMessageIdName, callbackData->pMessage);
-    } else if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT) {
+                                                           void *                                      userData) {
+    if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT) {
         CC_LOG_ERROR("%s: %s", callbackData->pMessageIdName, callbackData->pMessage);
         CCASSERT(DISABLE_VALIDATION_ASSERTIONS, "Validation Error");
+    } else if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT) {
+        CC_LOG_WARNING("%s: %s", callbackData->pMessageIdName, callbackData->pMessage);
+    } else if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT) {
+        //CC_LOG_INFO("%s: %s", callbackData->pMessageIdName, callbackData->pMessage);
+    } else if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT) {
+        //CC_LOG_DEBUG("%s: %s", callbackData->pMessageIdName, callbackData->pMessage);
+    } else {
+        CC_LOG_ERROR("%s: %s", callbackData->pMessageIdName, callbackData->pMessage);
     }
     return VK_FALSE;
 }
 
-VKAPI_ATTR VkBool32 VKAPI_CALL debugReportCallback(VkDebugReportFlagsEXT flags,
+VKAPI_ATTR VkBool32 VKAPI_CALL debugReportCallback(VkDebugReportFlagsEXT      flags,
                                                    VkDebugReportObjectTypeEXT type,
-                                                   uint64_t object,
-                                                   size_t location,
-                                                   int32_t messageCode,
-                                                   const char *layerPrefix,
-                                                   const char *message,
-                                                   void *userData) {
-    // GPU-assisted validation might throw this due to driver reasons which is safe to ignore
-    if (strstr(message, "Failure to instrument shader")) {
-        return VK_FALSE;
-    }
-
-    // These are thrown randomly when missing proper vulkan drivers
-    // at which time we should try to shut down the backend gracefully instead of freezing at assertions
-    if (strstr(message, "setupLoaderTermPhysDevs") || strstr(message, "setupLoaderTrampPhysDevs")) {
-        return VK_FALSE;
-    }
-
+                                                   uint64_t                   object,
+                                                   size_t                     location,
+                                                   int32_t                    messageCode,
+                                                   const char *               layerPrefix,
+                                                   const char *               message,
+                                                   void *                     userData) {
     if (flags & VK_DEBUG_REPORT_ERROR_BIT_EXT) {
-        CC_LOG_ERROR("VError: %s: %s", layerPrefix, message);
+        CC_LOG_ERROR("%s: %s", layerPrefix, message);
         CCASSERT(DISABLE_VALIDATION_ASSERTIONS, "Validation Error");
-    } else if (flags & VK_DEBUG_REPORT_WARNING_BIT_EXT) {
-        CC_LOG_ERROR("VWarning: %s: %s", layerPrefix, message);
-    } else if (flags & VK_DEBUG_REPORT_PERFORMANCE_WARNING_BIT_EXT) {
-        CC_LOG_INFO("VPerfWarning: %s: %s", layerPrefix, message);
+    } else if (flags & (VK_DEBUG_REPORT_WARNING_BIT_EXT | VK_DEBUG_REPORT_PERFORMANCE_WARNING_BIT_EXT)) {
+        CC_LOG_WARNING("%s: %s", layerPrefix, message);
+    } else if (flags & VK_DEBUG_REPORT_INFORMATION_BIT_EXT) {
+        //CC_LOG_INFO("%s: %s", layerPrefix, message);
+    } else if (flags & VK_DEBUG_REPORT_DEBUG_BIT_EXT) {
+        //CC_LOG_DEBUG("%s: %s", layerPrefix, message);
     } else {
-        CC_LOG_INFO("VInfo: %s: %s", layerPrefix, message);
+        CC_LOG_ERROR("%s: %s", layerPrefix, message);
     }
     return VK_FALSE;
 }
@@ -109,7 +100,7 @@ CCVKContext::~CCVKContext() {
 
 bool CCVKContext::initialize(const ContextInfo &info) {
 
-    _vsyncMode = info.vsyncMode;
+    _vsyncMode    = info.vsyncMode;
     _windowHandle = info.windowHandle;
 
     if (!info.sharedCtx) {
@@ -223,41 +214,36 @@ bool CCVKContext::initialize(const ContextInfo &info) {
 
         VkApplicationInfo app{VK_STRUCTURE_TYPE_APPLICATION_INFO};
         app.pEngineName = "Cocos Creator";
-        app.apiVersion = apiVersion;
+        app.apiVersion  = apiVersion;
 
         VkInstanceCreateInfo instanceInfo{VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO};
-        instanceInfo.pApplicationInfo = &app;
-        instanceInfo.enabledExtensionCount = toUint(_extensions.size());
+        instanceInfo.pApplicationInfo        = &app;
+        instanceInfo.enabledExtensionCount   = toUint(_extensions.size());
         instanceInfo.ppEnabledExtensionNames = _extensions.data();
-        instanceInfo.enabledLayerCount = toUint(_layers.size());
-        instanceInfo.ppEnabledLayerNames = _layers.data();
+        instanceInfo.enabledLayerCount       = toUint(_layers.size());
+        instanceInfo.ppEnabledLayerNames     = _layers.data();
 
 #if CC_DEBUG > 0 && !FORCE_DISABLE_VALIDATION || FORCE_ENABLE_VALIDATION
         VkDebugUtilsMessengerCreateInfoEXT debugUtilsCreateInfo{VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT};
         VkDebugReportCallbackCreateInfoEXT debugReportCreateInfo{VK_STRUCTURE_TYPE_DEBUG_REPORT_CREATE_INFO_EXT};
         if (debugUtils) {
-            debugUtilsCreateInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT;
-            debugUtilsCreateInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT;
+            debugUtilsCreateInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT |
+                                                   VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT |
+                                                   VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT |
+                                                   VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT;
+            debugUtilsCreateInfo.messageType     = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
             debugUtilsCreateInfo.pfnUserCallback = debugUtilsMessengerCallback;
 
             instanceInfo.pNext = &debugUtilsCreateInfo;
         } else {
-            debugReportCreateInfo.flags = VK_DEBUG_REPORT_ERROR_BIT_EXT | VK_DEBUG_REPORT_WARNING_BIT_EXT;
+            debugReportCreateInfo.flags = VK_DEBUG_REPORT_ERROR_BIT_EXT |
+                                          VK_DEBUG_REPORT_WARNING_BIT_EXT |
+                                          VK_DEBUG_REPORT_PERFORMANCE_WARNING_BIT_EXT |
+                                          VK_DEBUG_REPORT_INFORMATION_BIT_EXT |
+                                          VK_DEBUG_REPORT_DEBUG_BIT_EXT;
             debugReportCreateInfo.pfnCallback = debugReportCallback;
 
             instanceInfo.pNext = &debugReportCreateInfo;
-        }
-
-        VkValidationFeaturesEXT features = {VK_STRUCTURE_TYPE_VALIDATION_FEATURES_EXT};
-        VkValidationFeatureEnableEXT enables[] = {VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_EXT};
-        features.enabledValidationFeatureCount = 1;
-        features.pEnabledValidationFeatures = enables;
-        if (_minorVersion >= 1 && isLayerSupported("VK_LAYER_KHRONOS_validation", supportedLayers)) {
-            if (debugUtils) {
-                debugUtilsCreateInfo.pNext = &features;
-            } else {
-                debugReportCreateInfo.pNext = &features;
-            }
         }
 #endif
 
@@ -311,8 +297,8 @@ bool CCVKContext::initialize(const ContextInfo &info) {
 
             if (_gpuContext && _gpuContext->vkSurface == VK_NULL_HANDLE) {
                 VkAndroidSurfaceCreateInfoKHR surfaceCreateInfo{
-                        VK_STRUCTURE_TYPE_ANDROID_SURFACE_CREATE_INFO_KHR};
-                surfaceCreateInfo.window = (ANativeWindow *) _windowHandle;
+                    VK_STRUCTURE_TYPE_ANDROID_SURFACE_CREATE_INFO_KHR};
+                surfaceCreateInfo.window = (ANativeWindow *)_windowHandle;
                 VK_CHECK(vkCreateAndroidSurfaceKHR(_gpuContext->vkInstance, &surfaceCreateInfo,
                                                    nullptr, &_gpuContext->vkSurface));
 
@@ -322,7 +308,7 @@ bool CCVKContext::initialize(const ContextInfo &info) {
 #elif defined(VK_USE_PLATFORM_WIN32_KHR)
         VkWin32SurfaceCreateInfoKHR surfaceCreateInfo{VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR};
         surfaceCreateInfo.hinstance = (HINSTANCE)GetModuleHandle(0);
-        surfaceCreateInfo.hwnd = (HWND)_windowHandle;
+        surfaceCreateInfo.hwnd      = (HWND)_windowHandle;
         VK_CHECK(vkCreateWin32SurfaceKHR(_gpuContext->vkInstance, &surfaceCreateInfo, nullptr, &_gpuContext->vkSurface));
 #elif defined(VK_USE_PLATFORM_METAL_EXT)
         VkMetalSurfaceCreateInfoEXT surfaceCreateInfo{VK_STRUCTURE_TYPE_METAL_SURFACE_CREATE_INFO_EXT};
@@ -336,7 +322,7 @@ bool CCVKContext::initialize(const ContextInfo &info) {
 #elif defined(VK_USE_PLATFORM_XCB_KHR)
         VkXcbSurfaceCreateInfoKHR surfaceCreateInfo{VK_STRUCTURE_TYPE_XCB_SURFACE_CREATE_INFO_KHR};
         surfaceCreateInfo.connection = nullptr; // TODO
-        surfaceCreateInfo.window = (xcb_window_t)_windowHandle;
+        surfaceCreateInfo.window     = (xcb_window_t)_windowHandle;
         VK_CHECK(vkCreateXcbSurfaceKHR(_gpuContext->vkInstance, &surfaceCreateInfo, nullptr, &_gpuContext->vkSurface));
 #else
     #pragma error Platform not supported
@@ -374,14 +360,14 @@ bool CCVKContext::initialize(const ContextInfo &info) {
             deviceIndex = 0;
         }
 
-        _gpuContext->physicalDevice = physicalDeviceHandles[deviceIndex];
+        _gpuContext->physicalDevice           = physicalDeviceHandles[deviceIndex];
         _gpuContext->physicalDeviceProperties = physicalDeviceProperties[deviceIndex];
         vkGetPhysicalDeviceFeatures(_gpuContext->physicalDevice, &_gpuContext->physicalDeviceFeatures);
 
         if (_minorVersion >= 1 || checkExtension(VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME)) {
             vkGetPhysicalDeviceProperties2KHR(_gpuContext->physicalDevice, &_gpuContext->physicalDeviceProperties2);
 
-            _gpuContext->physicalDeviceFeatures2.pNext = &_gpuContext->physicalDeviceVulkan11Features;
+            _gpuContext->physicalDeviceFeatures2.pNext        = &_gpuContext->physicalDeviceVulkan11Features;
             _gpuContext->physicalDeviceVulkan11Features.pNext = &_gpuContext->physicalDeviceVulkan12Features;
             vkGetPhysicalDeviceFeatures2KHR(_gpuContext->physicalDevice, &_gpuContext->physicalDeviceFeatures2);
         }
@@ -402,7 +388,7 @@ bool CCVKContext::initialize(const ContextInfo &info) {
 
         ///////////////////// Swapchain Preperation /////////////////////
 
-        _colorFmt = Format::BGRA8;
+        _colorFmt        = Format::BGRA8;
         _depthStencilFmt = Format::D24S8;
 
         VkSurfaceCapabilitiesKHR surfaceCapabilities{};
@@ -418,21 +404,21 @@ bool CCVKContext::initialize(const ContextInfo &info) {
         vector<VkPresentModeKHR> presentModes(presentModeCount);
         VK_CHECK(vkGetPhysicalDeviceSurfacePresentModesKHR(_gpuContext->physicalDevice, _gpuContext->vkSurface, &presentModeCount, presentModes.data()));
 
-        VkFormat colorFormat = VK_FORMAT_B8G8R8A8_UNORM;
-        VkColorSpaceKHR colorSpace = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR;
+        VkFormat        colorFormat = VK_FORMAT_B8G8R8A8_UNORM;
+        VkColorSpaceKHR colorSpace  = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR;
         // If the surface format list only includes one entry with VK_FORMAT_UNDEFINED,
         // there is no preferered format, so we assume VK_FORMAT_B8G8R8A8_UNORM
         if ((surfaceFormatCount == 1) && (surfaceFormats[0].format == VK_FORMAT_UNDEFINED)) {
             colorFormat = VK_FORMAT_B8G8R8A8_UNORM;
-            colorSpace = surfaceFormats[0].colorSpace;
+            colorSpace  = surfaceFormats[0].colorSpace;
         } else {
             // iterate over the list of available surface format and
             // check for the presence of VK_FORMAT_B8G8R8A8_UNORM
             bool imageFormatFound = false;
             for (VkSurfaceFormatKHR &surfaceFormat : surfaceFormats) {
                 if (surfaceFormat.format == VK_FORMAT_B8G8R8A8_UNORM) {
-                    colorFormat = surfaceFormat.format;
-                    colorSpace = surfaceFormat.colorSpace;
+                    colorFormat      = surfaceFormat.format;
+                    colorSpace       = surfaceFormat.colorSpace;
                     imageFormatFound = true;
                     break;
                 }
@@ -442,7 +428,7 @@ bool CCVKContext::initialize(const ContextInfo &info) {
             // select the first available color format
             if (!imageFormatFound) {
                 colorFormat = surfaceFormats[0].format;
-                colorSpace = surfaceFormats[0].colorSpace;
+                colorSpace  = surfaceFormats[0].colorSpace;
                 switch (colorFormat) {
                     case VK_FORMAT_R8G8B8A8_UNORM: _colorFmt = Format::RGBA8; break;
                     case VK_FORMAT_R8G8B8A8_SRGB: _colorFmt = Format::SRGB8_A8; break;
@@ -498,7 +484,7 @@ bool CCVKContext::initialize(const ContextInfo &info) {
             desiredNumberOfSwapchainImages = surfaceCapabilities.maxImageCount;
         }
 
-        VkExtent2D imageExtent = {1u, 1u};
+        VkExtent2D                    imageExtent  = {1u, 1u};
         VkSurfaceTransformFlagBitsKHR preTransform = VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR;
 
         // Find a supported composite alpha format (not all devices support alpha opaque)
@@ -527,25 +513,25 @@ bool CCVKContext::initialize(const ContextInfo &info) {
             imageUsage |= VK_IMAGE_USAGE_TRANSFER_DST_BIT;
         }
 
-        _gpuContext->swapchainCreateInfo.surface = _gpuContext->vkSurface;
-        _gpuContext->swapchainCreateInfo.minImageCount = desiredNumberOfSwapchainImages;
-        _gpuContext->swapchainCreateInfo.imageFormat = colorFormat;
-        _gpuContext->swapchainCreateInfo.imageColorSpace = colorSpace;
-        _gpuContext->swapchainCreateInfo.imageExtent = imageExtent;
-        _gpuContext->swapchainCreateInfo.imageUsage = imageUsage;
+        _gpuContext->swapchainCreateInfo.surface          = _gpuContext->vkSurface;
+        _gpuContext->swapchainCreateInfo.minImageCount    = desiredNumberOfSwapchainImages;
+        _gpuContext->swapchainCreateInfo.imageFormat      = colorFormat;
+        _gpuContext->swapchainCreateInfo.imageColorSpace  = colorSpace;
+        _gpuContext->swapchainCreateInfo.imageExtent      = imageExtent;
+        _gpuContext->swapchainCreateInfo.imageUsage       = imageUsage;
         _gpuContext->swapchainCreateInfo.imageArrayLayers = 1;
-        _gpuContext->swapchainCreateInfo.preTransform = preTransform;
-        _gpuContext->swapchainCreateInfo.compositeAlpha = compositeAlpha;
-        _gpuContext->swapchainCreateInfo.presentMode = swapchainPresentMode;
-        _gpuContext->swapchainCreateInfo.clipped = VK_TRUE; // Setting clipped to VK_TRUE allows the implementation to discard rendering outside of the surface area
+        _gpuContext->swapchainCreateInfo.preTransform     = preTransform;
+        _gpuContext->swapchainCreateInfo.compositeAlpha   = compositeAlpha;
+        _gpuContext->swapchainCreateInfo.presentMode      = swapchainPresentMode;
+        _gpuContext->swapchainCreateInfo.clipped          = VK_TRUE; // Setting clipped to VK_TRUE allows the implementation to discard rendering outside of the surface area
 
     } else {
         CCVKContext *sharedCtx = (CCVKContext *)info.sharedCtx;
-        _majorVersion = sharedCtx->majorVersion();
-        _minorVersion = sharedCtx->minorVersion();
-        _layers = sharedCtx->getLayers();
-        _extensions = sharedCtx->getExtensions();
-        _gpuContext = sharedCtx->gpuContext();
+        _majorVersion          = sharedCtx->majorVersion();
+        _minorVersion          = sharedCtx->minorVersion();
+        _layers                = sharedCtx->getLayers();
+        _extensions            = sharedCtx->getExtensions();
+        _gpuContext            = sharedCtx->gpuContext();
     }
 
     return true;

@@ -74,7 +74,7 @@ protected:
     vector<LinearAllocatorPool *> _allocatorPools;
     Semaphore _frameBoundarySemaphore{MAX_CPU_FRAME_AHEAD};
 
-    unordered_set<LinearAllocatorPool **> _allocatorPoolRefs;
+    unordered_set<CommandBufferAgent *> _cmdBuffRefs;
 };
 
 } // namespace gfx
