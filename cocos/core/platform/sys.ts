@@ -374,11 +374,11 @@ export const sys: Record<string, any> = {
      */
     COCOSPLAY: 112,
     /**
-     * @property {Number} ALIPAY_MINI_GAME
+     * @property {Number} YOUKU_MINI_GAME
      * @readOnly
      * @default 113
      */
-    ALIPAY_MINI_GAME: 113,
+    YOUKU_MINI_GAME: 113,
     /**
      * @property {Number} QTT_MINI_GAME
      * @readOnly
