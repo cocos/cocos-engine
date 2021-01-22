@@ -52,8 +52,14 @@ declare module 'internal:constants' {
 
     /**
      * Running in the alipay's mini game.
+     * @deprecated use YOUKU instead
      */
     export const ALIPAY: boolean;
+
+    /**
+     * Running in the youku's mini game.
+     */
+    export const YOUKU: boolean;
 
     /**
      * Running in the xiaomi's quick game.
