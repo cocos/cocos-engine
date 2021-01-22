@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) Huawei Technologies Co., Ltd. 2020-2021.
 
  https://www.cocos.com/
 
