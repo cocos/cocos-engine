@@ -280,6 +280,56 @@ export class RenderAdditiveLightQueue {
         }
     }
 
+    // gather validLights
+    protected _gatherValidLights (camera: Camera, validLights: Light[]) {
+        const { sphereLights } = camera.scene!;
+        for (let i = 0; i < sphereLights.length; i++) {
+            const light = sphereLights[i];
+            if (light.baked) {
+                continue;
+            }
+
+            Sphere.set(_sphere, light.position.x, light.position.y, light.position.z, light.range);
+            if (intersect.sphereFrustum(_sphere, camera.frustum)) {
+                validLights.push(light);
+                this._getOrCreateDescriptorSet(light);
+            }
+        }
+        const { spotLights } = camera.scene!;
+        for (let i = 0; i < spotLights.length; i++) {
+            const light = spotLights[i];
+            if (light.baked) {
+                continue;
+            }
+
+            Sphere.set(_sphere, light.position.x, light.position.y, light.position.z, light.range);
+            if (intersect.sphereFrustum(_sphere, camera.frustum)) {
+                validLights.push(light);
+                this._getOrCreateDescriptorSet(light);
+            }
+        }
+    }
+
+    // light culling
+    protected _lightCulling (model:Model, validLights: Light[]) {
+        for (let l = 0; l < validLights.length; l++) {
+            const light = validLights[l];
+            let isCulled = false;
+            switch (light.type) {
+            case LightType.SPHERE:
+                isCulled = cullSphereLight(light as SphereLight, model);
+                break;
+            case LightType.SPOT:
+                isCulled = cullSpotLight(light as SpotLight, model);
+                break;
+            default:
+            }
+            if (!isCulled) {
+                _lightIndices.push(l);
+            }
+        }
+    }
+
     // add renderQueue
     protected _addRenderQueue (pass: Pass, subModel: SubModel, model: Model, lightPassIdx: number, validLights: Light[]) {
         const { batchingScheme } = pass;
@@ -310,56 +360,6 @@ export class RenderAdditiveLightQueue {
             }
 
             this._lightPasses.push(lp);
-        }
-    }
-
-    // light culling
-    protected _lightCulling (model:Model, validLights: Light[]) {
-        for (let l = 0; l < validLights.length; l++) {
-            const light = validLights[l];
-            let isCulled = false;
-            switch (light.type) {
-            case LightType.SPHERE:
-                isCulled = cullSphereLight(light as SphereLight, model);
-                break;
-            case LightType.SPOT:
-                isCulled = cullSpotLight(light as SpotLight, model);
-                break;
-            default:
-            }
-            if (!isCulled) {
-                _lightIndices.push(l);
-            }
-        }
-    }
-
-    // gather validLights
-    protected _gatherValidLights (camera: Camera, validLights: Light[]) {
-        const { sphereLights } = camera.scene!;
-        for (let i = 0; i < sphereLights.length; i++) {
-            const light = sphereLights[i];
-            if (light.baked) {
-                continue;
-            }
-
-            Sphere.set(_sphere, light.position.x, light.position.y, light.position.z, light.range);
-            if (intersect.sphereFrustum(_sphere, camera.frustum)) {
-                validLights.push(light);
-                this._getOrCreateDescriptorSet(light);
-            }
-        }
-        const { spotLights } = camera.scene!;
-        for (let i = 0; i < spotLights.length; i++) {
-            const light = spotLights[i];
-            if (light.baked) {
-                continue;
-            }
-
-            Sphere.set(_sphere, light.position.x, light.position.y, light.position.z, light.range);
-            if (intersect.sphereFrustum(_sphere, camera.frustum)) {
-                validLights.push(light);
-                this._getOrCreateDescriptorSet(light);
-            }
         }
     }
 
