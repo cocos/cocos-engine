@@ -183,7 +183,7 @@ export class PhysXSharedBody {
         const a0 = isStaticBefore ? this._staticActor : this._dynamicActor;
         const a1 = !isStaticBefore ? this._staticActor : this._dynamicActor;
         if (this._index >= 0) {
-            this.wrappedWorld.scene.removeActor(a0, true);
+            this.wrappedWorld.scene.removeActor(a0, false);
             addActorToScene(this.wrappedWorld.scene, a1);
         }
         for (let i = 0; i < this.wrappedShapes.length; i++) {
