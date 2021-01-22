@@ -126,7 +126,7 @@ if (EXPORT_TO_GLOBAL) {
     _global.CC_ALIPAY = ALIPAY;
     /**
      * @en The pre-compilation constant for code tree shaking: CC_YOUKU (Available for Youku mini game platform)
-     * @zh 预编译宏变量，通常用来做平台或环境相关自动代码剔除：CC_YOUKU（在支付宝小游戏平台上生效）
+     * @zh 预编译宏变量，通常用来做平台或环境相关自动代码剔除：CC_YOUKU（在优酷小游戏平台上生效）
      */
     _global.CC_YOUKU = YOUKU;
     /**
