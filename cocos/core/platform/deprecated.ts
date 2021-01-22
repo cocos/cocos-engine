@@ -43,8 +43,7 @@ replaceProperty(sys, 'sys', [
         name: 'ALIPAY_MINI_GAME',
         newName: 'YOUKU_MINI_GAME',
         customGetter () {
-            // @ts-ignore
-            return sys.YOUKU_MINI_GAME;
+            return sys.YOUKU_MINI_GAME as number;
         },
     },
 ]);
