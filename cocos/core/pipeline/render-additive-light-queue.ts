@@ -306,7 +306,7 @@ export class RenderAdditiveLightQueue {
             for (let l = 0; l < _lightIndices.length; l++) {
                 const idx = _lightIndices[l];
                 lp.lights.push(validLights[idx]);
-                lp.dynamicOffsets.push(this._lightBufferStride * _lightIndices[l]);
+                lp.dynamicOffsets.push(this._lightBufferStride * idx);
             }
 
             this._lightPasses.push(lp);
