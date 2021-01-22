@@ -1263,8 +1263,16 @@ export class Skeleton extends Renderable2D {
     public onEnable () {
         super.onEnable();
         this._flushAssembler();
+    }
+
+    public _onSyncTransform () {
         this.node.on(SystemEventType.TRANSFORM_CHANGED, this.syncTransform, this);
         this.node.on(SystemEventType.SIZE_CHANGED, this.syncTransform, this);
+    }
+
+    public _offSyncTransform () {
+        this.node.off(SystemEventType.TRANSFORM_CHANGED, this.syncTransform, this);
+        this.node.off(SystemEventType.SIZE_CHANGED, this.syncTransform, this);
     }
 
     private syncTransform () {

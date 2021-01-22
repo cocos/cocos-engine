@@ -378,6 +378,7 @@ const cacheManager = require('./jsb-cache-manager');
     let _onEnable = skeleton.onEnable;
     skeleton.onEnable = function () {
         _onEnable.call(this);
+        this._onSyncTransform();
         this.syncTransform(true);
 
         if (this._nativeSkeleton) {
@@ -389,6 +390,8 @@ const cacheManager = require('./jsb-cache-manager');
     let _onDisable = skeleton.onDisable;
     skeleton.onDisable = function () {
         _onDisable.call(this);
+        this._offSyncTransform();
+        
         if (this._nativeSkeleton) {
             this._nativeSkeleton.onDisable();
         }
@@ -443,7 +446,6 @@ const cacheManager = require('./jsb-cache-manager');
             middleware.renderOrder++;
         }
 
-        this.syncTransform();
 
         if (this.__preColor__ === undefined || !this.color.equals(this.__preColor__)) {
             let compColor = this.color;

@@ -519,6 +519,7 @@ const cacheManager = require('./jsb-cache-manager');
         if (this._armature && !this.isAnimationCached()) {
             this._factory.add(this._armature);
         }
+        this._onSyncTransform();
         this.syncTransform(true);
         this._flushAssembler();
         middleware.retain();
@@ -530,6 +531,7 @@ const cacheManager = require('./jsb-cache-manager');
         if (this._armature && !this.isAnimationCached()) {
             this._factory.remove(this._armature);
         }
+        this._offSyncTransform();
         middleware.release();
     };
 
@@ -633,7 +635,6 @@ const cacheManager = require('./jsb-cache-manager');
             middleware.renderOrder++;
         }
 
-        this.syncTransform();
 
         if (this.__preColor__ === undefined || !this.color.equals(this.__preColor__)) {
             let compColor = this.color;
