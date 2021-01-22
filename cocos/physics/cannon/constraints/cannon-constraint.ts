@@ -50,6 +50,8 @@ export class CannonConstraint implements IBaseConstraint {
         } else {
             this._impl.bodyB = (CANNON.World as any).staticBody;
         }
+        const newBJ = this._impl.bodyB;
+        this._impl.equations.forEach((v: CANNON.Equation) => { v.bj = newBJ; });
     }
 
     setEnableCollision (v: boolean): void {
