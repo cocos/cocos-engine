@@ -70,14 +70,17 @@ export class CannonHingeConstraint extends CannonConstraint implements IHingeCon
         Vec3.copy(this.impl.axisA, v);
         Vec3.copy((this.impl.equations[3] as CANNON.RotationalEquation).axisA, v);
         Vec3.copy((this.impl.equations[4] as CANNON.RotationalEquation).axisA, v);
+        Vec3.copy((this.impl.equations[5] as CANNON.RotationalMotorEquation).axisA, v);
         if (this.constraint.connectedBody) {
             Vec3.copy(this.impl.axisB, v);
             Vec3.copy((this.impl.equations[3] as CANNON.RotationalEquation).axisB, v);
             Vec3.copy((this.impl.equations[4] as CANNON.RotationalEquation).axisB, v);
+            Vec3.copy((this.impl.equations[5] as CANNON.RotationalMotorEquation).axisB, v);
         } else {
             Vec3.transformQuat(this.impl.axisB, v, this.constraint.node.worldRotation);
             Vec3.copy((this.impl.equations[3] as CANNON.RotationalEquation).axisB, this.impl.axisB);
             Vec3.copy((this.impl.equations[4] as CANNON.RotationalEquation).axisB, this.impl.axisB);
+            Vec3.copy((this.impl.equations[5] as CANNON.RotationalMotorEquation).axisB, this.impl.axisB);
         }
     }
 
