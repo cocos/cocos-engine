@@ -86,22 +86,7 @@ export class PhysXRigidBody implements IRigidBody {
     }
 
     setType (v: ERigidBodyType): void {
-        switch (v) {
-        case ERigidBodyType.DYNAMIC:
-            if (this.isStatic) return;
-            this._sharedBody.setRigidBodyFlag(PX.RigidBodyFlag.eKINEMATIC, false);
-            break;
-        case ERigidBodyType.KINEMATIC:
-            if (this.isStatic) return;
-            this._sharedBody.setRigidBodyFlag(PX.RigidBodyFlag.eKINEMATIC, true);
-            break;
-        case ERigidBodyType.STATIC:
-        default:
-            // hack
-            if (this.isStatic) return;
-            this._sharedBody.setRigidBodyFlag(PX.RigidBodyFlag.eKINEMATIC, true);
-            break;
-        }
+        this._sharedBody.setType(v);
     }
 
     setMass (v: number): void {

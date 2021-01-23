@@ -31,8 +31,10 @@
 /// physics namespace ///
 
 import * as physics from '../cocos/physics/framework';
+import { cclegacy } from './base';
 
 export { physics };
+cclegacy.physics = physics;
 
 /// cc namespace ///
 
