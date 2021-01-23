@@ -67,8 +67,9 @@ export const CollisionEventObject = {
 export function shrinkPositions (buffer: Float32Array | number[]): number[] {
     const pos: number[] = [];
     if (buffer.length >= 3) {
+        // eslint-disable-next-line no-unused-expressions
         pos[0] = buffer[0], pos[1] = buffer[1], pos[2] = buffer[2];
-        const len = buffer.length
+        const len = buffer.length;
         for (let i = 3; i < len; i += 3) {
             const p0 = buffer[i];
             const p1 = buffer[i + 1];
@@ -87,4 +88,4 @@ export function shrinkPositions (buffer: Float32Array | number[]): number[] {
         }
     }
     return pos;
-};
+}

@@ -34,7 +34,10 @@ import { PhysXRigidBody } from './physx-rigid-body';
 import { PhysXWorld } from './physx-world';
 import { PhysXShape } from './shapes/physx-shape';
 import { TransformBit } from '../../core/scene-graph/node-enum';
-import { addActorToScene, copyPhysXTransform, getTempTransform, physXEqualsCocosQuat, physXEqualsCocosVec3, PX, setMassAndUpdateInertia } from './export-physx';
+import {
+    addActorToScene, copyPhysXTransform, getTempTransform, physXEqualsCocosQuat,
+    physXEqualsCocosVec3, PX, setMassAndUpdateInertia,
+} from './export-physx';
 import { VEC3_0 } from '../utils/util';
 import { ERigidBodyType, PhysicsSystem } from '../framework';
 import { PhysXJoint } from './joints/physx-joint';
@@ -143,8 +146,7 @@ export class PhysXSharedBody {
             this._isKinematic = false;
             this._initStaticActor();
         }
-        if (st !== this._isStatic)
-            this._switchActor(st);
+        if (st !== this._isStatic) { this._switchActor(st); }
     }
 
     private _initStaticActor () {
@@ -260,13 +262,13 @@ export class PhysXSharedBody {
         this._initActor();
         if (this.isStatic) return;
         switch (v) {
-            case ERigidBodyType.DYNAMIC:
-                this.setRigidBodyFlag(PX.RigidBodyFlag.eKINEMATIC, false);
-                break;
-            case ERigidBodyType.KINEMATIC:
-            default:
-                this.setRigidBodyFlag(PX.RigidBodyFlag.eKINEMATIC, true);
-                break;
+        case ERigidBodyType.DYNAMIC:
+            this.setRigidBodyFlag(PX.RigidBodyFlag.eKINEMATIC, false);
+            break;
+        case ERigidBodyType.KINEMATIC:
+        default:
+            this.setRigidBodyFlag(PX.RigidBodyFlag.eKINEMATIC, true);
+            break;
         }
     }
 

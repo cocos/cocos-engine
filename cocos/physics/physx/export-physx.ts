@@ -195,7 +195,7 @@ export function getContactData (vec: any, index: number, o: number) {
         return index + o;
     } else {
         const gc = PX.getGContacts();
-        const data = gc.get(index + o)
+        const data = gc.get(index + o);
         gc.delete();
         return data;
     }
