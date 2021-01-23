@@ -41,28 +41,14 @@ THE SOFTWARE.
 #include "gfx/GFXSampler.h"
 #include "gfx/GFXTexture.h"
 #include "Define.h"
-#include "forward/SceneCulling.h"
+#include "SceneCulling.h"
 
 namespace cc {
 namespace pipeline {
-namespace {
-#define TO_VEC3(dst, src, offset) \
-    dst[offset] = src.x;          \
-    dst[offset + 1] = src.y;      \
-    dst[offset + 2] = src.z;
-#define TO_VEC4(dst, src, offset) \
-    dst[offset] = src.x;          \
-    dst[offset + 1] = src.y;      \
-    dst[offset + 2] = src.z;      \
-    dst[offset + 3] = src.w;
-} // namespace
 
 RenderAdditiveLightQueue::RenderAdditiveLightQueue(RenderPipeline *pipeline) : _pipeline(static_cast<ForwardPipeline *>(pipeline)),
                                                                                _instancedQueue(CC_NEW(RenderInstancedQueue)),
                                                                                _batchedQueue(CC_NEW(RenderBatchedQueue)) {
-    _renderObjects = _pipeline->getRenderObjects();
-    _fpScale = _pipeline->getFpScale();
-    _isHDR = _pipeline->isHDR();
     auto *device = gfx::Device::getInstance();
     const auto alignment = device->getUboOffsetAlignment();
     _lightBufferStride = ((UBOForwardLight::SIZE + alignment - 1) / alignment) * alignment;
@@ -163,7 +149,7 @@ void RenderAdditiveLightQueue::gatherLightPasses(const Camera *camera, gfx::Comm
     updateUBOs(camera, cmdBufferer);
     updateLightDescriptorSet(camera, cmdBufferer);
 
-    const auto &renderObjects = _pipeline->getRenderObjects();
+    const auto &renderObjects = _pipeline->getPipelineSceneData()->getRenderObjects();
     for (const auto &renderObject : renderObjects) {
         const auto model = renderObject.model;
         if (!getLightPassIndex(model, lightPassIndices)) continue;
@@ -253,6 +239,8 @@ void RenderAdditiveLightQueue::clear() {
 void RenderAdditiveLightQueue::updateUBOs(const Camera *camera, gfx::CommandBuffer *cmdBuffer) {
     const auto exposure = camera->exposure;
     const auto validLightCount = _validLights.size();
+    const auto sceneData = _pipeline->getPipelineSceneData();
+    const auto sharedData = sceneData->getSharedData();
     if (validLightCount > _lightBufferCount) {
         _firstLightBufferView->destroy();
 
@@ -286,8 +274,8 @@ void RenderAdditiveLightQueue::updateUBOs(const Camera *camera, gfx::CommandBuff
             _lightBufferData[index++] = color.y;
             _lightBufferData[index++] = color.z;
         }
-        if (_isHDR) {
-            _lightBufferData[index] = light->luminance * _fpScale * _lightMeterScale;
+        if (sharedData->isHDR) {
+            _lightBufferData[index] = light->luminance * sharedData->fpScale * _lightMeterScale;
         } else {
             _lightBufferData[index] = light->luminance * exposure * _lightMeterScale;
         }
@@ -315,7 +303,8 @@ void RenderAdditiveLightQueue::updateUBOs(const Camera *camera, gfx::CommandBuff
 }
 
 void RenderAdditiveLightQueue::updateLightDescriptorSet(const Camera *camera, gfx::CommandBuffer *cmdBuffer) {
-    auto *shadowInfo = _pipeline->getShadows();
+    const auto sceneData = _pipeline->getPipelineSceneData();
+    auto *shadowInfo = sceneData->getSharedData()->getShadows();
     const auto scene = camera->getScene();
     const Light *mainLight = nullptr;
     if (scene->mainLightID) mainLight = scene->getMainLight();
@@ -332,7 +321,9 @@ void RenderAdditiveLightQueue::updateLightDescriptorSet(const Camera *camera, gf
 
         _globalUBO.fill(0.0f);
         _shadowUBO.fill(0.0f);
-        updateGlobalDescriptorSet(camera, cmdBuffer);
+        
+        PipelineUBO::updateGlobalUBOView(_pipeline, _globalUBO);
+        PipelineUBO::updateCameraUBOView(_pipeline, _cameraUBO, camera);
 
         switch (light->getType()) {
             case LightType::SPOT: {
@@ -356,7 +347,7 @@ void RenderAdditiveLightQueue::updateLightDescriptorSet(const Camera *camera, gf
                 memcpy(_shadowUBO.data() + UBOShadow::SHADOW_COLOR_OFFSET, &shadowInfo->color, sizeof(Vec4));
                 memcpy(_shadowUBO.data() + UBOShadow::SHADOW_INFO_OFFSET, &shadowInfos, sizeof(shadowInfos));
                 // Spot light sampler binding
-                const auto &shadowFramebufferMap = _pipeline->getShadowFramebufferMap();
+                const auto &shadowFramebufferMap = sceneData->getShadowFramebufferMap();
                 if (shadowFramebufferMap.count(light) > 0) {
                     auto *texture = shadowFramebufferMap.at(light)->getColorTextures()[0];
                     if (texture) {
@@ -378,123 +369,6 @@ void RenderAdditiveLightQueue::updateLightDescriptorSet(const Camera *camera, gf
         cmdBuffer->updateBuffer(descriptorSet->getBuffer(UBOShadow::BINDING), _shadowUBO.data(), UBOShadow::SIZE);
         cmdBuffer->updateBuffer(descriptorSet->getBuffer(UBOGlobal::BINDING), _globalUBO.data(), UBOGlobal::SIZE);
         cmdBuffer->updateBuffer(descriptorSet->getBuffer(UBOCamera::BINDING), _cameraUBO.data(), UBOCamera::SIZE);
-    }
-}
-
-void RenderAdditiveLightQueue::updateGlobalDescriptorSet(const Camera *camera, gfx::CommandBuffer *cmdBuffer) {
-    const auto root = GET_ROOT();
-    const auto scene = camera->getScene();
-
-    const auto shadingScale = _pipeline->getShadingScale();
-    auto &uboGlobalView = _globalUBO;
-    auto *device = gfx::Device::getInstance();
-
-    const auto shadingWidth = std::floor(device->getWidth());
-    const auto shadingHeight = std::floor(device->getHeight());
-
-    // update UBOGlobal
-    uboGlobalView[UBOGlobal::TIME_OFFSET] = root->cumulativeTime;
-    uboGlobalView[UBOGlobal::TIME_OFFSET + 1] = root->frameTime;
-    uboGlobalView[UBOGlobal::TIME_OFFSET + 2] = Application::getInstance()->getTotalFrames();
-
-    uboGlobalView[UBOGlobal::SCREEN_SIZE_OFFSET] = device->getWidth();
-    uboGlobalView[UBOGlobal::SCREEN_SIZE_OFFSET + 1] = device->getHeight();
-    uboGlobalView[UBOGlobal::SCREEN_SIZE_OFFSET + 2] = 1.0f / uboGlobalView[UBOGlobal::SCREEN_SIZE_OFFSET];
-    uboGlobalView[UBOGlobal::SCREEN_SIZE_OFFSET + 3] = 1.0f / uboGlobalView[UBOGlobal::SCREEN_SIZE_OFFSET + 1];
-
-    uboGlobalView[UBOGlobal::NATIVE_SIZE_OFFSET] = shadingWidth;
-    uboGlobalView[UBOGlobal::NATIVE_SIZE_OFFSET + 1] = shadingHeight;
-    uboGlobalView[UBOGlobal::NATIVE_SIZE_OFFSET + 2] = 1.0f / uboGlobalView[UBOGlobal::NATIVE_SIZE_OFFSET];
-    uboGlobalView[UBOGlobal::NATIVE_SIZE_OFFSET + 3] = 1.0f / uboGlobalView[UBOGlobal::NATIVE_SIZE_OFFSET + 1];
-    
-    // update camera ubo
-    updateCameraUBO(camera, cmdBuffer);
-}
-
-void RenderAdditiveLightQueue::updateCameraUBO(const Camera *camera, gfx::CommandBuffer *cmdBuffer) {
-    const auto scene = camera->getScene();
-
-    const Light *mainLight = nullptr;
-    if (scene->mainLightID) mainLight = scene->getMainLight();
-
-    const auto ambient = _pipeline->getAmbient();
-    const auto fog = _pipeline->getFog();
-    const auto shadingScale = _pipeline->getShadingScale();
-    auto &uboCameraView = _cameraUBO;
-    auto *device = gfx::Device::getInstance();
-
-    const auto shadingWidth = std::floor(device->getWidth());
-    const auto shadingHeight = std::floor(device->getHeight());
-    
-    uboCameraView[UBOCamera::SCREEN_SCALE_OFFSET] = camera->width / shadingWidth * shadingScale;
-    uboCameraView[UBOCamera::SCREEN_SCALE_OFFSET + 1] = camera->height / shadingHeight * shadingScale;
-    uboCameraView[UBOCamera::SCREEN_SCALE_OFFSET + 2] = 1.0 / uboCameraView[UBOCamera::SCREEN_SCALE_OFFSET];
-    uboCameraView[UBOCamera::SCREEN_SCALE_OFFSET + 3] = 1.0 / uboCameraView[UBOCamera::SCREEN_SCALE_OFFSET + 1];
-    
-    memcpy(uboCameraView.data() + UBOCamera::MAT_VIEW_OFFSET, camera->matView.m, sizeof(cc::Mat4));
-    memcpy(uboCameraView.data() + UBOCamera::MAT_VIEW_INV_OFFSET, camera->getNode()->worldMatrix.m, sizeof(cc::Mat4));
-    memcpy(uboCameraView.data() + UBOCamera::MAT_PROJ_OFFSET, camera->matProj.m, sizeof(cc::Mat4));
-    memcpy(uboCameraView.data() + UBOCamera::MAT_PROJ_INV_OFFSET, camera->matProjInv.m, sizeof(cc::Mat4));
-    memcpy(uboCameraView.data() + UBOCamera::MAT_VIEW_PROJ_OFFSET, camera->matViewProj.m, sizeof(cc::Mat4));
-    memcpy(uboCameraView.data() + UBOCamera::MAT_VIEW_PROJ_INV_OFFSET, camera->matViewProjInv.m, sizeof(cc::Mat4));
-    TO_VEC3(uboCameraView, camera->position, UBOCamera::CAMERA_POS_OFFSET);
-
-    auto projectionSignY = device->getScreenSpaceSignY();
-    if (camera->getWindow()->hasOffScreenAttachments) {
-        projectionSignY *= device->getUVSpaceSignY(); // need flipping if drawing on render targets
-    }
-    uboCameraView[UBOCamera::CAMERA_POS_OFFSET + 3] = projectionSignY;
-
-    const auto exposure = camera->exposure;
-    uboCameraView[UBOCamera::EXPOSURE_OFFSET] = exposure;
-    uboCameraView[UBOCamera::EXPOSURE_OFFSET + 1] = 1.0f / exposure;
-    uboCameraView[UBOCamera::EXPOSURE_OFFSET + 2] = _isHDR ? 1.0f : 0.0;
-    uboCameraView[UBOCamera::EXPOSURE_OFFSET + 3] = _fpScale / exposure;
-
-    if (mainLight) {
-        TO_VEC3(uboCameraView, mainLight->direction, UBOCamera::MAIN_LIT_DIR_OFFSET);
-        TO_VEC3(uboCameraView, mainLight->color, UBOCamera::MAIN_LIT_COLOR_OFFSET);
-        if (mainLight->useColorTemperature) {
-            const auto colorTempRGB = mainLight->colorTemperatureRGB;
-            uboCameraView[UBOCamera::MAIN_LIT_COLOR_OFFSET] *= colorTempRGB.x;
-            uboCameraView[UBOCamera::MAIN_LIT_COLOR_OFFSET + 1] *= colorTempRGB.y;
-            uboCameraView[UBOCamera::MAIN_LIT_COLOR_OFFSET + 2] *= colorTempRGB.z;
-        }
-
-        if (_isHDR) {
-            uboCameraView[UBOCamera::MAIN_LIT_COLOR_OFFSET + 3] = mainLight->luminance * _fpScale;
-        } else {
-            uboCameraView[UBOCamera::MAIN_LIT_COLOR_OFFSET + 3] = mainLight->luminance * exposure;
-        }
-    } else {
-        TO_VEC3(uboCameraView, Vec3::UNIT_Z, UBOCamera::MAIN_LIT_DIR_OFFSET);
-        TO_VEC4(uboCameraView, Vec4::ZERO, UBOCamera::MAIN_LIT_COLOR_OFFSET);
-    }
-
-    Vec4 skyColor = ambient->skyColor;
-    if (_isHDR) {
-        skyColor.w = ambient->skyIllum * _fpScale;
-    } else {
-        skyColor.w = ambient->skyIllum * exposure;
-    }
-    TO_VEC4(uboCameraView, skyColor, UBOCamera::AMBIENT_SKY_OFFSET);
-
-    uboCameraView[UBOCamera::AMBIENT_GROUND_OFFSET] = ambient->groundAlbedo.x;
-    uboCameraView[UBOCamera::AMBIENT_GROUND_OFFSET + 1] = ambient->groundAlbedo.y;
-    uboCameraView[UBOCamera::AMBIENT_GROUND_OFFSET + 2] = ambient->groundAlbedo.z;
-    const auto *envmap = _pipeline->getDescriptorSet()->getTexture((uint)PipelineGlobalBindings::SAMPLER_ENVIRONMENT);
-    if (envmap) uboCameraView[UBOCamera::AMBIENT_GROUND_OFFSET + 3] = envmap->getLevelCount();
-
-    if (fog->enabled) {
-        TO_VEC4(uboCameraView, fog->fogColor, UBOCamera::GLOBAL_FOG_COLOR_OFFSET);
-
-        uboCameraView[UBOCamera::GLOBAL_FOG_BASE_OFFSET] = fog->fogStart;
-        uboCameraView[UBOCamera::GLOBAL_FOG_BASE_OFFSET + 1] = fog->fogEnd;
-        uboCameraView[UBOCamera::GLOBAL_FOG_BASE_OFFSET + 2] = fog->fogDensity;
-
-        uboCameraView[UBOCamera::GLOBAL_FOG_ADD_OFFSET] = fog->fogTop;
-        uboCameraView[UBOCamera::GLOBAL_FOG_ADD_OFFSET + 1] = fog->fogRange;
-        uboCameraView[UBOCamera::GLOBAL_FOG_ADD_OFFSET + 2] = fog->fogAtten;
     }
 }
 

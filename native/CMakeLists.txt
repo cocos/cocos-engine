@@ -606,14 +606,18 @@ cocos_source_files(
     cocos/renderer/pipeline/PlanarShadowQueue.h
     cocos/renderer/pipeline/ShadowMapBatchedQueue.cpp
     cocos/renderer/pipeline/ShadowMapBatchedQueue.h
+    cocos/renderer/pipeline/PipelineUBO.cpp
+    cocos/renderer/pipeline/PipelineUBO.h
+    cocos/renderer/pipeline/PipelineSceneData.cpp
+    cocos/renderer/pipeline/PipelineSceneData.h
     cocos/renderer/pipeline/forward/ForwardFlow.cpp
     cocos/renderer/pipeline/forward/ForwardFlow.h
     cocos/renderer/pipeline/forward/ForwardPipeline.cpp
     cocos/renderer/pipeline/forward/ForwardPipeline.h
     cocos/renderer/pipeline/forward/ForwardStage.cpp
     cocos/renderer/pipeline/forward/ForwardStage.h
-    cocos/renderer/pipeline/forward/SceneCulling.cpp
-    cocos/renderer/pipeline/forward/SceneCulling.h
+    cocos/renderer/pipeline/SceneCulling.cpp
+    cocos/renderer/pipeline/SceneCulling.h
     cocos/renderer/pipeline/forward/UIPhase.cpp
     cocos/renderer/pipeline/forward/UIPhase.h
     cocos/renderer/pipeline/shadow/ShadowFlow.cpp

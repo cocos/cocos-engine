@@ -32,7 +32,7 @@ THE SOFTWARE.
 #include "gfx/GFXFramebuffer.h"
 #include "gfx/GFXRenderPass.h"
 #include "gfx/GFXTexture.h"
-#include "../forward/SceneCulling.h"
+#include "../SceneCulling.h"
 
 namespace cc {
 namespace pipeline {
@@ -62,18 +62,18 @@ void ShadowFlow::activate(RenderPipeline *pipeline) {
 }
 
 void ShadowFlow::render(Camera *camera) {
-    auto *pipeline = static_cast<ForwardPipeline *>(_pipeline);
-    const auto *shadowInfo = pipeline->getShadows();
+    const auto sceneData = _pipeline->getPipelineSceneData();
+    const auto *shadowInfo = sceneData->getSharedData()->getShadows();
     if (!shadowInfo->enabled || shadowInfo->getShadowType() != ShadowType::SHADOWMAP) return;
 
     lightCollecting(camera, _validLights);
-    shadowCollecting(pipeline, camera);
-    if (pipeline->getShadowObjects().size() == 0) return;
+    shadowCollecting(_pipeline, camera);
+    if (sceneData->getShadowObjects().size() == 0) return;
 
-    const auto &shadowFramebufferMap = pipeline->getShadowFramebufferMap();
+    const auto &shadowFramebufferMap = sceneData->getShadowFramebufferMap();
     for (const auto *light : _validLights) {
         if (!shadowFramebufferMap.count(light)) {
-            initShadowFrameBuffer(pipeline, light);
+            initShadowFrameBuffer(_pipeline, light);
         }
 
         auto *shadowFrameBuffer = shadowFramebufferMap.at(light);
@@ -89,14 +89,14 @@ void ShadowFlow::render(Camera *camera) {
 
     // After the shadowMap rendering of all lights is completed,
     // restore the ShadowUBO data of the main light.
-    pipeline->updateShadowUBO(camera);
+    _pipeline->getPipelineUBO()->updateShadowUBO(camera);
 }
 
 void ShadowFlow::resizeShadowMap(const Light *light, const uint width, const uint height) const {
-    auto *pipeline = static_cast<ForwardPipeline *>(_pipeline);
+    auto sceneData = _pipeline->getPipelineSceneData();
 
-    if (pipeline->getShadowFramebufferMap().count(light)) {
-        auto *framebuffer = pipeline->getShadowFramebufferMap().at(light);
+    if (sceneData->getShadowFramebufferMap().count(light)) {
+        auto *framebuffer = sceneData->getShadowFramebufferMap().at(light);
 
         if (!framebuffer) {
             return;
@@ -122,9 +122,11 @@ void ShadowFlow::resizeShadowMap(const Light *light, const uint width, const uin
     }
 }
 
-void ShadowFlow::initShadowFrameBuffer(ForwardPipeline *pipeline, const Light *light) {
-    auto device = gfx::Device::getInstance();
-    const auto shadowMapSize = static_cast<ForwardPipeline *>(this->_pipeline)->getShadows()->size;
+void ShadowFlow::initShadowFrameBuffer(RenderPipeline *pipeline, const Light *light) {
+    const auto device = gfx::Device::getInstance();
+    const auto sceneData = _pipeline->getPipelineSceneData();
+    const auto *shadowInfo = sceneData->getSharedData()->getShadows();
+    const auto shadowMapSize = shadowInfo->size;
     const auto width = (uint)shadowMapSize.x;
     const auto height = (uint)shadowMapSize.y;
 
@@ -175,12 +177,10 @@ void ShadowFlow::initShadowFrameBuffer(ForwardPipeline *pipeline, const Light *l
         {}, //colorMipmapLevels
     });
 
-    pipeline->setShadowFramebuffer(light, framebuffer);
+    pipeline->getPipelineSceneData()->setShadowFramebuffer(light, framebuffer);
 }
 
 void ShadowFlow::destroy() {
-    static_cast<ForwardPipeline *>(_pipeline)->destroyShadowFrameBuffers();
-
     if (_renderPass) {
         _renderPass->destroy();
         _renderPass = nullptr;

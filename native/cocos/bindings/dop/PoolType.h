@@ -35,6 +35,7 @@ enum class PoolType {
     BLEND_TARGET,
     BLEND_STATE,
     UI_BATCH,
+    PIPELINE_SHARED_SCENE_DATA,
 
     // array
     SUB_MODEL_ARRAY = 200,

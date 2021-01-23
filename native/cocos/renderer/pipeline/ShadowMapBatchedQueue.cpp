@@ -31,11 +31,13 @@ THE SOFTWARE.
 #include "RenderInstancedQueue.h"
 #include "ShadowMapBatchedQueue.h"
 #include "forward/ForwardPipeline.h"
-#include "forward/SceneCulling.h"
+#include "SceneCulling.h"
 #include "gfx/GFXCommandBuffer.h"
 #include "gfx/GFXDescriptorSet.h"
 #include "gfx/GFXDevice.h"
 #include "helper/SharedMemory.h"
+#include "PipelineSceneData.h"
+#include "PipelineUBO.h"
 
 namespace cc {
 namespace pipeline {
@@ -49,11 +51,12 @@ ShadowMapBatchedQueue::ShadowMapBatchedQueue(ForwardPipeline *pipeline)
 
 void ShadowMapBatchedQueue::gatherLightPasses(const Light *light, gfx::CommandBuffer *cmdBufferer) {
     clear();
-
-    const auto *shadowInfo = _pipeline->getShadows();
-    const auto &shadowObjects = _pipeline->getShadowObjects();
+    
+    const auto *sceneData = _pipeline->getPipelineSceneData();
+    const auto *shadowInfo = sceneData->getSharedData()->getShadows();
+    const auto &shadowObjects = sceneData->getShadowObjects();
     if (light && shadowInfo->enabled && shadowInfo->getShadowType() == ShadowType::SHADOWMAP) {
-        updateUBOs(light, cmdBufferer);
+        _pipeline->getPipelineUBO()->updateShadowUBOLight(light);
 
         for (const auto ro : shadowObjects) {
             const auto *model = ro.model;
@@ -143,65 +146,6 @@ void ShadowMapBatchedQueue::destroy() {
     CC_SAFE_DELETE(_instancedQueue);
 
     _buffer = nullptr;
-}
-
-void ShadowMapBatchedQueue::updateUBOs(const Light *light, gfx::CommandBuffer *cmdBufferer) const {
-    const auto *shadowInfo = _pipeline->getShadows();
-    auto shadowUBO = _pipeline->getShadowUBO();
-    auto *device = gfx::Device::getInstance();
-
-    switch (light->getType()) {
-        case LightType::DIRECTIONAL: {
-            cc::Mat4 matShadowCamera;
-
-            float x = 0.0f, y = 0.0f, farClamp = 0.0f;
-            if (shadowInfo->autoAdapt) {
-                Vec3 tmpCenter;
-                getShadowWorldMatrix(_pipeline->getSphere(), light->getNode()->worldRotation, light->direction, matShadowCamera, tmpCenter);
-
-                const auto radius = _pipeline->getSphere()->radius;
-                x = radius * shadowInfo->aspect;
-                y = radius;
-
-                const float halfFar = tmpCenter.distance(_pipeline->getSphere()->center);
-                farClamp = std::min(halfFar * COEFFICIENT_OF_EXPANSION, SHADOW_CAMERA_MAX_FAR);
-            } else {
-                matShadowCamera = light->getNode()->worldMatrix;
-
-                x = shadowInfo->orthoSize * shadowInfo->aspect;
-                y = shadowInfo->orthoSize;
-
-                farClamp = shadowInfo->farValue;
-            }
-
-            const auto matShadowView = matShadowCamera.getInversed();
-
-            cc::Mat4 matShadowViewProj;
-            const auto projectionSinY = device->getScreenSpaceSignY() * device->getUVSpaceSignY();
-            Mat4::createOrthographicOffCenter(-x, x, -y, y, shadowInfo->nearValue, farClamp, device->getClipSpaceMinZ(), projectionSinY, &matShadowViewProj);
-
-            matShadowViewProj.multiply(matShadowView);
-            memcpy(shadowUBO.data() + UBOShadow::MAT_LIGHT_VIEW_PROJ_OFFSET, matShadowViewProj.m, sizeof(matShadowViewProj));
-        } break;
-        case LightType::SPOT: {
-            const auto &matShadowCamera = light->getNode()->worldMatrix;
-
-            const auto matShadowView = matShadowCamera.getInversed();
-
-            cc::Mat4 matShadowViewProj;
-            cc::Mat4::createPerspective(light->spotAngle, light->aspect, 0.001f, light->range, &matShadowViewProj);
-
-            matShadowViewProj.multiply(matShadowView);
-            memcpy(shadowUBO.data() + UBOShadow::MAT_LIGHT_VIEW_PROJ_OFFSET, matShadowViewProj.m, sizeof(matShadowViewProj));
-        } break;
-        default:;
-    }
-
-    float shadowInfos[4] = {shadowInfo->size.x, shadowInfo->size.y, (float)shadowInfo->pcfType, shadowInfo->bias};
-    memcpy(shadowUBO.data() + UBOShadow::SHADOW_COLOR_OFFSET, &shadowInfo->color, sizeof(Vec4));
-    memcpy(shadowUBO.data() + UBOShadow::SHADOW_INFO_OFFSET, &shadowInfos, sizeof(shadowInfos));
-
-    cmdBufferer->updateBuffer(_pipeline->getDescriptorSet()->getBuffer(UBOShadow::BINDING), shadowUBO.data(), UBOShadow::SIZE);
 }
 
 int ShadowMapBatchedQueue::getShadowPassIndex(const ModelView *model) const {

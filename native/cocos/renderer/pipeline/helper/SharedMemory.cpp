@@ -48,6 +48,7 @@ const se::PoolType RenderWindow::type = se::PoolType::RENDER_WINDOW;
 const se::PoolType Shadows::type = se::PoolType::SHADOW;
 const se::PoolType Sphere::type = se::PoolType::SPHERE;
 const se::PoolType UIBatch::type = se::PoolType::UI_BATCH;
+const se::PoolType PipelineSharedSceneData::type = se::PoolType::PIPELINE_SHARED_SCENE_DATA;
 
 void AABB::getBoundary(cc::Vec3 &minPos, cc::Vec3 &maxPos) const {
     minPos = center - halfExtents;

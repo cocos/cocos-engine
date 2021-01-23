@@ -62,29 +62,30 @@ void ShadowStage::activate(RenderPipeline *pipeline, RenderFlow *flow) {
 }
 
 void ShadowStage::render(Camera *camera) {
-    const auto pipeline = static_cast<ForwardPipeline *>(_pipeline);
-    const auto shadowInfo = pipeline->getShadows();
+    const auto sceneData = _pipeline->getPipelineSceneData();
+    const auto sharedData = sceneData->getSharedData();
+    const auto *shadowInfo = sceneData->getSharedData()->getShadows();
 
     if (!_light || !_framebuffer) {
         return;
     }
 
-    auto cmdBuffer = pipeline->getCommandBuffers()[0];
+    auto cmdBuffer = _pipeline->getCommandBuffers()[0];
 
     _additiveShadowQueue->gatherLightPasses(_light, cmdBuffer);
 
     const auto shadowMapSize = shadowInfo->size;
     _renderArea.x = (int)(camera->viewportX * shadowMapSize.x);
     _renderArea.y = (int)(camera->viewportY * shadowMapSize.y);
-    _renderArea.width = (uint)(camera->viewportWidth * shadowMapSize.x * pipeline->getShadingScale());
-    _renderArea.height = (uint)(camera->viewportHeight * shadowMapSize.y * pipeline->getShadingScale());
+    _renderArea.width = (uint)(camera->viewportWidth * shadowMapSize.x * sharedData->shadingScale);
+    _renderArea.height = (uint)(camera->viewportHeight * shadowMapSize.y * sharedData->shadingScale);
 
     _clearColors[0] = {1.0f, 1.0f, 1.0f, 1.0f};
     auto* renderPass = _framebuffer->getRenderPass();
 
     cmdBuffer->beginRenderPass(renderPass, _framebuffer, _renderArea,
                                _clearColors, camera->clearDepth, camera->clearStencil);
-    cmdBuffer->bindDescriptorSet(GLOBAL_SET, pipeline->getDescriptorSet());
+    cmdBuffer->bindDescriptorSet(GLOBAL_SET, _pipeline->getDescriptorSet());
     _additiveShadowQueue->recordCommandBuffer(_device, renderPass, cmdBuffer);
 
     cmdBuffer->endRenderPass();

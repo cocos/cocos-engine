@@ -48,11 +48,13 @@ PlanarShadowQueue::PlanarShadowQueue(RenderPipeline *pipeline)
 
 void PlanarShadowQueue::gatherShadowPasses(Camera *camera, gfx::CommandBuffer *cmdBufferer) {
     clear();
-    const auto *shadowInfo = _pipeline->getShadows();
+    const auto sceneData = _pipeline->getPipelineSceneData();
+    const auto sharedData = sceneData->getSharedData();
+    const auto *shadowInfo = sharedData->getShadows();
     if (!shadowInfo->enabled || shadowInfo->getShadowType() != ShadowType::PLANAR) { return; }
 
-    _pipeline->updateShadowUBO(camera);
-
+    const auto pipelineUBO = _pipeline->getPipelineUBO();
+    pipelineUBO->updateShadowUBO(camera);
     const auto *scene = camera->getScene();
     const bool shadowVisible = camera->visibility & static_cast<uint>(LayerList::DEFAULT);
 
@@ -102,7 +104,9 @@ void PlanarShadowQueue::clear() {
 }
 
 void PlanarShadowQueue::recordCommandBuffer(gfx::Device *device, gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuffer) {
-    const auto *shadowInfo = _pipeline->getShadows();
+    const auto sceneData = _pipeline->getPipelineSceneData();
+    const auto sharedData = sceneData->getSharedData();
+    const auto *shadowInfo = sharedData->getShadows();
     if (!shadowInfo->enabled || shadowInfo->getShadowType() != ShadowType::PLANAR || _pendingModels.empty()) { return; }
 
     _instancedQueue->recordCommandBuffer(device, renderPass, cmdBuffer);

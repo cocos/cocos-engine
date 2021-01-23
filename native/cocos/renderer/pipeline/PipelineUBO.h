@@ -21,50 +21,49 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 ****************************************************************************/
-#pragma once
-#include <algorithm>
 
-#include "core/CoreStd.h"
+#pragma once
+
+#include <array>
+#include "helper/SharedMemory.h"
 #include "Define.h"
 
 namespace cc {
+
+class Mat4;
+class Color;
+
 namespace pipeline {
-struct SubModelView;
-struct PassView;
-struct RenderObject;
-class RenderInstancedQueue;
-class RenderBatchedQueue;
-class ForwardPipeline;
+
+class RenderPipeline;
 class Device;
-struct Shadows;
-struct Light;
-struct ModelView;
 
-//const uint phaseID(PassPhase::getPhaseID("shadow-caster"));
-
-class CC_DLL ShadowMapBatchedQueue : public Object {
+class CC_DLL PipelineUBO : public Object  {
 public:
-    ShadowMapBatchedQueue(ForwardPipeline *);
-    ~ShadowMapBatchedQueue() = default;
+    static void updateGlobalUBOView(const RenderPipeline *pipeline, std::array<float, UBOGlobal::COUNT> &bufferView);
+    static void updateCameraUBOView(const RenderPipeline *pipeline, std::array<float, UBOCamera::COUNT> &bufferView, const Camera *camera);
+    static void updateShadowUBOView(const RenderPipeline *pipeline, std::array<float, UBOShadow::COUNT> &bufferView, const Camera *camera);
+    static void updateShadowUBOLightView(const RenderPipeline *pipeline, std::array<float, UBOShadow::COUNT> &bufferView, const Light *light);
+    
+public:
+    PipelineUBO() = default;
+    virtual ~PipelineUBO() = default;
+    void activate(gfx::Device *device, RenderPipeline *pipeline);
     void destroy();
-
-    void clear();
-    void gatherLightPasses(const Light *, gfx::CommandBuffer *);
-    void add(const ModelView *, gfx::CommandBuffer *);
-    void recordCommandBuffer(gfx::Device *, gfx::RenderPass *, gfx::CommandBuffer *) const;
-
+    void updateGlobalUBO();
+    void updateCameraUBO(const Camera *camera);
+    void updateShadowUBO(const Camera *camera);
+    void updateShadowUBOLight(const Light *light);
+    void updateShadowUBORange(uint offset, const Mat4* data);
+    void destroyShadowFrameBuffers();
 private:
-    int getShadowPassIndex(const ModelView *model) const;
-
-private:
-    ForwardPipeline *_pipeline = nullptr;
-    vector<const SubModelView *> _subModels;
-    vector<const PassView *> _passes;
-    vector<gfx::Shader *> _shaders;
-    RenderInstancedQueue *_instancedQueue = nullptr;
-    RenderBatchedQueue *_batchedQueue = nullptr;
-    gfx::Buffer *_buffer = nullptr;
-    uint _phaseID = 0;
+    RenderPipeline *_pipeline = nullptr;
+    gfx::Device *_device = nullptr;
+    
+    std::array<float, UBOGlobal::COUNT> _globalUBO;
+    std::array<float, UBOCamera::COUNT> _cameraUBO;
+    std::array<float, UBOShadow::COUNT> _shadowUBO;
 };
+
 } // namespace pipeline
 } // namespace cc

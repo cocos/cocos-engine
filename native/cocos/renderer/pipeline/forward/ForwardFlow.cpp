@@ -24,7 +24,7 @@ THE SOFTWARE.
 #include "ForwardFlow.h"
 #include "ForwardPipeline.h"
 #include "ForwardStage.h"
-#include "SceneCulling.h"
+#include "../SceneCulling.h"
 
 namespace cc {
 namespace pipeline {

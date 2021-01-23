@@ -21,39 +21,39 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 ****************************************************************************/
-#pragma once
-#include "../RenderFlow.h"
+
+#include "PipelineSceneData.h"
+#include "gfx/GFXCommandBuffer.h"
+#include "gfx/GFXDevice.h"
+#include "gfx/GFXFramebuffer.h"
+
 namespace cc {
 namespace pipeline {
-class ForwardPipeline;
-struct Light;
 
-class CC_DLL ShadowFlow : public RenderFlow {
-public:
-    ShadowFlow() = default;
-    virtual ~ShadowFlow();
+void PipelineSceneData::activate(gfx::Device *device, RenderPipeline *pipeline)
+{
+    _device = device;
+    _pipeline = pipeline;
+    
+    _sphere = CC_NEW(Sphere);
+}
 
-    static const RenderFlowInfo &getInitializeInfo();
+void PipelineSceneData::setPipelineSharedSceneData(uint handle)
+{
+    _sharedSceneData = GET_PIPELINE_SHARED_SCENE_DATA(handle);
+}
 
-    virtual bool initialize(const RenderFlowInfo &info) override;
+void PipelineSceneData::destroy()
+{
+    CC_SAFE_DELETE(_sphere);
+    
+    for (auto &pair : _shadowFrameBufferMap) {
+        pair.second->destroy();
+        delete pair.second;
+    }
+    
+    _shadowFrameBufferMap.clear();
+}
 
-    virtual void activate(RenderPipeline *pipeline) override;
-
-    virtual void render(Camera *camera) override;
-
-    virtual void destroy() override;
-
-private:
-    void resizeShadowMap(const Light *light, const uint width, const uint height) const;
-
-    void initShadowFrameBuffer(RenderPipeline *pipeline, const Light *light);
-
-private:
-    static RenderFlowInfo _initInfo;
-
-    gfx::RenderPass *_renderPass = nullptr;
-
-    vector<const Light *> _validLights;
-};
 } // namespace pipeline
 } // namespace cc

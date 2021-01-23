@@ -42,6 +42,8 @@ RenderPipeline::RenderPipeline()
     RenderPipeline::_instance = this;
 
     setDescriptorSetLayout();
+    _pipelineUBO = new PipelineUBO();
+    _pipelineSceneData = new PipelineSceneData();
 }
 
 RenderPipeline::~RenderPipeline() {
@@ -110,7 +112,9 @@ bool RenderPipeline::activate() {
         CC_DELETE(_descriptorSet);
     }
     _descriptorSet = _device->createDescriptorSet({_descriptorSetLayout});
-
+    _pipelineUBO->activate(_device, this);
+    _pipelineSceneData->activate(_device, this);
+    
     for (const auto flow : _flows)
         flow->activate(this);
 
@@ -146,6 +150,8 @@ void RenderPipeline::destroy() {
 
     CC_SAFE_DESTROY(_descriptorSetLayout);
     CC_SAFE_DESTROY(_descriptorSet);
+    CC_SAFE_DESTROY(_pipelineUBO);
+    CC_SAFE_DESTROY(_pipelineSceneData);
 
     for (const auto cmdBuffer : _commandBuffers) {
         cmdBuffer->destroy();
@@ -155,6 +161,11 @@ void RenderPipeline::destroy() {
     CC_SAFE_DESTROY(_defaultTexture);
 
     CC_SAFE_DELETE(_defaultTexture);
+}
+
+void RenderPipeline::setPipelineSharedSceneData(uint handle)
+{
+    _pipelineSceneData->setPipelineSharedSceneData(handle);
 }
 
 } // namespace pipeline
