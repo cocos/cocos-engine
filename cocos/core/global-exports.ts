@@ -30,6 +30,7 @@
 
 import {
     ALIPAY,
+    YOUKU,
     BAIDU,
     BUILD,
     COCOSPLAY,
@@ -120,8 +121,14 @@ if (EXPORT_TO_GLOBAL) {
     /**
      * @en The pre-compilation constant for code tree shaking: CC_ALIPAY (Available for Alipay mini game platform)
      * @zh 预编译宏变量，通常用来做平台或环境相关自动代码剔除：CC_ALIPAY（在支付宝小游戏平台上生效）
+     * @deprecated use CC_YOUKU instead
      */
     _global.CC_ALIPAY = ALIPAY;
+    /**
+     * @en The pre-compilation constant for code tree shaking: CC_YOUKU (Available for Youku mini game platform)
+     * @zh 预编译宏变量，通常用来做平台或环境相关自动代码剔除：CC_YOUKU（在优酷小游戏平台上生效）
+     */
+    _global.CC_YOUKU = YOUKU;
     /**
      * @en The pre-compilation constant for code tree shaking: CC_XIAOMI (Available for MI mini game platform)
      * @zh 预编译宏变量，通常用来做平台或环境相关自动代码剔除：CC_XIAOMI（在小米小游戏平台上生效）
