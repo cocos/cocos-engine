@@ -25,8 +25,7 @@
 
 import gfx from '../../../renderer/gfx';
 
-const FIX_IOS14_BUFFER = (cc.sys.os === cc.sys.OS_IOS || cc.sys.os === cc.sys.MACOS) && cc.sys.isBrowser 
-    && /(Mac OS X 1[0-9])|(OS 1[4-9])/.test(window.navigator.userAgent) && /(Version\/1[4-9])/.test(window.navigator.userAgent);
+const FIX_IOS14_BUFFER = (cc.sys.os === cc.sys.OS_IOS || cc.sys.os === cc.sys.MACOS) && cc.sys.isBrowser && /(OS 1[4-9])|(Version\/1[4-9])/.test(window.navigator.userAgent);
 
 let MeshBuffer = cc.Class({
     name: 'cc.MeshBuffer',
