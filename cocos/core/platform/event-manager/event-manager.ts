@@ -946,8 +946,13 @@ class EventManager {
         if (getCode === EventTouch.BEGAN) {
             if (!macro.ENABLE_MULTI_TOUCH && eventManager._currentTouch) {
                 const node = eventManager._currentTouchListener._node;
-                if (!node || node.activeInHierarchy) {
+                const owner = eventManager._currentTouchListener.owner;
+                if ((!node || node.activeInHierarchy) && (!owner || owner.activeInHierarchy)) {
                     return false;
+                }else {
+                    eventManager._currentTouchListener = null;
+                    eventManager._currentTouch = null;
+
                 }
             }
             if (listener.onTouchBegan) {
