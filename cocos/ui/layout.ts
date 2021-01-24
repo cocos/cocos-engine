@@ -684,7 +684,7 @@ export class Layout extends Component {
 
     protected onEnable () {
         this._addEventListeners();
-
+        this._init = false;
         const trans = this.node._uiProps.uiTransformComp!;
         if (trans.contentSize.equals(Size.ZERO)) {
             trans.setContentSize(this._layoutSize);
