@@ -22,9 +22,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-window.jsb = window.jsb || {};
-var rt = loadRuntime();
-var fs = rt.getFileSystemManager ? rt.getFileSystemManager() : null;
+var fs = jsb.getFileSystemManager ? jsb.getFileSystemManager() : null;
 var outOfStorageRegExp = /the maximum size of the file storage/;  // not exactly right
 
 var fsUtils = {
@@ -38,7 +36,7 @@ var fsUtils = {
     _subpackagesPath: '',
 
     getUserDataPath() {
-        return rt.env.USER_DATA_PATH;
+        return jsb.env.USER_DATA_PATH;
     },
 
     checkFsValid() {
@@ -84,7 +82,7 @@ var fsUtils = {
         }
         if (filePath) options.filePath = filePath;
         if (header) options.header = header;
-        var task = rt.downloadFile(options);
+        var task = jsb.downloadFile(options);
         onProgress && task.onProgressUpdate(onProgress);
     },
 
