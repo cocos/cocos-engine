@@ -53,7 +53,7 @@ function stopPropagation (event: Event) {
  */
 @ccclass('cc.BlockInputEvents')
 @help('i18n:cc.BlockInputEvents')
-@menu('Components/BlockInputEvents')
+@menu('Event/BlockInputEvents')
 export class BlockInputEvents extends Component {
     onEnable () {
         for (let i = 0; i < BlockEvents.length; i++) {

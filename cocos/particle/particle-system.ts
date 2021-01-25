@@ -63,7 +63,7 @@ const superMaterials = Object.getOwnPropertyDescriptor(RenderableComponent.proto
 
 @ccclass('cc.ParticleSystem')
 @help('i18n:cc.ParticleSystem')
-@menu('Components/ParticleSystem')
+@menu('Effects/ParticleSystem')
 @executionOrder(99)
 @executeInEditMode
 export class ParticleSystem extends RenderableComponent {

@@ -50,7 +50,7 @@ import { VideoPlayerImplWeb } from './video-player-impl-web';
  */
 @ccclass('cc.VideoPlayer')
 @help('i18n:cc.VideoPlayer')
-@menu('Components/VideoPlayer')
+@menu('Video/VideoPlayer')
 @requireComponent(UITransform)
 @executeInEditMode
 export class VideoPlayer extends Component {

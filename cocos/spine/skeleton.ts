@@ -123,7 +123,7 @@ js.setClassAlias(SpineSocket, 'sp.Skeleton.SpineSocket');
  */
 @ccclass('sp.Skeleton')
 @help('i18n:sp.Skeleton')
-@menu('Components/SpineSkeleton')
+@menu('Spine/Skeleton')
 @executeInEditMode
 export class Skeleton extends Renderable2D {
     public static SpineSocket = SpineSocket;

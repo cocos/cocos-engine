@@ -56,7 +56,7 @@ interface ImageExtendedNode extends Node {
  */
 @ccclass('cc.TiledMap')
 @help('i18n:cc.TiledMap')
-@menu('Components/TiledMap')
+@menu('TiledMap/TiledMap')
 @requireComponent(UITransform)
 @executeInEditMode
 export class TiledMap extends Component {
