@@ -115,7 +115,7 @@ const DIRTY_NONE = 0;
 const DIRTY_FIXED_PRIORITY = 1 << 0;
 const DIRTY_SCENE_GRAPH_PRIORITY = 1 << 1;
 const DIRTY_ALL = 3;
-let wmTransToCameraPriority: WeakMap<Object, any> = new WeakMap();
+const wmTransToCameraPriority: WeakMap<Object, any> = new WeakMap();
 
 interface IListenersMap{
     [key: string]: _EventListenerVector;
