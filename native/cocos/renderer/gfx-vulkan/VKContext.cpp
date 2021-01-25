@@ -53,7 +53,7 @@ VKAPI_ATTR VkBool32 VKAPI_CALL debugUtilsMessengerCallback(VkDebugUtilsMessageSe
                                                            void *                                      userData) {
     if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT) {
         CC_LOG_ERROR("%s: %s", callbackData->pMessageIdName, callbackData->pMessage);
-        CCASSERT(DISABLE_VALIDATION_ASSERTIONS, "Validation Error");
+        //CCASSERT(DISABLE_VALIDATION_ASSERTIONS, "Validation Error");
     } else if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT) {
         CC_LOG_WARNING("%s: %s", callbackData->pMessageIdName, callbackData->pMessage);
     } else if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT) {
@@ -76,7 +76,7 @@ VKAPI_ATTR VkBool32 VKAPI_CALL debugReportCallback(VkDebugReportFlagsEXT      fl
                                                    void *                     userData) {
     if (flags & VK_DEBUG_REPORT_ERROR_BIT_EXT) {
         CC_LOG_ERROR("%s: %s", layerPrefix, message);
-        CCASSERT(DISABLE_VALIDATION_ASSERTIONS, "Validation Error");
+        //CCASSERT(DISABLE_VALIDATION_ASSERTIONS, "Validation Error");
     } else if (flags & (VK_DEBUG_REPORT_WARNING_BIT_EXT | VK_DEBUG_REPORT_PERFORMANCE_WARNING_BIT_EXT)) {
         CC_LOG_WARNING("%s: %s", layerPrefix, message);
     } else if (flags & VK_DEBUG_REPORT_INFORMATION_BIT_EXT) {

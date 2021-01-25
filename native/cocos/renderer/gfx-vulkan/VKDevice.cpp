@@ -344,7 +344,7 @@ bool CCVKDevice::initialize(const DeviceInfo &info) {
     barrier.subresourceRange.layerCount = VK_REMAINING_ARRAY_LAYERS;
     gpuTransportHub()->checkIn(
         [&barrier](const CCVKGPUCommandBuffer *gpuCommandBuffer) {
-            thsvsCmdPipelineBarrier(gpuCommandBuffer->vkCommandBuffer, nullptr, 0, nullptr, 1, &barrier);
+            CCVKCmdFuncImageMemoryBarrier(gpuCommandBuffer, barrier);
         },
         true); // submit immediately
 
@@ -701,30 +701,37 @@ bool CCVKDevice::checkSwapchainStatus() {
         VK_CHECK(vkCreateImageView(_gpuDevice->vkDevice, &imageViewCreateInfo, nullptr, &_gpuSwapchain->vkSwapchainImageViews[i]));
     }
 
-    bool                      hasStencil = GFX_FORMAT_INFOS[(uint)_context->getDepthStencilFormat()].hasStencil;
-    vector<ThsvsImageBarrier> barriers(imageCount * 2, ThsvsImageBarrier{});
+    bool                         hasStencil = GFX_FORMAT_INFOS[(uint)_context->getDepthStencilFormat()].hasStencil;
+    vector<VkImageMemoryBarrier> barriers(imageCount * 2, VkImageMemoryBarrier{});
+    VkPipelineStageFlags         srcStageMask = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+    VkPipelineStageFlags         dstStageMask = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
+    ThsvsImageBarrier            tempBarrier{};
+    tempBarrier.srcQueueFamilyIndex         = VK_QUEUE_FAMILY_IGNORED;
+    tempBarrier.dstQueueFamilyIndex         = VK_QUEUE_FAMILY_IGNORED;
+    tempBarrier.subresourceRange.levelCount = VK_REMAINING_MIP_LEVELS;
+    tempBarrier.subresourceRange.layerCount = VK_REMAINING_ARRAY_LAYERS;
+    VkPipelineStageFlags tempSrcStageMask   = 0;
+    VkPipelineStageFlags tempDstStageMask   = 0;
     for (uint i = 0u; i < imageCount; i++) {
-        barriers[i].nextAccessCount             = 1;
-        barriers[i].pNextAccesses               = &THSVS_ACCESS_TYPES[(uint)AccessType::COLOR_ATTACHMENT_WRITE];
-        barriers[i].image                       = _gpuSwapchain->swapchainImages[i];
-        barriers[i].srcQueueFamilyIndex         = VK_QUEUE_FAMILY_IGNORED;
-        barriers[i].dstQueueFamilyIndex         = VK_QUEUE_FAMILY_IGNORED;
-        barriers[i].subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-        barriers[i].subresourceRange.levelCount = VK_REMAINING_MIP_LEVELS;
-        barriers[i].subresourceRange.layerCount = VK_REMAINING_ARRAY_LAYERS;
+        tempBarrier.nextAccessCount             = 1;
+        tempBarrier.pNextAccesses               = &THSVS_ACCESS_TYPES[(uint)AccessType::COLOR_ATTACHMENT_WRITE];
+        tempBarrier.image                       = _gpuSwapchain->swapchainImages[i];
+        tempBarrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+        thsvsGetVulkanImageMemoryBarrier(tempBarrier, &tempSrcStageMask, &tempDstStageMask, &barriers[i]);
+        srcStageMask |= tempSrcStageMask;
+        dstStageMask |= tempDstStageMask;
 
-        barriers[imageCount + i].nextAccessCount             = 1;
-        barriers[imageCount + i].pNextAccesses               = &THSVS_ACCESS_TYPES[(uint)AccessType::DEPTH_STENCIL_ATTACHMENT_WRITE];
-        barriers[imageCount + i].image                       = _gpuSwapchain->depthStencilImages[i];
-        barriers[imageCount + i].srcQueueFamilyIndex         = VK_QUEUE_FAMILY_IGNORED;
-        barriers[imageCount + i].dstQueueFamilyIndex         = VK_QUEUE_FAMILY_IGNORED;
-        barriers[imageCount + i].subresourceRange.aspectMask = hasStencil ? VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT : VK_IMAGE_ASPECT_DEPTH_BIT;
-        barriers[imageCount + i].subresourceRange.levelCount = VK_REMAINING_MIP_LEVELS;
-        barriers[imageCount + i].subresourceRange.layerCount = VK_REMAINING_ARRAY_LAYERS;
+        tempBarrier.nextAccessCount             = 1;
+        tempBarrier.pNextAccesses               = &THSVS_ACCESS_TYPES[(uint)AccessType::DEPTH_STENCIL_ATTACHMENT_WRITE];
+        tempBarrier.image                       = _gpuSwapchain->depthStencilImages[i];
+        tempBarrier.subresourceRange.aspectMask = hasStencil ? VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT : VK_IMAGE_ASPECT_DEPTH_BIT;
+        thsvsGetVulkanImageMemoryBarrier(tempBarrier, &tempSrcStageMask, &tempDstStageMask, &barriers[imageCount + i]);
+        srcStageMask |= tempSrcStageMask;
+        dstStageMask |= tempDstStageMask;
     }
     gpuTransportHub()->checkIn(
         [&](const CCVKGPUCommandBuffer *gpuCommandBuffer) {
-            thsvsCmdPipelineBarrier(gpuCommandBuffer->vkCommandBuffer, nullptr, 0, nullptr, imageCount, barriers.data());
+            vkCmdPipelineBarrier(gpuCommandBuffer->vkCommandBuffer, srcStageMask, dstStageMask, 0, 0, nullptr, 0, nullptr, imageCount, barriers.data());
         },
         true); // submit immediately
 

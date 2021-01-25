@@ -921,38 +921,7 @@ public:
         _texturesToBeChecked.insert(gpuTexture);
     }
 
-    void update(CCVKGPUCommandBuffer *cmdBuffer) {
-        ThsvsImageBarrier barrier{};
-        barrier.discardContents             = false;
-        barrier.prevLayout                  = THSVS_IMAGE_LAYOUT_OPTIMAL;
-        barrier.nextLayout                  = THSVS_IMAGE_LAYOUT_OPTIMAL;
-        barrier.srcQueueFamilyIndex         = VK_QUEUE_FAMILY_IGNORED;
-        barrier.dstQueueFamilyIndex         = VK_QUEUE_FAMILY_IGNORED;
-        barrier.subresourceRange.levelCount = VK_REMAINING_MIP_LEVELS;
-        barrier.subresourceRange.layerCount = VK_REMAINING_ARRAY_LAYERS;
-
-        VkPipelineStageFlags srcStages = 0;
-        VkPipelineStageFlags dstStages = 0;
-        VkImageMemoryBarrier vkBarrier;
-
-        for (CCVKGPUTexture *gpuTexture : _texturesToBeChecked) {
-            vector<ThsvsAccessType> &render = gpuTexture->renderAccessTypes;
-            vector<ThsvsAccessType> &current = gpuTexture->currentAccessTypes;
-            if (!std::is_permutation(current.begin(), current.end(), render.begin(), render.end())) {
-                barrier.prevAccessCount             = current.size();
-                barrier.pPrevAccesses               = current.data();
-                barrier.nextAccessCount             = render.size();
-                barrier.pNextAccesses               = render.data();
-                barrier.image                       = gpuTexture->vkImage;
-                barrier.subresourceRange.aspectMask = gpuTexture->aspectMask;
-                thsvsGetVulkanImageMemoryBarrier(barrier, &srcStages, &dstStages, &vkBarrier);
-
-                vkCmdPipelineBarrier(cmdBuffer->vkCommandBuffer, srcStages, dstStages, 0, 0, nullptr, 0, nullptr, 1, &vkBarrier);
-                current = render;
-            }
-        }
-        _texturesToBeChecked.clear();
-    }
+    void update(CCVKGPUCommandBuffer *gpuCommandBuffer);
 
     CC_INLINE bool needUpdate() { return !_texturesToBeChecked.empty(); }
 

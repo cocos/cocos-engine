@@ -381,10 +381,10 @@ destination pipeline stages, and a VkMemoryBarrier, that can be used with
 Vulkan's synchronization methods.
 */
 void thsvsGetVulkanMemoryBarrier(
-    ThsvsGlobalBarrier      thBarrier,
-    VkPipelineStageFlags*   pSrcStages,
-    VkPipelineStageFlags*   pDstStages,
-    VkMemoryBarrier*        pVkBarrier);
+    const ThsvsGlobalBarrier& thBarrier,
+    VkPipelineStageFlags*     pSrcStages,
+    VkPipelineStageFlags*     pDstStages,
+    VkMemoryBarrier*          pVkBarrier);
 
 /*
 Mapping function that translates a buffer barrier into a set of source and
@@ -392,10 +392,10 @@ destination pipeline stages, and a VkBufferMemoryBarrier, that can be used
 with Vulkan's synchronization methods.
 */
 void thsvsGetVulkanBufferMemoryBarrier(
-    ThsvsBufferBarrier      thBarrier,
-    VkPipelineStageFlags*   pSrcStages,
-    VkPipelineStageFlags*   pDstStages,
-    VkBufferMemoryBarrier*  pVkBarrier);
+    const ThsvsBufferBarrier& thBarrier,
+    VkPipelineStageFlags*     pSrcStages,
+    VkPipelineStageFlags*     pDstStages,
+    VkBufferMemoryBarrier*    pVkBarrier);
 
 /*
 Mapping function that translates an image barrier into a set of source and
@@ -403,10 +403,10 @@ destination pipeline stages, and a VkBufferMemoryBarrier, that can be used
 with Vulkan's synchronization methods.
 */
 void thsvsGetVulkanImageMemoryBarrier(
-    ThsvsImageBarrier      thBarrier,
-    VkPipelineStageFlags*  pSrcStages,
-    VkPipelineStageFlags*  pDstStages,
-    VkImageMemoryBarrier*  pVkBarrier);
+    const ThsvsImageBarrier& thBarrier,
+    VkPipelineStageFlags*    pSrcStages,
+    VkPipelineStageFlags*    pDstStages,
+    VkImageMemoryBarrier*    pVkBarrier);
 
 /*
 Simplified wrapper around vkCmdPipelineBarrier.
@@ -848,10 +848,10 @@ May consider other allocation strategies in future.
 #endif
 
 void thsvsGetVulkanMemoryBarrier(
-    ThsvsGlobalBarrier      thBarrier,
-    VkPipelineStageFlags*   pSrcStages,
-    VkPipelineStageFlags*   pDstStages,
-    VkMemoryBarrier*        pVkBarrier)
+    const ThsvsGlobalBarrier& thBarrier,
+    VkPipelineStageFlags*     pSrcStages,
+    VkPipelineStageFlags*     pDstStages,
+    VkMemoryBarrier*          pVkBarrier)
 {
     *pSrcStages               = 0;
     *pDstStages               = 0;
@@ -913,10 +913,10 @@ void thsvsGetVulkanMemoryBarrier(
 }
 
 void thsvsGetVulkanBufferMemoryBarrier(
-    ThsvsBufferBarrier      thBarrier,
-    VkPipelineStageFlags*   pSrcStages,
-    VkPipelineStageFlags*   pDstStages,
-    VkBufferMemoryBarrier*  pVkBarrier)
+    const ThsvsBufferBarrier& thBarrier,
+    VkPipelineStageFlags*     pSrcStages,
+    VkPipelineStageFlags*     pDstStages,
+    VkBufferMemoryBarrier*    pVkBarrier)
 {
     *pSrcStages                     = 0;
     *pDstStages                     = 0;
@@ -988,10 +988,10 @@ void thsvsGetVulkanBufferMemoryBarrier(
 }
 
 void thsvsGetVulkanImageMemoryBarrier(
-    ThsvsImageBarrier       thBarrier,
-    VkPipelineStageFlags*   pSrcStages,
-    VkPipelineStageFlags*   pDstStages,
-    VkImageMemoryBarrier*   pVkBarrier)
+    const ThsvsImageBarrier& thBarrier,
+    VkPipelineStageFlags*    pSrcStages,
+    VkPipelineStageFlags*    pDstStages,
+    VkImageMemoryBarrier*    pVkBarrier)
 {
     *pSrcStages                     = 0;
     *pDstStages                     = 0;
