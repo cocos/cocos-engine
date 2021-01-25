@@ -41,7 +41,7 @@ import { CCInteger, warn } from '../core';
 
 @ccclass('cc.TiledTile')
 @help('i18n:cc.TiledTile')
-@menu('Components/TiledTile')
+@menu('TiledMap/TiledTile')
 export class TiledTile extends Component {
     _layer: TiledLayer | null = null;
 

@@ -42,7 +42,7 @@ import { AudioClip } from './assets/clip';
  */
 @ccclass('cc.AudioSource')
 @help('i18n:cc.AudioSource')
-@menu('Components/AudioSource')
+@menu('Audio/AudioSource')
 export class AudioSource extends Component {
     @type(AudioClip)
     protected _clip: AudioClip | null = null;

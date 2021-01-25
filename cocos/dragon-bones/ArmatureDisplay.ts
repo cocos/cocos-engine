@@ -124,7 +124,7 @@ interface BoneIndex extends Number {
  */
 @ccclass('dragonBones.ArmatureDisplay')
 @help('i18n:dragonBones.ArmatureDisplay')
-@menu('Components/ArmatureDisplay')
+@menu('DragonBones/ArmatureDisplay')
 @executeInEditMode
 export class ArmatureDisplay extends Renderable2D {
     static AnimationCacheMode = AnimationCacheMode;

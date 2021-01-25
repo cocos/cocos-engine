@@ -49,7 +49,7 @@ import { BakedSkinningModel } from '../models/baked-skinning-model';
 @help('i18n:cc.SkinnedMeshRenderer')
 @executionOrder(100)
 @executeInEditMode
-@menu('Components/SkinnedMeshRenderer')
+@menu('Mesh/SkinnedMeshRenderer')
 export class SkinnedMeshRenderer extends MeshRenderer {
     @type(Skeleton)
     protected _skeleton: Skeleton | null = null;
