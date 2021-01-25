@@ -186,7 +186,7 @@ bool CCMTLTexture::createMTLTexture() {
     descriptor.textureType = mu::toMTLTextureType(_type);
     descriptor.sampleCount = mu::toMTLSampleCount(_samples);
     descriptor.mipmapLevelCount = _levelCount;
-    descriptor.arrayLength = _flags & TextureFlagBit::CUBEMAP ? 1 : _layerCount;
+    descriptor.arrayLength = _type == TextureType::CUBE ? 1 : _layerCount;
     if (_usage & TextureUsage::COLOR_ATTACHMENT ||
         _usage & TextureUsage::DEPTH_STENCIL_ATTACHMENT ||
         _usage & TextureUsage::INPUT_ATTACHMENT ||

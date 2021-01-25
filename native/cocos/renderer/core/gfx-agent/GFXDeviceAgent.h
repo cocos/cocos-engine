@@ -12,13 +12,8 @@ namespace gfx {
 
 class LinearAllocatorPool;
 class CommandBuffer;
+class CommandBufferAgent;
 constexpr uint MAX_CPU_FRAME_AHEAD = 1u;
-
-// one per CPU core
-struct SubmitContext final {
-    MessageQueue * encoder{nullptr};
-    CommandBuffer *commandBuffer{nullptr};
-};
 
 class CC_DLL DeviceAgent final : public Agent<Device> {
 public:

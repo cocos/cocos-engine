@@ -40,7 +40,6 @@ CCVKQueue::~CCVKQueue() {
 
 bool CCVKQueue::initialize(const QueueInfo &info) {
     _type    = info.type;
-    _isAsync = true;
 
     _gpuQueue       = CC_NEW(CCVKGPUQueue);
     _gpuQueue->type = _type;

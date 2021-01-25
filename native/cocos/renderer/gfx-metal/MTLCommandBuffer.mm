@@ -28,7 +28,6 @@ THE SOFTWARE.
 #include "MTLCommands.h"
 #include "MTLDescriptorSet.h"
 #include "MTLDevice.h"
-#include "MTLFence.h"
 #include "MTLFramebuffer.h"
 #include "MTLInputAssembler.h"
 #include "MTLPipelineState.h"
@@ -516,7 +515,7 @@ void CCMTLCommandBuffer::blitTexture(Texture *srcTexture, Texture *dstTexture, c
 void CCMTLCommandBuffer::dispatch(const DispatchInfo &info) {
 }
 
-void CCMTLCommandBuffer::pipelineBarrier(const GlobalBarrier *barrier, const TextureBarrier *textureBarriers, uint textureBarrierCount) {
+void CCMTLCommandBuffer::pipelineBarrier(const GlobalBarrier *barrier, const TextureBarrier *const *textureBarriers, const Texture *const *textures, uint textureBarrierCount) {
 }
 
 } // namespace gfx

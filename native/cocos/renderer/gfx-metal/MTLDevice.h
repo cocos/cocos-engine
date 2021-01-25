@@ -38,7 +38,6 @@ public:
     ~CCMTLDevice() = default;
 
     using Device::createCommandBuffer;
-    using Device::createFence;
     using Device::createQueue;
     using Device::createBuffer;
     using Device::createTexture;
@@ -52,6 +51,8 @@ public:
     using Device::createPipelineLayout;
     using Device::createPipelineState;
     using Device::copyBuffersToTexture;
+    using Device::createGlobalBarrier;
+    using Device::createTextureBarrier;
 
     virtual bool initialize(const DeviceInfo &info) override;
     virtual void destroy() override;
@@ -77,7 +78,6 @@ public:
 
 protected:
     virtual CommandBuffer *doCreateCommandBuffer(const CommandBufferInfo &info, bool hasAgent) override;
-    virtual Fence *createFence() override;
     virtual Queue *createQueue() override;
     virtual Buffer *createBuffer() override;
     virtual Texture *createTexture() override;
@@ -90,6 +90,8 @@ protected:
     virtual DescriptorSetLayout *createDescriptorSetLayout() override;
     virtual PipelineLayout *createPipelineLayout() override;
     virtual PipelineState *createPipelineState() override;
+    virtual GlobalBarrier *createGlobalBarrier() override;
+    virtual TextureBarrier *createTextureBarrier() override;
     virtual void copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint count) override;
 
 private:

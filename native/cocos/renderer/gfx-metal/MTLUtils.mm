@@ -612,7 +612,7 @@ String compileGLSLShader2Msl(const String &src,
                              Device *device,
                              CCMTLGPUShader *gpuShader) {
 #if CC_USE_METAL
-    String shaderSource("#version 310 es\n");
+    String shaderSource("#version 460\n");
     shaderSource.append(src);
     const auto &spv = GLSL2SPIRV(shaderType, shaderSource);
     if (spv.size() == 0)

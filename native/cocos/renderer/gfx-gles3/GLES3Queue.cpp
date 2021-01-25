@@ -46,25 +46,23 @@ void GLES3Queue::destroy() {
 }
 
 void GLES3Queue::submit(CommandBuffer *const *cmdBuffs, uint count) {
-    if (!_isAsync) {
-        for (uint i = 0; i < count; ++i) {
-            GLES3CommandBuffer *cmdBuff = (GLES3CommandBuffer *)cmdBuffs[i];
+    for (uint i = 0; i < count; ++i) {
+        GLES3CommandBuffer *cmdBuff = (GLES3CommandBuffer *)cmdBuffs[i];
 
-            if (!cmdBuff->_pendingPackages.empty()) {
-                GLES3CmdPackage *cmdPackage = cmdBuff->_pendingPackages.front();
+        if (!cmdBuff->_pendingPackages.empty()) {
+            GLES3CmdPackage *cmdPackage = cmdBuff->_pendingPackages.front();
 
-                GLES3CmdFuncExecuteCmds((GLES3Device *)_device, cmdPackage);
+            GLES3CmdFuncExecuteCmds((GLES3Device *)_device, cmdPackage);
 
-                cmdBuff->_pendingPackages.pop();
-                cmdBuff->_freePackages.push(cmdPackage);
-                cmdBuff->_cmdAllocator->clearCmds(cmdPackage);
-                cmdBuff->_cmdAllocator->reset();
-            }
-
-            _numDrawCalls += cmdBuff->_numDrawCalls;
-            _numInstances += cmdBuff->_numInstances;
-            _numTriangles += cmdBuff->_numTriangles;
+            cmdBuff->_pendingPackages.pop();
+            cmdBuff->_freePackages.push(cmdPackage);
+            cmdBuff->_cmdAllocator->clearCmds(cmdPackage);
+            cmdBuff->_cmdAllocator->reset();
         }
+
+        _numDrawCalls += cmdBuff->_numDrawCalls;
+        _numInstances += cmdBuff->_numInstances;
+        _numTriangles += cmdBuff->_numTriangles;
     }
 }
 

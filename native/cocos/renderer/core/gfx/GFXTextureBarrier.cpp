@@ -1,5 +1,6 @@
 #include "CoreStd.h"
 
+#include "GFXQueue.h"
 #include "GFXTextureBarrier.h"
 
 namespace cc {
@@ -23,8 +24,8 @@ uint TextureBarrier::computeHash(const TextureBarrierInfo &info) {
     }
     
     seed ^= info.discardContents + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-    seed ^= (uint)info.srcQueue + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-    seed ^= (uint)info.dstQueue + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+    seed ^= (info.srcQueue ? (uint)info.srcQueue->getType() : 0u) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+    seed ^= (info.dstQueue ? (uint)info.dstQueue->getType() : 0u) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
 
     return seed;
 }

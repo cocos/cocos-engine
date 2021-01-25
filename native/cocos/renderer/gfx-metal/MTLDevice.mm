@@ -30,7 +30,6 @@ THE SOFTWARE.
 #include "MTLDescriptorSet.h"
 #include "MTLDescriptorSetLayout.h"
 #include "MTLDevice.h"
-#include "MTLFence.h"
 #include "MTLFramebuffer.h"
 #include "MTLInputAssembler.h"
 #include "MTLPipelineLayout.h"
@@ -265,10 +264,6 @@ void CCMTLDevice::disposeCurrentDrawable() {
     }
 }
 
-Fence *CCMTLDevice::createFence() {
-    return CC_NEW(CCMTLFence(this));
-}
-
 Queue *CCMTLDevice::createQueue() {
     return CC_NEW(CCMTLQueue(this));
 }
@@ -319,6 +314,14 @@ PipelineLayout *CCMTLDevice::createPipelineLayout() {
 
 PipelineState *CCMTLDevice::createPipelineState() {
     return CC_NEW(CCMTLPipelineState(this));
+}
+
+GlobalBarrier *CCMTLDevice::createGlobalBarrier() {
+    return CC_NEW(GlobalBarrier(this));
+}
+
+TextureBarrier *CCMTLDevice::createTextureBarrier() {
+    return CC_NEW(TextureBarrier(this));
 }
 
 void CCMTLDevice::copyBuffersToTexture(const uint8_t *const *buffers, Texture *texture, const BufferTextureCopy *regions, uint count) {
