@@ -68,7 +68,6 @@ void ShadowFlow::render(Camera *camera) {
 
     lightCollecting(camera, _validLights);
     shadowCollecting(pipeline, camera);
-    if (pipeline->getShadowObjects().size() == 0) return;
 
     const auto &shadowFramebufferMap = pipeline->getShadowFramebufferMap();
     for (const auto *light : _validLights) {
