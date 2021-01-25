@@ -48,7 +48,7 @@ bool CCVKRenderPass::initialize(const RenderPassInfo &info) {
     _gpuRenderPass->subPasses = _subPasses;
     CCVKCmdFuncCreateRenderPass((CCVKDevice *)_device, _gpuRenderPass);
 
-    _hash = computeHash();
+    _hash = computeHash(info);
 
     return true;
 }

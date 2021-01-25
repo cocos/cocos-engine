@@ -1,13 +1,13 @@
 #include "CoreStd.h"
 
-#include "base/threading/MessageQueue.h"
 #include "GFXDeviceAgent.h"
 #include "GFXRenderPassAgent.h"
+#include "base/threading/MessageQueue.h"
 
 namespace cc {
 namespace gfx {
 
-RenderPassAgent::~RenderPassAgent(){
+RenderPassAgent::~RenderPassAgent() {
     ENQUEUE_MESSAGE_1(
         ((DeviceAgent *)_device)->getMessageQueue(),
         RenderPassDestruct,
@@ -19,10 +19,10 @@ RenderPassAgent::~RenderPassAgent(){
 
 bool RenderPassAgent::initialize(const RenderPassInfo &info) {
 
-    _colorAttachments = info.colorAttachments;
+    _colorAttachments       = info.colorAttachments;
     _depthStencilAttachment = info.depthStencilAttachment;
-    _subPasses = info.subPasses;
-    _hash = computeHash();
+    _subPasses              = info.subPasses;
+    _hash                   = computeHash(info);
 
     ENQUEUE_MESSAGE_2(
         ((DeviceAgent *)_device)->getMessageQueue(),

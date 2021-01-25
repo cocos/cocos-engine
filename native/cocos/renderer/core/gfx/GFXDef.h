@@ -1147,17 +1147,6 @@ struct TextureBarrierInfo {
 };
 typedef cc::vector<TextureBarrierInfo> TextureBarrierInfoList;
 
-struct BufferBarrierInfo {
-    vector<AccessType> prevAccesses;
-    vector<AccessType> nextAccesses;
-
-    Buffer *buffer = nullptr;
-
-    Queue *srcQueue = nullptr;
-    Queue *dstQueue = nullptr;
-};
-typedef cc::vector<BufferBarrierInfo> BufferBarrierInfoList;
-
 typedef cc::vector<Buffer *>  BufferList;
 typedef cc::vector<Texture *> TextureList;
 typedef cc::vector<Sampler *> SamplerList;

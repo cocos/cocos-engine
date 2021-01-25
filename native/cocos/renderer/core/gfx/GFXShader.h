@@ -11,7 +11,6 @@ public:
     Shader(Device *device);
     virtual ~Shader();
 
-public:
     virtual bool initialize(const ShaderInfo &info) = 0;
     virtual void destroy() = 0;
 

@@ -11,6 +11,8 @@ public:
     TextureBarrier(Device *device);
     virtual ~TextureBarrier();
 
+    static uint computeHash(const TextureBarrierInfo &info);
+
     CC_INLINE const TextureBarrierInfo &get() const { return _info; }
 
 protected:

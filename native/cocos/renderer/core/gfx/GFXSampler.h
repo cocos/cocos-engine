@@ -11,7 +11,6 @@ public:
     Sampler(Device *device);
     virtual ~Sampler();
 
-public:
     virtual bool initialize(const SamplerInfo &info) = 0;
     virtual void destroy() = 0;
 

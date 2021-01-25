@@ -11,7 +11,8 @@ public:
     RenderPass(Device *device);
     virtual ~RenderPass();
 
-public:
+    static uint computeHash(const RenderPassInfo &info);
+
     virtual bool initialize(const RenderPassInfo &info) = 0;
     virtual void destroy() = 0;
 
@@ -22,7 +23,6 @@ public:
     CC_INLINE uint getHash() const { return _hash; }
 
 protected:
-    uint computeHash() const;
 
     Device *_device = nullptr;
     ColorAttachmentList _colorAttachments;

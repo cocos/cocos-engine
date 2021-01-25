@@ -11,6 +11,8 @@ public:
     GlobalBarrier(Device *device);
     virtual ~GlobalBarrier();
 
+    static uint computeHash(const GlobalBarrierInfo &info);
+
     CC_INLINE const GlobalBarrierInfo &get() const { return _info; }
 
 protected:
