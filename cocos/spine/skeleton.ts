@@ -1627,6 +1627,16 @@ export class Skeleton extends Renderable2D {
                 }
             }
         }
+        const uniqueSocketNode:Map<Node, boolean> = new Map();
+        sockets.forEach((x:SpineSocket) => {
+            if (x.target) {
+                if (uniqueSocketNode.get(x.target)) {
+                    console.error(`Target node ${x.target.name} has existed.`);
+                } else {
+                    uniqueSocketNode.set(x.target, true);
+                }
+            }
+        });
     }
 }
 
