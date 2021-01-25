@@ -40,7 +40,7 @@ import { RenderFlowTag } from '../pipeline-serialization';
 import { ForwardPipeline } from '../forward/forward-pipeline';
 import { ShadowType } from '../../renderer/scene/shadows';
 import { Light } from '../../renderer/scene/light';
-import { lightCollecting, shadowCollecting } from '../forward/scene-culling';
+import { lightCollecting, shadowCollecting } from '../scene-culling';
 import { Vec2 } from '../../math';
 import { Camera } from '../../renderer/scene';
 
@@ -76,21 +76,23 @@ export class ShadowFlow extends RenderFlow {
 
     public render (camera: Camera) {
         const pipeline = this._pipeline as ForwardPipeline;
-        const shadowInfo = pipeline.shadows;
+        const shadowInfo = pipeline.pipelineSceneData.shadows;
+        const shadowFrameBufferMap = pipeline.pipelineSceneData.shadowFrameBufferMap;
+        const shadowObjects = pipeline.pipelineSceneData.shadowObjects;
         if (!shadowInfo.enabled || shadowInfo.type !== ShadowType.ShadowMap) { return; }
 
         const validLights = lightCollecting(camera, shadowInfo.maxReceived);
         shadowCollecting(pipeline, camera);
 
-        if (pipeline.shadowObjects.length === 0) return;
+        if (shadowObjects.length === 0) return;
 
         for (let l = 0; l < validLights.length; l++) {
             const light = validLights[l];
 
-            if (!pipeline.shadowFrameBufferMap.has(light)) {
+            if (!shadowFrameBufferMap.has(light)) {
                 this._initShadowFrameBuffer(pipeline, light);
             }
-            const shadowFrameBuffer = pipeline.shadowFrameBufferMap.get(light);
+            const shadowFrameBuffer = shadowFrameBufferMap.get(light);
             if (shadowInfo.shadowMapDirty) { this.resizeShadowMap(light, shadowInfo.size); }
 
             for (let i = 0; i < this._stages.length; i++) {
@@ -102,12 +104,13 @@ export class ShadowFlow extends RenderFlow {
 
         // After the shadowMap rendering of all lights is completed,
         // restore the ShadowUBO data of the main light.
-        pipeline.updateShadowUBO(camera);
+        pipeline.pipelineUBO.updateShadowUBO(camera);
     }
 
     public destroy () {
         super.destroy();
-        const shadowFrameBuffers = Array.from((this._pipeline as ForwardPipeline).shadowFrameBufferMap.values());
+        const shadowFrameBufferMap = this._pipeline.pipelineSceneData.shadowFrameBufferMap;
+        const shadowFrameBuffers = Array.from(shadowFrameBufferMap.values());
         for (let i = 0; i < shadowFrameBuffers.length; i++) {
             const frameBuffer = shadowFrameBuffers[i];
 
@@ -125,14 +128,16 @@ export class ShadowFlow extends RenderFlow {
             frameBuffer.destroy();
         }
 
-        (this._pipeline as ForwardPipeline).shadowFrameBufferMap.clear();
+        shadowFrameBufferMap.clear();
 
         if (this._shadowRenderPass) { this._shadowRenderPass.destroy(); }
     }
 
     public _initShadowFrameBuffer  (pipeline: ForwardPipeline, light: Light) {
         const device = pipeline.device;
-        const shadowMapSize = pipeline.shadows.size;
+        const shadows = pipeline.pipelineSceneData.shadows;
+        const shadowMapSize = shadows.size;
+        const shadowFrameBufferMap = pipeline.pipelineSceneData.shadowFrameBufferMap;
 
         if (!this._shadowRenderPass) {
             const colorAttachment = new ColorAttachment();
@@ -181,16 +186,17 @@ export class ShadowFlow extends RenderFlow {
         ));
 
         // Cache frameBuffer
-        pipeline.shadowFrameBufferMap.set(light, shadowFrameBuffer);
+        shadowFrameBufferMap.set(light, shadowFrameBuffer);
     }
 
     private resizeShadowMap (light: Light, size: Vec2) {
         const width = size.x;
         const height = size.y;
-        const pipeline = this._pipeline as ForwardPipeline;
+        const pipeline = this._pipeline;
+        const shadowFrameBufferMap = pipeline.pipelineSceneData.shadowFrameBufferMap;
 
-        if (pipeline.shadowFrameBufferMap.has(light)) {
-            const frameBuffer = pipeline.shadowFrameBufferMap.get(light);
+        if (shadowFrameBufferMap.has(light)) {
+            const frameBuffer = shadowFrameBufferMap.get(light);
 
             if (!frameBuffer) { return; }
 

@@ -541,6 +541,7 @@ export enum PoolType {
     BLEND_TARGET,
     BLEND_STATE,
     BATCH_2D,
+    PIPELINE_SCENE_DATA,
     // arrays
     SUB_MODEL_ARRAY = 200,
     MODEL_ARRAY,
@@ -595,6 +596,7 @@ export type BlendTargetHandle = IHandle<PoolType.BLEND_TARGET>;
 export type BlendStateHandle = IHandle<PoolType.BLEND_STATE>;
 export type BatchHandle2D = IHandle<PoolType.BATCH_2D>;
 export type UIBatchArrayHandle = IHandle<PoolType.BATCH_ARRAY_2D>;
+export type PipelineSceneDataHandle = IHandle<PoolType.PIPELINE_SCENE_DATA>;
 
 // TODO: could use Labeled Tuple Element feature here after next babel update (required TS4.0+ support)
 export const ShaderPool = new ObjectPool(PoolType.SHADER,
@@ -1230,6 +1232,43 @@ if (!JSB) { delete ShadowsView[ShadowsView.COUNT]; ShadowsView[ShadowsView.COUNT
 // we'll have to explicitly declare all these types.
 export const ShadowsPool = new BufferPool<PoolType.SHADOW, typeof ShadowsView, IShadowsViewType>(
     PoolType.SHADOW, shadowsViewDataType, ShadowsView, 1,
+);
+
+export enum PipelineSceneDataView {
+    SHADOW, // handle
+    SKYBOX, // handle
+    AMBIENT, // handle
+    FOG, // handle
+    IS_HDR,
+    SHADING_SCALE,
+    FP_SCALE,
+    COUNT = 7
+}
+interface IPipelineSceneDataViewType extends BufferTypeManifest<typeof PipelineSceneDataView> {
+    [PipelineSceneDataView.SHADOW]: ShadowsHandle;
+    [PipelineSceneDataView.SKYBOX]: SkyboxHandle;
+    [PipelineSceneDataView.AMBIENT]: AmbientHandle;
+    [PipelineSceneDataView.FOG]: FogHandle;
+    [PipelineSceneDataView.IS_HDR]: number;
+    [PipelineSceneDataView.SHADING_SCALE]: number;
+    [PipelineSceneDataView.FP_SCALE]: number;
+    [PipelineSceneDataView.COUNT]: never;
+}
+const pipelineSceneDataType: BufferDataTypeManifest<typeof PipelineSceneDataView> = {
+    [PipelineSceneDataView.SHADOW]: BufferDataType.UINT32,
+    [PipelineSceneDataView.SKYBOX]: BufferDataType.UINT32,
+    [PipelineSceneDataView.AMBIENT]: BufferDataType.UINT32,
+    [PipelineSceneDataView.FOG]: BufferDataType.UINT32,
+    [PipelineSceneDataView.IS_HDR]: BufferDataType.UINT32,
+    [PipelineSceneDataView.SHADING_SCALE]: BufferDataType.UINT32,
+    [PipelineSceneDataView.FP_SCALE]: BufferDataType.UINT32,
+    [PipelineSceneDataView.COUNT]: BufferDataType.NEVER,
+};
+// Theoretically we only have to declare the type view here while all the other arguments can be inferred.
+// but before the official support of Partial Type Argument Inference releases, (microsoft/TypeScript#26349)
+// we'll have to explicitly declare all these types.
+export const PipelineSceneDataPool = new BufferPool<PoolType.PIPELINE_SCENE_DATA, typeof PipelineSceneDataView, IPipelineSceneDataViewType>(
+    PoolType.PIPELINE_SCENE_DATA, pipelineSceneDataType, PipelineSceneDataView, 1,
 );
 
 export enum LightView {

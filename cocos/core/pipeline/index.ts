@@ -29,6 +29,7 @@
  */
 
 import * as pipeline from './define';
+import { ForwardPipeline } from './forward/forward-pipeline';
 
 export { pipeline };
 
@@ -46,3 +47,9 @@ export { ShadowStage } from './shadow/shadow-stage';
 
 export { InstancedBuffer } from './instanced-buffer';
 export { PipelineStateManager } from './pipeline-state-manager';
+
+export function createDefaultPipeline () {
+    const rppl = new ForwardPipeline();
+    rppl.initialize({ flows: [] });
+    return rppl;
+}

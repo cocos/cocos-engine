@@ -666,11 +666,11 @@ export class SceneGlobals {
     }
 
     public activate () {
-        const pipeline = legacyCC.director.root.pipeline;
-        this.ambient.activate(pipeline.ambient);
-        this.skybox.activate(pipeline.skybox);
-        this.shadows.activate(pipeline.shadows);
-        this.fog.activate(pipeline.fog);
+        const sceneData = legacyCC.director.root.pipeline.pipelineSceneData;
+        this.ambient.activate(sceneData.ambient);
+        this.skybox.activate(sceneData.skybox);
+        this.shadows.activate(sceneData.shadows);
+        this.fog.activate(sceneData.fog);
     }
 }
 legacyCC.SceneGlobals = SceneGlobals;
