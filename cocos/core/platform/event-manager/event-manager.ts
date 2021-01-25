@@ -115,6 +115,7 @@ const DIRTY_NONE = 0;
 const DIRTY_FIXED_PRIORITY = 1 << 0;
 const DIRTY_SCENE_GRAPH_PRIORITY = 1 << 1;
 const DIRTY_ALL = 3;
+let wmTransToCameraPriority: WeakMap<Object, any> = new WeakMap();
 
 interface IListenersMap{
     [key: string]: _EventListenerVector;
@@ -775,8 +776,21 @@ class EventManager {
         let p1 = node1; let p2 = node2; let ex = false;
         const trans1 = node1._uiProps.uiTransformComp;
         const trans2 = node2._uiProps.uiTransformComp;
-        if (trans1.cameraPriority !== trans2.cameraPriority) {
-            return trans2.cameraPriority - trans1.cameraPriority;
+
+        // accessing trans.cameraPriority is expensive
+        // need to cache the cameraPriority
+        let trans1CameraPriority =  wmTransToCameraPriority.get(trans1);
+        if (!trans1CameraPriority) {
+            trans1CameraPriority = trans1.cameraPriority;
+            wmTransToCameraPriority.set(trans1, trans1CameraPriority);
+        }
+        let trans2CameraPriority =  wmTransToCameraPriority.get(trans2);
+        if (!trans2CameraPriority) {
+            trans2CameraPriority = trans2.cameraPriority;
+            wmTransToCameraPriority.set(trans2, trans2CameraPriority);
+        }
+        if (trans1CameraPriority !== trans2CameraPriority) {
+            return trans2CameraPriority - trans1CameraPriority;
         }
         while (p1.parent._id !== p2.parent._id) {
             p1 = p1.parent.parent === null ? (ex = true) && node2 : p1.parent;
