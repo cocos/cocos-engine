@@ -29,7 +29,7 @@
  */
 
 import { ccclass } from 'cc.decorator';
-import { PIPELINE_FLOW_SHADOW } from '../define';
+import { PIPELINE_FLOW_SHADOW, UNIFORM_SHADOWMAP_BINDING } from '../define';
 import { IRenderFlowInfo, RenderFlow } from '../render-flow';
 import { ForwardFlowPriority } from '../forward/enum';
 import { ShadowStage } from './shadow-stage';
@@ -43,6 +43,7 @@ import { Light } from '../../renderer/scene/light';
 import { lightCollecting, shadowCollecting } from '../forward/scene-culling';
 import { Vec2 } from '../../math';
 import { Camera } from '../../renderer/scene';
+import { legacyCC } from '../../global-exports';
 
 /**
  * @en Shadow map render flow
@@ -82,7 +83,10 @@ export class ShadowFlow extends RenderFlow {
         const validLights = lightCollecting(camera, shadowInfo.maxReceived);
         shadowCollecting(pipeline, camera);
 
-        if (pipeline.shadowObjects.length === 0) return;
+        if (pipeline.shadowObjects.length === 0) {
+            this.clearShadowMap(validLights, camera);
+            return;
+        }
 
         for (let l = 0; l < validLights.length; l++) {
             const light = validLights[l];
@@ -182,6 +186,22 @@ export class ShadowFlow extends RenderFlow {
 
         // Cache frameBuffer
         pipeline.shadowFrameBufferMap.set(light, shadowFrameBuffer);
+    }
+
+    private clearShadowMap (validLights: Light[], camera: Camera) {
+        const pipeline = this._pipeline as ForwardPipeline;
+        for (let l = 0; l < validLights.length; l++) {
+            const light = validLights[l];
+            const shadowFrameBuffer = pipeline.shadowFrameBufferMap.get(light);
+
+            if (!pipeline.shadowFrameBufferMap.has(light)) { continue; }
+
+            for (let i = 0; i < this._stages.length; i++) {
+                const shadowStage = this._stages[i] as ShadowStage;
+                shadowStage.setUsage(light, shadowFrameBuffer!);
+                shadowStage.clearFramebuffer(camera);
+            }
+        }
     }
 
     private resizeShadowMap (light: Light, size: Vec2) {
