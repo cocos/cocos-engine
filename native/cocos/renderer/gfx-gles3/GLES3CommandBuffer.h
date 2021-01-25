@@ -62,7 +62,7 @@ public:
     virtual void blitTexture(Texture *srcTexture, Texture *dstTexture, const TextureBlit *regions, uint count, Filter filter) override;
     virtual void execute(CommandBuffer *const *cmdBuffs, uint32_t count) override;
     virtual void dispatch(const DispatchInfo &info) override;
-    virtual void pipelineBarrier(const GlobalBarrier *barrier, const TextureBarrier *textureBarriers, uint textureBarrierCount) override;
+    virtual void pipelineBarrier(const GlobalBarrier *barrier, const TextureBarrier *const *textureBarriers, const Texture *const *textures, uint textureBarrierCount) override;
 
 protected:
     virtual void BindStates();

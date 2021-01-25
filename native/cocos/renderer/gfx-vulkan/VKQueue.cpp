@@ -26,7 +26,6 @@ THE SOFTWARE.
 #include "VKCommandBuffer.h"
 #include "VKCommands.h"
 #include "VKDevice.h"
-#include "VKFence.h"
 #include "VKQueue.h"
 
 namespace cc {

@@ -37,21 +37,22 @@ public:
     GLES3Device();
     ~GLES3Device();
 
-    using Device::createCommandBuffer;
-    using Device::createFence;
-    using Device::createQueue;
+    using Device::copyBuffersToTexture;
     using Device::createBuffer;
-    using Device::createTexture;
-    using Device::createSampler;
-    using Device::createShader;
-    using Device::createInputAssembler;
-    using Device::createRenderPass;
-    using Device::createFramebuffer;
+    using Device::createCommandBuffer;
     using Device::createDescriptorSet;
     using Device::createDescriptorSetLayout;
+    using Device::createFramebuffer;
+    using Device::createInputAssembler;
     using Device::createPipelineLayout;
     using Device::createPipelineState;
-    using Device::copyBuffersToTexture;
+    using Device::createQueue;
+    using Device::createRenderPass;
+    using Device::createSampler;
+    using Device::createShader;
+    using Device::createTexture;
+    using Device::createGlobalBarrier;
+    using Device::createTextureBarrier;
 
     virtual bool initialize(const DeviceInfo &info) override;
     virtual void destroy() override;
@@ -73,33 +74,34 @@ public:
     }
 
     CC_INLINE uint getThreadID() const { return _threadID; }
-    uint getMinorVersion() const;
+    uint           getMinorVersion() const;
 
 protected:
-    virtual CommandBuffer *doCreateCommandBuffer(const CommandBufferInfo &info, bool hasAgent) override;
-    virtual Fence *createFence() override;
-    virtual Queue *createQueue() override;
-    virtual Buffer *createBuffer() override;
-    virtual Texture *createTexture() override;
-    virtual Sampler *createSampler() override;
-    virtual Shader *createShader() override;
-    virtual InputAssembler *createInputAssembler() override;
-    virtual RenderPass *createRenderPass() override;
-    virtual Framebuffer *createFramebuffer() override;
-    virtual DescriptorSet *createDescriptorSet() override;
+    virtual CommandBuffer *      doCreateCommandBuffer(const CommandBufferInfo &info, bool hasAgent) override;
+    virtual Queue *              createQueue() override;
+    virtual Buffer *             createBuffer() override;
+    virtual Texture *            createTexture() override;
+    virtual Sampler *            createSampler() override;
+    virtual Shader *             createShader() override;
+    virtual InputAssembler *     createInputAssembler() override;
+    virtual RenderPass *         createRenderPass() override;
+    virtual Framebuffer *        createFramebuffer() override;
+    virtual DescriptorSet *      createDescriptorSet() override;
     virtual DescriptorSetLayout *createDescriptorSetLayout() override;
-    virtual PipelineLayout *createPipelineLayout() override;
-    virtual PipelineState *createPipelineState() override;
-    virtual void copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint count) override;
+    virtual PipelineLayout *     createPipelineLayout() override;
+    virtual PipelineState *      createPipelineState() override;
+    virtual GlobalBarrier *      createGlobalBarrier() override;
+    virtual TextureBarrier *     createTextureBarrier() override;
+    virtual void                 copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint count) override;
 
     virtual void bindRenderContext(bool bound) override;
     virtual void bindDeviceContext(bool bound) override;
 
 private:
-    GLES3Context *_renderContext = nullptr;
-    GLES3Context *_deviceContext = nullptr;
-    GLES3GPUStateCache *_gpuStateCache = nullptr;
-    GLES3GPUStagingBufferPool *_gpuStagingBufferPool = nullptr;
+    GLES3Context *               _renderContext          = nullptr;
+    GLES3Context *               _deviceContext          = nullptr;
+    GLES3GPUStateCache *         _gpuStateCache          = nullptr;
+    GLES3GPUStagingBufferPool *  _gpuStagingBufferPool   = nullptr;
     GLES3GPUFramebufferCacheMap *_gpuFramebufferCacheMap = nullptr;
 
     StringArray _extensions;

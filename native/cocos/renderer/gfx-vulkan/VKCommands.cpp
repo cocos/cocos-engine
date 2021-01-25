@@ -679,11 +679,6 @@ void CCVKCmdFuncCreateGraphicsPipelineState(CCVKDevice *device, CCVKGPUPipelineS
                                        1, &createInfo, nullptr, &gpuPipelineState->vkPipeline));
 }
 
-void CCVKCmdFuncCreateFence(CCVKDevice *device, CCVKGPUFence *gpuFence) {
-    VkFenceCreateInfo createInfo{VK_STRUCTURE_TYPE_FENCE_CREATE_INFO};
-    VK_CHECK(vkCreateFence(device->gpuDevice()->vkDevice, &createInfo, nullptr, &gpuFence->vkFence));
-}
-
 void CCVKCmdFuncUpdateBuffer(CCVKDevice *device, CCVKGPUBuffer *gpuBuffer, const void *buffer, uint size, const CCVKGPUCommandBuffer *cmdBuffer) {
     if (!gpuBuffer) return;
 
@@ -924,13 +919,6 @@ void CCVKCmdFuncDestroyPipelineState(CCVKGPUDevice *gpuDevice, CCVKGPUPipelineSt
     }
 }
 
-void CCVKCmdFuncDestroyFence(CCVKGPUDevice *gpuDevice, CCVKGPUFence *gpuFence) {
-    if (gpuFence->vkFence) {
-        vkDestroyFence(gpuDevice->vkDevice, gpuFence->vkFence, nullptr);
-        gpuFence->vkFence = VK_NULL_HANDLE;
-    }
-}
-
 void CCVKCmdFuncImageMemoryBarrier(const CCVKGPUCommandBuffer *gpuCommandBuffer, const ThsvsImageBarrier &imageBarrier) {
     VkPipelineStageFlags srcStageMask     = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
     VkPipelineStageFlags dstStageMask     = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
@@ -1014,13 +1002,6 @@ void CCVKGPURecycleBin::clear() {
                     CCVKCmdFuncDestroyPipelineState(_device, res.gpuPipelineState);
                     CC_DELETE(res.gpuPipelineState);
                     res.gpuPipelineState = nullptr;
-                }
-                break;
-            case RecycledType::FENCE:
-                if (res.gpuFence) {
-                    CCVKCmdFuncDestroyFence(_device, res.gpuFence);
-                    CC_DELETE(res.gpuFence);
-                    res.gpuFence = nullptr;
                 }
                 break;
             default: break;

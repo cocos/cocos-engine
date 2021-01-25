@@ -6,6 +6,8 @@ namespace gfx {
 
 class Device;
 class Buffer;
+class GlobalBarrier;
+class TextureBarrier;
 class Texture;
 class Sampler;
 class Shader;
@@ -41,8 +43,10 @@ enum class ObjectType {
     DESCRIPTOR_SET,
     INPUT_ASSEMBLER,
     COMMAND_BUFFER,
-    FENCE,
     QUEUE,
+    GLOBAL_BARRIER,
+    TEXTURE_BARRIER,
+    BUFFER_BARRIER,
 };
 
 enum class Status {
@@ -1079,6 +1083,7 @@ struct ShaderInfo {
 };
 
 typedef cc::vector<Buffer *> BufferList;
+typedef cc::vector<TextureBarrier *> TextureBarrierList;
 
 struct InputAssemblerInfo {
     AttributeList attributes;
@@ -1125,40 +1130,33 @@ struct RenderPassInfo {
     SubPassInfoList        subPasses;
 };
 
-struct GlobalBarrier {
-    AccessType const *prevAccesses    = nullptr;
-    uint              prevAccessCount = 0u;
-    AccessType const *nextAccesses    = nullptr;
-    uint              nextAccessCount = 0u;
+struct GlobalBarrierInfo {
+    vector<AccessType> prevAccesses;
+    vector<AccessType> nextAccesses;
 };
-typedef cc::vector<GlobalBarrier> GlobalBarrierList;
+typedef cc::vector<GlobalBarrierInfo> GlobalBarrierInfoList;
 
-struct TextureBarrier {
-    AccessType const *prevAccesses    = nullptr;
-    uint              prevAccessCount = 0u;
-    AccessType const *nextAccesses    = nullptr;
-    uint              nextAccessCount = 0u;
+struct TextureBarrierInfo {
+    vector<AccessType> prevAccesses;
+    vector<AccessType> nextAccesses;
 
     bool     discardContents = false;
-    Texture *texture         = nullptr;
 
     Queue *srcQueue = nullptr;
     Queue *dstQueue = nullptr;
 };
-typedef cc::vector<TextureBarrier> TextureBarrierList;
+typedef cc::vector<TextureBarrierInfo> TextureBarrierInfoList;
 
-struct BufferBarrier {
-    AccessType const *prevAccesses    = nullptr;
-    uint              prevAccessCount = 0u;
-    AccessType const *nextAccesses    = nullptr;
-    uint              nextAccessCount = 0u;
+struct BufferBarrierInfo {
+    vector<AccessType> prevAccesses;
+    vector<AccessType> nextAccesses;
 
     Buffer *buffer = nullptr;
 
     Queue *srcQueue = nullptr;
     Queue *dstQueue = nullptr;
 };
-typedef cc::vector<BufferBarrier> BufferBarrierList;
+typedef cc::vector<BufferBarrierInfo> BufferBarrierInfoList;
 
 typedef cc::vector<Buffer *>  BufferList;
 typedef cc::vector<Texture *> TextureList;

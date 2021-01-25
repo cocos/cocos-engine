@@ -289,9 +289,24 @@ public:
     VkPipeline             vkPipeline    = VK_NULL_HANDLE;
 };
 
-class CCVKGPUFence final : public Object {
+class CCVKGPUGlobalBarrier final : public Object {
 public:
-    VkFence vkFence;
+    VkPipelineStageFlags srcStageMask = 0u;
+    VkPipelineStageFlags dstStageMask = 0u;
+    VkMemoryBarrier      vkBarrier{};
+
+    vector<ThsvsAccessType> accessTypes;
+    ThsvsGlobalBarrier   barrier{};
+};
+
+class CCVKGPUTextureBarrier final : public Object {
+public:
+    VkPipelineStageFlags srcStageMask = 0u;
+    VkPipelineStageFlags dstStageMask = 0u;
+    VkImageMemoryBarrier vkBarrier{};
+
+    vector<ThsvsAccessType> accessTypes;
+    ThsvsImageBarrier   barrier{};
 };
 
 class CCVKGPUCommandBufferPool;
@@ -1012,7 +1027,6 @@ public:
     DEFINE_RECYCLE_BIN_COLLECT_FN(CCVKGPUDescriptorSetLayout, RecycledType::DESCRIPTOR_SET_LAYOUT, res.gpuDescriptorSetLayout = gpuRes)
     DEFINE_RECYCLE_BIN_COLLECT_FN(CCVKGPUPipelineLayout, RecycledType::PIPELINE_LAYOUT, res.gpuPipelineLayout = gpuRes)
     DEFINE_RECYCLE_BIN_COLLECT_FN(CCVKGPUPipelineState, RecycledType::PIPELINE_STATE, res.gpuPipelineState = gpuRes)
-    DEFINE_RECYCLE_BIN_COLLECT_FN(CCVKGPUFence, RecycledType::FENCE, res.gpuFence = gpuRes)
 
     void clear();
 
@@ -1029,7 +1043,6 @@ private:
         DESCRIPTOR_SET_LAYOUT,
         PIPELINE_LAYOUT,
         PIPELINE_STATE,
-        FENCE,
     };
     struct Buffer {
         VkBuffer      vkBuffer;
@@ -1056,7 +1069,6 @@ private:
             CCVKGPUDescriptorSetLayout *gpuDescriptorSetLayout;
             CCVKGPUPipelineLayout *     gpuPipelineLayout;
             CCVKGPUPipelineState *      gpuPipelineState;
-            CCVKGPUFence *              gpuFence;
         };
     };
     CCVKGPUDevice *  _device = nullptr;

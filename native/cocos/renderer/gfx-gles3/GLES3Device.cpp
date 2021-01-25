@@ -29,8 +29,8 @@ THE SOFTWARE.
 #include "GLES3DescriptorSet.h"
 #include "GLES3DescriptorSetLayout.h"
 #include "GLES3Device.h"
-#include "GLES3Fence.h"
 #include "GLES3Framebuffer.h"
+#include "GLES3GlobalBarrier.h"
 #include "GLES3InputAssembler.h"
 #include "GLES3PipelineLayout.h"
 #include "GLES3PipelineState.h"
@@ -51,11 +51,11 @@ GLES3Device::~GLES3Device() {
 }
 
 bool GLES3Device::initialize(const DeviceInfo &info) {
-    _API = API::GLES3;
-    _deviceName = "GLES3";
-    _width = info.width;
-    _height = info.height;
-    _nativeWidth = info.nativeWidth;
+    _API          = API::GLES3;
+    _deviceName   = "GLES3";
+    _width        = info.width;
+    _height       = info.height;
+    _nativeWidth  = info.nativeWidth;
     _nativeHeight = info.nativeHeight;
     _windowHandle = info.windowHandle;
 
@@ -67,13 +67,13 @@ bool GLES3Device::initialize(const DeviceInfo &info) {
         _bindingMappingInfo.samplerOffsets.push_back(0);
     }
 
-    _gpuStateCache = CC_NEW(GLES3GPUStateCache);
-    _gpuStagingBufferPool = CC_NEW(GLES3GPUStagingBufferPool);
+    _gpuStateCache          = CC_NEW(GLES3GPUStateCache);
+    _gpuStagingBufferPool   = CC_NEW(GLES3GPUStagingBufferPool);
     _gpuFramebufferCacheMap = CC_NEW(GLES3GPUFramebufferCacheMap(_gpuStateCache));
 
     ContextInfo ctxInfo;
     ctxInfo.windowHandle = _windowHandle;
-    ctxInfo.sharedCtx = info.sharedCtx;
+    ctxInfo.sharedCtx    = info.sharedCtx;
 
     _renderContext = CC_NEW(GLES3Context(this));
     if (!_renderContext->initialize(ctxInfo)) {
@@ -83,16 +83,16 @@ bool GLES3Device::initialize(const DeviceInfo &info) {
     bindRenderContext(true);
 
     String extStr = (const char *)glGetString(GL_EXTENSIONS);
-    _extensions = StringUtil::Split(extStr, " ");
+    _extensions   = StringUtil::Split(extStr, " ");
 
-    _features[(uint)Feature::TEXTURE_FLOAT] = true;
-    _features[(uint)Feature::TEXTURE_HALF_FLOAT] = true;
-    _features[(uint)Feature::FORMAT_R11G11B10F] = true;
-    _features[(uint)Feature::FORMAT_D24S8] = true;
-    _features[(uint)Feature::MSAA] = true;
-    _features[(uint)Feature::INSTANCED_ARRAYS] = true;
+    _features[(uint)Feature::TEXTURE_FLOAT]           = true;
+    _features[(uint)Feature::TEXTURE_HALF_FLOAT]      = true;
+    _features[(uint)Feature::FORMAT_R11G11B10F]       = true;
+    _features[(uint)Feature::FORMAT_D24S8]            = true;
+    _features[(uint)Feature::MSAA]                    = true;
+    _features[(uint)Feature::INSTANCED_ARRAYS]        = true;
     _features[(uint)Feature::MULTIPLE_RENDER_TARGETS] = true;
-    _features[(uint)Feature::BLEND_MINMAX] = true;
+    _features[(uint)Feature::BLEND_MINMAX]            = true;
 
     if (((GLES3Context *)_context)->minor_ver())
         _features[(uint)Feature::COMPUTE_SHADER] = true;
@@ -128,20 +128,20 @@ bool GLES3Device::initialize(const DeviceInfo &info) {
         _features[(int)Feature::FORMAT_ASTC] = true;
         compressedFmts += "astc ";
     }
-    _features[static_cast<uint>(Feature::DEPTH_BOUNDS)] = true;
-    _features[static_cast<uint>(Feature::LINE_WIDTH)] = true;
+    _features[static_cast<uint>(Feature::DEPTH_BOUNDS)]         = true;
+    _features[static_cast<uint>(Feature::LINE_WIDTH)]           = true;
     _features[static_cast<uint>(Feature::STENCIL_COMPARE_MASK)] = true;
-    _features[static_cast<uint>(Feature::STENCIL_WRITE_MASK)] = true;
-    _features[static_cast<uint>(Feature::FORMAT_RGB8)] = true;
-    _features[static_cast<uint>(Feature::FORMAT_D16)] = true;
-    _features[static_cast<uint>(Feature::FORMAT_D24)] = true;
-    _features[static_cast<uint>(Feature::FORMAT_D32F)] = true;
-    _features[static_cast<uint>(Feature::FORMAT_D24S8)] = true;
-    _features[static_cast<uint>(Feature::FORMAT_D32FS8)] = true;
+    _features[static_cast<uint>(Feature::STENCIL_WRITE_MASK)]   = true;
+    _features[static_cast<uint>(Feature::FORMAT_RGB8)]          = true;
+    _features[static_cast<uint>(Feature::FORMAT_D16)]           = true;
+    _features[static_cast<uint>(Feature::FORMAT_D24)]           = true;
+    _features[static_cast<uint>(Feature::FORMAT_D32F)]          = true;
+    _features[static_cast<uint>(Feature::FORMAT_D24S8)]         = true;
+    _features[static_cast<uint>(Feature::FORMAT_D32FS8)]        = true;
 
     _renderer = (const char *)glGetString(GL_RENDERER);
-    _vendor = (const char *)glGetString(GL_VENDOR);
-    _version = (const char *)glGetString(GL_VERSION);
+    _vendor   = (const char *)glGetString(GL_VENDOR);
+    _version  = (const char *)glGetString(GL_VERSION);
 
     CC_LOG_INFO("GLES3 device initialized.");
     CC_LOG_INFO("RENDERER: %s", _renderer.c_str());
@@ -153,12 +153,12 @@ bool GLES3Device::initialize(const DeviceInfo &info) {
 
     QueueInfo queueInfo;
     queueInfo.type = QueueType::GRAPHICS;
-    _queue = createQueue(queueInfo);
+    _queue         = createQueue(queueInfo);
 
     CommandBufferInfo cmdBuffInfo;
-    cmdBuffInfo.type = CommandBufferType::PRIMARY;
+    cmdBuffInfo.type  = CommandBufferType::PRIMARY;
     cmdBuffInfo.queue = _queue;
-    _cmdBuff = createCommandBuffer(cmdBuffInfo);
+    _cmdBuff          = createCommandBuffer(cmdBuffInfo);
 
     glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, (GLint *)&_caps.maxVertexAttributes);
     glGetIntegerv(GL_MAX_VERTEX_UNIFORM_VECTORS, (GLint *)&_caps.maxVertexUniformVectors);
@@ -201,7 +201,7 @@ void GLES3Device::destroy() {
 }
 
 void GLES3Device::resize(uint width, uint height) {
-    _width = width;
+    _width  = width;
     _height = height;
 }
 
@@ -211,9 +211,9 @@ void GLES3Device::acquire() {
 
 void GLES3Device::present() {
     GLES3Queue *queue = (GLES3Queue *)_queue;
-    _numDrawCalls = queue->_numDrawCalls;
-    _numInstances = queue->_numInstances;
-    _numTriangles = queue->_numTriangles;
+    _numDrawCalls     = queue->_numDrawCalls;
+    _numInstances     = queue->_numInstances;
+    _numTriangles     = queue->_numTriangles;
 
     _context->present();
 
@@ -237,7 +237,7 @@ void GLES3Device::bindDeviceContext(bool bound) {
     if (!_deviceContext) {
         ContextInfo ctxInfo;
         ctxInfo.windowHandle = _windowHandle;
-        ctxInfo.sharedCtx = _renderContext;
+        ctxInfo.sharedCtx    = _renderContext;
 
         _deviceContext = CC_NEW(GLES3Context(this));
         _deviceContext->initialize(ctxInfo);
@@ -256,10 +256,6 @@ uint GLES3Device::getMinorVersion() const { return ((GLES3Context *)_context)->m
 CommandBuffer *GLES3Device::doCreateCommandBuffer(const CommandBufferInfo &info, bool hasAgent) {
     if (hasAgent || info.type == CommandBufferType::PRIMARY) return CC_NEW(GLES3PrimaryCommandBuffer(this));
     return CC_NEW(GLES3CommandBuffer(this));
-}
-
-Fence *GLES3Device::createFence() {
-    return CC_NEW(GLES3Fence(this));
 }
 
 Queue *GLES3Device::createQueue() {
@@ -308,6 +304,14 @@ PipelineLayout *GLES3Device::createPipelineLayout() {
 
 PipelineState *GLES3Device::createPipelineState() {
     return CC_NEW(GLES3PipelineState(this));
+}
+
+GlobalBarrier *GLES3Device::createGlobalBarrier() {
+    return CC_NEW(GLES3GlobalBarrier(this));
+}
+
+TextureBarrier *GLES3Device::createTextureBarrier() {
+    return CC_NEW(TextureBarrier(this));
 }
 
 void GLES3Device::copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint count) {

@@ -30,7 +30,6 @@ THE SOFTWARE.
 #include "GLES2DescriptorSet.h"
 #include "GLES2DescriptorSetLayout.h"
 #include "GLES2Device.h"
-#include "GLES2Fence.h"
 #include "GLES2Framebuffer.h"
 #include "GLES2InputAssembler.h"
 #include "GLES2PipelineLayout.h"
@@ -249,10 +248,6 @@ CommandBuffer *GLES2Device::doCreateCommandBuffer(const CommandBufferInfo &info,
     return CC_NEW(GLES2CommandBuffer(this));
 }
 
-Fence *GLES2Device::createFence() {
-    return CC_NEW(GLES2Fence(this));
-}
-
 Queue *GLES2Device::createQueue() {
     return CC_NEW(GLES2Queue(this));
 }
@@ -299,6 +294,14 @@ PipelineLayout *GLES2Device::createPipelineLayout() {
 
 PipelineState *GLES2Device::createPipelineState() {
     return CC_NEW(GLES2PipelineState(this));
+}
+
+GlobalBarrier *GLES2Device::createGlobalBarrier() {
+    return CC_NEW(GlobalBarrier(this));
+}
+
+TextureBarrier *GLES2Device::createTextureBarrier() {
+    return CC_NEW(TextureBarrier(this));
 }
 
 void GLES2Device::copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint count) {

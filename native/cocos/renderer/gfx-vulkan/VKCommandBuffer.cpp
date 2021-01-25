@@ -30,11 +30,13 @@ THE SOFTWARE.
 #include "VKDescriptorSet.h"
 #include "VKDevice.h"
 #include "VKFramebuffer.h"
+#include "VKGlobalBarrier.h"
 #include "VKInputAssembler.h"
 #include "VKPipelineState.h"
 #include "VKQueue.h"
 #include "VKRenderPass.h"
 #include "VKTexture.h"
+#include "VKTextureBarrier.h"
 
 namespace cc {
 namespace gfx {
@@ -618,105 +620,47 @@ void CCVKCommandBuffer::dispatch(const DispatchInfo &info) {
     }
 }
 
-void CCVKCommandBuffer::pipelineBarrier(const GlobalBarrier *barrier, const TextureBarrier *textureBarriers, uint textureBarrierCount) {
-    uint count = 0u;
-    if (barrier) count += barrier->prevAccessCount + barrier->nextAccessCount;
-    for (uint b = 0u; b < textureBarrierCount; ++b) {
-        count += textureBarriers[b].prevAccessCount + textureBarriers[b].nextAccessCount;
-    }
-    _accessTypes.resize(count);
-
-    VkMemoryBarrier       memoryBarrier;
-    VkPipelineStageFlags  srcStageMask            = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
-    VkPipelineStageFlags  dstStageMask            = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
-    uint32_t              memoryBarrierCount      = barrier ? 1 : 0;
-    VkMemoryBarrier *     pMemoryBarriers         = barrier ? &memoryBarrier : nullptr;
-    VkImageMemoryBarrier *pImageMemoryBarriers    = nullptr;
-    uint                  index                   = 0u;
+void CCVKCommandBuffer::pipelineBarrier(const GlobalBarrier *barrier, const TextureBarrier *const *textureBarriers, const Texture *const *textures, uint textureBarrierCount) {
+    VkPipelineStageFlags        srcStageMask         = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+    VkPipelineStageFlags        dstStageMask         = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
+    VkMemoryBarrier const *     pMemoryBarrier       = nullptr;
+    uint                        memoryBarrierCount   = 0u;
+    VkImageMemoryBarrier const *pImageMemoryBarriers = nullptr;
 
     if (barrier) {
-        ThsvsGlobalBarrier globalBarrier{};
-        globalBarrier.prevAccessCount = barrier->prevAccessCount;
-        globalBarrier.pPrevAccesses   = _accessTypes.data() + index;
-        for (uint i = 0u; i < barrier->prevAccessCount; ++i, ++index) {
-            _accessTypes[index] = THSVS_ACCESS_TYPES[(uint)barrier->prevAccesses[i]];
-        }
-
-        globalBarrier.nextAccessCount = barrier->nextAccessCount;
-        globalBarrier.pNextAccesses   = _accessTypes.data() + index;
-        for (uint i = 0u; i < barrier->nextAccessCount; ++i, ++index) {
-            _accessTypes[index] = THSVS_ACCESS_TYPES[(uint)barrier->nextAccesses[i]];
-        }
-
-        VkPipelineStageFlags tempSrcStageMask = 0;
-        VkPipelineStageFlags tempDstStageMask = 0;
-        thsvsGetVulkanMemoryBarrier(globalBarrier, &tempSrcStageMask, &tempDstStageMask, pMemoryBarriers);
-        srcStageMask |= tempSrcStageMask;
-        dstStageMask |= tempDstStageMask;
+        const CCVKGPUGlobalBarrier *gpuBarrier = ((CCVKGlobalBarrier *)barrier)->gpuBarrier();
+        srcStageMask |= gpuBarrier->srcStageMask;
+        dstStageMask |= gpuBarrier->dstStageMask;
+        pMemoryBarrier     = &gpuBarrier->vkBarrier;
+        memoryBarrierCount = 1u;
     }
 
     if (textureBarrierCount > 0) {
         _imageMemoryBarriers.resize(textureBarrierCount);
         pImageMemoryBarriers = _imageMemoryBarriers.data();
 
-        VkPipelineStageFlags tempSrcStageMask = 0;
-        VkPipelineStageFlags tempDstStageMask = 0;
-        for (uint b = 0u; b < textureBarrierCount; ++b) {
-            const TextureBarrier &textureBarrier = textureBarriers[b];
-            ThsvsImageBarrier     imageBarrier{};
+        for (uint i = 0u; i < textureBarrierCount; ++i) {
+            const CCVKGPUTextureBarrier *gpuBarrier = ((CCVKTextureBarrier *)textureBarriers[i])->gpuBarrier();
+            _imageMemoryBarriers[i]                 = gpuBarrier->vkBarrier;
 
-            imageBarrier.prevAccessCount = textureBarrier.prevAccessCount;
-            imageBarrier.pPrevAccesses   = _accessTypes.data() + index;
-            for (uint i = 0u; i < textureBarrier.prevAccessCount; ++i, ++index) {
-                _accessTypes[index] = THSVS_ACCESS_TYPES[(uint)textureBarrier.prevAccesses[i]];
-            }
-
-            imageBarrier.nextAccessCount = textureBarrier.nextAccessCount;
-            imageBarrier.pNextAccesses   = _accessTypes.data() + index;
-            for (uint i = 0u; i < textureBarrier.nextAccessCount; ++i, ++index) {
-                _accessTypes[index] = THSVS_ACCESS_TYPES[(uint)textureBarrier.nextAccesses[i]];
-            }
-
-            imageBarrier.discardContents = textureBarrier.discardContents;
-            imageBarrier.prevLayout = imageBarrier.nextLayout = THSVS_IMAGE_LAYOUT_OPTIMAL;
-
-            CCVKGPUTexture *  gpuTexture = nullptr;
-            CCVKGPUSwapchain *swapchain  = nullptr;
-            if (textureBarrier.texture) {
-                gpuTexture                               = ((CCVKTexture *)textureBarrier.texture)->gpuTexture();
-                imageBarrier.image                       = gpuTexture->vkImage;
-                imageBarrier.subresourceRange.aspectMask = gpuTexture->aspectMask;
+            if (textures[i]) {
+                CCVKGPUTexture *gpuTexture                          = ((CCVKTexture *)textures[i])->gpuTexture();
+                _imageMemoryBarriers[i].image                       = gpuTexture->vkImage;
+                _imageMemoryBarriers[i].subresourceRange.aspectMask = gpuTexture->aspectMask;
+                gpuTexture->currentAccessTypes.assign(gpuBarrier->barrier.pNextAccesses, gpuBarrier->barrier.pNextAccesses + gpuBarrier->barrier.nextAccessCount);
             } else {
-                swapchain                                = ((CCVKDevice *)_device)->gpuSwapchain();
-                imageBarrier.image                       = swapchain->swapchainImages[swapchain->curImageIndex];
-                imageBarrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+                CCVKGPUSwapchain *swapchain                         = ((CCVKDevice *)_device)->gpuSwapchain();
+                _imageMemoryBarriers[i].image                       = swapchain->swapchainImages[swapchain->curImageIndex];
+                _imageMemoryBarriers[i].subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+                swapchain->swapchainImageAccessTypes[swapchain->curImageIndex].assign(gpuBarrier->barrier.pNextAccesses, gpuBarrier->barrier.pNextAccesses + gpuBarrier->barrier.nextAccessCount);
             }
 
-            imageBarrier.subresourceRange.baseMipLevel   = 0u;
-            imageBarrier.subresourceRange.levelCount     = VK_REMAINING_MIP_LEVELS;
-            imageBarrier.subresourceRange.baseArrayLayer = 0u;
-            imageBarrier.subresourceRange.layerCount     = VK_REMAINING_ARRAY_LAYERS;
-
-            imageBarrier.srcQueueFamilyIndex = textureBarrier.srcQueue
-                                                   ? ((CCVKQueue *)textureBarrier.srcQueue)->gpuQueue()->queueFamilyIndex
-                                                   : VK_QUEUE_FAMILY_IGNORED;
-            imageBarrier.dstQueueFamilyIndex = textureBarrier.dstQueue
-                                                   ? ((CCVKQueue *)textureBarrier.dstQueue)->gpuQueue()->queueFamilyIndex
-                                                   : VK_QUEUE_FAMILY_IGNORED;
-
-            thsvsGetVulkanImageMemoryBarrier(imageBarrier, &tempSrcStageMask, &tempDstStageMask, &_imageMemoryBarriers[b]);
-            srcStageMask |= tempSrcStageMask;
-            dstStageMask |= tempDstStageMask;
-
-            if (gpuTexture) {
-                gpuTexture->currentAccessTypes.assign(imageBarrier.pNextAccesses, imageBarrier.pNextAccesses + imageBarrier.nextAccessCount);
-            } else {
-                swapchain->swapchainImageAccessTypes[swapchain->curImageIndex].assign(imageBarrier.pNextAccesses, imageBarrier.pNextAccesses + imageBarrier.nextAccessCount);
-            }
+            srcStageMask |= gpuBarrier->srcStageMask;
+            dstStageMask |= gpuBarrier->dstStageMask;
         }
     }
 
-    vkCmdPipelineBarrier(_gpuCommandBuffer->vkCommandBuffer, srcStageMask, dstStageMask, 0, memoryBarrierCount, pMemoryBarriers,
+    vkCmdPipelineBarrier(_gpuCommandBuffer->vkCommandBuffer, srcStageMask, dstStageMask, 0, memoryBarrierCount, pMemoryBarrier,
                          0, nullptr, textureBarrierCount, pImageMemoryBarriers);
 }
 

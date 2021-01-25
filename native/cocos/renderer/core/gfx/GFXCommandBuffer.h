@@ -36,7 +36,7 @@ public:
     virtual void blitTexture(Texture *srcTexture, Texture *dstTexture, const TextureBlit *regions, uint count, Filter filter) = 0;
     virtual void execute(CommandBuffer *const *cmdBuffs, uint32_t count) = 0;
     virtual void dispatch(const DispatchInfo &info) = 0;
-    virtual void pipelineBarrier(const GlobalBarrier *barrier, const TextureBarrier *textureBarriers, uint textureBarrierCount) = 0;
+    virtual void pipelineBarrier(const GlobalBarrier *barrier, const TextureBarrier *const *textureBarriers, const Texture *const *textures, uint textureBarrierCount) = 0;
 
     CC_INLINE void begin() { begin(nullptr, 0, nullptr); }
     // secondary command buffer specifics
@@ -64,8 +64,10 @@ public:
     CC_INLINE void blitTexture(Texture *srcTexture, Texture *dstTexture, const TextureBlitList &regions, Filter filter) {
         blitTexture(srcTexture, dstTexture, regions.data(), regions.size(), filter);
     }
-    CC_INLINE void pipelineBarrier(const GlobalBarrier *barrier) { pipelineBarrier(barrier, nullptr, 0u); }
-    CC_INLINE void pipelineBarrier(const GlobalBarrier *barrier, const TextureBarrierList &textureBarriers) { pipelineBarrier(barrier, textureBarriers.data(), textureBarriers.size()); }
+    CC_INLINE void pipelineBarrier(const GlobalBarrier *barrier) { pipelineBarrier(barrier, nullptr, nullptr, 0u); }
+    CC_INLINE void pipelineBarrier(const GlobalBarrier *barrier, const TextureBarrierList &textureBarriers, const TextureList &textures) {
+        pipelineBarrier(barrier, textureBarriers.data(), textures.data(), textureBarriers.size()); 
+    }
 
     CC_INLINE void bindDescriptorSetForJS(uint set, DescriptorSet *descriptorSet) {
         bindDescriptorSet(set, descriptorSet, 0, nullptr);

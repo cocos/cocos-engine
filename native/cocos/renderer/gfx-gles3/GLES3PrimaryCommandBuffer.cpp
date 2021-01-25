@@ -27,6 +27,7 @@ THE SOFTWARE.
 #include "GLES3DescriptorSet.h"
 #include "GLES3Device.h"
 #include "GLES3Framebuffer.h"
+#include "GLES3GlobalBarrier.h"
 #include "GLES3InputAssembler.h"
 #include "GLES3PipelineState.h"
 #include "GLES3PrimaryCommandBuffer.h"
@@ -61,8 +62,8 @@ void GLES3PrimaryCommandBuffer::end() {
 }
 
 void GLES3PrimaryCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, int stencil, CommandBuffer *const *secondaryCBs, uint32_t secondaryCBCount) {
-    _isInRenderPass = true;
-    GLES3GPURenderPass *gpuRenderPass = ((GLES3RenderPass *)renderPass)->gpuRenderPass();
+    _isInRenderPass                     = true;
+    GLES3GPURenderPass * gpuRenderPass  = ((GLES3RenderPass *)renderPass)->gpuRenderPass();
     GLES3GPUFramebuffer *gpuFramebuffer = ((GLES3Framebuffer *)fbo)->gpuFBO();
 
     GLES3CmdFuncBeginRenderPass((GLES3Device *)_device, gpuRenderPass, gpuFramebuffer,
@@ -134,7 +135,7 @@ void GLES3PrimaryCommandBuffer::copyBuffersToTexture(const uint8_t *const *buffe
     }
 }
 
-void GLES3PrimaryCommandBuffer::blitTexture(Texture* srcTexture, Texture* dstTexture, const TextureBlit* regions, uint count, Filter filter) {
+void GLES3PrimaryCommandBuffer::blitTexture(Texture *srcTexture, Texture *dstTexture, const TextureBlit *regions, uint count, Filter filter) {
     if ((_type == CommandBufferType::PRIMARY && !_isInRenderPass) ||
         (_type == CommandBufferType::SECONDARY)) {
 
@@ -172,7 +173,7 @@ void GLES3PrimaryCommandBuffer::execute(CommandBuffer *const *cmdBuffs, uint32_t
 
 void GLES3PrimaryCommandBuffer::BindStates() {
     vector<uint> &dynamicOffsetOffsets = _curGPUPipelineState->gpuPipelineLayout->dynamicOffsetOffsets;
-    vector<uint> &dynamicOffsets = _curGPUPipelineState->gpuPipelineLayout->dynamicOffsets;
+    vector<uint> &dynamicOffsets       = _curGPUPipelineState->gpuPipelineLayout->dynamicOffsets;
     for (size_t i = 0u; i < _curDynamicOffsets.size(); i++) {
         size_t count = dynamicOffsetOffsets[i + 1] - dynamicOffsetOffsets[i];
         //CCASSERT(_curDynamicOffsets[i].size() >= count, "missing dynamic offsets?");
@@ -180,7 +181,7 @@ void GLES3PrimaryCommandBuffer::BindStates() {
         if (count) memcpy(&dynamicOffsets[dynamicOffsetOffsets[i]], _curDynamicOffsets[i].data(), count * sizeof(uint));
     }
     GLES3CmdFuncBindState((GLES3Device *)_device, _curGPUPipelineState, _curGPUInputAssember, _curGPUDescriptorSets, dynamicOffsets,
-                            _curViewport, _curScissor, _curLineWidth, false, _curDepthBias, _curBlendConstants, _curDepthBounds, _curStencilWriteMask, _curStencilCompareMask);
+                          _curViewport, _curScissor, _curLineWidth, false, _curDepthBias, _curBlendConstants, _curDepthBounds, _curStencilWriteMask, _curStencilCompareMask);
 
     _isStateInvalid = false;
 }
@@ -208,15 +209,13 @@ void GLES3PrimaryCommandBuffer::dispatch(const DispatchInfo &info) {
     }
 }
 
-void GLES3PrimaryCommandBuffer::pipelineBarrier(const GlobalBarrier *barrier, const TextureBarrier *textureBarriers, uint textureBarrierCount) {
+void GLES3PrimaryCommandBuffer::pipelineBarrier(const GlobalBarrier *barrier, const TextureBarrier *const *textureBarriers, const Texture *const *textures, uint textureBarrierCount) {
     if ((_type == CommandBufferType::PRIMARY && !_isInRenderPass) ||
         (_type == CommandBufferType::SECONDARY)) {
         if (!barrier) return;
 
-        GLbitfield glBarriers = 0u;
-        GLbitfield glBarriersByRegion = 0u;
-        MapGLBarriers(barrier, glBarriers, glBarriersByRegion);
-        GLES3CmdFuncMemoryBarrier((GLES3Device *)_device, glBarriers, glBarriersByRegion);
+        const GLES3GPUGlobalBarrier *gpuBarrier = ((GLES3GlobalBarrier *)barrier)->gpuBarrier();
+        GLES3CmdFuncMemoryBarrier((GLES3Device *)_device, gpuBarrier->glBarriers, gpuBarrier->glBarriersByRegion);
     } else {
         CC_LOG_ERROR("Command 'pipelineBarrier' must be recorded outside a render pass.");
     }

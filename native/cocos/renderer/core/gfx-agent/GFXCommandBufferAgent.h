@@ -42,7 +42,7 @@ public:
     void blitTexture(Texture *srcTexture, Texture *dstTexture, const TextureBlit *regions, uint count, Filter filter) override;
     void execute(CommandBuffer *const *cmdBuffs, uint32_t count) override;
     void dispatch(const DispatchInfo &info) override;
-    void pipelineBarrier(const GlobalBarrier *barrier, const TextureBarrier *textureBarriers, uint textureBarrierCount) override;
+    void pipelineBarrier(const GlobalBarrier *barrier, const TextureBarrier *const *textureBarriers, const Texture *const *textures, uint textureBarrierCount) override;
 
     uint getNumDrawCalls() const override { return _actor->getNumDrawCalls(); }
     uint getNumInstances() const override { return _actor->getNumInstances(); }

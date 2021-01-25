@@ -62,7 +62,7 @@ bool DeviceAgent::initialize(const DeviceInfo &info) {
     }
     ((CommandBufferAgent *)_cmdBuff)->initMessageQueue();
 
-    //setMultithreaded(true);
+    setMultithreaded(true);
 
     return true;
 }
@@ -184,10 +184,6 @@ CommandBuffer *DeviceAgent::doCreateCommandBuffer(const CommandBufferInfo &info,
     return CC_NEW(CommandBufferAgent(actor, this));
 }
 
-Fence *DeviceAgent::createFence() {
-    return _actor->createFence();
-}
-
 Queue *DeviceAgent::createQueue() {
     Queue *actor = _actor->createQueue();
     QueueAgent *agent = CC_NEW(QueueAgent(actor, this));
@@ -258,6 +254,14 @@ PipelineState *DeviceAgent::createPipelineState() {
     PipelineState *actor = _actor->createPipelineState();
     PipelineStateAgent *agent = CC_NEW(PipelineStateAgent(actor, this));
     return agent;
+}
+
+GlobalBarrier *DeviceAgent::createGlobalBarrier() {
+    return _actor->createGlobalBarrier();
+}
+
+TextureBarrier *DeviceAgent::createTextureBarrier() {
+    return _actor->createTextureBarrier();
 }
 
 void DeviceAgent::copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint count) {

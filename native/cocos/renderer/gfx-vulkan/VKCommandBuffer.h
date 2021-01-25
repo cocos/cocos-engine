@@ -61,7 +61,7 @@ public:
     virtual void blitTexture(Texture *srcTexture, Texture *dstTexture, const TextureBlit *regions, uint count, Filter filter) override;
     virtual void execute(CommandBuffer *const *cmdBuffs, uint count) override;
     virtual void dispatch(const DispatchInfo &info) override;
-    virtual void pipelineBarrier(const GlobalBarrier *barrier, const TextureBarrier *textureBarriers, uint textureBarrierCount) override;
+    virtual void pipelineBarrier(const GlobalBarrier *barrier, const TextureBarrier *const *textureBarriers, const Texture *const *textures, uint textureBarrierCount) override;
 
     CCVKGPUCommandBuffer *gpuCommandBuffer() const { return _gpuCommandBuffer; }
 
@@ -92,7 +92,6 @@ private:
 
     // temp storage
     vector<VkImageBlit> _blitRegions;
-    vector<ThsvsAccessType> _accessTypes;
     vector<VkImageMemoryBarrier> _imageMemoryBarriers;
     vector<VkCommandBuffer> _vkCommandBuffers;
 

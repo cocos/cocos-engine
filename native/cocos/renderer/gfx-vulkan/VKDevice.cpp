@@ -6,8 +6,8 @@
 #include "VKDescriptorSet.h"
 #include "VKDescriptorSetLayout.h"
 #include "VKDevice.h"
-#include "VKFence.h"
 #include "VKFramebuffer.h"
+#include "VKGlobalBarrier.h"
 #include "VKInputAssembler.h"
 #include "VKPipelineLayout.h"
 #include "VKPipelineState.h"
@@ -16,6 +16,7 @@
 #include "VKSampler.h"
 #include "VKShader.h"
 #include "VKTexture.h"
+#include "VKTextureBarrier.h"
 #include "VKUtils.h"
 
 CC_DISABLE_WARNINGS()
@@ -565,10 +566,6 @@ CommandBuffer *CCVKDevice::doCreateCommandBuffer(const CommandBufferInfo &info, 
     return CC_NEW(CCVKCommandBuffer(this));
 }
 
-Fence *CCVKDevice::createFence() {
-    return CC_NEW(CCVKFence(this));
-}
-
 Queue *CCVKDevice::createQueue() {
     return CC_NEW(CCVKQueue(this));
 }
@@ -615,6 +612,14 @@ PipelineLayout *CCVKDevice::createPipelineLayout() {
 
 PipelineState *CCVKDevice::createPipelineState() {
     return CC_NEW(CCVKPipelineState(this));
+}
+
+GlobalBarrier *CCVKDevice::createGlobalBarrier() {
+    return CC_NEW(CCVKGlobalBarrier(this));
+}
+
+TextureBarrier *CCVKDevice::createTextureBarrier() {
+    return CC_NEW(CCVKTextureBarrier(this));
 }
 
 void CCVKDevice::copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint count) {

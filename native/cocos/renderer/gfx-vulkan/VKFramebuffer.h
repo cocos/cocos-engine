@@ -32,7 +32,7 @@ class CCVKGPUFramebuffer;
 class CC_VULKAN_API CCVKFramebuffer final : public Framebuffer {
 public:
     CCVKFramebuffer(Device *device);
-    ~CCVKFramebuffer();
+    ~CCVKFramebuffer() override;
 
 public:
     bool initialize(const FramebufferInfo &info);

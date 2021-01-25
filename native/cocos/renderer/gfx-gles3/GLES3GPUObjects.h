@@ -270,8 +270,10 @@ public:
     const vector<uint> *descriptorIndices = nullptr;
 };
 
-class GLES3GPUFence final : public Object {
+class GLES3GPUGlobalBarrier final : public Object {
 public:
+    GLbitfield glBarriers = 0u;
+    GLbitfield glBarriersByRegion = 0u;
 };
 
 struct GLES3GPUDispatchInfo final : public Object {

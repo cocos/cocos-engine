@@ -16,7 +16,7 @@ constexpr uint MAX_CPU_FRAME_AHEAD = 1u;
 
 // one per CPU core
 struct SubmitContext final {
-    MessageQueue *encoder{nullptr};
+    MessageQueue * encoder{nullptr};
     CommandBuffer *commandBuffer{nullptr};
 };
 
@@ -33,46 +33,47 @@ public:
     void acquire() override;
     void present() override;
 
-    CommandBuffer *doCreateCommandBuffer(const CommandBufferInfo &info, bool hasAgent) override;
-    Fence *createFence() override;
-    Queue *createQueue() override;
-    Buffer *createBuffer() override;
-    Texture *createTexture() override;
-    Sampler *createSampler() override;
-    Shader *createShader() override;
-    InputAssembler *createInputAssembler() override;
-    RenderPass *createRenderPass() override;
-    Framebuffer *createFramebuffer() override;
-    DescriptorSet *createDescriptorSet() override;
+    CommandBuffer *      doCreateCommandBuffer(const CommandBufferInfo &info, bool hasAgent) override;
+    Queue *              createQueue() override;
+    Buffer *             createBuffer() override;
+    Texture *            createTexture() override;
+    Sampler *            createSampler() override;
+    Shader *             createShader() override;
+    InputAssembler *     createInputAssembler() override;
+    RenderPass *         createRenderPass() override;
+    Framebuffer *        createFramebuffer() override;
+    DescriptorSet *      createDescriptorSet() override;
     DescriptorSetLayout *createDescriptorSetLayout() override;
-    PipelineLayout *createPipelineLayout() override;
-    PipelineState *createPipelineState() override;
-    void copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint count) override;
+    PipelineLayout *     createPipelineLayout() override;
+    PipelineState *      createPipelineState() override;
+    GlobalBarrier *      createGlobalBarrier() override;
+    TextureBarrier *     createTextureBarrier() override;
+    void                 copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint count) override;
 
-    void flushCommands(CommandBuffer *const *cmdBuffs, uint count) override;
-    void setMultithreaded(bool multithreaded) override;
+    void             flushCommands(CommandBuffer *const *cmdBuffs, uint count) override;
+    void             setMultithreaded(bool multithreaded) override;
     SurfaceTransform getSurfaceTransform() const override { return _actor->getSurfaceTransform(); }
-    uint getWidth() const override { return _actor->getWidth(); }
-    uint getHeight() const override { return _actor->getHeight(); }
-    uint getNativeWidth() const override { return _actor->getNativeWidth(); }
-    uint getNativeHeight() const override { return _actor->getNativeHeight(); }
-    MemoryStatus &getMemoryStatus() override { return _actor->getMemoryStatus(); }
-    uint getNumDrawCalls() const override { return _actor->getNumDrawCalls(); }
-    uint getNumInstances() const override { return _actor->getNumInstances(); }
-    uint getNumTris() const override { return _actor->getNumTris(); }
+    uint             getWidth() const override { return _actor->getWidth(); }
+    uint             getHeight() const override { return _actor->getHeight(); }
+    uint             getNativeWidth() const override { return _actor->getNativeWidth(); }
+    uint             getNativeHeight() const override { return _actor->getNativeHeight(); }
+    MemoryStatus &   getMemoryStatus() override { return _actor->getMemoryStatus(); }
+    uint             getNumDrawCalls() const override { return _actor->getNumDrawCalls(); }
+    uint             getNumInstances() const override { return _actor->getNumInstances(); }
+    uint             getNumTris() const override { return _actor->getNumTris(); }
 
-    MessageQueue *getMessageQueue() const { return _mainEncoder; }
+    MessageQueue *       getMessageQueue() const { return _mainEncoder; }
     LinearAllocatorPool *getMainAllocator() const { return _allocatorPools[_currentIndex]; }
 
 protected:
     friend class CommandBufferAgent;
 
-    bool _multithreaded{false};
+    bool          _multithreaded{false};
     MessageQueue *_mainEncoder{nullptr};
 
-    uint _currentIndex = 0u;
+    uint                          _currentIndex = 0u;
     vector<LinearAllocatorPool *> _allocatorPools;
-    Semaphore _frameBoundarySemaphore{MAX_CPU_FRAME_AHEAD};
+    Semaphore                     _frameBoundarySemaphore{MAX_CPU_FRAME_AHEAD};
 
     unordered_set<CommandBufferAgent *> _cmdBuffRefs;
 };
