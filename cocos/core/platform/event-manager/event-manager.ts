@@ -780,12 +780,12 @@ class EventManager {
         // accessing trans.cameraPriority is expensive
         // need to cache the cameraPriority
         let trans1CameraPriority =  wmTransToCameraPriority.get(trans1);
-        if (!trans1CameraPriority) {
+        if (trans1CameraPriority === undefined) {
             trans1CameraPriority = trans1.cameraPriority;
             wmTransToCameraPriority.set(trans1, trans1CameraPriority);
         }
         let trans2CameraPriority =  wmTransToCameraPriority.get(trans2);
-        if (!trans2CameraPriority) {
+        if (trans2CameraPriority === undefined) {
             trans2CameraPriority = trans2.cameraPriority;
             wmTransToCameraPriority.set(trans2, trans2CameraPriority);
         }
