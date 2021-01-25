@@ -422,9 +422,9 @@ public:
             for (GLuint glFramebuffer : _map[gpuTexture->glTexture]) {
                 if (!glFramebuffer) continue;
 
-                if (_cache->glDrawFramebuffer == glFramebuffer) {
-                    GL_CHECK(glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0));
-                    _cache->glDrawFramebuffer = 0;
+                if (_cache->glDrawFramebuffer == glFramebuffer || _cache->glReadFramebuffer == glFramebuffer) {
+                    GL_CHECK(glBindFramebuffer(GL_FRAMEBUFFER, 0));
+                    _cache->glDrawFramebuffer = _cache->glReadFramebuffer = 0;
                 }
                 GL_CHECK(glDeleteFramebuffers(1, &glFramebuffer));
             }

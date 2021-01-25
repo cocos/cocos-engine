@@ -69,6 +69,9 @@ bool GLES3GlobalBarrier::initialize(const GlobalBarrierInfo &info) {
                     _gpuBarrier->glBarriersByRegion |= GL_FRAMEBUFFER_BARRIER_BIT;
                     break;
                 case AccessType::TRANSFER_READ:
+                    _gpuBarrier->glBarriersByRegion |= GL_FRAMEBUFFER_BARRIER_BIT;
+                    _gpuBarrier->glBarriers |= GL_TEXTURE_UPDATE_BARRIER_BIT;
+                    _gpuBarrier->glBarriers |= GL_BUFFER_UPDATE_BARRIER_BIT;
                     _gpuBarrier->glBarriers |= GL_PIXEL_BUFFER_BARRIER_BIT;
                     break;
                 case AccessType::COMPUTE_SHADER_WRITE:
@@ -82,8 +85,10 @@ bool GLES3GlobalBarrier::initialize(const GlobalBarrierInfo &info) {
                     _gpuBarrier->glBarriersByRegion |= GL_FRAMEBUFFER_BARRIER_BIT;
                     break;
                 case AccessType::TRANSFER_WRITE:
+                    _gpuBarrier->glBarriersByRegion |= GL_FRAMEBUFFER_BARRIER_BIT;
                     _gpuBarrier->glBarriers |= GL_TEXTURE_UPDATE_BARRIER_BIT;
                     _gpuBarrier->glBarriers |= GL_BUFFER_UPDATE_BARRIER_BIT;
+                    _gpuBarrier->glBarriers |= GL_PIXEL_BUFFER_BARRIER_BIT;
                     break;
                 case AccessType::HOST_PREINITIALIZED:
                 case AccessType::HOST_WRITE:
