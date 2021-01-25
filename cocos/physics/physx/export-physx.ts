@@ -36,6 +36,7 @@
 
 import { BYTEDANCE } from 'internal:constants';
 import { IQuatLike, IVec3Like, Node, Quat, Vec3 } from '../../core';
+import { shrinkPositions } from '../utils/util';
 import { legacyCC } from '../../core/global-exports';
 // import PhysX from '@cocos/physx';
 const globalThis = legacyCC._global;
@@ -142,6 +143,14 @@ export function getTempTransform (pos: IVec3Like, quat: IQuatLike): any {
     return _pxtrans;
 }
 
+export function addActorToScene (scene: any, actor: any) {
+    if (USE_BYTEDANCE) {
+        scene.addActor(actor);
+    } else {
+        scene.addActor(actor, null);
+    }
+}
+
 export function setJointActors (joint: any, actor0: any, actor1: any): void {
     if (USE_BYTEDANCE) {
         // eslint-disable-next-line no-unused-expressions
@@ -181,11 +190,15 @@ export function physXEqualsCocosQuat (trans: any, q: IQuatLike): boolean {
     return Quat.strictEquals(rot, q);
 }
 
-export function getContactData (vec: any, index: number) {
+export function getContactData (vec: any, index: number, o: number) {
     if (USE_BYTEDANCE) {
-        return index;
+        return index + o;
+    } else {
+        const gc = PX.getGContacts();
+        const data = gc.get(index + o);
+        gc.delete();
+        return data;
     }
-    return vec.get(index);
 }
 
 export function applyImpulse (isGlobal: boolean, impl: any, vec: IVec3Like, rp: IVec3Like) {
@@ -263,7 +276,8 @@ export function setupCommonCookingParam (params: any, skipMeshClean = false, ski
     }
 }
 
-export function createConvexMesh (vertices: Float32Array | number[], cooking: any, physics: any): any {
+export function createConvexMesh (_buffer: Float32Array | number[], cooking: any, physics: any): any {
+    const vertices = shrinkPositions(_buffer);
     if (USE_BYTEDANCE) {
         const cdesc = new PX.ConvexMeshDesc();
         const verticesF32 = new Float32Array(vertices);
@@ -272,14 +286,16 @@ export function createConvexMesh (vertices: Float32Array | number[], cooking: an
         cdesc.setPointsStride(3 * Float32Array.BYTES_PER_ELEMENT);
         cdesc.setConvexFlags(PX.ConvexFlag.eCOMPUTE_CONVEX);
         return cooking.createConvexMesh(cdesc);
+    } else {
+        const l = vertices.length;
+        const vArr = new PX.PxVec3Vector();
+        for (let i = 0; i < l; i += 3) {
+            vArr.push_back({ x: vertices[i], y: vertices[i + 1], z: vertices[i + 2] });
+        }
+        const r = cooking.createConvexMesh(vArr, physics);
+        vArr.delete();
+        return r;
     }
-
-    const l = vertices.length;
-    const vArr = new PX.PxVec3Vector();
-    for (let i = 0; i < l; i += 3) {
-        vArr.push_back({ x: vertices[i], y: vertices[i + 1], z: vertices[i + 2] });
-    }
-    return cooking.createConvexMesh(vArr, physics);
 }
 
 // eTIGHT_BOUNDS = (1<<0) convex
@@ -302,18 +318,21 @@ export function createTriangleMesh (vertices: Float32Array | number[], indices: 
         meshDesc.setTrianglesCount(indicesUI32.length / 3);
         meshDesc.setTrianglesStride(Uint32Array.BYTES_PER_ELEMENT * 3);
         return cooking.createTriangleMesh(meshDesc);
+    } else {
+        const l = vertices.length;
+        const l2 = indices.length;
+        const vArr = new PX.PxVec3Vector();
+        for (let i = 0; i < l; i += 3) {
+            vArr.push_back({ x: vertices[i], y: vertices[i + 1], z: vertices[i + 2] });
+        }
+        const iArr = new PX.PxU16Vector();
+        for (let i = 0; i < l2; i += 3) {
+            iArr.push_back(indices[i]); iArr.push_back(indices[i + 1]); iArr.push_back(indices[i + 2]);
+        }
+        const r = cooking.createTriMeshExt(vArr, iArr, physics);
+        vArr.delete(); iArr.delete();
+        return r;
     }
-    const l = vertices.length;
-    const l2 = indices.length;
-    const vArr = new PX.PxVec3Vector();
-    for (let i = 0; i < l; i += 3) {
-        vArr.push_back({ x: vertices[i], y: vertices[i + 1], z: vertices[i + 2] });
-    }
-    const iArr = new PX.PxU16Vector();
-    for (let i = 0; i < l2; i += 3) {
-        iArr.push_back(indices[i]); iArr.push_back(indices[i + 1]); iArr.push_back(indices[i + 2]);
-    }
-    return cooking.createTriMeshExt(vArr, iArr, physics);
 }
 
 export function createBV33TriangleMesh (vertices: number[], indices: Uint32Array, cooking: any, physics: any,
