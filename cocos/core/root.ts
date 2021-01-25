@@ -30,7 +30,7 @@
 
 import { builtinResMgr } from './builtin';
 import { Pool } from './memop';
-import { RenderPipeline, ForwardPipeline } from './pipeline';
+import { RenderPipeline, createDefaultPipeline } from './pipeline';
 import { Camera, Light, Model } from './renderer/scene';
 import { DataPoolManager } from '../3d/skeletal-animation/data-pool-manager';
 import { LightType } from './renderer/scene/light';
@@ -307,7 +307,7 @@ export class Root {
 
     public setRenderPipeline (rppl: RenderPipeline): boolean {
         if (!rppl) {
-            rppl = this.createDefaultPipeline();
+            rppl = createDefaultPipeline();
         }
         this._pipeline = rppl;
         if (!this._pipeline.activate()) {
@@ -329,12 +329,6 @@ export class Root {
         }
 
         return true;
-    }
-
-    public createDefaultPipeline () {
-        const rppl = new ForwardPipeline();
-        rppl.initialize({ flows: [] });
-        return rppl;
     }
 
     public onGlobalPipelineStateChanged () {

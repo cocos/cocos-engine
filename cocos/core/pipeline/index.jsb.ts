@@ -27,10 +27,8 @@
 declare const nr: any;
 
 import { getPhaseID } from './pass-phase'
-import { RenderWindow } from '../renderer/core/render-window';
 import { setClassName } from '../../core/utils/js';
 import { PipelineSceneData } from './pipeline-scene-data';
-import { Root } from '../root';
 nr.getPhaseID = getPhaseID;
 
 export const RenderPipeline = nr.RenderPipeline;
@@ -38,21 +36,6 @@ export const RenderFlow = nr.RenderFlow;
 export const RenderStage = nr.RenderStage;
 export const InstancedBuffer = nr.InstancedBuffer;
 export const PipelineStateManager = nr.PipelineStateManager;
-
-const RenderWindowProto = RenderWindow.prototype;
-Object.assign(RenderWindowProto, {
-    extractRenderCameras() {
-        const cameras = [];
-        for (let j = 0; j < this._cameras.length; j++) {
-            const camera = this._cameras[j];
-            if (camera.enabled) {
-                camera.update();
-                cameras.push(camera.handle);
-            }
-        }
-        return cameras;
-    },
-})
 
 let instancedBufferProto = nr.InstancedBuffer;
 let oldGetFunc = instancedBufferProto.get;
@@ -65,15 +48,12 @@ nr.PipelineStateManager.getOrCreatePipelineState = function(device, pass, shader
     return getOrCreatePipelineState.call(this, pass.handle, shader, renderPass, ia);
 }
   
-const RootProto = Root.prototype;
-Object.assign(RootProto, {
-    createDefaultPipeline() {
-        const pipeline = new nr.ForwardPipeline();
-        const info = new nr.RenderPipelineInfo(0, []);
-        pipeline.initialize(info);
-        return pipeline;
-    },
-})
+export function createDefaultPipeline () {
+    const pipeline = new nr.ForwardPipeline();
+    const info = new nr.RenderPipelineInfo(0, []);
+    pipeline.initialize(info);
+    return pipeline;
+}
 
 // ForwardPipeline
 export class ForwardPipeline extends nr.ForwardPipeline {
