@@ -39,6 +39,7 @@ import { Node } from '../../core/scene-graph';
 import { legacyCC } from '../../core/global-exports';
 import { director } from '../../core/director';
 import { warnID } from '../../core/platform/debug';
+import { Camera } from 'cocos/core/renderer/scene';
 
 const _vec2a = new Vec2();
 const _vec2b = new Vec2();
@@ -61,6 +62,7 @@ const _rect = new Rect();
 @disallowMultiple
 @executeInEditMode
 export class UITransform extends Component {
+    private _cachedFirstRenderCamera: Camera|null = null;
     /**
      * @en
      * Size of the UI node.
@@ -220,14 +222,24 @@ export class UITransform extends Component {
     @serializable
     protected _priority = 0;
 
+    private _updateCachedFirstRenderCamera (force: boolean = false) {
+        if (!this._cachedFirstRenderCamera || force) {
+            this._cachedFirstRenderCamera = director.root!.batcher2D.getFirstRenderCamera(this.node);
+        }
+    }
+
+    private _removeCachedFirstRenderCamara () {
+        this._cachedFirstRenderCamera = null;
+    }
+
     /**
      * @en Get the visibility bit-mask of the rendering camera
      * @zh 查找被渲染相机的可见性掩码。
      * @deprecated since v3.0
      */
     get visibility () {
-        const camera = director.root!.batcher2D.getFirstRenderCamera(this.node);
-        return camera ? camera.visibility : 0;
+        this._updateCachedFirstRenderCamera();
+        return this._cachedFirstRenderCamera ? this._cachedFirstRenderCamera.visibility : 0;
     }
 
     /**
@@ -235,8 +247,8 @@ export class UITransform extends Component {
      * @zh 查找被渲染相机的渲染优先级。
      */
     get cameraPriority () {
-        const camera = director.root!.batcher2D.getFirstRenderCamera(this.node);
-        return camera ? camera.priority : 0;
+        this._updateCachedFirstRenderCamera();
+        return this._cachedFirstRenderCamera ? this._cachedFirstRenderCamera.priority : 0;
     }
 
     public static EventType = SystemEventType;
@@ -257,10 +269,13 @@ export class UITransform extends Component {
         if (changed) {
             this.node.parent!._updateSiblingIndex();
         }
+
+        this._updateCachedFirstRenderCamera();
     }
 
     public onDisable () {
         this.node.off(SystemEventType.PARENT_CHANGED, this._parentChanged, this);
+        this._removeCachedFirstRenderCamara();
     }
 
     public onDestroy () {
