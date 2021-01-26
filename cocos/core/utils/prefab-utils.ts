@@ -371,13 +371,17 @@ export function applyPropertyOverrides (node: Node, propertyOverrides: PropertyO
             if (propertyPath.length > 0) {
                 const targetPropName = propertyPath.pop();
                 if (!targetPropName) {
-                    return;
+                    continue;
                 }
 
                 for (let i = 0; i < propertyPath.length; i++) {
                     const propName = propertyPath[i];
                     targetPropOwnerName = propName;
                     targetPropOwner = targetPropOwner[propName];
+                }
+
+                if (!targetPropOwner) {
+                    continue;
                 }
 
                 if (Array.isArray(targetPropOwner)) {
