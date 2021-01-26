@@ -376,6 +376,18 @@ typedef struct ThsvsImageBarrier {
 } ThsvsImageBarrier;
 
 /*
+Mapping function that translates a set of accesses into the corresponding
+pipeline stages, VkAccessFlags, and image layout.
+*/
+void thsvsGetAccessInfo(
+    uint32_t               accessCount,
+    const ThsvsAccessType* pAccesses,
+    VkPipelineStageFlags*  pStageMask,
+    VkAccessFlags*         pAccessMask,
+    VkImageLayout*         pImageLayout,
+    bool*                  pHasWriteAccess);
+
+/*
 Mapping function that translates a global barrier into a set of source and
 destination pipeline stages, and a VkMemoryBarrier, that can be used with
 Vulkan's synchronization methods.
@@ -470,6 +482,73 @@ void thsvsCmdWaitEvents(
     const ThsvsBufferBarrier* pBufferBarriers,
     uint32_t                  imageBarrierCount,
     const ThsvsImageBarrier*  pImageBarriers);
+
+#endif // THSVS_SIMPLER_VULKAN_SYNCHRONIZATION_H
+
+#ifdef THSVS_SIMPLER_VULKAN_SYNCHRONIZATION_IMPLEMENTATION
+
+#include <stdlib.h>
+
+//// Optional Error Checking ////
+/*
+Checks for barriers defining multiple usages that have different layouts
+*/
+// #define THSVS_ERROR_CHECK_MIXED_IMAGE_LAYOUT
+
+/*
+Checks if an image/buffer barrier is used when a global barrier would suffice
+*/
+// #define THSVS_ERROR_CHECK_COULD_USE_GLOBAL_BARRIER
+
+/*
+Checks if a write access is listed alongside any other access - if so it
+points to a potential data hazard that you need to synchronize separately.
+In some cases it may simply be over-synchronization however, but it's usually
+worth checking.
+*/
+// #define THSVS_ERROR_CHECK_POTENTIAL_HAZARD
+
+/*
+Checks if a variety of table lookups (like the access map) are within
+a valid range.
+*/
+// #define THSVS_ERROR_CHECK_ACCESS_TYPE_IN_RANGE
+
+//// Temporary Memory Allocation ////
+/*
+Override these if you can't afford the stack space or just want to use a
+custom temporary allocator.
+These are currently used exclusively to allocate Vulkan memory barriers in
+the API, one for each Buffer or Image barrier passed into the pipeline and
+event functions.
+May consider other allocation strategies in future.
+*/
+
+// Alloca inclusion code below copied from
+// https://github.com/nothings/stb/blob/master/stb_vorbis.c
+
+// find definition of alloca if it's not in stdlib.h:
+#if defined(_MSC_VER) || defined(__MINGW32__)
+  #include <malloc.h>
+#endif
+#if defined(__linux__) || defined(__linux) || defined(__EMSCRIPTEN__)
+  #include <alloca.h>
+#endif
+
+#if defined(THSVS_ERROR_CHECK_ACCESS_TYPE_IN_RANGE) || \
+    defined(THSVS_ERROR_CHECK_COULD_USE_GLOBAL_BARRIER) || \
+    defined(THSVS_ERROR_CHECK_MIXED_IMAGE_LAYOUT) || \
+    defined(THSVS_ERROR_CHECK_POTENTIAL_HAZARD)
+  #include <assert.h>
+#endif
+
+#if !defined(THSVS_TEMP_ALLOC)
+#define THSVS_TEMP_ALLOC(size)              (alloca(size))
+#endif
+
+#if !defined(THSVS_TEMP_FREE)
+#define THSVS_TEMP_FREE(x)                  ((void)(x))
+#endif
 
 typedef struct ThsvsVkAccessInfo {
     VkPipelineStageFlags    stageMask;
@@ -780,72 +859,51 @@ const ThsvsVkAccessInfo ThsvsAccessMap[THSVS_NUM_ACCESS_TYPES] = {
         VK_IMAGE_LAYOUT_GENERAL}
 };
 
-#endif // THSVS_SIMPLER_VULKAN_SYNCHRONIZATION_H
+void thsvsGetAccessInfo(
+    uint32_t               accessCount,
+    const ThsvsAccessType* pAccesses,
+    VkPipelineStageFlags*  pStageMask,
+    VkAccessFlags*         pAccessMask,
+    VkImageLayout*         pImageLayout,
+    bool*                  pHasWriteAccess)
+{
+    *pStageMask   = 0;
+    *pAccessMask  = 0;
+    *pImageLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+    *pHasWriteAccess = false;
 
-#ifdef THSVS_SIMPLER_VULKAN_SYNCHRONIZATION_IMPLEMENTATION
+    for (uint32_t i = 0; i < accessCount; ++i)
+    {
+        ThsvsAccessType access = pAccesses[i];
+        const ThsvsVkAccessInfo* pAccessInfo = &ThsvsAccessMap[access];
 
-#include <stdlib.h>
-
-//// Optional Error Checking ////
-/*
-Checks for barriers defining multiple usages that have different layouts
-*/
-// #define THSVS_ERROR_CHECK_MIXED_IMAGE_LAYOUT
-
-/*
-Checks if an image/buffer barrier is used when a global barrier would suffice
-*/
-// #define THSVS_ERROR_CHECK_COULD_USE_GLOBAL_BARRIER
-
-/*
-Checks if a write access is listed alongside any other access - if so it
-points to a potential data hazard that you need to synchronize separately.
-In some cases it may simply be over-synchronization however, but it's usually
-worth checking.
-*/
-// #define THSVS_ERROR_CHECK_POTENTIAL_HAZARD
-
-/*
-Checks if a variety of table lookups (like the access map) are within
-a valid range.
-*/
-// #define THSVS_ERROR_CHECK_ACCESS_TYPE_IN_RANGE
-
-//// Temporary Memory Allocation ////
-/*
-Override these if you can't afford the stack space or just want to use a
-custom temporary allocator.
-These are currently used exclusively to allocate Vulkan memory barriers in
-the API, one for each Buffer or Image barrier passed into the pipeline and
-event functions.
-May consider other allocation strategies in future.
-*/
-
-// Alloca inclusion code below copied from
-// https://github.com/nothings/stb/blob/master/stb_vorbis.c
-
-// find definition of alloca if it's not in stdlib.h:
-#if defined(_MSC_VER) || defined(__MINGW32__)
-  #include <malloc.h>
-#endif
-#if defined(__linux__) || defined(__linux) || defined(__EMSCRIPTEN__)
-  #include <alloca.h>
+#ifdef THSVS_ERROR_CHECK_ACCESS_TYPE_IN_RANGE
+        // Asserts that the previous access index is a valid range for the lookup
+        assert(access < THSVS_NUM_ACCESS_TYPES);
 #endif
 
-#if defined(THSVS_ERROR_CHECK_ACCESS_TYPE_IN_RANGE) || \
-    defined(THSVS_ERROR_CHECK_COULD_USE_GLOBAL_BARRIER) || \
-    defined(THSVS_ERROR_CHECK_MIXED_IMAGE_LAYOUT) || \
-    defined(THSVS_ERROR_CHECK_POTENTIAL_HAZARD)
-  #include <assert.h>
+#ifdef THSVS_ERROR_CHECK_POTENTIAL_HAZARD
+        // Asserts that the access is a read, else it's a write and it should appear on its own.
+        assert(access < THSVS_END_OF_READ_ACCESS || accessCount == 1);
 #endif
 
-#if !defined(THSVS_TEMP_ALLOC)
-#define THSVS_TEMP_ALLOC(size)              (alloca(size))
+        *pStageMask |= pAccessInfo->stageMask;
+
+        if (access > THSVS_END_OF_READ_ACCESS)
+            *pHasWriteAccess = true;
+
+        *pAccessMask |= pAccessInfo->accessMask;
+
+        VkImageLayout layout = pAccessInfo->imageLayout;
+
+#ifdef THSVS_ERROR_CHECK_MIXED_IMAGE_LAYOUT
+        assert(*pImageLayout == VK_IMAGE_LAYOUT_UNDEFINED ||
+               *pImageLayout == layout);
 #endif
 
-#if !defined(THSVS_TEMP_FREE)
-#define THSVS_TEMP_FREE(x)                  ((void)(x))
-#endif
+        *pImageLayout = layout;
+    }
+}
 
 void thsvsGetVulkanMemoryBarrier(
     const ThsvsGlobalBarrier& thBarrier,
@@ -899,7 +957,7 @@ void thsvsGetVulkanMemoryBarrier(
         *pDstStages |= pNextAccessInfo->stageMask;
 
         // Add visibility operations as necessary.
-        // If the src access mask, this is a WAR hazard (or for some reason a "RAR"),
+        // If the src access mask is zero, this is a WAR hazard (or for some reason a "RAR"),
         // so the dst access mask can be safely zeroed as these don't need visibility.
         if (pVkBarrier->srcAccessMask != 0)
             pVkBarrier->dstAccessMask |= pNextAccessInfo->accessMask;
@@ -974,7 +1032,7 @@ void thsvsGetVulkanBufferMemoryBarrier(
         *pDstStages |= pNextAccessInfo->stageMask;
 
         // Add visibility operations as necessary.
-        // If the src access mask, this is a WAR hazard (or for some reason a "RAR"),
+        // If the src access mask is zero, this is a WAR hazard (or for some reason a "RAR"),
         // so the dst access mask can be safely zeroed as these don't need visibility.
         if (pVkBarrier->srcAccessMask != 0)
             pVkBarrier->dstAccessMask |= pNextAccessInfo->accessMask;
@@ -1078,7 +1136,7 @@ void thsvsGetVulkanImageMemoryBarrier(
         *pDstStages |= pNextAccessInfo->stageMask;
 
         // Add visibility operations as necessary.
-        // If the src access mask, this is a WAR hazard (or for some reason a "RAR"),
+        // If the src access mask is zero, this is a WAR hazard (or for some reason a "RAR"),
         // so the dst access mask can be safely zeroed as these don't need visibility.
         if (pVkBarrier->srcAccessMask != 0)
             pVkBarrier->dstAccessMask |= pNextAccessInfo->accessMask;

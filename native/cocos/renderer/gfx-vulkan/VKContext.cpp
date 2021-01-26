@@ -54,15 +54,18 @@ VKAPI_ATTR VkBool32 VKAPI_CALL debugUtilsMessengerCallback(VkDebugUtilsMessageSe
     if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT) {
         CC_LOG_ERROR("%s: %s", callbackData->pMessageIdName, callbackData->pMessage);
         //CCASSERT(DISABLE_VALIDATION_ASSERTIONS, "Validation Error");
+        return VK_FALSE;
     } else if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT) {
         CC_LOG_WARNING("%s: %s", callbackData->pMessageIdName, callbackData->pMessage);
+        return VK_FALSE;
     } else if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT) {
         //CC_LOG_INFO("%s: %s", callbackData->pMessageIdName, callbackData->pMessage);
+        return VK_FALSE;
     } else if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT) {
         //CC_LOG_DEBUG("%s: %s", callbackData->pMessageIdName, callbackData->pMessage);
-    } else {
-        CC_LOG_ERROR("%s: %s", callbackData->pMessageIdName, callbackData->pMessage);
+        return VK_FALSE;
     }
+    CC_LOG_ERROR("%s: %s", callbackData->pMessageIdName, callbackData->pMessage);
     return VK_FALSE;
 }
 
@@ -77,15 +80,18 @@ VKAPI_ATTR VkBool32 VKAPI_CALL debugReportCallback(VkDebugReportFlagsEXT      fl
     if (flags & VK_DEBUG_REPORT_ERROR_BIT_EXT) {
         CC_LOG_ERROR("%s: %s", layerPrefix, message);
         //CCASSERT(DISABLE_VALIDATION_ASSERTIONS, "Validation Error");
+        return VK_FALSE;
     } else if (flags & (VK_DEBUG_REPORT_WARNING_BIT_EXT | VK_DEBUG_REPORT_PERFORMANCE_WARNING_BIT_EXT)) {
         CC_LOG_WARNING("%s: %s", layerPrefix, message);
+        return VK_FALSE;
     } else if (flags & VK_DEBUG_REPORT_INFORMATION_BIT_EXT) {
         //CC_LOG_INFO("%s: %s", layerPrefix, message);
+        return VK_FALSE;
     } else if (flags & VK_DEBUG_REPORT_DEBUG_BIT_EXT) {
         //CC_LOG_DEBUG("%s: %s", layerPrefix, message);
-    } else {
-        CC_LOG_ERROR("%s: %s", layerPrefix, message);
+        return VK_FALSE;
     }
+    CC_LOG_ERROR("%s: %s", layerPrefix, message);
     return VK_FALSE;
 }
 #endif

@@ -53,6 +53,14 @@ public:
 
     VkSwapchainCreateInfoKHR swapchainCreateInfo{VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR};
 };
+
+struct CCVKAccessInfo {
+    VkPipelineStageFlags stageMask;
+    VkAccessFlags        accessMask;
+    VkImageLayout        imageLayout;
+    bool                 hasWriteAccess;
+};
+
 class CCVKGPURenderPass final : public Object {
 public:
     ColorAttachmentList    colorAttachments;
@@ -61,7 +69,7 @@ public:
 
     // per attachment
     vector<vector<ThsvsAccessType>> beginAccesses;
-    vector<vector<ThsvsAccessType>> EndAccesses;
+    vector<vector<ThsvsAccessType>> endAccesses;
 
     VkRenderPass vkRenderPass;
 

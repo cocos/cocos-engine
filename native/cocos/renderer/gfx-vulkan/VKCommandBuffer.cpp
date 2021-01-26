@@ -202,21 +202,20 @@ void CCVKCommandBuffer::endRenderPass() {
     vkCmdPipelineBarrier(_gpuCommandBuffer->vkCommandBuffer, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0, 0, nullptr, 0, nullptr, 0, nullptr);
 #endif
 
-    for (size_t i = 0u; i < _curGPUFBO->gpuRenderPass->colorAttachments.size(); ++i) {
-        ThsvsAccessType accessType = THSVS_ACCESS_TYPES[(uint)_curGPUFBO->gpuRenderPass->colorAttachments[i].endAccess];
+    size_t colorAttachmentCount = _curGPUFBO->gpuRenderPass->colorAttachments.size();
+    for (size_t i = 0u; i < colorAttachmentCount; ++i) {
         if (_curGPUFBO->gpuColorViews[i]) {
-            _curGPUFBO->gpuColorViews[i]->gpuTexture->currentAccessTypes.assign({accessType});
+            _curGPUFBO->gpuColorViews[i]->gpuTexture->currentAccessTypes = _curGPUFBO->gpuRenderPass->endAccesses[i];
         } else {
-            _curGPUFBO->swapchain->swapchainImageAccessTypes[_curGPUFBO->swapchain->curImageIndex].assign({accessType});
+            _curGPUFBO->swapchain->swapchainImageAccessTypes[_curGPUFBO->swapchain->curImageIndex] = _curGPUFBO->gpuRenderPass->endAccesses[i];
         }
     }
 
     if (_curGPUFBO->gpuRenderPass->depthStencilAttachment.format != Format::UNKNOWN) {
-        ThsvsAccessType accessType = THSVS_ACCESS_TYPES[(uint)_curGPUFBO->gpuRenderPass->depthStencilAttachment.endAccess];
         if (_curGPUFBO->gpuDepthStencilView) {
-            _curGPUFBO->gpuDepthStencilView->gpuTexture->currentAccessTypes.assign({accessType});
+            _curGPUFBO->gpuDepthStencilView->gpuTexture->currentAccessTypes = _curGPUFBO->gpuRenderPass->endAccesses[colorAttachmentCount];
         } else {
-            _curGPUFBO->swapchain->depthStencilImageAccessTypes[_curGPUFBO->swapchain->curImageIndex].assign({accessType});
+            _curGPUFBO->swapchain->depthStencilImageAccessTypes[_curGPUFBO->swapchain->curImageIndex] = _curGPUFBO->gpuRenderPass->endAccesses[colorAttachmentCount];
         }
     }
 

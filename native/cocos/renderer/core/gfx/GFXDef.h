@@ -1063,25 +1063,25 @@ struct InputAssemblerInfo {
 };
 
 struct ColorAttachment {
-    Format      format      = Format::UNKNOWN;
-    SampleCount sampleCount = SampleCount::X1;
-    LoadOp      loadOp      = LoadOp::CLEAR;
-    StoreOp     storeOp     = StoreOp::STORE;
-    AccessType  beginAccess = AccessType::NONE;
-    AccessType  endAccess   = AccessType::PRESENT;
+    Format             format      = Format::UNKNOWN;
+    SampleCount        sampleCount = SampleCount::X1;
+    LoadOp             loadOp      = LoadOp::CLEAR;
+    StoreOp            storeOp     = StoreOp::STORE;
+    vector<AccessType> beginAccesses;
+    vector<AccessType> endAccesses{AccessType::PRESENT};
 };
 
 typedef cc::vector<ColorAttachment> ColorAttachmentList;
 
 struct DepthStencilAttachment {
-    Format      format         = Format::UNKNOWN;
-    SampleCount sampleCount    = SampleCount::X1;
-    LoadOp      depthLoadOp    = LoadOp::CLEAR;
-    StoreOp     depthStoreOp   = StoreOp::STORE;
-    LoadOp      stencilLoadOp  = LoadOp::CLEAR;
-    StoreOp     stencilStoreOp = StoreOp::STORE;
-    AccessType  beginAccess    = AccessType::NONE;
-    AccessType  endAccess      = AccessType::DEPTH_STENCIL_ATTACHMENT_WRITE;
+    Format             format         = Format::UNKNOWN;
+    SampleCount        sampleCount    = SampleCount::X1;
+    LoadOp             depthLoadOp    = LoadOp::CLEAR;
+    StoreOp            depthStoreOp   = StoreOp::STORE;
+    LoadOp             stencilLoadOp  = LoadOp::CLEAR;
+    StoreOp            stencilStoreOp = StoreOp::STORE;
+    vector<AccessType> beginAccesses;
+    vector<AccessType> endAccesses{AccessType::DEPTH_STENCIL_ATTACHMENT_WRITE};
 };
 
 struct SubpassInfo {
