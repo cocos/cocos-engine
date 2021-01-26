@@ -366,7 +366,6 @@ export function applyPropertyOverrides (node: Node, propertyOverrides: PropertyO
             }
 
             let targetPropOwner: any = target;
-            let targetPropOwnerParent: any = target;    // 用于记录最后数组所在的object
             let targetPropOwnerName = '';
             const propertyPath = propOverride.propertyPath.slice();
             if (propertyPath.length > 0) {
@@ -378,15 +377,21 @@ export function applyPropertyOverrides (node: Node, propertyOverrides: PropertyO
                 for (let i = 0; i < propertyPath.length; i++) {
                     const propName = propertyPath[i];
                     targetPropOwnerName = propName;
-                    targetPropOwnerParent = targetPropOwner;
                     targetPropOwner = targetPropOwner[propName];
                 }
 
-                targetPropOwner[targetPropName] = propOverride.value;
-
-                // 如果是改数组元素，需要重新赋值一下自己以触发setter
-                if (Array.isArray(targetPropOwner) && targetPropOwnerParent && targetPropOwnerName) {
-                    targetPropOwnerParent[targetPropOwnerName] = targetPropOwner;
+                if (Array.isArray(targetPropOwner)) {
+                    // if set element of a array, the length of a array must has been defined.
+                    if (targetPropName === 'length') {
+                        targetPropOwner[targetPropName] = propOverride.value;
+                    } else {
+                        const index = Number.parseInt(targetPropName);
+                        if (Number.isInteger(index) && index < targetPropOwner.length) {
+                            targetPropOwner[targetPropName] = propOverride.value;
+                        }
+                    }
+                } else {
+                    targetPropOwner[targetPropName] = propOverride.value;
                 }
             } else if (EDITOR) {
                 warn('property path is empty');
