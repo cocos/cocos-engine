@@ -73,7 +73,7 @@ CCProgram sprite-fs %{
     vec4 o = vec4(1, 1, 1, 1);
 
     #if USE_TEXTURE
-      o *= CCSampleTexture(cc_spriteTexture, uv0);
+      o *= CCSampleWithAlphaSeparated(cc_spriteTexture, uv0);
       #if IS_GRAY
         float gray  = 0.2126 * o.r + 0.7152 * o.g + 0.0722 * o.b;
         o.r = o.g = o.b = gray;

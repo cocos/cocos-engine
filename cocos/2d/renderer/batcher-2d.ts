@@ -483,7 +483,11 @@ export class Batcher2D {
         let depthStencil;
         if (renderComp) {
             blendState = renderComp.blendHash === -1 ? null : renderComp.getBlendState();
-            depthStencil = StencilManager.sharedManager!.getStencilStage(renderComp.stencilStage);
+            if (renderComp.customMaterial !== null) {
+                depthStencil = StencilManager.sharedManager!.getStencilStage(renderComp.stencilStage, mat);
+            } else {
+                depthStencil = StencilManager.sharedManager!.getStencilStage(renderComp.stencilStage);
+            }
         }
 
         const curDrawBatch = this._currStaticRoot ? this._currStaticRoot._requireDrawBatch() : this._drawBatchPool.alloc();

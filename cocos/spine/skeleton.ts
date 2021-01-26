@@ -6,7 +6,7 @@ import { AttachUtil } from './attach-util';
 import { ccclass, executeInEditMode, help, menu } from '../core/data/class-decorator';
 import { Renderable2D } from '../2d/framework/renderable-2d';
 import { Node, CCClass, CCObject, Color, Enum, Material, PrivateNode, Texture2D, builtinResMgr, ccenum, errorID, logID, warn, SystemEventType } from '../core';
-import { displayName, editable, override, serializable, tooltip, type, visible } from '../core/data/decorators';
+import { displayName, displayOrder, editable, override, serializable, tooltip, type, visible } from '../core/data/decorators';
 import { SkeletonData } from './skeleton-data';
 import { VertexEffectDelegate } from './vertex-effect-delegate';
 import { MeshRenderData } from '../2d/renderer/render-data';
@@ -68,8 +68,7 @@ type TrackListener2 = (x: spine.TrackEntry, ev: spine.Event | number) => void;
 
 export enum SpineMaterialType {
     COLORED_TEXTURED = 0,
-    COLORED = 1,
-    TWO_COLORED,
+    TWO_COLORED = 1,
 }
 
 export interface SkeletonMeshData {
@@ -132,12 +131,15 @@ export class Skeleton extends Renderable2D {
     get meshRenderDataArray () { return this._meshRenderDataArray; }
 
     @override
-    @visible(false)
+    @type(Material)
+    @displayOrder(0)
+    @displayName('CustomMaterial')
     get customMaterial () {
-        return super.customMaterial;
+        return this._customMaterial;
     }
-    set customMaterial (v) {
-        super.customMaterial = v;
+    set customMaterial (val) {
+        this._customMaterial = val;
+        this._cleanMaterialCache();
     }
 
     @override
@@ -568,24 +570,6 @@ export class Skeleton extends Renderable2D {
         this.attachUtil = new AttachUtil();
         setEnumAttr(this, '_defaultSkinIndex', this._enumSkins);
         setEnumAttr(this, '_animationIndex', this._enumAnimations);
-    }
-
-    public getBuiltinMaterial (type: SpineMaterialType): Material {
-        // not need _uiMaterialDirty at firstTime
-        let mat:Material;
-        switch (type) {
-        case SpineMaterialType.COLORED:
-            mat = builtinResMgr.get('ui-base-material');
-            break;
-        case SpineMaterialType.TWO_COLORED:
-            mat = builtinResMgr.get('ui-spine-two-colored-material');
-            break;
-        case SpineMaterialType.COLORED_TEXTURED:
-        default:
-            mat = builtinResMgr.get('ui-sprite-material');
-            break;
-        }
-        return mat;
     }
 
     // override base class disableRender to clear post render flag
@@ -1280,6 +1264,7 @@ export class Skeleton extends Renderable2D {
     }
 
     public onDestroy () {
+        this._cleanMaterialCache();
         this.destroyRenderData();
         super.onDestroy();
     }
@@ -1309,7 +1294,21 @@ export class Skeleton extends Renderable2D {
         if (inst) {
             return inst;
         }
-        const material = this.getBuiltinMaterial(type);
+
+        let material = this.customMaterial;
+        if (material === null) {
+            material = builtinResMgr.get<Material>('default-spine-material');
+        }
+
+        let useTwoColor = false;
+        switch (type) {
+        case SpineMaterialType.TWO_COLORED:
+            useTwoColor = true;
+            break;
+        case SpineMaterialType.COLORED_TEXTURED:
+        default:
+            break;
+        }
         const matInfo = {
             parent: material,
             subModelIdx: 0,
@@ -1330,6 +1329,7 @@ export class Skeleton extends Renderable2D {
                 }],
             },
         });
+        inst.recompileShaders({ TWO_COLORED: useTwoColor });
         return inst;
     }
 
@@ -1637,6 +1637,13 @@ export class Skeleton extends Renderable2D {
                 }
             }
         });
+    }
+
+    private _cleanMaterialCache () {
+        for (const val in this._materialCache) {
+            this._materialCache[val].destroy();
+        }
+        this._materialCache = {};
     }
 }
 
