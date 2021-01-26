@@ -155,7 +155,6 @@ export class LightingFlow extends RenderFlow {
 
     public render (camera: Camera) {
         const pipeline = this._pipeline as DeferredPipeline;
-        pipeline.updateCameraUBO(camera, true);
         super.render(camera);
     }
 

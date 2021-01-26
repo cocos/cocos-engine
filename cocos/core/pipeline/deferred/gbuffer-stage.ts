@@ -38,17 +38,13 @@ import { RenderBatchedQueue } from '../render-batched-queue';
 import { RenderInstancedQueue } from '../render-instanced-queue';
 import { IRenderStageInfo, RenderStage } from '../render-stage';
 import { DeferredStagePriority } from './enum';
-import { RenderAdditiveLightQueue } from '../render-additive-light-queue';
 import { InstancedBuffer } from '../instanced-buffer';
 import { BatchedBuffer } from '../batched-buffer';
 import { BatchingSchemes } from '../../renderer/core/pass';
 import { GbufferFlow } from './gbuffer-flow';
 import { DeferredPipeline } from './deferred-pipeline';
 import { RenderQueueDesc, RenderQueueSortMode } from '../pipeline-serialization';
-import { PlanarShadowQueue } from './planar-shadow-queue';
-import { Framebuffer } from '../../gfx';
 import { Camera } from 'cocos/core/renderer/scene';
-
 
 const colors: Color[] = [ new Color(0, 0, 0, 0), new Color(0, 0, 0, 0), new Color(0, 0, 0, 0), new Color(0, 0, 0, 0) ];
 
@@ -140,7 +136,7 @@ export class GbufferStage extends RenderStage {
         const device = pipeline.device;
         this._renderQueues.forEach(this.renderQueueClearFunc);
 
-        const renderObjects = pipeline.renderObjects;
+        const renderObjects = pipeline.pipelineSceneData.renderObjects;
         if (renderObjects.length === 0) {
             return;
         }
@@ -185,13 +181,13 @@ export class GbufferStage extends RenderStage {
         const h = camera.window!.hasOnScreenAttachments && device.surfaceTransform % 2 ? camera.width : camera.height;
         this._renderArea.x = vp.x * w;
         this._renderArea.y = vp.y * h;
-        this._renderArea.width = vp.width * w * pipeline.shadingScale;
-        this._renderArea.height = vp.height * h * pipeline.shadingScale;
+        this._renderArea.width = vp.width * w * pipeline.pipelineSceneData.shadingScale;
+        this._renderArea.height = vp.height * h * pipeline.pipelineSceneData.shadingScale;
 
         if (camera.clearFlag & ClearFlag.COLOR) {
-            if (pipeline.isHDR) {
+            if (pipeline.pipelineSceneData.isHDR) {
                 SRGBToLinear(colors[0], camera.clearColor);
-                const scale = pipeline.fpScale / camera.exposure;
+                const scale = pipeline.pipelineSceneData.fpScale / camera.exposure;
                 colors[0].x *= scale;
                 colors[0].y *= scale;
                 colors[0].z *= scale;

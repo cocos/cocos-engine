@@ -38,7 +38,7 @@ import { RenderAdditiveLightQueue } from '../render-additive-light-queue';
 import { LightingFlow } from './lighting-flow';
 import { DeferredPipeline } from './deferred-pipeline';
 import { RenderQueueDesc, RenderQueueSortMode } from '../pipeline-serialization';
-import { PlanarShadowQueue } from './planar-shadow-queue';
+import { PlanarShadowQueue } from '../forward/planar-shadow-queue';
 import { Material } from '../../assets/material';
 import { ShaderPool } from '../../renderer/core/memory-pools';
 import { PipelineStateManager } from '../pipeline-state-manager';
@@ -153,8 +153,8 @@ export class LightingStage extends RenderStage {
                     _vec4Array[2] *= tempRGB.z;
                 }
 
-                if (pipeline.isHDR) {
-                    _vec4Array[3] = light.luminance * pipeline.fpScale * this._lightMeterScale;
+                if (pipeline.pipelineSceneData.isHDR) {
+                    _vec4Array[3] = light.luminance * pipeline.pipelineSceneData.fpScale * this._lightMeterScale;
                 } else {
                     _vec4Array[3] = light.luminance * exposure * this._lightMeterScale;
                 }
@@ -186,8 +186,8 @@ export class LightingStage extends RenderStage {
                     _vec4Array[1] *= tempRGB.y;
                     _vec4Array[2] *= tempRGB.z;
                 }
-                if (pipeline.isHDR) {
-                    _vec4Array[3] = light.luminance * pipeline.fpScale * this._lightMeterScale;
+                if (pipeline.pipelineSceneData.isHDR) {
+                    _vec4Array[3] = light.luminance * pipeline.pipelineSceneData.fpScale * this._lightMeterScale;
                 } else {
                     _vec4Array[3] = light.luminance * exposure * this._lightMeterScale;
                 }
@@ -296,13 +296,13 @@ export class LightingStage extends RenderStage {
         const h = camera.window!.hasOnScreenAttachments && device.surfaceTransform % 2 ? camera.width : camera.height;
         this._renderArea.x = vp.x * w;
         this._renderArea.y = vp.y * h;
-        this._renderArea.width = vp.width * w * pipeline.shadingScale;
-        this._renderArea.height = vp.height * h * pipeline.shadingScale;
+        this._renderArea.width = vp.width * w * pipeline.pipelineSceneData.shadingScale;
+        this._renderArea.height = vp.height * h * pipeline.pipelineSceneData.shadingScale;
 
         if (camera.clearFlag & ClearFlag.COLOR) {
-            if (pipeline.isHDR) {
+            if (pipeline.pipelineSceneData.isHDR) {
                 SRGBToLinear(colors[0], camera.clearColor);
-                const scale = pipeline.fpScale / camera.exposure;
+                const scale = pipeline.pipelineSceneData.fpScale / camera.exposure;
                 colors[0].x *= scale;
                 colors[0].y *= scale;
                 colors[0].z *= scale;
@@ -355,7 +355,7 @@ export class LightingStage extends RenderStage {
         // Transparent
         this._renderQueues.forEach(this.renderQueueClearFunc);
 
-        const renderObjects = pipeline.renderObjects;
+        const renderObjects = pipeline.pipelineSceneData.renderObjects;
         let m = 0; let p = 0; let k = 0;
         for (let i = 0; i < renderObjects.length; ++i) {
             const ro = renderObjects[i];

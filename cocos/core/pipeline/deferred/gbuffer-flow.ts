@@ -42,7 +42,7 @@ import { genSamplerHash, samplerLib } from '../../renderer/core/sampler-lib';
 
 import { Address, Filter, SurfaceTransform} from '../../gfx/define';
 import { Camera } from 'cocos/core/renderer/scene';
-import { sceneCulling } from './scene-culling';
+import { sceneCulling } from '../scene-culling';
 
 /**
  * @en The gbuffer flow in deferred render pipeline
@@ -221,7 +221,6 @@ export class GbufferFlow extends RenderFlow {
     public render (camera: Camera) {
         const pipeline = this._pipeline as DeferredPipeline;
         sceneCulling(pipeline, camera);
-        pipeline.updateCameraUBO(camera, true);
         super.render(camera);
     }
 

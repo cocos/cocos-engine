@@ -65,7 +65,8 @@ export class PipelineUBO {
         fv[UBOGlobal.NATIVE_SIZE_OFFSET + 3] = 1.0 / fv[UBOGlobal.NATIVE_SIZE_OFFSET + 1];
     }
 
-    public static updateCameraUBOView (pipeline: RenderPipeline, bufferView: Float32Array, camera: Camera) {
+    public static updateCameraUBOView (pipeline: RenderPipeline, bufferView: Float32Array,
+        camera: Camera, hasOffScreenAttachments: boolean) {
         const device = pipeline.device;
         const scene = camera.scene ? camera.scene : legacyCC.director.getScene().renderScene;
         const mainLight = scene.mainLight;
@@ -122,16 +123,21 @@ export class PipelineUBO {
 
         Mat4.toArray(cv, camera.matView, UBOCamera.MAT_VIEW_OFFSET);
         Mat4.toArray(cv, camera.node.worldMatrix, UBOCamera.MAT_VIEW_INV_OFFSET);
-        Mat4.toArray(cv, camera.matProj, UBOCamera.MAT_PROJ_OFFSET);
-        Mat4.toArray(cv, camera.matProjInv, UBOCamera.MAT_PROJ_INV_OFFSET);
-        Mat4.toArray(cv, camera.matViewProj, UBOCamera.MAT_VIEW_PROJ_OFFSET);
-        Mat4.toArray(cv, camera.matViewProjInv, UBOCamera.MAT_VIEW_PROJ_INV_OFFSET);
         Vec3.toArray(cv, camera.position, UBOCamera.CAMERA_POS_OFFSET);
-        let projectionSignY = device.screenSpaceSignY;
-        if (camera.window!.hasOffScreenAttachments) {
-            projectionSignY *= device.UVSpaceSignY; // need flipping if drawing on render targets
+
+        if (hasOffScreenAttachments) {
+            Mat4.toArray(cv, camera.matProjOffscreen, UBOCamera.MAT_PROJ_OFFSET);
+            Mat4.toArray(cv, camera.matProjInvOffscreen, UBOCamera.MAT_PROJ_INV_OFFSET);
+            Mat4.toArray(cv, camera.matViewProjOffscreen, UBOCamera.MAT_VIEW_PROJ_OFFSET);
+            Mat4.toArray(cv, camera.matViewProjInvOffscreen, UBOCamera.MAT_VIEW_PROJ_INV_OFFSET);
+            cv[UBOCamera.CAMERA_POS_OFFSET + 3] = device.screenSpaceSignY * device.UVSpaceSignY;
+        } else {
+            Mat4.toArray(cv, camera.matProj, UBOCamera.MAT_PROJ_OFFSET);
+            Mat4.toArray(cv, camera.matProjInv, UBOCamera.MAT_PROJ_INV_OFFSET);
+            Mat4.toArray(cv, camera.matViewProj, UBOCamera.MAT_VIEW_PROJ_OFFSET);
+            Mat4.toArray(cv, camera.matViewProjInv, UBOCamera.MAT_VIEW_PROJ_INV_OFFSET);
+            cv[UBOCamera.CAMERA_POS_OFFSET + 3] = device.screenSpaceSignY;
         }
-        cv[UBOCamera.CAMERA_POS_OFFSET + 3] = projectionSignY;
 
         if (fog.enabled) {
             cv.set(fog.colorArray, UBOCamera.GLOBAL_FOG_COLOR_OFFSET);
@@ -305,10 +311,10 @@ export class PipelineUBO {
         cmdBuffer[0].updateBuffer(ds.getBuffer(UBOGlobal.BINDING), this._globalUBO);
     }
 
-    public updateCameraUBO (camera: Camera) {
+    public updateCameraUBO (camera: Camera, hasOffScreenAttachments: boolean) {
         const ds = this._pipeline.descriptorSet;
         const cmdBuffer = this._pipeline.commandBuffers;
-        PipelineUBO.updateCameraUBOView(this._pipeline, this._cameraUBO, camera);
+        PipelineUBO.updateCameraUBOView(this._pipeline, this._cameraUBO, camera, hasOffScreenAttachments);
         cmdBuffer[0].updateBuffer(ds.getBuffer(UBOCamera.BINDING), this._cameraUBO);
     }
 
