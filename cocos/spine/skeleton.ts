@@ -1640,11 +1640,8 @@ export class Skeleton extends Renderable2D {
     }
 
     private _cleanMaterialCache () {
-        const cache = Object.values(this._materialCache);
-        if (cache.length !== 0) {
-            for (let i = 0; i < cache.length; i++) {
-                cache[i].destroy();
-            }
+        for (const val in this._materialCache) {
+            this._materialCache[val].destroy();
         }
         this._materialCache = {};
     }

@@ -22,6 +22,9 @@ CCEffect %{
 CCProgram sprite-vs %{
   precision highp float;
   #include <cc-global>
+  #if USE_LOCAL
+    #include <cc-local>
+  #endif
 
   in vec3 a_position;
   in vec2 a_texCoord;
@@ -37,6 +40,10 @@ CCProgram sprite-vs %{
 
   vec4 vert () {
     vec4 pos = vec4(a_position, 1);
+
+    #if USE_LOCAL
+      pos = cc_matWorld * pos;
+    #endif
 
     pos = cc_matViewProj * pos;
 

@@ -266,12 +266,13 @@ export default [
     "shaders": [
       {
         "name": "spine|sprite-vs:vert|sprite-fs:frag",
-        "hash": 884896273,
+        "hash": 4078504952,
         "builtins": {
           "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }], "samplers": [] },
-          "locals": { "blocks": [], "samplers": [{ "name": "cc_spriteTexture", "defines": [] }] }
+          "locals": { "blocks": [{ "name": "CCLocal", "defines": ["USE_LOCAL"] }], "samplers": [{ "name": "cc_spriteTexture", "defines": [] }] }
         },
         "defines": [
+          { "name": "USE_LOCAL", "type": "boolean" },
           { "name": "TWO_COLORED", "type": "boolean" },
           { "name": "USE_ALPHA_TEST", "type": "boolean" }
         ],
@@ -298,7 +299,7 @@ export default [
     "shaders": [
       {
         "name": "sprite|sprite-vs:vert|sprite-fs:frag",
-        "hash": 3640649043,
+        "hash": 3990469549,
         "builtins": {
           "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }], "samplers": [] },
           "locals": { "blocks": [{ "name": "CCLocal", "defines": ["USE_LOCAL"] }], "samplers": [{ "name": "cc_spriteTexture", "defines": ["USE_TEXTURE"] }] }
