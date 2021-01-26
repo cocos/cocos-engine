@@ -339,6 +339,9 @@ class EventManager {
 
         let isFound = false;
         const locListener = this._listenersMap;
+        // if(listener == this._currentTouchListener){
+        //     this._currentTouchListener = this._currentTouch = null;
+        // }
         for (const selKey in locListener) {
             const listeners = locListener[selKey];
             const fixedPriorityListeners = listeners.getFixedPriorityListeners();
@@ -946,18 +949,13 @@ class EventManager {
         if (getCode === EventTouch.BEGAN) {
             if (!macro.ENABLE_MULTI_TOUCH && eventManager._currentTouch) {
                 const node = eventManager._currentTouchListener._node;
-                const owner = eventManager._currentTouchListener.owner;
-                if ((!node || node.activeInHierarchy) && (!owner || owner.activeInHierarchy)) {
+                if ((!node || node.activeInHierarchy)) {
                     return false;
-                }else {
-                    eventManager._currentTouchListener = null;
-                    eventManager._currentTouch = null;
-
                 }
             }
             if (listener.onTouchBegan) {
                 isClaimed = listener.onTouchBegan(selTouch, event);
-                if (isClaimed && listener._isRegistered()) {
+                if (isClaimed && listener._isRegistered() && !listener._isPaused()) {
                     listener._claimedTouches.push(selTouch);
                     if (macro.ENABLE_MULTI_TOUCH || !eventManager._currentTouch) {
                         eventManager._currentTouch = selTouch;
