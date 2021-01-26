@@ -46,7 +46,7 @@ import { BatchingSchemes } from '../../renderer/core/pass';
 import { ForwardFlow } from './forward-flow';
 import { ForwardPipeline } from './forward-pipeline';
 import { RenderQueueDesc, RenderQueueSortMode } from '../pipeline-serialization';
-import { PlanarShadowQueue } from './planar-shadow-queue';
+import { PlanarShadowQueue } from '../planar-shadow-queue';
 import { UIPhase } from './ui-phase';
 import { Camera } from '../../renderer/scene';
 
@@ -133,7 +133,7 @@ export class ForwardStage extends RenderStage {
         }
 
         this._additiveLightQueue = new RenderAdditiveLightQueue(this._pipeline as ForwardPipeline);
-        this._planarQueue = new PlanarShadowQueue(this._pipeline as ForwardPipeline);
+        this._planarQueue = new PlanarShadowQueue(this._pipeline);
         this._uiPhase.activate(pipeline);
     }
 

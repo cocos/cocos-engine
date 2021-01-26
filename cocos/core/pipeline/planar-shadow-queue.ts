@@ -23,26 +23,26 @@
  THE SOFTWARE.
  */
 
-import { AABB, intersect } from '../../geometry';
-import { SetIndex } from '../define';
-import { CommandBuffer, Device, RenderPass, Shader } from '../../gfx';
-import { InstancedBuffer } from '../instanced-buffer';
-import { PipelineStateManager } from '../pipeline-state-manager';
-import { Model, Camera } from '../../renderer/scene';
-import { DSPool, ShaderPool, PassPool, PassView, ShadowsPool, ShadowsView } from '../../renderer/core/memory-pools';
-import { RenderInstancedQueue } from '../render-instanced-queue';
-import { ForwardPipeline } from './forward-pipeline';
-import { ShadowType } from '../../renderer/scene/shadows';
-import { Layers } from '../../scene-graph/layers';
+import { AABB, intersect } from '../geometry';
+import { SetIndex } from './define';
+import { CommandBuffer, Device, RenderPass, Shader } from '../gfx';
+import { InstancedBuffer } from './instanced-buffer';
+import { PipelineStateManager } from './pipeline-state-manager';
+import { Model, Camera } from '../renderer/scene';
+import { DSPool, ShaderPool, PassPool, PassView, ShadowsPool, ShadowsView } from '../renderer/core/memory-pools';
+import { RenderInstancedQueue } from './render-instanced-queue';
+import { RenderPipeline } from './render-pipeline';
+import { ShadowType } from '../renderer/scene/shadows';
+import { Layers } from '../scene-graph/layers';
 
 const _ab = new AABB();
 
 export class PlanarShadowQueue {
     private _pendingModels: Model[] = [];
     private _instancedQueue = new RenderInstancedQueue();
-    private _pipeline: ForwardPipeline;
+    private _pipeline: RenderPipeline;
 
-    constructor (pipeline: ForwardPipeline) {
+    constructor (pipeline: RenderPipeline) {
         this._pipeline = pipeline;
     }
 
