@@ -33,7 +33,6 @@ class Shader;
 } // namespace gfx
 namespace pipeline {
 class RenderPipeline;
-class ForwardPipeline;
 struct ModelView;
 struct SubModelView;
 struct PassView;
@@ -61,7 +60,7 @@ public:
     void destroy();
     
 private:
-    ForwardPipeline *_pipeline = nullptr;
+    RenderPipeline *_pipeline = nullptr;
     RenderInstancedQueue *_instancedQueue = nullptr;
     std::vector<const ModelView *> _pendingModels;
 };

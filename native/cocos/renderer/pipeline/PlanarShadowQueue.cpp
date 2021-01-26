@@ -33,7 +33,6 @@ THE SOFTWARE.
 #include "RenderInstancedQueue.h"
 #include "gfx/GFXCommandBuffer.h"
 #include "helper/SharedMemory.h"
-#include "forward/ForwardPipeline.h"
 #include "gfx/GFXDescriptorSet.h"
 #include "gfx/GFXDevice.h"
 #include "gfx/GFXShader.h"
@@ -42,7 +41,7 @@ namespace cc {
 namespace pipeline {
 
 PlanarShadowQueue::PlanarShadowQueue(RenderPipeline *pipeline)
-:_pipeline(static_cast<ForwardPipeline *>(pipeline)){
+:_pipeline(pipeline){
     _instancedQueue = CC_NEW(RenderInstancedQueue);
 }
 
