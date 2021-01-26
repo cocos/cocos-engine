@@ -52,7 +52,7 @@ bool CCMTLRenderPass::initialize(const RenderPassInfo &info) {
     _mtlRenderPassDescriptor.stencilAttachment.loadAction = mu::toMTLLoadAction(_depthStencilAttachment.stencilLoadOp);
     _mtlRenderPassDescriptor.stencilAttachment.storeAction = mu::toMTLStoreAction(_depthStencilAttachment.stencilStoreOp);
 
-    _hash = computeHash(info);
+    _hash = computeHash();
 
     return true;
 }

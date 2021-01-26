@@ -21,8 +21,8 @@ bool RenderPassAgent::initialize(const RenderPassInfo &info) {
 
     _colorAttachments       = info.colorAttachments;
     _depthStencilAttachment = info.depthStencilAttachment;
-    _subPasses              = info.subPasses;
-    _hash                   = computeHash(info);
+    _subpasses              = info.subpasses;
+    _hash                   = computeHash();
 
     ENQUEUE_MESSAGE_2(
         ((DeviceAgent *)_device)->getMessageQueue(),

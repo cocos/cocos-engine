@@ -26,7 +26,7 @@ class Window;
 class Context;
 
 #define GFX_MAX_ATTACHMENTS 4
-#define GFX_INVALID_BINDING ((uint8_t)-1)
+#define GFX_INVALID_BINDING ((uint)-1)
 #define GFX_INVALID_HANDLE  ((uint)-1)
 
 enum class ObjectType {
@@ -542,36 +542,6 @@ enum class AccessType {
     HOST_WRITE,                     // Written on the host
 };
 
-namespace AccessTypeV {
-extern const AccessType INDIRECT_BUFFER;
-extern const AccessType INDEX_BUFFER;
-extern const AccessType VERTEX_BUFFER;
-extern const AccessType VERTEX_SHADER_READ_UNIFORM_BUFFER;
-extern const AccessType VERTEX_SHADER_READ_TEXTURE;
-extern const AccessType VERTEX_SHADER_READ_OTHER;
-extern const AccessType FRAGMENT_SHADER_READ_UNIFORM_BUFFER;
-extern const AccessType FRAGMENT_SHADER_READ_TEXTURE;
-extern const AccessType FRAGMENT_SHADER_READ_COLOR_INPUT_ATTACHMENT;
-extern const AccessType FRAGMENT_SHADER_READ_DEPTH_STENCIL_INPUT_ATTACHMENT;
-extern const AccessType FRAGMENT_SHADER_READ_OTHER;
-extern const AccessType COLOR_ATTACHMENT_READ;
-extern const AccessType DEPTH_STENCIL_ATTACHMENT_READ;
-extern const AccessType COMPUTE_SHADER_READ_UNIFORM_BUFFER;
-extern const AccessType COMPUTE_SHADER_READ_TEXTURE;
-extern const AccessType COMPUTE_SHADER_READ_OTHER;
-extern const AccessType TRANSFER_READ;
-extern const AccessType HOST_READ;
-extern const AccessType PRESENT;
-extern const AccessType VERTEX_SHADER_WRITE;
-extern const AccessType FRAGMENT_SHADER_WRITE;
-extern const AccessType COLOR_ATTACHMENT_WRITE;
-extern const AccessType DEPTH_STENCIL_ATTACHMENT_WRITE;
-extern const AccessType COMPUTE_SHADER_WRITE;
-extern const AccessType TRANSFER_WRITE;
-extern const AccessType HOST_PREINITIALIZED;
-extern const AccessType HOST_WRITE;
-} // namespace AccessTypeV
-
 typedef cc::vector<AccessType> AccessTypeList;
 
 enum class PipelineBindPoint {
@@ -959,7 +929,7 @@ struct SamplerInfo {
     Address        addressU      = Address::WRAP;
     Address        addressV      = Address::WRAP;
     Address        addressW      = Address::WRAP;
-    uint           maxAnisotropy = 16;
+    uint           maxAnisotropy = 0u;
     ComparisonFunc cmpFunc       = ComparisonFunc::NEVER;
     Color          borderColor;
     uint           minLOD     = 0;
@@ -1082,7 +1052,7 @@ struct ShaderInfo {
     UniformInputAttachmentList subpassInputs;
 };
 
-typedef cc::vector<Buffer *> BufferList;
+typedef cc::vector<Buffer *>         BufferList;
 typedef cc::vector<TextureBarrier *> TextureBarrierList;
 
 struct InputAssemblerInfo {
@@ -1114,20 +1084,20 @@ struct DepthStencilAttachment {
     AccessType  endAccess      = AccessType::DEPTH_STENCIL_ATTACHMENT_WRITE;
 };
 
-struct SubPassInfo {
-    cc::vector<uint8_t> inputs;
-    cc::vector<uint8_t> colors;
-    cc::vector<uint8_t> resolves;
-    uint8_t             depthStencil = GFX_INVALID_BINDING;
-    cc::vector<uint8_t> preserves;
+struct SubpassInfo {
+    cc::vector<uint> inputs;
+    cc::vector<uint> colors;
+    cc::vector<uint> resolves;
+    cc::vector<uint> preserves;
+    uint             depthStencil = GFX_INVALID_BINDING;
 };
 
-typedef cc::vector<SubPassInfo> SubPassInfoList;
+typedef cc::vector<SubpassInfo> SubpassInfoList;
 
 struct RenderPassInfo {
     ColorAttachmentList    colorAttachments;
     DepthStencilAttachment depthStencilAttachment;
-    SubPassInfoList        subPasses;
+    SubpassInfoList        subpasses;
 };
 
 struct GlobalBarrierInfo {
@@ -1140,7 +1110,7 @@ struct TextureBarrierInfo {
     vector<AccessType> prevAccesses;
     vector<AccessType> nextAccesses;
 
-    bool     discardContents = false;
+    bool discardContents = false;
 
     Queue *srcQueue = nullptr;
     Queue *dstQueue = nullptr;

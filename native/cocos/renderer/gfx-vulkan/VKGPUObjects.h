@@ -57,7 +57,11 @@ class CCVKGPURenderPass final : public Object {
 public:
     ColorAttachmentList    colorAttachments;
     DepthStencilAttachment depthStencilAttachment;
-    SubPassInfoList        subPasses;
+    SubpassInfoList        subpasses;
+
+    // per attachment
+    vector<vector<ThsvsAccessType>> beginAccesses;
+    vector<vector<ThsvsAccessType>> EndAccesses;
 
     VkRenderPass vkRenderPass;
 
@@ -112,7 +116,7 @@ public:
     Address        addressU      = Address::WRAP;
     Address        addressV      = Address::WRAP;
     Address        addressW      = Address::WRAP;
-    uint           maxAnisotropy = 16u;
+    uint           maxAnisotropy = 0u;
     ComparisonFunc cmpFunc       = ComparisonFunc::NEVER;
     Color          borderColor;
     uint           minLOD     = 0u;
@@ -296,7 +300,7 @@ public:
     VkMemoryBarrier      vkBarrier{};
 
     vector<ThsvsAccessType> accessTypes;
-    ThsvsGlobalBarrier   barrier{};
+    ThsvsGlobalBarrier      barrier{};
 };
 
 class CCVKGPUTextureBarrier final : public Object {
@@ -306,7 +310,7 @@ public:
     VkImageMemoryBarrier vkBarrier{};
 
     vector<ThsvsAccessType> accessTypes;
-    ThsvsImageBarrier   barrier{};
+    ThsvsImageBarrier       barrier{};
 };
 
 class CCVKGPUCommandBufferPool;
@@ -317,6 +321,7 @@ public:
     vector<VkExtensionProperties> extensions;
     VmaAllocator                  memoryAllocator = VK_NULL_HANDLE;
     VkPipelineCache               vkPipelineCache = VK_NULL_HANDLE;
+    uint                          minorVersion    = 0u;
 
     uint curBackBufferIndex = 0u;
     uint backBufferCount    = 3u;
@@ -876,6 +881,11 @@ public:
     CCVKGPUDescriptorSetHub(CCVKGPUDevice *device)
     : _device(device) {
         _setsToBeUpdated.resize(device->backBufferCount);
+        if (device->minorVersion > 0) {
+            _updateFn = vkUpdateDescriptorSetWithTemplate;
+        } else {
+            _updateFn = vkUpdateDescriptorSetWithTemplateKHR;
+        }
     }
 
     void record(CCVKGPUDescriptorSet *gpuDescriptorSet) {
@@ -909,8 +919,8 @@ private:
     void update(CCVKGPUDescriptorSet *gpuDescriptorSet) {
         CCVKGPUDescriptorSet::Instance &instance = gpuDescriptorSet->instances[_device->curBackBufferIndex];
         if (gpuDescriptorSet->gpuLayout->vkDescriptorUpdateTemplate) {
-            vkUpdateDescriptorSetWithTemplateKHR(_device->vkDevice, instance.vkDescriptorSet,
-                                                 gpuDescriptorSet->gpuLayout->vkDescriptorUpdateTemplate, instance.descriptorInfos.data());
+            _updateFn(_device->vkDevice, instance.vkDescriptorSet,
+                      gpuDescriptorSet->gpuLayout->vkDescriptorUpdateTemplate, instance.descriptorInfos.data());
         } else {
             vector<VkWriteDescriptorSet> &entries = instance.descriptorUpdateEntries;
             vkUpdateDescriptorSets(_device->vkDevice, entries.size(), entries.data(), 0, nullptr);
@@ -919,6 +929,7 @@ private:
 
     CCVKGPUDevice *                               _device = nullptr;
     vector<unordered_set<CCVKGPUDescriptorSet *>> _setsToBeUpdated;
+    PFN_vkUpdateDescriptorSetWithTemplate         _updateFn = nullptr;
 };
 
 class CCVKGPUTextureLayoutManager final : public Object {

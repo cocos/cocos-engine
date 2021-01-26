@@ -44,7 +44,7 @@ bool GLES3RenderPass::initialize(const RenderPassInfo &info) {
     _gpuRenderPass->colorAttachments = _colorAttachments;
     _gpuRenderPass->depthStencilAttachment = _depthStencilAttachment;
 
-    _hash = computeHash(info);
+    _hash = computeHash();
 
     return true;
 }

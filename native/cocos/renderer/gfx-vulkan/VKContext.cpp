@@ -114,13 +114,25 @@ bool CCVKContext::initialize(const ContextInfo &info) {
         };
         vector<const char *> requestedExtensions{
             VK_KHR_SURFACE_EXTENSION_NAME,
-            VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME,
         };
 
         ///////////////////// Instance Creation /////////////////////
 
         if (volkInitialize()) {
             return false;
+        }
+
+        uint apiVersion = VK_API_VERSION_1_0;
+        if (vkEnumerateInstanceVersion) {
+            vkEnumerateInstanceVersion(&apiVersion);
+            if (FORCE_MINOR_VERSION) {
+                apiVersion = VK_MAKE_VERSION(1, FORCE_MINOR_VERSION - 1, 0);
+            }
+        }
+
+        uint minorVersion = VK_VERSION_MINOR(apiVersion);
+        if (minorVersion < 1) {
+            requestedExtensions.push_back(VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME);
         }
 
         uint availableLayerCount;
@@ -201,14 +213,6 @@ bool CCVKContext::initialize(const ContextInfo &info) {
         for (const char *extension : requestedExtensions) {
             if (isExtensionSupported(extension, supportedExtensions)) {
                 _extensions.push_back(extension);
-            }
-        }
-
-        uint apiVersion = VK_API_VERSION_1_0;
-        if (vkEnumerateInstanceVersion) {
-            vkEnumerateInstanceVersion(&apiVersion);
-            if (FORCE_MINOR_VERSION) {
-                apiVersion = VK_MAKE_VERSION(1, FORCE_MINOR_VERSION - 1, 0);
             }
         }
 
@@ -364,12 +368,19 @@ bool CCVKContext::initialize(const ContextInfo &info) {
         _gpuContext->physicalDeviceProperties = physicalDeviceProperties[deviceIndex];
         vkGetPhysicalDeviceFeatures(_gpuContext->physicalDevice, &_gpuContext->physicalDeviceFeatures);
 
-        if (_minorVersion >= 1 || checkExtension(VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME)) {
-            vkGetPhysicalDeviceProperties2KHR(_gpuContext->physicalDevice, &_gpuContext->physicalDeviceProperties2);
+        _majorVersion = VK_VERSION_MAJOR(_gpuContext->physicalDeviceProperties.apiVersion);
+        _minorVersion = VK_VERSION_MINOR(_gpuContext->physicalDeviceProperties.apiVersion);
 
+        if (_minorVersion >= 1 || checkExtension(VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME)) {
             _gpuContext->physicalDeviceFeatures2.pNext        = &_gpuContext->physicalDeviceVulkan11Features;
             _gpuContext->physicalDeviceVulkan11Features.pNext = &_gpuContext->physicalDeviceVulkan12Features;
-            vkGetPhysicalDeviceFeatures2KHR(_gpuContext->physicalDevice, &_gpuContext->physicalDeviceFeatures2);
+            if (_minorVersion >= 1) {
+                vkGetPhysicalDeviceProperties2(_gpuContext->physicalDevice, &_gpuContext->physicalDeviceProperties2);
+                vkGetPhysicalDeviceFeatures2(_gpuContext->physicalDevice, &_gpuContext->physicalDeviceFeatures2);
+            } else {
+                vkGetPhysicalDeviceProperties2KHR(_gpuContext->physicalDevice, &_gpuContext->physicalDeviceProperties2);
+                vkGetPhysicalDeviceFeatures2KHR(_gpuContext->physicalDevice, &_gpuContext->physicalDeviceFeatures2);
+            }
         }
 
         vkGetPhysicalDeviceMemoryProperties(_gpuContext->physicalDevice, &_gpuContext->physicalDeviceMemoryProperties);
@@ -382,9 +393,6 @@ bool CCVKContext::initialize(const ContextInfo &info) {
             vkGetPhysicalDeviceSurfaceSupportKHR(_gpuContext->physicalDevice, propertyIndex,
                                                  _gpuContext->vkSurface, &_gpuContext->queueFamilyPresentables[propertyIndex]);
         }
-
-        _majorVersion = VK_VERSION_MAJOR(_gpuContext->physicalDeviceProperties.apiVersion);
-        _minorVersion = VK_VERSION_MINOR(_gpuContext->physicalDeviceProperties.apiVersion);
 
         ///////////////////// Swapchain Preperation /////////////////////
 

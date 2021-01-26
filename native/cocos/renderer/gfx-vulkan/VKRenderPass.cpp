@@ -40,15 +40,15 @@ CCVKRenderPass::~CCVKRenderPass() {
 bool CCVKRenderPass::initialize(const RenderPassInfo &info) {
     _colorAttachments = info.colorAttachments;
     _depthStencilAttachment = info.depthStencilAttachment;
-    _subPasses = info.subPasses;
+    _subpasses = info.subpasses;
 
     _gpuRenderPass = CC_NEW(CCVKGPURenderPass);
     _gpuRenderPass->colorAttachments = _colorAttachments;
     _gpuRenderPass->depthStencilAttachment = _depthStencilAttachment;
-    _gpuRenderPass->subPasses = _subPasses;
+    _gpuRenderPass->subpasses = _subpasses;
     CCVKCmdFuncCreateRenderPass((CCVKDevice *)_device, _gpuRenderPass);
 
-    _hash = computeHash(info);
+    _hash = computeHash();
 
     return true;
 }

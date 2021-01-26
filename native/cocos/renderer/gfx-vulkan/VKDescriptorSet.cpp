@@ -122,7 +122,7 @@ bool CCVKDescriptorSet::initialize(const DescriptorSetInfo &info) {
             vector<VkWriteDescriptorSet> &entries = instance.descriptorUpdateEntries;
             entries.resize(descriptorCount, {VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET});
 
-            for (size_t i = 0u, j = 0u; i < descriptorCount; i++) {
+            for (size_t i = 0u, j = 0u; i < bindingCount; i++) {
                 const VkDescriptorSetLayoutBinding &descriptor = gpuDescriptorSetLayout->vkBindings[i];
                 for (size_t k = 0u; k < descriptor.descriptorCount; k++, j++) {
                     entries[j].dstSet          = instance.vkDescriptorSet;

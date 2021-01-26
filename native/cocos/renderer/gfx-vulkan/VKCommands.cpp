@@ -256,7 +256,7 @@ void CCVKCmdFuncCreateRenderPass(CCVKDevice *device, CCVKGPURenderPass *gpuRende
         attachmentDescriptions[colorAttachmentCount].finalLayout    = ThsvsAccessMap[dstAccess].imageLayout;
     }
 
-    size_t subpassCount = gpuRenderPass->subPasses.size();
+    size_t subpassCount = gpuRenderPass->subpasses.size();
     attachmentReferences.clear();
     subpassDependencies.clear();
 
@@ -280,9 +280,37 @@ void CCVKCmdFuncCreateRenderPass(CCVKDevice *device, CCVKGPURenderPass *gpuRende
         if (hasDepth) subpassDescriptions[0].pDepthStencilAttachment = &attachmentReferences.back();
 
         // explicitly declare dependencies if needed
-        VkSubpassDependency dependency{0, VK_SUBPASS_EXTERNAL};
-        auto                dependencyCheck = [&dependency, colorAttachmentCount, gpuRenderPass](const VkAttachmentReference &ref, VkPipelineStageFlags srcStage, VkAccessFlags srcAccess) {
-            if (attachmentDescriptions[ref.attachment].finalLayout != ref.layout) {
+        VkSubpassDependency beginDependency      = {VK_SUBPASS_EXTERNAL, 0, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT};
+        auto                beginDependencyCheck = [&beginDependency, colorAttachmentCount, gpuRenderPass](const VkAttachmentReference &ref, VkPipelineStageFlags dstStage, VkAccessFlags dstAccess) {
+            const VkAttachmentDescription &desc = attachmentDescriptions[ref.attachment];
+            if (desc.loadOp != VK_ATTACHMENT_LOAD_OP_DONT_CARE && desc.initialLayout != ref.layout) {
+                AccessType beginAccess = AccessType::NONE;
+                if (ref.attachment < colorAttachmentCount) {
+                    beginAccess = gpuRenderPass->colorAttachments[ref.attachment].beginAccess;
+                } else {
+                    beginAccess = gpuRenderPass->depthStencilAttachment.beginAccess;
+                }
+                const ThsvsVkAccessInfo &info = ThsvsAccessMap[THSVS_ACCESS_TYPES[(uint)beginAccess]];
+                beginDependency.srcStageMask |= info.stageMask;
+                beginDependency.srcAccessMask |= info.accessMask;
+                beginDependency.dstStageMask |= dstStage;
+                beginDependency.dstAccessMask |= dstAccess;
+            }
+        };
+        for (size_t j = 0u; j < subpassDescriptions[0].colorAttachmentCount; ++j) {
+            beginDependencyCheck(subpassDescriptions[0].pColorAttachments[j], VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT);
+        }
+        if (subpassDescriptions[0].pDepthStencilAttachment) {
+            beginDependencyCheck(*subpassDescriptions[0].pDepthStencilAttachment, VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT, VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT);
+        }
+        if (beginDependency.dstAccessMask) {
+            subpassDependencies.push_back(beginDependency);
+        }
+
+        VkSubpassDependency endDependency{0, VK_SUBPASS_EXTERNAL};
+        auto                endDependencyCheck = [&endDependency, colorAttachmentCount, gpuRenderPass](const VkAttachmentReference &ref, VkPipelineStageFlags srcStage, VkAccessFlags srcAccess) {
+            const VkAttachmentDescription &desc = attachmentDescriptions[ref.attachment];
+            if (desc.storeOp == VK_ATTACHMENT_STORE_OP_STORE && desc.finalLayout != ref.layout) {
                 AccessType endAccess = AccessType::NONE;
                 if (ref.attachment < colorAttachmentCount) {
                     endAccess = gpuRenderPass->colorAttachments[ref.attachment].endAccess;
@@ -291,21 +319,21 @@ void CCVKCmdFuncCreateRenderPass(CCVKDevice *device, CCVKGPURenderPass *gpuRende
                 }
                 const ThsvsVkAccessInfo &info = ThsvsAccessMap[THSVS_ACCESS_TYPES[(uint)endAccess]];
                 if (info.accessMask) {
-                    dependency.srcStageMask |= srcStage;
-                    dependency.srcAccessMask |= srcAccess;
-                    dependency.dstAccessMask |= info.accessMask;
-                    dependency.dstStageMask |= info.stageMask;
+                    endDependency.srcStageMask |= srcStage;
+                    endDependency.srcAccessMask |= srcAccess;
+                    endDependency.dstStageMask |= info.stageMask;
+                    endDependency.dstAccessMask |= info.accessMask;
                 }
             }
         };
         for (size_t j = 0u; j < subpassDescriptions[0].colorAttachmentCount; ++j) {
-            dependencyCheck(subpassDescriptions[0].pColorAttachments[j], VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT);
+            endDependencyCheck(subpassDescriptions[0].pColorAttachments[j], VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT);
         }
         if (subpassDescriptions[0].pDepthStencilAttachment) {
-            dependencyCheck(*subpassDescriptions[0].pDepthStencilAttachment, VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT, VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT);
+            endDependencyCheck(*subpassDescriptions[0].pDepthStencilAttachment, VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT, VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT);
         }
-        if (dependency.dstAccessMask) {
-            subpassDependencies.push_back(dependency);
+        if (endDependency.dstAccessMask) {
+            subpassDependencies.push_back(endDependency);
         }
     }
 
@@ -446,7 +474,11 @@ void CCVKCmdFuncCreateDescriptorSetLayout(CCVKDevice *device, CCVKGPUDescriptorS
         createInfo.pDescriptorUpdateEntries             = entries.data();
         createInfo.templateType                         = VK_DESCRIPTOR_UPDATE_TEMPLATE_TYPE_DESCRIPTOR_SET;
         createInfo.descriptorSetLayout                  = gpuDescriptorSetLayout->vkDescriptorSetLayout;
-        VK_CHECK(vkCreateDescriptorUpdateTemplateKHR(gpuDevice->vkDevice, &createInfo, nullptr, &gpuDescriptorSetLayout->vkDescriptorUpdateTemplate));
+        if (gpuDevice->minorVersion > 0) {
+            VK_CHECK(vkCreateDescriptorUpdateTemplate(gpuDevice->vkDevice, &createInfo, nullptr, &gpuDescriptorSetLayout->vkDescriptorUpdateTemplate));
+        } else {
+            VK_CHECK(vkCreateDescriptorUpdateTemplateKHR(gpuDevice->vkDevice, &createInfo, nullptr, &gpuDescriptorSetLayout->vkDescriptorUpdateTemplate));
+        }
     }
 }
 
@@ -895,7 +927,11 @@ void CCVKCmdFuncDestroyDescriptorSetLayout(CCVKGPUDevice *gpuDevice, CCVKGPUDesc
     }
 
     if (gpuDescriptorSetLayout->vkDescriptorUpdateTemplate != VK_NULL_HANDLE) {
-        vkDestroyDescriptorUpdateTemplateKHR(gpuDevice->vkDevice, gpuDescriptorSetLayout->vkDescriptorUpdateTemplate, nullptr);
+        if (gpuDevice->minorVersion > 0) {
+            vkDestroyDescriptorUpdateTemplate(gpuDevice->vkDevice, gpuDescriptorSetLayout->vkDescriptorUpdateTemplate, nullptr);
+        } else {
+            vkDestroyDescriptorUpdateTemplateKHR(gpuDevice->vkDevice, gpuDescriptorSetLayout->vkDescriptorUpdateTemplate, nullptr);
+        }
         gpuDescriptorSetLayout->vkDescriptorUpdateTemplate = VK_NULL_HANDLE;
     }
 

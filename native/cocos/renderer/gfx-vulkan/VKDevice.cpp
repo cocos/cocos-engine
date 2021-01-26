@@ -80,6 +80,11 @@ bool CCVKDevice::initialize(const DeviceInfo &info) {
     //const VkPhysicalDeviceVulkan11Features &deviceVulkan11Features = gpuContext->physicalDeviceVulkan11Features;
     //const VkPhysicalDeviceVulkan12Features &deviceVulkan12Features = gpuContext->physicalDeviceVulkan12Features;
 
+    ///////////////////// Device Creation /////////////////////
+
+    _gpuDevice               = CC_NEW(CCVKGPUDevice);
+    _gpuDevice->minorVersion = context->minorVersion();
+
     // only enable the absolute essentials for now
     vector<const char *> requestedValidationLayers{};
 
@@ -89,10 +94,13 @@ bool CCVKDevice::initialize(const DeviceInfo &info) {
 
     vector<const char *> requestedExtensions{
         VK_KHR_SWAPCHAIN_EXTENSION_NAME,
-        VK_KHR_DESCRIPTOR_UPDATE_TEMPLATE_EXTENSION_NAME,
-        VK_KHR_DEDICATED_ALLOCATION_EXTENSION_NAME,
-        VK_KHR_GET_MEMORY_REQUIREMENTS_2_EXTENSION_NAME,
     };
+    if (_gpuDevice->minorVersion < 1) {
+        requestedExtensions.push_back(VK_KHR_DEDICATED_ALLOCATION_EXTENSION_NAME);
+        requestedExtensions.push_back(VK_KHR_GET_MEMORY_REQUIREMENTS_2_EXTENSION_NAME);
+        requestedExtensions.push_back(VK_KHR_DESCRIPTOR_UPDATE_TEMPLATE_EXTENSION_NAME);
+    }
+
     VkPhysicalDeviceFeatures2        requestedFeatures2{VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2};
     VkPhysicalDeviceVulkan11Features requestedVulkan11Features{VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_1_FEATURES};
     VkPhysicalDeviceVulkan12Features requestedVulkan12Features{VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_2_FEATURES};
@@ -111,10 +119,6 @@ bool CCVKDevice::initialize(const DeviceInfo &info) {
     requestedFeatures2.features.vertexPipelineStoresAndAtomics = deviceFeatures.vertexPipelineStoresAndAtomics;
     requestedExtensions.push_back(VK_KHR_SHADER_NON_SEMANTIC_INFO_EXTENSION_NAME);
 #endif
-
-    ///////////////////// Device Creation /////////////////////
-
-    _gpuDevice = CC_NEW(CCVKGPUDevice);
 
     // check extensions
     uint availableLayerCount;
@@ -164,12 +168,12 @@ bool CCVKDevice::initialize(const DeviceInfo &info) {
     deviceCreateInfo.ppEnabledLayerNames     = _layers.data();
     deviceCreateInfo.enabledExtensionCount   = toUint(_extensions.size());
     deviceCreateInfo.ppEnabledExtensionNames = _extensions.data();
-    if (context->minorVersion() < 1 &&
+    if (_gpuDevice->minorVersion < 1 &&
         !context->checkExtension(VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME)) {
         deviceCreateInfo.pEnabledFeatures = &requestedFeatures2.features;
     } else {
         deviceCreateInfo.pNext = &requestedFeatures2;
-        if (context->minorVersion() >= 2) {
+        if (_gpuDevice->minorVersion >= 2) {
             requestedFeatures2.pNext        = &requestedVulkan11Features;
             requestedVulkan11Features.pNext = &requestedVulkan12Features;
         }
@@ -199,7 +203,7 @@ bool CCVKDevice::initialize(const DeviceInfo &info) {
     _features[(uint)Feature::COMPUTE_SHADER]            = true;
 
     _gpuDevice->useMultiDrawIndirect        = deviceFeatures.multiDrawIndirect;
-    _gpuDevice->useDescriptorUpdateTemplate = checkExtension(VK_KHR_DESCRIPTOR_UPDATE_TEMPLATE_EXTENSION_NAME);
+    _gpuDevice->useDescriptorUpdateTemplate = _gpuDevice->minorVersion > 0 || checkExtension(VK_KHR_DESCRIPTOR_UPDATE_TEMPLATE_EXTENSION_NAME);
 
     VkFormatFeatureFlags requiredFeatures = VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT | VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT;
     VkFormatProperties   formatProperties;
@@ -256,12 +260,15 @@ bool CCVKDevice::initialize(const DeviceInfo &info) {
     _caps.maxTextureSize                 = limits.maxImageDimension2D;
     _caps.maxCubeMapTextureSize          = limits.maxImageDimensionCube;
     _caps.uboOffsetAlignment             = (uint)limits.minUniformBufferOffsetAlignment;
+    MapDepthStencilBits(_context->getDepthStencilFormat(), _caps.depthBits, _caps.stencilBits);
     // compute shaders
     _caps.maxComputeSharedMemorySize     = limits.maxComputeSharedMemorySize;
     _caps.maxComputeWorkGroupInvocations = limits.maxComputeWorkGroupInvocations;
     _caps.maxComputeWorkGroupCount       = {limits.maxComputeWorkGroupCount[0], limits.maxComputeWorkGroupCount[1], limits.maxComputeWorkGroupCount[2]};
     _caps.maxComputeWorkGroupSize        = {limits.maxComputeWorkGroupSize[0], limits.maxComputeWorkGroupSize[1], limits.maxComputeWorkGroupSize[2]};
-    MapDepthStencilBits(_context->getDepthStencilFormat(), _caps.depthBits, _caps.stencilBits);
+#if defined(VK_USE_PLATFORM_ANDROID_KHR)
+    _caps.maxComputeWorkGroupInvocations = 64; // Arm: UNASSIGNED-BestPractices-vkCreateComputePipelines-compute-work-group-size
+#endif                                         // defined(VK_USE_PLATFORM_ANDROID_KHR)
 
     ///////////////////// Resource Initialization /////////////////////
 
@@ -288,8 +295,12 @@ bool CCVKDevice::initialize(const DeviceInfo &info) {
     allocatorInfo.device         = _gpuDevice->vkDevice;
     allocatorInfo.instance       = gpuContext->vkInstance;
 
-    if (checkExtension(VK_KHR_DEDICATED_ALLOCATION_EXTENSION_NAME) &&
-        checkExtension(VK_KHR_GET_MEMORY_REQUIREMENTS_2_EXTENSION_NAME)) {
+    if (_gpuDevice->minorVersion > 0) {
+        allocatorInfo.flags |= VMA_ALLOCATOR_CREATE_KHR_DEDICATED_ALLOCATION_BIT;
+        vmaVulkanFunc.vkGetBufferMemoryRequirements2KHR = vkGetBufferMemoryRequirements2;
+        vmaVulkanFunc.vkGetImageMemoryRequirements2KHR  = vkGetImageMemoryRequirements2;
+    } else if (checkExtension(VK_KHR_DEDICATED_ALLOCATION_EXTENSION_NAME) &&
+               checkExtension(VK_KHR_GET_MEMORY_REQUIREMENTS_2_EXTENSION_NAME)) {
         allocatorInfo.flags |= VMA_ALLOCATOR_CREATE_KHR_DEDICATED_ALLOCATION_BIT;
         vmaVulkanFunc.vkGetBufferMemoryRequirements2KHR = vkGetBufferMemoryRequirements2KHR;
         vmaVulkanFunc.vkGetImageMemoryRequirements2KHR  = vkGetImageMemoryRequirements2KHR;
@@ -519,9 +530,9 @@ void CCVKDevice::acquire() {
     VK_CHECK(vkAcquireNextImageKHR(_gpuDevice->vkDevice, _gpuSwapchain->vkSwapchain, ~0ull,
                                    acquireSemaphore, VK_NULL_HANDLE, &_gpuSwapchain->curImageIndex));
 
-#if CC_PLATFORM != CC_PLATFORM_MAC_IOS && CC_PLATFORM != CC_PLATFORM_MAC_OSX
+#if defined(VK_USE_PLATFORM_METAL_EXT)
     assert(_gpuDevice->curBackBufferIndex == _gpuSwapchain->curImageIndex); // MoltenVK seems to be not consistent
-#endif // CC_PLATFORM != CC_PLATFORM_MAC_IOS && CC_PLATFORM != CC_PLATFORM_MAC_OSX
+#endif                                                                      // defined(VK_USE_PLATFORM_METAL_EXT)
 
     queue->gpuQueue()->nextWaitSemaphore   = acquireSemaphore;
     queue->gpuQueue()->nextSignalSemaphore = _gpuSemaphorePool->alloc();
