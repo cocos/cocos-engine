@@ -30,6 +30,11 @@ import { legacyCC } from '../../global-exports';
 import { Enum } from '../../value-types';
 import { ShadowsPool, NULL_HANDLE, ShadowsView, ShadowsHandle } from '../core/memory-pools';
 import { ShadowsInfo } from '../../scene-graph/scene-globals';
+import { API, Device } from '../../gfx';
+
+const multiPatches = [
+    { name: 'CC_USE_SKINNING', value: true },
+];
 
 /**
  * @zh 阴影类型。
@@ -352,7 +357,12 @@ export class Shadows {
             this._material = new Material();
             this._material.initialize({ effectName: 'planar-shadow' });
             ShadowsPool.set(this._handle, ShadowsView.PLANAR_PASS, this._material.passes[0].handle);
-            ShadowsPool.set(this._handle, ShadowsView.PLANAR_SHADER, this._material.passes[0].getShaderVariant(null));
+            const gfxDevice: Device = legacyCC.director.root.device;
+            if (gfxDevice.gfxAPI === API.VULKAN) {
+                ShadowsPool.set(this._handle, ShadowsView.PLANAR_SHADER, this._material.passes[0].getShaderVariant(null));
+            } else {
+                ShadowsPool.set(this._handle, ShadowsView.PLANAR_SHADER, this._material.passes[0].getShaderVariant(multiPatches));
+            }
         }
         if (!this._instancingMaterial) {
             this._instancingMaterial = new Material();
