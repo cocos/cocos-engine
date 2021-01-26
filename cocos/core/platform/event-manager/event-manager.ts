@@ -339,9 +339,9 @@ class EventManager {
 
         let isFound = false;
         const locListener = this._listenersMap;
-        // if(listener == this._currentTouchListener){
-        //     this._currentTouchListener = this._currentTouch = null;
-        // }
+        if(listener == this._currentTouchListener){
+            this._currentTouchListener = this._currentTouch = null;
+        }
         for (const selKey in locListener) {
             const listeners = locListener[selKey];
             const fixedPriorityListeners = listeners.getFixedPriorityListeners();
