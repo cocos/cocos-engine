@@ -385,8 +385,7 @@ export function applyPropertyOverrides (node: Node, propertyOverrides: PropertyO
                     if (targetPropName === 'length') {
                         targetPropOwner[targetPropName] = propOverride.value;
                     } else {
-                        let index = Number.parseInt(targetPropName);
-                    
+                        const index = Number.parseInt(targetPropName);
                         if (Number.isInteger(index) && index < targetPropOwner.length) {
                             targetPropOwner[targetPropName] = propOverride.value;
                         }
