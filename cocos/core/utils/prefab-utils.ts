@@ -366,7 +366,6 @@ export function applyPropertyOverrides (node: Node, propertyOverrides: PropertyO
             }
 
             let targetPropOwner: any = target;
-            let targetPropOwnerName = '';
             const propertyPath = propOverride.propertyPath.slice();
             if (propertyPath.length > 0) {
                 const targetPropName = propertyPath.pop();
@@ -376,8 +375,10 @@ export function applyPropertyOverrides (node: Node, propertyOverrides: PropertyO
 
                 for (let i = 0; i < propertyPath.length; i++) {
                     const propName = propertyPath[i];
-                    targetPropOwnerName = propName;
                     targetPropOwner = targetPropOwner[propName];
+                    if (!targetPropOwner) {
+                        break;
+                    }
                 }
 
                 if (!targetPropOwner) {
