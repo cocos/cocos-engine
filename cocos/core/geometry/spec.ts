@@ -31,7 +31,7 @@
 /**
  * @en
  * The raycast mode.
- * @zh 
+ * @zh
  * 射线检测模式。
  */
 export enum ERaycastMode {
@@ -166,5 +166,4 @@ export interface IRayMeshOptions extends IRaySubMeshOptions {
  * @zh
  * `rayModel`的可选参数结构。
  */
-export interface IRayModelOptions extends IRayMeshOptions {
-}
+export type IRayModelOptions = IRayMeshOptions

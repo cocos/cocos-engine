@@ -23,7 +23,6 @@
  THE SOFTWARE.
  */
 
-
 /**
  * @packageDocumentation
  * @module particle
@@ -190,5 +189,5 @@ export const ModuleRandSeed = {
     ROTATION: 125292,
     VELOCITY_X: 197866,
     VELOCITY_Y: 156497,
-    VELOCITY_Z: 984136
-}
+    VELOCITY_Z: 984136,
+};

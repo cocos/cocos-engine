@@ -29,7 +29,7 @@
  */
 
 import { UIComponent } from '../../2d/framework/ui-component';
-import { UIRenderable } from '../../2d/framework/ui-renderable';
+import { Renderable2D } from '../../2d/framework/renderable-2d';
 import { UITransform } from '../../2d/framework/ui-transform';
 import { warnID } from '../platform/debug';
 
@@ -60,7 +60,7 @@ export class NodeUIProperties {
     get uiComp () {
         return this._uiComp;
     }
-    set uiComp (comp: UIComponent | UIRenderable | null) {
+    set uiComp (comp: UIComponent | Renderable2D | null) {
         if (this._uiComp && comp) {
             warnID(12002);
             return;
@@ -68,7 +68,7 @@ export class NodeUIProperties {
         this._uiComp = comp;
     }
 
-    private _uiComp: UIComponent | UIRenderable | null = null;
+    private _uiComp: UIComponent | Renderable2D | null = null;
 
     /**
      * @en The opacity of the UI node

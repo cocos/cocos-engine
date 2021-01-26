@@ -28,12 +28,12 @@
  * @module decorator
  */
 
+import { DEV, EDITOR, TEST } from 'internal:constants';
 import { CCString, CCInteger, CCFloat, CCBoolean } from '../utils/attribute';
 import { IExposedAttributes } from '../utils/attribute-defines';
 import { LegacyPropertyDecorator, getSubDict, getClassCache } from './utils';
 import { warnID, errorID } from '../../platform/debug';
 import { js } from '../../utils/js';
-import { DEV, EDITOR, TEST } from 'internal:constants';
 import { getFullFormOfProperty } from '../utils/preprocess-class';
 
 export type SimplePropertyType = Function | string | typeof CCString | typeof CCInteger | typeof CCFloat | typeof CCBoolean;
@@ -44,8 +44,7 @@ export type PropertyType = SimplePropertyType | SimplePropertyType[];
  * @zh CCClass 属性选项。
  * @en CCClass property options
  */
-export interface IPropertyOptions extends IExposedAttributes {
-}
+export type IPropertyOptions = IExposedAttributes
 
 /**
  * @en Declare as a CCClass property with options
@@ -108,16 +107,14 @@ function getDefaultFromInitializer (initializer) {
     let value;
     try {
         value = initializer();
-    }
-    catch (e) {
+    } catch (e) {
         // just lazy initialize by CCClass
         return initializer;
     }
     if (typeof value !== 'object' || value === null) {
         // string boolean number function undefined null
         return value;
-    }
-    else {
+    } else {
         // The default attribute will not be used in ES6 constructor actually,
         // so we don't need to simplify into `{}` or `[]` or vec2 completely.
         return initializer;
@@ -128,8 +125,7 @@ function extractActualDefaultValues (ctor) {
     let dummyObj;
     try {
         dummyObj = new ctor();
-    }
-    catch (e) {
+    } catch (e) {
         if (DEV) {
             warnID(3652, js.getClassName(ctor), e);
         }
@@ -147,7 +143,7 @@ function genProperty (
     cache,
 ) {
     let fullOptions;
-    let isGetset = descriptor && (descriptor.get || descriptor.set);
+    const isGetset = descriptor && (descriptor.get || descriptor.set);
     if (options) {
         fullOptions = getFullFormOfProperty(options, isGetset);
     }

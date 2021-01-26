@@ -23,7 +23,7 @@
  THE SOFTWARE.
  */
 
-import { ALIPAY, RUNTIME_BASED, BYTEDANCE, WECHAT, VIVO } from 'internal:constants';
+import { ALIPAY, RUNTIME_BASED, BYTEDANCE, WECHAT, LINKSURE, QTT, COCOSPLAY, HUAWEI } from 'internal:constants';
 import { macro, warnID, warn } from '../../platform';
 import { sys } from '../../platform/sys';
 import { DescriptorSet, DescriptorSetInfo } from '../descriptor-set';
@@ -67,7 +67,6 @@ import { GFXFormatToWebGLFormat, GFXFormatToWebGLType, WebGLCmdFuncCopyBuffersTo
 const eventWebGLContextLost = 'webglcontextlost';
 
 export class WebGLDevice extends Device {
-
     get gl () {
         return this._webGLRC as WebGLRenderingContext;
     }
@@ -198,11 +197,11 @@ export class WebGLDevice extends Device {
     public nullTexCube: WebGLTexture | null = null;
 
     private _webGLRC: WebGLRenderingContext | null = null;
-    private _isAntialias: boolean = true;
-    private _isPremultipliedAlpha: boolean = true;
-    private _useVAO: boolean = false;
-    private _destroyShadersImmediately: boolean = true;
-    private _noCompressedTexSubImage2D: boolean = false;
+    private _isAntialias = true;
+    private _isPremultipliedAlpha = true;
+    private _useVAO = false;
+    private _destroyShadersImmediately = true;
+    private _noCompressedTexSubImage2D = false;
     private _bindingMappingInfo: BindingMappingInfo = new BindingMappingInfo();
     private _webGLContextLostHandler: null | ((event: Event) => void) = null;
 
@@ -235,7 +234,6 @@ export class WebGLDevice extends Device {
     private _ANGLE_instanced_arrays: ANGLE_instanced_arrays | null = null;
 
     public initialize (info: DeviceInfo): boolean {
-
         this._canvas = info.canvasElm as HTMLCanvasElement;
         this._isAntialias = info.isAntialias;
         this._isPremultipliedAlpha = info.isPremultipliedAlpha;
@@ -322,22 +320,20 @@ export class WebGLDevice extends Device {
             } else {
                 this._depthStencilFmt = Format.D24;
             }
+        } else if (this._stencilBits === 8) {
+            this._depthStencilFmt = Format.D16S8;
         } else {
-            if (this._stencilBits === 8) {
-                this._depthStencilFmt = Format.D16S8;
-            } else {
-                this._depthStencilFmt = Format.D16;
-            }
+            this._depthStencilFmt = Format.D16;
         }
 
         this._extensions = gl.getSupportedExtensions();
         let extensions = '';
         if (this._extensions) {
             for (const ext of this._extensions) {
-                extensions += ext + ' ';
+                extensions += `${ext} `;
             }
 
-            console.debug('EXTENSIONS: ' + extensions);
+            console.debug(`EXTENSIONS: ${extensions}`);
         }
 
         this._EXT_texture_filter_anisotropic = this.getExtension('EXT_texture_filter_anisotropic');
@@ -382,18 +378,16 @@ export class WebGLDevice extends Device {
                 this._WEBGL_depth_texture = null;
             }
 
-            // earlier runtime VAO implementations doesn't work
-            if (RUNTIME_BASED && !VIVO) {
-                // @ts-expect-error
-                if (typeof loadRuntime !== 'function' || !loadRuntime() || typeof loadRuntime().getFeature !== 'function' || loadRuntime()
-                    .getFeature('webgl.extensions.oes_vertex_array_object.revision') <= 0) {
+            if (RUNTIME_BASED) {
+                // VAO implementations doesn't work well on some runtime platforms
+                if (LINKSURE || QTT || COCOSPLAY || HUAWEI) {
                     this._OES_vertex_array_object = null;
                 }
             }
 
             // some earlier version of iOS and android wechat implement gl.detachShader incorrectly
-            if ((sys.os === sys.OS_IOS && sys.osMainVersion <= 10) ||
-                (WECHAT && sys.os === sys.OS_ANDROID)) {
+            if ((sys.os === sys.OS_IOS && sys.osMainVersion <= 10)
+                || (WECHAT && sys.os === sys.OS_ANDROID)) {
                 this._destroyShadersImmediately = false;
             }
 
@@ -453,7 +447,7 @@ export class WebGLDevice extends Device {
             this._features[Feature.MULTIPLE_RENDER_TARGETS] = true;
         }
 
-        let compressedFormat: string = '';
+        let compressedFormat = '';
 
         if (this._WEBGL_compressed_texture_etc1) {
             this._features[Feature.FORMAT_ETC1] = true;
@@ -484,26 +478,26 @@ export class WebGLDevice extends Device {
             this._useVAO = true;
         }
 
-        console.info('RENDERER: ' + this._renderer);
-        console.info('VENDOR: ' + this._vendor);
-        console.info('VERSION: ' + this._version);
-        console.info('DPR: ' + this._devicePixelRatio);
-        console.info('SCREEN_SIZE: ' + this._width + ' x ' + this._height);
-        console.info('NATIVE_SIZE: ' + this._nativeWidth + ' x ' + this._nativeHeight);
+        console.info(`RENDERER: ${this._renderer}`);
+        console.info(`VENDOR: ${this._vendor}`);
+        console.info(`VERSION: ${this._version}`);
+        console.info(`DPR: ${this._devicePixelRatio}`);
+        console.info(`SCREEN_SIZE: ${this._width} x ${this._height}`);
+        console.info(`NATIVE_SIZE: ${this._nativeWidth} x ${this._nativeHeight}`);
         // console.info('COLOR_FORMAT: ' + FormatInfos[this._colorFmt].name);
         // console.info('DEPTH_STENCIL_FORMAT: ' + FormatInfos[this._depthStencilFmt].name);
         // console.info('MAX_VERTEX_ATTRIBS: ' + this._maxVertexAttributes);
-        console.info('MAX_VERTEX_UNIFORM_VECTORS: ' + this._maxVertexUniformVectors);
+        console.info(`MAX_VERTEX_UNIFORM_VECTORS: ${this._maxVertexUniformVectors}`);
         // console.info('MAX_FRAGMENT_UNIFORM_VECTORS: ' + this._maxFragmentUniformVectors);
         // console.info('MAX_TEXTURE_IMAGE_UNITS: ' + this._maxTextureUnits);
         // console.info('MAX_VERTEX_TEXTURE_IMAGE_UNITS: ' + this._maxVertexTextureUnits);
-        console.info('DEPTH_BITS: ' + this._depthBits);
-        console.info('STENCIL_BITS: ' + this._stencilBits);
+        console.info(`DEPTH_BITS: ${this._depthBits}`);
+        console.info(`STENCIL_BITS: ${this._stencilBits}`);
         if (this._EXT_texture_filter_anisotropic) {
-            console.info('MAX_TEXTURE_MAX_ANISOTROPY_EXT: ' + this._EXT_texture_filter_anisotropic.MAX_TEXTURE_MAX_ANISOTROPY_EXT);
+            console.info(`MAX_TEXTURE_MAX_ANISOTROPY_EXT: ${this._EXT_texture_filter_anisotropic.MAX_TEXTURE_MAX_ANISOTROPY_EXT}`);
         }
-        console.info('USE_VAO: ' + this._useVAO);
-        console.info('COMPRESSED_FORMAT: ' + compressedFormat);
+        console.info(`USE_VAO: ${this._useVAO}`);
+        console.info(`COMPRESSED_FORMAT: ${compressedFormat}`);
 
         // init states
         this.initStates(gl);
@@ -543,7 +537,8 @@ export class WebGLDevice extends Device {
         nullTexRegion.texSubres.layerCount = 6;
         this.copyBuffersToTexture(
             [nullTexBuff, nullTexBuff, nullTexBuff, nullTexBuff, nullTexBuff, nullTexBuff],
-            this.nullTexCube, [nullTexRegion]);
+            this.nullTexCube, [nullTexRegion],
+        );
 
         return true;
     }
@@ -581,7 +576,7 @@ export class WebGLDevice extends Device {
 
     public resize (width: number, height: number) {
         if (this._width !== width || this._height !== height) {
-            console.info('Resizing device: ' + width + 'x' + height);
+            console.info(`Resizing device: ${width}x${height}`);
             this._canvas!.width = width;
             this._canvas!.height = height;
             this._width = width;
@@ -718,26 +713,28 @@ export class WebGLDevice extends Device {
             this,
             buffers,
             (texture as WebGLTexture).gpuTexture,
-            regions);
+            regions,
+        );
     }
 
     public copyTexImagesToTexture (
         texImages: TexImageSource[],
         texture: Texture,
-        regions: BufferTextureCopy[]) {
-
+        regions: BufferTextureCopy[],
+    ) {
         WebGLCmdFuncCopyTexImagesToTexture(
             this,
             texImages,
             (texture as WebGLTexture).gpuTexture,
-            regions);
+            regions,
+        );
     }
 
     public copyFramebufferToBuffer (
         srcFramebuffer: Framebuffer,
         dstBuffer: ArrayBuffer,
-        regions: BufferTextureCopy[]) {
-
+        regions: BufferTextureCopy[],
+    ) {
         const gl = this._webGLRC as WebGLRenderingContext;
         const gpuFramebuffer = (srcFramebuffer as WebGLFramebuffer).gpuFramebuffer;
         const format = gpuFramebuffer.gpuColorTextures[0].format;
@@ -755,7 +752,6 @@ export class WebGLDevice extends Device {
         const view = new ctor(dstBuffer);
 
         for (const region of regions) {
-
             const w = region.texExtent.width;
             const h = region.texExtent.height;
 
@@ -783,7 +779,6 @@ export class WebGLDevice extends Device {
     }
 
     private initStates (gl: WebGLRenderingContext) {
-
         gl.activeTexture(gl.TEXTURE0);
         gl.pixelStorei(gl.PACK_ALIGNMENT, 1);
         gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);

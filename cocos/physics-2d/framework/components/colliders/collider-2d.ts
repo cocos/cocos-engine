@@ -1,6 +1,6 @@
-
 import { EDITOR } from 'internal:constants';
 
+import { editable } from 'cc.decorator';
 import { ccclass, property, type } from '../../../../core/data/class-decorator';
 import { Component, Vec2, Rect } from '../../../../core';
 import { PhysicsGroup } from '../../../../physics/framework/physics-enum';
@@ -10,7 +10,6 @@ import { RigidBody2D } from '../rigid-body-2d';
 import { createShape } from '../../instance';
 import { ECollider2DType } from '../../physics-types';
 import { IBaseShape } from '../../../spec/i-physics-shape';
-import { editable } from 'cc.decorator';
 
 @ccclass('cc.Collider2D')
 export class Collider2D extends Eventify(Component) {
@@ -53,9 +52,9 @@ export class Collider2D extends Eventify(Component) {
     }
 
     /**
-     * @en 
+     * @en
      * A sensor collider collects contact information but never generates a collision response
-     * @zh 
+     * @zh
      * 一个传感器类型的碰撞体会产生碰撞回调，但是不会发生物理碰撞效果。
      */
     @property
@@ -105,7 +104,6 @@ export class Collider2D extends Eventify(Component) {
         this._offset = v;
     }
 
-    
     /**
      * @en
      * Physics collider will find the rigidbody component on the node and set to this property.
@@ -121,7 +119,6 @@ export class Collider2D extends Eventify(Component) {
     }
 
     readonly TYPE: ECollider2DType = ECollider2DType.None;
-
 
     /// COMPONENT LIFECYCLE ///
 
@@ -179,7 +176,7 @@ export class Collider2D extends Eventify(Component) {
             return this._shape.worldAABB;
         }
 
-        return new Rect;
+        return new Rect();
     }
 
     // protected properties
@@ -198,5 +195,5 @@ export class Collider2D extends Eventify(Component) {
     @property
     protected _restitution = 0;
     @property
-    protected _offset = new Vec2;
+    protected _offset = new Vec2();
 }

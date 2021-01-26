@@ -44,20 +44,20 @@ import { WebGLRenderPass } from './webgl-render-pass';
 const _dynamicOffsets: number[] = [];
 
 export class WebGLPrimaryCommandBuffer extends WebGLCommandBuffer {
-
     public beginRenderPass (
         renderPass: RenderPass,
         framebuffer: Framebuffer,
         renderArea: Rect,
         clearColors: Color[],
         clearDepth: number,
-        clearStencil: number) {
-
+        clearStencil: number,
+    ) {
         WebGLCmdFuncBeginRenderPass(
             this._device as WebGLDevice,
             (renderPass as WebGLRenderPass).gpuRenderPass,
             (framebuffer as WebGLFramebuffer).gpuFramebuffer,
-            renderArea, clearColors, clearDepth, clearStencil);
+            renderArea, clearColors, clearDepth, clearStencil,
+        );
         this._isInRenderPass = true;
     }
 
@@ -75,15 +75,16 @@ export class WebGLPrimaryCommandBuffer extends WebGLCommandBuffer {
             if (this._curGPUPipelineState) {
                 const glPrimitive = this._curGPUPipelineState.glPrimitive;
                 switch (glPrimitive) {
-                    case 0x0004: { // WebGLRenderingContext.TRIANGLES
-                        this._numTris += indexCount / 3 * Math.max(inputAssembler.instanceCount, 1);
-                        break;
-                    }
-                    case 0x0005: // WebGLRenderingContext.TRIANGLE_STRIP
-                    case 0x0006: { // WebGLRenderingContext.TRIANGLE_FAN
-                        this._numTris += (indexCount - 2) * Math.max(inputAssembler.instanceCount, 1);
-                        break;
-                    }
+                case 0x0004: { // WebGLRenderingContext.TRIANGLES
+                    this._numTris += indexCount / 3 * Math.max(inputAssembler.instanceCount, 1);
+                    break;
+                }
+                case 0x0005: // WebGLRenderingContext.TRIANGLE_STRIP
+                case 0x0006: { // WebGLRenderingContext.TRIANGLE_FAN
+                    this._numTris += (indexCount - 2) * Math.max(inputAssembler.instanceCount, 1);
+                    break;
+                }
+                default:
                 }
             }
         } else {
@@ -91,12 +92,10 @@ export class WebGLPrimaryCommandBuffer extends WebGLCommandBuffer {
         }
     }
 
-    public updateBuffer (buffer: Buffer, data: BufferSource, offset?: number, size?: number) {
+    public updateBuffer (buffer: Buffer, data: BufferSource, size?: number) {
         if (!this._isInRenderPass) {
             const gpuBuffer = (buffer as WebGLBuffer).gpuBuffer;
             if (gpuBuffer) {
-                if (offset === undefined) { offset = 0; }
-
                 let buffSize: number;
                 if (size !== undefined) {
                     buffSize = size;
@@ -106,7 +105,7 @@ export class WebGLPrimaryCommandBuffer extends WebGLCommandBuffer {
                     buffSize = (data as ArrayBuffer).byteLength;
                 }
 
-                WebGLCmdFuncUpdateBuffer(this._device as WebGLDevice, gpuBuffer, data as ArrayBuffer, offset, buffSize);
+                WebGLCmdFuncUpdateBuffer(this._device as WebGLDevice, gpuBuffer, data as ArrayBuffer, 0, buffSize);
             }
         } else {
             console.error('Command \'updateBuffer\' must be recorded outside a render pass.');

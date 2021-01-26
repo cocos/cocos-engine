@@ -29,13 +29,13 @@
  */
 
 import { ccclass, help, executionOrder, menu, executeInEditMode, requireComponent } from 'cc.decorator';
+import { EDITOR } from 'internal:constants';
 import { Component } from '../core/components';
 import { UITransform } from '../2d/framework';
 import { view, sys } from '../core/platform';
 import { Widget } from './widget';
 import { widgetManager } from './widget-manager';
-import { legacyCC } from "../core/global-exports";
-import { EDITOR } from 'internal:constants';
+import { legacyCC } from '../core/global-exports';
 
 /**
  * @en
@@ -62,7 +62,6 @@ import { EDITOR } from 'internal:constants';
 @menu('UI/SafeArea')
 @requireComponent(Widget)
 export class SafeArea extends Component {
-
     public onEnable () {
         this.updateArea();
         view.on('canvas-resize', this.updateArea, this);

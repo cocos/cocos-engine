@@ -29,7 +29,7 @@
  */
 
 import { IRenderData, RenderData } from '../../renderer/render-data';
-import { UI } from '../../renderer/ui';
+import { Batcher2D } from '../../renderer/batcher-2d';
 import { Mask, MaskType } from '../../components/mask';
 import { IAssembler, IAssemblerManager } from '../../renderer/base';
 import { StencilManager } from '../../renderer/stencil-manager';
@@ -37,13 +37,13 @@ import { simple } from '../sprite';
 
 const _stencilManager = StencilManager.sharedManager!;
 
-function applyClearMask (mask: Mask, renderer: UI) {
-    _stencilManager.clear();
+function applyClearMask (mask: Mask, renderer: Batcher2D) {
+    _stencilManager.clear(mask);
     renderer.commitModel(mask, mask._clearModel, mask._clearStencilMtl);
 }
 
-function applyAreaMask (mask: Mask, renderer: UI) {
-    _stencilManager.enterLevel();
+function applyAreaMask (mask: Mask, renderer: Batcher2D) {
+    _stencilManager.enterLevel(mask);
     if (mask.type === MaskType.IMAGE_STENCIL) {
         simple.fillBuffers(mask, renderer);
         const mat = mask.graphics!.getMaterialInstance(0)!;
@@ -56,22 +56,22 @@ function applyAreaMask (mask: Mask, renderer: UI) {
 export const maskAssembler: IAssembler = {
     createData (mask: Mask) {
         const renderData = mask.requestRenderData();
-        renderData!.dataLength = 4;
-        renderData!.vertexCount = 4;
-        renderData!.indicesCount = 6;
+        renderData.dataLength = 4;
+        renderData.vertexCount = 4;
+        renderData.indicesCount = 6;
 
         renderData.vData = new Float32Array(4 * 9);
-        return renderData as RenderData;
+        return renderData;
     },
 
-    updateRenderData (mask: Mask){
-        if (mask.type === MaskType.IMAGE_STENCIL){
+    updateRenderData (mask: Mask) {
+        if (mask.type === MaskType.IMAGE_STENCIL) {
             simple.updateRenderData(mask);
             simple.updateColor(mask);
         }
     },
 
-    fillBuffers (mask: Mask, renderer: UI) {
+    fillBuffers (mask: Mask, renderer: Batcher2D) {
         if (mask.type !== MaskType.IMAGE_STENCIL || mask.spriteFrame) {
             _stencilManager.pushMask(mask);
 
@@ -85,7 +85,7 @@ export const maskAssembler: IAssembler = {
 };
 
 export const maskEndAssembler: IAssembler = {
-    fillBuffers (mask: Mask, ui: UI) {
+    fillBuffers (mask: Mask, ui: Batcher2D) {
         _stencilManager.exitMask();
     },
 };

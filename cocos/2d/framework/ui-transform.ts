@@ -32,12 +32,12 @@ import { ccclass, help, executeInEditMode, executionOrder, menu, tooltip, displa
 import { EDITOR } from 'internal:constants';
 import { Component } from '../../core/components';
 import { SystemEventType } from '../../core/platform/event-manager/event-enum';
-import { EventListener, IListenerMask } from '../../core/platform/event-manager/event-listener';
+import { EventListener } from '../../core/platform/event-manager/event-listener';
 import { Mat4, Rect, Size, Vec2, Vec3 } from '../../core/math';
 import { AABB } from '../../core/geometry';
-import { Canvas } from './canvas';
 import { Node } from '../../core/scene-graph';
 import { legacyCC } from '../../core/global-exports';
+import { director } from '../../core/director';
 import { warnID } from '../../core/platform/debug';
 
 const _vec2a = new Vec2();
@@ -87,7 +87,7 @@ export class UITransform extends Component {
 
         this._contentSize.set(value);
         if (EDITOR) {
-            // @ts-expect-error
+            // @ts-expect-error EDITOR condition
             this.node.emit(SystemEventType.SIZE_CHANGED, clone);
         } else {
             this.node.emit(SystemEventType.SIZE_CHANGED);
@@ -110,7 +110,7 @@ export class UITransform extends Component {
 
         this._contentSize.width = value;
         if (EDITOR) {
-            // @ts-expect-error
+            // @ts-expect-error EDITOR condition
             this.node.emit(SystemEventType.SIZE_CHANGED, clone);
         } else {
             this.node.emit(SystemEventType.SIZE_CHANGED);
@@ -133,7 +133,7 @@ export class UITransform extends Component {
 
         this._contentSize.height = value;
         if (EDITOR) {
-            // @ts-expect-error
+            // @ts-expect-error EDITOR condition
             this.node.emit(SystemEventType.SIZE_CHANGED, clone);
         } else {
             this.node.emit(SystemEventType.SIZE_CHANGED);
@@ -207,7 +207,7 @@ export class UITransform extends Component {
             return;
         }
 
-        if (this._canvas && this._canvas.node === this.node) {
+        if (this.node.getComponent('cc.RenderRoot2D')) {
             warnID(6706);
             return;
         }
@@ -221,20 +221,25 @@ export class UITransform extends Component {
     protected _priority = 0;
 
     /**
-     * @zh
-     * 查找被渲染相机。
+     * @en Get the visibility bit-mask of the rendering camera
+     * @zh 查找被渲染相机的可见性掩码。
+     * @deprecated since v3.0
      */
     get visibility () {
-        if (!this._canvas) {
-            return -1;
-        }
+        const camera = director.root!.batcher2D.getFirstRenderCamera(this.node);
+        return camera ? camera.visibility : 0;
+    }
 
-        return this._canvas.visibility;
+    /**
+     * @en Get the priority of the rendering camera
+     * @zh 查找被渲染相机的渲染优先级。
+     */
+    get cameraPriority () {
+        const camera = director.root!.batcher2D.getFirstRenderCamera(this.node);
+        return camera ? camera.priority : 0;
     }
 
     public static EventType = SystemEventType;
-
-    public _canvas: Canvas | null = null;
 
     @serializable
     protected _contentSize = new Size(100, 100);
@@ -246,8 +251,6 @@ export class UITransform extends Component {
     }
 
     public onEnable () {
-        this._updateVisibility();
-
         this.node.on(SystemEventType.PARENT_CHANGED, this._parentChanged, this);
 
         const changed = this._checkAndSortSiblings();
@@ -258,7 +261,6 @@ export class UITransform extends Component {
 
     public onDisable () {
         this.node.off(SystemEventType.PARENT_CHANGED, this._parentChanged, this);
-        this._canvas = null;
     }
 
     public onDestroy () {
@@ -312,7 +314,7 @@ export class UITransform extends Component {
         }
 
         if (EDITOR) {
-            // @ts-expect-error
+            // @ts-expect-error EDITOR condition
             this.node.emit(SystemEventType.SIZE_CHANGED, clone);
         } else {
             this.node.emit(SystemEventType.SIZE_CHANGED);
@@ -382,45 +384,64 @@ export class UITransform extends Component {
         const cameraPt = _vec2a;
         const testPt = _vec2b;
 
-        const canvas = this._canvas;
-        if (!canvas) {
-            return;
-        }
+        const cameras = this._getRenderScene().cameras;
+        for (let i = 0; i < cameras.length; i++) {
+            const camera = cameras[i];
+            if (!(camera.visibility & this.node.layer)) continue;
 
-        // 将一个摄像机坐标系下的点转换到世界坐标系下
-        canvas.node.getWorldRT(_mat4_temp);
-        const m12 = _mat4_temp.m12;
-        const m13 = _mat4_temp.m13;
-        const center = legacyCC.visibleRect.center;
-        _mat4_temp.m12 = center.x - (_mat4_temp.m00 * m12 + _mat4_temp.m04 * m13);
-        _mat4_temp.m13 = center.y - (_mat4_temp.m01 * m12 + _mat4_temp.m05 * m13);
-        Mat4.invert(_mat4_temp, _mat4_temp);
-        Vec2.transformMat4(cameraPt, point, _mat4_temp);
+            // 将一个摄像机坐标系下的点转换到世界坐标系下
+            camera.node.getWorldRT(_mat4_temp);
+            const m12 = _mat4_temp.m12;
+            const m13 = _mat4_temp.m13;
+            const center = legacyCC.visibleRect.center;
+            _mat4_temp.m12 = center.x - (_mat4_temp.m00 * m12 + _mat4_temp.m04 * m13);
+            _mat4_temp.m13 = center.y - (_mat4_temp.m01 * m12 + _mat4_temp.m05 * m13);
+            Mat4.invert(_mat4_temp, _mat4_temp);
+            Vec2.transformMat4(cameraPt, point, _mat4_temp);
 
-        this.node.getWorldMatrix(_worldMatrix);
-        Mat4.invert(_mat4_temp, _worldMatrix);
-        if (Mat4.strictEquals(_mat4_temp, _zeroMatrix)) {
-            return false;
-        }
-        Vec2.transformMat4(testPt, cameraPt, _mat4_temp);
-        testPt.x += this._anchorPoint.x * w;
-        testPt.y += this._anchorPoint.y * h;
+            this.node.getWorldMatrix(_worldMatrix);
+            Mat4.invert(_mat4_temp, _worldMatrix);
+            if (Mat4.strictEquals(_mat4_temp, _zeroMatrix)) {
+                continue;
+            }
+            Vec2.transformMat4(testPt, cameraPt, _mat4_temp);
+            testPt.x += this._anchorPoint.x * w;
+            testPt.y += this._anchorPoint.y * h;
+            let hit = false;
+            if (testPt.x >= 0 && testPt.y >= 0 && testPt.x <= w && testPt.y <= h) {
+                hit = true;
+                if (listener && listener.mask) {
+                    const mask = listener.mask;
+                    let parent: any = this.node;
+                    const length = mask ? mask.length : 0;
+                    // find mask parent, should hit test it
+                    for (let i = 0, j = 0; parent && j < length; ++i, parent = parent.parent) {
+                        const temp = mask[j];
+                        if (i === temp.index) {
+                            if (parent === temp.comp.node) {
+                                const comp = temp.comp;
+                                if (comp && comp._enabled && !(comp as any).isHit(cameraPt)) {
+                                    hit = false;
+                                    break;
+                                }
 
-        if (testPt.x >= 0 && testPt.y >= 0 && testPt.x <= w && testPt.y <= h) {
-            if (listener && listener.mask) {
-                const mask = listener.mask;
-                let parent: any = this.node;
-                // find mask parent, should hit test it
-                for (let i = 0; parent && i < mask.index; ++i, parent = parent.parent) {
+                                j++;
+                            } else {
+                                // mask parent no longer exists
+                                mask.length = j;
+                                break;
+                            }
+                        } else if (i > temp.index) {
+                            // mask parent no longer exists
+                            mask.length = j;
+                            break;
+                        }
+                    }
                 }
-                if (parent === mask.node) {
-                    const comp = parent.getComponent(legacyCC.Mask);
-                    return (comp && comp.enabledInHierarchy) ? comp.isHit(cameraPt) : true;
-                }
-                listener.mask = null;
+            }
+            if (hit) {
                 return true;
             }
-            return true;
         }
         return false;
     }
@@ -596,30 +617,14 @@ export class UITransform extends Component {
         const l = 0.001;
         if (out != null) {
             AABB.set(out, px, py, pz, w, h, l);
+            return out;
         } else {
             return new AABB(px, py, pz, w, h, l);
         }
     }
 
-    public _updateVisibility () {
-        let parent = this.node;
-        // 获取被渲染相机的 visibility
-        while (parent) {
-            if (parent) {
-                const canvasComp = parent.getComponent('cc.Canvas') as Canvas;
-                if (canvasComp) {
-                    this._canvas = canvasComp;
-                    break;
-                }
-            }
-
-            // @ts-expect-error
-            parent = parent.parent;
-        }
-    }
-
     protected _parentChanged (node: Node) {
-        if (this._canvas && this._canvas.node === this.node) {
+        if (this.node.getComponent('cc.RenderRoot2D')) {
             return;
         }
 
@@ -635,11 +640,9 @@ export class UITransform extends Component {
                 const bComp = b._uiProps.uiTransformComp;
                 const ca = aComp ? aComp.priority : 0;
                 const cb = bComp ? bComp.priority : 0;
-                const diff = ca - cb;
+                let diff = ca - cb;
                 if (diff === 0) {
-                    const value = a.getSiblingIndex() - b.getSiblingIndex();
-                    changed = value > 0;
-                    return value;
+                    diff = a.getSiblingIndex() - b.getSiblingIndex();
                 }
 
                 changed = diff > 0;

@@ -36,7 +36,6 @@ import { Node } from '../core/scene-graph';
 import { ParticleSystem } from './particle-system';
 
 export class ParticleUtils {
-
     /**
      * instantiate
      */
@@ -46,9 +45,7 @@ export class ParticleUtils {
             this.registeredSceneEvent = true;
         }
         if (!this.particleSystemPool.has(prefab._uuid)) {
-            this.particleSystemPool.set(prefab._uuid, new Pool<CCObject>(() => {
-                return instantiate(prefab) || new Node();
-            }, 1));
+            this.particleSystemPool.set(prefab._uuid, new Pool<CCObject>(() => instantiate(prefab) || new Node(), 1));
         }
         return this.particleSystemPool.get(prefab._uuid)!.alloc();
     }
@@ -62,17 +59,17 @@ export class ParticleUtils {
 
     public static play (rootNode: Node) {
         for (const ps of rootNode.getComponentsInChildren(ParticleSystem)) {
-            (ps as ParticleSystem).play();
+            (ps).play();
         }
     }
 
     public static stop (rootNode: Node) {
         for (const ps of rootNode.getComponentsInChildren(ParticleSystem)) {
-            (ps as ParticleSystem).stop();
+            (ps).stop();
         }
     }
     private static particleSystemPool: Map<string, Pool<CCObject>> = new Map<string, Pool<CCObject>>();
-    private static registeredSceneEvent: boolean = false;
+    private static registeredSceneEvent = false;
 
     private static onSceneUnload () {
         this.particleSystemPool.forEach((value) => {

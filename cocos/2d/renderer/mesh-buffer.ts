@@ -29,9 +29,9 @@
  */
 import { BufferUsageBit, MemoryUsageBit } from '../../core/gfx/define';
 import { InputAssemblerInfo, Attribute, Buffer, BufferInfo } from '../../core/gfx';
-import { UI } from './ui';
+import { Batcher2D } from './batcher-2d';
 import { InputAssemblerHandle, NULL_HANDLE, IAPool } from '../../core/renderer/core/memory-pools';
-import { getAttributeFormatBytes } from './ui-vertex-format';
+import { getComponentPerVertex } from './vertex-format';
 
 export class MeshBuffer {
     public static OPACITY_OFFSET = 8;
@@ -59,7 +59,7 @@ export class MeshBuffer {
     // NOTE:
     // actually 256 * 4 * (vertexFormat._bytes / 4)
     // include pos, uv, color in ui attributes
-    private _batcher: UI;
+    private _batcher: Batcher2D;
     private _dirty = false;
     private _vertexFormatBytes = 0;
     private _initVDataCount = 0;
@@ -68,7 +68,7 @@ export class MeshBuffer {
     private _hInputAssemblers: InputAssemblerHandle[] = [];
     private _nextFreeIAHandle = 0;
 
-    constructor (batcher: UI) {
+    constructor (batcher: Batcher2D) {
         this._batcher = batcher;
     }
 
@@ -78,7 +78,7 @@ export class MeshBuffer {
 
     public initialize (attrs: Attribute[], outOfCallback: ((...args: number[]) => void) | null) {
         this._outOfCallback = outOfCallback;
-        const formatBytes = getAttributeFormatBytes(attrs);
+        const formatBytes = getComponentPerVertex(attrs);
         this._vertexFormatBytes = formatBytes * Float32Array.BYTES_PER_ELEMENT;
         this._initVDataCount = 256 * this._vertexFormatBytes;
         const vbStride = Float32Array.BYTES_PER_ELEMENT * formatBytes;
@@ -115,8 +115,6 @@ export class MeshBuffer {
         const indicesOffset = this.indicesOffset + indicesCount;
 
         if (vertexCount + this.vertexOffset > 65535) {
-            // merge last state
-            this._batcher.autoMergeBatches();
             if (this._outOfCallback) {
                 this._outOfCallback.call(this._batcher, vertexCount, indicesCount);
             }
@@ -176,7 +174,7 @@ export class MeshBuffer {
     public recordBatch (): InputAssemblerHandle {
         const vCount = this.indicesOffset - this.indicesStart;
         if (!vCount) {
-            return NULL_HANDLE;
+            return NULL_HANDLE as InputAssemblerHandle;
         }
 
         if (this._hInputAssemblers.length <= this._nextFreeIAHandle) {
@@ -209,6 +207,7 @@ export class MeshBuffer {
             this.indexBuffer.resize(this.indicesOffset * 2);
         }
         this.indexBuffer.update(indicesData);
+        this._dirty = false;
     }
 
     private _reallocBuffer () {

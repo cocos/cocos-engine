@@ -27,33 +27,10 @@
 import { IAssembler, IAssemblerManager } from '../2d/renderer/base';
 import { MotionStreak } from './motion-streak-2d';
 import { Vec2, Color } from '../core/math';
-import { RenderData } from '../2d/renderer/render-data';
-import { UI } from '../2d/renderer/ui';
-
-class Point {
-    public point = new Vec2();
-    public dir = new Vec2();
-    public distance = 0;
-    public time = 0;
-
-    constructor (point?: Vec2, dir?: Vec2) {
-        if (point) this.point.set(point);
-        if (dir) this.dir.set(dir);
-    }
-
-    public setPoint (x, y) {
-        this.point.x = x;
-        this.point.y = y;
-    }
-
-    public setDir (x, y) {
-        this.dir.x = x;
-        this.dir.y = y;
-    }
-}
+import { Batcher2D } from '../2d/renderer/batcher-2d';
 
 const _tangent = new Vec2();
-const _miter = new Vec2();
+// const _miter = new Vec2();
 const _normal = new Vec2();
 const _vec2 = new Vec2();
 
@@ -104,16 +81,16 @@ export const MotionStreakAssembler: IAssembler = {
 
         let cur;
         if (points.length > 1) {
-            const point = points[0] as any;
-            const difx = point.x - tx;
-            const dify = point.y - ty;
+            const point = points[0];
+            const difx = point.point.x - tx;
+            const dify = point.point.y - ty;
             if ((difx * difx + dify * dify) < comp.minSeg) {
                 cur = point;
             }
         }
 
         if (!cur) {
-            cur = new Point();
+            cur = new MotionStreak.Point();
             points.splice(0, 0, cur);
         }
 
@@ -204,7 +181,7 @@ export const MotionStreakAssembler: IAssembler = {
     updateRenderData (comp: MotionStreak) {
     },
 
-    fillBuffers (comp: MotionStreak, renderer: UI) {
+    fillBuffers (comp: MotionStreak, renderer: Batcher2D) {
         const renderData = comp.renderData!;
         const dataList = renderData.data;
         const node = comp.node;

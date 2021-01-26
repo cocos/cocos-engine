@@ -30,5 +30,6 @@
 import './font-loader';
 import { DynamicAtlasManager } from './dynamic-atlas/atlas-manager';
 import { Atlas } from './dynamic-atlas/atlas';
+
 export * from './html-text-parser';
 export * from './text-utils';

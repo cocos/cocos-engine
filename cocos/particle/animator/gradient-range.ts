@@ -23,27 +23,25 @@
  THE SOFTWARE.
  */
 
-
 /**
  * @packageDocumentation
  * @hidden
  */
 
 import { ccclass, type, serializable, editable } from 'cc.decorator';
+import { EDITOR } from 'internal:constants';
 import { Color } from '../../core/math';
 import { Enum } from '../../core/value-types';
 import Gradient, { AlphaKey, ColorKey } from './gradient';
-import { EDITOR } from 'internal:constants';
 import { Texture2D } from '../../core';
 import { PixelFormat, Filter, WrapMode } from '../../core/assets/asset-enum';
 
-
 const SerializableTable = EDITOR && [
-    [ '_mode', 'color' ],
-    [ '_mode', 'gradient' ],
-    [ '_mode', 'colorMin', 'colorMax' ],
-    [ '_mode', 'gradientMin', 'gradientMax'],
-    [ '_mode', 'gradient' ]
+    ['_mode', 'color'],
+    ['_mode', 'gradient'],
+    ['_mode', 'colorMin', 'colorMax'],
+    ['_mode', 'gradientMin', 'gradientMax'],
+    ['_mode', 'gradient'],
 ];
 
 const Mode = Enum({
@@ -56,7 +54,6 @@ const Mode = Enum({
 
 @ccclass('cc.GradientRange')
 export default class GradientRange {
-
     /**
      * @zh 渐变色类型 [[Mode]]。
      */
@@ -127,20 +124,20 @@ export default class GradientRange {
 
     public evaluate (time: number, rndRatio: number) {
         switch (this._mode) {
-            case Mode.Color:
-                return this.color;
-            case Mode.TwoColors:
-                Color.lerp(this._color, this.colorMin, this.colorMax, rndRatio);
-                return this._color;
-            case Mode.RandomColor:
-                return this.gradient.randomColor();
-            case Mode.Gradient:
-                return this.gradient.evaluate(time);
-            case Mode.TwoGradients:
-                Color.lerp(this._color, this.gradientMin.evaluate(time), this.gradientMax.evaluate(time), rndRatio);
-                return this._color;
-            default:
-                return this.color;
+        case Mode.Color:
+            return this.color;
+        case Mode.TwoColors:
+            Color.lerp(this._color, this.colorMin, this.colorMax, rndRatio);
+            return this._color;
+        case Mode.RandomColor:
+            return this.gradient.randomColor();
+        case Mode.Gradient:
+            return this.gradient.evaluate(time);
+        case Mode.TwoGradients:
+            Color.lerp(this._color, this.gradientMin.evaluate(time), this.gradientMax.evaluate(time), rndRatio);
+            return this._color;
+        default:
+            return this.color;
         }
     }
 
@@ -151,28 +148,28 @@ export default class GradientRange {
 
 function evaluateGradient (gr: GradientRange, time: number, index: number) {
     switch (gr.mode) {
-        case Mode.Color:
-            return gr.color;
-        case Mode.TwoColors:
-            return index === 0 ? gr.colorMin : gr.colorMax;
-        case Mode.RandomColor:
-            return gr.gradient.randomColor();
-        case Mode.Gradient:
-            return gr.gradient.evaluate(time);
-        case Mode.TwoGradients:
-            return index === 0 ? gr.gradientMin.evaluate(time) : gr.gradientMax.evaluate(time);
-        default:
-            return gr.color;
+    case Mode.Color:
+        return gr.color;
+    case Mode.TwoColors:
+        return index === 0 ? gr.colorMin : gr.colorMax;
+    case Mode.RandomColor:
+        return gr.gradient.randomColor();
+    case Mode.Gradient:
+        return gr.gradient.evaluate(time);
+    case Mode.TwoGradients:
+        return index === 0 ? gr.gradientMin.evaluate(time) : gr.gradientMax.evaluate(time);
+    default:
+        return gr.color;
     }
 }
 function evaluateHeight (gr: GradientRange) {
     switch (gr.mode) {
-        case Mode.TwoColors:
-            return 2;
-        case Mode.TwoGradients:
-            return 2;
-        default:
-            return 1;
+    case Mode.TwoColors:
+        return 2;
+    case Mode.TwoGradients:
+        return 2;
+    default:
+        return 1;
     }
 }
 export function packGradientRange (samples: number, gr: GradientRange) {

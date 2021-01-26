@@ -36,7 +36,7 @@ import { ForwardStage } from './forward-stage';
 import { ForwardPipeline } from './forward-pipeline';
 import { RenderPipeline } from '../render-pipeline';
 import { Camera } from '../../renderer/scene';
-import { sceneCulling } from './scene-culling';
+import { sceneCulling } from '../scene-culling';
 
 /**
  * @en The forward flow in forward render pipeline
@@ -71,7 +71,6 @@ export class ForwardFlow extends RenderFlow {
     public render (camera: Camera) {
         const pipeline = this._pipeline as ForwardPipeline;
         sceneCulling(pipeline, camera);
-        pipeline.updateCameraUBO(camera, camera.window!.hasOffScreenAttachments);
         super.render(camera);
     }
 

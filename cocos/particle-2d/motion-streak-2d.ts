@@ -26,9 +26,32 @@
 
 import { ccclass, executeInEditMode, serializable, playOnFocus, menu, help, editable, type } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
-import { UIRenderable } from '../2d/framework';
+import { Renderable2D } from '../2d/framework';
 import { Texture2D } from '../core/assets/texture-2d';
-import { UI } from '../2d/renderer/ui';
+import { Batcher2D } from '../2d/renderer/batcher-2d';
+import { Vec2 } from '../core';
+
+class Point {
+    public point = new Vec2();
+    public dir = new Vec2();
+    public distance = 0;
+    public time = 0;
+
+    constructor (point?: Vec2, dir?: Vec2) {
+        if (point) this.point.set(point);
+        if (dir) this.dir.set(dir);
+    }
+
+    public setPoint (x, y) {
+        this.point.x = x;
+        this.point.y = y;
+    }
+
+    public setDir (x, y) {
+        this.dir.x = x;
+        this.dir.y = y;
+    }
+}
 
 /**
  * @en
@@ -46,7 +69,9 @@ import { UI } from '../2d/renderer/ui';
 @playOnFocus
 @menu('UI/Render/MotionStreak')
 @help('i18n:COMPONENT.help_url.motionStreak')
-export class MotionStreak extends UIRenderable {
+export class MotionStreak extends Renderable2D {
+    public static Point = Point;
+
     /**
      * @en Preview the trailing effect in editor mode.
      * @zh 在编辑器模式下预览拖尾效果。
@@ -137,7 +162,7 @@ export class MotionStreak extends UIRenderable {
     }
 
     @serializable
-    private _preview: boolean = false;
+    private _preview = false;
     @serializable
     private _fadeTime = 1;
     @serializable
@@ -147,8 +172,8 @@ export class MotionStreak extends UIRenderable {
     @serializable
     private _texture: Texture2D | null  = null;
     @serializable
-    private _fastMode: boolean = false;
-    private _points: any[] = [];
+    private _fastMode = false;
+    private _points: Point[] = [];
 
     public onEnable () {
         super.onEnable();
@@ -163,7 +188,7 @@ export class MotionStreak extends UIRenderable {
         }
 
         if (!this._renderData) {
-            if (this._assembler && this._assembler.createData){
+            if (this._assembler && this._assembler.createData) {
                 this._renderData = this._assembler.createData(this);
                 this._renderData!.material = this.material;
             }
@@ -199,7 +224,7 @@ export class MotionStreak extends UIRenderable {
         if (this._assembler) this._assembler.update(this, dt);
     }
 
-    public _render (render: UI) {
-        render.commitComp(this, this._texture!, this._assembler, null);
+    public _render (render: Batcher2D) {
+        render.commitComp(this, this._texture, this._assembler, null);
     }
 }

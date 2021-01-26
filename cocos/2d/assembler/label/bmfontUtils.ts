@@ -122,7 +122,7 @@ export const bmfontUtils = {
 
     _updateLabelInfo (comp) {
         // clear
-        shareLabelInfo.hash = "";
+        shareLabelInfo.hash = '';
         shareLabelInfo.margin = 0;
     },
 
@@ -145,12 +145,10 @@ export const bmfontUtils = {
             _isWrapText = false;
             _contentSize.width += shareLabelInfo.margin * 2;
             _contentSize.height += shareLabelInfo.margin * 2;
-        }
-        else if (_overflow === Overflow.RESIZE_HEIGHT) {
+        } else if (_overflow === Overflow.RESIZE_HEIGHT) {
             _isWrapText = true;
             _contentSize.height += shareLabelInfo.margin * 2;
-        }
-        else {
+        } else {
             _isWrapText = comp.enableWrapText;
         }
 
@@ -163,7 +161,7 @@ export const bmfontUtils = {
     _resetProperties () {
         _fntConfig = null;
         _spriteFrame = null;
-        shareLabelInfo.hash = "";
+        shareLabelInfo.hash = '';
         shareLabelInfo.margin = 0;
     },
 
@@ -236,8 +234,8 @@ export const bmfontUtils = {
                 letterDef = shareLabelInfo.fontAtlas!.getLetterDefinitionForChar(character, shareLabelInfo);
                 if (!letterDef) {
                     this._recordPlaceholderInfo(letterIndex, character);
-                    console.log('Can\'t find letter definition in texture atlas ' +
-                     _fntConfig!.atlasName + ' for letter:' + character);
+                    console.log(`Can't find letter definition in texture atlas ${
+                     _fntConfig!.atlasName} for letter:${character}`);
                     continue;
                 }
 
@@ -277,7 +275,6 @@ export const bmfontUtils = {
                 if (tokenLowestY > letterPosition.y - letterDef.h * _bmfontScale) {
                     tokenLowestY = letterPosition.y - letterDef.h * _bmfontScale;
                 }
-
             } // end of for loop
 
             if (newLine) { continue; }
@@ -555,7 +552,7 @@ export const bmfontUtils = {
             const letterInfo = _lettersInfo[ctr];
             if (!letterInfo.valid) { continue; }
             const letterDef = shareLabelInfo.fontAtlas!.getLetter(letterInfo.hash);
-            if (!letterDef){
+            if (!letterDef) {
                 console.warn('Can\'t find letter in this bitmap-font');
                 continue;
             }
@@ -572,7 +569,7 @@ export const bmfontUtils = {
                     const clipTop = py - _tailoredTopY;
                     _tmpRect.y += clipTop;
                     _tmpRect.height -= clipTop;
-                    py = py - clipTop;
+                    py -= clipTop;
                 }
 
                 if ((py - letterDef.h * _bmfontScale < _tailoredBottomY) && _overflow === Overflow.CLAMP) {
@@ -628,7 +625,7 @@ export const bmfontUtils = {
             _tmpRect.x = rect.x + rect.height - _tmpRect.y - _tmpRect.height - trimmedTop;
             _tmpRect.y = originalX + rect.y - trimmedLeft;
             if (_tmpRect.y < 0) {
-                _tmpRect.height = _tmpRect.height + trimmedTop;
+                _tmpRect.height += trimmedTop;
             }
         }
 
@@ -639,29 +636,29 @@ export const bmfontUtils = {
         _linesOffsetX.length = 0;
 
         switch (_hAlign) {
-            case HorizontalTextAlignment.LEFT:
-                for (let i = 0; i < _numberOfLines; ++i) {
-                    _linesOffsetX.push(0);
-                }
-                break;
-            case HorizontalTextAlignment.CENTER:
-                for (let i = 0, l = _linesWidth.length; i < l; i++) {
-                    _linesOffsetX.push((_contentSize.width - _linesWidth[i]) / 2);
-                }
-                break;
-            case HorizontalTextAlignment.RIGHT:
-                for (let i = 0, l = _linesWidth.length; i < l; i++) {
-                    _linesOffsetX.push(_contentSize.width - _linesWidth[i]);
-                }
-                break;
-            default:
-                break;
+        case HorizontalTextAlignment.LEFT:
+            for (let i = 0; i < _numberOfLines; ++i) {
+                _linesOffsetX.push(0);
+            }
+            break;
+        case HorizontalTextAlignment.CENTER:
+            for (let i = 0, l = _linesWidth.length; i < l; i++) {
+                _linesOffsetX.push((_contentSize.width - _linesWidth[i]) / 2);
+            }
+            break;
+        case HorizontalTextAlignment.RIGHT:
+            for (let i = 0, l = _linesWidth.length; i < l; i++) {
+                _linesOffsetX.push(_contentSize.width - _linesWidth[i]);
+            }
+            break;
+        default:
+            break;
         }
 
         // TOP
         _letterOffsetY = _contentSize.height;
         if (_vAlign !== VerticalTextAlignment.TOP) {
-            let blank = _contentSize.height - _textDesiredHeight + _lineHeight * this._getFontScale() - _originFontSize * _bmfontScale;
+            const blank = _contentSize.height - _textDesiredHeight + _lineHeight * this._getFontScale() - _originFontSize * _bmfontScale;
             if (_vAlign === VerticalTextAlignment.BOTTOM) {
                 // BOTTOM
                 _letterOffsetY -= blank;

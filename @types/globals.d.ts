@@ -84,6 +84,13 @@ declare interface IWritableArrayLike<T> {
 
 declare type Constructor<T = unknown> = new(...args: any[]) => T;
 
+/**
+ * Alias of `Function` but suppress eslint warning.
+ * Please avoid using it and explicitly specify function signatures as possible.
+ */
+// eslint-disable-next-line @typescript-eslint/ban-types
+declare type AnyFunction = Function;
+
 declare type Mutable<T> = { -readonly [P in keyof T]: T[P] };
 
 declare type Getter = () => any;

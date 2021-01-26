@@ -28,7 +28,7 @@
  * @module gfx
  */
 
-export const MAX_ATTACHMENTS: number = 4;
+export const MAX_ATTACHMENTS = 4;
 
 export enum ObjectType {
     UNKNOWN,
@@ -54,7 +54,6 @@ export enum ObjectType {
  * @zh GFX 基类对象。
  */
 export class Obj {
-
     public get gfxType (): ObjectType {
         return this._gfxType;
     }
@@ -470,6 +469,7 @@ export enum TextureFlagBit {
     GEN_MIPMAP = 0x1,
     CUBEMAP = 0x2,
     BAKUP_BUFFER = 0x4,
+    IMMUTABLE = 0x8,
 }
 export type TextureFlags = TextureFlagBit;
 
@@ -794,99 +794,98 @@ export const FormatInfos = Object.freeze([
  * @param depth The target depth.
  */
 export function FormatSize (format: Format, width: number, height: number, depth: number): number {
-
     if (!FormatInfos[format].isCompressed) {
         return (width * height * depth * FormatInfos[format].size);
     } else {
         switch (format) {
-            case Format.BC1:
-            case Format.BC1_ALPHA:
-            case Format.BC1_SRGB:
-            case Format.BC1_SRGB_ALPHA:
-                return Math.ceil(width / 4) * Math.ceil(height / 4) * 8 * depth;
-            case Format.BC2:
-            case Format.BC2_SRGB:
-            case Format.BC3:
-            case Format.BC3_SRGB:
-            case Format.BC4:
-            case Format.BC4_SNORM:
-            case Format.BC6H_SF16:
-            case Format.BC6H_UF16:
-            case Format.BC7:
-            case Format.BC7_SRGB:
-                return Math.ceil(width / 4) * Math.ceil(height / 4) * 16 * depth;
-            case Format.BC5:
-            case Format.BC5_SNORM:
-                return Math.ceil(width / 4) * Math.ceil(height / 4) * 32 * depth;
+        case Format.BC1:
+        case Format.BC1_ALPHA:
+        case Format.BC1_SRGB:
+        case Format.BC1_SRGB_ALPHA:
+            return Math.ceil(width / 4) * Math.ceil(height / 4) * 8 * depth;
+        case Format.BC2:
+        case Format.BC2_SRGB:
+        case Format.BC3:
+        case Format.BC3_SRGB:
+        case Format.BC4:
+        case Format.BC4_SNORM:
+        case Format.BC6H_SF16:
+        case Format.BC6H_UF16:
+        case Format.BC7:
+        case Format.BC7_SRGB:
+            return Math.ceil(width / 4) * Math.ceil(height / 4) * 16 * depth;
+        case Format.BC5:
+        case Format.BC5_SNORM:
+            return Math.ceil(width / 4) * Math.ceil(height / 4) * 32 * depth;
 
-            case Format.ETC_RGB8:
-            case Format.ETC2_RGB8:
-            case Format.ETC2_SRGB8:
-            case Format.ETC2_RGB8_A1:
-            case Format.EAC_R11:
-            case Format.EAC_R11SN:
-                return Math.ceil(width / 4) * Math.ceil(height / 4) * 8 * depth;
-            case Format.ETC2_RGBA8:
-            case Format.ETC2_SRGB8_A1:
-            case Format.EAC_RG11:
-            case Format.EAC_RG11SN:
-                return Math.ceil(width / 4) * Math.ceil(height / 4) * 16 * depth;
+        case Format.ETC_RGB8:
+        case Format.ETC2_RGB8:
+        case Format.ETC2_SRGB8:
+        case Format.ETC2_RGB8_A1:
+        case Format.EAC_R11:
+        case Format.EAC_R11SN:
+            return Math.ceil(width / 4) * Math.ceil(height / 4) * 8 * depth;
+        case Format.ETC2_RGBA8:
+        case Format.ETC2_SRGB8_A1:
+        case Format.EAC_RG11:
+        case Format.EAC_RG11SN:
+            return Math.ceil(width / 4) * Math.ceil(height / 4) * 16 * depth;
 
-            case Format.PVRTC_RGB2:
-            case Format.PVRTC_RGBA2:
-            case Format.PVRTC2_2BPP:
-                return Math.ceil(Math.max(width, 16) * Math.max(height, 8) / 4) * depth;
-            case Format.PVRTC_RGB4:
-            case Format.PVRTC_RGBA4:
-            case Format.PVRTC2_4BPP:
-                return Math.ceil(Math.max(width, 8) * Math.max(height, 8) / 2) * depth;
+        case Format.PVRTC_RGB2:
+        case Format.PVRTC_RGBA2:
+        case Format.PVRTC2_2BPP:
+            return Math.ceil(Math.max(width, 16) * Math.max(height, 8) / 4) * depth;
+        case Format.PVRTC_RGB4:
+        case Format.PVRTC_RGBA4:
+        case Format.PVRTC2_4BPP:
+            return Math.ceil(Math.max(width, 8) * Math.max(height, 8) / 2) * depth;
 
-            case Format.ASTC_RGBA_4x4:
-            case Format.ASTC_SRGBA_4x4:
-                return Math.ceil(width / 4) * Math.ceil(height / 4) * 16 * depth;
-            case Format.ASTC_RGBA_5x4:
-            case Format.ASTC_SRGBA_5x4:
-                return Math.ceil(width / 5) * Math.ceil(height / 4) * 16 * depth;
-            case Format.ASTC_RGBA_5x5:
-            case Format.ASTC_SRGBA_5x5:
-                return Math.ceil(width / 5) * Math.ceil(height / 5) * 16 * depth;
-            case Format.ASTC_RGBA_6x5:
-            case Format.ASTC_SRGBA_6x5:
-                return Math.ceil(width / 6) * Math.ceil(height / 5) * 16 * depth;
-            case Format.ASTC_RGBA_6x6:
-            case Format.ASTC_SRGBA_6x6:
-                return Math.ceil(width / 6) * Math.ceil(height / 6) * 16 * depth;
-            case Format.ASTC_RGBA_8x5:
-            case Format.ASTC_SRGBA_8x5:
-                return Math.ceil(width / 8) * Math.ceil(height / 5) * 16 * depth;
-            case Format.ASTC_RGBA_8x6:
-            case Format.ASTC_SRGBA_8x6:
-                return Math.ceil(width / 8) * Math.ceil(height / 6) * 16 * depth;
-            case Format.ASTC_RGBA_8x8:
-            case Format.ASTC_SRGBA_8x8:
-                return Math.ceil(width / 8) * Math.ceil(height / 8) * 16 * depth;
-            case Format.ASTC_RGBA_10x5:
-            case Format.ASTC_SRGBA_10x5:
-                return Math.ceil(width / 10) * Math.ceil(height / 5) * 16 * depth;
-            case Format.ASTC_RGBA_10x6:
-            case Format.ASTC_SRGBA_10x6:
-                return Math.ceil(width / 10) * Math.ceil(height / 6) * 16 * depth;
-            case Format.ASTC_RGBA_10x8:
-            case Format.ASTC_SRGBA_10x8:
-                return Math.ceil(width / 10) * Math.ceil(height / 8) * 16 * depth;
-            case Format.ASTC_RGBA_10x10:
-            case Format.ASTC_SRGBA_10x10:
-                return Math.ceil(width / 10) * Math.ceil(height / 10) * 16 * depth;
-            case Format.ASTC_RGBA_12x10:
-            case Format.ASTC_SRGBA_12x10:
-                return Math.ceil(width / 12) * Math.ceil(height / 10) * 16 * depth;
-            case Format.ASTC_RGBA_12x12:
-            case Format.ASTC_SRGBA_12x12:
-                return Math.ceil(width / 12) * Math.ceil(height / 12) * 16 * depth;
+        case Format.ASTC_RGBA_4x4:
+        case Format.ASTC_SRGBA_4x4:
+            return Math.ceil(width / 4) * Math.ceil(height / 4) * 16 * depth;
+        case Format.ASTC_RGBA_5x4:
+        case Format.ASTC_SRGBA_5x4:
+            return Math.ceil(width / 5) * Math.ceil(height / 4) * 16 * depth;
+        case Format.ASTC_RGBA_5x5:
+        case Format.ASTC_SRGBA_5x5:
+            return Math.ceil(width / 5) * Math.ceil(height / 5) * 16 * depth;
+        case Format.ASTC_RGBA_6x5:
+        case Format.ASTC_SRGBA_6x5:
+            return Math.ceil(width / 6) * Math.ceil(height / 5) * 16 * depth;
+        case Format.ASTC_RGBA_6x6:
+        case Format.ASTC_SRGBA_6x6:
+            return Math.ceil(width / 6) * Math.ceil(height / 6) * 16 * depth;
+        case Format.ASTC_RGBA_8x5:
+        case Format.ASTC_SRGBA_8x5:
+            return Math.ceil(width / 8) * Math.ceil(height / 5) * 16 * depth;
+        case Format.ASTC_RGBA_8x6:
+        case Format.ASTC_SRGBA_8x6:
+            return Math.ceil(width / 8) * Math.ceil(height / 6) * 16 * depth;
+        case Format.ASTC_RGBA_8x8:
+        case Format.ASTC_SRGBA_8x8:
+            return Math.ceil(width / 8) * Math.ceil(height / 8) * 16 * depth;
+        case Format.ASTC_RGBA_10x5:
+        case Format.ASTC_SRGBA_10x5:
+            return Math.ceil(width / 10) * Math.ceil(height / 5) * 16 * depth;
+        case Format.ASTC_RGBA_10x6:
+        case Format.ASTC_SRGBA_10x6:
+            return Math.ceil(width / 10) * Math.ceil(height / 6) * 16 * depth;
+        case Format.ASTC_RGBA_10x8:
+        case Format.ASTC_SRGBA_10x8:
+            return Math.ceil(width / 10) * Math.ceil(height / 8) * 16 * depth;
+        case Format.ASTC_RGBA_10x10:
+        case Format.ASTC_SRGBA_10x10:
+            return Math.ceil(width / 10) * Math.ceil(height / 10) * 16 * depth;
+        case Format.ASTC_RGBA_12x10:
+        case Format.ASTC_SRGBA_12x10:
+            return Math.ceil(width / 12) * Math.ceil(height / 10) * 16 * depth;
+        case Format.ASTC_RGBA_12x12:
+        case Format.ASTC_SRGBA_12x12:
+            return Math.ceil(width / 12) * Math.ceil(height / 12) * 16 * depth;
 
-            default: {
-                return 0;
-            }
+        default: {
+            return 0;
+        }
         }
     }
 }
@@ -902,8 +901,8 @@ export function FormatSize (format: Format, width: number, height: number, depth
  */
 export function FormatSurfaceSize (
     format: Format, width: number, height: number,
-    depth: number, mips: number): number {
-
+    depth: number, mips: number,
+): number {
     let size = 0;
 
     for (let i = 0; i < mips; ++i) {
@@ -962,27 +961,27 @@ export function GetTypeSize (type: Type): number {
 export function getTypedArrayConstructor (info: FormatInfo): TypedArrayConstructor {
     const stride = info.size / info.count;
     switch (info.type) {
-        case FormatType.UNORM:
-        case FormatType.UINT: {
-            switch (stride) {
-                case 1: return Uint8Array;
-                case 2: return Uint16Array;
-                case 4: return Uint32Array;
-            }
-            break;
+    case FormatType.UNORM:
+    case FormatType.UINT: {
+        switch (stride) {
+        case 1: return Uint8Array;
+        case 2: return Uint16Array;
+        case 4: return Uint32Array;
         }
-        case FormatType.SNORM:
-        case FormatType.INT: {
-            switch (stride) {
-                case 1: return Int8Array;
-                case 2: return Int16Array;
-                case 4: return Int32Array;
-            }
-            break;
+        break;
+    }
+    case FormatType.SNORM:
+    case FormatType.INT: {
+        switch (stride) {
+        case 1: return Int8Array;
+        case 2: return Int16Array;
+        case 4: return Int32Array;
         }
-        case FormatType.FLOAT: {
-            return Float32Array;
-        }
+        break;
+    }
+    case FormatType.FLOAT: {
+        return Float32Array;
+    }
     }
     return Float32Array;
 }

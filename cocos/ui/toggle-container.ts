@@ -29,11 +29,11 @@
  * @module ui
  */
 
-import { Component, EventHandler as ComponentEventHandler } from '../core/components';
 import { ccclass, help, executeInEditMode, executionOrder, menu, tooltip, type, serializable } from 'cc.decorator';
+import { Component, EventHandler as ComponentEventHandler } from '../core/components';
 import { Toggle } from './toggle';
 import { legacyCC } from '../core/global-exports';
-import { SystemEventType } from "../core/platform/event-manager";
+import { SystemEventType } from '../core/platform/event-manager';
 
 /**
  * @en
@@ -53,7 +53,7 @@ import { SystemEventType } from "../core/platform/event-manager";
 @executeInEditMode
 export class ToggleContainer extends Component {
     @serializable
-    protected _allowSwitchOff: boolean = false;
+    protected _allowSwitchOff = false;
     /**
      * @en
      * If this setting is true, a toggle could be switched off and on when pressed.
@@ -93,30 +93,30 @@ export class ToggleContainer extends Component {
      */
     get toggleItems () {
         return this.node.children.map((item) => {
-            let toggle = item.getComponent('cc.Toggle') as Toggle;
+            const toggle = item.getComponent('cc.Toggle') as Toggle;
             if (toggle && toggle.enabled) {
                 return toggle;
             }
         }).filter(Boolean);
     }
 
-    public onEnable() {
+    public onEnable () {
         this.ensureValidState();
         this.node.on(SystemEventType.CHILD_ADDED, this.ensureValidState, this);
         this.node.on(SystemEventType.CHILD_REMOVED, this.ensureValidState, this);
     }
 
-    public onDisable() {
+    public onDisable () {
         this.node.off(SystemEventType.CHILD_ADDED, this.ensureValidState, this);
         this.node.off(SystemEventType.CHILD_REMOVED, this.ensureValidState, this);
     }
 
     public activeToggles () {
-        return this.toggleItems.filter(x => x!.isChecked);
+        return this.toggleItems.filter((x) => x!.isChecked);
     }
 
     public anyTogglesChecked () {
-        return !!this.toggleItems.find(x => x!.isChecked);
+        return !!this.toggleItems.find((x) => x!.isChecked);
     }
 
     /**
@@ -129,18 +129,17 @@ export class ToggleContainer extends Component {
      * @param toggle - 需要被更新的 toggle。
      * @param emitEvent - 是否需要触发事件
      */
-    public notifyToggleCheck (toggle: Toggle, emitEvent: boolean = true) {
+    public notifyToggleCheck (toggle: Toggle, emitEvent = true) {
         if (!this.enabledInHierarchy) { return; }
 
         for (let i = 0; i < this.toggleItems.length; i++) {
-            let item = this.toggleItems[i]!;
+            const item = this.toggleItems[i]!;
             if (item === toggle) {
                 continue;
             }
             if (emitEvent) {
                 item.isChecked = false;
-            }
-            else {
+            } else {
                 item.setIsCheckedWithoutNotify(false);
             }
         }
@@ -151,18 +150,18 @@ export class ToggleContainer extends Component {
     }
 
     public ensureValidState () {
-        let toggles = this.toggleItems;
-        if (!this._allowSwitchOff && !this.anyTogglesChecked() && toggles.length !== 0 ) {
-            let toggle = toggles[0]!;
+        const toggles = this.toggleItems;
+        if (!this._allowSwitchOff && !this.anyTogglesChecked() && toggles.length !== 0) {
+            const toggle = toggles[0]!;
             toggle.isChecked = true;
             this.notifyToggleCheck(toggle);
         }
 
         const activeToggles = this.activeToggles();
         if (activeToggles.length > 1) {
-            let firstToggle = activeToggles[0];
+            const firstToggle = activeToggles[0];
             for (let i = 0; i < activeToggles.length; ++i) {
-                let toggle = activeToggles[i];
+                const toggle = activeToggles[i];
                 if (toggle === firstToggle) {
                     continue;
                 }

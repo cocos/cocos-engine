@@ -58,7 +58,8 @@ export class AffineTransform {
         return new AffineTransform(
             affineTransform.a, affineTransform.b,
             affineTransform.c, affineTransform.d,
-            affineTransform.tx, affineTransform.ty);
+            affineTransform.tx, affineTransform.ty,
+        );
     }
 
     /**
@@ -168,7 +169,6 @@ export class AffineTransform {
      * @param t transform matrix.
      */
     public static transformRect (out: Rect, rect: Rect, t: AffineTransform) {
-
         const or = rect.x + rect.width;
         const ot = rect.y + rect.height;
         const lbx = t.a * rect.x + t.c * rect.y + t.tx;
@@ -204,7 +204,6 @@ export class AffineTransform {
      * @param anAffineTransform transform matrix.
      */
     public static transformObb (out_bl: Vec2, out_tl: Vec2, out_tr: Vec2, out_br: Vec2, rect: Rect, anAffineTransform: AffineTransform) {
-
         const tx = anAffineTransform.a * rect.x + anAffineTransform.c * rect.y + anAffineTransform.tx;
         const ty = anAffineTransform.b * rect.x + anAffineTransform.d * rect.y + anAffineTransform.ty;
         const xa = anAffineTransform.a * rect.width;

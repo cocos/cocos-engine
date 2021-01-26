@@ -29,14 +29,14 @@
  * @module ui
  */
 
+import { ccclass, help, requireComponent, executionOrder, menu, tooltip, displayOrder, type, serializable } from 'cc.decorator';
+import { EDITOR } from 'internal:constants';
 import { EventHandler as ComponentEventHandler } from '../core/components/component-event-handler';
 import { UITransform } from '../2d/framework';
-import { ccclass, help, requireComponent, executionOrder, menu, tooltip, displayOrder, type, serializable } from 'cc.decorator';
 import { Sprite } from '../2d/components/sprite';
 import { ToggleContainer } from './toggle-container';
 import { extendsEnum } from '../core/data/utils/extends-enum';
 import { EventType as ButtonEventType, Button } from './button';
-import { EDITOR } from 'internal:constants';
 import { legacyCC } from '../core/global-exports';
 
 enum EventType {
@@ -57,7 +57,6 @@ enum EventType {
 @menu('UI/Toggle')
 @requireComponent(UITransform)
 export class Toggle extends Button {
-
     /**
      * @en
      * When this value is true, the check mark component will be enabled,
@@ -126,7 +125,7 @@ export class Toggle extends Button {
     @tooltip('列表类型，默认为空，用户添加的每一个事件由节点引用，组件名称和一个响应函数组成')
     public checkEvents: ComponentEventHandler[] = [];
     @serializable
-    protected _isChecked: boolean = true;
+    protected _isChecked = true;
     @serializable
     protected _checkMark: Sprite | null = null;
 
@@ -134,9 +133,8 @@ export class Toggle extends Button {
         this.isChecked = !this.isChecked;
     }
 
-    protected _set (value: boolean, emitEvent: boolean = true) {
-        if (this._isChecked == value)
-            return;
+    protected _set (value: boolean, emitEvent = true) {
+        if (this._isChecked == value) return;
 
         this._isChecked = value;
 
@@ -190,7 +188,7 @@ export class Toggle extends Button {
     }
 
     public OnDestroy () {
-        let group = this._toggleContainer;
+        const group = this._toggleContainer;
         if (group) {
             group.ensureValidState();
         }

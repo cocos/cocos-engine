@@ -31,18 +31,19 @@
 
 import { ccclass, help, executionOrder, menu, tooltip, type, visible, override, editable, serializable } from 'cc.decorator';
 import { builtinResMgr } from '../../core/builtin';
-import { InstanceMaterialType, UIRenderable } from '../framework/ui-renderable';
+import { InstanceMaterialType, Renderable2D } from '../framework/renderable-2d';
 import { director } from '../../core/director';
 import { Color } from '../../core/math';
 import { IMaterialInstanceInfo, scene } from '../../core/renderer';
 import { IAssembler } from '../renderer/base';
-import { UI } from '../renderer/ui';
+import { Batcher2D } from '../renderer/batcher-2d';
 import { LineCap, LineJoin } from '../assembler/graphics/types';
 import { Impl } from '../assembler/graphics/webgl/impl';
 import { RenderingSubMesh } from '../../core/assets';
 import { Format, PrimitiveMode, Attribute, Device, BufferUsageBit, BufferInfo, MemoryUsageBit } from '../../core/gfx';
-import { vfmtPosColor, getAttributeStride, getAttributeFormatBytes } from '../renderer/ui-vertex-format';
+import { vfmtPosColor, getAttributeStride, getComponentPerVertex } from '../renderer/vertex-format';
 import { legacyCC } from '../../core/global-exports';
+import { warnID } from '../../core/platform/debug';
 
 const _matInsInfo: IMaterialInstanceInfo = {
     parent: null!,
@@ -54,7 +55,7 @@ const attributes = vfmtPosColor.concat([
     new Attribute('a_dist', Format.R32F),
 ]);
 
-const formatBytes = getAttributeFormatBytes(attributes);
+const componentPerVertex = getComponentPerVertex(attributes);
 
 const stride = getAttributeStride(attributes);
 
@@ -69,7 +70,7 @@ const stride = getAttributeStride(attributes);
 @help('i18n:cc.Graphics')
 @executionOrder(110)
 @menu('UI/Render/Graphics')
-export class Graphics extends UIRenderable {
+export class Graphics extends Renderable2D {
     /**
      * @en
      * Current line width.
@@ -262,7 +263,6 @@ export class Graphics extends UIRenderable {
     }
 
     public onLoad () {
-        this._sceneGetter = director.root!.ui.getRenderSceneGetter();
         this.model = director.root!.createModel(scene.Model);
         this.model.node = this.model.transform = this.node;
         this._flushAssembler();
@@ -271,14 +271,10 @@ export class Graphics extends UIRenderable {
     public onEnable () {
         super.onEnable();
         this._updateMtlForGraphics();
-        if (this._isDrawing) {
-            this._attachToScene();
-        }
     }
 
     public onDisable () {
         super.onDisable();
-        this._detachFromScene();
     }
 
     public onDestroy () {
@@ -518,7 +514,6 @@ export class Graphics extends UIRenderable {
             }
         }
 
-        this._detachFromScene();
         this.markForUpdateRenderData();
     }
 
@@ -553,7 +548,6 @@ export class Graphics extends UIRenderable {
         this._isDrawing = true;
         this._isNeedUploadData = true;
         (this._assembler as IAssembler).stroke!(this);
-        this._attachToScene();
     }
 
     /**
@@ -571,7 +565,6 @@ export class Graphics extends UIRenderable {
         this._isDrawing = true;
         this._isNeedUploadData = true;
         (this._assembler as IAssembler).fill!(this);
-        this._attachToScene();
     }
 
     private _updateMtlForGraphics () {
@@ -589,12 +582,11 @@ export class Graphics extends UIRenderable {
 
     public activeSubModel (idx: number) {
         if (!this.model) {
-            console.warn(`There is no model in ${this.node.name}`);
+            warnID(4500, this.node.name);
             return;
         }
 
         if (this.model.subModels.length <= idx) {
-            let renderMesh: RenderingSubMesh;
             const gfxDevice: Device = legacyCC.director.root.device;
             const vertexBuffer = gfxDevice.createBuffer(new BufferInfo(
                 BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST,
@@ -609,47 +601,38 @@ export class Graphics extends UIRenderable {
                 Uint16Array.BYTES_PER_ELEMENT,
             ));
 
-            renderMesh = new RenderingSubMesh([vertexBuffer], attributes, PrimitiveMode.TRIANGLE_LIST, indexBuffer);
+            const renderMesh = new RenderingSubMesh([vertexBuffer], attributes, PrimitiveMode.TRIANGLE_LIST, indexBuffer);
             renderMesh.subMeshIdx = 0;
 
             this.model.initSubModel(idx, renderMesh, this.getMaterialInstance(0)!);
         }
     }
 
-    protected _uploadData (render: UI) {
+    protected _uploadData (render: Batcher2D) {
         const impl = this.impl;
-        const renderDataList = impl && impl.getRenderData();
-        if (!renderDataList || !this.model) {
+        if (!impl) {
             return;
         }
 
-        const subModelCount = this.model.subModels.length;
-        const listLength = renderDataList.length;
-        const delta = listLength - subModelCount;
-        if (delta > 0) {
-            for (let k = subModelCount; k < listLength; k++) {
-                this.activeSubModel(k);
-            }
+        const renderDataList = impl && impl.getRenderDataList();
+        if (renderDataList.length <= 0 || !this.model) {
+            return;
         }
 
         const subModelList = this.model.subModels;
         for (let i = 0; i < renderDataList.length; i++) {
             const renderData = renderDataList[i];
             const ia = subModelList[i].inputAssembler;
-            const vertexFormatBytes = formatBytes * Float32Array.BYTES_PER_ELEMENT;
-            const offset = renderData.lastFilledVertex * vertexFormatBytes;
-            const byteOffset = renderData.vertexStart * vertexFormatBytes;
-            if (offset === byteOffset) {
+            if (renderData.lastFilledVertex === renderData.vertexStart) {
                 continue;
             }
 
-            const verticesData = new Float32Array(renderData.vData.buffer, offset, (byteOffset - offset) >> 2);
-            ia.vertexBuffers[0].update(verticesData, offset);
+            const vb = new Float32Array(renderData.vData.buffer, 0, renderData.vertexStart * componentPerVertex);
+            ia.vertexBuffers[0].update(vb);
             ia.vertexCount = renderData.vertexStart;
-            const indicesData = new Uint16Array(renderData.iData.buffer, renderData.lastFilledIndices * Uint16Array.BYTES_PER_ELEMENT, renderData.indicesStart - renderData.lastFilledIndices);
-            ia.indexBuffer!.update(indicesData, renderData.lastFilledIndices * Uint16Array.BYTES_PER_ELEMENT);
+            const ib = new Uint16Array(renderData.iData.buffer, 0, renderData.indicesStart);
+            ia.indexBuffer!.update(ib);
             ia.indexCount = renderData.indicesStart;
-
             renderData.lastFilledVertex = renderData.vertexStart;
             renderData.lastFilledIndices = renderData.indicesStart;
         }
@@ -658,8 +641,17 @@ export class Graphics extends UIRenderable {
         this._isNeedUploadData = false;
     }
 
-    protected _render (render: UI) {
+    protected _render (render: Batcher2D) {
         if (this._isNeedUploadData) {
+            if (this.impl) {
+                const renderDataList = this.impl.getRenderDataList();
+                const len = this.model!.subModels.length;
+                if (renderDataList.length > len) {
+                    for (let i = len; i < renderDataList.length; i++) {
+                        this.activeSubModel(i);
+                    }
+                }
+            }
             render.addUploadBuffersFunc(this, this._uploadData);
         }
 
@@ -680,24 +672,5 @@ export class Graphics extends UIRenderable {
         }
 
         return !!this.model && this._isDrawing;
-    }
-
-    protected _attachToScene () {
-        const renderScene = director.root!.ui.renderScene;
-        if (!this.model || this.model.scene === renderScene) {
-            return;
-        }
-
-        if (this.model.scene !== null) {
-            this._detachFromScene();
-        }
-        renderScene.addModel(this.model);
-    }
-
-    protected _detachFromScene () {
-        if (this.model && this.model.scene) {
-            this.model.scene.removeModel(this.model);
-            this.model.scene = null;
-        }
     }
 }

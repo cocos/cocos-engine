@@ -29,4 +29,4 @@ select('box2d', {
     FixedJoint: b2FixedJoint,
     WheelJoint: b2WheelJoint,
     HingeJoint: b2HingeJoint,
-})
+});

@@ -37,7 +37,7 @@ export class WebGL2StateCache {
     public glBindUBOs: (WebGLBuffer | null)[] = [];
     public glBindUBOOffsets: number[] = [];
     public glVAO: WebGLVertexArrayObject | null = null;
-    public texUnit: number = 0;
+    public texUnit = 0;
     public glTexUnits: IWebGL2TexUnit[] = [];
     public glSamplerUnits: (WebGLSampler | null)[] = [];
     public glRenderbuffer: WebGLRenderbuffer | null = null;

@@ -39,7 +39,6 @@ import enums from './enums';
  */
 
 export class Triangle {
-
     /**
      * @en
      * create a new triangle
@@ -57,8 +56,8 @@ export class Triangle {
      * @return {Triangle} 一个新的 triangle。
      */
     public static create (ax = 1, ay = 0, az = 0,
-                          bx = 0, by = 0, bz = 0,
-                          cx = 0, cy = 0, cz = 1): Triangle {
+        bx = 0, by = 0, bz = 0,
+        cx = 0, cy = 0, cz = 1): Triangle {
         return new Triangle(ax, ay, az, bx, by, bz, cx, cy, cz);
     }
 
@@ -132,9 +131,9 @@ export class Triangle {
      * @function
      */
     public static set (out: Triangle,
-                       ax: number, ay: number, az: number,
-                       bx: number, by: number, bz: number,
-                       cx: number, cy: number, cz: number): Triangle {
+        ax: number, ay: number, az: number,
+        bx: number, by: number, bz: number,
+        cx: number, cy: number, cz: number): Triangle {
         out.a.x = ax;
         out.a.y = ay;
         out.a.z = az;
@@ -202,8 +201,8 @@ export class Triangle {
      * @param {number} cz c 点的 z 部分。
      */
     constructor (ax = 0, ay = 0, az = 0,
-                 bx = 1, by = 0, bz = 0,
-                 cx = 0, cy = 1, cz = 0) {
+        bx = 1, by = 0, bz = 0,
+        cx = 0, cy = 1, cz = 0) {
         this._type = enums.SHAPE_TRIANGLE;
         this.a = new Vec3(ax, ay, az);
         this.b = new Vec3(bx, by, bz);

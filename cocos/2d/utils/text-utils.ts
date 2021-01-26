@@ -24,8 +24,8 @@
  THE SOFTWARE.
 */
 
-import Pool from '../../core/utils/pool';
 import { RUNTIME_BASED } from 'internal:constants';
+import Pool from '../../core/utils/pool';
 
 /**
  * @packageDocumentation
@@ -57,14 +57,14 @@ pool.get = function () {
         key: '',
         value: 0,
         prev: null,
-        next: null
+        next: null,
     };
 };
 
 class LRUCache {
     private count = 0;
     private limit = 0;
-    private datas = {};
+    private datas: Record<string, ICacheNode> = {};
     private declare head;
     private declare tail;
 
@@ -75,15 +75,12 @@ class LRUCache {
     public moveToHead (node) {
         node.next = this.head;
         node.prev = null;
-        if (this.head)
-            this.head.prev = node;
+        if (this.head) this.head.prev = node;
         this.head = node;
-        if (!this.tail)
-            this.tail = node;
+        if (!this.tail) this.tail = node;
         this.count++;
         this.datas[node.key] = node;
     }
-
 
     public put (key, value) {
         const node = pool.get();
@@ -148,6 +145,7 @@ class LRUCache {
 const measureCache = new LRUCache(MAX_CACHE_SIZE);
 
 const WORD_REG = /([a-zA-Z0-9ÄÖÜäöüßéèçàùêâîôûа-яА-ЯЁё]+|\S)/;
+// eslint-disable-next-line no-useless-escape
 const SYMBOL_REG = /^[!,.:;'}\]%\?>、‘“》？。，！]/;
 const LAST_WORD_REG = /([a-zA-Z0-9ÄÖÜäöüßéèçàùêâîôûаíìÍÌïÁÀáàÉÈÒÓòóŐőÙÚŰúűñÑæÆœŒÃÂãÔõěščřžýáíéóúůťďňĚŠČŘŽÁÍÉÓÚŤżźśóńłęćąŻŹŚÓŃŁĘĆĄ-яА-ЯЁё]+|\S)$/;
 const LAST_ENGLISH_REG = /[a-zA-Z0-9ÄÖÜäöüßéèçàùêâîôûаíìÍÌïÁÀáàÉÈÒÓòóŐőÙÚŰúűñÑæÆœŒÃÂãÔõěščřžýáíéóúůťďňĚŠČŘŽÁÍÉÓÚŤżźśóńłęćąŻŹŚÓŃŁĘĆĄ-яА-ЯЁё]+$/;
@@ -169,22 +167,22 @@ export function isUnicodeCJK (ch: string) {
 // Checking whether the character is a whitespace
 export function isUnicodeSpace (ch: string) {
     const chCode = ch.charCodeAt(0);
-    return ((chCode >= 9 && chCode <= 13) ||
-    chCode === 32 ||
-    chCode === 133 ||
-    chCode === 160 ||
-    chCode === 5760 ||
-    (chCode >= 8192 && chCode <= 8202) ||
-    chCode === 8232 ||
-    chCode === 8233 ||
-    chCode === 8239 ||
-    chCode === 8287 ||
-    chCode === 12288);
+    return ((chCode >= 9 && chCode <= 13)
+    || chCode === 32
+    || chCode === 133
+    || chCode === 160
+    || chCode === 5760
+    || (chCode >= 8192 && chCode <= 8202)
+    || chCode === 8232
+    || chCode === 8233
+    || chCode === 8239
+    || chCode === 8287
+    || chCode === 12288);
 }
 
 export function safeMeasureText (ctx: CanvasRenderingContext2D, string: string, desc?: string) {
     const font = desc || ctx.font;
-    const key = font + '\uD83C\uDFAE' + string;
+    const key = `${font}\uD83C\uDFAE${string}`;
     const cache = measureCache.get(key);
     if (cache !== null) {
         return cache;
@@ -221,13 +219,12 @@ function _safeSubstring (targetString, startIndex, endIndex?) {
             if (endChar >= '\uD800' && endChar <= '\uDBFF') {
                 newEndIndex--;
             }
-        }
-        // highSurrogateRex
-        else if (startChar >= '\uD800' && startChar <= '\uDBFF') {
+        } else if (startChar >= '\uD800' && startChar <= '\uDBFF') {
+            // highSurrogateRex
             newEndIndex++;
         }
     }
-    return targetString.substring(newStartIndex, newEndIndex);
+    return targetString.substring(newStartIndex, newEndIndex) as string;
 }
 
 export function fragmentText (stringToken: string, allWidth: number, maxWidth: number, measureText: (string: string) => number) {
@@ -241,8 +238,7 @@ export function fragmentText (stringToken: string, allWidth: number, maxWidth: n
 
     let text = stringToken;
     while (allWidth > maxWidth && text.length > 1) {
-
-        let fuzzyLen = text.length * ( maxWidth / allWidth ) | 0;
+        let fuzzyLen = text.length * (maxWidth / allWidth) | 0;
         let tmpText = _safeSubstring(text, fuzzyLen);
         let width = allWidth - measureText(tmpText);
         let sLine = tmpText;
@@ -254,7 +250,7 @@ export function fragmentText (stringToken: string, allWidth: number, maxWidth: n
         // Exceeded the size
         while (width > maxWidth && checkWhile++ < checkCount) {
             fuzzyLen *= maxWidth / width;
-            fuzzyLen = fuzzyLen | 0;
+            fuzzyLen |= 0;
             tmpText = _safeSubstring(text, fuzzyLen);
             width = allWidth - measureText(tmpText);
         }
@@ -269,7 +265,7 @@ export function fragmentText (stringToken: string, allWidth: number, maxWidth: n
                 sLine = tmpText;
             }
 
-            fuzzyLen = fuzzyLen + pushNum;
+            fuzzyLen += pushNum;
             tmpText = _safeSubstring(text, fuzzyLen);
             width = allWidth - measureText(tmpText);
         }
@@ -279,9 +275,8 @@ export function fragmentText (stringToken: string, allWidth: number, maxWidth: n
         if (fuzzyLen === 0) {
             fuzzyLen = 1;
             sLine = _safeSubstring(text, 1);
-        }
-        // highSurrogateRex
-        else if (fuzzyLen === 1 && text[0] >= '\uD800' && text[0] <= '\uDBFF') {
+        } else if (fuzzyLen === 1 && text[0] >= '\uD800' && text[0] <= '\uDBFF') {
+            // highSurrogateRex
             fuzzyLen = 2;
             sLine = _safeSubstring(text, 2);
         }
@@ -314,8 +309,7 @@ export function fragmentText (stringToken: string, allWidth: number, maxWidth: n
         // The first line And do not wrap should not remove the space
         if (wrappedWords.length === 0) {
             wrappedWords.push(sText);
-        }
-        else {
+        } else {
             sText = sText.trim();
             if (sText.length > 0) {
                 wrappedWords.push(sText);
@@ -327,8 +321,7 @@ export function fragmentText (stringToken: string, allWidth: number, maxWidth: n
 
     if (wrappedWords.length === 0) {
         wrappedWords.push(text);
-    }
-    else {
+    } else {
         text = text.trim();
         if (text.length > 0) {
             wrappedWords.push(text);

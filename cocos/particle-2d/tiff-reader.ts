@@ -56,24 +56,19 @@ export class TiffReader {
     constructor () {
     }
 
-
     public getUint8 (offset) {
         return this._tiffData[offset];
     }
 
     public getUint16 (offset) {
-        if (this._littleEndian)
-            return (this._tiffData[offset + 1] << 8) | (this._tiffData[offset]);
-        else
-            return (this._tiffData[offset] << 8) | (this._tiffData[offset + 1]);
+        if (this._littleEndian) return (this._tiffData[offset + 1] << 8) | (this._tiffData[offset]);
+        else return (this._tiffData[offset] << 8) | (this._tiffData[offset + 1]);
     }
 
     public getUint32 (offset) {
         const a = this._tiffData;
-        if (this._littleEndian)
-            return (a[offset + 3] << 24) | (a[offset + 2] << 16) | (a[offset + 1] << 8) | (a[offset]);
-        else
-            return (a[offset] << 24) | (a[offset + 1] << 16) | (a[offset + 2] << 8) | (a[offset + 3]);
+        if (this._littleEndian) return (a[offset + 3] << 24) | (a[offset + 2] << 16) | (a[offset + 1] << 8) | (a[offset]);
+        else return (a[offset] << 24) | (a[offset + 1] << 16) | (a[offset + 2] << 8) | (a[offset + 3]);
     }
 
     public checkLittleEndian () {
@@ -116,7 +111,7 @@ export class TiffReader {
             return tagNames[fieldTag];
         } else {
             logID(6021, fieldTag);
-            return "Tag" + fieldTag;
+            return `Tag${fieldTag}`;
         }
     }
 
@@ -141,10 +136,8 @@ export class TiffReader {
 
         if (fieldValueSize <= 4) {
             // The value is stored at the big end of the valueOffset.
-            if (this._littleEndian === false)
-                fieldValues.push(valueOffset >>> ((4 - fieldTypeLength) * 8));
-            else
-                fieldValues.push(valueOffset);
+            if (this._littleEndian === false) fieldValues.push(valueOffset >>> ((4 - fieldTypeLength) * 8));
+            else fieldValues.push(valueOffset);
         } else {
             for (let i = 0; i < typeCount; i++) {
                 const indexOffset = fieldTypeLength * i;
@@ -164,7 +157,7 @@ export class TiffReader {
         }
 
         if (fieldTypeName === 'ASCII') {
-            fieldValues.forEach(function (e, i, a) {
+            fieldValues.forEach((e, i, a) => {
                 a[i] = String.fromCharCode(e);
             });
         }
@@ -214,9 +207,9 @@ export class TiffReader {
         }
 
         return {
-            'bits': ((rawBits << shiftLeft) >>> shiftRight),
-            'byteOffset': newByteOffset + Math.floor(totalBits / 8),
-            'bitOffset': totalBits % 8
+            bits: ((rawBits << shiftLeft) >>> shiftRight),
+            byteOffset: newByteOffset + Math.floor(totalBits / 8),
+            bitOffset: totalBits % 8,
         };
     }
 
@@ -278,28 +271,28 @@ export class TiffReader {
 
         const fileDirectory = this._fileDirectories[0];
 
-        const imageWidth = fileDirectory['ImageWidth'].values[0];
-        const imageLength = fileDirectory['ImageLength'].values[0];
+        const imageWidth = fileDirectory.ImageWidth.values[0];
+        const imageLength = fileDirectory.ImageLength.values[0];
 
         this._canvas.width = imageWidth;
         this._canvas.height = imageLength;
 
         const strips: any[] = [];
 
-        const compression = (fileDirectory['Compression']) ? fileDirectory['Compression'].values[0] : 1;
+        const compression = (fileDirectory.Compression) ? fileDirectory.Compression.values[0] : 1;
 
-        const samplesPerPixel = fileDirectory['SamplesPerPixel'].values[0];
+        const samplesPerPixel = fileDirectory.SamplesPerPixel.values[0];
 
         const sampleProperties: ISampleProperty[] = [];
 
         let bitsPerPixel = 0;
         let hasBytesPerPixel = false;
 
-        fileDirectory['BitsPerSample'].values.forEach(function (bitsPerSample, i, bitsPerSampleValues) {
+        fileDirectory.BitsPerSample.values.forEach((bitsPerSample, i, bitsPerSampleValues) => {
             sampleProperties[i] = {
-                bitsPerSample: bitsPerSample,
+                bitsPerSample,
                 hasBytesPerSample: false,
-                bytesPerSample: undefined
+                bytesPerSample: undefined,
             };
 
             if ((bitsPerSample % 8) === 0) {
@@ -316,13 +309,13 @@ export class TiffReader {
             bytesPerPixel = bitsPerPixel / 8;
         }
 
-        const stripOffsetValues = fileDirectory['StripOffsets'].values;
+        const stripOffsetValues = fileDirectory.StripOffsets.values;
         const numStripOffsetValues = stripOffsetValues.length;
 
         let stripByteCountValues;
         // StripByteCounts is supposed to be required, but see if we can recover anyway.
-        if (fileDirectory['StripByteCounts']) {
-            stripByteCountValues = fileDirectory['StripByteCounts'].values;
+        if (fileDirectory.StripByteCounts) {
+            stripByteCountValues = fileDirectory.StripByteCounts.values;
         } else {
             logID(8003);
             // Infer StripByteCounts, if possible.
@@ -342,140 +335,140 @@ export class TiffReader {
             const stripByteCount = stripByteCountValues[i];
             // Loop through pixels.
             for (let byteOffset = 0, bitOffset = 0, jIncrement = 1, getHeader = true, pixel: number[] = [], numBytes = 0, sample = 0, currentSample = 0;
-                 byteOffset < stripByteCount; byteOffset += jIncrement) {
+                byteOffset < stripByteCount; byteOffset += jIncrement) {
                 // Decompress strip.
                 switch (compression) {
-                    // Uncompressed
-                    case 1:
-                        pixel = [];
-                        // Loop through samples (sub-pixels).
-                        for (let m = 0; m < samplesPerPixel; m++) {
-                            const s: any = sampleProperties[m];
-                            if (s.hasBytesPerSample) {
-                                // XXX: This is wrong!
-                                const sampleOffset = s.bytesPerSample * m;
-                                pixel.push(this.getBytes(s.bytesPerSample, stripOffset + byteOffset + sampleOffset));
-                            } else {
-                                const sampleInfo = this.getBits(s.bitsPerSample, stripOffset + byteOffset, bitOffset);
-                                pixel.push(sampleInfo.bits);
-                                byteOffset = sampleInfo.byteOffset - stripOffset;
-                                bitOffset = sampleInfo.bitOffset;
-
-                                throw RangeError(getError(6025));
-                            }
-                        }
-
-                        strips[i].push(pixel);
-
-                        if (hasBytesPerPixel) {
-                            jIncrement = bytesPerPixel;
+                // Uncompressed
+                case 1:
+                    pixel = [];
+                    // Loop through samples (sub-pixels).
+                    for (let m = 0; m < samplesPerPixel; m++) {
+                        const s: any = sampleProperties[m];
+                        if (s.hasBytesPerSample) {
+                            // XXX: This is wrong!
+                            const sampleOffset = s.bytesPerSample * m;
+                            pixel.push(this.getBytes(s.bytesPerSample, stripOffset + byteOffset + sampleOffset));
                         } else {
-                            jIncrement = 0;
-                            throw RangeError(getError(6026));
+                            const sampleInfo = this.getBits(s.bitsPerSample, stripOffset + byteOffset, bitOffset);
+                            pixel.push(sampleInfo.bits);
+                            byteOffset = sampleInfo.byteOffset - stripOffset;
+                            bitOffset = sampleInfo.bitOffset;
+
+                            throw RangeError(getError(6025));
                         }
-                        break;
+                    }
+
+                    strips[i].push(pixel);
+
+                    if (hasBytesPerPixel) {
+                        jIncrement = bytesPerPixel;
+                    } else {
+                        jIncrement = 0;
+                        throw RangeError(getError(6026));
+                    }
+                    break;
 
                     // CITT Group 3 1-Dimensional Modified Huffman run-length encoding
-                    case 2:
-                        // XXX: Use PDF.js code?
-                        break;
+                case 2:
+                    // XXX: Use PDF.js code?
+                    break;
 
                     // Group 3 Fax
-                    case 3:
-                        // XXX: Use PDF.js code?
-                        break;
+                case 3:
+                    // XXX: Use PDF.js code?
+                    break;
 
                     // Group 4 Fax
-                    case 4:
-                        // XXX: Use PDF.js code?
-                        break;
+                case 4:
+                    // XXX: Use PDF.js code?
+                    break;
 
                     // LZW
-                    case 5:
-                        // XXX: Use PDF.js code?
-                        break;
+                case 5:
+                    // XXX: Use PDF.js code?
+                    break;
 
                     // Old-style JPEG (TIFF 6.0)
-                    case 6:
-                        // XXX: Use PDF.js code?
-                        break;
+                case 6:
+                    // XXX: Use PDF.js code?
+                    break;
 
                     // New-style JPEG (TIFF Specification Supplement 2)
-                    case 7:
-                        // XXX: Use PDF.js code?
-                        break;
+                case 7:
+                    // XXX: Use PDF.js code?
+                    break;
 
                     // PackBits
-                    case 32773:
-                        // Are we ready for a new block?
-                        if (getHeader) {
-                            getHeader = false;
-                            // The header byte is signed.
-                            const header = this.getUint8(stripOffset + byteOffset);
+                case 32773:
+                    // Are we ready for a new block?
+                    if (getHeader) {
+                        getHeader = false;
+                        // The header byte is signed.
+                        const header = this.getUint8(stripOffset + byteOffset);
 
-                            if ((header >= 0) && (header <= 127)) { // Normal pixels.
-                                blockLength = header + 1;
-                            } else if ((header >= -127) && (header <= -1)) { // Collapsed pixels.
-                                iterations = -header + 1;
-                            } else /*if (header === -128)*/ { // Placeholder byte?
-                                getHeader = true;
-                            }
-                        } else {
-                            const currentByte = this.getUint8(stripOffset + byteOffset);
+                        if ((header >= 0) && (header <= 127)) { // Normal pixels.
+                            blockLength = header + 1;
+                        } else if ((header >= -127) && (header <= -1)) { // Collapsed pixels.
+                            iterations = -header + 1;
+                        } else /* if (header === -128) */ { // Placeholder byte?
+                            getHeader = true;
+                        }
+                    } else {
+                        const currentByte = this.getUint8(stripOffset + byteOffset);
 
-                            // Duplicate bytes, if necessary.
-                            for (let m = 0; m < iterations; m++) {
-                                const s: any = sampleProperties[sample];
-                                if (s.hasBytesPerSample) {
-                                    // We're reading one byte at a time, so we need to handle multi-byte samples.
-                                    currentSample = (currentSample << (8 * numBytes)) | currentByte;
-                                    numBytes++;
+                        // Duplicate bytes, if necessary.
+                        for (let m = 0; m < iterations; m++) {
+                            const s: any = sampleProperties[sample];
+                            if (s.hasBytesPerSample) {
+                                // We're reading one byte at a time, so we need to handle multi-byte samples.
+                                currentSample = (currentSample << (8 * numBytes)) | currentByte;
+                                numBytes++;
 
-                                    // Is our sample complete?
-                                    if (numBytes === s.bytesPerSample) {
-                                        pixel.push(currentSample);
-                                        currentSample = numBytes = 0;
-                                        sample++;
-                                    }
-                                } else {
-                                    throw RangeError(getError(6025));
+                                // Is our sample complete?
+                                if (numBytes === s.bytesPerSample) {
+                                    pixel.push(currentSample);
+                                    currentSample = numBytes = 0;
+                                    sample++;
                                 }
-
-                                // Is our pixel complete?
-                                if (sample === samplesPerPixel) {
-                                    strips[i].push(pixel);
-                                    pixel = [];
-                                    sample = 0;
-                                }
+                            } else {
+                                throw RangeError(getError(6025));
                             }
 
-                            blockLength--;
-
-                            // Is our block complete?
-                            if (blockLength === 0) {
-                                getHeader = true;
+                            // Is our pixel complete?
+                            if (sample === samplesPerPixel) {
+                                strips[i].push(pixel);
+                                pixel = [];
+                                sample = 0;
                             }
                         }
 
-                        jIncrement = 1;
-                        break;
+                        blockLength--;
+
+                        // Is our block complete?
+                        if (blockLength === 0) {
+                            getHeader = true;
+                        }
+                    }
+
+                    jIncrement = 1;
+                    break;
 
                     // Unknown compression algorithm
-                    default:
-                        // Do not attempt to parse the image data.
-                        break;
+                default:
+                    // Do not attempt to parse the image data.
+                    break;
                 }
             }
         }
 
         if (canvas.getContext) {
-            const ctx = this._canvas.getContext("2d");
+            const ctx = this._canvas.getContext('2d');
 
             // Set a default fill style.
-            ctx.fillStyle = "rgba(255, 255, 255, 0)";
+            ctx.fillStyle = 'rgba(255, 255, 255, 0)';
 
             // If RowsPerStrip is missing, the whole image is in one strip.
-            const rowsPerStrip = fileDirectory['RowsPerStrip'] ? fileDirectory['RowsPerStrip'].values[0] : imageLength;
+            const rowsPerStrip = fileDirectory.RowsPerStrip ? fileDirectory.RowsPerStrip.values[0] : imageLength;
 
             const numStrips = strips.length;
 
@@ -485,20 +478,20 @@ export class TiffReader {
             let numRowsInStrip = rowsPerStrip;
             let numRowsInPreviousStrip = 0;
 
-            const photometricInterpretation = fileDirectory['PhotometricInterpretation'].values[0];
+            const photometricInterpretation = fileDirectory.PhotometricInterpretation.values[0];
 
             let extraSamplesValues = [];
             let numExtraSamples = 0;
 
-            if (fileDirectory['ExtraSamples']) {
-                extraSamplesValues = fileDirectory['ExtraSamples'].values;
+            if (fileDirectory.ExtraSamples) {
+                extraSamplesValues = fileDirectory.ExtraSamples.values;
                 numExtraSamples = extraSamplesValues.length;
             }
 
             let colorMapValues = [];
             let colorMapSampleSize = 0;
-            if (fileDirectory['ColorMap']) {
-                colorMapValues = fileDirectory['ColorMap'].values;
+            if (fileDirectory.ColorMap) {
+                colorMapValues = fileDirectory.ColorMap.values;
                 colorMapSampleSize = Math.pow(2, (sampleProperties[0] as any).bitsPerSample);
             }
 
@@ -535,52 +528,52 @@ export class TiffReader {
                         }
 
                         switch (photometricInterpretation) {
-                            // Bilevel or Grayscale
-                            // WhiteIsZero
-                            case 0:
-                                let invertValue = 0;
-                                if ((sampleProperties[0] as any).hasBytesPerSample) {
-                                    invertValue = Math.pow(0x10, (sampleProperties[0] as any).bytesPerSample * 2);
-                                }
+                        // Bilevel or Grayscale
+                        // WhiteIsZero
+                        case 0:
+                            let invertValue = 0;
+                            if ((sampleProperties[0] as any).hasBytesPerSample) {
+                                invertValue = Math.pow(0x10, (sampleProperties[0] as any).bytesPerSample * 2);
+                            }
 
-                                // Invert samples.
-                                pixelSamples.forEach(function (sample, index, samples) {
-                                    samples[index] = invertValue - sample;
-                                });
+                            // Invert samples.
+                            pixelSamples.forEach((sample, index, samples) => {
+                                samples[index] = invertValue - sample;
+                            });
 
                             // Bilevel or Grayscale
                             // BlackIsZero
-                            case 1:
-                                red = green = blue = this.clampColorSample(pixelSamples[0], (sampleProperties[0] as any).bitsPerSample);
-                                break;
+                        case 1:
+                            red = green = blue = this.clampColorSample(pixelSamples[0], (sampleProperties[0] as any).bitsPerSample);
+                            break;
 
                             // RGB Full Color
-                            case 2:
-                                red = this.clampColorSample(pixelSamples[0], (sampleProperties[0] as any).bitsPerSample);
-                                green = this.clampColorSample(pixelSamples[1], (sampleProperties[1] as any).bitsPerSample);
-                                blue = this.clampColorSample(pixelSamples[2], (sampleProperties[2] as any).bitsPerSample);
-                                break;
+                        case 2:
+                            red = this.clampColorSample(pixelSamples[0], (sampleProperties[0] as any).bitsPerSample);
+                            green = this.clampColorSample(pixelSamples[1], (sampleProperties[1] as any).bitsPerSample);
+                            blue = this.clampColorSample(pixelSamples[2], (sampleProperties[2] as any).bitsPerSample);
+                            break;
 
                             // RGB Color Palette
-                            case 3:
-                                if (colorMapValues === undefined) {
-                                    throw Error(getError(6027));
-                                }
+                        case 3:
+                            if (colorMapValues === undefined) {
+                                throw Error(getError(6027));
+                            }
 
-                                const colorMapIndex = pixelSamples[0];
+                            const colorMapIndex = pixelSamples[0];
 
-                                red = this.clampColorSample(colorMapValues[colorMapIndex], 16);
-                                green = this.clampColorSample(colorMapValues[colorMapSampleSize + colorMapIndex], 16);
-                                blue = this.clampColorSample(colorMapValues[(2 * colorMapSampleSize) + colorMapIndex], 16);
-                                break;
+                            red = this.clampColorSample(colorMapValues[colorMapIndex], 16);
+                            green = this.clampColorSample(colorMapValues[colorMapSampleSize + colorMapIndex], 16);
+                            blue = this.clampColorSample(colorMapValues[(2 * colorMapSampleSize) + colorMapIndex], 16);
+                            break;
 
                             // Unknown Photometric Interpretation
-                            default:
-                                throw RangeError(getError(6028, photometricInterpretation));
-                                break;
+                        default:
+                            throw RangeError(getError(6028, photometricInterpretation));
+                            break;
                         }
 
-                        ctx.fillStyle = "rgba(" + red + ", " + green + ", " + blue + ", " + opacity + ")";
+                        ctx.fillStyle = `rgba(${red}, ${green}, ${blue}, ${opacity})`;
                         ctx.fillRect(x, yPadding + y, 1, 1);
                     }
                 }
@@ -594,7 +587,7 @@ export class TiffReader {
 
     // See: http://www.digitizationguidelines.gov/guidelines/TIFF_Metadata_Final.pdf
     // See: http://www.digitalpreservation.gov/formats/content/tiff_tags.shtml
-};
+}
 
 const fieldTagNames = {
     // TIFF Baseline
@@ -703,8 +696,8 @@ const fieldTagNames = {
     0xA481: 'GDAL_NODATA',
 
     // Photoshop
-    0x8649: 'Photoshop'
-}
+    0x8649: 'Photoshop',
+};
 
 const fieldTypeNames = {
     0x0001: 'BYTE',
@@ -718,5 +711,5 @@ const fieldTypeNames = {
     0x0009: 'SLONG',
     0x000A: 'SRATIONAL',
     0x000B: 'FLOAT',
-    0x000C: 'DOUBLE'
-}
+    0x000C: 'DOUBLE',
+};

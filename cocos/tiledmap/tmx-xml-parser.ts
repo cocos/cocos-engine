@@ -29,14 +29,13 @@ import zlib from '../../external/compression/zlib.min.js';
 import { SAXParser } from '../core/asset-manager/plist-parser';
 import {
     GID, MixedGID, Orientation, PropertiesInfo, RenderOrder, StaggerAxis, StaggerIndex, TiledAnimation, TiledAnimationType,
-    TileFlag, TMXImageLayerInfo, TMXLayerInfo, TMXObject, TMXObjectGroupInfo, TMXObjectType, TMXTilesetInfo
+    TileFlag, TMXImageLayerInfo, TMXLayerInfo, TMXObject, TMXObjectGroupInfo, TMXObjectType, TMXTilesetInfo,
 } from './tiled-types';
 import { Color, errorID, logID, Size, Vec2 } from '../core';
 import { SpriteFrame } from '../2d/assets';
 
 function uint8ArrayToUint32Array (uint8Arr: Uint8Array): null | Uint32Array | number[] {
-    if (uint8Arr.length % 4 !== 0)
-        return null;
+    if (uint8Arr.length % 4 !== 0) return null;
     const arrLen = uint8Arr.length / 4;
     const retArr = window.Uint32Array ? new Uint32Array(arrLen) : [];
     for (let i = 0; i < arrLen; i++) {
@@ -46,28 +45,27 @@ function uint8ArrayToUint32Array (uint8Arr: Uint8Array): null | Uint32Array | nu
     return retArr;
 }
 
-
 function strToHAlign (value): HorizontalTextAlignment {
     const hAlign = Label.HorizontalAlign;
     switch (value) {
-        case 'center':
-            return hAlign.CENTER;
-        case 'right':
-            return hAlign.RIGHT;
-        default:
-            return hAlign.LEFT;
+    case 'center':
+        return hAlign.CENTER;
+    case 'right':
+        return hAlign.RIGHT;
+    default:
+        return hAlign.LEFT;
     }
 }
 
 function strToVAlign (value): VerticalTextAlignment {
     const vAlign = Label.VerticalAlign;
     switch (value) {
-        case 'center':
-            return vAlign.CENTER;
-        case 'bottom':
-            return vAlign.BOTTOM;
-        default:
-            return vAlign.TOP;
+    case 'center':
+        return vAlign.CENTER;
+    case 'bottom':
+        return vAlign.BOTTOM;
+    default:
+        return vAlign.TOP;
     }
 }
 
@@ -109,14 +107,11 @@ function getPropertyList (node: Element, map?: PropertiesInfo): PropertiesInfo {
         let value = element.getAttribute('value');
         if (type === 'int') {
             value = parseInt(value);
-        }
-        else if (type === 'float') {
+        } else if (type === 'float') {
             value = parseFloat(value);
-        }
-        else if (type === 'bool') {
+        } else if (type === 'bool') {
             value = value === 'true';
-        }
-        else if (type === 'color') {
+        } else if (type === 'color') {
             value = strToColor(value);
         }
 
@@ -125,7 +120,6 @@ function getPropertyList (node: Element, map?: PropertiesInfo): PropertiesInfo {
 
     return map!;
 }
-
 
 /**
  * <p>cc.TMXMapInfo contains the information about the map like: <br/>
@@ -143,7 +137,6 @@ function getPropertyList (node: Element, map?: PropertiesInfo): PropertiesInfo {
  */
 
 export class TMXMapInfo {
-
     /**
      * Properties of the map info.
      * @property {Array}    properties
@@ -563,14 +556,10 @@ export class TMXMapInfo {
                 }
             }
 
-            if (orientationStr === 'orthogonal')
-                this.orientation = Orientation.ORTHO;
-            else if (orientationStr === 'isometric')
-                this.orientation = Orientation.ISO;
-            else if (orientationStr === 'hexagonal')
-                this.orientation = Orientation.HEX;
-            else if (orientationStr !== null)
-                logID(7217, orientationStr);
+            if (orientationStr === 'orthogonal') this.orientation = Orientation.ORTHO;
+            else if (orientationStr === 'isometric') this.orientation = Orientation.ISO;
+            else if (orientationStr === 'hexagonal') this.orientation = Orientation.HEX;
+            else if (orientationStr !== null) logID(7217, orientationStr);
 
             if (renderorderStr === 'right-up') {
                 this.renderOrder = RenderOrder.RightUp;
@@ -584,15 +573,13 @@ export class TMXMapInfo {
 
             if (staggerAxisStr === 'x') {
                 this.setStaggerAxis(StaggerAxis.STAGGERAXIS_X);
-            }
-            else if (staggerAxisStr === 'y') {
+            } else if (staggerAxisStr === 'y') {
                 this.setStaggerAxis(StaggerAxis.STAGGERAXIS_Y);
             }
 
             if (staggerIndexStr === 'odd') {
                 this.setStaggerIndex(StaggerIndex.STAGGERINDEX_ODD);
-            }
-            else if (staggerIndexStr === 'even') {
+            } else if (staggerIndexStr === 'even') {
                 this.setStaggerIndex(StaggerIndex.STAGGERINDEX_EVEN);
             }
 
@@ -645,7 +632,7 @@ export class TMXMapInfo {
                 const tilesetName = selTileset.getAttribute('name') || '';
                 const tilesetSpacing = parseInt(selTileset.getAttribute('spacing')!) || 0;
                 const tilesetMargin = parseInt(selTileset.getAttribute('margin')!) || 0;
-                const fgid = tilesetFirstGid ? tilesetFirstGid : (parseInt(selTileset.getAttribute('firstgid')!) || 0);
+                const fgid = tilesetFirstGid || (parseInt(selTileset.getAttribute('firstgid')!) || 0);
 
                 const tilesetSize = new Size(0, 0);
                 tilesetSize.width = parseFloat(selTileset.getAttribute('tilewidth')!);
@@ -671,7 +658,6 @@ export class TMXMapInfo {
 
                         tileset.collection = collection;
                         if (!collection) {
-
                             tileset.imageName = firstImageName;
                             tileset.imageSize.width = parseFloat(firstImage.getAttribute('width')!) || 0;
                             tileset.imageSize.height = parseFloat(firstImage.getAttribute('height')!) || 0;
@@ -726,7 +712,7 @@ export class TMXMapInfo {
                             }
                         }
 
-                        tileset.firstGid = ((this.parentGID as unknown as number) & TileFlag.FLIPPED_MASK) as unknown as GID;;
+                        tileset.firstGid = ((this.parentGID as unknown as number) & TileFlag.FLIPPED_MASK) as unknown as GID;
                     }
                     const pid = ((TileFlag.FLIPPED_MASK & this.parentGID as unknown as number) >>> 0) as unknown as GID;
                     this._tileProperties.set(pid, getPropertyList(tile));
@@ -830,10 +816,8 @@ export class TMXMapInfo {
         layer.visible = !(visible === '0');
 
         const opacity = selLayer.getAttribute('opacity');
-        if (opacity)
-            layer.opacity = Math.round(255 * parseFloat(opacity));
-        else
-            layer.opacity = 255;
+        if (opacity) layer.opacity = Math.round(255 * parseFloat(opacity));
+        else layer.opacity = 255;
         layer.offset = new Vec2(parseFloat(selLayer.getAttribute('offsetx')!) || 0, parseFloat(selLayer.getAttribute('offsety')!) || 0);
 
         const tintColor = selLayer.getAttribute('tintcolor');
@@ -841,7 +825,7 @@ export class TMXMapInfo {
 
         let nodeValue = '';
         for (let j = 0; j < data.childNodes.length; j++) {
-            nodeValue += data.childNodes[j].nodeValue
+            nodeValue += data.childNodes[j].nodeValue;
         }
         nodeValue = nodeValue.trim();
 
@@ -854,35 +838,31 @@ export class TMXMapInfo {
         }
         let tiles;
         switch (compression) {
-            case 'gzip':
-                tiles = codec.unzipBase64AsArray(nodeValue, 4);
-                break;
-            case 'zlib':
-                const inflator = new zlib.Inflate(codec.Base64.decodeAsArray(nodeValue, 1));
-                tiles = uint8ArrayToUint32Array(inflator.decompress());
-                break;
-            case null:
-            case '':
-                // Uncompressed
-                if (encoding === 'base64')
-                    tiles = codec.Base64.decodeAsArray(nodeValue, 4);
-                else if (encoding === 'csv') {
-                    tiles = [];
-                    const csvTiles = nodeValue.split(',');
-                    for (let csvIdx = 0; csvIdx < csvTiles.length; csvIdx++)
-                        tiles.push(parseInt(csvTiles[csvIdx]));
-                } else {
-                    // XML format
-                    const selDataTiles = data.getElementsByTagName('tile');
-                    tiles = [];
-                    for (let xmlIdx = 0; xmlIdx < selDataTiles.length; xmlIdx++)
-                        tiles.push(parseInt(selDataTiles[xmlIdx].getAttribute('gid')!));
-                }
-                break;
-            default:
-                if (this.layerAttrs === TMXLayerInfo.ATTRIB_NONE)
-                    logID(7219);
-                break;
+        case 'gzip':
+            tiles = codec.unzipBase64AsArray(nodeValue, 4);
+            break;
+        case 'zlib':
+            const inflator = new zlib.Inflate(codec.Base64.decodeAsArray(nodeValue, 1));
+            tiles = uint8ArrayToUint32Array(inflator.decompress());
+            break;
+        case null:
+        case '':
+            // Uncompressed
+            if (encoding === 'base64') tiles = codec.Base64.decodeAsArray(nodeValue, 4);
+            else if (encoding === 'csv') {
+                tiles = [];
+                const csvTiles = nodeValue.split(',');
+                for (let csvIdx = 0; csvIdx < csvTiles.length; csvIdx++) tiles.push(parseInt(csvTiles[csvIdx]));
+            } else {
+                // XML format
+                const selDataTiles = data.getElementsByTagName('tile');
+                tiles = [];
+                for (let xmlIdx = 0; xmlIdx < selDataTiles.length; xmlIdx++) tiles.push(parseInt(selDataTiles[xmlIdx].getAttribute('gid')!));
+            }
+            break;
+        default:
+            if (this.layerAttrs === TMXLayerInfo.ATTRIB_NONE) logID(7219);
+            break;
         }
         if (tiles) {
             layer.tiles = new Uint32Array(tiles);
@@ -900,25 +880,20 @@ export class TMXMapInfo {
         objectGroup.offset = new Vec2(parseFloat(selGroup.getAttribute('offsetx')!), parseFloat(selGroup.getAttribute('offsety')!));
 
         const opacity = selGroup.getAttribute('opacity');
-        if (opacity)
-            objectGroup.opacity = Math.round(255 * parseFloat(opacity));
-        else
-            objectGroup.opacity = 255;
+        if (opacity) objectGroup.opacity = Math.round(255 * parseFloat(opacity));
+        else objectGroup.opacity = 255;
 
         const tintColor = selGroup.getAttribute('tintcolor');
         objectGroup.tintColor = tintColor ? strToColor(tintColor) : null;
 
         const visible = selGroup.getAttribute('visible');
-        if (visible && parseInt(visible) === 0)
-            objectGroup.visible = false;
+        if (visible && parseInt(visible) === 0) objectGroup.visible = false;
 
         const color = selGroup.getAttribute('color');
-        if (color)
-            objectGroup.color.fromHEX(color);
+        if (color) objectGroup.color.fromHEX(color);
 
         const draworder = selGroup.getAttribute('draworder');
-        if (draworder)
-            objectGroup.draworder = draworder as any;
+        if (draworder) objectGroup.draworder = draworder as any;
 
         // set the properties to the group
         objectGroup.setProperties(getPropertyList(selGroup));
@@ -983,8 +958,7 @@ export class TMXMapInfo {
                 if (polygonProps && polygonProps.length > 0) {
                     objectProp.type = TMXObjectType.POLYGON;
                     const selPgPointStr = polygonProps[0].getAttribute('points');
-                    if (selPgPointStr)
-                        objectProp.points = this._parsePointsString(selPgPointStr)!;
+                    if (selPgPointStr) objectProp.points = this._parsePointsString(selPgPointStr)!;
                 }
 
                 // polyline
@@ -992,8 +966,7 @@ export class TMXMapInfo {
                 if (polylineProps && polylineProps.length > 0) {
                     objectProp.type = TMXObjectType.POLYLINE;
                     const selPlPointStr = polylineProps[0].getAttribute('points');
-                    if (selPlPointStr)
-                        objectProp.polylinePoints = this._parsePointsString(selPlPointStr)!;
+                    if (selPlPointStr) objectProp.polylinePoints = this._parsePointsString(selPlPointStr)!;
                 }
 
                 if (!objectProp.type) {
@@ -1005,17 +978,14 @@ export class TMXMapInfo {
             }
 
             if (draworder !== 'index') {
-                objectGroup.objects.sort((a, b) => {
-                    return a.y - b.y;
-                });
+                objectGroup.objects.sort((a, b) => a.y - b.y);
             }
         }
         return objectGroup;
     }
 
     protected _parsePointsString (pointsString?: string) {
-        if (!pointsString)
-            return null;
+        if (!pointsString) return null;
 
         const points: { x: number, y: number }[] = [];
         const pointsStr = pointsString.split(' ');
@@ -1081,5 +1051,4 @@ export class TMXMapInfo {
         dotIndex = dotIndex < 0 ? name.length : dotIndex;
         return name.substring(splashIndex, dotIndex);
     }
-
 }

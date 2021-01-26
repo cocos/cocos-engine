@@ -41,6 +41,11 @@ export interface IPhysicsMaterial {
     restitution: number;
 }
 
+export interface ICollisionGroup {
+    index: number,
+    name: string,
+}
+
 export interface IPhysicsConfig {
     gravity: IVec3Like;
     allowSleep: boolean;
@@ -48,6 +53,7 @@ export interface IPhysicsConfig {
     maxSubSteps: number;
     sleepThreshold: number;
     collisionMatrix: ICollisionMatrix;
+    collisionGroups: ICollisionGroup[];
     defaultMaterial: IPhysicsMaterial;
     autoSimulation: boolean;
     useNodeChains: boolean;

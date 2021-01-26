@@ -47,21 +47,25 @@ export class PlanarShadowQueue {
     }
 
     public gatherShadowPasses (camera: Camera, cmdBuff: CommandBuffer) {
-        const shadows = this._pipeline.shadows;
+        const pipelineSceneData = this._pipeline.pipelineSceneData;
+        const pipelineUBO = this._pipeline.pipelineUBO;
+        const shadows = pipelineSceneData.shadows;
+        this._pendingModels.length = 0;
         if (!shadows.enabled || shadows.type !== ShadowType.Planar) { return; }
+
+        pipelineUBO.updateShadowUBO(camera);
 
         const scene = camera.scene!;
         const frstm = camera.frustum;
         const shadowVisible =  (camera.visibility & Layers.BitMask.DEFAULT) !== 0;
         if (!scene.mainLight || !shadowVisible) { return; }
 
-        const models = scene.models;
-        this._pendingModels.length = 0;
+        const models = pipelineSceneData.renderObjects;
         const instancedBuffer = InstancedBuffer.get(shadows.instancingMaterial.passes[0]);
         this._instancedQueue.clear(); this._instancedQueue.queue.add(instancedBuffer);
 
         for (let i = 0; i < models.length; i++) {
-            const model = models[i];
+            const model = models[i].model;
             if (!model.enabled || !model.node || !model.castShadow) { continue; }
             if (model.worldBounds) {
                 AABB.transform(_ab, model.worldBounds, shadows.matLight);
@@ -79,7 +83,7 @@ export class PlanarShadowQueue {
     }
 
     public recordCommandBuffer (device: Device, renderPass: RenderPass, cmdBuff: CommandBuffer) {
-        const shadows = this._pipeline.shadows;
+        const shadows = this._pipeline.pipelineSceneData.shadows;
         if (!shadows.enabled || shadows.type !== ShadowType.Planar || !this._pendingModels.length) { return; }
 
         this._instancedQueue.recordCommandBuffer(device, renderPass, cmdBuff);

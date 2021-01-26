@@ -143,22 +143,22 @@ function getElementTraits (elementType: ElementType) {
 
 function getStorageConstructor (unit: StorageUnit) {
     switch (unit) {
-        case StorageUnit.Uint8:
-            return Uint8Array;
-        case StorageUnit.Uint16:
-            return Uint16Array;
-        case StorageUnit.Uint32:
-            return Uint32Array;
-        case StorageUnit.Int8:
-            return Int8Array;
-        case StorageUnit.Int16:
-            return Int16Array;
-        case StorageUnit.Int32:
-            return Int32Array;
-        case StorageUnit.Float32:
-            return Float32Array;
-        case StorageUnit.Float64:
-            return Float64Array;
+    case StorageUnit.Uint8:
+        return Uint8Array;
+    case StorageUnit.Uint16:
+        return Uint16Array;
+    case StorageUnit.Uint32:
+        return Uint32Array;
+    case StorageUnit.Int8:
+        return Int8Array;
+    case StorageUnit.Int16:
+        return Int16Array;
+    case StorageUnit.Int32:
+        return Int32Array;
+    case StorageUnit.Float32:
+        return Float32Array;
+    case StorageUnit.Float64:
+        return Float64Array;
     }
 }
 
@@ -176,7 +176,7 @@ const BuiltinElementTypeTraits: Record<ElementType, CompactTraits> = {
         },
         decompress (storage: CompactValueTypeArrayStorage, index: number) {
             return storage[index];
-        }
+        },
     },
     [ElementType.Vec2]: {
         requiredUnits: 2,
@@ -186,7 +186,7 @@ const BuiltinElementTypeTraits: Record<ElementType, CompactTraits> = {
         },
         decompress (storage: CompactValueTypeArrayStorage, index: number) {
             return new Vec3(storage[index * 2], storage[index * 2 + 1]);
-        }
+        },
     },
     [ElementType.Vec3]: {
         requiredUnits: 3,
@@ -197,7 +197,7 @@ const BuiltinElementTypeTraits: Record<ElementType, CompactTraits> = {
         },
         decompress (storage: CompactValueTypeArrayStorage, index: number) {
             return new Vec3(storage[index * 3], storage[index * 3 + 1], storage[index * 3 + 2]);
-        }
+        },
     },
     [ElementType.Vec4]: {
         requiredUnits: 4,
@@ -209,7 +209,7 @@ const BuiltinElementTypeTraits: Record<ElementType, CompactTraits> = {
         },
         decompress (storage: CompactValueTypeArrayStorage, index: number) {
             return new Vec4(storage[index * 4], storage[index * 4 + 1], storage[index * 4 + 2], storage[index * 4 + 3]);
-        }
+        },
     },
     [ElementType.Quat]: {
         requiredUnits: 4,
@@ -221,7 +221,7 @@ const BuiltinElementTypeTraits: Record<ElementType, CompactTraits> = {
         },
         decompress (storage: CompactValueTypeArrayStorage, index: number) {
             return new Quat(storage[index * 4], storage[index * 4 + 1], storage[index * 4 + 2], storage[index * 4 + 3]);
-        }
+        },
     },
     [ElementType.Mat4]: {
         requiredUnits: 16,

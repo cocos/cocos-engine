@@ -6,7 +6,6 @@ import { PHYSICS_2D_PTM_RATIO } from '../../framework/physics-types';
 import { toRadian } from '../../../core';
 
 export class b2WheelJoint extends b2Joint implements IWheelJoint {
-
     setDampingRatio (v: number) {
         if (this._b2joint) {
             (this._b2joint as b2.WheelJoint).SetSpringDampingRatio(v);
@@ -36,11 +35,11 @@ export class b2WheelJoint extends b2Joint implements IWheelJoint {
     }
 
     _createJointDef () {
-        let comp = this._jointComp as WheelJoint2D;
-        let def = new b2.WheelJointDef();
+        const comp = this._jointComp as WheelJoint2D;
+        const def = new b2.WheelJointDef();
         def.localAnchorA.Set(comp.anchor.x / PHYSICS_2D_PTM_RATIO, comp.anchor.y / PHYSICS_2D_PTM_RATIO);
         def.localAnchorB.Set(comp.connectedAnchor.x / PHYSICS_2D_PTM_RATIO, comp.connectedAnchor.y / PHYSICS_2D_PTM_RATIO);
-        let angle = toRadian(comp.angle);
+        const angle = toRadian(comp.angle);
         def.localAxisA.Set(Math.cos(angle), Math.sin(angle));
         // def.localAxisA.Set(0, 1);
         def.maxMotorTorque = comp.maxMotorTorque;

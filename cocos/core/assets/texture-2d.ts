@@ -29,7 +29,7 @@
  * @module asset
  */
 
-import { EDITOR, TEST } from "internal:constants";
+import { EDITOR, TEST } from 'internal:constants';
 import { ccclass, type } from 'cc.decorator';
 import { TextureType } from '../gfx/define';
 import { PixelFormat } from './asset-enum';
@@ -110,7 +110,7 @@ export class Texture2D extends SimpleTexture {
 
     /**
      * @en Level 0 mipmap image.
-     * Be noted, `this.image = img` equals `this.mipmaps = [img]`, 
+     * Be noted, `this.image = img` equals `this.mipmaps = [img]`,
      * sets image will clear all previous mipmaps.
      * @zh 0 级 Mipmap。
      * 注意，`this.image = img` 等价于 `this.mipmaps = [img]`，
@@ -174,14 +174,15 @@ export class Texture2D extends SimpleTexture {
         return this._mipmaps.length !== 0 ? this._mipmaps[0].url : '';
     }
 
-    public updateMipmaps (firstLevel: number = 0, count?: number) {
+    public updateMipmaps (firstLevel = 0, count?: number) {
         if (firstLevel >= this._mipmaps.length) {
             return;
         }
 
         const nUpdate = Math.min(
             count === undefined ? this._mipmaps.length : count,
-            this._mipmaps.length - firstLevel);
+            this._mipmaps.length - firstLevel,
+        );
 
         for (let i = 0; i < nUpdate; ++i) {
             const level = firstLevel + i;
@@ -273,7 +274,7 @@ export class Texture2D extends SimpleTexture {
         let ready = true;
         for (let i = 0; i < this._mipmaps.length; ++i) {
             const image = this._mipmaps[i];
-            if (!image.loaded){
+            if (!image.loaded) {
                 ready = false;
                 break;
             }

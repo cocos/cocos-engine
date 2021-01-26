@@ -46,21 +46,20 @@ import {
     earcut,
 } from './assembler';
 import { MeshBuffer } from './renderer/mesh-buffer';
-import * as UIVertexFormat from './renderer/ui-vertex-format';
 import { StencilManager } from './renderer/stencil-manager';
 import { legacyCC } from '../core/global-exports';
 
-import './renderer/ui';
+import './renderer/batcher-2d';
 
 export * from './assets';
 export * from './framework';
 export * from './components';
 export * from './renderer/base';
+export * from './renderer/deprecated';
 export * from './utils';
 
 export {
     MeshBuffer,
-    UIVertexFormat,
     StencilManager,
     CanvasPool,
     // barFilled,
@@ -81,7 +80,6 @@ export {
 
 legacyCC.UI = {
     MeshBuffer,
-    UIVertexFormat,
     // barFilled,
     // radialFilled,
     // simple,

@@ -172,11 +172,11 @@ deviceProtos.forEach(function(item, index) {
         }
 
         Object.defineProperty(item, 'uboOffsetAlignment', {
-            get () { 
+            get () {
                 if (this.cachedUboOffsetAlignment === undefined) {
                     this.cachedUboOffsetAlignment = this.getUboOffsetAlignment();
                 }
-                return this.cachedUboOffsetAlignment; 
+                return this.cachedUboOffsetAlignment;
             }
         })
     }
@@ -190,7 +190,7 @@ cc.js.get(shaderProto, 'id', function () {
 let bufferProto = gfx.Buffer.prototype;
 
 let oldUpdate = bufferProto.update;
-bufferProto.update = function(buffer, offset, size) {
+bufferProto.update = function(buffer, size) {
     if(buffer.byteLength === 0) return;
     let buffSize;
 
@@ -219,7 +219,7 @@ bufferProto.update = function(buffer, offset, size) {
         buffSize = buffer.byteLength;
     }
 
-    oldUpdate.call(this, buffer, offset || 0, buffSize);
+    oldUpdate.call(this, buffer, buffSize);
 }
 
 let oldBufferInitializeFunc = bufferProto.initialize;

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-types */
 /*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
  Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
@@ -30,7 +31,7 @@
  */
 
 import { EventKeyboard, EventAcceleration, EventMouse } from './events';
-import { Node } from '../../scene-graph';
+import { Component } from '../../components';
 import { legacyCC } from '../../global-exports';
 import { logID, assertID } from '../debug';
 
@@ -42,7 +43,7 @@ export interface IEventListenerCreateInfo {
 
 export interface IListenerMask {
     index: number;
-    node: Node;
+    comp: Component;
 }
 
 /**
@@ -143,8 +144,8 @@ export class EventListener {
 
     // hack: How to solve the problem of uncertain attribute
     // callback's this object
-    public owner: Object | null = null;
-    public mask: IListenerMask | null = null;
+    public owner: any = null;
+    public mask: IListenerMask[] | null = null;
     public _previousIn?: boolean = false;
 
     public _target: any = null;
@@ -239,8 +240,8 @@ export class EventListener {
      * note： It's different from `EventType`, e.g.<br/>
      * TouchEvent has two kinds of event listeners - EventListenerOneByOne, EventListenerAllAtOnce<br/>
      * @zh 获取此侦听器的类型<br/>
-     * 注意：它与`EventType`不同，例如<br/>
-     * TouchEvent 有两种事件监听器 -  EventListenerOneByOne，EventListenerAllAtOnce
+     * 注意：它与`EventType`不同，例如<br/>
+     * TouchEvent 有两种事件监听器 -  EventListenerOneByOne，EventListenerAllAtOnce
      */
     public _getType () {
         return this._type;
@@ -293,7 +294,7 @@ export class EventListener {
      * @return 如果它是固定优先级侦听器，则为场景图优先级侦听器非 null 。
      */
     public _getSceneGraphPriority () {
-        return this._node;
+        return this._node as Node;
     }
 
     /**
@@ -322,9 +323,9 @@ export class EventListener {
      * @zh
      * 启用或禁用监听器。<br/>
      * 注意：只有处于“启用”状态的侦听器才能接收事件。<br/>
-     * 初始化侦听器时，默认情况下启用它。<br/>
-     * 事件侦听器可以在启用且未暂停时接收事件。<br/>
-     * 当固定优先级侦听器时，暂停状态始终为false。<br/>
+     * 初始化侦听器时，默认情况下启用它。<br/>
+     * 事件侦听器可以在启用且未暂停时接收事件。<br/>
+     * 当固定优先级侦听器时，暂停状态始终为false。<br/>
      */
     public setEnabled (enabled: boolean) {
         this._isEnabled = enabled;
@@ -355,28 +356,28 @@ export class Mouse extends EventListener {
     public _callback (event: EventMouse) {
         const eventType = legacyCC.Event.EventMouse;
         switch (event.eventType) {
-            case eventType.DOWN:
-                if (this.onMouseDown) {
-                    this.onMouseDown(event);
-                }
-                break;
-            case eventType.UP:
-                if (this.onMouseUp) {
-                    this.onMouseUp(event);
-                }
-                break;
-            case eventType.MOVE:
-                if (this.onMouseMove) {
-                    this.onMouseMove(event);
-                }
-                break;
-            case eventType.SCROLL:
-                if (this.onMouseScroll) {
-                    this.onMouseScroll(event);
-                }
-                break;
-            default:
-                break;
+        case eventType.DOWN:
+            if (this.onMouseDown) {
+                this.onMouseDown(event);
+            }
+            break;
+        case eventType.UP:
+            if (this.onMouseUp) {
+                this.onMouseUp(event);
+            }
+            break;
+        case eventType.MOVE:
+            if (this.onMouseMove) {
+                this.onMouseMove(event);
+            }
+            break;
+        case eventType.SCROLL:
+            if (this.onMouseScroll) {
+                this.onMouseScroll(event);
+            }
+            break;
+        default:
+            break;
         }
     }
 
@@ -504,10 +505,8 @@ export class Keyboard extends EventListener {
             if (this.onKeyPressed) {
                 this.onKeyPressed(event.keyCode, event);
             }
-        } else {
-            if (this.onKeyReleased) {
-                this.onKeyReleased(event.keyCode, event);
-            }
+        } else if (this.onKeyReleased) {
+            this.onKeyReleased(event.keyCode, event);
         }
     }
 

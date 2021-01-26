@@ -29,15 +29,16 @@
  */
 
 import { ccclass, disallowMultiple, executeInEditMode, executionOrder, requireComponent } from 'cc.decorator';
-import { UI } from '../renderer/ui';
+import { Batcher2D } from '../renderer/batcher-2d';
 import { Component } from '../../core/components/component';
 import { UITransform } from './ui-transform';
 import { Node } from '../../core/scene-graph';
+import { Stage } from '../renderer/stencil-manager';
 
 /**
- * @en Legacy UI base class for rendering component, please use [[UIRenderable]] instead.
+ * @en Legacy 2D base class for rendering component, please use [[Renderable2D]] instead.
  * This component will setup [[NodeUIProperties.uiComp]] in its owner [[Node]]
- * @zh 旧的 UI 渲染组件基类，请使用 [[UIRenderable]] 替代。
+ * @zh 旧的 2D 渲染组件基类，请使用 [[Renderable2D]] 替代。
  * 这个组件会设置 [[Node]] 上的 [[NodeUIProperties.uiComp]]。
  * @deprecated
  */
@@ -47,7 +48,6 @@ import { Node } from '../../core/scene-graph';
 @disallowMultiple
 @executeInEditMode
 export class UIComponent extends Component {
-
     protected _lastParent: Node | null = null;
 
     public __preload () {
@@ -75,9 +75,8 @@ export class UIComponent extends Component {
      * 一般在 UI 渲染流程中调用，用于组装所有的渲染数据到顶点数据缓冲区。
      * 注意：不要手动调用该函数，除非你理解整个流程。
      */
-    public updateAssembler (render: UI) {
+    public updateAssembler (render: Batcher2D) {
     }
-
 
     /**
      * @en Post render data submission procedure, it's executed after assembler updated for all children.
@@ -87,6 +86,8 @@ export class UIComponent extends Component {
      * 它可能会组装额外的渲染数据到顶点数据缓冲区，也可能只是重置一些渲染状态。
      * 注意：不要手动调用该函数，除非你理解整个流程。
      */
-    public postUpdateAssembler (render: UI) {
+    public postUpdateAssembler (render: Batcher2D) {
     }
+
+    public stencilStage : Stage = Stage.DISABLED;
 }

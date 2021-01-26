@@ -28,7 +28,7 @@
  * @hidden
  */
 
-import { select } from '../framework/physics-selector';
+import { selector } from '../framework/physics-selector';
 
 import { PhysXWorld } from './physx-world';
 import { PhysXRigidBody } from './physx-rigid-body';
@@ -46,7 +46,7 @@ import { PhysXFixedJoint } from './joints/physx-fixed-joint';
 import { PhysXDistanceJoint } from './joints/physx-distance-joint';
 import { PhysXRevoluteJoint } from './joints/physx-revolute-joint';
 
-select('physx', {
+selector.select('physx', {
     PhysicsWorld: PhysXWorld,
     RigidBody: PhysXRigidBody,
 

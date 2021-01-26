@@ -34,11 +34,10 @@ export type b2ContactExtends = b2.Contact & {
     m_userData: any
 }
 
-
 const pools: PhysicsContact[] = [];
 
 // temp world manifold
-const pointCache = [new Vec2, new Vec2];
+const pointCache = [new Vec2(), new Vec2()];
 
 const b2worldmanifold = new b2.WorldManifold();
 
@@ -67,7 +66,6 @@ const impulse: IPhysics2DImpulse = {
     normalImpulses: [] as number[],
     tangentImpulses: [] as number[],
 };
-
 
 export class PhysicsContact implements IPhysics2DContact {
     static get (b2contact: b2ContactExtends) {
@@ -216,18 +214,18 @@ export class PhysicsContact implements IPhysics2DContact {
     emit (contactType) {
         let func;
         switch (contactType) {
-            case Contact2DType.BEGIN_CONTACT:
-                func = 'onBeginContact';
-                break;
-            case Contact2DType.END_CONTACT:
-                func = 'onEndContact';
-                break;
-            case Contact2DType.PRE_SOLVE:
-                func = 'onPreSolve';
-                break;
-            case Contact2DType.POST_SOLVE:
-                func = 'onPostSolve';
-                break;
+        case Contact2DType.BEGIN_CONTACT:
+            func = 'onBeginContact';
+            break;
+        case Contact2DType.END_CONTACT:
+            func = 'onEndContact';
+            break;
+        case Contact2DType.PRE_SOLVE:
+            func = 'onPreSolve';
+            break;
+        case Contact2DType.POST_SOLVE:
+            func = 'onPostSolve';
+            break;
         }
 
         const colliderA = this.colliderA;
@@ -265,7 +263,7 @@ export class PhysicsContact implements IPhysics2DContact {
     setTangentSpeed (value) {
         this._b2contact!.SetTangentSpeed(value);
     }
-   
+
     getTangentSpeed () {
         return this._b2contact!.GetTangentSpeed();
     }
@@ -273,25 +271,24 @@ export class PhysicsContact implements IPhysics2DContact {
     setFriction (value) {
         this._b2contact!.SetFriction(value);
     }
-   
+
     getFriction () {
         return this._b2contact!.GetFriction();
     }
-  
+
     resetFriction () {
         return this._b2contact!.ResetFriction();
     }
-    
+
     setRestitution (value) {
         this._b2contact!.SetRestitution(value);
     }
-    
+
     getRestitution () {
         return this._b2contact!.GetRestitution();
     }
-    
+
     resetRestitution () {
         return this._b2contact!.ResetRestitution();
     }
 }
-

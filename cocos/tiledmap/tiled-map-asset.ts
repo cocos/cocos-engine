@@ -36,9 +36,8 @@ import { SpriteFrame } from '../2d/assets';
  */
 @ccclass('cc.TiledMapAsset')
 export class TiledMapAsset extends Asset {
-
     @serializable
-    tmxXmlStr: string = '';
+    tmxXmlStr = '';
 
     @serializable
     @type([TextAsset])
@@ -83,5 +82,5 @@ export class TiledMapAsset extends Asset {
     @type([Size])
     spriteFrameSizes: Size[] = [];
 
-    static preventDeferredLoadDependents: boolean = true;
+    static preventDeferredLoadDependents = true;
 }

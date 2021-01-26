@@ -28,22 +28,21 @@
  * @module physics
  */
 
-import { EDITOR, DEBUG } from 'internal:constants';
+import { EDITOR } from 'internal:constants';
 import { Vec3 } from '../../core/math';
 import { IPhysicsWorld, IRaycastOptions } from '../spec/i-physics-world';
-import { createPhysicsWorld, checkPhysicsModule } from './instance';
+import { createPhysicsWorld } from './instance';
 import { director, Director } from '../../core/director';
 import { System } from '../../core/components';
 import { PhysicsMaterial } from './assets/physics-material';
-import { RecyclePool, game } from '../../core';
+import { RecyclePool, game, Enum } from '../../core';
 import { Ray } from '../../core/geometry';
 import { PhysicsRayResult } from './physics-ray-result';
 import { IPhysicsConfig, ICollisionMatrix } from './physics-config';
 import { CollisionMatrix } from './collision-matrix';
 import { PhysicsGroup } from './physics-enum';
-
+import { selector } from './physics-selector';
 import { legacyCC } from '../../core/global-exports';
-import { physicsEngineId } from './physics-selector';
 
 legacyCC.internal.PhysicsGroup = PhysicsGroup;
 
@@ -55,23 +54,23 @@ legacyCC.internal.PhysicsGroup = PhysicsGroup;
  */
 export class PhysicsSystem extends System {
     static get PHYSICS_NONE () {
-        return !physicsEngineId;
+        return !selector.id;
     }
 
     static get PHYSICS_BUILTIN () {
-        return physicsEngineId === 'builtin';
+        return selector.id === 'builtin';
     }
 
     static get PHYSICS_CANNON () {
-        return physicsEngineId === 'cannon.js';
+        return selector.id === 'cannon.js';
     }
 
     static get PHYSICS_AMMO () {
-        return physicsEngineId === 'ammo.js';
+        return selector.id === 'ammo.js';
     }
 
     static get PHYSICS_PHYSX () {
-        return physicsEngineId === 'physx';
+        return selector.id === 'physx';
     }
 
     /**
@@ -99,8 +98,6 @@ export class PhysicsSystem extends System {
      * 获取物理系统实例。
      */
     static get instance (): PhysicsSystem {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-        if (DEBUG && checkPhysicsModule(PhysicsSystem._instance)) { return null as any; }
         return PhysicsSystem._instance;
     }
 
@@ -423,7 +420,7 @@ export class PhysicsSystem extends System {
      * @return boolean 表示是否有检测到碰撞盒
      */
     raycastClosest (worldRay: Ray, mask = 0xffffffff, maxDistance = 10000000, queryTrigger = true): boolean {
-        this.raycastOptions.mask = mask;
+        this.raycastOptions.mask = mask >>> 0;
         this.raycastOptions.maxDistance = maxDistance;
         this.raycastOptions.queryTrigger = queryTrigger;
         return this.physicsWorld.raycastClosest(worldRay, this.raycastOptions, this.raycastClosestResult);
@@ -439,7 +436,22 @@ director.once(Director.EVENT_INIT, () => {
 });
 
 function initPhysicsSystem () {
-    if (!PhysicsSystem.PHYSICS_NONE && !EDITOR) {
+    if (!EDITOR) {
+        const physics = game.config.physics;
+        if (physics) {
+            const cg = physics.collisionGroups;
+            if (cg instanceof Array) {
+                cg.forEach((v) => {
+                    PhysicsGroup[v.name] = 1 << v.index;
+                });
+                Enum.update(PhysicsGroup);
+            }
+        }
+        const oldIns = PhysicsSystem.instance;
+        if (oldIns) {
+            director.unregisterSystem(oldIns);
+            oldIns.physicsWorld.destroy();
+        }
         const sys = new legacyCC.PhysicsSystem();
         legacyCC.PhysicsSystem._instance = sys;
         director.registerSystem(PhysicsSystem.ID, sys, 0);

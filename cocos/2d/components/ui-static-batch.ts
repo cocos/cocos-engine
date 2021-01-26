@@ -29,12 +29,12 @@
  */
 
 import { ccclass, help, menu, executionOrder, visible, override } from 'cc.decorator';
-import { UIRenderable } from '../framework/ui-renderable';
-import { UI } from '../renderer/ui';
+import { Renderable2D } from '../framework/renderable-2d';
+import { Batcher2D } from '../renderer/batcher-2d';
 import { MeshBuffer } from '../renderer/mesh-buffer';
-import { UIDrawBatch } from '../renderer/ui-draw-batch';
+import { DrawBatch2D } from '../renderer/draw-batch';
 import { director, Color, warnID } from '../../core';
-import { vfmtPosUvColor } from '../renderer/ui-vertex-format';
+import { vfmtPosUvColor } from '../renderer/vertex-format';
 import { BlendFactor } from '../../core/gfx';
 
 /**
@@ -56,7 +56,7 @@ import { BlendFactor } from '../../core/gfx';
 @help('i18n:cc.UIStaticBatch')
 @menu('UI/Render/UIStaticBatch')
 @executionOrder(110)
-export class UIStaticBatch extends UIRenderable {
+export class UIStaticBatch extends Renderable2D {
     @override
     @visible(false)
     get dstBlendFactor () {
@@ -111,17 +111,17 @@ export class UIStaticBatch extends UIRenderable {
     protected _meshBuffer: MeshBuffer | null = null;
     protected _dirty = true;
     private _lastMeshBuffer: MeshBuffer | null = null;
-    private _uiDrawBatchList: UIDrawBatch[] = [];
+    private _uiDrawBatchList: DrawBatch2D[] = [];
 
     public onLoad () {
-        const ui = this._getUI();
+        const ui = this._getBatcher();
         if (!ui) {
             return;
         }
 
         const attr = vfmtPosUvColor;
         const buffer = new MeshBuffer(ui);
-        buffer.initialize(attr, this._arrivalMaxBuffer);
+        buffer.initialize(attr, this._arrivalMaxBuffer.bind(this));
         this._meshBuffer = buffer;
     }
 
@@ -135,7 +135,7 @@ export class UIStaticBatch extends UIRenderable {
         }
     }
 
-    public updateAssembler (render: UI) {
+    public updateAssembler (render: Batcher2D) {
         if (this._dirty) {
             render.finishMergeBatches();
             this._lastMeshBuffer = render.currBufferBatch;
@@ -149,7 +149,7 @@ export class UIStaticBatch extends UIRenderable {
         }
     }
 
-    public postUpdateAssembler (render: UI) {
+    public postUpdateAssembler (render: Batcher2D) {
         if (this._dirty) {
             render.finishMergeBatches();
             render.currBufferBatch = this._lastMeshBuffer;
@@ -173,7 +173,7 @@ export class UIStaticBatch extends UIRenderable {
      * 注意：尽量不要频繁调用此接口，因为会清空原先存储的 ia 数据重新采集，会有一定内存损耗。
      */
     public markAsDirty () {
-        if (!this._getUI()) {
+        if (!this._getBatcher()) {
             return;
         }
 
@@ -185,7 +185,7 @@ export class UIStaticBatch extends UIRenderable {
     }
 
     public _requireDrawBatch () {
-        const batch = new UIDrawBatch();
+        const batch = new DrawBatch2D();
         batch.isStatic = true;
         this._uiDrawBatchList.push(batch);
         return batch;
@@ -195,7 +195,7 @@ export class UIStaticBatch extends UIRenderable {
         if (this._meshBuffer) {
             this._meshBuffer.reset();
 
-            const ui = this._getUI()!;
+            const ui = this._getBatcher()!;
             for (let i = 0; i < this._uiDrawBatchList.length; i++) {
                 const element = this._uiDrawBatchList[i];
                 element.destroy(ui);
@@ -206,9 +206,9 @@ export class UIStaticBatch extends UIRenderable {
         this._init = false;
     }
 
-    protected _getUI () {
-        if (director.root && director.root.ui) {
-            return director.root.ui;
+    protected _getBatcher () {
+        if (director.root && director.root.batcher2D) {
+            return director.root.batcher2D;
         }
 
         warnID(9301);
@@ -216,6 +216,10 @@ export class UIStaticBatch extends UIRenderable {
     }
 
     protected _arrivalMaxBuffer () {
+        const ui = this._getBatcher();
+        if (ui) {
+            ui.autoMergeBatches();
+        }
         warnID(9300);
     }
 }

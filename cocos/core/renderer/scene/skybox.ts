@@ -131,12 +131,13 @@ export class Skybox {
 
     public activate () {
         const pipeline = legacyCC.director.root.pipeline;
+        const ambient = pipeline.pipelineSceneData.ambient;
         this._globalDescriptorSet = pipeline.descriptorSet;
         this._default = builtinResMgr.get<TextureCube>('default-cube-texture');
 
         if (!this._model) {
             this._model = legacyCC.director.root.createModel(legacyCC.renderer.scene.Model) as Model;
-            // @ts-ignore skybox don't need local buffers
+            // @ts-expect-error private member access
             this._model._initLocalDescriptors = () => {};
         }
 
@@ -144,7 +145,7 @@ export class Skybox {
         if (!this._envmap) {
             this._envmap = this._default;
         }
-        pipeline.ambient.groundAlbedo[3] = this._envmap.mipmapLevel;
+        ambient.groundAlbedo[3] = this._envmap.mipmapLevel;
 
         if (!skybox_material) {
             const mat = new Material();

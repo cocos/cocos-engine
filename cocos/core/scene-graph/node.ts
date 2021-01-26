@@ -44,6 +44,8 @@ import {
     NULL_HANDLE, NodeHandle, NodePool, NodeView,
 } from '../renderer/core/memory-pools';
 import { NodeSpace, TransformBit } from './node-enum';
+import { applyMountedChildren, applyPropertyOverrides, applyTargetOverrides, createNodeWithPrefab, generateTargetMap } from '../utils/prefab-utils';
+import { Component } from '../components';
 
 const v3_a = new Vec3();
 const q_a = new Quat();
@@ -146,8 +148,6 @@ export class Node extends BaseNode {
     constructor (name?: string) {
         super(name);
         this._poolHandle = NodePool.alloc();
-        NodePool.set(this._poolHandle, NodeView.LAYER, this._layer);
-        NodePool.setVec3(this._poolHandle, NodeView.WORLD_SCALE, this._scale);
     }
 
     /**
@@ -390,19 +390,33 @@ export class Node extends BaseNode {
 
     public _onBatchCreated (dontSyncChildPrefab: boolean) {
         super._onBatchCreated(dontSyncChildPrefab);
+
+        NodePool.set(this._poolHandle, NodeView.LAYER, this._layer);
+        NodePool.setVec3(this._poolHandle, NodeView.WORLD_SCALE, this._scale);
+
+        const prefabInstance = this._prefab?.instance;
+        if (!dontSyncChildPrefab && prefabInstance) {
+            createNodeWithPrefab(this);
+        }
+
         this.hasChangedFlags = TransformBit.TRS;
         this._dirtyFlags = TransformBit.TRS;
         const len = this._children.length;
         for (let i = 0; i < len; ++i) {
-            // if (!dontSyncChildPrefab) {
-            //     // sync child prefab
-            //     let prefabInfo = child._prefab;
-            //     if (prefabInfo && prefabInfo.sync && prefabInfo.root === child) {
-            //         PrefabHelper.syncWithPrefab(child);
-            //     }
-            // }
             this._children[i]._onBatchCreated(dontSyncChildPrefab);
         }
+
+        // apply mounted children and property overrides after all the nodes in prefabAsset are instantiated
+        if (!dontSyncChildPrefab && prefabInstance) {
+            const targetMap: Record<string, any | Node | Component> = {};
+            prefabInstance.targetMap = targetMap;
+            generateTargetMap(this, targetMap, true);
+
+            applyMountedChildren(this, prefabInstance.mountedChildren, targetMap);
+            applyPropertyOverrides(this, prefabInstance.propertyOverrides, targetMap);
+        }
+
+        applyTargetOverrides(this);
     }
 
     public _onBeforeSerialize () {
@@ -675,7 +689,7 @@ export class Node extends BaseNode {
     }
 
     /**
-     * @en Set rotation in local coordinate system with a vector representing euler angles 
+     * @en Set rotation in local coordinate system with a vector representing euler angles
      * @zh 用欧拉角设置本地旋转
      * @param rotation Rotation in vector
      */
@@ -700,7 +714,7 @@ export class Node extends BaseNode {
             Vec3.set(this._euler, val as number, y, z);
             Quat.fromEuler(this._lrot, val as number, y, z);
         }
-        
+
         this._eulerDirty = false;
 
         this.invalidateChildren(TransformBit.ROTATION);

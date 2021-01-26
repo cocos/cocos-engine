@@ -23,7 +23,6 @@
  THE SOFTWARE.
  */
 
-
 /**
  * @packageDocumentation
  * @module particle
@@ -36,7 +35,6 @@ import { Particle, ParticleModuleBase, PARTICLE_MODULE_NAME } from '../particle'
 import CurveRange from './curve-range';
 import { calculateTransform } from '../particle-general-function';
 
-
 const LIMIT_VELOCITY_RAND_OFFSET = ModuleRandSeed.LIMIT;
 
 const _temp_v3 = new Vec3();
@@ -44,9 +42,8 @@ const _temp_v3_1 = new Vec3();
 
 @ccclass('cc.LimitVelocityOvertimeModule')
 export default class LimitVelocityOvertimeModule extends ParticleModuleBase {
-
     @serializable
-    _enable: Boolean = false;
+    _enable = false;
     /**
      * @zh 是否启用。
      */
@@ -160,14 +157,12 @@ export default class LimitVelocityOvertimeModule extends ParticleModuleBase {
                 dampenBeyondLimit(p.ultimateVelocity.x, _temp_v3_1.x, this.dampen),
                 dampenBeyondLimit(p.ultimateVelocity.y, _temp_v3_1.y, this.dampen),
                 dampenBeyondLimit(p.ultimateVelocity.z, _temp_v3_1.z, this.dampen));
-        }
-        else {
+        } else {
             Vec3.normalize(dampedVel, p.ultimateVelocity);
             Vec3.multiplyScalar(dampedVel, dampedVel, dampenBeyondLimit(p.ultimateVelocity.length(), this.limit.evaluate(normalizedTime, pseudoRandom(p.randomSeed + LIMIT_VELOCITY_RAND_OFFSET))!, this.dampen));
         }
         Vec3.copy(p.ultimateVelocity, dampedVel);
     }
-
 }
 
 function dampenBeyondLimit (vel: number, limit: number, dampen: number) {

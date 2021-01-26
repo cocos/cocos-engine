@@ -29,8 +29,8 @@
  * @module ui
  */
 
-import { Component } from '../../core/components/component';
 import { ccclass, help, executionOrder, menu, tooltip, requireComponent, executeInEditMode, serializable } from 'cc.decorator';
+import { Component } from '../../core/components/component';
 import { Color } from '../../core/math';
 import { Label } from './label';
 import { legacyCC } from '../../core/global-exports';
@@ -84,7 +84,7 @@ export class LabelOutline extends Component {
     }
 
     set color (value) {
-        if (this._color === value){
+        if (this._color === value) {
             return;
         }
 

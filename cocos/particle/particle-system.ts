@@ -67,7 +67,6 @@ const superMaterials = Object.getOwnPropertyDescriptor(RenderableComponent.proto
 @executionOrder(99)
 @executeInEditMode
 export class ParticleSystem extends RenderableComponent {
-
     /**
      * @zh 粒子系统能生成的最大粒子数量。
      */
@@ -876,7 +875,6 @@ export class ParticleSystem extends RenderableComponent {
             particle.randomSeed = randomRangeInt(0, 233280);
 
             this.processor.setNewParticle(particle);
-
         } // end of particles forLoop.
     }
 
@@ -978,6 +976,6 @@ export class ParticleSystem extends RenderableComponent {
     }
 
     public _onBeforeSerialize (props) {
-        return this.enableCulling ? props.filter(p => !PARTICLE_MODULE_PROPERTY.includes(p) || (this[p] && this[p].enable)) : props;
+        return this.enableCulling ? props.filter((p) => !PARTICLE_MODULE_PROPERTY.includes(p) || (this[p] && this[p].enable)) : props;
     }
 }

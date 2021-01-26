@@ -101,6 +101,7 @@ export class VideoPlayerImplWeb extends VideoPlayerImpl {
             this._ignorePause = true;
             this.video.currentTime = 0;
             this.video.pause();
+            this._cachedCurrentTime = 0;
             setTimeout(() => {
                 this._ignorePause = false;
                 this.dispatchEvent(EventType.STOPPED);
@@ -327,11 +328,7 @@ export class VideoPlayerImplWeb extends VideoPlayerImpl {
     public syncMatrix () {
         if (!this._video || !this._visible || !this._component) return;
 
-        const canvas = this.UICanvas;
-        if (!canvas) {
-            return;
-        }
-        const camera = canvas.camera;
+        const camera = this.UICamera;
         if (!camera) {
             return;
         }
@@ -344,13 +341,13 @@ export class VideoPlayerImplWeb extends VideoPlayerImpl {
         if (this._dirty) {
             this._dirty = false;
             if (this._stayOnBottom) {
-                this._clearColorA = canvas.color.a;
-                this._clearFlag = canvas.clearFlag;
-                canvas.color.a = 0;
-                canvas.clearFlag = ClearFlag.ALL;
+                this._clearColorA = camera.clearColor.w;
+                this._clearFlag = camera.clearFlag;
+                camera.clearColor.w = 0;
+                camera.clearFlag = ClearFlag.ALL;
             } else if (this._clearFlag) {
-                canvas.color.a = this._clearColorA;
-                canvas.clearFlag = this._clearFlag;
+                camera.clearColor.w = this._clearColorA;
+                camera.clearFlag = this._clearFlag;
                 this._clearColorA = -1;
                 this._clearFlag = null;
             }

@@ -23,9 +23,8 @@
  THE SOFTWARE.
  */
 
-
-import { errorID } from '../../platform/debug';
 import { DEV } from 'internal:constants';
+import { errorID } from '../../platform/debug';
 
 /**
  * @zh
@@ -68,7 +67,6 @@ export function extendsEnum (...enums: any[]): any {
                 }
             }
         }
-        
     }
     return Object.assign({}, ...enums);
 }

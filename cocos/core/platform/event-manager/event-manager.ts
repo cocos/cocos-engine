@@ -29,15 +29,14 @@
  * @hidden
  */
 
-
-
 import { Event } from '../../event';
 import { EventTouch } from './events';
 import { EventListener, TouchOneByOne } from './event-listener';
 import { Node } from '../../scene-graph';
 import { macro } from '../macro';
 import { legacyCC } from '../../global-exports';
-import { errorID, warnID, logID, assertID } from '../../platform/debug';
+import { errorID, warnID, logID, assertID } from '../debug';
+
 const ListenerID = EventListener.ListenerID;
 
 function checkUINode (node) {
@@ -46,7 +45,6 @@ function checkUINode (node) {
     }
     return false;
 }
-
 
 class _EventListenerVector {
     public gt0Index = 0;
@@ -136,7 +134,7 @@ class EventManager {
     private _nodeListenersMap: INodeListener = {};
     private _toAddedListeners: EventListener[] = [];
     private _toRemovedListeners: EventListener[] = [];
-    private _dirtyListeners: Node[] = [];
+    private _dirtyListeners: Record<string, boolean> = {};
     private _inDispatch = 0;
     private _isEnabled = false;
     private _internalCustomListenerIDs: string[] = [];
@@ -265,26 +263,24 @@ class EventManager {
         assertID(listener && nodeOrPriority, 3503);
         if (!(legacyCC.js.isNumber(nodeOrPriority) || nodeOrPriority instanceof legacyCC._BaseNode)) {
             warnID(3506);
-            return;
+            return null;
         }
         if (!(listener instanceof legacyCC.EventListener)) {
             assertID(!legacyCC.js.isNumber(nodeOrPriority), 3504);
             listener = legacyCC.EventListener.create(listener);
-        } else {
-            if (listener._isRegistered()) {
-                logID(3505);
-                return;
-            }
+        } else if (listener._isRegistered()) {
+            logID(3505);
+            return null;
         }
 
         if (!listener.checkAvailable()) {
-            return;
+            return null;
         }
 
         if (legacyCC.js.isNumber(nodeOrPriority)) {
             if (nodeOrPriority === 0) {
                 logID(3500);
-                return;
+                return null;
             }
 
             listener._setSceneGraphPriority(null);
@@ -295,7 +291,7 @@ class EventManager {
         } else {
             if (!checkUINode(nodeOrPriority)) {
                 logID(3512);
-                return;
+                return null;
             }
             listener._setSceneGraphPriority(nodeOrPriority);
             listener._setFixedPriority(0);
@@ -317,7 +313,7 @@ class EventManager {
      * @param callback - 事件回调。
      * @returns 返回自定义监听器。
      */
-    public addCustomListener (eventName: string, callback: Function) {
+    public addCustomListener (eventName: string, callback: ()=>void) {
         const listener = EventListener.create({
             event: legacyCC.EventListener.CUSTOM,
             eventName,
@@ -444,20 +440,18 @@ class EventManager {
                     this.removeListeners(locChild, true);
                 }
             }
+        } else if (listenerType === legacyCC.EventListener.TOUCH_ONE_BY_ONE) {
+            this._removeListenersForListenerID(ListenerID.TOUCH_ONE_BY_ONE);
+        } else if (listenerType === legacyCC.EventListener.TOUCH_ALL_AT_ONCE) {
+            this._removeListenersForListenerID(ListenerID.TOUCH_ALL_AT_ONCE);
+        } else if (listenerType === legacyCC.EventListener.MOUSE) {
+            this._removeListenersForListenerID(ListenerID.MOUSE);
+        } else if (listenerType === legacyCC.EventListener.ACCELERATION) {
+            this._removeListenersForListenerID(ListenerID.ACCELERATION);
+        } else if (listenerType === legacyCC.EventListener.KEYBOARD) {
+            this._removeListenersForListenerID(ListenerID.KEYBOARD);
         } else {
-            if (listenerType === legacyCC.EventListener.TOUCH_ONE_BY_ONE) {
-                this._removeListenersForListenerID(ListenerID.TOUCH_ONE_BY_ONE);
-            } else if (listenerType === legacyCC.EventListener.TOUCH_ALL_AT_ONCE) {
-                this._removeListenersForListenerID(ListenerID.TOUCH_ALL_AT_ONCE);
-            } else if (listenerType === legacyCC.EventListener.MOUSE) {
-                this._removeListenersForListenerID(ListenerID.MOUSE);
-            } else if (listenerType === legacyCC.EventListener.ACCELERATION) {
-                this._removeListenersForListenerID(ListenerID.ACCELERATION);
-            } else if (listenerType === legacyCC.EventListener.KEYBOARD) {
-                this._removeListenersForListenerID(ListenerID.KEYBOARD);
-            } else {
-                logID(3501);
-            }
+            logID(3501);
         }
     }
 
@@ -615,13 +609,13 @@ class EventManager {
 
     private _setDirtyForNode (node: Node) {
         // Mark the node dirty only when there is an event listener associated with it.
-        // @ts-expect-error
+        // @ts-expect-error assignment to private field
         const selListeners = this._nodeListenersMap[node._id];
         if (selListeners !== undefined) {
             for (let j = 0, len = selListeners.length; j < len; j++) {
                 const selListener = selListeners[j];
                 const listenerID = selListener._getListenerID();
-                if (this._dirtyListeners[listenerID] == null) {
+                if (!this._dirtyListeners[listenerID]) {
                     this._dirtyListeners[listenerID] = true;
                 }
             }
@@ -654,7 +648,7 @@ class EventManager {
         if (listener._getFixedPriority() === 0) {
             this._setDirty(listenerID, DIRTY_SCENE_GRAPH_PRIORITY);
 
-            const node = listener._getSceneGraphPriority();
+            const node: any = listener._getSceneGraphPriority();
             if (node === null) {
                 logID(3507);
             }
@@ -675,10 +669,11 @@ class EventManager {
     private _updateDirtyFlagForSceneGraph () {
         const locDirtyListeners = this._dirtyListeners;
 
+        // eslint-disable-next-line @typescript-eslint/no-for-in-array
         for (const selKey in locDirtyListeners) {
             this._setDirty(selKey, DIRTY_SCENE_GRAPH_PRIORITY);
+            locDirtyListeners[selKey] = false;
         }
-        this._dirtyListeners.length = 0;
     }
 
     private _removeAllListenersInVector (listenerVector: EventListener[]) {
@@ -768,28 +763,25 @@ class EventManager {
     }
 
     private _sortEventListenersOfSceneGraphPriorityDes (l1: EventListener, l2: EventListener) {
-        const node1 = l1._getSceneGraphPriority();
-        const node2 = l2._getSceneGraphPriority();
+        const node1: any = l1._getSceneGraphPriority();
+        const node2: any = l2._getSceneGraphPriority();
         // Event manager should only care about ui node in the current scene hierarchy
         if (!l2 || !node2 || !node2._activeInHierarchy || !node2._uiProps.uiTransformComp) {
             return -1;
-        }
-        else if (!l1 || !node1 || !node1._activeInHierarchy || !node1._uiProps.uiTransformComp) {
+        } else if (!l1 || !node1 || !node1._activeInHierarchy || !node1._uiProps.uiTransformComp) {
             return 1;
         }
 
-        let p1 = node1, p2 = node2, ex = false;
+        let p1 = node1; let p2 = node2; let ex = false;
         const trans1 = node1._uiProps.uiTransformComp;
         const trans2 = node2._uiProps.uiTransformComp;
-        if (trans1.visibility !== trans2.visibility) {
-            return trans2.visibility - trans1.visibility;
+        if (trans1.cameraPriority !== trans2.cameraPriority) {
+            return trans2.cameraPriority - trans1.cameraPriority;
         }
-
         while (p1.parent._id !== p2.parent._id) {
             p1 = p1.parent.parent === null ? (ex = true) && node2 : p1.parent;
             p2 = p2.parent.parent === null ? (ex = true) && node1 : p2.parent;
         }
-
         if (p1._id === p2._id) {
             if (p1._id === node2._id) {
                 return -1;
@@ -991,7 +983,6 @@ class EventManager {
                     }
 
                     eventManager._currentTouchListener = null;
-
                 } else if (getCode === EventTouch.CANCELLED) {
                     if (listener.onTouchCancelled) {
                         listener.onTouchCancelled(selTouch, event);
@@ -1032,7 +1023,7 @@ class EventManager {
         const allAtOnceListeners = this._getListeners(ListenerID.TOUCH_ALL_AT_ONCE);
 
         // If there aren't any touch listeners, return directly.
-        if (null === oneByOneListeners && null === allAtOnceListeners) {
+        if (oneByOneListeners === null && allAtOnceListeners === null) {
             return;
         }
 
@@ -1112,7 +1103,7 @@ class EventManager {
         }
     }
 
-    private _dispatchEventToListeners (listeners: _EventListenerVector, onEvent: Function, eventOrArgs: any) {
+    private _dispatchEventToListeners (listeners: _EventListenerVector, onEvent: (listener:any, eventOrArgs:any)=>boolean, eventOrArgs: any) {
         let shouldStopPropagation = false;
         const fixedPriorityListeners = listeners.getFixedPriorityListeners();
         const sceneGraphPriorityListeners = listeners.getSceneGraphPriorityListeners();
@@ -1156,7 +1147,7 @@ class EventManager {
         if (locDirtyFlagMap[listenerID] == null) {
             locDirtyFlagMap[listenerID] = flag;
         } else {
-            locDirtyFlagMap[listenerID] = flag | locDirtyFlagMap[listenerID];
+            locDirtyFlagMap[listenerID] |= flag;
         }
     }
 
@@ -1171,11 +1162,11 @@ class EventManager {
 
         for (let i = listeners.length - 1; i >= 0; i--) {
             const selListener = listeners[i];
-            // @ts-expect-error
+            // @ts-expect-error Private property access
             if (selListener._onCustomEvent === callback || selListener.onEvent === callback) {
                 selListener._setRegistered(false);
                 if (selListener._getSceneGraphPriority() != null) {
-                    this._dissociateNodeAndEventListener(selListener._getSceneGraphPriority(), selListener);
+                    this._dissociateNodeAndEventListener((selListener as any)._getSceneGraphPriority(), selListener);
                     // NULL out the node pointer so we don't have any dangling pointers to destroyed nodes.
                     selListener._setSceneGraphPriority(null);
                 }
@@ -1201,7 +1192,7 @@ class EventManager {
             if (selListener === listener) {
                 selListener._setRegistered(false);
                 if (selListener._getSceneGraphPriority() != null) {
-                    this._dissociateNodeAndEventListener(selListener._getSceneGraphPriority(), selListener);
+                    this._dissociateNodeAndEventListener((selListener as any)._getSceneGraphPriority(), selListener);
                     // NULL out the node pointer so we don't have any dangling pointers to destroyed nodes.
                     selListener._setSceneGraphPriority(null);
                 }

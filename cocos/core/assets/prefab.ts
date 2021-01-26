@@ -30,13 +30,14 @@
  */
 
 import { ccclass, serializable, editable } from 'cc.decorator';
+import { SUPPORT_JIT, ALIPAY, RUNTIME_BASED } from 'internal:constants';
 import { compile } from '../data/instantiate-jit';
-import { obsolete } from '../utils/js';
+import { js, obsolete } from '../utils/js';
 import { Enum } from '../value-types';
 import { Asset } from './asset';
-import { SUPPORT_JIT, ALIPAY, RUNTIME_BASED } from 'internal:constants';
 import { legacyCC } from '../global-exports';
 import { warnID } from '../platform/debug';
+import * as utils from '../utils/prefab-utils';
 
 /**
  * @en An enumeration used with the [[Prefab.optimizationPolicy]] to specify how to optimize the instantiate operation.
@@ -45,7 +46,8 @@ import { warnID } from '../platform/debug';
 const OptimizationPolicy = Enum({
     /**
      * @en The optimization policy is automatically chosen based on the number of instantiations.
-     * When you first create an instance, the behavior is the same as SINGLE_INSTANCE. MULTI_INSTANCE will be automatically used after multiple creation.
+     * When you first create an instance, the behavior is the same as SINGLE_INSTANCE.
+     * MULTI_INSTANCE will be automatically used after multiple creation.
      * @zh 根据创建次数自动调整优化策略。初次创建实例时，行为等同 SINGLE_INSTANCE，多次创建后将自动采用 MULTI_INSTANCE。
      */
     AUTO: 0,
@@ -73,7 +75,7 @@ const OptimizationPolicy = Enum({
  * @zh 预制资源类。
  */
 @ccclass('cc.Prefab')
-export default class Prefab extends Asset {
+class Prefab extends Asset {
     /**
      * @en Enumeration for optimization policy
      * @zh Prefab 创建实例所用的优化策略枚举类型
@@ -167,11 +169,9 @@ export default class Prefab extends Asset {
         if (SUPPORT_JIT) {
             if (this.optimizationPolicy === OptimizationPolicy.SINGLE_INSTANCE) {
                 useJit = false;
-            }
-            else if (this.optimizationPolicy === OptimizationPolicy.MULTI_INSTANCE) {
+            } else if (this.optimizationPolicy === OptimizationPolicy.MULTI_INSTANCE) {
                 useJit = true;
-            }
-            else {
+            } else {
                 // auto
                 useJit = (this._instantiatedTimes + 1) >= Prefab.OptimizationPolicyThreshold;
             }
@@ -181,8 +181,7 @@ export default class Prefab extends Asset {
             node = this._doInstantiate();
             // initialize node
             this.data._instantiate(node);
-        }
-        else {
+        } else {
             // instantiate node
             node = this.data._instantiate();
         }
@@ -191,6 +190,18 @@ export default class Prefab extends Asset {
         return node;
     }
 }
+
+declare namespace Prefab {
+    /**
+     * @en for internal use
+     * @zh 内部使用工具类
+     */
+    export import _utils = utils;
+}
+
+js.value(Prefab, '_utils', utils);
+
+export default Prefab;
 
 legacyCC.Prefab = Prefab;
 if (ALIPAY || RUNTIME_BASED) {

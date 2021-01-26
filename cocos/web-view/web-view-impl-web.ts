@@ -1,4 +1,3 @@
-
 /*
  Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
@@ -28,45 +27,39 @@
  * @category component/web-view
  */
 
-import {EventType} from './web-view-enums';
-import {error, warn, view} from '../core/platform';
-import {WebViewImpl} from './web-view-impl';
-import {game} from '../core';
-import {mat4} from '../core/math';
-import {contains} from '../core/utils/misc';
+import { EventType } from './web-view-enums';
+import { error, warn, view } from '../core/platform';
+import { WebViewImpl } from './web-view-impl';
+import { game } from '../core';
+import { mat4 } from '../core/math';
+import { contains } from '../core/utils/misc';
 
 const _mat4_temp = mat4();
 
 export class WebViewImplWeb extends WebViewImpl {
-
-    constructor(component: any) {
+    constructor (component: any) {
         super(component);
     }
 
     _bindDomEvent () {
-        let onLoaded = (e) => {
+        if (!this.webview) {
+            return;
+        }
+        const onLoaded = (e: Event) => {
             this._forceUpdate = true;
             this.dispatchEvent(EventType.LOADED);
 
-            let iframe = e.target;
-            let body = iframe.contentDocument && iframe.contentDocument.body;
+            const iframe = e.target as HTMLIFrameElement;
+            const body = iframe.contentDocument && iframe.contentDocument.body;
             if (body && body.innerHTML.includes('404')) {
-                this.dispatchEvent(EventType.ERROR);
+                this.dispatchEvent(EventType.ERROR, body.innerHTML);
             }
         };
 
-        let onError = (e) => {
-            this.dispatchEvent(EventType.ERROR);
-            const errorObj = e.target.error;
-            if (errorObj) {
-                error('Error ' + errorObj.code + '; details: ' + errorObj.message);
-            }
-        };
         this.webview.addEventListener('load', onLoaded);
-        this.webview.addEventListener('error', onError);
     }
 
-    public loadURL(url: string) {
+    public loadURL (url: string) {
         if (this.webview) {
             this.webview.src = url;
             // emit loading event
@@ -74,10 +67,10 @@ export class WebViewImplWeb extends WebViewImpl {
         }
     }
 
-    public createWebView() {
+    public createWebView () {
         const warpper = document.createElement('div');
         this._warpper = warpper;
-        warpper.id = "webview-wrapper";
+        warpper.id = 'webview-wrapper';
         warpper.style['-webkit-overflow'] = 'auto';
         warpper.style['-webkit-overflow-scrolling'] = 'touch';
         warpper.style.position = 'absolute';
@@ -87,9 +80,9 @@ export class WebViewImplWeb extends WebViewImpl {
         warpper.style['-webkit-transform-origin'] = '0px 100% 0px';
         game.container!.appendChild(warpper);
 
-        let webview = document.createElement('iframe');
+        const webview = document.createElement('iframe');
         this._webview = webview;
-        webview.id = "webview";
+        webview.id = 'webview';
         webview.style.border = 'none';
         webview.style.width = '100%';
         webview.style.height = '100%';
@@ -97,7 +90,7 @@ export class WebViewImplWeb extends WebViewImpl {
         this._bindDomEvent();
     }
 
-    public removeWebView() {
+    public removeWebView () {
         const warpper = this._warpper;
         if (contains(game.container, warpper)) {
             game.container!.removeChild(warpper);
@@ -105,42 +98,42 @@ export class WebViewImplWeb extends WebViewImpl {
         this.reset();
     }
 
-    public enable() {
+    public enable () {
         if (this._warpper) {
             this._warpper.style.visibility = 'visible';
         }
     }
 
-    public disable() {
+    public disable () {
         if (this._warpper) {
             this._warpper.style.visibility = 'hidden';
         }
     }
 
-    public evaluateJS(str: string) {
+    public evaluateJS (str: string) {
         if (this.webview) {
             const win = this.webview.contentWindow;
             if (win) {
                 try {
                     win.eval(str);
                 } catch (e) {
-                    this.dispatchEvent(EventType.ERROR);
+                    this.dispatchEvent(EventType.ERROR, e);
                     error(e);
                 }
             }
         }
     }
 
-    public setOnJSCallback(callback: Function) {
+    public setOnJSCallback (callback: () => void) {
         warn('The platform does not support');
     }
 
-    public setJavascriptInterfaceScheme(scheme: string) {
+    public setJavascriptInterfaceScheme (scheme: string) {
         warn('The platform does not support');
     }
 
     public syncMatrix () {
-        if (!this._warpper || !this._uiTrans ||!this._component || this._warpper.style.visibility === 'hidden') return;
+        if (!this._warpper || !this._uiTrans || !this._component || this._warpper.style.visibility === 'hidden') return;
 
         const camera = this.UICamera;
         if (!camera) {
@@ -152,11 +145,11 @@ export class WebViewImplWeb extends WebViewImpl {
         camera.worldMatrixToScreen(_mat4_temp, _mat4_temp, game.canvas!.width, game.canvas!.height);
 
         const { width, height } = this._uiTrans.contentSize;
-        if (!this._forceUpdate &&
-            this._m00 === _mat4_temp.m00 && this._m01 === _mat4_temp.m01 &&
-            this._m04 === _mat4_temp.m04 && this._m05 === _mat4_temp.m05 &&
-            this._m12 === _mat4_temp.m12 && this._m13 === _mat4_temp.m13 &&
-            this._w === width && this._h === height) {
+        if (!this._forceUpdate
+            && this._m00 === _mat4_temp.m00 && this._m01 === _mat4_temp.m01
+            && this._m04 === _mat4_temp.m04 && this._m05 === _mat4_temp.m05
+            && this._m12 === _mat4_temp.m12 && this._m13 === _mat4_temp.m13
+            && this._w === width && this._h === height) {
             return;
         }
 
@@ -180,8 +173,8 @@ export class WebViewImplWeb extends WebViewImpl {
         const c = _mat4_temp.m04;
         const sy = _mat4_temp.m05 * scaleY;
 
-        this._warpper.style.width = width + 'px';
-        this._warpper.style.height = height + 'px';
+        this._warpper.style.width = `${width}px`;
+        this._warpper.style.height = `${height}px`;
         const w = this._w * scaleX;
         const h = this._h * scaleY;
 
@@ -193,10 +186,9 @@ export class WebViewImplWeb extends WebViewImpl {
         const tx = _mat4_temp.m12 * scaleX - appx + offsetX;
         const ty = _mat4_temp.m13 * scaleY - appy + offsetY;
 
-        const matrix = 'matrix(' + sx + ',' + -b + ',' + -c + ',' + sy + ',' + tx + ',' + -ty + ')';
+        const matrix = `matrix(${sx},${-b},${-c},${sy},${tx},${-ty})`;
         this._warpper.style.transform = matrix;
         this._warpper.style['-webkit-transform'] = matrix;
         this._forceUpdate = false;
     }
 }
-

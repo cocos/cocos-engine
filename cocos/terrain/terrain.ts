@@ -1176,6 +1176,10 @@ export class Terrain extends Component {
                 layer.slot = i;
                 layer.tileSize = temp.tileSize;
                 layer.detailMap = temp.detailMap._uuid;
+                layer.normalMap = temp.normalMap ? temp.normalMap._uuid : '';
+                layer.metallic = temp.metallic;
+                layer.roughness = temp.roughness;
+
                 asset.layerInfos.push(layer);
             }
         }
@@ -1736,7 +1740,7 @@ export class Terrain extends Component {
                     layer.detailMap = asset;
                 });
                 if (layerInfo.normalMap !== '') {
-                    legacyCC.AssetLibrary.loadAny(layerInfo.normalMap, (err, asset) => {
+                    legacyCC.assetManager.loadAny(layerInfo.normalMap, (err, asset) => {
                         layer.normalMap = asset;
                     });
                 }

@@ -27,7 +27,7 @@
 import { IAssembler, IAssemblerManager } from '../2d/renderer/base';
 import { ParticleSystem2D } from './particle-system-2d';
 import { MeshRenderData } from '../2d/renderer/render-data';
-import { UI } from '../2d/renderer/ui';
+import { Batcher2D } from '../2d/renderer/batcher-2d';
 import { PositionType } from './define';
 import { legacyCC } from '../core/global-exports';
 
@@ -38,7 +38,7 @@ export const ParticleAssembler: IAssembler = {
     },
     updateRenderData () {
     },
-    fillBuffers (comp: ParticleSystem2D, renderer: UI) {
+    fillBuffers (comp: ParticleSystem2D, renderer: Batcher2D) {
         if (comp === null) {
             return;
         }
@@ -64,7 +64,7 @@ export const ParticleAssembler: IAssembler = {
         const iBuf = buffer.iData!;
 
         const vData = renderData.vData;
-        const iData = renderData.iData;
+        const iData = renderData.iData as number[];
 
         const vLen = renderData.vertexCount * 9;
         for (let i = 0; i < vLen; i++) {

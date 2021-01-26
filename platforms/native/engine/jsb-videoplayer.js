@@ -30,7 +30,8 @@ if (cc.internal.VideoPlayer) {
     const { EventType } = cc.internal.VideoPlayer;
 
     let vec3 = cc.Vec3;
-    let _mat4_temp = cc.mat4();
+    let mat4 = cc.Mat4;
+    let _mat4_temp = new mat4();
 
     let _topLeft = new vec3();
     let _bottomRight = new vec3();
@@ -43,6 +44,7 @@ if (cc.internal.VideoPlayer) {
 
         constructor(componenet) {
             super(componenet);
+            this._matViewProj_temp = new mat4();
         }
 
         syncClip(clip) {
@@ -189,14 +191,16 @@ if (cc.internal.VideoPlayer) {
 
         pause() {
             if (this.video) {
-                this.video.pause();
                 this._cachedCurrentTime = this.video.currentTime();
+                this.video.pause();
             }
         }
 
         stop() {
             if (this.video) {
                 this._ignorePause = true;
+                this.video.seekTo(0);
+                this._cachedCurrentTime = 0;
                 this.video.stop();
             }
         }
@@ -224,6 +228,7 @@ if (cc.internal.VideoPlayer) {
             this._component.node.getWorldMatrix(_mat4_temp);
             const { width, height } = this._uiTrans.contentSize;
             if (!this._forceUpdate &&
+                camera.matViewProj.equals(this._matViewProj_temp) &&
                 this._m00 === _mat4_temp.m00 && this._m01 === _mat4_temp.m01 &&
                 this._m04 === _mat4_temp.m04 && this._m05 === _mat4_temp.m05 &&
                 this._m12 === _mat4_temp.m12 && this._m13 === _mat4_temp.m13 &&
@@ -231,6 +236,7 @@ if (cc.internal.VideoPlayer) {
                 return;
             }
 
+            this._matViewProj_temp.set(camera.matViewProj);
             // update matrix cache
             this._m00 = _mat4_temp.m00;
             this._m01 = _mat4_temp.m01;
@@ -251,6 +257,8 @@ if (cc.internal.VideoPlayer) {
             // Convert to world space
             vec3.transformMat4(_topLeft, _topLeft, _mat4_temp);
             vec3.transformMat4(_bottomRight, _bottomRight, _mat4_temp);
+            // need update camera data
+            camera.update();
             // Convert to Screen space
             camera.worldToScreen(_topLeft, _topLeft);
             camera.worldToScreen(_bottomRight, _bottomRight);

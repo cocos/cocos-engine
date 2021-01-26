@@ -23,7 +23,6 @@
  THE SOFTWARE.
  */
 
-
 /**
  * @packageDocumentation
  * @module animation
@@ -50,8 +49,8 @@ function makeCubicSplineValueConstructor<T> (
     name: string,
     constructorX: new () => T,
     scaleFx: ScaleFx<T>,
-    scaleAndAdd: ScaleAndAddFx<T>): CubicSplineValueConstructor<T> {
-
+    scaleAndAdd: ScaleAndAddFx<T>,
+): CubicSplineValueConstructor<T> {
     let tempValue = new constructorX();
     let m0 = new constructorX();
     let m1 = new constructorX();
@@ -111,31 +110,35 @@ function makeCubicSplineValueConstructor<T> (
 }
 
 export const CubicSplineVec2Value = makeCubicSplineValueConstructor(
-    'cc.CubicSplineVec2Value', Vec2, Vec2.multiplyScalar, Vec2.scaleAndAdd);
+    'cc.CubicSplineVec2Value', Vec2, Vec2.multiplyScalar, Vec2.scaleAndAdd,
+);
 legacyCC.CubicSplineVec2Value = CubicSplineVec2Value;
 
 export const CubicSplineVec3Value = makeCubicSplineValueConstructor(
-    'cc.CubicSplineVec3Value', Vec3, Vec3.multiplyScalar, Vec3.scaleAndAdd);
+    'cc.CubicSplineVec3Value', Vec3, Vec3.multiplyScalar, Vec3.scaleAndAdd,
+);
 legacyCC.CubicSplineVec3Value = CubicSplineVec3Value;
 
 export const CubicSplineVec4Value = makeCubicSplineValueConstructor(
-    'cc.CubicSplineVec4Value', Vec4, Vec4.multiplyScalar, Vec4.scaleAndAdd);
+    'cc.CubicSplineVec4Value', Vec4, Vec4.multiplyScalar, Vec4.scaleAndAdd,
+);
 legacyCC.CubicSplineVec4Value = CubicSplineVec4Value;
 
 export const CubicSplineQuatValue = makeCubicSplineValueConstructor(
-    'cc.CubicSplineQuatValue', Quat, Quat.multiplyScalar, Quat.scaleAndAdd);
+    'cc.CubicSplineQuatValue', Quat, Quat.multiplyScalar, Quat.scaleAndAdd,
+);
 legacyCC.CubicSplineQuatValue = CubicSplineQuatValue;
 
 @ccclass('cc.CubicSplineNumberValue')
 export class CubicSplineNumberValue implements ICubicSplineValue<number> {
     @serializable
-    public dataPoint: number = 0;
+    public dataPoint = 0;
 
     @serializable
-    public inTangent: number = 0;
+    public inTangent = 0;
 
     @serializable
-    public outTangent: number = 0;
+    public outTangent = 0;
 
     constructor (dataPoint: number, inTangent: number, outTangent: number) {
         this.dataPoint = dataPoint;

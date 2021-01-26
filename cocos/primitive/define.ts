@@ -62,7 +62,8 @@ export interface IGeometryOptions {
  * 应用默认的几何参数选项。
  */
 export function applyDefaultGeometryOptions<GeometryOptions = IGeometryOptions> (
-    options?: RecursivePartial<IGeometryOptions>): GeometryOptions {
+    options?: RecursivePartial<IGeometryOptions>,
+): GeometryOptions {
     options = options || {};
     if (options.includeNormal === undefined) {
         options.includeNormal = true;

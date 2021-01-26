@@ -34,6 +34,9 @@ import * as math from './math';
 import * as memop from './memop';
 import * as gfx from './gfx';
 
+import './splash-screen';
+import './deprecated';
+
 legacyCC.math = math;
 legacyCC.geometry = geometry;
 
@@ -58,7 +61,3 @@ export * from './scene-graph';
 export * from './components';
 export * from './builtin';
 export * from './animation';
-
-import './splash-screen';
-import './deprecated';
-

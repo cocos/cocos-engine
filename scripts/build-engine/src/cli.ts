@@ -1,7 +1,7 @@
 import * as fs from 'fs-extra';
 import * as ps from 'path';
 import yargs from 'yargs';
-import { setupBuildTimeConstants } from './build-time-constants';
+import { getBuildModeConstantNames, getPlatformConstantNames, setupBuildTimeConstants } from './build-time-constants';
 import {
     build,
     enumerateModuleOptionReps,
@@ -16,16 +16,17 @@ async function main() {
     yargs.options('engine', {
         type: 'string',
         demandOption: true,
+        description: 'Path to the engine repo.',
     });
     yargs.option('build-mode', {
         type: 'string',
         alias: 'b',
-        description: 'Target build-mode.',
+        description: `Target build-mode. Predefined values: [${getBuildModeConstantNames().join(',')}]`,
     });
     yargs.option('platform', {
         type: 'string',
         alias: 'p',
-        description: 'Target platform.',
+        description: `Target platform. Predefined values: [${getPlatformConstantNames().join(',')}]`,
         demandOption: true,
     });
     yargs.option('flags', {
@@ -60,6 +61,7 @@ async function main() {
         type: 'string',
         alias: 'o',
         demandOption: true,
+        description: 'Output directory.',
     });
     yargs.option('excludes', {
         type: 'array',

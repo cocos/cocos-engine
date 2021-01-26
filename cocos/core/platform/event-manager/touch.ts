@@ -41,9 +41,9 @@ export class Touch {
     private _point: Vec2 = new Vec2();
     private _prevPoint: Vec2 = new Vec2();
     private _lastModified = 0;
-    private _id: number = 0;
+    private _id = 0;
     private _startPoint: Vec2 = new Vec2();
-    private _startPointCaptured: boolean = false;
+    private _startPointCaptured = false;
 
     get lastModified () {
         return this._lastModified;
@@ -54,7 +54,7 @@ export class Touch {
      * @param y - y position of the touch point
      * @param id - The id of the touch point
      */
-    constructor (x: number, y: number, id: number = 0) {
+    constructor (x: number, y: number, id = 0) {
         this.setTouchInfo(id, x, y);
     }
 
@@ -64,7 +64,7 @@ export class Touch {
      * @param out - Pass the out object to avoid object creation, very good practice
      */
     public getLocation (out?: Vec2) {
-        if (!out){
+        if (!out) {
             out = new Vec2();
         }
 
@@ -185,7 +185,7 @@ export class Touch {
      * @param out - Pass the out object to avoid object creation, very good practice
      */
     public getDelta (out?: Vec2) {
-        if (!out){
+        if (!out) {
             out = new Vec2();
         }
 
@@ -268,7 +268,7 @@ export class Touch {
      * @param x - x position of the touch point
      * @param y - y position of the touch point
      */
-    public setTouchInfo (id: number = 0, x?: number, y?: number) {
+    public setTouchInfo (id = 0, x?: number, y?: number) {
         this._prevPoint = this._point;
         this._point = new Vec2(x || 0, y || 0);
         this._id = id;

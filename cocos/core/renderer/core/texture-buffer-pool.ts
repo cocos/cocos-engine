@@ -28,7 +28,7 @@
  * @hidden
  */
 
-import { getTypedArrayConstructor, Format, FormatInfos, TextureType, TextureUsageBit } from '../../gfx/define';
+import { getTypedArrayConstructor, Format, FormatInfos, TextureType, TextureUsageBit, TextureFlagBit } from '../../gfx/define';
 import { Texture, TextureInfo, Device, BufferTextureCopy } from '../../gfx';
 
 export function nearestPOT (num: number): number {
@@ -68,7 +68,6 @@ function roundUp (n: number, alignment: number) {
 }
 
 export class TextureBufferPool {
-
     private _device: Device;
     private _format = Format.UNKNOWN;
     private _formatSize = 0;
@@ -175,6 +174,7 @@ export class TextureBufferPool {
             this._format,
             length,
             length,
+            TextureFlagBit.IMMUTABLE,
         ));
 
         const chunk: ITextureBuffer = {
@@ -188,7 +188,6 @@ export class TextureBufferPool {
     }
 
     public update (handle: ITextureBufferHandle, buffer: ArrayBuffer) {
-
         const buffers: ArrayBufferView[] = [];
         const regions: BufferTextureCopy[] = [];
         const start = handle.start / this._formatSize;

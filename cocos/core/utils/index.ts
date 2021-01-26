@@ -37,8 +37,8 @@ import * as misc from './misc';
 import * as path from './path';
 
 export * from './x-deprecated';
-export * from './prefab-helper';
 export * from './murmurhash2_gc';
+export { PrefabLink } from './prefab-link';
 
 export {
     js,
