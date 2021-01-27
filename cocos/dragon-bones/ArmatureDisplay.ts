@@ -3,7 +3,7 @@ import { ccclass, executeInEditMode, help, menu } from '../core/data/class-decor
 import { Renderable2D } from '../2d/framework/renderable-2d';
 import { Node, EventTarget, CCClass, Color, Enum, PrivateNode, ccenum, errorID, Texture2D, js, CCObject, SystemEventType } from '../core';
 import { BlendFactor } from '../core/gfx';
-import { displayName, editable, serializable, tooltip, type, visible } from '../core/data/decorators';
+import { displayName, editable, override, serializable, tooltip, type, visible } from '../core/data/decorators';
 import { AnimationCache, ArmatureCache, ArmatureFrame } from './ArmatureCache';
 import { AttachUtil } from './AttachUtil';
 import { CCFactory } from './CCFactory';
@@ -128,6 +128,16 @@ interface BoneIndex extends Number {
 @executeInEditMode
 export class ArmatureDisplay extends Renderable2D {
     static AnimationCacheMode = AnimationCacheMode;
+
+    @override
+    @visible(false)
+    get srcBlendFactor () { return super.srcBlendFactor; }
+    set srcBlendFactor (v) { super.srcBlendFactor = v; }
+
+    @override
+    @visible(false)
+    get dstBlendFactor () { return super.dstBlendFactor; }
+    set dstBlendFactor (v) { super.dstBlendFactor = v; }
 
     /**
      * !#en
@@ -925,6 +935,10 @@ export class ArmatureDisplay extends Renderable2D {
             this._indexBoneSockets();
         }
         return Array.from(this._cachedSockets.keys()).sort();
+    }
+
+    public setBlendHash () {
+        if (this._blendHash !== -1) this._blendHash = -1;
     }
 
     /**
