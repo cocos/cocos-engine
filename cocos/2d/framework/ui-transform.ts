@@ -62,7 +62,7 @@ const _rect = new Rect();
 @disallowMultiple
 @executeInEditMode
 export class UITransform extends Component {
-    private _cachedFirstRenderCamera: Camera|null = null;
+    private _camera: Camera|null = null;
     /**
      * @en
      * Size of the UI node.
@@ -222,14 +222,14 @@ export class UITransform extends Component {
     @serializable
     protected _priority = 0;
 
-    private _updateCachedFirstRenderCamera (force = false) {
-        if (!this._cachedFirstRenderCamera || force) {
-            this._cachedFirstRenderCamera = director.root!.batcher2D.getFirstRenderCamera(this.node);
+    private _updateCamera (force = false) {
+        if (!this._camera || force) {
+            this._camera = director.root!.batcher2D.getFirstRenderCamera(this.node);
         }
     }
 
-    private _removeCachedFirstRenderCamara () {
-        this._cachedFirstRenderCamera = null;
+    private _removeCamera () {
+        this._camera = null;
     }
 
     /**
@@ -238,8 +238,8 @@ export class UITransform extends Component {
      * @deprecated since v3.0
      */
     get visibility () {
-        this._updateCachedFirstRenderCamera();
-        return this._cachedFirstRenderCamera ? this._cachedFirstRenderCamera.visibility : 0;
+        this._updateCamera();
+        return this._camera ? this._camera.visibility : 0;
     }
 
     /**
@@ -247,8 +247,8 @@ export class UITransform extends Component {
      * @zh 查找被渲染相机的渲染优先级。
      */
     get cameraPriority () {
-        this._updateCachedFirstRenderCamera();
-        return this._cachedFirstRenderCamera ? this._cachedFirstRenderCamera.priority : 0;
+        this._updateCamera();
+        return this._camera ? this._camera.priority : 0;
     }
 
     public static EventType = SystemEventType;
@@ -270,12 +270,12 @@ export class UITransform extends Component {
             this.node.parent!._updateSiblingIndex();
         }
 
-        this._updateCachedFirstRenderCamera();
+        this._updateCamera();
     }
 
     public onDisable () {
         this.node.off(SystemEventType.PARENT_CHANGED, this._parentChanged, this);
-        this._removeCachedFirstRenderCamara();
+        this._removeCamera();
     }
 
     public onDestroy () {
