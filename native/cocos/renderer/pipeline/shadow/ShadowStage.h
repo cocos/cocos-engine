@@ -28,6 +28,7 @@ namespace cc {
 namespace pipeline {
 class RenderQueue;
 class ShadowMapBatchedQueue;
+struct Camera;
 
 class CC_DLL ShadowStage : public RenderStage {
 public:
@@ -46,6 +47,8 @@ public:
         _light = light;
         _framebuffer = framebuffer;
     };
+
+    void clearFramebuffer(Camera *camera);
 
 private:
     static RenderStageInfo _initInfo;

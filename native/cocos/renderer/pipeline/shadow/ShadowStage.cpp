@@ -96,5 +96,23 @@ void ShadowStage::destroy() {
     RenderStage::destroy();
 }
 
+void ShadowStage::clearFramebuffer(Camera *camera) {
+    const auto pipeline = static_cast<ForwardPipeline *>(_pipeline);
+
+    if (!_light || !_framebuffer) {
+        return;
+    }
+
+    auto cmdBuffer = pipeline->getCommandBuffers()[0];
+
+    _clearColors[0] = {1.0f, 1.0f, 1.0f, 1.0f};
+    auto *renderPass = _framebuffer->getRenderPass();
+
+    cmdBuffer->beginRenderPass(renderPass, _framebuffer, _renderArea,
+                               _clearColors, camera->clearDepth, camera->clearStencil);
+
+    cmdBuffer->endRenderPass();
+}
+
 } // namespace pipeline
 } // namespace cc
