@@ -78,9 +78,9 @@ export class ParticleSystem extends RenderableComponent {
 
     public set capacity (val) {
         this._capacity = Math.floor(val);
-        // @ts-expect-error
+        // @ts-expect-error private property access
         if (this.processor && this.processor._model) {
-            // @ts-expect-error
+            // @ts-expect-error private property access
             this.processor._model.setCapacity(this._capacity);
         }
     }
@@ -312,12 +312,12 @@ export class ParticleSystem extends RenderableComponent {
     @visible(false)
     get sharedMaterials () {
         // if we don't create an array copy, the editor will modify the original array directly.
-        // @ts-expect-error
-        return superMaterials.get.call(this);
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+        return superMaterials.get!.call(this);
     }
 
     set sharedMaterials (val) {
-        // @ts-expect-error
+        // @ts-expect-error private property access
         superMaterials.set.call(this, val);
     }
 
@@ -807,14 +807,14 @@ export class ParticleSystem extends RenderableComponent {
     }
 
     protected _onVisibilityChange (val) {
-        // @ts-expect-error
+        // @ts-expect-error private property access
         if (this.processor._model) {
-            // @ts-expect-error
+            // @ts-expect-error private property access
             this.processor._model.visFlags = val;
         }
     }
 
-    private emit (count, dt) {
+    private emit (count: number, dt: number) {
         const delta = this._time / this.duration;
 
         if (this._simulationSpace === Space.World) {
@@ -980,6 +980,7 @@ export class ParticleSystem extends RenderableComponent {
     }
 
     public _onBeforeSerialize (props) {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
         return this.enableCulling ? props.filter((p) => !PARTICLE_MODULE_PROPERTY.includes(p) || (this[p] && this[p].enable)) : props;
     }
 }
