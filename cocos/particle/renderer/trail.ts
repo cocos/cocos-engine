@@ -395,7 +395,7 @@ export default class TrailModule {
     }
 
     public play () {
-        if (this._trailModel) {
+        if (this._trailModel && this._enable) {
             this._trailModel.enabled = true;
         }
     }
