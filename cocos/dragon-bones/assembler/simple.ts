@@ -77,7 +77,8 @@ function _getSlotMaterial (tex: RenderTexture | TextureBase | null, blendMode: B
         break;
     }
 
-    // const useModel = !_comp!.enableBatch;
+    // const useModel = !_comp!.c;
+    _comp?.setBlendHash();
     return _comp!.getMaterialForBlend(src, dst);
 }
 

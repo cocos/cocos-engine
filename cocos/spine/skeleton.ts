@@ -579,6 +579,11 @@ export class Skeleton extends Renderable2D {
         this.destroyRenderData();
     }
 
+    // set blendHash value to skip ui component blend
+    public setBlendHash () {
+        if (this._blendHash !== -1) this._blendHash = -1;
+    }
+
     /**
      * !#en
      * Sets runtime skeleton data to sp.Skeleton.<br>
