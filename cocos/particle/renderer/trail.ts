@@ -394,6 +394,12 @@ export default class TrailModule {
         }
     }
 
+    public play () {
+        if (this._trailModel) {
+            this._trailModel.enabled = true;
+        }
+    }
+
     public clear () {
         if (this.enable) {
             const trailIter = this._particleTrail.values();
@@ -404,6 +410,7 @@ export default class TrailModule {
             }
             this._particleTrail.clear();
             this.updateRenderData();
+            if (this._trailModel) this._trailModel.enabled = false;
         }
     }
 

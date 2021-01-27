@@ -606,8 +606,6 @@ export class ParticleSystem extends RenderableComponent {
         this._customData2 = new Vec2();
 
         this._subEmitters = []; // array of { emitter: ParticleSystem, type: 'birth', 'collision' or 'death'}
-
-        legacyCC.director.on(legacyCC.Director.EVENT_BEFORE_COMMIT, this.beforeRender, this);
     }
 
     public onLoad () {
@@ -687,6 +685,10 @@ export class ParticleSystem extends RenderableComponent {
         if (this._prewarm) {
             this._prewarmSystem();
         }
+
+        if (this._trailModule) {
+            this._trailModule.play();
+        }
     }
 
     /**
@@ -755,13 +757,14 @@ export class ParticleSystem extends RenderableComponent {
     }
 
     protected onDestroy () {
+        legacyCC.director.off(legacyCC.Director.EVENT_BEFORE_COMMIT, this.beforeRender, this);
         // this._system.remove(this);
         this.processor.onDestroy();
         if (this._trailModule) this._trailModule.destroy();
-        legacyCC.director.off(legacyCC.Director.EVENT_BEFORE_COMMIT, this.beforeRender, this);
     }
 
     protected onEnable () {
+        legacyCC.director.on(legacyCC.Director.EVENT_BEFORE_COMMIT, this.beforeRender, this);
         if (this.playOnAwake) {
             this.play();
         }
@@ -769,6 +772,7 @@ export class ParticleSystem extends RenderableComponent {
         if (this._trailModule) this._trailModule.onEnable();
     }
     protected onDisable () {
+        legacyCC.director.off(legacyCC.Director.EVENT_BEFORE_COMMIT, this.beforeRender, this);
         this.processor.onDisable();
         if (this._trailModule) this._trailModule.onDisable();
     }
