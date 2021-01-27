@@ -148,6 +148,7 @@ export class Node extends BaseNode {
     constructor (name?: string) {
         super(name);
         this._poolHandle = NodePool.alloc();
+        NodePool.set(this._poolHandle, NodeView.LAYER, this._layer);
     }
 
     /**
@@ -420,7 +421,7 @@ export class Node extends BaseNode {
     }
 
     public _onBeforeSerialize () {
-        // eslint-disable-next-line no-unused-expressions
+        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
         this.eulerAngles; // make sure we save the correct eulerAngles
     }
 
