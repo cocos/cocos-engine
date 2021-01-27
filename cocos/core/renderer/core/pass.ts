@@ -669,9 +669,6 @@ export class Pass {
         this._blocks = target._blocks;
         this._dynamics =  target._dynamics;
 
-        // Todo: Or getHash?
-        // this.tryCompile();
-
         this._hShaderDefault = target._hShaderDefault;
 
         PassPool.set(this._handle, PassView.PIPELINE_LAYOUT, programLib.getTemplateInfo(this._programName).hPipelineLayout);
