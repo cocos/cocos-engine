@@ -222,7 +222,7 @@ export class UITransform extends Component {
     @serializable
     protected _priority = 0;
 
-    private _updateCachedFirstRenderCamera (force: boolean = false) {
+    private _updateCachedFirstRenderCamera (force = false) {
         if (!this._cachedFirstRenderCamera || force) {
             this._cachedFirstRenderCamera = director.root!.batcher2D.getFirstRenderCamera(this.node);
         }
