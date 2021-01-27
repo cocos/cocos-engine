@@ -126,8 +126,6 @@ export abstract class ParticleSystemRendererBase implements IParticleSystemRende
         }
     }
 
-    protected
-
     public updateTrailMaterial () {}
     public getDefaultTrailMaterial () { return null; }
     public abstract getParticleCount () : number;
