@@ -13,7 +13,21 @@ if (window.__globalAdapter) {
 
     // TouchEvent
     utils.cloneMethod(globalAdapter, tt, 'onTouchStart');
-    utils.cloneMethod(globalAdapter, tt, 'onTouchMove');
+    if (systemInfo.platform.toLowerCase() === 'ios') {
+        let skipTouchMove = false;
+        globalAdapter.onTouchMove = cb => {
+            tt.onTouchMove(res => {
+                skipTouchMove = !skipTouchMove;
+                if (skipTouchMove) {
+                    return;
+                }
+                cb && cb(res);
+            });
+        };
+    }
+    else {
+        utils.cloneMethod(globalAdapter, tt, 'onTouchMove');
+    }
     utils.cloneMethod(globalAdapter, tt, 'onTouchEnd');
     utils.cloneMethod(globalAdapter, tt, 'onTouchCancel');
 
