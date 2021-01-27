@@ -30,6 +30,7 @@
 
 import { ccclass, help, executeInEditMode, executionOrder, menu, tooltip, displayOrder, serializable, disallowMultiple } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
+import { Camera } from 'cocos/core/renderer/scene';
 import { Component } from '../../core/components';
 import { SystemEventType } from '../../core/platform/event-manager/event-enum';
 import { EventListener } from '../../core/platform/event-manager/event-listener';
@@ -39,7 +40,6 @@ import { Node } from '../../core/scene-graph';
 import { legacyCC } from '../../core/global-exports';
 import { director } from '../../core/director';
 import { warnID } from '../../core/platform/debug';
-import { Camera } from 'cocos/core/renderer/scene';
 
 const _vec2a = new Vec2();
 const _vec2b = new Vec2();
