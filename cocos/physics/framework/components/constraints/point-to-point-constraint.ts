@@ -46,6 +46,12 @@ import { IPointToPointConstraint } from '../../../spec/i-physics-constraint';
 @help('i18n:cc.PointToPointConstraint')
 @menu('Physics/PointToPointConstraint(beta)')
 export class PointToPointConstraint extends Constraint {
+    /**
+     * @en
+     * The position of the own rigid body in local space with respect to the constraint axis.
+     * @zh
+     * 在本地空间中，自身刚体相对于约束关节的位置。
+     */
     @type(Vec3)
     get pivotA () {
         return this._pivotA;
@@ -58,6 +64,12 @@ export class PointToPointConstraint extends Constraint {
         }
     }
 
+    /**
+     * @en
+     * The position of the connected rigid body in the local space with respect to the constraint axis.
+     * @zh
+     * 在本地空间中，连接刚体相对于约束关节的位置。
+     */
     @type(Vec3)
     get pivotB () {
         return this._pivotB;

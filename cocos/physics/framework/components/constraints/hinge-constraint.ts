@@ -46,6 +46,12 @@ import { IHingeConstraint } from '../../../spec/i-physics-constraint';
 @help('i18n:cc.HingeConstraint')
 @menu('Physics/HingeConstraint(beta)')
 export class HingeConstraint extends Constraint {
+    /**
+     * @en
+     * The position of the own rigid body in local space with respect to the constraint axis.
+     * @zh
+     * 在本地空间中，自身刚体相对于约束关节的位置。
+     */
     @type(Vec3)
     get pivotA (): Vec3 {
         return this._pivotA;
@@ -58,6 +64,12 @@ export class HingeConstraint extends Constraint {
         }
     }
 
+    /**
+     * @en
+     * The position of the connected rigid body in the local space with respect to the constraint axis.
+     * @zh
+     * 在本地空间中，连接刚体相对于约束关节的位置。
+     */
     @type(Vec3)
     get pivotB (): Vec3 {
         return this._pivotB;
@@ -70,6 +82,12 @@ export class HingeConstraint extends Constraint {
         }
     }
 
+    /**
+     * @en
+     * The direction of the constraint axis rotation in local space.
+     * @zh
+     * 在本地空间中，约束关节旋转的方向。
+     */
     @type(Vec3)
     get axis (): Vec3 {
         return this._axis;
