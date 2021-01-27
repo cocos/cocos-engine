@@ -30,6 +30,7 @@
 
 import { ccclass, help, executeInEditMode, executionOrder, menu, tooltip, displayOrder, serializable, disallowMultiple } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
+import { Camera } from 'cocos/core/renderer/scene';
 import { Component } from '../../core/components';
 import { SystemEventType } from '../../core/platform/event-manager/event-enum';
 import { EventListener } from '../../core/platform/event-manager/event-listener';
@@ -61,6 +62,7 @@ const _rect = new Rect();
 @disallowMultiple
 @executeInEditMode
 export class UITransform extends Component {
+    private _camera: Camera|null = null;
     /**
      * @en
      * Size of the UI node.
@@ -220,14 +222,24 @@ export class UITransform extends Component {
     @serializable
     protected _priority = 0;
 
+    private _updateCamera (force = false) {
+        if (!this._camera || force) {
+            this._camera = director.root!.batcher2D.getFirstRenderCamera(this.node);
+        }
+    }
+
+    private _removeCamera () {
+        this._camera = null;
+    }
+
     /**
      * @en Get the visibility bit-mask of the rendering camera
      * @zh 查找被渲染相机的可见性掩码。
      * @deprecated since v3.0
      */
     get visibility () {
-        const camera = director.root!.batcher2D.getFirstRenderCamera(this.node);
-        return camera ? camera.visibility : 0;
+        this._updateCamera();
+        return this._camera ? this._camera.visibility : 0;
     }
 
     /**
@@ -235,8 +247,8 @@ export class UITransform extends Component {
      * @zh 查找被渲染相机的渲染优先级。
      */
     get cameraPriority () {
-        const camera = director.root!.batcher2D.getFirstRenderCamera(this.node);
-        return camera ? camera.priority : 0;
+        this._updateCamera();
+        return this._camera ? this._camera.priority : 0;
     }
 
     public static EventType = SystemEventType;
@@ -257,10 +269,13 @@ export class UITransform extends Component {
         if (changed) {
             this.node.parent!._updateSiblingIndex();
         }
+
+        this._updateCamera();
     }
 
     public onDisable () {
         this.node.off(SystemEventType.PARENT_CHANGED, this._parentChanged, this);
+        this._removeCamera();
     }
 
     public onDestroy () {
