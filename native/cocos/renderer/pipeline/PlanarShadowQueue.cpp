@@ -109,13 +109,13 @@ void PlanarShadowQueue::recordCommandBuffer(gfx::Device *device, gfx::RenderPass
 
     const auto *pass = shadowInfo->getPlanarShadowPass();
     cmdBuffer->bindDescriptorSet(MATERIAL_SET, pass->getDescriptorSet());
-    auto *shader = shadowInfo->getPlanarShader();
 
     for (auto model : _pendingModels) {
         const auto subModelID = model->getSubModelID();
         const auto subModelCount = subModelID[0];
         for (unsigned m = 1; m <= subModelCount; ++m) {
             const auto subModel = model->getSubModelView(subModelID[m]);
+            const auto shader = subModel->getPlanarShader();
             const auto ia = subModel->getInputAssembler();
             const auto pso = PipelineStateManager::getOrCreatePipelineState(pass, shader, ia, renderPass);
 

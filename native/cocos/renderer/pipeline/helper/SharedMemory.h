@@ -273,12 +273,14 @@ struct CC_DLL SubModelView {
     uint32_t passCount = 0;
     uint32_t passID[4] = {0, 0, 0, 0};
     uint32_t shaderID[4] = {0, 0, 0, 0};
+    uint32_t planarShaderID = 0;
     uint32_t descriptorSetID = 0;
     uint32_t inputAssemblerID = 0;
     uint32_t subMeshID = 0;
 
     CC_INLINE const PassView *getPassView(uint idx) const { return GET_PASS(passID[idx]); }
     CC_INLINE gfx::Shader *getShader(uint idx) const { return GET_SHADER(shaderID[idx]); }
+    CC_INLINE gfx::Shader *getPlanarShader() const { return GET_SHADER(planarShaderID); }
     CC_INLINE gfx::DescriptorSet *getDescriptorSet() const { return GET_DESCRIPTOR_SET(descriptorSetID); }
     CC_INLINE gfx::InputAssembler *getInputAssembler() const { return GET_IA(inputAssemblerID); }
     CC_INLINE const RenderingSubMesh *getSubMesh() const { return GET_RENDER_SUBMESH(subMeshID); }
@@ -438,7 +440,6 @@ struct CC_DLL Shadows {
     float distance = 0.0f;
     uint32_t instancePass = 0;
     uint32_t planarPass = 0;
-    uint32_t shader = 0;
     float nearValue = 0.0f;
     float farValue = 0.0f;
     float aspect = 0.0f;
@@ -456,7 +457,6 @@ struct CC_DLL Shadows {
     CC_INLINE ShadowType getShadowType() const { return static_cast<ShadowType>(shadowType); }
     CC_INLINE PassView *getPlanarShadowPass() const { return GET_PASS(planarPass); }
     CC_INLINE PassView *getInstancePass() const { return GET_PASS(instancePass); }
-    CC_INLINE gfx::Shader *getPlanarShader() const { return GET_SHADER(shader); }
 
     const static se::PoolType type;
 };
