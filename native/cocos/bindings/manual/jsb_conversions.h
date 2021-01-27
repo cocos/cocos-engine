@@ -1062,6 +1062,11 @@ inline bool sevalue_to_native(const se::Value &from, std::string **to, se::Objec
 }
 
 template <>
+inline bool sevalue_to_native(const se::Value &from, cc::ValueMap *to, se::Object *) {
+    return seval_to_ccvaluemap(from, to);
+}
+
+template <>
 inline bool sevalue_to_native(const se::Value &from, std::vector<unsigned char> *to, se::Object *) {
     assert(from.isObject());
     se::Object *in = from.toObject();
