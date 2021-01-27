@@ -674,7 +674,7 @@ export class Pass {
         PassPool.set(this._handle, PassView.PIPELINE_LAYOUT, programLib.getTemplateInfo(this._programName).hPipelineLayout);
 
         const hash = PassPool.get(target.handle, PassView.HASH);
-        PassPool.set(this._handle, PassView.HASH, (hash << 16) | hashFactor);
+        PassPool.set(this._handle, PassView.HASH, hash ^ hashFactor);
     }
 
     // infos

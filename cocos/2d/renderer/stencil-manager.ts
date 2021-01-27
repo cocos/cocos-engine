@@ -183,7 +183,7 @@ export class StencilManager {
     }
 
     public getStencilHash (stage: Stage) {
-        return (stage << 5) | this._maskStack.length;
+        return (stage << 8) | this._maskStack.length;
     }
 
     // Notice: Only children node in Mask need use this.stage
