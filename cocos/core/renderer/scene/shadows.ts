@@ -357,11 +357,6 @@ export class Shadows {
             this._material = new Material();
             this._material.initialize({ effectName: 'planar-shadow' });
             ShadowsPool.set(this._handle, ShadowsView.PLANAR_PASS, this._material.passes[0].handle);
-
-            // Materials should be built with different shaders according to different models.
-            // This is a temporary solution.
-            // It should not be written in a fixed way, or modified by the user
-            ShadowsPool.set(this._handle, ShadowsView.PLANAR_SHADER, this._material.passes[0].getShaderVariant(multiPatches));
         }
         if (!this._instancingMaterial) {
             this._instancingMaterial = new Material();
