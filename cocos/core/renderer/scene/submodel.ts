@@ -29,7 +29,7 @@ import { BatchingSchemes, IMacroPatch, Pass } from '../core/pass';
 import { DSPool, IAPool, SubModelPool, SubModelView, SubModelHandle, NULL_HANDLE, ShaderHandle } from '../core/memory-pools';
 import { DescriptorSet, DescriptorSetInfo, Device, InputAssembler } from '../../gfx';
 import { legacyCC } from '../../global-exports';
-import { Material } from '../../assets/material';
+import { ForwardPipeline } from '../../pipeline';
 
 const _dsInfo = new DescriptorSetInfo(null!);
 
@@ -129,8 +129,10 @@ export class SubModel {
 
     // This is a temporary solution
     // It should not be written in a fixed way, or modified by the user
-    public initPlanarShadowShader (mat: Material) {
-        const shaderHandle = mat.passes[0].getShaderVariant(this._patches);
+    public initPlanarShadowShader () {
+        const pipeline = legacyCC.director.root.pipeline as  ForwardPipeline;
+        const shadowInfo = pipeline.shadows;
+        const shaderHandle = shadowInfo.getPlanarShader(this._patches);
         SubModelPool.set(this._handle, SubModelView.PLANAR_SHADER, shaderHandle);
     }
 

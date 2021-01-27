@@ -28,9 +28,10 @@ import { Sphere } from '../../geometry';
 import { Color, Mat4, Vec3, Vec2 } from '../../math';
 import { legacyCC } from '../../global-exports';
 import { Enum } from '../../value-types';
-import { ShadowsPool, NULL_HANDLE, ShadowsView, ShadowsHandle } from '../core/memory-pools';
+import { ShadowsPool, NULL_HANDLE, ShadowsView, ShadowsHandle, ShaderHandle } from '../core/memory-pools';
 import { ShadowsInfo } from '../../scene-graph/scene-globals';
 import { API, Device } from '../../gfx';
+import { IMacroPatch } from '../core/pass';
 
 const multiPatches = [
     { name: 'CC_USE_SKINNING', value: true },
@@ -315,6 +316,12 @@ export class Shadows {
 
     constructor () {
         this._handle = ShadowsPool.alloc();
+    }
+
+    public getPlanarShader (patches: IMacroPatch[] | null): ShaderHandle {
+        this._updatePlanarInfo();
+
+        return this._material!.passes[0].getShaderVariant(patches);
     }
 
     public initialize (shadowsInfo: ShadowsInfo) {

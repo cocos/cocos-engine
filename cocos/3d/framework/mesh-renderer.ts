@@ -349,9 +349,6 @@ export class MeshRenderer extends RenderableComponent {
 
         if (this._model) {
             this._model.createBoundingShape(this._mesh.struct.minPosition, this._mesh.struct.maxPosition);
-            // This is a temporary solution
-            // It should not be written in a fixed way, or modified by the user
-            if (this._shadowCastingMode === ModelShadowCastingMode.ON) { this._model.getOrCreatPlanarMat(); }
             this._updateModelParams();
             this._onUpdateLightingmap();
         }
