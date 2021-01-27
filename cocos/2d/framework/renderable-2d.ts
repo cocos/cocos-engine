@@ -47,6 +47,7 @@ import { Stage } from '../renderer/stencil-manager';
 import { warnID } from '../../core/platform/debug';
 import { BlendState, BlendTarget } from '../../core/gfx/pipeline-state';
 import { legacyCC } from '../../core/global-exports';
+import { murmurhash2_32_gc } from '../../core/utils/murmurhash2_gc';
 
 // hack
 ccenum(BlendFactor);
@@ -320,8 +321,8 @@ export class Renderable2D extends RenderableComponent {
     }
 
     public updateBlendHash () {
-        const dst = this._blendState.targets[0].blendDst << 16;
-        this._blendHash = dst | this._blendState.targets[0].blendSrc;
+        const res = `blendDst:${this._blendState.targets[0].blendDst}blendSrc:${this._blendState.targets[0].blendSrc}`;
+        this._blendHash = murmurhash2_32_gc(res, 666);
     }
 
     protected _lastParent: Node | null = null;
