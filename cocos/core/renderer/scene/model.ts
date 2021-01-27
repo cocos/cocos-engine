@@ -210,7 +210,7 @@ export class Model {
     private _instMatWorldIdx = -1;
     private _lightmap: Texture2D | null = null;
     private _lightmapUVParam: Vec4 = new Vec4();
-    private _material: Material | null = null;
+    private _planarMat: Material | null = null;
 
     /**
      * Setup a default empty model
@@ -222,10 +222,10 @@ export class Model {
     // This is a temporary solution
     // It should not be written in a fixed way, or modified by the user
     public getOrCreatPlanarMat () {
-        if (!this._material) {
-            this._material = new Material();
+        if (!this._planarMat) {
+            this._planarMat = new Material();
         }
-        this._material.initialize({ effectName: 'planar-shadow' });
+        this._planarMat.initialize({ effectName: 'planar-shadow' });
     }
 
     public initialize () {
@@ -376,7 +376,7 @@ export class Model {
         this._subModels[idx].initialize(subMeshData, mat.passes, this.getMacroPatches(idx));
         // This is a temporary solution
         // It should not be written in a fixed way, or modified by the user
-        if (this._material) { this._subModels[idx].initPlanarShadowShader(this._material); }
+        if (this._planarMat) { this._subModels[idx].initPlanarShadowShader(this._planarMat); }
         this._updateAttributesAndBinding(idx);
         if (isNewSubModel) {
             const hSubModelArray = ModelPool.get(this._handle, ModelView.SUB_MODEL_ARRAY);
