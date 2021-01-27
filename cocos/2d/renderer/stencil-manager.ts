@@ -182,6 +182,10 @@ export class StencilManager {
         return depthStencilState;
     }
 
+    public getStencilHash (stage: Stage) {
+        return (stage << 8) | this._maskStack.length;
+    }
+
     // Notice: Only children node in Mask need use this.stage
     private setStateFromStage (stage) {
         const pattern = this._stencilPattern;

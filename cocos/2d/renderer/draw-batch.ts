@@ -116,7 +116,7 @@ export class DrawBatch2D {
     }
 
     // object version
-    public fillPasses (mat: Material | null, dss, bs, patches) {
+    public fillPasses (mat: Material | null, dss, dssHash, bs, bsHash, patches) {
         if (mat) {
             const passes = mat.passes;
             if (!passes) { return; }
@@ -124,6 +124,7 @@ export class DrawBatch2D {
             BatchPool2D.set(this._handle, BatchView2D.PASS_COUNT, passes.length);
             let passOffset = BatchView2D.PASS_0;
             let shaderOffset = BatchView2D.SHADER_0;
+            let hashFactor = 0;
             for (let i = 0; i < passes.length; i++, passOffset++, shaderOffset++) {
                 if (!this._passes[i]) {
                     this._passes[i] = new Pass(legacyCC.director.root);
@@ -132,12 +133,14 @@ export class DrawBatch2D {
                 }
                 const mtlPass = passes[i];
                 const passInUse = this._passes[i];
-                if (!dss) { dss = mtlPass.depthStencilState; }
-                if (!bs) { bs = mtlPass.blendState; }
+                if (!dss) { dss = mtlPass.depthStencilState; dssHash = 0; }
+                if (!bs) { bs = mtlPass.blendState; bsHash = 0; }
+
+                hashFactor = (dssHash << 16) | bsHash;
 
                 mtlPass.update();
                 // @ts-expect-error hack for UI use pass object
-                passInUse._initPassFromTarget(mtlPass, dss, bs);
+                passInUse._initPassFromTarget(mtlPass, dss, bs, hashFactor);
                 BatchPool2D.set(this._handle, passOffset, passInUse.handle);
                 BatchPool2D.set(this._handle, shaderOffset, passInUse.getShaderVariant(patches));
             }

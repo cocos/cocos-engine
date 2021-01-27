@@ -194,6 +194,7 @@ class BuiltinResMgr {
 
     private _initMaterials () {
         const resources = this._resources;
+        const materialsToBeCompiled: any[] = [];
 
         // standard material
         const standardMtl = new legacyCC.Material();
@@ -202,6 +203,7 @@ class BuiltinResMgr {
             effectName: 'standard',
         });
         resources[standardMtl._uuid] = standardMtl;
+        materialsToBeCompiled.push(standardMtl);
 
         // material indicating missing effect (yellow)
         const missingEfxMtl = new legacyCC.Material();
@@ -212,6 +214,7 @@ class BuiltinResMgr {
         });
         missingEfxMtl.setProperty('mainColor', legacyCC.color('#ffff00'));
         resources[missingEfxMtl._uuid] = missingEfxMtl;
+        materialsToBeCompiled.push(missingEfxMtl);
 
         // material indicating missing material (purple)
         const missingMtl = new legacyCC.Material();
@@ -222,23 +225,27 @@ class BuiltinResMgr {
         });
         missingMtl.setProperty('mainColor', legacyCC.color('#ff00ff'));
         resources[missingMtl._uuid] = missingMtl;
+        materialsToBeCompiled.push(missingMtl);
 
         const clearStencilMtl = new legacyCC.Material();
         clearStencilMtl._uuid = 'default-clear-stencil';
         clearStencilMtl.initialize({ defines: { USE_TEXTURE: false }, effectName: 'clear-stencil' });
         resources[clearStencilMtl._uuid] = clearStencilMtl;
+        materialsToBeCompiled.push(clearStencilMtl);
 
         // sprite material
         const spriteMtl = new legacyCC.Material();
         spriteMtl._uuid = 'ui-base-material';
         spriteMtl.initialize({ defines: { USE_TEXTURE: false }, effectName: 'sprite' });
         resources[spriteMtl._uuid] = spriteMtl;
+        materialsToBeCompiled.push(spriteMtl);
 
         // sprite material
         const spriteColorMtl = new legacyCC.Material();
         spriteColorMtl._uuid = 'ui-sprite-material';
         spriteColorMtl.initialize({ defines: { USE_TEXTURE: true, CC_USE_EMBEDDED_ALPHA: false, IS_GRAY: false }, effectName: 'sprite' });
         resources[spriteColorMtl._uuid] = spriteColorMtl;
+        materialsToBeCompiled.push(spriteColorMtl);
 
         // sprite alpha test material
         const alphaTestMaskMtl = new legacyCC.Material();
@@ -248,54 +255,63 @@ class BuiltinResMgr {
             effectName: 'sprite',
         });
         resources[alphaTestMaskMtl._uuid] = alphaTestMaskMtl;
+        materialsToBeCompiled.push(alphaTestMaskMtl);
 
         // sprite gray material
         const spriteGrayMtl = new legacyCC.Material();
         spriteGrayMtl._uuid = 'ui-sprite-gray-material';
         spriteGrayMtl.initialize({ defines: { USE_TEXTURE: true, CC_USE_EMBEDDED_ALPHA: false, IS_GRAY: true }, effectName: 'sprite' });
         resources[spriteGrayMtl._uuid] = spriteGrayMtl;
+        materialsToBeCompiled.push(spriteGrayMtl);
 
         // sprite alpha material
         const spriteAlphaMtl = new legacyCC.Material();
         spriteAlphaMtl._uuid = 'ui-sprite-alpha-sep-material';
         spriteAlphaMtl.initialize({ defines: { USE_TEXTURE: true, CC_USE_EMBEDDED_ALPHA: true, IS_GRAY: false }, effectName: 'sprite' });
         resources[spriteAlphaMtl._uuid] = spriteAlphaMtl;
+        materialsToBeCompiled.push(spriteAlphaMtl);
 
         // sprite alpha & gray material
         const spriteAlphaGrayMtl = new legacyCC.Material();
         spriteAlphaGrayMtl._uuid = 'ui-sprite-gray-alpha-sep-material';
         spriteAlphaGrayMtl.initialize({ defines: { USE_TEXTURE: true, CC_USE_EMBEDDED_ALPHA: true, IS_GRAY: true }, effectName: 'sprite' });
         resources[spriteAlphaGrayMtl._uuid] = spriteAlphaGrayMtl;
+        materialsToBeCompiled.push(spriteAlphaGrayMtl);
 
         // ui graphics material
         const defaultGraphicsMtl = new legacyCC.Material();
         defaultGraphicsMtl._uuid = 'ui-graphics-material';
         defaultGraphicsMtl.initialize({ effectName: 'graphics' });
         resources[defaultGraphicsMtl._uuid] = defaultGraphicsMtl;
+        materialsToBeCompiled.push(defaultGraphicsMtl);
 
         // default particle material
         const defaultParticleMtl = new legacyCC.Material();
         defaultParticleMtl._uuid = 'default-particle-material';
         defaultParticleMtl.initialize({ effectName: 'particle' });
         resources[defaultParticleMtl._uuid] = defaultParticleMtl;
+        materialsToBeCompiled.push(defaultParticleMtl);
 
         // default particle gpu material
         const defaultParticleGPUMtl = new legacyCC.Material();
         defaultParticleGPUMtl._uuid = 'default-particle-gpu-material';
         defaultParticleGPUMtl.initialize({ effectName: 'particle-gpu' });
         resources[defaultParticleGPUMtl._uuid] = defaultParticleGPUMtl;
+        materialsToBeCompiled.push(defaultParticleGPUMtl);
 
         // default particle material
         const defaultTrailMtl = new legacyCC.Material();
         defaultTrailMtl._uuid = 'default-trail-material';
         defaultTrailMtl.initialize({ effectName: 'particle-trail' });
         resources[defaultTrailMtl._uuid] = defaultTrailMtl;
+        materialsToBeCompiled.push(defaultTrailMtl);
 
         // default particle material
         const defaultBillboardMtl = new legacyCC.Material();
         defaultBillboardMtl._uuid = 'default-billboard-material';
         defaultBillboardMtl.initialize({ effectName: 'billboard' });
         resources[defaultBillboardMtl._uuid] = defaultBillboardMtl;
+        materialsToBeCompiled.push(defaultBillboardMtl);
 
         // ui spine two color material
         const spineTwoColorMtl = new legacyCC.Material();
@@ -309,6 +325,16 @@ class BuiltinResMgr {
             effectName: 'spine',
         });
         resources[spineTwoColorMtl._uuid] = spineTwoColorMtl;
+        materialsToBeCompiled.push(spineTwoColorMtl);
+
+        legacyCC.game.on(legacyCC.Game.EVENT_RENDERER_INITED, () => {
+            for (let i = 0; i < materialsToBeCompiled.length; ++i) {
+                const mat = materialsToBeCompiled[i];
+                for (let j = 0; j < mat.passes.length; ++j) {
+                    mat.passes[j].tryCompile();
+                }
+            }
+        });
     }
 }
 
