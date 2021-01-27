@@ -136,7 +136,7 @@ export class DrawBatch2D {
                 if (!dss) { dss = mtlPass.depthStencilState; dssHash = 0; }
                 if (!bs) { bs = mtlPass.blendState; bsHash = 0; }
 
-                hashFactor = dssHash ^ bsHash;
+                hashFactor = (dssHash << 8) | bsHash;
 
                 mtlPass.update();
                 // @ts-expect-error hack for UI use pass object

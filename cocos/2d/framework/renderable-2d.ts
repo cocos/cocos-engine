@@ -321,8 +321,8 @@ export class Renderable2D extends RenderableComponent {
     }
 
     public updateBlendHash () {
-        const res = `blendDst:${this._blendState.targets[0].blendDst}blendSrc:${this._blendState.targets[0].blendSrc}`;
-        this._blendHash = murmurhash2_32_gc(res, 666);
+        const dst = this._blendState.targets[0].blendDst << 4;
+        this._blendHash = dst | this._blendState.targets[0].blendSrc;
     }
 
     protected _lastParent: Node | null = null;
