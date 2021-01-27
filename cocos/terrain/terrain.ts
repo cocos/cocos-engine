@@ -321,6 +321,7 @@ export class TerrainBlock {
         this._node = new PrivateNode('');
         this._node.setParent(this._terrain.node);
         this._node._objFlags |= legacyCC.Object.Flags.DontSave;
+        this._node.layer = this._terrain.node.layer;
 
         this._renderable = this._node.addComponent(TerrainRenderable);
     }
