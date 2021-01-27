@@ -56,6 +56,11 @@ export interface IListenerMask {
  */
 export class EventListener {
     /**
+     * to cache camera priority
+     * @internal
+     */
+    public _cameraPriority: number = 0;
+    /**
      * @en The type code of unknown event listener.<br/>
      * @zh 未知的事件监听器类型
      */
