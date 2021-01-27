@@ -170,7 +170,7 @@ export class Renderable2D extends RenderableComponent {
     protected updateMaterial () {
         if (this._customMaterial) {
             this.setMaterial(this._customMaterial, 0);
-            this._blendHash = -1; // a flag to check merge
+            this._blendHash = 0; // a flag to check merge
             return;
         }
         const mat = this._updateBuiltinMaterial();

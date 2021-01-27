@@ -486,7 +486,7 @@ export class Batcher2D {
         let dssHash = 0;
         let bsHash = 0;
         if (renderComp) {
-            blendState = renderComp.blendHash === -1 ? null : renderComp.getBlendState();
+            blendState = renderComp.blendHash === 0 ? null : renderComp.getBlendState();
             bsHash = renderComp.blendHash;
             if (renderComp.customMaterial !== null) {
                 depthStencil = StencilManager.sharedManager!.getStencilStage(renderComp.stencilStage, mat);

@@ -133,9 +133,8 @@ export class DrawBatch2D {
                 }
                 const mtlPass = passes[i];
                 const passInUse = this._passes[i];
-                if (!dss) { dss = mtlPass.depthStencilState; dss = 0; }
+                if (!dss) { dss = mtlPass.depthStencilState; dssHash = 0; }
                 if (!bs) { bs = mtlPass.blendState; bsHash = 0; }
-                if (bsHash === -1) { bsHash = 0; }
 
                 hashFactor = dssHash ^ bsHash;
 
