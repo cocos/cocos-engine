@@ -102,9 +102,9 @@ class TrailSegment {
         return this.trailElements[idx];
     }
 
-    public addElement (): ITrailElement {
+    public addElement (): ITrailElement | null {
         if (this.trailElements.length === 0) {
-            return null as any;
+            return null;
         }
         if (this.start === -1) {
             this.start = 0;
@@ -128,7 +128,7 @@ class TrailSegment {
         return this.trailElements[newEleLoc];
     }
 
-    public iterateElement (target: object, f: (target: object, e: ITrailElement, p: Particle, dt: number) => boolean, p: Particle, dt: number) {
+    public iterateElement (target: TrailModule, f: (target: TrailModule, e: ITrailElement, p: Particle, dt: number) => boolean, p: Particle, dt: number) {
         const end = this.start >= this.end ? this.end + this.trailElements.length : this.end;
         for (let i = this.start; i < end; i++) {
             if (f(target, this.trailElements[i % this.trailElements.length], p, dt)) {
@@ -394,6 +394,12 @@ export default class TrailModule {
         }
     }
 
+    public play () {
+        if (this._trailModel && this._enable) {
+            this._trailModel.enabled = true;
+        }
+    }
+
     public clear () {
         if (this.enable) {
             const trailIter = this._particleTrail.values();
@@ -404,6 +410,7 @@ export default class TrailModule {
             }
             this._particleTrail.clear();
             this.updateRenderData();
+            if (this._trailModel) this._trailModel.enabled = false;
         }
     }
 
