@@ -28,6 +28,10 @@
 #include "bindings/jswrapper/SeApi.h"
 #include "bindings/manual/jsb_classtype.h"
 #include "cocos/base/Vector.h"
+#include "cocos/base/Map.h"
+#include "cocos/math/Vec2.h"
+#include "cocos/math/Vec3.h"
+#include "cocos/math/Geometry.h"
 #include "extensions/cocos-ext.h"
 #include "network/Downloader.h"
 #include <assert.h>
