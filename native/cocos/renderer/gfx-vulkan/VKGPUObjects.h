@@ -184,6 +184,8 @@ public:
     VkCommandBufferLevel level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
     uint queueFamilyIndex = 0u;
     bool began = false;
+
+    mutable unordered_set<VkBuffer> recordedBuffers;
 };
 
 class CCVKGPUQueue final : public Object {
@@ -426,12 +428,25 @@ private:
 class CCVKGPUDescriptorSetPool final : public Object {
 public:
     ~CCVKGPUDescriptorSetPool() {
+        for (vector<VkDescriptorSet> &market : _fleaMarkets) {
+            for (VkDescriptorSet set : market) {
+                for (DescriptorSetPool &pool : _pools) {
+                    if (pool.activeSets.count(set)) {
+                        pool.activeSets.erase(set);
+                        pool.freeSets.push_back(set);
+                        break;
+                    }
+                }
+            }
+        }
+
         uint leakedSetCount = 0u;
         for (DescriptorSetPool &pool : _pools) {
             leakedSetCount += pool.activeSets.size();
             vkDestroyDescriptorPool(_device->vkDevice, pool.vkPool, nullptr);
         }
         if (leakedSetCount) CC_LOG_DEBUG("Leaked %d descriptor sets.", leakedSetCount);
+
         _pools.clear();
     }
 
@@ -439,6 +454,7 @@ public:
         _device = device;
         _maxSetsPerPool = maxSetsPerPool;
         _setLayouts.insert(_setLayouts.begin(), _maxSetsPerPool, setLayout);
+        _fleaMarkets.resize(device->backBufferCount);
 
         unordered_map<VkDescriptorType, uint> typeMap;
         for (size_t i = 0u; i < bindings.size(); i++) {
@@ -457,8 +473,14 @@ public:
         }
     }
 
-    VkDescriptorSet request() {
+    VkDescriptorSet request(uint backBufferIndex) {
         VkDescriptorSet output = VK_NULL_HANDLE;
+
+        if (!_fleaMarkets[backBufferIndex].empty()) {
+            output = _fleaMarkets[backBufferIndex].back();
+            _fleaMarkets[backBufferIndex].pop_back();
+            return output;
+        }
 
         size_t size = _pools.size();
         uint idx = 0u;
@@ -495,14 +517,16 @@ public:
         return output;
     }
 
-    void yield(VkDescriptorSet set) {
+    void yield(VkDescriptorSet set, uint backBufferIndex) {
+        bool found = false;
         for (DescriptorSetPool &pool : _pools) {
             if (pool.activeSets.count(set)) {
-                pool.activeSets.erase(set);
-                pool.freeSets.push_back(set);
-                return;
+                found = true;
+                break;
             }
         }
+        CCASSERT(found, "wrong descriptor set layout to yield?");
+        _fleaMarkets[backBufferIndex].push_back(set);
     }
 
 private:
@@ -514,6 +538,8 @@ private:
         vector<VkDescriptorSet> freeSets;
     };
     vector<DescriptorSetPool> _pools;
+
+    vector<vector<VkDescriptorSet>> _fleaMarkets; // per back buffer
 
     vector<VkDescriptorPoolSize> _poolSizes;
     vector<VkDescriptorSetLayout> _setLayouts;
