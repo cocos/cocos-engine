@@ -1,8 +1,8 @@
+import { Armature, Matrix } from '@cocos/dragonbones-js';
 import { Node, Mat4, Vec3 } from '../core';
 import { ccclass } from '../core/data/class-decorator';
 import { ArmatureFrameBoneInfo } from './ArmatureCache';
 import { ArmatureDisplay } from './ArmatureDisplay';
-import { Armature, Matrix } from './lib/dragonBones.js';
 
 const _tempMat4 = new Mat4();
 

@@ -1,11 +1,11 @@
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 import { EDITOR } from 'internal:constants';
+import { BinaryDataParser, DragonBonesData } from '@cocos/dragonbones-js';
 import { Asset } from '../core/assets';
 import { ccclass, serializable } from '../core/data/decorators';
 import { ArmatureCache } from './ArmatureCache';
 import { Enum, JsonAsset, Node } from '../core';
 import { CCFactory } from './CCFactory';
-import { BinaryDataParser, DragonBonesData } from './lib/dragonBones';
 import { property } from '../core/data/class-decorator';
 import { legacyCC } from '../core/global-exports';
 
