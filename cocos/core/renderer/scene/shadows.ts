@@ -319,9 +319,13 @@ export class Shadows {
     }
 
     public getPlanarShader (patches: IMacroPatch[] | null): ShaderHandle {
-        this._updatePlanarInfo();
+        if (!this._material) {
+            this._material = new Material();
+            this._material.initialize({ effectName: 'planar-shadow' });
+            ShadowsPool.set(this._handle, ShadowsView.PLANAR_PASS, this._material.passes[0].handle);
+        }
 
-        return this._material!.passes[0].getShaderVariant(patches);
+        return this._material.passes[0].getShaderVariant(patches);
     }
 
     public initialize (shadowsInfo: ShadowsInfo) {
