@@ -26,10 +26,9 @@
 #ifndef __VISIBLERECT_H__
 #define __VISIBLERECT_H__
 
-#include "cocos2d.h"
-
-class VisibleRect
-{
+#include "cocos/math/Geometry.h"
+#include "cocos/math/Vec2.h"
+class VisibleRect {
 public:
     static cc::Rect getVisibleRect();
 
@@ -42,6 +41,7 @@ public:
     static cc::Vec2 rightTop();
     static cc::Vec2 leftBottom();
     static cc::Vec2 rightBottom();
+
 private:
     static void lazyInit();
     static cc::Rect s_visibleRect;

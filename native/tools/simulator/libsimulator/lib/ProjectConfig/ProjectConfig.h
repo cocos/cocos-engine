@@ -23,48 +23,46 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-
 #ifndef __PROJECT_CONFIG_H_
 #define __PROJECT_CONFIG_H_
+
+#include "cocos/math/Geometry.h"
 
 #include <string>
 #include <vector>
 
 using namespace std;
 
-#include "cocos2d.h"
 #include "SimulatorExport.h"
 
-#define kCCRuntimeDebuggerNone      0
-#define kCCRuntimeDebuggerLDT       1
-#define kCCRuntimeDebuggerCodeIDE   2
-#define kCCRuntimeDebuggerStudio    3
+#define kCCRuntimeDebuggerNone    0
+#define kCCRuntimeDebuggerLDT     1
+#define kCCRuntimeDebuggerCodeIDE 2
+#define kCCRuntimeDebuggerStudio  3
 
-#define kProjectConfigProjectDir                1       // -workdir "PATH"
-#define kProjectConfigScriptFile                2       // -script "FILENAME"
-#define kProjectConfigPackagePath               4       // -package.path "PATH;PATH"
-#define kProjectConfigWritablePath              8       // -writable "PATH"
-#define kProjectConfigFrameSize                 16      // -size 960x640
-#define kProjectConfigFrameScale                32      // -scale 1.0
-#define kProjectConfigShowConsole               64      // -console, -disable-console
-#define kProjectConfigLoadPrecompiledFramework  128     // -load-framework, -disable-load-framework
-#define kProjectConfigWriteDebugLogToFile       256     // -write-debug-log, -disable-write-debug-log
-#define kProjectConfigWindowOffset              512     // -offset {0,0}
-#define kProjectConfigDebugger                  1024    // -debugger-ldt, -debugger-codeide, -disable-debugger
-#define kProjectConfigListen                    2048    //
-#define kProjectConfigSearchPath                4096    //
+#define kProjectConfigProjectDir               1    // -workdir "PATH"
+#define kProjectConfigScriptFile               2    // -script "FILENAME"
+#define kProjectConfigPackagePath              4    // -package.path "PATH;PATH"
+#define kProjectConfigWritablePath             8    // -writable "PATH"
+#define kProjectConfigFrameSize                16   // -size 960x640
+#define kProjectConfigFrameScale               32   // -scale 1.0
+#define kProjectConfigShowConsole              64   // -console, -disable-console
+#define kProjectConfigLoadPrecompiledFramework 128  // -load-framework, -disable-load-framework
+#define kProjectConfigWriteDebugLogToFile      256  // -write-debug-log, -disable-write-debug-log
+#define kProjectConfigWindowOffset             512  // -offset {0,0}
+#define kProjectConfigDebugger                 1024 // -debugger-ldt, -debugger-codeide, -disable-debugger
+#define kProjectConfigListen                   2048 //
+#define kProjectConfigSearchPath               4096 //
 
 #define kProjectConfigOpenRecent (kProjectConfigProjectDir | kProjectConfigScriptFile | kProjectConfigPackagePath | kProjectConfigWritablePath | kProjectConfigFrameSize | kProjectConfigFrameScale | kProjectConfigShowConsole | kProjectConfigLoadPrecompiledFramework | kProjectConfigWriteDebugLogToFile)
 
 #define kProjectConfigAll (kProjectConfigProjectDir | kProjectConfigScriptFile | kProjectConfigPackagePath | kProjectConfigWritablePath | kProjectConfigFrameSize | kProjectConfigFrameScale | kProjectConfigShowConsole | kProjectConfigLoadPrecompiledFramework | kProjectConfigWriteDebugLogToFile | kProjectConfigWindowOffset | kProjectConfigDebugger | kProjectConfigListen | kProjectConfigSearchPath)
 
+#define kProjectConfigConsolePort 6010
+#define kProjectConfigUploadPort  6020
+#define kProjectConfigDebugPort   5086
 
-#define kProjectConfigConsolePort   6010
-#define kProjectConfigUploadPort    6020
-#define kProjectConfigDebugPort     5086
-
-class CC_LIBSIM_DLL ProjectConfig
-{
+class CC_LIBSIM_DLL ProjectConfig {
 public:
     ProjectConfig();
 
@@ -129,7 +127,7 @@ public:
     const std::string &getBindAddress() const;
     void setSearchPath(const vector<string> &args);
     const vector<string> &getSearchPath() const;
-    
+
     bool isAppMenu() const;
     bool isResizeWindow() const;
     bool isRetinaDisplay() const;
@@ -163,7 +161,7 @@ private:
     string replaceProjectDirToMacro(const string &path) const;
     string replaceProjectDirToFullPath(const string &path) const;
     bool isAbsolutePath(const string &path) const;
-    
+
     /**
      * windows : Y:\Documents\CocosProjects\Cocos Project\ -> "Y:\Documents\CocosProjects\Cocos Project\\"
      * other   : return @path

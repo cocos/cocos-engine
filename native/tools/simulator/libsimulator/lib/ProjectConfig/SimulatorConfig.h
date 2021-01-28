@@ -23,7 +23,6 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-
 #ifndef __SIMULATOR_CONFIG_H_
 #define __SIMULATOR_CONFIG_H_
 
@@ -32,15 +31,15 @@
 
 using namespace std;
 
-#include "cocos2d.h"
 #include "SimulatorExport.h"
+#include "cocos/math/Geometry.h"
 
 #if defined(_WINDOWS)
-#define DIRECTORY_SEPARATOR "\\"
-#define DIRECTORY_SEPARATOR_CHAR '\\'
+    #define DIRECTORY_SEPARATOR      "\\"
+    #define DIRECTORY_SEPARATOR_CHAR '\\'
 #else
-#define DIRECTORY_SEPARATOR "/"
-#define DIRECTORY_SEPARATOR_CHAR '/'
+    #define DIRECTORY_SEPARATOR      "/"
+    #define DIRECTORY_SEPARATOR_CHAR '/'
 #endif
 
 typedef struct _SimulatorScreenSize {
@@ -48,10 +47,9 @@ typedef struct _SimulatorScreenSize {
     int width;
     int height;
 
-    _SimulatorScreenSize(const string &title_, int width_, int height_)
-    {
-        title  = title_;
-        width  = width_;
+    _SimulatorScreenSize(const string &title_, int width_, int height_) {
+        title = title_;
+        width = width_;
         height = height_;
     }
 } SimulatorScreenSize;
@@ -59,8 +57,7 @@ typedef struct _SimulatorScreenSize {
 typedef vector<SimulatorScreenSize> ScreenSizeArray;
 typedef ScreenSizeArray::iterator ScreenSizeArrayIterator;
 
-class CC_LIBSIM_DLL SimulatorConfig
-{
+class CC_LIBSIM_DLL SimulatorConfig {
 public:
     static SimulatorConfig *getInstance();
 
