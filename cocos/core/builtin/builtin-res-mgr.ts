@@ -313,38 +313,15 @@ class BuiltinResMgr {
         resources[spineTwoColorMtl._uuid] = spineTwoColorMtl;
 
         // builtin deferred material
-        //const builtinDeferredMtl = new legacyCC.Material();
-        //builtinDeferredMtl._uuid = 'builtin-deferred-material';
-        //builtinDeferredMtl.initialize({
-        //   effectName: 'builtin-deferred'
-        // });
-        //this._resources[builtinDeferredMtl._uuid] = builtinDeferredMtl;
+        const builtinDeferredMtl = new legacyCC.Material();
+        builtinDeferredMtl._uuid = 'builtin-deferred-material';
+        builtinDeferredMtl.initialize({effectName: 'deferred'});
+        resources[builtinDeferredMtl._uuid] = builtinDeferredMtl;
 
-        //const builtinPostProcessMtl = new legacyCC.Material();
-        //builtinPostProcessMtl._uuid = 'builtin-post-process-material';
-        //builtinPostProcessMtl.initialize({effectAsset: 'builtin-postprocess'});
-        //this._resources[builtinPostProcessMtl._uuid] = builtinPostProcessMtl;        
-    }
-
-    public _initDeferredMaterial () {
-        // builtin deferred material
-        resources.load('shader/builtin-deferred', EffectAsset, (err, deferredMtl) => {
-            if (deferredMtl) {
-                const builtinDeferredMtl = new legacyCC.Material();
-                builtinDeferredMtl._uuid = 'builtin-deferred-material';
-                builtinDeferredMtl.initialize({effectAsset: deferredMtl});
-                this._resources[builtinDeferredMtl._uuid] = builtinDeferredMtl;
-            }
-        });
-
-        resources.load('shader/builtin-postprocess', EffectAsset, (err, postMtl) => {
-            if (postMtl) {
-                const builtinPostProcessMtl = new legacyCC.Material();
-                builtinPostProcessMtl._uuid = 'builtin-post-process-material';
-                builtinPostProcessMtl.initialize({effectAsset: postMtl});
-                this._resources[builtinPostProcessMtl._uuid] = builtinPostProcessMtl;
-            }
-        });
+        const builtinPostProcessMtl = new legacyCC.Material();
+        builtinPostProcessMtl._uuid = 'builtin-post-process-material';
+        builtinPostProcessMtl.initialize({effectName: 'postprocess'});
+        resources[builtinPostProcessMtl._uuid] = builtinPostProcessMtl;
     }
 }
 

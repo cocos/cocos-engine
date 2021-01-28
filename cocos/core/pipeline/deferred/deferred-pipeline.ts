@@ -140,15 +140,17 @@ export class DeferredPipeline extends RenderPipeline {
     }
 
     public render (cameras: Camera[]) {
+        if (cameras.length == 0) {
+            return;
+        }
+
         this._commandBuffers[0].begin();
         this._pipelineUBO.updateGlobalUBO();
-        for (let i = 0; i < cameras.length; i++) {
-            const camera = cameras[i];
-            if (camera.scene) {
-                this._pipelineUBO.updateCameraUBO(camera, true);
-                for (let j = 0; j < this._flows.length; j++) {
-                    this._flows[j].render(camera);
-                }
+        const camera = cameras[0];
+        if (camera.scene) {
+            this._pipelineUBO.updateCameraUBO(camera, true);
+            for (let j = 0; j < this._flows.length; j++) {
+                this._flows[j].render(camera);
             }
         }
         this._commandBuffers[0].end();

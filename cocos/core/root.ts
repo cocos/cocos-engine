@@ -156,22 +156,6 @@ export class Root {
         return RootPool.get(this._poolHandle, RootView.FRAME_TIME);
     }
 
-    public get deferredLightPassHandle (): PassHandle {
-        return RootPool.get(this._poolHandle, RootView.DEFERRED_LIGHT_PASS);
-    }
-
-    public get deferredLightPassShaderHandle (): ShaderHandle {
-        return RootPool.get(this._poolHandle, RootView.DEFERRED_LIGHT_PASS_SHADER);
-    }
-
-    public get deferredPostPassHandle (): PassHandle {
-        return RootPool.get(this._poolHandle, RootView.DEFERRED_POST_PASS);
-    }
-
-    public get deferredPostPassShaderHandle(): ShaderHandle  {
-        return RootPool.get(this._poolHandle, RootView.DEFERRED_POST_PASS_SHADER);
-    }
-
     /**
      * @zh
      * 一秒内的累计帧数
@@ -338,9 +322,6 @@ export class Root {
             rppl = createDefaultPipeline();
         }
         this._pipeline = rppl;
-        if (this._pipeline instanceof DeferredPipeline) {
-            builtinResMgr._initDeferredMaterial();
-        }
 
         if (!this._pipeline.activate()) {
             return false;
@@ -373,8 +354,6 @@ export class Root {
             passLit.beginChangeStatesSilently();
             passLit.tryCompile(); 
             passLit.endChangeStatesSilently();
-            RootPool.set(this._poolHandle, RootView.DEFERRED_LIGHT_PASS, passLit.handle);
-            RootPool.set(this._poolHandle, RootView.DEFERRED_LIGHT_PASS_SHADER, passLit.getShaderVariant());
         }
 
         const builtinPostProcess = builtinResMgr.get<Material>('builtin-post-process-material');
@@ -383,8 +362,6 @@ export class Root {
             passPost.beginChangeStatesSilently();
             passPost.tryCompile(); 
             passPost.endChangeStatesSilently();
-            RootPool.set(this._poolHandle, RootView.DEFERRED_POST_PASS, passPost.handle);
-            RootPool.set(this._poolHandle, RootView.DEFERRED_POST_PASS_SHADER, passPost.getShaderVariant());
         }
     }
 

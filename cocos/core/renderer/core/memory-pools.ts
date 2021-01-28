@@ -1010,28 +1010,16 @@ export const NodePool = new BufferPool<PoolType.NODE, typeof NodeView, INodeView
 export enum RootView {
     CUMULATIVE_TIME,
     FRAME_TIME,
-    DEFERRED_LIGHT_PASS,
-    DEFERRED_LIGHT_PASS_SHADER,
-    DEFERRED_POST_PASS,
-    DEFERRED_POST_PASS_SHADER,
     COUNT
 }
 interface IRootViewType extends BufferTypeManifest<typeof RootView> {
     [RootView.CUMULATIVE_TIME]: number;
     [RootView.FRAME_TIME]: number;
-    [RootView.DEFERRED_LIGHT_PASS]: PassHandle;
-    [RootView.DEFERRED_LIGHT_PASS_SHADER]: ShaderHandle;
-    [RootView.DEFERRED_POST_PASS]: PassHandle;
-    [RootView.DEFERRED_POST_PASS_SHADER]: ShaderHandle;
     [RootView.COUNT]: never;
 }
 const rootViewDataType: BufferDataTypeManifest<typeof RootView> = {
     [RootView.CUMULATIVE_TIME]: BufferDataType.FLOAT32,
     [RootView.FRAME_TIME]: BufferDataType.FLOAT32,
-    [RootView.DEFERRED_LIGHT_PASS]: BufferDataType.UINT32,
-    [RootView.DEFERRED_LIGHT_PASS_SHADER]: BufferDataType.UINT32,
-    [RootView.DEFERRED_POST_PASS]: BufferDataType.UINT32,
-    [RootView.DEFERRED_POST_PASS_SHADER]: BufferDataType.UINT32,
     [RootView.COUNT]: BufferDataType.NEVER,
 };
 // Theoretically we only have to declare the type view here while all the other arguments can be inferred.
@@ -1266,7 +1254,11 @@ export enum PipelineSceneDataView {
     IS_HDR,
     SHADING_SCALE,
     FP_SCALE,
-    COUNT = 7
+    DEFERRED_LIGHT_PASS,
+    DEFERRED_LIGHT_PASS_SHADER,
+    DEFERRED_POST_PASS,
+    DEFERRED_POST_PASS_SHADER,
+    COUNT = 11
 }
 interface IPipelineSceneDataViewType extends BufferTypeManifest<typeof PipelineSceneDataView> {
     [PipelineSceneDataView.SHADOW]: ShadowsHandle;
@@ -1276,6 +1268,10 @@ interface IPipelineSceneDataViewType extends BufferTypeManifest<typeof PipelineS
     [PipelineSceneDataView.IS_HDR]: number;
     [PipelineSceneDataView.SHADING_SCALE]: number;
     [PipelineSceneDataView.FP_SCALE]: number;
+    [PipelineSceneDataView.DEFERRED_LIGHT_PASS]: PassHandle;
+    [PipelineSceneDataView.DEFERRED_LIGHT_PASS_SHADER]: ShaderHandle;
+    [PipelineSceneDataView.DEFERRED_POST_PASS]: PassHandle;
+    [PipelineSceneDataView.DEFERRED_POST_PASS_SHADER]: ShaderHandle;
     [PipelineSceneDataView.COUNT]: never;
 }
 const pipelineSceneDataType: BufferDataTypeManifest<typeof PipelineSceneDataView> = {
@@ -1286,6 +1282,10 @@ const pipelineSceneDataType: BufferDataTypeManifest<typeof PipelineSceneDataView
     [PipelineSceneDataView.IS_HDR]: BufferDataType.UINT32,
     [PipelineSceneDataView.SHADING_SCALE]: BufferDataType.UINT32,
     [PipelineSceneDataView.FP_SCALE]: BufferDataType.UINT32,
+    [PipelineSceneDataView.DEFERRED_LIGHT_PASS]: BufferDataType.UINT32,
+    [PipelineSceneDataView.DEFERRED_LIGHT_PASS_SHADER]: BufferDataType.UINT32,
+    [PipelineSceneDataView.DEFERRED_POST_PASS]: BufferDataType.UINT32,
+    [PipelineSceneDataView.DEFERRED_POST_PASS_SHADER]: BufferDataType.UINT32,
     [PipelineSceneDataView.COUNT]: BufferDataType.NEVER,
 };
 // Theoretically we only have to declare the type view here while all the other arguments can be inferred.

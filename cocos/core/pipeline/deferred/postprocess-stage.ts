@@ -99,6 +99,8 @@ export class PostprocessStage extends RenderStage {
 
         const cmdBuff = pipeline.commandBuffers[0];
 
+        pipeline.pipelineUBO.updateCameraUBO(camera, camera.window!.hasOffScreenAttachments);
+
         const vp = camera.viewport;
         this._renderArea!.x = vp.x * camera.width;
         this._renderArea!.y = vp.y * camera.height;
