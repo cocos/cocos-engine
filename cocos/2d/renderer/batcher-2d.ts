@@ -200,7 +200,7 @@ export class Batcher2D {
     }
 
     public getFirstRenderCamera (node: Node): Camera | null {
-        if (node.scene.renderScene) {
+        if (node.scene && node.scene.renderScene) {
             const cameras = node.scene.renderScene.cameras;
             for (let i = 0; i < cameras.length; i++) {
                 const camera = cameras[i];
