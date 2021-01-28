@@ -182,12 +182,12 @@ export function copyPhysXTransform (node: Node, transform: any): void {
 
 export function physXEqualsCocosVec3 (trans: any, v3: IVec3Like): boolean {
     const pos = USE_BYTEDANCE ? trans.getPosition() : trans.translation;
-    return Vec3.strictEquals(pos, v3);
+    return Vec3.equals(pos, v3);
 }
 
 export function physXEqualsCocosQuat (trans: any, q: IQuatLike): boolean {
     const rot = USE_BYTEDANCE ? trans.getQuaternion() : trans.rotation;
-    return Quat.strictEquals(rot, q);
+    return Quat.equals(rot, q);
 }
 
 export function getContactData (vec: any, index: number, o: number) {
@@ -246,6 +246,14 @@ export function getShapeFlags (isTrigger: boolean): any {
     const flag = (isTrigger ? PX.PxShapeFlag.eTRIGGER_SHAPE.value : PX.PxShapeFlag.eSIMULATION_SHAPE.value)
         | PX.PxShapeFlag.eSCENE_QUERY_SHAPE.value;
     return new PX.PxShapeFlags(flag);
+}
+
+export function getShapeWorldBounds (shape: any, actor: any, i = 1.01) {
+    if (USE_BYTEDANCE) {
+        return PX.RigidBodyExt.getWorldBounds(shape, actor, i);
+    } else {
+        return shape.getWorldBounds(actor, i);
+    }
 }
 
 export function getShapeMaterials (pxMtl: any) {
