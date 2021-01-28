@@ -68,7 +68,7 @@ function onTrigger (type: TriggerEventType, wpa: PhysXShape, wpb: PhysXShape): v
             let tE: ITriggerEventItem;
             if (triggerEventsPool.length > 0) {
                 tE = triggerEventsPool.pop() as ITriggerEventItem;
-                tE.a = wpa, tE.b = wpb, tE.times = 0;
+                tE.a = wpa; tE.b = wpb; tE.times = 0;
             } else {
                 tE = { a: wpa, b: wpb, times: 0 };
             }
@@ -85,9 +85,9 @@ function emitTriggerEvent () {
     let len = triggerEventEndDic.getLength();
     while (len--) {
         const key = triggerEventEndDic.getKeyByIndex(len);
-        const data = triggerEventEndDic.getDataByKey(key) as ITriggerEventItem;
+        const data = triggerEventEndDic.getDataByKey<ITriggerEventItem>(key);
         triggerEventsPool.push(data);
-        const dataBeg = triggerEventBeginDic.getDataByKey(key) as ITriggerEventItem;
+        const dataBeg = triggerEventBeginDic.getDataByKey<ITriggerEventItem>(key);
         if (dataBeg) {
             triggerEventsPool.push(dataBeg);
             triggerEventBeginDic.set(data.a.id, data.b.id, null);
@@ -114,7 +114,7 @@ function emitTriggerEvent () {
     len = triggerEventBeginDic.getLength();
     while (len--) {
         const key = triggerEventBeginDic.getKeyByIndex(len);
-        const data = triggerEventBeginDic.getDataByKey(key) as ITriggerEventItem;
+        const data = triggerEventBeginDic.getDataByKey<ITriggerEventItem>(key);
         const colliderA = data.a.collider;
         const colliderB = data.b.collider;
         if (!colliderA || !colliderA.isValid || !colliderB || !colliderB.isValid) {
@@ -144,7 +144,7 @@ function onCollision (type: CollisionEventType, wpa: PhysXShape, wpb: PhysXShape
         if (wpa.collider.needCollisionEvent || wpb.collider.needCollisionEvent) {
             if (contactEventsPool.length > 0) {
                 const cE = contactEventsPool.pop() as ICollisionEventItem;
-                cE.type = type, cE.a = wpa, cE.b = wpb, cE.contactCount = c, cE.buffer = d, cE.offset = o;
+                cE.type = type; cE.a = wpa; cE.b = wpb; cE.contactCount = c; cE.buffer = d; cE.offset = o;
                 contactEventDic.set(wpa.id, wpb.id, cE);
             } else {
                 const cE: ICollisionEventItem = { type, a: wpa, b: wpb, contactCount: c, buffer: d, offset: o };
@@ -159,14 +159,14 @@ function emitCollisionEvent (): void {
     let len = contactEventDic.getLength();
     while (len--) {
         const key = contactEventDic.getKeyByIndex(len);
-        const data = contactEventDic.getDataByKey(key) as ICollisionEventItem;
+        const data = contactEventDic.getDataByKey<ICollisionEventItem>(key);
         contactEventsPool.push(data);
         const colliderA = data.a.collider;
         const colliderB = data.b.collider;
         if (colliderA && colliderA.isValid && colliderB && colliderB.isValid) {
             CollisionEventObject.type = data.type;
             CollisionEventObject.impl = data.buffer;
-            const c = data.contactCount, d = data.buffer, o = data.offset;
+            const c = data.contactCount; const d = data.buffer; const o = data.offset;
             const contacts = CollisionEventObject.contacts;
             contactsPool.push.apply(contactsPool, contacts as any);
             contacts.length = 0;
