@@ -248,6 +248,14 @@ export function getShapeFlags (isTrigger: boolean): any {
     return new PX.PxShapeFlags(flag);
 }
 
+export function getShapeWorldBounds (shape: any, actor: any, i = 1.01) {
+    if (USE_BYTEDANCE) {
+        return PX.RigidBodyExt.getWorldBounds(shape, actor, i);
+    } else {
+        return shape.getWorldBounds(actor, i);
+    }
+}
+
 export function getShapeMaterials (pxMtl: any) {
     if (USE_BYTEDANCE) {
         return [pxMtl];

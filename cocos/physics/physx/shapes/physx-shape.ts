@@ -30,10 +30,10 @@
 
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 import { IVec3Like, Quat, Vec3 } from '../../../core';
-import { aabb, sphere } from '../../../core/geometry';
+import { AABB, Sphere } from '../../../core/geometry';
 import { Collider, RigidBody, PhysicsMaterial, PhysicsSystem } from '../../framework';
 import { IBaseShape } from '../../spec/i-physics-shape';
-import { EFilterDataWord3, getShapeFlags, getShapeMaterials, getTempTransform, PX, _pxtrans, _trans } from '../export-physx';
+import { EFilterDataWord3, getShapeFlags, getShapeMaterials, getShapeWorldBounds, getTempTransform, PX, _pxtrans, _trans } from '../export-physx';
 import { PhysXSharedBody } from '../physx-shared-body';
 import { PhysXWorld } from '../physx-world';
 
@@ -177,9 +177,14 @@ export class PhysXShape implements IBaseShape {
         if (this._collider.enabled) this._sharedBody.updateCenterOfMass();
     }
 
-    getAABB (v: aabb): void { }
+    getAABB (v: AABB): void {
+        const b3 = getShapeWorldBounds(this.impl, this._sharedBody.impl, 1);
+        AABB.fromPoints(v, b3.minimum, b3.maximum);
+    }
 
-    getBoundingSphere (v: sphere): void { }
+    getBoundingSphere (v: Sphere): void {
+        AABB.toBoundingSphere(v, this._collider.worldBounds as AABB);
+    }
 
     setGroup (v: number): void {
         this._sharedBody.setGroup(v);
