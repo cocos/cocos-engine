@@ -190,7 +190,7 @@ void CCVKDescriptorSet::update() {
                                 descriptorHub->disengage(binding.gpuBufferView, &descriptorInfo.buffer);
                             }
                             if (bufferView) {
-                                descriptorHub->connect(bufferView, &descriptorInfo.buffer, t);
+                                descriptorHub->connect(_gpuDescriptorSet, bufferView, &descriptorInfo.buffer, t);
                                 descriptorHub->update(bufferView, &descriptorInfo.buffer);
                             }
                         }
@@ -207,7 +207,7 @@ void CCVKDescriptorSet::update() {
                                 descriptorHub->disengage(binding.gpuTextureView, &descriptorInfo.image);
                             }
                             if (textureView) {
-                                descriptorHub->connect(textureView, &descriptorInfo.image);
+                                descriptorHub->connect(_gpuDescriptorSet, textureView, &descriptorInfo.image);
                                 descriptorHub->update(textureView, &descriptorInfo.image);
                             }
                         }

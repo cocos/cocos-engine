@@ -245,7 +245,6 @@ void ForwardPipeline::updateCameraUBO(Camera *camera) {
 }
 
 void ForwardPipeline::updateShadowUBO(Camera *camera) {
-    _descriptorSet->update();
     const auto scene = camera->getScene();
     const Light *mainLight = nullptr;
     if (scene->mainLightID) mainLight = scene->getMainLight();
@@ -256,7 +255,7 @@ void ForwardPipeline::updateShadowUBO(Camera *camera) {
             if (_shadowFrameBufferMap.count(mainLight) > 0) {
                 auto *texture = _shadowFrameBufferMap.at(mainLight)->getColorTextures()[0];
                 if (texture) {
-                    this->_descriptorSet->bindTexture(SHADOWMAP::BINDING, texture);
+                    _descriptorSet->bindTexture(SHADOWMAP::BINDING, texture);
                 }
             }
 
@@ -301,6 +300,7 @@ void ForwardPipeline::updateShadowUBO(Camera *camera) {
         memcpy(_shadowUBO.data() + UBOShadow::SHADOW_COLOR_OFFSET, &shadowInfo->color, sizeof(Vec4));
         _commandBuffers[0]->updateBuffer(_descriptorSet->getBuffer(UBOShadow::BINDING), _shadowUBO.data(), UBOShadow::SIZE);
     }
+    _descriptorSet->update();
 }
 
 void ForwardPipeline::updateGlobalUBO() {

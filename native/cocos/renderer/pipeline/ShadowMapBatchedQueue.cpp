@@ -96,8 +96,6 @@ void ShadowMapBatchedQueue::add(const ModelView *model, gfx::CommandBuffer *cmdB
         const auto subModel = model->getSubModelView(subModelID[m]);
         const auto pass = subModel->getPassView(shadowPassIdx);
         const auto batchingScheme = pass->getBatchingScheme();
-        subModel->getDescriptorSet()->bindBuffer(UBOShadow::BINDING, _buffer);
-        subModel->getDescriptorSet()->update();
 
         if (batchingScheme == BatchingSchemes::INSTANCING) {
             auto *instancedBuffer = InstancedBuffer::get(subModel->passID[shadowPassIdx]);
@@ -194,7 +192,7 @@ void ShadowMapBatchedQueue::updateUBOs(const Light *light, gfx::CommandBuffer *c
             matShadowViewProj.multiply(matShadowView);
             memcpy(shadowUBO.data() + UBOShadow::MAT_LIGHT_VIEW_PROJ_OFFSET, matShadowViewProj.m, sizeof(matShadowViewProj));
         } break;
-        default:;
+        default: break;
     }
 
     float shadowInfos[4] = {shadowInfo->size.x, shadowInfo->size.y, (float)shadowInfo->pcfType, shadowInfo->bias};
