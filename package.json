@@ -56,6 +56,6 @@
     "@cocos/ammo": "1.1.1",
     "@cocos/box2d": "1.0.1",
     "@cocos/cannon": "1.2.3",
-    "@cocos/physx": "1.0.1"
+    "@cocos/physx": "1.0.2"
   }
 }
