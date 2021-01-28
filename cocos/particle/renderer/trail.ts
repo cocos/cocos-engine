@@ -54,9 +54,9 @@ const _temp_vec3 = new Vec3();
 const _temp_vec3_1 = new Vec3();
 const _temp_color = new Color();
 
-const barycentric = [1, 0, 0, 0, 1, 0, 0, 0, 1]; // <wireframe debug>
+// const barycentric = [1, 0, 0, 0, 1, 0, 0, 0, 1]; // <wireframe debug>
 
-const _bcIdx = 0;
+// let _bcIdx = 0; // <wireframe debug>
 
 interface ITrailElement {
     position: Vec3;
@@ -568,6 +568,7 @@ export default class TrailModule {
                 this._fillVertexBuffer(_temp_trailEle, this.colorOverTrail.evaluate(0, 1), indexOffset, 0, trailNum, PRE_TRIANGLE_INDEX);
             }
         }
+        this._trailModel!.enabled = this.ibOffset > 0;
     }
 
     public updateIA (count: number) {
