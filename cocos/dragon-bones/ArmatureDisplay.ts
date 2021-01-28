@@ -1,4 +1,5 @@
 import { EDITOR } from 'internal:constants';
+import { Armature, Bone, EventObject } from '@cocos/dragonbones-js';
 import { ccclass, executeInEditMode, help, menu } from '../core/data/class-decorator';
 import { Renderable2D } from '../2d/framework/renderable-2d';
 import { Node, EventTarget, CCClass, Color, Enum, PrivateNode, ccenum, errorID, Texture2D, js, CCObject, SystemEventType } from '../core';
@@ -7,7 +8,6 @@ import { displayName, editable, override, serializable, tooltip, type, visible }
 import { AnimationCache, ArmatureCache, ArmatureFrame } from './ArmatureCache';
 import { AttachUtil } from './AttachUtil';
 import { CCFactory } from './CCFactory';
-import { Armature, Bone, EventObject } from './lib/dragonBones.js';
 import { DragonBonesAsset } from './DragonBonesAsset';
 import { DragonBonesAtlasAsset } from './DragonBonesAtlasAsset';
 import { Graphics } from '../2d/components';
