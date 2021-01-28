@@ -403,11 +403,11 @@ function initSys () {
      */
     sys.JKW_GAME = 112;
     /**
-     * @property {Number} YOUKU_GAME
+     * @property {Number} ALIPAY_GAME
      * @readOnly
      * @default 113
      */
-    sys.YOUKU_GAME = 113;
+    sys.ALIPAY_GAME = 113;
     /**
      * @property {Number} WECHAT_GAME_SUB
      * @readOnly
@@ -1247,14 +1247,5 @@ function initSys () {
 }
 
 var sys = cc && cc.sys ? cc.sys : initSys();
-
-Object.defineProperty(sys, 'ALIPAY_GAME', {
-    get () {
-        if (CC_DEBUG) {
-            cc.warnID(1400, 'cc.sys.ALIPAY_GAME', 'cc.sys.YOUKU_GAME');
-        }
-        return sys.YOUKU_GAME;
-    },
-});
 
 module.exports = sys;
