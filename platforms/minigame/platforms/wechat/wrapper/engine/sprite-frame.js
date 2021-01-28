@@ -17,6 +17,7 @@ if(cc.SpriteFrame) {
             return;
         }
 
+        // HACK: Can't tell if it's a Canvas or an Image by instanceof on WeChat.
         if (texture.image && texture.image.getContext) {
             this._packable = true;
         }
