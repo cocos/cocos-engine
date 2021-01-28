@@ -23,8 +23,7 @@
  THE SOFTWARE.
  */
 
-import { markAsWarning, removeProperty, replaceProperty } from '../utils';
-import { sys } from './sys';
+import { markAsWarning, removeProperty } from '../utils';
 import { View } from './view';
 
 removeProperty(View.prototype, 'View.prototype', [
@@ -35,15 +34,5 @@ removeProperty(View.prototype, 'View.prototype', [
     {
         name: 'enableAntiAlias',
         suggest: 'The API of Texture2d have been largely modified, no alternative',
-    },
-]);
-
-replaceProperty(sys, 'sys', [
-    {
-        name: 'ALIPAY_MINI_GAME',
-        newName: 'YOUKU_MINI_GAME',
-        customGetter () {
-            return sys.YOUKU_MINI_GAME as number;
-        },
     },
 ]);
