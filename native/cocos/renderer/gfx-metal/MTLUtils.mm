@@ -1523,16 +1523,6 @@ bool mu::pixelFormatIsColorRenderable(Format format) {
     return !isCompressedFormat && !is422Format && !(pixelFormat == MTLPixelFormatInvalid);
 }
 
-MTLBlitOption getBlitOption(Format format) {
-    CC_UNUSED const MTLPixelFormat pixelFormat = toMTLPixelFormat(format);
-#if CC_PLATFORM == CC_PLATFORM_MAC_IOS
-    if (pixelFormat >= MTLPixelFormatPVRTC_RGB_2BPP && pixelFormat <= MTLPixelFormatPVRTC_RGBA_4BPP_sRGB) {
-        return MTLBlitOptionRowLinearPVRTC;
-    }
-#endif
-    return MTLBlitOptionNone;
-}
-
 //CompareFunction of MTLSamplerDescriptor is only supported on MTLFeatureSet_iOS_GPUFamily3_v1 and later
 bool mu::isSamplerDescriptorCompareFunctionSupported(uint family) {
 #if CC_PLATFORM == CC_PLATFORM_MAC_IOS

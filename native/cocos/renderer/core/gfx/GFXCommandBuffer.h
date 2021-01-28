@@ -44,7 +44,7 @@ public:
     CC_INLINE void begin(RenderPass *renderPass, uint subpass) { begin(renderPass, subpass, nullptr); }
 
     CC_INLINE void updateBuffer(Buffer *buff, const void *data) { updateBuffer(buff, data, buff->getSize()); }
-    CC_INLINE void execute(const CommandBufferList &cmdBuffs, uint32_t count) { execute(cmdBuffs.data(), count); }
+    CC_INLINE void execute(CommandBufferList &cmdBuffs, uint32_t count) { execute(cmdBuffs.data(), count); }
     CC_INLINE void bindDescriptorSet(uint set, DescriptorSet *descriptorSet) { bindDescriptorSet(set, descriptorSet, 0, nullptr); }
     CC_INLINE void bindDescriptorSet(uint set, DescriptorSet *descriptorSet, const vector<uint> &dynamicOffsets) {
         bindDescriptorSet(set, descriptorSet, static_cast<uint>(dynamicOffsets.size()), dynamicOffsets.data());

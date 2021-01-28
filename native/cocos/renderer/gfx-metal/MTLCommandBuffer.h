@@ -69,7 +69,7 @@ public:
     void updateBuffer(Buffer *buff, const void *data, uint size) override;
     void copyBuffersToTexture(const uint8_t *const *buffers, Texture *texture, const BufferTextureCopy *regions, uint count) override;
     void blitTexture(Texture *srcTexture, Texture *dstTexture, const TextureBlit *regions, uint count, Filter filter) override;
-    void execute(const CommandBuffer *const *cmdBuffs, uint32_t count) override;
+    void execute(CommandBuffer *const *cmdBuffs, uint32_t count) override;
     void dispatch(const DispatchInfo &info) override;
     void pipelineBarrier(const GlobalBarrier *barrier, const TextureBarrier *const *textureBarriers, const Texture *const *textures, uint textureBarrierCount) override;
     

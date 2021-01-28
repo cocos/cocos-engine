@@ -43,7 +43,7 @@ bool CCMTLQueue::initialize(const QueueInfo &info) {
 void CCMTLQueue::destroy() {
 }
 
-void CCMTLQueue::submit(const CommandBuffer *const *cmdBuffs, uint count) {
+void CCMTLQueue::submit(CommandBuffer *const *cmdBuffs, uint count) {
     for (uint i = 0u; i < count; ++i) {
         CCMTLCommandBuffer *cmdBuffer = (CCMTLCommandBuffer *)cmdBuffs[i];
         _numDrawCalls += cmdBuffer->getNumDrawCalls();

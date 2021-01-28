@@ -38,7 +38,7 @@ public:
 
     bool initialize(const QueueInfo &info) override;
     void destroy() override;
-    void submit(const CommandBuffer *const *cmdBuffs, uint count) override;
+    void submit(CommandBuffer *const *cmdBuffs, uint count) override;
 
 private:
     uint _numDrawCalls = 0;
