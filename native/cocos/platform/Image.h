@@ -60,16 +60,16 @@ public:
         UNKNOWN
     };
 
-
     bool initWithImageFile(const std::string &path);
     bool initWithImageData(const unsigned char *data, ssize_t dataLen);
 
     // @warning kFmtRawData only support RGBA8888
     bool initWithRawData(const unsigned char *data, ssize_t dataLen, int width, int height, int bitsPerComponent, bool preMulti = false);
-    
+
     // data will be free ouside.
-    inline void takeData(unsigned char** outData) {
-        *outData = _data; _data = nullptr;
+    inline void takeData(unsigned char **outData) {
+        *outData = _data;
+        _data = nullptr;
     }
 
     // Getters
@@ -92,7 +92,7 @@ protected:
     bool initWithPVRv3Data(const unsigned char *data, ssize_t dataLen);
     bool initWithETCData(const unsigned char *data, ssize_t dataLen);
     bool initWithETC2Data(const unsigned char *data, ssize_t dataLen);
-    bool initWithASTCData(const unsigned char * data, ssize_t dataLen);
+    bool initWithASTCData(const unsigned char *data, ssize_t dataLen);
 
 protected:
     unsigned char *_data = nullptr;
@@ -112,7 +112,7 @@ protected:
     // nonmoveable
     Image(Image &&) = delete;
     Image &operator=(Image &&) = delete;
-    
+
     virtual ~Image();
 
     Format detectFormat(const unsigned char *data, ssize_t dataLen);
@@ -122,9 +122,9 @@ protected:
     bool isPvr(const unsigned char *data, ssize_t dataLen);
     bool isEtc(const unsigned char *data, ssize_t dataLen);
     bool isEtc2(const unsigned char *data, ssize_t dataLen);
-    bool isASTC(const unsigned char * data, ssize_t detaLen);
+    bool isASTC(const unsigned char *data, ssize_t detaLen);
 
-    gfx::Format getASTCFormat(const unsigned char * pHeader) const;
+    gfx::Format getASTCFormat(const unsigned char *pHeader) const;
 };
 
 } //namespace cc

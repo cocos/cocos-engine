@@ -24,50 +24,47 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 ****************************************************************************/
 
-
 #if CC_PLATFORM == CC_PLATFORM_ANDROID
 
-#include "platform/Device.h"
-#include <string.h>
-#include <android/log.h>
-#include <jni.h>
-#include <android_native_app_glue.h>
-#include <android/window.h>
-#include <android/sensor.h>
-#include "platform/android/jni/JniCocosActivity.h"
-#include "platform/FileUtils.h"
-#include "base/UTF8.h"
-#include "platform/android/jni/JniHelper.h"
+    #include "platform/Device.h"
+    #include <string.h>
+    #include <android/log.h>
+    #include <jni.h>
+    #include <android_native_app_glue.h>
+    #include <android/window.h>
+    #include <android/sensor.h>
+    #include "platform/android/jni/JniCocosActivity.h"
+    #include "platform/FileUtils.h"
+    #include "base/UTF8.h"
+    #include "platform/android/jni/JniHelper.h"
 
-#ifndef JCLS_HELPER
-#define JCLS_HELPER "com/cocos/lib/CocosHelper"
-#endif
+    #ifndef JCLS_HELPER
+        #define JCLS_HELPER "com/cocos/lib/CocosHelper"
+    #endif
 
-#ifndef JCLS_SENSOR
-#define JCLS_SENSOR "com/cocos/lib/CocosSensorHandler"
-#endif
+    #ifndef JCLS_SENSOR
+        #define JCLS_SENSOR "com/cocos/lib/CocosSensorHandler"
+    #endif
 
 namespace {
-    cc::Device::MotionValue motionValue;
+cc::Device::MotionValue motionValue;
 
-    // constant from Android API:
-    // reference: https://developer.android.com/reference/android/view/Surface#ROTATION_0
-    enum Rotation {
-        ROTATION_0 = 0,
-        ROTATION_90,
-        ROTATION_180,
-        ROTATION_270
-    };
-}
+// constant from Android API:
+// reference: https://developer.android.com/reference/android/view/Surface#ROTATION_0
+enum Rotation {
+    ROTATION_0 = 0,
+    ROTATION_90,
+    ROTATION_180,
+    ROTATION_270
+};
+} // namespace
 
 namespace cc {
 
-int Device::getDPI()
-{
+int Device::getDPI() {
     static int dpi = -1;
-    if (dpi == -1)
-    {
-        AConfiguration* config = AConfiguration_new();
+    if (dpi == -1) {
+        AConfiguration *config = AConfiguration_new();
         AConfiguration_fromAssetManager(config, cocosApp.assetManager);
         int32_t density = AConfiguration_getDensity(config);
         AConfiguration_delete(config);
@@ -76,19 +73,16 @@ int Device::getDPI()
     return dpi;
 }
 
-void Device::setAccelerometerEnabled(bool isEnabled)
-{
+void Device::setAccelerometerEnabled(bool isEnabled) {
     JniHelper::callStaticVoidMethod(JCLS_SENSOR, "setAccelerometerEnabled", isEnabled);
 }
 
-void Device::setAccelerometerInterval(float interval)
-{
+void Device::setAccelerometerInterval(float interval) {
     JniHelper::callStaticVoidMethod(JCLS_SENSOR, "setAccelerometerInterval", interval);
 }
 
-const Device::MotionValue& Device::getDeviceMotionValue()
-{
-    float* v = JniHelper::callStaticFloatArrayMethod(JCLS_SENSOR,"getDeviceMotionValue");
+const Device::MotionValue &Device::getDeviceMotionValue() {
+    float *v = JniHelper::callStaticFloatArrayMethod(JCLS_SENSOR, "getDeviceMotionValue");
 
     motionValue.accelerationIncludingGravityX = v[0];
     motionValue.accelerationIncludingGravityY = v[1];
@@ -105,8 +99,7 @@ const Device::MotionValue& Device::getDeviceMotionValue()
     return motionValue;
 }
 
-Device::Orientation Device::getDeviceOrientation()
-{
+Device::Orientation Device::getDeviceOrientation() {
     int rotation = JniHelper::callStaticIntMethod(JCLS_HELPER, "getDeviceRotation");
     switch (rotation) {
         case ROTATION_0:
@@ -120,42 +113,35 @@ Device::Orientation Device::getDeviceOrientation()
     }
 }
 
-std::string Device::getDeviceModel()
-{
+std::string Device::getDeviceModel() {
     return JniHelper::callStaticStringMethod(JCLS_HELPER, "getDeviceModel");
 }
 
-void Device::setKeepScreenOn(bool value)
-{
+void Device::setKeepScreenOn(bool value) {
     // JniHelper::callStaticVoidMethod(JCLS_HELPER, "setKeepScreenOn", value);
-//    ANativeActivity_setWindowFlags(JniHelper::getAndroidApp()->activity, AWINDOW_FLAG_KEEP_SCREEN_ON, 0);
+    //    ANativeActivity_setWindowFlags(JniHelper::getAndroidApp()->activity, AWINDOW_FLAG_KEEP_SCREEN_ON, 0);
 }
 
-void Device::vibrate(float duration)
-{
+void Device::vibrate(float duration) {
     JniHelper::callStaticVoidMethod(JCLS_HELPER, "vibrate", duration);
 }
 
-float Device::getBatteryLevel()
-{
+float Device::getBatteryLevel() {
     return JniHelper::callStaticFloatMethod(JCLS_HELPER, "getBatteryLevel");
 }
 
-Device::NetworkType Device::getNetworkType()
-{
+Device::NetworkType Device::getNetworkType() {
     return (Device::NetworkType)JniHelper::callStaticIntMethod(JCLS_HELPER, "getNetworkType");
 }
 
-cc::Vec4 Device::getSafeAreaEdge()
-{
+cc::Vec4 Device::getSafeAreaEdge() {
     float *data = JniHelper::callStaticFloatArrayMethod(JCLS_HELPER, "getSafeArea");
-    return cc::Vec4(data[0], data[1], data[2],data[3]);
+    return cc::Vec4(data[0], data[1], data[2], data[3]);
 }
 
-float Device::getDevicePixelRatio()
-{
+float Device::getDevicePixelRatio() {
     return 1;
 }
-}
+} // namespace cc
 
 #endif // CC_PLATFORM == CC_PLATFORM_ANDROID

@@ -46,10 +46,8 @@ class Mat3;
  * the magnitude of the vector intact. When used as a point,
  * the elements of the vector represent a position in 3D space.
  */
-class CC_DLL Vec3
-{
+class CC_DLL Vec3 {
 public:
-
     /**
      * The x-coordinate.
      */
@@ -84,7 +82,7 @@ public:
      *
      * @param array An array containing the elements of the vector in the order x, y, z.
      */
-    Vec3(const float* array);
+    Vec3(const float *array);
 
     /**
      * Constructs a vector that describes the direction between the specified points.
@@ -92,14 +90,14 @@ public:
      * @param p1 The first point.
      * @param p2 The second point.
      */
-    Vec3(const Vec3& p1, const Vec3& p2);
+    Vec3(const Vec3 &p1, const Vec3 &p2);
 
     /**
      * Constructs a new vector that is a copy of the specified vector.
      *
      * @param copy The vector to copy.
      */
-    Vec3(const Vec3& copy);
+    Vec3(const Vec3 &copy);
 
     /**
      * Creates a new vector from an integer interpreted as an RGB value.
@@ -138,16 +136,14 @@ public:
      *
      * @return The angle between the two vectors (in radians).
      */
-    static float angle(const Vec3& v1, const Vec3& v2);
-
+    static float angle(const Vec3 &v1, const Vec3 &v2);
 
     /**
      * Adds the elements of the specified vector to this one.
      *
      * @param v The vector to add.
      */
-    inline void add(const Vec3& v);
-
+    inline void add(const Vec3 &v);
 
     /**
     * Adds the elements of this vector to the specified values.
@@ -165,7 +161,7 @@ public:
      * @param v2 The second vector.
      * @param dst A vector to store the result in.
      */
-    static void add(const Vec3& v1, const Vec3& v2, Vec3* dst);
+    static void add(const Vec3 &v1, const Vec3 &v2, Vec3 *dst);
 
     /**
      * Clamps this vector within the specified range.
@@ -173,7 +169,7 @@ public:
      * @param min The minimum value.
      * @param max The maximum value.
      */
-    void clamp(const Vec3& min, const Vec3& max);
+    void clamp(const Vec3 &min, const Vec3 &max);
 
     /**
      * Clamps the specified vector within the specified range and returns it in dst.
@@ -183,14 +179,14 @@ public:
      * @param max The maximum value.
      * @param dst A vector to store the result in.
      */
-    static void clamp(const Vec3& v, const Vec3& min, const Vec3& max, Vec3* dst);
+    static void clamp(const Vec3 &v, const Vec3 &min, const Vec3 &max, Vec3 *dst);
 
     /**
      * Sets this vector to the cross product between itself and the specified vector.
      *
      * @param v The vector to compute the cross product with.
      */
-    void cross(const Vec3& v);
+    void cross(const Vec3 &v);
 
     /**
      * Computes the cross product of the specified vectors and stores the result in dst.
@@ -199,15 +195,15 @@ public:
      * @param v2 The second vector.
      * @param dst A vector to store the result in.
      */
-    static void cross(const Vec3& v1, const Vec3& v2, Vec3* dst);
-    
+    static void cross(const Vec3 &v1, const Vec3 &v2, Vec3 *dst);
+
     /**
      * Multiply the elements of the specified vector to this one.
      *
      * @param v The vector to multiply.
      */
-    void multiply(const Vec3& v);
-    
+    void multiply(const Vec3 &v);
+
     /**
      * Multiply the specified vectors and stores the result in dst.
      *
@@ -215,30 +211,30 @@ public:
      * @param v2 The second vector.
      * @param dst A vector to store the result in.
      */
-    static void multiply(const Vec3& v1, const Vec3& v2, Vec3* dst);
-    
+    static void multiply(const Vec3 &v1, const Vec3 &v2, Vec3 *dst);
+
     /**
      * Transforms this vector by the specified Mat3 and stores the result in this vector.
      *
      * @param v The Vec3 to transform.
      * @param m The matrix.
      */
-    void transformMat3(const Vec3& v, const Mat3& m);
-    
+    void transformMat3(const Vec3 &v, const Mat3 &m);
+
     /**
      * Transforms this vector by the specified Mat4 and stores the result in this vector.
      *
      * @param v The Vec3 to transform.
      * @param m The matrix.
      */
-    void transformMat4(const Vec3& v, const Mat4& m);
-    
+    void transformMat4(const Vec3 &v, const Mat4 &m);
+
     /**
      * Transforms this vector by the specified quaternion and stores the result in this vector.
      *
      * @param q The quaternion to multiply.
      */
-    void transformQuat(const Quaternion& q);
+    void transformQuat(const Quaternion &q);
 
     /**
      * Returns the distance between this vector and v.
@@ -249,7 +245,7 @@ public:
      *
      * @see distanceSquared
      */
-    float distance(const Vec3& v) const;
+    float distance(const Vec3 &v) const;
 
     /**
      * Returns the squared distance between this vector and v.
@@ -265,7 +261,7 @@ public:
      *
      * @see distance
      */
-    float distanceSquared(const Vec3& v) const;
+    float distanceSquared(const Vec3 &v) const;
 
     /**
      * Returns the dot product of this vector and the specified vector.
@@ -274,7 +270,7 @@ public:
      *
      * @return The dot product.
      */
-    float dot(const Vec3& v) const;
+    float dot(const Vec3 &v) const;
 
     /**
      * Returns the dot product between the specified vectors.
@@ -284,7 +280,7 @@ public:
      *
      * @return The dot product between the vectors.
      */
-    static float dot(const Vec3& v1, const Vec3& v2);
+    static float dot(const Vec3 &v1, const Vec3 &v2);
 
     /**
      * Computes the length of this vector.
@@ -353,14 +349,14 @@ public:
      *
      * @param array An array containing the elements of the vector in the order x, y, z.
      */
-    inline void set(const float* array);
+    inline void set(const float *array);
 
     /**
      * Sets the elements of this vector to those in the specified vector.
      *
      * @param v The vector to copy.
      */
-    inline void set(const Vec3& v);
+    inline void set(const Vec3 &v);
 
     /**
      * Sets this vector to the directional vector between the specified points.
@@ -368,7 +364,7 @@ public:
      * @param p1 The vector to subtract.
      * @param p2 The vector to subtracted.
      */
-    inline void set(const Vec3& p1, const Vec3& p2);
+    inline void set(const Vec3 &p1, const Vec3 &p2);
 
     /**
     * Sets the elements of this vector to zero.
@@ -381,7 +377,7 @@ public:
      *
      * @param v The vector to subtract.
      */
-    inline void subtract(const Vec3& v);
+    inline void subtract(const Vec3 &v);
 
     /**
      * Subtracts the specified vectors and stores the result in dst.
@@ -391,7 +387,7 @@ public:
      * @param v2 The second vector.
      * @param dst The destination vector.
      */
-    static void subtract(const Vec3& v1, const Vec3& v2, Vec3* dst);
+    static void subtract(const Vec3 &v1, const Vec3 &v2, Vec3 *dst);
 
     /**
      * Get the maximum value in the vector
@@ -422,13 +418,13 @@ public:
      * @param elapsedTime elapsed time between calls.
      * @param responseTime response time (in the same units as elapsedTime).
      */
-    void smooth(const Vec3& target, float elapsedTime, float responseTime);
+    void smooth(const Vec3 &target, float elapsedTime, float responseTime);
 
     /**
      * Linear interpolation between two vectors A and B by alpha which
      * is in the range [0,1]
      */
-    inline Vec3 lerp(const Vec3& target, float alpha) const;
+    inline Vec3 lerp(const Vec3 &target, float alpha) const;
 
     /**
      * Calculates the sum of this vector with the given vector.
@@ -438,7 +434,7 @@ public:
      * @param v The vector to add.
      * @return The vector sum.
      */
-    inline const Vec3 operator+(const Vec3& v) const;
+    inline const Vec3 operator+(const Vec3 &v) const;
 
     /**
      * Adds the given vector to this vector.
@@ -446,7 +442,7 @@ public:
      * @param v The vector to add.
      * @return This vector, after the addition occurs.
      */
-    inline Vec3& operator+=(const Vec3& v);
+    inline Vec3 &operator+=(const Vec3 &v);
 
     /**
      * Calculates the difference of this vector with the given vector.
@@ -456,7 +452,7 @@ public:
      * @param v The vector to subtract.
      * @return The vector difference.
      */
-    inline const Vec3 operator-(const Vec3& v) const;
+    inline const Vec3 operator-(const Vec3 &v) const;
 
     /**
      * Subtracts the given vector from this vector.
@@ -464,7 +460,7 @@ public:
      * @param v The vector to subtract.
      * @return This vector, after the subtraction occurs.
      */
-    inline Vec3& operator-=(const Vec3& v);
+    inline Vec3 &operator-=(const Vec3 &v);
 
     /**
      * Calculates the negation of this vector.
@@ -485,7 +481,7 @@ public:
      */
     inline const Vec3 operator*(float s) const;
 
-     /**
+    /**
       * Multiply with a vector.
       *
       * @param rhs The value to scale by.
@@ -499,7 +495,7 @@ public:
      * @param s The value to scale by.
      * @return This vector, after the scale occurs.
      */
-    inline Vec3& operator*=(float s);
+    inline Vec3 &operator*=(float s);
 
     /**
      * Returns the components of this vector divided by the given constant
@@ -528,8 +524,7 @@ public:
      * @param rhs Compare the size of two vectors
      * @return bool
      */
-    inline bool operator < (const Vec3& rhs) const
-    {
+    inline bool operator<(const Vec3 &rhs) const {
         if (x < rhs.x && y < rhs.y && z < rhs.z)
             return true;
         return false;
@@ -542,8 +537,7 @@ public:
      * @param rhs Compare the size of two vectors
      * @return bool
      */
-    inline bool operator >(const Vec3& rhs) const
-    {
+    inline bool operator>(const Vec3 &rhs) const {
         if (x > rhs.x && y > rhs.y && z > rhs.z)
             return true;
         return false;
@@ -556,9 +550,9 @@ public:
      *
      * @return True if this vector is equal to the given vector, false otherwise.
      */
-    inline bool operator==(const Vec3& v) const;
+    inline bool operator==(const Vec3 &v) const;
 
-     /**
+    /**
       * Assign from another vector.
       *
       * @param rhs the vector to divide this vector with
@@ -574,7 +568,7 @@ public:
      *
      * @return True if this vector is not equal to the given vector, false otherwise.
      */
-    inline bool operator!=(const Vec3& v) const;
+    inline bool operator!=(const Vec3 &v) const;
 
     /** equals to Vec3(0,0,0) */
     static const Vec3 ZERO;
@@ -595,7 +589,7 @@ public:
  * @param v The vector to scale.
  * @return The scaled vector.
  */
-inline const Vec3 operator*(float x, const Vec3& v);
+inline const Vec3 operator*(float x, const Vec3 &v);
 
 //typedef Vec3 Point3;
 

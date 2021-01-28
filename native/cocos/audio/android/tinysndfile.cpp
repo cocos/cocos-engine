@@ -28,80 +28,69 @@
 #include <errno.h>
 
 #ifndef HAVE_STDERR
-#define HAVE_STDERR
+    #define HAVE_STDERR
 #endif
 
-#define WAVE_FORMAT_PCM         1
-#define WAVE_FORMAT_IEEE_FLOAT  3
-#define WAVE_FORMAT_EXTENSIBLE  0xFFFE
+#define WAVE_FORMAT_PCM        1
+#define WAVE_FORMAT_IEEE_FLOAT 3
+#define WAVE_FORMAT_EXTENSIBLE 0xFFFE
 
 static snd_callbacks __defaultCallback;
 static int __inited = 0;
 
 struct SNDFILE_ {
-    uint8_t *temp;  // realloc buffer used for shrinking 16 bits to 8 bits and byte-swapping
+    uint8_t *temp; // realloc buffer used for shrinking 16 bits to 8 bits and byte-swapping
     void *stream;
     size_t bytesPerFrame;
-    size_t remaining;   // frames unread for SFM_READ, frames written for SFM_WRITE
+    size_t remaining; // frames unread for SFM_READ, frames written for SFM_WRITE
     SF_INFO info;
     snd_callbacks callback;
 };
 
-static unsigned little2u(unsigned char *ptr)
-{
+static unsigned little2u(unsigned char *ptr) {
     return (ptr[1] << 8) + ptr[0];
 }
 
-static unsigned little4u(unsigned char *ptr)
-{
+static unsigned little4u(unsigned char *ptr) {
     return (ptr[3] << 24) + (ptr[2] << 16) + (ptr[1] << 8) + ptr[0];
 }
 
-static int isLittleEndian(void)
-{
+static int isLittleEndian(void) {
     static const short one = 1;
-    return *((const char *) &one) == 1;
+    return *((const char *)&one) == 1;
 }
 
 // "swab" conflicts with OS X <string.h>
-static void my_swab(short *ptr, size_t numToSwap)
-{
+static void my_swab(short *ptr, size_t numToSwap) {
     while (numToSwap > 0) {
-        *ptr = little2u((unsigned char *) ptr);
+        *ptr = little2u((unsigned char *)ptr);
         --numToSwap;
         ++ptr;
     }
 }
 
-static void* open_func(const char* path, void* user)
-{
+static void *open_func(const char *path, void *user) {
     return fopen(path, "rb");
 }
 
-static size_t read_func(void *ptr, size_t size, size_t nmemb, void* datasource)
-{
-    return fread(ptr, size, nmemb, (FILE*)datasource);
+static size_t read_func(void *ptr, size_t size, size_t nmemb, void *datasource) {
+    return fread(ptr, size, nmemb, (FILE *)datasource);
 }
 
-static int seek_func(void* datasource, long offset, int whence)
-{
-    return fseek((FILE*)datasource, offset, whence);
+static int seek_func(void *datasource, long offset, int whence) {
+    return fseek((FILE *)datasource, offset, whence);
 }
 
-static int close_func(void* datasource)
-{
-    return fclose((FILE*)datasource);
+static int close_func(void *datasource) {
+    return fclose((FILE *)datasource);
 }
 
-static long tell_func(void* datasource)
-{
-    return ftell((FILE*)datasource);
+static long tell_func(void *datasource) {
+    return ftell((FILE *)datasource);
 }
 
-static void lazyInit()
-{
-    if (__inited == 0)
-    {
+static void lazyInit() {
+    if (__inited == 0) {
         __defaultCallback.open = open_func;
         __defaultCallback.read = read_func;
         __defaultCallback.seek = seek_func;
@@ -111,8 +100,7 @@ static void lazyInit()
     }
 }
 
-SNDFILE *sf_open_read(const char *path, SF_INFO *info, snd_callbacks* cb, void* user)
-{
+SNDFILE *sf_open_read(const char *path, SF_INFO *info, snd_callbacks *cb, void *user) {
     lazyInit();
 
     if (path == NULL || info == NULL) {
@@ -122,7 +110,7 @@ SNDFILE *sf_open_read(const char *path, SF_INFO *info, snd_callbacks* cb, void* 
         return NULL;
     }
 
-    SNDFILE *handle = (SNDFILE *) malloc(sizeof(SNDFILE));
+    SNDFILE *handle = (SNDFILE *)malloc(sizeof(SNDFILE));
     handle->temp = NULL;
 
     handle->info.format = SF_FORMAT_WAV;
@@ -132,7 +120,7 @@ SNDFILE *sf_open_read(const char *path, SF_INFO *info, snd_callbacks* cb, void* 
         handle->callback = __defaultCallback;
     }
 
-    void* stream = handle->callback.open(path, user);
+    void *stream = handle->callback.open(path, user);
     if (stream == NULL) {
 #ifdef HAVE_STDERR
         ALOGE("fopen %s failed errno %d\n", path, errno);
@@ -247,7 +235,7 @@ SNDFILE *sf_open_read(const char *path, SF_INFO *info, snd_callbacks* cb, void* 
                 goto close;
             }
             if (chunkSize > minSize) {
-                handle->callback.seek(stream, (long) (chunkSize - minSize), SEEK_CUR);
+                handle->callback.seek(stream, (long)(chunkSize - minSize), SEEK_CUR);
             }
             unsigned channels = little2u(&fmt[2]);
             // IDEA: FCC_8
@@ -313,22 +301,22 @@ SNDFILE *sf_open_read(const char *path, SF_INFO *info, snd_callbacks* cb, void* 
             handle->info.frames = handle->remaining;
             dataTell = handle->callback.tell(stream);
             if (chunkSize > 0) {
-                handle->callback.seek(stream, (long) chunkSize, SEEK_CUR);
+                handle->callback.seek(stream, (long)chunkSize, SEEK_CUR);
             }
             hadData = 1;
         } else if (!memcmp(&chunk[0], "fact", 4)) {
             // ignore fact
             if (chunkSize > 0) {
-                handle->callback.seek(stream, (long) chunkSize, SEEK_CUR);
+                handle->callback.seek(stream, (long)chunkSize, SEEK_CUR);
             }
         } else {
             // ignore unknown chunk
 #ifdef HAVE_STDERR
             ALOGE("ignoring unknown chunk %c%c%c%c\n",
-                    chunk[0], chunk[1], chunk[2], chunk[3]);
+                  chunk[0], chunk[1], chunk[2], chunk[3]);
 #endif
             if (chunkSize > 0) {
-                handle->callback.seek(stream, (long) chunkSize, SEEK_CUR);
+                handle->callback.seek(stream, (long)chunkSize, SEEK_CUR);
             }
         }
         remaining -= chunkSize;
@@ -345,7 +333,7 @@ SNDFILE *sf_open_read(const char *path, SF_INFO *info, snd_callbacks* cb, void* 
 #endif
         goto close;
     }
-    (void) handle->callback.seek(stream, dataTell, SEEK_SET);
+    (void)handle->callback.seek(stream, dataTell, SEEK_SET);
     *info = handle->info;
     return handle;
 
@@ -355,22 +343,20 @@ close:
     return NULL;
 }
 
-void sf_close(SNDFILE *handle)
-{
+void sf_close(SNDFILE *handle) {
     if (handle == NULL)
         return;
     free(handle->temp);
-    (void) handle->callback.close(handle->stream);
+    (void)handle->callback.close(handle->stream);
     free(handle);
 }
 
-sf_count_t sf_readf_short(SNDFILE *handle, short *ptr, sf_count_t desiredFrames)
-{
+sf_count_t sf_readf_short(SNDFILE *handle, short *ptr, sf_count_t desiredFrames) {
     if (handle == NULL || ptr == NULL || !handle->remaining ||
         desiredFrames <= 0) {
         return 0;
     }
-    if (handle->remaining < (size_t) desiredFrames) {
+    if (handle->remaining < (size_t)desiredFrames) {
         desiredFrames = handle->remaining;
     }
     // does not check for numeric overflow
@@ -388,22 +374,22 @@ sf_count_t sf_readf_short(SNDFILE *handle, short *ptr, sf_count_t desiredFrames)
     handle->remaining -= actualFrames;
     switch (format) {
         case SF_FORMAT_PCM_U8:
-            memcpy_to_i16_from_u8(ptr, (unsigned char *) ptr, actualFrames * handle->info.channels);
+            memcpy_to_i16_from_u8(ptr, (unsigned char *)ptr, actualFrames * handle->info.channels);
             break;
         case SF_FORMAT_PCM_16:
             if (!isLittleEndian())
                 my_swab(ptr, actualFrames * handle->info.channels);
             break;
         case SF_FORMAT_PCM_32:
-            memcpy_to_i16_from_i32(ptr, (const int *) temp, actualFrames * handle->info.channels);
+            memcpy_to_i16_from_i32(ptr, (const int *)temp, actualFrames * handle->info.channels);
             free(temp);
             break;
         case SF_FORMAT_FLOAT:
-            memcpy_to_i16_from_float(ptr, (const float *) temp, actualFrames * handle->info.channels);
+            memcpy_to_i16_from_float(ptr, (const float *)temp, actualFrames * handle->info.channels);
             free(temp);
             break;
         case SF_FORMAT_PCM_24:
-            memcpy_to_i16_from_p24(ptr, (const uint8_t *) temp, actualFrames * handle->info.channels);
+            memcpy_to_i16_from_p24(ptr, (const uint8_t *)temp, actualFrames * handle->info.channels);
             free(temp);
             break;
         default:

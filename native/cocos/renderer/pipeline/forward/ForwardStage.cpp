@@ -118,7 +118,9 @@ void ForwardStage::render(Camera *camera) {
     _instancedQueue->clear();
     _batchedQueue->clear();
     auto pipeline = static_cast<ForwardPipeline *>(_pipeline);
-    const auto &renderObjects = pipeline->getRenderObjects();
+    const auto sceneData = _pipeline->getPipelineSceneData();
+    const auto sharedData = sceneData->getSharedData();
+    const auto &renderObjects = sceneData->getRenderObjects();
 
     for (auto queue : _renderQueues) {
         queue->clear();
@@ -169,13 +171,13 @@ void ForwardStage::render(Camera *camera) {
     uint h = camera->getWindow()->hasOnScreenAttachments && (uint)_device->getSurfaceTransform() % 2 ? camera->width : camera->height;
     _renderArea.x = camera->viewportX * w;
     _renderArea.y = camera->viewportY * h;
-    _renderArea.width = camera->viewportWidth * w * pipeline->getShadingScale();
-    _renderArea.height = camera->viewportHeight * h * pipeline->getShadingScale();
+    _renderArea.width = camera->viewportWidth * w * sharedData->shadingScale;
+    _renderArea.height = camera->viewportHeight * h * sharedData->shadingScale;
 
     if (static_cast<gfx::ClearFlags>(camera->clearFlag) & gfx::ClearFlagBit::COLOR) {
-        if (pipeline->isHDR()) {
+        if (sharedData->isHDR) {
             SRGBToLinear(_clearColors[0], camera->clearColor);
-            auto scale = pipeline->getFpScale() / camera->exposure;
+            auto scale = sharedData->fpScale / camera->exposure;
             _clearColors[0].x *= scale;
             _clearColors[0].y *= scale;
             _clearColors[0].z *= scale;

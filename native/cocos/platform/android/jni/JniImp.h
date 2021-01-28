@@ -27,9 +27,9 @@
 #include <string>
 
 extern std::string getObbFilePathJNI();
-extern int getObbAssetFileDescriptorJNI(const std::string& path, long* startOffset, long* size);
+extern int getObbAssetFileDescriptorJNI(const std::string &path, long *startOffset, long *size);
 extern std::string getCurrentLanguageJNI();
 extern std::string getCurrentLanguageCodeJNI();
 extern std::string getSystemVersionJNI();
-extern bool openURLJNI(const std::string& url);
-extern void copyTextToClipboardJNI(const std::string& text);
+extern bool openURLJNI(const std::string &url);
+extern void copyTextToClipboardJNI(const std::string &text);

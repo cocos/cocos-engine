@@ -1,0 +1,4 @@
+include '::libcocos',':libservice',':instantapp',':CocosGame'
+project(':libcocos').projectDir = new File('${COCOS_ROOT}/cocos/platform/android/libcocos2dx')
+project(':instantapp').projectDir = new File('${NATIVE_DIR}/instantapp')
+project(':CocosGame').projectDir = new File('${NATIVE_DIR}/app')

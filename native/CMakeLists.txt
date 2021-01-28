@@ -92,14 +92,28 @@ endfunction()
 
 ################################# options ############################################
 
-
+# default fallback options 
+set_if_undefined(USE_SE_V8                ON)
+set_if_undefined(USE_V8_DEBUGGER          ON)
+set_if_undefined(USE_SOCKET               ON)
+set_if_undefined(USE_AUDIO                ON)
+set_if_undefined(USE_EDIT_BOX             ON)
+set_if_undefined(USE_SE_JSC               OFF)
+set_if_undefined(USE_VIDEO                ON)
+set_if_undefined(USE_WEBVIEW              ON)
+set_if_undefined(USE_MIDDLEWARE           ON)
+set_if_undefined(USE_DRAGONBONES          ON)
+set_if_undefined(USE_SPINE                ON)
+set_if_undefined(USE_WEBSOCKET_SERVER     OFF)
 
 if(ANDROID OR WINDOWS)
-    set_if_undefined(CC_USE_VULKAN OFF)
     set_if_undefined(CC_USE_GLES3 ON)
+    set_if_undefined(CC_USE_VULKAN OFF)
     set_if_undefined(CC_USE_GLES2 OFF)
+    set_if_undefined(CC_USE_METAL OFF)
 elseif(MACOSX OR IOS)
     set_if_undefined(CC_USE_METAL ON)
+    set_if_undefined(CC_USE_VULKAN OFF)
     set_if_undefined(CC_USE_GLES3 OFF)
     set_if_undefined(CC_USE_GLES2 OFF)
 endif()
@@ -123,6 +137,11 @@ endif()
 if(NOT USE_DRAGONBONES AND NOT USE_SPINE)
 	set(USE_MIDDLEWARE OFF)
 endif()
+
+if(USE_DRAGONBONES OR USE_SPINE)
+	set(USE_MIDDLEWARE ON)
+endif()
+
 
 ################################# list all option values ##############################
 
@@ -154,12 +173,6 @@ if(NOT EXISTS ${CMAKE_CURRENT_LIST_DIR}/external/CMakeLists.txt)
 endif()
 
 include(${CMAKE_CURRENT_LIST_DIR}/external/CMakeLists.txt)
-
-
-cocos_source_files(
-    cocos/cocos2d.h
-    cocos/cocos2d.cpp
-)
 
 ##### audio
 if(USE_AUDIO)
@@ -335,7 +348,6 @@ cocos_source_files(
     cocos/base/Object.h
     cocos/base/TypeDef.h
     cocos/base/uthash.h
-    cocos/base/utlist.h
     cocos/base/StringUtil.cpp
     cocos/base/StringUtil.h
     cocos/base/UTFString.cpp
@@ -507,17 +519,18 @@ elseif(ANDROID)
         cocos/platform/android/FileUtils-android.h
         cocos/platform/android/View.cpp
         cocos/platform/android/View.h
-        cocos/platform/android/jni/JniHelper.cpp
-        cocos/platform/android/jni/JniHelper.h
-        cocos/platform/android/jni/JniImp.cpp
-        cocos/platform/android/jni/JniImp.h
-        cocos/platform/android/jni/JniCocosActivity.cpp
-        cocos/platform/android/jni/JniCocosActivity.h
-        cocos/platform/android/jni/JniCocosTouchHandler.cpp
-        cocos/platform/android/jni/JniCocosKeyCodeHandler.cpp
-        cocos/platform/android/jni/JniCocosSurfaceView.cpp
-        cocos/platform/android/jni/JniCocosOrientationHelper.cpp
-
+    )
+    set(CC_JNI_SRC_FILES
+        ${CWD}/cocos/platform/android/jni/JniCocosActivity.cpp
+        ${CWD}/cocos/platform/android/jni/JniCocosActivity.h
+        ${CWD}/cocos/platform/android/jni/JniCocosTouchHandler.cpp
+        ${CWD}/cocos/platform/android/jni/JniCocosKeyCodeHandler.cpp
+        ${CWD}/cocos/platform/android/jni/JniCocosSurfaceView.cpp
+        ${CWD}/cocos/platform/android/jni/JniCocosOrientationHelper.cpp
+        ${CWD}/cocos/platform/android/jni/JniHelper.cpp
+        ${CWD}/cocos/platform/android/jni/JniHelper.h
+        ${CWD}/cocos/platform/android/jni/JniImp.cpp
+        ${CWD}/cocos/platform/android/jni/JniImp.h
     )
 elseif(APPLE)
     cocos_source_files(
@@ -650,14 +663,18 @@ cocos_source_files(
     cocos/renderer/pipeline/PlanarShadowQueue.h
     cocos/renderer/pipeline/ShadowMapBatchedQueue.cpp
     cocos/renderer/pipeline/ShadowMapBatchedQueue.h
+    cocos/renderer/pipeline/PipelineUBO.cpp
+    cocos/renderer/pipeline/PipelineUBO.h
+    cocos/renderer/pipeline/PipelineSceneData.cpp
+    cocos/renderer/pipeline/PipelineSceneData.h
     cocos/renderer/pipeline/forward/ForwardFlow.cpp
     cocos/renderer/pipeline/forward/ForwardFlow.h
     cocos/renderer/pipeline/forward/ForwardPipeline.cpp
     cocos/renderer/pipeline/forward/ForwardPipeline.h
     cocos/renderer/pipeline/forward/ForwardStage.cpp
     cocos/renderer/pipeline/forward/ForwardStage.h
-    cocos/renderer/pipeline/forward/SceneCulling.cpp
-    cocos/renderer/pipeline/forward/SceneCulling.h
+    cocos/renderer/pipeline/SceneCulling.cpp
+    cocos/renderer/pipeline/SceneCulling.h
     cocos/renderer/pipeline/forward/UIPhase.cpp
     cocos/renderer/pipeline/forward/UIPhase.h
     cocos/renderer/pipeline/shadow/ShadowFlow.cpp
@@ -795,8 +812,6 @@ if(CC_USE_METAL)
         cocos/renderer/gfx-metal/MTLBuffer.mm
         cocos/renderer/gfx-metal/MTLCommandBuffer.h
         cocos/renderer/gfx-metal/MTLCommandBuffer.mm
-        cocos/renderer/gfx-metal/MTLCommands.h
-        cocos/renderer/gfx-metal/MTLCommands.mm
         cocos/renderer/gfx-metal/MTLContext.h
         cocos/renderer/gfx-metal/MTLContext.mm
         cocos/renderer/gfx-metal/MTLDevice.h
@@ -1502,6 +1517,19 @@ list(APPEND COCOS2D_SOURCE_LIST ${CC_EXTERNAL_SROUCES})
 
 add_library(cocos2d ${COCOS2D_SOURCE_LIST})
 
+if(ANDROID)
+    add_library(cocos2d_jni STATIC ${CC_JNI_SRC_FILES})
+    target_include_directories(cocos2d_jni PUBLIC
+        ${CWD}
+        ${CWD}/cocos
+    )
+    target_link_libraries(cocos2d_jni PUBLIC
+        android_platform
+        android
+        log
+    )
+endif()
+
 # setup default flags
 target_compile_definitions(cocos2d PUBLIC
     $<IF:$<BOOL:${USE_VIDEO}>,USE_VIDEO=1,USE_VIDEO=0>
@@ -1668,8 +1696,8 @@ if(MSVC)
     target_compile_options(cocos2d PUBLIC /MP)
 endif()
 
-if(COMMAND target_precompile_headers)
-    target_precompile_headers(cocos2d PUBLIC
-        $<$<COMPILE_LANGUAGE:CXX>:${CWD}/cocos/cocos2d.h>
-    )
-endif()
+#if(COMMAND target_precompile_headers)
+    #target_precompile_headers(cocos2d PUBLIC
+        #$<$<COMPILE_LANGUAGE:CXX>:${CWD}/cocos/cocos2d.h>
+    #)
+#endif()

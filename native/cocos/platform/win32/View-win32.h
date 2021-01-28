@@ -24,7 +24,6 @@ THE SOFTWARE.
 
 #pragma once
 
-
 #include "base/Macros.h"
 #include "platform/StdC.h"
 #include <Windows.h>
@@ -45,17 +44,17 @@ class View {
 public:
     View(const std::string &title, int width, int height);
     virtual ~View();
-    
+
     bool init();
 
-    bool pollEvent( bool* quit, bool* resume, bool *pause);
+    bool pollEvent(bool *quit, bool *resume, bool *pause);
 
     std::array<int, 2> getViewSize() const { return std::array<int, 2>{_width, _height}; }
 
     HWND getWindowHandler();
 
     void swapbuffer() { SDL_GL_SwapWindow(_window); }
-    
+
     void setCursorEnabeld(bool);
 
 private:
@@ -64,10 +63,8 @@ private:
     int _height = 0;
     bool _inited = false;
 
-    SDL_Window* _window = nullptr;
+    SDL_Window *_window = nullptr;
     SDL_Event sdlEvent;
-
 };
 
-
-}
+} // namespace cc

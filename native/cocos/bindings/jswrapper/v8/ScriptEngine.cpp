@@ -370,7 +370,9 @@ void ScriptEngine::destroyInstance() {
 }
 
 ScriptEngine::ScriptEngine()
-: _isolate(nullptr), _handleScope(nullptr), _globalObj(nullptr)
+: _isolate(nullptr),
+  _handleScope(nullptr),
+  _globalObj(nullptr)
     #if SE_ENABLE_INSPECTOR
   ,
   _env(nullptr),

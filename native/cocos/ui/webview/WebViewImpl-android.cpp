@@ -32,10 +32,9 @@
 #include "platform/FileUtils.h"
 #include "platform/android/jni/JniHelper.h"
 
-
 static const std::string className = "com/cocos/lib/CocosWebViewHelper";
 
-#define  LOGD(...)  __android_log_print(ANDROID_LOG_DEBUG,"",__VA_ARGS__)
+#define LOGD(...) __android_log_print(ANDROID_LOG_DEBUG, "", __VA_ARGS__)
 
 static const std::string s_defaultBaseUrl = "file:///android_asset/";
 static const std::string s_sdRootBaseUrl = "file://";
@@ -126,165 +125,166 @@ Java_com_cocos_lib_CocosWebViewHelper_onJsCallback(JNIEnv *env, jclass, jint ind
 
 namespace {
 
-    int createWebViewJNI() {
-        cc::JniMethodInfo t;
-        if (cc::JniHelper::getStaticMethodInfo(t, className.c_str(), "createWebView", "()I")) {
-            // LOGD("error: %s,%d",__func__,__LINE__);
-            jint viewTag = t.env->CallStaticIntMethod(t.classID, t.methodID);
-            t.env->DeleteLocalRef(t.classID);
-            return viewTag;
-        }
-        return -1;
-    }
-
-    std::string getUrlStringByFileName(const std::string &fileName) {
+int createWebViewJNI() {
+    cc::JniMethodInfo t;
+    if (cc::JniHelper::getStaticMethodInfo(t, className.c_str(), "createWebView", "()I")) {
         // LOGD("error: %s,%d",__func__,__LINE__);
-        const std::string basePath("file:///android_asset/");
-        std::string fullPath = cc::FileUtils::getInstance()->fullPathForFilename(fileName);
-        const std::string assetsPath("assets/");
-
-        std::string urlString;
-        if (fullPath.find(assetsPath) != std::string::npos) {
-            urlString = fullPath.replace(fullPath.find_first_of(assetsPath), assetsPath.length(),
-                                         basePath);
-        } else {
-            urlString = fullPath;
-        }
-
-        return urlString;
+        jint viewTag = t.env->CallStaticIntMethod(t.classID, t.methodID);
+        t.env->DeleteLocalRef(t.classID);
+        return viewTag;
     }
+    return -1;
+}
+
+std::string getUrlStringByFileName(const std::string &fileName) {
+    // LOGD("error: %s,%d",__func__,__LINE__);
+    const std::string basePath("file:///android_asset/");
+    std::string fullPath = cc::FileUtils::getInstance()->fullPathForFilename(fileName);
+    const std::string assetsPath("assets/");
+
+    std::string urlString;
+    if (fullPath.find(assetsPath) != std::string::npos) {
+        urlString = fullPath.replace(fullPath.find_first_of(assetsPath), assetsPath.length(),
+                                     basePath);
+    } else {
+        urlString = fullPath;
+    }
+
+    return urlString;
+}
 } // namespace
 
 namespace cc {
 
-    static std::unordered_map<int, WebViewImpl *> s_WebViewImpls;
+static std::unordered_map<int, WebViewImpl *> s_WebViewImpls;
 
-    WebViewImpl::WebViewImpl(WebView *webView) : _viewTag(-1), _webView(webView) {
-        _viewTag = createWebViewJNI();
-        s_WebViewImpls[_viewTag] = this;
-    }
+WebViewImpl::WebViewImpl(WebView *webView) : _viewTag(-1),
+                                             _webView(webView) {
+    _viewTag = createWebViewJNI();
+    s_WebViewImpls[_viewTag] = this;
+}
 
-    WebViewImpl::~WebViewImpl() {
-        JniHelper::callStaticVoidMethod(className, "removeWebView", _viewTag);
-        s_WebViewImpls.erase(_viewTag);
-    }
+WebViewImpl::~WebViewImpl() {
+    JniHelper::callStaticVoidMethod(className, "removeWebView", _viewTag);
+    s_WebViewImpls.erase(_viewTag);
+}
 
-    void WebViewImpl::loadData(const Data &data, const std::string &MIMEType,
-                               const std::string &encoding, const std::string &baseURL) {
-        std::string dataString(reinterpret_cast<char *>(data.getBytes()),
-                               static_cast<unsigned int>(data.getSize()));
-        JniHelper::callStaticVoidMethod(className, "setJavascriptInterfaceScheme", _viewTag,
-                                        dataString, MIMEType, encoding, baseURL);
-    }
+void WebViewImpl::loadData(const Data &data, const std::string &MIMEType,
+                           const std::string &encoding, const std::string &baseURL) {
+    std::string dataString(reinterpret_cast<char *>(data.getBytes()),
+                           static_cast<unsigned int>(data.getSize()));
+    JniHelper::callStaticVoidMethod(className, "setJavascriptInterfaceScheme", _viewTag,
+                                    dataString, MIMEType, encoding, baseURL);
+}
 
-    void WebViewImpl::loadHTMLString(const std::string &string, const std::string &baseURL) {
-        JniHelper::callStaticVoidMethod(className, "loadHTMLString", _viewTag, string, baseURL);
-    }
+void WebViewImpl::loadHTMLString(const std::string &string, const std::string &baseURL) {
+    JniHelper::callStaticVoidMethod(className, "loadHTMLString", _viewTag, string, baseURL);
+}
 
-    void WebViewImpl::loadURL(const std::string &url) {
-        JniHelper::callStaticVoidMethod(className, "loadUrl", _viewTag, url);
-    }
+void WebViewImpl::loadURL(const std::string &url) {
+    JniHelper::callStaticVoidMethod(className, "loadUrl", _viewTag, url);
+}
 
-    void WebViewImpl::loadFile(const std::string &fileName) {
-        auto fullPath = getUrlStringByFileName(fileName);
-        JniHelper::callStaticVoidMethod(className, "loadFile", _viewTag, fullPath);
-    }
+void WebViewImpl::loadFile(const std::string &fileName) {
+    auto fullPath = getUrlStringByFileName(fileName);
+    JniHelper::callStaticVoidMethod(className, "loadFile", _viewTag, fullPath);
+}
 
-    void WebViewImpl::stopLoading() {
-        JniHelper::callStaticVoidMethod(className, "stopLoading", _viewTag);
-    }
+void WebViewImpl::stopLoading() {
+    JniHelper::callStaticVoidMethod(className, "stopLoading", _viewTag);
+}
 
-    void WebViewImpl::reload() {
-        JniHelper::callStaticVoidMethod(className, "reload", _viewTag);
-    }
+void WebViewImpl::reload() {
+    JniHelper::callStaticVoidMethod(className, "reload", _viewTag);
+}
 
-    bool WebViewImpl::canGoBack() {
-        return JniHelper::callStaticBooleanMethod(className, "canGoBack", _viewTag);
-    }
+bool WebViewImpl::canGoBack() {
+    return JniHelper::callStaticBooleanMethod(className, "canGoBack", _viewTag);
+}
 
-    bool WebViewImpl::canGoForward() {
-        return JniHelper::callStaticBooleanMethod(className, "canGoForward", _viewTag);
-    }
+bool WebViewImpl::canGoForward() {
+    return JniHelper::callStaticBooleanMethod(className, "canGoForward", _viewTag);
+}
 
-    void WebViewImpl::goBack() {
-        JniHelper::callStaticVoidMethod(className, "goBack", _viewTag);
-    }
+void WebViewImpl::goBack() {
+    JniHelper::callStaticVoidMethod(className, "goBack", _viewTag);
+}
 
-    void WebViewImpl::goForward() {
-        JniHelper::callStaticVoidMethod(className, "goForward", _viewTag);
-    }
+void WebViewImpl::goForward() {
+    JniHelper::callStaticVoidMethod(className, "goForward", _viewTag);
+}
 
-    void WebViewImpl::setJavascriptInterfaceScheme(const std::string &scheme) {
-        JniHelper::callStaticVoidMethod(className, "setJavascriptInterfaceScheme", _viewTag,
-                                        scheme);
-    }
+void WebViewImpl::setJavascriptInterfaceScheme(const std::string &scheme) {
+    JniHelper::callStaticVoidMethod(className, "setJavascriptInterfaceScheme", _viewTag,
+                                    scheme);
+}
 
-    void WebViewImpl::evaluateJS(const std::string &js) {
-        JniHelper::callStaticVoidMethod(className, "evaluateJS", _viewTag, js);
-    }
+void WebViewImpl::evaluateJS(const std::string &js) {
+    JniHelper::callStaticVoidMethod(className, "evaluateJS", _viewTag, js);
+}
 
-    void WebViewImpl::setScalesPageToFit(const bool scalesPageToFit) {
-        JniHelper::callStaticVoidMethod(className, "setScalesPageToFit", _viewTag, scalesPageToFit);
-    }
+void WebViewImpl::setScalesPageToFit(const bool scalesPageToFit) {
+    JniHelper::callStaticVoidMethod(className, "setScalesPageToFit", _viewTag, scalesPageToFit);
+}
 
-    bool WebViewImpl::shouldStartLoading(const int viewTag, const std::string &url) {
-        bool allowLoad = true;
-        auto it = s_WebViewImpls.find(viewTag);
-        if (it != s_WebViewImpls.end()) {
-            auto webView = it->second->_webView;
-            if (webView->_onShouldStartLoading) {
-                allowLoad = webView->_onShouldStartLoading(webView, url);
-            }
-        }
-        return allowLoad;
-    }
-
-    void WebViewImpl::didFinishLoading(const int viewTag, const std::string &url) {
-        auto it = s_WebViewImpls.find(viewTag);
-        if (it != s_WebViewImpls.end()) {
-            auto webView = it->second->_webView;
-            if (webView->_onDidFinishLoading) {
-                webView->_onDidFinishLoading(webView, url);
-            }
+bool WebViewImpl::shouldStartLoading(const int viewTag, const std::string &url) {
+    bool allowLoad = true;
+    auto it = s_WebViewImpls.find(viewTag);
+    if (it != s_WebViewImpls.end()) {
+        auto webView = it->second->_webView;
+        if (webView->_onShouldStartLoading) {
+            allowLoad = webView->_onShouldStartLoading(webView, url);
         }
     }
+    return allowLoad;
+}
 
-    void WebViewImpl::didFailLoading(const int viewTag, const std::string &url) {
-        auto it = s_WebViewImpls.find(viewTag);
-        if (it != s_WebViewImpls.end()) {
-            auto webView = it->second->_webView;
-            if (webView->_onDidFailLoading) {
-                webView->_onDidFailLoading(webView, url);
-            }
+void WebViewImpl::didFinishLoading(const int viewTag, const std::string &url) {
+    auto it = s_WebViewImpls.find(viewTag);
+    if (it != s_WebViewImpls.end()) {
+        auto webView = it->second->_webView;
+        if (webView->_onDidFinishLoading) {
+            webView->_onDidFinishLoading(webView, url);
         }
     }
+}
 
-    void WebViewImpl::onJsCallback(const int viewTag, const std::string &message) {
-        auto it = s_WebViewImpls.find(viewTag);
-        if (it != s_WebViewImpls.end()) {
-            auto webView = it->second->_webView;
-            if (webView->_onJSCallback) {
-                webView->_onJSCallback(webView, message);
-            }
+void WebViewImpl::didFailLoading(const int viewTag, const std::string &url) {
+    auto it = s_WebViewImpls.find(viewTag);
+    if (it != s_WebViewImpls.end()) {
+        auto webView = it->second->_webView;
+        if (webView->_onDidFailLoading) {
+            webView->_onDidFailLoading(webView, url);
         }
     }
+}
 
-    void WebViewImpl::setVisible(bool visible) {
-        JniHelper::callStaticVoidMethod(className, "setVisible", _viewTag, visible);
+void WebViewImpl::onJsCallback(const int viewTag, const std::string &message) {
+    auto it = s_WebViewImpls.find(viewTag);
+    if (it != s_WebViewImpls.end()) {
+        auto webView = it->second->_webView;
+        if (webView->_onJSCallback) {
+            webView->_onJSCallback(webView, message);
+        }
     }
+}
 
-    void WebViewImpl::setFrame(float x, float y, float width, float height) {
-        JniHelper::callStaticVoidMethod(className, "setWebViewRect", _viewTag,
-                                        (int) x, (int) y, (int) width, (int) height);
-    }
+void WebViewImpl::setVisible(bool visible) {
+    JniHelper::callStaticVoidMethod(className, "setVisible", _viewTag, visible);
+}
 
-    void WebViewImpl::setBounces(bool bounces) {
-        // empty function as this was mainly a fix for iOS
-    }
+void WebViewImpl::setFrame(float x, float y, float width, float height) {
+    JniHelper::callStaticVoidMethod(className, "setWebViewRect", _viewTag,
+                                    (int)x, (int)y, (int)width, (int)height);
+}
 
-    void WebViewImpl::setBackgroundTransparent(bool isTransparent) {
-        JniHelper::callStaticVoidMethod(className, "setBackgroundTransparent", _viewTag,
-                                        isTransparent);
-    }
+void WebViewImpl::setBounces(bool bounces) {
+    // empty function as this was mainly a fix for iOS
+}
+
+void WebViewImpl::setBackgroundTransparent(bool isTransparent) {
+    JniHelper::callStaticVoidMethod(className, "setBackgroundTransparent", _viewTag,
+                                    isTransparent);
+}
 
 } //namespace cc

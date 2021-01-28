@@ -28,8 +28,8 @@
 #include <unordered_map>
 
 namespace se {
-    class Object;
+class Object;
 }
 
-bool register_platform_bindings(se::Object* obj);
-const std::unordered_map<std::string, std::string>& getFontFamilyNameMap();
+bool register_platform_bindings(se::Object *obj);
+const std::unordered_map<std::string, std::string> &getFontFamilyNameMap();

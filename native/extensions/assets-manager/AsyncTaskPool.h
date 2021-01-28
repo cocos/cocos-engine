@@ -44,20 +44,16 @@ THE SOFTWARE.
 */
 namespace cc {
 
-
-
 /**
  * @class AsyncTaskPool
  * @brief This class allows to perform background operations without having to manipulate threads.
  * @js NA
  */
-class CC_DLL AsyncTaskPool
-{
+class CC_DLL AsyncTaskPool {
 public:
-    typedef std::function<void(void*)> TaskCallBack;
+    typedef std::function<void(void *)> TaskCallBack;
 
-    enum class TaskType
-    {
+    enum class TaskType {
         TASK_IO,
         TASK_NETWORK,
         TASK_OTHER,
@@ -67,13 +63,13 @@ public:
     /**
      * Returns the shared instance of the async task pool.
      */
-    static AsyncTaskPool* getInstance();
+    static AsyncTaskPool *getInstance();
 
     /**
      * Destroys the async task pool.
      */
     static void destroyInstance();
-    
+
     AsyncTaskPool();
     ~AsyncTaskPool();
 
@@ -93,54 +89,48 @@ public:
      * @param f task can be lambda function.
      * @lua NA
      */
-    template<class F>
-    inline void enqueue(TaskType type, const TaskCallBack& callback, void* callbackParam, F&& f);
+    template <class F>
+    inline void enqueue(TaskType type, const TaskCallBack &callback, void *callbackParam, F &&f);
 
 protected:
-
     // thread tasks internally used
     class ThreadTasks {
-        struct AsyncTaskCallBack
-        {
-            TaskCallBack          callback;
-            void*                 callbackParam;
+        struct AsyncTaskCallBack {
+            TaskCallBack callback;
+            void *callbackParam;
         };
+
     public:
         ThreadTasks()
-        : _stop(false)
-        {
+        : _stop(false) {
             _thread = std::thread(
-                                  [this]
-                                  {
-                                      for(;;)
-                                      {
-                                          std::function<void()> task;
-                                          AsyncTaskCallBack callback;
-                                          {
-                                              std::unique_lock<std::mutex> lock(this->_queueMutex);
-                                              this->_condition.wait(lock,
-                                                                    [this]{ return this->_stop || !this->_tasks.empty(); });
-                                              if(this->_stop && this->_tasks.empty())
-                                                  return;
-                                              task = std::move(this->_tasks.front());
-                                              callback = std::move(this->_taskCallBacks.front());
-                                              this->_tasks.pop();
-                                              this->_taskCallBacks.pop();
-                                          }
+                [this] {
+                    for (;;) {
+                        std::function<void()> task;
+                        AsyncTaskCallBack callback;
+                        {
+                            std::unique_lock<std::mutex> lock(this->_queueMutex);
+                            this->_condition.wait(lock,
+                                                  [this] { return this->_stop || !this->_tasks.empty(); });
+                            if (this->_stop && this->_tasks.empty())
+                                return;
+                            task = std::move(this->_tasks.front());
+                            callback = std::move(this->_taskCallBacks.front());
+                            this->_tasks.pop();
+                            this->_taskCallBacks.pop();
+                        }
 
-                                          task();
-                                          Application::getInstance()->getScheduler()->performFunctionInCocosThread([&, callback]{ callback.callback(callback.callbackParam); });
-                                      }
-                                  }
-                                  );
+                        task();
+                        Application::getInstance()->getScheduler()->performFunctionInCocosThread([&, callback] { callback.callback(callback.callbackParam); });
+                    }
+                });
         }
-        ~ThreadTasks()
-        {
+        ~ThreadTasks() {
             {
                 std::unique_lock<std::mutex> lock(_queueMutex);
                 _stop = true;
 
-                while(_tasks.size())
+                while (_tasks.size())
                     _tasks.pop();
                 while (_taskCallBacks.size())
                     _taskCallBacks.pop();
@@ -148,25 +138,22 @@ protected:
             _condition.notify_all();
             _thread.join();
         }
-        void clear()
-        {
+        void clear() {
             std::unique_lock<std::mutex> lock(_queueMutex);
-            while(_tasks.size())
+            while (_tasks.size())
                 _tasks.pop();
             while (_taskCallBacks.size())
                 _taskCallBacks.pop();
         }
-        template<class F>
-        void enqueue(const TaskCallBack& callback, void* callbackParam, F&& f)
-        {
-            auto task = f;//std::bind(std::forward<F>(f), std::forward<Args>(args)...);
+        template <class F>
+        void enqueue(const TaskCallBack &callback, void *callbackParam, F &&f) {
+            auto task = f; //std::bind(std::forward<F>(f), std::forward<Args>(args)...);
 
             {
                 std::unique_lock<std::mutex> lock(_queueMutex);
 
                 // don't allow enqueueing after stopping the pool
-                if(_stop)
-                {
+                if (_stop) {
                     CC_ASSERT(0 && "already stop");
                     return;
                 }
@@ -174,18 +161,18 @@ protected:
                 AsyncTaskCallBack taskCallBack;
                 taskCallBack.callback = callback;
                 taskCallBack.callbackParam = callbackParam;
-                _tasks.emplace([task](){ task(); });
+                _tasks.emplace([task]() { task(); });
                 _taskCallBacks.emplace(taskCallBack);
             }
             _condition.notify_one();
         }
-    private:
 
+    private:
         // need to keep track of thread so we can join them
         std::thread _thread;
         // the task queue
-        std::queue< std::function<void()> > _tasks;
-        std::queue<AsyncTaskCallBack>            _taskCallBacks;
+        std::queue<std::function<void()>> _tasks;
+        std::queue<AsyncTaskCallBack> _taskCallBacks;
 
         // synchronization
         std::mutex _queueMutex;
@@ -196,25 +183,22 @@ protected:
     //tasks
     ThreadTasks _threadTasks[int(TaskType::TASK_MAX_TYPE)];
 
-    static AsyncTaskPool* s_asyncTaskPool;
+    static AsyncTaskPool *s_asyncTaskPool;
 };
 
-inline void AsyncTaskPool::stopTasks(TaskType type)
-{
-    auto& threadTask = _threadTasks[(int)type];
+inline void AsyncTaskPool::stopTasks(TaskType type) {
+    auto &threadTask = _threadTasks[(int)type];
     threadTask.clear();
 }
 
-template<class F>
-inline void AsyncTaskPool::enqueue(AsyncTaskPool::TaskType type, const TaskCallBack& callback, void* callbackParam, F&& f)
-{
-    auto& threadTask = _threadTasks[(int)type];
+template <class F>
+inline void AsyncTaskPool::enqueue(AsyncTaskPool::TaskType type, const TaskCallBack &callback, void *callbackParam, F &&f) {
+    auto &threadTask = _threadTasks[(int)type];
 
     threadTask.enqueue(callback, callbackParam, f);
 }
 
-
-}
+} // namespace cc
 // end group
 /// @}
 #endif //__CCSYNC_TASK_POOL_H_

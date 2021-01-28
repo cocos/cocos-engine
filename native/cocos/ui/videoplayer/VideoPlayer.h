@@ -31,11 +31,11 @@
 #include <map>
 
 #ifndef OBJC_CLASS
-#ifdef __OBJC__
-#define OBJC_CLASS(name) @class name
-#else
-#define OBJC_CLASS(name) class name
-#endif
+    #ifdef __OBJC__
+        #define OBJC_CLASS(name) @class name
+    #else
+        #define OBJC_CLASS(name) class name
+    #endif
 #endif // OBJC_CLASS
 
 namespace cc {
@@ -48,14 +48,12 @@ namespace cc {
  * It's mean VideoPlayer displays a video file above all graphical elements of cocos2d-x.
  * @js NA
  */
-class VideoPlayer : public Ref
-{
-  public:
+class VideoPlayer : public Ref {
+public:
     /**
      * Videoplayer play event type.
      */
-    enum class EventType
-    {
+    enum class EventType {
         PLAYING = 0,
         PAUSED,
         STOPPED,
@@ -66,12 +64,11 @@ class VideoPlayer : public Ref
     };
 
     VideoPlayer();
-    
+
     /**
      * A callback which will be called after specific VideoPlayer event happens.
      */
     typedef std::function<void()> ccVideoPlayerCallback;
-
 
     /**
      * Sets a URL as a video source for VideoPlayer.
@@ -132,7 +129,7 @@ class VideoPlayer : public Ref
      *
      * @param callback  The callback that will be run.
      */
-    virtual void addEventListener(const std::string& name, const VideoPlayer::ccVideoPlayerCallback& callback);
+    virtual void addEventListener(const std::string &name, const VideoPlayer::ccVideoPlayerCallback &callback);
 
     /**
      * @brief A function which will be called when video is playing.
@@ -150,15 +147,12 @@ class VideoPlayer : public Ref
      * Set the rect of VideoPlayer.
      */
     virtual void setFrame(float x, float y, float width, float height);
-    
-  protected:
 
+protected:
     virtual ~VideoPlayer();
 
-  protected:
-
-    enum class Source
-    {
+protected:
+    enum class Source {
         FILENAME = 0,
         URL
     };
@@ -177,4 +171,4 @@ class VideoPlayer : public Ref
     void *_videoView;
 };
 
-}
+} // namespace cc

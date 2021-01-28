@@ -24,7 +24,6 @@ THE SOFTWARE.
 #include "MTLStd.h"
 
 #include "MTLBuffer.h"
-#include "MTLCommands.h"
 #include "MTLGPUObjects.h"
 #include "MTLInputAssembler.h"
 
@@ -49,14 +48,16 @@ bool CCMTLInputAssembler::initialize(const InputAssemblerInfo &info) {
     }
 
     _GPUInputAssembler = CC_NEW(CCMTLGPUInputAssembler);
-    if (!_GPUInputAssembler)
+    if (!_GPUInputAssembler) {
         return false;
+    }
 
     if (info.indexBuffer) {
         _GPUInputAssembler->mtlIndexBuffer = static_cast<CCMTLBuffer *>(info.indexBuffer)->getMTLBuffer();
     }
-    if (info.indirectBuffer)
+    if (info.indirectBuffer) {
         _GPUInputAssembler->mtlIndirectBuffer = static_cast<CCMTLBuffer *>(info.indirectBuffer)->getMTLBuffer();
+    }
 
     for (const auto &vertexBuffer : info.vertexBuffers)
         _GPUInputAssembler->mtlVertexBufers.push_back(static_cast<CCMTLBuffer *>(vertexBuffer)->getMTLBuffer());

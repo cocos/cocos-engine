@@ -72,6 +72,7 @@ public class CocosVideoView extends SurfaceView {
 
     private Uri         mVideoUri;
     private int         mDuration;
+    private int         mPosition;
 
     private State mCurrentState = State.IDLE;
 
@@ -180,18 +181,21 @@ public class CocosVideoView extends SurfaceView {
     }
 
     public int getCurrentPosition() {
-        if (! (mCurrentState == State.ERROR |
+        if (! (mCurrentState == State.IDLE ||
+                mCurrentState == State.ERROR ||
+                mCurrentState == State.INITIALIZED ||
+                mCurrentState == State.STOPPED ||
                 mMediaPlayer == null) ) {
-            return mMediaPlayer.getCurrentPosition();
+            mPosition = mMediaPlayer.getCurrentPosition();
         }
-
-        return -1;
+        return mPosition;
     }
 
     public int getDuration() {
         if (! (mCurrentState == State.IDLE ||
                 mCurrentState == State.ERROR ||
                 mCurrentState == State.INITIALIZED ||
+                mCurrentState == State.STOPPED ||
                 mMediaPlayer == null) ) {
             mDuration = mMediaPlayer.getDuration();
         }
@@ -459,8 +463,8 @@ public class CocosVideoView extends SurfaceView {
             mCurrentState = State.PREPARED;
 
             if (mPositionBeforeRelease > 0) {
-                CocosVideoView.this.seekTo(mPositionBeforeRelease);
                 CocosVideoView.this.start();
+                CocosVideoView.this.seekTo(mPositionBeforeRelease);
                 mPositionBeforeRelease = 0;
             }
         }
@@ -553,6 +557,7 @@ public class CocosVideoView extends SurfaceView {
         if (mMediaPlayer != null) {
             mMediaPlayer.release();
             mMediaPlayer = null;
+            mCurrentState = State.IDLE;
         }
     }
 

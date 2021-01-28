@@ -24,7 +24,7 @@
 #pragma once
 
 namespace se {
-    class Object;
+class Object;
 }
 
-bool register_javascript_java_bridge(se::Object* obj);
+bool register_javascript_java_bridge(se::Object *obj);

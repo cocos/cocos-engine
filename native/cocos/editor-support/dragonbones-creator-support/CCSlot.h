@@ -24,7 +24,6 @@
 #ifndef DRAGONBONES_CC_SLOT_H
 #define DRAGONBONES_CC_SLOT_H
 
-#include "cocos2d.h"
 #include "dragonbones/DragonBonesHeaders.h"
 #include "math/Geometry.h"
 #include "math/Mat4.h"

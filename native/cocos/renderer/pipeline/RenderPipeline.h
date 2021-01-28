@@ -27,6 +27,8 @@ THE SOFTWARE.
 #include "Define.h"
 #include "helper/DefineMap.h"
 #include "helper/SharedMemory.h"
+#include "PipelineUBO.h"
+#include "PipelineSceneData.h"
 
 namespace cc {
 namespace gfx {
@@ -54,6 +56,8 @@ public:
     virtual void destroy();
     virtual bool initialize(const RenderPipelineInfo &info);
     virtual void render(const vector<uint> &cameras);
+    
+    void setPipelineSharedSceneData(uint handle);
 
     CC_INLINE const RenderFlowList &getFlows() const { return _flows; }
     CC_INLINE uint getTag() const { return _tag; }
@@ -63,6 +67,9 @@ public:
     CC_INLINE gfx::DescriptorSet *getDescriptorSet() const { return _descriptorSet; }
     CC_INLINE gfx::DescriptorSetLayout *getDescriptorSetLayout() const { return _descriptorSetLayout; }
     CC_INLINE gfx::Texture *getDefaultTexture() const { return _defaultTexture; }
+    CC_INLINE PipelineSceneData *getPipelineSceneData() const { return _pipelineSceneData; }
+    CC_INLINE const gfx::CommandBufferList &getCommandBuffers() const { return _commandBuffers; }
+    CC_INLINE PipelineUBO *getPipelineUBO() const { return _pipelineUBO; }
 
 protected:
     static RenderPipeline *_instance;
@@ -77,6 +84,8 @@ protected:
     gfx::Device *_device = nullptr;
     gfx::DescriptorSetLayout *_descriptorSetLayout = nullptr;
     gfx::DescriptorSet *_descriptorSet = nullptr;
+    PipelineUBO *_pipelineUBO = nullptr;
+    PipelineSceneData *_pipelineSceneData = nullptr;
     // has not initBuiltinRes,
     // create temporary default Texture to binding sampler2d
     gfx::Texture *_defaultTexture = nullptr;

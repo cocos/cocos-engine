@@ -9,18 +9,18 @@
 #import <Foundation/Foundation.h>
 
 #if CC_PLATFORM == CC_PLATFORM_MAC_OSX
-#import <Cocoa/Cocoa.h>
+    #import <Cocoa/Cocoa.h>
 #else
-#import <CoreText/CoreText.h>
-#import <UIKit/UIKit.h>
+    #import <CoreText/CoreText.h>
+    #import <UIKit/UIKit.h>
 
-#define NSBezierPath UIBezierPath
-#define NSFont UIFont
-#define NSColor UIColor
-#define NSSize CGSize
-#define NSZeroSize CGSizeZero
-#define NSPoint CGPoint
-#define NSMakePoint CGPointMake
+    #define NSBezierPath UIBezierPath
+    #define NSFont       UIFont
+    #define NSColor      UIColor
+    #define NSSize       CGSize
+    #define NSZeroSize   CGSizeZero
+    #define NSPoint      CGPoint
+    #define NSMakePoint  CGPointMake
 
 #endif
 
@@ -40,24 +40,24 @@ enum class CanvasTextBaseline {
 };
 
 @interface CanvasRenderingContext2DImpl : NSObject {
-    NSFont* _font;
-    NSMutableDictionary* _tokenAttributesDict;
-    NSString* _fontName;
+    NSFont *_font;
+    NSMutableDictionary *_tokenAttributesDict;
+    NSString *_fontName;
     CGFloat _fontSize;
     CGFloat _width;
     CGFloat _height;
     CGContextRef _context;
 
 #if CC_PLATFORM == CC_PLATFORM_MAC_OSX
-    NSGraphicsContext* _currentGraphicsContext;
-    NSGraphicsContext* _oldGraphicsContext;
+    NSGraphicsContext *_currentGraphicsContext;
+    NSGraphicsContext *_oldGraphicsContext;
 #else
     CGContextRef _oldContext;
 #endif
 
     CGColorSpaceRef _colorSpace;
     cc::Data _imageData;
-    NSBezierPath* _path;
+    NSBezierPath *_path;
 
     CanvasTextAlign _textAlign;
     CanvasTextBaseline _textBaseLine;
@@ -67,9 +67,9 @@ enum class CanvasTextBaseline {
     bool _bold;
 }
 
-@property (nonatomic, strong) NSFont* font;
-@property (nonatomic, strong) NSMutableDictionary* tokenAttributesDict;
-@property (nonatomic, strong) NSString* fontName;
+@property (nonatomic, strong) NSFont *font;
+@property (nonatomic, strong) NSMutableDictionary *tokenAttributesDict;
+@property (nonatomic, strong) NSString *fontName;
 @property (nonatomic, assign) CanvasTextAlign textAlign;
 @property (nonatomic, assign) CanvasTextBaseline textBaseLine;
 @property (nonatomic, assign) float lineWidth;
@@ -85,7 +85,7 @@ enum class CanvasTextBaseline {
 @synthesize textBaseLine = _textBaseLine;
 @synthesize lineWidth = _lineWidth;
 
--(id) init {
+- (id)init {
     if (self = [super init]) {
         _lineWidth = 0;
         _textAlign = CanvasTextAlign::LEFT;
@@ -106,7 +106,7 @@ enum class CanvasTextBaseline {
     return self;
 }
 
--(void) dealloc {
+- (void)dealloc {
     self.font = nil;
     self.tokenAttributesDict = nil;
     self.fontName = nil;
@@ -122,57 +122,55 @@ enum class CanvasTextBaseline {
 
 #if CC_PLATFORM == CC_PLATFORM_MAC_OSX
 
--(NSFont*) _createSystemFont {
+- (NSFont *)_createSystemFont {
     NSFontTraitMask mask = NSUnitalicFontMask;
     if (_bold) {
         mask |= NSBoldFontMask;
-    }
-    else {
+    } else {
         mask |= NSUnboldFontMask;
     }
 
-    NSFont* font = [[NSFontManager sharedFontManager]
-                    fontWithFamily:_fontName
-                    traits:mask
-                    weight:0
-                    size:_fontSize];
+    NSFont *font = [[NSFontManager sharedFontManager]
+        fontWithFamily:_fontName
+                traits:mask
+                weight:0
+                  size:_fontSize];
 
     if (font == nil) {
-        const auto& familyMap = getFontFamilyNameMap();
+        const auto &familyMap = getFontFamilyNameMap();
         auto iter = familyMap.find([_fontName UTF8String]);
         if (iter != familyMap.end()) {
             font = [[NSFontManager sharedFontManager]
-               fontWithFamily: [NSString stringWithUTF8String:iter->second.c_str()]
-               traits: mask
-               weight: 0
-               size: _fontSize];
+                fontWithFamily:[NSString stringWithUTF8String:iter->second.c_str()]
+                        traits:mask
+                        weight:0
+                          size:_fontSize];
         }
     }
 
     if (font == nil) {
         font = [[NSFontManager sharedFontManager]
-                fontWithFamily: @"Arial"
-                traits: mask
-                weight: 0
-                size: _fontSize];
+            fontWithFamily:@"Arial"
+                    traits:mask
+                    weight:0
+                      size:_fontSize];
     }
     return font;
 }
 
 #else
 
--(UIFont*) _createSystemFont {
-    UIFont* font = nil;
+- (UIFont *)_createSystemFont {
+    UIFont *font = nil;
 
     if (_bold) {
         font = [UIFont fontWithName:[_fontName stringByAppendingString:@"-Bold"] size:_fontSize];
-    }
-    else {
+    } else {
         font = [UIFont fontWithName:_fontName size:_fontSize];
     }
 
     if (font == nil) {
-        const auto& familyMap = getFontFamilyNameMap();
+        const auto &familyMap = getFontFamilyNameMap();
         auto iter = familyMap.find([_fontName UTF8String]);
         if (iter != familyMap.end()) {
             font = [UIFont fontWithName:[NSString stringWithUTF8String:iter->second.c_str()] size:_fontSize];
@@ -191,54 +189,52 @@ enum class CanvasTextBaseline {
 
 #endif
 
--(void) updateFontWithName: (NSString*)fontName fontSize: (CGFloat)fontSize bold: (bool)bold{
+- (void)updateFontWithName:(NSString *)fontName fontSize:(CGFloat)fontSize bold:(bool)bold {
     _fontSize = fontSize;
     _bold = bold;
 
     self.fontName = fontName;
     self.font = [self _createSystemFont];
 
-    NSMutableParagraphStyle* paragraphStyle = [[[NSMutableParagraphStyle alloc] init] autorelease];
+    NSMutableParagraphStyle *paragraphStyle = [[[NSMutableParagraphStyle alloc] init] autorelease];
     paragraphStyle.lineBreakMode = NSLineBreakByTruncatingTail;
     [paragraphStyle setAlignment:NSTextAlignmentCenter];
 
     // color
-    NSColor* foregroundColor = [NSColor colorWithRed:1.0f
+    NSColor *foregroundColor = [NSColor colorWithRed:1.0f
                                                green:1.0f
                                                 blue:1.0f
                                                alpha:1.0f];
 
     // attribute
     self.tokenAttributesDict = [NSMutableDictionary dictionaryWithObjectsAndKeys:
-                                                foregroundColor, NSForegroundColorAttributeName,
-                                                _font, NSFontAttributeName,
-                                                paragraphStyle, NSParagraphStyleAttributeName, nil];
+                                                        foregroundColor, NSForegroundColorAttributeName,
+                                                        _font, NSFontAttributeName,
+                                                        paragraphStyle, NSParagraphStyleAttributeName, nil];
 }
 
--(void) recreateBufferWithWidth:(NSInteger) width height:(NSInteger) height {
+- (void)recreateBufferWithWidth:(NSInteger)width height:(NSInteger)height {
     _width = width = width > 0 ? width : 1;
     _height = height = height > 0 ? height : 1;
     NSUInteger textureSize = width * height * 4;
-    unsigned char* data = (unsigned char*)malloc(sizeof(unsigned char) * textureSize);
+    unsigned char *data = (unsigned char *)malloc(sizeof(unsigned char) * textureSize);
     memset(data, 0, textureSize);
     _imageData.fastSet(data, textureSize);
 
-    if (_context != nil)
-    {
+    if (_context != nil) {
         CGContextRelease(_context);
         _context = nil;
     }
 
 #if CC_PLATFORM == CC_PLATFORM_MAC_OSX
-    if (_currentGraphicsContext != nil)
-    {
+    if (_currentGraphicsContext != nil) {
         [_currentGraphicsContext release];
         _currentGraphicsContext = nil;
     }
 #endif
 
     // draw text
-    _colorSpace  = CGColorSpaceCreateDeviceRGB();
+    _colorSpace = CGColorSpaceCreateDeviceRGB();
     _context = CGBitmapContextCreate(data,
                                      width,
                                      height,
@@ -246,14 +242,13 @@ enum class CanvasTextBaseline {
                                      width * 4,
                                      _colorSpace,
                                      kCGImageAlphaPremultipliedLast | kCGBitmapByteOrder32Big);
-    if (nil == _context)
-    {
+    if (nil == _context) {
         CGColorSpaceRelease(_colorSpace); //REFINE: HOWTO RELEASE?
         _colorSpace = nil;
     }
 
 #if CC_PLATFORM == CC_PLATFORM_MAC_OSX
-    _currentGraphicsContext = [NSGraphicsContext graphicsContextWithCGContext:_context flipped: NO];
+    _currentGraphicsContext = [NSGraphicsContext graphicsContextWithCGContext:_context flipped:NO];
     [_currentGraphicsContext retain];
 #else
     // move Y rendering to the top of the image
@@ -264,16 +259,16 @@ enum class CanvasTextBaseline {
 #endif
 }
 
--(NSSize) measureText:(NSString*) text {
+- (NSSize)measureText:(NSString *)text {
 
-    NSAttributedString* stringWithAttributes = [[[NSAttributedString alloc] initWithString:text
-                                                             attributes:_tokenAttributesDict] autorelease];
+    NSAttributedString *stringWithAttributes = [[[NSAttributedString alloc] initWithString:text
+                                                                                attributes:_tokenAttributesDict] autorelease];
 
     NSSize textRect = NSZeroSize;
     textRect.width = CGFLOAT_MAX;
     textRect.height = CGFLOAT_MAX;
 
-    NSSize dim = [stringWithAttributes boundingRectWithSize:textRect options:(NSStringDrawingOptions)(NSStringDrawingUsesLineFragmentOrigin) context:nil].size;
+    NSSize dim = [stringWithAttributes boundingRectWithSize:textRect options:(NSStringDrawingOptions)(NSStringDrawingUsesLineFragmentOrigin)context:nil].size;
 
     dim.width = ceilf(dim.width);
     dim.height = ceilf(dim.height);
@@ -281,17 +276,14 @@ enum class CanvasTextBaseline {
     return dim;
 }
 
--(NSPoint) convertDrawPoint:(NSPoint) point text:(NSString*) text {
+- (NSPoint)convertDrawPoint:(NSPoint)point text:(NSString *)text {
     // The parameter 'point' is located at left-bottom position.
     // Need to adjust 'point' according 'text align' & 'text base line'.
     NSSize textSize = [self measureText:text];
 
-    if (_textAlign == CanvasTextAlign::CENTER)
-    {
+    if (_textAlign == CanvasTextAlign::CENTER) {
         point.x -= textSize.width / 2.0f;
-    }
-    else if (_textAlign == CanvasTextAlign::RIGHT)
-    {
+    } else if (_textAlign == CanvasTextAlign::RIGHT) {
         point.x -= textSize.width;
     }
 
@@ -299,37 +291,23 @@ enum class CanvasTextBaseline {
     // The origin on macOS is bottom-left by default,
     // so we need to convert y from top-left origin to bottom-left origin.
     point.y = _height - point.y;
-    if (_textBaseLine == CanvasTextBaseline::TOP)
-    {
+    if (_textBaseLine == CanvasTextBaseline::TOP) {
         point.y += -textSize.height;
-    }
-    else if (_textBaseLine == CanvasTextBaseline::MIDDLE)
-    {
+    } else if (_textBaseLine == CanvasTextBaseline::MIDDLE) {
         point.y += -textSize.height / 2.0f;
-    }
-    else if (_textBaseLine == CanvasTextBaseline::BOTTOM)
-    {
+    } else if (_textBaseLine == CanvasTextBaseline::BOTTOM) {
         // drawAtPoint default
-    }
-    else if (_textBaseLine == CanvasTextBaseline::ALPHABETIC)
-    {
+    } else if (_textBaseLine == CanvasTextBaseline::ALPHABETIC) {
         point.y += _font.descender;
     }
 #else
-    if (_textBaseLine == CanvasTextBaseline::TOP)
-    {
+    if (_textBaseLine == CanvasTextBaseline::TOP) {
         // drawAtPoint default
-    }
-    else if (_textBaseLine == CanvasTextBaseline::MIDDLE)
-    {
+    } else if (_textBaseLine == CanvasTextBaseline::MIDDLE) {
         point.y += -textSize.height / 2.0f;
-    }
-    else if (_textBaseLine == CanvasTextBaseline::BOTTOM)
-    {
+    } else if (_textBaseLine == CanvasTextBaseline::BOTTOM) {
         point.y += -textSize.height;
-    }
-    else if (_textBaseLine == CanvasTextBaseline::ALPHABETIC)
-    {
+    } else if (_textBaseLine == CanvasTextBaseline::ALPHABETIC) {
         point.y -= _font.ascender;
     }
 #endif
@@ -337,19 +315,19 @@ enum class CanvasTextBaseline {
     return point;
 }
 
--(void) fillText:(NSString*) text x:(CGFloat) x y:(CGFloat) y maxWidth:(CGFloat) maxWidth {
+- (void)fillText:(NSString *)text x:(CGFloat)x y:(CGFloat)y maxWidth:(CGFloat)maxWidth {
     if (text.length == 0)
         return;
 
     NSPoint drawPoint = [self convertDrawPoint:NSMakePoint(x, y) text:text];
 
-    NSMutableParagraphStyle* paragraphStyle = [[[NSMutableParagraphStyle alloc] init] autorelease];
+    NSMutableParagraphStyle *paragraphStyle = [[[NSMutableParagraphStyle alloc] init] autorelease];
     paragraphStyle.lineBreakMode = NSLineBreakByTruncatingTail;
 
     [_tokenAttributesDict removeObjectForKey:NSStrokeColorAttributeName];
 
     [_tokenAttributesDict setObject:paragraphStyle forKey:NSParagraphStyleAttributeName];
-    [_tokenAttributesDict setObject:[NSColor colorWithRed:_fillStyle[0] green:_fillStyle[1] blue:_fillStyle[2] alpha:_fillStyle[3] ]
+    [_tokenAttributesDict setObject:[NSColor colorWithRed:_fillStyle[0] green:_fillStyle[1] blue:_fillStyle[2] alpha:_fillStyle[3]]
                              forKey:NSForegroundColorAttributeName];
 
     [self saveContext];
@@ -360,8 +338,8 @@ enum class CanvasTextBaseline {
     CGContextBeginTransparencyLayerWithRect(_context, CGRectMake(0, 0, _width, _height), nullptr);
     CGContextSetTextDrawingMode(_context, kCGTextFill);
 
-    NSAttributedString *stringWithAttributes =[[[NSAttributedString alloc] initWithString:text
-                                                attributes:_tokenAttributesDict] autorelease];
+    NSAttributedString *stringWithAttributes = [[[NSAttributedString alloc] initWithString:text
+                                                                                attributes:_tokenAttributesDict] autorelease];
 
     [stringWithAttributes drawAtPoint:drawPoint];
 
@@ -370,13 +348,13 @@ enum class CanvasTextBaseline {
     [self restoreContext];
 }
 
--(void) strokeText:(NSString*) text x:(CGFloat) x y:(CGFloat) y maxWidth:(CGFloat) maxWidth {
+- (void)strokeText:(NSString *)text x:(CGFloat)x y:(CGFloat)y maxWidth:(CGFloat)maxWidth {
     if (text.length == 0)
         return;
 
     NSPoint drawPoint = [self convertDrawPoint:NSMakePoint(x, y) text:text];
 
-    NSMutableParagraphStyle* paragraphStyle = [[[NSMutableParagraphStyle alloc] init] autorelease];
+    NSMutableParagraphStyle *paragraphStyle = [[[NSMutableParagraphStyle alloc] init] autorelease];
     paragraphStyle.lineBreakMode = NSLineBreakByTruncatingTail;
 
     [_tokenAttributesDict removeObjectForKey:NSForegroundColorAttributeName];
@@ -400,8 +378,8 @@ enum class CanvasTextBaseline {
 
     CGContextSetTextDrawingMode(_context, kCGTextStroke);
 
-    NSAttributedString *stringWithAttributes =[[[NSAttributedString alloc] initWithString:text
-                                                                               attributes:_tokenAttributesDict] autorelease];
+    NSAttributedString *stringWithAttributes = [[[NSAttributedString alloc] initWithString:text
+                                                                                attributes:_tokenAttributesDict] autorelease];
 
     [stringWithAttributes drawAtPoint:drawPoint];
 
@@ -410,25 +388,25 @@ enum class CanvasTextBaseline {
     [self restoreContext];
 }
 
--(void) setFillStyleWithRed:(CGFloat) r green:(CGFloat) g blue:(CGFloat) b alpha:(CGFloat) a {
+- (void)setFillStyleWithRed:(CGFloat)r green:(CGFloat)g blue:(CGFloat)b alpha:(CGFloat)a {
     _fillStyle[0] = r;
     _fillStyle[1] = g;
     _fillStyle[2] = b;
     _fillStyle[3] = a;
 }
 
--(void) setStrokeStyleWithRed:(CGFloat) r green:(CGFloat) g blue:(CGFloat) b alpha:(CGFloat) a {
+- (void)setStrokeStyleWithRed:(CGFloat)r green:(CGFloat)g blue:(CGFloat)b alpha:(CGFloat)a {
     _strokeStyle[0] = r;
     _strokeStyle[1] = g;
     _strokeStyle[2] = b;
     _strokeStyle[3] = a;
 }
 
--(const cc::Data&) getDataRef {
+- (const cc::Data &)getDataRef {
     return _imageData;
 }
 
--(void) clearRect:(CGRect) rect {
+- (void)clearRect:(CGRect)rect {
     if (_imageData.isNull())
         return;
 
@@ -444,25 +422,25 @@ enum class CanvasTextBaseline {
         return;
     //REFINE:
     //    assert(rect.origin.x == 0 && rect.origin.y == 0);
-    memset((void*)_imageData.getBytes(), 0x00, _imageData.getSize());
+    memset((void *)_imageData.getBytes(), 0x00, _imageData.getSize());
 }
 
--(void) fillRect:(CGRect) rect {
+- (void)fillRect:(CGRect)rect {
     [self saveContext];
 
-    NSColor* color = [NSColor colorWithRed:_fillStyle[0] green:_fillStyle[1] blue:_fillStyle[2] alpha:_fillStyle[3] ];
+    NSColor *color = [NSColor colorWithRed:_fillStyle[0] green:_fillStyle[1] blue:_fillStyle[2] alpha:_fillStyle[3]];
     [color setFill];
 #if CC_PLATFORM == CC_PLATFORM_MAC_OSX
     CGRect tmpRect = CGRectMake(rect.origin.x, _height - rect.origin.y - rect.size.height, rect.size.width, rect.size.height);
     [NSBezierPath fillRect:tmpRect];
 #else
-    NSBezierPath* path = [NSBezierPath bezierPathWithRect:rect];
+    NSBezierPath *path = [NSBezierPath bezierPathWithRect:rect];
     [path fill];
 #endif
     [self restoreContext];
 }
 
--(void) saveContext {
+- (void)saveContext {
 #if CC_PLATFORM == CC_PLATFORM_MAC_OSX
     // save the old graphics context
     _oldGraphicsContext = [NSGraphicsContext currentContext];
@@ -480,7 +458,7 @@ enum class CanvasTextBaseline {
 #endif
 }
 
--(void) restoreContext {
+- (void)restoreContext {
 #if CC_PLATFORM == CC_PLATFORM_MAC_OSX
     // pop the context
     [NSGraphicsContext restoreGraphicsState];
@@ -496,30 +474,29 @@ enum class CanvasTextBaseline {
 #endif
 }
 
--(void) beginPath {
-
+- (void)beginPath {
 }
 
--(void) stroke {
-    NSColor* color = [NSColor colorWithRed:_strokeStyle[0] green:_strokeStyle[1] blue:_strokeStyle[2] alpha:_strokeStyle[3]];
+- (void)stroke {
+    NSColor *color = [NSColor colorWithRed:_strokeStyle[0] green:_strokeStyle[1] blue:_strokeStyle[2] alpha:_strokeStyle[3]];
     [color setStroke];
-    [_path setLineWidth: _lineWidth];
+    [_path setLineWidth:_lineWidth];
     [_path stroke];
 }
 
--(void) moveToX: (float) x y:(float) y {
+- (void)moveToX:(float)x y:(float)y {
 #if CC_PLATFORM == CC_PLATFORM_MAC_OSX
-    [_path moveToPoint: NSMakePoint(x, _height - y)];
+    [_path moveToPoint:NSMakePoint(x, _height - y)];
 #else
-    [_path moveToPoint: NSMakePoint(x, y)];
+    [_path moveToPoint:NSMakePoint(x, y)];
 #endif
 }
 
--(void) lineToX: (float) x y:(float) y {
+- (void)lineToX:(float)x y:(float)y {
 #if CC_PLATFORM == CC_PLATFORM_MAC_OSX
-    [_path lineToPoint: NSMakePoint(x, _height - y)];
+    [_path lineToPoint:NSMakePoint(x, _height - y)];
 #else
-    [_path addLineToPoint: NSMakePoint(x, y)];
+    [_path addLineToPoint:NSMakePoint(x, y)];
 #endif
 }
 
@@ -527,92 +504,77 @@ enum class CanvasTextBaseline {
 
 namespace cc {
 
-CanvasGradient::CanvasGradient()
-{
+CanvasGradient::CanvasGradient() {
     SE_LOGD("CanvasGradient constructor: %p\n", this);
 }
 
-CanvasGradient::~CanvasGradient()
-{
+CanvasGradient::~CanvasGradient() {
     SE_LOGD("CanvasGradient destructor: %p\n", this);
 }
 
-void CanvasGradient::addColorStop(float offset, const std::string& color)
-{
+void CanvasGradient::addColorStop(float offset, const std::string &color) {
     SE_LOGD("CanvasGradient::addColorStop: %p\n", this);
 }
 
 // CanvasRenderingContext2D
 
-namespace
-{
-#define CLAMP(V, HI) std::min( (V), (HI) )
-    void unMultiplyAlpha(unsigned char* ptr, ssize_t size)
-    {
-        float alpha;
-        for (int i = 0; i < size; i += 4)
-        {
-            alpha = (float)ptr[i + 3];
-            if (alpha > 0)
-            {
-                ptr[i] = CLAMP((int)((float)ptr[i] / alpha * 255), 255);
-                ptr[i+1] = CLAMP((int)((float)ptr[i+1] / alpha * 255), 255);
-                ptr[i+2] =  CLAMP((int)((float)ptr[i+2] / alpha * 255), 255);
-            }
+namespace {
+#define CLAMP(V, HI) std::min((V), (HI))
+void unMultiplyAlpha(unsigned char *ptr, ssize_t size) {
+    float alpha;
+    for (int i = 0; i < size; i += 4) {
+        alpha = (float)ptr[i + 3];
+        if (alpha > 0) {
+            ptr[i] = CLAMP((int)((float)ptr[i] / alpha * 255), 255);
+            ptr[i + 1] = CLAMP((int)((float)ptr[i + 1] / alpha * 255), 255);
+            ptr[i + 2] = CLAMP((int)((float)ptr[i + 2] / alpha * 255), 255);
         }
     }
 }
+} // namespace
 
-#define SEND_DATA_TO_JS(CB, IMPL) \
-if (CB) \
-{ \
-    Data data([IMPL getDataRef]); \
-    unMultiplyAlpha(data.getBytes(), data.getSize() ); \
-    CB(data); \
-}
+#define SEND_DATA_TO_JS(CB, IMPL)                         \
+    if (CB) {                                             \
+        Data data([IMPL getDataRef]);                     \
+        unMultiplyAlpha(data.getBytes(), data.getSize()); \
+        CB(data);                                         \
+    }
 
 CanvasRenderingContext2D::CanvasRenderingContext2D(float width, float height)
-: _width(width)
-, _height(height)
-{
-//    SE_LOGD("CanvasRenderingContext2D constructor: %p, width: %f, height: %f\n", this, width, height);
+: _width(width),
+  _height(height) {
+    //    SE_LOGD("CanvasRenderingContext2D constructor: %p, width: %f, height: %f\n", this, width, height);
     _impl = [[CanvasRenderingContext2DImpl alloc] init];
 }
 
-CanvasRenderingContext2D::~CanvasRenderingContext2D()
-{
-//    SE_LOGD("CanvasRenderingContext2D destructor: %p\n", this);
+CanvasRenderingContext2D::~CanvasRenderingContext2D() {
+    //    SE_LOGD("CanvasRenderingContext2D destructor: %p\n", this);
     [_impl release];
 }
 
-void CanvasRenderingContext2D::recreateBufferIfNeeded()
-{
-    if (_isBufferSizeDirty)
-    {
+void CanvasRenderingContext2D::recreateBufferIfNeeded() {
+    if (_isBufferSizeDirty) {
         _isBufferSizeDirty = false;
-//        SE_LOGD("CanvasRenderingContext2D::recreateBufferIfNeeded %p, w: %f, h:%f\n", this, __width, __height);
-        [_impl recreateBufferWithWidth: _width height:_height];
+        //        SE_LOGD("CanvasRenderingContext2D::recreateBufferIfNeeded %p, w: %f, h:%f\n", this, __width, __height);
+        [_impl recreateBufferWithWidth:_width height:_height];
         SEND_DATA_TO_JS(_canvasBufferUpdatedCB, _impl);
     }
 }
 
-void CanvasRenderingContext2D::clearRect(float x, float y, float width, float height)
-{
-//    SE_LOGD("CanvasGradient::clearRect: %p, %f, %f, %f, %f\n", this, x, y, width, height);
+void CanvasRenderingContext2D::clearRect(float x, float y, float width, float height) {
+    //    SE_LOGD("CanvasGradient::clearRect: %p, %f, %f, %f, %f\n", this, x, y, width, height);
     recreateBufferIfNeeded();
     [_impl clearRect:CGRectMake(x, y, width, height)];
 }
 
-void CanvasRenderingContext2D::fillRect(float x, float y, float width, float height)
-{
+void CanvasRenderingContext2D::fillRect(float x, float y, float width, float height) {
     recreateBufferIfNeeded();
     [_impl fillRect:CGRectMake(x, y, width, height)];
     SEND_DATA_TO_JS(_canvasBufferUpdatedCB, _impl);
 }
 
-void CanvasRenderingContext2D::fillText(const std::string& text, float x, float y, float maxWidth)
-{
-//    SE_LOGD("CanvasRenderingContext2D(%p)::fillText: %s, %f, %f, %f\n", this, text.c_str(), x, y, maxWidth);
+void CanvasRenderingContext2D::fillText(const std::string &text, float x, float y, float maxWidth) {
+    //    SE_LOGD("CanvasRenderingContext2D(%p)::fillText: %s, %f, %f, %f\n", this, text.c_str(), x, y, maxWidth);
     if (text.empty())
         return;
 
@@ -622,9 +584,8 @@ void CanvasRenderingContext2D::fillText(const std::string& text, float x, float 
     SEND_DATA_TO_JS(_canvasBufferUpdatedCB, _impl);
 }
 
-void CanvasRenderingContext2D::strokeText(const std::string& text, float x, float y, float maxWidth)
-{
-//    SE_LOGD("CanvasRenderingContext2D(%p)::strokeText: %s, %f, %f, %f\n", this, text.c_str(), x, y, maxWidth);
+void CanvasRenderingContext2D::strokeText(const std::string &text, float x, float y, float maxWidth) {
+    //    SE_LOGD("CanvasRenderingContext2D(%p)::strokeText: %s, %f, %f, %f\n", this, text.c_str(), x, y, maxWidth);
     if (text.empty())
         return;
     recreateBufferIfNeeded();
@@ -633,113 +594,94 @@ void CanvasRenderingContext2D::strokeText(const std::string& text, float x, floa
     SEND_DATA_TO_JS(_canvasBufferUpdatedCB, _impl);
 }
 
-cc::Size CanvasRenderingContext2D::measureText(const std::string& text)
-{
-    NSString *str =[NSString stringWithUTF8String:text.c_str()];
-    if(str == nil) {
+cc::Size CanvasRenderingContext2D::measureText(const std::string &text) {
+    NSString *str = [NSString stringWithUTF8String:text.c_str()];
+    if (str == nil) {
         std::string textNew;
         cc::StringUtils::UTF8LooseFix(text, textNew);
         str = [NSString stringWithUTF8String:textNew.c_str()];
     }
-    CGSize size = [_impl measureText: str];
+    CGSize size = [_impl measureText:str];
     return cc::Size(size.width, size.height);
 }
 
-CanvasGradient* CanvasRenderingContext2D::createLinearGradient(float x0, float y0, float x1, float y1)
-{
+CanvasGradient *CanvasRenderingContext2D::createLinearGradient(float x0, float y0, float x1, float y1) {
     return nullptr;
 }
 
-void CanvasRenderingContext2D::save()
-{
+void CanvasRenderingContext2D::save() {
     [_impl saveContext];
 }
 
-void CanvasRenderingContext2D::beginPath()
-{
+void CanvasRenderingContext2D::beginPath() {
     [_impl beginPath];
 }
 
-void CanvasRenderingContext2D::closePath()
-{
+void CanvasRenderingContext2D::closePath() {
     //SE_LOGE("%s isn't implemented!\n", __FUNCTION__);
 }
 
-void CanvasRenderingContext2D::moveTo(float x, float y)
-{
+void CanvasRenderingContext2D::moveTo(float x, float y) {
     [_impl moveToX:x y:y];
 }
 
-void CanvasRenderingContext2D::lineTo(float x, float y)
-{
+void CanvasRenderingContext2D::lineTo(float x, float y) {
     [_impl lineToX:x y:y];
 }
 
-void CanvasRenderingContext2D::stroke()
-{
+void CanvasRenderingContext2D::stroke() {
     [_impl stroke];
     SEND_DATA_TO_JS(_canvasBufferUpdatedCB, _impl);
 }
 
-void CanvasRenderingContext2D::fill()
-{
+void CanvasRenderingContext2D::fill() {
     //SE_LOGE("%s isn't implemented!\n", __FUNCTION__);
 }
 
-void CanvasRenderingContext2D::rect(float x, float y, float w, float h)
-{
+void CanvasRenderingContext2D::rect(float x, float y, float w, float h) {
     //SE_LOGE("%s isn't implemented!\n", __FUNCTION__);
 }
 
-void CanvasRenderingContext2D::restore()
-{
+void CanvasRenderingContext2D::restore() {
     [_impl restoreContext];
 }
 
-void CanvasRenderingContext2D::setCanvasBufferUpdatedCallback(const CanvasBufferUpdatedCallback& cb)
-{
+void CanvasRenderingContext2D::setCanvasBufferUpdatedCallback(const CanvasBufferUpdatedCallback &cb) {
     _canvasBufferUpdatedCB = cb;
     recreateBufferIfNeeded();
 }
 
-void CanvasRenderingContext2D::set_width(float width)
-{
-//    SE_LOGD("CanvasRenderingContext2D::set__width: %f\n", width);
+void CanvasRenderingContext2D::set_width(float width) {
+    //    SE_LOGD("CanvasRenderingContext2D::set__width: %f\n", width);
     if (math::IsEqualF(width, _width)) return;
     _width = width;
     _isBufferSizeDirty = true;
     recreateBufferIfNeeded();
 }
 
-void CanvasRenderingContext2D::set_height(float height)
-{
-//    SE_LOGD("CanvasRenderingContext2D::set__height: %f\n", height);
+void CanvasRenderingContext2D::set_height(float height) {
+    //    SE_LOGD("CanvasRenderingContext2D::set__height: %f\n", height);
     if (math::IsEqualF(height, _height)) return;
     _height = height;
     _isBufferSizeDirty = true;
     recreateBufferIfNeeded();
 }
 
-void CanvasRenderingContext2D::set_lineWidth(float lineWidth)
-{
+void CanvasRenderingContext2D::set_lineWidth(float lineWidth) {
     _lineWidth = lineWidth;
     _impl.lineWidth = _lineWidth;
 }
 
-void CanvasRenderingContext2D::set_lineCap(const std::string& lineCap)
-{
+void CanvasRenderingContext2D::set_lineCap(const std::string &lineCap) {
     //SE_LOGE("%s isn't implemented!\n", __FUNCTION__);
 }
 
-void CanvasRenderingContext2D::set_lineJoin(const std::string& lineJoin)
-{
+void CanvasRenderingContext2D::set_lineJoin(const std::string &lineJoin) {
     //SE_LOGE("%s isn't implemented!\n", __FUNCTION__);
 }
 
-void CanvasRenderingContext2D::set_font(const std::string& font)
-{
-    if (_font != font)
-    {
+void CanvasRenderingContext2D::set_font(const std::string &font) {
+    if (_font != font) {
         _font = font;
 
         std::string boldStr;
@@ -749,8 +691,7 @@ void CanvasRenderingContext2D::set_font(const std::string& font)
         // support get font name from `60px American` or `60px "American abc-abc_abc"`
         std::regex re("(bold)?\\s*((\\d+)([\\.]\\d+)?)px\\s+([\\w-]+|\"[\\w -]+\"$)");
         std::match_results<std::string::const_iterator> results;
-        if (std::regex_search(_font.cbegin(), _font.cend(), results, re))
-        {
+        if (std::regex_search(_font.cbegin(), _font.cend(), results, re)) {
             boldStr = results[1].str();
             fontSizeStr = results[2].str();
             fontName = results[5].str();
@@ -761,100 +702,74 @@ void CanvasRenderingContext2D::set_font(const std::string& font)
     }
 }
 
-void CanvasRenderingContext2D::set_textAlign(const std::string& textAlign)
-{
-//    SE_LOGD("CanvasRenderingContext2D::set_textAlign: %s\n", textAlign.c_str());
-    if (textAlign == "left")
-    {
+void CanvasRenderingContext2D::set_textAlign(const std::string &textAlign) {
+    //    SE_LOGD("CanvasRenderingContext2D::set_textAlign: %s\n", textAlign.c_str());
+    if (textAlign == "left") {
         _impl.textAlign = CanvasTextAlign::LEFT;
-    }
-    else if (textAlign == "center" || textAlign == "middle")
-    {
+    } else if (textAlign == "center" || textAlign == "middle") {
         _impl.textAlign = CanvasTextAlign::CENTER;
-    }
-    else if (textAlign == "right")
-    {
+    } else if (textAlign == "right") {
         _impl.textAlign = CanvasTextAlign::RIGHT;
-    }
-    else
-    {
+    } else {
         assert(false);
     }
 }
 
-void CanvasRenderingContext2D::set_textBaseline(const std::string& textBaseline)
-{
-//    SE_LOGD("CanvasRenderingContext2D::set_textBaseline: %s\n", textBaseline.c_str());
-    if (textBaseline == "top")
-    {
+void CanvasRenderingContext2D::set_textBaseline(const std::string &textBaseline) {
+    //    SE_LOGD("CanvasRenderingContext2D::set_textBaseline: %s\n", textBaseline.c_str());
+    if (textBaseline == "top") {
         _impl.textBaseLine = CanvasTextBaseline::TOP;
-    }
-    else if (textBaseline == "middle")
-    {
+    } else if (textBaseline == "middle") {
         _impl.textBaseLine = CanvasTextBaseline::MIDDLE;
-    }
-    else if (textBaseline == "bottom") //REFINE:, how to deal with alphabetic, currently we handle it as bottom mode.
+    } else if (textBaseline == "bottom") //REFINE:, how to deal with alphabetic, currently we handle it as bottom mode.
     {
         _impl.textBaseLine = CanvasTextBaseline::BOTTOM;
-    }
-    else if (textBaseline == "alphabetic")
-    {
+    } else if (textBaseline == "alphabetic") {
         _impl.textBaseLine = CanvasTextBaseline::ALPHABETIC;
-    }
-    else
-    {
+    } else {
         assert(false);
     }
 }
 
-void CanvasRenderingContext2D::set_fillStyle(const std::string& fillStyle)
-{
+void CanvasRenderingContext2D::set_fillStyle(const std::string &fillStyle) {
     CSSColorParser::Color color = CSSColorParser::parse(fillStyle);
-    [_impl setFillStyleWithRed:color.r/255.0f green:color.g/255.0f blue:color.b/255.0f alpha:color.a];
-//    SE_LOGD("CanvasRenderingContext2D::set_fillStyle: %s, (%d, %d, %d, %f)\n", fillStyle.c_str(), color.r, color.g, color.b, color.a);
+    [_impl setFillStyleWithRed:color.r / 255.0f green:color.g / 255.0f blue:color.b / 255.0f alpha:color.a];
+    //    SE_LOGD("CanvasRenderingContext2D::set_fillStyle: %s, (%d, %d, %d, %f)\n", fillStyle.c_str(), color.r, color.g, color.b, color.a);
 }
 
-void CanvasRenderingContext2D::set_strokeStyle(const std::string& strokeStyle)
-{
+void CanvasRenderingContext2D::set_strokeStyle(const std::string &strokeStyle) {
     CSSColorParser::Color color = CSSColorParser::parse(strokeStyle);
-    [_impl setStrokeStyleWithRed:color.r/255.0f green:color.g/255.0f blue:color.b/255.0f alpha:color.a];
+    [_impl setStrokeStyleWithRed:color.r / 255.0f green:color.g / 255.0f blue:color.b / 255.0f alpha:color.a];
 }
 
-void CanvasRenderingContext2D::set_globalCompositeOperation(const std::string& globalCompositeOperation)
-{
+void CanvasRenderingContext2D::set_globalCompositeOperation(const std::string &globalCompositeOperation) {
     //SE_LOGE("%s isn't implemented!\n", __FUNCTION__);
 }
 
-void CanvasRenderingContext2D::_fillImageData(const Data& imageData, float imageWidth, float imageHeight, float offsetX, float offsetY)
-{
+void CanvasRenderingContext2D::_fillImageData(const Data &imageData, float imageWidth, float imageHeight, float offsetX, float offsetY) {
     //SE_LOGE("%s isn't implemented!\n", __FUNCTION__);
 }
 
 // transform
 
-void CanvasRenderingContext2D::translate(float x, float y)
-{
+void CanvasRenderingContext2D::translate(float x, float y) {
     //SE_LOGE("%s isn't implemented!\n", __FUNCTION__);
 }
 
-void CanvasRenderingContext2D::scale(float x, float y)
-{
+void CanvasRenderingContext2D::scale(float x, float y) {
     //SE_LOGE("%s isn't implemented!\n", __FUNCTION__);
 }
 
-void CanvasRenderingContext2D::rotate(float angle)
-{
+void CanvasRenderingContext2D::rotate(float angle) {
     //SE_LOGE("%s isn't implemented!\n", __FUNCTION__);
 }
 
-void CanvasRenderingContext2D::transform(float a, float b, float c, float d, float e, float f)
-{
+void CanvasRenderingContext2D::transform(float a, float b, float c, float d, float e, float f) {
     //SE_LOGE("%s isn't implemented!\n", __FUNCTION__);
 }
 
-void CanvasRenderingContext2D::setTransform(float a, float b, float c, float d, float e, float f)
-{
+void CanvasRenderingContext2D::setTransform(float a, float b, float c, float d, float e, float f) {
     //SE_LOGE("%s isn't implemented!\n", __FUNCTION__);
 }
 
-}
+} // namespace cc

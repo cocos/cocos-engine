@@ -22,33 +22,30 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-
 #include "jsb_platform.h"
 
 #include "cocos/bindings/jswrapper/SeApi.h"
 #include "cocos/bindings/manual/jsb_conversions.h"
 #include "cocos/bindings/manual/jsb_global.h"
 #include "cocos/platform/FileUtils.h"
+#include "cocos/platform/android/jni/JniHelper.h"
 
 #include <regex>
 
 #ifndef JCLS_CANVASIMPL
-#define JCLS_CANVASIMPL  "com/cocos/lib/CanvasRenderingContext2DImpl"
+    #define JCLS_CANVASIMPL "com/cocos/lib/CanvasRenderingContext2DImpl"
 #endif
-
 
 using namespace cc;
 
 static std::unordered_map<std::string, std::string> _fontFamilyNameMap;
 
-const std::unordered_map<std::string, std::string>& getFontFamilyNameMap()
-{
+const std::unordered_map<std::string, std::string> &getFontFamilyNameMap() {
     return _fontFamilyNameMap;
 }
 
-static bool JSB_loadFont(se::State& s)
-{
-    const auto& args = s.args();
+static bool JSB_loadFont(se::State &s) {
+    const auto &args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc >= 1) {
@@ -65,14 +62,12 @@ static bool JSB_loadFont(se::State& s)
         std::string fontFilePath;
         std::regex re("url\\(\\s*'\\s*(.*?)\\s*'\\s*\\)");
         std::match_results<std::string::const_iterator> results;
-        if (std::regex_search(source.cbegin(), source.cend(), results, re))
-        {
+        if (std::regex_search(source.cbegin(), source.cend(), results, re)) {
             fontFilePath = results[1].str();
         }
 
         fontFilePath = FileUtils::getInstance()->fullPathForFilename(fontFilePath);
-        if (fontFilePath.empty())
-        {
+        if (fontFilePath.empty()) {
             SE_LOGE("Font (%s) doesn't exist!", fontFilePath.c_str());
             return true;
         }
@@ -80,7 +75,7 @@ static bool JSB_loadFont(se::State& s)
         JniHelper::callStaticVoidMethod(JCLS_CANVASIMPL, "loadTypeface", originalFamilyName, fontFilePath);
 
         s.rval().setString(originalFamilyName);
-        
+
         return true;
     }
 
@@ -89,8 +84,7 @@ static bool JSB_loadFont(se::State& s)
 }
 SE_BIND_FUNC(JSB_loadFont)
 
-bool register_platform_bindings(se::Object* obj)
-{
+bool register_platform_bindings(se::Object *obj) {
     __jsbObj->defineFunction("loadFont", _SE(JSB_loadFont));
     return true;
 }

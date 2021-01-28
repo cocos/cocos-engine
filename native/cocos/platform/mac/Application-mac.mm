@@ -236,4 +236,4 @@ std::string Application::getSystemVersion() {
     return version;
 }
 
-}
+} // namespace cc

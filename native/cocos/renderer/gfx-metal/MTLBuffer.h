@@ -33,16 +33,20 @@ namespace gfx {
 class CCMTLBuffer;
 class CCMTLRenderCommandEncoder;
 
-class CCMTLBuffer : public Buffer {
+class CCMTLBuffer final : public Buffer {
 public:
-    CCMTLBuffer(Device *device);
-    ~CCMTLBuffer() = default;
+    explicit CCMTLBuffer(Device *device);
+    ~CCMTLBuffer() override = default;
+    CCMTLBuffer(const CCMTLBuffer &) = delete;
+    CCMTLBuffer(CCMTLBuffer &&) = delete;
+    CCMTLBuffer &operator=(const CCMTLBuffer &) = default;
+    CCMTLBuffer &operator=(CCMTLBuffer &&) = delete;
 
-    virtual bool initialize(const BufferInfo &info) override;
-    virtual bool initialize(const BufferViewInfo &info) override;
-    virtual void destroy() override;
-    virtual void resize(uint size) override;
-    virtual void update(void *buffer, uint offset) override;
+    bool initialize(const BufferInfo &info) override;
+    bool initialize(const BufferViewInfo &info) override;
+    void destroy() override;
+    void resize(uint size) override;
+    void update(void *buffer, uint offset) override;
 
     void encodeBuffer(CCMTLRenderCommandEncoder &encoder, uint offset, uint binding, ShaderStageFlags stages);
 
@@ -56,7 +60,6 @@ private:
     bool createMTLBuffer(uint size, MemoryUsage usage);
     void updateMTLBuffer(void *buffer, uint offset, uint size);
 
-    id<MTLDevice> _mtlDevice = nil;
     id<MTLBuffer> _mtlBuffer = nullptr;
     MTLIndexType _indexType = MTLIndexTypeUInt16;
     MTLResourceOptions _mtlResourceOptions = MTLResourceStorageModePrivate;

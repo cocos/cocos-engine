@@ -22,30 +22,24 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 ****************************************************************************/
-
 #define LOG_TAG "AudioDecoderMp3"
 
 #include "audio/android/AudioDecoderMp3.h"
 #include "audio/android/mp3reader.h"
 #include "platform/FileUtils.h"
 
-namespace cc { 
+namespace cc {
 
-AudioDecoderMp3::AudioDecoderMp3()
-{
+AudioDecoderMp3::AudioDecoderMp3() {
     ALOGV("Create AudioDecoderMp3");
 }
 
-AudioDecoderMp3::~AudioDecoderMp3()
-{
-
+AudioDecoderMp3::~AudioDecoderMp3() {
 }
 
-bool AudioDecoderMp3::decodeToPcm()
-{
+bool AudioDecoderMp3::decodeToPcm() {
     _fileData = FileUtils::getInstance()->getDataFromFile(_url);
-    if (_fileData.isNull())
-    {
+    if (_fileData.isNull()) {
         return false;
     }
 
@@ -58,10 +52,8 @@ bool AudioDecoderMp3::decodeToPcm()
     int numChannels = 0;
     int sampleRate = 0;
     int numFrames = 0;
-    
-    if (EXIT_SUCCESS == decodeMP3(&callbacks, this, *_result.pcmBuffer, &numChannels, &sampleRate, &numFrames)
-        && numChannels > 0 && sampleRate > 0 && numFrames > 0)
-    {
+
+    if (EXIT_SUCCESS == decodeMP3(&callbacks, this, *_result.pcmBuffer, &numChannels, &sampleRate, &numFrames) && numChannels > 0 && sampleRate > 0 && numFrames > 0) {
         _result.numChannels = numChannels;
         _result.sampleRate = sampleRate;
         _result.bitsPerSample = SL_PCMSAMPLEFORMAT_FIXED_16;
@@ -80,4 +72,4 @@ bool AudioDecoderMp3::decodeToPcm()
     return false;
 }
 
-} // namespace cc { 
+} // namespace cc

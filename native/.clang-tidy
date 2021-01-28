@@ -1,3 +1,22 @@
+# Here is an explanation for why some of the checks are disabled:
+#
+#  -modernize-use-trailing-return-type, -fuchsia-trailing-return: return a function call
+#     at the end of a function is normal usage.
+#
+#  -readability-implicit-bool-conversion, -readability-implicit-bool-cast: if (_usage & BufferUsageBit::VERTEX)
+#     is normal usage
+#
+#  -cppcoreguidelines-pro-type-vararg: use it in macro define, such as Log functions. May use
+#     template instead in future.
+#
+#  -cppcoreguidelines-pro-type-static-cast-downcast: sub class of gfx device should use static_cast<xxx>() to
+#     cast to derived class.
+#
+#  -readability-function-cognitive-complexity: it will limit function size.
+#
+#  -cppcoreguidelines-pro-bounds-pointer-arithmetic, cppcoreguidelines-pro-bounds-array-to-pointer-decay:
+#    JS pass data by pointer, so it is common to use pointer arithmetic.
+#
 Checks: >
   -*,
   readability-*,
@@ -8,7 +27,14 @@ Checks: >
   cppcoreguidelines-*,
   google-explicit-constructor,
   -modernize-use-trailing-return-type,
-  -fuchsia-trailing-return
+  -fuchsia-trailing-return,
+  -readability-implicit-bool-conversion,
+  -readability-implicit-bool-cast,
+  -cppcoreguidelines-pro-type-vararg,
+  -cppcoreguidelines-pro-type-static-cast-downcast,
+  -readability-function-cognitive-complexity,
+  -cppcoreguidelines-pro-bounds-pointer-arithmetic,
+  -cppcoreguidelines-pro-bounds-array-to-pointer-decay
 
 
 CheckOptions:

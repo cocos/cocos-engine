@@ -34,52 +34,46 @@ THE SOFTWARE.
 #include "platform/android/jni/JniHelper.h"
 #include "platform/android/jni/JniCocosActivity.h"
 
-#define  LOG_APP_TAG    "Application_android Debug"
-#define  LOGD(...)  __android_log_print(ANDROID_LOG_DEBUG,LOG_APP_TAG,__VA_ARGS__)
+#define LOG_APP_TAG "Application_android Debug"
+#define LOGD(...)   __android_log_print(ANDROID_LOG_DEBUG, LOG_APP_TAG, __VA_ARGS__)
 
 // IDEA: using ndk-r10c will cause the next function could not be found. It may be a bug of ndk-r10c.
 // Here is the workaround method to fix the problem.
 #ifdef __aarch64__
-extern "C" size_t __ctype_get_mb_cur_max(void)
-{
-    return (size_t) sizeof(wchar_t);
+extern "C" size_t __ctype_get_mb_cur_max(void) {
+    return (size_t)sizeof(wchar_t);
 }
 #endif
 
-namespace
-{
-    bool setCanvasCallback(se::Object* global)
-    {
-        auto viewLogicalSize = cc::Application::getInstance()->getViewLogicalSize();
-        se::AutoHandleScope scope;
-        se::ScriptEngine* se = se::ScriptEngine::getInstance();
-        char commandBuf[200] = {0};
-        sprintf(commandBuf, "window.innerWidth = %d; window.innerHeight = %d; window.windowHandler = 0x%" PRIxPTR ";",
-                (int)(viewLogicalSize.x),
-                (int)(viewLogicalSize.y),
-                (uintptr_t)cc::cocosApp.window);
-        se->evalString(commandBuf);
+namespace {
+bool setCanvasCallback(se::Object *global) {
+    auto viewLogicalSize = cc::Application::getInstance()->getViewLogicalSize();
+    se::AutoHandleScope scope;
+    se::ScriptEngine *se = se::ScriptEngine::getInstance();
+    char commandBuf[200] = {0};
+    sprintf(commandBuf, "window.innerWidth = %d; window.innerHeight = %d; window.windowHandler = 0x%" PRIxPTR ";",
+            (int)(viewLogicalSize.x),
+            (int)(viewLogicalSize.y),
+            (uintptr_t)cc::cocosApp.window);
+    se->evalString(commandBuf);
 
-        return true;
-    }
+    return true;
 }
-
+} // namespace
 
 namespace cc {
 
-Application* Application::_instance = nullptr;
+Application *Application::_instance = nullptr;
 std::shared_ptr<Scheduler> Application::_scheduler = nullptr;
 
-Application::Application(int width, int height)
-{
+Application::Application(int width, int height) {
     Application::_instance = this;
     _scheduler = std::make_shared<Scheduler>();
     _viewLogicalSize.x = width;
     _viewLogicalSize.y = height;
 }
 
-Application::~Application()
-{
+Application::~Application() {
 #if USE_AUDIO
     AudioEngine::end();
 #endif
@@ -90,10 +84,8 @@ Application::~Application()
     Application::_instance = nullptr;
 }
 
-
-bool Application::init()
-{
-    se::ScriptEngine* se = se::ScriptEngine::getInstance();
+bool Application::init() {
+    se::ScriptEngine *se = se::ScriptEngine::getInstance();
     se->addRegisterCallback(setCanvasCallback);
 
     EventDispatcher::init();
@@ -101,16 +93,13 @@ bool Application::init()
     return true;
 }
 
-void Application::onPause()
-{
+void Application::onPause() {
 }
 
-void Application::onResume()
-{
+void Application::onResume() {
 }
 
-void Application::setPreferredFramesPerSecond(int fps)
-{
+void Application::setPreferredFramesPerSecond(int fps) {
     if (fps == 0)
         return;
 
@@ -118,13 +107,11 @@ void Application::setPreferredFramesPerSecond(int fps)
     _prefererredNanosecondsPerFrame = (long)(1.0 / _fps * NANOSECONDS_PER_SECOND);
 }
 
-std::string Application::getCurrentLanguageCode() const
-{
+std::string Application::getCurrentLanguageCode() const {
     return getCurrentLanguageCodeJNI();
 }
 
-bool Application::isDisplayStats()
-{
+bool Application::isDisplayStats() {
     se::AutoHandleScope hs;
     se::Value ret;
     char commandBuf[100] = "cc.debug.isDisplayStats();";
@@ -132,121 +119,77 @@ bool Application::isDisplayStats()
     return ret.toBoolean();
 }
 
-void Application::setDisplayStats(bool isShow)
-{
+void Application::setDisplayStats(bool isShow) {
     se::AutoHandleScope hs;
     char commandBuf[100] = {0};
     sprintf(commandBuf, "cc.debug.setDisplayStats(%s);", isShow ? "true" : "false");
     se::ScriptEngine::getInstance()->evalString(commandBuf);
 }
 
-void Application::setCursorEnabled(bool value)
-{
+void Application::setCursorEnabled(bool value) {
 }
 
-Application::LanguageType Application::getCurrentLanguage() const
-{
+Application::LanguageType Application::getCurrentLanguage() const {
     std::string languageName = getCurrentLanguageJNI();
-    const char* pLanguageName = languageName.c_str();
+    const char *pLanguageName = languageName.c_str();
     LanguageType ret = LanguageType::ENGLISH;
 
-    if (0 == strcmp("zh", pLanguageName))
-    {
+    if (0 == strcmp("zh", pLanguageName)) {
         ret = LanguageType::CHINESE;
-    }
-    else if (0 == strcmp("en", pLanguageName))
-    {
+    } else if (0 == strcmp("en", pLanguageName)) {
         ret = LanguageType::ENGLISH;
-    }
-    else if (0 == strcmp("fr", pLanguageName))
-    {
+    } else if (0 == strcmp("fr", pLanguageName)) {
         ret = LanguageType::FRENCH;
-    }
-    else if (0 == strcmp("it", pLanguageName))
-    {
+    } else if (0 == strcmp("it", pLanguageName)) {
         ret = LanguageType::ITALIAN;
-    }
-    else if (0 == strcmp("de", pLanguageName))
-    {
+    } else if (0 == strcmp("de", pLanguageName)) {
         ret = LanguageType::GERMAN;
-    }
-    else if (0 == strcmp("es", pLanguageName))
-    {
+    } else if (0 == strcmp("es", pLanguageName)) {
         ret = LanguageType::SPANISH;
-    }
-    else if (0 == strcmp("ru", pLanguageName))
-    {
+    } else if (0 == strcmp("ru", pLanguageName)) {
         ret = LanguageType::RUSSIAN;
-    }
-    else if (0 == strcmp("nl", pLanguageName))
-    {
+    } else if (0 == strcmp("nl", pLanguageName)) {
         ret = LanguageType::DUTCH;
-    }
-    else if (0 == strcmp("ko", pLanguageName))
-    {
+    } else if (0 == strcmp("ko", pLanguageName)) {
         ret = LanguageType::KOREAN;
-    }
-    else if (0 == strcmp("ja", pLanguageName))
-    {
+    } else if (0 == strcmp("ja", pLanguageName)) {
         ret = LanguageType::JAPANESE;
-    }
-    else if (0 == strcmp("hu", pLanguageName))
-    {
+    } else if (0 == strcmp("hu", pLanguageName)) {
         ret = LanguageType::HUNGARIAN;
-    }
-    else if (0 == strcmp("pt", pLanguageName))
-    {
+    } else if (0 == strcmp("pt", pLanguageName)) {
         ret = LanguageType::PORTUGUESE;
-    }
-    else if (0 == strcmp("ar", pLanguageName))
-    {
+    } else if (0 == strcmp("ar", pLanguageName)) {
         ret = LanguageType::ARABIC;
-    }
-    else if (0 == strcmp("nb", pLanguageName))
-    {
+    } else if (0 == strcmp("nb", pLanguageName)) {
         ret = LanguageType::NORWEGIAN;
-    }
-    else if (0 == strcmp("pl", pLanguageName))
-    {
+    } else if (0 == strcmp("pl", pLanguageName)) {
         ret = LanguageType::POLISH;
-    }
-    else if (0 == strcmp("tr", pLanguageName))
-    {
+    } else if (0 == strcmp("tr", pLanguageName)) {
         ret = LanguageType::TURKISH;
-    }
-    else if (0 == strcmp("uk", pLanguageName))
-    {
+    } else if (0 == strcmp("uk", pLanguageName)) {
         ret = LanguageType::UKRAINIAN;
-    }
-    else if (0 == strcmp("ro", pLanguageName))
-    {
+    } else if (0 == strcmp("ro", pLanguageName)) {
         ret = LanguageType::ROMANIAN;
-    }
-    else if (0 == strcmp("bg", pLanguageName))
-    {
+    } else if (0 == strcmp("bg", pLanguageName)) {
         ret = LanguageType::BULGARIAN;
     }
     return ret;
 }
 
-Application::Platform Application::getPlatform() const
-{
+Application::Platform Application::getPlatform() const {
     return Platform::ANDROIDOS;
 }
 
-bool Application::openURL(const std::string &url)
-{
+bool Application::openURL(const std::string &url) {
     return openURLJNI(url);
 }
 
-void Application::copyTextToClipboard(const std::string &text)
-{
+void Application::copyTextToClipboard(const std::string &text) {
     copyTextToClipboardJNI(text);
 }
 
-std::string Application::getSystemVersion()
-{
+std::string Application::getSystemVersion() {
     return getSystemVersionJNI();
 }
 
-}
+} // namespace cc

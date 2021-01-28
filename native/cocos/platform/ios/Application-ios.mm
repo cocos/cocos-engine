@@ -29,13 +29,14 @@
 #include "bindings/event/EventDispatcher.h"
 #include "bindings/jswrapper/SeApi.h"
 #include "audio/include/AudioEngine.h"
+#include "platform/Device.h"
 
 @interface MyTimer : NSObject {
-    cc::Application* _app;
-    CADisplayLink* _displayLink;
+    cc::Application *_app;
+    CADisplayLink *_displayLink;
     int _fps;
 }
-- (instancetype)initWithApp:(cc::Application*)app fps:(int)fps;
+- (instancetype)initWithApp:(cc::Application *)app fps:(int)fps;
 - (void)start;
 - (void)changeFPS:(int)fps;
 - (void)pause;
@@ -44,7 +45,7 @@
 
 @implementation MyTimer
 
-- (instancetype)initWithApp:(cc::Application*)app fps:(int)fps {
+- (instancetype)initWithApp:(cc::Application *)app fps:(int)fps {
     if (self = [super init]) {
         _fps = fps;
         _app = app;
@@ -108,7 +109,7 @@ namespace {
     MyTimer* _timer;
 }
 
-Application* Application::_instance = nullptr;
+Application *Application::_instance = nullptr;
 std::shared_ptr<Scheduler> Application::_scheduler = nullptr;
 
 Application::Application(int width, int height) {
@@ -166,8 +167,8 @@ Application::LanguageType Application::getCurrentLanguage() const {
     NSString *currentLanguage = [languages objectAtIndex:0];
 
     // get the current language code.(such as English is "en", Chinese is "zh" and so on)
-    NSDictionary* temp = [NSLocale componentsFromLocaleIdentifier:currentLanguage];
-    NSString * languageCode = [temp objectForKey:NSLocaleLanguageCode];
+    NSDictionary *temp = [NSLocale componentsFromLocaleIdentifier:currentLanguage];
+    NSString *languageCode = [temp objectForKey:NSLocaleLanguageCode];
 
     if ([languageCode isEqualToString:@"zh"]) return LanguageType::CHINESE;
     if ([languageCode isEqualToString:@"en"]) return LanguageType::ENGLISH;
@@ -199,8 +200,8 @@ Application::Platform Application::getPlatform() const {
 }
 
 bool Application::openURL(const std::string &url) {
-    NSString* msg = [NSString stringWithCString:url.c_str() encoding:NSUTF8StringEncoding];
-    NSURL* nsUrl = [NSURL URLWithString:msg];
+    NSString *msg = [NSString stringWithCString:url.c_str() encoding:NSUTF8StringEncoding];
+    NSURL *nsUrl = [NSURL URLWithString:msg];
     return [[UIApplication sharedApplication] openURL:nsUrl];
 }
 
@@ -210,7 +211,7 @@ void Application::copyTextToClipboard(const std::string &text) {
 }
 
 bool Application::init() {
-    se::ScriptEngine* se = se::ScriptEngine::getInstance();
+    se::ScriptEngine *se = se::ScriptEngine::getInstance();
     se->addRegisterCallback(setCanvasCallback);
 
     [_timer start];
@@ -226,7 +227,7 @@ void Application::onResume() {
 }
 
 std::string Application::getSystemVersion() {
-    NSString* systemVersion = [UIDevice currentDevice].systemVersion;
+    NSString *systemVersion = [UIDevice currentDevice].systemVersion;
     return [systemVersion UTF8String];
 }
 
@@ -235,4 +236,4 @@ void Application::setPreferredFramesPerSecond(int fps) {
     [_timer changeFPS:_fps];
 }
 
-}
+} // namespace cc

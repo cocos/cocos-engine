@@ -22,10 +22,9 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-
 #pragma once
 
-#define QUEUEBUFFER_NUM (3)
+#define QUEUEBUFFER_NUM       (3)
 #define QUEUEBUFFER_TIME_STEP (0.1f)
 
 // log, CC_LOG_DEBUG aren't threadsafe, since we uses sub threads for parsing pcm data, threadsafe log output
@@ -33,15 +32,17 @@
 
 //IDEA:Move the definition of the following macros to a separated file.
 
-void audioLog(const char * format, ...);
+void audioLog(const char *format, ...);
 
 #define QUOTEME_(x) #x
-#define QUOTEME(x) QUOTEME_(x)
+#define QUOTEME(x)  QUOTEME_(x)
 
 #if defined(CC_DEBUG) && CC_DEBUG > 0
-#define ALOGV(fmt, ...) audioLog("V/" LOG_TAG " (" QUOTEME(__LINE__) "): " fmt "", ##__VA_ARGS__)
+    #define ALOGV(fmt, ...) audioLog("V/" LOG_TAG " (" QUOTEME(__LINE__) "): " fmt "", ##__VA_ARGS__)
 #else
-#define ALOGV(fmt, ...) do {} while(false)
+    #define ALOGV(fmt, ...) \
+        do {                \
+        } while (false)
 #endif
 #define ALOGD(fmt, ...) audioLog("D/" LOG_TAG " (" QUOTEME(__LINE__) "): " fmt "", ##__VA_ARGS__)
 #define ALOGI(fmt, ...) audioLog("I/" LOG_TAG " (" QUOTEME(__LINE__) "): " fmt "", ##__VA_ARGS__)
@@ -49,24 +50,24 @@ void audioLog(const char * format, ...);
 #define ALOGE(fmt, ...) audioLog("E/" LOG_TAG " (" QUOTEME(__LINE__) "): " fmt "", ##__VA_ARGS__)
 
 #if defined(CC_DEBUG) && CC_DEBUG > 0
-#define CHECK_AL_ERROR_DEBUG() \
-do { \
-    ALenum __error = alGetError(); \
-    if (__error) { \
-        ALOGE("OpenAL error 0x%04X in %s %s %d\n", __error, __FILE__, __FUNCTION__, __LINE__); \
-    } \
-} while (false)
+    #define CHECK_AL_ERROR_DEBUG()                                                                     \
+        do {                                                                                           \
+            ALenum __error = alGetError();                                                             \
+            if (__error) {                                                                             \
+                ALOGE("OpenAL error 0x%04X in %s %s %d\n", __error, __FILE__, __FUNCTION__, __LINE__); \
+            }                                                                                          \
+        } while (false)
 #else
-#define CHECK_AL_ERROR_DEBUG()
+    #define CHECK_AL_ERROR_DEBUG()
 #endif
 
 #define BREAK_IF(condition) \
-    if (!!(condition)) { \
-        break; \
+    if (!!(condition)) {    \
+        break;              \
     }
 
-#define BREAK_IF_ERR_LOG(condition, fmt, ...) \
-    if (!!(condition)) { \
+#define BREAK_IF_ERR_LOG(condition, fmt, ...)                                   \
+    if (!!(condition)) {                                                        \
         ALOGE("(" QUOTEME(condition) ") failed, message: " fmt, ##__VA_ARGS__); \
-        break; \
+        break;                                                                  \
     }

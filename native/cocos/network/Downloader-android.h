@@ -29,28 +29,28 @@
 
 class _jobject;
 
-namespace cc { namespace network
-    {
-        class DownloadTaskAndroid;
-        struct DownloaderHints;
+namespace cc {
+namespace network {
+class DownloadTaskAndroid;
+struct DownloaderHints;
 
-        class DownloaderAndroid : public IDownloaderImpl
-        {
-        public:
-            DownloaderAndroid(const DownloaderHints& hints);
-            virtual ~DownloaderAndroid();
+class DownloaderAndroid : public IDownloaderImpl {
+public:
+    DownloaderAndroid(const DownloaderHints &hints);
+    virtual ~DownloaderAndroid();
 
-            virtual IDownloadTask *createCoTask(std::shared_ptr<const DownloadTask>& task) override;
+    virtual IDownloadTask *createCoTask(std::shared_ptr<const DownloadTask> &task) override;
 
-            virtual void abort(const std::unique_ptr<IDownloadTask>& task) override;
+    virtual void abort(const std::unique_ptr<IDownloadTask> &task) override;
 
-            // designed called by internal
-            void _onProcess(int taskId, int64_t dl, int64_t dlNow, int64_t dlTotal);
-            void _onFinish(int taskId, int errCode, const char *errStr, const std::vector<unsigned char>& data);
-        protected:
-            int _id;
-            _jobject* _impl;
-            std::unordered_map<int, DownloadTaskAndroid*> _taskMap;
-        };
-    }}  // namespace cc::network
+    // designed called by internal
+    void _onProcess(int taskId, int64_t dl, int64_t dlNow, int64_t dlTotal);
+    void _onFinish(int taskId, int errCode, const char *errStr, const std::vector<unsigned char> &data);
 
+protected:
+    int _id;
+    _jobject *_impl;
+    std::unordered_map<int, DownloadTaskAndroid *> _taskMap;
+};
+} // namespace network
+} // namespace cc

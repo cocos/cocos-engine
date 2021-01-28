@@ -6,6 +6,8 @@ COCOS2DX_ROOT="$DIR"/../..
 COCOS_CLI=$COCOS2DX_ROOT/tools/cocos-console/bin/cocos_cli.js
 TOJS_ROOT=$COCOS2DX_ROOT/tools/tojs
 
+NATIVE_DIR=$COCOS2DX_ROOT/templates/android-template
+
 if [ -z "$NDK_ROOT" ]; then
     export NDK_ROOT=$HOME/bin/android-ndk
 fi
@@ -27,7 +29,7 @@ generate_bindings_glue_codes()
 {
     echo "Create auto-generated jsbinding glue codes."
     pushd $TOJS_ROOT
-    python -V 
+    python -V
     python ./genbindings.py
     rm userconf.ini
     popd
@@ -55,16 +57,25 @@ function setup_linux_andorid_sdk()
 function build_android()
 {
     echo "Compiling Android ... "
-    cd $COCOS2DX_ROOT/templates/template-link/platforms/android
-    sed -i "s@\${COCOS_ROOT}@$COCOS2DX_ROOT@g" app/build.gradle
-    sed -i "s@\${COCOS_ROOT}@$COCOS2DX_ROOT@g" instantapp/build.gradle
-    sed -i "s@RES_DIR@UNUSE_RES_DIR@g" app/build.gradle
-    sed -i "s@RES_DIR@UNUSE_RES_DIR@g" instantapp/build.gradle
-    sed -i "s@\${COCOS_ROOT}@$COCOS2DX_ROOT@g" ../../common/CMakeLists.txt
+
+    cd $COCOS2DX_ROOT/templates/
+    if [ ! -d  android-template ]; then
+      cp -r android/template android-template
+    fi
+    cd $COCOS2DX_ROOT/templates/android/build
+    mkdir -p build-android/proj
+    touch build-android/proj/cfg.cmake
+    mkdir -p build-android/assets
+
+    ASSET_DIR=$COCOS2DX_ROOT/templates/android/build/build-android/
+
+    sed -i "s@\${NATIVE_DIR}@$NATIVE_DIR@g" settings.gradle
     sed -i "s@\${COCOS_ROOT}@$COCOS2DX_ROOT@g" settings.gradle
-    sed -i "s@\${COCOS_PROJ_COMMON}@$COCOS2DX_ROOT/templates/template-link/common@g" app/build.gradle
-    sed -i "s@\${COCOS_PROJ_COMMON}@$COCOS2DX_ROOT/templates/template-link/common@g" instantapp/build.gradle
-    sed -i "s/^RELEASE_/#RELEASE_/g" gradle.properties
+    sed -i "s@\${NATIVE_DIR}@$NATIVE_DIR@g" build.gradle
+    sed -i "s@^PROP_NDK_PATH.*@PROP_NDK_PATH=$ANDORID_NDK@g" gradle.properties
+    sed -i "s@^APPLICATION_ID.*@APPLICATION_ID=com.cocos.android@g" gradle.properties
+    sed -i "s@^RES_PATH.*@RES_PATH=$ASSET_DIR@g" gradle.properties
+    sed -i "s@^COCOS_ENGINE_PATH.*@COCOS_ENGINE_PATH=$COCOS2DX_ROOT@g" gradle.properties
 
     #echo "Compile Android - ndk-build ..."
     #./gradlew assembleDebug --quiet
@@ -106,20 +117,24 @@ function mac_download_cmake()
 
 function build_macosx()
 {
-    NUM_OF_CORES=`getconf _NPROCESSORS_ONLN`
+     NUM_OF_CORES=`getconf _NPROCESSORS_ONLN`
 
     echo "Compiling MacOSX ... "
-    cd  $COCOS2DX_ROOT/templates/template-link/platforms/mac
-    mkdir build-mac
+    cd  $COCOS2DX_ROOT/templates/mac
+    mkdir -p build-mac/proj
+    touch build-mac/proj/cfg.cmake
+    mkdir build-mac/assets
+
+    RES_DIR=$COCOS2DX_ROOT/templates/mac/build-mac
     cd build-mac
-    cmake ../../../common -GXcode -DCOCOS_ROOT=$COCOS2DX_ROOT -DCC_USE_METAL=ON -DCMAKE_OSX_ARCHITECTURES=x86_64
-    cmake --build . --config Release -- -quiet -jobs $NUM_OF_CORES
+    cmake ../ -GXcode -DCC_USE_METAL=ON -DCMAKE_OSX_ARCHITECTURES=x86_64 -DRES_DIR=$RES_DIR -DCOCOS_X_PATH=$COCOS2DX_ROOT
+    cmake --build . --config Release -- -quiet -jobs $NUM_OF_CORES -arch x86_64
     echo "Compile MacOSX X86_64 Release Done!"
     cd ..
     mkdir build-mac-apple-silicon
     cd build-mac-apple-silicon
-    cmake ../../../common -GXcode -DCOCOS_ROOT=$COCOS2DX_ROOT -DCC_USE_METAL=ON -DCC_USE_GLES3=OFF -DCMAKE_OSX_ARCHITECTURES=arm64
-    cmake --build . --config Release -- -quiet -jobs $NUM_OF_CORES
+    cmake ../ -GXcode -DCC_USE_METAL=ON -DCC_USE_GLES3=OFF -DCMAKE_OSX_ARCHITECTURES=arm64 -DRES_DIR=$RES_DIR -DCOCOS_X_PATH=$COCOS2DX_ROOT
+    cmake --build . --config Release -- -quiet -jobs $NUM_OF_CORES -arch arm64
     echo "Compile MacOSX ARM64 Release Done!"
 }
 
@@ -128,13 +143,18 @@ function build_ios()
     NUM_OF_CORES=`getconf _NPROCESSORS_ONLN`
 
     echo "Compiling iOS ... "
-    cd  $COCOS2DX_ROOT/templates/template-link/platforms/ios
-    mkdir build-ios
+    cd  $COCOS2DX_ROOT/templates/ios
+    mkdir -p build-ios/proj
+    touch build-ios/proj/cfg.cmake
+    mkdir build-ios/assets
     cd build-ios
-    cmake ../../../common -GXcode -DCOCOS_ROOT=$COCOS2DX_ROOT -DCMAKE_SYSTEM_NAME=iOS \
+    RES_DIR=$COCOS2DX_ROOT/templates/ios/build-ios
+    cmake ../ -GXcode -DCMAKE_SYSTEM_NAME=iOS \
         -DCMAKE_OSX_SYSROOT=iphonesimulator \
         -DCMAKE_OSX_ARCHITECTURES=x86_64 \
-        -DCC_USE_METAL=ON
+        -DCC_USE_METAL=ON \
+        -DRES_DIR=$RES_DIR \
+        -DCOCOS_X_PATH=$COCOS2DX_ROOT
     cmake --build . --config Debug -- -quiet -jobs $NUM_OF_CORES -allowProvisioningUpdates
     echo "Compile iOS Done!"
 }
@@ -142,10 +162,13 @@ function build_ios()
 function build_windows()
 {
     echo "Compiling Win32 ... "
-    cd  $COCOS2DX_ROOT/templates/template-link/platforms/win32
-    mkdir build-win32
+    cd  $COCOS2DX_ROOT/templates/win32
+    mkdir -p build-win32/proj
+    touch build-win32/proj/cfg.cmake
+    mkdir build-win32/assets
     cd build-win32
-    cmake ../../../common -G"Visual Studio 15 2017" -DCOCOS_ROOT=$COCOS2DX_ROOT
+    RES_DIR=$COCOS2DX_ROOT/templates/win32/build-win32
+    cmake ../ -G"Visual Studio 15 2017" -DRES_DIR=$RES_DIR -DCOCOS_X_PATH=$COCOS2DX_ROOT
     cmake --build . --config Debug
     echo "Compile Win32 Debug Done!"
     cmake --build . --config Release

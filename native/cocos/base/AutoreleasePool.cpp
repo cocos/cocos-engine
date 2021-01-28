@@ -31,7 +31,8 @@ namespace cc {
 AutoreleasePool::AutoreleasePool()
 : _name("")
 #if defined(CC_DEBUG) && (CC_DEBUG > 0)
-, _isClearing(false)
+  ,
+  _isClearing(false)
 #endif
 {
     _managedObjectArray.reserve(150);
@@ -41,35 +42,32 @@ AutoreleasePool::AutoreleasePool()
 AutoreleasePool::AutoreleasePool(const std::string &name)
 : _name(name)
 #if defined(CC_DEBUG) && (CC_DEBUG > 0)
-, _isClearing(false)
+  ,
+  _isClearing(false)
 #endif
 {
     _managedObjectArray.reserve(150);
     PoolManager::getInstance()->push(this);
 }
 
-AutoreleasePool::~AutoreleasePool()
-{
+AutoreleasePool::~AutoreleasePool() {
     CC_LOG_INFO("deallocing AutoreleasePool: %p", this);
     clear();
 
     PoolManager::getInstance()->pop();
 }
 
-void AutoreleasePool::addObject(Ref* object)
-{
+void AutoreleasePool::addObject(Ref *object) {
     _managedObjectArray.push_back(object);
 }
 
-void AutoreleasePool::clear()
-{
+void AutoreleasePool::clear() {
 #if defined(CC_DEBUG) && (CC_DEBUG > 0)
     _isClearing = true;
 #endif
-    std::vector<Ref*> releasings;
+    std::vector<Ref *> releasings;
     releasings.swap(_managedObjectArray);
-    for (const auto &obj : releasings)
-    {
+    for (const auto &obj : releasings) {
         obj->release();
     }
 #if defined(CC_DEBUG) && (CC_DEBUG > 0)
@@ -77,27 +75,22 @@ void AutoreleasePool::clear()
 #endif
 }
 
-bool AutoreleasePool::contains(Ref* object) const
-{
-    for (const auto& obj : _managedObjectArray)
-    {
+bool AutoreleasePool::contains(Ref *object) const {
+    for (const auto &obj : _managedObjectArray) {
         if (obj == object)
             return true;
     }
     return false;
 }
 
-void AutoreleasePool::dump()
-{
+void AutoreleasePool::dump() {
     CC_LOG_DEBUG("autorelease pool: %s, number of managed object %d\n", _name.c_str(), static_cast<int>(_managedObjectArray.size()));
     CC_LOG_DEBUG("%20s%20s%20s", "Object pointer", "Object id", "reference count");
-    for (const auto &obj : _managedObjectArray)
-    {
+    for (const auto &obj : _managedObjectArray) {
         CC_UNUSED_PARAM(obj);
         CC_LOG_DEBUG("%20p%20u\n", obj, obj->getReferenceCount());
     }
 }
-
 
 //--------------------------------------------------------------------
 //
@@ -105,12 +98,10 @@ void AutoreleasePool::dump()
 //
 //--------------------------------------------------------------------
 
-PoolManager* PoolManager::s_singleInstance = nullptr;
+PoolManager *PoolManager::s_singleInstance = nullptr;
 
-PoolManager* PoolManager::getInstance()
-{
-    if (s_singleInstance == nullptr)
-    {
+PoolManager *PoolManager::getInstance() {
+    if (s_singleInstance == nullptr) {
         s_singleInstance = new (std::nothrow) PoolManager();
         // Add the first auto release pool
         new (std::nothrow) AutoreleasePool("autorelease pool");
@@ -118,54 +109,44 @@ PoolManager* PoolManager::getInstance()
     return s_singleInstance;
 }
 
-void PoolManager::destroyInstance()
-{
+void PoolManager::destroyInstance() {
     delete s_singleInstance;
     s_singleInstance = nullptr;
 }
 
-PoolManager::PoolManager()
-{
+PoolManager::PoolManager() {
     _releasePoolStack.reserve(10);
 }
 
-PoolManager::~PoolManager()
-{
+PoolManager::~PoolManager() {
     CC_LOG_INFO("deallocing PoolManager: %p", this);
 
-    while (!_releasePoolStack.empty())
-    {
-        AutoreleasePool* pool = _releasePoolStack.back();
-        
+    while (!_releasePoolStack.empty()) {
+        AutoreleasePool *pool = _releasePoolStack.back();
+
         delete pool;
     }
 }
 
-
-AutoreleasePool* PoolManager::getCurrentPool() const
-{
+AutoreleasePool *PoolManager::getCurrentPool() const {
     return _releasePoolStack.back();
 }
 
-bool PoolManager::isObjectInPools(Ref* obj) const
-{
-    for (const auto& pool : _releasePoolStack)
-    {
+bool PoolManager::isObjectInPools(Ref *obj) const {
+    for (const auto &pool : _releasePoolStack) {
         if (pool->contains(obj))
             return true;
     }
     return false;
 }
 
-void PoolManager::push(AutoreleasePool *pool)
-{
+void PoolManager::push(AutoreleasePool *pool) {
     _releasePoolStack.push_back(pool);
 }
 
-void PoolManager::pop()
-{
+void PoolManager::pop() {
     CC_ASSERT(!_releasePoolStack.empty());
     _releasePoolStack.pop_back();
 }
 
-}
+} // namespace cc

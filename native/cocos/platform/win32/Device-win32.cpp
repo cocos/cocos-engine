@@ -24,83 +24,69 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 ****************************************************************************/
 
-
 #if CC_PLATFORM == CC_PLATFORM_WINDOWS
 
-#include "platform/Device.h"
-#include "platform/FileUtils.h"
-#include "platform/StdC.h"
+    #include "platform/Device.h"
+    #include "platform/FileUtils.h"
+    #include "platform/StdC.h"
 
 namespace cc {
 
-int Device::getDPI()
-{
+int Device::getDPI() {
     static int dpi = -1;
-    if (dpi == -1)
-    {
-        HDC hScreenDC = GetDC( nullptr );
-        int PixelsX = GetDeviceCaps( hScreenDC, HORZRES );
-        int MMX = GetDeviceCaps( hScreenDC, HORZSIZE );
-        ReleaseDC( nullptr, hScreenDC );
-        dpi = 254.0f*PixelsX/MMX/10;
+    if (dpi == -1) {
+        HDC hScreenDC = GetDC(nullptr);
+        int PixelsX = GetDeviceCaps(hScreenDC, HORZRES);
+        int MMX = GetDeviceCaps(hScreenDC, HORZSIZE);
+        ReleaseDC(nullptr, hScreenDC);
+        dpi = 254.0f * PixelsX / MMX / 10;
     }
     return dpi;
 }
 
-void Device::setAccelerometerEnabled(bool isEnabled)
-{}
+void Device::setAccelerometerEnabled(bool isEnabled) {}
 
-void Device::setAccelerometerInterval(float interval)
-{}
+void Device::setAccelerometerInterval(float interval) {}
 
-const Device::MotionValue & Device::getDeviceMotionValue()
-{
-  static MotionValue __motionValue;
-  return __motionValue;
+const Device::MotionValue &Device::getDeviceMotionValue() {
+    static MotionValue __motionValue;
+    return __motionValue;
 }
 
-Device::Orientation Device::getDeviceOrientation()
-{
-  return Device::Orientation::LANDSCAPE_RIGHT;
+Device::Orientation Device::getDeviceOrientation() {
+    return Device::Orientation::LANDSCAPE_RIGHT;
 }
 
-std::string Device::getDeviceModel()
-{
-  // REFINE
-  return std::string("Windows");
+std::string Device::getDeviceModel() {
+    // REFINE
+    return std::string("Windows");
 }
 
-void Device::setKeepScreenOn(bool value)
-{
+void Device::setKeepScreenOn(bool value) {
     CC_UNUSED_PARAM(value);
 }
 
-void Device::vibrate(float duration)
-{
+void Device::vibrate(float duration) {
     CC_UNUSED_PARAM(duration);
 }
 
-float Device::getBatteryLevel()
-{
+float Device::getBatteryLevel() {
     return 1.0f;
 }
 
-Device::NetworkType Device::getNetworkType()
-{
+Device::NetworkType Device::getNetworkType() {
     return Device::NetworkType::LAN;
 }
 
-cc::Vec4 Device::getSafeAreaEdge()
-{
+cc::Vec4 Device::getSafeAreaEdge() {
     // no SafeArea concept on win32, return ZERO Vec4.
     return cc::Vec4();
 }
 
-float Device::getDevicePixelRatio()
-{
+float Device::getDevicePixelRatio() {
     return 1;
 }
 
-}
+} // namespace cc
 
 #endif // CC_PLATFORM == CC_PLATFORM_WINDOWS

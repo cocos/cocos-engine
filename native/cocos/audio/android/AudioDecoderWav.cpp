@@ -31,38 +31,30 @@ THE SOFTWARE.
 
 #include <assert.h>
 
-namespace cc { 
+namespace cc {
 
-AudioDecoderWav::AudioDecoderWav()
-{
+AudioDecoderWav::AudioDecoderWav() {
     ALOGV("Create AudioDecoderWav");
 }
 
-AudioDecoderWav::~AudioDecoderWav()
-{
-
+AudioDecoderWav::~AudioDecoderWav() {
 }
 
-void* AudioDecoderWav::onWavOpen(const char* path, void* user)
-{
+void *AudioDecoderWav::onWavOpen(const char *path, void *user) {
     return user;
 }
 
-int AudioDecoderWav::onWavSeek(void* datasource, long offset, int whence)
-{
-    return AudioDecoder::fileSeek(datasource, (int64_t) offset, whence);
+int AudioDecoderWav::onWavSeek(void *datasource, long offset, int whence) {
+    return AudioDecoder::fileSeek(datasource, (int64_t)offset, whence);
 }
 
-int AudioDecoderWav::onWavClose(void* datasource)
-{
+int AudioDecoderWav::onWavClose(void *datasource) {
     return 0;
 }
 
-bool AudioDecoderWav::decodeToPcm()
-{
+bool AudioDecoderWav::decodeToPcm() {
     _fileData = FileUtils::getInstance()->getDataFromFile(_url);
-    if (_fileData.isNull())
-    {
+    if (_fileData.isNull()) {
         return false;
     }
 
@@ -75,10 +67,9 @@ bool AudioDecoderWav::decodeToPcm()
     cb.close = onWavClose;
     cb.tell = AudioDecoder::fileTell;
 
-    SNDFILE* handle = NULL;
+    SNDFILE *handle = NULL;
     bool ret = false;
-    do
-    {
+    do {
         handle = sf_open_read(_url.c_str(), &info, &cb, this);
         if (handle == nullptr)
             break;
@@ -88,8 +79,8 @@ bool AudioDecoderWav::decodeToPcm()
 
         ALOGD("wav info: frames: %d, samplerate: %d, channels: %d, format: %d", info.frames, info.samplerate, info.channels, info.format);
         size_t bufSize = sizeof(short) * info.frames * info.channels;
-        unsigned char* buf = (unsigned char*)malloc(bufSize);
-        sf_count_t readFrames = sf_readf_short(handle, (short*)buf, info.frames);
+        unsigned char *buf = (unsigned char *)malloc(bufSize);
+        sf_count_t readFrames = sf_readf_short(handle, (short *)buf, info.frames);
         assert(readFrames == info.frames);
 
         _result.pcmBuffer->insert(_result.pcmBuffer->end(), buf, buf + bufSize);
@@ -112,4 +103,4 @@ bool AudioDecoderWav::decodeToPcm()
     return ret;
 }
 
-} // namespace cc { 
+} // namespace cc

@@ -55,7 +55,7 @@ bool CCMTLContext::initialize(const ContextInfo &info) {
     _vsyncMode = info.vsyncMode;
     _windowHandle = info.windowHandle;
 
-    CCMTLDevice *device = (CCMTLDevice *)_device;
+    CCMTLDevice *device = static_cast<CCMTLDevice *>(_device);
     CAMetalLayer *layer = (CAMetalLayer *)device->getMTLLayer();
     _colorFmt = toFormat(layer.pixelFormat);
     id<MTLTexture> dssTex = (id<MTLTexture>)device->getDSSTexture();

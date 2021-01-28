@@ -34,37 +34,29 @@ THE SOFTWARE.
 namespace {
 
 std::mutex __playerContainerMutex;
-std::vector<cc::UrlAudioPlayer*> __playerContainer;
+std::vector<cc::UrlAudioPlayer *> __playerContainer;
 std::once_flag __onceFlag;
 
-}
+} // namespace
 
-namespace cc { 
+namespace cc {
 
-class SLUrlAudioPlayerCallbackProxy
-{
+class SLUrlAudioPlayerCallbackProxy {
 public:
-    static void playEventCallback(SLPlayItf caller, void *context, SLuint32 playEvent)
-    {
-        UrlAudioPlayer *thiz = (UrlAudioPlayer *) context;
+    static void playEventCallback(SLPlayItf caller, void *context, SLuint32 playEvent) {
+        UrlAudioPlayer *thiz = (UrlAudioPlayer *)context;
         // We must use a mutex for the whole block of the following function invocation.
         std::lock_guard<std::mutex> lk(__playerContainerMutex);
         auto iter = std::find(__playerContainer.begin(), __playerContainer.end(), thiz);
-        if (iter != __playerContainer.end())
-        {
+        if (iter != __playerContainer.end()) {
             thiz->playEventCallback(caller, playEvent);
         }
     }
 };
 
-UrlAudioPlayer::UrlAudioPlayer(SLEngineItf engineItf, SLObjectItf outputMixObject, ICallerThreadUtils* callerThreadUtils)
-        : _engineItf(engineItf), _outputMixObj(outputMixObject),
-          _callerThreadUtils(callerThreadUtils), _id(-1), _assetFd(nullptr),
-          _playObj(nullptr), _playItf(nullptr), _seekItf(nullptr), _volumeItf(nullptr),
-          _volume(0.0f), _duration(0.0f), _isLoop(false), _isAudioFocus(true), _state(State::INVALID),
-          _playEventCallback(nullptr), _isDestroyed(std::make_shared<bool>(false))
-{
-    std::call_once(__onceFlag, [](){
+UrlAudioPlayer::UrlAudioPlayer(SLEngineItf engineItf, SLObjectItf outputMixObject, ICallerThreadUtils *callerThreadUtils)
+: _engineItf(engineItf), _outputMixObj(outputMixObject), _callerThreadUtils(callerThreadUtils), _id(-1), _assetFd(nullptr), _playObj(nullptr), _playItf(nullptr), _seekItf(nullptr), _volumeItf(nullptr), _volume(0.0f), _duration(0.0f), _isLoop(false), _isAudioFocus(true), _state(State::INVALID), _playEventCallback(nullptr), _isDestroyed(std::make_shared<bool>(false)) {
+    std::call_once(__onceFlag, []() {
         __playerContainer.reserve(10);
     });
 
@@ -76,32 +68,27 @@ UrlAudioPlayer::UrlAudioPlayer(SLEngineItf engineItf, SLObjectItf outputMixObjec
     _callerThreadId = callerThreadUtils->getCallerThreadId();
 }
 
-UrlAudioPlayer::~UrlAudioPlayer()
-{
+UrlAudioPlayer::~UrlAudioPlayer() {
     ALOGV("~UrlAudioPlayer(): %p", this);
 
     __playerContainerMutex.lock();
 
     auto iter = std::find(__playerContainer.begin(), __playerContainer.end(), this);
-    if (iter != __playerContainer.end())
-    {
+    if (iter != __playerContainer.end()) {
         __playerContainer.erase(iter);
     }
 
     __playerContainerMutex.unlock();
 }
 
-void UrlAudioPlayer::playEventCallback(SLPlayItf caller, SLuint32 playEvent)
-{
+void UrlAudioPlayer::playEventCallback(SLPlayItf caller, SLuint32 playEvent) {
     // Note that it's on sub thread, please don't invoke OpenSLES API on sub thread
-    if (playEvent == SL_PLAYEVENT_HEADATEND)
-    {
+    if (playEvent == SL_PLAYEVENT_HEADATEND) {
         std::shared_ptr<bool> isDestroyed = _isDestroyed;
 
-        auto func = [this, isDestroyed](){
+        auto func = [this, isDestroyed]() {
             // If it was destroyed, just return.
-            if (*isDestroyed)
-            {
+            if (*isDestroyed) {
                 ALOGV("The UrlAudioPlayer (%p) was destroyed!", this);
                 return;
             }
@@ -109,21 +96,16 @@ void UrlAudioPlayer::playEventCallback(SLPlayItf caller, SLuint32 playEvent)
             //Note that It's in the caller's thread (Cocos Thread)
             // If state is already stopped, ignore the play over event.
 
-            if (_state == State::STOPPED)
-            {
+            if (_state == State::STOPPED) {
                 return;
             }
 
             //fix issue#8965:AudioEngine can't looping audio on Android 2.3.x
-            if (isLoop())
-            {
+            if (isLoop()) {
                 play();
-            }
-            else
-            {
+            } else {
                 setState(State::OVER);
-                if (_playEventCallback != nullptr)
-                {
+                if (_playEventCallback != nullptr) {
                     _playEventCallback(State::OVER);
                 }
 
@@ -133,125 +115,96 @@ void UrlAudioPlayer::playEventCallback(SLPlayItf caller, SLuint32 playEvent)
             }
         };
 
-        if (_callerThreadId == std::this_thread::get_id())
-        {
+        if (_callerThreadId == std::this_thread::get_id()) {
             func();
-        }
-        else
-        {
+        } else {
             _callerThreadUtils->performFunctionInCallerThread(func);
         }
     }
 }
 
-void UrlAudioPlayer::setPlayEventCallback(const PlayEventCallback &playEventCallback)
-{
+void UrlAudioPlayer::setPlayEventCallback(const PlayEventCallback &playEventCallback) {
     _playEventCallback = playEventCallback;
 }
 
-void UrlAudioPlayer::stop()
-{
+void UrlAudioPlayer::stop() {
     ALOGV("UrlAudioPlayer::stop (%p, %d)", this, getId());
     SLresult r = (*_playItf)->SetPlayState(_playItf, SL_PLAYSTATE_STOPPED);
     SL_RETURN_IF_FAILED(r, "UrlAudioPlayer::stop failed");
 
-    if (_state == State::PLAYING || _state == State::PAUSED)
-    {
+    if (_state == State::PLAYING || _state == State::PAUSED) {
         setLoop(false);
         setState(State::STOPPED);
 
-        if (_playEventCallback != nullptr)
-        {
+        if (_playEventCallback != nullptr) {
             _playEventCallback(State::STOPPED);
         }
 
         destroy();
         delete this;
-    }
-    else
-    {
+    } else {
         ALOGW("UrlAudioPlayer (%p, state:%d) isn't playing or paused, could not invoke stop!", this, static_cast<int>(_state));
     }
 }
 
-void UrlAudioPlayer::pause()
-{
-    if (_state == State::PLAYING)
-    {
+void UrlAudioPlayer::pause() {
+    if (_state == State::PLAYING) {
         SLresult r = (*_playItf)->SetPlayState(_playItf, SL_PLAYSTATE_PAUSED);
         SL_RETURN_IF_FAILED(r, "UrlAudioPlayer::pause failed");
         setState(State::PAUSED);
-    }
-    else
-    {
+    } else {
         ALOGW("UrlAudioPlayer (%p, state:%d) isn't playing, could not invoke pause!", this, static_cast<int>(_state));
     }
 }
 
-void UrlAudioPlayer::resume()
-{
-    if (_state == State::PAUSED)
-    {
+void UrlAudioPlayer::resume() {
+    if (_state == State::PAUSED) {
         SLresult r = (*_playItf)->SetPlayState(_playItf, SL_PLAYSTATE_PLAYING);
         SL_RETURN_IF_FAILED(r, "UrlAudioPlayer::resume failed");
         setState(State::PLAYING);
-    }
-    else
-    {
+    } else {
         ALOGW("UrlAudioPlayer (%p, state:%d) isn't paused, could not invoke resume!", this, static_cast<int>(_state));
     }
 }
 
-void UrlAudioPlayer::play()
-{
-    if (_state == State::INITIALIZED || _state == State::PAUSED)
-    {
+void UrlAudioPlayer::play() {
+    if (_state == State::INITIALIZED || _state == State::PAUSED) {
         SLresult r = (*_playItf)->SetPlayState(_playItf, SL_PLAYSTATE_PLAYING);
         SL_RETURN_IF_FAILED(r, "UrlAudioPlayer::play failed");
         setState(State::PLAYING);
-    }
-    else
-    {
+    } else {
         ALOGW("UrlAudioPlayer (%p, state:%d) isn't paused or initialized, could not invoke play!", this, static_cast<int>(_state));
     }
 }
 
-void UrlAudioPlayer::setVolumeToSLPlayer(float volume)
-{
+void UrlAudioPlayer::setVolumeToSLPlayer(float volume) {
     int dbVolume = 2000 * log10(volume);
-    if (dbVolume < SL_MILLIBEL_MIN)
-    {
+    if (dbVolume < SL_MILLIBEL_MIN) {
         dbVolume = SL_MILLIBEL_MIN;
     }
     SLresult r = (*_volumeItf)->SetVolumeLevel(_volumeItf, dbVolume);
     SL_RETURN_IF_FAILED(r, "UrlAudioPlayer::setVolumeToSLPlayer %d failed", dbVolume);
 }
 
-void UrlAudioPlayer::setVolume(float volume)
-{
+void UrlAudioPlayer::setVolume(float volume) {
     _volume = volume;
-    if (_isAudioFocus)
-    {
+    if (_isAudioFocus) {
         setVolumeToSLPlayer(_volume);
     }
 }
 
-float UrlAudioPlayer::getVolume() const
-{
+float UrlAudioPlayer::getVolume() const {
     return _volume;
 }
 
-void UrlAudioPlayer::setAudioFocus(bool isFocus)
-{
+void UrlAudioPlayer::setAudioFocus(bool isFocus) {
     _isAudioFocus = isFocus;
     float volume = _isAudioFocus ? _volume : 0.0f;
     setVolumeToSLPlayer(volume);
 }
 
-float UrlAudioPlayer::getDuration() const
-{
-    if (_duration > 0)
-    {
+float UrlAudioPlayer::getDuration() const {
+    if (_duration > 0) {
         return _duration;
     }
 
@@ -259,32 +212,26 @@ float UrlAudioPlayer::getDuration() const
     SLresult r = (*_playItf)->GetDuration(_playItf, &duration);
     SL_RETURN_VAL_IF_FAILED(r, 0.0f, "UrlAudioPlayer::getDuration failed");
 
-    if (duration == SL_TIME_UNKNOWN)
-    {
+    if (duration == SL_TIME_UNKNOWN) {
         return -1.0f;
-    }
-    else
-    {
+    } else {
         const_cast<UrlAudioPlayer *>(this)->_duration = duration / 1000.0f;
 
-        if (_duration <= 0)
-        {
+        if (_duration <= 0) {
             return -1.0f;
         }
     }
     return _duration;
 }
 
-float UrlAudioPlayer::getPosition() const
-{
+float UrlAudioPlayer::getPosition() const {
     SLmillisecond millisecond;
     SLresult r = (*_playItf)->GetPosition(_playItf, &millisecond);
     SL_RETURN_VAL_IF_FAILED(r, 0.0f, "UrlAudioPlayer::getPosition failed");
     return millisecond / 1000.0f;
 }
 
-bool UrlAudioPlayer::setPosition(float pos)
-{
+bool UrlAudioPlayer::setPosition(float pos) {
     SLmillisecond millisecond = 1000.0f * pos;
     SLresult r = (*_seekItf)->SetPosition(_seekItf, millisecond, SL_SEEKMODE_ACCURATE);
     SL_RETURN_VAL_IF_FAILED(r, false, "UrlAudioPlayer::setPosition %f failed", pos);
@@ -292,24 +239,22 @@ bool UrlAudioPlayer::setPosition(float pos)
 }
 
 bool UrlAudioPlayer::prepare(const std::string &url, SLuint32 locatorType, std::shared_ptr<AssetFd> assetFd, int start,
-                             int length)
-{
+                             int length) {
     _url = url;
     _assetFd = assetFd;
 
-    const char* locatorTypeStr= "UNKNOWN";
+    const char *locatorTypeStr = "UNKNOWN";
     if (locatorType == SL_DATALOCATOR_ANDROIDFD)
         locatorTypeStr = "SL_DATALOCATOR_ANDROIDFD";
     else if (locatorType == SL_DATALOCATOR_URI)
         locatorTypeStr = "SL_DATALOCATOR_URI";
-    else
-    {
+    else {
         ALOGE("Oops, invalid locatorType: %d", (int)locatorType);
         return false;
     }
 
     ALOGV("UrlAudioPlayer::prepare: %s, %s, %d, %d, %d", _url.c_str(), locatorTypeStr, _assetFd->getFd(), start,
-         length);
+          length);
     SLDataSource audioSrc;
 
     SLDataFormat_MIME formatMime = {SL_DATAFORMAT_MIME, nullptr, SL_CONTAINERTYPE_UNSPECIFIED};
@@ -324,14 +269,11 @@ bool UrlAudioPlayer::prepare(const std::string &url, SLuint32 locatorType, std::
     SLDataLocator_AndroidFD locFd;
     SLDataLocator_URI locUri;
 
-    if (locatorType == SL_DATALOCATOR_ANDROIDFD)
-    {
+    if (locatorType == SL_DATALOCATOR_ANDROIDFD) {
         locFd = {locatorType, _assetFd->getFd(), start, length};
         audioSrc.pLocator = &locFd;
-    }
-    else if (locatorType == SL_DATALOCATOR_URI)
-    {
-        locUri = {locatorType, (SLchar *) _url.c_str()};
+    } else if (locatorType == SL_DATALOCATOR_URI) {
+        locUri = {locatorType, (SLchar *)_url.c_str()};
         audioSrc.pLocator = &locUri;
         ALOGV("locUri: locatorType: %d", (int)locUri.locatorType);
     }
@@ -344,8 +286,7 @@ bool UrlAudioPlayer::prepare(const std::string &url, SLuint32 locatorType, std::
     const SLInterfaceID ids[3] = {SL_IID_SEEK, SL_IID_PREFETCHSTATUS, SL_IID_VOLUME};
     const SLboolean req[3] = {SL_BOOLEAN_TRUE, SL_BOOLEAN_TRUE, SL_BOOLEAN_TRUE};
 
-    SLresult result = (*_engineItf)->CreateAudioPlayer(_engineItf, &_playObj, &audioSrc, &audioSnk,
-                                                       3, ids, req);
+    SLresult result = (*_engineItf)->CreateAudioPlayer(_engineItf, &_playObj, &audioSrc, &audioSnk, 3, ids, req);
     SL_RETURN_VAL_IF_FAILED(result, false, "CreateAudioPlayer failed");
 
     // realize the player
@@ -378,13 +319,11 @@ bool UrlAudioPlayer::prepare(const std::string &url, SLuint32 locatorType, std::
     return true;
 }
 
-void UrlAudioPlayer::rewind()
-{
-// Not supported currently. since cocos audio engine will new -> prepare -> play again.
+void UrlAudioPlayer::rewind() {
+    // Not supported currently. since cocos audio engine will new -> prepare -> play again.
 }
 
-void UrlAudioPlayer::setLoop(bool isLoop)
-{
+void UrlAudioPlayer::setLoop(bool isLoop) {
     _isLoop = isLoop;
 
     SLboolean loopEnable = _isLoop ? SL_BOOLEAN_TRUE : SL_BOOLEAN_FALSE;
@@ -392,28 +331,23 @@ void UrlAudioPlayer::setLoop(bool isLoop)
     SL_RETURN_IF_FAILED(r, "UrlAudioPlayer::setLoop %d failed", _isLoop ? 1 : 0);
 }
 
-bool UrlAudioPlayer::isLoop() const
-{
+bool UrlAudioPlayer::isLoop() const {
     return _isLoop;
 }
 
-void UrlAudioPlayer::stopAll()
-{
+void UrlAudioPlayer::stopAll() {
     // To avoid break the for loop, we need to copy a new map
     __playerContainerMutex.lock();
     auto temp = __playerContainer;
     __playerContainerMutex.unlock();
 
-    for (auto&& player : temp)
-    {
+    for (auto &&player : temp) {
         player->stop();
     }
 }
 
-void UrlAudioPlayer::destroy()
-{
-    if (!*_isDestroyed)
-    {
+void UrlAudioPlayer::destroy() {
+    if (!*_isDestroyed) {
         *_isDestroyed = true;
         ALOGV("UrlAudioPlayer::destroy() %p", this);
         SL_DESTROY_OBJ(_playObj);
@@ -421,4 +355,4 @@ void UrlAudioPlayer::destroy()
     }
 }
 
-} // namespace cc { 
+} // namespace cc

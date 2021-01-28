@@ -26,14 +26,18 @@ THE SOFTWARE.
 namespace cc {
 namespace gfx {
 
-class CCMTLContext : public Context {
+class CCMTLContext final : public Context {
 public:
-    CCMTLContext(Device *device);
-    ~CCMTLContext() = default;
+    explicit CCMTLContext(Device *device);
+    ~CCMTLContext() override = default;
+    CCMTLContext(const CCMTLContext &)=delete;
+    CCMTLContext(CCMTLContext &&)=delete;
+    CCMTLContext &operator=(const CCMTLContext &)=delete;
+    CCMTLContext &operator=(CCMTLContext &&)=delete;
 
     bool initialize(const ContextInfo &info) override;
-    void destroy() override{};
-    void present() override{};
+    void destroy() override {}
+    void present() override {}
 };
 
 } // namespace gfx

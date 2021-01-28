@@ -24,7 +24,7 @@
 #include "audio/android/AudioResampler.h"
 #include "audio/android/AudioResamplerCubic.h"
 
-namespace cc { 
+namespace cc {
 // ----------------------------------------------------------------------------
 
 void AudioResamplerCubic::init() {
@@ -32,26 +32,26 @@ void AudioResamplerCubic::init() {
     memset(&right, 0, sizeof(state));
 }
 
-size_t AudioResamplerCubic::resample(int32_t* out, size_t outFrameCount,
-        AudioBufferProvider* provider) {
+size_t AudioResamplerCubic::resample(int32_t *out, size_t outFrameCount,
+                                     AudioBufferProvider *provider) {
 
     // should never happen, but we overflow if it does
     // ALOG_ASSERT(outFrameCount < 32767);
 
     // select the appropriate resampler
     switch (mChannelCount) {
-    case 1:
-        return resampleMono16(out, outFrameCount, provider);
-    case 2:
-        return resampleStereo16(out, outFrameCount, provider);
-    default:
-        LOG_ALWAYS_FATAL("invalid channel count: %d", mChannelCount);
-        return 0;
+        case 1:
+            return resampleMono16(out, outFrameCount, provider);
+        case 2:
+            return resampleStereo16(out, outFrameCount, provider);
+        default:
+            LOG_ALWAYS_FATAL("invalid channel count: %d", mChannelCount);
+            return 0;
     }
 }
 
-size_t AudioResamplerCubic::resampleStereo16(int32_t* out, size_t outFrameCount,
-        AudioBufferProvider* provider) {
+size_t AudioResamplerCubic::resampleStereo16(int32_t *out, size_t outFrameCount,
+                                             AudioBufferProvider *provider) {
 
     int32_t vl = mVolume[0];
     int32_t vr = mVolume[1];
@@ -100,15 +100,15 @@ size_t AudioResamplerCubic::resampleStereo16(int32_t* out, size_t outFrameCount,
                 provider->getNextBuffer(&mBuffer,
                                         calculateOutputPTS(outputIndex / 2));
                 if (mBuffer.raw == NULL) {
-                    goto save_state;  // ugly, but efficient
+                    goto save_state; // ugly, but efficient
                 }
                 in = mBuffer.i16;
                 // ALOGW("New buffer: offset=%p, frames=%d", mBuffer.raw, mBuffer.frameCount);
             }
 
             // advance sample state
-            advance(&left, in[inputIndex*2]);
-            advance(&right, in[inputIndex*2+1]);
+            advance(&left, in[inputIndex * 2]);
+            advance(&right, in[inputIndex * 2 + 1]);
         }
     }
 
@@ -119,8 +119,8 @@ save_state:
     return outputIndex / 2 /* channels for stereo */;
 }
 
-size_t AudioResamplerCubic::resampleMono16(int32_t* out, size_t outFrameCount,
-        AudioBufferProvider* provider) {
+size_t AudioResamplerCubic::resampleMono16(int32_t *out, size_t outFrameCount,
+                                           AudioBufferProvider *provider) {
 
     int32_t vl = mVolume[0];
     int32_t vr = mVolume[1];
@@ -169,7 +169,7 @@ size_t AudioResamplerCubic::resampleMono16(int32_t* out, size_t outFrameCount,
                 provider->getNextBuffer(&mBuffer,
                                         calculateOutputPTS(outputIndex / 2));
                 if (mBuffer.raw == NULL) {
-                    goto save_state;  // ugly, but efficient
+                    goto save_state; // ugly, but efficient
                 }
                 // ALOGW("New buffer: offset=%p, frames=%dn", mBuffer.raw, mBuffer.frameCount);
                 in = mBuffer.i16;
@@ -188,4 +188,4 @@ save_state:
 }
 
 // ----------------------------------------------------------------------------
-} // namespace cc { 
+} // namespace cc

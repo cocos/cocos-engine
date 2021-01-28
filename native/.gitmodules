@@ -1,3 +1,0 @@
-[submodule "tools/cocos2d-console"]
-	path = tools/cocos2d-console
-	url = https://github.com/cocos-creator/cocos2d-console.git

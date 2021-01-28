@@ -28,37 +28,40 @@ THE SOFTWARE.
 namespace cc {
 namespace gfx {
 
-class CCMTLCommandAllocator;
 class CCMTLGPUStagingBufferPool;
 class CCMTLSemaphore;
 
-class CCMTLDevice : public Device {
+class CCMTLDevice final : public Device {
 public:
     CCMTLDevice();
-    ~CCMTLDevice() = default;
+    ~CCMTLDevice() override = default;
+    CCMTLDevice(const CCMTLDevice &) = delete;
+    CCMTLDevice(CCMTLDevice &&) = delete;
+    CCMTLDevice &operator=(const CCMTLDevice &) = delete;
+    CCMTLDevice &operator=(CCMTLDevice &&) = delete;
 
-    using Device::createCommandBuffer;
-    using Device::createQueue;
+    using Device::copyBuffersToTexture;
     using Device::createBuffer;
-    using Device::createTexture;
-    using Device::createSampler;
-    using Device::createShader;
-    using Device::createInputAssembler;
-    using Device::createRenderPass;
-    using Device::createFramebuffer;
+    using Device::createCommandBuffer;
     using Device::createDescriptorSet;
     using Device::createDescriptorSetLayout;
+    using Device::createFramebuffer;
+    using Device::createInputAssembler;
     using Device::createPipelineLayout;
     using Device::createPipelineState;
-    using Device::copyBuffersToTexture;
+    using Device::createQueue;
+    using Device::createRenderPass;
+    using Device::createSampler;
+    using Device::createShader;
+    using Device::createTexture;
     using Device::createGlobalBarrier;
     using Device::createTextureBarrier;
 
-    virtual bool initialize(const DeviceInfo &info) override;
-    virtual void destroy() override;
-    virtual void resize(uint width, uint height) override;
-    virtual void acquire() override;
-    virtual void present() override;
+    bool initialize(const DeviceInfo &info) override;
+    void destroy() override;
+    void resize(uint width, uint height) override;
+    void acquire() override;
+    void present() override;
     
     void presentCompleted();
     void* getCurrentDrawable();
@@ -67,32 +70,33 @@ public:
     CC_INLINE void *getMTLCommandQueue() const { return _mtlCommandQueue; }
     CC_INLINE void *getMTLLayer() const { return _mtlLayer; }
     CC_INLINE void *getMTLDevice() const { return _mtlDevice; }
-    CC_INLINE uint getMaximumSamplerUnits() const { return _caps.maxTextureUnits; }
+    CC_INLINE uint getMaximumSamplerUnits() const { return _maxSamplerUnits; }
     CC_INLINE uint getMaximumColorRenderTargets() const { return _caps.maxColorRenderTargets; }
     CC_INLINE uint getMaximumBufferBindingIndex() const { return _maxBufferBindingIndex; }
     CC_INLINE bool isIndirectCommandBufferSupported() const { return _icbSuppored; }
     CC_INLINE bool isIndirectDrawSupported() const { return _indirectDrawSupported; }
     CC_INLINE CCMTLGPUStagingBufferPool *gpuStagingBufferPool() const { return _gpuStagingBufferPools[_currentFrameIndex]; }
     CC_INLINE bool isSamplerDescriptorCompareFunctionSupported() const { return _isSamplerDescriptorCompareFunctionSupported; }
+    CC_INLINE uint currentFrameIndex() const { return _currentFrameIndex; }
     CC_INLINE void *getDSSTexture() const { return _dssTex; }
 
 protected:
-    virtual CommandBuffer *doCreateCommandBuffer(const CommandBufferInfo &info, bool hasAgent) override;
-    virtual Queue *createQueue() override;
-    virtual Buffer *createBuffer() override;
-    virtual Texture *createTexture() override;
-    virtual Sampler *createSampler() override;
-    virtual Shader *createShader() override;
-    virtual InputAssembler *createInputAssembler() override;
-    virtual RenderPass *createRenderPass() override;
-    virtual Framebuffer *createFramebuffer() override;
-    virtual DescriptorSet *createDescriptorSet() override;
-    virtual DescriptorSetLayout *createDescriptorSetLayout() override;
-    virtual PipelineLayout *createPipelineLayout() override;
-    virtual PipelineState *createPipelineState() override;
+    CommandBuffer *doCreateCommandBuffer(const CommandBufferInfo &info, bool hasAgent) override;
+    Queue *createQueue() override;
+    Buffer *createBuffer() override;
+    Texture *createTexture() override;
+    Sampler *createSampler() override;
+    Shader *createShader() override;
+    InputAssembler *createInputAssembler() override;
+    RenderPass *createRenderPass() override;
+    Framebuffer *createFramebuffer() override;
+    DescriptorSet *createDescriptorSet() override;
+    DescriptorSetLayout *createDescriptorSetLayout() override;
+    PipelineLayout *createPipelineLayout() override;
+    PipelineState *createPipelineState() override;
     virtual GlobalBarrier *createGlobalBarrier() override;
     virtual TextureBarrier *createTextureBarrier() override;
-    virtual void copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint count) override;
+    void copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint count) override;
 
 private:
     void onMemoryWarning();
@@ -104,6 +108,7 @@ private:
     void *_dssTex = nullptr;
     void *_activeDrawable = nullptr;
     unsigned long _mtlFeatureSet = 0;
+    uint _maxSamplerUnits = 0;
     uint _maxBufferBindingIndex = 0;
     bool _icbSuppored = false;
     bool _indirectDrawSupported = false;

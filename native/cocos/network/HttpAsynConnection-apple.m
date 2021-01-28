@@ -22,10 +22,9 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-
 #if (CC_PLATFORM == CC_PLATFORM_MAC_OSX) || (CC_PLATFORM == CC_PLATFORM_MAC_IOS)
 
-#import "network/HttpAsynConnection-apple.h"
+    #import "network/HttpAsynConnection-apple.h"
 
 @interface HttpAsynConnection ()
 
@@ -48,8 +47,7 @@
 @synthesize finish = finish;
 @synthesize runLoop = runLoop;
 
-- (void)dealloc
-{
+- (void)dealloc {
     [srcURL release];
     [sslFile release];
     [responseHeader release];
@@ -58,16 +56,15 @@
     [conn release];
     [runLoop release];
     [connError release];
-    
+
     [super dealloc];
 }
 
-- (void) startRequest:(NSURLRequest *)request
-{
-#ifdef CC_DEBUG
-    // NSLog(@"Starting to load %@", srcURL);
-#endif
-    
+- (void)startRequest:(NSURLRequest *)request {
+    #ifdef CC_DEBUG
+        // NSLog(@"Starting to load %@", srcURL);
+    #endif
+
     finish = false;
 
     self.responseData = [NSMutableData data];
@@ -75,40 +72,40 @@
 
     self.responseError = nil;
     self.connError = nil;
-    
+
     // create the connection with the target request and this class as the delegate
     self.conn = [[[NSURLConnection alloc] initWithRequest:request
                                                  delegate:self
                                          startImmediately:NO] autorelease];
-    
+
     [self.conn scheduleInRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
-    
+
     // start the connection
     [self.conn start];
 }
 
-#pragma mark NSURLConnectionDelegate methods
+    #pragma mark NSURLConnectionDelegate methods
 /**
  * This delegate method is called when the NSURLConnection connects to the server.  It contains the 
  * NSURLResponse object with the headers returned by the server.  This method may be called multiple times.
  * Therefore, it is important to reset the data on each call.  Do not assume that it is the first call
  * of this method.
  **/
-- (void) connection:(NSURLConnection *)connection 
- didReceiveResponse:(NSURLResponse *)response {
-#ifdef CC_DEBUG
-    // NSLog(@"Received response from request to url %@", srcURL);
-#endif
-    
+- (void)connection:(NSURLConnection *)connection
+    didReceiveResponse:(NSURLResponse *)response {
+    #ifdef CC_DEBUG
+        // NSLog(@"Received response from request to url %@", srcURL);
+    #endif
+
     NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
     //NSLog(@"All headers = %@", [httpResponse allHeaderFields]);
     self.responseHeader = [httpResponse allHeaderFields];
 
     responseCode = httpResponse.statusCode;
     self.statusString = [NSHTTPURLResponse localizedStringForStatusCode:responseCode];
-    if(responseCode == 200)
+    if (responseCode == 200)
         self.statusString = @"OK";
- 
+
     /*The individual values of the numeric status codes defined for HTTP/1.1
     | "200"  ; OK
     | "201"  ; Created
@@ -118,13 +115,12 @@
     | "205"  ; Reset Content
     | "206"  ; Partial Content
     */
-    if (responseCode < 200 || responseCode >= 300)
-    {// something went wrong, abort the whole thing
+    if (responseCode < 200 || responseCode >= 300) { // something went wrong, abort the whole thing
         self.responseError = [NSError errorWithDomain:@"CCBackendDomain"
-                                            code:responseCode
-                                        userInfo:@{NSLocalizedDescriptionKey: @"Bad HTTP Response Code"}];        
+                                                 code:responseCode
+                                             userInfo:@{NSLocalizedDescriptionKey : @"Bad HTTP Response Code"}];
     }
-    
+
     [responseData setLength:0];
 }
 
@@ -132,9 +128,8 @@
  * This delegate method is called for each chunk of data received from the server.  The chunk size
  * is dependent on the network type and the server configuration.  
  */
-- (void)connection:(NSURLConnection *)connection 
-    didReceiveData:(NSData *)data
-{
+- (void)connection:(NSURLConnection *)connection
+    didReceiveData:(NSData *)data {
     //NSLog(@"get some data");
     [responseData appendData:data];
     getDataTime++;
@@ -144,12 +139,11 @@
  * This delegate method is called if the connection cannot be established to the server.  
  * The error object will have a description of the error
  **/
-- (void)connection:(NSURLConnection *)connection 
-  didFailWithError:(NSError *)error
-{
+- (void)connection:(NSURLConnection *)connection
+    didFailWithError:(NSError *)error {
     //NSLog(@"Load failed with error %@", [error localizedDescription]);
     self.connError = error;
-    
+
     finish = true;
 }
 
@@ -157,70 +151,61 @@
  * This delegate method is called when the data load is complete.  The delegate will be released 
  * following this call
  **/
-- (void)connectionDidFinishLoading:(NSURLConnection *)connection
-{
+- (void)connectionDidFinishLoading:(NSURLConnection *)connection {
     finish = true;
 }
 
 //Server evaluates client's certificate
-- (BOOL) shouldTrustProtectionSpace:(NSURLProtectionSpace*)protectionSpace
-{
-    if(sslFile == nil)
+- (BOOL)shouldTrustProtectionSpace:(NSURLProtectionSpace *)protectionSpace {
+    if (sslFile == nil)
         return YES;
     //load the bundle client certificate
     NSString *certPath = [[NSBundle mainBundle] pathForResource:sslFile ofType:@"der"];
     NSData *certData = [[NSData alloc] initWithContentsOfFile:certPath];
     CFDataRef certDataRef = (CFDataRef)certData;
     SecCertificateRef cert = SecCertificateCreateWithData(NULL, certDataRef);
-    
+
     //Establish a chain of trust anchored on our bundled certificate
-    CFArrayRef certArrayRef = CFArrayCreate(NULL, (void*)&cert, 1, NULL);
+    CFArrayRef certArrayRef = CFArrayCreate(NULL, (void *)&cert, 1, NULL);
     SecTrustRef serverTrust = protectionSpace.serverTrust;
     SecTrustSetAnchorCertificates(serverTrust, certArrayRef);
-    
+
     //Verify that trust
     SecTrustResultType trustResult;
     SecTrustEvaluate(serverTrust, &trustResult);
-    
-    if(trustResult == kSecTrustResultRecoverableTrustFailure)
-    {
+
+    if (trustResult == kSecTrustResultRecoverableTrustFailure) {
         CFDataRef errDataRef = SecTrustCopyExceptions(serverTrust);
         SecTrustSetExceptions(serverTrust, errDataRef);
         SecTrustEvaluate(serverTrust, &trustResult);
         CFRelease(errDataRef);
     }
     [certData release];
-    if (cert)
-    {
+    if (cert) {
         CFRelease(cert);
     }
-    if (certArrayRef) 
-    {
+    if (certArrayRef) {
         CFRelease(certArrayRef);
     }
     //Did our custom trust chain evaluate successfully?
-    return trustResult == kSecTrustResultUnspecified || trustResult == kSecTrustResultProceed;    
+    return trustResult == kSecTrustResultUnspecified || trustResult == kSecTrustResultProceed;
 }
 
-- (void) connection:(NSURLConnection *)connection willSendRequestForAuthenticationChallenge:(NSURLAuthenticationChallenge *)challenge
-{
-    id <NSURLAuthenticationChallengeSender> sender = challenge.sender;
+- (void)connection:(NSURLConnection *)connection willSendRequestForAuthenticationChallenge:(NSURLAuthenticationChallenge *)challenge {
+    id<NSURLAuthenticationChallengeSender> sender = challenge.sender;
     NSURLProtectionSpace *protectionSpace = challenge.protectionSpace;
-    
+
     //Should server trust client?
-    if([self shouldTrustProtectionSpace:protectionSpace])
-    {
+    if ([self shouldTrustProtectionSpace:protectionSpace]) {
         SecTrustRef trust = [protectionSpace serverTrust];
-//        
-//        SecCertificateRef certificate = SecTrustGetCertificateAtIndex(trust, 0);
-//        
-//        NSData *serverCertificateData = (NSData*)SecCertificateCopyData(certificate);
-//        NSString *serverCertificateDataHash = [[serverCertificateData base64EncodedString] ]
+        //
+        //        SecCertificateRef certificate = SecTrustGetCertificateAtIndex(trust, 0);
+        //
+        //        NSData *serverCertificateData = (NSData*)SecCertificateCopyData(certificate);
+        //        NSString *serverCertificateDataHash = [[serverCertificateData base64EncodedString] ]
         NSURLCredential *credential = [NSURLCredential credentialForTrust:trust];
         [sender useCredential:credential forAuthenticationChallenge:challenge];
-    }
-    else
-    {
+    } else {
         [sender cancelAuthenticationChallenge:challenge];
     }
 }

@@ -28,84 +28,83 @@
 
 namespace se {
 
-    class Object;
+class Object;
 
-    /**
+/**
      *  State represents an environment while a function or an accesstor is invoked from JavaScript.
      */
-    class State final
-    {
-    public:
-        /**
+class State final {
+public:
+    /**
          *  @brief Gets void* pointer of `this` object's private data.
          *  @return A void* pointer of `this` object's private data.
          */
-        void* nativeThisObject() const;
+    void *nativeThisObject() const;
 
-        /**
+    /**
          *  @brief Gets the arguments of native binding functions or accesstors.
          *  @return The arguments of native binding functions or accesstors.
          */
-        const ValueArray& args() const;
+    const ValueArray &args() const;
 
-        /**
+    /**
          *  @brief Gets the JavaScript `this` object wrapped in se::Object.
          *  @return The JavaScript `this` object wrapped in se::Object.
          */
-        Object* thisObject();
+    Object *thisObject();
 
-        /**
+    /**
          *  @brief Gets the return value reference. Used for setting return value for a function.
          *  @return The return value reference.
          */
-        Value& rval();
+    Value &rval();
 
-        // Private API used in wrapper
-        /**
+    // Private API used in wrapper
+    /**
          *  @brief
          *  @param[in]
          *  @return
          */
-        State();
+    State();
 
-        /**
+    /**
          *  @brief
          *  @param[in]
          *  @return
          */
-        ~State();
+    ~State();
 
-        /**
+    /**
          *  @brief
          *  @param[in]
          *  @return
          */
-        State(void* nativeThisObject);
+    State(void *nativeThisObject);
 
-        /**
+    /**
          *  @brief
          *  @param[in]
          *  @return
          */
-        State(void* nativeThisObject, const ValueArray& args);
+    State(void *nativeThisObject, const ValueArray &args);
 
-        /**
+    /**
          *  @brief
          *  @param[in]
          *  @return
          */
-        State(Object* thisObject, const ValueArray& args);
-    private:
+    State(Object *thisObject, const ValueArray &args);
 
-        // Disable copy/move constructor, copy/move assigment
-        State(const State&);
-        State(State&&);
-        State& operator=(const State&);
-        State& operator=(State&&);
+private:
+    // Disable copy/move constructor, copy/move assigment
+    State(const State &);
+    State(State &&);
+    State &operator=(const State &);
+    State &operator=(State &&);
 
-        void* _nativeThisObject;  //weak ref
-        Object* _thisObject; //weak ref
-        const ValueArray* _args; //weak ref
-        Value _retVal; //weak ref
-    };
-}
+    void *_nativeThisObject; //weak ref
+    Object *_thisObject;     //weak ref
+    const ValueArray *_args; //weak ref
+    Value _retVal;           //weak ref
+};
+} // namespace se

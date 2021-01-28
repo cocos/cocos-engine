@@ -24,7 +24,6 @@ THE SOFTWARE.
 #pragma once
 
 #include "MTLGPUObjects.h"
-#include <tuple>
 
 #import <Metal/MTLDepthStencil.h>
 #import <Metal/MTLRenderPipeline.h>
@@ -32,13 +31,17 @@ THE SOFTWARE.
 namespace cc {
 namespace gfx {
 
-class CCMTLPipelineState : public PipelineState {
+class CCMTLPipelineState final : public PipelineState {
 public:
-    CCMTLPipelineState(Device *device);
-    virtual ~CCMTLPipelineState() = default;
+    explicit CCMTLPipelineState(Device *device);
+    ~CCMTLPipelineState() override = default;
+    CCMTLPipelineState(const CCMTLPipelineState &)=delete;
+    CCMTLPipelineState(CCMTLPipelineState &&)=delete;
+    CCMTLPipelineState &operator=(const CCMTLPipelineState &)=delete;
+    CCMTLPipelineState &operator=(CCMTLPipelineState &&)=delete;
 
-    virtual bool initialize(const PipelineStateInfo &info) override;
-    virtual void destroy() override;
+    bool initialize(const PipelineStateInfo &info) override;
+    void destroy() override;
 
     CC_INLINE CCMTLGPUPipelineState *getGPUPipelineState() const { return _GPUPipelineState; }
 

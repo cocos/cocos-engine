@@ -41,25 +41,21 @@
 #define JSO_ERR_CLASS_NOT_FOUND    (-5)
 #define JSO_ERR_VM_FAILURE         (-6)
 
-class JavaScriptObjCBridge
-{
+class JavaScriptObjCBridge {
 public:
-    class CallInfo
-    {
+    class CallInfo {
     public:
-        CallInfo(const char *className, const char* methodName)
-        : _className(className)
-        , _methodName(methodName)
-        {}
+        CallInfo(const char *className, const char *methodName)
+        : _className(className),
+          _methodName(methodName) {}
 
         ~CallInfo() {}
 
-        int getErrorCode() const
-        {
+        int getErrorCode() const {
             return _error;
         }
 
-        bool execute(const se::ValueArray& argv, se::Value& rval);
+        bool execute(const se::ValueArray &argv, se::Value &rval);
 
     private:
         se::Value objc_to_seval(id objcVal);
@@ -70,44 +66,37 @@ public:
     };
 };
 
-bool JavaScriptObjCBridge::CallInfo::execute(const se::ValueArray& argv, se::Value& rval)
-{
-    NSString *className =[NSString stringWithCString: _className.c_str() encoding:NSUTF8StringEncoding];
-    NSString *methodName = [NSString stringWithCString: _methodName.c_str() encoding:NSUTF8StringEncoding];
+bool JavaScriptObjCBridge::CallInfo::execute(const se::ValueArray &argv, se::Value &rval) {
+    NSString *className = [NSString stringWithCString:_className.c_str() encoding:NSUTF8StringEncoding];
+    NSString *methodName = [NSString stringWithCString:_methodName.c_str() encoding:NSUTF8StringEncoding];
 
-    if(!className || !methodName)
-    {
+    if (!className || !methodName) {
         _error = JSO_ERR_INVALID_ARGUMENTS;
         return false;
     }
 
     Class targetClass = NSClassFromString(className);
-    if(!targetClass)
-    {
+    if (!targetClass) {
         _error = JSO_ERR_CLASS_NOT_FOUND;
         return false;
     }
     SEL methodSel;
     methodSel = NSSelectorFromString(methodName);
-    if (!methodSel)
-    {
+    if (!methodSel) {
         _error = JSO_ERR_METHOD_NOT_FOUND;
         return false;
     }
     methodSel = NSSelectorFromString(methodName);
     NSMethodSignature *methodSig = [targetClass methodSignatureForSelector:(SEL)methodSel];
-    if (methodSig == nil)
-    {
-        _error =  JSO_ERR_METHOD_NOT_FOUND;
+    if (methodSig == nil) {
+        _error = JSO_ERR_METHOD_NOT_FOUND;
         NSLog(@"%@.%@ method isn't found!", className, methodName);
         return false;
     }
-    @try
-    {
+    @try {
         int argc = (int)argv.size();
         NSUInteger argumentCount = [methodSig numberOfArguments];
-        if (argumentCount != argc)
-        {
+        if (argumentCount != argc) {
             _error = JSO_ERR_INVALID_ARGUMENTS;
             return false;
         }
@@ -116,10 +105,9 @@ bool JavaScriptObjCBridge::CallInfo::execute(const se::ValueArray& argv, se::Val
         [invocation setTarget:targetClass];
         [invocation setSelector:methodSel];
 
-        for(int i = 2; i < argc; ++i)
-        {
+        for (int i = 2; i < argc; ++i) {
             std::string argumentType = [methodSig getArgumentTypeAtIndex:i];
-            const se::Value& arg = argv[i];
+            const se::Value &arg = argv[i];
 
             /* - (void)setArgument:(void *)argumentLocation atIndex:(NSInteger)idx;
              *
@@ -129,100 +117,63 @@ bool JavaScriptObjCBridge::CallInfo::execute(const se::ValueArray& argv, se::Val
              * When the argument value is an object, pass a pointer to the variable (or memory) from which the object should be copied:
              */
 
-            if (arg.isString())
-            {
-                NSString* str = [NSString stringWithCString:arg.toString().c_str() encoding:NSUTF8StringEncoding];
+            if (arg.isString()) {
+                NSString *str = [NSString stringWithCString:arg.toString().c_str() encoding:NSUTF8StringEncoding];
                 [invocation setArgument:&str atIndex:i];
-            }
-            else if (arg.isNumber())
-            {
-                if (argumentType == @encode(int))
-                {
+            } else if (arg.isNumber()) {
+                if (argumentType == @encode(int)) {
                     int val = arg.toInt32();
                     [invocation setArgument:&val atIndex:i];
-                }
-                else if (argumentType == @encode(long))
-                {
+                } else if (argumentType == @encode(long)) {
                     long val = arg.toLong();
                     [invocation setArgument:&val atIndex:i];
-                }
-                else if (argumentType == @encode(short))
-                {
+                } else if (argumentType == @encode(short)) {
                     short val = arg.toInt16();
                     [invocation setArgument:&val atIndex:i];
-                }
-                else if (argumentType == @encode(unsigned int))
-                {
+                } else if (argumentType == @encode(unsigned int)) {
                     unsigned int val = arg.toUint32();
                     [invocation setArgument:&val atIndex:i];
-                }
-                else if (argumentType == @encode(unsigned long))
-                {
+                } else if (argumentType == @encode(unsigned long)) {
                     unsigned long val = arg.toUlong();
                     [invocation setArgument:&val atIndex:i];
-                }
-                else if (argumentType == @encode(unsigned short))
-                {
+                } else if (argumentType == @encode(unsigned short)) {
                     unsigned short val = arg.toUint16();
                     [invocation setArgument:&val atIndex:i];
-                }
-                else if (argumentType == @encode(float))
-                {
+                } else if (argumentType == @encode(float)) {
                     float val = arg.toFloat();
                     [invocation setArgument:&val atIndex:i];
-                }
-                else if (argumentType == @encode(double))
-                {
+                } else if (argumentType == @encode(double)) {
                     double val = arg.toNumber();
                     [invocation setArgument:&val atIndex:i];
-                }
-                else if (argumentType == @encode(char))
-                {
+                } else if (argumentType == @encode(char)) {
                     char val = arg.toInt8();
                     [invocation setArgument:&val atIndex:i];
-                }
-                else if (argumentType == @encode(unsigned char))
-                {
+                } else if (argumentType == @encode(unsigned char)) {
                     unsigned char val = arg.toUint8();
                     [invocation setArgument:&val atIndex:i];
-                }
-                else if (argumentType == "@")
-                { // NSNumber*
-                    NSNumber* number = [NSNumber numberWithDouble:arg.toNumber()];
+                } else if (argumentType == "@") { // NSNumber*
+                    NSNumber *number = [NSNumber numberWithDouble:arg.toNumber()];
                     [invocation setArgument:&number atIndex:i];
-                }
-                else
-                {
+                } else {
                     NSLog(@"Unsupported argument type: %s", argumentType.c_str());
                     _error = JSO_ERR_TYPE_NOT_SUPPORT;
                     return false;
                 }
-            }
-            else if (arg.isBoolean())
-            {
-                if (argumentType == @encode(BOOL))
-                {
+            } else if (arg.isBoolean()) {
+                if (argumentType == @encode(BOOL)) {
                     BOOL val = arg.toBoolean() ? YES : NO;
                     [invocation setArgument:&val atIndex:i];
-                }
-                else if (argumentType == @encode(bool))
-                {
+                } else if (argumentType == @encode(bool)) {
                     bool val = arg.toBoolean();
                     [invocation setArgument:&val atIndex:i];
-                }
-                else
-                {
+                } else {
                     NSLog(@"Unsupported argument type: %s", argumentType.c_str());
                     _error = JSO_ERR_TYPE_NOT_SUPPORT;
                     return false;
                 }
-            }
-            else if (arg.isNullOrUndefined())
-            {
+            } else if (arg.isNullOrUndefined()) {
                 // Don't call [invocation setArgument] will pass nil to relevant Objective-C argument.
-            }
-            else
-            {
+            } else {
                 NSLog(@"Unsupported argument type, se::Value::Type: %d", (int)arg.getType());
                 _error = JSO_ERR_TYPE_NOT_SUPPORT;
                 return false;
@@ -233,89 +184,62 @@ bool JavaScriptObjCBridge::CallInfo::execute(const se::ValueArray& argv, se::Val
         std::string returnType = [methodSig methodReturnType];
         [invocation invoke];
 
-        if (returnLength > 0)
-        {
-            if (returnType == "@")
-            {
+        if (returnLength > 0) {
+            if (returnType == "@") {
                 id ret;
                 [invocation getReturnValue:&ret];
                 rval = objc_to_seval(ret);
-            }
-            else if (returnType == @encode(BOOL) || returnType == @encode(bool))
-            {
+            } else if (returnType == @encode(BOOL) || returnType == @encode(bool)) {
                 bool ret;
                 [invocation getReturnValue:&ret];
                 rval.setBoolean(ret);
-            }
-            else if (returnType == @encode(int))
-            {
+            } else if (returnType == @encode(int)) {
                 int ret;
                 [invocation getReturnValue:&ret];
                 rval.setInt32(ret);
-            }
-            else if (returnType == @encode(long))
-            {
+            } else if (returnType == @encode(long)) {
                 long ret;
                 [invocation getReturnValue:&ret];
                 rval.setLong(ret);
-            }
-            else if (returnType == @encode(short))
-            {
+            } else if (returnType == @encode(short)) {
                 short ret;
                 [invocation getReturnValue:&ret];
                 rval.setInt16(ret);
-            }
-            else if (returnType == @encode(unsigned int))
-            {
+            } else if (returnType == @encode(unsigned int)) {
                 unsigned int ret;
                 [invocation getReturnValue:&ret];
                 rval.setUint32(ret);
-            }
-            else if (returnType == @encode(unsigned long))
-            {
+            } else if (returnType == @encode(unsigned long)) {
                 unsigned long ret;
                 [invocation getReturnValue:&ret];
                 rval.setUlong(ret);
-            }
-            else if (returnType == @encode(unsigned short))
-            {
+            } else if (returnType == @encode(unsigned short)) {
                 unsigned short ret;
                 [invocation getReturnValue:&ret];
                 rval.setUint16(ret);
-            }
-            else if (returnType == @encode(float))
-            {
+            } else if (returnType == @encode(float)) {
                 float ret;
                 [invocation getReturnValue:&ret];
                 rval.setFloat(ret);
-            }
-            else if (returnType == @encode(double))
-            {
+            } else if (returnType == @encode(double)) {
                 double ret;
                 [invocation getReturnValue:&ret];
                 rval.setNumber(ret);
-            }
-            else if (returnType == @encode(char))
-            {
+            } else if (returnType == @encode(char)) {
                 int8_t ret;
                 [invocation getReturnValue:&ret];
                 rval.setInt8(ret);
-            }
-            else if (returnType == @encode(unsigned char))
-            {
+            } else if (returnType == @encode(unsigned char)) {
                 uint8_t ret;
                 [invocation getReturnValue:&ret];
                 rval.setUint8(ret);
-            }
-            else
-            {
+            } else {
                 _error = JSO_ERR_TYPE_NOT_SUPPORT;
                 NSLog(@"not support return type = %s", returnType.c_str());
                 return false;
             }
         }
-    }@catch(NSException *exception)
-    {
+    } @catch (NSException *exception) {
         NSLog(@"EXCEPTION THROW: %@", exception);
         _error = JSO_ERR_EXCEPTION_OCCURRED;
         return false;
@@ -324,82 +248,55 @@ bool JavaScriptObjCBridge::CallInfo::execute(const se::ValueArray& argv, se::Val
     return true;
 }
 
-se::Value JavaScriptObjCBridge::CallInfo::objc_to_seval(id objcVal)
-{
+se::Value JavaScriptObjCBridge::CallInfo::objc_to_seval(id objcVal) {
     se::Value ret;
     if (objcVal == nil)
         return ret;
 
-    if ([objcVal isKindOfClass:[NSNumber class]])
-    {
+    if ([objcVal isKindOfClass:[NSNumber class]]) {
         NSNumber *number = (NSNumber *)objcVal;
         std::string numberType = [number objCType];
-        if (numberType == @encode(BOOL) || numberType == @encode(bool))
-        {
+        if (numberType == @encode(BOOL) || numberType == @encode(bool)) {
             ret.setBoolean([number boolValue]);
-        }
-        else if (numberType == @encode(int)
-            || numberType == @encode(long)
-            || numberType == @encode(short)
-            || numberType == @encode(unsigned int)
-            || numberType == @encode(unsigned long)
-            || numberType == @encode(unsigned short)
-            || numberType == @encode(float)
-            || numberType == @encode(double)
-            || numberType == @encode(char)
-            || numberType == @encode(unsigned char)
-            )
-        {
+        } else if (numberType == @encode(int) || numberType == @encode(long) || numberType == @encode(short) || numberType == @encode(unsigned int) || numberType == @encode(unsigned long) || numberType == @encode(unsigned short) || numberType == @encode(float) || numberType == @encode(double) || numberType == @encode(char) || numberType == @encode(unsigned char)) {
             ret.setNumber([number doubleValue]);
-        }
-        else
-        {
+        } else {
             CC_LOG_ERROR("Unknown number type: %s", numberType.c_str());
         }
-    }
-    else if ([objcVal isKindOfClass:[NSString class]])
-    {
-        const char* content = [objcVal cStringUsingEncoding:NSUTF8StringEncoding];
+    } else if ([objcVal isKindOfClass:[NSString class]]) {
+        const char *content = [objcVal cStringUsingEncoding:NSUTF8StringEncoding];
         ret.setString(content);
-    }
-    else if ([objcVal isKindOfClass:[NSDictionary class]])
-    {
+    } else if ([objcVal isKindOfClass:[NSDictionary class]]) {
         CC_LOG_ERROR("JavaScriptObjCBridge doesn't support to bind NSDictionary!");
-    }
-    else
-    {
-        const char* content = [[NSString stringWithFormat:@"%@", objcVal] cStringUsingEncoding:NSUTF8StringEncoding];
+    } else {
+        const char *content = [[NSString stringWithFormat:@"%@", objcVal] cStringUsingEncoding:NSUTF8StringEncoding];
         ret.setString(content);
     }
 
     return ret;
 }
 
-se::Class* __jsb_JavaScriptObjCBridge_class = nullptr;
+se::Class *__jsb_JavaScriptObjCBridge_class = nullptr;
 
-static bool JavaScriptObjCBridge_finalize(se::State& s)
-{
-    JavaScriptObjCBridge* cobj = (JavaScriptObjCBridge*)s.nativeThisObject();
+static bool JavaScriptObjCBridge_finalize(se::State &s) {
+    JavaScriptObjCBridge *cobj = (JavaScriptObjCBridge *)s.nativeThisObject();
     delete cobj;
     return true;
 }
 SE_BIND_FINALIZE_FUNC(JavaScriptObjCBridge_finalize)
 
-static bool JavaScriptObjCBridge_constructor(se::State& s)
-{
-    JavaScriptObjCBridge* cobj = new (std::nothrow) JavaScriptObjCBridge();
+static bool JavaScriptObjCBridge_constructor(se::State &s) {
+    JavaScriptObjCBridge *cobj = new (std::nothrow) JavaScriptObjCBridge();
     s.thisObject()->setPrivateData(cobj);
     return true;
 }
 SE_BIND_CTOR(JavaScriptObjCBridge_constructor, __jsb_JavaScriptObjCBridge_class, JavaScriptObjCBridge_finalize)
 
-static bool JavaScriptObjCBridge_callStaticMethod(se::State& s)
-{
-    const auto& args = s.args();
+static bool JavaScriptObjCBridge_callStaticMethod(se::State &s) {
+    const auto &args = s.args();
     int argc = (int)args.size();
 
-    if (argc >= 2)
-    {
+    if (argc >= 2) {
         bool ok = false;
         std::string clsName, methodName;
         ok = seval_to_std_string(args[0], &clsName);
@@ -410,8 +307,7 @@ static bool JavaScriptObjCBridge_callStaticMethod(se::State& s)
 
         JavaScriptObjCBridge::CallInfo call(clsName.c_str(), methodName.c_str());
         ok = call.execute(args, s.rval());
-        if(!ok)
-        {
+        if (!ok) {
             s.rval().setUndefined();
             SE_REPORT_ERROR("call (%s.%s) failed, result code: %d", clsName.c_str(), methodName.c_str(), call.getErrorCode());
             return false;
@@ -424,9 +320,8 @@ static bool JavaScriptObjCBridge_callStaticMethod(se::State& s)
 }
 SE_BIND_FUNC(JavaScriptObjCBridge_callStaticMethod)
 
-bool register_javascript_objc_bridge(se::Object* obj)
-{
-    se::Class* cls = se::Class::create("JavaScriptObjCBridge", obj, nullptr, _SE(JavaScriptObjCBridge_constructor));
+bool register_javascript_objc_bridge(se::Object *obj) {
+    se::Class *cls = se::Class::create("JavaScriptObjCBridge", obj, nullptr, _SE(JavaScriptObjCBridge_constructor));
     cls->defineFinalizeFunction(_SE(JavaScriptObjCBridge_finalize));
 
     cls->defineFunction("callStaticMethod", _SE(JavaScriptObjCBridge_callStaticMethod));

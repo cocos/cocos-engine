@@ -33,39 +33,39 @@ typedef int etc2_bool;
 typedef unsigned int etc2_uint32;
 
 #ifndef GL_COMPRESSED_RGB8_ETC2
-#define GL_COMPRESSED_RGB8_ETC2           0x9274
+    #define GL_COMPRESSED_RGB8_ETC2 0x9274
 #endif
 
 #ifndef GL_COMPRESSED_RGBA8_ETC2_EAC
-#define GL_COMPRESSED_RGBA8_ETC2_EAC      0x9278
+    #define GL_COMPRESSED_RGBA8_ETC2_EAC 0x9278
 #endif
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-    
+
 // Size of a PKM header, in bytes.
 
 #define ETC2_PKM_HEADER_SIZE 16
-    
-#define ETC2_RGB_NO_MIPMAPS 1
+
+#define ETC2_RGB_NO_MIPMAPS  1
 #define ETC2_RGBA_NO_MIPMAPS 3
 
 // Check if a PKM header is correctly formatted.
 
-etc2_bool etc2_pkm_is_valid(const etc2_byte* pHeader);
+etc2_bool etc2_pkm_is_valid(const etc2_byte *pHeader);
 
 // Read the image width from a PKM header
 
-etc2_uint32 etc2_pkm_get_width(const etc2_byte* pHeader);
+etc2_uint32 etc2_pkm_get_width(const etc2_byte *pHeader);
 
 // Read the image height from a PKM header
 
-etc2_uint32 etc2_pkm_get_height(const etc2_byte* pHeader);
+etc2_uint32 etc2_pkm_get_height(const etc2_byte *pHeader);
 
 // Read the image format from a PKM header
 
-etc2_uint32 etc2_pkm_get_format(const etc2_byte* pHeader);
+etc2_uint32 etc2_pkm_get_format(const etc2_byte *pHeader);
 
 #ifdef __cplusplus
 }
@@ -73,4 +73,3 @@ etc2_uint32 etc2_pkm_get_format(const etc2_byte* pHeader);
 
 /// @endcond
 #endif
-

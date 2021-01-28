@@ -24,34 +24,33 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 ****************************************************************************/
 
-
 #if CC_PLATFORM == CC_PLATFORM_ANDROID
 
-#include "platform/android/FileUtils-android.h"
-#include "platform/android/jni/JniHelper.h"
-#include "platform/android/jni/JniImp.h"
-#include "android/asset_manager.h"
-#include "android/asset_manager_jni.h"
-#include "base/ZipUtils.h"
-#include "base/Log.h"
-#include <stdlib.h>
-#include <sys/stat.h>
+    #include "platform/android/FileUtils-android.h"
+    #include "platform/android/jni/JniHelper.h"
+    #include "platform/android/jni/JniImp.h"
+    #include "android/asset_manager.h"
+    #include "android/asset_manager_jni.h"
+    #include "base/ZipUtils.h"
+    #include "base/Log.h"
+    #include <stdlib.h>
+    #include <sys/stat.h>
 
-#define  LOG_TAG    "FileUtils-android.cpp"
-#define  LOGD(...)  __android_log_print(ANDROID_LOG_DEBUG,LOG_TAG,__VA_ARGS__)
+    #define LOG_TAG   "FileUtils-android.cpp"
+    #define LOGD(...) __android_log_print(ANDROID_LOG_DEBUG, LOG_TAG, __VA_ARGS__)
 
-#define  ASSETS_FOLDER_NAME          "@assets/"
+    #define ASSETS_FOLDER_NAME "@assets/"
 
-#ifndef JCLS_HELPER
-#define JCLS_HELPER "com/cocos/lib/CocosHelper"
-#endif
+    #ifndef JCLS_HELPER
+        #define JCLS_HELPER "com/cocos/lib/CocosHelper"
+    #endif
 
 namespace cc {
 
-AAssetManager* FileUtilsAndroid::assetmanager = nullptr;
-ZipFile* FileUtilsAndroid::obbfile = nullptr;
+AAssetManager *FileUtilsAndroid::assetmanager = nullptr;
+ZipFile *FileUtilsAndroid::obbfile = nullptr;
 
-void FileUtilsAndroid::setassetmanager(AAssetManager* a) {
+void FileUtilsAndroid::setassetmanager(AAssetManager *a) {
     if (nullptr == a) {
         LOGD("setassetmanager : received unexpected nullptr parameter");
         return;
@@ -60,84 +59,66 @@ void FileUtilsAndroid::setassetmanager(AAssetManager* a) {
     cc::FileUtilsAndroid::assetmanager = a;
 }
 
-FileUtils* FileUtils::getInstance()
-{
-    if (s_sharedFileUtils == nullptr)
-    {
+FileUtils *FileUtils::getInstance() {
+    if (s_sharedFileUtils == nullptr) {
         s_sharedFileUtils = new FileUtilsAndroid();
-        if (!s_sharedFileUtils->init())
-        {
-          delete s_sharedFileUtils;
-          s_sharedFileUtils = nullptr;
-          CC_LOG_DEBUG("ERROR: Could not init CCFileUtilsAndroid");
+        if (!s_sharedFileUtils->init()) {
+            delete s_sharedFileUtils;
+            s_sharedFileUtils = nullptr;
+            CC_LOG_DEBUG("ERROR: Could not init CCFileUtilsAndroid");
         }
     }
     return s_sharedFileUtils;
 }
 
-FileUtilsAndroid::FileUtilsAndroid()
-{
+FileUtilsAndroid::FileUtilsAndroid() {
 }
 
-FileUtilsAndroid::~FileUtilsAndroid()
-{
-    if (obbfile)
-    {
+FileUtilsAndroid::~FileUtilsAndroid() {
+    if (obbfile) {
         delete obbfile;
         obbfile = nullptr;
     }
 }
 
-bool FileUtilsAndroid::init()
-{
+bool FileUtilsAndroid::init() {
     _defaultResRootPath = ASSETS_FOLDER_NAME;
-    
+
     std::string assetsPath(getObbFilePathJNI());
-    if (assetsPath.find("/obb/") != std::string::npos)
-    {
+    if (assetsPath.find("/obb/") != std::string::npos) {
         obbfile = new ZipFile(assetsPath);
     }
 
     return FileUtils::init();
 }
 
-bool FileUtilsAndroid::isFileExistInternal(const std::string& strFilePath) const
-{
-    if (strFilePath.empty())
-    {
+bool FileUtilsAndroid::isFileExistInternal(const std::string &strFilePath) const {
+    if (strFilePath.empty()) {
         return false;
     }
 
     bool bFound = false;
 
     // Check whether file exists in apk.
-    if (strFilePath[0] != '/')
-    {
-        const char* s = strFilePath.c_str();
+    if (strFilePath[0] != '/') {
+        const char *s = strFilePath.c_str();
 
         // Found "@assets/" at the beginning of the path and we don't want it
         if (strFilePath.find(ASSETS_FOLDER_NAME) == 0) s += strlen(ASSETS_FOLDER_NAME);
-        if (obbfile && obbfile->fileExists(s))
-        {
+        if (obbfile && obbfile->fileExists(s)) {
             bFound = true;
-        }
-        else if (FileUtilsAndroid::assetmanager)
-        {
-            AAsset* aa = AAssetManager_open(FileUtilsAndroid::assetmanager, s, AASSET_MODE_UNKNOWN);
-            if (aa)
-            {
+        } else if (FileUtilsAndroid::assetmanager) {
+            AAsset *aa = AAssetManager_open(FileUtilsAndroid::assetmanager, s, AASSET_MODE_UNKNOWN);
+            if (aa) {
                 bFound = true;
                 AAsset_close(aa);
             } else {
                 // CC_LOG_DEBUG("[AssetManager] ... in APK %s, found = false!", strFilePath.c_str());
             }
         }
-    }
-    else
-    {
+    } else {
         FILE *fp = fopen(strFilePath.c_str(), "r");
-        if (fp)
-        {
+        if (fp) {
             bFound = true;
             fclose(fp);
         }
@@ -145,68 +126,55 @@ bool FileUtilsAndroid::isFileExistInternal(const std::string& strFilePath) const
     return bFound;
 }
 
-bool FileUtilsAndroid::isDirectoryExistInternal(const std::string& dirPath_) const
-{
-    if (dirPath_.empty())
-    {
+bool FileUtilsAndroid::isDirectoryExistInternal(const std::string &dirPath_) const {
+    if (dirPath_.empty()) {
         return false;
     }
 
     std::string dirPath = dirPath_;
-    if (dirPath[dirPath.length() - 1] == '/')
-    {
+    if (dirPath[dirPath.length() - 1] == '/') {
         dirPath[dirPath.length() - 1] = '\0';
     }
 
     // find absolute path in flash memory
-    if (dirPath[0] == '/')
-    {
+    if (dirPath[0] == '/') {
         CC_LOG_DEBUG("find in flash memory dirPath(%s)", dirPath.c_str());
         struct stat st;
-        if (stat(dirPath.c_str(), &st) == 0)
-        {
+        if (stat(dirPath.c_str(), &st) == 0) {
             return S_ISDIR(st.st_mode);
         }
-    }
-    else
-    {
+    } else {
         // find it in apk's assets dir
         // Found "@assets/" at the beginning of the path and we don't want it
         CC_LOG_DEBUG("find in apk dirPath(%s)", dirPath.c_str());
-        const char* s = dirPath.c_str();
-        if (dirPath.find(_defaultResRootPath) == 0)
-        {
+        const char *s = dirPath.c_str();
+        if (dirPath.find(_defaultResRootPath) == 0) {
             s += _defaultResRootPath.length();
         }
-        if (FileUtilsAndroid::assetmanager)
-        {
-            AAssetDir* aa = AAssetManager_openDir(FileUtilsAndroid::assetmanager, s);
-            if (aa && AAssetDir_getNextFileName(aa))
-            {
+        if (FileUtilsAndroid::assetmanager) {
+            AAssetDir *aa = AAssetManager_openDir(FileUtilsAndroid::assetmanager, s);
+            if (aa && AAssetDir_getNextFileName(aa)) {
                 AAssetDir_close(aa);
                 return true;
             }
         }
     }
-    
+
     return false;
 }
 
-bool FileUtilsAndroid::isAbsolutePath(const std::string& strPath) const
-{
+bool FileUtilsAndroid::isAbsolutePath(const std::string &strPath) const {
     // On Android, there are two situations for full path.
     // 1) Files in APK, e.g. assets/path/path/file.png
     // 2) Files not in APK, e.g. /data/data/org.cocos2dx.hellocpp/cache/path/path/file.png, or /sdcard/path/path/file.png.
     // So these two situations need to be checked on Android.
-    if (strPath[0] == '/' || strPath.find(ASSETS_FOLDER_NAME) == 0)
-    {
+    if (strPath[0] == '/' || strPath.find(ASSETS_FOLDER_NAME) == 0) {
         return true;
     }
     return false;
 }
 
-FileUtils::Status FileUtilsAndroid::getContents(const std::string& filename, ResizableBuffer* buffer)
-{
+FileUtils::Status FileUtilsAndroid::getContents(const std::string &filename, ResizableBuffer *buffer) {
     if (filename.empty())
         return FileUtils::Status::NotExists;
 
@@ -226,8 +194,7 @@ FileUtils::Status FileUtilsAndroid::getContents(const std::string& filename, Res
         relativePath = fullPath;
     }
 
-    if (obbfile)
-    {
+    if (obbfile) {
         if (obbfile->getFileData(relativePath, buffer))
             return FileUtils::Status::OK;
     }
@@ -237,7 +204,7 @@ FileUtils::Status FileUtilsAndroid::getContents(const std::string& filename, Res
         return FileUtils::Status::NotInitialized;
     }
 
-    AAsset* asset = AAssetManager_open(assetmanager, relativePath.data(), AASSET_MODE_UNKNOWN);
+    AAsset *asset = AAssetManager_open(assetmanager, relativePath.data(), AASSET_MODE_UNKNOWN);
     if (nullptr == asset) {
         LOGD("asset (%s) is nullptr", filename.c_str());
         return FileUtils::Status::OpenFailed;
@@ -258,25 +225,21 @@ FileUtils::Status FileUtilsAndroid::getContents(const std::string& filename, Res
     return FileUtils::Status::OK;
 }
 
-std::string FileUtilsAndroid::getWritablePath() const
-{
+std::string FileUtilsAndroid::getWritablePath() const {
     // Fix for Nexus 10 (Android 4.2 multi-user environment)
     // the path is retrieved through Java Context.getCacheDir() method
     std::string dir("");
     std::string tmp = JniHelper::callStaticStringMethod(JCLS_HELPER, "getWritablePath");
 
-    if (tmp.length() > 0)
-    {
+    if (tmp.length() > 0) {
         dir.append(tmp).append("/");
 
         return dir;
-    }
-    else
-    {
+    } else {
         return "";
     }
 }
 
-}
+} // namespace cc
 
 #endif // CC_PLATFORM == CC_PLATFORM_ANDROID

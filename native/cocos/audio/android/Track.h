@@ -32,13 +32,11 @@ THE SOFTWARE.
 #include <functional>
 #include <mutex>
 
-namespace cc { 
+namespace cc {
 
-class Track : public PcmBufferProvider, public IVolumeProvider
-{
+class Track : public PcmBufferProvider, public IVolumeProvider {
 public:
-    enum class State
-    {
+    enum class State {
         IDLE,
         PLAYING,
         RESUMED,
@@ -56,7 +54,7 @@ public:
 
     inline State getPrevState() const { return _prevState; };
 
-    inline bool isPlayOver() const { return _state == State::PLAYING && _nextFrame >= _numFrames;};
+    inline bool isPlayOver() const { return _state == State::PLAYING && _nextFrame >= _numFrames; };
     inline void setName(int name) { _name = name; };
     inline int getName() const { return _name; };
 
@@ -68,7 +66,7 @@ public:
     bool setPosition(float pos);
     float getPosition() const;
 
-    virtual gain_minifloat_packed_t getVolumeLR() override ;
+    virtual gain_minifloat_packed_t getVolumeLR() override;
 
     inline void setLoop(bool isLoop) { _isLoop = isLoop; };
     inline bool isLoop() const { return _isLoop; };
@@ -76,17 +74,13 @@ public:
     std::function<void(State)> onStateChanged;
 
 private:
-    inline bool isVolumeDirty() const
-    { return _isVolumeDirty; };
+    inline bool isVolumeDirty() const { return _isVolumeDirty; };
 
-    inline void setVolumeDirty(bool isDirty)
-    { _isVolumeDirty = isDirty; };
+    inline void setVolumeDirty(bool isDirty) { _isVolumeDirty = isDirty; };
 
-    inline bool isInitialized() const
-    { return _isInitialized; };
+    inline bool isInitialized() const { return _isInitialized; };
 
-    inline void setInitialized(bool isInitialized)
-    { _isInitialized = isInitialized; };
+    inline void setInitialized(bool isInitialized) { _isInitialized = isInitialized; };
 
 private:
     PcmData _pcmData;
@@ -104,4 +98,4 @@ private:
     friend class AudioMixerController;
 };
 
-} // namespace cc { 
+} // namespace cc

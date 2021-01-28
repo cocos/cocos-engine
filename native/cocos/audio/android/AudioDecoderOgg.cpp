@@ -22,34 +22,27 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 ****************************************************************************/
-
 #define LOG_TAG "AudioDecoderOgg"
 
 #include "audio/android/AudioDecoderOgg.h"
 #include "platform/FileUtils.h"
 
-namespace cc { 
+namespace cc {
 
-AudioDecoderOgg::AudioDecoderOgg()
-{
+AudioDecoderOgg::AudioDecoderOgg() {
     ALOGV("Create AudioDecoderOgg");
 }
 
-AudioDecoderOgg::~AudioDecoderOgg()
-{
-
+AudioDecoderOgg::~AudioDecoderOgg() {
 }
 
-int AudioDecoderOgg::fseek64Wrap(void* datasource, ogg_int64_t off, int whence)
-{
+int AudioDecoderOgg::fseek64Wrap(void *datasource, ogg_int64_t off, int whence) {
     return AudioDecoder::fileSeek(datasource, (long)off, whence);
 }
 
-bool AudioDecoderOgg::decodeToPcm()
-{
+bool AudioDecoderOgg::decodeToPcm() {
     _fileData = FileUtils::getInstance()->getDataFromFile(_url);
-    if (_fileData.isNull())
-    {
+    if (_fileData.isNull()) {
         return false;
     }
 
@@ -63,32 +56,29 @@ bool AudioDecoderOgg::decodeToPcm()
 
     OggVorbis_File vf;
     int ret = ov_open_callbacks(this, &vf, NULL, 0, callbacks);
-    if (ret != 0)
-    {
+    if (ret != 0) {
         ALOGE("Open file error, file: %s, ov_open_callbacks return %d", _url.c_str(), ret);
         return false;
     }
     // header
     auto vi = ov_info(&vf, -1);
 
-    uint32_t pcmSamples = (uint32_t) ov_pcm_total(&vf, -1);
+    uint32_t pcmSamples = (uint32_t)ov_pcm_total(&vf, -1);
 
     uint32_t bufferSize = pcmSamples * vi->channels * sizeof(short);
-    char* pcmBuffer = (char*)malloc(bufferSize);
+    char *pcmBuffer = (char *)malloc(bufferSize);
     memset(pcmBuffer, 0, bufferSize);
 
     int currentSection = 0;
     long curPos = 0;
     long readBytes = 0;
 
-    do
-    {
+    do {
         readBytes = ov_read(&vf, pcmBuffer + curPos, 4096, &currentSection);
         curPos += readBytes;
     } while (readBytes > 0);
 
-    if (curPos > 0)
-    {
+    if (curPos > 0) {
         _result.pcmBuffer->insert(_result.pcmBuffer->end(), pcmBuffer, pcmBuffer + bufferSize);
         _result.numChannels = vi->channels;
         _result.sampleRate = vi->rate;
@@ -98,9 +88,7 @@ bool AudioDecoderOgg::decodeToPcm()
         _result.endianness = SL_BYTEORDER_LITTLEENDIAN;
         _result.numFrames = pcmSamples;
         _result.duration = 1.0f * pcmSamples / vi->rate;
-    }
-    else
-    {
+    } else {
         ALOGE("ov_read returns 0 byte!");
     }
 
@@ -110,4 +98,4 @@ bool AudioDecoderOgg::decodeToPcm()
     return (curPos > 0);
 }
 
-} // namespace cc { 
+} // namespace cc

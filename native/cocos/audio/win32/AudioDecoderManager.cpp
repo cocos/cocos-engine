@@ -22,7 +22,6 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 ****************************************************************************/
-
 #define LOG_TAG "AudioDecoderManager"
 
 #include "audio/win32/AudioDecoderManager.h"
@@ -32,39 +31,31 @@ THE SOFTWARE.
 #include "platform/FileUtils.h"
 #include "mpg123/mpg123.h"
 
-namespace cc { 
+namespace cc {
 
 static bool __mp3Inited = false;
 
-bool AudioDecoderManager::init()
-{
+bool AudioDecoderManager::init() {
     return true;
 }
 
-void AudioDecoderManager::destroy()
-{
+void AudioDecoderManager::destroy() {
     AudioDecoderMp3::destroy();
 }
 
-AudioDecoder* AudioDecoderManager::createDecoder(const char* path)
-{
+AudioDecoder *AudioDecoderManager::createDecoder(const char *path) {
     std::string suffix = FileUtils::getInstance()->getFileExtension(path);
-    if (suffix == ".ogg")
-    {
+    if (suffix == ".ogg") {
         return new (std::nothrow) AudioDecoderOgg();
-    }
-    else if (suffix == ".mp3")
-    {
+    } else if (suffix == ".mp3") {
         return new (std::nothrow) AudioDecoderMp3();
     }
 
     return nullptr;
 }
 
-void AudioDecoderManager::destroyDecoder(AudioDecoder* decoder)
-{
+void AudioDecoderManager::destroyDecoder(AudioDecoder *decoder) {
     delete decoder;
 }
 
-} // namespace cc { 
-
+} // namespace cc

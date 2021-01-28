@@ -77,7 +77,7 @@ bool js_gfx_Device_copyBuffersToTexture(se::State &s) {
                         seval_to_ulong(value, &address);
                         ptr = (uint8_t *)address;
                     }
-                    
+
                     arg0[i] = ptr;
                 }
             }
@@ -491,7 +491,7 @@ bool register_all_gfx_manual(se::Object *obj) {
     }
     se::Object *ns = nsVal.toObject();
 
-//    js_register_gfx_SubPass(ns);
+    //    js_register_gfx_SubPass(ns);
 
 #ifdef CC_USE_VULKAN
     register_all_vk(obj);

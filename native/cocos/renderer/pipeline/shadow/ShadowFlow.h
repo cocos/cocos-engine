@@ -46,7 +46,7 @@ public:
 private:
     void resizeShadowMap(const Light *light, const uint width, const uint height) const;
 
-    void initShadowFrameBuffer(ForwardPipeline *pipeline, const Light *light);
+    void initShadowFrameBuffer(RenderPipeline *pipeline, const Light *light);
 
 private:
     static RenderFlowInfo _initInfo;

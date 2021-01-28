@@ -22,26 +22,24 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-
 #pragma once
 
 #include "audio/win32/AudioDecoder.h"
 
 struct mpg123_handle_struct;
 
-namespace cc { 
+namespace cc {
 
 /**
  * @brief The class for decoding compressed audio file to PCM buffer.
  */
-class AudioDecoderMp3 : public AudioDecoder
-{
+class AudioDecoderMp3 : public AudioDecoder {
 public:
     /**
      * @brief Opens an audio file specified by a file path.
      * @return true if succeed, otherwise false.
      */
-    virtual bool open(const char* path) override;
+    virtual bool open(const char *path) override;
 
     /**
      * @brief Closes opened audio file.
@@ -55,7 +53,7 @@ public:
      * @param pcmBuf The buffer to hold the frames to be read, its size should be >= |framesToRead| * _bytesPerFrame.
      * @return The number of frames actually read, it's probably less than 'framesToRead'. Returns 0 means reach the end of file.
      */
-    virtual uint32_t read(uint32_t framesToRead, char* pcmBuf) override;
+    virtual uint32_t read(uint32_t framesToRead, char *pcmBuf) override;
 
     /**
      * @brief Sets frame offest to be read.
@@ -71,16 +69,15 @@ public:
     virtual uint32_t tell() const override;
 
 protected:
-
     AudioDecoderMp3();
     ~AudioDecoderMp3();
 
     static bool lazyInit();
     static void destroy();
 
-    struct mpg123_handle_struct* _mpg123handle;
+    struct mpg123_handle_struct *_mpg123handle;
 
     friend class AudioDecoderManager;
 };
 
-} // namespace cc { 
+} // namespace cc

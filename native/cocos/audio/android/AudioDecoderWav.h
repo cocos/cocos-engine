@@ -27,21 +27,20 @@ THE SOFTWARE.
 
 #include "audio/android/AudioDecoder.h"
 
-namespace cc { 
+namespace cc {
 
-class AudioDecoderWav : public AudioDecoder
-{
+class AudioDecoderWav : public AudioDecoder {
 protected:
     AudioDecoderWav();
     virtual ~AudioDecoderWav();
 
     virtual bool decodeToPcm() override;
 
-    static void* onWavOpen(const char* path, void* user);
-    static int onWavSeek(void* datasource, long offset, int whence);
-    static int onWavClose(void* datasource);
+    static void *onWavOpen(const char *path, void *user);
+    static int onWavSeek(void *datasource, long offset, int whence);
+    static int onWavClose(void *datasource);
 
     friend class AudioDecoderProvider;
 };
 
-} // namespace cc { 
+} // namespace cc

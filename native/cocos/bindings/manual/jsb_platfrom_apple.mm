@@ -38,27 +38,23 @@ using namespace cc;
 
 static std::unordered_map<std::string, std::string> _fontFamilyNameMap;
 
-const std::unordered_map<std::string, std::string>& getFontFamilyNameMap()
-{
+const std::unordered_map<std::string, std::string> &getFontFamilyNameMap() {
     return _fontFamilyNameMap;
 }
 
-static std::vector<std::string> getAvailableFontFamilyNames()
-{
+static std::vector<std::string> getAvailableFontFamilyNames() {
     std::vector<std::string> ret;
 
 #if CC_PLATFORM == CC_PLATFORM_MAC_OSX
     CFArrayRef allFamilyNames = CTFontManagerCopyAvailableFontFamilyNames();
 #else
-    CFArrayRef allFamilyNames = (CFArrayRef) [[NSClassFromString(@"UIFont") familyNames] retain];
+    CFArrayRef allFamilyNames = (CFArrayRef)[[NSClassFromString(@"UIFont") familyNames] retain];
 #endif
 
     char buf[256] = {0};
-    for(CFIndex i = 0; i < CFArrayGetCount(allFamilyNames); i++)
-    {
+    for (CFIndex i = 0; i < CFArrayGetCount(allFamilyNames); i++) {
         CFStringRef fontName = (CFStringRef)CFArrayGetValueAtIndex(allFamilyNames, i);
-        if (CFStringGetCString(fontName, buf, sizeof(buf), kCFStringEncodingUTF8) != 0)
-        {
+        if (CFStringGetCString(fontName, buf, sizeof(buf), kCFStringEncodingUTF8) != 0) {
             ret.push_back(buf);
         }
     }
@@ -67,42 +63,34 @@ static std::vector<std::string> getAvailableFontFamilyNames()
     return ret;
 }
 
-static std::string getFontFamilyByCompareAvailableFontFamilyNames(const std::vector<std::string>& before, const std::vector<std::string>& after)
-{
+static std::string getFontFamilyByCompareAvailableFontFamilyNames(const std::vector<std::string> &before, const std::vector<std::string> &after) {
     std::string ret;
     size_t beforeLen = before.size();
     size_t afterLen = after.size();
-    if (afterLen > beforeLen)
-    {
-        for(size_t i = 0;i < afterLen; ++i)
-        {
+    if (afterLen > beforeLen) {
+        for (size_t i = 0; i < afterLen; ++i) {
             bool hasFont = false;
-            for(size_t j = 0;j < beforeLen; ++j)
-            {
-                if (after[i] == before[j])
-                {
+            for (size_t j = 0; j < beforeLen; ++j) {
+                if (after[i] == before[j]) {
                     hasFont = true;
                     break;
                 }
             }
 
-            if (!hasFont)
-            {
+            if (!hasFont) {
                 ret = after[i];
                 break;
             }
 
             if (ret.empty())
                 ret = after.back();
-
         }
     }
     return ret;
 }
 
-static bool JSB_loadFont(se::State& s)
-{
-    const auto& args = s.args();
+static bool JSB_loadFont(se::State &s) {
+    const auto &args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc >= 1) {
@@ -113,8 +101,7 @@ static bool JSB_loadFont(se::State& s)
         SE_PRECONDITION2(ok, false, "JSB_loadFont : Error processing argument: originalFamilyName");
 
         // Don't reload font again to avoid memory leak.
-        if (_fontFamilyNameMap.find(originalFamilyName) != _fontFamilyNameMap.end())
-        {
+        if (_fontFamilyNameMap.find(originalFamilyName) != _fontFamilyNameMap.end()) {
             s.rval().setString(_fontFamilyNameMap[originalFamilyName]);
             return true;
         }
@@ -126,47 +113,41 @@ static bool JSB_loadFont(se::State& s)
         std::string fontFilePath;
         std::regex re("url\\(\\s*'\\s*(.*?)\\s*'\\s*\\)");
         std::match_results<std::string::const_iterator> results;
-        if (std::regex_search(source.cbegin(), source.cend(), results, re))
-        {
+        if (std::regex_search(source.cbegin(), source.cend(), results, re)) {
             fontFilePath = results[1].str();
         }
 
         fontFilePath = FileUtils::getInstance()->fullPathForFilename(fontFilePath);
-        if (fontFilePath.empty())
-        {
+        if (fontFilePath.empty()) {
             SE_LOGE("Font (%s) doesn't exist!", fontFilePath.c_str());
             return true;
         }
 
-        NSURL* url = [NSURL fileURLWithPath: [NSString stringWithUTF8String:fontFilePath.c_str()]];
-        NSData* dynamicFontData = [NSData dataWithContentsOfURL:url];
-        if (!dynamicFontData)
-        {
+        NSURL *url = [NSURL fileURLWithPath:[NSString stringWithUTF8String:fontFilePath.c_str()]];
+        NSData *dynamicFontData = [NSData dataWithContentsOfURL:url];
+        if (!dynamicFontData) {
             SE_LOGE("load font (%s) failed!", source.c_str());
             return true;
         }
 
-        const auto& familyNamesBeforeRegister = getAvailableFontFamilyNames();
+        const auto &familyNamesBeforeRegister = getAvailableFontFamilyNames();
 
         bool succeed = true;
         CFErrorRef error;
         CGDataProviderRef providerRef = CGDataProviderCreateWithCFData((CFDataRef)dynamicFontData);
         CGFontRef font = CGFontCreateWithDataProvider(providerRef);
-        if (!CTFontManagerRegisterGraphicsFont(font, &error))
-        {
+        if (!CTFontManagerRegisterGraphicsFont(font, &error)) {
             CFStringRef errorDescription = CFErrorCopyDescription(error);
-            const char* cErrorStr = CFStringGetCStringPtr(errorDescription, kCFStringEncodingUTF8);
+            const char *cErrorStr = CFStringGetCStringPtr(errorDescription, kCFStringEncodingUTF8);
             SE_LOGE("Failed to load font: %s", cErrorStr);
             CFRelease(errorDescription);
             succeed = false;
         }
 
-        if (succeed)
-        {
-            const auto& familyNamesAfterRegister = getAvailableFontFamilyNames();
+        if (succeed) {
+            const auto &familyNamesAfterRegister = getAvailableFontFamilyNames();
             std::string familyName = getFontFamilyByCompareAvailableFontFamilyNames(familyNamesBeforeRegister, familyNamesAfterRegister);
-            if (!familyName.empty())
-            {
+            if (!familyName.empty()) {
                 _fontFamilyNameMap.emplace(originalFamilyName, familyName);
                 s.rval().setString(familyName);
             }
@@ -182,8 +163,7 @@ static bool JSB_loadFont(se::State& s)
 }
 SE_BIND_FUNC(JSB_loadFont)
 
-bool register_platform_bindings(se::Object* obj)
-{
+bool register_platform_bindings(se::Object *obj) {
     __jsbObj->defineFunction("loadFont", _SE(JSB_loadFont));
     return true;
 }

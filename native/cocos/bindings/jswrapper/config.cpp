@@ -29,39 +29,34 @@
 
 #if defined(_WIN32) && defined(_WINDOWS)
 
-#include <windows.h>
+    #include <windows.h>
 
-static void _winLog(FILE* fp, const char *format, va_list args)
-{
+static void _winLog(FILE *fp, const char *format, va_list args) {
     static const int MAX_LOG_LENGTH = 16 * 1024;
     int bufferSize = MAX_LOG_LENGTH;
-    char* buf = nullptr;
+    char *buf = nullptr;
 
-    do
-    {
+    do {
         buf = new (std::nothrow) char[bufferSize];
         if (buf == nullptr)
             return; // not enough memory
 
         int ret = vsnprintf(buf, bufferSize - 3, format, args);
-        if (ret < 0)
-        {
+        if (ret < 0) {
             bufferSize *= 2;
 
             delete[] buf;
-        }
-        else
+        } else
             break;
 
     } while (true);
 
     int pos = 0;
     int len = strlen(buf);
-    char tempBuf[MAX_LOG_LENGTH + 1] = { 0 };
-    WCHAR wszBuf[MAX_LOG_LENGTH + 1] = { 0 };
+    char tempBuf[MAX_LOG_LENGTH + 1] = {0};
+    WCHAR wszBuf[MAX_LOG_LENGTH + 1] = {0};
 
-    do
-    {
+    do {
         std::copy(buf + pos, buf + pos + MAX_LOG_LENGTH, tempBuf);
 
         tempBuf[MAX_LOG_LENGTH] = 0;
@@ -72,7 +67,7 @@ static void _winLog(FILE* fp, const char *format, va_list args)
 
         fprintf(fp, "%s", tempBuf);
         fflush(fp);
-        
+
         pos += MAX_LOG_LENGTH;
 
     } while (pos < len);
@@ -81,16 +76,14 @@ static void _winLog(FILE* fp, const char *format, va_list args)
     delete[] buf;
 }
 
-void seLogD(const char * format, ...)
-{
+void seLogD(const char *format, ...) {
     va_list args;
     va_start(args, format);
     _winLog(stdout, format, args);
     va_end(args);
 }
 
-void seLogE(const char * format, ...)
-{
+void seLogE(const char *format, ...) {
     va_list args;
     va_start(args, format);
     _winLog(stderr, format, args);

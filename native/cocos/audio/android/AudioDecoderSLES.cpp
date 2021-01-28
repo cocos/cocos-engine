@@ -31,7 +31,7 @@ THE SOFTWARE.
 #include <thread>
 #include <mutex>
 
-namespace cc { 
+namespace cc {
 
 /* Explicitly requesting SL_IID_ANDROIDSIMPLEBUFFERQUEUE and SL_IID_PREFETCHSTATUS
 * on the UrlAudioPlayer object for decoding, SL_IID_METADATAEXTRACTION for retrieving the
@@ -56,68 +56,52 @@ namespace cc {
 
 static std::mutex __SLPlayerMutex;
 
-static int toBufferSizeInBytes(int bufferSizeInFrames, int sampleSize, int channelCount)
-{
+static int toBufferSizeInBytes(int bufferSizeInFrames, int sampleSize, int channelCount) {
     return bufferSizeInFrames * sampleSize * channelCount;
 }
 
 static int BUFFER_SIZE_IN_BYTES = 0;
 
-static void checkMetaData(int index, const char *key)
-{
-    if (index != -1)
-    {
+static void checkMetaData(int index, const char *key) {
+    if (index != -1) {
         ALOGV("Key %s is at index %d", key, index);
-    }
-    else
-    {
+    } else {
         ALOGE("Unable to find key %s", key);
     }
 }
 
-class SLAudioDecoderCallbackProxy
-{
+class SLAudioDecoderCallbackProxy {
 public:
     //-----------------------------------------------------------------
     /* Callback for "prefetch" events, here used to detect audio resource opening errors */
-    static void prefetchEventCallback(SLPrefetchStatusItf caller, void *context, SLuint32 event)
-    {
+    static void prefetchEventCallback(SLPrefetchStatusItf caller, void *context, SLuint32 event) {
         AudioDecoderSLES *thiz = reinterpret_cast<AudioDecoderSLES *>(context);
         thiz->prefetchCallback(caller, event);
     }
 
-    static void decPlayCallback(SLAndroidSimpleBufferQueueItf queueItf, void *context)
-    {
+    static void decPlayCallback(SLAndroidSimpleBufferQueueItf queueItf, void *context) {
         AudioDecoderSLES *thiz = reinterpret_cast<AudioDecoderSLES *>(context);
         thiz->decodeToPcmCallback(queueItf);
     }
 
-    static void decProgressCallback(SLPlayItf caller, void *context, SLuint32 event)
-    {
+    static void decProgressCallback(SLPlayItf caller, void *context, SLuint32 event) {
         AudioDecoderSLES *thiz = reinterpret_cast<AudioDecoderSLES *>(context);
         thiz->decodeProgressCallback(caller, event);
     }
 };
 
 AudioDecoderSLES::AudioDecoderSLES()
-    : _engineItf(nullptr), _playObj(nullptr), _formatQueried(false),
-      _prefetchError(false), _counter(0), _numChannelsKeyIndex(-1), _sampleRateKeyIndex(-1),
-      _bitsPerSampleKeyIndex(-1), _containerSizeKeyIndex(-1), _channelMaskKeyIndex(-1),
-      _endiannessKeyIndex(-1), _eos(false), _bufferSizeInFrames(-1),
-      _assetFd(0), _fdGetterCallback(nullptr), _isDecodingCallbackInvoked(false)
-{
+: _engineItf(nullptr), _playObj(nullptr), _formatQueried(false), _prefetchError(false), _counter(0), _numChannelsKeyIndex(-1), _sampleRateKeyIndex(-1), _bitsPerSampleKeyIndex(-1), _containerSizeKeyIndex(-1), _channelMaskKeyIndex(-1), _endiannessKeyIndex(-1), _eos(false), _bufferSizeInFrames(-1), _assetFd(0), _fdGetterCallback(nullptr), _isDecodingCallbackInvoked(false) {
     ALOGV("Create AudioDecoderSLES");
 }
 
-AudioDecoderSLES::~AudioDecoderSLES()
-{
+AudioDecoderSLES::~AudioDecoderSLES() {
     {
         std::lock_guard<std::mutex> lk(__SLPlayerMutex);
         SL_DESTROY_OBJ(_playObj);
     }
     ALOGV("After destroying SL play object");
-    if (_assetFd > 0)
-    {
+    if (_assetFd > 0) {
         ALOGV("Closing assetFd: %d", _assetFd);
         ::close(_assetFd);
         _assetFd = 0;
@@ -125,16 +109,14 @@ AudioDecoderSLES::~AudioDecoderSLES()
     free(_pcmData);
 }
 
-bool AudioDecoderSLES::init(SLEngineItf engineItf, const std::string &url, int bufferSizeInFrames, int sampleRate, const FdGetterCallback &fdGetterCallback)
-{
-    if (AudioDecoder::init(url, sampleRate))
-    {
+bool AudioDecoderSLES::init(SLEngineItf engineItf, const std::string &url, int bufferSizeInFrames, int sampleRate, const FdGetterCallback &fdGetterCallback) {
+    if (AudioDecoder::init(url, sampleRate)) {
         _engineItf = engineItf;
         _bufferSizeInFrames = bufferSizeInFrames;
         _fdGetterCallback = fdGetterCallback;
 
         BUFFER_SIZE_IN_BYTES = toBufferSizeInBytes(bufferSizeInFrames, 2, 2);
-        _pcmData = (char*) malloc(NB_BUFFERS_IN_QUEUE * BUFFER_SIZE_IN_BYTES);
+        _pcmData = (char *)malloc(NB_BUFFERS_IN_QUEUE * BUFFER_SIZE_IN_BYTES);
         memset(_pcmData, 0x00, NB_BUFFERS_IN_QUEUE * BUFFER_SIZE_IN_BYTES);
         return true;
     }
@@ -142,9 +124,8 @@ bool AudioDecoderSLES::init(SLEngineItf engineItf, const std::string &url, int b
     return false;
 }
 
-bool AudioDecoderSLES::decodeToPcm()
-{
-   SLresult result;
+bool AudioDecoderSLES::decodeToPcm() {
+    SLresult result;
 
     /* Objects this application uses: one audio player */
     SLObjectItf player;
@@ -171,8 +152,7 @@ bool AudioDecoderSLES::decodeToPcm()
     SLInterfaceID iidArray[NUM_EXPLICIT_INTERFACES_FOR_PLAYER];
 
     /* Initialize arrays required[] and iidArray[] */
-    for (int i = 0; i < NUM_EXPLICIT_INTERFACES_FOR_PLAYER; i++)
-    {
+    for (int i = 0; i < NUM_EXPLICIT_INTERFACES_FOR_PLAYER; i++) {
         required[i] = SL_BOOLEAN_FALSE;
         iidArray[i] = SL_IID_NULL;
     }
@@ -193,25 +173,21 @@ bool AudioDecoderSLES::decodeToPcm()
     SLDataFormat_MIME formatMime = {SL_DATAFORMAT_MIME, nullptr, SL_CONTAINERTYPE_UNSPECIFIED};
     decSource.pFormat = &formatMime;
 
-    if (_url[0] != '/')
-    {
+    if (_url[0] != '/') {
         off_t start = 0, length = 0;
         std::string relativePath;
         size_t position = _url.find("@assets/");
 
-        if (0 == position)
-        {
+        if (0 == position) {
             // "@assets/" is at the beginning of the path and we don't want it
             relativePath = _url.substr(strlen("@assets/"));
-        } else
-        {
+        } else {
             relativePath = _url;
         }
 
         _assetFd = _fdGetterCallback(relativePath, &start, &length);
 
-        if (_assetFd <= 0)
-        {
+        if (_assetFd <= 0) {
             ALOGE("Failed to open file descriptor for '%s'", _url.c_str());
             return false;
         }
@@ -220,10 +196,8 @@ bool AudioDecoderSLES::decodeToPcm()
         locFd = {SL_DATALOCATOR_ANDROIDFD, _assetFd, start, length};
 
         decSource.pLocator = &locFd;
-    }
-    else
-    {
-        decUri = {SL_DATALOCATOR_URI, (SLchar *) _url.c_str()};
+    } else {
+        decUri = {SL_DATALOCATOR_URI, (SLchar *)_url.c_str()};
         decSource.pLocator = &decUri;
     }
 
@@ -240,15 +214,13 @@ bool AudioDecoderSLES::decodeToPcm()
     pcm.channelMask = SL_SPEAKER_FRONT_LEFT | SL_SPEAKER_FRONT_RIGHT;
     pcm.endianness = SL_BYTEORDER_LITTLEENDIAN;
 
-    decDest.pLocator = (void *) &decBuffQueue;
-    decDest.pFormat = (void *) &pcm;
+    decDest.pLocator = (void *)&decBuffQueue;
+    decDest.pFormat = (void *)&pcm;
 
     {
         std::lock_guard<std::mutex> lk(__SLPlayerMutex);
         /* Create the audio player */
-        result = (*_engineItf)->CreateAudioPlayer(_engineItf, &player, &decSource, &decDest,
-                                                  NUM_EXPLICIT_INTERFACES_FOR_PLAYER, iidArray,
-                                                  required);
+        result = (*_engineItf)->CreateAudioPlayer(_engineItf, &player, &decSource, &decDest, NUM_EXPLICIT_INTERFACES_FOR_PLAYER, iidArray, required);
         SL_RETURN_VAL_IF_FAILED(result, false, "CreateAudioPlayer failed");
 
         _playObj = player;
@@ -258,7 +230,7 @@ bool AudioDecoderSLES::decodeToPcm()
     }
 
     /* Get the play interface which is implicit */
-    result = (*player)->GetInterface(player, SL_IID_PLAY, (void *) &playItf);
+    result = (*player)->GetInterface(player, SL_IID_PLAY, (void *)&playItf);
     SL_RETURN_VAL_IF_FAILED(result, false, "GetInterface SL_IID_PLAY failed");
 
     /* Set up the player callback to get events during the decoding */
@@ -270,46 +242,41 @@ bool AudioDecoderSLES::decodeToPcm()
     SL_RETURN_VAL_IF_FAILED(result, false, "SetPositionUpdatePeriod failed");
     result = (*playItf)->SetCallbackEventsMask(playItf,
                                                SL_PLAYEVENT_HEADATMARKER |
-                                               SL_PLAYEVENT_HEADATNEWPOS | SL_PLAYEVENT_HEADATEND);
+                                                   SL_PLAYEVENT_HEADATNEWPOS | SL_PLAYEVENT_HEADATEND);
     SL_RETURN_VAL_IF_FAILED(result, false, "SetCallbackEventsMask failed");
     result = (*playItf)->RegisterCallback(playItf, SLAudioDecoderCallbackProxy::decProgressCallback,
                                           this);
     SL_RETURN_VAL_IF_FAILED(result, false, "RegisterCallback failed");
     ALOGV("Play callback registered");
 
-
     /* Get the buffer queue interface which was explicitly requested */
     result = (*player)->GetInterface(player, SL_IID_ANDROIDSIMPLEBUFFERQUEUE,
-                                     (void *) &decBuffQueueItf);
+                                     (void *)&decBuffQueueItf);
     SL_RETURN_VAL_IF_FAILED(result, false, "GetInterface SL_IID_ANDROIDSIMPLEBUFFERQUEUE failed");
 
     /* Get the prefetch status interface which was explicitly requested */
-    result = (*player)->GetInterface(player, SL_IID_PREFETCHSTATUS, (void *) &prefetchItf);
+    result = (*player)->GetInterface(player, SL_IID_PREFETCHSTATUS, (void *)&prefetchItf);
     SL_RETURN_VAL_IF_FAILED(result, false, "GetInterface SL_IID_PREFETCHSTATUS failed");
 
     /* Get the metadata extraction interface which was explicitly requested */
-    result = (*player)->GetInterface(player, SL_IID_METADATAEXTRACTION, (void *) &mdExtrItf);
+    result = (*player)->GetInterface(player, SL_IID_METADATAEXTRACTION, (void *)&mdExtrItf);
     SL_RETURN_VAL_IF_FAILED(result, false, "GetInterface SL_IID_METADATAEXTRACTION failed");
 
     /* ------------------------------------------------------ */
     /* Initialize the callback and its context for the decoding buffer queue */
     _decContext.playItf = playItf;
     _decContext.metaItf = mdExtrItf;
-    _decContext.pDataBase = (int8_t *) _pcmData;
+    _decContext.pDataBase = (int8_t *)_pcmData;
     _decContext.pData = _decContext.pDataBase;
     _decContext.size = NB_BUFFERS_IN_QUEUE * BUFFER_SIZE_IN_BYTES;
 
-    result = (*decBuffQueueItf)->RegisterCallback(decBuffQueueItf,
-                                                  SLAudioDecoderCallbackProxy::decPlayCallback,
-                                                  this);
+    result = (*decBuffQueueItf)->RegisterCallback(decBuffQueueItf, SLAudioDecoderCallbackProxy::decPlayCallback, this);
     SL_RETURN_VAL_IF_FAILED(result, false, "decBuffQueueItf RegisterCallback failed");
 
     /* Enqueue buffers to map the region of memory allocated to store the decoded data */
-//    ALOGV("Enqueueing buffer ");
-    for (int i = 0; i < NB_BUFFERS_IN_QUEUE; i++)
-    {
-        result = (*decBuffQueueItf)->Enqueue(decBuffQueueItf, _decContext.pData,
-                                             BUFFER_SIZE_IN_BYTES);
+    //    ALOGV("Enqueueing buffer ");
+    for (int i = 0; i < NB_BUFFERS_IN_QUEUE; i++) {
+        result = (*decBuffQueueItf)->Enqueue(decBuffQueueItf, _decContext.pData, BUFFER_SIZE_IN_BYTES);
         SL_RETURN_VAL_IF_FAILED(result, false, "Enqueue failed");
         _decContext.pData += BUFFER_SIZE_IN_BYTES;
     }
@@ -318,9 +285,7 @@ bool AudioDecoderSLES::decodeToPcm()
 
     /* ------------------------------------------------------ */
     /* Initialize the callback for prefetch errors, if we can't open the resource to decode */
-    result = (*prefetchItf)->RegisterCallback(prefetchItf,
-                                              SLAudioDecoderCallbackProxy::prefetchEventCallback,
-                                              this);
+    result = (*prefetchItf)->RegisterCallback(prefetchItf, SLAudioDecoderCallbackProxy::prefetchEventCallback, this);
     SL_RETURN_VAL_IF_FAILED(result, false, "prefetchItf RegisterCallback failed");
 
     result = (*prefetchItf)->SetCallbackEventsMask(prefetchItf, PREFETCHEVENT_ERROR_CANDIDATE);
@@ -336,14 +301,12 @@ bool AudioDecoderSLES::decodeToPcm()
     SLuint32 prefetchStatus = SL_PREFETCHSTATUS_UNDERFLOW;
     SLuint32 timeOutIndex = 1000; //cjh time out prefetching after 2s
     while ((prefetchStatus != SL_PREFETCHSTATUS_SUFFICIENTDATA) && (timeOutIndex > 0) &&
-           !_prefetchError)
-    {
+           !_prefetchError) {
         std::this_thread::sleep_for(std::chrono::milliseconds(2));
         (*prefetchItf)->GetPrefetchStatus(prefetchItf, &prefetchStatus);
         timeOutIndex--;
     }
-    if (timeOutIndex == 0 || _prefetchError)
-    {
+    if (timeOutIndex == 0 || _prefetchError) {
         ALOGE("Failure to prefetch data in time, exiting");
         SL_RETURN_VAL_IF_FAILED(SL_RESULT_CONTENT_NOT_FOUND, false,
                                 "Failure to prefetch data in time");
@@ -355,11 +318,9 @@ bool AudioDecoderSLES::decodeToPcm()
     result = (*playItf)->GetDuration(playItf, &durationInMsec);
     SL_RETURN_VAL_IF_FAILED(result, false, "GetDuration failed");
 
-    if (durationInMsec == SL_TIME_UNKNOWN)
-    {
+    if (durationInMsec == SL_TIME_UNKNOWN) {
         ALOGV("Content duration is unknown");
-    } else
-    {
+    } else {
         ALOGV("Content duration is %dms", (int)durationInMsec);
     }
 
@@ -372,8 +333,7 @@ bool AudioDecoderSLES::decodeToPcm()
     result = (*mdExtrItf)->GetItemCount(mdExtrItf, &itemCount);
     SLuint32 i, keySize, valueSize;
     SLMetadataInfo *keyInfo, *value;
-    for (i = 0; i < itemCount; i++)
-    {
+    for (i = 0; i < itemCount; i++) {
         keyInfo = nullptr;
         keySize = 0;
         value = nullptr;
@@ -384,9 +344,8 @@ bool AudioDecoderSLES::decodeToPcm()
         result = (*mdExtrItf)->GetValueSize(mdExtrItf, i, &valueSize);
         SL_RETURN_VAL_IF_FAILED(result, false, "GetValueSize(%d) failed", (int)i);
 
-        keyInfo = (SLMetadataInfo *) malloc(keySize);
-        if (nullptr != keyInfo)
-        {
+        keyInfo = (SLMetadataInfo *)malloc(keySize);
+        if (nullptr != keyInfo) {
             result = (*mdExtrItf)->GetKey(mdExtrItf, i, keySize, keyInfo);
 
             SL_RETURN_VAL_IF_FAILED(result, false, "GetKey(%d) failed", (int)i);
@@ -394,23 +353,17 @@ bool AudioDecoderSLES::decodeToPcm()
             ALOGV("key[%d] size=%d, name=%s, value size=%d",
                   (int)i, (int)keyInfo->size, keyInfo->data, (int)valueSize);
             /* find out the key index of the metadata we're interested in */
-            if (!strcmp((char *) keyInfo->data, ANDROID_KEY_PCMFORMAT_NUMCHANNELS))
-            {
+            if (!strcmp((char *)keyInfo->data, ANDROID_KEY_PCMFORMAT_NUMCHANNELS)) {
                 _numChannelsKeyIndex = i;
-            } else if (!strcmp((char *) keyInfo->data, ANDROID_KEY_PCMFORMAT_SAMPLERATE))
-            {
+            } else if (!strcmp((char *)keyInfo->data, ANDROID_KEY_PCMFORMAT_SAMPLERATE)) {
                 _sampleRateKeyIndex = i;
-            } else if (!strcmp((char *) keyInfo->data, ANDROID_KEY_PCMFORMAT_BITSPERSAMPLE))
-            {
+            } else if (!strcmp((char *)keyInfo->data, ANDROID_KEY_PCMFORMAT_BITSPERSAMPLE)) {
                 _bitsPerSampleKeyIndex = i;
-            } else if (!strcmp((char *) keyInfo->data, ANDROID_KEY_PCMFORMAT_CONTAINERSIZE))
-            {
+            } else if (!strcmp((char *)keyInfo->data, ANDROID_KEY_PCMFORMAT_CONTAINERSIZE)) {
                 _containerSizeKeyIndex = i;
-            } else if (!strcmp((char *) keyInfo->data, ANDROID_KEY_PCMFORMAT_CHANNELMASK))
-            {
+            } else if (!strcmp((char *)keyInfo->data, ANDROID_KEY_PCMFORMAT_CHANNELMASK)) {
                 _channelMaskKeyIndex = i;
-            } else if (!strcmp((char *) keyInfo->data, ANDROID_KEY_PCMFORMAT_ENDIANNESS))
-            {
+            } else if (!strcmp((char *)keyInfo->data, ANDROID_KEY_PCMFORMAT_ENDIANNESS)) {
                 _endiannessKeyIndex = i;
             }
             free(keyInfo);
@@ -434,8 +387,7 @@ bool AudioDecoderSLES::decodeToPcm()
     /* Decode until the end of the stream is reached */
     {
         std::unique_lock<std::mutex> autoLock(_eosLock);
-        while (!_eos)
-        {
+        while (!_eos) {
             _eosCondition.wait(autoLock);
         }
     }
@@ -459,7 +411,7 @@ bool AudioDecoderSLES::decodeToPcm()
     ALOGV("After destroy player ...");
 
     _result.numFrames =
-            _result.pcmBuffer->size() / _result.numChannels / (_result.bitsPerSample / 8);
+        _result.pcmBuffer->size() / _result.numChannels / (_result.bitsPerSample / 8);
 
     std::string info = _result.toString();
     ALOGI("Original audio info: %s, total size: %d", info.c_str(), (int)_result.pcmBuffer->size());
@@ -467,17 +419,14 @@ bool AudioDecoderSLES::decodeToPcm()
 }
 
 //-----------------------------------------------------------------
-void AudioDecoderSLES::signalEos()
-{
+void AudioDecoderSLES::signalEos() {
     std::unique_lock<std::mutex> autoLock(_eosLock);
     _eos = true;
     _eosCondition.notify_one();
 }
 
-void AudioDecoderSLES::queryAudioInfo()
-{
-    if (_formatQueried)
-    {
+void AudioDecoderSLES::queryAudioInfo() {
+    if (_formatQueried) {
         return;
     }
 
@@ -487,11 +436,9 @@ void AudioDecoderSLES::queryAudioInfo()
     result = (*_decContext.playItf)->GetDuration(_decContext.playItf, &durationInMsec);
     SL_RETURN_IF_FAILED(result, "decodeProgressCallback,GetDuration failed");
 
-    if (durationInMsec == SL_TIME_UNKNOWN)
-    {
+    if (durationInMsec == SL_TIME_UNKNOWN) {
         ALOGV("Content duration is unknown (in dec callback)");
-    } else
-    {
+    } else {
         ALOGV("Content duration is %dms (in dec callback)", (int)durationInMsec);
         _result.duration = durationInMsec / 1000.0f;
     }
@@ -499,8 +446,7 @@ void AudioDecoderSLES::queryAudioInfo()
     /* used to query metadata values */
     SLMetadataInfo pcmMetaData;
 
-    result = (*_decContext.metaItf)->GetValue(_decContext.metaItf, _sampleRateKeyIndex,
-                                              PCM_METADATA_VALUE_SIZE, &pcmMetaData);
+    result = (*_decContext.metaItf)->GetValue(_decContext.metaItf, _sampleRateKeyIndex, PCM_METADATA_VALUE_SIZE, &pcmMetaData);
 
     SL_RETURN_IF_FAILED(result, "%s GetValue _sampleRateKeyIndex failed", __FUNCTION__);
     // Note: here we could verify the following:
@@ -508,38 +454,32 @@ void AudioDecoderSLES::queryAudioInfo()
     //         pcmMetaData->size == sizeof(SLuint32)
     //       but the call was successful for the PCM format keys, so those conditions are implied
 
-    _result.sampleRate = *((SLuint32 *) pcmMetaData.data);
-    result = (*_decContext.metaItf)->GetValue(_decContext.metaItf, _numChannelsKeyIndex,
-                                              PCM_METADATA_VALUE_SIZE, &pcmMetaData);
+    _result.sampleRate = *((SLuint32 *)pcmMetaData.data);
+    result = (*_decContext.metaItf)->GetValue(_decContext.metaItf, _numChannelsKeyIndex, PCM_METADATA_VALUE_SIZE, &pcmMetaData);
     SL_RETURN_IF_FAILED(result, "%s GetValue _numChannelsKeyIndex failed", __FUNCTION__);
 
-    _result.numChannels = *((SLuint32 *) pcmMetaData.data);
+    _result.numChannels = *((SLuint32 *)pcmMetaData.data);
 
-    result = (*_decContext.metaItf)->GetValue(_decContext.metaItf, _bitsPerSampleKeyIndex,
-                                              PCM_METADATA_VALUE_SIZE, &pcmMetaData);
+    result = (*_decContext.metaItf)->GetValue(_decContext.metaItf, _bitsPerSampleKeyIndex, PCM_METADATA_VALUE_SIZE, &pcmMetaData);
     SL_RETURN_IF_FAILED(result, "%s GetValue _bitsPerSampleKeyIndex failed", __FUNCTION__)
-    _result.bitsPerSample = *((SLuint32 *) pcmMetaData.data);
+    _result.bitsPerSample = *((SLuint32 *)pcmMetaData.data);
 
-    result = (*_decContext.metaItf)->GetValue(_decContext.metaItf, _containerSizeKeyIndex,
-                                              PCM_METADATA_VALUE_SIZE, &pcmMetaData);
+    result = (*_decContext.metaItf)->GetValue(_decContext.metaItf, _containerSizeKeyIndex, PCM_METADATA_VALUE_SIZE, &pcmMetaData);
     SL_RETURN_IF_FAILED(result, "%s GetValue _containerSizeKeyIndex failed", __FUNCTION__)
-    _result.containerSize = *((SLuint32 *) pcmMetaData.data);
+    _result.containerSize = *((SLuint32 *)pcmMetaData.data);
 
-    result = (*_decContext.metaItf)->GetValue(_decContext.metaItf, _channelMaskKeyIndex,
-                                              PCM_METADATA_VALUE_SIZE, &pcmMetaData);
+    result = (*_decContext.metaItf)->GetValue(_decContext.metaItf, _channelMaskKeyIndex, PCM_METADATA_VALUE_SIZE, &pcmMetaData);
     SL_RETURN_IF_FAILED(result, "%s GetValue _channelMaskKeyIndex failed", __FUNCTION__)
-    _result.channelMask = *((SLuint32 *) pcmMetaData.data);
+    _result.channelMask = *((SLuint32 *)pcmMetaData.data);
 
-    result = (*_decContext.metaItf)->GetValue(_decContext.metaItf, _endiannessKeyIndex,
-                                              PCM_METADATA_VALUE_SIZE, &pcmMetaData);
+    result = (*_decContext.metaItf)->GetValue(_decContext.metaItf, _endiannessKeyIndex, PCM_METADATA_VALUE_SIZE, &pcmMetaData);
     SL_RETURN_IF_FAILED(result, "%s GetValue _endiannessKeyIndex failed", __FUNCTION__)
-    _result.endianness = *((SLuint32 *) pcmMetaData.data);
+    _result.endianness = *((SLuint32 *)pcmMetaData.data);
 
     _formatQueried = true;
 }
 
-void AudioDecoderSLES::prefetchCallback(SLPrefetchStatusItf caller, SLuint32 event)
-{
+void AudioDecoderSLES::prefetchCallback(SLPrefetchStatusItf caller, SLuint32 event) {
     SLpermille level = 0;
     SLresult result;
     result = (*caller)->GetFillLevel(caller, &level);
@@ -551,9 +491,7 @@ void AudioDecoderSLES::prefetchCallback(SLPrefetchStatusItf caller, SLuint32 eve
 
     SL_RETURN_IF_FAILED(result, "GetPrefetchStatus failed");
 
-    if ((PREFETCHEVENT_ERROR_CANDIDATE == (event & PREFETCHEVENT_ERROR_CANDIDATE))
-        && (level == 0) && (status == SL_PREFETCHSTATUS_UNDERFLOW))
-    {
+    if ((PREFETCHEVENT_ERROR_CANDIDATE == (event & PREFETCHEVENT_ERROR_CANDIDATE)) && (level == 0) && (status == SL_PREFETCHSTATUS_UNDERFLOW)) {
         ALOGV("PrefetchEventCallback: Error while prefetching data, exiting");
         _prefetchError = true;
         signalEos();
@@ -561,17 +499,13 @@ void AudioDecoderSLES::prefetchCallback(SLPrefetchStatusItf caller, SLuint32 eve
 }
 
 /* Callback for "playback" events, i.e. event happening during decoding */
-void AudioDecoderSLES::decodeProgressCallback(SLPlayItf caller, SLuint32 event)
-{
-    if (SL_PLAYEVENT_HEADATEND & event)
-    {
+void AudioDecoderSLES::decodeProgressCallback(SLPlayItf caller, SLuint32 event) {
+    if (SL_PLAYEVENT_HEADATEND & event) {
         ALOGV("SL_PLAYEVENT_HEADATEND");
-        if (!_isDecodingCallbackInvoked)
-        {
+        if (!_isDecodingCallbackInvoked) {
             queryAudioInfo();
 
-            for (int i = 0; i < NB_BUFFERS_IN_QUEUE; ++i)
-            {
+            for (int i = 0; i < NB_BUFFERS_IN_QUEUE; ++i) {
                 _result.pcmBuffer->insert(_result.pcmBuffer->end(), _decContext.pData,
                                           _decContext.pData + BUFFER_SIZE_IN_BYTES);
 
@@ -585,15 +519,13 @@ void AudioDecoderSLES::decodeProgressCallback(SLPlayItf caller, SLuint32 event)
 
 //-----------------------------------------------------------------
 /* Callback for decoding buffer queue events */
-void AudioDecoderSLES::decodeToPcmCallback(SLAndroidSimpleBufferQueueItf queueItf)
-{
+void AudioDecoderSLES::decodeToPcmCallback(SLAndroidSimpleBufferQueueItf queueItf) {
     _isDecodingCallbackInvoked = true;
     ALOGV("%s ...", __FUNCTION__);
     _counter++;
     SLresult result;
     // IDEA: ??
-    if (_counter % 1000 == 0)
-    {
+    if (_counter % 1000 == 0) {
         SLmillisecond msec;
         result = (*_decContext.playItf)->GetPosition(_decContext.playItf, &msec);
         SL_RETURN_IF_FAILED(result, "%s, GetPosition failed", __FUNCTION__);
@@ -609,8 +541,7 @@ void AudioDecoderSLES::decodeToPcmCallback(SLAndroidSimpleBufferQueueItf queueIt
     /* Increase data pointer by buffer size */
     _decContext.pData += BUFFER_SIZE_IN_BYTES;
 
-    if (_decContext.pData >= _decContext.pDataBase + (NB_BUFFERS_IN_QUEUE * BUFFER_SIZE_IN_BYTES))
-    {
+    if (_decContext.pData >= _decContext.pDataBase + (NB_BUFFERS_IN_QUEUE * BUFFER_SIZE_IN_BYTES)) {
         _decContext.pData = _decContext.pDataBase;
     }
 
@@ -646,4 +577,4 @@ void AudioDecoderSLES::decodeToPcmCallback(SLAndroidSimpleBufferQueueItf queueIt
     queryAudioInfo();
 }
 
-} // namespace cc { 
+} // namespace cc

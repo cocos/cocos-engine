@@ -40,13 +40,8 @@ THE SOFTWARE.
 #include "MTLSemaphore.h"
 #include "MTLShader.h"
 #include "MTLTexture.h"
-#include "MTLUtils.h"
-#include "TargetConditionals.h"
 #include "cocos/bindings/event/CustomEventTypes.h"
 #include "cocos/bindings/event/EventDispatcher.h"
-
-#import <MetalKit/MTKView.h>
-#include <dispatch/dispatch.h>
 
 namespace cc {
 namespace gfx {
@@ -93,7 +88,7 @@ bool CCMTLDevice::initialize(const DeviceInfo &info) {
     _indirectDrawSupported = mu::isIndirectDrawSupported(gpuFamily);
     _caps.maxVertexAttributes = mu::getMaxVertexAttributes(gpuFamily);
     _caps.maxTextureUnits = _caps.maxVertexTextureUnits = mu::getMaxEntriesInTextureArgumentTable(gpuFamily);
-    _caps.maxTextureUnits = mu::getMaxEntriesInSamplerStateArgumentTable(gpuFamily);
+    _maxSamplerUnits = mu::getMaxEntriesInSamplerStateArgumentTable(gpuFamily);
     _caps.maxTextureSize = mu::getMaxTexture2DWidthHeight(gpuFamily);
     _caps.maxCubeMapTextureSize = mu::getMaxCubeMapTextureWidthHeight(gpuFamily);
     _caps.maxColorRenderTargets = mu::getMaxColorRenderTarget(gpuFamily);
@@ -182,6 +177,8 @@ bool CCMTLDevice::initialize(const DeviceInfo &info) {
 
 //    _memoryAlarmListenerId = EventDispatcher::addCustomEventListener(EVENT_MEMORY_WARNING, std::bind(&CCMTLDevice::onMemoryWarning, this));
 
+    CCMTLGPUGarbageCollectionPool::getInstance()->initialize(std::bind(&CCMTLDevice::currentFrameIndex, this));
+
     CC_LOG_INFO("Metal Feature Set: %s", mu::featureSetToString(MTLFeatureSet(_mtlFeatureSet)).c_str());
 
     return true;
@@ -197,6 +194,17 @@ void CCMTLDevice::destroy() {
         _autoreleasePool = nullptr;
     }
 
+    CCMTLGPUGarbageCollectionPool::getInstance()->flush();
+
+    if (_inFlightSemaphore) {
+        _inFlightSemaphore->syncAll();
+    }
+
+    if (_mtlCommandQueue) {
+        [id<MTLCommandQueue>(_mtlCommandQueue) release];
+        _mtlCommandQueue = nullptr;
+    }
+
     CC_SAFE_DESTROY(_queue);
     CC_SAFE_DESTROY(_cmdBuff);
     CC_SAFE_DESTROY(_context);
@@ -208,7 +216,7 @@ void CCMTLDevice::destroy() {
     }
 }
 
-void CCMTLDevice::resize(uint width, uint height) {}
+void CCMTLDevice::resize(uint /*width*/, uint /*height*/) {}
 
 void CCMTLDevice::acquire() {
     _inFlightSemaphore->wait();
@@ -268,7 +276,7 @@ Queue *CCMTLDevice::createQueue() {
     return CC_NEW(CCMTLQueue(this));
 }
 
-CommandBuffer *CCMTLDevice::doCreateCommandBuffer(const CommandBufferInfo &info, bool hasAgent) {
+CommandBuffer *CCMTLDevice::doCreateCommandBuffer(const CommandBufferInfo &info, bool /*hasAgent*/) {
     return CC_NEW(CCMTLCommandBuffer(this));
 }
 
@@ -326,9 +334,9 @@ TextureBarrier *CCMTLDevice::createTextureBarrier() {
 
 void CCMTLDevice::copyBuffersToTexture(const uint8_t *const *buffers, Texture *texture, const BufferTextureCopy *regions, uint count) {
     // This assumes the default command buffer will get submitted every frame,
-    // which is true for now but may change in the future. This appoach gives us
+    // which is true for now but may change in the future. This approach gives us
     // the wiggle room to leverage immediate update vs. copy-upload strategies without
-    // breaking compatabilities. When we reached some conclusion on this subject,
+    // breaking compatibilities. When we reached some conclusion on this subject,
     // getting rid of this interface all together may become a better option.
     _cmdBuff->begin();
     static_cast<CCMTLCommandBuffer *>(_cmdBuff)->copyBuffersToTexture(buffers, texture, regions, count);

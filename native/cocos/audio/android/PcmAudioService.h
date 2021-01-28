@@ -32,25 +32,22 @@ THE SOFTWARE.
 #include <mutex>
 #include <condition_variable>
 
-namespace cc { 
+namespace cc {
 
 class AudioMixerController;
 
-class PcmAudioService
-{
+class PcmAudioService {
 public:
-    inline int getChannelCount() const
-    { return _numChannels; };
+    inline int getChannelCount() const { return _numChannels; };
 
-    inline int getSampleRate() const
-    { return _sampleRate; };
+    inline int getSampleRate() const { return _sampleRate; };
 
 private:
     PcmAudioService(SLEngineItf engineItf, SLObjectItf outputMixObject);
 
     virtual ~PcmAudioService();
 
-    bool init(AudioMixerController* controller, int numChannels, int sampleRate, int bufferSizeInBytes);
+    bool init(AudioMixerController *controller, int numChannels, int sampleRate, int bufferSizeInBytes);
 
     bool enqueue();
 
@@ -72,10 +69,10 @@ private:
     int _sampleRate;
     int _bufferSizeInBytes;
 
-    AudioMixerController* _controller;
+    AudioMixerController *_controller;
 
     friend class SLPcmAudioPlayerCallbackProxy;
     friend class AudioPlayerProvider;
 };
 
-} // namespace cc { 
+} // namespace cc

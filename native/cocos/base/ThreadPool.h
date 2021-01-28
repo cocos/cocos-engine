@@ -45,12 +45,9 @@ namespace cc {
  * @{
  */
 
-class CC_DLL ThreadPool
-{
+class CC_DLL ThreadPool {
 public:
-
-    enum class TaskType
-    {
+    enum class TaskType {
         DEFAULT = 0,
         NETWORK,
         IO,
@@ -95,7 +92,7 @@ public:
      *  @param type The task type, it's TASK_TYPE_DEFAULT if this argument isn't assigned
      *  @note This function has to be invoked in cocos thread
      */
-    void pushTask(const std::function<void(int /*threadId*/)>& runnable, TaskType type = TaskType::DEFAULT);
+    void pushTask(const std::function<void(int /*threadId*/)> &runnable, TaskType type = TaskType::DEFAULT);
 
     // Stops all tasks, it will remove all tasks in queue
     void stopAllTasks();
@@ -104,19 +101,16 @@ public:
     void stopTasksByType(TaskType type);
 
     // Gets the minimum thread numbers
-    inline int getMinThreadNum() const
-    { return _minThreadNum; };
+    inline int getMinThreadNum() const { return _minThreadNum; };
 
     // Gets the maximum thread numbers
-    inline int getMaxThreadNum() const
-    { return _maxThreadNum; };
+    inline int getMaxThreadNum() const { return _maxThreadNum; };
 
     // Gets the number of idle threads
     int getIdleThreadNum() const;
 
     // Gets the number of initialized threads
-    inline int getInitedThreadNum() const
-    { return _initedThreadNum; };
+    inline int getInitedThreadNum() const { return _initedThreadNum; };
 
     // Gets the task number
     int getTaskNum() const;
@@ -130,13 +124,13 @@ public:
 private:
     ThreadPool(int minNum, int maxNum);
 
-    ThreadPool(const ThreadPool&);
+    ThreadPool(const ThreadPool &);
 
-    ThreadPool(ThreadPool&&);
+    ThreadPool(ThreadPool &&);
 
-    ThreadPool& operator=(const ThreadPool&);
+    ThreadPool &operator=(const ThreadPool &);
 
-    ThreadPool& operator=(ThreadPool&&);
+    ThreadPool &operator=(ThreadPool &&);
 
     void init();
 
@@ -161,20 +155,17 @@ private:
     std::vector<std::shared_ptr<std::atomic<bool>>> _idleFlags;
     std::vector<std::shared_ptr<std::atomic<bool>>> _initedFlags;
 
-    template<typename T>
-    class ThreadSafeQueue
-    {
+    template <typename T>
+    class ThreadSafeQueue {
     public:
-        bool push(T const& value)
-        {
+        bool push(T const &value) {
             std::unique_lock<std::mutex> lock(this->mutex);
             this->q.push(value);
             return true;
         }
 
         // deletes the retrieved element, do not use for non integral types
-        bool pop(T& v)
-        {
+        bool pop(T &v) {
             std::unique_lock<std::mutex> lock(this->mutex);
             if (this->q.empty())
                 return false;
@@ -183,16 +174,14 @@ private:
             return true;
         }
 
-        bool empty() const
-        {
-            auto thiz = const_cast<ThreadSafeQueue*>(this);
+        bool empty() const {
+            auto thiz = const_cast<ThreadSafeQueue *>(this);
             std::unique_lock<std::mutex> lock(thiz->mutex);
             return this->q.empty();
         }
 
-        size_t size() const
-        {
-            auto thiz = const_cast<ThreadSafeQueue*>(this);
+        size_t size() const {
+            auto thiz = const_cast<ThreadSafeQueue *>(this);
             std::unique_lock<std::mutex> lock(thiz->mutex);
             return this->q.size();
         }
@@ -202,8 +191,7 @@ private:
         std::mutex mutex;
     };
 
-    struct Task
-    {
+    struct Task {
         TaskType type;
         std::function<void(int)> *callback;
     };
@@ -214,7 +202,7 @@ private:
 
     //IDEA: std::atomic<int> isn't supported by ndk-r10e while compiling with `armeabi` arch.
     // So using a mutex here instead.
-    int _idleThreadNum;  // how many threads are waiting
+    int _idleThreadNum; // how many threads are waiting
     std::mutex _idleThreadNumMutex;
 
     std::mutex _mutex;
@@ -234,4 +222,4 @@ private:
 // end of base group
 /// @}
 
-} // namespace cc {
+} // namespace cc

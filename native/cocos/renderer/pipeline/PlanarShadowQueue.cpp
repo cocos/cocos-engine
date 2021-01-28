@@ -33,7 +33,6 @@ THE SOFTWARE.
 #include "RenderInstancedQueue.h"
 #include "gfx/GFXCommandBuffer.h"
 #include "helper/SharedMemory.h"
-#include "forward/ForwardPipeline.h"
 #include "gfx/GFXDescriptorSet.h"
 #include "gfx/GFXDevice.h"
 #include "gfx/GFXShader.h"
@@ -42,15 +41,19 @@ namespace cc {
 namespace pipeline {
 
 PlanarShadowQueue::PlanarShadowQueue(RenderPipeline *pipeline)
-:_pipeline(static_cast<ForwardPipeline *>(pipeline)){
+:_pipeline(pipeline){
     _instancedQueue = CC_NEW(RenderInstancedQueue);
 }
 
 void PlanarShadowQueue::gatherShadowPasses(Camera *camera, gfx::CommandBuffer *cmdBufferer) {
     clear();
-    const auto *shadowInfo = _pipeline->getShadows();
+    const auto sceneData = _pipeline->getPipelineSceneData();
+    const auto sharedData = sceneData->getSharedData();
+    const auto *shadowInfo = sharedData->getShadows();
     if (!shadowInfo->enabled || shadowInfo->getShadowType() != ShadowType::PLANAR) { return; }
 
+    const auto pipelineUBO = _pipeline->getPipelineUBO();
+    pipelineUBO->updateShadowUBO(camera);
     const auto *scene = camera->getScene();
     const bool shadowVisible = camera->visibility & static_cast<uint>(LayerList::DEFAULT);
 
@@ -100,7 +103,9 @@ void PlanarShadowQueue::clear() {
 }
 
 void PlanarShadowQueue::recordCommandBuffer(gfx::Device *device, gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuffer) {
-    const auto *shadowInfo = _pipeline->getShadows();
+    const auto sceneData = _pipeline->getPipelineSceneData();
+    const auto sharedData = sceneData->getSharedData();
+    const auto *shadowInfo = sharedData->getShadows();
     if (!shadowInfo->enabled || shadowInfo->getShadowType() != ShadowType::PLANAR || _pendingModels.empty()) { return; }
 
     _instancedQueue->recordCommandBuffer(device, renderPass, cmdBuffer);

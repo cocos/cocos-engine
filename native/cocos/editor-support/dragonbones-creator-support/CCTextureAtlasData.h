@@ -24,7 +24,6 @@
 #ifndef DRAGONBONES_CC_TEXTUREATLAS_DATA_H
 #define DRAGONBONES_CC_TEXTUREATLAS_DATA_H
 
-#include "cocos2d.h"
 #include "dragonbones/DragonBonesHeaders.h"
 #include "middleware-adapter.h"
 

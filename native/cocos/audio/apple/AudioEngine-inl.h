@@ -22,9 +22,6 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-
-#if CC_PLATFORM == CC_PLATFORM_MAC_IOS || CC_PLATFORM == CC_PLATFORM_MAC_OSX
-
 #ifndef __AUDIO_ENGINE_INL_H_
 #define __AUDIO_ENGINE_INL_H_
 
@@ -40,15 +37,14 @@ class Scheduler;
 
 #define MAX_AUDIOINSTANCES 24
 
-class AudioEngineImpl : public cc::Ref
-{
+class AudioEngineImpl : public cc::Ref {
 public:
     AudioEngineImpl();
     ~AudioEngineImpl();
 
     bool init();
-    int play2d(const std::string &fileFullPath ,bool loop ,float volume);
-    void setVolume(int audioID,float volume);
+    int play2d(const std::string &fileFullPath, bool loop, float volume);
+    void setVolume(int audioID, float volume);
     void setLoop(int audioID, bool loop);
     bool pause(int audioID);
     bool resume(int audioID);
@@ -58,11 +54,11 @@ public:
     float getDurationFromFile(const std::string &fileFullPath);
     float getCurrentTime(int audioID);
     bool setCurrentTime(int audioID, float time);
-    void setFinishCallback(int audioID, const std::function<void (int, const std::string &)> &callback);
+    void setFinishCallback(int audioID, const std::function<void(int, const std::string &)> &callback);
 
-    void uncache(const std::string& filePath);
+    void uncache(const std::string &filePath);
     void uncacheAll();
-    AudioCache* preload(const std::string& filePath, std::function<void(bool)> callback);
+    AudioCache *preload(const std::string &filePath, std::function<void(bool)> callback);
     void update(float dt);
 
 private:
@@ -70,7 +66,7 @@ private:
     void _play2d(AudioCache *cache, int audioID);
     ALuint findValidSource();
 
-    static ALvoid myAlSourceNotificationCallback(ALuint sid, ALuint notificationID, ALvoid* userData);
+    static ALvoid myAlSourceNotificationCallback(ALuint sid, ALuint notificationID, ALvoid *userData);
 
     ALuint _alSources[MAX_AUDIOINSTANCES];
 
@@ -81,7 +77,7 @@ private:
     std::unordered_map<std::string, AudioCache> _audioCaches;
 
     //audioID,AudioInfo
-    std::unordered_map<int, AudioPlayer*>  _audioPlayers;
+    std::unordered_map<int, AudioPlayer *> _audioPlayers;
     std::mutex _threadMutex;
 
     bool _lazyInitLoop;
@@ -89,6 +85,5 @@ private:
     int _currentAudioID;
     std::weak_ptr<Scheduler> _scheduler;
 };
-}
+} // namespace cc
 #endif // __AUDIO_ENGINE_INL_H_
-#endif

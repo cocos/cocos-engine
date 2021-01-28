@@ -54,7 +54,6 @@ public:
     void recordCommandBuffer(gfx::Device *, gfx::RenderPass *, gfx::CommandBuffer *) const;
 
 private:
-    void updateUBOs(const Light *, gfx::CommandBuffer *) const;
     int getShadowPassIndex(const ModelView *model) const;
 
 private:

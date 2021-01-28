@@ -41,7 +41,7 @@ public:
     void clear();
 
 private:
-    set<InstancedBuffer *> _queues;
+    unordered_set<InstancedBuffer *> _queues;
 };
 
 } // namespace pipeline

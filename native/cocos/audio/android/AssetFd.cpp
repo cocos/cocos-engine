@@ -28,21 +28,18 @@ THE SOFTWARE.
 #include "audio/android/cutils/log.h"
 #include "audio/android/AssetFd.h"
 
-namespace cc { 
+namespace cc {
 
 AssetFd::AssetFd(int assetFd)
-        : _assetFd(assetFd)
-{
+: _assetFd(assetFd) {
 }
 
-AssetFd::~AssetFd()
-{
+AssetFd::~AssetFd() {
     ALOGV("~AssetFd: %d", _assetFd);
-    if (_assetFd > 0)
-    {
+    if (_assetFd > 0) {
         ::close(_assetFd);
         _assetFd = 0;
     }
 };
 
-} // namespace cc { 
+} // namespace cc

@@ -26,7 +26,7 @@
 #import <UIKit/UIView.h>
 
 #ifdef CC_USE_METAL
-#import <MetalKit/MetalKit.h>
+    #import <MetalKit/MetalKit.h>
 #endif
 
 @interface View : UIView
@@ -36,7 +36,6 @@
 @property(nonatomic, assign) id<MTLDevice> device;
 #endif
 
--(void) setPreventTouchEvent:(BOOL) flag;
+- (void)setPreventTouchEvent:(BOOL)flag;
 
 @end
-

@@ -35,7 +35,6 @@ Misc free functions
 
 namespace cc {
 
-
 /*
 utils::nextPOT function is licensed under the same license that is used in Texture2D.m.
 */
@@ -51,18 +50,16 @@ Examples:
 @since v0.99.5
 */
 
-namespace utils
-{
-    CC_DLL int nextPOT(int x);
-    /** Same to ::atof, but strip the string, remain 7 numbers after '.' before call atof.
+namespace utils {
+CC_DLL int nextPOT(int x);
+/** Same to ::atof, but strip the string, remain 7 numbers after '.' before call atof.
      * Why we need this? Because in android c++_static, atof ( and std::atof ) is unsupported for numbers have long decimal part and contain
      * several numbers can approximate to 1 ( like 90.099998474121094 ), it will return inf. This function is used to fix this bug.
      * @param str The string be to converted to double.
      * @return Returns converted value of a string.
      */
-    CC_DLL double  atof(const char* str);
+CC_DLL double atof(const char *str);
 
-}
+} // namespace utils
 
-}
-
+} // namespace cc

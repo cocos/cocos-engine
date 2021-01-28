@@ -35,11 +35,11 @@
 #include <vector>
 #include <algorithm>
 #ifndef OBJC_CLASS
-#ifdef __OBJC__
-#define OBJC_CLASS(name) @class name
-#else
-#define OBJC_CLASS(name) class name
-#endif
+    #ifdef __OBJC__
+        #define OBJC_CLASS(name) @class name
+    #else
+        #define OBJC_CLASS(name) class name
+    #endif
 #endif // OBJC_CLASS
 
 OBJC_CLASS(WebSocketImpl);
@@ -53,22 +53,20 @@ namespace cc {
 
 namespace network {
 
-
 class WebSocketFrame;
 
 /**
  * WebSocket is wrapper of the libwebsockets-protocol, let the develop could call the websocket easily.
  * Please note that all public methods of WebSocket have to be invoked on Cocos Thread.
  */
-class CC_DLL WebSocket : public Ref
-{
+class CC_DLL WebSocket : public Ref {
 public:
     /**
      * Close all connections and wait for all websocket threads to exit
      * @note This method has to be invoked on Cocos Thread
      */
     static void closeAllConnections();
-    
+
     /**
      * Constructor of WebSocket.
      *
@@ -89,21 +87,23 @@ public:
     /**
      * Data structure for message
      */
-    struct Data
-    {
-        Data():bytes(nullptr), len(0), issued(0), isBinary(false), ext(nullptr){}
-        char* bytes;
+    struct Data {
+        Data() : bytes(nullptr),
+                 len(0),
+                 issued(0),
+                 isBinary(false),
+                 ext(nullptr) {}
+        char *bytes;
         ssize_t len, issued;
         bool isBinary;
-        void* ext;
+        void *ext;
         ssize_t getRemain() { return std::max((ssize_t)0, len - issued); }
     };
 
     /**
      * ErrorCode enum used to represent the error in the websocket.
      */
-    enum class ErrorCode
-    {
+    enum class ErrorCode {
         TIME_OUT,           /** &lt; value 0 */
         CONNECTION_FAILURE, /** &lt; value 1 */
         UNKNOWN,            /** &lt; value 2 */
@@ -112,12 +112,11 @@ public:
     /**
      *  State enum used to represent the Websocket state.
      */
-    enum class State
-    {
-        CONNECTING,  /** &lt; value 0 */
-        OPEN,        /** &lt; value 1 */
-        CLOSING,     /** &lt; value 2 */
-        CLOSED,      /** &lt; value 3 */
+    enum class State {
+        CONNECTING, /** &lt; value 0 */
+        OPEN,       /** &lt; value 1 */
+        CLOSING,    /** &lt; value 2 */
+        CLOSED,     /** &lt; value 3 */
     };
 
     /**
@@ -126,8 +125,7 @@ public:
      * The most member function are pure virtual functions,they should be implemented the in subclass.
      * @lua NA
      */
-    class Delegate
-    {
+    class Delegate {
     public:
         /** Destructor of Delegate. */
         virtual ~Delegate() {}
@@ -137,20 +135,20 @@ public:
          * 
          * @param ws The WebSocket object connected
          */
-        virtual void onOpen(WebSocket* ws) = 0;
+        virtual void onOpen(WebSocket *ws) = 0;
         /**
          * This function to be called when data has appeared from the server for the client connection.
          *
          * @param ws The WebSocket object connected.
          * @param data Data object for message.
          */
-        virtual void onMessage(WebSocket* ws, const Data& data) = 0;
+        virtual void onMessage(WebSocket *ws, const Data &data) = 0;
         /**
          * When the WebSocket object connected wants to close or the protocol won't get used at all and current _readyState is State::CLOSING,this function is to be called.
          *
          * @param ws The WebSocket object connected.
          */
-        virtual void onClose(WebSocket* ws) = 0;
+        virtual void onClose(WebSocket *ws) = 0;
         /**
          * This function is to be called in the following cases:
          * 1. client connection is failed.
@@ -161,7 +159,7 @@ public:
          * @param ws The WebSocket object connected.
          * @param error WebSocket::ErrorCode enum,would be ErrorCode::TIME_OUT or ErrorCode::CONNECTION_FAILURE.
          */
-        virtual void onError(WebSocket* ws, const ErrorCode& error) = 0;
+        virtual void onError(WebSocket *ws, const ErrorCode &error) = 0;
     };
 
     /**
@@ -174,10 +172,10 @@ public:
      *  @return true: Success, false: Failure.
      *  @lua NA
      */
-    bool init(const Delegate& delegate,
-              const std::string& url,
-              const std::vector<std::string>* protocols = nullptr,
-              const std::string& caFilePath = "");
+    bool init(const Delegate &delegate,
+              const std::string &url,
+              const std::vector<std::string> *protocols = nullptr,
+              const std::string &caFilePath = "");
 
     /**
      *  @brief Sends string data to websocket server.
@@ -185,7 +183,7 @@ public:
      *  @param message string data.
      *  @lua sendstring
      */
-    void send(const std::string& message);
+    void send(const std::string &message);
 
     /**
      *  @brief Sends binary data to websocket server.
@@ -194,14 +192,14 @@ public:
      *  @param len the size of binary string data.
      *  @lua sendstring
      */
-    void send(const unsigned char* binaryMsg, unsigned int len);
+    void send(const unsigned char *binaryMsg, unsigned int len);
 
     /**
      *  @brief Closes the connection to server synchronously.
      *  @note It's a synchronous method, it will not return until websocket thread exits.
      */
     void close();
-    
+
     /**
      *  @brief Closes the connection to server asynchronously.
      *  @note It's an asynchronous method, it just notifies websocket thread to exit and returns directly,
@@ -229,7 +227,7 @@ public:
     /**
      *  @brief Gets the URL of websocket connection.
      */
-    const std::string& getUrl() const;
+    const std::string &getUrl() const;
 
     /**
     * @brief Returns the number of bytes of data that have been queued using calls to send() but not yet transmitted to the network.
@@ -244,17 +242,17 @@ public:
     /**
      *  @brief Gets the protocol selected by websocket server.
      */
-    const std::string& getProtocol() const;
+    const std::string &getProtocol() const;
 
-    Delegate* getDelegate() const;
+    Delegate *getDelegate() const;
+
 private:
-    WebSocketImpl* _impl;
+    WebSocketImpl *_impl;
 };
 
-} // namespace network {
+} // namespace network
 
-}
+} // namespace cc
 
 // end group
 /// @}
-

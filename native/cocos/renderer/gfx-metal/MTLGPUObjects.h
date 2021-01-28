@@ -25,11 +25,10 @@ THE SOFTWARE.
 
 #include <vector>
 
-#import "MTLUtils.h"
 #import "MTLConfig.h"
+#import "MTLUtils.h"
 #import <Metal/MTLBuffer.h>
 #import <Metal/MTLRenderCommandEncoder.h>
-#import <Metal/MTLRenderPipeline.h>
 #import <Metal/MTLSampler.h>
 
 namespace cc {
@@ -38,26 +37,6 @@ class CCMTLBuffer;
 class CCMTLTexture;
 class CCMTLSampler;
 class CCMTLShader;
-
-struct CCMTLGPUTexture {
-    uint mtlBinding = 0;
-    uint originBinding = 0;
-    id<MTLTexture> texture = nil;
-
-    CCMTLGPUTexture(uint _mtlBinding, uint _originBinding, id<MTLTexture> _texture)
-    : mtlBinding(_mtlBinding), originBinding(_originBinding), texture(_texture) {}
-};
-typedef vector<CCMTLGPUTexture> CCMTLGPUTextureList;
-
-struct CCMTLGPUSamplerState {
-    uint mtlBinding = 0;
-    uint originBinding = 0;
-    id<MTLSamplerState> samplerState = nil;
-
-    CCMTLGPUSamplerState(uint _mtlBinding, uint _originBinding, id<MTLSamplerState> _samplerState)
-    : mtlBinding(_mtlBinding), originBinding(_originBinding), samplerState(_samplerState) {}
-};
-typedef vector<CCMTLGPUSamplerState> CCMTLGPUSamplerStateList;
 
 class CCMTLGPUDescriptorSetLayout : public Object {
 public:
@@ -84,7 +63,6 @@ struct CCMTLGPUUniformBlock {
     size_t size = 0;
     uint count = 0;
 };
-typedef vector<CCMTLGPUUniformBlock> CCMTLGPUUniformBlockList;
 
 struct CCMTLGPUSamplerBlock {
     String name;
@@ -96,7 +74,6 @@ struct CCMTLGPUSamplerBlock {
     Type type = Type::UNKNOWN;
     uint count = 0;
 };
-typedef vector<CCMTLGPUSamplerBlock> CCMTLGPUSamplerBlockList;
 
 class CCMTLGPUShader : public Object {
 public:
@@ -175,7 +152,7 @@ public:
     void alloc(CCMTLGPUBuffer *gpuBuffer, uint alignment) {
         size_t bufferCount = _pool.size();
         Buffer *buffer = nullptr;
-        size_t offset = 0;
+        uint offset = 0;
         for (size_t idx = 0; idx < bufferCount; idx++) {
             auto *cur = &_pool[idx];
             offset = mu::alignUp(cur->curOffset, alignment);
@@ -244,7 +221,7 @@ private:
         id<MTLBuffer> mtlBuffer = nil;
         vector<id<MTLBuffer>> dynamicDataBuffers{MAX_FRAMES_IN_FLIGHT};
         uint8_t *mappedData = nullptr;
-        size_t curOffset = 0;
+        uint curOffset = 0;
     };
 
     bool _tripleEnabled = false;
@@ -260,6 +237,53 @@ struct CCMTLGPUBufferImageCopy {
     NSUInteger destinationSlice = 0;
     NSUInteger destinationLevel = 0;
     MTLOrigin destinationOrigin = {0, 0, 0};
+};
+
+//destroy GPU resource only, delete the owner object mannually.
+class CCMTLGPUGarbageCollectionPool : public Object {
+    using GCFunc = std::function<void(void)>;
+
+    CCMTLGPUGarbageCollectionPool() = default;
+
+public:
+    static CCMTLGPUGarbageCollectionPool *getInstance() {
+        static CCMTLGPUGarbageCollectionPool gcPoolSingleton;
+        return &gcPoolSingleton;
+    }
+
+    void initialize(std::function<uint8_t(void)> getFrameIndex) {
+        CC_ASSERT(getFrameIndex);
+        _getFrameIndex = getFrameIndex;
+    }
+
+    void collect(std::function<void(void)> destroyFunc) {
+        uint8_t curFrameIndex = _getFrameIndex();
+        _releaseQueue[curFrameIndex].push(destroyFunc);
+    }
+
+    void clear(uint8_t currentFrameIndex) {
+        CC_ASSERT(currentFrameIndex < MAX_FRAMES_IN_FLIGHT);
+        while (!_releaseQueue[currentFrameIndex].empty()) {
+            auto &&gcFunc = _releaseQueue[currentFrameIndex].front();
+            gcFunc();
+            _releaseQueue[currentFrameIndex].pop();
+        }
+    }
+
+    void flush() {
+        for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+            while (!_releaseQueue[i].empty()) {
+                auto &&gcFunc = _releaseQueue[i].front();
+                gcFunc();
+                _releaseQueue[i].pop();
+            }
+        }
+    }
+
+private:
+    //avoid cross-reference with CCMTLDevice
+    std::function<uint8_t(void)> _getFrameIndex;
+    std::queue<GCFunc> _releaseQueue[MAX_FRAMES_IN_FLIGHT];
 };
 
 } // namespace gfx

@@ -435,7 +435,7 @@ void Mat4::fromRT(const Vec4 &rotation, const Vec3 &translation, Mat4 *dst) {
     const auto wx = w * x2;
     const auto wy = w * y2;
     const auto wz = w * z2;
-    
+
     dst->m[0] = 1 - (yy + zz);
     dst->m[1] = xy + wz;
     dst->m[2] = xz - wy;

@@ -23,7 +23,8 @@ public:
         if (BufferAllocator::_pools.count(type) != 0) {
             const auto pool = BufferAllocator::_pools[type];
             if (pool->_buffers.count(index) != 0) {
-                T *ret = nullptr; size_t len;
+                T *ret = nullptr;
+                size_t len;
                 pool->_buffers[index]->getArrayBufferData((uint8_t **)&ret, &len);
                 *size = (uint)len;
                 return ret;

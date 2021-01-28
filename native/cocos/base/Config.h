@@ -29,8 +29,6 @@ THE SOFTWARE.
 #ifndef __CCCONFIG_H__
 #define __CCCONFIG_H__
 
-
-
 /**
  * @file
  * cocos2d (cc) configuration file.
@@ -39,25 +37,24 @@ THE SOFTWARE.
 // disable module if you didn't need it, this will reduce package size
 
 #ifndef USE_VIDEO
-#define USE_VIDEO 1
+    #define USE_VIDEO 1
 #endif
 
 #ifndef USE_WEBVIEW
-#define USE_WEBVIEW 1
+    #define USE_WEBVIEW 1
 #endif
 
 #ifndef USE_AUDIO
-#define USE_AUDIO 1
+    #define USE_AUDIO 1
 #endif
 
 #ifndef USE_SOCKET
-#define USE_SOCKET 1
+    #define USE_SOCKET 1
 #endif
 
 #ifndef USE_WEBSOCKET_SERVER
-#define USE_WEBSOCKET_SERVER 0
+    #define USE_WEBSOCKET_SERVER 0
 #endif
-
 
 /** @def CC_FIX_ARTIFACTS_BY_STRECHING_TEXEL_TMX
  * If enabled, the texture coordinates will be calculated by using this formula:
@@ -77,35 +74,35 @@ THE SOFTWARE.
  * @since Cocos Creator v1.7
  */
 #ifndef CC_FIX_ARTIFACTS_BY_STRECHING_TEXEL_TMX
-#define CC_FIX_ARTIFACTS_BY_STRECHING_TEXEL_TMX 1
+    #define CC_FIX_ARTIFACTS_BY_STRECHING_TEXEL_TMX 1
 #endif
 
 /** Support PNG or not. If your application don't use png format picture, you can undefine this macro to save package size.
 */
 #ifndef CC_USE_PNG
-#define CC_USE_PNG  1
+    #define CC_USE_PNG 1
 #endif // CC_USE_PNG
 
 /** Support JPEG or not. If your application don't use jpeg format picture, you can undefine this macro to save package size.
  */
 #ifndef CC_USE_JPEG
-#define CC_USE_JPEG  1
+    #define CC_USE_JPEG 1
 #endif // CC_USE_JPEG
 
 /** Support webp or not. If your application don't use webp format picture, you can undefine this macro to save package size.
  */
 #ifndef CC_USE_WEBP
-#define CC_USE_WEBP  1
+    #define CC_USE_WEBP 1
 #endif // CC_USE_WEBP
 
 /** Support EditBox
  */
 #ifndef CC_USE_EDITBOX
-#define CC_USE_EDITBOX 1
+    #define CC_USE_EDITBOX 1
 #endif
 
 #ifndef CC_FILEUTILS_APPLE_ENABLE_OBJC
-#define CC_FILEUTILS_APPLE_ENABLE_OBJC  1
+    #define CC_FILEUTILS_APPLE_ENABLE_OBJC 1
 #endif
 
 /** @def CC_ENABLE_PREMULTIPLIED_ALPHA
@@ -113,11 +110,11 @@ THE SOFTWARE.
  * by its alpha component.
  */
 #ifndef CC_ENABLE_PREMULTIPLIED_ALPHA
-# define CC_ENABLE_PREMULTIPLIED_ALPHA 1
+    #define CC_ENABLE_PREMULTIPLIED_ALPHA 1
 #endif
 
 #ifndef CC_ENABLE_CACHE_JSB_FUNC_RESULT
-#define CC_ENABLE_CACHE_JSB_FUNC_RESULT 1
+    #define CC_ENABLE_CACHE_JSB_FUNC_RESULT 1
 #endif
 
 #endif // __CCCONFIG_H__

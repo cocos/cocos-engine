@@ -42,30 +42,30 @@ namespace cc {
  */
 
 //! @brief  Helper class to handle file operations
-class CC_DLL FileUtilsApple : public FileUtils
-{
+class CC_DLL FileUtilsApple : public FileUtils {
 public:
     FileUtilsApple();
     virtual ~FileUtilsApple();
     /* override functions */
     virtual std::string getWritablePath() const override;
-    virtual std::string getFullPathForDirectoryAndFilename(const std::string& directory, const std::string& filename) const override;
+    virtual std::string getFullPathForDirectoryAndFilename(const std::string &directory, const std::string &filename) const override;
 
-    virtual ValueMap getValueMapFromFile(const std::string& filename) override;
-    virtual ValueMap getValueMapFromData(const char* filedata, int filesize)override;
-    virtual bool writeToFile(const ValueMap& dict, const std::string& fullPath) override;
+    virtual ValueMap getValueMapFromFile(const std::string &filename) override;
+    virtual ValueMap getValueMapFromData(const char *filedata, int filesize) override;
+    virtual bool writeToFile(const ValueMap &dict, const std::string &fullPath) override;
 
-    virtual ValueVector getValueVectorFromFile(const std::string& filename) override;
+    virtual ValueVector getValueVectorFromFile(const std::string &filename) override;
 #if CC_FILEUTILS_APPLE_ENABLE_OBJC
-    void setBundle(NSBundle* bundle);
+    void setBundle(NSBundle *bundle);
 #endif
-    
-    virtual bool createDirectory(const std::string& path) override;
+
+    virtual bool createDirectory(const std::string &path) override;
+
 private:
-    virtual bool isFileExistInternal(const std::string& filePath) const override;
-    virtual bool removeDirectory(const std::string& dirPath) override;
-    virtual void valueMapCompact(ValueMap& valueMap) override;
-    virtual void valueVectorCompact(ValueVector& valueVector) override;
+    virtual bool isFileExistInternal(const std::string &filePath) const override;
+    virtual bool removeDirectory(const std::string &dirPath) override;
+    virtual void valueMapCompact(ValueMap &valueMap) override;
+    virtual void valueVectorCompact(ValueVector &valueVector) override;
 
     struct IMPL;
     std::unique_ptr<IMPL> pimpl_;
@@ -74,6 +74,6 @@ private:
 // end of platform group
 /// @}
 
-}
+} // namespace cc
 
-#endif    // __CC_FILEUTILS_APPLE_H__
+#endif // __CC_FILEUTILS_APPLE_H__

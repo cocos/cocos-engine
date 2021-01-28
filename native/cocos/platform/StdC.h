@@ -23,59 +23,57 @@ THE SOFTWARE.
 ****************************************************************************/
 #pragma once
 
-
-
 #if CC_PLATFORM == CC_PLATFORM_WINDOWS
 
-	#define WIN32_LEAN_AND_MEAN
-	#include <Windows.h>
+    #define WIN32_LEAN_AND_MEAN
+    #include <Windows.h>
 
-	#if _MSC_VER < 1800
-	#if !defined(isnan)
-	    #define isnan   _isnan
-	#endif
-	#endif
+    #if _MSC_VER < 1800
+        #if !defined(isnan)
+            #define isnan _isnan
+        #endif
+    #endif
 
-	#include <math.h>
-	#include <string.h>
-	#include <stdarg.h>
-	#include <stdio.h>
-	#include <stdlib.h>
-	#include <time.h>
+    #include <math.h>
+    #include <string.h>
+    #include <stdarg.h>
+    #include <stdio.h>
+    #include <stdlib.h>
+    #include <time.h>
 
-	#if _MSC_VER >= 1600
-	    #include <stdint.h>
-	#else
-	    #include "platform/win32/compat/stdint.h"
-	#endif
+    #if _MSC_VER >= 1600
+        #include <stdint.h>
+    #else
+        #include "platform/win32/compat/stdint.h"
+    #endif
 
-	// Conflicted with ParticleSystem::PositionType::RELATIVE, so we need to undef it.
-	#ifdef RELATIVE
-	#undef RELATIVE
-	#endif
+    // Conflicted with ParticleSystem::PositionType::RELATIVE, so we need to undef it.
+    #ifdef RELATIVE
+        #undef RELATIVE
+    #endif
 
-	// Conflicted with CCBReader::SizeType::RELATIVE and CCBReader::ScaleType::RELATIVE, so we need to undef it.
-	#ifdef ABSOLUTE
-	#undef ABSOLUTE
-	#endif
+    // Conflicted with CCBReader::SizeType::RELATIVE and CCBReader::ScaleType::RELATIVE, so we need to undef it.
+    #ifdef ABSOLUTE
+        #undef ABSOLUTE
+    #endif
 
-	// Conflicted with HttpRequest::Type::DELETE, so we need to undef it.
-	#ifdef DELETE
-	#undef DELETE
-	#endif
+    // Conflicted with HttpRequest::Type::DELETE, so we need to undef it.
+    #ifdef DELETE
+        #undef DELETE
+    #endif
 
-	#undef min
-	#undef max
+    #undef min
+    #undef max
 #else
 
-	#include <float.h>
-	#include <math.h>
-	#include <string.h>
-	#include <stdarg.h>
-	#include <stdio.h>
-	#include <stdlib.h>
-	#include <time.h>
-	#include <sys/time.h>
-	#include <stdint.h>
+    #include <float.h>
+    #include <math.h>
+    #include <string.h>
+    #include <stdarg.h>
+    #include <stdio.h>
+    #include <stdlib.h>
+    #include <time.h>
+    #include <sys/time.h>
+    #include <stdint.h>
 
 #endif // CC_PLATFORM == CC_PLATFORM_WINDOWS

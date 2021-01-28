@@ -33,11 +33,9 @@ struct sockaddr;
 
 namespace cc {
 
-class Reachability final : public Ref
-{
+class Reachability final : public Ref {
 public:
-    enum class NetworkStatus : uint8_t
-    {
+    enum class NetworkStatus : uint8_t {
         NOT_REACHABLE,
         REACHABLE_VIA_WIFI,
         REACHABLE_VIA_WWAN
@@ -46,27 +44,27 @@ public:
     /*!
      * Use to check the reachability of a given host name.
      */
-    static Reachability* createWithHostName(const std::string& hostName);
+    static Reachability *createWithHostName(const std::string &hostName);
 
     /*!
      * Use to check the reachability of a given IP address.
      */
-    static Reachability* createWithAddress(const struct sockaddr* hostAddress);
+    static Reachability *createWithAddress(const struct sockaddr *hostAddress);
 
     /*!
      * Checks whether the default route is available. Should be used by applications that do not connect to a particular host.
      */
-    static Reachability* createForInternetConnection();
+    static Reachability *createForInternetConnection();
 
-    using ReachabilityCallback = std::function<void(Reachability*, NetworkStatus, void*)>;
+    using ReachabilityCallback = std::function<void(Reachability *, NetworkStatus, void *)>;
 
     /*!
      * Start listening for reachability notifications on the current run loop.
      */
-    bool startNotifier(const ReachabilityCallback& cb, void* userData);
+    bool startNotifier(const ReachabilityCallback &cb, void *userData);
     void stopNotifier();
 
-    NetworkStatus getCurrentReachabilityStatus()const;
+    NetworkStatus getCurrentReachabilityStatus() const;
 
     /*!
      * WWAN may be available, but not active until a connection has been established. WiFi may require a connection for VPN on Demand.
@@ -74,16 +72,14 @@ public:
     bool isConnectionRequired() const;
 
 private:
-
     Reachability();
     ~Reachability();
 
-    static void onReachabilityCallback(SCNetworkReachabilityRef target, SCNetworkReachabilityFlags flags, void* info);
+    static void onReachabilityCallback(SCNetworkReachabilityRef target, SCNetworkReachabilityFlags flags, void *info);
 
     ReachabilityCallback _callback;
-    void* _userData;
+    void *_userData;
     SCNetworkReachabilityRef _reachabilityRef;
 };
 
-}
-
+} // namespace cc

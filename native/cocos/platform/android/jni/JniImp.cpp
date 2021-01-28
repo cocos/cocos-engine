@@ -27,11 +27,11 @@
 #include <jni.h>
 #include "JniHelper.h"
 
-#define  JNI_IMP_LOG_TAG    "JniImp"
-#define  LOGD(...)  __android_log_print(ANDROID_LOG_DEBUG,JNI_IMP_LOG_TAG,__VA_ARGS__)
+#define JNI_IMP_LOG_TAG "JniImp"
+#define LOGD(...)       __android_log_print(ANDROID_LOG_DEBUG, JNI_IMP_LOG_TAG, __VA_ARGS__)
 
 #ifndef JCLS_HELPER
-#define JCLS_HELPER "com/cocos/lib/CocosHelper"
+    #define JCLS_HELPER "com/cocos/lib/CocosHelper"
 #endif
 
 using namespace cc;
@@ -40,24 +40,20 @@ using namespace cc;
  * Functions invoke from cpp to Java.
  ***********************************************************/
 
-std::string getObbFilePathJNI() 
-{
+std::string getObbFilePathJNI() {
     return JniHelper::callStaticStringMethod(JCLS_HELPER, "getObbFilePath");
 }
 
-int getObbAssetFileDescriptorJNI(const std::string& path, long* startOffset, long* size) 
-{
+int getObbAssetFileDescriptorJNI(const std::string &path, long *startOffset, long *size) {
     JniMethodInfo methodInfo;
     int fd = 0;
-    
-    if (JniHelper::getStaticMethodInfo(methodInfo, JCLS_HELPER, "getObbAssetFileDescriptor", "(Ljava/lang/String;)[J"))
-    {
+
+    if (JniHelper::getStaticMethodInfo(methodInfo, JCLS_HELPER, "getObbAssetFileDescriptor", "(Ljava/lang/String;)[J")) {
         jstring stringArg = methodInfo.env->NewStringUTF(path.c_str());
         jlongArray newArray = (jlongArray)methodInfo.env->CallStaticObjectMethod(methodInfo.classID, methodInfo.methodID, stringArg);
         jsize theArrayLen = methodInfo.env->GetArrayLength(newArray);
-        
-        if (3 == theArrayLen) 
-        {
+
+        if (3 == theArrayLen) {
             jboolean copy = JNI_FALSE;
             jlong *array = methodInfo.env->GetLongArrayElements(newArray, &copy);
             fd = static_cast<int>(array[0]);
@@ -65,35 +61,30 @@ int getObbAssetFileDescriptorJNI(const std::string& path, long* startOffset, lon
             *size = array[2];
             methodInfo.env->ReleaseLongArrayElements(newArray, array, 0);
         }
-        
+
         methodInfo.env->DeleteLocalRef(methodInfo.classID);
         methodInfo.env->DeleteLocalRef(stringArg);
     }
-    
+
     return fd;
 }
 
-std::string getCurrentLanguageJNI()
-{
+std::string getCurrentLanguageJNI() {
     return JniHelper::callStaticStringMethod(JCLS_HELPER, "getCurrentLanguage");
 }
 
-std::string getCurrentLanguageCodeJNI()
-{
+std::string getCurrentLanguageCodeJNI() {
     return JniHelper::callStaticStringMethod(JCLS_HELPER, "getCurrentLanguageCode");
 }
 
-std::string getSystemVersionJNI()
-{
+std::string getSystemVersionJNI() {
     return JniHelper::callStaticStringMethod(JCLS_HELPER, "getSystemVersion");
 }
 
-bool openURLJNI(const std::string& url)
-{
+bool openURLJNI(const std::string &url) {
     return JniHelper::callStaticBooleanMethod(JCLS_HELPER, "openURL", url);
 }
 
-void copyTextToClipboardJNI(const std::string& text)
-{
+void copyTextToClipboardJNI(const std::string &text) {
     JniHelper::callStaticVoidMethod(JCLS_HELPER, "copyTextToClipboard", text);
 }

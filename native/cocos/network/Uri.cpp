@@ -29,67 +29,57 @@
 #undef UNLIKELY
 
 #if defined(__GNUC__) && __GNUC__ >= 4
-#define LIKELY(x)   (__builtin_expect((x), 1))
-#define UNLIKELY(x) (__builtin_expect((x), 0))
+    #define LIKELY(x)   (__builtin_expect((x), 1))
+    #define UNLIKELY(x) (__builtin_expect((x), 0))
 #else
-#define LIKELY(x)   (x)
-#define UNLIKELY(x) (x)
+    #define LIKELY(x)   (x)
+    #define UNLIKELY(x) (x)
 #endif
-
 
 namespace {
 
-template<typename T>
-std::string toString(T arg)
-{
+template <typename T>
+std::string toString(T arg) {
     std::stringstream ss;
     ss << arg;
     return ss.str();
 }
 
-std::string submatch(const std::smatch& m, int idx)
-{
-    auto& sub = m[idx];
+std::string submatch(const std::smatch &m, int idx) {
+    auto &sub = m[idx];
     return std::string(sub.first, sub.second);
 }
 
 template <class String>
-void toLower(String& s)
-{
-    for (auto& c : s) {
+void toLower(String &s) {
+    for (auto &c : s) {
         c = char(tolower(c));
     }
 }
 
-}  // namespace
+} // namespace
 
 namespace cc {
 
 namespace network {
 
 Uri::Uri()
-: _isValid(false)
-, _isSecure(false)
-, _hasAuthority(false)
-, _port(0)
-{
-
+: _isValid(false),
+  _isSecure(false),
+  _hasAuthority(false),
+  _port(0) {
 }
 
-Uri::Uri(const Uri& o)
-{
+Uri::Uri(const Uri &o) {
     *this = o;
 }
 
-Uri::Uri(Uri&& o)
-{
+Uri::Uri(Uri &&o) {
     *this = std::move(o);
 }
 
-Uri& Uri::operator=(const Uri& o)
-{
-    if (this != &o)
-    {
+Uri &Uri::operator=(const Uri &o) {
+    if (this != &o) {
         _isValid = o._isValid;
         _isSecure = o._isSecure;
         _scheme = o._scheme;
@@ -110,10 +100,8 @@ Uri& Uri::operator=(const Uri& o)
     return *this;
 }
 
-Uri& Uri::operator=(Uri&& o)
-{
-    if (this != &o)
-    {
+Uri &Uri::operator=(Uri &&o) {
+    if (this != &o) {
         _isValid = o._isValid;
         o._isValid = false;
         _isSecure = o._isSecure;
@@ -137,56 +125,37 @@ Uri& Uri::operator=(Uri&& o)
     return *this;
 }
 
-bool Uri::operator==(const Uri& o) const
-{
-    return (_isValid == o._isValid
-        && _isSecure == o._isSecure
-        && _scheme == o._scheme
-        && _username == o._username
-        && _password == o._password
-        && _host == o._host
-        && _hostName == o._hostName
-        && _hasAuthority == o._hasAuthority
-        && _port == o._port
-        && _authority == o._authority
-        && _pathEtc == o._pathEtc
-        && _path == o._path
-        && _query == o._query
-        && _fragment == o._fragment
-        && _queryParams == o._queryParams);
+bool Uri::operator==(const Uri &o) const {
+    return (_isValid == o._isValid && _isSecure == o._isSecure && _scheme == o._scheme && _username == o._username && _password == o._password && _host == o._host && _hostName == o._hostName && _hasAuthority == o._hasAuthority && _port == o._port && _authority == o._authority && _pathEtc == o._pathEtc && _path == o._path && _query == o._query && _fragment == o._fragment && _queryParams == o._queryParams);
 }
 
-Uri Uri::parse(const std::string &str)
-{
+Uri Uri::parse(const std::string &str) {
     Uri uri;
 
-    if (!uri.doParse(str))
-    {
+    if (!uri.doParse(str)) {
         uri.clear();
     }
 
     return uri;
 }
 
-bool Uri::doParse(const std::string& str)
-{
+bool Uri::doParse(const std::string &str) {
     static const std::regex uriRegex(
-      "([a-zA-Z][a-zA-Z0-9+.-]*):"  // scheme:
-      "([^?#]*)"                    // authority and path
-      "(?:\\?([^#]*))?"             // ?query
-      "(?:#(.*))?");                // #fragment
+        "([a-zA-Z][a-zA-Z0-9+.-]*):" // scheme:
+        "([^?#]*)"                   // authority and path
+        "(?:\\?([^#]*))?"            // ?query
+        "(?:#(.*))?");               // #fragment
     static const std::regex authorityAndPathRegex("//([^/]*)(/.*)?");
 
-    if (str.empty())
-    {
+    if (str.empty()) {
         CC_LOG_ERROR("%s", "Empty URI is invalid!");
         return false;
     }
 
-    bool hasScheme = true;;
+    bool hasScheme = true;
+    ;
     std::string copied(str);
-    if (copied.find("://") == std::string::npos)
-    {
+    if (copied.find("://") == std::string::npos) {
         hasScheme = false;
         copied.insert(0, "abc://"); // Just make regex happy.
     }
@@ -197,12 +166,10 @@ bool Uri::doParse(const std::string& str)
         return false;
     }
 
-    if (hasScheme)
-    {
+    if (hasScheme) {
         _scheme = submatch(match, 1);
         toLower(_scheme);
-        if (_scheme == "https" || _scheme == "wss")
-        {
+        if (_scheme == "https" || _scheme == "wss") {
             _isSecure = true;
         }
     }
@@ -218,17 +185,17 @@ bool Uri::doParse(const std::string& str)
         _path = authorityAndPath;
     } else {
         static const std::regex authorityRegex(
-            "(?:([^@:]*)(?::([^@]*))?@)?"  // username, password
-            "(\\[[^\\]]*\\]|[^\\[:]*)"     // host (IP-literal (e.g. '['+IPv6+']',
-                                           // dotted-IPv4, or named host)
-            "(?::(\\d*))?");               // port
+            "(?:([^@:]*)(?::([^@]*))?@)?" // username, password
+            "(\\[[^\\]]*\\]|[^\\[:]*)"    // host (IP-literal (e.g. '['+IPv6+']',
+                                          // dotted-IPv4, or named host)
+            "(?::(\\d*))?");              // port
 
         auto authority = authorityAndPathMatch[1];
         std::smatch authorityMatch;
         if (!std::regex_match(authority.first,
-                                authority.second,
-                                authorityMatch,
-                                authorityRegex)) {
+                              authority.second,
+                              authorityMatch,
+                              authorityRegex)) {
             std::string invalidAuthority(authority.first, authority.second);
             CC_LOG_ERROR("Invalid URI authority: %s", invalidAuthority.c_str());
             return false;
@@ -275,14 +242,12 @@ bool Uri::doParse(const std::string& str)
 
     // Assign path etc part
     _pathEtc = _path;
-    if (!_query.empty())
-    {
+    if (!_query.empty()) {
         _pathEtc += '?';
         _pathEtc += _query;
     }
 
-    if (!_fragment.empty())
-    {
+    if (!_fragment.empty()) {
         _pathEtc += '#';
         _pathEtc += _fragment;
     }
@@ -299,8 +264,7 @@ bool Uri::doParse(const std::string& str)
     return true;
 }
 
-void Uri::clear()
-{
+void Uri::clear() {
     _isValid = false;
     _isSecure = false;
     _scheme.clear();
@@ -318,16 +282,16 @@ void Uri::clear()
     _queryParams.clear();
 }
 
-const std::vector<std::pair<std::string, std::string>>& Uri::getQueryParams()
-{
+const std::vector<std::pair<std::string, std::string>> &Uri::getQueryParams() {
     if (!_query.empty() && _queryParams.empty()) {
         // Parse query string
         static const std::regex queryParamRegex(
-            "(^|&)" /*start of query or start of parameter "&"*/
+            "(^|&)"      /*start of query or start of parameter "&"*/
             "([^=&]*)=?" /*parameter name and "=" if value is expected*/
-            "([^=&]*)" /*parameter value*/
-            "(?=(&|$))" /*forward reference, next should be end of query or
-                          start of next parameter*/);
+            "([^=&]*)"   /*parameter value*/
+            "(?=(&|$))"  /*forward reference, next should be end of query or
+                          start of next parameter*/
+        );
         std::cregex_iterator paramBeginItr(
             _query.data(), _query.data() + _query.size(), queryParamRegex);
         std::cregex_iterator paramEndItr;
@@ -338,15 +302,14 @@ const std::vector<std::pair<std::string, std::string>>& Uri::getQueryParams()
             }
             _queryParams.emplace_back(
                 std::string((*itr)[2].first, (*itr)[2].second), // parameter name
-                std::string((*itr)[3].first, (*itr)[3].second) // parameter value
+                std::string((*itr)[3].first, (*itr)[3].second)  // parameter value
             );
         }
     }
     return _queryParams;
 }
 
-std::string Uri::toString() const
-{
+std::string Uri::toString() const {
     std::stringstream ss;
     if (_hasAuthority) {
         ss << _scheme << "://";
@@ -372,6 +335,6 @@ std::string Uri::toString() const
     return ss.str();
 }
 
-} // namespace network {
+} // namespace network
 
-}
+} // namespace cc

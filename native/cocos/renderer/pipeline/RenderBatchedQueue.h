@@ -41,7 +41,7 @@ public:
     void add(BatchedBuffer *batchedBuffer);
 
 private:
-    set<BatchedBuffer *> _queues;
+    unordered_set<BatchedBuffer *> _queues;
 };
 
 } // namespace pipeline

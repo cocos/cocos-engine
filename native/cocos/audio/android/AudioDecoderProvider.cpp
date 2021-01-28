@@ -32,49 +32,35 @@
 #include "audio/android/AudioDecoderWav.h"
 #include "platform/FileUtils.h"
 
-namespace cc { 
+namespace cc {
 
-AudioDecoder* AudioDecoderProvider::createAudioDecoder(SLEngineItf engineItf, const std::string &url, int bufferSizeInFrames, int sampleRate, const FdGetterCallback &fdGetterCallback)
-{
-    AudioDecoder* decoder = nullptr;
+AudioDecoder *AudioDecoderProvider::createAudioDecoder(SLEngineItf engineItf, const std::string &url, int bufferSizeInFrames, int sampleRate, const FdGetterCallback &fdGetterCallback) {
+    AudioDecoder *decoder = nullptr;
     std::string extension = FileUtils::getInstance()->getFileExtension(url);
     ALOGV("url:%s, extension:%s", url.c_str(), extension.c_str());
-    if (extension == ".ogg")
-    {
+    if (extension == ".ogg") {
         decoder = new AudioDecoderOgg();
-        if (!decoder->init(url, sampleRate))
-        {
+        if (!decoder->init(url, sampleRate)) {
             delete decoder;
             decoder = nullptr;
         }
-    }
-    else if (extension == ".mp3")
-    {
+    } else if (extension == ".mp3") {
         decoder = new AudioDecoderMp3();
-        if (!decoder->init(url, sampleRate))
-        {
+        if (!decoder->init(url, sampleRate)) {
             delete decoder;
             decoder = nullptr;
         }
-    }
-    else if (extension == ".wav")
-    {
+    } else if (extension == ".wav") {
         decoder = new AudioDecoderWav();
-        if (!decoder->init(url, sampleRate))
-        {
+        if (!decoder->init(url, sampleRate)) {
             delete decoder;
             decoder = nullptr;
         }
-    }
-    else
-    {
+    } else {
         auto slesDecoder = new AudioDecoderSLES();
-        if (slesDecoder->init(engineItf, url, bufferSizeInFrames, sampleRate, fdGetterCallback))
-        {
+        if (slesDecoder->init(engineItf, url, bufferSizeInFrames, sampleRate, fdGetterCallback)) {
             decoder = slesDecoder;
-        }
-        else
-        {
+        } else {
             delete slesDecoder;
         }
     }
@@ -82,13 +68,11 @@ AudioDecoder* AudioDecoderProvider::createAudioDecoder(SLEngineItf engineItf, co
     return decoder;
 }
 
-void AudioDecoderProvider::destroyAudioDecoder(AudioDecoder** decoder)
-{
-    if (decoder != nullptr && *decoder != nullptr)
-    {
+void AudioDecoderProvider::destroyAudioDecoder(AudioDecoder **decoder) {
+    if (decoder != nullptr && *decoder != nullptr) {
         delete (*decoder);
         (*decoder) = nullptr;
     }
 }
 
-} // namespace cc { 
+} // namespace cc

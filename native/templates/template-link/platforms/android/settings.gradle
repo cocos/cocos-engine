@@ -1,4 +1,0 @@
-include ':libcocos', ':instantapp'
-project(':libcocos').projectDir = new File('${COCOS_ROOT}/cocos/platform/android/libcocos2dx')
-include ':HelloJavascript'
-project(':HelloJavascript').projectDir = new File(settingsDir, 'app')

@@ -33,7 +33,7 @@ THE SOFTWARE.
 #include <memory>
 #include <condition_variable>
 
-namespace cc { 
+namespace cc {
 // Manage PcmAudioPlayer& UrlAudioPlayer
 
 class PcmAudioPlayer;
@@ -44,19 +44,18 @@ class ICallerThreadUtils;
 class AssetFd;
 class ThreadPool;
 
-class AudioPlayerProvider
-{
+class AudioPlayerProvider {
 public:
     AudioPlayerProvider(SLEngineItf engineItf, SLObjectItf outputMixObject, int deviceSampleRate,
                         int bufferSizeInFrames, const FdGetterCallback &fdGetterCallback,
-                        ICallerThreadUtils* callerThreadUtils);
+                        ICallerThreadUtils *callerThreadUtils);
 
     virtual ~AudioPlayerProvider();
 
     IAudioPlayer *getAudioPlayer(const std::string &audioFilePath);
 
-    typedef std::function<void(bool/* succeed */, PcmData /* data */)> PreloadCallback;
-    void preloadEffect(const std::string &audioFilePath, const PreloadCallback& cb);
+    typedef std::function<void(bool /* succeed */, PcmData /* data */)> PreloadCallback;
+    void preloadEffect(const std::string &audioFilePath, const PreloadCallback &cb);
 
     float getDurationFromFile(const std::string &filePath);
     void clearPcmCache(const std::string &audioFilePath);
@@ -68,20 +67,16 @@ public:
     void resume();
 
 private:
-
-    struct AudioFileInfo
-    {
+    struct AudioFileInfo {
         std::string url;
         std::shared_ptr<AssetFd> assetFd;
         off_t start;
         off_t length;
 
         AudioFileInfo()
-                : assetFd(nullptr), start(0), length(0)
-        { };
+        : assetFd(nullptr), start(0), length(0){};
 
-        inline bool isValid() const
-        {
+        inline bool isValid() const {
             return !url.empty() && length > 0;
         }
     };
@@ -90,7 +85,7 @@ private:
 
     UrlAudioPlayer *createUrlAudioPlayer(const AudioFileInfo &info);
 
-    void preloadEffect(const AudioFileInfo &info, const PreloadCallback& cb, bool isPreloadInPlay2d);
+    void preloadEffect(const AudioFileInfo &info, const PreloadCallback &cb, bool isPreloadInPlay2d);
 
     AudioFileInfo getFileInfo(const std::string &audioFilePath);
 
@@ -102,13 +97,12 @@ private:
     int _deviceSampleRate;
     int _bufferSizeInFrames;
     FdGetterCallback _fdGetterCallback;
-    ICallerThreadUtils* _callerThreadUtils;
+    ICallerThreadUtils *_callerThreadUtils;
 
     std::unordered_map<std::string, PcmData> _pcmCache;
     std::mutex _pcmCacheMutex;
 
-    struct PreloadCallbackParam
-    {
+    struct PreloadCallbackParam {
         PreloadCallback callback;
         bool isPreloadInPlay2d;
     };
@@ -119,11 +113,10 @@ private:
     std::mutex _preloadWaitMutex;
     std::condition_variable _preloadWaitCond;
 
-    PcmAudioService* _pcmAudioService;
+    PcmAudioService *_pcmAudioService;
     AudioMixerController *_mixController;
 
-    ThreadPool* _threadPool;
+    ThreadPool *_threadPool;
 };
 
-} // namespace cc { 
-
+} // namespace cc

@@ -27,14 +27,12 @@
 #define __HTTPASYNCONNECTION_H__
 /// @cond DO_NOT_SHOW
 
-
 #if (CC_PLATFORM == CC_PLATFORM_MAC_OSX) || (CC_PLATFORM == CC_PLATFORM_MAC_IOS)
 
-#import <Foundation/Foundation.h>
-#import <Security/Security.h>
+    #import <Foundation/Foundation.h>
+    #import <Security/Security.h>
 /// @cond
-@interface HttpAsynConnection : NSObject <NSURLConnectionDelegate, NSURLConnectionDataDelegate>
-{
+@interface HttpAsynConnection : NSObject <NSURLConnectionDelegate, NSURLConnectionDataDelegate> {
 }
 
 // The original URL to download.  Due to redirects the actual content may come from another URL
@@ -61,7 +59,7 @@
 @property (strong) NSRunLoop *runLoop;
 
 // instructs the class to start the request.
--(void) startRequest:(NSURLRequest*)request;
+- (void)startRequest:(NSURLRequest *)request;
 
 @end
 
@@ -69,4 +67,3 @@
 
 /// @endcond
 #endif //__HTTPASYNCONNECTION_H__
-

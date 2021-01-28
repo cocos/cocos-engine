@@ -26,7 +26,6 @@ THE SOFTWARE.
 #include "MTLDevice.h"
 #include "MTLGPUObjects.h"
 #include "MTLShader.h"
-#include "MTLUtils.h"
 #import <Metal/MTLDevice.h>
 
 namespace cc {
@@ -57,22 +56,27 @@ bool CCMTLShader::initialize(const ShaderInfo &info) {
 }
 
 void CCMTLShader::destroy() {
-    if (_vertexMTLFunction) {
-        [_vertexMTLFunction release];
-        _vertexMTLFunction = nil;
-    }
-
-    if (_fragmentMTLFunction) {
-        [_fragmentMTLFunction release];
-        _fragmentMTLFunction = nil;
-    }
+    id<MTLFunction> vertFunc = _vertexMTLFunction;
+    _vertexMTLFunction = nil;
+    id<MTLFunction> fragFunc = _fragmentMTLFunction;
+    _fragmentMTLFunction = nil;
 
     CC_SAFE_DELETE(_gpuShader);
+
+    std::function<void(void)> destroyFunc = [=]() {
+        if (vertFunc) {
+            [vertFunc release];
+        }
+        if (fragFunc) {
+            [fragFunc release];
+        }
+    };
+    CCMTLGPUGarbageCollectionPool::getInstance()->collect(destroyFunc);
 }
 
 bool CCMTLShader::createMTLFunction(const ShaderStage &stage) {
     bool isVertexShader = stage.stage == ShaderStageFlagBit::VERTEX;
-    id<MTLDevice> mtlDevice = id<MTLDevice>(((CCMTLDevice *)_device)->getMTLDevice());
+    id<MTLDevice> mtlDevice = id<MTLDevice>(static_cast<CCMTLDevice *>(_device)->getMTLDevice());
     auto mtlShader = mu::compileGLSLShader2Msl(stage.source,
                                                stage.stage,
                                                _device,
@@ -149,12 +153,12 @@ void CCMTLShader::setAvailableBufferBindingIndex() {
         }
     }
 
-    auto maxBufferBindinIndex = static_cast<CCMTLDevice *>(_device)->getMaximumBufferBindingIndex();
-    _availableVertexBufferBindingIndex.resize(maxBufferBindinIndex - vertexBindingCount);
-    _availableFragmentBufferBindingIndex.resize(maxBufferBindinIndex - fragmentBindingCount);
+    auto maxBufferBindingIndex = static_cast<CCMTLDevice *>(_device)->getMaximumBufferBindingIndex();
+    _availableVertexBufferBindingIndex.resize(maxBufferBindingIndex - vertexBindingCount);
+    _availableFragmentBufferBindingIndex.resize(maxBufferBindingIndex - fragmentBindingCount);
     uint availableVertexBufferBit = ~usedVertexBufferBindingIndexes;
     uint availableFragmentBufferBit = ~usedFragmentBufferBindingIndexes;
-    int theBit = maxBufferBindinIndex - 1;
+    int theBit = maxBufferBindingIndex - 1;
     uint i = 0, j = 0;
     for (; theBit >= 0; theBit--) {
         if ((availableVertexBufferBit & (1 << theBit))) {

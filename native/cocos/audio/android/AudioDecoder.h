@@ -22,17 +22,15 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 ****************************************************************************/
-
 #pragma once
 
 #include "audio/android/OpenSLHelper.h"
 #include "audio/android/PcmData.h"
 #include "base/Data.h"
 
-namespace cc { 
+namespace cc {
 
-class AudioDecoder
-{
+class AudioDecoder {
 public:
     AudioDecoder();
     virtual ~AudioDecoder();
@@ -41,18 +39,17 @@ public:
 
     bool start();
 
-    inline PcmData getResult()
-    { return _result; };
+    inline PcmData getResult() { return _result; };
 
 protected:
     virtual bool decodeToPcm() = 0;
     bool resample();
     bool interleave();
 
-    static size_t fileRead(void* ptr, size_t size, size_t nmemb, void* datasource);
-    static int fileSeek(void* datasource, int64_t offset, int whence);
-    static int fileClose(void* datasource);
-    static long fileTell(void* datasource);
+    static size_t fileRead(void *ptr, size_t size, size_t nmemb, void *datasource);
+    static int fileSeek(void *datasource, int64_t offset, int whence);
+    static int fileClose(void *datasource);
+    static long fileTell(void *datasource);
 
     std::string _url;
     PcmData _result;
@@ -61,4 +58,4 @@ protected:
     size_t _fileCurrPos;
 };
 
-} // namespace cc { 
+} // namespace cc

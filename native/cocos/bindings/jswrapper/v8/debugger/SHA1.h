@@ -13,14 +13,14 @@
 
 //#include "mozilla/Types.h"
 
-#include <stddef.h>
-#include <stdint.h>
+    #include <stddef.h>
+    #include <stdint.h>
 
-#ifdef MFBT_API
-#undef MFBT_API
-#endif
+    #ifdef MFBT_API
+        #undef MFBT_API
+    #endif
 
-#define MFBT_API
+    #define MFBT_API
 
 namespace se {
 
@@ -42,31 +42,28 @@ namespace se {
  * The finish method may only be called once and cannot be followed by calls
  * to update.
  */
-class SHA1Sum
-{
-  union
-  {
-    uint32_t mW[16]; /* input buffer */
-    uint8_t mB[64];
-  } mU;
-  uint64_t mSize; /* count of hashed bytes. */
-  unsigned mH[22]; /* 5 state variables, 16 tmp values, 1 extra */
-  bool mDone;
+class SHA1Sum {
+    union {
+        uint32_t mW[16]; /* input buffer */
+        uint8_t mB[64];
+    } mU;
+    uint64_t mSize;  /* count of hashed bytes. */
+    unsigned mH[22]; /* 5 state variables, 16 tmp values, 1 extra */
+    bool mDone;
 
 public:
-  MFBT_API SHA1Sum();
+    MFBT_API SHA1Sum();
 
-  static const size_t kHashSize = 20;
-  typedef uint8_t Hash[kHashSize];
+    static const size_t kHashSize = 20;
+    typedef uint8_t Hash[kHashSize];
 
-  /* Add len bytes of dataIn to the data sequence being hashed. */
-  MFBT_API void update(const void* aData, uint32_t aLength);
+    /* Add len bytes of dataIn to the data sequence being hashed. */
+    MFBT_API void update(const void *aData, uint32_t aLength);
 
-  /* Compute the final hash of all data into hashOut. */
-  MFBT_API void finish(SHA1Sum::Hash& aHashOut);
+    /* Compute the final hash of all data into hashOut. */
+    MFBT_API void finish(SHA1Sum::Hash &aHashOut);
 };
 
 } /* namespace se */
 
 #endif // #if (SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_V8) && SE_ENABLE_INSPECTOR
-

@@ -26,14 +26,18 @@ namespace cc {
 namespace gfx {
 class CCMTLGPUDescriptorSet;
 
-class CCMTLDescriptorSet : public DescriptorSet {
+class CCMTLDescriptorSet final : public DescriptorSet {
 public:
-    CCMTLDescriptorSet(Device *device);
-    ~CCMTLDescriptorSet() = default;
+    explicit CCMTLDescriptorSet(Device *device);
+    ~CCMTLDescriptorSet() override = default;
+    CCMTLDescriptorSet(const CCMTLDescriptorSet &)=delete;
+    CCMTLDescriptorSet(CCMTLDescriptorSet &&)=delete;
+    CCMTLDescriptorSet &operator=(const CCMTLDescriptorSet &)=delete;
+    CCMTLDescriptorSet &operator=(CCMTLDescriptorSet &&)=delete;
 
-    virtual bool initialize(const DescriptorSetInfo &info) override;
-    virtual void destroy() override;
-    virtual void update() override;
+    bool initialize(const DescriptorSetInfo &info) override;
+    void destroy() override;
+    void update() override;
 
     CC_INLINE CCMTLGPUDescriptorSet *gpuDescriptorSet() const { return _gpuDescriptorSet; }
 

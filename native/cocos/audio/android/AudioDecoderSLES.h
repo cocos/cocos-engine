@@ -29,10 +29,9 @@ THE SOFTWARE.
 #include <mutex>
 #include <condition_variable>
 
-namespace cc { 
+namespace cc {
 
-class AudioDecoderSLES : public AudioDecoder
-{
+class AudioDecoderSLES : public AudioDecoder {
 protected:
     AudioDecoderSLES();
     virtual ~AudioDecoderSLES();
@@ -51,7 +50,7 @@ private:
     SLEngineItf _engineItf;
     SLObjectItf _playObj;
     /* Local storage for decoded audio data */
-    char* _pcmData;
+    char *_pcmData;
 
     /* we only want to query / display the PCM format once */
     bool _formatQueried;
@@ -75,13 +74,12 @@ private:
     std::condition_variable _eosCondition;
 
     /* Structure for passing information to callback function */
-    typedef struct CallbackCntxt_
-    {
+    typedef struct CallbackCntxt_ {
         SLPlayItf playItf;
         SLMetadataExtractionItf metaItf;
         SLuint32 size;
-        SLint8 *pDataBase;    // Base address of local audio data storage
-        SLint8 *pData;        // Current address of local audio data storage
+        SLint8 *pDataBase; // Base address of local audio data storage
+        SLint8 *pData;     // Current address of local audio data storage
     } CallbackCntxt;
 
     CallbackCntxt _decContext;
@@ -94,4 +92,4 @@ private:
     friend class AudioDecoderProvider;
 };
 
-} // namespace cc { 
+} // namespace cc

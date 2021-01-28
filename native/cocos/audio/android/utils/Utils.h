@@ -26,5 +26,5 @@ THE SOFTWARE.
 #include <string>
 
 namespace cc {
-	extern int getSDKVersion();
+extern int getSDKVersion();
 }

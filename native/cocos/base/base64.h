@@ -60,7 +60,7 @@ int CC_DLL base64Decode(const unsigned char *in, unsigned int inLength, unsigned
  */
 int CC_DLL base64Encode(const unsigned char *in, unsigned int inLength, char **out);
 
-}//namespace   cocos2d
+} // namespace cc
 
 #ifdef __cplusplus
 }
@@ -68,4 +68,3 @@ int CC_DLL base64Encode(const unsigned char *in, unsigned int inLength, char **o
 
 /// @endcond
 #endif // __SUPPORT_BASE64_H__
-

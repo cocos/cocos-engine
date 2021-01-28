@@ -33,98 +33,117 @@ Value Value::Null = Value(Type::Null);
 Value Value::Undefined = Value(Type::Undefined);
 
 Value::Value()
-: _type(Type::Undefined), _autoRootUnroot(false) {
+: _type(Type::Undefined),
+  _autoRootUnroot(false) {
     memset(&_u, 0, sizeof(_u));
 }
 
 Value::Value(Type type)
-: _type(Type::Undefined), _autoRootUnroot(false) {
+: _type(Type::Undefined),
+  _autoRootUnroot(false) {
     memset(&_u, 0, sizeof(_u));
     reset(type);
 }
 
 Value::Value(const Value &v)
-: _type(Type::Undefined), _autoRootUnroot(false) {
+: _type(Type::Undefined),
+  _autoRootUnroot(false) {
     *this = v;
 }
 
 Value::Value(Value &&v)
-: _type(Type::Undefined), _autoRootUnroot(false) {
+: _type(Type::Undefined),
+  _autoRootUnroot(false) {
     *this = std::move(v);
 }
 
 Value::Value(bool v)
-: _type(Type::Undefined), _autoRootUnroot(false) {
+: _type(Type::Undefined),
+  _autoRootUnroot(false) {
     setBoolean(v);
 }
 
 Value::Value(int8_t v)
-: _type(Type::Undefined), _autoRootUnroot(false) {
+: _type(Type::Undefined),
+  _autoRootUnroot(false) {
     setInt8(v);
 }
 
 Value::Value(uint8_t v)
-: _type(Type::Undefined), _autoRootUnroot(false) {
+: _type(Type::Undefined),
+  _autoRootUnroot(false) {
     setUint8(v);
 }
 
 Value::Value(int32_t v)
-: _type(Type::Undefined), _autoRootUnroot(false) {
+: _type(Type::Undefined),
+  _autoRootUnroot(false) {
     setInt32(v);
 }
 
 Value::Value(uint32_t v)
-: _type(Type::Undefined), _autoRootUnroot(false) {
+: _type(Type::Undefined),
+  _autoRootUnroot(false) {
     setUint32(v);
 }
 
 Value::Value(int16_t v)
-: _type(Type::Undefined), _autoRootUnroot(false) {
+: _type(Type::Undefined),
+  _autoRootUnroot(false) {
     setInt16(v);
 }
 
 Value::Value(uint16_t v)
-: _type(Type::Undefined), _autoRootUnroot(false) {
+: _type(Type::Undefined),
+  _autoRootUnroot(false) {
     setUint16(v);
 }
 
 Value::Value(long v)
-: _type(Type::Undefined), _autoRootUnroot(false) {
+: _type(Type::Undefined),
+  _autoRootUnroot(false) {
     setLong(v);
 }
 
 Value::Value(unsigned long v)
-: _type(Type::Undefined), _autoRootUnroot(false) {
+: _type(Type::Undefined),
+  _autoRootUnroot(false) {
     setUlong(v);
 }
 
 Value::Value(float v)
-: _type(Type::Undefined), _autoRootUnroot(false) {
+: _type(Type::Undefined),
+  _autoRootUnroot(false) {
     setFloat(v);
 }
 
 Value::Value(double v)
-: _type(Type::Undefined), _autoRootUnroot(false) {
+: _type(Type::Undefined),
+  _autoRootUnroot(false) {
     setNumber(v);
 }
 
 Value::Value(const char *v)
-: _type(Type::Undefined), _autoRootUnroot(false) {
+: _type(Type::Undefined),
+  _autoRootUnroot(false) {
     setString(v);
 }
 
 Value::Value(const std::string &v)
-: _type(Type::Undefined), _autoRootUnroot(false) {
+: _type(Type::Undefined),
+  _autoRootUnroot(false) {
     setString(v);
 }
 
 Value::Value(Object *o, bool autoRootUnroot /* = false*/)
-: _type(Type::Undefined), _autoRootUnroot(false) {
+: _type(Type::Undefined),
+  _autoRootUnroot(false) {
     setObject(o, autoRootUnroot);
 }
 
 Value::Value(const HandleObject &o, bool autoRootUnroot /* = false*/)
-: _type(Type::Undefined), _autoRootUnroot(false) {
+: _type(Type::Undefined),
+  _autoRootUnroot(false) {
     setObject(o, autoRootUnroot);
 }
 

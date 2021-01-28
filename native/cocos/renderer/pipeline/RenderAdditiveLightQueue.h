@@ -76,7 +76,6 @@ private:
     vector<const Light *> _validLights;
     vector<uint> _lightIndices;
     vector<AdditiveLightPass> _lightPasses;
-    vector<RenderObject> _renderObjects;
     vector<uint> _dynamicOffsets;
     vector<float> _lightBufferData;
     RenderInstancedQueue *_instancedQueue = nullptr;
@@ -90,8 +89,6 @@ private:
     std::array<float, UBOCamera::COUNT> _cameraUBO;
     std::array<float, UBOShadow::COUNT> _shadowUBO;
 
-    float _fpScale = 0;
-    bool _isHDR = false;
     uint _lightBufferStride = 0;
     uint _lightBufferElementCount = 0;
     uint _lightBufferCount = 16;

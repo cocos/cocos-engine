@@ -29,7 +29,7 @@ THE SOFTWARE.
 #include "platform/FileUtils.h"
 
 #if CC_PLATFORM == CC_PLATFORM_MAC_IOS || CC_PLATFORM == CC_PLATFORM_MAC_OSX
-#include <sys/time.h>
+    #include <sys/time.h>
 #endif
 
 #include <cmath>
@@ -37,34 +37,27 @@ THE SOFTWARE.
 
 namespace cc {
 
-
-namespace utils
-{
+namespace utils {
 
 #define MAX_ITOA_BUFFER_SIZE 256
-double atof(const char* str)
-{
-    if (str == nullptr)
-    {
+double atof(const char *str) {
+    if (str == nullptr) {
         return 0.0;
     }
-    
+
     char buf[MAX_ITOA_BUFFER_SIZE];
     strncpy(buf, str, MAX_ITOA_BUFFER_SIZE);
-    
+
     // strip string, only remain 7 numbers after '.'
-    char* dot = strchr(buf, '.');
-    if (dot != nullptr && dot - buf + 8 <  MAX_ITOA_BUFFER_SIZE)
-    {
+    char *dot = strchr(buf, '.');
+    if (dot != nullptr && dot - buf + 8 < MAX_ITOA_BUFFER_SIZE) {
         dot[8] = '\0';
     }
-    
+
     return ::atof(buf);
 }
 
-
-int nextPOT(int x)
-{
+int nextPOT(int x) {
     x = x - 1;
     x = x | (x >> 1);
     x = x | (x >> 2);
@@ -74,6 +67,6 @@ int nextPOT(int x)
     return x + 1;
 }
 
-}
+} // namespace utils
 
-}
+} // namespace cc

@@ -50,7 +50,7 @@ void GL_APIENTRY GLES3EGLDebugProc(GLenum source, GLenum type, GLuint id, GLenum
     }
 
     String typeDesc;
-    switch (severity) {
+    switch (type) {
         case GL_DEBUG_TYPE_ERROR_KHR: typeDesc = "ERROR"; break;
         case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR_KHR: typeDesc = "PEPRECATED_BEHAVIOR"; break;
         case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR_KHR: typeDesc = "UNDEFINED_BEHAVIOR"; break;
@@ -74,11 +74,7 @@ void GL_APIENTRY GLES3EGLDebugProc(GLenum source, GLenum type, GLuint id, GLenum
                                     sourceDesc.c_str(), typeDesc.c_str(), severityDesc.c_str(), message);
 
     if (severity == GL_DEBUG_SEVERITY_HIGH_KHR) {
-    #if (CC_PLATFORM == CC_PLATFORM_WINDOWS)
-        CCASSERT(false, msg.c_str());
-    #else
-        CC_LOG_ERROR(msg.c_str());
-    #endif
+        CC_LOG_WARNING(msg.c_str());
     } else {
         CC_LOG_DEBUG(msg.c_str());
     }
@@ -296,6 +292,10 @@ bool GLES3Context::initialize(const ContextInfo &info) {
         });
     #endif
 
+        if (!gles3wInit()) {
+            return false;
+        }
+
     } else {
         GLES3Context *sharedCtx = (GLES3Context *)info.sharedCtx;
 
@@ -348,6 +348,8 @@ bool GLES3Context::initialize(const ContextInfo &info) {
 }
 
 void GLES3Context::destroy() {
+    EGL_CHECK(eglMakeCurrent(_eglDisplay, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT));
+
     if (_eglContext != EGL_NO_CONTEXT) {
         EGL_CHECK(eglDestroyContext(_eglDisplay, _eglContext));
         _eglContext = EGL_NO_CONTEXT;
@@ -358,7 +360,10 @@ void GLES3Context::destroy() {
         _eglSurface = EGL_NO_SURFACE;
     }
 
-    EGL_CHECK(eglMakeCurrent(_eglDisplay, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT));
+    if (_eglDisplay != EGL_NO_DISPLAY) {
+        EGL_CHECK(eglTerminate(_eglDisplay));
+        _eglDisplay = EGL_NO_DISPLAY;
+    }
 
     #if (CC_PLATFORM == CC_PLATFORM_WINDOWS)
     if (_isPrimaryContex && _nativeDisplay) {

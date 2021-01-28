@@ -24,18 +24,15 @@
 
 __BEGIN_DECLS
 
-static inline int popcount(unsigned int x)
-{
+static inline int popcount(unsigned int x) {
     return __builtin_popcount(x);
 }
 
-static inline int popcountl(unsigned long x)
-{
+static inline int popcountl(unsigned long x) {
     return __builtin_popcountl(x);
 }
 
-static inline int popcountll(unsigned long long x)
-{
+static inline int popcountll(unsigned long long x) {
     return __builtin_popcountll(x);
 }
 

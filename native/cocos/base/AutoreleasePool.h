@@ -36,13 +36,11 @@ THE SOFTWARE.
  */
 namespace cc {
 
-
 /**
  * A pool for managing autorelease objects.
  * @js NA
  */
-class CC_DLL AutoreleasePool
-{
+class CC_DLL AutoreleasePool {
 public:
     /**
      * @warning Don't create an autorelease pool in heap, create it in stack.
@@ -110,7 +108,7 @@ public:
      * @js NA
      * @lua NA
      */
-    bool contains(Ref* object) const;
+    bool contains(Ref *object) const;
 
     /**
      * Dump the objects that are put into the autorelease pool. It is used for debugging.
@@ -133,7 +131,7 @@ private:
      * be destructed properly by calling Ref::release() even if the object
      * is in the pool.
      */
-    std::vector<Ref*> _managedObjectArray;
+    std::vector<Ref *> _managedObjectArray;
     std::string _name;
 
 #if defined(CC_DEBUG) && (CC_DEBUG > 0)
@@ -150,10 +148,9 @@ private:
 /**
  * @cond
  */
-class CC_DLL PoolManager
-{
+class CC_DLL PoolManager {
 public:
-    static PoolManager* getInstance();
+    static PoolManager *getInstance();
 
     static void destroyInstance();
 
@@ -163,8 +160,7 @@ public:
      */
     AutoreleasePool *getCurrentPool() const;
 
-    bool isObjectInPools(Ref* obj) const;
-
+    bool isObjectInPools(Ref *obj) const;
 
     friend class AutoreleasePool;
 
@@ -175,14 +171,14 @@ private:
     void push(AutoreleasePool *pool);
     void pop();
 
-    static PoolManager* s_singleInstance;
+    static PoolManager *s_singleInstance;
 
-    std::vector<AutoreleasePool*> _releasePoolStack;
+    std::vector<AutoreleasePool *> _releasePoolStack;
 };
 /**
  * @endcond
  */
 
-}
+} // namespace cc
 
 #endif //__AUTORELEASEPOOL_H__

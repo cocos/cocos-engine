@@ -27,145 +27,143 @@
 #include "platform/FileUtils.h"
 
 #if CC_PLATFORM == CC_PLATFORM_MAC_IOS
-#include "WebViewImpl-ios.h"
+    #include "WebViewImpl-ios.h"
 #elif CC_PLATFORM == CC_PLATFORM_ANDROID
-#include "WebViewImpl-android.h"
+    #include "WebViewImpl-android.h"
 #else
 static_assert(false, "WebView only supported on iOS & Android");
 #endif
 
 namespace cc {
 
-    WebView::WebView()
-            : _impl(new WebViewImpl(this)),
-              _onJSCallback(nullptr),
-              _onShouldStartLoading(nullptr),
-              _onDidFinishLoading(nullptr),
-              _onDidFailLoading(nullptr) {
-    }
+WebView::WebView()
+: _impl(new WebViewImpl(this)),
+  _onJSCallback(nullptr),
+  _onShouldStartLoading(nullptr),
+  _onDidFinishLoading(nullptr),
+  _onDidFailLoading(nullptr) {
+}
 
-    WebView::~WebView() {
-        CC_SAFE_DELETE(_impl);
-    }
+WebView::~WebView() {
+    CC_SAFE_DELETE(_impl);
+}
 
-    WebView *WebView::create() {
-        auto webView = new(std::nothrow) WebView();
-        if (webView) {
-            webView->autorelease();
-            return webView;
-        }
-        CC_SAFE_DELETE(webView);
-        return nullptr;
+WebView *WebView::create() {
+    auto webView = new (std::nothrow) WebView();
+    if (webView) {
+        webView->autorelease();
+        return webView;
     }
+    CC_SAFE_DELETE(webView);
+    return nullptr;
+}
 
-    void WebView::setJavascriptInterfaceScheme(const std::string &scheme) {
-        _impl->setJavascriptInterfaceScheme(scheme);
-    }
+void WebView::setJavascriptInterfaceScheme(const std::string &scheme) {
+    _impl->setJavascriptInterfaceScheme(scheme);
+}
 
-    void WebView::loadData(const cc::Data &data,
-                           const std::string &MIMEType,
-                           const std::string &encoding,
-                           const std::string &baseURL) {
-        _impl->loadData(data, MIMEType, encoding, baseURL);
-    }
+void WebView::loadData(const cc::Data &data,
+                       const std::string &MIMEType,
+                       const std::string &encoding,
+                       const std::string &baseURL) {
+    _impl->loadData(data, MIMEType, encoding, baseURL);
+}
 
-    void WebView::loadHTMLString(const std::string &string, const std::string &baseURL) {
-        _impl->loadHTMLString(string, baseURL);
-    }
+void WebView::loadHTMLString(const std::string &string, const std::string &baseURL) {
+    _impl->loadHTMLString(string, baseURL);
+}
 
-    void WebView::loadURL(const std::string &url) {
-        _impl->loadURL(url);
-    }
+void WebView::loadURL(const std::string &url) {
+    _impl->loadURL(url);
+}
 
-    void WebView::loadFile(const std::string &fileName) {
-        _impl->loadFile(fileName);
-    }
+void WebView::loadFile(const std::string &fileName) {
+    _impl->loadFile(fileName);
+}
 
-    void WebView::stopLoading() {
-        _impl->stopLoading();
-    }
+void WebView::stopLoading() {
+    _impl->stopLoading();
+}
 
-    void WebView::reload() {
-        _impl->reload();
-    }
+void WebView::reload() {
+    _impl->reload();
+}
 
-    bool WebView::canGoBack() {
-        return _impl->canGoBack();
-    }
+bool WebView::canGoBack() {
+    return _impl->canGoBack();
+}
 
-    bool WebView::canGoForward() {
-        return _impl->canGoForward();
-    }
+bool WebView::canGoForward() {
+    return _impl->canGoForward();
+}
 
-    void WebView::goBack() {
-        _impl->goBack();
-    }
+void WebView::goBack() {
+    _impl->goBack();
+}
 
-    void WebView::goForward() {
-        _impl->goForward();
-    }
+void WebView::goForward() {
+    _impl->goForward();
+}
 
-    void WebView::evaluateJS(const std::string &js) {
-        _impl->evaluateJS(js);
-    }
+void WebView::evaluateJS(const std::string &js) {
+    _impl->evaluateJS(js);
+}
 
-    void WebView::setScalesPageToFit(bool const scalesPageToFit) {
-        _impl->setScalesPageToFit(scalesPageToFit);
-    }
+void WebView::setScalesPageToFit(bool const scalesPageToFit) {
+    _impl->setScalesPageToFit(scalesPageToFit);
+}
 
-    void WebView::setVisible(bool visible) {
-        _impl->setVisible(visible);
-    }
+void WebView::setVisible(bool visible) {
+    _impl->setVisible(visible);
+}
 
-    void WebView::setFrame(float x, float y, float width, float height) {
-        _impl->setFrame(x, y, width, height);
-    }
+void WebView::setFrame(float x, float y, float width, float height) {
+    _impl->setFrame(x, y, width, height);
+}
 
-    void WebView::setBounces(bool bounces) {
-        _impl->setBounces(bounces);
-    }
+void WebView::setBounces(bool bounces) {
+    _impl->setBounces(bounces);
+}
 
-    void WebView::setBackgroundTransparent(bool isTransparent) {
-        _impl->setBackgroundTransparent(isTransparent);
-    }
+void WebView::setBackgroundTransparent(bool isTransparent) {
+    _impl->setBackgroundTransparent(isTransparent);
+}
 
-    void WebView::setOnDidFailLoading(const ccWebViewCallback &callback) {
-        _onDidFailLoading = callback;
-    }
+void WebView::setOnDidFailLoading(const ccWebViewCallback &callback) {
+    _onDidFailLoading = callback;
+}
 
-    void WebView::setOnDidFinishLoading(const ccWebViewCallback &callback) {
-        _onDidFinishLoading = callback;
-    }
+void WebView::setOnDidFinishLoading(const ccWebViewCallback &callback) {
+    _onDidFinishLoading = callback;
+}
 
-    void WebView::setOnShouldStartLoading(
-            const std::function<bool(WebView *sender, const std::string &url)> &callback) {
-        _onShouldStartLoading = callback;
-    }
+void WebView::setOnShouldStartLoading(
+    const std::function<bool(WebView *sender, const std::string &url)> &callback) {
+    _onShouldStartLoading = callback;
+}
 
-    void WebView::setOnJSCallback(const ccWebViewCallback &callback) {
-        _onJSCallback = callback;
-    }
+void WebView::setOnJSCallback(const ccWebViewCallback &callback) {
+    _onJSCallback = callback;
+}
 
-    std::function<bool(WebView
+std::function<bool(WebView
                        *sender,
-                       const std::string &url
-    )>
+                   const std::string &url)>
 
-    WebView::getOnShouldStartLoading() const {
-        return _onShouldStartLoading;
-    }
+WebView::getOnShouldStartLoading() const {
+    return _onShouldStartLoading;
+}
 
-    WebView::ccWebViewCallback WebView::getOnDidFailLoading() const {
-        return _onDidFailLoading;
-    }
+WebView::ccWebViewCallback WebView::getOnDidFailLoading() const {
+    return _onDidFailLoading;
+}
 
-    WebView::ccWebViewCallback WebView::getOnDidFinishLoading() const {
-        return _onDidFinishLoading;
-    }
+WebView::ccWebViewCallback WebView::getOnDidFinishLoading() const {
+    return _onDidFinishLoading;
+}
 
-    WebView::ccWebViewCallback WebView::getOnJSCallback() const {
-        return _onJSCallback;
-    }
+WebView::ccWebViewCallback WebView::getOnJSCallback() const {
+    return _onJSCallback;
+}
 
 } //namespace cc
-

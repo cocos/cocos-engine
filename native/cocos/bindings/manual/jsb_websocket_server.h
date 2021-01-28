@@ -26,12 +26,11 @@
 #pragma once
 #if (USE_SOCKET > 0) && (USE_WEBSOCKET_SERVER > 0)
 
-#include "cocos/bindings/jswrapper/SeApi.h"
+    #include "cocos/bindings/jswrapper/SeApi.h"
 namespace se {
-    class Object;
-    class Value;
-}
-
+class Object;
+class Value;
+} // namespace se
 
 SE_DECLARE_FINALIZE_FUNC(WebSocketServer_finalize);
 SE_DECLARE_FUNC(WebSocketServer_constructor);

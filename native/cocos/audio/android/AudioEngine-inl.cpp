@@ -22,8 +22,6 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-#if CC_PLATFORM == CC_PLATFORM_ANDROID
-
 #define LOG_TAG "AudioEngineImpl"
 
 #include "audio/android/AudioEngine-inl.h"
@@ -58,38 +56,32 @@
 using namespace cc;
 
 // Audio focus values synchronized with which in cocos/platform/android/java/src/com/cocos/lib/CocosNativeActivity.java
-namespace
-{
-    AudioEngineImpl* __impl = nullptr;
-    int outputSampleRate = 44100;
-    int bufferSizeInFrames = 192;
+namespace {
+AudioEngineImpl *__impl = nullptr;
+int outputSampleRate = 44100;
+int bufferSizeInFrames = 192;
 
-    void getAudioInfo()
-    {
-        JNIEnv* env = JniHelper::getEnv();
-        jclass audioSystem = env->FindClass("android/media/AudioSystem");
-        jmethodID method = env->GetStaticMethodID(audioSystem, "getPrimaryOutputSamplingRate", "()I");
-        outputSampleRate = env->CallStaticIntMethod(audioSystem, method);
-        method = env->GetStaticMethodID(audioSystem, "getPrimaryOutputFrameCount", "()I");
-        bufferSizeInFrames = env->CallStaticIntMethod(audioSystem, method);
-    }
+void getAudioInfo() {
+    JNIEnv *env = JniHelper::getEnv();
+    jclass audioSystem = env->FindClass("android/media/AudioSystem");
+    jmethodID method = env->GetStaticMethodID(audioSystem, "getPrimaryOutputSamplingRate", "()I");
+    outputSampleRate = env->CallStaticIntMethod(audioSystem, method);
+    method = env->GetStaticMethodID(audioSystem, "getPrimaryOutputFrameCount", "()I");
+    bufferSizeInFrames = env->CallStaticIntMethod(audioSystem, method);
 }
+} // namespace
 
-class CallerThreadUtils : public ICallerThreadUtils
-{
+class CallerThreadUtils : public ICallerThreadUtils {
 public:
-    virtual void performFunctionInCallerThread(const std::function<void()>& func)
-    {
+    virtual void performFunctionInCallerThread(const std::function<void()> &func) {
         Application::getInstance()->getScheduler()->performFunctionInCocosThread(func);
     };
 
-    virtual std::thread::id getCallerThreadId()
-    {
+    virtual std::thread::id getCallerThreadId() {
         return _tid;
     };
 
-    void setCallerThreadId(std::thread::id tid)
-    {
+    void setCallerThreadId(std::thread::id tid) {
         _tid = tid;
     };
 
@@ -99,23 +91,19 @@ private:
 
 static CallerThreadUtils __callerThreadUtils;
 
-static int fdGetter(const std::string& url, off_t* start, off_t* length)
-{
+static int fdGetter(const std::string &url, off_t *start, off_t *length) {
     int fd = -1;
-    if (cc::FileUtilsAndroid::getObbFile() != nullptr)
-    {
+    if (cc::FileUtilsAndroid::getObbFile() != nullptr) {
         fd = getObbAssetFileDescriptorJNI(url.c_str(), start, length);
     }
-    if (fd <= 0)
-    {
+    if (fd <= 0) {
         auto asset = AAssetManager_open(cc::FileUtilsAndroid::getAssetManager(), url.c_str(), AASSET_MODE_UNKNOWN);
         // open asset as file descriptor
         fd = AAsset_openFileDescriptor(asset, start, length);
         AAsset_close(asset);
     }
 
-    if (fd <= 0)
-    {
+    if (fd <= 0) {
         ALOGE("Failed to open file descriptor for '%s'", url.c_str());
     }
 
@@ -124,88 +112,88 @@ static int fdGetter(const std::string& url, off_t* start, off_t* length)
 
 //====================================================
 AudioEngineImpl::AudioEngineImpl()
-    : _engineObject(nullptr)
-    , _engineEngine(nullptr)
-    , _outputMixObject(nullptr)
-    , _audioPlayerProvider(nullptr)
-    , _audioIDIndex(0)
-    , _lazyInitLoop(true)
-{
+: _engineObject(nullptr), _engineEngine(nullptr), _outputMixObject(nullptr), _audioPlayerProvider(nullptr), _audioIDIndex(0), _lazyInitLoop(true) {
     __callerThreadUtils.setCallerThreadId(std::this_thread::get_id());
     __impl = this;
     getAudioInfo();
 }
 
-AudioEngineImpl::~AudioEngineImpl()
-{
-    if (_audioPlayerProvider != nullptr)
-    {
+AudioEngineImpl::~AudioEngineImpl() {
+    if (_audioPlayerProvider != nullptr) {
         delete _audioPlayerProvider;
         _audioPlayerProvider = nullptr;
     }
 
-    if (_outputMixObject)
-    {
+    if (_outputMixObject) {
         (*_outputMixObject)->Destroy(_outputMixObject);
     }
-    if (_engineObject)
-    {
+    if (_engineObject) {
         (*_engineObject)->Destroy(_engineObject);
     }
 
     __impl = nullptr;
 }
 
-bool AudioEngineImpl::init()
-{
+bool AudioEngineImpl::init() {
     bool ret = false;
-    do{
+    do {
 
         // create engine
         auto result = slCreateEngine(&_engineObject, 0, nullptr, 0, nullptr, nullptr);
-        if(SL_RESULT_SUCCESS != result){ CC_LOG_ERROR("create opensl engine fail"); break; }
+        if (SL_RESULT_SUCCESS != result) {
+            CC_LOG_ERROR("create opensl engine fail");
+            break;
+        }
 
         // realize the engine
         result = (*_engineObject)->Realize(_engineObject, SL_BOOLEAN_FALSE);
-        if(SL_RESULT_SUCCESS != result){ CC_LOG_ERROR("realize the engine fail"); break; }
+        if (SL_RESULT_SUCCESS != result) {
+            CC_LOG_ERROR("realize the engine fail");
+            break;
+        }
 
         // get the engine interface, which is needed in order to create other objects
         result = (*_engineObject)->GetInterface(_engineObject, SL_IID_ENGINE, &_engineEngine);
-        if(SL_RESULT_SUCCESS != result){ CC_LOG_ERROR("get the engine interface fail"); break; }
+        if (SL_RESULT_SUCCESS != result) {
+            CC_LOG_ERROR("get the engine interface fail");
+            break;
+        }
 
         // create output mix
         const SLInterfaceID outputMixIIDs[] = {};
         const SLboolean outputMixReqs[] = {};
         result = (*_engineEngine)->CreateOutputMix(_engineEngine, &_outputMixObject, 0, outputMixIIDs, outputMixReqs);
-        if(SL_RESULT_SUCCESS != result){ CC_LOG_ERROR("create output mix fail"); break; }
+        if (SL_RESULT_SUCCESS != result) {
+            CC_LOG_ERROR("create output mix fail");
+            break;
+        }
 
         // realize the output mix
         result = (*_outputMixObject)->Realize(_outputMixObject, SL_BOOLEAN_FALSE);
-        if(SL_RESULT_SUCCESS != result){ CC_LOG_ERROR("realize the output mix fail"); break; }
+        if (SL_RESULT_SUCCESS != result) {
+            CC_LOG_ERROR("realize the output mix fail");
+            break;
+        }
 
         _audioPlayerProvider = new AudioPlayerProvider(_engineEngine, _outputMixObject, outputSampleRate, bufferSizeInFrames, fdGetter, &__callerThreadUtils);
 
         ret = true;
-    }while (false);
+    } while (false);
 
     return ret;
 }
 
-void AudioEngineImpl::setAudioFocusForAllPlayers(bool isFocus)
-{
-    for (const auto& e : _audioPlayers)
-    {
+void AudioEngineImpl::setAudioFocusForAllPlayers(bool isFocus) {
+    for (const auto &e : _audioPlayers) {
         e.second->setAudioFocus(isFocus);
     }
 }
 
-int AudioEngineImpl::play2d(const std::string &filePath ,bool loop ,float volume)
-{
+int AudioEngineImpl::play2d(const std::string &filePath, bool loop, float volume) {
     ALOGV("play2d, _audioPlayers.size=%d", (int)_audioPlayers.size());
     auto audioId = AudioEngine::INVALID_AUDIO_ID;
 
-    do
-    {
+    do {
         if (_engineEngine == nullptr || _audioPlayerProvider == nullptr)
             break;
 
@@ -214,15 +202,12 @@ int AudioEngineImpl::play2d(const std::string &filePath ,bool loop ,float volume
         audioId = _audioIDIndex++;
 
         auto player = _audioPlayerProvider->getAudioPlayer(fullPath);
-        if (player != nullptr)
-        {
+        if (player != nullptr) {
             player->setId(audioId);
             _audioPlayers.insert(std::make_pair(audioId, player));
 
-            player->setPlayEventCallback([this, player, filePath](IAudioPlayer::State state){
-
-                if (state != IAudioPlayer::State::OVER && state != IAudioPlayer::State::STOPPED)
-                {
+            player->setPlayEventCallback([this, player, filePath](IAudioPlayer::State state) {
+                if (state != IAudioPlayer::State::OVER && state != IAudioPlayer::State::STOPPED) {
                     ALOGV("Ignore state: %d", static_cast<int>(state));
                     return;
                 }
@@ -232,20 +217,16 @@ int AudioEngineImpl::play2d(const std::string &filePath ,bool loop ,float volume
                 ALOGV("Removing player id=%d, state:%d", id, (int)state);
 
                 AudioEngine::remove(id);
-                if (_audioPlayers.find(id) != _audioPlayers.end())
-                {
+                if (_audioPlayers.find(id) != _audioPlayers.end()) {
                     _audioPlayers.erase(id);
                 }
-                if (_urlAudioPlayersNeedResume.find(id) != _urlAudioPlayersNeedResume.end())
-                {
+                if (_urlAudioPlayersNeedResume.find(id) != _urlAudioPlayersNeedResume.end()) {
                     _urlAudioPlayersNeedResume.erase(id);
                 }
 
                 auto iter = _callbackMap.find(id);
-                if (iter != _callbackMap.end())
-                {
-                    if (state == IAudioPlayer::State::OVER)
-                    {
+                if (iter != _callbackMap.end()) {
+                    if (state == IAudioPlayer::State::OVER) {
                         iter->second(id, filePath);
                     }
                     _callbackMap.erase(iter);
@@ -255,9 +236,7 @@ int AudioEngineImpl::play2d(const std::string &filePath ,bool loop ,float volume
             player->setLoop(loop);
             player->setVolume(volume);
             player->play();
-        }
-        else
-        {
+        } else {
             ALOGE("Oops, player is null ...");
             return AudioEngine::INVALID_AUDIO_ID;
         }
@@ -269,180 +248,141 @@ int AudioEngineImpl::play2d(const std::string &filePath ,bool loop ,float volume
     return audioId;
 }
 
-void AudioEngineImpl::setVolume(int audioID,float volume)
-{
+void AudioEngineImpl::setVolume(int audioID, float volume) {
     auto iter = _audioPlayers.find(audioID);
-    if (iter != _audioPlayers.end())
-    {
+    if (iter != _audioPlayers.end()) {
         auto player = iter->second;
         player->setVolume(volume);
     }
 }
 
-void AudioEngineImpl::setLoop(int audioID, bool loop)
-{
+void AudioEngineImpl::setLoop(int audioID, bool loop) {
     auto iter = _audioPlayers.find(audioID);
-    if (iter != _audioPlayers.end())
-    {
+    if (iter != _audioPlayers.end()) {
         auto player = iter->second;
         player->setLoop(loop);
     }
 }
 
-void AudioEngineImpl::pause(int audioID)
-{
+void AudioEngineImpl::pause(int audioID) {
     auto iter = _audioPlayers.find(audioID);
-    if (iter != _audioPlayers.end())
-    {
+    if (iter != _audioPlayers.end()) {
         auto player = iter->second;
         player->pause();
     }
 }
 
-void AudioEngineImpl::resume(int audioID)
-{
+void AudioEngineImpl::resume(int audioID) {
     auto iter = _audioPlayers.find(audioID);
-    if (iter != _audioPlayers.end())
-    {
+    if (iter != _audioPlayers.end()) {
         auto player = iter->second;
         player->resume();
     }
 }
 
-void AudioEngineImpl::stop(int audioID)
-{
+void AudioEngineImpl::stop(int audioID) {
     auto iter = _audioPlayers.find(audioID);
-    if (iter != _audioPlayers.end())
-    {
+    if (iter != _audioPlayers.end()) {
         auto player = iter->second;
         player->stop();
     }
 }
 
-void AudioEngineImpl::stopAll()
-{
-    if (_audioPlayers.empty())
-    {
+void AudioEngineImpl::stopAll() {
+    if (_audioPlayers.empty()) {
         return;
     }
 
     // Create a temporary vector for storing all players since
     // p->stop() will trigger _audioPlayers.erase,
     // and it will cause a crash as it's already in for loop
-    std::vector<IAudioPlayer*> players;
+    std::vector<IAudioPlayer *> players;
     players.reserve(_audioPlayers.size());
 
-    for (const auto& e : _audioPlayers)
-    {
+    for (const auto &e : _audioPlayers) {
         players.push_back(e.second);
     }
 
-    for (auto p : players)
-    {
+    for (auto p : players) {
         p->stop();
     }
 }
 
-float AudioEngineImpl::getDuration(int audioID)
-{
+float AudioEngineImpl::getDuration(int audioID) {
     auto iter = _audioPlayers.find(audioID);
-    if (iter != _audioPlayers.end())
-    {
+    if (iter != _audioPlayers.end()) {
         auto player = iter->second;
         return player->getDuration();
     }
     return 0.0f;
 }
 
-float AudioEngineImpl::getDurationFromFile(const std::string &filePath)
-{
-    if (_audioPlayerProvider != nullptr)
-    {
+float AudioEngineImpl::getDurationFromFile(const std::string &filePath) {
+    if (_audioPlayerProvider != nullptr) {
         auto fullPath = FileUtils::getInstance()->fullPathForFilename(filePath);
         return _audioPlayerProvider->getDurationFromFile(fullPath);
     }
     return 0;
 }
 
-float AudioEngineImpl::getCurrentTime(int audioID)
-{
+float AudioEngineImpl::getCurrentTime(int audioID) {
     auto iter = _audioPlayers.find(audioID);
-    if (iter != _audioPlayers.end())
-    {
+    if (iter != _audioPlayers.end()) {
         auto player = iter->second;
         return player->getPosition();
     }
     return 0.0f;
 }
 
-bool AudioEngineImpl::setCurrentTime(int audioID, float time)
-{
+bool AudioEngineImpl::setCurrentTime(int audioID, float time) {
     auto iter = _audioPlayers.find(audioID);
-    if (iter != _audioPlayers.end())
-    {
+    if (iter != _audioPlayers.end()) {
         auto player = iter->second;
         return player->setPosition(time);
     }
     return false;
 }
 
-void AudioEngineImpl::setFinishCallback(int audioID, const std::function<void (int, const std::string &)> &callback)
-{
+void AudioEngineImpl::setFinishCallback(int audioID, const std::function<void(int, const std::string &)> &callback) {
     _callbackMap[audioID] = callback;
 }
 
-void AudioEngineImpl::preload(const std::string& filePath, const std::function<void(bool)>& callback)
-{
-    if (_audioPlayerProvider != nullptr)
-    {
+void AudioEngineImpl::preload(const std::string &filePath, const std::function<void(bool)> &callback) {
+    if (_audioPlayerProvider != nullptr) {
         std::string fullPath = FileUtils::getInstance()->fullPathForFilename(filePath);
-        _audioPlayerProvider->preloadEffect(fullPath, [callback](bool succeed, PcmData data){
-            if (callback != nullptr)
-            {
+        _audioPlayerProvider->preloadEffect(fullPath, [callback](bool succeed, PcmData data) {
+            if (callback != nullptr) {
                 callback(succeed);
             }
         });
-    }
-    else
-    {
-        if (callback != nullptr)
-        {
+    } else {
+        if (callback != nullptr) {
             callback(false);
         }
     }
 }
 
-void AudioEngineImpl::uncache(const std::string& filePath)
-{
-    if (_audioPlayerProvider != nullptr)
-    {
+void AudioEngineImpl::uncache(const std::string &filePath) {
+    if (_audioPlayerProvider != nullptr) {
         std::string fullPath = FileUtils::getInstance()->fullPathForFilename(filePath);
         _audioPlayerProvider->clearPcmCache(fullPath);
     }
 }
 
-void AudioEngineImpl::uncacheAll()
-{
-    if (_audioPlayerProvider != nullptr)
-    {
+void AudioEngineImpl::uncacheAll() {
+    if (_audioPlayerProvider != nullptr) {
         _audioPlayerProvider->clearAllPcmCaches();
     }
 }
 
-void AudioEngineImpl::onPause()
-{
-    if (_audioPlayerProvider != nullptr)
-    {
+void AudioEngineImpl::onPause() {
+    if (_audioPlayerProvider != nullptr) {
         _audioPlayerProvider->pause();
     }
 }
 
-void AudioEngineImpl::onResume()
-{
-    if (_audioPlayerProvider != nullptr)
-    {
+void AudioEngineImpl::onResume() {
+    if (_audioPlayerProvider != nullptr) {
         _audioPlayerProvider->resume();
     }
 }
-
-#endif

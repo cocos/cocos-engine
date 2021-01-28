@@ -29,28 +29,28 @@ static inline off64_t lseek64(int fd, off64_t offset, int whence) {
     return lseek(fd, offset, whence);
 }
 
-static inline ssize_t pread64(int fd, void* buf, size_t nbytes, off64_t offset) {
+static inline ssize_t pread64(int fd, void *buf, size_t nbytes, off64_t offset) {
     return pread(fd, buf, nbytes, offset);
 }
 
-static inline ssize_t pwrite64(int fd, const void* buf, size_t nbytes, off64_t offset) {
+static inline ssize_t pwrite64(int fd, const void *buf, size_t nbytes, off64_t offset) {
     return pwrite(fd, buf, nbytes, offset);
 }
 
 #endif /* __APPLE__ */
 
 #if defined(_WIN32)
-#define O_CLOEXEC O_NOINHERIT
-#define O_NOFOLLOW 0
-#define DEFFILEMODE 0666
+    #define O_CLOEXEC   O_NOINHERIT
+    #define O_NOFOLLOW  0
+    #define DEFFILEMODE 0666
 #endif /* _WIN32 */
 
 #if defined(_WIN32)
-#define ZD "%ld"
-#define ZD_TYPE long
+    #define ZD      "%ld"
+    #define ZD_TYPE long
 #else
-#define ZD "%zd"
-#define ZD_TYPE ssize_t
+    #define ZD      "%zd"
+    #define ZD_TYPE ssize_t
 #endif
 
 /*
@@ -59,9 +59,9 @@ static inline ssize_t pwrite64(int fd, const void* buf, size_t nbytes, off64_t o
  * member variable).
  */
 #if __cplusplus >= 201103L
-#define CONSTEXPR constexpr
+    #define CONSTEXPR constexpr
 #else
-#define CONSTEXPR
+    #define CONSTEXPR
 #endif
 
 /*
@@ -70,8 +70,8 @@ static inline ssize_t pwrite64(int fd, const void* buf, size_t nbytes, off64_t o
  * not already defined, then define it here.
  */
 #ifndef TEMP_FAILURE_RETRY
-/* Used to retry syscalls that can return EINTR. */
-#define TEMP_FAILURE_RETRY(exp) ({         \
+    /* Used to retry syscalls that can return EINTR. */
+    #define TEMP_FAILURE_RETRY(exp) ({         \
     typeof (exp) _rc;                      \
     do {                                   \
         _rc = (exp);                       \
@@ -80,9 +80,9 @@ static inline ssize_t pwrite64(int fd, const void* buf, size_t nbytes, off64_t o
 #endif
 
 #if defined(_WIN32)
-#define OS_PATH_SEPARATOR '\\'
+    #define OS_PATH_SEPARATOR '\\'
 #else
-#define OS_PATH_SEPARATOR '/'
+    #define OS_PATH_SEPARATOR '/'
 #endif
 
 #endif /* COCOS_LIB_UTILS_COMPAT_H */

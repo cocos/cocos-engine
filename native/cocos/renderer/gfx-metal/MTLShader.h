@@ -24,22 +24,24 @@ THE SOFTWARE.
 #pragma once
 
 #import <Metal/MTLLibrary.h>
-#import <Metal/MTLRenderPipeline.h>
 
 namespace cc {
 namespace gfx {
 class CCMTLGPUShader;
-class CCMTLShader : public Shader {
+class CCMTLShader final : public Shader {
 public:
-    CCMTLShader(Device *device);
-    ~CCMTLShader() = default;
+    explicit CCMTLShader(Device *device);
+    ~CCMTLShader() override = default;
+    CCMTLShader(const CCMTLShader &)=delete;
+    CCMTLShader(CCMTLShader &&)=delete;
+    CCMTLShader &operator=(const CCMTLShader &)=delete;
+    CCMTLShader &operator=(CCMTLShader &&)=delete;
 
-    virtual bool initialize(const ShaderInfo &info) override;
-    virtual void destroy() override;
+    bool initialize(const ShaderInfo &info) override;
+    void destroy() override;
 
     CC_INLINE id<MTLFunction> getVertMTLFunction() const { return _vertexMTLFunction; }
     CC_INLINE id<MTLFunction> getFragmentMTLFunction() const { return _fragmentMTLFunction; }
-    CC_INLINE const unordered_map<uint, uint> &getVertexSamplerBindings() const { return _mtlVertexSamplerBindings; }
     CC_INLINE const unordered_map<uint, uint> &getFragmentSamplerBindings() const { return _mtlFragmentSamplerBindings; }
     CC_INLINE const CCMTLGPUShader *gpuShader() const { return _gpuShader; }
 
@@ -59,7 +61,6 @@ private:
 private:
     id<MTLFunction> _vertexMTLFunction = nil;
     id<MTLFunction> _fragmentMTLFunction = nil;
-    unordered_map<uint, uint> _mtlVertexSamplerBindings;
     unordered_map<uint, uint> _mtlFragmentSamplerBindings;
     vector<uint> _availableVertexBufferBindingIndex;
     vector<uint> _availableFragmentBufferBindingIndex;

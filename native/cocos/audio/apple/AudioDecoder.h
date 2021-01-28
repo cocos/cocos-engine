@@ -28,13 +28,12 @@
 #include <stdint.h>
 #import <AudioToolbox/ExtendedAudioFile.h>
 
-namespace cc { 
+namespace cc {
 
 /**
  * @brief The class for decoding compressed audio file to PCM buffer.
  */
-class AudioDecoder
-{
+class AudioDecoder {
 public:
     static const uint32_t INVALID_FRAME_INDEX = UINT32_MAX;
 
@@ -45,7 +44,7 @@ public:
      * @brief Opens an audio file specified by a file path.
      * @return true if succeed, otherwise false.
      */
-    bool open(const char* path);
+    bool open(const char *path);
 
     /**
      * @brief Checks whether decoder has opened file successfully.
@@ -65,7 +64,7 @@ public:
      * @param pcmBuf The buffer to hold the frames to be read, its size should be >= |framesToRead| * _bytesPerFrame.
      * @return The number of frames actually read, it's probably less than 'framesToRead'. Returns 0 means reach the end of file.
      */
-    uint32_t read(uint32_t framesToRead, char* pcmBuf);
+    uint32_t read(uint32_t framesToRead, char *pcmBuf);
 
     /**
      * @brief Reads fixed audio frames of PCM format.
@@ -77,7 +76,7 @@ public:
      *       If current position reaches the end of frames, the return value may smaller than |framesToRead| and the remaining
      *       buffer in |pcmBuf| will be set with silence data (0x00).
      */
-    uint32_t readFixedFrames(uint32_t framesToRead, char* pcmBuf);
+    uint32_t readFixedFrames(uint32_t framesToRead, char *pcmBuf);
 
     /**
      * @brief Sets frame offest to be read.
@@ -117,4 +116,4 @@ private:
     AudioStreamBasicDescription _outputFormat;
 };
 
-} // namespace cc { 
+} // namespace cc

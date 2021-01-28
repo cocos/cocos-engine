@@ -26,13 +26,17 @@ THE SOFTWARE.
 namespace cc {
 namespace gfx {
 
-class CCMTLFramebuffer : public Framebuffer {
+class CCMTLFramebuffer final : public Framebuffer {
 public:
-    CCMTLFramebuffer(Device *device);
-    ~CCMTLFramebuffer() = default;
+    explicit CCMTLFramebuffer(Device *device);
+    ~CCMTLFramebuffer() override = default;
+    CCMTLFramebuffer(const CCMTLFramebuffer &)=delete;
+    CCMTLFramebuffer(CCMTLFramebuffer &&)=delete;
+    CCMTLFramebuffer &operator=(const CCMTLFramebuffer &)=delete;
+    CCMTLFramebuffer &operator=(CCMTLFramebuffer &&)=delete;
 
-    virtual bool initialize(const FramebufferInfo &info) override;
-    virtual void destroy() override;
+    bool initialize(const FramebufferInfo &info) override;
+    void destroy() override;
 
     CC_INLINE bool isOffscreen() const { return _isOffscreen; }
 

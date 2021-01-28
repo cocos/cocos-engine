@@ -43,9 +43,9 @@ static uint32_t U32_AT(const uint8_t *ptr) {
 }
 
 static bool parseHeader(
-        uint32_t header, size_t *frame_size,
-        uint32_t *out_sampling_rate = NULL, uint32_t *out_channels = NULL ,
-        uint32_t *out_bitrate = NULL, uint32_t *out_num_samples = NULL) {
+    uint32_t header, size_t *frame_size,
+    uint32_t *out_sampling_rate = NULL, uint32_t *out_channels = NULL,
+    uint32_t *out_bitrate = NULL, uint32_t *out_num_samples = NULL) {
     *frame_size = 0;
 
     if (out_sampling_rate) {
@@ -93,7 +93,7 @@ static bool parseHeader(
         return false;
     }
 
-    static const int kSamplingRateV1[] = { 44100, 48000, 32000 };
+    static const int kSamplingRateV1[] = {44100, 48000, 32000};
     int sampling_rate = kSamplingRateV1[sampling_rate_index];
     if (version == 2 /* V2 */) {
         sampling_rate /= 2;
@@ -108,13 +108,11 @@ static bool parseHeader(
 
         static const int kBitrateV1[] = {
             32, 64, 96, 128, 160, 192, 224, 256,
-            288, 320, 352, 384, 416, 448
-        };
+            288, 320, 352, 384, 416, 448};
 
         static const int kBitrateV2[] = {
             32, 48, 56, 64, 80, 96, 112, 128,
-            144, 160, 176, 192, 224, 256
-        };
+            144, 160, 176, 192, 224, 256};
 
         int bitrate =
             (version == 3 /* V1 */)
@@ -135,24 +133,21 @@ static bool parseHeader(
 
         static const int kBitrateV1L2[] = {
             32, 48, 56, 64, 80, 96, 112, 128,
-            160, 192, 224, 256, 320, 384
-        };
+            160, 192, 224, 256, 320, 384};
 
         static const int kBitrateV1L3[] = {
             32, 40, 48, 56, 64, 80, 96, 112,
-            128, 160, 192, 224, 256, 320
-        };
+            128, 160, 192, 224, 256, 320};
 
         static const int kBitrateV2[] = {
             8, 16, 24, 32, 40, 48, 56, 64,
-            80, 96, 112, 128, 144, 160
-        };
+            80, 96, 112, 128, 144, 160};
 
         int bitrate;
         if (version == 3 /* V1 */) {
             bitrate = (layer == 2 /* L2 */)
-                ? kBitrateV1L2[bitrate_index - 1]
-                : kBitrateV1L3[bitrate_index - 1];
+                          ? kBitrateV1L2[bitrate_index - 1]
+                          : kBitrateV1L3[bitrate_index - 1];
 
             if (out_num_samples) {
                 *out_num_samples = 1152;
@@ -196,19 +191,19 @@ static bool parseHeader(
 // which should be same for all MP3 frames.
 static const uint32_t kMask = 0xfffe0c00;
 
-static ssize_t sourceReadAt(mp3_callbacks *callback, void* source, off64_t offset, void *data, size_t size) {
+static ssize_t sourceReadAt(mp3_callbacks *callback, void *source, off64_t offset, void *data, size_t size) {
     int retVal = callback->seek(source, offset, SEEK_SET);
     if (retVal != EXIT_SUCCESS) {
         return 0;
     } else {
-       return callback->read(data, 1, size, source);
+        return callback->read(data, 1, size, source);
     }
 }
 
 // Resync to next valid MP3 frame in the file.
 static bool resync(
-        mp3_callbacks *callback, void* source, uint32_t match_header,
-        off64_t *inout_pos, uint32_t *out_header) {
+    mp3_callbacks *callback, void *source, uint32_t match_header,
+    off64_t *inout_pos, uint32_t *out_header) {
 
     if (*inout_pos == 0) {
         // Skip an optional ID3 header if syncing at the very beginning
@@ -231,19 +226,15 @@ static bool resync(
             // Skip the ID3v2 header.
 
             size_t len =
-                ((id3header[6] & 0x7f) << 21)
-                | ((id3header[7] & 0x7f) << 14)
-                | ((id3header[8] & 0x7f) << 7)
-                | (id3header[9] & 0x7f);
+                ((id3header[6] & 0x7f) << 21) | ((id3header[7] & 0x7f) << 14) | ((id3header[8] & 0x7f) << 7) | (id3header[9] & 0x7f);
 
             len += 10;
 
             *inout_pos += len;
 
             ALOGV("skipped ID3 tag, new starting offset is %lld (0x%016llx)",
-                    (long long)*inout_pos, (long long)*inout_pos);
+                  (long long)*inout_pos, (long long)*inout_pos);
         }
-
     }
 
     off64_t pos = *inout_pos;
@@ -278,7 +269,7 @@ static bool resync(
                  * bytes in the buffer.
                  */
                 totalBytesRead = sourceReadAt(callback, source, pos + remainingBytes,
-                                             buf + remainingBytes, bytesToRead);
+                                              buf + remainingBytes, bytesToRead);
 
                 if (totalBytesRead <= 0) {
                     break;
@@ -302,8 +293,8 @@ static bool resync(
         size_t frame_size;
         uint32_t sample_rate, num_channels, bitrate;
         if (!parseHeader(
-                    header, &frame_size,
-                    &sample_rate, &num_channels, &bitrate)) {
+                header, &frame_size,
+                &sample_rate, &num_channels, &bitrate)) {
             ++pos;
             ++tmp;
             --remainingBytes;
@@ -367,7 +358,7 @@ Mp3Reader::Mp3Reader() : mSource(NULL), mCallback(NULL) {
 }
 
 // Initialize the MP3 reader.
-bool Mp3Reader::init(mp3_callbacks *callback, void* source) {
+bool Mp3Reader::init(mp3_callbacks *callback, void *source) {
 
     mSource = source;
     mCallback = callback;
@@ -379,13 +370,12 @@ bool Mp3Reader::init(mp3_callbacks *callback, void* source) {
     off64_t pos = 0;
     uint32_t header;
     bool success = resync(callback, source, 0 /*match_header*/, &pos, &header);
-    if (!success)
-    {
+    if (!success) {
         ALOGE("%s, resync failed", __FUNCTION__);
         return false;
     }
 
-    mCurrentPos  = pos;
+    mCurrentPos = pos;
     mFixedHeader = header;
 
     size_t frame_size;
@@ -408,10 +398,9 @@ bool Mp3Reader::getFrame(void *buffer, uint32_t *size) {
 
         uint32_t header = U32_AT((const uint8_t *)buffer);
 
-        if ((header & kMask) == (mFixedHeader & kMask)
-            && parseHeader(
-                header, &frame_size, &sample_rate, NULL /*out_channels*/,
-                &bitrate, &num_samples)) {
+        if ((header & kMask) == (mFixedHeader & kMask) && parseHeader(
+                                                              header, &frame_size, &sample_rate, NULL /*out_channels*/,
+                                                              &bitrate, &num_samples)) {
             break;
         }
 
@@ -450,8 +439,7 @@ enum {
     kOutputBufferSize = 4608 * 2,
 };
 
-int decodeMP3(mp3_callbacks* cb, void* source, std::vector<char>& pcmBuffer, int* numChannels, int* sampleRate, int* numFrames)
-{
+int decodeMP3(mp3_callbacks *cb, void *source, std::vector<char> &pcmBuffer, int *numChannels, int *sampleRate, int *numFrames) {
     // Initialize the config.
     tPVMP3DecoderExternal config;
     config.equalizerType = flat;
@@ -489,11 +477,11 @@ int decodeMP3(mp3_callbacks* cb, void* source, std::vector<char>& pcmBuffer, int
     // }
 
     // Allocate input buffer.
-    uint8_t *inputBuf = static_cast<uint8_t*>(malloc(kInputBufferSize));
+    uint8_t *inputBuf = static_cast<uint8_t *>(malloc(kInputBufferSize));
     assert(inputBuf != NULL);
 
     // Allocate output buffer.
-    int16_t *outputBuf = static_cast<int16_t*>(malloc(kOutputBufferSize));
+    int16_t *outputBuf = static_cast<int16_t *>(malloc(kOutputBufferSize));
     assert(outputBuf != NULL);
 
     // Decode loop.
@@ -523,7 +511,7 @@ int decodeMP3(mp3_callbacks* cb, void* source, std::vector<char>& pcmBuffer, int
             break;
         }
 
-        pcmBuffer.insert(pcmBuffer.end(), (char*)outputBuf, ((char*)outputBuf) + config.outputFrameSize * 2);
+        pcmBuffer.insert(pcmBuffer.end(), (char *)outputBuf, ((char *)outputBuf) + config.outputFrameSize * 2);
         *numFrames += config.outputFrameSize / mp3Reader.getNumChannels();
     }
 

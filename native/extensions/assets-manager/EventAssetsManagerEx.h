@@ -28,19 +28,17 @@
 
 #include <string>
 #include "base/Ref.h"
-#include "extensions/ExtensionMacros.h" 
+#include "extensions/ExtensionMacros.h"
 #include "extensions/ExtensionExport.h"
 
 NS_CC_EXT_BEGIN
 
 class AssetsManagerEx;
 
-class CC_EX_DLL EventAssetsManagerEx : public cc::Ref
-{
+class CC_EX_DLL EventAssetsManagerEx : public cc::Ref {
 public:
     //! Update events code
-    enum class EventCode
-    {
+    enum class EventCode {
         ERROR_NO_LOCAL_MANIFEST,
         ERROR_DOWNLOAD_MANIFEST,
         ERROR_PARSE_MANIFEST,
@@ -53,50 +51,63 @@ public:
         UPDATE_FAILED,
         ERROR_DECOMPRESS
     };
-    
-    inline EventCode getEventCode() const { return _code; };
-    
-    inline int getCURLECode() const { return _curle_code; };
-    
-    inline int getCURLMCode() const { return _curlm_code; };
-    
-    inline std::string getMessage() const { return _message; };
-    
-    inline std::string getAssetId() const { return _assetId; };
-    
-    inline cc::extension::AssetsManagerEx *getAssetsManagerEx() const { return _manager; };
-    
+
+    inline EventCode getEventCode() const {
+        return _code;
+    };
+
+    inline int getCURLECode() const {
+        return _curle_code;
+    };
+
+    inline int getCURLMCode() const {
+        return _curlm_code;
+    };
+
+    inline std::string getMessage() const {
+        return _message;
+    };
+
+    inline std::string getAssetId() const {
+        return _assetId;
+    };
+
+    inline cc::extension::AssetsManagerEx *getAssetsManagerEx() const {
+        return _manager;
+    };
+
     bool isResuming() const;
-    
+
     float getPercent() const;
-    
+
     float getPercentByFile() const;
-    
+
     double getDownloadedBytes() const;
-    
+
     double getTotalBytes() const;
-    
+
     int getDownloadedFiles() const;
-    
+
     int getTotalFiles() const;
-    
+
 public:
     /** Constructor */
-    EventAssetsManagerEx(const std::string& eventName, cc::extension::AssetsManagerEx *manager, const EventCode &code, const std::string& assetId = "", const std::string& message = "", int curle_code = 0, int curlm_code = 0);
-    
+    EventAssetsManagerEx(const std::string &eventName, cc::extension::AssetsManagerEx *manager, const EventCode &code, const std::string &assetId = "", const std::string &message = "", int curle_code = 0, int curlm_code = 0);
+
 private:
-    virtual ~EventAssetsManagerEx() {}
+    virtual ~EventAssetsManagerEx() {
+    }
 
     EventCode _code;
-    
+
     cc::extension::AssetsManagerEx *_manager;
-    
+
     std::string _message;
-    
+
     std::string _assetId;
-    
+
     int _curle_code;
-    
+
     int _curlm_code;
 };
 

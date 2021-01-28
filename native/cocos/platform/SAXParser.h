@@ -27,7 +27,6 @@
 #define __CCSAXPARSER_H__
 /// @cond DO_NOT_SHOW
 
-
 #include "base/Macros.h"
 #include <string>
 
@@ -40,8 +39,7 @@ namespace cc {
 
 typedef unsigned char CC_XML_CHAR;
 
-class CC_DLL SAXDelegator
-{
+class CC_DLL SAXDelegator {
 public:
     virtual ~SAXDelegator() {}
 
@@ -62,9 +60,9 @@ public:
     virtual void textHandler(void *ctx, const char *s, int len) = 0;
 };
 
-class CC_DLL SAXParser
-{
-    SAXDelegator*    _delegator;
+class CC_DLL SAXParser {
+    SAXDelegator *_delegator;
+
 public:
     /**
      * @js NA
@@ -85,17 +83,17 @@ public:
      * @js NA
      * @lua NA
      */
-    bool parse(const char* xmlData, size_t dataLength);
+    bool parse(const char *xmlData, size_t dataLength);
     /**
      * @js NA
      * @lua NA
      */
-    bool parse(const std::string& filename);
+    bool parse(const std::string &filename);
     /**
      * @js NA
      * @lua NA
      */
-    void setDelegator(SAXDelegator* delegator);
+    void setDelegator(SAXDelegator *delegator);
     /**
      * @js NA
      * @lua NA
@@ -116,7 +114,7 @@ public:
 // end of platform group
 /// @}
 
-}
+} // namespace cc
 
 /// @endcond
 #endif //__CCSAXPARSER_H__
