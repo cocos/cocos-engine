@@ -25,7 +25,6 @@
 
 #pragma once
 
-#include "cocos2d.h"
 
 #include "PlayerMacros.h"
 #include "PlayerProtocol.h"

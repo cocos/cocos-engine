@@ -33,7 +33,6 @@
 #include <ws2tcpip.h>
 #pragma  comment(lib,"ws2_32.lib")
 
-#include "cocos2d.h"
 #include "runtime/ConfigParser.h"
 using namespace std;
 

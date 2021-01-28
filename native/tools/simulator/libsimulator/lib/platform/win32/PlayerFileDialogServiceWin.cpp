@@ -26,12 +26,14 @@
 
 #include <string.h>
 
+#include "cocos/base/UTF8.h"
+#include "cocos/base/Log.h"
 #include "stdafx.h"
 #include <Windowsx.h>
 #include <Shlobj.h>
 #include <Commdlg.h>
+#include <algorithm>
 
-#include "cocos2d.h"
 #include "PlayerUtils.h"
 #include "PlayerFileDialogServiceWin.h"
 

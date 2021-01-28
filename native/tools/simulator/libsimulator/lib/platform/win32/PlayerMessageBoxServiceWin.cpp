@@ -23,7 +23,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-
+#include "cocos/base/UTF8.h"
+#include "cocos/base/Log.h"
 #include "PlayerMessageBoxServiceWin.h"
 
 PLAYER_NS_BEGIN
