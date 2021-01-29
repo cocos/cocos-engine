@@ -67,13 +67,21 @@ export class ForwardPipeline extends nr.ForwardPipeline {
       this.materials = [];
     }
   
-    public init() {
+    public init () {
         this.setPipelineSharedSceneData(this.pipelineSceneData.handle);
         for (let i = 0; i < this._flows.length; i++) {
             this._flows[i].init();
         }
         const info = new nr.RenderPipelineInfo(this._tag, this._flows);
         this.initialize(info);
+    }
+
+    public render (cameras) {
+        let handles = [];
+        for (let i = 0, len = cameras.length; i < len; ++i) {
+            handles.push(cameras[i].handle);
+        }
+        super.render(handles);
     }
 
     public destroy () {
