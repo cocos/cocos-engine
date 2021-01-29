@@ -597,4 +597,5 @@ var downloaders = {
 
 };
 
+downloader._downloaders = downloaders;
 module.exports = downloader;
