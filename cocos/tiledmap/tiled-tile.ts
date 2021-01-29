@@ -34,13 +34,14 @@
  * @extends Component
  */
 
-import { ccclass, help, type } from 'cc.decorator';
+import { ccclass, help, menu, type } from 'cc.decorator';
 import { Component } from '../core/components';
 import { TiledLayer } from './tiled-layer';
 import { CCInteger, warn } from '../core';
 
 @ccclass('cc.TiledTile')
 @help('i18n:cc.TiledTile')
+@menu('TiledMap/TiledTile')
 export class TiledTile extends Component {
     _layer: TiledLayer | null = null;
 

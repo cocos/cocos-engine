@@ -200,7 +200,7 @@ export class Batcher2D {
     }
 
     public getFirstRenderCamera (node: Node): Camera | null {
-        if (node.scene.renderScene) {
+        if (node.scene && node.scene.renderScene) {
             const cameras = node.scene.renderScene.cameras;
             for (let i = 0; i < cameras.length; i++) {
                 const camera = cameras[i];
@@ -407,12 +407,14 @@ export class Batcher2D {
         }
 
         let depthStencil;
+        let dssHash = 0;
         if (mat) {
             // Notice: A little hack, if not this two stage, not need update here, while control by stencilManger
             if (comp.stencilStage === Stage.ENABLED || comp.stencilStage === Stage.DISABLED) {
                 comp.stencilStage = StencilManager.sharedManager!.stage;
             }
             depthStencil = StencilManager.sharedManager!.getStencilStage(comp.stencilStage, mat);
+            dssHash = StencilManager.sharedManager!.getStencilHash(comp.stencilStage);
         }
 
         const stamp = legacyCC.director.getTotalFrames();
@@ -432,7 +434,7 @@ export class Batcher2D {
             curDrawBatch.sampler = null;
             curDrawBatch.useLocalData = null;
             if (!depthStencil) { depthStencil = null; }
-            curDrawBatch.fillPasses(mat, depthStencil, null, subModel.patches);
+            curDrawBatch.fillPasses(mat, depthStencil, dssHash, null, 0, subModel.patches);
             curDrawBatch.hDescriptorSet = SubModelPool.get(subModel.handle, SubModelView.DESCRIPTOR_SET);
             curDrawBatch.hInputAssembler = SubModelPool.get(subModel.handle, SubModelView.INPUT_ASSEMBLER);
             curDrawBatch.model!.visFlags = curDrawBatch.visFlags;
@@ -481,9 +483,17 @@ export class Batcher2D {
         }
         let blendState;
         let depthStencil;
+        let dssHash = 0;
+        let bsHash = 0;
         if (renderComp) {
             blendState = renderComp.blendHash === -1 ? null : renderComp.getBlendState();
-            depthStencil = StencilManager.sharedManager!.getStencilStage(renderComp.stencilStage);
+            bsHash = renderComp.blendHash;
+            if (renderComp.customMaterial !== null) {
+                depthStencil = StencilManager.sharedManager!.getStencilStage(renderComp.stencilStage, mat);
+            } else {
+                depthStencil = StencilManager.sharedManager!.getStencilStage(renderComp.stencilStage);
+            }
+            dssHash = StencilManager.sharedManager!.getStencilHash(renderComp.stencilStage);
         }
 
         const curDrawBatch = this._currStaticRoot ? this._currStaticRoot._requireDrawBatch() : this._drawBatchPool.alloc();
@@ -496,7 +506,7 @@ export class Batcher2D {
         curDrawBatch.useLocalData = this._currTransform;
         curDrawBatch.textureHash = this._currTextureHash;
         curDrawBatch.samplerHash = this._currSamplerHash;
-        curDrawBatch.fillPasses(mat, depthStencil, blendState, null);
+        curDrawBatch.fillPasses(mat, depthStencil, dssHash, blendState, bsHash, null);
 
         this._batches.push(curDrawBatch);
 

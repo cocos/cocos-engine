@@ -43,6 +43,14 @@ class ForwardPipeline extends nr.ForwardPipeline {
     this.shadows.destroy();
   }
 
+  render (cameras) {
+    let handles = [];
+    for (let i = 0, len = cameras.length; i < len; ++i) {
+      handles.push(cameras[i].handle);
+    }
+    super.render(handles);
+  }
+
   init() {
     this.fog = new cc.Fog();
     this.ambient = new cc.Ambient();
@@ -92,8 +100,7 @@ class ShadowFlow extends nr.ShadowFlow {
     for (let i = 0; i < this._stages.length; i++) {
       this._stages[i].init();
     }
-    let info = new nr.RenderFlowInfo(
-        this._name, this._priority, this._tag, this._stages);
+    let info = new nr.RenderFlowInfo(this._name, this._priority, this._tag, this._stages);
     this.initialize(info);
   }
 }
@@ -111,8 +118,7 @@ class ForwardStage extends nr.ForwardStage {
     for (let i = 0; i < this.renderQueues.length; i++) {
       queues.push(this.renderQueues[i].init());
     }
-    let info =
-        new nr.RenderStageInfo(this._name, this._priority, this._tag, queues);
+    let info = new nr.RenderStageInfo(this._name, this._priority, this._tag, queues);
     this.initialize(info);
   }
 }
@@ -125,8 +131,7 @@ class ShadowStage extends nr.ShadowStage {
     this._tag = 0;
   }
   init() {
-    let info =
-        new nr.RenderStageInfo(this._name, this._priority, this._tag, []);
+    let info = new nr.RenderStageInfo(this._name, this._priority, this._tag, []);
     this.initialize(info);
   }
 }
@@ -145,8 +150,7 @@ class RenderQueueDesc {
   }
 
   init() {
-    let desc =
-        new nr.RenderQueueDesc(this.isTransparent, this.sortMode, this.stages);
+    let desc = new nr.RenderQueueDesc(this.isTransparent, this.sortMode, this.stages);
     return desc;
   }
 }

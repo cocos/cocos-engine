@@ -1,3 +1,4 @@
+import { Armature, BlendMode } from '@cocos/dragonbones-js';
 import { Color, Mat4, RenderTexture, Node, Texture2D, Vec3 } from '../../core';
 import { BlendFactor } from '../../core/gfx';
 import { TextureBase } from '../../core/assets/texture-base';
@@ -7,7 +8,6 @@ import { Batcher2D } from '../../2d/renderer/batcher-2d';
 import { ArmatureFrame } from '../ArmatureCache';
 import { ArmatureDisplay, ArmatureDisplayMeshData } from '../ArmatureDisplay';
 import { CCSlot } from '../CCSlot';
-import { Armature, BlendMode } from '../lib/dragonBones.js';
 import { legacyCC } from '../../core/global-exports';
 
 const NEED_COLOR = 0x01;
@@ -78,6 +78,7 @@ function _getSlotMaterial (tex: RenderTexture | TextureBase | null, blendMode: B
     }
 
     // const useModel = !_comp!.enableBatch;
+    _comp!.setBlendHash();
     return _comp!.getMaterialForBlend(src, dst);
 }
 

@@ -67,8 +67,13 @@ Object.assign(game, {
             }
         }
 
-        __globalAdapter.onAudioInterruptionEnd && __globalAdapter.onAudioInterruptionEnd(onShown);
-        __globalAdapter.onAudioInterruptionBegin && __globalAdapter.onAudioInterruptionBegin(onHidden);
+        __globalAdapter.onAudioInterruptionEnd && __globalAdapter.onAudioInterruptionEnd(function () {
+            if (cc.audioEngine) cc.audioEngine._restore();
+            
+        });
+        __globalAdapter.onAudioInterruptionBegin && __globalAdapter.onAudioInterruptionBegin(function () {
+            if (cc.audioEngine) cc.audioEngine._break();
+        });
 
         __globalAdapter.onShow && __globalAdapter.onShow(onShown);
         __globalAdapter.onHide && __globalAdapter.onHide(onHidden);

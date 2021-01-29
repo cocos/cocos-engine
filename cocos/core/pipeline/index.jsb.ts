@@ -42,18 +42,3 @@ export const ShadowStage = nr.ShadowStage;
 
 export const InstancedBuffer = nr.InstancedBuffer;
 export const PipelineStateManager = nr.PipelineStateManager;
-
-const RenderWindowProto = RenderWindow.prototype;
-Object.assign(RenderWindowProto, {
-    extractRenderCameras() {
-        const cameras = [];
-        for (let j = 0; j < this._cameras.length; j++) {
-            const camera = this._cameras[j];
-            if (camera.enabled) {
-                camera.update();
-                cameras.push(camera.handle);
-            }
-        }
-        return cameras;
-    },
-})

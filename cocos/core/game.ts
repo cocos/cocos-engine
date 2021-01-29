@@ -28,7 +28,7 @@
  * @module core
  */
 
-import { EDITOR, JSB, PREVIEW, RUNTIME_BASED } from 'internal:constants';
+import { ALIPAY, EDITOR, JSB, PREVIEW, RUNTIME_BASED } from 'internal:constants';
 import { IAssetManagerOptions } from './asset-manager/asset-manager';
 import { EventTarget } from './event/event-target';
 import * as debug from './platform/debug';

@@ -85,4 +85,4 @@ export * from './ArmatureDisplay';
 export * from './AttachUtil';
 export * from './assembler';
 
-export * from './lib/dragonBones.js';
+export * from '@cocos/dragonbones-js';

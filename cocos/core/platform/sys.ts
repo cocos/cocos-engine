@@ -374,11 +374,11 @@ export const sys: Record<string, any> = {
      */
     COCOSPLAY: 112,
     /**
-     * @property {Number} YOUKU_MINI_GAME
+     * @property {Number} ALIPAY_MINI_GAME
      * @readOnly
      * @default 113
      */
-    YOUKU_MINI_GAME: 113,
+    ALIPAY_MINI_GAME: 113,
     /**
      * @property {Number} QTT_MINI_GAME
      * @readOnly
@@ -1042,7 +1042,7 @@ export const sys: Record<string, any> = {
             }
         }());
         // HACK: this private property only needed on web
-        sys.__isWebIOS14OrIPadOS14Env = sys.os === sys.OS_IOS && sys.isBrowser
+        sys.__isWebIOS14OrIPadOS14Env = (sys.os === sys.OS_IOS || sys.os === sys.MACOS) && sys.isBrowser
             && /(OS 1[4-9])|(Version\/1[4-9])/.test(window.navigator.userAgent);
     },
 };

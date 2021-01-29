@@ -7,16 +7,21 @@ if (!tsConfig.config) {
 }
 const { compilerOptions } = tsConfig.config;
 module.exports = {
-  testEnvironment: 'jsdom',
-  testRegex: '/tests/.*\\.(test|spec)?\\.(ts|tsx)$',
-  moduleNameMapper: pathsToModuleNameMapper(compilerOptions.paths, { prefix: `${__dirname}/` } ),
-  setupFiles: [
-    './tests/init.ts'
-  ],
-  coverageDirectory: './test/report/',
-  globals: {
-    CC_DEV: true,
-    CC_TEST: true,
-    CC_PHYSICS_BUILTIN: true,
-  }
+    testEnvironment: 'jsdom',
+    testRegex: '/tests/.*\\.(test|spec)?\\.(ts|tsx)$',
+    moduleNameMapper: pathsToModuleNameMapper(compilerOptions.paths, { prefix: `${__dirname}/` }),
+    transformIgnorePatterns: [
+        // ignore everything in the node_modules EXCEPT for:
+        // - @cocos/dragonbones-js
+        'node_modules/(?!(@cocos/dragonbones-js)/)',
+    ],
+    setupFiles: [
+        './tests/init.ts',
+    ],
+    coverageDirectory: './test/report/',
+    globals: {
+        CC_DEV: true,
+        CC_TEST: true,
+        CC_PHYSICS_BUILTIN: true,
+    }
 };
