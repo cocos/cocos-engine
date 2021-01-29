@@ -50,7 +50,8 @@ nr.PipelineStateManager.getOrCreatePipelineState = function(device, pass, shader
   
 export function createDefaultPipeline () {
     const pipeline = new nr.ForwardPipeline();
-    pipeline.setPipelineSharedSceneData(new PipelineSceneData());
+    pipeline.pipelineSceneData = new PipelineSceneData();
+    pipeline.setPipelineSharedSceneData(pipeline.pipelineSceneData);
     const info = new nr.RenderPipelineInfo(0, []);
     pipeline.initialize(info);
     return pipeline;
