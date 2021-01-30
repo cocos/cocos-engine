@@ -24,14 +24,15 @@
  */
 
 import { DescriptorSet } from '../descriptor-set';
-import { Buffer, BufferSource } from '../buffer';
-import { CommandBuffer, CommandBufferInfo } from '../command-buffer';
+import { Buffer } from '../buffer';
+import { CommandBuffer } from '../command-buffer';
 import {
     BufferUsageBit,
     CommandBufferType,
     StencilFace,
+    BufferSource, CommandBufferInfo,
+    BufferTextureCopy, Color, Rect, Viewport,
 } from '../define';
-import { BufferTextureCopy, Color, Rect, Viewport } from '../define-class';
 import { Framebuffer } from '../framebuffer';
 import { InputAssembler } from '../input-assembler';
 import { PipelineState } from '../pipeline-state';

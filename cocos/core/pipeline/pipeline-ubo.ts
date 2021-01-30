@@ -130,13 +130,13 @@ export class PipelineUBO {
             Mat4.toArray(cv, camera.matProjInvOffscreen, UBOCamera.MAT_PROJ_INV_OFFSET);
             Mat4.toArray(cv, camera.matViewProjOffscreen, UBOCamera.MAT_VIEW_PROJ_OFFSET);
             Mat4.toArray(cv, camera.matViewProjInvOffscreen, UBOCamera.MAT_VIEW_PROJ_INV_OFFSET);
-            cv[UBOCamera.CAMERA_POS_OFFSET + 3] = device.screenSpaceSignY * device.UVSpaceSignY;
+            cv[UBOCamera.CAMERA_POS_OFFSET + 3] = device.capabilities.screenSpaceSignY * device.capabilities.UVSpaceSignY;
         } else {
             Mat4.toArray(cv, camera.matProj, UBOCamera.MAT_PROJ_OFFSET);
             Mat4.toArray(cv, camera.matProjInv, UBOCamera.MAT_PROJ_INV_OFFSET);
             Mat4.toArray(cv, camera.matViewProj, UBOCamera.MAT_VIEW_PROJ_OFFSET);
             Mat4.toArray(cv, camera.matViewProjInv, UBOCamera.MAT_VIEW_PROJ_INV_OFFSET);
-            cv[UBOCamera.CAMERA_POS_OFFSET + 3] = device.screenSpaceSignY;
+            cv[UBOCamera.CAMERA_POS_OFFSET + 3] = device.capabilities.screenSpaceSignY;
         }
 
         if (fog.enabled) {
@@ -188,9 +188,9 @@ export class PipelineUBO {
 
                 Mat4.invert(matShadowView, shadowCameraView!);
 
-                const projectionSignY = device.screenSpaceSignY * device.UVSpaceSignY; // always offscreen
+                const projectionSignY = device.capabilities.screenSpaceSignY * device.capabilities.UVSpaceSignY; // always offscreen
                 Mat4.ortho(matShadowViewProj, -x, x, -y, y, shadowInfo.near, far,
-                    device.clipSpaceMinZ, projectionSignY);
+                    device.capabilities.clipSpaceMinZ, projectionSignY);
                 Mat4.multiply(matShadowViewProj, matShadowViewProj, matShadowView);
                 Mat4.toArray(sv, matShadowViewProj, UBOShadow.MAT_LIGHT_VIEW_PROJ_OFFSET);
 
@@ -241,7 +241,7 @@ export class PipelineUBO {
             Mat4.invert(matShadowView, _shadowCameraView);
 
             Mat4.ortho(matShadowViewProj, -_x, _x, -_y, _y, shadowInfo.near, _far,
-                device.clipSpaceMinZ, device.screenSpaceSignY * device.UVSpaceSignY);
+                device.capabilities.clipSpaceMinZ, device.capabilities.screenSpaceSignY * device.capabilities.UVSpaceSignY);
             break;
         case LightType.SPOT:
             // light view

@@ -35,10 +35,10 @@ import { Model } from '../renderer/scene/model';
 import { PipelineStateManager } from './pipeline-state-manager';
 import { DSPool, ShaderPool, PassView, PassPool, SubModelPool, SubModelView,
     ShaderHandle } from '../renderer/core/memory-pools';
-import { Vec3, nextPow2, Mat4, Vec4, Color } from '../math';
+import { Vec3, nextPow2, Mat4, Color } from '../math';
 import { Sphere, intersect } from '../geometry';
 import { Device, RenderPass, Buffer, BufferUsageBit, MemoryUsageBit,
-    BufferInfo, BufferViewInfo, CommandBuffer, Filter, Address, Sampler, DescriptorSet, Texture, DescriptorSetInfo } from '../gfx';
+    BufferInfo, BufferViewInfo, CommandBuffer, Filter, Address, Sampler, DescriptorSet, DescriptorSetInfo } from '../gfx';
 import { Pool } from '../memop';
 import { RenderBatchedQueue } from './render-batched-queue';
 import { RenderInstancedQueue } from './render-instanced-queue';
@@ -54,7 +54,6 @@ import { builtinResMgr } from '../builtin/builtin-res-mgr';
 import { Texture2D } from '../assets/texture-2d';
 import { updatePlanarPROJ } from './scene-culling';
 import { Camera } from '../renderer/scene';
-import { view } from '../platform';
 import { PipelineUBO } from './pipeline-ubo';
 
 const _samplerInfo = [
@@ -141,7 +140,8 @@ export class RenderAdditiveLightQueue {
         this._instancedQueue = new RenderInstancedQueue();
         this._batchedQueue = new RenderBatchedQueue();
 
-        this._lightBufferStride = Math.ceil(UBOForwardLight.SIZE / this._device.uboOffsetAlignment) * this._device.uboOffsetAlignment;
+        const alignment = this._device.capabilities.uboOffsetAlignment;
+        this._lightBufferStride = Math.ceil(UBOForwardLight.SIZE / alignment) * alignment;
         this._lightBufferElementCount = this._lightBufferStride / Float32Array.BYTES_PER_ELEMENT;
 
         this._lightBuffer = this._device.createBuffer(new BufferInfo(

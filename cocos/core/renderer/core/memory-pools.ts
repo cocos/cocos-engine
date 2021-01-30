@@ -34,7 +34,7 @@ import {
     DescriptorSetInfo,
     Device, DescriptorSet, ShaderInfo, Shader, InputAssemblerInfo, InputAssembler,
     PipelineLayoutInfo, PipelineLayout, Framebuffer, FramebufferInfo, PrimitiveMode,
-    DynamicStateFlags, ClearFlag, Color as GFXColor,
+    DynamicStateFlags, Color as GFXColor, ClearFlags,
 } from '../../gfx';
 import { RenderPassStage } from '../../pipeline/define';
 import { BatchingSchemes } from './pass';
@@ -836,7 +836,9 @@ const batchView2DDataType: BufferDataTypeManifest<typeof BatchView2D> = {
     [BatchView2D.COUNT]: BufferDataType.NEVER,
 };
 
-export const BatchPool2D = new BufferPool<PoolType.BATCH_2D, typeof BatchView2D, IBatchView2DType>(PoolType.BATCH_2D, batchView2DDataType, BatchView2D);
+export const BatchPool2D = new BufferPool<PoolType.BATCH_2D, typeof BatchView2D, IBatchView2DType>(
+    PoolType.BATCH_2D, batchView2DDataType, BatchView2D,
+);
 
 export enum AABBView {
     CENTER,             // Vec3
@@ -891,7 +893,7 @@ export enum CameraView {
     WIDTH,
     HEIGHT,
     EXPOSURE,
-    CLEAR_FLAG,
+    CLEAR_FLAGS,
     CLEAR_DEPTH,
     CLEAR_STENCIL,
     VISIBILITY,
@@ -918,7 +920,7 @@ interface ICameraViewType extends BufferTypeManifest<typeof CameraView> {
     [CameraView.WIDTH]: number;
     [CameraView.HEIGHT]: number;
     [CameraView.EXPOSURE]: number;
-    [CameraView.CLEAR_FLAG]: ClearFlag;
+    [CameraView.CLEAR_FLAGS]: ClearFlags;
     [CameraView.CLEAR_DEPTH]: number;
     [CameraView.CLEAR_STENCIL]: number;
     [CameraView.VISIBILITY]: number,
@@ -945,7 +947,7 @@ const cameraViewDataType: BufferDataTypeManifest<typeof CameraView> = {
     [CameraView.WIDTH]: BufferDataType.UINT32,
     [CameraView.HEIGHT]: BufferDataType.UINT32,
     [CameraView.EXPOSURE]: BufferDataType.FLOAT32,
-    [CameraView.CLEAR_FLAG]: BufferDataType.UINT32,
+    [CameraView.CLEAR_FLAGS]: BufferDataType.UINT32,
     [CameraView.CLEAR_DEPTH]: BufferDataType.FLOAT32,
     [CameraView.CLEAR_STENCIL]: BufferDataType.UINT32,
     [CameraView.VISIBILITY]: BufferDataType.UINT32,

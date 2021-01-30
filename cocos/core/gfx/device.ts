@@ -28,60 +28,28 @@
  * @module gfx
  */
 
-import { Command } from 'commander';
 import { ccenum } from '../value-types/enum';
-import { gfx } from '../../../exports/base';
-import { API, Feature, Filter, Format, MemoryStatus, SurfaceTransform } from './define';
-import { Buffer, BufferInfo, BufferViewInfo } from './buffer';
-import { BufferTextureCopy, Rect } from './define-class';
-import { CommandBuffer, CommandBufferInfo } from './command-buffer';
-import { DescriptorSet, DescriptorSetInfo } from './descriptor-set';
-import { Fence, FenceInfo } from './fence';
-import { Framebuffer, FramebufferInfo } from './framebuffer';
-import { InputAssembler, InputAssemblerInfo } from './input-assembler';
+import {
+    API, Feature, Filter, Format, MemoryStatus, SurfaceTransform, Rect,
+    CommandBufferInfo, BufferInfo, BufferViewInfo, TextureInfo, TextureViewInfo, SamplerInfo, DescriptorSetInfo,
+    ShaderInfo, InputAssemblerInfo, RenderPassInfo, FramebufferInfo, DescriptorSetLayoutInfo, PipelineLayoutInfo,
+    QueueInfo, BufferTextureCopy, DeviceInfo, DeviceCaps,
+} from './define';
+import { Buffer } from './buffer';
+import { CommandBuffer } from './command-buffer';
+import { DescriptorSet } from './descriptor-set';
+import { DescriptorSetLayout } from './descriptor-set-layout';
+import { PipelineLayout } from './pipeline-layout';
+import { Framebuffer } from './framebuffer';
+import { InputAssembler } from './input-assembler';
 import { PipelineState, PipelineStateInfo } from './pipeline-state';
-import { Queue, QueueInfo } from './queue';
-import { RenderPass, RenderPassInfo } from './render-pass';
-import { Sampler, SamplerInfo } from './sampler';
-import { Shader, ShaderInfo } from './shader';
-import { Texture, TextureInfo, TextureViewInfo } from './texture';
+import { Queue } from './queue';
+import { RenderPass } from './render-pass';
+import { Sampler } from './sampler';
+import { Shader } from './shader';
+import { Texture } from './texture';
 
 ccenum(Format);
-
-export class BindingMappingInfo {
-    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
-
-    constructor (
-        public bufferOffsets: number[] = [],
-        public samplerOffsets: number[] = [],
-        public flexibleSet: number = 0,
-    ) {}
-}
-
-export class DeviceInfo {
-    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
-
-    constructor (
-        public canvasElm: HTMLElement,
-        public isAntialias: boolean = true,
-        public isPremultipliedAlpha: boolean = true,
-        public devicePixelRatio: number = 1,
-        public nativeWidth: number = 1,
-        public nativeHeight: number = 1,
-        /**
-         * For non-vulkan backends, to maintain compatibility and maximize
-         * descriptor cache-locality, descriptor-set-based binding numbers need
-         * to be mapped to backend-specific bindings based on the maximum limit
-         * of available descriptor slots in each set.
-         *
-         * The GFX layer assumes the binding numbers for each descriptor type inside each set
-         * are guaranteed to be consecutive, so the mapping procedure is reduced
-         * to a simple shifting operation. This data structure specifies the
-         * offsets for each descriptor type in each set.
-         */
-        public bindingMappingInfo = new BindingMappingInfo(),
-    ) {}
-}
 
 /**
  * @en GFX Device.
@@ -185,102 +153,6 @@ export abstract class Device {
     }
 
     /**
-     * @en Max vertex attributes supported.
-     * @zh 最大顶点属性数量。
-     */
-    get maxVertexAttributes (): number {
-        return this._maxVertexAttributes;
-    }
-
-    /**
-     * @en Max vertex uniform vectors supported.
-     * @zh 最大顶点Uniform向量数。
-     */
-    get maxVertexUniformVectors (): number {
-        return this._maxVertexUniformVectors;
-    }
-
-    /**
-     * @en Max fragment uniform vectors supported.
-     * @zh 最大片段Uniform向量数。
-     */
-    get maxFragmentUniformVectors (): number {
-        return this._maxFragmentUniformVectors;
-    }
-
-    /**
-     * @en Max texture units supported.
-     * @zh 最大纹理单元数量。
-     */
-    get maxTextureUnits (): number {
-        return this._maxTextureUnits;
-    }
-
-    /**
-     * @en Max vertex texture units supported.
-     * @zh 最大顶点纹理单元数量。
-     */
-    get maxVertexTextureUnits (): number {
-        return this._maxVertexTextureUnits;
-    }
-
-    /**
-     * @en Max uniform buffer bindings supported.
-     * @zh 最大 uniform 缓冲绑定数量。
-     */
-    get maxUniformBufferBindings (): number {
-        return this._maxUniformBufferBindings;
-    }
-
-    /**
-     * @en Max uniform block size supported.
-     * @zh 最大 uniform 缓冲大小。
-     */
-    get maxUniformBlockSize (): number {
-        return this._maxUniformBlockSize;
-    }
-
-    /**
-     * @en Max texture size supported.
-     * @zh 最大贴图尺寸。
-     */
-    get maxTextureSize (): number {
-        return this._maxTextureSize;
-    }
-
-    /**
-     * @en Max cube map texture size supported.
-     * @zh 最大立方贴图尺寸。
-     */
-    get maxCubeMapTextureSize (): number {
-        return this._maxCubeMapTextureSize;
-    }
-
-    /**
-     * @en Uniform buffer offset alignment.
-     * @zh Uniform 缓冲偏移量的对齐单位。
-     */
-    get uboOffsetAlignment (): number {
-        return this._uboOffsetAlignment;
-    }
-
-    /**
-     * @en Device depth bits.
-     * @zh 深度位数。
-     */
-    get depthBits (): number {
-        return this._depthBits;
-    }
-
-    /**
-     * @en Device stencil bits.
-     * @zh 模板位数。
-     */
-    get stencilBits (): number {
-        return this._stencilBits;
-    }
-
-    /**
      * @en Device color format.
      * @zh 颜色格式。
      */
@@ -294,14 +166,6 @@ export abstract class Device {
      */
     get depthStencilFormat (): Format {
         return this._depthStencilFmt;
-    }
-
-    /**
-     * @en Device built-in macros.
-     * @zh 系统宏定义。
-     */
-    get macros (): Map<string, string> {
-        return this._macros;
     }
 
     /**
@@ -337,27 +201,11 @@ export abstract class Device {
     }
 
     /**
-     * @en The minimum Z value in clip space for the device.
-     * @zh 裁剪空间的最小 z 值。
+     * @en Current device capabilities.
+     * @zh 当前设备能立数据。
      */
-    get clipSpaceMinZ () {
-        return this._clipSpaceMinZ;
-    }
-
-    /**
-     * @en The sign of the screen space Y axis, positive if origin at lower-left.
-     * @zh 屏幕空间的 y 轴符号，原点在左下角时为正。
-     */
-    get screenSpaceSignY () {
-        return this._screenSpaceSignY;
-    }
-
-    /**
-     * @en The sign of the UV space Y axis, positive if origin at upper-left.
-     * @zh UV 空间的 y 轴符号，原点在左上角时为正。
-     */
-    get UVSpaceSignY () {
-        return this._UVSpaceSignY;
+    get capabilities (): DeviceCaps {
+        return this._caps;
     }
 
     /**
@@ -384,28 +232,13 @@ export abstract class Device {
     protected _height = 0;
     protected _nativeWidth = 0;
     protected _nativeHeight = 0;
-    protected _maxVertexAttributes = 0;
-    protected _maxVertexUniformVectors = 0;
-    protected _maxFragmentUniformVectors = 0;
-    protected _maxTextureUnits = 0;
-    protected _maxVertexTextureUnits = 0;
-    protected _maxUniformBufferBindings = 0;
-    protected _maxUniformBlockSize = 0;
-    protected _maxTextureSize = 0;
-    protected _maxCubeMapTextureSize = 0;
-    protected _uboOffsetAlignment = 1;
-    protected _depthBits = 0;
-    protected _stencilBits = 0;
     protected _colorFmt = Format.UNKNOWN;
     protected _depthStencilFmt = Format.UNKNOWN;
-    protected _macros = new Map<string, string>();
     protected _numDrawCalls = 0;
     protected _numInstances = 0;
     protected _numTris = 0;
     protected _memoryStatus = new MemoryStatus();
-    protected _clipSpaceMinZ = -1;
-    protected _screenSpaceSignY = 1;
-    protected _UVSpaceSignY = -1;
+    protected _caps = new DeviceCaps();
 
     public abstract initialize (info: DeviceInfo): boolean;
 
@@ -505,14 +338,14 @@ export abstract class Device {
      * @zh 创建描述符集布局。
      * @param info GFX descriptor set layout description info.
      */
-    public abstract createDescriptorSetLayout (info: gfx.DescriptorSetLayoutInfo): gfx.DescriptorSetLayout;
+    public abstract createDescriptorSetLayout (info: DescriptorSetLayoutInfo): DescriptorSetLayout;
 
     /**
      * @en Create pipeline layout.
      * @zh 创建管线布局。
      * @param info GFX pipeline layout description info.
      */
-    public abstract createPipelineLayout (info: gfx.PipelineLayoutInfo): gfx.PipelineLayout;
+    public abstract createPipelineLayout (info: PipelineLayoutInfo): PipelineLayout;
 
     /**
      * @en Create pipeline state.
@@ -527,13 +360,6 @@ export abstract class Device {
      * @param info GFX queue description info.
      */
     public abstract createQueue (info: QueueInfo): Queue;
-
-    /**
-     * @en Create fence.
-     * @zh 创建同步信号。
-     * @param info GFX fence description info.
-     */
-    public abstract createFence (info: FenceInfo): Fence;
 
     /**
      * @en Copy buffers to texture.

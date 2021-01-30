@@ -39,11 +39,11 @@ export class WebGLCommandPool<T extends WebGLCmdObject> {
     private _freeIdx = 0;
     private _freeCmds: CachedArray<T>;
 
-    constructor (clazz: new() => T, count: number) {
+    constructor (Clazz: new() => T, count: number) {
         this._frees = new Array(count);
         this._freeCmds = new CachedArray(count);
         for (let i = 0; i < count; ++i) {
-            this._frees[i] = new clazz();
+            this._frees[i] = new Clazz();
         }
         this._freeIdx = count - 1;
     }
@@ -54,7 +54,7 @@ export class WebGLCommandPool<T extends WebGLCmdObject> {
     }
     */
 
-    public alloc (clazz: new() => T): T {
+    public alloc (Clazz: new() => T): T {
         if (this._freeIdx < 0) {
             const size = this._frees.length * 2;
             const temp = this._frees;
@@ -62,7 +62,7 @@ export class WebGLCommandPool<T extends WebGLCmdObject> {
 
             const increase = size - temp.length;
             for (let i = 0; i < increase; ++i) {
-                this._frees[i] = new clazz();
+                this._frees[i] = new Clazz();
             }
 
             for (let i = increase, j = 0; i < size; ++i, ++j) {

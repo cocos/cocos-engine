@@ -23,7 +23,7 @@
  THE SOFTWARE.
  */
 
-import { Rect, Viewport } from '../define-class';
+import { Rect, Viewport } from '../define';
 import { BlendState, DepthStencilState, RasterizerState } from '../pipeline-state';
 
 export interface IWebGLTexUnit {

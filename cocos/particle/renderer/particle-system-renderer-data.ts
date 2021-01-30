@@ -35,7 +35,7 @@ import { legacyCC } from '../../core/global-exports';
 
 function isSupportGPUParticle () {
     const device: Device = director.root!.device;
-    if (device.maxVertexTextureUnits >= 8 && device.hasFeature(Feature.TEXTURE_FLOAT)) {
+    if (device.capabilities.maxVertexTextureUnits >= 8 && device.hasFeature(Feature.TEXTURE_FLOAT)) {
         return true;
     }
 
@@ -131,10 +131,10 @@ export default class ParticleSystemRenderer {
         if (!this._particleSystem) {
             return null;
         }
-        return this._particleSystem.getMaterial(0);
+        return this._particleSystem.getMaterial(0) as Material;
     }
 
-    public set particleMaterial (val) {
+    public set particleMaterial (val: Material | null) {
         this._particleSystem.setMaterial(val, 0);
     }
 
@@ -148,10 +148,10 @@ export default class ParticleSystemRenderer {
         if (!this._particleSystem) {
             return null;
         }
-        return this._particleSystem.getMaterial(1)!;
+        return this._particleSystem.getMaterial(1) as Material;
     }
 
-    public set trailMaterial (val) {
+    public set trailMaterial (val: Material | null) {
         this._particleSystem.setMaterial(val, 1);
     }
 

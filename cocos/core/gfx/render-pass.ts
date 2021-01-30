@@ -31,73 +31,13 @@
 import { Device } from './device';
 import { murmurhash2_32_gc } from '../utils/murmurhash2_gc';
 import {
-    Format,
-    LoadOp,
     Obj,
     ObjectType,
-    PipelineBindPoint,
-    StoreOp,
-    TextureLayout,
+    ColorAttachment,
+    DepthStencilAttachment,
+    SubpassInfo,
+    RenderPassInfo,
 } from './define';
-
-/**
- * @en Color attachment.
- * @zh GFX 颜色附件。
- */
-export class ColorAttachment {
-    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
-
-    constructor (
-        public format: Format = Format.UNKNOWN,
-        public sampleCount: number = 1,
-        public loadOp: LoadOp = LoadOp.CLEAR,
-        public storeOp: StoreOp = StoreOp.STORE,
-        public beginLayout: TextureLayout = TextureLayout.UNDEFINED,
-        public endLayout: TextureLayout = TextureLayout.PRESENT_SRC,
-    ) {}
-}
-
-/**
- * @en Depth stencil attachment.
- * @zh GFX 深度模板附件。
- */
-export class DepthStencilAttachment {
-    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
-
-    constructor (
-        public format: Format = Format.UNKNOWN,
-        public sampleCount: number = 1,
-        public depthLoadOp: LoadOp = LoadOp.CLEAR,
-        public depthStoreOp: StoreOp = StoreOp.STORE,
-        public stencilLoadOp: LoadOp = LoadOp.CLEAR,
-        public stencilStoreOp: StoreOp = StoreOp.STORE,
-        public beginLayout: TextureLayout = TextureLayout.UNDEFINED,
-        public endLayout: TextureLayout = TextureLayout.DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
-    ) {}
-}
-
-export class SubPassInfo {
-    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
-
-    constructor (
-        public bindPoint: PipelineBindPoint = PipelineBindPoint.GRAPHICS,
-        public inputs: number[] = [],
-        public colors: number[] = [],
-        public resolves: number[] = [],
-        public depthStencil: number = -1,
-        public preserves: number[] = [],
-    ) {}
-}
-
-export class RenderPassInfo {
-    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
-
-    constructor (
-        public colorAttachments: ColorAttachment[] = [],
-        public depthStencilAttachment: DepthStencilAttachment | null = null,
-        public subPasses: SubPassInfo[] = [],
-    ) {}
-}
 
 /**
  * @en GFX render pass.
@@ -110,13 +50,13 @@ export abstract class RenderPass extends Obj {
 
     protected _depthStencilInfo: DepthStencilAttachment | null = null;
 
-    protected _subPasses: SubPassInfo[] = [];
+    protected _subpasses: SubpassInfo[] = [];
 
     protected _hash = 0;
 
     get colorAttachments () { return this._colorInfos; }
     get depthStencilAttachment () { return this._depthStencilInfo; }
-    get subPasses () { return this._subPasses; }
+    get subPasses () { return this._subpasses; }
     get hash () { return this._hash; }
 
     constructor (device: Device) {
@@ -127,9 +67,9 @@ export abstract class RenderPass extends Obj {
     // Based on render pass compatibility
     protected computeHash (): number {
         let res = '';
-        if (this._subPasses.length) {
-            for (let i = 0; i < this._subPasses.length; ++i) {
-                const subpass = this._subPasses[i];
+        if (this._subpasses.length) {
+            for (let i = 0; i < this._subpasses.length; ++i) {
+                const subpass = this._subpasses[i];
                 if (subpass.inputs.length) {
                     res += 'ia';
                     for (let j = 0; j < subpass.inputs.length; ++j) {

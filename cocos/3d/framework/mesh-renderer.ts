@@ -28,7 +28,8 @@
  * @module model
  */
 
-import { ccclass, help, executeInEditMode, executionOrder, menu, tooltip, visible, type, formerlySerializedAs, serializable, editable, disallowAnimation } from 'cc.decorator';
+import { ccclass, help, executeInEditMode, executionOrder, menu, tooltip, visible, type,
+    formerlySerializedAs, serializable, editable, disallowAnimation } from 'cc.decorator';
 import { Texture2D } from '../../core/assets';
 import { Material } from '../../core/assets/material';
 import { Mesh } from '../assets/mesh';
@@ -237,6 +238,7 @@ export class MeshRenderer extends RenderableComponent {
         return this._model;
     }
 
+    // eslint-disable-next-line func-names
     @visible(function (this: MeshRenderer) {
         return !!(
             this.mesh

@@ -223,7 +223,7 @@ export class TextureCube extends SimpleTexture {
         this.mipmaps = [];
     }
 
-    public _serialize (ctxForExporting: any): any {
+    public _serialize (ctxForExporting: any): Record<string, unknown> | null {
         if (EDITOR || TEST) {
             return {
                 base: super._serialize(ctxForExporting),
@@ -244,6 +244,7 @@ export class TextureCube extends SimpleTexture {
                 })),
             };
         }
+        return null;
     }
 
     public _deserialize (serializedData: ITextureCubeSerializeData, handle: any) {
@@ -277,7 +278,6 @@ export class TextureCube extends SimpleTexture {
         texInfo.height = this._height;
         texInfo.layerCount = 6;
         Object.assign(texInfo, presumed);
-        texInfo.flags |= TextureFlagBit.CUBEMAP;
         return texInfo;
     }
 }

@@ -37,22 +37,14 @@ import { PipelineState } from './pipeline-state';
 import { Queue } from './queue';
 import { RenderPass } from './render-pass';
 import { Texture } from './texture';
-import { BufferTextureCopy, Color, Rect, Viewport } from './define-class';
 import {
-    CommandBufferType,
     Obj,
     ObjectType,
     StencilFace,
+    CommandBufferType,
+    CommandBufferInfo,
+    BufferTextureCopy, Color, Rect, Viewport,
 } from './define';
-
-export class CommandBufferInfo {
-    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
-
-    constructor (
-        public queue: Queue,
-        public type: CommandBufferType = CommandBufferType.PRIMARY,
-    ) {}
-}
 
 /**
  * @en GFX command buffer.

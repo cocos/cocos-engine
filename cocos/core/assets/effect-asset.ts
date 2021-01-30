@@ -77,7 +77,7 @@ export interface IBlockInfo {
     stageFlags: ShaderStageFlags;
     descriptorType?: DescriptorType;
 }
-export interface ISamplerInfo {
+export interface ISamplerTextureInfo {
     binding: number;
     name: string;
     type: Type;
@@ -101,7 +101,7 @@ export interface IBuiltin {
 }
 export interface IBuiltinInfo {
     blocks: IBuiltin[];
-    samplers: IBuiltin[];
+    samplerTextures: IBuiltin[];
 }
 export interface IShaderInfo {
     name: string;
@@ -112,7 +112,7 @@ export interface IShaderInfo {
     builtins: { globals: IBuiltinInfo, locals: IBuiltinInfo };
     defines: IDefineInfo[];
     blocks: IBlockInfo[];
-    samplers: ISamplerInfo[];
+    samplerTextures: ISamplerTextureInfo[];
     attributes: IAttributeInfo[];
 }
 export interface IPreCompileInfo {

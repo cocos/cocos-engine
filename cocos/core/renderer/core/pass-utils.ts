@@ -45,11 +45,11 @@ export enum PropertyType {
     /**
      * Uniform buffer object
      */
-    UBO,
+    BUFFER,
     /**
      * Texture sampler
      */
-    SAMPLER,
+    TEXTURE,
 }
 
 export const genHandle = (pt: PropertyType, set: number, binding: number, type: Type, offset = 0): number => ((pt << 28) & dtMask) | ((type << 22) & typeMask) | ((set << 20) & setMask) | ((binding << 14) & bindingMask) | (offset & offsetMask);

@@ -31,19 +31,7 @@
 import { Device } from './device';
 import { RenderPass } from './render-pass';
 import { Texture } from './texture';
-import { Obj, ObjectType } from './define';
-
-export class FramebufferInfo {
-    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
-
-    constructor (
-        public renderPass: RenderPass,
-        public colorTextures: (Texture | null)[] = [], // pass null to use swapchain buffers
-        public depthStencilTexture: Texture | null = null,
-        public colorMipmapLevels: number[] = [],
-        public depStencilMipmapLevel: number = 0,
-    ) {}
-}
+import { Obj, ObjectType, FramebufferInfo } from './define';
 
 /**
  * @en GFX frame buffer.

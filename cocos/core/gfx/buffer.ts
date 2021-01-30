@@ -38,55 +38,11 @@ import {
     MemoryUsageBit,
     Obj,
     ObjectType,
+    IndirectBuffer,
+    BufferInfo,
+    BufferViewInfo,
+    BufferSource,
 } from './define';
-
-export class DrawInfo {
-    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
-
-    constructor (
-        public vertexCount: number = 0,
-        public firstVertex: number = 0,
-        public indexCount: number = 0,
-        public firstIndex: number = 0,
-        public vertexOffset: number = 0,
-        public instanceCount: number = 0,
-        public firstInstance: number = 0,
-    ) {}
-}
-
-export const DRAW_INFO_SIZE = 28;
-
-export class IndirectBuffer {
-    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
-
-    constructor (
-        public drawInfos: DrawInfo[] = [],
-    ) {}
-}
-
-export type BufferSource = ArrayBuffer | IndirectBuffer;
-
-export class BufferInfo {
-    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
-
-    constructor (
-        public usage: BufferUsage,
-        public memUsage: MemoryUsage,
-        public size: number = 0,
-        public stride: number = 0, // in bytes
-        public flags: BufferFlags = BufferFlagBit.NONE,
-    ) {}
-}
-
-export class BufferViewInfo {
-    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
-
-    constructor (
-        public buffer: Buffer,
-        public offset: number = 0,
-        public range: number = 0,
-    ) {}
-}
 
 /**
  * @en GFX buffer.

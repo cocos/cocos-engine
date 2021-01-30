@@ -29,30 +29,7 @@
  */
 
 import { Device } from './device';
-import { Sampler } from './sampler';
-import { DescriptorType, Obj, ObjectType, ShaderStageFlagBit, ShaderStageFlags } from './define';
-
-export class DescriptorSetLayoutBinding {
-    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
-
-    constructor (
-        public binding: number = -1,
-        public descriptorType: DescriptorType = DescriptorType.UNKNOWN,
-        public count: number = 0,
-        public stageFlags: ShaderStageFlags = ShaderStageFlagBit.NONE,
-        public immutableSamplers: Sampler[] = [],
-    ) {}
-}
-
-export class DescriptorSetLayoutInfo {
-    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
-
-    constructor (
-        public bindings: DescriptorSetLayoutBinding[] = [],
-    ) {}
-}
-
-export const DESCRIPTOR_DYNAMIC_TYPE = DescriptorType.DYNAMIC_STORAGE_BUFFER | DescriptorType.DYNAMIC_UNIFORM_BUFFER;
+import { Obj, ObjectType, DescriptorSetLayoutBinding, DescriptorSetLayoutInfo } from './define';
 
 /**
  * @en GFX descriptor sets layout.

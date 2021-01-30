@@ -30,16 +30,7 @@
 
 import { CommandBuffer } from './command-buffer';
 import { Device } from './device';
-import { Fence } from './fence';
-import { Obj, ObjectType, QueueType } from './define';
-
-export class QueueInfo {
-    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
-
-    constructor (
-        public type: QueueType = QueueType.GRAPHICS,
-    ) {}
-}
+import { Obj, ObjectType, QueueType, QueueInfo } from './define';
 
 /**
  * @en GFX Queue.
@@ -77,5 +68,5 @@ export abstract class Queue extends Obj {
      * @param cmdBuffs The command buffers to be submitted.
      * @param fence The syncing fence.
      */
-    public abstract submit (cmdBuffs: CommandBuffer[], fence?: Fence): void;
+    public abstract submit (cmdBuffs: CommandBuffer[]): void;
 }

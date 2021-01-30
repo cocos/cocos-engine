@@ -28,28 +28,8 @@
  * @module gfx
  */
 
-import { Color } from './define-class';
 import { Device } from './device';
-import { Address, ComparisonFunc, Filter, Obj, ObjectType } from './define';
-
-export class SamplerInfo {
-    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
-
-    constructor (
-        public minFilter: Filter = Filter.LINEAR,
-        public magFilter: Filter = Filter.LINEAR,
-        public mipFilter: Filter = Filter.NONE,
-        public addressU: Address = Address.WRAP,
-        public addressV: Address = Address.WRAP,
-        public addressW: Address = Address.WRAP,
-        public maxAnisotropy: number = 16,
-        public cmpFunc: ComparisonFunc = ComparisonFunc.NEVER,
-        public borderColor: Color = new Color(),
-        public minLOD: number = 0,
-        public maxLOD: number = 0,
-        public mipLODBias: number = 0.0,
-    ) {}
-}
+import { Color, Address, ComparisonFunc, Filter, Obj, ObjectType, SamplerInfo } from './define';
 
 /**
  * @en GFX sampler.

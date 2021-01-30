@@ -33,20 +33,7 @@ import { DescriptorSetLayout } from './descriptor-set-layout';
 import { Device } from './device';
 import { Sampler } from './sampler';
 import { Texture } from './texture';
-import { DescriptorType, Obj, ObjectType } from './define';
-
-export const DESCRIPTOR_BUFFER_TYPE =    DescriptorType.UNIFORM_BUFFER | DescriptorType.DYNAMIC_UNIFORM_BUFFER
-    | DescriptorType.STORAGE_BUFFER | DescriptorType.DYNAMIC_STORAGE_BUFFER;
-
-export const DESCRIPTOR_SAMPLER_TYPE = DescriptorType.SAMPLER;
-
-export class DescriptorSetInfo {
-    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
-
-    constructor (
-        public layout: DescriptorSetLayout,
-    ) {}
-}
+import { Obj, ObjectType, DescriptorSetInfo, DESCRIPTOR_BUFFER_TYPE, DESCRIPTOR_SAMPLER_TYPE } from './define';
 
 /**
  * @en GFX descriptor sets.

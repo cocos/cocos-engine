@@ -24,8 +24,8 @@
  */
 
 import { DescriptorSet } from '../descriptor-set';
-import { Buffer, BufferSource } from '../buffer';
-import { CommandBuffer, CommandBufferInfo } from '../command-buffer';
+import { Buffer } from '../buffer';
+import { CommandBuffer } from '../command-buffer';
 import { Framebuffer } from '../framebuffer';
 import { InputAssembler } from '../input-assembler';
 import { PipelineState } from '../pipeline-state';
@@ -41,9 +41,8 @@ import { WebGLPipelineState } from './webgl-pipeline-state';
 import { WebGLTexture } from './webgl-texture';
 import { RenderPass } from '../render-pass';
 import { WebGLRenderPass } from './webgl-render-pass';
-import { BufferUsageBit, CommandBufferType,
-    StencilFace } from '../define';
-import { BufferTextureCopy, Color, Rect, Viewport } from '../define-class';
+import { BufferUsageBit, CommandBufferType, StencilFace, BufferSource,
+    CommandBufferInfo, BufferTextureCopy, Color, Rect, Viewport } from '../define';
 import { WebGLCmd, WebGLCmdBeginRenderPass, WebGLCmdBindStates, WebGLCmdCopyBufferToTexture,
     WebGLCmdDraw, WebGLCmdPackage, WebGLCmdUpdateBuffer } from './webgl-commands';
 

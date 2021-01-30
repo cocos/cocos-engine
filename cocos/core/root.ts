@@ -414,10 +414,7 @@ export class Root {
             const cameraList: Camera[] = [];
             for (let i = 0; i < windows.length; i++) {
                 const window = windows[i];
-                const cameras = window.extractRenderCameras();
-                cameras.forEach((camera) => {
-                    cameraList.push(camera);
-                });
+                window.extractRenderCameras(cameraList);
             }
             cameraList.sort((a: Camera, b: Camera) => a.priority - b.priority);
             this._pipeline.render(cameraList);

@@ -34,7 +34,7 @@ import { IRenderFlowInfo, RenderFlow } from '../render-flow';
 import { ForwardFlowPriority } from '../forward/enum';
 import { ShadowStage } from './shadow-stage';
 import { RenderPass, LoadOp, StoreOp,
-    TextureLayout, Format, Texture, TextureType, TextureUsageBit, ColorAttachment,
+    Format, Texture, TextureType, TextureUsageBit, ColorAttachment,
     DepthStencilAttachment, RenderPassInfo, TextureInfo, FramebufferInfo } from '../../gfx';
 import { RenderFlowTag } from '../pipeline-serialization';
 import { ForwardPipeline } from '../forward/forward-pipeline';
@@ -146,8 +146,6 @@ export class ShadowFlow extends RenderFlow {
             colorAttachment.loadOp = LoadOp.CLEAR; // should clear color attachment
             colorAttachment.storeOp = StoreOp.STORE;
             colorAttachment.sampleCount = 1;
-            colorAttachment.beginLayout = TextureLayout.UNDEFINED;
-            colorAttachment.endLayout = TextureLayout.PRESENT_SRC;
 
             const depthStencilAttachment = new DepthStencilAttachment();
             depthStencilAttachment.format = device.depthStencilFormat;
@@ -156,8 +154,6 @@ export class ShadowFlow extends RenderFlow {
             depthStencilAttachment.stencilLoadOp = LoadOp.CLEAR;
             depthStencilAttachment.stencilStoreOp = StoreOp.DISCARD;
             depthStencilAttachment.sampleCount = 1;
-            depthStencilAttachment.beginLayout = TextureLayout.UNDEFINED;
-            depthStencilAttachment.endLayout = TextureLayout.DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
             const renderPassInfo = new RenderPassInfo([colorAttachment], depthStencilAttachment);
             this._shadowRenderPass = device.createRenderPass(renderPassInfo);

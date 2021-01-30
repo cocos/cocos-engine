@@ -34,9 +34,8 @@ import { ForwardFlow } from './forward-flow';
 import { RenderTextureConfig, MaterialConfig } from '../pipeline-serialization';
 import { ShadowFlow } from '../shadow/shadow-flow';
 import { UBOGlobal, UBOShadow, UBOCamera, UNIFORM_SHADOWMAP_BINDING, UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING } from '../define';
-import { ClearFlag, Filter, Address, StoreOp } from '../../gfx/define';
-import { ColorAttachment, DepthStencilAttachment, RenderPass, LoadOp, TextureLayout,
-    RenderPassInfo, Feature } from '../../gfx';
+import { ColorAttachment, DepthStencilAttachment, RenderPass, LoadOp,
+    RenderPassInfo, Feature, ClearFlagBit, ClearFlags, Filter, Address, StoreOp, AccessType } from '../../gfx';
 import { SKYBOX_FLAG } from '../../renderer/scene/camera';
 import { genSamplerHash, samplerLib } from '../../renderer/core/sampler-lib';
 import { builtinResMgr } from '../../builtin';
@@ -68,7 +67,7 @@ export class ForwardPipeline extends RenderPipeline {
     @serializable
     @displayOrder(3)
     protected materials: MaterialConfig[] = [];
-    protected _renderPasses = new Map<ClearFlag, RenderPass>();
+    protected _renderPasses = new Map<ClearFlags, RenderPass>();
 
     public initialize (info: IRenderPipelineInfo): boolean {
         super.initialize(info);
@@ -118,7 +117,7 @@ export class ForwardPipeline extends RenderPipeline {
         this._device.queue.submit(this._commandBuffers);
     }
 
-    public getRenderPass (clearFlags: ClearFlag): RenderPass {
+    public getRenderPass (clearFlags: ClearFlags): RenderPass {
         let renderPass = this._renderPasses.get(clearFlags);
         if (renderPass) { return renderPass; }
 
@@ -130,19 +129,19 @@ export class ForwardPipeline extends RenderPipeline {
         depthStencilAttachment.stencilStoreOp = StoreOp.DISCARD;
         depthStencilAttachment.depthStoreOp = StoreOp.DISCARD;
 
-        if (!(clearFlags & ClearFlag.COLOR)) {
+        if (!(clearFlags & ClearFlagBit.COLOR)) {
             if (clearFlags & SKYBOX_FLAG) {
                 colorAttachment.loadOp = LoadOp.DISCARD;
             } else {
                 colorAttachment.loadOp = LoadOp.LOAD;
-                colorAttachment.beginLayout = TextureLayout.PRESENT_SRC;
+                colorAttachment.beginAccesses = [AccessType.PRESENT];
             }
         }
 
-        if ((clearFlags & ClearFlag.DEPTH_STENCIL) !== ClearFlag.DEPTH_STENCIL) {
-            if (!(clearFlags & ClearFlag.DEPTH)) depthStencilAttachment.depthLoadOp = LoadOp.LOAD;
-            if (!(clearFlags & ClearFlag.STENCIL)) depthStencilAttachment.stencilLoadOp = LoadOp.LOAD;
-            depthStencilAttachment.beginLayout = TextureLayout.DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+        if ((clearFlags & ClearFlagBit.DEPTH_STENCIL) !== ClearFlagBit.DEPTH_STENCIL) {
+            if (!(clearFlags & ClearFlagBit.DEPTH)) depthStencilAttachment.depthLoadOp = LoadOp.LOAD;
+            if (!(clearFlags & ClearFlagBit.STENCIL)) depthStencilAttachment.stencilLoadOp = LoadOp.LOAD;
+            depthStencilAttachment.beginAccesses = [AccessType.DEPTH_STENCIL_ATTACHMENT_WRITE];
         }
 
         const renderPassInfo = new RenderPassInfo([colorAttachment], depthStencilAttachment);

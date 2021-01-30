@@ -26,26 +26,24 @@
 import { ALIPAY, RUNTIME_BASED, BYTEDANCE, WECHAT, LINKSURE, QTT, COCOSPLAY, HUAWEI } from 'internal:constants';
 import { macro, warnID, warn } from '../../platform';
 import { sys } from '../../platform/sys';
-import { DescriptorSet, DescriptorSetInfo } from '../descriptor-set';
-import { DescriptorSetLayoutInfo, DescriptorSetLayout } from '../descriptor-set-layout';
-import { PipelineLayoutInfo, PipelineLayout } from '../pipeline-layout';
-import { Buffer, BufferInfo, BufferViewInfo } from '../buffer';
-import { CommandBuffer, CommandBufferInfo } from '../command-buffer';
-import { Device, DeviceInfo, BindingMappingInfo } from '../device';
-import { Fence, FenceInfo } from '../fence';
-import { Framebuffer, FramebufferInfo } from '../framebuffer';
-import { InputAssembler, InputAssemblerInfo } from '../input-assembler';
+import { DescriptorSet } from '../descriptor-set';
+import { DescriptorSetLayout } from '../descriptor-set-layout';
+import { PipelineLayout } from '../pipeline-layout';
+import { Buffer } from '../buffer';
+import { CommandBuffer } from '../command-buffer';
+import { Device } from '../device';
+import { Framebuffer } from '../framebuffer';
+import { InputAssembler } from '../input-assembler';
 import { PipelineState, PipelineStateInfo } from '../pipeline-state';
-import { Queue, QueueInfo } from '../queue';
-import { RenderPass, RenderPassInfo } from '../render-pass';
-import { Sampler, SamplerInfo } from '../sampler';
-import { Shader, ShaderInfo } from '../shader';
-import { Texture, TextureInfo, TextureViewInfo } from '../texture';
+import { Queue } from '../queue';
+import { RenderPass } from '../render-pass';
+import { Sampler } from '../sampler';
+import { Shader } from '../shader';
+import { Texture } from '../texture';
 import { WebGLDescriptorSet } from './webgl-descriptor-set';
 import { WebGLBuffer } from './webgl-buffer';
 import { WebGLCommandAllocator } from './webgl-command-allocator';
 import { WebGLCommandBuffer } from './webgl-command-buffer';
-import { WebGLFence } from './webgl-fence';
 import { WebGLFramebuffer } from './webgl-framebuffer';
 import { WebGLInputAssembler } from './webgl-input-assembler';
 import { WebGLDescriptorSetLayout } from './webgl-descriptor-set-layout';
@@ -58,9 +56,10 @@ import { WebGLSampler } from './webgl-sampler';
 import { WebGLShader } from './webgl-shader';
 import { WebGLStateCache } from './webgl-state-cache';
 import { WebGLTexture } from './webgl-texture';
-import { getTypedArrayConstructor, CommandBufferType, Filter, Format, FormatInfos,
-    QueueType, TextureFlagBit, TextureType, TextureUsageBit, API, Feature } from '../define';
-import { BufferTextureCopy, Rect } from '../define-class';
+import { getTypedArrayConstructor, CommandBufferType, Filter, Format, FormatInfos, BindingMappingInfo, ShaderInfo,
+    QueueInfo, CommandBufferInfo, DescriptorSetInfo, DescriptorSetLayoutInfo, FramebufferInfo, InputAssemblerInfo, PipelineLayoutInfo,
+    RenderPassInfo, SamplerInfo, TextureInfo, TextureViewInfo, BufferInfo, BufferViewInfo, DeviceInfo,
+    QueueType, TextureFlagBit, TextureType, TextureUsageBit, API, Feature, BufferTextureCopy, Rect } from '../define';
 import { GFXFormatToWebGLFormat, GFXFormatToWebGLType, WebGLCmdFuncCopyBuffersToTexture,
     WebGLCmdFuncCopyTexImagesToTexture } from './webgl-commands';
 
@@ -290,20 +289,20 @@ export class WebGLDevice extends Device {
         }
 
         this._version = gl.getParameter(gl.VERSION);
-        this._maxVertexAttributes = gl.getParameter(gl.MAX_VERTEX_ATTRIBS);
-        this._maxVertexUniformVectors = gl.getParameter(gl.MAX_VERTEX_UNIFORM_VECTORS);
-        this._maxFragmentUniformVectors = gl.getParameter(gl.MAX_FRAGMENT_UNIFORM_VECTORS);
-        this._maxTextureUnits = gl.getParameter(gl.MAX_TEXTURE_IMAGE_UNITS);
-        this._maxVertexTextureUnits = gl.getParameter(gl.MAX_VERTEX_TEXTURE_IMAGE_UNITS);
-        this._maxTextureSize = gl.getParameter(gl.MAX_TEXTURE_SIZE);
-        this._maxCubeMapTextureSize = gl.getParameter(gl.MAX_CUBE_MAP_TEXTURE_SIZE);
-        this._depthBits = gl.getParameter(gl.DEPTH_BITS);
-        this._stencilBits = gl.getParameter(gl.STENCIL_BITS);
+        this._caps.maxVertexAttributes = gl.getParameter(gl.MAX_VERTEX_ATTRIBS);
+        this._caps.maxVertexUniformVectors = gl.getParameter(gl.MAX_VERTEX_UNIFORM_VECTORS);
+        this._caps.maxFragmentUniformVectors = gl.getParameter(gl.MAX_FRAGMENT_UNIFORM_VECTORS);
+        this._caps.maxTextureUnits = gl.getParameter(gl.MAX_TEXTURE_IMAGE_UNITS);
+        this._caps.maxVertexTextureUnits = gl.getParameter(gl.MAX_VERTEX_TEXTURE_IMAGE_UNITS);
+        this._caps.maxTextureSize = gl.getParameter(gl.MAX_TEXTURE_SIZE);
+        this._caps.maxCubeMapTextureSize = gl.getParameter(gl.MAX_CUBE_MAP_TEXTURE_SIZE);
+        this._caps.depthBits = gl.getParameter(gl.DEPTH_BITS);
+        this._caps.stencilBits = gl.getParameter(gl.STENCIL_BITS);
 
-        this.stateCache.initialize(this._maxTextureUnits, this._maxVertexAttributes);
+        this.stateCache.initialize(this._caps.maxTextureUnits, this._caps.maxVertexAttributes);
 
         if (ALIPAY) {
-            this._depthBits = 24;
+            this._caps.depthBits = 24;
         }
 
         this._devicePixelRatio = info.devicePixelRatio || 1.0;
@@ -314,13 +313,13 @@ export class WebGLDevice extends Device {
 
         this._colorFmt = Format.RGBA8;
 
-        if (this._depthBits === 24) {
-            if (this._stencilBits === 8) {
+        if (this._caps.depthBits === 24) {
+            if (this._caps.stencilBits === 8) {
                 this._depthStencilFmt = Format.D24S8;
             } else {
                 this._depthStencilFmt = Format.D24;
             }
-        } else if (this._stencilBits === 8) {
+        } else if (this._caps.stencilBits === 8) {
             this._depthStencilFmt = Format.D16S8;
         } else {
             this._depthStencilFmt = Format.D16;
@@ -488,12 +487,12 @@ export class WebGLDevice extends Device {
         // console.info('COLOR_FORMAT: ' + FormatInfos[this._colorFmt].name);
         // console.info('DEPTH_STENCIL_FORMAT: ' + FormatInfos[this._depthStencilFmt].name);
         // console.info('MAX_VERTEX_ATTRIBS: ' + this._maxVertexAttributes);
-        console.info(`MAX_VERTEX_UNIFORM_VECTORS: ${this._maxVertexUniformVectors}`);
+        console.info(`MAX_VERTEX_UNIFORM_VECTORS: ${this._caps.maxVertexUniformVectors}`);
         // console.info('MAX_FRAGMENT_UNIFORM_VECTORS: ' + this._maxFragmentUniformVectors);
         // console.info('MAX_TEXTURE_IMAGE_UNITS: ' + this._maxTextureUnits);
         // console.info('MAX_VERTEX_TEXTURE_IMAGE_UNITS: ' + this._maxVertexTextureUnits);
-        console.info(`DEPTH_BITS: ${this._depthBits}`);
-        console.info(`STENCIL_BITS: ${this._stencilBits}`);
+        console.info(`DEPTH_BITS: ${this._caps.depthBits}`);
+        console.info(`STENCIL_BITS: ${this._caps.stencilBits}`);
         if (this._EXT_texture_filter_anisotropic) {
             console.info(`MAX_TEXTURE_MAX_ANISOTROPY_EXT: ${this._EXT_texture_filter_anisotropic.MAX_TEXTURE_MAX_ANISOTROPY_EXT}`);
         }
@@ -518,12 +517,12 @@ export class WebGLDevice extends Device {
         )) as WebGLTexture;
 
         this.nullTexCube = this.createTexture(new TextureInfo(
-            TextureType.TEX2D,
+            TextureType.CUBE,
             TextureUsageBit.SAMPLED,
             Format.RGBA8,
             2,
             2,
-            TextureFlagBit.CUBEMAP |  TextureFlagBit.GEN_MIPMAP,
+            TextureFlagBit.GEN_MIPMAP,
             6,
         )) as WebGLTexture;
 
@@ -691,14 +690,6 @@ export class WebGLDevice extends Device {
         const pipelineState = new WebGLPipelineState(this);
         if (pipelineState.initialize(info)) {
             return pipelineState;
-        }
-        return null!;
-    }
-
-    public createFence (info: FenceInfo): Fence {
-        const fence = new WebGLFence(this);
-        if (fence.initialize(info)) {
-            return fence;
         }
         return null!;
     }

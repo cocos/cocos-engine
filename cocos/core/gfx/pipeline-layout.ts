@@ -30,15 +30,7 @@
 
 import { DescriptorSetLayout } from './descriptor-set-layout';
 import { Device } from './device';
-import { Obj, ObjectType } from './define';
-
-export class PipelineLayoutInfo {
-    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
-
-    constructor (
-        public setLayouts: DescriptorSetLayout[] = [],
-    ) {}
-}
+import { Obj, ObjectType, PipelineLayoutInfo } from './define';
 
 /**
  * @en GFX pipeline layout.

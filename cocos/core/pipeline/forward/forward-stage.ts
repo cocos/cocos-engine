@@ -32,7 +32,7 @@ import { ccclass, displayOrder, type, serializable } from 'cc.decorator';
 import { IRenderPass, SetIndex } from '../define';
 import { getPhaseID } from '../pass-phase';
 import { opaqueCompareFn, RenderQueue, transparentCompareFn } from '../render-queue';
-import { ClearFlag } from '../../gfx/define';
+import { ClearFlagBit } from '../../gfx/define';
 import { Color, Rect } from '../../gfx';
 import { SRGBToLinear } from '../pipeline-funcs';
 import { RenderBatchedQueue } from '../render-batched-queue';
@@ -195,7 +195,7 @@ export class ForwardStage extends RenderStage {
         this._renderArea.width = vp.width * w * sceneData.shadingScale;
         this._renderArea.height = vp.height * h * sceneData.shadingScale;
 
-        if (camera.clearFlag & ClearFlag.COLOR) {
+        if (camera.clearFlag & ClearFlagBit.COLOR) {
             if (sceneData.isHDR) {
                 SRGBToLinear(colors[0], camera.clearColor);
                 const scale = sceneData.fpScale / camera.exposure;

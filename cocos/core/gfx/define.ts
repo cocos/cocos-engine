@@ -28,7 +28,20 @@
  * @module gfx
  */
 
-export const MAX_ATTACHMENTS = 4;
+import { Buffer } from './buffer';
+import { DescriptorSetLayout } from './descriptor-set-layout';
+import { Queue } from './queue';
+import { RenderPass } from './render-pass';
+import { Sampler } from './sampler';
+import { Texture } from './texture';
+
+/**
+ * ========================= !DO NOT CHANGE THE FOLLOWING SECTION MANUALLY! =========================
+ * The following section is auto-generated from engine-native/cocos/renderer/core/gfx/GFXDef-common.h
+ * by the script engine-native/tools/gfx-define-generator/generate.js.
+ * Changes to these public interfaces should be made there first and synced back.
+ * ========================= !DO NOT CHANGE THE FOLLOWING SECTION MANUALLY! =========================
+ */
 
 export enum ObjectType {
     UNKNOWN,
@@ -44,93 +57,67 @@ export enum ObjectType {
     DESCRIPTOR_SET,
     INPUT_ASSEMBLER,
     COMMAND_BUFFER,
-    FENCE,
     QUEUE,
-    WINDOW,
+    GLOBAL_BARRIER,
+    TEXTURE_BARRIER,
+    BUFFER_BARRIER,
 }
 
-/**
- * @en GFX base object.
- * @zh GFX 基类对象。
- */
-export class Obj {
-    public get gfxType (): ObjectType {
-        return this._gfxType;
-    }
-
-    protected _gfxType = ObjectType.UNKNOWN;
-
-    constructor (gfxType: ObjectType) {
-        this._gfxType = gfxType;
-    }
+export enum Status {
+    UNREADY,
+    FAILED,
+    SUCCESS,
 }
 
-export enum AttributeName {
-    ATTR_POSITION = 'a_position',
-    ATTR_NORMAL = 'a_normal',
-    ATTR_TANGENT = 'a_tangent',
-    ATTR_BITANGENT = 'a_bitangent',
-    ATTR_WEIGHTS = 'a_weights',
-    ATTR_JOINTS = 'a_joints',
-    ATTR_COLOR = 'a_color',
-    ATTR_COLOR1 = 'a_color1',
-    ATTR_COLOR2 = 'a_color2',
-    ATTR_TEX_COORD = 'a_texCoord',
-    ATTR_TEX_COORD1 = 'a_texCoord1',
-    ATTR_TEX_COORD2 = 'a_texCoord2',
-    ATTR_TEX_COORD3 = 'a_texCoord3',
-    ATTR_TEX_COORD4 = 'a_texCoord4',
-    ATTR_TEX_COORD5 = 'a_texCoord5',
-    ATTR_TEX_COORD6 = 'a_texCoord6',
-    ATTR_TEX_COORD7 = 'a_texCoord7',
-    ATTR_TEX_COORD8 = 'a_texCoord8',
-    ATTR_BATCH_ID = 'a_batch_id',
-    ATTR_BATCH_UV = 'a_batch_uv',
-}
-
-export enum Type {
-    // assumptions about the order of this enum: (exploited by other parts of the engine)
-    // * vectors always come before samplers
-    // * vectors with the same data type are always consecutive, in an component-wise ascending order
-    // * unknown is always zero
+export enum API {
     UNKNOWN,
-    // vectors
-    BOOL,
-    BOOL2,
-    BOOL3,
-    BOOL4,
+    GLES2,
+    GLES3,
+    METAL,
+    VULKAN,
+    WEBGL,
+    WEBGL2,
+    WEBGPU,
+}
 
-    INT,
-    INT2,
-    INT3,
-    INT4,
+export enum SurfaceTransform {
+    IDENTITY,
+    ROTATE_90,
+    ROTATE_180,
+    ROTATE_270,
+}
 
-    UINT,
-    UINT2,
-    UINT3,
-    UINT4,
-
-    FLOAT,
-    FLOAT2,
-    FLOAT3,
-    FLOAT4,
-
-    MAT2,
-    MAT2X3,
-    MAT2X4,
-    MAT3X2,
-    MAT3,
-    MAT3X4,
-    MAT4X2,
-    MAT4X3,
-    MAT4,
-    // samplers
-    SAMPLER1D,
-    SAMPLER1D_ARRAY,
-    SAMPLER2D,
-    SAMPLER2D_ARRAY,
-    SAMPLER3D,
-    SAMPLER_CUBE,
+export enum Feature {
+    COLOR_FLOAT,
+    COLOR_HALF_FLOAT,
+    TEXTURE_FLOAT,
+    TEXTURE_HALF_FLOAT,
+    TEXTURE_FLOAT_LINEAR,
+    TEXTURE_HALF_FLOAT_LINEAR,
+    FORMAT_R11G11B10F,
+    FORMAT_D16,
+    FORMAT_D16S8,
+    FORMAT_D24,
+    FORMAT_D24S8,
+    FORMAT_D32F,
+    FORMAT_D32FS8,
+    FORMAT_ETC1,
+    FORMAT_ETC2,
+    FORMAT_DXT,
+    FORMAT_PVRTC,
+    FORMAT_ASTC,
+    FORMAT_RGB8,
+    MSAA,
+    ELEMENT_INDEX_UINT,
+    INSTANCED_ARRAYS,
+    MULTIPLE_RENDER_TARGETS,
+    BLEND_MINMAX,
+    DEPTH_BOUNDS,
+    LINE_WIDTH,
+    STENCIL_WRITE_MASK,
+    STENCIL_COMPARE_MASK,
+    MULTITHREADED_SUBMISSION,
+    COMPUTE_SHADER,
     COUNT,
 }
 
@@ -287,43 +274,276 @@ export enum Format {
     ASTC_SRGBA_10x10,
     ASTC_SRGBA_12x10,
     ASTC_SRGBA_12x12,
+
+    // Total count
+    COUNT,
+}
+
+export enum FormatType {
+    NONE,
+    UNORM,
+    SNORM,
+    UINT,
+    INT,
+    UFLOAT,
+    FLOAT,
+}
+
+export enum Type {
+    UNKNOWN,
+    BOOL,
+    BOOL2,
+    BOOL3,
+    BOOL4,
+    INT,
+    INT2,
+    INT3,
+    INT4,
+    UINT,
+    UINT2,
+    UINT3,
+    UINT4,
+    FLOAT,
+    FLOAT2,
+    FLOAT3,
+    FLOAT4,
+    MAT2,
+    MAT2X3,
+    MAT2X4,
+    MAT3X2,
+    MAT3,
+    MAT3X4,
+    MAT4X2,
+    MAT4X3,
+    MAT4,
+    // combined image samplers
+    SAMPLER1D,
+    SAMPLER1D_ARRAY,
+    SAMPLER2D,
+    SAMPLER2D_ARRAY,
+    SAMPLER3D,
+    SAMPLER_CUBE,
+    // sampler
+    SAMPLER,
+    // sampled textures
+    TEXTURE1D,
+    TEXTURE1D_ARRAY,
+    TEXTURE2D,
+    TEXTURE2D_ARRAY,
+    TEXTURE3D,
+    TEXTURE_CUBE,
+    // storage images
+    IMAGE1D,
+    IMAGE1D_ARRAY,
+    IMAGE2D,
+    IMAGE2D_ARRAY,
+    IMAGE3D,
+    IMAGE_CUBE,
+    // input attachment
+    SUBPASS_INPUT,
+    COUNT,
 }
 
 export enum BufferUsageBit {
-    NONE = 0,
+    NONE         = 0,
     TRANSFER_SRC = 0x1,
     TRANSFER_DST = 0x2,
-    INDEX = 0x4,
-    VERTEX = 0x8,
-    UNIFORM = 0x10,
-    STORAGE = 0x20,
-    INDIRECT = 0x40,
+    INDEX        = 0x4,
+    VERTEX       = 0x8,
+    UNIFORM      = 0x10,
+    STORAGE      = 0x20,
+    INDIRECT     = 0x40,
 }
-
-export type BufferUsage = BufferUsageBit;
-
-export enum MemoryUsageBit {
-    NONE = 0,
-    DEVICE = 0x1,
-    HOST = 0x2,
-}
-
-export type MemoryUsage = MemoryUsageBit;
 
 export enum BufferFlagBit {
-    NONE = 0,
+    NONE         = 0,
     BAKUP_BUFFER = 0x4,
 }
 
-export type BufferFlags = BufferFlagBit;
-
-export enum BufferAccessBit {
-    NONE = 0,
-    READ = 0x1,
-    WRITE = 0x2,
+export enum MemoryAccessBit {
+    NONE       = 0,
+    READ_ONLY  = 0x1,
+    WRITE_ONLY = 0x2,
+    READ_WRITE = READ_ONLY | WRITE_ONLY,
 }
 
-export type BufferAccess = BufferAccessBit;
+export enum MemoryUsageBit {
+    NONE   = 0,
+    DEVICE = 0x1,
+    HOST   = 0x2,
+}
+
+export enum TextureType {
+    TEX1D,
+    TEX2D,
+    TEX3D,
+    CUBE,
+    TEX1D_ARRAY,
+    TEX2D_ARRAY,
+}
+
+export enum TextureUsageBit {
+    NONE                     = 0,
+    TRANSFER_SRC             = 0x1,
+    TRANSFER_DST             = 0x2,
+    SAMPLED                  = 0x4,
+    STORAGE                  = 0x8,
+    COLOR_ATTACHMENT         = 0x10,
+    DEPTH_STENCIL_ATTACHMENT = 0x20,
+    TRANSIENT_ATTACHMENT     = 0x40,
+    INPUT_ATTACHMENT         = 0x80,
+}
+
+export enum TextureFlagBit {
+    NONE         = 0,
+    GEN_MIPMAP   = 0x1,
+    BAKUP_BUFFER = 0x2,
+    IMMUTABLE    = 0x4,
+}
+
+export enum SampleCount {
+    X1,
+    X2,
+    X4,
+    X8,
+    X16,
+    X32,
+    X64,
+}
+
+export enum Filter {
+    NONE,
+    POINT,
+    LINEAR,
+    ANISOTROPIC,
+}
+
+export enum Address {
+    WRAP,
+    MIRROR,
+    CLAMP,
+    BORDER,
+}
+
+export enum ComparisonFunc {
+    NEVER,
+    LESS,
+    EQUAL,
+    LESS_EQUAL,
+    GREATER,
+    NOT_EQUAL,
+    GREATER_EQUAL,
+    ALWAYS,
+}
+
+export enum StencilOp {
+    ZERO,
+    KEEP,
+    REPLACE,
+    INCR,
+    DECR,
+    INVERT,
+    INCR_WRAP,
+    DECR_WRAP,
+}
+
+export enum BlendFactor {
+    ZERO,
+    ONE,
+    SRC_ALPHA,
+    DST_ALPHA,
+    ONE_MINUS_SRC_ALPHA,
+    ONE_MINUS_DST_ALPHA,
+    SRC_COLOR,
+    DST_COLOR,
+    ONE_MINUS_SRC_COLOR,
+    ONE_MINUS_DST_COLOR,
+    SRC_ALPHA_SATURATE,
+    CONSTANT_COLOR,
+    ONE_MINUS_CONSTANT_COLOR,
+    CONSTANT_ALPHA,
+    ONE_MINUS_CONSTANT_ALPHA,
+}
+
+export enum BlendOp {
+    ADD,
+    SUB,
+    REV_SUB,
+    MIN,
+    MAX,
+}
+
+export enum ColorMask {
+    NONE = 0x0,
+    R    = 0x1,
+    G    = 0x2,
+    B    = 0x4,
+    A    = 0x8,
+    ALL  = R | G | B | A,
+}
+
+export enum ShaderStageFlagBit {
+    NONE       = 0x0,
+    VERTEX     = 0x1,
+    CONTROL    = 0x2,
+    EVALUATION = 0x4,
+    GEOMETRY   = 0x8,
+    FRAGMENT   = 0x10,
+    COMPUTE    = 0x20,
+    ALL        = 0x3f,
+}
+
+export enum LoadOp {
+    LOAD,    // Load the contents from the fbo from previous
+    CLEAR,   // Clear the fbo
+    DISCARD, // Ignore writing to the fbo and keep old data
+}
+
+export enum StoreOp {
+    STORE,   // Write the source to the destination
+    DISCARD, // Don't write the source to the destination
+}
+
+export enum AccessType {
+    NONE,
+
+    // Read access
+    INDIRECT_BUFFER,                                     // Read as an indirect buffer for drawing or dispatch
+    INDEX_BUFFER,                                        // Read as an index buffer for drawing
+    VERTEX_BUFFER,                                       // Read as a vertex buffer for drawing
+    VERTEX_SHADER_READ_UNIFORM_BUFFER,                   // Read as a uniform buffer in a vertex shader
+    VERTEX_SHADER_READ_TEXTURE,                          // Read as a sampled image/uniform texel buffer in a vertex shader
+    VERTEX_SHADER_READ_OTHER,                            // Read as any other resource in a vertex shader
+    FRAGMENT_SHADER_READ_UNIFORM_BUFFER,                 // Read as a uniform buffer in a fragment shader
+    FRAGMENT_SHADER_READ_TEXTURE,                        // Read as a sampled image/uniform texel buffer in a fragment shader
+    FRAGMENT_SHADER_READ_COLOR_INPUT_ATTACHMENT,         // Read as an input attachment with a color format in a fragment shader
+    FRAGMENT_SHADER_READ_DEPTH_STENCIL_INPUT_ATTACHMENT, // Read as an input attachment with a depth/stencil format in a fragment shader
+    FRAGMENT_SHADER_READ_OTHER,                          // Read as any other resource in a fragment shader
+    COLOR_ATTACHMENT_READ,                               // Read by standard blending/logic operations or subpass load operations
+    DEPTH_STENCIL_ATTACHMENT_READ,                       // Read by depth/stencil tests or subpass load operations
+    COMPUTE_SHADER_READ_UNIFORM_BUFFER,                  // Read as a uniform buffer in a compute shader
+    COMPUTE_SHADER_READ_TEXTURE,                         // Read as a sampled image/uniform texel buffer in a compute shader
+    COMPUTE_SHADER_READ_OTHER,                           // Read as any other resource in a compute shader
+    TRANSFER_READ,                                       // Read as the source of a transfer operation
+    HOST_READ,                                           // Read on the host
+    PRESENT,                                             // Read by the presentation engine
+
+    // Write access
+    VERTEX_SHADER_WRITE,            // Written as any resource in a vertex shader
+    FRAGMENT_SHADER_WRITE,          // Written as any resource in a fragment shader
+    COLOR_ATTACHMENT_WRITE,         // Written as a color attachment during rendering, or via a subpass store op
+    DEPTH_STENCIL_ATTACHMENT_WRITE, // Written as a depth/stencil attachment during rendering, or via a subpass store op
+    COMPUTE_SHADER_WRITE,           // Written as any resource in a compute shader
+    TRANSFER_WRITE,                 // Written as the destination of a transfer operation
+    HOST_PREINITIALIZED,            // Data pre-filled by host before device access starts
+    HOST_WRITE,                     // Written on the host
+}
+
+export enum PipelineBindPoint {
+    GRAPHICS,
+    COMPUTE,
+    RAY_TRACING,
+}
 
 export enum PrimitiveMode {
     POINT_LIST,
@@ -360,193 +580,35 @@ export enum CullMode {
     BACK,
 }
 
-export enum ComparisonFunc {
-    NEVER,
-    LESS,
-    EQUAL,
-    LESS_EQUAL,
-    GREATER,
-    NOT_EQUAL,
-    GREATER_EQUAL,
-    ALWAYS,
-}
-
-export enum StencilOp {
-    ZERO,
-    KEEP,
-    REPLACE,
-    INCR,
-    DECR,
-    INVERT,
-    INCR_WRAP,
-    DECR_WRAP,
-}
-
-export enum BlendOp {
-    ADD,
-    SUB,
-    REV_SUB,
-    MIN,
-    MAX,
-}
-
-export enum BlendFactor {
-    ZERO,
-    ONE,
-    SRC_ALPHA,
-    DST_ALPHA,
-    ONE_MINUS_SRC_ALPHA,
-    ONE_MINUS_DST_ALPHA,
-    SRC_COLOR,
-    DST_COLOR,
-    ONE_MINUS_SRC_COLOR,
-    ONE_MINUS_DST_COLOR,
-    SRC_ALPHA_SATURATE,
-    CONSTANT_COLOR,
-    ONE_MINUS_CONSTANT_COLOR,
-    CONSTANT_ALPHA,
-    ONE_MINUS_CONSTANT_ALPHA,
-}
-
-export enum ColorMask {
-    NONE = 0x0,
-    R = 0x1,
-    G = 0x2,
-    B = 0x4,
-    A = 0x8,
-    ALL = R | G | B | A,
-}
-
-export enum Filter {
-    NONE,
-    POINT,
-    LINEAR,
-    ANISOTROPIC,
-}
-
-export enum Address {
-    WRAP,
-    MIRROR,
-    CLAMP,
-    BORDER,
-}
-
-export enum TextureType {
-    TEX1D,
-    TEX2D,
-    TEX3D,
-    CUBE,
-    TEX1D_ARRAY,
-    TEX2D_ARRAY,
-}
-
-export enum TextureUsageBit {
-    NONE = 0,
-    TRANSFER_SRC = 0x1,
-    TRANSFER_DST = 0x2,
-    SAMPLED = 0x4,
-    STORAGE = 0x8,
-    COLOR_ATTACHMENT = 0x10,
-    DEPTH_STENCIL_ATTACHMENT = 0x20,
-    TRANSIENT_ATTACHMENT = 0x40,
-    INPUT_ATTACHMENT = 0x80,
-}
-
-export type TextureUsage = TextureUsageBit;
-
-export enum SampleCount {
-    X1,
-    X2,
-    X4,
-    X8,
-    X16,
-    X32,
-    X64,
-}
-
-export enum TextureFlagBit {
-    NONE = 0,
-    GEN_MIPMAP = 0x1,
-    CUBEMAP = 0x2,
-    BAKUP_BUFFER = 0x4,
-    IMMUTABLE = 0x8,
-}
-export type TextureFlags = TextureFlagBit;
-
-export enum ShaderStageFlagBit {
-    NONE = 0,
-    VERTEX = 0x1,
-    CONTROL = 0x2,
-    EVALUATION = 0x4,
-    GEOMETRY = 0x8,
-    FRAGMENT = 0x10,
-    COMPUTE = 0x20,
-    ALL = 0x3f,
-}
-export type ShaderStageFlags = ShaderStageFlagBit;
-
-export enum DescriptorType {
-    UNKNOWN = 0,
-    UNIFORM_BUFFER = 0x1,
-    DYNAMIC_UNIFORM_BUFFER = 0x2,
-    STORAGE_BUFFER = 0x4,
-    DYNAMIC_STORAGE_BUFFER = 0x8,
-    SAMPLER = 0x10,
-}
-
-export enum CommandBufferType {
-    PRIMARY,
-    SECONDARY,
-}
-
-export enum LoadOp {
-    LOAD,    // Load the previous data
-    CLEAR,   // Clear the fbo
-    DISCARD, // Ignore the previous data
-}
-
-export enum StoreOp {
-    STORE,   // Write the source to the destination
-    DISCARD, // Don't write the source to the destination
-}
-
-export enum TextureLayout {
-    UNDEFINED,
-    GENERAL,
-    COLOR_ATTACHMENT_OPTIMAL,
-    DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
-    DEPTH_STENCIL_READONLY_OPTIMAL,
-    SHADER_READONLY_OPTIMAL,
-    TRANSFER_SRC_OPTIMAL,
-    TRANSFER_DST_OPTIMAL,
-    PREINITIALIZED,
-    PRESENT_SRC,
-}
-
-export enum PipelineBindPoint {
-    GRAPHICS,
-    COMPUTE,
-    RAY_TRACING,
-}
-
 export enum DynamicStateFlagBit {
-    NONE = 0x0,
-    VIEWPORT = 0x1,
-    SCISSOR = 0x2,
-    LINE_WIDTH = 0x4,
-    DEPTH_BIAS = 0x8,
-    BLEND_CONSTANTS = 0x10,
-    DEPTH_BOUNDS = 0x20,
-    STENCIL_WRITE_MASK = 0x40,
+    NONE                 = 0x0,
+    VIEWPORT             = 0x1,
+    SCISSOR              = 0x2,
+    LINE_WIDTH           = 0x4,
+    DEPTH_BIAS           = 0x8,
+    BLEND_CONSTANTS      = 0x10,
+    DEPTH_BOUNDS         = 0x20,
+    STENCIL_WRITE_MASK   = 0x40,
     STENCIL_COMPARE_MASK = 0x80,
 }
-
-export type DynamicStateFlags = DynamicStateFlagBit;
 
 export enum StencilFace {
     FRONT,
     BACK,
     ALL,
+}
+
+export enum DescriptorType {
+    UNKNOWN                = 0,
+    UNIFORM_BUFFER         = 0x1,
+    DYNAMIC_UNIFORM_BUFFER = 0x2,
+    STORAGE_BUFFER         = 0x4,
+    DYNAMIC_STORAGE_BUFFER = 0x8,
+    SAMPLER_TEXTURE        = 0x10,
+    SAMPLER                = 0x20,
+    TEXTURE                = 0x40,
+    STORAGE_IMAGE          = 0x80,
+    INPUT_ATTACHMENT       = 0x100,
 }
 
 export enum QueueType {
@@ -555,87 +617,607 @@ export enum QueueType {
     TRANSFER,
 }
 
-export enum ClearFlag {
-    NONE = 0,
-    COLOR = 1,
-    DEPTH = 2,
-    STENCIL = 4,
+export enum CommandBufferType {
+    PRIMARY,
+    SECONDARY,
+}
+
+export enum ClearFlagBit {
+    NONE          = 0,
+    COLOR         = 0x1,
+    DEPTH         = 0x2,
+    STENCIL       = 0x4,
     DEPTH_STENCIL = DEPTH | STENCIL,
-    ALL = COLOR | DEPTH | STENCIL,
+    ALL           = COLOR | DEPTH | STENCIL,
 }
 
-export enum FormatType {
-    NONE,
-    UNORM,
-    SNORM,
-    UINT,
-    INT,
-    UFLOAT,
-    FLOAT,
+export type BufferUsage = BufferUsageBit;
+export type BufferFlags = BufferFlagBit;
+export type MemoryAccess = MemoryAccessBit;
+export type MemoryUsage = MemoryUsageBit;
+export type TextureUsage = TextureUsageBit;
+export type TextureFlags = TextureFlagBit;
+export type ShaderStageFlags = ShaderStageFlagBit;
+export type DynamicStateFlags = DynamicStateFlagBit;
+export type ClearFlags = ClearFlagBit;
+
+export class Size {
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+
+    constructor (
+        public x: number = 0,
+        public y: number = 0,
+        public z: number = 0,
+    ) {}
 }
 
-export enum API {
-    UNKNOWN,
-    GLES2,
-    GLES3,
-    METAL,
-    VULKAN,
-    WEBGL,
-    WEBGL2,
-    WEBGPU,
+export class DeviceCaps {
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+
+    constructor (
+        public maxVertexAttributes: number = 0,
+        public maxVertexUniformVectors: number = 0,
+        public maxFragmentUniformVectors: number = 0,
+        public maxTextureUnits: number = 0,
+        public maxImageUnits: number = 0,
+        public maxVertexTextureUnits: number = 0,
+        public maxColorRenderTargets: number = 0,
+        public maxShaderStorageBufferBindings: number = 0,
+        public maxShaderStorageBlockSize: number = 0,
+        public maxUniformBufferBindings: number = 0,
+        public maxUniformBlockSize: number = 0,
+        public maxTextureSize: number = 0,
+        public maxCubeMapTextureSize: number = 0,
+        public uboOffsetAlignment: number = 0,
+        public depthBits: number = 0,
+        public stencilBits: number = 0,
+        public maxComputeSharedMemorySize: number = 0,
+        public maxComputeWorkGroupInvocations: number = 0,
+        public maxComputeWorkGroupSize: Size = new Size(),
+        public maxComputeWorkGroupCount: Size = new Size(),
+        public clipSpaceMinZ: number = -1,
+        public screenSpaceSignY: number = 1,
+        public UVSpaceSignY: number = -1,
+    ) {}
 }
 
-export enum SurfaceTransform {
-    IDENTITY,
-    ROTATE_90,
-    ROTATE_180,
-    ROTATE_270,
+export class Offset {
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+
+    constructor (
+        public x: number = 0,
+        public y: number = 0,
+        public z: number = 0,
+    ) {}
 }
 
-export enum Feature {
-    COLOR_FLOAT,
-    COLOR_HALF_FLOAT,
-    TEXTURE_FLOAT,
-    TEXTURE_HALF_FLOAT,
-    TEXTURE_FLOAT_LINEAR,
-    TEXTURE_HALF_FLOAT_LINEAR,
-    FORMAT_R11G11B10F,
-    FORMAT_D16,
-    FORMAT_D16S8,
-    FORMAT_D24,
-    FORMAT_D24S8,
-    FORMAT_D32F,
-    FORMAT_D32FS8,
-    FORMAT_ETC1,
-    FORMAT_ETC2,
-    FORMAT_DXT,
-    FORMAT_PVRTC,
-    FORMAT_ASTC,
-    FORMAT_RGB8,
-    MSAA,
-    ELEMENT_INDEX_UINT,
-    INSTANCED_ARRAYS,
-    MULTIPLE_RENDER_TARGETS,
-    BLEND_MINMAX,
-    DEPTH_BOUNDS,
-    LINE_WIDTH,
-    STENCIL_WRITE_MASK,
-    STENCIL_COMPARE_MASK,
-    COUNT,
+export class Rect {
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+
+    constructor (
+        public x: number = 0,
+        public y: number = 0,
+        public width: number = 1,
+        public height: number = 1,
+    ) {}
+}
+
+export class Extent {
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+
+    constructor (
+        public width: number = 0,
+        public height: number = 0,
+        public depth: number = 1,
+    ) {}
+}
+
+export class TextureSubresLayers {
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+
+    constructor (
+        public mipLevel: number = 0,
+        public baseArrayLayer: number = 0,
+        public layerCount: number = 1,
+    ) {}
+}
+
+export class TextureSubresRange {
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+
+    constructor (
+        public baseMipLevel: number = 0,
+        public levelCount: number = 1,
+        public baseArrayLayer: number = 0,
+        public layerCount: number = 1,
+    ) {}
+}
+
+export class TextureCopy {
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+
+    constructor (
+        public srcSubres: TextureSubresLayers = new TextureSubresLayers(),
+        public srcOffset: Offset = new Offset(),
+        public dstSubres: TextureSubresLayers = new TextureSubresLayers(),
+        public dstOffset: Offset = new Offset(),
+        public extent: Extent = new Extent(),
+    ) {}
+}
+
+export class TextureBlit {
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+
+    constructor (
+        public srcSubres: TextureSubresLayers = new TextureSubresLayers(),
+        public srcOffset: Offset = new Offset(),
+        public srcExtent: Extent = new Extent(),
+        public dstSubres: TextureSubresLayers = new TextureSubresLayers(),
+        public dstOffset: Offset = new Offset(),
+        public dstExtent: Extent = new Extent(),
+    ) {}
+}
+
+export class BufferTextureCopy {
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+
+    constructor (
+        public buffStride: number = 0,
+        public buffTexHeight: number = 0,
+        public texOffset: Offset = new Offset(),
+        public texExtent: Extent = new Extent(),
+        public texSubres: TextureSubresLayers = new TextureSubresLayers(),
+    ) {}
+}
+
+export class Viewport {
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+
+    constructor (
+        public left: number = 0,
+        public top: number = 0,
+        public width: number = 0,
+        public height: number = 0,
+        public minDepth: number = 0,
+        public maxDepth: number = 1,
+    ) {}
+}
+
+export class Color {
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+
+    constructor (
+        public x: number = 0,
+        public y: number = 0,
+        public z: number = 0,
+        public w: number = 0,
+    ) {}
+}
+
+export class BindingMappingInfo {
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+
+    constructor (
+        public bufferOffsets: number[] = [],
+        public samplerOffsets: number[] = [],
+        public flexibleSet: number = 0,
+    ) {}
+}
+
+export class BufferInfo {
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+
+    constructor (
+        public usage: BufferUsage = BufferUsageBit.NONE,
+        public memUsage: MemoryUsage = MemoryUsageBit.NONE,
+        public size: number = 0,
+        public stride: number = 0,
+        public flags: BufferFlags = BufferFlagBit.NONE,
+    ) {}
+}
+
+export class BufferViewInfo {
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+
+    constructor (
+        public buffer: Buffer = null!,
+        public offset: number = 0,
+        public range: number = 0,
+    ) {}
+}
+
+export class DrawInfo {
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+
+    constructor (
+        public vertexCount: number = 0,
+        public firstVertex: number = 0,
+        public indexCount: number = 0,
+        public firstIndex: number = 0,
+        public vertexOffset: number = 0,
+        public instanceCount: number = 0,
+        public firstInstance: number = 0,
+    ) {}
+}
+
+export class DispatchInfo {
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+
+    constructor (
+        public groupCountX: number = 0,
+        public groupCountY: number = 0,
+        public groupCountZ: number = 0,
+        public indirectBuffer: Buffer | null = null,
+        public indirectOffset: number = 0,
+    ) {}
+}
+
+export class IndirectBuffer {
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+
+    constructor (
+        public drawInfos: DrawInfo[] = [],
+    ) {}
+}
+
+export class TextureInfo {
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+
+    constructor (
+        public type: TextureType = TextureType.TEX2D,
+        public usage: TextureUsage = TextureUsageBit.NONE,
+        public format: Format = Format.UNKNOWN,
+        public width: number = 0,
+        public height: number = 0,
+        public flags: TextureFlags = TextureFlagBit.NONE,
+        public layerCount: number = 1,
+        public levelCount: number = 1,
+        public samples: SampleCount = SampleCount.X1,
+        public depth: number = 1,
+    ) {}
+}
+
+export class TextureViewInfo {
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+
+    constructor (
+        public texture: Texture = null!,
+        public type: TextureType = TextureType.TEX2D,
+        public format: Format = Format.UNKNOWN,
+        public baseLevel: number = 0,
+        public levelCount: number = 1,
+        public baseLayer: number = 0,
+        public layerCount: number = 1,
+    ) {}
+}
+
+export class SamplerInfo {
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+
+    constructor (
+        public minFilter: Filter = Filter.LINEAR,
+        public magFilter: Filter = Filter.LINEAR,
+        public mipFilter: Filter = Filter.NONE,
+        public addressU: Address = Address.WRAP,
+        public addressV: Address = Address.WRAP,
+        public addressW: Address = Address.WRAP,
+        public maxAnisotropy: number = 0,
+        public cmpFunc: ComparisonFunc = ComparisonFunc.NEVER,
+        public borderColor: Color = new Color(),
+        public minLOD: number = 0,
+        public maxLOD: number = 1000,
+        public mipLODBias: number = 0,
+    ) {}
+}
+
+export class ShaderMacro {
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+
+    constructor (
+        public macro: string = '',
+        public value: string = '',
+    ) {}
+}
+
+export class Uniform {
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+
+    constructor (
+        public name: string = '',
+        public type: Type = Type.UNKNOWN,
+        public count: number = 0,
+    ) {}
+}
+
+export class UniformBlock {
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+
+    constructor (
+        public set: number = 0,
+        public binding: number = 0,
+        public name: string = '',
+        public members: Uniform[] = [],
+        public count: number = 0,
+    ) {}
+}
+
+export class UniformSamplerTexture {
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+
+    constructor (
+        public set: number = 0,
+        public binding: number = 0,
+        public name: string = '',
+        public type: Type = Type.UNKNOWN,
+        public count: number = 0,
+    ) {}
+}
+
+export class UniformSampler {
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+
+    constructor (
+        public set: number = 0,
+        public binding: number = 0,
+        public name: string = '',
+        public count: number = 0,
+    ) {}
+}
+
+export class UniformTexture {
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+
+    constructor (
+        public set: number = 0,
+        public binding: number = 0,
+        public name: string = '',
+        public type: Type = Type.UNKNOWN,
+        public count: number = 0,
+    ) {}
+}
+
+export class UniformStorageImage {
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+
+    constructor (
+        public set: number = 0,
+        public binding: number = 0,
+        public name: string = '',
+        public type: Type = Type.UNKNOWN,
+        public count: number = 0,
+        public memoryAccess: MemoryAccess = MemoryAccessBit.READ_WRITE,
+    ) {}
+}
+
+export class UniformStorageBuffer {
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+
+    constructor (
+        public set: number = 0,
+        public binding: number = 0,
+        public name: string = '',
+        public count: number = 0,
+        public memoryAccess: MemoryAccess = MemoryAccessBit.READ_WRITE,
+    ) {}
+}
+
+export class UniformInputAttachment {
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+
+    constructor (
+        public set: number = 0,
+        public binding: number = 0,
+        public name: string = '',
+        public count: number = 0,
+    ) {}
+}
+
+export class ShaderStage {
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+
+    constructor (
+        public stage: ShaderStageFlagBit = ShaderStageFlagBit.NONE,
+        public source: string = '',
+    ) {}
+}
+
+export class Attribute {
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+
+    constructor (
+        public name: string = '',
+        public format: Format = Format.UNKNOWN,
+        public isNormalized: boolean = false,
+        public stream: number = 0,
+        public isInstanced: boolean = false,
+        public location: number = 0,
+    ) {}
+}
+
+export class ShaderInfo {
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+
+    constructor (
+        public name: string = '',
+        public stages: ShaderStage[] = [],
+        public attributes: Attribute[] = [],
+        public blocks: UniformBlock[] = [],
+        public buffers: UniformStorageBuffer[] = [],
+        public samplerTextures: UniformSamplerTexture[] = [],
+        public samplers: UniformSampler[] = [],
+        public textures: UniformTexture[] = [],
+        public images: UniformStorageImage[] = [],
+        public subpassInputs: UniformInputAttachment[] = [],
+    ) {}
+}
+
+export class InputAssemblerInfo {
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+
+    constructor (
+        public attributes: Attribute[] = [],
+        public vertexBuffers: Buffer[] = [],
+        public indexBuffer: Buffer | null = null,
+        public indirectBuffer: Buffer | null = null,
+    ) {}
+}
+
+export class ColorAttachment {
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+
+    constructor (
+        public format: Format = Format.UNKNOWN,
+        public sampleCount: SampleCount = SampleCount.X1,
+        public loadOp: LoadOp = LoadOp.CLEAR,
+        public storeOp: StoreOp = StoreOp.STORE,
+        public beginAccesses: AccessType[] = [],
+        public endAccesses: AccessType[] = [AccessType.PRESENT],
+    ) {}
+}
+
+export class DepthStencilAttachment {
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+
+    constructor (
+        public format: Format = Format.UNKNOWN,
+        public sampleCount: SampleCount = SampleCount.X1,
+        public depthLoadOp: LoadOp = LoadOp.CLEAR,
+        public depthStoreOp: StoreOp = StoreOp.STORE,
+        public stencilLoadOp: LoadOp = LoadOp.CLEAR,
+        public stencilStoreOp: StoreOp = StoreOp.STORE,
+        public beginAccesses: AccessType[] = [],
+        public endAccesses: AccessType[] = [AccessType.DEPTH_STENCIL_ATTACHMENT_WRITE],
+    ) {}
+}
+
+export class SubpassInfo {
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+
+    constructor (
+        public inputs: number[] = [],
+        public colors: number[] = [],
+        public resolves: number[] = [],
+        public preserves: number[] = [],
+        public depthStencil: number = -1,
+    ) {}
+}
+
+export class RenderPassInfo {
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+
+    constructor (
+        public colorAttachments: ColorAttachment[] = [],
+        public depthStencilAttachment: DepthStencilAttachment = new DepthStencilAttachment(),
+        public subpasses: SubpassInfo[] = [],
+    ) {}
+}
+
+export class GlobalBarrierInfo {
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+
+    constructor (
+        public prevAccesses: AccessType[] = [],
+        public nextAccesses: AccessType[] = [],
+    ) {}
+}
+
+export class TextureBarrierInfo {
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+
+    constructor (
+        public prevAccesses: AccessType[] = [],
+        public nextAccesses: AccessType[] = [],
+        public discardContents: boolean = false,
+        public srcQueue: Queue | null = null,
+        public dstQueue: Queue | null = null,
+    ) {}
+}
+
+export class FramebufferInfo {
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+
+    constructor (
+        public renderPass: RenderPass = null!,
+        public colorTextures: (Texture | null)[] = [],
+        public depthStencilTexture: Texture | null = null,
+        public colorMipmapLevels: number[] = [],
+        public depthStencilMipmapLevel: number = 0,
+    ) {}
+}
+
+export class DescriptorSetLayoutBinding {
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+
+    constructor (
+        public binding: number = -1,
+        public descriptorType: DescriptorType = DescriptorType.UNKNOWN,
+        public count: number = 0,
+        public stageFlags: ShaderStageFlags = ShaderStageFlagBit.NONE,
+        public immutableSamplers: Sampler[] = [],
+    ) {}
+}
+
+export class DescriptorSetLayoutInfo {
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+
+    constructor (
+        public bindings: DescriptorSetLayoutBinding[] = [],
+    ) {}
+}
+
+export class DescriptorSetInfo {
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+
+    constructor (
+        public layout: DescriptorSetLayout = null!,
+    ) {}
+}
+
+export class PipelineLayoutInfo {
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+
+    constructor (
+        public setLayouts: DescriptorSetLayout[] = [],
+    ) {}
+}
+
+export class InputState {
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+
+    constructor (
+        public attributes: Attribute[] = [],
+    ) {}
+}
+
+export class CommandBufferInfo {
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+
+    constructor (
+        public queue: Queue = null!,
+        public type: CommandBufferType = CommandBufferType.PRIMARY,
+    ) {}
+}
+
+export class QueueInfo {
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+
+    constructor (
+        public type: QueueType = QueueType.GRAPHICS,
+    ) {}
 }
 
 export class FormatInfo {
     declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
     constructor (
-        public readonly name: string,
-        public readonly size: number,
-        public readonly count: number,
-        public readonly type: FormatType,
-        public readonly hasAlpha: boolean,
-        public readonly hasDepth: boolean,
-        public readonly hasStencil: boolean,
-        public readonly isCompressed: boolean,
+        public readonly name: string = '',
+        public readonly size: number = 0,
+        public readonly count: number = 0,
+        public readonly type: FormatType = FormatType.NONE,
+        public readonly hasAlpha: boolean = false,
+        public readonly hasDepth: boolean = false,
+        public readonly hasStencil: boolean = false,
+        public readonly isCompressed: boolean = false,
     ) {}
 }
 
@@ -646,6 +1228,98 @@ export class MemoryStatus {
         public bufferSize: number = 0,
         public textureSize: number = 0,
     ) {}
+}
+
+/**
+ * ========================= !DO NOT CHANGE THE ABOVE SECTION MANUALLY! =========================
+ * The above section is auto-generated from engine-native/cocos/renderer/core/gfx/GFXDef-common.h
+ * by the script engine-native/tools/gfx-define-generator/generate.js.
+ * Changes to these public interfaces should be made there first and synced back.
+ * ========================= !DO NOT CHANGE THE ABOVE SECTION MANUALLY! =========================
+ */
+
+/**
+ * @en GFX base object.
+ * @zh GFX 基类对象。
+ */
+export class Obj {
+    public get gfxType (): ObjectType {
+        return this._gfxType;
+    }
+
+    protected _gfxType = ObjectType.UNKNOWN;
+
+    constructor (gfxType: ObjectType) {
+        this._gfxType = gfxType;
+    }
+}
+
+export class DeviceInfo {
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+
+    constructor (
+        public canvasElm: HTMLElement,
+        public isAntialias: boolean = true,
+        public isPremultipliedAlpha: boolean = true,
+        public devicePixelRatio: number = 1,
+        public nativeWidth: number = 1,
+        public nativeHeight: number = 1,
+        /**
+         * For non-vulkan backends, to maintain compatibility and maximize
+         * descriptor cache-locality, descriptor-set-based binding numbers need
+         * to be mapped to backend-specific bindings based on the maximum limit
+         * of available descriptor slots in each set.
+         *
+         * The GFX layer assumes the binding numbers for each descriptor type inside each set
+         * are guaranteed to be consecutive, so the mapping procedure is reduced
+         * to a simple shifting operation. This data structure specifies the
+         * offsets for each descriptor type in each set.
+         */
+        public bindingMappingInfo = new BindingMappingInfo(),
+    ) {}
+}
+
+export interface IUniform {
+    name: string;
+    type: Type;
+    count: number;
+}
+
+export interface IShaderStage {
+    stage: ShaderStageFlagBit;
+    source: string;
+}
+
+export interface IAttribute {
+    name: string;
+    format: Format;
+    isNormalized: boolean;
+    stream: number;
+    isInstanced: boolean;
+    location: number;
+}
+
+export enum AttributeName {
+    ATTR_POSITION = 'a_position',
+    ATTR_NORMAL = 'a_normal',
+    ATTR_TANGENT = 'a_tangent',
+    ATTR_BITANGENT = 'a_bitangent',
+    ATTR_WEIGHTS = 'a_weights',
+    ATTR_JOINTS = 'a_joints',
+    ATTR_COLOR = 'a_color',
+    ATTR_COLOR1 = 'a_color1',
+    ATTR_COLOR2 = 'a_color2',
+    ATTR_TEX_COORD = 'a_texCoord',
+    ATTR_TEX_COORD1 = 'a_texCoord1',
+    ATTR_TEX_COORD2 = 'a_texCoord2',
+    ATTR_TEX_COORD3 = 'a_texCoord3',
+    ATTR_TEX_COORD4 = 'a_texCoord4',
+    ATTR_TEX_COORD5 = 'a_texCoord5',
+    ATTR_TEX_COORD6 = 'a_texCoord6',
+    ATTR_TEX_COORD7 = 'a_texCoord7',
+    ATTR_TEX_COORD8 = 'a_texCoord8',
+    ATTR_BATCH_ID = 'a_batch_id',
+    ATTR_BATCH_UV = 'a_batch_uv',
 }
 
 export const FormatInfos = Object.freeze([
@@ -784,6 +1458,22 @@ export const FormatInfos = Object.freeze([
     new FormatInfo('ASTC_SRGBA_12x10', 1, 4, FormatType.UNORM, true, false, false, true),
     new FormatInfo('ASTC_SRGBA_12x12', 1, 4, FormatType.UNORM, true, false, false, true),
 ]);
+
+export const DESCRIPTOR_BUFFER_TYPE = DescriptorType.UNIFORM_BUFFER | DescriptorType.DYNAMIC_UNIFORM_BUFFER
+                                      | DescriptorType.STORAGE_BUFFER | DescriptorType.DYNAMIC_STORAGE_BUFFER;
+
+export const DESCRIPTOR_SAMPLER_TYPE = DescriptorType.SAMPLER_TEXTURE | DescriptorType.SAMPLER | DescriptorType.TEXTURE
+                                       | DescriptorType.STORAGE_IMAGE | DescriptorType.INPUT_ATTACHMENT;
+
+export const DESCRIPTOR_DYNAMIC_TYPE = DescriptorType.DYNAMIC_STORAGE_BUFFER | DescriptorType.DYNAMIC_UNIFORM_BUFFER;
+
+export const DRAW_INFO_SIZE = 28;
+
+export type BufferSource = ArrayBuffer | IndirectBuffer;
+
+export function IsPowerOf2 (x: number): boolean {
+    return x > 0 && (x & (x - 1)) === 0;
+}
 
 /**
  * @en Get memory size of the specified fomat.
@@ -967,6 +1657,7 @@ export function getTypedArrayConstructor (info: FormatInfo): TypedArrayConstruct
         case 1: return Uint8Array;
         case 2: return Uint16Array;
         case 4: return Uint32Array;
+        default:
         }
         break;
     }
@@ -976,12 +1667,14 @@ export function getTypedArrayConstructor (info: FormatInfo): TypedArrayConstruct
         case 1: return Int8Array;
         case 2: return Int16Array;
         case 4: return Int32Array;
+        default:
         }
         break;
     }
     case FormatType.FLOAT: {
         return Float32Array;
     }
+    default:
     }
     return Float32Array;
 }

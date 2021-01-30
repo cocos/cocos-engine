@@ -23,10 +23,9 @@
  THE SOFTWARE.
  */
 
-import { Buffer, BufferSource, DrawInfo } from '../buffer';
+import { Buffer } from '../buffer';
 import { CommandBuffer } from '../command-buffer';
-import {  BufferUsageBit } from '../define';
-import { BufferTextureCopy, Color, Rect } from '../define-class';
+import { BufferSource, DrawInfo, BufferTextureCopy, Color, Rect, BufferUsageBit } from '../define';
 import { Framebuffer } from '../framebuffer';
 import { InputAssembler } from '../input-assembler';
 import { Texture } from '../texture';

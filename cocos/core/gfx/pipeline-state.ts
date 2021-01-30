@@ -28,8 +28,6 @@
  * @module gfx
  */
 
-import { Attribute } from './input-assembler';
-import { Color } from './define-class';
 import { Device } from './device';
 import { PipelineLayout } from './pipeline-layout';
 import { RenderPass } from './render-pass';
@@ -48,6 +46,9 @@ import {
     PrimitiveMode,
     ShadeModel,
     StencilOp,
+    InputState,
+    Color,
+    PipelineBindPoint,
 } from './define';
 import { NULL_HANDLE, RawBufferHandle } from '../renderer/core/memory-pools';
 
@@ -241,31 +242,20 @@ export class BlendState {
     public destroy () {}
 }
 
-/**
- * @en GFX input state.
- * @zh GFX 输入状态。
- */
-export class InputState {
-    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
-
-    constructor (
-        public attributes: Attribute[] = [],
-    ) {}
-}
-
 export class PipelineStateInfo {
     declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
     constructor (
-        public shader: Shader,
-        public pipelineLayout: PipelineLayout,
-        public renderPass: RenderPass,
-        public inputState: InputState,
-        public rasterizerState: RasterizerState,
-        public depthStencilState: DepthStencilState,
-        public blendState: BlendState,
+        public shader: Shader = null!,
+        public pipelineLayout: PipelineLayout = null!,
+        public renderPass: RenderPass = null!,
+        public inputState: InputState = new InputState(),
+        public rasterizerState: RasterizerState = new RasterizerState(),
+        public depthStencilState: DepthStencilState = new DepthStencilState(),
+        public blendState: BlendState = new BlendState(),
         public primitive: PrimitiveMode = PrimitiveMode.TRIANGLE_LIST,
         public dynamicStates: DynamicStateFlags = DynamicStateFlagBit.NONE,
+        public bindPoint: PipelineBindPoint = PipelineBindPoint.GRAPHICS,
     ) {}
 }
 

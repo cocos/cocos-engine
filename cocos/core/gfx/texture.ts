@@ -39,42 +39,9 @@ import {
     TextureType,
     TextureUsage,
     TextureUsageBit,
+    TextureInfo,
+    TextureViewInfo,
 } from './define';
-
-export class TextureInfo {
-    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
-
-    constructor (
-        public type: TextureType,
-        public usage: TextureUsage = TextureUsageBit.NONE,
-        public format: Format = Format.UNKNOWN,
-        public width: number = 0,
-        public height: number = 0,
-        public flags: TextureFlags = TextureFlagBit.NONE,
-        public layerCount: number = 1,
-        public levelCount: number = 1,
-        public samples: SampleCount = SampleCount.X1,
-        public depth: number = 1,
-    ) {}
-}
-
-export class TextureViewInfo {
-    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
-
-    constructor (
-        public texture: Texture,
-        public type: TextureType = TextureType.TEX2D,
-        public format: Format = Format.UNKNOWN,
-        public baseLevel: number = 0,
-        public levelCount: number = 1,
-        public baseLayer: number = 0,
-        public layerCount: number = 1,
-    ) {}
-}
-
-export function IsPowerOf2 (x: number): boolean {
-    return x > 0 && (x & (x - 1)) === 0;
-}
 
 /**
  * @en GFX texture.
@@ -198,7 +165,7 @@ export abstract class Texture extends Obj {
         this._device = device;
     }
 
-    public abstract initialize (info: TextureInfo): boolean;
+    public abstract initialize (info: TextureInfo | TextureViewInfo): boolean;
 
     public abstract destroy (): void;
 

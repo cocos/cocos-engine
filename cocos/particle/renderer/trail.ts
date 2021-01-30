@@ -104,7 +104,7 @@ class TrailSegment {
 
     public addElement (): ITrailElement {
         if (this.trailElements.length === 0) {
-            return null as any;
+            return null!;
         }
         if (this.start === -1) {
             this.start = 0;
@@ -159,7 +159,8 @@ class TrailSegment {
     // public _print () {
     //     let msg = String();
     //     this.iterateElement(this, (target: object, e: ITrailElement, p: Particle, dt: number) => {
-    //         msg += 'pos:' + e.position.toString() + ' lifetime:' + e.lifetime + ' dir:' + e.direction + ' velocity:' + e.velocity.toString() + '\n';
+    //         msg += 'pos:' + e.position.toString() + ' lifetime:' + e.lifetime + ' dir:' + e.direction +
+    //                ' velocity:' + e.velocity.toString() + '\n';
     //         return false;
     //     }, null, 0);
     //     console.log(msg);
@@ -193,7 +194,8 @@ export default class TrailModule {
             this._trailModel.enabled = val;
         }
 
-        val ? this.onEnable() : this.onDisable();
+        if (val) this.onEnable();
+        else this.onDisable();
     }
 
     @serializable
@@ -511,7 +513,8 @@ export default class TrailModule {
             for (let i = trailSeg.start + 1; i < end; i++) {
                 const segEle = trailSeg.trailElements[i % trailSeg.trailElements.length];
                 const j = i - trailSeg.start;
-                this._fillVertexBuffer(segEle, this.colorOverTrail.evaluate(1 - j / trailNum, 1), indexOffset, 1 - j * textCoordSeg, j, PRE_TRIANGLE_INDEX | NEXT_TRIANGLE_INDEX);
+                this._fillVertexBuffer(segEle, this.colorOverTrail.evaluate(1 - j / trailNum, 1),
+                    indexOffset, 1 - j * textCoordSeg, j, PRE_TRIANGLE_INDEX | NEXT_TRIANGLE_INDEX);
             }
             if (this._needTransform) {
                 Vec3.transformMat4(_temp_trailEle.position, p.position, _temp_xform);
@@ -543,7 +546,8 @@ export default class TrailModule {
                 this.vbOffset -= this._vertSize / 4 * 2;
                 this.ibOffset -= 6;
                 // _bcIdx = (_bcIdx - 6 + 9) % 9;  // <wireframe debug>
-                this._fillVertexBuffer(lastSecondTrail, this.colorOverTrail.evaluate(textCoordSeg, 1), indexOffset, textCoordSeg, trailNum - 1, PRE_TRIANGLE_INDEX | NEXT_TRIANGLE_INDEX);
+                this._fillVertexBuffer(lastSecondTrail, this.colorOverTrail.evaluate(textCoordSeg, 1), indexOffset,
+                    textCoordSeg, trailNum - 1, PRE_TRIANGLE_INDEX | NEXT_TRIANGLE_INDEX);
                 Vec3.subtract(_temp_trailEle.velocity, _temp_trailEle.position, lastSecondTrail.position);
                 Vec3.normalize(_temp_trailEle.velocity, _temp_trailEle.velocity);
                 this._checkDirectionReverse(_temp_trailEle, lastSecondTrail);
@@ -646,7 +650,8 @@ export default class TrailModule {
         return trailEle.lifetime > module._trailLifetime;
     }
 
-    private _fillVertexBuffer (trailSeg: ITrailElement, colorModifer: Color, indexOffset: number, xTexCoord: number, trailEleIdx: number, indexSet: number) {
+    private _fillVertexBuffer (trailSeg: ITrailElement, colorModifer: Color, indexOffset: number,
+        xTexCoord: number, trailEleIdx: number, indexSet: number) {
         this._vbF32![this.vbOffset++] = trailSeg.position.x;
         this._vbF32![this.vbOffset++] = trailSeg.position.y;
         this._vbF32![this.vbOffset++] = trailSeg.position.z;
@@ -710,7 +715,8 @@ export default class TrailModule {
     // private _printVB() {
     //     let log = new String();
     //     for (let i = 0; i < this.vbOffset; i++) {
-    //         log += 'pos:' + this._vbF32![i++].toFixed(2) + ',' + this._vbF32![i++].toFixed(2) + ',' + this._vbF32![i++].toFixed(2) + ' dir:' + this._vbF32![i++].toFixed(0) + ' ';
+    //         log += 'pos:' + this._vbF32![i++].toFixed(2) + ',' + this._vbF32![i++].toFixed(2) + ',' +
+    //                this._vbF32![i++].toFixed(2) + ' dir:' + this._vbF32![i++].toFixed(0) + ' ';
     //         i += 6;
     //         log += 'vel:' + this._vbF32![i++].toFixed(2) + ',' + this._vbF32![i++].toFixed(2) + ',' + this._vbF32![i++].toFixed(2) + '\n';
     //     }

@@ -24,12 +24,12 @@
  */
 
 import { mat4 } from '../core/math';
-import { error, sys, view, screen, warn } from '../core/platform';
+import { sys, view, screen, warn } from '../core/platform';
 import { game } from '../core';
 import { contains } from '../core/utils/misc';
 import { EventType, READY_STATE } from './video-player-enums';
 import { VideoPlayerImpl } from './video-player-impl';
-import { ClearFlag } from '../core/gfx';
+import { ClearFlagBit } from '../core/gfx';
 import visibleRect from '../core/platform/visible-rect';
 
 const MIN_ZINDEX = -(2 ** 15);
@@ -344,7 +344,7 @@ export class VideoPlayerImplWeb extends VideoPlayerImpl {
                 this._clearColorA = camera.clearColor.w;
                 this._clearFlag = camera.clearFlag;
                 camera.clearColor.w = 0;
-                camera.clearFlag = ClearFlag.ALL;
+                camera.clearFlag = ClearFlagBit.ALL;
             } else if (this._clearFlag) {
                 camera.clearColor.w = this._clearColorA;
                 camera.clearFlag = this._clearFlag;

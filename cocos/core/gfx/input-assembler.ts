@@ -31,40 +31,7 @@
 import { Buffer } from './buffer';
 import { Device } from './device';
 import { murmurhash2_32_gc } from '../utils/murmurhash2_gc';
-import { Format, Obj, ObjectType } from './define';
-
-export interface IAttribute {
-    name: string;
-    format: Format;
-    isNormalized: boolean;
-    tream: number;
-    isInstanced: boolean;
-    location: number;
-}
-
-export class Attribute {
-    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
-
-    constructor (
-        public name: string = '',
-        public format: Format = Format.UNKNOWN,
-        public isNormalized: boolean = false,
-        public stream: number = 0,
-        public isInstanced: boolean = false,
-        public location: number = 0,
-    ) {}
-}
-
-export class InputAssemblerInfo {
-    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
-
-    constructor (
-        public attributes: Attribute[] = [],
-        public vertexBuffers: Buffer[] = [],
-        public indexBuffer: Buffer | null = null,
-        public indirectBuffer: Buffer | null = null,
-    ) {}
-}
+import { Attribute, Obj, ObjectType, InputAssemblerInfo } from './define';
 
 /**
  * @en GFX input assembler.
