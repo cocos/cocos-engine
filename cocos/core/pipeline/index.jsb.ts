@@ -29,6 +29,7 @@ declare const nr: any;
 import { getPhaseID } from './pass-phase'
 import { setClassName } from '../../core/utils/js';
 import { PipelineSceneData } from './pipeline-scene-data';
+import { legacyCC } from '../../core/global-exports';
 nr.getPhaseID = getPhaseID;
 
 export const RenderPipeline = nr.RenderPipeline;
@@ -49,11 +50,8 @@ nr.PipelineStateManager.getOrCreatePipelineState = function(device, pass, shader
 }
   
 export function createDefaultPipeline () {
-    const pipeline = new nr.ForwardPipeline();
-    pipeline.pipelineSceneData = new PipelineSceneData();
-    pipeline.setPipelineSharedSceneData(pipeline.pipelineSceneData);
-    const info = new nr.RenderPipelineInfo(0, []);
-    pipeline.initialize(info);
+    const pipeline = new ForwardPipeline();
+    pipeline.init();
     return pipeline;
 }
 
@@ -76,6 +74,12 @@ export class ForwardPipeline extends nr.ForwardPipeline {
         }
         const info = new nr.RenderPipelineInfo(this._tag, this._flows);
         this.initialize(info);
+    }
+
+    public activate () {
+        const device = legacyCC.director.root.device;
+        this.pipelineSceneData.activate(device, this as any);
+        return super.activate();
     }
 
     public render (cameras) {
