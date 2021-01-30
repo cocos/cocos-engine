@@ -77,9 +77,7 @@ export class ForwardPipeline extends nr.ForwardPipeline {
     }
 
     public activate () {
-        const device = legacyCC.director.root.device;
-        this.pipelineSceneData.activate(device, this as any);
-        return super.activate();
+        return super.activate() && this.pipelineSceneData.activate(legacyCC.director.root.device, this as any);
     }
 
     public render (cameras) {
