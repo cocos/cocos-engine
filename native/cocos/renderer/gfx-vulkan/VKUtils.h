@@ -400,7 +400,7 @@ VkImageAspectFlags MapVkImageAspectFlags(Format format) {
 VkPipelineStageFlags MapVkPipelineStageFlags(TextureUsage usage) {
     if (usage & TextureUsage::COLOR_ATTACHMENT) return VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
     if (usage & TextureUsage::DEPTH_STENCIL_ATTACHMENT) return VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT;
-    if (usage & TextureUsage::SAMPLED) return VK_PIPELINE_STAGE_VERTEX_SHADER_BIT;
+    if (usage & TextureUsage::SAMPLED) return VK_PIPELINE_STAGE_VERTEX_SHADER_BIT | VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
     if (usage & TextureUsage::TRANSFER_SRC) return VK_PIPELINE_STAGE_TRANSFER_BIT;
     if (usage & TextureUsage::TRANSFER_DST) return VK_PIPELINE_STAGE_TRANSFER_BIT;
     return VK_PIPELINE_STAGE_VERTEX_SHADER_BIT;

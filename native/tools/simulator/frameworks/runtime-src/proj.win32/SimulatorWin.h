@@ -27,7 +27,6 @@
 
 #include "stdafx.h"
 #include "Resource.h"
-#include "cocos2d.h"
 #include "Game.h"
 #include "ProjectConfig/ProjectConfig.h"
 #include "ProjectConfig/SimulatorConfig.h"

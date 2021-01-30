@@ -31,10 +31,9 @@ import android.view.MotionEvent;
 public class CocosTouchHandler {
     public final static String TAG = "CocosTouchHandler";
     private boolean mStopHandleTouchAndKeyEvents = false;
-    private CocosActivity mAct;
 
-    public CocosTouchHandler(CocosActivity act) {
-        mAct = act;
+    public CocosTouchHandler() {
+
     }
 
     boolean onTouchEvent(MotionEvent pMotionEvent) {

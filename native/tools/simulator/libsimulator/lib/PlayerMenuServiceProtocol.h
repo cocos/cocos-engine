@@ -23,16 +23,15 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-
 #ifndef __PLAYER_MENU_SERVICE_PROTOCOL_H
 #define __PLAYER_MENU_SERVICE_PROTOCOL_H
 
 #include <string>
 
-#include "cocos2d.h"
 #include "PlayerMacros.h"
 #include "PlayerServiceProtocol.h"
 #include "SimulatorExport.h"
+#include "cocos/base/Ref.h"
 
 PLAYER_NS_BEGIN
 
@@ -41,8 +40,7 @@ PLAYER_NS_BEGIN
 #define kPlayerCtrlModifyKey  "ctrl"
 #define kPlayerAltModifyKey   "alt"
 
-class CC_LIBSIM_DLL PlayerMenuItem : public cc::Ref
-{
+class CC_LIBSIM_DLL PlayerMenuItem : public cc::Ref {
 public:
     virtual ~PlayerMenuItem();
 
@@ -67,12 +65,11 @@ protected:
     int _order;
     bool _isGroup;
     bool _isEnabled;
-    bool _isChecked; // ignored when isGroup = true
+    bool _isChecked;       // ignored when isGroup = true
     std::string _shortcut; // ignored when isGroup = true
 };
 
-class PlayerMenuServiceProtocol : public PlayerServiceProtocol
-{
+class PlayerMenuServiceProtocol : public PlayerServiceProtocol {
 public:
     static const int MAX_ORDER = 9999;
 

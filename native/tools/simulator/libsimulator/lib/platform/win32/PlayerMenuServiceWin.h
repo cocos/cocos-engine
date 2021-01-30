@@ -30,7 +30,7 @@
 #include <string>
 #include <unordered_map>
 
-#include "cocos2d.h"
+#include "cocos/base/Vector.h"
 #include "stdafx.h"
 #include "PlayerMenuServiceProtocol.h"
 #include "SimulatorExport.h"

@@ -25,8 +25,7 @@
 
 
 #include "PlayerEditBoxServiceMac.h"
-
-#include "cocos2d.h"
+#include "cocos/base/Log.h"
 #if (CC_LUA_ENGINE_ENABLED > 0)
 #include "CCLuaEngine.h"
 #endif

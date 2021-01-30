@@ -55,7 +55,6 @@ public class CocosActivity extends Activity implements SurfaceHolder.Callback {
 
     private boolean engineInit = false;
 
-    private CocosTouchHandler mTouchHandler;
     private CocosKeyCodeHandler mKeyCodeHandler;
     private CocosSensorHandler mSensorHandler;
 
@@ -93,7 +92,6 @@ public class CocosActivity extends Activity implements SurfaceHolder.Callback {
         initView();
         onCreateNative(this, getAssets(), getAbsolutePath(getObbDir()), Build.VERSION.SDK_INT);
 
-        mTouchHandler = new CocosTouchHandler(this);
         mKeyCodeHandler = new CocosKeyCodeHandler(this);
         mSensorHandler = new CocosSensorHandler(this);
 
@@ -157,14 +155,6 @@ public class CocosActivity extends Activity implements SurfaceHolder.Callback {
 
     public CocosSurfaceView getSurfaceView() {
         return this.mSurfaceView;
-    }
-
-
-    @Override
-    public boolean onTouchEvent(MotionEvent event) {
-        if (!engineInit) return false;
-        //handle touch event
-        return mTouchHandler.onTouchEvent(event);
     }
 
     @Override

@@ -25,27 +25,26 @@ THE SOFTWARE.
 ****************************************************************************/
 
 #include "Runtime.h"
-#include "FileServer.h"
-#include "cocos2d.h"
 #include "ConfigParser.h"
+#include "FileServer.h"
 #include "RuntimeProtocol.h"
 
+#include "cocos/base/Log.h"
+#include "cocos/platform/FileUtils.h"
+
 #if ((CC_PLATFORM == CC_PLATFORM_WINDOWS) || (CC_PLATFORM == CC_PLATFORM_MAC_OSX))
-#include "DeviceEx.h"
-#include "network/CCHTTPRequest.h"
-#include "xxhash/xxhash.h"
+    #include "DeviceEx.h"
+    #include "network/CCHTTPRequest.h"
+    #include "xxhash/xxhash.h"
 #endif
 
 std::string g_projectPath;
 
-void recvBuf(int fd, char *pbuf, unsigned long bufsize)
-{
+void recvBuf(int fd, char *pbuf, unsigned long bufsize) {
     unsigned long leftLength = bufsize;
-    while (leftLength != 0)
-    {
-        size_t recvlen = recv(fd, pbuf + bufsize - leftLength, leftLength ,0);
-        if (recvlen <= 0)
-        {
+    while (leftLength != 0) {
+        size_t recvlen = recv(fd, pbuf + bufsize - leftLength, leftLength, 0);
+        if (recvlen <= 0) {
             usleep(1);
             continue;
         }
@@ -53,14 +52,11 @@ void recvBuf(int fd, char *pbuf, unsigned long bufsize)
     }
 }
 
-void sendBuf(int fd, const char *pbuf, unsigned long bufsize)
-{
+void sendBuf(int fd, const char *pbuf, unsigned long bufsize) {
     unsigned long leftLength = bufsize;
-    while (leftLength != 0)
-    {
-        size_t sendlen = send(fd, pbuf + bufsize - leftLength, leftLength ,0);
-        if (sendlen <= 0)
-        {
+    while (leftLength != 0) {
+        size_t sendlen = send(fd, pbuf + bufsize - leftLength, leftLength, 0);
+        if (sendlen <= 0) {
             usleep(1);
             continue;
         }
@@ -68,42 +64,35 @@ void sendBuf(int fd, const char *pbuf, unsigned long bufsize)
     }
 }
 
-std::string& replaceAll(std::string& str, const std::string& old_value, const std::string& new_value)
-{
+std::string &replaceAll(std::string &str, const std::string &old_value, const std::string &new_value) {
     size_t start = 0;
-    while(true)
-    {
+    while (true) {
         size_t pos = 0;
-        if((pos = str.find(old_value, start)) != std::string::npos) {
+        if ((pos = str.find(old_value, start)) != std::string::npos) {
             str.replace(pos, old_value.length(), new_value);
             start = pos + new_value.length();
-        }
-        else break;
+        } else
+            break;
     }
     return str;
 }
 
-const char* getRuntimeVersion()
-{
+const char *getRuntimeVersion() {
     return "2.0";
 }
 
 //////////////////////// Loader ////////////////////
 
-void resetDesignResolution()
-{
+void resetDesignResolution() {
     cc::Size size = ConfigParser::getInstance()->getInitViewSize();
-    if (!ConfigParser::getInstance()->isLanscape())
-    {
+    if (!ConfigParser::getInstance()->isLanscape()) {
         if (size.width > size.height)
             std::swap(size.width, size.height);
-    }
-    else
-    {
+    } else {
         if (size.width < size.height)
             std::swap(size.width, size.height);
     }
-//    cc::Director::getInstance()->getOpenGLView()->setDesignResolutionSize(size.width, size.height, ResolutionPolicy::EXACT_FIT);
+    //    cc::Director::getInstance()->getOpenGLView()->setDesignResolutionSize(size.width, size.height, ResolutionPolicy::EXACT_FIT);
     CC_LOG_DEBUG("resetDesignResolution request");
 }
 
@@ -112,25 +101,20 @@ void resetDesignResolution()
 //
 
 RuntimeEngine::RuntimeEngine()
-: _runtime(nullptr)
-, _eventTrackingEnable(false)
-, _launchEvent("empty")
-{
-
+: _runtime(nullptr),
+  _eventTrackingEnable(false),
+  _launchEvent("empty") {
 }
 
-RuntimeEngine* RuntimeEngine::getInstance()
-{
+RuntimeEngine *RuntimeEngine::getInstance() {
     static RuntimeEngine *instance = nullptr;
-    if (!instance)
-    {
+    if (!instance) {
         instance = new RuntimeEngine();
     }
     return instance;
 }
 
-void RuntimeEngine::setupRuntime()
-{
+void RuntimeEngine::setupRuntime() {
     // get project type fron config.json
     updateConfigParser();
     auto entryFile = ConfigParser::getInstance()->getEntryFile();
@@ -142,54 +126,46 @@ void RuntimeEngine::setupRuntime()
     _runtime = _runtimes[kRuntimeEngineJs];
 }
 
-void RuntimeEngine::setProjectConfig(const ProjectConfig &config)
-{
+void RuntimeEngine::setProjectConfig(const ProjectConfig &config) {
     _project = config;
     setProjectPath(_project.getProjectDir());
 }
 
-const ProjectConfig &RuntimeEngine::getProjectConfig()
-{
+const ProjectConfig &RuntimeEngine::getProjectConfig() {
     return _project;
 }
 
-void RuntimeEngine::setProjectPath(const std::string &workPath)
-{
+void RuntimeEngine::setProjectPath(const std::string &workPath) {
 #if (CC_PLATFORM == CC_PLATFORM_WINDOWS || CC_PLATFORM == CC_PLATFORM_MAC_OSX)
     vector<std::string> searchPathArray = cc::FileUtils::getInstance()->getSearchPaths();
 
-    if (workPath.empty())
-    {
+    if (workPath.empty()) {
         std::string appPath = std::string("");
-#if (CC_PLATFORM == CC_PLATFORM_WINDOWS)
-        TCHAR szAppDir[MAX_PATH] = { 0 };
-        if (GetModuleFileName(NULL, szAppDir, MAX_PATH))
-        {
+    #if (CC_PLATFORM == CC_PLATFORM_WINDOWS)
+        TCHAR szAppDir[MAX_PATH] = {0};
+        if (GetModuleFileName(NULL, szAppDir, MAX_PATH)) {
             int nEnd = 0;
-            for (int i = 0; szAppDir[i]; i++)
-            {
+            for (int i = 0; szAppDir[i]; i++) {
                 if (szAppDir[i] == '\\')
                     nEnd = i;
             }
             szAppDir[nEnd] = 0;
-            int iLen = 2 * wcslen((wchar_t*)szAppDir);
-            char* chRtn = new char[iLen + 1];
-            wcstombs(chRtn, (wchar_t*)szAppDir, iLen + 1);
+            int iLen = 2 * wcslen((wchar_t *)szAppDir);
+            char *chRtn = new char[iLen + 1];
+            wcstombs(chRtn, (wchar_t *)szAppDir, iLen + 1);
             std::string strPath = chRtn;
             delete[] chRtn;
             chRtn = NULL;
-            char fuldir[MAX_PATH] = { 0 };
+            char fuldir[MAX_PATH] = {0};
             _fullpath(fuldir, strPath.c_str(), MAX_PATH);
             appPath = fuldir;
         }
-#elif (CC_PLATFORM == CC_PLATFORM_MAC_OSX)
+    #elif (CC_PLATFORM == CC_PLATFORM_MAC_OSX)
         appPath.append("/../../../");
-#endif
+    #endif
         appPath = replaceAll(appPath, "\\", "/");
         g_projectPath = appPath;
-    }
-    else
-    {
+    } else {
         g_projectPath = workPath;
     }
 
@@ -202,20 +178,17 @@ void RuntimeEngine::setProjectPath(const std::string &workPath)
 #endif
 }
 
-void RuntimeEngine::startScript(const std::string &args)
-{
+void RuntimeEngine::startScript(const std::string &args) {
     resetDesignResolution();
 
-    if (_runtime)
-    {
+    if (_runtime) {
         _runtime->startScript(args);
     }
 
     trackLaunchEvent();
 }
 
-void RuntimeEngine::start()
-{
+void RuntimeEngine::start() {
 
 #if (CC_PLATFORM != CC_PLATFORM_WINDOWS) && (CC_PLATFORM != CC_PLATFORM_MAC_OSX)
     _project.setDebuggerType(kCCRuntimeDebuggerCodeIDE);
@@ -224,14 +197,12 @@ void RuntimeEngine::start()
     // set search path
     string path = cc::FileUtils::getInstance()->fullPathForFilename(_project.getScriptFileRealPath().c_str());
     size_t pos;
-    while ((pos = path.find_first_of("\\")) != std::string::npos)
-    {
+    while ((pos = path.find_first_of("\\")) != std::string::npos) {
         path.replace(pos, 1, "/");
     }
     size_t p = path.find_last_of("/");
     string workdir;
-    if (p != path.npos)
-    {
+    if (p != path.npos) {
         workdir = path.substr(0, p);
         cc::FileUtils::getInstance()->addSearchPath(workdir);
     }
@@ -239,8 +210,7 @@ void RuntimeEngine::start()
     // update search pathes
     cc::FileUtils::getInstance()->addSearchPath(_project.getProjectDir());
     auto &customizedPathes = _project.getSearchPath();
-    for (auto &path : customizedPathes)
-    {
+    for (auto &path : customizedPathes) {
         cc::FileUtils::getInstance()->addSearchPath(path);
     }
 
@@ -249,15 +219,12 @@ void RuntimeEngine::start()
     //startScript("");
 }
 
-void RuntimeEngine::end()
-{
-    if (_runtime)
-    {
+void RuntimeEngine::end() {
+    if (_runtime) {
         _runtime->end();
     }
     // delete all runtimes
-    for (auto it = _runtimes.begin(); it != _runtimes.end(); it++)
-    {
+    for (auto it = _runtimes.begin(); it != _runtimes.end(); it++) {
         CC_SAFE_DELETE(it->second);
     }
     FileServer::getShareInstance()->stop();
@@ -265,35 +232,27 @@ void RuntimeEngine::end()
     FileServer::purge();
 }
 
-void RuntimeEngine::setEventTrackingEnable(bool enable)
-{
+void RuntimeEngine::setEventTrackingEnable(bool enable) {
     _eventTrackingEnable = enable;
 }
 
-void RuntimeEngine::addRuntime(RuntimeProtocol *runtime, int type)
-{
-    if (_runtimes.find(type) == _runtimes.end())
-    {
+void RuntimeEngine::addRuntime(RuntimeProtocol *runtime, int type) {
+    if (_runtimes.find(type) == _runtimes.end()) {
         _runtimes.insert(std::make_pair(type, runtime));
-    }
-    else
-    {
+    } else {
         CC_LOG_DEBUG("RuntimeEngine already has Runtime type %d.", type);
     }
 }
 
-RuntimeProtocol* RuntimeEngine::getRuntime()
-{
+RuntimeProtocol *RuntimeEngine::getRuntime() {
     return _runtime;
 }
 
-void RuntimeEngine::updateConfigParser()
-{
+void RuntimeEngine::updateConfigParser() {
     // set entry file
     auto parser = ConfigParser::getInstance();
     string entryFile(_project.getScriptFileRealPath());
-    if (entryFile.find(_project.getProjectDir()) != string::npos)
-    {
+    if (entryFile.find(_project.getProjectDir()) != string::npos) {
         entryFile.erase(0, _project.getProjectDir().length());
     }
     std::replace(entryFile.begin(), entryFile.end(), '\\', '/');
@@ -305,22 +264,20 @@ void RuntimeEngine::updateConfigParser()
 //
 // NOTE: track event on windows / mac platform
 //
-void RuntimeEngine::trackEvent(const std::string &eventName)
-{
-    if (!_eventTrackingEnable)
-    {
-        return ;
+void RuntimeEngine::trackEvent(const std::string &eventName) {
+    if (!_eventTrackingEnable) {
+        return;
     }
 
 #if ((CC_PLATFORM == CC_PLATFORM_WINDOWS) || (CC_PLATFORM == CC_PLATFORM_MAC_OSX))
 
-#if (CC_PLATFORM == CC_PLATFORM_WINDOWS)
+    #if (CC_PLATFORM == CC_PLATFORM_WINDOWS)
     const char *platform = "win";
-#elif (CC_PLATFORM == CC_PLATFORM_MAC_OSX)
+    #elif (CC_PLATFORM == CC_PLATFORM_MAC_OSX)
     const char *platform = "mac";
-#else
+    #else
     const char *platform = "UNKNOWN";
-#endif
+    #endif
     /*
     char cidBuf[64] = {0};
     auto guid = player::DeviceEx::getInstance()->getUserGUID();
@@ -344,7 +301,6 @@ void RuntimeEngine::trackEvent(const std::string &eventName)
 #endif // ((CC_PLATFORM == CC_PLATFORM_WINDOWS) || (CC_PLATFORM == CC_PLATFORM_MAC_OSX))
 }
 
-void RuntimeEngine::trackLaunchEvent()
-{
+void RuntimeEngine::trackLaunchEvent() {
     trackEvent(_launchEvent);
 }
