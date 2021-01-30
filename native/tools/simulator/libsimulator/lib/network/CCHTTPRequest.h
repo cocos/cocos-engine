@@ -23,66 +23,64 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-
 #ifndef __CC_HTTP_REQUEST_H_
 #define __CC_HTTP_REQUEST_H_
 
+#include "cocos/base/Ref.h"
 #include "cocos2dx_extra.h"
-#include "cocos2d.h"
 #include "network/CCHTTPRequestDelegate.h"
 
 #if CC_LUA_ENGINE_ENABLED > 0
-#include "CCLuaEngine.h"
+    #include "CCLuaEngine.h"
 #endif
 
 #ifdef _WINDOWS_
-#include <Windows.h>
+    #include <Windows.h>
 #else
-#include <pthread.h>
+    #include <pthread.h>
 #endif
 
-#include <stdio.h>
-#include <vector>
-#include <map>
-#include <string>
 #include "curl/curl.h"
+#include <map>
+#include <stdio.h>
+#include <string>
+#include <vector>
 
 using namespace std;
 
 NS_CC_EXTRA_BEGIN
 
-#define kCCHTTPRequestMethodGET                 0
-#define kCCHTTPRequestMethodPOST                1
+#define kCCHTTPRequestMethodGET  0
+#define kCCHTTPRequestMethodPOST 1
 
-#define kCCHTTPRequestAcceptEncodingIdentity    0
-#define kCCHTTPRequestAcceptEncodingGzip        1
-#define kCCHTTPRequestAcceptEncodingDeflate     2
+#define kCCHTTPRequestAcceptEncodingIdentity 0
+#define kCCHTTPRequestAcceptEncodingGzip     1
+#define kCCHTTPRequestAcceptEncodingDeflate  2
 
-#define kCCHTTPRequestStateIdle                 0
-#define kCCHTTPRequestStateCleared              1
-#define kCCHTTPRequestStateInProgress           2
-#define kCCHTTPRequestStateCompleted            3
-#define kCCHTTPRequestStateCancelled            4
-#define kCCHTTPRequestStateFailed               5
+#define kCCHTTPRequestStateIdle       0
+#define kCCHTTPRequestStateCleared    1
+#define kCCHTTPRequestStateInProgress 2
+#define kCCHTTPRequestStateCompleted  3
+#define kCCHTTPRequestStateCancelled  4
+#define kCCHTTPRequestStateFailed     5
 
-#define kCCHTTPRequestCURLStateIdle             0
-#define kCCHTTPRequestCURLStateBusy             1
-#define kCCHTTPRequestCURLStateClosed           2
+#define kCCHTTPRequestCURLStateIdle   0
+#define kCCHTTPRequestCURLStateBusy   1
+#define kCCHTTPRequestCURLStateClosed 2
 
 typedef vector<string> HTTPRequestHeaders;
 typedef HTTPRequestHeaders::iterator HTTPRequestHeadersIterator;
 
-class HTTPRequest : public cc::Ref
-{
+class HTTPRequest : public cc::Ref {
 public:
     static HTTPRequest *createWithUrl(HTTPRequestDelegate *delegate,
-                                        const char *url,
-                                        int method = kCCHTTPRequestMethodGET);
+                                      const char *url,
+                                      int method = kCCHTTPRequestMethodGET);
 
 #if CC_LUA_ENGINE_ENABLED > 0
-    static HTTPRequest* createWithUrlLua(LUA_FUNCTION listener,
-                                           const char *url,
-                                           int method = kCCHTTPRequestMethodGET);
+    static HTTPRequest *createWithUrlLua(LUA_FUNCTION listener,
+                                         const char *url,
+                                         int method = kCCHTTPRequestMethodGET);
 #endif
 
     ~HTTPRequest(void);
@@ -102,9 +100,8 @@ public:
     /** @brief Set POST data to the request body, POST only. */
     void setPOSTData(const char *data);
 
-
-	void addFormFile(const char *name, const char *filePath, const char *fileType="application/octet-stream");
-	void addFormContents(const char *name, const char *value);
+    void addFormFile(const char *name, const char *filePath, const char *fileType = "application/octet-stream");
+    void addFormContents(const char *name, const char *value);
 
     /** @brief Set/Get cookie string. */
     void setCookieString(const char *cookie);
@@ -155,7 +152,7 @@ public:
     const string getErrorMessage(void);
 
     /** @brief Return HTTPRequestDelegate delegate. */
-    HTTPRequestDelegate* getDelegate(void);
+    HTTPRequestDelegate *getDelegate(void);
 
     /** @brief timer function. */
     void checkCURLState(float dt);
@@ -163,47 +160,46 @@ public:
 
 private:
     HTTPRequest(void)
-    : _delegate(NULL)
-    , _listener(0)
-    , _state(kCCHTTPRequestStateIdle)
-    , _errorCode(0)
-    , _responseCode(0)
-    , _responseBuffer(NULL)
-    , _responseBufferLength(0)
-    , _responseDataLength(0)
-    , _curlState(kCCHTTPRequestCURLStateIdle)
-    , _formPost(NULL)
-    , _lastPost(NULL)
-    , _dltotal(0)
-    , _dlnow(0)
-    , _ultotal(0)
-    , _ulnow(0)
-    {
+    : _delegate(NULL),
+      _listener(0),
+      _state(kCCHTTPRequestStateIdle),
+      _errorCode(0),
+      _responseCode(0),
+      _responseBuffer(NULL),
+      _responseBufferLength(0),
+      _responseDataLength(0),
+      _curlState(kCCHTTPRequestCURLStateIdle),
+      _formPost(NULL),
+      _lastPost(NULL),
+      _dltotal(0),
+      _dlnow(0),
+      _ultotal(0),
+      _ulnow(0) {
     }
-    bool initWithDelegate(HTTPRequestDelegate* delegate, const char *url, int method);
+    bool initWithDelegate(HTTPRequestDelegate *delegate, const char *url, int method);
 #if CC_LUA_ENGINE_ENABLED > 0
     bool initWithListener(LUA_FUNCTION listener, const char *url, int method);
 #endif
     bool initWithUrl(const char *url, int method);
 
     enum {
-        DEFAULT_TIMEOUT = 10, // 10 seconds
+        DEFAULT_TIMEOUT = 10,      // 10 seconds
         BUFFER_CHUNK_SIZE = 32768, // 32 KB
     };
 
     static unsigned int s_id;
     string _url;
-    HTTPRequestDelegate* _delegate;
+    HTTPRequestDelegate *_delegate;
     int _listener;
     int _curlState;
 
     CURL *_curl;
-	curl_httppost *_formPost;
-	curl_httppost *_lastPost;
+    curl_httppost *_formPost;
+    curl_httppost *_lastPost;
 
-    int     _state;
-    int     _errorCode;
-    string  _errorMessage;
+    int _state;
+    int _errorCode;
+    string _errorMessage;
 
     // request
     typedef map<string, string> Fields;
@@ -217,7 +213,7 @@ private:
     size_t _responseBufferLength;
     size_t _responseDataLength;
     string _responseCookies;
-    
+
     double _dltotal;
     double _dlnow;
     double _ultotal;

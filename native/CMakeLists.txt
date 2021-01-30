@@ -1467,13 +1467,6 @@ if(ANDROID)
     )
 endif()
 
-if(IOS)
-    set_target_properties(cocos2d PROPERTIES
-        ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/archives
-        OSX_ARCHITECTURES "arm64;x86_64"
-    )
-endif()
-
 # setup default flags
 target_compile_definitions(cocos2d PUBLIC
     $<IF:$<BOOL:${USE_VIDEO}>,USE_VIDEO=1,USE_VIDEO=0>
@@ -1593,6 +1586,11 @@ if(APPLE)
         "-framework SystemConfiguration"
         ${CC_EXTERNAL_LIBS}
     )
+    set_target_properties(cocos2d PROPERTIES
+        XCODE_ATTRIBUTE_ONLY_ACTIVE_ARCH "YES"
+        OSX_ARCHITECTURES "arm64;x86_64"
+        ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/archives
+    )
     if(MACOSX)
         target_link_libraries(cocos2d PUBLIC
             "-framework OpenGL"
@@ -1600,7 +1598,7 @@ if(APPLE)
         )
         target_compile_definitions(cocos2d PUBLIC
             CC_KEYBOARD_SUPPORT
-            )
+        )
     elseif(IOS)
         target_link_libraries(cocos2d PUBLIC
             "-framework QuartzCore"
@@ -1619,7 +1617,6 @@ if(APPLE)
         )
         set_property(TARGET cocos2d PROPERTY XCODE_ATTRIBUTE_IPHONEOS_DEPLOYMENT_TARGET ${TARGET_IOS_VERSION})
         set_property(TARGET cocos2d PROPERTY XCODE_ATTRIBUTE_ENABLE_BITCODE "NO")
-        set_property(TARGET cocos2d PROPERTY XCODE_ATTRIBUTE_ONLY_ACTIVE_ARCH "YES")
     endif()
 
 endif()

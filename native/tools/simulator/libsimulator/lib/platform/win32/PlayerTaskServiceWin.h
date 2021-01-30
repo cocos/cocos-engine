@@ -28,6 +28,7 @@
 #define __PLAYER_TASK_SERVICE_WIN_H_
 
 #include <sstream>
+#include "cocos/base/Map.h"
 
 #include "PlayerTaskServiceProtocol.h"
 
