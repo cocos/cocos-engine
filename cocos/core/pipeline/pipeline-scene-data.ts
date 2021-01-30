@@ -107,15 +107,29 @@ export class PipelineSceneData {
         return PipelineSceneDataPool.get(this._handle, PipelineSceneDataView.DEFERRED_POST_PASS_SHADER);
     }
 
-    private initDeferredPassInfo () {
+    public initDeferredPassInfo () {
         const builinDeferred = builtinResMgr.get<Material>('builtin-deferred-material');
+        if (builinDeferred) {
+            const passLit = builinDeferred.passes[1];
+            passLit.beginChangeStatesSilently();
+            passLit.tryCompile(); 
+            passLit.endChangeStatesSilently();
+        }
+
+        const builtinPostProcess = builtinResMgr.get<Material>('builtin-post-process-material');
+        if (builtinPostProcess) {
+            const passPost = builtinPostProcess.passes[0];
+            passPost.beginChangeStatesSilently();
+            passPost.tryCompile(); 
+            passPost.endChangeStatesSilently();
+        }
+
         if (builinDeferred) {
             const passLit = builinDeferred.passes[1];
             PipelineSceneDataPool.set(this._handle, PipelineSceneDataView.DEFERRED_LIGHT_PASS, passLit.handle);
             PipelineSceneDataPool.set(this._handle, PipelineSceneDataView.DEFERRED_LIGHT_PASS_SHADER, passLit.getShaderVariant());
         }
 
-        const builtinPostProcess = builtinResMgr.get<Material>('builtin-post-process-material');
         if (builtinPostProcess) {
             const passPost = builtinPostProcess.passes[0];
             PipelineSceneDataPool.set(this._handle, PipelineSceneDataView.DEFERRED_POST_PASS, passPost.handle);
@@ -127,6 +141,7 @@ export class PipelineSceneData {
         this._device = device;
         this._pipeline = pipeline;
         this.initDeferredPassInfo();
+        return true;
     }
 
     public destroy () {

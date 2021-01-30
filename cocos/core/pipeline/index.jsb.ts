@@ -29,6 +29,8 @@ declare const nr: any;
 import { getPhaseID } from './pass-phase'
 import { setClassName } from '../../core/utils/js';
 import { PipelineSceneData } from './pipeline-scene-data';
+import { legacyCC } from '../../core/global-exports';
+
 nr.getPhaseID = getPhaseID;
 
 export const RenderPipeline = nr.RenderPipeline;
@@ -49,9 +51,8 @@ nr.PipelineStateManager.getOrCreatePipelineState = function(device, pass, shader
 }
   
 export function createDefaultPipeline () {
-    const pipeline = new nr.ForwardPipeline();
-    const info = new nr.RenderPipelineInfo(0, []);
-    pipeline.initialize(info);
+    const pipeline = new ForwardPipeline();
+    pipeline.init();
     return pipeline;
 }
 
@@ -67,7 +68,7 @@ export class ForwardPipeline extends nr.ForwardPipeline {
       this.materials = [];
     }
   
-    public init() {
+    public init () {
         this.setPipelineSharedSceneData(this.pipelineSceneData.handle);
         for (let i = 0; i < this._flows.length; i++) {
             this._flows[i].init();
@@ -76,8 +77,21 @@ export class ForwardPipeline extends nr.ForwardPipeline {
         this.initialize(info);
     }
 
+    public activate () {
+        return super.activate() && this.pipelineSceneData.activate(legacyCC.director.root.device, this as any);
+    }
+
+    public render (cameras) {
+      let handles = [];
+      for (let i = 0, len = cameras.length; i < len; ++i) {
+          handles.push(cameras[i].handle);
+      }
+      super.render(handles);
+    }
+
     public destroy () {
         this.pipelineSceneData.destroy();
+        super.destroy();
     }
 }
 // hook to invoke init after deserialization
@@ -164,7 +178,7 @@ export class RenderQueueDesc {
     }
 }
 
-class DeferredPipeline extends nr.DeferredPipeline {
+export class DeferredPipeline extends nr.DeferredPipeline {
   public pipelineSceneData = new PipelineSceneData();
   constructor() {
     super();
@@ -172,13 +186,6 @@ class DeferredPipeline extends nr.DeferredPipeline {
     this._flows = [];
     this.renderTextures = [];
     this.materials = [];
-  }
-
-  destroy () {
-    this.fog.destroy();
-    this.ambient.destroy();
-    this.skybox.destroy();
-    this.shadows.destroy();
   }
 
   init() {
@@ -189,12 +196,34 @@ class DeferredPipeline extends nr.DeferredPipeline {
     let info = new nr.RenderPipelineInfo(this._tag, this._flows);
     this.initialize(info);
   }
+
+  public activate () {
+    return super.activate() && this.pipelineSceneData.activate(legacyCC.director.root.device, this as any);
+  }
+
+  public render (cameras) {
+    let handles = [];
+    for (let i = 0, len = cameras.length; i < len; ++i) {
+        handles.push(cameras[i].handle);
+    }
+    super.render(handles);
+  }
+
+  destroy () {
+    this.fog.destroy();
+    this.ambient.destroy();
+    this.skybox.destroy();
+    this.shadows.destroy();
+    this.pipelineSceneData.destroy();
+    super.destroy();
+  }
+
 }
 
 // hook to invoke init after deserialization
 DeferredPipeline.prototype.onAfterDeserialize_JSB = DeferredPipeline.prototype.init;
 
-class GbufferFlow extends nr.GbufferFlow {
+export class GbufferFlow extends nr.GbufferFlow {
   constructor() {
     super();
     this._name = 0;
@@ -213,7 +242,7 @@ class GbufferFlow extends nr.GbufferFlow {
   }
 }
 
-class GbufferStage extends nr.GbufferStage {
+export class GbufferStage extends nr.GbufferStage {
   constructor() {
     super();
     this._name = 0;
@@ -251,7 +280,7 @@ class LightingFlow extends nr.LightingFlow {
   }
 }
 
-class LightingStage extends nr.LightingStage {
+export class LightingStage extends nr.LightingStage {
   constructor() {
     super();
     this._name = 0;
@@ -270,7 +299,7 @@ class LightingStage extends nr.LightingStage {
   }
 }
 
-class PostprocessStage extends nr.PostprocessStage {
+export class PostprocessStage extends nr.PostprocessStage {
   constructor() {
     super();
     this._name = 0;

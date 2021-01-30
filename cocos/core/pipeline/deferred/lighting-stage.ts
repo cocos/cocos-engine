@@ -38,7 +38,7 @@ import { RenderAdditiveLightQueue } from '../render-additive-light-queue';
 import { LightingFlow } from './lighting-flow';
 import { DeferredPipeline } from './deferred-pipeline';
 import { RenderQueueDesc, RenderQueueSortMode } from '../pipeline-serialization';
-import { PlanarShadowQueue } from '../forward/planar-shadow-queue';
+import { PlanarShadowQueue } from '../planar-shadow-queue';
 import { Material } from '../../assets/material';
 import { ShaderPool } from '../../renderer/core/memory-pools';
 import { PipelineStateManager } from '../pipeline-state-manager';
@@ -217,14 +217,6 @@ export class LightingStage extends RenderStage {
 
         const device = pipeline.device;
 
-        // init descriptorSet 
-        //layout(set = 2, binding = 1) uniform CCForwardLight {
-        //        highp vec4 cc_lightPos[LIGHTS_PER_PASS]; // xyz: pos, w: isSpotLight
-        //        vec4 cc_lightColor[LIGHTS_PER_PASS]; // xyz: color, w: intensity
-        //        vec4 cc_lightSizeRangeAngle[LIGHTS_PER_PASS]; // x: size, y: range, z: spotAngle
-        //        vec4 cc_lightDir[LIGHTS_PER_PASS]; // xyz: dir
-        //};
-        // total buffer size = sizeof(vec4) * 4 * _maxDeferredLights
         var totalSize = Float32Array.BYTES_PER_ELEMENT * 4 * 4 * this._maxDeferredLights;
         totalSize = Math.ceil(totalSize / device.uboOffsetAlignment) * device.uboOffsetAlignment;
 

@@ -348,21 +348,8 @@ export class Root {
         for (let i = 0; i < this._scenes.length; i++) {
             this._scenes[i].onGlobalPipelineStateChanged();
         }
-        const builinDeferred = builtinResMgr.get<Material>('builtin-deferred-material');
-        if (builinDeferred) {
-            const passLit = builinDeferred.passes[1];
-            passLit.beginChangeStatesSilently();
-            passLit.tryCompile(); 
-            passLit.endChangeStatesSilently();
-        }
 
-        const builtinPostProcess = builtinResMgr.get<Material>('builtin-post-process-material');
-        if (builtinPostProcess) {
-            const passPost = builtinPostProcess.passes[0];
-            passPost.beginChangeStatesSilently();
-            passPost.tryCompile(); 
-            passPost.endChangeStatesSilently();
-        }
+        this._pipeline!.pipelineSceneData.initDeferredPassInfo();
     }
 
     /**
