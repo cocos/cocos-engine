@@ -92,6 +92,7 @@ export class ForwardPipeline extends nr.ForwardPipeline {
 
     public destroy () {
         this.pipelineSceneData.destroy();
+        super.destroy();
     }
 }
 // hook to invoke init after deserialization
