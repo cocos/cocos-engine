@@ -797,17 +797,17 @@ export class Button extends Component {
         }
     }
 
-    protected _onTouchMove (event?: EventTouch) : boolean {
-        if (!this._interactable || !this.enabledInHierarchy || !this._pressed) { return false; }
+    protected _onTouchMove (event?: EventTouch) {
+        if (!this._interactable || !this.enabledInHierarchy || !this._pressed) { return; }
         // mobile phone will not emit _onMouseMoveOut,
         // so we have to do hit test when touch moving
         if (!event) {
-            return false;
+            return;
         }
 
         const touch = (event).touch;
         if (!touch) {
-            return false;
+            return;
         }
 
         const hit = this.node._uiProps.uiTransformComp!.isHit(touch.getUILocation());
@@ -835,8 +835,6 @@ export class Button extends Component {
         if (event) {
             event.propagationStopped = true;
         }
-
-        return true;
     }
 
     protected _onTouchEnded (event?: EventTouch) {

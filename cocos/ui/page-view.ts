@@ -705,7 +705,6 @@ export class PageView extends ScrollView {
     }
 
     // 是否超过自动滚动临界值
-    // eslint-disable-next-line consistent-return
     protected _isScrollable (offset: Vec2, index: number, nextIndex: number) {
         if (this._sizeMode === SizeMode.Free) {
             let curPageCenter = 0;
@@ -730,6 +729,7 @@ export class PageView extends ScrollView {
                 return Math.abs(offset.y) >= viewTrans.height * this.scrollThreshold;
             }
         }
+        return false;
     }
 
     protected _autoScrollToPage () {
