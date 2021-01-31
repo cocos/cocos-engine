@@ -169,7 +169,7 @@ RequestItem.prototype = {
      * @type {String}
      */
     get id () {
-        if (!this._id) {
+        if (!this._id && this.uuid) {
             this._id = this.uuid + '@' + (this.isNative ? 'native' : 'import');
         }
         return this._id;
