@@ -29,11 +29,11 @@ THE SOFTWARE.
 #include "gfx/GFXCommandBuffer.h"
 #include "gfx/GFXDescriptorSet.h"
 #include "gfx/GFXDevice.h"
+#include "gfx/GFXFramebuffer.h"
 #include "gfx/GFXQueue.h"
 #include "gfx/GFXRenderPass.h"
-#include "gfx/GFXTexture.h"
-#include "gfx/GFXFramebuffer.h"
 #include "gfx/GFXSampler.h"
+#include "gfx/GFXTexture.h"
 #include "platform/Application.h"
 
 namespace cc {
@@ -60,8 +60,8 @@ gfx::RenderPass *ForwardPipeline::getOrCreateRenderPass(gfx::ClearFlags clearFla
     gfx::DepthStencilAttachment depthStencilAttachment;
     colorAttachment.format = device->getColorFormat();
     depthStencilAttachment.format = device->getDepthStencilFormat();
-    depthStencilAttachment.stencilStoreOp = gfx::StoreOp::DISCARD;
-    depthStencilAttachment.depthStoreOp = gfx::StoreOp::DISCARD;
+    depthStencilAttachment.stencilStoreOp = gfx::StoreOp::STORE;
+    depthStencilAttachment.depthStoreOp = gfx::StoreOp::STORE;
 
     if (!(clearFlags & gfx::ClearFlagBit::COLOR)) {
         if (clearFlags & static_cast<gfx::ClearFlagBit>(SKYBOX_FLAG)) {
@@ -162,24 +162,24 @@ void ForwardPipeline::updateCameraUBO(Camera *camera) {
     if (scene->mainLightID) mainLight = scene->getMainLight();
     const auto ambient = _ambient;
     const auto fog = _fog;
-    
+
     auto *device = gfx::Device::getInstance();
     auto &uboCameraView = _cameraUBO;
-    
+
     const auto shadingWidth = std::floor(_device->getWidth());
     const auto shadingHeight = std::floor(_device->getHeight());
-    
+
     uboCameraView[UBOCamera::SCREEN_SCALE_OFFSET] = camera->width / shadingWidth * _shadingScale;
     uboCameraView[UBOCamera::SCREEN_SCALE_OFFSET + 1] = camera->height / shadingHeight * _shadingScale;
     uboCameraView[UBOCamera::SCREEN_SCALE_OFFSET + 2] = 1.0 / uboCameraView[UBOCamera::SCREEN_SCALE_OFFSET];
     uboCameraView[UBOCamera::SCREEN_SCALE_OFFSET + 3] = 1.0 / uboCameraView[UBOCamera::SCREEN_SCALE_OFFSET + 1];
-    
+
     const auto exposure = camera->exposure;
     uboCameraView[UBOCamera::EXPOSURE_OFFSET] = exposure;
     uboCameraView[UBOCamera::EXPOSURE_OFFSET + 1] = 1.0f / exposure;
     uboCameraView[UBOCamera::EXPOSURE_OFFSET + 2] = _isHDR ? 1.0f : 0.0;
     uboCameraView[UBOCamera::EXPOSURE_OFFSET + 3] = _fpScale / exposure;
-    
+
     if (mainLight) {
         TO_VEC3(uboCameraView, mainLight->direction, UBOCamera::MAIN_LIT_DIR_OFFSET);
         TO_VEC3(uboCameraView, mainLight->color, UBOCamera::MAIN_LIT_COLOR_OFFSET);
@@ -213,7 +213,7 @@ void ForwardPipeline::updateCameraUBO(Camera *camera) {
     uboCameraView[UBOCamera::AMBIENT_GROUND_OFFSET + 2] = ambient->groundAlbedo.z;
     const auto envmap = _descriptorSet->getTexture((uint)PipelineGlobalBindings::SAMPLER_ENVIRONMENT);
     if (envmap) uboCameraView[UBOCamera::AMBIENT_GROUND_OFFSET + 3] = envmap->getLevelCount();
-    
+
     memcpy(uboCameraView.data() + UBOCamera::MAT_VIEW_OFFSET, camera->matView.m, sizeof(cc::Mat4));
     memcpy(uboCameraView.data() + UBOCamera::MAT_VIEW_INV_OFFSET, camera->getNode()->worldMatrix.m, sizeof(cc::Mat4));
     memcpy(uboCameraView.data() + UBOCamera::MAT_PROJ_OFFSET, camera->matProj.m, sizeof(cc::Mat4));
@@ -239,7 +239,7 @@ void ForwardPipeline::updateCameraUBO(Camera *camera) {
         uboCameraView[UBOCamera::GLOBAL_FOG_ADD_OFFSET + 1] = fog->fogRange;
         uboCameraView[UBOCamera::GLOBAL_FOG_ADD_OFFSET + 2] = fog->fogAtten;
     }
-    
+
     // update ubos
     _commandBuffers[0]->updateBuffer(_descriptorSet->getBuffer(UBOCamera::BINDING), _cameraUBO.data(), UBOCamera::SIZE);
 }
@@ -326,7 +326,7 @@ void ForwardPipeline::updateGlobalUBO() {
     uboGlobalView[UBOGlobal::NATIVE_SIZE_OFFSET + 1] = shadingHeight;
     uboGlobalView[UBOGlobal::NATIVE_SIZE_OFFSET + 2] = 1.0f / uboGlobalView[UBOGlobal::NATIVE_SIZE_OFFSET];
     uboGlobalView[UBOGlobal::NATIVE_SIZE_OFFSET + 3] = 1.0f / uboGlobalView[UBOGlobal::NATIVE_SIZE_OFFSET + 1];
-    
+
     // update ubos
     _commandBuffers[0]->updateBuffer(_descriptorSet->getBuffer(UBOGlobal::BINDING), _globalUBO.data(), UBOGlobal::SIZE);
 }
@@ -346,7 +346,7 @@ bool ForwardPipeline::activeRenderer() {
         gfx::BufferFlagBit::NONE,
     });
     _descriptorSet->bindBuffer(UBOGlobal::BINDING, globalUBO);
-    
+
     auto cameraUBO = _device->createBuffer({
         gfx::BufferUsageBit::UNIFORM | gfx::BufferUsageBit::TRANSFER_DST,
         gfx::MemoryUsageBit::HOST | gfx::MemoryUsageBit::DEVICE,
