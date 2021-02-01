@@ -24,31 +24,11 @@ THE SOFTWARE.
 #ifndef CC_GFXGLES2_COMMANDS_H_
 #define CC_GFXGLES2_COMMANDS_H_
 
+#include "../gfx-gles-common/GLESCommandPool.h"
 #include "GLES2GPUObjects.h"
 
 namespace cc {
 namespace gfx {
-
-enum class GLES2CmdType : uint8_t {
-    BEGIN_RENDER_PASS,
-    END_RENDER_PASS,
-    BIND_STATES,
-    DRAW,
-    UPDATE_BUFFER,
-    COPY_BUFFER_TO_TEXTURE,
-    COUNT,
-};
-
-class GLES2Cmd : public Object {
-public:
-    GLES2CmdType type;
-    uint refCount = 0;
-
-    GLES2Cmd(GLES2CmdType _type) : type(_type) {}
-    virtual ~GLES2Cmd() {}
-
-    virtual void clear() = 0;
-};
 
 class GLES2Device;
 
@@ -90,7 +70,7 @@ struct GLES2BufferTextureCopy final {
     GLES2TextureSubres texSubres;
 };
 
-class GLES2CmdBeginRenderPass final : public GLES2Cmd {
+class GLES2CmdBeginRenderPass final : public GLESCmd {
 public:
     GLES2GPURenderPass *gpuRenderPass = nullptr;
     GLES2GPUFramebuffer *gpuFBO = nullptr;
@@ -100,7 +80,7 @@ public:
     float clearDepth = 1.0f;
     int clearStencil = 0;
 
-    GLES2CmdBeginRenderPass() : GLES2Cmd(GLES2CmdType::BEGIN_RENDER_PASS) {}
+    GLES2CmdBeginRenderPass() : GLESCmd(GLESCmdType::BEGIN_RENDER_PASS) {}
 
     virtual void clear() override {
         gpuFBO = nullptr;
@@ -120,7 +100,7 @@ enum class GLES2State {
     COUNT,
 };
 
-class GLES2CmdBindStates final : public GLES2Cmd {
+class GLES2CmdBindStates final : public GLESCmd {
 public:
     GLES2GPUPipelineState *gpuPipelineState = nullptr;
     GLES2GPUInputAssembler *gpuInputAssembler = nullptr;
@@ -136,7 +116,7 @@ public:
     GLES2StencilWriteMask stencilWriteMask;
     GLES2StencilCompareMask stencilCompareMask;
 
-    GLES2CmdBindStates() : GLES2Cmd(GLES2CmdType::BIND_STATES) {}
+    GLES2CmdBindStates() : GLESCmd(GLESCmdType::BIND_STATES) {}
 
     virtual void clear() override {
         gpuPipelineState = nullptr;
@@ -146,22 +126,22 @@ public:
     }
 };
 
-class GLES2CmdDraw final : public GLES2Cmd {
+class GLES2CmdDraw final : public GLESCmd {
 public:
     DrawInfo drawInfo;
 
-    GLES2CmdDraw() : GLES2Cmd(GLES2CmdType::DRAW) {}
+    GLES2CmdDraw() : GLESCmd(GLESCmdType::DRAW) {}
     virtual void clear() override {}
 };
 
-class GLES2CmdUpdateBuffer final : public GLES2Cmd {
+class GLES2CmdUpdateBuffer final : public GLESCmd {
 public:
     GLES2GPUBuffer *gpuBuffer = nullptr;
     uint8_t *buffer = nullptr;
     uint size = 0;
     uint offset = 0;
 
-    GLES2CmdUpdateBuffer() : GLES2Cmd(GLES2CmdType::UPDATE_BUFFER) {}
+    GLES2CmdUpdateBuffer() : GLESCmd(GLESCmdType::UPDATE_BUFFER) {}
 
     virtual void clear() override {
         gpuBuffer = nullptr;
@@ -169,14 +149,14 @@ public:
     }
 };
 
-class GLES2CmdCopyBufferToTexture final : public GLES2Cmd {
+class GLES2CmdCopyBufferToTexture final : public GLESCmd {
 public:
     GLES2GPUTexture *gpuTexture = nullptr;
     const BufferTextureCopy *regions = nullptr;
     uint count = 0u;
     const uint8_t *const *buffers;
 
-    GLES2CmdCopyBufferToTexture() : GLES2Cmd(GLES2CmdType::COPY_BUFFER_TO_TEXTURE) {}
+    GLES2CmdCopyBufferToTexture() : GLESCmd(GLESCmdType::COPY_BUFFER_TO_TEXTURE) {}
 
     virtual void clear() override {
         gpuTexture = nullptr;
@@ -188,7 +168,7 @@ public:
 
 class GLES2CmdPackage final : public Object {
 public:
-    CachedArray<GLES2CmdType> cmds;
+    CachedArray<GLESCmdType> cmds;
     CachedArray<GLES2CmdBeginRenderPass *> beginRenderPassCmds;
     CachedArray<GLES2CmdBindStates *> bindStatesCmds;
     CachedArray<GLES2CmdDraw *> drawCmds;

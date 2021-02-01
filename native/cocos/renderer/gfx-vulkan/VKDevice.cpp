@@ -267,7 +267,7 @@ bool CCVKDevice::initialize(const DeviceInfo &info) {
     _caps.maxComputeWorkGroupCount       = {limits.maxComputeWorkGroupCount[0], limits.maxComputeWorkGroupCount[1], limits.maxComputeWorkGroupCount[2]};
     _caps.maxComputeWorkGroupSize        = {limits.maxComputeWorkGroupSize[0], limits.maxComputeWorkGroupSize[1], limits.maxComputeWorkGroupSize[2]};
 #if defined(VK_USE_PLATFORM_ANDROID_KHR)
-    _caps.maxComputeWorkGroupInvocations = 64; // Arm: UNASSIGNED-BestPractices-vkCreateComputePipelines-compute-work-group-size
+    _caps.maxComputeWorkGroupInvocations = 64; // UNASSIGNED-BestPractices-vkCreateComputePipelines-compute-work-group-size
 #endif                                         // defined(VK_USE_PLATFORM_ANDROID_KHR)
 
     ///////////////////// Resource Initialization /////////////////////
@@ -325,8 +325,8 @@ bool CCVKDevice::initialize(const DeviceInfo &info) {
     _gpuTransportHub         = CC_NEW(CCVKGPUTransportHub(_gpuDevice, ((CCVKQueue *)_queue)->gpuQueue()));
     _gpuDescriptorHub        = CC_NEW(CCVKGPUDescriptorHub(_gpuDevice));
     _gpuSemaphorePool        = CC_NEW(CCVKGPUSemaphorePool(_gpuDevice));
+    _gpuBarrierManager       = CC_NEW(CCVKGPUBarrierManager(_gpuDevice));
     _gpuDescriptorSetHub     = CC_NEW(CCVKGPUDescriptorSetHub(_gpuDevice));
-    _gpuTextureLayoutManager = CC_NEW(CCVKGPUTextureLayoutManager(_gpuDevice));
 
     CommandBufferInfo cmdBuffInfo;
     cmdBuffInfo.type  = CommandBufferType::PRIMARY;
@@ -438,8 +438,8 @@ void CCVKDevice::destroy() {
     CC_SAFE_DELETE(_gpuTransportHub);
     CC_SAFE_DELETE(_gpuSemaphorePool);
     CC_SAFE_DELETE(_gpuDescriptorHub);
+    CC_SAFE_DELETE(_gpuBarrierManager);
     CC_SAFE_DELETE(_gpuDescriptorSetHub);
-    CC_SAFE_DELETE(_gpuTextureLayoutManager);
 
     uint backBufferCount = ((CCVKContext *)_context)->gpuContext()->swapchainCreateInfo.minImageCount;
     for (uint i = 0u; i < backBufferCount; i++) {

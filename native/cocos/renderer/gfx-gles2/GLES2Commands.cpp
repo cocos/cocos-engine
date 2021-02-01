@@ -934,7 +934,7 @@ void GLES2CmdFuncCreateShader(GLES2Device *device, GLES2GPUShader *gpuShader) {
             GL_CHECK(glGetShaderInfoLog(gpuStage.glShader, logSize, nullptr, logs));
 
             CC_LOG_ERROR("%s in %s compilation failed.", shaderTypeStr.c_str(), gpuShader->name.c_str());
-            CC_LOG_ERROR("Shader source:%s", gpuStage.source.c_str());
+            CC_LOG_ERROR("Shader source:%s", shaderSrc);
             CC_LOG_ERROR(logs);
             CC_FREE(logs);
             GL_CHECK(glDeleteShader(gpuStage.glShader));
@@ -2529,39 +2529,39 @@ void GLES2CmdFuncCopyBuffersToTexture(GLES2Device *device, const uint8_t *const 
 void GLES2CmdFuncExecuteCmds(GLES2Device *device, GLES2CmdPackage *cmdPackage) {
     if (!cmdPackage->cmds.size()) return;
 
-    static uint cmdIndices[(int)GLES2CmdType::COUNT] = {0};
+    static uint cmdIndices[(int)GLESCmdType::COUNT] = {0};
     memset(cmdIndices, 0, sizeof(cmdIndices));
 
     for (uint i = 0; i < cmdPackage->cmds.size(); ++i) {
-        GLES2CmdType cmdType = cmdPackage->cmds[i];
+        GLESCmdType cmdType = cmdPackage->cmds[i];
         uint &cmdIdx = cmdIndices[(int)cmdType];
 
         switch (cmdType) {
-            case GLES2CmdType::BEGIN_RENDER_PASS: {
+            case GLESCmdType::BEGIN_RENDER_PASS: {
                 GLES2CmdBeginRenderPass *cmd = cmdPackage->beginRenderPassCmds[cmdIdx];
                 GLES2CmdFuncBeginRenderPass(device, cmd->gpuRenderPass, cmd->gpuFBO, cmd->renderArea, cmd->numClearColors, cmd->clearColors, cmd->clearDepth, cmd->clearStencil);
                 break;
             }
-            case GLES2CmdType::END_RENDER_PASS: {
+            case GLESCmdType::END_RENDER_PASS: {
                 GLES2CmdFuncEndRenderPass(device);
                 break;
             }
-            case GLES2CmdType::BIND_STATES: {
+            case GLESCmdType::BIND_STATES: {
                 GLES2CmdBindStates *cmd = cmdPackage->bindStatesCmds[cmdIdx];
                 GLES2CmdFuncBindState(device, cmd->gpuPipelineState, cmd->gpuInputAssembler, cmd->gpuDescriptorSets, cmd->dynamicOffsets, cmd->viewport, cmd->scissor, cmd->lineWidth, cmd->depthBiasEnabled, cmd->depthBias, cmd->blendConstants, cmd->depthBounds, cmd->stencilWriteMask, cmd->stencilCompareMask);
                 break;
             }
-            case GLES2CmdType::DRAW: {
+            case GLESCmdType::DRAW: {
                 GLES2CmdDraw *cmd = cmdPackage->drawCmds[cmdIdx];
                 GLES2CmdFuncDraw(device, cmd->drawInfo);
                 break;
             }
-            case GLES2CmdType::UPDATE_BUFFER: {
+            case GLESCmdType::UPDATE_BUFFER: {
                 GLES2CmdUpdateBuffer *cmd = cmdPackage->updateBufferCmds[cmdIdx];
                 GLES2CmdFuncUpdateBuffer(device, cmd->gpuBuffer, cmd->buffer, cmd->offset, cmd->size);
                 break;
             }
-            case GLES2CmdType::COPY_BUFFER_TO_TEXTURE: {
+            case GLESCmdType::COPY_BUFFER_TO_TEXTURE: {
                 GLES2CmdCopyBufferToTexture *cmd = cmdPackage->copyBufferToTextureCmds[cmdIdx];
                 GLES2CmdFuncCopyBuffersToTexture(device, cmd->buffers, cmd->gpuTexture, cmd->regions, cmd->count);
                 break;

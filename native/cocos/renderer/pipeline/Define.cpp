@@ -235,11 +235,11 @@ const gfx::UniformBlock UBOMorph::LAYOUT = {
 const String SHADOWMAP::NAME = "cc_shadowMap";
 const gfx::DescriptorSetLayoutBinding SHADOWMAP::DESCRIPTOR = {
     SHADOWMAP::BINDING,
-    gfx::DescriptorType::SAMPLER,
+    gfx::DescriptorType::SAMPLER_TEXTURE,
     1,
     gfx::ShaderStageFlagBit::FRAGMENT,
 };
-const gfx::UniformSampler SHADOWMAP::LAYOUT = {
+const gfx::UniformSamplerTexture SHADOWMAP::LAYOUT = {
     GLOBAL_SET,
     SHADOWMAP::BINDING,
     SHADOWMAP::NAME,
@@ -250,11 +250,11 @@ const gfx::UniformSampler SHADOWMAP::LAYOUT = {
 const String ENVIRONMENT::NAME = "cc_environment";
 const gfx::DescriptorSetLayoutBinding ENVIRONMENT::DESCRIPTOR = {
     ENVIRONMENT::BINDING,
-    gfx::DescriptorType::SAMPLER,
+    gfx::DescriptorType::SAMPLER_TEXTURE,
     1,
     gfx::ShaderStageFlagBit::FRAGMENT,
 };
-const gfx::UniformSampler ENVIRONMENT::LAYOUT = {
+const gfx::UniformSamplerTexture ENVIRONMENT::LAYOUT = {
     GLOBAL_SET,
     ENVIRONMENT::BINDING,
     ENVIRONMENT::NAME,
@@ -265,11 +265,11 @@ const gfx::UniformSampler ENVIRONMENT::LAYOUT = {
 const String SPOT_LIGHTING_MAP::NAME = "cc_spotLightingMap";
 const gfx::DescriptorSetLayoutBinding SPOT_LIGHTING_MAP::DESCRIPTOR = {
     SPOT_LIGHTING_MAP::BINDING,
-    gfx::DescriptorType::SAMPLER,
+    gfx::DescriptorType::SAMPLER_TEXTURE,
     1,
     gfx::ShaderStageFlagBit::FRAGMENT,
 };
-const gfx::UniformSampler SPOT_LIGHTING_MAP::LAYOUT = {
+const gfx::UniformSamplerTexture SPOT_LIGHTING_MAP::LAYOUT = {
     GLOBAL_SET,
     SPOT_LIGHTING_MAP::BINDING,
     SPOT_LIGHTING_MAP::NAME,
@@ -280,11 +280,11 @@ const gfx::UniformSampler SPOT_LIGHTING_MAP::LAYOUT = {
 const String JOINT_TEXTURE::NAME = "cc_jointTexture";
 const gfx::DescriptorSetLayoutBinding JOINT_TEXTURE::DESCRIPTOR = {
     JOINT_TEXTURE::BINDING,
-    gfx::DescriptorType::SAMPLER,
+    gfx::DescriptorType::SAMPLER_TEXTURE,
     1,
     gfx::ShaderStageFlagBit::VERTEX,
 };
-const gfx::UniformSampler JOINT_TEXTURE::LAYOUT = {
+const gfx::UniformSamplerTexture JOINT_TEXTURE::LAYOUT = {
     LOCAL_SET,
     JOINT_TEXTURE::BINDING,
     JOINT_TEXTURE::NAME,
@@ -295,11 +295,11 @@ const gfx::UniformSampler JOINT_TEXTURE::LAYOUT = {
 const String POSITION_MORPH::NAME = "cc_PositionDisplacements";
 const gfx::DescriptorSetLayoutBinding POSITION_MORPH::DESCRIPTOR = {
     POSITION_MORPH::BINDING,
-    gfx::DescriptorType::SAMPLER,
+    gfx::DescriptorType::SAMPLER_TEXTURE,
     1,
     gfx::ShaderStageFlagBit::VERTEX,
 };
-const gfx::UniformSampler POSITION_MORPH::LAYOUT = {
+const gfx::UniformSamplerTexture POSITION_MORPH::LAYOUT = {
     LOCAL_SET,
     POSITION_MORPH::BINDING,
     POSITION_MORPH::NAME,
@@ -310,11 +310,11 @@ const gfx::UniformSampler POSITION_MORPH::LAYOUT = {
 const String NORMAL_MORPH::NAME = "cc_NormalDisplacements";
 const gfx::DescriptorSetLayoutBinding NORMAL_MORPH::DESCRIPTOR = {
     NORMAL_MORPH::BINDING,
-    gfx::DescriptorType::SAMPLER,
+    gfx::DescriptorType::SAMPLER_TEXTURE,
     1,
     gfx::ShaderStageFlagBit::VERTEX,
 };
-const gfx::UniformSampler NORMAL_MORPH::LAYOUT = {
+const gfx::UniformSamplerTexture NORMAL_MORPH::LAYOUT = {
     LOCAL_SET,
     NORMAL_MORPH::BINDING,
     NORMAL_MORPH::NAME,
@@ -325,11 +325,11 @@ const gfx::UniformSampler NORMAL_MORPH::LAYOUT = {
 const String TANGENT_MORPH::NAME = "cc_TangentDisplacements";
 const gfx::DescriptorSetLayoutBinding TANGENT_MORPH::DESCRIPTOR = {
     TANGENT_MORPH::BINDING,
-    gfx::DescriptorType::SAMPLER,
+    gfx::DescriptorType::SAMPLER_TEXTURE,
     1,
     gfx::ShaderStageFlagBit::VERTEX,
 };
-const gfx::UniformSampler TANGENT_MORPH::LAYOUT = {
+const gfx::UniformSamplerTexture TANGENT_MORPH::LAYOUT = {
     LOCAL_SET,
     TANGENT_MORPH::BINDING,
     TANGENT_MORPH::NAME,
@@ -340,11 +340,11 @@ const gfx::UniformSampler TANGENT_MORPH::LAYOUT = {
 const String LIGHTMAP_TEXTURE::NAME = "cc_lightingMap";
 const gfx::DescriptorSetLayoutBinding LIGHTMAP_TEXTURE::DESCRIPTOR = {
     LIGHTMAP_TEXTURE::BINDING,
-    gfx::DescriptorType::SAMPLER,
+    gfx::DescriptorType::SAMPLER_TEXTURE,
     1,
     gfx::ShaderStageFlagBit::FRAGMENT,
 };
-const gfx::UniformSampler LIGHTMAP_TEXTURE::LAYOUT = {
+const gfx::UniformSamplerTexture LIGHTMAP_TEXTURE::LAYOUT = {
     LOCAL_SET,
     LIGHTMAP_TEXTURE::BINDING,
     LIGHTMAP_TEXTURE::NAME,
@@ -355,11 +355,11 @@ const gfx::UniformSampler LIGHTMAP_TEXTURE::LAYOUT = {
 const String SPRITE_TEXTURE::NAME = "cc_spriteTexture";
 const gfx::DescriptorSetLayoutBinding SPRITE_TEXTURE::DESCRIPTOR = {
     SPRITE_TEXTURE::BINDING,
-    gfx::DescriptorType::SAMPLER,
+    gfx::DescriptorType::SAMPLER_TEXTURE,
     1,
     gfx::ShaderStageFlagBit::FRAGMENT,
 };
-const gfx::UniformSampler SPRITE_TEXTURE::LAYOUT = {
+const gfx::UniformSamplerTexture SPRITE_TEXTURE::LAYOUT = {
     LOCAL_SET,
     static_cast<uint>(ModelLocalBindings::SAMPLER_SPRITE),
     "cc_spriteTexture",
@@ -377,8 +377,6 @@ uint genSamplerHash(const gfx::SamplerInfo &info) {
     hash |= static_cast<uint>(info.addressW) << 10;
     hash |= static_cast<uint>(info.maxAnisotropy) << 12;
     hash |= static_cast<uint>(info.cmpFunc) << 16;
-    hash |= static_cast<uint>(info.minLOD) << 20;
-    hash |= static_cast<uint>(info.maxLOD) << 24;
     hash |= static_cast<uint>(info.mipLODBias) << 28;
     return hash;
 }
@@ -405,8 +403,6 @@ gfx::Sampler *getSampler(uint hash) {
     info.addressW = static_cast<gfx::Address>((hash >> 10) & 3);
     info.maxAnisotropy = ((hash >> 12) & 15);
     info.cmpFunc = static_cast<gfx::ComparisonFunc>((hash >> 16) & 15);
-    info.minLOD = ((hash >> 20) & 15);
-    info.maxLOD = ((hash >> 24) & 15);
     info.mipLODBias = ((hash >> 28) & 15);
 
     sampler = gfx::Device::getInstance()->createSampler(std::move(info));

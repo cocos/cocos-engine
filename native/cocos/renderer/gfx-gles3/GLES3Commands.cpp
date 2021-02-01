@@ -1025,8 +1025,8 @@ void GLES3CmdFuncCreateSampler(GLES3Device *device, GLES3GPUSampler *gpuSampler)
     GL_CHECK(glSamplerParameteri(gpuSampler->glSampler, GL_TEXTURE_WRAP_S, gpuSampler->glWrapS));
     GL_CHECK(glSamplerParameteri(gpuSampler->glSampler, GL_TEXTURE_WRAP_T, gpuSampler->glWrapT));
     GL_CHECK(glSamplerParameteri(gpuSampler->glSampler, GL_TEXTURE_WRAP_R, gpuSampler->glWrapR));
-    GL_CHECK(glSamplerParameteri(gpuSampler->glSampler, GL_TEXTURE_MIN_LOD, gpuSampler->minLOD));
-    GL_CHECK(glSamplerParameteri(gpuSampler->glSampler, GL_TEXTURE_MAX_LOD, gpuSampler->maxLOD));
+    GL_CHECK(glSamplerParameterf(gpuSampler->glSampler, GL_TEXTURE_MIN_LOD, 0.f));
+    GL_CHECK(glSamplerParameterf(gpuSampler->glSampler, GL_TEXTURE_MAX_LOD, 1000.f));
 }
 
 void GLES3CmdFuncDestroySampler(GLES3Device *device, GLES3GPUSampler *gpuSampler) {
@@ -1074,7 +1074,7 @@ void GLES3CmdFuncCreateShader(GLES3Device *device, GLES3GPUShader *gpuShader) {
         }
 
         GL_CHECK(gpuStage.glShader = glCreateShader(glShaderStage));
-        String      shaderSource = StringUtil::Format("#version %u es\n%s", version, gpuStage.source.c_str());
+        String      shaderSource = StringUtil::Format("#version %u es\n", version) + gpuStage.source;
         const char *source       = shaderSource.c_str();
         GL_CHECK(glShaderSource(gpuStage.glShader, 1, (const GLchar **)&source, nullptr));
         GL_CHECK(glCompileShader(gpuStage.glShader));
@@ -1089,7 +1089,7 @@ void GLES3CmdFuncCreateShader(GLES3Device *device, GLES3GPUShader *gpuShader) {
             GL_CHECK(glGetShaderInfoLog(gpuStage.glShader, logSize, nullptr, logs));
 
             CC_LOG_ERROR("%s in %s compilation failed.", shaderStageStr.c_str(), gpuShader->name.c_str());
-            CC_LOG_ERROR("Shader source: %s", gpuStage.source.c_str());
+            CC_LOG_ERROR("Shader source: %s", source);
             CC_LOG_ERROR(logs);
             CC_FREE(logs);
             GL_CHECK(glDeleteShader(gpuStage.glShader));
@@ -2606,54 +2606,54 @@ void GLES3CmdFuncBlitTexture(GLES3Device *device, GLES3GPUTexture *gpuTextureSrc
 void GLES3CmdFuncExecuteCmds(GLES3Device *device, GLES3CmdPackage *cmdPackage) {
     if (!cmdPackage->cmds.size()) return;
 
-    static uint cmdIndices[(int)GLES3CmdType::COUNT] = {0};
+    static uint cmdIndices[(int)GLESCmdType::COUNT] = {0};
     memset(cmdIndices, 0, sizeof(cmdIndices));
 
     for (uint i = 0; i < cmdPackage->cmds.size(); ++i) {
-        GLES3CmdType cmdType = cmdPackage->cmds[i];
+        GLESCmdType cmdType = cmdPackage->cmds[i];
         uint &       cmdIdx  = cmdIndices[(int)cmdType];
 
         switch (cmdType) {
-            case GLES3CmdType::BEGIN_RENDER_PASS: {
+            case GLESCmdType::BEGIN_RENDER_PASS: {
                 GLES3CmdBeginRenderPass *cmd = cmdPackage->beginRenderPassCmds[cmdIdx];
                 GLES3CmdFuncBeginRenderPass(device, cmd->gpuRenderPass, cmd->gpuFBO, cmd->renderArea, cmd->numClearColors, cmd->clearColors, cmd->clearDepth, cmd->clearStencil);
                 break;
             }
-            case GLES3CmdType::END_RENDER_PASS: {
+            case GLESCmdType::END_RENDER_PASS: {
                 GLES3CmdFuncEndRenderPass(device);
                 break;
             }
-            case GLES3CmdType::BIND_STATES: {
+            case GLESCmdType::BIND_STATES: {
                 GLES3CmdBindStates *cmd = cmdPackage->bindStatesCmds[cmdIdx];
                 GLES3CmdFuncBindState(device, cmd->gpuPipelineState, cmd->gpuInputAssembler, cmd->gpuDescriptorSets, cmd->dynamicOffsets, cmd->viewport, cmd->scissor, cmd->lineWidth, cmd->depthBiasEnabled, cmd->depthBias, cmd->blendConstants, cmd->depthBounds, cmd->stencilWriteMask, cmd->stencilCompareMask);
                 break;
             }
-            case GLES3CmdType::DRAW: {
+            case GLESCmdType::DRAW: {
                 GLES3CmdDraw *cmd = cmdPackage->drawCmds[cmdIdx];
                 GLES3CmdFuncDraw(device, cmd->drawInfo);
                 break;
             }
-            case GLES3CmdType::DISPATCH: {
+            case GLESCmdType::DISPATCH: {
                 GLES3CmdDispatch *cmd = cmdPackage->dispatchCmds[cmdIdx];
                 GLES3CmdFuncDispatch(device, cmd->dispatchInfo);
                 break;
             }
-            case GLES3CmdType::BARRIER: {
+            case GLESCmdType::BARRIER: {
                 GLES3CmdBarrier *cmd = cmdPackage->barrierCmds[cmdIdx];
                 GLES3CmdFuncMemoryBarrier(device, cmd->barriers, cmd->barriersByRegion);
                 break;
             }
-            case GLES3CmdType::UPDATE_BUFFER: {
+            case GLESCmdType::UPDATE_BUFFER: {
                 GLES3CmdUpdateBuffer *cmd = cmdPackage->updateBufferCmds[cmdIdx];
                 GLES3CmdFuncUpdateBuffer(device, cmd->gpuBuffer, cmd->buffer, cmd->offset, cmd->size);
                 break;
             }
-            case GLES3CmdType::COPY_BUFFER_TO_TEXTURE: {
+            case GLESCmdType::COPY_BUFFER_TO_TEXTURE: {
                 GLES3CmdCopyBufferToTexture *cmd = cmdPackage->copyBufferToTextureCmds[cmdIdx];
                 GLES3CmdFuncCopyBuffersToTexture(device, cmd->buffers, cmd->gpuTexture, cmd->regions, cmd->count);
                 break;
             }
-            case GLES3CmdType::BLIT_TEXTURE: {
+            case GLESCmdType::BLIT_TEXTURE: {
                 GLES3CmdBlitTexture *cmd = cmdPackage->blitTextureCmds[cmdIdx];
                 GLES3CmdFuncBlitTexture(device, cmd->gpuTextureSrc, cmd->gpuTextureDst, cmd->regions, cmd->count, cmd->filter);
                 break;

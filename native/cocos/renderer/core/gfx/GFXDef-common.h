@@ -22,6 +22,30 @@
 namespace cc {
 namespace gfx {
 
+class Device;
+class Buffer;
+class GlobalBarrier;
+class TextureBarrier;
+class Texture;
+class Sampler;
+class Shader;
+class InputAssembler;
+class RenderPass;
+class Framebuffer;
+class DescriptorSetLayout;
+class PipelineLayout;
+class PipelineState;
+class DescriptorSet;
+class CommandAllocator;
+class CommandBuffer;
+class Queue;
+class Window;
+class Context;
+
+using TextureBarrierList = vector<TextureBarrier *>;
+using BufferDataList = vector<const uint8_t *>;
+using CommandBufferList = vector<CommandBuffer *>;
+
 #define GFX_MAX_ATTACHMENTS 4
 #define GFX_INVALID_BINDING ((uint)-1)
 
@@ -543,7 +567,7 @@ enum class AccessType {
     HOST_WRITE,                     // Written on the host
 };
 
-using AccessTypeList = vector<AccessType>;
+using AccessTypeList = std::vector<AccessType>;
 
 enum class PipelineBindPoint {
     GRAPHICS,
@@ -798,8 +822,8 @@ using ColorList = vector<Color>;
  * offsets for each descriptor type in each set.
  */
 struct BindingMappingInfo {
-    vector<int> bufferOffsets;
-    vector<int> samplerOffsets;
+    std::vector<int> bufferOffsets;
+    std::vector<int> samplerOffsets;
     uint        flexibleSet = 0u;
 };
 
@@ -875,19 +899,10 @@ struct SamplerInfo {
     Address        addressV      = Address::WRAP;
     Address        addressW      = Address::WRAP;
     uint           maxAnisotropy = 0u;
-    ComparisonFunc cmpFunc       = ComparisonFunc::NEVER;
+    ComparisonFunc cmpFunc       = ComparisonFunc::ALWAYS;
     Color          borderColor;
-    uint           minLOD     = 0;
-    uint           maxLOD     = 1000;
     float          mipLODBias = 0.0f;
 };
-
-struct ShaderMacro {
-    String macro;
-    String value;
-};
-
-using ShaderMacroList = vector<ShaderMacro>;
 
 struct Uniform {
     String name;
@@ -1009,8 +1024,8 @@ struct ColorAttachment {
     SampleCount        sampleCount = SampleCount::X1;
     LoadOp             loadOp      = LoadOp::CLEAR;
     StoreOp            storeOp     = StoreOp::STORE;
-    vector<AccessType> beginAccesses;
-    vector<AccessType> endAccesses{AccessType::PRESENT};
+    std::vector<AccessType> beginAccesses;
+    std::vector<AccessType> endAccesses{AccessType::PRESENT};
 };
 
 using ColorAttachmentList = vector<ColorAttachment>;
@@ -1022,15 +1037,15 @@ struct DepthStencilAttachment {
     StoreOp            depthStoreOp   = StoreOp::STORE;
     LoadOp             stencilLoadOp  = LoadOp::CLEAR;
     StoreOp            stencilStoreOp = StoreOp::STORE;
-    vector<AccessType> beginAccesses;
-    vector<AccessType> endAccesses{AccessType::DEPTH_STENCIL_ATTACHMENT_WRITE};
+    std::vector<AccessType> beginAccesses;
+    std::vector<AccessType> endAccesses{AccessType::DEPTH_STENCIL_ATTACHMENT_WRITE};
 };
 
 struct SubpassInfo {
-    vector<uint> inputs;
-    vector<uint> colors;
-    vector<uint> resolves;
-    vector<uint> preserves;
+    std::vector<uint> inputs;
+    std::vector<uint> colors;
+    std::vector<uint> resolves;
+    std::vector<uint> preserves;
     uint         depthStencil = GFX_INVALID_BINDING;
 };
 
@@ -1043,14 +1058,14 @@ struct RenderPassInfo {
 };
 
 struct GlobalBarrierInfo {
-    vector<AccessType> prevAccesses;
-    vector<AccessType> nextAccesses;
+    std::vector<AccessType> prevAccesses;
+    std::vector<AccessType> nextAccesses;
 };
 using GlobalBarrierInfoList = vector<GlobalBarrierInfo>;
 
 struct TextureBarrierInfo {
-    vector<AccessType> prevAccesses;
-    vector<AccessType> nextAccesses;
+    std::vector<AccessType> prevAccesses;
+    std::vector<AccessType> nextAccesses;
 
     bool discardContents = false;
 
@@ -1063,7 +1078,7 @@ struct FramebufferInfo {
     RenderPass * renderPass = nullptr;
     TextureList  colorTextures;                 // @ts-overrides { type: '(Texture | null)[]' }
     Texture *    depthStencilTexture = nullptr; // @ts-nullable
-    vector<uint> colorMipmapLevels;
+    std::vector<uint> colorMipmapLevels;
     uint         depthStencilMipmapLevel = 0;
 };
 
@@ -1186,21 +1201,10 @@ struct FormatInfo {
     const bool       isCompressed = false;
 };
 
-extern const DescriptorType DESCRIPTOR_BUFFER_TYPE;
-extern const DescriptorType DESCRIPTOR_TEXTURE_TYPE;
-extern const DescriptorType DESCRIPTOR_DYNAMIC_TYPE;
-
-extern const FormatInfo GFX_FORMAT_INFOS[];
-extern const uint       GFX_TYPE_SIZES[];
-
 struct MemoryStatus {
     uint bufferSize  = 0;
     uint textureSize = 0;
 };
-
-extern uint FormatSize(Format format, uint width, uint height, uint depth);
-
-extern uint FormatSurfaceSize(Format format, uint width, uint height, uint depth, uint mips);
 
 } // namespace gfx
 } // namespace cc

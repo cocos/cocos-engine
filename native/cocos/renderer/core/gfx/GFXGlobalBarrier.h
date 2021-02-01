@@ -18,7 +18,7 @@ public:
 protected:
     friend class Device;
 
-    virtual bool initialize(const GlobalBarrierInfo &info) { return true; }
+    virtual bool initialize(const GlobalBarrierInfo &info) { _info = info; return true; }
 
     Device *_device = nullptr;
     GlobalBarrierInfo _info;

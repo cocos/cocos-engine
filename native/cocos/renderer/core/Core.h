@@ -30,7 +30,6 @@ THE SOFTWARE.
 
 #include "gfx/GFXBuffer.h"
 #include "gfx/GFXCommandBuffer.h"
-#include "gfx/GFXCommandPool.h"
 #include "gfx/GFXContext.h"
 #include "gfx/GFXDescriptorSet.h"
 #include "gfx/GFXDescriptorSetLayout.h"

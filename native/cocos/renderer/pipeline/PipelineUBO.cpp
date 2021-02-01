@@ -142,9 +142,9 @@ void PipelineUBO::updateCameraUBOView(const RenderPipeline *pipeline, std::array
     memcpy(uboCameraView.data() + UBOCamera::MAT_VIEW_PROJ_INV_OFFSET, camera->matViewProjInv.m, sizeof(cc::Mat4));
     TO_VEC3(uboCameraView, camera->position, UBOCamera::CAMERA_POS_OFFSET);
 
-    auto projectionSignY = device->getScreenSpaceSignY();
+    auto projectionSignY = device->getCapabilities().screenSpaceSignY;
     if (camera->getWindow()->hasOffScreenAttachments) {
-        projectionSignY *= device->getUVSpaceSignY(); // need flipping if drawing on render targets
+        projectionSignY *= device->getCapabilities().UVSpaceSignY; // need flipping if drawing on render targets
     }
     uboCameraView[UBOCamera::CAMERA_POS_OFFSET + 3] = projectionSignY;
 
@@ -199,8 +199,8 @@ void PipelineUBO::updateShadowUBOView(const RenderPipeline *pipeline, std::array
             }
 
             const auto matShadowView = matShadowCamera.getInversed();
-            const auto projectionSinY = device->getScreenSpaceSignY() * device->getUVSpaceSignY();
-            Mat4::createOrthographicOffCenter(-x, x, -y, y, shadowInfo->nearValue, farClamp, device->getClipSpaceMinZ(), projectionSinY, &matShadowViewProj);
+            const auto projectionSinY = device->getCapabilities().screenSpaceSignY * device->getCapabilities().UVSpaceSignY;
+            Mat4::createOrthographicOffCenter(-x, x, -y, y, shadowInfo->nearValue, farClamp, device->getCapabilities().clipSpaceMinZ, projectionSinY, &matShadowViewProj);
 
             matShadowViewProj.multiply(matShadowView);
             float shadowInfos[4] = {shadowInfo->size.x, shadowInfo->size.y, (float)shadowInfo->pcfType, shadowInfo->bias};
@@ -246,8 +246,8 @@ void PipelineUBO::updateShadowUBOLightView(const RenderPipeline *pipeline, std::
             }
 
             const auto matShadowView = matShadowCamera.getInversed();
-            const auto projectionSinY = device->getScreenSpaceSignY() * device->getUVSpaceSignY();
-            Mat4::createOrthographicOffCenter(-x, x, -y, y, shadowInfo->nearValue, farClamp, device->getClipSpaceMinZ(), projectionSinY, &matShadowViewProj);
+            const auto projectionSinY = device->getCapabilities().screenSpaceSignY * device->getCapabilities().UVSpaceSignY;
+            Mat4::createOrthographicOffCenter(-x, x, -y, y, shadowInfo->nearValue, farClamp, device->getCapabilities().clipSpaceMinZ, projectionSinY, &matShadowViewProj);
 
             matShadowViewProj.multiply(matShadowView);
             memcpy(shadowUBO.data() + UBOShadow::MAT_LIGHT_VIEW_PROJ_OFFSET, matShadowViewProj.m, sizeof(matShadowViewProj));

@@ -113,7 +113,9 @@ bool CCVKDescriptorSet::initialize(const DescriptorSetInfo &info) {
                 } else if (binding.descriptorType & DESCRIPTOR_TEXTURE_TYPE) {
                     instance.descriptorInfos[k].image.sampler     = gpuDevice->defaultSampler.vkSampler;
                     instance.descriptorInfos[k].image.imageView   = gpuDevice->defaultTextureView.vkImageView;
-                    instance.descriptorInfos[k].image.imageLayout = binding.descriptorType == DescriptorType::STORAGE_IMAGE ? VK_IMAGE_LAYOUT_GENERAL : VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+                    instance.descriptorInfos[k].image.imageLayout = binding.descriptorType == DescriptorType::STORAGE_IMAGE
+                                                                        ? VK_IMAGE_LAYOUT_GENERAL
+                                                                        : VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
                 }
             }
         }
@@ -200,9 +202,9 @@ void CCVKDescriptorSet::destroy() {
 
 void CCVKDescriptorSet::update() {
     if (_isDirty && _gpuDescriptorSet) {
-        CCVKGPUDescriptorHub *       descriptorHub   = ((CCVKDevice *)_device)->gpuDescriptorHub();
-        CCVKGPUTextureLayoutManager *layoutMgr       = ((CCVKDevice *)_device)->gpuTextureLayoutManager();
-        uint                         descriptorCount = _gpuDescriptorSet->gpuDescriptors.size();
+        CCVKGPUDescriptorHub * descriptorHub   = ((CCVKDevice *)_device)->gpuDescriptorHub();
+        CCVKGPUBarrierManager *layoutMgr       = ((CCVKDevice *)_device)->gpuBarrierManager();
+        uint                   descriptorCount = _gpuDescriptorSet->gpuDescriptors.size();
 
         for (size_t i = 0u; i < descriptorCount; i++) {
             CCVKGPUDescriptor &binding = _gpuDescriptorSet->gpuDescriptors[i];
@@ -220,6 +222,7 @@ void CCVKDescriptorSet::update() {
                             if (bufferView) {
                                 descriptorHub->connect(bufferView, &descriptorInfo.buffer, t);
                                 descriptorHub->update(bufferView, &descriptorInfo.buffer);
+                                //layoutMgr->checkIn(bufferView->gpuBuffer, binding.accessTypes.data(), binding.accessTypes.size());
                             }
                         }
                         binding.gpuBufferView = bufferView;

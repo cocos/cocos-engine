@@ -1,36 +1,6 @@
 #ifndef CC_CORE_GFX_DEF_H_
 #define CC_CORE_GFX_DEF_H_
 
-namespace cc {
-namespace gfx {
-
-class Device;
-class Buffer;
-class GlobalBarrier;
-class TextureBarrier;
-class Texture;
-class Sampler;
-class Shader;
-class InputAssembler;
-class RenderPass;
-class Framebuffer;
-class DescriptorSetLayout;
-class PipelineLayout;
-class PipelineState;
-class DescriptorSet;
-class CommandAllocator;
-class CommandBuffer;
-class Queue;
-class Window;
-class Context;
-
-using TextureBarrierList = vector<TextureBarrier *>;
-using BufferDataList = vector<const uint8_t *>;
-using CommandBufferList = vector<CommandBuffer *>;
-
-} // namespace gfx
-} // namespace cc
-
 #include "GFXDef-common.h"
 
 namespace cc {
@@ -90,6 +60,17 @@ struct ContextInfo {
     Context * sharedCtx    = nullptr;
     VsyncMode vsyncMode    = VsyncMode::RELAXED;
 };
+
+extern const DescriptorType DESCRIPTOR_BUFFER_TYPE;
+extern const DescriptorType DESCRIPTOR_TEXTURE_TYPE;
+extern const DescriptorType DESCRIPTOR_DYNAMIC_TYPE;
+
+extern const FormatInfo GFX_FORMAT_INFOS[];
+extern const uint       GFX_TYPE_SIZES[];
+
+extern uint FormatSize(Format format, uint width, uint height, uint depth);
+
+extern uint FormatSurfaceSize(Format format, uint width, uint height, uint depth, uint mips);
 
 } // namespace gfx
 } // namespace cc

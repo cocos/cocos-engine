@@ -2098,6 +2098,25 @@ static bool js_pipeline_RenderPipeline_render(se::State& s)
 }
 SE_BIND_FUNC(js_pipeline_RenderPipeline_render)
 
+static bool js_pipeline_RenderPipeline_setPipelineSharedSceneData(se::State& s)
+{
+    cc::pipeline::RenderPipeline* cobj = SE_THIS_OBJECT<cc::pipeline::RenderPipeline>(s);
+    SE_PRECONDITION2(cobj, false, "js_pipeline_RenderPipeline_setPipelineSharedSceneData : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<unsigned int, false> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_pipeline_RenderPipeline_setPipelineSharedSceneData : Error processing arguments");
+        cobj->setPipelineSharedSceneData(arg0.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_pipeline_RenderPipeline_setPipelineSharedSceneData)
+
 static bool js_pipeline_RenderPipeline_setValue(se::State& s)
 {
     cc::pipeline::RenderPipeline* cobj = SE_THIS_OBJECT<cc::pipeline::RenderPipeline>(s);
@@ -2149,6 +2168,7 @@ bool js_register_pipeline_RenderPipeline(se::Object* obj)
     cls->defineFunction("destroy", _SE(js_pipeline_RenderPipeline_destroy));
     cls->defineFunction("initialize", _SE(js_pipeline_RenderPipeline_initialize));
     cls->defineFunction("render", _SE(js_pipeline_RenderPipeline_render));
+    cls->defineFunction("setPipelineSharedSceneData", _SE(js_pipeline_RenderPipeline_setPipelineSharedSceneData));
     cls->defineFunction("setValue", _SE(js_pipeline_RenderPipeline_setValue));
     cls->defineStaticFunction("getInstance", _SE(js_pipeline_RenderPipeline_getInstance));
     cls->install();
@@ -2163,101 +2183,6 @@ bool js_register_pipeline_RenderPipeline(se::Object* obj)
 
 se::Object* __jsb_cc_pipeline_ForwardPipeline_proto = nullptr;
 se::Class* __jsb_cc_pipeline_ForwardPipeline_class = nullptr;
-
-static bool js_pipeline_ForwardPipeline_getSphere(se::State& s)
-{
-    cc::pipeline::ForwardPipeline* cobj = SE_THIS_OBJECT<cc::pipeline::ForwardPipeline>(s);
-    SE_PRECONDITION2(cobj, false, "js_pipeline_ForwardPipeline_getSphere : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        cc::pipeline::Sphere* result = cobj->getSphere();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_pipeline_ForwardPipeline_getSphere : Error processing arguments");
-        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_pipeline_ForwardPipeline_getSphere)
-
-static bool js_pipeline_ForwardPipeline_setAmbient(se::State& s)
-{
-    cc::pipeline::ForwardPipeline* cobj = SE_THIS_OBJECT<cc::pipeline::ForwardPipeline>(s);
-    SE_PRECONDITION2(cobj, false, "js_pipeline_ForwardPipeline_setAmbient : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        HolderType<unsigned int, false> arg0 = {};
-        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_pipeline_ForwardPipeline_setAmbient : Error processing arguments");
-        cobj->setAmbient(arg0.value());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC(js_pipeline_ForwardPipeline_setAmbient)
-
-static bool js_pipeline_ForwardPipeline_setFog(se::State& s)
-{
-    cc::pipeline::ForwardPipeline* cobj = SE_THIS_OBJECT<cc::pipeline::ForwardPipeline>(s);
-    SE_PRECONDITION2(cobj, false, "js_pipeline_ForwardPipeline_setFog : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        HolderType<unsigned int, false> arg0 = {};
-        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_pipeline_ForwardPipeline_setFog : Error processing arguments");
-        cobj->setFog(arg0.value());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC(js_pipeline_ForwardPipeline_setFog)
-
-static bool js_pipeline_ForwardPipeline_setShadows(se::State& s)
-{
-    cc::pipeline::ForwardPipeline* cobj = SE_THIS_OBJECT<cc::pipeline::ForwardPipeline>(s);
-    SE_PRECONDITION2(cobj, false, "js_pipeline_ForwardPipeline_setShadows : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        HolderType<unsigned int, false> arg0 = {};
-        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_pipeline_ForwardPipeline_setShadows : Error processing arguments");
-        cobj->setShadows(arg0.value());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC(js_pipeline_ForwardPipeline_setShadows)
-
-static bool js_pipeline_ForwardPipeline_setSkybox(se::State& s)
-{
-    cc::pipeline::ForwardPipeline* cobj = SE_THIS_OBJECT<cc::pipeline::ForwardPipeline>(s);
-    SE_PRECONDITION2(cobj, false, "js_pipeline_ForwardPipeline_setSkybox : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        HolderType<unsigned int, false> arg0 = {};
-        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_pipeline_ForwardPipeline_setSkybox : Error processing arguments");
-        cobj->setSkybox(arg0.value());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC(js_pipeline_ForwardPipeline_setSkybox)
 
 SE_DECLARE_FINALIZE_FUNC(js_cc_pipeline_ForwardPipeline_finalize)
 
@@ -2291,11 +2216,6 @@ bool js_register_pipeline_ForwardPipeline(se::Object* obj)
 {
     auto cls = se::Class::create("ForwardPipeline", obj, __jsb_cc_pipeline_RenderPipeline_proto, _SE(js_pipeline_ForwardPipeline_constructor));
 
-    cls->defineFunction("getSphere", _SE(js_pipeline_ForwardPipeline_getSphere));
-    cls->defineFunction("setAmbient", _SE(js_pipeline_ForwardPipeline_setAmbient));
-    cls->defineFunction("setFog", _SE(js_pipeline_ForwardPipeline_setFog));
-    cls->defineFunction("setShadows", _SE(js_pipeline_ForwardPipeline_setShadows));
-    cls->defineFunction("setSkybox", _SE(js_pipeline_ForwardPipeline_setSkybox));
     cls->defineFinalizeFunction(_SE(js_cc_pipeline_ForwardPipeline_finalize));
     cls->install();
     JSBClassType::registerClass<cc::pipeline::ForwardPipeline>(cls);

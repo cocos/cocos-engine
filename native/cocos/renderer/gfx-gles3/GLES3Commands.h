@@ -24,34 +24,11 @@ THE SOFTWARE.
 #ifndef CC_GFXGLES3_COMMANDS_H_
 #define CC_GFXGLES3_COMMANDS_H_
 
+#include "../gfx-gles-common/GLESCommandPool.h"
 #include "GLES3GPUObjects.h"
 
 namespace cc {
 namespace gfx {
-
-enum class GLES3CmdType : uint8_t {
-    BEGIN_RENDER_PASS,
-    END_RENDER_PASS,
-    BIND_STATES,
-    DRAW,
-    UPDATE_BUFFER,
-    COPY_BUFFER_TO_TEXTURE,
-    BLIT_TEXTURE,
-    DISPATCH,
-    BARRIER,
-    COUNT,
-};
-
-class GLES3Cmd : public Object {
-public:
-    GLES3CmdType type;
-    uint refCount = 0;
-
-    GLES3Cmd(GLES3CmdType _type) : type(_type) {}
-    virtual ~GLES3Cmd() {}
-
-    virtual void clear() = 0;
-};
 
 class GLES3Device;
 
@@ -93,7 +70,7 @@ struct GLES3BufferTextureCopy final {
     GLES3TextureSubres texSubres;
 };
 
-class GLES3CmdBeginRenderPass final : public GLES3Cmd {
+class GLES3CmdBeginRenderPass final : public GLESCmd {
 public:
     GLES3GPURenderPass *gpuRenderPass = nullptr;
     GLES3GPUFramebuffer *gpuFBO = nullptr;
@@ -103,7 +80,7 @@ public:
     float clearDepth = 1.0f;
     int clearStencil = 0;
 
-    GLES3CmdBeginRenderPass() : GLES3Cmd(GLES3CmdType::BEGIN_RENDER_PASS) {}
+    GLES3CmdBeginRenderPass() : GLESCmd(GLESCmdType::BEGIN_RENDER_PASS) {}
 
     virtual void clear() override {
         gpuFBO = nullptr;
@@ -123,7 +100,7 @@ enum class GLES3State {
     COUNT,
 };
 
-class GLES3CmdBindStates final : public GLES3Cmd {
+class GLES3CmdBindStates final : public GLESCmd {
 public:
     GLES3GPUPipelineState *gpuPipelineState = nullptr;
     GLES3GPUInputAssembler *gpuInputAssembler = nullptr;
@@ -139,7 +116,7 @@ public:
     GLES3StencilWriteMask stencilWriteMask;
     GLES3StencilCompareMask stencilCompareMask;
 
-    GLES3CmdBindStates() : GLES3Cmd(GLES3CmdType::BIND_STATES) {}
+    GLES3CmdBindStates() : GLESCmd(GLESCmdType::BIND_STATES) {}
 
     virtual void clear() override {
         gpuPipelineState = nullptr;
@@ -149,45 +126,45 @@ public:
     }
 };
 
-class GLES3CmdDraw final : public GLES3Cmd {
+class GLES3CmdDraw final : public GLESCmd {
 public:
     DrawInfo drawInfo;
 
-    GLES3CmdDraw() : GLES3Cmd(GLES3CmdType::DRAW) {}
+    GLES3CmdDraw() : GLESCmd(GLESCmdType::DRAW) {}
     virtual void clear() override {}
 };
 
-class GLES3CmdDispatch final : public GLES3Cmd {
+class GLES3CmdDispatch final : public GLESCmd {
 public:
     GLES3GPUDispatchInfo dispatchInfo;
 
-    GLES3CmdDispatch() : GLES3Cmd(GLES3CmdType::DISPATCH) {}
+    GLES3CmdDispatch() : GLESCmd(GLESCmdType::DISPATCH) {}
     virtual void clear() override {
         dispatchInfo.indirectBuffer = nullptr;
         dispatchInfo.indirectOffset = 0;
     }
 };
 
-class GLES3CmdBarrier final : public GLES3Cmd {
+class GLES3CmdBarrier final : public GLESCmd {
 public:
     GLbitfield barriers = 0u;
     GLbitfield barriersByRegion = 0u;
 
-    GLES3CmdBarrier() : GLES3Cmd(GLES3CmdType::BARRIER) {}
+    GLES3CmdBarrier() : GLESCmd(GLESCmdType::BARRIER) {}
     virtual void clear() override {
         barriers = 0u;
         barriersByRegion = 0u;
     }
 };
 
-class GLES3CmdUpdateBuffer final : public GLES3Cmd {
+class GLES3CmdUpdateBuffer final : public GLESCmd {
 public:
     GLES3GPUBuffer *gpuBuffer = nullptr;
     uint8_t *buffer = nullptr;
     uint size = 0;
     uint offset = 0;
 
-    GLES3CmdUpdateBuffer() : GLES3Cmd(GLES3CmdType::UPDATE_BUFFER) {}
+    GLES3CmdUpdateBuffer() : GLESCmd(GLESCmdType::UPDATE_BUFFER) {}
 
     virtual void clear() override {
         gpuBuffer = nullptr;
@@ -195,14 +172,14 @@ public:
     }
 };
 
-class GLES3CmdCopyBufferToTexture final : public GLES3Cmd {
+class GLES3CmdCopyBufferToTexture final : public GLESCmd {
 public:
     GLES3GPUTexture *gpuTexture = nullptr;
     const BufferTextureCopy *regions = nullptr;
     uint count = 0u;
     const uint8_t *const *buffers;
 
-    GLES3CmdCopyBufferToTexture() : GLES3Cmd(GLES3CmdType::COPY_BUFFER_TO_TEXTURE) {}
+    GLES3CmdCopyBufferToTexture() : GLESCmd(GLESCmdType::COPY_BUFFER_TO_TEXTURE) {}
 
     virtual void clear() override {
         gpuTexture = nullptr;
@@ -212,7 +189,7 @@ public:
     }
 };
 
-class GLES3CmdBlitTexture final : public GLES3Cmd {
+class GLES3CmdBlitTexture final : public GLESCmd {
 public:
     GLES3GPUTexture *gpuTextureSrc = nullptr;
     GLES3GPUTexture *gpuTextureDst = nullptr;
@@ -220,7 +197,7 @@ public:
     uint count = 0u;
     Filter filter = Filter::POINT;
 
-    GLES3CmdBlitTexture() : GLES3Cmd(GLES3CmdType::BLIT_TEXTURE) {}
+    GLES3CmdBlitTexture() : GLESCmd(GLESCmdType::BLIT_TEXTURE) {}
 
     virtual void clear() override {
         gpuTextureSrc = nullptr;
@@ -232,7 +209,7 @@ public:
 
 class GLES3CmdPackage final : public Object {
 public:
-    CachedArray<GLES3CmdType> cmds;
+    CachedArray<GLESCmdType> cmds;
     CachedArray<GLES3CmdBeginRenderPass *> beginRenderPassCmds;
     CachedArray<GLES3CmdBindStates *> bindStatesCmds;
     CachedArray<GLES3CmdDraw *> drawCmds;

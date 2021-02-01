@@ -68,14 +68,14 @@ gfx::RenderPass *ForwardPipeline::getOrCreateRenderPass(gfx::ClearFlags clearFla
             colorAttachment.loadOp = gfx::LoadOp::DISCARD;
         } else {
             colorAttachment.loadOp = gfx::LoadOp::LOAD;
-            colorAttachment.beginLayout = gfx::TextureLayout::PRESENT_SRC;
+            colorAttachment.beginAccesses = {gfx::AccessType::PRESENT};
         }
     }
 
     if (static_cast<gfx::ClearFlagBit>(clearFlags & gfx::ClearFlagBit::DEPTH_STENCIL) != gfx::ClearFlagBit::DEPTH_STENCIL) {
         if (!(clearFlags & gfx::ClearFlagBit::DEPTH)) depthStencilAttachment.depthLoadOp = gfx::LoadOp::LOAD;
         if (!(clearFlags & gfx::ClearFlagBit::STENCIL)) depthStencilAttachment.stencilLoadOp = gfx::LoadOp::LOAD;
-        depthStencilAttachment.beginLayout = gfx::TextureLayout::DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+        depthStencilAttachment.beginAccesses = {gfx::AccessType::DEPTH_STENCIL_ATTACHMENT_WRITE};
     }
 
     auto renderPass = device->createRenderPass({

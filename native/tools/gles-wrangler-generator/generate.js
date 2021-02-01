@@ -40,7 +40,7 @@ for (let i = 2; i < argc; i++) {
     const glSpec = parser.parse(fs.readFileSync(glRegistry.local).toString(), parseOpt).registry[0];
     const eglSpec = parser.parse(fs.readFileSync(eglRegistry.local).toString(), parseOpt).registry[0];
 
-    const generate = (spec, featureNames, moduleName, bootstraps = []) => {
+    const generate = (spec, featureNames, moduleName, bootstraps = [], noExtension = false) => {
         const nameRecord = new Set();
         let headerDecl = '';
         let sourceDef = '';
@@ -74,27 +74,29 @@ for (let i = 2; i < argc; i++) {
             }
             append(`\n`);
         }
-        const featureAPI = spec.feature.find((f) => f.name === featureNames[0]).api;
-        for (const extension of spec.extensions[0].extension) {
-            if (!extension.supported.includes(featureAPI) || !extension.require) continue;
-            let needDeclare = false;
-            for (const require of extension.require) {
-                if (require.api && !require.api.includes(featureAPI) ||
-                !require.command || !require.command.length ||
-                require.command.every((cmd) => nameRecord.has(cmd.name))) continue;
-                if (!needDeclare) {
-                    append(`#if defined(${extension.name})\n`);
-                    needDeclare = true;
-                } else {
-                    append(`\n`);
+        if (!noExtension) {
+            const featureAPI = spec.feature.find((f) => f.name === featureNames[0]).api;
+            for (const extension of spec.extensions[0].extension) {
+                if (!extension.supported.includes(featureAPI) || !extension.require) continue;
+                let needDeclare = false;
+                for (const require of extension.require) {
+                    if (require.api && !require.api.includes(featureAPI) ||
+                    !require.command || !require.command.length ||
+                    require.command.every((cmd) => nameRecord.has(cmd.name))) continue;
+                    if (!needDeclare) {
+                        append(`#if defined(${extension.name})\n`);
+                        needDeclare = true;
+                    } else {
+                        append(`\n`);
+                    }
+                    for (const command of require.command) {
+                        if (nameRecord.has(command.name)) continue;
+                        writeCommand(command.name);
+                    }
                 }
-                for (const command of require.command) {
-                    if (nameRecord.has(command.name)) continue;
-                    writeCommand(command.name);
+                if (needDeclare) {
+                    append(`#endif /* defined(${extension.name}) */\n\n`);
                 }
-            }
-            if (needDeclare) {
-                append(`#endif /* defined(${extension.name}) */\n\n`);
             }
         }
         return { headerDecl, sourceDef, sourceLoad };
@@ -102,13 +104,14 @@ for (let i = 2; i < argc; i++) {
 
     const eglSrc = generate(eglSpec, ['EGL_VERSION_1_0', 'EGL_VERSION_1_1', 'EGL_VERSION_1_2', 'EGL_VERSION_1_3', 'EGL_VERSION_1_4', 'EGL_VERSION_1_5'], 'eglw', ['eglGetProcAddress']);
     const es2Src = generate(glSpec, ['GL_ES_VERSION_2_0'], 'gles2w');
-    const es3Src = generate(glSpec, ['GL_ES_VERSION_2_0', 'GL_ES_VERSION_3_0', 'GL_ES_VERSION_3_1', 'GL_ES_VERSION_3_2'], 'gles3w');
+    const es3Src = generate(glSpec, ['GL_ES_VERSION_3_0', 'GL_ES_VERSION_3_1', 'GL_ES_VERSION_3_2'], 'gles3w', [], true);
 
     const updateBlock = (source, moduleName, keyword, content, indentEnd) => {
         const flag = `/\\* ${moduleName.toUpperCase()}_GENERATE_${keyword} \\*/\n`;
         const flagRE = new RegExp(flag, 'g');
         const indices = [];
         while (flagRE.exec(source)) indices.push(flagRE.lastIndex);
+        if (indices.length !== 2) return source;
         indices[1] -= flag.length - 2; // two escape characters
         if (options.clear) content = '';
         if (indentEnd) content += '    ';
@@ -118,7 +121,6 @@ for (let i = 2; i < argc; i++) {
     const update = (path, moduleName, generatedSrc) => {
         let header = fs.readFileSync(`${path}.h`);
         let source = fs.readFileSync(`${path}.cpp`);
-        let sourceOC = fs.readFileSync(`${path}.mm`);
 
         header = updateBlock(header, moduleName, 'EGL_DECLARATION', eglSrc.headerDecl);
         header = updateBlock(header, moduleName, 'GLES_DECLARATION', generatedSrc.headerDecl);
@@ -128,16 +130,11 @@ for (let i = 2; i < argc; i++) {
         source = updateBlock(source, moduleName, 'EGL_LOAD', eglSrc.sourceLoad.replace(/eglwLoad/g, `${moduleName}Load`), true);
         source = updateBlock(source, moduleName, 'GLES_LOAD', generatedSrc.sourceLoad, true);
 
-        sourceOC = updateBlock(sourceOC, moduleName, 'EGL_DEFINITION', eglSrc.sourceDef);
-        sourceOC = updateBlock(sourceOC, moduleName, 'GLES_DEFINITION', generatedSrc.sourceDef);
-        sourceOC = updateBlock(sourceOC, moduleName, 'EGL_LOAD', eglSrc.sourceLoad.replace(/eglwLoad/g, `${moduleName}Load`), true);
-        sourceOC = updateBlock(sourceOC, moduleName, 'GLES_LOAD', generatedSrc.sourceLoad, true);
-
         fs.writeFileSync(`${path}.h`, header);
         fs.writeFileSync(`${path}.cpp`, source);
-        fs.writeFileSync(`${path}.mm`, sourceOC);
     };
 
-    update(`${__dirname}/../../cocos/renderer/gfx-gles2/gles2w`, 'gles2w', es2Src);
-    update(`${__dirname}/../../cocos/renderer/gfx-gles3/gles3w`, 'gles3w', es3Src);
+    update(`${__dirname}/../../cocos/renderer/gfx-gles-common/eglw`, 'eglw', eglSrc);
+    update(`${__dirname}/../../cocos/renderer/gfx-gles-common/gles2w`, 'gles2w', es2Src);
+    update(`${__dirname}/../../cocos/renderer/gfx-gles-common/gles3w`, 'gles3w', es3Src);
 })();

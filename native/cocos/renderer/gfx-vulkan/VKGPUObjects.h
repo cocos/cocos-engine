@@ -98,7 +98,10 @@ public:
     VmaAllocation vmaAllocation = VK_NULL_HANDLE;
 
     vector<ThsvsAccessType> currentAccessTypes;
+
+    // for barrier manager
     vector<ThsvsAccessType> renderAccessTypes; // gathered from desriptor sets
+    ThsvsAccessType         transferAccess = THSVS_ACCESS_NONE;
 };
 
 class CCVKGPUTextureView final : public Object {
@@ -156,6 +159,10 @@ public:
     VkDeviceSize size        = 0u;
 
     VkDeviceSize instanceSize = 0u; // per-back-buffer instance
+
+    // for barrier manager
+    vector<ThsvsAccessType> renderAccessTypes; // gathered from descriptor sets
+    ThsvsAccessType         transferAccess = THSVS_ACCESS_NONE;
 };
 typedef vector<CCVKGPUBuffer *> CCVKGPUBufferList;
 
@@ -216,7 +223,8 @@ public:
 
 struct CCVKGPUShaderStage {
     CCVKGPUShaderStage(ShaderStageFlagBit t, String s)
-    : type(t), source(s) {
+    : type(t),
+      source(s) {
     }
     ShaderStageFlagBit type = ShaderStageFlagBit::NONE;
     String             source;
@@ -940,10 +948,23 @@ private:
     PFN_vkUpdateDescriptorSetWithTemplate         _updateFn = nullptr;
 };
 
-class CCVKGPUTextureLayoutManager final : public Object {
+class CCVKGPUBarrierManager final : public Object {
 public:
-    CCVKGPUTextureLayoutManager(CCVKGPUDevice *device)
+    CCVKGPUBarrierManager(CCVKGPUDevice *device)
     : _device(device) {}
+
+    void checkIn(CCVKGPUBuffer *gpuBuffer) {
+        _buffersToBeChecked.insert(gpuBuffer);
+    }
+
+    void checkIn(CCVKGPUBuffer *gpuBuffer, const ThsvsAccessType *newTypes, uint newTypeCount) {
+        vector<ThsvsAccessType> &target = gpuBuffer->renderAccessTypes;
+        for (uint i = 0u; i < newTypeCount; ++i) {
+            if (std::find(target.begin(), target.end(), newTypes[i]) == target.end()) {
+                target.push_back(newTypes[i]);
+            }
+        }
+    }
 
     void checkIn(CCVKGPUTexture *gpuTexture, const ThsvsAccessType *newTypes = nullptr, uint newTypeCount = 0) {
         vector<ThsvsAccessType> &target = gpuTexture->renderAccessTypes;
@@ -957,9 +978,10 @@ public:
 
     void update(CCVKGPUCommandBuffer *gpuCommandBuffer);
 
-    CC_INLINE bool needUpdate() { return !_texturesToBeChecked.empty(); }
+    CC_INLINE bool needUpdate() { return !_texturesToBeChecked.empty() || !_buffersToBeChecked.empty(); }
 
 private:
+    unordered_set<CCVKGPUBuffer *>  _buffersToBeChecked;
     unordered_set<CCVKGPUTexture *> _texturesToBeChecked;
     CCVKGPUDevice *                 _device = nullptr;
 };
@@ -1103,7 +1125,8 @@ private:
 class CCVKGPUTransportHub final : public Object {
 public:
     CCVKGPUTransportHub(CCVKGPUDevice *device, CCVKGPUQueue *queue)
-    : _device(device), _queue(queue) {
+    : _device(device),
+      _queue(queue) {
         _cmdBuff.level            = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
         _cmdBuff.queueFamilyIndex = _queue->queueFamilyIndex;
 
@@ -1148,7 +1171,7 @@ public:
         }
     }
 
-    VkCommandBuffer readyForFlight() {
+    VkCommandBuffer packageForFlight() {
         VkCommandBuffer vkCommandBuffer = _cmdBuff.vkCommandBuffer;
         if (vkCommandBuffer) {
             VK_CHECK(vkEndCommandBuffer(vkCommandBuffer));

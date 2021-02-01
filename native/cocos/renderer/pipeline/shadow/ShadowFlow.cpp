@@ -131,26 +131,10 @@ void ShadowFlow::initShadowFrameBuffer(RenderPipeline *pipeline, const Light *li
     const auto height = (uint)shadowMapSize.y;
 
     if (!_renderPass) {
-        _renderPass = device->createRenderPass({
-            {{
-                gfx::Format::RGBA8,
-                1,
-                gfx::LoadOp::CLEAR, // should clear color attachment
-                gfx::StoreOp::STORE,
-                gfx::TextureLayout::UNDEFINED,
-                gfx::TextureLayout::PRESENT_SRC,
-            }},
-            {
-                device->getDepthStencilFormat(),
-                1,
-                gfx::LoadOp::CLEAR,
-                gfx::StoreOp::DISCARD,
-                gfx::LoadOp::CLEAR,
-                gfx::StoreOp::DISCARD,
-                gfx::TextureLayout::UNDEFINED,
-                gfx::TextureLayout::DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
-            },
-        });
+        gfx::RenderPassInfo rpInfo;
+        rpInfo.depthStencilAttachment.depthStoreOp = gfx::StoreOp::DISCARD;
+        rpInfo.depthStencilAttachment.stencilStoreOp = gfx::StoreOp::DISCARD;
+        _renderPass = device->createRenderPass(rpInfo);
     }
 
     vector<gfx::Texture *> renderTargets;

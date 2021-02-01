@@ -3,9 +3,33 @@
 namespace cc {
 namespace gfx {
 
+enum class GLESCmdType : uint8_t {
+    BEGIN_RENDER_PASS,
+    END_RENDER_PASS,
+    BIND_STATES,
+    DRAW,
+    UPDATE_BUFFER,
+    COPY_BUFFER_TO_TEXTURE,
+    BLIT_TEXTURE,
+    DISPATCH,
+    BARRIER,
+    COUNT,
+};
+
+class GLESCmd : public Object {
+public:
+    GLESCmdType type;
+    uint refCount = 0;
+
+    GLESCmd(GLESCmdType _type) : type(_type) {}
+    virtual ~GLESCmd() {}
+
+    virtual void clear() = 0;
+};
+
 #define INITIAL_CAPACITY 1
 
-template <typename T>
+template <typename T, typename = std::enable_if<std::is_base_of<GLESCmd, T>::value>>
 class CommandPool {
 public:
     CommandPool() : _freeCmds(INITIAL_CAPACITY) {

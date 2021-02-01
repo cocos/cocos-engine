@@ -50,7 +50,7 @@ RenderAdditiveLightQueue::RenderAdditiveLightQueue(RenderPipeline *pipeline) : _
                                                                                _instancedQueue(CC_NEW(RenderInstancedQueue)),
                                                                                _batchedQueue(CC_NEW(RenderBatchedQueue)) {
     auto *device = gfx::Device::getInstance();
-    const auto alignment = device->getUboOffsetAlignment();
+    const auto alignment = device->getCapabilities().uboOffsetAlignment;
     _lightBufferStride = ((UBOForwardLight::SIZE + alignment - 1) / alignment) * alignment;
     _lightBufferElementCount = _lightBufferStride / sizeof(float);
     _lightBuffer = device->createBuffer({

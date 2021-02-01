@@ -24,7 +24,7 @@ THE SOFTWARE.
 #ifndef CC_GFXGLES2_EGL_CONTEXT_H_
 #define CC_GFXGLES2_EGL_CONTEXT_H_
 
-#include "gles2w.h"
+#include "GLES2Wrangler.h"
 
 namespace cc {
 namespace gfx {

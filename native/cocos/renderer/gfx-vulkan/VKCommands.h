@@ -79,6 +79,7 @@ CC_VULKAN_API void CCVKCmdFuncDestroyPipelineLayout(CCVKGPUDevice *device, CCVKG
 CC_VULKAN_API void CCVKCmdFuncDestroyPipelineState(CCVKGPUDevice *device, CCVKGPUPipelineState *gpuPipelineState);
 
 CC_VULKAN_API void CCVKCmdFuncImageMemoryBarrier(const CCVKGPUCommandBuffer *gpuCommandBuffer, const ThsvsImageBarrier &imageBarrier);
+CC_VULKAN_API void CCVKCmdFuncGlobalMemoryBarrier(const CCVKGPUCommandBuffer *gpuCommandBuffer, const ThsvsGlobalBarrier &globalBarrier);
 
 } // namespace gfx
 } // namespace cc

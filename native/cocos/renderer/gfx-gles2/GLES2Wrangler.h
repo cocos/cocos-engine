@@ -21,52 +21,23 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 ****************************************************************************/
-#include "GLES2Std.h"
-#include "GLES2Sampler.h"
-#include "GLES2Commands.h"
+#pragma once
 
-namespace cc {
-namespace gfx {
+#if (CC_PLATFORM != CC_PLATFORM_MAC_IOS)
+    #define EGL_EGL_PROTOTYPES 0
+    #include <EGL/egl.h>
+    #include <EGL/eglext.h>
+    #include <EGL/eglplatform.h>
+#endif
 
-GLES2Sampler::GLES2Sampler(Device *device)
-: Sampler(device) {
-}
+#define GL_GLES_PROTOTYPES 0
+#include <GLES2/gl2.h>
 
-GLES2Sampler::~GLES2Sampler() {
-}
+#include <GLES2/gl2ext.h>
+#include <GLES2/gl2platform.h>
+#include <KHR/khrplatform.h>
 
-bool GLES2Sampler::initialize(const SamplerInfo &info) {
-    _minFilter = info.minFilter;
-    _magFilter = info.magFilter;
-    _mipFilter = info.mipFilter;
-    _addressU = info.addressU;
-    _addressV = info.addressV;
-    _addressW = info.addressW;
-    _maxAnisotropy = info.maxAnisotropy;
-    _cmpFunc = info.cmpFunc;
-    _borderColor = info.borderColor;
-    _mipLODBias = info.mipLODBias;
+bool gles2wInit();
 
-    _gpuSampler = CC_NEW(GLES2GPUSampler);
-    _gpuSampler->minFilter = _minFilter;
-    _gpuSampler->magFilter = _magFilter;
-    _gpuSampler->mipFilter = _mipFilter;
-    _gpuSampler->addressU = _addressU;
-    _gpuSampler->addressV = _addressV;
-    _gpuSampler->addressW = _addressW;
-
-    GLES2CmdFuncCreateSampler((GLES2Device *)_device, _gpuSampler);
-
-    return true;
-}
-
-void GLES2Sampler::destroy() {
-    if (_gpuSampler) {
-        GLES2CmdFuncDestroySampler((GLES2Device *)_device, _gpuSampler);
-        CC_DELETE(_gpuSampler);
-        _gpuSampler = nullptr;
-    }
-}
-
-} // namespace gfx
-} // namespace cc
+#include "../gfx-gles-common/eglw.h"
+#include "../gfx-gles-common/gles2w.h"

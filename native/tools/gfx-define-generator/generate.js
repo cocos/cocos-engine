@@ -1,7 +1,6 @@
 const ps = require('path');
 const fs = require('fs');
 const yaml = require('js-yaml');
-const { InferencePriority } = require('typescript');
 
 const options = {
     engineRoot: '',
@@ -18,7 +17,7 @@ for (let i = 2; i < argc; i++) {
         options.engineRoot = 'default';
     } else if (arg === '--clear') {
         options.clear = true;
-    } else if (arg === '--nonVerbatimCopy') {
+    } else if (arg === '--non-verbatim-copy') {
         options.nonVerbatimCopy = true;
     } else if (arg === '--debug') {
         options.debug = true;
@@ -76,7 +75,7 @@ while (enumCap) {
 // now discard all block comments
 header = header.replace(/\/\*.*?\*\//gs, '');
 header = header.replace(/\s*[*&](.)/g, (_, c) => (c === '>' ? '' : ' ') + c);
-header = header.replace(/vector<(.+?)>/g, '$1[]');
+header = header.replace(/(?:\w*::)?vector<(.+?)>/g, '$1[]');
 
 const typedefRE = /using\s+(.+?)\s*=\s*(.+?);/gs;
 const typedefMap = { lists: {}, others: [] };
@@ -146,6 +145,8 @@ while (structCap) {
             type = type.replace(/(\b)(?:String)(\b)/, '$1string$2');
         }
         if (memberCap[1]) readonly = true;
+        const isArray = type.endsWith('[]');
+        const decayedType = isArray ? type.slice(0, -2) : type;
 
         let value = memberCap[4];
         let n = Number.parseInt(value);
@@ -163,12 +164,15 @@ while (structCap) {
                 return `[${ctorStr.repeat(count).slice(0, -2)}]`;
             });
         } else {
-            if (type.endsWith('[]')) value = '[]';
+            if (isArray) value = '[]';
             else if (type === 'string') value = '\'\'';
             else value = `new ${type}()`;
         }
 
-        const info = struct.member[memberCap[3]] = { readonly, type, value };
+        const info = struct.member[memberCap[3]] = {
+            // all the overridable values
+            readonly, type, value, isArray, decayedType
+        };
 
         const directives = memberCap[5];
         if (directives) {
@@ -225,8 +229,7 @@ for (const name of Object.keys(structMap)) {
 
     const struct = structMap[name];
     for (const key in struct.member) {
-        const info = struct.member[key];
-        let { readonly, type, value } = info;
+        const { readonly, type, value } = struct.member[key];
         const decl = readonly ? `readonly ${key}` : key;
         if (value || value === 0) {
             output += `        public ${decl}: ${type} = ${value},\n`;
@@ -235,12 +238,34 @@ for (const name of Object.keys(structMap)) {
         }
     }
 
-    output += `    ) {}\n}\n\n`;
+    output += `    ) {}\n`;
+
+    if (!Object.keys(struct.member).some((k) => struct.member[k].readonly)) {
+        output += `\n    public copy (info: ${name}) {\n`;
+        for (const key in struct.member) {
+            const { decayedType, isArray } = struct.member[key];
+            if (isArray) {
+                if (structMap[decayedType]) { // nested object
+                    output += `        deepCopy(this.${key}, info.${key}, ${decayedType});\n`
+                } else {
+                    output += `        this.${key} = info.${key}.slice();\n`;
+                }
+            } else if (structMap[decayedType]) { // nested object
+                output += `        this.${key}.copy(info.${key});\n`;
+            } else {
+                output += `        this.${key} = info.${key};\n`;
+            }
+        }
+        output += `        return this;\n`;
+        output += `    }\n`;
+    }
+
+    output += `}\n\n`;
 }
 
 if (options.clear) output = '';
 
-const outputFile = options.debug ? `${__dirname}/define.ts` : ps.join(options.engineRoot, 'cocos/core/gfx/define.ts');
+const outputFile = options.debug ? `${__dirname}/define.ts` : ps.join(options.engineRoot, 'cocos/core/gfx/base/define.ts');
 let source = fs.readFileSync(outputFile).toString();
 
 const begGuardRE = /![A-Z ]+!\s*=+\s*\*\//;

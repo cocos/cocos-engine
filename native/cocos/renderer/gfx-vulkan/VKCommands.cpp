@@ -166,10 +166,10 @@ void CCVKCmdFuncCreateSampler(CCVKDevice *device, CCVKGPUSampler *gpuSampler) {
     createInfo.mipLodBias       = gpuSampler->mipLODBias;
     createInfo.anisotropyEnable = gpuSampler->maxAnisotropy && context->physicalDeviceFeatures.samplerAnisotropy;
     createInfo.maxAnisotropy    = std::min(context->physicalDeviceProperties.limits.maxSamplerAnisotropy, (float)gpuSampler->maxAnisotropy);
-    createInfo.compareEnable    = VK_TRUE;
+    createInfo.compareEnable    = gpuSampler->cmpFunc != ComparisonFunc::ALWAYS;
     createInfo.compareOp        = VK_CMP_FUNCS[(uint)gpuSampler->cmpFunc];
-    createInfo.minLod           = (float)gpuSampler->minLOD;
-    createInfo.maxLod           = (float)gpuSampler->maxLOD;
+    createInfo.minLod           = 0.0;               // UNASSIGNED-BestPractices-vkCreateSampler-lod-clamping
+    createInfo.maxLod           = VK_LOD_CLAMP_NONE; // UNASSIGNED-BestPractices-vkCreateSampler-lod-clamping
     //createInfo.borderColor; // TODO
 
     VK_CHECK(vkCreateSampler(device->gpuDevice()->vkDevice, &createInfo, nullptr, &gpuSampler->vkSampler));
@@ -214,6 +214,11 @@ void CCVKCmdFuncCreateBuffer(CCVKDevice *device, CCVKGPUBuffer *gpuBuffer) {
 
     gpuBuffer->mappedData  = (uint8_t *)res.pMappedData;
     gpuBuffer->startOffset = 0; // we are creating one VkBuffer each for now
+
+    // add special access types directly from usage
+    if (gpuBuffer->usage & BufferUsageBit::VERTEX) gpuBuffer->renderAccessTypes.push_back(THSVS_ACCESS_VERTEX_BUFFER);
+    if (gpuBuffer->usage & BufferUsageBit::INDEX) gpuBuffer->renderAccessTypes.push_back(THSVS_ACCESS_INDEX_BUFFER);
+    if (gpuBuffer->usage & BufferUsageBit::INDIRECT) gpuBuffer->renderAccessTypes.push_back(THSVS_ACCESS_INDIRECT_BUFFER);
 }
 
 void CCVKCmdFuncCreateRenderPass(CCVKDevice *device, CCVKGPURenderPass *gpuRenderPass) {
@@ -777,7 +782,7 @@ void CCVKCmdFuncUpdateBuffer(CCVKDevice *device, CCVKGPUBuffer *gpuBuffer, const
     }
 
     // back buffer instances update command
-    if (gpuBuffer->instanceSize) {
+    if (!cmdBuffer && gpuBuffer->instanceSize) {
         device->gpuBufferHub()->record(gpuBuffer, dataToUpload, sizeToUpload);
         return;
     }
@@ -789,6 +794,17 @@ void CCVKCmdFuncUpdateBuffer(CCVKDevice *device, CCVKGPUBuffer *gpuBuffer, const
 
     VkBufferCopy region{stagingBuffer.startOffset, gpuBuffer->startOffset, sizeToUpload};
     auto         upload = [&stagingBuffer, &gpuBuffer, &region](const CCVKGPUCommandBuffer *gpuCommandBuffer) {
+        if (gpuBuffer->transferAccess) {
+            CC_LOG_WARNING("updateBuffer: performance warning: buffer updated more than once per frame");
+            // guard against WAW hazard
+            VkMemoryBarrier vkBarrier{VK_STRUCTURE_TYPE_MEMORY_BARRIER};
+            vkBarrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+            vkBarrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+            vkCmdPipelineBarrier(gpuCommandBuffer->vkCommandBuffer,
+                                 VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                 VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                 0, 1, &vkBarrier, 0, nullptr, 0, nullptr);
+        }
         vkCmdCopyBuffer(gpuCommandBuffer->vkCommandBuffer, stagingBuffer.vkBuffer, gpuBuffer->vkBuffer, 1, &region);
     };
 
@@ -797,6 +813,9 @@ void CCVKCmdFuncUpdateBuffer(CCVKDevice *device, CCVKGPUBuffer *gpuBuffer, const
     } else {
         device->gpuTransportHub()->checkIn(upload);
     }
+
+    gpuBuffer->transferAccess = THSVS_ACCESS_TRANSFER_WRITE;
+    device->gpuBarrierManager()->checkIn(gpuBuffer);
 }
 
 void CCVKCmdFuncCopyBuffersToTexture(CCVKDevice *device, const uint8_t *const *buffers, CCVKGPUTexture *gpuTexture,
@@ -816,8 +835,18 @@ void CCVKCmdFuncCopyBuffersToTexture(CCVKDevice *device, const uint8_t *const *b
     barrier.nextAccessCount             = 1;
     barrier.pNextAccesses               = &THSVS_ACCESS_TYPES[(uint)AccessType::TRANSFER_WRITE];
 
-    if (std::find(curTypes.begin(), curTypes.end(), THSVS_ACCESS_TRANSFER_WRITE) == curTypes.end()) {
+    if (gpuTexture->transferAccess != THSVS_ACCESS_TRANSFER_WRITE) {
         CCVKCmdFuncImageMemoryBarrier(gpuCommandBuffer, barrier);
+    } else {
+        CC_LOG_WARNING("copyBuffersToTexture: performance warning: texture updated more than once per frame");
+        // guard against WAW hazard
+        VkMemoryBarrier vkBarrier{VK_STRUCTURE_TYPE_MEMORY_BARRIER};
+        vkBarrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+        vkBarrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+        vkCmdPipelineBarrier(gpuCommandBuffer->vkCommandBuffer,
+                             VK_PIPELINE_STAGE_TRANSFER_BIT,
+                             VK_PIPELINE_STAGE_TRANSFER_BIT,
+                             0, 1, &vkBarrier, 0, nullptr, 0, nullptr);
     }
 
     uint         totalSize = 0u;
@@ -902,7 +931,8 @@ void CCVKCmdFuncCopyBuffersToTexture(CCVKDevice *device, const uint8_t *const *b
     }
 
     curTypes.assign({THSVS_ACCESS_TRANSFER_WRITE});
-    device->gpuTextureLayoutManager()->checkIn(gpuTexture);
+    gpuTexture->transferAccess = THSVS_ACCESS_TRANSFER_WRITE;
+    device->gpuBarrierManager()->checkIn(gpuTexture);
 }
 
 void CCVKCmdFuncDestroyRenderPass(CCVKGPUDevice *gpuDevice, CCVKGPURenderPass *gpuRenderPass) {
@@ -978,6 +1008,18 @@ void CCVKCmdFuncDestroyPipelineState(CCVKGPUDevice *gpuDevice, CCVKGPUPipelineSt
         vkDestroyPipeline(gpuDevice->vkDevice, gpuPipelineState->vkPipeline, nullptr);
         gpuPipelineState->vkPipeline = VK_NULL_HANDLE;
     }
+}
+
+void CCVKCmdFuncGlobalMemoryBarrier(const CCVKGPUCommandBuffer *gpuCommandBuffer, const ThsvsGlobalBarrier &globalBarrier) {
+    VkPipelineStageFlags srcStageMask     = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+    VkPipelineStageFlags dstStageMask     = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
+    VkPipelineStageFlags tempSrcStageMask = 0;
+    VkPipelineStageFlags tempDstStageMask = 0;
+    VkMemoryBarrier      vkBarrier;
+    thsvsGetVulkanMemoryBarrier(globalBarrier, &tempSrcStageMask, &tempDstStageMask, &vkBarrier);
+    srcStageMask |= tempSrcStageMask;
+    dstStageMask |= tempDstStageMask;
+    vkCmdPipelineBarrier(gpuCommandBuffer->vkCommandBuffer, srcStageMask, dstStageMask, 0, 1, &vkBarrier, 0, nullptr, 0, nullptr);
 }
 
 void CCVKCmdFuncImageMemoryBarrier(const CCVKGPUCommandBuffer *gpuCommandBuffer, const ThsvsImageBarrier &imageBarrier) {
@@ -1072,31 +1114,82 @@ void CCVKGPURecycleBin::clear() {
     _count = 0;
 }
 
-void CCVKGPUTextureLayoutManager::update(CCVKGPUCommandBuffer *gpuCommandBuffer) {
-    ThsvsImageBarrier barrier{};
-    barrier.discardContents             = false;
-    barrier.prevLayout                  = THSVS_IMAGE_LAYOUT_OPTIMAL;
-    barrier.nextLayout                  = THSVS_IMAGE_LAYOUT_OPTIMAL;
-    barrier.srcQueueFamilyIndex         = VK_QUEUE_FAMILY_IGNORED;
-    barrier.dstQueueFamilyIndex         = VK_QUEUE_FAMILY_IGNORED;
-    barrier.subresourceRange.levelCount = VK_REMAINING_MIP_LEVELS;
-    barrier.subresourceRange.layerCount = VK_REMAINING_ARRAY_LAYERS;
+void CCVKGPUBarrierManager::update(CCVKGPUCommandBuffer *gpuCommandBuffer) {
+    static vector<ThsvsAccessType>      prevAccesses;
+    static vector<ThsvsAccessType>      nextAccesses;
+    static vector<VkImageMemoryBarrier> vkImageBarriers;
+    VkPipelineStageFlags                srcStageMask = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+    VkPipelineStageFlags                dstStageMask = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
+    vkImageBarriers.clear();
+    prevAccesses.clear();
+    nextAccesses.clear();
+
+    for (CCVKGPUBuffer *gpuBuffer : _buffersToBeChecked) {
+        vector<ThsvsAccessType> &render = gpuBuffer->renderAccessTypes;
+        if (gpuBuffer->transferAccess == THSVS_ACCESS_NONE) continue;
+        if (std::find(prevAccesses.begin(), prevAccesses.end(), gpuBuffer->transferAccess) == prevAccesses.end()) {
+            prevAccesses.push_back(gpuBuffer->transferAccess);
+        }
+        nextAccesses.insert(nextAccesses.end(), render.begin(), render.end());
+        gpuBuffer->transferAccess = THSVS_ACCESS_NONE;
+    }
+
+    VkMemoryBarrier  vkBarrier;
+    VkMemoryBarrier *pVkBarrier = nullptr;
+    if (prevAccesses.size()) {
+        ThsvsGlobalBarrier globalBarrier{};
+        globalBarrier.prevAccessCount         = prevAccesses.size();
+        globalBarrier.pPrevAccesses           = prevAccesses.data();
+        globalBarrier.nextAccessCount         = nextAccesses.size();
+        globalBarrier.pNextAccesses           = nextAccesses.data();
+        VkPipelineStageFlags tempSrcStageMask = 0;
+        VkPipelineStageFlags tempDstStageMask = 0;
+        thsvsGetVulkanMemoryBarrier(globalBarrier, &tempSrcStageMask, &tempDstStageMask, &vkBarrier);
+        srcStageMask |= tempSrcStageMask;
+        dstStageMask |= tempDstStageMask;
+        pVkBarrier = &vkBarrier;
+    }
+
+    ThsvsImageBarrier imageBarrier{};
+    imageBarrier.discardContents             = false;
+    imageBarrier.prevLayout                  = THSVS_IMAGE_LAYOUT_OPTIMAL;
+    imageBarrier.nextLayout                  = THSVS_IMAGE_LAYOUT_OPTIMAL;
+    imageBarrier.srcQueueFamilyIndex         = VK_QUEUE_FAMILY_IGNORED;
+    imageBarrier.dstQueueFamilyIndex         = VK_QUEUE_FAMILY_IGNORED;
+    imageBarrier.subresourceRange.levelCount = VK_REMAINING_MIP_LEVELS;
+    imageBarrier.subresourceRange.layerCount = VK_REMAINING_ARRAY_LAYERS;
+    imageBarrier.prevAccessCount             = 1;
 
     for (CCVKGPUTexture *gpuTexture : _texturesToBeChecked) {
-        vector<ThsvsAccessType> &render  = gpuTexture->renderAccessTypes;
-        vector<ThsvsAccessType> &current = gpuTexture->currentAccessTypes;
-        if (!std::is_permutation(current.begin(), current.end(), render.begin(), render.end())) {
-            barrier.prevAccessCount             = current.size();
-            barrier.pPrevAccesses               = current.data();
-            barrier.nextAccessCount             = render.size();
-            barrier.pNextAccesses               = render.data();
-            barrier.image                       = gpuTexture->vkImage;
-            barrier.subresourceRange.aspectMask = gpuTexture->aspectMask;
-            CCVKCmdFuncImageMemoryBarrier(gpuCommandBuffer, barrier);
+        vector<ThsvsAccessType> &render = gpuTexture->renderAccessTypes;
+        if (gpuTexture->transferAccess == THSVS_ACCESS_NONE || render.empty()) continue;
+        vector<ThsvsAccessType> &current         = gpuTexture->currentAccessTypes;
+        imageBarrier.pPrevAccesses               = &gpuTexture->transferAccess;
+        imageBarrier.nextAccessCount             = render.size();
+        imageBarrier.pNextAccesses               = render.data();
+        imageBarrier.image                       = gpuTexture->vkImage;
+        imageBarrier.subresourceRange.aspectMask = gpuTexture->aspectMask;
 
+        vkImageBarriers.emplace_back();
+        VkPipelineStageFlags tempSrcStageMask = 0;
+        VkPipelineStageFlags tempDstStageMask = 0;
+        thsvsGetVulkanImageMemoryBarrier(imageBarrier, &tempSrcStageMask, &tempDstStageMask, &vkImageBarriers.back());
+        srcStageMask |= tempSrcStageMask;
+        dstStageMask |= tempDstStageMask;
+
+        // don't override any other access changes since this barrier always happens first
+        if (current.size() == 1 && current[0] == gpuTexture->transferAccess) {
             current = render;
         }
+        gpuTexture->transferAccess = THSVS_ACCESS_NONE;
     }
+
+    if (pVkBarrier || vkImageBarriers.size()) {
+        vkCmdPipelineBarrier(gpuCommandBuffer->vkCommandBuffer, srcStageMask, dstStageMask, 0,
+                             pVkBarrier ? 1 : 0, pVkBarrier, 0, nullptr, vkImageBarriers.size(), vkImageBarriers.data());
+    }
+
+    _buffersToBeChecked.clear();
     _texturesToBeChecked.clear();
 }
 

@@ -39,7 +39,7 @@ CCVKQueue::~CCVKQueue() {
 }
 
 bool CCVKQueue::initialize(const QueueInfo &info) {
-    _type    = info.type;
+    _type = info.type;
 
     _gpuQueue       = CC_NEW(CCVKGPUQueue);
     _gpuQueue->type = _type;
@@ -61,7 +61,7 @@ void CCVKQueue::submit(CommandBuffer *const *cmdBuffs, uint count) {
     _gpuQueue->commandBuffers.clear();
 
 #if BARRIER_DEDUCTION_LEVEL >= BARRIER_DEDUCTION_LEVEL_BASIC
-    CCVKGPUTextureLayoutManager *layoutMgr = device->gpuTextureLayoutManager();
+    CCVKGPUBarrierManager *layoutMgr = device->gpuBarrierManager();
     if (layoutMgr->needUpdate()) {
         device->gpuTransportHub()->checkIn([layoutMgr](CCVKGPUCommandBuffer *cmdBuffer) {
             layoutMgr->update(cmdBuffer);
@@ -70,7 +70,7 @@ void CCVKQueue::submit(CommandBuffer *const *cmdBuffs, uint count) {
 #endif
 
     if (!device->gpuTransportHub()->empty()) {
-        _gpuQueue->commandBuffers.push(device->gpuTransportHub()->readyForFlight());
+        _gpuQueue->commandBuffers.push(device->gpuTransportHub()->packageForFlight());
     }
 
     for (uint i = 0u; i < count; ++i) {

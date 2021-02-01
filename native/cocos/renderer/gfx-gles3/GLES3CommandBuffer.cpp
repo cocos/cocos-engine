@@ -121,12 +121,12 @@ void GLES3CommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fb
     cmd->clearDepth   = depth;
     cmd->clearStencil = stencil;
     _curCmdPackage->beginRenderPassCmds.push(cmd);
-    _curCmdPackage->cmds.push(GLES3CmdType::BEGIN_RENDER_PASS);
+    _curCmdPackage->cmds.push(GLESCmdType::BEGIN_RENDER_PASS);
 }
 
 void GLES3CommandBuffer::endRenderPass() {
     _isInRenderPass = false;
-    _curCmdPackage->cmds.push(GLES3CmdType::END_RENDER_PASS);
+    _curCmdPackage->cmds.push(GLESCmdType::END_RENDER_PASS);
 }
 
 void GLES3CommandBuffer::bindPipelineState(PipelineState *pso) {
@@ -257,7 +257,7 @@ void GLES3CommandBuffer::draw(InputAssembler *ia) {
         GLES3CmdDraw *cmd = _cmdAllocator->drawCmdPool.alloc();
         ((GLES3InputAssembler *)ia)->ExtractCmdDraw(cmd);
         _curCmdPackage->drawCmds.push(cmd);
-        _curCmdPackage->cmds.push(GLES3CmdType::DRAW);
+        _curCmdPackage->cmds.push(GLESCmdType::DRAW);
 
         ++_numDrawCalls;
         _numInstances += ia->getInstanceCount();
@@ -293,7 +293,7 @@ void GLES3CommandBuffer::updateBuffer(Buffer *buff, const void *data, uint size)
             cmd->buffer               = (uint8_t *)data;
 
             _curCmdPackage->updateBufferCmds.push(cmd);
-            _curCmdPackage->cmds.push(GLES3CmdType::UPDATE_BUFFER);
+            _curCmdPackage->cmds.push(GLESCmdType::UPDATE_BUFFER);
         }
     } else {
         CC_LOG_ERROR("Command 'updateBuffer' must be recorded outside a render pass.");
@@ -312,7 +312,7 @@ void GLES3CommandBuffer::blitTexture(Texture *srcTexture, Texture *dstTexture, c
         cmd->filter  = filter;
 
         _curCmdPackage->blitTextureCmds.push(cmd);
-        _curCmdPackage->cmds.push(GLES3CmdType::BLIT_TEXTURE);
+        _curCmdPackage->cmds.push(GLESCmdType::BLIT_TEXTURE);
     } else {
         CC_LOG_ERROR("Command 'blitTexture' must be recorded outside a render pass.");
     }
@@ -332,7 +332,7 @@ void GLES3CommandBuffer::copyBuffersToTexture(const uint8_t *const *buffers, Tex
             cmd->buffers                     = buffers;
 
             _curCmdPackage->copyBufferToTextureCmds.push(cmd);
-            _curCmdPackage->cmds.push(GLES3CmdType::COPY_BUFFER_TO_TEXTURE);
+            _curCmdPackage->cmds.push(GLESCmdType::COPY_BUFFER_TO_TEXTURE);
         }
     } else {
         CC_LOG_ERROR("Command 'copyBuffersToTexture' must be recorded outside a render pass.");
@@ -430,7 +430,7 @@ void GLES3CommandBuffer::BindStates() {
     cmd->stencilCompareMask = _curStencilCompareMask;
 
     _curCmdPackage->bindStatesCmds.push(cmd);
-    _curCmdPackage->cmds.push(GLES3CmdType::BIND_STATES);
+    _curCmdPackage->cmds.push(GLESCmdType::BIND_STATES);
     _isStateInvalid = false;
 }
 
@@ -452,7 +452,7 @@ void GLES3CommandBuffer::dispatch(const DispatchInfo &info) {
             cmd->dispatchInfo.groupCountZ = info.groupCountZ;
         }
         _curCmdPackage->dispatchCmds.push(cmd);
-        _curCmdPackage->cmds.push(GLES3CmdType::DISPATCH);
+        _curCmdPackage->cmds.push(GLESCmdType::DISPATCH);
     } else {
         CC_LOG_ERROR("Command 'dispatch' must be recorded outside a render pass.");
     }
@@ -469,7 +469,7 @@ void GLES3CommandBuffer::pipelineBarrier(const GlobalBarrier *barrier, const Tex
         cmd->barriers         = gpuBarrier->glBarriers;
         cmd->barriersByRegion = gpuBarrier->glBarriersByRegion;
         _curCmdPackage->barrierCmds.push(cmd);
-        _curCmdPackage->cmds.push(GLES3CmdType::BARRIER);
+        _curCmdPackage->cmds.push(GLESCmdType::BARRIER);
     } else {
         CC_LOG_ERROR("Command 'pipelineBarrier' must be recorded outside a render pass.");
     }

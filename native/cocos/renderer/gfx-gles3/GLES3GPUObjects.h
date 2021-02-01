@@ -24,7 +24,7 @@ THE SOFTWARE.
 #ifndef CC_GFXGLES3_GPU_OBJECTS_H_
 #define CC_GFXGLES3_GPU_OBJECTS_H_
 
-#include "gles3w.h"
+#include "GLES3Wrangler.h"
 
 namespace cc {
 namespace gfx {
@@ -80,8 +80,6 @@ public:
     Address addressU = Address::CLAMP;
     Address addressV = Address::CLAMP;
     Address addressW = Address::CLAMP;
-    uint minLOD = 0;
-    uint maxLOD = 1000;
     GLuint glSampler = 0;
     GLenum glMinFilter = 0;
     GLenum glMagFilter = 0;

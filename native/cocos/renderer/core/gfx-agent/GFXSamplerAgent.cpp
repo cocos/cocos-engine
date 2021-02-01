@@ -29,8 +29,6 @@ bool SamplerAgent::initialize(const SamplerInfo &info) {
     _maxAnisotropy = info.maxAnisotropy;
     _cmpFunc = info.cmpFunc;
     _borderColor = info.borderColor;
-    _minLOD = info.minLOD;
-    _maxLOD = info.maxLOD;
     _mipLODBias = info.mipLODBias;
 
     ENQUEUE_MESSAGE_2(

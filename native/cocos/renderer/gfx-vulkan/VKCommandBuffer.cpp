@@ -129,6 +129,17 @@ void CCVKCommandBuffer::end() {
 
 void CCVKCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors,
                                         float depth, int stencil, CommandBuffer *const *secondaryCBs, uint32_t secondaryCBCount) {
+#if BARRIER_DEDUCTION_LEVEL >= BARRIER_DEDUCTION_LEVEL_BASIC
+    // guard against RAW hazard
+    VkMemoryBarrier vkBarrier{VK_STRUCTURE_TYPE_MEMORY_BARRIER};
+    vkBarrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+    vkBarrier.dstAccessMask = VK_ACCESS_UNIFORM_READ_BIT;
+    vkCmdPipelineBarrier(_gpuCommandBuffer->vkCommandBuffer,
+                         VK_PIPELINE_STAGE_TRANSFER_BIT,
+                         VK_PIPELINE_STAGE_VERTEX_SHADER_BIT | VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
+                         0, 1, &vkBarrier, 0, nullptr, 0, nullptr);
+#endif
+
     _curGPUFBO                       = ((CCVKFramebuffer *)fbo)->gpuFBO();
     CCVKGPURenderPass *gpuRenderPass = ((CCVKRenderPass *)renderPass)->gpuRenderPass();
     VkFramebuffer      framebuffer   = _curGPUFBO->vkFramebuffer;
@@ -145,38 +156,6 @@ void CCVKCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo
         }
         clearValues[attachmentCount - 1].depthStencil = {depth, (uint)stencil};
     }
-
-#if BARRIER_DEDUCTION_LEVEL >= BARRIER_DEDUCTION_LEVEL_FULL
-    // make previous framebuffer visible for load op
-    if (gpuRenderPass->colorAttachments.size() && gpuRenderPass->colorAttachments[0].loadOp == LoadOp::LOAD) {
-        VkMemoryBarrier barrier{VK_STRUCTURE_TYPE_MEMORY_BARRIER};
-        barrier.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-        barrier.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT;
-        vkCmdPipelineBarrier(_gpuCommandBuffer->vkCommandBuffer,
-                             VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
-                             VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
-                             0, 1, &barrier, 0, nullptr, 0, nullptr);
-    }
-
-    if (gpuRenderPass->depthStencilAttachment.depthLoadOp == LoadOp::LOAD) {
-        VkMemoryBarrier barrier{VK_STRUCTURE_TYPE_MEMORY_BARRIER};
-        barrier.srcAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
-        barrier.dstAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT;
-        vkCmdPipelineBarrier(_gpuCommandBuffer->vkCommandBuffer,
-                             VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT,
-                             VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT,
-                             0, 1, &barrier, 0, nullptr, 0, nullptr);
-    }
-
-    // guard against RAW hazard
-    //ThsvsAccessType prevType = THSVS_ACCESS_TRANSFER_WRITE;
-    //ThsvsGlobalBarrier barrier{};
-    //barrier.prevAccessCount = 1;
-    //barrier.pPrevAccesses = &prevType;
-    //barrier.nextAccessCount = gpuBuffer->accessTypes.size();
-    //barrier.pNextAccesses = gpuBuffer->accessTypes.data();
-    //thsvsCmdPipelineBarrier(_gpuCommandBuffer->vkCommandBuffer, &barrier, 0, nullptr, 0, nullptr);
-#endif
 
     VkRenderPassBeginInfo passBeginInfo{VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO};
     passBeginInfo.renderPass      = gpuRenderPass->vkRenderPass;
@@ -197,11 +176,6 @@ void CCVKCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo
 void CCVKCommandBuffer::endRenderPass() {
     vkCmdEndRenderPass(_gpuCommandBuffer->vkCommandBuffer);
 
-#if BARRIER_DEDUCTION_LEVEL >= BARRIER_DEDUCTION_LEVEL_FULL
-    // guard against WAR hazard
-    vkCmdPipelineBarrier(_gpuCommandBuffer->vkCommandBuffer, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0, 0, nullptr, 0, nullptr, 0, nullptr);
-#endif
-
     size_t colorAttachmentCount = _curGPUFBO->gpuRenderPass->colorAttachments.size();
     for (size_t i = 0u; i < colorAttachmentCount; ++i) {
         if (_curGPUFBO->gpuColorViews[i]) {
@@ -220,6 +194,13 @@ void CCVKCommandBuffer::endRenderPass() {
     }
 
     _curGPUFBO = nullptr;
+
+#if BARRIER_DEDUCTION_LEVEL >= BARRIER_DEDUCTION_LEVEL_BASIC
+    // guard against WAR hazard
+    vkCmdPipelineBarrier(_gpuCommandBuffer->vkCommandBuffer,
+                         VK_PIPELINE_STAGE_VERTEX_SHADER_BIT | VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
+                         VK_PIPELINE_STAGE_TRANSFER_BIT, 0, 0, nullptr, 0, nullptr, 0, nullptr);
+#endif
 }
 
 void CCVKCommandBuffer::bindPipelineState(PipelineState *pso) {
@@ -457,7 +438,8 @@ void CCVKCommandBuffer::execute(CommandBuffer *const *cmdBuffs, uint count) {
 }
 
 void CCVKCommandBuffer::updateBuffer(Buffer *buffer, const void *data, uint size) {
-    CCVKCmdFuncUpdateBuffer((CCVKDevice *)_device, ((CCVKBuffer *)buffer)->gpuBuffer(), data, size, _gpuCommandBuffer);
+    CCVKGPUBuffer *gpuBuffer = ((CCVKBuffer *)buffer)->gpuBuffer();
+    CCVKCmdFuncUpdateBuffer((CCVKDevice *)_device, gpuBuffer, data, size, _gpuCommandBuffer);
 }
 
 void CCVKCommandBuffer::copyBuffersToTexture(const uint8_t *const *buffers, Texture *texture, const BufferTextureCopy *regions, uint count) {
@@ -482,28 +464,6 @@ void CCVKCommandBuffer::blitTexture(Texture *srcTexture, Texture *dstTexture, co
         srcAspectMask  = VK_IMAGE_ASPECT_COLOR_BIT;
         srcImage       = swapchain->swapchainImages[swapchain->curImageIndex];
         srcImageLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
-
-#if BARRIER_DEDUCTION_LEVEL >= BARRIER_DEDUCTION_LEVEL_FULL
-        vector<ThsvsAccessType> &curAccessTypes = swapchain->swapchainImageAccessTypes[swapchain->curImageIndex];
-        if (std::find(curAccessTypes.begin(), curAccessTypes.end(), THSVS_ACCESS_TRANSFER_READ) == curAccessTypes.end()) {
-            ThsvsImageBarrier barrier{};
-            barrier.prevAccessCount             = curAccessTypes.size();
-            barrier.pPrevAccesses               = curAccessTypes.data();
-            barrier.nextAccessCount             = 1;
-            barrier.pNextAccesses               = &THSVS_ACCESS_TYPES[(uint)AccessType::TRANSFER_READ];
-            barrier.prevLayout                  = THSVS_IMAGE_LAYOUT_OPTIMAL;
-            barrier.nextLayout                  = THSVS_IMAGE_LAYOUT_OPTIMAL;
-            barrier.srcQueueFamilyIndex         = VK_QUEUE_FAMILY_IGNORED;
-            barrier.dstQueueFamilyIndex         = VK_QUEUE_FAMILY_IGNORED;
-            barrier.image                       = srcImage;
-            barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-            barrier.subresourceRange.levelCount = VK_REMAINING_MIP_LEVELS;
-            barrier.subresourceRange.layerCount = VK_REMAINING_ARRAY_LAYERS;
-            thsvsCmdPipelineBarrier(_gpuCommandBuffer->vkCommandBuffer, nullptr, 0, nullptr, 1, &barrier);
-
-            curAccessTypes.assign({THSVS_ACCESS_TRANSFER_READ});
-        }
-#endif
     }
 
     if (dstTexture) {
@@ -515,28 +475,6 @@ void CCVKCommandBuffer::blitTexture(Texture *srcTexture, Texture *dstTexture, co
         dstAspectMask  = VK_IMAGE_ASPECT_COLOR_BIT;
         dstImage       = swapchain->swapchainImages[swapchain->curImageIndex];
         dstImageLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
-
-#if BARRIER_DEDUCTION_LEVEL >= BARRIER_DEDUCTION_LEVEL_FULL
-        vector<ThsvsAccessType> &curAccessTypes = swapchain->swapchainImageAccessTypes[swapchain->curImageIndex];
-        if (std::find(curAccessTypes.begin(), curAccessTypes.end(), THSVS_ACCESS_TRANSFER_WRITE) == curAccessTypes.end()) {
-            ThsvsImageBarrier barrier{};
-            barrier.prevAccessCount             = curAccessTypes.size();
-            barrier.pPrevAccesses               = curAccessTypes.data();
-            barrier.nextAccessCount             = 1;
-            barrier.pNextAccesses               = &THSVS_ACCESS_TYPES[(uint)AccessType::TRANSFER_WRITE];
-            barrier.prevLayout                  = THSVS_IMAGE_LAYOUT_OPTIMAL;
-            barrier.nextLayout                  = THSVS_IMAGE_LAYOUT_OPTIMAL;
-            barrier.srcQueueFamilyIndex         = VK_QUEUE_FAMILY_IGNORED;
-            barrier.dstQueueFamilyIndex         = VK_QUEUE_FAMILY_IGNORED;
-            barrier.image                       = dstImage;
-            barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-            barrier.subresourceRange.levelCount = VK_REMAINING_MIP_LEVELS;
-            barrier.subresourceRange.layerCount = VK_REMAINING_ARRAY_LAYERS;
-            thsvsCmdPipelineBarrier(_gpuCommandBuffer->vkCommandBuffer, nullptr, 0, nullptr, 1, &barrier);
-
-            curAccessTypes.assign({THSVS_ACCESS_TRANSFER_WRITE});
-        }
-#endif
     }
 
     _blitRegions.resize(count);

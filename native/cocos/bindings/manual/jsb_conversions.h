@@ -1239,7 +1239,6 @@ inline bool nativevalue_to_se(const T &from, se::Value &to, se::Object *ctx) {
         to.setNumber((double)static_cast<std::conditional_t<sizeof(T) == 4, int32_t, int64_t>>(from));
         return true;
     } else {
-        static_assert(!std::is_const<T>::value, "Only non-const value accepted here");
         return nativevalue_to_se<typename std::conditional_t<std::is_const<T>::value, T, typename std::add_const<T>::type>>(from, to, ctx);
     }
     return false;
