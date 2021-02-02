@@ -102,8 +102,6 @@ export interface IWebGL2GPUSampler {
     addressU: Address;
     addressV: Address;
     addressW: Address;
-    minLOD: number;
-    maxLOD: number;
 
     glMinFilter: GLenum;
     glMagFilter: GLenum;

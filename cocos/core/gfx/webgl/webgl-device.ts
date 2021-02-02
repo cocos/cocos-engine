@@ -58,10 +58,12 @@ import { WebGLStateCache } from './webgl-state-cache';
 import { WebGLTexture } from './webgl-texture';
 import { getTypedArrayConstructor, CommandBufferType, Filter, Format, FormatInfos, BindingMappingInfo, ShaderInfo,
     QueueInfo, CommandBufferInfo, DescriptorSetInfo, DescriptorSetLayoutInfo, FramebufferInfo, InputAssemblerInfo, PipelineLayoutInfo,
-    RenderPassInfo, SamplerInfo, TextureInfo, TextureViewInfo, BufferInfo, BufferViewInfo, DeviceInfo,
-    QueueType, TextureFlagBit, TextureType, TextureUsageBit, API, Feature, BufferTextureCopy, Rect } from '../base/define';
+    RenderPassInfo, SamplerInfo, TextureInfo, TextureViewInfo, BufferInfo, BufferViewInfo, DeviceInfo, TextureBarrierInfo, GlobalBarrierInfo,
+    QueueType, TextureFlagBit, TextureType, TextureUsageBit, API, Feature, BufferTextureCopy, Rect  } from '../base/define';
 import { GFXFormatToWebGLFormat, GFXFormatToWebGLType, WebGLCmdFuncCopyBuffersToTexture,
     WebGLCmdFuncCopyTexImagesToTexture } from './webgl-commands';
+import { GlobalBarrier } from '../base/global-barrier';
+import { TextureBarrier } from '../base/texture-barrier';
 
 const eventWebGLContextLost = 'webglcontextlost';
 
@@ -298,6 +300,7 @@ export class WebGLDevice extends Device {
         this._caps.maxCubeMapTextureSize = gl.getParameter(gl.MAX_CUBE_MAP_TEXTURE_SIZE);
         this._caps.depthBits = gl.getParameter(gl.DEPTH_BITS);
         this._caps.stencilBits = gl.getParameter(gl.STENCIL_BITS);
+        this._caps.uboOffsetAlignment = 1;
 
         this.stateCache.initialize(this._caps.maxTextureUnits, this._caps.maxVertexAttributes);
 
@@ -698,6 +701,22 @@ export class WebGLDevice extends Device {
         const queue = new WebGLQueue(this);
         if (queue.initialize(info)) {
             return queue;
+        }
+        return null!;
+    }
+
+    public createGlobalBarrier (info: GlobalBarrierInfo) {
+        const barrier = new GlobalBarrier(this);
+        if (barrier.initialize(info)) {
+            return barrier;
+        }
+        return null!;
+    }
+
+    public createTextureBarrier (info: TextureBarrierInfo) {
+        const barrier = new TextureBarrier(this);
+        if (barrier.initialize(info)) {
+            return barrier;
         }
         return null!;
     }

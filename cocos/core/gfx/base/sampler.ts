@@ -45,8 +45,6 @@ export abstract class Sampler extends Obj {
     get maxAnisotropy () { return this._maxAnisotropy; }
     get cmpFunc () { return this._cmpFunc; }
     get borderColor () { return this._borderColor; }
-    get minLOD () { return this._minLOD; }
-    get maxLOD () { return this._maxLOD; }
     get mipLODBias () { return this._mipLODBias; }
 
     protected _device: Device;
@@ -60,8 +58,6 @@ export abstract class Sampler extends Obj {
     protected _maxAnisotropy = 16;
     protected _cmpFunc: ComparisonFunc = ComparisonFunc.NEVER;
     protected _borderColor: Color = new Color();
-    protected _minLOD = 0;
-    protected _maxLOD = 0;
     protected _mipLODBias = 0.0;
 
     constructor (device: Device) {

@@ -28,26 +28,24 @@
  * @module gfx
  */
 
-import { legacyCC } from '../global-exports';
-import './deprecated-3.0.0';
-import { polyfillCC } from './polyfill-legacy-cc';
+import { Device } from './device';
+import { Obj, ObjectType, GlobalBarrierInfo } from './define';
 
-export * from './base/descriptor-set';
-export * from './base/buffer';
-export * from './base/command-buffer';
-export * from './base/define';
-export * from './base/device';
-export * from './base/framebuffer';
-export * from './base/input-assembler';
-export * from './base/descriptor-set-layout';
-export * from './base/pipeline-layout';
-export * from './base/pipeline-state';
-export * from './base/queue';
-export * from './base/render-pass';
-export * from './base/sampler';
-export * from './base/shader';
-export * from './base/texture';
-export * from './base/global-barrier';
-export * from './base/texture-barrier';
+/**
+ * @en GFX shader.
+ * @zh GFX 着色器。
+ */
+export class GlobalBarrier extends Obj {
+    protected _device: Device;
+    protected _info: GlobalBarrierInfo = new GlobalBarrierInfo();
 
-legacyCC.gfx = polyfillCC;
+    constructor (device: Device) {
+        super(ObjectType.GLOBAL_BARRIER);
+        this._device = device;
+    }
+
+    public initialize (info: GlobalBarrierInfo): boolean {
+        this._info.copy(info);
+        return true;
+    }
+}

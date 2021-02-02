@@ -57,6 +57,8 @@ import { WebGL2PipelineState } from './webgl2-pipeline-state';
 import { WebGL2Texture } from './webgl2-texture';
 import { RenderPass } from '../base/render-pass';
 import { WebGL2RenderPass } from './webgl2-render-pass';
+import { GlobalBarrier } from '../base/global-barrier';
+import { TextureBarrier } from '../base/texture-barrier';
 
 export interface IWebGL2DepthBias {
     constantFactor: number;
@@ -464,6 +466,9 @@ export class WebGL2CommandBuffer extends CommandBuffer {
             this._numInstances += webGL2CmdBuff._numInstances;
             this._numTris += webGL2CmdBuff._numTris;
         }
+    }
+
+    public pipelineBarrier (globalBarrier: GlobalBarrier, textureBarriers: TextureBarrier[]) {
     }
 
     public get webGLDevice (): WebGL2Device {

@@ -56,10 +56,12 @@ import { WebGL2StateCache } from './webgl2-state-cache';
 import { WebGL2Texture } from './webgl2-texture';
 import { getTypedArrayConstructor, CommandBufferType, Filter, Format, FormatInfos, DescriptorSetLayoutInfo, DescriptorSetInfo,
     PipelineLayoutInfo, BufferViewInfo, CommandBufferInfo, BufferInfo, BindingMappingInfo, FramebufferInfo, InputAssemblerInfo,
-    QueueInfo, RenderPassInfo, SamplerInfo, ShaderInfo, TextureInfo, TextureViewInfo, DeviceInfo,
-    QueueType, TextureFlagBit, TextureType, TextureUsageBit,  API, Feature, BufferTextureCopy, Rect } from '../base/define';
+    QueueInfo, RenderPassInfo, SamplerInfo, ShaderInfo, TextureInfo, TextureViewInfo, DeviceInfo, Rect, GlobalBarrierInfo, TextureBarrierInfo,
+    QueueType, TextureFlagBit, TextureType, TextureUsageBit,  API, Feature, BufferTextureCopy  } from '../base/define';
 import { GFXFormatToWebGLFormat, GFXFormatToWebGLType, WebGL2CmdFuncBlitFramebuffer,
     WebGL2CmdFuncCopyBuffersToTexture, WebGL2CmdFuncCopyTexImagesToTexture } from './webgl2-commands';
+import { GlobalBarrier } from '../base/global-barrier';
+import { TextureBarrier } from '../base/texture-barrier';
 
 const eventWebGLContextLost = 'webglcontextlost';
 
@@ -571,6 +573,22 @@ export class WebGL2Device extends Device {
         const queue = new WebGL2Queue(this);
         if (queue.initialize(info)) {
             return queue;
+        }
+        return null!;
+    }
+
+    public createGlobalBarrier (info: GlobalBarrierInfo) {
+        const barrier = new GlobalBarrier(this);
+        if (barrier.initialize(info)) {
+            return barrier;
+        }
+        return null!;
+    }
+
+    public createTextureBarrier (info: TextureBarrierInfo) {
+        const barrier = new TextureBarrier(this);
+        if (barrier.initialize(info)) {
+            return barrier;
         }
         return null!;
     }

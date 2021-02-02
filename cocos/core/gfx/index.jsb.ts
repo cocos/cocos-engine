@@ -43,6 +43,8 @@ export * from './base/render-pass';
 export * from './base/sampler';
 export * from './base/shader';
 export * from './base/texture';
+export * from './base/global-barrier';
+export * from './base/texture-barrier';
 
 const polyfillCC: Record<string, unknown> = Object.assign({}, defines);
 polyfillCC.Device = gfx.Device;

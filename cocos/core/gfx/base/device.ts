@@ -33,7 +33,7 @@ import {
     API, Feature, Filter, Format, MemoryStatus, SurfaceTransform, Rect,
     CommandBufferInfo, BufferInfo, BufferViewInfo, TextureInfo, TextureViewInfo, SamplerInfo, DescriptorSetInfo,
     ShaderInfo, InputAssemblerInfo, RenderPassInfo, FramebufferInfo, DescriptorSetLayoutInfo, PipelineLayoutInfo,
-    QueueInfo, BufferTextureCopy, DeviceInfo, DeviceCaps,
+    QueueInfo, BufferTextureCopy, DeviceInfo, DeviceCaps, GlobalBarrierInfo, TextureBarrierInfo,
 } from './define';
 import { Buffer } from './buffer';
 import { CommandBuffer } from './command-buffer';
@@ -48,6 +48,8 @@ import { RenderPass } from './render-pass';
 import { Sampler } from './sampler';
 import { Shader } from './shader';
 import { Texture } from './texture';
+import { GlobalBarrier } from './global-barrier';
+import { TextureBarrier } from './texture-barrier';
 
 ccenum(Format);
 
@@ -362,6 +364,20 @@ export abstract class Device {
     public abstract createQueue (info: QueueInfo): Queue;
 
     /**
+     * @en Create global barrier.
+     * @zh 创建全局内存屏障。
+     * @param info GFX global barrier description info.
+     */
+    public abstract createGlobalBarrier (info: GlobalBarrierInfo): GlobalBarrier;
+
+    /**
+     * @en Create texture barrier.
+     * @zh 创建贴图内存屏障。
+     * @param info GFX texture barrier description info.
+     */
+    public abstract createTextureBarrier (info: TextureBarrierInfo): TextureBarrier;
+
+    /**
      * @en Copy buffers to texture.
      * @zh 拷贝缓冲到纹理。
      * @param buffers The buffers to be copied.
@@ -387,17 +403,6 @@ export abstract class Device {
      * @param regions The region descriptions.
      */
     public abstract copyFramebufferToBuffer (srcFramebuffer: Framebuffer, dstBuffer: ArrayBuffer, regions: BufferTextureCopy[]): void;
-
-    /**
-     * @en Blit frame buffers.
-     * @zh 填充帧缓冲。
-     * @param src The source frame buffer.
-     * @param dst The destination frame buffer.
-     * @param srcRect The source region.
-     * @param dstRect The target region.
-     * @param filter Filtering mode for the process.
-     */
-    public abstract blitFramebuffer (src: Framebuffer, dst: Framebuffer, srcRect: Rect, dstRect: Rect, filter: Filter): void;
 
     /**
      * @en Whether the device has specific feature.

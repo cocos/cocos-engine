@@ -45,6 +45,8 @@ import { BufferUsageBit, CommandBufferType, StencilFace, BufferSource,
     CommandBufferInfo, BufferTextureCopy, Color, Rect, Viewport } from '../base/define';
 import { WebGLCmd, WebGLCmdBeginRenderPass, WebGLCmdBindStates, WebGLCmdCopyBufferToTexture,
     WebGLCmdDraw, WebGLCmdPackage, WebGLCmdUpdateBuffer } from './webgl-commands';
+import { GlobalBarrier } from '../base/global-barrier';
+import { TextureBarrier } from '../base/texture-barrier';
 
 export interface IWebGLDepthBias {
     constantFactor: number;
@@ -456,6 +458,9 @@ export class WebGLCommandBuffer extends CommandBuffer {
             this._numInstances += webGLCmdBuff._numInstances;
             this._numTris += webGLCmdBuff._numTris;
         }
+    }
+
+    public pipelineBarrier (globalBarrier: GlobalBarrier, textureBarriers: TextureBarrier[]) {
     }
 
     public get webGLDevice (): WebGLDevice {

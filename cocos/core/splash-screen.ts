@@ -528,6 +528,7 @@ export class SplashScreen {
         const samplerInfo = new SamplerInfo();
         samplerInfo.addressU = Address.CLAMP;
         samplerInfo.addressV = Address.CLAMP;
+        samplerInfo.addressW = Address.CLAMP;
         this.sampler = device.createSampler(samplerInfo);
 
         this.texture = device.createTexture(new TextureInfo(

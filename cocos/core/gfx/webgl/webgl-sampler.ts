@@ -51,8 +51,6 @@ export class WebGLSampler extends Sampler {
         this._maxAnisotropy = info.maxAnisotropy;
         this._cmpFunc = info.cmpFunc;
         this._borderColor = info.borderColor;
-        this._minLOD = info.minLOD;
-        this._maxLOD = info.maxLOD;
         this._mipLODBias = info.mipLODBias;
 
         let glMinFilter = 0;

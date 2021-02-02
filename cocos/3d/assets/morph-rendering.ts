@@ -102,9 +102,7 @@ export class StdMorphRendering implements MorphRendering {
         }
         return {
             setWeights (subMeshIndex: number, weights: number[]) {
-                if (subMeshInstances[subMeshIndex]) {
-                    subMeshInstances[subMeshIndex]!.setWeights(weights);
-                }
+                subMeshInstances[subMeshIndex]?.setWeights(weights);
             },
 
             requiredPatches: (subMeshIndex: number) => {
@@ -133,16 +131,12 @@ export class StdMorphRendering implements MorphRendering {
             },
 
             adaptPipelineState: (subMeshIndex: number, descriptorSet: DescriptorSet) => {
-                if (subMeshInstances[subMeshIndex]) {
-                    subMeshInstances[subMeshIndex]!.adaptPipelineState(descriptorSet);
-                }
+                subMeshInstances[subMeshIndex]?.adaptPipelineState(descriptorSet);
             },
 
             destroy: () => {
                 for (const subMeshInstance of subMeshInstances) {
-                    if (subMeshInstance) {
-                        subMeshInstance.destroy();
-                    }
+                    subMeshInstance?.destroy();
                 }
             },
         };

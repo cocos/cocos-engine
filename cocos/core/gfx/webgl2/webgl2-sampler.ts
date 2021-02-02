@@ -46,8 +46,6 @@ export class WebGL2Sampler extends Sampler {
         this._maxAnisotropy = info.maxAnisotropy;
         this._cmpFunc = info.cmpFunc;
         this._borderColor = info.borderColor;
-        this._minLOD = info.minLOD;
-        this._maxLOD = info.maxLOD;
         this._mipLODBias = info.mipLODBias;
 
         this._gpuSampler = {
@@ -58,8 +56,6 @@ export class WebGL2Sampler extends Sampler {
             addressU: this._addressU,
             addressV: this._addressV,
             addressW: this._addressW,
-            minLOD: this._minLOD,
-            maxLOD: this._maxLOD,
 
             glMinFilter: 0,
             glMagFilter: 0,

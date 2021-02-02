@@ -1376,8 +1376,8 @@ export function WebGL2CmdFuncCreateSampler (device: WebGL2Device, gpuSampler: IW
         gl.samplerParameteri(glSampler, gl.TEXTURE_WRAP_S, gpuSampler.glWrapS);
         gl.samplerParameteri(glSampler, gl.TEXTURE_WRAP_T, gpuSampler.glWrapT);
         gl.samplerParameteri(glSampler, gl.TEXTURE_WRAP_R, gpuSampler.glWrapR);
-        gl.samplerParameterf(glSampler, gl.TEXTURE_MIN_LOD, gpuSampler.minLOD);
-        gl.samplerParameterf(glSampler, gl.TEXTURE_MAX_LOD, gpuSampler.maxLOD);
+        gl.samplerParameterf(glSampler, gl.TEXTURE_MIN_LOD, 0);
+        gl.samplerParameterf(glSampler, gl.TEXTURE_MAX_LOD, 1000);
     }
 }
 

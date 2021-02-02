@@ -40,8 +40,6 @@ export enum SamplerInfoIndex {
     addressW,
     maxAnisotropy,
     cmpFunc,
-    minLOD,
-    maxLOD,
     mipLODBias,
     total,
 }
@@ -53,9 +51,9 @@ const defaultInfo = [
     Address.WRAP,
     Address.WRAP,
     Address.WRAP,
-    8,
+    0,
     ComparisonFunc.NEVER,
-    0, 0, 0,
+    0,
 ];
 export const defaultSamplerHash = genSamplerHash(defaultInfo);
 
@@ -77,9 +75,8 @@ export function genSamplerHash (info: (number | undefined)[]): number {
         case SamplerInfoIndex.addressW: hash |= (value << 10); break;
         case SamplerInfoIndex.maxAnisotropy: hash |= (value << 12); break;
         case SamplerInfoIndex.cmpFunc: hash |= (value << 16); break;
-        case SamplerInfoIndex.minLOD: hash |= (value << 20); break;
-        case SamplerInfoIndex.maxLOD: hash |= (value << 24); break;
         case SamplerInfoIndex.mipLODBias: hash |= (value << 28); break;
+        default:
         }
     }
     return hash;
@@ -111,8 +108,6 @@ class SamplerLib {
         _samplerInfo.addressW      = ((hash >> 10) & 3);
         _samplerInfo.maxAnisotropy = ((hash >> 12) & 15);
         _samplerInfo.cmpFunc       = ((hash >> 16) & 15);
-        _samplerInfo.minLOD        = ((hash >> 20) & 15);
-        _samplerInfo.maxLOD        = ((hash >> 24) & 15);
         _samplerInfo.mipLODBias    = ((hash >> 28) & 15);
         _samplerInfo.borderColor   = borderColor;
 

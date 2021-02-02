@@ -35,6 +35,16 @@ import { RenderPass } from './render-pass';
 import { Sampler } from './sampler';
 import { Texture } from './texture';
 
+interface ICopyable { copy(info: ICopyable): ICopyable; }
+
+const deepCopy = <T extends ICopyable>(target: Array<T>, source: Array<T>, Ctor: Constructor<T>) => {
+    for (let i = 0; i < source.length; ++i) {
+        if (target.length <= i) target.push(new Ctor());
+        target[i].copy(source[i]);
+    }
+    target.length = source.length;
+};
+
 /**
  * ========================= !DO NOT CHANGE THE FOLLOWING SECTION MANUALLY! =========================
  * The following section is auto-generated from engine-native/cocos/renderer/core/gfx/GFXDef-common.h
@@ -649,6 +659,13 @@ export class Size {
         public y: number = 0,
         public z: number = 0,
     ) {}
+
+    public copy (info: Size) {
+        this.x = info.x;
+        this.y = info.y;
+        this.z = info.z;
+        return this;
+    }
 }
 
 export class DeviceCaps {
@@ -679,6 +696,33 @@ export class DeviceCaps {
         public screenSpaceSignY: number = 1,
         public UVSpaceSignY: number = -1,
     ) {}
+
+    public copy (info: DeviceCaps) {
+        this.maxVertexAttributes = info.maxVertexAttributes;
+        this.maxVertexUniformVectors = info.maxVertexUniformVectors;
+        this.maxFragmentUniformVectors = info.maxFragmentUniformVectors;
+        this.maxTextureUnits = info.maxTextureUnits;
+        this.maxImageUnits = info.maxImageUnits;
+        this.maxVertexTextureUnits = info.maxVertexTextureUnits;
+        this.maxColorRenderTargets = info.maxColorRenderTargets;
+        this.maxShaderStorageBufferBindings = info.maxShaderStorageBufferBindings;
+        this.maxShaderStorageBlockSize = info.maxShaderStorageBlockSize;
+        this.maxUniformBufferBindings = info.maxUniformBufferBindings;
+        this.maxUniformBlockSize = info.maxUniformBlockSize;
+        this.maxTextureSize = info.maxTextureSize;
+        this.maxCubeMapTextureSize = info.maxCubeMapTextureSize;
+        this.uboOffsetAlignment = info.uboOffsetAlignment;
+        this.depthBits = info.depthBits;
+        this.stencilBits = info.stencilBits;
+        this.maxComputeSharedMemorySize = info.maxComputeSharedMemorySize;
+        this.maxComputeWorkGroupInvocations = info.maxComputeWorkGroupInvocations;
+        this.maxComputeWorkGroupSize.copy(info.maxComputeWorkGroupSize);
+        this.maxComputeWorkGroupCount.copy(info.maxComputeWorkGroupCount);
+        this.clipSpaceMinZ = info.clipSpaceMinZ;
+        this.screenSpaceSignY = info.screenSpaceSignY;
+        this.UVSpaceSignY = info.UVSpaceSignY;
+        return this;
+    }
 }
 
 export class Offset {
@@ -689,6 +733,13 @@ export class Offset {
         public y: number = 0,
         public z: number = 0,
     ) {}
+
+    public copy (info: Offset) {
+        this.x = info.x;
+        this.y = info.y;
+        this.z = info.z;
+        return this;
+    }
 }
 
 export class Rect {
@@ -700,6 +751,14 @@ export class Rect {
         public width: number = 1,
         public height: number = 1,
     ) {}
+
+    public copy (info: Rect) {
+        this.x = info.x;
+        this.y = info.y;
+        this.width = info.width;
+        this.height = info.height;
+        return this;
+    }
 }
 
 export class Extent {
@@ -710,6 +769,13 @@ export class Extent {
         public height: number = 0,
         public depth: number = 1,
     ) {}
+
+    public copy (info: Extent) {
+        this.width = info.width;
+        this.height = info.height;
+        this.depth = info.depth;
+        return this;
+    }
 }
 
 export class TextureSubresLayers {
@@ -720,6 +786,13 @@ export class TextureSubresLayers {
         public baseArrayLayer: number = 0,
         public layerCount: number = 1,
     ) {}
+
+    public copy (info: TextureSubresLayers) {
+        this.mipLevel = info.mipLevel;
+        this.baseArrayLayer = info.baseArrayLayer;
+        this.layerCount = info.layerCount;
+        return this;
+    }
 }
 
 export class TextureSubresRange {
@@ -731,6 +804,14 @@ export class TextureSubresRange {
         public baseArrayLayer: number = 0,
         public layerCount: number = 1,
     ) {}
+
+    public copy (info: TextureSubresRange) {
+        this.baseMipLevel = info.baseMipLevel;
+        this.levelCount = info.levelCount;
+        this.baseArrayLayer = info.baseArrayLayer;
+        this.layerCount = info.layerCount;
+        return this;
+    }
 }
 
 export class TextureCopy {
@@ -743,6 +824,15 @@ export class TextureCopy {
         public dstOffset: Offset = new Offset(),
         public extent: Extent = new Extent(),
     ) {}
+
+    public copy (info: TextureCopy) {
+        this.srcSubres.copy(info.srcSubres);
+        this.srcOffset.copy(info.srcOffset);
+        this.dstSubres.copy(info.dstSubres);
+        this.dstOffset.copy(info.dstOffset);
+        this.extent.copy(info.extent);
+        return this;
+    }
 }
 
 export class TextureBlit {
@@ -756,6 +846,16 @@ export class TextureBlit {
         public dstOffset: Offset = new Offset(),
         public dstExtent: Extent = new Extent(),
     ) {}
+
+    public copy (info: TextureBlit) {
+        this.srcSubres.copy(info.srcSubres);
+        this.srcOffset.copy(info.srcOffset);
+        this.srcExtent.copy(info.srcExtent);
+        this.dstSubres.copy(info.dstSubres);
+        this.dstOffset.copy(info.dstOffset);
+        this.dstExtent.copy(info.dstExtent);
+        return this;
+    }
 }
 
 export class BufferTextureCopy {
@@ -768,6 +868,15 @@ export class BufferTextureCopy {
         public texExtent: Extent = new Extent(),
         public texSubres: TextureSubresLayers = new TextureSubresLayers(),
     ) {}
+
+    public copy (info: BufferTextureCopy) {
+        this.buffStride = info.buffStride;
+        this.buffTexHeight = info.buffTexHeight;
+        this.texOffset.copy(info.texOffset);
+        this.texExtent.copy(info.texExtent);
+        this.texSubres.copy(info.texSubres);
+        return this;
+    }
 }
 
 export class Viewport {
@@ -781,6 +890,16 @@ export class Viewport {
         public minDepth: number = 0,
         public maxDepth: number = 1,
     ) {}
+
+    public copy (info: Viewport) {
+        this.left = info.left;
+        this.top = info.top;
+        this.width = info.width;
+        this.height = info.height;
+        this.minDepth = info.minDepth;
+        this.maxDepth = info.maxDepth;
+        return this;
+    }
 }
 
 export class Color {
@@ -792,6 +911,14 @@ export class Color {
         public z: number = 0,
         public w: number = 0,
     ) {}
+
+    public copy (info: Color) {
+        this.x = info.x;
+        this.y = info.y;
+        this.z = info.z;
+        this.w = info.w;
+        return this;
+    }
 }
 
 export class BindingMappingInfo {
@@ -802,6 +929,13 @@ export class BindingMappingInfo {
         public samplerOffsets: number[] = [],
         public flexibleSet: number = 0,
     ) {}
+
+    public copy (info: BindingMappingInfo) {
+        this.bufferOffsets = info.bufferOffsets.slice();
+        this.samplerOffsets = info.samplerOffsets.slice();
+        this.flexibleSet = info.flexibleSet;
+        return this;
+    }
 }
 
 export class BufferInfo {
@@ -814,6 +948,15 @@ export class BufferInfo {
         public stride: number = 0,
         public flags: BufferFlags = BufferFlagBit.NONE,
     ) {}
+
+    public copy (info: BufferInfo) {
+        this.usage = info.usage;
+        this.memUsage = info.memUsage;
+        this.size = info.size;
+        this.stride = info.stride;
+        this.flags = info.flags;
+        return this;
+    }
 }
 
 export class BufferViewInfo {
@@ -824,6 +967,13 @@ export class BufferViewInfo {
         public offset: number = 0,
         public range: number = 0,
     ) {}
+
+    public copy (info: BufferViewInfo) {
+        this.buffer = info.buffer;
+        this.offset = info.offset;
+        this.range = info.range;
+        return this;
+    }
 }
 
 export class DrawInfo {
@@ -838,6 +988,17 @@ export class DrawInfo {
         public instanceCount: number = 0,
         public firstInstance: number = 0,
     ) {}
+
+    public copy (info: DrawInfo) {
+        this.vertexCount = info.vertexCount;
+        this.firstVertex = info.firstVertex;
+        this.indexCount = info.indexCount;
+        this.firstIndex = info.firstIndex;
+        this.vertexOffset = info.vertexOffset;
+        this.instanceCount = info.instanceCount;
+        this.firstInstance = info.firstInstance;
+        return this;
+    }
 }
 
 export class DispatchInfo {
@@ -850,6 +1011,15 @@ export class DispatchInfo {
         public indirectBuffer: Buffer | null = null,
         public indirectOffset: number = 0,
     ) {}
+
+    public copy (info: DispatchInfo) {
+        this.groupCountX = info.groupCountX;
+        this.groupCountY = info.groupCountY;
+        this.groupCountZ = info.groupCountZ;
+        this.indirectBuffer = info.indirectBuffer;
+        this.indirectOffset = info.indirectOffset;
+        return this;
+    }
 }
 
 export class IndirectBuffer {
@@ -858,6 +1028,11 @@ export class IndirectBuffer {
     constructor (
         public drawInfos: DrawInfo[] = [],
     ) {}
+
+    public copy (info: IndirectBuffer) {
+        deepCopy(this.drawInfos, info.drawInfos, DrawInfo);
+        return this;
+    }
 }
 
 export class TextureInfo {
@@ -875,6 +1050,20 @@ export class TextureInfo {
         public samples: SampleCount = SampleCount.X1,
         public depth: number = 1,
     ) {}
+
+    public copy (info: TextureInfo) {
+        this.type = info.type;
+        this.usage = info.usage;
+        this.format = info.format;
+        this.width = info.width;
+        this.height = info.height;
+        this.flags = info.flags;
+        this.layerCount = info.layerCount;
+        this.levelCount = info.levelCount;
+        this.samples = info.samples;
+        this.depth = info.depth;
+        return this;
+    }
 }
 
 export class TextureViewInfo {
@@ -889,6 +1078,17 @@ export class TextureViewInfo {
         public baseLayer: number = 0,
         public layerCount: number = 1,
     ) {}
+
+    public copy (info: TextureViewInfo) {
+        this.texture = info.texture;
+        this.type = info.type;
+        this.format = info.format;
+        this.baseLevel = info.baseLevel;
+        this.levelCount = info.levelCount;
+        this.baseLayer = info.baseLayer;
+        this.layerCount = info.layerCount;
+        return this;
+    }
 }
 
 export class SamplerInfo {
@@ -902,21 +1102,24 @@ export class SamplerInfo {
         public addressV: Address = Address.WRAP,
         public addressW: Address = Address.WRAP,
         public maxAnisotropy: number = 0,
-        public cmpFunc: ComparisonFunc = ComparisonFunc.NEVER,
+        public cmpFunc: ComparisonFunc = ComparisonFunc.ALWAYS,
         public borderColor: Color = new Color(),
-        public minLOD: number = 0,
-        public maxLOD: number = 1000,
         public mipLODBias: number = 0,
     ) {}
-}
 
-export class ShaderMacro {
-    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
-
-    constructor (
-        public macro: string = '',
-        public value: string = '',
-    ) {}
+    public copy (info: SamplerInfo) {
+        this.minFilter = info.minFilter;
+        this.magFilter = info.magFilter;
+        this.mipFilter = info.mipFilter;
+        this.addressU = info.addressU;
+        this.addressV = info.addressV;
+        this.addressW = info.addressW;
+        this.maxAnisotropy = info.maxAnisotropy;
+        this.cmpFunc = info.cmpFunc;
+        this.borderColor.copy(info.borderColor);
+        this.mipLODBias = info.mipLODBias;
+        return this;
+    }
 }
 
 export class Uniform {
@@ -927,6 +1130,13 @@ export class Uniform {
         public type: Type = Type.UNKNOWN,
         public count: number = 0,
     ) {}
+
+    public copy (info: Uniform) {
+        this.name = info.name;
+        this.type = info.type;
+        this.count = info.count;
+        return this;
+    }
 }
 
 export class UniformBlock {
@@ -939,6 +1149,15 @@ export class UniformBlock {
         public members: Uniform[] = [],
         public count: number = 0,
     ) {}
+
+    public copy (info: UniformBlock) {
+        this.set = info.set;
+        this.binding = info.binding;
+        this.name = info.name;
+        deepCopy(this.members, info.members, Uniform);
+        this.count = info.count;
+        return this;
+    }
 }
 
 export class UniformSamplerTexture {
@@ -951,6 +1170,15 @@ export class UniformSamplerTexture {
         public type: Type = Type.UNKNOWN,
         public count: number = 0,
     ) {}
+
+    public copy (info: UniformSamplerTexture) {
+        this.set = info.set;
+        this.binding = info.binding;
+        this.name = info.name;
+        this.type = info.type;
+        this.count = info.count;
+        return this;
+    }
 }
 
 export class UniformSampler {
@@ -962,6 +1190,14 @@ export class UniformSampler {
         public name: string = '',
         public count: number = 0,
     ) {}
+
+    public copy (info: UniformSampler) {
+        this.set = info.set;
+        this.binding = info.binding;
+        this.name = info.name;
+        this.count = info.count;
+        return this;
+    }
 }
 
 export class UniformTexture {
@@ -974,6 +1210,15 @@ export class UniformTexture {
         public type: Type = Type.UNKNOWN,
         public count: number = 0,
     ) {}
+
+    public copy (info: UniformTexture) {
+        this.set = info.set;
+        this.binding = info.binding;
+        this.name = info.name;
+        this.type = info.type;
+        this.count = info.count;
+        return this;
+    }
 }
 
 export class UniformStorageImage {
@@ -987,6 +1232,16 @@ export class UniformStorageImage {
         public count: number = 0,
         public memoryAccess: MemoryAccess = MemoryAccessBit.READ_WRITE,
     ) {}
+
+    public copy (info: UniformStorageImage) {
+        this.set = info.set;
+        this.binding = info.binding;
+        this.name = info.name;
+        this.type = info.type;
+        this.count = info.count;
+        this.memoryAccess = info.memoryAccess;
+        return this;
+    }
 }
 
 export class UniformStorageBuffer {
@@ -999,6 +1254,15 @@ export class UniformStorageBuffer {
         public count: number = 0,
         public memoryAccess: MemoryAccess = MemoryAccessBit.READ_WRITE,
     ) {}
+
+    public copy (info: UniformStorageBuffer) {
+        this.set = info.set;
+        this.binding = info.binding;
+        this.name = info.name;
+        this.count = info.count;
+        this.memoryAccess = info.memoryAccess;
+        return this;
+    }
 }
 
 export class UniformInputAttachment {
@@ -1010,6 +1274,14 @@ export class UniformInputAttachment {
         public name: string = '',
         public count: number = 0,
     ) {}
+
+    public copy (info: UniformInputAttachment) {
+        this.set = info.set;
+        this.binding = info.binding;
+        this.name = info.name;
+        this.count = info.count;
+        return this;
+    }
 }
 
 export class ShaderStage {
@@ -1019,6 +1291,12 @@ export class ShaderStage {
         public stage: ShaderStageFlagBit = ShaderStageFlagBit.NONE,
         public source: string = '',
     ) {}
+
+    public copy (info: ShaderStage) {
+        this.stage = info.stage;
+        this.source = info.source;
+        return this;
+    }
 }
 
 export class Attribute {
@@ -1032,6 +1310,16 @@ export class Attribute {
         public isInstanced: boolean = false,
         public location: number = 0,
     ) {}
+
+    public copy (info: Attribute) {
+        this.name = info.name;
+        this.format = info.format;
+        this.isNormalized = info.isNormalized;
+        this.stream = info.stream;
+        this.isInstanced = info.isInstanced;
+        this.location = info.location;
+        return this;
+    }
 }
 
 export class ShaderInfo {
@@ -1049,6 +1337,20 @@ export class ShaderInfo {
         public images: UniformStorageImage[] = [],
         public subpassInputs: UniformInputAttachment[] = [],
     ) {}
+
+    public copy (info: ShaderInfo) {
+        this.name = info.name;
+        deepCopy(this.stages, info.stages, ShaderStage);
+        deepCopy(this.attributes, info.attributes, Attribute);
+        deepCopy(this.blocks, info.blocks, UniformBlock);
+        deepCopy(this.buffers, info.buffers, UniformStorageBuffer);
+        deepCopy(this.samplerTextures, info.samplerTextures, UniformSamplerTexture);
+        deepCopy(this.samplers, info.samplers, UniformSampler);
+        deepCopy(this.textures, info.textures, UniformTexture);
+        deepCopy(this.images, info.images, UniformStorageImage);
+        deepCopy(this.subpassInputs, info.subpassInputs, UniformInputAttachment);
+        return this;
+    }
 }
 
 export class InputAssemblerInfo {
@@ -1060,6 +1362,14 @@ export class InputAssemblerInfo {
         public indexBuffer: Buffer | null = null,
         public indirectBuffer: Buffer | null = null,
     ) {}
+
+    public copy (info: InputAssemblerInfo) {
+        deepCopy(this.attributes, info.attributes, Attribute);
+        this.vertexBuffers = info.vertexBuffers.slice();
+        this.indexBuffer = info.indexBuffer;
+        this.indirectBuffer = info.indirectBuffer;
+        return this;
+    }
 }
 
 export class ColorAttachment {
@@ -1073,6 +1383,16 @@ export class ColorAttachment {
         public beginAccesses: AccessType[] = [],
         public endAccesses: AccessType[] = [AccessType.PRESENT],
     ) {}
+
+    public copy (info: ColorAttachment) {
+        this.format = info.format;
+        this.sampleCount = info.sampleCount;
+        this.loadOp = info.loadOp;
+        this.storeOp = info.storeOp;
+        this.beginAccesses = info.beginAccesses.slice();
+        this.endAccesses = info.endAccesses.slice();
+        return this;
+    }
 }
 
 export class DepthStencilAttachment {
@@ -1088,6 +1408,18 @@ export class DepthStencilAttachment {
         public beginAccesses: AccessType[] = [],
         public endAccesses: AccessType[] = [AccessType.DEPTH_STENCIL_ATTACHMENT_WRITE],
     ) {}
+
+    public copy (info: DepthStencilAttachment) {
+        this.format = info.format;
+        this.sampleCount = info.sampleCount;
+        this.depthLoadOp = info.depthLoadOp;
+        this.depthStoreOp = info.depthStoreOp;
+        this.stencilLoadOp = info.stencilLoadOp;
+        this.stencilStoreOp = info.stencilStoreOp;
+        this.beginAccesses = info.beginAccesses.slice();
+        this.endAccesses = info.endAccesses.slice();
+        return this;
+    }
 }
 
 export class SubpassInfo {
@@ -1100,6 +1432,15 @@ export class SubpassInfo {
         public preserves: number[] = [],
         public depthStencil: number = -1,
     ) {}
+
+    public copy (info: SubpassInfo) {
+        this.inputs = info.inputs.slice();
+        this.colors = info.colors.slice();
+        this.resolves = info.resolves.slice();
+        this.preserves = info.preserves.slice();
+        this.depthStencil = info.depthStencil;
+        return this;
+    }
 }
 
 export class RenderPassInfo {
@@ -1110,6 +1451,13 @@ export class RenderPassInfo {
         public depthStencilAttachment: DepthStencilAttachment = new DepthStencilAttachment(),
         public subpasses: SubpassInfo[] = [],
     ) {}
+
+    public copy (info: RenderPassInfo) {
+        deepCopy(this.colorAttachments, info.colorAttachments, ColorAttachment);
+        this.depthStencilAttachment.copy(info.depthStencilAttachment);
+        deepCopy(this.subpasses, info.subpasses, SubpassInfo);
+        return this;
+    }
 }
 
 export class GlobalBarrierInfo {
@@ -1119,6 +1467,12 @@ export class GlobalBarrierInfo {
         public prevAccesses: AccessType[] = [],
         public nextAccesses: AccessType[] = [],
     ) {}
+
+    public copy (info: GlobalBarrierInfo) {
+        this.prevAccesses = info.prevAccesses.slice();
+        this.nextAccesses = info.nextAccesses.slice();
+        return this;
+    }
 }
 
 export class TextureBarrierInfo {
@@ -1131,6 +1485,15 @@ export class TextureBarrierInfo {
         public srcQueue: Queue | null = null,
         public dstQueue: Queue | null = null,
     ) {}
+
+    public copy (info: TextureBarrierInfo) {
+        this.prevAccesses = info.prevAccesses.slice();
+        this.nextAccesses = info.nextAccesses.slice();
+        this.discardContents = info.discardContents;
+        this.srcQueue = info.srcQueue;
+        this.dstQueue = info.dstQueue;
+        return this;
+    }
 }
 
 export class FramebufferInfo {
@@ -1143,6 +1506,15 @@ export class FramebufferInfo {
         public colorMipmapLevels: number[] = [],
         public depthStencilMipmapLevel: number = 0,
     ) {}
+
+    public copy (info: FramebufferInfo) {
+        this.renderPass = info.renderPass;
+        this.colorTextures = info.colorTextures.slice();
+        this.depthStencilTexture = info.depthStencilTexture;
+        this.colorMipmapLevels = info.colorMipmapLevels.slice();
+        this.depthStencilMipmapLevel = info.depthStencilMipmapLevel;
+        return this;
+    }
 }
 
 export class DescriptorSetLayoutBinding {
@@ -1155,6 +1527,15 @@ export class DescriptorSetLayoutBinding {
         public stageFlags: ShaderStageFlags = ShaderStageFlagBit.NONE,
         public immutableSamplers: Sampler[] = [],
     ) {}
+
+    public copy (info: DescriptorSetLayoutBinding) {
+        this.binding = info.binding;
+        this.descriptorType = info.descriptorType;
+        this.count = info.count;
+        this.stageFlags = info.stageFlags;
+        this.immutableSamplers = info.immutableSamplers.slice();
+        return this;
+    }
 }
 
 export class DescriptorSetLayoutInfo {
@@ -1163,6 +1544,11 @@ export class DescriptorSetLayoutInfo {
     constructor (
         public bindings: DescriptorSetLayoutBinding[] = [],
     ) {}
+
+    public copy (info: DescriptorSetLayoutInfo) {
+        deepCopy(this.bindings, info.bindings, DescriptorSetLayoutBinding);
+        return this;
+    }
 }
 
 export class DescriptorSetInfo {
@@ -1171,6 +1557,11 @@ export class DescriptorSetInfo {
     constructor (
         public layout: DescriptorSetLayout = null!,
     ) {}
+
+    public copy (info: DescriptorSetInfo) {
+        this.layout = info.layout;
+        return this;
+    }
 }
 
 export class PipelineLayoutInfo {
@@ -1179,6 +1570,11 @@ export class PipelineLayoutInfo {
     constructor (
         public setLayouts: DescriptorSetLayout[] = [],
     ) {}
+
+    public copy (info: PipelineLayoutInfo) {
+        this.setLayouts = info.setLayouts.slice();
+        return this;
+    }
 }
 
 export class InputState {
@@ -1187,6 +1583,11 @@ export class InputState {
     constructor (
         public attributes: Attribute[] = [],
     ) {}
+
+    public copy (info: InputState) {
+        deepCopy(this.attributes, info.attributes, Attribute);
+        return this;
+    }
 }
 
 export class CommandBufferInfo {
@@ -1196,6 +1597,12 @@ export class CommandBufferInfo {
         public queue: Queue = null!,
         public type: CommandBufferType = CommandBufferType.PRIMARY,
     ) {}
+
+    public copy (info: CommandBufferInfo) {
+        this.queue = info.queue;
+        this.type = info.type;
+        return this;
+    }
 }
 
 export class QueueInfo {
@@ -1204,6 +1611,11 @@ export class QueueInfo {
     constructor (
         public type: QueueType = QueueType.GRAPHICS,
     ) {}
+
+    public copy (info: QueueInfo) {
+        this.type = info.type;
+        return this;
+    }
 }
 
 export class FormatInfo {
@@ -1228,6 +1640,12 @@ export class MemoryStatus {
         public bufferSize: number = 0,
         public textureSize: number = 0,
     ) {}
+
+    public copy (info: MemoryStatus) {
+        this.bufferSize = info.bufferSize;
+        this.textureSize = info.textureSize;
+        return this;
+    }
 }
 
 /**

@@ -41,6 +41,8 @@ import { RenderPass } from './base/render-pass';
 import { Sampler } from './base/sampler';
 import { Shader } from './base/shader';
 import { Texture } from './base/texture';
+import { GlobalBarrier } from './base/global-barrier';
+import { TextureBarrier } from './base/texture-barrier';
 import * as defines from './base/define';
 
 const polyfills: Record<string, unknown> = {
@@ -58,6 +60,8 @@ const polyfills: Record<string, unknown> = {
     PipelineState,
     CommandBuffer,
     Queue,
+    GlobalBarrier,
+    TextureBarrier,
 
     RasterizerState,
     BlendState,
