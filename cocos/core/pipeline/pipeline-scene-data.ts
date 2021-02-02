@@ -92,6 +92,7 @@ export class PipelineSceneData {
     public activate (device: Device, pipeline: RenderPipeline) {
         this._device = device;
         this._pipeline = pipeline;
+        return true;
     }
 
     public destroy () {

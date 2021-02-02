@@ -29,6 +29,7 @@ declare const nr: any;
 import { getPhaseID } from './pass-phase'
 import { setClassName } from '../../core/utils/js';
 import { PipelineSceneData } from './pipeline-scene-data';
+import { legacyCC } from '../../core/global-exports';
 nr.getPhaseID = getPhaseID;
 
 export const RenderPipeline = nr.RenderPipeline;
@@ -49,9 +50,8 @@ nr.PipelineStateManager.getOrCreatePipelineState = function(device, pass, shader
 }
   
 export function createDefaultPipeline () {
-    const pipeline = new nr.ForwardPipeline();
-    const info = new nr.RenderPipelineInfo(0, []);
-    pipeline.initialize(info);
+    const pipeline = new ForwardPipeline();
+    pipeline.init();
     return pipeline;
 }
 
@@ -67,7 +67,7 @@ export class ForwardPipeline extends nr.ForwardPipeline {
       this.materials = [];
     }
   
-    public init() {
+    public init () {
         this.setPipelineSharedSceneData(this.pipelineSceneData.handle);
         for (let i = 0; i < this._flows.length; i++) {
             this._flows[i].init();
@@ -76,8 +76,21 @@ export class ForwardPipeline extends nr.ForwardPipeline {
         this.initialize(info);
     }
 
+    public activate () {
+        return super.activate() && this.pipelineSceneData.activate(legacyCC.director.root.device, this as any);
+    }
+
+    public render (cameras) {
+        let handles = [];
+        for (let i = 0, len = cameras.length; i < len; ++i) {
+            handles.push(cameras[i].handle);
+        }
+        super.render(handles);
+    }
+
     public destroy () {
         this.pipelineSceneData.destroy();
+        super.destroy();
     }
 }
 // hook to invoke init after deserialization
