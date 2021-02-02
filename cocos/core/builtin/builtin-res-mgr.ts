@@ -315,12 +315,12 @@ class BuiltinResMgr {
         // builtin deferred material
         const builtinDeferredMtl = new legacyCC.Material();
         builtinDeferredMtl._uuid = 'builtin-deferred-material';
-        builtinDeferredMtl.initialize({effectName: 'deferred'});
+        builtinDeferredMtl.initialize({ effectName: 'deferred' });
         resources[builtinDeferredMtl._uuid] = builtinDeferredMtl;
 
         const builtinPostProcessMtl = new legacyCC.Material();
         builtinPostProcessMtl._uuid = 'builtin-post-process-material';
-        builtinPostProcessMtl.initialize({effectName: 'postprocess'});
+        builtinPostProcessMtl.initialize({ effectName: 'postprocess' });
         resources[builtinPostProcessMtl._uuid] = builtinPostProcessMtl;
     }
 }

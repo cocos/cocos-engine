@@ -940,7 +940,6 @@ export class Game extends EventTarget {
         if (!renderPipeline) {
             return this._setRenderPipeline();
         }
-
         return new Promise<RenderPipeline>((resolve, reject) => {
             legacyCC.assetManager.loadAny(renderPipeline, (err, asset) => ((err || !(asset instanceof RenderPipeline))
                 ? reject(err)

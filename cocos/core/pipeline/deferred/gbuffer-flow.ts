@@ -28,8 +28,7 @@
  */
 
 import { ccclass } from 'cc.decorator';
-import { PIPELINE_FLOW_GBUFFER, UNIFORM_GBUFFER_ALBEDOMAP_BINDING, 
-    UNIFORM_GBUFFER_POSITIONMAP_BINDING, UNIFORM_GBUFFER_NORMALMAP_BINDING, UNIFORM_GBUFFER_EMISSIVEMAP_BINDING } from '../define';
+import { PIPELINE_FLOW_GBUFFER, UNIFORM_GBUFFER_ALBEDOMAP_BINDING, UNIFORM_GBUFFER_POSITIONMAP_BINDING, UNIFORM_GBUFFER_NORMALMAP_BINDING, UNIFORM_GBUFFER_EMISSIVEMAP_BINDING } from '../define';
 import { IRenderFlowInfo, RenderFlow } from '../render-flow';
 import { DeferredFlowPriority } from './enum';
 import { GbufferStage } from './gbuffer-stage';
@@ -39,18 +38,16 @@ import { Framebuffer, RenderPass, LoadOp,
     StoreOp, TextureLayout, Format, Texture,
     TextureType, TextureUsageBit, ColorAttachment, DepthStencilAttachment, RenderPassInfo, TextureInfo, FramebufferInfo } from '../../gfx';
 import { genSamplerHash, samplerLib } from '../../renderer/core/sampler-lib';
-
-import { Address, Filter, SurfaceTransform} from '../../gfx/define';
 import { Camera } from 'cocos/core/renderer/scene';
+import { Address, Filter, SurfaceTransform } from '../../gfx/define';
 import { sceneCulling } from '../scene-culling';
 
 /**
  * @en The gbuffer flow in deferred render pipeline
- * @zh 前向渲染流程。
+ * @zh 延迟渲染流程。
  */
 @ccclass('GbufferFlow')
 export class GbufferFlow extends RenderFlow {
-
     private _gbufferRenderPass: RenderPass|null = null;
     private _gbufferRenderTargets: Texture[] = [];
     protected _gbufferFrameBuffer: Framebuffer|null = null;
@@ -89,7 +86,7 @@ export class GbufferFlow extends RenderFlow {
         this._width = device.width;
         this._height = device.height;
 
-        if (device.surfaceTransform == SurfaceTransform.IDENTITY || 
+        if (device.surfaceTransform == SurfaceTransform.IDENTITY ||
             device.surfaceTransform == SurfaceTransform.ROTATE_180) {
                 this._width = device.width;
                 this._height = device.height;
@@ -201,7 +198,7 @@ export class GbufferFlow extends RenderFlow {
         pipeline.descriptorSet.bindTexture(UNIFORM_GBUFFER_POSITIONMAP_BINDING, this._gbufferFrameBuffer!.colorTextures[1]!);
         pipeline.descriptorSet.bindTexture(UNIFORM_GBUFFER_NORMALMAP_BINDING, this._gbufferFrameBuffer!.colorTextures[2]!);
         pipeline.descriptorSet.bindTexture(UNIFORM_GBUFFER_EMISSIVEMAP_BINDING, this._gbufferFrameBuffer!.colorTextures[3]!);
-        
+
         const gbufferSamplerHash = genSamplerHash([
             Filter.LINEAR,
             Filter.LINEAR,
@@ -215,7 +212,7 @@ export class GbufferFlow extends RenderFlow {
         pipeline.descriptorSet.bindSampler(UNIFORM_GBUFFER_POSITIONMAP_BINDING, gbufferSampler);
         pipeline.descriptorSet.bindSampler(UNIFORM_GBUFFER_NORMALMAP_BINDING, gbufferSampler);
         pipeline.descriptorSet.bindSampler(UNIFORM_GBUFFER_EMISSIVEMAP_BINDING, gbufferSampler);
-    
+
     }
 
     public render (camera: Camera) {

@@ -28,22 +28,21 @@
  */
 
 import { ccclass, displayOrder, type, serializable } from 'cc.decorator';
+import { builtinResMgr } from 'cocos/core/builtin';
+import { Texture2D } from 'cocos/core/assets/texture-2d';
 import { RenderPipeline, IRenderPipelineInfo } from '../render-pipeline';
 import { GbufferFlow } from './gbuffer-flow';
 import { LightingFlow } from './lighting-flow';
 import { RenderTextureConfig, MaterialConfig } from '../pipeline-serialization';
 import { ShadowFlow } from '../shadow/shadow-flow';
-import { BufferUsageBit, Format, MemoryUsageBit, ClearFlag, StoreOp, Filter, Address, SurfaceTransform} from '../../gfx/define';
+import { BufferUsageBit, Format, MemoryUsageBit, ClearFlag, StoreOp, Filter, Address, SurfaceTransform, Feature } from '../../gfx/define';
 import { UBOGlobal, UBOCamera, UBOShadow, UNIFORM_SHADOWMAP_BINDING, UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING } from '../define';
-import { ColorAttachment, DepthStencilAttachment, RenderPass, LoadOp, TextureLayout, RenderPassInfo, BufferInfo, Texture} from '../../gfx';
+import { ColorAttachment, DepthStencilAttachment, RenderPass, LoadOp, TextureLayout, RenderPassInfo, BufferInfo, Texture } from '../../gfx';
 import { SKYBOX_FLAG } from '../../renderer/scene/camera';
-import { Feature } from '../../gfx/define';
 import { InputAssembler, InputAssemblerInfo, Attribute } from '../../gfx/input-assembler';
 import { Buffer } from '../../gfx/buffer';
 import { Camera } from '../../renderer/scene';
 import { genSamplerHash, samplerLib } from 'cocos/core/renderer/core/sampler-lib';
-import { builtinResMgr } from 'cocos/core/builtin';
-import { Texture2D } from 'cocos/core/assets/texture-2d';
 
 const _samplerInfo = [
     Filter.LINEAR,
@@ -62,7 +61,7 @@ class InputAssemblerData {
 
 /**
  * @en The deferred render pipeline
- * @zh 前向渲染管线。
+ * @zh 延迟渲染管线。
  */
 @ccclass('DeferredPipeline')
 export class DeferredPipeline extends RenderPipeline {
@@ -207,8 +206,8 @@ export class DeferredPipeline extends RenderPipeline {
         // update global defines when all states initialized.
         this.macros.CC_USE_HDR = this._pipelineSceneData.isHDR;
         this.macros.CC_SUPPORT_FLOAT_TEXTURE = this.device.hasFeature(Feature.TEXTURE_FLOAT);
-        
-        var inputAssemblerDataOffscreen = new InputAssemblerData;
+
+        let inputAssemblerDataOffscreen = new InputAssemblerData();
         inputAssemblerDataOffscreen = this.createQuadInputAssembler(SurfaceTransform.IDENTITY);
         if (!inputAssemblerDataOffscreen.quadIB || !inputAssemblerDataOffscreen.quadVB || !inputAssemblerDataOffscreen.quadIA) {
             return false;
@@ -217,7 +216,7 @@ export class DeferredPipeline extends RenderPipeline {
         this._quadVBOffscreen =  inputAssemblerDataOffscreen.quadVB;
         this._quadIAOffscreen =  inputAssemblerDataOffscreen.quadIA;
 
-        var inputAssemblerDataOnscreen = new InputAssemblerData;
+        let inputAssemblerDataOnscreen = new InputAssemblerData();
         inputAssemblerDataOnscreen = this.createQuadInputAssembler(device.surfaceTransform);
         if (!inputAssemblerDataOnscreen.quadIB || !inputAssemblerDataOnscreen.quadVB || !inputAssemblerDataOnscreen.quadIA) {
             return false;
@@ -261,9 +260,8 @@ export class DeferredPipeline extends RenderPipeline {
      * 创建四边形输入汇集器。
      */
     protected createQuadInputAssembler (surfaceTransform: SurfaceTransform): InputAssemblerData {
-
         // create vertex buffer
-        var inputAssemblerData = new InputAssemblerData;
+        let inputAssemblerData = new InputAssemblerData();
 
         const vbStride = Float32Array.BYTES_PER_ELEMENT * 4;
         const vbSize = vbStride * 4;
@@ -283,35 +281,35 @@ export class DeferredPipeline extends RenderPipeline {
 
         let n = 0;
         switch (surfaceTransform) {
-            case (SurfaceTransform.IDENTITY):
-                n = 0;
-                vbData[n++] = -1.0; vbData[n++] = -1.0; vbData[n++] = 0.0; vbData[n++] = 1.0;
-                vbData[n++] = 1.0; vbData[n++] = -1.0; vbData[n++] = 1.0; vbData[n++] = 1.0;
-                vbData[n++] = -1.0; vbData[n++] = 1.0; vbData[n++] = 0.0; vbData[n++] = 0.0;
-                vbData[n++] = 1.0; vbData[n++] = 1.0; vbData[n++] = 1.0; vbData[n++] = 0.0;
-                break;
-            case (SurfaceTransform.ROTATE_90): 
-                n = 0;
-                vbData[n++] = -1.0; vbData[n++] = -1.0; vbData[n++] = 1.0; vbData[n++] = 1.0;
-                vbData[n++] = 1.0; vbData[n++] = -1.0; vbData[n++] = 1.0; vbData[n++] = 0.0;
-                vbData[n++] = -1.0; vbData[n++] = 1.0; vbData[n++] = 0.0; vbData[n++] = 1.0;
-                vbData[n++] = 1.0; vbData[n++] = 1.0; vbData[n++] = 0.0; vbData[n++] = 0.0;
-                break;
-            case (SurfaceTransform.ROTATE_180):
-                n = 0;
-                vbData[n++] = -1.0; vbData[n++] = -1.0; vbData[n++] = 0.0; vbData[n++] = 0.0;
-                vbData[n++] = 1.0; vbData[n++] = -1.0; vbData[n++] = 1.0; vbData[n++] = 0.0;
-                vbData[n++] = -1.0; vbData[n++] = 1.0; vbData[n++] = 0.0; vbData[n++] = 1.0;
-                vbData[n++] = 1.0; vbData[n++] = 1.0; vbData[n++] = 1.0; vbData[n++] = 1.0;
-                break;
-            case (SurfaceTransform.ROTATE_270):
-                n = 0;
-                vbData[n++] = -1.0; vbData[n++] = -1.0; vbData[n++] = 0.0; vbData[n++] = 0.0;
-                vbData[n++] = 1.0; vbData[n++] = -1.0; vbData[n++] = 0.0; vbData[n++] = 1.0;
-                vbData[n++] = -1.0; vbData[n++] = 1.0; vbData[n++] = 1.0; vbData[n++] = 0.0;
-                vbData[n++] = 1.0; vbData[n++] = 1.0; vbData[n++] = 1.0; vbData[n++] = 1.0;
-                break;
-            default:
+        case (SurfaceTransform.IDENTITY):
+            n = 0;
+            vbData[n++] = -1.0; vbData[n++] = -1.0; vbData[n++] = 0.0; vbData[n++] = 1.0;
+            vbData[n++] = 1.0; vbData[n++] = -1.0; vbData[n++] = 1.0; vbData[n++] = 1.0;
+            vbData[n++] = -1.0; vbData[n++] = 1.0; vbData[n++] = 0.0; vbData[n++] = 0.0;
+            vbData[n++] = 1.0; vbData[n++] = 1.0; vbData[n++] = 1.0; vbData[n++] = 0.0;
+            break;
+        case (SurfaceTransform.ROTATE_90):
+            n = 0;
+            vbData[n++] = -1.0; vbData[n++] = -1.0; vbData[n++] = 1.0; vbData[n++] = 1.0;
+            vbData[n++] = 1.0; vbData[n++] = -1.0; vbData[n++] = 1.0; vbData[n++] = 0.0;
+            vbData[n++] = -1.0; vbData[n++] = 1.0; vbData[n++] = 0.0; vbData[n++] = 1.0;
+            vbData[n++] = 1.0; vbData[n++] = 1.0; vbData[n++] = 0.0; vbData[n++] = 0.0;
+            break;
+        case (SurfaceTransform.ROTATE_180):
+            n = 0;
+            vbData[n++] = -1.0; vbData[n++] = -1.0; vbData[n++] = 0.0; vbData[n++] = 0.0;
+            vbData[n++] = 1.0; vbData[n++] = -1.0; vbData[n++] = 1.0; vbData[n++] = 0.0;
+            vbData[n++] = -1.0; vbData[n++] = 1.0; vbData[n++] = 0.0; vbData[n++] = 1.0;
+            vbData[n++] = 1.0; vbData[n++] = 1.0; vbData[n++] = 1.0; vbData[n++] = 1.0;
+            break;
+        case (SurfaceTransform.ROTATE_270):
+            n = 0;
+            vbData[n++] = -1.0; vbData[n++] = -1.0; vbData[n++] = 0.0; vbData[n++] = 0.0;
+            vbData[n++] = 1.0; vbData[n++] = -1.0; vbData[n++] = 0.0; vbData[n++] = 1.0;
+            vbData[n++] = -1.0; vbData[n++] = 1.0; vbData[n++] = 1.0; vbData[n++] = 0.0;
+            vbData[n++] = 1.0; vbData[n++] = 1.0; vbData[n++] = 1.0; vbData[n++] = 1.0;
+            break;
+        default:
                 break;
         }
 
@@ -321,7 +319,7 @@ export class DeferredPipeline extends RenderPipeline {
         const ibStride = Uint8Array.BYTES_PER_ELEMENT;
         const ibSize = ibStride * 6;
 
-        var quadIB = this._device.createBuffer(new BufferInfo( 
+        let quadIB = this._device.createBuffer(new BufferInfo(
             BufferUsageBit.INDEX | BufferUsageBit.TRANSFER_DST,
             MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
             ibSize,
@@ -344,7 +342,7 @@ export class DeferredPipeline extends RenderPipeline {
         attributes[0] = new Attribute('a_position', Format.RG32F);
         attributes[1] = new Attribute('a_texCoord', Format.RG32F);
 
-        var quadIA = this._device.createInputAssembler(new InputAssemblerInfo(
+        let quadIA = this._device.createInputAssembler(new InputAssemblerInfo(
             attributes,
             [quadVB],
             quadIB,
