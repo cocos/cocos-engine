@@ -379,6 +379,10 @@ struct CC_DLL Camera {
     cc::Mat4 matViewProjInv;
     cc::Mat4 matProj;
     cc::Mat4 matProjInv;
+    cc::Mat4 matViewProjOffscreen;
+    cc::Mat4 matViewProjInvOffscreen;
+    cc::Mat4 matProjOffscreen;
+    cc::Mat4 matProjInvOffscreen;
 
     CC_INLINE const Node *getNode() const { return GET_NODE(nodeID); }
     CC_INLINE const Scene *getScene() const { return GET_SCENE(sceneID); }
@@ -481,12 +485,20 @@ struct CC_DLL PipelineSharedSceneData {
     uint32_t isHDR = 0;
     uint32_t shadingScale = 0;
     uint32_t fpScale = 0;
+    uint32_t deferredLightPass = 0;
+    uint32_t deferredLightPassShader = 0;
+    uint32_t deferredPostPass = 0;
+    uint32_t deferredPostPassShader = 0;
     
     CC_INLINE Shadows* getShadows() const {return GET_SHADOWS(shadow);}
     CC_INLINE Skybox* getSkybox() const {return GET_SKYBOX(skybox);}
     CC_INLINE Ambient* getAmbient() const {return GET_AMBIENT(ambient);}
     CC_INLINE Fog* getFog() const {return GET_FOG(fog);}
-    
+    CC_INLINE PassView* getDeferredLightPass() const {return GET_PASS(deferredLightPass);}
+    CC_INLINE gfx::Shader* getDeferredLightPassShader() const {return GET_SHADER(deferredLightPassShader);}
+    CC_INLINE PassView* getDeferredPostPass() const {return GET_PASS(deferredPostPass);}
+    CC_INLINE gfx::Shader* getDeferredPostPassShader() const {return GET_SHADER(deferredPostPassShader);}
+
     const static se::PoolType type;
 };
 

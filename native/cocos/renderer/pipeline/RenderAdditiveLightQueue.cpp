@@ -323,7 +323,7 @@ void RenderAdditiveLightQueue::updateLightDescriptorSet(const Camera *camera, gf
         _shadowUBO.fill(0.0f);
         
         PipelineUBO::updateGlobalUBOView(_pipeline, _globalUBO);
-        PipelineUBO::updateCameraUBOView(_pipeline, _cameraUBO, camera);
+        PipelineUBO::updateCameraUBOView(_pipeline, _cameraUBO, camera, camera->getWindow()->hasOffScreenAttachments);
 
         switch (light->getType()) {
             case LightType::SPOT: {
