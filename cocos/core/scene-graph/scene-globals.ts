@@ -96,6 +96,7 @@ export class AmbientInfo {
     }
 
     public activate (resource: Ambient) {
+        const aa :Ambient = resource;
         this._resource = resource;
         this._resource.initialize(this);
     }

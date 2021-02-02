@@ -38,6 +38,8 @@ import { BindingMappingInfo, DescriptorType, Type, ShaderStageFlagBit,
 import { Camera } from '../renderer/scene';
 import { DescriptorSetHandle, InputAssemblerHandle } from '../renderer/core/memory-pools';
 
+export const PIPELINE_FLOW_GBUFFER = 'GbufferFlow';
+export const PIPELINE_FLOW_LIGHTING = 'LightingFlow';
 export const PIPELINE_FLOW_FORWARD = 'ForwardFlow';
 export const PIPELINE_FLOW_SHADOW = 'ShadowFlow';
 export const PIPELINE_FLOW_SMAA = 'SMAAFlow';
@@ -122,6 +124,11 @@ export enum PipelineGlobalBindings {
     SAMPLER_SHADOWMAP,
     SAMPLER_ENVIRONMENT, // don't put this as the first sampler binding due to Mac GL driver issues: cubemap at texture unit 0 causes rendering issues
     SAMPLER_SPOT_LIGHTING_MAP,
+    SAMPLER_GBUFFER_ALBEDOMAP,
+    SAMPLER_GBUFFER_POSITIONMAP,
+    SAMPLER_GBUFFER_NORMALMAP,
+    SAMPLER_GBUFFER_EMISSIVEMAP,
+    SAMPLER_LIGHTING_RESULTMAP,
 
     COUNT,
 }
@@ -265,6 +272,41 @@ const UNIFORM_SHADOWMAP_LAYOUT = new UniformSampler(SetIndex.GLOBAL, UNIFORM_SHA
 globalDescriptorSetLayout.layouts[UNIFORM_SHADOWMAP_NAME] = UNIFORM_SHADOWMAP_LAYOUT;
 globalDescriptorSetLayout.bindings[UNIFORM_SHADOWMAP_BINDING] = UNIFORM_SHADOWMAP_DESCRIPTOR;
 
+const UNIFORM_GBUFFER_ALBEDOMAP_NAME = 'cc_gbuffer_albedoMap';
+export const UNIFORM_GBUFFER_ALBEDOMAP_BINDING = PipelineGlobalBindings.SAMPLER_GBUFFER_ALBEDOMAP;
+const UNIFORM_GBUFFER_ALBEDOMAP_DESCRIPTOR = new DescriptorSetLayoutBinding(UNIFORM_GBUFFER_ALBEDOMAP_BINDING, DescriptorType.SAMPLER, 1, ShaderStageFlagBit.FRAGMENT);
+const UNIFORM_GBUFFER_ALBEDOMAP_LAYOUT = new UniformSampler(SetIndex.GLOBAL, UNIFORM_GBUFFER_ALBEDOMAP_BINDING, UNIFORM_GBUFFER_ALBEDOMAP_NAME, Type.SAMPLER2D, 1);
+globalDescriptorSetLayout.layouts[UNIFORM_GBUFFER_ALBEDOMAP_NAME] = UNIFORM_GBUFFER_ALBEDOMAP_LAYOUT;
+globalDescriptorSetLayout.bindings[UNIFORM_GBUFFER_ALBEDOMAP_BINDING] = UNIFORM_GBUFFER_ALBEDOMAP_DESCRIPTOR;
+
+const UNIFORM_GBUFFER_POSITIONMAP_NAME = 'cc_gbuffer_positionMap';
+export const UNIFORM_GBUFFER_POSITIONMAP_BINDING = PipelineGlobalBindings.SAMPLER_GBUFFER_POSITIONMAP;
+const UNIFORM_GBUFFER_POSITIONMAP_DESCRIPTOR = new DescriptorSetLayoutBinding(UNIFORM_GBUFFER_POSITIONMAP_BINDING, DescriptorType.SAMPLER, 1, ShaderStageFlagBit.FRAGMENT);
+const UNIFORM_GBUFFER_POSITIONMAP_LAYOUT = new UniformSampler(SetIndex.GLOBAL, UNIFORM_GBUFFER_POSITIONMAP_BINDING, UNIFORM_GBUFFER_POSITIONMAP_NAME, Type.SAMPLER2D, 1);
+globalDescriptorSetLayout.layouts[UNIFORM_GBUFFER_POSITIONMAP_NAME] = UNIFORM_GBUFFER_POSITIONMAP_LAYOUT;
+globalDescriptorSetLayout.bindings[UNIFORM_GBUFFER_POSITIONMAP_BINDING] = UNIFORM_GBUFFER_POSITIONMAP_DESCRIPTOR;
+
+const UNIFORM_GBUFFER_NORMALMAP_NAME = 'cc_gbuffer_normalMap';
+export const UNIFORM_GBUFFER_NORMALMAP_BINDING = PipelineGlobalBindings.SAMPLER_GBUFFER_NORMALMAP;
+const UNIFORM_GBUFFER_NORMALMAP_DESCRIPTOR = new DescriptorSetLayoutBinding(UNIFORM_GBUFFER_NORMALMAP_BINDING, DescriptorType.SAMPLER, 1, ShaderStageFlagBit.FRAGMENT);
+const UNIFORM_GBUFFER_NORMALMAP_LAYOUT = new UniformSampler(SetIndex.GLOBAL, UNIFORM_GBUFFER_NORMALMAP_BINDING, UNIFORM_GBUFFER_NORMALMAP_NAME, Type.SAMPLER2D, 1);
+globalDescriptorSetLayout.layouts[UNIFORM_GBUFFER_NORMALMAP_NAME] = UNIFORM_GBUFFER_NORMALMAP_LAYOUT;
+globalDescriptorSetLayout.bindings[UNIFORM_GBUFFER_NORMALMAP_BINDING] = UNIFORM_GBUFFER_NORMALMAP_DESCRIPTOR;
+
+const UNIFORM_LIGHTING_RESULTMAP_NAME = 'cc_lighting_resultMap';
+export const UNIFORM_LIGHTING_RESULTMAP_BINDING = PipelineGlobalBindings.SAMPLER_LIGHTING_RESULTMAP;
+const UNIFORM_LIGHTING_RESULTMAP_DESCRIPTOR = new DescriptorSetLayoutBinding(UNIFORM_LIGHTING_RESULTMAP_BINDING, DescriptorType.SAMPLER, 1, ShaderStageFlagBit.FRAGMENT);
+const UNIFORM_LIGHTING_RESULTMAP_LAYOUT = new UniformSampler(SetIndex.GLOBAL, UNIFORM_LIGHTING_RESULTMAP_BINDING, UNIFORM_LIGHTING_RESULTMAP_NAME, Type.SAMPLER2D, 1);
+globalDescriptorSetLayout.layouts[UNIFORM_LIGHTING_RESULTMAP_NAME] = UNIFORM_LIGHTING_RESULTMAP_LAYOUT;
+globalDescriptorSetLayout.bindings[UNIFORM_LIGHTING_RESULTMAP_BINDING] = UNIFORM_LIGHTING_RESULTMAP_DESCRIPTOR;
+
+const UNIFORM_GBUFFER_EMISSIVEMAP_NAME = 'cc_gbuffer_emissiveMap';
+export const UNIFORM_GBUFFER_EMISSIVEMAP_BINDING = PipelineGlobalBindings.SAMPLER_GBUFFER_EMISSIVEMAP;
+const UNIFORM_GBUFFER_EMISSIVEMAP_DESCRIPTOR = new DescriptorSetLayoutBinding(UNIFORM_GBUFFER_EMISSIVEMAP_BINDING, DescriptorType.SAMPLER, 1, ShaderStageFlagBit.FRAGMENT);
+const UNIFORM_GBUFFER_EMISSIVEMAP_LAYOUT = new UniformSampler(SetIndex.GLOBAL, UNIFORM_GBUFFER_EMISSIVEMAP_BINDING, UNIFORM_GBUFFER_EMISSIVEMAP_NAME, Type.SAMPLER2D, 1);
+globalDescriptorSetLayout.layouts[UNIFORM_GBUFFER_EMISSIVEMAP_NAME] = UNIFORM_GBUFFER_EMISSIVEMAP_LAYOUT;
+globalDescriptorSetLayout.bindings[UNIFORM_GBUFFER_EMISSIVEMAP_BINDING] = UNIFORM_GBUFFER_EMISSIVEMAP_DESCRIPTOR;
+
 const UNIFORM_ENVIRONMENT_NAME = 'cc_environment';
 export const UNIFORM_ENVIRONMENT_BINDING = PipelineGlobalBindings.SAMPLER_ENVIRONMENT;
 const UNIFORM_ENVIRONMENT_DESCRIPTOR = new DescriptorSetLayoutBinding(UNIFORM_ENVIRONMENT_BINDING, DescriptorType.SAMPLER, 1, ShaderStageFlagBit.FRAGMENT);
@@ -351,11 +393,10 @@ export class UBOForwardLight {
 localDescriptorSetLayout.layouts[UBOForwardLight.NAME] = UBOForwardLight.LAYOUT;
 localDescriptorSetLayout.bindings[UBOForwardLight.BINDING] = UBOForwardLight.DESCRIPTOR;
 
-// The actual uniform vectors used is JointUniformCapacity * 3.
-// We think this is a reasonable default capacity considering MAX_VERTEX_UNIFORM_VECTORS in WebGL spec is just 128.
-// Skinning models with number of bones more than this capacity will be automatically switched to texture skinning.
-// But still, you can tweak this for your own need by changing the number below
-// and the JOINT_UNIFORM_CAPACITY macro in cc-skinning shader header.
+export class UBODeferredLight {
+    public static readonly LIGHTS_PER_PASS = 10;
+}
+
 export const JOINT_UNIFORM_CAPACITY = 30;
 
 /**

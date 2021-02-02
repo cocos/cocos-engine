@@ -107,7 +107,7 @@ export class ForwardPipeline extends RenderPipeline {
         for (let i = 0; i < cameras.length; i++) {
             const camera = cameras[i];
             if (camera.scene) {
-                this._pipelineUBO.updateCameraUBO(camera);
+                this._pipelineUBO.updateCameraUBO(camera, false);
                 for (let j = 0; j < this._flows.length; j++) {
                     this._flows[j].render(camera);
                 }

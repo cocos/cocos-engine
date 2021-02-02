@@ -33,6 +33,8 @@ import effects from './effects';
 import { legacyCC } from '../global-exports';
 import { getDeviceShaderVersion } from '../renderer/core/program-lib';
 import shaderSourceAssembly from './shader-source-assembly';
+import { resources } from '../asset-manager/bundle';
+import { EffectAsset } from '../assets/effect-asset';
 
 class BuiltinResMgr {
     protected _device: Device | null = null;
@@ -309,6 +311,17 @@ class BuiltinResMgr {
             effectName: 'spine-two-colored',
         });
         resources[spineTwoColorMtl._uuid] = spineTwoColorMtl;
+
+        // builtin deferred material
+        const builtinDeferredMtl = new legacyCC.Material();
+        builtinDeferredMtl._uuid = 'builtin-deferred-material';
+        builtinDeferredMtl.initialize({ effectName: 'deferred' });
+        resources[builtinDeferredMtl._uuid] = builtinDeferredMtl;
+
+        const builtinPostProcessMtl = new legacyCC.Material();
+        builtinPostProcessMtl._uuid = 'builtin-post-process-material';
+        builtinPostProcessMtl.initialize({ effectName: 'postprocess' });
+        resources[builtinPostProcessMtl._uuid] = builtinPostProcessMtl;
     }
 }
 

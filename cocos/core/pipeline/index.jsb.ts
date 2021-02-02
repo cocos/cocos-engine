@@ -30,6 +30,7 @@ import { getPhaseID } from './pass-phase'
 import { setClassName } from '../../core/utils/js';
 import { PipelineSceneData } from './pipeline-scene-data';
 import { legacyCC } from '../../core/global-exports';
+
 nr.getPhaseID = getPhaseID;
 
 export const RenderPipeline = nr.RenderPipeline;
@@ -81,11 +82,11 @@ export class ForwardPipeline extends nr.ForwardPipeline {
     }
 
     public render (cameras) {
-        let handles = [];
-        for (let i = 0, len = cameras.length; i < len; ++i) {
-            handles.push(cameras[i].handle);
-        }
-        super.render(handles);
+      let handles = [];
+      for (let i = 0, len = cameras.length; i < len; ++i) {
+          handles.push(cameras[i].handle);
+      }
+      super.render(handles);
     }
 
     public destroy () {
@@ -177,6 +178,152 @@ export class RenderQueueDesc {
     }
 }
 
+export class DeferredPipeline extends nr.DeferredPipeline {
+  public pipelineSceneData = new PipelineSceneData();
+  constructor() {
+    super();
+    this._tag = 0;
+    this._flows = [];
+    this.renderTextures = [];
+    this.materials = [];
+  }
+
+  init() {
+    this.setPipelineSharedSceneData(this.pipelineSceneData.handle);
+    for (let i = 0; i < this._flows.length; i++) {
+      this._flows[i].init();
+    }
+    let info = new nr.RenderPipelineInfo(this._tag, this._flows);
+    this.initialize(info);
+  }
+
+  public activate () {
+    return super.activate() && this.pipelineSceneData.activate(legacyCC.director.root.device, this as any);
+  }
+
+  public render (cameras) {
+    let handles = [];
+    for (let i = 0, len = cameras.length; i < len; ++i) {
+        handles.push(cameras[i].handle);
+    }
+    super.render(handles);
+  }
+
+  destroy () {
+    this.fog.destroy();
+    this.ambient.destroy();
+    this.skybox.destroy();
+    this.shadows.destroy();
+    this.pipelineSceneData.destroy();
+    super.destroy();
+  }
+
+}
+
+// hook to invoke init after deserialization
+DeferredPipeline.prototype.onAfterDeserialize_JSB = DeferredPipeline.prototype.init;
+
+export class GbufferFlow extends nr.GbufferFlow {
+  constructor() {
+    super();
+    this._name = 0;
+    this._priority = 0;
+    this._tag = 0;
+    this._stages = [];
+  }
+
+  init() {
+    for (let i = 0; i < this._stages.length; i++) {
+      this._stages[i].init();
+    }
+    let info = new nr.RenderFlowInfo(
+        this._name, this._priority, this._tag, this._stages);
+    this.initialize(info);
+  }
+}
+
+export class GbufferStage extends nr.GbufferStage {
+  constructor() {
+    super();
+    this._name = 0;
+    this._priority = 0;
+    this._tag = 0;
+    this.renderQueues = []
+  }
+
+  init() {
+    const queues = [];
+    for (let i = 0; i < this.renderQueues.length; i++) {
+      queues.push(this.renderQueues[i].init());
+    }
+    let info =
+        new nr.RenderStageInfo(this._name, this._priority, this._tag, queues);
+    this.initialize(info);
+  }
+}
+
+class LightingFlow extends nr.LightingFlow {
+  constructor() {
+    super();
+    this._name = 0;
+    this._priority = 0;
+    this._tag = 0;
+    this._stages = [];
+  }
+  init() {
+    for (let i = 0; i < this._stages.length; i++) {
+      this._stages[i].init();
+    }
+    let info = new nr.RenderFlowInfo(
+        this._name, this._priority, this._tag, this._stages);
+    this.initialize(info);
+  }
+}
+
+export class LightingStage extends nr.LightingStage {
+  constructor() {
+    super();
+    this._name = 0;
+    this._priority = 0;
+    this._tag = 0;
+    this.renderQueues = [];
+  }
+  init() {
+    const queues = [];
+    for (let i = 0; i < this.renderQueues.length; i++) {
+      queues.push(this.renderQueues[i].init());
+    }
+    let info =
+        new nr.RenderStageInfo(this._name, this._priority, this._tag, queues);
+    this.initialize(info);
+  }
+}
+
+export class PostprocessStage extends nr.PostprocessStage {
+  constructor() {
+    super();
+    this._name = 0;
+    this._priority = 0;
+    this._tag = 0;
+    this.renderQueues = [];
+  }
+  init() {
+    const queues = [];
+    for (let i = 0; i < this.renderQueues.length; i++) {
+      queues.push(this.renderQueues[i].init());
+    }
+    let info =
+        new nr.RenderStageInfo(this._name, this._priority, this._tag, queues);
+    this.initialize(info);
+  }
+}
+
+setClassName('DeferredPipeline', DeferredPipeline);
+setClassName('GbufferFlow', GbufferFlow);
+setClassName('GbufferStage', GbufferStage);
+setClassName('LightingFlow', LightingFlow);
+setClassName('LightingStage', LightingStage);
+setClassName('PostprocessStage',PostprocessStage);
 setClassName('ForwardPipeline', ForwardPipeline);
 setClassName('ForwardFlow', ForwardFlow);
 setClassName('ShadowFlow', ShadowFlow);

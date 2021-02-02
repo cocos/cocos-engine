@@ -908,7 +908,11 @@ export enum CameraView {
     MAT_VIEW_PROJ_INV = 57, // Mat4
     MAT_PROJ = 73,          // Mat4
     MAT_PROJ_INV = 89,      // Mat4
-    COUNT = 105
+    MAT_VIEW_PROJ_OFFSCREEN = 105,     // Mat4
+    MAT_VIEW_PROJ_INV_OFFSCREEN = 121, // Mat4
+    MAT_PROJ_OFFSCREEN = 137,          // Mat4
+    MAT_PROJ_INV_OFFSCREEN = 153,      // Mat4
+    COUNT = 169
 }
 interface ICameraViewType extends BufferTypeManifest<typeof CameraView> {
     [CameraView.WIDTH]: number;
@@ -931,6 +935,10 @@ interface ICameraViewType extends BufferTypeManifest<typeof CameraView> {
     [CameraView.MAT_VIEW_PROJ_INV]: Mat4;
     [CameraView.MAT_PROJ]: Mat4;
     [CameraView.MAT_PROJ_INV]: Mat4;
+    [CameraView.MAT_VIEW_PROJ_OFFSCREEN]: Mat4;
+    [CameraView.MAT_VIEW_PROJ_INV_OFFSCREEN]: Mat4;
+    [CameraView.MAT_PROJ_OFFSCREEN]: Mat4;
+    [CameraView.MAT_PROJ_INV_OFFSCREEN]: Mat4;
     [CameraView.COUNT]: never;
 }
 const cameraViewDataType: BufferDataTypeManifest<typeof CameraView> = {
@@ -954,6 +962,10 @@ const cameraViewDataType: BufferDataTypeManifest<typeof CameraView> = {
     [CameraView.MAT_VIEW_PROJ_INV]: BufferDataType.FLOAT32,
     [CameraView.MAT_PROJ]: BufferDataType.FLOAT32,
     [CameraView.MAT_PROJ_INV]: BufferDataType.FLOAT32,
+    [CameraView.MAT_VIEW_PROJ_OFFSCREEN]: BufferDataType.FLOAT32,
+    [CameraView.MAT_VIEW_PROJ_INV_OFFSCREEN]: BufferDataType.FLOAT32,
+    [CameraView.MAT_PROJ_OFFSCREEN]: BufferDataType.FLOAT32,
+    [CameraView.MAT_PROJ_INV_OFFSCREEN]: BufferDataType.FLOAT32,
     [CameraView.COUNT]: BufferDataType.NEVER,
 };
 // Theoretically we only have to declare the type view here while all the other arguments can be inferred.
@@ -1242,7 +1254,11 @@ export enum PipelineSceneDataView {
     IS_HDR,
     SHADING_SCALE,
     FP_SCALE,
-    COUNT = 7
+    DEFERRED_LIGHT_PASS,
+    DEFERRED_LIGHT_PASS_SHADER,
+    DEFERRED_POST_PASS,
+    DEFERRED_POST_PASS_SHADER,
+    COUNT = 11
 }
 interface IPipelineSceneDataViewType extends BufferTypeManifest<typeof PipelineSceneDataView> {
     [PipelineSceneDataView.SHADOW]: ShadowsHandle;
@@ -1252,6 +1268,10 @@ interface IPipelineSceneDataViewType extends BufferTypeManifest<typeof PipelineS
     [PipelineSceneDataView.IS_HDR]: number;
     [PipelineSceneDataView.SHADING_SCALE]: number;
     [PipelineSceneDataView.FP_SCALE]: number;
+    [PipelineSceneDataView.DEFERRED_LIGHT_PASS]: PassHandle;
+    [PipelineSceneDataView.DEFERRED_LIGHT_PASS_SHADER]: ShaderHandle;
+    [PipelineSceneDataView.DEFERRED_POST_PASS]: PassHandle;
+    [PipelineSceneDataView.DEFERRED_POST_PASS_SHADER]: ShaderHandle;
     [PipelineSceneDataView.COUNT]: never;
 }
 const pipelineSceneDataType: BufferDataTypeManifest<typeof PipelineSceneDataView> = {
@@ -1262,6 +1282,10 @@ const pipelineSceneDataType: BufferDataTypeManifest<typeof PipelineSceneDataView
     [PipelineSceneDataView.IS_HDR]: BufferDataType.UINT32,
     [PipelineSceneDataView.SHADING_SCALE]: BufferDataType.UINT32,
     [PipelineSceneDataView.FP_SCALE]: BufferDataType.UINT32,
+    [PipelineSceneDataView.DEFERRED_LIGHT_PASS]: BufferDataType.UINT32,
+    [PipelineSceneDataView.DEFERRED_LIGHT_PASS_SHADER]: BufferDataType.UINT32,
+    [PipelineSceneDataView.DEFERRED_POST_PASS]: BufferDataType.UINT32,
+    [PipelineSceneDataView.DEFERRED_POST_PASS_SHADER]: BufferDataType.UINT32,
     [PipelineSceneDataView.COUNT]: BufferDataType.NEVER,
 };
 // Theoretically we only have to declare the type view here while all the other arguments can be inferred.

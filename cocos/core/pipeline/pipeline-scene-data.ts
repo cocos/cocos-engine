@@ -31,7 +31,9 @@ import { IRenderObject } from './define';
 import { Device, Framebuffer } from '../gfx';
 import { RenderPipeline } from './render-pipeline';
 import { Light } from '../renderer/scene/light';
-import { PipelineSceneDataPool, PipelineSceneDataHandle, PipelineSceneDataView } from '../renderer/core/memory-pools';
+import { PipelineSceneDataPool, PipelineSceneDataHandle, PipelineSceneDataView, PassHandle, ShaderHandle } from '../renderer/core/memory-pools';
+import { builtinResMgr } from '../builtin/builtin-res-mgr';
+import { Material } from '../assets';
 
 export class PipelineSceneData {
     public get handle () {
@@ -89,9 +91,56 @@ export class PipelineSceneData {
         PipelineSceneDataPool.set(this._handle, PipelineSceneDataView.FP_SCALE, 1.0 / 1024.0);
     }
 
+    public get deferredLightPassHandle (): PassHandle {
+        return PipelineSceneDataPool.get(this._handle, PipelineSceneDataView.DEFERRED_LIGHT_PASS);
+    }
+
+    public get deferredLightPassShaderHandle (): ShaderHandle {
+        return PipelineSceneDataPool.get(this._handle, PipelineSceneDataView.DEFERRED_LIGHT_PASS_SHADER);
+    }
+
+    public get deferredPostPassHandle (): PassHandle {
+        return PipelineSceneDataPool.get(this._handle, PipelineSceneDataView.DEFERRED_POST_PASS);
+    }
+
+    public get deferredPostPassShaderHandle (): ShaderHandle  {
+        return PipelineSceneDataPool.get(this._handle, PipelineSceneDataView.DEFERRED_POST_PASS_SHADER);
+    }
+
+    public initDeferredPassInfo () {
+        const builinDeferred = builtinResMgr.get<Material>('builtin-deferred-material');
+        if (builinDeferred) {
+            const passLit = builinDeferred.passes[1];
+            passLit.beginChangeStatesSilently();
+            passLit.tryCompile();
+            passLit.endChangeStatesSilently();
+        }
+
+        const builtinPostProcess = builtinResMgr.get<Material>('builtin-post-process-material');
+        if (builtinPostProcess) {
+            const passPost = builtinPostProcess.passes[0];
+            passPost.beginChangeStatesSilently();
+            passPost.tryCompile();
+            passPost.endChangeStatesSilently();
+        }
+
+        if (builinDeferred) {
+            const passLit = builinDeferred.passes[1];
+            PipelineSceneDataPool.set(this._handle, PipelineSceneDataView.DEFERRED_LIGHT_PASS, passLit.handle);
+            PipelineSceneDataPool.set(this._handle, PipelineSceneDataView.DEFERRED_LIGHT_PASS_SHADER, passLit.getShaderVariant());
+        }
+
+        if (builtinPostProcess) {
+            const passPost = builtinPostProcess.passes[0];
+            PipelineSceneDataPool.set(this._handle, PipelineSceneDataView.DEFERRED_POST_PASS, passPost.handle);
+            PipelineSceneDataPool.set(this._handle, PipelineSceneDataView.DEFERRED_POST_PASS_SHADER, passPost.getShaderVariant());
+        }
+    }
+
     public activate (device: Device, pipeline: RenderPipeline) {
         this._device = device;
         this._pipeline = pipeline;
+        this.initDeferredPassInfo();
         return true;
     }
 

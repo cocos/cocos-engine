@@ -38,6 +38,7 @@ import { RenderPass, LoadOp, StoreOp,
     DepthStencilAttachment, RenderPassInfo, TextureInfo, FramebufferInfo } from '../../gfx';
 import { RenderFlowTag } from '../pipeline-serialization';
 import { ForwardPipeline } from '../forward/forward-pipeline';
+import { RenderPipeline } from '..';
 import { ShadowType } from '../../renderer/scene/shadows';
 import { Light } from '../../renderer/scene/light';
 import { lightCollecting, shadowCollecting } from '../scene-culling';
@@ -133,7 +134,7 @@ export class ShadowFlow extends RenderFlow {
         if (this._shadowRenderPass) { this._shadowRenderPass.destroy(); }
     }
 
-    public _initShadowFrameBuffer  (pipeline: ForwardPipeline, light: Light) {
+    public _initShadowFrameBuffer  (pipeline: RenderPipeline, light: Light) {
         const device = pipeline.device;
         const shadows = pipeline.pipelineSceneData.shadows;
         const shadowMapSize = shadows.size;
