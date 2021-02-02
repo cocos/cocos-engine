@@ -103,7 +103,7 @@ export class PipelineSceneData {
         return PipelineSceneDataPool.get(this._handle, PipelineSceneDataView.DEFERRED_POST_PASS);
     }
 
-    public get deferredPostPassShaderHandle(): ShaderHandle  {
+    public get deferredPostPassShaderHandle (): ShaderHandle  {
         return PipelineSceneDataPool.get(this._handle, PipelineSceneDataView.DEFERRED_POST_PASS_SHADER);
     }
 
@@ -112,7 +112,7 @@ export class PipelineSceneData {
         if (builinDeferred) {
             const passLit = builinDeferred.passes[1];
             passLit.beginChangeStatesSilently();
-            passLit.tryCompile(); 
+            passLit.tryCompile();
             passLit.endChangeStatesSilently();
         }
 
@@ -120,7 +120,7 @@ export class PipelineSceneData {
         if (builtinPostProcess) {
             const passPost = builtinPostProcess.passes[0];
             passPost.beginChangeStatesSilently();
-            passPost.tryCompile(); 
+            passPost.tryCompile();
             passPost.endChangeStatesSilently();
         }
 
