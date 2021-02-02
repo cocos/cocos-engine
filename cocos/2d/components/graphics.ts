@@ -69,7 +69,7 @@ const stride = getAttributeStride(attributes);
 @ccclass('cc.Graphics')
 @help('i18n:cc.Graphics')
 @executionOrder(110)
-@menu('UI/Render/Graphics')
+@menu('2D/Graphics')
 export class Graphics extends Renderable2D {
     /**
      * @en
