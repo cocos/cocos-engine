@@ -327,14 +327,14 @@ class BuiltinResMgr {
         resources[spineTwoColorMtl._uuid] = spineTwoColorMtl;
         materialsToBeCompiled.push(spineTwoColorMtl);
 
-        legacyCC.game.on(legacyCC.Game.EVENT_RENDERER_INITED, () => {
-            for (let i = 0; i < materialsToBeCompiled.length; ++i) {
-                const mat = materialsToBeCompiled[i];
-                for (let j = 0; j < mat.passes.length; ++j) {
-                    mat.passes[j].tryCompile();
-                }
-            }
-        });
+        // legacyCC.game.on(legacyCC.Game.EVENT_RENDERER_INITED, () => {
+        //     for (let i = 0; i < materialsToBeCompiled.length; ++i) {
+        //         const mat = materialsToBeCompiled[i];
+        //         for (let j = 0; j < mat.passes.length; ++j) {
+        //             mat.passes[j].tryCompile();
+        //         }
+        //     }
+        // });
     }
 }
 
