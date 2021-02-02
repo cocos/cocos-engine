@@ -137,14 +137,6 @@ export abstract class Buffer extends Obj {
         return this._flags;
     }
 
-    /**
-     * @en View of the back-up buffer, if specified.
-     * @zh 备份缓冲视图。
-     */
-    get backupBuffer (): Uint8Array | null {
-        return this._bakcupBuffer;
-    }
-
     protected _device: Device;
     protected _usage: BufferUsage = BufferUsageBit.NONE;
     protected _memUsage: MemoryUsage = MemoryUsageBit.NONE;
