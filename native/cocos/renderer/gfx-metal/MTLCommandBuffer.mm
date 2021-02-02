@@ -109,6 +109,7 @@ void CCMTLCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fb
         const auto colorAttachmentCount = colorAttachments.size();
         for (size_t slot = 0U; slot < colorAttachmentCount; slot++) {
             mtlRenderPassDescriptor.colorAttachments[slot].clearColor = mu::toMTLClearColor(colors[slot]);
+            mtlRenderPassDescriptor.colorAttachments[slot].loadAction = colorAttachments[slot].loadOp == LoadOp::CLEAR ? MTLLoadActionClear : MTLLoadActionLoad;
         }
         //Metal limits clearDepth at range [0.0, 1.0]
         //to keep consistent with OpenGL, assume passed value ranges in [-1, 1];
