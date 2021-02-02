@@ -312,7 +312,6 @@ export type MemoryUsage = MemoryUsageBit;
 
 export enum BufferFlagBit {
     NONE = 0,
-    BAKUP_BUFFER = 0x4,
 }
 
 export type BufferFlags = BufferFlagBit;

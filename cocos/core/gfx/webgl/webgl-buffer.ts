@@ -24,7 +24,7 @@
  */
 
 import { Buffer, BufferSource, BufferInfo, BufferViewInfo, IndirectBuffer } from '../buffer';
-import { BufferUsageBit, BufferFlagBit } from '../define';
+import { BufferUsageBit } from '../define';
 import {
     WebGLCmdFuncCreateBuffer,
     WebGLCmdFuncDestroyBuffer,
@@ -76,10 +76,6 @@ export class WebGLBuffer extends Buffer {
                 this._indirectBuffer = new IndirectBuffer();
             }
 
-            if (this._flags & BufferFlagBit.BAKUP_BUFFER) {
-                this._bakcupBuffer = new Uint8Array(this._size);
-                this._device.memoryStatus.bufferSize += this._size;
-            }
 
             if ((this._usage & BufferUsageBit.UNIFORM) && this._size > 0) {
                 this._uniformBuffer = new Uint8Array(this._size);
@@ -90,7 +86,7 @@ export class WebGLBuffer extends Buffer {
                 memUsage: this._memUsage,
                 size: this._size,
                 stride: this._stride,
-                buffer: this._bakcupBuffer,
+                buffer: null,
                 vf32: null,
                 indirects: [],
                 glTarget: 0,
@@ -123,8 +119,6 @@ export class WebGLBuffer extends Buffer {
         if (this._gpuBufferView) {
             this._gpuBufferView = null;
         }
-
-        this._bakcupBuffer = null;
     }
 
     public resize (size: number) {
@@ -139,14 +133,6 @@ export class WebGLBuffer extends Buffer {
         this._size = size;
         this._count = this._size / this._stride;
 
-        if (this._bakcupBuffer) {
-            const oldView = this._bakcupBuffer;
-            this._bakcupBuffer = new Uint8Array(this._size);
-            this._bakcupBuffer.set(oldView);
-            this._device.memoryStatus.bufferSize -= oldSize;
-            this._device.memoryStatus.bufferSize += size;
-        }
-
         if (this._uniformBuffer) {
             this._uniformBuffer = new Uint8Array(size);
         }
@@ -154,8 +140,6 @@ export class WebGLBuffer extends Buffer {
         if (this._gpuBuffer) {
             if (this._uniformBuffer) {
                 this._gpuBuffer.buffer = this._uniformBuffer;
-            } else if (this._bakcupBuffer) {
-                this._gpuBuffer.buffer = this._bakcupBuffer;
             }
 
             this._gpuBuffer.size = size;
@@ -180,10 +164,6 @@ export class WebGLBuffer extends Buffer {
             buffSize = 0;
         } else {
             buffSize = (buffer as ArrayBuffer).byteLength;
-        }
-        if (this._bakcupBuffer && buffer !== this._bakcupBuffer.buffer) {
-            const view = new Uint8Array(buffer as ArrayBuffer, 0, size);
-            this._bakcupBuffer.set(view);
         }
 
         WebGLCmdFuncUpdateBuffer(
