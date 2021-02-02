@@ -28,7 +28,7 @@
  */
 
 import { ccclass, displayOrder, type, serializable } from 'cc.decorator';
-import { builtinResMgr } from '../../builtin/builtin-res-mgr';
+import { builtinResMgr } from '../../builtin';
 import { Camera } from '../../renderer/scene';
 import { SetIndex } from '../define';
 import { Color, Rect, Shader } from '../../gfx';
