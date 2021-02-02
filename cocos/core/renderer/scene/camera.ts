@@ -275,23 +275,23 @@ export class Camera {
         }
 
         // projection matrix
-        let orientation = this._device.surfaceTransform;
+        const orientation = this._device.surfaceTransform;
         if (this._isProjDirty || this._curTransform !== orientation) {
             this._curTransform = orientation;
-            let projectionSignY = this._device.screenSpaceSignY;
+            const projectionSignY = this._device.screenSpaceSignY;
             if (this._proj === CameraProjection.PERSPECTIVE) {
                 Mat4.perspective(this._matProj, this._fov, this._aspect, this._nearClip, this._farClip,
                     this._fovAxis === CameraFOVAxis.VERTICAL, this._device.clipSpaceMinZ, projectionSignY, orientation);
-            
+
                 Mat4.perspective(this._matProjOffscreen, this._fov, this._aspect, this._nearClip, this._farClip,
-                    this._fovAxis === CameraFOVAxis.VERTICAL, this._device.clipSpaceMinZ, projectionSignY * this._device.UVSpaceSignY, 
+                    this._fovAxis === CameraFOVAxis.VERTICAL, this._device.clipSpaceMinZ, projectionSignY * this._device.UVSpaceSignY,
                     SurfaceTransform.IDENTITY);
             } else {
                 const x = this._orthoHeight * this._aspect; // aspect is already oriented
                 const y = this._orthoHeight;
                 Mat4.ortho(this._matProj, -x, x, -y, y, this._nearClip, this._farClip,
                     this._device.clipSpaceMinZ, projectionSignY, orientation);
-                
+
                 Mat4.ortho(this._matProjOffscreen, -x, x, -y, y, this._nearClip, this._farClip,
                     this._device.clipSpaceMinZ, projectionSignY * this._device.UVSpaceSignY, SurfaceTransform.IDENTITY);
             }

@@ -107,7 +107,7 @@ export abstract class RenderFlow {
      */
     public get pipeline (): RenderPipeline {
         return this._pipeline;
-    }    
+    }
 
     /**
      * @en The initialization process, user shouldn't use it in most case, only useful when need to generate render pipeline programmatically.

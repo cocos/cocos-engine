@@ -42,8 +42,6 @@ import { legacyCC } from './global-exports';
 import { RenderWindow, IRenderWindowInfo } from './renderer/core/render-window';
 import { ColorAttachment, DepthStencilAttachment, RenderPassInfo, StoreOp, Device } from './gfx';
 import { RootHandle, RootPool, RootView, NULL_HANDLE, LightHandle, PassHandle, ShaderHandle } from './renderer/core/memory-pools';
-import { Material } from "./assets";
-import { Asset } from '../core/assets/asset';
 import { warnID } from './platform/debug';
 
 /**
@@ -196,7 +194,7 @@ export class Root {
     get handle () : RootHandle {
         return this._poolHandle;
     }
-    
+
     get useDeferredPipeline () : boolean {
         return this._useDeferredPipeline;
     }
@@ -222,7 +220,7 @@ export class Root {
     private _fixedFPS = 0;
     private _fixedFPSFrameTime = 0;
     private _poolHandle: RootHandle = NULL_HANDLE;
-    private _useDeferredPipeline: boolean = false;
+    private _useDeferredPipeline = false;
 
     /**
      * 构造函数

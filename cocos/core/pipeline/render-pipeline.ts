@@ -33,11 +33,8 @@ import { legacyCC } from '../global-exports';
 import { Asset } from '../assets/asset';
 import { RenderFlow } from './render-flow';
 import { MacroRecord } from '../renderer/core/pass-utils';
-import { Device, DescriptorSet, CommandBuffer, DescriptorSetLayout, DescriptorSetLayoutInfo, DescriptorSetInfo, 
-    Framebuffer } from '../gfx';
-import { globalDescriptorSetLayout, IRenderObject } from './define';
-import { Shadows, ShadowType } from '../renderer/scene/shadows';
-import { Light } from '../renderer/scene/light';
+import { Device, DescriptorSet, CommandBuffer, DescriptorSetLayout, DescriptorSetLayoutInfo, DescriptorSetInfo } from '../gfx';
+import { globalDescriptorSetLayout } from './define';
 import { Camera } from '../renderer/scene/camera';
 import { PipelineUBO } from './pipeline-ubo';
 import { PipelineSceneData } from './pipeline-scene-data';

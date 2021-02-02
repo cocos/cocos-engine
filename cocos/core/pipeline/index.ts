@@ -47,7 +47,7 @@ export { GbufferFlow } from './deferred/gbuffer-flow';
 export { GbufferStage } from './deferred/gbuffer-stage';
 export { LightingFlow } from './deferred/lighting-flow';
 export { LightingStage } from './deferred/lighting-stage';
-export { PostprocessStage} from './deferred/postprocess-stage';
+export { PostprocessStage } from './deferred/postprocess-stage';
 export { ShadowFlow } from './shadow/shadow-flow';
 export { ShadowStage } from './shadow/shadow-stage';
 

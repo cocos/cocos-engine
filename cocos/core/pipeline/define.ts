@@ -38,8 +38,8 @@ import { BindingMappingInfo, DescriptorType, Type, ShaderStageFlagBit,
 import { Camera } from '../renderer/scene';
 import { DescriptorSetHandle, InputAssemblerHandle } from '../renderer/core/memory-pools';
 
-export const PIPELINE_FLOW_GBUFFER: string = 'GbufferFlow';
-export const PIPELINE_FLOW_LIGHTING: string = 'LightingFlow';
+export const PIPELINE_FLOW_GBUFFER = 'GbufferFlow';
+export const PIPELINE_FLOW_LIGHTING = 'LightingFlow';
 export const PIPELINE_FLOW_FORWARD = 'ForwardFlow';
 export const PIPELINE_FLOW_SHADOW = 'ShadowFlow';
 export const PIPELINE_FLOW_SMAA = 'SMAAFlow';
@@ -138,7 +138,6 @@ const GLOBAL_SAMPLER_COUNT = PipelineGlobalBindings.COUNT - GLOBAL_UBO_COUNT;
 export enum ModelLocalBindings {
     UBO_LOCAL,
     UBO_FORWARD_LIGHTS,
-    //UBO_DEFERRED_LIGHTS,
     UBO_SKINNING_ANIMATION,
     UBO_SKINNING_TEXTURE,
     UBO_MORPH,
