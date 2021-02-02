@@ -28,7 +28,7 @@
  */
 
 import { ccclass, displayOrder, type, serializable } from 'cc.decorator';
-import { genSamplerHash, samplerLib } from 'cocos/core/renderer/core/sampler-lib';
+import { genSamplerHash, samplerLib } from '../../renderer/core/sampler-lib';
 import { builtinResMgr } from '../../builtin/builtin-res-mgr';
 import { Texture2D } from '../../assets/texture-2d';
 import { RenderPipeline, IRenderPipelineInfo } from '../render-pipeline';

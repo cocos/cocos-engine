@@ -28,8 +28,8 @@
  */
 
 import { ccclass, displayOrder, type, serializable } from 'cc.decorator';
-import { Camera } from 'cocos/core/renderer/scene';
-import { builtinResMgr } from 'cocos/core';
+import { Camera } from '../../renderer/scene';
+import { builtinResMgr } from '../../builtin';
 import { IRenderPass, localDescriptorSetLayout, UBODeferredLight, SetIndex, UBOForwardLight   } from '../define';
 import { getPhaseID } from '../pass-phase';
 import { opaqueCompareFn, RenderQueue, transparentCompareFn } from '../render-queue';

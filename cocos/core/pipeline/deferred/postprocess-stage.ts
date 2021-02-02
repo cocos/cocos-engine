@@ -28,8 +28,8 @@
  */
 
 import { ccclass, displayOrder, type, serializable } from 'cc.decorator';
-import { builtinResMgr } from 'cocos/core';
-import { Camera } from 'cocos/core/renderer/scene';
+import { builtinResMgr } from '../../builtin';
+import { Camera } from '../../renderer/scene';
 import { SetIndex } from '../define';
 import { Color, Rect, Shader } from '../../gfx';
 import { IRenderStageInfo, RenderStage } from '../render-stage';

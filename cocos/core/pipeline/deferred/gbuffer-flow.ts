@@ -28,7 +28,7 @@
  */
 
 import { ccclass } from 'cc.decorator';
-import { Camera } from 'cocos/core/renderer/scene';
+import { Camera } from '../../renderer/scene';
 import { PIPELINE_FLOW_GBUFFER, UNIFORM_GBUFFER_ALBEDOMAP_BINDING, UNIFORM_GBUFFER_POSITIONMAP_BINDING, UNIFORM_GBUFFER_NORMALMAP_BINDING,
     UNIFORM_GBUFFER_EMISSIVEMAP_BINDING } from '../define';
 import { IRenderFlowInfo, RenderFlow } from '../render-flow';
