@@ -28,7 +28,7 @@
  */
 
 import { ccclass } from 'cc.decorator';
-import { Camera } from 'cocos/core/renderer/scene';
+import { Camera } from '../../renderer/scene';
 import { PIPELINE_FLOW_LIGHTING, UNIFORM_LIGHTING_RESULTMAP_BINDING } from '../define';
 import { IRenderFlowInfo, RenderFlow } from '../render-flow';
 import { DeferredFlowPriority } from './enum';
