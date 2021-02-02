@@ -32,8 +32,8 @@ import { ccclass, tooltip, displayOrder, type, serializable } from 'cc.decorator
 import { Material } from '../../core/assets/material';
 import { RenderingSubMesh } from '../../core/assets/rendering-sub-mesh';
 import { director } from '../../core/director';
-import { AttributeName, BufferUsageBit, Format, FormatInfos, MemoryUsageBit, PrimitiveMode } from '../../core/gfx/define';
-import { Device, Attribute, Buffer, IndirectBuffer, BufferInfo, DrawInfo, DRAW_INFO_SIZE } from '../../core/gfx';
+import { AttributeName, BufferUsageBit, Format, FormatInfos, MemoryUsageBit, PrimitiveMode,
+    Device, Attribute, Buffer, IndirectBuffer, BufferInfo, DrawInfo, DRAW_INFO_SIZE } from '../../core/gfx';
 import { Color, Mat4, Quat, toRadian, Vec3 } from '../../core/math';
 import { Pool } from '../../core/memop';
 import { scene } from '../../core/renderer';

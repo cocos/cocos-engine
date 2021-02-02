@@ -23,8 +23,8 @@
  THE SOFTWARE.
  */
 
-import { Filter, SamplerInfo } from '../define';
-import { Sampler } from '../sampler';
+import { Filter, SamplerInfo } from '../base/define';
+import { Sampler } from '../base/sampler';
 import { IWebGLGPUSampler } from './webgl-gpu-objects';
 
 const WebGLWraps: GLenum[] = [

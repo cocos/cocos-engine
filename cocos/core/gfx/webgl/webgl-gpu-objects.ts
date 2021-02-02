@@ -28,8 +28,8 @@ import {
     ShaderStageFlagBit, TextureFlags, TextureType, TextureUsage, Type,
     DrawInfo, Attribute, ColorAttachment, DepthStencilAttachment,
     UniformBlock, UniformSamplerTexture, DescriptorSetLayoutBinding,
-} from '../define';
-import { BlendState, DepthStencilState, RasterizerState } from '../pipeline-state';
+} from '../base/define';
+import { BlendState, DepthStencilState, RasterizerState } from '../base/pipeline-state';
 
 export interface IWebGLGPUUniformInfo {
     name: string;

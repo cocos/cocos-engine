@@ -30,7 +30,7 @@
 
 import { Buffer } from './buffer';
 import { Device } from './device';
-import { murmurhash2_32_gc } from '../utils/murmurhash2_gc';
+import { murmurhash2_32_gc } from '../../utils/murmurhash2_gc';
 import { Attribute, Obj, ObjectType, InputAssemblerInfo } from './define';
 
 /**

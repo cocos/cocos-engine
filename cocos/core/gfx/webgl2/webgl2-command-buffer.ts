@@ -23,20 +23,20 @@
  THE SOFTWARE.
  */
 
-import { DescriptorSet } from '../descriptor-set';
-import { Buffer } from '../buffer';
-import { CommandBuffer } from '../command-buffer';
+import { DescriptorSet } from '../base/descriptor-set';
+import { Buffer } from '../base/buffer';
+import { CommandBuffer } from '../base/command-buffer';
 import {
     BufferUsageBit,
     CommandBufferType,
     StencilFace,
     BufferSource, CommandBufferInfo,
     BufferTextureCopy, Color, Rect, Viewport,
-} from '../define';
-import { Framebuffer } from '../framebuffer';
-import { InputAssembler } from '../input-assembler';
-import { PipelineState } from '../pipeline-state';
-import { Texture } from '../texture';
+} from '../base/define';
+import { Framebuffer } from '../base/framebuffer';
+import { InputAssembler } from '../base/input-assembler';
+import { PipelineState } from '../base/pipeline-state';
+import { Texture } from '../base/texture';
 import { WebGL2DescriptorSet } from './webgl2-descriptor-set';
 import { WebGL2Buffer } from './webgl2-buffer';
 import { WebGL2CommandAllocator } from './webgl2-command-allocator';
@@ -55,7 +55,7 @@ import { IWebGL2GPUInputAssembler, IWebGL2GPUDescriptorSet, IWebGL2GPUPipelineSt
 import { WebGL2InputAssembler } from './webgl2-input-assembler';
 import { WebGL2PipelineState } from './webgl2-pipeline-state';
 import { WebGL2Texture } from './webgl2-texture';
-import { RenderPass } from '../render-pass';
+import { RenderPass } from '../base/render-pass';
 import { WebGL2RenderPass } from './webgl2-render-pass';
 
 export interface IWebGL2DepthBias {

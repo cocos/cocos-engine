@@ -29,8 +29,8 @@
  */
 
 import { RenderingSubMesh } from '../../core/assets/rendering-sub-mesh';
-import { DRAW_INFO_SIZE, Buffer, IndirectBuffer, Attribute, BufferInfo, DrawInfo } from '../../core/gfx';
-import { AttributeName, BufferUsageBit, Format, FormatInfos, MemoryUsageBit, PrimitiveMode } from '../../core/gfx/define';
+import { DRAW_INFO_SIZE, Buffer, IndirectBuffer, Attribute, BufferInfo, DrawInfo,
+    AttributeName, BufferUsageBit, Format, FormatInfos, MemoryUsageBit, PrimitiveMode } from '../../core/gfx';
 import { Vec3 } from '../../core/math';
 import { scene } from '../../core/renderer';
 import CurveRange from '../animator/curve-range';

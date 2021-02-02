@@ -23,8 +23,8 @@
  THE SOFTWARE.
  */
 
-import { RenderPassInfo } from '../define';
-import { RenderPass } from '../render-pass';
+import { RenderPassInfo } from '../base/define';
+import { RenderPass } from '../base/render-pass';
 import { IWebGLGPURenderPass } from './webgl-gpu-objects';
 
 export class WebGLRenderPass extends RenderPass {

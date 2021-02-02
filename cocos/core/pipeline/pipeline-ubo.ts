@@ -24,14 +24,13 @@
  */
 
 import { UBOGlobal, UBOShadow, UBOCamera, UNIFORM_SHADOWMAP_BINDING } from './define';
-import { Device, BufferInfo } from '../gfx';
+import { Device, BufferInfo, BufferUsageBit, MemoryUsageBit } from '../gfx';
 import { Camera } from '../renderer/scene/camera';
 import { Mat4, Vec3, Vec4, Color } from '../math';
 import { RenderPipeline } from './render-pipeline';
 import { legacyCC } from '../global-exports';
 import { Shadows, ShadowType } from '../renderer/scene/shadows';
 import { getShadowWorldMatrix, updatePlanarPROJ } from './scene-culling';
-import { BufferUsageBit, MemoryUsageBit } from '../gfx/define';
 import { Light, LightType } from '../renderer/scene/light';
 
 const matShadowView = new Mat4();

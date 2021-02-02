@@ -28,7 +28,7 @@
  * @module 3d/primitive
  */
 
-import { PrimitiveMode } from '../core/gfx/define';
+import { PrimitiveMode } from '../core/gfx';
 import { applyDefaultGeometryOptions, IGeometry, IGeometryOptions } from './define';
 
 /**

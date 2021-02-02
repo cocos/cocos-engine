@@ -23,8 +23,8 @@
  THE SOFTWARE.
  */
 
-import { FramebufferInfo } from '../define';
-import { Framebuffer } from '../framebuffer';
+import { FramebufferInfo } from '../base/define';
+import { Framebuffer } from '../base/framebuffer';
 import { WebGLCmdFuncCreateFramebuffer, WebGLCmdFuncDestroyFramebuffer } from './webgl-commands';
 import { WebGLDevice } from './webgl-device';
 import { IWebGLGPUFramebuffer, IWebGLGPUTexture } from './webgl-gpu-objects';

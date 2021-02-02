@@ -23,9 +23,9 @@
  THE SOFTWARE.
  */
 
-import { QueueInfo } from '../define';
-import { CommandBuffer } from '../command-buffer';
-import { Queue } from '../queue';
+import { QueueInfo } from '../base/define';
+import { CommandBuffer } from '../base/command-buffer';
+import { Queue } from '../base/queue';
 import { WebGL2CommandBuffer } from './webgl2-command-buffer';
 
 export class WebGL2Queue extends Queue {

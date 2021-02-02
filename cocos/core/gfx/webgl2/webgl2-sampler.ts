@@ -23,8 +23,8 @@
  THE SOFTWARE.
  */
 
-import { SamplerInfo } from '../define';
-import { Sampler } from '../sampler';
+import { SamplerInfo } from '../base/define';
+import { Sampler } from '../base/sampler';
 import { WebGL2CmdFuncCreateSampler, WebGL2CmdFuncDestroySampler } from './webgl2-commands';
 import { WebGL2Device } from './webgl2-device';
 import { IWebGL2GPUSampler } from './webgl2-gpu-objects';

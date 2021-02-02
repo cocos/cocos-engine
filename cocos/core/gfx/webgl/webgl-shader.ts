@@ -23,8 +23,8 @@
  THE SOFTWARE.
  */
 
-import { ShaderInfo } from '../define';
-import { Shader } from '../shader';
+import { ShaderInfo } from '../base/define';
+import { Shader } from '../base/shader';
 import { WebGLCmdFuncCreateShader, WebGLCmdFuncDestroyShader } from './webgl-commands';
 import { WebGLDevice } from './webgl-device';
 import { IWebGLGPUShader, IWebGLGPUShaderStage } from './webgl-gpu-objects';

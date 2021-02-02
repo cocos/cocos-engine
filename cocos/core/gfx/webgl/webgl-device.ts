@@ -26,20 +26,20 @@
 import { ALIPAY, RUNTIME_BASED, BYTEDANCE, WECHAT, LINKSURE, QTT, COCOSPLAY, HUAWEI } from 'internal:constants';
 import { macro, warnID, warn } from '../../platform';
 import { sys } from '../../platform/sys';
-import { DescriptorSet } from '../descriptor-set';
-import { DescriptorSetLayout } from '../descriptor-set-layout';
-import { PipelineLayout } from '../pipeline-layout';
-import { Buffer } from '../buffer';
-import { CommandBuffer } from '../command-buffer';
-import { Device } from '../device';
-import { Framebuffer } from '../framebuffer';
-import { InputAssembler } from '../input-assembler';
-import { PipelineState, PipelineStateInfo } from '../pipeline-state';
-import { Queue } from '../queue';
-import { RenderPass } from '../render-pass';
-import { Sampler } from '../sampler';
-import { Shader } from '../shader';
-import { Texture } from '../texture';
+import { DescriptorSet } from '../base/descriptor-set';
+import { DescriptorSetLayout } from '../base/descriptor-set-layout';
+import { PipelineLayout } from '../base/pipeline-layout';
+import { Buffer } from '../base/buffer';
+import { CommandBuffer } from '../base/command-buffer';
+import { Device } from '../base/device';
+import { Framebuffer } from '../base/framebuffer';
+import { InputAssembler } from '../base/input-assembler';
+import { PipelineState, PipelineStateInfo } from '../base/pipeline-state';
+import { Queue } from '../base/queue';
+import { RenderPass } from '../base/render-pass';
+import { Sampler } from '../base/sampler';
+import { Shader } from '../base/shader';
+import { Texture } from '../base/texture';
 import { WebGLDescriptorSet } from './webgl-descriptor-set';
 import { WebGLBuffer } from './webgl-buffer';
 import { WebGLCommandAllocator } from './webgl-command-allocator';
@@ -59,7 +59,7 @@ import { WebGLTexture } from './webgl-texture';
 import { getTypedArrayConstructor, CommandBufferType, Filter, Format, FormatInfos, BindingMappingInfo, ShaderInfo,
     QueueInfo, CommandBufferInfo, DescriptorSetInfo, DescriptorSetLayoutInfo, FramebufferInfo, InputAssemblerInfo, PipelineLayoutInfo,
     RenderPassInfo, SamplerInfo, TextureInfo, TextureViewInfo, BufferInfo, BufferViewInfo, DeviceInfo,
-    QueueType, TextureFlagBit, TextureType, TextureUsageBit, API, Feature, BufferTextureCopy, Rect } from '../define';
+    QueueType, TextureFlagBit, TextureType, TextureUsageBit, API, Feature, BufferTextureCopy, Rect } from '../base/define';
 import { GFXFormatToWebGLFormat, GFXFormatToWebGLType, WebGLCmdFuncCopyBuffersToTexture,
     WebGLCmdFuncCopyTexImagesToTexture } from './webgl-commands';
 

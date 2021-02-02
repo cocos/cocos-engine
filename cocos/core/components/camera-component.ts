@@ -46,7 +46,7 @@ import { Enum } from '../value-types';
 import { TransformBit } from '../scene-graph/node-enum';
 import { legacyCC } from '../global-exports';
 import { RenderWindow } from '../renderer/core/render-window';
-import { ClearFlagBit } from '../gfx/define';
+import { ClearFlagBit } from '../gfx';
 
 const _temp_vec3_1 = new Vec3();
 

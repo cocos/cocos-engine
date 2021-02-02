@@ -23,8 +23,8 @@
  THE SOFTWARE.
  */
 
-import { BufferSource, BufferInfo, BufferViewInfo, IndirectBuffer, BufferUsageBit, BufferFlagBit } from '../define';
-import { Buffer } from '../buffer';
+import { BufferSource, BufferInfo, BufferViewInfo, IndirectBuffer, BufferUsageBit, BufferFlagBit } from '../base/define';
+import { Buffer } from '../base/buffer';
 
 import {
     WebGLCmdFuncCreateBuffer,

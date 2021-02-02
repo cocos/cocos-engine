@@ -27,9 +27,8 @@
  * @hidden
  */
 
-import { ComparisonFunc, StencilOp } from '../../core/gfx/define';
+import { ComparisonFunc, StencilOp, DepthStencilState } from '../../core/gfx';
 import { Mask } from '../components/mask';
-import { DepthStencilState } from '../../core/gfx/pipeline-state';
 import { Material } from '../../core';
 
 // Stage types

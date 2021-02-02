@@ -29,7 +29,6 @@ import { MeshRenderer } from '../3d/framework/mesh-renderer';
 import { Camera } from '../core/components/camera-component';
 import { createMesh } from '../3d/misc';
 import { Material } from '../core/assets/material';
-import {  } from '../core/gfx/define';
 import { ClearFlagBit, Format, TextureType, TextureUsageBit, Texture, TextureInfo, Device, BufferTextureCopy } from '../core/gfx';
 import { Layers } from '../core/scene-graph';
 import { Node } from '../core/scene-graph/node';

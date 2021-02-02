@@ -23,9 +23,9 @@
  THE SOFTWARE.
  */
 
-import { QueueInfo } from '../define';
-import { CommandBuffer } from '../command-buffer';
-import { Queue } from '../queue';
+import { QueueInfo } from '../base/define';
+import { CommandBuffer } from '../base/command-buffer';
+import { Queue } from '../base/queue';
 
 export class WebGLQueue extends Queue {
     public numDrawCalls = 0;

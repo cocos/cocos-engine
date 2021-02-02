@@ -28,13 +28,14 @@
  * @module ui
  */
 import { EDITOR } from 'internal:constants';
-import { ccclass, executeInEditMode, requireComponent, disallowMultiple, tooltip, type, displayOrder, serializable, override, visible, displayName } from 'cc.decorator';
+import { ccclass, executeInEditMode, requireComponent, disallowMultiple, tooltip,
+    type, displayOrder, serializable, override, visible, displayName } from 'cc.decorator';
 import { Color } from '../../core/math';
 import { SystemEventType } from '../../core/platform/event-manager/event-enum';
 import { ccenum } from '../../core/value-types/enum';
 import { builtinResMgr } from '../../core/builtin';
 import { Material } from '../../core/assets';
-import { BlendFactor } from '../../core/gfx/define';
+import { BlendFactor, BlendState, BlendTarget } from '../../core/gfx';
 import { IMaterialInstanceInfo } from '../../core/renderer/core/material-instance';
 import { IAssembler, IAssemblerManager } from '../renderer/base';
 import { RenderData } from '../renderer/render-data';
@@ -45,7 +46,6 @@ import { UITransform } from './ui-transform';
 import { RenderableComponent } from '../../core/components/renderable-component';
 import { Stage } from '../renderer/stencil-manager';
 import { warnID } from '../../core/platform/debug';
-import { BlendState, BlendTarget } from '../../core/gfx/pipeline-state';
 import { legacyCC } from '../../core/global-exports';
 
 // hack

@@ -25,14 +25,13 @@
 
 import { JSB } from 'internal:constants';
 import { Frustum, Ray } from '../../geometry';
-import { SurfaceTransform, ClearFlagBit } from '../../gfx/define';
+import { SurfaceTransform, ClearFlagBit, Device, Color, ClearFlags } from '../../gfx';
 import {
     lerp, Mat4, Rect, toRadian, Vec3, IVec4Like,
 } from '../../math';
 import { CAMERA_DEFAULT_MASK } from '../../pipeline/define';
 import { Node } from '../../scene-graph';
 import { RenderScene } from './render-scene';
-import { Device, Color, ClearFlags } from '../../gfx';
 import { legacyCC } from '../../global-exports';
 import { RenderWindow } from '../core/render-window';
 import {

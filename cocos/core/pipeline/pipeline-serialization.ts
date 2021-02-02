@@ -30,7 +30,7 @@
 
 import { ccclass, type, serializable, editable } from 'cc.decorator';
 import { CCString } from '../data/utils/attribute';
-import { AccessType, Format, LoadOp, StoreOp, TextureType, TextureUsageBit } from '../gfx/define';
+import { AccessType, Format, LoadOp, StoreOp, TextureType, TextureUsageBit } from '../gfx';
 import { ccenum } from '../value-types/enum';
 import { RenderTexture } from '../assets/render-texture';
 import { Material } from '../assets/material';

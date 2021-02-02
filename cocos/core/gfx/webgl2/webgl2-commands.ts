@@ -29,7 +29,7 @@ import {
     BufferUsageBit, ColorMask, CullMode, DynamicStateFlagBit, Filter, Format, TextureType, Type, FormatInfo,
     FormatInfos, FormatSize, LoadOp, MemoryUsageBit, SampleCount, ShaderStageFlagBit, StencilFace, TextureFlagBit,
     Color, Rect, Viewport, BufferTextureCopy, BufferSource, DrawInfo, IndirectBuffer, UniformBlock,
-} from '../define';
+} from '../base/define';
 import { WebGLEXT } from '../webgl/webgl-define';
 import { WebGL2CommandAllocator } from './webgl2-command-allocator';
 import {

@@ -23,22 +23,14 @@
  THE SOFTWARE.
  */
 
-import { PREVIEW } from 'internal:constants';
-import { IBArray } from '../../assets/rendering-sub-mesh';
-import { AABB, intersect, Ray, Triangle } from '../../geometry';
-import { PrimitiveMode } from '../../gfx/define';
-import { Mat4, Vec3 } from '../../math';
-import { RecyclePool } from '../../memop';
 import { Root } from '../../root';
 import { Node } from '../../scene-graph';
-import { Layers } from '../../scene-graph/layers';
 import { Camera } from './camera';
 import { DirectionalLight } from './directional-light';
-import { Model, ModelType } from './model';
+import { Model } from './model';
 import { SphereLight } from './sphere-light';
 import { SpotLight } from './spot-light';
 import { TransformBit } from '../../scene-graph/node-enum';
-import { legacyCC } from '../../global-exports';
 import { ScenePool, SceneView, ModelArrayPool, ModelArrayHandle, SceneHandle, NULL_HANDLE,
     UIBatchArrayHandle, UIBatchArrayPool, LightArrayHandle, LightArrayPool } from '../core/memory-pools';
 import { DrawBatch2D } from '../../../2d/renderer/draw-batch';

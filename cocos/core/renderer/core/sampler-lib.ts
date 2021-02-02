@@ -28,8 +28,7 @@
  * @hidden
  */
 
-import { Address, ComparisonFunc, Filter } from '../../gfx/define';
-import { Device, Sampler, SamplerInfo, Color } from '../../gfx';
+import { Address, ComparisonFunc, Filter, Device, Sampler, SamplerInfo, Color } from '../../gfx';
 import { legacyCC } from '../../global-exports';
 
 export enum SamplerInfoIndex {

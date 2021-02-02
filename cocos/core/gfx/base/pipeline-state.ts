@@ -50,7 +50,7 @@ import {
     Color,
     PipelineBindPoint,
 } from './define';
-import { NULL_HANDLE, RawBufferHandle } from '../renderer/core/memory-pools';
+import { NULL_HANDLE, RawBufferHandle } from '../../renderer/core/memory-pools';
 
 /**
  * @en GFX rasterizer state.

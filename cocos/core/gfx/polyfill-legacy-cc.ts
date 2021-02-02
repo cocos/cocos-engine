@@ -27,21 +27,21 @@
  * @hidden
  */
 
-import { Buffer } from './buffer';
-import { CommandBuffer } from './command-buffer';
-import { Device } from './device';
-import { Framebuffer } from './framebuffer';
-import { InputAssembler } from './input-assembler';
-import { DescriptorSet } from './descriptor-set';
-import { DescriptorSetLayout } from './descriptor-set-layout';
-import { PipelineLayout } from './pipeline-layout';
-import { PipelineState, PipelineStateInfo, RasterizerState, BlendState, BlendTarget, DepthStencilState } from './pipeline-state';
-import { Queue } from './queue';
-import { RenderPass } from './render-pass';
-import { Sampler } from './sampler';
-import { Shader } from './shader';
-import { Texture } from './texture';
-import * as defines from './define';
+import { Buffer } from './base/buffer';
+import { CommandBuffer } from './base/command-buffer';
+import { Device } from './base/device';
+import { Framebuffer } from './base/framebuffer';
+import { InputAssembler } from './base/input-assembler';
+import { DescriptorSet } from './base/descriptor-set';
+import { DescriptorSetLayout } from './base/descriptor-set-layout';
+import { PipelineLayout } from './base/pipeline-layout';
+import { PipelineState, PipelineStateInfo, RasterizerState, BlendState, BlendTarget, DepthStencilState } from './base/pipeline-state';
+import { Queue } from './base/queue';
+import { RenderPass } from './base/render-pass';
+import { Sampler } from './base/sampler';
+import { Shader } from './base/shader';
+import { Texture } from './base/texture';
+import * as defines from './base/define';
 
 const polyfills: Record<string, unknown> = {
     Device,

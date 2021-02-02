@@ -33,7 +33,8 @@ import { Mesh } from './mesh';
 import { Texture2D } from '../../core/assets/texture-2d';
 import { ImageAsset } from '../../core/assets/image-asset';
 import { samplerLib } from '../../core/renderer/core/sampler-lib';
-import { UBOMorph, UNIFORM_NORMAL_MORPH_TEXTURE_BINDING, UNIFORM_POSITION_MORPH_TEXTURE_BINDING, UNIFORM_TANGENT_MORPH_TEXTURE_BINDING } from '../../core/pipeline/define';
+import { UBOMorph, UNIFORM_NORMAL_MORPH_TEXTURE_BINDING,
+    UNIFORM_POSITION_MORPH_TEXTURE_BINDING, UNIFORM_TANGENT_MORPH_TEXTURE_BINDING } from '../../core/pipeline/define';
 import { warn, warnID } from '../../core/platform/debug';
 import { Morph, MorphRendering, MorphRenderingInstance, SubMeshMorph } from './morph';
 import { assertIsNonNullable, assertIsTrue } from '../../core/data/utils/asserts';
@@ -100,8 +101,10 @@ export class StdMorphRendering implements MorphRendering {
             subMeshInstances[iSubMesh] = this._subMeshRenderings[iSubMesh]?.createInstance() ?? null;
         }
         return {
-            setWeights: (subMeshIndex: number, weights: number[]) => {
-                subMeshInstances[subMeshIndex]?.setWeights(weights);
+            setWeights (subMeshIndex: number, weights: number[]) {
+                if (subMeshInstances[subMeshIndex]) {
+                    subMeshInstances[subMeshIndex]!.setWeights(weights);
+                }
             },
 
             requiredPatches: (subMeshIndex: number) => {
@@ -109,7 +112,7 @@ export class StdMorphRendering implements MorphRendering {
                 const subMeshMorph = this._mesh.struct.morph.subMeshMorphs[subMeshIndex];
                 const subMeshRenderingInstance = subMeshInstances[subMeshIndex];
                 if (subMeshRenderingInstance === null) {
-                    return;
+                    return null;
                 }
                 assertIsNonNullable(subMeshMorph);
                 const patches: IMacroPatch[] = [
@@ -130,12 +133,16 @@ export class StdMorphRendering implements MorphRendering {
             },
 
             adaptPipelineState: (subMeshIndex: number, descriptorSet: DescriptorSet) => {
-                subMeshInstances[subMeshIndex]?.adaptPipelineState(descriptorSet);
+                if (subMeshInstances[subMeshIndex]) {
+                    subMeshInstances[subMeshIndex]!.adaptPipelineState(descriptorSet);
+                }
             },
 
             destroy: () => {
                 for (const subMeshInstance of subMeshInstances) {
-                    subMeshInstance?.destroy();
+                    if (subMeshInstance) {
+                        subMeshInstance.destroy();
+                    }
                 }
             },
         };
@@ -483,17 +490,17 @@ function createVec4TextureFactory (gfxDevice: Device, vec4Capacity: number) {
     let pixelRequired: number;
     let pixelFormat: PixelFormat;
     let pixelBytes: number;
-    let updateViewConstructor: typeof Float32Array | typeof Uint8Array;
+    let UpdateViewConstructor: typeof Float32Array | typeof Uint8Array;
     if (hasFeatureFloatTexture) {
         pixelRequired = vec4Capacity;
         pixelBytes = 16;
         pixelFormat = Texture2D.PixelFormat.RGBA32F;
-        updateViewConstructor = Float32Array;
+        UpdateViewConstructor = Float32Array;
     } else {
         pixelRequired = 4 * vec4Capacity;
         pixelBytes = 4;
         pixelFormat = Texture2D.PixelFormat.RGBA8888;
-        updateViewConstructor = Uint8Array;
+        UpdateViewConstructor = Uint8Array;
     }
 
     const { width, height } = bestSizeToHavePixels(pixelRequired);
@@ -505,7 +512,7 @@ function createVec4TextureFactory (gfxDevice: Device, vec4Capacity: number) {
         create: () => {
             const arrayBuffer = new ArrayBuffer(width * height * pixelBytes);
             const valueView = new Float32Array(arrayBuffer);
-            const updateView = updateViewConstructor === Float32Array ? valueView : new updateViewConstructor(arrayBuffer);
+            const updateView = UpdateViewConstructor === Float32Array ? valueView : new UpdateViewConstructor(arrayBuffer);
             const image = new ImageAsset({
                 width,
                 height,

@@ -24,11 +24,8 @@
  */
 
 import {
-    TextureType,
-    TextureUsageBit,
-    Format,
-} from '../../gfx/define';
-import { RenderPass, Texture, Framebuffer, RenderPassInfo, Device, TextureInfo, FramebufferInfo } from '../../gfx';
+    TextureType, TextureUsageBit, Format, RenderPass, Texture, Framebuffer,
+    RenderPassInfo, Device, TextureInfo, FramebufferInfo } from '../../gfx';
 import { Root } from '../../root';
 import { RenderWindowHandle, RenderWindowPool, RenderWindowView, FramebufferPool, NULL_HANDLE } from './memory-pools';
 import { Camera } from '../scene';

@@ -28,8 +28,7 @@
  * @hidden
  */
 
-import { AttributeName, Format, FormatInfos } from '../../core/gfx/define';
-import { Attribute } from '../../core/gfx';
+import { AttributeName, Format, FormatInfos, Attribute } from '../../core/gfx';
 import { legacyCC } from '../../core/global-exports';
 
 export const vfmt = [

@@ -28,7 +28,7 @@
  * @module gfx
  */
 
-import { ccenum } from '../value-types/enum';
+import { ccenum } from '../../value-types/enum';
 import {
     API, Feature, Filter, Format, MemoryStatus, SurfaceTransform, Rect,
     CommandBufferInfo, BufferInfo, BufferViewInfo, TextureInfo, TextureViewInfo, SamplerInfo, DescriptorSetInfo,

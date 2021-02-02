@@ -29,7 +29,7 @@
  */
 
 import { Device } from './device';
-import { murmurhash2_32_gc } from '../utils/murmurhash2_gc';
+import { murmurhash2_32_gc } from '../../utils/murmurhash2_gc';
 import {
     Obj,
     ObjectType,

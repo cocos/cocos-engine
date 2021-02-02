@@ -31,12 +31,11 @@
 
 import { EDITOR, TEST } from 'internal:constants';
 import { ccclass, type } from 'cc.decorator';
-import { TextureType } from '../gfx/define';
+import { TextureType, TextureInfo } from '../gfx';
 import { PixelFormat } from './asset-enum';
 import { ImageAsset } from './image-asset';
 import { PresumedGFXTextureInfo, SimpleTexture } from './simple-texture';
 import { legacyCC } from '../global-exports';
-import { TextureInfo } from '../gfx';
 
 /**
  * @en The create information for [[Texture2D]]
@@ -228,7 +227,7 @@ export class Texture2D extends SimpleTexture {
         this.destroy();
     }
 
-    public _serialize (ctxForExporting: any): any {
+    public _serialize (ctxForExporting: any) {
         if (EDITOR || TEST) {
             return {
                 base: super._serialize(ctxForExporting),
@@ -244,6 +243,7 @@ export class Texture2D extends SimpleTexture {
                 }),
             };
         }
+        return null;
     }
 
     public _deserialize (serializedData: any, handle: any) {

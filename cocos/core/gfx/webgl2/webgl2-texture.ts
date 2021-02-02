@@ -23,8 +23,8 @@
  THE SOFTWARE.
  */
 
-import { TextureFlagBit, FormatSurfaceSize, TextureInfo, IsPowerOf2, TextureViewInfo } from '../define';
-import { Texture } from '../texture';
+import { TextureFlagBit, FormatSurfaceSize, TextureInfo, IsPowerOf2, TextureViewInfo } from '../base/define';
+import { Texture } from '../base/texture';
 import { WebGL2CmdFuncCreateTexture, WebGL2CmdFuncDestroyTexture, WebGL2CmdFuncResizeTexture } from './webgl2-commands';
 import { WebGL2Device } from './webgl2-device';
 import { IWebGL2GPUTexture } from './webgl2-gpu-objects';

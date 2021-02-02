@@ -30,12 +30,11 @@
 
 import { EDITOR, TEST } from 'internal:constants';
 import { ccclass, serializable } from 'cc.decorator';
-import { TextureFlagBit, TextureType } from '../gfx/define';
+import { TextureType, TextureInfo } from '../gfx';
 import { ImageAsset } from './image-asset';
 import { PresumedGFXTextureInfo, SimpleTexture } from './simple-texture';
 import { ITexture2DCreateInfo, Texture2D } from './texture-2d';
 import { legacyCC } from '../global-exports';
-import { TextureInfo } from '../gfx';
 
 export type ITextureCubeCreateInfo = ITexture2DCreateInfo;
 

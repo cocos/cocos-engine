@@ -33,7 +33,7 @@ import { builtinResMgr } from '../../builtin/builtin-res-mgr';
 import { Material } from '../../assets/material';
 import { SpriteFrame } from '../../../2d/assets/sprite-frame';
 import { TextureBase } from '../../assets/texture-base';
-import { Type } from '../../gfx/define';
+import { Type } from '../../gfx';
 import { Pass } from '../../renderer/core/pass';
 import { getDefaultFromType, PropertyType } from '../../renderer/core/pass-utils';
 import { samplerLib } from '../../renderer/core/sampler-lib';

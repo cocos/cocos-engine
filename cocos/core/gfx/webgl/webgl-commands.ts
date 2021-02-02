@@ -39,7 +39,7 @@ import {
     BufferUsageBit, ClearFlagBit, ClearFlags, ColorMask, CullMode, Format, BufferTextureCopy, Color, Rect, Viewport,
     FormatInfos, FormatSize, LoadOp, MemoryUsageBit, SampleCount, ShaderStageFlagBit, StencilFace,
     TextureFlagBit, TextureType, Type, FormatInfo, DynamicStateFlagBit, BufferSource, DrawInfo, IndirectBuffer,
-} from '../define';
+} from '../base/define';
 
 export function GFXFormatToWebGLType (format: Format, gl: WebGLRenderingContext): GLenum {
     switch (format) {

@@ -23,8 +23,8 @@
  THE SOFTWARE.
  */
 
-import { Buffer } from '../buffer';
-import { BufferFlagBit, BufferUsageBit, BufferSource, BufferInfo, BufferViewInfo, IndirectBuffer } from '../define';
+import { Buffer } from '../base/buffer';
+import { BufferFlagBit, BufferUsageBit, BufferSource, BufferInfo, BufferViewInfo, IndirectBuffer } from '../base/define';
 import {
     WebGL2CmdFuncCreateBuffer,
     WebGL2CmdFuncDestroyBuffer,

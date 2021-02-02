@@ -35,10 +35,8 @@ import { getWorldTransformUntilRoot } from '../../core/animation/transform-utils
 import { Mesh } from '../assets/mesh';
 import { Skeleton } from '../assets/skeleton';
 import { AABB } from '../../core/geometry';
-import {
-    Address, BufferUsageBit, Filter, Format, FormatInfos, MemoryUsageBit, Feature,
-} from '../../core/gfx/define';
-import { Device, Buffer, BufferInfo } from '../../core/gfx';
+import { Address, BufferUsageBit, Filter, Format, FormatInfos,
+    MemoryUsageBit, Feature, Device, Buffer, BufferInfo } from '../../core/gfx';
 import { Mat4, Quat, Vec3 } from '../../core/math';
 import { UBOSkinningAnimation } from '../../core/pipeline/define';
 import { Node } from '../../core/scene-graph';

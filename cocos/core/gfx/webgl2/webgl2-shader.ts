@@ -23,8 +23,8 @@
  THE SOFTWARE.
  */
 
-import { ShaderInfo } from '../define';
-import { Shader } from '../shader';
+import { ShaderInfo } from '../base/define';
+import { Shader } from '../base/shader';
 import { WebGL2CmdFuncCreateShader, WebGL2CmdFuncDestroyShader } from './webgl2-commands';
 import { WebGL2Device } from './webgl2-device';
 import { IWebGL2GPUShader, IWebGL2GPUShaderStage } from './webgl2-gpu-objects';

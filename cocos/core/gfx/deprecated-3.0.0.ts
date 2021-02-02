@@ -30,7 +30,7 @@
 import { polyfillCC } from './polyfill-legacy-cc';
 import { removeProperty, replaceProperty } from '../utils/x-deprecated';
 import { legacyCC } from '../global-exports';
-import { CommandBuffer } from './command-buffer';
+import { CommandBuffer } from './base/command-buffer';
 
 replaceProperty(legacyCC, 'cc', [
     { name: 'GFXDynamicState', newName: 'DynamicStateFlagBit' },

@@ -42,7 +42,7 @@ import {
     ShadeModel,
     StencilOp,
     Color,
-} from './define';
+} from './base/define';
 import { BlendTargetArrayPool, NULL_HANDLE, BlendTargetArrayHandle, RasterizerStateHandle, RasterizerStatePool, RasterizerStateView,
     DepthStencilStateHandle, DepthStencilStatePool, DepthStencilStateView, BlendTargetHandle, BlendTargetPool, BlendTargetView,
     BlendStateHandle, BlendStatePool, BlendStateView } from '../renderer/core/memory-pools';

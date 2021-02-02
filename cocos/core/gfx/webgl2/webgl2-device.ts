@@ -24,20 +24,20 @@
  */
 
 import { macro, warnID, warn } from '../../platform';
-import { DescriptorSet } from '../descriptor-set';
-import { DescriptorSetLayout } from '../descriptor-set-layout';
-import { PipelineLayout } from '../pipeline-layout';
-import { Buffer } from '../buffer';
-import { CommandBuffer } from '../command-buffer';
-import { Device } from '../device';
-import { Framebuffer } from '../framebuffer';
-import { InputAssembler } from '../input-assembler';
-import { PipelineState, PipelineStateInfo } from '../pipeline-state';
-import { Queue } from '../queue';
-import { RenderPass } from '../render-pass';
-import { Sampler } from '../sampler';
-import { Shader } from '../shader';
-import { Texture } from '../texture';
+import { DescriptorSet } from '../base/descriptor-set';
+import { DescriptorSetLayout } from '../base/descriptor-set-layout';
+import { PipelineLayout } from '../base/pipeline-layout';
+import { Buffer } from '../base/buffer';
+import { CommandBuffer } from '../base/command-buffer';
+import { Device } from '../base/device';
+import { Framebuffer } from '../base/framebuffer';
+import { InputAssembler } from '../base/input-assembler';
+import { PipelineState, PipelineStateInfo } from '../base/pipeline-state';
+import { Queue } from '../base/queue';
+import { RenderPass } from '../base/render-pass';
+import { Sampler } from '../base/sampler';
+import { Shader } from '../base/shader';
+import { Texture } from '../base/texture';
 import { WebGL2DescriptorSet } from './webgl2-descriptor-set';
 import { WebGL2Buffer } from './webgl2-buffer';
 import { WebGL2CommandAllocator } from './webgl2-command-allocator';
@@ -57,7 +57,7 @@ import { WebGL2Texture } from './webgl2-texture';
 import { getTypedArrayConstructor, CommandBufferType, Filter, Format, FormatInfos, DescriptorSetLayoutInfo, DescriptorSetInfo,
     PipelineLayoutInfo, BufferViewInfo, CommandBufferInfo, BufferInfo, BindingMappingInfo, FramebufferInfo, InputAssemblerInfo,
     QueueInfo, RenderPassInfo, SamplerInfo, ShaderInfo, TextureInfo, TextureViewInfo, DeviceInfo,
-    QueueType, TextureFlagBit, TextureType, TextureUsageBit,  API, Feature, BufferTextureCopy, Rect } from '../define';
+    QueueType, TextureFlagBit, TextureType, TextureUsageBit,  API, Feature, BufferTextureCopy, Rect } from '../base/define';
 import { GFXFormatToWebGLFormat, GFXFormatToWebGLType, WebGL2CmdFuncBlitFramebuffer,
     WebGL2CmdFuncCopyBuffersToTexture, WebGL2CmdFuncCopyTexImagesToTexture } from './webgl2-commands';
 
