@@ -28,10 +28,13 @@
  */
 
 import { ccclass, displayOrder, type, serializable } from 'cc.decorator';
-import { IRenderPass, localDescriptorSetLayout, UBODeferredLight, SetIndex } from '../define';
+import { Camera } from 'cocos/core/renderer/scene';
+import { builtinResMgr } from 'cocos/core';
+import { IRenderPass, localDescriptorSetLayout, UBODeferredLight, SetIndex, UBOForwardLight   } from '../define';
 import { getPhaseID } from '../pass-phase';
 import { opaqueCompareFn, RenderQueue, transparentCompareFn } from '../render-queue';
-import { Color, Rect, Shader } from '../../gfx';
+import { Color, Rect, Shader, Buffer, BufferUsageBit, MemoryUsageBit, BufferInfo, BufferViewInfo, DescriptorSet, DescriptorSetLayoutInfo,
+    DescriptorSetLayout, DescriptorSetInfo } from '../../gfx';
 import { IRenderStageInfo, RenderStage } from '../render-stage';
 import { DeferredStagePriority } from './enum';
 import { RenderAdditiveLightQueue } from '../render-additive-light-queue';
@@ -45,16 +48,11 @@ import { PipelineStateManager } from '../pipeline-state-manager';
 import { PipelineState } from '../../gfx/pipeline-state';
 import { sphere, intersect } from '../../geometry';
 import { Vec3, Vec4 } from '../../math';
-import { Buffer, BufferUsageBit, MemoryUsageBit, BufferInfo, BufferViewInfo, DescriptorSet, DescriptorSetLayoutInfo,
-    DescriptorSetLayout, DescriptorSetInfo } from '../../gfx';
-import { UBOForwardLight } from '../define';
 import { ClearFlag } from '../../gfx/define';
 import { SRGBToLinear } from '../pipeline-funcs';
 import { Pass } from '../../renderer/core/pass';
-import { Camera } from 'cocos/core/renderer/scene';
-import { builtinResMgr } from 'cocos/core';
 
-const colors: Color[] = [ new Color(0, 0, 0, 1) ];
+const colors: Color[] = [new Color(0, 0, 0, 1)];
 const LIGHTINGPASS_INDEX = 1;
 
 /**
@@ -63,11 +61,10 @@ const LIGHTINGPASS_INDEX = 1;
  */
 @ccclass('LightingStage')
 export class LightingStage extends RenderStage {
-
     private _deferredLitsBufs: Buffer = null!;
     private _maxDeferredLights = UBODeferredLight.LIGHTS_PER_PASS;
     private _lightBufferData!: Float32Array;
-    private _lightMeterScale: number = 10000.0;
+    private _lightMeterScale = 10000.0;
     private _descriptorSet: DescriptorSet = null!;
     private _descriptorSetLayout!: DescriptorSetLayout;
 
@@ -102,12 +99,12 @@ export class LightingStage extends RenderStage {
                 sortMode: RenderQueueSortMode.BACK_TO_FRONT,
                 stages: ['default', 'planarShadow'],
             },
-        ]
+        ],
     };
 
     set material (val) {
         if (this._deferredMaterial === val) {
-            return
+            return;
         }
 
         this._deferredMaterial = val;
@@ -121,7 +118,7 @@ export class LightingStage extends RenderStage {
         return true;
     }
 
-    public gatherLights(camera: Camera) {
+    public gatherLights (camera: Camera) {
         const pipeline = this._pipeline as DeferredPipeline;
         const cmdBuff = pipeline.commandBuffers[0];
 
@@ -132,18 +129,18 @@ export class LightingStage extends RenderStage {
         const exposure = camera.exposure;
 
         let idx = 0;
-        let elementLen = Vec4.length; // sizeof(vec4) / sizeof(float32) 
-        let fieldLen = elementLen * this._maxDeferredLights;
+        const elementLen = Vec4.length; // sizeof(vec4) / sizeof(float32)
+        const fieldLen = elementLen * this._maxDeferredLights;
 
         for (let i = 0; i < sphereLights.length && idx < this._maxDeferredLights; i++, ++idx) {
             const light = sphereLights[i];
             sphere.set(_sphere, light.position.x, light.position.y, light.position.z, light.range);
             if (intersect.sphereFrustum(_sphere, camera.frustum)) {
-                // cc_lightPos 
+                // cc_lightPos
                 Vec3.toArray(_vec4Array, light.position);
                 _vec4Array[3] = 0;
                 this._lightBufferData.set(_vec4Array, idx * elementLen);
-                
+
                 // cc_lightColor
                 Vec3.toArray(_vec4Array, light.color);
                 if (light.useColorTemperature) {
@@ -191,9 +188,9 @@ export class LightingStage extends RenderStage {
                 } else {
                     _vec4Array[3] = light.luminance * exposure * this._lightMeterScale;
                 }
-                this._lightBufferData.set(_vec4Array, idx * elementLen + fieldLen * 1);                
+                this._lightBufferData.set(_vec4Array, idx * elementLen + fieldLen * 1);
 
-                //cc_lightSizeRangeAngle
+                // cc_lightSizeRangeAngle
                 _vec4Array[0] = light.size;
                 _vec4Array[1] = light.range;
                 _vec4Array[2] = light.spotAngle;
@@ -206,7 +203,7 @@ export class LightingStage extends RenderStage {
         }
 
         // the count of lights is set to cc_lightDir[0].w
-        var offset = fieldLen * 3 + 3;
+        const offset = fieldLen * 3 + 3;
         this._lightBufferData.set([idx], offset);
 
         cmdBuff.updateBuffer(this._deferredLitsBufs, this._lightBufferData);
@@ -217,14 +214,14 @@ export class LightingStage extends RenderStage {
 
         const device = pipeline.device;
 
-        var totalSize = Float32Array.BYTES_PER_ELEMENT * 4 * 4 * this._maxDeferredLights;
+        let totalSize = Float32Array.BYTES_PER_ELEMENT * 4 * 4 * this._maxDeferredLights;
         totalSize = Math.ceil(totalSize / device.uboOffsetAlignment) * device.uboOffsetAlignment;
 
         this._deferredLitsBufs = device.createBuffer(new BufferInfo(
             BufferUsageBit.UNIFORM | BufferUsageBit.TRANSFER_DST,
             MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
             totalSize,
-            device.uboOffsetAlignment
+            device.uboOffsetAlignment,
         ));
 
         const deferredLitsBufView = device.createBuffer(new BufferViewInfo(this._deferredLitsBufs, 0, totalSize));
@@ -243,12 +240,14 @@ export class LightingStage extends RenderStage {
             }
             let sortFunc: (a: IRenderPass, b: IRenderPass) => number = opaqueCompareFn;
             switch (this.renderQueues[i].sortMode) {
-                case RenderQueueSortMode.BACK_TO_FRONT:
-                    sortFunc = transparentCompareFn;
-                    break;
-                case RenderQueueSortMode.FRONT_TO_BACK:
-                    sortFunc = opaqueCompareFn;
-                    break;
+            case RenderQueueSortMode.BACK_TO_FRONT:
+                sortFunc = transparentCompareFn;
+                break;
+            case RenderQueueSortMode.FRONT_TO_BACK:
+                sortFunc = opaqueCompareFn;
+                break;
+            default:
+                break;
             }
 
             this._renderQueues[i] = new RenderQueue({
@@ -260,7 +259,6 @@ export class LightingStage extends RenderStage {
 
         this._planarQueue = new PlanarShadowQueue(this._pipeline as DeferredPipeline);
     }
-
 
     public destroy () {
         this._deferredLitsBufs.destroy();
@@ -310,14 +308,14 @@ export class LightingStage extends RenderStage {
         const framebuffer = (this._flow as LightingFlow).lightingFrameBuffer;
         const renderPass = framebuffer.renderPass;
 
-        cmdBuff.beginRenderPass(renderPass, framebuffer, this._renderArea!,
+        cmdBuff.beginRenderPass(renderPass, framebuffer, this._renderArea,
             colors, camera.clearDepth, camera.clearStencil);
 
         cmdBuff.bindDescriptorSet(SetIndex.GLOBAL, pipeline.descriptorSet);
 
         // Lighting
-        var pass: Pass;
-        var shader: Shader;
+        let pass: Pass;
+        let shader: Shader;
         const builinDeferred = builtinResMgr.get<Material>('builtin-deferred-material');
         if (builinDeferred) {
             pass = builinDeferred.passes[1];
@@ -328,14 +326,12 @@ export class LightingStage extends RenderStage {
         }
 
         const inputAssembler = pipeline.quadIAOffscreen;
-        var pso:PipelineState|null = null;
-        if (pass != null && shader != null && inputAssembler != null)
-        {
+        let pso:PipelineState|null = null;
+        if (pass != null && shader != null && inputAssembler != null) {
             pso = PipelineStateManager.getOrCreatePipelineState(device, pass, shader, renderPass, inputAssembler);
         }
 
-        if(pso != null)
-        {
+        if (pso != null) {
             cmdBuff.bindPipelineState(pso);
             cmdBuff.bindInputAssembler(inputAssembler);
             cmdBuff.draw(inputAssembler);

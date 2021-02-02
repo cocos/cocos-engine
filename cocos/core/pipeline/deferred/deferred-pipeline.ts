@@ -28,6 +28,7 @@
  */
 
 import { ccclass, displayOrder, type, serializable } from 'cc.decorator';
+import { genSamplerHash, samplerLib } from 'cocos/core/renderer/core/sampler-lib';
 import { builtinResMgr } from '../../builtin/builtin-res-mgr';
 import { Texture2D } from '../../assets/texture-2d';
 import { RenderPipeline, IRenderPipelineInfo } from '../render-pipeline';
@@ -42,7 +43,7 @@ import { SKYBOX_FLAG } from '../../renderer/scene/camera';
 import { InputAssembler, InputAssemblerInfo, Attribute } from '../../gfx/input-assembler';
 import { Buffer } from '../../gfx/buffer';
 import { Camera } from '../../renderer/scene';
-import { genSamplerHash, samplerLib } from 'cocos/core/renderer/core/sampler-lib';
+import { errorID } from '../../platform/debug';
 
 const _samplerInfo = [
     Filter.LINEAR,
@@ -95,11 +96,11 @@ export class DeferredPipeline extends RenderPipeline {
         return this._quadIAOffscreen!;
     }
 
-    get gbufferDepth() {
+    get gbufferDepth () {
         return this._gbufferDepth;
     }
 
-    set gbufferDepth(val) {
+    set gbufferDepth (val) {
         this._gbufferDepth = val;
     }
 
@@ -131,7 +132,7 @@ export class DeferredPipeline extends RenderPipeline {
         }
 
         if (!this._activeRenderer()) {
-            console.error('DeferredPipeline startup failed!');
+            errorID(2402);
             return false;
         }
 
@@ -139,7 +140,7 @@ export class DeferredPipeline extends RenderPipeline {
     }
 
     public render (cameras: Camera[]) {
-        if (cameras.length == 0) {
+        if (cameras.length === 0) {
             return;
         }
 
@@ -261,12 +262,12 @@ export class DeferredPipeline extends RenderPipeline {
      */
     protected createQuadInputAssembler (surfaceTransform: SurfaceTransform): InputAssemblerData {
         // create vertex buffer
-        let inputAssemblerData = new InputAssemblerData();
+        const inputAssemblerData = new InputAssemblerData();
 
         const vbStride = Float32Array.BYTES_PER_ELEMENT * 4;
         const vbSize = vbStride * 4;
 
-        var quadVB = this._device.createBuffer(new BufferInfo(
+        const quadVB = this._device.createBuffer(new BufferInfo(
             BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST,
             MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
             vbSize,
@@ -310,7 +311,7 @@ export class DeferredPipeline extends RenderPipeline {
             vbData[n++] = 1.0; vbData[n++] = 1.0; vbData[n++] = 1.0; vbData[n++] = 1.0;
             break;
         default:
-                break;
+            break;
         }
 
         quadVB.update(vbData);
@@ -319,7 +320,7 @@ export class DeferredPipeline extends RenderPipeline {
         const ibStride = Uint8Array.BYTES_PER_ELEMENT;
         const ibSize = ibStride * 6;
 
-        let quadIB = this._device.createBuffer(new BufferInfo(
+        const quadIB = this._device.createBuffer(new BufferInfo(
             BufferUsageBit.INDEX | BufferUsageBit.TRANSFER_DST,
             MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
             ibSize,
@@ -342,7 +343,7 @@ export class DeferredPipeline extends RenderPipeline {
         attributes[0] = new Attribute('a_position', Format.RG32F);
         attributes[1] = new Attribute('a_texCoord', Format.RG32F);
 
-        let quadIA = this._device.createInputAssembler(new InputAssemblerInfo(
+        const quadIA = this._device.createInputAssembler(new InputAssemblerInfo(
             attributes,
             [quadVB],
             quadIB,

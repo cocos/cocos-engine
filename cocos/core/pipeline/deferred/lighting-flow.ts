@@ -28,7 +28,8 @@
  */
 
 import { ccclass } from 'cc.decorator';
-import { PIPELINE_FLOW_LIGHTING } from '../define';
+import { Camera } from 'cocos/core/renderer/scene';
+import { PIPELINE_FLOW_LIGHTING, UNIFORM_LIGHTING_RESULTMAP_BINDING } from '../define';
 import { IRenderFlowInfo, RenderFlow } from '../render-flow';
 import { DeferredFlowPriority } from './enum';
 import { LightingStage } from './lighting-stage';
@@ -37,10 +38,8 @@ import { RenderPipeline } from '../render-pipeline';
 import { Framebuffer, RenderPass, LoadOp,
     StoreOp, TextureLayout, Format, Texture,
     TextureType, TextureUsageBit, ColorAttachment, DepthStencilAttachment, RenderPassInfo, TextureInfo, FramebufferInfo } from '../../gfx';
-import { UNIFORM_LIGHTING_RESULTMAP_BINDING } from '../define';
 import { genSamplerHash, samplerLib } from '../../renderer/core/sampler-lib';
-import { Address, Filter, SurfaceTransform} from '../../gfx/define';
-import { Camera } from 'cocos/core/renderer/scene';
+import { Address, Filter, SurfaceTransform } from '../../gfx/define';
 
 /**
  * @en The lighting flow in lighting render pipeline
@@ -48,13 +47,12 @@ import { Camera } from 'cocos/core/renderer/scene';
  */
 @ccclass('LightingFlow')
 export class LightingFlow extends RenderFlow {
-
     private _lightingRenderPass: RenderPass|null = null;
     private _lightingRenderTargets: Texture[] = [];
     protected _lightingFrameBuffer: Framebuffer|null = null;
     private _depth: Texture|null = null;
-    private _width: number = 0;
-    private _height: number = 0;
+    private _width = 0;
+    private _height = 0;
 
     /**
      * @en The shared initialization information of lighting render flow
@@ -63,7 +61,7 @@ export class LightingFlow extends RenderFlow {
     public static initInfo: IRenderFlowInfo = {
         name: PIPELINE_FLOW_LIGHTING,
         priority: DeferredFlowPriority.LIGHTING,
-        stages: []
+        stages: [],
     };
 
     get lightingFrameBuffer (): Framebuffer {
@@ -84,17 +82,16 @@ export class LightingFlow extends RenderFlow {
         super.activate(pipeline);
 
         const device = pipeline.device;
-        if (device.surfaceTransform == SurfaceTransform.IDENTITY || 
-            device.surfaceTransform == SurfaceTransform.ROTATE_180) {
-                this._width = device.width;
-                this._height = device.height;
-            }
-        else {
-                this._width = device.height;
-                this._height = device.width;
+        if (device.surfaceTransform === SurfaceTransform.IDENTITY
+            || device.surfaceTransform === SurfaceTransform.ROTATE_180) {
+            this._width = device.width;
+            this._height = device.height;
+        } else {
+            this._width = device.height;
+            this._height = device.width;
         }
 
-        if(!this._lightingRenderPass) {
+        if (!this._lightingRenderPass) {
             const colorAttachment = new ColorAttachment();
             colorAttachment.format = Format.RGBA16F;
             colorAttachment.loadOp = LoadOp.CLEAR; // should clear color attachment
@@ -117,7 +114,7 @@ export class LightingFlow extends RenderFlow {
             this._lightingRenderPass = device.createRenderPass(renderPassInfo);
         }
 
-        if(this._lightingRenderTargets.length < 1) {
+        if (this._lightingRenderTargets.length < 1) {
             this._lightingRenderTargets.push(device.createTexture(new TextureInfo(
                 TextureType.TEX2D,
                 TextureUsageBit.COLOR_ATTACHMENT | TextureUsageBit.SAMPLED,
@@ -127,11 +124,11 @@ export class LightingFlow extends RenderFlow {
             )));
         }
 
-        if(!this._depth) {
+        if (!this._depth) {
             this._depth = (this.pipeline as DeferredPipeline).gbufferDepth;
         }
 
-        if(!this._lightingFrameBuffer) {
+        if (!this._lightingFrameBuffer) {
             this._lightingFrameBuffer = device.createFramebuffer(new FramebufferInfo(
                 this._lightingRenderPass,
                 this._lightingRenderTargets,
@@ -139,7 +136,7 @@ export class LightingFlow extends RenderFlow {
             ));
         }
 
-        pipeline.descriptorSet.bindTexture(UNIFORM_LIGHTING_RESULTMAP_BINDING, this._lightingFrameBuffer!.colorTextures[0]!);
+        pipeline.descriptorSet.bindTexture(UNIFORM_LIGHTING_RESULTMAP_BINDING, this._lightingFrameBuffer.colorTextures[0]!);
 
         const samplerHash = genSamplerHash([
             Filter.LINEAR,
@@ -165,7 +162,7 @@ export class LightingFlow extends RenderFlow {
             if (renderTarget) { renderTarget.destroy(); }
         }
         this._lightingRenderTargets.length = 0;
-        
+
         if (this._lightingRenderPass) { this._lightingRenderPass.destroy(); }
         if (this._lightingFrameBuffer) { this._lightingFrameBuffer.destroy(); }
     }

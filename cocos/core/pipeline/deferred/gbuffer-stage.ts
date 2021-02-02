@@ -28,6 +28,7 @@
  */
 
 import { ccclass, displayOrder, type, serializable } from 'cc.decorator';
+import { Camera } from 'cocos/core/renderer/scene';
 import { IRenderPass, SetIndex } from '../define';
 import { getPhaseID } from '../pass-phase';
 import { opaqueCompareFn, RenderQueue, transparentCompareFn } from '../render-queue';
@@ -44,9 +45,8 @@ import { BatchingSchemes } from '../../renderer/core/pass';
 import { GbufferFlow } from './gbuffer-flow';
 import { DeferredPipeline } from './deferred-pipeline';
 import { RenderQueueDesc, RenderQueueSortMode } from '../pipeline-serialization';
-import { Camera } from 'cocos/core/renderer/scene';
 
-const colors: Color[] = [ new Color(0, 0, 0, 0), new Color(0, 0, 0, 0), new Color(0, 0, 0, 0), new Color(0, 0, 0, 0) ];
+const colors: Color[] = [new Color(0, 0, 0, 0), new Color(0, 0, 0, 0), new Color(0, 0, 0, 0), new Color(0, 0, 0, 0)];
 
 /**
  * @en The gbuffer render stage
@@ -54,7 +54,6 @@ const colors: Color[] = [ new Color(0, 0, 0, 0), new Color(0, 0, 0, 0), new Colo
  */
 @ccclass('GbufferStage')
 export class GbufferStage extends RenderStage {
-
     public static initInfo: IRenderStageInfo = {
         name: 'GbufferStage',
         priority: DeferredStagePriority.GBUFFER,
@@ -70,7 +69,7 @@ export class GbufferStage extends RenderStage {
                 sortMode: RenderQueueSortMode.BACK_TO_FRONT,
                 stages: ['default'],
             },
-        ]
+        ],
     };
 
     @type([RenderQueueDesc])
@@ -83,13 +82,13 @@ export class GbufferStage extends RenderStage {
     private _batchedQueue: RenderBatchedQueue;
     private _instancedQueue: RenderInstancedQueue;
     private _phaseID = getPhaseID('deferred-gbuffer');
-    //private declare _uiPhase: UIPhase;
+    // private declare _uiPhase: UIPhase;
 
     constructor () {
         super();
         this._batchedQueue = new RenderBatchedQueue();
         this._instancedQueue = new RenderInstancedQueue();
-        //this._uiPhase = new UIPhase();
+        // this._uiPhase = new UIPhase();
     }
 
     public initialize (info: IRenderStageInfo): boolean {
@@ -109,12 +108,14 @@ export class GbufferStage extends RenderStage {
             }
             let sortFunc: (a: IRenderPass, b: IRenderPass) => number = opaqueCompareFn;
             switch (this.renderQueues[i].sortMode) {
-                case RenderQueueSortMode.BACK_TO_FRONT:
-                    sortFunc = transparentCompareFn;
-                    break;
-                case RenderQueueSortMode.FRONT_TO_BACK:
-                    sortFunc = opaqueCompareFn;
-                    break;
+            case RenderQueueSortMode.BACK_TO_FRONT:
+                sortFunc = transparentCompareFn;
+                break;
+            case RenderQueueSortMode.FRONT_TO_BACK:
+                sortFunc = opaqueCompareFn;
+                break;
+            default:
+                break;
             }
 
             this._renderQueues[i] = new RenderQueue({
@@ -124,7 +125,6 @@ export class GbufferStage extends RenderStage {
             });
         }
     }
-
 
     public destroy () {
     }
@@ -203,7 +203,7 @@ export class GbufferStage extends RenderStage {
         const framebuffer = (this._flow as GbufferFlow).gbufferFrameBuffer;
         const renderPass = framebuffer.renderPass;
 
-        cmdBuff.beginRenderPass(renderPass, framebuffer, this._renderArea!,
+        cmdBuff.beginRenderPass(renderPass, framebuffer, this._renderArea,
             colors, camera.clearDepth, camera.clearStencil);
 
         cmdBuff.bindDescriptorSet(SetIndex.GLOBAL, pipeline.descriptorSet);
