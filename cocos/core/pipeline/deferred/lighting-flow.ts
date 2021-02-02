@@ -160,5 +160,13 @@ export class LightingFlow extends RenderFlow {
 
     public destroy () {
         super.destroy();
+        for (let i = 0; i < this._lightingRenderTargets.length; i++) {
+            const renderTarget = this._lightingRenderTargets[i];
+            if (renderTarget) { renderTarget.destroy(); }
+        }
+        this._lightingRenderTargets.length = 0;
+        
+        if (this._lightingRenderPass) { this._lightingRenderPass.destroy(); }
+        if (this._lightingFrameBuffer) { this._lightingFrameBuffer.destroy(); }
     }
 }

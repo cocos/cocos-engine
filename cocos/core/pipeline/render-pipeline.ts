@@ -140,10 +140,6 @@ export abstract class RenderPipeline extends Asset {
     protected _pipelineUBO = new PipelineUBO();
     protected _pipelineSceneData = new PipelineSceneData();
 
-    public shadowFrameBufferMap: Map<Light, Framebuffer> = new Map();
-    public shadows: Shadows = new Shadows();
-    public shadowObjects: IRenderObject[] = [];
-
     /**
      * @en The initialization process, user shouldn't use it in most case, only useful when need to generate render pipeline programmatically.
      * @zh 初始化函数，正常情况下不会用到，仅用于程序化生成渲染管线的情况。

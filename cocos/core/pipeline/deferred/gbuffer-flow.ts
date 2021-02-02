@@ -223,5 +223,13 @@ export class GbufferFlow extends RenderFlow {
 
     public destroy () {
         super.destroy();
+        for (let i = 0; i < this._gbufferRenderTargets.length; i++) {
+            const renderTarget = this._gbufferRenderTargets[i];
+            if (renderTarget) { renderTarget.destroy(); }
+        }
+        this._gbufferRenderTargets.length = 0;
+        
+        if (this._gbufferRenderPass) { this._gbufferRenderPass.destroy(); }
+        if (this._gbufferFrameBuffer) { this._gbufferFrameBuffer.destroy(); }
     }
 }

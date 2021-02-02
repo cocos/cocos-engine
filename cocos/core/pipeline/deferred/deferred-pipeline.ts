@@ -213,16 +213,16 @@ export class DeferredPipeline extends RenderPipeline {
             return false;
         }
         this._quadIB = inputAssemblerDataOffscreen.quadIB;
-        this._quadVBOffscreen =  inputAssemblerDataOffscreen.quadVB;
-        this._quadIAOffscreen =  inputAssemblerDataOffscreen.quadIA;
+        this._quadVBOffscreen = inputAssemblerDataOffscreen.quadVB;
+        this._quadIAOffscreen = inputAssemblerDataOffscreen.quadIA;
 
         let inputAssemblerDataOnscreen = new InputAssemblerData();
         inputAssemblerDataOnscreen = this.createQuadInputAssembler(device.surfaceTransform);
         if (!inputAssemblerDataOnscreen.quadIB || !inputAssemblerDataOnscreen.quadVB || !inputAssemblerDataOnscreen.quadIA) {
             return false;
         }
-        this._quadVBOnscreen =  inputAssemblerDataOnscreen.quadVB;
-        this._quadIAOnscreen =  inputAssemblerDataOnscreen.quadIA;
+        this._quadVBOnscreen = inputAssemblerDataOnscreen.quadVB;
+        this._quadIAOnscreen = inputAssemblerDataOnscreen.quadIA;
 
         return true;
     }
