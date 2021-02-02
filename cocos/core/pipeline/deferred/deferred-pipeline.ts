@@ -28,8 +28,8 @@
  */
 
 import { ccclass, displayOrder, type, serializable } from 'cc.decorator';
-import { builtinResMgr } from 'cocos/core/builtin';
-import { Texture2D } from 'cocos/core/assets/texture-2d';
+import { builtinResMgr } from '../../builtin/builtin-res-mgr';
+import { Texture2D } from '../../assets/texture-2d';
 import { RenderPipeline, IRenderPipelineInfo } from '../render-pipeline';
 import { GbufferFlow } from './gbuffer-flow';
 import { LightingFlow } from './lighting-flow';
