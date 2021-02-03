@@ -1,3 +1,5 @@
 import { atob } from '../../core/utils/atob';
 
-globalThis.atob ??= atob;
+if (typeof globalThis !== 'undefined') {
+    globalThis.atob ??= atob;
+}

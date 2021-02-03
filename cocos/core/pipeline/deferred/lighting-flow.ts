@@ -35,11 +35,9 @@ import { DeferredFlowPriority } from './enum';
 import { LightingStage } from './lighting-stage';
 import { DeferredPipeline } from './deferred-pipeline';
 import { RenderPipeline } from '../render-pipeline';
-import { Framebuffer, RenderPass, LoadOp,
-    StoreOp, TextureLayout, Format, Texture,
-    TextureType, TextureUsageBit, ColorAttachment, DepthStencilAttachment, RenderPassInfo, TextureInfo, FramebufferInfo } from '../../gfx';
+import { Framebuffer, RenderPass, LoadOp, StoreOp, Format, Texture, TextureType, TextureUsageBit, ColorAttachment,
+    DepthStencilAttachment, RenderPassInfo, TextureInfo, FramebufferInfo, Address, Filter, SurfaceTransform, AccessType } from '../../gfx';
 import { genSamplerHash, samplerLib } from '../../renderer/core/sampler-lib';
-import { Address, Filter, SurfaceTransform } from '../../gfx/define';
 
 /**
  * @en The lighting flow in lighting render pipeline
@@ -96,19 +94,16 @@ export class LightingFlow extends RenderFlow {
             colorAttachment.format = Format.RGBA16F;
             colorAttachment.loadOp = LoadOp.CLEAR; // should clear color attachment
             colorAttachment.storeOp = StoreOp.STORE;
-            colorAttachment.sampleCount = 1;
-            colorAttachment.beginLayout = TextureLayout.UNDEFINED;
-            colorAttachment.endLayout = TextureLayout.COLOR_ATTACHMENT_OPTIMAL;
+            colorAttachment.endAccesses = [AccessType.COLOR_ATTACHMENT_WRITE];
 
             const depthStencilAttachment = new DepthStencilAttachment();
             depthStencilAttachment.format = device.depthStencilFormat;
             depthStencilAttachment.depthLoadOp = LoadOp.LOAD;
             depthStencilAttachment.depthStoreOp = StoreOp.DISCARD;
-            depthStencilAttachment.stencilLoadOp = LoadOp.DISCARD;
+            depthStencilAttachment.stencilLoadOp = LoadOp.LOAD;
             depthStencilAttachment.stencilStoreOp = StoreOp.DISCARD;
-            depthStencilAttachment.sampleCount = 1;
-            depthStencilAttachment.beginLayout = TextureLayout.DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-            depthStencilAttachment.endLayout = TextureLayout.DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+            depthStencilAttachment.beginAccesses = [AccessType.DEPTH_STENCIL_ATTACHMENT_WRITE];
+            depthStencilAttachment.endAccesses = [AccessType.DEPTH_STENCIL_ATTACHMENT_WRITE];
 
             const renderPassInfo = new RenderPassInfo([colorAttachment], depthStencilAttachment);
             this._lightingRenderPass = device.createRenderPass(renderPassInfo);
@@ -125,7 +120,7 @@ export class LightingFlow extends RenderFlow {
         }
 
         if (!this._depth) {
-            this._depth = (this.pipeline as DeferredPipeline).gbufferDepth;
+            this._depth = (this._pipeline as DeferredPipeline).gbufferDepth;
         }
 
         if (!this._lightingFrameBuffer) {

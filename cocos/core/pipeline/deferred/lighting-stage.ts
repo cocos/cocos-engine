@@ -34,7 +34,7 @@ import { IRenderPass, localDescriptorSetLayout, UBODeferredLight, SetIndex, UBOF
 import { getPhaseID } from '../pass-phase';
 import { opaqueCompareFn, RenderQueue, transparentCompareFn } from '../render-queue';
 import { Color, Rect, Shader, Buffer, BufferUsageBit, MemoryUsageBit, BufferInfo, BufferViewInfo, DescriptorSet, DescriptorSetLayoutInfo,
-    DescriptorSetLayout, DescriptorSetInfo } from '../../gfx';
+    DescriptorSetLayout, DescriptorSetInfo, PipelineState, ClearFlags, ClearFlagBit } from '../../gfx';
 import { IRenderStageInfo, RenderStage } from '../render-stage';
 import { DeferredStagePriority } from './enum';
 import { RenderAdditiveLightQueue } from '../render-additive-light-queue';
@@ -45,10 +45,8 @@ import { PlanarShadowQueue } from '../planar-shadow-queue';
 import { Material } from '../../assets/material';
 import { ShaderPool } from '../../renderer/core/memory-pools';
 import { PipelineStateManager } from '../pipeline-state-manager';
-import { PipelineState } from '../../gfx/pipeline-state';
 import { sphere, intersect } from '../../geometry';
 import { Vec3, Vec4 } from '../../math';
-import { ClearFlag } from '../../gfx/define';
 import { SRGBToLinear } from '../pipeline-funcs';
 import { Pass } from '../../renderer/core/pass';
 
@@ -215,13 +213,13 @@ export class LightingStage extends RenderStage {
         const device = pipeline.device;
 
         let totalSize = Float32Array.BYTES_PER_ELEMENT * 4 * 4 * this._maxDeferredLights;
-        totalSize = Math.ceil(totalSize / device.uboOffsetAlignment) * device.uboOffsetAlignment;
+        totalSize = Math.ceil(totalSize / device.capabilities.uboOffsetAlignment) * device.capabilities.uboOffsetAlignment;
 
         this._deferredLitsBufs = device.createBuffer(new BufferInfo(
             BufferUsageBit.UNIFORM | BufferUsageBit.TRANSFER_DST,
             MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
             totalSize,
-            device.uboOffsetAlignment,
+            device.capabilities.uboOffsetAlignment,
         ));
 
         const deferredLitsBufView = device.createBuffer(new BufferViewInfo(this._deferredLitsBufs, 0, totalSize));
@@ -289,7 +287,7 @@ export class LightingStage extends RenderStage {
         this._renderArea.width = vp.width * w * pipeline.pipelineSceneData.shadingScale;
         this._renderArea.height = vp.height * h * pipeline.pipelineSceneData.shadingScale;
 
-        if (camera.clearFlag & ClearFlag.COLOR) {
+        if (camera.clearFlag & ClearFlagBit.COLOR) {
             if (pipeline.pipelineSceneData.isHDR) {
                 SRGBToLinear(colors[0], camera.clearColor);
                 const scale = pipeline.pipelineSceneData.fpScale / camera.exposure;

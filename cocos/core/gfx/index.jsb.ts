@@ -76,3 +76,5 @@ polyfillCC.BlendState = pso.BlendState;
 polyfillCC.RasterizerState = pso.RasterizerState;
 polyfillCC.DepthStencilState = pso.DepthStencilState;
 polyfillCC.PipelineStateInfo = pso.PipelineStateInfo;
+
+import './deprecated-3.0.0';

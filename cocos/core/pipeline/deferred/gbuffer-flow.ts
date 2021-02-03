@@ -36,11 +36,10 @@ import { DeferredFlowPriority } from './enum';
 import { GbufferStage } from './gbuffer-stage';
 import { DeferredPipeline } from './deferred-pipeline';
 import { RenderPipeline } from '../render-pipeline';
-import { Framebuffer, RenderPass, LoadOp,
-    StoreOp, TextureLayout, Format, Texture,
-    TextureType, TextureUsageBit, ColorAttachment, DepthStencilAttachment, RenderPassInfo, TextureInfo, FramebufferInfo } from '../../gfx';
+import { Framebuffer, RenderPass, LoadOp, StoreOp, Format, Texture, TextureType, TextureUsageBit, ColorAttachment,
+    DepthStencilAttachment, RenderPassInfo, TextureInfo, FramebufferInfo, Address, Filter, SurfaceTransform } from '../../gfx';
 import { genSamplerHash, samplerLib } from '../../renderer/core/sampler-lib';
-import { Address, Filter, SurfaceTransform } from '../../gfx/define';
+
 import { sceneCulling } from '../scene-culling';
 
 /**
@@ -101,33 +100,21 @@ export class GbufferFlow extends RenderFlow {
             colorAttachment0.format = Format.RGBA16F;
             colorAttachment0.loadOp = LoadOp.CLEAR; // should clear color attachment
             colorAttachment0.storeOp = StoreOp.STORE;
-            colorAttachment0.sampleCount = 1;
-            colorAttachment0.beginLayout = TextureLayout.UNDEFINED;
-            colorAttachment0.endLayout = TextureLayout.COLOR_ATTACHMENT_OPTIMAL;
 
             const colorAttachment1 = new ColorAttachment();
             colorAttachment1.format = Format.RGBA16F;
             colorAttachment1.loadOp = LoadOp.CLEAR; // should clear color attachment
             colorAttachment1.storeOp = StoreOp.STORE;
-            colorAttachment1.sampleCount = 1;
-            colorAttachment1.beginLayout = TextureLayout.UNDEFINED;
-            colorAttachment1.endLayout = TextureLayout.COLOR_ATTACHMENT_OPTIMAL;
 
             const colorAttachment2 = new ColorAttachment();
             colorAttachment2.format = Format.RGBA16F;
             colorAttachment2.loadOp = LoadOp.CLEAR; // should clear color attachment
             colorAttachment2.storeOp = StoreOp.STORE;
-            colorAttachment2.sampleCount = 1;
-            colorAttachment2.beginLayout = TextureLayout.UNDEFINED;
-            colorAttachment2.endLayout = TextureLayout.COLOR_ATTACHMENT_OPTIMAL;
 
             const colorAttachment3 = new ColorAttachment();
             colorAttachment3.format = Format.RGBA16F;
             colorAttachment3.loadOp = LoadOp.CLEAR; // should clear color attachment
             colorAttachment3.storeOp = StoreOp.STORE;
-            colorAttachment3.sampleCount = 1;
-            colorAttachment3.beginLayout = TextureLayout.UNDEFINED;
-            colorAttachment3.endLayout = TextureLayout.COLOR_ATTACHMENT_OPTIMAL;
 
             const depthStencilAttachment = new DepthStencilAttachment();
             depthStencilAttachment.format = device.depthStencilFormat;
@@ -135,9 +122,6 @@ export class GbufferFlow extends RenderFlow {
             depthStencilAttachment.depthStoreOp = StoreOp.STORE;
             depthStencilAttachment.stencilLoadOp = LoadOp.CLEAR;
             depthStencilAttachment.stencilStoreOp = StoreOp.STORE;
-            depthStencilAttachment.sampleCount = 1;
-            depthStencilAttachment.beginLayout = TextureLayout.UNDEFINED;
-            depthStencilAttachment.endLayout = TextureLayout.DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
             const renderPassInfo = new RenderPassInfo([colorAttachment0, colorAttachment1, colorAttachment2, colorAttachment3],
                 depthStencilAttachment);
             this._gbufferRenderPass = device.createRenderPass(renderPassInfo);
@@ -182,7 +166,7 @@ export class GbufferFlow extends RenderFlow {
                 this._width,
                 this._height,
             ));
-            (this.pipeline as DeferredPipeline).gbufferDepth = this._depth;
+            (this._pipeline as DeferredPipeline).gbufferDepth = this._depth;
         }
 
         if (!this._gbufferFrameBuffer) {

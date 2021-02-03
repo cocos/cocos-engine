@@ -31,7 +31,7 @@ import { ccclass, displayOrder, type, serializable } from 'cc.decorator';
 import { builtinResMgr } from '../../builtin';
 import { Camera } from '../../renderer/scene';
 import { SetIndex } from '../define';
-import { Color, Rect, Shader } from '../../gfx';
+import { Color, Rect, Shader, PipelineState } from '../../gfx';
 import { IRenderStageInfo, RenderStage } from '../render-stage';
 import { DeferredStagePriority } from './enum';
 import { LightingFlow } from './lighting-flow';
@@ -39,7 +39,6 @@ import { DeferredPipeline } from './deferred-pipeline';
 import { Material } from '../../assets/material';
 import { ShaderPool } from '../../renderer/core/memory-pools';
 import { PipelineStateManager } from '../pipeline-state-manager';
-import { PipelineState } from '../../gfx/pipeline-state';
 import { Pass } from '../../renderer';
 import { UIPhase } from '../forward/ui-phase';
 

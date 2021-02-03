@@ -27,34 +27,20 @@
  * @hidden
  */
 
-import { polyfillCC } from './polyfill-legacy-cc';
-import { removeProperty, replaceProperty } from '../utils/x-deprecated';
+import { replaceProperty } from '../utils/x-deprecated';
 import { legacyCC } from '../global-exports';
-import { CommandBuffer } from './base/command-buffer';
-
-replaceProperty(legacyCC, 'cc', [
-    { name: 'GFXDynamicState', newName: 'DynamicStateFlagBit' },
-    { name: 'GFXBindingType', newName: 'DescriptorType' },
-    { name: 'GFXBindingLayout', newName: 'DescriptorSet' },
-]);
-
-removeProperty(CommandBuffer.prototype,  'CommandBuffer.prototype', [
-    { name: 'bindBindingLayout', suggest: 'Use `bindDescriptorSet` instead' },
-]);
 
 // Deprecated CC polyfill
 const customMappings = {
-    // DRAW_INFO_SIZE: 'GFX_DRAW_INFO_SIZE',
-    // MAX_ATTACHMENTS: 'GFX_MAX_ATTACHMENTS',
-    // Obj: 'GFXObject',
-    // DESCRIPTOR_BUFFER_TYPE: '',
-    // DESCRIPTOR_SAMPLER_TYPE: '',
-    // getTypedArrayConstructor: '',
-    // GFXFormatToWebGLType: '',
-    // GFXFormatToWebGLInternalFormat: '',
-    // GFXFormatToWebGLFormat: '',
+    Obj: 'GFXObject',
+    DRAW_INFO_SIZE: 'GFX_DRAW_INFO_SIZE',
+    DESCRIPTOR_BUFFER_TYPE: '',
+    DESCRIPTOR_SAMPLER_TYPE: '',
+    DESCRIPTOR_DYNAMIC_TYPE: '',
+    getTypedArrayConstructor: '',
 };
-for (const api in polyfillCC) {
+for (const api in legacyCC.gfx) {
+    if (api === '__esModule') continue;
     let deprecated = customMappings[api];
     if (deprecated === '') {
         deprecated = api;

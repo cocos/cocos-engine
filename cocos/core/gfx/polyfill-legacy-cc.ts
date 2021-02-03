@@ -43,6 +43,7 @@ import { Shader } from './base/shader';
 import { Texture } from './base/texture';
 import { GlobalBarrier } from './base/global-barrier';
 import { TextureBarrier } from './base/texture-barrier';
+import { legacyCC } from '../global-exports';
 import * as defines from './base/define';
 
 const polyfills: Record<string, unknown> = {
@@ -71,5 +72,4 @@ const polyfills: Record<string, unknown> = {
 };
 
 Object.assign(polyfills, defines);
-
-export const polyfillCC = polyfills;
+legacyCC.gfx = polyfills;

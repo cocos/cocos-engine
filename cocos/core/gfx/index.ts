@@ -28,9 +28,8 @@
  * @module gfx
  */
 
-import { legacyCC } from '../global-exports';
+import './polyfill-legacy-cc';
 import './deprecated-3.0.0';
-import { polyfillCC } from './polyfill-legacy-cc';
 
 export * from './base/descriptor-set';
 export * from './base/buffer';
@@ -49,5 +48,3 @@ export * from './base/shader';
 export * from './base/texture';
 export * from './base/global-barrier';
 export * from './base/texture-barrier';
-
-legacyCC.gfx = polyfillCC;

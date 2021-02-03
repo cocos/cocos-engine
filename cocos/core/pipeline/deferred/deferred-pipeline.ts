@@ -36,12 +36,13 @@ import { GbufferFlow } from './gbuffer-flow';
 import { LightingFlow } from './lighting-flow';
 import { RenderTextureConfig, MaterialConfig } from '../pipeline-serialization';
 import { ShadowFlow } from '../shadow/shadow-flow';
-import { BufferUsageBit, Format, MemoryUsageBit, ClearFlag, StoreOp, Filter, Address, SurfaceTransform, Feature } from '../../gfx/define';
+import { BufferUsageBit, Format, MemoryUsageBit, ClearFlagBit, ClearFlags, StoreOp, Filter, Address,
+    SurfaceTransform, Feature, ColorAttachment, DepthStencilAttachment, RenderPass, LoadOp,
+    RenderPassInfo, BufferInfo, Texture, InputAssembler, InputAssemblerInfo, Attribute, Buffer, AccessType } from '../../gfx';
 import { UBOGlobal, UBOCamera, UBOShadow, UNIFORM_SHADOWMAP_BINDING, UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING } from '../define';
-import { ColorAttachment, DepthStencilAttachment, RenderPass, LoadOp, TextureLayout, RenderPassInfo, BufferInfo, Texture } from '../../gfx';
+
 import { SKYBOX_FLAG } from '../../renderer/scene/camera';
-import { InputAssembler, InputAssemblerInfo, Attribute } from '../../gfx/input-assembler';
-import { Buffer } from '../../gfx/buffer';
+
 import { Camera } from '../../renderer/scene';
 import { errorID } from '../../platform/debug';
 
@@ -82,7 +83,7 @@ export class DeferredPipeline extends RenderPipeline {
     @serializable
     @displayOrder(3)
     protected materials: MaterialConfig[] = [];
-    protected _renderPasses = new Map<ClearFlag, RenderPass>();
+    protected _renderPasses = new Map<ClearFlags, RenderPass>();
 
     /**
      * @zh
@@ -157,7 +158,7 @@ export class DeferredPipeline extends RenderPipeline {
         this._device.queue.submit(this._commandBuffers);
     }
 
-    public getRenderPass (clearFlags: ClearFlag): RenderPass {
+    public getRenderPass (clearFlags: ClearFlags): RenderPass {
         let renderPass = this._renderPasses.get(clearFlags);
         if (renderPass) { return renderPass; }
 
@@ -169,19 +170,19 @@ export class DeferredPipeline extends RenderPipeline {
         depthStencilAttachment.stencilStoreOp = StoreOp.DISCARD;
         depthStencilAttachment.depthStoreOp = StoreOp.DISCARD;
 
-        if (!(clearFlags & ClearFlag.COLOR)) {
+        if (!(clearFlags & ClearFlagBit.COLOR)) {
             if (clearFlags & SKYBOX_FLAG) {
                 colorAttachment.loadOp = LoadOp.DISCARD;
             } else {
                 colorAttachment.loadOp = LoadOp.LOAD;
-                colorAttachment.beginLayout = TextureLayout.PRESENT_SRC;
+                colorAttachment.beginAccesses = [AccessType.PRESENT];
             }
         }
 
-        if ((clearFlags & ClearFlag.DEPTH_STENCIL) !== ClearFlag.DEPTH_STENCIL) {
-            if (!(clearFlags & ClearFlag.DEPTH)) depthStencilAttachment.depthLoadOp = LoadOp.LOAD;
-            if (!(clearFlags & ClearFlag.STENCIL)) depthStencilAttachment.stencilLoadOp = LoadOp.LOAD;
-            depthStencilAttachment.beginLayout = TextureLayout.DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+        if ((clearFlags & ClearFlagBit.DEPTH_STENCIL) !== ClearFlagBit.DEPTH_STENCIL) {
+            if (!(clearFlags & ClearFlagBit.DEPTH)) depthStencilAttachment.depthLoadOp = LoadOp.LOAD;
+            if (!(clearFlags & ClearFlagBit.STENCIL)) depthStencilAttachment.stencilLoadOp = LoadOp.LOAD;
+            depthStencilAttachment.beginAccesses = [AccessType.DEPTH_STENCIL_ATTACHMENT_WRITE];
         }
 
         const renderPassInfo = new RenderPassInfo([colorAttachment], depthStencilAttachment);
