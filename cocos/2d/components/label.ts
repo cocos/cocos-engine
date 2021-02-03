@@ -188,7 +188,7 @@ ccenum(CacheMode);
 @ccclass('cc.Label')
 @help('i18n:cc.Label')
 @executionOrder(110)
-@menu('UI/Render/Label')
+@menu('2D/Label')
 export class Label extends Renderable2D {
     /**
      * @en

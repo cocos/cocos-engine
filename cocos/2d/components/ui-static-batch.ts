@@ -54,7 +54,7 @@ import { BlendFactor } from '../../core/gfx';
  */
 @ccclass('cc.UIStaticBatch')
 @help('i18n:cc.UIStaticBatch')
-@menu('UI/Render/UIStaticBatch')
+@menu('2D/UIStaticBatch')
 @executionOrder(110)
 export class UIStaticBatch extends Renderable2D {
     @override

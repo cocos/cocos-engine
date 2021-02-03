@@ -67,7 +67,7 @@ class Point {
 @ccclass('cc.MotionStreak')
 @executeInEditMode
 @playOnFocus
-@menu('UI/Render/MotionStreak')
+@menu('Effects/MotionStreak')
 @help('i18n:COMPONENT.help_url.motionStreak')
 export class MotionStreak extends Renderable2D {
     public static Point = Point;
