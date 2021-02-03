@@ -205,7 +205,7 @@ void LightingStage::initLightingBuffer() {
 
     // color/pos/dir/angle 都是vec4存储, 最后一个vec4只要x存储光源个数
     uint totalSize = sizeof(Vec4) * 4 * _maxDeferredLights;
-    totalSize = std::ceil((float)totalSize / device->getUboOffsetAlignment()) * device->getUboOffsetAlignment();
+    totalSize      = std::ceil((float)totalSize / device->getCapabilities().uboOffsetAlignment) * device->getCapabilities().uboOffsetAlignment;
 
     // create lighting buffer and view
     if (_deferredLitsBufs == nullptr) {
@@ -213,7 +213,7 @@ void LightingStage::initLightingBuffer() {
             gfx::BufferUsageBit::UNIFORM | gfx::BufferUsageBit::TRANSFER_DST,
             gfx::MemoryUsageBit::HOST | gfx::MemoryUsageBit::DEVICE,
             totalSize,
-            static_cast<uint>(device->getUboOffsetAlignment()),
+            static_cast<uint>(device->getCapabilities().uboOffsetAlignment),
         };
         _deferredLitsBufs = device->createBuffer(bfInfo);
         assert(_deferredLitsBufs != nullptr);

@@ -61,23 +61,22 @@ void LightingFlow::createRenderPass(gfx::Device *device) {
     if (_lightingRenderPass == nullptr) {
         gfx::ColorAttachment cAttch = {
             gfx::Format::RGBA16F,
-            1,
+            gfx::SampleCount::X1,
             gfx::LoadOp::CLEAR,
             gfx::StoreOp::STORE,
-            gfx::TextureLayout::UNDEFINED,
-            gfx::TextureLayout::COLOR_ATTACHMENT_OPTIMAL
+            {},
+            {gfx::AccessType::COLOR_ATTACHMENT_WRITE},
         };
         gfx::RenderPassInfo info;
         info.colorAttachments.push_back(cAttch);
         info.depthStencilAttachment = {
             device->getDepthStencilFormat(),
-            1,
+            gfx::SampleCount::X1,
             gfx::LoadOp::LOAD,
             gfx::StoreOp::DISCARD,
             gfx::LoadOp::DISCARD,
             gfx::StoreOp::DISCARD,
-            gfx::TextureLayout::DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
-            gfx::TextureLayout::DEPTH_STENCIL_ATTACHMENT_OPTIMAL
+            {gfx::AccessType::DEPTH_STENCIL_ATTACHMENT_WRITE},
         };
 
         _lightingRenderPass = device->createRenderPass(info);

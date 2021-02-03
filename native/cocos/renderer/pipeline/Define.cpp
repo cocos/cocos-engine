@@ -250,11 +250,11 @@ const gfx::UniformSamplerTexture SHADOWMAP::LAYOUT = {
 const String SAMPLERGBUFFERALBEDOMAP::NAME = "cc_gbuffer_albedoMap";
 const gfx::DescriptorSetLayoutBinding SAMPLERGBUFFERALBEDOMAP::DESCRIPTOR = {
     SAMPLERGBUFFERALBEDOMAP::BINDING,
-    gfx::DescriptorType::SAMPLER,
+    gfx::DescriptorType::SAMPLER_TEXTURE,
     1,
     gfx::ShaderStageFlagBit::FRAGMENT,
 };
-const gfx::UniformSampler SAMPLERGBUFFERALBEDOMAP::LAYOUT = {
+const gfx::UniformSamplerTexture SAMPLERGBUFFERALBEDOMAP::LAYOUT = {
     GLOBAL_SET,
     SAMPLERGBUFFERALBEDOMAP::BINDING,
     SAMPLERGBUFFERALBEDOMAP::NAME,
@@ -265,11 +265,11 @@ const gfx::UniformSampler SAMPLERGBUFFERALBEDOMAP::LAYOUT = {
 const String SAMPLERGBUFFERPOSITIONMAP::NAME = "cc_gbuffer_positionMap";
 const gfx::DescriptorSetLayoutBinding SAMPLERGBUFFERPOSITIONMAP::DESCRIPTOR = {
     SAMPLERGBUFFERPOSITIONMAP::BINDING,
-    gfx::DescriptorType::SAMPLER,
+    gfx::DescriptorType::SAMPLER_TEXTURE,
     1,
     gfx::ShaderStageFlagBit::FRAGMENT,
 };
-const gfx::UniformSampler SAMPLERGBUFFERPOSITIONMAP::LAYOUT = {
+const gfx::UniformSamplerTexture SAMPLERGBUFFERPOSITIONMAP::LAYOUT = {
     GLOBAL_SET,
     SAMPLERGBUFFERPOSITIONMAP::BINDING,
     SAMPLERGBUFFERPOSITIONMAP::NAME,
@@ -280,11 +280,11 @@ const gfx::UniformSampler SAMPLERGBUFFERPOSITIONMAP::LAYOUT = {
 const String SAMPLERGBUFFERNORMALMAP::NAME = "cc_gbuffer_normalMap";
 const gfx::DescriptorSetLayoutBinding SAMPLERGBUFFERNORMALMAP::DESCRIPTOR = {
     SAMPLERGBUFFERNORMALMAP::BINDING,
-    gfx::DescriptorType::SAMPLER,
+    gfx::DescriptorType::SAMPLER_TEXTURE,
     1,
     gfx::ShaderStageFlagBit::FRAGMENT,
 };
-const gfx::UniformSampler SAMPLERGBUFFERNORMALMAP::LAYOUT = {
+const gfx::UniformSamplerTexture SAMPLERGBUFFERNORMALMAP::LAYOUT = {
     GLOBAL_SET,
     SAMPLERGBUFFERNORMALMAP::BINDING,
     SAMPLERGBUFFERNORMALMAP::NAME,
@@ -295,11 +295,11 @@ const gfx::UniformSampler SAMPLERGBUFFERNORMALMAP::LAYOUT = {
 const String SAMPLERGBUFFEREMISSIVEMAP::NAME = "cc_gbuffer_emissiveMap";
 const gfx::DescriptorSetLayoutBinding SAMPLERGBUFFEREMISSIVEMAP::DESCRIPTOR = {
     SAMPLERGBUFFEREMISSIVEMAP::BINDING,
-    gfx::DescriptorType::SAMPLER,
+    gfx::DescriptorType::SAMPLER_TEXTURE,
     1,
     gfx::ShaderStageFlagBit::FRAGMENT,
 };
-const gfx::UniformSampler SAMPLERGBUFFEREMISSIVEMAP::LAYOUT = {
+const gfx::UniformSamplerTexture SAMPLERGBUFFEREMISSIVEMAP::LAYOUT = {
     GLOBAL_SET,
     SAMPLERGBUFFEREMISSIVEMAP::BINDING,
     SAMPLERGBUFFEREMISSIVEMAP::NAME,
@@ -310,11 +310,11 @@ const gfx::UniformSampler SAMPLERGBUFFEREMISSIVEMAP::LAYOUT = {
 const String SAMPLERLIGHTINGRESULTMAP::NAME = "cc_lighting_resultMap";
 const gfx::DescriptorSetLayoutBinding SAMPLERLIGHTINGRESULTMAP::DESCRIPTOR = {
     SAMPLERLIGHTINGRESULTMAP::BINDING,
-    gfx::DescriptorType::SAMPLER,
+    gfx::DescriptorType::SAMPLER_TEXTURE,
     1,
     gfx::ShaderStageFlagBit::FRAGMENT,
 };
-const gfx::UniformSampler SAMPLERLIGHTINGRESULTMAP::LAYOUT = {
+const gfx::UniformSamplerTexture SAMPLERLIGHTINGRESULTMAP::LAYOUT = {
     GLOBAL_SET,
     SAMPLERLIGHTINGRESULTMAP::BINDING,
     SAMPLERLIGHTINGRESULTMAP::NAME,

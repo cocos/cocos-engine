@@ -66,11 +66,11 @@ void GbufferFlow::createRenderPass(gfx::Device *device) {
 
     gfx::ColorAttachment color = {
         gfx::Format::RGBA16F,
-        1,
+        gfx::SampleCount::X1,
         gfx::LoadOp::CLEAR,
         gfx::StoreOp::STORE,
-        gfx::TextureLayout::UNDEFINED,
-        gfx::TextureLayout::COLOR_ATTACHMENT_OPTIMAL
+        {},
+        {gfx::AccessType::COLOR_ATTACHMENT_WRITE},
     };
 
     for (int i = 0; i < 4; i++) {
@@ -79,13 +79,11 @@ void GbufferFlow::createRenderPass(gfx::Device *device) {
 
     gfx::DepthStencilAttachment depth = {
         device->getDepthStencilFormat(),
-        1,
+        gfx::SampleCount::X1,
         gfx::LoadOp::CLEAR,
         gfx::StoreOp::STORE,
         gfx::LoadOp::CLEAR,
         gfx::StoreOp::STORE,
-        gfx::TextureLayout::UNDEFINED,
-        gfx::TextureLayout::DEPTH_STENCIL_ATTACHMENT_OPTIMAL
     };
 
     info.depthStencilAttachment = depth;

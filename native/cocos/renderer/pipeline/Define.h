@@ -427,35 +427,35 @@ struct CC_DLL SHADOWMAP : public Object {
 struct CC_DLL SAMPLERGBUFFERALBEDOMAP : public Object {
     static constexpr uint BINDING = static_cast<uint>(PipelineGlobalBindings::SAMPLER_GBUFFER_ALBEDOMAP);
     static const gfx::DescriptorSetLayoutBinding DESCRIPTOR;
-    static const gfx::UniformSampler LAYOUT;
+    static const gfx::UniformSamplerTexture LAYOUT;
     static const String NAME;
 };
 
 struct CC_DLL SAMPLERGBUFFERPOSITIONMAP : public Object {
     static constexpr uint BINDING = static_cast<uint>(PipelineGlobalBindings::SAMPLER_GBUFFER_POSITIONMAP);
     static const gfx::DescriptorSetLayoutBinding DESCRIPTOR;
-    static const gfx::UniformSampler LAYOUT;
+    static const gfx::UniformSamplerTexture LAYOUT;
     static const String NAME;
 };
 
 struct CC_DLL SAMPLERGBUFFERNORMALMAP : public Object {
     static constexpr uint BINDING = static_cast<uint>(PipelineGlobalBindings::SAMPLER_GBUFFER_NORMALMAP);
     static const gfx::DescriptorSetLayoutBinding DESCRIPTOR;
-    static const gfx::UniformSampler LAYOUT;
+    static const gfx::UniformSamplerTexture LAYOUT;
     static const String NAME;
 };
 
 struct CC_DLL SAMPLERGBUFFEREMISSIVEMAP : public Object {
     static constexpr uint BINDING = static_cast<uint>(PipelineGlobalBindings::SAMPLER_GBUFFER_EMISSIVEMAP);
     static const gfx::DescriptorSetLayoutBinding DESCRIPTOR;
-    static const gfx::UniformSampler LAYOUT;
+    static const gfx::UniformSamplerTexture LAYOUT;
     static const String NAME;
 };
 
 struct CC_DLL SAMPLERLIGHTINGRESULTMAP : public Object {
     static constexpr uint BINDING = static_cast<uint>(PipelineGlobalBindings::SAMPLER_LIGHTING_RESULTMAP);
     static const gfx::DescriptorSetLayoutBinding DESCRIPTOR;
-    static const gfx::UniformSampler LAYOUT;
+    static const gfx::UniformSamplerTexture LAYOUT;
     static const String NAME;
 };
 
