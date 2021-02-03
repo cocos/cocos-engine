@@ -70,6 +70,7 @@ public:
     CC_INLINE PipelineSceneData *getPipelineSceneData() const { return _pipelineSceneData; }
     CC_INLINE const gfx::CommandBufferList &getCommandBuffers() const { return _commandBuffers; }
     CC_INLINE PipelineUBO *getPipelineUBO() const { return _pipelineUBO; }
+    CC_INLINE gfx::Device *getDevice() { return _device; }
 
 protected:
     static RenderPipeline *_instance;

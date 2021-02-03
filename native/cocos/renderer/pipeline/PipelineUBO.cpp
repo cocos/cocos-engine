@@ -69,7 +69,8 @@ void PipelineUBO::updateGlobalUBOView(const RenderPipeline *pipeline, std::array
     uboGlobalView[UBOGlobal::NATIVE_SIZE_OFFSET + 3] = 1.0f / uboGlobalView[UBOGlobal::NATIVE_SIZE_OFFSET + 1];
 }
 
-void PipelineUBO::updateCameraUBOView(const RenderPipeline *pipeline, std::array<float, UBOCamera::COUNT> &bufferView, const Camera *camera)
+void PipelineUBO::updateCameraUBOView(const RenderPipeline *pipeline, std::array<float, UBOCamera::COUNT> &bufferView,
+    const Camera *camera, bool hasOffScreenAttachments)
 {
     const auto scene = camera->getScene();
     const Light *mainLight = nullptr;
@@ -82,24 +83,24 @@ void PipelineUBO::updateCameraUBOView(const RenderPipeline *pipeline, std::array
     auto fog = sharedData->getFog();
     auto isHDR = sharedData->isHDR;
     auto shadingScale = sharedData->shadingScale;
-    
+
     auto *device = gfx::Device::getInstance();
     auto &uboCameraView = bufferView;
-    
+
     const auto shadingWidth = std::floor(device->getWidth());
     const auto shadingHeight = std::floor(device->getHeight());
-    
+
     uboCameraView[UBOCamera::SCREEN_SCALE_OFFSET] = camera->width / shadingWidth * shadingScale;
     uboCameraView[UBOCamera::SCREEN_SCALE_OFFSET + 1] = camera->height / shadingHeight * shadingScale;
     uboCameraView[UBOCamera::SCREEN_SCALE_OFFSET + 2] = 1.0 / uboCameraView[UBOCamera::SCREEN_SCALE_OFFSET];
     uboCameraView[UBOCamera::SCREEN_SCALE_OFFSET + 3] = 1.0 / uboCameraView[UBOCamera::SCREEN_SCALE_OFFSET + 1];
-    
+
     const auto exposure = camera->exposure;
     uboCameraView[UBOCamera::EXPOSURE_OFFSET] = exposure;
     uboCameraView[UBOCamera::EXPOSURE_OFFSET + 1] = 1.0f / exposure;
     uboCameraView[UBOCamera::EXPOSURE_OFFSET + 2] = isHDR ? 1.0f : 0.0;
     uboCameraView[UBOCamera::EXPOSURE_OFFSET + 3] = fpScale / exposure;
-    
+
     if (mainLight) {
         TO_VEC3(uboCameraView, mainLight->direction, UBOCamera::MAIN_LIT_DIR_OFFSET);
         TO_VEC3(uboCameraView, mainLight->color, UBOCamera::MAIN_LIT_COLOR_OFFSET);
@@ -133,20 +134,25 @@ void PipelineUBO::updateCameraUBOView(const RenderPipeline *pipeline, std::array
     uboCameraView[UBOCamera::AMBIENT_GROUND_OFFSET + 2] = ambient->groundAlbedo.z;
     const auto envmap = descriptorSet->getTexture((uint)PipelineGlobalBindings::SAMPLER_ENVIRONMENT);
     if (envmap) uboCameraView[UBOCamera::AMBIENT_GROUND_OFFSET + 3] = envmap->getLevelCount();
-    
+
     memcpy(uboCameraView.data() + UBOCamera::MAT_VIEW_OFFSET, camera->matView.m, sizeof(cc::Mat4));
     memcpy(uboCameraView.data() + UBOCamera::MAT_VIEW_INV_OFFSET, camera->getNode()->worldMatrix.m, sizeof(cc::Mat4));
-    memcpy(uboCameraView.data() + UBOCamera::MAT_PROJ_OFFSET, camera->matProj.m, sizeof(cc::Mat4));
-    memcpy(uboCameraView.data() + UBOCamera::MAT_PROJ_INV_OFFSET, camera->matProjInv.m, sizeof(cc::Mat4));
-    memcpy(uboCameraView.data() + UBOCamera::MAT_VIEW_PROJ_OFFSET, camera->matViewProj.m, sizeof(cc::Mat4));
-    memcpy(uboCameraView.data() + UBOCamera::MAT_VIEW_PROJ_INV_OFFSET, camera->matViewProjInv.m, sizeof(cc::Mat4));
     TO_VEC3(uboCameraView, camera->position, UBOCamera::CAMERA_POS_OFFSET);
 
-    auto projectionSignY = device->getCapabilities().screenSpaceSignY;
-    if (camera->getWindow()->hasOffScreenAttachments) {
-        projectionSignY *= device->getCapabilities().UVSpaceSignY; // need flipping if drawing on render targets
+    if (hasOffScreenAttachments) {
+        memcpy(uboCameraView.data() + UBOCamera::MAT_PROJ_OFFSET, camera->matProjOffscreen.m, sizeof(cc::Mat4));
+        memcpy(uboCameraView.data() + UBOCamera::MAT_PROJ_INV_OFFSET, camera->matProjInvOffscreen.m, sizeof(cc::Mat4));
+        memcpy(uboCameraView.data() + UBOCamera::MAT_VIEW_PROJ_OFFSET, camera->matViewProjOffscreen.m, sizeof(cc::Mat4));
+        memcpy(uboCameraView.data() + UBOCamera::MAT_VIEW_PROJ_INV_OFFSET, camera->matViewProjInvOffscreen.m, sizeof(cc::Mat4));
+        uboCameraView[UBOCamera::CAMERA_POS_OFFSET + 3] = device->getCapabilities().screenSpaceSignY * device->getCapabilities().UVSpaceSignY;
     }
-    uboCameraView[UBOCamera::CAMERA_POS_OFFSET + 3] = projectionSignY;
+    else {
+        memcpy(uboCameraView.data() + UBOCamera::MAT_PROJ_OFFSET, camera->matProj.m, sizeof(cc::Mat4));
+        memcpy(uboCameraView.data() + UBOCamera::MAT_PROJ_INV_OFFSET, camera->matProjInv.m, sizeof(cc::Mat4));
+        memcpy(uboCameraView.data() + UBOCamera::MAT_VIEW_PROJ_OFFSET, camera->matViewProj.m, sizeof(cc::Mat4));
+        memcpy(uboCameraView.data() + UBOCamera::MAT_VIEW_PROJ_INV_OFFSET, camera->matViewProjInv.m, sizeof(cc::Mat4));
+        uboCameraView[UBOCamera::CAMERA_POS_OFFSET + 3] = device->getCapabilities().screenSpaceSignY;
+    }
 
     if (fog->enabled) {
         TO_VEC4(uboCameraView, fog->fogColor, UBOCamera::GLOBAL_FOG_COLOR_OFFSET);
@@ -171,7 +177,7 @@ void PipelineUBO::updateShadowUBOView(const RenderPipeline *pipeline, std::array
     const auto shadowInfo = sceneData->getSharedData()->getShadows();
     auto &shadowUBO = bufferView;
     auto sphere = sceneData->getSphere();
-    
+
     if (shadowInfo->enabled) {
         if (mainLight && shadowInfo->getShadowType() == ShadowType::SHADOWMAP) {
             const auto node = mainLight->getNode();
@@ -273,9 +279,9 @@ void PipelineUBO::activate(gfx::Device *device, RenderPipeline *pipeline)
 {
     _device = device;
     _pipeline = pipeline;
-    
+
     const auto descriptorSet = pipeline->getDescriptorSet();
-    
+
     auto globalUBO = _device->createBuffer({
         gfx::BufferUsageBit::UNIFORM | gfx::BufferUsageBit::TRANSFER_DST,
         gfx::MemoryUsageBit::HOST | gfx::MemoryUsageBit::DEVICE,
@@ -284,7 +290,7 @@ void PipelineUBO::activate(gfx::Device *device, RenderPipeline *pipeline)
         gfx::BufferFlagBit::NONE,
     });
     descriptorSet->bindBuffer(UBOGlobal::BINDING, globalUBO);
-    
+
     auto cameraUBO = _device->createBuffer({
         gfx::BufferUsageBit::UNIFORM | gfx::BufferUsageBit::TRANSFER_DST,
         gfx::MemoryUsageBit::HOST | gfx::MemoryUsageBit::DEVICE,
@@ -317,11 +323,11 @@ void PipelineUBO::updateGlobalUBO()
     cmdBuffer->updateBuffer(ds->getBuffer(UBOGlobal::BINDING), _globalUBO.data(), UBOGlobal::SIZE);
 }
 
-void PipelineUBO::updateCameraUBO(const Camera *camera)
+void PipelineUBO::updateCameraUBO(const Camera *camera, bool hasOffScreenAttachments)
 {
     const auto ds = _pipeline->getDescriptorSet();
     const auto cmdBuffer = _pipeline->getCommandBuffers()[0];
-    PipelineUBO::updateCameraUBOView(_pipeline, _cameraUBO, camera);
+    PipelineUBO::updateCameraUBOView(_pipeline, _cameraUBO, camera, hasOffScreenAttachments);
     cmdBuffer->updateBuffer(ds->getBuffer(UBOCamera::BINDING), _cameraUBO.data(), UBOCamera::SIZE);
 }
 

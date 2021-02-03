@@ -62,7 +62,7 @@ public:
 private:
     void clear();
     void updateUBOs(const Camera *camera, gfx::CommandBuffer *cmdBuffer);
-    void updateCameraUBO(const Camera *camera, gfx::CommandBuffer *cmdBuffer);
+    void updateCameraUBO(const Camera *camera, gfx::CommandBuffer *cmdBuffer, bool hasOffScreenAttachments);
     void updateLightDescriptorSet(const Camera *camera, gfx::CommandBuffer *cmdBuffer);
     void updateGlobalDescriptorSet(const Camera *camera, gfx::CommandBuffer *cmdBuffer);
     bool getLightPassIndex(const ModelView *model, vector<uint> &lightPassIndices) const;

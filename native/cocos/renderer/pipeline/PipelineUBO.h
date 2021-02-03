@@ -41,7 +41,7 @@ class Device;
 class CC_DLL PipelineUBO : public Object  {
 public:
     static void updateGlobalUBOView(const RenderPipeline *pipeline, std::array<float, UBOGlobal::COUNT> &bufferView);
-    static void updateCameraUBOView(const RenderPipeline *pipeline, std::array<float, UBOCamera::COUNT> &bufferView, const Camera *camera);
+    static void updateCameraUBOView(const RenderPipeline *pipeline, std::array<float, UBOCamera::COUNT> &bufferView, const Camera *camera, bool hasOffScreenAttachments);
     static void updateShadowUBOView(const RenderPipeline *pipeline, std::array<float, UBOShadow::COUNT> &bufferView, const Camera *camera);
     static void updateShadowUBOLightView(const RenderPipeline *pipeline, std::array<float, UBOShadow::COUNT> &bufferView, const Light *light);
     
@@ -51,7 +51,7 @@ public:
     void activate(gfx::Device *device, RenderPipeline *pipeline);
     void destroy();
     void updateGlobalUBO();
-    void updateCameraUBO(const Camera *camera);
+    void updateCameraUBO(const Camera *camera, bool hasOffScreenAttachments);
     void updateShadowUBO(const Camera *camera);
     void updateShadowUBOLight(const Light *light);
     void updateShadowUBORange(uint offset, const Mat4* data);
