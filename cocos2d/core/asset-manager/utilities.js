@@ -312,7 +312,8 @@ var utils = {
             checked = Object.create(null);
         }
         let item = map[uuid];
-        if (!item || checked[uuid]) {
+        // only prefab will be circle referenced
+        if (!item || checked[uuid] || !(item.content instanceof cc.Prefab)) {
             return false;
         }
         checked[uuid] = true;
@@ -322,6 +323,7 @@ var utils = {
             for (var i = 0, l = deps.length; i < l; i++) {
                 var dep = deps[i];
                 if (dep === owner || utils.checkCircleReference(owner, dep, map, checked)) {
+                    item.content.circleReferenced = true;
                     result = true;
                     break;
                 }

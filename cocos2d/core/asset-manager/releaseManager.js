@@ -26,7 +26,6 @@ const dependUtil = require('./depend-util');
 const Cache = require('./cache');
 require('../assets/CCAsset');
 const { assets } = require('./shared');
-const { callInNextTick } = require('../platform/utils');
 
 function visitAsset (asset, deps) {
     // Skip assets generated programmatically or by user (e.g. label texture)
@@ -98,6 +97,9 @@ function descendOpRef (asset, refs, exclude, op) {
 }
 
 function checkCircularReference (asset) {
+    // only Prefab will be circle referenced
+    if (!(asset instanceof cc.Prefab) || !asset.circleReferenced) return asset.refCount;
+
     // check circular reference
     var refs = Object.create(null);
     refs[asset._uuid] = asset.refCount;
@@ -197,7 +199,6 @@ var releaseManager = {
     },
 
     _free (asset, force) {
-        _toDelete.remove(asset._uuid);
 
         if (!cc.isValid(asset, true)) return;
 
@@ -213,8 +214,7 @@ var releaseManager = {
         for (let i = 0, l = depends.length; i < l; i++) {
             var dependAsset = assets.get(depends[i]);
             if (dependAsset) {
-                dependAsset.decRef(false);
-                releaseManager._free(dependAsset, false);
+                dependAsset.decRef();
             }
         }
         asset.destroy();
@@ -223,16 +223,7 @@ var releaseManager = {
 
     tryRelease (asset, force) {
         if (!(asset instanceof cc.Asset)) return;
-        if (force) {
-            releaseManager._free(asset, force);
-        }
-        else {
-            _toDelete.add(asset._uuid, asset);
-            if (!eventListener) {
-                eventListener = true;
-                callInNextTick(freeAssets);
-            }
-        }
+        releaseManager._free(asset, force);
     }
 };
 

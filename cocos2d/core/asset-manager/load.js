@@ -123,7 +123,8 @@ var loadOneAssetPipeline = new Pipeline('loadOneAsset', [
                 var { finish, content, err, callbacks } = exclude[uuid];
                 progress.canInvoke && task.dispatch('progress', ++progress.finish, progress.total, item);
     
-                if (finish || checkCircleReference(uuid, uuid, exclude) ) {
+                // only Prefab will be circle referenced for now
+                if (finish || (content instanceof cc.Prefab && checkCircleReference(uuid, uuid, exclude))) {
                     content && content.addRef && content.addRef();
                     item.content = content;
                     done(err);
