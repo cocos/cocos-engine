@@ -107,7 +107,7 @@ void GLES3CommandBuffer::end() {
     }
 }
 
-void GLES3CommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, int stencil, CommandBuffer *const *secondaryCBs, uint32_t secondaryCBCount) {
+void GLES3CommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, int stencil, CommandBuffer *const *secondaryCBs, uint secondaryCBCount) {
     _isInRenderPass = true;
 
     GLES3CmdBeginRenderPass *cmd = _cmdAllocator->beginRenderPassCmdPool.alloc();
@@ -181,7 +181,7 @@ void GLES3CommandBuffer::setScissor(const Rect &rect) {
     }
 }
 
-void GLES3CommandBuffer::setLineWidth(const float width) {
+void GLES3CommandBuffer::setLineWidth(float width) {
     if (math::IsNotEqualF(_curLineWidth, width)) {
         _curLineWidth   = width;
         _isStateInvalid = true;

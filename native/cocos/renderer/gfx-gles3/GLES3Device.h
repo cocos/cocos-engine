@@ -43,6 +43,7 @@ public:
     using Device::createDescriptorSet;
     using Device::createDescriptorSetLayout;
     using Device::createFramebuffer;
+    using Device::createGlobalBarrier;
     using Device::createInputAssembler;
     using Device::createPipelineLayout;
     using Device::createPipelineState;
@@ -51,7 +52,6 @@ public:
     using Device::createSampler;
     using Device::createShader;
     using Device::createTexture;
-    using Device::createGlobalBarrier;
     using Device::createTextureBarrier;
 
     virtual bool initialize(const DeviceInfo &info) override;

@@ -22,14 +22,15 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 ****************************************************************************/
 #if (CC_PLATFORM != CC_PLATFORM_MAC_IOS)
-
 #define EGL_EGL_PROTOTYPES 0
 #include <EGL/egl.h>
 #include <EGL/eglext.h>
 #include <EGL/eglplatform.h>
+#endif
 
 #include "eglw.h"
 
+#if (CC_PLATFORM != CC_PLATFORM_MAC_IOS)
 /**
  * ========================= !DO NOT CHANGE THE FOLLOWING SECTION MANUALLY! =========================
  * The following section is auto-generated from EGL spec by running:

@@ -1551,6 +1551,10 @@ void GLES3CmdFuncBeginRenderPass(GLES3Device *device, GLES3GPURenderPass *gpuRen
 
         GLbitfield glClears       = 0;
         uint       numAttachments = 0;
+        bool       hasBoundFBO    = gpuFramebuffer->isOffscreen;
+#if (CC_PLATFORM == CC_PLATFORM_MAC_IOS)
+        hasBoundFBO = true;
+#endif
 
         for (uint j = 0; j < numClearColors; ++j) {
             const ColorAttachment &colorAttachment = gpuRenderPass->colorAttachments[j];
@@ -1562,7 +1566,7 @@ void GLES3CmdFuncBeginRenderPass(GLES3Device *device, GLES3GPURenderPass *gpuRen
                             GL_CHECK(glColorMask(true, true, true, true));
                         }
 
-                        if (gpuFramebuffer->isOffscreen) {
+                        if (hasBoundFBO) {
                             static float fColors[4];
                             fColors[0] = clearColors[j].x;
                             fColors[1] = clearColors[j].y;
@@ -1578,7 +1582,7 @@ void GLES3CmdFuncBeginRenderPass(GLES3Device *device, GLES3GPURenderPass *gpuRen
                     }
                     case LoadOp::DISCARD: {
                         // invalidate fbo
-                        invalidAttachments[numAttachments++] = (gpuFramebuffer->isOffscreen ? GL_COLOR_ATTACHMENT0 + j : GL_COLOR);
+                        invalidAttachments[numAttachments++] = (hasBoundFBO ? GL_COLOR_ATTACHMENT0 + j : GL_COLOR);
                         break;
                     }
                     default:;
@@ -1601,7 +1605,7 @@ void GLES3CmdFuncBeginRenderPass(GLES3Device *device, GLES3GPURenderPass *gpuRen
                     }
                     case LoadOp::DISCARD: {
                         // invalidate fbo
-                        invalidAttachments[numAttachments++] = (gpuFramebuffer->isOffscreen ? GL_DEPTH_ATTACHMENT : GL_DEPTH);
+                        invalidAttachments[numAttachments++] = (hasBoundFBO ? GL_DEPTH_ATTACHMENT : GL_DEPTH);
                         break;
                     }
                     default:;
@@ -1624,7 +1628,7 @@ void GLES3CmdFuncBeginRenderPass(GLES3Device *device, GLES3GPURenderPass *gpuRen
                     }
                     case LoadOp::DISCARD: {
                         // invalidate fbo
-                        invalidAttachments[numAttachments++] = (gpuFramebuffer->isOffscreen ? GL_STENCIL_ATTACHMENT : GL_STENCIL);
+                        invalidAttachments[numAttachments++] = (hasBoundFBO ? GL_STENCIL_ATTACHMENT : GL_STENCIL);
                         break;
                     }
                     default:;
@@ -1672,6 +1676,10 @@ void GLES3CmdFuncEndRenderPass(GLES3Device *device) {
     GLES3GPURenderPass * gpuRenderPass      = gfxStateCache.gpuRenderPass;
     GLES3GPUFramebuffer *gpuFramebuffer     = gfxStateCache.gpuFramebuffer;
     GLenum *             invalidAttachments = gfxStateCache.invalidAttachments;
+    bool                 hasBoundFBO        = gpuFramebuffer->isOffscreen;
+#if (CC_PLATFORM == CC_PLATFORM_MAC_IOS)
+    hasBoundFBO = true;
+#endif
 
     uint numAttachments = 0;
     for (uint j = 0; j < numClearColors; ++j) {
@@ -1681,7 +1689,7 @@ void GLES3CmdFuncEndRenderPass(GLES3Device *device) {
                 case StoreOp::STORE: break;
                 case StoreOp::DISCARD: {
                     // invalidate fbo
-                    invalidAttachments[numAttachments++] = (gpuFramebuffer->isOffscreen ? GL_COLOR_ATTACHMENT0 + j : GL_COLOR);
+                    invalidAttachments[numAttachments++] = (hasBoundFBO ? GL_COLOR_ATTACHMENT0 + j : GL_COLOR);
                     break;
                 }
                 default:;
@@ -1696,7 +1704,7 @@ void GLES3CmdFuncEndRenderPass(GLES3Device *device) {
                 case StoreOp::STORE: break;
                 case StoreOp::DISCARD: {
                     // invalidate fbo
-                    invalidAttachments[numAttachments++] = (gpuFramebuffer->isOffscreen ? GL_DEPTH_ATTACHMENT : GL_DEPTH);
+                    invalidAttachments[numAttachments++] = (hasBoundFBO ? GL_DEPTH_ATTACHMENT : GL_DEPTH);
                     break;
                 }
                 default:;
@@ -1708,7 +1716,7 @@ void GLES3CmdFuncEndRenderPass(GLES3Device *device) {
                 case StoreOp::STORE: break;
                 case StoreOp::DISCARD: {
                     // invalidate fbo
-                    invalidAttachments[numAttachments++] = (gpuFramebuffer->isOffscreen ? GL_STENCIL_ATTACHMENT : GL_STENCIL);
+                    invalidAttachments[numAttachments++] = (hasBoundFBO ? GL_STENCIL_ATTACHMENT : GL_STENCIL);
                     break;
                 }
                 default:;
@@ -2611,7 +2619,7 @@ void GLES3CmdFuncExecuteCmds(GLES3Device *device, GLES3CmdPackage *cmdPackage) {
 
     for (uint i = 0; i < cmdPackage->cmds.size(); ++i) {
         GLESCmdType cmdType = cmdPackage->cmds[i];
-        uint &       cmdIdx  = cmdIndices[(int)cmdType];
+        uint &      cmdIdx  = cmdIndices[(int)cmdType];
 
         switch (cmdType) {
             case GLESCmdType::BEGIN_RENDER_PASS: {

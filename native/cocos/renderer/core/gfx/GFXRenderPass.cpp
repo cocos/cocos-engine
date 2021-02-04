@@ -14,6 +14,7 @@ RenderPass::~RenderPass() {
 
 // Based on render pass compatibility
 uint RenderPass::computeHash() {
+    // https://stackoverflow.com/questions/20511347/a-good-hash-function-for-a-vector
     uint seed = _colorAttachments.size() * 2 + 2;
     if (_subpasses.size()) {
         for (const SubpassInfo &subPass : _subpasses) {

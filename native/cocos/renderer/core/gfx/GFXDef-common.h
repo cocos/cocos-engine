@@ -2,7 +2,7 @@
 #define CC_CORE_GFX_DEF_COMMON_H_
 
 /**
- * This file should be synced with engine/cocos/core/gfx/define.ts
+ * This file should be synced with engine/cocos/core/gfx/base/define.ts
  * every time changes being made, by manually running:
  * node tools/gfx-define-generator/generate.js
  *

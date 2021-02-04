@@ -123,12 +123,12 @@ private:
     vector<CCVKGPURecycleBin *>        _gpuRecycleBins;
     vector<CCVKGPUStagingBufferPool *> _gpuStagingBufferPools;
 
-    CCVKGPUBufferHub *           _gpuBufferHub            = nullptr;
-    CCVKGPUTransportHub *        _gpuTransportHub         = nullptr;
-    CCVKGPUDescriptorHub *       _gpuDescriptorHub        = nullptr;
-    CCVKGPUSemaphorePool *       _gpuSemaphorePool        = nullptr;
-    CCVKGPUDescriptorSetHub *    _gpuDescriptorSetHub     = nullptr;
-    CCVKGPUBarrierManager *_gpuBarrierManager = nullptr;
+    CCVKGPUBufferHub *       _gpuBufferHub        = nullptr;
+    CCVKGPUTransportHub *    _gpuTransportHub     = nullptr;
+    CCVKGPUDescriptorHub *   _gpuDescriptorHub    = nullptr;
+    CCVKGPUSemaphorePool *   _gpuSemaphorePool    = nullptr;
+    CCVKGPUDescriptorSetHub *_gpuDescriptorSetHub = nullptr;
+    CCVKGPUBarrierManager *  _gpuBarrierManager   = nullptr;
 
     vector<const char *> _layers;
     vector<const char *> _extensions;

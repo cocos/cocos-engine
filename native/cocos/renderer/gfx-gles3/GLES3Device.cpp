@@ -94,7 +94,8 @@ bool GLES3Device::initialize(const DeviceInfo &info) {
     _features[(uint)Feature::MULTIPLE_RENDER_TARGETS] = true;
     _features[(uint)Feature::BLEND_MINMAX]            = true;
 
-    if (((GLES3Context *)_context)->minor_ver())
+    uint minorVersion = ((GLES3Context *)_context)->minor_ver();
+    if (minorVersion)
         _features[(uint)Feature::COMPUTE_SHADER] = true;
 
     if (checkExtension("color_buffer_float"))
@@ -164,26 +165,28 @@ bool GLES3Device::initialize(const DeviceInfo &info) {
     glGetIntegerv(GL_MAX_VERTEX_UNIFORM_VECTORS, (GLint *)&_caps.maxVertexUniformVectors);
     glGetIntegerv(GL_MAX_FRAGMENT_UNIFORM_VECTORS, (GLint *)&_caps.maxFragmentUniformVectors);
     glGetIntegerv(GL_MAX_UNIFORM_BUFFER_BINDINGS, (GLint *)&_caps.maxUniformBufferBindings);
-    glGetIntegerv(GL_MAX_SHADER_STORAGE_BLOCK_SIZE, (GLint *)&_caps.maxShaderStorageBlockSize);
-    glGetIntegerv(GL_MAX_SHADER_STORAGE_BUFFER_BINDINGS, (GLint *)&_caps.maxShaderStorageBufferBindings);
     glGetIntegerv(GL_MAX_UNIFORM_BLOCK_SIZE, (GLint *)&_caps.maxUniformBlockSize);
     glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, (GLint *)&_caps.maxTextureUnits);
-    glGetIntegerv(GL_MAX_IMAGE_UNITS, (GLint *)&_caps.maxImageUnits);
     glGetIntegerv(GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS, (GLint *)&_caps.maxVertexTextureUnits);
     glGetIntegerv(GL_MAX_TEXTURE_SIZE, (GLint *)&_caps.maxTextureSize);
     glGetIntegerv(GL_MAX_CUBE_MAP_TEXTURE_SIZE, (GLint *)&_caps.maxCubeMapTextureSize);
     glGetIntegerv(GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT, (GLint *)&_caps.uboOffsetAlignment);
     glGetIntegerv(GL_DEPTH_BITS, (GLint *)&_caps.depthBits);
     glGetIntegerv(GL_STENCIL_BITS, (GLint *)&_caps.stencilBits);
-    // compute shaders
-    glGetIntegerv(GL_MAX_COMPUTE_SHARED_MEMORY_SIZE, (GLint *)&_caps.maxComputeSharedMemorySize);
-    glGetIntegerv(GL_MAX_COMPUTE_WORK_GROUP_INVOCATIONS, (GLint *)&_caps.maxComputeWorkGroupInvocations);
-    glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_SIZE, 0, (GLint *)&_caps.maxComputeWorkGroupSize.x);
-    glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_SIZE, 1, (GLint *)&_caps.maxComputeWorkGroupSize.y);
-    glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_SIZE, 2, (GLint *)&_caps.maxComputeWorkGroupSize.z);
-    glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_COUNT, 0, (GLint *)&_caps.maxComputeWorkGroupCount.x);
-    glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_COUNT, 1, (GLint *)&_caps.maxComputeWorkGroupCount.y);
-    glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_COUNT, 2, (GLint *)&_caps.maxComputeWorkGroupCount.z);
+    
+    if (minorVersion) {
+        glGetIntegerv(GL_MAX_IMAGE_UNITS, (GLint *)&_caps.maxImageUnits);
+        glGetIntegerv(GL_MAX_SHADER_STORAGE_BLOCK_SIZE, (GLint *)&_caps.maxShaderStorageBlockSize);
+        glGetIntegerv(GL_MAX_SHADER_STORAGE_BUFFER_BINDINGS, (GLint *)&_caps.maxShaderStorageBufferBindings);
+        glGetIntegerv(GL_MAX_COMPUTE_SHARED_MEMORY_SIZE, (GLint *)&_caps.maxComputeSharedMemorySize);
+        glGetIntegerv(GL_MAX_COMPUTE_WORK_GROUP_INVOCATIONS, (GLint *)&_caps.maxComputeWorkGroupInvocations);
+        glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_SIZE, 0, (GLint *)&_caps.maxComputeWorkGroupSize.x);
+        glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_SIZE, 1, (GLint *)&_caps.maxComputeWorkGroupSize.y);
+        glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_SIZE, 2, (GLint *)&_caps.maxComputeWorkGroupSize.z);
+        glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_COUNT, 0, (GLint *)&_caps.maxComputeWorkGroupCount.x);
+        glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_COUNT, 1, (GLint *)&_caps.maxComputeWorkGroupCount.y);
+        glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_COUNT, 2, (GLint *)&_caps.maxComputeWorkGroupCount.z);
+    }
 
     _gpuStateCache->initialize(_caps.maxTextureUnits, _caps.maxImageUnits, _caps.maxUniformBufferBindings, _caps.maxShaderStorageBufferBindings, _caps.maxVertexAttributes);
 

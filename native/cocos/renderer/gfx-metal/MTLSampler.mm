@@ -44,8 +44,6 @@ bool CCMTLSampler::initialize(const SamplerInfo &info) {
     _maxAnisotropy = info.maxAnisotropy;
     _cmpFunc = info.cmpFunc;
     _borderColor = info.borderColor;
-    _minLOD = info.minLOD;
-    _maxLOD = info.maxLOD;
     _mipLODBias = info.mipLODBias;
 
     MTLSamplerDescriptor *descriptor = [[MTLSamplerDescriptor alloc] init];
@@ -59,8 +57,6 @@ bool CCMTLSampler::initialize(const SamplerInfo &info) {
     descriptor.magFilter = mu::toMTLSamplerMinMagFilter(_magFilter);
     descriptor.mipFilter = mu::toMTLSamplerMipFilter(_mipFilter);
     descriptor.maxAnisotropy = _maxAnisotropy == 0 ? 1 : _maxAnisotropy;
-    descriptor.lodMinClamp = _minLOD;
-    descriptor.lodMaxClamp = _maxLOD;
     if (static_cast<CCMTLDevice *>(_device)->isSamplerDescriptorCompareFunctionSupported()) {
         descriptor.compareFunction = mu::toMTLCompareFunction(_cmpFunc);
     }

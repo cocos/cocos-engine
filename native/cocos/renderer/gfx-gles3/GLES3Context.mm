@@ -23,7 +23,6 @@ THE SOFTWARE.
 ****************************************************************************/
 #include "GLES3Std.h"
 #include "GLES3Context.h"
-#include "gles3w.h"
 
 #if (CC_PLATFORM == CC_PLATFORM_MAC_IOS)
 

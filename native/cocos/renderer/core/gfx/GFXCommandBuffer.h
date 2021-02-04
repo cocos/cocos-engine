@@ -17,14 +17,14 @@ public:
     virtual void destroy() = 0;
     virtual void begin(RenderPass *renderPass, uint subpass, Framebuffer *frameBuffer) = 0;
     virtual void end() = 0;
-    virtual void beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, int stencil, CommandBuffer *const *secondaryCBs, uint32_t secondaryCBCount) = 0;
+    virtual void beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, int stencil, CommandBuffer *const *secondaryCBs, uint secondaryCBCount) = 0;
     virtual void endRenderPass() = 0;
     virtual void bindPipelineState(PipelineState *pso) = 0;
     virtual void bindDescriptorSet(uint set, DescriptorSet *descriptorSet, uint dynamicOffsetCount, const uint *dynamicOffsets) = 0;
     virtual void bindInputAssembler(InputAssembler *ia) = 0;
     virtual void setViewport(const Viewport &vp) = 0;
     virtual void setScissor(const Rect &rect) = 0;
-    virtual void setLineWidth(const float width) = 0;
+    virtual void setLineWidth(float width) = 0;
     virtual void setDepthBias(float constant, float clamp, float slope) = 0;
     virtual void setBlendConstants(const Color &constants) = 0;
     virtual void setDepthBound(float minBounds, float maxBounds) = 0;

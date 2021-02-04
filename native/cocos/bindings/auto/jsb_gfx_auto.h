@@ -655,7 +655,7 @@ bool js_register_cc_gfx_GlobalBarrier(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
 
 JSB_REGISTER_OBJECT_TYPE(cc::gfx::GlobalBarrier);
-SE_DECLARE_FUNC(js_gfx_GlobalBarrier_get);
+SE_DECLARE_FUNC(js_gfx_GlobalBarrier_info);
 SE_DECLARE_FUNC(js_gfx_GlobalBarrier_computeHash);
 SE_DECLARE_FUNC(js_gfx_GlobalBarrier_GlobalBarrier);
 
@@ -766,7 +766,7 @@ bool js_register_cc_gfx_TextureBarrier(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
 
 JSB_REGISTER_OBJECT_TYPE(cc::gfx::TextureBarrier);
-SE_DECLARE_FUNC(js_gfx_TextureBarrier_get);
+SE_DECLARE_FUNC(js_gfx_TextureBarrier_info);
 SE_DECLARE_FUNC(js_gfx_TextureBarrier_computeHash);
 SE_DECLARE_FUNC(js_gfx_TextureBarrier_TextureBarrier);
 

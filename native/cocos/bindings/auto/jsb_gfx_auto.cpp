@@ -16955,24 +16955,24 @@ bool js_register_gfx_Framebuffer(se::Object* obj)
 se::Object* __jsb_cc_gfx_GlobalBarrier_proto = nullptr;
 se::Class* __jsb_cc_gfx_GlobalBarrier_class = nullptr;
 
-static bool js_gfx_GlobalBarrier_get(se::State& s)
+static bool js_gfx_GlobalBarrier_info(se::State& s)
 {
     cc::gfx::GlobalBarrier* cobj = SE_THIS_OBJECT<cc::gfx::GlobalBarrier>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_GlobalBarrier_get : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_gfx_GlobalBarrier_info : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        const cc::gfx::GlobalBarrierInfo& result = cobj->get();
+        const cc::gfx::GlobalBarrierInfo& result = cobj->info();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_gfx_GlobalBarrier_get : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_gfx_GlobalBarrier_info : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_FUNC(js_gfx_GlobalBarrier_get)
+SE_BIND_FUNC(js_gfx_GlobalBarrier_info)
 
 static bool js_gfx_GlobalBarrier_computeHash(se::State& s)
 {
@@ -17031,7 +17031,7 @@ bool js_register_gfx_GlobalBarrier(se::Object* obj)
 {
     auto cls = se::Class::create("GlobalBarrier", obj, __jsb_cc_gfx_GFXObject_proto, _SE(js_gfx_GlobalBarrier_constructor));
 
-    cls->defineFunction("get", _SE(js_gfx_GlobalBarrier_get));
+    cls->defineFunction("info", _SE(js_gfx_GlobalBarrier_info));
     cls->defineStaticFunction("computeHash", _SE(js_gfx_GlobalBarrier_computeHash));
     cls->defineFinalizeFunction(_SE(js_cc_gfx_GlobalBarrier_finalize));
     cls->install();
@@ -19091,24 +19091,24 @@ bool js_register_gfx_Texture(se::Object* obj)
 se::Object* __jsb_cc_gfx_TextureBarrier_proto = nullptr;
 se::Class* __jsb_cc_gfx_TextureBarrier_class = nullptr;
 
-static bool js_gfx_TextureBarrier_get(se::State& s)
+static bool js_gfx_TextureBarrier_info(se::State& s)
 {
     cc::gfx::TextureBarrier* cobj = SE_THIS_OBJECT<cc::gfx::TextureBarrier>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_TextureBarrier_get : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_gfx_TextureBarrier_info : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        const cc::gfx::TextureBarrierInfo& result = cobj->get();
+        const cc::gfx::TextureBarrierInfo& result = cobj->info();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_gfx_TextureBarrier_get : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_gfx_TextureBarrier_info : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_FUNC(js_gfx_TextureBarrier_get)
+SE_BIND_FUNC(js_gfx_TextureBarrier_info)
 
 static bool js_gfx_TextureBarrier_computeHash(se::State& s)
 {
@@ -19167,7 +19167,7 @@ bool js_register_gfx_TextureBarrier(se::Object* obj)
 {
     auto cls = se::Class::create("TextureBarrier", obj, __jsb_cc_gfx_GFXObject_proto, _SE(js_gfx_TextureBarrier_constructor));
 
-    cls->defineFunction("get", _SE(js_gfx_TextureBarrier_get));
+    cls->defineFunction("info", _SE(js_gfx_TextureBarrier_info));
     cls->defineStaticFunction("computeHash", _SE(js_gfx_TextureBarrier_computeHash));
     cls->defineFinalizeFunction(_SE(js_cc_gfx_TextureBarrier_finalize));
     cls->install();

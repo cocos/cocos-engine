@@ -128,7 +128,7 @@ void CCVKCommandBuffer::end() {
 }
 
 void CCVKCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors,
-                                        float depth, int stencil, CommandBuffer *const *secondaryCBs, uint32_t secondaryCBCount) {
+                                        float depth, int stencil, CommandBuffer *const *secondaryCBs, uint secondaryCBCount) {
 #if BARRIER_DEDUCTION_LEVEL >= BARRIER_DEDUCTION_LEVEL_BASIC
     // guard against RAW hazard
     VkMemoryBarrier vkBarrier{VK_STRUCTURE_TYPE_MEMORY_BARRIER};
@@ -273,7 +273,7 @@ void CCVKCommandBuffer::setScissor(const Rect &rect) {
     }
 }
 
-void CCVKCommandBuffer::setLineWidth(const float width) {
+void CCVKCommandBuffer::setLineWidth(float width) {
     if (math::IsNotEqualF(_curLineWidth, width)) {
         _curLineWidth = width;
         vkCmdSetLineWidth(_gpuCommandBuffer->vkCommandBuffer, width);

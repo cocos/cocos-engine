@@ -243,7 +243,11 @@ bool GLES3Context::initialize(const ContextInfo &info) {
 
                 EGL_CHECK(_eglContext = eglCreateContext(_eglDisplay, _eglConfig, NULL, ctxAttribs));
                 if (_eglContext) {
+                
+                // Mac OpenGL doesn't really support ES 3.1+ features
+    #if (CC_PLATFORM != CC_PLATFORM_MAC_OSX)
                     _minorVersion = m;
+    #endif
                     break;
                 }
             }

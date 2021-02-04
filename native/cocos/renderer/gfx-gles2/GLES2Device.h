@@ -25,11 +25,11 @@ THE SOFTWARE.
 #define CC_GFXGLES2_DEVICE_H_
 
 #ifndef GL_COMPRESSED_RGB8_ETC2
-#define GL_COMPRESSED_RGB8_ETC2           0x9274
+    #define GL_COMPRESSED_RGB8_ETC2 0x9274
 #endif
 
 #ifndef GL_COMPRESSED_RGBA8_ETC2_EAC
-#define GL_COMPRESSED_RGBA8_ETC2_EAC      0x9278
+    #define GL_COMPRESSED_RGBA8_ETC2_EAC 0x9278
 #endif
 
 namespace cc {
@@ -44,21 +44,21 @@ public:
     GLES2Device();
     ~GLES2Device();
 
-    using Device::createCommandBuffer;
-    using Device::createQueue;
+    using Device::copyBuffersToTexture;
     using Device::createBuffer;
-    using Device::createTexture;
-    using Device::createSampler;
-    using Device::createShader;
-    using Device::createInputAssembler;
-    using Device::createRenderPass;
-    using Device::createFramebuffer;
+    using Device::createCommandBuffer;
     using Device::createDescriptorSet;
     using Device::createDescriptorSetLayout;
+    using Device::createFramebuffer;
+    using Device::createGlobalBarrier;
+    using Device::createInputAssembler;
     using Device::createPipelineLayout;
     using Device::createPipelineState;
-    using Device::copyBuffersToTexture;
-    using Device::createGlobalBarrier;
+    using Device::createQueue;
+    using Device::createRenderPass;
+    using Device::createSampler;
+    using Device::createShader;
+    using Device::createTexture;
     using Device::createTextureBarrier;
 
     virtual bool initialize(const DeviceInfo &info) override;
@@ -87,40 +87,39 @@ public:
     CC_INLINE uint getThreadID() const { return _threadID; }
 
 protected:
-    virtual CommandBuffer *doCreateCommandBuffer(const CommandBufferInfo &info, bool hasAgent) override;
-    virtual Queue *createQueue() override;
-    virtual Buffer *createBuffer() override;
-    virtual Texture *createTexture() override;
-    virtual Sampler *createSampler() override;
-    virtual Shader *createShader() override;
-    virtual InputAssembler *createInputAssembler() override;
-    virtual RenderPass *createRenderPass() override;
-    virtual Framebuffer *createFramebuffer() override;
-    virtual DescriptorSet *createDescriptorSet() override;
+    virtual CommandBuffer *      doCreateCommandBuffer(const CommandBufferInfo &info, bool hasAgent) override;
+    virtual Queue *              createQueue() override;
+    virtual Buffer *             createBuffer() override;
+    virtual Texture *            createTexture() override;
+    virtual Sampler *            createSampler() override;
+    virtual Shader *             createShader() override;
+    virtual InputAssembler *     createInputAssembler() override;
+    virtual RenderPass *         createRenderPass() override;
+    virtual Framebuffer *        createFramebuffer() override;
+    virtual DescriptorSet *      createDescriptorSet() override;
     virtual DescriptorSetLayout *createDescriptorSetLayout() override;
-    virtual PipelineLayout *createPipelineLayout() override;
-    virtual PipelineState *createPipelineState() override;
+    virtual PipelineLayout *     createPipelineLayout() override;
+    virtual PipelineState *      createPipelineState() override;
     virtual GlobalBarrier *      createGlobalBarrier() override;
     virtual TextureBarrier *     createTextureBarrier() override;
-    virtual void copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint count) override;
+    virtual void                 copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint count) override;
 
     virtual void bindRenderContext(bool bound) override;
     virtual void bindDeviceContext(bool bound) override;
 
 private:
-
     bool checkForETC2() const;
 
-    GLES2Context *_renderContext = nullptr;
-    GLES2Context *_deviceContext = nullptr;
-    GLES2GPUStateCache *_gpuStateCache = nullptr;
+    GLES2Context *             _renderContext        = nullptr;
+    GLES2Context *             _deviceContext        = nullptr;
+    GLES2GPUStateCache *       _gpuStateCache        = nullptr;
     GLES2GPUStagingBufferPool *_gpuStagingBufferPool = nullptr;
 
     StringArray _extensions;
 
-    bool _useVAO = false;
-    bool _useDrawInstanced = false;
-    bool _useInstancedArrays = false;
+    bool _useVAO                = false;
+    bool _useDrawInstanced      = false;
+    bool _useInstancedArrays    = false;
     bool _useDiscardFramebuffer = false;
 
     uint _threadID = 0u;

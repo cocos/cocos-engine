@@ -133,7 +133,7 @@ void CommandBufferAgent::end() {
         });
 }
 
-void CommandBufferAgent::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, int stencil, CommandBuffer *const *secondaryCBs, uint32_t secondaryCBCount) {
+void CommandBufferAgent::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, int stencil, CommandBuffer *const *secondaryCBs, uint secondaryCBCount) {
     uint   attachmentCount = (uint)renderPass->getColorAttachments().size();
     Color *actorColors     = nullptr;
     if (attachmentCount) {
@@ -259,7 +259,7 @@ void CommandBufferAgent::setScissor(const Rect &rect) {
         });
 }
 
-void CommandBufferAgent::setLineWidth(const float width) {
+void CommandBufferAgent::setLineWidth(float width) {
     ENQUEUE_MESSAGE_2(
         _messageQueue,
         CommandBufferSetLineWidth,

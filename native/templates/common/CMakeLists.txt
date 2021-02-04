@@ -5,8 +5,8 @@ set(DEVELOPMENT_TEAM    ""  CACHE STRING "APPLE Developtment Team")
 set(RES_DIR             ""  CACHE STRING "Resource path")
 set(COCOS_X_PATH        ""  CACHE STRING "Path to cocos2d-x-lite/")
 
-set(TARGET_OSX_VERSION "10.10" CACHE STRING "Target MacOSX version")
-set(TARGET_IOS_VERSION "10.0"  CACHE STRING "Target iOS version" )
+set(TARGET_OSX_VERSION "10.14" CACHE STRING "Target MacOSX version" FORCE)
+set(TARGET_IOS_VERSION "12.0"  CACHE STRING "Target iOS version" FORCE)
 
 set(CMAKE_CXX_STANDARD 14)
 option(USE_SE_V8                "USE V8 JavaScript Engine"          ON)
