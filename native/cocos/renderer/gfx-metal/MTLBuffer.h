@@ -56,7 +56,6 @@ public:
     CC_INLINE const DrawInfoList &getDrawInfos() const { return _drawInfos; }
 
 private:
-    void resizeBuffer(uint8_t **, uint, uint);
     bool createMTLBuffer(uint size, MemoryUsage usage);
     void updateMTLBuffer(void *buffer, uint offset, uint size);
 

@@ -35,7 +35,6 @@ protected:
     uint _size = 0u;
     uint _offset = 0u;
     BufferFlags _flags = BufferFlagBit::NONE;
-    uint8_t *_buffer = nullptr;
     bool _isBufferView = false;
 };
 

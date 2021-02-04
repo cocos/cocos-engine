@@ -56,16 +56,6 @@ bool CCMTLBuffer::initialize(const BufferInfo &info) {
         }
     }
 
-    if ((_flags & BufferFlagBit::BAKUP_BUFFER) && _size > 0) {
-        _buffer = static_cast<uint8_t *>(CC_MALLOC(_size));
-        if (_buffer) {
-            _device->getMemoryStatus().bufferSize += _size;
-        } else {
-            CC_LOG_ERROR("CCMTLBuffer: Failed to create backup buffer.");
-            return false;
-        }
-    }
-
     if (_usage & BufferUsageBit::VERTEX ||
         _usage & BufferUsageBit::UNIFORM ||
         _usage & BufferUsageBit::INDEX) {
@@ -124,12 +114,6 @@ void CCMTLBuffer::destroy() {
         return;
     }
 
-    if (_buffer) {
-        CC_FREE(_buffer);
-        _device->getMemoryStatus().bufferSize -= _size;
-        _buffer = nullptr;
-    }
-
     if (!_indexedPrimitivesIndirectArguments.empty()) {
         _indexedPrimitivesIndirectArguments.clear();
     }
@@ -176,7 +160,6 @@ void CCMTLBuffer::resize(uint size) {
     const uint oldSize = _size;
     _size = size;
     _count = _size / _stride;
-    resizeBuffer(&_buffer, _size, oldSize);
     if (_usage & BufferUsageBit::INDIRECT) {
         if (_isIndirectDrawSupported) {
             createMTLBuffer(size, _memUsage);
@@ -188,35 +171,10 @@ void CCMTLBuffer::resize(uint size) {
     }
 }
 
-void CCMTLBuffer::resizeBuffer(uint8_t **buffer, uint size, uint oldSize) {
-    if (!(*buffer)) {
-        return;
-    }
-
-    MemoryStatus &status = _device->getMemoryStatus();
-    const uint8_t *oldBuffer = *buffer;
-    auto *temp = static_cast<uint8_t *>(CC_MALLOC(size));
-    if (temp) {
-        memcpy(temp, oldBuffer, std::min(oldSize, size));
-        *buffer = temp;
-        status.bufferSize += size;
-    } else {
-        CC_LOG_ERROR("Failed to resize buffer.");
-        return;
-    }
-
-    CC_FREE(oldBuffer);
-    status.bufferSize -= oldSize;
-}
-
 void CCMTLBuffer::update(void *buffer, uint size) {
     if (_isBufferView) {
         CC_LOG_WARNING("Cannot update a buffer view.");
         return;
-    }
-
-    if (_buffer) {
-        memcpy(_buffer, buffer, size);
     }
     
     uint drawInfoCount = size / _stride;

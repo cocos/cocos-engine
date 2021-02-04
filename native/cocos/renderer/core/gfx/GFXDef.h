@@ -321,7 +321,6 @@ CC_ENUM_OPERATORS(BufferUsageBit);
 
 enum class BufferFlagBit : FlagBits {
     NONE = 0,
-    BAKUP_BUFFER = 0x4,
 };
 typedef BufferFlagBit BufferFlags;
 CC_ENUM_OPERATORS(BufferFlagBit);
