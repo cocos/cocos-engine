@@ -33,7 +33,7 @@ import {
 } from 'cc.decorator';
 import { Asset } from '../../core/assets/asset';
 import { legacyCC } from '../../core/global-exports';
-import { AudioState, AudioType } from 'pal/audio/type';
+import { AudioType } from 'pal/audio/type';
 import { AudioPlayer } from 'pal:audio';
 
 /**
@@ -50,7 +50,6 @@ import { AudioPlayer } from 'pal:audio';
  */
 @ccclass('cc.AudioClip')
 export class AudioClip extends Asset {
-    public static AudioState = AudioState;  // TODO:  PlayingState
     public static AudioType = AudioType;
     public static preventDeferredLoadDependents = true;
 
@@ -103,23 +102,7 @@ export class AudioClip extends Asset {
         return this._loadMode;
     }
 
-    // TODO: deprecated
-
-    // get state () {
-    //     return this._player ? this._player.state : AudioState.INIT;
-    // }
-
     public getDuration () { return this._player ? this._player.duration : this._duration; }
-    // public play () { if (this._player) { this._player.play(); } }
-    // public pause () { if (this._player) { this._player.pause(); } }
-    // public stop () { if (this._player) { this._player.stop(); } }
-    // public playOneShot (volume: number = 1) { if (this._player) { this._player.playOneShot(volume); } }
-    // public setCurrentTime (val: number) { if (this._player) { this._player.seek(val); } }
-    // public getCurrentTime () { return this._player ? this._player.currentTime : 0; }
-    // public setVolume (val: number) { this._player && (this._player.volume = val); }
-    // public getVolume () { return this._player ? this._player.volume : 1; }
-    // public setLoop (val: boolean) { this._player && (this._player.loop = val); }
-    // public getLoop () { this._player ? this._player.loop : false; }
 }
 
 legacyCC.AudioClip = AudioClip;

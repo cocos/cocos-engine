@@ -50,6 +50,7 @@ export class AudioSource extends Component {
     static get maxAudioChannel () {
         return AudioPlayer.maxAudioChannel;   
     }
+    public static AudioState = AudioState;
 
     @type(AudioClip)
     protected _clip: AudioClip | null = null;
@@ -295,7 +296,7 @@ export class AudioSource extends Component {
      * 获取当前音频状态。
      */
     get state (): AudioState {
-        return this._player ? this._player.state : AudioState.INIT;  // TODO: AudioState  deprecated
+        return this._player ? this._player.state : AudioState.INIT;
     }
 
     /**
@@ -305,6 +306,6 @@ export class AudioSource extends Component {
      * 当前音频是否正在播放？
      */
     get playing () {
-        return this.state === AudioClip.AudioState.PLAYING;
+        return this.state === AudioSource.AudioState.PLAYING;
     }
 }
