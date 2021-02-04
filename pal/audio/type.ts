@@ -12,6 +12,7 @@ export enum AudioEvent {
 export enum AudioType {
     DOM_AUDIO,
     WEB_AUDIO,
+    MINIGAME_AUDIO,
     UNKNOWN_AUDIO,
 };
 

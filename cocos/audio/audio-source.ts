@@ -29,7 +29,7 @@
  */
 
 import { ccclass, help, menu, tooltip, type, range, serializable } from 'cc.decorator';
-import { AudioState } from 'pal/audio/type';
+import { AudioState } from '../../pal/audio/type';
 import { AudioPlayer } from 'pal:audio';
 import { Component } from '../core/components/component';
 import { clamp } from '../core/math';
@@ -92,7 +92,7 @@ export class AudioSource extends Component {
             this._player.offInterruptionBegin();
             this._player.offInterruptionBegin();
         }
-        this._player =  clip ? clip._nativeAsset : null;
+        this._player = clip ? clip._nativeAsset : null;
         if (this._player) {
             this._player.onEnded(() => {
                 audioManager.removePlaying(this._player!);

@@ -34,7 +34,7 @@ import downloader from '../core/asset-manager/downloader';
 import factory from '../core/asset-manager/factory';
 import { AudioPlayer } from 'pal:audio';
 
-export function downloadAudio (url: string, options: IDownloadParseOptions, onComplete: CompleteCallback) {
+export function loadAudioPlayer (url: string, options: IDownloadParseOptions, onComplete: CompleteCallback) {
     AudioPlayer.load(url, {
         audioLoadMode: options.audioLoadMode,
     }).then(player => {
@@ -57,10 +57,10 @@ function createAudioClip (id: string,
 }
 
 downloader.register({
-    '.mp3': downloadAudio,
-    '.ogg': downloadAudio,
-    '.wav': downloadAudio,
-    '.m4a': downloadAudio,
+    '.mp3': loadAudioPlayer,
+    '.ogg': loadAudioPlayer,
+    '.wav': loadAudioPlayer,
+    '.m4a': loadAudioPlayer,
 });
 
 factory.register({

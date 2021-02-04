@@ -1,4 +1,3 @@
-require('./AudioPlayer');
 require('./DeviceMotionEvent');
 require('./Editbox');
 require('./Game');

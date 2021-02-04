@@ -5,7 +5,7 @@ declare module 'pal:audio' {
         onEnded (cb): OneShotAudio;
     }
     export class AudioPlayer {
-        private constructor (nativeAudio: any);
+        private constructor (nativeAudio: unknown);
         destroy ();
         static load (url: string, opts?: import('pal/audio/type').AudioLoadOptions): Promise<AudioPlayer>;
         static loadNative (url: string, opts?: import('pal/audio/type').AudioLoadOptions): Promise<any>;
@@ -25,11 +25,11 @@ declare module 'pal:audio' {
         pause (): Promise<void>;
         stop (): Promise<void>;
 
-        onInterruptionBegin (cb);
-        offInterruptionBegin (cb?);
-        onInterruptionEnd (cb);
-        offInterruptionEnd (cb?);
-        onEnded (cb);
-        offEnded (cb?);
+        onInterruptionBegin (cb: () => void);
+        offInterruptionBegin (cb?: () => void);
+        onInterruptionEnd (cb: () => void);
+        offInterruptionEnd (cb?: () => void);
+        onEnded (cb: () => void);
+        offEnded (cb?: () => void);
     }
 }

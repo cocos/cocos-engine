@@ -1,4 +1,3 @@
-// import { AudioPlayer as IAudioPlayer } from 'pal:audio';
 import { warnID } from 'cocos/core';
 import { OneShotAudio } from 'pal:audio';
 import { AudioLoadOptions, AudioType, AudioState } from '../type';
@@ -6,7 +5,7 @@ import { AudioPlayerDOM } from './player-dom';
 import { AudioPlayerWeb } from './player-web';
 
 type AbstractAudioPlayer = AudioPlayerDOM | AudioPlayerWeb;
-// export class AudioPlayer implements IAudioPlayer {
+
 export class AudioPlayer {
     private _player: AbstractAudioPlayer;
     constructor (player: AbstractAudioPlayer) {
@@ -52,10 +51,10 @@ export class AudioPlayer {
     play(): Promise<void> { return this._player.play(); }
     pause(): Promise<void> {  return this._player.pause(); }
     stop(): Promise<void> { return this._player.stop(); }
-    onInterruptionBegin(cb: any) { this._player.onInterruptionBegin(cb); }
-    offInterruptionBegin(cb?: any) { this._player.offInterruptionBegin(cb); }
-    onInterruptionEnd(cb: any) { this._player.onInterruptionEnd(cb); }
-    offInterruptionEnd(cb?: any) { this._player.offInterruptionEnd(cb); }
-    onEnded(cb: any) { this._player.onEnded(cb); }
-    offEnded(cb?: any) { this._player.offEnded(cb); }
+    onInterruptionBegin(cb: () => void) { this._player.onInterruptionBegin(cb); }
+    offInterruptionBegin(cb?: () => void) { this._player.offInterruptionBegin(cb); }
+    onInterruptionEnd(cb: () => void) { this._player.onInterruptionEnd(cb); }
+    offInterruptionEnd(cb?: () => void) { this._player.offInterruptionEnd(cb); }
+    onEnded(cb: () => void) { this._player.onEnded(cb); }
+    offEnded(cb?: () => void) { this._player.offEnded(cb); }
 }

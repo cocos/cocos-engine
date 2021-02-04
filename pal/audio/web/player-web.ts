@@ -50,7 +50,7 @@ export class AudioPlayerWeb {
         };
         legacyCC.game.on(legacyCC.Game.EVENT_SHOW, this._onShow);
     }
-    destroy() {
+    destroy () {
         if (this._audioBuffer) {
             // @ts-ignore
             this._audioBuffer = undefined;
@@ -76,7 +76,7 @@ export class AudioPlayerWeb {
         let audioBuffer = await AudioPlayerWeb.loadNative(url);
         return new AudioPlayerWeb(audioBuffer);
     }
-    static async loadNative(url: string): Promise<AudioBuffer> {
+    static async loadNative (url: string): Promise<AudioBuffer> {
         return new Promise((resolve, reject) => {
             const xhr = new XMLHttpRequest();
             const errInfo = `load audio failed: ${url}, status: `;
@@ -101,23 +101,23 @@ export class AudioPlayerWeb {
         });
     }
     
-    get type(): AudioType {
+    get type (): AudioType {
         return AudioType.WEB_AUDIO;
     }
-    get state(): AudioState {
+    get state (): AudioState {
         return this._state;
     }
-    get loop(): boolean {
+    get loop (): boolean {
         return this._loop;
     }
-    set loop(val: boolean) {
+    set loop (val: boolean) {
         this._loop = val;
         this._sourceNode && (this._sourceNode.loop = val);
     }
-    get volume(): number {
+    get volume (): number {
         return this._volume;
     }
-    set volume(val: number) {
+    set volume (val: number) {
         this._volume = val;
         this._setGainValue(this._gainNode, val);
     }
@@ -133,14 +133,14 @@ export class AudioPlayerWeb {
             gain.gain.value = volume;
         }
     }
-    get duration(): number {
+    get duration (): number {
         return this._audioBuffer.duration;
     }
-    get currentTime(): number {
+    get currentTime (): number {
         if (this._state !== AudioState.PLAYING) { return this._offset; }
         return AudioPlayerWeb._context.currentTime - this._startTime + this._offset;
     }
-    async seek(time: number): Promise<void> {
+    async seek (time: number): Promise<void> {
         this._offset = clamp(time, 0, this._audioBuffer.duration);
         if (this._state === AudioState.PLAYING) {
             await this.stop();
@@ -168,7 +168,7 @@ export class AudioPlayerWeb {
         });
     }
 
-    playOneShot(volume: number = 1): OneShotAudio {
+    playOneShot (volume: number = 1): OneShotAudio {
         let onPlayCb: () => void;
         let onEndedCb: () => void;
         const context = AudioPlayerWeb._context;
@@ -201,7 +201,7 @@ export class AudioPlayerWeb {
         }
         return oneShotAudio;
     }
-    async play(): Promise<void> {
+    async play (): Promise<void> {
         const context = AudioPlayerWeb._context;
         await this._runContext();
         if (this._state === AudioState.PLAYING) {
@@ -238,7 +238,7 @@ export class AudioPlayerWeb {
         clearInterval(this._currentTimer);
         this._currentTimer = window.setInterval(checkEnded, (this._audioBuffer.duration - this._offset) * 1000);
     }
-    pause(): Promise<void> {
+    pause (): Promise<void> {
         if (this._state !== AudioState.PLAYING || !this._sourceNode) {
             return Promise.resolve();
         }
@@ -248,7 +248,7 @@ export class AudioPlayerWeb {
         this._sourceNode.stop();
         return Promise.resolve(); 
     }
-    stop(): Promise<void> {
+    stop (): Promise<void> {
         if (this._state !== AudioState.PLAYING || !this._sourceNode) {
             return Promise.resolve();
         }
@@ -259,10 +259,10 @@ export class AudioPlayerWeb {
         return Promise.resolve(); 
     }
 
-    onInterruptionBegin(cb: any) { this._eventTarget.on(AudioEvent.INTERRUPTION_BEGIN, cb); }
-    offInterruptionBegin(cb?: any) { this._eventTarget.off(AudioEvent.INTERRUPTION_BEGIN, cb); }
-    onInterruptionEnd(cb: any) { this._eventTarget.on(AudioEvent.INTERRUPTION_END, cb); }
-    offInterruptionEnd(cb?: any) { this._eventTarget.off(AudioEvent.INTERRUPTION_END, cb); }
-    onEnded(cb: any) { this._eventTarget.on(AudioEvent.ENDED, cb); }
-    offEnded(cb?: any) { this._eventTarget.off(AudioEvent.ENDED, cb); }
+    onInterruptionBegin (cb: () => void) { this._eventTarget.on(AudioEvent.INTERRUPTION_BEGIN, cb); }
+    offInterruptionBegin (cb?: () => void) { this._eventTarget.off(AudioEvent.INTERRUPTION_BEGIN, cb); }
+    onInterruptionEnd (cb: () => void) { this._eventTarget.on(AudioEvent.INTERRUPTION_END, cb); }
+    offInterruptionEnd (cb?: () => void) { this._eventTarget.off(AudioEvent.INTERRUPTION_END, cb); }
+    onEnded (cb: () => void) { this._eventTarget.on(AudioEvent.ENDED, cb); }
+    offEnded (cb?: () => void) { this._eventTarget.off(AudioEvent.ENDED, cb); }
 }
