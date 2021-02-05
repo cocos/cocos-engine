@@ -23,6 +23,11 @@
  THE SOFTWARE.
  */
 
+/**
+ * @packageDocumentation
+ * @module component/video
+ */
+
 import { legacyCC } from '../core/global-exports';
 import { UITransform } from '../2d/framework';
 import { VideoPlayer } from './video-player';

@@ -23,6 +23,11 @@
  THE SOFTWARE.
  */
 
+/**
+ * @packageDocumentation
+ * @module component/video
+ */
+
 import { mat4 } from '../core/math';
 import { error, sys, view, screen, warn } from '../core/platform';
 import { game } from '../core';
@@ -35,10 +40,6 @@ import visibleRect from '../core/platform/visible-rect';
 const MIN_ZINDEX = -(2 ** 15);
 
 const _mat4_temp = mat4();
-
-/**
- * @category component/video
- */
 
 export class VideoPlayerImplWeb extends VideoPlayerImpl {
     protected _eventList: Map<string, ((e: Event) => void)> = new Map();

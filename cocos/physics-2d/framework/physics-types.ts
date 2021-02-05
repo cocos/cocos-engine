@@ -1,3 +1,8 @@
+/**
+ * @packageDocumentation
+ * @module physics2d
+ */
+
 import { Enum, Vec2 } from '../../core';
 import { Collider2D } from './components/colliders/collider-2d';
 

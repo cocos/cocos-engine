@@ -1,5 +1,10 @@
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 
+/**
+ * @packageDocumentation
+ * @module dragonBones
+ */
+
 import { Armature, DisplayData, IEventDispatcher, Slot } from '@cocos/dragonbones-js';
 import { ccclass } from '../core/data/class-decorator';
 import { Vec2, EventTarget, Node, Vec3 } from '../core';

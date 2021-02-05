@@ -26,7 +26,7 @@
 
 /**
  * @packageDocumentation
- * @module ParticleAsset
+ * @module asset
  */
 
 import { ccclass, serializable, editable } from '../core/data/decorators';
