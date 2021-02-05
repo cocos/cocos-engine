@@ -321,6 +321,7 @@ export class Batcher2D {
         this._currComponent = null;
         this._currTransform = null;
         this._currScene = null;
+        this._currMeshBuffer = null;
         this._meshBufferUseCount.clear();
         this._batches.clear();
         StencilManager.sharedManager!.reset();
