@@ -33,42 +33,39 @@
 #define __Simulator__AppEvent__
 
 #include <string>
-#include "cocos2d.h"
-
 // encode / decode json
+#include "SimulatorExport.h"
 #include "json/document.h"
 #include "json/stringbuffer.h"
 #include "json/writer.h"
-#include "SimulatorExport.h"
 
-#include "cocos/bindings/event/EventDispatcher.h"
 #include "cocos/bindings/event/CustomEventTypes.h"
+#include "cocos/bindings/event/EventDispatcher.h"
 
-enum
-{
+enum {
     APP_EVENT_MENU = 1,
     APP_EVENT_DROP = 2
 };
 
-#define kAppEventName     "APP.EVENT"
+#define kAppEventName "APP.EVENT"
 
-class CC_LIBSIM_DLL AppEvent : public cc::CustomEvent
-{
+class CC_LIBSIM_DLL AppEvent : public cc::CustomEvent {
 public:
     /** Constructor */
-    AppEvent(const std::string& eventName, int type);
-    
+    AppEvent(const std::string &eventName, int type);
+
     /** Gets event name */
-    inline const std::string& getEventName() const { return _eventName; };
-    
+    inline const std::string &getEventName() const { return _eventName; };
+
     void setEventType(int type);
-    int  getEventType();
+    int getEventType();
     void setDataString(std::string data);
     std::string getDataString();
+
 protected:
     std::string _eventName;
     std::string _dataString;
-    int         _eventType;
+    int _eventType;
 };
 
 #endif /* defined(__Simulator__AppEvent__) */

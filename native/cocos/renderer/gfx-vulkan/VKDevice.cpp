@@ -302,6 +302,8 @@ bool CCVKDevice::initialize(const DeviceInfo &info) {
     _gpuSemaphorePool = CC_NEW(CCVKGPUSemaphorePool(_gpuDevice));
     _gpuDescriptorSetHub = CC_NEW(CCVKGPUDescriptorSetHub(_gpuDevice));
 
+    _gpuDescriptorHub->link(_gpuDescriptorSetHub);
+
     CommandBufferInfo cmdBuffInfo;
     cmdBuffInfo.type = CommandBufferType::PRIMARY;
     cmdBuffInfo.queue = _queue;

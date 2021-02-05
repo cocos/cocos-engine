@@ -41,7 +41,7 @@ namespace gfx {
 namespace {
 
 constexpr uint FORCE_MINOR_VERSION = 0;             // 0 for default version, otherwise minorVersion = (FORCE_MINOR_VERSION - 1)
-constexpr uint DISABLE_VALIDATION_ASSERTIONS = 0;   // 0 for default behavior, otherwise assertions will be disabled
+constexpr uint DISABLE_VALIDATION_ASSERTIONS = 1;   // 0 for default behavior, otherwise assertions will be disabled
 
 #define FORCE_ENABLE_VALIDATION  0
 #define FORCE_DISABLE_VALIDATION 1
@@ -62,6 +62,7 @@ VKAPI_ATTR VkBool32 VKAPI_CALL debugUtilsMessengerCallback(VkDebugUtilsMessageSe
     } else if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT) {
         CC_LOG_ERROR("%s: %s", callbackData->pMessageIdName, callbackData->pMessage);
         CCASSERT(DISABLE_VALIDATION_ASSERTIONS, "Validation Error");
+        return VK_FALSE;
     }
     return VK_FALSE;
 }

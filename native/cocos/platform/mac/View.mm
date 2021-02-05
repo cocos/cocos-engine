@@ -65,6 +65,12 @@
 }
 #endif
 
+- (void)start {
+#ifdef CC_USE_METAL
+    self.delegate = self;
+#endif
+}
+
 - (void)keyDown:(NSEvent *)event {
     _keyboardEvent.key = translateKeycode(event.keyCode);
     _keyboardEvent.action = [event isARepeat] ? cc::KeyboardEvent::Action::REPEAT

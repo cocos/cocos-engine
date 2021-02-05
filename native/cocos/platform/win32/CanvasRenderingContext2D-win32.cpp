@@ -32,8 +32,8 @@ void fillRectWithColor(uint8_t *buf, uint32_t totalWidth, uint32_t totalHeight, 
     assert(x + width <= totalWidth);
     assert(y + height <= totalHeight);
 
-    uint32_t y0 = totalHeight - (y + height);
-    uint32_t y1 = totalHeight - y;
+    uint32_t y0 = y;
+    uint32_t y1 = y + height;
     uint8_t *p;
     for (uint32_t offsetY = y0; offsetY < y1; ++offsetY) {
         for (uint32_t offsetX = x; offsetX < (x + width); ++offsetX) {

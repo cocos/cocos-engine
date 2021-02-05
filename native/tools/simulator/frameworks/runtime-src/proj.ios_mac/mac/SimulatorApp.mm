@@ -36,7 +36,8 @@
 #include "runtime/Runtime.h"
 #include "runtime/ConfigParser.h"
 
-#include "cocos2d.h"
+#include "cocos/platform/FileUtils.h"
+
 #include "ide-support/CodeIDESupport.h"
 #include "cocos/platform/mac/View.h"
 

@@ -174,8 +174,6 @@ void CCVKCmdFuncCreateSampler(CCVKDevice *device, CCVKGPUSampler *gpuSampler) {
     //createInfo.borderColor; // TODO
 
     VK_CHECK(vkCreateSampler(device->gpuDevice()->vkDevice, &createInfo, nullptr, &gpuSampler->vkSampler));
-
-    device->gpuDescriptorHub()->update(gpuSampler);
 }
 
 void CCVKCmdFuncCreateBuffer(CCVKDevice *device, CCVKGPUBuffer *gpuBuffer) {
@@ -261,6 +259,7 @@ void CCVKCmdFuncCreateRenderPass(CCVKDevice *device, CCVKGPURenderPass *gpuRende
     const size_t subpassCount = gpuRenderPass->subPasses.size();
     vector<VkSubpassDescription> subpassDescriptions(1);
     vector<VkAttachmentReference> attachmentReferences;
+    vector<VkSubpassDependency> subpassDependencies;
 
     if (subpassCount) { // pass on user-specified subpasses
         subpassDescriptions.resize(subpassCount);
@@ -277,6 +276,45 @@ void CCVKCmdFuncCreateRenderPass(CCVKDevice *device, CCVKGPURenderPass *gpuRende
         subpassDescriptions[0].colorAttachmentCount = attachmentReferences.size() - 1;
         subpassDescriptions[0].pColorAttachments = attachmentReferences.data();
         if (hasDepth) subpassDescriptions[0].pDepthStencilAttachment = &attachmentReferences.back();
+
+        subpassDependencies.emplace_back(VkSubpassDependency{
+            VK_SUBPASS_EXTERNAL,
+            0,
+            VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
+            VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+            VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
+            VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_COLOR_ATTACHMENT_READ_BIT,
+            VK_DEPENDENCY_BY_REGION_BIT,
+        });
+        subpassDependencies.emplace_back(VkSubpassDependency{
+            0,
+            VK_SUBPASS_EXTERNAL,
+            VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+            VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
+            VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
+            VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_SHADER_READ_BIT,
+            VK_DEPENDENCY_BY_REGION_BIT,
+        });
+        if (hasDepth) {
+            subpassDependencies.emplace_back(VkSubpassDependency{
+                VK_SUBPASS_EXTERNAL,
+                0,
+                VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT,
+                VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT,
+                VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT,
+                VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT,
+                VK_DEPENDENCY_BY_REGION_BIT,
+            });
+            subpassDependencies.emplace_back(VkSubpassDependency{
+                0,
+                VK_SUBPASS_EXTERNAL,
+                VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT,
+                VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT,
+                VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT,
+                VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT,
+                VK_DEPENDENCY_BY_REGION_BIT,
+            });
+        }
     }
 
     VkRenderPassCreateInfo renderPassCreateInfo{VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO};
@@ -284,6 +322,8 @@ void CCVKCmdFuncCreateRenderPass(CCVKDevice *device, CCVKGPURenderPass *gpuRende
     renderPassCreateInfo.pAttachments = attachmentDescriptions.data();
     renderPassCreateInfo.subpassCount = subpassDescriptions.size();
     renderPassCreateInfo.pSubpasses = subpassDescriptions.data();
+    renderPassCreateInfo.dependencyCount = subpassDependencies.size();
+    renderPassCreateInfo.pDependencies = subpassDependencies.data();
 
     VK_CHECK(vkCreateRenderPass(device->gpuDevice()->vkDevice, &renderPassCreateInfo, nullptr, &gpuRenderPass->vkRenderPass));
 }
@@ -390,7 +430,7 @@ void CCVKCmdFuncCreateDescriptorSetLayout(CCVKDevice *device, CCVKGPUDescriptorS
 
     gpuDescriptorSetLayout->pool.link(gpuDevice, gpuDescriptorSetLayout->maxSetsPerPool, gpuDescriptorSetLayout->vkBindings, gpuDescriptorSetLayout->vkDescriptorSetLayout);
 
-    gpuDescriptorSetLayout->defaultDescriptorSet = gpuDescriptorSetLayout->pool.request();
+    gpuDescriptorSetLayout->defaultDescriptorSet = gpuDescriptorSetLayout->pool.request(0);
 
     if (gpuDevice->useDescriptorUpdateTemplate) {
         const vector<VkDescriptorSetLayoutBinding> &bindings = gpuDescriptorSetLayout->vkBindings;
@@ -686,18 +726,25 @@ void CCVKCmdFuncUpdateBuffer(CCVKDevice *device, CCVKGPUBuffer *gpuBuffer, const
 
     VkBufferCopy region{stagingBuffer.startOffset, gpuBuffer->startOffset, sizeToUpload};
     auto upload = [&stagingBuffer, &gpuBuffer, &region](const CCVKGPUCommandBuffer *cmdBuffer) {
-        vkCmdCopyBuffer(cmdBuffer->vkCommandBuffer, stagingBuffer.vkBuffer, gpuBuffer->vkBuffer, 1, &region);
+        // handle multiple writes
+        if (cmdBuffer->recordedBuffers.count(gpuBuffer->vkBuffer)) {
+            VkBufferMemoryBarrier barrier{VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER};
+            barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+            barrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+            barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+            barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+            barrier.buffer = gpuBuffer->vkBuffer;
+            barrier.offset = region.dstOffset;
+            barrier.size = region.size;
+            vkCmdPipelineBarrier(cmdBuffer->vkCommandBuffer,
+                                 VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                 VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                 0, 0, nullptr, 1, &barrier, 0, nullptr);
+        } else {
+            cmdBuffer->recordedBuffers.insert(gpuBuffer->vkBuffer);
+        }
 
-        // guard against RAW hazard
-        VkBufferMemoryBarrier barrier{VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER};
-        barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
-        barrier.dstAccessMask = gpuBuffer->accessMask;
-        barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-        barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-        barrier.buffer = gpuBuffer->vkBuffer;
-        barrier.offset = region.dstOffset;
-        barrier.size = region.size;
-        vkCmdPipelineBarrier(cmdBuffer->vkCommandBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT, gpuBuffer->targetStage, 0, 0, nullptr, 1, &barrier, 0, nullptr);
+        vkCmdCopyBuffer(cmdBuffer->vkCommandBuffer, stagingBuffer.vkBuffer, gpuBuffer->vkBuffer, 1, &region);
     };
 
     if (cmdBuffer) {
@@ -876,7 +923,7 @@ void CCVKCmdFuncDestroyFramebuffer(CCVKGPUDevice *gpuDevice, CCVKGPUFramebuffer 
 
 void CCVKCmdFuncDestroyDescriptorSetLayout(CCVKGPUDevice *gpuDevice, CCVKGPUDescriptorSetLayout *gpuDescriptorSetLayout) {
     if (gpuDescriptorSetLayout->defaultDescriptorSet != VK_NULL_HANDLE) {
-         gpuDescriptorSetLayout->pool.yield(gpuDescriptorSetLayout->defaultDescriptorSet);
+        gpuDescriptorSetLayout->pool.yield(gpuDescriptorSetLayout->defaultDescriptorSet, 0);
         gpuDescriptorSetLayout->defaultDescriptorSet = VK_NULL_HANDLE;
     }
 

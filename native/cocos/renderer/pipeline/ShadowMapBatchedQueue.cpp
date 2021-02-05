@@ -99,8 +99,6 @@ void ShadowMapBatchedQueue::add(const ModelView *model, gfx::CommandBuffer *cmdB
         const auto subModel = model->getSubModelView(subModelID[m]);
         const auto pass = subModel->getPassView(shadowPassIdx);
         const auto batchingScheme = pass->getBatchingScheme();
-        subModel->getDescriptorSet()->bindBuffer(UBOShadow::BINDING, _buffer);
-        subModel->getDescriptorSet()->update();
 
         if (batchingScheme == BatchingSchemes::INSTANCING) {
             auto *instancedBuffer = InstancedBuffer::get(subModel->passID[shadowPassIdx]);
@@ -146,6 +144,65 @@ void ShadowMapBatchedQueue::destroy() {
     CC_SAFE_DELETE(_instancedQueue);
 
     _buffer = nullptr;
+}
+
+void ShadowMapBatchedQueue::updateUBOs(const Light *light, gfx::CommandBuffer *cmdBufferer) const {
+    const auto *shadowInfo = _pipeline->getShadows();
+    auto shadowUBO = _pipeline->getShadowUBO();
+    auto *device = gfx::Device::getInstance();
+
+    switch (light->getType()) {
+        case LightType::DIRECTIONAL: {
+            cc::Mat4 matShadowCamera;
+
+            float x = 0.0f, y = 0.0f, farClamp = 0.0f;
+            if (shadowInfo->autoAdapt) {
+                Vec3 tmpCenter;
+                getShadowWorldMatrix(_pipeline->getSphere(), light->getNode()->worldRotation, light->direction, matShadowCamera, tmpCenter);
+
+                const auto radius = _pipeline->getSphere()->radius;
+                x = radius * shadowInfo->aspect;
+                y = radius;
+
+                const float halfFar = tmpCenter.distance(_pipeline->getSphere()->center);
+                farClamp = std::min(halfFar * COEFFICIENT_OF_EXPANSION, SHADOW_CAMERA_MAX_FAR);
+            } else {
+                matShadowCamera = light->getNode()->worldMatrix;
+
+                x = shadowInfo->orthoSize * shadowInfo->aspect;
+                y = shadowInfo->orthoSize;
+
+                farClamp = shadowInfo->farValue;
+            }
+
+            const auto matShadowView = matShadowCamera.getInversed();
+
+            cc::Mat4 matShadowViewProj;
+            const auto projectionSinY = device->getScreenSpaceSignY() * device->getUVSpaceSignY();
+            Mat4::createOrthographicOffCenter(-x, x, -y, y, shadowInfo->nearValue, farClamp, device->getClipSpaceMinZ(), projectionSinY, &matShadowViewProj);
+
+            matShadowViewProj.multiply(matShadowView);
+            memcpy(shadowUBO.data() + UBOShadow::MAT_LIGHT_VIEW_PROJ_OFFSET, matShadowViewProj.m, sizeof(matShadowViewProj));
+        } break;
+        case LightType::SPOT: {
+            const auto &matShadowCamera = light->getNode()->worldMatrix;
+
+            const auto matShadowView = matShadowCamera.getInversed();
+
+            cc::Mat4 matShadowViewProj;
+            cc::Mat4::createPerspective(light->spotAngle, light->aspect, 0.001f, light->range, &matShadowViewProj);
+
+            matShadowViewProj.multiply(matShadowView);
+            memcpy(shadowUBO.data() + UBOShadow::MAT_LIGHT_VIEW_PROJ_OFFSET, matShadowViewProj.m, sizeof(matShadowViewProj));
+        } break;
+        default: break;
+    }
+
+    float shadowInfos[4] = {shadowInfo->size.x, shadowInfo->size.y, (float)shadowInfo->pcfType, shadowInfo->bias};
+    memcpy(shadowUBO.data() + UBOShadow::SHADOW_COLOR_OFFSET, &shadowInfo->color, sizeof(Vec4));
+    memcpy(shadowUBO.data() + UBOShadow::SHADOW_INFO_OFFSET, &shadowInfos, sizeof(shadowInfos));
+
+    cmdBufferer->updateBuffer(_pipeline->getDescriptorSet()->getBuffer(UBOShadow::BINDING), shadowUBO.data(), UBOShadow::SIZE);
 }
 
 int ShadowMapBatchedQueue::getShadowPassIndex(const ModelView *model) const {

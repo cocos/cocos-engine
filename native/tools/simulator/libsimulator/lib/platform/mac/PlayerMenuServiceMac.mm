@@ -26,9 +26,9 @@
 
 #include "PlayerMenuServiceMac.h"
 #include "PlayerUtils.h"
-
-#include "cocos2d.h"
+#include "cocos/bindings/event/EventDispatcher.h"
 #include "AppEvent.h"
+#include <sstream>
 
 ///////////////////////////////////////  menu helper  //////////////////////////////////////////////
 static bool __G_IS_MENUBAR_ENABLED__ = true;    // WTF

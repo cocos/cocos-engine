@@ -23,26 +23,24 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-
 #ifndef __PLAYER_TASK_SERVICE_PROTOCOL_H
 #define __PLAYER_TASK_SERVICE_PROTOCOL_H
 
 #include <string>
 
-#include "cocos2d.h"
 #include "PlayerMacros.h"
 #include "PlayerServiceProtocol.h"
+#include "cocos/base/Ref.h"
 
 PLAYER_NS_BEGIN
 
-class PlayerTask : public cc::Ref
-{
+class PlayerTask : public cc::Ref {
 public:
     static const int STATE_IDLE = 0;
     static const int STATE_RUNNING = 1;
     static const int STATE_COMPLETED = 2;
 
-    virtual ~PlayerTask() {};
+    virtual ~PlayerTask(){};
 
     std::string getName() const;
     std::string getExecutePath() const;
@@ -73,8 +71,7 @@ protected:
     int _resultCode;
 };
 
-class PlayerTaskServiceProtocol : public PlayerServiceProtocol
-{
+class PlayerTaskServiceProtocol : public PlayerServiceProtocol {
 public:
     virtual PlayerTask *createTask(const std::string &name,
                                    const std::string &executePath,

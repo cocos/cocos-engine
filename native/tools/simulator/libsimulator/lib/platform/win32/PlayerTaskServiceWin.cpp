@@ -26,6 +26,8 @@
 
 #include <sstream>
 
+#include "cocos/base/UTF8.h"
+#include "cocos/base/Log.h"
 #include "stdafx.h"
 #include "shellapi.h"
 #include "PlayerTaskServiceWin.h"

@@ -120,6 +120,8 @@ Application::Application(int width, int height) {
 #ifndef CC_USE_METAL
     _timer = [[MyTimer alloc] initWithApp:this fps:_fps];
 #endif
+    
+    [[[[[NSApplication sharedApplication] delegate] getWindow] contentView] start];
 }
 
 Application::~Application() {

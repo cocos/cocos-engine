@@ -31,8 +31,8 @@ THE SOFTWARE.
 #include "MTLInputAssembler.h"
 #include "MTLPipelineState.h"
 #include "MTLRenderPass.h"
-#include "MTLTexture.h"
 #include "MTLSampler.h"
+#include "MTLTexture.h"
 
 namespace cc {
 namespace gfx {
@@ -42,7 +42,7 @@ CCMTLCommandBuffer::CCMTLCommandBuffer(Device *device)
   _mtlDevice(static_cast<CCMTLDevice *>(device)),
   _mtlCommandQueue(id<MTLCommandQueue>((static_cast<CCMTLDevice *>(device))->getMTLCommandQueue())),
   _mtkView(static_cast<MTKView *>((static_cast<CCMTLDevice *>(device)->getMTKView()))),
-  _indirectDrawSuppotred(static_cast<CCMTLDevice *>(device)->isIndirectDrawSupported()){
+  _indirectDrawSuppotred(static_cast<CCMTLDevice *>(device)->isIndirectDrawSupported()) {
     const auto setCount = device->bindingMappingInfo().bufferOffsets.size();
     _GPUDescriptorSets.resize(setCount);
     _dynamicOffsets.resize(setCount);
@@ -57,7 +57,7 @@ bool CCMTLCommandBuffer::initialize(const CommandBufferInfo &info) {
 void CCMTLCommandBuffer::destroy() {
 }
 
-void CCMTLCommandBuffer::begin(RenderPass */*renderPass*/, uint /*subPass*/, Framebuffer */*frameBuffer*/, int /*submitIndex*/) {
+void CCMTLCommandBuffer::begin(RenderPass * /*renderPass*/, uint /*subPass*/, Framebuffer * /*frameBuffer*/, int /*submitIndex*/) {
     if (_commandBufferBegan) {
         return;
     }
@@ -111,7 +111,7 @@ void CCMTLCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fb
             mtlRenderPassDescriptor.colorAttachments[slot].clearColor = mu::toMTLClearColor(colors[slot]);
             mtlRenderPassDescriptor.colorAttachments[slot].loadAction = colorAttachments[slot].loadOp == LoadOp::CLEAR ? MTLLoadActionClear : MTLLoadActionLoad;
         }
-        //Melta limits clearDepth at range [0.0, 1.0]
+        //Metal limits clearDepth at range [0.0, 1.0]
         //to keep consistent with OpenGL, assume passed value ranges in [-1, 1];
         depth = clampf(depth / 2 + 0.5f, 0.0f, 1.0f);
         mtlRenderPassDescriptor.depthAttachment.clearDepth = depth;

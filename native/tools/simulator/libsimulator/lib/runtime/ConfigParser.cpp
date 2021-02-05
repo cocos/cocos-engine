@@ -23,32 +23,29 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-
+#include "ConfigParser.h"
+#include "FileServer.h"
+#include "cocos/base/Log.h"
+#include "cocos/platform/FileUtils.h"
 #include "json/document.h"
 #include "json/stringbuffer.h"
 #include "json/writer.h"
-#include "ConfigParser.h"
-#include "FileServer.h"
 
 // ConfigParser
 ConfigParser *ConfigParser::s_sharedConfigParserInstance = NULL;
-ConfigParser *ConfigParser::getInstance(void)
-{
-    if (!s_sharedConfigParserInstance)
-    {
+ConfigParser *ConfigParser::getInstance(void) {
+    if (!s_sharedConfigParserInstance) {
         s_sharedConfigParserInstance = new ConfigParser();
         s_sharedConfigParserInstance->readConfig();
     }
     return s_sharedConfigParserInstance;
 }
 
-void ConfigParser::purge()
-{
-	CC_SAFE_DELETE(s_sharedConfigParserInstance);
+void ConfigParser::purge() {
+    CC_SAFE_DELETE(s_sharedConfigParserInstance);
 }
 
-void ConfigParser::readConfig(const string &filepath)
-{
+void ConfigParser::readConfig(const string &filepath) {
     string fullPathFile = filepath;
 
 #if (CC_PLATFORM == CC_PLATFORM_MAC_IOS || CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_WINDOWS)
@@ -57,182 +54,146 @@ void ConfigParser::readConfig(const string &filepath)
     searchPathArray.insert(searchPathArray.begin(), FileServer::getShareInstance()->getWritePath());
     cc::FileUtils::getInstance()->setSearchPaths(searchPathArray);
 #endif
-    
+
     // read config file
-    if (fullPathFile.empty())
-    {
+    if (fullPathFile.empty()) {
         fullPathFile = cc::FileUtils::getInstance()->fullPathForFilename(CONFIG_FILE);
     }
     string fileContent = cc::FileUtils::getInstance()->getStringFromFile(fullPathFile);
-  
+
 #if (CC_PLATFORM == CC_PLATFORM_MAC_IOS || CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_WINDOWS)
     // revert search path
     searchPathArray.erase(searchPathArray.begin());
     cc::FileUtils::getInstance()->setSearchPaths(searchPathArray);
 #endif
 
-    if(fileContent.empty())
+    if (fileContent.empty())
         return;
-    
+
     if (_docRootjson.Parse<0>(fileContent.c_str()).HasParseError()) {
         CC_LOG_DEBUG("read json file %s failed because of %d", fullPathFile.c_str(), _docRootjson.GetParseError());
         return;
     }
 
-    const rapidjson::Value& objectInitView = _docRootjson;
-    if (objectInitView.HasMember("width") && objectInitView.HasMember("height"))
-    {
+    const rapidjson::Value &objectInitView = _docRootjson;
+    if (objectInitView.HasMember("width") && objectInitView.HasMember("height")) {
         _initViewSize.width = objectInitView["width"].GetUint();
         _initViewSize.height = objectInitView["height"].GetUint();
-        if (_initViewSize.height>_initViewSize.width)
-        {
+        if (_initViewSize.height > _initViewSize.width) {
             float tmpvalue = _initViewSize.height;
             _initViewSize.height = _initViewSize.width;
             _initViewSize.width = tmpvalue;
         }
-        
     }
-    if (objectInitView.HasMember("name") && objectInitView["name"].IsString())
-    {
+    if (objectInitView.HasMember("name") && objectInitView["name"].IsString()) {
         _viewName = objectInitView["name"].GetString();
     }
-    if (objectInitView.HasMember("isLandscape") && objectInitView["isLandscape"].IsBool())
-    {
+    if (objectInitView.HasMember("isLandscape") && objectInitView["isLandscape"].IsBool()) {
         _isLandscape = objectInitView["isLandscape"].GetBool();
     }
-    if (objectInitView.HasMember("entry") && objectInitView["entry"].IsString())
-    {
+    if (objectInitView.HasMember("entry") && objectInitView["entry"].IsString()) {
         setEntryFile(objectInitView["entry"].GetString());
     }
-    if (objectInitView.HasMember("consolePort"))
-    {
+    if (objectInitView.HasMember("consolePort")) {
         setConsolePort(objectInitView["consolePort"].GetUint());
     }
-    if (objectInitView.HasMember("debugPort"))
-    {
+    if (objectInitView.HasMember("debugPort")) {
         setDebugPort(objectInitView["debugPort"].GetUint());
     }
-    if (objectInitView.HasMember("uploadPort"))
-    {
+    if (objectInitView.HasMember("uploadPort")) {
         setUploadPort(objectInitView["uploadPort"].GetUint());
     }
-    if (objectInitView.HasMember("isWindowTop") && objectInitView["isWindowTop"].IsBool())
-    {
-        _isWindowTop= objectInitView["isWindowTop"].GetBool();
+    if (objectInitView.HasMember("isWindowTop") && objectInitView["isWindowTop"].IsBool()) {
+        _isWindowTop = objectInitView["isWindowTop"].GetBool();
     }
-    if (objectInitView.HasMember("waitForConnect") && objectInitView["waitForConnect"].IsBool())
-    {
-        _isWaitForConnect= objectInitView["waitForConnect"].GetBool();
+    if (objectInitView.HasMember("waitForConnect") && objectInitView["waitForConnect"].IsBool()) {
+        _isWaitForConnect = objectInitView["waitForConnect"].GetBool();
     }
 }
 
-ConfigParser::ConfigParser(void) :
-_isLandscape(true),
-_isWindowTop(false),
-_consolePort(kProjectConfigConsolePort),
-_uploadPort(kProjectConfigUploadPort),
-_debugPort(kProjectConfigDebugger),
-_viewName("simulator"),
-_entryfile(""),
-_initViewSize(ProjectConfig::DEFAULT_HEIGHT, ProjectConfig::DEFAULT_WIDTH),
-_bindAddress("")
-{
+ConfigParser::ConfigParser(void) : _isLandscape(true),
+                                   _isWindowTop(false),
+                                   _consolePort(kProjectConfigConsolePort),
+                                   _uploadPort(kProjectConfigUploadPort),
+                                   _debugPort(kProjectConfigDebugger),
+                                   _viewName("simulator"),
+                                   _entryfile(""),
+                                   _initViewSize(ProjectConfig::DEFAULT_HEIGHT, ProjectConfig::DEFAULT_WIDTH),
+                                   _bindAddress("") {
 }
 
-rapidjson::Document& ConfigParser::getConfigJsonRoot()
-{
+rapidjson::Document &ConfigParser::getConfigJsonRoot() {
     return _docRootjson;
 }
 
-string ConfigParser::getInitViewName()
-{
+string ConfigParser::getInitViewName() {
     return _viewName;
 }
 
-string ConfigParser::getEntryFile()
-{
+string ConfigParser::getEntryFile() {
     return _entryfile;
 }
 
-cc::Size ConfigParser::getInitViewSize()
-{
+cc::Size ConfigParser::getInitViewSize() {
     return _initViewSize;
 }
 
-bool ConfigParser::isLanscape()
-{
+bool ConfigParser::isLanscape() {
     return _isLandscape;
 }
 
-bool ConfigParser::isWindowTop()
-{
+bool ConfigParser::isWindowTop() {
     return _isWindowTop;
 }
 
-bool ConfigParser::isWaitForConnect()
-{
+bool ConfigParser::isWaitForConnect() {
     return _isWaitForConnect;
 }
 
-void ConfigParser::setConsolePort(int port)
-{
-    if (port > 0)
-    {
+void ConfigParser::setConsolePort(int port) {
+    if (port > 0) {
         _consolePort = port;
     }
 }
-void ConfigParser::setUploadPort(int port)
-{
-    if (port > 0)
-    {
+void ConfigParser::setUploadPort(int port) {
+    if (port > 0) {
         _uploadPort = port;
     }
 }
-void ConfigParser::setDebugPort(int port)
-{
-    if (port > 0)
-    {
+void ConfigParser::setDebugPort(int port) {
+    if (port > 0) {
         _debugPort = port;
     }
 }
-int ConfigParser::getConsolePort()
-{
+int ConfigParser::getConsolePort() {
     return _consolePort;
 }
-int ConfigParser::getUploadPort()
-{
+int ConfigParser::getUploadPort() {
     return _uploadPort;
 }
-int ConfigParser::getDebugPort()
-{
+int ConfigParser::getDebugPort() {
     return _debugPort;
 }
-int ConfigParser::getScreenSizeCount(void)
-{
+int ConfigParser::getScreenSizeCount(void) {
     return (int)_screenSizeArray.size();
 }
 
-const SimulatorScreenSize ConfigParser::getScreenSize(int index)
-{
+const SimulatorScreenSize ConfigParser::getScreenSize(int index) {
     return _screenSizeArray.at(index);
 }
 
-void ConfigParser::setEntryFile(const std::string &file)
-{
+void ConfigParser::setEntryFile(const std::string &file) {
     _entryfile = file;
 }
 
-void ConfigParser::setInitViewSize(const cc::Size &size)
-{
+void ConfigParser::setInitViewSize(const cc::Size &size) {
     _initViewSize = size;
 }
 
-void ConfigParser::setBindAddress(const std::string &address)
-{
+void ConfigParser::setBindAddress(const std::string &address) {
     _bindAddress = address;
 }
 
-const std::string &ConfigParser::getBindAddress()
-{
+const std::string &ConfigParser::getBindAddress() {
     return _bindAddress;
 }
