@@ -67,9 +67,9 @@ void ShadowFlow::render(Camera *camera) {
     if (!shadowInfo->enabled || shadowInfo->getShadowType() != ShadowType::SHADOWMAP) return;
 
     lightCollecting(camera, _validLights);
-    shadowCollecting(pipeline, camera);
+    shadowCollecting(_pipeline, camera);
 
-    if (pipeline->getShadowObjects().empty()) {
+    if (sceneData->getShadowObjects().empty()) {
         clearShadowMap(camera);
         return;
     }
@@ -97,8 +97,8 @@ void ShadowFlow::render(Camera *camera) {
 }
 
 void ShadowFlow::clearShadowMap(Camera *camera) {
-    auto *pipeline = static_cast<ForwardPipeline *>(_pipeline);
-    const auto &shadowFramebufferMap = pipeline->getShadowFramebufferMap();
+    const auto sceneData = _pipeline->getPipelineSceneData();
+    const auto &shadowFramebufferMap = sceneData->getShadowFramebufferMap();
     for (const auto *light : _validLights) {
         if (!shadowFramebufferMap.count(light)) {
             continue;
