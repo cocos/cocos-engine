@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2021 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -51,36 +51,36 @@ public:
     Message() = default;
     virtual ~Message() {}
     Message(Message const &) = delete;
-    Message(Message &&) = delete;
+    Message(Message &&)      = delete;
     Message &operator=(Message const &) = delete;
     Message &operator=(Message &&) = delete;
 
-    virtual void execute() noexcept = 0;
+    virtual void        execute() noexcept       = 0;
     virtual char const *getName() const noexcept = 0;
-    inline Message *getNext() const noexcept { return mNext; }
+    inline Message *    getNext() const noexcept { return _next; }
 
 private:
-    Message *mNext;
+    Message *_next;
 
     friend class MessageQueue;
 };
 
 struct alignas(64) WriterContext final {
-    uint8_t *mCurrentMemoryChunk{nullptr};
-    Message *mLastMessage{nullptr};
-    uint32_t mOffset{0};
-    uint32_t mPendingMessageCount{0};
-    std::atomic<uint32_t> mWrittenMessageCount{0};
+    uint8_t *             _currentMemoryChunk{nullptr};
+    Message *             _lastMessage{nullptr};
+    uint32_t              _offset{0};
+    uint32_t              _pendingMessageCount{0};
+    std::atomic<uint32_t> _writtenMessageCount{0};
 };
 
 struct alignas(64) ReaderContext final {
-    uint8_t *mCurrentMemoryChunk{nullptr};
-    Message *mLastMessage{nullptr};
-    uint32_t mOffset{0};
-    uint32_t mWrittenMessageCountSnap{0};
-    uint32_t mNewMessageCount{0};
-    bool mTerminateConsumerThread{false};
-    bool mFlushingFinished{false};
+    uint8_t *_currentMemoryChunk{nullptr};
+    Message *_lastMessage{nullptr};
+    uint32_t _offset{0};
+    uint32_t _writtenMessageCountSnap{0};
+    uint32_t _newMessageCount{0};
+    bool     _terminateConsumerThread{false};
+    bool     _flushingFinished{false};
 };
 
 // A single-producer single-consumer circular buffer queue.
@@ -88,9 +88,9 @@ struct alignas(64) ReaderContext final {
 class alignas(64) MessageQueue final {
 public:
     MessageQueue();
-    ~MessageQueue() = default;
+    ~MessageQueue()                    = default;
     MessageQueue(MessageQueue const &) = delete;
-    MessageQueue(MessageQueue &&) = delete;
+    MessageQueue(MessageQueue &&)      = delete;
     MessageQueue &operator=(MessageQueue const &) = delete;
     MessageQueue &operator=(MessageQueue &&) = delete;
 
@@ -119,64 +119,64 @@ public:
     void finishWriting(bool wait) noexcept;
     void flushMessages() noexcept;
 
-    inline bool isImmediateMode() const noexcept { return mImmediateMode; }
+    inline bool isImmediateMode() const noexcept { return _immediateMode; }
     inline void finishWriting() noexcept { finishWriting(false); }
 
-    void recycleMemoryChunk(uint8_t *const chunk) const noexcept;
+    void        recycleMemoryChunk(uint8_t *const chunk) const noexcept;
     static void freeChunksInFreeQueue(MessageQueue *const mainMessagesQueue) noexcept;
 
-    inline void setImmediateMode(bool immediateMode) noexcept { mImmediateMode = immediateMode; }
-    inline int getPendingMessageCount() const noexcept { return mW.mPendingMessageCount; }
-    inline int getWrittenMessageCount() const noexcept { return mW.mWrittenMessageCount; }
-    inline int getNewMessageCount() const noexcept { return mR.mNewMessageCount; }
+    inline void setImmediateMode(bool immediateMode) noexcept { _immediateMode = immediateMode; }
+    inline int  getPendingMessageCount() const noexcept { return _writer._pendingMessageCount; }
+    inline int  getWrittenMessageCount() const noexcept { return _writer._writtenMessageCount; }
+    inline int  getNewMessageCount() const noexcept { return _reader._newMessageCount; }
 
 private:
     class alignas(64) MemoryAllocator final {
     public:
-        MemoryAllocator() = default;
-        ~MemoryAllocator() = default;
+        MemoryAllocator()                        = default;
+        ~MemoryAllocator()                       = default;
         MemoryAllocator(MemoryAllocator const &) = delete;
-        MemoryAllocator(MemoryAllocator &&) = delete;
+        MemoryAllocator(MemoryAllocator &&)      = delete;
         MemoryAllocator &operator=(MemoryAllocator const &) = delete;
         MemoryAllocator &operator=(MemoryAllocator &&) = delete;
 
         static MemoryAllocator &getInstance() noexcept;
-        uint8_t *request() noexcept;
-        void recycle(uint8_t *const chunk, bool const freeByUser) noexcept;
-        void freeByUser(MessageQueue *const mainMessageQueue) noexcept;
+        uint8_t *               request() noexcept;
+        void                    recycle(uint8_t *const chunk, bool const freeByUser) noexcept;
+        void                    freeByUser(MessageQueue *const mainMessageQueue) noexcept;
 
     private:
         using ChunkQueue = moodycamel::ConcurrentQueue<uint8_t *>;
 
-        void free(uint8_t *const chunk) noexcept;
-        std::atomic<uint32_t> mChunkCount{0};
-        ChunkQueue mChunkPool{};
-        ChunkQueue mChunkFreeQueue{};
+        void                  free(uint8_t *const chunk) noexcept;
+        std::atomic<uint32_t> _chunkCount{0};
+        ChunkQueue            _chunkPool{};
+        ChunkQueue            _chunkFreeQueue{};
     };
 
     uint8_t *allocateImpl(uint32_t &allocatedSize, uint32_t const requestSize) noexcept;
-    void pushMessages() noexcept;
+    void     pushMessages() noexcept;
 
     // consumer thread specifics
-    void pullMessages() noexcept;
-    void executeMessages() noexcept;
-    Message *readMessage() noexcept;
-    inline bool hasNewMessage() const noexcept { return mR.mNewMessageCount > 0 && !mR.mFlushingFinished; }
-    void consumerThreadLoop() noexcept;
+    void        pullMessages() noexcept;
+    void        executeMessages() noexcept;
+    Message *   readMessage() noexcept;
+    inline bool hasNewMessage() const noexcept { return _reader._newMessageCount > 0 && !_reader._flushingFinished; }
+    void        consumerThreadLoop() noexcept;
 
-    WriterContext mW;
-    ReaderContext mR;
-    EventCV mN;
-    bool mImmediateMode{true};
-    bool mWorkerAttached{false};
-    bool mFreeChunksByUser{true}; // recycled chunks will be stashed until explicit free instruction
+    WriterContext _writer;
+    ReaderContext _reader;
+    EventCV       _event;
+    bool          _immediateMode{true};
+    bool          _workerAttached{false};
+    bool          _freeChunksByUser{true}; // recycled chunks will be stashed until explicit free instruction
 
     friend class MemoryChunkSwitchMessage;
 };
 
 class DummyMessage final : public Message {
 public:
-    virtual void execute() noexcept override {}
+    virtual void        execute() noexcept override {}
     virtual char const *getName() const noexcept override;
 };
 
@@ -185,35 +185,35 @@ public:
     MemoryChunkSwitchMessage(MessageQueue *const cb, uint8_t *const newChunk, uint8_t *const oldChunk) noexcept;
     ~MemoryChunkSwitchMessage();
 
-    virtual void execute() noexcept override;
+    virtual void        execute() noexcept override;
     virtual char const *getName() const noexcept override;
 
 private:
-    MessageQueue *mMessageQueue{nullptr};
-    uint8_t *mNewChunk{nullptr};
-    uint8_t *mOldChunk{nullptr};
+    MessageQueue *_messageQueue{nullptr};
+    uint8_t *     _newChunk{nullptr};
+    uint8_t *     _oldChunk{nullptr};
 };
 
 class TerminateConsumerThreadMessage final : public Message {
 public:
     TerminateConsumerThreadMessage(EventSem *const pEvent, ReaderContext *const pR) noexcept;
 
-    virtual void execute() noexcept override;
+    virtual void        execute() noexcept override;
     virtual char const *getName() const noexcept override;
 
 private:
-    EventSem *mEvent{nullptr};
-    ReaderContext *mR{nullptr};
+    EventSem *     _event{nullptr};
+    ReaderContext *_reader{nullptr};
 };
 
 template <typename T>
 std::enable_if_t<std::is_base_of<Message, T>::value, T *>
 MessageQueue::allocate(uint32_t const count) noexcept {
     uint32_t allocatedSize = 0;
-    T *const msg = reinterpret_cast<T *>(allocateImpl(allocatedSize, sizeof(T)));
-    msg->mNext = reinterpret_cast<Message *>(mW.mCurrentMemoryChunk + mW.mOffset);
-    ++mW.mPendingMessageCount;
-    mW.mLastMessage = msg;
+    T *const msg           = reinterpret_cast<T *>(allocateImpl(allocatedSize, sizeof(T)));
+    msg->_next             = reinterpret_cast<Message *>(_writer._currentMemoryChunk + _writer._offset);
+    ++_writer._pendingMessageCount;
+    _writer._lastMessage = msg;
     return msg;
 }
 
@@ -222,9 +222,9 @@ std::enable_if_t<!std::is_base_of<Message, T>::value, T *>
 MessageQueue::allocate(uint32_t const count) noexcept {
     uint32_t const requestSize = sizeof(T) * count;
     assert(requestSize);
-    uint32_t allocatedSize = 0;
+    uint32_t       allocatedSize   = 0;
     uint8_t *const allocatedMemory = allocateImpl(allocatedSize, requestSize);
-    mW.mLastMessage->mNext = reinterpret_cast<Message *>(mW.mCurrentMemoryChunk + mW.mOffset);
+    _writer._lastMessage->_next    = reinterpret_cast<Message *>(_writer._currentMemoryChunk + _writer._offset);
     return reinterpret_cast<T *>(allocatedMemory);
 }
 
@@ -306,7 +306,8 @@ T *MessageQueue::allocateAndZero(uint32_t const count) noexcept {
         public:                                                     \
             MessageName(                                            \
                 Type1 const &In##Param1, Type2 const &In##Param2)   \
-            : Param1(In##Param1), Param2(In##Param2) {              \
+            : Param1(In##Param1),                                   \
+              Param2(In##Param2) {                                  \
             }                                                       \
             virtual void execute() noexcept override {              \
                 Code                                                \

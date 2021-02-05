@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2021 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -25,36 +25,30 @@
 
 #pragma once
 
-#include <thread>
-#include <mutex>
 #include <condition_variable>
+#include <mutex>
+#include <thread>
 
 namespace cc {
 
-class ConditionVariable final
-{
+class ConditionVariable final {
 public:
-
-    void                    Wait() noexcept;
+    void wait() noexcept;
     template <typename Function, typename... Args>
-    void                    Wait(Function func, Args&&... args) noexcept;
-    void                    Signal() noexcept;
-    void                    SignalAll() noexcept;
+    void wait(Function func, Args &&... args) noexcept;
+    void signal() noexcept;
+    void SignalAll() noexcept;
 
 private:
-
-    std::mutex              mMutex;
-    std::condition_variable mCV;
+    std::mutex              _mutex;
+    std::condition_variable _condVar;
 };
 
+// DO NOT MANIPULATE ANY SYCHRONIZATION PRIMITIVES INSIDE THE CALLBACK
 template <typename Function, typename... Args>
-void ConditionVariable::Wait(Function func, Args&&... args) noexcept
-{
-    // ******** 注意 ********
-    // func内不要操作任何同步对象!!!
-    // 如果不确定 就不要调用这个函数!!!
-    std::unique_lock<std::mutex> lock(mMutex);
-    mCV.wait(lock, std::bind(std::forward<Function>(func), std::forward<Args>(args)...));
+void ConditionVariable::wait(Function func, Args &&... args) noexcept {
+    std::unique_lock<std::mutex> lock(_mutex);
+    _condVar.wait(lock, std::bind(std::forward<Function>(func), std::forward<Args>(args)...));
 }
 
 } // namespace cc

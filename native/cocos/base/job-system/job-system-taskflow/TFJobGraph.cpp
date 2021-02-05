@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2021 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -36,7 +36,7 @@ void TFJobGraph::makeEdge(uint j1, uint j2) noexcept {
 
 void TFJobGraph::run() noexcept {
     if (_pending) return;
-    _future = _executor->run(_flow);
+    _future  = _executor->run(_flow);
     _pending = true;
 }
 

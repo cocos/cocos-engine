@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2021 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -25,67 +25,62 @@
 
 #pragma once
 
-#include <thread>
-#include <future>
+#include "Event.h"
+#include "concurrentqueue/concurrentqueue.h"
 #include <atomic>
-#include <functional>
-#include <list>
-#include <queue>
 #include <cassert>
 #include <cstdint>
-#include "concurrentqueue/concurrentqueue.h"
-#include "Event.h"
+#include <functional>
+#include <future>
+#include <list>
+#include <queue>
+#include <thread>
 
 namespace cc {
 
-class ThreadPool final
-{
+class ThreadPool final {
 public:
+    using Task      = std::function<void()>;
+    using TaskQueue = moodycamel::ConcurrentQueue<Task>;
 
-    using Task                      = std::function<void()>;
-    using TaskQueue                 = moodycamel::ConcurrentQueue<Task>;
+    static uint8_t const CPU_CORE_COUNT;
+    static uint8_t const MAX_THREAD_COUNT;
 
-    static uint8_t const            kCpuCoreCount;
-    static uint8_t const            kMaxThreadCount;
-
-                                    ThreadPool() noexcept = default;
-                                    ~ThreadPool() = default;
-                                    ThreadPool(ThreadPool const&) = delete;
-                                    ThreadPool(ThreadPool&&) = delete;
-                                    ThreadPool& operator=(ThreadPool const&) = delete;
-                                    ThreadPool& operator=(ThreadPool&&) = delete;
+    ThreadPool() noexcept          = default;
+    ~ThreadPool()                  = default;
+    ThreadPool(ThreadPool const &) = delete;
+    ThreadPool(ThreadPool &&)      = delete;
+    ThreadPool &operator=(ThreadPool const &) = delete;
+    ThreadPool &operator=(ThreadPool &&) = delete;
 
     template <typename Function, typename... Args>
-    auto                            DispatchTask(Function&& func, Args&&... args) noexcept -> std::future<decltype(func(std::forward<Args>(args)...))>;
-    void                            Start() noexcept;
-    void                            Stop() noexcept;
+    auto dispatchTask(Function &&func, Args &&... args) noexcept -> std::future<decltype(func(std::forward<Args>(args)...))>;
+    void start() noexcept;
+    void stop() noexcept;
 
 private:
+    using Event = ConditionVariable;
 
-    using Event                     = ConditionVariable;
+    void addThread() noexcept;
 
-    void                            AddThread() noexcept;
-
-    TaskQueue                       mTasks          {};
-    std::list<std::thread>          mWorkers        {};
-    Event                           mEvent          {};
-    std::atomic<bool>               mRunning        { false };
-    uint8_t                         mWorkerCount    { kMaxThreadCount };
+    TaskQueue              _tasks{};
+    std::list<std::thread> _workers{};
+    Event                  _event{};
+    std::atomic<bool>      _running{false};
+    uint8_t                _workerCount{MAX_THREAD_COUNT};
 };
 
 template <typename Function, typename... Args>
-auto ThreadPool::DispatchTask(Function&& func, Args&&... args) noexcept -> std::future<decltype(func(std::forward<Args>(args)...))>
-{
-    assert(mRunning);
+auto ThreadPool::dispatchTask(Function &&func, Args &&... args) noexcept -> std::future<decltype(func(std::forward<Args>(args)...))> {
+    assert(_running);
 
-    using ReturnType = decltype(func(std::forward<Args>(args)...));
-    auto task = std::make_shared<std::packaged_task<ReturnType()>>(std::bind(std::forward<Function>(func), std::forward<Args>(args)...));
-    bool const succeed = mTasks.enqueue([task]()
-    {
+    using ReturnType   = decltype(func(std::forward<Args>(args)...));
+    auto       task    = std::make_shared<std::packaged_task<ReturnType()>>(std::bind(std::forward<Function>(func), std::forward<Args>(args)...));
+    bool const succeed = _tasks.enqueue([task]() {
         (*task)();
     });
     assert(succeed);
-    mEvent.Signal();
+    _event.signal();
     return task->get_future();
 }
 

@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2021 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -25,37 +25,34 @@
 
 #pragma once
 
-#include <cstdint>
 #include <atomic>
+#include <cstdint>
 #include <cstdlib>
 
 namespace cc {
 
-class alignas(16) ThreadSafeLinearAllocator final
-{
+class alignas(16) ThreadSafeLinearAllocator final {
 public:
+    explicit ThreadSafeLinearAllocator(uint32_t const size) noexcept;
+    ~ThreadSafeLinearAllocator();
+    ThreadSafeLinearAllocator(ThreadSafeLinearAllocator const &) = delete;
+    ThreadSafeLinearAllocator(ThreadSafeLinearAllocator &&)      = delete;
+    ThreadSafeLinearAllocator &operator=(ThreadSafeLinearAllocator const &) = delete;
+    ThreadSafeLinearAllocator &operator=(ThreadSafeLinearAllocator &&) = delete;
 
-    explicit                ThreadSafeLinearAllocator(uint32_t const size) noexcept;
-                            ~ThreadSafeLinearAllocator();
-                            ThreadSafeLinearAllocator(ThreadSafeLinearAllocator const&)             = delete;
-                            ThreadSafeLinearAllocator(ThreadSafeLinearAllocator&&)                  = delete;
-                            ThreadSafeLinearAllocator& operator=(ThreadSafeLinearAllocator const&)  = delete;
-                            ThreadSafeLinearAllocator& operator=(ThreadSafeLinearAllocator&&)       = delete;
+    void *allocate(size_t const size, size_t const alignment) noexcept;
 
-    void*                   Allocate(size_t const size, size_t const alignment) noexcept;
+    inline void *   getBuffer() const noexcept { return _buffer; }
+    inline uint32_t getCapacity() const noexcept { return _capacity; }
+    inline uint32_t getUsedSize() const noexcept { return _usedSize.load(std::memory_order_relaxed); }
+    inline uint32_t getBalance() const noexcept { return getCapacity() - getUsedSize(); }
 
-    inline void*            GetBuffer() const noexcept      { return mBuffer;                                       }
-    inline uint32_t         GetCapacity() const noexcept    { return mCapacity;                                     }
-    inline uint32_t         GetUsedSize() const noexcept    { return mUsedSize.load(std::memory_order_relaxed);     }
-    inline uint32_t         GetBalance() const noexcept     { return GetCapacity() - GetUsedSize();                 }
-
-    inline void             Recycle() noexcept              { mUsedSize.store(0, std::memory_order_relaxed);        }
+    inline void recycle() noexcept { _usedSize.store(0, std::memory_order_relaxed); }
 
 private:
-
-    void*                   mBuffer     { nullptr };
-    uint32_t                mCapacity   { 0 };
-    std::atomic<uint32_t>   mUsedSize   { 0 };
+    void *                _buffer{nullptr};
+    uint32_t              _capacity{0};
+    std::atomic<uint32_t> _usedSize{0};
     // 16 bytes
 };
 

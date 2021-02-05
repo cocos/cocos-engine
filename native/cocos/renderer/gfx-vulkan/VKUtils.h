@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2019-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2021 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -39,7 +39,9 @@
 #define BARRIER_DEDUCTION_LEVEL_BASIC 1
 #define BARRIER_DEDUCTION_LEVEL_FULL  2
 
+#ifndef BARRIER_DEDUCTION_LEVEL
 #define BARRIER_DEDUCTION_LEVEL BARRIER_DEDUCTION_LEVEL_BASIC
+#endif
 
 namespace cc {
 namespace gfx {

@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2019-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2021 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -50,9 +50,9 @@ DeviceAgent::~DeviceAgent() {
 }
 
 bool DeviceAgent::initialize(const DeviceInfo &info) {
-    _width = info.width;
-    _height = info.height;
-    _nativeWidth = info.nativeWidth;
+    _width        = info.width;
+    _height       = info.height;
+    _nativeWidth  = info.nativeWidth;
     _nativeHeight = info.nativeHeight;
     _windowHandle = info.windowHandle;
 
@@ -68,15 +68,15 @@ bool DeviceAgent::initialize(const DeviceInfo &info) {
         return false;
     }
 
-    _context = _actor->getContext();
-    _API = _actor->getGfxAPI();
-    _deviceName = _actor->getDeviceName();
-    _queue = CC_NEW(QueueAgent(_actor->getQueue(), this));
-    _cmdBuff = CC_NEW(CommandBufferAgent(_actor->getCommandBuffer(), this));
+    _context                                 = _actor->getContext();
+    _API                                     = _actor->getGfxAPI();
+    _deviceName                              = _actor->getDeviceName();
+    _queue                                   = CC_NEW(QueueAgent(_actor->getQueue(), this));
+    _cmdBuff                                 = CC_NEW(CommandBufferAgent(_actor->getCommandBuffer(), this));
     ((CommandBufferAgent *)_cmdBuff)->_queue = _queue;
-    _renderer = _actor->getRenderer();
-    _vendor = _actor->getVendor();
-    _caps = _actor->_caps;
+    _renderer                                = _actor->getRenderer();
+    _vendor                                  = _actor->getVendor();
+    _caps                                    = _actor->_caps;
     memcpy(_features, _actor->_features, (uint)Feature::COUNT * sizeof(bool));
 
     _mainEncoder = CC_NEW(MessageQueue);
@@ -94,8 +94,7 @@ bool DeviceAgent::initialize(const DeviceInfo &info) {
 
 void DeviceAgent::destroy() {
     ENQUEUE_MESSAGE_1(
-        getMessageQueue(),
-        DeviceDestroy,
+        getMessageQueue(), DeviceDestroy,
         actor, getActor(),
         {
             actor->destroy();
@@ -127,8 +126,7 @@ void DeviceAgent::resize(uint width, uint height) {
     _height = _nativeHeight = height;
 
     ENQUEUE_MESSAGE_3(
-        getMessageQueue(),
-        DeviceResize,
+        getMessageQueue(), DeviceResize,
         actor, getActor(),
         width, width,
         height, height,
@@ -139,8 +137,7 @@ void DeviceAgent::resize(uint width, uint height) {
 
 void DeviceAgent::acquire() {
     ENQUEUE_MESSAGE_1(
-        _mainEncoder,
-        DeviceAcquire,
+        _mainEncoder, DeviceAcquire,
         actor, getActor(),
         {
             actor->acquire();
@@ -149,19 +146,18 @@ void DeviceAgent::acquire() {
 
 void DeviceAgent::present() {
     ENQUEUE_MESSAGE_2(
-        _mainEncoder,
-        DevicePresent,
+        _mainEncoder, DevicePresent,
         actor, getActor(),
         frameBoundarySemaphore, &_frameBoundarySemaphore,
         {
             actor->present();
-            frameBoundarySemaphore->Signal();
+            frameBoundarySemaphore->signal();
         });
 
     MessageQueue::freeChunksInFreeQueue(_mainEncoder);
     _mainEncoder->finishWriting();
     _currentIndex = (_currentIndex + 1) % (MAX_CPU_FRAME_AHEAD + 1);
-    _frameBoundarySemaphore.Wait();
+    _frameBoundarySemaphore.wait();
 
     getMainAllocator()->reset();
     for (CommandBufferAgent *cmdBuff : _cmdBuffRefs) {
@@ -210,73 +206,73 @@ CommandBuffer *DeviceAgent::doCreateCommandBuffer(const CommandBufferInfo &info,
 }
 
 Queue *DeviceAgent::createQueue() {
-    Queue *actor = _actor->createQueue();
+    Queue *     actor = _actor->createQueue();
     QueueAgent *agent = CC_NEW(QueueAgent(actor, this));
     return agent;
 }
 
 Buffer *DeviceAgent::createBuffer() {
-    Buffer *actor = _actor->createBuffer();
+    Buffer *     actor = _actor->createBuffer();
     BufferAgent *agent = CC_NEW(BufferAgent(actor, this));
     return agent;
 }
 
 Texture *DeviceAgent::createTexture() {
-    Texture *actor = _actor->createTexture();
+    Texture *     actor = _actor->createTexture();
     TextureAgent *agent = CC_NEW(TextureAgent(actor, this));
     return agent;
 }
 
 Sampler *DeviceAgent::createSampler() {
-    Sampler *actor = _actor->createSampler();
+    Sampler *     actor = _actor->createSampler();
     SamplerAgent *agent = CC_NEW(SamplerAgent(actor, this));
     return agent;
 }
 
 Shader *DeviceAgent::createShader() {
-    Shader *actor = _actor->createShader();
+    Shader *     actor = _actor->createShader();
     ShaderAgent *agent = CC_NEW(ShaderAgent(actor, this));
     return agent;
 }
 
 InputAssembler *DeviceAgent::createInputAssembler() {
-    InputAssembler *actor = _actor->createInputAssembler();
+    InputAssembler *     actor = _actor->createInputAssembler();
     InputAssemblerAgent *agent = CC_NEW(InputAssemblerAgent(actor, this));
     return agent;
 }
 
 RenderPass *DeviceAgent::createRenderPass() {
-    RenderPass *actor = _actor->createRenderPass();
+    RenderPass *     actor = _actor->createRenderPass();
     RenderPassAgent *agent = CC_NEW(RenderPassAgent(actor, this));
     return agent;
 }
 
 Framebuffer *DeviceAgent::createFramebuffer() {
-    Framebuffer *actor = _actor->createFramebuffer();
+    Framebuffer *     actor = _actor->createFramebuffer();
     FramebufferAgent *agent = CC_NEW(FramebufferAgent(actor, this));
     return agent;
 }
 
 DescriptorSet *DeviceAgent::createDescriptorSet() {
-    DescriptorSet *actor = _actor->createDescriptorSet();
+    DescriptorSet *     actor = _actor->createDescriptorSet();
     DescriptorSetAgent *agent = CC_NEW(DescriptorSetAgent(actor, this));
     return agent;
 }
 
 DescriptorSetLayout *DeviceAgent::createDescriptorSetLayout() {
-    DescriptorSetLayout *actor = _actor->createDescriptorSetLayout();
+    DescriptorSetLayout *     actor = _actor->createDescriptorSetLayout();
     DescriptorSetLayoutAgent *agent = CC_NEW(DescriptorSetLayoutAgent(actor, this));
     return agent;
 }
 
 PipelineLayout *DeviceAgent::createPipelineLayout() {
-    PipelineLayout *actor = _actor->createPipelineLayout();
+    PipelineLayout *     actor = _actor->createPipelineLayout();
     PipelineLayoutAgent *agent = CC_NEW(PipelineLayoutAgent(actor, this));
     return agent;
 }
 
 PipelineState *DeviceAgent::createPipelineState() {
-    PipelineState *actor = _actor->createPipelineState();
+    PipelineState *     actor = _actor->createPipelineState();
     PipelineStateAgent *agent = CC_NEW(PipelineStateAgent(actor, this));
     return agent;
 }
@@ -302,7 +298,7 @@ void DeviceAgent::copyBuffersToTexture(const uint8_t *const *buffers, Texture *d
     const uint8_t **actorBuffers = allocator->allocate<const uint8_t *>(bufferCount);
     for (uint i = 0u, n = 0u; i < count; i++) {
         const BufferTextureCopy &region = regions[i];
-        uint size = FormatSize(dst->getFormat(), region.texExtent.width, region.texExtent.height, 1);
+        uint                     size   = FormatSize(dst->getFormat(), region.texExtent.width, region.texExtent.height, 1);
         for (uint l = 0; l < region.texSubres.layerCount; l++) {
             uint8_t *buffer = allocator->allocate<uint8_t>(size);
             memcpy(buffer, buffers[n], size);
@@ -311,8 +307,7 @@ void DeviceAgent::copyBuffersToTexture(const uint8_t *const *buffers, Texture *d
     }
 
     ENQUEUE_MESSAGE_5(
-        _mainEncoder,
-        DeviceCopyBuffersToTexture,
+        _mainEncoder, DeviceCopyBuffersToTexture,
         actor, getActor(),
         buffers, actorBuffers,
         dst, ((TextureAgent *)dst)->getActor(),
@@ -336,8 +331,7 @@ void DeviceAgent::flushCommands(CommandBuffer *const *cmdBuffs, uint count) {
     }
 
     ENQUEUE_MESSAGE_3(
-        _mainEncoder,
-        DeviceFlushCommands,
+        _mainEncoder, DeviceFlushCommands,
         count, count,
         cmdBuffs, (CommandBufferAgent *const *)agentCmdBuffs,
         multiThreaded, multiThreaded,

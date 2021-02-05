@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2021 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -27,22 +27,19 @@
 
 namespace cc {
 
-void ConditionVariable::Wait() noexcept
-{
-    std::unique_lock<std::mutex> lock(mMutex);
-    mCV.wait(lock);
+void ConditionVariable::wait() noexcept {
+    std::unique_lock<std::mutex> lock(_mutex);
+    _condVar.wait(lock);
 }
 
-void ConditionVariable::Signal() noexcept
-{
-    std::lock_guard<std::mutex> lock(mMutex);
-    mCV.notify_one();
+void ConditionVariable::signal() noexcept {
+    std::lock_guard<std::mutex> lock(_mutex);
+    _condVar.notify_one();
 }
 
-void ConditionVariable::SignalAll() noexcept
-{
-    std::lock_guard<std::mutex> lock(mMutex);
-    mCV.notify_all();
+void ConditionVariable::SignalAll() noexcept {
+    std::lock_guard<std::mutex> lock(_mutex);
+    _condVar.notify_all();
 }
 
 } // namespace cc

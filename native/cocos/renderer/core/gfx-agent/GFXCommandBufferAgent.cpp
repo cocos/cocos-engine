@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2019-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2021 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -66,8 +66,7 @@ void CommandBufferAgent::flushCommands(uint count, CommandBufferAgent *const *cm
 
 CommandBufferAgent::~CommandBufferAgent() {
     ENQUEUE_MESSAGE_1(
-        ((DeviceAgent *)_device)->getMessageQueue(),
-        CommandBufferDestruct,
+        ((DeviceAgent *)_device)->getMessageQueue(), CommandBufferDestruct,
         actor, _actor,
         {
             CC_DELETE(actor);
@@ -112,8 +111,7 @@ bool CommandBufferAgent::initialize(const CommandBufferInfo &info) {
     actorInfo.queue             = ((QueueAgent *)info.queue)->getActor();
 
     ENQUEUE_MESSAGE_2(
-        ((DeviceAgent *)_device)->getMessageQueue(),
-        CommandBufferInit,
+        ((DeviceAgent *)_device)->getMessageQueue(), CommandBufferInit,
         actor, getActor(),
         info, actorInfo,
         {
@@ -127,8 +125,7 @@ void CommandBufferAgent::destroy() {
     destroyMessageQueue();
 
     ENQUEUE_MESSAGE_1(
-        ((DeviceAgent *)_device)->getMessageQueue(),
-        CommandBufferDestroy,
+        ((DeviceAgent *)_device)->getMessageQueue(), CommandBufferDestroy,
         actor, getActor(),
         {
             actor->destroy();
@@ -150,8 +147,7 @@ void CommandBufferAgent::begin(RenderPass *renderPass, uint subpass, Framebuffer
 
 void CommandBufferAgent::end() {
     ENQUEUE_MESSAGE_1(
-        _messageQueue,
-        CommandBufferEnd,
+        _messageQueue, CommandBufferEnd,
         actor, getActor(),
         {
             actor->end();
@@ -175,8 +171,7 @@ void CommandBufferAgent::beginRenderPass(RenderPass *renderPass, Framebuffer *fb
     }
 
     ENQUEUE_MESSAGE_9(
-        _messageQueue,
-        CommandBufferBeginRenderPass,
+        _messageQueue, CommandBufferBeginRenderPass,
         actor, getActor(),
         renderPass, ((RenderPassAgent *)renderPass)->getActor(),
         fbo, ((FramebufferAgent *)fbo)->getActor(),
@@ -193,8 +188,7 @@ void CommandBufferAgent::beginRenderPass(RenderPass *renderPass, Framebuffer *fb
 
 void CommandBufferAgent::endRenderPass() {
     ENQUEUE_MESSAGE_1(
-        _messageQueue,
-        CommandBufferEndRenderPass,
+        _messageQueue, CommandBufferEndRenderPass,
         actor, getActor(),
         {
             actor->endRenderPass();
@@ -210,8 +204,7 @@ void CommandBufferAgent::execute(CommandBuffer *const *cmdBuffs, uint32_t count)
     }
 
     ENQUEUE_MESSAGE_3(
-        _messageQueue,
-        CommandBufferExecute,
+        _messageQueue, CommandBufferExecute,
         actor, getActor(),
         cmdBuffs, actorCmdBuffs,
         count, count,
@@ -222,8 +215,7 @@ void CommandBufferAgent::execute(CommandBuffer *const *cmdBuffs, uint32_t count)
 
 void CommandBufferAgent::bindPipelineState(PipelineState *pso) {
     ENQUEUE_MESSAGE_2(
-        _messageQueue,
-        CommandBufferBindPipelineState,
+        _messageQueue, CommandBufferBindPipelineState,
         actor, getActor(),
         pso, ((PipelineStateAgent *)pso)->getActor(),
         {
@@ -239,8 +231,7 @@ void CommandBufferAgent::bindDescriptorSet(uint set, DescriptorSet *descriptorSe
     }
 
     ENQUEUE_MESSAGE_5(
-        _messageQueue,
-        CommandBufferBindDescriptorSet,
+        _messageQueue, CommandBufferBindDescriptorSet,
         actor, getActor(),
         set, set,
         descriptorSet, ((DescriptorSetAgent *)descriptorSet)->getActor(),
@@ -253,8 +244,7 @@ void CommandBufferAgent::bindDescriptorSet(uint set, DescriptorSet *descriptorSe
 
 void CommandBufferAgent::bindInputAssembler(InputAssembler *ia) {
     ENQUEUE_MESSAGE_2(
-        _messageQueue,
-        CommandBufferBindInputAssembler,
+        _messageQueue, CommandBufferBindInputAssembler,
         actor, getActor(),
         ia, ((InputAssemblerAgent *)ia)->getActor(),
         {
@@ -264,8 +254,7 @@ void CommandBufferAgent::bindInputAssembler(InputAssembler *ia) {
 
 void CommandBufferAgent::setViewport(const Viewport &vp) {
     ENQUEUE_MESSAGE_2(
-        _messageQueue,
-        CommandBufferSetViewport,
+        _messageQueue, CommandBufferSetViewport,
         actor, getActor(),
         vp, vp,
         {
@@ -275,8 +264,7 @@ void CommandBufferAgent::setViewport(const Viewport &vp) {
 
 void CommandBufferAgent::setScissor(const Rect &rect) {
     ENQUEUE_MESSAGE_2(
-        _messageQueue,
-        CommandBufferSetScissor,
+        _messageQueue, CommandBufferSetScissor,
         actor, getActor(),
         rect, rect,
         {
@@ -286,8 +274,7 @@ void CommandBufferAgent::setScissor(const Rect &rect) {
 
 void CommandBufferAgent::setLineWidth(float width) {
     ENQUEUE_MESSAGE_2(
-        _messageQueue,
-        CommandBufferSetLineWidth,
+        _messageQueue, CommandBufferSetLineWidth,
         actor, getActor(),
         width, width,
         {
@@ -297,8 +284,7 @@ void CommandBufferAgent::setLineWidth(float width) {
 
 void CommandBufferAgent::setDepthBias(float constant, float clamp, float slope) {
     ENQUEUE_MESSAGE_4(
-        _messageQueue,
-        CommandBufferSetDepthBias,
+        _messageQueue, CommandBufferSetDepthBias,
         actor, getActor(),
         constant, constant,
         clamp, clamp,
@@ -310,8 +296,7 @@ void CommandBufferAgent::setDepthBias(float constant, float clamp, float slope) 
 
 void CommandBufferAgent::setBlendConstants(const Color &constants) {
     ENQUEUE_MESSAGE_2(
-        _messageQueue,
-        CommandBufferSetBlendConstants,
+        _messageQueue, CommandBufferSetBlendConstants,
         actor, getActor(),
         constants, constants,
         {
@@ -321,8 +306,7 @@ void CommandBufferAgent::setBlendConstants(const Color &constants) {
 
 void CommandBufferAgent::setDepthBound(float minBounds, float maxBounds) {
     ENQUEUE_MESSAGE_3(
-        _messageQueue,
-        CommandBufferSetDepthBound,
+        _messageQueue, CommandBufferSetDepthBound,
         actor, getActor(),
         minBounds, minBounds,
         maxBounds, maxBounds,
@@ -333,8 +317,7 @@ void CommandBufferAgent::setDepthBound(float minBounds, float maxBounds) {
 
 void CommandBufferAgent::setStencilWriteMask(StencilFace face, uint mask) {
     ENQUEUE_MESSAGE_3(
-        _messageQueue,
-        CommandBufferSetStencilWriteMask,
+        _messageQueue, CommandBufferSetStencilWriteMask,
         actor, getActor(),
         face, face,
         mask, mask,
@@ -345,8 +328,7 @@ void CommandBufferAgent::setStencilWriteMask(StencilFace face, uint mask) {
 
 void CommandBufferAgent::setStencilCompareMask(StencilFace face, int ref, uint mask) {
     ENQUEUE_MESSAGE_4(
-        _messageQueue,
-        CommandBufferSetStencilCompareMask,
+        _messageQueue, CommandBufferSetStencilCompareMask,
         actor, getActor(),
         face, face,
         ref, ref,
@@ -358,8 +340,7 @@ void CommandBufferAgent::setStencilCompareMask(StencilFace face, int ref, uint m
 
 void CommandBufferAgent::draw(InputAssembler *ia) {
     ENQUEUE_MESSAGE_2(
-        _messageQueue,
-        CommandBufferDraw,
+        _messageQueue, CommandBufferDraw,
         actor, getActor(),
         ia, ((InputAssemblerAgent *)ia)->getActor(),
         {
@@ -374,8 +355,7 @@ void CommandBufferAgent::updateBuffer(Buffer *buff, const void *data, uint size)
     memcpy(actorData, data, size);
 
     ENQUEUE_MESSAGE_4(
-        queue,
-        CommandBufferUpdateBuffer,
+        queue, CommandBufferUpdateBuffer,
         actor, getActor(),
         buff, ((BufferAgent *)buff)->getActor(),
         data, actorData,
@@ -407,8 +387,7 @@ void CommandBufferAgent::copyBuffersToTexture(const uint8_t *const *buffers, Tex
     }
 
     ENQUEUE_MESSAGE_5(
-        _messageQueue,
-        CommandBufferCopyBuffersToTexture,
+        _messageQueue, CommandBufferCopyBuffersToTexture,
         actor, getActor(),
         buffers, actorBuffers,
         texture, ((TextureAgent *)texture)->getActor(),
@@ -429,8 +408,7 @@ void CommandBufferAgent::blitTexture(Texture *srcTexture, Texture *dstTexture, c
     memcpy(actorRegions, regions, count * sizeof(TextureBlit));
 
     ENQUEUE_MESSAGE_6(
-        _messageQueue,
-        CommandBufferBlitTexture,
+        _messageQueue, CommandBufferBlitTexture,
         actor, getActor(),
         srcTexture, actorSrcTexture,
         dstTexture, actorDstTexture,
@@ -447,8 +425,7 @@ void CommandBufferAgent::dispatch(const DispatchInfo &info) {
     if (info.indirectBuffer) actorInfo.indirectBuffer = ((BufferAgent *)info.indirectBuffer)->getActor();
 
     ENQUEUE_MESSAGE_2(
-        _messageQueue,
-        CommandBufferDispatch,
+        _messageQueue, CommandBufferDispatch,
         actor, getActor(),
         info, actorInfo,
         {
@@ -458,7 +435,7 @@ void CommandBufferAgent::dispatch(const DispatchInfo &info) {
 
 void CommandBufferAgent::pipelineBarrier(const GlobalBarrier *barrier, const TextureBarrier *const *textureBarriers, const Texture *const *textures, uint textureBarrierCount) {
     TextureBarrier **actorTextureBarriers = nullptr;
-    Texture **actorTextures = nullptr;
+    Texture **       actorTextures        = nullptr;
 
     if (textureBarrierCount) {
         actorTextureBarriers = getAllocator()->allocate<TextureBarrier *>(textureBarrierCount);
@@ -471,8 +448,7 @@ void CommandBufferAgent::pipelineBarrier(const GlobalBarrier *barrier, const Tex
     }
 
     ENQUEUE_MESSAGE_5(
-        _messageQueue,
-        CommandBufferPipelineBarrier,
+        _messageQueue, CommandBufferPipelineBarrier,
         actor, getActor(),
         barrier, barrier,
         textureBarriers, actorTextureBarriers,

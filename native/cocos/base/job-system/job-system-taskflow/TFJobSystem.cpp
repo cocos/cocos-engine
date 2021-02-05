@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2021 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -25,16 +25,15 @@
 
 #include "CoreStd.h"
 
-#include "TFJobSystem.h"
 #include "TFJobGraph.h"
+#include "TFJobSystem.h"
 
 namespace cc {
 
 TFJobSystem *TFJobSystem::_instance = nullptr;
 
 TFJobSystem::TFJobSystem(uint threadCount) noexcept
-: _executor(threadCount)
-{
+: _executor(threadCount) {
     CC_LOG_INFO("Taskflow Job system initialized: %d worker threads", threadCount);
 }
 
