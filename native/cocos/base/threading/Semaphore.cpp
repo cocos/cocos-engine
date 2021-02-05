@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2021 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -28,23 +28,19 @@
 namespace cc {
 
 Semaphore::Semaphore() noexcept
-: mSemaphore(0)
-{
+: _semaphore(0) {
 }
 
 Semaphore::Semaphore(uint32_t const initialCount) noexcept
-: mSemaphore(initialCount)
-{
+: _semaphore(initialCount) {
 }
 
-void Semaphore::Wait() noexcept
-{
-    mSemaphore.wait();
+void Semaphore::wait() noexcept {
+    _semaphore.wait();
 }
 
-void Semaphore::Signal() noexcept
-{
-    mSemaphore.signal();
+void Semaphore::signal() noexcept {
+    _semaphore.signal();
 }
 
 } // namespace cc

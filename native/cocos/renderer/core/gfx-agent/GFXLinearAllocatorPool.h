@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2019-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2021 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -66,17 +66,17 @@ public:
         T* res = nullptr;
         size_t size = count * sizeof(T);
         for (ThreadSafeLinearAllocator *allocator : _allocators) {
-            res = reinterpret_cast<T*>(allocator->Allocate(size, alignment));
+            res = reinterpret_cast<T*>(allocator->allocate(size, alignment));
             if (res) return res;
         }
         size_t capacity = nextPowerOf2(std::max(DEFAULT_BLOCK_SIZE, size + alignment)); // reserve enough padding space for alignment
         _allocators.emplace_back(CC_NEW(ThreadSafeLinearAllocator(capacity)));
-        return reinterpret_cast<T*>(_allocators.back()->Allocate(size, alignment));
+        return reinterpret_cast<T*>(_allocators.back()->allocate(size, alignment));
     }
 
     inline void reset() {
         for (ThreadSafeLinearAllocator *allocator : _allocators) {
-            allocator->Recycle();
+            allocator->recycle();
         }
     }
 

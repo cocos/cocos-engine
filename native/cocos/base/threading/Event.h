@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2021 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -31,20 +31,17 @@
 namespace cc {
 
 template <typename T>
-class Event final
-{
+class Event final {
 public:
-
-    inline void Wait() noexcept         { mSyncObject.Wait(); }
-    inline void Signal() noexcept       { mSyncObject.Signal(); };
-    inline void SignalAll() noexcept    { mSyncObject.SignalAll(); }
+    inline void wait() noexcept { _syncObject.wait(); }
+    inline void signal() noexcept { _syncObject.signal(); };
+    inline void signalAll() noexcept { _syncObject.signalAll(); }
 
 private:
-
-    T           mSyncObject {};
+    T _syncObject{};
 };
 
-using EventCV   = Event<ConditionVariable>;
-using EventSem  = Event<Semaphore>;
+using EventCV  = Event<ConditionVariable>;
+using EventSem = Event<Semaphore>;
 
 } // namespace cc

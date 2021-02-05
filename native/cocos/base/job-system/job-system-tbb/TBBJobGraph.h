@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2021 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -67,7 +67,7 @@ private:
 
     struct TBBParallelJob {
         uint predecessor = 0u;
-        uint successor = 0u;
+        uint successor   = 0u;
     };
     vector<TBBParallelJob> _parallelJobs;
 
@@ -84,14 +84,14 @@ uint TBBJobGraph::createJob(Function &&func) noexcept {
 template <typename Function>
 uint TBBJobGraph::createForEachIndexJob(uint begin, uint end, uint step, Function &&func) noexcept {
     _nodes.emplace_back(_graph, [](TBBJobToken t) {});
-    uint predecessorIdx = _nodes.size() - 1u;
-    TBBJobNode &predecessor = _nodes.back();
+    uint        predecessorIdx = _nodes.size() - 1u;
+    TBBJobNode &predecessor    = _nodes.back();
 
     tbb::flow::make_edge(_nodes.front(), predecessor);
 
     _nodes.emplace_back(_graph, [](TBBJobToken t) {});
-    uint successorIdx = _nodes.size() - 1u;
-    TBBJobNode &successor = _nodes.back();
+    uint        successorIdx = _nodes.size() - 1u;
+    TBBJobNode &successor    = _nodes.back();
 
     for (uint i = begin; i < end; i += step) {
         _nodes.emplace_back(_graph, [i, &func](TBBJobToken t) { func(i); });

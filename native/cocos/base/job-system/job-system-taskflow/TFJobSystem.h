@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2021 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -26,8 +26,8 @@
 #pragma once
 
 #include "taskflow/taskflow.hpp"
-#include <thread>
 #include <algorithm>
+#include <thread>
 
 namespace cc {
 
@@ -53,7 +53,7 @@ private:
     friend class TFJobGraph;
 
     static TFJobSystem *_instance;
-    
+
     tf::Executor _executor;
 };
 

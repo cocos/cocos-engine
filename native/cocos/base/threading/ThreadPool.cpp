@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2021 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -27,71 +27,57 @@
 
 namespace cc {
 
-uint8_t const ThreadPool::kCpuCoreCount = std::thread::hardware_concurrency();
-uint8_t const ThreadPool::kMaxThreadCount = kCpuCoreCount - 1;
+uint8_t const ThreadPool::CPU_CORE_COUNT   = std::thread::hardware_concurrency();
+uint8_t const ThreadPool::MAX_THREAD_COUNT = CPU_CORE_COUNT - 1;
 
-void ThreadPool::Start() noexcept
-{
-    if (mRunning)
-    {
+void ThreadPool::start() noexcept {
+    if (_running) {
         return;
     }
-    
-    mRunning = true;
-    
-    for (uint8_t i = 0; i < kMaxThreadCount; ++i)
-    {
-        AddThread();
+
+    _running = true;
+
+    for (uint8_t i = 0; i < MAX_THREAD_COUNT; ++i) {
+        addThread();
     }
 }
 
-void ThreadPool::Stop() noexcept
-{
-    if (! mRunning)
-    {
+void ThreadPool::stop() noexcept {
+    if (!_running) {
         return;
     }
-    
-    mRunning = false;
-    mEvent.SignalAll();
-    
-    for (auto& worker : mWorkers)
-    {
-        if (worker.joinable())
-        {
+
+    _running = false;
+    _event.SignalAll();
+
+    for (auto &worker : _workers) {
+        if (worker.joinable()) {
             worker.join();
         }
     }
-    
-    mWorkers.clear();
+
+    _workers.clear();
 }
 
-void ThreadPool::AddThread() noexcept
-{
-    assert(mWorkers.size() < kMaxThreadCount);
+void ThreadPool::addThread() noexcept {
+    assert(_workers.size() < MAX_THREAD_COUNT);
 
-    auto workerLoop = [this]()
-    {
-        while (mRunning)
-        {
+    auto workerLoop = [this]() {
+        while (_running) {
             Task task = nullptr;
-            
-            if (mTasks.try_dequeue(task))
-            {
+
+            if (_tasks.try_dequeue(task)) {
                 task();
-            }
-            else
-            {
+            } else {
                 // Double Check
-                mEvent.Wait([this]()
-                {
-                    return mTasks.size_approx() != 0;
+                _event.wait([this]() {
+                    return _tasks.size_approx() != 0;
                 });
             }
         }
     };
-    
-    mWorkers.emplace_back(workerLoop);
+
+    _workers.emplace_back(workerLoop);
 }
 
 } // namespace cc

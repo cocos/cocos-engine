@@ -40,9 +40,9 @@ if(COCOS_PLATFORM_IOS OR COCOS_PLATFORM_OSX)
 endif()
 
 if(COCOS_PLATFORM_IOS OR COCOS_PLATFORM_OSX)
-	list(REMOVE_ITEM ALL_FILES "${COCOS_SRC_PATH}/renderer/gfx-gles2/gles2w.cpp")
+	list(REMOVE_ITEM ALL_FILES "${COCOS_SRC_PATH}/renderer/gfx-gles2/GLES2Wrangler.cpp")
 else()
-	list(REMOVE_ITEM ALL_FILES "${COCOS_SRC_PATH}/renderer/gfx-gles2/gles2w.mm")
+	list(REMOVE_ITEM ALL_FILES "${COCOS_SRC_PATH}/renderer/gfx-gles2/GLES2Wrangler.mm")
 endif()
 
 if(COCOS_PLATFORM_OSX)
@@ -63,7 +63,7 @@ else()
 	add_library(${TARGET_NAME} SHARED ${HEADER_FILES} ${ALL_FILES})
 endif()
 
-target_link_libraries(${TARGET_NAME} Core)
+target_link_libraries(${TARGET_NAME} Core GFXGLESCommon)
 
 set_target_properties(${TARGET_NAME} PROPERTIES OUTPUT_NAME CCGFXGLES2)
 set_target_properties(${TARGET_NAME} PROPERTIES OUTPUT_NAME_DEBUG CCGFXGLES2_d)

@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2021 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -26,8 +26,8 @@
 #pragma once
 
 #include "tbb/global_control.h"
-#include <thread>
 #include <algorithm>
+#include <thread>
 
 namespace cc {
 
@@ -55,7 +55,7 @@ private:
     static TBBJobSystem *_instance;
 
     tbb::global_control _control;
-    uint _threadCount = 0u;
+    uint                _threadCount = 0u;
 };
 
 } // namespace cc

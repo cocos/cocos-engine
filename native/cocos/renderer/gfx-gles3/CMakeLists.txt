@@ -19,8 +19,8 @@ include_directories( ${INCLUDE_FILES} )
 
 # ---------------------------------------------------------------------
 
-file(GLOB_RECURSE HEADER_FILES *.h)
-file(GLOB_RECURSE SOURCE_CPP_FILES *.cpp *.cc)
+file(GLOB_RECURSE HEADER_FILES *.h ../gfx-gles-common/*.h)
+file(GLOB_RECURSE SOURCE_CPP_FILES *.cpp *.cc ../gfx-gles-common/*.cpp)
 file(GLOB_RECURSE SOURCE_C_FILES *.c)
 
 if(COCOS_PLATFORM_IOS OR COCOS_PLATFORM_OSX)
@@ -40,9 +40,9 @@ if(COCOS_PLATFORM_IOS OR COCOS_PLATFORM_OSX)
 endif()
 
 if(COCOS_PLATFORM_IOS OR COCOS_PLATFORM_OSX)
-	list(REMOVE_ITEM ALL_FILES "${COCOS_SRC_PATH}/renderer/gfx-gles3/gles3w.cpp")
+	list(REMOVE_ITEM ALL_FILES "${COCOS_SRC_PATH}/renderer/gfx-gles3/GLES3Wrangler.cpp")
 else()
-	list(REMOVE_ITEM ALL_FILES "${COCOS_SRC_PATH}/renderer/gfx-gles3/gles3w.mm")
+	list(REMOVE_ITEM ALL_FILES "${COCOS_SRC_PATH}/renderer/gfx-gles3/GLES3Wrangler.mm")
 endif()
 
 if(COCOS_PLATFORM_OSX)
@@ -63,7 +63,7 @@ else()
 	add_library(${TARGET_NAME} SHARED ${HEADER_FILES} ${ALL_FILES})
 endif()
 
-target_link_libraries(${TARGET_NAME} Core)
+target_link_libraries(${TARGET_NAME} Core GFXGLESCommon)
 
 set_target_properties(${TARGET_NAME} PROPERTIES OUTPUT_NAME CCGFXGLES3)
 set_target_properties(${TARGET_NAME} PROPERTIES OUTPUT_NAME_DEBUG CCGFXGLES3_d)

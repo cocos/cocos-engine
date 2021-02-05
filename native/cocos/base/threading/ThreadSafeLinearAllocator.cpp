@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2021 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -29,39 +29,34 @@
 namespace cc {
 
 ThreadSafeLinearAllocator::ThreadSafeLinearAllocator(uint32_t const size) noexcept
-: mCapacity(size)
-{
-    mBuffer = malloc(size);
+: _capacity(size) {
+    _buffer = malloc(size);
 }
 
-ThreadSafeLinearAllocator::~ThreadSafeLinearAllocator()
-{
-    free(mBuffer);
+ThreadSafeLinearAllocator::~ThreadSafeLinearAllocator() {
+    free(_buffer);
 }
 
-void* ThreadSafeLinearAllocator::Allocate(size_t const size, size_t const alignment) noexcept
-{
-    if (size == 0)
-    {
+void *ThreadSafeLinearAllocator::allocate(size_t const size, size_t const alignment) noexcept {
+    if (size == 0) {
         return nullptr;
     }
 
-    void* allocatedMemory   = nullptr;
-    uint32_t oldUsedSize    = 0;
-    uint64_t newUsedSize    = 0;    // 为了判断溢出用64位
-    
-    do
-    {
-        oldUsedSize = GetUsedSize();
-        allocatedMemory = acl::align_to(acl::add_offset_to_ptr<void>(mBuffer, oldUsedSize), alignment);
-        newUsedSize = reinterpret_cast<uintptr_t>(allocatedMemory) - reinterpret_cast<uintptr_t>(mBuffer) + size;
-        
-        if (newUsedSize > mCapacity)   // 溢出
+    void *   allocatedMemory = nullptr;
+    uint32_t oldUsedSize     = 0;
+    uint64_t newUsedSize     = 0; // 为了判断溢出用64位
+
+    do {
+        oldUsedSize     = getUsedSize();
+        allocatedMemory = acl::align_to(acl::add_offset_to_ptr<void>(_buffer, oldUsedSize), alignment);
+        newUsedSize     = reinterpret_cast<uintptr_t>(allocatedMemory) - reinterpret_cast<uintptr_t>(_buffer) + size;
+
+        if (newUsedSize > _capacity) // 溢出
         {
             return nullptr;
         }
-    } while (! mUsedSize.compare_exchange_weak(oldUsedSize, static_cast<uint32_t>(newUsedSize), std::memory_order_relaxed, std::memory_order_relaxed)); // 不可能存在ABA 不处理
-    
+    } while (!_usedSize.compare_exchange_weak(oldUsedSize, static_cast<uint32_t>(newUsedSize), std::memory_order_relaxed, std::memory_order_relaxed)); // 不可能存在ABA 不处理
+
     return allocatedMemory;
 }
 

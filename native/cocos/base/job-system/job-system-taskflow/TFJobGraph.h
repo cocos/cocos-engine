@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2021 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -56,11 +56,11 @@ public:
 private:
     tf::Executor *_executor = nullptr;
 
-    tf::Taskflow _flow;
+    tf::Taskflow    _flow;
     deque<tf::Task> _tasks; // existing tasks cannot be invalidated
 
     std::future<void> _future;
-    bool _pending = false;
+    bool              _pending = false;
 };
 
 template <typename Function>

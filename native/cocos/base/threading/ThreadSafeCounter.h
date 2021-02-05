@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2021 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -25,27 +25,24 @@
 
 #pragma once
 
-#include <cstdint>
 #include <atomic>
+#include <cstdint>
 
 namespace cc {
 
 template <typename T, typename = typename std::enable_if_t<std::is_integral_v<T>>>
-class ThreadSafeCounter final
-{
+class ThreadSafeCounter final {
 public:
-
-    inline T        Increment() noexcept            { return Add(1); }
-    inline T        Add(T const v) noexcept         { return mCounter.fetch_add(v, std::memory_order_relaxed); }
-    inline T        Decrement() noexcept            { return Subtract(1); }
-    inline T        Subtract(T const v) noexcept    { return mCounter.fetch_sub(v, std::memory_order_relaxed); }
-    inline void     Set(T const v) noexcept         { mCounter.store(v, std::memory_order_relaxed); }
-    inline T        Get() const noexcept            { return mCounter.load(std::memory_order_relaxed); }
-    inline void     Reset() noexcept                { Set(0); }
+    inline T    increment() noexcept { return add(1); }
+    inline T    add(T const v) noexcept { return _counter.fetch_add(v, std::memory_order_relaxed); }
+    inline T    decrement() noexcept { return subtract(1); }
+    inline T    subtract(T const v) noexcept { return _counter.fetch_sub(v, std::memory_order_relaxed); }
+    inline void set(T const v) noexcept { _counter.store(v, std::memory_order_relaxed); }
+    inline T    get() const noexcept { return _counter.load(std::memory_order_relaxed); }
+    inline void reset() noexcept { set(0); }
 
 private:
-
-    std::atomic<T>  mCounter    { 0 };
+    std::atomic<T> _counter{0};
 };
 
 } // namespace cc
