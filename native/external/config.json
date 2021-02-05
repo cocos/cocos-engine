@@ -1,9 +1,9 @@
 {
-    "version": "v3d-gfx-29",
+    "version": "v3d-gfx-31",
     "from": {
         "type": "github",
         "owner": "cocos-creator",
-        "name": "cocos2d-x-lite-external",
-        "checkout": "v3d-gfx-29"
+        "name": "engine-native-external",
+        "checkout": "v3d-gfx-31"
     }
 }

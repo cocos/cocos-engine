@@ -1,7 +1,7 @@
-/*
- Copyright (c) Huawei Technologies Co., Ltd. 2020-2021.
+/****************************************************************************
+ Copyright (c) 2020-2021 Huawei Technologies Co., Ltd.
 
- https://www.cocos.com/
+ http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
@@ -21,7 +21,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+****************************************************************************/
 
 #include "LightingFlow.h"
 #include "DeferredPipeline.h"
@@ -113,7 +113,7 @@ void LightingFlow::activate(RenderPipeline *pipeline) {
     }
 
     const auto device = pipeline->getDevice();
-    if (device->getSurfaceTransform() == gfx::SurfaceTransform::IDENTITY || 
+    if (device->getSurfaceTransform() == gfx::SurfaceTransform::IDENTITY ||
         device->getSurfaceTransform() == gfx::SurfaceTransform::ROTATE_180) {
             _width = device->getWidth();
             _height = device->getHeight();

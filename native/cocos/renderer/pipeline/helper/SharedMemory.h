@@ -1,26 +1,28 @@
 /****************************************************************************
-Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2019-2021 Xiamen Yaji Software Co., Ltd.
 
-http://www.cocos2d-x.org
+ http://www.cocos.com
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
 
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
 ****************************************************************************/
+
 #pragma once
 #include "renderer/core/CoreStd.h"
 
@@ -317,12 +319,12 @@ struct CC_DLL UIBatch {
     uint32_t shaderID[4] = {0, 0, 0, 0};
     uint32_t descriptorSetID = 0;
     uint32_t inputAssemblerID = 0;
-    
+
     CC_INLINE const PassView *getPassView(uint idx) const { return GET_PASS(passID[idx]); }
     CC_INLINE gfx::Shader *getShader(uint idx) const { return GET_SHADER(shaderID[idx]); }
     CC_INLINE gfx::DescriptorSet *getDescriptorSet() const { return GET_DESCRIPTOR_SET(descriptorSetID); }
     CC_INLINE gfx::InputAssembler *getInputAssembler() const { return GET_IA(inputAssemblerID); }
-    
+
     const static se::PoolType type;
 };
 
@@ -388,7 +390,7 @@ struct CC_DLL Camera {
     CC_INLINE const Scene *getScene() const { return GET_SCENE(sceneID); }
     CC_INLINE const Frustum *getFrustum() const { return GET_FRUSTUM(frustumID); }
     CC_INLINE const RenderWindow *getWindow() const { return GET_WINDOW(windowID); }
-    
+
     const static se::PoolType type;
 };
 
@@ -489,7 +491,7 @@ struct CC_DLL PipelineSharedSceneData {
     uint32_t deferredLightPassShader = 0;
     uint32_t deferredPostPass = 0;
     uint32_t deferredPostPassShader = 0;
-    
+
     CC_INLINE Shadows* getShadows() const {return GET_SHADOWS(shadow);}
     CC_INLINE Skybox* getSkybox() const {return GET_SKYBOX(skybox);}
     CC_INLINE Ambient* getAmbient() const {return GET_AMBIENT(ambient);}
