@@ -29,11 +29,11 @@ THE SOFTWARE.
 #include "gfx/GFXCommandBuffer.h"
 #include "gfx/GFXDescriptorSet.h"
 #include "gfx/GFXDevice.h"
+#include "gfx/GFXFramebuffer.h"
 #include "gfx/GFXQueue.h"
 #include "gfx/GFXRenderPass.h"
-#include "gfx/GFXTexture.h"
-#include "gfx/GFXFramebuffer.h"
 #include "gfx/GFXSampler.h"
+#include "gfx/GFXTexture.h"
 #include "platform/Application.h"
 
 namespace cc {
@@ -60,8 +60,8 @@ gfx::RenderPass *ForwardPipeline::getOrCreateRenderPass(gfx::ClearFlags clearFla
     gfx::DepthStencilAttachment depthStencilAttachment;
     colorAttachment.format = device->getColorFormat();
     depthStencilAttachment.format = device->getDepthStencilFormat();
-    depthStencilAttachment.stencilStoreOp = gfx::StoreOp::DISCARD;
-    depthStencilAttachment.depthStoreOp = gfx::StoreOp::DISCARD;
+    depthStencilAttachment.stencilStoreOp = gfx::StoreOp::STORE;
+    depthStencilAttachment.depthStoreOp = gfx::StoreOp::STORE;
 
     if (!(clearFlags & gfx::ClearFlagBit::COLOR)) {
         if (clearFlags & static_cast<gfx::ClearFlagBit>(SKYBOX_FLAG)) {
@@ -134,7 +134,7 @@ void ForwardPipeline::render(const vector<uint> &cameras) {
 bool ForwardPipeline::activeRenderer() {
     _commandBuffers.push_back(_device->getCommandBuffer());
     const auto sharedData = _pipelineSceneData->getSharedData();
-    
+
     gfx::SamplerInfo info{
         gfx::Filter::LINEAR,
         gfx::Filter::LINEAR,

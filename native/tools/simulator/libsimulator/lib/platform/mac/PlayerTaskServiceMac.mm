@@ -25,7 +25,8 @@
 
 
 #include "PlayerTaskServiceMac.h"
-
+#include "cocos/base/Log.h"
+#include "cocos/base/UTF8.h"
 @implementation PlayerTaskPrivate
 
 @synthesize buildTask = _buildTask;

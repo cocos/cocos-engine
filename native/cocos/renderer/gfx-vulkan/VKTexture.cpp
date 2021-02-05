@@ -134,6 +134,7 @@ bool CCVKTexture::initialize(const TextureViewInfo &info) {
     _size = FormatSize(_format, _width, _height, _depth);
 
     _gpuTexture = ((CCVKTexture *)info.texture)->gpuTexture();
+
     _gpuTextureView = CC_NEW(CCVKGPUTextureView);
     createTextureView();
 
@@ -153,8 +154,8 @@ void CCVKTexture::createTextureView() {
 
 void CCVKTexture::destroy() {
     if (_gpuTextureView) {
-        ((CCVKDevice *)_device)->gpuDescriptorHub()->disengage(_gpuTextureView);
         ((CCVKDevice *)_device)->gpuRecycleBin()->collect(_gpuTextureView);
+        ((CCVKDevice *)_device)->gpuDescriptorHub()->disengage(_gpuTextureView);
         CC_DELETE(_gpuTextureView);
         _gpuTextureView = nullptr;
     }

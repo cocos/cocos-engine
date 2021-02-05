@@ -24,6 +24,8 @@
  ****************************************************************************/
 
 
+#include "cocos/base/UTF8.h"
+#include "cocos/base/Log.h"
 #include "PlayerMenuServiceWin.h"
 
 PLAYER_NS_BEGIN

@@ -26,8 +26,9 @@
 
 #include <string>
 
+#include "cocos/base/UTF8.h"
+#include "cocos/base/Log.h"
 #include "stdafx.h"
-#include "cocos2d.h"
 #include "PlayerEditBoxServiceWin.h"
 
 PLAYER_NS_BEGIN

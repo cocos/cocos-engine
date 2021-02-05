@@ -31,24 +31,22 @@
 #ifndef __Simulator__AppLang__
 #define __Simulator__AppLang__
 
-#include "cocos2d.h"
 #include <map>
 
-#include "json/document.h"
 #include "DeviceEx.h"
 #include "SimulatorExport.h"
+#include "json/document.h"
 
-class CC_LIBSIM_DLL AppLang
-{
+class CC_LIBSIM_DLL AppLang {
 public:
-    static AppLang* getInstance();
-    
-    std::string getString(const std::string &lang, const std::string& key);
-    
+    static AppLang *getInstance();
+
+    std::string getString(const std::string &lang, const std::string &key);
+
 protected:
     AppLang();
     void readLocalizationFile();
-    
+
     bool _hasInit;
     std::string _localizationFileName;
     rapidjson::Document _docRootjson;

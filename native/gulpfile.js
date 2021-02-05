@@ -55,7 +55,7 @@ else {
     gulp.task('publish', gulpSequence('update', 'init', 'bump-version', 'make-simulator'));
 }
 
-function execSync(cmd, workPath) {
+function execSync (cmd, workPath) {
     var execOptions = {
         cwd: workPath || '.',
         stdio: 'inherit'
@@ -63,7 +63,7 @@ function execSync(cmd, workPath) {
     ExecSync(cmd, execOptions);
 }
 
-function downloadSimulatorDLL(callback) {
+function downloadSimulatorDLL (callback) {
     var Download = require('download');
     var destPath = Path.join('simulator', 'win32');
     Download('http://192.168.52.109/TestBuilds/Fireball/simulator/dlls/dll.zip', destPath, {
@@ -71,14 +71,14 @@ function downloadSimulatorDLL(callback) {
         extract: true,
         strip: 0,
         agent: null,
-    }).then(function(res) {
+    }).then(function (res) {
         callback();
     }).catch(callback);
 }
 
-function upload2Ftp(localPath, ftpPath, config, cb) {
+function upload2Ftp (localPath, ftpPath, config, cb) {
     var ftpClient = new Ftp();
-    ftpClient.on('error', function(err) {
+    ftpClient.on('error', function (err) {
         if (err) {
             if (cb) {
                 cb(err);
@@ -88,13 +88,13 @@ function upload2Ftp(localPath, ftpPath, config, cb) {
             }
         }
     });
-    ftpClient.on('ready', function() {
+    ftpClient.on('ready', function () {
         var dirName = Path.dirname(ftpPath);
-        ftpClient.mkdir(dirName, true, function(err) {
+        ftpClient.mkdir(dirName, true, function (err) {
             if (err) {
                 return cb(err);
             }
-            ftpClient.put(localPath, ftpPath, function(err) {
+            ftpClient.put(localPath, ftpPath, function (err) {
                 if (err) {
                     return cb(err);
                 }
@@ -110,7 +110,7 @@ function upload2Ftp(localPath, ftpPath, config, cb) {
     ftpClient.connect(config);
 }
 
-function uploadZipFile(zipFileName, path, cb) {
+function uploadZipFile (zipFileName, path, cb) {
     var branch = getCurrentBranch();
     if (branch === 'develop') {
         branch = 'dev';
@@ -124,7 +124,7 @@ function uploadZipFile(zipFileName, path, cb) {
     }, cb);
 }
 
-function getCurrentBranch() {
+function getCurrentBranch () {
     var spawnSync = require('child_process').spawnSync;
     var output = spawnSync('git', ['symbolic-ref', '--short', '-q', 'HEAD']);
     // console.log(output);
@@ -141,14 +141,14 @@ gulp.task('update', function (cb) {
     git.pull('.', 'git@github.com:cocos-creator/cocos2d-x-lite.git', branch, cb);
 });
 
-gulp.task('init', function(cb) {
+gulp.task('init', function (cb) {
     execSync('node ./utils/download-deps.js');
     execSync('git submodule update --init');
     execSync('python download-bin.py --remove-download no', './tools/cocos2d-console');
     cb();
 });
 
-gulp.task('gen-cocos2d-x', function(cb) {
+gulp.task('gen-cocos2d-x', function (cb) {
     execSync('./git-archive-all cocos2d-x.zip', './tools/make-package');
     cb();
 });
@@ -170,15 +170,15 @@ gulp.task('gen-simulator', async function () {
     });
     let simulatorProject = absolutePath('./simulator');
     await fs.ensureDir(simulatorProject);
-    
+
     console.log('=====================================\n');
     console.log('make project\n');
     console.log('=====================================\n');
     await new Promise((resolve, reject) => {
-        let cmakeProcess = spawn(cmakeBin, ['-G', isWin32? 'Visual Studio 15 2017': 'Xcode', absolutePath('./tools/simulator/frameworks/runtime-src/')], {
+        let cmakeProcess = spawn(cmakeBin, ['-G', isWin32 ? 'Visual Studio 15 2017' : 'Xcode', absolutePath('./tools/simulator/frameworks/runtime-src/')], {
             cwd: simulatorProject,
         });
-        cmakeProcess.on('close',  () => {
+        cmakeProcess.on('close', () => {
             console.log('cmake finished!');
             resolve();
         });
@@ -192,19 +192,19 @@ gulp.task('gen-simulator', async function () {
             console.log(data.toString ? data.toString() : data);
         });
     });
-    
+
     console.log('=====================================\n');
     console.log('build project\n');
     console.log('=====================================\n');
     await new Promise((resolve, reject) => {
         let makeArgs = ['--build', simulatorProject];
         if (!isWin32) {
-            makeArgs = makeArgs.concat(['--', '-quiet']);
+            makeArgs = makeArgs.concat(['--', '-quiet', '-arch', 'x86_64']);
         }
         let buildProcess = spawn(cmakeBin, makeArgs, {
             cwd: simulatorProject,
         });
-        buildProcess.on('close',  () => {
+        buildProcess.on('close', () => {
             console.log('cmake finished!');
             resolve();
         });
@@ -233,7 +233,7 @@ gulp.task('gen-simulator', async function () {
     console.log('delete patterns: ', JSON.stringify(delPatterns, undefined, 2));
     await del(delPatterns, { force: true });
 
-    console.log('done!');   
+    console.log('done!');
 });
 
 gulp.task('sign-simulator', function () {
@@ -246,13 +246,13 @@ gulp.task('sign-simulator', function () {
     }
 });
 
-gulp.task('update-simulator-config', function(cb) {
+gulp.task('update-simulator-config', function (cb) {
     var destPath = process.platform === 'win32' ? './simulator/win32/config.json' : './simulator/mac/Simulator.app/Contents/Resources/config.json';
     fs.copy('./tools/simulator/config.json', destPath, cb);
 });
 
 // 在 'sign-simulator' 之后执行，以保留这些 dll 来自第三方的签名
-gulp.task('update-simulator-dll', function(cb) {
+gulp.task('update-simulator-dll', function (cb) {
     if (process.platform === 'win32') {
         downloadSimulatorDLL(cb);
     } else {
@@ -260,18 +260,18 @@ gulp.task('update-simulator-dll', function(cb) {
     }
 });
 
-gulp.task('archive-simulator', function() {
+gulp.task('archive-simulator', function () {
     return gulp.src('./simulator/**/*')
         .pipe(zip('simulator_' + process.platform + '.zip'))
         .pipe(gulp.dest('./'));
 });
 
-gulp.task('upload-cocos2d-x', function(cb) {
+gulp.task('upload-cocos2d-x', function (cb) {
     var zipFileName = 'cocos2d-x.zip';
     uploadZipFile(zipFileName, './tools/make-package', cb);
 });
 
-gulp.task('upload-simulator', function(cb) {
+gulp.task('upload-simulator', function (cb) {
     var zipFileName = 'simulator_' + process.platform + '.zip';
     uploadZipFile(zipFileName, '.', cb);
 });

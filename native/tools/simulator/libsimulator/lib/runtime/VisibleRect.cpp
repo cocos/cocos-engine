@@ -24,73 +24,63 @@
  ****************************************************************************/
 
 #include "VisibleRect.h"
+#include "cocos/base/Log.h"
 
 cc::Rect VisibleRect::s_visibleRect;
 
-void VisibleRect::lazyInit()
-{
+void VisibleRect::lazyInit() {
     // no lazy init
     // Useful if we change the resolution in runtime
-//    s_visibleRect = cc::Director::getInstance()->getOpenGLView()->getVisibleRect();
+    //    s_visibleRect = cc::Director::getInstance()->getOpenGLView()->getVisibleRect();
     CC_LOG_DEBUG("lazyInit");
 }
 
-cc::Rect VisibleRect::getVisibleRect()
-{
+cc::Rect VisibleRect::getVisibleRect() {
     lazyInit();
     return s_visibleRect;
 }
 
-cc::Vec2 VisibleRect::left()
-{
+cc::Vec2 VisibleRect::left() {
     lazyInit();
-    return cc::Vec2(s_visibleRect.origin.x, s_visibleRect.origin.y+s_visibleRect.size.height/2);
+    return cc::Vec2(s_visibleRect.origin.x, s_visibleRect.origin.y + s_visibleRect.size.height / 2);
 }
 
-cc::Vec2 VisibleRect::right()
-{
+cc::Vec2 VisibleRect::right() {
     lazyInit();
-    return cc::Vec2(s_visibleRect.origin.x+s_visibleRect.size.width, s_visibleRect.origin.y+s_visibleRect.size.height/2);
+    return cc::Vec2(s_visibleRect.origin.x + s_visibleRect.size.width, s_visibleRect.origin.y + s_visibleRect.size.height / 2);
 }
 
-cc::Vec2 VisibleRect::top()
-{
+cc::Vec2 VisibleRect::top() {
     lazyInit();
-    return cc::Vec2(s_visibleRect.origin.x+s_visibleRect.size.width/2, s_visibleRect.origin.y+s_visibleRect.size.height);
+    return cc::Vec2(s_visibleRect.origin.x + s_visibleRect.size.width / 2, s_visibleRect.origin.y + s_visibleRect.size.height);
 }
 
-cc::Vec2 VisibleRect::bottom()
-{
+cc::Vec2 VisibleRect::bottom() {
     lazyInit();
-    return cc::Vec2(s_visibleRect.origin.x+s_visibleRect.size.width/2, s_visibleRect.origin.y);
+    return cc::Vec2(s_visibleRect.origin.x + s_visibleRect.size.width / 2, s_visibleRect.origin.y);
 }
 
-cc::Vec2 VisibleRect::center()
-{
+cc::Vec2 VisibleRect::center() {
     lazyInit();
-    return cc::Vec2(s_visibleRect.origin.x+s_visibleRect.size.width/2, s_visibleRect.origin.y+s_visibleRect.size.height/2);
+    return cc::Vec2(s_visibleRect.origin.x + s_visibleRect.size.width / 2, s_visibleRect.origin.y + s_visibleRect.size.height / 2);
 }
 
-cc::Vec2 VisibleRect::leftTop()
-{
+cc::Vec2 VisibleRect::leftTop() {
     lazyInit();
-    return cc::Vec2(s_visibleRect.origin.x, s_visibleRect.origin.y+s_visibleRect.size.height);
+    return cc::Vec2(s_visibleRect.origin.x, s_visibleRect.origin.y + s_visibleRect.size.height);
 }
 
-cc::Vec2 VisibleRect::rightTop()
-{
+cc::Vec2 VisibleRect::rightTop() {
     lazyInit();
-    return cc::Vec2(s_visibleRect.origin.x+s_visibleRect.size.width, s_visibleRect.origin.y+s_visibleRect.size.height);
+    return cc::Vec2(s_visibleRect.origin.x + s_visibleRect.size.width, s_visibleRect.origin.y + s_visibleRect.size.height);
 }
 
-cc::Vec2 VisibleRect::leftBottom()
-{
+cc::Vec2 VisibleRect::leftBottom() {
     lazyInit();
     return s_visibleRect.origin;
 }
 
-cc::Vec2 VisibleRect::rightBottom()
-{
+cc::Vec2 VisibleRect::rightBottom() {
     lazyInit();
-    return cc::Vec2(s_visibleRect.origin.x+s_visibleRect.size.width, s_visibleRect.origin.y);
+    return cc::Vec2(s_visibleRect.origin.x + s_visibleRect.size.width, s_visibleRect.origin.y);
 }
