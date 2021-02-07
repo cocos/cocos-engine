@@ -95,7 +95,6 @@ private:
     CCMTLDevice *_mtlDevice = nullptr;
     id<MTLCommandQueue> _mtlCommandQueue = nil;
     id<MTLCommandBuffer> _mtlCommandBuffer = nil;
-    MTKView *_mtkView = nil;
     CCMTLRenderCommandEncoder _commandEncoder;
     id<MTLParallelRenderCommandEncoder> _parallelEncoder = nil;
     CCMTLInputAssembler *_inputAssembler = nullptr;

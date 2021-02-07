@@ -43,7 +43,6 @@ CCMTLCommandBuffer::CCMTLCommandBuffer(Device *device)
 : CommandBuffer(device),
   _mtlDevice(static_cast<CCMTLDevice *>(device)),
   _mtlCommandQueue(id<MTLCommandQueue>((static_cast<CCMTLDevice *>(device))->getMTLCommandQueue())),
-  _mtkView(static_cast<MTKView *>((static_cast<CCMTLDevice *>(device)->getMTKView()))),
   _indirectDrawSuppotred(static_cast<CCMTLDevice *>(device)->isIndirectDrawSupported()) {
     const auto setCount = device->bindingMappingInfo().bufferOffsets.size();
     _GPUDescriptorSets.resize(setCount);
