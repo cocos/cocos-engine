@@ -309,6 +309,7 @@ let Mask = cc.Class({
         }
 
         this.disableRender();
+        spriteFrame.once('load', this._activateMaterial, this);
     },
 
     _activateMaterial () {
