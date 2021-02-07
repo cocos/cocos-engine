@@ -105,7 +105,7 @@ export class StdMorphRendering implements MorphRendering {
                 const subMeshMorph = this._mesh.struct.morph.subMeshMorphs[subMeshIndex];
                 const subMeshRenderingInstance = subMeshInstances[subMeshIndex];
                 if (subMeshRenderingInstance === null) {
-                    return undefined;
+                    return null;
                 }
                 assertIsNonNullable(subMeshMorph);
                 const patches: IMacroPatch[] = [
