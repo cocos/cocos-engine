@@ -346,12 +346,12 @@ bool CCVKDevice::initialize(const DeviceInfo &info) {
         _gpuStagingBufferPools.push_back(CC_NEW(CCVKGPUStagingBufferPool(_gpuDevice)));
     }
 
-    _gpuBufferHub            = CC_NEW(CCVKGPUBufferHub(_gpuDevice));
-    _gpuTransportHub         = CC_NEW(CCVKGPUTransportHub(_gpuDevice, ((CCVKQueue *)_queue)->gpuQueue()));
-    _gpuDescriptorHub        = CC_NEW(CCVKGPUDescriptorHub(_gpuDevice));
-    _gpuSemaphorePool        = CC_NEW(CCVKGPUSemaphorePool(_gpuDevice));
-    _gpuBarrierManager       = CC_NEW(CCVKGPUBarrierManager(_gpuDevice));
-    _gpuDescriptorSetHub     = CC_NEW(CCVKGPUDescriptorSetHub(_gpuDevice));
+    _gpuBufferHub        = CC_NEW(CCVKGPUBufferHub(_gpuDevice));
+    _gpuTransportHub     = CC_NEW(CCVKGPUTransportHub(_gpuDevice, ((CCVKQueue *)_queue)->gpuQueue()));
+    _gpuDescriptorHub    = CC_NEW(CCVKGPUDescriptorHub(_gpuDevice));
+    _gpuSemaphorePool    = CC_NEW(CCVKGPUSemaphorePool(_gpuDevice));
+    _gpuBarrierManager   = CC_NEW(CCVKGPUBarrierManager(_gpuDevice));
+    _gpuDescriptorSetHub = CC_NEW(CCVKGPUDescriptorSetHub(_gpuDevice));
 
     _gpuDescriptorHub->link(_gpuDescriptorSetHub);
 

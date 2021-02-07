@@ -44,14 +44,14 @@ void *ThreadSafeLinearAllocator::allocate(size_t const size, size_t const alignm
 
     void *   allocatedMemory = nullptr;
     uint32_t oldUsedSize     = 0;
-    uint64_t newUsedSize     = 0; // 为了判断溢出用64位
+    uint64_t newUsedSize     = 0; // using 64-bit integer to correctly detect overflows
 
     do {
         oldUsedSize     = getUsedSize();
         allocatedMemory = acl::align_to(acl::add_offset_to_ptr<void>(_buffer, oldUsedSize), alignment);
         newUsedSize     = reinterpret_cast<uintptr_t>(allocatedMemory) - reinterpret_cast<uintptr_t>(_buffer) + size;
 
-        if (newUsedSize > _capacity) // 溢出
+        if (newUsedSize > _capacity) // overflows
         {
             return nullptr;
         }

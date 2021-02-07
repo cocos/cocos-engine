@@ -833,6 +833,7 @@ void CCVKCmdFuncUpdateBuffer(CCVKDevice *device, CCVKGPUBuffer *gpuBuffer, const
 
     VkBufferCopy region{stagingBuffer.startOffset, gpuBuffer->startOffset, sizeToUpload};
     auto         upload = [&stagingBuffer, &gpuBuffer, &region](const CCVKGPUCommandBuffer *gpuCommandBuffer) {
+#if BARRIER_DEDUCTION_LEVEL >= BARRIER_DEDUCTION_LEVEL_BASIC
         if (gpuBuffer->transferAccess) {
             CC_LOG_WARNING("updateBuffer: performance warning: buffer updated more than once per frame");
             // guard against WAW hazard
@@ -844,6 +845,7 @@ void CCVKCmdFuncUpdateBuffer(CCVKDevice *device, CCVKGPUBuffer *gpuBuffer, const
                                  VK_PIPELINE_STAGE_TRANSFER_BIT,
                                  0, 1, &vkBarrier, 0, nullptr, 0, nullptr);
         }
+#endif
         vkCmdCopyBuffer(gpuCommandBuffer->vkCommandBuffer, stagingBuffer.vkBuffer, gpuBuffer->vkBuffer, 1, &region);
     };
 

@@ -585,7 +585,7 @@ private:
 
     vector<vector<VkDescriptorSet>> _fleaMarkets; // per back buffer
 
-    vector<VkDescriptorPoolSize> _poolSizes;
+    vector<VkDescriptorPoolSize>  _poolSizes;
     vector<VkDescriptorSetLayout> _setLayouts;
     uint                          _maxSetsPerPool = 0u;
 };
@@ -786,6 +786,11 @@ public:
     CCVKGPUDescriptorSetHub(CCVKGPUDevice *device)
     : _device(device) {
         _setsToBeUpdated.resize(device->backBufferCount);
+        if (device->minorVersion > 0) {
+            _updateFn = vkUpdateDescriptorSetWithTemplate;
+        } else {
+            _updateFn = vkUpdateDescriptorSetWithTemplateKHR;
+        }
     }
 
     void record(const CCVKGPUDescriptorSet *gpuDescriptorSet) {
@@ -817,22 +822,21 @@ public:
 
 private:
     void update(const CCVKGPUDescriptorSet *gpuDescriptorSet) {
-        const CCVKGPUDescriptorSet::DescriptorSetInstance &instance = gpuDescriptorSet->instances[_device->curBackBufferIndex];
-        if (gpuDescriptorSet->pUpdateTemplate) {
-            if (*gpuDescriptorSet->pUpdateTemplate) { // skip empty descriptor sets
-                vkUpdateDescriptorSetWithTemplateKHR(_device->vkDevice,
-                                                     instance.vkDescriptorSet,
-                                                     *gpuDescriptorSet->pUpdateTemplate, instance.descriptorInfos.data());
-            }
+        const CCVKGPUDescriptorSet::Instance &instance = gpuDescriptorSet->instances[_device->curBackBufferIndex];
+        if (gpuDescriptorSet->gpuLayout->vkDescriptorUpdateTemplate) {
+            _updateFn(_device->vkDevice, instance.vkDescriptorSet,
+                      gpuDescriptorSet->gpuLayout->vkDescriptorUpdateTemplate, instance.descriptorInfos.data());
         } else {
             const vector<VkWriteDescriptorSet> &entries = instance.descriptorUpdateEntries;
             vkUpdateDescriptorSets(_device->vkDevice, entries.size(), entries.data(), 0, nullptr);
         }
     }
 
-    CCVKGPUDevice *_device = nullptr;
     using DescriptorSetList = unordered_set<const CCVKGPUDescriptorSet *>;
-    vector<DescriptorSetList> _setsToBeUpdated;
+
+    CCVKGPUDevice *                       _device = nullptr;
+    vector<DescriptorSetList>             _setsToBeUpdated;
+    PFN_vkUpdateDescriptorSetWithTemplate _updateFn = nullptr;
 };
 
 /**
@@ -974,15 +978,53 @@ private:
     template <typename T>
     struct DescriptorInfo {
         unordered_set<const CCVKGPUDescriptorSet *> sets;
-        CachedArray<T *> descriptors;
+        CachedArray<T *>                            descriptors;
     };
 
-    unordered_map<const VkDescriptorBufferInfo *, uint> _bufferInstaceIndices;
+    unordered_map<const VkDescriptorBufferInfo *, uint>                              _bufferInstaceIndices;
     unordered_map<const CCVKGPUBufferView *, DescriptorInfo<VkDescriptorBufferInfo>> _buffers;
     unordered_map<const CCVKGPUTextureView *, DescriptorInfo<VkDescriptorImageInfo>> _textures;
-    unordered_map<const CCVKGPUSampler *, CachedArray<VkDescriptorImageInfo *>> _samplers;
+    unordered_map<const CCVKGPUSampler *, CachedArray<VkDescriptorImageInfo *>>      _samplers;
 
     CCVKGPUDescriptorSetHub *_descriptorSetHub = nullptr;
+};
+
+class CCVKGPUBarrierManager final : public Object {
+public:
+    CCVKGPUBarrierManager(CCVKGPUDevice *device)
+    : _device(device) {}
+
+    void checkIn(CCVKGPUBuffer *gpuBuffer) {
+        _buffersToBeChecked.insert(gpuBuffer);
+    }
+
+    void checkIn(CCVKGPUBuffer *gpuBuffer, const ThsvsAccessType *newTypes, uint newTypeCount) {
+        vector<ThsvsAccessType> &target = gpuBuffer->renderAccessTypes;
+        for (uint i = 0u; i < newTypeCount; ++i) {
+            if (std::find(target.begin(), target.end(), newTypes[i]) == target.end()) {
+                target.push_back(newTypes[i]);
+            }
+        }
+    }
+
+    void checkIn(CCVKGPUTexture *gpuTexture, const ThsvsAccessType *newTypes = nullptr, uint newTypeCount = 0) {
+        vector<ThsvsAccessType> &target = gpuTexture->renderAccessTypes;
+        for (uint i = 0u; i < newTypeCount; ++i) {
+            if (std::find(target.begin(), target.end(), newTypes[i]) == target.end()) {
+                target.push_back(newTypes[i]);
+            }
+        }
+        _texturesToBeChecked.insert(gpuTexture);
+    }
+
+    void update(CCVKGPUCommandBuffer *gpuCommandBuffer);
+
+    CC_INLINE bool needUpdate() { return !_texturesToBeChecked.empty() || !_buffersToBeChecked.empty(); }
+
+private:
+    unordered_set<CCVKGPUBuffer *>  _buffersToBeChecked;
+    unordered_set<CCVKGPUTexture *> _texturesToBeChecked;
+    CCVKGPUDevice *                 _device = nullptr;
 };
 
 /**
@@ -1143,7 +1185,7 @@ public:
     void link(CCVKGPUQueue *queue) {
         _queue = queue;
 
-        _cmdBuff.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+        _cmdBuff.level            = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
         _cmdBuff.queueFamilyIndex = _queue->queueFamilyIndex;
 
         VkFenceCreateInfo createInfo{VK_STRUCTURE_TYPE_FENCE_CREATE_INFO};

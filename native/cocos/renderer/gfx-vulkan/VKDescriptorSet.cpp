@@ -101,8 +101,8 @@ bool CCVKDescriptorSet::initialize(const DescriptorSetInfo &info) {
     _gpuDescriptorSet->instances.resize(gpuDevice->backBufferCount);
 
     for (size_t t = 0u; t < gpuDevice->backBufferCount; ++t) {
-        CCVKGPUDescriptorSet::DescriptorSetInstance &instance = _gpuDescriptorSet->instances[t];
-        instance.vkDescriptorSet                              = gpuDescriptorSetLayout->pool.request(t);
+        CCVKGPUDescriptorSet::Instance &instance = _gpuDescriptorSet->instances[t];
+        instance.vkDescriptorSet                 = gpuDescriptorSetLayout->pool.request(t);
         instance.descriptorInfos.resize(descriptorCount, {});
 
         for (size_t i = 0u, k = 0u; i < bindingCount; ++i) {
