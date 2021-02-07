@@ -28,6 +28,7 @@ else()
 	add_definitions("-DVK_USE_PLATFORM_XLIB_KHR")
 endif()
 
+add_definitions("-DBARRIER_DEDUCTION_LEVEL=0")
 include_directories( ${INCLUDE_FILES} )
 
 # ---------------------------------------------------------------------
