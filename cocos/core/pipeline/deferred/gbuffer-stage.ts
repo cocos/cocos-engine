@@ -80,7 +80,7 @@ export class GbufferStage extends RenderStage {
     private _renderArea = new Rect();
     private _batchedQueue: RenderBatchedQueue;
     private _instancedQueue: RenderInstancedQueue;
-    private _phaseID = getPhaseID('deferred-gbuffer');
+    private _phaseID = getPhaseID('default');
     // private declare _uiPhase: UIPhase;
 
     constructor () {

@@ -124,7 +124,7 @@ CCProgram toon-vs %{
       v_bitangent = cross(v_normal, v_tangent) * In.tangent.w; // note the cross order
     #endif
 
-    CCPassShadowParams(pos);
+    CC_TRANSFER_SHADOW(pos);
 
     return cc_matProj * (cc_matView * matWorld) * In.position;
   }

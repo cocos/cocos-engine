@@ -25,4 +25,3 @@ module.exports = {
         CC_PHYSICS_BUILTIN: true,
     }
 };
-};

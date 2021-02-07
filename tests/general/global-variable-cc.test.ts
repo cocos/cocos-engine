@@ -55,8 +55,7 @@ test('global variables are sealed', async () => {
         }, undefined, 4));
     } else {
         const sealedGlobalVariables = (await fs.readJson(sealedGlobalVariablesFile)).variables as string[];
-        const difference = globalVariables.filter((v) => !sealedGlobalVariables.includes(v));
-        expect(difference).toEqual([]);
+        expect(globalVariables.length === sealedGlobalVariables.length && globalVariables.every((v) => sealedGlobalVariables.includes(v))).toBeTruthy();
     }
 
-}, 30000);
+}, 50000);

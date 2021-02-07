@@ -33,7 +33,7 @@ if (-not $diffFiles) {
 foreach ($file in $diffFiles.Split('\n')) {
     $extension = Split-Path -Extension -Path $file
     $cont = ($extension -eq ".ts" )
-    if (-not $cont) {
+    if (-not $cont -or -not ($file -match "^(cocos|exports)")) {
         Write-Host "Skip $file"
         continue
     }

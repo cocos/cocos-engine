@@ -126,7 +126,7 @@ export class DeferredPipeline extends RenderPipeline {
     }
 
     public activate (): boolean {
-        this._macros = {};
+        this._macros = { CC_PIPELINE_TYPE: 1 };
 
         if (!super.activate()) {
             return false;

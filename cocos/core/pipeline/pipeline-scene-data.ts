@@ -110,7 +110,7 @@ export class PipelineSceneData {
     public initDeferredPassInfo () {
         const builinDeferred = builtinResMgr.get<Material>('builtin-deferred-material');
         if (builinDeferred) {
-            const passLit = builinDeferred.passes[1];
+            const passLit = builinDeferred.passes[0];
             passLit.beginChangeStatesSilently();
             passLit.tryCompile();
             passLit.endChangeStatesSilently();
@@ -125,7 +125,7 @@ export class PipelineSceneData {
         }
 
         if (builinDeferred) {
-            const passLit = builinDeferred.passes[1];
+            const passLit = builinDeferred.passes[0];
             PipelineSceneDataPool.set(this._handle, PipelineSceneDataView.DEFERRED_LIGHT_PASS, passLit.handle);
             PipelineSceneDataPool.set(this._handle, PipelineSceneDataView.DEFERRED_LIGHT_PASS_SHADER, passLit.getShaderVariant());
         }
