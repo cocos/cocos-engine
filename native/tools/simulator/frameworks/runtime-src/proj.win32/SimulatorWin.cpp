@@ -27,6 +27,7 @@
 #pragma comment(lib, "comctl32.lib")
 #pragma comment(linker, "\"/manifestdependency:type='Win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='X86' publicKeyToken='6595b64144ccf1df' language='*'\"")
 
+#include "cocos/base/UTF8.h"
 #include "stdafx.h"
 #include <io.h>
 #include <stdlib.h>
@@ -56,6 +57,7 @@
 #include "platform/Application.h"
 #include "platform/win32/PlayerWin.h"
 #include "platform/win32/PlayerMenuServiceWin.h"
+#include "platform/FileUtils.h"
 
 #include "platform/StdC.h"
 #include "cocos/bindings/jswrapper/SeApi.h"

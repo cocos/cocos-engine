@@ -114,6 +114,7 @@ void CCVKCommandBuffer::begin(RenderPass *renderPass, uint subpass, Framebuffer 
     VK_CHECK(vkBeginCommandBuffer(_gpuCommandBuffer->vkCommandBuffer, &beginInfo));
 
     _gpuCommandBuffer->began = true;
+    _gpuCommandBuffer->recordedBuffers.clear();
 }
 
 void CCVKCommandBuffer::end() {

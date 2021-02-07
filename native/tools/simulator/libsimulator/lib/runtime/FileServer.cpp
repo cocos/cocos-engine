@@ -25,15 +25,17 @@ THE SOFTWARE.
 ****************************************************************************/
 
 #include "FileServer.h"
-#include "Runtime.h"
-#include "zlib.h"
 #include "ConfigParser.h"
+#include "Runtime.h"
+#include "cocos/base/Log.h"
+#include "cocos/platform/FileUtils.h"
+#include "zlib.h"
 
 // header files for directory operation
 #ifdef _WIN32
-#include <direct.h>
+    #include <direct.h>
 #else
-#include <sys/stat.h>
+    #include <sys/stat.h>
 #endif
 
 #if CC_PLATFORM == CC_PLATFORM_ANDROID
@@ -47,96 +49,86 @@ THE SOFTWARE.
 
 #define PROTO_START "RuntimeSend:"
 
-FileServer* FileServer::s_sharedFileServer = nullptr;
-FileServer* FileServer::getShareInstance()
-{
-	if (s_sharedFileServer == nullptr)
-	{
-		s_sharedFileServer = new FileServer;
-	}
-	return s_sharedFileServer;
+FileServer *FileServer::s_sharedFileServer = nullptr;
+FileServer *FileServer::getShareInstance() {
+    if (s_sharedFileServer == nullptr) {
+        s_sharedFileServer = new FileServer;
+    }
+    return s_sharedFileServer;
 }
 
-void FileServer::purge()
-{
-	CC_SAFE_DELETE(s_sharedFileServer);
+void FileServer::purge() {
+    CC_SAFE_DELETE(s_sharedFileServer);
 }
 
-void FileServer::readResFileFinfo()
-{
+void FileServer::readResFileFinfo() {
     std::string filecfg = _writePath + "/fileinfo_debug.json";
-    FILE * pFile = fopen (filecfg.c_str() , "r");
-    if(pFile)
-    {
+    FILE *pFile = fopen(filecfg.c_str(), "r");
+    if (pFile) {
         char readBuffer[65536];
         rapidjson::FileReadStream inputStream(pFile, readBuffer, sizeof(readBuffer));
         _filecfgjson.ParseStream<0>(inputStream);
         fclose(pFile);
     }
-    if(! _filecfgjson.IsObject()){
+    if (!_filecfgjson.IsObject()) {
         _filecfgjson.SetObject();
     }
-    
+
     //save file info to disk every five second
     CC_LOG_DEBUG("FileServer::readResFileFinfo()");
-//    cc::Director::getInstance()->getScheduler()->schedule([&](float){
-//        rapidjson::StringBuffer buffer;
-//        rapidjson::Writer< rapidjson::StringBuffer > writer(buffer);
-//        _filecfgjson.Accept(writer);
-//        const char* str = buffer.GetString();
-//        std::string filecfg = _writePath + "/fileinfo_debug.json";
-//        FILE * pFile = fopen(filecfg.c_str(), "w");
-//        if (!pFile) return ;
-//        fwrite(str, sizeof(char), strlen(str), pFile);
-//        fclose(pFile);
-//    },this, 5.0f, false, "fileinfo");
+    //    cc::Director::getInstance()->getScheduler()->schedule([&](float){
+    //        rapidjson::StringBuffer buffer;
+    //        rapidjson::Writer< rapidjson::StringBuffer > writer(buffer);
+    //        _filecfgjson.Accept(writer);
+    //        const char* str = buffer.GetString();
+    //        std::string filecfg = _writePath + "/fileinfo_debug.json";
+    //        FILE * pFile = fopen(filecfg.c_str(), "w");
+    //        if (!pFile) return ;
+    //        fwrite(str, sizeof(char), strlen(str), pFile);
+    //        fclose(pFile);
+    //    },this, 5.0f, false, "fileinfo");
 }
 
-void FileServer::addResFileInfo(const char* filename, uint64_t u64)
-{
-    if(_filecfgjson.HasMember(filename)){
+void FileServer::addResFileInfo(const char *filename, uint64_t u64) {
+    if (_filecfgjson.HasMember(filename)) {
         _filecfgjson.RemoveMember(filename);
     }
-    char filetime[512]= {0};
+    char filetime[512] = {0};
     sprintf(filetime, "%llu", u64);
     rapidjson::Value filetimeValue(rapidjson::kStringType);
     filetimeValue.SetString(filetime, _filecfgjson.GetAllocator());
     rapidjson::Value filenameValue(rapidjson::kStringType);
-    filenameValue.SetString(filename,_filecfgjson.GetAllocator());
+    filenameValue.SetString(filename, _filecfgjson.GetAllocator());
     _filecfgjson.AddMember(filenameValue, filetimeValue, _filecfgjson.GetAllocator());
 }
 
-void FileServer::removeResFileInfo(const char *filename)
-{
+void FileServer::removeResFileInfo(const char *filename) {
     if (_filecfgjson.HasMember(filename)) {
         _filecfgjson.RemoveMember(filename);
     }
 }
 
-std::string FileServer::getTransingFileName()
-{
+std::string FileServer::getTransingFileName() {
     _fileNameMutex.lock();
     std::string filename = _strFileName;
     _fileNameMutex.unlock();
     return filename;
 }
 
-void FileServer::setTransingFileName(const std::string &filename)
-{
+void FileServer::setTransingFileName(const std::string &filename) {
     _fileNameMutex.lock();
     _strFileName = filename;
     _fileNameMutex.unlock();
 }
 
-bool FileServer::listenOnTCP(int port)
-{
+bool FileServer::listenOnTCP(int port) {
     int listenfd, n;
     const int on = 1;
     struct addrinfo hints, *res, *ressave;
     char serv[30];
 
-    snprintf(serv, sizeof(serv)-1, "%d", port );
-    serv[sizeof(serv)-1]=0;
+    snprintf(serv, sizeof(serv) - 1, "%d", port);
+    serv[sizeof(serv) - 1] = 0;
 
     bzero(&hints, sizeof(struct addrinfo));
     hints.ai_flags = AI_PASSIVE;
@@ -145,11 +137,11 @@ bool FileServer::listenOnTCP(int port)
 
 #if (CC_PLATFORM == CC_PLATFORM_WINDOWS)
     WSADATA wsaData;
-    n = WSAStartup(MAKEWORD(2, 2),&wsaData);
+    n = WSAStartup(MAKEWORD(2, 2), &wsaData);
 #endif
 
-    if ( (n = getaddrinfo(NULL, serv, &hints, &res)) != 0) {
-        fprintf(stderr,"net_listen error for %s: %s", serv, gai_strerror(n));
+    if ((n = getaddrinfo(NULL, serv, &hints, &res)) != 0) {
+        fprintf(stderr, "net_listen error for %s: %s", serv, gai_strerror(n));
         return false;
     }
 
@@ -157,41 +149,36 @@ bool FileServer::listenOnTCP(int port)
     do {
         listenfd = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
         if (listenfd < 0)
-            continue;       /* error, try next one */
-        
-        setsockopt(listenfd, SOL_SOCKET, SO_REUSEADDR, (const char*)&on, sizeof(on));
+            continue; /* error, try next one */
+
+        setsockopt(listenfd, SOL_SOCKET, SO_REUSEADDR, (const char *)&on, sizeof(on));
         //setsockopt(listenfd, IPPROTO_TCP, TCP_NODELAY, (const char*)&on, sizeof(on));
-        
+
         auto address = ConfigParser::getInstance()->getBindAddress();
 
         // bind address
-        if (address.length() > 0)
-        {
-            if (res->ai_family == AF_INET)
-            {
-                struct sockaddr_in *sin = (struct sockaddr_in*) res->ai_addr;
-                inet_pton(res->ai_family, address.c_str(), (void*)&sin->sin_addr);
-            }
-            else if (res->ai_family == AF_INET6)
-            {
-                struct sockaddr_in6 *sin = (struct sockaddr_in6*) res->ai_addr;
-                inet_pton(res->ai_family, address.c_str(), (void*)&sin->sin6_addr);
+        if (address.length() > 0) {
+            if (res->ai_family == AF_INET) {
+                struct sockaddr_in *sin = (struct sockaddr_in *)res->ai_addr;
+                inet_pton(res->ai_family, address.c_str(), (void *)&sin->sin_addr);
+            } else if (res->ai_family == AF_INET6) {
+                struct sockaddr_in6 *sin = (struct sockaddr_in6 *)res->ai_addr;
+                inet_pton(res->ai_family, address.c_str(), (void *)&sin->sin6_addr);
             }
         }
-        
+
         if (::bind(listenfd, res->ai_addr, res->ai_addrlen) == 0)
-            break;          /* success */
-   
-		/* bind error, close and try next one */
+            break; /* success */
+
+            /* bind error, close and try next one */
 #if (CC_PLATFORM == CC_PLATFORM_WINDOWS)
-		closesocket(listenfd);
+        closesocket(listenfd);
 #else
-		close(listenfd);
+        close(listenfd);
 #endif
     } while ((res = res->ai_next) != NULL);
 
-    if (res == NULL)
-    {
+    if (res == NULL) {
         perror("net_listen:");
         freeaddrinfo(ressave);
         return false;
@@ -199,123 +186,110 @@ bool FileServer::listenOnTCP(int port)
 
     listen(listenfd, 1);
 
-    if (res->ai_family == AF_INET) 
-    {
+    if (res->ai_family == AF_INET) {
         char buf[INET_ADDRSTRLEN] = "";
-        struct sockaddr_in *sin = (struct sockaddr_in*) res->ai_addr;
-        if( inet_ntop(res->ai_family, &sin->sin_addr, buf, sizeof(buf)) != NULL )
+        struct sockaddr_in *sin = (struct sockaddr_in *)res->ai_addr;
+        if (inet_ntop(res->ai_family, &sin->sin_addr, buf, sizeof(buf)) != NULL)
             CC_LOG_DEBUG("Console: listening on  %s : %d", buf, ntohs(sin->sin_port));
         else
             perror("inet_ntop");
-    } else if (res->ai_family == AF_INET6)
-    {
+    } else if (res->ai_family == AF_INET6) {
         char buf[INET6_ADDRSTRLEN] = "";
-        struct sockaddr_in6 *sin = (struct sockaddr_in6*) res->ai_addr;
-        if( inet_ntop(res->ai_family, &sin->sin6_addr, buf, sizeof(buf)) != NULL )
+        struct sockaddr_in6 *sin = (struct sockaddr_in6 *)res->ai_addr;
+        if (inet_ntop(res->ai_family, &sin->sin6_addr, buf, sizeof(buf)) != NULL)
             CC_LOG_DEBUG("Console: listening on  %s : %d", buf, ntohs(sin->sin6_port));
         else
             perror("inet_ntop");
     }
     freeaddrinfo(ressave);
     _listenfd = listenfd;
-    _receiveThread = std::thread(std::bind( &FileServer::loopReceiveFile, this));
+    _receiveThread = std::thread(std::bind(&FileServer::loopReceiveFile, this));
     _writeThread = std::thread(std::bind(&FileServer::loopWriteFile, this));
     _responseThread = std::thread(std::bind(&FileServer::loopResponse, this));
     return true;
 }
 
-void FileServer::stop()
-{
-	_receiveEndThread = true;
-	_writeEndThread = true;
-	_responseEndThread = true;
+void FileServer::stop() {
+    _receiveEndThread = true;
+    _writeEndThread = true;
+    _responseEndThread = true;
 
-    if (_receiveRunning && _receiveThread.joinable())
-    {
+    if (_receiveRunning && _receiveThread.joinable()) {
         _receiveThread.join();
     }
 
-    if (_writeRunning && _writeThread.joinable())
-	{
-		_writeThread.join();
-	}
+    if (_writeRunning && _writeThread.joinable()) {
+        _writeThread.join();
+    }
 
-    if (_responseRunning && _responseThread.joinable())
-	{
-		_responseThread.join();
-	}
+    if (_responseRunning && _responseThread.joinable()) {
+        _responseThread.join();
+    }
 }
 
-FileServer::FileServer() :
-_listenfd(-1),
-_receiveRunning(false),
-_receiveEndThread(false),
-_writeRunning(false),
-_writeEndThread(false),
-_responseRunning(false),
-_responseEndThread(false)
-{
+FileServer::FileServer() : _listenfd(-1),
+                           _receiveRunning(false),
+                           _receiveEndThread(false),
+                           _writeRunning(false),
+                           _writeEndThread(false),
+                           _responseRunning(false),
+                           _responseEndThread(false) {
 #if (CC_PLATFORM == CC_PLATFORM_MAC_IOS || CC_PLATFORM == CC_PLATFORM_ANDROID)
     // need to be opened by Code IDE
     _isUsingWritePath = false;
 #else
     _isUsingWritePath = true;
 #endif
-    
+
     _writePath = cc::FileUtils::getInstance()->getWritablePath();
-    
+
 #if (CC_PLATFORM == CC_PLATFORM_MAC_OSX)
-#include "Widget_mac.h"
+    #include "Widget_mac.h"
     _writePath += getCurAppName();
     _writePath += "/";
 #endif
-    
+
     _writePath += "debugruntime/";
-    
+
     _writePath = replaceAll(_writePath, "\\", "/");
-    if (_writePath.at(_writePath.length() - 1) != '/'){
+    if (_writePath.at(_writePath.length() - 1) != '/') {
         _writePath.append("/");
     }
 }
 
-FileServer::~FileServer()
-{
-	stop();
+FileServer::~FileServer() {
+    stop();
 }
 
-void FileServer::loopReceiveFile()
-{
+void FileServer::loopReceiveFile() {
     struct sockaddr client;
     socklen_t client_len;
 
     /* new client */
     client_len = sizeof(client);
-    int fd = accept(_listenfd, (struct sockaddr *)&client, &client_len );
+    int fd = accept(_listenfd, (struct sockaddr *)&client, &client_len);
     char *protoBuf = new char[MAXPROTOLENGTH];
 
-    while(!_receiveEndThread) { 
+    while (!_receiveEndThread) {
 
         // recv start flag
         char startflag[13] = {0};
         recvBuf(fd, startflag, sizeof(startflag) - 1);
-        if (strcmp(startflag, PROTO_START) != 0)
-        {
+        if (strcmp(startflag, PROTO_START) != 0) {
             continue;
         }
 
         // recv proto num
-        union
-        {
+        union {
             char char_type[3];
             unsigned short uint16_type;
-        }protonum;
+        } protonum;
         recvBuf(fd, protonum.char_type, sizeof(protonum.char_type) - 1);
         //recv protobuf length
-        union
-        {
+        union {
             char char_type[3];
             unsigned short uint16_type;
-        }protolength;
+        } protolength;
         recvBuf(fd, protolength.char_type, sizeof(protolength.char_type) - 1);
 
         //recv variable length
@@ -325,38 +299,32 @@ void FileServer::loopReceiveFile()
         RecvBufStruct recvDataBuf;
         recvDataBuf.fd = fd;
         recvDataBuf.fileProto.ParseFromString(protoBuf);
-        if (1 == recvDataBuf.fileProto.package_seq())
-        {
+        if (1 == recvDataBuf.fileProto.package_seq()) {
             _recvErrorFile = "";
-        } else
-        {
+        } else {
             // recv error
-            if (_recvErrorFile == recvDataBuf.fileProto.file_name())
-            {
+            if (_recvErrorFile == recvDataBuf.fileProto.file_name()) {
                 continue;
             }
         }
         unsigned long contentSize = recvDataBuf.fileProto.content_size();
-        if (contentSize == 0)
-        {
-            recvDataBuf.contentBuf="";
+        if (contentSize == 0) {
+            recvDataBuf.contentBuf = "";
             _recvBufListMutex.lock();
             _recvBufList.push_back(recvDataBuf);
             _recvBufListMutex.unlock();
-        }else if(contentSize > 0)
-        {
+        } else if (contentSize > 0) {
             //recv body data
-            Bytef *contentbuf = new Bytef[contentSize+1];
-            memset(contentbuf, 0, contentSize+1);
+            Bytef *contentbuf = new Bytef[contentSize + 1];
+            memset(contentbuf, 0, contentSize + 1);
             unsigned long recvTotalLen = contentSize;
-            while (recvTotalLen != 0){
+            while (recvTotalLen != 0) {
                 unsigned long recvLen = MAXPROTOLENGTH;
-                if(recvTotalLen < MAXPROTOLENGTH)
+                if (recvTotalLen < MAXPROTOLENGTH)
                     recvLen = recvTotalLen;
                 memset(protoBuf, 0, MAXPROTOLENGTH);
-                unsigned long result = recv(fd, protoBuf, recvLen,0);
-                if (result <= 0)
-                {
+                unsigned long result = recv(fd, protoBuf, recvLen, 0);
+                if (result <= 0) {
                     usleep(1);
                     continue;
                 }
@@ -364,12 +332,12 @@ void FileServer::loopReceiveFile()
                 recvTotalLen -= result;
             }
 
-            if (recvDataBuf.fileProto.compress_type() == runtime::FileSendProtos_CompressType::FileSendProtos_CompressType_ZIP){
+            if (recvDataBuf.fileProto.compress_type() == runtime::FileSendProtos_CompressType::FileSendProtos_CompressType_ZIP) {
                 unsigned long uncompressSize = recvDataBuf.fileProto.uncompress_size();
                 Bytef *buff = new Bytef[uncompressSize * sizeof(Bytef)];
                 memset(buff, 0, uncompressSize * sizeof(Bytef));
-                int err = ::uncompress(buff, &uncompressSize,contentbuf, contentSize * sizeof(Bytef));
-                if (err != Z_OK){
+                int err = ::uncompress(buff, &uncompressSize, contentbuf, contentSize * sizeof(Bytef));
+                if (err != Z_OK) {
                     CC_SAFE_DELETE_ARRAY(buff);
                     CC_SAFE_DELETE_ARRAY(contentbuf);
                     addResponse(recvDataBuf.fd, recvDataBuf.fileProto.file_name(), runtime::FileSendComplete::RESULTTYPE::FileSendComplete_RESULTTYPE_UNCOMPRESS_ERROR, err);
@@ -379,7 +347,7 @@ void FileServer::loopReceiveFile()
                 contentbuf = buff;
                 contentSize = uncompressSize;
             }
-            recvDataBuf.contentBuf.assign((const char*)contentbuf, contentSize);
+            recvDataBuf.contentBuf.assign((const char *)contentbuf, contentSize);
             CC_SAFE_DELETE_ARRAY(contentbuf);
 
             _recvBufListMutex.lock();
@@ -388,25 +356,22 @@ void FileServer::loopReceiveFile()
         }
     }
 
-	_receiveRunning = false;
+    _receiveRunning = false;
 
-	CC_SAFE_DELETE_ARRAY(protoBuf);
+    CC_SAFE_DELETE_ARRAY(protoBuf);
 }
 
-void FileServer::loopWriteFile()
-{
-	_writeRunning = true;
-    while(!_writeEndThread)
-    {
+void FileServer::loopWriteFile() {
+    _writeRunning = true;
+    while (!_writeEndThread) {
         _recvBufListMutex.lock();
         size_t recvSize = _recvBufList.size();
         _recvBufListMutex.unlock();
-        if(0 == recvSize)
-        {
+        if (0 == recvSize) {
             usleep(500);
             continue;
         }
-        
+
         _recvBufListMutex.lock();
         RecvBufStruct recvDataBuf = _recvBufList.front();
         _recvBufList.pop_front();
@@ -419,61 +384,52 @@ void FileServer::loopWriteFile()
         _fileNameMutex.unlock();
         //cc::log("WriteFile:: fullfilename = %s",filename.c_str());
         createDir(fullfilename.substr(0, fullfilename.find_last_of("/")).c_str());
-        
-        FILE *fp= nullptr;
-        if (1 == recvDataBuf.fileProto.package_seq())
-        {
-            _writeErrorFile ="";
+
+        FILE *fp = nullptr;
+        if (1 == recvDataBuf.fileProto.package_seq()) {
+            _writeErrorFile = "";
             fp = fopen(fullfilename.c_str(), "wb");
-        } else
-        {
-            if (_writeErrorFile == filename)
-            {
+        } else {
+            if (_writeErrorFile == filename) {
                 continue;
             }
-            fp=fopen(fullfilename.c_str(), "ab");
+            fp = fopen(fullfilename.c_str(), "ab");
         }
-        if (nullptr == fp)
-        {
+        if (nullptr == fp) {
             addResponse(recvDataBuf.fd, filename, runtime::FileSendComplete::RESULTTYPE::FileSendComplete_RESULTTYPE_FOPEN_ERROR, errno);
             continue;
         }
-        if (fp)
-        {
-            if (recvDataBuf.contentBuf.size() > 0 && 0 == fwrite(recvDataBuf.contentBuf.c_str(), sizeof(char), recvDataBuf.contentBuf.size(), fp))
-            {
+        if (fp) {
+            if (recvDataBuf.contentBuf.size() > 0 && 0 == fwrite(recvDataBuf.contentBuf.c_str(), sizeof(char), recvDataBuf.contentBuf.size(), fp)) {
                 addResponse(recvDataBuf.fd, filename, runtime::FileSendComplete::RESULTTYPE::FileSendComplete_RESULTTYPE_FWRITE_ERROR, errno);
                 fclose(fp);
                 continue;
             }
             fclose(fp);
         }
-        
-        if (1 == recvDataBuf.fileProto.package_seq())
-        {
+
+        if (1 == recvDataBuf.fileProto.package_seq()) {
             //record new file modify
             addResFileInfo(filename.c_str(), recvDataBuf.fileProto.modified_time());
             addResponse(recvDataBuf.fd, filename, runtime::FileSendComplete::RESULTTYPE::FileSendComplete_RESULTTYPE_SUCCESS, 0);
         }
     }
 
-	_writeRunning = false;
+    _writeRunning = false;
 }
 
-void FileServer::addResponse(int fd, std::string filename, int errortype, int errornum)
-{
-    switch (errortype)
-    {
-    case runtime::FileSendComplete::RESULTTYPE::FileSendComplete_RESULTTYPE_UNCOMPRESS_ERROR:
-    case runtime::FileSendComplete::RESULTTYPE::FileSendComplete_RESULTTYPE_RECV_ERROR:
-        _recvErrorFile = filename;
-        break;
-    case runtime::FileSendComplete::RESULTTYPE::FileSendComplete_RESULTTYPE_FOPEN_ERROR:
-    case runtime::FileSendComplete::RESULTTYPE::FileSendComplete_RESULTTYPE_FWRITE_ERROR:
-        _writeErrorFile = filename;
-        break;
-    default:
-        break;
+void FileServer::addResponse(int fd, std::string filename, int errortype, int errornum) {
+    switch (errortype) {
+        case runtime::FileSendComplete::RESULTTYPE::FileSendComplete_RESULTTYPE_UNCOMPRESS_ERROR:
+        case runtime::FileSendComplete::RESULTTYPE::FileSendComplete_RESULTTYPE_RECV_ERROR:
+            _recvErrorFile = filename;
+            break;
+        case runtime::FileSendComplete::RESULTTYPE::FileSendComplete_RESULTTYPE_FOPEN_ERROR:
+        case runtime::FileSendComplete::RESULTTYPE::FileSendComplete_RESULTTYPE_FWRITE_ERROR:
+            _writeErrorFile = filename;
+            break;
+        default:
+            break;
     }
 
     ResponseStruct responseBuf;
@@ -488,15 +444,13 @@ void FileServer::addResponse(int fd, std::string filename, int errortype, int er
     _responseBufListMutex.unlock();
 }
 
-void FileServer::loopResponse()
-{
-	_responseRunning = true;
-    while(!_responseEndThread) {
+void FileServer::loopResponse() {
+    _responseRunning = true;
+    while (!_responseEndThread) {
         _responseBufListMutex.lock();
         size_t responseSize = _responseBufList.size();
         _responseBufListMutex.unlock();
-        if(0 == responseSize)
-        {
+        if (0 == responseSize) {
             usleep(500);
             /* error */
             continue;
@@ -508,14 +462,13 @@ void FileServer::loopResponse()
         _responseBufListMutex.unlock();
         //send response
         std::string responseString;
-        runtime::FileSendComplete  fileSendProtoComplete;
+        runtime::FileSendComplete fileSendProtoComplete;
         fileSendProtoComplete.set_file_name(responseBuf.fileResponseProto.file_name());
         fileSendProtoComplete.set_result(responseBuf.fileResponseProto.result());
         fileSendProtoComplete.set_error_num(responseBuf.fileResponseProto.error_num());
         fileSendProtoComplete.SerializeToString(&responseString);
         char dataBuf[1024] = {0};
-        struct ResponseHeaderStruct
-        {
+        struct ResponseHeaderStruct {
             char startFlag[13]; // needs to store PROTO_START, which is 12+NULL long
             unsigned short protoNum;
             unsigned short protoBufLen;
@@ -523,41 +476,35 @@ void FileServer::loopResponse()
         ResponseHeaderStruct responseHeader;
         strcpy(responseHeader.startFlag, PROTO_START);
         responseHeader.protoNum = PROTONUM::FILESENDCOMPLETE;
-        responseHeader.protoBufLen = (unsigned short) responseString.size();
+        responseHeader.protoBufLen = (unsigned short)responseString.size();
         memcpy(dataBuf, &responseHeader, sizeof(responseHeader));
         memcpy(dataBuf + sizeof(responseHeader), responseString.c_str(), responseString.size());
-        
+
         sendBuf(responseBuf.fd, dataBuf, sizeof(responseHeader) + responseString.size());
         CC_LOG_DEBUG("responseFile:%s,result:%d", fileSendProtoComplete.file_name().c_str(), fileSendProtoComplete.result());
     }
 
-	_responseRunning = false;
+    _responseRunning = false;
 }
 
-bool createDir(const char *sPathName)
-{
-    char   DirName[256]={0};
+bool createDir(const char *sPathName) {
+    char DirName[256] = {0};
     strcpy(DirName, sPathName);
     size_t i, len = strlen(DirName);
-    if(DirName[len - 1] != '/')
-    {
+    if (DirName[len - 1] != '/') {
         strcat(DirName, "/");
     }
-    
+
     len = strlen(DirName);
-    for(i = 1; i < len; i++)
-    {
-        if(DirName[i] == '/')
-        {
+    for (i = 1; i < len; i++) {
+        if (DirName[i] == '/') {
             DirName[i] = 0;
 #ifdef _WIN32
-            if(_access(DirName, 0) != 0)
-            {
-                if(_mkdir(DirName/*, 0755*/) == -1)
+            if (_access(DirName, 0) != 0) {
+                if (_mkdir(DirName /*, 0755*/) == -1)
 #else
-			if (access(DirName, 0) != 0)
-			{
-                if(mkdir(DirName, 0755) == -1)
+            if (access(DirName, 0) != 0) {
+                if (mkdir(DirName, 0755) == -1)
 #endif
                 {
                     perror("mkdir error");
@@ -567,6 +514,6 @@ bool createDir(const char *sPathName)
             DirName[i] = '/';
         }
     }
-    
+
     return true;
 }

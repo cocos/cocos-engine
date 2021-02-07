@@ -30,7 +30,6 @@
 #include <string>
 
 #include "stdafx.h"
-#include "cocos2d.h"
 #include "PlayerMessageBoxServiceProtocol.h"
 
 PLAYER_NS_BEGIN

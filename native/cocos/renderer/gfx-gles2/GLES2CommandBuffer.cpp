@@ -367,17 +367,20 @@ void GLES2CommandBuffer::execute(CommandBuffer *const *cmdBuffs, uint32_t count)
 
 void GLES2CommandBuffer::BindStates() {
     GLES2CmdBindStates *cmd = _cmdAllocator->bindStatesCmdPool.alloc();
+
     cmd->gpuPipelineState = _curGPUPipelineState;
     cmd->gpuInputAssembler = _curGPUInputAssember;
     cmd->gpuDescriptorSets = _curGPUDescriptorSets;
 
-    vector<uint> &dynamicOffsetOffsets = _curGPUPipelineState->gpuPipelineLayout->dynamicOffsetOffsets;
-    cmd->dynamicOffsets.resize(_curGPUPipelineState->gpuPipelineLayout->dynamicOffsetCount);
-    for (size_t i = 0u; i < _curDynamicOffsets.size(); i++) {
-        size_t count = dynamicOffsetOffsets[i + 1] - dynamicOffsetOffsets[i];
-        //CCASSERT(_curDynamicOffsets[i].size() >= count, "missing dynamic offsets?");
-        count = std::min(count, _curDynamicOffsets[i].size());
-        if (count) memcpy(&cmd->dynamicOffsets[dynamicOffsetOffsets[i]], _curDynamicOffsets[i].data(), count * sizeof(uint));
+    if (_curGPUPipelineState) {
+        vector<uint> &dynamicOffsetOffsets = _curGPUPipelineState->gpuPipelineLayout->dynamicOffsetOffsets;
+        cmd->dynamicOffsets.resize(_curGPUPipelineState->gpuPipelineLayout->dynamicOffsetCount);
+        for (size_t i = 0u; i < _curDynamicOffsets.size(); i++) {
+            size_t count = dynamicOffsetOffsets[i + 1] - dynamicOffsetOffsets[i];
+            //CCASSERT(_curDynamicOffsets[i].size() >= count, "missing dynamic offsets?");
+            count = std::min(count, _curDynamicOffsets[i].size());
+            if (count) memcpy(&cmd->dynamicOffsets[dynamicOffsetOffsets[i]], _curDynamicOffsets[i].data(), count * sizeof(uint));
+        }
     }
 
     cmd->viewport = _curViewport;

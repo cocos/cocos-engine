@@ -101,8 +101,6 @@ void ShadowMapBatchedQueue::add(const ModelView *model, gfx::CommandBuffer *cmdB
         const auto subModel = model->getSubModelView(subModelID[m]);
         const auto pass = subModel->getPassView(shadowPassIdx);
         const auto batchingScheme = pass->getBatchingScheme();
-        subModel->getDescriptorSet()->bindBuffer(UBOShadow::BINDING, _buffer);
-        subModel->getDescriptorSet()->update();
 
         if (batchingScheme == BatchingSchemes::INSTANCING) {
             auto *instancedBuffer = InstancedBuffer::get(subModel->passID[shadowPassIdx]);

@@ -118,6 +118,8 @@ Application::Application(int width, int height) {
     EventDispatcher::init();
 
     _timer = [[MyTimer alloc] initWithApp:this fps:_fps];
+
+    [[[[[NSApplication sharedApplication] delegate] getWindow] contentView] start];
 }
 
 Application::~Application() {

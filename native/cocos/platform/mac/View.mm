@@ -63,6 +63,22 @@
     return self;
 }
 
+#ifdef CC_USE_METAL
+- (void)drawInMTKView:(MTKView *)view {
+    cc::Application::getInstance()->tick();
+}
+
+- (void)mtkView:(nonnull MTKView *)view drawableSizeWillChange:(CGSize)size {
+    cc::EventDispatcher::dispatchResizeEvent(static_cast<int>(size.width), static_cast<int>(size.height));
+}
+#endif
+
+- (void)start {
+#ifdef CC_USE_METAL
+    self.delegate = self;
+#endif
+}
+
 - (void)keyDown:(NSEvent *)event {
     _keyboardEvent.key = translateKeycode(event.keyCode);
     _keyboardEvent.action = [event isARepeat] ? cc::KeyboardEvent::Action::REPEAT

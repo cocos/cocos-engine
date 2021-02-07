@@ -30,47 +30,38 @@
 //
 
 #include "RuntimeProtocol.h"
-#include "cocos2d.h"
+#include "cocos/base/Log.h"
 
-void RuntimeProtocol::end()
-{    
+void RuntimeProtocol::end() {
 }
 
-void RuntimeProtocol::setProjectPath(const std::string& path)
-{
+void RuntimeProtocol::setProjectPath(const std::string &path) {
     _projectPath = path;
 }
 
-std::string RuntimeProtocol::getProjectPath() const
-{
+std::string RuntimeProtocol::getProjectPath() const {
     return _projectPath;
 }
 
-void RuntimeProtocol::startScript(const std::string& script)
-{
+void RuntimeProtocol::startScript(const std::string &script) {
     CC_LOG_DEBUG("%s: NOT SUPPRT", __FUNCTION__);
 }
 
-void RuntimeProtocol::onStartDebuger(const rapidjson::Document& dArgParse, rapidjson::Document& dReplyParse)
-{
+void RuntimeProtocol::onStartDebuger(const rapidjson::Document &dArgParse, rapidjson::Document &dReplyParse) {
     CC_LOG_DEBUG("%s: NOT SUPPRT", __FUNCTION__);
 }
 
-void RuntimeProtocol::onClearCompile(const rapidjson::Document& dArgParse, rapidjson::Document& dReplyParse)
-{
+void RuntimeProtocol::onClearCompile(const rapidjson::Document &dArgParse, rapidjson::Document &dReplyParse) {
     CC_LOG_DEBUG("%s: NOT SUPPRT", __FUNCTION__);
 }
 
-void RuntimeProtocol::onPrecompile(const rapidjson::Document& dArgParse, rapidjson::Document& dReplyParse)
-{
+void RuntimeProtocol::onPrecompile(const rapidjson::Document &dArgParse, rapidjson::Document &dReplyParse) {
     CC_LOG_DEBUG("%s: NOT SUPPRT", __FUNCTION__);
 }
 
-void RuntimeProtocol::onReload(const rapidjson::Document& dArgParse, rapidjson::Document& dReplyParse)
-{
+void RuntimeProtocol::onReload(const rapidjson::Document &dArgParse, rapidjson::Document &dReplyParse) {
     CC_LOG_DEBUG("%s: NOT SUPPRT", __FUNCTION__);
 }
 
-void RuntimeProtocol::onRemove(const std::string &filename)
-{
+void RuntimeProtocol::onRemove(const std::string &filename) {
 }

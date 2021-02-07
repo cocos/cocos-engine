@@ -28,6 +28,10 @@
 #include "bindings/jswrapper/SeApi.h"
 #include "bindings/manual/jsb_classtype.h"
 #include "cocos/base/Vector.h"
+#include "cocos/base/Map.h"
+#include "cocos/math/Vec2.h"
+#include "cocos/math/Vec3.h"
+#include "cocos/math/Geometry.h"
 #include "extensions/cocos-ext.h"
 #include "network/Downloader.h"
 #include <assert.h>
@@ -1059,6 +1063,11 @@ template <>
 inline bool sevalue_to_native(const se::Value &from, std::string **to, se::Object *) {
     **to = from.toString();
     return true;
+}
+
+template <>
+inline bool sevalue_to_native(const se::Value &from, cc::ValueMap *to, se::Object *) {
+    return seval_to_ccvaluemap(from, to);
 }
 
 template <>

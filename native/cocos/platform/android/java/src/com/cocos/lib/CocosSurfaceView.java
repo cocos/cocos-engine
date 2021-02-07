@@ -25,12 +25,15 @@
 package com.cocos.lib;
 
 import android.content.Context;
+import android.view.MotionEvent;
 import android.view.SurfaceView;
 
 public class CocosSurfaceView extends SurfaceView {
+    private CocosTouchHandler mTouchHandler;
 
     public CocosSurfaceView(Context context) {
         super(context);
+        mTouchHandler = new CocosTouchHandler();
     }
 
     private native void nativeOnSizeChanged(final int width, final int height);
@@ -44,5 +47,10 @@ public class CocosSurfaceView extends SurfaceView {
                 nativeOnSizeChanged(w, h);
             }
         });
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        return mTouchHandler.onTouchEvent(event);
     }
 }

@@ -101,8 +101,8 @@ bool CCVKDescriptorSet::initialize(const DescriptorSetInfo &info) {
     _gpuDescriptorSet->instances.resize(gpuDevice->backBufferCount);
 
     for (size_t t = 0u; t < gpuDevice->backBufferCount; ++t) {
-        CCVKGPUDescriptorSet::Instance &instance = _gpuDescriptorSet->instances[t];
-        instance.vkDescriptorSet                 = gpuDescriptorSetLayout->pool.request();
+        CCVKGPUDescriptorSet::DescriptorSetInstance &instance = _gpuDescriptorSet->instances[t];
+        instance.vkDescriptorSet                              = gpuDescriptorSetLayout->pool.request(t);
         instance.descriptorInfos.resize(descriptorCount, {});
 
         for (size_t i = 0u, k = 0u; i < bindingCount; ++i) {
@@ -186,7 +186,7 @@ void CCVKDescriptorSet::destroy() {
             }
 
             if (gpuDescriptorSetLayout && instance.vkDescriptorSet) {
-                gpuDescriptorSetLayout->pool.yield(instance.vkDescriptorSet);
+                gpuDescriptorSetLayout->pool.yield(instance.vkDescriptorSet, t);
             }
         }
 
@@ -222,7 +222,7 @@ void CCVKDescriptorSet::update() {
                                 descriptorHub->disengage(binding.gpuBufferView, &descriptorInfo.buffer);
                             }
                             if (bufferView) {
-                                descriptorHub->connect(bufferView, &descriptorInfo.buffer, t);
+                                descriptorHub->connect(_gpuDescriptorSet, bufferView, &descriptorInfo.buffer, t);
                                 descriptorHub->update(bufferView, &descriptorInfo.buffer);
                                 //layoutMgr->checkIn(bufferView->gpuBuffer, binding.accessTypes.data(), binding.accessTypes.size());
                             }
@@ -240,7 +240,7 @@ void CCVKDescriptorSet::update() {
                                 descriptorHub->disengage(binding.gpuTextureView, &descriptorInfo.image);
                             }
                             if (textureView) {
-                                descriptorHub->connect(textureView, &descriptorInfo.image);
+                                descriptorHub->connect(_gpuDescriptorSet, textureView, &descriptorInfo.image);
                                 descriptorHub->update(textureView, &descriptorInfo.image);
                                 layoutMgr->checkIn(textureView->gpuTexture, binding.accessTypes.data(), binding.accessTypes.size());
                             }

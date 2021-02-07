@@ -353,6 +353,8 @@ bool CCVKDevice::initialize(const DeviceInfo &info) {
     _gpuBarrierManager       = CC_NEW(CCVKGPUBarrierManager(_gpuDevice));
     _gpuDescriptorSetHub     = CC_NEW(CCVKGPUDescriptorSetHub(_gpuDevice));
 
+    _gpuDescriptorHub->link(_gpuDescriptorSetHub);
+
     CommandBufferInfo cmdBuffInfo;
     cmdBuffInfo.type  = CommandBufferType::PRIMARY;
     cmdBuffInfo.queue = _queue;

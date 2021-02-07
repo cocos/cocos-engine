@@ -23,13 +23,13 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include <vector>
 #include <array>
+#include <vector>
 
-#include "SceneCulling.h"
 #include "Define.h"
 #include "helper/SharedMemory.h"
 #include "RenderPipeline.h"
+#include "SceneCulling.h"
 #include "gfx/GFXBuffer.h"
 #include "gfx/GFXDescriptorSet.h"
 #include "math/Quaternion.h"
@@ -101,7 +101,7 @@ void updateSphereLight(Shadows *shadows, const Light *light, std::array<float, U
     memcpy(shadowUBO.data() + UBOShadow::MAT_LIGHT_PLANE_PROJ_OFFSET, matLight.m, sizeof(matLight));
 }
 
-void updateDirLight(Shadows *shadows, const Light *light, std::array<float, UBOShadow::COUNT>& shadowUBO) {
+void updateDirLight(Shadows *shadows, const Light *light, std::array<float, UBOShadow::COUNT> &shadowUBO) {
     const auto node = light->getNode();
     const auto rotation = node->worldRotation;
     Quaternion _qt(rotation.x, rotation.y, rotation.z, rotation.w);
@@ -138,7 +138,7 @@ void updateDirLight(Shadows *shadows, const Light *light, std::array<float, UBOS
     memcpy(shadowUBO.data() + UBOShadow::MAT_LIGHT_PLANE_PROJ_OFFSET, matLight.m, sizeof(matLight));
 }
 
- void lightCollecting(Camera *camera, std::vector<const Light *>& validLights) {
+void lightCollecting(Camera *camera, std::vector<const Light *> &validLights) {
     validLights.clear();
     auto *sphere = CC_NEW(Sphere);
     const auto scene = camera->getScene();
@@ -220,24 +220,16 @@ void sceneCulling(RenderPipeline *pipeline, Camera *camera) {
         // filter model by view visibility
         if (model->enabled) {
             const auto visibility = camera->visibility;
-            const auto vis = visibility & static_cast<uint>(LayerList::UI_2D);
             const auto node = model->getNode();
-            if (vis) {
-                if ((model->nodeID && (visibility == node->layer)) ||
-                    visibility == model->visFlags) {
-                    renderObjects.emplace_back(genRenderObject(model, camera));
-                }
-            } else {
-                if ((model->nodeID && ((visibility & node->layer) == node->layer)) ||
-                    (visibility & model->visFlags)) {
+            if ((model->nodeID && ((visibility & node->layer) == node->layer)) ||
+                (visibility & model->visFlags)) {
 
-                    // frustum culling
-                    if ((model->worldBoundsID) && !aabb_frustum(model->getWorldBounds(), camera->getFrustum())) {
-                        continue;
-                    }
-
-                    renderObjects.emplace_back(genRenderObject(model, camera));
+                // frustum culling
+                if ((model->worldBoundsID) && !aabb_frustum(model->getWorldBounds(), camera->getFrustum())) {
+                    continue;
                 }
+
+                renderObjects.emplace_back(genRenderObject(model, camera));
             }
         }
     }

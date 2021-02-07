@@ -34,4 +34,6 @@
 @property(nonatomic, assign) id<MTLDevice> device;
 #endif
 
+-(void)start;
+
 @end

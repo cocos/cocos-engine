@@ -35,6 +35,8 @@
     #include "cocos/bindings/event/EventDispatcher.h"
 #endif
 
+#define FORCE_DISABLE_VALIDATION  1
+
 namespace cc {
 namespace gfx {
 
@@ -237,7 +239,7 @@ bool GLES2Context::initialize(const ContextInfo &info) {
 
         bool hasKHRCreateCtx = CheckExtension(CC_TOSTR(EGL_KHR_create_context));
         if (hasKHRCreateCtx) {
-    #if CC_DEBUG > 0
+    #if CC_DEBUG > 0 && !FORCE_DISABLE_VALIDATION
             ctxAttribs[n++] = EGL_CONTEXT_FLAGS_KHR;
             ctxAttribs[n++] = EGL_CONTEXT_OPENGL_DEBUG_BIT_KHR;
     #endif
@@ -328,7 +330,7 @@ bool GLES2Context::initialize(const ContextInfo &info) {
             ctxAttribs[n++] = EGL_CONTEXT_MINOR_VERSION_KHR;
             ctxAttribs[n++] = _minorVersion;
 
-    #if CC_DEBUG > 0
+    #if CC_DEBUG > 0 && !FORCE_DISABLE_VALIDATION
             ctxAttribs[n++] = EGL_CONTEXT_FLAGS_KHR;
             ctxAttribs[n++] = EGL_CONTEXT_OPENGL_DEBUG_BIT_KHR;
     #endif
@@ -424,7 +426,7 @@ bool GLES2Context::MakeCurrent(bool bound) {
             _isInitialized = true;
         }
 
-#if CC_DEBUG > 0 && CC_PLATFORM != CC_PLATFORM_MAC_IOS
+#if CC_DEBUG > 0 && !FORCE_DISABLE_VALIDATION && CC_PLATFORM != CC_PLATFORM_MAC_IOS
         GL_CHECK(glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS_KHR));
         GL_CHECK(glDebugMessageControlKHR(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, NULL, GL_TRUE));
         GL_CHECK(glDebugMessageCallbackKHR(GLES2EGLDebugProc, NULL));
