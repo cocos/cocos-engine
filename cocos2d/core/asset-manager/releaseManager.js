@@ -98,7 +98,7 @@ function descendOpRef (asset, refs, exclude, op) {
 
 function checkCircularReference (asset) {
     // only Prefab will be circle referenced
-    if (!(asset instanceof cc.Prefab) || !asset.circleReferenced) return asset.refCount;
+    if (!CC_TEST && (!(asset instanceof cc.Prefab) || !asset.circleReferenced)) return asset.refCount;
 
     // check circular reference
     var refs = Object.create(null);
@@ -118,21 +118,10 @@ function checkCircularReference (asset) {
 }
 
 var _persistNodeDeps = new Cache();
-var _toDelete = new Cache();
-var eventListener = false;
-
-function freeAssets () {
-    eventListener = false;
-    _toDelete.forEach(function (asset) {
-        releaseManager._free(asset);
-    });
-    _toDelete.clear();
-}
 
 var releaseManager = {
     init () {
         _persistNodeDeps.clear();
-        _toDelete.clear();
     },
 
     _addPersistNodeRef (node) {
