@@ -519,7 +519,6 @@ const cacheManager = require('./jsb-cache-manager');
         if (this._armature && !this.isAnimationCached()) {
             this._factory.add(this._armature);
         }
-        this._onSyncTransform();
         this.syncTransform(true);
         this._flushAssembler();
         middleware.retain();
@@ -531,7 +530,6 @@ const cacheManager = require('./jsb-cache-manager');
         if (this._armature && !this.isAnimationCached()) {
             this._factory.remove(this._armature);
         }
-        this._offSyncTransform();
         middleware.release();
     };
 
@@ -585,26 +583,28 @@ const cacheManager = require('./jsb-cache-manager');
 
         let paramsBuffer = this._paramsBuffer;
         if (!paramsBuffer) return;
-     
-        // sync node world matrix to native
-        node.updateWorldTransform();
-        let worldMat = node._mat;
-        paramsBuffer[1]  = worldMat.m00;
-        paramsBuffer[2]  = worldMat.m01;
-        paramsBuffer[3]  = worldMat.m02;
-        paramsBuffer[4]  = worldMat.m03;
-        paramsBuffer[5]  = worldMat.m04;
-        paramsBuffer[6]  = worldMat.m05;
-        paramsBuffer[7]  = worldMat.m06;
-        paramsBuffer[8]  = worldMat.m07;
-        paramsBuffer[9]  = worldMat.m08;
-        paramsBuffer[10] = worldMat.m09;
-        paramsBuffer[11] = worldMat.m10;
-        paramsBuffer[12] = worldMat.m11;
-        paramsBuffer[13] = worldMat.m12;
-        paramsBuffer[14] = worldMat.m13;
-        paramsBuffer[15] = worldMat.m14;
-        paramsBuffer[16] = worldMat.m15;
+
+        if (force || node.hasChangedFlags) {
+            // sync node world matrix to native
+            node.updateWorldTransform();
+            let worldMat = node._mat;
+            paramsBuffer[1]  = worldMat.m00;
+            paramsBuffer[2]  = worldMat.m01;
+            paramsBuffer[3]  = worldMat.m02;
+            paramsBuffer[4]  = worldMat.m03;
+            paramsBuffer[5]  = worldMat.m04;
+            paramsBuffer[6]  = worldMat.m05;
+            paramsBuffer[7]  = worldMat.m06;
+            paramsBuffer[8]  = worldMat.m07;
+            paramsBuffer[9]  = worldMat.m08;
+            paramsBuffer[10] = worldMat.m09;
+            paramsBuffer[11] = worldMat.m10;
+            paramsBuffer[12] = worldMat.m11;
+            paramsBuffer[13] = worldMat.m12;
+            paramsBuffer[14] = worldMat.m13;
+            paramsBuffer[15] = worldMat.m14;
+            paramsBuffer[16] = worldMat.m15;
+        }
     };
 
     armatureDisplayProto.setAnimationCacheMode = function (cacheMode) {
@@ -621,7 +621,7 @@ const cacheManager = require('./jsb-cache-manager');
     }
 
 
-    armatureDisplayProto.update = function () {
+    armatureDisplayProto.lateUpdate = function () {
         let nativeDisplay = this._nativeDisplay;
         if (!nativeDisplay) return;
 
@@ -635,6 +635,7 @@ const cacheManager = require('./jsb-cache-manager');
             middleware.renderOrder++;
         }
 
+        this.syncTransform();
 
         if (this.__preColor__ === undefined || !this.color.equals(this.__preColor__)) {
             let compColor = this.color;
