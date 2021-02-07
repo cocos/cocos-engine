@@ -25,15 +25,15 @@
 
 import { AABB, intersect } from '../geometry';
 import { SetIndex } from './define';
-import { CommandBuffer, Device, RenderPass, Shader } from '../gfx';
+import { CommandBuffer, Device, RenderPass } from '../gfx';
 import { InstancedBuffer } from './instanced-buffer';
 import { PipelineStateManager } from './pipeline-state-manager';
 import { Model, Camera } from '../renderer/scene';
-import { DSPool, ShaderPool, PassPool, PassView, ShadowsPool, ShadowsView } from '../renderer/core/memory-pools';
+import { DSPool, ShaderPool, PassPool, PassView } from '../renderer/core/memory-pools';
 import { RenderInstancedQueue } from './render-instanced-queue';
-import { RenderPipeline } from './render-pipeline';
 import { ShadowType } from '../renderer/scene/shadows';
 import { Layers } from '../scene-graph/layers';
+import { RenderPipeline } from './render-pipeline';
 
 const _ab = new AABB();
 
@@ -91,13 +91,15 @@ export class PlanarShadowQueue {
         const pass = shadows.material.passes[0];
         const descriptorSet = DSPool.get(PassPool.get(pass.handle, PassView.DESCRIPTOR_SET));
         cmdBuff.bindDescriptorSet(SetIndex.MATERIAL, descriptorSet);
-        const shader = ShaderPool.get(ShadowsPool.get(shadows.handle, ShadowsView.PLANAR_SHADER));
 
         const modelCount = this._pendingModels.length;
         for (let i = 0; i < modelCount; i++) {
             const model = this._pendingModels[i];
             for (let j = 0; j < model.subModels.length; j++) {
                 const subModel = model.subModels[j];
+                // This is a temporary solution
+                // It should not be written in a fixed way, or modified by the user
+                const shader = ShaderPool.get(subModel.planarShaderHandel);
                 const ia = subModel.inputAssembler;
                 const pso = PipelineStateManager.getOrCreatePipelineState(device, pass, shader, renderPass, ia);
                 cmdBuff.bindPipelineState(pso);

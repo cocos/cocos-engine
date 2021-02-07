@@ -77,6 +77,18 @@ export class ShadowStage extends RenderStage {
         this._additiveShadowQueue.clear();
     }
 
+    public clearFramebuffer (camera: Camera) {
+        if (!this._light || !this._shadowFrameBuffer) { return; }
+        colors[0].w = camera.clearColor.w;
+        const pipeline = this._pipeline as ForwardPipeline;
+        const cmdBuff = pipeline.commandBuffers[0];
+        const renderPass = this._shadowFrameBuffer.renderPass;
+
+        cmdBuff.beginRenderPass(renderPass, this._shadowFrameBuffer, this._renderArea,
+            colors, camera.clearDepth, camera.clearStencil);
+        cmdBuff.endRenderPass();
+    }
+
     public render (camera: Camera) {
         const pipeline = this._pipeline;
         const pipelineSceneData = pipeline.pipelineSceneData;

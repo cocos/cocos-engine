@@ -176,7 +176,7 @@ enum EventType {
 @ccclass('cc.Sprite')
 @help('i18n:cc.Sprite')
 @executionOrder(110)
-@menu('UI/Render/Sprite')
+@menu('2D/Sprite')
 export class Sprite extends Renderable2D {
     /**
      * @en

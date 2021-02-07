@@ -133,7 +133,7 @@ export class StencilManager {
 
     public getStencilStage (stage: Stage, mat?: Material) {
         let key = 0;
-        let depthTest = true;
+        let depthTest = false;
         let depthWrite = false;
         let depthFunc = ComparisonFunc.LESS;
         let cacheMap = this.stencilStateMap;
@@ -179,6 +179,10 @@ export class StencilManager {
         );
         cacheMap.set(key, depthStencilState);
         return depthStencilState;
+    }
+
+    public getStencilHash (stage: Stage) {
+        return (stage << 8) | this._maskStack.length;
     }
 
     // Notice: Only children node in Mask need use this.stage

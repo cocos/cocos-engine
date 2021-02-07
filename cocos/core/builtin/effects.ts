@@ -481,23 +481,20 @@ export default [
   {
     "name": "spine-two-colored",
     "techniques": [
-      { "passes": [{ "blendState": { "targets": [{ "blend": true, "blendSrc": 2, "blendDst": 4, "blendDstAlpha": 4 }] }, "rasterizerState": { "cullMode": 0 }, "program": "spine-two-colored|sprite-vs:vert|sprite-fs:frag", "depthStencilState": { "depthTest": false, "depthWrite": false }, "properties": { "alphaThreshold": { "value": [0.5], "type": 13 } } }] }
+      { "passes": [{ "blendState": { "targets": [{ "blend": true, "blendSrc": 2, "blendDst": 4, "blendDstAlpha": 4 }] }, "rasterizerState": { "cullMode": 0 }, "program": "spine|sprite-vs:vert|sprite-fs:frag", "depthStencilState": { "depthTest": false, "depthWrite": false }, "properties": { "alphaThreshold": { "value": [0.5], "type": 13 } } }] }
     ],
     "shaders": [
       {
-        "name": "spine-two-colored|sprite-vs:vert|sprite-fs:frag",
-        "hash": 3853945046,
+        "name": "spine|sprite-vs:vert|sprite-fs:frag",
+        "hash": 4078504952,
         "builtins": {
           "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }], "samplerTextures": [] },
           "locals": { "blocks": [{ "name": "CCLocal", "defines": ["USE_LOCAL"] }], "samplerTextures": [{ "name": "cc_spriteTexture", "defines": ["USE_TEXTURE"] }] }
         },
         "defines": [
           { "name": "USE_LOCAL", "type": "boolean" },
-          { "name": "USE_PIXEL_ALIGNMENT", "type": "boolean" },
-          { "name": "CC_USE_EMBEDDED_ALPHA", "type": "boolean" },
-          { "name": "USE_ALPHA_TEST", "type": "boolean" },
-          { "name": "USE_TEXTURE", "type": "boolean" },
-          { "name": "IS_GRAY", "type": "boolean" }
+          { "name": "TWO_COLORED", "type": "boolean" },
+          { "name": "USE_ALPHA_TEST", "type": "boolean" }
         ],
         "blocks": [
           {"name": "ALPHA_TEST_DATA", "defines": ["USE_ALPHA_TEST"], "binding": 0, "stageFlags": 16, "members": [
@@ -509,7 +506,7 @@ export default [
           { "name": "a_position", "type": 15, "count": 1, "defines": [], "stageFlags": 1, "format": 32, "location": 0 },
           { "name": "a_texCoord", "type": 14, "count": 1, "defines": [], "stageFlags": 1, "format": 21, "location": 1 },
           { "name": "a_color", "type": 16, "count": 1, "defines": [], "stageFlags": 1, "format": 44, "location": 2 },
-          { "name": "a_color2", "type": 16, "count": 1, "defines": [], "stageFlags": 1, "format": 44, "location": 3 }
+          { "name": "a_color2", "type": 16, "count": 1, "defines": ["TWO_COLORED"], "stageFlags": 1, "format": 44, "location": 3 }
         ]
       }
     ]
@@ -522,7 +519,7 @@ export default [
     "shaders": [
       {
         "name": "sprite|sprite-vs:vert|sprite-fs:frag",
-        "hash": 3640649043,
+        "hash": 3990469549,
         "builtins": {
           "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }], "samplerTextures": [] },
           "locals": { "blocks": [{ "name": "CCLocal", "defines": ["USE_LOCAL"] }], "samplerTextures": [{ "name": "cc_spriteTexture", "defines": ["USE_TEXTURE"] }] }

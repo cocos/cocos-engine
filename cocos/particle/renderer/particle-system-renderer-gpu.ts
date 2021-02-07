@@ -156,6 +156,7 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
     }
 
     public clear () {
+        super.clear();
         this._particleNum = 0;
         this.updateRenderData();
     }

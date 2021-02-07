@@ -137,7 +137,7 @@ const v3_1 = new Vec3();
 @help('i18n:cc.SkinnedMeshBatchRenderer')
 @executionOrder(100)
 @executeInEditMode
-@menu('Components/SkinnedMeshBatchRenderer')
+@menu('Mesh/SkinnedMeshBatchRenderer')
 export class SkinnedMeshBatchRenderer extends SkinnedMeshRenderer {
     /**
      * @en Size of the generated texture atlas.

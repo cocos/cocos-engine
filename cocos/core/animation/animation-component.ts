@@ -58,7 +58,7 @@ import { legacyCC } from '../global-exports';
 @help('i18n:cc.Animation')
 @executionOrder(99)
 @executeInEditMode
-@menu('Components/Animation')
+@menu('Animation/Animation')
 export class Animation extends Eventify(Component) {
     /**
      * @en

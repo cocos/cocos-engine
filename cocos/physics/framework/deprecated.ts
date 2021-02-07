@@ -40,6 +40,7 @@ import { Collider } from './components/colliders/collider';
 import { js } from '../../core/utils/js';
 import { legacyCC } from '../../core/global-exports';
 import { PhysicsMaterial } from './assets/physics-material';
+import { Constraint } from './components/constraints/constraint';
 
 replaceProperty(PhysicsSystem, 'PhysicsSystem', [
     {
@@ -95,6 +96,13 @@ replaceProperty(Collider, 'Collider', [
     {
         name: 'EAxisDirection',
         newName: 'Axis',
+    },
+]);
+
+replaceProperty(Constraint, 'Constraint', [
+    {
+        name: 'EConstraintType',
+        newName: 'Type',
     },
 ]);
 

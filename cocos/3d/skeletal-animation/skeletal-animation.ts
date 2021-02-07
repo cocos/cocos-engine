@@ -98,7 +98,7 @@ function collectRecursively (node: Node, prefix = '', out: string[] = []) {
 @help('i18n:cc.SkeletalAnimation')
 @executionOrder(99)
 @executeInEditMode
-@menu('Components/SkeletalAnimation')
+@menu('Animation/SkeletalAnimation')
 export class SkeletalAnimation extends Animation {
     public static Socket = Socket;
 

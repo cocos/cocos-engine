@@ -1,5 +1,4 @@
+import { cclegacy } from '../../../exports/base';
 import { atob } from '../../core/utils/atob';
 
-if (typeof globalThis !== 'undefined') {
-    globalThis.atob ??= atob;
-}
+cclegacy._global.atob = atob;
