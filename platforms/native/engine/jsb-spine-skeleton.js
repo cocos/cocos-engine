@@ -431,7 +431,7 @@ const cacheManager = require('./jsb-cache-manager');
         }
     };
 
-    skeleton.update = function () {
+    skeleton.laterUpdate = function () {
         let nativeSkeleton = this._nativeSkeleton;
         if (!nativeSkeleton) return;
 
