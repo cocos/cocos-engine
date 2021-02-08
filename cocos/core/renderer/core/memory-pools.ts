@@ -700,6 +700,7 @@ export enum SubModelView {
     SHADER_1,        // handle
     SHADER_2,        // handle
     SHADER_3,        // handle
+    PLANAR_SHADER,   // handle
     DESCRIPTOR_SET,  // handle
     INPUT_ASSEMBLER, // handle
     SUB_MESH,        // handle
@@ -716,6 +717,7 @@ interface ISubModelViewType extends BufferTypeManifest<typeof SubModelView> {
     [SubModelView.SHADER_1]: ShaderHandle;
     [SubModelView.SHADER_2]: ShaderHandle;
     [SubModelView.SHADER_3]: ShaderHandle;
+    [SubModelView.PLANAR_SHADER]: ShaderHandle;
     [SubModelView.DESCRIPTOR_SET]: DescriptorSetHandle;
     [SubModelView.INPUT_ASSEMBLER]: InputAssemblerHandle;
     [SubModelView.SUB_MESH]: SubMeshHandle;
@@ -732,6 +734,7 @@ const subModelViewDataType: BufferDataTypeManifest<typeof SubModelView> = {
     [SubModelView.SHADER_1]: BufferDataType.UINT32,
     [SubModelView.SHADER_2]: BufferDataType.UINT32,
     [SubModelView.SHADER_3]: BufferDataType.UINT32,
+    [SubModelView.PLANAR_SHADER]: BufferDataType.UINT32,
     [SubModelView.DESCRIPTOR_SET]: BufferDataType.UINT32,
     [SubModelView.INPUT_ASSEMBLER]: BufferDataType.UINT32,
     [SubModelView.SUB_MESH]: BufferDataType.UINT32,
@@ -1164,7 +1167,6 @@ export enum ShadowsView {
     DISTANCE,
     INSTANCE_PASS,
     PLANAR_PASS,
-    PLANAR_SHADER,
     NEAR,
     FAR,
     ASPECT,
@@ -1173,11 +1175,11 @@ export enum ShadowsView {
     BIAS,
     ORTHO_SIZE,
     AUTO_ADAPT,         // boolean
-    COLOR = 15,         // Vec4
-    SIZE = 19,          // Vec2
-    NORMAL = 21,        // Vec3
-    MAT_LIGHT = 24,     // Mat4
-    COUNT = 40
+    COLOR = 14,         // Vec4
+    SIZE = 18,          // Vec2
+    NORMAL = 20,        // Vec3
+    MAT_LIGHT = 23,     // Mat4
+    COUNT = 39
 }
 interface IShadowsViewType extends BufferTypeManifest<typeof ShadowsView> {
     [ShadowsView.ENABLE]: number;
@@ -1186,7 +1188,6 @@ interface IShadowsViewType extends BufferTypeManifest<typeof ShadowsView> {
     [ShadowsView.DISTANCE]: number;
     [ShadowsView.INSTANCE_PASS]: PassHandle;
     [ShadowsView.PLANAR_PASS]: PassHandle;
-    [ShadowsView.PLANAR_SHADER]: ShaderHandle;
     [ShadowsView.NEAR]: number;
     [ShadowsView.FAR]: number;
     [ShadowsView.ASPECT]: number;
@@ -1208,7 +1209,6 @@ const shadowsViewDataType: BufferDataTypeManifest<typeof ShadowsView> = {
     [ShadowsView.DISTANCE]: BufferDataType.FLOAT32,
     [ShadowsView.INSTANCE_PASS]: BufferDataType.UINT32,
     [ShadowsView.PLANAR_PASS]: BufferDataType.UINT32,
-    [ShadowsView.PLANAR_SHADER]: BufferDataType.UINT32,
     [ShadowsView.NEAR]: BufferDataType.FLOAT32,
     [ShadowsView.FAR]: BufferDataType.FLOAT32,
     [ShadowsView.ASPECT]: BufferDataType.FLOAT32,

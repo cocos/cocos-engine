@@ -177,9 +177,9 @@ export class Canvas extends RenderRoot2D {
             }
         }
 
-        if (EDITOR) {
-            this._onResizeCamera();
+        this._onResizeCamera();
 
+        if (EDITOR) {
             // Constantly align canvas node in edit mode
             legacyCC.director.on(legacyCC.Director.EVENT_AFTER_UPDATE, this._fitDesignResolution!, this);
 

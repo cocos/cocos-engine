@@ -41,7 +41,7 @@ import { legacyCC } from '../core/global-exports';
 
 @ccclass('cc.Billboard')
 @help('i18n:cc.Billboard')
-@menu('Components/Billboard')
+@menu('Effects/Billboard')
 @executeInEditMode
 export class Billboard extends Component {
     @type(Texture2D)

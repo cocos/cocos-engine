@@ -1,9 +1,9 @@
+import { Armature, BlendMode, Matrix } from '@cocos/dragonbones-js';
 import { Color, Mat4, RenderTexture } from '../core';
 import { TextureBase } from '../core/assets/texture-base';
 import { CCArmatureDisplay } from './CCArmatureDisplay';
 import { CCFactory } from './CCFactory';
 import { CCSlot } from './CCSlot';
-import { Armature, BlendMode, Matrix } from './lib/dragonBones.js';
 
 const MaxCacheTime = 30;
 const FrameTime = 1 / 60;

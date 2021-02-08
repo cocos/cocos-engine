@@ -146,7 +146,7 @@ interface ISegment {
 @ccclass('cc.RichText')
 @help('i18n:cc.RichText')
 @executionOrder(110)
-@menu('UI/Render/RichText')
+@menu('2D/RichText')
 @executeInEditMode
 export class RichText extends UIComponent {
     /**

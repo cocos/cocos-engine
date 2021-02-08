@@ -1,13 +1,13 @@
 import { EDITOR } from 'internal:constants';
+import { Armature, Bone, EventObject } from '@cocos/dragonbones-js';
 import { ccclass, executeInEditMode, help, menu } from '../core/data/class-decorator';
 import { Renderable2D } from '../2d/framework/renderable-2d';
-import { Node, EventTarget, CCClass, Color, Enum, PrivateNode, ccenum, errorID, Texture2D, js, CCObject } from '../core';
+import { Node, EventTarget, CCClass, Color, Enum, PrivateNode, ccenum, errorID, Texture2D, js, CCObject, SystemEventType } from '../core';
 import { BlendFactor } from '../core/gfx';
-import { displayName, editable, serializable, tooltip, type, visible } from '../core/data/decorators';
+import { displayName, editable, override, serializable, tooltip, type, visible } from '../core/data/decorators';
 import { AnimationCache, ArmatureCache, ArmatureFrame } from './ArmatureCache';
 import { AttachUtil } from './AttachUtil';
 import { CCFactory } from './CCFactory';
-import { Armature, Bone, EventObject } from './lib/dragonBones.js';
 import { DragonBonesAsset } from './DragonBonesAsset';
 import { DragonBonesAtlasAsset } from './DragonBonesAtlasAsset';
 import { Graphics } from '../2d/components';
@@ -124,10 +124,20 @@ interface BoneIndex extends Number {
  */
 @ccclass('dragonBones.ArmatureDisplay')
 @help('i18n:dragonBones.ArmatureDisplay')
-@menu('Components/ArmatureDisplay')
+@menu('DragonBones/ArmatureDisplay')
 @executeInEditMode
 export class ArmatureDisplay extends Renderable2D {
     static AnimationCacheMode = AnimationCacheMode;
+
+    @override
+    @visible(false)
+    get srcBlendFactor () { return super.srcBlendFactor; }
+    set srcBlendFactor (v) { super.srcBlendFactor = v; }
+
+    @override
+    @visible(false)
+    get dstBlendFactor () { return super.dstBlendFactor; }
+    set dstBlendFactor (v) { super.dstBlendFactor = v; }
 
     /**
      * !#en
@@ -707,6 +717,20 @@ export class ArmatureDisplay extends Renderable2D {
         this._flushAssembler();
     }
 
+    public _onSyncTransform () {
+        this.node.on(SystemEventType.TRANSFORM_CHANGED, this.syncTransform, this);
+        this.node.on(SystemEventType.SIZE_CHANGED, this.syncTransform, this);
+    }
+
+    public _offSyncTransform () {
+        this.node.off(SystemEventType.TRANSFORM_CHANGED, this.syncTransform, this);
+        this.node.off(SystemEventType.SIZE_CHANGED, this.syncTransform, this);
+    }
+
+    private syncTransform () {
+
+    }
+
     onDisable () {
         super.onDisable();
         // If cache mode is cache, no need to update by dragonbones library.
@@ -911,6 +935,10 @@ export class ArmatureDisplay extends Renderable2D {
             this._indexBoneSockets();
         }
         return Array.from(this._cachedSockets.keys()).sort();
+    }
+
+    public setBlendHash () {
+        if (this._blendHash !== -1) this._blendHash = -1;
     }
 
     /**
