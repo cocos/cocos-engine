@@ -241,7 +241,7 @@ void CCMTLDevice::present() {
     _numTriangles = queue->_numTriangles;
 
     //hold this pointer before update _currentFrameIndex
-    _currentBufferPool = _gpuStagingBufferPools[_currentFrameIndex];
+    _currentBufferPoolId = _currentFrameIndex;
     _currentFrameIndex = (_currentFrameIndex + 1) % MAX_FRAMES_IN_FLIGHT;
 
     if (_autoreleasePool) {
@@ -252,9 +252,12 @@ void CCMTLDevice::present() {
 }
 
 void CCMTLDevice::presentCompleted() {
-    if (_currentBufferPool) {
-        _currentBufferPool->reset();
-        _currentBufferPool = nullptr;
+    if (_currentBufferPoolId >= 0 && _currentBufferPoolId < MAX_FRAMES_IN_FLIGHT) {
+        CCMTLGPUStagingBufferPool *bufferPool = _gpuStagingBufferPools[_currentBufferPoolId];
+        if (bufferPool) {
+            bufferPool->reset();
+            CCMTLGPUGarbageCollectionPool::getInstance()->clear(_currentBufferPoolId);
+        }
     }
     _inFlightSemaphore->signal();
 }

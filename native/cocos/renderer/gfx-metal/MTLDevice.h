@@ -116,7 +116,7 @@ private:
     bool _indirectDrawSupported = false;
     bool _isSamplerDescriptorCompareFunctionSupported = false;
     CCMTLGPUStagingBufferPool *_gpuStagingBufferPools[MAX_FRAMES_IN_FLIGHT] = {nullptr};
-    CCMTLGPUStagingBufferPool *_currentBufferPool = nullptr;
+    uint _currentBufferPoolId = 0;
     uint _currentFrameIndex = 0;
     CCMTLSemaphore *_inFlightSemaphore = nullptr;
     CC_UNUSED uint32_t _memoryAlarmListenerId = 0;
