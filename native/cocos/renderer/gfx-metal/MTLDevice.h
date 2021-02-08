@@ -65,7 +65,7 @@ public:
     void acquire() override;
     void present() override;
 
-    void presentCompleted();
+    void onPresentCompleted();
     void* getCurrentDrawable();
     void disposeCurrentDrawable();
 

@@ -65,7 +65,7 @@ void CCMTLQueue::submit(CommandBuffer *const *cmdBuffs, uint count) {
             [mtlCmdBuffer presentDrawable:currDrawable];
             [mtlCmdBuffer addCompletedHandler:^(id<MTLCommandBuffer> commandBuffer) {
                 [commandBuffer release];
-                device->presentCompleted();
+                device->onPresentCompleted();
             }];
             device->disposeCurrentDrawable();
         }

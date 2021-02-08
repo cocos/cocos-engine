@@ -251,7 +251,7 @@ void CCMTLDevice::present() {
     }
 }
 
-void CCMTLDevice::presentCompleted() {
+void CCMTLDevice::onPresentCompleted() {
     if (_currentBufferPoolId >= 0 && _currentBufferPoolId < MAX_FRAMES_IN_FLIGHT) {
         CCMTLGPUStagingBufferPool *bufferPool = _gpuStagingBufferPools[_currentBufferPoolId];
         if (bufferPool) {
