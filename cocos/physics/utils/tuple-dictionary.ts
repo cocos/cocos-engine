@@ -94,12 +94,7 @@ export class TupleDictionary {
      * @method reset
      */
     public reset () {
-        const data = this.data;
-        const keys = data.keys;
-        while (keys.length > 0) {
-            const key = keys.pop();
-            delete data[key!];
-        }
+        this.data = { keys: [] };
     }
 
     /**

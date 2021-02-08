@@ -180,7 +180,7 @@ function getParticleComponents (node): ParticleSystem2D[] {
  * emitter.startSpin = 0;
  */
 @ccclass('cc.ParticleSystem2D')
-@menu('Components/ParticleSystem2D')
+@menu('Effects/ParticleSystem2D')
 @playOnFocus
 @executeInEditMode
 export class ParticleSystem2D extends Renderable2D {

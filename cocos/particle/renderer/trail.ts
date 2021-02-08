@@ -54,9 +54,9 @@ const _temp_vec3 = new Vec3();
 const _temp_vec3_1 = new Vec3();
 const _temp_color = new Color();
 
-const barycentric = [1, 0, 0, 0, 1, 0, 0, 0, 1]; // <wireframe debug>
+// const barycentric = [1, 0, 0, 0, 1, 0, 0, 0, 1]; // <wireframe debug>
 
-const _bcIdx = 0;
+// let _bcIdx = 0; // <wireframe debug>
 
 interface ITrailElement {
     position: Vec3;
@@ -102,9 +102,9 @@ class TrailSegment {
         return this.trailElements[idx];
     }
 
-    public addElement (): ITrailElement {
+    public addElement (): ITrailElement | null {
         if (this.trailElements.length === 0) {
-            return null as any;
+            return null;
         }
         if (this.start === -1) {
             this.start = 0;
@@ -128,7 +128,7 @@ class TrailSegment {
         return this.trailElements[newEleLoc];
     }
 
-    public iterateElement (target: object, f: (target: object, e: ITrailElement, p: Particle, dt: number) => boolean, p: Particle, dt: number) {
+    public iterateElement (target: TrailModule, f: (target: TrailModule, e: ITrailElement, p: Particle, dt: number) => boolean, p: Particle, dt: number) {
         const end = this.start >= this.end ? this.end + this.trailElements.length : this.end;
         for (let i = this.start; i < end; i++) {
             if (f(target, this.trailElements[i % this.trailElements.length], p, dt)) {
@@ -394,6 +394,12 @@ export default class TrailModule {
         }
     }
 
+    public play () {
+        if (this._trailModel && this._enable) {
+            this._trailModel.enabled = true;
+        }
+    }
+
     public clear () {
         if (this.enable) {
             const trailIter = this._particleTrail.values();
@@ -404,6 +410,7 @@ export default class TrailModule {
             }
             this._particleTrail.clear();
             this.updateRenderData();
+            if (this._trailModel) this._trailModel.enabled = false;
         }
     }
 
@@ -561,6 +568,7 @@ export default class TrailModule {
                 this._fillVertexBuffer(_temp_trailEle, this.colorOverTrail.evaluate(0, 1), indexOffset, 0, trailNum, PRE_TRIANGLE_INDEX);
             }
         }
+        this._trailModel!.enabled = this.ibOffset > 0;
     }
 
     public updateIA (count: number) {
