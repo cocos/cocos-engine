@@ -620,8 +620,9 @@ const cacheManager = require('./jsb-cache-manager');
         }
     }
 
-
+    const _lateUpdate = armatureDisplayProto.lateUpdate;
     armatureDisplayProto.lateUpdate = function () {
+        if(_lateUpdate) _lateUpdate.call(this);
         let nativeDisplay = this._nativeDisplay;
         if (!nativeDisplay) return;
 
