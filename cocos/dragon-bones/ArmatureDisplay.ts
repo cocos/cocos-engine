@@ -564,12 +564,15 @@ export class ArmatureDisplay extends Renderable2D {
     protected _render (ui: Batcher2D) {
         if (this._meshRenderDataArray) {
             for (let i = 0; i < this._meshRenderDataArray.length; i++) {
+                // HACK
+                const mat = this.material;
                 this._meshRenderDataArrayIdx = i;
                 const m = this._meshRenderDataArray[i];
                 this.material = m.renderData.material;
                 if (m.texture) {
                     ui.commitComp(this, m.texture, this._assembler, null);
                 }
+                this.material = mat;
             }
         }
     }

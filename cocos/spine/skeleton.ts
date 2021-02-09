@@ -1254,6 +1254,10 @@ export class Skeleton extends Renderable2D {
         this._flushAssembler();
     }
 
+    public onDisable () {
+        super.onDisable();
+    }
+
     public onDestroy () {
         this._cleanMaterialCache();
         this.destroyRenderData();
@@ -1342,6 +1346,8 @@ export class Skeleton extends Renderable2D {
     protected _render (ui: Batcher2D) {
         if (this._meshRenderDataArray) {
             for (let i = 0; i < this._meshRenderDataArray.length; i++) {
+                // HACK
+                const mat = this.material;
                 this._meshRenderDataArrayIdx = i;
                 const m = this._meshRenderDataArray[i];
                 if (m.renderData.material) {
@@ -1350,6 +1356,7 @@ export class Skeleton extends Renderable2D {
                 if (m.texture) {
                     ui.commitComp(this, m.texture, this._assembler, null);
                 }
+                this.material = mat;
             }
             // this.node._static = true;
         }
