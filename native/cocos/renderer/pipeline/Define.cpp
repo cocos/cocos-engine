@@ -1,26 +1,28 @@
 /****************************************************************************
-Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2021 Xiamen Yaji Software Co., Ltd.
 
-http://www.cocos2d-x.org
+ http://www.cocos.com
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
 
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
 ****************************************************************************/
+
 #include "Define.h"
 #include "cocos/bindings/jswrapper/SeApi.h"
 #include "gfx/GFXDevice.h"
@@ -235,11 +237,11 @@ const gfx::UniformBlock UBOMorph::LAYOUT = {
 const String SHADOWMAP::NAME = "cc_shadowMap";
 const gfx::DescriptorSetLayoutBinding SHADOWMAP::DESCRIPTOR = {
     SHADOWMAP::BINDING,
-    gfx::DescriptorType::SAMPLER,
+    gfx::DescriptorType::SAMPLER_TEXTURE,
     1,
     gfx::ShaderStageFlagBit::FRAGMENT,
 };
-const gfx::UniformSampler SHADOWMAP::LAYOUT = {
+const gfx::UniformSamplerTexture SHADOWMAP::LAYOUT = {
     GLOBAL_SET,
     SHADOWMAP::BINDING,
     SHADOWMAP::NAME,
@@ -250,11 +252,11 @@ const gfx::UniformSampler SHADOWMAP::LAYOUT = {
 const String SAMPLERGBUFFERALBEDOMAP::NAME = "cc_gbuffer_albedoMap";
 const gfx::DescriptorSetLayoutBinding SAMPLERGBUFFERALBEDOMAP::DESCRIPTOR = {
     SAMPLERGBUFFERALBEDOMAP::BINDING,
-    gfx::DescriptorType::SAMPLER,
+    gfx::DescriptorType::SAMPLER_TEXTURE,
     1,
     gfx::ShaderStageFlagBit::FRAGMENT,
 };
-const gfx::UniformSampler SAMPLERGBUFFERALBEDOMAP::LAYOUT = {
+const gfx::UniformSamplerTexture SAMPLERGBUFFERALBEDOMAP::LAYOUT = {
     GLOBAL_SET,
     SAMPLERGBUFFERALBEDOMAP::BINDING,
     SAMPLERGBUFFERALBEDOMAP::NAME,
@@ -265,11 +267,11 @@ const gfx::UniformSampler SAMPLERGBUFFERALBEDOMAP::LAYOUT = {
 const String SAMPLERGBUFFERPOSITIONMAP::NAME = "cc_gbuffer_positionMap";
 const gfx::DescriptorSetLayoutBinding SAMPLERGBUFFERPOSITIONMAP::DESCRIPTOR = {
     SAMPLERGBUFFERPOSITIONMAP::BINDING,
-    gfx::DescriptorType::SAMPLER,
+    gfx::DescriptorType::SAMPLER_TEXTURE,
     1,
     gfx::ShaderStageFlagBit::FRAGMENT,
 };
-const gfx::UniformSampler SAMPLERGBUFFERPOSITIONMAP::LAYOUT = {
+const gfx::UniformSamplerTexture SAMPLERGBUFFERPOSITIONMAP::LAYOUT = {
     GLOBAL_SET,
     SAMPLERGBUFFERPOSITIONMAP::BINDING,
     SAMPLERGBUFFERPOSITIONMAP::NAME,
@@ -280,11 +282,11 @@ const gfx::UniformSampler SAMPLERGBUFFERPOSITIONMAP::LAYOUT = {
 const String SAMPLERGBUFFERNORMALMAP::NAME = "cc_gbuffer_normalMap";
 const gfx::DescriptorSetLayoutBinding SAMPLERGBUFFERNORMALMAP::DESCRIPTOR = {
     SAMPLERGBUFFERNORMALMAP::BINDING,
-    gfx::DescriptorType::SAMPLER,
+    gfx::DescriptorType::SAMPLER_TEXTURE,
     1,
     gfx::ShaderStageFlagBit::FRAGMENT,
 };
-const gfx::UniformSampler SAMPLERGBUFFERNORMALMAP::LAYOUT = {
+const gfx::UniformSamplerTexture SAMPLERGBUFFERNORMALMAP::LAYOUT = {
     GLOBAL_SET,
     SAMPLERGBUFFERNORMALMAP::BINDING,
     SAMPLERGBUFFERNORMALMAP::NAME,
@@ -295,11 +297,11 @@ const gfx::UniformSampler SAMPLERGBUFFERNORMALMAP::LAYOUT = {
 const String SAMPLERGBUFFEREMISSIVEMAP::NAME = "cc_gbuffer_emissiveMap";
 const gfx::DescriptorSetLayoutBinding SAMPLERGBUFFEREMISSIVEMAP::DESCRIPTOR = {
     SAMPLERGBUFFEREMISSIVEMAP::BINDING,
-    gfx::DescriptorType::SAMPLER,
+    gfx::DescriptorType::SAMPLER_TEXTURE,
     1,
     gfx::ShaderStageFlagBit::FRAGMENT,
 };
-const gfx::UniformSampler SAMPLERGBUFFEREMISSIVEMAP::LAYOUT = {
+const gfx::UniformSamplerTexture SAMPLERGBUFFEREMISSIVEMAP::LAYOUT = {
     GLOBAL_SET,
     SAMPLERGBUFFEREMISSIVEMAP::BINDING,
     SAMPLERGBUFFEREMISSIVEMAP::NAME,
@@ -310,11 +312,11 @@ const gfx::UniformSampler SAMPLERGBUFFEREMISSIVEMAP::LAYOUT = {
 const String SAMPLERLIGHTINGRESULTMAP::NAME = "cc_lighting_resultMap";
 const gfx::DescriptorSetLayoutBinding SAMPLERLIGHTINGRESULTMAP::DESCRIPTOR = {
     SAMPLERLIGHTINGRESULTMAP::BINDING,
-    gfx::DescriptorType::SAMPLER,
+    gfx::DescriptorType::SAMPLER_TEXTURE,
     1,
     gfx::ShaderStageFlagBit::FRAGMENT,
 };
-const gfx::UniformSampler SAMPLERLIGHTINGRESULTMAP::LAYOUT = {
+const gfx::UniformSamplerTexture SAMPLERLIGHTINGRESULTMAP::LAYOUT = {
     GLOBAL_SET,
     SAMPLERLIGHTINGRESULTMAP::BINDING,
     SAMPLERLIGHTINGRESULTMAP::NAME,
@@ -325,11 +327,11 @@ const gfx::UniformSampler SAMPLERLIGHTINGRESULTMAP::LAYOUT = {
 const String ENVIRONMENT::NAME = "cc_environment";
 const gfx::DescriptorSetLayoutBinding ENVIRONMENT::DESCRIPTOR = {
     ENVIRONMENT::BINDING,
-    gfx::DescriptorType::SAMPLER,
+    gfx::DescriptorType::SAMPLER_TEXTURE,
     1,
     gfx::ShaderStageFlagBit::FRAGMENT,
 };
-const gfx::UniformSampler ENVIRONMENT::LAYOUT = {
+const gfx::UniformSamplerTexture ENVIRONMENT::LAYOUT = {
     GLOBAL_SET,
     ENVIRONMENT::BINDING,
     ENVIRONMENT::NAME,
@@ -340,11 +342,11 @@ const gfx::UniformSampler ENVIRONMENT::LAYOUT = {
 const String SPOT_LIGHTING_MAP::NAME = "cc_spotLightingMap";
 const gfx::DescriptorSetLayoutBinding SPOT_LIGHTING_MAP::DESCRIPTOR = {
     SPOT_LIGHTING_MAP::BINDING,
-    gfx::DescriptorType::SAMPLER,
+    gfx::DescriptorType::SAMPLER_TEXTURE,
     1,
     gfx::ShaderStageFlagBit::FRAGMENT,
 };
-const gfx::UniformSampler SPOT_LIGHTING_MAP::LAYOUT = {
+const gfx::UniformSamplerTexture SPOT_LIGHTING_MAP::LAYOUT = {
     GLOBAL_SET,
     SPOT_LIGHTING_MAP::BINDING,
     SPOT_LIGHTING_MAP::NAME,
@@ -355,11 +357,11 @@ const gfx::UniformSampler SPOT_LIGHTING_MAP::LAYOUT = {
 const String JOINT_TEXTURE::NAME = "cc_jointTexture";
 const gfx::DescriptorSetLayoutBinding JOINT_TEXTURE::DESCRIPTOR = {
     JOINT_TEXTURE::BINDING,
-    gfx::DescriptorType::SAMPLER,
+    gfx::DescriptorType::SAMPLER_TEXTURE,
     1,
     gfx::ShaderStageFlagBit::VERTEX,
 };
-const gfx::UniformSampler JOINT_TEXTURE::LAYOUT = {
+const gfx::UniformSamplerTexture JOINT_TEXTURE::LAYOUT = {
     LOCAL_SET,
     JOINT_TEXTURE::BINDING,
     JOINT_TEXTURE::NAME,
@@ -370,11 +372,11 @@ const gfx::UniformSampler JOINT_TEXTURE::LAYOUT = {
 const String POSITION_MORPH::NAME = "cc_PositionDisplacements";
 const gfx::DescriptorSetLayoutBinding POSITION_MORPH::DESCRIPTOR = {
     POSITION_MORPH::BINDING,
-    gfx::DescriptorType::SAMPLER,
+    gfx::DescriptorType::SAMPLER_TEXTURE,
     1,
     gfx::ShaderStageFlagBit::VERTEX,
 };
-const gfx::UniformSampler POSITION_MORPH::LAYOUT = {
+const gfx::UniformSamplerTexture POSITION_MORPH::LAYOUT = {
     LOCAL_SET,
     POSITION_MORPH::BINDING,
     POSITION_MORPH::NAME,
@@ -385,11 +387,11 @@ const gfx::UniformSampler POSITION_MORPH::LAYOUT = {
 const String NORMAL_MORPH::NAME = "cc_NormalDisplacements";
 const gfx::DescriptorSetLayoutBinding NORMAL_MORPH::DESCRIPTOR = {
     NORMAL_MORPH::BINDING,
-    gfx::DescriptorType::SAMPLER,
+    gfx::DescriptorType::SAMPLER_TEXTURE,
     1,
     gfx::ShaderStageFlagBit::VERTEX,
 };
-const gfx::UniformSampler NORMAL_MORPH::LAYOUT = {
+const gfx::UniformSamplerTexture NORMAL_MORPH::LAYOUT = {
     LOCAL_SET,
     NORMAL_MORPH::BINDING,
     NORMAL_MORPH::NAME,
@@ -400,11 +402,11 @@ const gfx::UniformSampler NORMAL_MORPH::LAYOUT = {
 const String TANGENT_MORPH::NAME = "cc_TangentDisplacements";
 const gfx::DescriptorSetLayoutBinding TANGENT_MORPH::DESCRIPTOR = {
     TANGENT_MORPH::BINDING,
-    gfx::DescriptorType::SAMPLER,
+    gfx::DescriptorType::SAMPLER_TEXTURE,
     1,
     gfx::ShaderStageFlagBit::VERTEX,
 };
-const gfx::UniformSampler TANGENT_MORPH::LAYOUT = {
+const gfx::UniformSamplerTexture TANGENT_MORPH::LAYOUT = {
     LOCAL_SET,
     TANGENT_MORPH::BINDING,
     TANGENT_MORPH::NAME,
@@ -415,11 +417,11 @@ const gfx::UniformSampler TANGENT_MORPH::LAYOUT = {
 const String LIGHTMAP_TEXTURE::NAME = "cc_lightingMap";
 const gfx::DescriptorSetLayoutBinding LIGHTMAP_TEXTURE::DESCRIPTOR = {
     LIGHTMAP_TEXTURE::BINDING,
-    gfx::DescriptorType::SAMPLER,
+    gfx::DescriptorType::SAMPLER_TEXTURE,
     1,
     gfx::ShaderStageFlagBit::FRAGMENT,
 };
-const gfx::UniformSampler LIGHTMAP_TEXTURE::LAYOUT = {
+const gfx::UniformSamplerTexture LIGHTMAP_TEXTURE::LAYOUT = {
     LOCAL_SET,
     LIGHTMAP_TEXTURE::BINDING,
     LIGHTMAP_TEXTURE::NAME,
@@ -430,11 +432,11 @@ const gfx::UniformSampler LIGHTMAP_TEXTURE::LAYOUT = {
 const String SPRITE_TEXTURE::NAME = "cc_spriteTexture";
 const gfx::DescriptorSetLayoutBinding SPRITE_TEXTURE::DESCRIPTOR = {
     SPRITE_TEXTURE::BINDING,
-    gfx::DescriptorType::SAMPLER,
+    gfx::DescriptorType::SAMPLER_TEXTURE,
     1,
     gfx::ShaderStageFlagBit::FRAGMENT,
 };
-const gfx::UniformSampler SPRITE_TEXTURE::LAYOUT = {
+const gfx::UniformSamplerTexture SPRITE_TEXTURE::LAYOUT = {
     LOCAL_SET,
     static_cast<uint>(ModelLocalBindings::SAMPLER_SPRITE),
     "cc_spriteTexture",
@@ -452,8 +454,6 @@ uint genSamplerHash(const gfx::SamplerInfo &info) {
     hash |= static_cast<uint>(info.addressW) << 10;
     hash |= static_cast<uint>(info.maxAnisotropy) << 12;
     hash |= static_cast<uint>(info.cmpFunc) << 16;
-    hash |= static_cast<uint>(info.minLOD) << 20;
-    hash |= static_cast<uint>(info.maxLOD) << 24;
     hash |= static_cast<uint>(info.mipLODBias) << 28;
     return hash;
 }
@@ -480,8 +480,6 @@ gfx::Sampler *getSampler(uint hash) {
     info.addressW = static_cast<gfx::Address>((hash >> 10) & 3);
     info.maxAnisotropy = ((hash >> 12) & 15);
     info.cmpFunc = static_cast<gfx::ComparisonFunc>((hash >> 16) & 15);
-    info.minLOD = ((hash >> 20) & 15);
-    info.maxLOD = ((hash >> 24) & 15);
     info.mipLODBias = ((hash >> 28) & 15);
 
     sampler = gfx::Device::getInstance()->createSampler(std::move(info));

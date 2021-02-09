@@ -8,36 +8,12 @@ set(INCLUDE_FILES
   ${GFX_EXTERNAL_PATH}/khronos
   ${GFX_EXTERNAL_PATH}/glsl_optimizer/src
   ${GFX_EXTERNAL_PATH}/glsl_optimizer/src/mesa
+  ${GFX_EXTERNAL_PATH}/taskflow
   ${GFX_EXTERNAL_PATH}/boost
   ${GFX_EXTERNAL_PATH}/concurrentqueue
   ${COCOS_SRC_PATH}/renderer/core
   ${COCOS_SRC_PATH}/renderer/gfx-gles2
 )
-
-if(WIN32)
-  list(APPEND INCLUDE_FILES ${GFX_EXTERNAL_PATH}/pvrsdk/include)
-
-if(COCOS_CPU_X64)
-  set(PVRSDK_LIB_DIR ${GFX_EXTERNAL_PATH}/pvrsdk/lib/Windows_x86_64)
-else()
-  set(PVRSDK_LIB_DIR ${GFX_EXTERNAL_PATH}/pvrsdk/lib/Windows_x86_32)
-endif()
-
-  link_libraries(
-    ${PVRSDK_LIB_DIR}/libEGL.lib
-	  ${PVRSDK_LIB_DIR}/libGLESv2.lib
-  )
-endif()
-
-if(COCOS_PLATFORM_OSX)
-  list(APPEND INCLUDE_FILES ${GFX_EXTERNAL_PATH}/pvrsdk/include)
-  set(PVRSDK_LIB_DIR ${GFX_EXTERNAL_PATH}/pvrsdk/lib/OSX_x86)
-
-  link_libraries(
-    ${PVRSDK_LIB_DIR}/libEGL.dylib
-    ${PVRSDK_LIB_DIR}/libGLESv2.dylib
-  )
-endif()
 
 include_directories( ${INCLUDE_FILES} )
 
@@ -64,9 +40,9 @@ if(COCOS_PLATFORM_IOS OR COCOS_PLATFORM_OSX)
 endif()
 
 if(COCOS_PLATFORM_IOS OR COCOS_PLATFORM_OSX)
-	list(REMOVE_ITEM ALL_FILES "${COCOS_SRC_PATH}/renderer/gfx-gles2/gles2w.c")
+	list(REMOVE_ITEM ALL_FILES "${COCOS_SRC_PATH}/renderer/gfx-gles2/GLES2Wrangler.cpp")
 else()
-	list(REMOVE_ITEM ALL_FILES "${COCOS_SRC_PATH}/renderer/gfx-gles2/gles2w.mm")
+	list(REMOVE_ITEM ALL_FILES "${COCOS_SRC_PATH}/renderer/gfx-gles2/GLES2Wrangler.mm")
 endif()
 
 if(COCOS_PLATFORM_OSX)
@@ -87,8 +63,7 @@ else()
 	add_library(${TARGET_NAME} SHARED ${HEADER_FILES} ${ALL_FILES})
 endif()
 
-target_link_libraries(${TARGET_NAME} Core)
-target_include_directories(${TARGET_NAME} PUBLIC ${GFX_EXTERNAL_PATH}/khronos)
+target_link_libraries(${TARGET_NAME} Core GFXGLESCommon)
 
 set_target_properties(${TARGET_NAME} PROPERTIES OUTPUT_NAME CCGFXGLES2)
 set_target_properties(${TARGET_NAME} PROPERTIES OUTPUT_NAME_DEBUG CCGFXGLES2_d)

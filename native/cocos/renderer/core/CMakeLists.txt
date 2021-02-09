@@ -27,6 +27,7 @@ set(INCLUDE_FILES
   ${GFX_EXTERNAL_PATH}/tommyds
   ${GFX_EXTERNAL_PATH}/concurrentqueue
   ${GFX_EXTERNAL_PATH}/taskflow
+  ${GFX_EXTERNAL_PATH}/tbb/include
   ${COCOS_SRC_PATH}/base
   ${COCOS_SRC_PATH}/renderer/core
 )
@@ -140,6 +141,7 @@ else()
 	target_link_libraries(${TARGET_NAME} ${COCOS_EXTERNAL_TARGETS})
 endif()
 target_link_libraries(${TARGET_NAME} TBBJobSystem TFJobSystem Threading)
+target_compile_definitions(${TARGET_NAME} PRIVATE ${CC_EXTERNAL_PRIVATE_DEFINITIONS})
 
 if(MSVC)
     set_property(TARGET ${TARGET_NAME} PROPERTY LINK_FLAGS "/SUBSYSTEM:WINDOWS")

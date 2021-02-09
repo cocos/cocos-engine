@@ -1,7 +1,7 @@
-/*
- Copyright (c) Huawei Technologies Co., Ltd. 2020-2021.
+/****************************************************************************
+ Copyright (c) 2020-2021 Huawei Technologies Co., Ltd.
 
- https://www.cocos.com/
+ http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
@@ -21,7 +21,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+****************************************************************************/
 
 #pragma once
 
@@ -56,7 +56,7 @@ public:
     virtual void render(const vector<uint> &cameras) override;
 
     gfx::RenderPass *getOrCreateRenderPass(gfx::ClearFlags clearFlags);
-    
+
     CC_INLINE gfx::Buffer *getLightsUBO() const { return _lightsUBO; }
     CC_INLINE const LightList &getValidLights() const { return _validLights; }
     CC_INLINE const gfx::BufferList &getLightBuffers() const { return _lightBuffers; }

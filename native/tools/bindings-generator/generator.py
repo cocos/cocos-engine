@@ -547,7 +547,7 @@ class NativeType(object):
         if re.search("(short|int|double|float|long|ssize_t)$", nt.name) is not None:
             nt.is_numeric = True
 
-        nt.kind = ntype.kind 
+        nt.kind = ntype.kind
         return nt
 
     @staticmethod
@@ -938,7 +938,7 @@ class NativeOverloadedFunction(object):
         config = gen.config
         static = self.implementations[0].static
         # loggger.info("NativeOverloadedFunction: " + current_class.namespaced_class_name + ':' + self.func_name + ", is_constructor:" + str(self.is_constructor) + ", is_ctor:" + str(self.is_ctor))
-    
+
         if not is_ctor:
             tpl = Template(file=os.path.join(gen.target, "templates", "function.h"),
                         searchList=[current_class, self])
@@ -1031,8 +1031,8 @@ class NativeClass(object):
                 if item["getter"] is None and item["setter"] is None:
                    #logger.info("gettter %s, setter %s" % (field["getter"], field["setter"]))
                    raise Exception("getter_setter for %s.%s both None" %(self.class_name, field_name))
-                if item["getter"] is not None: 
-                    self.getter_list.append(item["getter"].func_name) 
+                if item["getter"] is not None:
+                    self.getter_list.append(item["getter"].func_name)
                 if item["setter"] is not None:
                     self.setter_list.append(item["setter"].func_name)
                 self.getter_setter.append(item)
@@ -1055,7 +1055,7 @@ class NativeClass(object):
             return method_name["name"] in self.generator.shadowed_methods_by_getter_setter[self.class_name]
         return False
 
-    def find_method(self, method_name): 
+    def find_method(self, method_name):
         for m in self.methods :
             if self.methods[m].signature_name == method_name :
                 return self.methods[m]
@@ -1341,7 +1341,7 @@ class NativeEnum(object):
             field["name"] = node.displayname
             field["value"] = node.enum_value
             self.fields.append(field)
-            
+
 
     def generate_code(self):
         '''
@@ -1474,19 +1474,19 @@ class Generator(object):
             for replace in list_of_replace_headers:
                 header, replaced_header = replace.split("::")
                 self.replace_headers[header] = replaced_header
-        
+
         if "getter_setter" in opts :
             #logger.info(" getter_setter : %s" % opts["getter_setter"])
             list_of_getter_setter = re.split(",\n?", opts['getter_setter'])
             for line in list_of_getter_setter:
                 #logger.info(" line %s" % line)
-                if len(line) == 0: 
+                if len(line) == 0:
                     continue
                 gs_kls, gs_fields_txt = line.split("::")
                 gs_obj = self.getter_setter[gs_kls] = {}
                 gs_sd = self.shadowed_methods_by_getter_setter[gs_kls] = []
                 match = re.match("\[([^]]+)\]",gs_fields_txt)
-                if match: 
+                if match:
                     list_of_fields = match.group(1).split(" ")
                     for field in list_of_fields:
                         field_component = field.split("/")
@@ -1516,7 +1516,7 @@ class Generator(object):
             for fn in rename_map:
                 if method_name == rename_map[fn]:
                     return True
-        return False 
+        return False
 
     def should_rename_function(self, class_name, method_name):
         if self.rename_functions.has_key(class_name) and self.rename_functions[class_name].has_key(method_name):
@@ -1873,6 +1873,7 @@ class Generator(object):
             return "func"
         else:
             return namespace_class_name
+
 def main():
 
     from optparse import OptionParser
@@ -1954,7 +1955,7 @@ def main():
                 'prefix': config.get(s, 'prefix'),
                 'headers':    (config.get(s, 'headers'        , 0, dict(userconfig.items('DEFAULT')))),
                 'replace_headers': config.get(s, 'replace_headers') if config.has_option(s, 'replace_headers') else None,
-                'classes': config.get(s, 'classes').split(' '),
+                'classes': re.split('[\s,]+', re.sub('[#;].*', '', config.get(s, 'classes'))),
                 'classes_need_extend': config.get(s, 'classes_need_extend').split(' ') if config.has_option(s, 'classes_need_extend') else [],
                 'clang_args': (config.get(s, 'extra_arguments', 0, dict(userconfig.items('DEFAULT'))) or "").split(" "),
                 'target': os.path.join(workingdir, "targets", t),

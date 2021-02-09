@@ -1,30 +1,32 @@
 /****************************************************************************
-Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2019-2021 Xiamen Yaji Software Co., Ltd.
 
-http://www.cocos2d-x.org
+ http://www.cocos.com
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
 
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
 ****************************************************************************/
+
 #ifndef CC_GFXGLES3_GPU_OBJECTS_H_
 #define CC_GFXGLES3_GPU_OBJECTS_H_
 
-#include "gles3w.h"
+#include "GLES3Wrangler.h"
 
 namespace cc {
 namespace gfx {
@@ -80,8 +82,6 @@ public:
     Address addressU = Address::CLAMP;
     Address addressV = Address::CLAMP;
     Address addressW = Address::CLAMP;
-    uint minLOD = 0;
-    uint maxLOD = 1000;
     GLuint glSampler = 0;
     GLenum glMinFilter = 0;
     GLenum glMagFilter = 0;
@@ -115,19 +115,17 @@ struct GLES3GPUUniform final {
 };
 typedef vector<GLES3GPUUniform> GLES3GPUUniformList;
 
-struct GLES3GPUUniformBlock final {
+struct GLES3GPUUniformBuffer final {
     uint set = GFX_INVALID_BINDING;
     uint binding = GFX_INVALID_BINDING;
-    uint idx = 0;
     String name;
     uint size = 0;
-    uint glBinding = GFX_INVALID_BINDING;
-    GLES3GPUUniformList glUniforms;
-    GLES3GPUUniformList glActiveUniforms;
+    uint glBinding = 0xffffffff;
+    bool isStorage = false;
 };
-typedef vector<GLES3GPUUniformBlock> GLES3GPUUniformBlockList;
+typedef vector<GLES3GPUUniformBuffer> GLES3GPUUniformBufferList;
 
-struct GLES3GPUUniformSampler final {
+struct GLES3GPUUniformSamplerTexture final {
     uint set = 0;
     uint binding = 0;
     String name;
@@ -138,7 +136,20 @@ struct GLES3GPUUniformSampler final {
     GLenum glType = 0;
     GLint glLoc = -1;
 };
-typedef vector<GLES3GPUUniformSampler> GLES3GPUUniformSamplerList;
+typedef vector<GLES3GPUUniformSamplerTexture> GLES3GPUUniformSamplerTextureList;
+
+struct GLES3GPUUniformStorageImage final {
+    uint set = 0;
+    uint binding = 0;
+    String name;
+    Type type = Type::UNKNOWN;
+    uint count = 0u;
+
+    vector<int> units;
+    GLenum glMemoryAccess = GL_READ_WRITE;
+    GLint glLoc = -1;
+};
+typedef vector<GLES3GPUUniformStorageImage> GLES3GPUUniformStorageImageList;
 
 struct GLES3GPUShaderStage final {
     GLES3GPUShaderStage(ShaderStageFlagBit t, String s, GLuint shader = 0)
@@ -153,12 +164,19 @@ class GLES3GPUShader final : public Object {
 public:
     String name;
     UniformBlockList blocks;
+    UniformStorageBufferList buffers;
+    UniformSamplerTextureList samplerTextures;
     UniformSamplerList samplers;
-    GLuint glProgram = 0;
+    UniformTextureList textures;
+    UniformStorageImageList images;
+    UniformInputAttachmentList subpassInputs;
+
     GLES3GPUShaderStageList gpuStages;
+    GLuint glProgram = 0;
     GLES3GPUInputList glInputs;
-    GLES3GPUUniformBlockList glBlocks;
-    GLES3GPUUniformSamplerList glSamplers;
+    GLES3GPUUniformBufferList glBuffers;
+    GLES3GPUUniformSamplerTextureList glSamplerTextures;
+    GLES3GPUUniformStorageImageList glImages;
 };
 
 struct GLES3GPUAttribute final {
@@ -252,8 +270,19 @@ public:
     const vector<uint> *descriptorIndices = nullptr;
 };
 
-class GLES3GPUFence final : public Object {
+class GLES3GPUGlobalBarrier final : public Object {
 public:
+    GLbitfield glBarriers = 0u;
+    GLbitfield glBarriersByRegion = 0u;
+};
+
+struct GLES3GPUDispatchInfo final : public Object {
+    uint groupCountX = 0;
+    uint groupCountY = 0;
+    uint groupCountZ = 0;
+
+    GLES3GPUBuffer *indirectBuffer = nullptr;
+    uint indirectOffset = 0;
 };
 
 struct GLES3ObjectCache final {
@@ -262,7 +291,7 @@ struct GLES3ObjectCache final {
     GLES3GPUFramebuffer *gpuFramebuffer = nullptr;
     GLES3GPUPipelineState *gpuPipelineState = nullptr;
     GLES3GPUInputAssembler *gpuInputAssembler = nullptr;
-    bool reverseCW = false;
+    uint reverseCW = 0u;
     GLenum glPrimitive = 0;
     GLenum invalidAttachments[GFX_MAX_ATTACHMENTS];
 };
@@ -274,15 +303,20 @@ public:
     GLuint glUniformBuffer = 0;
     vector<GLuint> glBindUBOs;
     vector<GLuint> glBindUBOOffsets;
+    GLuint glShaderStorageBuffer = 0;
+    vector<GLuint> glBindSSBOs;
+    vector<GLuint> glBindSSBOOffsets;
+    GLuint glDispatchIndirectBuffer = 0;
     GLuint glVAO = 0;
     uint texUint = 0;
     vector<GLuint> glTextures;
+    vector<GLuint> glImages;
     vector<GLuint> glSamplers;
     GLuint glProgram = 0;
     vector<bool> glEnabledAttribLocs;
     vector<bool> glCurrentAttribLocs;
-    GLuint glFramebuffer = 0;
-    GLuint glReadFBO = 0;
+    GLuint glReadFramebuffer = 0;
+    GLuint glDrawFramebuffer = 0;
     Viewport viewport;
     Rect scissor;
     RasterizerState rs;
@@ -290,14 +324,17 @@ public:
     BlendState bs;
     bool isCullFaceEnabled = true;
     bool isStencilTestEnabled = false;
-    map<String, uint> texUnitCacheMap;
+    unordered_map<String, uint> texUnitCacheMap;
     GLES3ObjectCache gfxStateCache;
 
-    void initialize(size_t texUnits, size_t bufferBindings, size_t vertexAttributes) {
-        glBindUBOs.resize(bufferBindings, 0u);
-        glBindUBOOffsets.resize(bufferBindings, 0u);
+    void initialize(size_t texUnits, size_t imageUnits, size_t uboBindings, size_t ssboBindings, size_t vertexAttributes) {
+        glBindUBOs.resize(uboBindings, 0u);
+        glBindUBOOffsets.resize(uboBindings, 0u);
+        glBindSSBOs.resize(ssboBindings, 0u);
+        glBindSSBOOffsets.resize(ssboBindings, 0u);
         glTextures.resize(texUnits, 0u);
         glSamplers.resize(texUnits, 0u);
+        glImages.resize(imageUnits, 0u);
         glEnabledAttribLocs.resize(vertexAttributes, false);
         glCurrentAttribLocs.resize(vertexAttributes, false);
     }
@@ -308,15 +345,20 @@ public:
         glUniformBuffer = 0;
         glBindUBOs.assign(glBindUBOs.size(), 0u);
         glBindUBOOffsets.assign(glBindUBOOffsets.size(), 0u);
+        glShaderStorageBuffer = 0;
+        glBindSSBOs.assign(glBindSSBOs.size(), 0u);
+        glBindSSBOOffsets.assign(glBindSSBOOffsets.size(), 0u);
+        glDispatchIndirectBuffer = 0;
         glVAO = 0;
         texUint = 0;
         glTextures.assign(glTextures.size(), 0u);
+        glImages.assign(glImages.size(), 0u);
         glSamplers.assign(glSamplers.size(), 0u);
         glProgram = 0;
         glEnabledAttribLocs.assign(glEnabledAttribLocs.size(), 0u);
         glCurrentAttribLocs.assign(glCurrentAttribLocs.size(), 0u);
-        glFramebuffer = 0;
-        glReadFBO = 0;
+        glReadFramebuffer = 0;
+        glDrawFramebuffer = 0;
         isCullFaceEnabled = true;
         isStencilTestEnabled = false;
 
@@ -334,6 +376,65 @@ public:
         gfxStateCache.glPrimitive = 0u;
         gfxStateCache.reverseCW = false;
     }
+};
+
+class GLES3GPUFramebufferCacheMap final : public Object {
+public:
+    GLES3GPUFramebufferCacheMap(GLES3GPUStateCache *cache) : _cache(cache) {}
+
+    ~GLES3GPUFramebufferCacheMap() {
+    }
+
+    GLuint getFramebufferFromTexture(const GLES3GPUTexture *gpuTexture, const TextureSubresLayers &subres) {
+        // TODO: single layer support using glFramebufferTextureLayer
+
+        if (_map[gpuTexture->glTexture].empty()) _map[gpuTexture->glTexture].resize(gpuTexture->mipLevel, 0u);
+
+        if (!_map[gpuTexture->glTexture][subres.mipLevel]) {
+            GLuint glFramebuffer = 0u;
+            GL_CHECK(glGenFramebuffers(1, &glFramebuffer));
+            if (_cache->glDrawFramebuffer != glFramebuffer) {
+                GL_CHECK(glBindFramebuffer(GL_DRAW_FRAMEBUFFER, glFramebuffer));
+                _cache->glDrawFramebuffer = glFramebuffer;
+            }
+
+            const FormatInfo &info = GFX_FORMAT_INFOS[(uint)gpuTexture->format];
+            GLenum attachment = GL_COLOR_ATTACHMENT0;
+            if (info.hasStencil) {
+                attachment = GL_DEPTH_STENCIL_ATTACHMENT;
+            } else if (info.hasDepth) {
+                attachment = GL_DEPTH_ATTACHMENT;
+            }
+            GL_CHECK(glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, attachment, gpuTexture->glTarget, gpuTexture->glTexture, subres.mipLevel));
+
+            GLenum status;
+            GL_CHECK(status = glCheckFramebufferStatus(GL_DRAW_FRAMEBUFFER));
+            CCASSERT(status == GL_FRAMEBUFFER_COMPLETE, "frambuffer incomplete");
+
+            _map[gpuTexture->glTexture][subres.mipLevel] = glFramebuffer;
+        }
+
+        return _map[gpuTexture->glTexture][subres.mipLevel];
+    }
+
+    void onTextureDestroy(const GLES3GPUTexture *gpuTexture) {
+        if (_map.count(gpuTexture->glTexture)) {
+            for (GLuint glFramebuffer : _map[gpuTexture->glTexture]) {
+                if (!glFramebuffer) continue;
+
+                if (_cache->glDrawFramebuffer == glFramebuffer || _cache->glReadFramebuffer == glFramebuffer) {
+                    GL_CHECK(glBindFramebuffer(GL_FRAMEBUFFER, 0));
+                    _cache->glDrawFramebuffer = _cache->glReadFramebuffer = 0;
+                }
+                GL_CHECK(glDeleteFramebuffers(1, &glFramebuffer));
+            }
+            _map.erase(gpuTexture->glTexture);
+        }
+    }
+
+private:
+    GLES3GPUStateCache *_cache = nullptr;
+    unordered_map<GLuint, vector<GLuint>> _map; // texture -> mip level -> framebuffer
 };
 
 constexpr size_t chunkSize = 16 * 1024 * 1024; // 16M per block by default

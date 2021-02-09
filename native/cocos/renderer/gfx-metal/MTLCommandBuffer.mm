@@ -1,26 +1,28 @@
 /****************************************************************************
-Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2019-2021 Xiamen Yaji Software Co., Ltd.
 
-http://www.cocos2d-x.org
+ http://www.cocos.com
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
 
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
 ****************************************************************************/
+
 #include "MTLStd.h"
 
 #include "MTLBuffer.h"
@@ -41,11 +43,11 @@ CCMTLCommandBuffer::CCMTLCommandBuffer(Device *device)
 : CommandBuffer(device),
   _mtlDevice(static_cast<CCMTLDevice *>(device)),
   _mtlCommandQueue(id<MTLCommandQueue>((static_cast<CCMTLDevice *>(device))->getMTLCommandQueue())),
-  _mtkView(static_cast<MTKView *>((static_cast<CCMTLDevice *>(device)->getMTKView()))),
   _indirectDrawSuppotred(static_cast<CCMTLDevice *>(device)->isIndirectDrawSupported()) {
     const auto setCount = device->bindingMappingInfo().bufferOffsets.size();
     _GPUDescriptorSets.resize(setCount);
     _dynamicOffsets.resize(setCount);
+    _indirectDrawSuppotred = _mtlDevice->isIndirectDrawSupported();
 }
 
 bool CCMTLCommandBuffer::initialize(const CommandBufferInfo &info) {
@@ -55,16 +57,41 @@ bool CCMTLCommandBuffer::initialize(const CommandBufferInfo &info) {
 }
 
 void CCMTLCommandBuffer::destroy() {
+    if (_autoreleasePool) {
+        [_autoreleasePool release];
+        _autoreleasePool = nullptr;
+    }
 }
 
-void CCMTLCommandBuffer::begin(RenderPass * /*renderPass*/, uint /*subPass*/, Framebuffer * /*frameBuffer*/, int /*submitIndex*/) {
+bool CCMTLCommandBuffer::isRenderingEntireDrawable(const Rect &rect, const CCMTLRenderPass *renderPass) {
+    const int num = renderPass->getColorRenderTargetNums();
+    if (num == 0) {
+        return true;
+    }
+    const auto &renderTargetSize = renderPass->getRenderTargetSizes()[0];
+    return rect.x == 0 && rect.y == 0 && rect.width == renderTargetSize.x && rect.height == renderTargetSize.y;
+}
+
+void CCMTLCommandBuffer::begin(RenderPass *renderPass, uint subpass, Framebuffer *frameBuffer) {
     if (_commandBufferBegan) {
         return;
     }
 
-    _mtlCommandBuffer = [_mtlCommandQueue commandBuffer];
-    [_mtlCommandBuffer retain];
-    [_mtlCommandBuffer enqueue];
+    _isSecondary = renderPass != nullptr && _mtlCommandBuffer;
+    if (!_isSecondary) {
+        // Only primary command buffer should request command buffer explicitly
+        _mtlCommandBuffer = [[_mtlCommandQueue commandBuffer] retain];
+        [_mtlCommandBuffer enqueue];
+    }
+    else {
+        // Secondary command buffer is likely to be recorded in a separated thread
+        if (_autoreleasePool) {
+            [_autoreleasePool drain];
+            _autoreleasePool = nil;
+        }
+        _autoreleasePool = [[NSAutoreleasePool alloc] init];
+    //    CC_LOG_INFO("%d CB POOL: %p ALLOCED for %p", [NSThread currentThread], _autoreleasePool, this);
+    }
     _numTriangles = 0;
     _numDrawCalls = 0;
     _numInstances = 0;
@@ -83,22 +110,32 @@ void CCMTLCommandBuffer::end() {
     }
 
     _commandBufferBegan = false;
-}
 
-bool CCMTLCommandBuffer::isRenderingEntireDrawable(const Rect &rect, const CCMTLRenderPass *renderPass) {
-    const int num = renderPass->getColorRenderTargetNums();
-    if (num == 0) {
-        return true;
+    if (_isSecondary) {
+        // Secondary command buffer should end encoding here
+        _commandEncoder.endEncoding();
+
+        if (_autoreleasePool) {
+    //        CC_LOG_INFO("%d CB POOL: %p RELEASED for %p", [NSThread currentThread], _autoreleasePool, this);
+            [_autoreleasePool drain];
+            _autoreleasePool = nullptr;
+        }
     }
-    const auto &renderTargetSize = renderPass->getRenderTargetSizes()[0];
-    return rect.x == 0 && rect.y == 0 && rect.width == renderTargetSize.x && rect.height == renderTargetSize.y;
 }
 
-void CCMTLCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, int stencil, bool /*fromSecondaryCB*/) {
+void CCMTLCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, int stencil, CommandBuffer *const *secondaryCBs, uint secondaryCBCount) {
+    // Sub CommandBuffer shouldn't call begin render pass
+    if (_isSecondary)
+    {
+        return;
+    }
+
     auto isOffscreen = static_cast<CCMTLFramebuffer *>(fbo)->isOffscreen();
     if (!isOffscreen) {
-        static_cast<CCMTLRenderPass *>(renderPass)->setColorAttachment(0, _mtkView.currentDrawable.texture, 0);
-        static_cast<CCMTLRenderPass *>(renderPass)->setDepthStencilAttachment(_mtkView.depthStencilTexture, 0);
+        id<CAMetalDrawable> drawable = (id<CAMetalDrawable>)_mtlDevice->getCurrentDrawable();
+        id<MTLTexture> dssTex = (id<MTLTexture>)_mtlDevice->getDSSTexture();
+        static_cast<CCMTLRenderPass *>(renderPass)->setColorAttachment(0, drawable.texture, 0);
+        static_cast<CCMTLRenderPass *>(renderPass)->setDepthStencilAttachment(dssTex, 0);
     }
     MTLRenderPassDescriptor *mtlRenderPassDescriptor = static_cast<CCMTLRenderPass *>(renderPass)->getMTLRenderPassDescriptor();
     if (!isRenderingEntireDrawable(renderArea, static_cast<CCMTLRenderPass *>(renderPass))) {
@@ -118,13 +155,31 @@ void CCMTLCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fb
         mtlRenderPassDescriptor.stencilAttachment.clearStencil = stencil;
     }
 
-    _commandEncoder.initialize(_mtlCommandBuffer, mtlRenderPassDescriptor);
+    if (secondaryCBCount > 0) {
+        _parallelEncoder = [[_mtlCommandBuffer parallelRenderCommandEncoderWithDescriptor:mtlRenderPassDescriptor] retain];
+        // Create command encoders from parallel encoder and assign to command buffers
+        for (uint i = 0u; i < secondaryCBCount; ++i) {
+            CCMTLCommandBuffer *cmdBuff = (CCMTLCommandBuffer *)secondaryCBs[i];
+            cmdBuff->_commandEncoder.initialize(_parallelEncoder);
+            cmdBuff->_mtlCommandBuffer = _mtlCommandBuffer;
+        }
+    }
+    else {
+        _commandEncoder.initialize(_mtlCommandBuffer, mtlRenderPassDescriptor);
+    }
     _commandEncoder.setViewport(renderArea);
     _commandEncoder.setScissor(renderArea);
 }
 
 void CCMTLCommandBuffer::endRenderPass() {
-    _commandEncoder.endEncoding();
+    if (_parallelEncoder) {
+        [_parallelEncoder endEncoding];
+        [_parallelEncoder release];
+        _parallelEncoder = nil;
+    }
+    else {
+        _commandEncoder.endEncoding();
+    }
 }
 
 void CCMTLCommandBuffer::bindPipelineState(PipelineState *pso) {
@@ -208,7 +263,7 @@ void CCMTLCommandBuffer::draw(InputAssembler *ia) {
     const auto *indexBuffer = static_cast<CCMTLBuffer *>(ia->getIndexBuffer());
     auto mtlEncoder = _commandEncoder.getMTLEncoder();
 
-    if (_type == CommandBufferType::PRIMARY) {
+    if (_type == CommandBufferType::PRIMARY || _type == CommandBufferType::SECONDARY) {
         if (indirectBuffer) {
             const auto indirectMTLBuffer = indirectBuffer->getMTLBuffer();
 
@@ -313,8 +368,6 @@ void CCMTLCommandBuffer::draw(InputAssembler *ia) {
             }
         }
 
-    } else if (_type == CommandBufferType::SECONDARY) {
-        CC_LOG_ERROR("CommandBufferType::SECONDARY not implemented.");
     } else {
         CC_LOG_ERROR("Command 'draw' must be recorded inside a render pass.");
     }
@@ -398,7 +451,7 @@ void CCMTLCommandBuffer::copyBuffersToTexture(const uint8_t *const *buffers, Tex
     [encoder endEncoding];
 }
 
-void CCMTLCommandBuffer::execute(const CommandBuffer *const *commandBuffs, uint32_t count) {
+void CCMTLCommandBuffer::execute(CommandBuffer *const *commandBuffs, uint32_t count) {
     for (uint i = 0; i < count; ++i) {
         const auto *commandBuffer = static_cast<const CCMTLCommandBuffer *>(commandBuffs[i]);
         _numDrawCalls += commandBuffer->_numDrawCalls;
@@ -463,6 +516,15 @@ void CCMTLCommandBuffer::bindDescriptorSets() {
             _commandEncoder.setFragmentSampler(gpuDescriptor.sampler->getMTLSamplerState(), sampler.samplerBinding);
         }
     }
+}
+
+void CCMTLCommandBuffer::blitTexture(Texture *srcTexture, Texture *dstTexture, const TextureBlit *regions, uint count, Filter filter) {
+}
+
+void CCMTLCommandBuffer::dispatch(const DispatchInfo &info) {
+}
+
+void CCMTLCommandBuffer::pipelineBarrier(const GlobalBarrier *barrier, const TextureBarrier *const *textureBarriers, const Texture *const *textures, uint textureBarrierCount) {
 }
 
 } // namespace gfx

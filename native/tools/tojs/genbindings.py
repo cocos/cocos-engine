@@ -170,7 +170,7 @@ def main():
             command = '%s -W ignore %s %s -s %s -t %s -o %s -n %s' % (python_bin, generator_py, cfg, args[0], target, output_dir, args[1])
             # tasks.append(_run_cmd(command))
             _run_cmd(command).communicate()
-        
+
         # for t in tasks:
         #     t.communicate()
 

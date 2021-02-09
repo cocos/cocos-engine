@@ -1,7 +1,7 @@
-/*
- Copyright (c) Huawei Technologies Co., Ltd. 2020-2021.
+/****************************************************************************
+ Copyright (c) 2020-2021 Huawei Technologies Co., Ltd.
 
- https://www.cocos.com/
+ http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
@@ -21,7 +21,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+****************************************************************************/
 
 #include "GbufferFlow.h"
 #include "DeferredPipeline.h"
@@ -66,11 +66,11 @@ void GbufferFlow::createRenderPass(gfx::Device *device) {
 
     gfx::ColorAttachment color = {
         gfx::Format::RGBA16F,
-        1,
+        gfx::SampleCount::X1,
         gfx::LoadOp::CLEAR,
         gfx::StoreOp::STORE,
-        gfx::TextureLayout::UNDEFINED,
-        gfx::TextureLayout::COLOR_ATTACHMENT_OPTIMAL
+        {},
+        {gfx::AccessType::COLOR_ATTACHMENT_WRITE},
     };
 
     for (int i = 0; i < 4; i++) {
@@ -79,13 +79,11 @@ void GbufferFlow::createRenderPass(gfx::Device *device) {
 
     gfx::DepthStencilAttachment depth = {
         device->getDepthStencilFormat(),
-        1,
+        gfx::SampleCount::X1,
         gfx::LoadOp::CLEAR,
         gfx::StoreOp::STORE,
         gfx::LoadOp::CLEAR,
         gfx::StoreOp::STORE,
-        gfx::TextureLayout::UNDEFINED,
-        gfx::TextureLayout::DEPTH_STENCIL_ATTACHMENT_OPTIMAL
     };
 
     info.depthStencilAttachment = depth;
@@ -132,7 +130,7 @@ void GbufferFlow::activate(RenderPipeline *pipeline) {
     RenderFlow::activate(pipeline);
 
     gfx::Device *device = pipeline->getDevice();
-    if (device->getSurfaceTransform() == gfx::SurfaceTransform::IDENTITY || 
+    if (device->getSurfaceTransform() == gfx::SurfaceTransform::IDENTITY ||
         device->getSurfaceTransform() == gfx::SurfaceTransform::ROTATE_180) {
             _width = device->getWidth();
             _height = device->getHeight();

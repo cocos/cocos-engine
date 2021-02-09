@@ -6,6 +6,7 @@ message(STATUS "Target: ${TARGET_NAME}...")
 
 set(INCLUDE_FILES
   ${GFX_EXTERNAL_PATH}/khronos
+  ${GFX_EXTERNAL_PATH}/taskflow
   ${GFX_EXTERNAL_PATH}/boost
   ${GFX_EXTERNAL_PATH}/tbb/include
   ${GFX_EXTERNAL_PATH}/concurrentqueue
@@ -27,6 +28,7 @@ else()
 	add_definitions("-DVK_USE_PLATFORM_XLIB_KHR")
 endif()
 
+add_definitions("-DBARRIER_DEDUCTION_LEVEL=0")
 include_directories( ${INCLUDE_FILES} )
 
 # ---------------------------------------------------------------------
@@ -63,13 +65,12 @@ endif()
 
 if (COCOS_STATIC)
 	add_library(${TARGET_NAME} STATIC ${HEADER_FILES} ${ALL_FILES})
-	set(TBB_LIBRARIES tbb_static tbbmalloc_static tbbmalloc_proxy_static)
 else()
 	add_library(${TARGET_NAME} SHARED ${HEADER_FILES} ${ALL_FILES})
-	set(TBB_LIBRARIES tbb tbbmalloc tbbmalloc_proxy)
 endif()
 
-target_link_libraries(${TARGET_NAME} Core glslang OGLCompiler OSDependent SPIRV glslang-default-resource-limits ${TBB_LIBRARIES})
+target_link_libraries(${TARGET_NAME} Core glslang OGLCompiler OSDependent SPIRV glslang-default-resource-limits tbb tbbmalloc tbbmalloc_proxy)
+target_compile_definitions(${TARGET_NAME} PRIVATE ${CC_EXTERNAL_PRIVATE_DEFINITIONS})
 
 set_target_properties(${TARGET_NAME} PROPERTIES OUTPUT_NAME CCGFXVulkan)
 set_target_properties(${TARGET_NAME} PROPERTIES OUTPUT_NAME_DEBUG CCGFXVulkan_d)

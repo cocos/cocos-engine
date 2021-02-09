@@ -16,7 +16,7 @@ ObjCSpaceAfterProperty: true
 
 ColumnLimit: 0
 
-AlignTrailingComments: true  
+AlignTrailingComments: true
 
 AllowShortCaseLabelsOnASingleLine: true
 AllowAllConstructorInitializersOnNextLine: false
@@ -27,4 +27,7 @@ ConstructorInitializerIndentWidth: 0
 ConstructorInitializerAllOnOneLineOrOnePerLine: true
 
 AlignConsecutiveMacros: true
+AlignConsecutiveAssignments: true
+AlignConsecutiveDeclarations: true
+
 IndentPPDirectives: BeforeHash

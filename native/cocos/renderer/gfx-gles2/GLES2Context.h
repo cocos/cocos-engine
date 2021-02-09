@@ -1,55 +1,32 @@
 /****************************************************************************
-Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2019-2021 Xiamen Yaji Software Co., Ltd.
 
-http://www.cocos2d-x.org
+ http://www.cocos.com
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
 
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
 ****************************************************************************/
+
 #ifndef CC_GFXGLES2_EGL_CONTEXT_H_
 #define CC_GFXGLES2_EGL_CONTEXT_H_
 
-#if (CC_PLATFORM == CC_PLATFORM_MAC_IOS)
-    #ifdef __OBJC__
-        #include <OpenGLES/EAGL.h>
-    #endif
-#else
-    #include <EGL/egl.h>
-    #include <EGL/eglext.h>
-    #include <EGL/eglplatform.h>
-#endif
-
-#ifndef EGL_KHR_create_context
-    #define EGL_KHR_create_context                             1
-    #define EGL_CONTEXT_MAJOR_VERSION_KHR                      EGL_CONTEXT_CLIENT_VERSION
-    #define EGL_CONTEXT_MINOR_VERSION_KHR                      0x30FB
-    #define EGL_CONTEXT_FLAGS_KHR                              0x30FC
-    #define EGL_CONTEXT_OPENGL_PROFILE_MASK_KHR                0x30FD
-    #define EGL_CONTEXT_OPENGL_RESET_NOTIFICATION_STRATEGY_KHR 0x31BD
-    #define EGL_NO_RESET_NOTIFICATION_KHR                      0x31BE
-    #define EGL_LOSE_CONTEXT_ON_RESET_KHR                      0x31BF
-    #define EGL_CONTEXT_OPENGL_DEBUG_BIT_KHR                   0x00000001
-    #define EGL_CONTEXT_OPENGL_FORWARD_COMPATIBLE_BIT_KHR      0x00000002
-    #define EGL_CONTEXT_OPENGL_ROBUST_ACCESS_BIT_KHR           0x00000004
-    #define EGL_CONTEXT_OPENGL_CORE_PROFILE_BIT_KHR            0x00000001
-    #define EGL_CONTEXT_OPENGL_COMPATIBILITY_PROFILE_BIT_KHR   0x00000002
-    #define EGL_OPENGL_ES3_BIT_KHR                             0x00000040
-#endif
+#include "GLES2Wrangler.h"
 
 namespace cc {
 namespace gfx {

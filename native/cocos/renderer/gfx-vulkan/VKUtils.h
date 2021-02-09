@@ -1,26 +1,28 @@
 /****************************************************************************
-Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2021 Xiamen Yaji Software Co., Ltd.
 
-http://www.cocos2d-x.org
+ http://www.cocos.com
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
 
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
 ****************************************************************************/
+
 #ifndef CC_GFXVULKAN_UTILS_H_
 #define CC_GFXVULKAN_UTILS_H_
 
@@ -29,7 +31,17 @@ THE SOFTWARE.
 #include "vk_mem_alloc.h"
 #include "volk.h"
 
+#include "thsvs_simpler_vulkan_synchronization.h"
+
 #define DEFAULT_TIMEOUT 1000000000 // 1 second
+
+#define BARRIER_DEDUCTION_LEVEL_NONE  0
+#define BARRIER_DEDUCTION_LEVEL_BASIC 1
+#define BARRIER_DEDUCTION_LEVEL_FULL  2
+
+#ifndef BARRIER_DEDUCTION_LEVEL
+#define BARRIER_DEDUCTION_LEVEL BARRIER_DEDUCTION_LEVEL_BASIC
+#endif
 
 namespace cc {
 namespace gfx {
@@ -166,25 +178,6 @@ VkFormat MapVkFormat(Format format) {
     }
 }
 
-VkSampleCountFlagBits MapVkSampleCount(uint sampleCount) {
-    if (sampleCount == 1)
-        return VK_SAMPLE_COUNT_1_BIT;
-    else if (sampleCount == 2)
-        return VK_SAMPLE_COUNT_2_BIT;
-    else if (sampleCount == 4)
-        return VK_SAMPLE_COUNT_4_BIT;
-    else if (sampleCount == 8)
-        return VK_SAMPLE_COUNT_8_BIT;
-    else if (sampleCount == 16)
-        return VK_SAMPLE_COUNT_16_BIT;
-    else if (sampleCount == 32)
-        return VK_SAMPLE_COUNT_32_BIT;
-    else if (sampleCount == 64)
-        return VK_SAMPLE_COUNT_64_BIT;
-    else
-        return VK_SAMPLE_COUNT_1_BIT;
-}
-
 VkAttachmentLoadOp MapVkLoadOp(LoadOp loadOp) {
     switch (loadOp) {
         case LoadOp::CLEAR: return VK_ATTACHMENT_LOAD_OP_CLEAR;
@@ -204,93 +197,6 @@ VkAttachmentStoreOp MapVkStoreOp(StoreOp storeOp) {
         default: {
             CCASSERT(false, "Unsupported StoreOp, convert to VkStoreOp failed.");
             return VK_ATTACHMENT_STORE_OP_STORE;
-        }
-    }
-}
-
-VkImageLayout MapVkImageLayout(TextureLayout layout) {
-    switch (layout) {
-        case TextureLayout::UNDEFINED: return VK_IMAGE_LAYOUT_UNDEFINED;
-        case TextureLayout::GENERAL: return VK_IMAGE_LAYOUT_GENERAL;
-        case TextureLayout::COLOR_ATTACHMENT_OPTIMAL: return VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-        case TextureLayout::DEPTH_STENCIL_ATTACHMENT_OPTIMAL: return VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-        case TextureLayout::DEPTH_STENCIL_READONLY_OPTIMAL: return VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL;
-        case TextureLayout::SHADER_READONLY_OPTIMAL: return VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-        case TextureLayout::TRANSFER_SRC_OPTIMAL: return VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
-        case TextureLayout::TRANSFER_DST_OPTIMAL: return VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
-        case TextureLayout::PREINITIALIZED: return VK_IMAGE_LAYOUT_PREINITIALIZED;
-        case TextureLayout::PRESENT_SRC: return VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
-        default: {
-            CCASSERT(false, "Unsupported TextureLayout, convert to VkImageLayout failed.");
-            return VK_IMAGE_LAYOUT_GENERAL;
-        }
-    }
-}
-
-VkAccessFlags MapVkAccessFlags(TextureLayout layout) {
-    switch (layout) {
-        case TextureLayout::UNDEFINED: return 0;
-        case TextureLayout::GENERAL: return 0;
-        case TextureLayout::COLOR_ATTACHMENT_OPTIMAL: return VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-        case TextureLayout::DEPTH_STENCIL_ATTACHMENT_OPTIMAL: return VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
-        case TextureLayout::DEPTH_STENCIL_READONLY_OPTIMAL: return VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT;
-        case TextureLayout::SHADER_READONLY_OPTIMAL: return VK_ACCESS_SHADER_READ_BIT;
-        case TextureLayout::TRANSFER_SRC_OPTIMAL: return VK_ACCESS_TRANSFER_READ_BIT;
-        case TextureLayout::TRANSFER_DST_OPTIMAL: return VK_ACCESS_TRANSFER_WRITE_BIT;
-        case TextureLayout::PREINITIALIZED: return 0;
-        case TextureLayout::PRESENT_SRC: return 0;
-        default: {
-            CCASSERT(false, "Unsupported TextureLayout, convert to VkImageLayout failed.");
-            return 0;
-        }
-    }
-}
-
-VkAccessFlags MapVkAccessFlags(TextureUsage usage, Format format) {
-    if (usage & TextureUsage::COLOR_ATTACHMENT) return VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-    if (usage & TextureUsage::DEPTH_STENCIL_ATTACHMENT) return VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
-    if (usage & TextureUsage::INPUT_ATTACHMENT) return VK_ACCESS_INPUT_ATTACHMENT_READ_BIT;
-    if (usage & TextureUsage::SAMPLED) {
-        if (GFX_FORMAT_INFOS[(uint)format].hasDepth)
-            return VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT;
-        else
-            return VK_ACCESS_SHADER_READ_BIT;
-    }
-    if (usage & TextureUsage::TRANSFER_SRC) return VK_ACCESS_TRANSFER_READ_BIT;
-    if (usage & TextureUsage::TRANSFER_DST) return VK_ACCESS_TRANSFER_WRITE_BIT;
-    return VK_ACCESS_SHADER_READ_BIT;
-}
-
-VkAccessFlags MapVkAccessFlags(BufferUsage usage) {
-    if (usage & BufferUsage::VERTEX) return VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT;
-    if (usage & BufferUsage::INDEX) return VK_ACCESS_INDEX_READ_BIT;
-    if (usage & BufferUsage::UNIFORM) return VK_ACCESS_UNIFORM_READ_BIT;
-    if (usage & BufferUsage::INDIRECT) return VK_ACCESS_INDIRECT_COMMAND_READ_BIT;
-    if (usage & BufferUsage::STORAGE) return VK_ACCESS_SHADER_READ_BIT;
-    if (usage & BufferUsage::TRANSFER_SRC) return VK_ACCESS_TRANSFER_READ_BIT;
-    if (usage & BufferUsage::TRANSFER_DST) return VK_ACCESS_TRANSFER_WRITE_BIT;
-    return VK_ACCESS_UNIFORM_READ_BIT;
-}
-
-VkPipelineStageFlags MapVkPipelineStageFlags(BufferUsage usage) {
-    if (usage & BufferUsage::VERTEX) return VK_PIPELINE_STAGE_VERTEX_INPUT_BIT;
-    if (usage & BufferUsage::INDEX) return VK_PIPELINE_STAGE_VERTEX_INPUT_BIT;
-    if (usage & BufferUsage::UNIFORM) return VK_PIPELINE_STAGE_VERTEX_SHADER_BIT;
-    if (usage & BufferUsage::INDIRECT) return VK_PIPELINE_STAGE_DRAW_INDIRECT_BIT;
-    if (usage & BufferUsage::STORAGE) return VK_PIPELINE_STAGE_VERTEX_SHADER_BIT;
-    if (usage & BufferUsage::TRANSFER_SRC) return VK_PIPELINE_STAGE_TRANSFER_BIT;
-    if (usage & BufferUsage::TRANSFER_DST) return VK_PIPELINE_STAGE_TRANSFER_BIT;
-    return VK_PIPELINE_STAGE_VERTEX_SHADER_BIT;
-}
-
-VkPipelineBindPoint MapVkPipelineBindPoint(PipelineBindPoint bindPoint) {
-    switch (bindPoint) {
-        case PipelineBindPoint::GRAPHICS: return VK_PIPELINE_BIND_POINT_GRAPHICS;
-        case PipelineBindPoint::COMPUTE: return VK_PIPELINE_BIND_POINT_COMPUTE;
-        case PipelineBindPoint::RAY_TRACING: return VK_PIPELINE_BIND_POINT_RAY_TRACING_NV;
-        default: {
-            CCASSERT(false, "Unsupported PipelineBindPoint, convert to VkPipelineBindPoint failed.");
-            return VK_PIPELINE_BIND_POINT_GRAPHICS;
         }
     }
 }
@@ -363,31 +269,9 @@ VkImageUsageFlagBits MapVkImageUsageFlagBits(TextureUsage usage) {
     return (VkImageUsageFlagBits)flags;
 }
 
-VkImageLayout MapVkImageLayout(TextureUsage usage, Format format) {
-    const FormatInfo &info = GFX_FORMAT_INFOS[(uint)format];
-    if (usage & TextureUsage::SAMPLED) {
-        if (info.hasDepth && info.hasStencil)
-            return VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL;
-        else if (info.hasDepth)
-            return VK_IMAGE_LAYOUT_DEPTH_READ_ONLY_OPTIMAL;
-        else
-            return VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-    }
-    if (usage & TextureUsage::COLOR_ATTACHMENT) return VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-    if (usage & TextureUsage::DEPTH_STENCIL_ATTACHMENT) {
-        if (info.hasStencil)
-            return VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-        else
-            return VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL;
-    }
-    if (usage & TextureUsage::TRANSFER_SRC) return VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
-    if (usage & TextureUsage::TRANSFER_DST) return VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
-    return VK_IMAGE_LAYOUT_UNDEFINED;
-}
-
 VkImageAspectFlags MapVkImageAspectFlags(Format format) {
     VkImageAspectFlags aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-    const FormatInfo &info = GFX_FORMAT_INFOS[(uint)format];
+    const FormatInfo & info       = GFX_FORMAT_INFOS[(uint)format];
     if (info.hasDepth) {
         aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
     }
@@ -395,24 +279,6 @@ VkImageAspectFlags MapVkImageAspectFlags(Format format) {
         aspectMask |= VK_IMAGE_ASPECT_STENCIL_BIT;
     }
     return aspectMask;
-}
-
-VkPipelineStageFlags MapVkPipelineStageFlags(TextureUsage usage) {
-    if (usage & TextureUsage::COLOR_ATTACHMENT) return VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-    if (usage & TextureUsage::DEPTH_STENCIL_ATTACHMENT) return VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT;
-    if (usage & TextureUsage::SAMPLED) return VK_PIPELINE_STAGE_VERTEX_SHADER_BIT | VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
-    if (usage & TextureUsage::TRANSFER_SRC) return VK_PIPELINE_STAGE_TRANSFER_BIT;
-    if (usage & TextureUsage::TRANSFER_DST) return VK_PIPELINE_STAGE_TRANSFER_BIT;
-    return VK_PIPELINE_STAGE_VERTEX_SHADER_BIT;
-}
-
-uint selectMemoryType(const VkPhysicalDeviceMemoryProperties &memoryProperties, uint memoryTypeBits, VkMemoryPropertyFlags flags) {
-    for (uint i = 0u; i < memoryProperties.memoryTypeCount; ++i)
-        if ((memoryTypeBits & (1 << i)) != 0 && (memoryProperties.memoryTypes[i].propertyFlags & flags) == flags)
-            return i;
-
-    CCASSERT(false, "No compatible memory type found.");
-    return ~0u;
 }
 
 VkImageCreateFlags MapVkImageCreateFlags(TextureType type) {
@@ -457,7 +323,11 @@ VkDescriptorType MapVkDescriptorType(DescriptorType type) {
         case DescriptorType::UNIFORM_BUFFER: return VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
         case DescriptorType::DYNAMIC_STORAGE_BUFFER: return VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC;
         case DescriptorType::STORAGE_BUFFER: return VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
-        case DescriptorType::SAMPLER: return VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+        case DescriptorType::SAMPLER_TEXTURE: return VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+        case DescriptorType::SAMPLER: return VK_DESCRIPTOR_TYPE_SAMPLER;
+        case DescriptorType::TEXTURE: return VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
+        case DescriptorType::STORAGE_IMAGE: return VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
+        case DescriptorType::INPUT_ATTACHMENT: return VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT;
         default: {
             CCASSERT(false, "Unsupported DescriptorType, convert to VkDescriptorType failed.");
             return VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
@@ -524,27 +394,27 @@ String MapVendorName(uint32_t vendorID) {
 void MapDepthStencilBits(Format format, uint &depthBits, uint &stencilBits) {
     switch (format) {
         case Format::D16:
-            depthBits = 16;
+            depthBits   = 16;
             stencilBits = 0;
             break;
         case Format::D16S8:
-            depthBits = 16;
+            depthBits   = 16;
             stencilBits = 8;
             break;
         case Format::D24:
-            depthBits = 24;
+            depthBits   = 24;
             stencilBits = 0;
             break;
         case Format::D24S8:
-            depthBits = 24;
+            depthBits   = 24;
             stencilBits = 8;
             break;
         case Format::D32F:
-            depthBits = 32;
+            depthBits   = 32;
             stencilBits = 0;
             break;
         case Format::D32F_S8:
-            depthBits = 32;
+            depthBits   = 32;
             stencilBits = 8;
             break;
         default: break;
@@ -653,21 +523,72 @@ const VkSamplerAddressMode VK_SAMPLER_ADDRESS_MODES[] = {
     VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER, // BORDER
 };
 
-const VkAccessFlags FULL_ACCESS_FLAGS = VK_ACCESS_INDIRECT_COMMAND_READ_BIT |
-                                        VK_ACCESS_INDEX_READ_BIT |
-                                        VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT |
-                                        VK_ACCESS_UNIFORM_READ_BIT |
-                                        VK_ACCESS_INPUT_ATTACHMENT_READ_BIT |
-                                        VK_ACCESS_SHADER_READ_BIT |
-                                        VK_ACCESS_SHADER_WRITE_BIT |
-                                        VK_ACCESS_COLOR_ATTACHMENT_READ_BIT |
-                                        VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT |
-                                        VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT |
-                                        VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT |
-                                        VK_ACCESS_TRANSFER_READ_BIT |
-                                        VK_ACCESS_TRANSFER_WRITE_BIT |
-                                        VK_ACCESS_HOST_READ_BIT |
-                                        VK_ACCESS_HOST_WRITE_BIT;
+const VkPipelineBindPoint VK_PIPELINE_BIND_POINTS[] = {
+    VK_PIPELINE_BIND_POINT_GRAPHICS,
+    VK_PIPELINE_BIND_POINT_COMPUTE,
+    VK_PIPELINE_BIND_POINT_RAY_TRACING_KHR,
+};
+
+const ThsvsAccessType THSVS_ACCESS_TYPES[] = {
+    THSVS_ACCESS_NONE,                                                       // NONE
+    THSVS_ACCESS_INDIRECT_BUFFER,                                            // INDIRECT_BUFFER
+    THSVS_ACCESS_INDEX_BUFFER,                                               // INDEX_BUFFER
+    THSVS_ACCESS_VERTEX_BUFFER,                                              // VERTEX_BUFFER
+    THSVS_ACCESS_VERTEX_SHADER_READ_UNIFORM_BUFFER,                          // VERTEX_SHADER_READ_UNIFORM_BUFFER
+    THSVS_ACCESS_VERTEX_SHADER_READ_SAMPLED_IMAGE_OR_UNIFORM_TEXEL_BUFFER,   // VERTEX_SHADER_READ_TEXTURE
+    THSVS_ACCESS_VERTEX_SHADER_READ_OTHER,                                   // VERTEX_SHADER_READ_OTHER
+    THSVS_ACCESS_FRAGMENT_SHADER_READ_UNIFORM_BUFFER,                        // FRAGMENT_SHADER_READ_UNIFORM_BUFFER
+    THSVS_ACCESS_FRAGMENT_SHADER_READ_SAMPLED_IMAGE_OR_UNIFORM_TEXEL_BUFFER, // FRAGMENT_SHADER_READ_TEXTURE
+    THSVS_ACCESS_FRAGMENT_SHADER_READ_COLOR_INPUT_ATTACHMENT,                // FRAGMENT_SHADER_READ_COLOR_INPUT_ATTACHMENT
+    THSVS_ACCESS_FRAGMENT_SHADER_READ_DEPTH_STENCIL_INPUT_ATTACHMENT,        // FRAGMENT_SHADER_READ_DEPTH_STENCIL_INPUT_ATTACHMENT
+    THSVS_ACCESS_FRAGMENT_SHADER_READ_OTHER,                                 // FRAGMENT_SHADER_READ_OTHER
+    THSVS_ACCESS_COLOR_ATTACHMENT_READ,                                      // COLOR_ATTACHMENT_READ
+    THSVS_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ,                              // DEPTH_STENCIL_ATTACHMENT_READ
+    THSVS_ACCESS_COMPUTE_SHADER_READ_UNIFORM_BUFFER,                         // COMPUTE_SHADER_READ_UNIFORM_BUFFER
+    THSVS_ACCESS_COMPUTE_SHADER_READ_SAMPLED_IMAGE_OR_UNIFORM_TEXEL_BUFFER,  // COMPUTE_SHADER_READ_TEXTURE
+    THSVS_ACCESS_COMPUTE_SHADER_READ_OTHER,                                  // COMPUTE_SHADER_READ_OTHER
+    THSVS_ACCESS_TRANSFER_READ,                                              // TRANSFER_READ
+    THSVS_ACCESS_HOST_READ,                                                  // HOST_READ
+    THSVS_ACCESS_PRESENT,                                                    // PRESENT
+    THSVS_ACCESS_VERTEX_SHADER_WRITE,                                        // VERTEX_SHADER_WRITE
+    THSVS_ACCESS_FRAGMENT_SHADER_WRITE,                                      // FRAGMENT_SHADER_WRITE
+    THSVS_ACCESS_COLOR_ATTACHMENT_WRITE,                                     // COLOR_ATTACHMENT_WRITE
+    THSVS_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE,                             // DEPTH_STENCIL_ATTACHMENT_WRITE
+    THSVS_ACCESS_COMPUTE_SHADER_WRITE,                                       // COMPUTE_SHADER_WRITE
+    THSVS_ACCESS_TRANSFER_WRITE,                                             // TRANSFER_WRITE
+    THSVS_ACCESS_HOST_PREINITIALIZED,                                        // HOST_PREINITIALIZED
+    THSVS_ACCESS_HOST_WRITE,                                                 // HOST_WRITE
+};
+
+const VkImageLayout VK_IMAGE_LAYOUTS[] = {
+    VK_IMAGE_LAYOUT_UNDEFINED,
+    VK_IMAGE_LAYOUT_GENERAL,
+    VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
+    VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
+    VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL,
+    VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+    VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+    VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+    VK_IMAGE_LAYOUT_PREINITIALIZED,
+    VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
+};
+
+const VkAccessFlags FULL_ACCESS_FLAGS =
+    VK_ACCESS_INDIRECT_COMMAND_READ_BIT |
+    VK_ACCESS_INDEX_READ_BIT |
+    VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT |
+    VK_ACCESS_UNIFORM_READ_BIT |
+    VK_ACCESS_INPUT_ATTACHMENT_READ_BIT |
+    VK_ACCESS_SHADER_READ_BIT |
+    VK_ACCESS_SHADER_WRITE_BIT |
+    VK_ACCESS_COLOR_ATTACHMENT_READ_BIT |
+    VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT |
+    VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT |
+    VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT |
+    VK_ACCESS_TRANSFER_READ_BIT |
+    VK_ACCESS_TRANSFER_WRITE_BIT |
+    VK_ACCESS_HOST_READ_BIT |
+    VK_ACCESS_HOST_WRITE_BIT;
 
 void fullPipelineBarrier(VkCommandBuffer cmdBuff) {
 #if CC_DEBUG > 0

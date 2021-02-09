@@ -1,26 +1,28 @@
 /****************************************************************************
-Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2019-2021 Xiamen Yaji Software Co., Ltd.
 
-http://www.cocos2d-x.org
+ http://www.cocos.com
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
 
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
 ****************************************************************************/
+
 #include "GLES2Std.h"
 
 #include "GLES2Buffer.h"
@@ -30,7 +32,6 @@ THE SOFTWARE.
 #include "GLES2DescriptorSet.h"
 #include "GLES2DescriptorSetLayout.h"
 #include "GLES2Device.h"
-#include "GLES2Fence.h"
 #include "GLES2Framebuffer.h"
 #include "GLES2InputAssembler.h"
 #include "GLES2PipelineLayout.h"
@@ -174,18 +175,18 @@ bool GLES2Device::initialize(const DeviceInfo &info) {
     cmdBuffInfo.queue = _queue;
     _cmdBuff = createCommandBuffer(cmdBuffInfo);
 
-    glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, (GLint *)&_maxVertexAttributes);
-    glGetIntegerv(GL_MAX_VERTEX_UNIFORM_VECTORS, (GLint *)&_maxVertexUniformVectors);
-    glGetIntegerv(GL_MAX_FRAGMENT_UNIFORM_VECTORS, (GLint *)&_maxFragmentUniformVectors);
-    glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, (GLint *)&_maxTextureUnits);
-    glGetIntegerv(GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS, (GLint *)&_maxVertexTextureUnits);
-    glGetIntegerv(GL_MAX_TEXTURE_SIZE, (GLint *)&_maxTextureSize);
-    glGetIntegerv(GL_MAX_CUBE_MAP_TEXTURE_SIZE, (GLint *)&_maxCubeMapTextureSize);
-    glGetIntegerv(GL_DEPTH_BITS, (GLint *)&_depthBits);
-    glGetIntegerv(GL_STENCIL_BITS, (GLint *)&_stencilBits);
-    _uboOffsetAlignment = 1u;
+    glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, (GLint *)&_caps.maxVertexAttributes);
+    glGetIntegerv(GL_MAX_VERTEX_UNIFORM_VECTORS, (GLint *)&_caps.maxVertexUniformVectors);
+    glGetIntegerv(GL_MAX_FRAGMENT_UNIFORM_VECTORS, (GLint *)&_caps.maxFragmentUniformVectors);
+    glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, (GLint *)&_caps.maxTextureUnits);
+    glGetIntegerv(GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS, (GLint *)&_caps.maxVertexTextureUnits);
+    glGetIntegerv(GL_MAX_TEXTURE_SIZE, (GLint *)&_caps.maxTextureSize);
+    glGetIntegerv(GL_MAX_CUBE_MAP_TEXTURE_SIZE, (GLint *)&_caps.maxCubeMapTextureSize);
+    glGetIntegerv(GL_DEPTH_BITS, (GLint *)&_caps.depthBits);
+    glGetIntegerv(GL_STENCIL_BITS, (GLint *)&_caps.stencilBits);
+    _caps.uboOffsetAlignment = 1u;
 
-    _gpuStateCache->initialize(_maxTextureUnits, _maxVertexAttributes);
+    _gpuStateCache->initialize(_caps.maxTextureUnits, _caps.maxVertexAttributes);
 
     return true;
 }
@@ -228,6 +229,7 @@ void GLES2Device::bindRenderContext(bool bound) {
 
     if (bound) {
         _threadID = std::hash<std::thread::id>()(std::this_thread::get_id());
+        _gpuStateCache->reset();
     }
 }
 
@@ -245,16 +247,13 @@ void GLES2Device::bindDeviceContext(bool bound) {
 
     if (bound) {
         _threadID = std::hash<std::thread::id>()(std::this_thread::get_id());
+        _gpuStateCache->reset();
     }
 }
 
 CommandBuffer *GLES2Device::doCreateCommandBuffer(const CommandBufferInfo &info, bool hasAgent) {
     if (hasAgent || info.type == CommandBufferType::PRIMARY) return CC_NEW(GLES2PrimaryCommandBuffer(this));
     return CC_NEW(GLES2CommandBuffer(this));
-}
-
-Fence *GLES2Device::createFence() {
-    return CC_NEW(GLES2Fence(this));
 }
 
 Queue *GLES2Device::createQueue() {
@@ -303,6 +302,14 @@ PipelineLayout *GLES2Device::createPipelineLayout() {
 
 PipelineState *GLES2Device::createPipelineState() {
     return CC_NEW(GLES2PipelineState(this));
+}
+
+GlobalBarrier *GLES2Device::createGlobalBarrier() {
+    return CC_NEW(GlobalBarrier(this));
+}
+
+TextureBarrier *GLES2Device::createTextureBarrier() {
+    return CC_NEW(TextureBarrier(this));
 }
 
 void GLES2Device::copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint count) {

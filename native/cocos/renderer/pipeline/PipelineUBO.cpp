@@ -1,25 +1,26 @@
 /****************************************************************************
-Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2021 Xiamen Yaji Software Co., Ltd.
 
-http://www.cocos2d-x.org
+ http://www.cocos.com
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
 
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
 ****************************************************************************/
 
 #include "PipelineUBO.h"
@@ -69,7 +70,7 @@ void PipelineUBO::updateGlobalUBOView(const RenderPipeline *pipeline, std::array
     uboGlobalView[UBOGlobal::NATIVE_SIZE_OFFSET + 3] = 1.0f / uboGlobalView[UBOGlobal::NATIVE_SIZE_OFFSET + 1];
 }
 
-void PipelineUBO::updateCameraUBOView(const RenderPipeline *pipeline, std::array<float, UBOCamera::COUNT> &bufferView, 
+void PipelineUBO::updateCameraUBOView(const RenderPipeline *pipeline, std::array<float, UBOCamera::COUNT> &bufferView,
     const Camera *camera, bool hasOffScreenAttachments)
 {
     const auto scene = camera->getScene();
@@ -83,24 +84,24 @@ void PipelineUBO::updateCameraUBOView(const RenderPipeline *pipeline, std::array
     auto fog = sharedData->getFog();
     auto isHDR = sharedData->isHDR;
     auto shadingScale = sharedData->shadingScale;
-    
+
     auto *device = gfx::Device::getInstance();
     auto &uboCameraView = bufferView;
-    
+
     const auto shadingWidth = std::floor(device->getWidth());
     const auto shadingHeight = std::floor(device->getHeight());
-    
+
     uboCameraView[UBOCamera::SCREEN_SCALE_OFFSET] = camera->width / shadingWidth * shadingScale;
     uboCameraView[UBOCamera::SCREEN_SCALE_OFFSET + 1] = camera->height / shadingHeight * shadingScale;
     uboCameraView[UBOCamera::SCREEN_SCALE_OFFSET + 2] = 1.0 / uboCameraView[UBOCamera::SCREEN_SCALE_OFFSET];
     uboCameraView[UBOCamera::SCREEN_SCALE_OFFSET + 3] = 1.0 / uboCameraView[UBOCamera::SCREEN_SCALE_OFFSET + 1];
-    
+
     const auto exposure = camera->exposure;
     uboCameraView[UBOCamera::EXPOSURE_OFFSET] = exposure;
     uboCameraView[UBOCamera::EXPOSURE_OFFSET + 1] = 1.0f / exposure;
     uboCameraView[UBOCamera::EXPOSURE_OFFSET + 2] = isHDR ? 1.0f : 0.0;
     uboCameraView[UBOCamera::EXPOSURE_OFFSET + 3] = fpScale / exposure;
-    
+
     if (mainLight) {
         TO_VEC3(uboCameraView, mainLight->direction, UBOCamera::MAIN_LIT_DIR_OFFSET);
         TO_VEC3(uboCameraView, mainLight->color, UBOCamera::MAIN_LIT_COLOR_OFFSET);
@@ -134,7 +135,7 @@ void PipelineUBO::updateCameraUBOView(const RenderPipeline *pipeline, std::array
     uboCameraView[UBOCamera::AMBIENT_GROUND_OFFSET + 2] = ambient->groundAlbedo.z;
     const auto envmap = descriptorSet->getTexture((uint)PipelineGlobalBindings::SAMPLER_ENVIRONMENT);
     if (envmap) uboCameraView[UBOCamera::AMBIENT_GROUND_OFFSET + 3] = envmap->getLevelCount();
-    
+
     memcpy(uboCameraView.data() + UBOCamera::MAT_VIEW_OFFSET, camera->matView.m, sizeof(cc::Mat4));
     memcpy(uboCameraView.data() + UBOCamera::MAT_VIEW_INV_OFFSET, camera->getNode()->worldMatrix.m, sizeof(cc::Mat4));
     TO_VEC3(uboCameraView, camera->position, UBOCamera::CAMERA_POS_OFFSET);
@@ -144,14 +145,14 @@ void PipelineUBO::updateCameraUBOView(const RenderPipeline *pipeline, std::array
         memcpy(uboCameraView.data() + UBOCamera::MAT_PROJ_INV_OFFSET, camera->matProjInvOffscreen.m, sizeof(cc::Mat4));
         memcpy(uboCameraView.data() + UBOCamera::MAT_VIEW_PROJ_OFFSET, camera->matViewProjOffscreen.m, sizeof(cc::Mat4));
         memcpy(uboCameraView.data() + UBOCamera::MAT_VIEW_PROJ_INV_OFFSET, camera->matViewProjInvOffscreen.m, sizeof(cc::Mat4));
-        uboCameraView[UBOCamera::CAMERA_POS_OFFSET + 3] = device->getScreenSpaceSignY() * device->getUVSpaceSignY();
+        uboCameraView[UBOCamera::CAMERA_POS_OFFSET + 3] = device->getCapabilities().screenSpaceSignY * device->getCapabilities().UVSpaceSignY;
     }
     else {
         memcpy(uboCameraView.data() + UBOCamera::MAT_PROJ_OFFSET, camera->matProj.m, sizeof(cc::Mat4));
         memcpy(uboCameraView.data() + UBOCamera::MAT_PROJ_INV_OFFSET, camera->matProjInv.m, sizeof(cc::Mat4));
         memcpy(uboCameraView.data() + UBOCamera::MAT_VIEW_PROJ_OFFSET, camera->matViewProj.m, sizeof(cc::Mat4));
         memcpy(uboCameraView.data() + UBOCamera::MAT_VIEW_PROJ_INV_OFFSET, camera->matViewProjInv.m, sizeof(cc::Mat4));
-        uboCameraView[UBOCamera::CAMERA_POS_OFFSET + 3] = device->getScreenSpaceSignY();
+        uboCameraView[UBOCamera::CAMERA_POS_OFFSET + 3] = device->getCapabilities().screenSpaceSignY;
     }
 
     if (fog->enabled) {
@@ -177,7 +178,7 @@ void PipelineUBO::updateShadowUBOView(const RenderPipeline *pipeline, std::array
     const auto shadowInfo = sceneData->getSharedData()->getShadows();
     auto &shadowUBO = bufferView;
     auto sphere = sceneData->getSphere();
-    
+
     if (shadowInfo->enabled) {
         if (mainLight && shadowInfo->getShadowType() == ShadowType::SHADOWMAP) {
             const auto node = mainLight->getNode();
@@ -205,8 +206,8 @@ void PipelineUBO::updateShadowUBOView(const RenderPipeline *pipeline, std::array
             }
 
             const auto matShadowView = matShadowCamera.getInversed();
-            const auto projectionSinY = device->getScreenSpaceSignY() * device->getUVSpaceSignY();
-            Mat4::createOrthographicOffCenter(-x, x, -y, y, shadowInfo->nearValue, farClamp, device->getClipSpaceMinZ(), projectionSinY, &matShadowViewProj);
+            const auto projectionSinY = device->getCapabilities().screenSpaceSignY * device->getCapabilities().UVSpaceSignY;
+            Mat4::createOrthographicOffCenter(-x, x, -y, y, shadowInfo->nearValue, farClamp, device->getCapabilities().clipSpaceMinZ, projectionSinY, &matShadowViewProj);
 
             matShadowViewProj.multiply(matShadowView);
             float shadowInfos[4] = {shadowInfo->size.x, shadowInfo->size.y, (float)shadowInfo->pcfType, shadowInfo->bias};
@@ -252,8 +253,8 @@ void PipelineUBO::updateShadowUBOLightView(const RenderPipeline *pipeline, std::
             }
 
             const auto matShadowView = matShadowCamera.getInversed();
-            const auto projectionSinY = device->getScreenSpaceSignY() * device->getUVSpaceSignY();
-            Mat4::createOrthographicOffCenter(-x, x, -y, y, shadowInfo->nearValue, farClamp, device->getClipSpaceMinZ(), projectionSinY, &matShadowViewProj);
+            const auto projectionSinY = device->getCapabilities().screenSpaceSignY * device->getCapabilities().UVSpaceSignY;
+            Mat4::createOrthographicOffCenter(-x, x, -y, y, shadowInfo->nearValue, farClamp, device->getCapabilities().clipSpaceMinZ, projectionSinY, &matShadowViewProj);
 
             matShadowViewProj.multiply(matShadowView);
             memcpy(shadowUBO.data() + UBOShadow::MAT_LIGHT_VIEW_PROJ_OFFSET, matShadowViewProj.m, sizeof(matShadowViewProj));
@@ -279,9 +280,9 @@ void PipelineUBO::activate(gfx::Device *device, RenderPipeline *pipeline)
 {
     _device = device;
     _pipeline = pipeline;
-    
+
     const auto descriptorSet = pipeline->getDescriptorSet();
-    
+
     auto globalUBO = _device->createBuffer({
         gfx::BufferUsageBit::UNIFORM | gfx::BufferUsageBit::TRANSFER_DST,
         gfx::MemoryUsageBit::HOST | gfx::MemoryUsageBit::DEVICE,
@@ -290,7 +291,7 @@ void PipelineUBO::activate(gfx::Device *device, RenderPipeline *pipeline)
         gfx::BufferFlagBit::NONE,
     });
     descriptorSet->bindBuffer(UBOGlobal::BINDING, globalUBO);
-    
+
     auto cameraUBO = _device->createBuffer({
         gfx::BufferUsageBit::UNIFORM | gfx::BufferUsageBit::TRANSFER_DST,
         gfx::MemoryUsageBit::HOST | gfx::MemoryUsageBit::DEVICE,

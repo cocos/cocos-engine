@@ -1,29 +1,32 @@
 /****************************************************************************
-Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2019-2021 Xiamen Yaji Software Co., Ltd.
 
-http://www.cocos2d-x.org
+ http://www.cocos.com
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
 
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
 ****************************************************************************/
+
 #ifndef CC_GFXGLES3_COMMANDS_H_
 #define CC_GFXGLES3_COMMANDS_H_
 
+#include "../gfx-gles-common/GLESCommandPool.h"
 #include "GLES3GPUObjects.h"
 
 namespace cc {
@@ -69,7 +72,7 @@ struct GLES3BufferTextureCopy final {
     GLES3TextureSubres texSubres;
 };
 
-class GLES3CmdBeginRenderPass final : public GFXCmd {
+class GLES3CmdBeginRenderPass final : public GLESCmd {
 public:
     GLES3GPURenderPass *gpuRenderPass = nullptr;
     GLES3GPUFramebuffer *gpuFBO = nullptr;
@@ -79,7 +82,7 @@ public:
     float clearDepth = 1.0f;
     int clearStencil = 0;
 
-    GLES3CmdBeginRenderPass() : GFXCmd(GFXCmdType::BEGIN_RENDER_PASS) {}
+    GLES3CmdBeginRenderPass() : GLESCmd(GLESCmdType::BEGIN_RENDER_PASS) {}
 
     virtual void clear() override {
         gpuFBO = nullptr;
@@ -99,7 +102,7 @@ enum class GLES3State {
     COUNT,
 };
 
-class GLES3CmdBindStates final : public GFXCmd {
+class GLES3CmdBindStates final : public GLESCmd {
 public:
     GLES3GPUPipelineState *gpuPipelineState = nullptr;
     GLES3GPUInputAssembler *gpuInputAssembler = nullptr;
@@ -115,7 +118,7 @@ public:
     GLES3StencilWriteMask stencilWriteMask;
     GLES3StencilCompareMask stencilCompareMask;
 
-    GLES3CmdBindStates() : GFXCmd(GFXCmdType::BIND_STATES) {}
+    GLES3CmdBindStates() : GLESCmd(GLESCmdType::BIND_STATES) {}
 
     virtual void clear() override {
         gpuPipelineState = nullptr;
@@ -125,22 +128,45 @@ public:
     }
 };
 
-class GLES3CmdDraw final : public GFXCmd {
+class GLES3CmdDraw final : public GLESCmd {
 public:
     DrawInfo drawInfo;
 
-    GLES3CmdDraw() : GFXCmd(GFXCmdType::DRAW) {}
+    GLES3CmdDraw() : GLESCmd(GLESCmdType::DRAW) {}
     virtual void clear() override {}
 };
 
-class GLES3CmdUpdateBuffer final : public GFXCmd {
+class GLES3CmdDispatch final : public GLESCmd {
+public:
+    GLES3GPUDispatchInfo dispatchInfo;
+
+    GLES3CmdDispatch() : GLESCmd(GLESCmdType::DISPATCH) {}
+    virtual void clear() override {
+        dispatchInfo.indirectBuffer = nullptr;
+        dispatchInfo.indirectOffset = 0;
+    }
+};
+
+class GLES3CmdBarrier final : public GLESCmd {
+public:
+    GLbitfield barriers = 0u;
+    GLbitfield barriersByRegion = 0u;
+
+    GLES3CmdBarrier() : GLESCmd(GLESCmdType::BARRIER) {}
+    virtual void clear() override {
+        barriers = 0u;
+        barriersByRegion = 0u;
+    }
+};
+
+class GLES3CmdUpdateBuffer final : public GLESCmd {
 public:
     GLES3GPUBuffer *gpuBuffer = nullptr;
     uint8_t *buffer = nullptr;
     uint size = 0;
     uint offset = 0;
 
-    GLES3CmdUpdateBuffer() : GFXCmd(GFXCmdType::UPDATE_BUFFER) {}
+    GLES3CmdUpdateBuffer() : GLESCmd(GLESCmdType::UPDATE_BUFFER) {}
 
     virtual void clear() override {
         gpuBuffer = nullptr;
@@ -148,14 +174,14 @@ public:
     }
 };
 
-class GLES3CmdCopyBufferToTexture final : public GFXCmd {
+class GLES3CmdCopyBufferToTexture final : public GLESCmd {
 public:
     GLES3GPUTexture *gpuTexture = nullptr;
     const BufferTextureCopy *regions = nullptr;
     uint count = 0u;
     const uint8_t *const *buffers;
 
-    GLES3CmdCopyBufferToTexture() : GFXCmd(GFXCmdType::COPY_BUFFER_TO_TEXTURE) {}
+    GLES3CmdCopyBufferToTexture() : GLESCmd(GLESCmdType::COPY_BUFFER_TO_TEXTURE) {}
 
     virtual void clear() override {
         gpuTexture = nullptr;
@@ -165,14 +191,35 @@ public:
     }
 };
 
+class GLES3CmdBlitTexture final : public GLESCmd {
+public:
+    GLES3GPUTexture *gpuTextureSrc = nullptr;
+    GLES3GPUTexture *gpuTextureDst = nullptr;
+    const TextureBlit *regions = nullptr;
+    uint count = 0u;
+    Filter filter = Filter::POINT;
+
+    GLES3CmdBlitTexture() : GLESCmd(GLESCmdType::BLIT_TEXTURE) {}
+
+    virtual void clear() override {
+        gpuTextureSrc = nullptr;
+        gpuTextureDst = nullptr;
+        regions = nullptr;
+        count = 0u;
+    }
+};
+
 class GLES3CmdPackage final : public Object {
 public:
-    CachedArray<GFXCmdType> cmds;
+    CachedArray<GLESCmdType> cmds;
     CachedArray<GLES3CmdBeginRenderPass *> beginRenderPassCmds;
     CachedArray<GLES3CmdBindStates *> bindStatesCmds;
     CachedArray<GLES3CmdDraw *> drawCmds;
+    CachedArray<GLES3CmdDispatch *> dispatchCmds;
+    CachedArray<GLES3CmdBarrier *> barrierCmds;
     CachedArray<GLES3CmdUpdateBuffer *> updateBufferCmds;
     CachedArray<GLES3CmdCopyBufferToTexture *> copyBufferToTextureCmds;
+    CachedArray<GLES3CmdBlitTexture *> blitTextureCmds;
 };
 
 class GLES3GPUCommandAllocator final : public Object {
@@ -180,8 +227,11 @@ public:
     CommandPool<GLES3CmdBeginRenderPass> beginRenderPassCmdPool;
     CommandPool<GLES3CmdBindStates> bindStatesCmdPool;
     CommandPool<GLES3CmdDraw> drawCmdPool;
+    CommandPool<GLES3CmdDispatch> dispatchCmdPool;
+    CommandPool<GLES3CmdBarrier> barrierCmdPool;
     CommandPool<GLES3CmdUpdateBuffer> updateBufferCmdPool;
     CommandPool<GLES3CmdCopyBufferToTexture> copyBufferToTextureCmdPool;
+    CommandPool<GLES3CmdBlitTexture> blitTextureCmdPool;
 
     void clearCmds(GLES3CmdPackage *cmd_package) {
         if (cmd_package->beginRenderPassCmds.size()) {
@@ -193,11 +243,20 @@ public:
         if (cmd_package->drawCmds.size()) {
             drawCmdPool.freeCmds(cmd_package->drawCmds);
         }
+        if (cmd_package->dispatchCmds.size()) {
+            dispatchCmdPool.freeCmds(cmd_package->dispatchCmds);
+        }
+        if (cmd_package->barrierCmds.size()) {
+            barrierCmdPool.freeCmds(cmd_package->barrierCmds);
+        }
         if (cmd_package->updateBufferCmds.size()) {
             updateBufferCmdPool.freeCmds(cmd_package->updateBufferCmds);
         }
         if (cmd_package->copyBufferToTextureCmds.size()) {
             copyBufferToTextureCmdPool.freeCmds(cmd_package->copyBufferToTextureCmds);
+        }
+        if (cmd_package->blitTextureCmds.size()) {
+            blitTextureCmdPool.freeCmds(cmd_package->blitTextureCmds);
         }
 
         cmd_package->cmds.clear();
@@ -207,8 +266,11 @@ public:
         beginRenderPassCmdPool.release();
         bindStatesCmdPool.release();
         drawCmdPool.release();
+        dispatchCmdPool.release();
+        barrierCmdPool.release();
         updateBufferCmdPool.release();
         copyBufferToTextureCmdPool.release();
+        blitTextureCmdPool.release();
     }
 };
 
@@ -238,7 +300,10 @@ CC_GLES3_API void GLES3CmdFuncDraw(GLES3Device *device, DrawInfo &drawInfo);
 CC_GLES3_API void GLES3CmdFuncUpdateBuffer(GLES3Device *device, GLES3GPUBuffer *gpuBuffer, const void *buffer, uint offset, uint size);
 CC_GLES3_API void GLES3CmdFuncCopyBuffersToTexture(GLES3Device *device, const uint8_t *const *buffers,
                                                    GLES3GPUTexture *gpuTexture, const BufferTextureCopy *regions, uint count);
+CC_GLES3_API void GLES3CmdFuncBlitTexture(GLES3Device *device, GLES3GPUTexture *gpuTextureSrc, GLES3GPUTexture *gpuTextureDst, const TextureBlit *regions, uint count, Filter filter);
 CC_GLES3_API void GLES3CmdFuncExecuteCmds(GLES3Device *device, GLES3CmdPackage *cmdPackage);
+CC_GLES3_API void GLES3CmdFuncDispatch(GLES3Device *device, const GLES3GPUDispatchInfo &info);
+CC_GLES3_API void GLES3CmdFuncMemoryBarrier(GLES3Device *device, GLbitfield barriers, GLbitfield barriersByRegion);
 
 } // namespace gfx
 } // namespace cc

@@ -1,7 +1,7 @@
-/*
- Copyright (c) Huawei Technologies Co., Ltd. 2020-2021.
+/****************************************************************************
+ Copyright (c) 2020-2021 Huawei Technologies Co., Ltd.
 
- https://www.cocos.com/
+ http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
@@ -21,7 +21,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+****************************************************************************/
 
 #include "LightingStage.h"
 #include "LightingFlow.h"
@@ -205,7 +205,7 @@ void LightingStage::initLightingBuffer() {
 
     // color/pos/dir/angle 都是vec4存储, 最后一个vec4只要x存储光源个数
     uint totalSize = sizeof(Vec4) * 4 * _maxDeferredLights;
-    totalSize = std::ceil((float)totalSize / device->getUboOffsetAlignment()) * device->getUboOffsetAlignment();
+    totalSize      = std::ceil((float)totalSize / device->getCapabilities().uboOffsetAlignment) * device->getCapabilities().uboOffsetAlignment;
 
     // create lighting buffer and view
     if (_deferredLitsBufs == nullptr) {
@@ -213,7 +213,7 @@ void LightingStage::initLightingBuffer() {
             gfx::BufferUsageBit::UNIFORM | gfx::BufferUsageBit::TRANSFER_DST,
             gfx::MemoryUsageBit::HOST | gfx::MemoryUsageBit::DEVICE,
             totalSize,
-            static_cast<uint>(device->getUboOffsetAlignment()),
+            static_cast<uint>(device->getCapabilities().uboOffsetAlignment),
         };
         _deferredLitsBufs = device->createBuffer(bfInfo);
         assert(_deferredLitsBufs != nullptr);

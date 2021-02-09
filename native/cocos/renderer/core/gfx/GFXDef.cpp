@@ -1,3 +1,28 @@
+/****************************************************************************
+ Copyright (c) 2019-2021 Xiamen Yaji Software Co., Ltd.
+
+ http://www.cocos.com
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+****************************************************************************/
+
 #include "CoreStd.h"
 
 #include "GFXDef.h"
@@ -5,10 +30,21 @@
 namespace cc {
 namespace gfx {
 
-const uint DESCRIPTOR_BUFFER_TYPE = (uint)DescriptorType::STORAGE_BUFFER | (uint)DescriptorType::DYNAMIC_STORAGE_BUFFER |
-                                    (uint)DescriptorType::UNIFORM_BUFFER | (uint)DescriptorType::DYNAMIC_UNIFORM_BUFFER;
-const uint DESCRIPTOR_SAMPLER_TYPE = (uint)DescriptorType::SAMPLER;
-const uint DESCRIPTOR_DYNAMIC_TYPE = (uint)DescriptorType::DYNAMIC_STORAGE_BUFFER | (uint)DescriptorType::DYNAMIC_UNIFORM_BUFFER;
+const DescriptorType DESCRIPTOR_BUFFER_TYPE = DescriptorType::STORAGE_BUFFER |
+                                              DescriptorType::DYNAMIC_STORAGE_BUFFER |
+                                              DescriptorType::UNIFORM_BUFFER |
+                                              DescriptorType::DYNAMIC_UNIFORM_BUFFER;
+
+const DescriptorType DESCRIPTOR_TEXTURE_TYPE = DescriptorType::SAMPLER_TEXTURE |
+                                               DescriptorType::SAMPLER |
+                                               DescriptorType::TEXTURE |
+                                               DescriptorType::STORAGE_IMAGE |
+                                               DescriptorType::INPUT_ATTACHMENT;
+
+const DescriptorType DESCRIPTOR_DYNAMIC_TYPE = DescriptorType::DYNAMIC_STORAGE_BUFFER |
+                                               DescriptorType::DYNAMIC_UNIFORM_BUFFER;
+
+const uint DRAW_INFO_SIZE = 28u;
 
 const FormatInfo GFX_FORMAT_INFOS[] = {
     {"UNKNOWN", 0, 0, FormatType::NONE, false, false, false, false},
@@ -142,6 +178,10 @@ const FormatInfo GFX_FORMAT_INFOS[] = {
     {"ASTC_SRGBA_12x10", 1, 4, FormatType::UNORM, true, false, false, true},
     {"ASTC_SRGBA_12x12", 1, 4, FormatType::UNORM, true, false, false, true},
 };
+
+bool isCombinedImageSampler(Type type) { return type >= Type::SAMPLER1D && type <= Type::SAMPLER_CUBE; }
+bool isSampledImage(Type type) { return type >= Type::TEXTURE1D && type <= Type::TEXTURE_CUBE; }
+bool isStorageImage(Type type) { return type >= Type::IMAGE1D && type <= Type::IMAGE_CUBE; }
 
 uint FormatSize(Format format, uint width, uint height, uint depth) {
 
@@ -282,7 +322,7 @@ uint FormatSurfaceSize(Format format, uint width, uint height, uint depth, uint 
 
     for (uint i = 0; i < mips; ++i) {
         size += FormatSize(format, width, height, depth);
-        width = std::max(width >> 1, 1U);
+        width  = std::max(width >> 1, 1U);
         height = std::max(height >> 1, 1U);
     }
 

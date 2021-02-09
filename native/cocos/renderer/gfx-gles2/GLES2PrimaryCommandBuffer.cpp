@@ -1,26 +1,28 @@
 /****************************************************************************
-Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2019-2021 Xiamen Yaji Software Co., Ltd.
 
-http://www.cocos2d-x.org
+ http://www.cocos.com
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
 
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
 ****************************************************************************/
+
 #include "GLES2Std.h"
 
 #include "GLES2Buffer.h"
@@ -43,7 +45,24 @@ GLES2PrimaryCommandBuffer::GLES2PrimaryCommandBuffer(Device *device)
 GLES2PrimaryCommandBuffer::~GLES2PrimaryCommandBuffer() {
 }
 
-void GLES2PrimaryCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, int stencil, bool fromSecondaryCB) {
+void GLES2PrimaryCommandBuffer::begin(RenderPass *renderPass, uint subpass, Framebuffer *frameBuffer) {
+    _curGPUPipelineState = nullptr;
+    _curGPUInputAssember = nullptr;
+    _curGPUDescriptorSets.assign(_curGPUDescriptorSets.size(), nullptr);
+
+    _numDrawCalls = 0;
+    _numInstances = 0;
+    _numTriangles = 0;
+}
+
+void GLES2PrimaryCommandBuffer::end() {
+    if (_isStateInvalid) {
+        BindStates();
+    }
+    _isInRenderPass = false;
+}
+
+void GLES2PrimaryCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, int stencil, CommandBuffer *const *secondaryCBs, uint secondaryCBCount) {
     _isInRenderPass = true;
     GLES2GPURenderPass *gpuRenderPass = ((GLES2RenderPass *)renderPass)->gpuRenderPass();
     GLES2GPUFramebuffer *gpuFramebuffer = ((GLES2Framebuffer *)fbo)->gpuFBO();
@@ -128,19 +147,24 @@ void GLES2PrimaryCommandBuffer::copyBuffersToTexture(const uint8_t *const *buffe
     }
 }
 
-void GLES2PrimaryCommandBuffer::execute(const CommandBuffer *const *cmdBuffs, uint32_t count) {
+void GLES2PrimaryCommandBuffer::execute(CommandBuffer *const *cmdBuffs, uint32_t count) {
     for (uint i = 0; i < count; ++i) {
         GLES2PrimaryCommandBuffer *cmdBuff = (GLES2PrimaryCommandBuffer *)cmdBuffs[i];
-        GLES2CmdPackage *cmdPackage = cmdBuff->_pendingPackages.front();
 
-        GLES2CmdFuncExecuteCmds((GLES2Device *)_device, cmdPackage);
+        if (!cmdBuff->_pendingPackages.empty()) {
+            GLES2CmdPackage *cmdPackage = cmdBuff->_pendingPackages.front();
+
+            GLES2CmdFuncExecuteCmds((GLES2Device *)_device, cmdPackage);
+
+            cmdBuff->_pendingPackages.pop();
+            cmdBuff->_freePackages.push(cmdPackage);
+            cmdBuff->_cmdAllocator->clearCmds(cmdPackage);
+            cmdBuff->_cmdAllocator->reset();
+        }
 
         _numDrawCalls += cmdBuff->_numDrawCalls;
         _numInstances += cmdBuff->_numInstances;
         _numTriangles += cmdBuff->_numTriangles;
-
-        cmdBuff->_pendingPackages.pop();
-        cmdBuff->_freePackages.push(cmdPackage);
     }
 }
 

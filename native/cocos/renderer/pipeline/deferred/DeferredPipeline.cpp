@@ -1,7 +1,7 @@
-/*
- Copyright (c) Huawei Technologies Co., Ltd. 2020-2021.
+/****************************************************************************
+ Copyright (c) 2020-2021 Huawei Technologies Co., Ltd.
 
- https://www.cocos.com/
+ http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
@@ -21,7 +21,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- */
+****************************************************************************/
 
 #include "DeferredPipeline.h"
 #include "../helper/SharedMemory.h"
@@ -72,14 +72,14 @@ gfx::RenderPass *DeferredPipeline::getOrCreateRenderPass(gfx::ClearFlags clearFl
             colorAttachment.loadOp = gfx::LoadOp::DISCARD;
         } else {
             colorAttachment.loadOp = gfx::LoadOp::LOAD;
-            colorAttachment.beginLayout = gfx::TextureLayout::PRESENT_SRC;
+            colorAttachment.beginAccesses = {gfx::AccessType::PRESENT};
         }
     }
 
     if (static_cast<gfx::ClearFlagBit>(clearFlags & gfx::ClearFlagBit::DEPTH_STENCIL) != gfx::ClearFlagBit::DEPTH_STENCIL) {
         if (!(clearFlags & gfx::ClearFlagBit::DEPTH)) depthStencilAttachment.depthLoadOp = gfx::LoadOp::LOAD;
         if (!(clearFlags & gfx::ClearFlagBit::STENCIL)) depthStencilAttachment.stencilLoadOp = gfx::LoadOp::LOAD;
-        depthStencilAttachment.beginLayout = gfx::TextureLayout::DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+        depthStencilAttachment.beginAccesses = {gfx::AccessType::DEPTH_STENCIL_ATTACHMENT_WRITE};
     }
 
     auto renderPass = device->createRenderPass({

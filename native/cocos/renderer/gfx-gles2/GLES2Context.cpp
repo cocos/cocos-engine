@@ -1,30 +1,33 @@
 /****************************************************************************
-Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2019-2021 Xiamen Yaji Software Co., Ltd.
 
-http://www.cocos2d-x.org
+ http://www.cocos.com
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
 
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
 ****************************************************************************/
+
 #include "GLES2Std.h"
 
 #include "GLES2Context.h"
-#include "gles2w.h"
+#include "GLES2Device.h"
+#include "GLES2GPUObjects.h"
 
 #if (CC_PLATFORM == CC_PLATFORM_ANDROID)
     #include "android/native_window.h"
@@ -103,6 +106,10 @@ bool GLES2Context::initialize(const ContextInfo &info) {
     _windowHandle = info.windowHandle;
 
     //////////////////////////////////////////////////////////////////////////
+
+    if (!gles2wInit()) {
+        return false;
+    }
 
     if (!info.sharedCtx) {
         _isPrimaryContex = true;
@@ -282,9 +289,10 @@ bool GLES2Context::initialize(const ContextInfo &info) {
             }
 
             ((GLES2Context *)_device->getContext())->MakeCurrent();
+            ((GLES2Device *)_device)->stateCache()->reset();
         });
     #endif
-         
+
         if (!gles2wInit()) {
             return false;
         }
@@ -415,56 +423,55 @@ bool GLES2Context::MakeCurrent(bool bound) {
                 return false;
             }
 #endif
+            _isInitialized = true;
+        }
 
 #if CC_DEBUG > 0 && !FORCE_DISABLE_VALIDATION && CC_PLATFORM != CC_PLATFORM_MAC_IOS
-            GL_CHECK(glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS_KHR));
-            GL_CHECK(glDebugMessageControlKHR(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, NULL, GL_TRUE));
-            GL_CHECK(glDebugMessageCallbackKHR(GLES2EGLDebugProc, NULL));
+        GL_CHECK(glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS_KHR));
+        GL_CHECK(glDebugMessageControlKHR(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, NULL, GL_TRUE));
+        GL_CHECK(glDebugMessageCallbackKHR(GLES2EGLDebugProc, NULL));
 #endif
 
-            _isInitialized = true;
+        //////////////////////////////////////////////////////////////////////////
 
-            //////////////////////////////////////////////////////////////////////////
+        GL_CHECK(glPixelStorei(GL_PACK_ALIGNMENT, 1));
+        GL_CHECK(glPixelStorei(GL_UNPACK_ALIGNMENT, 1));
+        GL_CHECK(glActiveTexture(GL_TEXTURE0));
 
-            GL_CHECK(glPixelStorei(GL_PACK_ALIGNMENT, 1));
-            GL_CHECK(glPixelStorei(GL_UNPACK_ALIGNMENT, 1));
-            GL_CHECK(glActiveTexture(GL_TEXTURE0));
+        //////////////////////////////////////////////////////////////////////////
 
-            //////////////////////////////////////////////////////////////////////////
+        GL_CHECK(glEnable(GL_SCISSOR_TEST));
+        GL_CHECK(glEnable(GL_CULL_FACE));
+        GL_CHECK(glCullFace(GL_BACK));
 
-            GL_CHECK(glEnable(GL_SCISSOR_TEST));
-            GL_CHECK(glEnable(GL_CULL_FACE));
-            GL_CHECK(glCullFace(GL_BACK));
+        GL_CHECK(glFrontFace(GL_CCW));
 
-            GL_CHECK(glFrontFace(GL_CCW));
+        //GL_CHECK(glDisable(GL_MULTISAMPLE));
 
-            //GL_CHECK(glDisable(GL_MULTISAMPLE));
+        //////////////////////////////////////////////////////////////////////////
+        // DepthStencilState
+        GL_CHECK(glEnable(GL_DEPTH_TEST));
+        GL_CHECK(glDepthMask(GL_TRUE));
+        GL_CHECK(glDepthFunc(GL_LESS));
 
-            //////////////////////////////////////////////////////////////////////////
-            // DepthStencilState
-            GL_CHECK(glEnable(GL_DEPTH_TEST));
-            GL_CHECK(glDepthMask(GL_TRUE));
-            GL_CHECK(glDepthFunc(GL_LESS));
+        GL_CHECK(glStencilFuncSeparate(GL_FRONT, GL_ALWAYS, 1, 0xffffffff));
+        GL_CHECK(glStencilOpSeparate(GL_FRONT, GL_KEEP, GL_KEEP, GL_KEEP));
+        GL_CHECK(glStencilMaskSeparate(GL_FRONT, 0xffffffff));
+        GL_CHECK(glStencilFuncSeparate(GL_BACK, GL_ALWAYS, 1, 0xffffffff));
+        GL_CHECK(glStencilOpSeparate(GL_BACK, GL_KEEP, GL_KEEP, GL_KEEP));
+        GL_CHECK(glStencilMaskSeparate(GL_BACK, 0xffffffff));
 
-            GL_CHECK(glStencilFuncSeparate(GL_FRONT, GL_ALWAYS, 1, 0xffffffff));
-            GL_CHECK(glStencilOpSeparate(GL_FRONT, GL_KEEP, GL_KEEP, GL_KEEP));
-            GL_CHECK(glStencilMaskSeparate(GL_FRONT, 0xffffffff));
-            GL_CHECK(glStencilFuncSeparate(GL_BACK, GL_ALWAYS, 1, 0xffffffff));
-            GL_CHECK(glStencilOpSeparate(GL_BACK, GL_KEEP, GL_KEEP, GL_KEEP));
-            GL_CHECK(glStencilMaskSeparate(GL_BACK, 0xffffffff));
+        GL_CHECK(glDisable(GL_STENCIL_TEST));
 
-            GL_CHECK(glDisable(GL_STENCIL_TEST));
+        //////////////////////////////////////////////////////////////////////////
+        // BlendState
 
-            //////////////////////////////////////////////////////////////////////////
-            // BlendState
-
-            GL_CHECK(glDisable(GL_SAMPLE_ALPHA_TO_COVERAGE));
-            GL_CHECK(glDisable(GL_BLEND));
-            GL_CHECK(glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD));
-            GL_CHECK(glBlendFuncSeparate(GL_ONE, GL_ZERO, GL_ONE, GL_ZERO));
-            GL_CHECK(glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE));
-            GL_CHECK(glBlendColor((GLclampf)0.0f, (GLclampf)0.0f, (GLclampf)0.0f, (GLclampf)0.0f));
-        }
+        GL_CHECK(glDisable(GL_SAMPLE_ALPHA_TO_COVERAGE));
+        GL_CHECK(glDisable(GL_BLEND));
+        GL_CHECK(glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD));
+        GL_CHECK(glBlendFuncSeparate(GL_ONE, GL_ZERO, GL_ONE, GL_ZERO));
+        GL_CHECK(glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE));
+        GL_CHECK(glBlendColor((GLclampf)0.0f, (GLclampf)0.0f, (GLclampf)0.0f, (GLclampf)0.0f));
 
         CC_LOG_DEBUG("eglMakeCurrent() - SUCCEEDED, Context: 0x%p", this);
         return true;

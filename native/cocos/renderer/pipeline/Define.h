@@ -1,26 +1,28 @@
 /****************************************************************************
-Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2021 Xiamen Yaji Software Co., Ltd.
 
-http://www.cocos2d-x.org
+ http://www.cocos.com
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
 
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
 ****************************************************************************/
+
 #pragma once
 
 #include "../core/CoreStd.h"
@@ -113,7 +115,7 @@ enum class CC_DLL RenderPassStage {
 struct CC_DLL InternalBindingDesc {
     gfx::DescriptorType type;
     gfx::UniformBlock blockInfo;
-    gfx::UniformSampler samplerInfo;
+    gfx::UniformSamplerTexture samplerInfo;
     Value defaultValue;
 };
 
@@ -376,7 +378,7 @@ public:
 struct CC_DLL DescriptorSetLayoutInfos {
     gfx::DescriptorSetLayoutBindingList bindings;
     unordered_map<String, gfx::UniformBlock> blocks;
-    unordered_map<String, gfx::UniformSampler> samplers;
+    unordered_map<String, gfx::UniformSamplerTexture> samplers;
 };
 extern CC_DLL DescriptorSetLayoutInfos globalDescriptorSetLayout;
 extern CC_DLL DescriptorSetLayoutInfos localDescriptorSetLayout;
@@ -420,98 +422,98 @@ extern CC_DLL DescriptorSetLayoutInfos localDescriptorSetLayout;
 struct CC_DLL SHADOWMAP : public Object {
     static constexpr uint BINDING = static_cast<uint>(PipelineGlobalBindings::SAMPLER_SHADOWMAP);
     static const gfx::DescriptorSetLayoutBinding DESCRIPTOR;
-    static const gfx::UniformSampler LAYOUT;
+    static const gfx::UniformSamplerTexture LAYOUT;
     static const String NAME;
 };
 
 struct CC_DLL SAMPLERGBUFFERALBEDOMAP : public Object {
     static constexpr uint BINDING = static_cast<uint>(PipelineGlobalBindings::SAMPLER_GBUFFER_ALBEDOMAP);
     static const gfx::DescriptorSetLayoutBinding DESCRIPTOR;
-    static const gfx::UniformSampler LAYOUT;
+    static const gfx::UniformSamplerTexture LAYOUT;
     static const String NAME;
 };
 
 struct CC_DLL SAMPLERGBUFFERPOSITIONMAP : public Object {
     static constexpr uint BINDING = static_cast<uint>(PipelineGlobalBindings::SAMPLER_GBUFFER_POSITIONMAP);
     static const gfx::DescriptorSetLayoutBinding DESCRIPTOR;
-    static const gfx::UniformSampler LAYOUT;
+    static const gfx::UniformSamplerTexture LAYOUT;
     static const String NAME;
 };
 
 struct CC_DLL SAMPLERGBUFFERNORMALMAP : public Object {
     static constexpr uint BINDING = static_cast<uint>(PipelineGlobalBindings::SAMPLER_GBUFFER_NORMALMAP);
     static const gfx::DescriptorSetLayoutBinding DESCRIPTOR;
-    static const gfx::UniformSampler LAYOUT;
+    static const gfx::UniformSamplerTexture LAYOUT;
     static const String NAME;
 };
 
 struct CC_DLL SAMPLERGBUFFEREMISSIVEMAP : public Object {
     static constexpr uint BINDING = static_cast<uint>(PipelineGlobalBindings::SAMPLER_GBUFFER_EMISSIVEMAP);
     static const gfx::DescriptorSetLayoutBinding DESCRIPTOR;
-    static const gfx::UniformSampler LAYOUT;
+    static const gfx::UniformSamplerTexture LAYOUT;
     static const String NAME;
 };
 
 struct CC_DLL SAMPLERLIGHTINGRESULTMAP : public Object {
     static constexpr uint BINDING = static_cast<uint>(PipelineGlobalBindings::SAMPLER_LIGHTING_RESULTMAP);
     static const gfx::DescriptorSetLayoutBinding DESCRIPTOR;
-    static const gfx::UniformSampler LAYOUT;
+    static const gfx::UniformSamplerTexture LAYOUT;
     static const String NAME;
 };
 
 struct CC_DLL ENVIRONMENT : public Object {
     static constexpr uint BINDING = static_cast<uint>(PipelineGlobalBindings::SAMPLER_ENVIRONMENT);
     static const gfx::DescriptorSetLayoutBinding DESCRIPTOR;
-    static const gfx::UniformSampler LAYOUT;
+    static const gfx::UniformSamplerTexture LAYOUT;
     static const String NAME;
 };
 
 struct CC_DLL SPOT_LIGHTING_MAP : public Object {
     static constexpr uint BINDING = static_cast<uint>(PipelineGlobalBindings::SAMPLER_SPOT_LIGHTING_MAP);
     static const gfx::DescriptorSetLayoutBinding DESCRIPTOR;
-    static const gfx::UniformSampler LAYOUT;
+    static const gfx::UniformSamplerTexture LAYOUT;
     static const String NAME;
 };
 
 struct CC_DLL JOINT_TEXTURE : public Object {
     static constexpr uint BINDING = static_cast<uint>(ModelLocalBindings::SAMPLER_JOINTS);
     static const gfx::DescriptorSetLayoutBinding DESCRIPTOR;
-    static const gfx::UniformSampler LAYOUT;
+    static const gfx::UniformSamplerTexture LAYOUT;
     static const String NAME;
 };
 
 struct CC_DLL POSITION_MORPH : public Object {
     static constexpr uint BINDING = static_cast<uint>(ModelLocalBindings::SAMPLER_MORPH_POSITION);
     static const gfx::DescriptorSetLayoutBinding DESCRIPTOR;
-    static const gfx::UniformSampler LAYOUT;
+    static const gfx::UniformSamplerTexture LAYOUT;
     static const String NAME;
 };
 
 struct CC_DLL NORMAL_MORPH : public Object {
     static constexpr uint BINDING = static_cast<uint>(ModelLocalBindings::SAMPLER_MORPH_NORMAL);
     static const gfx::DescriptorSetLayoutBinding DESCRIPTOR;
-    static const gfx::UniformSampler LAYOUT;
+    static const gfx::UniformSamplerTexture LAYOUT;
     static const String NAME;
 };
 
 struct CC_DLL TANGENT_MORPH : public Object {
     static constexpr uint BINDING = static_cast<uint>(ModelLocalBindings::SAMPLER_MORPH_TANGENT);
     static const gfx::DescriptorSetLayoutBinding DESCRIPTOR;
-    static const gfx::UniformSampler LAYOUT;
+    static const gfx::UniformSamplerTexture LAYOUT;
     static const String NAME;
 };
 
 struct CC_DLL LIGHTMAP_TEXTURE : public Object {
     static constexpr uint BINDING = static_cast<uint>(ModelLocalBindings::SAMPLER_LIGHTMAP);
     static const gfx::DescriptorSetLayoutBinding DESCRIPTOR;
-    static const gfx::UniformSampler LAYOUT;
+    static const gfx::UniformSamplerTexture LAYOUT;
     static const String NAME;
 };
 
 struct CC_DLL SPRITE_TEXTURE : public Object {
     static constexpr uint BINDING = static_cast<uint>(ModelLocalBindings::SAMPLER_SPRITE);
     static const gfx::DescriptorSetLayoutBinding DESCRIPTOR;
-    static const gfx::UniformSampler LAYOUT;
+    static const gfx::UniformSamplerTexture LAYOUT;
     static const String NAME;
 };
 } // namespace pipeline

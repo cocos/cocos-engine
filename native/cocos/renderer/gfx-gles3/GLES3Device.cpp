@@ -1,26 +1,28 @@
 /****************************************************************************
-Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2019-2021 Xiamen Yaji Software Co., Ltd.
 
-http://www.cocos2d-x.org
+ http://www.cocos.com
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
 
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
 ****************************************************************************/
+
 #include "GLES3Std.h"
 
 #include "GLES3Buffer.h"
@@ -29,8 +31,8 @@ THE SOFTWARE.
 #include "GLES3DescriptorSet.h"
 #include "GLES3DescriptorSetLayout.h"
 #include "GLES3Device.h"
-#include "GLES3Fence.h"
 #include "GLES3Framebuffer.h"
+#include "GLES3GlobalBarrier.h"
 #include "GLES3InputAssembler.h"
 #include "GLES3PipelineLayout.h"
 #include "GLES3PipelineState.h"
@@ -51,11 +53,11 @@ GLES3Device::~GLES3Device() {
 }
 
 bool GLES3Device::initialize(const DeviceInfo &info) {
-    _API = API::GLES3;
-    _deviceName = "GLES3";
-    _width = info.width;
-    _height = info.height;
-    _nativeWidth = info.nativeWidth;
+    _API          = API::GLES3;
+    _deviceName   = "GLES3";
+    _width        = info.width;
+    _height       = info.height;
+    _nativeWidth  = info.nativeWidth;
     _nativeHeight = info.nativeHeight;
     _windowHandle = info.windowHandle;
 
@@ -67,12 +69,13 @@ bool GLES3Device::initialize(const DeviceInfo &info) {
         _bindingMappingInfo.samplerOffsets.push_back(0);
     }
 
-    _gpuStateCache = CC_NEW(GLES3GPUStateCache);
-    _gpuStagingBufferPool = CC_NEW(GLES3GPUStagingBufferPool);
+    _gpuStateCache          = CC_NEW(GLES3GPUStateCache);
+    _gpuStagingBufferPool   = CC_NEW(GLES3GPUStagingBufferPool);
+    _gpuFramebufferCacheMap = CC_NEW(GLES3GPUFramebufferCacheMap(_gpuStateCache));
 
     ContextInfo ctxInfo;
     ctxInfo.windowHandle = _windowHandle;
-    ctxInfo.sharedCtx = info.sharedCtx;
+    ctxInfo.sharedCtx    = info.sharedCtx;
 
     _renderContext = CC_NEW(GLES3Context(this));
     if (!_renderContext->initialize(ctxInfo)) {
@@ -82,16 +85,20 @@ bool GLES3Device::initialize(const DeviceInfo &info) {
     bindRenderContext(true);
 
     String extStr = (const char *)glGetString(GL_EXTENSIONS);
-    _extensions = StringUtil::Split(extStr, " ");
+    _extensions   = StringUtil::Split(extStr, " ");
 
-    _features[(int)Feature::TEXTURE_FLOAT] = true;
-    _features[(int)Feature::TEXTURE_HALF_FLOAT] = true;
-    _features[(int)Feature::FORMAT_R11G11B10F] = true;
-    _features[(int)Feature::FORMAT_D24S8] = true;
-    _features[(int)Feature::MSAA] = true;
-    _features[(int)Feature::INSTANCED_ARRAYS] = true;
-    _features[(int)Feature::MULTIPLE_RENDER_TARGETS] = true;
-    _features[(uint)Feature::BLEND_MINMAX] = true;
+    _features[(uint)Feature::TEXTURE_FLOAT]           = true;
+    _features[(uint)Feature::TEXTURE_HALF_FLOAT]      = true;
+    _features[(uint)Feature::FORMAT_R11G11B10F]       = true;
+    _features[(uint)Feature::FORMAT_D24S8]            = true;
+    _features[(uint)Feature::MSAA]                    = true;
+    _features[(uint)Feature::INSTANCED_ARRAYS]        = true;
+    _features[(uint)Feature::MULTIPLE_RENDER_TARGETS] = true;
+    _features[(uint)Feature::BLEND_MINMAX]            = true;
+
+    uint minorVersion = ((GLES3Context *)_context)->minor_ver();
+    if (minorVersion)
+        _features[(uint)Feature::COMPUTE_SHADER] = true;
 
     if (checkExtension("color_buffer_float"))
         _features[(int)Feature::COLOR_FLOAT] = true;
@@ -124,20 +131,20 @@ bool GLES3Device::initialize(const DeviceInfo &info) {
         _features[(int)Feature::FORMAT_ASTC] = true;
         compressedFmts += "astc ";
     }
-    _features[static_cast<uint>(Feature::DEPTH_BOUNDS)] = true;
-    _features[static_cast<uint>(Feature::LINE_WIDTH)] = true;
+    _features[static_cast<uint>(Feature::DEPTH_BOUNDS)]         = true;
+    _features[static_cast<uint>(Feature::LINE_WIDTH)]           = true;
     _features[static_cast<uint>(Feature::STENCIL_COMPARE_MASK)] = true;
-    _features[static_cast<uint>(Feature::STENCIL_WRITE_MASK)] = true;
-    _features[static_cast<uint>(Feature::FORMAT_RGB8)] = true;
-    _features[static_cast<uint>(Feature::FORMAT_D16)] = true;
-    _features[static_cast<uint>(Feature::FORMAT_D24)] = true;
-    _features[static_cast<uint>(Feature::FORMAT_D32F)] = true;
-    _features[static_cast<uint>(Feature::FORMAT_D24S8)] = true;
-    _features[static_cast<uint>(Feature::FORMAT_D32FS8)] = true;
+    _features[static_cast<uint>(Feature::STENCIL_WRITE_MASK)]   = true;
+    _features[static_cast<uint>(Feature::FORMAT_RGB8)]          = true;
+    _features[static_cast<uint>(Feature::FORMAT_D16)]           = true;
+    _features[static_cast<uint>(Feature::FORMAT_D24)]           = true;
+    _features[static_cast<uint>(Feature::FORMAT_D32F)]          = true;
+    _features[static_cast<uint>(Feature::FORMAT_D24S8)]         = true;
+    _features[static_cast<uint>(Feature::FORMAT_D32FS8)]        = true;
 
     _renderer = (const char *)glGetString(GL_RENDERER);
-    _vendor = (const char *)glGetString(GL_VENDOR);
-    _version = (const char *)glGetString(GL_VERSION);
+    _vendor   = (const char *)glGetString(GL_VENDOR);
+    _version  = (const char *)glGetString(GL_VERSION);
 
     CC_LOG_INFO("GLES3 device initialized.");
     CC_LOG_INFO("RENDERER: %s", _renderer.c_str());
@@ -149,27 +156,41 @@ bool GLES3Device::initialize(const DeviceInfo &info) {
 
     QueueInfo queueInfo;
     queueInfo.type = QueueType::GRAPHICS;
-    _queue = createQueue(queueInfo);
+    _queue         = createQueue(queueInfo);
 
     CommandBufferInfo cmdBuffInfo;
-    cmdBuffInfo.type = CommandBufferType::PRIMARY;
+    cmdBuffInfo.type  = CommandBufferType::PRIMARY;
     cmdBuffInfo.queue = _queue;
-    _cmdBuff = createCommandBuffer(cmdBuffInfo);
+    _cmdBuff          = createCommandBuffer(cmdBuffInfo);
 
-    glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, (GLint *)&_maxVertexAttributes);
-    glGetIntegerv(GL_MAX_VERTEX_UNIFORM_VECTORS, (GLint *)&_maxVertexUniformVectors);
-    glGetIntegerv(GL_MAX_FRAGMENT_UNIFORM_VECTORS, (GLint *)&_maxFragmentUniformVectors);
-    glGetIntegerv(GL_MAX_UNIFORM_BUFFER_BINDINGS, (GLint *)&_maxUniformBufferBindings);
-    glGetIntegerv(GL_MAX_UNIFORM_BLOCK_SIZE, (GLint *)&_maxUniformBlockSize);
-    glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, (GLint *)&_maxTextureUnits);
-    glGetIntegerv(GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS, (GLint *)&_maxVertexTextureUnits);
-    glGetIntegerv(GL_MAX_TEXTURE_SIZE, (GLint *)&_maxTextureSize);
-    glGetIntegerv(GL_MAX_CUBE_MAP_TEXTURE_SIZE, (GLint *)&_maxCubeMapTextureSize);
-    glGetIntegerv(GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT, (GLint *)&_uboOffsetAlignment);
-    glGetIntegerv(GL_DEPTH_BITS, (GLint *)&_depthBits);
-    glGetIntegerv(GL_STENCIL_BITS, (GLint *)&_stencilBits);
+    glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, (GLint *)&_caps.maxVertexAttributes);
+    glGetIntegerv(GL_MAX_VERTEX_UNIFORM_VECTORS, (GLint *)&_caps.maxVertexUniformVectors);
+    glGetIntegerv(GL_MAX_FRAGMENT_UNIFORM_VECTORS, (GLint *)&_caps.maxFragmentUniformVectors);
+    glGetIntegerv(GL_MAX_UNIFORM_BUFFER_BINDINGS, (GLint *)&_caps.maxUniformBufferBindings);
+    glGetIntegerv(GL_MAX_UNIFORM_BLOCK_SIZE, (GLint *)&_caps.maxUniformBlockSize);
+    glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, (GLint *)&_caps.maxTextureUnits);
+    glGetIntegerv(GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS, (GLint *)&_caps.maxVertexTextureUnits);
+    glGetIntegerv(GL_MAX_TEXTURE_SIZE, (GLint *)&_caps.maxTextureSize);
+    glGetIntegerv(GL_MAX_CUBE_MAP_TEXTURE_SIZE, (GLint *)&_caps.maxCubeMapTextureSize);
+    glGetIntegerv(GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT, (GLint *)&_caps.uboOffsetAlignment);
+    glGetIntegerv(GL_DEPTH_BITS, (GLint *)&_caps.depthBits);
+    glGetIntegerv(GL_STENCIL_BITS, (GLint *)&_caps.stencilBits);
+    
+    if (minorVersion) {
+        glGetIntegerv(GL_MAX_IMAGE_UNITS, (GLint *)&_caps.maxImageUnits);
+        glGetIntegerv(GL_MAX_SHADER_STORAGE_BLOCK_SIZE, (GLint *)&_caps.maxShaderStorageBlockSize);
+        glGetIntegerv(GL_MAX_SHADER_STORAGE_BUFFER_BINDINGS, (GLint *)&_caps.maxShaderStorageBufferBindings);
+        glGetIntegerv(GL_MAX_COMPUTE_SHARED_MEMORY_SIZE, (GLint *)&_caps.maxComputeSharedMemorySize);
+        glGetIntegerv(GL_MAX_COMPUTE_WORK_GROUP_INVOCATIONS, (GLint *)&_caps.maxComputeWorkGroupInvocations);
+        glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_SIZE, 0, (GLint *)&_caps.maxComputeWorkGroupSize.x);
+        glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_SIZE, 1, (GLint *)&_caps.maxComputeWorkGroupSize.y);
+        glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_SIZE, 2, (GLint *)&_caps.maxComputeWorkGroupSize.z);
+        glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_COUNT, 0, (GLint *)&_caps.maxComputeWorkGroupCount.x);
+        glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_COUNT, 1, (GLint *)&_caps.maxComputeWorkGroupCount.y);
+        glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_COUNT, 2, (GLint *)&_caps.maxComputeWorkGroupCount.z);
+    }
 
-    _gpuStateCache->initialize(_maxTextureUnits, _maxUniformBufferBindings, _maxVertexAttributes);
+    _gpuStateCache->initialize(_caps.maxTextureUnits, _caps.maxImageUnits, _caps.maxUniformBufferBindings, _caps.maxShaderStorageBufferBindings, _caps.maxVertexAttributes);
 
     return true;
 }
@@ -177,6 +198,7 @@ bool GLES3Device::initialize(const DeviceInfo &info) {
 void GLES3Device::destroy() {
     CC_SAFE_DESTROY(_queue);
     CC_SAFE_DESTROY(_cmdBuff);
+    CC_SAFE_DELETE(_gpuFramebufferCacheMap);
     CC_SAFE_DELETE(_gpuStagingBufferPool);
     CC_SAFE_DELETE(_gpuStateCache);
     CC_SAFE_DESTROY(_deviceContext);
@@ -184,7 +206,7 @@ void GLES3Device::destroy() {
 }
 
 void GLES3Device::resize(uint width, uint height) {
-    _width = width;
+    _width  = width;
     _height = height;
 }
 
@@ -194,9 +216,9 @@ void GLES3Device::acquire() {
 
 void GLES3Device::present() {
     GLES3Queue *queue = (GLES3Queue *)_queue;
-    _numDrawCalls = queue->_numDrawCalls;
-    _numInstances = queue->_numInstances;
-    _numTriangles = queue->_numTriangles;
+    _numDrawCalls     = queue->_numDrawCalls;
+    _numInstances     = queue->_numInstances;
+    _numTriangles     = queue->_numTriangles;
 
     _context->present();
 
@@ -212,6 +234,7 @@ void GLES3Device::bindRenderContext(bool bound) {
 
     if (bound) {
         _threadID = std::hash<std::thread::id>()(std::this_thread::get_id());
+        _gpuStateCache->reset();
     }
 }
 
@@ -219,7 +242,7 @@ void GLES3Device::bindDeviceContext(bool bound) {
     if (!_deviceContext) {
         ContextInfo ctxInfo;
         ctxInfo.windowHandle = _windowHandle;
-        ctxInfo.sharedCtx = _renderContext;
+        ctxInfo.sharedCtx    = _renderContext;
 
         _deviceContext = CC_NEW(GLES3Context(this));
         _deviceContext->initialize(ctxInfo);
@@ -229,16 +252,15 @@ void GLES3Device::bindDeviceContext(bool bound) {
 
     if (bound) {
         _threadID = std::hash<std::thread::id>()(std::this_thread::get_id());
+        _gpuStateCache->reset();
     }
 }
+
+uint GLES3Device::getMinorVersion() const { return ((GLES3Context *)_context)->minor_ver(); }
 
 CommandBuffer *GLES3Device::doCreateCommandBuffer(const CommandBufferInfo &info, bool hasAgent) {
     if (hasAgent || info.type == CommandBufferType::PRIMARY) return CC_NEW(GLES3PrimaryCommandBuffer(this));
     return CC_NEW(GLES3CommandBuffer(this));
-}
-
-Fence *GLES3Device::createFence() {
-    return CC_NEW(GLES3Fence(this));
 }
 
 Queue *GLES3Device::createQueue() {
@@ -287,6 +309,14 @@ PipelineLayout *GLES3Device::createPipelineLayout() {
 
 PipelineState *GLES3Device::createPipelineState() {
     return CC_NEW(GLES3PipelineState(this));
+}
+
+GlobalBarrier *GLES3Device::createGlobalBarrier() {
+    return CC_NEW(GLES3GlobalBarrier(this));
+}
+
+TextureBarrier *GLES3Device::createTextureBarrier() {
+    return CC_NEW(TextureBarrier(this));
 }
 
 void GLES3Device::copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint count) {

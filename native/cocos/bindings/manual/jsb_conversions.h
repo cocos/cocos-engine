@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2021 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -21,7 +21,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- ****************************************************************************/
+****************************************************************************/
 
 #pragma once
 
@@ -1248,7 +1248,6 @@ inline bool nativevalue_to_se(const T &from, se::Value &to, se::Object *ctx) {
         to.setNumber((double)static_cast<std::conditional_t<sizeof(T) == 4, int32_t, int64_t>>(from));
         return true;
     } else {
-        static_assert(!std::is_const<T>::value, "Only non-const value accepted here");
         return nativevalue_to_se<typename std::conditional_t<std::is_const<T>::value, T, typename std::add_const<T>::type>>(from, to, ctx);
     }
     return false;

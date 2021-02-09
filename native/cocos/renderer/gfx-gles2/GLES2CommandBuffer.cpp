@@ -1,26 +1,28 @@
 /****************************************************************************
-Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2019-2021 Xiamen Yaji Software Co., Ltd.
 
-http://www.cocos2d-x.org
+ http://www.cocos.com
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
 
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
 ****************************************************************************/
+
 #include "GLES2Std.h"
 
 #include "GLES2Buffer.h"
@@ -79,7 +81,7 @@ void GLES2CommandBuffer::destroy() {
     CC_DELETE(_cmdAllocator);
 }
 
-void GLES2CommandBuffer::begin(RenderPass *renderPass, uint subpass, Framebuffer *frameBuffer, int submitIndex) {
+void GLES2CommandBuffer::begin(RenderPass *renderPass, uint subpass, Framebuffer *frameBuffer) {
     _cmdAllocator->clearCmds(_curCmdPackage);
     _curGPUPipelineState = nullptr;
     _curGPUInputAssember = nullptr;
@@ -105,7 +107,7 @@ void GLES2CommandBuffer::end() {
     }
 }
 
-void GLES2CommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, int stencil, bool fromSecondaryCB) {
+void GLES2CommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, int stencil, CommandBuffer *const *secondaryCBs, uint secondaryCBCount) {
     _isInRenderPass = true;
 
     GLES2CmdBeginRenderPass *cmd = _cmdAllocator->beginRenderPassCmdPool.alloc();
@@ -119,12 +121,12 @@ void GLES2CommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fb
     cmd->clearDepth = depth;
     cmd->clearStencil = stencil;
     _curCmdPackage->beginRenderPassCmds.push(cmd);
-    _curCmdPackage->cmds.push(GFXCmdType::BEGIN_RENDER_PASS);
+    _curCmdPackage->cmds.push(GLESCmdType::BEGIN_RENDER_PASS);
 }
 
 void GLES2CommandBuffer::endRenderPass() {
     _isInRenderPass = false;
-    _curCmdPackage->cmds.push(GFXCmdType::END_RENDER_PASS);
+    _curCmdPackage->cmds.push(GLESCmdType::END_RENDER_PASS);
 }
 
 void GLES2CommandBuffer::bindPipelineState(PipelineState *pso) {
@@ -247,7 +249,7 @@ void GLES2CommandBuffer::draw(InputAssembler *ia) {
         GLES2CmdDraw *cmd = _cmdAllocator->drawCmdPool.alloc();
         ((GLES2InputAssembler *)ia)->ExtractCmdDraw(cmd);
         _curCmdPackage->drawCmds.push(cmd);
-        _curCmdPackage->cmds.push(GFXCmdType::DRAW);
+        _curCmdPackage->cmds.push(GLESCmdType::DRAW);
 
         ++_numDrawCalls;
         _numInstances += ia->getInstanceCount();
@@ -286,7 +288,7 @@ void GLES2CommandBuffer::updateBuffer(Buffer *buff, const void *data, uint size)
             cmd->buffer = (uint8_t *)data;
 
             _curCmdPackage->updateBufferCmds.push(cmd);
-            _curCmdPackage->cmds.push(GFXCmdType::UPDATE_BUFFER);
+            _curCmdPackage->cmds.push(GLESCmdType::UPDATE_BUFFER);
         }
     } else {
         CC_LOG_ERROR("Command 'updateBuffer' must be recorded outside a render pass.");
@@ -305,14 +307,19 @@ void GLES2CommandBuffer::copyBuffersToTexture(const uint8_t *const *buffers, Tex
             cmd->buffers = buffers;
 
             _curCmdPackage->copyBufferToTextureCmds.push(cmd);
-            _curCmdPackage->cmds.push(GFXCmdType::COPY_BUFFER_TO_TEXTURE);
+            _curCmdPackage->cmds.push(GLESCmdType::COPY_BUFFER_TO_TEXTURE);
         }
     } else {
         CC_LOG_ERROR("Command 'copyBuffersToTexture' must be recorded outside a render pass.");
     }
 }
 
-void GLES2CommandBuffer::execute(const CommandBuffer *const *cmdBuffs, uint32_t count) {
+void GLES2CommandBuffer::blitTexture(Texture *srcTexture, Texture *dstTexture, const TextureBlit *regions, uint count, Filter filter) {
+}
+
+void GLES2CommandBuffer::execute(CommandBuffer *const *cmdBuffs, uint32_t count) {
+    CCASSERT(false, "Command 'execute' must be recorded in primary command buffers.");
+
     for (uint i = 0; i < count; ++i) {
         GLES2CommandBuffer *cmdBuff = (GLES2CommandBuffer *)cmdBuffs[i];
         GLES2CmdPackage *cmdPackage = cmdBuff->_pendingPackages.front();
@@ -350,6 +357,11 @@ void GLES2CommandBuffer::execute(const CommandBuffer *const *cmdBuffs, uint32_t 
 
         cmdBuff->_pendingPackages.pop();
         cmdBuff->_freePackages.push(cmdPackage);
+
+        // current cmd allocator strategy will not work here: (but it doesn't matter anyways)
+        // allocators are designed to only free the cmds they allocated
+        // but here we are essentially ��transfering' the owner ship
+        //cmdBuff->_cmdAllocator->clearCmds(cmdPackage);
     }
 }
 
@@ -384,7 +396,7 @@ void GLES2CommandBuffer::BindStates() {
     cmd->stencilCompareMask = _curStencilCompareMask;
 
     _curCmdPackage->bindStatesCmds.push(cmd);
-    _curCmdPackage->cmds.push(GFXCmdType::BIND_STATES);
+    _curCmdPackage->cmds.push(GLESCmdType::BIND_STATES);
     _isStateInvalid = false;
 }
 

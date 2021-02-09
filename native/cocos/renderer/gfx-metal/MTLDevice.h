@@ -1,26 +1,28 @@
 /****************************************************************************
-Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2019-2021 Xiamen Yaji Software Co., Ltd.
 
-http://www.cocos2d-x.org
+ http://www.cocos.com
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
 
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
 ****************************************************************************/
+
 #pragma once
 
 #include "MTLConfig.h"
@@ -45,7 +47,6 @@ public:
     using Device::createCommandBuffer;
     using Device::createDescriptorSet;
     using Device::createDescriptorSetLayout;
-    using Device::createFence;
     using Device::createFramebuffer;
     using Device::createInputAssembler;
     using Device::createPipelineLayout;
@@ -55,6 +56,8 @@ public:
     using Device::createSampler;
     using Device::createShader;
     using Device::createTexture;
+    using Device::createGlobalBarrier;
+    using Device::createTextureBarrier;
 
     bool initialize(const DeviceInfo &info) override;
     void destroy() override;
@@ -62,19 +65,25 @@ public:
     void acquire() override;
     void present() override;
 
+    void onPresentCompleted();
+    void* getCurrentDrawable();
+    void disposeCurrentDrawable();
+
     CC_INLINE void *getMTLCommandQueue() const { return _mtlCommandQueue; }
-    CC_INLINE void *getMTKView() const { return _mtkView; }
+    CC_INLINE void *getMTLLayer() const { return _mtlLayer; }
     CC_INLINE void *getMTLDevice() const { return _mtlDevice; }
     CC_INLINE uint getMaximumSamplerUnits() const { return _maxSamplerUnits; }
+    CC_INLINE uint getMaximumColorRenderTargets() const { return _caps.maxColorRenderTargets; }
     CC_INLINE uint getMaximumBufferBindingIndex() const { return _maxBufferBindingIndex; }
+    CC_INLINE bool isIndirectCommandBufferSupported() const { return _icbSuppored; }
     CC_INLINE bool isIndirectDrawSupported() const { return _indirectDrawSupported; }
     CC_INLINE CCMTLGPUStagingBufferPool *gpuStagingBufferPool() const { return _gpuStagingBufferPools[_currentFrameIndex]; }
     CC_INLINE bool isSamplerDescriptorCompareFunctionSupported() const { return _isSamplerDescriptorCompareFunctionSupported; }
     CC_INLINE uint currentFrameIndex() const { return _currentFrameIndex; }
+    CC_INLINE void *getDSSTexture() const { return _dssTex; }
 
 protected:
     CommandBuffer *doCreateCommandBuffer(const CommandBufferInfo &info, bool hasAgent) override;
-    Fence *createFence() override;
     Queue *createQueue() override;
     Buffer *createBuffer() override;
     Texture *createTexture() override;
@@ -87,24 +96,30 @@ protected:
     DescriptorSetLayout *createDescriptorSetLayout() override;
     PipelineLayout *createPipelineLayout() override;
     PipelineState *createPipelineState() override;
+    virtual GlobalBarrier *createGlobalBarrier() override;
+    virtual TextureBarrier *createTextureBarrier() override;
     void copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint count) override;
 
 private:
     void onMemoryWarning();
 
-private:
+    void *_autoreleasePool = nullptr;
     void *_mtlCommandQueue = nullptr;
-    void *_mtkView = nullptr;
     void *_mtlDevice = nullptr;
+    void *_mtlLayer = nullptr;
+    void *_dssTex = nullptr;
+    void *_activeDrawable = nullptr;
     unsigned long _mtlFeatureSet = 0;
     uint _maxSamplerUnits = 0;
     uint _maxBufferBindingIndex = 0;
+    bool _icbSuppored = false;
     bool _indirectDrawSupported = false;
     bool _isSamplerDescriptorCompareFunctionSupported = false;
     CCMTLGPUStagingBufferPool *_gpuStagingBufferPools[MAX_FRAMES_IN_FLIGHT] = {nullptr};
-    CCMTLSemaphore *_inFlightSemaphore = nullptr;
+    uint _currentBufferPoolId = 0;
     uint _currentFrameIndex = 0;
-    uint32_t _memoryAlarmListenerId = 0;
+    CCMTLSemaphore *_inFlightSemaphore = nullptr;
+    CC_UNUSED uint32_t _memoryAlarmListenerId = 0;
 };
 
 } // namespace gfx

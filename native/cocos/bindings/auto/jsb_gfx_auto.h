@@ -1,9 +1,54 @@
+/****************************************************************************
+ Copyright (c) 2021 Xiamen Yaji Software Co., Ltd.
+
+ http://www.cocos.com
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+****************************************************************************/
+
 #pragma once
 #include "base/Config.h"
 #include <type_traits>
 #include "cocos/bindings/jswrapper/SeApi.h"
 #include "cocos/bindings/manual/jsb_conversions.h"
 #include "cocos/renderer/core/Core.h"
+
+extern se::Object* __jsb_cc_gfx_Size_proto;
+extern se::Class* __jsb_cc_gfx_Size_class;
+
+bool js_register_cc_gfx_Size(se::Object* obj);
+bool register_all_gfx(se::Object* obj);
+
+template<>
+bool sevalue_to_native(const se::Value &, cc::gfx::Size *, se::Object *ctx);
+JSB_REGISTER_OBJECT_TYPE(cc::gfx::Size);
+
+extern se::Object* __jsb_cc_gfx_DeviceCaps_proto;
+extern se::Class* __jsb_cc_gfx_DeviceCaps_class;
+
+bool js_register_cc_gfx_DeviceCaps(se::Object* obj);
+bool register_all_gfx(se::Object* obj);
+
+template<>
+bool sevalue_to_native(const se::Value &, cc::gfx::DeviceCaps *, se::Object *ctx);
+JSB_REGISTER_OBJECT_TYPE(cc::gfx::DeviceCaps);
 
 extern se::Object* __jsb_cc_gfx_Offset_proto;
 extern se::Class* __jsb_cc_gfx_Offset_class;
@@ -35,15 +80,45 @@ template<>
 bool sevalue_to_native(const se::Value &, cc::gfx::Extent *, se::Object *ctx);
 JSB_REGISTER_OBJECT_TYPE(cc::gfx::Extent);
 
-extern se::Object* __jsb_cc_gfx_TextureSubres_proto;
-extern se::Class* __jsb_cc_gfx_TextureSubres_class;
+extern se::Object* __jsb_cc_gfx_TextureSubresLayers_proto;
+extern se::Class* __jsb_cc_gfx_TextureSubresLayers_class;
 
-bool js_register_cc_gfx_TextureSubres(se::Object* obj);
+bool js_register_cc_gfx_TextureSubresLayers(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
 
 template<>
-bool sevalue_to_native(const se::Value &, cc::gfx::TextureSubres *, se::Object *ctx);
-JSB_REGISTER_OBJECT_TYPE(cc::gfx::TextureSubres);
+bool sevalue_to_native(const se::Value &, cc::gfx::TextureSubresLayers *, se::Object *ctx);
+JSB_REGISTER_OBJECT_TYPE(cc::gfx::TextureSubresLayers);
+
+extern se::Object* __jsb_cc_gfx_TextureSubresRange_proto;
+extern se::Class* __jsb_cc_gfx_TextureSubresRange_class;
+
+bool js_register_cc_gfx_TextureSubresRange(se::Object* obj);
+bool register_all_gfx(se::Object* obj);
+
+template<>
+bool sevalue_to_native(const se::Value &, cc::gfx::TextureSubresRange *, se::Object *ctx);
+JSB_REGISTER_OBJECT_TYPE(cc::gfx::TextureSubresRange);
+
+extern se::Object* __jsb_cc_gfx_TextureCopy_proto;
+extern se::Class* __jsb_cc_gfx_TextureCopy_class;
+
+bool js_register_cc_gfx_TextureCopy(se::Object* obj);
+bool register_all_gfx(se::Object* obj);
+
+template<>
+bool sevalue_to_native(const se::Value &, cc::gfx::TextureCopy *, se::Object *ctx);
+JSB_REGISTER_OBJECT_TYPE(cc::gfx::TextureCopy);
+
+extern se::Object* __jsb_cc_gfx_TextureBlit_proto;
+extern se::Class* __jsb_cc_gfx_TextureBlit_class;
+
+bool js_register_cc_gfx_TextureBlit(se::Object* obj);
+bool register_all_gfx(se::Object* obj);
+
+template<>
+bool sevalue_to_native(const se::Value &, cc::gfx::TextureBlit *, se::Object *ctx);
+JSB_REGISTER_OBJECT_TYPE(cc::gfx::TextureBlit);
 
 extern se::Object* __jsb_cc_gfx_BufferTextureCopy_proto;
 extern se::Class* __jsb_cc_gfx_BufferTextureCopy_class;
@@ -54,6 +129,16 @@ bool register_all_gfx(se::Object* obj);
 template<>
 bool sevalue_to_native(const se::Value &, cc::gfx::BufferTextureCopy *, se::Object *ctx);
 JSB_REGISTER_OBJECT_TYPE(cc::gfx::BufferTextureCopy);
+
+extern se::Object* __jsb_cc_gfx_Viewport_proto;
+extern se::Class* __jsb_cc_gfx_Viewport_class;
+
+bool js_register_cc_gfx_Viewport(se::Object* obj);
+bool register_all_gfx(se::Object* obj);
+
+template<>
+bool sevalue_to_native(const se::Value &, cc::gfx::Viewport *, se::Object *ctx);
+JSB_REGISTER_OBJECT_TYPE(cc::gfx::Viewport);
 
 extern se::Object* __jsb_cc_gfx_Color_proto;
 extern se::Class* __jsb_cc_gfx_Color_class;
@@ -75,26 +160,6 @@ template<>
 bool sevalue_to_native(const se::Value &, cc::gfx::BindingMappingInfo *, se::Object *ctx);
 JSB_REGISTER_OBJECT_TYPE(cc::gfx::BindingMappingInfo);
 
-extern se::Object* __jsb_cc_gfx_DeviceInfo_proto;
-extern se::Class* __jsb_cc_gfx_DeviceInfo_class;
-
-bool js_register_cc_gfx_DeviceInfo(se::Object* obj);
-bool register_all_gfx(se::Object* obj);
-
-template<>
-bool sevalue_to_native(const se::Value &, cc::gfx::DeviceInfo *, se::Object *ctx);
-JSB_REGISTER_OBJECT_TYPE(cc::gfx::DeviceInfo);
-
-extern se::Object* __jsb_cc_gfx_ContextInfo_proto;
-extern se::Class* __jsb_cc_gfx_ContextInfo_class;
-
-bool js_register_cc_gfx_ContextInfo(se::Object* obj);
-bool register_all_gfx(se::Object* obj);
-
-template<>
-bool sevalue_to_native(const se::Value &, cc::gfx::ContextInfo *, se::Object *ctx);
-JSB_REGISTER_OBJECT_TYPE(cc::gfx::ContextInfo);
-
 extern se::Object* __jsb_cc_gfx_BufferInfo_proto;
 extern se::Class* __jsb_cc_gfx_BufferInfo_class;
 
@@ -114,6 +179,36 @@ bool register_all_gfx(se::Object* obj);
 template<>
 bool sevalue_to_native(const se::Value &, cc::gfx::BufferViewInfo *, se::Object *ctx);
 JSB_REGISTER_OBJECT_TYPE(cc::gfx::BufferViewInfo);
+
+extern se::Object* __jsb_cc_gfx_DrawInfo_proto;
+extern se::Class* __jsb_cc_gfx_DrawInfo_class;
+
+bool js_register_cc_gfx_DrawInfo(se::Object* obj);
+bool register_all_gfx(se::Object* obj);
+
+template<>
+bool sevalue_to_native(const se::Value &, cc::gfx::DrawInfo *, se::Object *ctx);
+JSB_REGISTER_OBJECT_TYPE(cc::gfx::DrawInfo);
+
+extern se::Object* __jsb_cc_gfx_DispatchInfo_proto;
+extern se::Class* __jsb_cc_gfx_DispatchInfo_class;
+
+bool js_register_cc_gfx_DispatchInfo(se::Object* obj);
+bool register_all_gfx(se::Object* obj);
+
+template<>
+bool sevalue_to_native(const se::Value &, cc::gfx::DispatchInfo *, se::Object *ctx);
+JSB_REGISTER_OBJECT_TYPE(cc::gfx::DispatchInfo);
+
+extern se::Object* __jsb_cc_gfx_IndirectBuffer_proto;
+extern se::Class* __jsb_cc_gfx_IndirectBuffer_class;
+
+bool js_register_cc_gfx_IndirectBuffer(se::Object* obj);
+bool register_all_gfx(se::Object* obj);
+
+template<>
+bool sevalue_to_native(const se::Value &, cc::gfx::IndirectBuffer *, se::Object *ctx);
+JSB_REGISTER_OBJECT_TYPE(cc::gfx::IndirectBuffer);
 
 extern se::Object* __jsb_cc_gfx_TextureInfo_proto;
 extern se::Class* __jsb_cc_gfx_TextureInfo_class;
@@ -145,16 +240,6 @@ template<>
 bool sevalue_to_native(const se::Value &, cc::gfx::SamplerInfo *, se::Object *ctx);
 JSB_REGISTER_OBJECT_TYPE(cc::gfx::SamplerInfo);
 
-extern se::Object* __jsb_cc_gfx_ShaderMacro_proto;
-extern se::Class* __jsb_cc_gfx_ShaderMacro_class;
-
-bool js_register_cc_gfx_ShaderMacro(se::Object* obj);
-bool register_all_gfx(se::Object* obj);
-
-template<>
-bool sevalue_to_native(const se::Value &, cc::gfx::ShaderMacro *, se::Object *ctx);
-JSB_REGISTER_OBJECT_TYPE(cc::gfx::ShaderMacro);
-
 extern se::Object* __jsb_cc_gfx_Uniform_proto;
 extern se::Class* __jsb_cc_gfx_Uniform_class;
 
@@ -175,6 +260,16 @@ template<>
 bool sevalue_to_native(const se::Value &, cc::gfx::UniformBlock *, se::Object *ctx);
 JSB_REGISTER_OBJECT_TYPE(cc::gfx::UniformBlock);
 
+extern se::Object* __jsb_cc_gfx_UniformSamplerTexture_proto;
+extern se::Class* __jsb_cc_gfx_UniformSamplerTexture_class;
+
+bool js_register_cc_gfx_UniformSamplerTexture(se::Object* obj);
+bool register_all_gfx(se::Object* obj);
+
+template<>
+bool sevalue_to_native(const se::Value &, cc::gfx::UniformSamplerTexture *, se::Object *ctx);
+JSB_REGISTER_OBJECT_TYPE(cc::gfx::UniformSamplerTexture);
+
 extern se::Object* __jsb_cc_gfx_UniformSampler_proto;
 extern se::Class* __jsb_cc_gfx_UniformSampler_class;
 
@@ -184,6 +279,46 @@ bool register_all_gfx(se::Object* obj);
 template<>
 bool sevalue_to_native(const se::Value &, cc::gfx::UniformSampler *, se::Object *ctx);
 JSB_REGISTER_OBJECT_TYPE(cc::gfx::UniformSampler);
+
+extern se::Object* __jsb_cc_gfx_UniformTexture_proto;
+extern se::Class* __jsb_cc_gfx_UniformTexture_class;
+
+bool js_register_cc_gfx_UniformTexture(se::Object* obj);
+bool register_all_gfx(se::Object* obj);
+
+template<>
+bool sevalue_to_native(const se::Value &, cc::gfx::UniformTexture *, se::Object *ctx);
+JSB_REGISTER_OBJECT_TYPE(cc::gfx::UniformTexture);
+
+extern se::Object* __jsb_cc_gfx_UniformStorageImage_proto;
+extern se::Class* __jsb_cc_gfx_UniformStorageImage_class;
+
+bool js_register_cc_gfx_UniformStorageImage(se::Object* obj);
+bool register_all_gfx(se::Object* obj);
+
+template<>
+bool sevalue_to_native(const se::Value &, cc::gfx::UniformStorageImage *, se::Object *ctx);
+JSB_REGISTER_OBJECT_TYPE(cc::gfx::UniformStorageImage);
+
+extern se::Object* __jsb_cc_gfx_UniformStorageBuffer_proto;
+extern se::Class* __jsb_cc_gfx_UniformStorageBuffer_class;
+
+bool js_register_cc_gfx_UniformStorageBuffer(se::Object* obj);
+bool register_all_gfx(se::Object* obj);
+
+template<>
+bool sevalue_to_native(const se::Value &, cc::gfx::UniformStorageBuffer *, se::Object *ctx);
+JSB_REGISTER_OBJECT_TYPE(cc::gfx::UniformStorageBuffer);
+
+extern se::Object* __jsb_cc_gfx_UniformInputAttachment_proto;
+extern se::Class* __jsb_cc_gfx_UniformInputAttachment_class;
+
+bool js_register_cc_gfx_UniformInputAttachment(se::Object* obj);
+bool register_all_gfx(se::Object* obj);
+
+template<>
+bool sevalue_to_native(const se::Value &, cc::gfx::UniformInputAttachment *, se::Object *ctx);
+JSB_REGISTER_OBJECT_TYPE(cc::gfx::UniformInputAttachment);
 
 extern se::Object* __jsb_cc_gfx_ShaderStage_proto;
 extern se::Class* __jsb_cc_gfx_ShaderStage_class;
@@ -245,15 +380,15 @@ template<>
 bool sevalue_to_native(const se::Value &, cc::gfx::DepthStencilAttachment *, se::Object *ctx);
 JSB_REGISTER_OBJECT_TYPE(cc::gfx::DepthStencilAttachment);
 
-extern se::Object* __jsb_cc_gfx_SubPassInfo_proto;
-extern se::Class* __jsb_cc_gfx_SubPassInfo_class;
+extern se::Object* __jsb_cc_gfx_SubpassInfo_proto;
+extern se::Class* __jsb_cc_gfx_SubpassInfo_class;
 
-bool js_register_cc_gfx_SubPassInfo(se::Object* obj);
+bool js_register_cc_gfx_SubpassInfo(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
 
 template<>
-bool sevalue_to_native(const se::Value &, cc::gfx::SubPassInfo *, se::Object *ctx);
-JSB_REGISTER_OBJECT_TYPE(cc::gfx::SubPassInfo);
+bool sevalue_to_native(const se::Value &, cc::gfx::SubpassInfo *, se::Object *ctx);
+JSB_REGISTER_OBJECT_TYPE(cc::gfx::SubpassInfo);
 
 extern se::Object* __jsb_cc_gfx_RenderPassInfo_proto;
 extern se::Class* __jsb_cc_gfx_RenderPassInfo_class;
@@ -264,6 +399,26 @@ bool register_all_gfx(se::Object* obj);
 template<>
 bool sevalue_to_native(const se::Value &, cc::gfx::RenderPassInfo *, se::Object *ctx);
 JSB_REGISTER_OBJECT_TYPE(cc::gfx::RenderPassInfo);
+
+extern se::Object* __jsb_cc_gfx_GlobalBarrierInfo_proto;
+extern se::Class* __jsb_cc_gfx_GlobalBarrierInfo_class;
+
+bool js_register_cc_gfx_GlobalBarrierInfo(se::Object* obj);
+bool register_all_gfx(se::Object* obj);
+
+template<>
+bool sevalue_to_native(const se::Value &, cc::gfx::GlobalBarrierInfo *, se::Object *ctx);
+JSB_REGISTER_OBJECT_TYPE(cc::gfx::GlobalBarrierInfo);
+
+extern se::Object* __jsb_cc_gfx_TextureBarrierInfo_proto;
+extern se::Class* __jsb_cc_gfx_TextureBarrierInfo_class;
+
+bool js_register_cc_gfx_TextureBarrierInfo(se::Object* obj);
+bool register_all_gfx(se::Object* obj);
+
+template<>
+bool sevalue_to_native(const se::Value &, cc::gfx::TextureBarrierInfo *, se::Object *ctx);
+JSB_REGISTER_OBJECT_TYPE(cc::gfx::TextureBarrierInfo);
 
 extern se::Object* __jsb_cc_gfx_FramebufferInfo_proto;
 extern se::Class* __jsb_cc_gfx_FramebufferInfo_class;
@@ -365,25 +520,25 @@ template<>
 bool sevalue_to_native(const se::Value &, cc::gfx::BlendState *, se::Object *ctx);
 JSB_REGISTER_OBJECT_TYPE(cc::gfx::BlendState);
 
-extern se::Object* __jsb_cc_gfx_PipelineStateInfo_proto;
-extern se::Class* __jsb_cc_gfx_PipelineStateInfo_class;
+extern se::Object* __jsb_cc_gfx_CommandBufferInfo_proto;
+extern se::Class* __jsb_cc_gfx_CommandBufferInfo_class;
 
-bool js_register_cc_gfx_PipelineStateInfo(se::Object* obj);
+bool js_register_cc_gfx_CommandBufferInfo(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
 
 template<>
-bool sevalue_to_native(const se::Value &, cc::gfx::PipelineStateInfo *, se::Object *ctx);
-JSB_REGISTER_OBJECT_TYPE(cc::gfx::PipelineStateInfo);
+bool sevalue_to_native(const se::Value &, cc::gfx::CommandBufferInfo *, se::Object *ctx);
+JSB_REGISTER_OBJECT_TYPE(cc::gfx::CommandBufferInfo);
 
-extern se::Object* __jsb_cc_gfx_FormatInfo_proto;
-extern se::Class* __jsb_cc_gfx_FormatInfo_class;
+extern se::Object* __jsb_cc_gfx_QueueInfo_proto;
+extern se::Class* __jsb_cc_gfx_QueueInfo_class;
 
-bool js_register_cc_gfx_FormatInfo(se::Object* obj);
+bool js_register_cc_gfx_QueueInfo(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
 
 template<>
-bool sevalue_to_native(const se::Value &, cc::gfx::FormatInfo *, se::Object *ctx);
-JSB_REGISTER_OBJECT_TYPE(cc::gfx::FormatInfo);
+bool sevalue_to_native(const se::Value &, cc::gfx::QueueInfo *, se::Object *ctx);
+JSB_REGISTER_OBJECT_TYPE(cc::gfx::QueueInfo);
 
 extern se::Object* __jsb_cc_gfx_MemoryStatus_proto;
 extern se::Class* __jsb_cc_gfx_MemoryStatus_class;
@@ -394,6 +549,16 @@ bool register_all_gfx(se::Object* obj);
 template<>
 bool sevalue_to_native(const se::Value &, cc::gfx::MemoryStatus *, se::Object *ctx);
 JSB_REGISTER_OBJECT_TYPE(cc::gfx::MemoryStatus);
+
+extern se::Object* __jsb_cc_gfx_DeviceInfo_proto;
+extern se::Class* __jsb_cc_gfx_DeviceInfo_class;
+
+bool js_register_cc_gfx_DeviceInfo(se::Object* obj);
+bool register_all_gfx(se::Object* obj);
+
+template<>
+bool sevalue_to_native(const se::Value &, cc::gfx::DeviceInfo *, se::Object *ctx);
+JSB_REGISTER_OBJECT_TYPE(cc::gfx::DeviceInfo);
 
 extern se::Object* __jsb_cc_gfx_GFXObject_proto;
 extern se::Class* __jsb_cc_gfx_GFXObject_class;
@@ -423,11 +588,13 @@ bool register_all_gfx(se::Object* obj);
 
 JSB_REGISTER_OBJECT_TYPE(cc::gfx::CommandBuffer);
 SE_DECLARE_FUNC(js_gfx_CommandBuffer_begin);
-SE_DECLARE_FUNC(js_gfx_CommandBuffer_beginRenderPass);
+SE_DECLARE_FUNC(js_gfx_CommandBuffer_beginRenderPassForJS);
 SE_DECLARE_FUNC(js_gfx_CommandBuffer_bindDescriptorSetForJS);
 SE_DECLARE_FUNC(js_gfx_CommandBuffer_bindInputAssembler);
 SE_DECLARE_FUNC(js_gfx_CommandBuffer_bindPipelineState);
+SE_DECLARE_FUNC(js_gfx_CommandBuffer_blitTexture);
 SE_DECLARE_FUNC(js_gfx_CommandBuffer_destroy);
+SE_DECLARE_FUNC(js_gfx_CommandBuffer_dispatch);
 SE_DECLARE_FUNC(js_gfx_CommandBuffer_draw);
 SE_DECLARE_FUNC(js_gfx_CommandBuffer_end);
 SE_DECLARE_FUNC(js_gfx_CommandBuffer_endRenderPass);
@@ -437,6 +604,7 @@ SE_DECLARE_FUNC(js_gfx_CommandBuffer_getNumTris);
 SE_DECLARE_FUNC(js_gfx_CommandBuffer_getQueue);
 SE_DECLARE_FUNC(js_gfx_CommandBuffer_getType);
 SE_DECLARE_FUNC(js_gfx_CommandBuffer_initialize);
+SE_DECLARE_FUNC(js_gfx_CommandBuffer_pipelineBarrier);
 SE_DECLARE_FUNC(js_gfx_CommandBuffer_setBlendConstants);
 SE_DECLARE_FUNC(js_gfx_CommandBuffer_setDepthBias);
 SE_DECLARE_FUNC(js_gfx_CommandBuffer_setDepthBound);
@@ -494,42 +662,27 @@ SE_DECLARE_FUNC(js_gfx_DescriptorSetLayout_getDescriptorCount);
 SE_DECLARE_FUNC(js_gfx_DescriptorSetLayout_initialize);
 SE_DECLARE_FUNC(js_gfx_DescriptorSetLayout_DescriptorSetLayout);
 
-extern se::Object* __jsb_cc_gfx_Fence_proto;
-extern se::Class* __jsb_cc_gfx_Fence_class;
+extern se::Object* __jsb_cc_gfx_Framebuffer_proto;
+extern se::Class* __jsb_cc_gfx_Framebuffer_class;
 
-bool js_register_cc_gfx_Fence(se::Object* obj);
+bool js_register_cc_gfx_Framebuffer(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
 
-JSB_REGISTER_OBJECT_TYPE(cc::gfx::Fence);
-SE_DECLARE_FUNC(js_gfx_Fence_destroy);
-SE_DECLARE_FUNC(js_gfx_Fence_initialize);
-SE_DECLARE_FUNC(js_gfx_Fence_reset);
-SE_DECLARE_FUNC(js_gfx_Fence_wait);
-SE_DECLARE_FUNC(js_gfx_Fence_Fence);
+JSB_REGISTER_OBJECT_TYPE(cc::gfx::Framebuffer);
+SE_DECLARE_FUNC(js_gfx_Framebuffer_destroy);
+SE_DECLARE_FUNC(js_gfx_Framebuffer_initialize);
+SE_DECLARE_FUNC(js_gfx_Framebuffer_Framebuffer);
 
-extern se::Object* __jsb_cc_gfx_Queue_proto;
-extern se::Class* __jsb_cc_gfx_Queue_class;
+extern se::Object* __jsb_cc_gfx_GlobalBarrier_proto;
+extern se::Class* __jsb_cc_gfx_GlobalBarrier_class;
 
-bool js_register_cc_gfx_Queue(se::Object* obj);
+bool js_register_cc_gfx_GlobalBarrier(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
 
-JSB_REGISTER_OBJECT_TYPE(cc::gfx::Queue);
-SE_DECLARE_FUNC(js_gfx_Queue_destroy);
-SE_DECLARE_FUNC(js_gfx_Queue_initialize);
-SE_DECLARE_FUNC(js_gfx_Queue_isAsync);
-SE_DECLARE_FUNC(js_gfx_Queue_submit);
-SE_DECLARE_FUNC(js_gfx_Queue_Queue);
-
-extern se::Object* __jsb_cc_gfx_Sampler_proto;
-extern se::Class* __jsb_cc_gfx_Sampler_class;
-
-bool js_register_cc_gfx_Sampler(se::Object* obj);
-bool register_all_gfx(se::Object* obj);
-
-JSB_REGISTER_OBJECT_TYPE(cc::gfx::Sampler);
-SE_DECLARE_FUNC(js_gfx_Sampler_destroy);
-SE_DECLARE_FUNC(js_gfx_Sampler_initialize);
-SE_DECLARE_FUNC(js_gfx_Sampler_Sampler);
+JSB_REGISTER_OBJECT_TYPE(cc::gfx::GlobalBarrier);
+SE_DECLARE_FUNC(js_gfx_GlobalBarrier_info);
+SE_DECLARE_FUNC(js_gfx_GlobalBarrier_computeHash);
+SE_DECLARE_FUNC(js_gfx_GlobalBarrier_GlobalBarrier);
 
 extern se::Object* __jsb_cc_gfx_InputAssembler_proto;
 extern se::Class* __jsb_cc_gfx_InputAssembler_class;
@@ -541,30 +694,6 @@ JSB_REGISTER_OBJECT_TYPE(cc::gfx::InputAssembler);
 SE_DECLARE_FUNC(js_gfx_InputAssembler_destroy);
 SE_DECLARE_FUNC(js_gfx_InputAssembler_initialize);
 SE_DECLARE_FUNC(js_gfx_InputAssembler_InputAssembler);
-
-extern se::Object* __jsb_cc_gfx_RenderPass_proto;
-extern se::Class* __jsb_cc_gfx_RenderPass_class;
-
-bool js_register_cc_gfx_RenderPass(se::Object* obj);
-bool register_all_gfx(se::Object* obj);
-
-JSB_REGISTER_OBJECT_TYPE(cc::gfx::RenderPass);
-SE_DECLARE_FUNC(js_gfx_RenderPass_destroy);
-SE_DECLARE_FUNC(js_gfx_RenderPass_getDepthStencilAttachment);
-SE_DECLARE_FUNC(js_gfx_RenderPass_getSubPasses);
-SE_DECLARE_FUNC(js_gfx_RenderPass_initialize);
-SE_DECLARE_FUNC(js_gfx_RenderPass_RenderPass);
-
-extern se::Object* __jsb_cc_gfx_Framebuffer_proto;
-extern se::Class* __jsb_cc_gfx_Framebuffer_class;
-
-bool js_register_cc_gfx_Framebuffer(se::Object* obj);
-bool register_all_gfx(se::Object* obj);
-
-JSB_REGISTER_OBJECT_TYPE(cc::gfx::Framebuffer);
-SE_DECLARE_FUNC(js_gfx_Framebuffer_destroy);
-SE_DECLARE_FUNC(js_gfx_Framebuffer_initialize);
-SE_DECLARE_FUNC(js_gfx_Framebuffer_Framebuffer);
 
 extern se::Object* __jsb_cc_gfx_PipelineLayout_proto;
 extern se::Class* __jsb_cc_gfx_PipelineLayout_class;
@@ -591,6 +720,58 @@ SE_DECLARE_FUNC(js_gfx_PipelineState_getPipelineLayout);
 SE_DECLARE_FUNC(js_gfx_PipelineState_initialize);
 SE_DECLARE_FUNC(js_gfx_PipelineState_PipelineState);
 
+extern se::Object* __jsb_cc_gfx_Queue_proto;
+extern se::Class* __jsb_cc_gfx_Queue_class;
+
+bool js_register_cc_gfx_Queue(se::Object* obj);
+bool register_all_gfx(se::Object* obj);
+
+JSB_REGISTER_OBJECT_TYPE(cc::gfx::Queue);
+SE_DECLARE_FUNC(js_gfx_Queue_destroy);
+SE_DECLARE_FUNC(js_gfx_Queue_initialize);
+SE_DECLARE_FUNC(js_gfx_Queue_submitForJS);
+SE_DECLARE_FUNC(js_gfx_Queue_Queue);
+
+extern se::Object* __jsb_cc_gfx_RenderPass_proto;
+extern se::Class* __jsb_cc_gfx_RenderPass_class;
+
+bool js_register_cc_gfx_RenderPass(se::Object* obj);
+bool register_all_gfx(se::Object* obj);
+
+JSB_REGISTER_OBJECT_TYPE(cc::gfx::RenderPass);
+SE_DECLARE_FUNC(js_gfx_RenderPass_destroy);
+SE_DECLARE_FUNC(js_gfx_RenderPass_getDepthStencilAttachment);
+SE_DECLARE_FUNC(js_gfx_RenderPass_getSubpasses);
+SE_DECLARE_FUNC(js_gfx_RenderPass_initialize);
+SE_DECLARE_FUNC(js_gfx_RenderPass_RenderPass);
+
+extern se::Object* __jsb_cc_gfx_Sampler_proto;
+extern se::Class* __jsb_cc_gfx_Sampler_class;
+
+bool js_register_cc_gfx_Sampler(se::Object* obj);
+bool register_all_gfx(se::Object* obj);
+
+JSB_REGISTER_OBJECT_TYPE(cc::gfx::Sampler);
+SE_DECLARE_FUNC(js_gfx_Sampler_destroy);
+SE_DECLARE_FUNC(js_gfx_Sampler_initialize);
+SE_DECLARE_FUNC(js_gfx_Sampler_Sampler);
+
+extern se::Object* __jsb_cc_gfx_Shader_proto;
+extern se::Class* __jsb_cc_gfx_Shader_class;
+
+bool js_register_cc_gfx_Shader(se::Object* obj);
+bool register_all_gfx(se::Object* obj);
+
+JSB_REGISTER_OBJECT_TYPE(cc::gfx::Shader);
+SE_DECLARE_FUNC(js_gfx_Shader_destroy);
+SE_DECLARE_FUNC(js_gfx_Shader_getBuffers);
+SE_DECLARE_FUNC(js_gfx_Shader_getImages);
+SE_DECLARE_FUNC(js_gfx_Shader_getSamplerTextures);
+SE_DECLARE_FUNC(js_gfx_Shader_getSubpassInputs);
+SE_DECLARE_FUNC(js_gfx_Shader_getTextures);
+SE_DECLARE_FUNC(js_gfx_Shader_initialize);
+SE_DECLARE_FUNC(js_gfx_Shader_Shader);
+
 extern se::Object* __jsb_cc_gfx_Texture_proto;
 extern se::Class* __jsb_cc_gfx_Texture_class;
 
@@ -603,16 +784,16 @@ SE_DECLARE_FUNC(js_gfx_Texture_isTextureView);
 SE_DECLARE_FUNC(js_gfx_Texture_resize);
 SE_DECLARE_FUNC(js_gfx_Texture_Texture);
 
-extern se::Object* __jsb_cc_gfx_Shader_proto;
-extern se::Class* __jsb_cc_gfx_Shader_class;
+extern se::Object* __jsb_cc_gfx_TextureBarrier_proto;
+extern se::Class* __jsb_cc_gfx_TextureBarrier_class;
 
-bool js_register_cc_gfx_Shader(se::Object* obj);
+bool js_register_cc_gfx_TextureBarrier(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
 
-JSB_REGISTER_OBJECT_TYPE(cc::gfx::Shader);
-SE_DECLARE_FUNC(js_gfx_Shader_destroy);
-SE_DECLARE_FUNC(js_gfx_Shader_initialize);
-SE_DECLARE_FUNC(js_gfx_Shader_Shader);
+JSB_REGISTER_OBJECT_TYPE(cc::gfx::TextureBarrier);
+SE_DECLARE_FUNC(js_gfx_TextureBarrier_info);
+SE_DECLARE_FUNC(js_gfx_TextureBarrier_computeHash);
+SE_DECLARE_FUNC(js_gfx_TextureBarrier_TextureBarrier);
 
 extern se::Object* __jsb_cc_gfx_Device_proto;
 extern se::Class* __jsb_cc_gfx_Device_class;
@@ -626,8 +807,8 @@ SE_DECLARE_FUNC(js_gfx_Device_bindingMappingInfo);
 SE_DECLARE_FUNC(js_gfx_Device_createCommandBuffer);
 SE_DECLARE_FUNC(js_gfx_Device_createDescriptorSet);
 SE_DECLARE_FUNC(js_gfx_Device_createDescriptorSetLayout);
-SE_DECLARE_FUNC(js_gfx_Device_createFence);
 SE_DECLARE_FUNC(js_gfx_Device_createFramebuffer);
+SE_DECLARE_FUNC(js_gfx_Device_createGlobalBarrier);
 SE_DECLARE_FUNC(js_gfx_Device_createInputAssembler);
 SE_DECLARE_FUNC(js_gfx_Device_createPipelineLayout);
 SE_DECLARE_FUNC(js_gfx_Device_createPipelineState);
@@ -636,8 +817,8 @@ SE_DECLARE_FUNC(js_gfx_Device_createRenderPass);
 SE_DECLARE_FUNC(js_gfx_Device_createSampler);
 SE_DECLARE_FUNC(js_gfx_Device_createShader);
 SE_DECLARE_FUNC(js_gfx_Device_destroy);
+SE_DECLARE_FUNC(js_gfx_Device_flushCommandsForJS);
 SE_DECLARE_FUNC(js_gfx_Device_genShaderId);
-SE_DECLARE_FUNC(js_gfx_Device_getUboOffsetAlignment);
 SE_DECLARE_FUNC(js_gfx_Device_hasFeature);
 SE_DECLARE_FUNC(js_gfx_Device_initialize);
 SE_DECLARE_FUNC(js_gfx_Device_present);

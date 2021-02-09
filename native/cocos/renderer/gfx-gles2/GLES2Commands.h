@@ -1,29 +1,32 @@
 /****************************************************************************
-Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2019-2021 Xiamen Yaji Software Co., Ltd.
 
-http://www.cocos2d-x.org
+ http://www.cocos.com
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
 
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
 ****************************************************************************/
+
 #ifndef CC_GFXGLES2_COMMANDS_H_
 #define CC_GFXGLES2_COMMANDS_H_
 
+#include "../gfx-gles-common/GLESCommandPool.h"
 #include "GLES2GPUObjects.h"
 
 namespace cc {
@@ -69,7 +72,7 @@ struct GLES2BufferTextureCopy final {
     GLES2TextureSubres texSubres;
 };
 
-class GLES2CmdBeginRenderPass final : public GFXCmd {
+class GLES2CmdBeginRenderPass final : public GLESCmd {
 public:
     GLES2GPURenderPass *gpuRenderPass = nullptr;
     GLES2GPUFramebuffer *gpuFBO = nullptr;
@@ -79,7 +82,7 @@ public:
     float clearDepth = 1.0f;
     int clearStencil = 0;
 
-    GLES2CmdBeginRenderPass() : GFXCmd(GFXCmdType::BEGIN_RENDER_PASS) {}
+    GLES2CmdBeginRenderPass() : GLESCmd(GLESCmdType::BEGIN_RENDER_PASS) {}
 
     virtual void clear() override {
         gpuFBO = nullptr;
@@ -99,7 +102,7 @@ enum class GLES2State {
     COUNT,
 };
 
-class GLES2CmdBindStates final : public GFXCmd {
+class GLES2CmdBindStates final : public GLESCmd {
 public:
     GLES2GPUPipelineState *gpuPipelineState = nullptr;
     GLES2GPUInputAssembler *gpuInputAssembler = nullptr;
@@ -115,7 +118,7 @@ public:
     GLES2StencilWriteMask stencilWriteMask;
     GLES2StencilCompareMask stencilCompareMask;
 
-    GLES2CmdBindStates() : GFXCmd(GFXCmdType::BIND_STATES) {}
+    GLES2CmdBindStates() : GLESCmd(GLESCmdType::BIND_STATES) {}
 
     virtual void clear() override {
         gpuPipelineState = nullptr;
@@ -125,22 +128,22 @@ public:
     }
 };
 
-class GLES2CmdDraw final : public GFXCmd {
+class GLES2CmdDraw final : public GLESCmd {
 public:
     DrawInfo drawInfo;
 
-    GLES2CmdDraw() : GFXCmd(GFXCmdType::DRAW) {}
+    GLES2CmdDraw() : GLESCmd(GLESCmdType::DRAW) {}
     virtual void clear() override {}
 };
 
-class GLES2CmdUpdateBuffer final : public GFXCmd {
+class GLES2CmdUpdateBuffer final : public GLESCmd {
 public:
     GLES2GPUBuffer *gpuBuffer = nullptr;
     uint8_t *buffer = nullptr;
     uint size = 0;
     uint offset = 0;
 
-    GLES2CmdUpdateBuffer() : GFXCmd(GFXCmdType::UPDATE_BUFFER) {}
+    GLES2CmdUpdateBuffer() : GLESCmd(GLESCmdType::UPDATE_BUFFER) {}
 
     virtual void clear() override {
         gpuBuffer = nullptr;
@@ -148,14 +151,14 @@ public:
     }
 };
 
-class GLES2CmdCopyBufferToTexture final : public GFXCmd {
+class GLES2CmdCopyBufferToTexture final : public GLESCmd {
 public:
     GLES2GPUTexture *gpuTexture = nullptr;
     const BufferTextureCopy *regions = nullptr;
     uint count = 0u;
     const uint8_t *const *buffers;
 
-    GLES2CmdCopyBufferToTexture() : GFXCmd(GFXCmdType::COPY_BUFFER_TO_TEXTURE) {}
+    GLES2CmdCopyBufferToTexture() : GLESCmd(GLESCmdType::COPY_BUFFER_TO_TEXTURE) {}
 
     virtual void clear() override {
         gpuTexture = nullptr;
@@ -167,7 +170,7 @@ public:
 
 class GLES2CmdPackage final : public Object {
 public:
-    CachedArray<GFXCmdType> cmds;
+    CachedArray<GLESCmdType> cmds;
     CachedArray<GLES2CmdBeginRenderPass *> beginRenderPassCmds;
     CachedArray<GLES2CmdBindStates *> bindStatesCmds;
     CachedArray<GLES2CmdDraw *> drawCmds;
