@@ -94,9 +94,6 @@ var _quata = new Quat();
 var _mat4_temp = cc.mat4();
 var _vec3_temp = new Vec3();
 
-var _cachedArray = new Array(16);
-_cachedArray.length = 0;
-
 const POSITION_ON = 1 << 0;
 const SCALE_ON = 1 << 1;
 const ROTATION_ON = 1 << 2;
@@ -104,6 +101,10 @@ const SIZE_ON = 1 << 3;
 const ANCHOR_ON = 1 << 4;
 const COLOR_ON = 1 << 5;
 
+let _cachedPool = new js.Pool();
+_cachedPool.get = function () {
+    return this._get() || [];
+};
 
 let BuiltinGroupIndex = cc.Enum({
     DEBUG: 31
@@ -615,29 +616,29 @@ function _checkListeners (node, events) {
     return true;
 }
 
-function _doDispatchEvent (owner, event) {
+function _doDispatchEvent (owner, event, cachedArray) {
     var target, i;
     event.target = owner;
 
     // Event.CAPTURING_PHASE
-    _cachedArray.length = 0;
-    owner._getCapturingTargets(event.type, _cachedArray);
+    cachedArray.length = 0;
+    owner._getCapturingTargets(event.type, cachedArray);
     // capturing
     event.eventPhase = 1;
-    for (i = _cachedArray.length - 1; i >= 0; --i) {
-        target = _cachedArray[i];
+    for (i = cachedArray.length - 1; i >= 0; --i) {
+        target = cachedArray[i];
         if (target._capturingListeners) {
             event.currentTarget = target;
             // fire event
-            target._capturingListeners.emit(event.type, event, _cachedArray);
+            target._capturingListeners.emit(event.type, event, cachedArray);
             // check if propagation stopped
             if (event._propagationStopped) {
-                _cachedArray.length = 0;
+                cachedArray.length = 0;
                 return;
             }
         }
     }
-    _cachedArray.length = 0;
+    cachedArray.length = 0;
 
     // Event.AT_TARGET
     // checks if destroyed in capturing callbacks
@@ -652,24 +653,24 @@ function _doDispatchEvent (owner, event) {
 
     if (!event._propagationStopped && event.bubbles) {
         // Event.BUBBLING_PHASE
-        owner._getBubblingTargets(event.type, _cachedArray);
+        owner._getBubblingTargets(event.type, cachedArray);
         // propagate
         event.eventPhase = 3;
-        for (i = 0; i < _cachedArray.length; ++i) {
-            target = _cachedArray[i];
+        for (i = 0; i < cachedArray.length; ++i) {
+            target = cachedArray[i];
             if (target._bubblingListeners) {
                 event.currentTarget = target;
                 // fire event
                 target._bubblingListeners.emit(event.type, event);
                 // check if propagation stopped
                 if (event._propagationStopped) {
-                    _cachedArray.length = 0;
+                    cachedArray.length = 0;
                     return;
                 }
             }
         }
     }
-    _cachedArray.length = 0;
+    cachedArray.length = 0;
 }
 
 // traversal the node tree, child cullingMask must keep the same with the parent.
@@ -2339,8 +2340,9 @@ let NodeDefines = {
      * @param {Event} event - The Event object that is dispatched into the event flow
      */
     dispatchEvent (event) {
-        _doDispatchEvent(this, event);
-        _cachedArray.length = 0;
+        var _array = _cachedPool.get();
+        _doDispatchEvent(this, event, _array);
+        _cachedPool.put(_array);
     },
 
     /**
