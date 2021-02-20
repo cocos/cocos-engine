@@ -125,12 +125,14 @@ struct StandardSurface {
     float NH = max(dot(N, H), 0.0);
     float NL = max(dot(N, L), 0.001);
     vec3 finalColor = NL * cc_mainLitColor.rgb * cc_mainLitColor.w;
+    vec3 diffuseContrib = diffuse;
 
     #if USE_LIGHTMAP && !USE_BATCHING && !CC_FORWARD_ADD
       finalColor = s.lightmap.a * s.lightmap.rgb + (1.0 - s.lightmap.a) * finalColor;
+    #else
+      diffuseContrib /= PI;
     #endif
 
-    vec3 diffuseContrib = diffuse / PI;
     // Cook-Torrance Microfacet Specular BRDF
     vec3 specularContrib = specular * CalcSpecular(s.roughness, NH, H, N);
 
