@@ -12,19 +12,25 @@ export class AudioPlayer {
         this._player = player;
     }
 
-    static async load (url: string, opts?: AudioLoadOptions): Promise<AudioPlayer> {
-        let player: AbstractAudioPlayer;
-        if (opts?.audioLoadMode === AudioType.DOM_AUDIO) {
-            player = await AudioPlayerDOM.load(url);
-        }
-        else if (!(window.AudioContext || window.webkitAudioContext || window.mozAudioContext)) {
-            warnID(5201);
-            player = await AudioPlayerDOM.load(url);
-        }
-        else {
-            player = await AudioPlayerWeb.load(url);
-        }
-        return new AudioPlayer(player);
+    static load (url: string, opts?: AudioLoadOptions): Promise<AudioPlayer> {
+        return new Promise(resolve => {
+            if (opts?.audioLoadMode === AudioType.DOM_AUDIO) {
+                AudioPlayerDOM.load(url).then(domPlayer => {
+                    resolve(new AudioPlayer(domPlayer));
+                });
+            }
+            else if (!(window.AudioContext || window.webkitAudioContext || window.mozAudioContext)) {
+                warnID(5201);
+                AudioPlayerDOM.load(url).then(domPlayer => {
+                    resolve(new AudioPlayer(domPlayer));
+                });
+            }
+            else {
+                AudioPlayerWeb.load(url).then(webPlayer => {
+                    resolve(new AudioPlayer(webPlayer));
+                });
+            }
+        });
     }
     destroy() {
         this._player.destroy();

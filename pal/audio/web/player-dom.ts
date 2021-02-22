@@ -69,11 +69,14 @@ export class AudioPlayerDOM {
         // @ts-ignore
         this._domAudio = undefined;
     }
-    static async load (url: string): Promise<AudioPlayerDOM> {
-        let domAudio = await AudioPlayerDOM.loadNative(url);
-        return new AudioPlayerDOM(domAudio);
+    static load (url: string): Promise<AudioPlayerDOM> {
+        return new Promise(resolve => {
+            AudioPlayerDOM.loadNative(url).then(domAudio => {
+                resolve(new AudioPlayerDOM(domAudio));
+            });
+        });
     }
-    static async loadNative (url: string): Promise<HTMLAudioElement> {
+    static loadNative (url: string): Promise<HTMLAudioElement> {
         return new Promise((resolve, reject) => {
             let domAudio = document.createElement('audio');
             let loadedEvent = 'canplaythrough';
@@ -184,15 +187,27 @@ export class AudioPlayerDOM {
         }
         return oneShotAudio;
     }
-    async play (): Promise<void> {
-        if (this._state === AudioState.PLAYING) {
+
+    private _ensureStop (): Promise<void> {
+        return new Promise(resolve => {
             /* sometimes there is no way to update the playing state
             especially when player unplug earphones and the audio automatically stops
             so we need to force updating the playing state by pausing audio */
-            await this.stop();
-        }
-        await this._ensurePlaying(this._domAudio);
-        this._state = AudioState.PLAYING;
+            if (this._state === AudioState.PLAYING) {
+                return this.stop().then(resolve);
+            }
+            resolve();
+        });
+    }
+    play (): Promise<void> {
+        return new Promise(resolve => {
+            this._ensureStop().then(() => {
+                this._ensurePlaying(this._domAudio).then(() => {
+                    this._state = AudioState.PLAYING;
+                    resolve();
+                });
+            });
+        });
     }
     pause (): Promise<void> {
         this._domAudio.pause();

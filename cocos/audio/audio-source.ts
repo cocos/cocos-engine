@@ -97,7 +97,7 @@ export class AudioSource extends Component {
             this._player.onEnded(() => {
                 audioManager.removePlaying(this._player!);
             });
-            this._player.onInterruptionBegin(() =>  {
+            this._player.onInterruptionBegin(() => {
                 audioManager.removePlaying(this._player!);
             });
             this._player.onInterruptionEnd(() => {

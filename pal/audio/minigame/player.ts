@@ -1,7 +1,9 @@
 import { legacyCC } from '../../../cocos/core/global-exports';
 import { OneShotAudio} from 'pal:audio';
 import { EventTarget } from '../../../cocos/core/event/event-target';
-import { AudioEvent, AudioState, AudioType } from '../type'; 
+import { AudioEvent, AudioState, AudioType } from '../type';
+import { mg } from 'pal:minigame';
+
 export class AudioPlayer {
     private _innerAudioContext: any;
     private _eventTarget: EventTarget;
@@ -92,14 +94,17 @@ export class AudioPlayer {
     get type (): AudioType {
         return AudioType.MINIGAME_AUDIO;
     }
-    static async load (url: string): Promise<AudioPlayer> {
-        let innerAudioContext = await AudioPlayer.loadNative(url);
-        return new AudioPlayer(innerAudioContext);
+    static load (url: string): Promise<AudioPlayer> {
+        return new Promise(resolve => {
+            AudioPlayer.loadNative(url).then(innerAudioContext => {
+                resolve(new AudioPlayer(innerAudioContext));
+            });
+        });
     }
     static loadNative (url: string): Promise<any> {
         return new Promise((resolve, reject) => {
             // @ts-ignore
-            const innerAudioContext = wx.createInnerAudioContext();
+            const innerAudioContext = mg.createInnerAudioContext();
             let timer = setTimeout(() => {
                 clearEvent();
                 resolve(innerAudioContext);
@@ -179,16 +184,25 @@ export class AudioPlayer {
         }
         return oneShotAudio;
     }
-    play (): Promise<void> {
-        return new Promise(async resolve => {
+
+    private _ensureStop (): Promise<void> {
+        return new Promise(resolve => {
+            /* sometimes there is no way to update the playing state
+            especially when player unplug earphones and the audio automatically stops
+            so we need to force updating the playing state by pausing audio */
             if (this._state === AudioState.PLAYING) {
-                /* sometimes there is no way to update the playing state
-                especially when player unplug earphones and the audio automatically stops
-                so we need to force updating the playing state by pausing audio */
-                await this.stop();
+                return this.stop().then(resolve);
             }
-            this._eventTarget.once(AudioEvent.PLAYED, resolve);
-            this._innerAudioContext.play();
+            resolve();
+        });
+    }
+
+    play (): Promise<void> {
+        return new Promise(resolve => {
+            this._ensureStop().then(() => {
+                this._eventTarget.once(AudioEvent.PLAYED, resolve);
+                this._innerAudioContext.play();
+            });
         });
     }
     pause (): Promise<void> {
