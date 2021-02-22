@@ -2,11 +2,10 @@
 
 CCEffect %{
   techniques:
-  - name: postprocessRenderTarget
-    passes:
-    - vert: postprocess-vs
-      frag: postprocess-fs
-      phase: postprocess
+  - passes:
+    - vert: post-process-vs
+      frag: post-process-fs
+      phase: post-process
       depthStencilState:
         depthTest: false
       blendState:
@@ -14,7 +13,7 @@ CCEffect %{
         - blend: false
 }%
 
-CCProgram postprocess-vs %{
+CCProgram post-process-vs %{
   precision highp float;
   #include <input-standard>
   #include <cc-global>
@@ -31,7 +30,7 @@ CCProgram postprocess-vs %{
   }
 }%
 
-CCProgram postprocess-fs %{
+CCProgram post-process-fs %{
   precision highp float;
   #include <cc-global>
 

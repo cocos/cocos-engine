@@ -1,0 +1,48 @@
+// Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+
+#include <shading-standard-base>
+#include <output-standard>
+#include <cc-fog-fs>
+#include <cc-shadow-map-fs>
+
+#define CC_STANDARD_SURFACE_ENTRY()                                \
+#if CC_FORWARD_ADD                                                 \
+  #include <shading-standard-additive>                             \
+                                                                   \
+  layout(location = 0) out vec4 fragColorX;                        \
+                                                                   \
+  void main () {                                                   \
+    StandardSurface s; surf(s);                                    \
+    vec4 color = CCStandardShadingAdditive(s, CC_SHADOW_POSITION); \
+    CC_APPLY_FOG(color);                                           \
+    fragColorX = CCFragOutput(color);                              \
+  }                                                                \
+                                                                   \
+#elif CC_PIPELINE_TYPE == CC_PIPELINE_TYPE_FORWARD                 \
+                                                                   \
+  layout(location = 0) out vec4 fragColorX;                        \
+                                                                   \
+  void main () {                                                   \
+    StandardSurface s; surf(s);                                    \
+    vec4 color = CCStandardShadingBase(s, CC_SHADOW_POSITION);     \
+    CC_APPLY_FOG(color);                                           \
+    fragColorX = CCFragOutput(color);                              \
+  }                                                                \
+                                                                   \
+#elif CC_PIPELINE_TYPE == CC_PIPELINE_TYPE_DEFERRED                \
+                                                                   \
+  layout(location = 0) out vec4 fragColor0;                        \
+  layout(location = 1) out vec4 fragColor1;                        \
+  layout(location = 2) out vec4 fragColor2;                        \
+  layout(location = 3) out vec4 fragColor3;                        \
+                                                                   \
+  void main () {                                                   \
+    StandardSurface s; surf(s);                                    \
+    fragColor0 = s.albedo;                                         \
+    fragColor1 = vec4(s.position, s.roughness);                    \
+    fragColor2 = vec4(s.normal, s.metallic);                       \
+    fragColor3 = vec4(s.emissive, s.occlusion);                    \
+  }                                                                \
+                                                                   \
+#endif                                                             \
+#pragma // empty pragma trick to get rid of trailing semicolons at effect compile time

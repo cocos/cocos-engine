@@ -1,6 +1,6 @@
 {
     "thisFile": {
-        "stamp": "2021-02-05T03:15:34.776Z"
+        "stamp": "2021-02-08T03:18:26.527Z"
     },
     "variables": [
         "cc.AffineTransform",
@@ -66,9 +66,7 @@
         "cc.GFXAddress",
         "cc.GFXAttribute",
         "cc.GFXAttributeName",
-        "cc.GFXBindingLayout",
         "cc.GFXBindingMappingInfo",
-        "cc.GFXBindingType",
         "cc.GFXBlendFactor",
         "cc.GFXBlendOp",
         "cc.GFXBlendState",
@@ -101,7 +99,6 @@
         "cc.GFXDeviceInfo",
         "cc.GFXDispatchInfo",
         "cc.GFXDrawInfo",
-        "cc.GFXDynamicState",
         "cc.GFXDynamicStateFlagBit",
         "cc.GFXExtent",
         "cc.GFXFeature",
@@ -332,6 +329,7 @@
         "cc.math",
         "cc.misc",
         "cc.path",
+        "cc.physics",
         "cc.pipelineUtils",
         "cc.primitives",
         "cc.profiler",
@@ -358,11 +356,6 @@
         "cc.vmath",
         "cc.warn",
         "cc.warnID",
-        "cc.winSize",
-        "cc.BufferAsset",
-        "cc.resources",
-        "cc.assetManager",
-        "cc.AssetManager",
-        "cc.physics"
+        "cc.winSize"
     ]
 }

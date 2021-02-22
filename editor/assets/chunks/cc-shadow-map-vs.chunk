@@ -1,7 +1,9 @@
+// Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+
 out highp vec4 v_shadowPos;
 
 #include <cc-shadow>
+#include <cc-shadow-map-base>
 
-#define CCPassShadowParams(worldPos)              \
-    v_shadowPos = cc_matLightViewProj * worldPos; \
-#pragma // empty pragma trick to get rid of trailing semicolons at effect compile time
+#define CC_SHADOW_POSITION v_shadowPos
+#define CC_TRANSFER_SHADOW(worldPos) CC_TRANSFER_SHADOW_BASE(worldPos, v_shadowPos)

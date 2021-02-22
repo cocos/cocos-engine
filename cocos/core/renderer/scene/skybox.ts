@@ -103,7 +103,7 @@ export class Skybox {
     set envmap (val: TextureCube | null) {
         this._envmap = val || this._default;
         if (this._envmap) {
-            legacyCC.director.root.pipeline.ambient.albedoArray[3] = this._envmap.mipmapLevel;
+            legacyCC.director.root.pipeline.pipelineSceneData.ambient.albedoArray[3] = this._envmap.mipmapLevel;
             this._updateGlobalBinding();
         }
     }
@@ -145,7 +145,7 @@ export class Skybox {
         if (!this._envmap) {
             this._envmap = this._default;
         }
-        ambient.groundAlbedo[3] = this._envmap.mipmapLevel;
+        ambient.albedoArray[3] = this._envmap.mipmapLevel;
 
         if (!skybox_material) {
             const mat = new Material();

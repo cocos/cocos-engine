@@ -90,7 +90,7 @@ function cullSpotLight (light: SpotLight, model: Model) {
         && (!intersect.aabbWithAABB(model.worldBounds, light.aabb) || !intersect.aabbFrustum(model.worldBounds, light.frustum)));
 }
 
-const _phaseID = getPhaseID('forward-add');
+const _phaseID = getPhaseID('lighting');
 const _lightPassIndices: number[] = [];
 function getLightPassIndices (subModels: SubModel[], lightPassIndices: number[]) {
     lightPassIndices.length = 0;

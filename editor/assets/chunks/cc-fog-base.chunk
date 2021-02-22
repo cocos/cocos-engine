@@ -1,0 +1,92 @@
+// Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+
+#include <cc-global>
+
+#pragma define CC_USE_FOG range([0, 4])
+#define CC_FOG_LINEAR 0
+#define CC_FOG_EXP 1
+#define CC_FOG_EXP_SQUARED 2
+#define CC_FOG_LAYERED 3
+
+float LinearFog(vec4 pos) {
+  vec4 wPos = pos;
+  float cam_dis = distance(cc_cameraPos, wPos);
+  float fogStart = cc_fogBase.x;
+  float fogEnd = cc_fogBase.y;
+  return clamp((fogEnd - cam_dis) / (fogEnd - fogStart), 0., 1.);
+}
+
+float ExpFog(vec4 pos) {
+  vec4 wPos = pos;
+  float fogAtten = cc_fogAdd.z;
+  float fogDensity = cc_fogBase.z;
+  float cam_dis = distance(cc_cameraPos, wPos) / fogAtten * 4.;
+  float f = exp(-cam_dis * fogDensity);
+  return f;
+}
+
+float ExpSquaredFog(vec4 pos) {
+  vec4 wPos = pos;
+  float fogAtten = cc_fogAdd.z;
+  float fogDensity = cc_fogBase.z;
+  float cam_dis = distance(cc_cameraPos, wPos) / fogAtten * 4.;
+  float f = exp(-cam_dis * cam_dis * fogDensity * fogDensity);
+  return f;
+}
+
+float LayeredFog(vec4 pos) {
+  vec4 wPos = pos;
+  float fogAtten = cc_fogAdd.z;
+  float _FogTop = cc_fogAdd.x;
+  float _FogRange = cc_fogAdd.y;
+  vec3 camWorldProj = cc_cameraPos.xyz;
+  camWorldProj.y = 0.;
+  vec3 worldPosProj = wPos.xyz;
+  worldPosProj.y = 0.;
+  float fDeltaD = distance(worldPosProj, camWorldProj) / fogAtten * 2.0;
+  float fDeltaY, fDensityIntegral;
+  if (cc_cameraPos.y > _FogTop) {
+    if (wPos.y < _FogTop) {
+      fDeltaY = (_FogTop - wPos.y) / _FogRange * 2.0;
+      fDensityIntegral = fDeltaY * fDeltaY * 0.5;
+    } else {
+      fDeltaY = 0.;
+      fDensityIntegral = 0.;
+    }
+  } else {
+    if (wPos.y < _FogTop) {
+      float fDeltaA = (_FogTop - cc_cameraPos.y) / _FogRange * 2.;
+      float fDeltaB = (_FogTop - wPos.y) / _FogRange * 2.;
+      fDeltaY = abs(fDeltaA - fDeltaB);
+      fDensityIntegral = abs((fDeltaA * fDeltaA * 0.5) - (fDeltaB * fDeltaB * 0.5));
+    } else {
+      fDeltaY = abs(_FogTop - cc_cameraPos.y) / _FogRange * 2.;
+      fDensityIntegral = abs(fDeltaY * fDeltaY * 0.5);
+    }
+  }
+  float fDensity;
+  if (fDeltaY != 0.) {
+    fDensity = (sqrt(1.0 + ((fDeltaD / fDeltaY) * (fDeltaD / fDeltaY)))) * fDensityIntegral;
+  } else {
+    fDensity = 0.;
+  }
+  float f = exp(-fDensity);
+  return f;
+}
+
+#define CC_TRANSFER_FOG_BASE(pos, factor) \
+  #if CC_USE_FOG == CC_FOG_LINEAR         \
+    factor = LinearFog(pos);              \
+  #elif CC_USE_FOG == CC_FOG_EXP          \
+    factor = ExpFog(pos);                 \
+  #elif CC_USE_FOG == CC_FOG_EXP_SQUARED  \
+    factor = ExpSquaredFog(pos);          \
+  #elif CC_USE_FOG == CC_FOG_LAYERED      \
+    factor = LayeredFog(pos);             \
+  #else                                   \
+    factor = 1.0;                         \
+  #endif                                  \
+#pragma // empty pragma trick to get rid of trailing semicolons at effect compile time
+
+#pragma define CC_FORWARD_ADD
+#define CC_APPLY_FOG_BASE(color, factor) color = vec4(mix(CC_FORWARD_ADD > 0 ? vec3(0.0) : cc_fogColor.rgb, color.rgb, factor), color.a)
