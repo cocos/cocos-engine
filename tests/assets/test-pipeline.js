@@ -37,7 +37,7 @@ test('construction', function () {
 });
 
 test('items', function () {
-    var items = cc.AssetManager.Task.create(pipeline, [
+    var items = cc.LoadingItems.create(pipeline, [
         'res/Background.png',
         {
             url: 'res/scene.json',
@@ -108,7 +108,7 @@ test('pipeline flow', function () {
     download.enable();
     load.enable();
 
-    var items = cc.AssetManager.Task.create(pipeline, [
+    var items = cc.LoadingItems.create(pipeline, [
         'res/Background.png',
         {
             url: 'res/scene.json',
@@ -138,7 +138,7 @@ test('flow empty array', function () {
     }).enable();
     var onProgress = new Callback().enable();
 
-    var items = cc.AssetManager.Task.create(pipeline, [], onProgress, onComplete);
+    var items = cc.LoadingItems.create(pipeline, [], onProgress, onComplete);
 });
 
 asyncTest('content manipulation', function () {
@@ -217,7 +217,7 @@ asyncTest('content manipulation', function () {
         strictEqual(completed, count, 'should increase completed count by one');
     };
 
-    var items = cc.AssetManager.Task.create(pipeline, [
+    var items = cc.LoadingItems.create(pipeline, [
         'res/Background.png',
         {
             url: 'res/scene.json',
