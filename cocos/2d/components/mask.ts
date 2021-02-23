@@ -115,7 +115,7 @@ const SEGMENTS_MAX = 10000;
 @ccclass('cc.Mask')
 @help('i18n:cc.Mask')
 @executionOrder(110)
-@menu('UI/Render/Mask')
+@menu('2D/Mask')
 export class Mask extends Renderable2D {
     /**
      * @en

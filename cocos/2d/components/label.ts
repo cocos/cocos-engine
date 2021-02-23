@@ -188,7 +188,7 @@ ccenum(CacheMode);
 @ccclass('cc.Label')
 @help('i18n:cc.Label')
 @executionOrder(110)
-@menu('UI/Render/Label')
+@menu('2D/Label')
 export class Label extends Renderable2D {
     /**
      * @en
@@ -703,7 +703,7 @@ export class Label extends Renderable2D {
         this._assemblerData = null;
         if (this._ttfSpriteFrame) {
             const tex = this._ttfSpriteFrame.texture;
-            if (tex) {
+            if (tex && this._ttfSpriteFrame.original === null) {
                 const tex2d = tex as Texture2D;
                 if (tex2d.image) {
                     tex2d.image.destroy();
