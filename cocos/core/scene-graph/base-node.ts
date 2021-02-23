@@ -328,6 +328,9 @@ export class BaseNode extends CCObject implements ISchedulable {
 
     protected _siblingIndex = 0;
 
+    // record scene's id when set this node as persist node
+    public _originalSceneId = '';
+
     /**
      * Set `_scene` field of this node.
      * The derived `Scene` overrides this method to behavior differently.

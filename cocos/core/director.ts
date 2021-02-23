@@ -476,7 +476,7 @@ export class Director extends EventTarget {
         for (let i = 0; i < persistNodeList.length; i++) {
             const node = persistNodeList[i];
             node.emit(legacyCC.Node.SCENE_CHANGED_FOR_PERSISTS, scene.renderScene);
-            const existNode = scene.getChildByUuid(node.uuid);
+            const existNode = scene.uuid === node._originalSceneId && scene.getChildByUuid(node.uuid);
             if (existNode) {
                 // scene also contains the persist node, select the old one
                 const index = existNode.getSiblingIndex();
