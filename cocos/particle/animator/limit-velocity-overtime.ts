@@ -62,7 +62,6 @@ export default class LimitVelocityOvertimeModule extends ParticleModuleBase {
     /**
      * @zh X 轴方向上的速度下限。
      */
-    @visible(false)
     @type(CurveRange)
     @serializable
     @range([-1, 1])
@@ -73,7 +72,6 @@ export default class LimitVelocityOvertimeModule extends ParticleModuleBase {
     /**
      * @zh Y 轴方向上的速度下限。
      */
-    @visible(false)
     @type(CurveRange)
     @serializable
     @range([-1, 1])
@@ -84,7 +82,6 @@ export default class LimitVelocityOvertimeModule extends ParticleModuleBase {
     /**
      * @zh Z 轴方向上的速度下限。
      */
-    @visible(false)
     @type(CurveRange)
     @serializable
     @range([-1, 1])
