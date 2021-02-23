@@ -690,7 +690,7 @@ export class Layout extends Component {
             trans.setContentSize(this._layoutSize);
         }
 
-        this._doLayoutDirty();
+        this._childrenChanged();
     }
 
     protected onDisable () {
