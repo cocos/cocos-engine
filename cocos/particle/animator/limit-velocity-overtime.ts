@@ -28,7 +28,7 @@
  * @module particle
  */
 
-import { ccclass, tooltip, displayOrder, range, type, serializable } from 'cc.decorator';
+import { ccclass, tooltip, displayOrder, range, type, serializable, visible } from 'cc.decorator';
 import { lerp, pseudoRandom, Vec3, Mat4, Quat } from '../../core/math';
 import { Space, ModuleRandSeed } from '../enum';
 import { Particle, ParticleModuleBase, PARTICLE_MODULE_NAME } from '../particle';
@@ -62,6 +62,7 @@ export default class LimitVelocityOvertimeModule extends ParticleModuleBase {
     /**
      * @zh X 轴方向上的速度下限。
      */
+    @visible(false)
     @type(CurveRange)
     @serializable
     @range([-1, 1])
@@ -72,6 +73,7 @@ export default class LimitVelocityOvertimeModule extends ParticleModuleBase {
     /**
      * @zh Y 轴方向上的速度下限。
      */
+    @visible(false)
     @type(CurveRange)
     @serializable
     @range([-1, 1])
@@ -82,6 +84,7 @@ export default class LimitVelocityOvertimeModule extends ParticleModuleBase {
     /**
      * @zh Z 轴方向上的速度下限。
      */
+    @visible(false)
     @type(CurveRange)
     @serializable
     @range([-1, 1])
