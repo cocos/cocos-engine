@@ -45,7 +45,7 @@ import { createShape } from '../../instance';
 
 /**
  * @en
- * Base class of collider.
+ * Base class for colliders.
  * @zh
  * 碰撞器的基类。
  */
@@ -71,9 +71,9 @@ export class Collider extends Eventify(Component) {
 
     /**
      * @en
-     * Gets the collider attached rigid-body, this may be null.
+     * Get the rigid body component to which the collider is bound, possibly null.
      * @zh
-     * 获取碰撞器所绑定的刚体组件，可能为 null 。
+     * 获取碰撞器所绑定的刚体组件，可能为空。
      */
     @type(RigidBody)
     @readOnly
@@ -165,7 +165,7 @@ export class Collider extends Eventify(Component) {
      * @en
      * Gets or sets the center of the collider, in local space.
      * @zh
-     * 获取或设置碰撞器的中心点。
+     * 在本地空间中，获取或设置碰撞器的中心点。
      */
     @type(Vec3)
     @displayOrder(1)

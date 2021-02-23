@@ -29,7 +29,7 @@
  */
 
 /* eslint-disable @typescript-eslint/no-unsafe-return */
-import { ray } from '../../core/geometry';
+import { Ray } from '../../core/geometry';
 import { IPhysicsWorld, IRaycastOptions } from '../spec/i-physics-world';
 import { CollisionEventType, PhysicsMaterial, PhysicsRayResult, TriggerEventType } from '../framework';
 import { error, Node, RecyclePool } from '../../core';
@@ -40,98 +40,186 @@ import { PhysXRigidBody } from './physx-rigid-body';
 import { PhysXShape } from './shapes/physx-shape';
 import { PhysXContactEquation } from './physx-contact-equation';
 import { CollisionEventObject, TriggerEventObject } from '../utils/util';
-import { getContactData, getImplPtr, getWrapShape, PX, USE_BYTEDANCE } from './export-physx';
+import { addActorToScene, getContactData, getImplPtr, getWrapShape, PX, USE_BYTEDANCE } from './export-physx';
 import { fastRemoveAt } from '../../core/utils/array';
+import { TupleDictionary } from '../utils/tuple-dictionary';
 
+interface ITriggerEventItem {
+    a: PhysXShape,
+    b: PhysXShape,
+    times: number,
+}
+
+interface ICollisionEventItem {
+    type: CollisionEventType,
+    a: PhysXShape,
+    b: PhysXShape,
+    contactCount: number,
+    buffer: any,
+    offset: number,
+}
+
+const triggerEventBeginDic = new TupleDictionary();
+const triggerEventEndDic = new TupleDictionary();
+const triggerEventsPool: ITriggerEventItem[] = [];
 function onTrigger (type: TriggerEventType, wpa: PhysXShape, wpb: PhysXShape): void {
     if (wpa && wpb) {
-        TriggerEventObject.type = type;
-        if (wpa.collider.needTriggerEvent) {
-            TriggerEventObject.selfCollider = wpa.collider;
-            TriggerEventObject.otherCollider = wpb.collider;
-            wpa.collider.emit(TriggerEventObject.type, TriggerEventObject);
+        if (wpa.collider.needTriggerEvent || wpb.collider.needTriggerEvent) {
+            let tE: ITriggerEventItem;
+            if (triggerEventsPool.length > 0) {
+                tE = triggerEventsPool.pop() as ITriggerEventItem;
+                tE.a = wpa; tE.b = wpb; tE.times = 0;
+            } else {
+                tE = { a: wpa, b: wpb, times: 0 };
+            }
+            if (type === 'onTriggerEnter') {
+                triggerEventBeginDic.set(wpa.id, wpb.id, tE);
+            } else {
+                triggerEventEndDic.set(wpa.id, wpb.id, tE);
+            }
         }
-        if (wpb.collider.needTriggerEvent) {
-            TriggerEventObject.selfCollider = wpb.collider;
-            TriggerEventObject.otherCollider = wpa.collider;
-            wpb.collider.emit(TriggerEventObject.type, TriggerEventObject);
+    }
+}
+
+function emitTriggerEvent () {
+    let len = triggerEventEndDic.getLength();
+    while (len--) {
+        const key = triggerEventEndDic.getKeyByIndex(len);
+        const data = triggerEventEndDic.getDataByKey<ITriggerEventItem>(key);
+        triggerEventsPool.push(data);
+        const dataBeg = triggerEventBeginDic.getDataByKey<ITriggerEventItem>(key);
+        if (dataBeg) {
+            triggerEventsPool.push(dataBeg);
+            triggerEventBeginDic.set(data.a.id, data.b.id, null);
+        }
+        const colliderA = data.a.collider;
+        const colliderB = data.b.collider;
+        if (colliderA && colliderB) {
+            const type: TriggerEventType = 'onTriggerExit';
+            TriggerEventObject.type = type;
+            if (colliderA.needTriggerEvent) {
+                TriggerEventObject.selfCollider = colliderA;
+                TriggerEventObject.otherCollider = colliderB;
+                colliderA.emit(type, TriggerEventObject);
+            }
+            if (colliderB.needTriggerEvent) {
+                TriggerEventObject.selfCollider = colliderB;
+                TriggerEventObject.otherCollider = colliderA;
+                colliderB.emit(type, TriggerEventObject);
+            }
+        }
+    }
+    triggerEventEndDic.reset();
+
+    len = triggerEventBeginDic.getLength();
+    while (len--) {
+        const key = triggerEventBeginDic.getKeyByIndex(len);
+        const data = triggerEventBeginDic.getDataByKey<ITriggerEventItem>(key);
+        const colliderA = data.a.collider;
+        const colliderB = data.b.collider;
+        if (!colliderA || !colliderA.isValid || !colliderB || !colliderB.isValid) {
+            triggerEventsPool.push(data);
+            triggerEventBeginDic.set(data.a.id, data.b.id, null);
+        } else {
+            const type: TriggerEventType = data.times++ ? 'onTriggerStay' : 'onTriggerEnter';
+            TriggerEventObject.type = type;
+            if (colliderA.needTriggerEvent) {
+                TriggerEventObject.selfCollider = colliderA;
+                TriggerEventObject.otherCollider = colliderB;
+                colliderA.emit(type, TriggerEventObject);
+            }
+            if (colliderB.needTriggerEvent) {
+                TriggerEventObject.selfCollider = colliderB;
+                TriggerEventObject.otherCollider = colliderA;
+                colliderB.emit(type, TriggerEventObject);
+            }
+        }
+    }
+}
+
+const contactEventDic = new TupleDictionary();
+const contactEventsPool: ICollisionEventItem[] = [];
+function onCollision (type: CollisionEventType, wpa: PhysXShape, wpb: PhysXShape, c: number, d: any, o: number): void {
+    if (wpa && wpb) {
+        if (wpa.collider.needCollisionEvent || wpb.collider.needCollisionEvent) {
+            if (contactEventsPool.length > 0) {
+                const cE = contactEventsPool.pop() as ICollisionEventItem;
+                cE.type = type; cE.a = wpa; cE.b = wpb; cE.contactCount = c; cE.buffer = d; cE.offset = o;
+                contactEventDic.set(wpa.id, wpb.id, cE);
+            } else {
+                const cE: ICollisionEventItem = { type, a: wpa, b: wpb, contactCount: c, buffer: d, offset: o };
+                contactEventDic.set(wpa.id, wpb.id, cE);
+            }
         }
     }
 }
 
 const contactsPool: [] = [];
-function onCollision (type: CollisionEventType, wpa: PhysXShape, wpb: PhysXShape, c: number, d: any): void {
-    if (wpa && wpb) {
-        if (wpa.collider.needCollisionEvent || wpb.collider.needCollisionEvent) {
-            CollisionEventObject.type = type;
-            CollisionEventObject.impl = d;
+function emitCollisionEvent (): void {
+    let len = contactEventDic.getLength();
+    while (len--) {
+        const key = contactEventDic.getKeyByIndex(len);
+        const data = contactEventDic.getDataByKey<ICollisionEventItem>(key);
+        contactEventsPool.push(data);
+        const colliderA = data.a.collider;
+        const colliderB = data.b.collider;
+        if (colliderA && colliderA.isValid && colliderB && colliderB.isValid) {
+            CollisionEventObject.type = data.type;
+            CollisionEventObject.impl = data.buffer;
+            const c = data.contactCount; const d = data.buffer; const o = data.offset;
             const contacts = CollisionEventObject.contacts;
             contactsPool.push.apply(contactsPool, contacts as any);
             contacts.length = 0;
             for (let i = 0; i < c; i++) {
                 if (contactsPool.length > 0) {
                     const c = contactsPool.pop() as unknown as PhysXContactEquation;
-                    c.colliderA = wpa.collider; c.colliderB = wpb.collider;
-                    c.impl = getContactData(d, i); contacts.push(c);
+                    c.colliderA = colliderA; c.colliderB = colliderB;
+                    c.impl = getContactData(d, i, o); contacts.push(c);
                 } else {
                     const c = new PhysXContactEquation(CollisionEventObject);
-                    c.colliderA = wpa.collider; c.colliderB = wpb.collider;
-                    c.impl = getContactData(d, i); contacts.push(c);
+                    c.colliderA = colliderA; c.colliderB = colliderB;
+                    c.impl = getContactData(d, i, o); contacts.push(c);
                 }
             }
-            if (wpa.collider.needCollisionEvent) {
-                CollisionEventObject.selfCollider = wpa.collider;
-                CollisionEventObject.otherCollider = wpb.collider;
-                wpa.collider.emit(CollisionEventObject.type, CollisionEventObject);
+            if (colliderA.needCollisionEvent) {
+                CollisionEventObject.selfCollider = colliderA;
+                CollisionEventObject.otherCollider = colliderB;
+                colliderA.emit(CollisionEventObject.type, CollisionEventObject);
             }
-            if (wpb.collider.needCollisionEvent) {
-                CollisionEventObject.selfCollider = wpb.collider;
-                CollisionEventObject.otherCollider = wpa.collider;
-                wpb.collider.emit(CollisionEventObject.type, CollisionEventObject);
+            if (colliderB.needCollisionEvent) {
+                CollisionEventObject.selfCollider = colliderB;
+                CollisionEventObject.otherCollider = colliderA;
+                colliderB.emit(CollisionEventObject.type, CollisionEventObject);
             }
         }
     }
+    contactEventDic.reset();
 }
 
-const persistShapes: string[] = [];
 const eventCallback = {
-    onContactBegin: (a: any, b: any, c: any, d: any): void => {
+    onContactBegin: (a: any, b: any, c: any, d: any, o: number): void => {
         const wpa = getWrapShape<PhysXShape>(a);
         const wpb = getWrapShape<PhysXShape>(b);
-        onCollision('onCollisionEnter', wpa, wpb, c, d);
+        onCollision('onCollisionEnter', wpa, wpb, c, d, o);
     },
-    onContactEnd: (a: any, b: any, c: any, d: any): void => {
+    onContactEnd: (a: any, b: any, c: any, d: any, o: number): void => {
         const wpa = getWrapShape<PhysXShape>(a);
         const wpb = getWrapShape<PhysXShape>(b);
-        onCollision('onCollisionExit', wpa, wpb, c, d);
+        onCollision('onCollisionExit', wpa, wpb, c, d, o);
     },
-    onContactPersist: (a: any, b: any, c: any, d: any): void => {
+    onContactPersist: (a: any, b: any, c: any, d: any, o: number): void => {
         const wpa = getWrapShape<PhysXShape>(a);
         const wpb = getWrapShape<PhysXShape>(b);
-        onCollision('onCollisionStay', wpa, wpb, c, d);
+        onCollision('onCollisionStay', wpa, wpb, c, d, o);
     },
     onTriggerBegin: (a: any, b: any): void => {
-        const pa = a.$$.ptr as number;
-        const pb = b.$$.ptr as number;
-        const key = `${pa}-${pb}`;
-        const i = persistShapes.indexOf(key);
-        if (i < 0) {
-            persistShapes.push(key);
-        }
-        const wpa = PX.IMPL_PTR[pa] as PhysXShape;
-        const wpb = PX.IMPL_PTR[pb] as PhysXShape;
+        const wpa = getWrapShape<PhysXShape>(a);
+        const wpb = getWrapShape<PhysXShape>(b);
         onTrigger('onTriggerEnter', wpa, wpb);
     },
     onTriggerEnd: (a: any, b: any): void => {
-        const pa = a.$$.ptr as number;
-        const pb = b.$$.ptr as number;
-        const key = `${pa}-${pb}`;
-        const i = persistShapes.indexOf(key);
-        if (i >= 0) {
-            persistShapes.splice(i, 1);
-        }
-        const wpa = PX.IMPL_PTR[pa] as PhysXShape;
-        const wpb = PX.IMPL_PTR[pb] as PhysXShape;
+        const wpa = getWrapShape<PhysXShape>(a);
+        const wpb = getWrapShape<PhysXShape>(b);
         onTrigger('onTriggerExit', wpa, wpb);
     },
     // onTriggerPersist: (...a: any) => { console.log('onTriggerPersist', a); },
@@ -212,31 +300,28 @@ export class PhysXWorld implements IPhysicsWorld {
                     const contactCount = ui16View[2];
                     const contactBuffer = _header.contactBuffer as ArrayBuffer;
                     if (events & 4) {
-                        onCollision('onCollisionEnter', shapeA, shapeB, contactCount, contactBuffer);
+                        onCollision('onCollisionEnter', shapeA, shapeB, contactCount, contactBuffer, 0);
                     } else if (events & 8) {
-                        onCollision('onCollisionStay', shapeA, shapeB, contactCount, contactBuffer);
+                        onCollision('onCollisionStay', shapeA, shapeB, contactCount, contactBuffer, 0);
                     } else if (events & 16) {
-                        onCollision('onCollisionExit', shapeA, shapeB, contactCount, contactBuffer);
+                        onCollision('onCollisionExit', shapeA, shapeB, contactCount, contactBuffer, 0);
                     }
                 }
             });
-            simulation.setOnTrigger((pairs: any) => {
-                for (let i = 0; i < pairs.length; i++) {
-                    const cp = pairs[i];
-                    if (cp.getFlags() & 3) continue;
-                    const events = cp.getStatus();
-                    const ca = cp.getTriggerShape();
-                    const cb = cp.getOtherShape();
+            simulation.setOnTrigger((pairs: any, pairsBuf: ArrayBuffer) => {
+                const length = pairs.length / 4;
+                const ui16View = new Uint16Array(pairsBuf);
+                for (let i = 0; i < length; i++) {
+                    const flags = ui16View[i];
+                    if (flags & 3) continue;
+                    const events = ui16View[i + 1];
+                    const ca = pairs[i * 4 + 1];
+                    const cb = pairs[i * 4 + 3];
                     const shapeA = getWrapShape<PhysXShape>(ca);
                     const shapeB = getWrapShape<PhysXShape>(cb);
-                    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-                    const key = `${getImplPtr(ca)}-${getImplPtr(cb)}`;
-                    const _i = persistShapes.indexOf(key);
                     if (events & 4) {
-                        if (_i < 0) persistShapes.push(key);
                         onTrigger('onTriggerEnter', shapeA, shapeB);
                     } else if (events & 16) {
-                        if (_i >= 0) persistShapes.splice(_i, 1);
                         onTrigger('onTriggerExit', shapeA, shapeB);
                     }
                 }
@@ -314,11 +399,7 @@ export class PhysXWorld implements IPhysicsWorld {
     addActor (body: PhysXSharedBody): void {
         const index = this.wrappedBodies.indexOf(body);
         if (index < 0) {
-            if (USE_BYTEDANCE) {
-                this.scene.addActor(body.impl);
-            } else {
-                this.scene.addActor(body.impl, null);
-            }
+            addActorToScene(this.scene, body.impl);
             this.wrappedBodies.push(body);
         }
     }
@@ -335,7 +416,7 @@ export class PhysXWorld implements IPhysicsWorld {
 
     removeConstraint (_constraint: IBaseConstraint): void { }
 
-    raycast (worldRay: ray, options: IRaycastOptions, pool: RecyclePool<PhysicsRayResult>, results: PhysicsRayResult[]): boolean {
+    raycast (worldRay: Ray, options: IRaycastOptions, pool: RecyclePool<PhysicsRayResult>, results: PhysicsRayResult[]): boolean {
         const maxDistance = options.maxDistance;
         const flags = (1 << 0) | (1 << 1) | (1 << 10);
         const word3 = 1 | (options.queryTrigger ? 0 : 2);
@@ -381,7 +462,7 @@ export class PhysXWorld implements IPhysicsWorld {
         return false;
     }
 
-    raycastClosest (worldRay: ray, options: IRaycastOptions, result: PhysicsRayResult): boolean {
+    raycastClosest (worldRay: Ray, options: IRaycastOptions, result: PhysicsRayResult): boolean {
         const maxDistance = options.maxDistance;
         const flags = (1 << 0) | (1 << 1); // | (1 << 10);
         const word3 = 1 | (options.queryTrigger ? 0 : 2) | 4;
@@ -413,18 +494,7 @@ export class PhysXWorld implements IPhysicsWorld {
     }
 
     emitEvents (): void {
-        let len = persistShapes.length;
-        for (let idx = 0; idx < len; idx++) {
-            const key = persistShapes[idx];
-            const ptr = key.split('-');
-            const wpa = PX.IMPL_PTR[ptr[0]];
-            const wpb = PX.IMPL_PTR[ptr[1]];
-            if (!wpa || !wpb) {
-                persistShapes.splice(idx, 1);
-                len--; idx--;
-            } else {
-                onTrigger('onTriggerStay', wpa, wpb);
-            }
-        }
+        emitTriggerEvent();
+        emitCollisionEvent();
     }
 }

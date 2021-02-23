@@ -79,7 +79,7 @@ let _buffer: SkeletonMeshData | undefined;
 let _node: Node | undefined;
 let _needColor: boolean;
 let _vertexEffect: spine.VertexEffect | null = null;
-let _currentMaterial: Material | MaterialInstance | null = null;
+let _currentMaterial: MaterialInstance | null = null;
 let _currentTexture: Texture2D | null = null;
 
 function _getSlotMaterial (blendMode: spine.BlendMode) {
@@ -104,7 +104,7 @@ function _getSlotMaterial (blendMode: spine.BlendMode) {
         dst = BlendFactor.ONE_MINUS_SRC_ALPHA;
         break;
     }
-
+    _comp!.setBlendHash();
     return _comp!.getMaterialForBlendAndTint(src, dst, _useTint ? SpineMaterialType.TWO_COLORED : SpineMaterialType.COLORED_TEXTURED);
 }
 
@@ -241,7 +241,7 @@ function updateComponentRenderData (comp: Skeleton, ui: Batcher2D) {
     _buffer = comp.requestMeshRenderData(_perVertexSize);
     _comp = comp;
 
-    _currentMaterial = _comp.getBuiltinMaterial(_useTint ? SpineMaterialType.TWO_COLORED : SpineMaterialType.COLORED_TEXTURED);
+    _currentMaterial = null;
 
     _mustFlush = true;
     _premultipliedAlpha = comp.premultipliedAlpha;
@@ -427,7 +427,7 @@ function realTimeTraverse (worldMat?: Mat4) {
     const skeletonColor = locSkeleton.color;
     const graphics = _comp!._debugRenderer!;
     const clipper = _comp!._clipper!;
-    let material: Material | MaterialInstance | null = null;
+    let material: MaterialInstance | null = null;
     let attachment: spine.Attachment;
     let uvs: spine.ArrayLike<number>;
     let triangles: number[];
@@ -673,7 +673,7 @@ function cacheTraverse (worldMat?: Mat4) {
 
     let vbuf: Float32Array;
     let ibuf: Uint16Array;
-    let material: Material | MaterialInstance | null = null;
+    let material: MaterialInstance | null = null;
     const vertices = frame.vertices;
     const indices = frame.indices;
 

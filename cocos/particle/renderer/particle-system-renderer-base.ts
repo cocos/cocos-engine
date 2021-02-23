@@ -114,6 +114,10 @@ export abstract class ParticleSystemRendererBase implements IParticleSystemRende
         }
     }
 
+    public clear () {
+        if (this._model) this._model.enabled = false;
+    }
+
     protected _initModel () {
         if (!this._model) {
             this._model = legacyCC.director.root.createModel(ParticleBatchModel);
@@ -130,7 +134,6 @@ export abstract class ParticleSystemRendererBase implements IParticleSystemRende
     public abstract onRebuildPSO (index: number, material: Material) : void;
     public abstract updateRenderMode () : void;
     public abstract updateMaterialParams () : void;
-    public abstract clear () : void;
     public abstract setNewParticle (p: Particle): void;
     public abstract updateParticles (dt: number): number;
     public abstract updateRenderData (): void;

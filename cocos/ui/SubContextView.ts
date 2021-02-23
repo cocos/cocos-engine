@@ -68,7 +68,7 @@ import { legacyCC } from '../core/global-exports';
 @help('i18n:cc.SubContextView')
 @executionOrder(110)
 @requireComponent(UITransform)
-@menu('Components/SubContextView')
+@menu('Miscellaneous/SubContextView')
 export class SubContextView extends Component {
     @tooltip('子域的设计分辨率，禁止在运行时动态更新')
     get designResolutionSize () {

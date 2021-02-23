@@ -48,7 +48,7 @@ import type { WebViewImpl  } from './web-view-impl';
  */
 @ccclass('cc.WebView')
 @help('i18n:cc.WebView')
-@menu('Components/WebView')
+@menu('Miscellaneous/WebView')
 @requireComponent(UITransform)
 @executeInEditMode
 export class WebView extends Component {
