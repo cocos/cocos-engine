@@ -26,11 +26,10 @@ CCEffect %{
 CCProgram unlit-fs %{
   precision highp float;
   #include <output>
-  #include <cc-fog>
+  #include <cc-fog-fs>
 
   in vec2 v_uv;
   uniform sampler2D mainTexture;
-  in float factor_fog;
 
   uniform Constant {
     vec4 mainColor;
@@ -38,7 +37,7 @@ CCProgram unlit-fs %{
 
   vec4 frag () {
     vec4 col = mainColor * texture(mainTexture, v_uv);
-    col = CC_APPLY_FOG(col, factor_fog);
+    CC_APPLY_FOG(col);
     return CCFragOutput(col);
   }
 }%
