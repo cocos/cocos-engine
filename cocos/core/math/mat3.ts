@@ -341,7 +341,11 @@ export class Mat3 extends ValueType {
         }
 
         up = up || Vec3.UNIT_Y;
-        Vec3.normalize(v3_1, Vec3.cross(v3_1, up, view));
+
+        // get unit axis
+        Vec3.unitAxis(v3_view, view);
+
+        Vec3.normalize(v3_1, Vec3.cross(v3_1, up, v3_view));
 
         if (Vec3.lengthSqr(v3_1) < EPSILON * EPSILON) {
             Mat3.identity(out);
@@ -1049,6 +1053,7 @@ export class Mat3 extends ValueType {
 
 const v3_1 = new Vec3();
 const v3_2 = new Vec3();
+const v3_view = new Vec3();
 
 CCClass.fastDefine('cc.Mat3', Mat3, {
     m00: 1,

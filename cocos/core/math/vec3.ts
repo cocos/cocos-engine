@@ -35,6 +35,7 @@ import { Mat4 } from './mat4';
 import { IMat3Like, IMat4Like, IQuatLike, IVec3Like } from './type-define';
 import { clamp, EPSILON, random } from './utils';
 import { legacyCC } from '../global-exports';
+import { abs } from './bits';
 
 /**
  * @en Representation of 3D vectors and points.
@@ -265,6 +266,50 @@ export class Vec3 extends ValueType {
         out.x = -a.x;
         out.y = -a.y;
         out.z = -a.z;
+        return out;
+    }
+
+    /**
+     * @en Sets each element to unit axis
+     * @zh 获取向量的元方向轴
+     */
+    public static unitAxis<Out extends IVec3Like> (out: Out, axis: IVec3Like) {
+        if (abs(axis.x) - abs(axis.y) > 0.0 || abs(axis.x) - abs(axis.z) > 0.0) {
+            if (abs(axis.x) < 0.9999) {
+                out.x = 1.0;
+                out.y = 0.0;
+                out.z = 0.0;
+            } else {
+                out.x = 0.0;
+                out.y = 1.0;
+                out.z = 0.0;
+            }
+        } else if (abs(axis.y) - abs(axis.x) > 0.0 || abs(axis.y) - abs(axis.z) > 0.0) {
+            if (abs(axis.y) < 0.9999) {
+                out.x = 0.0;
+                out.y = 1.0;
+                out.z = 0.0;
+            } else {
+                out.x = 1.0;
+                out.y = 0.0;
+                out.z = 0.0;
+            }
+        } else if (abs(axis.z) - abs(axis.x) > 0.0 || abs(axis.z) - abs(axis.y) > 0.0) {
+            if (abs(axis.z) < 0.9999) {
+                out.x = 0.0;
+                out.y = 0.0;
+                out.z = 1.0;
+            } else {
+                out.x = 1.0;
+                out.y = 0.0;
+                out.z = 0.0;
+            }
+        } else {
+            out.x = axis.x;
+            out.y = axis.y;
+            out.z = axis.z;
+        }
+
         return out;
     }
 
