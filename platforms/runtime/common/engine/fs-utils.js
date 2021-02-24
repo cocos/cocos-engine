@@ -29,6 +29,8 @@ var fsUtils = {
 
     fs,
 
+    _subpackagesPath: 'usr_',
+
     isOutOfStorage (errMsg) {
         return outOfStorageRegExp.test(errMsg);
     },
@@ -235,7 +237,7 @@ var fsUtils = {
 
     loadSubpackage (name, onProgress, onComplete) {
         var task = jsb.loadSubpackage({
-            name: name,
+            name: `${fsUtils._subpackagesPath}${name}`,
             success: function () {
                 onComplete && onComplete();
             },
