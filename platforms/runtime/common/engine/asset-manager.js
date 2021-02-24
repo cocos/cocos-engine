@@ -1,5 +1,5 @@
 const cacheManager = require('./cache-manager');
-const { downloadFile, readText, readArrayBuffer, readJson, loadSubpackage, getUserDataPath, _subpackagesPath } = jsb.fsUtils;
+const { downloadFile, readText, readArrayBuffer, readJson, loadSubpackage, getUserDataPath, _subpackagesPath } = require('./fs-utils');
 cc.assetManager.fsUtils = jsb.fsUtils;
 
 const REGEX = /^https?:\/\/.*/;

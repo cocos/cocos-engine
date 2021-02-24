@@ -1,6 +1,8 @@
 /****************************************************************************
  Copyright (c) 2017-2019 Xiamen Yaji Software Co., Ltd.
+
  https://www.cocos.com/
+
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of fsUtils software and associated engine source code (the "Software"), a limited,
   worldwide, royalty-free, non-assignable, revocable and non-exclusive license
@@ -8,8 +10,10 @@
   not use Cocos Creator software for developing other software or tools that's
   used for developing games. You are not granted to publish, distribute,
   sublicense, and/or sell copies of Cocos Creator.
+
  The software or tools in fsUtils License Agreement are licensed, not sold.
  Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -18,9 +22,8 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-window.jsb = window.jsb || {};
-var fs = wuji.getFileSystemManager ? wuji.getFileSystemManager() : null;
-var outOfStorageRegExp = /the maximum size of the file storage/;  // not exactly right
+var fs = jsb.getFileSystemManager ? jsb.getFileSystemManager() : null;
+var outOfStorageRegExp = /the maximum size of the file storage/;
 
 var fsUtils = {
 
@@ -30,13 +33,11 @@ var fsUtils = {
         return outOfStorageRegExp.test(errMsg);
     },
 
-    _subpackagesPath: '',
-
-    getUserDataPath() {
+    getUserDataPath () {
         return jsb.env.USER_DATA_PATH;
     },
 
-    checkFsValid() {
+    checkFsValid () {
         if (!fs) {
             console.warn('can not get the file system!');
             return false;
@@ -44,7 +45,7 @@ var fsUtils = {
         return true;
     },
 
-    deleteFile(filePath, onComplete) {
+    deleteFile (filePath, onComplete) {
         fs.unlink({
             filePath: filePath,
             success: function () {
@@ -57,41 +58,34 @@ var fsUtils = {
         });
     },
 
-    downloadFile(remoteUrl, filePath, header, onProgress, onComplete) {
+    downloadFile (remoteUrl, filePath, header, onProgress, onComplete) {
         var options = {
             url: remoteUrl,
             success: function (res) {
                 if (res.statusCode === 200) {
-                    if (!filePath) {
-                        onComplete && onComplete(null, res.tempFilePath);
-                    }
-                    else {
-                        fsUtils.copyFile(res.tempFilePath, filePath, function (err) {
-                            if (err) {
-                                onComplete && onComplete(err);
-                            } else {
-                                onComplete && onComplete(null, filePath);
-                            }
-                        });
-                    }
+                    onComplete && onComplete(null, res.tempFilePath || res.filePath);
                 }
                 else {
+                    if (res.filePath) {
+                        fsUtils.deleteFile(res.filePath);
+                    }
                     console.warn(`Download file failed: path: ${remoteUrl} message: ${res.statusCode}`);
                     onComplete && onComplete(new Error(res.statusCode), null);
                 }
             },
-            fail: function (data, code) {
-                console.warn(`Download file failed: path: ${remoteUrl} code: ${code}`);
-                onComplete && onComplete(new Error(`Download file failed: path: ${remoteUrl} , code: ${code}`), null);
+            fail: function (res) {
+                console.warn(`Download file failed: path: ${remoteUrl} message: ${res.errMsg}`);
+                onComplete && onComplete(new Error(res.errMsg), null);
             }
         }
+        if (filePath) options.filePath = filePath;
         if (header) options.header = header;
         var task = jsb.downloadFile(options);
         onProgress && task.onProgressUpdate(onProgress);
     },
 
-    saveFile(srcPath, destPath, onComplete) {
-        fs.saveFile({
+    saveFile (srcPath, destPath, onComplete) {
+        jsb.saveFile({
             tempFilePath: srcPath,
             filePath: destPath,
             success: function (res) {
@@ -104,7 +98,7 @@ var fsUtils = {
         });
     },
 
-    copyFile(srcPath, destPath, onComplete) {
+    copyFile (srcPath, destPath, onComplete) {
         fs.copyFile({
             srcPath: srcPath,
             destPath: destPath,
@@ -118,7 +112,7 @@ var fsUtils = {
         });
     },
 
-    writeFile(path, data, encoding, onComplete) {
+    writeFile (path, data, encoding, onComplete) {
         fs.writeFile({
             filePath: path,
             encoding: encoding,
@@ -133,19 +127,18 @@ var fsUtils = {
         });
     },
 
-    writeFileSync(path, data, encoding) {
+    writeFileSync (path, data, encoding) {
         try {
             fs.writeFileSync(path, data, encoding);
             return null;
         }
         catch (e) {
-            // NOTE: throw an undefined error
-            console.warn(`Write file failed: path: ${path}`, e);
-            return new Error(e);
+            console.warn(`Write file failed: path: ${path} message: ${e.message}`);
+            return new Error(e.message);
         }
     },
 
-    readFile(filePath, encoding, onComplete) {
+    readFile (filePath, encoding, onComplete) {
         fs.readFile({
             filePath: filePath,
             encoding: encoding,
@@ -154,12 +147,12 @@ var fsUtils = {
             },
             fail: function (res) {
                 console.warn(`Read file failed: path: ${filePath} message: ${res.errMsg}`);
-                onComplete && onComplete(new Error(res.errMsg));
+                onComplete && onComplete (new Error(res.errMsg), null);
             }
         });
     },
 
-    readDir(filePath, onComplete) {
+    readDir (filePath, onComplete) {
         fs.readdir({
             dirPath: filePath,
             success: function (res) {
@@ -172,26 +165,15 @@ var fsUtils = {
         });
     },
 
-    readText(filePath, onComplete) {
+    readText (filePath, onComplete) {
         fsUtils.readFile(filePath, 'utf8', onComplete);
     },
 
-    readArrayBuffer(filePath, onComplete) {
-        fsUtils.readFile(filePath, 'binary', onComplete);
+    readArrayBuffer (filePath, onComplete) {
+        fsUtils.readFile(filePath, '', onComplete);
     },
 
-    readArrayBufferSync(path) {
-        try {
-            var buffer = fs.readFileSync(path, 'binary');
-            return buffer;
-        }
-        catch (e) {
-            console.warn(`Read json failed: path: ${path} message: ${e.message}`);
-            return new Error(e);
-        }
-    },
-
-    readJson(filePath, onComplete) {
+    readJson (filePath, onComplete) {
         fsUtils.readFile(filePath, 'utf8', function (err, text) {
             var out = null;
             if (!err) {
@@ -207,39 +189,39 @@ var fsUtils = {
         });
     },
 
-    readJsonSync(path) {
+    readJsonSync (path) {
         try {
             var str = fs.readFileSync(path, 'utf8');
             return JSON.parse(str);
         }
         catch (e) {
             console.warn(`Read json failed: path: ${path} message: ${e.message}`);
-            return new Error(e);
+            return new Error(e.message);
         }
     },
 
-    makeDirSync(path, recursive) {
+    makeDirSync (path, recursive) {
         try {
             fs.mkdirSync(path, recursive);
             return null;
         }
         catch (e) {
             console.warn(`Make directory failed: path: ${path} message: ${e.message}`);
-            return new Error(e);
+            return new Error(e.message);
         }
     },
 
-    rmdirSync(dirPath, recursive) {
+    rmdirSync (dirPath, recursive) {
         try {
             fs.rmdirSync(dirPath, recursive);
         }
         catch (e) {
             console.warn(`rm directory failed: path: ${dirPath} message: ${e.message}`);
-            return new Error(e);
+            return new Error(e.message);
         }
     },
 
-    exists(filePath, onComplete) {
+    exists (filePath, onComplete) {
         fs.access({
             path: filePath,
             success: function () {
@@ -251,27 +233,29 @@ var fsUtils = {
         });
     },
 
-    existsSync(filePath) {
-        try {
-            fs.accessSync(filePath);
-            return true;
-        } catch (error) {
-            return false;
-        }
+    loadSubpackage (name, onProgress, onComplete) {
+        var task = jsb.loadSubpackage({
+            name: name,
+            success: function () {
+                onComplete && onComplete();
+            },
+            fail: function (res) {
+                console.warn(`Load Subpackage failed: path: ${name} message: ${res.errMsg}`);
+                onComplete && onComplete(new Error(`Failed to load subpackage ${name}: ${res.errMsg}`));
+            }
+        });
+        onProgress && task.onProgressUpdate(onProgress);
+        return task;
     },
 
-    loadSubpackage(name, onProgress, onComplete) {
-        throw new Error('Not Implemented');
-    },
-    
-    unzip(zipFilePath, targetPath, onComplete) {
+    unzip (zipFilePath, targetPath, onComplete) {
         fs.unzip({
             zipFilePath,
             targetPath,
-            success() {
+            success () {
                 onComplete && onComplete(null);
             },
-            fail(res) {
+            fail (res) {
                 console.warn(`unzip failed: path: ${zipFilePath} message: ${res.errMsg}`);
                 onComplete && onComplete(new Error('unzip failed: ' + res.errMsg));
             },
@@ -279,4 +263,4 @@ var fsUtils = {
     },
 };
 
-jsb.fsUtils = window.fsUtils = module.exports = fsUtils;
+window.fsUtils = module.exports = fsUtils;
