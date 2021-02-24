@@ -22,15 +22,15 @@ float GGXMobile (float roughness, float NoH, vec3 H, vec3 N) {
 }
 
 float CalcSpecular (float roughness, float NoH, vec3 H, vec3 N) {
-  return (roughness*0.25 + 0.25) * GGXMobile(roughness, NoH, H, N);
+  return (roughness * 0.25 + 0.25) * GGXMobile(roughness, NoH, H, N);
 }
 
 vec3 BRDFApprox (vec3 specular, float roughness, float NoV) {
   const vec4 c0 = vec4(-1.0, -0.0275, -0.572, 0.022);
   const vec4 c1 = vec4(1.0, 0.0425, 1.04, -0.04);
   vec4 r = roughness * c0 + c1;
-  float a004 = min( r.x * r.x, exp2( -9.28 * NoV ) ) * r.x + r.y;
-  vec2 AB = vec2( -1.04, 1.04 ) * a004 + r.zw;
+  float a004 = min(r.x * r.x, exp2(-9.28 * NoV)) * r.x + r.y;
+  vec2 AB = vec2(-1.04, 1.04) * a004 + r.zw;
   AB.y *= clamp(50.0 * specular.g, 0.0, 1.0);
   return specular * AB.x + AB.y;
 }
@@ -63,7 +63,7 @@ vec4 CCStandardShadingBase (StandardSurface s, vec4 shadowPos) {
   specular = BRDFApprox(specular, s.roughness, NV);
 
   vec3 L = normalize(-cc_mainLitDir.xyz);
-  vec3 H = normalize(L+V);
+  vec3 H = normalize(L + V);
   float NH = max(dot(N, H), 0.0);
   float NL = max(dot(N, L), 0.001);
   vec3 finalColor = NL * cc_mainLitColor.rgb * cc_mainLitColor.w;
