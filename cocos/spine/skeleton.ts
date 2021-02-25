@@ -1235,7 +1235,7 @@ export class Skeleton extends Renderable2D {
      * @param {sp.spine.TrackEntry} entry
      * @param {function} listener
      */
-    public setTrackEventListener (entry: spine.TrackEntry, listener: TrackListener) {
+    public setTrackEventListener (entry: spine.TrackEntry, listener: TrackListener|TrackListener2) {
         TrackEntryListeners.getListeners(entry).event = listener;
     }
 
