@@ -29,6 +29,11 @@
  THE SOFTWARE.
  */
 
+/**
+ * @packageDocumentation
+ * @module particle2d
+ */
+
 import { getError, logID } from '../core/platform/debug';
 
 interface IFile {
@@ -90,7 +95,6 @@ export class TiffReader {
         // Check for towel.
         if (this.getUint16(2) !== 42) {
             throw RangeError(getError(6020));
-            return false;
         }
 
         return true;
@@ -570,7 +574,6 @@ export class TiffReader {
                             // Unknown Photometric Interpretation
                         default:
                             throw RangeError(getError(6028, photometricInterpretation));
-                            break;
                         }
 
                         ctx.fillStyle = `rgba(${red}, ${green}, ${blue}, ${opacity})`;

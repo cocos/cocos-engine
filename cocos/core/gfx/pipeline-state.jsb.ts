@@ -23,6 +23,11 @@
  THE SOFTWARE.
  */
 
+/**
+ * @packageDocumentation
+ * @module gfx
+ */
+
 declare const gfx: any;
 
 declare type RecursivePartial<T> = {

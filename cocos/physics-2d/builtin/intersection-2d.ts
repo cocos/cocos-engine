@@ -23,6 +23,11 @@
  THE SOFTWARE.
  */
 
+/**
+ * @packageDocumentation
+ * @hidden
+ */
+
 import { Vec2, Rect } from '../../core';
 
 /**

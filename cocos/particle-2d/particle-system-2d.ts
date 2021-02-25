@@ -25,7 +25,8 @@
  */
 
 /**
- * @category particle2d
+ * @packageDocumentation
+ * @module particle2d
  */
 
 import { ccclass, editable, type, menu, executeInEditMode, serializable, playOnFocus, tooltip } from 'cc.decorator';
