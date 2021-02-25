@@ -1042,7 +1042,7 @@ export const sys: Record<string, any> = {
             }
         }());
         // HACK: this private property only needed on web
-        sys.__isWebIOS14OrIPadOS14Env = (sys.os === sys.OS_IOS || sys.os === sys.MACOS) && sys.isBrowser
+        sys.__isWebIOS14OrIPadOS14Env = (sys.os === sys.OS_IOS || sys.os === sys.OS_OSX) && sys.isBrowser
             && /(OS 1[4-9])|(Version\/1[4-9])/.test(window.navigator.userAgent);
     },
 };
