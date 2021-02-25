@@ -270,6 +270,11 @@ export class LightingStage extends RenderStage {
 
         const cmdBuff = pipeline.commandBuffers[0];
 
+        const renderObjects = pipeline.pipelineSceneData.renderObjects;
+        if (renderObjects.length === 0) {
+            return;
+        }
+
         // light信息
         this.gatherLights(camera);
         this._descriptorSet.update();
@@ -341,7 +346,6 @@ export class LightingStage extends RenderStage {
         // Transparent
         this._renderQueues.forEach(this.renderQueueClearFunc);
 
-        const renderObjects = pipeline.pipelineSceneData.renderObjects;
         let m = 0; let p = 0; let k = 0;
         for (let i = 0; i < renderObjects.length; ++i) {
             const ro = renderObjects[i];
