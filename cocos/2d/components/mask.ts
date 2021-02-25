@@ -32,7 +32,7 @@
 import { ccclass, help, executionOrder, menu, tooltip, displayOrder, type, visible, override, serializable, range, slide } from 'cc.decorator';
 import { InstanceMaterialType, Renderable2D } from '../framework/renderable-2d';
 import { clamp, Color, Mat4, Vec2, Vec3 } from '../../core/math';
-import { warnID } from '../../core/platform';
+import { SystemEventType, warnID } from '../../core/platform';
 import { Batcher2D } from '../renderer/batcher-2d';
 import { ccenum } from '../../core/value-types/enum';
 import { Graphics } from './graphics';
@@ -373,6 +373,8 @@ export class Mask extends Renderable2D {
         super.onEnable();
         this._updateGraphics();
         this._broadcastToNode(this.node);
+        this.node.on(SystemEventType.CHILD_ADDED, this._addChild, this);
+        this.node.on(SystemEventType.CHILD_REMOVED, this._removeChild, this);
     }
 
     /**
@@ -387,6 +389,8 @@ export class Mask extends Renderable2D {
     public onDisable () {
         super.onDisable();
         this._disableGraphics();
+        this.node.off(SystemEventType.CHILD_ADDED, this._addChild, this);
+        this.node.off(SystemEventType.CHILD_REMOVED, this._removeChild, this);
     }
 
     public onDestroy () {
@@ -616,6 +620,17 @@ export class Mask extends Renderable2D {
         for (let i = 0, len = children.length; i < len; i++) {
             this._broadcastToNode(children[i]);
         }
+    }
+
+    // add node.eventProcessor.listener.mask when add to mask
+    protected _addChild (child) {
+        this._broadcastToNode(child);
+        child.walk(() => { child.eventProcessor.reattach(); });
+    }
+
+    // clean node.eventProcessor.listener.mask when remove from mask
+    protected _removeChild (node) {
+        node.walk(() => { node.eventProcessor.registerComponentHitList(null); node.eventProcessor.reattach(); });
     }
 }
 

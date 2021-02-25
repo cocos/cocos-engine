@@ -360,7 +360,6 @@ export class NodeEventProcessor {
     }
 
     public reattach (): void {
-        if (!this._comp) return;
         if (this.touchListener) {
             const mask = this.touchListener.mask = _searchComponentsInParent(this._node as Node, this._comp);
             if (this.mouseListener) {
