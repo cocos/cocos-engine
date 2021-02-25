@@ -370,7 +370,7 @@ class CpuComputingRenderingInstance implements SubMeshMorphRenderingInstance {
                         valueView[4 * iVertex + 1] = targetDisplacements[3 * iVertex + 1] * weight;
                         valueView[4 * iVertex + 2] = targetDisplacements[3 * iVertex + 2] * weight;
                     }
-                } else {
+                } else if (weight !== 0.0) {
                     for (let iVertex = 0; iVertex < nVertices; ++iVertex) {
                         valueView[4 * iVertex + 0] += targetDisplacements[3 * iVertex + 0] * weight;
                         valueView[4 * iVertex + 1] += targetDisplacements[3 * iVertex + 1] * weight;
