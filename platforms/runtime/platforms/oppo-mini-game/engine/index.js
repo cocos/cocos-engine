@@ -1,4 +1,4 @@
 require('../../../common/engine/index');
-require('./accelerometer');
+require('./orientation');
 require('./sys');
 require('./VideoPlayer');
