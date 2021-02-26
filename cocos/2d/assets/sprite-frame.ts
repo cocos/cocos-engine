@@ -518,7 +518,7 @@ export class SpriteFrame extends Asset {
     protected _capInsets = [0, 0, 0, 0];
 
     protected _atlasUuid = '';
-    // @ts-expect-error
+    // @ts-expect-error not set value at there
     protected _texture: TextureBase | RenderTexture;
 
     protected _isFlipUVY = false;
@@ -1179,6 +1179,7 @@ export class SpriteFrame extends Asset {
             // 为 underfined 的数据则不在序列化文件里显示
             return serialize;
         }
+        return null;
     }
 
     public _deserialize (serializeData: any, handle: any) {
