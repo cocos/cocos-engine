@@ -811,11 +811,11 @@ export class SpriteFrame extends Asset {
         const uvSliced = this.uvSliced;
         uvSliced.length = 0;
         if (this._rotated) {
-            temp_uvs[0].u = (rect.x) / atlasWidth;
+            temp_uvs[0].u = rect.x / atlasWidth;
             temp_uvs[1].u = (rect.x + bottomHeight) / atlasWidth;
             temp_uvs[2].u = (rect.x + bottomHeight + centerHeight) / atlasWidth;
             temp_uvs[3].u = (rect.x + rect.height) / atlasWidth;
-            temp_uvs[3].v = (rect.y) / atlasHeight;
+            temp_uvs[3].v = rect.y / atlasHeight;
             temp_uvs[2].v = (rect.y + leftWidth) / atlasHeight;
             temp_uvs[1].v = (rect.y + leftWidth + centerWidth) / atlasHeight;
             temp_uvs[0].v = (rect.y + rect.width) / atlasHeight;
@@ -831,11 +831,11 @@ export class SpriteFrame extends Asset {
                 }
             }
         } else {
-            temp_uvs[0].u = (rect.x) / atlasWidth;
+            temp_uvs[0].u = rect.x / atlasWidth;
             temp_uvs[1].u = (rect.x + leftWidth) / atlasWidth;
             temp_uvs[2].u = (rect.x + leftWidth + centerWidth) / atlasWidth;
             temp_uvs[3].u = (rect.x + rect.width) / atlasWidth;
-            temp_uvs[3].v = (rect.y) / atlasHeight;
+            temp_uvs[3].v = rect.y / atlasHeight;
             temp_uvs[2].v = (rect.y + topHeight) / atlasHeight;
             temp_uvs[1].v = (rect.y + topHeight + centerHeight) / atlasHeight;
             temp_uvs[0].v = (rect.y + rect.height) / atlasHeight;
@@ -863,9 +863,9 @@ export class SpriteFrame extends Asset {
         const texh = tex.height;
 
         if (this._rotated) {
-            const l = texw === 0 ? 0 : (rect.x) / texw;
+            const l = texw === 0 ? 0 : rect.x / texw;
             const r = texw === 0 ? 0 : (rect.x + rect.height) / texw;
-            const t = texh === 0 ? 0 : (rect.y) / texh;
+            const t = texh === 0 ? 0 : rect.y / texh;
             const b = texh === 0 ? 0 : (rect.y + rect.width) / texh;
 
             if (this._isFlipUVX && this._isFlipUVY) {
@@ -926,9 +926,9 @@ export class SpriteFrame extends Asset {
                 uv[7] = b;
             }
 
-            const ul = texw === 0 ? 0 : (rect.x) / texw;
+            const ul = texw === 0 ? 0 : rect.x / texw;
             const ur = texw === 0 ? 0 : (rect.x + rect.height) / texw;
-            const ut = texh === 0 ? 0 : (rect.y) / texh;
+            const ut = texh === 0 ? 0 : rect.y / texh;
             const ub = texh === 0 ? 0 : (rect.y + rect.width) / texh;
             if (this._isFlipUVX && this._isFlipUVY) {
                 unbiasUV[0] = ur;
@@ -968,10 +968,10 @@ export class SpriteFrame extends Asset {
                 unbiasUV[7] = ub;
             }
         } else {
-            const l = texw === 0 ? 0 : (rect.x) / texw;
+            const l = texw === 0 ? 0 : rect.x / texw;
             const r = texw === 0 ? 0 : (rect.x + rect.width) / texw;
             const b = texh === 0 ? 0 : (rect.y + rect.height) / texh;
-            const t = texh === 0 ? 0 : (rect.y) / texh;
+            const t = texh === 0 ? 0 : rect.y / texh;
             if (this._isFlipUVX && this._isFlipUVY) {
                 /*
                 1 - 0
@@ -1029,10 +1029,10 @@ export class SpriteFrame extends Asset {
                 uv[6] = r;
                 uv[7] = t;
             }
-            const ul = texw === 0 ? 0 : (rect.x) / texw;
+            const ul = texw === 0 ? 0 : rect.x / texw;
             const ur = texw === 0 ? 0 : (rect.x + rect.width) / texw;
             const ub = texh === 0 ? 0 : (rect.y + rect.height) / texh;
-            const ut = texh === 0 ? 0 : (rect.y) / texh;
+            const ut = texh === 0 ? 0 : rect.y / texh;
             if (this._isFlipUVX && this._isFlipUVY) {
                 unbiasUV[0] = ur;
                 unbiasUV[1] = ut;
