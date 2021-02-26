@@ -25,7 +25,6 @@ THE SOFTWARE.
 
 #include "GLES2Buffer.h"
 #include "GLES2CommandBuffer.h"
-#include "GLES2PrimaryCommandBuffer.h"
 #include "GLES2Context.h"
 #include "GLES2DescriptorSet.h"
 #include "GLES2DescriptorSetLayout.h"
@@ -35,6 +34,7 @@ THE SOFTWARE.
 #include "GLES2InputAssembler.h"
 #include "GLES2PipelineLayout.h"
 #include "GLES2PipelineState.h"
+#include "GLES2PrimaryCommandBuffer.h"
 #include "GLES2Queue.h"
 #include "GLES2RenderPass.h"
 #include "GLES2Sampler.h"
@@ -95,6 +95,10 @@ bool GLES2Device::initialize(const DeviceInfo &info) {
     _features[(int)Feature::FORMAT_R11G11B10F] = true;
     _features[(int)Feature::FORMAT_D24S8] = true;
     _features[(int)Feature::MSAA] = true;
+
+    if (checkExtension("GL_OES_element_index_uint")) {
+        _features[(int)Feature::ELEMENT_INDEX_UINT] = true;
+    }
 
     if (checkExtension("color_buffer_float"))
         _features[(int)Feature::COLOR_FLOAT] = true;
@@ -312,7 +316,7 @@ void GLES2Device::copyBuffersToTexture(const uint8_t *const *buffers, Texture *d
 bool GLES2Device::checkForETC2() const {
     GLint numFormats = 0;
     glGetIntegerv(GL_NUM_COMPRESSED_TEXTURE_FORMATS, &numFormats);
-    GLint* formats = new GLint[numFormats];
+    GLint *formats = new GLint[numFormats];
     glGetIntegerv(GL_COMPRESSED_TEXTURE_FORMATS, formats);
 
     int supportNum = 0;
@@ -320,7 +324,7 @@ bool GLES2Device::checkForETC2() const {
         if (formats[i] == GL_COMPRESSED_RGB8_ETC2 || formats[i] == GL_COMPRESSED_RGBA8_ETC2_EAC)
             supportNum++;
     }
-    delete [] formats;
+    delete[] formats;
 
     return supportNum >= 2;
 }

@@ -85,13 +85,12 @@ private:
     bool _indirectDrawSuppotred = false;
     bool _commandBufferBegan = false;
     CCMTLDevice *_mtlDevice = nullptr;
-//    id<CAMetalDrawable> _currDrawable = nil;
+    //    id<CAMetalDrawable> _currDrawable = nil;
     id<MTLCommandQueue> _mtlCommandQueue = nil;
     id<MTLCommandBuffer> _mtlCommandBuffer = nil;
     MTKView *_mtkView = nil;
     CCMTLRenderCommandEncoder _commandEncoder;
     CCMTLInputAssembler *_inputAssembler = nullptr;
-    MTLIndexType _indexType = MTLIndexTypeUInt16;
     MTLPrimitiveType _mtlPrimitiveType = MTLPrimitiveType::MTLPrimitiveTypeTriangle;
 };
 
