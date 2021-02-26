@@ -162,13 +162,15 @@ let Animation = cc.Class({
                     return;
                 }
 
-                if (this._defaultClip) {
-                    this.removeClip(this._defaultClip, true);
+                this._defaultClip = value;
+                if (!value) {
+                    return;
                 }
-                if (value) {
+
+                const contain = this._clips.findIndex((clip) => equalClips(clip, value)) >= 0;
+                if (!contain) {
                     this.addClip(value);
                 }
-                this._defaultClip = value;
             },
             tooltip: CC_DEV && 'i18n:COMPONENT.animation.default_clip'
         },
