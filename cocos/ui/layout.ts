@@ -650,7 +650,7 @@ export class Layout extends Component {
     @serializable
     protected _affectedByScale = false;
     @serializable
-    protected _isAlign = true;
+    protected _isAlign = false;
 
     protected _layoutSize = new Size(300, 200);
     protected _layoutDirty = true;
