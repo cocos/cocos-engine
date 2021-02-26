@@ -34,7 +34,10 @@ export class BuiltinPhysicsWorld implements IPhysicsWorld {
     shouldCollide (c1: BuiltinShape2D, c2: BuiltinShape2D) {
         const collider1 = c1.collider; const collider2 = c2.collider;
         const collisionMatrix = PhysicsSystem2D.instance.collisionMatrix;
-        return (collider1 !== collider2) && (collider1.node !== collider2.node) && (collisionMatrix[collider1.group] & collisionMatrix[collider2.group]);
+        return (collider1 !== collider2)
+            && (collider1.node !== collider2.node)
+            && (collisionMatrix[collider1.group] & collider2.group)
+            && (collisionMatrix[collider2.group] & collider1.group);
     }
 
     addShape (shape: BuiltinShape2D) {
