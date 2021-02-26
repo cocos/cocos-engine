@@ -43,7 +43,7 @@ import { baseNodePolyfill } from './base-node-dev';
 import { legacyCC } from '../global-exports';
 import { Node } from './node';
 import type { Scene } from './scene';
-import { PrefabInfo } from '../utils/prefab-utils';
+import { PrefabInfo } from '../utils/prefab/prefab-info';
 
 const Destroying = CCObject.Flags.Destroying;
 const DontDestroy = CCObject.Flags.DontDestroy;
