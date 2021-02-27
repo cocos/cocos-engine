@@ -3,7 +3,35 @@
  * Author: haroel
  * Homepage: https://github.com/haroel/creatorexDTS
  */
-declare namespace jsb{
+declare namespace jsb {
+    export module AudioEngine {
+        export function preload (url: string, cb: (isSuccess: boolean) => void);
+        export function play2d (url: string, loop: boolean, volume: number): number;
+        export function pause (id: number);
+        export function pauseAll ();
+        export function resume (id: number);
+        export function resumeAll ();
+        export function stop (id: number);
+        export function stopAll ();
+
+        export function getPlayingAudioCount (): number;
+        export function getMaxAudioInstance (): number;
+        export function getState (id: number): any;
+        export function getDuration (id: number): number;
+        export function getVolume (id: number): number;
+        export function isLoop (id: number): boolean;
+        export function getCurrentTime (id: number): number;
+
+        export function setVolume (id: number, val: number);
+        export function setLoop (id: number, val: boolean);
+        export function setCurrentTime (id: number, val: number);
+
+        export function uncache (url: string);
+        export function uncacheAll ();
+        export function setErrorCallback (id: number, cb: Function);
+        export function setFinishCallback (id: number, cb: Function);
+    }
+
     export module reflection{
         /**
          * https://docs.cocos.com/creator/manual/zh/advanced-topics/java-reflection.html

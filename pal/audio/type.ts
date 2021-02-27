@@ -13,6 +13,7 @@ export enum AudioType {
     DOM_AUDIO,
     WEB_AUDIO,
     MINIGAME_AUDIO,
+    NATIVE_AUDIO,
     UNKNOWN_AUDIO,
 };
 

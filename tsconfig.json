@@ -22,6 +22,7 @@
       "types": [
         "./@types/globals",
         "./@types/consts",
+        "./@types/jsb",
         "./@types/editor-extends",
         "./@types/webGL.extras",
         "./@types/webGL2.extras",
