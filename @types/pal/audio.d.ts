@@ -1,4 +1,4 @@
-declare module 'pal:audio' {
+declare module 'pal_audio' {
     export interface OneShotAudio {
         stop ();
         onPlay (cb): OneShotAudio;

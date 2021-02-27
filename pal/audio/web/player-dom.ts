@@ -1,7 +1,7 @@
 import { AudioEvent, AudioState, AudioType } from "../type";
 import { EventTarget } from '../../../cocos/core/event/event-target';
-import { legacyCC } from "cocos/core/global-exports";
-import { OneShotAudio } from "pal:audio";
+import { legacyCC } from '../../../cocos/core/global-exports';
+import { OneShotAudio } from "pal_audio";
 
 export class AudioPlayerDOM {
     private _domAudio: HTMLAudioElement;
@@ -12,7 +12,7 @@ export class AudioPlayerDOM {
     private _onShow: () => void;
     private _onEnded: () => void;
 
-    constructor (nativeAudio: HTMLAudioElement) {
+    constructor(nativeAudio: HTMLAudioElement) {
         this._domAudio = nativeAudio;
 
         // event
@@ -44,7 +44,7 @@ export class AudioPlayerDOM {
         };
         this._domAudio.addEventListener('ended', this._onEnded);
     }
-    destroy () {
+    destroy() {
         if (this._onGesture) {
             legacyCC.game.canvas.removeEventListener('touchend', this._onGesture);
             legacyCC.game.canvas.removeEventListener('mouseup', this._onGesture);
@@ -69,14 +69,14 @@ export class AudioPlayerDOM {
         // @ts-ignore
         this._domAudio = undefined;
     }
-    static load (url: string): Promise<AudioPlayerDOM> {
+    static load(url: string): Promise<AudioPlayerDOM> {
         return new Promise(resolve => {
             AudioPlayerDOM.loadNative(url).then(domAudio => {
                 resolve(new AudioPlayerDOM(domAudio));
             });
         });
     }
-    static loadNative (url: string): Promise<HTMLAudioElement> {
+    static loadNative(url: string): Promise<HTMLAudioElement> {
         return new Promise((resolve, reject) => {
             let domAudio = document.createElement('audio');
             let loadedEvent = 'canplaythrough';
@@ -117,36 +117,36 @@ export class AudioPlayerDOM {
         });
     }
     
-    get type (): AudioType {
+    get type(): AudioType {
         return AudioType.DOM_AUDIO;
     }
-    get state (): AudioState {
+    get state(): AudioState {
         return this._state;
     }
-    get loop (): boolean {
+    get loop(): boolean {
         return this._domAudio.loop;
     }
-    set loop (val: boolean) {
+    set loop(val: boolean) {
         this._domAudio.loop = val;
     }
-    get volume (): number {
+    get volume(): number {
         return this._domAudio.volume;
     }
-    set volume (val: number) {
+    set volume(val: number) {
         this._domAudio.volume = val;
     }
-    get duration (): number {
+    get duration(): number {
         return this._domAudio.duration;
     }
-    get currentTime (): number {
+    get currentTime(): number {
         return this._domAudio.currentTime;
     }
-    seek (time: number): Promise<void> {
+    seek(time: number): Promise<void> {
         this._domAudio.currentTime = time;
         return Promise.resolve();
     }
 
-    private _ensurePlaying (domAudio: HTMLAudioElement): Promise<void> {
+    private _ensurePlaying(domAudio: HTMLAudioElement): Promise<void> {
         return new Promise(resolve => {
             const promise = domAudio.play();;
             if (!promise) {  // Chrome50/Firefox53 below
@@ -160,7 +160,7 @@ export class AudioPlayerDOM {
             });
         });
     }
-    playOneShot (volume: number = 1): OneShotAudio {
+    playOneShot(volume: number = 1): OneShotAudio {
         let onPlayCb: () => void;
         let onEndedCb: () => void;
         let domAudio: HTMLAudioElement;
@@ -173,14 +173,14 @@ export class AudioPlayerDOM {
             });
         });
         let oneShotAudio: OneShotAudio = {
-            stop () {
+            stop() {
                 domAudio.pause();
             },
-            onPlay (cb) {
+            onPlay(cb) {
                 onPlayCb = cb;
                 return this;
             },
-            onEnded (cb) {
+            onEnded(cb) {
                 onEndedCb = cb;
                 return this;
             },
@@ -188,7 +188,7 @@ export class AudioPlayerDOM {
         return oneShotAudio;
     }
 
-    private _ensureStop (): Promise<void> {
+    private _ensureStop(): Promise<void> {
         return new Promise(resolve => {
             /* sometimes there is no way to update the playing state
             especially when player unplug earphones and the audio automatically stops
@@ -199,7 +199,7 @@ export class AudioPlayerDOM {
             resolve();
         });
     }
-    play (): Promise<void> {
+    play(): Promise<void> {
         return new Promise(resolve => {
             this._ensureStop().then(() => {
                 this._ensurePlaying(this._domAudio).then(() => {
@@ -209,21 +209,21 @@ export class AudioPlayerDOM {
             });
         });
     }
-    pause (): Promise<void> {
+    pause(): Promise<void> {
         this._domAudio.pause();
         this._state = AudioState.PAUSED;
         return Promise.resolve();
     }
-    stop (): Promise<void> {
+    stop(): Promise<void> {
         this._domAudio.pause();
         this._state = AudioState.STOPPED;
         return this.seek(0);
     }
 
-    onInterruptionBegin (cb: () => void) { this._eventTarget.on(AudioEvent.INTERRUPTION_BEGIN, cb); }
-    offInterruptionBegin (cb?: () => void) { this._eventTarget.off(AudioEvent.INTERRUPTION_BEGIN, cb); }
-    onInterruptionEnd (cb: () => void) { this._eventTarget.on(AudioEvent.INTERRUPTION_END, cb); }
-    offInterruptionEnd (cb?: () => void) { this._eventTarget.off(AudioEvent.INTERRUPTION_END, cb); }
-    onEnded (cb: () => void) { this._eventTarget.on(AudioEvent.ENDED, cb); }
-    offEnded (cb?: () => void) { this._eventTarget.off(AudioEvent.ENDED, cb); }
+    onInterruptionBegin(cb: () => void) { this._eventTarget.on(AudioEvent.INTERRUPTION_BEGIN, cb); }
+    offInterruptionBegin(cb?: () => void) { this._eventTarget.off(AudioEvent.INTERRUPTION_BEGIN, cb); }
+    onInterruptionEnd(cb: () => void) { this._eventTarget.on(AudioEvent.INTERRUPTION_END, cb); }
+    offInterruptionEnd(cb?: () => void) { this._eventTarget.off(AudioEvent.INTERRUPTION_END, cb); }
+    onEnded(cb: () => void) { this._eventTarget.on(AudioEvent.ENDED, cb); }
+    offEnded(cb?: () => void) { this._eventTarget.off(AudioEvent.ENDED, cb); }
 }

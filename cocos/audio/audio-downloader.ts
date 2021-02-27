@@ -32,7 +32,7 @@ import { AudioClip } from './assets/clip';
 import { CompleteCallback, IDownloadParseOptions } from '../core/asset-manager/shared';
 import downloader from '../core/asset-manager/downloader';
 import factory from '../core/asset-manager/factory';
-import { AudioPlayer } from 'pal:audio';
+import { AudioPlayer } from 'pal_audio';
 
 export function loadAudioPlayer (url: string, options: IDownloadParseOptions, onComplete: CompleteCallback) {
     AudioPlayer.load(url, {

@@ -1,5 +1,5 @@
 import { warnID } from 'cocos/core';
-import { OneShotAudio } from 'pal:audio';
+import { OneShotAudio } from 'pal_audio';
 import { AudioLoadOptions, AudioType, AudioState } from '../type';
 import { AudioPlayerDOM } from './player-dom';
 import { AudioPlayerWeb } from './player-web';
@@ -8,11 +8,11 @@ type AbstractAudioPlayer = AudioPlayerDOM | AudioPlayerWeb;
 
 export class AudioPlayer {
     private _player: AbstractAudioPlayer;
-    constructor (player: AbstractAudioPlayer) {
+    constructor(player: AbstractAudioPlayer) {
         this._player = player;
     }
 
-    static load (url: string, opts?: AudioLoadOptions): Promise<AudioPlayer> {
+    static load(url: string, opts?: AudioLoadOptions): Promise<AudioPlayer> {
         return new Promise(resolve => {
             if (opts?.audioLoadMode === AudioType.DOM_AUDIO) {
                 AudioPlayerDOM.load(url).then(domPlayer => {
@@ -49,7 +49,7 @@ export class AudioPlayer {
     set loop(val: boolean) { this._player.loop = val; }
     get volume(): number { return this._player.volume; }
     set volume(val: number) { this._player.volume = val; }
-    get duration (): number { return this._player.duration; }
+    get duration(): number { return this._player.duration; }
     get currentTime(): number { return this._player.currentTime; }
     seek(time: number): Promise<void> { return this._player.seek(time); }
 

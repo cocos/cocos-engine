@@ -30,6 +30,7 @@
 
 import { ccclass, help, menu, executionOrder, requireComponent, tooltip, serializable } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
+import { mg } from 'pal_minigame';
 import { Component } from '../core/components/component';
 import { view } from '../core/platform/view';
 import { Sprite } from '../2d/components/sprite';
@@ -114,9 +115,9 @@ export class SubContextView extends Component {
     }
 
     public onLoad () {
-        if (window.__globalAdapter && __globalAdapter.getOpenDataContext) {
+        if (mg.getOpenDataContext) {
             this._updateInterval = 1000 / this._fps;
-            this._openDataContext = __globalAdapter.getOpenDataContext();
+            this._openDataContext = mg.getOpenDataContext();
             this._initSharedCanvas();
             this._initContentNode();
             this._updateSubContextView();
@@ -167,7 +168,7 @@ export class SubContextView extends Component {
     }
 
     private _updateSubContextView () {
-        if (!(this._openDataContext && __globalAdapter && __globalAdapter.getSystemInfoSync)) {
+        if (!(this._openDataContext && mg.getSystemInfoSync)) {
             return;
         }
 
@@ -183,7 +184,7 @@ export class SubContextView extends Component {
         contentTrans.height *= scale;
 
         // update viewport in subContextView
-        const systemInfo = __globalAdapter.getSystemInfoSync();
+        const systemInfo = mg.getSystemInfoSync();
         const box = contentTrans.getBoundingBoxToWorld();
         const visibleSize = view.getVisibleSize();
 

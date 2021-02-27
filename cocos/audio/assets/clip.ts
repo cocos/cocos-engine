@@ -34,7 +34,7 @@ import {
 import { Asset } from '../../core/assets/asset';
 import { legacyCC } from '../../core/global-exports';
 import { AudioType } from '../../../pal/audio/type';
-import { AudioPlayer } from 'pal:audio';
+import { AudioPlayer } from 'pal_audio';
 
 /**
  * @en
