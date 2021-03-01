@@ -63,7 +63,7 @@
     "isTransparent": false,
     "sortMode": 0,
     "stages": [
-      "default"
+      "deferred"
     ]
   },
   {
@@ -99,7 +99,7 @@
     "isTransparent": true,
     "sortMode": 0,
     "stages": [
-      "deferred-transparent"
+      "default"
     ]
   },
   {

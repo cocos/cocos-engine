@@ -29,15 +29,11 @@
 
 import { ccclass } from 'cc.decorator';
 import { Camera } from '../../renderer/scene';
-import { PIPELINE_FLOW_LIGHTING, UNIFORM_LIGHTING_RESULTMAP_BINDING } from '../define';
+import { PIPELINE_FLOW_LIGHTING } from '../define';
 import { IRenderFlowInfo, RenderFlow } from '../render-flow';
 import { DeferredFlowPriority } from './enum';
 import { LightingStage } from './lighting-stage';
-import { DeferredPipeline } from './deferred-pipeline';
 import { RenderPipeline } from '../render-pipeline';
-import { Framebuffer, RenderPass, LoadOp, StoreOp, Format, Texture, TextureType, TextureUsageBit, ColorAttachment,
-    DepthStencilAttachment, RenderPassInfo, TextureInfo, FramebufferInfo, Address, Filter, SurfaceTransform, AccessType } from '../../gfx';
-import { genSamplerHash, samplerLib } from '../../renderer/core/sampler-lib';
 
 /**
  * @en The lighting flow in lighting render pipeline
@@ -45,13 +41,6 @@ import { genSamplerHash, samplerLib } from '../../renderer/core/sampler-lib';
  */
 @ccclass('LightingFlow')
 export class LightingFlow extends RenderFlow {
-    private _lightingRenderPass: RenderPass|null = null;
-    private _lightingRenderTargets: Texture[] = [];
-    protected _lightingFrameBuffer: Framebuffer|null = null;
-    private _depth: Texture|null = null;
-    private _width = 0;
-    private _height = 0;
-
     /**
      * @en The shared initialization information of lighting render flow
      * @zh 共享的前向渲染流程初始化参数
@@ -61,10 +50,6 @@ export class LightingFlow extends RenderFlow {
         priority: DeferredFlowPriority.LIGHTING,
         stages: [],
     };
-
-    get lightingFrameBuffer (): Framebuffer {
-        return this._lightingFrameBuffer!;
-    }
 
     public initialize (info: IRenderFlowInfo): boolean {
         super.initialize(info);
@@ -78,87 +63,13 @@ export class LightingFlow extends RenderFlow {
 
     public activate (pipeline: RenderPipeline) {
         super.activate(pipeline);
-
-        const device = pipeline.device;
-        if (device.surfaceTransform === SurfaceTransform.IDENTITY
-            || device.surfaceTransform === SurfaceTransform.ROTATE_180) {
-            this._width = device.width;
-            this._height = device.height;
-        } else {
-            this._width = device.height;
-            this._height = device.width;
-        }
-
-        if (!this._lightingRenderPass) {
-            const colorAttachment = new ColorAttachment();
-            colorAttachment.format = Format.RGBA16F;
-            colorAttachment.loadOp = LoadOp.CLEAR; // should clear color attachment
-            colorAttachment.storeOp = StoreOp.STORE;
-            colorAttachment.endAccesses = [AccessType.COLOR_ATTACHMENT_WRITE];
-
-            const depthStencilAttachment = new DepthStencilAttachment();
-            depthStencilAttachment.format = device.depthStencilFormat;
-            depthStencilAttachment.depthLoadOp = LoadOp.LOAD;
-            depthStencilAttachment.depthStoreOp = StoreOp.DISCARD;
-            depthStencilAttachment.stencilLoadOp = LoadOp.LOAD;
-            depthStencilAttachment.stencilStoreOp = StoreOp.DISCARD;
-            depthStencilAttachment.beginAccesses = [AccessType.DEPTH_STENCIL_ATTACHMENT_WRITE];
-            depthStencilAttachment.endAccesses = [AccessType.DEPTH_STENCIL_ATTACHMENT_WRITE];
-
-            const renderPassInfo = new RenderPassInfo([colorAttachment], depthStencilAttachment);
-            this._lightingRenderPass = device.createRenderPass(renderPassInfo);
-        }
-
-        if (this._lightingRenderTargets.length < 1) {
-            this._lightingRenderTargets.push(device.createTexture(new TextureInfo(
-                TextureType.TEX2D,
-                TextureUsageBit.COLOR_ATTACHMENT | TextureUsageBit.SAMPLED,
-                Format.RGBA16F,
-                this._width,
-                this._height,
-            )));
-        }
-
-        if (!this._depth) {
-            this._depth = (this._pipeline as DeferredPipeline).gbufferDepth;
-        }
-
-        if (!this._lightingFrameBuffer) {
-            this._lightingFrameBuffer = device.createFramebuffer(new FramebufferInfo(
-                this._lightingRenderPass,
-                this._lightingRenderTargets,
-                this._depth,
-            ));
-        }
-
-        pipeline.descriptorSet.bindTexture(UNIFORM_LIGHTING_RESULTMAP_BINDING, this._lightingFrameBuffer.colorTextures[0]!);
-
-        const samplerHash = genSamplerHash([
-            Filter.LINEAR,
-            Filter.LINEAR,
-            Filter.NONE,
-            Address.CLAMP,
-            Address.CLAMP,
-            Address.CLAMP,
-        ]);
-        const sampler = samplerLib.getSampler(device, samplerHash);
-        pipeline.descriptorSet.bindSampler(UNIFORM_LIGHTING_RESULTMAP_BINDING, sampler);
     }
 
     public render (camera: Camera) {
-        const pipeline = this._pipeline as DeferredPipeline;
         super.render(camera);
     }
 
     public destroy () {
         super.destroy();
-        for (let i = 0; i < this._lightingRenderTargets.length; i++) {
-            const renderTarget = this._lightingRenderTargets[i];
-            if (renderTarget) { renderTarget.destroy(); }
-        }
-        this._lightingRenderTargets.length = 0;
-
-        if (this._lightingRenderPass) { this._lightingRenderPass.destroy(); }
-        if (this._lightingFrameBuffer) { this._lightingFrameBuffer.destroy(); }
     }
 }

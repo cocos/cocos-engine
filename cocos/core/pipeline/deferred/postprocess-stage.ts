@@ -31,7 +31,7 @@ import { ccclass, displayOrder, type, serializable } from 'cc.decorator';
 import { builtinResMgr } from '../../builtin';
 import { Camera } from '../../renderer/scene';
 import { SetIndex } from '../define';
-import { Color, Rect, Shader, PipelineState, ClearFlagBit } from '../../gfx';
+import { Color, Rect, Shader, PipelineState, ClearFlagBit, BlendFactor } from '../../gfx';
 import { IRenderStageInfo, RenderStage } from '../render-stage';
 import { DeferredStagePriority } from './enum';
 import { LightingFlow } from './lighting-flow';
@@ -133,13 +133,19 @@ export class PostprocessStage extends RenderStage {
             shader = ShaderPool.get(this._postprocessMaterial!.passes[POSTPROCESSPASS_INDEX].getShaderVariant());
         }
 
+        // pass.blendState.targets[0].blend = true;
+        // pass.blendState.targets[0].blendSrc = BlendFactor.SRC_ALPHA;
+        // pass.blendState.targets[0].blendDst = BlendFactor.ONE_MINUS_SRC_ALPHA;
+        // pass.blendState.targets[0].blendSrcAlpha = BlendFactor.SRC_ALPHA;
+        // pass.blendState.targets[0].blendDstAlpha = BlendFactor.ONE_MINUS_SRC_ALPHA;
+
         const inputAssembler = camera.window!.hasOffScreenAttachments ? pipeline.quadIAOffscreen : pipeline.quadIAOnscreen;
         let pso:PipelineState|null = null;
         if (pass != null && shader != null && inputAssembler != null) {
             pso = PipelineStateManager.getOrCreatePipelineState(device, pass, shader, renderPass, inputAssembler);
         }
 
-        if (pso != null) {
+        if (pso != null && pipeline.pipelineSceneData.renderObjects.length > 0) {
             cmdBuff.bindPipelineState(pso);
             cmdBuff.bindInputAssembler(inputAssembler);
             cmdBuff.draw(inputAssembler);

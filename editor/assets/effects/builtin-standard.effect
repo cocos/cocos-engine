@@ -26,6 +26,30 @@ CCEffect %{
       migrations:
         properties:
           pbrParams: { removeImmediately: true }
+    - &deferred
+      vert: standard-vs
+      frag: standard-fs
+      phase: deferred
+      properties: &props
+        tilingOffset:   { value: [1.0, 1.0, 0.0, 0.0] }
+        mainColor:      { value: [1.0, 1.0, 1.0, 1.0], target: albedo, editor: { displayName: Albedo, type: color } }
+        albedoScale:    { value: [1.0, 1.0, 1.0], target: albedoScaleAndCutoff.xyz }
+        alphaThreshold: { value: 0.5, target: albedoScaleAndCutoff.w, editor: { parent: USE_ALPHA_TEST } }
+        occlusion:      { value: 1.0, target: pbrParams.x }
+        roughness:      { value: 0.8, target: pbrParams.y }
+        metallic:       { value: 0.6, target: pbrParams.z }
+        normalStrenth:  { value: 1.0, target: pbrParams.w, editor: { parent: USE_NORMAL_MAP } }
+        emissive:       { value: [0.0, 0.0, 0.0, 1.0], editor: { type: color } }
+        emissiveScale:  { value: [1.0, 1.0, 1.0], target: emissiveScaleParam.xyz }
+        mainTexture:    { value: grey, target: albedoMap, editor: { displayName: AlbedoMap } }
+        normalMap:      { value: normal       }
+        pbrMap:         { value: grey         }
+        metallicRoughnessMap: { value: grey   }
+        occlusionMap:   { value: white        }
+        emissiveMap:    { value: grey         }
+      migrations:
+        properties:
+          pbrParams: { removeImmediately: true }
     - &forward-add
       vert: standard-vs
       frag: standard-fs
