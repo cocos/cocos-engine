@@ -5,4 +5,4 @@ included platforms:
 - huawei
 - link-sure
 - QTT
-- cocosplay
+- cocos play / cocos runtime
