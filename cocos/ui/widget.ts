@@ -34,7 +34,7 @@ import { EDITOR, DEV } from 'internal:constants';
 import { Component } from '../core/components';
 import { UITransform } from '../2d/framework/ui-transform';
 import { Size, Vec3 } from '../core/math';
-import { errorID, warnID } from '../core/platform/debug';
+import { errorID } from '../core/platform/debug';
 import { SystemEventType } from '../core/platform/event-manager/event-enum';
 import { View } from '../core/platform/view';
 import visibleRect from '../core/platform/visible-rect';
@@ -824,12 +824,16 @@ export class Widget extends Component {
         if (this.node.getParent()) {
             this._registerTargetEvents();
         }
+        this._setDirtyByMode();
     }
 
     protected _registerEvent () {
         if (EDITOR && !legacyCC.GAME_VIEW) {
             this.node.on(SystemEventType.TRANSFORM_CHANGED, this._adjustWidgetToAllowMovingInEditor, this);
             this.node.on(SystemEventType.SIZE_CHANGED, this._adjustWidgetToAllowResizingInEditor, this);
+        } else {
+            this.node.on(SystemEventType.TRANSFORM_CHANGED, this._setDirtyByMode, this);
+            this.node.on(SystemEventType.SIZE_CHANGED, this._setDirtyByMode, this);
         }
         this.node.on(SystemEventType.ANCHOR_CHANGED, this._adjustWidgetToAnchorChanged, this);
         this.node.on(SystemEventType.PARENT_CHANGED, this._adjustTargetToParentChanged, this);
@@ -839,6 +843,9 @@ export class Widget extends Component {
         if (EDITOR && !legacyCC.GAME_VIEW) {
             this.node.off(SystemEventType.TRANSFORM_CHANGED, this._adjustWidgetToAllowMovingInEditor, this);
             this.node.off(SystemEventType.SIZE_CHANGED, this._adjustWidgetToAllowResizingInEditor, this);
+        } else {
+            this.node.off(SystemEventType.TRANSFORM_CHANGED, this._setDirtyByMode, this);
+            this.node.off(SystemEventType.SIZE_CHANGED, this._setDirtyByMode, this);
         }
         this.node.off(SystemEventType.ANCHOR_CHANGED, this._adjustWidgetToAnchorChanged, this);
     }
@@ -877,8 +884,8 @@ export class Widget extends Component {
         const target = this._target || this.node.parent;
         if (target) {
             if (target.getComponent(UITransform)) {
-                target.on(SystemEventType.TRANSFORM_CHANGED, this._targetChangedOperation, this);
-                target.on(SystemEventType.SIZE_CHANGED, this._targetChangedOperation, this);
+                target.on(SystemEventType.TRANSFORM_CHANGED, this._setDirtyByMode, this);
+                target.on(SystemEventType.SIZE_CHANGED, this._setDirtyByMode, this);
             }
         }
     }
@@ -886,20 +893,20 @@ export class Widget extends Component {
     protected _unregisterTargetEvents () {
         const target = this._target || this.node.parent;
         if (target) {
-            target.off(SystemEventType.TRANSFORM_CHANGED, this._targetChangedOperation, this);
-            target.off(SystemEventType.SIZE_CHANGED, this._targetChangedOperation, this);
+            target.off(SystemEventType.TRANSFORM_CHANGED, this._setDirtyByMode, this);
+            target.off(SystemEventType.SIZE_CHANGED, this._setDirtyByMode, this);
         }
     }
 
     protected _unregisterOldParentEvents (oldParent: Node) {
         const target = this._target || oldParent;
         if (target) {
-            target.off(SystemEventType.TRANSFORM_CHANGED, this._targetChangedOperation, this);
-            target.off(SystemEventType.SIZE_CHANGED, this._targetChangedOperation, this);
+            target.off(SystemEventType.TRANSFORM_CHANGED, this._setDirtyByMode, this);
+            target.off(SystemEventType.SIZE_CHANGED, this._setDirtyByMode, this);
         }
     }
 
-    protected _targetChangedOperation () {
+    protected _setDirtyByMode () {
         if (this.alignMode === AlignMode.ALWAYS) {
             this._recursiveDirty();
         }
