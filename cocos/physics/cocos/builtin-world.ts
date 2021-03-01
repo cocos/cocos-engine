@@ -35,7 +35,7 @@ import { BuiltinShape } from './shapes/builtin-shape';
 import { ArrayCollisionMatrix } from '../utils/array-collision-matrix';
 import { ObjectCollisionMatrix } from '../utils/object-collision-matrix';
 import { Ray, intersect } from '../../core/geometry';
-import { RecyclePool, Node } from '../../core';
+import { RecyclePool, Node, error } from '../../core';
 import { IPhysicsWorld, IRaycastOptions } from '../spec/i-physics-world';
 import { IVec3Like } from '../../core/math/type-define';
 import { PhysicsMaterial } from '../framework/assets/physics-material';
@@ -68,6 +68,10 @@ export class BuiltInWorld implements IPhysicsWorld {
     private _shapeArrPrev: BuiltinShape[] = [];
     private _collisionMatrix: ArrayCollisionMatrix = new ArrayCollisionMatrix();
     private _collisionMatrixPrev: ArrayCollisionMatrix = new ArrayCollisionMatrix();
+
+    destroy (): void {
+        if (this.bodies.length) error('You should destroy all physics component first.');
+    }
 
     step (deltaTime: number): void {
         // store and reset collision array

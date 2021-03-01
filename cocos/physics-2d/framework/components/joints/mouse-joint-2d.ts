@@ -1,8 +1,8 @@
-import { Joint2D } from "./joint-2d";
-import { ccclass, property, menu, type } from "../../../../core/data/class-decorator";
-import { IMouseJoint } from "../../../spec/i-physics-joint";
-import { EJoint2DType } from "../../physics-types";
-import { Vec2 } from "../../../../core";
+import { Joint2D } from './joint-2d';
+import { ccclass, property, menu, type } from '../../../../core/data/class-decorator';
+import { IMouseJoint } from '../../../spec/i-physics-joint';
+import { EJoint2DType } from '../../physics-types';
+import { Vec2 } from '../../../../core';
 
 @ccclass('cc.MouseJoint2D')
 @menu('Physics2D/Joints/MouseJoint2D')
@@ -15,7 +15,7 @@ export class MouseJoint2D extends Joint2D {
     set target (v) {
         this._target = v;
         if (this._joint) {
-            (this._joint! as IMouseJoint).setTarget(v);
+            (this._joint as IMouseJoint).setTarget(v);
         }
     }
 
@@ -32,7 +32,7 @@ export class MouseJoint2D extends Joint2D {
     set frequency (v: number) {
         this._frequency = v;
         if (this._joint) {
-            (this._joint! as IMouseJoint).setFrequency(v);
+            (this._joint as IMouseJoint).setFrequency(v);
         }
     }
 
@@ -49,7 +49,7 @@ export class MouseJoint2D extends Joint2D {
     set dampingRatio (v: number) {
         this._dampingRatio = v;
         if (this._joint) {
-            (this._joint! as IMouseJoint).setDampingRatio(v);
+            (this._joint as IMouseJoint).setDampingRatio(v);
         }
     }
 
@@ -66,7 +66,7 @@ export class MouseJoint2D extends Joint2D {
     set maxForce (v: number) {
         this._maxForce = v;
         if (this._joint) {
-            (this._joint! as IMouseJoint).setMaxForce(v);
+            (this._joint as IMouseJoint).setMaxForce(v);
         }
     }
 
@@ -74,12 +74,11 @@ export class MouseJoint2D extends Joint2D {
         this._joint!.update!(dt);
     }
 
-
     @property
     private _maxForce = 1000;
     @property
     private _dampingRatio = 0.7;
     @property
     private _frequency = 5;
-    private _target = new Vec2;
+    private _target = new Vec2();
 }

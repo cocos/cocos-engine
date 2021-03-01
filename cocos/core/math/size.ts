@@ -39,7 +39,6 @@ import { legacyCC } from '../global-exports';
  * @zh 二维尺寸。
  */
 export class Size extends ValueType {
-
     public static ZERO = Object.freeze(new Size(0, 0));
     public static ONE = Object.freeze(new Size(1, 1));
 
@@ -137,8 +136,8 @@ export class Size extends ValueType {
      * @returns Returns `true' when both dimensions are equal in width and height; otherwise returns `false'.
      */
     public equals (other: Size) {
-        return this.width === other.width &&
-            this.height === other.height;
+        return this.width === other.width
+            && this.height === other.height;
     }
 
     /**
@@ -148,8 +147,8 @@ export class Size extends ValueType {
      * @param ratio The interpolation coefficient.The range is [0,1].
      */
     public lerp (to: Size, ratio: number) {
-        this.width = this.width + (to.width - this.width) * ratio;
-        this.height = this.height + (to.height - this.height) * ratio;
+        this.width += (to.width - this.width) * ratio;
+        this.height += (to.height - this.height) * ratio;
         return this;
     }
 
@@ -182,7 +181,7 @@ export function size (other: Size): Size;
  */
 export function size (width?: number, height?: number): Size;
 
-export function size (width: Size | number = 0, height: number = 0) {
+export function size (width: Size | number = 0, height = 0) {
     return new Size(width as any, height);
 }
 

@@ -40,6 +40,7 @@ import { Node } from './node';
 import { CallbacksInvoker } from '../event/callbacks-invoker';
 import { errorID } from '../platform/debug';
 import { legacyCC } from '../global-exports';
+import { Component } from '../components/component';
 
 const _cachedArray = new Array<BaseNode>(16);
 let _currentHovered: BaseNode | null = null;
@@ -91,6 +92,7 @@ function _touchMoveHandler (this: EventListener, touch: Touch, event: EventTouch
     event.touch = touch;
     event.bubbles = true;
     node.dispatchEvent(event);
+    return true;
 }
 
 function _touchEndHandler (this: EventListener, touch: Touch, event: EventTouch) {
@@ -150,11 +152,11 @@ function _mouseMoveHandler (this: EventListener, event: EventMouse) {
     if (hit) {
         if (!this._previousIn) {
             // Fix issue when hover node switched, previous hovered node won't get MOUSE_LEAVE notification
-            if (_currentHovered && _currentHovered!.eventProcessor.mouseListener) {
+            if (_currentHovered && _currentHovered.eventProcessor.mouseListener) {
                 event.type = SystemEventType.MOUSE_LEAVE;
-                _currentHovered!.dispatchEvent(event);
-                if (_currentHovered!.eventProcessor.mouseListener) {
-                    _currentHovered!.eventProcessor.mouseListener!._previousIn = false;
+                _currentHovered.dispatchEvent(event);
+                if (_currentHovered.eventProcessor.mouseListener) {
+                    _currentHovered.eventProcessor.mouseListener._previousIn = false;
                 }
             }
             _currentHovered = node;
@@ -272,19 +274,29 @@ function _doDispatchEvent (owner: BaseNode, event: Event) {
     _cachedArray.length = 0;
 }
 
-function _searchMaskInParent (node: Node | null) {
-    const Mask = legacyCC.Mask;
-    if (Mask) {
+function _searchComponentsInParent<T extends Component> (node: Node | null, ctor: Constructor<T> | null) {
+    if (ctor) {
         let index = 0;
-        for (let curr = node; curr && legacyCC.Node.isNode(curr); curr = curr.parent, ++index) {
-            if (curr.getComponent(Mask)) {
-                return {
+        let list: any[] = [];
+        for (let curr = node; curr && Node.isNode(curr); curr = curr.parent, ++index) {
+            const comp = curr.getComponent(ctor);
+            if (comp) {
+                const next = {
                     index,
-                    node: curr,
+                    comp,
                 };
+
+                if (list) {
+                    list.push(next);
+                } else {
+                    list = [next];
+                }
             }
         }
+
+        return list.length > 0 ? list : null;
     }
+
     return null;
 }
 
@@ -341,24 +353,29 @@ export class NodeEventProcessor {
     public mouseListener: EventListener | null = null;
 
     private _node: BaseNode;
+    private _comp: Constructor<Component> | null = null;
 
     constructor (node: BaseNode) {
         this._node = node;
     }
 
     public reattach (): void {
+        if (!this._comp) return;
         if (this.touchListener) {
-            const mask = this.touchListener.mask = _searchMaskInParent(this._node as Node);
+            const mask = this.touchListener.mask = _searchComponentsInParent(this._node as Node, this._comp);
             if (this.mouseListener) {
                 this.mouseListener.mask = mask;
             }
-        }
-        else if (this.mouseListener) {
-            this.mouseListener.mask = _searchMaskInParent(this._node as Node);
+        } else if (this.mouseListener) {
+            this.mouseListener.mask = _searchComponentsInParent(this._node as Node, this._comp);
         }
     }
 
-    public destroy (): void{
+    public registerComponentHitList (ctor: Constructor<Component>) {
+        this._comp = ctor;
+    }
+
+    public destroy (): void {
         if (_currentHovered === this._node) {
             _currentHovered = null;
         }
@@ -378,8 +395,8 @@ export class NodeEventProcessor {
             }
         }
 
-        this.capturingTargets && this.capturingTargets.clear();
-        this.bubblingTargets && this.bubblingTargets.clear();
+        if (this.capturingTargets) this.capturingTargets.clear();
+        if (this.bubblingTargets) this.bubblingTargets.clear();
     }
 
     /**
@@ -413,7 +430,7 @@ export class NodeEventProcessor {
      * this.node.on(Node.EventType.ANCHOR_CHANGED, callback);
      * ```
      */
-    public on (type: string, callback: Function, target?: Object, useCapture?: Object) {
+    public on (type: string, callback: AnyFunction, target?: unknown, useCapture?: boolean) {
         const forDispatch = this._checknSetupSysEvent(type);
         if (forDispatch) {
             return this._onDispatch(type, callback, target, useCapture);
@@ -462,14 +479,13 @@ export class NodeEventProcessor {
      * node.once(Node.EventType.ANCHOR_CHANGED, callback);
      * ```
      */
-    public once (type: string, callback: Function, target?: Object, useCapture?: Object) {
+    public once (type: string, callback: AnyFunction, target?: unknown, useCapture?: boolean) {
         const forDispatch = this._checknSetupSysEvent(type);
 
         let listeners: CallbacksInvoker;
         if (forDispatch && useCapture) {
             listeners = this.capturingTargets = this.capturingTargets || new CallbacksInvoker();
-        }
-        else {
+        } else {
             listeners = this.bubblingTargets = this.bubblingTargets || new CallbacksInvoker();
         }
 
@@ -496,7 +512,7 @@ export class NodeEventProcessor {
      * node.off(Node.EventType.ANCHOR_CHANGED, callback, this);
      * ```
      */
-    public off (type: string, callback?: Function, target?: Object, useCapture?: Object) {
+    public off (type: string, callback?: AnyFunction, target?: unknown, useCapture?: boolean) {
         const touchEvent = _touchEvents.indexOf(type) !== -1;
         const mouseEvent = !touchEvent && _mouseEvents.indexOf(type) !== -1;
         if (touchEvent || mouseEvent) {
@@ -556,7 +572,7 @@ export class NodeEventProcessor {
      * eventTarget.emit('fire', message, emitter);
      * ```
      */
-public emit (type: string, arg0?: any, arg1?: any, arg2?: any, arg3?: any, arg4?: any) {
+    public emit (type: string, arg0?: any, arg1?: any, arg2?: any, arg3?: any, arg4?: any) {
         if (this.bubblingTargets) {
             this.bubblingTargets.emit(type, arg0, arg1, arg2, arg3, arg4);
         }
@@ -582,7 +598,7 @@ public emit (type: string, arg0?: any, arg1?: any, arg2?: any, arg3?: any, arg4?
      * @param target - The callback callee of the event listener
      * @return - 返回是否当前节点已监听该事件类型。
      */
-    public hasEventListener (type: string, callback?: Function, target?: Object) {
+    public hasEventListener (type: string, callback?: AnyFunction, target?: unknown) {
         let has = false;
         if (this.bubblingTargets) {
             has = this.bubblingTargets.hasEventListener(type, callback, target);
@@ -599,7 +615,7 @@ public emit (type: string, arg0?: any, arg1?: any, arg2?: any, arg3?: any, arg4?
      *
      * @param target - 要删除的事件键或要删除的目标。
      */
-    public targetOff (target: string | Object) {
+    public targetOff (target: string | unknown) {
         if (this.capturingTargets) {
             this.capturingTargets.removeAll(target);
         }
@@ -667,7 +683,7 @@ public emit (type: string, arg0?: any, arg1?: any, arg2?: any, arg3?: any, arg4?
                     event: legacyCC.EventListener.TOUCH_ONE_BY_ONE,
                     swallowTouches: true,
                     owner: this._node,
-                    mask: _searchMaskInParent(this._node as Node),
+                    mask: _searchComponentsInParent(this._node as Node, this._comp),
                     onTouchBegan: _touchStartHandler,
                     onTouchMoved: _touchMoveHandler,
                     onTouchEnded: _touchEndHandler,
@@ -683,7 +699,7 @@ public emit (type: string, arg0?: any, arg1?: any, arg2?: any, arg3?: any, arg4?
                     event: legacyCC.EventListener.MOUSE,
                     _previousIn: false,
                     owner: this._node,
-                    mask: _searchMaskInParent(this._node as Node),
+                    mask: _searchComponentsInParent(this._node as Node, this._comp),
                     onMouseDown: _mouseDownHandler,
                     onMouseMove: _mouseMoveHandler,
                     onMouseUp: _mouseUpHandler,
@@ -704,7 +720,7 @@ public emit (type: string, arg0?: any, arg1?: any, arg2?: any, arg3?: any, arg4?
         return forDispatch;
     }
 
-    private _onDispatch (type: string, callback: Function, target?: Object, useCapture?: Object) {
+    private _onDispatch (type: string, callback: AnyFunction, target?: unknown, useCapture?: boolean) {
         // Accept also patameters like: (type, callback, useCapture)
         if (typeof target === 'boolean') {
             useCapture = target;
@@ -712,7 +728,7 @@ public emit (type: string, arg0?: any, arg1?: any, arg2?: any, arg3?: any, arg4?
         } else { useCapture = !!useCapture; }
         if (!callback) {
             errorID(6800);
-            return;
+            return undefined;
         }
 
         let listeners: CallbacksInvoker | null = null;
@@ -729,18 +745,18 @@ public emit (type: string, arg0?: any, arg1?: any, arg2?: any, arg3?: any, arg4?
         return callback;
     }
 
-    private _offDispatch (type: string, callback?: Function, target?: Object, useCapture?: Object) {
+    private _offDispatch (type: string, callback?: AnyFunction, target?: unknown, useCapture?: boolean) {
         // Accept also patameters like: (type, callback, useCapture)
         if (typeof target === 'boolean') {
             useCapture = target;
             target = undefined;
         } else { useCapture = !!useCapture; }
         if (!callback) {
-            if (this.capturingTargets){
+            if (this.capturingTargets) {
                 this.capturingTargets.removeAll(type);
             }
 
-            if (this.bubblingTargets){
+            if (this.bubblingTargets) {
                 this.bubblingTargets.removeAll(type);
             }
         } else {

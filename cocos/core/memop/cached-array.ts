@@ -23,7 +23,6 @@
  THE SOFTWARE.
  */
 
-
 /**
  * @packageDocumentation
  * @module memop
@@ -38,7 +37,6 @@
  * 它的内部数组长度会持续增长，不会减少。
  */
 export class CachedArray<T> {
-
     /**
      * @en
      * The array which stores actual content
@@ -53,7 +51,7 @@ export class CachedArray<T> {
      * @zh
      * 实际数据内容数量
      */
-    public length: number = 0;
+    public length = 0;
 
     private _compareFn;
 

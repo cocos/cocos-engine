@@ -29,7 +29,7 @@
  * @module asset
  */
 
-import { EDITOR, TEST } from "internal:constants";
+import { EDITOR, TEST } from 'internal:constants';
 import { ccclass, serializable, editable } from 'cc.decorator';
 import * as js from '../../core/utils/js';
 import { Asset } from '../../core/assets';
@@ -67,8 +67,7 @@ export class SpriteAtlas extends Asset {
         if (keys.length > 0) {
             const spriteFrame = this.spriteFrames[keys[0]];
             return spriteFrame && spriteFrame.texture;
-        }
-        else {
+        } else {
             return null;
         }
     }
@@ -127,7 +126,7 @@ export class SpriteAtlas extends Asset {
         }
     }
 
-    public _deserialize (serializeData: any, handle: any){
+    public _deserialize (serializeData: any, handle: any) {
         const data = serializeData as ISpriteAtlasSerializeData;
         this._name = data.name;
         const frames = data.spriteFrames;

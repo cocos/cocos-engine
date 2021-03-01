@@ -1,10 +1,10 @@
 import spine from '../lib/spine-core.js';
 import { IAssembler } from '../../2d/renderer/base';
-import { UI } from '../../2d/renderer/ui';
+import { Batcher2D } from '../../2d/renderer/batcher-2d';
 import { FrameColor } from '../skeleton-cache';
 import { MaterialInstance } from '../../core/renderer';
 import { SkeletonTexture } from '../skeleton-texture';
-import { vfmtPosUvColor, vfmtPosUvTwoColor } from '../../2d/renderer/ui-vertex-format';
+import { vfmtPosUvColor, vfmtPosUvTwoColor } from '../../2d/renderer/vertex-format';
 import { Skeleton, SkeletonMeshData, SpineMaterialType } from '../skeleton';
 import { Color, Mat4, Material, Node, Texture2D, Vec3 } from '../../core';
 import { BlendFactor } from '../../core/gfx';
@@ -79,7 +79,7 @@ let _buffer: SkeletonMeshData | undefined;
 let _node: Node | undefined;
 let _needColor: boolean;
 let _vertexEffect: spine.VertexEffect | null = null;
-let _currentMaterial: Material | MaterialInstance | null = null;
+let _currentMaterial: MaterialInstance | null = null;
 let _currentTexture: Texture2D | null = null;
 
 function _getSlotMaterial (blendMode: spine.BlendMode) {
@@ -104,7 +104,7 @@ function _getSlotMaterial (blendMode: spine.BlendMode) {
         dst = BlendFactor.ONE_MINUS_SRC_ALPHA;
         break;
     }
-
+    _comp!.setBlendHash();
     return _comp!.getMaterialForBlendAndTint(src, dst, _useTint ? SpineMaterialType.TWO_COLORED : SpineMaterialType.COLORED_TEXTURED);
 }
 
@@ -155,7 +155,7 @@ export const simple: IAssembler = {
     createData () {
     },
 
-    updateRenderData (comp: Skeleton, ui: UI) {
+    updateRenderData (comp: Skeleton, ui: Batcher2D) {
         _comp = comp;
         const skeleton = comp._skeleton;
         if (!comp.isAnimationCached() && skeleton) {
@@ -170,7 +170,7 @@ export const simple: IAssembler = {
         _comp = comp;
     },
 
-    fillBuffers (comp: Skeleton, renderer: UI) {
+    fillBuffers (comp: Skeleton, renderer: Batcher2D) {
         if (!comp || !comp.meshRenderDataArray) return;
         _comp = comp;
         const dataArray = comp.meshRenderDataArray;
@@ -220,7 +220,7 @@ export const simple: IAssembler = {
     },
 };
 
-function updateComponentRenderData (comp: Skeleton, ui: UI) {
+function updateComponentRenderData (comp: Skeleton, ui: Batcher2D) {
     if (!comp._skeleton) return;
 
     const nodeColor = comp.color;
@@ -241,7 +241,7 @@ function updateComponentRenderData (comp: Skeleton, ui: UI) {
     _buffer = comp.requestMeshRenderData(_perVertexSize);
     _comp = comp;
 
-    _currentMaterial = _comp.getBuiltinMaterial(_useTint ? SpineMaterialType.TWO_COLORED : SpineMaterialType.COLORED_TEXTURED);
+    _currentMaterial = null;
 
     _mustFlush = true;
     _premultipliedAlpha = comp.premultipliedAlpha;
@@ -427,7 +427,7 @@ function realTimeTraverse (worldMat?: Mat4) {
     const skeletonColor = locSkeleton.color;
     const graphics = _comp!._debugRenderer!;
     const clipper = _comp!._clipper!;
-    let material: Material | MaterialInstance | null = null;
+    let material: MaterialInstance | null = null;
     let attachment: spine.Attachment;
     let uvs: spine.ArrayLike<number>;
     let triangles: number[];
@@ -673,7 +673,7 @@ function cacheTraverse (worldMat?: Mat4) {
 
     let vbuf: Float32Array;
     let ibuf: Uint16Array;
-    let material: Material | MaterialInstance | null = null;
+    let material: MaterialInstance | null = null;
     const vertices = frame.vertices;
     const indices = frame.indices;
 

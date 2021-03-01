@@ -67,7 +67,7 @@ export enum ModelType {
     DEFAULT,
     SKINNING,
     BAKED_SKINNING,
-    UI_BATCH,
+    BATCH_2D,
     PARTICLE_BATCH,
     LINE,
 }
@@ -364,6 +364,9 @@ export class Model {
             this._subModels[idx].destroy();
         }
         this._subModels[idx].initialize(subMeshData, mat.passes, this.getMacroPatches(idx));
+        // This is a temporary solution
+        // It should not be written in a fixed way, or modified by the user
+        this._subModels[idx].initPlanarShadowShader();
         this._updateAttributesAndBinding(idx);
         if (isNewSubModel) {
             const hSubModelArray = ModelPool.get(this._handle, ModelView.SUB_MODEL_ARRAY);

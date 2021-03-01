@@ -102,8 +102,8 @@ CCProgram standard-vs %{
   #include <cc-shadow-map-vs>
 
   #if USE_VERTEX_COLOR
-    in vec3 a_color;
-    out vec3 v_color;
+    in vec4 a_color;
+    out vec4 v_color;
   #endif
 
   out vec3 v_position;
@@ -180,7 +180,7 @@ CCProgram standard-fs %{
   in float v_fog_factor;
 
   #if USE_VERTEX_COLOR
-    in vec3 v_color;
+    in vec4 v_color;
   #endif
 
   #if USE_ALBEDO_MAP
@@ -219,7 +219,7 @@ CCProgram standard-fs %{
   void surf (out StandardSurface s) {
     vec4 baseColor = albedo;
     #if USE_VERTEX_COLOR
-      baseColor.rgb *= v_color;
+      baseColor *= v_color;
     #endif
     #if USE_ALBEDO_MAP
       vec4 texColor = texture(albedoMap, ALBEDO_UV);

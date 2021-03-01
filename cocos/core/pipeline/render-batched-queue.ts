@@ -39,7 +39,6 @@ import { SetIndex } from './define';
  * @zh 渲染合批队列。
  */
 export class RenderBatchedQueue {
-
     /**
      * @en A set of dynamic batched buffer
      * @zh 动态合批缓存集合。

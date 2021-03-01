@@ -29,9 +29,10 @@
  * @module ui
  */
 
+import { ccclass, help, executeInEditMode, executionOrder, menu, requireComponent, tooltip, type, editorOnly, editable, serializable, visible } from 'cc.decorator';
+import { EDITOR, DEV } from 'internal:constants';
 import { Component } from '../core/components';
 import { UITransform } from '../2d/framework/ui-transform';
-import { ccclass, help, executeInEditMode, executionOrder, menu, requireComponent, tooltip, type, editorOnly, editable, serializable, visible } from 'cc.decorator';
 import { Size, Vec3 } from '../core/math';
 import { errorID, warnID } from '../core/platform/debug';
 import { SystemEventType } from '../core/platform/event-manager/event-enum';
@@ -41,7 +42,6 @@ import { Scene } from '../core/scene-graph';
 import { Node } from '../core/scene-graph/node';
 import { ccenum } from '../core/value-types/enum';
 import { TransformBit } from '../core/scene-graph/node-enum';
-import { EDITOR, DEV } from 'internal:constants';
 import { legacyCC } from '../core/global-exports';
 
 const _zeroVec3 = new Vec3();
@@ -59,11 +59,9 @@ export function getReadonlyNodeSize (parent: Node | Scene) {
         }
 
         return visibleRect;
-    }
-    else if (parent._uiProps.uiTransformComp) {
+    } else if (parent._uiProps.uiTransformComp) {
         return parent._uiProps.uiTransformComp.contentSize;
-    }
-    else {
+    } else {
         return Size.ZERO;
     }
 }
@@ -233,7 +231,7 @@ export class Widget extends Component {
         this._unregisterTargetEvents();
         this._target = value;
         this._registerTargetEvents();
-        if (EDITOR /*&& !cc.engine._isPlaying*/ && this.node.parent) {
+        if (EDITOR /* && !cc.engine._isPlaying */ && this.node.parent) {
             // adjust the offsets to keep the size and position unchanged after target changed
             legacyCC._widgetManager.updateOffsetsToStayPut(this);
         }
@@ -788,7 +786,6 @@ export class Widget extends Component {
                 this.target = null;
             }
         }
-
     }
 
     public setDirty () {
@@ -813,8 +810,8 @@ export class Widget extends Component {
         this._removeParentEvent();
     }
 
-    public _adjustWidgetToAllowMovingInEditor(eventType: TransformBit) {};
-    public _adjustWidgetToAllowResizingInEditor() {};
+    public _adjustWidgetToAllowMovingInEditor (eventType: TransformBit) {}
+    public _adjustWidgetToAllowResizingInEditor () {}
 
     public _adjustWidgetToAnchorChanged () {
         this.setDirty();
@@ -924,7 +921,7 @@ export class Widget extends Component {
                     // become stretch
                     this._originalWidth = trans.width;
                     // test check conflict
-                    if (EDITOR /*&& !cc.engine.isPlaying*/) {
+                    if (EDITOR /* && !cc.engine.isPlaying */) {
                         // TODO:
                         // _Scene.DetectConflict.checkConflict_Widget(this);
                     }
@@ -935,7 +932,7 @@ export class Widget extends Component {
                     // become stretch
                     this._originalHeight = trans.height;
                     // test check conflict
-                    if (EDITOR /*&& !cc.engine.isPlaying*/) {
+                    if (EDITOR /* && !cc.engine.isPlaying */) {
                         // TODO:
                         // _Scene.DetectConflict.checkConflict_Widget(this);
                     }
@@ -952,11 +949,9 @@ export class Widget extends Component {
                     // will cancel stretch
                     trans.width = this._originalWidth;
                 }
-            } else {
-                if (this.isStretchHeight) {
-                    // will cancel stretch
-                    trans.height = this._originalHeight;
-                }
+            } else if (this.isStretchHeight) {
+                // will cancel stretch
+                trans.height = this._originalHeight;
             }
 
             this._alignFlags &= ~flag;

@@ -1,8 +1,8 @@
-import { Joint2D } from "./joint-2d";
-import { ccclass, property, menu, type } from "../../../../core/data/class-decorator";
-import { IDistanceJoint } from "../../../spec/i-physics-joint";
-import { EJoint2DType } from "../../physics-types";
-import { Vec3 } from "../../../../core";
+import { Joint2D } from './joint-2d';
+import { ccclass, property, menu, type } from '../../../../core/data/class-decorator';
+import { IDistanceJoint } from '../../../spec/i-physics-joint';
+import { EJoint2DType } from '../../physics-types';
+import { Vec3 } from '../../../../core';
 
 @ccclass('cc.DistanceJoint2D')
 @menu('Physics2D/Joints/DistanceJoint2D')
@@ -25,7 +25,7 @@ export class DistanceJoint2D extends Joint2D {
     set maxLength (v) {
         this._maxLength = v;
         if (this._joint) {
-            (this._joint! as IDistanceJoint).setMaxLength(v);
+            (this._joint as IDistanceJoint).setMaxLength(v);
         }
     }
 
@@ -44,7 +44,7 @@ export class DistanceJoint2D extends Joint2D {
     }
 
     /// private properties
-    
+
     @property
     private _maxLength = 5;
     @property

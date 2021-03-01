@@ -28,8 +28,9 @@
  * @module component
  */
 
-import { Component } from '../core/components/component';
 import { ccclass, help, menu, executionOrder, requireComponent, tooltip, serializable } from 'cc.decorator';
+import { EDITOR } from 'internal:constants';
+import { Component } from '../core/components/component';
 import { view } from '../core/platform/view';
 import { Sprite } from '../2d/components/sprite';
 import { Node, PrivateNode } from '../core/scene-graph';
@@ -40,7 +41,6 @@ import { ImageAsset } from '../core/assets/image-asset';
 import { Rect, Size } from '../core/math';
 
 import { legacyCC } from '../core/global-exports';
-import { EDITOR } from 'internal:constants';
 
 /**
  * @en SubContextView is a view component which controls open data context viewport in WeChat game platform.<br/>
@@ -68,7 +68,7 @@ import { EDITOR } from 'internal:constants';
 @help('i18n:cc.SubContextView')
 @executionOrder(110)
 @requireComponent(UITransform)
-@menu('Components/SubContextView')
+@menu('Miscellaneous/SubContextView')
 export class SubContextView extends Component {
     @tooltip('子域的设计分辨率，禁止在运行时动态更新')
     get designResolutionSize () {
@@ -82,7 +82,7 @@ export class SubContextView extends Component {
     }
 
     @tooltip('主域更新子域贴图的频率')
-    get fps (){
+    get fps () {
         return this._fps;
     }
     set fps (value) {
@@ -135,15 +135,15 @@ export class SubContextView extends Component {
 
     private _initSharedCanvas () {
         if (this._openDataContext) {
-            let sharedCanvas = this._openDataContext.canvas;
-            sharedCanvas.width = this._designResolutionSize!.width;
-            sharedCanvas.height = this._designResolutionSize!.height;
+            const sharedCanvas = this._openDataContext.canvas;
+            sharedCanvas.width = this._designResolutionSize.width;
+            sharedCanvas.height = this._designResolutionSize.height;
         }
     }
 
     private _initContentNode () {
         if (this._openDataContext) {
-            let sharedCanvas = this._openDataContext.canvas;
+            const sharedCanvas = this._openDataContext.canvas;
 
             const image = this._imageAsset;
             image.reset(sharedCanvas);
@@ -173,31 +173,33 @@ export class SubContextView extends Component {
 
         // update subContextView size
         // use SHOW_ALL policy to adapt subContextView
-        let nodeTrans = this.node.getComponent(UITransform) as UITransform;
-        let contentTrans = this._content.getComponent(UITransform) as UITransform;
+        const nodeTrans = this.node.getComponent(UITransform) as UITransform;
+        const contentTrans = this._content.getComponent(UITransform) as UITransform;
 
-        let scaleX = nodeTrans.width / contentTrans.width;
-        let scaleY = nodeTrans.height / contentTrans.height;
-        let scale = scaleX > scaleY ? scaleY : scaleX;
-        contentTrans.width = contentTrans.width * scale;
-        contentTrans.height = contentTrans.height * scale;
+        const scaleX = nodeTrans.width / contentTrans.width;
+        const scaleY = nodeTrans.height / contentTrans.height;
+        const scale = scaleX > scaleY ? scaleY : scaleX;
+        contentTrans.width *= scale;
+        contentTrans.height *= scale;
 
         // update viewport in subContextView
-        let systemInfo = __globalAdapter.getSystemInfoSync();
-        let box = contentTrans.getBoundingBoxToWorld();
-        let visibleSize = view.getVisibleSize();
+        const systemInfo = __globalAdapter.getSystemInfoSync();
+        const box = contentTrans.getBoundingBoxToWorld();
+        const visibleSize = view.getVisibleSize();
 
-        let x = systemInfo.screenWidth * (box.x / visibleSize.width);
-        let y = systemInfo.screenHeight * (box.y / visibleSize.height);
-        let width = systemInfo.screenWidth * (box.width / visibleSize.width);
-        let height = systemInfo.screenHeight * (box.height / visibleSize.height);
+        const x = systemInfo.screenWidth * (box.x / visibleSize.width);
+        const y = systemInfo.screenHeight * (box.y / visibleSize.height);
+        const width = systemInfo.screenWidth * (box.width / visibleSize.width);
+        const height = systemInfo.screenHeight * (box.height / visibleSize.height);
 
         this._openDataContext.postMessage({
             fromEngine: true,  // compatible deprecated property
             type: 'engine',
             event: 'viewport',
-            x, y,
-            width, height,
+            x,
+            y,
+            width,
+            height,
         });
     }
 
@@ -213,7 +215,7 @@ export class SubContextView extends Component {
 
         const sharedCanvas = this._openDataContext.canvas;
         img.reset(sharedCanvas);
-        if (sharedCanvas.width > img.width || sharedCanvas.height > img.height ){
+        if (sharedCanvas.width > img.width || sharedCanvas.height > img.height) {
             this._imageAsset._texture.create(sharedCanvas.width, sharedCanvas.height);
         }
 
@@ -231,13 +233,13 @@ export class SubContextView extends Component {
     }
 
     public update (dt?: number) {
-        let calledUpdateManually = (dt === undefined);
+        const calledUpdateManually = (dt === undefined);
         if (calledUpdateManually) {
             this._updateSubContextTexture();
             return;
         }
-        let now = performance.now();
-        let deltaTime = (now - this._updatedTime);
+        const now = performance.now();
+        const deltaTime = (now - this._updatedTime);
         if (deltaTime >= this._updateInterval) {
             this._updatedTime += this._updateInterval;
             this._updateSubContextTexture();

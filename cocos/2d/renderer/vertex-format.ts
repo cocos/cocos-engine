@@ -54,7 +54,7 @@ export const vfmtPosUvTwoColor = [
     new Attribute(AttributeName.ATTR_COLOR2, Format.RGBA32F),
 ];
 
-export function getAttributeFormatBytes (attrs: Attribute[]) {
+export function getComponentPerVertex (attrs: Attribute[]) {
     let count = 0;
     for (let i = 0; i < attrs.length; i++) {
         const attr = attrs[i];

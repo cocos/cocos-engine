@@ -31,7 +31,6 @@
 import { getError } from '../platform/debug';
 
 export class Playable {
-
     /**
      * @en Whether if this `Playable` is in playing.
      * @zh 该 `Playable` 是否正在播放状态。

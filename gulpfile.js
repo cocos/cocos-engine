@@ -38,7 +38,21 @@ gulp.task('build-debug-infos', async () => {
     return await Promise.resolve(require('./gulp/tasks/buildDebugInfos')());
 });
 
-gulp.task('build-code', gulp.series('build-debug-infos', () => {
+gulp.task('build-source', async () => {
+    const cli = require.resolve('@cocos/build-engine/dist/cli');
+    return cp.spawn('node', [
+        cli,
+        `--engine=${__dirname}`,
+        '--module=system',
+        ...process.argv.slice(3),
+    ], {
+        shell: true,
+        stdio: 'inherit',
+        cwd: __dirname,
+    });
+});
+
+gulp.task('build-h5-source', gulp.series('build-debug-infos', () => {
     const cli = require.resolve('@cocos/build-engine/dist/cli');
     return cp.spawn('node', [
         cli,
@@ -56,7 +70,7 @@ gulp.task('build-code', gulp.series('build-debug-infos', () => {
     });
 }));
 
-gulp.task('build-code-minified', gulp.series('build-debug-infos', () => {
+gulp.task('build-h5-minified', gulp.series('build-debug-infos', () => {
     const cli = require.resolve('@cocos/build-engine/dist/cli');
     return cp.spawn('node', [
         cli,
@@ -88,7 +102,7 @@ gulp.task('build-declarations', async () => {
     });
 });
 
-gulp.task('build', gulp.parallel('build-code-minified', 'build-declarations'));
+gulp.task('build', gulp.parallel('build-h5-minified', 'build-declarations'));
 
 gulp.task('code-check', () => {
     return cp.spawn('npx', ['tsc', '--noEmit'], {

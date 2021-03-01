@@ -654,7 +654,7 @@ export class Layout extends Component {
 
     protected _layoutSize = new Size(300, 200);
     protected _layoutDirty = true;
-
+    protected _childrenDirty = false;
     protected _usefulLayoutObj: UITransform[] = [];
     protected _init = false;
 
@@ -716,7 +716,7 @@ export class Layout extends Component {
         this.node.on(NodeEvent.ANCHOR_CHANGED, this._doLayoutDirty, this);
         this.node.on(NodeEvent.CHILD_ADDED, this._childAdded, this);
         this.node.on(NodeEvent.CHILD_REMOVED, this._childRemoved, this);
-        this.node.on(NodeEvent.SIBLING_ORDER_CHANGED, this._orderChanged, this);
+        this.node.on(NodeEvent.SIBLING_ORDER_CHANGED, this._childrenChanged, this);
         this._addChildrenEventListeners();
     }
 
@@ -726,7 +726,7 @@ export class Layout extends Component {
         this.node.off(NodeEvent.ANCHOR_CHANGED, this._doLayoutDirty, this);
         this.node.off(NodeEvent.CHILD_ADDED, this._childAdded, this);
         this.node.off(NodeEvent.CHILD_REMOVED, this._childRemoved, this);
-        this.node.off(NodeEvent.SIBLING_ORDER_CHANGED, this._orderChanged, this);
+        this.node.off(NodeEvent.SIBLING_ORDER_CHANGED, this._childrenChanged, this);
         this._removeChildrenEventListeners();
     }
 
@@ -737,7 +737,7 @@ export class Layout extends Component {
             child.on(NodeEvent.SIZE_CHANGED, this._doLayoutDirty, this);
             child.on(NodeEvent.TRANSFORM_CHANGED, this._transformDirty, this);
             child.on(NodeEvent.ANCHOR_CHANGED, this._doLayoutDirty, this);
-            child.on('active-in-hierarchy-changed', this._doLayoutDirty, this);
+            child.on('active-in-hierarchy-changed', this._childrenChanged, this);
         }
     }
 
@@ -748,7 +748,7 @@ export class Layout extends Component {
             child.off(NodeEvent.SIZE_CHANGED, this._doLayoutDirty, this);
             child.off(NodeEvent.TRANSFORM_CHANGED, this._transformDirty, this);
             child.off(NodeEvent.ANCHOR_CHANGED, this._doLayoutDirty, this);
-            child.off('active-in-hierarchy-changed', this._doLayoutDirty, this);
+            child.off('active-in-hierarchy-changed', this._childrenChanged, this);
         }
     }
 
@@ -756,30 +756,16 @@ export class Layout extends Component {
         child.on(NodeEvent.SIZE_CHANGED, this._doLayoutDirty, this);
         child.on(NodeEvent.TRANSFORM_CHANGED, this._transformDirty, this);
         child.on(NodeEvent.ANCHOR_CHANGED, this._doLayoutDirty, this);
-        child.on('active-in-hierarchy-changed', this._doLayoutDirty, this);
-
-        this._checkUsefulObj();
-        this._doLayoutDirty();
+        child.on('active-in-hierarchy-changed', this._childrenChanged, this);
+        this._childrenChanged();
     }
 
     protected _childRemoved (child: Node) {
         child.off(NodeEvent.SIZE_CHANGED, this._doLayoutDirty, this);
         child.off(NodeEvent.TRANSFORM_CHANGED, this._transformDirty, this);
         child.off(NodeEvent.ANCHOR_CHANGED, this._doLayoutDirty, this);
-        child.off('active-in-hierarchy-changed', this._doLayoutDirty, this);
-
-        const index = this._usefulLayoutObj.findIndex((target: UITransform, index: number) => {
-            if (target.node === child) {
-                return index;
-            }
-
-            return -1;
-        });
-
-        if (index > -1) {
-            this._usefulLayoutObj.splice(index, 1);
-        }
-        this._doLayoutDirty();
+        child.off('active-in-hierarchy-changed', this._childrenChanged, this);
+        this._childrenChanged();
     }
 
     protected _resized () {
@@ -1096,9 +1082,10 @@ export class Layout extends Component {
     }
 
     protected _doLayout () {
-        if (!this._init) {
+        if (!this._init || this._childrenDirty) {
             this._checkUsefulObj();
             this._init = true;
+            this._childrenDirty = false;
         }
 
         if (this._layoutType === Type.HORIZONTAL) {
@@ -1142,8 +1129,8 @@ export class Layout extends Component {
         this._layoutDirty = true;
     }
 
-    protected _orderChanged () {
-        this._checkUsefulObj();
+    protected _childrenChanged () {
+        this._childrenDirty = true;
         this._doLayoutDirty();
     }
 

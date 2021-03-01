@@ -63,11 +63,10 @@ const superMaterials = Object.getOwnPropertyDescriptor(RenderableComponent.proto
 
 @ccclass('cc.ParticleSystem')
 @help('i18n:cc.ParticleSystem')
-@menu('Components/ParticleSystem')
+@menu('Effects/ParticleSystem')
 @executionOrder(99)
 @executeInEditMode
 export class ParticleSystem extends RenderableComponent {
-
     /**
      * @zh 粒子系统能生成的最大粒子数量。
      */
@@ -79,9 +78,9 @@ export class ParticleSystem extends RenderableComponent {
 
     public set capacity (val) {
         this._capacity = Math.floor(val);
-        // @ts-expect-error
+        // @ts-expect-error private property access
         if (this.processor && this.processor._model) {
-            // @ts-expect-error
+            // @ts-expect-error private property access
             this.processor._model.setCapacity(this._capacity);
         }
     }
@@ -313,12 +312,12 @@ export class ParticleSystem extends RenderableComponent {
     @visible(false)
     get sharedMaterials () {
         // if we don't create an array copy, the editor will modify the original array directly.
-        // @ts-expect-error
-        return superMaterials.get.call(this);
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+        return superMaterials.get!.call(this);
     }
 
     set sharedMaterials (val) {
-        // @ts-expect-error
+        // @ts-expect-error private property access
         superMaterials.set.call(this, val);
     }
 
@@ -607,8 +606,6 @@ export class ParticleSystem extends RenderableComponent {
         this._customData2 = new Vec2();
 
         this._subEmitters = []; // array of { emitter: ParticleSystem, type: 'birth', 'collision' or 'death'}
-
-        legacyCC.director.on(legacyCC.Director.EVENT_BEFORE_COMMIT, this.beforeRender, this);
     }
 
     public onLoad () {
@@ -688,6 +685,10 @@ export class ParticleSystem extends RenderableComponent {
         if (this._prewarm) {
             this._prewarmSystem();
         }
+
+        if (this._trailModule) {
+            this._trailModule.play();
+        }
     }
 
     /**
@@ -756,13 +757,14 @@ export class ParticleSystem extends RenderableComponent {
     }
 
     protected onDestroy () {
+        legacyCC.director.off(legacyCC.Director.EVENT_BEFORE_COMMIT, this.beforeRender, this);
         // this._system.remove(this);
         this.processor.onDestroy();
         if (this._trailModule) this._trailModule.destroy();
-        legacyCC.director.off(legacyCC.Director.EVENT_BEFORE_COMMIT, this.beforeRender, this);
     }
 
     protected onEnable () {
+        legacyCC.director.on(legacyCC.Director.EVENT_BEFORE_COMMIT, this.beforeRender, this);
         if (this.playOnAwake) {
             this.play();
         }
@@ -770,6 +772,7 @@ export class ParticleSystem extends RenderableComponent {
         if (this._trailModule) this._trailModule.onEnable();
     }
     protected onDisable () {
+        legacyCC.director.off(legacyCC.Director.EVENT_BEFORE_COMMIT, this.beforeRender, this);
         this.processor.onDisable();
         if (this._trailModule) this._trailModule.onDisable();
     }
@@ -804,14 +807,14 @@ export class ParticleSystem extends RenderableComponent {
     }
 
     protected _onVisibilityChange (val) {
-        // @ts-expect-error
+        // @ts-expect-error private property access
         if (this.processor._model) {
-            // @ts-expect-error
+            // @ts-expect-error private property access
             this.processor._model.visFlags = val;
         }
     }
 
-    private emit (count, dt) {
+    private emit (count: number, dt: number) {
         const delta = this._time / this.duration;
 
         if (this._simulationSpace === Space.World) {
@@ -876,7 +879,6 @@ export class ParticleSystem extends RenderableComponent {
             particle.randomSeed = randomRangeInt(0, 233280);
 
             this.processor.setNewParticle(particle);
-
         } // end of particles forLoop.
     }
 
@@ -978,6 +980,7 @@ export class ParticleSystem extends RenderableComponent {
     }
 
     public _onBeforeSerialize (props) {
-        return this.enableCulling ? props.filter(p => !PARTICLE_MODULE_PROPERTY.includes(p) || (this[p] && this[p].enable)) : props;
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+        return this.enableCulling ? props.filter((p) => !PARTICLE_MODULE_PROPERTY.includes(p) || (this[p] && this[p].enable)) : props;
     }
 }

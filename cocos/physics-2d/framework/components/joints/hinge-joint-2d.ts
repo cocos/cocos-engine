@@ -1,7 +1,7 @@
-import { Joint2D } from "./joint-2d";
-import { ccclass, property, menu, type } from "../../../../core/data/class-decorator";
-import { IHingeJoint } from "../../../spec/i-physics-joint";
-import { EJoint2DType } from "../../physics-types";
+import { Joint2D } from './joint-2d';
+import { ccclass, property, menu, type } from '../../../../core/data/class-decorator';
+import { IHingeJoint } from '../../../spec/i-physics-joint';
+import { EJoint2DType } from '../../physics-types';
 
 @ccclass('cc.HingeJoint2D')
 @menu('Physics2D/Joints/HingeJoint2D')
@@ -35,7 +35,7 @@ export class HingeJoint2D extends Joint2D {
     set lowerAngle (v: number) {
         this._lowerAngle = v;
         if (this._joint) {
-            (this._joint! as IHingeJoint).setLowerAngle(v);
+            (this._joint as IHingeJoint).setLowerAngle(v);
         }
     }
 
@@ -52,7 +52,7 @@ export class HingeJoint2D extends Joint2D {
     set upperAngle (v: number) {
         this._upperAngle = v;
         if (this._joint) {
-            (this._joint! as IHingeJoint).setUpperAngle(v);
+            (this._joint as IHingeJoint).setUpperAngle(v);
         }
     }
 

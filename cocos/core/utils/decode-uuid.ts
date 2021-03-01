@@ -29,15 +29,15 @@
  * @module core
  */
 
-import { BASE64_VALUES } from './misc';
 import { TEST } from 'internal:constants';
+import { BASE64_VALUES } from './misc';
 import { legacyCC } from '../global-exports';
 
 const HexChars = '0123456789abcdef'.split('');
 
 const _t = ['', '', '', ''];
 const UuidTemplate = _t.concat(_t, '-', _t, '-', _t, '-', _t, '-', _t, _t, _t);
-const Indices = UuidTemplate.map((x, i) => x === '-' ? NaN : i).filter(isFinite);
+const Indices = UuidTemplate.map((x, i) => (x === '-' ? NaN : i)).filter(isFinite);
 
 /**
  * @en

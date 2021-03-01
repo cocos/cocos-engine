@@ -23,7 +23,6 @@
  THE SOFTWARE.
  */
 
-
 export interface ICounterOption {
     desc: string;
     counter: Counter;
@@ -72,12 +71,12 @@ export class Counter {
 
     public alarm () {
         return (
-            (this._opts.below && this._value < this._opts.below) ||
-            (this._opts.over && this._value > this._opts.over)
+            (this._opts.below && this._value < this._opts.below)
+            || (this._opts.over && this._value > this._opts.over)
         );
     }
 
-    protected _average (v: number, now: number = 0) {
+    protected _average (v: number, now = 0) {
         if (this._opts.average) {
             this._accumValue += v;
             ++this._accumSamples;

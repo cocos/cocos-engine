@@ -81,7 +81,6 @@ export function IsPowerOf2 (x: number): boolean {
  * @zh GFX 纹理。
  */
 export abstract class Texture extends Obj {
-
     /**
      * @en Get texture type.
      * @zh 纹理类型。

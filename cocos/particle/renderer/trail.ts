@@ -23,15 +23,14 @@
  THE SOFTWARE.
  */
 
-
 /**
  * @packageDocumentation
  * @module particle
  */
 
+import { ccclass, tooltip, displayOrder, type, serializable } from 'cc.decorator';
 import { Material } from '../../core/assets/material';
 import { RenderingSubMesh } from '../../core/assets/rendering-sub-mesh';
-import { ccclass, tooltip, displayOrder, type, serializable } from 'cc.decorator';
 import { director } from '../../core/director';
 import { AttributeName, BufferUsageBit, Format, FormatInfos, MemoryUsageBit, PrimitiveMode } from '../../core/gfx/define';
 import { Device, Attribute, Buffer, IndirectBuffer, BufferInfo, DrawInfo, DRAW_INFO_SIZE } from '../../core/gfx';
@@ -44,7 +43,6 @@ import { Space, TextureMode, TrailMode } from '../enum';
 import { Particle } from '../particle';
 import { legacyCC } from '../../core/global-exports';
 
-
 const PRE_TRIANGLE_INDEX = 1;
 const NEXT_TRIANGLE_INDEX = 1 << 2;
 const DIRECTION_THRESHOLD = Math.cos(toRadian(100));
@@ -56,9 +54,9 @@ const _temp_vec3 = new Vec3();
 const _temp_vec3_1 = new Vec3();
 const _temp_color = new Color();
 
-const barycentric = [1, 0, 0, 0, 1, 0, 0, 0, 1]; // <wireframe debug>
+// const barycentric = [1, 0, 0, 0, 1, 0, 0, 0, 1]; // <wireframe debug>
 
-const _bcIdx = 0;
+// let _bcIdx = 0; // <wireframe debug>
 
 interface ITrailElement {
     position: Vec3;
@@ -104,9 +102,9 @@ class TrailSegment {
         return this.trailElements[idx];
     }
 
-    public addElement (): ITrailElement {
+    public addElement (): ITrailElement | null {
         if (this.trailElements.length === 0) {
-            return null as any;
+            return null;
         }
         if (this.start === -1) {
             this.start = 0;
@@ -130,7 +128,7 @@ class TrailSegment {
         return this.trailElements[newEleLoc];
     }
 
-    public iterateElement (target: object, f: (target: object, e: ITrailElement, p: Particle, dt: number) => boolean, p: Particle, dt: number) {
+    public iterateElement (target: TrailModule, f: (target: TrailModule, e: ITrailElement, p: Particle, dt: number) => boolean, p: Particle, dt: number) {
         const end = this.start >= this.end ? this.end + this.trailElements.length : this.end;
         for (let i = this.start; i < end; i++) {
             if (f(target, this.trailElements[i % this.trailElements.length], p, dt)) {
@@ -170,7 +168,6 @@ class TrailSegment {
 
 @ccclass('cc.TrailModule')
 export default class TrailModule {
-
     /**
      * 是否启用。
      */
@@ -397,6 +394,12 @@ export default class TrailModule {
         }
     }
 
+    public play () {
+        if (this._trailModel && this._enable) {
+            this._trailModel.enabled = true;
+        }
+    }
+
     public clear () {
         if (this.enable) {
             const trailIter = this._particleTrail.values();
@@ -407,6 +410,7 @@ export default class TrailModule {
             }
             this._particleTrail.clear();
             this.updateRenderData();
+            if (this._trailModel) this._trailModel.enabled = false;
         }
     }
 
@@ -508,7 +512,7 @@ export default class TrailModule {
             const end = trailSeg.start >= trailSeg.end ? trailSeg.end + trailSeg.trailElements.length : trailSeg.end;
             const trailNum = end - trailSeg.start;
             // const lastSegRatio = vec3.distance(trailSeg.getTailElement()!.position, p.position) / this._minParticleDistance;
-            const textCoordSeg = 1 / (trailNum /*- 1 + lastSegRatio*/);
+            const textCoordSeg = 1 / (trailNum /* - 1 + lastSegRatio */);
             const startSegEle = trailSeg.trailElements[trailSeg.start];
             this._fillVertexBuffer(startSegEle, this.colorOverTrail.evaluate(1, 1), indexOffset, 1, 0, NEXT_TRIANGLE_INDEX);
             for (let i = trailSeg.start + 1; i < end; i++) {
@@ -564,6 +568,7 @@ export default class TrailModule {
                 this._fillVertexBuffer(_temp_trailEle, this.colorOverTrail.evaluate(0, 1), indexOffset, 0, trailNum, PRE_TRIANGLE_INDEX);
             }
         }
+        this._trailModel!.enabled = this.ibOffset > 0;
     }
 
     public updateIA (count: number) {

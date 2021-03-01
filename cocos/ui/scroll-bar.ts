@@ -29,15 +29,15 @@
  * @module ui
  */
 
+import { ccclass, help, executionOrder, menu, requireComponent, tooltip, displayOrder, type, serializable } from 'cc.decorator';
 import { Component } from '../core/components/component';
 import { UITransform } from '../2d/framework';
-import { ccclass, help, executionOrder, menu, requireComponent, tooltip, displayOrder, type, serializable } from 'cc.decorator';
 import { Color, Size, Vec2, Vec3 } from '../core/math';
 import { ccenum } from '../core/value-types/enum';
 import { clamp01 } from '../core/math/utils';
 import { ScrollView } from './scroll-view';
 import { Sprite } from '../2d/components/sprite';
-import { Node } from '../core/';
+import { Node } from '../core';
 import { legacyCC } from '../core/global-exports';
 
 const GETTING_SHORTER_FACTOR = 20;
@@ -89,7 +89,6 @@ ccenum(Direction);
 @menu('UI/ScrollBar')
 @requireComponent(UITransform)
 export class ScrollBar extends Component {
-
     /**
      * @en
      * The "handle" part of the ScrollBar.
@@ -281,7 +280,6 @@ export class ScrollBar extends Component {
 
         this._updateLength(length);
         this._updateHandlerPosition(position);
-
     }
 
     /**
@@ -392,7 +390,7 @@ export class ScrollBar extends Component {
         const handleParent = this.handle!.node.parent!;
 
         Vec3.set(_tempPos_1, -barSize.width * barAnchor.x, -barSize.height * barAnchor.y, 0);
-        const leftBottomWorldPosition = this.node!._uiProps.uiTransformComp!.convertToWorldSpaceAR(_tempPos_1, _tempPos_2);
+        const leftBottomWorldPosition = this.node._uiProps.uiTransformComp!.convertToWorldSpaceAR(_tempPos_1, _tempPos_2);
         let fixupPosition = new Vec3();
         handleParent._uiProps.uiTransformComp!.convertToNodeSpaceAR(leftBottomWorldPosition, fixupPosition);
 
@@ -461,7 +459,7 @@ export class ScrollBar extends Component {
             const handleTrans = handleNode._uiProps.uiTransformComp!;
             const handleNodeSize = handleTrans.contentSize;
             const anchor = handleTrans.anchorPoint;
-            if (anchor.x !== defaultAnchor.x || anchor.y !== defaultAnchor.y){
+            if (anchor.x !== defaultAnchor.x || anchor.y !== defaultAnchor.y) {
                 handleTrans.setAnchorPoint(defaultAnchor);
             }
 

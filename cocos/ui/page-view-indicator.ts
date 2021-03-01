@@ -29,16 +29,16 @@
  * @module ui
  */
 
+import { ccclass, help, executionOrder, menu, tooltip, type, serializable } from 'cc.decorator';
 import { SpriteFrame } from '../2d/assets';
 import { Component } from '../core/components';
-import { ccclass, help, executionOrder, menu, tooltip, type, serializable } from 'cc.decorator';
 import { Color, Size } from '../core/math';
 import { ccenum } from '../core/value-types/enum';
 import { Node } from '../core/scene-graph';
 import { Layout } from './layout';
 import { PageView } from './page-view';
 import { Sprite } from '../2d/components/sprite';
-import { UIRenderable } from '../2d/framework/ui-renderable';
+import { Renderable2D } from '../2d/framework/renderable-2d';
 import { legacyCC } from '../core/global-exports';
 
 const _color = new Color();
@@ -191,8 +191,7 @@ export class PageViewIndicator extends Component {
         if (this.direction === Direction.HORIZONTAL) {
             layout.type = Layout.Type.HORIZONTAL;
             layout.spacingX = this.spacing;
-        }
-        else if (this.direction === Direction.VERTICAL) {
+        } else if (this.direction === Direction.VERTICAL) {
             layout.type = Layout.Type.VERTICAL;
             layout.spacingY = this.spacing;
         }
@@ -202,8 +201,8 @@ export class PageViewIndicator extends Component {
     public _createIndicator () {
         const node = new Node();
         const sprite = node.addComponent(Sprite);
-        sprite!.spriteFrame = this.spriteFrame;
-        sprite!.sizeMode = Sprite.SizeMode.CUSTOM;
+        sprite.spriteFrame = this.spriteFrame;
+        sprite.sizeMode = Sprite.SizeMode.CUSTOM;
         node.parent = this.node;
         node._uiProps.uiTransformComp!.setContentSize(this._cellSize);
         return node;
@@ -220,14 +219,14 @@ export class PageViewIndicator extends Component {
                 continue;
             }
 
-            const uiComp = node._uiProps.uiComp as UIRenderable;
+            const uiComp = node._uiProps.uiComp as Renderable2D;
             _color.set(uiComp.color);
             _color.a = 255 / 2;
             uiComp.color = _color;
         }
 
         if (indicators[idx]._uiProps.uiComp) {
-            const comp = indicators[idx]._uiProps.uiComp as UIRenderable;
+            const comp = indicators[idx]._uiProps.uiComp as Renderable2D;
             _color.set(comp.color);
             _color.a = 255;
             comp.color = _color;
@@ -248,8 +247,7 @@ export class PageViewIndicator extends Component {
                     indicators[i] = this._createIndicator();
                 }
             }
-        }
-        else {
+        } else {
             const count = indicators.length - pages.length;
             for (i = count; i > 0; --i) {
                 const node = indicators[i - 1];

@@ -59,6 +59,7 @@ export class CannonRigidBody implements IRigidBody {
     }
 
     setAllowSleep (v: boolean) {
+        if (this.impl.type !== CANNON.Body.DYNAMIC) return;
         this.impl.allowSleep = v;
         this._wakeUpIfSleep();
     }
@@ -74,17 +75,21 @@ export class CannonRigidBody implements IRigidBody {
         switch (v) {
         case ERigidBodyType.DYNAMIC:
             this.impl.type = CANNON.Body.DYNAMIC;
+            this.impl.allowSleep = this._rigidBody.allowSleep;
             this.setMass(this._rigidBody.mass);
             break;
         case ERigidBodyType.KINEMATIC:
             this.impl.type = CANNON.Body.KINEMATIC;
             this.impl.mass = 0;
+            this.impl.allowSleep = false;
+            this.impl.sleepState = CANNON.Body.AWAKE;
             this.impl.updateMassProperties();
             break;
         case ERigidBodyType.STATIC:
         default:
             this.impl.type = CANNON.Body.STATIC;
             this.impl.mass = 0;
+            this.impl.allowSleep = true;
             this.impl.updateMassProperties();
             break;
         }
@@ -152,8 +157,8 @@ export class CannonRigidBody implements IRigidBody {
 
     onEnable () {
         this._isEnabled = true;
-        this.setMass(this._rigidBody.mass);
         this.setType(this._rigidBody.type);
+        this.setMass(this._rigidBody.mass);
         this.setAllowSleep(this._rigidBody.allowSleep);
         this.setLinearDamping(this._rigidBody.linearDamping);
         this.setAngularDamping(this._rigidBody.angularDamping);

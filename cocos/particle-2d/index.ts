@@ -39,5 +39,5 @@ export {
     MotionStreak,
     MotionStreakAssemblerManager,
     ParticleSystem2DAssembler,
-    ParticleAsset
+    ParticleAsset,
 };

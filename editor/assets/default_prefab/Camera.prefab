@@ -87,7 +87,10 @@
     },
     "_targetDisplay": 0,
     "_id": "",
-    "_visibility": 1822425087
+    "_visibility": 1822425087,
+    "__prefab": {
+      "__id__": 4
+    }
   },
   {
     "__type__": "cc.PrefabInfo",
@@ -97,11 +100,10 @@
     "asset": {
       "__id__": 0
     },
-    "fileId": "f8Nyw5r0hH9Zz+WrOqK1x/",
-    "sync": false,
-    "_synced": {
-      "default": false,
-      "serializable": false
-    }
+    "fileId": "f8Nyw5r0hH9Zz+WrOqK1x/"
+  },
+  {
+    "__type__": "cc.CompPrefabInfo",
+    "fileId": "dbCiGR9T1E0oZwxclTRFEj"
   }
 ]

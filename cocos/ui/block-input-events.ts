@@ -35,11 +35,11 @@ import { Event } from '../core/event';
 import { SystemEventType } from '../core/platform/event-manager/event-enum';
 
 const BlockEvents = [SystemEventType.TOUCH_START, SystemEventType.TOUCH_END, SystemEventType.TOUCH_MOVE,
-  SystemEventType.MOUSE_DOWN, SystemEventType.MOUSE_MOVE, SystemEventType.MOUSE_UP,
-  SystemEventType.MOUSE_ENTER, SystemEventType.MOUSE_LEAVE, SystemEventType.MOUSE_WHEEL];
+    SystemEventType.MOUSE_DOWN, SystemEventType.MOUSE_MOVE, SystemEventType.MOUSE_UP,
+    SystemEventType.MOUSE_ENTER, SystemEventType.MOUSE_LEAVE, SystemEventType.MOUSE_WHEEL];
 
-function stopPropagation(event: Event) {
-  event.propagationStopped = true;
+function stopPropagation (event: Event) {
+    event.propagationStopped = true;
 }
 
 /**
@@ -53,19 +53,19 @@ function stopPropagation(event: Event) {
  */
 @ccclass('cc.BlockInputEvents')
 @help('i18n:cc.BlockInputEvents')
-@menu('Components/BlockInputEvents')
+@menu('Event/BlockInputEvents')
 export class BlockInputEvents extends Component {
-  onEnable() {
-    for (let i = 0; i < BlockEvents.length; i++) {
-      // supply the 'this' parameter so that the callback could be added and removed correctly,
-      // even if the same component is added more than once to a Node.
-      this.node.on(BlockEvents[i], stopPropagation, this);
+    onEnable () {
+        for (let i = 0; i < BlockEvents.length; i++) {
+            // supply the 'this' parameter so that the callback could be added and removed correctly,
+            // even if the same component is added more than once to a Node.
+            this.node.on(BlockEvents[i], stopPropagation, this);
+        }
     }
-  }
 
-  onDisable() {
-    for (let i = 0; i < BlockEvents.length; i++) {
-      this.node.off(BlockEvents[i], stopPropagation, this);
+    onDisable () {
+        for (let i = 0; i < BlockEvents.length; i++) {
+            this.node.off(BlockEvents[i], stopPropagation, this);
+        }
     }
-  }
 }

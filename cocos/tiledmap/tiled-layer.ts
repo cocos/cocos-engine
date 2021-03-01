@@ -33,14 +33,14 @@
 import { ccclass } from 'cc.decorator';
 
 import { EDITOR } from 'internal:constants';
-import { UIRenderable } from '../2d/framework/ui-renderable';
+import { Renderable2D } from '../2d/framework/renderable-2d';
 import { SpriteFrame } from '../2d/assets/sprite-frame';
 import { Component } from '../core/components';
 import { TMXMapInfo } from './tmx-xml-parser';
-import { Color, IVec2Like, Mat4, Size, SystemEventType, Texture2D, Vec2, Vec3, Node, warn, logID, CCBoolean } from '../core';
+import { Color, IVec2Like, Mat4, Size, SystemEventType, Texture2D, Vec2, Vec3, Node, warn, logID, CCBoolean, director } from '../core';
 import { TiledTile } from './tiled-tile';
 import { MeshRenderData } from '../2d/renderer/render-data';
-import { UI } from '../2d/renderer/ui';
+import { Batcher2D } from '../2d/renderer/batcher-2d';
 import {
     MixedGID, GID, Orientation, TiledTextureGrids, TMXTilesetInfo, RenderOrder, StaggerAxis, StaggerIndex, TileFlag,
     GIDFlags, TiledGrid, TiledAnimationType, PropertiesInfo, TMXLayerInfo,
@@ -82,7 +82,7 @@ type TiledMeshDataArray = (TiledMeshData | TiledSubNodeData)[];
  * @extends Component
  */
 @ccclass('cc.TiledLayer')
-export class TiledLayer extends UIRenderable {
+export class TiledLayer extends Renderable2D {
     // [row][col] = {count: 0, nodesList: []};
     protected _userNodeGrid: { [key: number]: { count: number;[key: number]: { count: number, list: (TiledUserNodeData | null)[] } } } = {};
     protected _userNodeMap: { [key: string]: TiledUserNodeData } = {};// [id] = node;
@@ -197,6 +197,7 @@ export class TiledLayer extends UIRenderable {
         if (this._enableCulling !== value) {
             this._enableCulling = value;
             this._cullingDirty = true;
+            this.markForUpdateRenderData();
         }
     }
     get enableCulling () { return this._enableCulling!; }
@@ -399,6 +400,8 @@ export class TiledLayer extends UIRenderable {
         this.node.parent!.on(SystemEventType.TRANSFORM_CHANGED, this.updateCulling, this);
         this.node.parent!.on(SystemEventType.SIZE_CHANGED, this.updateCulling, this);
         this.markForUpdateRenderData();
+        // delay 1 frame, since camera's matrix data is dirty
+        this.scheduleOnce(this.updateCulling.bind(this));
     }
 
     onDisable () {
@@ -850,7 +853,7 @@ export class TiledLayer extends UIRenderable {
         } else if (this._enableCulling) {
             this.node.updateWorldTransform();
             Mat4.invert(_mat4_temp, this.node.getWorldMatrix());
-            const camera = this.node._uiProps.uiTransformComp!._canvas!.camera;
+            const camera = director.root!.batcher2D.getFirstRenderCamera(this.node);
             if (camera) {
                 _vec3_temp.x = 0;
                 _vec3_temp.y = 0;
@@ -862,8 +865,8 @@ export class TiledLayer extends UIRenderable {
                 camera.screenToWorld(_vec3_temp2, _vec3_temp2);
                 // camera.getScreenToWorldPoint(_vec2_temp, _vec2_temp);
                 // camera.getScreenToWorldPoint(_vec2_temp2, _vec2_temp2);
-                Vec2.transformMat4(_vec3_temp, _vec3_temp, _mat4_temp);
-                Vec2.transformMat4(_vec3_temp2, _vec3_temp2, _mat4_temp);
+                Vec3.transformMat4(_vec3_temp, _vec3_temp, _mat4_temp);
+                Vec3.transformMat4(_vec3_temp2, _vec3_temp2, _mat4_temp);
                 this.updateViewPort(_vec3_temp.x, _vec3_temp.y, _vec3_temp2.x - _vec3_temp.x, _vec3_temp2.y - _vec3_temp.y);
             }
         }
@@ -1433,7 +1436,7 @@ export class TiledLayer extends UIRenderable {
 
     // 当前的 _meshRenderDataArray 的索引, 以便 fillBuffers 选取 RenderData
     public _meshRenderDataArrayIdx = 0;
-    protected _render (ui: UI) {
+    protected _render (ui: Batcher2D) {
         if (this._meshRenderDataArray) {
             for (let i = 0; i < this._meshRenderDataArray.length; i++) {
                 this._meshRenderDataArrayIdx = i;

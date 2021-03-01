@@ -37,9 +37,9 @@ import * as js from '../utils/js';
 
 import { deserializeDynamic } from './deserialize-dynamic';
 
-/****************************************************************************
+/** **************************************************************************
  * BUILT-IN TYPES / CONSTAINTS
- ****************************************************************************/
+ *************************************************************************** */
 
 const SUPPORT_MIN_FORMAT_VERSION = 1;
 const EMPTY_PLACEHOLDER = 0;
@@ -98,33 +98,33 @@ function serializeBuiltinValueTypes (obj: ValueType): IValueTypeData | null {
     const ctor = obj.constructor as typeof ValueType;
     const typeId = BuiltinValueTypes.indexOf(ctor);
     switch (ctor) {
-        case Vec2:
-            // @ts-expect-error
-            return [typeId, obj.x, obj.y];
-        case Vec3:
-            // @ts-expect-error
-            return [typeId, obj.x, obj.y, obj.z];
-        case Vec4:
-        case Quat:
-            // @ts-expect-error
-            return [typeId, obj.x, obj.y, obj.z, obj.w];
-        case Color:
-            // @ts-expect-error
-            return [typeId, obj._val];
-        case Size:
-            // @ts-expect-error
-            return [typeId, obj.width, obj.height];
-        case Rect:
-            // @ts-expect-error
-            return [typeId, obj.x, obj.y, obj.width, obj.height];
-        case Mat4:
-            // @ts-expect-error
-            const res: IValueTypeData = new Array(1 + 16);
-            res[VALUETYPE_SETTER] = typeId;
-            Mat4.toArray(res, obj as Mat4, 1);
-            return res;
-        default:
-            return null;
+    case Vec2:
+        // @ts-expect-error
+        return [typeId, obj.x, obj.y];
+    case Vec3:
+        // @ts-expect-error
+        return [typeId, obj.x, obj.y, obj.z];
+    case Vec4:
+    case Quat:
+        // @ts-expect-error
+        return [typeId, obj.x, obj.y, obj.z, obj.w];
+    case Color:
+        // @ts-expect-error
+        return [typeId, obj._val];
+    case Size:
+        // @ts-expect-error
+        return [typeId, obj.width, obj.height];
+    case Rect:
+        // @ts-expect-error
+        return [typeId, obj.x, obj.y, obj.width, obj.height];
+    case Mat4:
+        // @ts-expect-error
+        const res: IValueTypeData = new Array(1 + 16);
+        res[VALUETYPE_SETTER] = typeId;
+        Mat4.toArray(res, obj as Mat4, 1);
+        return res;
+    default:
+        return null;
     }
 }
 
@@ -146,10 +146,9 @@ function serializeBuiltinValueTypes (obj: ValueType): IValueTypeData | null {
 //     // BigUint64Array,
 // ];
 
-
-/****************************************************************************
+/** **************************************************************************
  * TYPE DECLARATIONS
- ****************************************************************************/
+ *************************************************************************** */
 
 // Includes Bitwise NOT value.
 // Both T and U have non-negative integer ranges.
@@ -283,7 +282,6 @@ type PrimitiveObjectTypeID = (
 );
 
 type AdvancedTypeID = Exclude<DataTypeID, DataTypeID.SimpleType>;
-
 
 // Collection of all data types
 type AnyData = DataTypes[keyof DataTypes];
@@ -513,9 +511,9 @@ interface ICustomClass {
     _deserialize: (content: any, context: ICustomHandler) => void;
 }
 
-/****************************************************************************
+/** **************************************************************************
  * IMPLEMENTS
- ****************************************************************************/
+ *************************************************************************** */
 
 /**
  * @en Contains information collected during deserialization
@@ -551,8 +549,7 @@ export class Details {
             this.uuidObjList = data![File.DependObjs];
             this.uuidPropList = data![File.DependKeys];
             this.uuidList = data![File.DependUuidIndices];
-        }
-        else {
+        } else {
             // could be used by deserialize-dynamic
             const used = this.uuidList;
             if (!used) {
@@ -571,8 +568,7 @@ export class Details {
             this.uuidList = null;
             this.uuidObjList = null;
             this.uuidPropList = null;
-        }
-        else {
+        } else {
             // could be reused by deserialize-dynamic
             const used = this.uuidList;
             if (used) {
@@ -615,27 +611,25 @@ export function dereference (refs: IRefs, instances: IFileData[File.Instances], 
     // owner is object
     const instanceOffset: number = refs[dataLength] * Refs.EACH_RECORD_LENGTH;
     for (; i < instanceOffset; i += Refs.EACH_RECORD_LENGTH) {
-        const owner = refs[i] ;
+        const owner = refs[i];
 
         const target = instances[refs[i + Refs.TARGET_OFFSET]];
         const keyIndex = refs[i + Refs.KEY_OFFSET] as StringIndexBnotNumber;
         if (keyIndex >= 0) {
             owner[strings[keyIndex]] = target;
-        }
-        else {
+        } else {
             owner[~keyIndex] = target;
         }
     }
     // owner is instance index
     for (; i < dataLength; i += Refs.EACH_RECORD_LENGTH) {
-        const owner = instances[refs[i]] ;
+        const owner = instances[refs[i]];
 
         const target = instances[refs[i + Refs.TARGET_OFFSET]];
         const keyIndex = refs[i + Refs.KEY_OFFSET] as StringIndexBnotNumber;
         if (keyIndex >= 0) {
             owner[strings[keyIndex]] = target;
-        }
-        else {
+        } else {
             owner[~keyIndex] = target;
         }
     }
@@ -679,8 +673,7 @@ function deserializeCustomCCObject (data: IFileData, ctor: Ctor<ICustomClass>, v
     const obj = new ctor();
     if (obj._deserialize) {
         obj._deserialize(value, data[File.Context]);
-    }
-    else {
+    } else {
         errorID(5303, js.getClassName(ctor));
     }
     return obj;
@@ -697,8 +690,7 @@ function assignSimple (data: IFileData, owner: any, key: string, value: DataType
 function assignInstanceRef (data: IFileData, owner: any, key: string, value: InstanceBnotReverseIndex) {
     if (value >= 0) {
         owner[key] = data[File.Instances][value];
-    }
-    else {
+    } else {
         (data[File.Refs] as IRefs)[(~value) * Refs.EACH_RECORD_LENGTH] = owner;
     }
 }
@@ -757,7 +749,7 @@ function parseArray (data: IFileData, owner: any, key: string, value: IArrayData
     const array = value[ARRAY_ITEM_VALUES];
     owner[key] = array;
     for (let i = 0; i < array.length; ++i) {
-        const subValue = array[i] ;
+        const subValue = array[i];
         const type = value[i + 1] as DataTypeID;
         if (type !== DataTypeID.SimpleType) {
             const op = ASSIGNMENTS[type];
@@ -795,8 +787,6 @@ ASSIGNMENTS[DataTypeID.Dict] = parseDict;
 ASSIGNMENTS[DataTypeID.Array] = parseArray;
 // ASSIGNMENTS[DataTypeID.TypedArray] = parseTypedArray;
 
-
-
 function parseInstances (data: IFileData): RootInstanceIndex {
     const instances = data[File.Instances];
     const instanceTypes = data[File.InstanceTypes];
@@ -805,8 +795,7 @@ function parseInstances (data: IFileData): RootInstanceIndex {
     let normalObjectCount = instances.length - instanceTypesLen;
     if (typeof rootIndex !== 'number') {
         rootIndex = 0;
-    }
-    else {
+    } else {
         if (rootIndex < 0) {
             rootIndex = ~rootIndex;
         }
@@ -825,14 +814,11 @@ function parseInstances (data: IFileData): RootInstanceIndex {
         let type = instanceTypes[typeIndex] as OtherObjectTypeID;
         const eachData = instances[insIndex];
         if (type >= 0) {
-
             // class index for DataTypeID.CustomizedClass
 
             const ctor = classes[type] as CCClass<ICustomClass>;  // class
             instances[insIndex] = deserializeCustomCCObject(data, ctor, eachData);
-        }
-        else {
-
+        } else {
             // Other
 
             type = (~type) as PrimitiveObjectTypeID;
@@ -883,8 +869,7 @@ function doLookupClass (classFinder, type: string, container: any[], index: numb
                 return new actualClass();
             })(container, index, type);
             return;
-        }
-        else {
+        } else {
             klass = getMissingClass(hasCustomFinder, type);
         }
     }
@@ -904,8 +889,7 @@ function lookupClasses (data: IPackedFileData, silent: boolean, customFinder?: C
             }
             const type: string = klassLayout[CLASS_TYPE];
             doLookupClass(classFinder, type, klassLayout as IClass, CLASS_TYPE, silent, customFinder);
-        }
-        else {
+        } else {
             doLookupClass(classFinder, klassLayout, classes, i, silent, customFinder);
         }
     }
@@ -936,28 +920,24 @@ function parseResult (data: IFileData) {
         const obj: any = dependObjs[i];
         if (typeof obj === 'number') {
             dependObjs[i] = instances[obj];
-        }
-        else {
+        } else {
             // assigned by DataTypeID.AssetRefByInnerObj or added by Details object directly in _deserialize
         }
         let key: any = dependKeys[i];
         if (typeof key === 'number') {
             if (key >= 0) {
                 key = sharedStrings[key];
-            }
-            else {
+            } else {
                 key = ~key;
             }
             dependKeys[i] = key;
-        }
-        else {
+        } else {
             // added by Details object directly in _deserialize
         }
         const uuid = dependUuids[i];
         if (typeof uuid === 'number') {
-            dependUuids[i] = (dependSharedUuids as SharedString[])[uuid ];
-        }
-        else {
+            dependUuids[i] = (dependSharedUuids as SharedString[])[uuid];
+        } else {
             // added by Details object directly in _deserialize
         }
     }
@@ -968,8 +948,7 @@ export function isCompiledJson (json: object): boolean {
         const version = json[0];
         // array[0] will not be a number in the editor version
         return typeof version === 'number' || version instanceof FileInfo;
-    }
-    else {
+    } else {
         return false;
     }
 }
@@ -999,8 +978,7 @@ export function deserialize (data: IFileData | string | any, details: Details | 
 
     if (!BUILD && !(PREVIEW && isCompiledJson(data))) {
         res = deserializeDynamic(data, details, options);
-    }
-    else {
+    } else {
         details.init(data);
         options = options || {};
 
@@ -1056,8 +1034,7 @@ deserialize.reportMissingClass = (id: string) => {
     if (EDITOR && EditorExtends.UuidUtils.isUuid(id)) {
         id = EditorExtends.UuidUtils.decompressUuid(id);
         warnID(5301, id);
-    }
-    else {
+    } else {
         warnID(5302, id);
     }
 };
@@ -1106,8 +1083,7 @@ export function hasNativeDep (data: IFileData): boolean {
     const rootInfo = instances[instances.length - 1];
     if (typeof rootInfo !== 'number') {
         return false;
-    }
-    else {
+    } else {
         return rootInfo < 0;
     }
 }

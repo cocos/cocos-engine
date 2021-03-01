@@ -30,7 +30,7 @@
  */
 
 import IdGenerator from './utils/id-generator';
-import {createMap} from './utils/js';
+import { createMap } from './utils/js';
 import System from './components/system';
 import { legacyCC } from './global-exports';
 import { errorID, warnID, logID, assertID } from './platform/debug';
@@ -55,7 +55,6 @@ export interface ISchedulable {
  * @param markedForDeletion selector will no longer be called and entry will be removed at end of the next tick
  */
 class ListEntry {
-
     public static get = (target: ISchedulable, priority: number, paused: boolean, markedForDeletion: boolean) => {
         let result = ListEntry._listEntries.pop();
         if (result) {
@@ -63,8 +62,7 @@ class ListEntry {
             result.priority = priority;
             result.paused = paused;
             result.markedForDeletion = markedForDeletion;
-        }
-        else {
+        } else {
             result = new ListEntry(target, priority, paused, markedForDeletion);
         }
         return result;
@@ -102,7 +100,6 @@ class ListEntry {
  * @param callback
  */
 class HashUpdateEntry {
-
     public static get = (list: any, entry: ListEntry, target: ISchedulable, callback: any) => {
         let result = HashUpdateEntry._hashUpdateEntries.pop();
         if (result) {
@@ -110,8 +107,7 @@ class HashUpdateEntry {
             result.entry = entry;
             result.target = target;
             result.callback = callback;
-        }
-        else {
+        } else {
             result = new HashUpdateEntry(list, entry, target, callback);
         }
         return result;
@@ -151,7 +147,6 @@ class HashUpdateEntry {
  * @param paused
  */
 class HashTimerEntry {
-
     public static get = (timers: any, target: ISchedulable, timerIndex: number, currentTimer: any, currentTimerSalvaged: any, paused: any) => {
         let result = HashTimerEntry._hashTimerEntries.pop();
         if (result) {
@@ -161,8 +156,7 @@ class HashTimerEntry {
             result.currentTimer = currentTimer;
             result.currentTimerSalvaged = currentTimerSalvaged;
             result.paused = paused;
-        }
-        else {
+        } else {
             result = new HashTimerEntry(timers, target, timerIndex, currentTimer, currentTimerSalvaged, paused);
         }
         return result;
@@ -198,11 +192,8 @@ class HashTimerEntry {
  * Light weight timer
  */
 class CallbackTimer {
-
     public static _timers: any = [];
-    public static get = () => {
-    return CallbackTimer._timers.pop() || new CallbackTimer();
-    }
+    public static get = () => CallbackTimer._timers.pop() || new CallbackTimer()
     public static put = (timer) => {
         if (CallbackTimer._timers.length < MAX_POOL_SIZE && !timer._lock) {
             timer._scheduler = timer._target = timer._callback = null;
@@ -276,12 +267,12 @@ class CallbackTimer {
             this._timesExecuted = 0;
         } else {
             this._elapsed += dt;
-            if (this._runForever && !this._useDelay) {// standard timer usage
+            if (this._runForever && !this._useDelay) { // standard timer usage
                 if (this._elapsed >= this._interval) {
                     this.trigger();
                     this._elapsed = 0;
                 }
-            } else {// advanced usage
+            } else { // advanced usage
                 if (this._useDelay) {
                     if (this._elapsed >= this._delay) {
                         this.trigger();
@@ -290,13 +281,11 @@ class CallbackTimer {
                         this._timesExecuted += 1;
                         this._useDelay = false;
                     }
-                } else {
-                    if (this._elapsed >= this._interval) {
-                        this.trigger();
+                } else if (this._elapsed >= this._interval) {
+                    this.trigger();
 
-                        this._elapsed = 0;
-                        this._timesExecuted += 1;
-                    }
+                    this._elapsed = 0;
+                    this._timesExecuted += 1;
                 }
 
                 if (this._callback && !this._runForever && this._timesExecuted > this._repeat) {
@@ -382,16 +371,14 @@ export class Scheduler extends System {
         let found = false;
         if (target.uuid) {
             found = true;
-        }
-        else if (target.id) {
+        } else if (target.id) {
             found = true;
         }
         if (!found) {
             // @ts-expect-error
             if (target.__instanceId) {
                 warnID(1513);
-            }
-            else {
+            } else {
                 target.id = idGenerator.getNewId();
             }
         }
@@ -511,8 +498,7 @@ export class Scheduler extends System {
             entry = list[i];
             if (entry.markedForDeletion) {
                 this._removeUpdateFromHash(entry);
-            }
-            else {
+            } else {
                 i++;
             }
         }
@@ -521,8 +507,7 @@ export class Scheduler extends System {
             entry = list[i];
             if (entry.markedForDeletion) {
                 this._removeUpdateFromHash(entry);
-            }
-            else {
+            } else {
                 i++;
             }
         }
@@ -531,8 +516,7 @@ export class Scheduler extends System {
             entry = list[i];
             if (entry.markedForDeletion) {
                 this._removeUpdateFromHash(entry);
-            }
-            else {
+            } else {
                 i++;
             }
         }
@@ -569,7 +553,6 @@ export class Scheduler extends System {
      * @param [paused=fasle]
      */
     public schedule (callback: Function, target: ISchedulable, interval: number, repeat?: number, delay?: number, paused?: boolean) {
-        'use strict';
         if (typeof callback !== 'function') {
             const tmp = callback;
             // @ts-expect-error
@@ -605,8 +588,7 @@ export class Scheduler extends System {
         let i;
         if (element.timers == null) {
             element.timers = [];
-        }
-        else {
+        } else {
             for (i = 0; i < element.timers.length; ++i) {
                 timer = element.timers[i];
                 if (timer && callback === timer._callback) {
@@ -672,8 +654,7 @@ export class Scheduler extends System {
         if (priority === 0) {
             ppList = this._updates0List;
             this._appendIn(ppList, listElement);
-        }
-        else {
+        } else {
             ppList = priority < 0 ? this._updatesNegList : this._updatesPosList;
             this._priorityIn(ppList, listElement, priority);
         }
@@ -782,8 +763,8 @@ export class Scheduler extends System {
         const element = this._hashForTimers[targetId];
         if (element) {
             const timers = element.timers;
-            if (timers.indexOf(element.currentTimer) > -1 &&
-                (!element.currentTimerSalvaged)) {
+            if (timers.indexOf(element.currentTimer) > -1
+                && (!element.currentTimerSalvaged)) {
                 element.currentTimerSalvaged = true;
             }
             for (let i = 0, l = timers.length; i < l; i++) {
@@ -901,8 +882,7 @@ export class Scheduler extends System {
 
         if (element.timers == null) {
             return false;
-        }
-        else {
+        } else {
             const timers = element.timers;
 
             for (let i = 0; i < timers.length; ++i) {
@@ -1147,7 +1127,6 @@ export class Scheduler extends System {
     private _appendIn (ppList, listElement) {
         ppList.push(listElement);
     }
-
 }
 
 legacyCC.Scheduler = Scheduler;

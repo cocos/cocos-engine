@@ -3,11 +3,11 @@ import { Vec2, Mat4, Rect } from '../../../core';
 import { CircleCollider2D } from '../../framework';
 import Intersection2D from '../intersection-2d';
 
-let tempVec2 = new Vec2;
-let tempMat4 = new Mat4;
+const tempVec2 = new Vec2();
+const tempMat4 = new Mat4();
 
 export class BuiltinCircleShape extends BuiltinShape2D {
-    private _worldPosition = new Vec2;
+    private _worldPosition = new Vec2();
     get worldPosition (): Readonly<Vec2> {
         return this._worldPosition;
     }
@@ -18,15 +18,15 @@ export class BuiltinCircleShape extends BuiltinShape2D {
     }
 
     update () {
-        let aabb = this._worldAabb;
+        const aabb = this._worldAabb;
 
-        let collider = this.collider as CircleCollider2D;
-        let worldMatrix = collider.node.getWorldMatrix(tempMat4);
+        const collider = this.collider as CircleCollider2D;
+        const worldMatrix = collider.node.getWorldMatrix(tempMat4);
 
         // calculate world position
         Vec2.transformMat4(tempVec2, collider.offset, worldMatrix);
 
-        let worldPos = this._worldPosition;
+        const worldPos = this._worldPosition;
         worldPos.x = tempVec2.x;
         worldPos.y = tempVec2.y;
 
@@ -37,7 +37,7 @@ export class BuiltinCircleShape extends BuiltinShape2D {
         tempVec2.y = 0;
 
         Vec2.transformMat4(tempVec2, tempVec2, worldMatrix);
-        let d = this._worldRadius = tempVec2.length();
+        const d = this._worldRadius = tempVec2.length();
 
         aabb.x = worldPos.x - d;
         aabb.y = worldPos.y - d;
@@ -49,7 +49,7 @@ export class BuiltinCircleShape extends BuiltinShape2D {
         if (!this.worldAABB.contains(p)) {
             return false;
         }
-        let dist = Vec2.subtract(tempVec2, p, this.worldPosition).length();
+        const dist = Vec2.subtract(tempVec2, p, this.worldPosition).length();
         return dist < this.worldRadius;
     }
     intersectsRect (rect: Rect) {

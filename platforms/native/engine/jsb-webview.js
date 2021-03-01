@@ -30,7 +30,8 @@ if (cc.internal.WebView) {
     const { EventType } = cc.internal.WebView;
 
     let vec3 = cc.Vec3;
-    let _mat4_temp = new cc.Mat4();
+    let mat4 = cc.Mat4;
+    let _mat4_temp = new mat4();
 
     let _topLeft = new vec3();
     let _bottomRight = new vec3();
@@ -45,6 +46,7 @@ if (cc.internal.WebView) {
             super(componenet);
             this.jsCallback = null;
             this.interfaceSchema = null;
+            this._matViewProj_temp = new mat4();
         }
 
         _bindEvent() {
@@ -129,7 +131,7 @@ if (cc.internal.WebView) {
         }
 
         syncMatrix() {
-            if (!this._webview || !this._component) return;
+            if (!this._webview || !this._component || !this._uiTrans) return;
 
             const camera = this.UICamera;
             if (!camera) {
@@ -139,6 +141,7 @@ if (cc.internal.WebView) {
             this._component.node.getWorldMatrix(_mat4_temp);
             const { width, height } = this._uiTrans.contentSize;
             if (!this._forceUpdate &&
+                camera.matViewProj.equals(this._matViewProj_temp) &&
                 this._m00 === _mat4_temp.m00 && this._m01 === _mat4_temp.m01 &&
                 this._m04 === _mat4_temp.m04 && this._m05 === _mat4_temp.m05 &&
                 this._m12 === _mat4_temp.m12 && this._m13 === _mat4_temp.m13 &&
@@ -146,6 +149,7 @@ if (cc.internal.WebView) {
                 return;
             }
 
+            this._matViewProj_temp.set(camera.matViewProj);
             // update matrix cache
             this._m00 = _mat4_temp.m00;
             this._m01 = _mat4_temp.m01;
@@ -166,13 +170,16 @@ if (cc.internal.WebView) {
             // Convert to world space
             vec3.transformMat4(_topLeft, _topLeft, _mat4_temp);
             vec3.transformMat4(_bottomRight, _bottomRight, _mat4_temp);
+            // need update camera data
+            camera.update();
             // Convert to Screen space
-            camera.worldToScreen(_topLeft, _topLeft, canvas_width, canvas_height);
-            camera.worldToScreen(_bottomRight, _bottomRight, canvas_width, canvas_height);
+            camera.worldToScreen(_topLeft, _topLeft);
+            camera.worldToScreen(_bottomRight, _bottomRight);
 
             let finalWidth = _bottomRight.x - _topLeft.x;
             let finalHeight = _topLeft.y - _bottomRight.y;
             this._webview.setFrame(_topLeft.x, canvas_height - _topLeft.y, finalWidth, finalHeight);
+            this._forceUpdate = false;
         }
     }
 }

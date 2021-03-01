@@ -47,11 +47,6 @@ import { IRaySubMeshOptions, ERaycastMode, IRaySubMeshResult, IRayMeshOptions, I
 import { IVec3Like } from '../math/type-define';
 import { scene } from '../renderer';
 
-
-
-
-
-
 /**
  * @en
  * ray-plane intersect detect.
@@ -72,7 +67,7 @@ const rayPlane = (function () {
         if (t < 0) { return 0; }
         return t;
     };
-})();
+}());
 
 // based on http://fileadmin.cs.lth.se/cs/Personal/Tomas_Akenine-Moller/raytri/
 /**
@@ -113,7 +108,7 @@ const rayTriangle = (function () {
         const t = Vec3.dot(ac, qvec) * inv_det;
         return t < 0 ? 0 : t;
     };
-})();
+}());
 
 /**
  * @en
@@ -144,7 +139,7 @@ const raySphere = (function () {
         if (t < 0) { return 0; }
         return t;
     };
-})();
+}());
 
 /**
  * @en
@@ -163,11 +158,11 @@ const rayAABB = (function () {
         Vec3.add(max, aabb.center, aabb.halfExtents);
         return rayAABB2(ray, min, max);
     };
-})();
+}());
 
 function rayAABB2 (ray: Ray, min: IVec3Like, max: IVec3Like) {
-    const o = ray.o, d = ray.d;
-    const ix = 1 / d.x, iy = 1 / d.y, iz = 1 / d.z;
+    const o = ray.o; const d = ray.d;
+    const ix = 1 / d.x; const iy = 1 / d.y; const iz = 1 / d.z;
     const t1 = (min.x - o.x) * ix;
     const t2 = (max.x - o.x) * ix;
     const t3 = (min.y - o.y) * iy;
@@ -241,13 +236,15 @@ const rayOBB = (function () {
         const tmin = Math.max(
             Math.max(
                 Math.min(t[0], t[1]),
-                Math.min(t[2], t[3])),
+                Math.min(t[2], t[3]),
+            ),
             Math.min(t[4], t[5]),
         );
         const tmax = Math.min(
             Math.min(
                 Math.max(t[0], t[1]),
-                Math.max(t[2], t[3])),
+                Math.max(t[2], t[3]),
+            ),
             Math.max(t[4], t[5]),
         );
         if (tmax < 0 || tmin > tmax) {
@@ -256,7 +253,7 @@ const rayOBB = (function () {
 
         return tmin > 0 ? tmin : tmax; // ray origin inside aabb
     };
-})();
+}());
 
 /**
  * @en
@@ -341,9 +338,8 @@ const rayCapsule = (function () {
                 return 0;
             }
         }
-
     };
-})();
+}());
 
 /**
  * @en
@@ -376,7 +372,7 @@ const raySubMesh = (function () {
             minDis = d;
             if (r) r.push({ distance: d, vertexIndex0: i0 / 3, vertexIndex1: i1 / 3, vertexIndex2: i2 / 3 });
         }
-    }
+    };
 
     const narrowphase = (vb: Float32Array, ib: IBArray, pm: PrimitiveMode, ray: Ray, opt: IRaySubMeshOptions) => {
         if (pm === PrimitiveMode.TRIANGLE_LIST) {
@@ -438,8 +434,8 @@ const raySubMesh = (function () {
             narrowphase(vb, ib!, pm, ray, opt);
         }
         return minDis;
-    }
-})();
+    };
+}());
 
 /**
  * @en
@@ -487,8 +483,8 @@ const rayMesh = (function () {
             if (opt.subIndices) opt.subIndices.length = 1;
         }
         return minDis;
-    }
-})();
+    };
+}());
 
 /**
  * @en
@@ -543,8 +539,8 @@ const rayModel = (function () {
             if (opt.subIndices) opt.subIndices.length = 1;
         }
         return minDis;
-    }
-})();
+    };
+}());
 
 /**
  * @en
@@ -564,7 +560,7 @@ const linePlane = (function () {
         if (t < 0 || t > 1) { return 0; }
         return t;
     };
-})();
+}());
 
 /**
  * @en
@@ -623,13 +619,12 @@ const lineTriangle = (function () {
             Vec3.set(outPt,
                 triangle.a.x * u + triangle.b.x * v + triangle.c.x * w,
                 triangle.a.y * u + triangle.b.y * v + triangle.c.y * w,
-                triangle.a.z * u + triangle.b.z * v + triangle.c.z * w,
-            );
+                triangle.a.z * u + triangle.b.z * v + triangle.c.z * w);
         }
 
         return 1;
     };
-})();
+}());
 
 const r_t = new Ray();
 /**
@@ -717,11 +712,11 @@ const aabbWithAABB = (function () {
         Vec3.add(aMax, aabb1.center, aabb1.halfExtents);
         Vec3.subtract(bMin, aabb2.center, aabb2.halfExtents);
         Vec3.add(bMax, aabb2.center, aabb2.halfExtents);
-        return (aMin.x <= bMax.x && aMax.x >= bMin.x) &&
-            (aMin.y <= bMax.y && aMax.y >= bMin.y) &&
-            (aMin.z <= bMax.z && aMax.z >= bMin.z);
+        return (aMin.x <= bMax.x && aMax.x >= bMin.x)
+            && (aMin.y <= bMax.y && aMax.y >= bMin.y)
+            && (aMin.z <= bMax.z && aMax.z >= bMin.z);
     };
-})();
+}());
 
 function getAABBVertices (min: Vec3, max: Vec3, out: Vec3[]) {
     Vec3.set(out[0], min.x, max.y, max.z);
@@ -738,47 +733,39 @@ function getOBBVertices (c: Vec3, e: Vec3, a1: Vec3, a2: Vec3, a3: Vec3, out: Ve
     Vec3.set(out[0],
         c.x + a1.x * e.x + a2.x * e.y + a3.x * e.z,
         c.y + a1.y * e.x + a2.y * e.y + a3.y * e.z,
-        c.z + a1.z * e.x + a2.z * e.y + a3.z * e.z,
-    );
+        c.z + a1.z * e.x + a2.z * e.y + a3.z * e.z);
     Vec3.set(out[1],
         c.x - a1.x * e.x + a2.x * e.y + a3.x * e.z,
         c.y - a1.y * e.x + a2.y * e.y + a3.y * e.z,
-        c.z - a1.z * e.x + a2.z * e.y + a3.z * e.z,
-    );
+        c.z - a1.z * e.x + a2.z * e.y + a3.z * e.z);
     Vec3.set(out[2],
         c.x + a1.x * e.x - a2.x * e.y + a3.x * e.z,
         c.y + a1.y * e.x - a2.y * e.y + a3.y * e.z,
-        c.z + a1.z * e.x - a2.z * e.y + a3.z * e.z,
-    );
+        c.z + a1.z * e.x - a2.z * e.y + a3.z * e.z);
     Vec3.set(out[3],
         c.x + a1.x * e.x + a2.x * e.y - a3.x * e.z,
         c.y + a1.y * e.x + a2.y * e.y - a3.y * e.z,
-        c.z + a1.z * e.x + a2.z * e.y - a3.z * e.z,
-    );
+        c.z + a1.z * e.x + a2.z * e.y - a3.z * e.z);
     Vec3.set(out[4],
         c.x - a1.x * e.x - a2.x * e.y - a3.x * e.z,
         c.y - a1.y * e.x - a2.y * e.y - a3.y * e.z,
-        c.z - a1.z * e.x - a2.z * e.y - a3.z * e.z,
-    );
+        c.z - a1.z * e.x - a2.z * e.y - a3.z * e.z);
     Vec3.set(out[5],
         c.x + a1.x * e.x - a2.x * e.y - a3.x * e.z,
         c.y + a1.y * e.x - a2.y * e.y - a3.y * e.z,
-        c.z + a1.z * e.x - a2.z * e.y - a3.z * e.z,
-    );
+        c.z + a1.z * e.x - a2.z * e.y - a3.z * e.z);
     Vec3.set(out[6],
         c.x - a1.x * e.x + a2.x * e.y - a3.x * e.z,
         c.y - a1.y * e.x + a2.y * e.y - a3.y * e.z,
-        c.z - a1.z * e.x + a2.z * e.y - a3.z * e.z,
-    );
+        c.z - a1.z * e.x + a2.z * e.y - a3.z * e.z);
     Vec3.set(out[7],
         c.x - a1.x * e.x - a2.x * e.y + a3.x * e.z,
         c.y - a1.y * e.x - a2.y * e.y + a3.y * e.z,
-        c.z - a1.z * e.x - a2.z * e.y + a3.z * e.z,
-    );
+        c.z - a1.z * e.x - a2.z * e.y + a3.z * e.z);
 }
 
 function getInterval (vertices: any[] | Vec3[], axis: Vec3) {
-    let min = Vec3.dot(axis, vertices[0]), max = min;
+    let min = Vec3.dot(axis, vertices[0]); let max = min;
     for (let i = 1; i < 8; ++i) {
         const projection = Vec3.dot(axis, vertices[i]);
         min = (projection < min) ? projection : min;
@@ -838,7 +825,7 @@ const aabbWithOBB = (function () {
 
         return 1;
     };
-})();
+}());
 
 /**
  * @en
@@ -850,12 +837,11 @@ const aabbWithOBB = (function () {
  * @return {number} inside(back) = -1, outside(front) = 0, intersect = 1
  */
 const aabbPlane = function (aabb: AABB, plane: Plane): number {
-    const r = aabb.halfExtents.x * Math.abs(plane.n.x) +
-        aabb.halfExtents.y * Math.abs(plane.n.y) +
-        aabb.halfExtents.z * Math.abs(plane.n.z);
+    const r = aabb.halfExtents.x * Math.abs(plane.n.x)
+        + aabb.halfExtents.y * Math.abs(plane.n.y)
+        + aabb.halfExtents.z * Math.abs(plane.n.z);
     const dot = Vec3.dot(plane.n, aabb.center);
-    if (dot + r < plane.d) { return -1; }
-    else if (dot - r > plane.d) { return 0; }
+    if (dot + r < plane.d) { return -1; } else if (dot - r > plane.d) { return 0; }
     return 1;
 };
 
@@ -890,12 +876,12 @@ const aabbFrustum = function (aabb: AABB, frustum: Frustum): number {
  */
 const aabbFrustumAccurate = (function () {
     const tmp = new Array(8);
-    let out1 = 0, out2 = 0;
+    let out1 = 0; let out2 = 0;
     for (let i = 0; i < tmp.length; i++) {
         tmp[i] = new Vec3(0, 0, 0);
     }
     return function (aabb: AABB, frustum: Frustum): number {
-        let result = 0, intersects = false;
+        let result = 0; let intersects = false;
         // 1. aabb inside/outside frustum test
         for (let i = 0; i < frustum.planes.length; i++) {
             result = aabbPlane(aabb, frustum.planes[i]);
@@ -911,25 +897,22 @@ const aabbFrustumAccurate = (function () {
         }
         out1 = 0, out2 = 0;
         for (let i = 0; i < frustum.vertices.length; i++) {
-            if (tmp[i].x > aabb.halfExtents.x) { out1++; }
-            else if (tmp[i].x < -aabb.halfExtents.x) { out2++; }
+            if (tmp[i].x > aabb.halfExtents.x) { out1++; } else if (tmp[i].x < -aabb.halfExtents.x) { out2++; }
         }
         if (out1 === frustum.vertices.length || out2 === frustum.vertices.length) { return 0; }
         out1 = 0; out2 = 0;
         for (let i = 0; i < frustum.vertices.length; i++) {
-            if (tmp[i].y > aabb.halfExtents.y) { out1++; }
-            else if (tmp[i].y < -aabb.halfExtents.y) { out2++; }
+            if (tmp[i].y > aabb.halfExtents.y) { out1++; } else if (tmp[i].y < -aabb.halfExtents.y) { out2++; }
         }
         if (out1 === frustum.vertices.length || out2 === frustum.vertices.length) { return 0; }
         out1 = 0; out2 = 0;
         for (let i = 0; i < frustum.vertices.length; i++) {
-            if (tmp[i].z > aabb.halfExtents.z) { out1++; }
-            else if (tmp[i].z < -aabb.halfExtents.z) { out2++; }
+            if (tmp[i].z > aabb.halfExtents.z) { out1++; } else if (tmp[i].z < -aabb.halfExtents.z) { out2++; }
         }
         if (out1 === frustum.vertices.length || out2 === frustum.vertices.length) { return 0; }
         return 1;
     };
-})();
+}());
 
 /**
  * @en
@@ -941,14 +924,14 @@ const aabbFrustumAccurate = (function () {
  * @return {boolean} true or false
  */
 const obbPoint = (function () {
-    const tmp = new Vec3(0, 0, 0), m3 = new Mat3();
+    const tmp = new Vec3(0, 0, 0); const m3 = new Mat3();
     const lessThan = function (a: Vec3, b: Vec3): boolean { return Math.abs(a.x) < b.x && Math.abs(a.y) < b.y && Math.abs(a.z) < b.z; };
     return function (obb: OBB, point: Vec3): boolean {
         Vec3.subtract(tmp, point, obb.center);
         Vec3.transformMat3(tmp, tmp, Mat3.transpose(m3, obb.orientation));
         return lessThan(tmp, obb.halfExtents);
     };
-})();
+}());
 
 /**
  * @en
@@ -965,16 +948,15 @@ const obbPlane = (function () {
     };
     return function (obb: OBB, plane: Plane): number {
         // Real-Time Collision Detection, Christer Ericson, p. 163.
-        const r = obb.halfExtents.x * absDot(plane.n, obb.orientation.m00, obb.orientation.m01, obb.orientation.m02) +
-            obb.halfExtents.y * absDot(plane.n, obb.orientation.m03, obb.orientation.m04, obb.orientation.m05) +
-            obb.halfExtents.z * absDot(plane.n, obb.orientation.m06, obb.orientation.m07, obb.orientation.m08);
+        const r = obb.halfExtents.x * absDot(plane.n, obb.orientation.m00, obb.orientation.m01, obb.orientation.m02)
+            + obb.halfExtents.y * absDot(plane.n, obb.orientation.m03, obb.orientation.m04, obb.orientation.m05)
+            + obb.halfExtents.z * absDot(plane.n, obb.orientation.m06, obb.orientation.m07, obb.orientation.m08);
 
         const dot = Vec3.dot(plane.n, obb.center);
-        if (dot + r < plane.d) { return -1; }
-        else if (dot - r > plane.d) { return 0; }
+        if (dot + r < plane.d) { return -1; } else if (dot - r > plane.d) { return 0; }
         return 1;
     };
-})();
+}());
 
 /**
  * @en
@@ -1007,7 +989,7 @@ const obbFrustum = function (obb: OBB, frustum: Frustum): number {
  */
 const obbFrustumAccurate = (function () {
     const tmp = new Array(8);
-    let dist = 0, out1 = 0, out2 = 0;
+    let dist = 0; let out1 = 0; let out2 = 0;
     for (let i = 0; i < tmp.length; i++) {
         tmp[i] = new Vec3(0, 0, 0);
     }
@@ -1015,7 +997,7 @@ const obbFrustumAccurate = (function () {
         return n.x * x + n.y * y + n.z * z;
     };
     return function (obb: OBB, frustum: Frustum): number {
-        let result = 0, intersects = false;
+        let result = 0; let intersects = false;
         // 1. obb inside/outside frustum test
         for (let i = 0; i < frustum.planes.length; i++) {
             result = obbPlane(obb, frustum.planes[i]);
@@ -1032,27 +1014,24 @@ const obbFrustumAccurate = (function () {
         out1 = 0, out2 = 0;
         for (let i = 0; i < frustum.vertices.length; i++) {
             dist = dot(tmp[i], obb.orientation.m00, obb.orientation.m01, obb.orientation.m02);
-            if (dist > obb.halfExtents.x) { out1++; }
-            else if (dist < -obb.halfExtents.x) { out2++; }
+            if (dist > obb.halfExtents.x) { out1++; } else if (dist < -obb.halfExtents.x) { out2++; }
         }
         if (out1 === frustum.vertices.length || out2 === frustum.vertices.length) { return 0; }
         out1 = 0; out2 = 0;
         for (let i = 0; i < frustum.vertices.length; i++) {
             dist = dot(tmp[i], obb.orientation.m03, obb.orientation.m04, obb.orientation.m05);
-            if (dist > obb.halfExtents.y) { out1++; }
-            else if (dist < -obb.halfExtents.y) { out2++; }
+            if (dist > obb.halfExtents.y) { out1++; } else if (dist < -obb.halfExtents.y) { out2++; }
         }
         if (out1 === frustum.vertices.length || out2 === frustum.vertices.length) { return 0; }
         out1 = 0; out2 = 0;
         for (let i = 0; i < frustum.vertices.length; i++) {
             dist = dot(tmp[i], obb.orientation.m06, obb.orientation.m07, obb.orientation.m08);
-            if (dist > obb.halfExtents.z) { out1++; }
-            else if (dist < -obb.halfExtents.z) { out2++; }
+            if (dist > obb.halfExtents.z) { out1++; } else if (dist < -obb.halfExtents.z) { out2++; }
         }
         if (out1 === frustum.vertices.length || out2 === frustum.vertices.length) { return 0; }
         return 1;
     };
-})();
+}());
 
 /**
  * @en
@@ -1103,8 +1082,7 @@ const obbWithOBB = (function () {
 
         return 1;
     };
-})();
-
+}());
 
 // https://github.com/diku-dk/bvh-tvcg18/blob/1fd3348c17bc8cf3da0b4ae60fdb8f2aa90a6ff0/FOUNDATION/GEOMETRY/GEOMETRY/include/overlap/geometry_overlap_obb_capsule.h
 /**
@@ -1169,7 +1147,7 @@ const obbCapsule = (function () {
             return 1;
         }
     };
-})();
+}());
 
 /**
  * @en
@@ -1184,8 +1162,7 @@ const obbCapsule = (function () {
 const spherePlane = function (sphere: Sphere, plane: Plane): number {
     const dot = Vec3.dot(plane.n, sphere.center);
     const r = sphere.radius * plane.n.length();
-    if (dot + r < plane.d) { return -1; }
-    else if (dot - r > plane.d) { return 0; }
+    if (dot + r < plane.d) { return -1; } else if (dot - r > plane.d) { return 0; }
     return 1;
 };
 
@@ -1219,12 +1196,12 @@ const sphereFrustum = function (sphere: Sphere, frustum: Frustum): number {
  * @return {number} 0 或 非0
  */
 const sphereFrustumAccurate = (function () {
-    const pt = new Vec3(0, 0, 0), map = [1, -1, 1, -1, 1, -1];
+    const pt = new Vec3(0, 0, 0); const map = [1, -1, 1, -1, 1, -1];
     return function (sphere: Sphere, frustum: Frustum): number {
         for (let i = 0; i < 6; i++) {
             const plane = frustum.planes[i];
-            const r = sphere.radius, c = sphere.center;
-            const n = plane.n, d = plane.d;
+            const r = sphere.radius; const c = sphere.center;
+            const n = plane.n; const d = plane.d;
             const dot = Vec3.dot(n, c);
             // frustum plane normal points to the inside
             if (dot + r < d) { return 0; } // completely outside
@@ -1240,7 +1217,7 @@ const sphereFrustumAccurate = (function () {
         }
         return 1;
     };
-})();
+}());
 
 /**
  * @en
@@ -1271,7 +1248,7 @@ const sphereAABB = (function () {
         distance.pt_point_aabb(pt, sphere.center, aabb);
         return Vec3.squaredDistance(sphere.center, pt) < sphere.radius * sphere.radius;
     };
-})();
+}());
 
 /**
  * @en
@@ -1288,7 +1265,7 @@ const sphereOBB = (function () {
         distance.pt_point_obb(pt, sphere.center, obb);
         return Vec3.squaredDistance(sphere.center, pt) < sphere.radius * sphere.radius;
     };
-})();
+}());
 
 /**
  * @en
@@ -1319,7 +1296,7 @@ const sphereCapsule = (function () {
             }
         }
     };
-})();
+}());
 
 // http://www.geomalgorithms.com/a07-_distance.html
 /**
@@ -1358,16 +1335,14 @@ const capsuleWithCapsule = (function () {
             sD = 1.0;         // to prevent possible division by 0.0 later
             tN = e;
             tD = c;
-        }
-        else {                 // get the closest points on the infinite lines
+        } else {                 // get the closest points on the infinite lines
             sN = (b * e - c * d);
             tN = (a * e - b * d);
             if (sN < 0.0) {        // sc < 0 => the s=0 edge is visible
                 sN = 0.0;
                 tN = e;
                 tD = c;
-            }
-            else if (sN > sD) {  // sc > 1  => the s=1 edge is visible
+            } else if (sN > sD) {  // sc > 1  => the s=1 edge is visible
                 sN = sD;
                 tN = e + b;
                 tD = c;
@@ -1379,25 +1354,20 @@ const capsuleWithCapsule = (function () {
             // recompute sc for this edge
             if (-d < 0.0) {
                 sN = 0.0;
-            }
-            else if (-d > a) {
+            } else if (-d > a) {
                 sN = sD;
-            }
-            else {
+            } else {
                 sN = -d;
                 sD = a;
             }
-        }
-        else if (tN > tD) {      // tc > 1  => the t=1 edge is visible
+        } else if (tN > tD) {      // tc > 1  => the t=1 edge is visible
             tN = tD;
             // recompute sc for this edge
             if ((-d + b) < 0.0) {
                 sN = 0;
-            }
-            else if ((-d + b) > a) {
+            } else if ((-d + b) > a) {
                 sN = sD;
-            }
-            else {
+            } else {
                 sN = (-d + b);
                 sD = a;
             }
@@ -1414,7 +1384,7 @@ const capsuleWithCapsule = (function () {
         const radius = capsuleA.radius + capsuleB.radius;
         return dP.lengthSqr() < radius * radius;
     };
-})();
+}());
 
 /**
  * @en
@@ -1471,10 +1441,9 @@ const intersect = {
      * @param outPt 可选，相交点。（注：仅部分形状的检测带有这个返回值）
      */
     resolve (g1: any, g2: any, outPt = null) {
-        const type1 = g1._type, type2 = g2._type;
+        const type1 = g1._type; const type2 = g2._type;
         const resolver = this[type1 | type2];
-        if (type1 < type2) { return resolver(g1, g2, outPt); }
-        else { return resolver(g2, g1, outPt); }
+        if (type1 < type2) { return resolver(g1, g2, outPt); } else { return resolver(g2, g1, outPt); }
     },
 };
 

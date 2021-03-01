@@ -2,7 +2,7 @@ name: publish-build-engine
 on:
   push:
     branches:
-      - 3d
+      - v*
 jobs:
   publish-build-engine:
     name: publish-build-engine

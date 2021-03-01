@@ -1,18 +1,18 @@
-import { Component, Vec2 } from "../../../../core";
-import { property, type, ccclass } from "../../../../core/data/class-decorator";
-import { RigidBody2D } from "../rigid-body-2d";
-import { EDITOR } from "internal:constants";
+import { EDITOR } from 'internal:constants';
+import { Component, Vec2 } from '../../../../core';
+import { property, type, ccclass } from '../../../../core/data/class-decorator';
+import { RigidBody2D } from '../rigid-body-2d';
 import { IJoint2D } from '../../../spec/i-physics-joint';
 import { EJoint2DType } from '../../physics-types';
-import { createJoint } from "../../instance";
+import { createJoint } from '../../instance';
 
 @ccclass('cc.Joint2D')
 export class Joint2D extends Component {
     @property
-    anchor = new Vec2;
+    anchor = new Vec2();
 
     @property
-    connectedAnchor = new Vec2;
+    connectedAnchor = new Vec2();
 
     @property
     collideConnected = false;
@@ -30,7 +30,7 @@ export class Joint2D extends Component {
     }
 
     protected _joint: IJoint2D | null = null;
-    
+
     TYPE = EJoint2DType.None;
 
     protected onLoad () {

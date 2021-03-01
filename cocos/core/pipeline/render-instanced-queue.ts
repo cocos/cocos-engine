@@ -39,7 +39,6 @@ import { SetIndex } from './define';
  * @zh 渲染合批队列。
  */
 export class RenderInstancedQueue {
-
     /**
      * @en A set of instanced buffer
      * @zh Instance 合批缓存集合。

@@ -47,7 +47,7 @@
       "y": 1,
       "z": 1
     },
-    "_layer": 1073741824,
+    "_layer": 33554432,
     "_euler": {
       "__type__": "cc.Vec3",
       "x": 0,
@@ -81,8 +81,8 @@
     "_id": ""
   },
   {
-    "__type__": "cc.CompPrefabInfo ",
-    "fileId": "a7PFP2zJtI6ITn7h8/nh2Z"
+    "__type__": "cc.CompPrefabInfo",
+    "fileId": "a2UFag3ptKgoD5Gu9Hc2u7"
   },
   {
     "__type__": "cc.TiledMap",
@@ -101,8 +101,8 @@
     "_id": ""
   },
   {
-    "__type__": "cc.CompPrefabInfo ",
-    "fileId": "bcLty6YUdDK7yX23lAP8eP"
+    "__type__": "cc.CompPrefabInfo",
+    "fileId": "c9daWXSp1NHY7B0DcUp3vj"
   },
   {
     "__type__": "cc.PrefabInfo",
@@ -110,13 +110,8 @@
       "__id__": 1
     },
     "asset": {
-      "__id__": 0
+      "__uuid__": "3139fa4f-8c42-4ce6-98be-15e848d9734c"
     },
-    "fileId": "2105AkR79NcIYqFsVLNWzz",
-    "sync": false,
-    "_synced": {
-      "default": false,
-      "serializable": false
-    }
+    "fileId": "2105AkR79NcIYqFsVLNWzz"
   }
 ]

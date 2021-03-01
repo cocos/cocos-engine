@@ -144,8 +144,7 @@ export function createBlendStateWriter<P extends BlendingProperty> (
      */
     constants: boolean,
 ): IBlendStateWriter {
-    const blendFunction: BlendFunction<BlendingPropertyValue<P>> =
-        isVec3Property(property) ? additive3D as any: additiveQuat as any;
+    const blendFunction: BlendFunction<BlendingPropertyValue<P>> =        isVec3Property(property) ? additive3D as any : additiveQuat as any;
     let propertyBlendState: PropertyBlendState<BlendingPropertyValue<P>> | null = blendState.ref(node, property);
     let isConstCacheValid = false;
     let lastWeight = -1;
@@ -157,40 +156,36 @@ export function createBlendStateWriter<P extends BlendingProperty> (
                 propertyBlendState = null;
             }
         },
-        forTarget: () => {
-            return {
-                /**
+        forTarget: () => ({
+            /**
                  * Gets the node's actual property for now.
                  */
-                get: () => {
-                    return node[property];
-                },
-                set: (value: BlendingPropertyValue<P>) => {
-                    if (!propertyBlendState || !host.enabled) {
+            get: () => node[property],
+            set: (value: BlendingPropertyValue<P>) => {
+                if (!propertyBlendState || !host.enabled) {
+                    return;
+                }
+                const weight = host.weight;
+                if (constants) {
+                    if (weight !== 1
+                            || weight !== lastWeight) {
+                        // If there are multi writer for this property at this time,
+                        // or if the weight has been changed since last write,
+                        // we should invalidate the cache.
+                        isConstCacheValid = false;
+                    } else if (isConstCacheValid) {
+                        // Otherwise, we may keep to use the cache.
+                        // i.e we leave the weight to 0 to prevent the property from modifying.
                         return;
                     }
-                    const weight = host.weight;
-                    if (constants) {
-                        if (weight !== 1 ||
-                            weight !== lastWeight) {
-                            // If there are multi writer for this property at this time,
-                            // or if the weight has been changed since last write,
-                            // we should invalidate the cache.
-                            isConstCacheValid = false;
-                        } else if (isConstCacheValid) {
-                            // Otherwise, we may keep to use the cache.
-                            // i.e we leave the weight to 0 to prevent the property from modifying.
-                            return;
-                        }
-                    }
-                    blendFunction(value, weight, propertyBlendState);
-                    propertyBlendState.weight += weight;
-                    propertyBlendState.markAsDirty();
-                    isConstCacheValid = true;
-                    lastWeight = weight;
-                },
-            };
-        },
+                }
+                blendFunction(value, weight, propertyBlendState);
+                propertyBlendState.weight += weight;
+                propertyBlendState.markAsDirty();
+                isConstCacheValid = true;
+                lastWeight = weight;
+            },
+        }),
     };
 }
 
@@ -239,10 +234,10 @@ interface NodeBlendState {
 
 function isEmptyNodeBlendState (nodeBlendState: NodeBlendState) {
     // Which is equal to `Object.keys(nodeBlendState.properties).length === 0`.
-    return !nodeBlendState.properties.position &&
-        !nodeBlendState.properties.rotation &&
-        !nodeBlendState.properties.eulerAngles &&
-        !nodeBlendState.properties.scale;
+    return !nodeBlendState.properties.position
+        && !nodeBlendState.properties.rotation
+        && !nodeBlendState.properties.eulerAngles
+        && !nodeBlendState.properties.scale;
 }
 
 /**

@@ -43,8 +43,8 @@
  * 请参考 ScrollView 的实现来获取更多信息。
  */
 
-import { Component } from '../core/components';
 import { ccclass, executionOrder } from 'cc.decorator';
+import { Component } from '../core/components';
 import { legacyCC } from '../core/global-exports';
 
 @ccclass('cc.ViewGroup')

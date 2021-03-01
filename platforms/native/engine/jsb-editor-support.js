@@ -26,24 +26,52 @@
     if (!window.middleware) return;
 
     let middlewareMgr = middleware.MiddlewareManager.getInstance();
+    let reference = 0;
     let director = cc.director;
 
     let nativeXYZUVC = middleware.vfmtPosUvColor = 9;
     let nativeXYZUVCC = middleware.vfmtPosUvTwoColor = 13;
+    let bytesXYZUVC = nativeXYZUVC * 4;
+    let bytesXYZUVCC = nativeXYZUVCC * 4;
 
     let vfmtPosUvColor = cc.internal.vfmtPosUvColor;
-    let vfmtPosUvTwoColor = cc.internal.vfmtPosUvTwoColor; 
+    let vfmtPosUvTwoColor = cc.internal.vfmtPosUvTwoColor;
 
     let renderInfoLookup = middleware.RenderInfoLookup = {};
     renderInfoLookup[nativeXYZUVC] = [];
     renderInfoLookup[nativeXYZUVCC] = [];
 
     middleware.preRenderComponent = null;
-    middleware.preRenderBufferIndex = null;
+    middleware.preRenderBufferIndex = 0;
     middleware.preRenderBufferType = nativeXYZUVC;
     middleware.renderOrder = 0;
     middleware.indicesStart = 0;
     middleware.resetIndicesStart = false;
+    middleware.retain = function () {
+        reference++;
+    }
+    middleware.release = function () {
+        if (reference === 0) {
+            cc.warn("middleware reference error: reference count should be greater than 0");
+            return;
+        }
+        reference--;
+        if (reference === 0) {
+            const batcher2D = director.root.batcher2D;
+            const uvcBuffers = renderInfoLookup[nativeXYZUVC];
+            for (let i = 0; i < uvcBuffers.length; i++) {
+                batcher2D.unRegisterCustomBuffer(uvcBuffers[i]);
+                uvcBuffers[i].destroy();
+            }
+            uvcBuffers.length = 0;
+            const uvccBuffers = renderInfoLookup[nativeXYZUVCC];
+            for (let i = 0; i < uvccBuffers.length; i++) {
+                batcher2D.unRegisterCustomBuffer(uvccBuffers[i]);
+                uvccBuffers[i].destroy();
+            }
+            uvccBuffers.length = 0;
+        }
+    }
 
     function CopyNativeBufferToJS(renderer, nativeFormat, jsFormat) {
         if (!renderer) return;
@@ -55,10 +83,16 @@
             let srcIndicesCount = ibBytesLength / 2; // USHORT
             let srcVertexFloatCount = srcVertexCount * nativeFormat;
             
-            let buffer = renderer.acquireBufferBatch(jsFormat);
+            let buffer = renderInfoLookup[nativeFormat][i];
+            if (!buffer)  {
+                buffer = renderer.registerCustomBuffer(jsFormat);
+            }
+
+            buffer.reset();
+
             const isRecreate = buffer.request(srcVertexCount, srcIndicesCount);
             if (!isRecreate) {
-                buffer = renderer.currBufferBatch;
+                buffer = renderer.registerCustomBuffer(jsFormat);
             }
 
             const vBuf = buffer.vData;
@@ -70,6 +104,9 @@
             vBuf.set(srcVBuf.subarray(0, srcVertexFloatCount), 0);
             iBuf.set(srcIBuf.subarray(0, srcIndicesCount), 0);
 
+            // forbid js upload data, call by middleware
+            buffer.uploadBuffers();
+            
             // forbid auto merge, because of it's meanless
             buffer.indicesOffset = 0;
             renderInfoLookup[nativeFormat][i] = buffer;
@@ -77,23 +114,25 @@
     }
 
     director.on(cc.Director.EVENT_BEFORE_UPDATE, function () {
+        if (reference === 0) return;
         middlewareMgr.update(director._deltaTime);
     });
 
     director.on(cc.Director.EVENT_BEFORE_DRAW, function () {
+        if (reference === 0) return;
         middlewareMgr.render(director._deltaTime);
 
         // reset render order
         middleware.renderOrder = 0;
         middleware.preRenderComponent = null;
-        middleware.preRenderBufferIndex = null;
+        middleware.preRenderBufferIndex = 0;
         middleware.preRenderBufferType = nativeXYZUVC;
         middleware.indicesStart = 0;
         middleware.resetIndicesStart = false;
 
-        let ui = director.root.ui;
-        CopyNativeBufferToJS(ui, nativeXYZUVC, vfmtPosUvColor)
-        CopyNativeBufferToJS(ui, nativeXYZUVCC, vfmtPosUvTwoColor)
+        let batcher2D = director.root.batcher2D;
+        CopyNativeBufferToJS(batcher2D, nativeXYZUVC, vfmtPosUvColor);
+        CopyNativeBufferToJS(batcher2D, nativeXYZUVCC, vfmtPosUvTwoColor);
     });
 
     let renderInfoMgr = middlewareMgr.getRenderInfoMgr();

@@ -104,7 +104,6 @@ export class RenderPassInfo {
  * @zh GFX 渲染过程。
  */
 export abstract class RenderPass extends Obj {
-
     protected _device: Device;
 
     protected _colorInfos: ColorAttachment[] = [];

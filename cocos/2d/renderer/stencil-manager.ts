@@ -30,6 +30,7 @@
 import { ComparisonFunc, StencilOp } from '../../core/gfx/define';
 import { Mask } from '../components/mask';
 import { DepthStencilState } from '../../core/gfx/pipeline-state';
+import { Material } from '../../core';
 
 // Stage types
 export enum Stage {
@@ -121,17 +122,45 @@ export class StencilManager {
         this.stage = Stage.DISABLED;
     }
 
-    private stencilStateMap = new Map<Stage, DepthStencilState>();
+    public destroy () {
+        this.stencilStateMap.forEach((value, key) => {
+            value.destroy();
+        });
+        this.stencilStateMap.clear();
+    }
 
-    public getStencilStage (stage: Stage) {
-        if (this.stencilStateMap && this.stencilStateMap.has(stage)) {
-            return this.stencilStateMap.get(stage);
+    private stencilStateMap = new Map<number, DepthStencilState>();
+    private stencilStateMapWithDepth = new Map<number, DepthStencilState>();
+
+    public getStencilStage (stage: Stage, mat?: Material) {
+        let key = 0;
+        let depthTest = false;
+        let depthWrite = false;
+        let depthFunc = ComparisonFunc.LESS;
+        let cacheMap = this.stencilStateMap;
+        if (mat && mat.passes[0]) {
+            const pass = mat.passes[0];
+            const dss = pass.depthStencilState;
+            let depthTestValue = 0;
+            let depthWriteValue = 0;
+            if (dss.depthTest) depthTestValue = 1;
+            if (dss.depthWrite) depthWriteValue = 1;
+            key = (depthTestValue) | (depthWriteValue << 1) | (dss.depthFunc << 2)  | (stage << 6) | (this._maskStack.length << 9);
+            depthTest = dss.depthTest;
+            depthWrite = dss.depthWrite;
+            depthFunc = dss.depthFunc;
+            cacheMap = this.stencilStateMapWithDepth;
+        } else {
+            key = (stage << 16) | this._maskStack.length;
+        }
+        if (cacheMap && cacheMap.has(key)) {
+            return cacheMap.get(key) as DepthStencilState;
         }
         this.setStateFromStage(stage);
         const depthStencilState = new DepthStencilState(
-            false,
-            false,
-            ComparisonFunc.LESS,
+            depthTest,
+            depthWrite,
+            depthFunc,
             this._stencilPattern.stencilTest,
             this._stencilPattern.func,
             this._stencilPattern.stencilMask,
@@ -149,8 +178,12 @@ export class StencilManager {
             this._stencilPattern.passOp,
             this._stencilPattern.ref,
         );
-        this.stencilStateMap.set(stage, depthStencilState);
+        cacheMap.set(key, depthStencilState);
         return depthStencilState;
+    }
+
+    public getStencilHash (stage: Stage) {
+        return (stage << 8) | this._maskStack.length;
     }
 
     // Notice: Only children node in Mask need use this.stage

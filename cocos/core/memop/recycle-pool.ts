@@ -23,7 +23,6 @@
  THE SOFTWARE.
  */
 
-
 /**
  * @packageDocumentation
  * @module memop
@@ -100,7 +99,7 @@ export class RecyclePool<T = any> {
     /**
      * @en Expand the object pool, the size will be increment to current size times two, and fills with new created elements.
      * @zh 扩充对象池容量，会自动扩充尺寸到两倍，并填充新的元素。
-     * @param idx 
+     * @param idx
      */
     public add () {
         if (this._count >= this._data.length) {

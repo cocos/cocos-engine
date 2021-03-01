@@ -20,10 +20,15 @@
  ****************************************************************************/
 window.jsb = window.jsb || {};
 var fs = wuji.getFileSystemManager ? wuji.getFileSystemManager() : null;
+var outOfStorageRegExp = /the maximum size of the file storage/;  // not exactly right
 
 var fsUtils = {
 
     fs,
+
+    isOutOfStorage (errMsg) {
+        return outOfStorageRegExp.test(errMsg);
+    },
 
     _subpackagesPath: '',
 

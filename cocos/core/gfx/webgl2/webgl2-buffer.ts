@@ -24,7 +24,7 @@
  */
 
 import { Buffer, BufferSource, BufferInfo, BufferViewInfo, IndirectBuffer } from '../buffer';
-import { BufferFlagBit, BufferUsageBit } from '../define';
+import { BufferUsageBit } from '../define';
 import {
     WebGL2CmdFuncCreateBuffer,
     WebGL2CmdFuncDestroyBuffer,
@@ -35,7 +35,6 @@ import { WebGL2Device } from './webgl2-device';
 import { IWebGL2GPUBuffer } from './webgl2-gpu-objects';
 
 export class WebGL2Buffer extends Buffer {
-
     get gpuBuffer (): IWebGL2GPUBuffer {
         return  this._gpuBuffer!;
     }
@@ -43,9 +42,7 @@ export class WebGL2Buffer extends Buffer {
     private _gpuBuffer: IWebGL2GPUBuffer | null = null;
 
     public initialize (info: BufferInfo | BufferViewInfo): boolean {
-
         if ('buffer' in info) { // buffer view
-
             this._isBufferView = true;
 
             const buffer = info.buffer as WebGL2Buffer;
@@ -61,15 +58,13 @@ export class WebGL2Buffer extends Buffer {
                 memUsage: this._memUsage,
                 size: this._size,
                 stride: this._stride,
-                buffer: this._bakcupBuffer,
+                buffer: null,
                 indirects: buffer.gpuBuffer.indirects,
                 glTarget: buffer.gpuBuffer.glTarget,
                 glBuffer: buffer.gpuBuffer.glBuffer,
                 glOffset: info.offset,
             };
-
         } else { // native buffer
-
             this._usage = info.usage;
             this._memUsage = info.memUsage;
             this._size = info.size;
@@ -81,17 +76,12 @@ export class WebGL2Buffer extends Buffer {
                 this._indirectBuffer = new IndirectBuffer();
             }
 
-            if (this._flags & BufferFlagBit.BAKUP_BUFFER) {
-                this._bakcupBuffer = new Uint8Array(this._size);
-                this._device.memoryStatus.bufferSize += this._size;
-            }
-
             this._gpuBuffer = {
                 usage: this._usage,
                 memUsage: this._memUsage,
                 size: this._size,
                 stride: this._stride,
-                buffer: this._bakcupBuffer,
+                buffer: null,
                 indirects: [],
                 glTarget: 0,
                 glBuffer: null,
@@ -118,8 +108,6 @@ export class WebGL2Buffer extends Buffer {
             }
             this._gpuBuffer = null;
         }
-
-        this._bakcupBuffer = null;
     }
 
     public resize (size: number) {
@@ -134,19 +122,7 @@ export class WebGL2Buffer extends Buffer {
         this._size = size;
         this._count = this._size / this._stride;
 
-        if (this._bakcupBuffer) {
-            const oldView = this._bakcupBuffer;
-            this._bakcupBuffer = new Uint8Array(this._size);
-            this._bakcupBuffer.set(oldView);
-            this._device.memoryStatus.bufferSize -= oldSize;
-            this._device.memoryStatus.bufferSize += size;
-        }
-
         if (this._gpuBuffer) {
-            if (this._bakcupBuffer) {
-                this._gpuBuffer.buffer = this._bakcupBuffer;
-            }
-
             this._gpuBuffer.size = size;
             if (size > 0) {
                 WebGL2CmdFuncResizeBuffer(this._device as WebGL2Device, this._gpuBuffer);
@@ -156,30 +132,27 @@ export class WebGL2Buffer extends Buffer {
         }
     }
 
-    public update (buffer: BufferSource, offset?: number, size?: number) {
+    public update (buffer: BufferSource, size?: number) {
         if (this._isBufferView) {
             console.warn('cannot update through buffer views!');
             return;
         }
 
         let buffSize: number;
-        if (size !== undefined ) {
+        if (size !== undefined) {
             buffSize = size;
         } else if (this._usage & BufferUsageBit.INDIRECT) {
             buffSize = 0;
         } else {
             buffSize = (buffer as ArrayBuffer).byteLength;
         }
-        if (this._bakcupBuffer && buffer !== this._bakcupBuffer.buffer) {
-            const view = new Uint8Array(buffer as ArrayBuffer, 0, size);
-            this._bakcupBuffer.set(view, offset);
-        }
 
         WebGL2CmdFuncUpdateBuffer(
             this._device as WebGL2Device,
             this._gpuBuffer!,
             buffer,
-            offset || 0,
-            buffSize);
+            0,
+            buffSize,
+        );
     }
 }

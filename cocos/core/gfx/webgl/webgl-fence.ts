@@ -26,7 +26,6 @@
 import { Fence, FenceInfo } from '../fence';
 
 export class WebGLFence extends Fence {
-
     public initialize (info: FenceInfo): boolean {
         return true;
     }

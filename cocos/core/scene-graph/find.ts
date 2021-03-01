@@ -28,9 +28,9 @@
  * @module scene-graph
  */
 
+import { DEV } from 'internal:constants';
 import { warnID } from '../platform/debug';
 import { Node } from './node';
-import { DEV } from 'internal:constants';
 import { legacyCC } from '../global-exports';
 
 /**

@@ -1,8 +1,8 @@
-import { Joint2D } from "./joint-2d";
-import { ccclass, property, menu, type } from "../../../../core/data/class-decorator";
-import { ISpringJoint } from "../../../spec/i-physics-joint";
-import { EJoint2DType } from "../../physics-types";
-import { Vec3 } from "../../../../core";
+import { Joint2D } from './joint-2d';
+import { ccclass, property, menu, type } from '../../../../core/data/class-decorator';
+import { ISpringJoint } from '../../../spec/i-physics-joint';
+import { EJoint2DType } from '../../physics-types';
+import { Vec3 } from '../../../../core';
 
 @ccclass('cc.SpringJoint2D')
 @menu('Physics2D/Joints/SpringJoint2D')
@@ -22,11 +22,10 @@ export class SpringJoint2D extends Joint2D {
     set frequency (v) {
         this._frequency = v;
         if (this._joint) {
-            (this._joint! as ISpringJoint).setFrequency(v);
+            (this._joint as ISpringJoint).setFrequency(v);
         }
     }
 
-    
     /**
      * @en
      * The damping ratio.
@@ -40,11 +39,10 @@ export class SpringJoint2D extends Joint2D {
     set dampingRatio (v) {
         this._dampingRatio = v;
         if (this._joint) {
-            (this._joint! as ISpringJoint).setDampingRatio(v);
+            (this._joint as ISpringJoint).setDampingRatio(v);
         }
     }
 
-    
     /**
      * @en
      * The distance separating the two ends of the joint.
@@ -61,7 +59,7 @@ export class SpringJoint2D extends Joint2D {
     set distance (v) {
         this._distance = v;
         if (this._joint) {
-            (this._joint! as ISpringJoint).setDistance(v);
+            (this._joint as ISpringJoint).setDistance(v);
         }
     }
 

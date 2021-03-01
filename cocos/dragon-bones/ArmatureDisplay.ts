@@ -1,19 +1,19 @@
 import { EDITOR } from 'internal:constants';
+import { Armature, Bone, EventObject } from '@cocos/dragonbones-js';
 import { ccclass, executeInEditMode, help, menu } from '../core/data/class-decorator';
-import { UIRenderable } from '../2d/framework/ui-renderable';
-import { Node, EventTarget, CCClass, Color, Enum, PrivateNode, ccenum, errorID, Texture2D, js, CCObject } from '../core';
+import { Renderable2D } from '../2d/framework/renderable-2d';
+import { Node, EventTarget, CCClass, Color, Enum, PrivateNode, ccenum, errorID, Texture2D, js, CCObject, SystemEventType } from '../core';
 import { BlendFactor } from '../core/gfx';
-import { displayName, editable, serializable, tooltip, type, visible } from '../core/data/decorators';
+import { displayName, editable, override, serializable, tooltip, type, visible } from '../core/data/decorators';
 import { AnimationCache, ArmatureCache, ArmatureFrame } from './ArmatureCache';
 import { AttachUtil } from './AttachUtil';
 import { CCFactory } from './CCFactory';
-import { Armature, Bone, EventObject } from './lib/dragonBones.js';
 import { DragonBonesAsset } from './DragonBonesAsset';
 import { DragonBonesAtlasAsset } from './DragonBonesAtlasAsset';
 import { Graphics } from '../2d/components';
 import { CCArmatureDisplay } from './CCArmatureDisplay';
 import { MeshRenderData } from '../2d/renderer/render-data';
-import { UI } from '../2d/renderer/ui';
+import { Batcher2D } from '../2d/renderer/batcher-2d';
 import { MaterialInstance } from '../core/renderer/core/material-instance';
 import { legacyCC } from '../core/global-exports';
 
@@ -124,10 +124,20 @@ interface BoneIndex extends Number {
  */
 @ccclass('dragonBones.ArmatureDisplay')
 @help('i18n:dragonBones.ArmatureDisplay')
-@menu('Components/ArmatureDisplay')
+@menu('DragonBones/ArmatureDisplay')
 @executeInEditMode
-export class ArmatureDisplay extends UIRenderable {
+export class ArmatureDisplay extends Renderable2D {
     static AnimationCacheMode = AnimationCacheMode;
+
+    @override
+    @visible(false)
+    get srcBlendFactor () { return super.srcBlendFactor; }
+    set srcBlendFactor (v) { super.srcBlendFactor = v; }
+
+    @override
+    @visible(false)
+    get dstBlendFactor () { return super.dstBlendFactor; }
+    set dstBlendFactor (v) { super.dstBlendFactor = v; }
 
     /**
      * !#en
@@ -551,7 +561,7 @@ export class ArmatureDisplay extends UIRenderable {
     }
 
     public _meshRenderDataArrayIdx = 0;
-    protected _render (ui: UI) {
+    protected _render (ui: Batcher2D) {
         if (this._meshRenderDataArray) {
             for (let i = 0; i < this._meshRenderDataArray.length; i++) {
                 this._meshRenderDataArrayIdx = i;
@@ -707,6 +717,20 @@ export class ArmatureDisplay extends UIRenderable {
         this._flushAssembler();
     }
 
+    public _onSyncTransform () {
+        this.node.on(SystemEventType.TRANSFORM_CHANGED, this.syncTransform, this);
+        this.node.on(SystemEventType.SIZE_CHANGED, this.syncTransform, this);
+    }
+
+    public _offSyncTransform () {
+        this.node.off(SystemEventType.TRANSFORM_CHANGED, this.syncTransform, this);
+        this.node.off(SystemEventType.SIZE_CHANGED, this.syncTransform, this);
+    }
+
+    private syncTransform () {
+
+    }
+
     onDisable () {
         super.onDisable();
         // If cache mode is cache, no need to update by dragonbones library.
@@ -782,6 +806,7 @@ export class ArmatureDisplay extends UIRenderable {
     }
 
     onDestroy () {
+        this._materialInstances = this._materialInstances.filter((instance) => !!instance);
         super.onDestroy();
         this._inited = false;
 
@@ -910,6 +935,10 @@ export class ArmatureDisplay extends UIRenderable {
             this._indexBoneSockets();
         }
         return Array.from(this._cachedSockets.keys()).sort();
+    }
+
+    public setBlendHash () {
+        if (this._blendHash !== -1) this._blendHash = -1;
     }
 
     /**

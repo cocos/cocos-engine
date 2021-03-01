@@ -1,13 +1,13 @@
-import { Color, Component, macro, Mat4, RenderTexture, Node, Texture2D, Vec3 } from '../../core';
+import { Armature, BlendMode } from '@cocos/dragonbones-js';
+import { Color, Mat4, RenderTexture, Node, Texture2D, Vec3 } from '../../core';
 import { BlendFactor } from '../../core/gfx';
 import { TextureBase } from '../../core/assets/texture-base';
 import { MaterialInstance } from '../../core/renderer/core/material-instance';
 import { IAssembler } from '../../2d/renderer/base';
-import { UI } from '../../2d/renderer/ui';
-import { ArmatureFrame, ArmatureFrameColor } from '../ArmatureCache';
+import { Batcher2D } from '../../2d/renderer/batcher-2d';
+import { ArmatureFrame } from '../ArmatureCache';
 import { ArmatureDisplay, ArmatureDisplayMeshData } from '../ArmatureDisplay';
 import { CCSlot } from '../CCSlot';
-import { Armature, BlendMode } from '../lib/dragonBones.js';
 import { legacyCC } from '../../core/global-exports';
 
 const NEED_COLOR = 0x01;
@@ -33,7 +33,7 @@ let _multiply: number;
 let _mustFlush: boolean;
 let _buffer: ArmatureDisplayMeshData | undefined;
 let _node: Node | undefined;
-let _ui: UI | undefined;
+let _batcher: Batcher2D | undefined;
 let _comp: ArmatureDisplay | undefined;
 let _vfOffset: number;
 let _indexOffset: number;
@@ -78,6 +78,7 @@ function _getSlotMaterial (tex: RenderTexture | TextureBase | null, blendMode: B
     }
 
     // const useModel = !_comp!.enableBatch;
+    _comp!.setBlendHash();
     return _comp!.getMaterialForBlend(src, dst);
 }
 
@@ -106,7 +107,7 @@ export const simple: IAssembler = {
     createData () {
     },
 
-    updateRenderData (comp: ArmatureDisplay, ui: UI) {
+    updateRenderData (comp: ArmatureDisplay, ui: Batcher2D) {
         _comp = comp;
         updateComponentRenderData(comp, ui);
     },
@@ -114,7 +115,7 @@ export const simple: IAssembler = {
     updateColor (comp: ArmatureDisplay) {
     },
 
-    fillBuffers (comp: ArmatureDisplay, renderer: UI) {
+    fillBuffers (comp: ArmatureDisplay, renderer: Batcher2D) {
         if (!comp || comp.meshRenderDataArray.length === 0) return;
 
         const dataArray = comp.meshRenderDataArray;
@@ -375,7 +376,7 @@ function cacheTraverse (frame: ArmatureFrame | null, parentMat?: Mat4) {
     }
 }
 
-function updateComponentRenderData (comp: ArmatureDisplay, ui: UI) {
+function updateComponentRenderData (comp: ArmatureDisplay, batcher: Batcher2D) {
     // comp.node._renderFlag |= RenderFlow.FLAG_UPDATE_RENDER_DATA;
 
     const armature = comp._armature;
@@ -389,7 +390,7 @@ function updateComponentRenderData (comp: ArmatureDisplay, ui: UI) {
     _premultipliedAlpha = comp.premultipliedAlpha;
     _node = comp.node;
     _buffer = comp.requestMeshRenderData();
-    _ui = ui;
+    _batcher = batcher;
     _comp = comp;
     _handleVal = 0;
 
@@ -454,7 +455,7 @@ function updateComponentRenderData (comp: ArmatureDisplay, ui: UI) {
     // Clear temp var.
     _node = undefined;
     _buffer = undefined;
-    _ui = undefined;
+    _batcher = undefined;
     _comp = undefined;
 }
 

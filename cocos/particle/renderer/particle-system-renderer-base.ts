@@ -50,7 +50,7 @@ export interface IParticleSystemRenderer {
     setNewParticle (p: Particle): void;
     updateParticles (dt: number): number;
     updateRenderData (): void;
-    enableModule (name: string, val: Boolean, pm: IParticleModule): void;
+    enableModule (name: string, val: boolean, pm: IParticleModule): void;
     updateTrailMaterial (): void;
     getDefaultTrailMaterial (): any;
     beforeRender (): void;
@@ -98,7 +98,7 @@ export abstract class ParticleSystemRendererBase implements IParticleSystemRende
             if (this._model.scene) {
                 this.detachFromScene();
             }
-            this._particleSystem!._getRenderScene().addModel(this._model);
+            this._particleSystem._getRenderScene().addModel(this._model);
         }
     }
 
@@ -112,6 +112,10 @@ export abstract class ParticleSystemRendererBase implements IParticleSystemRende
         if (this._model) {
             this._model.setVertexAttributes(this._renderInfo!.renderMode === RenderMode.Mesh ? this._renderInfo!.mesh : null, this._vertAttrs);
         }
+    }
+
+    public clear () {
+        if (this._model) this._model.enabled = false;
     }
 
     protected _initModel () {
@@ -130,10 +134,9 @@ export abstract class ParticleSystemRendererBase implements IParticleSystemRende
     public abstract onRebuildPSO (index: number, material: Material) : void;
     public abstract updateRenderMode () : void;
     public abstract updateMaterialParams () : void;
-    public abstract clear () : void;
     public abstract setNewParticle (p: Particle): void;
     public abstract updateParticles (dt: number): number;
     public abstract updateRenderData (): void;
-    public abstract enableModule (name: string, val: Boolean, pm: IParticleModule): void;
+    public abstract enableModule (name: string, val: boolean, pm: IParticleModule): void;
     public abstract beforeRender (): void;
 }

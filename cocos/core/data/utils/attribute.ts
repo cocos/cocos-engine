@@ -1,4 +1,4 @@
-﻿/*
+/*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
  Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
@@ -24,13 +24,10 @@
  THE SOFTWARE.
 */
 
-
-
-
+import { EDITOR } from 'internal:constants';
 import { log, warnID } from '../../platform/debug';
 import { formatStr, get, getClassName, isChildClassOf, value } from '../../utils/js';
 import { isPlainEmptyObj_DEV } from '../../utils/misc';
-import { EDITOR } from 'internal:constants';
 import { legacyCC } from '../../global-exports';
 
 export const DELIMETER = '$_$';
@@ -47,7 +44,7 @@ export function createAttrsSingle (owner: Object, superAttrs?: any) {
 export function createAttrs (subclass: any) {
     if (typeof subclass !== 'function') {
         // attributes only in instance
-        let instance = subclass;
+        const instance = subclass;
         return createAttrsSingle(instance, getClassAttrs(instance.constructor));
     }
     let superClass: any;
@@ -76,7 +73,7 @@ export function createAttrs (subclass: any) {
  * @private
  */
 export function attr (constructor: any, propertyName: string): { [attributeName: string]: any; } {
-    var attrs = getClassAttrs(constructor);
+    const attrs = getClassAttrs(constructor);
     const prefix = propertyName + DELIMETER;
     const ret = {};
     for (const key in attrs) {
@@ -152,7 +149,7 @@ legacyCC.Float = CCFloat;
 legacyCC.CCFloat = CCFloat;
 
 if (EDITOR) {
-    get(legacyCC, 'Number', function () {
+    get(legacyCC, 'Number', () => {
         warnID(3603);
         return CCFloat;
     });
@@ -199,13 +196,13 @@ legacyCC.CCString = CCString;
 // Ensures the type matches its default value
 export function getTypeChecker_ET (type: string, attributeName: string) {
     return function (constructor: Function, mainPropertyName: string) {
-        const propInfo = '"' + getClassName(constructor) + '.' + mainPropertyName + '"';
+        const propInfo = `"${getClassName(constructor)}.${mainPropertyName}"`;
         const mainPropAttrs = attr(constructor, mainPropertyName);
         let mainPropAttrsType = mainPropAttrs.type;
         if (mainPropAttrsType === CCInteger || mainPropAttrsType === CCFloat) {
             mainPropAttrsType = 'Number';
         } else if (mainPropAttrsType === CCString || mainPropAttrsType === CCBoolean) {
-            mainPropAttrsType = '' + mainPropAttrsType;
+            mainPropAttrsType = `${mainPropAttrsType}`;
         }
         if (mainPropAttrsType !== type) {
             warnID(3604, propInfo);
@@ -241,8 +238,7 @@ export function getTypeChecker_ET (type: string, attributeName: string) {
             } else {
                 warnID(3611, attributeName, propInfo, defaultType);
             }
-        }
-        else {
+        } else {
             return;
         }
         delete mainPropAttrs.type;
@@ -254,16 +250,15 @@ export function getObjTypeChecker_ET (typeCtor) {
     return function (classCtor, mainPropName) {
         getTypeChecker_ET('Object', 'type')(classCtor, mainPropName);
         // check ValueType
-        const defaultDef = getClassAttrs(classCtor)[mainPropName + DELIMETER + 'default'];
+        const defaultDef = getClassAttrs(classCtor)[`${mainPropName + DELIMETER}default`];
         const defaultVal = legacyCC.Class.getDefault(defaultDef);
         if (!Array.isArray(defaultVal) && isChildClassOf(typeCtor, legacyCC.ValueType)) {
             const typename = getClassName(typeCtor);
             const info = formatStr('No need to specify the "type" of "%s.%s" because %s is a child class of ValueType.',
-            getClassName(classCtor), mainPropName, typename);
+                getClassName(classCtor), mainPropName, typename);
             if (defaultDef) {
                 log(info);
-            }
-            else {
+            } else {
                 warnID(3612, info, typename, getClassName(classCtor), mainPropName, typename);
             }
         }

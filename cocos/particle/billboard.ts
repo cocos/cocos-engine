@@ -23,7 +23,6 @@
  THE SOFTWARE.
  */
 
-
 /**
  * @packageDocumentation
  * @module particle
@@ -42,10 +41,9 @@ import { legacyCC } from '../core/global-exports';
 
 @ccclass('cc.Billboard')
 @help('i18n:cc.Billboard')
-@menu('Components/Billboard')
+@menu('Effects/Billboard')
 @executeInEditMode
 export class Billboard extends Component {
-
     @type(Texture2D)
     private _texture = null;
 
@@ -195,6 +193,6 @@ export class Billboard extends Component {
             this._material = new Material();
             this._material.copy(builtinResMgr.get<Material>('default-billboard-material'));
         }
-        model.initSubModel(0, this._mesh.renderingSubMeshes[0], this._material!);
+        model.initSubModel(0, this._mesh.renderingSubMeshes[0], this._material);
     }
 }

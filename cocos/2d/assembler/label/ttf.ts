@@ -30,7 +30,7 @@
 
 import * as js from '../../../core/utils/js';
 import { Color, Vec3 } from '../../../core/math';
-import { UI } from '../../renderer/ui';
+import { Batcher2D } from '../../renderer/batcher-2d';
 import { Label } from '../../components/label';
 import { IAssembler } from '../../renderer/base';
 import { ttfUtils } from './ttfUtils';
@@ -62,7 +62,7 @@ export const ttf: IAssembler = {
         return renderData;
     },
 
-    fillBuffers (comp: Label, renderer: UI) {
+    fillBuffers (comp: Label, renderer: Batcher2D) {
         const renderData = comp.renderData!;
         const dataList: IRenderData[] = renderData.data;
         const node = comp.node;
@@ -87,7 +87,7 @@ export const ttf: IAssembler = {
         const data3 = dataList[3];
         /* */
         node.updateWorldTransform();
-        // @ts-expect-error
+        // @ts-expect-error private property access
         const pos = node._pos; const rot = node._rot; const scale = node._scale;
         const ax = data0.x * scale.x; const bx = data3.x * scale.x;
         const ay = data0.y * scale.y; const by = data3.y * scale.y;

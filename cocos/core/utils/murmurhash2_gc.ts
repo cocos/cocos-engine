@@ -51,11 +51,10 @@ export function murmurhash2_32_gc (input: string | Uint8Array, seed: number) {
     const getUint8 = typeof input === 'string' ? getUint8ForString : getUint8ForArray;
 
     while (l >= 4) {
-        let k =
-            ((getUint8.call(input, i) & 0xff)) |
-            ((getUint8.call(input, ++i) & 0xff) << 8) |
-            ((getUint8.call(input, ++i) & 0xff) << 16) |
-            ((getUint8.call(input, ++i) & 0xff) << 24);
+        let k =            ((getUint8.call(input, i) & 0xff))
+            | ((getUint8.call(input, ++i) & 0xff) << 8)
+            | ((getUint8.call(input, ++i) & 0xff) << 16)
+            | ((getUint8.call(input, ++i) & 0xff) << 24);
 
         k = (((k & 0xffff) * 0x5bd1e995) + ((((k >>> 16) * 0x5bd1e995) & 0xffff) << 16));
         k ^= k >>> 24;
@@ -68,10 +67,10 @@ export function murmurhash2_32_gc (input: string | Uint8Array, seed: number) {
     }
 
     switch (l) {
-        case 3: h ^= (getUint8.call(input, i + 2) & 0xff) << 16;
-        case 2: h ^= (getUint8.call(input, i + 1) & 0xff) << 8;
-        case 1: h ^= (getUint8.call(input, i) & 0xff);
-                h = (((h & 0xffff) * 0x5bd1e995) + ((((h >>> 16) * 0x5bd1e995) & 0xffff) << 16));
+    case 3: h ^= (getUint8.call(input, i + 2) & 0xff) << 16;
+    case 2: h ^= (getUint8.call(input, i + 1) & 0xff) << 8;
+    case 1: h ^= (getUint8.call(input, i) & 0xff);
+        h = (((h & 0xffff) * 0x5bd1e995) + ((((h >>> 16) * 0x5bd1e995) & 0xffff) << 16));
     }
 
     h ^= h >>> 13;

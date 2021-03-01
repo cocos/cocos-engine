@@ -24,7 +24,7 @@
  */
 
 import { Buffer, BufferSource, BufferInfo, BufferViewInfo, IndirectBuffer } from '../buffer';
-import { BufferUsageBit, BufferFlagBit } from '../define';
+import { BufferUsageBit } from '../define';
 import {
     WebGLCmdFuncCreateBuffer,
     WebGLCmdFuncDestroyBuffer,
@@ -35,7 +35,6 @@ import { WebGLDevice } from './webgl-device';
 import { IWebGLGPUBuffer, IWebGLGPUBufferView } from './webgl-gpu-objects';
 
 export class WebGLBuffer extends Buffer {
-
     get gpuBuffer (): IWebGLGPUBuffer {
         return  this._gpuBuffer!;
     }
@@ -49,9 +48,7 @@ export class WebGLBuffer extends Buffer {
     private _uniformBuffer: Uint8Array | null = null;
 
     public initialize (info: BufferInfo | BufferViewInfo): boolean {
-
         if ('buffer' in info) { // buffer view
-
             this._isBufferView = true;
 
             const buffer = info.buffer as WebGLBuffer;
@@ -67,9 +64,7 @@ export class WebGLBuffer extends Buffer {
                 offset: info.offset,
                 range: info.range,
             };
-
         } else { // native buffer
-
             this._usage = info.usage;
             this._memUsage = info.memUsage;
             this._size = info.size;
@@ -81,10 +76,6 @@ export class WebGLBuffer extends Buffer {
                 this._indirectBuffer = new IndirectBuffer();
             }
 
-            if (this._flags & BufferFlagBit.BAKUP_BUFFER) {
-                this._bakcupBuffer = new Uint8Array(this._size);
-                this._device.memoryStatus.bufferSize += this._size;
-            }
 
             if ((this._usage & BufferUsageBit.UNIFORM) && this._size > 0) {
                 this._uniformBuffer = new Uint8Array(this._size);
@@ -95,7 +86,7 @@ export class WebGLBuffer extends Buffer {
                 memUsage: this._memUsage,
                 size: this._size,
                 stride: this._stride,
-                buffer: this._bakcupBuffer,
+                buffer: null,
                 vf32: null,
                 indirects: [],
                 glTarget: 0,
@@ -128,8 +119,6 @@ export class WebGLBuffer extends Buffer {
         if (this._gpuBufferView) {
             this._gpuBufferView = null;
         }
-
-        this._bakcupBuffer = null;
     }
 
     public resize (size: number) {
@@ -144,14 +133,6 @@ export class WebGLBuffer extends Buffer {
         this._size = size;
         this._count = this._size / this._stride;
 
-        if (this._bakcupBuffer) {
-            const oldView = this._bakcupBuffer;
-            this._bakcupBuffer = new Uint8Array(this._size);
-            this._bakcupBuffer.set(oldView);
-            this._device.memoryStatus.bufferSize -= oldSize;
-            this._device.memoryStatus.bufferSize += size;
-        }
-
         if (this._uniformBuffer) {
             this._uniformBuffer = new Uint8Array(size);
         }
@@ -159,8 +140,6 @@ export class WebGLBuffer extends Buffer {
         if (this._gpuBuffer) {
             if (this._uniformBuffer) {
                 this._gpuBuffer.buffer = this._uniformBuffer;
-            } else if (this._bakcupBuffer) {
-                this._gpuBuffer.buffer = this._bakcupBuffer;
             }
 
             this._gpuBuffer.size = size;
@@ -172,7 +151,7 @@ export class WebGLBuffer extends Buffer {
         }
     }
 
-    public update (buffer: BufferSource, offset?: number, size?: number) {
+    public update (buffer: BufferSource, size?: number) {
         if (this._isBufferView) {
             console.warn('cannot update through buffer views!');
             return;
@@ -186,16 +165,13 @@ export class WebGLBuffer extends Buffer {
         } else {
             buffSize = (buffer as ArrayBuffer).byteLength;
         }
-        if (this._bakcupBuffer && buffer !== this._bakcupBuffer.buffer) {
-            const view = new Uint8Array(buffer as ArrayBuffer, 0, size);
-            this._bakcupBuffer.set(view, offset);
-        }
 
         WebGLCmdFuncUpdateBuffer(
             this._device as WebGLDevice,
             this._gpuBuffer!,
             buffer,
-            offset || 0,
-            buffSize);
+            0,
+            buffSize,
+        );
     }
 }

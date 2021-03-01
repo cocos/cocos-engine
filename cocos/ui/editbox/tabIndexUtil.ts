@@ -36,7 +36,7 @@ export class tabIndexUtil {
     public static add (editBoxImpl: EditBoxImpl) {
         const list = this._tabIndexList;
         const index = list.indexOf(editBoxImpl);
-        if (index === -1){
+        if (index === -1) {
             list.push(editBoxImpl);
         }
     }
@@ -50,9 +50,7 @@ export class tabIndexUtil {
     }
 
     public static resort () {
-        this._tabIndexList.sort((a: EditBoxImpl, b: EditBoxImpl) => {
-            return a._delegate!.tabIndex - b._delegate!.tabIndex;
-        });
+        this._tabIndexList.sort((a: EditBoxImpl, b: EditBoxImpl) => a._delegate!.tabIndex - b._delegate!.tabIndex);
     }
 
     public static next (editBoxImpl: EditBoxImpl) {

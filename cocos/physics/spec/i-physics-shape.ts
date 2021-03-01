@@ -31,7 +31,7 @@
 import { ILifecycle } from './i-lifecycle';
 import { IGroupMask } from './i-group-mask';
 import { IVec3Like } from '../../core/math/type-define';
-import { Collider, RigidBody, PhysicMaterial, SimplexCollider } from '../../../exports/physics-framework';
+import { Collider, RigidBody, PhysicsMaterial, SimplexCollider } from '../../../exports/physics-framework';
 import { Mesh } from '../../3d/assets';
 import { ITerrainAsset } from './i-external';
 import { AABB, Sphere } from '../../core/geometry';
@@ -41,7 +41,7 @@ export interface IBaseShape extends ILifecycle, IGroupMask {
     readonly collider: Collider;
     readonly attachedRigidBody: RigidBody | null;
     initialize (v: Collider): void;
-    setMaterial: (v: PhysicMaterial | null) => void;
+    setMaterial: (v: PhysicsMaterial | null) => void;
     setAsTrigger: (v: boolean) => void;
     setCenter: (v: IVec3Like) => void;
     // setAttachedBody: (body: RigidBody | null) => void;

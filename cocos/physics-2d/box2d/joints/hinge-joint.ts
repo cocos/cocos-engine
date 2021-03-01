@@ -19,7 +19,7 @@ export class b2HingeJoint extends b2Joint implements IHingeJoint {
     }
     updateLimits () {
         if (this._b2joint) {
-            let comp = this._jointComp as HingeJoint2D;
+            const comp = this._jointComp as HingeJoint2D;
             (this._b2joint as b2.RevoluteJoint).SetLimits(toRadian(comp.lowerAngle), toRadian(comp.upperAngle));
         }
     }
@@ -42,15 +42,15 @@ export class b2HingeJoint extends b2Joint implements IHingeJoint {
     }
 
     _createJointDef () {
-        let comp = this._jointComp as HingeJoint2D;
-        let def = new b2.RevoluteJointDef();
+        const comp = this._jointComp as HingeJoint2D;
+        const def = new b2.RevoluteJointDef();
         def.localAnchorA.Set(comp.anchor.x / PHYSICS_2D_PTM_RATIO, comp.anchor.y / PHYSICS_2D_PTM_RATIO);
         def.localAnchorB.Set(comp.connectedAnchor.x / PHYSICS_2D_PTM_RATIO, comp.connectedAnchor.y / PHYSICS_2D_PTM_RATIO);
-        
+
         def.enableMotor = comp.enableMotor;
         def.maxMotorTorque = comp.maxMotorTorque;
         def.motorSpeed = toRadian(comp.motorSpeed);
-        
+
         def.enableLimit = comp.enableLimit;
         def.lowerAngle = comp.lowerAngle;
         def.upperAngle = comp.upperAngle;

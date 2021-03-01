@@ -59,8 +59,7 @@ function _dereference (self) {
             idObjList[i][propName] = deserializedList[id];
             onDereferenced(deserializedList, id, idObjList[i], propName);
         }
-    }
-    else {
+    } else {
         for (i = 0; i < idList.length; i++) {
             propName = idPropList[i];
             id = idList[i];
@@ -78,21 +77,20 @@ function compileObjectTypeJit (sources, defaultValue, accessorToSet, propNameLit
         const ctorCode = js.getClassName(defaultValue);
         sources.push(`s._deserializeTypedObject(o${accessorToSet},prop,${ctorCode});`);
         if (!assumeHavePropIfIsValue) {
-            sources.push('}else o' + accessorToSet + '=null;');
+            sources.push(`}else o${accessorToSet}=null;`);
         }
-    }
-    else {
+    } else {
         sources.push('if(prop){');
-        sources.push('s._deserializeObjField(o,prop,' + propNameLiteralToSet + ');');
-        sources.push('}else o' + accessorToSet + '=null;');
+        sources.push(`s._deserializeObjField(o,prop,${propNameLiteralToSet});`);
+        sources.push(`}else o${accessorToSet}=null;`);
     }
 }
 
 const compileDeserialize = SUPPORT_JIT ? (self, klass) => {
-    const TYPE = Attr.DELIMETER + 'type';
-    const EDITOR_ONLY = Attr.DELIMETER + 'editorOnly';
-    const DEFAULT = Attr.DELIMETER + 'default';
-    const FORMERLY_SERIALIZED_AS = Attr.DELIMETER + 'formerlySerializedAs';
+    const TYPE = `${Attr.DELIMETER}type`;
+    const EDITOR_ONLY = `${Attr.DELIMETER}editorOnly`;
+    const DEFAULT = `${Attr.DELIMETER}default`;
+    const FORMERLY_SERIALIZED_AS = `${Attr.DELIMETER}formerlySerializedAs`;
     const attrs = Attr.getClassAttrs(klass);
 
     const props = klass.__values__;
@@ -112,26 +110,24 @@ const compileDeserialize = SUPPORT_JIT ? (self, klass) => {
         let accessorToSet;
         let propNameLiteralToSet;
         if (CCClass.IDENTIFIER_RE.test(propName)) {
-            propNameLiteralToSet = '"' + propName + '"';
-            accessorToSet = '.' + propName;
-        }
-        else {
+            propNameLiteralToSet = `"${propName}"`;
+            accessorToSet = `.${propName}`;
+        } else {
             propNameLiteralToSet = CCClass.escapeForJS(propName);
-            accessorToSet = '[' + propNameLiteralToSet + ']';
+            accessorToSet = `[${propNameLiteralToSet}]`;
         }
 
         let accessorToGet = accessorToSet;
         if (attrs[propName + FORMERLY_SERIALIZED_AS]) {
             const propNameToRead = attrs[propName + FORMERLY_SERIALIZED_AS];
             if (CCClass.IDENTIFIER_RE.test(propNameToRead)) {
-                accessorToGet = '.' + propNameToRead;
-            }
-            else {
-                accessorToGet = '[' + CCClass.escapeForJS(propNameToRead) + ']';
+                accessorToGet = `.${propNameToRead}`;
+            } else {
+                accessorToGet = `[${CCClass.escapeForJS(propNameToRead)}]`;
             }
         }
 
-        sources.push('prop=d' + accessorToGet + ';');
+        sources.push(`prop=d${accessorToGet};`);
         sources.push(`if(typeof ${JSB ? '(prop)' : 'prop'}!=="undefined"){`);
 
         // function undefined object(null) string boolean number
@@ -141,25 +137,22 @@ const compileDeserialize = SUPPORT_JIT ? (self, klass) => {
             const userType = attrs[propName + TYPE];
             if (defaultValue === undefined && userType) {
                 isPrimitiveType = userType instanceof Attr.PrimitiveType;
-            }
-            else {
+            } else {
                 const defaultType = typeof defaultValue;
-                isPrimitiveType = defaultType === 'string' ||
-                                  defaultType === 'number' ||
-                                  defaultType === 'boolean';
+                isPrimitiveType = defaultType === 'string'
+                                  || defaultType === 'number'
+                                  || defaultType === 'boolean';
             }
 
             if (isPrimitiveType) {
                 sources.push(`o${accessorToSet}=prop;`);
-            }
-            else {
+            } else {
                 compileObjectTypeJit(sources, defaultValue, accessorToSet, propNameLiteralToSet, true);
             }
-        }
-        else {
-            sources.push(`if(typeof ${JSB ? '(prop)' : 'prop'}!=="object"){` +
-                             'o' + accessorToSet + '=prop;' +
-                         '}else{');
+        } else {
+            sources.push(`${`if(typeof ${JSB ? '(prop)' : 'prop'}!=="object"){`
+                             + 'o'}${accessorToSet}=prop;`
+                         + `}else{`);
             compileObjectTypeJit(sources, defaultValue, accessorToSet, propNameLiteralToSet, false);
             sources.push('}');
         }
@@ -171,8 +164,7 @@ const compileDeserialize = SUPPORT_JIT ? (self, klass) => {
             if (mayUsedInPersistRoot) {
                 sources.push('d._id&&(o._id=d._id);');
             }
-        }
-        else {
+        } else {
             sources.push('d._id&&(o._id=d._id);');
         }
     }
@@ -199,10 +191,9 @@ const compileDeserialize = SUPPORT_JIT ? (self, klass) => {
         shouldCopyRawData = props[props.length - 1] === '_$erialized';
 
         const attrs = Attr.getClassAttrs(klass);
-        const TYPE = Attr.DELIMETER + 'type';
-        const DEFAULT = Attr.DELIMETER + 'default';
-        const FORMERLY_SERIALIZED_AS = Attr.DELIMETER + 'formerlySerializedAs';
-
+        const TYPE = `${Attr.DELIMETER}type`;
+        const DEFAULT = `${Attr.DELIMETER}default`;
+        const FORMERLY_SERIALIZED_AS = `${Attr.DELIMETER}formerlySerializedAs`;
 
         for (let p = 0; p < props.length; p++) {
             const propName = props[p];
@@ -217,12 +208,11 @@ const compileDeserialize = SUPPORT_JIT ? (self, klass) => {
                 const userType = attrs[propName + TYPE];
                 if (defaultValue === undefined && userType) {
                     isPrimitiveType = userType instanceof Attr.PrimitiveType;
-                }
-                else {
+                } else {
                     const defaultType = typeof defaultValue;
-                    isPrimitiveType = defaultType === 'string' ||
-                                      defaultType === 'number' ||
-                                      defaultType === 'boolean';
+                    isPrimitiveType = defaultType === 'string'
+                                      || defaultType === 'number'
+                                      || defaultType === 'boolean';
                 }
             }
             if (fastMode && isPrimitiveType) {
@@ -233,8 +223,7 @@ const compileDeserialize = SUPPORT_JIT ? (self, klass) => {
                 if (simplePropsToRead !== simpleProps) {
                     simplePropsToRead.push(propNameToRead);
                 }
-            }
-            else {
+            } else {
                 if (propNameToRead !== propName && advancedPropsToRead === advancedProps) {
                     advancedPropsToRead = advancedProps.slice();
                 }
@@ -262,25 +251,19 @@ const compileDeserialize = SUPPORT_JIT ? (self, klass) => {
             }
             if (!fastMode && typeof prop !== 'object') {
                 o[propName] = prop;
-            }
-            else {
+            } else {
                 // fastMode (so will not simpleProp) or object
                 const valueTypeCtor = advancedPropsValueType[i];
                 if (valueTypeCtor) {
                     if (fastMode || prop) {
                         s._deserializeTypedObject(o[propName], prop, valueTypeCtor);
-                    }
-                    else {
+                    } else {
                         o[propName] = null;
                     }
-                }
-                else {
-                    if (prop) {
-                        s._deserializeObjField(o, prop, propName);
-                    }
-                    else {
-                        o[propName] = null;
-                    }
+                } else if (prop) {
+                    s._deserializeObjField(o, prop, propName);
+                } else {
+                    o[propName] = null;
                 }
             }
         }
@@ -300,9 +283,9 @@ function unlinkUnusedPrefab (self, serialized, obj) {
     const uuid = serialized.asset && serialized.asset.__uuid__;
     if (uuid) {
         const last = self.result.uuidList.length - 1;
-        if (self.result.uuidList[last] === uuid &&
-            self.result.uuidObjList[last] === obj &&
-            self.result.uuidPropList[last] === 'asset') {
+        if (self.result.uuidList[last] === uuid
+            && self.result.uuidObjList[last] === obj
+            && self.result.uuidPropList[last] === 'asset') {
             self.result.uuidList.pop();
             self.result.uuidObjList.pop();
             self.result.uuidPropList.pop();
@@ -316,8 +299,7 @@ function _deserializeFireClass (self, obj, serialized, klass) {
     let deserialize;
     if (klass.hasOwnProperty('__deserialize__')) {
         deserialize = klass.__deserialize__;
-    }
-    else {
+    } else {
         deserialize = compileDeserialize(self, klass);
         // if (TEST && !isPhantomJS) {
         //     log(deserialize);
@@ -325,12 +307,6 @@ function _deserializeFireClass (self, obj, serialized, klass) {
         js.value(klass, '__deserialize__', deserialize, true);
     }
     deserialize(self, obj, serialized, klass);
-    // if preview or build worker
-    if (PREVIEW || (EDITOR && self._ignoreEditorOnly)) {
-        if (klass === legacyCC._PrefabInfo && !obj.sync) {
-            unlinkUnusedPrefab(self, serialized, obj);
-        }
-    }
 }
 
 // function _compileTypedObject (accessor, klass, ctorCode) {
@@ -359,9 +335,7 @@ function _deserializeFireClass (self, obj, serialized, klass) {
 //     }
 // }
 
-
 class _Deserializer {
-
     public static pool: js.Pool<{}>;
     public result: any;
     public customEnv: any;
@@ -396,9 +370,8 @@ class _Deserializer {
             for (let i = 0; i < refCount; i++) {
                 if (jsonArray[i]) {
                     if (EDITOR || TEST) {
-                        this.deserializedList[i] = this._deserializeObject(jsonArray[i], this.deserializedList, '' + i);
-                    }
-                    else {
+                        this.deserializedList[i] = this._deserializeObject(jsonArray[i], this.deserializedList, `${i}`);
+                    } else {
                         this.deserializedList[i] = this._deserializeObject(jsonArray[i]);
                     }
                 }
@@ -414,14 +387,12 @@ class _Deserializer {
                     this.deserializedList[i]?.onAfterDeserialize_JSB?.();
                 }
             }
-        }
-        else {
+        } else {
             let deserializedData;
             this.deserializedList.length = 1;
             if (EDITOR || TEST) {
                 deserializedData = jsonObj ? this._deserializeObject(jsonObj, this.deserializedList, '0') : null;
-            }
-            else {
+            } else {
                 deserializedData = jsonObj ? this._deserializeObject(jsonObj) : null;
             }
 
@@ -459,9 +430,7 @@ class _Deserializer {
                 obj[i] = array[i];
             }
             return obj;
-        }
-        else if (type) {
-
+        } else if (type) {
             // Type Object (including CCClass)
 
             klass = this._classFinder(type, serialized, owner, propName);
@@ -483,8 +452,7 @@ class _Deserializer {
                 }
                 if (legacyCC.Class._isCCClass(klass)) {
                     _deserializeFireClass(self, obj, serialized, klass);
-                }
-                else {
+                } else {
                     self._deserializeTypedObject(obj, serialized, klass);
                 }
             }
@@ -492,9 +460,8 @@ class _Deserializer {
             function checkDeserializeByType () {
                 try {
                     deserializeByType();
-                }
-                catch (e) {
-                    console.error('deserialize ' + klass.name + ' failed, ' + e.stack);
+                } catch (e) {
+                    console.error(`deserialize ${klass.name} failed, ${e.stack}`);
                     klass = MissingScript;
                     legacyCC.deserialize.reportMissingClass(type);
                     deserializeByType();
@@ -503,20 +470,15 @@ class _Deserializer {
 
             if (EDITOR && legacyCC.js.isChildClassOf(klass, legacyCC.Component)) {
                 checkDeserializeByType();
-            }
-            else {
+            } else {
                 deserializeByType();
             }
-        }
-        else if (!Array.isArray(serialized)) {
-
+        } else if (!Array.isArray(serialized)) {
             // embedded primitive javascript object
 
             obj = {};
             this._deserializePrimitiveObject(obj, serialized);
-        }
-        else {
-
+        } else {
             // Array
 
             obj = new Array(serialized.length);
@@ -524,9 +486,12 @@ class _Deserializer {
             for (let i = 0; i < serialized.length; i++) {
                 prop = serialized[i];
                 if (typeof prop === 'object' && prop) {
-                    this._deserializeObjField(obj, prop, '' + i);
-                }
-                else {
+                    const isAssetType = this._deserializeObjField(obj, prop, `${i}`);
+                    if (isAssetType) {
+                        // fill default value for primitive objects (no constructor)
+                        obj[i] = null;
+                    }
+                } else {
                     obj[i] = prop;
                 }
             }
@@ -535,33 +500,29 @@ class _Deserializer {
     }
 
     // 和 _deserializeObject 不同的地方在于会判断 id 和 uuid
-    private _deserializeObjField (obj, jsonObj, propName) {
+    private _deserializeObjField (obj, jsonObj, propName): boolean {
         const id = jsonObj.__id__;
         if (id === undefined) {
             const uuid = jsonObj.__uuid__;
             if (uuid) {
                 this.result.push(obj, propName, uuid);
+                return true;
+            } else if (EDITOR || TEST) {
+                obj[propName] = this._deserializeObject(jsonObj, obj, propName);
+            } else {
+                obj[propName] = this._deserializeObject(jsonObj);
             }
-            else {
-                if (EDITOR || TEST) {
-                    obj[propName] = this._deserializeObject(jsonObj, obj, propName);
-                }
-                else {
-                    obj[propName] = this._deserializeObject(jsonObj);
-                }
-            }
-        }
-        else {
+        } else {
             const dObj = this.deserializedList[id];
             if (dObj) {
                 obj[propName] = dObj;
-            }
-            else {
+            } else {
                 this._idList.push(id);
                 this._idObjList.push(obj);
                 this._idPropList.push(propName);
             }
         }
+        return false;
     }
 
     private _deserializePrimitiveObject (instance, serialized) {
@@ -569,19 +530,18 @@ class _Deserializer {
             if (serialized.hasOwnProperty(propName)) {
                 const prop = serialized[propName];
                 if (typeof prop !== 'object') {
-                    if (propName !== '__type__'/* && k != '__id__'*/) {
+                    if (propName !== '__type__'/* && k != '__id__' */) {
                         instance[propName] = prop;
                     }
-                }
-                else {
-                    if (prop) {
-                        this._deserializeObjField(instance, prop, propName);
-                    }
-                    else {
+                } else if (prop) {
+                    const isAssetType = this._deserializeObjField(instance, prop, propName);
+                    if (isAssetType) {
+                        // fill default value for primitive objects (no constructor)
                         instance[propName] = null;
                     }
+                } else {
+                    instance[propName] = null;
                 }
-
             }
         }
     }
@@ -609,7 +569,7 @@ class _Deserializer {
             return;
         }
 
-        const DEFAULT = Attr.DELIMETER + 'default';
+        const DEFAULT = `${Attr.DELIMETER}default`;
         const attrs = Attr.getClassAttrs(klass);
         const fastDefinedProps = klass.__props__ || Object.keys(instance);    // 遍历 instance，如果具有类型，才不会把 __type__ 也读进来
 
@@ -655,8 +615,7 @@ _Deserializer.pool.get = function (result, classFinder, customEnv, ignoreEditorO
             cache._ignoreEditorOnly = ignoreEditorOnly;
         }
         return cache;
-    }
-    else {
+    } else {
         return new _Deserializer(result, classFinder, customEnv, ignoreEditorOnly);
     }
 };

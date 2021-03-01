@@ -30,13 +30,11 @@ import { Fence } from '../fence';
 import { WebGL2Fence } from './webgl2-fence';
 
 export class WebGL2Queue extends Queue {
-
-    public numDrawCalls: number = 0;
-    public numInstances: number = 0;
-    public numTris: number = 0;
+    public numDrawCalls = 0;
+    public numInstances = 0;
+    public numTris = 0;
 
     public initialize (info: QueueInfo): boolean {
-
         this._type = info.type;
 
         return true;

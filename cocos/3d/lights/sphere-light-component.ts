@@ -36,7 +36,6 @@ import { Light, PhotometricTerm } from './light-component';
 @menu('Light/SphereLight')
 @executeInEditMode
 export class SphereLight extends Light {
-
     @serializable
     protected _size = 0.15;
     @serializable

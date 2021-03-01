@@ -1,5 +1,5 @@
-import { IPhysicsWorld } from '../spec/i-physics-world'
 import { EDITOR } from 'internal:constants';
+import { IPhysicsWorld } from '../spec/i-physics-world';
 import { Graphics } from '../../2d';
 import { Node, CCObject, find, director, Vec3, Color, IVec2Like, Vec2, Rect } from '../../core';
 import { Canvas } from '../../2d/framework';
@@ -11,8 +11,8 @@ import { EPhysics2DDrawFlags, Contact2DType, ERaycast2DType, RaycastResult2D } f
 import { PhysicsSystem2D, Collider2D } from '../framework';
 import { BuiltinContact } from './builtin-contact';
 
-let contactResults: BuiltinContact[] = [];
-let testIntersectResults: Collider2D[] = [];
+const contactResults: BuiltinContact[] = [];
+const testIntersectResults: Collider2D[] = [];
 
 export class BuiltinPhysicsWorld implements IPhysicsWorld {
     private _contacts: BuiltinContact[] = [];
@@ -28,19 +28,19 @@ export class BuiltinPhysicsWorld implements IPhysicsWorld {
     }
 
     shouldCollide (c1: BuiltinShape2D, c2: BuiltinShape2D) {
-        let collider1 = c1.collider, collider2 = c2.collider;
-        let collisionMatrix = PhysicsSystem2D.instance.collisionMatrix;
+        const collider1 = c1.collider; const collider2 = c2.collider;
+        const collisionMatrix = PhysicsSystem2D.instance.collisionMatrix;
         return (collider1 !== collider2) && (collider1.node !== collider2.node) && (collisionMatrix[collider1.group] & collisionMatrix[collider2.group]);
     }
 
     addShape (shape: BuiltinShape2D) {
-        let shapes = this._shapes;
-        let index = shapes.indexOf(shape);
+        const shapes = this._shapes;
+        const index = shapes.indexOf(shape);
         if (index === -1) {
             for (let i = 0, l = shapes.length; i < l; i++) {
-                let other = shapes[i];
+                const other = shapes[i];
                 if (this.shouldCollide(shape, other)) {
-                    let contact = new BuiltinContact(shape, other);
+                    const contact = new BuiltinContact(shape, other);
                     this._contacts.push(contact);
                 }
             }
@@ -50,14 +50,14 @@ export class BuiltinPhysicsWorld implements IPhysicsWorld {
     }
 
     removeShape (shape: BuiltinShape2D) {
-        let shapes = this._shapes;
-        let index = shapes.indexOf(shape);
+        const shapes = this._shapes;
+        const index = shapes.indexOf(shape);
         if (index >= 0) {
             shapes.splice(index, 1);
 
-            let contacts = this._contacts;
+            const contacts = this._contacts;
             for (let i = contacts.length - 1; i >= 0; i--) {
-                let contact = contacts[i];
+                const contact = contacts[i];
                 if (contact.shape1 === shape || contact.shape2 === shape) {
                     if (contact.touching) {
                         this._emitCollide(contact, Contact2DType.END_CONTACT);
@@ -76,17 +76,17 @@ export class BuiltinPhysicsWorld implements IPhysicsWorld {
 
     step (deltaTime: number, velocityIterations = 10, positionIterations = 10) {
         // update collider
-        let shapes = this._shapes;
+        const shapes = this._shapes;
         for (let i = 0, l = shapes.length; i < l; i++) {
             shapes[i].update();
         }
 
         // do collide
-        let contacts = this._contacts;
+        const contacts = this._contacts;
         contactResults.length = 0;
 
         for (let i = 0, l = contacts.length; i < l; i++) {
-            let collisionType = contacts[i].updateState();
+            const collisionType = contacts[i].updateState();
             if (collisionType === Contact2DType.None) {
                 continue;
             }
@@ -96,7 +96,7 @@ export class BuiltinPhysicsWorld implements IPhysicsWorld {
 
         // handle collide results, emit message
         for (let i = 0, l = contactResults.length; i < l; i++) {
-            let result = contactResults[i];
+            const result = contactResults[i];
             this._emitCollide(result);
         }
     }
@@ -108,21 +108,21 @@ export class BuiltinPhysicsWorld implements IPhysicsWorld {
 
         this._checkDebugDrawValid();
 
-        let debugDrawer = this._debugGraphics!;
+        const debugDrawer = this._debugGraphics!;
         if (!debugDrawer) {
             return;
         }
 
         debugDrawer.clear();
 
-        let shapes = this._shapes;
+        const shapes = this._shapes;
 
         for (let i = 0, l = shapes.length; i < l; i++) {
-            let shape = shapes[i];
+            const shape = shapes[i];
 
             debugDrawer.strokeColor = Color.WHITE;
             if (shape instanceof BuiltinBoxShape || shape instanceof BuiltinPolygonShape) {
-                let ps = shape.worldPoints;
+                const ps = shape.worldPoints;
                 if (ps.length > 0) {
                     debugDrawer.moveTo(ps[0].x, ps[0].y);
                     for (let j = 1; j < ps.length; j++) {
@@ -131,14 +131,13 @@ export class BuiltinPhysicsWorld implements IPhysicsWorld {
                     debugDrawer.close();
                     debugDrawer.stroke();
                 }
-            }
-            else if (shape instanceof BuiltinCircleShape) {
+            } else if (shape instanceof BuiltinCircleShape) {
                 debugDrawer.circle(shape.worldPosition.x, shape.worldPosition.y, shape.worldRadius);
                 debugDrawer.stroke();
             }
 
             if (this._debugDrawFlags & EPhysics2DDrawFlags.Aabb) {
-                let aabb = shape.worldAABB;
+                const aabb = shape.worldAABB;
 
                 debugDrawer.strokeColor = Color.BLUE;
 
@@ -156,8 +155,8 @@ export class BuiltinPhysicsWorld implements IPhysicsWorld {
     private _emitCollide (contact: BuiltinContact, collisionType?: string) {
         collisionType = collisionType || contact.type;
 
-        let c1 = contact.shape1!.collider;
-        let c2 = contact.shape2!.collider;
+        const c1 = contact.shape1!.collider;
+        const c2 = contact.shape2!.collider;
 
         PhysicsSystem2D.instance.emit(collisionType, c1, c2);
         c1.emit(collisionType, c1, c2);
@@ -169,7 +168,7 @@ export class BuiltinPhysicsWorld implements IPhysicsWorld {
         if (!this._debugGraphics || !this._debugGraphics.isValid) {
             let canvas = find('Canvas');
             if (!canvas) {
-                let scene = director.getScene() as any;
+                const scene = director.getScene() as any;
                 if (!scene) {
                     return;
                 }
@@ -178,7 +177,7 @@ export class BuiltinPhysicsWorld implements IPhysicsWorld {
                 canvas.parent = scene;
             }
 
-            let node = new Node('PHYSICS_2D_DEBUG_DRAW');
+            const node = new Node('PHYSICS_2D_DEBUG_DRAW');
             // node.zIndex = cc.macro.MAX_ZINDEX;
             node._objFlags |= CCObject.Flags.DontSave;
             node.parent = canvas;
@@ -186,18 +185,17 @@ export class BuiltinPhysicsWorld implements IPhysicsWorld {
 
             this._debugGraphics = node.addComponent(Graphics);
             this._debugGraphics.lineWidth = 2;
-
         }
 
-        let parent = this._debugGraphics.node.parent!;
+        const parent = this._debugGraphics.node.parent!;
         this._debugGraphics.node.setSiblingIndex(parent.children.length - 1);
     }
 
     testPoint (p: Vec2): readonly Collider2D[] {
-        let shapes = this._shapes;
+        const shapes = this._shapes;
         testIntersectResults.length = 0;
         for (let i = 0; i < shapes.length; i++) {
-            let shape = shapes[i];
+            const shape = shapes[i];
             if (!shape.containsPoint(p)) {
                 continue;
             }
@@ -207,10 +205,10 @@ export class BuiltinPhysicsWorld implements IPhysicsWorld {
     }
 
     testAABB (rect: Rect): readonly Collider2D[] {
-        let shapes = this._shapes;
+        const shapes = this._shapes;
         testIntersectResults.length = 0;
         for (let i = 0; i < shapes.length; i++) {
-            let shape = shapes[i];
+            const shape = shapes[i];
             if (!shape.intersectsRect(rect)) {
                 continue;
             }
@@ -218,7 +216,6 @@ export class BuiltinPhysicsWorld implements IPhysicsWorld {
         }
         return testIntersectResults;
     }
-
 
     // empty implements
     impl () {
@@ -229,6 +226,6 @@ export class BuiltinPhysicsWorld implements IPhysicsWorld {
     syncPhysicsToScene () { }
     syncSceneToPhysics () { }
     raycast (p1: IVec2Like, p2: IVec2Like, type: ERaycast2DType): RaycastResult2D[] {
-        return[];
+        return [];
     }
 }

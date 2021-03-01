@@ -22,26 +22,95 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
+/* eslint-disable @typescript-eslint/no-unsafe-return */
 
 /**
  * @packageDocumentation
  * @module ui
  */
 
-import { removeProperty } from '../../core/utils';
+import { removeProperty, replaceProperty } from '../../core/utils';
 import { UIComponent } from './ui-component';
 import { UITransform } from './ui-transform';
-import { UIRenderable } from './ui-renderable';
+import { Renderable2D } from './renderable-2d';
 import { Canvas } from './canvas';
 import { js } from '../../core/utils/js';
 import { legacyCC } from '../../core/global-exports';
+import { Color } from '../../core/math/color';
 
-removeProperty(UIComponent.prototype, 'UIComponent',[
+removeProperty(UIComponent.prototype, 'UIComponent', [
     {
         name: '_visibility',
     },
     {
         name: 'setVisibility',
+    },
+]);
+
+replaceProperty(Canvas.prototype, 'Canvas.prototype', [
+    {
+        name: 'camera',
+        newName: 'cameraComponent.camera',
+        customGetter () {
+            // @ts-expect-error deprecation method
+            return this._cameraComponent.camera;
+        },
+    },
+    {
+        name: 'clearFlag',
+        newName: 'cameraComponent.clearFlags',
+        customGetter () {
+            // @ts-expect-error deprecation method
+            return this._cameraComponent ? this._cameraComponent.clearFlags : 0;
+        },
+        customSetter (val) {
+            // @ts-expect-error deprecation method
+            if (this._cameraComponent) this._cameraComponent.clearFlags = val;
+        },
+    },
+    {
+        name: 'color',
+        newName: 'cameraComponent.clearColor',
+        customGetter () {
+            // @ts-expect-error deprecation method
+            return this._cameraComponent ? this._cameraComponent.clearColor : Color.BLACK;
+        },
+        customSetter (val) {
+            // @ts-expect-error deprecation method
+            if (this._cameraComponent) this._cameraComponent.clearColor = val;
+        },
+    },
+    {
+        name: 'priority',
+        newName: 'cameraComponent.priority',
+        customGetter () {
+            // @ts-expect-error deprecation method
+            return this._cameraComponent ? this._cameraComponent.priority : 0;
+        },
+        customSetter (val: number) {
+            // @ts-expect-error deprecation method
+            if (this._cameraComponent) this._cameraComponent.priority = val;
+        },
+    },
+    {
+        name: 'targetTexture',
+        newName: 'cameraComponent.targetTexture',
+        customGetter () {
+            // @ts-expect-error deprecation method
+            return this._cameraComponent ? this._cameraComponent.targetTexture : null;
+        },
+        customSetter (value) {
+            // @ts-expect-error deprecation method
+            if (this._cameraComponent) this._cameraComponent.targetTexture = value;
+        },
+    },
+    {
+        name: 'visibility',
+        newName: 'cameraComponent.visibility',
+        customGetter () {
+            // @ts-expect-error deprecation method
+            return this._cameraComponent ? this._cameraComponent.visibility : 0;
+        },
     },
 ]);
 
@@ -54,11 +123,16 @@ legacyCC.UITransformComponent = UITransform;
 js.setClassAlias(UITransform, 'cc.UITransformComponent');
 
 /**
- * Alias of [[UIRenderable]]
+ * Alias of [[Renderable2D]]
  * @deprecated Since v1.2
  */
-export { UIRenderable as RenderComponent };
-js.setClassAlias(UIRenderable, 'cc.RenderComponent');
+export { Renderable2D as RenderComponent };
+/**
+ * Alias of [[Renderable2D]]
+ * @deprecated Since v3.0
+ */
+export { Renderable2D as UIRenderable };
+js.setClassAlias(Renderable2D, 'cc.RenderComponent');
 
 /**
  * Alias of [[Canvas]]

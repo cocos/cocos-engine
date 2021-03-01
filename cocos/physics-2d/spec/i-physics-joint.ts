@@ -1,6 +1,6 @@
-import { IVec2Like } from "../../core";
-import { ILifecycle } from "../../physics/spec/i-lifecycle";
-import { Joint2D, RigidBody2D } from "../framework";
+import { IVec2Like } from '../../core';
+import { ILifecycle } from '../../physics/spec/i-lifecycle';
+import { Joint2D, RigidBody2D } from '../framework';
 
 export interface IJoint2D extends ILifecycle {
     readonly impl: any;
@@ -42,7 +42,7 @@ export interface ISliderJoint extends IJoint2D {
     enableLimit (v: boolean): void;
     setLowerLimit (v: number): void;
     setUpperLimit (v: number): void;
-    
+
     enableMotor (v: boolean): void;
     setMaxMotorForce (v: number): void;
     setMotorSpeed (v: number): void;

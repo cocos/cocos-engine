@@ -1,23 +1,21 @@
 import b2 from '@cocos/box2d';
 
-import { IBaseShape } from '../../spec/i-physics-shape'
+import { IBaseShape } from '../../spec/i-physics-shape';
 import { Collider2D, PhysicsSystem2D, RigidBody2D, PHYSICS_2D_PTM_RATIO } from '../../../../exports/physics-2d-framework';
 import { Rect } from '../../../core';
 import { b2PhysicsWorld } from '../physics-world';
 import { PhysicsGroup } from '../../../physics/framework/physics-enum';
 
-let tempFilter = new b2.Filter;
+const tempFilter = new b2.Filter();
 
 function getFilter (shape: b2Shape2D) {
-    let comp = shape.collider;
+    const comp = shape.collider;
     tempFilter.categoryBits = comp.group === PhysicsGroup.DEFAULT ? comp.body!.group : comp.group;
     tempFilter.maskBits = PhysicsSystem2D.instance.collisionMatrix[tempFilter.categoryBits];
-    return tempFilter
+    return tempFilter;
 }
-        
 
 export class b2Shape2D implements IBaseShape {
-
     protected _shapes: b2.Shape[] = [];
     protected _fixtures: b2.Fixture[] = [];
 
@@ -26,7 +24,7 @@ export class b2Shape2D implements IBaseShape {
 
     private _inited = false;
 
-    private _rect = new Rect;
+    private _rect = new Rect();
 
     get impl () {
         return this._shapes;
@@ -56,8 +54,8 @@ export class b2Shape2D implements IBaseShape {
     }
 
     onGroupChanged () {
-        let filter = getFilter(this);
-        this._fixtures.forEach(f => {
+        const filter = getFilter(this);
+        this._fixtures.forEach((f) => {
             f.SetFilterData(filter);
         });
     }
@@ -68,18 +66,18 @@ export class b2Shape2D implements IBaseShape {
     }
 
     get worldAABB (): Readonly<Rect> {
-        let MAX = 10e6;
+        const MAX = 10e6;
 
-        let minX = MAX, minY = MAX;
-        let maxX = -MAX, maxY = -MAX;
+        let minX = MAX; let minY = MAX;
+        let maxX = -MAX; let maxY = -MAX;
 
-        let fixtures = this._fixtures;
+        const fixtures = this._fixtures;
         for (let i = 0; i < fixtures.length; i++) {
-            let fixture = fixtures[i];
+            const fixture = fixtures[i];
 
-            let count = fixture.GetShape().GetChildCount();
+            const count = fixture.GetShape().GetChildCount();
             for (let j = 0; j < count; j++) {
-                let aabb = fixture.GetAABB(j);
+                const aabb = fixture.GetAABB(j);
                 if (aabb.lowerBound.x < minX) minX = aabb.lowerBound.x;
                 if (aabb.lowerBound.y < minY) minY = aabb.lowerBound.y;
                 if (aabb.upperBound.x > maxX) maxX = aabb.upperBound.x;
@@ -92,7 +90,7 @@ export class b2Shape2D implements IBaseShape {
         maxX *= PHYSICS_2D_PTM_RATIO;
         maxY *= PHYSICS_2D_PTM_RATIO;
 
-        let r = this._rect;
+        const r = this._rect;
         r.x = minX;
         r.y = minY;
         r.width = maxX - minX;
@@ -112,34 +110,34 @@ export class b2Shape2D implements IBaseShape {
     _init () {
         if (this._inited) return;
 
-        let comp = this.collider;
-        let body = comp.getComponent(RigidBody2D);
+        const comp = this.collider;
+        const body = comp.getComponent(RigidBody2D);
         if (!body) return;
 
-        let innerBody = body.impl?.impl as b2.Body;
+        const innerBody = body.impl?.impl as b2.Body;
         if (!innerBody) return;
 
-        let node = body.node;
-        let scale = node.worldScale;
+        const node = body.node;
+        const scale = node.worldScale;
 
-        let shapes = scale.x === 0 && scale.y === 0 ? [] : this._createShapes(scale.x, scale.y);
+        const shapes = scale.x === 0 && scale.y === 0 ? [] : this._createShapes(scale.x, scale.y);
 
-        let filter = getFilter(this);
+        const filter = getFilter(this);
 
         for (let i = 0; i < shapes.length; i++) {
-            let shape = shapes[i];
+            const shape = shapes[i];
 
-            let fixDef: b2.IFixtureDef = {
+            const fixDef: b2.IFixtureDef = {
                 density: comp.density,
                 isSensor: comp.sensor,
                 friction: comp.friction,
                 restitution: comp.restitution,
-                shape: shape,
-    
-                filter: filter,
+                shape,
+
+                filter,
             };
-            
-            let fixture = innerBody.CreateFixture(fixDef);
+
+            const fixture = innerBody.CreateFixture(fixDef);
             fixture.m_userData = this;
 
             if (body.enabledContactListener) {
@@ -158,11 +156,11 @@ export class b2Shape2D implements IBaseShape {
     _destroy () {
         if (!this._inited) return;
 
-        let fixtures = this._fixtures;
-        let body = this._body;
+        const fixtures = this._fixtures;
+        const body = this._body;
 
         for (let i = fixtures.length - 1; i >= 0; i--) {
-            let fixture = fixtures[i];
+            const fixture = fixtures[i];
             fixture.m_userData = null;
 
             (PhysicsSystem2D.instance.physicsWorld as b2PhysicsWorld).unregisterContactFixture(fixture);
@@ -178,5 +176,4 @@ export class b2Shape2D implements IBaseShape {
         this._shapes.length = 0;
         this._inited = false;
     }
-
 }

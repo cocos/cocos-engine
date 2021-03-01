@@ -28,17 +28,17 @@ import { Color } from '../../../core';
 import { PHYSICS_2D_PTM_RATIO } from '../../framework';
 import { Graphics } from '../../../2d';
 
-let _tmp_vec2 = new b2.Vec2();
-let _tmp_color = new Color();
+const _tmp_vec2 = new b2.Vec2();
+const _tmp_color = new Color();
 
-let GREEN_COLOR = Color.GREEN;
-let RED_COLOR = Color.RED;
+const GREEN_COLOR = Color.GREEN;
+const RED_COLOR = Color.RED;
 
 export class PhysicsDebugDraw extends b2.Draw {
     _drawer: Graphics | null = null;
 
-    _xf = new b2.Transform;
-    _dxf = new b2.Transform;
+    _xf = new b2.Transform();
+    _dxf = new b2.Transform();
 
     constructor (drawer: Graphics) {
         super();
@@ -46,14 +46,13 @@ export class PhysicsDebugDraw extends b2.Draw {
     }
 
     _DrawPolygon (vertices, vertexCount) {
-        var drawer = this._drawer!;
+        const drawer = this._drawer!;
 
-        for (var i = 0; i < vertexCount; i++) {
+        for (let i = 0; i < vertexCount; i++) {
             b2.Transform.MulXV(this._xf, vertices[i], _tmp_vec2);
-            let x = _tmp_vec2.x * PHYSICS_2D_PTM_RATIO,
-                y = _tmp_vec2.y * PHYSICS_2D_PTM_RATIO;
-            if (i === 0)
-                drawer.moveTo(x, y);
+            const x = _tmp_vec2.x * PHYSICS_2D_PTM_RATIO;
+            const y = _tmp_vec2.y * PHYSICS_2D_PTM_RATIO;
+            if (i === 0) drawer.moveTo(x, y);
             else {
                 drawer.lineTo(x, y);
             }
@@ -76,7 +75,7 @@ export class PhysicsDebugDraw extends b2.Draw {
     }
 
     _DrawCircle (center: b2.Vec2, radius: number) {
-        let p = this._xf.p;
+        const p = this._xf.p;
         this._drawer!.circle((center.x + p.x) * PHYSICS_2D_PTM_RATIO, (center.y + p.y) * PHYSICS_2D_PTM_RATIO, radius * PHYSICS_2D_PTM_RATIO);
     }
 
@@ -93,7 +92,7 @@ export class PhysicsDebugDraw extends b2.Draw {
     }
 
     DrawSegment (p1: b2.Vec2, p2: b2.Vec2, color) {
-        var drawer = this._drawer!;
+        const drawer = this._drawer!;
 
         if (p1.x === p2.x && p1.y === p2.y) {
             this._applyFillColor(color);
@@ -111,7 +110,7 @@ export class PhysicsDebugDraw extends b2.Draw {
     }
 
     DrawTransform (xf: b2.Transform) {
-        var drawer = this._drawer!;
+        const drawer = this._drawer!;
 
         drawer.strokeColor = RED_COLOR;
 

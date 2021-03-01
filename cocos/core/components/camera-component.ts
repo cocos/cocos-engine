@@ -82,7 +82,7 @@ export declare namespace Camera {
  */
 @ccclass('cc.Camera')
 @help('i18n:cc.Camera')
-@menu('Components/Camera')
+@menu('Rendering/Camera')
 @executeInEditMode
 export class Camera extends Component {
     public static ProjectionType = ProjectionType;
@@ -467,7 +467,7 @@ export class Camera extends Component {
 
     public onDestroy () {
         if (this._camera) {
-            this._camera.detachCamera();
+            this._camera.destroy();
             this._camera = null;
         }
 

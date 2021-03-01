@@ -31,8 +31,8 @@
 import { ccclass, rangeMin, rangeMax, serializable } from 'cc.decorator';
 import { Texture, Sampler, ColorAttachment, DepthStencilAttachment, TextureLayout, RenderPassInfo } from '../gfx';
 import { legacyCC } from '../global-exports';
-import { RenderWindow } from '../renderer/core/render-window';
-import { IRenderWindowInfo } from '../renderer/core/render-window';
+import { RenderWindow, IRenderWindowInfo } from '../renderer/core/render-window';
+
 import { Root } from '../root';
 import { Asset } from './asset';
 import { samplerLib, defaultSamplerHash } from '../renderer/core/sampler-lib';
@@ -66,7 +66,6 @@ const _windowInfo: IRenderWindowInfo = {
  */
 @ccclass('cc.RenderTexture')
 export class RenderTexture extends Asset {
-
     @serializable
     @rangeMin(1)
     @rangeMax(2048)
@@ -77,7 +76,7 @@ export class RenderTexture extends Asset {
     @rangeMax(2048)
     private _height = 1;
 
-    private _textureHash: number = 0;
+    private _textureHash = 0;
     private _id: string;
 
     private _window: RenderWindow | null = null;

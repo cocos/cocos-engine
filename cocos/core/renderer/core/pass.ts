@@ -634,7 +634,15 @@ export class Pass {
         }
     }
 
-    private _initPassFromTarget (target: Pass, dss: DepthStencilState, bs: BlendState) {
+    // Only for UI
+    private _destroyHandle () {
+        if (this._handle) {
+            PassPool.free(this._handle); this._handle = NULL_HANDLE;
+        }
+    }
+
+    // Only for UI
+    private _initPassFromTarget (target: Pass, dss: DepthStencilState, bs: BlendState, hashFactor: number) {
         PassPool.set(this.handle, PassView.PRIORITY, target.priority);
         PassPool.set(this.handle, PassView.STAGE, target.stage);
         PassPool.set(this.handle, PassView.PHASE, target.phase);
@@ -661,8 +669,12 @@ export class Pass {
         this._blocks = target._blocks;
         this._dynamics =  target._dynamics;
 
-        // Todo: Or getHash?
-        this.tryCompile();
+        this._hShaderDefault = target._hShaderDefault;
+
+        PassPool.set(this._handle, PassView.PIPELINE_LAYOUT, programLib.getTemplateInfo(this._programName).hPipelineLayout);
+
+        const hash = PassPool.get(target.handle, PassView.HASH);
+        PassPool.set(this._handle, PassView.HASH, hash ^ hashFactor);
     }
 
     // infos

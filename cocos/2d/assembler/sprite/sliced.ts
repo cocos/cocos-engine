@@ -31,7 +31,7 @@
 import { IUV, SpriteFrame } from '../../assets';
 import { Color, Mat4, Vec3 } from '../../../core/math';
 import { IRenderData, RenderData } from '../../renderer/render-data';
-import { UI } from '../../renderer/ui';
+import { Batcher2D } from '../../renderer/batcher-2d';
 import { Sprite } from '../../components';
 import { IAssembler } from '../../renderer/base';
 import { dynamicAtlasManager } from '../../utils/dynamic-atlas/atlas-manager';
@@ -101,8 +101,8 @@ export const sliced: IAssembler = {
         let sizableHeight = height - topHeight - bottomHeight;
         let xScale = width / (leftWidth + rightWidth);
         let yScale = height / (topHeight + bottomHeight);
-        xScale = (isNaN(xScale) || xScale > 1) ? 1 : xScale;
-        yScale = (isNaN(yScale) || yScale > 1) ? 1 : yScale;
+        xScale = (Number.isNaN(xScale) || xScale > 1) ? 1 : xScale;
+        yScale = (Number.isNaN(yScale) || yScale > 1) ? 1 : yScale;
         sizableWidth = sizableWidth < 0 ? 0 : sizableWidth;
         sizableHeight = sizableHeight < 0 ? 0 : sizableHeight;
 
@@ -118,7 +118,7 @@ export const sliced: IAssembler = {
         renderData!.vertDirty = false;
     },
 
-    fillBuffers (sprite: Sprite, renderer: UI) {
+    fillBuffers (sprite: Sprite, renderer: Batcher2D) {
         if (sprite.node.hasChangedFlags) {
             this.updateWorldVertexData(sprite);
         }

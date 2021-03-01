@@ -28,7 +28,7 @@
  * @module core/math
  */
 
-import { IVec3Like } from "./type-define";
+import { IVec3Like } from './type-define';
 
 const _d2r = Math.PI / 180.0;
 
@@ -244,12 +244,10 @@ export function absMaxComponent (v: IVec3Like) {
         } else {
             return v.z;
         }
+    } else if (Math.abs(v.y) > Math.abs(v.z)) {
+        return v.y;
     } else {
-        if (Math.abs(v.y) > Math.abs(v.z)) {
-            return v.y;
-        } else {
-            return v.z;
-        }
+        return v.z;
     }
 }
 

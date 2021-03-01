@@ -52,8 +52,7 @@ export enum PropertyType {
     SAMPLER,
 }
 
-export const genHandle = (pt: PropertyType, set: number, binding: number, type: Type, offset = 0): number =>
-    ((pt << 28) & dtMask) | ((type << 22) & typeMask) | ((set << 20) & setMask) | ((binding << 14) & bindingMask) | (offset & offsetMask);
+export const genHandle = (pt: PropertyType, set: number, binding: number, type: Type, offset = 0): number => ((pt << 28) & dtMask) | ((type << 22) & typeMask) | ((set << 20) & setMask) | ((binding << 14) & bindingMask) | (offset & offsetMask);
 export const getPropertyTypeFromHandle = (handle: number): number => (handle & dtMask) >>> 28;
 export const getTypeFromHandle = (handle: number): number => (handle & typeMask) >>> 22;
 export const getSetIndexFromHandle = (handle: number): number => (handle & setMask) >>> 20;
@@ -109,27 +108,27 @@ const defaultValues = [
  */
 export function getDefaultFromType (type: Type): readonly number[] | string {
     switch (type) {
-        case Type.BOOL:
-        case Type.INT:
-        case Type.UINT:
-        case Type.FLOAT:
-            return defaultValues[0];
-        case Type.BOOL2:
-        case Type.INT2:
-        case Type.UINT2:
-        case Type.FLOAT2:
-            return defaultValues[1];
-        case Type.BOOL4:
-        case Type.INT4:
-        case Type.UINT4:
-        case Type.FLOAT4:
-            return defaultValues[2];
-        case Type.MAT4:
-            return defaultValues[3];
-        case Type.SAMPLER2D:
-            return 'default-texture';
-        case Type.SAMPLER_CUBE:
-            return 'default-cube-texture';
+    case Type.BOOL:
+    case Type.INT:
+    case Type.UINT:
+    case Type.FLOAT:
+        return defaultValues[0];
+    case Type.BOOL2:
+    case Type.INT2:
+    case Type.UINT2:
+    case Type.FLOAT2:
+        return defaultValues[1];
+    case Type.BOOL4:
+    case Type.INT4:
+    case Type.UINT4:
+    case Type.FLOAT4:
+        return defaultValues[2];
+    case Type.MAT4:
+        return defaultValues[3];
+    case Type.SAMPLER2D:
+        return 'default-texture';
+    case Type.SAMPLER_CUBE:
+        return 'default-cube-texture';
     }
     return defaultValues[0];
 }

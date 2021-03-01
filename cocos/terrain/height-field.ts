@@ -32,8 +32,8 @@ import { clamp } from '../core/math';
 
 export class HeightField {
     public data: Uint16Array = new Uint16Array();
-    public w: number = 0;
-    public h: number = 0;
+    public w = 0;
+    public h = 0;
 
     constructor (w: number, h: number) {
         this.w = w;
@@ -84,8 +84,7 @@ export class HeightField {
 
         if (dx + dz <= 1.0) {
             d = m + (m - a);
-        }
-        else {
+        } else {
             a = m + (m - d);
         }
 

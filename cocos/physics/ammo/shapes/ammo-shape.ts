@@ -31,7 +31,7 @@
 /* eslint-disable new-cap */
 import Ammo from '../ammo-instantiated';
 import { Vec3, Quat } from '../../../core/math';
-import { Collider, PhysicMaterial, PhysicsSystem } from '../../../../exports/physics-framework';
+import { Collider, PhysicsMaterial, PhysicsSystem } from '../../../../exports/physics-framework';
 import { AmmoWorld } from '../ammo-world';
 import { AmmoBroadphaseNativeTypes, EAmmoSharedBodyDirty } from '../ammo-enum';
 import { cocos2AmmoVec3, ammoDeletePtr, cocos2AmmoQuat } from '../ammo-util';
@@ -47,7 +47,7 @@ const v3_0 = CC_V3_0;
 export class AmmoShape implements IBaseShape {
     updateEventListener (): void { }
 
-    setMaterial (v: PhysicMaterial | null) {
+    setMaterial (v: PhysicsMaterial | null) {
         if (!this._isTrigger && this._isEnabled && v) {
             if (this._btCompound) {
                 this._btCompound.setMaterial(this._index, v.friction, v.restitution, v.rollingFriction, v.spinningFriction, 2);

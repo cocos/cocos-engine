@@ -291,27 +291,11 @@ export class AnimationState extends Playable {
     }
 
     /**
-     * @en Sets the time progress, in seconds.
-     * @zh 设置动画的时间进度，单位为秒。
-     */
-    set current (value) {
-        this.setTime(value);
-    }
-
-    /**
      * @en Gets the playback ratio.
      * @zh 获取动画播放的比例时间。
      */
     get ratio () {
         return this.current / this.duration;
-    }
-
-    /**
-     * @en Sets the playback ratio.
-     * @zh 设置动画播放的比例时间。
-     */
-    set ratio (value) {
-        this.current = this.duration * value;
     }
 
     /**

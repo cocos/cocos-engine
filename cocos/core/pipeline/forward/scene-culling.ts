@@ -205,7 +205,7 @@ export function shadowCollecting (pipeline: ForwardPipeline, camera: Camera) {
         const model = models[i];
         // filter model by view visibility
         if (model.node && ((camera.visibility & model.node.layer) === model.node.layer)
-            || (camera.visibility & model.visFlags)) {
+                || (camera.visibility & model.visFlags)) {
             // shadow render Object
             if (model.castShadow && model.worldBounds) {
                 if (!_castBoundsInited) {
@@ -217,6 +217,7 @@ export function shadowCollecting (pipeline: ForwardPipeline, camera: Camera) {
             }
         }
     }
+
     if (_castWorldBounds) { AABB.toBoundingSphere(shadows.sphere, _castWorldBounds); }
 }
 

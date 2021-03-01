@@ -550,6 +550,10 @@ module.exports = {
             label: "基于 ammo.js 的物理系统",
             description: "基于 ammo.js 的物理系统支持。",
         },
+        physics_physx: {
+            label: "基于 PhysX 的物理系统",
+            description: "基于 PhysX 的物理系统支持。",
+        },
         primitives: {
             label: "基础几何体",
             description: "创建基础几何体的库。",

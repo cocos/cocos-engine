@@ -69,7 +69,7 @@ This is all you have to do to setup engine development environment.
 ## Example Project
 
 - [Example Cases](https://github.com/cocos-creator/example-3d): Simple yet expressive demo scenes for baseline testing and topic-specific case study.
-- [Mind Your Steip 3D](https://github.com/cocos-creator/tutorial-mind-your-step-3d): Beginner's step-by-step tutorial project repo.
+- [Mind Your Step 3D](https://github.com/cocos-creator/tutorial-mind-your-step-3d): Beginner's step-by-step tutorial project repo.
 - [UI Demo](https://github.com/cocos-creator/demo-ui/tree/3d): use cases for various kinds of UI components.
 - [Test Cases](https://github.com/cocos-creator/test-cases-3d): Unit test scenes for every engine module.
 

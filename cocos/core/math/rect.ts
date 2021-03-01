@@ -336,10 +336,10 @@ export class Rect extends ValueType {
      * @returns Returns `true' when the minimum and maximum values of both rectangles are equal, respectively; otherwise, returns `false'.
      */
     public equals (other: Rect) {
-        return this.x === other.x &&
-            this.y === other.y &&
-            this.width === other.width &&
-            this.height === other.height;
+        return this.x === other.x
+            && this.y === other.y
+            && this.width === other.width
+            && this.height === other.height;
     }
 
     /**
@@ -365,7 +365,7 @@ export class Rect extends ValueType {
      * @en Return the information of the current rect in string
      * @zh 返回当前矩形的字符串表示。
      * @returns The information of the current rect in string
-     */T
+     */
     public toString () {
         return `(${this.x.toFixed(2)}, ${this.y.toFixed(2)}, ${this.width.toFixed(2)}, ${this.height.toFixed(2)})`;
     }
@@ -391,10 +391,10 @@ export class Rect extends ValueType {
      * @returns The specified point is included in the rectangle and returns `true', otherwise it returns `false'.
      */
     public contains (point: Vec2) {
-        return (this.x <= point.x &&
-                this.x + this.width >= point.x &&
-                this.y <= point.y &&
-                this.y + this.height >= point.y);
+        return (this.x <= point.x
+                && this.x + this.width >= point.x
+                && this.y <= point.y
+                && this.y + this.height >= point.y);
     }
 
     /**
@@ -404,10 +404,10 @@ export class Rect extends ValueType {
      * @returns Returns `true' if all the points of the specified rectangle are included in the current rectangle, `false' otherwise.
      */
     public containsRect (other: Rect) {
-        return (this.x <= other.x &&
-                this.x + this.width >= other.x + other.width &&
-                this.y <= other.y &&
-                this.y + this.height >= other.y + other.height);
+        return (this.x <= other.x
+                && this.x + this.width >= other.x + other.width
+                && this.y <= other.y
+                && this.y + this.height >= other.y + other.height);
     }
 
     /**
@@ -488,7 +488,7 @@ export function rect (rect: Rect): Rect;
  */
 export function rect (x?: number, y?: number, width?: number, height?: number): Rect;
 
-export function rect (x: Rect | number = 0, y: number = 0, width: number = 0, height: number = 0): Rect {
+export function rect (x: Rect | number = 0, y = 0, width = 0, height = 0): Rect {
     return new Rect(x as any, y, width, height);
 }
 

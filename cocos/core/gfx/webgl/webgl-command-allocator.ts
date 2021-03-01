@@ -35,9 +35,8 @@ import {
 } from './webgl-commands';
 
 export class WebGLCommandPool<T extends WebGLCmdObject> {
-
     private _frees: (T|null)[];
-    private _freeIdx: number = 0;
+    private _freeIdx = 0;
     private _freeCmds: CachedArray<T>;
 
     constructor (clazz: new() => T, count: number) {
@@ -105,7 +104,6 @@ export class WebGLCommandPool<T extends WebGLCmdObject> {
 }
 
 export class WebGLCommandAllocator {
-
     public beginRenderPassCmdPool: WebGLCommandPool<WebGLCmdBeginRenderPass>;
     public bindStatesCmdPool: WebGLCommandPool<WebGLCmdBindStates>;
     public drawCmdPool: WebGLCommandPool<WebGLCmdDraw>;
@@ -121,7 +119,6 @@ export class WebGLCommandAllocator {
     }
 
     public clearCmds (cmdPackage: WebGLCmdPackage) {
-
         if (cmdPackage.beginRenderPassCmds.length) {
             this.beginRenderPassCmdPool.freeCmds(cmdPackage.beginRenderPassCmds);
             cmdPackage.beginRenderPassCmds.clear();

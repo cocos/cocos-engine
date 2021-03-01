@@ -35,9 +35,12 @@ import { CannonShape } from './shapes/cannon-shape';
 const quat = new Quat();
 export class CannonContactEquation implements IContactEquation {
     get isBodyA (): boolean {
-        const si = (this.event.selfCollider.shape as CannonShape).impl;
-        const bj = this.impl!.bj;
-        return si.body.id === bj.id;
+        if (this.impl) {
+            const si = (this.event.selfCollider.shape as CannonShape).impl;
+            const bj = this.impl.bj;
+            return si.body.id === bj.id;
+        }
+        return false;
     }
 
     impl: CANNON.ContactEquation | null = null;
@@ -66,13 +69,16 @@ export class CannonContactEquation implements IContactEquation {
     getLocalNormalOnA (out: IVec3Like): void {
         if (this.impl) {
             this.getWorldNormalOnA(out);
-            Quat.conjugate(quat, this.impl.bj.quaternion as unknown as Quat);
+            Quat.conjugate(quat, this.impl.bi.quaternion as unknown as Quat);
             Vec3.transformQuat(out, out, quat);
         }
     }
 
     getLocalNormalOnB (out: IVec3Like): void {
-        if (this.impl) Vec3.copy(out, this.impl.ni);
+        if (this.impl) {
+            Quat.conjugate(quat, this.impl.bj.quaternion as unknown as Quat);
+            Vec3.transformQuat(out, this.impl.ni, quat);
+        }
     }
 
     getWorldNormalOnA (out: IVec3Like): void {
@@ -83,6 +89,6 @@ export class CannonContactEquation implements IContactEquation {
     }
 
     getWorldNormalOnB (out: IVec3Like): void {
-        if (this.impl) Vec3.transformQuat(out, this.impl.ni, this.impl.bi.quaternion);
+        if (this.impl) Vec3.copy(out, this.impl.ni);
     }
 }

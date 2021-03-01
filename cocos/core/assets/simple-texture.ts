@@ -246,7 +246,7 @@ export class SimpleTexture extends TextureBase {
             usage: TextureUsageBit.SAMPLED | TextureUsageBit.TRANSFER_DST,
             format: this._getGFXFormat(),
             levelCount: this._mipmapLevel,
-            flags,
+            flags: flags | TextureFlagBit.IMMUTABLE,
         });
         if (!textureCreateInfo) {
             return;

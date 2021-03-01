@@ -23,7 +23,6 @@
  THE SOFTWARE.
  */
 
-
 /**
  * @packageDocumentation
  * @module particle
@@ -51,7 +50,7 @@ const define = { CC_USE_WORLD_SPACE: false };
 
 @ccclass('cc.Line')
 @help('i18n:cc.Line')
-@menu('Components/Line')
+@menu('Effects/Line')
 @executeInEditMode
 export class Line extends Component {
     @type(Texture2D)

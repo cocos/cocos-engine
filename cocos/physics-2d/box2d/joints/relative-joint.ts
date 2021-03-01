@@ -33,8 +33,8 @@ export class b2RelativeJoint extends b2Joint implements IRelativeJoint {
     }
 
     _createJointDef () {
-        let comp = this._jointComp as RelativeJoint2D;
-        var def = new b2.MotorJointDef();
+        const comp = this._jointComp as RelativeJoint2D;
+        const def = new b2.MotorJointDef();
         def.linearOffset.Set(comp.linearOffset.x / PHYSICS_2D_PTM_RATIO, comp.linearOffset.y / PHYSICS_2D_PTM_RATIO);
         def.angularOffset = toRadian(comp.angularOffset);
         def.maxForce = comp.maxForce;

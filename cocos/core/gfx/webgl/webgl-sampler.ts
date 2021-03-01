@@ -35,7 +35,6 @@ const WebGLWraps: GLenum[] = [
 ];
 
 export class WebGLSampler extends Sampler {
-
     public get gpuSampler (): IWebGLGPUSampler {
         return  this._gpuSampler!;
     }
@@ -43,7 +42,6 @@ export class WebGLSampler extends Sampler {
     private _gpuSampler: IWebGLGPUSampler | null = null;
 
     public initialize (info: SamplerInfo): boolean {
-
         this._minFilter = info.minFilter;
         this._magFilter = info.magFilter;
         this._mipFilter = info.mipFilter;
@@ -72,14 +70,12 @@ export class WebGLSampler extends Sampler {
             } else {
                 glMinFilter = 0x2601; // WebGLRenderingContext.LINEAR;
             }
+        } else if (mipFilter === Filter.LINEAR || mipFilter === Filter.ANISOTROPIC) {
+            glMinFilter = 0x2702; // WebGLRenderingContext.NEAREST_MIPMAP_LINEAR;
+        } else if (mipFilter === Filter.POINT) {
+            glMinFilter = 0x2700; // WebGLRenderingContext.NEAREST_MIPMAP_NEAREST;
         } else {
-            if (mipFilter === Filter.LINEAR || mipFilter === Filter.ANISOTROPIC) {
-                glMinFilter = 0x2702; // WebGLRenderingContext.NEAREST_MIPMAP_LINEAR;
-            } else if (mipFilter === Filter.POINT) {
-                glMinFilter = 0x2700; // WebGLRenderingContext.NEAREST_MIPMAP_NEAREST;
-            } else {
-                glMinFilter = 0x2600; // WebGLRenderingContext.NEAREST;
-            }
+            glMinFilter = 0x2600; // WebGLRenderingContext.NEAREST;
         }
 
         if (magFilter === Filter.LINEAR || magFilter === Filter.ANISOTROPIC) {

@@ -34,10 +34,10 @@ import { fillRaycastResult, toCannonRaycastOptions } from './cannon-util';
 import { CannonConstraint } from './constraints/cannon-constraint';
 import { CannonShape } from './shapes/cannon-shape';
 import { Ray } from '../../core/geometry';
-import { RecyclePool, Node } from '../../core';
+import { RecyclePool, Node, error } from '../../core';
 import { CannonSharedBody } from './cannon-shared-body';
 import { IPhysicsWorld, IRaycastOptions } from '../spec/i-physics-world';
-import { PhysicMaterial, PhysicsRayResult } from '../framework';
+import { PhysicsMaterial, PhysicsRayResult } from '../framework';
 import { IVec3Like } from '../../core/math/type-define';
 import { CannonRigidBody } from './cannon-rigid-body';
 import { fastRemoveAt } from '../../core/utils/array';
@@ -47,7 +47,7 @@ export class CannonWorld implements IPhysicsWorld {
         return this._world;
     }
 
-    setDefaultMaterial (mat: PhysicMaterial) {
+    setDefaultMaterial (mat: PhysicsMaterial) {
         this._world.defaultMaterial.friction = mat.friction;
         this._world.defaultMaterial.restitution = mat.restitution;
         if (CannonShape.idToMaterial[mat._uuid] != null) {
@@ -71,7 +71,7 @@ export class CannonWorld implements IPhysicsWorld {
     readonly constraints: CannonConstraint[] = [];
 
     private _world: CANNON.World;
-    private _raycastResult = new CANNON.RaycastResult();
+    static readonly rayResult = new CANNON.RaycastResult();
 
     constructor () {
         this._world = new CANNON.World();
@@ -82,6 +82,12 @@ export class CannonWorld implements IPhysicsWorld {
         this._world.defaultContactMaterial.frictionEquationStiffness = 1000000;
         this._world.defaultContactMaterial.contactEquationRelaxation = 3;
         this._world.defaultContactMaterial.frictionEquationRelaxation = 3;
+    }
+
+    destroy (): void {
+        if (this.constraints.length || this.bodies.length) error('You should destroy all physics component first.');
+        (this._world as any) = null;
+        (this._world.broadphase as any) = null;
     }
 
     emitEvents (): void {
@@ -112,9 +118,9 @@ export class CannonWorld implements IPhysicsWorld {
     raycastClosest (worldRay: Ray, options: IRaycastOptions, result: PhysicsRayResult): boolean {
         setupFromAndTo(worldRay, options.maxDistance);
         toCannonRaycastOptions(raycastOpt, options);
-        const hit = this._world.raycastClosest(from, to, raycastOpt, this._raycastResult);
+        const hit = this._world.raycastClosest(from, to, raycastOpt, CannonWorld.rayResult);
         if (hit) {
-            fillRaycastResult(result, this._raycastResult);
+            fillRaycastResult(result, CannonWorld.rayResult);
         }
         return hit;
     }

@@ -93,7 +93,6 @@ export class BufferViewInfo {
  * @zh GFX 缓冲。
  */
 export abstract class Buffer extends Obj {
-
     /**
      * @en Usage type of the buffer.
      * @zh 缓冲使用方式。
@@ -138,14 +137,6 @@ export abstract class Buffer extends Obj {
         return this._flags;
     }
 
-    /**
-     * @en View of the back-up buffer, if specified.
-     * @zh 备份缓冲视图。
-     */
-    get backupBuffer (): Uint8Array | null {
-        return this._bakcupBuffer;
-    }
-
     protected _device: Device;
     protected _usage: BufferUsage = BufferUsageBit.NONE;
     protected _memUsage: MemoryUsage = MemoryUsageBit.NONE;
@@ -153,7 +144,6 @@ export abstract class Buffer extends Obj {
     protected _stride = 1;
     protected _count = 0;
     protected _flags: BufferFlags = BufferFlagBit.NONE;
-    protected _bakcupBuffer: Uint8Array | null = null;
     protected _indirectBuffer: IndirectBuffer | null = null;
     protected _isBufferView = false;
 
@@ -177,8 +167,7 @@ export abstract class Buffer extends Obj {
      * @en Update the buffer data.
      * @zh 更新缓冲内容。
      * @param buffer The new buffer data.
-     * @param offset Offset into the buffer.
-     * @param size Size of the data to be updated.
+     * @param size Size in bytes to be updated.
      */
-    public abstract update (buffer: BufferSource, offset?: number, size?: number): void;
+    public abstract update (buffer: BufferSource, size?: number): void;
 }

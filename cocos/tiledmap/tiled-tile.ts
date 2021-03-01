@@ -34,15 +34,15 @@
  * @extends Component
  */
 
+import { ccclass, help, menu, type } from 'cc.decorator';
 import { Component } from '../core/components';
-import { ccclass, help, type } from 'cc.decorator';
 import { TiledLayer } from './tiled-layer';
 import { CCInteger, warn } from '../core';
 
 @ccclass('cc.TiledTile')
 @help('i18n:cc.TiledTile')
+@menu('TiledMap/TiledTile')
 export class TiledTile extends Component {
-
     _layer: TiledLayer | null = null;
 
     constructor () {
@@ -68,7 +68,7 @@ export class TiledTile extends Component {
     set x (value) {
         if (value === this._x) return;
         if (this._layer && this._layer.isInvalidPosition(value, this._y)) {
-            warn(`Invalid x, the valid value is between [%s] ~ [%s]`, 0, this._layer!.layerSize!.width);
+            warn(`Invalid x, the valid value is between [%s] ~ [%s]`, 0, this._layer.layerSize.width);
             return;
         }
         this._resetTile();
@@ -89,7 +89,7 @@ export class TiledTile extends Component {
     set y (value: number) {
         if (value === this._y) return;
         if (this._layer && this._layer.isInvalidPosition(this._x, value)) {
-            warn(`Invalid y, the valid value is between [%s] ~ [%s]`, 0, this._layer!.layerSize.height);
+            warn(`Invalid y, the valid value is between [%s] ~ [%s]`, 0, this._layer.layerSize.height);
             return;
         }
         this._resetTile();

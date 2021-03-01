@@ -31,9 +31,7 @@
 import { LegacyPropertyDecorator } from './utils';
 import { property, IPropertyOptions } from './property';
 
-export const serializable: LegacyPropertyDecorator = (target, propertyKey, descriptor) => {
-    return property(makeSerializable({ }))(target, propertyKey, descriptor);
-};
+export const serializable: LegacyPropertyDecorator = (target, propertyKey, descriptor) => property(makeSerializable({ }))(target, propertyKey, descriptor);
 
 export function formerlySerializedAs (name: string): LegacyPropertyDecorator {
     return property(makeSerializable({
@@ -47,11 +45,9 @@ export function formerlySerializedAs (name: string): LegacyPropertyDecorator {
  * @zh
  * 设置该属性仅在编辑器中生效。
  */
-export const editorOnly: LegacyPropertyDecorator = (target, propertyKey, descriptor) => {
-    return property({
-        editorOnly: true,
-    })(target, propertyKey, descriptor);
-};
+export const editorOnly: LegacyPropertyDecorator = (target, propertyKey, descriptor) => property({
+    editorOnly: true,
+})(target, propertyKey, descriptor);
 
 function makeSerializable (options: IPropertyOptions) {
     options.__noImplicit = true;
