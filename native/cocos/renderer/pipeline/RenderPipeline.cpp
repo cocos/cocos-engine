@@ -25,11 +25,11 @@
 
 #include "RenderPipeline.h"
 #include "RenderFlow.h"
-#include "gfx/GFXCommandBuffer.h"
-#include "gfx/GFXDescriptorSet.h"
-#include "gfx/GFXDescriptorSetLayout.h"
-#include "gfx/GFXDevice.h"
-#include "gfx/GFXTexture.h"
+#include "gfx-base/GFXCommandBuffer.h"
+#include "gfx-base/GFXDescriptorSet.h"
+#include "gfx-base/GFXDescriptorSetLayout.h"
+#include "gfx-base/GFXDevice.h"
+#include "gfx-base/GFXTexture.h"
 
 namespace cc {
 namespace pipeline {

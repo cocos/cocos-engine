@@ -24,8 +24,12 @@
 ****************************************************************************/
 
 #pragma once
+
+#include "gfx-base/GFXDescriptorSet.h"
+
 namespace cc {
 namespace gfx {
+
 class CCMTLGPUDescriptorSet;
 
 class CCMTLDescriptorSet final : public DescriptorSet {

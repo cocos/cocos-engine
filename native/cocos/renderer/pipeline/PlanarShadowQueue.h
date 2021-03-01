@@ -24,7 +24,7 @@
 ****************************************************************************/
 
 #pragma once
-#include "core/CoreStd.h"
+#include "base/CoreStd.h"
 
 namespace cc {
 namespace gfx {

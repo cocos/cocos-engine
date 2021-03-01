@@ -34,8 +34,8 @@
 
 #include "VKUtils.h"
 
-#include "cocos/bindings/event/CustomEventTypes.h"
-#include "cocos/bindings/event/EventDispatcher.h"
+#include "bindings/event/CustomEventTypes.h"
+#include "bindings/event/EventDispatcher.h"
 
 namespace cc {
 namespace gfx {

@@ -23,11 +23,11 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#ifndef CC_CORE_KERNEL_UTIL_STRING_UTIL_H_
-#define CC_CORE_KERNEL_UTIL_STRING_UTIL_H_
+#pragma once
 
 #include "Macros.h"
 #include "TypeDef.h"
+#include "memory/Memory.h"
 
 namespace cc {
 
@@ -40,5 +40,3 @@ public:
 };
 
 } // namespace cc
-
-#endif // CC_CORE_KERNEL_UTIL_STRING_UTIL_H_

@@ -24,8 +24,12 @@
 ****************************************************************************/
 
 #pragma once
+
+#include "gfx-base/GFXDescriptorSetLayout.h"
+
 namespace cc {
 namespace gfx {
+
 class CCMTLGPUDescriptorSetLayout;
 class CCMTLDescriptorSetLayout final : public DescriptorSetLayout {
 public:

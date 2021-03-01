@@ -24,9 +24,9 @@
 ****************************************************************************/
 
 #include "PipelineSceneData.h"
-#include "gfx/GFXCommandBuffer.h"
-#include "gfx/GFXDevice.h"
-#include "gfx/GFXFramebuffer.h"
+#include "gfx-base/GFXCommandBuffer.h"
+#include "gfx-base/GFXDevice.h"
+#include "gfx-base/GFXFramebuffer.h"
 
 namespace cc {
 namespace pipeline {

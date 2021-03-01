@@ -26,7 +26,7 @@
 #include "cocos/bindings/manual/jsb_gfx_agent.h"
 #include "cocos/bindings/manual/jsb_conversions.h"
 #include "cocos/bindings/manual/jsb_global.h"
-#include "renderer/core/gfx-agent/GFXDeviceAgent.h"
+#include "gfx-agent/GFXDeviceAgent.h"
 
 #ifndef JSB_ALLOC
 #define JSB_ALLOC(kls, ...) new (std::nothrow) kls(__VA_ARGS__)
@@ -103,4 +103,3 @@ bool register_all_gfx_agent(se::Object* obj)
     js_register_gfx_agent_DeviceAgent(ns);
     return true;
 }
-

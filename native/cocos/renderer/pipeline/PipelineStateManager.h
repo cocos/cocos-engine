@@ -25,16 +25,11 @@
 
 #pragma once
 
-#include "core/CoreStd.h"
+#include "gfx-base/GFXDef.h"
 
 namespace cc {
-namespace gfx {
-class InputAssembler;
-class PipelineState;
-class RenderPass;
-}; // namespace gfx
-
 namespace pipeline {
+
 struct PassView;
 
 class CC_DLL PipelineStateManager {

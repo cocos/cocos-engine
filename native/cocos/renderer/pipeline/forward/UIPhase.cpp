@@ -26,7 +26,7 @@
 #include "UIPhase.h"
 #include "ForwardPipeline.h"
 #include "pipeline/PipelineStateManager.h"
-#include "gfx/GFXCommandBuffer.h"
+#include "gfx-base/GFXCommandBuffer.h"
 
 namespace cc {
 namespace pipeline {

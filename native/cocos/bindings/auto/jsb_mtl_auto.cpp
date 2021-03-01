@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2019-2021 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -110,20 +110,20 @@ static bool js_mtl_CCMTLDevice_getMTLLayer(se::State& s)
 }
 SE_BIND_FUNC(js_mtl_CCMTLDevice_getMTLLayer)
 
-static bool js_mtl_CCMTLDevice_presentCompleted(se::State& s)
+static bool js_mtl_CCMTLDevice_onPresentCompleted(se::State& s)
 {
     cc::gfx::CCMTLDevice* cobj = SE_THIS_OBJECT<cc::gfx::CCMTLDevice>(s);
-    SE_PRECONDITION2(cobj, false, "js_mtl_CCMTLDevice_presentCompleted : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_mtl_CCMTLDevice_onPresentCompleted : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     if (argc == 0) {
-        cobj->presentCompleted();
+        cobj->onPresentCompleted();
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_FUNC(js_mtl_CCMTLDevice_presentCompleted)
+SE_BIND_FUNC(js_mtl_CCMTLDevice_onPresentCompleted)
 
 SE_DECLARE_FINALIZE_FUNC(js_cc_gfx_CCMTLDevice_finalize)
 
@@ -161,7 +161,7 @@ bool js_register_mtl_CCMTLDevice(se::Object* obj)
     cls->defineFunction("getCurrentDrawable", _SE(js_mtl_CCMTLDevice_getCurrentDrawable));
     cls->defineFunction("getDSSTexture", _SE(js_mtl_CCMTLDevice_getDSSTexture));
     cls->defineFunction("getMTLLayer", _SE(js_mtl_CCMTLDevice_getMTLLayer));
-    cls->defineFunction("presentCompleted", _SE(js_mtl_CCMTLDevice_presentCompleted));
+    cls->defineFunction("onPresentCompleted", _SE(js_mtl_CCMTLDevice_onPresentCompleted));
     cls->defineFinalizeFunction(_SE(js_cc_gfx_CCMTLDevice_finalize));
     cls->install();
     JSBClassType::registerClass<cc::gfx::CCMTLDevice>(cls);

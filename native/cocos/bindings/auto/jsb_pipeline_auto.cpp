@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2019-2021 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -43,8 +43,7 @@
 #include "renderer/pipeline/deferred/LightingFlow.h"
 #include "renderer/pipeline/deferred/LightingStage.h"
 #include "renderer/pipeline/deferred/PostprocessStage.h"
-#include "cocos/renderer/core/Core.h"
-#include "cocos/renderer/core/gfx/GFXDescriptorSet.h"
+#include "cocos/renderer/gfx-base/GFXBase.h"
 
 #ifndef JSB_ALLOC
 #define JSB_ALLOC(kls, ...) new (std::nothrow) kls(__VA_ARGS__)
@@ -3206,10 +3205,9 @@ SE_DECLARE_FINALIZE_FUNC(js_cc_pipeline_ShadowStage_finalize)
 
 static bool js_pipeline_ShadowStage_constructor(se::State& s) // constructor.c
 {
-    cc::pipeline::ShadowStage* cobj = JSB_ALLOC(cc::pipeline::ShadowStage);
-    s.thisObject()->setPrivateData(cobj);
-    se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
-    return true;
+    //#3 cc::pipeline::ShadowStage: is_skip_construtor True
+    se::ScriptEngine::getInstance()->evalString("throw new Error(\"cc::pipeline::ShadowStage constructor is skipped\")");
+    return false;
 }
 SE_BIND_CTOR(js_pipeline_ShadowStage_constructor, __jsb_cc_pipeline_ShadowStage_class, js_cc_pipeline_ShadowStage_finalize)
 

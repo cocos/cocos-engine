@@ -24,32 +24,32 @@
 ****************************************************************************/
 
 #include "SharedMemory.h"
-#include "../math/MathUtil.h"
-#include "renderer/core/gfx/GFXDef.h"
+#include "gfx-base/GFXDef.h"
+#include "math/MathUtil.h"
 
 namespace cc {
 namespace pipeline {
 
-const se::PoolType ModelView::type = se::PoolType::MODEL;
-const se::PoolType SubModelView::type = se::PoolType::SUB_MODEL;
-const se::PoolType PassView::type = se::PoolType::PASS;
-const se::PoolType Camera::type = se::PoolType::CAMERA;
-const se::PoolType AABB::type = se::PoolType::AABB;
-const se::PoolType Frustum::type = se::PoolType::FRUSTUM;
-const se::PoolType Scene::type = se::PoolType::SCENE;
-const se::PoolType Light::type = se::PoolType::LIGHT;
-const se::PoolType Ambient::type = se::PoolType::AMBIENT;
-const se::PoolType Fog::type = se::PoolType::FOG;
-const se::PoolType Skybox::type = se::PoolType::SKYBOX;
-const se::PoolType InstancedAttributeView::type = se::PoolType::INSTANCED_ATTRIBUTE;
-const se::PoolType FlatBufferView::type = se::PoolType::FLAT_BUFFER;
-const se::PoolType RenderingSubMesh::type = se::PoolType::SUB_MESH;
-const se::PoolType Node::type = se::PoolType::NODE;
-const se::PoolType Root::type = se::PoolType::ROOT;
-const se::PoolType RenderWindow::type = se::PoolType::RENDER_WINDOW;
-const se::PoolType Shadows::type = se::PoolType::SHADOW;
-const se::PoolType Sphere::type = se::PoolType::SPHERE;
-const se::PoolType UIBatch::type = se::PoolType::UI_BATCH;
+const se::PoolType ModelView::type               = se::PoolType::MODEL;
+const se::PoolType SubModelView::type            = se::PoolType::SUB_MODEL;
+const se::PoolType PassView::type                = se::PoolType::PASS;
+const se::PoolType Camera::type                  = se::PoolType::CAMERA;
+const se::PoolType AABB::type                    = se::PoolType::AABB;
+const se::PoolType Frustum::type                 = se::PoolType::FRUSTUM;
+const se::PoolType Scene::type                   = se::PoolType::SCENE;
+const se::PoolType Light::type                   = se::PoolType::LIGHT;
+const se::PoolType Ambient::type                 = se::PoolType::AMBIENT;
+const se::PoolType Fog::type                     = se::PoolType::FOG;
+const se::PoolType Skybox::type                  = se::PoolType::SKYBOX;
+const se::PoolType InstancedAttributeView::type  = se::PoolType::INSTANCED_ATTRIBUTE;
+const se::PoolType FlatBufferView::type          = se::PoolType::FLAT_BUFFER;
+const se::PoolType RenderingSubMesh::type        = se::PoolType::SUB_MESH;
+const se::PoolType Node::type                    = se::PoolType::NODE;
+const se::PoolType Root::type                    = se::PoolType::ROOT;
+const se::PoolType RenderWindow::type            = se::PoolType::RENDER_WINDOW;
+const se::PoolType Shadows::type                 = se::PoolType::SHADOW;
+const se::PoolType Sphere::type                  = se::PoolType::SPHERE;
+const se::PoolType UIBatch::type                 = se::PoolType::UI_BATCH;
 const se::PoolType PipelineSharedSceneData::type = se::PoolType::PIPELINE_SHARED_SCENE_DATA;
 
 void AABB::getBoundary(cc::Vec3 &minPos, cc::Vec3 &maxPos) const {
@@ -68,13 +68,13 @@ void AABB::merge(const AABB &aabb) {
 
     cc::Vec3 addP = maxP + minP;
     cc::Vec3 subP = maxP - minP;
-    center = addP * 0.5f;
-    halfExtents = subP * 0.5f;
+    center        = addP * 0.5f;
+    halfExtents   = subP * 0.5f;
 }
 
 int Sphere::interset(const Plane &plane) const {
     const float dot = plane.normal.dot(center);
-    const float r = radius * plane.normal.length();
+    const float r   = radius * plane.normal.length();
     if (dot + r < plane.distance) {
         return -1;
     }
@@ -103,7 +103,7 @@ void Sphere::mergePoint(const cc::Vec3 &point) {
         return;
     }
 
-    auto offset = point - center;
+    auto offset   = point - center;
     auto distance = offset.length();
 
     if (distance > radius) {
@@ -124,7 +124,7 @@ void Sphere::define(const AABB &aabb) {
 
     // Calculate sphere
     const cc::Vec3 offset = maxPos - center;
-    const float dist = offset.length();
+    const float    dist   = offset.length();
 
     const float half = dist * 0.5f;
     radius += dist * 0.5f;
@@ -140,7 +140,7 @@ void Sphere::mergeAABB(const AABB *aabb) {
 
 int sphere_plane(const Sphere *sphere, const Plane *plane) {
     const auto dot = cc::Vec3::dot(plane->normal, sphere->center);
-    const auto r = sphere->radius * plane->normal.length();
+    const auto r   = sphere->radius * plane->normal.length();
     if (dot + r < plane->distance) {
         return -1;
     } else if (dot - r > plane->distance) {
@@ -172,7 +172,7 @@ bool aabb_aabb(const AABB *aabb1, const AABB *aabb2) {
 
 int aabb_plane(const AABB *aabb, const Plane *plane) {
     const auto &halfExtents = aabb->halfExtents;
-    auto r = halfExtents.x * std::abs(plane->normal.x) +
+    auto        r           = halfExtents.x * std::abs(plane->normal.x) +
              halfExtents.y * std::abs(plane->normal.y) +
              halfExtents.z * std::abs(plane->normal.z);
     auto dot = Vec3::dot(plane->normal, aabb->center);
@@ -196,13 +196,13 @@ bool aabb_frustum(const AABB *aabb, const Frustum *frustum) {
 
 gfx::BlendState *getBlendStateImpl(uint index) {
     static gfx::BlendState blendState;
-    auto buffer = SharedMemory::getBuffer<uint32_t>(se::PoolType::BLEND_STATE, index);
+    auto                   buffer = SharedMemory::getBuffer<uint32_t>(se::PoolType::BLEND_STATE, index);
     memcpy(&blendState, buffer, 24);
 
-    uint32_t targetArrayHandle = *(buffer + 6);
-    const auto targetsHandle = GET_BLEND_TARGET_ARRAY(targetArrayHandle);
-    uint32_t targetLen = targetsHandle[0];
-    auto &targets = blendState.targets;
+    uint32_t   targetArrayHandle = *(buffer + 6);
+    const auto targetsHandle     = GET_BLEND_TARGET_ARRAY(targetArrayHandle);
+    uint32_t   targetLen         = targetsHandle[0];
+    auto &     targets           = blendState.targets;
     targets.resize(targetLen);
     for (uint32_t i = 1; i <= targetLen; ++i) {
         memcpy(&targets[i - 1], GET_BLEND_TARGET(targetsHandle[i]), sizeof(gfx::BlendTarget));

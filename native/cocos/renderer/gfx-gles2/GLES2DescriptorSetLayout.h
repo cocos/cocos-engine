@@ -26,6 +26,8 @@
 #ifndef CC_GFXGLES2_DESCRIPTOR_SET_LAYOUT_H_
 #define CC_GFXGLES2_DESCRIPTOR_SET_LAYOUT_H_
 
+#include "gfx-base/GFXDescriptorSetLayout.h"
+
 namespace cc {
 namespace gfx {
 

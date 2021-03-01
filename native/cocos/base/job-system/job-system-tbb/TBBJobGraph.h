@@ -35,7 +35,7 @@ class TBBJobSystem;
 
 class TBBJobGraph final {
 public:
-    TBBJobGraph(TBBJobSystem *system) {
+    explicit TBBJobGraph(TBBJobSystem *system) noexcept {
         _nodes.emplace_back(_graph, [](TBBJobToken t) {});
     }
 

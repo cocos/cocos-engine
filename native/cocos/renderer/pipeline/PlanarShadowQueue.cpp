@@ -33,11 +33,11 @@
 #include "PipelineStateManager.h"
 #include "RenderBatchedQueue.h"
 #include "RenderInstancedQueue.h"
-#include "gfx/GFXCommandBuffer.h"
+#include "gfx-base/GFXCommandBuffer.h"
 #include "helper/SharedMemory.h"
-#include "gfx/GFXDescriptorSet.h"
-#include "gfx/GFXDevice.h"
-#include "gfx/GFXShader.h"
+#include "gfx-base/GFXDescriptorSet.h"
+#include "gfx-base/GFXDevice.h"
+#include "gfx-base/GFXShader.h"
 
 namespace cc {
 namespace pipeline {

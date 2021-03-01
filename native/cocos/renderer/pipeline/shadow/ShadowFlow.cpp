@@ -29,11 +29,11 @@
 #include "../forward/ForwardPipeline.h"
 #include "../helper/SharedMemory.h"
 #include "ShadowStage.h"
-#include "gfx/GFXDescriptorSet.h"
-#include "gfx/GFXDevice.h"
-#include "gfx/GFXFramebuffer.h"
-#include "gfx/GFXRenderPass.h"
-#include "gfx/GFXTexture.h"
+#include "gfx-base/GFXDescriptorSet.h"
+#include "gfx-base/GFXDevice.h"
+#include "gfx-base/GFXFramebuffer.h"
+#include "gfx-base/GFXRenderPass.h"
+#include "gfx-base/GFXTexture.h"
 #include "../SceneCulling.h"
 
 namespace cc {

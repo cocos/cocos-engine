@@ -23,8 +23,7 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#ifndef CC_CORE_TYPE_DEF_H_
-#define CC_CORE_TYPE_DEF_H_
+#pragma once
 
 typedef unsigned int uint;
 typedef unsigned short ushort;
@@ -39,5 +38,3 @@ typedef unsigned int FlagBits;
     CC_INLINE void operator&=(type_ &lhs, type_ rhs) { lhs = (type_)(static_cast<std::underlying_type<type_>::type /**/>(lhs) & static_cast<std::underlying_type<type_>::type /**/>(rhs)); } \
     CC_INLINE bool operator||(type_ lhs, type_ rhs) { return (static_cast<std::underlying_type<type_>::type /**/>(lhs) || static_cast<std::underlying_type<type_>::type /**/>(rhs)); }       \
     CC_INLINE bool operator&&(type_ lhs, type_ rhs) { return (static_cast<std::underlying_type<type_>::type /**/>(lhs) && static_cast<std::underlying_type<type_>::type /**/>(rhs)); }
-
-#endif // CC_CORE_TYPE_DEF_H_

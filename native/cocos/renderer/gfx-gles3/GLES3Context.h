@@ -26,6 +26,8 @@
 #ifndef CC_GFXGLES3_EGL_CONTEXT_H_
 #define CC_GFXGLES3_EGL_CONTEXT_H_
 
+#include "gfx-base/GFXContext.h"
+
 #include "GLES3Wrangler.h"
 
 namespace cc {

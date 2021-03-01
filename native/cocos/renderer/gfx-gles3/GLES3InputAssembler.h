@@ -26,6 +26,8 @@
 #ifndef CC_GFXGLES3_INPUT_ASSEMBLER_H_
 #define CC_GFXGLES3_INPUT_ASSEMBLER_H_
 
+#include "gfx-base/GFXInputAssembler.h"
+
 namespace cc {
 namespace gfx {
 

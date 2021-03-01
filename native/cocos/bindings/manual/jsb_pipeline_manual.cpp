@@ -28,7 +28,7 @@
 #include "cocos/bindings/jswrapper/SeApi.h"
 #include "cocos/bindings/manual/jsb_conversions.h"
 #include "cocos/bindings/manual/jsb_global.h"
-#include "renderer/core/gfx/GFXPipelineState.h"
+#include "gfx-base/GFXPipelineState.h"
 #include "renderer/pipeline/Define.h"
 #include "renderer/pipeline/PipelineStateManager.h"
 #include "renderer/pipeline/RenderPipeline.h"

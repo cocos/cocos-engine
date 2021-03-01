@@ -26,6 +26,7 @@
 #include "GLES3Std.h"
 
 #include "GLES3Commands.h"
+#include "GLES3Device.h"
 #include "GLES3Texture.h"
 
 namespace cc {

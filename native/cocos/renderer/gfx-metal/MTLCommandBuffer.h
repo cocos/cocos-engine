@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include "gfx-base/GFXCommandBuffer.h"
+
 #include "MTLGPUObjects.h"
 #include "MTLRenderCommandEncoder.h"
 #import <Metal/MTLCommandQueue.h>

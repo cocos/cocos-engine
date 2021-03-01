@@ -384,7 +384,7 @@ void CCVKCmdFuncCreateRenderPass(CCVKDevice *device, CCVKGPURenderPass *gpuRende
     }
 
     // make rendering result visible for the specified access types
-    VkSubpassDependency endDependency{subpassCount - 1, VK_SUBPASS_EXTERNAL, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT};
+    VkSubpassDependency endDependency{(uint)subpassCount - 1, VK_SUBPASS_EXTERNAL, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT};
     auto                endDependencyCheck = [&endDependency, &endAccessInfos](const VkAttachmentReference &ref, VkPipelineStageFlags srcStage, VkAccessFlags srcAccess) {
         const VkAttachmentDescription &desc = attachmentDescriptions[ref.attachment];
         if (desc.storeOp == VK_ATTACHMENT_STORE_OP_STORE) {

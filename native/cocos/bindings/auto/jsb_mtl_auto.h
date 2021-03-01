@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2019-2021 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -41,6 +41,6 @@ SE_DECLARE_FUNC(js_mtl_CCMTLDevice_disposeCurrentDrawable);
 SE_DECLARE_FUNC(js_mtl_CCMTLDevice_getCurrentDrawable);
 SE_DECLARE_FUNC(js_mtl_CCMTLDevice_getDSSTexture);
 SE_DECLARE_FUNC(js_mtl_CCMTLDevice_getMTLLayer);
-SE_DECLARE_FUNC(js_mtl_CCMTLDevice_presentCompleted);
+SE_DECLARE_FUNC(js_mtl_CCMTLDevice_onPresentCompleted);
 SE_DECLARE_FUNC(js_mtl_CCMTLDevice_CCMTLDevice);
 

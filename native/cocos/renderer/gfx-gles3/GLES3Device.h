@@ -26,6 +26,8 @@
 #ifndef CC_GFXGLES3_DEVICE_H_
 #define CC_GFXGLES3_DEVICE_H_
 
+#include "gfx-base/GFXDevice.h"
+
 namespace cc {
 namespace gfx {
 

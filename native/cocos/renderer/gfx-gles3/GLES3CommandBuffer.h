@@ -26,6 +26,8 @@
 #ifndef CC_GFXGLES3_COMMAND_BUFFER_H_
 #define CC_GFXGLES3_COMMAND_BUFFER_H_
 
+#include "gfx-base/GFXCommandBuffer.h"
+
 #include "GLES3Commands.h"
 
 namespace cc {

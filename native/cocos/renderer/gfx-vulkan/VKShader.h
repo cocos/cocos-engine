@@ -26,6 +26,8 @@
 #ifndef CC_GFXVULKAN_SHADER_H_
 #define CC_GFXVULKAN_SHADER_H_
 
+#include "gfx-base/GFXShader.h"
+
 namespace cc {
 namespace gfx {
 

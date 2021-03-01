@@ -27,10 +27,10 @@
 
 #include <array>
 
-#include "../RenderPipeline.h"
-#include "../helper/SharedMemory.h"
-#include "../../core/gfx/GFXBuffer.h"
-#include "../../core/gfx/GFXInputAssembler.h"
+#include "pipeline/RenderPipeline.h"
+#include "pipeline/helper/SharedMemory.h"
+#include "gfx-base/GFXBuffer.h"
+#include "gfx-base/GFXInputAssembler.h"
 
 namespace cc {
 namespace pipeline {

@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include "base/CachedArray.h"
+
 namespace cc {
 namespace gfx {
 

@@ -45,7 +45,7 @@ public:
     }
 
     TFJobSystem() noexcept : TFJobSystem(std::max(2u, std::thread::hardware_concurrency() - 2u)) {}
-    TFJobSystem(uint threadCount) noexcept;
+    explicit TFJobSystem(uint threadCount) noexcept;
 
     CC_INLINE uint threadCount() { return _executor.num_workers(); }
 

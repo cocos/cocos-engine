@@ -26,6 +26,7 @@
 #pragma once
 
 #include "Define.h"
+#include <array>
 
 namespace cc {
 namespace pipeline {

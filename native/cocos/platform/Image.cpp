@@ -36,7 +36,8 @@
 
 #include "base/Data.h"
 #include "base/Utils.h"
-#include "renderer/core/Core.h"
+#include "base/CoreStd.h"
+#include "gfx-base/GFXDef.h"
 
 extern "C" {
 #if CC_USE_PNG

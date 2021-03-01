@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include "gfx-base/GFXDevice.h"
 #include "MTLConfig.h"
 
 namespace cc {

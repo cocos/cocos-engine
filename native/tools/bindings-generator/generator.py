@@ -1662,6 +1662,17 @@ class Generator(object):
         implfilepath = os.path.join(self.outdir, self.out_file + ".cpp")
         headfilepath = os.path.join(self.outdir, self.out_file + ".h")
 
+        headLicense = ''
+        implLicense = ''
+
+        licensePattern = re.compile('\/\*{5,}.*?\*{5,}\/\s*', re.S)
+        with open(implfilepath) as implReader:
+            implMatch = licensePattern.search(implReader.read())
+            if implMatch: implLicense = implMatch.group()
+        with open(headfilepath) as headReader:
+            headMatch = licensePattern.search(headReader.read())
+            if headMatch: headLicense = headMatch.group()
+
         self.impl_file = open(implfilepath, "wb+")
         self.head_file = open(headfilepath, "wb+")
 
@@ -1669,8 +1680,8 @@ class Generator(object):
                             searchList=[self])
         layout_c = Template(file=os.path.join(self.target, "templates", "layout_head.c"),
                             searchList=[self])
-        self.head_file.write(str(layout_h))
-        self.impl_file.write(str(layout_c))
+        self.head_file.write(headLicense + str(layout_h))
+        self.impl_file.write(implLicense + str(layout_c))
 
         self._parse_headers()
 

@@ -26,6 +26,8 @@
 #ifndef CC_GFXGLES2_DEVICE_H_
 #define CC_GFXGLES2_DEVICE_H_
 
+#include "gfx-base/GFXDevice.h"
+
 #ifndef GL_COMPRESSED_RGB8_ETC2
     #define GL_COMPRESSED_RGB8_ETC2 0x9274
 #endif

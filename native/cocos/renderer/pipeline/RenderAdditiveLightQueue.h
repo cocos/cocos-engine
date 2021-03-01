@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include "core/CoreStd.h"
+#include "base/CoreStd.h"
 #include "helper/SharedMemory.h"
 
 namespace cc {

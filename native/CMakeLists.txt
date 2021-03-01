@@ -283,43 +283,61 @@ endif()
 
 ##### base
 cocos_source_files(
+    cocos/base/Array.cpp
+    cocos/base/Array.h
     cocos/base/astc.cpp
     cocos/base/astc.h
+    cocos/base/AutoreleasePool.cpp
+    cocos/base/AutoreleasePool.h
     cocos/base/base64.cpp
     cocos/base/base64.h
     cocos/base/CachedArray.h
-    cocos/base/AutoreleasePool.cpp
-    cocos/base/AutoreleasePool.h
-    cocos/base/Array.cpp
-    cocos/base/Array.h
     cocos/base/Config.h
+    cocos/base/CoreStd.h
+    cocos/base/csscolorparser.cpp
+    cocos/base/csscolorparser.h
     cocos/base/Data.cpp
     cocos/base/Data.h
+    cocos/base/etc1.cpp
+    cocos/base/etc1.h
+    cocos/base/etc2.cpp
+    cocos/base/etc2.h
+    cocos/base/IndexHandle.h
+    cocos/base/Log.cpp
+    cocos/base/Log.h
     cocos/base/Macros.h
     cocos/base/Map.h
+    cocos/base/Object.h
     cocos/base/Random.cpp
     cocos/base/Random.h
     cocos/base/Ref.cpp
     cocos/base/Ref.h
     cocos/base/Scheduler.cpp
     cocos/base/Scheduler.h
+    cocos/base/StringHandle.cpp
+    cocos/base/StringHandle.h
+    cocos/base/StringPool.h
+    cocos/base/StringUtil.cpp
+    cocos/base/StringUtil.h
     cocos/base/ThreadPool.cpp
     cocos/base/ThreadPool.h
+    cocos/base/TypeDef.h
     cocos/base/UTF8.cpp
     cocos/base/UTF8.h
+    cocos/base/UTFString.cpp
+    cocos/base/UTFString.h
+    cocos/base/uthash.h
     cocos/base/Utils.cpp
     cocos/base/Utils.h
     cocos/base/Value.cpp
     cocos/base/Value.h
     cocos/base/Vector.h
-    cocos/base/csscolorparser.cpp
-    cocos/base/csscolorparser.h
-    cocos/base/etc1.cpp
-    cocos/base/etc1.h
-    cocos/base/etc2.cpp
-    cocos/base/etc2.h
-    cocos/base/Log.cpp
-    cocos/base/Log.h
+    cocos/base/ZipUtils.cpp
+    cocos/base/ZipUtils.h
+)
+
+##### memory
+cocos_source_files(
     cocos/base/memory/AllocatedObj.cpp
     cocos/base/memory/AllocatedObj.h
     cocos/base/memory/JeAlloc.cpp
@@ -333,6 +351,10 @@ cocos_source_files(
     cocos/base/memory/NedPooling.h
     cocos/base/memory/StdAlloc.h
     cocos/base/memory/StlAlloc.h
+)
+
+##### threading
+cocos_source_files(
     cocos/base/threading/ConditionVariable.h
     cocos/base/threading/ConditionVariable.cpp
     cocos/base/threading/Event.h
@@ -345,15 +367,6 @@ cocos_source_files(
     cocos/base/threading/ThreadSafeCounter.h
     cocos/base/threading/ThreadSafeLinearAllocator.h
     cocos/base/threading/ThreadSafeLinearAllocator.cpp
-    cocos/base/Object.h
-    cocos/base/TypeDef.h
-    cocos/base/uthash.h
-    cocos/base/StringUtil.cpp
-    cocos/base/StringUtil.h
-    cocos/base/UTFString.cpp
-    cocos/base/UTFString.h
-    cocos/base/ZipUtils.cpp
-    cocos/base/ZipUtils.h
 )
 
 ##### job system
@@ -540,7 +553,7 @@ elseif(APPLE)
         cocos/platform/apple/CanvasRenderingContext2D-apple.mm
         cocos/platform/apple/Device-apple.h
     )
-    #bad struct
+    # bad structure
     cocos_source_files(
         cocos/platform/ios/Reachability.h
         cocos/platform/ios/Reachability.cpp
@@ -566,78 +579,76 @@ endif()
 
 ##### renderer
 cocos_source_files(
-    cocos/renderer/core/Core.h
-    cocos/renderer/core/CoreStd.cpp
-    cocos/renderer/core/CoreStd.h
-    cocos/renderer/core/gfx/GFXObject.h
-    cocos/renderer/core/gfx/GFXObject.cpp
-    cocos/renderer/core/gfx/GFXBuffer.cpp
-    cocos/renderer/core/gfx/GFXBuffer.h
-    cocos/renderer/core/gfx/GFXCommandBuffer.cpp
-    cocos/renderer/core/gfx/GFXCommandBuffer.h
-    cocos/renderer/core/gfx/GFXContext.cpp
-    cocos/renderer/core/gfx/GFXContext.h
-    cocos/renderer/core/gfx/GFXDef.cpp
-    cocos/renderer/core/gfx/GFXDef.h
-    cocos/renderer/core/gfx/GFXDef-common.h
-    cocos/renderer/core/gfx/GFXDevice.cpp
-    cocos/renderer/core/gfx/GFXDevice.h
-    cocos/renderer/core/gfx/GFXFramebuffer.cpp
-    cocos/renderer/core/gfx/GFXFramebuffer.h
-    cocos/renderer/core/gfx/GFXGlobalBarrier.cpp
-    cocos/renderer/core/gfx/GFXGlobalBarrier.h
-    cocos/renderer/core/gfx/GFXInputAssembler.cpp
-    cocos/renderer/core/gfx/GFXInputAssembler.h
-    cocos/renderer/core/gfx/GFXDescriptorSet.cpp
-    cocos/renderer/core/gfx/GFXDescriptorSet.h
-    cocos/renderer/core/gfx/GFXDescriptorSetLayout.cpp
-    cocos/renderer/core/gfx/GFXDescriptorSetLayout.h
-    cocos/renderer/core/gfx/GFXPipelineLayout.cpp
-    cocos/renderer/core/gfx/GFXPipelineLayout.h
-    cocos/renderer/core/gfx/GFXPipelineState.cpp
-    cocos/renderer/core/gfx/GFXPipelineState.h
-    cocos/renderer/core/gfx/GFXQueue.cpp
-    cocos/renderer/core/gfx/GFXQueue.h
-    cocos/renderer/core/gfx/GFXRenderPass.cpp
-    cocos/renderer/core/gfx/GFXRenderPass.h
-    cocos/renderer/core/gfx/GFXSampler.cpp
-    cocos/renderer/core/gfx/GFXSampler.h
-    cocos/renderer/core/gfx/GFXShader.cpp
-    cocos/renderer/core/gfx/GFXShader.h
-    cocos/renderer/core/gfx/GFXTexture.cpp
-    cocos/renderer/core/gfx/GFXTexture.h
-    cocos/renderer/core/gfx/GFXTextureBarrier.cpp
-    cocos/renderer/core/gfx/GFXTextureBarrier.h
-    cocos/renderer/core/gfx-agent/GFXAgent.h
-    cocos/renderer/core/gfx-agent/GFXBufferAgent.h
-    cocos/renderer/core/gfx-agent/GFXBufferAgent.cpp
-    cocos/renderer/core/gfx-agent/GFXCommandBufferAgent.h
-    cocos/renderer/core/gfx-agent/GFXCommandBufferAgent.cpp
-    cocos/renderer/core/gfx-agent/GFXDescriptorSetAgent.h
-    cocos/renderer/core/gfx-agent/GFXDescriptorSetAgent.cpp
-    cocos/renderer/core/gfx-agent/GFXDescriptorSetLayoutAgent.h
-    cocos/renderer/core/gfx-agent/GFXDescriptorSetLayoutAgent.cpp
-    cocos/renderer/core/gfx-agent/GFXDeviceAgent.h
-    cocos/renderer/core/gfx-agent/GFXDeviceAgent.cpp
-    cocos/renderer/core/gfx-agent/GFXFramebufferAgent.h
-    cocos/renderer/core/gfx-agent/GFXFramebufferAgent.cpp
-    cocos/renderer/core/gfx-agent/GFXInputAssemblerAgent.h
-    cocos/renderer/core/gfx-agent/GFXInputAssemblerAgent.cpp
-    cocos/renderer/core/gfx-agent/GFXLinearAllocatorPool.h
-    cocos/renderer/core/gfx-agent/GFXPipelineLayoutAgent.h
-    cocos/renderer/core/gfx-agent/GFXPipelineLayoutAgent.cpp
-    cocos/renderer/core/gfx-agent/GFXPipelineStateAgent.h
-    cocos/renderer/core/gfx-agent/GFXPipelineStateAgent.cpp
-    cocos/renderer/core/gfx-agent/GFXQueueAgent.h
-    cocos/renderer/core/gfx-agent/GFXQueueAgent.cpp
-    cocos/renderer/core/gfx-agent/GFXRenderPassAgent.h
-    cocos/renderer/core/gfx-agent/GFXRenderPassAgent.cpp
-    cocos/renderer/core/gfx-agent/GFXSamplerAgent.h
-    cocos/renderer/core/gfx-agent/GFXSamplerAgent.cpp
-    cocos/renderer/core/gfx-agent/GFXShaderAgent.h
-    cocos/renderer/core/gfx-agent/GFXShaderAgent.cpp
-    cocos/renderer/core/gfx-agent/GFXTextureAgent.h
-    cocos/renderer/core/gfx-agent/GFXTextureAgent.cpp
+    cocos/renderer/gfx-base/GFXObject.h
+    cocos/renderer/gfx-base/GFXObject.cpp
+    cocos/renderer/gfx-base/GFXBase.h
+    cocos/renderer/gfx-base/GFXBuffer.cpp
+    cocos/renderer/gfx-base/GFXBuffer.h
+    cocos/renderer/gfx-base/GFXCommandBuffer.cpp
+    cocos/renderer/gfx-base/GFXCommandBuffer.h
+    cocos/renderer/gfx-base/GFXContext.cpp
+    cocos/renderer/gfx-base/GFXContext.h
+    cocos/renderer/gfx-base/GFXDef.cpp
+    cocos/renderer/gfx-base/GFXDef.h
+    cocos/renderer/gfx-base/GFXDef-common.h
+    cocos/renderer/gfx-base/GFXDevice.cpp
+    cocos/renderer/gfx-base/GFXDevice.h
+    cocos/renderer/gfx-base/GFXFramebuffer.cpp
+    cocos/renderer/gfx-base/GFXFramebuffer.h
+    cocos/renderer/gfx-base/GFXGlobalBarrier.cpp
+    cocos/renderer/gfx-base/GFXGlobalBarrier.h
+    cocos/renderer/gfx-base/GFXInputAssembler.cpp
+    cocos/renderer/gfx-base/GFXInputAssembler.h
+    cocos/renderer/gfx-base/GFXDescriptorSet.cpp
+    cocos/renderer/gfx-base/GFXDescriptorSet.h
+    cocos/renderer/gfx-base/GFXDescriptorSetLayout.cpp
+    cocos/renderer/gfx-base/GFXDescriptorSetLayout.h
+    cocos/renderer/gfx-base/GFXPipelineLayout.cpp
+    cocos/renderer/gfx-base/GFXPipelineLayout.h
+    cocos/renderer/gfx-base/GFXPipelineState.cpp
+    cocos/renderer/gfx-base/GFXPipelineState.h
+    cocos/renderer/gfx-base/GFXQueue.cpp
+    cocos/renderer/gfx-base/GFXQueue.h
+    cocos/renderer/gfx-base/GFXRenderPass.cpp
+    cocos/renderer/gfx-base/GFXRenderPass.h
+    cocos/renderer/gfx-base/GFXSampler.cpp
+    cocos/renderer/gfx-base/GFXSampler.h
+    cocos/renderer/gfx-base/GFXShader.cpp
+    cocos/renderer/gfx-base/GFXShader.h
+    cocos/renderer/gfx-base/GFXTexture.cpp
+    cocos/renderer/gfx-base/GFXTexture.h
+    cocos/renderer/gfx-base/GFXTextureBarrier.cpp
+    cocos/renderer/gfx-base/GFXTextureBarrier.h
+    cocos/renderer/gfx-agent/GFXAgent.h
+    cocos/renderer/gfx-agent/GFXBufferAgent.h
+    cocos/renderer/gfx-agent/GFXBufferAgent.cpp
+    cocos/renderer/gfx-agent/GFXCommandBufferAgent.h
+    cocos/renderer/gfx-agent/GFXCommandBufferAgent.cpp
+    cocos/renderer/gfx-agent/GFXDescriptorSetAgent.h
+    cocos/renderer/gfx-agent/GFXDescriptorSetAgent.cpp
+    cocos/renderer/gfx-agent/GFXDescriptorSetLayoutAgent.h
+    cocos/renderer/gfx-agent/GFXDescriptorSetLayoutAgent.cpp
+    cocos/renderer/gfx-agent/GFXDeviceAgent.h
+    cocos/renderer/gfx-agent/GFXDeviceAgent.cpp
+    cocos/renderer/gfx-agent/GFXFramebufferAgent.h
+    cocos/renderer/gfx-agent/GFXFramebufferAgent.cpp
+    cocos/renderer/gfx-agent/GFXInputAssemblerAgent.h
+    cocos/renderer/gfx-agent/GFXInputAssemblerAgent.cpp
+    cocos/renderer/gfx-agent/GFXLinearAllocatorPool.h
+    cocos/renderer/gfx-agent/GFXPipelineLayoutAgent.h
+    cocos/renderer/gfx-agent/GFXPipelineLayoutAgent.cpp
+    cocos/renderer/gfx-agent/GFXPipelineStateAgent.h
+    cocos/renderer/gfx-agent/GFXPipelineStateAgent.cpp
+    cocos/renderer/gfx-agent/GFXQueueAgent.h
+    cocos/renderer/gfx-agent/GFXQueueAgent.cpp
+    cocos/renderer/gfx-agent/GFXRenderPassAgent.h
+    cocos/renderer/gfx-agent/GFXRenderPassAgent.cpp
+    cocos/renderer/gfx-agent/GFXSamplerAgent.h
+    cocos/renderer/gfx-agent/GFXSamplerAgent.cpp
+    cocos/renderer/gfx-agent/GFXShaderAgent.h
+    cocos/renderer/gfx-agent/GFXShaderAgent.cpp
+    cocos/renderer/gfx-agent/GFXTextureAgent.h
+    cocos/renderer/gfx-agent/GFXTextureAgent.cpp
     cocos/renderer/pipeline/BatchedBuffer.cpp
     cocos/renderer/pipeline/BatchedBuffer.h
     cocos/renderer/pipeline/Define.h
@@ -1606,7 +1617,6 @@ target_include_directories(cocos2d
         ${CWD}/cocos
         ${CWD}/cocos/renderer
         ${CWD}/cocos/platform
-        ${CWD}/cocos/renderer/core
         ${CWD}/external/sources/khronos
         ${CWD}/cocos/editor-support
         $<$<BOOL:USE_SE_JSC>:${CWD}/cocos/bindings/jswrapper>

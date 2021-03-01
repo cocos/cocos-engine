@@ -26,7 +26,7 @@
 #include "jsb_conversions.h"
 #include "base/TypeDef.h"
 #include "math/Math.h"
-#include "renderer/core/gfx/GFXDef.h"
+#include "gfx-base/GFXDef.h"
 #include <regex>
 #include <sstream>
 

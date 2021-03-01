@@ -34,7 +34,7 @@ using TFJobToken = void;
 
 class TFJobGraph final {
 public:
-    TFJobGraph(TFJobSystem *system) : _executor(&system->_executor) {}
+    explicit TFJobGraph(TFJobSystem *system) noexcept : _executor(&system->_executor) {}
 
     template <typename Function>
     uint createJob(Function &&func) noexcept;

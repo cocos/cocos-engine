@@ -26,6 +26,8 @@
 #ifndef CC_GFXVULKAN_RENDER_PASS_H_
 #define CC_GFXVULKAN_RENDER_PASS_H_
 
+#include "gfx-base/GFXRenderPass.h"
+
 namespace cc {
 namespace gfx {
 

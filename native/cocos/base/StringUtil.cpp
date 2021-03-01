@@ -23,8 +23,9 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "CoreStd.h"
 #include "StringUtil.h"
+#include "memory/Memory.h"
+#include <string>
 
 #if (CC_PLATFORM == CC_PLATFORM_WINDOWS)
     #ifndef WIN32_LEAN_AND_MEAN
@@ -40,7 +41,7 @@ int StringUtil::VPrintf(char *buf, char *last, const char *fmt, va_list args) {
     if (last <= buf) return 0;
 
     int count = (int)(last - buf);
-    int ret = _vsnprintf_s(buf, count, _TRUNCATE, fmt, args);
+    int ret   = _vsnprintf_s(buf, count, _TRUNCATE, fmt, args);
     if (ret < 0) {
         if (errno == 0) {
             return count - 1;
@@ -56,7 +57,7 @@ int StringUtil::VPrintf(char *buf, char *last, const char *fmt, va_list args) {
     if (last <= buf) return 0;
 
     int count = (int)(last - buf);
-    int ret = vsnprintf(buf, count, fmt, args);
+    int ret   = vsnprintf(buf, count, fmt, args);
     if (ret >= count - 1) {
         return count - 1;
     } else if (ret < 0) {
@@ -75,7 +76,7 @@ int StringUtil::Printf(char *buf, char *last, const char *fmt, ...) {
 }
 
 String StringUtil::Format(const char *fmt, ...) {
-    char sz[4096];
+    char    sz[4096];
     va_list args;
     va_start(args, fmt);
     VPrintf(sz, sz + sizeof(sz) - 1, fmt, args);

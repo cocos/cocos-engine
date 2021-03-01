@@ -48,9 +48,9 @@ namespace cc {
 #define DEFAULT_SHRINK_STEP     (2)
 #define DEFAULT_STRETCH_STEP    (2)
 
-static ThreadPool *__defaultThreadPool = nullptr;
+static LegacyThreadPool *__defaultThreadPool = nullptr;
 
-ThreadPool *ThreadPool::getDefaultThreadPool() {
+LegacyThreadPool *LegacyThreadPool::getDefaultThreadPool() {
     if (__defaultThreadPool == nullptr) {
         __defaultThreadPool = newCachedThreadPool(DEFAULT_THREAD_POOL_MIN_NUM,
                                                   DEFAULT_THREAD_POOL_MAX_NUM,
@@ -61,14 +61,14 @@ ThreadPool *ThreadPool::getDefaultThreadPool() {
     return __defaultThreadPool;
 }
 
-void ThreadPool::destroyDefaultThreadPool() {
+void LegacyThreadPool::destroyDefaultThreadPool() {
     delete __defaultThreadPool;
     __defaultThreadPool = nullptr;
 }
 
-ThreadPool *ThreadPool::newCachedThreadPool(int minThreadNum, int maxThreadNum, int shrinkInterval,
+LegacyThreadPool *LegacyThreadPool::newCachedThreadPool(int minThreadNum, int maxThreadNum, int shrinkInterval,
                                             int shrinkStep, int stretchStep) {
-    ThreadPool *pool = new (std::nothrow) ThreadPool(minThreadNum, maxThreadNum);
+    LegacyThreadPool *pool = new (std::nothrow) LegacyThreadPool(minThreadNum, maxThreadNum);
     if (pool != nullptr) {
         pool->setFixedSize(false);
         pool->setShrinkInterval(shrinkInterval);
@@ -78,40 +78,40 @@ ThreadPool *ThreadPool::newCachedThreadPool(int minThreadNum, int maxThreadNum, 
     return pool;
 }
 
-ThreadPool *ThreadPool::newFixedThreadPool(int threadNum) {
-    ThreadPool *pool = new (std::nothrow) ThreadPool(threadNum, threadNum);
+LegacyThreadPool *LegacyThreadPool::newFixedThreadPool(int threadNum) {
+    LegacyThreadPool *pool = new (std::nothrow) LegacyThreadPool(threadNum, threadNum);
     if (pool != nullptr) {
         pool->setFixedSize(true);
     }
     return pool;
 }
 
-ThreadPool *ThreadPool::newSingleThreadPool() {
-    ThreadPool *pool = new (std::nothrow) ThreadPool(1, 1);
+LegacyThreadPool *LegacyThreadPool::newSingleThreadPool() {
+    LegacyThreadPool *pool = new (std::nothrow) LegacyThreadPool(1, 1);
     if (pool != nullptr) {
         pool->setFixedSize(true);
     }
     return pool;
 }
 
-ThreadPool::ThreadPool(int minNum, int maxNum)
+LegacyThreadPool::LegacyThreadPool(int minNum, int maxNum)
 : _isDone(false), _isStop(false), _idleThreadNum(0), _minThreadNum(minNum), _maxThreadNum(maxNum), _initedThreadNum(0), _shrinkInterval(DEFAULT_SHRINK_INTERVAL), _shrinkStep(DEFAULT_SHRINK_STEP), _stretchStep(DEFAULT_STRETCH_STEP), _isFixedSize(false) {
     init();
 }
 
 // the destructor waits for all the functions in the queue to be finished
-ThreadPool::~ThreadPool() {
+LegacyThreadPool::~LegacyThreadPool() {
     stop();
 }
 
 // number of idle threads
-int ThreadPool::getIdleThreadNum() const {
-    ThreadPool *thiz = const_cast<ThreadPool *>(this);
+int LegacyThreadPool::getIdleThreadNum() const {
+    LegacyThreadPool *thiz = const_cast<LegacyThreadPool *>(this);
     std::lock_guard<std::mutex> lk(thiz->_idleThreadNumMutex);
     return _idleThreadNum;
 }
 
-void ThreadPool::init() {
+void LegacyThreadPool::init() {
     _lastShrinkTime = std::chrono::high_resolution_clock::now();
 
     _maxThreadNum = std::max(_minThreadNum, _maxThreadNum);
@@ -135,7 +135,7 @@ void ThreadPool::init() {
     }
 }
 
-bool ThreadPool::tryShrinkPool() {
+bool LegacyThreadPool::tryShrinkPool() {
     LOGD("shrink pool, _idleThreadNum = %d \n", getIdleThreadNum());
 
     auto before = std::chrono::high_resolution_clock::now();
@@ -182,7 +182,7 @@ bool ThreadPool::tryShrinkPool() {
     return false;
 }
 
-void ThreadPool::stretchPool(int count) {
+void LegacyThreadPool::stretchPool(int count) {
     auto before = std::chrono::high_resolution_clock::now();
 
     int oldThreadCount = _initedThreadNum;
@@ -210,7 +210,7 @@ void ThreadPool::stretchPool(int count) {
     }
 }
 
-void ThreadPool::pushTask(const std::function<void(int)> &runnable,
+void LegacyThreadPool::pushTask(const std::function<void(int)> &runnable,
                           TaskType type /* = DEFAULT*/) {
     if (!_isFixedSize) {
         _idleThreadNumMutex.lock();
@@ -246,14 +246,14 @@ void ThreadPool::pushTask(const std::function<void(int)> &runnable,
     }
 }
 
-void ThreadPool::stopAllTasks() {
+void LegacyThreadPool::stopAllTasks() {
     Task task;
     while (_taskQueue.pop(task)) {
         delete task.callback; // empty the queue
     }
 }
 
-void ThreadPool::stopTasksByType(TaskType type) {
+void LegacyThreadPool::stopTasksByType(TaskType type) {
     Task task;
 
     std::vector<Task> notStopTasks;
@@ -274,7 +274,7 @@ void ThreadPool::stopTasksByType(TaskType type) {
     }
 }
 
-void ThreadPool::joinThread(int tid) {
+void LegacyThreadPool::joinThread(int tid) {
     if (tid < 0 || tid >= (int)_threads.size()) {
         LOGD("Invalid thread id %d\n", tid);
         return;
@@ -288,30 +288,30 @@ void ThreadPool::joinThread(int tid) {
     }
 }
 
-int ThreadPool::getTaskNum() const {
+int LegacyThreadPool::getTaskNum() const {
     return (int)_taskQueue.size();
 }
 
-void ThreadPool::setFixedSize(bool isFixedSize) {
+void LegacyThreadPool::setFixedSize(bool isFixedSize) {
     _isFixedSize = isFixedSize;
 }
 
-void ThreadPool::setShrinkInterval(int seconds) {
+void LegacyThreadPool::setShrinkInterval(int seconds) {
     if (seconds >= 0)
         _shrinkInterval = (float)seconds;
 }
 
-void ThreadPool::setShrinkStep(int step) {
+void LegacyThreadPool::setShrinkStep(int step) {
     if (step > 0)
         _shrinkStep = step;
 }
 
-void ThreadPool::setStretchStep(int step) {
+void LegacyThreadPool::setStretchStep(int step) {
     if (step > 0)
         _stretchStep = step;
 }
 
-void ThreadPool::stop() {
+void LegacyThreadPool::stop() {
     if (_isDone || _isStop)
         return;
     _isDone = true; // give the waiting threads a command to finish
@@ -331,7 +331,7 @@ void ThreadPool::stop() {
     _abortFlags.clear();
 }
 
-void ThreadPool::setThread(int tid) {
+void LegacyThreadPool::setThread(int tid) {
     std::shared_ptr<std::atomic<bool>> abort_ptr(
         _abortFlags[tid]); // a copy of the shared ptr to the flag
     auto f = [this, tid, abort_ptr /* a copy of the shared ptr to the abort */]() {

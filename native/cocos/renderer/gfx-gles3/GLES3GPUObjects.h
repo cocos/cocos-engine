@@ -26,6 +26,7 @@
 #ifndef CC_GFXGLES3_GPU_OBJECTS_H_
 #define CC_GFXGLES3_GPU_OBJECTS_H_
 
+#include "gfx-base/GFXDef.h"
 #include "GLES3Wrangler.h"
 
 namespace cc {

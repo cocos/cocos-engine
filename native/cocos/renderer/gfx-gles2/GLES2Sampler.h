@@ -26,6 +26,8 @@
 #ifndef CC_GFXGLES2_SAMPLER_H_
 #define CC_GFXGLES2_SAMPLER_H_
 
+#include "gfx-base/GFXSampler.h"
+
 namespace cc {
 namespace gfx {
 

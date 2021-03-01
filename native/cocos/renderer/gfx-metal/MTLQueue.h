@@ -25,8 +25,11 @@
 
 #pragma once
 
+#include "gfx-base/GFXQueue.h"
+
 namespace cc {
 namespace gfx {
+
 class CCMTLQueue final : public Queue {
     friend class CCMTLDevice;
 

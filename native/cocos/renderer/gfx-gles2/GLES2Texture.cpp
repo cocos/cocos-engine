@@ -25,6 +25,7 @@
 
 #include "GLES2Std.h"
 
+#include "GLES2Device.h"
 #include "GLES2Texture.h"
 #include "GLES2Commands.h"
 

@@ -26,7 +26,7 @@
 #ifndef __CC_GFXGLES2_STD_H__
 #define __CC_GFXGLES2_STD_H__
 
-#include <Core.h>
+#include "base/CoreStd.h"
 
 #if (CC_PLATFORM == CC_PLATFORM_WINDOWS)
     #if defined(CC_STATIC)

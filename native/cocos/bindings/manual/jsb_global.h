@@ -26,7 +26,7 @@
 #pragma once
 
 #include "base/memory/Memory.h"
-#include "renderer/core/CoreStd.h"
+#include "base/CoreStd.h"
 #include <string>
 #include <type_traits>
 #include <utility>

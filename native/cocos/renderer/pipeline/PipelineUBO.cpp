@@ -26,7 +26,7 @@
 #include "PipelineUBO.h"
 #include "platform/Application.h"
 #include "SceneCulling.h"
-#include "gfx/GFXDevice.h"
+#include "gfx-base/GFXDevice.h"
 #include "RenderPipeline.h"
 
 namespace cc {

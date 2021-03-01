@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2019-2021 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -28,7 +28,7 @@
 #include <type_traits>
 #include "cocos/bindings/jswrapper/SeApi.h"
 #include "cocos/bindings/manual/jsb_conversions.h"
-#include "cocos/renderer/core/Core.h"
+#include "cocos/renderer/gfx-base/GFXBase.h"
 
 extern se::Object* __jsb_cc_gfx_Size_proto;
 extern se::Class* __jsb_cc_gfx_Size_class;

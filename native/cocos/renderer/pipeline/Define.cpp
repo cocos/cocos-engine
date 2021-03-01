@@ -24,19 +24,19 @@
 ****************************************************************************/
 
 #include "Define.h"
-#include "cocos/bindings/jswrapper/SeApi.h"
-#include "gfx/GFXDevice.h"
+#include "bindings/jswrapper/SeApi.h"
+#include "gfx-base/GFXDevice.h"
 #include "helper/SharedMemory.h"
 
 namespace cc {
 namespace pipeline {
-uint GLOBAL_SET = static_cast<uint>(SetIndex::GLOBAL);
+uint GLOBAL_SET   = static_cast<uint>(SetIndex::GLOBAL);
 uint MATERIAL_SET = static_cast<uint>(SetIndex::MATERIAL);
-uint LOCAL_SET = static_cast<uint>(SetIndex::LOCAL);
+uint LOCAL_SET    = static_cast<uint>(SetIndex::LOCAL);
 
-DescriptorSetLayoutInfos globalDescriptorSetLayout;
-DescriptorSetLayoutInfos localDescriptorSetLayout;
-const String UBOGlobal::NAME = "CCGlobal";
+DescriptorSetLayoutInfos              globalDescriptorSetLayout;
+DescriptorSetLayoutInfos              localDescriptorSetLayout;
+const String                          UBOGlobal::NAME       = "CCGlobal";
 const gfx::DescriptorSetLayoutBinding UBOGlobal::DESCRIPTOR = {
     UBOGlobal::BINDING,
     gfx::DescriptorType::UNIFORM_BUFFER,
@@ -55,7 +55,7 @@ const gfx::UniformBlock UBOGlobal::LAYOUT = {
     1,
 };
 
-const String UBOLocalBatched::NAME = "CCLocalBatched";
+const String                          UBOLocalBatched::NAME       = "CCLocalBatched";
 const gfx::DescriptorSetLayoutBinding UBOLocalBatched::DESCRIPTOR = {
     UBOLocalBatched::BINDING,
     gfx::DescriptorType::UNIFORM_BUFFER,
@@ -72,7 +72,7 @@ const gfx::UniformBlock UBOLocalBatched::LAYOUT = {
     1,
 };
 
-const String UBOCamera::NAME = "CCCamera";
+const String                          UBOCamera::NAME       = "CCCamera";
 const gfx::DescriptorSetLayoutBinding UBOCamera::DESCRIPTOR = {
     UBOCamera::BINDING,
     gfx::DescriptorType::UNIFORM_BUFFER,
@@ -104,7 +104,7 @@ const gfx::UniformBlock UBOCamera::LAYOUT = {
     1,
 };
 
-const String UBOShadow::NAME = "CCShadow";
+const String                          UBOShadow::NAME       = "CCShadow";
 const gfx::DescriptorSetLayoutBinding UBOShadow::DESCRIPTOR = {
     UBOShadow::BINDING,
     gfx::DescriptorType::UNIFORM_BUFFER,
@@ -124,7 +124,7 @@ const gfx::UniformBlock UBOShadow::LAYOUT = {
     1,
 };
 
-const String UBOLocal::NAME = "CCLocal";
+const String                          UBOLocal::NAME       = "CCLocal";
 const gfx::DescriptorSetLayoutBinding UBOLocal::DESCRIPTOR = {
     UBOLocal::BINDING,
     gfx::DescriptorType::UNIFORM_BUFFER,
@@ -143,7 +143,7 @@ const gfx::UniformBlock UBOLocal::LAYOUT = {
     1,
 };
 
-const String UBOForwardLight::NAME = "CCForwardLight";
+const String                          UBOForwardLight::NAME       = "CCForwardLight";
 const gfx::DescriptorSetLayoutBinding UBOForwardLight::DESCRIPTOR = {
     UBOForwardLight::BINDING,
     gfx::DescriptorType::DYNAMIC_UNIFORM_BUFFER,
@@ -163,7 +163,7 @@ const gfx::UniformBlock UBOForwardLight::LAYOUT = {
     1,
 };
 
-const String UBOSkinningTexture::NAME = "CCSkinningTexture";
+const String                          UBOSkinningTexture::NAME       = "CCSkinningTexture";
 const gfx::DescriptorSetLayoutBinding UBOSkinningTexture::DESCRIPTOR = {
     UBOSkinningTexture::BINDING,
     gfx::DescriptorType::UNIFORM_BUFFER,
@@ -180,7 +180,7 @@ const gfx::UniformBlock UBOSkinningTexture::LAYOUT = {
     1,
 };
 
-const String UBOSkinningAnimation::NAME = "CCSkinningAnimation";
+const String                          UBOSkinningAnimation::NAME       = "CCSkinningAnimation";
 const gfx::DescriptorSetLayoutBinding UBOSkinningAnimation::DESCRIPTOR = {
     UBOSkinningAnimation::BINDING,
     gfx::DescriptorType::UNIFORM_BUFFER,
@@ -197,7 +197,7 @@ const gfx::UniformBlock UBOSkinningAnimation::LAYOUT = {
     1,
 };
 
-const String UBOSkinning::NAME = "CCSkinning";
+const String                          UBOSkinning::NAME       = "CCSkinning";
 const gfx::DescriptorSetLayoutBinding UBOSkinning::DESCRIPTOR = {
     UBOSkinning::BINDING,
     gfx::DescriptorType::UNIFORM_BUFFER,
@@ -214,10 +214,10 @@ const gfx::UniformBlock UBOSkinning::LAYOUT = {
     1,
 };
 
-const uint UBOMorph::COUNT_BASE_4_BYTES = 4 * std::ceil(UBOMorph::MAX_MORPH_TARGET_COUNT / 4) + 4;
-const uint UBOMorph::SIZE = UBOMorph::COUNT_BASE_4_BYTES * 4;
-const String UBOMorph::NAME = "CCMorph";
-const gfx::DescriptorSetLayoutBinding UBOMorph::DESCRIPTOR = {
+const uint                            UBOMorph::COUNT_BASE_4_BYTES = 4 * std::ceil(UBOMorph::MAX_MORPH_TARGET_COUNT / 4) + 4;
+const uint                            UBOMorph::SIZE               = UBOMorph::COUNT_BASE_4_BYTES * 4;
+const String                          UBOMorph::NAME               = "CCMorph";
+const gfx::DescriptorSetLayoutBinding UBOMorph::DESCRIPTOR         = {
     UBOMorph::BINDING,
     gfx::DescriptorType::UNIFORM_BUFFER,
     1,
@@ -234,7 +234,7 @@ const gfx::UniformBlock UBOMorph::LAYOUT = {
     1,
 };
 
-const String SHADOWMAP::NAME = "cc_shadowMap";
+const String                          SHADOWMAP::NAME       = "cc_shadowMap";
 const gfx::DescriptorSetLayoutBinding SHADOWMAP::DESCRIPTOR = {
     SHADOWMAP::BINDING,
     gfx::DescriptorType::SAMPLER_TEXTURE,
@@ -249,7 +249,7 @@ const gfx::UniformSamplerTexture SHADOWMAP::LAYOUT = {
     1,
 };
 
-const String SAMPLERGBUFFERALBEDOMAP::NAME = "cc_gbuffer_albedoMap";
+const String                          SAMPLERGBUFFERALBEDOMAP::NAME       = "cc_gbuffer_albedoMap";
 const gfx::DescriptorSetLayoutBinding SAMPLERGBUFFERALBEDOMAP::DESCRIPTOR = {
     SAMPLERGBUFFERALBEDOMAP::BINDING,
     gfx::DescriptorType::SAMPLER_TEXTURE,
@@ -264,7 +264,7 @@ const gfx::UniformSamplerTexture SAMPLERGBUFFERALBEDOMAP::LAYOUT = {
     1,
 };
 
-const String SAMPLERGBUFFERPOSITIONMAP::NAME = "cc_gbuffer_positionMap";
+const String                          SAMPLERGBUFFERPOSITIONMAP::NAME       = "cc_gbuffer_positionMap";
 const gfx::DescriptorSetLayoutBinding SAMPLERGBUFFERPOSITIONMAP::DESCRIPTOR = {
     SAMPLERGBUFFERPOSITIONMAP::BINDING,
     gfx::DescriptorType::SAMPLER_TEXTURE,
@@ -279,7 +279,7 @@ const gfx::UniformSamplerTexture SAMPLERGBUFFERPOSITIONMAP::LAYOUT = {
     1,
 };
 
-const String SAMPLERGBUFFERNORMALMAP::NAME = "cc_gbuffer_normalMap";
+const String                          SAMPLERGBUFFERNORMALMAP::NAME       = "cc_gbuffer_normalMap";
 const gfx::DescriptorSetLayoutBinding SAMPLERGBUFFERNORMALMAP::DESCRIPTOR = {
     SAMPLERGBUFFERNORMALMAP::BINDING,
     gfx::DescriptorType::SAMPLER_TEXTURE,
@@ -294,7 +294,7 @@ const gfx::UniformSamplerTexture SAMPLERGBUFFERNORMALMAP::LAYOUT = {
     1,
 };
 
-const String SAMPLERGBUFFEREMISSIVEMAP::NAME = "cc_gbuffer_emissiveMap";
+const String                          SAMPLERGBUFFEREMISSIVEMAP::NAME       = "cc_gbuffer_emissiveMap";
 const gfx::DescriptorSetLayoutBinding SAMPLERGBUFFEREMISSIVEMAP::DESCRIPTOR = {
     SAMPLERGBUFFEREMISSIVEMAP::BINDING,
     gfx::DescriptorType::SAMPLER_TEXTURE,
@@ -309,7 +309,7 @@ const gfx::UniformSamplerTexture SAMPLERGBUFFEREMISSIVEMAP::LAYOUT = {
     1,
 };
 
-const String SAMPLERLIGHTINGRESULTMAP::NAME = "cc_lighting_resultMap";
+const String                          SAMPLERLIGHTINGRESULTMAP::NAME       = "cc_lighting_resultMap";
 const gfx::DescriptorSetLayoutBinding SAMPLERLIGHTINGRESULTMAP::DESCRIPTOR = {
     SAMPLERLIGHTINGRESULTMAP::BINDING,
     gfx::DescriptorType::SAMPLER_TEXTURE,
@@ -324,7 +324,7 @@ const gfx::UniformSamplerTexture SAMPLERLIGHTINGRESULTMAP::LAYOUT = {
     1,
 };
 
-const String ENVIRONMENT::NAME = "cc_environment";
+const String                          ENVIRONMENT::NAME       = "cc_environment";
 const gfx::DescriptorSetLayoutBinding ENVIRONMENT::DESCRIPTOR = {
     ENVIRONMENT::BINDING,
     gfx::DescriptorType::SAMPLER_TEXTURE,
@@ -339,7 +339,7 @@ const gfx::UniformSamplerTexture ENVIRONMENT::LAYOUT = {
     1,
 };
 
-const String SPOT_LIGHTING_MAP::NAME = "cc_spotLightingMap";
+const String                          SPOT_LIGHTING_MAP::NAME       = "cc_spotLightingMap";
 const gfx::DescriptorSetLayoutBinding SPOT_LIGHTING_MAP::DESCRIPTOR = {
     SPOT_LIGHTING_MAP::BINDING,
     gfx::DescriptorType::SAMPLER_TEXTURE,
@@ -354,7 +354,7 @@ const gfx::UniformSamplerTexture SPOT_LIGHTING_MAP::LAYOUT = {
     1,
 };
 
-const String JOINT_TEXTURE::NAME = "cc_jointTexture";
+const String                          JOINT_TEXTURE::NAME       = "cc_jointTexture";
 const gfx::DescriptorSetLayoutBinding JOINT_TEXTURE::DESCRIPTOR = {
     JOINT_TEXTURE::BINDING,
     gfx::DescriptorType::SAMPLER_TEXTURE,
@@ -369,7 +369,7 @@ const gfx::UniformSamplerTexture JOINT_TEXTURE::LAYOUT = {
     1,
 };
 
-const String POSITION_MORPH::NAME = "cc_PositionDisplacements";
+const String                          POSITION_MORPH::NAME       = "cc_PositionDisplacements";
 const gfx::DescriptorSetLayoutBinding POSITION_MORPH::DESCRIPTOR = {
     POSITION_MORPH::BINDING,
     gfx::DescriptorType::SAMPLER_TEXTURE,
@@ -384,7 +384,7 @@ const gfx::UniformSamplerTexture POSITION_MORPH::LAYOUT = {
     1,
 };
 
-const String NORMAL_MORPH::NAME = "cc_NormalDisplacements";
+const String                          NORMAL_MORPH::NAME       = "cc_NormalDisplacements";
 const gfx::DescriptorSetLayoutBinding NORMAL_MORPH::DESCRIPTOR = {
     NORMAL_MORPH::BINDING,
     gfx::DescriptorType::SAMPLER_TEXTURE,
@@ -399,7 +399,7 @@ const gfx::UniformSamplerTexture NORMAL_MORPH::LAYOUT = {
     1,
 };
 
-const String TANGENT_MORPH::NAME = "cc_TangentDisplacements";
+const String                          TANGENT_MORPH::NAME       = "cc_TangentDisplacements";
 const gfx::DescriptorSetLayoutBinding TANGENT_MORPH::DESCRIPTOR = {
     TANGENT_MORPH::BINDING,
     gfx::DescriptorType::SAMPLER_TEXTURE,
@@ -414,7 +414,7 @@ const gfx::UniformSamplerTexture TANGENT_MORPH::LAYOUT = {
     1,
 };
 
-const String LIGHTMAP_TEXTURE::NAME = "cc_lightingMap";
+const String                          LIGHTMAP_TEXTURE::NAME       = "cc_lightingMap";
 const gfx::DescriptorSetLayoutBinding LIGHTMAP_TEXTURE::DESCRIPTOR = {
     LIGHTMAP_TEXTURE::BINDING,
     gfx::DescriptorType::SAMPLER_TEXTURE,
@@ -429,7 +429,7 @@ const gfx::UniformSamplerTexture LIGHTMAP_TEXTURE::LAYOUT = {
     1,
 };
 
-const String SPRITE_TEXTURE::NAME = "cc_spriteTexture";
+const String                          SPRITE_TEXTURE::NAME       = "cc_spriteTexture";
 const gfx::DescriptorSetLayoutBinding SPRITE_TEXTURE::DESCRIPTOR = {
     SPRITE_TEXTURE::BINDING,
     gfx::DescriptorType::SAMPLER_TEXTURE,
@@ -461,7 +461,7 @@ uint genSamplerHash(const gfx::SamplerInfo &info) {
 static uint defaultSamplerHash = genSamplerHash(gfx::SamplerInfo());
 
 map<uint, gfx::Sampler *> samplerCache;
-gfx::Sampler *getSampler(uint hash) {
+gfx::Sampler *            getSampler(uint hash) {
     if (hash == 0) {
         hash = defaultSamplerHash;
     }
@@ -472,15 +472,15 @@ gfx::Sampler *getSampler(uint hash) {
     }
 
     gfx::SamplerInfo info;
-    info.minFilter = static_cast<gfx::Filter>(hash & 3);
-    info.magFilter = static_cast<gfx::Filter>((hash >> 2) & 3);
-    info.mipFilter = static_cast<gfx::Filter>((hash >> 4) & 3);
-    info.addressU = static_cast<gfx::Address>((hash >> 6) & 3);
-    info.addressV = static_cast<gfx::Address>((hash >> 8) & 3);
-    info.addressW = static_cast<gfx::Address>((hash >> 10) & 3);
+    info.minFilter     = static_cast<gfx::Filter>(hash & 3);
+    info.magFilter     = static_cast<gfx::Filter>((hash >> 2) & 3);
+    info.mipFilter     = static_cast<gfx::Filter>((hash >> 4) & 3);
+    info.addressU      = static_cast<gfx::Address>((hash >> 6) & 3);
+    info.addressV      = static_cast<gfx::Address>((hash >> 8) & 3);
+    info.addressW      = static_cast<gfx::Address>((hash >> 10) & 3);
     info.maxAnisotropy = ((hash >> 12) & 15);
-    info.cmpFunc = static_cast<gfx::ComparisonFunc>((hash >> 16) & 15);
-    info.mipLODBias = ((hash >> 28) & 15);
+    info.cmpFunc       = static_cast<gfx::ComparisonFunc>((hash >> 16) & 15);
+    info.mipLODBias    = ((hash >> 28) & 15);
 
     sampler = gfx::Device::getInstance()->createSampler(std::move(info));
     return sampler;
@@ -508,7 +508,7 @@ uint getPhaseID(const String &phase) {
         return 0;
     }
     se::Object *nrObjct = nrValue.toObject();
-    se::Value nrPhase;
+    se::Value   nrPhase;
     if (!nrObjct->getProperty("getPhaseID", &nrPhase)) {
         CC_LOG_ERROR("getPhaseID: failed to get getPhaseID property.");
         return 0;

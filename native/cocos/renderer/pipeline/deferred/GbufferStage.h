@@ -25,8 +25,8 @@
 
 #pragma once
 
-#include "../RenderStage.h"
-#include "../../core/gfx/GFXFramebuffer.h"
+#include "pipeline/RenderStage.h"
+#include "gfx-base/GFXFramebuffer.h"
 
 namespace cc {
 namespace pipeline {

@@ -17,7 +17,6 @@ const ignoreList = [
     'cocos/math/',
     'cocos/renderer/pipeline/deferred/',
     'cocos/bindings/jswrapper/v8/debugger/',
-    'cocos/bindings/auto/',
 ];
 
 const genHeader = (history) => {
@@ -102,7 +101,7 @@ const update = (path) => {
         history.push({ period: [curYear], owner: companyName });
     }
 
-    fs.writeFileSync(path, genHeader(history) + content);
+    fs.writeFileSync(path, genHeader(history) + content.replace(/\r\n/g, '\n'));
 };
 
 const files = fsJetpack.find(`${__dirname}/../../cocos`, { matching: ['**/*.h', '**/*.cpp', '**/*.mm'] });

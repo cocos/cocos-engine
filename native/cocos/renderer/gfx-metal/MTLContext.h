@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include "gfx-base/GFXContext.h"
+
 namespace cc {
 namespace gfx {
 

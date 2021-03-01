@@ -25,11 +25,11 @@
 
 #include "PostprocessStage.h"
 #include "DeferredPipeline.h"
-#include "gfx/GFXFramebuffer.h"
-#include "gfx/GFXCommandBuffer.h"
+#include "gfx-base/GFXFramebuffer.h"
+#include "gfx-base/GFXCommandBuffer.h"
 #include "../helper/SharedMemory.h"
 #include "../PipelineStateManager.h"
-#include "gfx/GFXDevice.h"
+#include "gfx-base/GFXDevice.h"
 
 namespace cc {
 namespace pipeline {

@@ -26,6 +26,8 @@
 #ifndef CC_GFXGLES3_PIPELINE_STATE_H_
 #define CC_GFXGLES3_PIPELINE_STATE_H_
 
+#include "gfx-base/GFXPipelineState.h"
+
 namespace cc {
 namespace gfx {
 

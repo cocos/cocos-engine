@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include "../../core/CoreStd.h"
+#include "base/CoreStd.h"
 #include "base/Macros.h"
 #include "cocos/bindings/jswrapper/Object.h"
 

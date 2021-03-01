@@ -45,7 +45,7 @@ namespace cc {
  * @{
  */
 
-class CC_DLL ThreadPool {
+class CC_DLL LegacyThreadPool {
 public:
     enum class TaskType {
         DEFAULT = 0,
@@ -58,7 +58,7 @@ public:
     /*
      * Gets the default thread pool which is a cached thread pool with default parameters.
      */
-    static ThreadPool *getDefaultThreadPool();
+    static LegacyThreadPool *getDefaultThreadPool();
 
     /*
      * Destroys the default thread pool
@@ -69,23 +69,23 @@ public:
      * Creates a cached thread pool
      * @note The return value has to be delete while it doesn't needed
      */
-    static ThreadPool *newCachedThreadPool(int minThreadNum, int maxThreadNum, int shrinkInterval,
+    static LegacyThreadPool *newCachedThreadPool(int minThreadNum, int maxThreadNum, int shrinkInterval,
                                            int shrinkStep, int stretchStep);
 
     /*
      * Creates a thread pool with fixed thread count
      * @note The return value has to be delete while it doesn't needed
      */
-    static ThreadPool *newFixedThreadPool(int threadNum);
+    static LegacyThreadPool *newFixedThreadPool(int threadNum);
 
     /*
      * Creates a thread pool with only one thread in the pool, it could be used to execute multiply tasks serially in just one thread.
      * @note The return value has to be delete while it doesn't needed
      */
-    static ThreadPool *newSingleThreadPool();
+    static LegacyThreadPool *newSingleThreadPool();
 
     // the destructor waits for all the functions in the queue to be finished
-    ~ThreadPool();
+    ~LegacyThreadPool();
 
     /* Pushs a task to thread pool
      *  @param runnable The callback of the task executed in sub thread
@@ -122,15 +122,15 @@ public:
     bool tryShrinkPool();
 
 private:
-    ThreadPool(int minNum, int maxNum);
+    LegacyThreadPool(int minNum, int maxNum);
 
-    ThreadPool(const ThreadPool &);
+    LegacyThreadPool(const LegacyThreadPool &);
 
-    ThreadPool(ThreadPool &&);
+    LegacyThreadPool(LegacyThreadPool &&);
 
-    ThreadPool &operator=(const ThreadPool &);
+    LegacyThreadPool &operator=(const LegacyThreadPool &);
 
-    ThreadPool &operator=(ThreadPool &&);
+    LegacyThreadPool &operator=(LegacyThreadPool &&);
 
     void init();
 

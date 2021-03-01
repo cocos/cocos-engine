@@ -25,7 +25,7 @@
 
 #include "RenderStage.h"
 #include "RenderQueue.h"
-#include "gfx/GFXDevice.h"
+#include "gfx-base/GFXDevice.h"
 namespace cc {
 namespace pipeline {
 RenderStage::RenderStage()

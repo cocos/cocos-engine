@@ -26,6 +26,8 @@
 #ifndef CC_GFXGLES2_PIPELINE_LAYOUT_H_
 #define CC_GFXGLES2_PIPELINE_LAYOUT_H_
 
+#include "gfx-base/GFXPipelineLayout.h"
+
 namespace cc {
 namespace gfx {
 

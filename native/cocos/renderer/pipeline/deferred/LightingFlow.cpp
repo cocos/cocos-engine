@@ -27,10 +27,10 @@
 #include "DeferredPipeline.h"
 #include "LightingStage.h"
 #include "../SceneCulling.h"
-#include "gfx/GFXDevice.h"
-#include "gfx/GFXDescriptorSet.h"
-#include "gfx/GFXFramebuffer.h"
-#include "gfx/GFXDevice.h"
+#include "gfx-base/GFXDevice.h"
+#include "gfx-base/GFXDescriptorSet.h"
+#include "gfx-base/GFXFramebuffer.h"
+#include "gfx-base/GFXDevice.h"
 
 namespace cc {
 namespace pipeline {

@@ -23,8 +23,9 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#ifndef CC_GFXGLES2_BUFFER_H_
-#define CC_GFXGLES2_BUFFER_H_
+#pragma once
+
+#include "gfx-base/GFXBuffer.h"
 
 namespace cc {
 namespace gfx {
@@ -38,11 +39,11 @@ public:
     ~GLES2Buffer();
 
 public:
-    virtual bool initialize(const BufferInfo &info) override;
-    virtual bool initialize(const BufferViewInfo &info) override;
-    virtual void destroy() override;
-    virtual void resize(uint size) override;
-    virtual void update(void *buffer, uint size) override;
+    bool initialize(const BufferInfo &info) override;
+    bool initialize(const BufferViewInfo &info) override;
+    void destroy() override;
+    void resize(uint size) override;
+    void update(void *buffer, uint size) override;
 
     CC_INLINE GLES2GPUBuffer *gpuBuffer() const { return _gpuBuffer; }
     CC_INLINE GLES2GPUBufferView *gpuBufferView() const { return _gpuBufferView; }
@@ -54,5 +55,3 @@ private:
 
 } // namespace gfx
 } // namespace cc
-
-#endif

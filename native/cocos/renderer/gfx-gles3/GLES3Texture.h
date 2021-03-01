@@ -26,6 +26,8 @@
 #ifndef CC_GFXGLES3_TEXTURE_H_
 #define CC_GFXGLES3_TEXTURE_H_
 
+#include "gfx-base/GFXTexture.h"
+
 namespace cc {
 namespace gfx {
 

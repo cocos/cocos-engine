@@ -26,6 +26,8 @@
 #ifndef CC_GFXGLES3_GLOBAL_BARRIER_H_
 #define CC_GFXGLES3_GLOBAL_BARRIER_H_
 
+#include "gfx-base/GFXGlobalBarrier.h"
+
 namespace cc {
 namespace gfx {
 

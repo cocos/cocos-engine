@@ -32,6 +32,7 @@
 #import <Metal/MTLTexture.h>
 #import <Metal/MTLVertexDescriptor.h>
 #include <unordered_map>
+#include "gfx-base/GFXDef.h"
 
 namespace cc {
 namespace gfx {

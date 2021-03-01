@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include "gfx-base/GFXTexture.h"
+
 #import <Metal/MTLTexture.h>
 
 namespace cc {

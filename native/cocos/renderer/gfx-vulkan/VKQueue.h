@@ -26,6 +26,8 @@
 #ifndef CC_GFXVULKAN_QUEUE_H_
 #define CC_GFXVULKAN_QUEUE_H_
 
+#include "gfx-base/GFXQueue.h"
+
 namespace cc {
 namespace gfx {
 

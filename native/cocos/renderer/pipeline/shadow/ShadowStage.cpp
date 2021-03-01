@@ -28,10 +28,10 @@
 #include "../ShadowMapBatchedQueue.h"
 #include "../forward/ForwardPipeline.h"
 #include "../helper/SharedMemory.h"
-#include "gfx/GFXCommandBuffer.h"
-#include "gfx/GFXDescriptorSet.h"
-#include "gfx/GFXFramebuffer.h"
-#include "gfx/GFXTexture.h"
+#include "gfx-base/GFXCommandBuffer.h"
+#include "gfx-base/GFXDescriptorSet.h"
+#include "gfx-base/GFXFramebuffer.h"
+#include "gfx-base/GFXTexture.h"
 #include "math/Vec2.h"
 
 namespace cc {

@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include "gfx-base/GFXInputAssembler.h"
+
 namespace cc {
 namespace gfx {
 

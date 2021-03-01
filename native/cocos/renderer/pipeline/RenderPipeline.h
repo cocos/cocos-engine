@@ -25,12 +25,12 @@
 
 #pragma once
 
-#include "../core/CoreStd.h"
 #include "Define.h"
+#include "PipelineSceneData.h"
+#include "PipelineUBO.h"
+#include "base/CoreStd.h"
 #include "helper/DefineMap.h"
 #include "helper/SharedMemory.h"
-#include "PipelineUBO.h"
-#include "PipelineSceneData.h"
 
 namespace cc {
 namespace gfx {
@@ -43,7 +43,7 @@ namespace pipeline {
 class DefineMap;
 
 struct CC_DLL RenderPipelineInfo {
-    uint tag = 0;
+    uint           tag = 0;
     RenderFlowList flows;
 };
 
@@ -62,10 +62,10 @@ public:
     void setPipelineSharedSceneData(uint handle);
 
     CC_INLINE const RenderFlowList &getFlows() const { return _flows; }
-    CC_INLINE uint getTag() const { return _tag; }
+    CC_INLINE uint                  getTag() const { return _tag; }
     CC_INLINE const map<String, InternalBindingInst> &getGlobalBindings() const { return _globalBindings; }
     CC_INLINE const DefineMap &getMacros() const { return _macros; }
-    CC_INLINE void setValue(const String &name, bool value) { _macros.setValue(name, value); }
+    CC_INLINE void             setValue(const String &name, bool value) { _macros.setValue(name, value); }
     CC_INLINE gfx::DescriptorSet *getDescriptorSet() const { return _descriptorSet; }
     CC_INLINE gfx::DescriptorSetLayout *getDescriptorSetLayout() const { return _descriptorSetLayout; }
     CC_INLINE gfx::Texture *getDefaultTexture() const { return _defaultTexture; }
@@ -76,19 +76,19 @@ public:
 
 protected:
     static RenderPipeline *_instance;
-    void setDescriptorSetLayout();
+    void                   setDescriptorSetLayout();
 
-    gfx::CommandBufferList _commandBuffers;
-    RenderFlowList _flows;
+    gfx::CommandBufferList           _commandBuffers;
+    RenderFlowList                   _flows;
     map<String, InternalBindingInst> _globalBindings;
-    DefineMap _macros;
-    uint _tag = 0;
+    DefineMap                        _macros;
+    uint                             _tag = 0;
 
-    gfx::Device *_device = nullptr;
+    gfx::Device *             _device              = nullptr;
     gfx::DescriptorSetLayout *_descriptorSetLayout = nullptr;
-    gfx::DescriptorSet *_descriptorSet = nullptr;
-    PipelineUBO *_pipelineUBO = nullptr;
-    PipelineSceneData *_pipelineSceneData = nullptr;
+    gfx::DescriptorSet *      _descriptorSet       = nullptr;
+    PipelineUBO *             _pipelineUBO         = nullptr;
+    PipelineSceneData *       _pipelineSceneData   = nullptr;
     // has not initBuiltinRes,
     // create temporary default Texture to binding sampler2d
     gfx::Texture *_defaultTexture = nullptr;

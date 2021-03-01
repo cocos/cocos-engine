@@ -35,22 +35,22 @@
 
 #ifdef CC_USE_VULKAN
     #include "bindings/auto/jsb_vk_auto.h"
-    #include "renderer/gfx-vulkan/GFXVulkan.h"
+    #include "gfx-vulkan/GFXVulkan.h"
 #endif
 
 #ifdef CC_USE_METAL
     #include "bindings/auto/jsb_mtl_auto.h"
-    #include "renderer/gfx-metal/GFXMTL.h"
+    #include "gfx-metal/GFXMTL.h"
 #endif
 
 #ifdef CC_USE_GLES3
     #include "bindings/auto/jsb_gles3_auto.h"
-    #include "renderer/gfx-gles3/GFXGLES3.h"
+    #include "gfx-gles3/GFXGLES3.h"
 #endif
 
 #ifdef CC_USE_GLES2
     #include "bindings/auto/jsb_gles2_auto.h"
-    #include "renderer/gfx-gles2/GFXGLES2.h"
+    #include "gfx-gles2/GFXGLES2.h"
 #endif
 
 #include <fstream>

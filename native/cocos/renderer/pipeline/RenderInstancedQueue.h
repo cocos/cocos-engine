@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include "core/CoreStd.h"
+#include "gfx-base/GFXBase.h"
 
 namespace cc {
 namespace pipeline {

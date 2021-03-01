@@ -33,11 +33,11 @@
 #include "../RenderQueue.h"
 #include "../helper/SharedMemory.h"
 #include "DeferredPipeline.h"
-#include "gfx/GFXCommandBuffer.h"
-#include "gfx/GFXDevice.h"
-#include "gfx/GFXFramebuffer.h"
-#include "gfx/GFXQueue.h"
-#include "gfx/GFXDescriptorSet.h"
+#include "gfx-base/GFXCommandBuffer.h"
+#include "gfx-base/GFXDevice.h"
+#include "gfx-base/GFXFramebuffer.h"
+#include "gfx-base/GFXQueue.h"
+#include "gfx-base/GFXDescriptorSet.h"
 #include "../PipelineStateManager.h"
 
 namespace cc {

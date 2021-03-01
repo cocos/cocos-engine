@@ -26,7 +26,7 @@
 #include "RenderInstancedQueue.h"
 #include "InstancedBuffer.h"
 #include "PipelineStateManager.h"
-#include "gfx/GFXCommandBuffer.h"
+#include "gfx-base/GFXCommandBuffer.h"
 #include "helper/SharedMemory.h"
 
 namespace cc {

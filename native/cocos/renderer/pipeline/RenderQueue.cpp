@@ -25,8 +25,8 @@
 
 #include "RenderQueue.h"
 #include "PipelineStateManager.h"
-#include "gfx/GFXCommandBuffer.h"
-#include "gfx/GFXShader.h"
+#include "gfx-base/GFXCommandBuffer.h"
+#include "gfx-base/GFXShader.h"
 #include "helper/SharedMemory.h"
 
 namespace cc {

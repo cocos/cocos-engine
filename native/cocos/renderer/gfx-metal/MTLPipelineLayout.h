@@ -24,8 +24,12 @@
 ****************************************************************************/
 
 #pragma once
+
+#include "gfx-base/GFXPipelineLayout.h"
+
 namespace cc {
 namespace gfx {
+
 class CCMTLGPUPipelineLayout;
 
 class CCMTLPipelineLayout final : public PipelineLayout {

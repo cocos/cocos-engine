@@ -30,8 +30,8 @@
 #include "helper/SharedMemory.h"
 #include "RenderPipeline.h"
 #include "SceneCulling.h"
-#include "gfx/GFXBuffer.h"
-#include "gfx/GFXDescriptorSet.h"
+#include "gfx-base/GFXBuffer.h"
+#include "gfx-base/GFXDescriptorSet.h"
 #include "math/Quaternion.h"
 #include "platform/Application.h"
 
