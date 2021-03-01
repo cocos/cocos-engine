@@ -30,10 +30,10 @@
 
 import { IUV } from '../../assets';
 import { Mat4, Vec3, Color } from '../../../core/math';
-import { RenderData, IRenderData } from '../../renderer/render-data';
-import { UI } from '../../renderer/ui';
+import { IRenderData, RenderData } from '../../renderer/render-data';
+import { Batcher2D } from '../../renderer/batcher-2d';
 import { Sprite } from '../../components/sprite';
-import { UIRenderable } from '../../framework/ui-renderable';
+import { Renderable2D } from '../../framework/renderable-2d';
 import { IAssembler } from '../../renderer/base';
 
 const vec3_temps: Vec3[] = [];
@@ -43,10 +43,25 @@ for (let i = 0; i < 4; i++) {
 
 const _perVertexLength = 9;
 
-export const tilled: IAssembler = {
-    useModel: false,
+interface ITiledAssembler extends IAssembler {
+    sizableWidth: number;
+    sizableHeight: number;
+    vRepeat: number;
+    hRepeat: number;
+    row: number;
+    col: number;
+}
 
-    createData (sprite: UIRenderable) {
+export const tiled: ITiledAssembler = {
+    useModel: false,
+    sizableWidth: 0,
+    sizableHeight: 0,
+    vRepeat: 0,
+    hRepeat: 0,
+    row: 0,
+    col: 0,
+
+    createData (sprite: Renderable2D) {
         return sprite.requestRenderData();
     },
 
@@ -90,7 +105,7 @@ export const tilled: IAssembler = {
         renderData.vertDirty = false;
     },
 
-    fillBuffers (sprite: Sprite, renderer: UI) {
+    fillBuffers (sprite: Sprite, renderer: Batcher2D) {
         const node = sprite.node;
         const uiTrans = sprite.node._uiProps.uiTransformComp!;
         const contentWidth = Math.abs(uiTrans.width);
