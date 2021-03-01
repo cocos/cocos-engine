@@ -650,7 +650,7 @@ export class Layout extends Component {
     @serializable
     protected _affectedByScale = false;
     @serializable
-    protected _isAlign = true;
+    protected _isAlign = false;
 
     protected _layoutSize = new Size(300, 200);
     protected _layoutDirty = true;
@@ -690,7 +690,7 @@ export class Layout extends Component {
             trans.setContentSize(this._layoutSize);
         }
 
-        this._doLayoutDirty();
+        this._childrenChanged();
     }
 
     protected onDisable () {
@@ -776,7 +776,7 @@ export class Layout extends Component {
     protected _doLayoutHorizontally (baseWidth: number, rowBreak: boolean, fnPositionY: (...args: any[]) => number, applyChildren: boolean) {
         const trans = this.node._uiProps.uiTransformComp!;
         const layoutAnchor = trans.anchorPoint;
-        const limit = this._getFixedColumn();
+        const limit = this._getFixedBreakingNum();
 
         let sign = 1;
         let paddingX = this._paddingLeft;
@@ -870,7 +870,7 @@ export class Layout extends Component {
     protected _doLayoutVertically (baseHeight: number, columnBreak: boolean, fnPositionX: (...args: any[]) => number, applyChildren: boolean) {
         const trans = this.node._uiProps.uiTransformComp!;
         const layoutAnchor = trans.anchorPoint;
-        const limit = this._getFixedColumn();
+        const limit = this._getFixedBreakingNum();
 
         let sign = 1;
         let paddingY = this._paddingBottom;
@@ -1142,15 +1142,15 @@ export class Layout extends Component {
         return this._paddingTop + this._paddingBottom;
     }
 
-    protected _getFixedColumn () {
+    protected _getFixedBreakingNum () {
         if (this._layoutType !== Type.GRID || this._constraint === Constraint.NONE || this._constraintNum <= 0) {
             return 0;
         }
 
-        let num = this._constraint === Constraint.FIXED_ROW ? Math.round(this._usefulLayoutObj.length / this._constraintNum) : this._constraintNum;
+        let num = this._constraint === Constraint.FIXED_ROW ? Math.ceil(this._usefulLayoutObj.length / this._constraintNum) : this._constraintNum;
         // Horizontal sorting always counts the number of columns
         if (this._startAxis === AxisDirection.VERTICAL) {
-            num = this._constraint === Constraint.FIXED_COL ? Math.round(this._usefulLayoutObj.length / this._constraintNum) : this._constraintNum;
+            num = this._constraint === Constraint.FIXED_COL ? Math.ceil(this._usefulLayoutObj.length / this._constraintNum) : this._constraintNum;
         }
 
         return num;

@@ -1,3 +1,8 @@
+/**
+ * @packageDocumentation
+ * @hidden
+ */
+
 import { select } from '../framework/physics-selector';
 import { b2PhysicsWorld } from './physics-world';
 import { b2RigidBody2D } from './rigid-body';

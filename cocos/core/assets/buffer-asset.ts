@@ -24,7 +24,8 @@
 */
 
 /**
- * @category asset
+ * @packageDocumentation
+ * @module asset
  */
 
 import { ccclass, override } from 'cc.decorator';

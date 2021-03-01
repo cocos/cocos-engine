@@ -1,3 +1,8 @@
+/**
+ * @packageDocumentation
+ * @module spine
+ */
+
 import { EDITOR } from 'internal:constants';
 import { TrackEntryListeners } from './track-entry-listeners';
 import spine from './lib/spine-core.js';
@@ -5,7 +10,7 @@ import SkeletonCache, { AnimationCache, AnimationFrame } from './skeleton-cache'
 import { AttachUtil } from './attach-util';
 import { ccclass, executeInEditMode, help, menu } from '../core/data/class-decorator';
 import { Renderable2D } from '../2d/framework/renderable-2d';
-import { Node, CCClass, CCObject, Color, Enum, Material, PrivateNode, Texture2D, builtinResMgr, ccenum, errorID, logID, warn, SystemEventType } from '../core';
+import { Node, CCClass, CCObject, Color, Enum, Material, PrivateNode, Texture2D, builtinResMgr, ccenum, errorID, logID, warn } from '../core';
 import { displayName, displayOrder, editable, override, serializable, tooltip, type, visible } from '../core/data/decorators';
 import { SkeletonData } from './skeleton-data';
 import { VertexEffectDelegate } from './vertex-effect-delegate';
@@ -30,23 +35,23 @@ export enum DefaultAnimsEnum {
 ccenum(DefaultAnimsEnum);
 
 /**
- * !#en Enum for animation cache mode type.
- * !#zh Spine动画缓存类型
+ * @en Enum for animation cache mode type.
+ * @zh Spine动画缓存类型
  */
 export enum AnimationCacheMode {
     /**
-     * !#en The realtime mode.
-     * !#zh 实时计算模式。
+     * @en The realtime mode.
+     * @zh 实时计算模式。
      */
     REALTIME = 0,
     /**
-     * !#en The shared cache mode.
-     * !#zh 共享缓存模式。
+     * @en The shared cache mode.
+     * @zh 共享缓存模式。
      */
     SHARED_CACHE = 1,
     /**
-     * !#en The private cache mode.
-     * !#zh 私有缓存模式。
+     * @en The private cache mode.
+     * @zh 私有缓存模式。
      */
     PRIVATE_CACHE = 2,
 }
@@ -104,13 +109,13 @@ export class SpineSocket {
 js.setClassAlias(SpineSocket, 'sp.Skeleton.SpineSocket');
 
 /**
- * !#en
+ * @en
  * The skeleton of Spine <br/>
  * <br/>
  * (Skeleton has a reference to a SkeletonData and stores the state for skeleton instance,
  * which consists of the current pose's bone SRT, slot colors, and which slot attachments are visible. <br/>
  * Multiple skeletons can use the same SkeletonData which includes all animations, skins, and attachments.) <br/>
- * !#zh
+ * @zh
  * Spine 骨骼动画 <br/>
  * <br/>
  * (Skeleton 具有对骨骼数据的引用并且存储了骨骼实例的状态，
@@ -153,8 +158,8 @@ export class Skeleton extends Renderable2D {
     set dstBlendFactor (v) { super.dstBlendFactor = v; }
 
     /**
-     * !#en The skeletal animation is paused?
-     * !#zh 该骨骼动画是否暂停。
+     * @en The skeletal animation is paused?
+     * @zh 该骨骼动画是否暂停。
      * @property paused
      * @type {Boolean}
      * @readOnly
@@ -164,11 +169,11 @@ export class Skeleton extends Renderable2D {
     public paused = false;
 
     /** dstBlendFactor
-     * !#en
+     * @en
      * The skeleton data contains the skeleton information (bind pose bones, slots, draw order,
      * attachments, skins, etc) and animations but does not hold any state.<br/>
      * Multiple skeletons can share the same skeleton data.
-     * !#zh
+     * @zh
      * 骨骼数据包含了骨骼信息（绑定骨骼动作，slots，渲染顺序，
      * attachments，皮肤等等）和动画但不持有任何状态。<br/>
      * 多个 Skeleton 可以共用相同的骨骼数据。
@@ -193,8 +198,8 @@ export class Skeleton extends Renderable2D {
     }
 
     /**
-     * !#en The name of current playing animation.
-     * !#zh 当前播放的动画名称。
+     * @en The name of current playing animation.
+     * @zh 当前播放的动画名称。
      * @property {String} animation
      */
 
@@ -324,18 +329,18 @@ export class Skeleton extends Renderable2D {
     }
 
     /**
-     * !#en TODO
-     * !#zh 是否循环播放当前骨骼动画。
+     * @en TODO
+     * @zh 是否循环播放当前骨骼动画。
      */
     @serializable
     @tooltip('i18n:COMPONENT.skeleton.loop')
     public loop = true;
 
     /**
-     * !#en Indicates whether to enable premultiplied alpha.
+     * @en Indicates whether to enable premultiplied alpha.
      * You should disable this option when image's transparent area appears to have opaque pixels,
      * or enable this option when image's half transparent area appears to be darken.
-     * !#zh 是否启用贴图预乘。
+     * @zh 是否启用贴图预乘。
      * 当图片的透明区域出现色块时需要关闭该选项，当图片的半透明区域颜色变黑时需要启用该选项。
      */
     @serializable
@@ -352,8 +357,8 @@ export class Skeleton extends Renderable2D {
     }
 
     /**
-     * !#en The time scale of this skeleton.
-     * !#zh 当前骨骼中所有动画的时间缩放率。
+     * @en The time scale of this skeleton.
+     * @zh 当前骨骼中所有动画的时间缩放率。
      */
     @serializable
     private _timeScale = 1;
@@ -367,8 +372,8 @@ export class Skeleton extends Renderable2D {
     }
 
     /**
-     * !#en Indicates whether open debug slots.
-     * !#zh 是否显示 slot 的 debug 信息。
+     * @en Indicates whether open debug slots.
+     * @zh 是否显示 slot 的 debug 信息。
      */
     @editable
     @tooltip('i18n:COMPONENT.skeleton.debug_slots')
@@ -382,8 +387,8 @@ export class Skeleton extends Renderable2D {
     }
 
     /**
-     * !#en Indicates whether open debug bones.
-     * !#zh 是否显示 bone 的 debug 信息。
+     * @en Indicates whether open debug bones.
+     * @zh 是否显示 bone 的 debug 信息。
      */
     @editable
     @tooltip('i18n:COMPONENT.skeleton.debug_bones')
@@ -397,8 +402,8 @@ export class Skeleton extends Renderable2D {
     }
 
     /**
-     * !#en Indicates whether open debug mesh.
-     * !#zh 是否显示 mesh 的 debug 信息。
+     * @en Indicates whether open debug mesh.
+     * @zh 是否显示 mesh 的 debug 信息。
      */
     @editable
     @tooltip('i18n:COMPONENT.skeleton.debug_mesh')
@@ -412,8 +417,8 @@ export class Skeleton extends Renderable2D {
     }
 
     /**
-     * !#en Enabled two color tint.
-     * !#zh 是否启用染色效果。
+     * @en Enabled two color tint.
+     * @zh 是否启用染色效果。
      */
     @editable
     @tooltip('i18n:COMPONENT.skeleton.use_tint')
@@ -450,8 +455,8 @@ export class Skeleton extends Renderable2D {
     get socketNodes () { return this._socketNodes; }
 
     /**
-     * !#en Enabled batch model, if skeleton is complex, do not enable batch, or will lower performance.
-     * !#zh 开启合批，如果渲染大量相同纹理，且结构简单的骨骼动画，开启合批可以降低drawcall，否则请不要开启，cpu消耗会上升。
+     * @en Enabled batch model, if skeleton is complex, do not enable batch, or will lower performance.
+     * @zh 开启合批，如果渲染大量相同纹理，且结构简单的骨骼动画，开启合批可以降低drawcall，否则请不要开启，cpu消耗会上升。
      */
     // @tooltip('i18n:COMPONENT.skeleton.enabled_batch')
     // get enableBatch () { return this._enableBatch; }
@@ -524,8 +529,8 @@ export class Skeleton extends Renderable2D {
 
     // 由于 spine 的 skin 是无法二次替换的，所以只能设置默认的 skin
     /**
-     * !#en The name of default skin.
-     * !#zh 默认的皮肤名称。
+     * @en The name of default skin.
+     * @zh 默认的皮肤名称。
      * @property {String} defaultSkin
      */
     @serializable
@@ -533,8 +538,8 @@ export class Skeleton extends Renderable2D {
     protected defaultSkin = '';
 
     /**
-     * !#en The name of default animation.
-     * !#zh 默认的动画名称。
+     * @en The name of default animation.
+     * @zh 默认的动画名称。
      * @property {String} defaultAnimation
      */
     @visible(false)
@@ -585,11 +590,11 @@ export class Skeleton extends Renderable2D {
     }
 
     /**
-     * !#en
+     * @en
      * Sets runtime skeleton data to sp.Skeleton.<br>
      * This method is different from the `skeletonData` property. This method is passed in the raw data provided by the
      *  Spine runtime, and the skeletonData type is the asset type provided by Creator.
-     * !#zh
+     * @zh
      * 设置底层运行时用到的 SkeletonData。<br>
      * 这个接口有别于 `skeletonData` 属性，这个接口传入的是 Spine runtime 提供的原始数据，而 skeletonData 的类型是 Creator 提供的资源类型。
      * @method setSkeletonData
@@ -628,8 +633,8 @@ export class Skeleton extends Renderable2D {
     }
 
     /**
-     * !#en Sets slots visible range.
-     * !#zh 设置骨骼插槽可视范围。
+     * @en Sets slots visible range.
+     * @zh 设置骨骼插槽可视范围。
      */
     public setSlotsRange (startSlotIndex, endSlotIndex) {
         if (this.isAnimationCached()) {
@@ -641,9 +646,9 @@ export class Skeleton extends Renderable2D {
     }
 
     /**
-     * !#en Sets animation state data.<br>
+     * @en Sets animation state data.<br>
      * The parameter type is {{#crossLinkModule "sp.spine"}}sp.spine{{/crossLinkModule}}.AnimationStateData.
-     * !#zh 设置动画状态数据。<br>
+     * @zh 设置动画状态数据。<br>
      * 参数是 {{#crossLinkModule "sp.spine"}}sp.spine{{/crossLinkModule}}.AnimationStateData。
      */
     public setAnimationStateData (stateData) {
@@ -688,10 +693,10 @@ export class Skeleton extends Renderable2D {
     }
 
     /**
-     * !#en
+     * @en
      * It's best to set cache mode before set property 'dragonAsset', or will waste some cpu time.
      * If set the mode in editor, then no need to worry about order problem.
-     * !#zh
+     * @zh
      * 若想切换渲染模式，最好在设置'dragonAsset'之前，先设置好渲染模式，否则有运行时开销。
      * 若在编辑中设置渲染模式，则无需担心设置次序的问题。
      *
@@ -709,8 +714,8 @@ export class Skeleton extends Renderable2D {
     }
 
     /**
-     * !#en Whether in cached mode.
-     * !#zh 当前是否处于缓存模式。
+     * @en Whether in cached mode.
+     * @zh 当前是否处于缓存模式。
      */
     public isAnimationCached () {
         if (EDITOR) return false;
@@ -753,16 +758,16 @@ export class Skeleton extends Renderable2D {
     }
 
     /**
-     * !#en Sets vertex effect delegate.
-     * !#zh 设置顶点动画代理
+     * @en Sets vertex effect delegate.
+     * @zh 设置顶点动画代理
      */
     public setVertexEffectDelegate (effectDelegate: VertexEffectDelegate | null | undefined) {
         this._effectDelegate = effectDelegate;
     }
 
     /**
-     * !#en Sets the bones and slots to the setup pose.
-     * !#zh 还原到起始动作
+     * @en Sets the bones and slots to the setup pose.
+     * @zh 还原到起始动作
      * @method setToSetupPose
      */
     public setToSetupPose () {
@@ -772,10 +777,10 @@ export class Skeleton extends Renderable2D {
     }
 
     /**
-     * !#en
+     * @en
      * Sets the bones to the setup pose,
      * using the values from the `BoneData` list in the `SkeletonData`.
-     * !#zh
+     * @zh
      * 设置 bone 到起始动作
      * 使用 SkeletonData 中的 BoneData 列表中的值。
      * @method setBonesToSetupPose
@@ -787,10 +792,10 @@ export class Skeleton extends Renderable2D {
     }
 
     /**
-     * !#en
+     * @en
      * Sets the slots to the setup pose,
      * using the values from the `SlotData` list in the `SkeletonData`.
-     * !#zh
+     * @zh
      * 设置 slot 到起始动作。
      * 使用 SkeletonData 中的 SlotData 列表中的值。
      * @method setSlotsToSetupPose
@@ -802,11 +807,11 @@ export class Skeleton extends Renderable2D {
     }
 
     /**
-     * !#en
+     * @en
      * Updating an animation cache to calculate all frame data in the animation is a cost in
      * performance due to calculating all data in a single frame.
      * To update the cache, use the invalidAnimationCache method with high performance.
-     * !#zh
+     * @zh
      * 更新某个动画缓存, 预计算动画中所有帧数据，由于在单帧计算所有数据，所以较消耗性能。
      * 若想更新缓存，可使用 invalidAnimationCache 方法，具有较高性能。
      * @method updateAnimationCache
@@ -821,9 +826,9 @@ export class Skeleton extends Renderable2D {
     }
 
     /**
-     * !#en
+     * @en
      * Invalidates the animation cache, which is then recomputed on each frame..
-     * !#zh
+     * @zh
      * 使动画缓存失效，之后会在每帧重新计算。
      * @method invalidAnimationCache
      */
@@ -835,11 +840,11 @@ export class Skeleton extends Renderable2D {
     }
 
     /**
-     * !#en
+     * @en
      * Finds a bone by name.
      * This does a string comparison for every bone.<br>
      * Returns a {{#crossLinkModule "sp.spine"}}sp.spine{{/crossLinkModule}}.Bone object.
-     * !#zh
+     * @zh
      * 通过名称查找 bone。
      * 这里对每个 bone 的名称进行了对比。<br>
      * 返回一个 {{#crossLinkModule "sp.spine"}}sp.spine{{/crossLinkModule}}.Bone 对象。
@@ -856,10 +861,10 @@ export class Skeleton extends Renderable2D {
     }
 
     /**
-     * !#en
+     * @en
      * Finds a slot by name. This does a string comparison for every slot.<br>
      * Returns a {{#crossLinkModule "sp.spine"}}sp.spine{{/crossLinkModule}}.Slot object.
-     * !#zh
+     * @zh
      * 通过名称查找 slot。这里对每个 slot 的名称进行了比较。<br>
      * 返回一个 {{#crossLinkModule "sp.spine"}}sp.spine{{/crossLinkModule}}.Slot 对象。
      *
@@ -875,12 +880,12 @@ export class Skeleton extends Renderable2D {
     }
 
     /**
-     * !#en
+     * @en
      * Finds a skin by name and makes it the active skin.
      * This does a string comparison for every skin.<br>
      * Note that setting the skin does not change which attachments are visible.<br>
      * Returns a {{#crossLinkModule "sp.spine"}}sp.spine{{/crossLinkModule}}.Skin object.
-     * !#zh
+     * @zh
      * 按名称查找皮肤，激活该皮肤。这里对每个皮肤的名称进行了比较。<br>
      * 注意：设置皮肤不会改变 attachment 的可见性。<br>
      * 返回一个 {{#crossLinkModule "sp.spine"}}sp.spine{{/crossLinkModule}}.Skin 对象。
@@ -897,11 +902,11 @@ export class Skeleton extends Renderable2D {
     }
 
     /**
-     * !#en
+     * @en
      * Returns the attachment for the slot and attachment name.
      * The skeleton looks first in its skin, then in the skeleton data’s default skin.<br>
      * Returns a {{#crossLinkModule "sp.spine"}}sp.spine{{/crossLinkModule}}.Attachment object.
-     * !#zh
+     * @zh
      * 通过 slot 和 attachment 的名称获取 attachment。Skeleton 优先查找它的皮肤，然后才是 Skeleton Data 中默认的皮肤。<br>
      * 返回一个 {{#crossLinkModule "sp.spine"}}sp.spine{{/crossLinkModule}}.Attachment 对象。
      *
@@ -918,10 +923,10 @@ export class Skeleton extends Renderable2D {
     }
 
     /**
-     * !#en
+     * @en
      * Sets the attachment for the slot and attachment name.
      * The skeleton looks first in its skin, then in the skeleton data’s default skin.
-     * !#zh
+     * @zh
      * 通过 slot 和 attachment 的名字来设置 attachment。
      * Skeleton 优先查找它的皮肤，然后才是 Skeleton Data 中默认的皮肤。
      * @method setAttachment
@@ -947,10 +952,10 @@ export class Skeleton extends Renderable2D {
 
     // ANIMATION
     /**
-     * !#en
+     * @en
      * Mix applies all keyframe values,
      * interpolated for the specified time and mixed with the current values.
-     * !#zh 为所有关键帧设定混合及混合时间（从当前值开始差值）。
+     * @zh 为所有关键帧设定混合及混合时间（从当前值开始差值）。
      * @method setMix
      * @param {String} fromAnimation
      * @param {String} toAnimation
@@ -963,9 +968,9 @@ export class Skeleton extends Renderable2D {
     }
 
     /**
-     * !#en Set the current animation. Any queued animations are cleared.<br>
+     * @en Set the current animation. Any queued animations are cleared.<br>
      * Returns a {{#crossLinkModule "sp.spine"}}sp.spine{{/crossLinkModule}}.TrackEntry object.
-     * !#zh 设置当前动画。队列中的任何的动画将被清除。<br>
+     * @zh 设置当前动画。队列中的任何的动画将被清除。<br>
      * 返回一个 {{#crossLinkModule "sp.spine"}}sp.spine{{/crossLinkModule}}.TrackEntry 对象。
      * @method setAnimation
      * @param {Number} trackIndex
@@ -1011,9 +1016,9 @@ export class Skeleton extends Renderable2D {
     }
 
     /**
-     * !#en Adds an animation to be played delay seconds after the current or last queued animation.<br>
+     * @en Adds an animation to be played delay seconds after the current or last queued animation.<br>
      * Returns a {{#crossLinkModule "sp.spine"}}sp.spine{{/crossLinkModule}}.TrackEntry object.
-     * !#zh 添加一个动画到动画队列尾部，还可以延迟指定的秒数。<br>
+     * @zh 添加一个动画到动画队列尾部，还可以延迟指定的秒数。<br>
      * 返回一个 {{#crossLinkModule "sp.spine"}}sp.spine{{/crossLinkModule}}.TrackEntry 对象。
      * @method addAnimation
      * @param {Number} trackIndex
@@ -1041,8 +1046,8 @@ export class Skeleton extends Renderable2D {
     }
 
     /**
-     * !#en Find animation with specified name.
-     * !#zh 查找指定名称的动画
+     * @en Find animation with specified name.
+     * @zh 查找指定名称的动画
      * @method findAnimation
      * @param {String} name
      * @returns {sp.spine.Animation}
@@ -1055,9 +1060,9 @@ export class Skeleton extends Renderable2D {
     }
 
     /**
-     * !#en Returns track entry by trackIndex.<br>
+     * @en Returns track entry by trackIndex.<br>
      * Returns a {{#crossLinkModule "sp.spine"}}sp.spine{{/crossLinkModule}}.TrackEntry object.
-     * !#zh 通过 track 索引获取 TrackEntry。<br>
+     * @zh 通过 track 索引获取 TrackEntry。<br>
      * 返回一个 {{#crossLinkModule "sp.spine"}}sp.spine{{/crossLinkModule}}.TrackEntry 对象。
      * @method getCurrent
      * @param trackIndex
@@ -1073,8 +1078,8 @@ export class Skeleton extends Renderable2D {
     }
 
     /**
-     * !#en Clears all tracks of animation state.
-     * !#zh 清除所有 track 的动画状态。
+     * @en Clears all tracks of animation state.
+     * @zh 清除所有 track 的动画状态。
      * @method clearTracks
      */
     public clearTracks () {
@@ -1086,8 +1091,8 @@ export class Skeleton extends Renderable2D {
     }
 
     /**
-     * !#en Clears track of animation state by trackIndex.
-     * !#zh 清除出指定 track 的动画状态。
+     * @en Clears track of animation state by trackIndex.
+     * @zh 清除出指定 track 的动画状态。
      * @method clearTrack
      * @param {number} trackIndex
      */
@@ -1103,8 +1108,8 @@ export class Skeleton extends Renderable2D {
     }
 
     /**
-     * !#en Set the start event listener.
-     * !#zh 用来设置开始播放动画的事件监听。
+     * @en Set the start event listener.
+     * @zh 用来设置开始播放动画的事件监听。
      * @method setStartListener
      * @param {function} listener
      */
@@ -1114,8 +1119,8 @@ export class Skeleton extends Renderable2D {
     }
 
     /**
-     * !#en Set the interrupt event listener.
-     * !#zh 用来设置动画被打断的事件监听。
+     * @en Set the interrupt event listener.
+     * @zh 用来设置动画被打断的事件监听。
      * @method setInterruptListener
      * @param {function} listener
      */
@@ -1125,8 +1130,8 @@ export class Skeleton extends Renderable2D {
     }
 
     /**
-     * !#en Set the end event listener.
-     * !#zh 用来设置动画播放完后的事件监听。
+     * @en Set the end event listener.
+     * @zh 用来设置动画播放完后的事件监听。
      * @method setEndListener
      * @param {function} listener
      */
@@ -1136,8 +1141,8 @@ export class Skeleton extends Renderable2D {
     }
 
     /**
-     * !#en Set the dispose event listener.
-     * !#zh 用来设置动画将被销毁的事件监听。
+     * @en Set the dispose event listener.
+     * @zh 用来设置动画将被销毁的事件监听。
      * @method setDisposeListener
      * @param {function} listener
      */
@@ -1147,8 +1152,8 @@ export class Skeleton extends Renderable2D {
     }
 
     /**
-     * !#en Set the complete event listener.
-     * !#zh 用来设置动画播放一次循环结束后的事件监听。
+     * @en Set the complete event listener.
+     * @zh 用来设置动画播放一次循环结束后的事件监听。
      * @method setCompleteListener
      * @param {function} listener
      */
@@ -1158,8 +1163,8 @@ export class Skeleton extends Renderable2D {
     }
 
     /**
-     * !#en Set the animation event listener.
-     * !#zh 用来设置动画播放过程中帧事件的监听。
+     * @en Set the animation event listener.
+     * @zh 用来设置动画播放过程中帧事件的监听。
      * @method setEventListener
      * @param {function} listener
      */
@@ -1169,8 +1174,8 @@ export class Skeleton extends Renderable2D {
     }
 
     /**
-     * !#en Set the start event listener for specified TrackEntry.
-     * !#zh 用来为指定的 TrackEntry 设置动画开始播放的事件监听。
+     * @en Set the start event listener for specified TrackEntry.
+     * @zh 用来为指定的 TrackEntry 设置动画开始播放的事件监听。
      * @method setTrackStartListener
      * @param {sp.spine.TrackEntry} entry
      * @param {function} listener
@@ -1180,8 +1185,8 @@ export class Skeleton extends Renderable2D {
     }
 
     /**
-     * !#en Set the interrupt event listener for specified TrackEntry.
-     * !#zh 用来为指定的 TrackEntry 设置动画被打断的事件监听。
+     * @en Set the interrupt event listener for specified TrackEntry.
+     * @zh 用来为指定的 TrackEntry 设置动画被打断的事件监听。
      * @method setTrackInterruptListener
      * @param {sp.spine.TrackEntry} entry
      * @param {function} listener
@@ -1191,8 +1196,8 @@ export class Skeleton extends Renderable2D {
     }
 
     /**
-     * !#en Set the end event listener for specified TrackEntry.
-     * !#zh 用来为指定的 TrackEntry 设置动画播放结束的事件监听。
+     * @en Set the end event listener for specified TrackEntry.
+     * @zh 用来为指定的 TrackEntry 设置动画播放结束的事件监听。
      * @method setTrackEndListener
      * @param {sp.spine.TrackEntry} entry
      * @param {function} listener
@@ -1202,8 +1207,8 @@ export class Skeleton extends Renderable2D {
     }
 
     /**
-     * !#en Set the dispose event listener for specified TrackEntry.
-     * !#zh 用来为指定的 TrackEntry 设置动画即将被销毁的事件监听。
+     * @en Set the dispose event listener for specified TrackEntry.
+     * @zh 用来为指定的 TrackEntry 设置动画即将被销毁的事件监听。
      * @method setTrackDisposeListener
      * @param {sp.spine.TrackEntry} entry
      * @param {function} listener
@@ -1213,8 +1218,8 @@ export class Skeleton extends Renderable2D {
     }
 
     /**
-     * !#en Set the complete event listener for specified TrackEntry.
-     * !#zh 用来为指定的 TrackEntry 设置动画一次循环播放结束的事件监听。
+     * @en Set the complete event listener for specified TrackEntry.
+     * @zh 用来为指定的 TrackEntry 设置动画一次循环播放结束的事件监听。
      * @method setTrackCompleteListener
      * @param {sp.spine.TrackEntry} entry
      * @param {function} listener
@@ -1229,19 +1234,19 @@ export class Skeleton extends Renderable2D {
     }
 
     /**
-     * !#en Set the event listener for specified TrackEntry.
-     * !#zh 用来为指定的 TrackEntry 设置动画帧事件的监听。
+     * @en Set the event listener for specified TrackEntry.
+     * @zh 用来为指定的 TrackEntry 设置动画帧事件的监听。
      * @method setTrackEventListener
      * @param {sp.spine.TrackEntry} entry
      * @param {function} listener
      */
-    public setTrackEventListener (entry: spine.TrackEntry, listener: TrackListener) {
+    public setTrackEventListener (entry: spine.TrackEntry, listener: TrackListener|TrackListener2) {
         TrackEntryListeners.getListeners(entry).event = listener;
     }
 
     /**
-     * !#en Get the animation state object
-     * !#zh 获取动画状态
+     * @en Get the animation state object
+     * @zh 获取动画状态
      * @method getState
      * @return {sp.spine.AnimationState} state
      */
@@ -1254,18 +1259,8 @@ export class Skeleton extends Renderable2D {
         this._flushAssembler();
     }
 
-    public _onSyncTransform () {
-        this.node.on(SystemEventType.TRANSFORM_CHANGED, this.syncTransform, this);
-        this.node.on(SystemEventType.SIZE_CHANGED, this.syncTransform, this);
-    }
-
-    public _offSyncTransform () {
-        this.node.off(SystemEventType.TRANSFORM_CHANGED, this.syncTransform, this);
-        this.node.off(SystemEventType.SIZE_CHANGED, this.syncTransform, this);
-    }
-
-    private syncTransform () {
-
+    public onDisable () {
+        super.onDisable();
     }
 
     public onDestroy () {
@@ -1356,6 +1351,8 @@ export class Skeleton extends Renderable2D {
     protected _render (ui: Batcher2D) {
         if (this._meshRenderDataArray) {
             for (let i = 0; i < this._meshRenderDataArray.length; i++) {
+                // HACK
+                const mat = this.material;
                 this._meshRenderDataArrayIdx = i;
                 const m = this._meshRenderDataArray[i];
                 if (m.renderData.material) {
@@ -1364,6 +1361,7 @@ export class Skeleton extends Renderable2D {
                 if (m.texture) {
                     ui.commitComp(this, m.texture, this._assembler, null);
                 }
+                this.material = mat;
             }
             // this.node._static = true;
         }
@@ -1372,8 +1370,8 @@ export class Skeleton extends Renderable2D {
     // RENDERER
 
     /**
-     * !#en Computes the world SRT from the local SRT for each bone.
-     * !#zh 重新更新所有骨骼的世界 Transform，
+     * @en Computes the world SRT from the local SRT for each bone.
+     * @zh 重新更新所有骨骼的世界 Transform，
      * 当获取 bone 的数值未更新时，即可使用该函数进行更新数值。
      * @method updateWorldTransform
      * @example

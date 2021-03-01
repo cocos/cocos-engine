@@ -73,7 +73,7 @@ enum EventType {
 
 @ccclass('cc.EditBox')
 @help('i18n:cc.EditBox')
-@executionOrder(100)
+@executionOrder(110)
 @menu('UI/EditBox')
 @requireComponent(UITransform)
 @executeInEditMode

@@ -23,6 +23,11 @@
  THE SOFTWARE.
  */
 
+/**
+ * @packageDocumentation
+ * @module component/audio
+ */
+
 import { legacyCC } from '../../core/global-exports';
 
 export abstract class AudioManager<AudioType> {

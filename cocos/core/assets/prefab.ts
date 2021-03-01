@@ -37,7 +37,7 @@ import { Enum } from '../value-types';
 import { Asset } from './asset';
 import { legacyCC } from '../global-exports';
 import { warnID } from '../platform/debug';
-import * as utils from '../utils/prefab-utils';
+import * as utils from '../utils/prefab';
 
 /**
  * @en An enumeration used with the [[Prefab.optimizationPolicy]] to specify how to optimize the instantiate operation.

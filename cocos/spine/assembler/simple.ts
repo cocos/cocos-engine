@@ -1,3 +1,8 @@
+/**
+ * @packageDocumentation
+ * @hidden
+ */
+
 import spine from '../lib/spine-core.js';
 import { IAssembler } from '../../2d/renderer/base';
 import { Batcher2D } from '../../2d/renderer/batcher-2d';

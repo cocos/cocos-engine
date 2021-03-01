@@ -1,4 +1,5 @@
 /**
+ * @packageDocumentation
  * @module dragonBones
  */
 import { JSB } from 'internal:constants';
@@ -11,8 +12,8 @@ import { CCFactory } from './CCFactory';
 import { legacyCC } from '../core/global-exports';
 
 /**
- * !#en The skeleton atlas data of dragonBones.
- * !#zh dragonBones 的骨骼纹理数据。
+ * @en The skeleton atlas data of dragonBones.
+ * @zh dragonBones 的骨骼纹理数据。
  * @class DragonBonesAtlasAsset
  * @extends Asset
  */

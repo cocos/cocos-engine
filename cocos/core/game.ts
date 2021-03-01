@@ -566,6 +566,8 @@ export class Game extends EventTarget {
                 } else if (node.parent !== scene) {
                     debug.warnID(3802);
                     return;
+                } else {
+                    node._originalSceneId = scene.uuid;
                 }
             }
             this._persistRootNodes[id] = node;
@@ -579,11 +581,12 @@ export class Game extends EventTarget {
      * @zh 取消常驻根节点。
      * @param node - The node to be removed from persistent node list
      */
-    public removePersistRootNode (node: { uuid: string; _persistNode: boolean; }) {
+    public removePersistRootNode (node: Node) {
         const id = node.uuid || '';
         if (node === this._persistRootNodes[id]) {
             delete this._persistRootNodes[id];
             node._persistNode = false;
+            node._originalSceneId = '';
             legacyCC.assetManager._releaseManager._removePersistNodeRef(node);
         }
     }

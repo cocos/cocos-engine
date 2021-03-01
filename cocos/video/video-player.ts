@@ -24,7 +24,8 @@
  */
 
 /**
- * @category component/video
+ * @packageDocumentation
+ * @module component/video
  */
 
 import { ccclass, displayOrder, executeInEditMode, help, menu, slide, range, requireComponent, tooltip, type, serializable } from 'cc.decorator';

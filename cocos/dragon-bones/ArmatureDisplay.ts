@@ -1,8 +1,13 @@
+/**
+ * @packageDocumentation
+ * @module dragonBones
+ */
+
 import { EDITOR } from 'internal:constants';
 import { Armature, Bone, EventObject } from '@cocos/dragonbones-js';
 import { ccclass, executeInEditMode, help, menu } from '../core/data/class-decorator';
 import { Renderable2D } from '../2d/framework/renderable-2d';
-import { Node, EventTarget, CCClass, Color, Enum, PrivateNode, ccenum, errorID, Texture2D, js, CCObject, SystemEventType } from '../core';
+import { Node, EventTarget, CCClass, Color, Enum, PrivateNode, ccenum, errorID, Texture2D, js, CCObject } from '../core';
 import { BlendFactor } from '../core/gfx';
 import { displayName, editable, override, serializable, tooltip, type, visible } from '../core/data/decorators';
 import { AnimationCache, ArmatureCache, ArmatureFrame } from './ArmatureCache';
@@ -36,26 +41,26 @@ ccenum(DefaultAnimsEnum);
 export let timeScale = 1;
 
 /**
- * !#en Enum for cache mode type.
- * !#zh Dragonbones渲染类型
+ * @en Enum for cache mode type.
+ * @zh Dragonbones渲染类型
  * @enum ArmatureDisplay.AnimationCacheMode
  */
 export enum AnimationCacheMode {
     /**
-     * !#en The realtime mode.
-     * !#zh 实时计算模式。
+     * @en The realtime mode.
+     * @zh 实时计算模式。
      * @property {Number} REALTIME
      */
     REALTIME = 0,
     /**
-     * !#en The shared cache mode.
-     * !#zh 共享缓存模式。
+     * @en The shared cache mode.
+     * @zh 共享缓存模式。
      * @property {Number} SHARED_CACHE
      */
     SHARED_CACHE = 1,
     /**
-     * !#en The private cache mode.
-     * !#zh 私有缓存模式。
+     * @en The private cache mode.
+     * @zh 私有缓存模式。
      * @property {Number} PRIVATE_CACHE
      */
     PRIVATE_CACHE = 2
@@ -106,13 +111,13 @@ interface BoneIndex extends Number {
 }
 
 /**
- * !#en
+ * @en
  * The Armature Display of DragonBones <br/>
  * <br/>
  * Armature Display has a reference to a DragonBonesAsset and stores the state for ArmatureDisplay instance,
  * which consists of the current pose's bone SRT, slot colors, and which slot attachments are visible. <br/>
  * Multiple Armature Display can use the same DragonBonesAsset which includes all animations, skins, and attachments. <br/>
- * !#zh
+ * @zh
  * DragonBones 骨骼动画 <br/>
  * <br/>
  * Armature Display 具有对骨骼数据的引用并且存储了骨骼实例的状态，
@@ -140,11 +145,11 @@ export class ArmatureDisplay extends Renderable2D {
     set dstBlendFactor (v) { super.dstBlendFactor = v; }
 
     /**
-     * !#en
+     * @en
      * The DragonBones data contains the armatures information (bind pose bones, slots, draw order,
      * attachments, skins, etc) and animations but does not hold any state.<br/>
      * Multiple ArmatureDisplay can share the same DragonBones data.
-     * !#zh
+     * @zh
      * 骨骼数据包含了骨骼信息（绑定骨骼动作，slots，渲染顺序，
      * attachments，皮肤等等）和动画但不持有任何状态。<br/>
      * 多个 ArmatureDisplay 可以共用相同的骨骼数据。
@@ -166,9 +171,9 @@ export class ArmatureDisplay extends Renderable2D {
     }
 
     /**
-     * !#en
+     * @en
      * The atlas asset for the DragonBones.
-     * !#zh
+     * @zh
      * 骨骼数据所需的 Atlas Texture 数据。
      * @property {DragonBonesAtlasAsset} dragonAtlasAsset
      */
@@ -183,8 +188,8 @@ export class ArmatureDisplay extends Renderable2D {
     }
 
     /**
-     * !#en The name of current armature.
-     * !#zh 当前的 Armature 名称。
+     * @en The name of current armature.
+     * @zh 当前的 Armature 名称。
      * @property {String} armatureName
      */
     @visible(false)
@@ -214,8 +219,8 @@ export class ArmatureDisplay extends Renderable2D {
     }
 
     /**
-     * !#en The name of current playing animation.
-     * !#zh 当前播放的动画名称。
+     * @en The name of current playing animation.
+     * @zh 当前播放的动画名称。
      * @property {String} animationName
      */
     @visible(false)
@@ -308,8 +313,8 @@ export class ArmatureDisplay extends Renderable2D {
         this.setAnimationCacheMode(this._defaultCacheMode);
     }
     /**
-     * !#en The time scale of this armature.
-     * !#zh 当前骨骼中所有动画的时间缩放率。
+     * @en The time scale of this armature.
+     * @zh 当前骨骼中所有动画的时间缩放率。
      * @property {Number} timeScale
      * @default 1
      */
@@ -326,11 +331,11 @@ export class ArmatureDisplay extends Renderable2D {
     }
 
     /**
-     * !#en The play times of the default animation.
+     * @en The play times of the default animation.
      *      -1 means using the value of config file;
      *      0 means repeat for ever
      *      >0 means repeat times
-     * !#zh 播放默认动画的循环次数
+     * @zh 播放默认动画的循环次数
      *      -1 表示使用配置文件中的默认值;
      *      0 表示无限循环
      *      >0 表示循环次数
@@ -343,10 +348,10 @@ export class ArmatureDisplay extends Renderable2D {
     public playTimes = -1;
 
     /**
-     * !#en Indicates whether to enable premultiplied alpha.
+     * @en Indicates whether to enable premultiplied alpha.
      * You should disable this option when image's transparent area appears to have opaque pixels,
      * or enable this option when image's half transparent area appears to be darken.
-     * !#zh 是否启用贴图预乘。
+     * @zh 是否启用贴图预乘。
      * 当图片的透明区域出现色块时需要关闭该选项，当图片的半透明区域颜色变黑时需要启用该选项。
      * @property {Boolean} premultipliedAlpha
      * @default false
@@ -357,8 +362,8 @@ export class ArmatureDisplay extends Renderable2D {
     public premultipliedAlpha = false;
 
     /**
-     * !#en Indicates whether open debug bones.
-     * !#zh 是否显示 bone 的 debug 信息。
+     * @en Indicates whether open debug bones.
+     * @zh 是否显示 bone 的 debug 信息。
      * @property {Boolean} debugBones
      * @default false
      */
@@ -370,8 +375,8 @@ export class ArmatureDisplay extends Renderable2D {
         this._updateDebugDraw();
     }
     /**
-     * !#en Enabled batch model, if skeleton is complex, do not enable batch, or will lower performance.
-     * !#zh 开启合批，如果渲染大量相同纹理，且结构简单的骨骼动画，开启合批可以降低drawcall，否则请不要开启，cpu消耗会上升。
+     * @en Enabled batch model, if skeleton is complex, do not enable batch, or will lower performance.
+     * @zh 开启合批，如果渲染大量相同纹理，且结构简单的骨骼动画，开启合批可以降低drawcall，否则请不要开启，cpu消耗会上升。
      * @property {Boolean} enableBatch
      * @default false
      */
@@ -564,12 +569,15 @@ export class ArmatureDisplay extends Renderable2D {
     protected _render (ui: Batcher2D) {
         if (this._meshRenderDataArray) {
             for (let i = 0; i < this._meshRenderDataArray.length; i++) {
+                // HACK
+                const mat = this.material;
                 this._meshRenderDataArrayIdx = i;
                 const m = this._meshRenderDataArray[i];
                 this.material = m.renderData.material;
                 if (m.texture) {
                     ui.commitComp(this, m.texture, this._assembler, null);
                 }
+                this.material = mat;
             }
         }
     }
@@ -657,9 +665,9 @@ export class ArmatureDisplay extends Renderable2D {
     }
 
     /**
-     * !#en
+     * @en
      * The key of dragonbones cache data, which is regard as 'dragonbonesName', when you want to change dragonbones cloth.
-     * !#zh
+     * @zh
      * 缓存龙骨数据的key值，换装的时会使用到该值，作为dragonbonesName使用
      * @method getArmatureKey
      * @return {String}
@@ -673,10 +681,10 @@ export class ArmatureDisplay extends Renderable2D {
     }
 
     /**
-     * !#en
+     * @en
      * It's best to set cache mode before set property 'dragonAsset', or will waste some cpu time.
      * If set the mode in editor, then no need to worry about order problem.
-     * !#zh
+     * @zh
      * 若想切换渲染模式，最好在设置'dragonAsset'之前，先设置好渲染模式，否则有运行时开销。
      * 若在编辑中设置渲染模式，则无需担心设置次序的问题。
      *
@@ -698,8 +706,8 @@ export class ArmatureDisplay extends Renderable2D {
     }
 
     /**
-     * !#en Whether in cached mode.
-     * !#zh 当前是否处于缓存模式。
+     * @en Whether in cached mode.
+     * @zh 当前是否处于缓存模式。
      * @method isAnimationCached
      * @return {Boolean}
      */
@@ -715,20 +723,6 @@ export class ArmatureDisplay extends Renderable2D {
             this._factory!._dragonBones.clock.add(this._armature);
         }
         this._flushAssembler();
-    }
-
-    public _onSyncTransform () {
-        this.node.on(SystemEventType.TRANSFORM_CHANGED, this.syncTransform, this);
-        this.node.on(SystemEventType.SIZE_CHANGED, this.syncTransform, this);
-    }
-
-    public _offSyncTransform () {
-        this.node.off(SystemEventType.TRANSFORM_CHANGED, this.syncTransform, this);
-        this.node.off(SystemEventType.SIZE_CHANGED, this.syncTransform, this);
-    }
-
-    private syncTransform () {
-
     }
 
     onDisable () {
@@ -1061,14 +1055,14 @@ export class ArmatureDisplay extends Renderable2D {
     }
 
     /**
-     * !#en
+     * @en
      * Play the specified animation.
      * Parameter animName specify the animation name.
      * Parameter playTimes specify the repeat times of the animation.
      * -1 means use the value of the config file.
      * 0 means play the animation for ever.
      * >0 means repeat times.
-     * !#zh
+     * @zh
      * 播放指定的动画.
      * animName 指定播放动画的名称。
      * playTimes 指定播放动画的次数。
@@ -1104,11 +1098,11 @@ export class ArmatureDisplay extends Renderable2D {
     }
 
     /**
-     * !#en
+     * @en
      * Updating an animation cache to calculate all frame data in the animation is a cost in
      * performance due to calculating all data in a single frame.
      * To update the cache, use the invalidAnimationCache method with high performance.
-     * !#zh
+     * @zh
      * 更新某个动画缓存, 预计算动画中所有帧数据，由于在单帧计算所有数据，所以较消耗性能。
      * 若想更新缓存，可使用 invalidAnimationCache 方法，具有较高性能。
      * @method updateAnimationCache
@@ -1120,9 +1114,9 @@ export class ArmatureDisplay extends Renderable2D {
     }
 
     /**
-     * !#en
+     * @en
      * Invalidates the animation cache, which is then recomputed on each frame..
-     * !#zh
+     * @zh
      * 使动画缓存失效，之后会在每帧重新计算。
      * @method invalidAnimationCache
      */
@@ -1132,9 +1126,9 @@ export class ArmatureDisplay extends Renderable2D {
     }
 
     /**
-     * !#en
+     * @en
      * Get the all armature names in the DragonBones Data.
-     * !#zh
+     * @zh
      * 获取 DragonBones 数据中所有的 armature 名称
      * @method getArmatureNames
      * @returns {Array}
@@ -1145,9 +1139,9 @@ export class ArmatureDisplay extends Renderable2D {
     }
 
     /**
-     * !#en
+     * @en
      * Get the all animation names of specified armature.
-     * !#zh
+     * @zh
      * 获取指定的 armature 的所有动画名称。
      * @method getAnimationNames
      * @param {String} armatureName
@@ -1171,9 +1165,9 @@ export class ArmatureDisplay extends Renderable2D {
     }
 
     /**
-     * !#en
+     * @en
      * Add event listener for the DragonBones Event, the same to addEventListener.
-     * !#zh
+     * @zh
      * 添加 DragonBones 事件监听器，与 addEventListener 作用相同。
      * @method on
      * @param {String} type - A string representing the event type to listen for.
@@ -1186,9 +1180,9 @@ export class ArmatureDisplay extends Renderable2D {
     }
 
     /**
-     * !#en
+     * @en
      * Remove the event listener for the DragonBones Event, the same to removeEventListener.
-     * !#zh
+     * @zh
      * 移除 DragonBones 事件监听器，与 removeEventListener 作用相同。
      * @method off
      * @param {String} type - A string representing the event type to listen for.
@@ -1200,9 +1194,9 @@ export class ArmatureDisplay extends Renderable2D {
     }
 
     /**
-     * !#en
+     * @en
      * Add DragonBones one-time event listener, the callback will remove itself after the first time it is triggered.
-     * !#zh
+     * @zh
      * 添加 DragonBones 一次性事件监听器，回调会在第一时间被触发后删除自身。
      * @method once
      * @param {String} type - A string representing the event type to listen for.
@@ -1215,9 +1209,9 @@ export class ArmatureDisplay extends Renderable2D {
     }
 
     /**
-     * !#en
+     * @en
      * Add event listener for the DragonBones Event.
-     * !#zh
+     * @zh
      * 添加 DragonBones 事件监听器。
      * @method addEventListener
      * @param {String} type - A string representing the event type to listen for.
@@ -1230,9 +1224,9 @@ export class ArmatureDisplay extends Renderable2D {
     }
 
     /**
-     * !#en
+     * @en
      * Remove the event listener for the DragonBones Event.
-     * !#zh
+     * @zh
      * 移除 DragonBones 事件监听器。
      * @method removeEventListener
      * @param {String} type - A string representing the event type to listen for.
@@ -1244,9 +1238,9 @@ export class ArmatureDisplay extends Renderable2D {
     }
 
     /**
-     * !#en
+     * @en
      * Build the armature for specified name.
-     * !#zh
+     * @zh
      * 构建指定名称的 armature 对象
      * @method buildArmature
      * @param {String} armatureName
@@ -1258,9 +1252,9 @@ export class ArmatureDisplay extends Renderable2D {
     }
 
     /**
-     * !#en
+     * @en
      * Get the current armature object of the ArmatureDisplay.
-     * !#zh
+     * @zh
      * 获取 ArmatureDisplay 当前使用的 Armature 对象
      * @method armature
      * @returns {Object}

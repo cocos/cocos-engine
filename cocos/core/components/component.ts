@@ -41,7 +41,7 @@ import * as RF from '../data/utils/requiring-frame';
 import { Node } from '../scene-graph';
 import { legacyCC } from '../global-exports';
 import { errorID, warnID, assertID } from '../platform/debug';
-import { CompPrefabInfo } from '../utils/prefab-utils';
+import { CompPrefabInfo } from '../utils/prefab/prefab-info';
 
 const idGenerator = new IDGenerator('Comp');
 const IsOnLoadCalled = CCObject.Flags.IsOnLoadCalled;
@@ -351,7 +351,7 @@ class Component extends CCObject {
 
     public destroy () {
         if (EDITOR) {
-            // @ts-expect-error
+            // @ts-expect-error private function access
             const depend = this.node._getDependComponent(this);
             if (depend) {
                 errorID(3626,
@@ -374,7 +374,7 @@ class Component extends CCObject {
 
         //
         if (EDITOR && !TEST) {
-            // @ts-expect-error
+            // @ts-expect-error expected
             _Scene.AssetsWatcher.stop(this);
         }
 
@@ -385,11 +385,11 @@ class Component extends CCObject {
         this.node._removeComponent(this);
     }
 
-    public _instantiate (cloned) {
+    public _instantiate (cloned: Component) {
         if (!cloned) {
             cloned = legacyCC.instantiate._clone(this, this);
         }
-        cloned.node = null;
+        cloned.node = NullNode;
         return cloned;
     }
 
@@ -418,7 +418,7 @@ class Component extends CCObject {
         interval = interval || 0;
         assertID(interval >= 0, 1620);
 
-        repeat = isNaN(repeat) ? legacyCC.macro.REPEAT_FOREVER : repeat;
+        repeat = Number.isNaN(repeat) ? legacyCC.macro.REPEAT_FOREVER : repeat;
         delay = delay || 0;
 
         const scheduler = legacyCC.director.getScheduler();
@@ -636,46 +636,46 @@ class Component extends CCObject {
 }
 
 const proto = Component.prototype;
-// @ts-expect-error
+// @ts-expect-error modify prototype
 proto.update = null;
-// @ts-expect-error
+// @ts-expect-error modify prototype
 proto.lateUpdate = null;
-// @ts-expect-error
+// @ts-expect-error modify prototype
 proto.__preload = null;
-// @ts-expect-error
+// @ts-expect-error modify prototype
 proto.onLoad = null;
-// @ts-expect-error
+// @ts-expect-error modify prototype
 proto.start = null;
-// @ts-expect-error
+// @ts-expect-error modify prototype
 proto.onEnable = null;
-// @ts-expect-error
+// @ts-expect-error modify prototype
 proto.onDisable = null;
-// @ts-expect-error
+// @ts-expect-error modify prototype
 proto.onDestroy = null;
-// @ts-expect-error
+// @ts-expect-error modify prototype
 proto.onFocusInEditor = null;
-// @ts-expect-error
+// @ts-expect-error modify prototype
 proto.onLostFocusInEditor = null;
-// @ts-expect-error
+// @ts-expect-error modify prototype
 proto.resetInEditor = null;
-// @ts-expect-error
+// @ts-expect-error modify prototype
 proto._getLocalBounds = null;
-// @ts-expect-error
+// @ts-expect-error modify prototype
 proto.onRestore = null;
-// @ts-expect-error
+// @ts-expect-error modify class
 Component._requireComponent = null;
-// @ts-expect-error
+// @ts-expect-error modify class
 Component._executionOrder = 0;
 
 if (EDITOR || TEST) {
     // INHERITABLE STATIC MEMBERS
-    // @ts-expect-error
+    // @ts-expect-error modify static member
     Component._executeInEditMode = false;
-    // @ts-expect-error
+    // @ts-expect-error modify static member
     Component._playOnFocus = false;
-    // @ts-expect-error
+    // @ts-expect-error modify static member
     Component._disallowMultiple = null;
-    // @ts-expect-error
+    // @ts-expect-error modify static member
     Component._help = '';
 
     // NON-INHERITED STATIC MEMBERS
@@ -729,6 +729,7 @@ value(Component, '_registerEditorProps', (cls, props) => {
                 break;
 
             case 'menu':
+            {
                 const frame = RF.peek();
                 let menu = val;
                 if (frame) {
@@ -738,6 +739,7 @@ value(Component, '_registerEditorProps', (cls, props) => {
                 EDITOR && EditorExtends.Component.removeMenu(cls);
                 EDITOR && EditorExtends.Component.addMenu(cls, menu, props.menuPriority);
                 break;
+            }
 
             case 'disallowMultiple':
                 cls._disallowMultiple = cls;
