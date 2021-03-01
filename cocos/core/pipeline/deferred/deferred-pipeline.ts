@@ -69,6 +69,22 @@ export class DeferredRenderData {
     public lightingFrameBuffer: Framebuffer | null = null;
     public lightingRenderTargets: Texture[] = [];
     public depthTex: Texture | null = null;
+
+    public destroy () {
+        if (this.gbufferFrameBuffer) this.gbufferFrameBuffer.destroy();
+        if (this.lightingFrameBuffer) this.lightingFrameBuffer.destroy();
+        if (this.depthTex) this.depthTex.destroy();
+
+        for (let i = 0; i < this.gbufferRenderTargets.length; i++) {
+            this.gbufferRenderTargets[i].destroy();
+        }
+        this.gbufferRenderTargets.length = 0;
+
+        for (let i = 0; i < this.lightingRenderTargets.length; i++) {
+            this.lightingRenderTargets[i].destroy();
+        }
+        this.lightingRenderTargets.length = 0;
+    }
 }
 
 /**
@@ -338,6 +354,13 @@ export class DeferredPipeline extends RenderPipeline {
             rpRes = rpIter.next();
         }
 
+        const rdIter = this._deferredRenderDatas.values();
+        let rdRes = rdIter.next();
+        while (!rdRes.done) {
+            rdRes.value.destroy();
+            rdRes = rdIter.next();
+        }
+
         this._commandBuffers.length = 0;
 
         return super.destroy();
@@ -473,7 +496,7 @@ export class DeferredPipeline extends RenderPipeline {
         }
     }
 
-    public generateDeferredRenderData (camera: Camera) {
+    protected generateDeferredRenderData (camera: Camera) {
         const device = this.device;
 
         const data = new DeferredRenderData();
@@ -485,6 +508,7 @@ export class DeferredPipeline extends RenderPipeline {
             this._width,
             this._height,
         )));
+
         data.gbufferRenderTargets.push(device.createTexture(new TextureInfo(
             TextureType.TEX2D,
             TextureUsageBit.COLOR_ATTACHMENT | TextureUsageBit.SAMPLED,
@@ -492,6 +516,7 @@ export class DeferredPipeline extends RenderPipeline {
             this._width,
             this._height,
         )));
+
         data.gbufferRenderTargets.push(device.createTexture(new TextureInfo(
             TextureType.TEX2D,
             TextureUsageBit.COLOR_ATTACHMENT | TextureUsageBit.SAMPLED,

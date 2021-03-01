@@ -133,12 +133,6 @@ export class PostprocessStage extends RenderStage {
             shader = ShaderPool.get(this._postprocessMaterial!.passes[POSTPROCESSPASS_INDEX].getShaderVariant());
         }
 
-        // pass.blendState.targets[0].blend = true;
-        // pass.blendState.targets[0].blendSrc = BlendFactor.SRC_ALPHA;
-        // pass.blendState.targets[0].blendDst = BlendFactor.ONE_MINUS_SRC_ALPHA;
-        // pass.blendState.targets[0].blendSrcAlpha = BlendFactor.SRC_ALPHA;
-        // pass.blendState.targets[0].blendDstAlpha = BlendFactor.ONE_MINUS_SRC_ALPHA;
-
         const inputAssembler = camera.window!.hasOffScreenAttachments ? pipeline.quadIAOffscreen : pipeline.quadIAOnscreen;
         let pso:PipelineState|null = null;
         if (pass != null && shader != null && inputAssembler != null) {
