@@ -780,7 +780,12 @@ let ScrollView = cc.Class({
         if (this._hasNestedViewGroup(event, captureListeners)) return;
 
         let deltaMove = cc.v2(0, 0);
-        let wheelPrecision = -0.1;
+        let wheelPrecision = 0;
+        if (cc.sys.browserType === cc.sys.BROWSER_TYPE_CHROME) {
+          wheelPrecision = -0.1;
+        } else if (cc.sys.browserType === cc.sys.BROWSER_TYPE_FIREFOX) {
+          wheelPrecision = -0.1/3;
+        }
         if(CC_JSB || CC_RUNTIME) {
             wheelPrecision = -7;
         }
