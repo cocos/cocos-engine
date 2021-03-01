@@ -504,7 +504,7 @@ export class Director extends EventTarget {
             if (BUILD && DEBUG) {
                 console.time('AutoRelease');
             }
-            legacyCC.assetManager._releaseManager._autoRelease(oldScene, scene, Object.values(legacyCC.game._persistRootNodes));
+            legacyCC.assetManager._releaseManager._autoRelease(oldScene, scene, legacyCC.game._persistRootNodes);
             if (BUILD && DEBUG) {
                 console.timeEnd('AutoRelease');
             }

@@ -155,7 +155,7 @@ class ReleaseManager {
     }
 
     // do auto release
-    public _autoRelease (oldScene: Scene, newScene: Scene, persistNodes: Node[]) {
+    public _autoRelease (oldScene: Scene, newScene: Scene, persistNodes: Record<string, Node>) {
         if (oldScene) {
             const childs = dependUtil.getDeps(oldScene.uuid);
             for (let i = 0, l = childs.length; i < l; i++) {
@@ -184,8 +184,8 @@ class ReleaseManager {
         // transfer refs from persist nodes to new scene
         const sceneDeps = dependUtil._depends.get(newScene.uuid);
         if (sceneDeps) { sceneDeps.persistDeps = []; }
-        for (let i = 0, l = persistNodes.length; i < l; i++) {
-            const node = persistNodes[i];
+        for (const key in persistNodes) {
+            const node = persistNodes[key];
             const deps = this._persistNodeDeps.get(node.uuid) as string[];
             for (const dep of deps) {
                 const dependAsset = assets.get(dep);
