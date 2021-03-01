@@ -785,7 +785,6 @@ let ScrollView = cc.Class({
         if (cc.sys.os === cc.sys.OS_WINDOWS) {
             if (cc.sys.browserType === cc.sys.BROWSER_TYPE_CHROME) {
                 wheelPrecision = -0.1;
-                //ScrollView 在 chrome 和 firbox 上鼠标滚轮滑动速度不同
               } else if (cc.sys.browserType === cc.sys.BROWSER_TYPE_FIREFOX) {
                 wheelPrecision = -0.1/3;
               }
