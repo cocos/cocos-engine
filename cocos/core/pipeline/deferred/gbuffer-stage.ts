@@ -29,7 +29,8 @@
 
 import { ccclass, displayOrder, type, serializable } from 'cc.decorator';
 import { Camera } from '../../renderer/scene';
-import { IRenderPass, SetIndex } from '../define';
+import { IRenderPass, SetIndex, UNIFORM_GBUFFER_ALBEDOMAP_BINDING, UNIFORM_GBUFFER_POSITIONMAP_BINDING, UNIFORM_GBUFFER_NORMALMAP_BINDING,
+    UNIFORM_GBUFFER_EMISSIVEMAP_BINDING } from '../define';
 import { getPhaseID } from '../pass-phase';
 import { opaqueCompareFn, RenderQueue, transparentCompareFn } from '../render-queue';
 import { ClearFlagBit, Color, Rect } from '../../gfx';
@@ -44,8 +45,6 @@ import { BatchingSchemes } from '../../renderer/core/pass';
 import { GbufferFlow } from './gbuffer-flow';
 import { DeferredPipeline, DeferredRenderData } from './deferred-pipeline';
 import { RenderQueueDesc, RenderQueueSortMode } from '../pipeline-serialization';
-import { UNIFORM_GBUFFER_ALBEDOMAP_BINDING, UNIFORM_GBUFFER_POSITIONMAP_BINDING, UNIFORM_GBUFFER_NORMALMAP_BINDING,
-    UNIFORM_GBUFFER_EMISSIVEMAP_BINDING } from '../define';
 
 const colors: Color[] = [new Color(0, 0, 0, 0), new Color(0, 0, 0, 0), new Color(0, 0, 0, 0), new Color(0, 0, 0, 0)];
 
@@ -82,7 +81,7 @@ export class GbufferStage extends RenderStage {
     private _renderArea = new Rect();
     private _batchedQueue: RenderBatchedQueue;
     private _instancedQueue: RenderInstancedQueue;
-    private _phaseID = getPhaseID('deferred');
+    private _phaseID = getPhaseID('default');
 
     constructor () {
         super();
