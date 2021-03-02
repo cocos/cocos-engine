@@ -808,6 +808,7 @@ export class Label extends Renderable2D {
                 // this._frame._refreshTexture(this._texture);
                 this._texture = this._ttfSpriteFrame;
             }
+            this._assembler && this._assembler.updateRenderData(this);
         }
     }
 }
