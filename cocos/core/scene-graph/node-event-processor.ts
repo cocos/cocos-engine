@@ -368,10 +368,8 @@ export class NodeEventProcessor {
             }
             if (node.eventProcessor.touchListener) {
                 node.eventProcessor.touchListener.mask = currMask;
-                if (node.eventProcessor.mouseListener) {
-                    node.eventProcessor.mouseListener.mask = currMask;
-                }
-            } else if (node.eventProcessor.mouseListener) {
+            }
+            if (node.eventProcessor.mouseListener) {
                 node.eventProcessor.mouseListener.mask = currMask;
             }
         });
