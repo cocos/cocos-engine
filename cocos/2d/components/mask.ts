@@ -45,6 +45,7 @@ import { MaterialInstance, scene } from '../../core/renderer';
 import { Model } from '../../core/renderer/scene';
 import { vfmt, getAttributeStride } from '../renderer/vertex-format';
 import { Stage } from '../renderer/stencil-manager';
+import { NodeEventProcessor } from '../../core/scene-graph/node-event-processor';
 
 const _worldMatrix = new Mat4();
 const _vec2_temp = new Vec2();
@@ -372,9 +373,6 @@ export class Mask extends Renderable2D {
     public onEnable () {
         super.onEnable();
         this._updateGraphics();
-        this._broadcastToNode(this.node);
-        this.node.on(SystemEventType.CHILD_ADDED, this._addChild, this);
-        this.node.on(SystemEventType.CHILD_REMOVED, this._removeChild, this);
     }
 
     /**
@@ -389,8 +387,6 @@ export class Mask extends Renderable2D {
     public onDisable () {
         super.onDisable();
         this._disableGraphics();
-        this.node.off(SystemEventType.CHILD_ADDED, this._addChild, this);
-        this.node.off(SystemEventType.CHILD_REMOVED, this._removeChild, this);
     }
 
     public onDestroy () {
@@ -613,25 +609,8 @@ export class Mask extends Renderable2D {
             }
         }
     }
-
-    protected _broadcastToNode (node) {
-        const children = node.children;
-        node.eventProcessor.registerComponentHitList(Mask);
-        for (let i = 0, len = children.length; i < len; i++) {
-            this._broadcastToNode(children[i]);
-        }
-    }
-
-    // add node.eventProcessor.listener.mask when add to mask
-    protected _addChild (child) {
-        this._broadcastToNode(child);
-        child.walk(() => { child.eventProcessor.reattach(); });
-    }
-
-    // clean node.eventProcessor.listener.mask when remove from mask
-    protected _removeChild (node) {
-        node.walk(() => { node.eventProcessor.registerComponentHitList(null); node.eventProcessor.reattach(); });
-    }
 }
+
+NodeEventProcessor._comp = Mask;
 
 legacyCC.Mask = Mask;
