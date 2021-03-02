@@ -181,8 +181,8 @@ var releaseManager = {
         var sceneDeps = dependUtil._depends.get(newScene._id);
         sceneDeps && (sceneDeps.persistDeps = []);
         // transfer refs from persist nodes to new scene
-        for (let i = 0, l = persistNodes.length; i < l; i++) {
-            var node = persistNodes[i];
+        for (let key in persistNodes) {
+            var node = persistNodes[key];
             var deps = _persistNodeDeps.get(node.uuid);
             for (let i = 0, l = deps.length; i < l; i++) {
                 var dependAsset = assets.get(deps[i]);
