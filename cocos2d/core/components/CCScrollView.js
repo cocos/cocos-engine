@@ -780,7 +780,7 @@ let ScrollView = cc.Class({
         if (this._hasNestedViewGroup(event, captureListeners)) return;
 
         let deltaMove = cc.v2(0, 0);
-        let wheelPrecision = 0;
+        let wheelPrecision = -0.1;
         //On the windows platform, the scrolling speed of the mouse wheel of ScrollView on chrome and firbox is different
         if (cc.sys.os === cc.sys.OS_WINDOWS) {
             if (cc.sys.browserType === cc.sys.BROWSER_TYPE_CHROME) {
