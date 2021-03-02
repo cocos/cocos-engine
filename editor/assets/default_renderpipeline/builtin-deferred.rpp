@@ -63,20 +63,20 @@
     "isTransparent": false,
     "sortMode": 0,
     "stages": [
-      "default"
+      "deferred"
     ]
   },
   {
     "__type__": "LightingFlow",
     "_name": "LightingFlow",
-    "_priority": 0,
+    "_priority": 1,
     "_tag": 0,
     "_stages": [
       {
         "__id__": 7
       },
       {
-        "__id__": 8
+        "__id__": 9
       }
     ]
   },
@@ -88,16 +88,27 @@
     "_deferredMaterial": {
       "__uuid__": "016951c5-5a09-4dd0-9bb7-f4958a82d690"
     },
-    "renderQueues": []
+    "renderQueues": [
+      {
+        "__id__": 8
+      }
+    ]
+  },
+  {
+    "__type__": "RenderQueueDesc",
+    "isTransparent": true,
+    "sortMode": 0,
+    "stages": [
+      "default"
+    ]
   },
   {
     "__type__": "PostprocessStage",
     "_name": "PostprocessStage",
     "_priority": 0,
     "_tag": 0,
-    "_deferredMaterial": {
+    "_postprocessMaterial": {
       "__uuid__": "85c4d630-c264-4b18-90a4-c52d594e6099"
-    },
-    "renderQueues": []
+    }
   }
 ]

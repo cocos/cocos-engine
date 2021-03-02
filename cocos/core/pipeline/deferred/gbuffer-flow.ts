@@ -29,17 +29,12 @@
 
 import { ccclass } from 'cc.decorator';
 import { Camera } from '../../renderer/scene';
-import { PIPELINE_FLOW_GBUFFER, UNIFORM_GBUFFER_ALBEDOMAP_BINDING, UNIFORM_GBUFFER_POSITIONMAP_BINDING, UNIFORM_GBUFFER_NORMALMAP_BINDING,
-    UNIFORM_GBUFFER_EMISSIVEMAP_BINDING } from '../define';
+import { PIPELINE_FLOW_GBUFFER } from '../define';
 import { IRenderFlowInfo, RenderFlow } from '../render-flow';
 import { DeferredFlowPriority } from './enum';
 import { GbufferStage } from './gbuffer-stage';
 import { DeferredPipeline } from './deferred-pipeline';
 import { RenderPipeline } from '../render-pipeline';
-import { Framebuffer, RenderPass, LoadOp, StoreOp, Format, Texture, TextureType, TextureUsageBit, ColorAttachment,
-    DepthStencilAttachment, RenderPassInfo, TextureInfo, FramebufferInfo, Address, Filter, SurfaceTransform } from '../../gfx';
-import { genSamplerHash, samplerLib } from '../../renderer/core/sampler-lib';
-
 import { sceneCulling } from '../scene-culling';
 
 /**
@@ -48,13 +43,6 @@ import { sceneCulling } from '../scene-culling';
  */
 @ccclass('GbufferFlow')
 export class GbufferFlow extends RenderFlow {
-    private _gbufferRenderPass: RenderPass|null = null;
-    private _gbufferRenderTargets: Texture[] = [];
-    protected _gbufferFrameBuffer: Framebuffer|null = null;
-    private _depth: Texture|null = null;
-    private _width = 0;
-    private _height = 0;
-
     /**
      * @en The shared initialization information of gbuffer render flow
      * @zh 共享的延迟渲染流程初始化参数
@@ -64,10 +52,6 @@ export class GbufferFlow extends RenderFlow {
         priority: DeferredFlowPriority.GBUFFER,
         stages: [],
     };
-
-    get gbufferFrameBuffer (): Framebuffer {
-        return this._gbufferFrameBuffer!;
-    }
 
     public initialize (info: IRenderFlowInfo): boolean {
         super.initialize(info);
@@ -81,120 +65,6 @@ export class GbufferFlow extends RenderFlow {
 
     public activate (pipeline: RenderPipeline) {
         super.activate(pipeline);
-
-        const device = pipeline.device;
-        this._width = device.width;
-        this._height = device.height;
-
-        if (device.surfaceTransform === SurfaceTransform.IDENTITY
-            || device.surfaceTransform === SurfaceTransform.ROTATE_180) {
-            this._width = device.width;
-            this._height = device.height;
-        } else {
-            this._width = device.height;
-            this._height = device.width;
-        }
-
-        if (!this._gbufferRenderPass) {
-            const colorAttachment0 = new ColorAttachment();
-            colorAttachment0.format = Format.RGBA16F;
-            colorAttachment0.loadOp = LoadOp.CLEAR; // should clear color attachment
-            colorAttachment0.storeOp = StoreOp.STORE;
-
-            const colorAttachment1 = new ColorAttachment();
-            colorAttachment1.format = Format.RGBA16F;
-            colorAttachment1.loadOp = LoadOp.CLEAR; // should clear color attachment
-            colorAttachment1.storeOp = StoreOp.STORE;
-
-            const colorAttachment2 = new ColorAttachment();
-            colorAttachment2.format = Format.RGBA16F;
-            colorAttachment2.loadOp = LoadOp.CLEAR; // should clear color attachment
-            colorAttachment2.storeOp = StoreOp.STORE;
-
-            const colorAttachment3 = new ColorAttachment();
-            colorAttachment3.format = Format.RGBA16F;
-            colorAttachment3.loadOp = LoadOp.CLEAR; // should clear color attachment
-            colorAttachment3.storeOp = StoreOp.STORE;
-
-            const depthStencilAttachment = new DepthStencilAttachment();
-            depthStencilAttachment.format = device.depthStencilFormat;
-            depthStencilAttachment.depthLoadOp = LoadOp.CLEAR;
-            depthStencilAttachment.depthStoreOp = StoreOp.STORE;
-            depthStencilAttachment.stencilLoadOp = LoadOp.CLEAR;
-            depthStencilAttachment.stencilStoreOp = StoreOp.STORE;
-            const renderPassInfo = new RenderPassInfo([colorAttachment0, colorAttachment1, colorAttachment2, colorAttachment3],
-                depthStencilAttachment);
-            this._gbufferRenderPass = device.createRenderPass(renderPassInfo);
-        }
-
-        if (this._gbufferRenderTargets.length < 1) {
-            this._gbufferRenderTargets.push(device.createTexture(new TextureInfo(
-                TextureType.TEX2D,
-                TextureUsageBit.COLOR_ATTACHMENT | TextureUsageBit.SAMPLED,
-                Format.RGBA16F,
-                this._width,
-                this._height,
-            )));
-            this._gbufferRenderTargets.push(device.createTexture(new TextureInfo(
-                TextureType.TEX2D,
-                TextureUsageBit.COLOR_ATTACHMENT | TextureUsageBit.SAMPLED,
-                Format.RGBA16F,
-                this._width,
-                this._height,
-            )));
-            this._gbufferRenderTargets.push(device.createTexture(new TextureInfo(
-                TextureType.TEX2D,
-                TextureUsageBit.COLOR_ATTACHMENT | TextureUsageBit.SAMPLED,
-                Format.RGBA16F,
-                this._width,
-                this._height,
-            )));
-            this._gbufferRenderTargets.push(device.createTexture(new TextureInfo(
-                TextureType.TEX2D,
-                TextureUsageBit.COLOR_ATTACHMENT | TextureUsageBit.SAMPLED,
-                Format.RGBA16F,
-                this._width,
-                this._height,
-            )));
-        }
-
-        if (!this._depth) {
-            this._depth = device.createTexture(new TextureInfo(
-                TextureType.TEX2D,
-                TextureUsageBit.DEPTH_STENCIL_ATTACHMENT,
-                device.depthStencilFormat,
-                this._width,
-                this._height,
-            ));
-            (this._pipeline as DeferredPipeline).gbufferDepth = this._depth;
-        }
-
-        if (!this._gbufferFrameBuffer) {
-            this._gbufferFrameBuffer = device.createFramebuffer(new FramebufferInfo(
-                this._gbufferRenderPass,
-                this._gbufferRenderTargets,
-                this._depth,
-            ));
-        }
-
-        pipeline.descriptorSet.bindTexture(UNIFORM_GBUFFER_ALBEDOMAP_BINDING, this._gbufferFrameBuffer.colorTextures[0]!);
-        pipeline.descriptorSet.bindTexture(UNIFORM_GBUFFER_POSITIONMAP_BINDING, this._gbufferFrameBuffer.colorTextures[1]!);
-        pipeline.descriptorSet.bindTexture(UNIFORM_GBUFFER_NORMALMAP_BINDING, this._gbufferFrameBuffer.colorTextures[2]!);
-        pipeline.descriptorSet.bindTexture(UNIFORM_GBUFFER_EMISSIVEMAP_BINDING, this._gbufferFrameBuffer.colorTextures[3]!);
-
-        const gbufferSamplerHash = genSamplerHash([
-            Filter.LINEAR,
-            Filter.LINEAR,
-            Filter.NONE,
-            Address.CLAMP,
-            Address.CLAMP,
-            Address.CLAMP,
-        ]);
-        const gbufferSampler = samplerLib.getSampler(device, gbufferSamplerHash);
-        pipeline.descriptorSet.bindSampler(UNIFORM_GBUFFER_ALBEDOMAP_BINDING, gbufferSampler);
-        pipeline.descriptorSet.bindSampler(UNIFORM_GBUFFER_POSITIONMAP_BINDING, gbufferSampler);
-        pipeline.descriptorSet.bindSampler(UNIFORM_GBUFFER_NORMALMAP_BINDING, gbufferSampler);
-        pipeline.descriptorSet.bindSampler(UNIFORM_GBUFFER_EMISSIVEMAP_BINDING, gbufferSampler);
     }
 
     public render (camera: Camera) {
@@ -205,13 +75,5 @@ export class GbufferFlow extends RenderFlow {
 
     public destroy () {
         super.destroy();
-        for (let i = 0; i < this._gbufferRenderTargets.length; i++) {
-            const renderTarget = this._gbufferRenderTargets[i];
-            if (renderTarget) { renderTarget.destroy(); }
-        }
-        this._gbufferRenderTargets.length = 0;
-
-        if (this._gbufferRenderPass) { this._gbufferRenderPass.destroy(); }
-        if (this._gbufferFrameBuffer) { this._gbufferFrameBuffer.destroy(); }
     }
 }

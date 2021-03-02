@@ -38,11 +38,11 @@ import { RenderTextureConfig, MaterialConfig } from '../pipeline-serialization';
 import { ShadowFlow } from '../shadow/shadow-flow';
 import { BufferUsageBit, Format, MemoryUsageBit, ClearFlagBit, ClearFlags, StoreOp, Filter, Address,
     SurfaceTransform, Feature, ColorAttachment, DepthStencilAttachment, RenderPass, LoadOp,
-    RenderPassInfo, BufferInfo, Texture, InputAssembler, InputAssemblerInfo, Attribute, Buffer, AccessType } from '../../gfx';
-import { UBOGlobal, UBOCamera, UBOShadow, UNIFORM_SHADOWMAP_BINDING, UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING } from '../define';
-
+    RenderPassInfo, BufferInfo, Texture, InputAssembler, InputAssemblerInfo, Attribute, Buffer, AccessType, Framebuffer,
+    TextureInfo, TextureType, TextureUsageBit, FramebufferInfo } from '../../gfx';
+import { UBOGlobal, UBOCamera, UBOShadow, UNIFORM_SHADOWMAP_BINDING, UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING, UNIFORM_GBUFFER_ALBEDOMAP_BINDING, 
+    UNIFORM_GBUFFER_POSITIONMAP_BINDING, UNIFORM_GBUFFER_NORMALMAP_BINDING, UNIFORM_GBUFFER_EMISSIVEMAP_BINDING, UNIFORM_LIGHTING_RESULTMAP_BINDING} from '../define';
 import { SKYBOX_FLAG } from '../../renderer/scene/camera';
-
 import { Camera } from '../../renderer/scene';
 import { errorID } from '../../platform/debug';
 
@@ -55,10 +55,36 @@ const _samplerInfo = [
     Address.CLAMP,
 ];
 
+const samplerHash = genSamplerHash(_samplerInfo);
+
 class InputAssemblerData {
     quadIB: Buffer|null = null;
     quadVB: Buffer|null = null;
     quadIA: InputAssembler|null = null;
+}
+
+export class DeferredRenderData {
+    public gbufferFrameBuffer: Framebuffer | null = null;
+    public gbufferRenderTargets: Texture[] = [];
+    public lightingFrameBuffer: Framebuffer | null = null;
+    public lightingRenderTargets: Texture[] = [];
+    public depthTex: Texture | null = null;
+
+    public destroy () {
+        if (this.gbufferFrameBuffer) this.gbufferFrameBuffer.destroy();
+        if (this.lightingFrameBuffer) this.lightingFrameBuffer.destroy();
+        if (this.depthTex) this.depthTex.destroy();
+
+        for (let i = 0; i < this.gbufferRenderTargets.length; i++) {
+            this.gbufferRenderTargets[i].destroy();
+        }
+        this.gbufferRenderTargets.length = 0;
+
+        for (let i = 0; i < this.lightingRenderTargets.length; i++) {
+            this.lightingRenderTargets[i].destroy();
+        }
+        this.lightingRenderTargets.length = 0;
+    }
 }
 
 /**
@@ -73,6 +99,11 @@ export class DeferredPipeline extends RenderPipeline {
     protected _quadIAOnscreen: InputAssembler | null = null;
     protected _quadIAOffscreen: InputAssembler | null = null;
     protected _gbufferDepth: Texture|null = null;
+    protected _deferredRenderDatas: Map<Camera, DeferredRenderData> = new Map<Camera, DeferredRenderData>();
+    private _gbufferRenderPass: RenderPass | null = null;
+    private _lightingRenderPass: RenderPass | null = null;
+    private _width = 0;
+    private _height = 0;
 
     @type([RenderTextureConfig])
     @serializable
@@ -95,14 +126,6 @@ export class DeferredPipeline extends RenderPipeline {
 
     public get quadIAOffscreen (): InputAssembler {
         return this._quadIAOffscreen!;
-    }
-
-    get gbufferDepth () {
-        return this._gbufferDepth;
-    }
-
-    set gbufferDepth (val) {
-        this._gbufferDepth = val;
     }
 
     public initialize (info: IRenderPipelineInfo): boolean {
@@ -147,11 +170,13 @@ export class DeferredPipeline extends RenderPipeline {
 
         this._commandBuffers[0].begin();
         this._pipelineUBO.updateGlobalUBO();
-        const camera = cameras[0];
-        if (camera.scene) {
-            this._pipelineUBO.updateCameraUBO(camera, true);
-            for (let j = 0; j < this._flows.length; j++) {
-                this._flows[j].render(camera);
+        for (let i = 0; i < cameras.length; i++) {
+            const camera = cameras[i];
+            if (camera.scene) {
+                this._pipelineUBO.updateCameraUBO(camera, true);
+                for (let j = 0; j < this._flows.length; j++) {
+                    this._flows[j].render(camera);
+                }
             }
         }
         this._commandBuffers[0].end();
@@ -192,16 +217,23 @@ export class DeferredPipeline extends RenderPipeline {
         return renderPass;
     }
 
+    public getDeferredRenderData (camera): DeferredRenderData {
+        if (!this._deferredRenderDatas.has(camera)) {
+            this.generateDeferredRenderData(camera);
+        }
+        
+        return this._deferredRenderDatas.get(camera)!;
+    }
+
     private _activeRenderer () {
         const device = this.device;
 
         this._commandBuffers.push(device.commandBuffer);
 
-        const shadowMapSamplerHash = genSamplerHash(_samplerInfo);
-        const shadowMapSampler = samplerLib.getSampler(device, shadowMapSamplerHash);
-        this._descriptorSet.bindSampler(UNIFORM_SHADOWMAP_BINDING, shadowMapSampler);
+        const sampler = samplerLib.getSampler(device, samplerHash);
+        this._descriptorSet.bindSampler(UNIFORM_SHADOWMAP_BINDING, sampler);
         this._descriptorSet.bindTexture(UNIFORM_SHADOWMAP_BINDING, builtinResMgr.get<Texture2D>('default-texture').getGFXTexture()!);
-        this._descriptorSet.bindSampler(UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING, shadowMapSampler);
+        this._descriptorSet.bindSampler(UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING, sampler);
         this._descriptorSet.bindTexture(UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING, builtinResMgr.get<Texture2D>('default-texture').getGFXTexture()!);
         this._descriptorSet.update();
 
@@ -225,6 +257,76 @@ export class DeferredPipeline extends RenderPipeline {
         }
         this._quadVBOnscreen = inputAssemblerDataOnscreen.quadVB;
         this._quadIAOnscreen = inputAssemblerDataOnscreen.quadIA;
+
+        if (!this._gbufferRenderPass) {
+            const colorAttachment0 = new ColorAttachment();
+            colorAttachment0.format = Format.RGBA16F;
+            colorAttachment0.loadOp = LoadOp.CLEAR; // should clear color attachment
+            colorAttachment0.storeOp = StoreOp.STORE;
+
+            const colorAttachment1 = new ColorAttachment();
+            colorAttachment1.format = Format.RGBA16F;
+            colorAttachment1.loadOp = LoadOp.CLEAR; // should clear color attachment
+            colorAttachment1.storeOp = StoreOp.STORE;
+
+            const colorAttachment2 = new ColorAttachment();
+            colorAttachment2.format = Format.RGBA16F;
+            colorAttachment2.loadOp = LoadOp.CLEAR; // should clear color attachment
+            colorAttachment2.storeOp = StoreOp.STORE;
+
+            const colorAttachment3 = new ColorAttachment();
+            colorAttachment3.format = Format.RGBA16F;
+            colorAttachment3.loadOp = LoadOp.CLEAR; // should clear color attachment
+            colorAttachment3.storeOp = StoreOp.STORE;
+
+            const depthStencilAttachment = new DepthStencilAttachment();
+            depthStencilAttachment.format = device.depthStencilFormat;
+            depthStencilAttachment.depthLoadOp = LoadOp.CLEAR;
+            depthStencilAttachment.depthStoreOp = StoreOp.STORE;
+            depthStencilAttachment.stencilLoadOp = LoadOp.CLEAR;
+            depthStencilAttachment.stencilStoreOp = StoreOp.STORE;
+            const renderPassInfo = new RenderPassInfo([colorAttachment0, colorAttachment1, colorAttachment2, colorAttachment3],
+                depthStencilAttachment);
+            this._gbufferRenderPass = device.createRenderPass(renderPassInfo);
+        }
+
+        if (!this._lightingRenderPass) {
+            const colorAttachment = new ColorAttachment();
+            colorAttachment.format = Format.RGBA16F;
+            colorAttachment.loadOp = LoadOp.CLEAR; // should clear color attachment
+            colorAttachment.storeOp = StoreOp.STORE;
+            colorAttachment.endAccesses = [AccessType.COLOR_ATTACHMENT_WRITE];
+
+            const depthStencilAttachment = new DepthStencilAttachment();
+            depthStencilAttachment.format = device.depthStencilFormat;
+            depthStencilAttachment.depthLoadOp = LoadOp.LOAD;
+            depthStencilAttachment.depthStoreOp = StoreOp.DISCARD;
+            depthStencilAttachment.stencilLoadOp = LoadOp.LOAD;
+            depthStencilAttachment.stencilStoreOp = StoreOp.DISCARD;
+            depthStencilAttachment.beginAccesses = [AccessType.DEPTH_STENCIL_ATTACHMENT_WRITE];
+            depthStencilAttachment.endAccesses = [AccessType.DEPTH_STENCIL_ATTACHMENT_WRITE];
+
+            const renderPassInfo = new RenderPassInfo([colorAttachment], depthStencilAttachment);
+            this._lightingRenderPass = device.createRenderPass(renderPassInfo);
+        }
+
+        this.descriptorSet.bindSampler(UNIFORM_GBUFFER_ALBEDOMAP_BINDING, sampler);
+        this.descriptorSet.bindSampler(UNIFORM_GBUFFER_POSITIONMAP_BINDING, sampler);
+        this.descriptorSet.bindSampler(UNIFORM_GBUFFER_NORMALMAP_BINDING, sampler);
+        this.descriptorSet.bindSampler(UNIFORM_GBUFFER_EMISSIVEMAP_BINDING, sampler);
+        this.descriptorSet.bindSampler(UNIFORM_LIGHTING_RESULTMAP_BINDING, sampler);
+
+        this._width = device.width;
+        this._height = device.height;
+
+        if (device.surfaceTransform === SurfaceTransform.IDENTITY
+            || device.surfaceTransform === SurfaceTransform.ROTATE_180) {
+            this._width = device.width;
+            this._height = device.height;
+        } else {
+            this._width = device.height;
+            this._height = device.width;
+        }
 
         return true;
     }
@@ -250,6 +352,13 @@ export class DeferredPipeline extends RenderPipeline {
         while (!rpRes.done) {
             rpRes.value.destroy();
             rpRes = rpIter.next();
+        }
+
+        const rdIter = this._deferredRenderDatas.values();
+        let rdRes = rdIter.next();
+        while (!rdRes.done) {
+            rdRes.value.destroy();
+            rdRes = rdIter.next();
         }
 
         this._commandBuffers.length = 0;
@@ -385,5 +494,72 @@ export class DeferredPipeline extends RenderPipeline {
             this._quadIAOffscreen.destroy();
             this._quadIAOffscreen = null;
         }
+    }
+
+    protected generateDeferredRenderData (camera: Camera) {
+        const device = this.device;
+
+        const data = new DeferredRenderData();
+
+        data.gbufferRenderTargets.push(device.createTexture(new TextureInfo(
+            TextureType.TEX2D,
+            TextureUsageBit.COLOR_ATTACHMENT | TextureUsageBit.SAMPLED,
+            Format.RGBA16F,
+            this._width,
+            this._height,
+        )));
+
+        data.gbufferRenderTargets.push(device.createTexture(new TextureInfo(
+            TextureType.TEX2D,
+            TextureUsageBit.COLOR_ATTACHMENT | TextureUsageBit.SAMPLED,
+            Format.RGBA16F,
+            this._width,
+            this._height,
+        )));
+
+        data.gbufferRenderTargets.push(device.createTexture(new TextureInfo(
+            TextureType.TEX2D,
+            TextureUsageBit.COLOR_ATTACHMENT | TextureUsageBit.SAMPLED,
+            Format.RGBA16F,
+            this._width,
+            this._height,
+        )));
+        data.gbufferRenderTargets.push(device.createTexture(new TextureInfo(
+            TextureType.TEX2D,
+            TextureUsageBit.COLOR_ATTACHMENT | TextureUsageBit.SAMPLED,
+            Format.RGBA16F,
+            this._width,
+            this._height,
+        )));
+
+        data.depthTex = device.createTexture(new TextureInfo(
+            TextureType.TEX2D,
+            TextureUsageBit.DEPTH_STENCIL_ATTACHMENT,
+            device.depthStencilFormat,
+            this._width,
+            this._height,
+        ));
+        
+        data.gbufferFrameBuffer = device.createFramebuffer(new FramebufferInfo(
+            this._gbufferRenderPass!,
+            data.gbufferRenderTargets,
+            data.depthTex,
+        ));
+
+        data.lightingRenderTargets.push(device.createTexture(new TextureInfo(
+            TextureType.TEX2D,
+            TextureUsageBit.COLOR_ATTACHMENT | TextureUsageBit.SAMPLED,
+            Format.RGBA16F,
+            this._width,
+            this._height,
+        )));
+
+        data.lightingFrameBuffer = device.createFramebuffer(new FramebufferInfo(
+            this._lightingRenderPass!,
+            data.lightingRenderTargets,
+            data.depthTex,
+        ));
+    
+        this._deferredRenderDatas.set(camera, data);
     }
 }

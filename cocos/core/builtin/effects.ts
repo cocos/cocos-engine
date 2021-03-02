@@ -656,7 +656,7 @@ export const effects = [
   {
     "name": "post-process",
     "techniques": [
-      { "passes": [{ "phase": "post-process", "blendState": { "targets": [{ "blend": false }] }, "program": "post-process|post-process-vs|post-process-fs", "depthStencilState": { "depthTest": false } }] }
+      { "passes": [{ "phase": "post-process", "blendState": { "targets": [{ "blend": true, "blendSrc": 2, "blendDst": 1, "blendSrcAlpha": 2, "blendDstAlpha": 1 }] }, "program": "post-process|post-process-vs|post-process-fs", "depthStencilState": { "depthTest": false } }] }
     ],
     "shaders": [
       {

@@ -30,7 +30,7 @@
 import { ccclass, displayOrder, type, serializable } from 'cc.decorator';
 import { builtinResMgr } from '../../builtin/builtin-res-mgr';
 import { Camera } from '../../renderer/scene';
-import { IRenderPass, localDescriptorSetLayout, UBODeferredLight, SetIndex, UBOForwardLight   } from '../define';
+import { IRenderPass, localDescriptorSetLayout, UBODeferredLight, SetIndex, UBOForwardLight, UNIFORM_LIGHTING_RESULTMAP_BINDING } from '../define';
 import { getPhaseID } from '../pass-phase';
 import { opaqueCompareFn, RenderQueue, transparentCompareFn } from '../render-queue';
 import { Color, Rect, Shader, Buffer, BufferUsageBit, MemoryUsageBit, BufferInfo, BufferViewInfo, DescriptorSet, DescriptorSetLayoutInfo,
@@ -39,7 +39,7 @@ import { IRenderStageInfo, RenderStage } from '../render-stage';
 import { DeferredStagePriority } from './enum';
 import { RenderAdditiveLightQueue } from '../render-additive-light-queue';
 import { LightingFlow } from './lighting-flow';
-import { DeferredPipeline } from './deferred-pipeline';
+import { DeferredPipeline, DeferredRenderData } from './deferred-pipeline';
 import { RenderQueueDesc, RenderQueueSortMode } from '../pipeline-serialization';
 import { PlanarShadowQueue } from '../planar-shadow-queue';
 import { Material } from '../../assets/material';
@@ -65,11 +65,10 @@ export class LightingStage extends RenderStage {
     private _lightMeterScale = 10000.0;
     private _descriptorSet: DescriptorSet = null!;
     private _descriptorSetLayout!: DescriptorSetLayout;
-
     private _renderArea = new Rect();
     private declare _additiveLightQueue: RenderAdditiveLightQueue;
     private declare _planarQueue: PlanarShadowQueue;
-    private _tansprarentPhaseID = getPhaseID('deferred-transparent');
+    private _phaseID = getPhaseID('deferred');
 
     @type(Material)
     @serializable
@@ -270,6 +269,11 @@ export class LightingStage extends RenderStage {
 
         const cmdBuff = pipeline.commandBuffers[0];
 
+        const renderObjects = pipeline.pipelineSceneData.renderObjects;
+        if (renderObjects.length === 0) {
+            return;
+        }
+
         // light信息
         this.gatherLights(camera);
         this._descriptorSet.update();
@@ -301,9 +305,10 @@ export class LightingStage extends RenderStage {
             }
         }
 
-        colors[0].w = camera.clearColor.w;
-
-        const framebuffer = (this._flow as LightingFlow).lightingFrameBuffer;
+        colors[0].w = 0;
+        const deferredData = pipeline.getDeferredRenderData(camera);
+        this.bindLightingTexture(deferredData);
+        const framebuffer = deferredData.lightingFrameBuffer!;
         const renderPass = framebuffer.renderPass;
 
         cmdBuff.beginRenderPass(renderPass, framebuffer, this._renderArea,
@@ -341,7 +346,6 @@ export class LightingStage extends RenderStage {
         // Transparent
         this._renderQueues.forEach(this.renderQueueClearFunc);
 
-        const renderObjects = pipeline.pipelineSceneData.renderObjects;
         let m = 0; let p = 0; let k = 0;
         for (let i = 0; i < renderObjects.length; ++i) {
             const ro = renderObjects[i];
@@ -351,7 +355,8 @@ export class LightingStage extends RenderStage {
                 const passes = subModel.passes;
                 for (p = 0; p < passes.length; ++p) {
                     const pass = passes[p];
-                    if (pass.phase !== this._tansprarentPhaseID) continue;
+                    // TODO: need fallback of ulit and gizmo material.
+                    if (pass.phase === this._phaseID) continue;
                     for (k = 0; k < this._renderQueues.length; k++) {
                         this._renderQueues[k].insertRenderPass(ro, m, p);
                     }
@@ -383,5 +388,12 @@ export class LightingStage extends RenderStage {
      */
     protected renderQueueSortFunc (rq: RenderQueue) {
         rq.sort();
+    }
+
+    private bindLightingTexture (data: DeferredRenderData) {
+        const pipeline = this._pipeline;
+        const fb = data.lightingFrameBuffer!;
+        pipeline.descriptorSet.bindTexture(UNIFORM_LIGHTING_RESULTMAP_BINDING, fb.colorTextures[0]!);
+        pipeline.descriptorSet.update();
     }
 }

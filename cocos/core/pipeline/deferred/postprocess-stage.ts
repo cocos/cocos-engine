@@ -31,7 +31,7 @@ import { ccclass, displayOrder, type, serializable } from 'cc.decorator';
 import { builtinResMgr } from '../../builtin';
 import { Camera } from '../../renderer/scene';
 import { SetIndex } from '../define';
-import { Color, Rect, Shader, PipelineState } from '../../gfx';
+import { Color, Rect, Shader, PipelineState, ClearFlagBit, BlendFactor } from '../../gfx';
 import { IRenderStageInfo, RenderStage } from '../render-stage';
 import { DeferredStagePriority } from './enum';
 import { LightingFlow } from './lighting-flow';
@@ -108,6 +108,14 @@ export class PostprocessStage extends RenderStage {
         const framebuffer = camera.window!.framebuffer;
         const renderPass = framebuffer.colorTextures[0] ? framebuffer.renderPass : pipeline.getRenderPass(camera.clearFlag);
 
+        if (camera.clearFlag & ClearFlagBit.COLOR) {
+            colors[0].x = camera.clearColor.x;
+            colors[0].y = camera.clearColor.y;
+            colors[0].z = camera.clearColor.z;
+        }
+
+        colors[0].w = camera.clearColor.w;
+
         cmdBuff.beginRenderPass(renderPass, framebuffer, this._renderArea,
             colors, camera.clearDepth, camera.clearStencil);
 
@@ -131,7 +139,7 @@ export class PostprocessStage extends RenderStage {
             pso = PipelineStateManager.getOrCreatePipelineState(device, pass, shader, renderPass, inputAssembler);
         }
 
-        if (pso != null) {
+        if (pso != null && pipeline.pipelineSceneData.renderObjects.length > 0) {
             cmdBuff.bindPipelineState(pso);
             cmdBuff.bindInputAssembler(inputAssembler);
             cmdBuff.draw(inputAssembler);
