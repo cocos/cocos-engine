@@ -133,10 +133,10 @@ export class AmmoShape implements IBaseShape {
     initialize (com: Collider) {
         this._collider = com;
         this._isBinding = true;
-        this.onComponentSet();
-        this.setWrapper();
         this._sharedBody = (PhysicsSystem.instance.physicsWorld as AmmoWorld).getSharedBody(this._collider.node);
         this._sharedBody.reference = true;
+        this.onComponentSet();
+        this.setWrapper();
     }
 
     // virtual
@@ -176,6 +176,13 @@ export class AmmoShape implements IBaseShape {
         (this.transform as any) = null;
         (this.quat as any) = null;
         (this.scale as any) = null;
+    }
+
+    updateByReAdd () {
+        if (this._isEnabled) {
+            this._sharedBody.removeShape(this, this._isTrigger);
+            this._sharedBody.addShape(this, this._isTrigger);
+        }
     }
 
     /** group mask */

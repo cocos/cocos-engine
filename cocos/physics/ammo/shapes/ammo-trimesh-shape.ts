@@ -68,6 +68,7 @@ export class AmmoTrimeshShape extends AmmoShape implements ITrimeshShape {
                 this._btShape.setLocalScaling(this.scale);
                 this.setWrapper();
                 this.setCompound(this._btCompound);
+                this.updateByReAdd();
             } else {
                 this._btShape = AmmoConstant.instance.EMPTY_SHAPE;
             }
