@@ -179,8 +179,10 @@ export class AmmoShape implements IBaseShape {
     }
 
     updateByReAdd () {
-        this._sharedBody.removeShape(this, this._isTrigger);
-        this._sharedBody.addShape(this, this._isTrigger);
+        if (this._isEnabled) {
+            this._sharedBody.removeShape(this, this._isTrigger);
+            this._sharedBody.addShape(this, this._isTrigger);
+        }
     }
 
     /** group mask */
