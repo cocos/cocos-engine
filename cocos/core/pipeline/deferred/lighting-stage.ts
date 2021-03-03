@@ -69,6 +69,7 @@ export class LightingStage extends RenderStage {
     private declare _additiveLightQueue: RenderAdditiveLightQueue;
     private declare _planarQueue: PlanarShadowQueue;
     private _phaseID = getPhaseID('deferred');
+    private _forwardAdd = getPhaseID('forward-add');
 
     @type(Material)
     @serializable
@@ -356,7 +357,7 @@ export class LightingStage extends RenderStage {
                 for (p = 0; p < passes.length; ++p) {
                     const pass = passes[p];
                     // TODO: need fallback of ulit and gizmo material.
-                    if (pass.phase === this._phaseID) continue;
+                    if (pass.phase === this._phaseID || pass.phase === this._forwardAdd) continue;
                     for (k = 0; k < this._renderQueues.length; k++) {
                         this._renderQueues[k].insertRenderPass(ro, m, p);
                     }

@@ -259,6 +259,39 @@ export const effects = [
     ]
   },
   {
+    "name": "spine",
+    "techniques": [
+      { "passes": [{ "blendState": { "targets": [{ "blend": true, "blendSrc": 2, "blendDst": 4, "blendDstAlpha": 4 }] }, "rasterizerState": { "cullMode": 0 }, "program": "spine|sprite-vs:vert|sprite-fs:frag", "depthStencilState": { "depthTest": false, "depthWrite": false }, "properties": { "alphaThreshold": { "value": [0.5], "type": 13 } } }] }
+    ],
+    "shaders": [
+      {
+        "name": "spine|sprite-vs:vert|sprite-fs:frag",
+        "hash": 2041444135,
+        "builtins": {
+          "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }], "samplerTextures": [] },
+          "locals": { "blocks": [{ "name": "CCLocal", "defines": ["USE_LOCAL"] }], "samplerTextures": [{ "name": "cc_spriteTexture", "defines": [] }] }
+        },
+        "defines": [
+          { "name": "USE_LOCAL", "type": "boolean" },
+          { "name": "TWO_COLORED", "type": "boolean" },
+          { "name": "USE_ALPHA_TEST", "type": "boolean" }
+        ],
+        "blocks": [
+          {"name": "ALPHA_TEST_DATA", "defines": ["USE_ALPHA_TEST"], "binding": 0, "stageFlags": 16, "members": [
+            { "name": "alphaThreshold", "type": 13, "count": 1 }
+          ]}
+        ],
+        "samplerTextures": [],
+        "attributes": [
+          { "name": "a_position", "type": 15, "count": 1, "defines": [], "stageFlags": 1, "format": 32, "location": 0 },
+          { "name": "a_texCoord", "type": 14, "count": 1, "defines": [], "stageFlags": 1, "format": 21, "location": 1 },
+          { "name": "a_color", "type": 16, "count": 1, "defines": [], "stageFlags": 1, "format": 44, "location": 2 },
+          { "name": "a_color2", "type": 16, "count": 1, "defines": ["TWO_COLORED"], "stageFlags": 1, "format": 44, "location": 3 }
+        ]
+      }
+    ]
+  },
+  {
     "name": "sprite",
     "techniques": [
       { "passes": [{ "blendState": { "targets": [{ "blend": true, "blendSrc": 2, "blendDst": 4, "blendDstAlpha": 4 }] }, "rasterizerState": { "cullMode": 0 }, "program": "sprite|sprite-vs:vert|sprite-fs:frag", "depthStencilState": { "depthTest": false, "depthWrite": false }, "properties": { "alphaThreshold": { "value": [0.5], "type": 13 } } }] }
@@ -656,7 +689,7 @@ export const effects = [
   {
     "name": "post-process",
     "techniques": [
-      { "passes": [{ "phase": "post-process", "blendState": { "targets": [{ "blend": true, "blendSrc": 2, "blendDst": 1, "blendSrcAlpha": 2, "blendDstAlpha": 1 }] }, "program": "post-process|post-process-vs|post-process-fs", "depthStencilState": { "depthTest": false } }] }
+      { "passes": [{ "phase": "post-process", "blendState": { "targets": [{ "blend": true, "blendSrc": 2, "blendDst": 4, "blendSrcAlpha": 2, "blendDstAlpha": 4 }] }, "program": "post-process|post-process-vs|post-process-fs", "depthStencilState": { "depthTest": false } }] }
     ],
     "shaders": [
       {
