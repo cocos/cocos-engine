@@ -228,18 +228,16 @@ void ForwardPipeline::updateCameraUBO(Camera *camera) {
     }
     uboCameraView[UBOCamera::CAMERA_POS_OFFSET + 3] = projectionSignY;
 
-    if (fog->enabled) {
-        TO_VEC4(uboCameraView, fog->fogColor, UBOCamera::GLOBAL_FOG_COLOR_OFFSET);
+    TO_VEC4(uboCameraView, fog->fogColor, UBOCamera::GLOBAL_FOG_COLOR_OFFSET);
 
-        uboCameraView[UBOCamera::GLOBAL_FOG_BASE_OFFSET] = fog->fogStart;
-        uboCameraView[UBOCamera::GLOBAL_FOG_BASE_OFFSET + 1] = fog->fogEnd;
-        uboCameraView[UBOCamera::GLOBAL_FOG_BASE_OFFSET + 2] = fog->fogDensity;
+    uboCameraView[UBOCamera::GLOBAL_FOG_BASE_OFFSET] = fog->fogStart;
+    uboCameraView[UBOCamera::GLOBAL_FOG_BASE_OFFSET + 1] = fog->fogEnd;
+    uboCameraView[UBOCamera::GLOBAL_FOG_BASE_OFFSET + 2] = fog->fogDensity;
 
-        uboCameraView[UBOCamera::GLOBAL_FOG_ADD_OFFSET] = fog->fogTop;
-        uboCameraView[UBOCamera::GLOBAL_FOG_ADD_OFFSET + 1] = fog->fogRange;
-        uboCameraView[UBOCamera::GLOBAL_FOG_ADD_OFFSET + 2] = fog->fogAtten;
-    }
-
+    uboCameraView[UBOCamera::GLOBAL_FOG_ADD_OFFSET] = fog->fogTop;
+    uboCameraView[UBOCamera::GLOBAL_FOG_ADD_OFFSET + 1] = fog->fogRange;
+    uboCameraView[UBOCamera::GLOBAL_FOG_ADD_OFFSET + 2] = fog->fogAtten;
+    
     // update ubos
     _commandBuffers[0]->updateBuffer(_descriptorSet->getBuffer(UBOCamera::BINDING), _cameraUBO.data(), UBOCamera::SIZE);
 }

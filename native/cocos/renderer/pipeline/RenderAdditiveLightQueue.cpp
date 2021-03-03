@@ -504,17 +504,15 @@ void RenderAdditiveLightQueue::updateCameraUBO(const Camera *camera, gfx::Comman
     const auto *envmap = _pipeline->getDescriptorSet()->getTexture((uint)PipelineGlobalBindings::SAMPLER_ENVIRONMENT);
     if (envmap) uboCameraView[UBOCamera::AMBIENT_GROUND_OFFSET + 3] = envmap->getLevelCount();
 
-    if (fog->enabled) {
-        TO_VEC4(uboCameraView, fog->fogColor, UBOCamera::GLOBAL_FOG_COLOR_OFFSET);
+    TO_VEC4(uboCameraView, fog->fogColor, UBOCamera::GLOBAL_FOG_COLOR_OFFSET);
 
-        uboCameraView[UBOCamera::GLOBAL_FOG_BASE_OFFSET] = fog->fogStart;
-        uboCameraView[UBOCamera::GLOBAL_FOG_BASE_OFFSET + 1] = fog->fogEnd;
-        uboCameraView[UBOCamera::GLOBAL_FOG_BASE_OFFSET + 2] = fog->fogDensity;
+    uboCameraView[UBOCamera::GLOBAL_FOG_BASE_OFFSET] = fog->fogStart;
+    uboCameraView[UBOCamera::GLOBAL_FOG_BASE_OFFSET + 1] = fog->fogEnd;
+    uboCameraView[UBOCamera::GLOBAL_FOG_BASE_OFFSET + 2] = fog->fogDensity;
 
-        uboCameraView[UBOCamera::GLOBAL_FOG_ADD_OFFSET] = fog->fogTop;
-        uboCameraView[UBOCamera::GLOBAL_FOG_ADD_OFFSET + 1] = fog->fogRange;
-        uboCameraView[UBOCamera::GLOBAL_FOG_ADD_OFFSET + 2] = fog->fogAtten;
-    }
+    uboCameraView[UBOCamera::GLOBAL_FOG_ADD_OFFSET] = fog->fogTop;
+    uboCameraView[UBOCamera::GLOBAL_FOG_ADD_OFFSET + 1] = fog->fogRange;
+    uboCameraView[UBOCamera::GLOBAL_FOG_ADD_OFFSET + 2] = fog->fogAtten;
 }
 
 bool RenderAdditiveLightQueue::getLightPassIndex(const ModelView *model, vector<uint> &lightPassIndices) const {
