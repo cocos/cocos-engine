@@ -43,24 +43,7 @@ for (let i = 0; i < 4; i++) {
 
 const _perVertexLength = 9;
 
-interface ITiledAssembler extends IAssembler {
-    sizableWidth: number;
-    sizableHeight: number;
-    vRepeat: number;
-    hRepeat: number;
-    row: number;
-    col: number;
-}
-
-export const tiled: ITiledAssembler = {
-    useModel: false,
-    sizableWidth: 0,
-    sizableHeight: 0,
-    vRepeat: 0,
-    hRepeat: 0,
-    row: 0,
-    col: 0,
-
+export const tiled: IAssembler = {
     createData (sprite: Renderable2D) {
         return sprite.requestRenderData();
     },
