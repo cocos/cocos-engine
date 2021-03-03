@@ -78,8 +78,8 @@ LightingStage::~LightingStage() {
 bool LightingStage::initialize(const RenderStageInfo &info) {
     RenderStage::initialize(info);
     _renderQueueDescriptors = info.renderQueues;
-    _phaseID = getPhaseID("deferred-lighting");
-    _transparentPhaseID = getPhaseID("deferred-transparent");
+    _phaseID = getPhaseID("deferred");
+    _transparentPhaseID = getPhaseID("forward-add");
     return true;
 }
 
@@ -277,6 +277,11 @@ void LightingStage::render(Camera *camera) {
     auto pipeline = static_cast<DeferredPipeline *>(_pipeline);
     const auto sceneData = _pipeline->getPipelineSceneData();
     const auto sharedData = sceneData->getSharedData();
+    const auto &renderObjects = sceneData->getRenderObjects();
+
+    if (renderObjects.empty()) {
+        return;
+    }
 
     auto cmdBuff = pipeline->getCommandBuffers()[0];
 
@@ -291,7 +296,7 @@ void LightingStage::render(Camera *camera) {
     gfx::Rect renderArea = pipeline->getRenderArea(camera, false);
 
     gfx::Color clearColor = {0.0, 0.0, 0.0, 1.0};
-    if (camera->clearFlag | static_cast<uint>( gfx::ClearFlagBit::COLOR)) {
+    if (camera->clearFlag & static_cast<uint>( gfx::ClearFlagBit::COLOR)) {
         if (sharedData->isHDR) {
             SRGBToLinear(clearColor, camera->clearColor);
             const auto scale = sharedData->fpScale / camera->exposure;
@@ -303,12 +308,11 @@ void LightingStage::render(Camera *camera) {
         }
     }
 
-    clearColor.w = camera->clearColor.w;
-
-    LightingFlow *flow = dynamic_cast<LightingFlow *>(_flow);
-    assert(flow != nullptr);
-
-    auto frameBuffer = flow->getLightingFrameBuffer();
+    clearColor.w = 0;
+    
+    const auto deferredData = pipeline->getDeferredRenderData(camera);
+    bindLightingTexture(deferredData);
+    auto frameBuffer = deferredData->lightingFrameBuff;
     auto renderPass = frameBuffer->getRenderPass();
 
     cmdBuff->beginRenderPass(renderPass, frameBuffer, renderArea, &clearColor,
@@ -321,7 +325,7 @@ void LightingStage::render(Camera *camera) {
     gfx::Shader *shader = sceneData->getSharedData()->getDeferredLightPassShader();
 
     gfx::InputAssembler* inputAssembler = pipeline->getQuadIAOffScreen();
-    gfx::PipelineState *pState =PipelineStateManager::getOrCreatePipelineState(
+    gfx::PipelineState *pState = PipelineStateManager::getOrCreatePipelineState(
         pass, shader, inputAssembler, renderPass);
     assert(pState != nullptr);
 
@@ -336,7 +340,6 @@ void LightingStage::render(Camera *camera) {
     for (auto queue : _renderQueues) {
         queue->clear();
     }
-    const auto &renderObjects = sceneData->getRenderObjects();
 
     uint m = 0, p = 0;
     size_t k = 0;
@@ -349,8 +352,8 @@ void LightingStage::render(Camera *camera) {
             auto subModel = model->getSubModelView(subModelID[m]);
             for (p = 0; p < subModel->passCount; ++p) {
                 const PassView *pass = subModel->getPassView(p);
-
-                if (pass->phase != _transparentPhaseID) continue;
+                // TODO: need fallback of ulit and gizmo material.
+                if (pass->phase == _phaseID || pass->phase == _transparentPhaseID) continue;
                 for (k = 0; k < _renderQueues.size(); k++) {
                     _renderQueues[k]->insertRenderPass(ro, m, p);
                 }
@@ -363,6 +366,14 @@ void LightingStage::render(Camera *camera) {
     }
 
     cmdBuff->endRenderPass();
+}
+
+void LightingStage::bindLightingTexture(DeferredRenderData *data) {
+    // bind sampler and texture, used in postprocess
+    _pipeline->getDescriptorSet()->bindTexture(
+        static_cast<uint>(PipelineGlobalBindings::SAMPLER_LIGHTING_RESULTMAP),
+        data->lightingFrameBuff->getColorTextures()[0]);
+    _pipeline->getDescriptorSet()->update();
 }
 
 } // namespace pipeline

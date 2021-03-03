@@ -36,6 +36,7 @@ class RenderBatchedQueue;
 class RenderInstancedQueue;
 class RenderAdditiveLightQueue;
 class PlanarShadowQueue;
+struct DeferredRenderData;
 
 class CC_DLL LightingStage : public RenderStage {
 public:
@@ -53,6 +54,7 @@ public:
 
 private:
     void gatherLights(Camera *camera);
+    void bindLightingTexture(DeferredRenderData *data);
 
 private:
     static RenderStageInfo _initInfo;

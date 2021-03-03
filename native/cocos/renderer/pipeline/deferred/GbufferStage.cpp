@@ -73,7 +73,7 @@ GbufferStage::~GbufferStage() {
 bool GbufferStage::initialize(const RenderStageInfo &info) {
     RenderStage::initialize(info);
     _renderQueueDescriptors = info.renderQueues;
-    _phaseID = getPhaseID("deferred-gbuffer");
+    _phaseID = getPhaseID("default");
     return true;
 }
 
@@ -163,10 +163,10 @@ void GbufferStage::render(Camera *camera) {
 
     // render area is not oriented
     _renderArea = pipeline->getRenderArea(camera, false);
-
-    GbufferFlow *flow = dynamic_cast<GbufferFlow *>(getFlow());
-    assert(flow != nullptr);
-    auto framebuffer = flow->getFrameBuffer();
+    
+    const auto deferredData = pipeline->getDeferredRenderData(camera);
+    bindGbufferTexture(deferredData);
+    auto framebuffer = deferredData->gbufferFrameBuffer;
     auto renderPass = framebuffer->getRenderPass();
 
     cmdBuff->beginRenderPass(renderPass, framebuffer, _renderArea, _clearColors, camera->clearDepth, camera->clearStencil);
@@ -178,6 +178,18 @@ void GbufferStage::render(Camera *camera) {
     //_renderQueues[1]->recordCommandBuffer(_device, renderPass, cmdBuff);
 
     cmdBuff->endRenderPass();
+}
+
+void GbufferStage::bindGbufferTexture(DeferredRenderData *data) {
+    _pipeline->getDescriptorSet()->bindTexture(
+        static_cast<uint>(PipelineGlobalBindings::SAMPLER_GBUFFER_ALBEDOMAP), data->gbufferFrameBuffer->getColorTextures()[0]);
+    _pipeline->getDescriptorSet()->bindTexture(
+        static_cast<uint>(PipelineGlobalBindings::SAMPLER_GBUFFER_POSITIONMAP), data->gbufferFrameBuffer->getColorTextures()[1]);
+    _pipeline->getDescriptorSet()->bindTexture(
+       static_cast<uint>(PipelineGlobalBindings::SAMPLER_GBUFFER_NORMALMAP), data->gbufferFrameBuffer->getColorTextures()[2]);
+    _pipeline->getDescriptorSet()->bindTexture(
+        static_cast<uint>(PipelineGlobalBindings::SAMPLER_GBUFFER_EMISSIVEMAP), data->gbufferFrameBuffer->getColorTextures()[3]);
+    _pipeline->getDescriptorSet()->update();
 }
 
 } // namespace pipeline

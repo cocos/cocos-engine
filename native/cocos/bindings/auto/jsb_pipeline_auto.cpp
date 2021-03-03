@@ -3205,9 +3205,10 @@ SE_DECLARE_FINALIZE_FUNC(js_cc_pipeline_ShadowStage_finalize)
 
 static bool js_pipeline_ShadowStage_constructor(se::State& s) // constructor.c
 {
-    //#3 cc::pipeline::ShadowStage: is_skip_construtor True
-    se::ScriptEngine::getInstance()->evalString("throw new Error(\"cc::pipeline::ShadowStage constructor is skipped\")");
-    return false;
+    cc::pipeline::ShadowStage* cobj = JSB_ALLOC(cc::pipeline::ShadowStage);
+    s.thisObject()->setPrivateData(cobj);
+    se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+    return true;
 }
 SE_BIND_CTOR(js_pipeline_ShadowStage_constructor, __jsb_cc_pipeline_ShadowStage_class, js_cc_pipeline_ShadowStage_finalize)
 

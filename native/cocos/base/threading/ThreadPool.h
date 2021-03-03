@@ -46,7 +46,7 @@ public:
     static uint8_t const CPU_CORE_COUNT;
     static uint8_t const MAX_THREAD_COUNT;
 
-    ThreadPool() noexcept          = default;
+    ThreadPool()                   = default;
     ~ThreadPool()                  = default;
     ThreadPool(ThreadPool const &) = delete;
     ThreadPool(ThreadPool &&)      = delete;

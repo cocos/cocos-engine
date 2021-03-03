@@ -112,6 +112,8 @@ bool DeferredPipeline::initialize(const RenderPipelineInfo &info) {
 }
 
 bool DeferredPipeline::activate() {
+    _macros.setValue("CC_PIPELINE_TYPE", true);
+
     if (!RenderPipeline::activate()) {
         CC_LOG_ERROR("RenderPipeline active failed.");
         return false;
@@ -129,10 +131,12 @@ void DeferredPipeline::render(const vector<uint> &cameras) {
 	if (cameras.size() == 0) return;
     _commandBuffers[0]->begin();
     _pipelineUBO->updateGlobalUBO();
-    Camera *camera = GET_CAMERA(cameras[0]);
-    _pipelineUBO->updateCameraUBO(camera, true);
-    for (const auto flow : _flows) {
-        flow->render(camera);
+    for (const auto cameraId: cameras) {
+        Camera *camera = GET_CAMERA(cameraId);
+        _pipelineUBO->updateCameraUBO(camera, true);
+        for (const auto flow : _flows) {
+            flow->render(camera);
+        }
     }
     _commandBuffers[0]->end();
     _device->getQueue()->submit(_commandBuffers);
@@ -232,6 +236,14 @@ gfx::Rect DeferredPipeline::getRenderArea(Camera *camera, bool onScreen) {
     return renderArea;
 }
 
+DeferredRenderData *DeferredPipeline::getDeferredRenderData(Camera *view) {
+    if (_deferredRenderDatas.find(view) == _deferredRenderDatas.end()) {
+        generateDeferredRenderData(view);
+    }
+    
+    return _deferredRenderDatas[view];
+}
+
 void DeferredPipeline::destroyQuadInputAssembler() {
     if (_quadIB) {
         _quadIB->destroy();
@@ -271,15 +283,15 @@ bool DeferredPipeline::activeRenderer() {
         gfx::Address::CLAMP,
         gfx::Address::CLAMP,
     };
-    const auto shadowMapSamplerHash = genSamplerHash(std::move(info));
-    const auto shadowMapSampler = getSampler(shadowMapSamplerHash);
+    const auto samplerHash = genSamplerHash(std::move(info));
+    const auto sampler = getSampler(samplerHash);
 
     // Main light sampler binding
-    this->_descriptorSet->bindSampler(SHADOWMAP::BINDING, shadowMapSampler);
+    this->_descriptorSet->bindSampler(SHADOWMAP::BINDING, sampler);
     this->_descriptorSet->bindTexture(SHADOWMAP::BINDING, getDefaultTexture());
 
     // Spot light sampler binding
-    this->_descriptorSet->bindSampler(SPOT_LIGHTING_MAP::BINDING, shadowMapSampler);
+    this->_descriptorSet->bindSampler(SPOT_LIGHTING_MAP::BINDING, sampler);
     this->_descriptorSet->bindTexture(SPOT_LIGHTING_MAP::BINDING, getDefaultTexture());
 
     _descriptorSet->update();
@@ -295,8 +307,126 @@ bool DeferredPipeline::activeRenderer() {
     if (!createQuadInputAssembler(_quadIB, _quadVBOnscreen, _quadIAOnscreen, _device->getSurfaceTransform())) {
         return false;
     }
+    
+    gfx::RenderPassInfo gbufferPass;
+
+    gfx::ColorAttachment color = {
+        gfx::Format::RGBA16F,
+        gfx::SampleCount::X1,
+        gfx::LoadOp::CLEAR,
+        gfx::StoreOp::STORE,
+        {},
+        {gfx::AccessType::COLOR_ATTACHMENT_WRITE},
+    };
+
+    for (int i = 0; i < 4; i++) {
+        gbufferPass.colorAttachments.push_back(color);
+    }
+
+    gfx::DepthStencilAttachment depth = {
+        _device->getDepthStencilFormat(),
+        gfx::SampleCount::X1,
+        gfx::LoadOp::CLEAR,
+        gfx::StoreOp::STORE,
+        gfx::LoadOp::CLEAR,
+        gfx::StoreOp::STORE,
+    };
+
+    gbufferPass.depthStencilAttachment = depth;
+    _gbufferRenderPass = _device->createRenderPass(gbufferPass);
+    
+    gfx::ColorAttachment cAttch = {
+        gfx::Format::RGBA16F,
+        gfx::SampleCount::X1,
+        gfx::LoadOp::CLEAR,
+        gfx::StoreOp::STORE,
+        {},
+        {gfx::AccessType::COLOR_ATTACHMENT_WRITE},
+    };
+    
+    gfx::RenderPassInfo lightPass;
+    lightPass.colorAttachments.push_back(cAttch);
+    
+    lightPass.depthStencilAttachment = {
+        _device->getDepthStencilFormat(),
+        gfx::SampleCount::X1,
+        gfx::LoadOp::LOAD,
+        gfx::StoreOp::DISCARD,
+        gfx::LoadOp::DISCARD,
+        gfx::StoreOp::DISCARD,
+        {gfx::AccessType::DEPTH_STENCIL_ATTACHMENT_WRITE},
+    };
+
+    _lightingRenderPass = _device->createRenderPass(lightPass);
+    
+    _descriptorSet->bindSampler(
+        static_cast<uint>(PipelineGlobalBindings::SAMPLER_GBUFFER_ALBEDOMAP), sampler);
+    _descriptorSet->bindSampler(
+        static_cast<uint>(PipelineGlobalBindings::SAMPLER_GBUFFER_POSITIONMAP), sampler);
+    _descriptorSet->bindSampler(
+        static_cast<uint>(PipelineGlobalBindings::SAMPLER_GBUFFER_NORMALMAP), sampler);
+    _descriptorSet->bindSampler(
+        static_cast<uint>(PipelineGlobalBindings::SAMPLER_GBUFFER_EMISSIVEMAP), sampler);
+    _descriptorSet->bindSampler(
+        static_cast<uint>(PipelineGlobalBindings::SAMPLER_LIGHTING_RESULTMAP), sampler);
+    
+    if (_device->getSurfaceTransform() == gfx::SurfaceTransform::IDENTITY ||
+        _device->getSurfaceTransform() == gfx::SurfaceTransform::ROTATE_180) {
+            _width = _device->getWidth();
+            _height = _device->getHeight();
+    }
+    else {
+            _width = _device->getHeight();
+            _height = _device->getWidth();
+    }
 
     return true;
+}
+
+void DeferredPipeline::generateDeferredRenderData(Camera *view) {
+    DeferredRenderData* data = CC_NEW(DeferredRenderData);
+    
+    gfx::TextureInfo info = {
+        gfx::TextureType::TEX2D,
+        gfx::TextureUsageBit::COLOR_ATTACHMENT | gfx::TextureUsageBit::SAMPLED,
+        gfx::Format::RGBA16F,
+        _width,
+        _height,
+    };
+
+    for (int i = 0; i < 4; i++) {
+        gfx::Texture *tex = _device->createTexture(info);
+        data->gbufferRenderTargets.push_back(tex);
+    }
+
+    info.usage = gfx::TextureUsageBit::DEPTH_STENCIL_ATTACHMENT;
+    info.format = _device->getDepthStencilFormat();
+    data->depthTex = _device->createTexture(info);
+
+    gfx::FramebufferInfo gbufferInfo = {
+        _gbufferRenderPass,
+        data->gbufferRenderTargets,
+        data->depthTex,
+    };
+
+    data->gbufferFrameBuffer = _device->createFramebuffer(gbufferInfo);
+    
+    gfx::TextureInfo rtInfo = {
+        gfx::TextureType::TEX2D,
+        gfx::TextureUsageBit::COLOR_ATTACHMENT | gfx::TextureUsageBit::SAMPLED,
+        gfx::Format::RGBA16F,
+        _width,
+        _height,
+    };
+    data->lightingRenderTarget = _device->createTexture(rtInfo);
+
+    gfx::FramebufferInfo lightingInfo;
+    lightingInfo.renderPass = _lightingRenderPass;
+    lightingInfo.colorTextures.push_back(data->lightingRenderTarget);
+    lightingInfo.depthStencilTexture = data->depthTex;
+    data->lightingFrameBuff = _device->createFramebuffer(lightingInfo);
+
+    _deferredRenderDatas[view] = data;
 }
 
 void DeferredPipeline::destroy() {
@@ -316,8 +446,13 @@ void DeferredPipeline::destroy() {
         it.second->destroy();
     }
     _renderPasses.clear();
+    
+    _deferredRenderDatas.clear();
 
     _commandBuffers.clear();
+    
+    _gbufferRenderPass = nullptr;
+    _lightingRenderPass = nullptr;
 
     RenderPipeline::destroy();
 }

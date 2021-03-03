@@ -45,6 +45,14 @@ struct Sphere;
 class Framebuffer;
 class Camera;
 
+struct CC_DLL DeferredRenderData {
+    gfx::TextureList gbufferRenderTargets;
+    gfx::Framebuffer *gbufferFrameBuffer = nullptr;
+    gfx::Framebuffer *lightingFrameBuff = nullptr;
+    gfx::Texture *lightingRenderTarget = nullptr;
+    gfx::Texture *depthTex = nullptr;
+};
+
 class CC_DLL DeferredPipeline : public RenderPipeline {
 public:
     DeferredPipeline() = default;
@@ -64,15 +72,15 @@ public:
     CC_INLINE const UintList &getLightIndices() const { return _lightIndices; }
     gfx::InputAssembler *getQuadIAOnScreen(){return _quadIAOnscreen;}
     gfx::InputAssembler *getQuadIAOffScreen(){return _quadIAOffscreen;}
-    void setDepth(gfx::Texture *tex) {_depth = tex;}
-    gfx::Texture *getDepth(){return _depth;}
     gfx::Rect getRenderArea(Camera *view, bool onScreen);
+    DeferredRenderData *getDeferredRenderData(Camera *view);
 
 private:
     bool activeRenderer();
     bool createQuadInputAssembler(gfx::Buffer* &quadIB, gfx::Buffer* &quadVB, gfx::InputAssembler* &quadIA,
         gfx::SurfaceTransform surfaceTransform);
     void destroyQuadInputAssembler();
+    void generateDeferredRenderData(Camera *view);
 
 private:
     gfx::Buffer *_lightsUBO = nullptr;
@@ -88,8 +96,12 @@ private:
     gfx::Buffer *_quadVBOffscreen = nullptr;
     gfx::InputAssembler *_quadIAOnscreen = nullptr;
     gfx::InputAssembler *_quadIAOffscreen = nullptr;
-
-    gfx::Texture *_depth = nullptr;
+    
+    map<Camera *, DeferredRenderData *> _deferredRenderDatas;
+    gfx::RenderPass *_gbufferRenderPass = nullptr;
+    gfx::RenderPass *_lightingRenderPass = nullptr;
+    uint _width;
+    uint _height;
 };
 
 } // namespace pipeline
