@@ -293,7 +293,6 @@ export class AmmoWorld implements IPhysicsWorld {
             // TODO: SUPPORT CHARACTER EVENT
             if (body0.useCharacter || body1.useCharacter) { continue; }
 
-            const isUseCCD = body0.useCCD || body1.useCCD;
             const numContacts = manifold.getNumContacts();
             for (let j = 0; j < numContacts; j++) {
                 const manifoldPoint: Ammo.btManifoldPoint = manifold.getContactPoint(j);
@@ -301,49 +300,21 @@ export class AmmoWorld implements IPhysicsWorld {
                 const s1 = manifoldPoint.getShape1();
                 let shape0: AmmoShape;
                 let shape1: AmmoShape;
-                if (isUseCCD) {
-                    if (body0.useCCD) {
-                        const asb = (body0.wrapped as AmmoRigidBody).sharedBody;
-                        if (!asb) continue;
-                        shape0 = asb.bodyStruct.wrappedShapes[0];
-                    } else {
-                        const btShape0 = body0.getCollisionShape();
-                        if (btShape0.isCompound()) {
-                            // TODO: SUPPORT COMPOUND COLLISION WITH CCD
-                            continue;
-                        } else {
-                            shape0 = (btShape0).wrapped;
-                        }
-                    }
-
-                    if (body1.useCCD) {
-                        const asb = (body1.wrapped as AmmoRigidBody).sharedBody;
-                        if (!asb) continue;
-                        shape1 = asb.bodyStruct.wrappedShapes[0];
-                    } else {
-                        const btShape1 = body1.getCollisionShape();
-                        if (btShape1.isCompound()) {
-                            // TODO: SUPPORT COMPOUND COLLISION WITH CCD
-                            continue;
-                        } else {
-                            shape1 = (btShape1).wrapped;
-                        }
-                    }
+                if (s0.isCompound()) {
+                    const com = Ammo.castObject(s0, Ammo.btCompoundShape);
+                    shape0 = (com.getChildShape(manifoldPoint.m_index0) as any).wrapped;
                 } else {
-                    if (s0.isCompound()) {
-                        const com = Ammo.castObject(s0, Ammo.btCompoundShape);
-                        shape0 = (com.getChildShape(manifoldPoint.m_index0) as any).wrapped;
-                    } else {
-                        shape0 = (s0 as any).wrapped;
-                    }
-
-                    if (s1.isCompound()) {
-                        const com = Ammo.castObject(s1, Ammo.btCompoundShape);
-                        shape1 = (com.getChildShape(manifoldPoint.m_index1) as any).wrapped;
-                    } else {
-                        shape1 = (s1 as any).wrapped;
-                    }
+                    shape0 = (s0 as any).wrapped;
                 }
+
+                if (s1.isCompound()) {
+                    const com = Ammo.castObject(s1, Ammo.btCompoundShape);
+                    shape1 = (com.getChildShape(manifoldPoint.m_index1) as any).wrapped;
+                } else {
+                    shape1 = (s1 as any).wrapped;
+                }
+
+                if (!shape0 || !shape1) continue;
 
                 if (shape0.collider.needTriggerEvent
                     || shape1.collider.needTriggerEvent
