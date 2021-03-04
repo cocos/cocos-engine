@@ -66,6 +66,7 @@ public:
 
     void destroy();
     void merge(const ModelView *, const SubModelView *, uint);
+    void merge(const ModelView *, const SubModelView *, uint, gfx::Shader *);
     void uploadBuffers(gfx::CommandBuffer *cmdBuff);
     void clear();
     void setDynamicOffset(uint idx, uint value);

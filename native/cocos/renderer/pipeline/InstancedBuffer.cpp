@@ -61,13 +61,18 @@ void InstancedBuffer::destroy() {
 }
 
 void InstancedBuffer::merge(const ModelView *model, const SubModelView *subModel, uint passIdx) {
+    merge(model, subModel, passIdx, nullptr);
+}
+
+void InstancedBuffer::merge(const ModelView *model, const SubModelView *subModel, uint passIdx, gfx::Shader *shaderImplant) {
     uint stride = 0;
     const auto instancedBuffer = model->getInstancedBuffer(&stride);
 
     if (!stride) return; // we assume per-instance attributes are always present
     auto sourceIA = subModel->getInputAssembler();
     auto lightingMap = subModel->getDescriptorSet()->getTexture(LIGHTMAP_TEXTURE::BINDING);
-    auto shader = subModel->getShader(passIdx);
+    auto shader = shaderImplant;
+    if (!shader) { shader = subModel->getShader(passIdx); }
     auto descriptorSet = subModel->getDescriptorSet();
     for (int i = 0; i < _instances.size(); i++) {
         auto &instance = _instances[i];
