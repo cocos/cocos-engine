@@ -249,6 +249,7 @@ async function doBuild ({
     const moduleOverrides = Object.entries(statsQuery.evaluateModuleOverrides({
         mode: options.mode,
         platform: options.platform,
+        buildTimeConstants: options.buildTimeConstants,
     })).reduce((result, [k, v]) => {
         result[makePathEqualityKey(k)] = v;
         return result;
@@ -357,17 +358,25 @@ async function doBuild ({
     }
 
     rollupPlugins.push(
-        alias({
-            entries: {
-                'pal:audio': ps.join(engineRoot, 'pal/audio/web/player.ts'),
-            },
-        }),
         rpAssetRef({
             format: options.assetURLFormat,
         }),
 
         {
             name: '@cocos/build-engine|module-overrides',
+            async resolveId (source, importer) {
+                if (moduleOverrides[source]) {
+                    // return the virtual module
+                    return source;
+                }
+                // We need to skip this plugin to avoid an infinite loop
+                const resolution = await this.resolve(source, importer, { skipSelf: true });
+                // If it cannot be resolved, return `null` so that Rollup displays an error
+                if (!resolution) {
+                    return null;
+                }
+                return resolution.id;
+            },
             load (this, id: string) {
                 const key = makePathEqualityKey(id);
                 if (!(key in moduleOverrides)) {

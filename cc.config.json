@@ -31,12 +31,14 @@
     "moduleOverrides": [
         {
             "test": "context.mode === 'BUILD'",
+            "isVirtualModule": false,
             "overrides": {
                 "cocos/core/data/deserialize-dynamic.ts": "cocos/core/data/deserialize-dynamic-empty.ts"
             }
         },
         {
             "test": "context.platform === 'NATIVE'",
+            "isVirtualModule": false,
             "overrides": {
                 "cocos/core/pipeline/index.ts": "cocos/core/pipeline/index.jsb.ts",
                 "cocos/core/renderer/core/native-pools.ts": "cocos/core/renderer/core/native-pools.jsb.ts",
@@ -44,6 +46,38 @@
                 "cocos/core/gfx/pipeline-state.ts": "cocos/core/gfx/pipeline-state.jsb.ts",
                 "cocos/spine/index.ts": "cocos/spine/index.jsb.ts",
                 "cocos/dragon-bones/index.ts": "cocos/dragon-bones/index.jsb.ts"
+            }
+        },
+        {
+            "test": "context.buildTimeConstants.HTML5",
+            "isVirtualModule": true,
+            "overrides": {
+                "pal_minigame": "pal/minigame/non-minigame.ts",
+                "pal_audio": "pal/audio/web/player.ts"
+            }
+        },
+        {
+            "test": "context.buildTimeConstants.NATIVE",
+            "isVirtualModule": true,
+            "overrides": {
+                "pal_minigame": "pal/minigame/non-minigame.ts",
+                "pal_audio": "pal/audio/native/player.ts"
+            }
+        },
+        {
+            "test": "context.buildTimeConstants && context.buildTimeConstants.MINIGAME",
+            "isVirtualModule": true,
+            "overrides": {
+                "pal_minigame": "pal/minigame/{{context.platform.toLowerCase()}}.ts",
+                "pal_audio": "pal/audio/minigame/player.ts"
+            }
+        },
+        {
+            "test": "context.buildTimeConstants && context.buildTimeConstants.RUNTIME_BASED",
+            "isVirtualModule": true,
+            "overrides": {
+                "pal_minigame": "pal/minigame/runtime.ts",
+                "pal_audio": "pal/audio/minigame/player.ts"
             }
         }
     ]
