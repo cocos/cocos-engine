@@ -100,13 +100,13 @@ export class SubModel {
 
     // This is a temporary solution
     // It should not be written in a fixed way, or modified by the user
-    get planarShaderHandel (): ShaderHandle {
+    get planarShaderHandle (): ShaderHandle {
         return SubModelPool.get(this._handle, SubModelView.PLANAR_SHADER);
     }
 
     // This is a temporary solution
     // It should not be written in a fixed way, or modified by the user
-    get planarInstanceShaderHandel (): ShaderHandle {
+    get planarInstanceShaderHandle (): ShaderHandle {
         return SubModelPool.get(this._handle, SubModelView.PLANAR_INSTANCE_SHADER);
     }
 

@@ -76,7 +76,7 @@ export class PlanarShadowQueue {
                     const subModels = model.subModels;
                     for (let m = 0; m < subModels.length; m++) {
                         const subModel = subModels[m];
-                        instancedBuffer.merge(subModel, model.instancedAttributes, 0, subModel.planarInstanceShaderHandel);
+                        instancedBuffer.merge(subModel, model.instancedAttributes, 0, subModel.planarInstanceShaderHandle);
                     }
                 }
             } else {
@@ -104,7 +104,7 @@ export class PlanarShadowQueue {
                 const subModel = model.subModels[j];
                 // This is a temporary solution
                 // It should not be written in a fixed way, or modified by the user
-                const shader = ShaderPool.get(subModel.planarShaderHandel);
+                const shader = ShaderPool.get(subModel.planarShaderHandle);
                 const ia = subModel.inputAssembler;
                 const pso = PipelineStateManager.getOrCreatePipelineState(device, pass, shader, renderPass, ia);
                 cmdBuff.bindPipelineState(pso);
