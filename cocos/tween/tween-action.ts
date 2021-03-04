@@ -139,13 +139,13 @@ export class TweenAction extends ActionInterval {
             let value = props[name];
             if (value == null || typeof value === 'string' || typeof value === 'function') continue;
             // property may have custom easing or progress function
-            let easing: any; let progress: any;
+            let customEasing: any; let progress: any;
             if (value.value !== undefined && (value.easing || value.progress)) {
                 if (typeof value.easing === 'string') {
-                    easing = easing[value.easing];
-                    if (!easing) warnID(1031, value.easing);
+                    customEasing = easing[value.easing];
+                    if (!customEasing) warnID(1031, value.easing);
                 } else {
-                    easing = value.easing;
+                    customEasing = value.easing;
                 }
                 progress = value.progress;
                 value = value.value;
@@ -153,7 +153,7 @@ export class TweenAction extends ActionInterval {
 
             const prop = Object.create(null);
             prop.value = value;
-            prop.easing = easing;
+            prop.easing = customEasing;
             prop.progress = progress;
             this._props[name] = prop;
         }
