@@ -807,12 +807,7 @@ const cacheManager = require('./jsb-cache-manager');
     let _tempAttachMat4 = new cc.mat4();
     let _tempVfmt, _tempBufferIndex, _tempIndicesOffset, _tempIndicesCount;
 
-    // let _render = skeleton._render;
     skeleton._render = function (ui) {
-        // if (_render) {
-        //     _render.call(this);
-        // }
-
         let nativeSkeleton = this._nativeSkeleton;
         if (!nativeSkeleton) return;
 
