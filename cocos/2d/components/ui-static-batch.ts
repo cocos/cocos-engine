@@ -136,6 +136,7 @@ export class UIStaticBatch extends Renderable2D {
     }
 
     public updateAssembler (render: Batcher2D) {
+        render.currIsStatic = true;
         if (this._dirty) {
             render.finishMergeBatches();
             this._lastMeshBuffer = render.currBufferBatch;
@@ -160,6 +161,7 @@ export class UIStaticBatch extends Renderable2D {
 
             this._meshBuffer!.uploadBuffers();
         }
+        render.currIsStatic = false;
     }
 
     /**
