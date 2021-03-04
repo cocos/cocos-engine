@@ -112,7 +112,7 @@ bool DeferredPipeline::initialize(const RenderPipelineInfo &info) {
 }
 
 bool DeferredPipeline::activate() {
-    _macros.setValue("CC_PIPELINE_TYPE", true);
+    _macros.setValue("CC_PIPELINE_TYPE", static_cast<float>(1.0));
 
     if (!RenderPipeline::activate()) {
         CC_LOG_ERROR("RenderPipeline active failed.");
