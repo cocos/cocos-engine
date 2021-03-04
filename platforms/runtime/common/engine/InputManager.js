@@ -6,12 +6,12 @@ const canvasPosition = {
 
 Object.defineProperties(canvasPosition, {
     width: {
-        get () {
+        get() {
             return window.innerWidth;
         },
     },
     height: {
-        get () {
+        get() {
             return window.innerHeight;
         },
     },
@@ -19,10 +19,10 @@ Object.defineProperties(canvasPosition, {
 
 if (mgr) {
     Object.assign(mgr, {
-        _updateCanvasBoundingRect () {},
+        _updateCanvasBoundingRect() { },
 
-        registerSystemEvent (element) {
-            if(this._isRegisterEvent) return;
+        registerSystemEvent(element) {
+            if (this._isRegisterEvent) return;
 
             this._glView = cc.view;
             let self = this;
@@ -37,7 +37,7 @@ if (mgr) {
 
             let registerTouchEvent = function (eventName) {
                 let handler = _touchEventsMap[eventName];
-                jsb[eventName](function (event) {
+                ral[eventName](function (event) {
                     if (!event.changedTouches) return;
                     handler.call(self, self.getTouchesByEvent(event, canvasPosition));
                 });

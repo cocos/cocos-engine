@@ -1,5 +1,5 @@
 const inputManager = cc.internal.inputManager;
-const jsb = window.jsb;
+const ral = window.ral;
 
 function accelerometerChangeCb(res) {
     let x = res.x;
@@ -41,7 +41,7 @@ Object.assign(inputManager, {
     _registerAccelerometerEvent() {
         this._accelCurTime = 0;
         this._acceleration = new cc.internal.Acceleration();
-        jsb.onAccelerometerChange(accelerometerChangeCb);
+        ral.onAccelerometerChange(accelerometerChangeCb);
         ral.startAccelerometer();
     },
 
