@@ -28,7 +28,6 @@ import removeDeprecatedFeatures from './remove-deprecated-features';
 import { StatsQuery } from './stats-query';
 import { filePathToModuleRequest } from './utils';
 import { assetRef as rpAssetRef, pathToAssetRefURL } from './rollup-plugins/asset-ref';
-import alias from '@rollup/plugin-alias';
 
 export { ModuleOption, enumerateModuleOptionReps, parseModuleOption };
 
