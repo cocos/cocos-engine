@@ -1,10 +1,10 @@
 Object.assign(cc.sys, {
-    __init () {
+    __init() {
         this.isNative = false;
         this.isBrowser = false;
         this.isMobile = true;
 
-        let sysInfo = jsb.getSystemInfoSync();
+        let sysInfo = ral.getSystemInfoSync();
         // TODO: remove __getCurrentLanguage call
         let language = sysInfo.language || (__getCurrentLanguage && __getCurrentLanguage());
         this.language = language.substr(0, 2);
@@ -65,13 +65,13 @@ Object.assign(cc.sys, {
             format: ['.mp3']
         };
     },
-    
-    openURL (url) {
-        jsb.openURL(url);
+
+    openURL(url) {
+        console.warn("unspport openURL");
     },
 
-    getBatteryLevel () {
-        const batteryInfo = jsb.getBatteryInfoSync();
+    getBatteryLevel() {
+        const batteryInfo = ral.getBatteryInfoSync();
         return batteryInfo && batteryInfo.level;
     },
 });

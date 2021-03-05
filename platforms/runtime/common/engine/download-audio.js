@@ -1,24 +1,24 @@
 const downloader = cc.assetManager.downloader;
 const parser = cc.assetManager.parser;
 
-function loadInnerAudioContext (url) {
+function loadInnerAudioContext(url) {
     return new Promise((resolve, reject) => {
-        const nativeAudio = jsb.createInnerAudioContext();
-        
+        const nativeAudio = ral.createInnerAudioContext();
+
         let timer = setTimeout(() => {
             clearEvent();
             resolve(nativeAudio);
         }, 8000);
-        function clearEvent () {
+        function clearEvent() {
             nativeAudio.offCanplay(success);
             nativeAudio.offError(fail);
         }
-        function success () {
+        function success() {
             clearEvent();
             clearTimeout(timer);
             resolve(nativeAudio);
         }
-        function fail () {
+        function fail() {
             clearEvent();
             clearTimeout(timer);
             reject('failed to load innerAudioContext: ' + err);
@@ -28,7 +28,7 @@ function loadInnerAudioContext (url) {
         nativeAudio.src = url;
     });
 }
-function downloadAudio (url, options, onComplete) {
+function downloadAudio(url, options, onComplete) {
     loadInnerAudioContext(url).then(nativeAudio => {
         onComplete(null, nativeAudio);
     }, err => {

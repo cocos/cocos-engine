@@ -22,7 +22,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-var fs = jsb.getFileSystemManager ? jsb.getFileSystemManager() : null;
+var fs = ral.getFileSystemManager ? ral.getFileSystemManager() : null;
 var outOfStorageRegExp = /the maximum size of the file storage/;
 
 var fsUtils = {
@@ -31,15 +31,15 @@ var fsUtils = {
 
     _subpackagesPath: 'usr_',
 
-    isOutOfStorage (errMsg) {
+    isOutOfStorage(errMsg) {
         return outOfStorageRegExp.test(errMsg);
     },
 
-    getUserDataPath () {
-        return jsb.env.USER_DATA_PATH;
+    getUserDataPath() {
+        return ral.env.USER_DATA_PATH;
     },
 
-    checkFsValid () {
+    checkFsValid() {
         if (!fs) {
             console.warn('can not get the file system!');
             return false;
@@ -47,7 +47,7 @@ var fsUtils = {
         return true;
     },
 
-    deleteFile (filePath, onComplete) {
+    deleteFile(filePath, onComplete) {
         fs.unlink({
             filePath: filePath,
             success: function () {
@@ -60,7 +60,7 @@ var fsUtils = {
         });
     },
 
-    downloadFile (remoteUrl, filePath, header, onProgress, onComplete) {
+    downloadFile(remoteUrl, filePath, header, onProgress, onComplete) {
         var options = {
             url: remoteUrl,
             success: function (res) {
@@ -82,12 +82,12 @@ var fsUtils = {
         }
         if (filePath) options.filePath = filePath;
         if (header) options.header = header;
-        var task = jsb.downloadFile(options);
+        var task = ral.downloadFile(options);
         onProgress && task.onProgressUpdate(onProgress);
     },
 
-    saveFile (srcPath, destPath, onComplete) {
-        jsb.saveFile({
+    saveFile(srcPath, destPath, onComplete) {
+        ral.saveFile({
             tempFilePath: srcPath,
             filePath: destPath,
             success: function (res) {
@@ -100,7 +100,7 @@ var fsUtils = {
         });
     },
 
-    copyFile (srcPath, destPath, onComplete) {
+    copyFile(srcPath, destPath, onComplete) {
         fs.copyFile({
             srcPath: srcPath,
             destPath: destPath,
@@ -114,7 +114,7 @@ var fsUtils = {
         });
     },
 
-    writeFile (path, data, encoding, onComplete) {
+    writeFile(path, data, encoding, onComplete) {
         fs.writeFile({
             filePath: path,
             encoding: encoding,
@@ -129,7 +129,7 @@ var fsUtils = {
         });
     },
 
-    writeFileSync (path, data, encoding) {
+    writeFileSync(path, data, encoding) {
         try {
             fs.writeFileSync(path, data, encoding);
             return null;
@@ -140,7 +140,7 @@ var fsUtils = {
         }
     },
 
-    readFile (filePath, encoding, onComplete) {
+    readFile(filePath, encoding, onComplete) {
         fs.readFile({
             filePath: filePath,
             encoding: encoding,
@@ -149,12 +149,12 @@ var fsUtils = {
             },
             fail: function (res) {
                 console.warn(`Read file failed: path: ${filePath} message: ${res.errMsg}`);
-                onComplete && onComplete (new Error(res.errMsg), null);
+                onComplete && onComplete(new Error(res.errMsg), null);
             }
         });
     },
 
-    readDir (filePath, onComplete) {
+    readDir(filePath, onComplete) {
         fs.readdir({
             dirPath: filePath,
             success: function (res) {
@@ -167,15 +167,15 @@ var fsUtils = {
         });
     },
 
-    readText (filePath, onComplete) {
+    readText(filePath, onComplete) {
         fsUtils.readFile(filePath, 'utf8', onComplete);
     },
 
-    readArrayBuffer (filePath, onComplete) {
-        fsUtils.readFile(filePath, '', onComplete);
+    readArrayBuffer(filePath, onComplete) {
+        fsUtils.readFile(filePath, 'binary', onComplete);
     },
 
-    readJson (filePath, onComplete) {
+    readJson(filePath, onComplete) {
         fsUtils.readFile(filePath, 'utf8', function (err, text) {
             var out = null;
             if (!err) {
@@ -191,7 +191,7 @@ var fsUtils = {
         });
     },
 
-    readJsonSync (path) {
+    readJsonSync(path) {
         try {
             var str = fs.readFileSync(path, 'utf8');
             return JSON.parse(str);
@@ -202,7 +202,7 @@ var fsUtils = {
         }
     },
 
-    makeDirSync (path, recursive) {
+    makeDirSync(path, recursive) {
         try {
             fs.mkdirSync(path, recursive);
             return null;
@@ -213,7 +213,7 @@ var fsUtils = {
         }
     },
 
-    rmdirSync (dirPath, recursive) {
+    rmdirSync(dirPath, recursive) {
         try {
             fs.rmdirSync(dirPath, recursive);
         }
@@ -223,7 +223,7 @@ var fsUtils = {
         }
     },
 
-    exists (filePath, onComplete) {
+    exists(filePath, onComplete) {
         fs.access({
             path: filePath,
             success: function () {
@@ -235,8 +235,8 @@ var fsUtils = {
         });
     },
 
-    loadSubpackage (name, onProgress, onComplete) {
-        var task = jsb.loadSubpackage({
+    loadSubpackage(name, onProgress, onComplete) {
+        var task = ral.loadSubpackage({
             name: `${fsUtils._subpackagesPath}${name}`,
             success: function () {
                 onComplete && onComplete();
@@ -250,14 +250,14 @@ var fsUtils = {
         return task;
     },
 
-    unzip (zipFilePath, targetPath, onComplete) {
+    unzip(zipFilePath, targetPath, onComplete) {
         fs.unzip({
             zipFilePath,
             targetPath,
-            success () {
+            success() {
                 onComplete && onComplete(null);
             },
-            fail (res) {
+            fail(res) {
                 console.warn(`unzip failed: path: ${zipFilePath} message: ${res.errMsg}`);
                 onComplete && onComplete(new Error('unzip failed: ' + res.errMsg));
             },
