@@ -72,12 +72,10 @@ export class PlanarShadowQueue {
                 if (!intersect.aabbFrustum(_ab, frustum)) { continue; }
             }
             if (model.isInstancingEnabled) {
-                for (let j = 0; j < model.subModels.length; j++) {
-                    const subModels = model.subModels;
-                    for (let m = 0; m < subModels.length; m++) {
-                        const subModel = subModels[m];
-                        instancedBuffer.merge(subModel, model.instancedAttributes, 0, subModel.planarInstanceShaderHandle);
-                    }
+                const subModels = model.subModels;
+                for (let m = 0; m < subModels.length; m++) {
+                    const subModel = subModels[m];
+                    instancedBuffer.merge(subModel, model.instancedAttributes, 0, subModel.planarInstanceShaderHandle);
                 }
             } else {
                 this._pendingModels.push(model);
