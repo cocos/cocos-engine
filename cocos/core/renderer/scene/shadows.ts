@@ -328,6 +328,16 @@ export class Shadows {
         return this._material.passes[0].getShaderVariant(patches);
     }
 
+    public getPlanarInstanceShader (patches: IMacroPatch[] | null): ShaderHandle {
+        if (!this._instancingMaterial) {
+            this._instancingMaterial = new Material();
+            this._instancingMaterial.initialize({ effectName: 'planar-shadow', defines: { USE_INSTANCING: true } });
+            ShadowsPool.set(this._handle, ShadowsView.INSTANCE_PASS, this._instancingMaterial.passes[0].handle);
+        }
+
+        return this._instancingMaterial.passes[0].getShaderVariant(patches);
+    }
+
     public initialize (shadowsInfo: ShadowsInfo) {
         ShadowsPool.set(this._handle, ShadowsView.TYPE, shadowsInfo.enabled ? shadowsInfo.type : SHADOW_TYPE_NONE);
         ShadowsPool.set(this._handle, ShadowsView.NEAR, shadowsInfo.near);
