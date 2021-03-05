@@ -88,6 +88,23 @@ export class MountedChildrenInfo {
     }
 }
 
+@ccclass('cc.MountedComponentsInfo')
+export class MountedComponentsInfo {
+    @serializable
+    @type(TargetInfo)
+    public targetInfo: TargetInfo|null = null;
+    @serializable
+    @type([Component])
+    public components: Component[] = [];
+
+    // eslint-disable-next-line consistent-return
+    public isTarget (localID: string[]) {
+        if (EDITOR) {
+            return compareStringArray(this.targetInfo?.localID, localID);
+        }
+    }
+}
+
 /**
  * Prefab实例类
  */
@@ -106,6 +123,11 @@ export class PrefabInstance {
     @serializable
     @type([MountedChildrenInfo])
     public mountedChildren: MountedChildrenInfo[] = [];
+
+    // 实例化的Prefab中额外增加的Component数据
+    @serializable
+    @type([MountedComponentsInfo])
+    public mountedComponents: MountedComponentsInfo[] = [];
 
     // 属性的覆盖数据
     @serializable

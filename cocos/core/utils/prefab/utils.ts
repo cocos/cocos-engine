@@ -36,6 +36,7 @@ import { errorID, warn } from '../../platform/debug';
 import { Component } from '../../components';
 import type { BaseNode } from '../../scene-graph/base-node';
 import { MountedChildrenInfo, PropertyOverrideInfo } from './prefab-info';
+import { MountedComponentsInfo, TargetInfo } from '.';
 
 export function createNodeWithPrefab (node: Node) {
     // @ts-expect-error: private member access
@@ -175,6 +176,52 @@ export function applyMountedChildren (node: Node, mountedChildren: MountedChildr
                     // siblingIndex update is in _onBatchCreated function, and it needs a parent.
                     childNode._onBatchCreated(false);
                 }
+            }
+        }
+    }
+}
+
+export function applyMountedComponents (node: Node, mountedComponents: MountedComponentsInfo[], targetMap: Record<string, any | Node | Component>) {
+    if (!mountedComponents) {
+        return;
+    }
+
+    for (let i = 0; i < mountedComponents.length; i++) {
+        const componentsInfo = mountedComponents[i];
+        if (componentsInfo && componentsInfo.targetInfo) {
+            const target = getTarget(componentsInfo.targetInfo.localID, targetMap) as Node;
+            if (!target) {
+                continue;
+            }
+
+            if (componentsInfo.components) {
+                for (let i = 0; i < componentsInfo.components.length; i++) {
+                    const comp = componentsInfo.components[i];
+                    // @ts-expect-error private member access
+                    target._components.push(comp);
+                }
+            }
+        }
+    }
+}
+
+export function applyRemovedComponents (node: Node, removedComponents: TargetInfo[], targetMap: Record<string, any | Node | Component>) {
+    if (!removedComponents) {
+        return;
+    }
+
+    for (let i = 0; i < removedComponents.length; i++) {
+        const targetInfo = removedComponents[i];
+        if (targetInfo) {
+            const target = getTarget(targetInfo.localID, targetMap) as Component;
+            if (!target || !target.node) {
+                continue;
+            }
+
+            const index = target.node.components.indexOf(target);
+            if (index >= 0) {
+                // @ts-expect-error private member access
+                target.node._components.splice(index, 1);
             }
         }
     }
