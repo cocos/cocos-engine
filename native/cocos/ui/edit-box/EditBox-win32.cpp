@@ -41,8 +41,10 @@ namespace cc {
 ************************************************************************/
 
 namespace {
+bool g_isMultiline = false;
 HWND g_hwndEditBox = nullptr;
 WNDPROC g_prevMainWindowProc = nullptr;
+WNDPROC g_prevEditWindowProc = nullptr;
 se::Value g_textInputCallback;
 
 int getCocosWindowHeight() {
@@ -117,6 +119,22 @@ LRESULT mainWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
     return CallWindowProc(g_prevMainWindowProc, hwnd, msg, wParam, lParam);
 }
+
+LRESULT editWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
+    switch (msg) {
+        case WM_KEYUP:
+            if (wParam == VK_RETURN && !g_isMultiline) {
+                EditBox::complete();
+                EditBox::hide();
+                SetFocus(cc_get_application_view()->getWindowHandler());
+            }
+            break;
+        default:
+            break;
+    }
+    
+    return CallWindowProc(g_prevEditWindowProc, hwnd, msg, wParam, lParam);
+}
 } // namespace
 
 /*************************************************************************
@@ -126,11 +144,12 @@ void EditBox::show(const EditBox::ShowInfo &showInfo) {
     int windowHeight = getCocosWindowHeight();
     if (!g_hwndEditBox) {
         HWND parent = cc_get_application_view()->getWindowHandler();
-        g_prevMainWindowProc = (WNDPROC)SetWindowLongPtr(parent, GWL_WNDPROC, (LONG_PTR)mainWindowProc);
 
         UINT32 flags = WS_CHILD | ES_LEFT | WS_TABSTOP | ES_AUTOHSCROLL;
-        if (showInfo.isMultiline)
+        g_isMultiline = showInfo.isMultiline;
+        if (g_isMultiline) {
             flags |= ES_MULTILINE;
+        }
         if (showInfo.inputType == "password")
             flags |= WS_EX_TRANSPARENT;
 
@@ -159,7 +178,11 @@ void EditBox::show(const EditBox::ShowInfo &showInfo) {
                            NULL);
             std::wstring_convert<std::codecvt_utf8<wchar_t>> convert;
             CC_LOG_DEBUG("Can not create editbox: %s", convert.to_bytes(buffer).c_str());
+            return;
         }
+
+        g_prevMainWindowProc = (WNDPROC)SetWindowLongPtr(parent, GWL_WNDPROC, (LONG_PTR)mainWindowProc);
+        g_prevEditWindowProc = (WNDPROC)SetWindowLongPtr(g_hwndEditBox, GWL_WNDPROC, (LONG_PTR)editWindowProc);
     }
 
     ::SendMessageW(g_hwndEditBox, EM_LIMITTEXT, showInfo.maxLength, 0);
@@ -179,9 +202,10 @@ void EditBox::show(const EditBox::ShowInfo &showInfo) {
 
 void EditBox::hide() {
     DestroyWindow(g_hwndEditBox);
-    g_hwndEditBox = nullptr;
 
     SetWindowLongPtr(cc_get_application_view()->getWindowHandler(), GWL_WNDPROC, (LONG_PTR)g_prevMainWindowProc);
+    SetWindowLongPtr(g_hwndEditBox, GWL_WNDPROC, (LONG_PTR)g_prevEditWindowProc);
+    g_hwndEditBox = nullptr;
 }
 
 bool EditBox::complete() {

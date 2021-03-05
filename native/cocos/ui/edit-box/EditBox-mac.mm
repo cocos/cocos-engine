@@ -25,7 +25,6 @@
 #include "platform/Application.h"
 #include "cocos/bindings/jswrapper/SeApi.h"
 #include "cocos/bindings/manual/jsb_global.h"
-#include "cocos/bindings/event/CustomEventTypes.h"
 
 #import <AppKit/AppKit.h>
 
@@ -87,6 +86,9 @@ se::Value g_textInputCallback;
 - (void)controlTextDidChange:(NSNotification *)notification {
     NSTextField *textField = [notification object];
     callJSFunc("input", [textField.stringValue UTF8String]);
+}
+- (void)controlTextDidEndEditing:(NSNotification *)obj {
+    cc::EditBox::complete();
 }
 @end
 
@@ -242,7 +244,6 @@ void init(const cc::EditBox::ShowInfo &showInfo) {
 
 namespace cc {
 
-uint32_t EditBox::mouseDownListenerId = 0;
 bool EditBox::_isShown = false;
 
 void EditBox::show(const ShowInfo &showInfo) {
@@ -253,13 +254,6 @@ void EditBox::show(const ShowInfo &showInfo) {
     init(showInfo);
 
     EditBox::_isShown = true;
-    EditBox::mouseDownListenerId = EventDispatcher::addCustomEventListener(EVENT_MOUSE_DOWN, EditBox::onMouseDown);
-}
-
-void EditBox::onMouseDown(const CustomEvent &event) {
-    if (event.name == EVENT_MOUSE_DOWN) {
-        EditBox::complete();
-    }
 }
 
 void EditBox::hide() {
@@ -277,10 +271,6 @@ void EditBox::hide() {
     }
 
     EditBox::_isShown = false;
-    if (EditBox::mouseDownListenerId != 0) {
-        EventDispatcher::removeCustomEventListener(EVENT_MOUSE_DOWN, EditBox::mouseDownListenerId);
-        EditBox::mouseDownListenerId = 0;
-    }
 }
 
 bool EditBox::complete() {
