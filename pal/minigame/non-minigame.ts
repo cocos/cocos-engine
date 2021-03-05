@@ -1,4 +1,4 @@
-import { IMiniGame } from "pal_minigame";
+import { IMiniGame } from "pal/minigame";
 
 // @ts-ignore
 let mg: IMiniGame = {};

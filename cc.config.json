@@ -52,32 +52,32 @@
             "test": "context.buildTimeConstants.HTML5",
             "isVirtualModule": true,
             "overrides": {
-                "pal_minigame": "pal/minigame/non-minigame.ts",
-                "pal_audio": "pal/audio/web/player.ts"
+                "pal/minigame": "pal/minigame/non-minigame.ts",
+                "pal/audio": "pal/audio/web/player.ts"
             }
         },
         {
             "test": "context.buildTimeConstants.NATIVE",
             "isVirtualModule": true,
             "overrides": {
-                "pal_minigame": "pal/minigame/non-minigame.ts",
-                "pal_audio": "pal/audio/native/player.ts"
+                "pal/minigame": "pal/minigame/non-minigame.ts",
+                "pal/audio": "pal/audio/native/player.ts"
             }
         },
         {
             "test": "context.buildTimeConstants && context.buildTimeConstants.MINIGAME",
             "isVirtualModule": true,
             "overrides": {
-                "pal_minigame": "pal/minigame/{{context.platform.toLowerCase()}}.ts",
-                "pal_audio": "pal/audio/minigame/player.ts"
+                "pal/minigame": "pal/minigame/{{context.platform.toLowerCase()}}.ts",
+                "pal/audio": "pal/audio/minigame/player.ts"
             }
         },
         {
             "test": "context.buildTimeConstants && context.buildTimeConstants.RUNTIME_BASED",
             "isVirtualModule": true,
             "overrides": {
-                "pal_minigame": "pal/minigame/runtime.ts",
-                "pal_audio": "pal/audio/minigame/player.ts"
+                "pal/minigame": "pal/minigame/runtime.ts",
+                "pal/audio": "pal/audio/minigame/player.ts"
             }
         }
     ]

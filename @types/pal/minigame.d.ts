@@ -1,4 +1,4 @@
-declare module 'pal_minigame' {
+declare module 'pal/minigame' {
 	export let mg: IMiniGame;
 	export interface IMiniGame {
 		// system

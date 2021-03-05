@@ -1,8 +1,8 @@
 import { legacyCC } from '../../../cocos/core/global-exports';
-import { OneShotAudio} from 'pal_audio';
+import { OneShotAudio} from 'pal/audio';
 import { EventTarget } from '../../../cocos/core/event/event-target';
 import { AudioEvent, AudioState, AudioType } from '../type';
-import { mg } from 'pal_minigame';
+import { mg } from 'pal/minigame';
 
 export class AudioPlayer {
     private _innerAudioContext: any;

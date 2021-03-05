@@ -30,7 +30,7 @@
 
 import { ccclass, help, menu, executionOrder, requireComponent, tooltip, serializable } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
-import { mg } from 'pal_minigame';
+import { mg } from 'pal/minigame';
 import { Component } from '../core/components/component';
 import { view } from '../core/platform/view';
 import { Sprite } from '../2d/components/sprite';

@@ -1,4 +1,4 @@
-import { AudioPlayer as IAudioPlayer, OneShotAudio } from 'pal_audio';
+import { AudioPlayer as IAudioPlayer, OneShotAudio } from 'pal/audio';
 import { AudioType, AudioState, AudioEvent } from '../type';
 import { EventTarget } from '../../../cocos/core/event/event-target';
 import { legacyCC } from '../../../cocos/core/global-exports';

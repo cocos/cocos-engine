@@ -1,4 +1,4 @@
-import { IMiniGame } from "pal_minigame";
+import { IMiniGame } from "pal/minigame";
 import { Orientation } from "../orientation";
 import { cloneObject } from "../utils";
 

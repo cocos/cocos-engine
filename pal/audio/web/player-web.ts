@@ -2,7 +2,7 @@
 import { AudioEvent, AudioState, AudioType } from "../type";
 import { EventTarget } from '../../../cocos/core/event/event-target';
 import { legacyCC } from '../../../cocos/core/global-exports';
-import { OneShotAudio } from "pal_audio";
+import { OneShotAudio } from "pal/audio";
 import { clamp } from "../../../cocos/core";
 
 export class AudioPlayerWeb {

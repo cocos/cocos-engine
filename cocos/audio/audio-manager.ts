@@ -23,7 +23,7 @@
  THE SOFTWARE.
  */
 
-import { AudioPlayer, OneShotAudio } from "pal_audio";
+import { AudioPlayer, OneShotAudio } from "pal/audio";
 type ManagedAudio = AudioPlayer | OneShotAudio;
 
 export class AudioManager {
