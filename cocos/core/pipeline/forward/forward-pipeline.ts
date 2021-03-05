@@ -326,7 +326,7 @@ export class ForwardPipeline extends RenderPipeline {
 
                 Mat4.invert(matShadowView, shadowCameraView!);
 
-                const projectionSignY = device.screenSpaceSignY * device.UVSpaceSignY; // always offscreen
+                const projectionSignY = device.screenSpaceSignY;
                 Mat4.ortho(matShadowViewProj, -x, x, -y, y, shadowInfo.near, far,
                     device.clipSpaceMinZ, projectionSignY);
                 Mat4.multiply(matShadowViewProj, matShadowViewProj, matShadowView);
@@ -403,11 +403,7 @@ export class ForwardPipeline extends RenderPipeline {
         Mat4.toArray(cv, camera.matViewProj, UBOCamera.MAT_VIEW_PROJ_OFFSET);
         Mat4.toArray(cv, camera.matViewProjInv, UBOCamera.MAT_VIEW_PROJ_INV_OFFSET);
         Vec3.toArray(cv, camera.position, UBOCamera.CAMERA_POS_OFFSET);
-        let projectionSignY = device.screenSpaceSignY;
-        if (camera.window!.hasOffScreenAttachments) {
-            projectionSignY *= device.UVSpaceSignY; // need flipping if drawing on render targets
-        }
-        cv[UBOCamera.CAMERA_POS_OFFSET + 3] = projectionSignY;
+        cv[UBOCamera.CAMERA_POS_OFFSET + 3] = (device.screenSpaceSignY * 0.5 + 0.5) << 1 | (device.UVSpaceSignY * 0.5 + 0.5);
 
         cv.set(fog.colorArray, UBOCamera.GLOBAL_FOG_COLOR_OFFSET);
 

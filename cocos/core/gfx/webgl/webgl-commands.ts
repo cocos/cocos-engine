@@ -1707,14 +1707,6 @@ export function WebGLCmdFuncBeginRenderPass (
         if (cache.glFramebuffer !== gpuFramebuffer.glFramebuffer) {
             gl.bindFramebuffer(gl.FRAMEBUFFER, gpuFramebuffer.glFramebuffer);
             cache.glFramebuffer = gpuFramebuffer.glFramebuffer;
-            // render targets are drawn with flipped-Y
-            const reverseCW = !!gpuFramebuffer.glFramebuffer;
-            if (reverseCW !== gfxStateCache.reverseCW) {
-                gfxStateCache.reverseCW = reverseCW;
-                const isCCW = !device.stateCache.rs.isFrontFaceCCW;
-                gl.frontFace(isCCW ? gl.CCW : gl.CW);
-                device.stateCache.rs.isFrontFaceCCW = isCCW;
-            }
         }
 
         if (cache.viewport.left !== renderArea.x

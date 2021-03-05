@@ -18,6 +18,7 @@
 #define STEP_FINT_128(v) (step(128.0, (v) + 0.5))
 #define MOD_FINT_128(v) (mod(float(int((v) + 0.5)), 128.0))
 
+#define CC_HANDLE_RT_SAMPLE_FLIP(uv) uv = mod(cc_cameraPos.w, 2.0) * 2.0 - 1.0 > 0.0 ? uv : vec2(uv.x, 1.0 - uv.y)
 highp float decode32 (highp vec4 rgba) {
   rgba = rgba * 255.0;
   highp float Sign = 1.0 - STEP_FINT_128(rgba[3]) * 2.0;

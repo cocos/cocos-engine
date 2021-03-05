@@ -506,11 +506,7 @@ export class RenderAdditiveLightQueue {
         Mat4.toArray(cv, camera.matViewProj, UBOCamera.MAT_VIEW_PROJ_OFFSET);
         Mat4.toArray(cv, camera.matViewProjInv, UBOCamera.MAT_VIEW_PROJ_INV_OFFSET);
         Vec3.toArray(cv, camera.position, UBOCamera.CAMERA_POS_OFFSET);
-        let projectionSignY = device.screenSpaceSignY;
-        if (camera.window!.hasOffScreenAttachments) {
-            projectionSignY *= device.UVSpaceSignY; // need flipping if drawing on render targets
-        }
-        cv[UBOCamera.CAMERA_POS_OFFSET + 3] = projectionSignY;
+        cv[UBOCamera.CAMERA_POS_OFFSET + 3] = (device.screenSpaceSignY * 0.5 + 0.5) << 1 | (device.UVSpaceSignY * 0.5 + 0.5);
 
         const skyColor = ambient.colorArray;
         if (this._isHDR) {

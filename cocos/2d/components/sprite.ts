@@ -42,6 +42,7 @@ import { Renderable2D, InstanceMaterialType } from '../framework/renderable-2d';
 import { legacyCC } from '../../core/global-exports';
 import { PixelFormat } from '../../core/assets/asset-enum';
 import { TextureBase } from '../../core/assets/texture-base';
+import { RenderTexture } from '../../core';
 
 /**
  * @en
@@ -485,6 +486,7 @@ export class Sprite extends Renderable2D {
 
         if (this._spriteFrame) {
             this._spriteFrame.on('load', this._markForUpdateUvDirty, this);
+            this._spriteFrame.on('changed', this._onTextureLoaded, this);
             this._markForUpdateUvDirty();
         }
     }
@@ -730,10 +732,12 @@ export class Sprite extends Renderable2D {
         if (this._renderData) {
             if (oldFrame) {
                 oldFrame.off('load', this._markForUpdateUvDirty);
+                oldFrame.off('changed', this._onTextureLoaded);
             }
 
             if (spriteFrame) {
                 spriteFrame.on('load', this._markForUpdateUvDirty, this);
+                spriteFrame.on('changed', this._onTextureLoaded, this);
             }
 
             if (!this._renderData.uvDirty) {
