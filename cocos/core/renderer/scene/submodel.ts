@@ -100,8 +100,14 @@ export class SubModel {
 
     // This is a temporary solution
     // It should not be written in a fixed way, or modified by the user
-    get planarShaderHandel (): ShaderHandle {
+    get planarShaderHandle (): ShaderHandle {
         return SubModelPool.get(this._handle, SubModelView.PLANAR_SHADER);
+    }
+
+    // This is a temporary solution
+    // It should not be written in a fixed way, or modified by the user
+    get planarInstanceShaderHandle (): ShaderHandle {
+        return SubModelPool.get(this._handle, SubModelView.PLANAR_INSTANCE_SHADER);
     }
 
     public initialize (subMesh: RenderingSubMesh, passes: Pass[], patches: IMacroPatch[] | null = null): void {
@@ -134,6 +140,15 @@ export class SubModel {
         const shadowInfo = pipeline.shadows;
         const shaderHandle = shadowInfo.getPlanarShader(this._patches);
         SubModelPool.set(this._handle, SubModelView.PLANAR_SHADER, shaderHandle);
+    }
+
+    // This is a temporary solution
+    // It should not be written in a fixed way, or modified by the user
+    public initPlanarShadowInstanceShader () {
+        const pipeline = legacyCC.director.root.pipeline as  ForwardPipeline;
+        const shadowInfo = pipeline.shadows;
+        const shaderHandle = shadowInfo.getPlanarInstanceShader(this._patches);
+        SubModelPool.set(this._handle, SubModelView.PLANAR_INSTANCE_SHADER, shaderHandle);
     }
 
     public destroy (): void {

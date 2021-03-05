@@ -692,18 +692,19 @@ export const PassPool = new BufferPool<PoolType.PASS, typeof PassView, IPassView
 export enum SubModelView {
     PRIORITY,
     PASS_COUNT,
-    PASS_0,          // handle
-    PASS_1,          // handle
-    PASS_2,          // handle
-    PASS_3,          // handle
-    SHADER_0,        // handle
-    SHADER_1,        // handle
-    SHADER_2,        // handle
-    SHADER_3,        // handle
-    PLANAR_SHADER,   // handle
-    DESCRIPTOR_SET,  // handle
-    INPUT_ASSEMBLER, // handle
-    SUB_MESH,        // handle
+    PASS_0,                 // handle
+    PASS_1,                 // handle
+    PASS_2,                 // handle
+    PASS_3,                 // handle
+    SHADER_0,               // handle
+    SHADER_1,               // handle
+    SHADER_2,               // handle
+    SHADER_3,               // handle
+    PLANAR_SHADER,          // handle
+    PLANAR_INSTANCE_SHADER, // handle
+    DESCRIPTOR_SET,         // handle
+    INPUT_ASSEMBLER,        // handle
+    SUB_MESH,               // handle
     COUNT,
 }
 interface ISubModelViewType extends BufferTypeManifest<typeof SubModelView> {
@@ -718,6 +719,7 @@ interface ISubModelViewType extends BufferTypeManifest<typeof SubModelView> {
     [SubModelView.SHADER_2]: ShaderHandle;
     [SubModelView.SHADER_3]: ShaderHandle;
     [SubModelView.PLANAR_SHADER]: ShaderHandle;
+    [SubModelView.PLANAR_INSTANCE_SHADER]: ShaderHandle;
     [SubModelView.DESCRIPTOR_SET]: DescriptorSetHandle;
     [SubModelView.INPUT_ASSEMBLER]: InputAssemblerHandle;
     [SubModelView.SUB_MESH]: SubMeshHandle;
@@ -735,6 +737,7 @@ const subModelViewDataType: BufferDataTypeManifest<typeof SubModelView> = {
     [SubModelView.SHADER_2]: BufferDataType.UINT32,
     [SubModelView.SHADER_3]: BufferDataType.UINT32,
     [SubModelView.PLANAR_SHADER]: BufferDataType.UINT32,
+    [SubModelView.PLANAR_INSTANCE_SHADER]: BufferDataType.UINT32,
     [SubModelView.DESCRIPTOR_SET]: BufferDataType.UINT32,
     [SubModelView.INPUT_ASSEMBLER]: BufferDataType.UINT32,
     [SubModelView.SUB_MESH]: BufferDataType.UINT32,
