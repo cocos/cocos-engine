@@ -1,9 +1,9 @@
 
 import { AudioEvent, AudioState, AudioType } from "../type";
 import { EventTarget } from '../../../cocos/core/event/event-target';
-import { clamp } from "cocos/core";
 import { legacyCC } from '../../../cocos/core/global-exports';
 import { OneShotAudio } from "pal_audio";
+import { clamp } from "../../../cocos/core";
 
 export class AudioPlayerWeb {
     private static _context: AudioContext = new (window.AudioContext || window.webkitAudioContext || window.mozAudioContext)();

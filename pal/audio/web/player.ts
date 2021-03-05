@@ -1,5 +1,5 @@
-import { warnID } from 'cocos/core';
 import { OneShotAudio } from 'pal_audio';
+import { warnID } from '../../../cocos/core';
 import { AudioLoadOptions, AudioType, AudioState } from '../type';
 import { AudioPlayerDOM } from './player-dom';
 import { AudioPlayerWeb } from './player-web';
