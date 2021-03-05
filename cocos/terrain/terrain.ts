@@ -1738,29 +1738,38 @@ export class Terrain extends Component {
                 this._layerList[i] = null;
             }
 
-            for (let i = 0; i < terrainAsset.layerInfos.length; ++i) {
-                const layerInfo = terrainAsset.layerInfos[i];
-                const layer = new TerrainLayer();
-                layer.tileSize = layerInfo.tileSize;
-                if (terrainAsset.version < TERRAIN_DATA_VERSION5) {
-                    legacyCC.assetManager.loadAny(layerInfo._detailMapId, (err, asset) => {
+            if (terrainAsset.version < TERRAIN_DATA_VERSION5) {
+                for (let i = 0; i < terrainAsset.layerBinaryInfos.length; ++i) {
+                    const layer = new TerrainLayer();
+                    const layerInfo = terrainAsset.layerBinaryInfos[i];
+                    layer.tileSize = layerInfo.tileSize;
+                    legacyCC.assetManager.loadAny(layerInfo.detailMapId, (err, asset) => {
                         layer.detailMap = asset;
                     });
 
-                    if (layerInfo._normalMapId !== '') {
-                        legacyCC.assetManager.loadAny(layerInfo._normalMapId, (err, asset) => {
+                    if (layerInfo.normalMapId !== '') {
+                        legacyCC.assetManager.loadAny(layerInfo.normalMapId, (err, asset) => {
                             layer.normalMap = asset;
                         });
                     }
-                } else {
+
+                    layer.roughness = layerInfo.roughness;
+                    layer.metallic = layerInfo.metallic;
+
+                    this._layerList[layerInfo.slot] = layer;
+                }
+            } else {
+                for (let i = 0; i < terrainAsset.layerInfos.length; ++i) {
+                    const layer = new TerrainLayer();
+                    const layerInfo = terrainAsset.layerInfos[i];
+                    layer.tileSize = layerInfo.tileSize;
                     layer.detailMap = layerInfo.detailMap;
                     layer.normalMap = layerInfo.normalMap;
+                    layer.roughness = layerInfo.roughness;
+                    layer.metallic = layerInfo.metallic;
+
+                    this._layerList[layerInfo.slot] = layer;
                 }
-
-                layer.roughness = layerInfo.roughness;
-                layer.metallic = layerInfo.metallic;
-
-                this._layerList[layerInfo.slot] = layer;
             }
         }
 
