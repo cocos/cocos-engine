@@ -235,7 +235,7 @@ export class Pass {
         this._doInit(info);
         this.resetUBOs();
         this.resetTextures();
-        //this.tryCompile();
+        this.tryCompile();
     }
 
     /**
