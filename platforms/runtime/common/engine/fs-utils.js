@@ -172,7 +172,7 @@ var fsUtils = {
     },
 
     readArrayBuffer(filePath, onComplete) {
-        fsUtils.readFile(filePath, '', onComplete);
+        fsUtils.readFile(filePath, 'binary', onComplete);
     },
 
     readJson(filePath, onComplete) {
