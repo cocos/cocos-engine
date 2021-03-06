@@ -122,8 +122,8 @@ module.exports = {
         skinning_root: '骨骼根节点的引用，对应控制此模型的动画组件所在节点',
     },
     sprite: {
-        sprite_frame: '渲染 Sprite 使用的 SpriteFrame 图片资源',
         atlas: '图片资源所属的 Atlas 图集资源',
+        sprite_frame: '渲染 Sprite 使用的 SpriteFrame 图片资源',
         type:
             '渲染模式：\n - 普通(Simple)：修改尺寸会整体拉伸图像，适用于序列帧动画和普通图像 \n' +
             '- 九宫格（Sliced）：修改尺寸时四个角的区域不会拉伸，适用于 UI 按钮和面板背景 \n' +
@@ -169,6 +169,8 @@ module.exports = {
         click_events: '按钮点击事件的列表。先将数量改为1或更多，就可以为每个点击事件设置接受者和处理方法',
     },
     canvas: {
+        camera: '2D渲染相机',
+        align: '自动为 camera 计算参数',
         design_resolution:
             '设计分辨率是游戏在设计时使用的分辨率参考，以像素为单位，通过下面的适配策略，可以在不同分辨率的设备上按照一定的方式对 Canvas 进行整体缩放来适配。',
         fit_height: '自动缩放 Canvas 使设计分辨率的高度充满设备屏幕的高度',
@@ -181,11 +183,25 @@ module.exports = {
         font_size: '文字尺寸，以 point 为单位',
         font_family: '文字字体名字',
         line_height: '文字行高，以 point 为单位',
-        overflow:
+        overflow: 
             '文字排版模式，包括以下三种：\n 1. CLAMP: 节点约束框之外的文字会被截断 \n 2. SHRINK: 自动根据节点约束框缩小文字\n 3. RESIZE: 根据文本内容自动更新节点的 height 属性.',
         wrap: '是否允许自动换行',
         font: 'Label 使用的字体资源',
         system_font: '是否使用系统默认字体，选中此项会将 file 属性置空',
+        cache_mode: 
+            '文本缓存模式，包括以下三种：\n 1. NONE: 不做任何缓存，文本内容进行一次绘制 \n 2. BITMAP: 将文本作为静态图像加入动态图集进行批次合并，但是不能频繁动态修改文本内容 \n 3. CHAR: 将文本拆分为字符并且把字符纹理缓存到一张字符图集中进行复用，适用于字符内容重复并且频繁更新的文本内容',
+        font_bold: '字体加粗',
+        font_italic: '字体倾斜',
+        font_underline: '字体加下划线',
+    },
+    labelOutline: {
+        color: '描边的颜色',
+        width: '描边的宽度',
+    },
+    labelShadow: {
+        color: '阴影的颜色',
+        offset: '字体与阴影的偏移',
+        blur: '阴影的模糊程度',
     },
     progress: {
         bar_sprite: '进度条显示用的 Sprite 节点，可以动态改变尺寸',
@@ -341,10 +357,13 @@ module.exports = {
         horizontal_align: '水平对齐方式',
         font_size: '字体大小, 单位是 point',
         font: '富文本定制字体',
-        line_height: '字体行高, 单位是 point',
+        font_family: '富文本定制系统字体',
+        use_system_font: '是否使用系统字体',
+        cache_mode: '文本缓存模式, 该模式只支持系统字体',
         max_width: '富文本的最大宽度, 传 0 的话意味着必须手动换行.',
-        image_atlas: '对于 img 标签里面的 src 属性名称，都需要在 imageAtlas 里面找到一个有效的 spriteFrame，否则 img tag 会判定为无效。',
-        handleTouchEvent: '选中此选项后，RichText 将阻止节点边界框中的所有输入事件（鼠标和触摸），从而防止输入事件穿透到底层节点。',
+        line_height: '字体行高, 单位是 point',
+        image_atlas: '对于 img 标签里面的 src 属性名称，都需要在 imageAtlas 里面找到一个有效的 spriteFrame，否则 img tag 会判定为无效',
+        handleTouchEvent: '选中此选项后，RichText 将阻止节点边界框中的所有输入事件（鼠标和触摸），从而防止输入事件穿透到底层节点',
     },
     skeleton: {
         skeleton_data: '骨骼信息数据，拖拽 Spine 导出的骨骼动画信息 json 资源到这里来开始使用',
@@ -618,5 +637,22 @@ module.exports = {
             label: "DragonBones",
             description: "DragonBones 支持。",
         },
+    },
+    renderable_2d: {
+        srcBlendFactor: '指定源的混合模式，这会克隆一个新的材质对象，注意这带来的性能和内存损耗',
+        dstBlendFactor: '指定目标的混合模式，这会克隆一个新的材质对象，注意这带来的性能和内存损耗',
+        color: '渲染颜色，一般情况下会和贴图颜色相乘',
+    },
+    ui_transform: {
+        content_size:'内容尺寸',
+        anchor_point:'锚点位置',
+        priority:'渲染排序优先级',
+    },
+    graphics: {
+        lineJoin: '用来设置2个长度不为0的相连部分（线段，圆弧，曲线）如何连接在一起的属性',
+        lineCap: '指定如何绘制每一条线段末端',
+        strokeColor: '笔触的颜色',
+        fillColor: '填充绘画的颜色',
+        miterLimit: '设置斜接面限制比例',
     },
 };
