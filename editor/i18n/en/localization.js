@@ -127,7 +127,11 @@ module.exports = {
     sprite: {
         sprite_frame: 'SpriteFrame image to use',
         atlas: 'Atlas that the image belongs to',
-        type: 'Rendering Mode: Simple, Sliced, Tiled or Filled',
+        type: 
+            'Rendering mode:\n - Simple: Modifying the size will stretch the image as a whole, which is suitable for sequence frame animation and normal images. \n' +
+        '- Sliced: When changing the size, the four corners will not stretch, which is suitable for UI buttons and panel backgrounds. \n' +
+        '- Tiled : When changing the size, the original size image will continue to be tiled. \n' +
+        '- Filled : set a certain starting position and direction of filling, and the picture can be cropped and displayed at a certain ratio.',
         original_size: "Use the Image's original size as the Node size?",
         edit_button: 'Edit',
         select_button: 'Select In Atlas',
@@ -170,6 +174,8 @@ module.exports = {
         click_events: 'What method is called on the click event?',
     },
     canvas: {
+        camera: '2D rendering camera',
+        align: 'Automatically calculate parameters for the camera.',
         design_resolution: 'The resolution of the assets used in the game, in pixels.',
         fit_height: 'Canvas allows designers to automatically scale the resolution  to the full height of devices screen',
         fit_width: 'Canvas allows designers to automatically scale the resolution  to the full width of devices screen',
@@ -181,11 +187,25 @@ module.exports = {
         font_size: 'Font size, in points',
         font_family: 'Font family name',
         line_height: 'Line height, in points',
-        overflow:
-            'Text layout modes: \n 1. CLAMP: text nodes outside the bounding box will be truncated \n 2. SHRINK: automatically shrink text box according to the constraint node \n 3. RESIZE: Automatically updates the Node based on heightof the text.',
+        overflow: 
+            'Text layout modes: \n 1. CLAMP: Text nodes outside the bounding box will be truncated. \n 2. SHRINK: Automatically shrink text box according to the constraint node. \n 3. RESIZE: Automatically updates the Node based on heightof the text.',
         wrap: 'Wrap text?',
         font: 'What font to use',
         system_font: 'Whether to use the system default font',
+        cache_mode: 
+            'Text cache modes：\n 1. NONE: No cache，draw once. \n 2. BITMAP: Text is added as a static image to the dynamic atlas for batch merging, but its content cannot be dynamically modified frequently. \n 3. CHAR: Split the text into characters and cache the character texture into a character atlas for reuse, which is suitable for text content with repeated character content and frequently updated.',
+        font_bold: 'Bold font',
+        font_italic: 'Font italic',
+        font_underline: 'Font underlined',
+    },
+    labelOutline: {
+        color: 'Outline color',
+        width: 'Outline width',
+    },
+    labelShadow: {
+        color: 'Shadow color',
+        offset: 'Offset between font and shadow.',
+        blur: 'A non-negative float specifying the level of shadow blur.',
     },
     progress: {
         bar_sprite: 'A progress bar is displayed with the Sprite node that can dynamically change the size',
@@ -347,8 +367,11 @@ module.exports = {
         horizontal_align: 'Horizontal alignment',
         font_size: 'Font size, in points',
         font: 'Custom TTF font of RichText',
-        line_height: 'Line height, in points',
+        font_family:'Custom System font of RichText',
+        use_system_font: 'Using system font',
+        cache_mode: 'The cache mode of label. This mode only supports system fonts.',
         max_width: 'The maximize width of RichText, pass 0 means not limit the maximize width.',
+        line_height: 'Line height, in points',
         image_atlas:
             'The image atlas for the img tag. For each src value in the img tag, there should be a valid spriteFrame in the image atlas.',
         handleTouchEvent:
@@ -633,5 +656,22 @@ module.exports = {
             label: "DragonBones",
             description: "DragonBones support.",
         },
+    },
+    renderable_2d: {
+        srcBlendFactor: 'Specifies the source blend mode, it will clone a new material object.',
+        dstBlendFactor: 'Specifies the destination blend mode.',
+        color: 'Main color for rendering, it normally multiplies with texture color.',
+    },
+    ui_transform: {
+        content_size:'Size of the UI node.',
+        anchor_point:'Anchor point of the UI node.',
+        priority:'Priority of rendering ordering.',
+    },
+    graphics: {
+        lineJoin: 'Determines how two connecting segments (of lines, arcs or curves) with non-zero lengths in a shape are joined together.',
+        lineCap: 'Determines how the end points of every line are drawn.',
+        strokeColor: 'Brush stroke color.',
+        fillColor: 'Fill paint color.',
+        miterLimit: 'Set the miter limit ratio.',
     },
 };
