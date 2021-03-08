@@ -7,7 +7,7 @@ export enum AudioEvent {
     INTERRUPTION_BEGIN = 'interruptionBegin',
     INTERRUPTION_END = 'interruptionEnd',
     USER_GESTURE = 'on_gesture',  // only web needed
-};
+}
 
 export enum AudioType {
     DOM_AUDIO,
@@ -15,11 +15,11 @@ export enum AudioType {
     MINIGAME_AUDIO,
     NATIVE_AUDIO,
     UNKNOWN_AUDIO,
-};
+}
 
 export interface AudioLoadOptions {
     audioLoadMode?: AudioType,
-};
+}
 
 export enum AudioState {
     INIT,

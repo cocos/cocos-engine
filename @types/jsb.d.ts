@@ -4,7 +4,7 @@
  * Homepage: https://github.com/haroel/creatorexDTS
  */
 declare namespace jsb {
-    export module AudioEngine {
+    export namespace AudioEngine {
         export function preload (url: string, cb: (isSuccess: boolean) => void);
         export function play2d (url: string, loop: boolean, volume: number): number;
         export function pause (id: number);
@@ -28,19 +28,19 @@ declare namespace jsb {
 
         export function uncache (url: string);
         export function uncacheAll ();
-        export function setErrorCallback (id: number, cb: Function);
-        export function setFinishCallback (id: number, cb: Function);
+        export function setErrorCallback (id: number, cb: (err: any) => void);
+        export function setFinishCallback (id: number, cb: () => void);
     }
 
-    export module reflection{
+    export namespace reflection{
         /**
          * https://docs.cocos.com/creator/manual/zh/advanced-topics/java-reflection.html
          * call OBJC/Java static methods
-         * 
-         * @param className 
-         * @param methodName 
-         * @param methodSignature 
-         * @param parameters 
+         *
+         * @param className
+         * @param methodName
+         * @param methodSignature
+         * @param parameters
          */
         export function callStaticMethod (className: string, methodName: string, methodSignature: string, ...parameters:any): any;
     }
@@ -52,12 +52,12 @@ declare namespace jsb {
     /**
      * Http file downloader for jsb！
      */
-    export class Downloader{
+    export class Downloader {
         /**
          * create a download task
-         * @param requestURL 
-         * @param storagePath 
-         * @param identifier 
+         * @param requestURL
+         * @param storagePath
+         * @param identifier
          */
         createDownloadFileTask (requestURL:string, storagePath:string, identifier?:string): DownloaderTask;
 
@@ -66,7 +66,6 @@ declare namespace jsb {
         setOnTaskProgress (onProgress: (task: DownloaderTask, bytesReceived: number, totalBytesReceived: number, totalBytesExpected: number) => void): void;
 
         setOnTaskError (onError: (task: DownloaderTask, errorCode: number, errorCodeInternal: number, errorStr: string) => void): void;
-
     }
 
     export interface ManifestAsset {
@@ -110,8 +109,7 @@ declare namespace jsb {
         static UPDATE_FAILED: number;
         static ERROR_DECOMPRESS: number;
 
-        constructor (eventName: string, manager: AssetsManager, eventCode: number, 
-                    assetId?: string, message?: string, curleCode?: number, curlmCode?: number);
+        constructor (eventName: string, manager: AssetsManager, eventCode: number, assetId?: string, message?: string, curleCode?: number, curlmCode?: number);
         getAssetsManagerEx (): AssetsManager;
         isResuming (): boolean;
 
@@ -129,7 +127,7 @@ declare namespace jsb {
         getCURLMCode (): number;
     }
 
-    export module AssetsManager {
+    export namespace AssetsManager {
         export enum State {
             UNINITED,
             UNCHECKED,
@@ -175,10 +173,10 @@ declare namespace jsb {
         loadRemoteManifest (remoteManifest: Manifest): boolean;
 
         /**
-         * Setup your own version compare handler, versionA and B is versions in string.  
-         * if the return value greater than 0, versionA is greater than B,  
-         * if the return value equals 0, versionA equals to B,  
-         * if the return value smaller than 0, versionA is smaller than B.  
+         * Setup your own version compare handler, versionA and B is versions in string.
+         * if the return value greater than 0, versionA is greater than B,
+         * if the return value equals 0, versionA equals to B,
+         * if the return value smaller than 0, versionA is smaller than B.
          */
         setVersionCompareHandle (versionCompareHandle?: (versionA: string, versionB: string) => number): void;
         /**
@@ -191,7 +189,7 @@ declare namespace jsb {
     /**
      * FileUtils  Helper class to handle file operations.
      */
-    export module fileUtils{
+    export namespace fileUtils{
         /**
          *  Checks whether the path is an absolute path.
          *
@@ -268,7 +266,7 @@ declare namespace jsb {
         export function isDirectoryExist (dirPath:string):boolean;
         /**
          * Normalize: remove . and ..
-         * @param filepath 
+         * @param filepath
          */
         export function normalizePath (filepath:string):string;
         /**
@@ -324,17 +322,17 @@ declare namespace jsb {
         /**
          *  Gets the array of search paths.
          *
-         *  @return The array of search paths which may contain the prefix of default resource root path. 
+         *  @return The array of search paths which may contain the prefix of default resource root path.
          *  @note In best practise, getter function should return the value of setter function passes in.
-         *        But since we should not break the compatibility, we keep using the old logic. 
+         *        But since we should not break the compatibility, we keep using the old logic.
          *        Therefore, If you want to get the original search paths, please call 'getOriginalSearchPaths()' instead.
          *  @see fullPathForFilename(const char*).
          *  @lua NA
          */
         export function getSearchPaths ():Array<string>;
         /**
-         * 
-         * @param filepath 
+         *
+         * @param filepath
          */
         export function getFileDir (filepath:string):string;
         /**
@@ -344,7 +342,7 @@ declare namespace jsb {
         *@param fullPath The full path to the file you want to save a string
         *@return bool
         */
-        export function writeToFile ( valueMap:any ):boolean;
+        export function writeToFile (valueMap:any):boolean;
         /**
          *  Gets the original search path array set by 'setSearchPaths' or 'addSearchPath'.
          *  @return The array of the original search paths
@@ -376,7 +374,7 @@ declare namespace jsb {
         /** Converts the contents of a file to a ValueMap.
          *  This method is used internally.
          */
-        export function getValueMapFromData (filedata:string,filesize:number):any;
+        export function getValueMapFromData (filedata:string, filesize:number):any;
         /**
          *  Removes a directory.
          *
@@ -403,7 +401,7 @@ declare namespace jsb {
          *  In js:var setSearchPaths(var jsval);
          *  @lua NA
          */
-        export function setSearchPaths ( searchPath:Array<string>):void;
+        export function setSearchPaths (searchPath:Array<string>):void;
         /**
          *  write a string into a file
          *
@@ -411,7 +409,7 @@ declare namespace jsb {
          * @param fullPath The full path to the file you want to save a string
          * @return bool True if write success
          */
-        export function writeStringToFile (dataStr:string,fullPath:string):boolean;
+        export function writeStringToFile (dataStr:string, fullPath:string):boolean;
         /**
          *  Sets the array that contains the search order of the resources.
          *
@@ -428,13 +426,13 @@ declare namespace jsb {
          * @see setSearchResolutionsOrder(), fullPathForFilename().
          * @since v2.1
          */
-        export function addSearchResolutionsOrder (order:string,front:boolean):void;
+        export function addSearchResolutionsOrder (order:string, front:boolean):void;
         /**
          * Add search path.
          *
          * @since v2.1
          */
-        export function addSearchPath (path:string,front:boolean):void;
+        export function addSearchPath (path:string, front:boolean):void;
         /**
         * write ValueVector into a plist file
         *
@@ -442,7 +440,7 @@ declare namespace jsb {
         *@param fullPath The full path to the file you want to save a string
         *@return bool
         */
-        export function writeValueVectorToFile (vecData:Array<any>,fullPath:string):boolean;
+        export function writeValueVectorToFile (vecData:Array<any>, fullPath:string):boolean;
         /**
          *  Checks whether a file exists.
          *
@@ -451,7 +449,7 @@ declare namespace jsb {
          *  @return True if the file exists, false if not.
          */
         export function isFileExist (filename:string):boolean;
-        /**©∫
+        /**
          *  Purges full path caches.
          */
         export function purgeCachedEntries ():void;
@@ -464,7 +462,7 @@ declare namespace jsb {
          *               Return: /User/path1/path2/hello.pvr (If there a a key(hello.png)-value(hello.pvr) in FilenameLookup dictionary. )
          *
          */
-        export function fullPathFromRelativeFile (filename:string,relativeFile:string):string;
+        export function fullPathFromRelativeFile (filename:string, relativeFile:string):string;
         /**
         * Windows fopen can't support UTF-8 filename
         * Need convert all parameters fopen and other 3rd-party libs
@@ -480,7 +478,7 @@ declare namespace jsb {
         *@param fullPath The full path to the file you want to save a string
         *@return bool
         */
-        export function writeValueMapToFile (dict:any,fullPath:string):string;
+        export function writeValueMapToFile (dict:any, fullPath:string):string;
         /**
         *  Gets filename extension is a suffix (separated from the base filename by a dot) in lower case.
         *  Examples of filename extensions are .png, .jpeg, .exe, .dmg and .txt.

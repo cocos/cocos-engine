@@ -38,10 +38,10 @@ replaceProperty(AudioClip, 'AudioClip', [
         newName: 'AudioState',
         target: AudioSource,
         targetName: 'AudioSource',
-    }
+    },
 ]);
 
-let removedProperties = [
+const removedProperties = [
     'state',
     'play',
     'pause',
@@ -55,8 +55,7 @@ let removedProperties = [
     'getLoop',
 ];
 
-removeProperty(AudioClip.prototype, 'AudioClip.prototype', removedProperties.map(property => ({
+removeProperty(AudioClip.prototype, 'AudioClip.prototype', removedProperties.map((property) => ({
     name: property,
     suggest: `Use 'AudioSource.prototype.${property}' instead`,
 })));
-

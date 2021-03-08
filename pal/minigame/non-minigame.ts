@@ -1,5 +1,5 @@
-import { IMiniGame } from "pal/minigame";
+import { IMiniGame } from 'pal/minigame';
 
-// @ts-ignore
-let mg: IMiniGame = {};
-export { mg }
+// @ts-expect-error can't init mg when it's declared
+const mg: IMiniGame = {};
+export { mg };

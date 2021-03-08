@@ -1,18 +1,18 @@
-import { IMiniGame } from "pal/minigame";
-import { Orientation } from "../orientation";
-import { cloneObject } from "../utils";
+import { IMiniGame } from 'pal/minigame';
+import { Orientation } from '../orientation';
+import { cloneObject } from '../utils';
 
 declare let my: any;
 
-// @ts-ignore
-let mg: IMiniGame = {};
+// @ts-expect-error can't init mg when it's declared
+const mg: IMiniGame = {};
 cloneObject(mg, my);
 
-let systemInfo = mg.getSystemInfoSync();
+const systemInfo = mg.getSystemInfoSync();
 mg.isSubContext = false;  // sub context not supported
-mg.isDevTool = window.navigator && (/AlipayIDE/.test(window.navigator.userAgent));;
+mg.isDevTool = window.navigator && (/AlipayIDE/.test(window.navigator.userAgent));
 mg.isLandscape = systemInfo.screenWidth > systemInfo.screenHeight;
-let orientation = mg.isLandscape ? Orientation.LANDSCAPE_RIGHT : Orientation.PORTRAIT;
+// let orientation = mg.isLandscape ? Orientation.LANDSCAPE_RIGHT : Orientation.PORTRAIT;
 
 // TouchEvent
 // my.onTouchStart register touch event listner on body
@@ -38,11 +38,15 @@ let orientation = mg.isLandscape ? Orientation.LANDSCAPE_RIGHT : Orientation.POR
 //     });
 // };
 
-mg.createInnerAudioContext = function() {
-    let audio = my.createInnerAudioContext();
+mg.createInnerAudioContext = function (): InnerAudioContext {
+    const audio: InnerAudioContext = my.createInnerAudioContext();
+    // @ts-expect-error InnerAudioContext has onCanPlay
     audio.onCanplay = audio.onCanPlay.bind(audio);
+    // @ts-expect-error InnerAudioContext has offCanPlay
     audio.offCanplay = audio.offCanPlay.bind(audio);
+    // @ts-expect-error InnerAudioContext has onCanPlay
     delete audio.onCanPlay;
+    // @ts-expect-error InnerAudioContext has offCanPlay
     delete audio.offCanPlay;
     return audio;
 };
@@ -50,22 +54,22 @@ mg.createInnerAudioContext = function() {
 // Font
 mg.loadFont = function (url) {
     // my.loadFont crash when url is not in user data path
-    return "Arial";
+    return 'Arial';
 };
 
 // Accelerometer
 mg.onAccelerometerChange = function (cb) {
-    my.onAccelerometerChange(res => {
+    my.onAccelerometerChange((res) => {
         let x = res.x;
         let y = res.y;
         if (mg.isLandscape) {
             // NOTE: onDeviceOrientationChangeis not supported on alipay platform
-            let tmp = x;
+            const tmp = x;
             x = -y;
             y = tmp;
         }
 
-        let resClone = {
+        const resClone = {
             x,
             y,
             z: res.z,
@@ -74,12 +78,12 @@ mg.onAccelerometerChange = function (cb) {
     });
     // onAccelerometerChange would start accelerometer, need to mannually stop it
     my.stopAccelerometer();
-}
+};
 
 mg.getSafeArea = function () {
     console.warn('getSafeArea is not supported on this platform');
     if (mg.getSystemInfoSync) {
-        let systemInfo =  mg.getSystemInfoSync();
+        const systemInfo =  mg.getSystemInfoSync();
         return {
             top: 0,
             left: 0,
@@ -97,6 +101,6 @@ mg.getSafeArea = function () {
         width: 0,
         height: 0,
     };
-}
+};
 
 export { mg };

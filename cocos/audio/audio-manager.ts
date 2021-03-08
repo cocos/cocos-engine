@@ -23,7 +23,8 @@
  THE SOFTWARE.
  */
 
-import { AudioPlayer, OneShotAudio } from "pal/audio";
+import { AudioPlayer, OneShotAudio } from 'pal/audio';
+
 type ManagedAudio = AudioPlayer | OneShotAudio;
 
 export class AudioManager {
@@ -65,4 +66,4 @@ export class AudioManager {
     }
 }
 
-export let audioManager = new AudioManager();
+export const audioManager = new AudioManager();

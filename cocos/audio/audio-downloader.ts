@@ -28,18 +28,18 @@
  * @module asset-manager
  */
 
+import { AudioPlayer } from 'pal/audio';
 import { AudioClip } from './assets/clip';
 import { CompleteCallback, IDownloadParseOptions } from '../core/asset-manager/shared';
 import downloader from '../core/asset-manager/downloader';
 import factory from '../core/asset-manager/factory';
-import { AudioPlayer } from 'pal/audio';
 
 export function loadAudioPlayer (url: string, options: IDownloadParseOptions, onComplete: CompleteCallback) {
     AudioPlayer.load(url, {
         audioLoadMode: options.audioLoadMode,
-    }).then(player => {
+    }).then((player) => {
         onComplete(null, player);
-    }).catch(err => {
+    }).catch((err) => {
         onComplete(err);
     });
 }

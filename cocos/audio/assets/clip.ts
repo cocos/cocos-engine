@@ -28,13 +28,13 @@
  * @module component/audio
  */
 
+import { AudioPlayer } from 'pal/audio';
 import {
     ccclass, type, serializable, override,
 } from 'cc.decorator';
 import { Asset } from '../../core/assets/asset';
 import { legacyCC } from '../../core/global-exports';
 import { AudioType } from '../../../pal/audio/type';
-import { AudioPlayer } from 'pal/audio';
 
 /**
  * @en

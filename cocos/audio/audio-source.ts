@@ -28,9 +28,9 @@
  * @module component/audio
  */
 
+import { AudioPlayer } from 'pal/audio';
 import { ccclass, help, menu, tooltip, type, range, serializable } from 'cc.decorator';
 import { AudioState } from '../../pal/audio/type';
-import { AudioPlayer } from 'pal/audio';
 import { Component } from '../core/components/component';
 import { clamp } from '../core/math';
 import { AudioClip } from './assets/clip';
@@ -48,7 +48,7 @@ import { audioManager } from './audio-manager';
 @menu('Audio/AudioSource')
 export class AudioSource extends Component {
     static get maxAudioChannel () {
-        return AudioPlayer.maxAudioChannel;   
+        return AudioPlayer.maxAudioChannel;
     }
     public static AudioState = AudioState;
 
@@ -82,7 +82,7 @@ export class AudioSource extends Component {
         return this._clip;
     }
     private _syncPlayer () {
-        let clip = this._clip;
+        const clip = this._clip;
         if (clip?._nativeAsset === this._player) {
             return;
         }
@@ -198,7 +198,7 @@ export class AudioSource extends Component {
         audioManager.discardOnePlayingIfNeeded();
         this._player?.play().then(() => {
             audioManager.addPlaying(this._player!);
-        });
+        }).catch((e) => {});
     }
 
     /**
@@ -210,7 +210,7 @@ export class AudioSource extends Component {
     public pause () {
         this._player?.pause().then(() => {
             audioManager.removePlaying(this._player!);
-        });
+        }).catch((e) => {});
     }
 
     /**
@@ -222,7 +222,7 @@ export class AudioSource extends Component {
     public stop () {
         this._player?.stop().then(() => {
             audioManager.removePlaying(this._player!);
-        });
+        }).catch((e) => {});
     }
 
     /**
@@ -239,20 +239,23 @@ export class AudioSource extends Component {
      */
     public playOneShot (clip: AudioClip, volumeScale = 1) {
         audioManager.discardOnePlayingIfNeeded();
-        let player = clip._nativeAsset;
-        let oneShotAudio = player?.playOneShot(this._volume * volumeScale)
+        const player = clip._nativeAsset;
+        const oneShotAudio = player?.playOneShot(this._volume * volumeScale);
         oneShotAudio?.onPlay(() => {
-            audioManager.addPlaying(oneShotAudio!);
+            audioManager.addPlaying(oneShotAudio);
         }).onEnded(() => {
-            audioManager.removePlaying(oneShotAudio!);
+            audioManager.removePlaying(oneShotAudio);
         });
     }
 
     protected _syncStates () {
         if (!this._player) { return; }
-        this._player.seek(this._cachedCurrentTime);
-        this._player.loop = this._loop;
-        this._player.volume = this._volume;
+        this._player.seek(this._cachedCurrentTime).then(() => {
+            if (this._player) {
+                this._player.loop = this._loop;
+                this._player.volume = this._volume;
+            }
+        }).catch((e) => {});
     }
 
     /**
@@ -266,7 +269,7 @@ export class AudioSource extends Component {
         if (Number.isNaN(num)) { console.warn('illegal audio time!'); return; }
         num = clamp(num, 0, this.duration);
         this._cachedCurrentTime = num;
-        this._player?.seek(this._cachedCurrentTime);
+        this._player?.seek(this._cachedCurrentTime).catch((e) => {});
     }
 
     /**
