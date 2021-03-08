@@ -269,7 +269,7 @@ export class AudioPlayerWeb {
         return Promise.resolve(); 
     }
     stop(): Promise<void> {
-        if (this._state !== AudioState.PLAYING || !this._sourceNode) {
+        if (!this._sourceNode) {
             return Promise.resolve();
         }
         this._offset = 0;
