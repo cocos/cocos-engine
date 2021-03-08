@@ -29,7 +29,7 @@
  * @module event
  */
 
-import { ccclass, type, serializable, editable } from 'cc.decorator';
+import { ccclass, type, serializable, editable, tooltip } from 'cc.decorator';
 import { Node } from '../scene-graph';
 import { legacyCC } from '../global-exports';
 
@@ -98,6 +98,7 @@ export class EventHandler {
      * 事件响应组件和函数所在节点
      */
     @type(legacyCC.Node)
+    @tooltip('i18n:button.click_event.target')
     public target: Node | null = null;
     /**
      * @en
@@ -108,6 +109,7 @@ export class EventHandler {
     // only for deserializing old project component field
     @serializable
     @editable
+    @tooltip('i18n:button.click_event.component')
     public component = '';
 
     @serializable
@@ -121,6 +123,7 @@ export class EventHandler {
      */
     @serializable
     @editable
+    @tooltip('i18n:button.click_event.handler')
     public handler = '';
 
     /**
@@ -131,6 +134,7 @@ export class EventHandler {
      */
     @serializable
     @editable
+    @tooltip('i18n:button.click_event.customEventData')
     public customEventData = '';
 
     /**

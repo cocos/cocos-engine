@@ -70,7 +70,7 @@ import { legacyCC } from '../core/global-exports';
 @requireComponent(UITransform)
 @menu('Miscellaneous/SubContextView')
 export class SubContextView extends Component {
-    @tooltip('子域的设计分辨率，禁止在运行时动态更新')
+    @tooltip('i18n: subContextView.design_size')
     get designResolutionSize () {
         return this._designResolutionSize;
     }
@@ -81,7 +81,7 @@ export class SubContextView extends Component {
         this._designResolutionSize.set(value);
     }
 
-    @tooltip('主域更新子域贴图的频率')
+    @tooltip('i18n: subContextView.fps')
     get fps () {
         return this._fps;
     }

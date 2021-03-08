@@ -218,7 +218,7 @@ export class Widget extends Component {
      * 指定一个对齐目标，只能是当前节点的其中一个父节点，默认为空，为空时表示当前父节点。
      */
     @type(Node)
-    @tooltip('对齐目标')
+    @tooltip('i18n:widget.target')
     get target () {
         return this._target;
     }
@@ -248,7 +248,7 @@ export class Widget extends Component {
      * @zh
      * 是否对齐上边。
      */
-    @tooltip('是否对齐上边')
+    @tooltip('i18n:widget.align_top')
     get isAlignTop () {
         return (this._alignFlags & AlignFlags.TOP) > 0;
     }
@@ -264,7 +264,7 @@ export class Widget extends Component {
      * @zh
      * 是否对齐下边。
      */
-    @tooltip('是否对齐下边')
+    @tooltip('i18n:widget.align_bottom')
     get isAlignBottom () {
         return (this._alignFlags & AlignFlags.BOT) > 0;
     }
@@ -280,7 +280,7 @@ export class Widget extends Component {
      * @zh
      * 是否对齐左边。
      */
-    @tooltip('是否对齐左边')
+    @tooltip('i18n:widget.align_left')
     get isAlignLeft () {
         return (this._alignFlags & AlignFlags.LEFT) > 0;
     }
@@ -296,7 +296,7 @@ export class Widget extends Component {
      * @zh
      * 是否对齐右边。
      */
-    @tooltip('是否对齐右边')
+    @tooltip('i18n:widget.align_right')
     get isAlignRight () {
         return (this._alignFlags & AlignFlags.RIGHT) > 0;
     }
@@ -312,7 +312,7 @@ export class Widget extends Component {
      * @zh
      * 是否垂直方向对齐中点，开启此项会将垂直方向其他对齐选项取消。
      */
-    @tooltip('是否垂直方向对齐中点，开启此项会将垂直方向其他对齐选项取消')
+    @tooltip('i18n:widget.align_h_center')
     get isAlignVerticalCenter () {
         return (this._alignFlags & AlignFlags.MID) > 0;
     }
@@ -335,7 +335,7 @@ export class Widget extends Component {
      * @zh
      * 是否水平方向对齐中点，开启此选项会将水平方向其他对齐选项取消。
      */
-    @tooltip('是否水平方向对齐中点，开启此选项会将水平方向其他对齐选项取消')
+    @tooltip('i18n:widget.align_v_center')
     get isAlignHorizontalCenter () {
         return (this._alignFlags & AlignFlags.CENTER) > 0;
     }
@@ -386,6 +386,7 @@ export class Widget extends Component {
      * @zh
      * 本节点顶边和父节点顶边的距离，可填写负值，只有在 isAlignTop 开启时才有作用。
      */
+    @tooltip('i18n:widget.top')
     get top () {
         return this._top;
     }
@@ -414,6 +415,7 @@ export class Widget extends Component {
      * @zh
      * 本节点底边和父节点底边的距离，可填写负值，只有在 isAlignBottom 开启时才有作用。
      */
+    @tooltip('i18n:widget.bottom')
     get bottom () {
         return this._bottom;
     }
@@ -442,6 +444,7 @@ export class Widget extends Component {
      * @zh
      * 本节点左边和父节点左边的距离，可填写负值，只有在 isAlignLeft 开启时才有作用。
      */
+    @tooltip('i18n:widget.left')
     get left () {
         return this._left;
     }
@@ -470,6 +473,7 @@ export class Widget extends Component {
      * @zh
      * 本节点右边和父节点右边的距离，可填写负值，只有在 isAlignRight 开启时才有作用。
      */
+    @tooltip('i18n:widget.right')
     get right () {
         return this._right;
     }
@@ -498,6 +502,7 @@ export class Widget extends Component {
      * @zh
      * 水平居中的偏移值，可填写负值，只有在 isAlignHorizontalCenter 开启时才有作用。
      */
+    @tooltip('i18n:widget.horizontal_center')
     get horizontalCenter () {
         return this._horizontalCenter;
     }
@@ -526,6 +531,7 @@ export class Widget extends Component {
      * @zh
      * 垂直居中的偏移值，可填写负值，只有在 isAlignVerticalCenter 开启时才有作用。
      */
+    @tooltip('i18n:widget.vertical_center')
     get verticalCenter () {
         return this._verticalCenter;
     }
@@ -680,7 +686,7 @@ export class Widget extends Component {
      * ```
      */
     @type(AlignMode)
-    @tooltip('指定 widget 的对齐方式，用于决定运行时 widget 应何时更新')
+    @tooltip('i18n:widget.align_mode')
     get alignMode () {
         return this._alignMode;
     }

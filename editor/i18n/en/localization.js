@@ -150,28 +150,28 @@ module.exports = {
     },
     button: {
         click_event: {
-            target: 'Node receives a click event?',
-            component: 'Component receives a click event?',
-            handler: 'What method is called on the click event?',
+            target: 'Node that receives click events',
+            component: 'Components that receive click events',
+            handler: 'Methods for handling click events',
             customEventData: "The extra event data passed to the event handler, it's passed in as the last argument in the event handler. ",
         },
-        interactable: 'Interactive button? When this one is not selected, the button is in a disabled state',
-        transition: 'Transition Type: when the state changes',
+        interactable: 'Interactable state of the button, when this item is unchecked, the button is disabled',
+        transition: 'Transition type when the button state changes',
         normal_color: 'Button color',
         pressed_color: 'Button color when pressed',
         hover_color: 'Button color when the mouse hovers over it',
         disabled_color: 'Button color when disabled',
-        duration: 'How long until the button color/scale transitions to a new color?',
+        duration: 'Transition time for button color change or zoom change',
         zoom_scale:
-            'When user press the button, the button will zoom to a scale.The final scale of the button  equals (button original scale * zoomScale), zoomScale could be negative value.',
+            'When the user clicks the button, the button is scaled to a value equal to the original scale of the Button * zoomScale, zoomScale can be a negative number',
         auto_gray_effect: 'When this flag is true, Button target sprite will turn gray when interactable is false.',
         normal_sprite: 'The Sprite that is used when the button is in a normal sate.',
         pressed_sprite: 'The Sprite that is used when the button is in a pressed sate.',
         hover_sprite: 'The Sprite that is used when the button is hovered over.',
         disabled_sprite: 'The Sprite that is used when the button is in a disabled sate.',
         target:
-            "reference to the Sprite as button's background. When the state of the button changes the sprite's color or spriteFrame will be updated.",
-        click_events: 'What method is called on the click event?',
+            "reference to the Sprite as target's background. When the state of the target changes the sprite's color or spriteFrame will be updated.",
+        click_events: 'A list of button click events. By first changing the number to 1 or more, you can set the recipient and handler for each click event',
     },
     canvas: {
         camera: '2D rendering camera',
@@ -209,7 +209,7 @@ module.exports = {
     },
     progress: {
         bar_sprite: 'A progress bar is displayed with the Sprite node that can dynamically change the size',
-        mode: 'Horizontal or Vertical progress bar?',
+        mode: 'Progress bar display modes, including: \n 1. HORIZONTAL: horizontal mode \n 2. VERTICAL: vertical mode \n 3. FILLED: fan-fill mode',
         total_length: 'Length of progress bar. The maximum length of 100',
         progress: 'Current progress indicator, ranging from 0-1',
         reverse: 'Can the progress bar update negatively (i.e go backwards)',
@@ -217,20 +217,19 @@ module.exports = {
     scrollbar: {
         handle: 'reference to the interactive bar sprite',
         direction: 'Scroll direction',
-        auto_hide: 'Hide scroll bar when it is not scrolling?',
-        auto_hide_time: 'How long to wait to hide the scroll bar when it is not scrolling?',
+        auto_hide: 'Auto-hide ScrollBar when there is no scrolling action',
+        auto_hide_time: 'How long after no scrolling action will be automatically hidden\nNote: Only valid if "enableAutoHide" is true',
     },
     scrollview: {
         content: 'A scrollable display of the Nodes content',
         horizontal: 'Horizontal scroll',
         vertical: 'Vertical scroll',
-        inertia: 'Use intertia when scrolling? (or just let your finger do all the work?)',
-        brake: 'When using interia scrolling what to do when the user stops touching? 0 never stop, 1 stop immediately',
-        elastic: 'Use elastic scrolling?',
-        bounce_time: 'When using elastic scrolling how long to rebound afterwards?',
+        inertia: 'When inertia is set, the content will continue to move when touch ended',
+        brake: 'It determines how quickly the content stop moving\nA value of 1 will stop the movement immediately\nA value of 0 will never stop the movement until it reaches to the boundary of scrollview',
+        elastic: 'When elastic is set, the content will be bounce back when move out of boundary.',
         horizontal_bar: 'Horizontal scrollbar',
         vertical_bar: 'Vertical scrollbar',
-        bounceDuration: 'The elapse time of bouncing back. A value of 0 will bounce back immediately',
+        bounceDuration: 'The elapse time of bouncing back. A value of 0 will bounce back immediately.',
         scrollEvents: 'Scrollview events callback',
         cancelInnerEvents: 'If cancelInnerEvents is set to true, the scroll behavior will cancel touch events on inner content nodes',
     },
@@ -245,7 +244,7 @@ module.exports = {
         pageTurningSpeed: 'The time required to turn over a page. unit: second',
         pageEvents: 'PageView events callback',
         autoPageTurningThreshold:
-            'Auto page turning velocity threshold. When users swipe the PageView quickly, it will calculate a velocity based on the scroll distance and time, if the calculated velocity is larger than the threshold, then it will trigger page turning',
+            'Auto page turning velocity threshold\nWhen users swipe the PageView quickly, it will calculate a velocity based on the scroll distance and time\nif the calculated velocity is larger than the threshold, then it will trigger page turning',
     },
     pageview_indicator: {
         spriteFrame: 'The spriteFrame for each element',
@@ -275,10 +274,12 @@ module.exports = {
         checkMark: 'The Sprite component displayed when Toggle is checked.',
         toggleGroup:
             'The toggle group which the toggle belongs to. When it is null, the toggle is a CheckBox. Otherwise, the toggle is a RadioButton.',
+        check_events: "If Toggle is clicked, it will trigger event's handler.",
     },
     toggle_group: {
         allowSwitchOff:
             "If this setting is true, a toggle could be switched off and on when pressed.If it is false, it will make sure there is always only one toggle could be switched on and the already switched on toggle can't be switched off.",
+        check_events: "If Toggle is clicked, it will trigger event's handler.",
     },
     slider: {
         handle: 'The "handle" part of the slider',
@@ -289,12 +290,12 @@ module.exports = {
     widget: {
         target:
             'Specifies an alignment target that can only be one of the parent nodes of the current node. The default value is null, and when null, indicates the current parent',
-        align_top: 'Top edge alignment of the parent Node',
-        align_bottom: 'Bottom edge alignment of the parent Node',
-        align_left: 'Left edge alignment of the parent Node',
-        align_right: 'Right edge alignment of the parent Node',
-        align_h_center: 'Align to the horizontal midpoint of the parent Node',
-        align_v_center: 'Align to the vertical midpoint of the parent Node',
+        align_top: 'Top edge alignment of the target Node',
+        align_bottom: 'Bottom edge alignment of the target Node',
+        align_left: 'Left edge alignment of the target Node',
+        align_right: 'Right edge alignment of the target Node',
+        align_h_center: 'Align to the horizontal midpoint of the target Node',
+        align_v_center: 'Align to the vertical midpoint of the target Node',
         align_mode: 'Specifies the alignment mode of the Widget, which determines when the widget should refresh at runtime.',
         top: 'Top edge postion in pixels. This can be a percentage and a positive or negative value',
         bottom: 'Bottom edge postion in pixels. This can be a percentage and a positive or negative value',
@@ -318,6 +319,11 @@ module.exports = {
         horizontal_direction: 'Horizontally align in the direction of the child Nodes: \n 1. LEFT_TO_RIGHT \n 2. RIGHT_TO_LEFT',
         cell_size: 'In Grid layout, the size of each child element.',
         start_axis: 'In Grid layout, the arrangement direction of children elements.',
+        constraint: 'In Grid layout, content layout constraints, including: \n 1.NONE, no constraints \n 2.FIXED_ROW, fixed number of rows \n 3.FIXED_COL, fixed number of columns',
+        constraint_number: 'In Grid layout, number of rows or columns for content layout constraints',
+        affected_scale: 'Child node scaling affects layout',
+        align_horizontal: 'Alignment horizontal\nFixed starting position in the same direction when Type is Horizontal.',
+        align_vertical: 'Alignment vertical\nFixed starting position in the same direction when Type is Vertical.',
     },
     particle: {
         export_title: 'Export custom particle data to plist file.',
@@ -341,6 +347,12 @@ module.exports = {
         placeholder_font_size: 'The font size of placeholder label.',
         placeholder_font_color: 'The font color of placeholder label.',
         max_length: 'The maximize input characters.',
+        text_lable: "The Label component attached to the node for EditBox's input text label",
+        placeholder_label: "The Label component attached to the node for EditBox's placeholder text label",
+        editing_began: 'The event handler to be called when EditBox began to edit text',
+        text_changed: 'The event handler to be called when EditBox text changes',
+        editing_ended: 'The event handler to be called when EditBox edit ends\nIn single line mode, the function is usually called when the user presses enter or clicks outside the input box on the screen \n In case of multiline input, the function is usually called when the user clicks outside the input box on the screen',
+        editing_return: 'The event handler to be called when return key is pressed\nIn single line mode, pressing the Enter key also causes the input box to lose focus',
     },
     videoplayer: {
         resourceType: 'The resource type of video player, REMOTE for remote url and LOCAL for local file path.',
@@ -376,6 +388,17 @@ module.exports = {
             'The image atlas for the img tag. For each src value in the img tag, there should be a valid spriteFrame in the image atlas.',
         handleTouchEvent:
             'Once checked, the RichText will block all input events (mouse and touch) within the bounding box of the node, preventing the input from penetrating into the underlying node.',
+    },
+    UICoordinateTracker: {
+        target: 'Target node',
+        camera: '3D camera for conversion',
+        use_scale: 'Do you need to scale the converted 2d node size according to how far the 3D node is from the camera',
+        distance: 'The distance from the camera is the normal display calculation size',
+        sync_events: 'Event callback after value change\nThe first parameter of the callback is the mapped local coordinate\nThe second is the distance from the camera',   
+    },
+    SubContextView: {
+        design_size: 'Design resolution of SubContextView, disable dynamic updates at runtime',
+        fps: 'fps for SubContextView',
     },
     skeleton: {
         skeleton_data: 'The skeleton data contains the skeleton information, drag the json file exported from Spine to get started.',

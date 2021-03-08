@@ -55,7 +55,7 @@ export class UICoordinateTracker extends Component {
      * 目标对象。
      */
     @type(Node)
-    @tooltip('目标对象')
+    @tooltip('i18n: UICoordinateTracker.target')
     get target () {
         return this._target;
     }
@@ -77,7 +77,7 @@ export class UICoordinateTracker extends Component {
      * 照射相机。
      */
     @type(Camera)
-    @tooltip('照射相机')
+    @tooltip('i18n: UICoordinateTracker.camera')
     get camera () {
         return this._camera;
     }
@@ -99,7 +99,7 @@ export class UICoordinateTracker extends Component {
      * @zh
      * 是否是缩放映射。
      */
-    @tooltip('是否是缩放映射')
+    @tooltip('i18n: UICoordinateTracker.use_scale')
     get useScale () {
         return this._useScale;
     }
@@ -119,7 +119,7 @@ export class UICoordinateTracker extends Component {
      * @zh
      * 距相机多少距离为正常显示计算大小。
      */
-    @tooltip('距相机多少距离为正常显示计算大小')
+    @tooltip('i18n: UICoordinateTracker.distance')
     get distance () {
         return this._distance;
     }
@@ -141,7 +141,7 @@ export class UICoordinateTracker extends Component {
      */
     @type([EventHandler])
     @serializable
-    @tooltip('映射数据事件。回调的第一个参数是映射后的本地坐标，第二个是距相机距离比')
+    @tooltip('i18n: UICoordinateTracker.sync_events')
     public syncEvents: EventHandler[] = [];
 
     @serializable
