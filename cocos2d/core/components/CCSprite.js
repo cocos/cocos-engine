@@ -437,7 +437,11 @@ var Sprite = cc.Class({
     },
 
     _updateMaterial () {
-        let texture = this._spriteFrame && this._spriteFrame.getTexture();
+        let texture = null;
+                
+        if (this._spriteFrame) {
+            texture = this._spriteFrame.getTexture();
+        }
         
         // make sure material is belong to self.
         let material = this.getMaterial(0);
