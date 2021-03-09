@@ -924,8 +924,7 @@ export class ParticleSystem2D extends Renderable2D {
                     this.spriteFrame = spriteFrame;
                 }
             });
-        }
-        else if (dict.textureUuid) {
+        } else if (dict.textureUuid) {
             const textureUuid = dict.textureUuid;
             assetManager.loadAny(textureUuid, (err: Error, texture: Texture2D) => {
                 if (err) {
@@ -938,8 +937,7 @@ export class ParticleSystem2D extends Renderable2D {
                     this.spriteFrame = spf;
                 }
             });
-        }
-        else {
+        } else {
             // texture
             const imgPath = path.changeBasename(this._plistFile, dict.textureFileName || '');
             if (dict.textureFileName) {
