@@ -30,12 +30,7 @@ import { legacyCC } from '../../global-exports';
 import { Enum } from '../../value-types';
 import { ShadowsPool, NULL_HANDLE, ShadowsView, ShadowsHandle, ShaderHandle } from '../core/memory-pools';
 import { ShadowsInfo } from '../../scene-graph/scene-globals';
-import { API, Device } from '../../gfx';
 import { IMacroPatch } from '../core/pass';
-
-const multiPatches = [
-    { name: 'CC_USE_SKINNING', value: true },
-];
 
 /**
  * @zh 阴影类型。
