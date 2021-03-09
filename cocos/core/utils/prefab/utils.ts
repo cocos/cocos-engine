@@ -197,6 +197,7 @@ export function applyMountedComponents (node: Node, mountedComponents: MountedCo
             if (componentsInfo.components) {
                 for (let i = 0; i < componentsInfo.components.length; i++) {
                     const comp = componentsInfo.components[i];
+                    comp.node = target;
                     // @ts-expect-error private member access
                     target._components.push(comp);
                 }
