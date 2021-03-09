@@ -37,6 +37,7 @@ import { warnID, errorID, error } from '../core/platform/debug';
 import { Simulator } from './particle-simulator-2d';
 import { SpriteFrame } from '../2d/assets/sprite-frame';
 import { ImageAsset } from '../core/assets/image-asset';
+import { Texture2D } from '../core/assets/texture-2d';
 import { ParticleAsset } from './particle-asset';
 import { BlendFactor } from '../core/gfx';
 import { path } from '../core/utils';
@@ -923,7 +924,22 @@ export class ParticleSystem2D extends Renderable2D {
                     this.spriteFrame = spriteFrame;
                 }
             });
-        } else {
+        }
+        else if (dict.textureUuid) {
+            const textureUuid = dict.textureUuid;
+            assetManager.loadAny(textureUuid, (err: Error, texture: Texture2D) => {
+                if (err) {
+                    dict.textureUuid = undefined;
+                    this._initTextureWithDictionary(dict);
+                    error(err);
+                } else {
+                    const spf = new SpriteFrame();
+                    spf.texture = texture;
+                    this.spriteFrame = spf;
+                }
+            });
+        }
+        else {
             // texture
             const imgPath = path.changeBasename(this._plistFile, dict.textureFileName || '');
             if (dict.textureFileName) {
