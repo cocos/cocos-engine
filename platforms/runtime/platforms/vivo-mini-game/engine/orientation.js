@@ -1,2 +1,2 @@
-let sysInfo = jsb.getSystemInfoSync();
-jsb._isLandscape = sysInfo.screenWidth > sysInfo.screenHeight;
+let sysInfo = ral.getSystemInfoSync();
+ral._isLandscape = sysInfo.screenWidth > sysInfo.screenHeight;

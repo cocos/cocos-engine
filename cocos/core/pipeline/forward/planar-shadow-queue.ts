@@ -48,7 +48,6 @@ export class PlanarShadowQueue {
 
     public gatherShadowPasses (camera: Camera, cmdBuff: CommandBuffer) {
         const shadows = this._pipeline.shadows;
-        const instancedBuffer = InstancedBuffer.get(shadows.instancingMaterial.passes[0]);
         this._instancedQueue.clear();
         this._pendingModels.length = 0;
         if (!shadows.enabled || shadows.type !== ShadowType.Planar) { return; }
@@ -62,6 +61,7 @@ export class PlanarShadowQueue {
 
         const renderObjects = this._pipeline.renderObjects;
 
+        const instancedBuffer = InstancedBuffer.get(shadows.instancingMaterial.passes[0]);
         this._instancedQueue.queue.add(instancedBuffer);
 
         for (let i = 0; i < renderObjects.length; i++) {

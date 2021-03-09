@@ -127,7 +127,7 @@ export class Mask extends Renderable2D {
      */
     @type(MaskType)
     @displayOrder(10)
-    @tooltip('遮罩类型')
+    @tooltip('i18n:mask.type')
     get type () {
         return this._type;
     }
@@ -169,7 +169,7 @@ export class Mask extends Renderable2D {
      * 反向遮罩（不支持 Canvas 模式）。
      */
     @displayOrder(14)
-    @tooltip('反向遮罩')
+    @tooltip('i18n:mask.inverted')
     get inverted () {
         return this._inverted;
     }

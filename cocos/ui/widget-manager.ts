@@ -195,7 +195,7 @@ function align (node: Node, widget: Widget) {
 // TODO: type is hack, Change to the type actually used (Node or BaseNode) when BaseNode complete
 function visitNode (node: any) {
     const widget = node.getComponent(Widget);
-    if (widget) {
+    if (widget && widget.enabled) {
         if (DEV) {
             widget._validateTargetInDEV();
         }

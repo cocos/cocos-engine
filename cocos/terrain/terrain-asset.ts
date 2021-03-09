@@ -27,8 +27,8 @@
  * @packageDocumentation
  * @module terrain
  */
-import { ccclass } from 'cc.decorator';
-import { Asset } from '../core/assets';
+import { ccclass, serializable } from 'cc.decorator';
+import { Asset, Texture2D } from '../core/assets';
 import { legacyCC } from '../core/global-exports';
 
 export const TERRAIN_MAX_LEVELS = 4;
@@ -50,6 +50,7 @@ export const TERRAIN_DATA_VERSION = 0x01010001;
 export const TERRAIN_DATA_VERSION2 = 0x01010002;
 export const TERRAIN_DATA_VERSION3 = 0x01010003;
 export const TERRAIN_DATA_VERSION4 = 0x01010004;
+export const TERRAIN_DATA_VERSION5 = 0x01010005;
 export const TERRAIN_DATA_VERSION_DEFAULT = 0x01010111;
 
 class TerrainBuffer {
@@ -196,13 +197,34 @@ class TerrainBuffer {
  * @en terrain layer info
  * @zh 地形纹理信息
  */
+@ccclass('cc.TerrainLayerInfo')
 export class TerrainLayerInfo {
+    @serializable
+    public slot = 0;
+    @serializable
+    public tileSize = 1;
+    @serializable
+    public detailMap: Texture2D|null = null;
+    @serializable
+    public normalMap: Texture2D|null = null;
+    @serializable
+    public roughness = 1;
+    @serializable
+    public metallic = 0;
+}
+
+/**
+ * @en terrain layer binary info
+ * @zh 地形纹理二进制信息
+ */
+ @ccclass('cc.TerrainLayerBinaryInfo')
+export class TerrainLayerBinaryInfo {
     public slot = 0;
     public tileSize = 1;
-    public detailMap = '';
-    public normalMap = '';
     public roughness = 1;
     public metallic = 0;
+    public detailMapId = '';
+    public normalMapId = '';
 }
 
 /**
@@ -211,6 +233,7 @@ export class TerrainLayerInfo {
  */
 @ccclass('cc.TerrainAsset')
 export class TerrainAsset extends Asset {
+    protected _version = 0;
     protected _data: Uint8Array|null = null;
     protected _tileSize = 1;
     protected _blockCount: number[] = [1, 1];
@@ -219,6 +242,8 @@ export class TerrainAsset extends Asset {
     protected _heights: Uint16Array = new Uint16Array();
     protected _weights: Uint8Array = new Uint8Array();
     protected _layerBuffer: number[] = [-1, -1, -1, -1];
+    protected _layerBinaryInfos: TerrainLayerBinaryInfo[] = [];
+    @serializable
     protected _layerInfos: TerrainLayerInfo[] = [];
 
     constructor () {
@@ -240,6 +265,14 @@ export class TerrainAsset extends Asset {
         this._loadNativeData(this._data);
         this.loaded = true;
         this.emit('load');
+    }
+
+    /**
+     * @en version
+     * @zh 版本
+     */
+    get version () {
+        return this._version;
     }
 
     /**
@@ -338,6 +371,10 @@ export class TerrainAsset extends Asset {
         return this._layerInfos;
     }
 
+    get layerBinaryInfos () {
+        return this._layerBinaryInfos;
+    }
+
     /**
      * @en get layer
      * @zh 获得纹理索引
@@ -380,14 +417,15 @@ export class TerrainAsset extends Asset {
         stream.assign(_nativeData);
 
         // version
-        const version = stream.readInt();
-        if (version === TERRAIN_DATA_VERSION_DEFAULT) {
+        this._version = stream.readInt();
+        if (this._version === TERRAIN_DATA_VERSION_DEFAULT) {
             return true;
         }
-        if (version !== TERRAIN_DATA_VERSION
-            && version !== TERRAIN_DATA_VERSION2
-            && version !== TERRAIN_DATA_VERSION3
-            && version !== TERRAIN_DATA_VERSION4) {
+        if (this._version !== TERRAIN_DATA_VERSION
+            && this._version !== TERRAIN_DATA_VERSION2
+            && this._version !== TERRAIN_DATA_VERSION3
+            && this._version !== TERRAIN_DATA_VERSION4
+            && this._version !== TERRAIN_DATA_VERSION5) {
             return false;
         }
 
@@ -412,7 +450,7 @@ export class TerrainAsset extends Asset {
         }
 
         // layer buffer
-        if (version >= TERRAIN_DATA_VERSION2) {
+        if (this._version >= TERRAIN_DATA_VERSION2) {
             const layerBufferSize = stream.readInt();
             this.layerBuffer = new Array<number>(layerBufferSize);
             for (let i = 0; i < this.layerBuffer.length; ++i) {
@@ -421,18 +459,19 @@ export class TerrainAsset extends Asset {
         }
 
         // layer infos
-        if (version >= TERRAIN_DATA_VERSION3) {
+        if (this._version >= TERRAIN_DATA_VERSION3) {
             const layerInfoSize = stream.readInt();
-            this.layerInfos = new Array<TerrainLayerInfo>(layerInfoSize);
-            for (let i = 0; i < this.layerInfos.length; ++i) {
-                this.layerInfos[i] = new TerrainLayerInfo();
-                this.layerInfos[i].slot = stream.readInt();
-                this.layerInfos[i].tileSize = stream.readFloat();
-                this.layerInfos[i].detailMap = stream.readString();
-                if (version >= TERRAIN_DATA_VERSION4) {
-                    this.layerInfos[i].normalMap = stream.readString();
-                    this.layerInfos[i].roughness = stream.readFloat();
-                    this.layerInfos[i].metallic = stream.readFloat();
+            this._layerBinaryInfos = new Array<TerrainLayerBinaryInfo>(layerInfoSize);
+            for (let i = 0; i < this._layerBinaryInfos.length; ++i) {
+                this._layerBinaryInfos[i] = new TerrainLayerBinaryInfo();
+                this._layerBinaryInfos[i].slot = stream.readInt();
+                this._layerBinaryInfos[i].tileSize = stream.readFloat();
+
+                this._layerBinaryInfos[i].detailMapId = stream.readString();
+                if (this._version >= TERRAIN_DATA_VERSION4) {
+                    this._layerBinaryInfos[i].normalMapId = stream.readString();
+                    this._layerBinaryInfos[i].roughness = stream.readFloat();
+                    this._layerBinaryInfos[i].metallic = stream.readFloat();
                 }
             }
         }
@@ -444,7 +483,7 @@ export class TerrainAsset extends Asset {
         const stream = new TerrainBuffer();
 
         // version
-        stream.writeInt32(TERRAIN_DATA_VERSION4);
+        stream.writeInt32(TERRAIN_DATA_VERSION5);
 
         // geometry info
         stream.writeFloat(this.tileSize);
@@ -471,14 +510,29 @@ export class TerrainAsset extends Asset {
         }
 
         // layer infos
-        stream.writeInt32(this.layerInfos.length);
-        for (let i = 0; i < this.layerInfos.length; ++i) {
-            stream.writeInt32(this.layerInfos[i].slot);
-            stream.writeFloat(this.layerInfos[i].tileSize);
-            stream.writeString(this.layerInfos[i].detailMap);
-            stream.writeString(this.layerInfos[i].normalMap);
-            stream.writeFloat(this.layerInfos[i].roughness);
-            stream.writeFloat(this.layerInfos[i].metallic);
+        const layerBinaryInfos: TerrainLayerBinaryInfo[] = [];
+        layerBinaryInfos.length = this.layerInfos.length;
+        for (let i = 0; i < layerBinaryInfos.length; ++i) {
+            const layer = this.layerInfos[i];
+
+            const binaryLayer = new TerrainLayerBinaryInfo();
+            binaryLayer.slot = i;
+            binaryLayer.tileSize = layer.tileSize;
+            binaryLayer.detailMapId = layer.detailMap ? layer.detailMap._uuid : '';
+            binaryLayer.normalMapId = layer.normalMap ? layer.normalMap._uuid : '';
+            binaryLayer.metallic = layer.metallic;
+            binaryLayer.roughness = layer.roughness;
+            layerBinaryInfos[i] = binaryLayer;
+        }
+
+        stream.writeInt32(layerBinaryInfos.length);
+        for (let i = 0; i < layerBinaryInfos.length; ++i) {
+            stream.writeInt32(layerBinaryInfos[i].slot);
+            stream.writeFloat(layerBinaryInfos[i].tileSize);
+            stream.writeString(layerBinaryInfos[i].detailMapId);
+            stream.writeString(layerBinaryInfos[i].normalMapId);
+            stream.writeFloat(layerBinaryInfos[i].roughness);
+            stream.writeFloat(layerBinaryInfos[i].metallic);
         }
 
         return stream.buffer;
