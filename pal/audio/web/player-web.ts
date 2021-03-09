@@ -4,8 +4,10 @@ import { EventTarget } from '../../../cocos/core/event/event-target';
 import { legacyCC } from '../../../cocos/core/global-exports';
 import { clamp } from '../../../cocos/core';
 
+// NOTE: fix CI
+const AudioContextClass = (window.AudioContext || window.webkitAudioContext || window.mozAudioContext);
 export class AudioPlayerWeb {
-    private static _context: AudioContext = new (window.AudioContext || window.webkitAudioContext || window.mozAudioContext)();
+    private static _context: AudioContext = AudioContextClass && new AudioContextClass();
     private _audioBuffer?: AudioBuffer;
     private _sourceNode?: AudioBufferSourceNode;
     private _gainNode: GainNode;
