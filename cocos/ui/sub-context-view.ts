@@ -70,7 +70,7 @@ import { legacyCC } from '../core/global-exports';
 @requireComponent(UITransform)
 @menu('Miscellaneous/SubContextView')
 export class SubContextView extends Component {
-    @tooltip('i18n: subContextView.design_size')
+    @tooltip('i18n:subContextView.design_size')
     get designResolutionSize () {
         return this._designResolutionSize;
     }
@@ -81,7 +81,7 @@ export class SubContextView extends Component {
         this._designResolutionSize.set(value);
     }
 
-    @tooltip('i18n: subContextView.fps')
+    @tooltip('i18n:subContextView.fps')
     get fps () {
         return this._fps;
     }

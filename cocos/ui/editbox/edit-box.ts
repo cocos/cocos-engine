@@ -86,7 +86,7 @@ export class EditBox extends Component {
      * 输入框的初始输入内容，如果为空则会显示占位符的文本。
      */
     @displayOrder(1)
-    @tooltip('i18n: editbox.string')
+    @tooltip('i18n:editbox.string')
     get string () {
         return this._string;
     }
@@ -108,7 +108,7 @@ export class EditBox extends Component {
      * 输入框占位符的文本内容。
      */
     @displayOrder(2)
-    @tooltip('i18n: editbox.placeholder')
+    @tooltip('i18n:editbox.placeholder')
     get placeholder () {
         if (!this._placeholderLabel) {
             return '';
@@ -131,7 +131,7 @@ export class EditBox extends Component {
      */
     @type(Label)
     @displayOrder(3)
-    @tooltip('i18n: editbox.text_lable')
+    @tooltip('i18n:editbox.text_lable')
     get textLabel () {
         return this._textLabel;
     }
@@ -155,7 +155,7 @@ export class EditBox extends Component {
      */
     @type(Label)
     @displayOrder(4)
-    @tooltip('i18n: editbox.placeholder_label')
+    @tooltip('i18n:editbox.placeholder_label')
     get placeholderLabel () {
         return this._placeholderLabel;
     }
@@ -179,7 +179,7 @@ export class EditBox extends Component {
      */
     @type(SpriteFrame)
     @displayOrder(5)
-    @tooltip('i18n: editbox.backgroundImage')
+    @tooltip('i18n:editbox.backgroundImage')
     get backgroundImage () {
         return this._backgroundImage;
     }
@@ -202,7 +202,7 @@ export class EditBox extends Component {
      */
     @type(InputFlag)
     @displayOrder(6)
-    @tooltip('i18n: editbox.input_flag')
+    @tooltip('i18n:editbox.input_flag')
     get inputFlag () {
         return this._inputFlag;
     }
@@ -222,7 +222,7 @@ export class EditBox extends Component {
      */
     @type(InputMode)
     @displayOrder(7)
-    @tooltip('i18n: editbox.input_mode')
+    @tooltip('i18n:editbox.input_mode')
     get inputMode () {
         return this._inputMode;
     }
@@ -246,7 +246,7 @@ export class EditBox extends Component {
      */
     @type(KeyboardReturnType)
     @displayOrder(8)
-    @tooltip('i18n: editbox.returnType')
+    @tooltip('i18n:editbox.returnType')
     get returnType () {
         return this._returnType;
     }
@@ -267,7 +267,7 @@ export class EditBox extends Component {
      * - 如果值为 0，则不允许用户进行任何输入。
      */
     @displayOrder(9)
-    @tooltip('i18n: editbox.max_length')
+    @tooltip('i18n:editbox.max_length')
     get maxLength () {
         return this._maxLength;
     }
@@ -283,7 +283,7 @@ export class EditBox extends Component {
      * 修改 DOM 输入元素的 tabIndex（这个属性只有在 Web 上面修改有意义）。
      */
     @displayOrder(10)
-    @tooltip('i18n: editbox.tab_index')
+    @tooltip('i18n:editbox.tab_index')
     get tabIndex () {
         return this._tabIndex;
     }
@@ -312,7 +312,7 @@ export class EditBox extends Component {
     @type([ComponentEventHandler])
     @serializable
     @displayOrder(11)
-    @tooltip('i18n: editbox.editing_began')
+    @tooltip('i18n:editbox.editing_began')
     public editingDidBegan: ComponentEventHandler[] = [];
 
     /**
@@ -325,7 +325,7 @@ export class EditBox extends Component {
     @type([ComponentEventHandler])
     @serializable
     @displayOrder(12)
-    @tooltip('i18n: editbox.text_changed')
+    @tooltip('i18n:editbox.text_changed')
     public textChanged: ComponentEventHandler[] = [];
 
     /**
@@ -338,7 +338,7 @@ export class EditBox extends Component {
     @type([ComponentEventHandler])
     @serializable
     @displayOrder(13)
-    @tooltip('i18n: editbox.editing_ended')
+    @tooltip('i18n:editbox.editing_ended')
     public editingDidEnded: ComponentEventHandler[] = [];
 
     /**
@@ -351,7 +351,7 @@ export class EditBox extends Component {
     @type([ComponentEventHandler])
     @serializable
     @displayOrder(14)
-    @tooltip('i18n: editbox.editing_return')
+    @tooltip('i18n:editbox.editing_return')
     public editingReturn: ComponentEventHandler[] = [];
 
     public _impl: EditBoxImplBase | null = null;
