@@ -8,7 +8,30 @@
   },
   "_techIdx": 0,
   "_defines": [
+    {},
+    {},
     {}
   ],
-  "_props": []
+  "_states": [
+    {
+      "rasterizerState": {},
+      "depthStencilState": {},
+      "blendState": {
+        "targets": [
+          {}
+        ]
+      }
+    },
+    {},
+    {}
+  ],
+  "_props": [
+    {
+      "mainTexture": {
+        "__uuid__": "86111909-d8dd-4c9d-87f5-da84db8c9031@6c48a"
+      }
+    },
+    {},
+    {}
+  ]
 }

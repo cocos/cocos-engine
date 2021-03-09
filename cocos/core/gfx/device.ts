@@ -352,11 +352,11 @@ export abstract class Device {
     }
 
     /**
-     * @en The sign of the UV space Y axis, positive if origin at upper-left.
-     * @zh UV 空间的 y 轴符号，原点在左上角时为正。
+     * @en Whether the clip space is consistent with the y direction of the fbo space, consistent is positive.
+     * @zh 裁剪空间与fbo空间y方向是否一致，一致为正。
      */
-    get UVSpaceSignY () {
-        return this._UVSpaceSignY;
+    get clipSpaceSignY () {
+        return this._clipSpaceSignY;
     }
 
     /**
@@ -404,7 +404,7 @@ export abstract class Device {
     protected _memoryStatus = new MemoryStatus();
     protected _clipSpaceMinZ = -1;
     protected _screenSpaceSignY = 1;
-    protected _UVSpaceSignY = -1;
+    protected _clipSpaceSignY = 1;
 
     public abstract initialize (info: DeviceInfo): boolean;
 
