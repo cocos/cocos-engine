@@ -1,0 +1,369 @@
+'use strict';
+
+exports.template = `
+<div class="asset-texture">
+    <div class="content">
+        <ui-prop>
+            <ui-label slot="label" value="i18n:ENGINE.assets.texture.anisotropy" tooltip="i18n:ENGINE.assets.texture.anisotropyTip"></ui-label>
+            <ui-num-input slot="content" class="anisotropy-input"></ui-num-input>
+        </ui-prop>
+        <ui-prop>
+            <ui-label slot="label" value="i18n:ENGINE.assets.texture.minfilter" tooltip="i18n:ENGINE.assets.texture.minfilterTip"></ui-label>
+            <ui-select slot="content" class="minfilter-select"></ui-select>
+        </ui-prop>
+        <ui-prop>
+            <ui-label slot="label" value="i18n:ENGINE.assets.texture.magfilter" tooltip="i18n:ENGINE.assets.texture.magfilterTip"></ui-label>
+            <ui-select slot="content" class="magfilter-select"></ui-select>
+        </ui-prop>
+        <ui-prop>
+            <ui-label slot="label" value="i18n:ENGINE.assets.texture.mipfilter" tooltip="i18n:ENGINE.assets.texture.mipfilterTip"></ui-label>
+            <ui-select slot="content" class="mipfilter-select"></ui-select>
+        </ui-prop>
+        <ui-prop class="wrapModeS-prop">
+            <ui-label slot="label" value="i18n:ENGINE.assets.texture.wrapModeS" tooltip="i18n:ENGINE.assets.texture.wrapModeSTip"></ui-label>
+            <ui-select slot="content" class="wrapModeS-select"></ui-select>
+        </ui-prop>
+        <ui-prop class="wrapModeT-prop">
+            <ui-label slot="label" value="i18n:ENGINE.assets.texture.wrapModeT" tooltip="i18n:ENGINE.assets.texture.wrapModeTTip"></ui-label>
+            <ui-select slot="content" class="wrapModeT-select"></ui-select>
+        </ui-prop>
+        <ui-prop class="warn-words">
+            <ui-label value="i18n:ENGINE.assets.texture.modeWarn"></ui-label>
+        </ui-prop>
+    </div>
+    <div class="preview">
+        <ui-image class="preview-image" show-alpha></ui-image>
+        <div class="preview-image-label">
+            <span class="preview-image-size"></span>
+        </div>
+    </div>
+</div>
+`;
+
+exports.style = `
+    .asset-texture { 
+        display: flex;
+        flex: 1;
+        flex-direction: column;
+     }
+    .asset-texture > .content {  
+        padding-bottom: 15px;
+        flex: 1;
+    }
+    .asset-texture > .content > ui-prop.warn {  
+        color: var(--color-warn-fill);
+    }
+    .asset-texture > .content > ui-prop.warn ui-select {  
+        border-color: var(--color-warn-fill);
+    }
+    .asset-texture > .content > .warn-words {
+        margin-top: 20px;
+        margin-bottom: 20px;
+        line-height: 1.7;
+        color: var(--color-warn-fill);
+    }
+    .asset-texture > .preview {
+        position: relative;
+        height: 200px;
+        overflow: hidden;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 10px;
+        background: var(--color-normal-fill-emphasis);
+        border: 1px solid var(--color-normal-border-emphasis);
+    }
+    .asset-texture > .preview:hover {
+        border-color: var(--color-warn-fill);
+    }
+    .asset-texture > .preview > .preview-image {
+        width: 100%;
+        height: 100%;
+    }
+    .asset-texture > .preview > .preview-image-label {
+        position: absolute;
+        width: 100%;
+        left: 0;
+        bottom: 4px;
+        text-align: center;
+    }
+    .asset-texture > .preview > .preview-image-label > .preview-image-size {
+        font-size: 10px;
+        padding: 2px 8px;
+        background-color: var(--color-primary-fill);
+        color: var(--color-primary-contrast-weakest);
+        border-radius: calc(var(--size-normal-radius) * 1px);
+    }
+`;
+
+exports.$ = {
+    container: '.asset-texture',
+    anisotropyInput: '.anisotropy-input',
+    minfilterSelect: '.minfilter-select',
+    magfilterSelect: '.magfilter-select',
+    mipfilterSelect: '.mipfilter-select',
+    wrapModeSProp: '.wrapModeS-prop',
+    wrapModeSSelect: '.wrapModeS-select',
+    wrapModeTProp: '.wrapModeT-prop',
+    wrapModeTSelect: '.wrapModeT-select',
+    warnWords: '.warn-words',
+    image: '.preview-image',
+    imageSize: '.preview-image-size',
+};
+
+/**
+ * 属性对应的编辑元素
+ */
+const Elements = {
+    anisotropy: {
+        ready() {
+            const panel = this;
+
+            panel.$.anisotropyInput.addEventListener('change', (event) => {
+                panel._metaList.forEach((meta) => {
+                    meta.userData.anisotropy = event.target.value;
+                });
+                panel.dispatch('change');
+            });
+        },
+        update() {
+            const panel = this;
+
+            panel.$.anisotropyInput.value = panel._meta.userData.anisotropy;
+
+            panel.updateInvalid(panel.$.anisotropyInput, 'anisotropy');
+            panel.updateReadonly(panel.$.anisotropyInput);
+        },
+    },
+    minfilter: {
+        ready() {
+            const panel = this;
+
+            panel.$.minfilterSelect.addEventListener('change', (event) => {
+                panel._metaList.forEach((meta) => {
+                    meta.userData.minfilter = event.target.value;
+                });
+                panel.dispatch('change');
+            });
+        },
+        update() {
+            const panel = this;
+
+            let optionsHtml = '';
+            const types = ['nearest', 'linear'];
+            types.forEach((type) => {
+                optionsHtml += `<option value="${type}">${type}</option>`;
+            });
+            panel.$.minfilterSelect.innerHTML = optionsHtml;
+
+            panel.$.minfilterSelect.value = panel._meta.userData.minfilter;
+
+            panel.updateInvalid(panel.$.minfilterSelect, 'minfilter');
+            panel.updateReadonly(panel.$.minfilterSelect);
+        },
+    },
+    magfilter: {
+        ready() {
+            const panel = this;
+
+            panel.$.magfilterSelect.addEventListener('change', (event) => {
+                panel._metaList.forEach((meta) => {
+                    meta.userData.magfilter = event.target.value;
+                });
+                panel.dispatch('change');
+            });
+        },
+        update() {
+            const panel = this;
+
+            let optionsHtml = '';
+            const types = ['nearest', 'linear'];
+            types.forEach((type) => {
+                optionsHtml += `<option value="${type}">${type}</option>`;
+            });
+            panel.$.magfilterSelect.innerHTML = optionsHtml;
+
+            panel.$.magfilterSelect.value = panel._meta.userData.magfilter;
+
+            panel.updateInvalid(panel.$.magfilterSelect, 'magfilter');
+            panel.updateReadonly(panel.$.magfilterSelect);
+        },
+    },
+    mipfilter: {
+        ready() {
+            const panel = this;
+
+            panel.$.mipfilterSelect.addEventListener('change', (event) => {
+                panel._metaList.forEach((meta) => {
+                    meta.userData.mipfilter = event.target.value;
+                });
+                panel.dispatch('change');
+            });
+        },
+        update() {
+            const panel = this;
+
+            let optionsHtml = '';
+            const types = ['nearest', 'linear', 'none'];
+            types.forEach((type) => {
+                optionsHtml += `<option value="${type}">${type}</option>`;
+            });
+            panel.$.mipfilterSelect.innerHTML = optionsHtml;
+
+            panel.$.mipfilterSelect.value = panel._meta.userData.mipfilter;
+
+            panel.updateInvalid(panel.$.mipfilterSelect, 'mipfilter');
+            panel.updateReadonly(panel.$.mipfilterSelect);
+        },
+    },
+    wrapModeS: {
+        ready() {
+            const panel = this;
+
+            panel.$.wrapModeSSelect.addEventListener('change', (event) => {
+                panel._metaList.forEach((meta) => {
+                    meta.userData.wrapModeS = event.target.value;
+                });
+                panel.dispatch('change');
+            });
+        },
+        update() {
+            const panel = this;
+
+            let optionsHtml = '';
+            const types = ['repeat', 'clamp-to-edge', 'mirrored-repeat'];
+            types.forEach((type) => {
+                optionsHtml += `<option value="${type}">${type}</option>`;
+            });
+            panel.$.wrapModeSSelect.innerHTML = optionsHtml;
+
+            panel.$.wrapModeSSelect.value = panel._meta.userData.wrapModeS;
+
+            panel.updateInvalid(panel.$.wrapModeSSelect, 'wrapModeS');
+            panel.updateReadonly(panel.$.wrapModeSSelect);
+        },
+    },
+    wrapModeT: {
+        ready() {
+            const panel = this;
+
+            panel.$.wrapModeTSelect.addEventListener('change', (event) => {
+                panel._metaList.forEach((meta) => {
+                    meta.userData.wrapModeT = event.target.value;
+                });
+                panel.dispatch('change');
+            });
+        },
+        update() {
+            const panel = this;
+
+            let optionsHtml = '';
+            const types = ['repeat', 'clamp-to-edge', 'mirrored-repeat'];
+            types.forEach((type) => {
+                optionsHtml += `<option value="${type}">${type}</option>`;
+            });
+            panel.$.wrapModeTSelect.innerHTML = optionsHtml;
+
+            panel.$.wrapModeTSelect.value = panel._meta.userData.wrapModeT;
+
+            panel.updateInvalid(panel.$.wrapModeTSelect, 'wrapModeT');
+            panel.updateReadonly(panel.$.wrapModeTSelect);
+        },
+    },
+    /**
+     * 条件检查：图片的宽高是否是 2 的幂次方
+     * 在 wrap mode 值为 repeat 的情况下条件不成立需要给出警告信息
+     */
+    warnWords: {
+        update() {
+            const panel = this;
+
+            const { wrapModeT, wrapModeS } = panel._meta.userData;
+            const { naturalWidth, naturalHeight } = panel.$.image.$img;
+
+            // 判断 2 的幂次方算法：(number & number - 1) === 0
+            const isUnlegal = naturalWidth & (naturalWidth - 1) || naturalHeight & (naturalHeight - 1);
+
+            const isUnlegalWrapModeT = isUnlegal && wrapModeT === 'repeat';
+            const isUnlegalWrapModeS = isUnlegal && wrapModeS === 'repeat';
+
+            if (isUnlegalWrapModeT || isUnlegalWrapModeS) {
+                this.$.warnWords.style.display = 'block';
+                this.$.wrapModeSProp.classList.add('warn');
+                this.$.wrapModeTProp.classList.add('warn');
+            } else {
+                this.$.warnWords.style.display = 'none';
+                this.$.wrapModeSProp.classList.remove('warn');
+                this.$.wrapModeTProp.classList.remove('warn');
+            }
+        },
+    },
+    imagePreview: {
+        ready() {
+            const panel = this;
+
+            this.$.image.$img.addEventListener('load', () => {
+                this.$.imageSize.innerHTML = `${this.$.image.$img.naturalWidth} x ${this.$.image.$img.naturalHeight}`;
+                Elements.warnWords.update.bind(this)();
+            });
+        },
+        update() {
+            const panel = this;
+
+            this.$.image.value = this._asset.uuid;
+        },
+    },
+};
+
+/**
+ * 自动渲染组件的方法
+ * @param assetList
+ * @param metaList
+ */
+exports.update = function (assetList, metaList) {
+    this._assetList = assetList;
+    this._metaList = metaList;
+    this._asset = assetList[0];
+    this._meta = metaList[0];
+
+    for (const prop in Elements) {
+        const element = Elements[prop];
+        if (element.update) {
+            element.update.bind(this)();
+        }
+    }
+};
+
+/**
+ * 初始化界面的方法
+ */
+exports.ready = function () {
+    for (const prop in Elements) {
+        const element = Elements[prop];
+        if (element.ready) {
+            element.ready.bind(this)();
+        }
+    }
+};
+
+exports.methods = {
+    /**
+     * 更新多选状态下某个数据是否可编辑
+     */
+    updateInvalid(element, prop) {
+        const invalid = this._metaList.some((meta) => {
+            return meta.userData[prop] !== this._meta.userData[prop];
+        });
+        element.invalid = invalid;
+    },
+    /**
+     * 更新只读状态
+     */
+    updateReadonly(element) {
+        if (this._asset.readonly) {
+            element.setAttribute('disabled', true);
+        } else {
+            element.removeAttribute('disabled');
+        }
+    },
+};

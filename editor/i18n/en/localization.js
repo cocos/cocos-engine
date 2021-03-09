@@ -9,7 +9,6 @@ module.exports = {
     menu: {
         custom_script: 'Custom script',
     },
-
     help: {
         cc: {
             Node: `${url}/${version}/manual/en/concepts/scene/node-component.html`,
@@ -67,7 +66,6 @@ module.exports = {
             Spine: ``,
         },
     },
-
     animation: {
         default_clip: 'When checking, the deault animation clip is automatically played.',
         clips: 'You can access and play animation clips via a script',
