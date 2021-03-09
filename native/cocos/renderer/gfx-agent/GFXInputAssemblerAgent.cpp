@@ -44,17 +44,17 @@ InputAssemblerAgent::~InputAssemblerAgent() {
 }
 
 bool InputAssemblerAgent::initialize(const InputAssemblerInfo &info) {
-    _attributes = info.attributes;
-    _vertexBuffers = info.vertexBuffers;
-    _indexBuffer = info.indexBuffer;
+    _attributes     = info.attributes;
+    _vertexBuffers  = info.vertexBuffers;
+    _indexBuffer    = info.indexBuffer;
     _indirectBuffer = info.indirectBuffer;
 
     if (_indexBuffer) {
         _indexCount = _indexBuffer->getCount();
         _firstIndex = 0;
     } else if (_vertexBuffers.size()) {
-        _vertexCount = _vertexBuffers[0]->getCount();
-        _firstVertex = 0;
+        _vertexCount  = _vertexBuffers[0]->getCount();
+        _firstVertex  = 0;
         _vertexOffset = 0;
     }
     _attributesHash = computeAttributesHash();
@@ -89,6 +89,83 @@ void InputAssemblerAgent::destroy() {
         actor, getActor(),
         {
             actor->destroy();
+        });
+}
+
+void InputAssemblerAgent::setVertexCount(uint count) {
+    _vertexCount = count;
+    ENQUEUE_MESSAGE_2(
+        ((DeviceAgent *)_device)->getMessageQueue(), InputAssemblerDestroy,
+        actor, getActor(),
+        count, count,
+        {
+            actor->setVertexCount(count);
+        });
+}
+
+void InputAssemblerAgent::setFirstVertex(uint first) {
+    _firstVertex = first;
+    ENQUEUE_MESSAGE_2(
+        ((DeviceAgent *)_device)->getMessageQueue(), InputAssemblerDestroy,
+        actor, getActor(),
+        first, first,
+        {
+            actor->setFirstVertex(first);
+        });
+}
+
+void InputAssemblerAgent::setIndexCount(uint count) {
+    _indexCount = count;
+    ENQUEUE_MESSAGE_2(
+        ((DeviceAgent *)_device)->getMessageQueue(), InputAssemblerDestroy,
+        actor, getActor(),
+        count, count,
+        {
+            actor->setIndexCount(count);
+        });
+}
+
+void InputAssemblerAgent::setFirstIndex(uint first) {
+    _firstIndex = first;
+    ENQUEUE_MESSAGE_2(
+        ((DeviceAgent *)_device)->getMessageQueue(), InputAssemblerDestroy,
+        actor, getActor(),
+        first, first,
+        {
+            actor->setFirstIndex(first);
+        });
+}
+
+void InputAssemblerAgent::setVertexOffset(uint offset) {
+    _vertexOffset = offset;
+    ENQUEUE_MESSAGE_2(
+        ((DeviceAgent *)_device)->getMessageQueue(), InputAssemblerDestroy,
+        actor, getActor(),
+        offset, offset,
+        {
+            actor->setVertexOffset(offset);
+        });
+}
+
+void InputAssemblerAgent::setInstanceCount(uint count) {
+    _instanceCount = count;
+    ENQUEUE_MESSAGE_2(
+        ((DeviceAgent *)_device)->getMessageQueue(), InputAssemblerDestroy,
+        actor, getActor(),
+        count, count,
+        {
+            actor->setInstanceCount(count);
+        });
+}
+
+void InputAssemblerAgent::setFirstInstance(uint first) {
+    _firstInstance = first;
+    ENQUEUE_MESSAGE_2(
+        ((DeviceAgent *)_device)->getMessageQueue(), InputAssemblerDestroy,
+        actor, getActor(),
+        first, first,
+        {
+            actor->setFirstInstance(first);
         });
 }
 

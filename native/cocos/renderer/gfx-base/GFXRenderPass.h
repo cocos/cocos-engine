@@ -23,8 +23,7 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#ifndef CC_CORE_GFX_RENDER_PASS_H_
-#define CC_CORE_GFX_RENDER_PASS_H_
+#pragma once
 
 #include "GFXObject.h"
 
@@ -36,26 +35,26 @@ public:
     RenderPass(Device *device);
     virtual ~RenderPass();
 
+    static uint computeHash(const RenderPassInfo &info);
+
     virtual bool initialize(const RenderPassInfo &info) = 0;
-    virtual void destroy() = 0;
+    virtual void destroy()                              = 0;
 
     CC_INLINE Device *getDevice() const { return _device; }
     CC_INLINE const ColorAttachmentList &getColorAttachments() const { return _colorAttachments; }
     CC_INLINE const DepthStencilAttachment &getDepthStencilAttachment() const { return _depthStencilAttachment; }
     CC_INLINE const SubpassInfoList &getSubpasses() const { return _subpasses; }
-    CC_INLINE uint getHash() const { return _hash; }
+    CC_INLINE uint                   getHash() const { return _hash; }
 
 protected:
     uint computeHash();
 
-    Device *_device = nullptr;
-    ColorAttachmentList _colorAttachments;
+    Device *               _device = nullptr;
+    ColorAttachmentList    _colorAttachments;
     DepthStencilAttachment _depthStencilAttachment;
-    SubpassInfoList _subpasses;
-    uint _hash = 0;
+    SubpassInfoList        _subpasses;
+    uint                   _hash = 0;
 };
 
 } // namespace gfx
 } // namespace cc
-
-#endif // CC_CORE_GFX_RENDER_PASS_H_

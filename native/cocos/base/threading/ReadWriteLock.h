@@ -31,6 +31,8 @@ namespace cc {
 
 class ReadWriteLock final {
 public:
+    ReadWriteLock() noexcept = default;
+
     template <typename Function, typename... Args>
     auto LockRead(Function &&func, Args &&... args) noexcept -> decltype(func(std::forward<Args>(args)...));
 

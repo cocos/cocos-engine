@@ -454,30 +454,26 @@ void CCVKCommandBuffer::blitTexture(Texture *srcTexture, Texture *dstTexture, co
     VkImageAspectFlags dstAspectMask  = VK_IMAGE_ASPECT_COLOR_BIT;
     VkImage            srcImage       = VK_NULL_HANDLE;
     VkImage            dstImage       = VK_NULL_HANDLE;
-    VkImageLayout      srcImageLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-    VkImageLayout      dstImageLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+    VkImageLayout      srcImageLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+    VkImageLayout      dstImageLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
     CCVKGPUSwapchain * swapchain      = ((CCVKDevice *)_device)->gpuSwapchain();
 
     if (srcTexture) {
         CCVKGPUTexture *gpuTextureSrc = ((CCVKTexture *)srcTexture)->gpuTexture();
         srcAspectMask                 = gpuTextureSrc->aspectMask;
         srcImage                      = gpuTextureSrc->vkImage;
-        srcImageLayout                = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
     } else {
         srcAspectMask  = VK_IMAGE_ASPECT_COLOR_BIT;
         srcImage       = swapchain->swapchainImages[swapchain->curImageIndex];
-        srcImageLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
     }
 
     if (dstTexture) {
         CCVKGPUTexture *gpuTextureDst = ((CCVKTexture *)dstTexture)->gpuTexture();
         dstAspectMask                 = gpuTextureDst->aspectMask;
         dstImage                      = gpuTextureDst->vkImage;
-        dstImageLayout                = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
     } else {
         dstAspectMask  = VK_IMAGE_ASPECT_COLOR_BIT;
         dstImage       = swapchain->swapchainImages[swapchain->curImageIndex];
-        dstImageLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
     }
 
     _blitRegions.resize(count);

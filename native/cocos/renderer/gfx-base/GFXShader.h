@@ -37,10 +37,10 @@ public:
     virtual ~Shader();
 
     virtual bool initialize(const ShaderInfo &info) = 0;
-    virtual void destroy() = 0;
+    virtual void destroy()                          = 0;
 
     CC_INLINE Device *getDevice() const { return _device; }
-    CC_INLINE uint getID() const { return _shaderID; }
+    CC_INLINE uint    getID() const { return _shaderID; }
     CC_INLINE const String &getName() const { return _name; }
     CC_INLINE const ShaderStageList &getStages() const { return _stages; }
     CC_INLINE const AttributeList &getAttributes() const { return _attributes; }
@@ -53,17 +53,22 @@ public:
     CC_INLINE const UniformInputAttachmentList &getSubpassInputs() const { return _subpassInputs; }
 
 protected:
-    Device *_device = nullptr;
-    uint _shaderID = 0;
-    String _name;
-    ShaderStageList _stages;
-    AttributeList _attributes;
-    UniformBlockList _blocks;
-    UniformStorageBufferList _buffers;
-    UniformSamplerTextureList _samplerTextures;
-    UniformSamplerList _samplers;
-    UniformTextureList _textures;
-    UniformStorageImageList _images;
+    static uint generateShaderID() noexcept {
+        static uint _idGen = 0;
+        return _idGen++;
+    }
+
+    Device *                   _device   = nullptr;
+    uint                       _shaderID = 0;
+    String                     _name;
+    ShaderStageList            _stages;
+    AttributeList              _attributes;
+    UniformBlockList           _blocks;
+    UniformStorageBufferList   _buffers;
+    UniformSamplerTextureList  _samplerTextures;
+    UniformSamplerList         _samplers;
+    UniformTextureList         _textures;
+    UniformStorageImageList    _images;
     UniformInputAttachmentList _subpassInputs;
 };
 

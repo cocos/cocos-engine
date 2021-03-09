@@ -166,6 +166,7 @@ void CCVKTexture::destroy() {
     if (_gpuTexture) {
         if (!_isTextureView) {
             ((CCVKDevice *)_device)->gpuRecycleBin()->collect(_gpuTexture);
+            ((CCVKDevice *)_device)->gpuBarrierManager()->cancel(_gpuTexture);
             _device->getMemoryStatus().textureSize -= _size;
             CC_DELETE(_gpuTexture);
         }

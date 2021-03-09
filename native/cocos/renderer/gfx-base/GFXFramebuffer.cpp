@@ -26,7 +26,7 @@
 #include "base/CoreStd.h"
 
 #include "GFXFramebuffer.h"
-#include "GFXObject.h"
+#include "GFXTexture.h"
 
 namespace cc {
 namespace gfx {
@@ -37,6 +37,19 @@ Framebuffer::Framebuffer(Device *device)
 }
 
 Framebuffer::~Framebuffer() {
+}
+
+uint Framebuffer::computeHash(const FramebufferInfo& info) {
+    uint seed = info.colorTextures.size() + info.colorMipmapLevels.size() + 2;
+    for (const Texture *attachment : info.colorTextures) {
+        seed ^= (uint)attachment->getTextureID() + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+    }
+    for (uint level : info.colorMipmapLevels) {
+        seed ^= (uint)level + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+    }
+    seed ^= (uint)info.depthStencilTexture->getTextureID() + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+    seed ^= (uint)info.depthStencilMipmapLevel + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+    return seed;
 }
 
 } // namespace gfx

@@ -1019,6 +1019,8 @@ public:
 
     void update(CCVKGPUCommandBuffer *gpuCommandBuffer);
 
+    CC_INLINE void cancel(CCVKGPUBuffer *gpuBuffer) { _buffersToBeChecked.erase(gpuBuffer); }
+    CC_INLINE void cancel(CCVKGPUTexture *gpuTexture) { _texturesToBeChecked.erase(gpuTexture); }
     CC_INLINE bool needUpdate() { return !_texturesToBeChecked.empty() || !_buffersToBeChecked.empty(); }
 
 private:

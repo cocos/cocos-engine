@@ -40,13 +40,13 @@ public:
     bool initialize(const InputAssemblerInfo &info) override;
     void destroy() override;
 
-    void setVertexCount(uint count) override { _vertexCount = count; _actor->setVertexCount(count); }
-    void setFirstVertex(uint first) override { _firstVertex = first; _actor->setFirstVertex(first); }
-    void setIndexCount(uint count) override { _indexCount = count; _actor->setIndexCount(count); }
-    void setFirstIndex(uint first) override { _firstIndex = first; _actor->setFirstIndex(first); }
-    void setVertexOffset(uint offset) override { _vertexOffset = offset; _actor->setVertexOffset(offset); }
-    void setInstanceCount(uint count) override { _instanceCount = count; _actor->setInstanceCount(count); }
-    void setFirstInstance(uint first) override { _firstInstance = first; _actor->setFirstInstance(first); }
+    void setVertexCount(uint count) override;
+    void setFirstVertex(uint first) override;
+    void setIndexCount(uint count) override;
+    void setFirstIndex(uint first) override;
+    void setVertexOffset(uint offset) override;
+    void setInstanceCount(uint count) override;
+    void setFirstInstance(uint first) override;
 };
 
 } // namespace gfx

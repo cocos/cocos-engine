@@ -34,9 +34,25 @@ namespace gfx {
 Texture::Texture(Device *device)
 : GFXObject(ObjectType::TEXTURE),
   _device(device) {
+    _textureID = generateTextureID();
 }
 
 Texture::~Texture() {
+}
+
+uint Texture::computeHash(const TextureInfo &info) {
+    uint seed = 10;
+    seed ^= (uint)(info.type) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+    seed ^= (uint)(info.usage) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+    seed ^= (uint)(info.format) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+    seed ^= (uint)(info.width) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+    seed ^= (uint)(info.height) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+    seed ^= (uint)(info.flags) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+    seed ^= (uint)(info.layerCount) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+    seed ^= (uint)(info.levelCount) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+    seed ^= (uint)(info.samples) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+    seed ^= (uint)(info.depth) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+    return seed;
 }
 
 } // namespace gfx

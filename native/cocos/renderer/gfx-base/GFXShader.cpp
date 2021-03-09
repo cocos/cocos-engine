@@ -35,7 +35,7 @@ namespace gfx {
 Shader::Shader(Device *device)
 : GFXObject(ObjectType::SHADER),
   _device(device) {
-    _shaderID = device->genShaderId();
+    _shaderID = generateShaderID();
 }
 
 Shader::~Shader() {

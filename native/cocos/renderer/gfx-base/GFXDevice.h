@@ -176,7 +176,6 @@ public:
     CC_INLINE const String &getDeviceName() const { return _deviceName; }
     CC_INLINE const String &getRenderer() const { return _renderer; }
     CC_INLINE const String &getVendor() const { return _vendor; }
-    CC_INLINE uint          genShaderId() { return _shaderIdGen++; }
     Format                  getColorFormat() const;
     Format                  getDepthStencilFormat() const;
 
@@ -222,7 +221,6 @@ protected:
     uint               _numDrawCalls = 0u;
     uint               _numInstances = 0u;
     uint               _numTriangles = 0u;
-    uint               _shaderIdGen  = 0u;
     BindingMappingInfo _bindingMappingInfo;
     DeviceCaps         _caps;
 

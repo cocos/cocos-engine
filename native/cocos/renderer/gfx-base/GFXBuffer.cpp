@@ -39,5 +39,14 @@ Buffer::Buffer(Device *device)
 Buffer::~Buffer() {
 }
 
+uint Buffer::computeHash(const BufferInfo &info) {
+    uint seed = 4;
+    seed ^= (uint)(info.usage) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+    seed ^= (uint)(info.memUsage) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+    seed ^= (uint)(info.size) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+    seed ^= (uint)(info.flags) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+    return seed;
+}
+
 } // namespace gfx
 } // namespace cc
