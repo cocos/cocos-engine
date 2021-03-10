@@ -41,11 +41,11 @@ public:
     virtual void destroy() = 0;
     virtual void submit(CommandBuffer *const *cmdBuffs, uint count) = 0;
 
-    CC_INLINE void submit(const CommandBufferList &cmdBuffs) { submit(cmdBuffs.data(), cmdBuffs.size()); }
+    CC_INLINE void submit(const CommandBufferList &cmdBuffs) { submit(cmdBuffs.data(), static_cast<uint>(cmdBuffs.size())); }
     CC_INLINE Device *getDevice() const { return _device; }
     CC_INLINE QueueType getType() const { return _type; }
 
-    CC_INLINE void submitForJS(const CommandBufferList &cmdBuffs) { submit(cmdBuffs.data(), cmdBuffs.size()); }
+    CC_INLINE void submitForJS(const CommandBufferList &cmdBuffs) { submit(cmdBuffs.data(), static_cast<uint>(cmdBuffs.size())); }
 
 protected:
     Device *_device = nullptr;

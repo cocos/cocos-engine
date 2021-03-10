@@ -66,13 +66,13 @@ private:
 template <typename Function>
 uint TFJobGraph::createJob(Function &&func) noexcept {
     _tasks.emplace_back(_flow.emplace(func));
-    return _tasks.size() - 1u;
+    return static_cast<uint>(_tasks.size() - 1u);
 }
 
 template <typename Function>
 uint TFJobGraph::createForEachIndexJob(uint begin, uint end, uint step, Function &&func) noexcept {
     _tasks.emplace_back(_flow.for_each_index(begin, end, step, func));
-    return _tasks.size() - 1u;
+    return static_cast<uint>(_tasks.size() - 1u);
 }
 
 } // namespace cc

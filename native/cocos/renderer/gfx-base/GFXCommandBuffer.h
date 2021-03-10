@@ -75,7 +75,7 @@ public:
         bindDescriptorSet(set, descriptorSet, static_cast<uint>(dynamicOffsets.size()), dynamicOffsets.data());
     }
     CC_INLINE void beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const ColorList &colors, float depth, int stencil, const CommandBufferList &secondaryCBs) {
-        beginRenderPass(renderPass, fbo, renderArea, colors.data(), depth, stencil, secondaryCBs.data(), secondaryCBs.size());
+        beginRenderPass(renderPass, fbo, renderArea, colors.data(), depth, stencil, secondaryCBs.data(), static_cast<uint>(secondaryCBs.size()));
     }
     CC_INLINE void beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const ColorList &colors, float depth, int stencil) {
         beginRenderPass(renderPass, fbo, renderArea, colors.data(), depth, stencil, nullptr, 0);
@@ -87,11 +87,11 @@ public:
         copyBuffersToTexture(buffers.data(), texture, regions.data(), static_cast<uint>(regions.size()));
     }
     CC_INLINE void blitTexture(Texture *srcTexture, Texture *dstTexture, const TextureBlitList &regions, Filter filter) {
-        blitTexture(srcTexture, dstTexture, regions.data(), regions.size(), filter);
+        blitTexture(srcTexture, dstTexture, regions.data(), static_cast<uint>(regions.size()), filter);
     }
     CC_INLINE void pipelineBarrier(const GlobalBarrier *barrier) { pipelineBarrier(barrier, nullptr, nullptr, 0u); }
     CC_INLINE void pipelineBarrier(const GlobalBarrier *barrier, const TextureBarrierList &textureBarriers, const TextureList &textures) {
-        pipelineBarrier(barrier, textureBarriers.data(), textures.data(), textureBarriers.size());
+        pipelineBarrier(barrier, textureBarriers.data(), textures.data(), static_cast<uint>(textureBarriers.size()));
     }
 
     CC_INLINE void bindDescriptorSetForJS(uint set, DescriptorSet *descriptorSet) {
@@ -101,7 +101,7 @@ public:
         bindDescriptorSet(set, descriptorSet, static_cast<uint>(dynamicOffsets.size()), dynamicOffsets.data());
     }
     CC_INLINE void beginRenderPassForJS(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const ColorList &colors, float depth, int stencil, const CommandBufferList &secondaryCBs) {
-        beginRenderPass(renderPass, fbo, renderArea, colors.data(), depth, stencil, secondaryCBs.data(), secondaryCBs.size());
+        beginRenderPass(renderPass, fbo, renderArea, colors.data(), depth, stencil, secondaryCBs.data(), static_cast<uint>(secondaryCBs.size()));
     }
     CC_INLINE void beginRenderPassForJS(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const ColorList &colors, float depth, int stencil) {
         beginRenderPass(renderPass, fbo, renderArea, colors.data(), depth, stencil, nullptr, 0);

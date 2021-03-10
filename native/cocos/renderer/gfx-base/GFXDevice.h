@@ -161,9 +161,9 @@ public:
         copyBuffersToTexture(buffers.data(), dst, regions.data(), static_cast<uint>(regions.size()));
     }
 
-    CC_INLINE void flushCommands(const vector<CommandBuffer *> &cmdBuffs) { flushCommands(cmdBuffs.data(), cmdBuffs.size()); }
+    CC_INLINE void flushCommands(const vector<CommandBuffer *> &cmdBuffs) { flushCommands(cmdBuffs.data(), static_cast<uint>(cmdBuffs.size())); }
 
-    CC_INLINE void flushCommandsForJS(const vector<CommandBuffer *> &cmdBuffs) { flushCommands(cmdBuffs.data(), cmdBuffs.size()); }
+    CC_INLINE void flushCommandsForJS(const vector<CommandBuffer *> &cmdBuffs) { flushCommands(cmdBuffs.data(), static_cast<uint>(cmdBuffs.size())); }
 
     CC_INLINE Context *getContext() const { return _context; }
     CC_INLINE Queue *getQueue() const { return _queue; }
