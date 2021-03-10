@@ -381,7 +381,9 @@ export class Mask extends Renderable2D {
      */
     public onRestore () {
         this._createGraphics();
+        super.updateMaterial();
         this._updateGraphics();
+        this._renderFlag = this._canRender();
     }
 
     public onDisable () {
