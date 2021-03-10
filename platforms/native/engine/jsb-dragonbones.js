@@ -332,6 +332,7 @@ const cacheManager = require('./jsb-cache-manager');
     ////////////////////////////////////////////////////////////
     // override ArmatureDisplay
     ////////////////////////////////////////////////////////////
+    let superProto = cc.internal.Renderable2D.prototype;
     let armatureDisplayProto = cc.internal.ArmatureDisplay.prototype;
     const AnimationCacheMode = cc.internal.ArmatureDisplay.AnimationCacheMode;
 
@@ -512,7 +513,7 @@ const cacheManager = require('./jsb-cache-manager');
         }
     };
 
-    let _onEnable = armatureDisplayProto.onEnable;
+    let _onEnable = superProto.onEnable;
     armatureDisplayProto.onEnable = function () {
         if(_onEnable) {
             _onEnable.call(this);
@@ -525,7 +526,7 @@ const cacheManager = require('./jsb-cache-manager');
         middleware.retain();
     };
 
-    let _onDisable = armatureDisplayProto.onDisable;
+    let _onDisable = superProto.onEnable;
     armatureDisplayProto.onDisable = function () {
         if(_onDisable) {
             _onDisable.call(this);
