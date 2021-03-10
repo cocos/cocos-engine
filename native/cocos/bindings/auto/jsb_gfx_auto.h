@@ -578,6 +578,7 @@ bool register_all_gfx(se::Object* obj);
 JSB_REGISTER_OBJECT_TYPE(cc::gfx::Buffer);
 SE_DECLARE_FUNC(js_gfx_Buffer_destroy);
 SE_DECLARE_FUNC(js_gfx_Buffer_resize);
+SE_DECLARE_FUNC(js_gfx_Buffer_computeHash);
 SE_DECLARE_FUNC(js_gfx_Buffer_Buffer);
 
 extern se::Object* __jsb_cc_gfx_CommandBuffer_proto;
@@ -671,6 +672,7 @@ bool register_all_gfx(se::Object* obj);
 JSB_REGISTER_OBJECT_TYPE(cc::gfx::Framebuffer);
 SE_DECLARE_FUNC(js_gfx_Framebuffer_destroy);
 SE_DECLARE_FUNC(js_gfx_Framebuffer_initialize);
+SE_DECLARE_FUNC(js_gfx_Framebuffer_computeHash);
 SE_DECLARE_FUNC(js_gfx_Framebuffer_Framebuffer);
 
 extern se::Object* __jsb_cc_gfx_GlobalBarrier_proto;
@@ -743,6 +745,7 @@ SE_DECLARE_FUNC(js_gfx_RenderPass_destroy);
 SE_DECLARE_FUNC(js_gfx_RenderPass_getDepthStencilAttachment);
 SE_DECLARE_FUNC(js_gfx_RenderPass_getSubpasses);
 SE_DECLARE_FUNC(js_gfx_RenderPass_initialize);
+SE_DECLARE_FUNC(js_gfx_RenderPass_computeHash);
 SE_DECLARE_FUNC(js_gfx_RenderPass_RenderPass);
 
 extern se::Object* __jsb_cc_gfx_Sampler_proto;
@@ -780,8 +783,10 @@ bool register_all_gfx(se::Object* obj);
 
 JSB_REGISTER_OBJECT_TYPE(cc::gfx::Texture);
 SE_DECLARE_FUNC(js_gfx_Texture_destroy);
+SE_DECLARE_FUNC(js_gfx_Texture_getTextureID);
 SE_DECLARE_FUNC(js_gfx_Texture_isTextureView);
 SE_DECLARE_FUNC(js_gfx_Texture_resize);
+SE_DECLARE_FUNC(js_gfx_Texture_computeHash);
 SE_DECLARE_FUNC(js_gfx_Texture_Texture);
 
 extern se::Object* __jsb_cc_gfx_TextureBarrier_proto;
@@ -818,7 +823,6 @@ SE_DECLARE_FUNC(js_gfx_Device_createSampler);
 SE_DECLARE_FUNC(js_gfx_Device_createShader);
 SE_DECLARE_FUNC(js_gfx_Device_destroy);
 SE_DECLARE_FUNC(js_gfx_Device_flushCommandsForJS);
-SE_DECLARE_FUNC(js_gfx_Device_genShaderId);
 SE_DECLARE_FUNC(js_gfx_Device_hasFeature);
 SE_DECLARE_FUNC(js_gfx_Device_initialize);
 SE_DECLARE_FUNC(js_gfx_Device_present);

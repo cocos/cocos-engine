@@ -15255,6 +15255,26 @@ static bool js_gfx_Buffer_resize(se::State& s)
 }
 SE_BIND_FUNC(js_gfx_Buffer_resize)
 
+static bool js_gfx_Buffer_computeHash(se::State& s)
+{
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<cc::gfx::BufferInfo, true> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, nullptr);
+        SE_PRECONDITION2(ok, false, "js_gfx_Buffer_computeHash : Error processing arguments");
+        unsigned int result = cc::gfx::Buffer::computeHash(arg0.value());
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_gfx_Buffer_computeHash : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_gfx_Buffer_computeHash)
+
 SE_DECLARE_FINALIZE_FUNC(js_cc_gfx_Buffer_finalize)
 
 static bool js_gfx_Buffer_constructor(se::State& s) // constructor.c
@@ -15294,6 +15314,7 @@ bool js_register_gfx_Buffer(se::Object* obj)
     cls->defineProperty("size", _SE(js_gfx_Buffer_getSize), nullptr);
     cls->defineFunction("destroy", _SE(js_gfx_Buffer_destroy));
     cls->defineFunction("resize", _SE(js_gfx_Buffer_resize));
+    cls->defineStaticFunction("computeHash", _SE(js_gfx_Buffer_computeHash));
     cls->defineFinalizeFunction(_SE(js_cc_gfx_Buffer_finalize));
     cls->install();
     JSBClassType::registerClass<cc::gfx::Buffer>(cls);
@@ -16930,6 +16951,26 @@ static bool js_gfx_Framebuffer_initialize(se::State& s)
 }
 SE_BIND_FUNC(js_gfx_Framebuffer_initialize)
 
+static bool js_gfx_Framebuffer_computeHash(se::State& s)
+{
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<cc::gfx::FramebufferInfo, true> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, nullptr);
+        SE_PRECONDITION2(ok, false, "js_gfx_Framebuffer_computeHash : Error processing arguments");
+        unsigned int result = cc::gfx::Framebuffer::computeHash(arg0.value());
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_gfx_Framebuffer_computeHash : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_gfx_Framebuffer_computeHash)
+
 SE_DECLARE_FINALIZE_FUNC(js_cc_gfx_Framebuffer_finalize)
 
 static bool js_gfx_Framebuffer_constructor(se::State& s) // constructor.c
@@ -16966,6 +17007,7 @@ bool js_register_gfx_Framebuffer(se::Object* obj)
     cls->defineProperty("depthStencilTexture", _SE(js_gfx_Framebuffer_getDepthStencilTexture), nullptr);
     cls->defineFunction("destroy", _SE(js_gfx_Framebuffer_destroy));
     cls->defineFunction("initialize", _SE(js_gfx_Framebuffer_initialize));
+    cls->defineStaticFunction("computeHash", _SE(js_gfx_Framebuffer_computeHash));
     cls->defineFinalizeFunction(_SE(js_cc_gfx_Framebuffer_finalize));
     cls->install();
     JSBClassType::registerClass<cc::gfx::Framebuffer>(cls);
@@ -18135,6 +18177,26 @@ static bool js_gfx_RenderPass_initialize(se::State& s)
 }
 SE_BIND_FUNC(js_gfx_RenderPass_initialize)
 
+static bool js_gfx_RenderPass_computeHash(se::State& s)
+{
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<cc::gfx::RenderPassInfo, true> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, nullptr);
+        SE_PRECONDITION2(ok, false, "js_gfx_RenderPass_computeHash : Error processing arguments");
+        unsigned int result = cc::gfx::RenderPass::computeHash(arg0.value());
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_gfx_RenderPass_computeHash : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_gfx_RenderPass_computeHash)
+
 SE_DECLARE_FINALIZE_FUNC(js_cc_gfx_RenderPass_finalize)
 
 static bool js_gfx_RenderPass_constructor(se::State& s) // constructor.c
@@ -18171,6 +18233,7 @@ bool js_register_gfx_RenderPass(se::Object* obj)
     cls->defineFunction("getDepthStencilAttachment", _SE(js_gfx_RenderPass_getDepthStencilAttachment));
     cls->defineFunction("getSubpasses", _SE(js_gfx_RenderPass_getSubpasses));
     cls->defineFunction("initialize", _SE(js_gfx_RenderPass_initialize));
+    cls->defineStaticFunction("computeHash", _SE(js_gfx_RenderPass_computeHash));
     cls->defineFinalizeFunction(_SE(js_cc_gfx_RenderPass_finalize));
     cls->install();
     JSBClassType::registerClass<cc::gfx::RenderPass>(cls);
@@ -18959,6 +19022,25 @@ static bool js_gfx_Texture_getSize(se::State& s)
 }
 SE_BIND_PROP_GET(js_gfx_Texture_getSize)
 
+static bool js_gfx_Texture_getTextureID(se::State& s)
+{
+    cc::gfx::Texture* cobj = SE_THIS_OBJECT<cc::gfx::Texture>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_Texture_getTextureID : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        unsigned int result = cobj->getTextureID();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_gfx_Texture_getTextureID : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_gfx_Texture_getTextureID)
+
 static bool js_gfx_Texture_getType(se::State& s)
 {
     cc::gfx::Texture* cobj = SE_THIS_OBJECT<cc::gfx::Texture>(s);
@@ -19056,6 +19138,26 @@ static bool js_gfx_Texture_resize(se::State& s)
 }
 SE_BIND_FUNC(js_gfx_Texture_resize)
 
+static bool js_gfx_Texture_computeHash(se::State& s)
+{
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<cc::gfx::TextureInfo, true> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, nullptr);
+        SE_PRECONDITION2(ok, false, "js_gfx_Texture_computeHash : Error processing arguments");
+        unsigned int result = cc::gfx::Texture::computeHash(arg0.value());
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_gfx_Texture_computeHash : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_gfx_Texture_computeHash)
+
 SE_DECLARE_FINALIZE_FUNC(js_cc_gfx_Texture_finalize)
 
 static bool js_gfx_Texture_constructor(se::State& s) // constructor.c
@@ -19100,8 +19202,10 @@ bool js_register_gfx_Texture(se::Object* obj)
     cls->defineProperty("type", _SE(js_gfx_Texture_getType), nullptr);
     cls->defineProperty("size", _SE(js_gfx_Texture_getSize), nullptr);
     cls->defineFunction("destroy", _SE(js_gfx_Texture_destroy));
+    cls->defineFunction("getTextureID", _SE(js_gfx_Texture_getTextureID));
     cls->defineFunction("isTextureView", _SE(js_gfx_Texture_isTextureView));
     cls->defineFunction("resize", _SE(js_gfx_Texture_resize));
+    cls->defineStaticFunction("computeHash", _SE(js_gfx_Texture_computeHash));
     cls->defineFinalizeFunction(_SE(js_cc_gfx_Texture_finalize));
     cls->install();
     JSBClassType::registerClass<cc::gfx::Texture>(cls);
@@ -19551,25 +19655,6 @@ static bool js_gfx_Device_flushCommandsForJS(se::State& s)
     return false;
 }
 SE_BIND_FUNC(js_gfx_Device_flushCommandsForJS)
-
-static bool js_gfx_Device_genShaderId(se::State& s)
-{
-    cc::gfx::Device* cobj = SE_THIS_OBJECT<cc::gfx::Device>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_Device_genShaderId : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        unsigned int result = cobj->genShaderId();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_gfx_Device_genShaderId : Error processing arguments");
-        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_Device_genShaderId)
 
 static bool js_gfx_Device_getCapabilities(se::State& s)
 {
@@ -20073,7 +20158,6 @@ bool js_register_gfx_Device(se::Object* obj)
     cls->defineFunction("createShader", _SE(js_gfx_Device_createShader));
     cls->defineFunction("destroy", _SE(js_gfx_Device_destroy));
     cls->defineFunction("flushCommands", _SE(js_gfx_Device_flushCommandsForJS));
-    cls->defineFunction("genShaderId", _SE(js_gfx_Device_genShaderId));
     cls->defineFunction("hasFeature", _SE(js_gfx_Device_hasFeature));
     cls->defineFunction("initialize", _SE(js_gfx_Device_initialize));
     cls->defineFunction("present", _SE(js_gfx_Device_present));
