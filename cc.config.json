@@ -49,7 +49,7 @@
             }
         },
         {
-            "test": "context.buildTimeConstants.HTML5",
+            "test": "context.buildTimeConstants && context.buildTimeConstants.HTML5",
             "isVirtualModule": true,
             "quickCompiler": true,
             "overrides": {
@@ -58,7 +58,7 @@
             }
         },
         {
-            "test": "context.buildTimeConstants.NATIVE",
+            "test": "context.buildTimeConstants && context.buildTimeConstants.NATIVE",
             "isVirtualModule": true,
             "overrides": {
                 "pal/minigame": "pal/minigame/non-minigame.ts",
