@@ -724,6 +724,7 @@ export class Label extends Renderable2D {
 
         if (force) {
             this._flushAssembler();
+            if (this.renderData) this.renderData.vertDirty = true;
             this._applyFontTexture();
         }
     }

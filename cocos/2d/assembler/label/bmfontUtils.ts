@@ -101,6 +101,7 @@ export const bmfontUtils = {
         _uiTrans.setContentSize(_contentSize);
 
         _comp.renderData!.vertDirty = _comp.renderData!.uvDirty = false;
+        _comp.markForUpdateRenderData(false);
 
         _comp = null;
 
