@@ -39,7 +39,7 @@ export class AudioPlayer {
         }
         return AudioPlayerWeb.loadNative(url);
     }
-    static maxAudioChannel = 24;
+    static readonly maxAudioChannel = 24;
 
     get type (): AudioType { return this._player.type; }
     get state (): AudioState { return this._player.state; }

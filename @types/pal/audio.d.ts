@@ -36,7 +36,7 @@ declare module 'pal/audio' {
         /**
          * max audio channel, if the amount of playing audios exceeds maxAudioChannel, some audio instances should be discarded by audio manager
          */
-        static maxAudioChannel: number;
+        static readonly maxAudioChannel: number;
 
         /**
          * type of AudioPlayer，there are WEB_AUDIO and DOM_AUDIO for web platform

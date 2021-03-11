@@ -78,7 +78,7 @@ export class AudioPlayer implements IAudioPlayer {
             });
         });
     }
-    static maxAudioChannel: number = audioEngine.getMaxAudioInstance();
+    static readonly maxAudioChannel: number = audioEngine.getMaxAudioInstance();
 
     private get _isValid (): boolean {
         return this._id !== INVALID_AUDIO_ID;

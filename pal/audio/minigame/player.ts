@@ -125,7 +125,7 @@ export class AudioPlayer {
             innerAudioContext.src = url;
         });
     }
-    static maxAudioChannel = 10;
+    static readonly maxAudioChannel = 10;
 
     get state (): AudioState {
         return this._state;
