@@ -1,7 +1,11 @@
 declare module 'pal/audio' {
+    /**
+     * each audio instance needs to be managed, but not take up too much memory
+     * this is a lite version of audio interface designed for audio manager
+     */
     export interface OneShotAudio {
         /**
-         * stop playing one shot
+         * stop playing one shot audio
          */
         stop ();
         /**
