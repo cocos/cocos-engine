@@ -66,6 +66,7 @@ declare module 'pal/audio' {
         get duration (): number;
         /**
          * read only current time of AudioPlayer, if you want to set the current time, please call the seek() method
+         * it displays in seconds, ranged from 0 to its total duration
          */
         get currentTime (): number;
         /**

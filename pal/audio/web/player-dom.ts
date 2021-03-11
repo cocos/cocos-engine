@@ -2,7 +2,7 @@ import { OneShotAudio } from 'pal/audio';
 import { AudioEvent, AudioState, AudioType } from '../type';
 import { EventTarget } from '../../../cocos/core/event/event-target';
 import { legacyCC } from '../../../cocos/core/global-exports';
-import { clamp01 } from '../../../cocos/core';
+import { clamp, clamp01 } from '../../../cocos/core';
 
 export class AudioPlayerDOM {
     private _domAudio?: HTMLAudioElement;
@@ -138,6 +138,7 @@ export class AudioPlayerDOM {
         return this._domAudio!.currentTime;
     }
     seek (time: number): Promise<void> {
+        time = clamp(time, 0, this.duration);
         this._domAudio!.currentTime = time;
         return Promise.resolve();
     }
