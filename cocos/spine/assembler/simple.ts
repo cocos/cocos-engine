@@ -114,6 +114,7 @@ function _getSlotMaterial (blendMode: spine.BlendMode) {
 }
 
 function _handleColor (color: FrameColor) {
+    if (!color) return;
     // temp rgb has multiply 255, so need divide 255;
     _fa = color.fa * _nodeA;
     _multiplier = _premultipliedAlpha ? _fa / 255 :  1;
@@ -789,8 +790,10 @@ function cacheTraverse (worldMat?: Mat4) {
         for (let ii = _vfOffset, iEnd = _vfOffset + segVFCount; ii < iEnd; ii += _perVertexSize, frameColorOffset += 6) {
             if (frameColorOffset >= maxVFOffset) {
                 nowColor = colors[colorOffset++];
-                _handleColor(nowColor);
-                maxVFOffset = nowColor.vfOffset;
+                if (nowColor) {
+                    _handleColor(nowColor);
+                    maxVFOffset = nowColor.vfOffset;
+                }
             }
             vbuf.set(_finalColor32, ii + 5);
             vbuf.set(_darkColor32, ii + 9);
