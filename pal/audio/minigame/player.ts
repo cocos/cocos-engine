@@ -99,7 +99,7 @@ export class AudioPlayer {
             }).catch((e) => {});
         });
     }
-    static loadNative (url: string): Promise<any> {
+    static loadNative (url: string): Promise<unknown> {
         return new Promise((resolve, reject) => {
             const innerAudioContext = mg.createInnerAudioContext();
             const timer = setTimeout(() => {

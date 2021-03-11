@@ -36,7 +36,7 @@ declare module 'pal/audio' {
          * @param url
          * @param opts
          */
-        static loadNative (url: string, opts?: import('pal/audio/type').AudioLoadOptions): Promise<any>;
+        static loadNative (url: string, opts?: import('pal/audio/type').AudioLoadOptions): Promise<unknown>;
         /**
          * max audio channel, if the amount of playing audios exceeds maxAudioChannel, some audio instances should be discarded by audio manager
          */

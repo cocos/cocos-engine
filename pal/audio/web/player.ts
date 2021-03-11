@@ -33,7 +33,7 @@ export class AudioPlayer {
     destroy () {
         this._player.destroy();
     }
-    static loadNative (url: string, opts?: AudioLoadOptions): Promise<any> {
+    static loadNative (url: string, opts?: AudioLoadOptions): Promise<unknown> {
         if (opts?.audioLoadMode === AudioType.DOM_AUDIO) {
             return AudioPlayerDOM.loadNative(url);
         }

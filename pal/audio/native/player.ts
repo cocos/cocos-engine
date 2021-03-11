@@ -64,11 +64,11 @@ export class AudioPlayer implements IAudioPlayer {
     static load (url: string): Promise<AudioPlayer> {
         return new Promise((resolve, reject) => {
             AudioPlayer.loadNative(url).then((url) => {
-                resolve(new AudioPlayer(url));
+                resolve(new AudioPlayer(url as string));
             }).catch((err) => reject(err));
         });
     }
-    static loadNative (url: string): Promise<any> {
+    static loadNative (url: string): Promise<unknown> {
         return new Promise((resolve, reject) => {
             audioEngine.preload(url, (isSuccess) => {
                 if (isSuccess) {
