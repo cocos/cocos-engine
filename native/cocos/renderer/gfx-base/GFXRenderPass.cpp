@@ -44,19 +44,19 @@ uint RenderPass::computeHash() {
     uint seed = 0;
     if (_subpasses.size()) {
         for (const SubpassInfo &subPass : _subpasses) {
-            for (const uint8_t iaIndex : subPass.inputs) {
+            for (const uint iaIndex : subPass.inputs) {
                 if (iaIndex >= _colorAttachments.size()) break;
                 seed += 2;
             }
-            for (const uint8_t caIndex : subPass.colors) {
+            for (const uint caIndex : subPass.colors) {
                 if (caIndex >= _colorAttachments.size()) break;
                 seed += 2;
             }
-            for (const uint8_t raIndex : subPass.resolves) {
+            for (const uint raIndex : subPass.resolves) {
                 if (raIndex >= _colorAttachments.size()) break;
                 seed += 2;
             }
-            for (const uint8_t paIndex : subPass.preserves) {
+            for (const uint paIndex : subPass.preserves) {
                 if (paIndex >= _colorAttachments.size()) break;
                 seed += 2;
             }
@@ -65,25 +65,25 @@ uint RenderPass::computeHash() {
             }
         }
         for (const SubpassInfo &subPass : _subpasses) {
-            for (const uint8_t iaIndex : subPass.inputs) {
+            for (const uint iaIndex : subPass.inputs) {
                 if (iaIndex >= _colorAttachments.size()) break;
                 const ColorAttachment &ia = _colorAttachments[iaIndex];
                 seed ^= (uint)(ia.format) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
                 seed ^= (uint)ia.sampleCount + 0x9e3779b9 + (seed << 6) + (seed >> 2);
             }
-            for (const uint8_t caIndex : subPass.colors) {
+            for (const uint caIndex : subPass.colors) {
                 if (caIndex >= _colorAttachments.size()) break;
                 const ColorAttachment &ca = _colorAttachments[caIndex];
                 seed ^= (uint)(ca.format) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
                 seed ^= (uint)ca.sampleCount + 0x9e3779b9 + (seed << 6) + (seed >> 2);
             }
-            for (const uint8_t raIndex : subPass.resolves) {
+            for (const uint raIndex : subPass.resolves) {
                 if (raIndex >= _colorAttachments.size()) break;
                 const ColorAttachment &ca = _colorAttachments[raIndex];
                 seed ^= (uint)(ca.format) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
                 seed ^= (uint)ca.sampleCount + 0x9e3779b9 + (seed << 6) + (seed >> 2);
             }
-            for (const uint8_t paIndex : subPass.preserves) {
+            for (const uint paIndex : subPass.preserves) {
                 if (paIndex >= _colorAttachments.size()) break;
                 const ColorAttachment &ca = _colorAttachments[paIndex];
                 seed ^= (uint)(ca.format) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
@@ -124,22 +124,22 @@ uint RenderPass::computeHash(const RenderPassInfo &info) {
     uint seed = 0;
     if (info.subpasses.size()) {
         for (const SubpassInfo &subPass : info.subpasses) {
-            for (const uint8_t iaIndex : subPass.inputs) {
+            for (const uint iaIndex : subPass.inputs) {
                 if (iaIndex >= info.colorAttachments.size()) break;
                 const ColorAttachment &ia = info.colorAttachments[iaIndex];
                 seed += 4 + ia.beginAccesses.size() + ia.endAccesses.size();
             }
-            for (const uint8_t caIndex : subPass.colors) {
+            for (const uint caIndex : subPass.colors) {
                 if (caIndex >= info.colorAttachments.size()) break;
                 const ColorAttachment &ca = info.colorAttachments[caIndex];
                 seed += 4 + ca.beginAccesses.size() + ca.endAccesses.size();
             }
-            for (const uint8_t raIndex : subPass.resolves) {
+            for (const uint raIndex : subPass.resolves) {
                 if (raIndex >= info.colorAttachments.size()) break;
                 const ColorAttachment &ra = info.colorAttachments[raIndex];
                 seed += 4 + ra.beginAccesses.size() + ra.endAccesses.size();
             }
-            for (const uint8_t paIndex : subPass.preserves) {
+            for (const uint paIndex : subPass.preserves) {
                 if (paIndex >= info.colorAttachments.size()) break;
                 const ColorAttachment &pa = info.colorAttachments[paIndex];
                 seed += 4 + pa.beginAccesses.size() + pa.endAccesses.size();
@@ -150,19 +150,19 @@ uint RenderPass::computeHash(const RenderPassInfo &info) {
             }
         }
         for (const SubpassInfo &subpass : info.subpasses) {
-            for (const uint8_t iaIndex : subpass.inputs) {
+            for (const uint iaIndex : subpass.inputs) {
                 if (iaIndex >= info.colorAttachments.size()) break;
                 computeAttachmentHash(info.colorAttachments[iaIndex], seed);
             }
-            for (const uint8_t caIndex : subpass.colors) {
+            for (const uint caIndex : subpass.colors) {
                 if (caIndex >= info.colorAttachments.size()) break;
                 computeAttachmentHash(info.colorAttachments[caIndex], seed);
             }
-            for (const uint8_t raIndex : subpass.resolves) {
+            for (const uint raIndex : subpass.resolves) {
                 if (raIndex >= info.colorAttachments.size()) break;
                 computeAttachmentHash(info.colorAttachments[raIndex], seed);
             }
-            for (const uint8_t paIndex : subpass.preserves) {
+            for (const uint paIndex : subpass.preserves) {
                 if (paIndex >= info.colorAttachments.size()) break;
                 computeAttachmentHash(info.colorAttachments[paIndex], seed);
             }

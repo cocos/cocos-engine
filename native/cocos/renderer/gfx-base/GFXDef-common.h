@@ -738,8 +738,8 @@ struct Offset {
 struct Rect {
     int  x      = 0;
     int  y      = 0;
-    uint width  = 1u;
-    uint height = 1u;
+    uint width  = 0u;
+    uint height = 0u;
 
     bool operator==(const Rect &rs) {
         if (x == rs.x &&

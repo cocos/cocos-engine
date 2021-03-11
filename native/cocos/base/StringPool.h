@@ -44,7 +44,7 @@ template <bool ThreadSafe>
 class StringPool final {
 public:
     StringPool() noexcept          = default;
-    ~StringPool()                  = default;
+    ~StringPool();
     StringPool(StringPool const &) = delete;
     StringPool(StringPool &&)      = delete;
     StringPool &operator=(StringPool const &) = delete;
@@ -65,6 +65,13 @@ private:
 };
 
 using ThreadSafeStringPool = StringPool<true>;
+
+template <bool ThreadSafe>
+StringPool<ThreadSafe>::~StringPool() {
+    for (char const *strCache : _handleToStrings) {
+        delete[] strCache;
+    }
+}
 
 template <bool ThreadSafe>
 inline StringHandle StringPool<ThreadSafe>::stringToHandle(char const *const str) noexcept {
@@ -105,7 +112,7 @@ inline StringHandle StringPool<ThreadSafe>::doStringToHandle(char const *const s
 
     if (it == _stringToHandles.end()) {
         size_t const strLength = strlen(str) + 1;
-        char *const  strCache  = new char[strLength]; // never freed since we can't invalidate every existing usage
+        char *const  strCache  = new char[strLength];
         strcpy(strCache, str);
         StringHandle name(static_cast<StringHandle::IndexType>(_handleToStrings.size()), strCache);
         _handleToStrings.emplace_back(strCache);
