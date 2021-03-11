@@ -352,8 +352,8 @@ export abstract class Device {
     }
 
     /**
-     * @en Whether the clip space is consistent with the y direction of the fbo space, consistent is positive.
-     * @zh 裁剪空间与fbo空间y方向是否一致，一致为正。
+     * @en The sign of the clip space Y axis, positive upward.
+     * @zh 裁剪空间的y轴符号，向上为正。
      */
     get clipSpaceSignY () {
         return this._clipSpaceSignY;
