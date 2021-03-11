@@ -2,6 +2,7 @@ import { AudioPlayer as IAudioPlayer, OneShotAudio } from 'pal/audio';
 import { AudioType, AudioState, AudioEvent } from '../type';
 import { EventTarget } from '../../../cocos/core/event/event-target';
 import { legacyCC } from '../../../cocos/core/global-exports';
+import { clamp01 } from '../../../cocos/core';
 
 const urlCount: Record<string, number> = {};
 const audioEngine = jsb.AudioEngine;
@@ -110,6 +111,7 @@ export class AudioPlayer implements IAudioPlayer {
         return audioEngine.getVolume(this._id);
     }
     set volume (val: number) {
+        val = clamp01(val);
         if (!this._isValid) {
             this._beforePlaying.volume = val;
         } else {

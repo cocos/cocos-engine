@@ -56,7 +56,7 @@ declare module 'pal/audio' {
         get loop (): boolean;
         set loop (val: boolean);
         /**
-         * volume of AudioPlayer
+         * volume of AudioPlayer, ranged from 0 to 1
          */
         get volume (): number;
         set volume (val: number);

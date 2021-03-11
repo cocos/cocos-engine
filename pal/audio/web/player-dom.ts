@@ -2,6 +2,7 @@ import { OneShotAudio } from 'pal/audio';
 import { AudioEvent, AudioState, AudioType } from '../type';
 import { EventTarget } from '../../../cocos/core/event/event-target';
 import { legacyCC } from '../../../cocos/core/global-exports';
+import { clamp01 } from '../../../cocos/core';
 
 export class AudioPlayerDOM {
     private _domAudio?: HTMLAudioElement;
@@ -127,6 +128,7 @@ export class AudioPlayerDOM {
         return this._domAudio!.volume;
     }
     set volume (val: number) {
+        val = clamp01(val);
         this._domAudio!.volume = val;
     }
     get duration (): number {

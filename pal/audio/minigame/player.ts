@@ -3,6 +3,7 @@ import { OneShotAudio } from 'pal/audio';
 import { legacyCC } from '../../../cocos/core/global-exports';
 import { EventTarget } from '../../../cocos/core/event/event-target';
 import { AudioEvent, AudioState, AudioType } from '../type';
+import { clamp01 } from '../../../cocos/core';
 
 export class AudioPlayer {
     private _innerAudioContext: any;
@@ -140,6 +141,7 @@ export class AudioPlayer {
         return this._innerAudioContext.volume as number;
     }
     set volume (val: number) {
+        val = clamp01(val);
         this._innerAudioContext.volume = val;
     }
     get duration (): number {

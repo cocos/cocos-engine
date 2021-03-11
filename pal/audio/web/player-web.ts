@@ -2,7 +2,7 @@ import { OneShotAudio } from 'pal/audio';
 import { AudioEvent, AudioState, AudioType } from '../type';
 import { EventTarget } from '../../../cocos/core/event/event-target';
 import { legacyCC } from '../../../cocos/core/global-exports';
-import { clamp } from '../../../cocos/core';
+import { clamp, clamp01 } from '../../../cocos/core';
 
 // NOTE: fix CI
 const AudioContextClass = (window.AudioContext || window.webkitAudioContext || window.mozAudioContext);
@@ -117,6 +117,7 @@ export class AudioPlayerWeb {
         return this._volume;
     }
     set volume (val: number) {
+        val = clamp01(val);
         this._volume = val;
         this._setGainValue(this._gainNode, val);
     }
