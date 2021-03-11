@@ -76,10 +76,13 @@ export default class ParticleBatchModel{
             this._mesh.copyAttribute(0, gfx.ATTR_NORMAL, vbData.buffer, vertSize, normalEle.offset);
             this._mesh.copyAttribute(0, gfx.ATTR_UV0, vbData.buffer, vertSize, uvEle.offset);
 
-            if (!this._mesh.copyAttribute(0, gfx.ATTR_COLOR, vbData.buffer, vertSize, colorEle.offset)) {  // copy mesh color to ATTR_COLOR1
-                const vb = new Uint32Array(vbData.buffer);
+            if (!this._mesh.copyAttribute(0, gfx.ATTR_COLOR0, vbData.buffer, vertSize, colorEle.offset)) {  // copy mesh color to ATTR_COLOR1
+                const vb = new Float32Array(vbData.buffer);
                 for (var i = 0; i < this._vertCount; ++i) {
-                    vb[i * this._vertAttrsFloatCount + colorEle.offset / 4] = cc.Color.WHITE._val;
+                    vb[i * this._vertAttrsFloatCount + colorEle.offset / 4] = 1.0;
+                    vb[i * this._vertAttrsFloatCount + colorEle.offset / 4 + 1] = 1.0;
+                    vb[i * this._vertAttrsFloatCount + colorEle.offset / 4 + 2] = 1.0;
+                    vb[i * this._vertAttrsFloatCount + colorEle.offset / 4 + 3] = 1.0;
                 }
             }
 
