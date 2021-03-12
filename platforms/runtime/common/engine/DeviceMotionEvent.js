@@ -42,7 +42,9 @@ Object.assign(inputManager, {
         this._accelCurTime = 0;
         this._acceleration = new cc.internal.Acceleration();
         ral.onAccelerometerChange(accelerometerChangeCb);
-        ral.startAccelerometer();
+        ral.startAccelerometer({
+            interval: "game",  // TODO: support setAccelerometerInterval
+        });
     },
 
     _unregisterAccelerometerEvent() {
