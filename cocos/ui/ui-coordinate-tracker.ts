@@ -71,7 +71,7 @@ export class UICoordinateTracker extends Component {
 
     /**
      * @en
-     * 3D camera for conversion.
+     * The 3D camera representing the original coordinate system.
      *
      * @zh
      * 照射相机。
@@ -93,8 +93,7 @@ export class UICoordinateTracker extends Component {
 
     /**
      * @en
-     * Do you need to scale the converted 2d node size according to how far the 3D node is from the camera.
-     * Note:need to combine the distance parameter to calculate.
+     * Whether to scale the converted 2d node's size according to the distance between the camera and the 3d node.
      *
      * @zh
      * 是否是缩放映射。
@@ -114,7 +113,7 @@ export class UICoordinateTracker extends Component {
 
     /**
      * @en
-     * The distance from the camera is the normal display calculation size.
+     * The distance from the camera for displaying the 2d node in normal size.
      *
      * @zh
      * 距相机多少距离为正常显示计算大小。
@@ -134,7 +133,9 @@ export class UICoordinateTracker extends Component {
 
     /**
      * @en
-     * Event callback after value change.
+     * Event callback after coordinates synchronization.
+     * The first parameter of the callback is the mapped local coordinate in UI camera.
+     * The second parameter is the distance scale of the 3d node from the 3d camera viewport.
      *
      * @zh
      * 映射数据事件。回调的第一个参数是映射后的本地坐标，第二个是距相机距离比。

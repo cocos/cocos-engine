@@ -151,8 +151,8 @@ module.exports = {
     button: {
         click_event: {
             target: 'Node that receives click events',
-            component: 'Components that receive click events',
-            handler: 'Methods for handling click events',
+            component: 'Component that receive click events',
+            handler: 'Component method to respond to click events',
             customEventData: "The extra event data passed to the event handler, it's passed in as the last argument in the event handler. ",
         },
         interactable: 'Interactable state of the button, when this item is unchecked, the button is disabled',
@@ -165,13 +165,13 @@ module.exports = {
         zoom_scale:
             'When the user clicks the button, the button is scaled to a value equal to the original scale of the Button * zoomScale, zoomScale can be a negative number',
         auto_gray_effect: 'When this flag is true, Button target sprite will turn gray when interactable is false.',
-        normal_sprite: 'The Sprite that is used when the button is in a normal sate.',
-        pressed_sprite: 'The Sprite that is used when the button is in a pressed sate.',
-        hover_sprite: 'The Sprite that is used when the button is hovered over.',
-        disabled_sprite: 'The Sprite that is used when the button is in a disabled sate.',
+        normal_sprite: 'The sprite frame used when the button is in a normal sate.',
+        pressed_sprite: 'The sprite frame used when the button is in a pressed sate.',
+        hover_sprite: 'The sprite frame used when the button is in hovered over.',
+        disabled_sprite: 'The sprite frame used when the button is in a disabled sate.',
         target:
             "reference to the Sprite as target's background. When the state of the target changes the sprite's color or spriteFrame will be updated.",
-        click_events: 'A list of button click events. By first changing the number to 1 or more, you can set the recipient and handler for each click event',
+        click_events: 'By changing the number to 1 or more, you can set the receiver and the handler for each click event',
     },
     canvas: {
         camera: '2D rendering camera',
@@ -217,8 +217,8 @@ module.exports = {
     scrollbar: {
         handle: 'reference to the interactive bar sprite',
         direction: 'Scroll direction',
-        auto_hide: 'Auto-hide ScrollBar when there is no scrolling action',
-        auto_hide_time: 'How long after no scrolling action will be automatically hidden\nNote: Only valid if "enableAutoHide" is true',
+        auto_hide: 'Automatically hide',
+        auto_hide_time: 'How long will the scroll bar to be hidden after no scrolling action.\nNote: Only valid if "enableAutoHide" is true',
     },
     scrollview: {
         content: 'A scrollable display of the Nodes content',
@@ -226,10 +226,10 @@ module.exports = {
         vertical: 'Vertical scroll',
         inertia: 'When inertia is set, the content will continue to move when touch ended',
         brake: 'It determines how quickly the content stop moving\nA value of 1 will stop the movement immediately\nA value of 0 will never stop the movement until it reaches to the boundary of scrollview',
-        elastic: 'When elastic is set, the content will be bounce back when move out of boundary.',
+        elastic: "If elastic is set, the content will bounce back when it's moved out of scroll boundary.",
         horizontal_bar: 'Horizontal scrollbar',
         vertical_bar: 'Vertical scrollbar',
-        bounceDuration: 'The elapse time of bouncing back. A value of 0 will bounce back immediately.',
+        bounceDuration: 'The elapse time for bouncing. A value of 0 means the content will bounce back immediately.',
         scrollEvents: 'Scrollview events callback',
         cancelInnerEvents: 'If cancelInnerEvents is set to true, the scroll behavior will cancel touch events on inner content nodes',
     },
@@ -244,7 +244,7 @@ module.exports = {
         pageTurningSpeed: 'The time required to turn over a page. unit: second',
         pageEvents: 'PageView events callback',
         autoPageTurningThreshold:
-            'Auto page turning velocity threshold\nWhen users swipe the PageView quickly, it will calculate a velocity based on the scroll distance and time\nif the calculated velocity is larger than the threshold, then it will trigger page turning',
+            'The turning velocity threshold for page turning\nWhen user swipes the PageView quickly, a velocity is calculated based on the swipe distance and time.\nIf the velocity is larger than the threshold, the page will be flipped',
     },
     pageview_indicator: {
         spriteFrame: 'The spriteFrame for each element',
@@ -274,7 +274,7 @@ module.exports = {
         checkMark: 'The Sprite component displayed when Toggle is checked.',
         toggleGroup:
             'The toggle group which the toggle belongs to. When it is null, the toggle is a CheckBox. Otherwise, the toggle is a RadioButton.',
-        check_events: "If Toggle is clicked, it will trigger event's handler.",
+        check_events: 'The events triggered while toggle item is checked',
     },
     toggle_group: {
         allowSwitchOff:
@@ -322,8 +322,8 @@ module.exports = {
         constraint: 'In Grid layout, content layout constraints, including: \n 1.NONE, no constraints \n 2.FIXED_ROW, fixed number of rows \n 3.FIXED_COL, fixed number of columns',
         constraint_number: 'In Grid layout, number of rows or columns for content layout constraints',
         affected_scale: 'Child node scaling affects layout',
-        align_horizontal: 'Alignment horizontal\nFixed starting position in the same direction when Type is Horizontal.',
-        align_vertical: 'Alignment vertical\nFixed starting position in the same direction when Type is Vertical.',
+        align_horizontal: 'Align content horizontally\nFixed starting position in the same direction when Type is Horizontal.',
+        align_vertical: 'Align content vertically\nFixed starting position in the same direction when Type is Vertical.',
     },
     particle: {
         export_title: 'Export custom particle data to plist file.',
@@ -349,9 +349,9 @@ module.exports = {
         max_length: 'The maximize input characters.',
         text_lable: "The Label component attached to the node for EditBox's input text label",
         placeholder_label: "The Label component attached to the node for EditBox's placeholder text label",
-        editing_began: 'The event handler to be called when EditBox began to edit text',
-        text_changed: 'The event handler to be called when EditBox text changes',
-        editing_ended: 'The event handler to be called when EditBox edit ends\nIn single line mode, the function is usually called when the user presses enter or clicks outside the input box on the screen \n In case of multiline input, the function is usually called when the user clicks outside the input box on the screen',
+        editing_began: 'The event handler to be triggered when user begin to edit text',
+        text_changed: 'The event handler to be triggered when the text content changes',
+        editing_ended: 'The event handler to be triggered when user stop editing\nIn single line mode, the function is usually called when the user presses enter or clicks outside the input box on the screen \n In case of multiline input, the function is usually called when the user clicks outside the input box on the screen',
         editing_return: 'The event handler to be called when return key is pressed\nIn single line mode, pressing the Enter key also causes the input box to lose focus',
     },
     videoplayer: {
@@ -391,14 +391,14 @@ module.exports = {
     },
     UICoordinateTracker: {
         target: 'Target node',
-        camera: '3D camera for conversion',
-        use_scale: 'Do you need to scale the converted 2d node size according to how far the 3D node is from the camera',
-        distance: 'The distance from the camera is the normal display calculation size',
-        sync_events: 'Event callback after value change\nThe first parameter of the callback is the mapped local coordinate\nThe second is the distance from the camera',   
+        camera: 'The 3D camera representing the original coordinate system.',
+        use_scale: "Whether to scale the converted 2d node's size according to the distance between the camera and the 3d node.",
+        distance: 'The distance from the camera for displaying the 2d node in normal size',
+        sync_events: 'Event callback after coordinates synchronization.\nThe first parameter of the callback is the mapped local coordinate in UI camera.\nThe second parameter is the distance scale of the 3d node from the 3d camera viewport.',   
     },
     SubContextView: {
-        design_size: 'Design resolution of SubContextView, disable dynamic updates at runtime',
-        fps: 'fps for SubContextView',
+        design_size: 'Design resolution of the SubContextView, dynamic updates at runtime is not possible',
+        fps: 'Update frame rate for the SubContextView',
     },
     skeleton: {
         skeleton_data: 'The skeleton data contains the skeleton information, drag the json file exported from Spine to get started.',
