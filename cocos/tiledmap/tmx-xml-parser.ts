@@ -668,13 +668,18 @@ export class TMXMapInfo {
                             tileset.imageSize.height = parseFloat(firstImage.getAttribute('height')!) || 0;
                             tileset.sourceImage = this._spriteFrameMap![firstImageName];
                             if (!tileset.sourceImage) {
-                                const shortName = TMXMapInfo.getShortName(firstImageName);
-                                tileset.imageName = shortName;
-                                tileset.sourceImage = this._spriteFrameMap![shortName];
+                                const nameWithPostfix = TMXMapInfo.getNameWithPostfix(firstImageName);
+                                tileset.imageName = nameWithPostfix;
+                                tileset.sourceImage = this._spriteFrameMap![nameWithPostfix];
                                 if (!tileset.sourceImage) {
-                                    console.error(`[error]: ${shortName} not find in [${Object.keys(this._spriteFrameMap!).join(', ')}]`);
-                                    errorID(7221, firstImageName);
-                                    console.warn(`Please try asset type of ${firstImageName} to 'sprite-frame'`);
+                                    const shortName = TMXMapInfo.getShortName(firstImageName);
+                                    tileset.imageName = shortName;
+                                    tileset.sourceImage = this._spriteFrameMap![shortName];
+                                    if (!tileset.sourceImage) {
+                                        console.error(`[error]: ${shortName} not find in [${Object.keys(this._spriteFrameMap!).join(', ')}]`);
+                                        errorID(7221, firstImageName);
+                                        console.warn(`Please try asset type of ${firstImageName} to 'sprite-frame'`);
+                                    }
                                 }
                             }
                         }
@@ -708,12 +713,17 @@ export class TMXMapInfo {
 
                         tileset.sourceImage = this._spriteFrameMap![imageName];
                         if (!tileset.sourceImage) {
-                            const shortName = TMXMapInfo.getShortName(imageName);
-                            tileset.imageName = shortName;
-                            tileset.sourceImage = this._spriteFrameMap![shortName];
+                            const nameWithPostfix = TMXMapInfo.getNameWithPostfix(firstImageName);
+                            tileset.imageName = nameWithPostfix;
+                            tileset.sourceImage = this._spriteFrameMap![nameWithPostfix];
                             if (!tileset.sourceImage) {
-                                errorID(7221, imageName);
-                                console.warn(`Please try asset type of ${imageName} to 'sprite-frame'`);
+                                const shortName = TMXMapInfo.getShortName(imageName);
+                                tileset.imageName = shortName;
+                                tileset.sourceImage = this._spriteFrameMap![shortName];
+                                if (!tileset.sourceImage) {
+                                    errorID(7221, imageName);
+                                    console.warn(`Please try asset type of ${imageName} to 'sprite-frame'`);
+                                }
                             }
                         }
 
@@ -1049,11 +1059,18 @@ export class TMXMapInfo {
         this.currentString = currentString;
     }
 
+    static getNameWithPostfix (name: string) {
+        name = name.replace(/\\/g, '\/');
+        const slashIndex = name.lastIndexOf('/') + 1;
+        const strLen = name.length;
+        return name.substring(slashIndex, strLen);
+    }
+
     static getShortName (name: string) {
         name = name.replace(/\\/g, '\/');
-        const splashIndex = name.lastIndexOf('/') + 1;
+        const slashIndex = name.lastIndexOf('/') + 1;
         let dotIndex = name.lastIndexOf('.');
         dotIndex = dotIndex < 0 ? name.length : dotIndex;
-        return name.substring(splashIndex, dotIndex);
+        return name.substring(slashIndex, dotIndex);
     }
 }
