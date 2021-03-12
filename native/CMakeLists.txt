@@ -1285,6 +1285,8 @@ cocos_source_files(
     cocos/bindings/manual/jsb_gfx_agent.h
     cocos/bindings/manual/jsb_global.cpp
     cocos/bindings/manual/jsb_global.h
+    cocos/bindings/manual/jsb_global_init.cpp
+    cocos/bindings/manual/jsb_global_init.h
     cocos/bindings/manual/jsb_helper.cpp
     cocos/bindings/manual/jsb_helper.h
     cocos/bindings/manual/jsb_module_register.h

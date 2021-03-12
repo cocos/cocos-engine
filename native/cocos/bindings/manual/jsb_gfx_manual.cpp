@@ -29,10 +29,6 @@
 #include "bindings/manual/jsb_conversions.h"
 #include "bindings/manual/jsb_global.h"
 
-#if !(defined(CC_USE_GLES2) || defined(CC_USE_GLES3) || defined(CC_USE_VULKAN) || defined(CC_USE_METAL))
-    #error "gfx backend is not defined!"
-#endif
-
 #ifdef CC_USE_VULKAN
     #include "bindings/auto/jsb_vk_auto.h"
     #include "gfx-vulkan/GFXVulkan.h"

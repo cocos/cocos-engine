@@ -65,7 +65,7 @@ public:
     CallbackPass<Data, ExecuteMethod> const &addPass(const PassInsertPoint insertPoint, const StringHandle &name, SetupMethod setup, ExecuteMethod &&execute) noexcept;
 
     template <typename ResourceType>
-    TypedHandle<ResourceType> create(const StringHandle &name, typename const ResourceType::Descriptor &desc) noexcept;
+    TypedHandle<ResourceType> create(const StringHandle &name, const typename ResourceType::Descriptor &desc) noexcept;
     Handle                    create(VirtualResource *const virtualResource) noexcept;
     template <typename ResourceType>
     TypedHandle<ResourceType> importExternal(const StringHandle &name, ResourceType &resource) noexcept;
@@ -94,7 +94,7 @@ private:
     std::vector<std::unique_ptr<VirtualResource>> _virtualResources{};
     std::vector<std::unique_ptr<DevicePass>>      _devicePasses{};
     ResourceHandleBlackboard                      _blackboard;
-    bool                                          _merge{false};
+    bool                                          _merge{true};
 
     friend class PassNode;
     friend class PassNodeBuilder;
@@ -113,7 +113,7 @@ const CallbackPass<Data, ExecuteMethod> &FrameGraph::addPass(const PassInsertPoi
 }
 
 template <typename ResourceType>
-TypedHandle<ResourceType> FrameGraph::create(const StringHandle &name, typename const ResourceType::Descriptor &desc) noexcept {
+TypedHandle<ResourceType> FrameGraph::create(const StringHandle &name, const typename ResourceType::Descriptor &desc) noexcept {
     auto *const virtualResource = new ResourceEntry<ResourceType>(name, static_cast<ID>(_virtualResources.size()), desc);
     return TypedHandle<ResourceType>(create(virtualResource));
 }
@@ -132,7 +132,7 @@ void FrameGraph::enableMerge(bool const enable) noexcept {
 //////////////////////////////////////////////////////////////////////////
 
 template <typename ResourceType>
-void PassNodeBuilder::create(TypedHandle<ResourceType> &handle, const StringHandle &name, typename const ResourceType::Descriptor &desc) const noexcept {
+void PassNodeBuilder::create(TypedHandle<ResourceType> &handle, const StringHandle &name, const typename ResourceType::Descriptor &desc) const noexcept {
     handle = _graph.create<ResourceType>(name, desc);
 }
 

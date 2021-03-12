@@ -32,7 +32,7 @@ namespace cc {
 class StringHandle final : public IndexHandle<uint32_t> {
 public:
     StringHandle() noexcept = default;
-    explicit StringHandle(IndexType const handle, char const *const str) noexcept;
+    explicit StringHandle(const IndexType handle, const char *const str) noexcept;
     inline char const *str() const noexcept { return _str; }
 
 private:

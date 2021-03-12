@@ -27,7 +27,7 @@
 
 namespace cc {
 
-StringHandle::StringHandle(IndexType const handle, char const *const str) noexcept
+StringHandle::StringHandle(const IndexType handle, const char *const str) noexcept
 : IndexHandle(handle),
   _str(str) {
 }

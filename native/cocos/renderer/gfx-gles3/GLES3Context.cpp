@@ -233,6 +233,9 @@ bool GLES3Context::initialize(const ContextInfo &info) {
         bool hasKHRCreateCtx = CheckExtension(CC_TOSTR(EGL_KHR_create_context));
         if (hasKHRCreateCtx) {
             for (int m = 2; m >= 0; --m) {
+    #if (CC_PLATFORM == CC_PLATFORM_MAC_OSX)
+                m = 0; // Mac OpenGL doesn't really support ES 3.1+ features
+    #endif
                 n = 0;
                 ctxAttribs[n++] = EGL_CONTEXT_MAJOR_VERSION_KHR;
                 ctxAttribs[n++] = _majorVersion;
@@ -247,11 +250,7 @@ bool GLES3Context::initialize(const ContextInfo &info) {
 
                 EGL_CHECK(_eglContext = eglCreateContext(_eglDisplay, _eglConfig, NULL, ctxAttribs));
                 if (_eglContext) {
-
-                // Mac OpenGL doesn't really support ES 3.1+ features
-    #if (CC_PLATFORM != CC_PLATFORM_MAC_OSX)
                     _minorVersion = m;
-    #endif
                     break;
                 }
             }

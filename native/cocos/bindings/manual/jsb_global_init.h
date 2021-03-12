@@ -25,48 +25,19 @@
 
 #pragma once
 
-#include "jsb_global_init.h"
-
-template <typename T, class... Args>
-inline typename std::enable_if<std::is_base_of<cc::Object, T>::value, T>::type *
-jsb_override_new(Args &&...args) {
-    //create object in gfx way
-    return CC_NEW(T(std::forward<Args>(args)...));
-}
-
-template <typename T>
-inline typename std::enable_if<std::is_base_of<cc::Object, T>::value, void>::type
-jsb_override_delete(T *arg) {
-    //create object in gfx way
-    CC_DELETE(arg);
-}
-
-template <typename T, class... Args>
-inline typename std::enable_if<!std::is_base_of<cc::Object, T>::value, T>::type *
-jsb_override_new(Args &&...args) {
-    //create object in the default way
-    return new T(std::forward<Args>(args)...);
-}
-
-template <typename T>
-inline typename std::enable_if<!std::is_base_of<cc::Object, T>::value, void>::type
-jsb_override_delete(T *arg) {
-    //create object in gfx way
-    delete (arg);
-}
-
-#define JSB_ALLOC(kls, ...) jsb_override_new<kls>(__VA_ARGS__)
-#define JSB_FREE(kls)       jsb_override_delete(kls)
+#include "base/CoreStd.h"
+#include "base/memory/Memory.h"
+#include <string>
+#include <type_traits>
+#include <utility>
 
 namespace se {
-class Class;
-class Value;
+class Object;
 } // namespace se
 
-bool jsb_register_global_variables(se::Object *global);
+extern se::Object *__jsbObj;
+extern se::Object *__glObj;
 
-bool jsb_set_extend_property(const char *ns, const char *clsName);
-bool jsb_run_script(const std::string &filePath, se::Value *rval = nullptr);
-bool jsb_run_script_module(const std::string &filePath, se::Value *rval = nullptr);
-
-bool jsb_global_load_image(const std::string &path, const se::Value &callbackVal);
+void jsb_init_file_operation_delegate();
+void jsb_set_xxtea_key(const std::string &key);
+bool jsb_enable_debugger(const std::string &debuggerServerAddr, uint32_t port, bool isWaitForConnect = false);

@@ -41,7 +41,7 @@ public:
     PassNodeBuilder &operator=(PassNodeBuilder &&) = delete;
 
     template <typename ResourceType>
-    void create(TypedHandle<ResourceType> &handle, const StringHandle &name, typename const ResourceType::Descriptor &desc) const noexcept;
+    void create(TypedHandle<ResourceType> &handle, const StringHandle &name, const typename ResourceType::Descriptor &desc) const noexcept;
     template <typename ResourceType>
     void importExternal(TypedHandle<ResourceType> &handle, const StringHandle &name, ResourceType &resource) const noexcept;
     template <typename ResourceType>

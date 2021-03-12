@@ -33,7 +33,7 @@ namespace framegraph {
 template <typename ResourceType, typename Enable = std::enable_if_t<std::is_base_of<gfx::GFXObject, typename ResourceType::DeviceResource>::value>>
 class ResourceEntry final : public VirtualResource {
 public:
-    explicit ResourceEntry(const StringHandle name, ID const id, typename const ResourceType::Descriptor &desc) noexcept;
+    explicit ResourceEntry(const StringHandle name, ID const id, const typename ResourceType::Descriptor &desc) noexcept;
     ResourceEntry(const StringHandle name, ID const id, const ResourceType &resource) noexcept;
     ResourceEntry()                      = delete;
     ~ResourceEntry()                     = default;
@@ -55,7 +55,7 @@ private:
 //////////////////////////////////////////////////////////////////////////
 
 template <typename ResourceType, typename Enable>
-ResourceEntry<ResourceType, Enable>::ResourceEntry(const StringHandle name, ID const id, typename const ResourceType::Descriptor &desc) noexcept
+ResourceEntry<ResourceType, Enable>::ResourceEntry(const StringHandle name, ID const id, const typename ResourceType::Descriptor &desc) noexcept
 : VirtualResource(name, id, false),
   _resource(desc) {
 }

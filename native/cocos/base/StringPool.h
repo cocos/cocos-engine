@@ -45,19 +45,19 @@ class StringPool final {
 public:
     StringPool() noexcept          = default;
     ~StringPool();
-    StringPool(StringPool const &) = delete;
+    StringPool(const StringPool &) = delete;
     StringPool(StringPool &&)      = delete;
-    StringPool &operator=(StringPool const &) = delete;
+    StringPool &operator=(const StringPool &) = delete;
     StringPool &operator=(StringPool &&) = delete;
 
-    StringHandle stringToHandle(char const *const str) noexcept;
-    char const * handleToString(StringHandle const handle) const noexcept;
-    StringHandle find(char const *const str) const noexcept;
+    StringHandle stringToHandle(const char *const str) noexcept;
+    char const * handleToString(const StringHandle &handle) const noexcept;
+    StringHandle find(const char *const str) const noexcept;
 
 private:
-    StringHandle doStringToHandle(char const *const str) noexcept;
-    char const * doHandleToString(StringHandle const handle) const noexcept;
-    StringHandle doFind(char const *const str) const noexcept;
+    StringHandle doStringToHandle(const char *const str) noexcept;
+    char const * doHandleToString(const StringHandle &handle) const noexcept;
+    StringHandle doFind(const char *const str) const noexcept;
 
     std::map<char const *, StringHandle, StringCompare> _stringToHandles{};
     std::vector<char const *>                           _handleToStrings{};
@@ -74,7 +74,7 @@ StringPool<ThreadSafe>::~StringPool() {
 }
 
 template <bool ThreadSafe>
-inline StringHandle StringPool<ThreadSafe>::stringToHandle(char const *const str) noexcept {
+inline StringHandle StringPool<ThreadSafe>::stringToHandle(const char *const str) noexcept {
     if (ThreadSafe) {
         return _readWriteLock.LockWrite([this, str]() {
             return doStringToHandle(str);
@@ -85,7 +85,7 @@ inline StringHandle StringPool<ThreadSafe>::stringToHandle(char const *const str
 }
 
 template <bool ThreadSafe>
-inline char const *StringPool<ThreadSafe>::handleToString(StringHandle const handle) const noexcept {
+inline char const *StringPool<ThreadSafe>::handleToString(const StringHandle &handle) const noexcept {
     if (ThreadSafe) {
         return _readWriteLock.LockRead([this, handle]() {
             return doHandleToString(handle);
@@ -96,7 +96,7 @@ inline char const *StringPool<ThreadSafe>::handleToString(StringHandle const han
 }
 
 template <bool ThreadSafe>
-StringHandle StringPool<ThreadSafe>::find(char const *const str) const noexcept {
+StringHandle StringPool<ThreadSafe>::find(const char *const str) const noexcept {
     if (ThreadSafe) {
         return _readWriteLock.LockRead([this, str]() {
             return doFind(str);
@@ -107,7 +107,7 @@ StringHandle StringPool<ThreadSafe>::find(char const *const str) const noexcept 
 }
 
 template <bool ThreadSafe>
-inline StringHandle StringPool<ThreadSafe>::doStringToHandle(char const *const str) noexcept {
+inline StringHandle StringPool<ThreadSafe>::doStringToHandle(const char *const str) noexcept {
     auto const it = _stringToHandles.find(str);
 
     if (it == _stringToHandles.end()) {
@@ -124,7 +124,7 @@ inline StringHandle StringPool<ThreadSafe>::doStringToHandle(char const *const s
 }
 
 template <bool ThreadSafe>
-inline char const *StringPool<ThreadSafe>::doHandleToString(StringHandle const handle) const noexcept {
+inline char const *StringPool<ThreadSafe>::doHandleToString(const StringHandle &handle) const noexcept {
     assert(handle < _handleToStrings.size());
     return _handleToStrings[handle];
 }

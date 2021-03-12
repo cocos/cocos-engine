@@ -27,7 +27,7 @@
 
 #include "cocos/bindings/event/CustomEventTypes.h"
 #include "cocos/bindings/jswrapper/SeApi.h"
-#include "cocos/bindings/manual/jsb_global.h"
+#include "cocos/bindings/manual/jsb_global_init.h"
 
 namespace {
 se::Value _tickVal;

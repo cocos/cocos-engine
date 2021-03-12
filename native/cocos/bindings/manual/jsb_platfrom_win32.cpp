@@ -27,7 +27,7 @@
 
 #include "cocos/bindings/jswrapper/SeApi.h"
 #include "cocos/bindings/manual/jsb_conversions.h"
-#include "cocos/bindings/manual/jsb_global.h"
+#include "cocos/bindings/manual/jsb_global_init.h"
 #include "cocos/platform/FileUtils.h"
 
 #include <regex>

@@ -69,13 +69,13 @@ private:
 template <typename Type>
 std::enable_if_t<std::is_base_of<gfx::GFXObject, typename Type::DeviceResource>::value, typename Type::DeviceResource *>
 DevicePassResourceTable::getRead(TypedHandle<Type> const handle) const noexcept {
-    return static_cast<Type::DeviceResource *>(get(reads, handle));
+    return static_cast<typename Type::DeviceResource *>(get(reads, handle));
 }
 
 template <typename Type>
 std::enable_if_t<std::is_base_of<gfx::GFXObject, typename Type::DeviceResource>::value, typename Type::DeviceResource *>
 DevicePassResourceTable::getWrite(TypedHandle<Type> const handle) const noexcept {
-    return static_cast<Type::DeviceResource *>(get(writes, handle));
+    return static_cast<typename Type::DeviceResource *>(get(writes, handle));
 }
 
 } // namespace framegraph
