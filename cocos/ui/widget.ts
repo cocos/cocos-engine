@@ -711,6 +711,7 @@ export class Widget extends Component {
     public _lastPos = new Vec3();
     public _lastSize = new Size();
     public _dirty = true;
+    public _hadAlignOnce = false;
 
     @serializable
     private _alignFlags = 0;
@@ -796,6 +797,7 @@ export class Widget extends Component {
         this.node.getPosition(this._lastPos);
         this._lastSize.set(this.node._uiProps.uiTransformComp!.contentSize);
         legacyCC._widgetManager.add(this);
+        this._hadAlignOnce = false;
         this._registerEvent();
         this._registerTargetEvents();
     }

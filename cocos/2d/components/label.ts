@@ -724,6 +724,8 @@ export class Label extends Renderable2D {
 
         if (force) {
             this._flushAssembler();
+            // Hack: Fixed the bug that richText wants to get the label length by _measureText, _assembler.updateRenderData will update the content size immediately.
+            if (this.renderData) this.renderData.vertDirty = true;
             this._applyFontTexture();
         }
     }
