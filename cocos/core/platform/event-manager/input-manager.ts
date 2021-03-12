@@ -483,7 +483,7 @@ class InputManager {
             mAcceleration.y = -mAcceleration.y;
         }
         // fix android acc values are opposite
-        if (legacyCC.sys.os === legacyCC.sys.OS_ANDROID
+        if ((legacyCC.sys.os === legacyCC.sys.OS_ANDROID || legacyCC.sys.os === legacyCC.sys.OS_OHOS)
             && legacyCC.sys.browserType !== legacyCC.sys.BROWSER_TYPE_MOBILE_QQ) {
             mAcceleration.x = -mAcceleration.x;
             mAcceleration.y = -mAcceleration.y;

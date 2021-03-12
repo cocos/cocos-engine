@@ -197,6 +197,11 @@ export const sys: Record<string, any> = {
      */
     OS_ANDROID: 'Android',
     /**
+     * @en Operating System - Open Harmony OS
+     * @zh 操作系统 - 鸿蒙
+     */
+    OS_OHOS: 'OHOS',
+    /**
      * @en Operating System - Windows
      * @zh 操作系统 - Windows
      */
@@ -295,6 +300,14 @@ export const sys: Record<string, any> = {
      * @default 11
      */
     WP8: 11,
+
+    /**
+     * @en Platform - OpenHarmony OS native app
+     * @zh 平台 - 鸿蒙原生平台
+     * @default 3
+     */
+    OHOS: 12,
+
     /**
      * @en Platform - Mobile browsers
      * @zh 平台 - 移动浏览器
