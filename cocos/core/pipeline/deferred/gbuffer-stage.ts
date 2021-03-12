@@ -29,8 +29,7 @@
 
 import { ccclass, displayOrder, type, serializable } from 'cc.decorator';
 import { Camera } from '../../renderer/scene';
-import { IRenderPass, SetIndex, UNIFORM_GBUFFER_ALBEDOMAP_BINDING, UNIFORM_GBUFFER_POSITIONMAP_BINDING, UNIFORM_GBUFFER_NORMALMAP_BINDING,
-    UNIFORM_GBUFFER_EMISSIVEMAP_BINDING } from '../define';
+import { IRenderPass, SetIndex } from '../define';
 import { getPhaseID } from '../pass-phase';
 import { opaqueCompareFn, RenderQueue, transparentCompareFn } from '../render-queue';
 import { ClearFlagBit, Color, Rect } from '../../gfx';
@@ -43,7 +42,7 @@ import { InstancedBuffer } from '../instanced-buffer';
 import { BatchedBuffer } from '../batched-buffer';
 import { BatchingSchemes } from '../../renderer/core/pass';
 import { GbufferFlow } from './gbuffer-flow';
-import { DeferredPipeline, DeferredRenderData } from './deferred-pipeline';
+import { DeferredPipeline } from './deferred-pipeline';
 import { RenderQueueDesc, RenderQueueSortMode } from '../pipeline-serialization';
 
 const colors: Color[] = [new Color(0, 0, 0, 0), new Color(0, 0, 0, 0), new Color(0, 0, 0, 0), new Color(0, 0, 0, 0)];
@@ -81,7 +80,7 @@ export class GbufferStage extends RenderStage {
     private _renderArea = new Rect();
     private _batchedQueue: RenderBatchedQueue;
     private _instancedQueue: RenderInstancedQueue;
-    private _phaseID = getPhaseID('default');
+    private _phaseID = getPhaseID('deferred');
 
     constructor () {
         super();
@@ -199,7 +198,6 @@ export class GbufferStage extends RenderStage {
         colors[0].w = camera.clearColor.w;
 
         const deferredData = pipeline.getDeferredRenderData(camera);
-        this.bindGbufferTexture(deferredData);
         const framebuffer = deferredData.gbufferFrameBuffer!;
         const renderPass = framebuffer.renderPass;
 
@@ -233,15 +231,5 @@ export class GbufferStage extends RenderStage {
      */
     protected renderQueueSortFunc (rq: RenderQueue) {
         rq.sort();
-    }
-
-    private bindGbufferTexture (data: DeferredRenderData) {
-        const pipeline = this._pipeline as DeferredPipeline;
-        const fb = data.gbufferFrameBuffer!;
-        pipeline.descriptorSet.bindTexture(UNIFORM_GBUFFER_ALBEDOMAP_BINDING, fb.colorTextures[0]!);
-        pipeline.descriptorSet.bindTexture(UNIFORM_GBUFFER_POSITIONMAP_BINDING, fb.colorTextures[1]!);
-        pipeline.descriptorSet.bindTexture(UNIFORM_GBUFFER_NORMALMAP_BINDING, fb.colorTextures[2]!);
-        pipeline.descriptorSet.bindTexture(UNIFORM_GBUFFER_EMISSIVEMAP_BINDING, fb.colorTextures[3]!);
-        pipeline.descriptorSet.update();
     }
 }

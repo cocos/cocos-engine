@@ -26,6 +26,18 @@ CCEffect %{
       migrations:
         properties:
           pbrParams: { removeImmediately: true }
+    - &deferred
+      vert: standard-vs
+      frag: standard-fs
+      phase: deferred
+      propertyIndex: 0
+      blendState:
+        targets:
+        - blend: false
+        - blend: false
+        - blend: false
+        - blend: false
+      properties: *props
     - &forward-add
       vert: standard-vs
       frag: standard-fs
