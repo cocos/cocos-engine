@@ -344,6 +344,11 @@ export class ForwardPipeline extends RenderPipeline {
         }
     }
 
+    public getCombinationSignY () {
+        const device = this._device;
+        return (device.screenSpaceSignY * 0.5 + 0.5) << 1 | (device.clipSpaceSignY * 0.5 + 0.5);
+    }
+
     public updateCameraUBO (camera: Camera) {
         const device = this.device;
         const scene = camera.scene ? camera.scene : legacyCC.director.getScene().renderScene;
@@ -403,7 +408,7 @@ export class ForwardPipeline extends RenderPipeline {
         Mat4.toArray(cv, camera.matViewProjInv, UBOCamera.MAT_VIEW_PROJ_INV_OFFSET);
         Vec3.toArray(cv, camera.position, UBOCamera.CAMERA_POS_OFFSET);
 
-        cv[UBOCamera.CAMERA_POS_OFFSET + 3] = (device.screenSpaceSignY * 0.5 + 0.5) << 1 | (device.clipSpaceSignY * 0.5 + 0.5);
+        cv[UBOCamera.CAMERA_POS_OFFSET + 3] = this.getCombinationSignY();
 
         cv.set(fog.colorArray, UBOCamera.GLOBAL_FOG_COLOR_OFFSET);
 
