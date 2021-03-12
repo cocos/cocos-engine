@@ -358,7 +358,8 @@ export class VideoPlayer extends Component {
      * 当前视频是否正在播放？
      */
     get isPlaying () {
-        return this.state === EventType.PLAYING;
+        if (!this._impl) { return false; }
+        return this._impl.isPlaying;
     }
 
     protected syncSource () {
