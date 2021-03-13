@@ -165,7 +165,7 @@ module.exports = {
         pressed_sprite: '按下状态的按钮背景图资源',
         hover_sprite: '悬停状态的按钮背景图资源',
         disabled_sprite: '禁用状态的按钮背景图资源',
-        target: '指定 Button 背景节点，Button 状态改变时会修改此节点的 Color 或 Sprite 属性',
+        target: '指定背景节点，状态改变时会修改此节点的 Color 或 Sprite 属性',
         click_events: '按钮点击事件的列表。先将数量改为1或更多，就可以为每个点击事件设置接受者和处理方法',
     },
     canvas: {
@@ -205,7 +205,7 @@ module.exports = {
     },
     progress: {
         bar_sprite: '进度条显示用的 Sprite 节点，可以动态改变尺寸',
-        mode: '进度条显示模式，目前支持水平和垂直两种',
+        mode: '进度条显示模式, 包括以下三种：\n 1. HORIZONTAL: 水平方向模式 \n 2. VERTICAL: 垂直方向模式 \n 3. FILLED: 扇形填充模式',
         total_length: '进度条在 progress 为 1 时的最大长度',
         progress: '当前进度指示，范围从0到1',
         reverse: '是否反向驱动进度条',
@@ -214,7 +214,7 @@ module.exports = {
         handle: '作为当前滚动区域位置显示的滑块 Sprite',
         direction: 'ScrollBar的滚动方向',
         auto_hide: '是否在没有滚动动作时自动隐藏 ScrollBar',
-        auto_hide_time: '没有滚动动作后经过多久会自动隐藏',
+        auto_hide_time: '没有滚动动作后经过多久会自动隐藏\n注意：只有当 “enableAutoHide” 为 true 时，才有效',
     },
     scrollview: {
         content: '包含可滚动展示内容的节点引用',
@@ -223,7 +223,6 @@ module.exports = {
         inertia: '是否开启滚动惯性',
         brake: '开启惯性后，在用户停止触摸后滚动多快停止，0表示永不停止，1表示立刻停止',
         elastic: '是否允许滚动内容超过边界，并在停止触摸后回弹',
-        bounce_time: '回弹持续的时间',
         horizontal_bar: '水平滚动的 ScrollBar',
         vertical_bar: '垂直滚动的 ScrollBar',
         bounceDuration: '回弹持续的时间，0 表示将立即反弹',
@@ -239,7 +238,7 @@ module.exports = {
         pageTurningSpeed: '每个页面翻页时所需时间。单位：秒',
         pageEvents: '页面视图的事件回调函数',
         autoPageTurningThreshold:
-            '快速滑动翻页临界值。 当用户快速滑动时，会根据滑动开始和结束的距离与时间计算出一个速度值，该值与此临界值相比较，如果大于临界值，则进行自动翻页',
+            '快速滑动翻页临界值\n当用户快速滑动时，会根据滑动开始和结束的距离与时间计算出一个速度值\n该值与此临界值相比较，如果大于临界值，则进行自动翻页',
     },
     pageview_indicator: {
         spriteFrame: '每个页面标记显示的图片',
@@ -268,9 +267,11 @@ module.exports = {
         checkMark: 'Toggle 处于选中状态时显示的精灵图片',
         toggleGroup:
             'Toggle 所属的 ToggleGroup，这个属性是可选的。如果这个属性为 null，则 Toggle 是一个 CheckBox，否则，Toggle 是一个 RadioButton。',
+        check_events: 'Toggle 按钮的点击事件列表',
     },
     toggle_group: {
         allowSwitchOff: '如果这个设置为 true， 那么 toggle 按钮在被点击的时候可以反复地被选中和未选中。',
+        check_events: 'Toggle 按钮的点击事件列表',
     },
     slider: {
         handle: '滑块按钮部件',
@@ -280,18 +281,18 @@ module.exports = {
     },
     widget: {
         target: '指定一个对齐目标，只能是当前节点的其中一个父节点，默认为空，为空时表示当前父节点',
-        align_top: '是否对齐父节点顶边',
-        align_bottom: '是否对齐父节点底边',
-        align_left: '是否对齐父节点左边',
-        align_right: '是否对齐父节点右边',
-        align_h_center: '是否对齐父节点水平中点，开启这一选项将取消水平轴上的其他对齐选项',
-        align_v_center: '是否对齐父节点垂直中点，开启这一选项将取消垂直轴上的其他对齐选项',
+        align_top: '是否对齐 target 顶边',
+        align_bottom: '是否对齐 target 底边',
+        align_left: '是否对齐 target 左边',
+        align_right: '是否对齐 target 右边',
+        align_h_center: '是否对齐 target 水平中点，开启这一选项将取消水平轴上的其他对齐选项',
+        align_v_center: '是否对齐 target 垂直中点，开启这一选项将取消垂直轴上的其他对齐选项',
         align_mode: '指定 Widget 的对齐模式，用于决定运行时 Widget 应该何时刷新。',
-        top: '本节点顶边和父节点顶边的距离，可输入负值，默认单位为像素（px），也可以输入百分比，根据父节点 height 和百分比数值计算出距离',
+        top: '本节点顶边和 target 顶边的距离，可输入负值，默认单位为像素（px），也可以输入百分比，根据 target height 和百分比数值计算出距离',
         bottom:
-            '本节点底边和父节点底边的距离，可输入负值，默认单位为像素（px），也可以输入百分比，根据父节点 height 和百分比数值计算出距离',
-        left: '本节点左边和父节点左边的距离，可输入负值，默认单位为像素（px），也可以输入百分比，根据父节点 width 和百分比数值计算出距离',
-        right: '本节点右边和父节点右边的距离，可输入负值，默认单位为像素（px），也可以输入百分比，根据父节点 width 和百分比数值计算出距离',
+            '本节点底边和 target 底边的距离，可输入负值，默认单位为像素（px），也可以输入百分比，根据 target height 和百分比数值计算出距离',
+        left: '本节点左边和 target 左边的距离，可输入负值，默认单位为像素（px），也可以输入百分比，根据 target width 和百分比数值计算出距离',
+        right: '本节点右边和 target 右边的距离，可输入负值，默认单位为像素（px），也可以输入百分比，根据 target width 和百分比数值计算出距离',
         horizontal_center: '水平居中的偏移值，可输入负值，默认单位为像素（px），也可以是百分比',
         vertical_center: '垂直居中的偏移值，可输入负值，默认单位为像素（px），也可以是百分比',
     },
@@ -310,6 +311,11 @@ module.exports = {
         horizontal_direction: '水平排列子节点的方向，包括：\n 1. LEFT_TO_RIGHT, 从左到右排列 \n 2. RIGHT_TO_LEFT, 从右到左排列',
         cell_size: '网格布局中，规定每一个网格的大小',
         start_axis: '网格布局中，子物体排版时的起始方向轴，支持水平和垂直两个方向。',
+        constraint: '网格布局中，内容布局约束，包括：\n 1.NONE，无约束 \n 2.FIXED_ROW，行数固定 \n 3.FIXED_COL，列数固定',
+        constraint_number: '网格布局中，内容布局约束的行或列数量',
+        affected_scale: '子节点缩放比例是否影响布局',
+        align_horizontal: '自动对齐。在 Type 为 Horizontal 时自动对齐纵坐标',
+        align_vertical: '自动对齐。在 Type 为 Vertical 时自动对齐横坐标',
     },
     particle: {
         export_title: '将自定义的粒子数据导出成 plist 文件',
@@ -333,6 +339,12 @@ module.exports = {
         placeholder_font_size: '输入框占位符的字体大小',
         placeholder_font_color: '输入框占位符的字体颜色',
         max_length: '输入框最大允许输入的字符个数',
+        text_lable: '输入框输入文本节点上挂载的 Label 组件对象',
+        placeholder_label: '输入框占位符节点上挂载的 Label 组件对象',
+        editing_began: '开始编辑文本输入框触发的事件回调',
+        text_changed: '编辑文本输入框时触发的事件回调',
+        editing_ended: '结束编辑文本输入框时触发的事件回调\n在单行模式下面，一般是在用户按下回车或者点击屏幕输入框以外的地方调用该函数\n如果是多行输入，一般是在用户点击屏幕输入框以外的地方调用该函数',
+        editing_return: '当用户按下回车按键时的事件回调\n如果是单行输入框，按回车键还会使输入框失去焦点',
     },
     videoplayer: {
         resourceType: '视频来源：REMOTE 表示远程视频 URL，LOCAL 表示本地视频地址。',
@@ -364,6 +376,17 @@ module.exports = {
         line_height: '字体行高, 单位是 point',
         image_atlas: '对于 img 标签里面的 src 属性名称，都需要在 imageAtlas 里面找到一个有效的 spriteFrame，否则 img tag 会判定为无效',
         handleTouchEvent: '选中此选项后，RichText 将阻止节点边界框中的所有输入事件（鼠标和触摸），从而防止输入事件穿透到底层节点',
+    },
+    UICoordinateTracker: {
+        target: '目标对象',
+        camera: '照射相机',
+        use_scale: '是否是缩放映射',
+        distance: '距相机多少距离为正常显示计算大小',
+        sync_events: '映射数据事件\n回调的第一个参数是映射后的本地坐标，第二个是距相机距离',   
+    },
+    SubContextView: {
+        design_size: '子域的设计分辨率，禁止在运行时动态更新',
+        fps: '主域更新子域贴图的频率',
     },
     skeleton: {
         skeleton_data: '骨骼信息数据，拖拽 Spine 导出的骨骼动画信息 json 资源到这里来开始使用',
