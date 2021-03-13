@@ -270,6 +270,11 @@ module.exports = {
         trailMaterial: '拖尾使用的材质',
         useGPU: '是否启用GPU粒子',
     },
+    renderable2D: {
+        srcBlendFactor: '原始混合因子',
+        dstBlendFactor: '目标混合因子',
+        color: '渲染颜色',
+    },
     rotationOvertimeModule: {
         separateAxes: '是否三个轴分开设定旋转（暂不支持）',
         x: '绕 X 轴设定旋转',

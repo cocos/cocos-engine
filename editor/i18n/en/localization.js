@@ -272,6 +272,11 @@ module.exports = {
         trailMaterial: 'Trail material of particle',
         useGPU: 'Enable GPU particle',
     },
+    renderable2D: {
+        srcBlendFactor: 'Source blend factor',
+        dstBlendFactor: 'Destination blend factor',
+        color: 'Render color',
+    },
     rotationOvertimeModule: {
         separateAxes: 'Set rotation of X, Y and Z respectively(not supported now)',
         x: 'Set rotation of X-axis',
