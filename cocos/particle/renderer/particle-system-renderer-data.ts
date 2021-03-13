@@ -50,7 +50,7 @@ export default class ParticleSystemRenderer {
      */
     @type(RenderMode)
     @displayOrder(0)
-    @tooltip('设定粒子生成模式')
+    @tooltip('i18n:particleSystemRenderer.renderMode')
     public get renderMode () {
         return this._renderMode;
     }
@@ -67,7 +67,7 @@ export default class ParticleSystemRenderer {
      * @zh 在粒子生成方式为 StrecthedBillboard 时,对粒子在运动方向上按速度大小进行拉伸。
      */
     @displayOrder(1)
-    @tooltip('在粒子生成方式为 StrecthedBillboard 时,对粒子在运动方向上按速度大小进行拉伸')
+    @tooltip('i18n:particleSystemRenderer.velocityScale')
     public get velocityScale () {
         return this._velocityScale;
     }
@@ -82,7 +82,7 @@ export default class ParticleSystemRenderer {
      * @zh 在粒子生成方式为 StrecthedBillboard 时,对粒子在运动方向上按粒子大小进行拉伸。
      */
     @displayOrder(2)
-    @tooltip('在粒子生成方式为 StrecthedBillboard 时,对粒子在运动方向上按粒子大小进行拉伸')
+    @tooltip('i18n:particleSystemRenderer.lengthScale')
     public get lengthScale () {
         return this._lengthScale;
     }
@@ -111,7 +111,7 @@ export default class ParticleSystemRenderer {
      */
     @type(Mesh)
     @displayOrder(7)
-    @tooltip('粒子发射的模型')
+    @tooltip('i18n:particleSystemRenderer.mesh')
     public get mesh () {
         return this._mesh;
     }
@@ -126,7 +126,7 @@ export default class ParticleSystemRenderer {
      */
     @type(Material)
     @displayOrder(8)
-    @tooltip('粒子使用的材质')
+    @tooltip('i18n:particleSystemRenderer.particleMaterial')
     public get particleMaterial () {
         if (!this._particleSystem) {
             return null;
@@ -143,7 +143,7 @@ export default class ParticleSystemRenderer {
      */
     @type(Material)
     @displayOrder(9)
-    @tooltip('拖尾使用的材质')
+    @tooltip('i18n:particleSystemRenderer.trailMaterial')
     public get trailMaterial () {
         if (!this._particleSystem) {
             return null;
@@ -170,7 +170,7 @@ export default class ParticleSystemRenderer {
     private _useGPU = false;
 
     @displayOrder(10)
-    @tooltip('是否启用GPU粒子')
+    @tooltip('i18n:particleSystemRenderer.useGPU')
     public get useGPU () {
         return this._useGPU;
     }

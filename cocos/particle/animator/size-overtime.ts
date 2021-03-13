@@ -60,7 +60,7 @@ export default class SizeOvertimeModule extends ParticleModuleBase {
      */
     @serializable
     @displayOrder(1)
-    @tooltip('决定是否在每个轴上独立控制粒子大小')
+    @tooltip('i18n:sizeOvertimeModule.separateAxes')
     public separateAxes = false;
 
     /**
@@ -69,7 +69,7 @@ export default class SizeOvertimeModule extends ParticleModuleBase {
     @type(CurveRange)
     @serializable
     @displayOrder(2)
-    @tooltip('定义一条曲线来决定粒子在其生命周期中的大小变化')
+    @tooltip('i18n:sizeOvertimeModule.size')
     public size = new CurveRange();
 
     /**
@@ -78,7 +78,7 @@ export default class SizeOvertimeModule extends ParticleModuleBase {
     @type(CurveRange)
     @serializable
     @displayOrder(3)
-    @tooltip('定义一条曲线来决定粒子在其生命周期中 X 轴方向上的大小变化')
+    @tooltip('i18n:sizeOvertimeModule.x')
     public x = new CurveRange();
 
     /**
@@ -87,7 +87,7 @@ export default class SizeOvertimeModule extends ParticleModuleBase {
     @type(CurveRange)
     @serializable
     @displayOrder(4)
-    @tooltip('定义一条曲线来决定粒子在其生命周期中 Y 轴方向上的大小变化')
+    @tooltip('i18n:sizeOvertimeModule.y')
     public y = new CurveRange();
 
     /**
@@ -96,7 +96,7 @@ export default class SizeOvertimeModule extends ParticleModuleBase {
     @type(CurveRange)
     @serializable
     @displayOrder(5)
-    @tooltip('定义一条曲线来决定粒子在其生命周期中 Z 轴方向上的大小变化')
+    @tooltip('i18n:sizeOvertimeModule.z')
     public z = new CurveRange();
 
     public name = PARTICLE_MODULE_NAME.SIZE;

@@ -71,7 +71,7 @@ export class ParticleSystem extends RenderableComponent {
      * @zh 粒子系统能生成的最大粒子数量。
      */
     @displayOrder(1)
-    @tooltip('i18n: particle_system.capacity')
+    @tooltip('i18n:particle_system.capacity')
     public get capacity () {
         return this._capacity;
     }
@@ -91,18 +91,18 @@ export class ParticleSystem extends RenderableComponent {
     @type(GradientRange)
     @serializable
     @displayOrder(8)
-    @tooltip('i18n: particle_system.startColor')
+    @tooltip('i18n:particle_system.startColor')
     public startColor = new GradientRange();
 
     @type(Space)
     @serializable
     @displayOrder(9)
-    @tooltip('i18n: particle_system.scaleSpace')
+    @tooltip('i18n:particle_system.scaleSpace')
     public scaleSpace = Space.Local;
 
     @serializable
     @displayOrder(10)
-    @tooltip('i18n: particle_system.startSize3D')
+    @tooltip('i18n:particle_system.startSize3D')
     public startSize3D = false;
 
     /**
@@ -111,7 +111,7 @@ export class ParticleSystem extends RenderableComponent {
     @formerlySerializedAs('startSize')
     @type(CurveRange)
     @displayOrder(10)
-    @tooltip('i18n: particle_system.startSizeX')
+    @tooltip('i18n:particle_system.startSizeX')
     public startSizeX = new CurveRange();
 
     /**
@@ -120,7 +120,7 @@ export class ParticleSystem extends RenderableComponent {
     @type(CurveRange)
     @serializable
     @displayOrder(10)
-    @tooltip('i18n: particle_system.startSizeY')
+    @tooltip('i18n:particle_system.startSizeY')
     public startSizeY = new CurveRange();
 
     /**
@@ -129,7 +129,7 @@ export class ParticleSystem extends RenderableComponent {
     @type(CurveRange)
     @serializable
     @displayOrder(10)
-    @tooltip('i18n: particle_system.startSizeZ')
+    @tooltip('i18n:particle_system.startSizeZ')
     public startSizeZ = new CurveRange();
 
     /**
@@ -139,12 +139,12 @@ export class ParticleSystem extends RenderableComponent {
     @serializable
     @range([-1, 1])
     @displayOrder(11)
-    @tooltip('i18n: particle_system.startSpeed')
+    @tooltip('i18n:particle_system.startSpeed')
     public startSpeed = new CurveRange();
 
     @serializable
     @displayOrder(12)
-    @tooltip('i18n: particle_system.startRotation3D')
+    @tooltip('i18n:particle_system.startRotation3D')
     public startRotation3D = false;
 
     /**
@@ -155,7 +155,7 @@ export class ParticleSystem extends RenderableComponent {
     @range([-1, 1])
     @radian
     @displayOrder(12)
-    @tooltip('i18n: particle_system.startRotationX')
+    @tooltip('i18n:particle_system.startRotationX')
     public startRotationX = new CurveRange();
 
     /**
@@ -166,7 +166,7 @@ export class ParticleSystem extends RenderableComponent {
     @range([-1, 1])
     @radian
     @displayOrder(12)
-    @tooltip('i18n: particle_system.startRotationY')
+    @tooltip('i18n:particle_system.startRotationY')
     public startRotationY = new CurveRange();
 
     /**
@@ -177,7 +177,7 @@ export class ParticleSystem extends RenderableComponent {
     @range([-1, 1])
     @radian
     @displayOrder(12)
-    @tooltip('i18n: particle_system.startRotationZ')
+    @tooltip('i18n:particle_system.startRotationZ')
     public startRotationZ = new CurveRange();
 
     /**
@@ -186,7 +186,7 @@ export class ParticleSystem extends RenderableComponent {
     @type(CurveRange)
     @serializable
     @displayOrder(6)
-    @tooltip('i18n: particle_system.startDelay')
+    @tooltip('i18n:particle_system.startDelay')
     public startDelay = new CurveRange();
 
     /**
@@ -195,7 +195,7 @@ export class ParticleSystem extends RenderableComponent {
     @type(CurveRange)
     @serializable
     @displayOrder(7)
-    @tooltip('i18n: particle_system.startLifetime')
+    @tooltip('i18n:particle_system.startLifetime')
     public startLifetime = new CurveRange();
 
     /**
@@ -203,7 +203,7 @@ export class ParticleSystem extends RenderableComponent {
      */
     @serializable
     @displayOrder(0)
-    @tooltip('i18n: particle_system.duration')
+    @tooltip('i18n:particle_system.duration')
     public duration = 5.0;
 
     /**
@@ -211,14 +211,14 @@ export class ParticleSystem extends RenderableComponent {
      */
     @serializable
     @displayOrder(2)
-    @tooltip('i18n: particle_system.loop')
+    @tooltip('i18n:particle_system.loop')
     public loop = true;
 
     /**
      * @zh 选中之后，粒子系统会以已播放完一轮之后的状态开始播放（仅当循环播放启用时有效）。
      */
     @displayOrder(3)
-    @tooltip('i18n: particle_system.prewarm')
+    @tooltip('i18n:particle_system.prewarm')
     get prewarm () {
         return this._prewarm;
     }
@@ -236,7 +236,7 @@ export class ParticleSystem extends RenderableComponent {
     @type(Space)
     @serializable
     @displayOrder(4)
-    @tooltip('i18n: particle_system.simulationSpace')
+    @tooltip('i18n:particle_system.simulationSpace')
     get simulationSpace () {
         return this._simulationSpace;
     }
@@ -256,7 +256,7 @@ export class ParticleSystem extends RenderableComponent {
      */
     @serializable
     @displayOrder(5)
-    @tooltip('i18n: particle_system.simulationSpeed')
+    @tooltip('i18n:particle_system.simulationSpeed')
     public simulationSpeed = 1.0;
 
     /**
@@ -264,7 +264,7 @@ export class ParticleSystem extends RenderableComponent {
      */
     @serializable
     @displayOrder(2)
-    @tooltip('i18n: particle_system.playOnAwake')
+    @tooltip('i18n:particle_system.playOnAwake')
     public playOnAwake = true;
 
     /**
@@ -274,7 +274,7 @@ export class ParticleSystem extends RenderableComponent {
     @serializable
     @range([-1, 1])
     @displayOrder(13)
-    @tooltip('i18n: particle_system.gravityModifier')
+    @tooltip('i18n:particle_system.gravityModifier')
     public gravityModifier = new CurveRange();
 
     // emission module
@@ -284,7 +284,7 @@ export class ParticleSystem extends RenderableComponent {
     @type(CurveRange)
     @serializable
     @displayOrder(14)
-    @tooltip('i18n: particle_system.rateOverTime')
+    @tooltip('i18n:particle_system.rateOverTime')
     public rateOverTime = new CurveRange();
 
     /**
@@ -293,7 +293,7 @@ export class ParticleSystem extends RenderableComponent {
     @type(CurveRange)
     @serializable
     @displayOrder(15)
-    @tooltip('i18n: particle_system.rateOverDistance')
+    @tooltip('i18n:particle_system.rateOverDistance')
     public rateOverDistance = new CurveRange();
 
     /**
@@ -302,7 +302,7 @@ export class ParticleSystem extends RenderableComponent {
     @type([Burst])
     @serializable
     @displayOrder(16)
-    @tooltip('i18n: particle_system.bursts')
+    @tooltip('i18n:particle_system.bursts')
     public bursts: Burst[] = [];
 
     @override
@@ -329,7 +329,7 @@ export class ParticleSystem extends RenderableComponent {
      */
     @type(ColorOverLifetimeModule)
     @displayOrder(23)
-    @tooltip('i18n: particle_system.colorOverLifetimeModule')
+    @tooltip('i18n:particle_system.colorOverLifetimeModule')
     public get colorOverLifetimeModule () {
         if (EDITOR) {
             if (!this._colorOverLifetimeModule) {
@@ -353,7 +353,7 @@ export class ParticleSystem extends RenderableComponent {
      */
     @type(ShapeModule)
     @displayOrder(17)
-    @tooltip('i18n: particle_system.shapeModule')
+    @tooltip('i18n:particle_system.shapeModule')
     public get shapeModule () {
         if (EDITOR) {
             if (!this._shapeModule) {
@@ -377,7 +377,7 @@ export class ParticleSystem extends RenderableComponent {
      */
     @type(SizeOvertimeModule)
     @displayOrder(21)
-    @tooltip('i18n: particle_system.sizeOvertimeModule')
+    @tooltip('i18n:particle_system.sizeOvertimeModule')
     public get sizeOvertimeModule () {
         if (EDITOR) {
             if (!this._sizeOvertimeModule) {
@@ -401,7 +401,7 @@ export class ParticleSystem extends RenderableComponent {
      */
     @type(VelocityOvertimeModule)
     @displayOrder(18)
-    @tooltip('i18n: particle_system.velocityOvertimeModule')
+    @tooltip('i18n:particle_system.velocityOvertimeModule')
     public get velocityOvertimeModule () {
         if (EDITOR) {
             if (!this._velocityOvertimeModule) {
@@ -425,7 +425,7 @@ export class ParticleSystem extends RenderableComponent {
      */
     @type(ForceOvertimeModule)
     @displayOrder(19)
-    @tooltip('i18n: particle_system.forceOvertimeModule')
+    @tooltip('i18n:particle_system.forceOvertimeModule')
     public get forceOvertimeModule () {
         if (EDITOR) {
             if (!this._forceOvertimeModule) {
@@ -450,7 +450,7 @@ export class ParticleSystem extends RenderableComponent {
      */
     @type(LimitVelocityOvertimeModule)
     @displayOrder(20)
-    @tooltip('i18n: particle_system.limitVelocityOvertimeModule')
+    @tooltip('i18n:particle_system.limitVelocityOvertimeModule')
     public get limitVelocityOvertimeModule () {
         if (EDITOR) {
             if (!this._limitVelocityOvertimeModule) {
@@ -474,7 +474,7 @@ export class ParticleSystem extends RenderableComponent {
      */
     @type(RotationOvertimeModule)
     @displayOrder(22)
-    @tooltip('i18n: particle_system.rotationOvertimeModule')
+    @tooltip('i18n:particle_system.rotationOvertimeModule')
     public get rotationOvertimeModule () {
         if (EDITOR) {
             if (!this._rotationOvertimeModule) {
@@ -498,7 +498,7 @@ export class ParticleSystem extends RenderableComponent {
      */
     @type(TextureAnimationModule)
     @displayOrder(24)
-    @tooltip('i18n: particle_system.textureAnimationModule')
+    @tooltip('i18n:particle_system.textureAnimationModule')
     public get textureAnimationModule () {
         if (EDITOR) {
             if (!this._textureAnimationModule) {
@@ -522,7 +522,7 @@ export class ParticleSystem extends RenderableComponent {
      */
     @type(TrailModule)
     @displayOrder(25)
-    @tooltip('i18n: particle_system.trailModule')
+    @tooltip('i18n:particle_system.trailModule')
     public get trailModule () {
         if (EDITOR) {
             if (!this._trailModule) {
@@ -543,13 +543,13 @@ export class ParticleSystem extends RenderableComponent {
     @type(ParticleSystemRenderer)
     @serializable
     @displayOrder(26)
-    @tooltip('i18n: particle_system.renderer')
+    @tooltip('i18n:particle_system.renderer')
     public renderer: ParticleSystemRenderer = new ParticleSystemRenderer();
 
     // serilized culling
     @serializable
     @displayOrder(27)
-    @tooltip('i18n: particle_system.enableCulling')
+    @tooltip('i18n:particle_system.enableCulling')
     public enableCulling = false;
 
     /**

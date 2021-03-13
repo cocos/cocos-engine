@@ -62,7 +62,7 @@ export default class RotationOvertimeModule extends ParticleModuleBase {
      * @zh 是否三个轴分开设定旋转（暂不支持）。
      */
     @displayOrder(1)
-    @tooltip('是否三个轴分开设定旋转（暂不支持）')
+    @tooltip('i18n:rotationOvertimeModule.separateAxes')
     get separateAxes () {
         return this._separateAxes;
     }
@@ -79,7 +79,7 @@ export default class RotationOvertimeModule extends ParticleModuleBase {
     @range([-1, 1])
     @radian
     @displayOrder(2)
-    @tooltip('绕 X 轴设定旋转')
+    @tooltip('i18n:rotationOvertimeModule.x')
     public x = new CurveRange();
 
     /**
@@ -90,7 +90,7 @@ export default class RotationOvertimeModule extends ParticleModuleBase {
     @range([-1, 1])
     @radian
     @displayOrder(3)
-    @tooltip('绕 Y 轴设定旋转')
+    @tooltip('i18n:rotationOvertimeModule.y')
     public y = new CurveRange();
 
     /**
@@ -101,7 +101,7 @@ export default class RotationOvertimeModule extends ParticleModuleBase {
     @range([-1, 1])
     @radian
     @displayOrder(4)
-    @tooltip('绕 Z 轴设定旋转')
+    @tooltip('i18n:rotationOvertimeModule.z')
     public z = new CurveRange();
 
     public name = PARTICLE_MODULE_NAME.ROTATION;

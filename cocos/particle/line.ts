@@ -61,7 +61,7 @@ export class Line extends Component {
      */
     @type(Texture2D)
     @displayOrder(0)
-    @tooltip('i18n: line.texture')
+    @tooltip('i18n:line.texture')
     get texture () {
         return this._texture;
     }
@@ -83,7 +83,7 @@ export class Line extends Component {
      * @zh positions是否为世界空间坐标。
      */
     @displayOrder(1)
-    @tooltip('i18n: line.worldSpace')
+    @tooltip('i18n:line.worldSpace')
     get worldSpace () {
         return this._worldSpace;
     }
@@ -107,7 +107,7 @@ export class Line extends Component {
      */
     @type([Vec3])
     @displayOrder(2)
-    @tooltip('i18n: line.positions')
+    @tooltip('i18n:line.positions')
     get positions () {
         return this._positions;
     }
@@ -127,7 +127,7 @@ export class Line extends Component {
      */
     @type(CurveRange)
     @displayOrder(3)
-    @tooltip('i18n: line.width')
+    @tooltip('i18n:line.width')
     get width () {
         return this._width;
     }
@@ -147,7 +147,7 @@ export class Line extends Component {
      */
     @type(Vec2)
     @displayOrder(4)
-    @tooltip('i18n: line.tile')
+    @tooltip('i18n:line.tile')
     get tile () {
         return this._tile;
     }
@@ -166,7 +166,7 @@ export class Line extends Component {
 
     @type(Vec2)
     @displayOrder(5)
-    @tooltip('i18n: line.offset')
+    @tooltip('i18n:line.offset')
     get offset () {
         return this._offset;
     }
@@ -188,7 +188,7 @@ export class Line extends Component {
      */
     @type(GradientRange)
     @displayOrder(6)
-    @tooltip('i18n: line.color')
+    @tooltip('i18n:line.color')
     get color () {
         return this._color;
     }

@@ -66,7 +66,7 @@ export default class LimitVelocityOvertimeModule extends ParticleModuleBase {
     @serializable
     @range([-1, 1])
     @displayOrder(4)
-    @tooltip('i18n: limitVelocityOvertimeModule.limitX')
+    @tooltip('i18n:limitVelocityOvertimeModule.limitX')
     public limitX = new CurveRange();
 
     /**
@@ -76,7 +76,7 @@ export default class LimitVelocityOvertimeModule extends ParticleModuleBase {
     @serializable
     @range([-1, 1])
     @displayOrder(5)
-    @tooltip('i18n: limitVelocityOvertimeModule.limitY')
+    @tooltip('i18n:limitVelocityOvertimeModule.limitY')
     public limitY = new CurveRange();
 
     /**
@@ -86,7 +86,7 @@ export default class LimitVelocityOvertimeModule extends ParticleModuleBase {
     @serializable
     @range([-1, 1])
     @displayOrder(6)
-    @tooltip('i18n: limitVelocityOvertimeModule.limitZ')
+    @tooltip('i18n:limitVelocityOvertimeModule.limitZ')
     public limitZ = new CurveRange();
 
     /**
@@ -96,7 +96,7 @@ export default class LimitVelocityOvertimeModule extends ParticleModuleBase {
     @serializable
     @range([-1, 1])
     @displayOrder(3)
-    @tooltip('i18n: limitVelocityOvertimeModule.limit')
+    @tooltip('i18n:limitVelocityOvertimeModule.limit')
     public limit = new CurveRange();
 
     /**
@@ -104,7 +104,7 @@ export default class LimitVelocityOvertimeModule extends ParticleModuleBase {
      */
     @serializable
     @displayOrder(7)
-    @tooltip('i18n: limitVelocityOvertimeModule.dampen')
+    @tooltip('i18n:limitVelocityOvertimeModule.dampen')
     public dampen = 3;
 
     /**
@@ -112,7 +112,7 @@ export default class LimitVelocityOvertimeModule extends ParticleModuleBase {
      */
     @serializable
     @displayOrder(2)
-    @tooltip('i18n: limitVelocityOvertimeModule.separateAxes')
+    @tooltip('i18n:limitVelocityOvertimeModule.separateAxes')
     public separateAxes = false;
 
     /**
@@ -121,7 +121,7 @@ export default class LimitVelocityOvertimeModule extends ParticleModuleBase {
     @type(Space)
     @serializable
     @displayOrder(1)
-    @tooltip('i18n: limitVelocityOvertimeModule.space')
+    @tooltip('i18n:limitVelocityOvertimeModule.space')
     public space = Space.Local;
 
     // TODO:functions related to drag are temporarily not supported
