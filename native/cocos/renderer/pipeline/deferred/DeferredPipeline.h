@@ -73,14 +73,14 @@ public:
     gfx::InputAssembler *getQuadIAOnScreen(){return _quadIAOnscreen;}
     gfx::InputAssembler *getQuadIAOffScreen(){return _quadIAOffscreen;}
     gfx::Rect getRenderArea(Camera *view, bool onScreen);
-    DeferredRenderData *getDeferredRenderData(Camera *view);
+    CC_INLINE DeferredRenderData *getDeferredRenderData(){return _deferredRenderData; };
 
 private:
     bool activeRenderer();
     bool createQuadInputAssembler(gfx::Buffer* &quadIB, gfx::Buffer* &quadVB, gfx::InputAssembler* &quadIA,
         gfx::SurfaceTransform surfaceTransform);
     void destroyQuadInputAssembler();
-    void generateDeferredRenderData(Camera *view);
+    void generateDeferredRenderData();
 
 private:
     gfx::Buffer *_lightsUBO = nullptr;
@@ -97,7 +97,7 @@ private:
     gfx::InputAssembler *_quadIAOnscreen = nullptr;
     gfx::InputAssembler *_quadIAOffscreen = nullptr;
     
-    map<Camera *, DeferredRenderData *> _deferredRenderDatas;
+    DeferredRenderData *_deferredRenderData = nullptr;
     gfx::RenderPass *_gbufferRenderPass = nullptr;
     gfx::RenderPass *_lightingRenderPass = nullptr;
     uint _width;

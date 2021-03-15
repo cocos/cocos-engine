@@ -54,14 +54,12 @@ public:
 
 private:
     void gatherLights(Camera *camera);
-    void bindLightingTexture(DeferredRenderData *data);
 
 private:
     static RenderStageInfo _initInfo;
     PlanarShadowQueue *_planarShadowQueue = nullptr;
     gfx::Rect _renderArea;
     uint _phaseID = 0;
-    uint _transparentPhaseID = 0;
 
     gfx::Buffer *_deferredLitsBufs = nullptr;
     gfx::Buffer *_deferredLitsBufView = nullptr;

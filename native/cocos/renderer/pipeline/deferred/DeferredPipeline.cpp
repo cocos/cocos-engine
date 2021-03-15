@@ -236,14 +236,6 @@ gfx::Rect DeferredPipeline::getRenderArea(Camera *camera, bool onScreen) {
     return renderArea;
 }
 
-DeferredRenderData *DeferredPipeline::getDeferredRenderData(Camera *view) {
-    if (_deferredRenderDatas.find(view) == _deferredRenderDatas.end()) {
-        generateDeferredRenderData(view);
-    }
-    
-    return _deferredRenderDatas[view];
-}
-
 void DeferredPipeline::destroyQuadInputAssembler() {
     if (_quadIB) {
         _quadIB->destroy();
@@ -359,6 +351,18 @@ bool DeferredPipeline::activeRenderer() {
 
     _lightingRenderPass = _device->createRenderPass(lightPass);
     
+    if (_device->getSurfaceTransform() == gfx::SurfaceTransform::IDENTITY ||
+        _device->getSurfaceTransform() == gfx::SurfaceTransform::ROTATE_180) {
+            _width = _device->getWidth();
+            _height = _device->getHeight();
+    }
+    else {
+            _width = _device->getHeight();
+            _height = _device->getWidth();
+    }
+    
+    generateDeferredRenderData();
+    
     _descriptorSet->bindSampler(
         static_cast<uint>(PipelineGlobalBindings::SAMPLER_GBUFFER_ALBEDOMAP), sampler);
     _descriptorSet->bindSampler(
@@ -369,22 +373,12 @@ bool DeferredPipeline::activeRenderer() {
         static_cast<uint>(PipelineGlobalBindings::SAMPLER_GBUFFER_EMISSIVEMAP), sampler);
     _descriptorSet->bindSampler(
         static_cast<uint>(PipelineGlobalBindings::SAMPLER_LIGHTING_RESULTMAP), sampler);
-    
-    if (_device->getSurfaceTransform() == gfx::SurfaceTransform::IDENTITY ||
-        _device->getSurfaceTransform() == gfx::SurfaceTransform::ROTATE_180) {
-            _width = _device->getWidth();
-            _height = _device->getHeight();
-    }
-    else {
-            _width = _device->getHeight();
-            _height = _device->getWidth();
-    }
 
     return true;
 }
 
-void DeferredPipeline::generateDeferredRenderData(Camera *view) {
-    DeferredRenderData* data = CC_NEW(DeferredRenderData);
+void DeferredPipeline::generateDeferredRenderData() {
+    _deferredRenderData = CC_NEW(DeferredRenderData);
     
     gfx::TextureInfo info = {
         gfx::TextureType::TEX2D,
@@ -396,20 +390,20 @@ void DeferredPipeline::generateDeferredRenderData(Camera *view) {
 
     for (int i = 0; i < 4; i++) {
         gfx::Texture *tex = _device->createTexture(info);
-        data->gbufferRenderTargets.push_back(tex);
+        _deferredRenderData->gbufferRenderTargets.push_back(tex);
     }
 
     info.usage = gfx::TextureUsageBit::DEPTH_STENCIL_ATTACHMENT;
     info.format = _device->getDepthStencilFormat();
-    data->depthTex = _device->createTexture(info);
+    _deferredRenderData->depthTex = _device->createTexture(info);
 
     gfx::FramebufferInfo gbufferInfo = {
         _gbufferRenderPass,
-        data->gbufferRenderTargets,
-        data->depthTex,
+        _deferredRenderData->gbufferRenderTargets,
+        _deferredRenderData->depthTex,
     };
 
-    data->gbufferFrameBuffer = _device->createFramebuffer(gbufferInfo);
+    _deferredRenderData->gbufferFrameBuffer = _device->createFramebuffer(gbufferInfo);
     
     gfx::TextureInfo rtInfo = {
         gfx::TextureType::TEX2D,
@@ -418,15 +412,26 @@ void DeferredPipeline::generateDeferredRenderData(Camera *view) {
         _width,
         _height,
     };
-    data->lightingRenderTarget = _device->createTexture(rtInfo);
+    _deferredRenderData->lightingRenderTarget = _device->createTexture(rtInfo);
 
     gfx::FramebufferInfo lightingInfo;
     lightingInfo.renderPass = _lightingRenderPass;
-    lightingInfo.colorTextures.push_back(data->lightingRenderTarget);
-    lightingInfo.depthStencilTexture = data->depthTex;
-    data->lightingFrameBuff = _device->createFramebuffer(lightingInfo);
+    lightingInfo.colorTextures.push_back(_deferredRenderData->lightingRenderTarget);
+    lightingInfo.depthStencilTexture = _deferredRenderData->depthTex;
+    _deferredRenderData->lightingFrameBuff = _device->createFramebuffer(lightingInfo);
 
-    _deferredRenderDatas[view] = data;
+    _descriptorSet->bindTexture(
+        static_cast<uint>(PipelineGlobalBindings::SAMPLER_GBUFFER_ALBEDOMAP), _deferredRenderData->gbufferFrameBuffer->getColorTextures()[0]);
+    _descriptorSet->bindTexture(
+        static_cast<uint>(PipelineGlobalBindings::SAMPLER_GBUFFER_POSITIONMAP), _deferredRenderData->gbufferFrameBuffer->getColorTextures()[1]);
+    _descriptorSet->bindTexture(
+       static_cast<uint>(PipelineGlobalBindings::SAMPLER_GBUFFER_NORMALMAP), _deferredRenderData->gbufferFrameBuffer->getColorTextures()[2]);
+    _descriptorSet->bindTexture(
+        static_cast<uint>(PipelineGlobalBindings::SAMPLER_GBUFFER_EMISSIVEMAP), _deferredRenderData->gbufferFrameBuffer->getColorTextures()[3]);
+    
+    _descriptorSet->bindTexture(
+        static_cast<uint>(PipelineGlobalBindings::SAMPLER_LIGHTING_RESULTMAP),
+                                _deferredRenderData->lightingFrameBuff->getColorTextures()[0]);
 }
 
 void DeferredPipeline::destroy() {
@@ -447,7 +452,7 @@ void DeferredPipeline::destroy() {
     }
     _renderPasses.clear();
     
-    _deferredRenderDatas.clear();
+    _deferredRenderData = nullptr;
 
     _commandBuffers.clear();
     

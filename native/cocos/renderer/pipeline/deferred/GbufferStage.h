@@ -50,9 +50,6 @@ public:
     virtual void activate(RenderPipeline *pipeline, RenderFlow *flow) override;
     virtual void destroy() override;
     virtual void render(Camera *camera) override;
-    
-private:
-    void bindGbufferTexture(DeferredRenderData *data);
 
 private:
     static RenderStageInfo _initInfo;
