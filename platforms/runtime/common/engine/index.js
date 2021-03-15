@@ -22,10 +22,17 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
+require('./fs-utils');
+require('./canvas');
 require('./sys.js');
 require('./asset-manager.js');
-require('./AudioPlayer.js');
 require('./EditBox.js');
 require('./DeviceMotionEvent.js');
 require('./game.js');
 require('./InputManager');
+require('./download-audio');
+require('./AudioPlayer');
+
+if (jsb && !jsb.setPreferredFramesPerSecond) {
+    jsb.setPreferredFramesPerSecond = ral.setPreferredFramesPerSecond.bind(ral);
+}

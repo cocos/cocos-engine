@@ -48,7 +48,7 @@ import { HeightField } from './height-field';
 import { legacyCC } from '../core/global-exports';
 import { TerrainAsset, TerrainLayerInfo, TERRAIN_HEIGHT_BASE, TERRAIN_HEIGHT_FACTORY,
     TERRAIN_BLOCK_TILE_COMPLEXITY, TERRAIN_BLOCK_VERTEX_SIZE, TERRAIN_BLOCK_VERTEX_COMPLEXITY,
-    TERRAIN_MAX_LAYER_COUNT, TERRAIN_HEIGHT_FMIN, TERRAIN_HEIGHT_FMAX, TERRAIN_MAX_BLEND_LAYERS } from './terrain-asset';
+    TERRAIN_MAX_LAYER_COUNT, TERRAIN_HEIGHT_FMIN, TERRAIN_HEIGHT_FMAX, TERRAIN_MAX_BLEND_LAYERS, TERRAIN_DATA_VERSION5 } from './terrain-asset';
 import { CCBoolean, CCInteger } from '../core';
 
 const bbMin = new Vec3();
@@ -1156,8 +1156,8 @@ export class Terrain extends Component {
                 const layer = new TerrainLayerInfo();
                 layer.slot = i;
                 layer.tileSize = temp.tileSize;
-                layer.detailMap = temp.detailMap._uuid;
-                layer.normalMap = temp.normalMap ? temp.normalMap._uuid : '';
+                layer.detailMap = temp.detailMap;
+                layer.normalMap = temp.normalMap;
                 layer.metallic = temp.metallic;
                 layer.roughness = temp.roughness;
 
@@ -1738,22 +1738,38 @@ export class Terrain extends Component {
                 this._layerList[i] = null;
             }
 
-            for (let i = 0; i < terrainAsset.layerInfos.length; ++i) {
-                const layerInfo = terrainAsset.layerInfos[i];
-                const layer = new TerrainLayer();
-                layer.tileSize = layerInfo.tileSize;
-                legacyCC.assetManager.loadAny(layerInfo.detailMap, (err, asset) => {
-                    layer.detailMap = asset;
-                });
-                if (layerInfo.normalMap !== '') {
-                    legacyCC.assetManager.loadAny(layerInfo.normalMap, (err, asset) => {
-                        layer.normalMap = asset;
+            if (terrainAsset.version < TERRAIN_DATA_VERSION5) {
+                for (let i = 0; i < terrainAsset.layerBinaryInfos.length; ++i) {
+                    const layer = new TerrainLayer();
+                    const layerInfo = terrainAsset.layerBinaryInfos[i];
+                    layer.tileSize = layerInfo.tileSize;
+                    legacyCC.assetManager.loadAny(layerInfo.detailMapId, (err, asset) => {
+                        layer.detailMap = asset;
                     });
-                }
-                layer.roughness = layerInfo.roughness;
-                layer.metallic = layerInfo.metallic;
 
-                this._layerList[layerInfo.slot] = layer;
+                    if (layerInfo.normalMapId !== '') {
+                        legacyCC.assetManager.loadAny(layerInfo.normalMapId, (err, asset) => {
+                            layer.normalMap = asset;
+                        });
+                    }
+
+                    layer.roughness = layerInfo.roughness;
+                    layer.metallic = layerInfo.metallic;
+
+                    this._layerList[layerInfo.slot] = layer;
+                }
+            } else {
+                for (let i = 0; i < terrainAsset.layerInfos.length; ++i) {
+                    const layer = new TerrainLayer();
+                    const layerInfo = terrainAsset.layerInfos[i];
+                    layer.tileSize = layerInfo.tileSize;
+                    layer.detailMap = layerInfo.detailMap;
+                    layer.normalMap = layerInfo.normalMap;
+                    layer.roughness = layerInfo.roughness;
+                    layer.metallic = layerInfo.metallic;
+
+                    this._layerList[layerInfo.slot] = layer;
+                }
             }
         }
 

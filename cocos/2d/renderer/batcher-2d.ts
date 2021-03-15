@@ -120,6 +120,10 @@ export class Batcher2D {
         this._currStaticRoot = value;
     }
 
+    set currIsStatic (value: boolean) {
+        this._currIsStatic = value;
+    }
+
     public device: Device;
     private _screens: RenderRoot2D[] = [];
     private _bufferBatchPool: RecyclePool<MeshBuffer> = new RecyclePool(() => new MeshBuffer(this), 128);
@@ -143,6 +147,7 @@ export class Batcher2D {
     private _currBlendTargetHash = 0;
     private _currLayer = 0;
     private _currDepthStencilStateStage: any|null = null;
+    private _currIsStatic = false;
     private _parentOpacity = 1;
     // DescriptorSet Cache Map
     private _descriptorSetCache = new DescriptorSetCache();
@@ -517,7 +522,7 @@ export class Batcher2D {
 
         // HACK: After sharing buffer between drawcalls, the performance degradation a lots on iOS 14 or iPad OS 14 device
         // TODO: Maybe it can be removed after Apple fixes it?
-        if (sys.__isWebIOS14OrIPadOS14Env) {
+        if (sys.__isWebIOS14OrIPadOS14Env && !this._currIsStatic) {
             this._currMeshBuffer = null;
         }
     }

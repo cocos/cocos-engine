@@ -60,7 +60,9 @@ export default class ParticleSystemRenderer {
             return;
         }
         this._renderMode = val;
-        this._particleSystem.processor.updateRenderMode();
+        if (this._particleSystem) {
+            this._particleSystem.processor.updateRenderMode();
+        }
     }
 
     /**
@@ -74,7 +76,9 @@ export default class ParticleSystemRenderer {
 
     public set velocityScale (val) {
         this._velocityScale = val;
-        this._particleSystem.processor.updateMaterialParams();
+        if (this._particleSystem) {
+            this._particleSystem.processor.updateMaterialParams();
+        }
         // this._updateModel();
     }
 
@@ -89,7 +93,9 @@ export default class ParticleSystemRenderer {
 
     public set lengthScale (val) {
         this._lengthScale = val;
-        this._particleSystem.processor.updateMaterialParams();
+        if (this._particleSystem) {
+            this._particleSystem.processor.updateMaterialParams();
+        }
         // this._updateModel();
     }
 
@@ -118,7 +124,9 @@ export default class ParticleSystemRenderer {
 
     public set mesh (val) {
         this._mesh = val;
-        this._particleSystem.processor.setVertexAttributes();
+        if (this._particleSystem) {
+            this._particleSystem.processor.setVertexAttributes();
+        }
     }
 
     /**
@@ -131,11 +139,14 @@ export default class ParticleSystemRenderer {
         if (!this._particleSystem) {
             return null;
         }
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
         return this._particleSystem.getMaterial(0);
     }
 
     public set particleMaterial (val) {
-        this._particleSystem.setMaterial(val, 0);
+        if (this._particleSystem) {
+            this._particleSystem.setMaterial(val, 0);
+        }
     }
 
     /**
@@ -148,6 +159,7 @@ export default class ParticleSystemRenderer {
         if (!this._particleSystem) {
             return null;
         }
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
         return this._particleSystem.getMaterial(1)!;
     }
 

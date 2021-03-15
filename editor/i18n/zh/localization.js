@@ -122,8 +122,8 @@ module.exports = {
         skinning_root: '骨骼根节点的引用，对应控制此模型的动画组件所在节点',
     },
     sprite: {
-        sprite_frame: '渲染 Sprite 使用的 SpriteFrame 图片资源',
         atlas: '图片资源所属的 Atlas 图集资源',
+        sprite_frame: '渲染 Sprite 使用的 SpriteFrame 图片资源',
         type:
             '渲染模式：\n - 普通(Simple)：修改尺寸会整体拉伸图像，适用于序列帧动画和普通图像 \n' +
             '- 九宫格（Sliced）：修改尺寸时四个角的区域不会拉伸，适用于 UI 按钮和面板背景 \n' +
@@ -171,10 +171,12 @@ module.exports = {
         pressed_sprite: '按下状态的按钮背景图资源',
         hover_sprite: '悬停状态的按钮背景图资源',
         disabled_sprite: '禁用状态的按钮背景图资源',
-        target: '指定 Button 背景节点，Button 状态改变时会修改此节点的 Color 或 Sprite 属性',
+        target: '指定背景节点，状态改变时会修改此节点的 Color 或 Sprite 属性',
         click_events: '按钮点击事件的列表。先将数量改为1或更多，就可以为每个点击事件设置接受者和处理方法',
     },
     canvas: {
+        camera: '2D渲染相机',
+        align: '自动为 camera 计算参数',
         design_resolution:
             '设计分辨率是游戏在设计时使用的分辨率参考，以像素为单位，通过下面的适配策略，可以在不同分辨率的设备上按照一定的方式对 Canvas 进行整体缩放来适配。',
         fit_height: '自动缩放 Canvas 使设计分辨率的高度充满设备屏幕的高度',
@@ -193,11 +195,25 @@ module.exports = {
         font_size: '文字尺寸，以 point 为单位',
         font_family: '文字字体名字',
         line_height: '文字行高，以 point 为单位',
-        overflow:
+        overflow: 
             '文字排版模式，包括以下三种：\n 1. CLAMP: 节点约束框之外的文字会被截断 \n 2. SHRINK: 自动根据节点约束框缩小文字\n 3. RESIZE: 根据文本内容自动更新节点的 height 属性.',
         wrap: '是否允许自动换行',
         font: 'Label 使用的字体资源',
         system_font: '是否使用系统默认字体，选中此项会将 file 属性置空',
+        cache_mode: 
+            '文本缓存模式，包括以下三种：\n 1. NONE: 不做任何缓存，文本内容进行一次绘制 \n 2. BITMAP: 将文本作为静态图像加入动态图集进行批次合并，但是不能频繁动态修改文本内容 \n 3. CHAR: 将文本拆分为字符并且把字符纹理缓存到一张字符图集中进行复用，适用于字符内容重复并且频繁更新的文本内容',
+        font_bold: '字体加粗',
+        font_italic: '字体倾斜',
+        font_underline: '字体加下划线',
+    },
+    labelOutline: {
+        color: '描边的颜色',
+        width: '描边的宽度',
+    },
+    labelShadow: {
+        color: '阴影的颜色',
+        offset: '字体与阴影的偏移',
+        blur: '阴影的模糊程度',
     },
     limitVelocityOvertimeModule: {
         limitX: 'X 轴方向上的速度下限',
@@ -219,7 +235,7 @@ module.exports = {
     },
     progress: {
         bar_sprite: '进度条显示用的 Sprite 节点，可以动态改变尺寸',
-        mode: '进度条显示模式，目前支持水平和垂直两种',
+        mode: '进度条显示模式, 包括以下三种：\n 1. HORIZONTAL: 水平方向模式 \n 2. VERTICAL: 垂直方向模式 \n 3. FILLED: 扇形填充模式',
         total_length: '进度条在 progress 为 1 时的最大长度',
         progress: '当前进度指示，范围从0到1',
         reverse: '是否反向驱动进度条',
@@ -228,7 +244,7 @@ module.exports = {
         handle: '作为当前滚动区域位置显示的滑块 Sprite',
         direction: 'ScrollBar的滚动方向',
         auto_hide: '是否在没有滚动动作时自动隐藏 ScrollBar',
-        auto_hide_time: '没有滚动动作后经过多久会自动隐藏',
+        auto_hide_time: '没有滚动动作后经过多久会自动隐藏\n注意：只有当 “enableAutoHide” 为 true 时，才有效',
     },
     scrollview: {
         content: '包含可滚动展示内容的节点引用',
@@ -237,7 +253,6 @@ module.exports = {
         inertia: '是否开启滚动惯性',
         brake: '开启惯性后，在用户停止触摸后滚动多快停止，0表示永不停止，1表示立刻停止',
         elastic: '是否允许滚动内容超过边界，并在停止触摸后回弹',
-        bounce_time: '回弹持续的时间',
         horizontal_bar: '水平滚动的 ScrollBar',
         vertical_bar: '垂直滚动的 ScrollBar',
         bounceDuration: '回弹持续的时间，0 表示将立即反弹',
@@ -253,7 +268,7 @@ module.exports = {
         pageTurningSpeed: '每个页面翻页时所需时间。单位：秒',
         pageEvents: '页面视图的事件回调函数',
         autoPageTurningThreshold:
-            '快速滑动翻页临界值。 当用户快速滑动时，会根据滑动开始和结束的距离与时间计算出一个速度值，该值与此临界值相比较，如果大于临界值，则进行自动翻页',
+            '快速滑动翻页临界值\n当用户快速滑动时，会根据滑动开始和结束的距离与时间计算出一个速度值\n该值与此临界值相比较，如果大于临界值，则进行自动翻页',
     },
     pageview_indicator: {
         spriteFrame: '每个页面标记显示的图片',
@@ -320,9 +335,11 @@ module.exports = {
         checkMark: 'Toggle 处于选中状态时显示的精灵图片',
         toggleGroup:
             'Toggle 所属的 ToggleGroup，这个属性是可选的。如果这个属性为 null，则 Toggle 是一个 CheckBox，否则，Toggle 是一个 RadioButton。',
+        check_events: 'Toggle 按钮的点击事件列表',
     },
     toggle_group: {
         allowSwitchOff: '如果这个设置为 true， 那么 toggle 按钮在被点击的时候可以反复地被选中和未选中。',
+        check_events: 'Toggle 按钮的点击事件列表',
     },
     shapeModule: {
         position: '粒子发射器位置',
@@ -371,18 +388,18 @@ module.exports = {
     },
     widget: {
         target: '指定一个对齐目标，只能是当前节点的其中一个父节点，默认为空，为空时表示当前父节点',
-        align_top: '是否对齐父节点顶边',
-        align_bottom: '是否对齐父节点底边',
-        align_left: '是否对齐父节点左边',
-        align_right: '是否对齐父节点右边',
-        align_h_center: '是否对齐父节点水平中点，开启这一选项将取消水平轴上的其他对齐选项',
-        align_v_center: '是否对齐父节点垂直中点，开启这一选项将取消垂直轴上的其他对齐选项',
+        align_top: '是否对齐 target 顶边',
+        align_bottom: '是否对齐 target 底边',
+        align_left: '是否对齐 target 左边',
+        align_right: '是否对齐 target 右边',
+        align_h_center: '是否对齐 target 水平中点，开启这一选项将取消水平轴上的其他对齐选项',
+        align_v_center: '是否对齐 target 垂直中点，开启这一选项将取消垂直轴上的其他对齐选项',
         align_mode: '指定 Widget 的对齐模式，用于决定运行时 Widget 应该何时刷新。',
-        top: '本节点顶边和父节点顶边的距离，可输入负值，默认单位为像素（px），也可以输入百分比，根据父节点 height 和百分比数值计算出距离',
+        top: '本节点顶边和 target 顶边的距离，可输入负值，默认单位为像素（px），也可以输入百分比，根据 target height 和百分比数值计算出距离',
         bottom:
-            '本节点底边和父节点底边的距离，可输入负值，默认单位为像素（px），也可以输入百分比，根据父节点 height 和百分比数值计算出距离',
-        left: '本节点左边和父节点左边的距离，可输入负值，默认单位为像素（px），也可以输入百分比，根据父节点 width 和百分比数值计算出距离',
-        right: '本节点右边和父节点右边的距离，可输入负值，默认单位为像素（px），也可以输入百分比，根据父节点 width 和百分比数值计算出距离',
+            '本节点底边和 target 底边的距离，可输入负值，默认单位为像素（px），也可以输入百分比，根据 target height 和百分比数值计算出距离',
+        left: '本节点左边和 target 左边的距离，可输入负值，默认单位为像素（px），也可以输入百分比，根据 target width 和百分比数值计算出距离',
+        right: '本节点右边和 target 右边的距离，可输入负值，默认单位为像素（px），也可以输入百分比，根据 target width 和百分比数值计算出距离',
         horizontal_center: '水平居中的偏移值，可输入负值，默认单位为像素（px），也可以是百分比',
         vertical_center: '垂直居中的偏移值，可输入负值，默认单位为像素（px），也可以是百分比',
     },
@@ -401,6 +418,11 @@ module.exports = {
         horizontal_direction: '水平排列子节点的方向，包括：\n 1. LEFT_TO_RIGHT, 从左到右排列 \n 2. RIGHT_TO_LEFT, 从右到左排列',
         cell_size: '网格布局中，规定每一个网格的大小',
         start_axis: '网格布局中，子物体排版时的起始方向轴，支持水平和垂直两个方向。',
+        constraint: '网格布局中，内容布局约束，包括：\n 1.NONE，无约束 \n 2.FIXED_ROW，行数固定 \n 3.FIXED_COL，列数固定',
+        constraint_number: '网格布局中，内容布局约束的行或列数量',
+        affected_scale: '子节点缩放比例是否影响布局',
+        align_horizontal: '自动对齐。在 Type 为 Horizontal 时自动对齐纵坐标',
+        align_vertical: '自动对齐。在 Type 为 Vertical 时自动对齐横坐标',
     },
     particle: {
         export_title: '将自定义的粒子数据导出成 plist 文件',
@@ -424,6 +446,12 @@ module.exports = {
         placeholder_font_size: '输入框占位符的字体大小',
         placeholder_font_color: '输入框占位符的字体颜色',
         max_length: '输入框最大允许输入的字符个数',
+        text_lable: '输入框输入文本节点上挂载的 Label 组件对象',
+        placeholder_label: '输入框占位符节点上挂载的 Label 组件对象',
+        editing_began: '开始编辑文本输入框触发的事件回调',
+        text_changed: '编辑文本输入框时触发的事件回调',
+        editing_ended: '结束编辑文本输入框时触发的事件回调\n在单行模式下面，一般是在用户按下回车或者点击屏幕输入框以外的地方调用该函数\n如果是多行输入，一般是在用户点击屏幕输入框以外的地方调用该函数',
+        editing_return: '当用户按下回车按键时的事件回调\n如果是单行输入框，按回车键还会使输入框失去焦点',
     },
     videoplayer: {
         resourceType: '视频来源：REMOTE 表示远程视频 URL，LOCAL 表示本地视频地址。',
@@ -448,10 +476,24 @@ module.exports = {
         horizontal_align: '水平对齐方式',
         font_size: '字体大小, 单位是 point',
         font: '富文本定制字体',
-        line_height: '字体行高, 单位是 point',
+        font_family: '富文本定制系统字体',
+        use_system_font: '是否使用系统字体',
+        cache_mode: '文本缓存模式, 该模式只支持系统字体',
         max_width: '富文本的最大宽度, 传 0 的话意味着必须手动换行.',
-        image_atlas: '对于 img 标签里面的 src 属性名称，都需要在 imageAtlas 里面找到一个有效的 spriteFrame，否则 img tag 会判定为无效。',
-        handleTouchEvent: '选中此选项后，RichText 将阻止节点边界框中的所有输入事件（鼠标和触摸），从而防止输入事件穿透到底层节点。',
+        line_height: '字体行高, 单位是 point',
+        image_atlas: '对于 img 标签里面的 src 属性名称，都需要在 imageAtlas 里面找到一个有效的 spriteFrame，否则 img tag 会判定为无效',
+        handleTouchEvent: '选中此选项后，RichText 将阻止节点边界框中的所有输入事件（鼠标和触摸），从而防止输入事件穿透到底层节点',
+    },
+    UICoordinateTracker: {
+        target: '目标对象',
+        camera: '照射相机',
+        use_scale: '是否是缩放映射',
+        distance: '距相机多少距离为正常显示计算大小',
+        sync_events: '映射数据事件\n回调的第一个参数是映射后的本地坐标，第二个是距相机距离',   
+    },
+    SubContextView: {
+        design_size: '子域的设计分辨率，禁止在运行时动态更新',
+        fps: '主域更新子域贴图的频率',
     },
     skeleton: {
         skeleton_data: '骨骼信息数据，拖拽 Spine 导出的骨骼动画信息 json 资源到这里来开始使用',
@@ -688,8 +730,8 @@ module.exports = {
             description: "基于 cannon.js 的物理系统支持。",
         },
         physics_ammo: {
-            label: "基于 ammo.js 的物理系统",
-            description: "基于 ammo.js 的物理系统支持。",
+            label: "基于 bullet(ammo.js) 的物理系统",
+            description: "基于 bullet(ammo.js) 的物理系统支持。",
         },
         physics_physx: {
             label: "基于 PhysX 的物理系统",
@@ -760,4 +802,67 @@ module.exports = {
             description: "DragonBones 支持。",
         },
     },
+    renderable_2d: {
+        srcBlendFactor: '指定源的混合模式，这会克隆一个新的材质对象，注意这带来的性能和内存损耗',
+        dstBlendFactor: '指定目标的混合模式，这会克隆一个新的材质对象，注意这带来的性能和内存损耗',
+        color: '渲染颜色，一般情况下会和贴图颜色相乘',
+    },
+    ui_transform: {
+        content_size:'内容尺寸',
+        anchor_point:'锚点位置',
+        priority:'渲染排序优先级',
+    },
+    graphics: {
+        lineJoin: '用来设置2个长度不为0的相连部分（线段，圆弧，曲线）如何连接在一起的属性',
+        lineCap: '指定如何绘制每一条线段末端',
+        strokeColor: '笔触的颜色',
+        fillColor: '填充绘画的颜色',
+        miterLimit: '设置斜接面限制比例',
+    },
+    physics3d: {
+        rigidbody: {
+            group: '刚体分组',
+            type: '刚体类型：Static为静态, Kinematic为运动学（通过变换信息操控）, Dynamic为动力学（通过物理数值操控）',
+            mass: '刚体质量，需大于 0',
+            allowSleep: '是否允许自动休眠',
+            linearDamping: '线性阻尼，用于衰减线性速度，值越大，衰减越快',
+            angularDamping: '角阻尼，用于衰减角速度，值越大，衰减越快',
+            useGravity: '是否使用重力',
+            linearFactor: '线性因子，用于缩放每个轴方向上的物理数值（速度或力）',
+            angularFactor: '角因子，用于缩放每个轴方向上的物理数值（速度或力）',
+        },
+        collider: {
+            attached: '碰撞体所附加的刚体',
+            sharedMaterial: '所使用的物理材质，未设置时为默认值',
+            isTrigger: '是否为触发器，触发器不会产生物理反馈',
+            center: '在本地坐标系中，形状的中心位置',
+            sphere_radius: '在本地坐标系中，球的半径',
+            box_size: '在本地坐标系中，盒的大小',
+            capsule_radius: '在本地坐标系中，胶囊体上的球的半径',
+            capsule_cylinderHeight: '在本地坐标系中，胶囊体上的圆柱体的高度',
+            capsule_direction: '在本地坐标系中，胶囊体的朝向',
+            cone_radius: '在本地坐标系中，圆锥体上圆面的半径',
+            cone_height: '在本地坐标系中，圆锥体在相应轴向的高度',
+            cone_direction: '在本地坐标系中，圆锥体的朝向',
+            cylinder_radius: '在本地坐标系中，圆柱体上圆面的半径',
+            cylinder_height: '在本地坐标系中，圆柱体在相应轴向的高度',
+            cylinder_direction: '在本地坐标系中，圆柱体的朝向',
+            plane_normal: '在本地坐标系中，平面的法线',
+            plane_constant: '在本地坐标系中，平面从原点开始沿着法线运动的距离',
+            mesh_mesh: '所使用的网格资源',
+            mesh_convex: '是否使用凸包近似代替，顶点数应小于255，开启后可以支持动力学',
+            terrain_terrain: '所使用的地形资源',
+            simplex_shapeType: '单纯形类型，点、线、三角形、四面体',
+            simplex_vertex0: '形状的顶点0',
+            simplex_vertex1: '形状的顶点1',
+            simplex_vertex2: '形状的顶点2',
+            simplex_vertex3: '形状的顶点3'
+        },
+        constant_force:{
+            force: '在世界坐标系中，对刚体施加的力',
+            localForce: '在本地坐标系中，对刚体施加的力',
+            torque: '在世界坐标系中，对刚体施加的扭转力',
+            localTorque: '在本地坐标系中，对刚体施加的扭转力',
+        }
+    }
 };

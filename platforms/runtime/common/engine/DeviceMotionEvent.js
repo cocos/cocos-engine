@@ -1,10 +1,29 @@
 const inputManager = cc.internal.inputManager;
-const jsb = window.jsb;
+const ral = window.ral;
+
+function accelerometerChangeCb(res) {
+    let x = res.x;
+    let y = res.y;
+    if (ral._isLandscape) {
+        let tmp = x;
+        x = -y;
+        y = tmp;
+    }
+
+    if (inputManager._acceleration) {
+        // NOTE: jsb.onDeviceOrientationChange not supported
+        // inputManager._acceleration.x = x * deviceOrientation;
+        // inputManager._acceleration.y = y * deviceOrientation;
+        inputManager._acceleration.x = x;
+        inputManager._acceleration.y = y;
+        inputManager._acceleration.z = res.z;
+    }
+}
 
 Object.assign(inputManager, {
-    setAccelerometerEnabled (isEnable) {
+    setAccelerometerEnabled(isEnable) {
         let scheduler = cc.director.getScheduler();
-        scheduler.enableForTarget(this);
+        cc.Scheduler.enableForTarget(this);
         if (isEnable) {
             this._registerAccelerometerEvent();
             scheduler.scheduleUpdate(this);
@@ -15,23 +34,20 @@ Object.assign(inputManager, {
         }
     },
 
-    setAccelerometerInterval (interval) {
+    setAccelerometerInterval(interval) {
         // TODO
     },
 
-    _registerAccelerometerEvent () {
+    _registerAccelerometerEvent() {
         this._accelCurTime = 0;
-        let self = this;
         this._acceleration = new cc.internal.Acceleration();
-        jsb.startAccelerometer(function (res) {
-            self._acceleration.x = res.x;
-            self._acceleration.y = res.y;
-            self._acceleration.z = res.y;
-        });
+        ral.onAccelerometerChange(accelerometerChangeCb);
+        ral.startAccelerometer();
     },
 
-    _unregisterAccelerometerEvent () {
+    _unregisterAccelerometerEvent() {
         this._accelCurTime = 0;
-        jsb.stopAccelerometer();
+        ral.stopAccelerometer();
+        ral.offAccelerometerChange(accelerometerChangeCb);
     },
 });

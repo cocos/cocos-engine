@@ -453,7 +453,7 @@ export class AssetManager {
         const { options: opts, onProgress: onProg, onComplete: onComp } = parseParameters(options, onProgress, onComplete);
         opts.preset = opts.preset || 'default';
         requests = Array.isArray(requests) ? requests.slice() : requests;
-        const task = new Task({ input: requests, onProgress: onProg, onComplete: asyncify(onComp), options: opts });
+        const task = Task.create({ input: requests, onProgress: onProg, onComplete: asyncify(onComp), options: opts });
         pipeline.async(task);
     }
 
@@ -499,7 +499,7 @@ export class AssetManager {
         const { options: opts, onProgress: onProg, onComplete: onComp } = parseParameters(options, onProgress, onComplete);
         opts.preset = opts.preset || 'preload';
         requests = Array.isArray(requests) ? requests.slice() : requests;
-        const task = new Task({ input: requests, onProgress: onProg, onComplete: asyncify(onComp), options: opts });
+        const task = Task.create({ input: requests, onProgress: onProg, onComplete: asyncify(onComp), options: opts });
         fetchPipeline.async(task);
     }
 
@@ -726,7 +726,7 @@ export class AssetManager {
         item.file = json;
         item.ext = '.json';
 
-        const task = new Task({
+        const task = Task.create({
             input: [item],
             onProgress: onProg,
             options: opts,

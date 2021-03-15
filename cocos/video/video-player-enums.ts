@@ -24,7 +24,8 @@
  */
 
 /**
- * @category component/videoplayer
+ * @packageDocumentation
+ * @module component/video
  */
 
 /**

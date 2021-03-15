@@ -1,3 +1,8 @@
+/**
+ * @packageDocumentation
+ * @module physics2d
+ */
+
 import { EDITOR } from 'internal:constants';
 import { IRigidBody2D } from '../../spec/i-rigid-body';
 import { _decorator, Vec2, Component, error, Layers, IVec2Like } from '../../../core';

@@ -306,10 +306,10 @@ export class ParticleSystem extends RenderableComponent {
     public bursts: Burst[] = [];
 
     @override
+    @visible(false)
     @type(Material)
     @serializable
     @displayName('Materials')
-    @visible(false)
     get sharedMaterials () {
         // if we don't create an array copy, the editor will modify the original array directly.
         // eslint-disable-next-line @typescript-eslint/no-unsafe-return

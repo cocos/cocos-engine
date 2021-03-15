@@ -32,7 +32,7 @@
 import { ccclass, help, executionOrder, menu, tooltip, displayOrder, type, visible, override, serializable, range, slide } from 'cc.decorator';
 import { InstanceMaterialType, Renderable2D } from '../framework/renderable-2d';
 import { clamp, Color, Mat4, Vec2, Vec3 } from '../../core/math';
-import { warnID } from '../../core/platform';
+import { SystemEventType, warnID } from '../../core/platform';
 import { Batcher2D } from '../renderer/batcher-2d';
 import { ccenum } from '../../core/value-types/enum';
 import { Graphics } from './graphics';
@@ -45,6 +45,7 @@ import { MaterialInstance, scene } from '../../core/renderer';
 import { Model } from '../../core/renderer/scene';
 import { vfmt, getAttributeStride } from '../renderer/vertex-format';
 import { Stage } from '../renderer/stencil-manager';
+import { NodeEventProcessor } from '../../core/scene-graph/node-event-processor';
 
 const _worldMatrix = new Mat4();
 const _vec2_temp = new Vec2();
@@ -126,7 +127,7 @@ export class Mask extends Renderable2D {
      */
     @type(MaskType)
     @displayOrder(10)
-    @tooltip('遮罩类型')
+    @tooltip('i18n:mask.type')
     get type () {
         return this._type;
     }
@@ -168,7 +169,7 @@ export class Mask extends Renderable2D {
      * 反向遮罩（不支持 Canvas 模式）。
      */
     @displayOrder(14)
-    @tooltip('反向遮罩')
+    @tooltip('i18n:mask.inverted')
     get inverted () {
         return this._inverted;
     }
@@ -372,7 +373,6 @@ export class Mask extends Renderable2D {
     public onEnable () {
         super.onEnable();
         this._updateGraphics();
-        this._broadcastToNode(this.node);
     }
 
     /**
@@ -381,7 +381,9 @@ export class Mask extends Renderable2D {
      */
     public onRestore () {
         this._createGraphics();
+        super.updateMaterial();
         this._updateGraphics();
+        this._renderFlag = this._canRender();
     }
 
     public onDisable () {
@@ -609,14 +611,8 @@ export class Mask extends Renderable2D {
             }
         }
     }
-
-    protected _broadcastToNode (node) {
-        const children = node.children;
-        node.eventProcessor.registerComponentHitList(Mask);
-        for (let i = 0, len = children.length; i < len; i++) {
-            this._broadcastToNode(children[i]);
-        }
-    }
 }
+
+NodeEventProcessor._comp = Mask;
 
 legacyCC.Mask = Mask;

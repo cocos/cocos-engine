@@ -1,5 +1,4 @@
 require('../../../common/engine/index');
+require('./orientation');
 require('./sys');
-require('./download-audio');
-require('./AudioPlayer');
 require('./VideoPlayer');

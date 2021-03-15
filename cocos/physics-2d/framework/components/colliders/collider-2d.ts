@@ -1,3 +1,8 @@
+/**
+ * @packageDocumentation
+ * @module physics2d
+ */
+
 import { EDITOR } from 'internal:constants';
 
 import { editable } from 'cc.decorator';
