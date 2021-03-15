@@ -234,7 +234,9 @@ const Elements = {
                 // 其他项有依赖它的更新，数量较多，所以用了整体 update 一次
                 for (const prop in Elements) {
                     const element = Elements[prop];
-                    element.update.bind(this)();
+                    if (element.update) {
+                        element.update.bind(this)();
+                    }
                 }
             });
         },
@@ -446,11 +448,22 @@ const Elements = {
         ready() {
             const panel = this;
 
-            this.$.editButton.addEventListener('change', (event) => {
-                // TODO: 打开九宫格编辑器
-        
+            panel.$.editButton.addEventListener('change', (event) => {
                 event.stopPropagation();
+
+                Editor.Panel.open('inspector.sprite-editor', {
+                    asset: panel._asset,
+                    meta: panel._meta,
+                });
             });
+
+            this._updateFromBroadcast = this.updateFromBroadcast.bind(panel);
+            Editor.Message.addBroadcastListener('sprite-editor:changed', panel._updateFromBroadcast);
+        },
+        close() {
+            const panel = this;
+
+            Editor.Message.removeBroadcastListener('sprite-editor:changed', panel._updateFromBroadcast);
         },
     },
     imagePreview: {
@@ -500,6 +513,15 @@ exports.ready = function () {
     }
 };
 
+exports.close = function () {
+    for (const prop in Elements) {
+        const element = Elements[prop];
+        if (element.close) {
+            element.close.bind(this)();
+        }
+    }
+};
+
 exports.methods = {
     /**
      * 更新多选状态下某个数据是否可编辑
@@ -530,6 +552,28 @@ exports.methods = {
             element.setAttribute('disabled', true);
         } else {
             element.removeAttribute('disabled');
+        }
+    },
+    /**
+     * 来自九宫格编辑面板的数据更新
+     */
+    updateFromBroadcast(data) {
+        const panel = this;
+
+        if (data.uuid === panel._meta.uuid) {
+            for (const prop in data.userData) {
+                panel._metaList.forEach((meta) => {
+                    meta.userData[prop] = data.userData[prop];
+                });
+            }
+            panel.dispatch('change');
+        }
+
+        for (const prop in Elements) {
+            const element = Elements[prop];
+            if (element.update) {
+                element.update.bind(panel)();
+            }
         }
     },
 };

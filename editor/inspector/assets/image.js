@@ -153,7 +153,9 @@ exports.update = function (assetList, metaList) {
 
     for (const prop in Elements) {
         const element = Elements[prop];
-        element.update.bind(this)();
+        if (element.update) {
+            element.update.bind(this)();
+        }
     }
 };
 
@@ -163,7 +165,9 @@ exports.update = function (assetList, metaList) {
 exports.ready = function () {
     for (const prop in Elements) {
         const element = Elements[prop];
-        element.ready.bind(this)();
+        if (element.ready) {
+            element.ready.bind(this)();
+        }
     }
 };
 
