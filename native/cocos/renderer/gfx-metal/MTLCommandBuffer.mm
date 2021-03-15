@@ -271,7 +271,7 @@ void CCMTLCommandBuffer::draw(InputAssembler *ia) {
                 ++_numDrawCalls;
                 if (indirectBuffer->isDrawIndirectByIndex()) {
                     [mtlEncoder drawIndexedPrimitives:_mtlPrimitiveType
-                                            indexType:_indexType
+                                            indexType:indexBuffer->getIndexType()
                                           indexBuffer:indexBuffer->getMTLBuffer()
                                     indexBufferOffset:0
                                        indirectBuffer:indirectMTLBuffer
@@ -295,13 +295,13 @@ void CCMTLCommandBuffer::draw(InputAssembler *ia) {
                         if (drawInfo.instanceCount == 0) {
                             [mtlEncoder drawIndexedPrimitives:_mtlPrimitiveType
                                                    indexCount:drawInfo.indexCount
-                                                    indexType:_indexType
+                                                    indexType:indexBuffer->getIndexType()
                                                   indexBuffer:indexBuffer->getMTLBuffer()
                                             indexBufferOffset:offset];
                         } else {
                             [mtlEncoder drawIndexedPrimitives:_mtlPrimitiveType
                                                    indexCount:drawInfo.indexCount
-                                                    indexType:_indexType
+                                                    indexType:indexBuffer->getIndexType()
                                                   indexBuffer:indexBuffer->getMTLBuffer()
                                             indexBufferOffset:offset
                                                 instanceCount:drawInfo.instanceCount];
@@ -329,13 +329,13 @@ void CCMTLCommandBuffer::draw(InputAssembler *ia) {
                 if (drawInfo.instanceCount == 0) {
                     [mtlEncoder drawIndexedPrimitives:_mtlPrimitiveType
                                            indexCount:drawInfo.indexCount
-                                            indexType:_indexType
+                                            indexType:indexBuffer->getIndexType()
                                           indexBuffer:indexBuffer->getMTLBuffer()
                                     indexBufferOffset:offset];
                 } else {
                     [mtlEncoder drawIndexedPrimitives:_mtlPrimitiveType
                                            indexCount:drawInfo.indexCount
-                                            indexType:_indexType
+                                            indexType:indexBuffer->getIndexType()
                                           indexBuffer:indexBuffer->getMTLBuffer()
                                     indexBufferOffset:offset
                                         instanceCount:drawInfo.instanceCount];

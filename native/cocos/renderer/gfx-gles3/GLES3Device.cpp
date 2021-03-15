@@ -95,6 +95,7 @@ bool GLES3Device::initialize(const DeviceInfo &info) {
     _features[(uint)Feature::INSTANCED_ARRAYS]        = true;
     _features[(uint)Feature::MULTIPLE_RENDER_TARGETS] = true;
     _features[(uint)Feature::BLEND_MINMAX]            = true;
+    _features[(int)Feature::ELEMENT_INDEX_UINT] = true;
 
     uint minorVersion = ((GLES3Context *)_context)->minor_ver();
     if (minorVersion)

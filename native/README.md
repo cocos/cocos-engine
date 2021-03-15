@@ -1,9 +1,9 @@
-cocos2d-x-lite
+engine-native
 ==========================
 
-<a href="https://travis-ci.org/cocos-creator/cocos2d-x-lite"><img src="https://travis-ci.org/cocos-creator/cocos2d-x-lite.svg?branch=develop " alt="Build Status"></a>
+<a href="https://travis-ci.org/cocos-creator/engine-native"><img src="https://travis-ci.org/cocos-creator/engine-native.svg?branch=develop " alt="Build Status"></a>
 
-It used to be a compact version of cocos2d-x, but now it is the native backend of [Cocos Creator](https://www.cocos.com/en/creator). It works on `iOS`, `Android`, `Mac OS` and `Windows`.
+It is the native backend of [Cocos Creator](https://www.cocos.com/en/creator). It works on `iOS`, `Android`, `Mac OS` and `Windows`.
 
 Coding format and coding style
 ---------------------------------
@@ -28,4 +28,4 @@ Where to get help
 Contributing to the Project
 --------------------------------
 
-cocos2d-x-lite is licensed under the [MIT License](https://opensource.org/licenses/MIT). We welcome participation!
+engine-native is licensed under the [MIT License](https://opensource.org/licenses/MIT). We welcome participation!

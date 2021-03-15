@@ -48,11 +48,6 @@ bool CCVKBuffer::initialize(const BufferInfo &info) {
     _count = _size / _stride;
     _flags = info.flags;
 
-    if ((_flags & BufferFlagBit::BAKUP_BUFFER) && _size > 0) {
-        _buffer = (uint8_t *)CC_MALLOC(_size);
-        _device->getMemoryStatus().bufferSize += _size;
-    }
-
     _gpuBuffer = CC_NEW(CCVKGPUBuffer);
     _gpuBuffer->usage = _usage;
     _gpuBuffer->memUsage = _memUsage;
@@ -64,8 +59,6 @@ bool CCVKBuffer::initialize(const BufferInfo &info) {
         const size_t drawInfoCount = _size / sizeof(DrawInfo);
         _gpuBuffer->indexedIndirectCmds.resize(drawInfoCount);
         _gpuBuffer->indirectCmds.resize(drawInfoCount);
-    } else {
-        _gpuBuffer->buffer = _buffer;
     }
 
     CCVKCmdFuncCreateBuffer((CCVKDevice *)_device, _gpuBuffer);
@@ -120,12 +113,6 @@ void CCVKBuffer::destroy() {
         }
         _gpuBuffer = nullptr;
     }
-
-    if (_buffer) {
-        CC_FREE(_buffer);
-        _device->getMemoryStatus().bufferSize -= _size;
-        _buffer = nullptr;
-    }
 }
 
 void CCVKBuffer::resize(uint size) {
@@ -148,21 +135,10 @@ void CCVKBuffer::resize(uint size) {
         status.bufferSize -= oldSize;
         status.bufferSize += _size;
 
-        if (_buffer) {
-            const uint8_t *oldBuff = _buffer;
-            _buffer = (uint8_t *)CC_MALLOC(_size);
-            memcpy(_buffer, oldBuff, oldSize);
-            CC_FREE(oldBuff);
-            status.bufferSize -= oldSize;
-            status.bufferSize += _size;
-        }
-
         if (_usage & BufferUsageBit::INDIRECT) {
             const size_t drawInfoCount = _size / sizeof(DrawInfo);
             _gpuBuffer->indexedIndirectCmds.resize(drawInfoCount);
             _gpuBuffer->indirectCmds.resize(drawInfoCount);
-        } else {
-            _gpuBuffer->buffer = _buffer;
         }
     }
 }
