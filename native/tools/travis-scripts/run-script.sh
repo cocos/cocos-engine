@@ -65,6 +65,11 @@ function build_android()
     cd $COCOS2DX_ROOT/templates/android/build
     mkdir -p build-android/proj
     touch build-android/proj/cfg.cmake
+    echo "set(CC_USE_GLES3 ON)" >> build-android/proj/cfg.cmake
+    echo "set(CC_USE_VULKAN ON)" >> build-android/proj/cfg.cmake
+    echo "set(CC_USE_GLES2 ON)" >> build-android/proj/cfg.cmake
+    echo "set(USE_WEBSOCKET_SERVER ON)" >> build-android/proj/cfg.cmake
+    
     mkdir -p build-android/assets
 
     ASSET_DIR=$COCOS2DX_ROOT/templates/android/build/build-android/
@@ -76,6 +81,7 @@ function build_android()
     sed -i "s@^APPLICATION_ID.*@APPLICATION_ID=com.cocos.android@g" gradle.properties
     sed -i "s@^RES_PATH.*@RES_PATH=$ASSET_DIR@g" gradle.properties
     sed -i "s@^COCOS_ENGINE_PATH.*@COCOS_ENGINE_PATH=$COCOS2DX_ROOT@g" gradle.properties
+    sed -i "s@^PROP_APP_ABI.*@PROP_APP_ABI=armeabi-v7a:arm64-v8a:x86@g" gradle.properties
 
     #echo "Compile Android - ndk-build ..."
     #./gradlew assembleDebug --quiet
@@ -123,17 +129,21 @@ function build_macosx()
     cd  $COCOS2DX_ROOT/templates/mac
     mkdir -p build-mac/proj
     touch build-mac/proj/cfg.cmake
+    echo "set(CC_USE_VULKAN OFF)" >> build-mac/proj/cfg.cmake
+    echo "set(CC_USE_GLES2 OFF)" >> build-mac/proj/cfg.cmake
+    echo "set(CC_USE_METAL ON)" >> build-mac/proj/cfg.cmake
+    echo "set(USE_WEBSOCKET_SERVER OFF)" >> build-mac/proj/cfg.cmake
     mkdir build-mac/assets
 
     RES_DIR=$COCOS2DX_ROOT/templates/mac/build-mac
     cd build-mac
-    cmake ../ -GXcode -DCC_USE_METAL=ON -DCMAKE_OSX_ARCHITECTURES=x86_64 -DRES_DIR=$RES_DIR -DCOCOS_X_PATH=$COCOS2DX_ROOT
+    cmake ../ -GXcode -DCC_USE_GLES3=ON -DCMAKE_OSX_ARCHITECTURES=x86_64 -DRES_DIR=$RES_DIR -DCOCOS_X_PATH=$COCOS2DX_ROOT
     cmake --build . --config Release -- -quiet -jobs $NUM_OF_CORES -arch x86_64
     echo "Compile MacOSX X86_64 Release Done!"
     cd ..
     mkdir build-mac-apple-silicon
     cd build-mac-apple-silicon
-    cmake ../ -GXcode -DCC_USE_METAL=ON -DCC_USE_GLES3=OFF -DCMAKE_OSX_ARCHITECTURES=arm64 -DRES_DIR=$RES_DIR -DCOCOS_X_PATH=$COCOS2DX_ROOT
+    cmake ../ -GXcode -DCC_USE_GLES3=OFF -DCMAKE_OSX_ARCHITECTURES=arm64 -DRES_DIR=$RES_DIR -DCOCOS_X_PATH=$COCOS2DX_ROOT
     cmake --build . --config Release -- -quiet -jobs $NUM_OF_CORES -arch arm64
     echo "Compile MacOSX ARM64 Release Done!"
 }
@@ -146,13 +156,17 @@ function build_ios()
     cd  $COCOS2DX_ROOT/templates/ios
     mkdir -p build-ios/proj
     touch build-ios/proj/cfg.cmake
+    echo "set(CC_USE_GLES3 OFF)" >> build-ios/proj/cfg.cmake
+    echo "set(CC_USE_VULKAN OFF)" >> build-ios/proj/cfg.cmake
+    echo "set(CC_USE_GLES2 OFF)" >> build-ios/proj/cfg.cmake
+    echo "set(CC_USE_METAL ON)" >> build-ios/proj/cfg.cmake
+    echo "set(USE_WEBSOCKET_SERVER OFF)" >> build-ios/proj/cfg.cmake
     mkdir build-ios/assets
     cd build-ios
     RES_DIR=$COCOS2DX_ROOT/templates/ios/build-ios
     cmake ../ -GXcode -DCMAKE_SYSTEM_NAME=iOS \
         -DCMAKE_OSX_SYSROOT=iphonesimulator \
         -DCMAKE_OSX_ARCHITECTURES=x86_64 \
-        -DCC_USE_METAL=ON \
         -DRES_DIR=$RES_DIR \
         -DCOCOS_X_PATH=$COCOS2DX_ROOT
     cmake --build . --config Debug -- -quiet -jobs $NUM_OF_CORES -allowProvisioningUpdates
@@ -165,6 +179,10 @@ function build_windows()
     cd  $COCOS2DX_ROOT/templates/win32
     mkdir -p build-win32/proj
     touch build-win32/proj/cfg.cmake
+    echo "set(CC_USE_GLES3 ON)" >> build-win32/proj/cfg.cmake
+    echo "set(CC_USE_VULKAN ON)" >> build-win32/proj/cfg.cmake
+    echo "set(CC_USE_GLES2 ON)" >> build-win32/proj/cfg.cmake
+    echo "set(USE_WEBSOCKET_SERVER ON)" >> build-win32/proj/cfg.cmake
     mkdir build-win32/assets
     cd build-win32
     RES_DIR=$COCOS2DX_ROOT/templates/win32/build-win32

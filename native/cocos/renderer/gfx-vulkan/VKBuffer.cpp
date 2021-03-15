@@ -136,8 +136,6 @@ void CCVKBuffer::resize(uint size) {
             const size_t drawInfoCount = _size / sizeof(DrawInfo);
             _gpuBuffer->indexedIndirectCmds.resize(drawInfoCount);
             _gpuBuffer->indirectCmds.resize(drawInfoCount);
-        } else {
-            _gpuBuffer->buffer = _buffer;
         }
     }
 }

@@ -26,13 +26,13 @@
 
 #if (USE_SOCKET > 0) && (USE_WEBSOCKET_SERVER > 0)
 
-    #include <iostream>
-    #include <cassert>
     #include <atomic>
+    #include <cassert>
+    #include <iostream>
 
+    #include "cocos/base/Scheduler.h"
     #include "cocos/network/WebSocketServer.h"
     #include "cocos/platform/Application.h"
-    #include "cocos/base/Scheduler.h"
 
     #define MAX_MSG_PAYLOAD 2048
     #define SEND_BUFF       1024
@@ -540,7 +540,7 @@ void WebSocketServerConnection::onHTTP() {
         if (!len) {
             n++;
             continue;
-        } else if (len + 1 > buf.size()) {
+        } else if (len + 1 > (int)buf.size()) {
             buf.resize(len + 1);
         }
         lws_hdr_copy(_wsi, buf.data(), buf.size(), idx);

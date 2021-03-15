@@ -28,18 +28,19 @@
 
     #include "uv.h"
 
-    #include <string>
-    #include <vector>
     #include <algorithm>
-    #include <functional>
-    #include <memory>
-    #include <map>
-    #include <list>
-    #include <unordered_map>
-    #include <thread>
-    #include <mutex>
     #include <atomic>
+    #include <functional>
+    #include <list>
+    #include <map>
+    #include <memory>
+    #include <mutex>
+    #include <string>
+    #include <thread>
+    #include <unordered_map>
+    #include <vector>
 
+    #include "cocos/base/Macros.h"
     #include "websockets/libwebsockets.h"
 
 namespace cc {

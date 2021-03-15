@@ -26,11 +26,11 @@
 #if (USE_SOCKET > 0) && (USE_WEBSOCKET_SERVER > 0)
 
     #include "cocos/bindings/manual/jsb_websocket_server.h"
-    #include "uv/uv.h"
     #include "cocos/bindings/jswrapper/SeApi.h"
     #include "cocos/bindings/manual/jsb_conversions.h"
     #include "cocos/bindings/manual/jsb_global.h"
     #include "cocos/network/WebSocketServer.h"
+    #include "uv/uv.h"
 
 using namespace cc;
 using namespace cc::network;
@@ -320,7 +320,7 @@ static bool WebSocketServer_connections(se::State &s) {
         WSSPTR cobj = (WSSPTR)s.nativeThisObject();
         auto conns = cobj->get()->getConnections();
         se::Object *ret = se::Object::createArrayObject(conns.size());
-        for (auto i = 0; i < conns.size(); i++) {
+        for (size_t i = 0; i < conns.size(); i++) {
             std::shared_ptr<WebSocketServerConnection> &con = conns[i];
             se::Object *obj = (se::Object *)con->getData();
             ret->setArrayElement(i, se::Value(obj));
@@ -785,7 +785,7 @@ static bool WebSocketServer_Connection_protocols(se::State &s) {
         WSCONNPTR cobj = (WSCONNPTR)s.nativeThisObject();
         auto protocols = cobj->get()->getProtocols();
         se::Object *ret = se::Object::createArrayObject(protocols.size());
-        for (int i = 0; i < protocols.size(); i++) {
+        for (size_t i = 0; i < protocols.size(); i++) {
             ret->setArrayElement(i, se::Value(protocols[i]));
         }
         s.rval().setObject(ret);
