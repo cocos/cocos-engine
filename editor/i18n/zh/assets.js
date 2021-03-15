@@ -1,5 +1,25 @@
 module.exports = {
     assets: {
+        javascript: {
+            plugin: '导入为插件',
+            dependencies: '依赖其它',
+            executionScope: '执行作用域',
+            global: '顶层',
+            enclosed: '独立',
+            executionScopeTip: '不对该插件脚本做任何编译或包装。',
+            loadPluginInWeb: '允许 Web 平台加载',
+            loadPluginInEditor: '允许编辑器加载',
+            loadPluginInNative: '允许 Native 平台加载',
+            simulateGlobals: '模拟全局变量',
+            pluginTip: 'Import As Plugin',
+            dependenciesTip: 'Dependencies',
+            globalTip: 'Global',
+            enclosedTip: 'Enclosed',
+            loadPluginInWebTip: 'Load In Web',
+            loadPluginInEditorTip: 'Load In Editor',
+            loadPluginInNativeTip: 'Load In Native',
+            simulateGlobalsTip: 'Simulate global variables',
+        },
         scene: {
             asyncLoadAssets: '异步加载',
         },

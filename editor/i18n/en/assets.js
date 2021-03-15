@@ -1,5 +1,25 @@
 module.exports = {
     assets: {
+        javascript: {
+            plugin: 'Import As Plugin',
+            dependencies: 'Dependencies',
+            executionScope: 'Execution Scope',
+            global: 'Global',
+            enclosed: 'Enclosed',
+            executionScopeTip: 'Do not transpile or wrap this plugin script.',
+            loadPluginInWeb: 'Load In Web',
+            loadPluginInEditor: 'Load In Editor',
+            loadPluginInNative: 'Load In Native',
+            simulateGlobals: 'Simulate global variables',
+            pluginTip: 'Import As Plugin',
+            dependenciesTip: 'Dependencies',
+            globalTip: 'Global',
+            enclosedTip: 'Enclosed',
+            loadPluginInWebTip: 'Load In Web',
+            loadPluginInEditorTip: 'Load In Editor',
+            loadPluginInNativeTip: 'Load In Native',
+            simulateGlobalsTip: 'Simulate global variables',
+        },
         scene: {
             asyncLoadAssets: 'Async Load Assets',
         },
