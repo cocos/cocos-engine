@@ -60,7 +60,7 @@ export class SphereCollider extends Collider {
      * @zh
      * 获取或设置球的半径。
      */
-    @tooltip('球的半径')
+    @tooltip('i18n:physics3d.collider.sphere_radius')
     public get radius () {
         return this._radius;
     }

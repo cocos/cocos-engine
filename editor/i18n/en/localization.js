@@ -608,8 +608,8 @@ module.exports = {
             description: "Physics system that based on cannon.js.",
         },
         physics_ammo: {
-            label: "ammo.js Based Physics System",
-            description: "Physics system that based on ammo.js.",
+            label: "bullet(ammo.js) Based Physics System",
+            description: "Physics system that based on bullet(ammo.js).",
         },
         physics_physx: {
             label: "PhysX Based Physics System",
@@ -697,4 +697,50 @@ module.exports = {
         fillColor: 'Fill paint color.',
         miterLimit: 'Set the miter limit ratio.',
     },
+    physics3d: {
+        rigidbody: {
+            group: 'Group of this rigid body',
+            type: 'Type of this rigid body',
+            mass: 'The mass of this rigid body, which needs to be greater than 0',
+            allowSleep: 'Whether to allow automatic hibernation',
+            linearDamping: 'Used to decay the linear velocity, the larger it is, the faster the decay will be',
+            angularDamping: 'Used to decay the angular velocity, the larger it is, the faster the decay will be',
+            useGravity: 'Whether to use gravity',
+            linearFactor: 'For scaling physical values (velocity or force) in each axis direction',
+            angularFactor: 'Angular factor to scale physical values (velocity or force) in each axis direction',
+        },
+        collider: {
+            attached: 'The rigid body where the collider is attached to',
+            sharedMaterial: 'The physical material used, default when not set',
+            isTrigger: 'Whether it is a trigger, the trigger does not generate physical feedback',
+            center: 'The center of the shape in the local coordinate system',
+            sphere_radius: 'The radius of the sphere in the local coordinate system',
+            box_size: 'The size of the box in the local coordinate system',
+            capsule_radius: 'The radius of the sphere on the capsule body in the local coordinate system',
+            capsule_cylinderHeight: 'The height of the cylinder on the capsule in the local coordinate system',
+            capsule_direction: 'The orientation of the capsule body in the local coordinate system',
+            cone_radius: 'The radius of the upper circular surface of the cone in the local coordinate system',
+            cone_height: 'The height of the cone in the corresponding axial direction in the local coordinate system',
+            cone_direction: 'The orientation of the cone in the local coordinate system',
+            cylinder_radius: 'The radius of the circular surface on the cylinder in the local coordinate system',
+            cylinder_height: 'The height of the cylinder in the corresponding axial direction in the local coordinate system',
+            cylinder_direction: 'The orientation of the cylinder in the local coordinate system',
+            plane_normal: 'The normal to the plane in the local coordinate system',
+            plane_constant: 'The distance of the plane moving along the normal from the origin in the local coordinate system',
+            mesh_mesh: 'Mesh resources used by collider',
+            mesh_convex: 'Whether to use convex hull approximation instead, the number of vertices should be less than 255, and the dynamics can be supported after turning on',
+            terrain_terrain: 'Terrain resources used by collider',
+            simplex_shapeType: 'Simplex type, point, line, triangle, tetrahedron',
+            simplex_vertex0: 'Vertex 0 of the shape',
+            simplex_vertex1: 'Vertex 1 of the shape',
+            simplex_vertex2: 'Vertex 2 of the shape',
+            simplex_vertex3: 'Vertex 3 of the shape'
+        },
+        constant_force:{
+            force: 'The force apply on a rigid body in the world coordinate system',
+            localForce: 'The force apply on a rigid body in the local coordinate system',
+            torque: 'The torque applied to the rigid body in the world coordinate system',
+            localTorque: 'The torque applied to the rigid body in the local coordinate system',
+        }
+    }
 };
