@@ -74,6 +74,10 @@ se::Value g_textInputCallback;
 
     return TRUE;
 }
+
+- (void) textDidEndEditing:(NSNotification *)notification {
+    cc::EditBox::complete();
+}
 @end
 
 /*************************************************************************
