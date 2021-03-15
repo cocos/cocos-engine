@@ -106,7 +106,6 @@ void PlanarShadowQueue::recordCommandBuffer(gfx::Device *device, gfx::RenderPass
     const auto sceneData = _pipeline->getPipelineSceneData();
     const auto sharedData = sceneData->getSharedData();
     const auto *shadowInfo = sharedData->getShadows();
-    const auto *shadowInfo = _pipeline->getShadows();
     if (!shadowInfo->enabled || shadowInfo->getShadowType() != ShadowType::PLANAR) { return; }
 
     _instancedQueue->recordCommandBuffer(device, renderPass, cmdBuffer);
