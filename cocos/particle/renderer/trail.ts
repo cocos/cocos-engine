@@ -205,7 +205,7 @@ export default class TrailModule {
     @type(TrailMode)
     @serializable
     @displayOrder(1)
-    @tooltip('Particle在每个粒子的运动轨迹上形成拖尾效果')
+    @tooltip('i18n:trailSegment.mode')
     public mode = TrailMode.Particles;
 
     /**
@@ -214,7 +214,7 @@ export default class TrailModule {
     @type(CurveRange)
     @serializable
     @displayOrder(3)
-    @tooltip('拖尾的生命周期')
+    @tooltip('i18n:trailSegment.lifeTime')
     public lifeTime = new CurveRange();
 
     @serializable
@@ -224,7 +224,7 @@ export default class TrailModule {
      * 每个轨迹粒子之间的最小间距。
      */
     @displayOrder(5)
-    @tooltip('粒子每生成一个拖尾节点所运行的最短距离')
+    @tooltip('i18n:trailSegment.minParticleDistance')
     public get minParticleDistance () {
         return this._minParticleDistance;
     }
@@ -236,7 +236,7 @@ export default class TrailModule {
 
     @type(Space)
     @displayOrder(6)
-    @tooltip('拖尾所在的坐标系，World在世界坐标系中运行，Local在本地坐标系中运行')
+    @tooltip('i18n:trailSegment.space')
     public get space () {
         return this._space;
     }
@@ -260,12 +260,12 @@ export default class TrailModule {
     @type(TextureMode)
     @serializable
     @displayOrder(8)
-    @tooltip('贴图在拖尾上的展开形式，Stretch贴图覆盖在整条拖尾上，Repeat贴图覆盖在一段拖尾上')
+    @tooltip('i18n:trailSegment.textureMode')
     public textureMode = TextureMode.Stretch;
 
     @serializable
     @displayOrder(9)
-    @tooltip('拖尾宽度继承自粒子大小')
+    @tooltip('i18n:trailSegment.widthFromParticle')
     public widthFromParticle = true;
 
     /**
@@ -274,24 +274,24 @@ export default class TrailModule {
     @type(CurveRange)
     @serializable
     @displayOrder(10)
-    @tooltip('拖尾宽度，如果继承自粒子则是粒子大小的比例')
+    @tooltip('i18n:trailSegment.widthRatio')
     public widthRatio = new CurveRange();
 
     @serializable
     @displayOrder(11)
-    @tooltip('拖尾颜色是否继承自粒子')
+    @tooltip('i18n:trailSegment.colorFromParticle')
     public colorFromParticle = false;
 
     @type(GradientRange)
     @serializable
     @displayOrder(12)
-    @tooltip('拖尾颜色随拖尾自身长度的颜色渐变')
+    @tooltip('i18n:trailSegment.colorOverTrail')
     public colorOverTrail = new GradientRange();
 
     @type(GradientRange)
     @serializable
     @displayOrder(13)
-    @tooltip('拖尾颜色随时间的颜色渐变')
+    @tooltip('i18n:trailSegment.colorOvertime')
     public colorOvertime = new GradientRange();
 
     /**
