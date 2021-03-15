@@ -40,8 +40,8 @@ import { BufferUsageBit, Format, MemoryUsageBit, ClearFlagBit, ClearFlags, Store
     SurfaceTransform, Feature, ColorAttachment, DepthStencilAttachment, RenderPass, LoadOp,
     RenderPassInfo, BufferInfo, Texture, InputAssembler, InputAssemblerInfo, Attribute, Buffer, AccessType, Framebuffer,
     TextureInfo, TextureType, TextureUsageBit, FramebufferInfo } from '../../gfx';
-import { UBOGlobal, UBOCamera, UBOShadow, UNIFORM_SHADOWMAP_BINDING, UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING, UNIFORM_GBUFFER_ALBEDOMAP_BINDING, 
-    UNIFORM_GBUFFER_POSITIONMAP_BINDING, UNIFORM_GBUFFER_NORMALMAP_BINDING, UNIFORM_GBUFFER_EMISSIVEMAP_BINDING, UNIFORM_LIGHTING_RESULTMAP_BINDING} from '../define';
+import { UBOGlobal, UBOCamera, UBOShadow, UNIFORM_SHADOWMAP_BINDING, UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING, UNIFORM_GBUFFER_ALBEDOMAP_BINDING,
+    UNIFORM_GBUFFER_POSITIONMAP_BINDING, UNIFORM_GBUFFER_NORMALMAP_BINDING, UNIFORM_GBUFFER_EMISSIVEMAP_BINDING, UNIFORM_LIGHTING_RESULTMAP_BINDING } from '../define';
 import { SKYBOX_FLAG } from '../../renderer/scene/camera';
 import { Camera } from '../../renderer/scene';
 import { errorID } from '../../platform/debug';
@@ -64,27 +64,11 @@ class InputAssemblerData {
 }
 
 export class DeferredRenderData {
-    public gbufferFrameBuffer: Framebuffer | null = null;
-    public gbufferRenderTargets: Texture[] = [];
-    public lightingFrameBuffer: Framebuffer | null = null;
-    public lightingRenderTargets: Texture[] = [];
-    public depthTex: Texture | null = null;
-
-    public destroy () {
-        if (this.gbufferFrameBuffer) this.gbufferFrameBuffer.destroy();
-        if (this.lightingFrameBuffer) this.lightingFrameBuffer.destroy();
-        if (this.depthTex) this.depthTex.destroy();
-
-        for (let i = 0; i < this.gbufferRenderTargets.length; i++) {
-            this.gbufferRenderTargets[i].destroy();
-        }
-        this.gbufferRenderTargets.length = 0;
-
-        for (let i = 0; i < this.lightingRenderTargets.length; i++) {
-            this.lightingRenderTargets[i].destroy();
-        }
-        this.lightingRenderTargets.length = 0;
-    }
+    gbufferFrameBuffer: Framebuffer | null = null;
+    gbufferRenderTargets: Texture[] = [];
+    lightingFrameBuffer: Framebuffer | null = null;
+    lightingRenderTargets: Texture[] = [];
+    depthTex: Texture | null = null;
 }
 
 /**
@@ -98,8 +82,7 @@ export class DeferredPipeline extends RenderPipeline {
     protected _quadVBOffscreen: Buffer | null = null;
     protected _quadIAOnscreen: InputAssembler | null = null;
     protected _quadIAOffscreen: InputAssembler | null = null;
-    protected _gbufferDepth: Texture|null = null;
-    protected _deferredRenderDatas: Map<Camera, DeferredRenderData> = new Map<Camera, DeferredRenderData>();
+    protected _deferredRenderData: DeferredRenderData | null = null;
     private _gbufferRenderPass: RenderPass | null = null;
     private _lightingRenderPass: RenderPass | null = null;
     private _width = 0;
@@ -218,11 +201,11 @@ export class DeferredPipeline extends RenderPipeline {
     }
 
     public getDeferredRenderData (camera): DeferredRenderData {
-        if (!this._deferredRenderDatas.has(camera)) {
-            this.generateDeferredRenderData(camera);
+        if (!this._deferredRenderData) {
+            this._generateDeferredRenderData();
         }
-        
-        return this._deferredRenderDatas.get(camera)!;
+
+        return this._deferredRenderData!;
     }
 
     private _activeRenderer () {
@@ -310,14 +293,9 @@ export class DeferredPipeline extends RenderPipeline {
             this._lightingRenderPass = device.createRenderPass(renderPassInfo);
         }
 
-        this.descriptorSet.bindSampler(UNIFORM_GBUFFER_ALBEDOMAP_BINDING, sampler);
-        this.descriptorSet.bindSampler(UNIFORM_GBUFFER_POSITIONMAP_BINDING, sampler);
-        this.descriptorSet.bindSampler(UNIFORM_GBUFFER_NORMALMAP_BINDING, sampler);
-        this.descriptorSet.bindSampler(UNIFORM_GBUFFER_EMISSIVEMAP_BINDING, sampler);
-        this.descriptorSet.bindSampler(UNIFORM_LIGHTING_RESULTMAP_BINDING, sampler);
-
         this._width = device.width;
         this._height = device.height;
+        this._generateDeferredRenderData();
 
         if (device.surfaceTransform === SurfaceTransform.IDENTITY
             || device.surfaceTransform === SurfaceTransform.ROTATE_180) {
@@ -354,11 +332,21 @@ export class DeferredPipeline extends RenderPipeline {
             rpRes = rpIter.next();
         }
 
-        const rdIter = this._deferredRenderDatas.values();
-        let rdRes = rdIter.next();
-        while (!rdRes.done) {
-            rdRes.value.destroy();
-            rdRes = rdIter.next();
+        const deferredData = this._deferredRenderData;
+        if (deferredData) {
+            if (deferredData.gbufferFrameBuffer) deferredData.gbufferFrameBuffer.destroy();
+            if (deferredData.lightingFrameBuffer) deferredData.lightingFrameBuffer.destroy();
+            if (deferredData.depthTex) deferredData.depthTex.destroy();
+
+            for (let i = 0; i < deferredData.gbufferRenderTargets.length; i++) {
+                deferredData.gbufferRenderTargets[i].destroy();
+            }
+            deferredData.gbufferRenderTargets.length = 0;
+
+            for (let i = 0; i < deferredData.lightingRenderTargets.length; i++) {
+                deferredData.lightingRenderTargets[i].destroy();
+            }
+            deferredData.lightingRenderTargets.length = 0;
         }
 
         this._commandBuffers.length = 0;
@@ -496,10 +484,10 @@ export class DeferredPipeline extends RenderPipeline {
         }
     }
 
-    protected generateDeferredRenderData (camera: Camera) {
+    private _generateDeferredRenderData () {
         const device = this.device;
 
-        const data = new DeferredRenderData();
+        const data: DeferredRenderData = this._deferredRenderData = new DeferredRenderData();
 
         data.gbufferRenderTargets.push(device.createTexture(new TextureInfo(
             TextureType.TEX2D,
@@ -539,7 +527,7 @@ export class DeferredPipeline extends RenderPipeline {
             this._width,
             this._height,
         ));
-        
+
         data.gbufferFrameBuffer = device.createFramebuffer(new FramebufferInfo(
             this._gbufferRenderPass!,
             data.gbufferRenderTargets,
@@ -559,7 +547,18 @@ export class DeferredPipeline extends RenderPipeline {
             data.lightingRenderTargets,
             data.depthTex,
         ));
-    
-        this._deferredRenderDatas.set(camera, data);
+
+        this._descriptorSet.bindTexture(UNIFORM_GBUFFER_ALBEDOMAP_BINDING, data.gbufferFrameBuffer.colorTextures[0]!);
+        this._descriptorSet.bindTexture(UNIFORM_GBUFFER_POSITIONMAP_BINDING, data.gbufferFrameBuffer.colorTextures[1]!);
+        this._descriptorSet.bindTexture(UNIFORM_GBUFFER_NORMALMAP_BINDING, data.gbufferFrameBuffer.colorTextures[2]!);
+        this._descriptorSet.bindTexture(UNIFORM_GBUFFER_EMISSIVEMAP_BINDING, data.gbufferFrameBuffer.colorTextures[3]!);
+        this._descriptorSet.bindTexture(UNIFORM_LIGHTING_RESULTMAP_BINDING, data.lightingFrameBuffer.colorTextures[0]!);
+
+        const sampler = samplerLib.getSampler(device, samplerHash);
+        this._descriptorSet.bindSampler(UNIFORM_GBUFFER_ALBEDOMAP_BINDING, sampler);
+        this._descriptorSet.bindSampler(UNIFORM_GBUFFER_POSITIONMAP_BINDING, sampler);
+        this._descriptorSet.bindSampler(UNIFORM_GBUFFER_NORMALMAP_BINDING, sampler);
+        this._descriptorSet.bindSampler(UNIFORM_GBUFFER_EMISSIVEMAP_BINDING, sampler);
+        this._descriptorSet.bindSampler(UNIFORM_LIGHTING_RESULTMAP_BINDING, sampler);
     }
 }
