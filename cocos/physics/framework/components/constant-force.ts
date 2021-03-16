@@ -80,7 +80,7 @@ export class ConstantForce extends Component {
      * 获取或设置世界坐标系下的力。
      */
     @displayOrder(0)
-    @tooltip('世界坐标系下的力')
+    @tooltip('i18n:physics3d.constant_force.force')
     public get force () {
         return this._force;
     }
@@ -97,7 +97,7 @@ export class ConstantForce extends Component {
      * 获取或设置本地坐标系下的力。
      */
     @displayOrder(1)
-    @tooltip('本地坐标系下的力')
+    @tooltip('i18n:physics3d.constant_force.localForce')
     public get localForce () {
         return this._localForce;
     }
@@ -114,7 +114,7 @@ export class ConstantForce extends Component {
      * 获取或设置世界坐标系下的扭转力。
      */
     @displayOrder(2)
-    @tooltip('世界坐标系下的扭转力')
+    @tooltip('i18n:physics3d.constant_force.torque')
     public get torque () {
         return this._torque;
     }
@@ -131,7 +131,7 @@ export class ConstantForce extends Component {
      * 获取或设置本地坐标系下的扭转力。
      */
     @displayOrder(3)
-    @tooltip('本地坐标系下的扭转力')
+    @tooltip('i18n:physics3d.constant_force.localTorque')
     public get localTorque () {
         return this._localTorque;
     }

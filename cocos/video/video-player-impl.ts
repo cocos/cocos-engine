@@ -130,6 +130,7 @@ export abstract class VideoPlayerImpl {
     public get componentEventList () { return this._componentEventList; }
     public get video () { return this._video; }
     public get state () { return this._state; }
+    public get isPlaying () { return this._playing; }
     get UICamera () {
         return director.root!.batcher2D.getFirstRenderCamera(this._node!);
     }
