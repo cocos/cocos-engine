@@ -1060,14 +1060,14 @@ export class TMXMapInfo {
     }
 
     static getNameWithPostfix (name: string) {
-        name = name.replace(/\\/g, '\/');
+        name = name.replace(/\\/g, '/');
         const slashIndex = name.lastIndexOf('/') + 1;
         const strLen = name.length;
         return name.substring(slashIndex, strLen);
     }
 
     static getShortName (name: string) {
-        name = name.replace(/\\/g, '\/');
+        name = name.replace(/\\/g, '/');
         const slashIndex = name.lastIndexOf('/') + 1;
         let dotIndex = name.lastIndexOf('.');
         dotIndex = dotIndex < 0 ? name.length : dotIndex;
