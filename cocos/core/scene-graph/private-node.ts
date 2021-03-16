@@ -174,6 +174,8 @@ if (EDITOR) {
         }
 
         Node.prototype._onBatchCreated.call(this, dontSyncChildPrefab);
+        this._objFlags |= CCObject.Flags.DontSave;
+        this._objFlags |= CCObject.Flags.HideInHierarchy;
     };
 }
 
