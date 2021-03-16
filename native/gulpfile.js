@@ -46,7 +46,6 @@ program
     .parse(process.argv);
 
 gulp.task('make-cocos2d-x', gulpSequence('gen-cocos2d-x', 'upload-cocos2d-x'));
-gulp.task('make-simulator', gulpSequence('gen-simulator', 'sign-simulator', 'update-simulator-config', 'update-simulator-dll', 'archive-simulator', 'upload-simulator'));
 
 if (process.platform === 'darwin') {
     gulp.task('publish', gulpSequence('update', 'init', 'bump-version', 'make-cocos2d-x', 'make-simulator'));
@@ -61,19 +60,6 @@ function execSync (cmd, workPath) {
         stdio: 'inherit'
     };
     ExecSync(cmd, execOptions);
-}
-
-function downloadSimulatorDLL (callback) {
-    var Download = require('download');
-    var destPath = Path.join('simulator', 'win32');
-    Download('http://192.168.52.109/TestBuilds/Fireball/simulator/dlls/dll.zip', destPath, {
-        mode: '755',
-        extract: true,
-        strip: 0,
-        agent: null,
-    }).then(function (res) {
-        callback();
-    }).catch(callback);
 }
 
 function upload2Ftp (localPath, ftpPath, config, cb) {
@@ -218,10 +204,13 @@ gulp.task('gen-simulator', async function () {
             console.log(data.toString ? data.toString() : data);
         });
     });
+});
 
+gulp.task('clean-simulator', async function () {
     console.log('=====================================\n');
     console.log('clean project\n');
     console.log('=====================================\n');
+    let isWin32 = process.platform === 'win32';
     let delPatterns = [
         formatPath(Path.join(__dirname, './simulator/*')),
         formatPath(`!${Path.join(__dirname, './simulator/Debug')}`),
@@ -232,48 +221,13 @@ gulp.task('gen-simulator', async function () {
     }
     console.log('delete patterns: ', JSON.stringify(delPatterns, undefined, 2));
     await del(delPatterns, { force: true });
-
-    console.log('done!');
 });
 
-gulp.task('sign-simulator', function () {
-    try {
-        var cmd = fs.readFileSync(Path.join(process.env.HOME, '.ssh', 'codesignCmd_simulator.txt'), 'utf8');
-        execSync(cmd);
-    }
-    catch (e) {
-        console.warn('No need to run sign-simulator since v1.10.', e);
-    }
-});
-
-gulp.task('update-simulator-config', function (cb) {
-    var destPath = process.platform === 'win32' ? './simulator/win32/config.json' : './simulator/mac/Simulator.app/Contents/Resources/config.json';
-    fs.copy('./tools/simulator/config.json', destPath, cb);
-});
-
-// 在 'sign-simulator' 之后执行，以保留这些 dll 来自第三方的签名
-gulp.task('update-simulator-dll', function (cb) {
-    if (process.platform === 'win32') {
-        downloadSimulatorDLL(cb);
-    } else {
-        cb();
-    }
-});
-
-gulp.task('archive-simulator', function () {
-    return gulp.src('./simulator/**/*')
-        .pipe(zip('simulator_' + process.platform + '.zip'))
-        .pipe(gulp.dest('./'));
-});
+gulp.task('gen-simulator-release', gulp.series('gen-simulator', 'clean-simulator'));
 
 gulp.task('upload-cocos2d-x', function (cb) {
     var zipFileName = 'cocos2d-x.zip';
     uploadZipFile(zipFileName, './tools/make-package', cb);
-});
-
-gulp.task('upload-simulator', function (cb) {
-    var zipFileName = 'simulator_' + process.platform + '.zip';
-    uploadZipFile(zipFileName, '.', cb);
 });
 
 gulp.task('bump-version', function (cb) {

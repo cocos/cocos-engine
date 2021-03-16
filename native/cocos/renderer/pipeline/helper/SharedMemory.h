@@ -277,6 +277,7 @@ struct CC_DLL SubModelView {
     uint32_t passID[4] = {0, 0, 0, 0};
     uint32_t shaderID[4] = {0, 0, 0, 0};
     uint32_t planarShaderID = 0;
+    uint32_t planarInstanceShaderID = 0;
     uint32_t descriptorSetID = 0;
     uint32_t inputAssemblerID = 0;
     uint32_t subMeshID = 0;
@@ -284,6 +285,7 @@ struct CC_DLL SubModelView {
     CC_INLINE const PassView *getPassView(uint idx) const { return GET_PASS(passID[idx]); }
     CC_INLINE gfx::Shader *getShader(uint idx) const { return GET_SHADER(shaderID[idx]); }
     CC_INLINE gfx::Shader *getPlanarShader() const { return GET_SHADER(planarShaderID); }
+    CC_INLINE gfx::Shader *getPlanarInstanceShader() const { return GET_SHADER(planarInstanceShaderID); }
     CC_INLINE gfx::DescriptorSet *getDescriptorSet() const { return GET_DESCRIPTOR_SET(descriptorSetID); }
     CC_INLINE gfx::InputAssembler *getInputAssembler() const { return GET_IA(inputAssemblerID); }
     CC_INLINE const RenderingSubMesh *getSubMesh() const { return GET_RENDER_SUBMESH(subMeshID); }

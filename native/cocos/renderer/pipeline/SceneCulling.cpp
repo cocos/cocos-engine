@@ -136,6 +136,7 @@ void updateDirLight(Shadows *shadows, const Light *light, std::array<float, UBOS
     matLight.m[15] = 1;
 
     memcpy(shadowUBO.data() + UBOShadow::MAT_LIGHT_PLANE_PROJ_OFFSET, matLight.m, sizeof(matLight));
+    memcpy(shadowUBO.data() + UBOShadow::SHADOW_COLOR_OFFSET, &shadows->color, sizeof(Vec4));
 }
 
 void lightCollecting(Camera *camera, std::vector<const Light *> &validLights) {

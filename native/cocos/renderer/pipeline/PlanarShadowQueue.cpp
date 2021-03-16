@@ -27,11 +27,9 @@
 
 #include "PlanarShadowQueue.h"
 #include "RenderPipeline.h"
-#include "BatchedBuffer.h"
 #include "Define.h"
 #include "InstancedBuffer.h"
 #include "PipelineStateManager.h"
-#include "RenderBatchedQueue.h"
 #include "RenderInstancedQueue.h"
 #include "gfx-base/GFXCommandBuffer.h"
 #include "helper/SharedMemory.h"
@@ -63,7 +61,7 @@ void PlanarShadowQueue::gatherShadowPasses(Camera *camera, gfx::CommandBuffer *c
 
     const auto models = scene->getModels();
     const auto modelCount = models[0];
-    auto *instancedBuffer = InstancedBuffer::get(shadowInfo->planarPass);
+    auto *instancedBuffer = InstancedBuffer::get(shadowInfo->instancePass);
 
     uint visibility = 0, lenght = 0;
     for (uint i = 1; i <= modelCount; i++) {
@@ -86,7 +84,7 @@ void PlanarShadowQueue::gatherShadowPasses(Camera *camera, gfx::CommandBuffer *c
                     const auto subModelCount = subModelID[0];
                     for (uint m = 1; m <= subModelCount; ++m) {
                         const auto *subModel = model->getSubModelView(subModelID[m]);
-                        instancedBuffer->merge(model, subModel, m - 1);
+                        instancedBuffer->merge(model, subModel, m - 1, subModel->getPlanarInstanceShader());
                         _instancedQueue->add(instancedBuffer);
                     }
                 } else {
@@ -108,9 +106,11 @@ void PlanarShadowQueue::recordCommandBuffer(gfx::Device *device, gfx::RenderPass
     const auto sceneData = _pipeline->getPipelineSceneData();
     const auto sharedData = sceneData->getSharedData();
     const auto *shadowInfo = sharedData->getShadows();
-    if (!shadowInfo->enabled || shadowInfo->getShadowType() != ShadowType::PLANAR || _pendingModels.empty()) { return; }
+    if (!shadowInfo->enabled || shadowInfo->getShadowType() != ShadowType::PLANAR) { return; }
 
     _instancedQueue->recordCommandBuffer(device, renderPass, cmdBuffer);
+
+    if (_pendingModels.empty()) { return; }
 
     const auto *pass = shadowInfo->getPlanarShadowPass();
     cmdBuffer->bindDescriptorSet(MATERIAL_SET, pass->getDescriptorSet());
