@@ -45,6 +45,7 @@ import { UIComponent, UITransform } from '../framework';
 import { legacyCC } from '../../core/global-exports';
 import { Component } from '../../core/components';
 import assetManager from '../../core/asset-manager/asset-manager';
+import { CCObject } from '../../core';
 
 const _htmlTextParser = new HtmlTextParser();
 const RichTextChildName = 'RICHTEXT_CHILD';
@@ -101,6 +102,7 @@ function getSegmentByPool (type: string, content: string | SpriteFrame) {
     if (!node) {
         node = new PrivateNode(type);
     }
+    node._objFlags |= CCObject.Flags.DontSave;
     if (type === RichTextChildImageName) {
         seg.comp = node.getComponent(Sprite) || node.addComponent(Sprite);
         seg.comp.spriteFrame = content as SpriteFrame;
