@@ -129,16 +129,6 @@ interface BoneIndex extends Number {
 export class ArmatureDisplay extends Renderable2D {
     static AnimationCacheMode = AnimationCacheMode;
 
-    @override
-    @visible(false)
-    get srcBlendFactor () { return super.srcBlendFactor; }
-    set srcBlendFactor (v) { super.srcBlendFactor = v; }
-
-    @override
-    @visible(false)
-    get dstBlendFactor () { return super.dstBlendFactor; }
-    set dstBlendFactor (v) { super.dstBlendFactor = v; }
-
     /**
      * !#en
      * The DragonBones data contains the armatures information (bind pose bones, slots, draw order,

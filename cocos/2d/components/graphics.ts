@@ -212,8 +212,6 @@ export class Graphics extends Renderable2D {
         this.markForUpdateRenderData();
     }
 
-    @override
-    @visible(false)
     get srcBlendFactor () {
         return this._srcBlendFactor;
     }
@@ -221,8 +219,6 @@ export class Graphics extends Renderable2D {
     set srcBlendFactor (value) {
     }
 
-    @override
-    @visible(false)
     get dstBlendFactor () {
         return this._dstBlendFactor;
     }

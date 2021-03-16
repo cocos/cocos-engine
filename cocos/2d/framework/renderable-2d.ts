@@ -185,11 +185,8 @@ export class Renderable2D extends RenderableComponent {
      * ```ts
      * sprite.srcBlendFactor = BlendFactor.ONE;
      * ```
+     * @deprecated
      */
-    @visible(function (this: Renderable2D) { if (this._customMaterial) { return false; } return true; })
-    @type(BlendFactor)
-    @displayOrder(0)
-    @tooltip('Source blend factor')
     get srcBlendFactor () {
         if (!EDITOR && this._customMaterial) {
             warnID(12001);
@@ -217,11 +214,8 @@ export class Renderable2D extends RenderableComponent {
      * ```ts
      * sprite.dstBlendFactor = BlendFactor.ONE_MINUS_SRC_ALPHA;
      * ```
+     * @deprecated
      */
-    @visible(function (this: Renderable2D) { if (this._customMaterial) { return false; } return true; })
-    @type(BlendFactor)
-    @displayOrder(1)
-    @tooltip('destination blend factor')
     get dstBlendFactor () {
         if (!EDITOR && this._customMaterial) {
             warnID(12001);
