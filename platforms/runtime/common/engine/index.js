@@ -32,7 +32,3 @@ require('./game.js');
 require('./InputManager');
 require('./download-audio');
 require('./AudioPlayer');
-
-if (jsb && !jsb.setPreferredFramesPerSecond) {
-    jsb.setPreferredFramesPerSecond = ral.setPreferredFramesPerSecond.bind(ral);
-}
