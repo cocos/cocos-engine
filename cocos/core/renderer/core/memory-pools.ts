@@ -642,7 +642,7 @@ export const UIBatchArrayPool = new TypedArrayPool<PoolType.BATCH_ARRAY_2D, Uint
 
 export const RawBufferPool = new BufferAllocator(PoolType.RAW_BUFFER);
 export const RawObjectPool = new ObjectPool(PoolType.RAW_OBJECT,
-    (args: [object?: Record<string, unknown>]) => args[0] || {}, (_: Record<string, unknown>) => undefined);
+    (args: [obj?: Record<string, unknown>]) => args[0] || {}, (_: Record<string, unknown>) => undefined);
 
 export enum PassView {
     PRIORITY,

@@ -56,10 +56,6 @@ export class WebGLTexture extends Texture {
         this._size = FormatSurfaceSize(this._format, this.width, this.height,
             this.depth, this._levelCount) * this._layerCount;
 
-        if (this._flags & TextureFlagBit.BAKUP_BUFFER) {
-            this._buffer = new ArrayBuffer(this._size);
-        }
-
         this._gpuTexture = {
             type: this._type,
             format: this._format,
@@ -100,7 +96,6 @@ export class WebGLTexture extends Texture {
             this._device.memoryStatus.textureSize -= this._size;
             this._gpuTexture = null;
         }
-        this._buffer = null;
     }
 
     public resize (width: number, height: number) {
