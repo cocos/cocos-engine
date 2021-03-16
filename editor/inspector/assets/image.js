@@ -1,5 +1,7 @@
 'use strict';
 
+const path = require('path');
+
 exports.template = `
 <div class="asset-image">
     <ui-prop>
@@ -18,17 +20,22 @@ exports.template = `
         <ui-label slot="label" value="i18n:ENGINE.assets.image.useCompressTexture" tooltip="i18n:ENGINE.assets.image.useCompressTextureTip"></ui-label>
         <ui-checkbox slot="content" class="useCompressTexture-checkbox"></ui-checkbox>
     </ui-prop>
+
+    <ui-section>
+        <ui-panel></ui-panel>
+    </ui-section>
 </div>
 `;
 
 exports.style = `
-    .asset-image {  }
     .asset-image ui-prop {
         margin: 4px 0;
     }
 `;
 
 exports.$ = {
+    panel: 'ui-panel',
+
     container: '.asset-image',
     typeSelect: '.type-select',
     flipVerticalCheckbox: '.flipVertical-checkbox',
@@ -157,6 +164,8 @@ exports.update = function (assetList, metaList) {
             element.update.bind(this)();
         }
     }
+
+    this.updatePanel();
 };
 
 /**
@@ -169,6 +178,8 @@ exports.ready = function () {
             element.ready.bind(this)();
         }
     }
+
+    this.$.panel.setAttribute('src', path.join(__dirname, './texture.js'));
 };
 
 exports.methods = {
@@ -190,5 +201,21 @@ exports.methods = {
         } else {
             element.removeAttribute('disabled');
         }
+    },
+
+    async updatePanel() {
+        this._subUUIDList = this._assetList.map((asset) => {
+            return asset.uuid + '@6c48a';
+        });
+
+        const assetList = await Promise.all(this._subUUIDList.map((uuid) => {
+            return Editor.Message.request('asset-db', 'query-asset-info', uuid);
+        }));
+
+        const metaList = await Promise.all(this._subUUIDList.map((uuid) => {
+            return Editor.Message.request('asset-db', 'query-asset-meta', uuid);
+        }));
+
+        this.$.panel.update(assetList, metaList);
     },
 };

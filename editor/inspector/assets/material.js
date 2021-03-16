@@ -143,7 +143,7 @@ exports.update = async function(assetList, metaList) {
 exports.ready = async function() {
     // material 内容修改的时候触发的事件
     this.$.materialDump.addEventListener('change-dump', (event) => {
-        console.log('dump-changed');
+        Editor.Message.request('scene', 'preview-material', this._assetList[0].uuid, this._material);
         this.dispatch('change');
     });
 
