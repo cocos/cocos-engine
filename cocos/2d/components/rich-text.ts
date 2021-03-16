@@ -103,6 +103,7 @@ function getSegmentByPool (type: string, content: string | SpriteFrame) {
         node = new PrivateNode(type);
     }
     node._objFlags |= CCObject.Flags.DontSave;
+    node._objFlags |= CCObject.Flags.HideInHierarchy;
     if (type === RichTextChildImageName) {
         seg.comp = node.getComponent(Sprite) || node.addComponent(Sprite);
         seg.comp.spriteFrame = content as SpriteFrame;
