@@ -37,6 +37,7 @@ import { legacyCC } from '../global-exports';
 // const LocalDirtyFlag = Node._LocalDirtyFlag;
 // const POSITION_ON = 1 << 0;
 const HideInHierarchy = CCObject.Flags.HideInHierarchy;
+const DontSave = CCObject.Flags.DontSave;
 
 /**
  * @en
@@ -174,8 +175,7 @@ if (EDITOR) {
         }
 
         Node.prototype._onBatchCreated.call(this, dontSyncChildPrefab);
-        this._objFlags |= CCObject.Flags.DontSave;
-        this._objFlags |= CCObject.Flags.HideInHierarchy;
+        this._objFlags |= DontSave;
     };
 }
 
