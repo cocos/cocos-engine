@@ -97,6 +97,7 @@ export class EventHandler {
      * @zh
      * 事件响应组件和函数所在节点
      */
+    @serializable
     @type(legacyCC.Node)
     @tooltip('i18n:button.click_event.target')
     public target: Node | null = null;
