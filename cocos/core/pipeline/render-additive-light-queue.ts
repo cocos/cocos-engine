@@ -506,7 +506,7 @@ export class RenderAdditiveLightQueue {
         Mat4.toArray(cv, camera.matViewProj, UBOCamera.MAT_VIEW_PROJ_OFFSET);
         Mat4.toArray(cv, camera.matViewProjInv, UBOCamera.MAT_VIEW_PROJ_INV_OFFSET);
         Vec3.toArray(cv, camera.position, UBOCamera.CAMERA_POS_OFFSET);
-        cv[UBOCamera.CAMERA_POS_OFFSET + 3] = pipeline.getCombinationSignY();
+        cv[UBOCamera.CAMERA_POS_OFFSET + 3] = pipeline.getCombineSignY();
 
         const skyColor = ambient.colorArray;
         if (this._isHDR) {

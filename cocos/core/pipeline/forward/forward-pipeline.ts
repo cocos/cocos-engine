@@ -130,10 +130,11 @@ export class ForwardPipeline extends RenderPipeline {
     protected _globalUBO = new Float32Array(UBOGlobal.COUNT);
     protected _cameraUBO = new Float32Array(UBOCamera.COUNT);
     protected _shadowUBO = new Float32Array(UBOShadow.COUNT);
+    private _combineSignY = 0;
 
     public initialize (info: IRenderPipelineInfo): boolean {
         super.initialize(info);
-
+        this._initCombineSignY();
         if (this._flows.length === 0) {
             const shadowFlow = new ShadowFlow();
             shadowFlow.initialize(ShadowFlow.initInfo);
@@ -344,9 +345,17 @@ export class ForwardPipeline extends RenderPipeline {
         }
     }
 
-    public getCombinationSignY () {
+    /**
+     * @en Map the value of [-1,1] in screenSpaceSignY and clipSpaceSignY to [0,1],and then move screenSpaceSignY one bit to the left and combine with clipSpaceSignY
+     * @zh 把screenSpaceSignY与clipSpaceSignY中[-1,1]的值映射为[0,1],通过screenSpaceSignY左移一位与clipSpaceSignY合并
+     */
+    public getCombineSignY () {
+        return this._combineSignY;
+    }
+
+    private _initCombineSignY () {
         const device = this._device;
-        return (device.screenSpaceSignY * 0.5 + 0.5) << 1 | (device.clipSpaceSignY * 0.5 + 0.5);
+        this._combineSignY = (device.screenSpaceSignY * 0.5 + 0.5) << 1 | (device.clipSpaceSignY * 0.5 + 0.5);
     }
 
     public updateCameraUBO (camera: Camera) {
@@ -408,7 +417,7 @@ export class ForwardPipeline extends RenderPipeline {
         Mat4.toArray(cv, camera.matViewProjInv, UBOCamera.MAT_VIEW_PROJ_INV_OFFSET);
         Vec3.toArray(cv, camera.position, UBOCamera.CAMERA_POS_OFFSET);
 
-        cv[UBOCamera.CAMERA_POS_OFFSET + 3] = this.getCombinationSignY();
+        cv[UBOCamera.CAMERA_POS_OFFSET + 3] = this.getCombineSignY();
 
         cv.set(fog.colorArray, UBOCamera.GLOBAL_FOG_COLOR_OFFSET);
 
