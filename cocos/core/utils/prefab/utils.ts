@@ -251,11 +251,11 @@ export function applyTargetOverrides (node: BaseNode) {
                 if (sourceInstance && sourceInstance.targetMap) {
                     source = getTarget(sourceInfo.localID, sourceInstance.targetMap);
                 }
+            }
 
-                if (!source) {
-                    // Can't find source
-                    continue;
-                }
+            if (!source) {
+                // Can't find source
+                continue;
             }
 
             let target: Node|Component|null = null;
@@ -286,6 +286,13 @@ export function applyTargetOverrides (node: BaseNode) {
                 for (let i = 0; i < propertyPath.length; i++) {
                     const propName = propertyPath[i];
                     targetPropOwner = targetPropOwner[propName];
+                    if (!targetPropOwner) {
+                        break;
+                    }
+                }
+
+                if (!targetPropOwner) {
+                    continue;
                 }
 
                 targetPropOwner[targetPropName] = target;

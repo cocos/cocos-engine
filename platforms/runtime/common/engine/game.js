@@ -1,6 +1,15 @@
 cc.game.restart = function () {
 };
 
+cc.game._setAnimFrame = function () {
+    this._lastTime = performance.now();
+    const frameRate = this.config.frameRate;
+    this._frameTime = 1000 / frameRate;
+    ral.setPreferredFramesPerSecond(frameRate);
+    window.rAF = window.requestAnimationFrame;
+    window.cAF = window.cancelAnimationFrame;
+};
+
 ral.onHide(function (data) {
     cc.game.emit(cc.Game.EVENT_HIDE);
 });

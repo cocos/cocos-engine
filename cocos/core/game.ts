@@ -620,7 +620,7 @@ export class Game extends EventTarget {
         this._lastTime = performance.now();
         const frameRate = this.config.frameRate;
         this._frameTime = 1000 / frameRate;
-        if (JSB || RUNTIME_BASED) {
+        if (JSB) {
             // @ts-expect-error JSB Call
             jsb.setPreferredFramesPerSecond(frameRate);
             window.rAF = window.requestAnimationFrame;
