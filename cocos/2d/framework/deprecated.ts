@@ -117,11 +117,11 @@ replaceProperty(Canvas.prototype, 'Canvas.prototype', [
 markAsWarning(Renderable2D.prototype, 'Renderable2D.prototype', [
     {
         name: 'srcBlendFactor',
-        suggest: 'You can set this value by material.',
+        suggest: 'Please use a custom material to specify blending options instead.',
     },
     {
         name: 'dstBlendFactor',
-        suggest: 'You can set this value by material.',
+        suggest: 'Please use a custom material to specify blending options instead.',
     },
 ]);
 
