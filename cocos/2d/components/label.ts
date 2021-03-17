@@ -37,7 +37,9 @@ import { ccenum } from '../../core/value-types/enum';
 import { Batcher2D } from '../renderer/batcher-2d';
 import { FontAtlas } from '../assets/bitmap-font';
 import { CanvasPool, ISharedLabelData, LetterRenderTexture } from '../assembler/label/font-utils';
-import { Renderable2D } from '../framework/renderable-2d';
+import { InstanceMaterialType, Renderable2D } from '../framework/renderable-2d';
+import { TextureBase } from '../../core/assets/texture-base';
+import { PixelFormat } from '../../core/assets/asset-enum';
 
 /**
  * @en Enum for horizontal text alignment.
@@ -782,6 +784,7 @@ export class Label extends Renderable2D {
             const onBMFontTextureLoaded = () => {
                 // TODO: old texture in material have been released by loader
                 this._texture = spriteFrame;
+                this.changeMaterialForDefine();
                 if (this._assembler) {
                     this._assembler.updateRenderData(this);
                 }
@@ -810,7 +813,29 @@ export class Label extends Renderable2D {
                 // this._frame._refreshTexture(this._texture);
                 this._texture = this._ttfSpriteFrame;
             }
+            this.changeMaterialForDefine();
             this._assembler && this._assembler.updateRenderData(this);
         }
+    }
+
+    protected changeMaterialForDefine () {
+        if (!this._texture) {
+            return;
+        }
+        let value = false;
+        if (this.cacheMode !== CacheMode.CHAR) {
+            const spriteFrame = this._texture as SpriteFrame;
+            const texture = spriteFrame.texture;
+            if (texture instanceof TextureBase) {
+                const format = texture.getPixelFormat();
+                value = (format === PixelFormat.RGBA_ETC1 || format === PixelFormat.RGB_A_PVRTC_4BPPV1 || format === PixelFormat.RGB_A_PVRTC_2BPPV1);
+            }
+        }
+        if (value) {
+            this._instanceMaterialType = InstanceMaterialType.USE_ALPHA_SEPARATED;
+        } else {
+            this._instanceMaterialType = InstanceMaterialType.ADD_COLOR_AND_TEXTURE;
+        }
+        this.updateMaterial();
     }
 }
