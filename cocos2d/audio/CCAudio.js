@@ -457,7 +457,10 @@ let WebAudioElement = function (buffer, audio) {
         this.playedLength %= this._buffer.duration;
         let audio = this._currentSource;
         if (audio) {
-            audio.onended = null;
+            if(audio.onended){
+                audio.onended._binded = false;
+                audio.onended = null;
+            }
             audio.stop(0);
         }
         this._currentSource = null;
