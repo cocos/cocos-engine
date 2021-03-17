@@ -39,7 +39,9 @@ export abstract class AudioManager<AudioType> {
     }
 
     public addPlaying (audio: AudioType) {
-        this._playingAudios.push(audio);
+        if (!this._playingAudios.includes(audio)) {
+            this._playingAudios.push(audio);
+        }
     }
 
     public removePlaying (audio: AudioType) {
