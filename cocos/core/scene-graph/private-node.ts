@@ -169,7 +169,7 @@ export class PrivateNode extends Node {
 if (EDITOR) {
     // check components to avoid missing node reference serialied in previous version
     PrivateNode.prototype._onBatchCreated = function onBatchCreated (dontSyncChildPrefab: boolean) {
-        // @ts-expect-error
+        // @ts-expect-error : Property '_components' is protected and only accessible within class 'BaseNode' and its subclasses.
         for (const comp of this._components) {
             comp.node = this;
         }
