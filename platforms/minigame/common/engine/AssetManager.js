@@ -291,6 +291,7 @@ downloader.register({
     '.webp' : downloadAsset,
     '.pvr': downloadAsset,
     '.pkm': downloadAsset,
+    '.astc': downloadAsset,
 
     '.font': downloadAsset,
     '.eot': downloadAsset,
