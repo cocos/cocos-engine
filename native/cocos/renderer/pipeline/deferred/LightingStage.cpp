@@ -60,8 +60,7 @@ RenderStageInfo LightingStage::_initInfo = {
     "LightingStage",
     static_cast<uint>(DeferredStagePriority::LIGHTING),
     static_cast<uint>(RenderFlowTag::SCENE),
-    {{false, RenderQueueSortMode::FRONT_TO_BACK, {"default"}},
-     {true, RenderQueueSortMode::BACK_TO_FRONT, {"default", "planarShadow"}}}};
+};
 
 const RenderStageInfo &LightingStage::getInitializeInfo() { return LightingStage::_initInfo; }
 
@@ -243,27 +242,6 @@ void LightingStage::activate(RenderPipeline *pipeline, RenderFlow *flow) {
     // create lighting buffer and view
     initLightingBuffer();
 
-    for (const auto &descriptor : _renderQueueDescriptors) {
-        uint phase = 0;
-        for (const auto &stage : descriptor.stages) {
-            phase |= getPhaseID(stage);
-        }
-
-        std::function<int(const RenderPass &, const RenderPass &)> sortFunc = opaqueCompareFn;
-        switch (descriptor.sortMode) {
-            case RenderQueueSortMode::BACK_TO_FRONT:
-                sortFunc = transparentCompareFn;
-                break;
-            case RenderQueueSortMode::FRONT_TO_BACK:
-                sortFunc = opaqueCompareFn;
-            default:
-                break;
-        }
-
-        RenderQueueCreateInfo info = {descriptor.isTransparent, phase, sortFunc};
-        _renderQueues.emplace_back(CC_NEW(RenderQueue(std::move(info))));
-    }
-
     _planarShadowQueue = CC_NEW(PlanarShadowQueue(_pipeline));
 }
 
@@ -333,35 +311,6 @@ void LightingStage::render(Camera *camera) {
 
     // planerQueue
     _planarShadowQueue->recordCommandBuffer(_device, renderPass, cmdBuff);
-
-    // transparent
-    for (auto queue : _renderQueues) {
-        queue->clear();
-    }
-
-    uint m = 0, p = 0;
-    size_t k = 0;
-    for (size_t i = 0; i < renderObjects.size(); ++i) {
-        const auto &ro = renderObjects[i];
-        const auto model = ro.model;
-        const auto subModelID = model->getSubModelID();
-        const auto subModelCount = subModelID[0];
-        for (m = 1; m <= subModelCount; ++m) {
-            auto subModel = model->getSubModelView(subModelID[m]);
-            for (p = 0; p < subModel->passCount; ++p) {
-                const PassView *pass = subModel->getPassView(p);
-                // TODO: need fallback of ulit and gizmo material.
-                if (pass->phase != _phaseID) continue;
-                for (k = 0; k < _renderQueues.size(); k++) {
-                    _renderQueues[k]->insertRenderPass(ro, m, p);
-                }
-            }
-        }
-    }
-    for (auto queue : _renderQueues) {
-        queue->sort();
-        queue->recordCommandBuffer(_device, renderPass, cmdBuff);
-    }
 
     cmdBuff->endRenderPass();
 }

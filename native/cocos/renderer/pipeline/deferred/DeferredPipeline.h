@@ -62,6 +62,7 @@ public:
     virtual void destroy() override;
     virtual bool activate() override;
     virtual void render(const vector<uint> &cameras) override;
+    virtual void resize(uint width, uint height) override;
 
     gfx::RenderPass *getOrCreateRenderPass(gfx::ClearFlags clearFlags);
 
@@ -80,6 +81,7 @@ private:
     bool createQuadInputAssembler(gfx::Buffer* &quadIB, gfx::Buffer* &quadVB, gfx::InputAssembler* &quadIA,
         gfx::SurfaceTransform surfaceTransform);
     void destroyQuadInputAssembler();
+    void destroyDeferredData();
     void generateDeferredRenderData();
 
 private:

@@ -58,7 +58,8 @@ public:
     virtual void destroy();
     virtual bool initialize(const RenderPipelineInfo &info);
     virtual void render(const vector<uint> &cameras);
-
+    virtual void resize(uint width, uint height) {};
+    
     void setPipelineSharedSceneData(uint handle);
 
     CC_INLINE const RenderFlowList &getFlows() const { return _flows; }

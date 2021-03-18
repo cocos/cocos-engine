@@ -31,6 +31,7 @@
 #include "../PipelineStateManager.h"
 #include "gfx-base/GFXDevice.h"
 #include "../forward/UIPhase.h"
+#include "../RenderQueue.h"
 
 namespace cc {
 namespace pipeline {
@@ -38,6 +39,7 @@ RenderStageInfo PostprocessStage::_initInfo = {
     "PostprocessStage",
     static_cast<uint>(DeferredStagePriority::POSTPROCESS),
     0,
+    {{true, RenderQueueSortMode::BACK_TO_FRONT, {"default"}}},
 };
 
 PostprocessStage::PostprocessStage() : RenderStage() {
@@ -46,12 +48,35 @@ PostprocessStage::PostprocessStage() : RenderStage() {
 
 bool PostprocessStage::initialize(const RenderStageInfo &info) {
     RenderStage::initialize(info);
+    _renderQueueDescriptors = info.renderQueues;
     return true;
 }
 
 void PostprocessStage::activate(RenderPipeline *pipeline, RenderFlow *flow) {
     RenderStage::activate(pipeline, flow);
     _uiPhase->activate(pipeline);
+    _phaseID = getPhaseID("default");
+
+    for (const auto &descriptor : _renderQueueDescriptors) {
+        uint phase = 0;
+        for (const auto &stage : descriptor.stages) {
+            phase |= getPhaseID(stage);
+        }
+
+        std::function<int(const RenderPass &, const RenderPass &)> sortFunc = opaqueCompareFn;
+        switch (descriptor.sortMode) {
+            case RenderQueueSortMode::BACK_TO_FRONT:
+                sortFunc = transparentCompareFn;
+                break;
+            case RenderQueueSortMode::FRONT_TO_BACK:
+                sortFunc = opaqueCompareFn;
+            default:
+                break;
+        }
+
+        RenderQueueCreateInfo info = {descriptor.isTransparent, phase, sortFunc};
+        _renderQueues.emplace_back(CC_NEW(RenderQueue(std::move(info))));
+    }
 }
 
 void PostprocessStage::destroy() {
@@ -96,6 +121,36 @@ void PostprocessStage::render(Camera *camera) {
         cmdBf->bindPipelineState(pso);
         cmdBf->bindInputAssembler(ia);
         cmdBf->draw(ia);
+    }
+    
+    // transparent
+    for (auto queue : _renderQueues) {
+        queue->clear();
+    }
+
+    uint m = 0, p = 0;
+    size_t k = 0;
+    for (size_t i = 0; i < renderObjects.size(); ++i) {
+        const auto &ro = renderObjects[i];
+        const auto model = ro.model;
+        const auto subModelID = model->getSubModelID();
+        const auto subModelCount = subModelID[0];
+        for (m = 1; m <= subModelCount; ++m) {
+            auto subModel = model->getSubModelView(subModelID[m]);
+            for (p = 0; p < subModel->passCount; ++p) {
+                const PassView *pass = subModel->getPassView(p);
+                // TODO: need fallback of ulit and gizmo material.
+                if (pass->phase != _phaseID) continue;
+                for (k = 0; k < _renderQueues.size(); k++) {
+                    _renderQueues[k]->insertRenderPass(ro, m, p);
+                }
+            }
+        }
+    }
+    
+    for (auto queue : _renderQueues) {
+        queue->sort();
+        queue->recordCommandBuffer(_device, rp, cmdBf);
     }
 
     _uiPhase->render(camera, rp);

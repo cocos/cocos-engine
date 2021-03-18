@@ -378,6 +378,16 @@ bool DeferredPipeline::activeRenderer() {
     return true;
 }
 
+void DeferredPipeline::resize(uint width, uint height) {
+    if (_width == width && _height == height) {
+        return;
+    }
+    _width = width;
+    _height = height;
+    destroyDeferredData();
+    generateDeferredRenderData();
+}
+
 void DeferredPipeline::generateDeferredRenderData() {
     _deferredRenderData = CC_NEW(DeferredRenderData);
     
@@ -453,14 +463,30 @@ void DeferredPipeline::destroy() {
     }
     _renderPasses.clear();
     
-    _deferredRenderData = nullptr;
-
     _commandBuffers.clear();
     
     _gbufferRenderPass = nullptr;
     _lightingRenderPass = nullptr;
 
     RenderPipeline::destroy();
+}
+
+void DeferredPipeline::destroyDeferredData() {
+    if (_deferredRenderData->gbufferFrameBuffer) {
+        _deferredRenderData->gbufferFrameBuffer->destroy();
+    }
+    
+    if (_deferredRenderData->lightingFrameBuff) {
+        _deferredRenderData->lightingFrameBuff->destroy();
+    }
+
+    if (_deferredRenderData->lightingRenderTarget) {
+        _deferredRenderData->lightingRenderTarget->destroy();
+    }
+    
+    _deferredRenderData->gbufferRenderTargets.clear();
+    
+    CC_DELETE(_deferredRenderData);
 }
 
 } // namespace pipeline

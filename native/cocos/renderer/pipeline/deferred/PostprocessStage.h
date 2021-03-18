@@ -47,6 +47,8 @@ private:
     gfx::Rect _renderArea;
     static RenderStageInfo _initInfo;
     UIPhase *_uiPhase = nullptr;
+    
+    uint _phaseID = 0;
 };
 } // namespace pipeline
 } // namespace cc
