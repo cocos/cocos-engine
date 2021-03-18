@@ -31,6 +31,9 @@ export default class EffectBase {
         if (prop.value instanceof Float32Array) {
             uniform.value = new Float32Array(prop.value);
         }
+        else if (prop.value instanceof Float64Array) {
+            uniform.value = new Float64Array(prop.value);
+        }
         else {
             uniform.value = prop.value;
         }
@@ -41,11 +44,14 @@ export default class EffectBase {
 
     _setPassProperty (name, value, pass, directly) {
         let properties = pass._properties;
-        let uniform = properties.hasOwnProperty(name);
-        if (!uniform) {
-            uniform = this._createPassProp(name, pass);
+
+        if (!properties.hasOwnProperty(name)) {
+            this._createPassProp(name, pass);
         }
-        else if (uniform.value === value) return;
+
+        if (properties[name].value === value) {
+            return true;
+        }
 
         this._dirty = true;
         return Pass.prototype.setProperty.call(pass, name, value, directly);

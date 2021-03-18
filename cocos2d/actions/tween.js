@@ -91,12 +91,17 @@ let TweenAction = cc.Class({
         if (!target) return;
 
         let props = this._props;
-        let progress = this._opts.progress;
+        let progress = opts.progress;
         for (let name in props) {
             let prop = props[name];
             let time = prop.easing ? prop.easing(t) : easingTime;
             let current = prop.current = (prop.progress || progress)(prop.start, prop.end, prop.current, time);
             target[name] = current;
+        }
+
+        let onUpdate = opts.onUpdate;
+        if (onUpdate) {
+            onUpdate(target, t)
         }
     },
 
@@ -480,7 +485,7 @@ let actions = {
      * @param {Function|String} [opts.easing]
      * @return {Tween}
      * @typescript
-     * to <OPTS extends Partial<{progress: Function, easing: Function|String}>> (duration: number, props: ConstructorType<T>, opts?: OPTS) : Tween<T>
+     * to<OPTS extends Partial<{ progress: Function, easing: Function | String, onUpdate: Function }>>(duration: number, props: ConstructorType<T>, opts?: OPTS): Tween<T>
      */
     to (duration, props, opts) {
         opts = opts || Object.create(null);
@@ -501,7 +506,7 @@ let actions = {
      * @param {Function|String} [opts.easing]
      * @return {Tween}
      * @typescript
-     * by <OPTS extends Partial<{progress: Function, easing: Function|String}>> (duration: number, props: ConstructorType<T>, opts?: OPTS) : Tween<T>
+     * by<OPTS extends Partial<{ progress: Function, easing: Function | String, onUpdate: Function }>>(duration: number, props: ConstructorType<T>, opts?: OPTS): Tween<T>
      */
     by (duration, props, opts) {
         opts = opts || Object.create(null);
@@ -542,8 +547,9 @@ let actions = {
      * 添加一个回调 action
      * @method call
      * @param {Function} callback
+     * @param {object} [selectTarget]
      * @return {Tween}
-     * @typescript call(callback: Function): Tween<T>
+     * @typescript call(callback: Function, selectTarget?: object): Tween<T>
      */
     call: cc.callFunc,
     /**

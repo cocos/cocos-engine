@@ -53,7 +53,9 @@ function load (task, done) {
             onComplete: function (err, item) {
                 if (err && !task.isFinish) {
                     if (!cc.assetManager.force || firstTask) {
-                        cc.error(err.message, err.stack);
+                        if (!CC_EDITOR) {
+                            cc.error(err.message, err.stack);
+                        }
                         progress.canInvoke = false;
                         done(err);
                     }
@@ -192,9 +194,10 @@ function loadDepends (task, asset, done, init) {
                 if (!init) {
                     if (asset.__nativeDepend__ && !asset._nativeAsset) {
                         var missingAsset = setProperties(uuid, asset, map);
-                        if (!missingAsset) {
+                        if (!missingAsset && !asset.__onLoadInvoked__) {
                             try {
                                 asset.onLoad && asset.onLoad();
+                                asset.__onLoadInvoked__ = true;
                             }
                             catch (e) {
                                 cc.error(e.message, e.stack);
@@ -204,9 +207,10 @@ function loadDepends (task, asset, done, init) {
                 }
                 else {
                     var missingAsset = setProperties(uuid, asset, map);
-                    if (!missingAsset) {
+                    if (!missingAsset && !asset.__onLoadInvoked__) {
                         try {
                             asset.onLoad && asset.onLoad();
+                            asset.__onLoadInvoked__ = true;
                         }
                         catch (e) {
                             cc.error(e.message, e.stack);

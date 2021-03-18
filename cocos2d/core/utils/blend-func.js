@@ -99,6 +99,10 @@ let BlendFunc = cc.Class({
             gfx.BLEND_FUNC_ADD,
             this._srcBlendFactor, this._dstBlendFactor
         );
+        
+        if (CC_JSB) {
+            RenderComponent.prototype.markForRender.call(this, true);
+        }        
     },
 });
 

@@ -70,10 +70,7 @@ let textureUtil = {
             return;
         }
         // load image
-        cc.assetManager.loadNativeFile(texture, function (err, image) {
-            if (!err) texture._nativeAsset = image;
-            callback && callback(err);
-        });
+        cc.assetManager.postLoadNative(texture, callback);
     }
 };
 

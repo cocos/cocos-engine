@@ -781,6 +781,10 @@ let ScrollView = cc.Class({
 
         let deltaMove = cc.v2(0, 0);
         let wheelPrecision = -0.1;
+        //On the windows platform, the scrolling speed of the mouse wheel of ScrollView on chrome and firebox is different
+        if (cc.sys.os === cc.sys.OS_WINDOWS && cc.sys.browserType === cc.sys.BROWSER_TYPE_FIREFOX) {
+            wheelPrecision = -0.1/3;
+        }
         if(CC_JSB || CC_RUNTIME) {
             wheelPrecision = -7;
         }

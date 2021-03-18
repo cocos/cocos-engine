@@ -25,14 +25,13 @@
 
 import CANNON from '../../../../../external/cannon/cannon';
 import { ERigidBodyType } from '../framework/physics-enum';
-import { getWrap } from '../framework/util';
+import { getWrap, worldDirty } from '../framework/util';
 import { CannonWorld } from './cannon-world';
 import { CannonShape } from './shapes/cannon-shape';
 import { Collider3D } from '../exports/physics-framework';
 import { CollisionEventType } from '../framework/physics-interface';
 import { CannonRigidBody } from './cannon-rigid-body';
 import { commitShapeUpdates, groupIndexToBitMask, deprecatedEventMap } from './cannon-util'
-import { updateWorldTransform, updateWorldRT } from "../framework/util"
 
 const LocalDirtyFlag = cc.Node._LocalDirtyFlag;
 const PHYSICS_SCALE = LocalDirtyFlag.PHYSICS_SCALE;
@@ -174,15 +173,16 @@ export class CannonSharedBody {
 
     syncSceneToPhysics (force = false) {
         let node = this.node;
-        let needUpdateTransform = updateWorldTransform(node, force);
+        let needUpdateTransform = worldDirty(node);
         if (!force && !needUpdateTransform) {
             return;
         }
         // body world aabb need to be recalculated
         this.body.aabbNeedsUpdate = true;
-
-        Vec3.copy(this.body.position, node.__wpos);
-        Quat.copy(this.body.quaternion, node.__wrot);
+        node.getWorldPosition(v3_0);
+        node.getWorldRotation(quat_0)
+        Vec3.copy(this.body.position, v3_0);
+        Quat.copy(this.body.quaternion, quat_0);
 
         if (node._localMatDirty & PHYSICS_SCALE) {
             let wscale = node.__wscale;
@@ -201,7 +201,8 @@ export class CannonSharedBody {
         if (this.body.type != ERigidBodyType.STATIC && !this.body.isSleeping()) {
             Vec3.copy(v3_0, this.body.position);
             Quat.copy(quat_0, this.body.quaternion);
-            updateWorldRT(this.node, v3_0, quat_0);
+            this.node.setWorldPosition(v3_0);
+            this.node.setWorldRotation(quat_0);
         }
     }
 

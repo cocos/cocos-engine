@@ -38,7 +38,7 @@ const { files } = require('./shared');
 const { __audioSupport, capabilities } = require('../platform/CCSys');
 const { urlAppendTimestamp, retry } = require('./utilities');
 
-const REGEX = /^\w+:\/\/.*/;
+const REGEX = /^(?:\w+:\/\/|\.+\/).+/;
 
 
 var formatSupport = __audioSupport.format || [];
@@ -149,8 +149,9 @@ var _checkNextPeriod = false;
 
 var updateTime = function () {
     var now = Date.now();
-    // use deltaTime as period
-    if (now - _lastDate > cc.director._deltaTime * 1000) {
+    // use deltaTime as interval
+    let interval = cc.director._deltaTime > downloader._maxInterval ? downloader._maxInterval : cc.director._deltaTime;
+    if (now - _lastDate > interval * 1000) {
         _totalNumThisPeriod = 0;
         _lastDate = now;
     }
@@ -205,6 +206,7 @@ var handleQueue = function (maxConcurrency, maxRequestsPerFrame) {
 var downloader = {
 
     _remoteServerAddress: '',
+    _maxInterval: 1 / 30,
     
     /**
      * !#en 
@@ -377,8 +379,8 @@ var downloader = {
      * downloadScript('http://localhost:8080/index.js', null, (err) => console.log(err));
      * 
      * @typescript
-     * downloadScript(url: string, options?: Record<string, any>, onComplete?: (err: Error) => void): void;
-     * downloadScript(url: string, onComplete?: (err: Error) => void): void;
+     * downloadScript(url: string, options?: Record<string, any>, onComplete?: (err: Error) => void): void
+     * downloadScript(url: string, onComplete?: (err: Error) => void): void
      */
     downloadScript: downloadScript,
 
@@ -470,9 +472,9 @@ var downloader = {
         }
         else {
             // if download fail, should retry
-            var maxRetryCount = options.maxRetryCount || this.maxRetryCount;
-            var maxConcurrency = options.maxConcurrency || this.maxConcurrency;
-            var maxRequestsPerFrame = options.maxRequestsPerFrame || this.maxRequestsPerFrame;
+            var maxRetryCount = typeof options.maxRetryCount !== 'undefined' ? options.maxRetryCount : this.maxRetryCount;
+            var maxConcurrency = typeof options.maxConcurrency !== 'undefined' ? options.maxConcurrency : this.maxConcurrency;
+            var maxRequestsPerFrame = typeof options.maxRequestsPerFrame !== 'undefined' ? options.maxRequestsPerFrame : this.maxRequestsPerFrame;
 
             function process (index, callback) {
                 if (index === 0) {
@@ -595,4 +597,5 @@ var downloaders = {
 
 };
 
+downloader._downloaders = downloaders;
 module.exports = downloader;
