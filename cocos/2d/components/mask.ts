@@ -38,7 +38,7 @@ import { ccenum } from '../../core/value-types/enum';
 import { Graphics } from './graphics';
 import { TransformBit } from '../../core/scene-graph/node-enum';
 import { SpriteFrame } from '../assets/sprite-frame';
-import { Game, Material, builtinResMgr, director, RenderingSubMesh } from '../../core';
+import { Game, Material, builtinResMgr, director, RenderingSubMesh, CCObject } from '../../core';
 import { Device, BufferInfo, BufferUsageBit, MemoryUsageBit, PrimitiveMode } from '../../core/gfx';
 import { legacyCC } from '../../core/global-exports';
 import { MaterialInstance, scene } from '../../core/renderer';
@@ -487,6 +487,7 @@ export class Mask extends Renderable2D {
     protected _createGraphics () {
         if (!this._graphics) {
             const graphics = this._graphics = new Graphics();
+            graphics._objFlags |= CCObject.Flags.IsOnLoadCalled;// hack for destroy
             graphics.node = this.node;
             graphics.node.getWorldMatrix();
             graphics.lineWidth = 0;
