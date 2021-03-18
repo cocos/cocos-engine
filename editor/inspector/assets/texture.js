@@ -31,12 +31,6 @@ exports.template = `
             <ui-label value="i18n:ENGINE.assets.texture.modeWarn"></ui-label>
         </ui-prop>
     </div>
-    <div class="preview">
-        <ui-image class="preview-image" show-alpha></ui-image>
-        <div class="preview-image-label">
-            <span class="preview-image-size"></span>
-        </div>
-    </div>
 </div>
 `;
 
@@ -49,6 +43,9 @@ exports.style = `
     .asset-texture > .content {  
         padding-bottom: 15px;
         flex: 1;
+    }
+    .asset-texture > .content > ui-prop {
+        margin: 4px 0;
     }
     .asset-texture > .content > ui-prop.warn {  
         color: var(--color-warn-fill);
@@ -75,24 +72,6 @@ exports.style = `
     }
     .asset-texture > .preview:hover {
         border-color: var(--color-warn-fill);
-    }
-    .asset-texture > .preview > .preview-image {
-        width: 100%;
-        height: 100%;
-    }
-    .asset-texture > .preview > .preview-image-label {
-        position: absolute;
-        width: 100%;
-        left: 0;
-        bottom: 4px;
-        text-align: center;
-    }
-    .asset-texture > .preview > .preview-image-label > .preview-image-size {
-        font-size: 10px;
-        padding: 2px 8px;
-        background-color: var(--color-primary-fill);
-        color: var(--color-primary-contrast-weakest);
-        border-radius: calc(var(--size-normal-radius) * 1px);
     }
 `;
 
@@ -275,10 +254,20 @@ const Elements = {
      * 在 wrap mode 值为 repeat 的情况下条件不成立需要给出警告信息
      */
     warnWords: {
+        ready() {
+            this.$.image = document.createElement('ui-image');
+            
+            this.$.image.$img.addEventListener('load', () => {
+                Elements.warnWords.update.bind(this)();
+            });
+        },
         update() {
             const panel = this;
 
+            this.$.image.value = this._asset.uuid;
+
             const { wrapModeT, wrapModeS } = panel._meta.userData;
+
             const { naturalWidth, naturalHeight } = panel.$.image.$img;
 
             // 判断 2 的幂次方算法：(number & number - 1) === 0
@@ -296,21 +285,6 @@ const Elements = {
                 this.$.wrapModeSProp.classList.remove('warn');
                 this.$.wrapModeTProp.classList.remove('warn');
             }
-        },
-    },
-    imagePreview: {
-        ready() {
-            const panel = this;
-
-            this.$.image.$img.addEventListener('load', () => {
-                this.$.imageSize.innerHTML = `${this.$.image.$img.naturalWidth} x ${this.$.image.$img.naturalHeight}`;
-                Elements.warnWords.update.bind(this)();
-            });
-        },
-        update() {
-            const panel = this;
-
-            this.$.image.value = this._asset.uuid;
         },
     },
 };

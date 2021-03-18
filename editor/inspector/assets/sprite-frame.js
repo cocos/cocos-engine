@@ -65,12 +65,6 @@ exports.template = `
             </ui-button>
         </ui-prop>
     </div>
-    <div class="preview">
-        <ui-image class="preview-image" show-alpha></ui-image>
-        <div class="preview-image-label">
-            <span class="preview-image-size"></span>
-        </div>
-    </div>
 </div>
 `;
 
@@ -91,32 +85,6 @@ exports.style = `
         text-align: center;
         margin-top: 10px;
     }
-    .asset-sprite-frame > .preview {
-        height: 200px;
-        background: var(--color-normal-fill-emphasis);
-        border: 1px solid var(--color-normal-border-emphasis);
-        display: flex;
-        padding: 10px;
-        position: relative;
-    }
-    .asset-sprite-frame > .preview > .preview-image {
-        width: 100%;
-        height: 100%;
-    }
-    .asset-sprite-frame > .preview > .preview-image-label {
-        position: absolute;
-        width: 100%;
-        left: 0;
-        bottom: 4px;
-        text-align: center;
-    }
-    .asset-sprite-frame > .preview > .preview-image-label > .preview-image-size {
-        font-size: 10px;
-        padding: 2px 8px;
-        background-color: var(--color-primary-fill);
-        color: var(--color-primary-contrast-weakest);
-        border-radius: calc(var(--size-normal-radius) * 1px);
-    }
 `;
 
 exports.$ = {
@@ -136,8 +104,6 @@ exports.$ = {
     borderLeftInput: '.borderLeft-input',
     borderRightInput: '.borderRight-input',
     editButton: '.edit-button',
-    image: '.preview-image',
-    imageSize: '.preview-image-size',
 };
 
 /**
@@ -464,20 +430,6 @@ const Elements = {
             const panel = this;
 
             Editor.Message.removeBroadcastListener('sprite-editor:changed', panel._updateFromBroadcast);
-        },
-    },
-    imagePreview: {
-        ready() {
-            const panel = this;
-
-            this.$.image.$img.addEventListener('load', () => {
-                this.$.imageSize.innerHTML = `${this.$.image.$img.naturalWidth} x ${this.$.image.$img.naturalHeight}`;
-            });
-        },
-        update() {
-            const panel = this;
-
-            this.$.image.value = this._asset.uuid;
         },
     },
 };
