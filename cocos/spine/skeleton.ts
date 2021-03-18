@@ -142,16 +142,6 @@ export class Skeleton extends Renderable2D {
         this._cleanMaterialCache();
     }
 
-    @override
-    @visible(false)
-    get srcBlendFactor () { return super.srcBlendFactor; }
-    set srcBlendFactor (v) { super.srcBlendFactor = v; }
-
-    @override
-    @visible(false)
-    get dstBlendFactor () { return super.dstBlendFactor; }
-    set dstBlendFactor (v) { super.dstBlendFactor = v; }
-
     /**
      * !#en The skeletal animation is paused?
      * !#zh 该骨骼动画是否暂停。

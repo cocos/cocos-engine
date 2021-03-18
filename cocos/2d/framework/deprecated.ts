@@ -29,7 +29,7 @@
  * @module ui
  */
 
-import { removeProperty, replaceProperty } from '../../core/utils';
+import { markAsWarning, removeProperty, replaceProperty } from '../../core/utils';
 import { UIComponent } from './ui-component';
 import { UITransform } from './ui-transform';
 import { Renderable2D } from './renderable-2d';
@@ -111,6 +111,17 @@ replaceProperty(Canvas.prototype, 'Canvas.prototype', [
             // @ts-expect-error deprecation method
             return this._cameraComponent ? this._cameraComponent.visibility : 0;
         },
+    },
+]);
+
+markAsWarning(Renderable2D.prototype, 'Renderable2D.prototype', [
+    {
+        name: 'srcBlendFactor',
+        suggest: 'Please use a custom material to specify blending options instead.',
+    },
+    {
+        name: 'dstBlendFactor',
+        suggest: 'Please use a custom material to specify blending options instead.',
     },
 ]);
 

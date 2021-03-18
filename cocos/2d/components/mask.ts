@@ -277,8 +277,6 @@ export class Mask extends Renderable2D {
         return this._graphics;
     }
 
-    @override
-    @visible(false)
     get dstBlendFactor () {
         return this._dstBlendFactor;
     }
@@ -292,8 +290,6 @@ export class Mask extends Renderable2D {
         this._updateBlendFunc();
     }
 
-    @override
-    @visible(false)
     get srcBlendFactor () {
         return this._srcBlendFactor;
     }
