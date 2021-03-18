@@ -893,6 +893,12 @@ function initSys () {
                 'huaweibrowser': sys.BROWSER_TYPE_HUAWEI,
             };
             
+            if(browserType === "qqbrowser" || browserType === "mqqbrowser"){
+                if(ua.match(/wechat|micromessenger/i)){
+                    browserType = sys.BROWSER_TYPE_WECHAT;
+                }
+            }
+
             sys.browserType = typeMap[browserType] || browserType;
         })();
 
