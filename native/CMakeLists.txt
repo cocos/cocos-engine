@@ -417,36 +417,36 @@ cocos_source_files(
 
 ##### math
 cocos_source_files(
-    NO_WERROR    cocos/math/Geometry.cpp
-                 cocos/math/Geometry.h
-                 cocos/math/Math.h
-    NO_WERROR    cocos/math/Math.cpp
-                 cocos/math/MathBase.h
-    NO_WERROR    cocos/math/Vertex.cpp
-                 cocos/math/Vertex.h
-    NO_WERROR    cocos/math/Mat3.cpp
-                 cocos/math/Mat3.h
-    NO_WERROR    cocos/math/Mat4.cpp
-                 cocos/math/Mat4.h
-                 cocos/math/Mat4.inl
-    NO_WERROR    cocos/math/MathUtil.cpp
-                 cocos/math/MathUtil.h
-                 cocos/math/MathUtil.inl
-                 cocos/math/MathUtilNeon.inl
-                 cocos/math/MathUtilNeon64.inl
-                 cocos/math/MathUtilSSE.inl
-    NO_WERROR    cocos/math/Quaternion.cpp
-                 cocos/math/Quaternion.h
-                 cocos/math/Quaternion.inl
-    NO_WERROR    cocos/math/Vec2.cpp
-                 cocos/math/Vec2.h
-                 cocos/math/Vec2.inl
-    NO_WERROR    cocos/math/Vec3.cpp
-                 cocos/math/Vec3.h
-                 cocos/math/Vec3.inl
-    NO_WERROR    cocos/math/Vec4.cpp
-                 cocos/math/Vec4.h
-                 cocos/math/Vec4.inl
+    cocos/math/Geometry.cpp
+    cocos/math/Geometry.h
+    cocos/math/Math.h
+    cocos/math/Math.cpp
+    cocos/math/MathBase.h
+    cocos/math/Vertex.cpp
+    cocos/math/Vertex.h
+    cocos/math/Mat3.cpp
+    cocos/math/Mat3.h
+    cocos/math/Mat4.cpp
+    cocos/math/Mat4.h
+    cocos/math/Mat4.inl
+    cocos/math/MathUtil.cpp
+    cocos/math/MathUtil.h
+    cocos/math/MathUtil.inl
+    cocos/math/MathUtilNeon.inl
+    cocos/math/MathUtilNeon64.inl
+    cocos/math/MathUtilSSE.inl
+    cocos/math/Quaternion.cpp
+    cocos/math/Quaternion.h
+    cocos/math/Quaternion.inl
+    cocos/math/Vec2.cpp
+    cocos/math/Vec2.h
+    cocos/math/Vec2.inl
+    cocos/math/Vec3.cpp
+    cocos/math/Vec3.h
+    cocos/math/Vec3.inl
+    cocos/math/Vec4.cpp
+    cocos/math/Vec4.h
+    cocos/math/Vec4.inl
 )
 
 ##### network
