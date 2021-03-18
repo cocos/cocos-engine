@@ -1,5 +1,24 @@
 module.exports = {
     assets: {
+        erpTextureCube: {
+            anisotropy: 'Anisotropy',
+            minFilter: 'Min Filter',
+            magFilter: 'Mag Filter',
+            mipFilter: 'Mip Filter',
+            wrapModeS: 'Wrap Mode S',
+            wrapModeT: 'Wrap Mode T',
+            anisotropyTip: 'Anisotropy',
+            minFilterTip: 'Min Filter',
+            magFilterTip: 'Mag Filter',
+            mipFilterTip: 'Mip Filter',
+            wrapModeSTip: 'Wrap Mode S',
+            wrapModeTTip: 'Wrap Mode T',
+            faceSize: {
+                name: 'Face Size',
+                title:
+                    'Size of each cube face. If not specified, or specified as 0, the default size, which is the nearest power of two to (image.width)/4, is used.',
+            },
+        },
         javascript: {
             plugin: 'Import As Plugin',
             dependencies: 'Dependencies',
@@ -78,7 +97,7 @@ module.exports = {
             wrapModeT: 'Wrap Mode T',
             wrapModeTTip: 'Wrap Mode T',
             modeWarn:
-                "Warning: WebGL 1.0 platform doesn't support 'repeat' filter for non-power-of-two textures(runtime fallback to 'clamp-to-edge'), effectively disabling features like the 'tilingOffset' property in many materials.",
+                'Warning: WebGL 1.0 platform doesn\'t support \'repeat\' filter for non-power-of-two textures(runtime fallback to \'clamp-to-edge\'), effectively disabling features like the \'tilingOffset\' property in many materials.',
         },
     },
 };

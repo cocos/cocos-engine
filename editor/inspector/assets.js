@@ -9,8 +9,10 @@ module.exports = {
     json: join(__dirname, './assets/json.js'),
     texture: join(__dirname, './assets/texture.js'),
     material: join(__dirname, './assets/material.js'),
+    'erp-texture-cube': join(__dirname, './assets/erp-texture-cube.js'),
     'effect-header': join(__dirname, './assets/effect-header.js'),
     'audio-clip': join(__dirname, './assets/audio-clip.js'),
     javascript: join(__dirname, './assets/javascript.js'),
     typescript: join(__dirname, './assets/typescript.js'),
+
 };
