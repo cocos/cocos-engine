@@ -102,7 +102,7 @@ gulp.task('build-declarations', async () => {
     });
 });
 
-gulp.task('build', gulp.parallel('build-h5-minified', 'build-declarations'));
+gulp.task('build', gulp.parallel('build-h5-minified', 'build-debug-infos', 'build-declarations'));
 
 gulp.task('code-check', () => {
     return cp.spawn('npx', ['tsc', '--noEmit'], {

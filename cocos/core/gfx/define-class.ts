@@ -24,6 +24,11 @@
  */
 
 /**
+ * @packageDocumentation
+ * @module gfx
+ */
+
+/**
  * Define gfx global classes here.
  */
 

@@ -157,7 +157,7 @@ export class RichText extends UIComponent {
      * 富文本显示的文本内容。
      */
     @multiline
-    @tooltip('富文本显示的文本内容')
+    @tooltip('i18n:richtext.string')
     get string () {
         return this._string;
     }
@@ -178,7 +178,7 @@ export class RichText extends UIComponent {
      * 文本内容的水平对齐方式。
      */
     @type(HorizontalTextAlignment)
-    @tooltip('文本内容的水平对齐方式')
+    @tooltip('i18n:richtext.horizontal_align')
     get horizontalAlign () {
         return this._horizontalAlign;
     }
@@ -200,7 +200,7 @@ export class RichText extends UIComponent {
      * @zh
      * 富文本字体大小。
      */
-    @tooltip('富文本字体大小')
+    @tooltip('i18n:richtext.font_size')
     get fontSize () {
         return this._fontSize;
     }
@@ -222,7 +222,7 @@ export class RichText extends UIComponent {
      * @zh
      * 富文本定制系统字体
      */
-    @tooltip('富文本定制系统字体')
+    @tooltip('i18n:richtext.font_family')
     get fontFamily () {
         return this._fontFamily;
     }
@@ -241,7 +241,7 @@ export class RichText extends UIComponent {
      * 富文本定制字体。
      */
     @type(Font)
-    @tooltip('富文本定制字体')
+    @tooltip('i18n:richtext.font')
     get font () {
         return this._font;
     }
@@ -270,7 +270,7 @@ export class RichText extends UIComponent {
      * @zh
      * 是否使用系统字体。
      */
-    @tooltip('是否使用系统字体')
+    @tooltip('i18n:richtext.use_system_font')
     get useSystemFont () {
         return this._isSystemFontUsed;
     }
@@ -301,7 +301,7 @@ export class RichText extends UIComponent {
      * 文本缓存模式, 该模式只支持系统字体。
      */
     @type(CacheMode)
-    @tooltip('文本缓存模式, 该模式只支持系统字体。')
+    @tooltip('i18n:richtext')
     get cacheMode () {
         return this._cacheMode;
     }
@@ -320,7 +320,7 @@ export class RichText extends UIComponent {
      * @zh
      * 富文本的最大宽度。
      */
-    @tooltip('富文本的最大宽度')
+    @tooltip('i18n:richtext.max_width')
     get maxWidth () {
         return this._maxWidth;
     }
@@ -342,7 +342,7 @@ export class RichText extends UIComponent {
      * @zh
      * 富文本行高。
      */
-    @tooltip('富文本行高')
+    @tooltip('i18n:richtext.line_height')
     get lineHeight () {
         return this._lineHeight;
     }
@@ -365,7 +365,7 @@ export class RichText extends UIComponent {
      * 对于 img 标签里面的 src 属性名称，都需要在 imageAtlas 里面找到一个有效的 spriteFrame，否则 img tag 会判定为无效。
      */
     @type(SpriteAtlas)
-    @tooltip('对于 img 标签里面的 src 属性名称，都需要在 imageAtlas 里面找到一个有效的 spriteFrame，否则 img tag 会判定为无效')
+    @tooltip('i18n:richtext.image_atlas')
     get imageAtlas () {
         return this._imageAtlas;
     }
@@ -388,7 +388,7 @@ export class RichText extends UIComponent {
      * @zh
      * 选中此选项后，RichText 将阻止节点边界框中的所有输入事件（鼠标和触摸），从而防止输入事件穿透到底层节点。
      */
-    @tooltip('选中此选项后，RichText 将阻止节点边界框中的所有输入事件（鼠标和触摸），从而防止输入事件穿透到底层节点')
+    @tooltip('i18n:richtext.handleTouchEvent')
     get handleTouchEvent () {
         return this._handleTouchEvent;
     }

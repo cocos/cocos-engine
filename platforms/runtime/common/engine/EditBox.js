@@ -11,7 +11,7 @@
     let _hideKeyboardTimeout = null;
     let _currentEditBoxImpl = null;
 
-    function getKeyboardReturnType (type) {
+    function getKeyboardReturnType(type) {
         switch (type) {
             case KeyboardReturnType.DEFAULT:
             case KeyboardReturnType.DONE:
@@ -28,7 +28,7 @@
         return 'done';
     }
 
-    function MiniGameEditBoxImpl () {
+    function MiniGameEditBoxImpl() {
         this._delegate = null;
         this._editing = false;
 
@@ -43,7 +43,7 @@
     EditBoxComp._EditBoxImpl = MiniGameEditBoxImpl;
 
     Object.assign(MiniGameEditBoxImpl.prototype, {
-        init (delegate) {
+        init(delegate) {
             if (!delegate) {
                 cc.error('EditBox init failed');
                 return;
@@ -51,7 +51,7 @@
             this._delegate = delegate;
         },
 
-        beginEditing () {
+        beginEditing() {
             // In case multiply register events
             if (this._editing) {
                 return;
@@ -66,13 +66,13 @@
             });
         },
 
-        endEditing () {
+        endEditing() {
             this._hideKeyboard();
             let cbs = this._eventListeners;
             cbs.onKeyboardComplete && cbs.onKeyboardComplete();
         },
 
-        _registerKeyboardEvent () {
+        _registerKeyboardEvent() {
             let self = this;
             let delegate = this._delegate;
             let cbs = this._eventListeners;
@@ -96,33 +96,33 @@
                 delegate._editBoxEditingDidEnded();
             }
 
-            jsb.onKeyboardInput(cbs.onKeyboardInput);
-            jsb.onKeyboardConfirm(cbs.onKeyboardConfirm);
-            jsb.onKeyboardComplete(cbs.onKeyboardComplete);
+            ral.onKeyboardInput(cbs.onKeyboardInput);
+            ral.onKeyboardConfirm(cbs.onKeyboardConfirm);
+            ral.onKeyboardComplete(cbs.onKeyboardComplete);
         },
 
-        _unregisterKeyboardEvent () {
+        _unregisterKeyboardEvent() {
             let cbs = this._eventListeners;
 
             if (cbs.onKeyboardInput) {
-                jsb.offKeyboardInput(cbs.onKeyboardInput);
+                ral.offKeyboardInput(cbs.onKeyboardInput);
                 cbs.onKeyboardInput = null;
             }
             if (cbs.onKeyboardConfirm) {
-                jsb.offKeyboardConfirm(cbs.onKeyboardConfirm);
+                ral.offKeyboardConfirm(cbs.onKeyboardConfirm);
                 cbs.onKeyboardConfirm = null;
             }
             if (cbs.onKeyboardComplete) {
-                jsb.offKeyboardComplete(cbs.onKeyboardComplete);
+                ral.offKeyboardComplete(cbs.onKeyboardComplete);
                 cbs.onKeyboardComplete = null;
             }
         },
 
-        _otherEditing () {
+        _otherEditing() {
             return !!_currentEditBoxImpl && _currentEditBoxImpl !== this && _currentEditBoxImpl._editing;
         },
 
-        _ensureKeyboardHide (cb) {
+        _ensureKeyboardHide(cb) {
             let otherEditing = this._otherEditing();
             if (!otherEditing && !_hideKeyboardTimeout) {
                 return cb();
@@ -139,30 +139,30 @@
             }, KEYBOARD_HIDE_TIME);
         },
 
-        _showKeyboard () {
+        _showKeyboard() {
             let delegate = this._delegate;
             let multiline = (delegate.inputMode === EditBoxComp.InputMode.ANY);
-            jsb.showKeyboard({
+            ral.showKeyboard({
                 defaultValue: delegate.string,
                 maxLength: delegate.maxLength < 0 ? MAX_VALUE : delegate.maxLength,
                 multiple: multiline,
                 confirmHold: false,
                 confirmType: getKeyboardReturnType(delegate.returnType),
-                success (res) {
+                success(res) {
 
                 },
-                fail (res) {
+                fail(res) {
                     cc.warn(res.errMsg);
                 }
             });
         },
 
-        _hideKeyboard () {
-            jsb.hideKeyboard({
-                success (res) {
+        _hideKeyboard() {
+            ral.hideKeyboard({
+                success(res) {
 
                 },
-                fail (res) {
+                fail(res) {
                     cc.warn(res.errMsg);
                 },
             });

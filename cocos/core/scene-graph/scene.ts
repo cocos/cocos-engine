@@ -38,7 +38,7 @@ import { BaseNode } from './base-node';
 import { legacyCC } from '../global-exports';
 import { Component } from '../components/component';
 import { SceneGlobals } from './scene-globals';
-import { applyTargetOverrides } from '../utils/prefab-utils';
+import { applyTargetOverrides } from '../utils/prefab/utils';
 
 /**
  * @en

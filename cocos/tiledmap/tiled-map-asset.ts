@@ -24,6 +24,11 @@
  THE SOFTWARE.
  */
 
+/**
+ * @packageDocumentation
+ * @module tiledmap
+ */
+
 import { ccclass, type, serializable } from 'cc.decorator';
 import { Asset } from '../core/assets/asset';
 import { CCString, Size, TextAsset } from '../core';

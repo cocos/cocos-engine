@@ -49,6 +49,11 @@ const tInverseScale = new Vec3(1, 1, 1);
 
 // align to borders by adjusting node's position and size (ignore rotation)
 function align (node: Node, widget: Widget) {
+    // Hack: this flag use to ONCE mode
+    if (widget._hadAlignOnce) return;
+    if ((!EDITOR) && widget.alignMode === AlignMode.ONCE) {
+        widget._hadAlignOnce = true;
+    }
     const hasTarget = widget.target;
     let target: Node | Scene;
     const inverseTranslate = tInverseTranslate;
@@ -195,19 +200,19 @@ function align (node: Node, widget: Widget) {
 // TODO: type is hack, Change to the type actually used (Node or BaseNode) when BaseNode complete
 function visitNode (node: any) {
     const widget = node.getComponent(Widget);
-    if (widget) {
+    if (widget && widget.enabled) {
         if (DEV) {
             widget._validateTargetInDEV();
         }
-        align(node, widget);
-        if ((!EDITOR || widgetManager.animationState!.animatedSinceLastFrame) && widget.alignMode === AlignMode.ONCE) {
-            widget.enabled = false;
-        } else {
-            if (!legacyCC.isValid(node, true)) {
-                return;
-            }
-            activeWidgets.push(widget);
+        // Notice: remove align to after visitNode, AlignMode.ONCE will use widget._hadAlignOnce flag
+        // align(node, widget);
+        // if ((!EDITOR || widgetManager.animationState!.animatedSinceLastFrame) && widget.alignMode === AlignMode.ONCE) {
+        //     widget.enabled = false;
+        // } else {
+        if (!legacyCC.isValid(node, true)) {
+            return;
         }
+        activeWidgets.push(widget);
     }
     const children = node.children;
     for (const child of children) {
@@ -266,44 +271,43 @@ function refreshScene () {
             activeWidgets.length = 0;
             visitNode(scene);
             widgetManager._nodesOrderDirty = false;
-        } else {
-            const i = 0;
-            let widget: Widget | null = null;
-            const iterator = widgetManager._activeWidgetsIterator;
-            // var AnimUtils;
-            // if (EDITOR &&
-            //     (AnimUtils = Editor.require('scene://utils/animation')) &&
-            //     AnimUtils.Cache.animation) {
-            //     var editingNode = cc.engine.getInstanceById(AnimUtils.Cache.rNode);
-            //     if (editingNode) {
-            //         for (i = activeWidgets.length - 1; i >= 0; i--) {
-            //             widget = activeWidgets[i];
-            //             var node = widget.node;
-            //             if (widget.alignMode !== AlignMode.ALWAYS &&
-            //                 animationState.animatedSinceLastFrame &&
-            //                 node.isChildOf(editingNode)
-            //             ) {
-            //                 // widget contains in activeWidgets should aligned at least once
-            //                 widget.enabled = false;
-            //             }
-            //             else {
-            //                 align(node, widget);
-            //             }
-            //         }
-            //     }
-            // }
-            // else {
-            // loop reversely will not help to prevent out of sync
-            // because user may remove more than one item during a step.
-            for (iterator.i = 0; iterator.i < activeWidgets.length; ++iterator.i) {
-                widget = activeWidgets[iterator.i];
-                if (widget._dirty) {
-                    align(widget.node, widget);
-                    widget._dirty = false;
-                }
-            }
-            // }
         }
+        const i = 0;
+        let widget: Widget | null = null;
+        const iterator = widgetManager._activeWidgetsIterator;
+        // var AnimUtils;
+        // if (EDITOR &&
+        //     (AnimUtils = Editor.require('scene://utils/animation')) &&
+        //     AnimUtils.Cache.animation) {
+        //     var editingNode = cc.engine.getInstanceById(AnimUtils.Cache.rNode);
+        //     if (editingNode) {
+        //         for (i = activeWidgets.length - 1; i >= 0; i--) {
+        //             widget = activeWidgets[i];
+        //             var node = widget.node;
+        //             if (widget.alignMode !== AlignMode.ALWAYS &&
+        //                 animationState.animatedSinceLastFrame &&
+        //                 node.isChildOf(editingNode)
+        //             ) {
+        //                 // widget contains in activeWidgets should aligned at least once
+        //                 widget.enabled = false;
+        //             }
+        //             else {
+        //                 align(node, widget);
+        //             }
+        //         }
+        //     }
+        // }
+        // else {
+        // loop reversely will not help to prevent out of sync
+        // because user may remove more than one item during a step.
+        for (iterator.i = 0; iterator.i < activeWidgets.length; ++iterator.i) {
+            widget = activeWidgets[iterator.i];
+            if (widget._dirty) {
+                align(widget.node, widget);
+                widget._dirty = false;
+            }
+        }
+        // }
         widgetManager.isAligning = false;
     }
 

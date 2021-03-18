@@ -1,3 +1,8 @@
+/**
+ * @packageDocumentation
+ * @module spine
+ */
+
 import { ImageAsset, Material, Texture2D } from '../core';
 import { Filter, WrapMode } from '../core/assets/asset-enum';
 import spine from './lib/spine-core.js';

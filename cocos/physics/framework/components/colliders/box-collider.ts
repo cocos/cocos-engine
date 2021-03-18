@@ -62,7 +62,7 @@ export class BoxCollider extends Collider {
      * 获取或设置盒的大小。
      */
     @type(Vec3)
-    @tooltip('盒的大小，即长、宽、高')
+    @tooltip('i18n:physics3d.collider.box_size')
     public get size () {
         return this._size;
     }

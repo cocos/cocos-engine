@@ -326,6 +326,8 @@ function _checkListeners (node: BaseNode, events: string[]) {
  * 节点事件类。
  */
 export class NodeEventProcessor {
+    public static _comp: Constructor<Component> | null = null;
+
     public get node () {
         return this._node;
     }
@@ -353,26 +355,24 @@ export class NodeEventProcessor {
     public mouseListener: EventListener | null = null;
 
     private _node: BaseNode;
-    private _comp: Constructor<Component> | null = null;
 
     constructor (node: BaseNode) {
         this._node = node;
     }
 
     public reattach (): void {
-        if (!this._comp) return;
-        if (this.touchListener) {
-            const mask = this.touchListener.mask = _searchComponentsInParent(this._node as Node, this._comp);
-            if (this.mouseListener) {
-                this.mouseListener.mask = mask;
+        let currMask;
+        this.node.walk((node) => {
+            if (!currMask) {
+                currMask = _searchComponentsInParent(node as Node, NodeEventProcessor._comp);
             }
-        } else if (this.mouseListener) {
-            this.mouseListener.mask = _searchComponentsInParent(this._node as Node, this._comp);
-        }
-    }
-
-    public registerComponentHitList (ctor: Constructor<Component>) {
-        this._comp = ctor;
+            if (node.eventProcessor.touchListener) {
+                node.eventProcessor.touchListener.mask = currMask;
+            }
+            if (node.eventProcessor.mouseListener) {
+                node.eventProcessor.mouseListener.mask = currMask;
+            }
+        });
     }
 
     public destroy (): void {
@@ -683,7 +683,7 @@ export class NodeEventProcessor {
                     event: legacyCC.EventListener.TOUCH_ONE_BY_ONE,
                     swallowTouches: true,
                     owner: this._node,
-                    mask: _searchComponentsInParent(this._node as Node, this._comp),
+                    mask: _searchComponentsInParent(this._node as Node, NodeEventProcessor._comp),
                     onTouchBegan: _touchStartHandler,
                     onTouchMoved: _touchMoveHandler,
                     onTouchEnded: _touchEndHandler,
@@ -699,7 +699,7 @@ export class NodeEventProcessor {
                     event: legacyCC.EventListener.MOUSE,
                     _previousIn: false,
                     owner: this._node,
-                    mask: _searchComponentsInParent(this._node as Node, this._comp),
+                    mask: _searchComponentsInParent(this._node as Node, NodeEventProcessor._comp),
                     onMouseDown: _mouseDownHandler,
                     onMouseMove: _mouseMoveHandler,
                     onMouseUp: _mouseUpHandler,

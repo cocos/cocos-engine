@@ -24,7 +24,8 @@
  */
 
 /**
- * @category component/web-view
+ * @packageDocumentation
+ * @module component/web-view
  */
 
 import { EventType } from './web-view-enums';

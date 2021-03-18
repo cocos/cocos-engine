@@ -1,6 +1,6 @@
 const cacheManager = require('./cache-manager');
-const { downloadFile, readText, readArrayBuffer, readJson, loadSubpackage, getUserDataPath, _subpackagesPath } = jsb.fsUtils;
-cc.assetManager.fsUtils = jsb.fsUtils;
+const { downloadFile, readText, readArrayBuffer, readJson, loadSubpackage, getUserDataPath, _subpackagesPath } = require('./fs-utils');
+cc.assetManager.fsUtils = ral.fsUtils;
 
 const REGEX = /^https?:\/\/.*/;
 
@@ -99,7 +99,7 @@ function downloadText(url, options, onComplete) {
     download(url, parseText, options, options.onFileProgress, onComplete);
 }
 
-function downloadJson (url, options, onComplete) {
+function downloadJson(url, options, onComplete) {
     download(url, parseJson, options, options.onFileProgress, onComplete);
 }
 
@@ -153,12 +153,12 @@ function downloadBundle(nameOrUrl, options, onComplete) {
                 onComplete(err, null);
                 return;
             }
-            downloader.importBundleEntry(bundleName).then(function() {
+            downloader.importBundleEntry(bundleName).then(function () {
                 downloadJson(config, options, function (err, data) {
                     data && (data.base = `${_subpackagesPath}${bundleName}/`);
                     onComplete(err, data);
                 });
-            }).catch(function(err) {
+            }).catch(function (err) {
                 onComplete(err);
             });
         });
@@ -187,7 +187,7 @@ function downloadBundle(nameOrUrl, options, onComplete) {
             loadedScripts[js] = true;
         }
 
-        downloader.importBundleEntry(bundleName).then(function() {
+        downloader.importBundleEntry(bundleName).then(function () {
             options.__cacheBundleRoot__ = bundleName;
             var config = `${url}/config.${suffix}json`;
             downloadJson(config, options, function (err, data) {
@@ -212,7 +212,7 @@ function downloadBundle(nameOrUrl, options, onComplete) {
                     onComplete && onComplete(null, data);
                 }
             });
-        }).catch(function(err) {
+        }).catch(function (err) {
             onComplete && onComplete(err);
         });
     }

@@ -70,7 +70,7 @@ export class Animation extends Eventify(Component) {
      * 设置时，已有剪辑关联的动画状态将被停止；若默认剪辑不在新的动画剪辑中，将被重置为空。
      */
     @type([AnimationClip])
-    @tooltip('此动画组件管理的动画剪辑')
+    @tooltip('i18n:animation.clips')
     get clips () {
         return this._clips;
     }
@@ -111,7 +111,7 @@ export class Animation extends Eventify(Component) {
      * @see [[playOnLoad]]
      */
     @type(AnimationClip)
-    @tooltip('默认动画剪辑')
+    @tooltip('i18n:animation.default_clip')
     get defaultClip () {
         return this._defaultClip;
     }
@@ -139,7 +139,7 @@ export class Animation extends Eventify(Component) {
      * 注意，若在组件开始运行前调用了 `crossFade` 或 `play()`，此字段将不会生效。
      */
     @serializable
-    @tooltip('是否在动画组件开始运行时自动播放默认动画剪辑')
+    @tooltip('i18n:animation.play_on_load')
     public playOnLoad = false;
 
     protected _crossFade = new CrossFade();

@@ -114,7 +114,7 @@ export class PageView extends ScrollView {
      * 页面视图中每个页面大小类型
      */
     @type(SizeMode)
-    @tooltip('页面视图中每个页面大小类型')
+    @tooltip('i18n:pageview.sizeMode')
     get sizeMode () {
         return this._sizeMode;
     }
@@ -136,7 +136,7 @@ export class PageView extends ScrollView {
      * 页面视图滚动类型
      */
     @type(Direction)
-    @tooltip('页面视图滚动类型')
+    @tooltip('i18n:pageview.direction')
     get direction () {
         return this._direction;
     }
@@ -160,7 +160,7 @@ export class PageView extends ScrollView {
      */
     @slide
     @range([0, 1, 0.01])
-    @tooltip('滚动临界值，默认单位百分比，当拖拽超出该数值时，松开会自动滚动下一页，小于时则还原')
+    @tooltip('i18n:pageview.scrollThreshold')
     get scrollThreshold () {
         return this._scrollThreshold;
     }
@@ -182,7 +182,7 @@ export class PageView extends ScrollView {
      */
     @slide
     @range([0, 1, 0.01])
-    @tooltip('设置 PageView PageTurning 事件的发送时机')
+    @tooltip('i18n:pageview.pageTurningEventTiming')
     get pageTurningEventTiming () {
         return this._pageTurningEventTiming;
     }
@@ -203,7 +203,7 @@ export class PageView extends ScrollView {
      * 页面视图指示器组件
      */
     @type(PageViewIndicator)
-    @tooltip('页面视图指示器组件')
+    @tooltip('i18n:pageview.indicator')
     get indicator () {
         return this._indicator;
     }
@@ -239,7 +239,7 @@ export class PageView extends ScrollView {
      * 该值与此临界值相比较，如果大于临界值，则进行自动翻页。
      */
     @serializable
-    @tooltip('快速滑动翻页临界值\n当用户快速滑动时，会根据滑动开始和结束的距离与时间计算出一个速度值\n该值与此临界值相比较，如果大于临界值，则进行自动翻页')
+    @tooltip('i18n:pageview.autoPageTurningThreshold')
     public autoPageTurningThreshold = 100;
 
     @type(ScrollBar)
@@ -299,7 +299,7 @@ export class PageView extends ScrollView {
      */
     @type([ComponentEventHandler])
     @serializable
-    @tooltip('滚动视图的事件回调函数')
+    @tooltip('i18n:pageview.pageEvents')
     public pageEvents: ComponentEventHandler[] = [];
 
     @serializable

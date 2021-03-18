@@ -25,7 +25,8 @@
  */
 
 /**
- * @category particle2d
+ * @packageDocumentation
+ * @module particle2d
  */
 
 import { ccclass, editable, type, menu, executeInEditMode, serializable, playOnFocus, tooltip } from 'cc.decorator';
@@ -673,22 +674,13 @@ export class ParticleSystem2D extends Renderable2D {
     public declare _simulator: Simulator;
 
     /**
-     * @en Play particle in edit mode.
-     * @zh 在编辑器模式下预览粒子，启用后选中粒子时，粒子将自动播放。
-     */
-    @serializable
-    @editable
-    @tooltip('i18n:particle_system.preview')
-    private preview = true;
-
-    /**
      * @en If set to true, the particle system will automatically start playing on onLoad.
      * @zh 如果设置为 true 运行时会自动发射粒子。
      */
     @serializable
     @editable
     @tooltip('i18n:particle_system.playOnLoad')
-    private playOnLoad = true;
+    public playOnLoad = true;
 
     /**
      * @en Indicate whether the owner node will be auto-removed when it has no particles left.
@@ -697,8 +689,16 @@ export class ParticleSystem2D extends Renderable2D {
     @serializable
     @editable
     @tooltip('i18n:particle_system.autoRemoveOnFinish')
-    private autoRemoveOnFinish = false;
+    public autoRemoveOnFinish = false;
 
+    /**
+     * @en Play particle in edit mode.
+     * @zh 在编辑器模式下预览粒子，启用后选中粒子时，粒子将自动播放。
+     */
+    @serializable
+    @editable
+    @tooltip('i18n:particle_system.preview')
+    private preview = true;
     @serializable
     private _custom = false;
     @serializable

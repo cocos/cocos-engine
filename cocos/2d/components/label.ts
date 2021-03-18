@@ -37,7 +37,9 @@ import { ccenum } from '../../core/value-types/enum';
 import { Batcher2D } from '../renderer/batcher-2d';
 import { FontAtlas } from '../assets/bitmap-font';
 import { CanvasPool, ISharedLabelData, LetterRenderTexture } from '../assembler/label/font-utils';
-import { Renderable2D } from '../framework/renderable-2d';
+import { InstanceMaterialType, Renderable2D } from '../framework/renderable-2d';
+import { TextureBase } from '../../core/assets/texture-base';
+import { PixelFormat } from '../../core/assets/asset-enum';
 
 /**
  * @en Enum for horizontal text alignment.
@@ -198,7 +200,7 @@ export class Label extends Renderable2D {
      * 标签显示的文本内容。
      */
     @displayOrder(4)
-    @tooltip('Label 显示的文本内容字符串')
+    @tooltip('i18n:label.string')
     @multiline
     get string () {
         return this._string;
@@ -222,7 +224,7 @@ export class Label extends Renderable2D {
      */
     @type(HorizontalTextAlignment)
     @displayOrder(5)
-    @tooltip('文字水平对齐模式')
+    @tooltip('i18n:label.horizontal_align')
     get horizontalAlign () {
         return this._horizontalAlign;
     }
@@ -245,7 +247,7 @@ export class Label extends Renderable2D {
      */
     @type(VerticalTextAlignment)
     @displayOrder(6)
-    @tooltip('文字垂直对齐模式')
+    @tooltip('i18n:label.vertical_align')
     get verticalAlign () {
         return this._verticalAlign;
     }
@@ -282,7 +284,7 @@ export class Label extends Renderable2D {
      * 文本字体大小。
      */
     @displayOrder(7)
-    @tooltip('文字尺寸，以 point 为单位')
+    @tooltip('i18n:label.font_size')
     get fontSize () {
         return this._fontSize;
     }
@@ -305,7 +307,7 @@ export class Label extends Renderable2D {
      */
     @displayOrder(8)
     @visible(function (this: Label) { return !this._isSystemFontUsed; })
-    @tooltip('文字字体名字')
+    @tooltip('i18n:label.font_family')
     get fontFamily () {
         return this._fontFamily;
     }
@@ -327,7 +329,7 @@ export class Label extends Renderable2D {
      * 文本行高。
      */
     @displayOrder(8)
-    @tooltip('文字行高，以 point 为单位')
+    @tooltip('i18n:label.line_height')
     get lineHeight () {
         return this._lineHeight;
     }
@@ -349,7 +351,7 @@ export class Label extends Renderable2D {
      */
     @type(Overflow)
     @displayOrder(9)
-    @tooltip('文字排版模式，包括以下三种：\n 1. CLAMP: 节点约束框之外的文字会被截断 \n 2. SHRINK: 自动根据节点约束框缩小文字\n 3. RESIZE_HEIGHT: 根据文本内容自动更新节点的 height 属性.')
+    @tooltip('i18n:label.overflow')
     get overflow () {
         return this._overflow;
     }
@@ -371,7 +373,7 @@ export class Label extends Renderable2D {
      * 是否自动换行。
      */
     @displayOrder(10)
-    @tooltip('自动换行')
+    @tooltip('i18n:label.wrap')
     get enableWrapText () {
         return this._enableWrapText;
     }
@@ -394,7 +396,7 @@ export class Label extends Renderable2D {
     @type(Font)
     @displayOrder(11)
     @visible(function (this: Label) { return !this._isSystemFontUsed; })
-    @tooltip('Label 使用的字体资源')
+    @tooltip('i18n:label.font')
     get font () {
         // return this._N$file;
         return this._font;
@@ -434,7 +436,7 @@ export class Label extends Renderable2D {
      * 是否使用系统字体。
      */
     @displayOrder(12)
-    @tooltip('是否使用系统默认字体')
+    @tooltip('i18n:label.system_font')
     get useSystemFont () {
         return this._isSystemFontUsed;
     }
@@ -472,7 +474,7 @@ export class Label extends Renderable2D {
      */
     @type(CacheMode)
     @displayOrder(13)
-    @tooltip('文本缓存模式，包括以下三种：\n 1. NONE: 不做任何缓存，文本内容进行一次绘制 \n 2. BITMAP: 将文本作为静态图像加入动态图集进行批次合并，但是不能频繁动态修改文本内容 \n 3. CHAR: 将文本拆分为字符并且把字符纹理缓存到一张字符图集中进行复用，适用于字符内容重复并且频繁更新的文本内容')
+    @tooltip('i18n:label.cache_mode')
     get cacheMode () {
         return this._cacheMode;
     }
@@ -510,7 +512,7 @@ export class Label extends Renderable2D {
      * 字体是否加粗。
      */
     @displayOrder(15)
-    @tooltip('字体加粗')
+    @tooltip('i18n:label.font_bold')
     get isBold () {
         return this._isBold;
     }
@@ -532,7 +534,7 @@ export class Label extends Renderable2D {
      * 字体是否倾斜。
      */
     @displayOrder(16)
-    @tooltip('字体倾斜')
+    @tooltip('i18n:label.font_italic')
     get isItalic () {
         return this._isItalic;
     }
@@ -554,7 +556,7 @@ export class Label extends Renderable2D {
      * 字体是否加下划线。
      */
     @displayOrder(17)
-    @tooltip('字体加下划线')
+    @tooltip('i18n:label.font_underline')
     get isUnderline () {
         return this._isUnderline;
     }
@@ -724,6 +726,8 @@ export class Label extends Renderable2D {
 
         if (force) {
             this._flushAssembler();
+            // Hack: Fixed the bug that richText wants to get the label length by _measureText, _assembler.updateRenderData will update the content size immediately.
+            if (this.renderData) this.renderData.vertDirty = true;
             this._applyFontTexture();
         }
     }
@@ -780,6 +784,7 @@ export class Label extends Renderable2D {
             const onBMFontTextureLoaded = () => {
                 // TODO: old texture in material have been released by loader
                 this._texture = spriteFrame;
+                this.changeMaterialForDefine();
                 if (this._assembler) {
                     this._assembler.updateRenderData(this);
                 }
@@ -808,6 +813,29 @@ export class Label extends Renderable2D {
                 // this._frame._refreshTexture(this._texture);
                 this._texture = this._ttfSpriteFrame;
             }
+            this.changeMaterialForDefine();
+            this._assembler && this._assembler.updateRenderData(this);
         }
+    }
+
+    protected changeMaterialForDefine () {
+        if (!this._texture) {
+            return;
+        }
+        let value = false;
+        if (this.cacheMode !== CacheMode.CHAR) {
+            const spriteFrame = this._texture as SpriteFrame;
+            const texture = spriteFrame.texture;
+            if (texture instanceof TextureBase) {
+                const format = texture.getPixelFormat();
+                value = (format === PixelFormat.RGBA_ETC1 || format === PixelFormat.RGB_A_PVRTC_4BPPV1 || format === PixelFormat.RGB_A_PVRTC_2BPPV1);
+            }
+        }
+        if (value) {
+            this._instanceMaterialType = InstanceMaterialType.USE_ALPHA_SEPARATED;
+        } else {
+            this._instanceMaterialType = InstanceMaterialType.ADD_COLOR_AND_TEXTURE;
+        }
+        this.updateMaterial();
     }
 }

@@ -521,17 +521,15 @@ export class RenderAdditiveLightQueue {
         cv.set(skyColor, UBOCamera.AMBIENT_SKY_OFFSET);
         cv.set(ambient.albedoArray, UBOCamera.AMBIENT_GROUND_OFFSET);
 
-        if (fog.enabled) {
-            cv.set(fog.colorArray, UBOCamera.GLOBAL_FOG_COLOR_OFFSET);
+        cv.set(fog.colorArray, UBOCamera.GLOBAL_FOG_COLOR_OFFSET);
 
-            cv[UBOCamera.GLOBAL_FOG_BASE_OFFSET] = fog.fogStart;
-            cv[UBOCamera.GLOBAL_FOG_BASE_OFFSET + 1] = fog.fogEnd;
-            cv[UBOCamera.GLOBAL_FOG_BASE_OFFSET + 2] = fog.fogDensity;
+        cv[UBOCamera.GLOBAL_FOG_BASE_OFFSET] = fog.fogStart;
+        cv[UBOCamera.GLOBAL_FOG_BASE_OFFSET + 1] = fog.fogEnd;
+        cv[UBOCamera.GLOBAL_FOG_BASE_OFFSET + 2] = fog.fogDensity;
 
-            cv[UBOCamera.GLOBAL_FOG_ADD_OFFSET] = fog.fogTop;
-            cv[UBOCamera.GLOBAL_FOG_ADD_OFFSET + 1] = fog.fogRange;
-            cv[UBOCamera.GLOBAL_FOG_ADD_OFFSET + 2] = fog.fogAtten;
-        }
+        cv[UBOCamera.GLOBAL_FOG_ADD_OFFSET] = fog.fogTop;
+        cv[UBOCamera.GLOBAL_FOG_ADD_OFFSET + 1] = fog.fogRange;
+        cv[UBOCamera.GLOBAL_FOG_ADD_OFFSET + 2] = fog.fogAtten;
     }
 
     protected _updateUBOs (camera: Camera, cmdBuff: CommandBuffer) {

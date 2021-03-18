@@ -30,12 +30,7 @@ import { legacyCC } from '../../global-exports';
 import { Enum } from '../../value-types';
 import { ShadowsPool, NULL_HANDLE, ShadowsView, ShadowsHandle, ShaderHandle } from '../core/memory-pools';
 import { ShadowsInfo } from '../../scene-graph/scene-globals';
-import { API, Device } from '../../gfx';
 import { IMacroPatch } from '../core/pass';
-
-const multiPatches = [
-    { name: 'CC_USE_SKINNING', value: true },
-];
 
 /**
  * @zh 阴影类型。
@@ -326,6 +321,16 @@ export class Shadows {
         }
 
         return this._material.passes[0].getShaderVariant(patches);
+    }
+
+    public getPlanarInstanceShader (patches: IMacroPatch[] | null): ShaderHandle {
+        if (!this._instancingMaterial) {
+            this._instancingMaterial = new Material();
+            this._instancingMaterial.initialize({ effectName: 'planar-shadow', defines: { USE_INSTANCING: true } });
+            ShadowsPool.set(this._handle, ShadowsView.INSTANCE_PASS, this._instancingMaterial.passes[0].handle);
+        }
+
+        return this._instancingMaterial.passes[0].getShaderVariant(patches);
     }
 
     public initialize (shadowsInfo: ShadowsInfo) {

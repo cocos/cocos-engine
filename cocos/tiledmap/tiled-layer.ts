@@ -27,7 +27,7 @@
 
 /**
  * @packageDocumentation
- * @module ui
+ * @module tiledmap
  */
 
 import { ccclass } from 'cc.decorator';
