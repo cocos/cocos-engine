@@ -1,5 +1,8 @@
 module.exports = {
     assets: {
+        particle:{
+            spriteFrameTip:'Sprite Frame'
+        },
         erpTextureCube: {
             anisotropy: 'Anisotropy',
             minFilter: 'Min Filter',
