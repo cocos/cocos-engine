@@ -42,6 +42,17 @@ module.exports = {
         scene: {
             asyncLoadAssets: '异步加载',
         },
+        effect: {
+            shader: 'Shaders',
+            shaderTip: 'Shaders',
+            combinations: 'Precompile Combinations',
+            combinationsTip: 'Precompile Combinations',
+            choose: 'Choose all possible branches.',
+            glsl3: 'GLSL 300 ES Output',
+            glsl1: 'GLSL 100 Output',
+            vert: 'Vertex Shader',
+            frag: 'Fragment Shader',
+        },
         image: {
             type: 'Type',
             typeTip: 'Type',

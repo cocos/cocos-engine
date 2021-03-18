@@ -1,6 +1,7 @@
 const { join } = require('path');
 
 module.exports = {
+    effect: join(__dirname, './assets/effect.js'),
     fbx: join(__dirname, './assets/fbx/index.js'),
     image: join(__dirname, './assets/image.js'),
     prefab: join(__dirname, './assets/scene.js'), // 复用
