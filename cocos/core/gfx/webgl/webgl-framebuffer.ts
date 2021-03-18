@@ -23,7 +23,8 @@
  THE SOFTWARE.
  */
 
-import { Framebuffer, FramebufferInfo } from '../framebuffer';
+import { FramebufferInfo } from '../base/define';
+import { Framebuffer } from '../base/framebuffer';
 import { WebGLCmdFuncCreateFramebuffer, WebGLCmdFuncDestroyFramebuffer } from './webgl-commands';
 import { WebGLDevice } from './webgl-device';
 import { IWebGLGPUFramebuffer, IWebGLGPUTexture } from './webgl-gpu-objects';
@@ -43,7 +44,7 @@ export class WebGLFramebuffer extends Framebuffer {
         this._colorTextures = info.colorTextures || [];
         this._depthStencilTexture = info.depthStencilTexture || null;
 
-        if (info.depStencilMipmapLevel !== 0) {
+        if (info.depthStencilMipmapLevel !== 0) {
             console.warn('The mipmap level of th texture image to be attached of depth stencil attachment should be 0. Convert to 0.');
         }
         for (let i = 0; i < info.colorMipmapLevels.length; ++i) {

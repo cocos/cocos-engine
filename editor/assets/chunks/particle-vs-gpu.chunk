@@ -47,21 +47,21 @@ in float a_rndSeed;
 #endif
 
 vec3 unpackCurveData (sampler2D tex, vec2 coord) {
-    vec4 a = texture(tex, coord);
-    vec4 b = texture(tex, coord + u_sampleInfo.y);
-    float c = fract(coord.x * u_sampleInfo.x);
+  vec4 a = texture(tex, coord);
+  vec4 b = texture(tex, coord + u_sampleInfo.y);
+  float c = fract(coord.x * u_sampleInfo.x);
 
-    return mix(a.xyz, b.xyz, c);
+  return mix(a.xyz, b.xyz, c);
 }
 
 vec3 unpackCurveData (sampler2D tex, vec2 coord, out float w) {
-    vec4 a = texture(tex, coord);
-    vec4 b = texture(tex, coord + u_sampleInfo.y);
-    float c = fract(coord.x * u_sampleInfo.x);
+  vec4 a = texture(tex, coord);
+  vec4 b = texture(tex, coord + u_sampleInfo.y);
+  float c = fract(coord.x * u_sampleInfo.x);
 
-    w = mix(a.w, b.w, c);
+  w = mix(a.w, b.w, c);
 
-    return mix(a.xyz, b.xyz, c);
+  return mix(a.xyz, b.xyz, c);
 }
 
 vec4 unpackGradientData (sampler2D tex, vec2 coord) {
@@ -69,11 +69,11 @@ vec4 unpackGradientData (sampler2D tex, vec2 coord) {
 }
 
 vec4 scaleAndAdd (vec4 a, vec4 b, float scale) {
-    a.x += b.x * scale;
-    a.y += b.y * scale;
-    a.z += b.z * scale;
+  a.x += b.x * scale;
+  a.y += b.y * scale;
+  a.z += b.z * scale;
 
-    return a;
+  return a;
 }
 
 float pseudoRandom (float seed) {
@@ -154,7 +154,7 @@ vec4 gpvs_main () {
   #else
     vec2 vertIdx = vec2(a_size_uv.w, a_rotation_uv.w);
   #endif
-  
+
   vec4 velocity = vec4(a_dir_life.xyz, 0.);
   vec4 pos = vec4(a_position_starttime.xyz, 1.);
 
@@ -244,7 +244,7 @@ vec4 gpvs_main () {
       vec4 color_1 = texture(color_over_time_tex0, timeCoord1);
       float factor_c = pseudoRandom(a_rndSeed + COLOR_OVERTIME_RAND_OFFSET);
       color = a_color * mix(color_0, color_1, factor_c);
-    }    
+    }
   #else
     color = a_color;
   #endif

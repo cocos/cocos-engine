@@ -31,7 +31,7 @@ import { Camera, Model } from 'cocos/core/renderer/scene';
 import { UIStaticBatch } from '../components';
 import { Material } from '../../core/assets/material';
 import { RenderRoot2D, Renderable2D, UIComponent } from '../framework';
-import { Texture, Device, Attribute, Sampler, DescriptorSetInfo, DescriptorSet, Buffer, BufferInfo } from '../../core/gfx';
+import { Texture, Device, Attribute, Sampler, DescriptorSetInfo, Buffer, BufferInfo, BufferUsageBit, MemoryUsageBit } from '../../core/gfx';
 import { Pool, RecyclePool } from '../../core/memop';
 import { CachedArray } from '../../core/memop/cached-array';
 import { RenderScene } from '../../core/renderer/scene/render-scene';
@@ -48,7 +48,6 @@ import { RenderTexture } from '../../core/assets';
 import { SpriteFrame } from '../assets';
 import { TextureBase } from '../../core/assets/texture-base';
 import { sys } from '../../core/platform/sys';
-import { BufferUsageBit, MemoryUsageBit } from '../../core/gfx/define';
 import { Mat4 } from '../../core/math';
 
 const _dsInfo = new DescriptorSetInfo(null!);

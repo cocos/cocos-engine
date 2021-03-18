@@ -23,11 +23,10 @@
  THE SOFTWARE.
  */
 
-import { CommandBuffer } from '../command-buffer';
-import { Queue, QueueInfo } from '../queue';
+import { QueueInfo } from '../base/define';
+import { CommandBuffer } from '../base/command-buffer';
+import { Queue } from '../base/queue';
 import { WebGL2CommandBuffer } from './webgl2-command-buffer';
-import { Fence } from '../fence';
-import { WebGL2Fence } from './webgl2-fence';
 
 export class WebGL2Queue extends Queue {
     public numDrawCalls = 0;
@@ -43,7 +42,7 @@ export class WebGL2Queue extends Queue {
     public destroy () {
     }
 
-    public submit (cmdBuffs: CommandBuffer[], fence?: Fence) {
+    public submit (cmdBuffs: CommandBuffer[]) {
         // TODO: Async
         if (!this._isAsync) {
             for (let i = 0; i < cmdBuffs.length; i++) {
@@ -53,9 +52,6 @@ export class WebGL2Queue extends Queue {
                 this.numInstances += cmdBuff.numInstances;
                 this.numTris += cmdBuff.numTris;
             }
-        }
-        if (fence) {
-            (fence as WebGL2Fence).insert();
         }
     }
 

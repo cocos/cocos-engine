@@ -29,9 +29,7 @@ import { MeshRenderer } from '../3d/framework/mesh-renderer';
 import { Camera } from '../core/components/camera-component';
 import { createMesh } from '../3d/misc';
 import { Material } from '../core/assets/material';
-import { ClearFlag, Format, TextureType, TextureUsageBit } from '../core/gfx/define';
-import { Texture, TextureInfo, Device, BufferTextureCopy } from '../core/gfx';
-import { toRadian, Vec4 } from '../core/math';
+import { ClearFlagBit, Format, TextureType, TextureUsageBit, Texture, TextureInfo, Device, BufferTextureCopy } from '../core/gfx';
 import { Layers } from '../core/scene-graph';
 import { Node } from '../core/scene-graph/node';
 import { ICounterOption } from './counter';
@@ -261,7 +259,7 @@ export class Profiler {
         camera.near = 1;
         camera.far = 2;
         camera.visibility = Layers.BitMask.PROFILER;
-        camera.clearFlags = ClearFlag.NONE;
+        camera.clearFlags = ClearFlagBit.NONE;
         camera.priority = 0xffffffff; // after everything else
 
         const managerNode = new Node('Profiler_Root');
@@ -379,7 +377,8 @@ export class Profiler {
         }
 
         if (!EDITOR) {
-            const { screenSpaceSignY, surfaceTransform } = this._device!;
+            const surfaceTransform = this._device!.surfaceTransform;
+            const screenSpaceSignY = this._device!.capabilities.screenSpaceSignY;
             if (surfaceTransform !== this.offsetData[3]) {
                 const preTransform = preTransforms[surfaceTransform];
                 const x = -0.9; const y = -0.9 * screenSpaceSignY;

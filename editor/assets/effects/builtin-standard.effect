@@ -4,8 +4,8 @@ CCEffect %{
   techniques:
   - name: opaque
     passes:
-    - vert: standard-vs:vert
-      frag: standard-fs:frag
+    - vert: standard-vs
+      frag: standard-fs
       properties: &props
         tilingOffset:   { value: [1.0, 1.0, 0.0, 0.0] }
         mainColor:      { value: [1.0, 1.0, 1.0, 1.0], target: albedo, editor: { displayName: Albedo, type: color } }
@@ -26,9 +26,21 @@ CCEffect %{
       migrations:
         properties:
           pbrParams: { removeImmediately: true }
+    - &deferred
+      vert: standard-vs
+      frag: standard-fs
+      phase: deferred
+      propertyIndex: 0
+      blendState:
+        targets:
+        - blend: false
+        - blend: false
+        - blend: false
+        - blend: false
+      properties: *props
     - &forward-add
-      vert: standard-vs:vert
-      frag: standard-fs:frag
+      vert: standard-vs
+      frag: standard-fs
       phase: forward-add
       propertyIndex: 0
       embeddedMacros: { CC_FORWARD_ADD: true }
@@ -65,8 +77,8 @@ CCEffect %{
         mainTexture:    { value: grey, target: albedoMap, editor: { displayName: AlbedoMap } }
   - name: transparent
     passes:
-    - vert: standard-vs:vert
-      frag: standard-fs:frag
+    - vert: standard-vs
+      frag: standard-fs
       depthStencilState:
         depthTest: true
         depthWrite: false
@@ -98,7 +110,7 @@ CCProgram standard-vs %{
   #include <cc-global>
   #include <cc-local-batch>
   #include <shared-ubos>
-  #include <cc-fog>
+  #include <cc-fog-vs>
   #include <cc-shadow-map-vs>
 
   #if USE_VERTEX_COLOR
@@ -110,7 +122,6 @@ CCProgram standard-vs %{
   out vec3 v_normal;
   out vec2 v_uv;
   out vec2 v_uv1;
-  out float v_fog_factor;
 
   #if USE_NORMAL_MAP
     out vec3 v_tangent;
@@ -125,7 +136,7 @@ CCProgram standard-vs %{
     #include <lightingmap-vs>
   #endif
 
-  vec4 vert () {
+  void main () {
     StandardVertInput In;
     CCVertInput(In);
 
@@ -149,26 +160,25 @@ CCProgram standard-vs %{
     #if USE_VERTEX_COLOR
       v_color = a_color;
     #endif
-    v_fog_factor = CC_TRANSFER_FOG(pos);
+
+    CC_TRANSFER_FOG(pos);
+    CC_TRANSFER_SHADOW(pos);
 
     #if USE_LIGHTMAP && !USE_BATCHING && !CC_FORWARD_ADD
       CCLightingMapCaclUV();
     #endif
 
-    CCPassShadowParams(pos);
 
-    return cc_matProj * (cc_matView * matWorld) * In.position;
+    gl_Position = cc_matProj * (cc_matView * matWorld) * In.position;
   }
 }%
 
 CCProgram standard-fs %{
   precision highp float;
   #include <cc-global>
-  #include <shading-standard>
-  #include <output-standard>
-  #include <gamma>
   #include <shared-ubos>
-  #include <cc-fog>
+  #include <cc-fog-fs>
+  #include <standard-surface-entry>
   #if USE_LIGHTMAP && !USE_BATCHING && !CC_FORWARD_ADD
     #include <lightingmap-fs>
   #endif
@@ -177,7 +187,6 @@ CCProgram standard-fs %{
   in vec2 v_uv;
   in vec2 v_uv1;
   in vec3 v_normal;
-  in float v_fog_factor;
 
   #if USE_VERTEX_COLOR
     in vec4 v_color;
@@ -273,12 +282,7 @@ CCProgram standard-fs %{
     #endif
   }
 
-  vec4 frag () {
-    StandardSurface s; surf(s);
-    vec4 color = CCStandardShading(s);
-    color = CC_APPLY_FOG(color, v_fog_factor);
-    return CCFragOutput(color);
-  }
+  CC_STANDARD_SURFACE_ENTRY()
 }%
 
 CCProgram shadow-caster-vs %{

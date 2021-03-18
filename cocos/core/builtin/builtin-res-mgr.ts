@@ -29,7 +29,7 @@ import { SpriteFrame } from '../../2d/assets/sprite-frame';
 import { Texture2D } from '../assets/texture-2d';
 import { TextureCube } from '../assets/texture-cube';
 import { Device } from '../gfx';
-import effects from './effects';
+import { effects } from './effects';
 import { legacyCC } from '../global-exports';
 import { getDeviceShaderVersion } from '../renderer/core/program-lib';
 import shaderSourceAssembly from './shader-source-assembly';
@@ -326,6 +326,19 @@ class BuiltinResMgr {
         });
         resources[spineTwoColorMtl._uuid] = spineTwoColorMtl;
         materialsToBeCompiled.push(spineTwoColorMtl);
+
+        // builtin deferred material
+        const builtinDeferredMtl = new legacyCC.Material();
+        builtinDeferredMtl._uuid = 'builtin-deferred-material';
+        builtinDeferredMtl.initialize({ effectName: 'deferred-lighting' });
+        resources[builtinDeferredMtl._uuid] = builtinDeferredMtl;
+        materialsToBeCompiled.push(builtinDeferredMtl);
+
+        const builtinPostProcessMtl = new legacyCC.Material();
+        builtinPostProcessMtl._uuid = 'builtin-post-process-material';
+        builtinPostProcessMtl.initialize({ effectName: 'post-process' });
+        resources[builtinPostProcessMtl._uuid] = builtinPostProcessMtl;
+        materialsToBeCompiled.push(builtinPostProcessMtl);
 
         legacyCC.game.on(legacyCC.Game.EVENT_RENDERER_INITED, () => {
             for (let i = 0; i < materialsToBeCompiled.length; ++i) {

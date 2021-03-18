@@ -29,9 +29,8 @@
  */
 
 import { Mesh } from '../../3d/assets/mesh';
-import { AttributeName, BufferUsageBit, FormatInfos,
-    MemoryUsageBit, PrimitiveMode } from '../../core/gfx/define';
-import { Attribute, DRAW_INFO_SIZE, Buffer, IndirectBuffer, BufferInfo, DrawInfo } from '../../core/gfx';
+import { AttributeName, BufferUsageBit, FormatInfos, MemoryUsageBit, PrimitiveMode,
+    Attribute, DRAW_INFO_SIZE, Buffer, IndirectBuffer, BufferInfo, DrawInfo } from '../../core/gfx';
 import { Color } from '../../core/math/color';
 import { scene } from '../../core/renderer';
 import { Particle } from '../particle';

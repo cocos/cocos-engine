@@ -30,7 +30,7 @@
 
 import { builtinResMgr } from './builtin';
 import { Pool } from './memop';
-import { RenderPipeline, ForwardPipeline } from './pipeline';
+import { RenderPipeline, createDefaultPipeline, DeferredPipeline } from './pipeline';
 import { Camera, Light, Model } from './renderer/scene';
 import { DataPoolManager } from '../3d/skeletal-animation/data-pool-manager';
 import { LightType } from './renderer/scene/light';
@@ -41,7 +41,7 @@ import { Batcher2D } from '../2d/renderer/batcher-2d';
 import { legacyCC } from './global-exports';
 import { RenderWindow, IRenderWindowInfo } from './renderer/core/render-window';
 import { ColorAttachment, DepthStencilAttachment, RenderPassInfo, StoreOp, Device } from './gfx';
-import { RootHandle, RootPool, RootView, NULL_HANDLE } from './renderer/core/memory-pools';
+import { RootHandle, RootPool, RootView, NULL_HANDLE, LightHandle, PassHandle, ShaderHandle } from './renderer/core/memory-pools';
 import { warnID } from './platform/debug';
 
 /**
@@ -195,6 +195,10 @@ export class Root {
         return this._poolHandle;
     }
 
+    get useDeferredPipeline () : boolean {
+        return this._useDeferredPipeline;
+    }
+
     public _createSceneFun: (root: Root) => RenderScene = null!;
     public _createWindowFun: (root: Root) => RenderWindow = null!;
 
@@ -216,6 +220,7 @@ export class Root {
     private _fixedFPS = 0;
     private _fixedFPSFrameTime = 0;
     private _poolHandle: RootHandle = NULL_HANDLE;
+    private _useDeferredPipeline = false;
 
     /**
      * 构造函数
@@ -238,6 +243,7 @@ export class Root {
      */
     public initialize (info: IRootInfo): Promise<void> {
         this._poolHandle = RootPool.alloc();
+
         const colorAttachment = new ColorAttachment();
         const depthStencilAttachment = new DepthStencilAttachment();
         depthStencilAttachment.depthStoreOp = StoreOp.DISCARD;
@@ -306,10 +312,15 @@ export class Root {
     }
 
     public setRenderPipeline (rppl: RenderPipeline): boolean {
+        if (rppl instanceof DeferredPipeline) {
+            this._useDeferredPipeline = true;
+        }
+
         if (!rppl) {
-            rppl = this.createDefaultPipeline();
+            rppl = createDefaultPipeline();
         }
         this._pipeline = rppl;
+
         if (!this._pipeline.activate()) {
             return false;
         }
@@ -331,16 +342,12 @@ export class Root {
         return true;
     }
 
-    public createDefaultPipeline () {
-        const rppl = new ForwardPipeline();
-        rppl.initialize({ flows: [] });
-        return rppl;
-    }
-
     public onGlobalPipelineStateChanged () {
         for (let i = 0; i < this._scenes.length; i++) {
             this._scenes[i].onGlobalPipelineStateChanged();
         }
+
+        this._pipeline!.pipelineSceneData.initDeferredPassInfo();
     }
 
     /**
@@ -407,10 +414,7 @@ export class Root {
             const cameraList: Camera[] = [];
             for (let i = 0; i < windows.length; i++) {
                 const window = windows[i];
-                const cameras = window.extractRenderCameras();
-                cameras.forEach((camera) => {
-                    cameraList.push(camera);
-                });
+                window.extractRenderCameras(cameraList);
             }
             cameraList.sort((a: Camera, b: Camera) => a.priority - b.priority);
             this._pipeline.render(cameraList);

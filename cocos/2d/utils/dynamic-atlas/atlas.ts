@@ -6,7 +6,7 @@
 import { PixelFormat } from '../../../core/assets/asset-enum';
 import { ImageAsset } from '../../../core/assets/image-asset';
 import { Texture2D } from '../../../core/assets/texture-2d';
-import { BufferTextureCopy } from '../../../core/gfx/define-class';
+import { BufferTextureCopy } from '../../../core/gfx';
 import { legacyCC } from '../../../core/global-exports';
 import { SpriteFrame } from '../../assets/sprite-frame';
 

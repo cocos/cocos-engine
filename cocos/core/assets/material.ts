@@ -425,7 +425,7 @@ export class Material extends Asset {
         const handle = pass.getHandle(name);
         if (!handle) { return false; }
         const propertyType = Pass.getPropertyTypeFromHandle(handle);
-        if (propertyType === PropertyType.UBO) {
+        if (propertyType === PropertyType.BUFFER) {
             if (Array.isArray(val)) {
                 pass.setUniformArray(handle, val as MaterialProperty[]);
             } else if (val !== null) {
@@ -433,7 +433,7 @@ export class Material extends Asset {
             } else {
                 pass.resetUniform(name);
             }
-        } else if (propertyType === PropertyType.SAMPLER) {
+        } else if (propertyType === PropertyType.TEXTURE) {
             if (Array.isArray(val)) {
                 for (let i = 0; i < val.length; i++) {
                     this._bindTexture(pass, handle, val[i], i);

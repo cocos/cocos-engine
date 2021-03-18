@@ -26,7 +26,8 @@
  * @packageDocumentation
  * @module asset-manager
  */
-import { Asset, SceneAsset } from '../assets';
+import { Asset } from '../assets/asset';
+import SceneAsset from '../assets/scene-asset';
 import { legacyCC } from '../global-exports';
 import { error, errorID } from '../platform/debug';
 import Config, { IAddressableInfo, IAssetInfo, IConfigOption, ISceneInfo } from './config';

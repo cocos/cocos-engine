@@ -23,7 +23,8 @@
  THE SOFTWARE.
  */
 
-import { Sampler, SamplerInfo } from '../sampler';
+import { SamplerInfo } from '../base/define';
+import { Sampler } from '../base/sampler';
 import { WebGL2CmdFuncCreateSampler, WebGL2CmdFuncDestroySampler } from './webgl2-commands';
 import { WebGL2Device } from './webgl2-device';
 import { IWebGL2GPUSampler } from './webgl2-gpu-objects';
@@ -45,8 +46,6 @@ export class WebGL2Sampler extends Sampler {
         this._maxAnisotropy = info.maxAnisotropy;
         this._cmpFunc = info.cmpFunc;
         this._borderColor = info.borderColor;
-        this._minLOD = info.minLOD;
-        this._maxLOD = info.maxLOD;
         this._mipLODBias = info.mipLODBias;
 
         this._gpuSampler = {
@@ -57,8 +56,6 @@ export class WebGL2Sampler extends Sampler {
             addressU: this._addressU,
             addressV: this._addressV,
             addressW: this._addressW,
-            minLOD: this._minLOD,
-            maxLOD: this._maxLOD,
 
             glMinFilter: 0,
             glMagFilter: 0,

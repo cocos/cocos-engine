@@ -23,7 +23,8 @@
  THE SOFTWARE.
  */
 
-import { Shader, ShaderInfo } from '../shader';
+import { ShaderInfo } from '../base/define';
+import { Shader } from '../base/shader';
 import { WebGLCmdFuncCreateShader, WebGLCmdFuncDestroyShader } from './webgl-commands';
 import { WebGLDevice } from './webgl-device';
 import { IWebGLGPUShader, IWebGLGPUShaderStage } from './webgl-gpu-objects';
@@ -45,14 +46,14 @@ export class WebGLShader extends Shader {
         this._gpuShader = {
             name: info.name,
             blocks: info.blocks,
-            samplers: info.samplers,
+            samplerTextures: info.samplerTextures,
 
             gpuStages: new Array<IWebGLGPUShaderStage>(info.stages.length),
             glProgram: null,
             glInputs: [],
             glUniforms: [],
             glBlocks: [],
-            glSamplers: [],
+            glSamplerTextures: [],
         };
 
         for (let i = 0; i < info.stages.length; ++i) {

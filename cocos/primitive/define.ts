@@ -28,8 +28,7 @@
  * @module 3d/primitive
  */
 
-import { PrimitiveMode } from '../core/gfx/define';
-import { Attribute } from '../core/gfx';
+import { PrimitiveMode, Attribute } from '../core/gfx';
 
 /**
  * @en

@@ -23,8 +23,8 @@
  THE SOFTWARE.
  */
 
-import { Rect, Viewport } from '../define-class';
-import { BlendState, DepthStencilState, RasterizerState } from '../pipeline-state';
+import { Rect, Viewport } from '../base/define';
+import { BlendState, DepthStencilState, RasterizerState } from '../base/pipeline-state';
 
 export interface IWebGL2TexUnit {
     glTexture: WebGLTexture | null;

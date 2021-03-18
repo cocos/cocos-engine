@@ -317,6 +317,7 @@ export class SplashScreen {
         cmdBuff.endRenderPass();
         cmdBuff.end();
 
+        device.flushCommands([cmdBuff]);
         device.queue.submit([cmdBuff]);
         device.present();
     }
@@ -398,7 +399,7 @@ export class SplashScreen {
         }
 
         // doing the screen adaptation here will not support dynamic screen orientation changes
-        const ySign = this.device.screenSpaceSignY;
+        const ySign = this.device.capabilities.screenSpaceSignY;
         const preTransform = preTransforms[this.device.surfaceTransform];
         for (let i = 0; i < verts.length; i += 4) {
             const x = verts[i] / this.screenWidth * 2 - 1;
@@ -482,7 +483,7 @@ export class SplashScreen {
         }
 
         // doing the screen adaptation here will not support dynamic screen orientation changes
-        const ySign = this.device.screenSpaceSignY;
+        const ySign = this.device.capabilities.screenSpaceSignY;
         const preTransform = preTransforms[this.device.surfaceTransform];
         for (let i = 0; i < verts.length; i += 4) {
             const x = verts[i] / this.screenWidth * 2 - 1;
@@ -527,6 +528,7 @@ export class SplashScreen {
         const samplerInfo = new SamplerInfo();
         samplerInfo.addressU = Address.CLAMP;
         samplerInfo.addressV = Address.CLAMP;
+        samplerInfo.addressW = Address.CLAMP;
         this.sampler = device.createSampler(samplerInfo);
 
         this.texture = device.createTexture(new TextureInfo(

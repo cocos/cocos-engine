@@ -23,25 +23,13 @@
  THE SOFTWARE.
  */
 
-import { DrawInfo } from '../buffer';
 import {
-    DescriptorType,
-    BufferUsage,
-    Format,
-    MemoryUsage,
-    SampleCount,
-    ShaderStageFlagBit,
-    TextureFlags,
-    TextureType,
-    TextureUsage,
-    Type,
-    DynamicStateFlagBit,
-} from '../define';
-import { Attribute } from '../input-assembler';
-import { BlendState, DepthStencilState, RasterizerState } from '../pipeline-state';
-import { ColorAttachment, DepthStencilAttachment } from '../render-pass';
-import { UniformBlock, UniformSampler } from '../shader';
-import { DescriptorSetLayoutBinding } from '../descriptor-set-layout';
+    DescriptorType, BufferUsage, Format, MemoryUsage, SampleCount, DynamicStateFlagBit,
+    ShaderStageFlagBit, TextureFlags, TextureType, TextureUsage, Type,
+    DrawInfo, Attribute, ColorAttachment, DepthStencilAttachment,
+    UniformBlock, UniformSamplerTexture, DescriptorSetLayoutBinding,
+} from '../base/define';
+import { BlendState, DepthStencilState, RasterizerState } from '../base/pipeline-state';
 
 export interface IWebGLGPUUniformInfo {
     name: string;
@@ -155,7 +143,7 @@ export interface IWebGLGPUUniformBlock {
     glActiveUniforms: IWebGLGPUUniform[];
 }
 
-export interface IWebGLGPUUniformSampler {
+export interface IWebGLGPUUniformSamplerTexture {
     set: number;
     binding: number;
     name: string;
@@ -177,14 +165,14 @@ export interface IWebGLGPUShaderStage {
 export interface IWebGLGPUShader {
     name: string;
     blocks: UniformBlock[];
-    samplers: UniformSampler[];
+    samplerTextures: UniformSamplerTexture[];
 
     gpuStages: IWebGLGPUShaderStage[];
     glProgram: WebGLProgram | null;
     glInputs: IWebGLGPUInput[];
     glUniforms: IWebGLGPUUniform[];
     glBlocks: IWebGLGPUUniformBlock[];
-    glSamplers: IWebGLGPUUniformSampler[];
+    glSamplerTextures: IWebGLGPUUniformSamplerTexture[];
 }
 
 export interface IWebGLGPUDescriptorSetLayout {

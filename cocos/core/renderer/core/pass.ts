@@ -29,7 +29,6 @@
  */
 
 import { EDITOR } from 'internal:constants';
-import { Color } from '../../gfx/define-class';
 import { Root } from '../../root';
 import { TextureBase } from '../../assets/texture-base';
 import { builtinResMgr } from '../../builtin/builtin-res-mgr';
@@ -37,12 +36,10 @@ import { getPhaseID } from '../../pipeline/pass-phase';
 import { murmurhash2_32_gc } from '../../utils/murmurhash2_gc';
 import { samplerLib } from './sampler-lib';
 import {
+    BufferUsageBit, DynamicStateFlagBit, DynamicStateFlags, Feature, GetTypeSize, MemoryUsageBit, PrimitiveMode, Type, Color,
     BlendState, BlendTarget, Buffer, BufferInfo, BufferViewInfo, DepthStencilState, DescriptorSet,
     DescriptorSetInfo, DescriptorSetLayout, Device, RasterizerState, Sampler, Texture,
 } from '../../gfx';
-import {
-    BufferUsageBit, DynamicStateFlagBit, DynamicStateFlags, Feature, GetTypeSize, MemoryUsageBit, PrimitiveMode, Type,
-} from '../../gfx/define';
 import {
     DSPool, NULL_HANDLE, PassHandle, PassPool, PassView, ShaderHandle,
 } from './memory-pools';
@@ -473,8 +470,8 @@ export class Pass {
      * @zh 重置所有 texture 和 sampler 为初始默认值。
      */
     public resetTextures (): void {
-        for (let i = 0; i < this._shaderInfo.samplers.length; i++) {
-            const u = this._shaderInfo.samplers[i];
+        for (let i = 0; i < this._shaderInfo.samplerTextures.length; i++) {
+            const u = this._shaderInfo.samplerTextures[i];
             for (let j = 0; j < u.count; j++) {
                 this.resetTexture(u.name, j);
             }
@@ -577,7 +574,7 @@ export class Pass {
         const blocks = this._shaderInfo.blocks;
         const tmplInfo = programLib.getTemplateInfo(info.program);
         const { blockSizes, handleMap } = tmplInfo;
-        const alignment = device.uboOffsetAlignment;
+        const alignment = device.capabilities.uboOffsetAlignment;
         const startOffsets: number[] = [];
         let lastSize = 0; let lastOffset = 0;
         for (let i = 0; i < blocks.length; i++) {

@@ -34,7 +34,7 @@ import {
     DescriptorSetInfo,
     Device, DescriptorSet, ShaderInfo, Shader, InputAssemblerInfo, InputAssembler,
     PipelineLayoutInfo, PipelineLayout, Framebuffer, FramebufferInfo, PrimitiveMode,
-    DynamicStateFlags, ClearFlag, Color as GFXColor,
+    DynamicStateFlags, Color as GFXColor, ClearFlags,
 } from '../../gfx';
 import { RenderPassStage } from '../../pipeline/define';
 import { BatchingSchemes } from './pass';
@@ -541,6 +541,7 @@ export enum PoolType {
     BLEND_TARGET,
     BLEND_STATE,
     BATCH_2D,
+    PIPELINE_SCENE_DATA,
     // arrays
     SUB_MODEL_ARRAY = 200,
     MODEL_ARRAY,
@@ -595,6 +596,7 @@ export type BlendTargetHandle = IHandle<PoolType.BLEND_TARGET>;
 export type BlendStateHandle = IHandle<PoolType.BLEND_STATE>;
 export type BatchHandle2D = IHandle<PoolType.BATCH_2D>;
 export type UIBatchArrayHandle = IHandle<PoolType.BATCH_ARRAY_2D>;
+export type PipelineSceneDataHandle = IHandle<PoolType.PIPELINE_SCENE_DATA>;
 
 // TODO: could use Labeled Tuple Element feature here after next babel update (required TS4.0+ support)
 export const ShaderPool = new ObjectPool(PoolType.SHADER,
@@ -840,7 +842,9 @@ const batchView2DDataType: BufferDataTypeManifest<typeof BatchView2D> = {
     [BatchView2D.COUNT]: BufferDataType.NEVER,
 };
 
-export const BatchPool2D = new BufferPool<PoolType.BATCH_2D, typeof BatchView2D, IBatchView2DType>(PoolType.BATCH_2D, batchView2DDataType, BatchView2D);
+export const BatchPool2D = new BufferPool<PoolType.BATCH_2D, typeof BatchView2D, IBatchView2DType>(
+    PoolType.BATCH_2D, batchView2DDataType, BatchView2D,
+);
 
 export enum AABBView {
     CENTER,             // Vec3
@@ -895,7 +899,7 @@ export enum CameraView {
     WIDTH,
     HEIGHT,
     EXPOSURE,
-    CLEAR_FLAG,
+    CLEAR_FLAGS,
     CLEAR_DEPTH,
     CLEAR_STENCIL,
     VISIBILITY,
@@ -912,13 +916,17 @@ export enum CameraView {
     MAT_VIEW_PROJ_INV = 57, // Mat4
     MAT_PROJ = 73,          // Mat4
     MAT_PROJ_INV = 89,      // Mat4
-    COUNT = 105
+    MAT_VIEW_PROJ_OFFSCREEN = 105,     // Mat4
+    MAT_VIEW_PROJ_INV_OFFSCREEN = 121, // Mat4
+    MAT_PROJ_OFFSCREEN = 137,          // Mat4
+    MAT_PROJ_INV_OFFSCREEN = 153,      // Mat4
+    COUNT = 169
 }
 interface ICameraViewType extends BufferTypeManifest<typeof CameraView> {
     [CameraView.WIDTH]: number;
     [CameraView.HEIGHT]: number;
     [CameraView.EXPOSURE]: number;
-    [CameraView.CLEAR_FLAG]: ClearFlag;
+    [CameraView.CLEAR_FLAGS]: ClearFlags;
     [CameraView.CLEAR_DEPTH]: number;
     [CameraView.CLEAR_STENCIL]: number;
     [CameraView.VISIBILITY]: number,
@@ -935,13 +943,17 @@ interface ICameraViewType extends BufferTypeManifest<typeof CameraView> {
     [CameraView.MAT_VIEW_PROJ_INV]: Mat4;
     [CameraView.MAT_PROJ]: Mat4;
     [CameraView.MAT_PROJ_INV]: Mat4;
+    [CameraView.MAT_VIEW_PROJ_OFFSCREEN]: Mat4;
+    [CameraView.MAT_VIEW_PROJ_INV_OFFSCREEN]: Mat4;
+    [CameraView.MAT_PROJ_OFFSCREEN]: Mat4;
+    [CameraView.MAT_PROJ_INV_OFFSCREEN]: Mat4;
     [CameraView.COUNT]: never;
 }
 const cameraViewDataType: BufferDataTypeManifest<typeof CameraView> = {
     [CameraView.WIDTH]: BufferDataType.UINT32,
     [CameraView.HEIGHT]: BufferDataType.UINT32,
     [CameraView.EXPOSURE]: BufferDataType.FLOAT32,
-    [CameraView.CLEAR_FLAG]: BufferDataType.UINT32,
+    [CameraView.CLEAR_FLAGS]: BufferDataType.UINT32,
     [CameraView.CLEAR_DEPTH]: BufferDataType.FLOAT32,
     [CameraView.CLEAR_STENCIL]: BufferDataType.UINT32,
     [CameraView.VISIBILITY]: BufferDataType.UINT32,
@@ -958,6 +970,10 @@ const cameraViewDataType: BufferDataTypeManifest<typeof CameraView> = {
     [CameraView.MAT_VIEW_PROJ_INV]: BufferDataType.FLOAT32,
     [CameraView.MAT_PROJ]: BufferDataType.FLOAT32,
     [CameraView.MAT_PROJ_INV]: BufferDataType.FLOAT32,
+    [CameraView.MAT_VIEW_PROJ_OFFSCREEN]: BufferDataType.FLOAT32,
+    [CameraView.MAT_VIEW_PROJ_INV_OFFSCREEN]: BufferDataType.FLOAT32,
+    [CameraView.MAT_PROJ_OFFSCREEN]: BufferDataType.FLOAT32,
+    [CameraView.MAT_PROJ_INV_OFFSCREEN]: BufferDataType.FLOAT32,
     [CameraView.COUNT]: BufferDataType.NEVER,
 };
 // Theoretically we only have to declare the type view here while all the other arguments can be inferred.
@@ -1233,6 +1249,55 @@ if (!JSB) { delete ShadowsView[ShadowsView.COUNT]; ShadowsView[ShadowsView.COUNT
 // we'll have to explicitly declare all these types.
 export const ShadowsPool = new BufferPool<PoolType.SHADOW, typeof ShadowsView, IShadowsViewType>(
     PoolType.SHADOW, shadowsViewDataType, ShadowsView, 1,
+);
+
+export enum PipelineSceneDataView {
+    SHADOW, // handle
+    SKYBOX, // handle
+    AMBIENT, // handle
+    FOG, // handle
+    IS_HDR,
+    SHADING_SCALE,
+    FP_SCALE,
+    DEFERRED_LIGHT_PASS,
+    DEFERRED_LIGHT_PASS_SHADER,
+    DEFERRED_POST_PASS,
+    DEFERRED_POST_PASS_SHADER,
+    COUNT = 11
+}
+interface IPipelineSceneDataViewType extends BufferTypeManifest<typeof PipelineSceneDataView> {
+    [PipelineSceneDataView.SHADOW]: ShadowsHandle;
+    [PipelineSceneDataView.SKYBOX]: SkyboxHandle;
+    [PipelineSceneDataView.AMBIENT]: AmbientHandle;
+    [PipelineSceneDataView.FOG]: FogHandle;
+    [PipelineSceneDataView.IS_HDR]: number;
+    [PipelineSceneDataView.SHADING_SCALE]: number;
+    [PipelineSceneDataView.FP_SCALE]: number;
+    [PipelineSceneDataView.DEFERRED_LIGHT_PASS]: PassHandle;
+    [PipelineSceneDataView.DEFERRED_LIGHT_PASS_SHADER]: ShaderHandle;
+    [PipelineSceneDataView.DEFERRED_POST_PASS]: PassHandle;
+    [PipelineSceneDataView.DEFERRED_POST_PASS_SHADER]: ShaderHandle;
+    [PipelineSceneDataView.COUNT]: never;
+}
+const pipelineSceneDataType: BufferDataTypeManifest<typeof PipelineSceneDataView> = {
+    [PipelineSceneDataView.SHADOW]: BufferDataType.UINT32,
+    [PipelineSceneDataView.SKYBOX]: BufferDataType.UINT32,
+    [PipelineSceneDataView.AMBIENT]: BufferDataType.UINT32,
+    [PipelineSceneDataView.FOG]: BufferDataType.UINT32,
+    [PipelineSceneDataView.IS_HDR]: BufferDataType.UINT32,
+    [PipelineSceneDataView.SHADING_SCALE]: BufferDataType.UINT32,
+    [PipelineSceneDataView.FP_SCALE]: BufferDataType.UINT32,
+    [PipelineSceneDataView.DEFERRED_LIGHT_PASS]: BufferDataType.UINT32,
+    [PipelineSceneDataView.DEFERRED_LIGHT_PASS_SHADER]: BufferDataType.UINT32,
+    [PipelineSceneDataView.DEFERRED_POST_PASS]: BufferDataType.UINT32,
+    [PipelineSceneDataView.DEFERRED_POST_PASS_SHADER]: BufferDataType.UINT32,
+    [PipelineSceneDataView.COUNT]: BufferDataType.NEVER,
+};
+// Theoretically we only have to declare the type view here while all the other arguments can be inferred.
+// but before the official support of Partial Type Argument Inference releases, (microsoft/TypeScript#26349)
+// we'll have to explicitly declare all these types.
+export const PipelineSceneDataPool = new BufferPool<PoolType.PIPELINE_SCENE_DATA, typeof PipelineSceneDataView, IPipelineSceneDataViewType>(
+    PoolType.PIPELINE_SCENE_DATA, pipelineSceneDataType, PipelineSceneDataView, 1,
 );
 
 export enum LightView {

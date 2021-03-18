@@ -30,8 +30,7 @@
 
 import { ccclass } from 'cc.decorator';
 import { DEV } from 'internal:constants';
-import { TextureFlagBit, TextureUsageBit, API } from '../gfx/define';
-import { Texture, TextureInfo, Device, BufferTextureCopy } from '../gfx';
+import { TextureFlagBit, TextureUsageBit, API, Texture, TextureInfo, Device, BufferTextureCopy } from '../gfx';
 import { error } from '../platform/debug';
 import { Filter } from './asset-enum';
 import { ImageAsset } from './image-asset';
@@ -39,7 +38,7 @@ import { TextureBase } from './texture-base';
 import { legacyCC } from '../global-exports';
 import { macro } from '../platform/macro';
 import dependUtil from '../asset-manager/depend-util';
-import { fastRemove, fastRemoveAt } from '../utils/array';
+import { fastRemoveAt } from '../utils/array';
 
 const _regions: BufferTextureCopy[] = [new BufferTextureCopy()];
 

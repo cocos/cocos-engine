@@ -4,7 +4,7 @@ precision highp float;
 #include <cc-global>
 #include <cc-local-batch>
 #include <input-standard>
-#include <cc-fog>
+#include <cc-fog-vs>
 #include <cc-shadow-map-vs>
 
 in vec4 a_color;
@@ -19,7 +19,6 @@ out vec3 v_bitangent;
 out vec2 v_uv;
 out vec2 v_uv1;
 out vec4 v_color;
-out float factor_fog;
 
 vec4 vert () {
   StandardVertInput In;
@@ -28,7 +27,9 @@ vec4 vert () {
   mat4 matWorld, matWorldIT;
   CCGetWorldMatrixFull(matWorld, matWorldIT);
 
-  v_position = (matWorld * In.position).xyz;
+  vec4 pos = matWorld * In.position;
+
+  v_position = pos.xyz;
   v_normal = normalize((matWorldIT * vec4(In.normal, 0.0)).xyz);
   v_tangent = normalize((matWorld * vec4(In.tangent.xyz, 0.0)).xyz);
   v_bitangent = cross(v_normal, v_tangent) * In.tangent.w; // note the cross order
@@ -38,9 +39,9 @@ vec4 vert () {
     v_uv1 = a_texCoord1;
   #endif
   v_color = a_color;
-  factor_fog = CC_TRANSFER_FOG(matWorld * In.position);
 
-  CCPassShadowParams(matWorld * In.position);
+  CC_TRANSFER_FOG(pos);
+  CC_TRANSFER_SHADOW(pos);
 
   return cc_matProj * (cc_matView * matWorld) * In.position;
 }

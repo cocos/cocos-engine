@@ -43,9 +43,9 @@ import { genSamplerHash, samplerLib } from '../core/sampler-lib';
 import { ShaderPool, SubModelPool, SubModelView, ModelHandle, SubModelArrayPool, ModelPool,
     ModelView, AABBHandle, AABBPool, AABBView, NULL_HANDLE, AttributeArrayPool,
     RawBufferPool, freeHandleArray, ObjectPool, PoolType } from '../core/memory-pools';
-import { Attribute, DescriptorSet, Device, Buffer, BufferInfo } from '../../gfx';
+import { Attribute, DescriptorSet, Device, Buffer, BufferInfo, getTypedArrayConstructor,
+    BufferUsageBit, FormatInfos, MemoryUsageBit, Filter, Address, Feature } from '../../gfx';
 import { INST_MAT_WORLD, UBOLocal, UNIFORM_LIGHTMAP_TEXTURE_BINDING } from '../../pipeline/define';
-import { getTypedArrayConstructor, BufferUsageBit, FormatInfos, MemoryUsageBit, Filter, Address, Feature } from '../../gfx/define';
 
 const AttrPool = new ObjectPool(PoolType.ATTRIBUTE, (_: never[], obj?: Attribute) => obj || new Attribute());
 
@@ -427,7 +427,7 @@ export class Model {
         }
     }
 
-    public getMacroPatches (subModelIndex: number) {
+    public getMacroPatches (subModelIndex: number): IMacroPatch[] | null {
         return this.receiveShadow ? shadowMapPatches : null;
     }
 

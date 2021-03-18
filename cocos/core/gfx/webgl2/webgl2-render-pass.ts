@@ -23,7 +23,8 @@
  THE SOFTWARE.
  */
 
-import { RenderPass, RenderPassInfo } from '../render-pass';
+import { RenderPassInfo } from '../base/define';
+import { RenderPass } from '../base/render-pass';
 import { IWebGL2GPURenderPass } from './webgl2-gpu-objects';
 
 export class WebGL2RenderPass extends RenderPass {
@@ -36,8 +37,8 @@ export class WebGL2RenderPass extends RenderPass {
     public initialize (info: RenderPassInfo): boolean {
         this._colorInfos = info.colorAttachments;
         this._depthStencilInfo = info.depthStencilAttachment;
-        if (info.subPasses) {
-            this._subPasses = info.subPasses;
+        if (info.subpasses) {
+            this._subpasses = info.subpasses;
         }
 
         this._gpuRenderPass = {

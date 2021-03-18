@@ -11,8 +11,8 @@
   "scripts": {
     "server": "http-server . -p 8002 -o http://127.0.0.1:8002/playground/index.html",
     "build": "gulp build",
-    "build:dev": "gulp build-code",
-    "build:min": "gulp build-code-minified",
+    "build:dev": "gulp build-h5-source",
+    "build:min": "gulp build-h5-minified",
     "build-declaration": "gulp build-declarations",
     "build-api-json": "gulp build-api-json -i index.ts -o ./3d-api-docs/tempJson",
     "build-api": "npm run build-api-json && gulp build-3d-api -i index.ts -o ./3d-api-docs -j ./3d-api-docs/tempJson",
@@ -23,10 +23,10 @@
     "url": "git+https://github.com/cocos-creator/engine.git"
   },
   "devDependencies": {
-    "@babel/core": "^7.9.0",
+    "@babel/core": "^7.13.10",
     "@babel/preset-env": "7.8.7",
     "@cocos/babel-preset-cc": "2.2.0",
-    "@cocos/build-engine": "4.1.8",
+    "@cocos/build-engine": "4.1.9",
     "@cocos/typedoc-plugin-internal-external": "^1.0.1",
     "@cocos/typedoc-plugin-localization": "^1.0.0",
     "@types/fs-extra": "^5.0.4",
@@ -56,7 +56,7 @@
     "@cocos/ammo": "1.1.1",
     "@cocos/box2d": "1.0.1",
     "@cocos/cannon": "1.2.3",
-    "@cocos/dragonbones-js": "1.0.1",
+    "@cocos/dragonbones-js": "^1.0.1",
     "@cocos/physx": "1.0.2"
   }
 }

@@ -23,11 +23,11 @@
  THE SOFTWARE.
  */
 
-import { PipelineState, PipelineStateInfo } from '../pipeline-state';
+import { PipelineState, PipelineStateInfo } from '../base/pipeline-state';
 import { IWebGLGPUPipelineState } from './webgl-gpu-objects';
 import { WebGLRenderPass } from './webgl-render-pass';
 import { WebGLShader } from './webgl-shader';
-import { DynamicStateFlagBit } from '../define';
+import { DynamicStateFlagBit } from '../base/define';
 import { WebGLPipelineLayout } from './webgl-pipeline-layout';
 
 const WebGLPrimitives: GLenum[] = [

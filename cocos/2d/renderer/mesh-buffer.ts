@@ -27,8 +27,7 @@
  * @packageDocumentation
  * @module ui
  */
-import { BufferUsageBit, MemoryUsageBit } from '../../core/gfx/define';
-import { InputAssemblerInfo, Attribute, Buffer, BufferInfo } from '../../core/gfx';
+import { BufferUsageBit, MemoryUsageBit, InputAssemblerInfo, Attribute, Buffer, BufferInfo } from '../../core/gfx';
 import { Batcher2D } from './batcher-2d';
 import { InputAssemblerHandle, NULL_HANDLE, IAPool } from '../../core/renderer/core/memory-pools';
 import { getComponentPerVertex } from './vertex-format';

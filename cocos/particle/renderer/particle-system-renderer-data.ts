@@ -35,7 +35,7 @@ import { legacyCC } from '../../core/global-exports';
 
 function isSupportGPUParticle () {
     const device: Device = director.root!.device;
-    if (device.maxVertexTextureUnits >= 8 && device.hasFeature(Feature.TEXTURE_FLOAT)) {
+    if (device.capabilities.maxVertexTextureUnits >= 8 && device.hasFeature(Feature.TEXTURE_FLOAT)) {
         return true;
     }
 
@@ -139,11 +139,10 @@ export default class ParticleSystemRenderer {
         if (!this._particleSystem) {
             return null;
         }
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-        return this._particleSystem.getMaterial(0);
+        return this._particleSystem.getMaterial(0) as Material;
     }
 
-    public set particleMaterial (val) {
+    public set particleMaterial (val: Material | null) {
         if (this._particleSystem) {
             this._particleSystem.setMaterial(val, 0);
         }
@@ -159,12 +158,13 @@ export default class ParticleSystemRenderer {
         if (!this._particleSystem) {
             return null;
         }
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-        return this._particleSystem.getMaterial(1)!;
+        return this._particleSystem.getMaterial(1) as Material;
     }
 
-    public set trailMaterial (val) {
-        this._particleSystem.setMaterial(val, 1);
+    public set trailMaterial (val: Material | null) {
+        if (this._particleSystem) {
+            this._particleSystem.setMaterial(val, 1);
+        }
     }
 
     @serializable
@@ -211,6 +211,9 @@ export default class ParticleSystemRenderer {
     }
 
     private _switchProcessor () {
+        if (!this._particleSystem) {
+            return;
+        }
         if (this._particleSystem.processor) {
             this._particleSystem.processor.detachFromScene();
             this._particleSystem.processor.clear();

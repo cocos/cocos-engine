@@ -25,7 +25,6 @@
 
 import { CachedArray } from '../../memop/cached-array';
 import { error, errorID } from '../../platform/debug';
-import { BufferSource, DrawInfo, IndirectBuffer } from '../buffer';
 import { WebGLCommandAllocator } from './webgl-command-allocator';
 import {
     IWebGLDepthBias, IWebGLDepthBounds, IWebGLStencilCompareMask, IWebGLStencilWriteMask,
@@ -34,16 +33,13 @@ import { WebGLEXT } from './webgl-define';
 import { WebGLDevice } from './webgl-device';
 import {
     IWebGLGPUInputAssembler, IWebGLGPUUniform, IWebGLAttrib, IWebGLGPUDescriptorSet, IWebGLGPUBuffer, IWebGLGPUFramebuffer, IWebGLGPUInput,
-    IWebGLGPUPipelineState, IWebGLGPUShader, IWebGLGPUTexture, IWebGLGPUUniformBlock, IWebGLGPUUniformSampler, IWebGLGPURenderPass,
+    IWebGLGPUPipelineState, IWebGLGPUShader, IWebGLGPUTexture, IWebGLGPUUniformBlock, IWebGLGPUUniformSamplerTexture, IWebGLGPURenderPass,
 } from './webgl-gpu-objects';
 import {
-    BufferUsageBit, ClearFlag, ColorMask, CullMode, Format,
+    BufferUsageBit, ClearFlagBit, ClearFlags, ColorMask, CullMode, Format, BufferTextureCopy, Color, Rect, Viewport,
     FormatInfos, FormatSize, LoadOp, MemoryUsageBit, SampleCount, ShaderStageFlagBit, StencilFace,
-    TextureFlagBit, TextureType, Type, FormatInfo, DynamicStateFlagBit,
-} from '../define';
-import {
-    BufferTextureCopy, Color, Rect, Viewport,
-} from '../define-class';
+    TextureFlagBit, TextureType, Type, FormatInfo, DynamicStateFlagBit, BufferSource, DrawInfo, IndirectBuffer,
+} from '../base/define';
 
 export function GFXFormatToWebGLType (format: Format, gl: WebGLRenderingContext): GLenum {
     switch (format) {
@@ -543,7 +539,7 @@ export class WebGLCmdBeginRenderPass extends WebGLCmdObject {
 
     public renderArea = new Rect();
 
-    public clearFlag: ClearFlag = ClearFlag.NONE;
+    public clearFlag: ClearFlags = ClearFlagBit.NONE;
 
     public clearColors: Color[] = [];
 
@@ -906,8 +902,8 @@ export function WebGLCmdFuncCreateTexture (device: WebGLDevice, gpuTexture: IWeb
         gpuTexture.glTarget = gl.TEXTURE_2D;
 
         const maxSize = Math.max(w, h);
-        if (maxSize > device.maxTextureSize) {
-            errorID(9100, maxSize, device.maxTextureSize);
+        if (maxSize > device.capabilities.maxTextureSize) {
+            errorID(9100, maxSize, device.capabilities.maxTextureSize);
         }
 
         if (!device.WEBGL_depth_texture && FormatInfos[gpuTexture.format].hasDepth) {
@@ -982,8 +978,8 @@ export function WebGLCmdFuncCreateTexture (device: WebGLDevice, gpuTexture: IWeb
         gpuTexture.glTarget = gl.TEXTURE_CUBE_MAP;
 
         const maxSize = Math.max(w, h);
-        if (maxSize > device.maxCubeMapTextureSize) {
-            errorID(9100, maxSize, device.maxTextureSize);
+        if (maxSize > device.capabilities.maxCubeMapTextureSize) {
+            errorID(9100, maxSize, device.capabilities.maxTextureSize);
         }
 
         const glTexture = gl.createTexture();
@@ -1080,8 +1076,8 @@ export function WebGLCmdFuncResizeTexture (device: WebGLDevice, gpuTexture: IWeb
         gpuTexture.glTarget = gl.TEXTURE_2D;
 
         const maxSize = Math.max(w, h);
-        if (maxSize > device.maxTextureSize) {
-            errorID(9100, maxSize, device.maxTextureSize);
+        if (maxSize > device.capabilities.maxTextureSize) {
+            errorID(9100, maxSize, device.capabilities.maxTextureSize);
         }
 
         if (gpuTexture.glRenderbuffer) {
@@ -1120,8 +1116,8 @@ export function WebGLCmdFuncResizeTexture (device: WebGLDevice, gpuTexture: IWeb
         gpuTexture.glTarget = gl.TEXTURE_CUBE_MAP;
 
         const maxSize = Math.max(w, h);
-        if (maxSize > device.maxCubeMapTextureSize) {
-            errorID(9100, maxSize, device.maxTextureSize);
+        if (maxSize > device.capabilities.maxCubeMapTextureSize) {
+            errorID(9100, maxSize, device.capabilities.maxTextureSize);
         }
 
         const glTexUnit = device.stateCache.glTexUnits[device.stateCache.texUnit];
@@ -1402,12 +1398,12 @@ export function WebGLCmdFuncCreateShader (device: WebGLDevice, gpuShader: IWebGL
             for (let u = 0; u < block.members.length; ++u) {
                 const uniform = block.members[u];
                 const glType = GFXTypeToWebGLType(uniform.type, gl);
-                const ctor = GFXTypeToTypedArrayCtor(uniform.type);
+                const Ctor = GFXTypeToTypedArrayCtor(uniform.type);
                 const stride = WebGLGetTypeSize(glType, gl);
                 const size = stride * uniform.count;
                 const begin = glBlock.size / 4;
                 const count = size / 4;
-                const array = new ctor(count);
+                const array = new Ctor(count);
 
                 glBlock.glUniforms[u] = {
                     binding: -1,
@@ -1456,12 +1452,12 @@ export function WebGLCmdFuncCreateShader (device: WebGLDevice, gpuShader: IWebGL
     }
 
     // create uniform samplers
-    if (gpuShader.samplers.length > 0) {
-        gpuShader.glSamplers = new Array<IWebGLGPUUniformSampler>(gpuShader.samplers.length);
+    if (gpuShader.samplerTextures.length > 0) {
+        gpuShader.glSamplerTextures = new Array<IWebGLGPUUniformSamplerTexture>(gpuShader.samplerTextures.length);
 
-        for (let i = 0; i < gpuShader.samplers.length; ++i) {
-            const sampler = gpuShader.samplers[i];
-            gpuShader.glSamplers[i] = {
+        for (let i = 0; i < gpuShader.samplerTextures.length; ++i) {
+            const sampler = gpuShader.samplerTextures[i];
+            gpuShader.glSamplerTextures[i] = {
                 set: sampler.set,
                 binding: sampler.binding,
                 name: sampler.name,
@@ -1520,7 +1516,7 @@ export function WebGLCmdFuncCreateShader (device: WebGLDevice, gpuShader: IWebGL
     } // for
 
     // texture unit index mapping optimization
-    const glActiveSamplers: IWebGLGPUUniformSampler[] = [];
+    const glActiveSamplers: IWebGLGPUUniformSamplerTexture[] = [];
     const glActiveSamplerLocations: WebGLUniformLocation[] = [];
     const { bindingMappingInfo } = device;
     const { texUnitCacheMap } = device.stateCache;
@@ -1533,18 +1529,18 @@ export function WebGLCmdFuncCreateShader (device: WebGLDevice, gpuShader: IWebGL
     }
 
     let arrayOffset = 0;
-    for (let i = 0; i < gpuShader.samplers.length; ++i) {
-        const sampler = gpuShader.samplers[i];
+    for (let i = 0; i < gpuShader.samplerTextures.length; ++i) {
+        const sampler = gpuShader.samplerTextures[i];
         const glLoc = gl.getUniformLocation(gpuShader.glProgram, sampler.name);
         // Note: getUniformLocation return Object on wechat platform.
         if (glLoc !== null && (typeof glLoc === 'number' || (glLoc as any).id !== -1)) {
-            glActiveSamplers.push(gpuShader.glSamplers[i]);
+            glActiveSamplers.push(gpuShader.glSamplerTextures[i]);
             glActiveSamplerLocations.push(glLoc);
         }
         if (texUnitCacheMap[sampler.name] === undefined) {
             let binding = sampler.binding + bindingMappingInfo.samplerOffsets[sampler.set] + arrayOffset;
             if (sampler.set === bindingMappingInfo.flexibleSet) { binding -= flexibleSetBaseOffset; }
-            texUnitCacheMap[sampler.name] = binding % device.maxTextureUnits;
+            texUnitCacheMap[sampler.name] = binding % device.capabilities.maxTextureUnits;
             arrayOffset += sampler.count - 1;
         }
     }
@@ -1560,7 +1556,7 @@ export function WebGLCmdFuncCreateShader (device: WebGLDevice, gpuShader: IWebGL
                 glSampler.glLoc = glActiveSamplerLocations[i];
                 for (let t = 0; t < glSampler.count; ++t) {
                     while (usedTexUnits[cachedUnit]) {
-                        cachedUnit = (cachedUnit + 1) % device.maxTextureUnits;
+                        cachedUnit = (cachedUnit + 1) % device.capabilities.maxTextureUnits;
                     }
                     glSampler.units.push(cachedUnit);
                     usedTexUnits[cachedUnit] = true;
@@ -1576,7 +1572,7 @@ export function WebGLCmdFuncCreateShader (device: WebGLDevice, gpuShader: IWebGL
                 glSampler.glLoc = glActiveSamplerLocations[i];
                 for (let t = 0; t < glSampler.count; ++t) {
                     while (usedTexUnits[unitIdx]) {
-                        unitIdx = (unitIdx + 1) % device.maxTextureUnits;
+                        unitIdx = (unitIdx + 1) % device.capabilities.maxTextureUnits;
                     }
                     if (texUnitCacheMap[glSampler.name] === undefined) {
                         texUnitCacheMap[glSampler.name] = unitIdx;
@@ -1612,7 +1608,7 @@ export function WebGLCmdFuncCreateShader (device: WebGLDevice, gpuShader: IWebGL
         }
     }
 
-    gpuShader.glSamplers = glActiveSamplers;
+    gpuShader.glSamplerTextures = glActiveSamplers;
 }
 
 export function WebGLCmdFuncDestroyShader (device: WebGLDevice, gpuShader: IWebGLGPUShader) {
@@ -2312,9 +2308,9 @@ export function WebGLCmdFuncBindStates (
             continue;
         }
 
-        const samplerLen = gpuShader.glSamplers.length;
+        const samplerLen = gpuShader.glSamplerTextures.length;
         for (let i = 0; i < samplerLen; i++) {
-            const glSampler = gpuShader.glSamplers[i];
+            const glSampler = gpuShader.glSamplerTextures[i];
             const gpuDescriptorSet = gpuDescriptorSets[glSampler.set];
             let descriptorIndex = gpuDescriptorSet && gpuDescriptorSet.descriptorIndices[glSampler.binding];
             let gpuDescriptor = descriptorIndex >= 0 && gpuDescriptorSet.gpuDescriptors[descriptorIndex];
@@ -2485,7 +2481,7 @@ export function WebGLCmdFuncBindStates (
                 cache.glVAO = glVAO;
             }
         } else {
-            for (let a = 0; a < device.maxVertexAttributes; ++a) {
+            for (let a = 0; a < device.capabilities.maxVertexAttributes; ++a) {
                 cache.glCurrentAttribLocs[a] = false;
             }
 
@@ -2533,7 +2529,7 @@ export function WebGLCmdFuncBindStates (
                 }
             }
 
-            for (let a = 0; a < device.maxVertexAttributes; ++a) {
+            for (let a = 0; a < device.capabilities.maxVertexAttributes; ++a) {
                 if (cache.glEnabledAttribLocs[a] !== cache.glCurrentAttribLocs[a]) {
                     gl.disableVertexAttribArray(a);
                     cache.glEnabledAttribLocs[a] = false;

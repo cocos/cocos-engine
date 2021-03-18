@@ -31,20 +31,9 @@
 import { legacyCC } from '../global-exports';
 import { mapBuffer } from '../../3d/misc/buffer';
 import {
-    Attribute, Device, InputAssemblerInfo, Buffer, BufferInfo,
+    Attribute, Device, InputAssemblerInfo, Buffer, BufferInfo, AttributeName, BufferUsageBit,
+    Format, FormatInfos, MemoryUsageBit, PrimitiveMode, getTypedArrayConstructor,
 } from '../gfx';
-import {
-    AttributeName,
-    BufferUsageBit,
-    Feature,
-    Format,
-    FormatInfos,
-    FormatType,
-    MemoryUsageBit,
-    PrimitiveMode,
-    getTypedArrayConstructor,
-} from '../gfx/define';
-
 import {
     FlatBufferArrayPool, FlatBufferPool, FlatBufferView, NULL_HANDLE, RawBufferPool,
     SubMeshHandle, SubMeshPool, SubMeshView, freeHandleArray,
