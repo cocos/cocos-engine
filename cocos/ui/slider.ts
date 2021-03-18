@@ -90,7 +90,7 @@ export class Slider extends Component {
      * 滑动器滑块按钮部件。
      */
     @type(Sprite)
-    @tooltip('滑块按钮部件')
+    @tooltip('i18n:slider.handle')
     get handle () {
         return this._handle;
     }
@@ -114,7 +114,7 @@ export class Slider extends Component {
      * 滑动器方向。
      */
     @type(Direction)
-    @tooltip('滑动方向')
+    @tooltip('i18n:slider.direction')
     get direction () {
         return this._direction;
     }
@@ -137,7 +137,7 @@ export class Slider extends Component {
      */
     @slide
     @range([0, 1, 0.01])
-    @tooltip('当前进度值，该数值的区间是 0 - 1 之间。')
+    @tooltip('i18n:slider.progress')
     get progress () {
         return this._progress;
     }
@@ -162,7 +162,7 @@ export class Slider extends Component {
      */
     @type([EventHandler])
     @serializable
-    @tooltip('滑动器组件事件回调函数')
+    @tooltip('i18n:slider.slideEvents')
     public slideEvents: EventHandler[] = [];
     @serializable
     private _handle: Sprite | null = null;

@@ -222,7 +222,7 @@ export class ScrollView extends ViewGroup {
     @serializable
     @range([0, 10])
     @displayOrder(0)
-    @tooltip('回弹持续的时间，0 表示将立即反弹')
+    @tooltip('i18n:scrollview.bounceDuration')
     public bounceDuration = 1;
 
     /**
@@ -236,7 +236,7 @@ export class ScrollView extends ViewGroup {
     @serializable
     @range([0, 1, 0.1])
     @displayOrder(1)
-    @tooltip('开启惯性后，在用户停止触摸后滚动多快停止，0 表示永不停止，1 表示立刻停止')
+    @tooltip('i18n:scrollview.brake')
     public brake = 0.5;
 
     /**
@@ -248,7 +248,7 @@ export class ScrollView extends ViewGroup {
      */
     @serializable
     @displayOrder(2)
-    @tooltip('是否允许滚动内容超过边界，并在停止触摸后回弹')
+    @tooltip('i18n:scrollview.elastic')
     public elastic = true;
 
     /**
@@ -260,7 +260,7 @@ export class ScrollView extends ViewGroup {
      */
     @serializable
     @displayOrder(3)
-    @tooltip('是否开启滚动惯性')
+    @tooltip('i18n:scrollview.inertia')
     public inertia = true;
 
     /**
@@ -272,7 +272,7 @@ export class ScrollView extends ViewGroup {
      */
     @type(Node)
     @displayOrder(4)
-    @tooltip('可滚动展示内容的节点')
+    @tooltip('i18n:scrollview.content')
     get content () {
         return this._content;
     }
@@ -299,7 +299,7 @@ export class ScrollView extends ViewGroup {
      */
     @serializable
     @displayOrder(5)
-    @tooltip('是否开启水平滚动')
+    @tooltip('i18n:scrollview.horizontal')
     public horizontal = true;
 
     /**
@@ -310,7 +310,7 @@ export class ScrollView extends ViewGroup {
      */
     @type(ScrollBar)
     @displayOrder(6)
-    @tooltip('水平滚动的 ScrollBar')
+    @tooltip('i18n:scrollview.horizontal_bar')
     get horizontalScrollBar () {
         return this._horizontalScrollBar;
     }
@@ -337,7 +337,7 @@ export class ScrollView extends ViewGroup {
      */
     @serializable
     @displayOrder(7)
-    @tooltip('是否开启垂直滚动')
+    @tooltip('i18n:scrollview.vertical')
     public vertical = true;
 
     /**
@@ -349,7 +349,7 @@ export class ScrollView extends ViewGroup {
      */
     @type(ScrollBar)
     @displayOrder(8)
-    @tooltip('垂直滚动的 ScrollBar')
+    @tooltip('i18n:scrollview.vertical_bar')
     get verticalScrollBar () {
         return this._verticalScrollBar;
     }
@@ -378,7 +378,7 @@ export class ScrollView extends ViewGroup {
      */
     @serializable
     @displayOrder(9)
-    @tooltip('滚动行为是否会取消子节点上注册的触摸事件')
+    @tooltip('i18n:scrollview.cancelInnerEvents')
     public cancelInnerEvents = true;
 
     /**
@@ -391,7 +391,7 @@ export class ScrollView extends ViewGroup {
     @type([ComponentEventHandler])
     @serializable
     @displayOrder(10)
-    @tooltip('滚动视图的事件回调函数')
+    @tooltip('i18n:scrollview.scrollEvents')
     public scrollEvents: ComponentEventHandler[] = [];
 
     get view () {

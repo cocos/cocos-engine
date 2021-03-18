@@ -1,3 +1,8 @@
+/**
+ * @packageDocumentation
+ * @module spine
+ */
+
 import { Mat4, Node } from '../core';
 import { Skeleton } from './skeleton';
 import spine from './lib/spine-core.js';
@@ -6,8 +11,8 @@ import { FrameBoneInfo } from './skeleton-cache';
 const _tempMat4 = new Mat4();
 
 /**
- * !#en Attach node tool
- * !#zh 挂点工具类
+ * @en Attach node tool
+ * @zh 挂点工具类
  * @class sp.AttachUtil
  */
 export class AttachUtil {

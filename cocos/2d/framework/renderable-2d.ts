@@ -241,7 +241,7 @@ export class Renderable2D extends RenderableComponent {
      * @zh 渲染颜色，一般情况下会和贴图颜色相乘。
      */
     @displayOrder(2)
-    @tooltip('渲染颜色')
+    @tooltip('i18n:renderable2D.color')
     get color (): Readonly<Color> {
         return this._color;
     }

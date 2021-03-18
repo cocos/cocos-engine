@@ -77,7 +77,7 @@ export class LabelOutline extends Component {
      * outline.color = new Color(0.5, 0.3, 0.7, 1.0);
      * ```
      */
-    @tooltip('描边的颜色')
+    @tooltip('i18n:labelOutline.color')
     // @constget
     get color (): Readonly<Color> {
         return this._color;
@@ -104,7 +104,7 @@ export class LabelOutline extends Component {
      * outline.width = 3;
      * ```
      */
-    @tooltip('描边的宽度')
+    @tooltip('i18n:labelOutline.width')
     get width () {
         return this._width;
     }

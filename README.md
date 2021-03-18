@@ -45,7 +45,7 @@ The engine is naturally integrated within Cocos Creator, designed to only be the
 ### Prerequisite
 
 - Install [node.js v9.11.2 +](https://nodejs.org/)
-- Install [gulp-cli v3.9.0 +](https://github.com/gulpjs/gulp/tree/master/docs/getting-started)
+- Install [gulp-cli v2.3.0 +](https://github.com/gulpjs/gulp/tree/master/docs/getting-started)
 
 ### Install
 
@@ -65,7 +65,7 @@ This is all you have to do to setup engine development environment.
 - Outside the editor, you need to run the following command to build:
 
   ```bash
-  npm run build:dev
+  npm run build
   ```
 
 ## Example Project

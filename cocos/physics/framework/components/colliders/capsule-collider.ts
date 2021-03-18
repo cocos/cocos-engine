@@ -62,7 +62,7 @@ export class CapsuleCollider extends Collider {
      * @zh
      * 获取或设置胶囊体在本地坐标系下的球半径。
      */
-    @tooltip('本地坐标系下胶囊体上的球的半径')
+    @tooltip('i18n:physics3d.collider.capsule_radius')
     public get radius () {
         return this._radius;
     }
@@ -81,7 +81,7 @@ export class CapsuleCollider extends Collider {
      * @zh
      * 获取或设置在本地坐标系下的胶囊体上圆柱体的高度。
      */
-    @tooltip('本地坐标系下胶囊体上的圆柱体的高度')
+    @tooltip('i18n:physics3d.collider.capsule_cylinderHeight')
     public get cylinderHeight () {
         return this._cylinderHeight;
     }
@@ -101,7 +101,7 @@ export class CapsuleCollider extends Collider {
      * 获取或设置在本地坐标系下胶囊体的方向。
      */
     @type(EAxisDirection)
-    @tooltip('本地坐标系下胶囊体的朝向')
+    @tooltip('i18n:physics3d.collider.capsule_direction')
     public get direction () {
         return this._direction;
     }

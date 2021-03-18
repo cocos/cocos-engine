@@ -1,3 +1,7 @@
+/**
+ * @packageDocumentation
+ * @hidden
+ */
 import b2 from '@cocos/box2d';
 import { b2Shape2D } from './shape-2d';
 import { CircleCollider2D } from '../../framework';

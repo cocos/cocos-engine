@@ -24,7 +24,8 @@
  THE SOFTWARE.
  */
 /**
- * @category asset-manager
+ * @packageDocumentation
+ * @module asset-manager
  */
 
 import downloader from '../core/asset-manager/downloader';

@@ -79,6 +79,7 @@ export class Collider extends Eventify(Component) {
     @readOnly
     @displayName('Attached')
     @displayOrder(-2)
+    @tooltip('i18n:physics3d.collider.attached')
     public get attachedRigidBody (): RigidBody | null {
         return findAttachedBody(this.node);
         // return this._attachedRigidBody;
@@ -93,7 +94,7 @@ export class Collider extends Eventify(Component) {
     @type(PhysicsMaterial)
     @displayName('Material')
     @displayOrder(-1)
-    @tooltip('源材质')
+    @tooltip('i18n:physics3d.collider.sharedMaterial')
     public get sharedMaterial () {
         return this._material;
     }
@@ -149,7 +150,7 @@ export class Collider extends Eventify(Component) {
      * 获取或设置碰撞器是否为触发器。(builtin中无论真假都为触发器)
      */
     @displayOrder(0)
-    @tooltip('是否为触发器，触发器不会产生物理反馈')
+    @tooltip('i18n:physics3d.collider.isTrigger')
     public get isTrigger () {
         return this._isTrigger;
     }
@@ -169,7 +170,7 @@ export class Collider extends Eventify(Component) {
      */
     @type(Vec3)
     @displayOrder(1)
-    @tooltip('形状的中心点（与所在 Node 中心点的相对位置）')
+    @tooltip('i18n:physics3d.collider.center')
     public get center () {
         return this._center;
     }

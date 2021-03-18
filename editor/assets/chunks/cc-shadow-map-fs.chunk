@@ -163,8 +163,8 @@ in highp vec4 v_shadowPos;
       float pcf = cc_shadowInfo.z + 0.001;                                                                                  \
       float shadowAttenuation = 0.0;                                                                                        \
       if (pcf > 3.0) shadowAttenuation = CCGetDirLightShadowFactorX25();                                                    \
-      else if (3.0 > pcf && pcf > 2.0) shadowAttenuation = CCGetDirLightShadowFactorX9();                                   \
-      else if (2.0 > pcf && pcf > 1.0) shadowAttenuation = CCGetDirLightShadowFactorX5();                                   \
+      else if (pcf > 2.0) shadowAttenuation = CCGetDirLightShadowFactorX9();                                                \
+      else if (pcf > 1.0) shadowAttenuation = CCGetDirLightShadowFactorX5();                                                \
       else shadowAttenuation = CCGetDirLightShadowFactorX1();                                                               \
       finalColor *= 1.0 - shadowAttenuation;                                                                                \
     }                                                                                                                       \
@@ -175,8 +175,8 @@ in highp vec4 v_shadowPos;
       float pcf = cc_shadowInfo.z + 0.001;                                                                                  \
       float shadowAttenuation = 0.0;                                                                                        \
       if (pcf > 3.0) shadowAttenuation = CCGetShadowFactorX25();                                                            \
-      else if (3.0 > pcf && pcf > 2.0) shadowAttenuation = CCGetShadowFactorX9();                                           \
-      else if (2.0 > pcf && pcf > 1.0) shadowAttenuation = CCGetShadowFactorX5();                                           \
+      else if (pcf > 2.0) shadowAttenuation = CCGetShadowFactorX9();                                                        \
+      else if (pcf > 1.0) shadowAttenuation = CCGetShadowFactorX5();                                                        \
       else shadowAttenuation = CCGetShadowFactorX1();                                                                       \
       vec3 shadowColor = cc_shadowColor.rgb * cc_shadowColor.a + finalColor.rgb * (1.0 - cc_shadowColor.a);                 \
       finalColor.rgb = shadowColor.rgb * shadowAttenuation * atten + finalColor.rgb * (1.0 - shadowAttenuation * atten);    \

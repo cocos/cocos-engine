@@ -33,7 +33,7 @@ if (cc.internal.VideoPlayer) {
     let _topLeft = new vec3();
     let _bottomRight = new vec3();
 
-    cc.internal.VideoPlayerImplManager.getImpl = function(componenet) {
+    cc.internal.VideoPlayerImplManager.getImpl = function (componenet) {
         return new VideoPlayerImplMiniGame(componenet);
     };
 
@@ -59,7 +59,7 @@ if (cc.internal.VideoPlayer) {
             this.createVideoPlayer(url);
         }
 
-        onCanplay () {
+        onCanplay() {
             if (this._loaded) {
                 return;
             }
@@ -101,7 +101,7 @@ if (cc.internal.VideoPlayer) {
 
         }
 
-        _unbindEvent () {
+        _unbindEvent() {
             let video = this._video;
             if (!video) {
                 return;
@@ -116,14 +116,14 @@ if (cc.internal.VideoPlayer) {
         }
 
         createVideoPlayer(url) {
-            if (!jsb.createVideo) {
+            if (!ral.createVideo) {
                 console.warn('VideoPlayer not supported');
                 return;
             }
 
             if (!this._video) {
                 let initRect = this._getInitRect();
-                this._video = jsb.createVideo({
+                this._video = ral.createVideo({
                     ...initRect,  // OPPO video only can resize when it is initiated
                     src: url,
                     objectFit: "contain",
@@ -144,7 +144,7 @@ if (cc.internal.VideoPlayer) {
             this._forceUpdate = true;
         }
 
-        setURL (path) {
+        setURL(path) {
             let video = this._video;
             if (!video || video.src === path) {
                 return;
@@ -155,7 +155,7 @@ if (cc.internal.VideoPlayer) {
             video.muted = true;
             let self = this;
             this._loaded = false;
-    
+
             var loadedCallback = function () {
                 video.offPlay(loadedCallback);
                 video.offTimeUpdate(timeCallBack);
@@ -168,7 +168,7 @@ if (cc.internal.VideoPlayer) {
                 self._currentTime = 0;
                 self.dispatchEvent(EventType.READY_TO_PLAY);
             }
-    
+
             var timeCallBack = function (res) {
                 var data = JSON.parse(res.position);
                 if (typeof data === "object") {
@@ -181,7 +181,7 @@ if (cc.internal.VideoPlayer) {
             }
             video.onPlay(loadedCallback);
             video.onTimeUpdate(timeCallBack);
-    
+
             // HACK: keep playing till video loaded
             video.play();
         }
@@ -200,7 +200,7 @@ if (cc.internal.VideoPlayer) {
             }
         }
 
-        setVisible (value) {
+        setVisible(value) {
             let video = this._video;
             if (!video || this._visible === value) {
                 return;
@@ -214,18 +214,18 @@ if (cc.internal.VideoPlayer) {
             this._visible = value;
         }
 
-        getDuration () {
+        getDuration() {
             return this.duration();
         }
 
-        duration () {
+        duration() {
             return this._duration;
         }
 
         syncPlaybackRate(value) {
             let video = this._video;
-            if(video && value !== video.playbackRate) {
-                if (value === 0.5 | value === 0.8 |value === 1.0 |value === 1.25 | value === 1.5) {
+            if (video && value !== video.playbackRate) {
+                if (value === 0.5 | value === 0.8 | value === 1.0 | value === 1.25 | value === 1.5) {
                     video.playbackRate = value;
                 } else {
                     console.warn('The platform does not support this PlaybackRate!');
@@ -262,11 +262,11 @@ if (cc.internal.VideoPlayer) {
             return -1;
         }
 
-        currentTime () {
+        currentTime() {
             return this._currentTime;
         }
 
-        seekTo (time) {
+        seekTo(time) {
             let video = this._video;
             if (!video || !this._loaded) return;
             video.seek(time);
@@ -289,7 +289,7 @@ if (cc.internal.VideoPlayer) {
             }
         }
 
-        canPlay () {
+        canPlay() {
             this._video.play();
             this.syncCurrentTime();
         }
@@ -330,7 +330,7 @@ if (cc.internal.VideoPlayer) {
             }
         }
 
-        setFullScreenEnabled (enable) {
+        setFullScreenEnabled(enable) {
             let video = this._video;
             if (!video || this._fullScreenEnabled === enable) {
                 return;
@@ -352,7 +352,7 @@ if (cc.internal.VideoPlayer) {
             // DO NOTHING...
         }
 
-        _getInitRect () {
+        _getInitRect() {
             if (!this._component || !this._uiTrans) return;
 
             const camera = this.UICamera;

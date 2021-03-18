@@ -69,7 +69,7 @@ export class UITransform extends Component {
      * 内容尺寸。
      */
     @displayOrder(0)
-    @tooltip('内容尺寸')
+    @tooltip('i18n:ui_transform.conten_size')
     // @constget
     get contentSize (): Readonly<Size> {
         return this._contentSize;
@@ -148,7 +148,7 @@ export class UITransform extends Component {
      * 锚点位置。
      */
     @displayOrder(1)
-    @tooltip('锚点位置')
+    @tooltip('i18n:ui_transform.anchor_point')
     // @constget
     get anchorPoint (): Readonly<Vec2> {
         return this._anchorPoint;
@@ -197,7 +197,7 @@ export class UITransform extends Component {
      * @zh
      * 渲染先后顺序，按照广度渲染排列，按同级节点下进行一次排列。
      */
-    @tooltip('渲染排序优先级')
+    @tooltip('i18n:ui_transform.priority')
     get priority () {
         return this._priority;
     }

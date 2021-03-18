@@ -23,6 +23,11 @@
  THE SOFTWARE.
  */
 
+/**
+ * @packageDocumentation
+ * @module component/audio
+ */
+
 import { sys } from '../core/platform/sys';
 
 export function createDomAudio (url: string): Promise<HTMLAudioElement> {

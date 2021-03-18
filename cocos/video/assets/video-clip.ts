@@ -24,7 +24,8 @@
  */
 
 /**
- * @category component/audio
+ * @packageDocumentation
+ * @module component/video
  */
 
 import { ccclass, serializable } from 'cc.decorator';

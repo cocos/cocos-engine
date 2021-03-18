@@ -22,7 +22,10 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
-
+/**
+ * @packageDocumentation
+ * @hidden
+ */
 import b2 from '@cocos/box2d';
 import { Vec2 } from '../../../core';
 import { ERaycast2DType } from '../../framework';

@@ -70,12 +70,12 @@ export class TweenSystem extends System {
 
     /**
      * @en
-     * The postUpdate will auto execute after all compnents update and lateUpdate.
+     * The update will auto execute after all compnents update.
      * @zh
-     * 此方法会在组件 lateUpdate 之后自动执行。
+     * 此方法会在组件 update 之后自动执行。
      * @param dt 间隔时间
      */
-    postUpdate (dt: number) {
+    update (dt: number) {
         if (!EDITOR || legacyCC.GAME_VIEW || this._executeInEditMode) {
             this.actionMgr.update(dt);
         }
