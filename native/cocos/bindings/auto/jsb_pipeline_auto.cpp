@@ -2147,6 +2147,27 @@ static bool js_pipeline_RenderPipeline_render(se::State& s)
 }
 SE_BIND_FUNC(js_pipeline_RenderPipeline_render)
 
+static bool js_pipeline_RenderPipeline_resize(se::State& s)
+{
+    cc::pipeline::RenderPipeline* cobj = SE_THIS_OBJECT<cc::pipeline::RenderPipeline>(s);
+    SE_PRECONDITION2(cobj, false, "js_pipeline_RenderPipeline_resize : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 2) {
+        HolderType<unsigned int, false> arg0 = {};
+        HolderType<unsigned int, false> arg1 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_pipeline_RenderPipeline_resize : Error processing arguments");
+        cobj->resize(arg0.value(), arg1.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
+    return false;
+}
+SE_BIND_FUNC(js_pipeline_RenderPipeline_resize)
+
 static bool js_pipeline_RenderPipeline_setPipelineSharedSceneData(se::State& s)
 {
     cc::pipeline::RenderPipeline* cobj = SE_THIS_OBJECT<cc::pipeline::RenderPipeline>(s);
@@ -2218,6 +2239,7 @@ bool js_register_pipeline_RenderPipeline(se::Object* obj)
     cls->defineFunction("getDevice", _SE(js_pipeline_RenderPipeline_getDevice));
     cls->defineFunction("initialize", _SE(js_pipeline_RenderPipeline_initialize));
     cls->defineFunction("render", _SE(js_pipeline_RenderPipeline_render));
+    cls->defineFunction("resize", _SE(js_pipeline_RenderPipeline_resize));
     cls->defineFunction("setPipelineSharedSceneData", _SE(js_pipeline_RenderPipeline_setPipelineSharedSceneData));
     cls->defineFunction("setValue", _SE(js_pipeline_RenderPipeline_setValue));
     cls->defineStaticFunction("getInstance", _SE(js_pipeline_RenderPipeline_getInstance));

@@ -18188,7 +18188,13 @@
         "external/win32/libs/zlib.dll", 
         "external/win32/libs/zlib.dll.lib", 
         "external/win32/libs/zlib1.dll", 
-        "package-lock.json"
+        "package-lock.json", 
+        "unit-test/CMakeLists.txt", 
+        "unit-test/CMakeLists.txt.in", 
+        "unit-test/README", 
+        "unit-test/src/CMakeLists.txt", 
+        "unit-test/src/main.cpp", 
+        "unit-test/src/math_vec2_test.cpp"
     ], 
     "js": [
         "cocos/bindings/auto/jsb_audio_auto.cpp", 

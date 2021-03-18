@@ -122,6 +122,7 @@ SE_DECLARE_FUNC(js_pipeline_RenderPipeline_destroy);
 SE_DECLARE_FUNC(js_pipeline_RenderPipeline_getDevice);
 SE_DECLARE_FUNC(js_pipeline_RenderPipeline_initialize);
 SE_DECLARE_FUNC(js_pipeline_RenderPipeline_render);
+SE_DECLARE_FUNC(js_pipeline_RenderPipeline_resize);
 SE_DECLARE_FUNC(js_pipeline_RenderPipeline_setPipelineSharedSceneData);
 SE_DECLARE_FUNC(js_pipeline_RenderPipeline_setValue);
 SE_DECLARE_FUNC(js_pipeline_RenderPipeline_getInstance);
