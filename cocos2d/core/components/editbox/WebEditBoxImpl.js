@@ -268,8 +268,8 @@ Object.assign(WebEditBoxImpl.prototype, {
             }, DELAY_TIME);
         }
 
-        // Some browser like wechat on iOS need to mannully scroll back window
-        this._scrollBackWindow();
+        // This is an outdated strategy that causes other problems on newer systems, consider removing
+        // this._scrollBackWindow();
     },
 
     // adjust view to editBox
