@@ -163,8 +163,8 @@
   float pcf = cc_shadowInfo.z + 0.001;                                                         \
   float shadowAttenuation = 0.0;                                                               \
   if (pcf > 3.0) shadowAttenuation = CCGetDirLightShadowFactorX25(shadowPos);                  \
-  else if (3.0 > pcf && pcf > 2.0) shadowAttenuation = CCGetDirLightShadowFactorX9(shadowPos); \
-  else if (2.0 > pcf && pcf > 1.0) shadowAttenuation = CCGetDirLightShadowFactorX5(shadowPos); \
+  else if (pcf > 2.0) shadowAttenuation = CCGetDirLightShadowFactorX9(shadowPos); \
+  else if (pcf > 1.0) shadowAttenuation = CCGetDirLightShadowFactorX5(shadowPos); \
   else shadowAttenuation = CCGetDirLightShadowFactorX1(shadowPos);                             \
   finalColor *= 1.0 - shadowAttenuation;                                                       \
 }                                                                                              \
@@ -175,8 +175,8 @@
   float pcf = cc_shadowInfo.z + 0.001;                                                                               \
   float shadowAttenuation = 0.0;                                                                                     \
   if (pcf > 3.0) shadowAttenuation = CCGetShadowFactorX25(shadowPos);                                                \
-  else if (3.0 > pcf && pcf > 2.0) shadowAttenuation = CCGetShadowFactorX9(shadowPos);                               \
-  else if (2.0 > pcf && pcf > 1.0) shadowAttenuation = CCGetShadowFactorX5(shadowPos);                               \
+  else if (pcf > 2.0) shadowAttenuation = CCGetShadowFactorX9(shadowPos);                               \
+  else if (pcf > 1.0) shadowAttenuation = CCGetShadowFactorX5(shadowPos);                               \
   else shadowAttenuation = CCGetShadowFactorX1(shadowPos);                                                           \
   vec3 shadowColor = cc_shadowColor.rgb * cc_shadowColor.a + finalColor.rgb * (1.0 - cc_shadowColor.a);              \
   finalColor.rgb = shadowColor.rgb * shadowAttenuation * atten + finalColor.rgb * (1.0 - shadowAttenuation * atten); \

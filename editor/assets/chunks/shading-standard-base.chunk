@@ -70,9 +70,10 @@ vec4 CCStandardShadingBase (StandardSurface s, vec4 shadowPos) {
 
   #if USE_LIGHTMAP && !USE_BATCHING && !CC_FORWARD_ADD
     finalColor = s.lightmap.a * s.lightmap.rgb + (1.0 - s.lightmap.a) * finalColor;
+  #else
+    diffuseContrib /= PI;
   #endif
 
-  vec3 diffuseContrib = diffuse / PI;
   // Cook-Torrance Microfacet Specular BRDF
   vec3 specularContrib = specular * CalcSpecular(s.roughness, NH, H, N);
 

@@ -1,3 +1,8 @@
+/**
+ * @packageDocumentation
+ * @module dragonBones
+ */
+
 import { Armature, BlendMode, Matrix } from '@cocos/dragonbones-js';
 import { Color, Mat4, RenderTexture } from '../core';
 import { TextureBase } from '../core/assets/texture-base';

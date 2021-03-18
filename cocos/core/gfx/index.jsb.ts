@@ -23,6 +23,11 @@
  THE SOFTWARE.
  */
 
+/**
+ * @packageDocumentation
+ * @module gfx
+ */
+
 declare const gfx: any;
 
 import { legacyCC } from '../global-exports';

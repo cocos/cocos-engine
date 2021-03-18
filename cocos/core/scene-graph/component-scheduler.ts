@@ -80,7 +80,7 @@ function stableRemoveInactive (iterator, flagToClear) {
     let next = iterator.i + 1;
     while (next < array.length) {
         const comp = array[next];
-        if (comp._enabled && comp.node._activeInHierarchy) {
+        if (comp.node._activeInHierarchy) {
             ++next;
         } else {
             iterator.removeAt(next);

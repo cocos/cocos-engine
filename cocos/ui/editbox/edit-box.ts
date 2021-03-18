@@ -73,7 +73,7 @@ enum EventType {
 
 @ccclass('cc.EditBox')
 @help('i18n:cc.EditBox')
-@executionOrder(100)
+@executionOrder(110)
 @menu('UI/EditBox')
 @requireComponent(UITransform)
 @executeInEditMode
@@ -86,7 +86,7 @@ export class EditBox extends Component {
      * 输入框的初始输入内容，如果为空则会显示占位符的文本。
      */
     @displayOrder(1)
-    @tooltip('输入框的初始输入内容，如果为空则会显示占位符的文本')
+    @tooltip('i18n:editbox.string')
     get string () {
         return this._string;
     }
@@ -108,7 +108,7 @@ export class EditBox extends Component {
      * 输入框占位符的文本内容。
      */
     @displayOrder(2)
-    @tooltip('输入框占位符的文本内容')
+    @tooltip('i18n:editbox.placeholder')
     get placeholder () {
         if (!this._placeholderLabel) {
             return '';
@@ -131,7 +131,7 @@ export class EditBox extends Component {
      */
     @type(Label)
     @displayOrder(3)
-    @tooltip('输入框输入文本节点上挂载的 Label 组件对象')
+    @tooltip('i18n:editbox.text_lable')
     get textLabel () {
         return this._textLabel;
     }
@@ -155,7 +155,7 @@ export class EditBox extends Component {
      */
     @type(Label)
     @displayOrder(4)
-    @tooltip('输入框占位符节点上挂载的 Label 组件对象')
+    @tooltip('i18n:editbox.placeholder_label')
     get placeholderLabel () {
         return this._placeholderLabel;
     }
@@ -179,7 +179,7 @@ export class EditBox extends Component {
      */
     @type(SpriteFrame)
     @displayOrder(5)
-    @tooltip('输入框的背景图片')
+    @tooltip('i18n:editbox.backgroundImage')
     get backgroundImage () {
         return this._backgroundImage;
     }
@@ -202,7 +202,7 @@ export class EditBox extends Component {
      */
     @type(InputFlag)
     @displayOrder(6)
-    @tooltip('指定输入标志位，可以指定输入方式为密码或者单词首字母大写')
+    @tooltip('i18n:editbox.input_flag')
     get inputFlag () {
         return this._inputFlag;
     }
@@ -222,7 +222,7 @@ export class EditBox extends Component {
      */
     @type(InputMode)
     @displayOrder(7)
-    @tooltip('指定输入模式: ANY 表示多行输入，其它都是单行输入，移动平台上还可以指定键盘样式')
+    @tooltip('i18n:editbox.input_mode')
     get inputMode () {
         return this._inputMode;
     }
@@ -246,7 +246,7 @@ export class EditBox extends Component {
      */
     @type(KeyboardReturnType)
     @displayOrder(8)
-    @tooltip('指定移动设备上面回车按钮的样式')
+    @tooltip('i18n:editbox.returnType')
     get returnType () {
         return this._returnType;
     }
@@ -267,7 +267,7 @@ export class EditBox extends Component {
      * - 如果值为 0，则不允许用户进行任何输入。
      */
     @displayOrder(9)
-    @tooltip('输入框最大允许输入的字符个数')
+    @tooltip('i18n:editbox.max_length')
     get maxLength () {
         return this._maxLength;
     }
@@ -283,7 +283,7 @@ export class EditBox extends Component {
      * 修改 DOM 输入元素的 tabIndex（这个属性只有在 Web 上面修改有意义）。
      */
     @displayOrder(10)
-    @tooltip('修改 DOM 输入元素的 tabIndex（这个属性只有在 Web 上面修改有意义）')
+    @tooltip('i18n:editbox.tab_index')
     get tabIndex () {
         return this._tabIndex;
     }
@@ -312,7 +312,7 @@ export class EditBox extends Component {
     @type([ComponentEventHandler])
     @serializable
     @displayOrder(11)
-    @tooltip('该事件在用户点击输入框获取焦点的时候被触发')
+    @tooltip('i18n:editbox.editing_began')
     public editingDidBegan: ComponentEventHandler[] = [];
 
     /**
@@ -325,7 +325,7 @@ export class EditBox extends Component {
     @type([ComponentEventHandler])
     @serializable
     @displayOrder(12)
-    @tooltip('编辑文本输入框时触发的事件回调')
+    @tooltip('i18n:editbox.text_changed')
     public textChanged: ComponentEventHandler[] = [];
 
     /**
@@ -338,7 +338,7 @@ export class EditBox extends Component {
     @type([ComponentEventHandler])
     @serializable
     @displayOrder(13)
-    @tooltip('在单行模式下面，一般是在用户按下回车或者点击屏幕输入框以外的地方调用该函数。 如果是多行输入，一般是在用户点击屏幕输入框以外的地方调用该函数')
+    @tooltip('i18n:editbox.editing_ended')
     public editingDidEnded: ComponentEventHandler[] = [];
 
     /**
@@ -351,7 +351,7 @@ export class EditBox extends Component {
     @type([ComponentEventHandler])
     @serializable
     @displayOrder(14)
-    @tooltip('该事件在用户按下回车键的时候被触发, 如果是单行输入框，按回车键还会使输入框失去焦点')
+    @tooltip('i18n:editbox.editing_return')
     public editingReturn: ComponentEventHandler[] = [];
 
     public _impl: EditBoxImplBase | null = null;

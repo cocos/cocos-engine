@@ -61,7 +61,7 @@ export class Line extends Component {
      */
     @type(Texture2D)
     @displayOrder(0)
-    @tooltip('线段中显示的贴图')
+    @tooltip('i18n:line.texture')
     get texture () {
         return this._texture;
     }
@@ -83,7 +83,7 @@ export class Line extends Component {
      * @zh positions是否为世界空间坐标。
      */
     @displayOrder(1)
-    @tooltip('线段中各个点的坐标采用哪个坐标系，勾选使用世界坐标系，不选使用本地坐标系')
+    @tooltip('i18n:line.worldSpace')
     get worldSpace () {
         return this._worldSpace;
     }
@@ -107,7 +107,7 @@ export class Line extends Component {
      */
     @type([Vec3])
     @displayOrder(2)
-    @tooltip('每个线段端点的坐标')
+    @tooltip('i18n:line.positions')
     get positions () {
         return this._positions;
     }
@@ -127,7 +127,7 @@ export class Line extends Component {
      */
     @type(CurveRange)
     @displayOrder(3)
-    @tooltip('线段宽度，如果采用曲线，则表示沿着线段方向上的曲线变化')
+    @tooltip('i18n:line.width')
     get width () {
         return this._width;
     }
@@ -147,7 +147,7 @@ export class Line extends Component {
      */
     @type(Vec2)
     @displayOrder(4)
-    @tooltip('贴图平铺次数')
+    @tooltip('i18n:line.tile')
     get tile () {
         return this._tile;
     }
@@ -166,7 +166,7 @@ export class Line extends Component {
 
     @type(Vec2)
     @displayOrder(5)
-    @tooltip('贴图坐标的偏移')
+    @tooltip('i18n:line.offset')
     get offset () {
         return this._offset;
     }
@@ -188,7 +188,7 @@ export class Line extends Component {
      */
     @type(GradientRange)
     @displayOrder(6)
-    @tooltip('线段颜色，如果采用渐变色，则表示沿着线段方向上的颜色渐变')
+    @tooltip('i18n:line.color')
     get color () {
         return this._color;
     }

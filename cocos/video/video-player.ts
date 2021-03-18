@@ -24,7 +24,8 @@
  */
 
 /**
- * @category component/video
+ * @packageDocumentation
+ * @module component/video
  */
 
 import { ccclass, displayOrder, executeInEditMode, help, menu, slide, range, requireComponent, tooltip, type, serializable } from 'cc.decorator';
@@ -357,7 +358,8 @@ export class VideoPlayer extends Component {
      * 当前视频是否正在播放？
      */
     get isPlaying () {
-        return this.state === EventType.PLAYING;
+        if (!this._impl) { return false; }
+        return this._impl.isPlaying;
     }
 
     protected syncSource () {

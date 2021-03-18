@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-types */
 /*
  Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
 
@@ -35,7 +36,7 @@
   * 内置缓动函数的字符串值定义。
   */
 export type TweenEasing =
-'linear'    | 'smooth'     | 'fade'         |
+'linear'    | 'smooth'     | 'fade'         | 'constant'     |
 'quadIn'    | 'quadOut'    | 'quadInOut'    | 'quadOutIn'    |
 'cubicIn'   | 'cubicOut'   | 'cubicInOut'   | 'cubicOutIn'   |
 'quartIn'   | 'quartOut'   | 'quartInOut'   | 'quartOutIn'   |

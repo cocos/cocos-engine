@@ -1,3 +1,8 @@
+/**
+ * @packageDocumentation
+ * @module dragonBones
+ */
+
 import { BaseObject, TextureAtlasData, TextureData } from '@cocos/dragonbones-js';
 import { RenderTexture, Size, Vec2 } from '../core';
 import { SpriteFrame } from '../2d';

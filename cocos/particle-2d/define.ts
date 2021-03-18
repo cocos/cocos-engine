@@ -23,6 +23,11 @@
  THE SOFTWARE.
  */
 
+/**
+ * @packageDocumentation
+ * @module particle2d
+ */
+
 import { Enum } from '../core/value-types';
 
 /**

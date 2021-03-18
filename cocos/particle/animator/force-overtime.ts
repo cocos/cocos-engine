@@ -66,7 +66,7 @@ export default class ForceOvertimeModule extends ParticleModuleBase {
     @serializable
     @range([-1, 1])
     @displayOrder(2)
-    @tooltip('X 轴方向上的加速度分量')
+    @tooltip('i18n:forceOvertimeModule.x')
     public x = new CurveRange();
 
     /**
@@ -76,7 +76,7 @@ export default class ForceOvertimeModule extends ParticleModuleBase {
     @serializable
     @range([-1, 1])
     @displayOrder(3)
-    @tooltip('Y 轴方向上的加速度分量')
+    @tooltip('i18n:forceOvertimeModule.y')
     public y = new CurveRange();
 
     /**
@@ -86,7 +86,7 @@ export default class ForceOvertimeModule extends ParticleModuleBase {
     @serializable
     @range([-1, 1])
     @displayOrder(4)
-    @tooltip('Z 轴方向上的加速度分量')
+    @tooltip('i18n:forceOvertimeModule.z')
     public z = new CurveRange();
 
     /**
@@ -95,7 +95,7 @@ export default class ForceOvertimeModule extends ParticleModuleBase {
     @type(Space)
     @serializable
     @displayOrder(1)
-    @tooltip('加速度计算时采用的坐标')
+    @tooltip('i18n:forceOvertimeModule.space')
     public space = Space.Local;
 
     // TODO:currently not supported

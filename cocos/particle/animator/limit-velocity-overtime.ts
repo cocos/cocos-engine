@@ -66,7 +66,7 @@ export default class LimitVelocityOvertimeModule extends ParticleModuleBase {
     @serializable
     @range([-1, 1])
     @displayOrder(4)
-    @tooltip('X 轴方向上的速度下限')
+    @tooltip('i18n:limitVelocityOvertimeModule.limitX')
     public limitX = new CurveRange();
 
     /**
@@ -76,7 +76,7 @@ export default class LimitVelocityOvertimeModule extends ParticleModuleBase {
     @serializable
     @range([-1, 1])
     @displayOrder(5)
-    @tooltip('Y 轴方向上的速度下限')
+    @tooltip('i18n:limitVelocityOvertimeModule.limitY')
     public limitY = new CurveRange();
 
     /**
@@ -86,7 +86,7 @@ export default class LimitVelocityOvertimeModule extends ParticleModuleBase {
     @serializable
     @range([-1, 1])
     @displayOrder(6)
-    @tooltip('Z 轴方向上的速度下限')
+    @tooltip('i18n:limitVelocityOvertimeModule.limitZ')
     public limitZ = new CurveRange();
 
     /**
@@ -96,7 +96,7 @@ export default class LimitVelocityOvertimeModule extends ParticleModuleBase {
     @serializable
     @range([-1, 1])
     @displayOrder(3)
-    @tooltip('速度下限')
+    @tooltip('i18n:limitVelocityOvertimeModule.limit')
     public limit = new CurveRange();
 
     /**
@@ -104,7 +104,7 @@ export default class LimitVelocityOvertimeModule extends ParticleModuleBase {
      */
     @serializable
     @displayOrder(7)
-    @tooltip('当前速度与速度下限的插值')
+    @tooltip('i18n:limitVelocityOvertimeModule.dampen')
     public dampen = 3;
 
     /**
@@ -112,7 +112,7 @@ export default class LimitVelocityOvertimeModule extends ParticleModuleBase {
      */
     @serializable
     @displayOrder(2)
-    @tooltip('是否三个轴分开限制')
+    @tooltip('i18n:limitVelocityOvertimeModule.separateAxes')
     public separateAxes = false;
 
     /**
@@ -121,7 +121,7 @@ export default class LimitVelocityOvertimeModule extends ParticleModuleBase {
     @type(Space)
     @serializable
     @displayOrder(1)
-    @tooltip('计算速度下限时采用的坐标系')
+    @tooltip('i18n:limitVelocityOvertimeModule.space')
     public space = Space.Local;
 
     // TODO:functions related to drag are temporarily not supported

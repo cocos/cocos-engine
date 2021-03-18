@@ -185,11 +185,8 @@ export class Renderable2D extends RenderableComponent {
      * ```ts
      * sprite.srcBlendFactor = BlendFactor.ONE;
      * ```
+     * @deprecated
      */
-    @visible(function (this: Renderable2D) { if (this._customMaterial) { return false; } return true; })
-    @type(BlendFactor)
-    @displayOrder(0)
-    @tooltip('Source blend factor')
     get srcBlendFactor () {
         if (!EDITOR && this._customMaterial) {
             warnID(12001);
@@ -217,11 +214,8 @@ export class Renderable2D extends RenderableComponent {
      * ```ts
      * sprite.dstBlendFactor = BlendFactor.ONE_MINUS_SRC_ALPHA;
      * ```
+     * @deprecated
      */
-    @visible(function (this: Renderable2D) { if (this._customMaterial) { return false; } return true; })
-    @type(BlendFactor)
-    @displayOrder(1)
-    @tooltip('destination blend factor')
     get dstBlendFactor () {
         if (!EDITOR && this._customMaterial) {
             warnID(12001);
@@ -247,7 +241,7 @@ export class Renderable2D extends RenderableComponent {
      * @zh 渲染颜色，一般情况下会和贴图颜色相乘。
      */
     @displayOrder(2)
-    @tooltip('渲染颜色')
+    @tooltip('i18n:renderable2D.color')
     get color (): Readonly<Color> {
         return this._color;
     }

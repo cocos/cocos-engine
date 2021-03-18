@@ -24,7 +24,8 @@
  */
 
 /**
- * @category component/web-view
+ * @packageDocumentation
+ * @module component/web-view
  */
 
 import { legacyCC } from '../core/global-exports';

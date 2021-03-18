@@ -365,7 +365,7 @@ export class Rect extends ValueType {
      * @en Return the information of the current rect in string
      * @zh 返回当前矩形的字符串表示。
      * @returns The information of the current rect in string
-     */T
+     */
     public toString () {
         return `(${this.x.toFixed(2)}, ${this.y.toFixed(2)}, ${this.width.toFixed(2)}, ${this.height.toFixed(2)})`;
     }
