@@ -847,7 +847,7 @@ export const sys: Record<string, any> = {
             };
 
             if (browserType === "qqbrowser" || browserType === "mqqbrowser") {
-                if (ua.match(/wechat|micromessenger/i)) {
+                if (/wechat|micromessenger/i.exec(ua)) {
                     browserType = sys.BROWSER_TYPE_WECHAT;
                 }
             }
