@@ -670,7 +670,7 @@ export const sys: Record<string, any> = {
      * @en Get the network type of current device, return `sys.NetworkType.LAN` if failure.
      * @zh 获取当前设备的网络类型, 如果网络类型无法获取，默认将返回 `sys.NetworkType.LAN`
      */
-    getNetworkType (): NetworkType {
+    getNetworkType(): NetworkType {
         // TODO: need to implement this for mobile phones.
         return NetworkType.LAN;
     },
@@ -680,7 +680,7 @@ export const sys: Record<string, any> = {
      * @zh 获取当前设备的电池电量，如果电量无法获取，默认将返回 1
      * @return - 0.0 ~ 1.0
      */
-    getBatteryLevel (): number {
+    getBatteryLevel(): number {
         // TODO: need to implement this for mobile phones.
         return 1.0;
     },
@@ -689,7 +689,7 @@ export const sys: Record<string, any> = {
      * @en Forces the garbage collection, only available in native platforms
      * @zh 强制进行 JS 内存垃圾回收，尽在原生平台有效
      */
-    garbageCollect () {
+    garbageCollect() {
         // N/A in web
     },
 
@@ -701,7 +701,7 @@ export const sys: Record<string, any> = {
      * 在 Web 平台，只要对象非空或非 Undefined 就会返回 true，在原生平台，我们会检查当前 JS 对象和其绑定的原生对象是否都有效
      * @param obj The object to be checked
      */
-    isObjectValid (obj: any): boolean {
+    isObjectValid(obj: any): boolean {
         if (obj === null || obj === undefined) {
             return false;
         }
@@ -713,7 +713,7 @@ export const sys: Record<string, any> = {
      * @en Dump system informations
      * @zh 在控制台打印当前的主要系统信息
      */
-    dump () {
+    dump() {
         let str = '';
         str += `isMobile : ${this.isMobile}\r\n`;
         str += `language : ${this.language}\r\n`;
@@ -731,7 +731,7 @@ export const sys: Record<string, any> = {
      * @en Try to open a url in browser, may not work in some platforms
      * @zh 尝试打开一个 web 页面，并非在所有平台都有效
      */
-    openURL (url) {
+    openURL(url) {
         window.open(url);
     },
 
@@ -739,7 +739,7 @@ export const sys: Record<string, any> = {
      * @en Get the current time in milliseconds
      * @zh 获取当前时间（毫秒为单位）
      */
-    now () {
+    now() {
         if (Date.now) {
             return Date.now();
         }
@@ -751,7 +751,7 @@ export const sys: Record<string, any> = {
      * Restart the JS VM, only available in native platforms
      * @private
      */
-    restartVM () {
+    restartVM() {
         // N/A in web
     },
 
@@ -764,13 +764,13 @@ export const sys: Record<string, any> = {
      * @method getSafeAreaRect
      * @return {Rect}
      */
-    getSafeAreaRect () {
+    getSafeAreaRect() {
         const visibleSize = legacyCC.view.getVisibleSize();
         return legacyCC.rect(0, 0, visibleSize.width, visibleSize.height) as Rect;
     },
 
     // this is a web based implement, please reimplemenet it on other platforms
-    __init () {
+    __init() {
         // browser or runtime
         const win = window; const nav = win.navigator; const doc = document; const docEle = doc.documentElement;
         const ua = nav.userAgent.toLowerCase();
@@ -846,6 +846,12 @@ export const sys: Record<string, any> = {
                 huaweibrowser: sys.BROWSER_TYPE_HUAWEI,
             };
 
+            if (browserType === "qqbrowser" || browserType === "mqqbrowser") {
+                if (ua.match(/wechat|micromessenger/i)) {
+                    browserType = sys.BROWSER_TYPE_WECHAT;
+                }
+            }
+
             sys.browserType = typeMap[browserType] || browserType;
         }());
 
@@ -907,7 +913,7 @@ export const sys: Record<string, any> = {
         try {
             _supportWebp = TEST ? false : _tmpCanvas1.toDataURL('image/webp').startsWith('data:image/webp');
         } catch (e) {
-            _supportWebp  = false;
+            _supportWebp = false;
         }
         const _supportCanvas = TEST ? false : !!_tmpCanvas1.getContext('2d');
         let _supportWebGL = false;
@@ -935,7 +941,7 @@ export const sys: Record<string, any> = {
                 if (imageBitmap.close) {
                     imageBitmap.close();
                 }
-            }).catch((err) => {});
+            }).catch((err) => { });
         }
         if (docEle.ontouchstart !== undefined || doc.ontouchstart !== undefined || nav.msPointerEnabled) {
             capabilities.touches = true;
@@ -994,7 +1000,7 @@ export const sys: Record<string, any> = {
             if (__audioSupport.WEB_AUDIO) {
                 __audioSupport._context = null;
                 Object.defineProperty(__audioSupport, 'context', {
-                    get () {
+                    get() {
                         if (this._context) { return this._context as AudioContext; }
                         return this._context = new (window.AudioContext || window.webkitAudioContext || window.mozAudioContext)();
                     },
