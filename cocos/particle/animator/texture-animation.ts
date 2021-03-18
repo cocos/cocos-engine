@@ -104,7 +104,7 @@ export default class TextureAnimationModule extends ParticleModuleBase {
      */
     @type(Mode)
     @displayOrder(1)
-    @tooltip('设定粒子贴图动画的类型（暂只支持 Grid 模式）')
+    @tooltip('i18n:textureAnimationModule.mode')
     get mode () {
         return this._mode;
     }
@@ -119,7 +119,7 @@ export default class TextureAnimationModule extends ParticleModuleBase {
      * @zh X 方向动画帧数。
      */
     @displayOrder(2)
-    @tooltip('X 方向动画帧数')
+    @tooltip('i18n:textureAnimationModule.numTilesX')
     get numTilesX () {
         return this._numTilesX;
     }
@@ -135,7 +135,7 @@ export default class TextureAnimationModule extends ParticleModuleBase {
      * @zh Y 方向动画帧数。
      */
     @displayOrder(3)
-    @tooltip('Y 方向动画帧数')
+    @tooltip('i18n:textureAnimationModule.numTilesY')
     get numTilesY () {
         return this._numTilesY;
     }
@@ -153,7 +153,7 @@ export default class TextureAnimationModule extends ParticleModuleBase {
     @type(Animation)
     @serializable
     @displayOrder(4)
-    @tooltip('动画播放方式')
+    @tooltip('i18n:textureAnimationModule.animation')
     public animation = Animation.WholeSheet;
 
     /**
@@ -162,7 +162,7 @@ export default class TextureAnimationModule extends ParticleModuleBase {
     @type(CurveRange)
     @serializable
     @displayOrder(7)
-    @tooltip('一个周期内动画播放的帧与时间变化曲线')
+    @tooltip('i18n:textureAnimationModule.frameOverTime')
     public frameOverTime = new CurveRange();
 
     /**
@@ -171,7 +171,7 @@ export default class TextureAnimationModule extends ParticleModuleBase {
     @type(CurveRange)
     @serializable
     @displayOrder(8)
-    @tooltip('从第几帧开始播放，时间为整个粒子系统的生命周期')
+    @tooltip('i18n:textureAnimationModule.startFrame')
     public startFrame = new CurveRange();
 
     /**
@@ -179,7 +179,7 @@ export default class TextureAnimationModule extends ParticleModuleBase {
      */
     @serializable
     @displayOrder(9)
-    @tooltip('一个生命周期内播放循环的次数')
+    @tooltip('i18n:textureAnimationModule.cycleCount')
     public cycleCount = 0;
 
     @serializable
@@ -224,7 +224,7 @@ export default class TextureAnimationModule extends ParticleModuleBase {
      */
     @serializable
     @displayOrder(5)
-    @tooltip('随机从动画贴图中选择一行以生成动画。\n此选项仅在动画播放方式为 SingleRow 时生效')
+    @tooltip('i18n:textureAnimationModule.randomRow')
     public randomRow = false;
 
     /**
@@ -233,7 +233,7 @@ export default class TextureAnimationModule extends ParticleModuleBase {
      */
     @serializable
     @displayOrder(6)
-    @tooltip('从动画贴图中选择特定行以生成动画。\n此选项仅在动画播放方式为 SingleRow 时且禁用 randomRow 时可用')
+    @tooltip('i18n:textureAnimationModule.rowIndex')
     public rowIndex = 0;
 
     public name = PARTICLE_MODULE_NAME.TEXTURE;

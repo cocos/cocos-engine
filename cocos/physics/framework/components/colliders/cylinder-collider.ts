@@ -61,7 +61,7 @@ export class CylinderCollider extends Collider {
      * @zh
      * 获取或设置圆柱体上圆面半径。
      */
-    @tooltip('圆柱体上圆面的半径')
+    @tooltip('i18n:physics3d.collider.cylinder_radius')
     public get radius () {
         return this._radius;
     }
@@ -81,7 +81,7 @@ export class CylinderCollider extends Collider {
      * @zh
      * 获取或设置圆柱体在相应轴向的高度。
      */
-    @tooltip('圆柱体在相应轴向的高度')
+    @tooltip('i18n:physics3d.collider.cylinder_height')
     public get height () {
         return this._height;
     }
@@ -102,6 +102,7 @@ export class CylinderCollider extends Collider {
      * 获取或设置在圆柱体本地空间上的方向。
      */
     @type(EAxisDirection)
+    @tooltip('i18n:physics3d.collider.cylinder_direction')
     public get direction () {
         return this._direction;
     }

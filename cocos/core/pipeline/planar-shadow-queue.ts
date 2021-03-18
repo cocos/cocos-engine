@@ -50,30 +50,33 @@ export class PlanarShadowQueue {
         const pipelineSceneData = this._pipeline.pipelineSceneData;
         const pipelineUBO = this._pipeline.pipelineUBO;
         const shadows = pipelineSceneData.shadows;
+        this._instancedQueue.clear();
         this._pendingModels.length = 0;
         if (!shadows.enabled || shadows.type !== ShadowType.Planar) { return; }
 
         pipelineUBO.updateShadowUBO(camera);
 
         const scene = camera.scene!;
-        const frstm = camera.frustum;
+        const frustum = camera.frustum;
         const shadowVisible =  (camera.visibility & Layers.BitMask.DEFAULT) !== 0;
         if (!scene.mainLight || !shadowVisible) { return; }
 
-        const models = pipelineSceneData.renderObjects;
+        const renderObjects = pipelineSceneData.renderObjects;
         const instancedBuffer = InstancedBuffer.get(shadows.instancingMaterial.passes[0]);
-        this._instancedQueue.clear(); this._instancedQueue.queue.add(instancedBuffer);
+        this._instancedQueue.queue.add(instancedBuffer);
 
-        for (let i = 0; i < models.length; i++) {
-            const model = models[i].model;
+        for (let i = 0; i < renderObjects.length; i++) {
+            const model = renderObjects[i].model;
             if (!model.enabled || !model.node || !model.castShadow) { continue; }
             if (model.worldBounds) {
                 AABB.transform(_ab, model.worldBounds, shadows.matLight);
-                if (!intersect.aabbFrustum(_ab, frstm)) { continue; }
+                if (!intersect.aabbFrustum(_ab, frustum)) { continue; }
             }
             if (model.isInstancingEnabled) {
-                for (let j = 0; j < model.subModels.length; j++) {
-                    instancedBuffer.merge(model.subModels[j], model.instancedAttributes, 0);
+                const subModels = model.subModels;
+                for (let m = 0; m < subModels.length; m++) {
+                    const subModel = subModels[m];
+                    instancedBuffer.merge(subModel, model.instancedAttributes, 0, subModel.planarInstanceShaderHandle);
                 }
             } else {
                 this._pendingModels.push(model);
@@ -84,10 +87,11 @@ export class PlanarShadowQueue {
 
     public recordCommandBuffer (device: Device, renderPass: RenderPass, cmdBuff: CommandBuffer) {
         const shadows = this._pipeline.pipelineSceneData.shadows;
-        if (!shadows.enabled || shadows.type !== ShadowType.Planar || !this._pendingModels.length) { return; }
 
+        if (!shadows.enabled || shadows.type !== ShadowType.Planar) { return; }
         this._instancedQueue.recordCommandBuffer(device, renderPass, cmdBuff);
 
+        if (!this._pendingModels.length) { return; }
         const pass = shadows.material.passes[0];
         const descriptorSet = DSPool.get(PassPool.get(pass.handle, PassView.DESCRIPTOR_SET));
         cmdBuff.bindDescriptorSet(SetIndex.MATERIAL, descriptorSet);
@@ -99,7 +103,7 @@ export class PlanarShadowQueue {
                 const subModel = model.subModels[j];
                 // This is a temporary solution
                 // It should not be written in a fixed way, or modified by the user
-                const shader = ShaderPool.get(subModel.planarShaderHandel);
+                const shader = ShaderPool.get(subModel.planarShaderHandle);
                 const ia = subModel.inputAssembler;
                 const pso = PipelineStateManager.getOrCreatePipelineState(device, pass, shader, renderPass, ia);
                 cmdBuff.bindPipelineState(pso);

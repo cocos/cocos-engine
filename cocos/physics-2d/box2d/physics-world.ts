@@ -1,3 +1,7 @@
+/**
+ * @packageDocumentation
+ * @hidden
+ */
 import b2 from '@cocos/box2d';
 import { EDITOR } from 'internal:constants';
 

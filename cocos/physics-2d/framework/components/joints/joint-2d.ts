@@ -1,3 +1,8 @@
+/**
+ * @packageDocumentation
+ * @module physics2d
+ */
+
 import { EDITOR } from 'internal:constants';
 import { Component, Vec2 } from '../../../../core';
 import { property, type, ccclass } from '../../../../core/data/class-decorator';

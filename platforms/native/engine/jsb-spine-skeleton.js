@@ -377,21 +377,23 @@ const cacheManager = require('./jsb-cache-manager');
 
     let _onEnable = skeleton.onEnable;
     skeleton.onEnable = function () {
-        _onEnable.call(this);
-        this._onSyncTransform();
-        this.syncTransform(true);
+        if (_onEnable) {
+            _onEnable.call(this);
+        }
 
         if (this._nativeSkeleton) {
             this._nativeSkeleton.onEnable();
         }
+        this.syncTransform(true);
         middleware.retain();
     };
 
     let _onDisable = skeleton.onDisable;
     skeleton.onDisable = function () {
-        _onDisable.call(this);
-        this._offSyncTransform();
-        
+        if(_onDisable) {
+            _onDisable.call(this);
+        }
+
         if (this._nativeSkeleton) {
             this._nativeSkeleton.onDisable();
         }
@@ -411,28 +413,32 @@ const cacheManager = require('./jsb-cache-manager');
         let paramsBuffer = this._paramsBuffer;
         if (!paramsBuffer) return;
         
-        // sync node world matrix to native
-        node.updateWorldTransform();
-        let worldMat = node._mat;
-        paramsBuffer[1]  = worldMat.m00;
-        paramsBuffer[2]  = worldMat.m01;
-        paramsBuffer[3]  = worldMat.m02;
-        paramsBuffer[4]  = worldMat.m03;
-        paramsBuffer[5]  = worldMat.m04;
-        paramsBuffer[6]  = worldMat.m05;
-        paramsBuffer[7]  = worldMat.m06;
-        paramsBuffer[8]  = worldMat.m07;
-        paramsBuffer[9]  = worldMat.m08;
-        paramsBuffer[10] = worldMat.m09;
-        paramsBuffer[11] = worldMat.m10;
-        paramsBuffer[12] = worldMat.m11;
-        paramsBuffer[13] = worldMat.m12;
-        paramsBuffer[14] = worldMat.m13;
-        paramsBuffer[15] = worldMat.m14;
-        paramsBuffer[16] = worldMat.m15;
+        if (force || node.hasChangedFlags) {
+            // sync node world matrix to native
+            node.updateWorldTransform();
+            let worldMat = node._mat;
+            paramsBuffer[1]  = worldMat.m00;
+            paramsBuffer[2]  = worldMat.m01;
+            paramsBuffer[3]  = worldMat.m02;
+            paramsBuffer[4]  = worldMat.m03;
+            paramsBuffer[5]  = worldMat.m04;
+            paramsBuffer[6]  = worldMat.m05;
+            paramsBuffer[7]  = worldMat.m06;
+            paramsBuffer[8]  = worldMat.m07;
+            paramsBuffer[9]  = worldMat.m08;
+            paramsBuffer[10] = worldMat.m09;
+            paramsBuffer[11] = worldMat.m10;
+            paramsBuffer[12] = worldMat.m11;
+            paramsBuffer[13] = worldMat.m12;
+            paramsBuffer[14] = worldMat.m13;
+            paramsBuffer[15] = worldMat.m14;
+            paramsBuffer[16] = worldMat.m15;
+        }
     };
 
-    skeleton.update = function () {
+    let _lateUpdate = skeleton.lateUpdate;
+    skeleton.lateUpdate = function () {
+        if (_lateUpdate) _lateUpdate.call(this);
         let nativeSkeleton = this._nativeSkeleton;
         if (!nativeSkeleton) return;
 
@@ -446,6 +452,7 @@ const cacheManager = require('./jsb-cache-manager');
             middleware.renderOrder++;
         }
 
+        this.syncTransform();
 
         if (this.__preColor__ === undefined || !this.color.equals(this.__preColor__)) {
             let compColor = this.color;
@@ -866,6 +873,8 @@ const cacheManager = require('./jsb-cache-manager');
 
             // SpineMaterialType.TWO_COLORED 2
             // SpineMaterialType.COLORED_TEXTURED 0
+            //HACK
+            const mat = this.material;
             // cache material
             this.material = this.getMaterialForBlendAndTint(
                 renderInfo[renderInfoOffset + materialIdx++], 
@@ -886,6 +895,7 @@ const cacheManager = require('./jsb-cache-manager');
             }
 
             ui.commitComp(this, realTexture._texture, this._assembler, null);
+            this.material = mat;
         }
     }
 

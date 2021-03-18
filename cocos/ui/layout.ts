@@ -227,7 +227,7 @@ export class Layout extends Component {
     @visible(function (this: Layout) {
         return this._layoutType === Type.HORIZONTAL;
     })
-    @tooltip('自动对齐。在 Type 为 Horizontal 或 Vertical 时按同个方向位置排列')
+    @tooltip('i18n:layout.align_horizontal')
     get alignHorizontal () {
         return this._isAlign;
     }
@@ -251,7 +251,7 @@ export class Layout extends Component {
     @visible(function (this: Layout) {
         return this._layoutType === Type.VERTICAL;
     })
-    @tooltip('自动对齐。在 Type 为 Vertical 时按同个方向位置排列')
+    @tooltip('i18n:layout.align_vertical')
     get alignVertical () {
         return this._isAlign;
     }
@@ -273,7 +273,7 @@ export class Layout extends Component {
      * 布局类型。
      */
     @type(Type)
-    @tooltip('自动布局模式，包括：\n 1. NONE，不会对子节点进行自动布局 \n 2. HORIZONTAL，横向自动排布子物体 \n 3. VERTICAL，垂直自动排布子物体\n 4. GRID, 采用网格方式对子物体自动进行布局')
+    @tooltip('i18n:layout.layout_type')
     get type () {
         return this._layoutType;
     }
@@ -293,7 +293,7 @@ export class Layout extends Component {
     @visible(function (this: Layout) {
         return this._layoutType !== Type.NONE;
     })
-    @tooltip('缩放模式，包括：\n 1. NONE，不会对子节点和容器进行大小缩放 \n 2. CONTAINER, 对容器的大小进行缩放 \n 3. CHILDREN, 对子节点的大小进行缩放')
+    @tooltip('i18n:layout.resize_mode')
     get resizeMode () {
         return this._resizeMode;
     }
@@ -320,7 +320,7 @@ export class Layout extends Component {
 
         return false;
     })
-    @tooltip('每个格子的大小，只有布局类型为 GRID 的时候才有效')
+    @tooltip('i18n:layout.cell_size')
     get cellSize (): Readonly<Size> {
         return this._cellSize;
     }
@@ -343,7 +343,7 @@ export class Layout extends Component {
      * 起始轴方向类型，可进行水平和垂直布局排列，只有布局类型为 GRID 的时候才有效。
      */
     @type(AxisDirection)
-    @tooltip('起始轴方向类型，可进行水平和垂直布局排列，只有布局类型为 GRID 的时候才有效')
+    @tooltip('i18n:layout.start_axis')
     get startAxis () {
         return this._startAxis;
     }
@@ -363,7 +363,7 @@ export class Layout extends Component {
      * @zh
      * 容器内左边距，只会在一个布局方向上生效。
      */
-    @tooltip('容器内左边距，只会在一个布局方向上生效')
+    @tooltip('i18n:layout.padding_left')
     get paddingLeft () {
         return this._paddingLeft;
     }
@@ -383,7 +383,7 @@ export class Layout extends Component {
      * @zh
      * 容器内右边距，只会在一个布局方向上生效。
      */
-    @tooltip('容器内右边距，只会在一个布局方向上生效')
+    @tooltip('i18n:layout.padding_right')
     get paddingRight () {
         return this._paddingRight;
     }
@@ -403,7 +403,7 @@ export class Layout extends Component {
      * @zh
      * 容器内上边距，只会在一个布局方向上生效。
      */
-    @tooltip('容器内上边距，只会在一个布局方向上生效')
+    @tooltip('i18n:layout.padding_top')
     get paddingTop () {
         return this._paddingTop;
     }
@@ -423,7 +423,7 @@ export class Layout extends Component {
      * @zh
      * 容器内下边距，只会在一个布局方向上生效。
      */
-    @tooltip('容器内下边距，只会在一个布局方向上生效')
+    @tooltip('i18n:layout.padding_bottom')
     get paddingBottom () {
         return this._paddingBottom;
     }
@@ -443,7 +443,7 @@ export class Layout extends Component {
      * @zh
      * 子节点之间的水平间距。
      */
-    @tooltip('子节点之间的水平间距')
+    @tooltip('i18n:layout.space_x')
     get spacingX () {
         return this._spacingX;
     }
@@ -464,7 +464,7 @@ export class Layout extends Component {
      * @zh
      * 子节点之间的垂直间距。
      */
-    @tooltip('子节点之间的垂直间距')
+    @tooltip('i18n:layout.space_y')
     get spacingY () {
         return this._spacingY;
     }
@@ -487,7 +487,7 @@ export class Layout extends Component {
      * 垂直排列子节点的方向。
      */
     @type(VerticalDirection)
-    @tooltip('垂直排列子节点的方向')
+    @tooltip('i18n:layout.vertical_direction')
     get verticalDirection () {
         return this._verticalDirection;
     }
@@ -510,7 +510,7 @@ export class Layout extends Component {
      * 水平排列子节点的方向。
      */
     @type(HorizontalDirection)
-    @tooltip('水平排列子节点的方向')
+    @tooltip('i18n:layout.horizontal_direction')
     get horizontalDirection () {
         return this._horizontalDirection;
     }
@@ -553,7 +553,7 @@ export class Layout extends Component {
     @visible(function (this: Layout) {
         return this.type === Type.GRID;
     })
-    @tooltip('容器内布局约束')
+    @tooltip('i18n:layout.constraint')
     get constraint () {
         return this._constraint;
     }
@@ -577,7 +577,7 @@ export class Layout extends Component {
     @visible(function (this: Layout) {
         return this._constraint !== Constraint.NONE;
     })
-    @tooltip('容器内布局约束数值')
+    @tooltip('i18n:layout.constraint_number')
     get constraintNum () {
         return this._constraintNum;
     }
@@ -602,7 +602,7 @@ export class Layout extends Component {
      * @zh
      * 子节点缩放比例是否影响布局。
      */
-    @tooltip('子节点缩放比例是否影响布局')
+    @tooltip('i18n:layout.affected_scale')
     get affectedByScale () {
         return this._affectedByScale;
     }
@@ -650,7 +650,7 @@ export class Layout extends Component {
     @serializable
     protected _affectedByScale = false;
     @serializable
-    protected _isAlign = true;
+    protected _isAlign = false;
 
     protected _layoutSize = new Size(300, 200);
     protected _layoutDirty = true;
@@ -690,7 +690,7 @@ export class Layout extends Component {
             trans.setContentSize(this._layoutSize);
         }
 
-        this._doLayoutDirty();
+        this._childrenChanged();
     }
 
     protected onDisable () {
@@ -776,7 +776,7 @@ export class Layout extends Component {
     protected _doLayoutHorizontally (baseWidth: number, rowBreak: boolean, fnPositionY: (...args: any[]) => number, applyChildren: boolean) {
         const trans = this.node._uiProps.uiTransformComp!;
         const layoutAnchor = trans.anchorPoint;
-        const limit = this._getFixedColumn();
+        const limit = this._getFixedBreakingNum();
 
         let sign = 1;
         let paddingX = this._paddingLeft;
@@ -870,7 +870,7 @@ export class Layout extends Component {
     protected _doLayoutVertically (baseHeight: number, columnBreak: boolean, fnPositionX: (...args: any[]) => number, applyChildren: boolean) {
         const trans = this.node._uiProps.uiTransformComp!;
         const layoutAnchor = trans.anchorPoint;
-        const limit = this._getFixedColumn();
+        const limit = this._getFixedBreakingNum();
 
         let sign = 1;
         let paddingY = this._paddingBottom;
@@ -1142,15 +1142,15 @@ export class Layout extends Component {
         return this._paddingTop + this._paddingBottom;
     }
 
-    protected _getFixedColumn () {
+    protected _getFixedBreakingNum () {
         if (this._layoutType !== Type.GRID || this._constraint === Constraint.NONE || this._constraintNum <= 0) {
             return 0;
         }
 
-        let num = this._constraint === Constraint.FIXED_ROW ? Math.round(this._usefulLayoutObj.length / this._constraintNum) : this._constraintNum;
+        let num = this._constraint === Constraint.FIXED_ROW ? Math.ceil(this._usefulLayoutObj.length / this._constraintNum) : this._constraintNum;
         // Horizontal sorting always counts the number of columns
         if (this._startAxis === AxisDirection.VERTICAL) {
-            num = this._constraint === Constraint.FIXED_COL ? Math.round(this._usefulLayoutObj.length / this._constraintNum) : this._constraintNum;
+            num = this._constraint === Constraint.FIXED_COL ? Math.ceil(this._usefulLayoutObj.length / this._constraintNum) : this._constraintNum;
         }
 
         return num;

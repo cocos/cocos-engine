@@ -87,7 +87,7 @@ export class PageViewIndicator extends Component {
      * 每个页面标记显示的图片
      */
     @type(SpriteFrame)
-    @tooltip('每个页面标记显示的图片')
+    @tooltip('i18n:pageview_indicator.spriteFrame')
     get spriteFrame () {
         return this._spriteFrame;
     }
@@ -109,7 +109,7 @@ export class PageViewIndicator extends Component {
      * @param direction 摆放方向
      */
     @type(Direction)
-    @tooltip('页面标记摆放方向')
+    @tooltip('i18n:pageview_indicator.direction')
     get direction () {
         return this._direction;
     }
@@ -129,7 +129,7 @@ export class PageViewIndicator extends Component {
      * 每个页面标记的大小
      */
     @type(Size)
-    @tooltip('每个页面标记的大小')
+    @tooltip('i18n:pageview_indicator.cell_size')
     get cellSize () {
         return this._cellSize;
     }
@@ -151,7 +151,7 @@ export class PageViewIndicator extends Component {
      * 每个页面标记之间的边距
      */
     @serializable
-    @tooltip('每个页面标记之间的边距')
+    @tooltip('i18n:pageview_indicator.spacing')
     public spacing = 0;
     @serializable
     protected _spriteFrame: SpriteFrame | null = null;

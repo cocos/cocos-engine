@@ -25,7 +25,7 @@
 
 /**
  * @packageDocumentation
- * @module ui
+ * @module tiledmap
  */
 
 import { ccclass, displayOrder, executeInEditMode, help, menu, requireComponent, type, serializable, editable } from 'cc.decorator';

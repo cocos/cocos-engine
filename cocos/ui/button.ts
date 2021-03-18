@@ -195,7 +195,7 @@ export class Button extends Component {
      */
     @type(Node)
     @displayOrder(0)
-    @tooltip('指定 Button 背景节点，Button 状态改变时会修改此节点的 Color 或 Sprite 属性')
+    @tooltip('i18n:button.target')
     get target () {
         return this._target || this.node;
     }
@@ -221,7 +221,7 @@ export class Button extends Component {
      * 按钮事件是否被响应，如果为 false，则按钮将被禁用。
      */
     @displayOrder(1)
-    @tooltip('按钮是否可交互，这一项未选中时，按钮处在禁用状态')
+    @tooltip('i18n:button.interactable')
     get interactable () {
         return this._interactable;
     }
@@ -257,7 +257,7 @@ export class Button extends Component {
      */
     @type(Transition)
     @displayOrder(2)
-    @tooltip('按钮状态变化时的过渡类型')
+    @tooltip('i18n:button.transition')
     get transition () {
         return this._transition;
     }
@@ -286,7 +286,7 @@ export class Button extends Component {
      * @zh
      * 普通状态下按钮所显示的颜色。
      */
-    @tooltip('普通状态的按钮背景颜色')
+    @tooltip('i18n:button.normal_color')
     // @constget
     get normalColor (): Readonly<Color> {
         return this._normalColor;
@@ -308,7 +308,7 @@ export class Button extends Component {
      * @zh
      * 按下状态时按钮所显示的颜色。
      */
-    @tooltip('按下状态的按钮背景颜色')
+    @tooltip('i18n:button.pressed_color')
     // @constget
     get pressedColor (): Readonly<Color> {
         return this._pressedColor;
@@ -329,7 +329,7 @@ export class Button extends Component {
      * @zh
      * 悬停状态下按钮所显示的颜色。
      */
-    @tooltip('悬停状态的按钮背景颜色')
+    @tooltip('i18n:button.hover_color')
     // @constget
     get hoverColor (): Readonly<Color> {
         return this._hoverColor;
@@ -349,7 +349,7 @@ export class Button extends Component {
      * @zh
      * 禁用状态下按钮所显示的颜色。
      */
-    @tooltip('禁用状态的按钮背景颜色')
+    @tooltip('i18n:button.disabled_color')
     // @constget
     get disabledColor (): Readonly<Color> {
         return this._disabledColor;
@@ -373,7 +373,7 @@ export class Button extends Component {
      */
     @rangeMin(0)
     @rangeMax(10)
-    @tooltip('按钮颜色变化或者缩放变化的过渡时间')
+    @tooltip('i18n:button.duration')
     get duration () {
         return this._duration;
     }
@@ -398,7 +398,7 @@ export class Button extends Component {
      * 注意：不建议 zoomScale 的值小于 1, 否则缩放后如果触摸点在触摸区域外, 则会触发 touchCancel 事件。
      * 如果你需要这么做，你应该把 target 设置为另一个背景节点，而不是按钮节点。
      */
-    @tooltip('当用户点击按钮后，按钮会缩放到一个值，这个值等于 Button 原始 scale * zoomScale。')
+    @tooltip('i18n:button.zoom_scale')
     get zoomScale () {
         return this._zoomScale;
     }
@@ -420,7 +420,7 @@ export class Button extends Component {
      * 普通状态下按钮所显示的 Sprite。
      */
     @type(SpriteFrame)
-    @tooltip('普通状态的按钮背景图资源')
+    @tooltip('i18n:button.normal_sprite')
     get normalSprite () {
         return this._normalSprite;
     }
@@ -447,7 +447,7 @@ export class Button extends Component {
      * 按下状态时按钮所显示的 Sprite。
      */
     @type(SpriteFrame)
-    @tooltip('按下状态的按钮背景图资源')
+    @tooltip('i18n:button.pressed_sprite')
     get pressedSprite () {
         return this._pressedSprite;
     }
@@ -469,7 +469,7 @@ export class Button extends Component {
      * 悬停状态下按钮所显示的 Sprite。
      */
     @type(SpriteFrame)
-    @tooltip('悬停状态的按钮背景图资源')
+    @tooltip('i18n:button.hover_sprite')
     get hoverSprite () {
         return this._hoverSprite;
     }
@@ -491,7 +491,7 @@ export class Button extends Component {
      * 禁用状态下按钮所显示的 Sprite。
      */
     @type(SpriteFrame)
-    @tooltip('禁用状态的按钮背景图资源')
+    @tooltip('i18n:button.disabled_sprite')
     get disabledSprite () {
         return this._disabledSprite;
     }
@@ -517,7 +517,7 @@ export class Button extends Component {
     @type([ComponentEventHandler])
     @serializable
     @displayOrder(20)
-    @tooltip('按钮点击事件的列表。先将数量改为1或更多，就可以为每个点击事件设置接受者和处理方法')
+    @tooltip('i18n:button.click_events')
     public clickEvents: ComponentEventHandler[] = [];
     @serializable
     protected _interactable = true;

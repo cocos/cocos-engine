@@ -24,7 +24,8 @@
  */
 
 /**
- * @category component/web-view
+ * @packageDocumentation
+ * @module component/web-view
  */
 
 import { ccclass, help, executeInEditMode, menu, tooltip, type, displayOrder, serializable, requireComponent } from 'cc.decorator';
