@@ -28,7 +28,7 @@
  * @module scene-graph
  */
 
-import { ccclass, editable, serializable } from 'cc.decorator';
+import { ccclass, editable, editorOnly, serializable } from 'cc.decorator';
 import { DEV, DEBUG, EDITOR } from 'internal:constants';
 import { Component } from '../components/component';
 import { property } from '../data/decorators/property';
@@ -330,6 +330,9 @@ export class BaseNode extends CCObject implements ISchedulable {
 
     // record scene's id when set this node as persist node
     public _originalSceneId = '';
+
+    // restore the PrefabInstance Node when this node is the mounted child node of it.
+    public _mountedRoot?: Node;
 
     /**
      * Set `_scene` field of this node.

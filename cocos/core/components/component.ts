@@ -29,7 +29,7 @@
  * @module component
  */
 
-import { ccclass, tooltip, displayName, type, serializable, disallowAnimation } from 'cc.decorator';
+import { ccclass, tooltip, displayName, type, serializable, disallowAnimation, editorOnly } from 'cc.decorator';
 import { EDITOR, TEST, DEV } from 'internal:constants';
 import { Script } from '../assets/scripts';
 import { CCObject } from '../data/object';
@@ -189,6 +189,9 @@ class Component extends CCObject {
     public _id: string = idGenerator.getNewId();
 
     // private __scriptUuid = '';
+
+    // restore the PrefabInstance Node when this component is the mounted component under it.
+    public _mountedRoot?: Node
 
     /**
      * @private

@@ -105,6 +105,9 @@ export function createNodeWithPrefab (node: Node) {
 
 // TODO: more efficient id->Node/Component map
 export function generateTargetMap (node: Node, targetMap: any, isRoot: boolean) {
+    if (!targetMap) {
+        return;
+    }
     let curTargetMap = targetMap;
 
     // @ts-expect-error: private member access
@@ -166,13 +169,30 @@ export function applyMountedChildren (node: Node, mountedChildren: MountedChildr
                 continue;
             }
 
+            let curTargetMap = targetMap;
+            const localID = childInfo.targetInfo.localID;
+            if (localID.length > 0) {
+                for (let i = 0; i < localID.length - 1; i++) {
+                    curTargetMap = curTargetMap[localID[i]];
+                }
+            }
             if (childInfo.nodes) {
                 for (let i = 0; i < childInfo.nodes.length; i++) {
                     const childNode = childInfo.nodes[i];
+
+                    if (!childNode) {
+                        continue;
+                    }
+
                     // @ts-expect-error private member access
                     target._children.push(childNode);
                     // @ts-expect-error private member access
                     childNode._parent = target;
+                    if (EDITOR) {
+                        childNode._mountedRoot = node;
+                    }
+                    // mounted node need to add to the target map
+                    generateTargetMap(childNode, curTargetMap, false);
                     // siblingIndex update is in _onBatchCreated function, and it needs a parent.
                     childNode._onBatchCreated(false);
                 }
@@ -197,7 +217,14 @@ export function applyMountedComponents (node: Node, mountedComponents: MountedCo
             if (componentsInfo.components) {
                 for (let i = 0; i < componentsInfo.components.length; i++) {
                     const comp = componentsInfo.components[i];
+                    if (!comp) {
+                        continue;
+                    }
+
                     comp.node = target;
+                    if (EDITOR) {
+                        comp._mountedRoot = node;
+                    }
                     // @ts-expect-error private member access
                     target._components.push(comp);
                 }

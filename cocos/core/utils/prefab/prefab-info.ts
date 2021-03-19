@@ -3,7 +3,7 @@ import { EDITOR } from 'internal:constants';
 import { legacyCC } from '../../global-exports';
 import Prefab from '../../assets/prefab';
 import { CCObject } from '../../data/object';
-import { Component } from '../../components';
+import { Component } from '../../components/component';
 import { Node } from '../../scene-graph/node';
 
 function compareStringArray (array1: string[]|undefined, array2: string[]|undefined) {
