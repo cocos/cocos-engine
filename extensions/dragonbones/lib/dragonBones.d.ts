@@ -947,13 +947,13 @@ declare namespace dragonBones {
          */
         width: number;
         /**
-         * - 矩形的高度（以像素为单位）。
+         * - The height of the rectangle, in pixels.
          * @default 0.0
          * @version DragonBones 3.0
          * @language en_US
          */
         /**
-         * - The height of the rectangle, in pixels.
+         * - 矩形的高度（以像素为单位）。
          * @default 0.0
          * @version DragonBones 3.0
          * @language zh_CN
