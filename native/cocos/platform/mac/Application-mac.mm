@@ -236,7 +236,7 @@ void Application::copyTextToClipboard(const std::string &text) {
     NSPasteboard *pasteboard = [NSPasteboard generalPasteboard];
     [pasteboard clearContents];
     NSString *tmp = [NSString stringWithCString:text.c_str() encoding:NSUTF8StringEncoding];
-    [pasteboard setString:tmp forType:NSStringPboardType];
+    [pasteboard setString:tmp forType:NSPasteboardTypeString];
 }
 
 void Application::onPause() {
