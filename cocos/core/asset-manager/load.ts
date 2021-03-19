@@ -225,7 +225,7 @@ function loadDepends (task: Task, asset: Asset, done: CompleteCallbackNoData, in
                     if (asset.__nativeDepend__) {
                         setProperties(uuid, asset, map);
                         try {
-                            if (asset.onLoaded && !asset.__onLoadedInvoked__ && !asset.__nativeDepend__) {
+                            if (typeof asset.onLoaded === 'function' && !asset.__onLoadedInvoked__ && !asset.__nativeDepend__) {
                                 asset.onLoaded();
                                 asset.__onLoadedInvoked__ = true;
                             }
@@ -236,7 +236,7 @@ function loadDepends (task: Task, asset: Asset, done: CompleteCallbackNoData, in
                 } else {
                     setProperties(uuid, asset, map);
                     try {
-                        if (asset.onLoaded && !asset.__onLoadedInvoked__ && !asset.__nativeDepend__) {
+                        if (typeof asset.onLoaded === 'function' && !asset.__onLoadedInvoked__ && !asset.__nativeDepend__) {
                             asset.onLoaded();
                             asset.__onLoadedInvoked__ = true;
                         }
