@@ -205,6 +205,12 @@ export abstract class RenderPipeline extends Asset {
 
         return super.destroy();
     }
+
+    /**
+     * @en Device size change.
+     * @zh 设备尺寸重置。
+     */
+    public resize (width: number, height: number) {}
 }
 
 // Do not delete, for the class detection of editor
