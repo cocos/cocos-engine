@@ -38,7 +38,7 @@ import { BlendFactor } from '../core/gfx';
 import { TMXMapInfo } from './tmx-xml-parser';
 import { TiledTextureGrids, GID, TileFlag, Orientation, StaggerAxis, TMXObjectType, PropertiesInfo, TiledAnimationType, TMXObject, TMXObjectGroupInfo } from './tiled-types';
 import { UITransform } from '../2d/framework/ui-transform';
-import { CCBoolean, Node, Vec2, Color, PrivateNode } from '../core';
+import { CCBoolean, Node, Vec2, Color, CCObject } from '../core';
 import { SpriteFrame } from '../2d/assets';
 
 /**
@@ -290,8 +290,9 @@ export class TiledObjectGroup extends Component {
 
                 // Delete image nodes implemented as private nodes
                 // Use cc.Node to implement node-level requirements
-                if (imgNode instanceof PrivateNode) {
+                if (imgNode instanceof Node) {
                     imgNode.removeFromParent();
+                    imgNode.hideFlags = CCObject.HideFlags.DontSave;
                     imgNode.destroy();
                     imgNode = null;
                 }

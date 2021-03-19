@@ -33,7 +33,7 @@ import { EDITOR } from 'internal:constants';
 import { Component } from '../core/components/component';
 import { view } from '../core/platform/view';
 import { Sprite } from '../2d/components/sprite';
-import { Node, PrivateNode } from '../core/scene-graph';
+import { Node } from '../core/scene-graph';
 import { UITransform } from '../2d/framework/ui-transform';
 
 import { SpriteFrame } from '../2d/assets';
@@ -41,6 +41,7 @@ import { ImageAsset } from '../core/assets/image-asset';
 import { Rect, Size } from '../core/math';
 
 import { legacyCC } from '../core/global-exports';
+import { CCObject } from '../core';
 
 /**
  * @en SubContextView is a view component which controls open data context viewport in WeChat game platform.<br/>
@@ -100,13 +101,14 @@ export class SubContextView extends Component {
     private _updatedTime = 0;
     private _updateInterval = 0;
     private _openDataContext: any;
-    private _content: PrivateNode;
+    private _content: Node;
     @serializable
     private _designResolutionSize: Size = new Size(640, 960);
 
     constructor () {
         super();
-        this._content = new PrivateNode('content');
+        this._content = new Node('content');
+        this._content.hideFlags = CCObject.HideFlags.DontSave;
         this._sprite = null;
         this._imageAsset = new ImageAsset();
         this._openDataContext = null;

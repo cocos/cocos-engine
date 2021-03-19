@@ -35,20 +35,19 @@ import { Filter, PixelFormat, WrapMode } from '../core/assets/asset-enum';
 import { Material } from '../core/assets/material';
 import { RenderingSubMesh } from '../core/assets/rendering-sub-mesh';
 import { Component } from '../core/components';
-import { isValid } from '../core/data/object';
+import { CCObject, isValid } from '../core/data/object';
 import { director } from '../core/director';
 import { AttributeName, BufferUsageBit, Format, MemoryUsageBit, PrimitiveMode, Device, Attribute, Buffer, BufferInfo } from '../core/gfx';
 import { clamp, Rect, Size, Vec2, Vec3, Vec4 } from '../core/math';
 import { MacroRecord } from '../core/renderer/core/pass-utils';
 import { scene } from '../core/renderer';
 import { Root } from '../core/root';
-import { PrivateNode } from '../core/scene-graph/private-node';
 import { HeightField } from './height-field';
 import { legacyCC } from '../core/global-exports';
 import { TerrainAsset, TerrainLayerInfo, TERRAIN_HEIGHT_BASE, TERRAIN_HEIGHT_FACTORY,
     TERRAIN_BLOCK_TILE_COMPLEXITY, TERRAIN_BLOCK_VERTEX_SIZE, TERRAIN_BLOCK_VERTEX_COMPLEXITY,
     TERRAIN_MAX_LAYER_COUNT, TERRAIN_HEIGHT_FMIN, TERRAIN_HEIGHT_FMAX, TERRAIN_MAX_BLEND_LAYERS, TERRAIN_DATA_VERSION5 } from './terrain-asset';
-import { CCBoolean, CCInteger } from '../core';
+import { CCBoolean, CCInteger, Node } from '../core';
 
 const bbMin = new Vec3();
 const bbMax = new Vec3();
@@ -304,7 +303,7 @@ export class TerrainBlockLightmapInfo {
  */
 export class TerrainBlock {
     private _terrain: Terrain;
-    private _node: PrivateNode;
+    private _node: Node;
     private _renderable: TerrainRenderable;
     private _index: number[] = [1, 1];
     // private _neighbor: TerrainBlock|null[] = [null, null, null, null];
@@ -317,9 +316,9 @@ export class TerrainBlock {
         this._index[1] = j;
         this._lightmapInfo = t._getLightmapInfo(i, j);
 
-        this._node = new PrivateNode('');
+        this._node = new Node();
         this._node.setParent(this._terrain.node);
-        this._node._objFlags |= legacyCC.Object.Flags.DontSave;
+        this._node.hideFlags = CCObject.HideFlags.DontSave;
         this._node.layer = this._terrain.node.layer;
 
         this._renderable = this._node.addComponent(TerrainRenderable);

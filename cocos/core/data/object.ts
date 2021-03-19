@@ -80,6 +80,7 @@ function compileDestruct (obj, ctor) {
     let key;
     const propsToReset = {};
     for (key in obj) {
+        // eslint-disable-next-line no-prototype-builtins
         if (obj.hasOwnProperty(key)) {
             if (key === idToSkip) {
                 continue;
@@ -92,6 +93,8 @@ function compileDestruct (obj, ctor) {
             case 'function':
                 propsToReset[key] = null;
                 break;
+            default:
+                break;
             }
         }
     }
@@ -102,6 +105,7 @@ function compileDestruct (obj, ctor) {
 
         for (let i = 0; i < propList.length; i++) {
             key = propList[i];
+            // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
             const attrKey = `${key + legacyCC.Class.Attr.DELIMETER}default`;
             if (attrKey in attrs) {
                 if (shouldSkipId && key === '_id') {
@@ -117,6 +121,8 @@ function compileDestruct (obj, ctor) {
                     break;
                 case 'undefined':
                     propsToReset[key] = undefined;
+                    break;
+                default:
                     break;
                 }
             }
@@ -138,8 +144,10 @@ function compileDestruct (obj, ctor) {
             if (val === '') {
                 val = '""';
             }
+            // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
             func += (`${statement + val};\n`);
         }
+        // eslint-disable-next-line @typescript-eslint/no-implied-eval,no-new-func
         return Function('o', func);
     } else {
         return (o) => {
@@ -215,6 +223,26 @@ class CCObject {
     }
 
     /**
+     * @en Open the HideFlags enumeration setting
+     * @zh 开放 HideFlags 的枚举设置
+     */
+    public set hideFlags (hideFlags :number) {
+        this._objFlags |= hideFlags;
+    }
+
+    /**
+     * @en Open the HideFlags enumeration setting
+     * @zh 开放 HideFlags 的枚举设置
+     */
+    public get objFlags (): number {
+        return this._objFlags;
+    }
+
+    public set objFlags (objFlags :number) {
+        this._objFlags |= objFlags;
+    }
+
+    /**
      * @en
      * Indicates whether the object is not yet destroyed. (It will not be available after being destroyed)<br>
      * When an object's `destroy` is called, it is actually destroyed after the end of this frame.
@@ -273,7 +301,7 @@ class CCObject {
 
         if (EDITOR && deferredDestroyTimer === null && legacyCC.engine && !legacyCC.engine._isUpdating) {
             // auto destroy immediate in edit mode
-            // @ts-expect-error
+            // @ts-expect-error no function
             deferredDestroyTimer = setImmediate(CCObject._deferredDestroy);
         }
         return true;
@@ -316,8 +344,10 @@ class CCObject {
             return;
         }
         // engine internal callback
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-expect-error
         if (this._onPreDestroy) {
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-expect-error
             this._onPreDestroy();
         }
@@ -346,6 +376,7 @@ if (EDITOR || TEST) {
     * @method realDestroyInEditor
     * @private
     */
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-expect-error
     prototype.realDestroyInEditor = function () {
         if (!(this._objFlags & Destroyed)) {
@@ -364,6 +395,7 @@ if (EDITOR || TEST) {
 if (EDITOR) {
     js.value(CCObject, '_clearDeferredDestroyTimer', () => {
         if (deferredDestroyTimer !== null) {
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-expect-error
             clearImmediate(deferredDestroyTimer);
             deferredDestroyTimer = null;
@@ -377,6 +409,7 @@ if (EDITOR) {
      * @return {object} the serialized json data object
      * @private
      */
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-expect-error
     prototype._serialize = null;
 }
@@ -388,6 +421,7 @@ if (EDITOR) {
  * @param {_Deserializer} ctx
  * @private
  */
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-expect-error
 prototype._deserialize = null;
 /*
@@ -395,6 +429,7 @@ prototype._deserialize = null;
  * @method _onPreDestroy
  * @private
  */
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-expect-error
 prototype._onPreDestroy = null;
 
@@ -429,22 +464,23 @@ js.value(CCObject, 'Flags', {
     IsSizeLocked,
 });
 
+/**
+ * Bit mask that controls object states.
+ * @enum Object.HideFlags
+ * @private
+ */
+js.value(CCObject, 'HideFlags', {
+    Destroyed,
+    DontSave,
+    EditorOnly,
+    LockedInEditor,
+    HideInHierarchy,
+});
+
 declare namespace CCObject {
     export enum Flags {
         Destroyed,
         // ToDestroy: ToDestroy,
-
-        /**
-         * @en The object will not be saved.
-         * @zh 该对象将不会被保存。
-         */
-        DontSave,
-
-        /**
-         * @en The object will not be saved when building a player.
-         * @zh 构建项目时，该对象将不会被保存。
-         */
-        EditorOnly,
 
         Dirty,
 
@@ -455,10 +491,20 @@ declare namespace CCObject {
          */
         DontDestroy,
 
+        /**
+         * @en
+         * @zh
+         * @private
+         */
         PersistentMask,
 
         // FLAGS FOR ENGINE
 
+        /**
+         * @en
+         * @zh
+         * @private
+         */
         Destroying,
 
         /**
@@ -469,38 +515,25 @@ declare namespace CCObject {
         Deactivating,
 
         /**
-         * @en The lock node, when the node is locked, cannot be clicked in the scene.
-         * @zh 锁定节点，锁定后场景内不能点击。
-         * @private
+         * @en
+         * Hide in game and hierarchy.
+         * This flag is readonly, it can only be used as an argument of scene.addEntity() or Entity.createWithFlags().
+         * @zh
+         * 在游戏和层级中隐藏该对象。<br/>
+         * 该标记只读，它只能被用作 scene.addEntity()的一个参数。
          */
-        LockedInEditor,
-
-        /// **
-        // * @en
-        // * Hide in game and hierarchy.
-        // * This flag is readonly, it can only be used as an argument of scene.addEntity() or Entity.createWithFlags().
-        // * @zh
-        // * 在游戏和层级中隐藏该对象。<br/>
-        // * 该标记只读，它只能被用作 scene.addEntity()的一个参数。
-        // */
         // HideInGame: HideInGame,
 
         // FLAGS FOR EDITOR
 
-        /// **
-        // * @en Hide the object in editor.
-        // * @zh 在编辑器中隐藏该对象。
-        // */
-        HideInHierarchy,
-
-        /// **
-        // * @en
-        // * Hide in game view, hierarchy, and scene view... etc.
-        // * This flag is readonly, it can only be used as an argument of scene.addEntity() or Entity.createWithFlags().
-        // * @zh
-        // * 在游戏视图，层级，场景视图等等...中隐藏该对象。
-        // * 该标记只读，它只能被用作 scene.addEntity()的一个参数。
-        // */
+        /**
+         * @en
+         * Hide in game view, hierarchy, and scene view... etc.
+         * This flag is readonly, it can only be used as an argument of scene.addEntity() or Entity.createWithFlags().
+         * @zh
+         * 在游戏视图，层级，场景视图等等...中隐藏该对象。
+         * 该标记只读，它只能被用作 scene.addEntity()的一个参数。
+         */
         // Hide: Hide,
 
         // FLAGS FOR COMPONENT
@@ -517,6 +550,36 @@ declare namespace CCObject {
         IsScaleLocked,
         IsAnchorLocked,
         IsSizeLocked,
+    }
+
+    export enum HideFlags {
+        Destroyed,
+        // ToDestroy: ToDestroy,
+
+        /**
+         * @en The object will not be saved.
+         * @zh 该对象将不会被保存。
+         */
+        DontSave,
+
+        /**
+         * @en The object will not be saved when building a player.
+         * @zh 构建项目时，该对象将不会被保存。
+         */
+        EditorOnly,
+
+        /**
+         * @en The lock node, when the node is locked, cannot be clicked in the scene.
+         * @zh 锁定节点，锁定后场景内不能点击。
+         * @private
+         */
+        LockedInEditor,
+
+        /**
+         * @en Hide the object in editor.
+         * @zh 在编辑器中隐藏该对象。
+         */
+        HideInHierarchy,
     }
 
     // for @ccclass

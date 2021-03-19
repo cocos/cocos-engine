@@ -37,7 +37,7 @@ import { BASELINE_RATIO, fragmentText, isUnicodeCJK, isUnicodeSpace } from '../u
 import { HtmlTextParser, IHtmlTextParserResultObj, IHtmlTextParserStack } from '../utils/html-text-parser';
 import Pool from '../../core/utils/pool';
 import { Color, Vec2 } from '../../core/math';
-import { Node, PrivateNode } from '../../core/scene-graph';
+import { Node } from '../../core/scene-graph';
 import { CacheMode, HorizontalTextAlignment, Label, VerticalTextAlignment } from './label';
 import { LabelOutline } from './label-outline';
 import { Sprite } from './sprite';
@@ -45,6 +45,7 @@ import { UIComponent, UITransform } from '../framework';
 import { legacyCC } from '../../core/global-exports';
 import { Component } from '../../core/components';
 import assetManager from '../../core/asset-manager/asset-manager';
+import { CCObject } from '../../core';
 
 const _htmlTextParser = new HtmlTextParser();
 const RichTextChildName = 'RICHTEXT_CHILD';
@@ -78,7 +79,7 @@ const imagePool = new Pool((seg: ISegment) => {
 //
 function createSegment (type: string): ISegment {
     return {
-        node: new PrivateNode(type),
+        node: new Node(type),
         comp: null,
         lineCount: 0,
         styleIndex: 0,
@@ -97,10 +98,11 @@ function getSegmentByPool (type: string, content: string | SpriteFrame) {
         seg = imagePool._get();
     }
     seg = seg || createSegment(type);
-    let node = seg.node;
+    let node = seg.node as Node;
     if (!node) {
-        node = new PrivateNode(type);
+        node = new Node(type);
     }
+    node.hideFlags = CCObject.HideFlags.DontSave;
     if (type === RichTextChildImageName) {
         seg.comp = node.getComponent(Sprite) || node.addComponent(Sprite);
         seg.comp.spriteFrame = content as SpriteFrame;
@@ -126,7 +128,7 @@ function getSegmentByPool (type: string, content: string | SpriteFrame) {
 }
 
 interface ISegment {
-    node: PrivateNode;
+    node: Node;
     comp: Label | Sprite | null;
     lineCount: number;
     styleIndex: number;
