@@ -624,7 +624,6 @@ bool register_all_gfx(se::Object* obj);
 
 JSB_REGISTER_OBJECT_TYPE(cc::gfx::Context);
 SE_DECLARE_FUNC(js_gfx_Context_destroy);
-SE_DECLARE_FUNC(js_gfx_Context_getDevice);
 SE_DECLARE_FUNC(js_gfx_Context_initialize);
 SE_DECLARE_FUNC(js_gfx_Context_present);
 SE_DECLARE_FUNC(js_gfx_Context_Context);

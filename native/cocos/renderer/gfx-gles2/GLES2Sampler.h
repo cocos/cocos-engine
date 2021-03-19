@@ -23,8 +23,7 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#ifndef CC_GFXGLES2_SAMPLER_H_
-#define CC_GFXGLES2_SAMPLER_H_
+#pragma once
 
 #include "gfx-base/GFXSampler.h"
 
@@ -35,16 +34,15 @@ class GLES2GPUSampler;
 
 class CC_GLES2_API GLES2Sampler final : public Sampler {
 public:
-    GLES2Sampler(Device *device);
+    GLES2Sampler();
     ~GLES2Sampler();
-
-public:
-    virtual bool initialize(const SamplerInfo &info) override;
-    virtual void destroy() override;
 
     CC_INLINE GLES2GPUSampler *gpuSampler() const { return _gpuSampler; }
 
-private:
+protected:
+    void doInit(const SamplerInfo &info) override;
+    void doDestroy() override;
+
     GLES2GPUSampler *_gpuSampler = nullptr;
     String _name;
     Filter _minFilter = Filter::LINEAR;
@@ -63,5 +61,3 @@ private:
 
 } // namespace gfx
 } // namespace cc
-
-#endif

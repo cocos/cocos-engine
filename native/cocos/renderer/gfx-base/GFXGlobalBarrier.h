@@ -23,8 +23,7 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#ifndef CC_CORE_GFX_GLOBAL_BARRIER_H_
-#define CC_CORE_GFX_GLOBAL_BARRIER_H_
+#pragma once
 
 #include "GFXObject.h"
 
@@ -33,7 +32,7 @@ namespace gfx {
 
 class CC_DLL GlobalBarrier : public GFXObject {
 public:
-    GlobalBarrier(Device *device);
+    GlobalBarrier();
     virtual ~GlobalBarrier();
 
     static uint computeHash(const GlobalBarrierInfo &info);
@@ -43,13 +42,12 @@ public:
 protected:
     friend class Device;
 
-    virtual bool initialize(const GlobalBarrierInfo &info) { _info = info; return true; }
+    virtual void doInit(const GlobalBarrierInfo &info) {}
 
-    Device *_device = nullptr;
+    void initialize(const GlobalBarrierInfo &info) { _info = info; doInit(info); }
+
     GlobalBarrierInfo _info;
 };
 
 } // namespace gfx
 } // namespace cc
-
-#endif // CC_CORE_GFX_GLOBAL_BARRIER_H_

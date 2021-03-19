@@ -31,11 +31,10 @@
 namespace cc {
 namespace gfx {
 
-CCMTLPipelineLayout::CCMTLPipelineLayout(Device *device) : PipelineLayout(device) {
+CCMTLPipelineLayout::CCMTLPipelineLayout() : PipelineLayout() {
 }
 
-bool CCMTLPipelineLayout::initialize(const PipelineLayoutInfo &info) {
-    _setLayouts = info.setLayouts;
+void CCMTLPipelineLayout::doInit(const PipelineLayoutInfo &info) {
     const auto setCount = _setLayouts.size();
     _gpuPipelineLayout = CC_NEW(CCMTLGPUPipelineLayout);
     _gpuPipelineLayout->dynamicOffsetIndices.resize(setCount);
@@ -54,11 +53,9 @@ bool CCMTLPipelineLayout::initialize(const PipelineLayoutInfo &info) {
         }
         _gpuPipelineLayout->setLayouts.emplace_back(gpuDescriptorSetLayout);
     }
-
-    return true;
 }
 
-void CCMTLPipelineLayout::destroy() {
+void CCMTLPipelineLayout::doDestroy() {
     CC_SAFE_DELETE(_gpuPipelineLayout);
 }
 

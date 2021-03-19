@@ -23,8 +23,7 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#ifndef CC_GFXVULKAN_BUFFER_H_
-#define CC_GFXVULKAN_BUFFER_H_
+#pragma once
 
 #include "gfx-base/GFXBuffer.h"
 
@@ -36,20 +35,20 @@ class CCVKGPUBufferView;
 
 class CC_VULKAN_API CCVKBuffer final : public Buffer {
 public:
-    CCVKBuffer(Device *device);
+    CCVKBuffer();
     ~CCVKBuffer();
 
-public:
-    bool initialize(const BufferInfo &info);
-    bool initialize(const BufferViewInfo &info);
-    void destroy();
-    void resize(uint size);
-    void update(void *buffer, uint offset);
+    void update(void *buffer, uint offset) override;
 
     CC_INLINE CCVKGPUBuffer *gpuBuffer() const { return _gpuBuffer; }
     CC_INLINE CCVKGPUBufferView *gpuBufferView() const { return _gpuBufferView; }
 
-private:
+protected:
+    void doInit(const BufferInfo &info) override;
+    void doInit(const BufferViewInfo &info) override;
+    void doDestroy() override;
+    void doResize(uint size) override;
+
     void createBufferView();
 
     CCVKGPUBuffer *_gpuBuffer = nullptr;
@@ -58,5 +57,3 @@ private:
 
 } // namespace gfx
 } // namespace cc
-
-#endif

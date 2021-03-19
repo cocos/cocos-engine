@@ -37,17 +37,11 @@
 namespace cc {
 namespace gfx {
 
-CCMTLBuffer::CCMTLBuffer(Device *device) : Buffer(device) {
+CCMTLBuffer::CCMTLBuffer() : Buffer() {
 }
 
-bool CCMTLBuffer::initialize(const BufferInfo &info) {
-    _usage = info.usage;
-    _memUsage = info.memUsage;
-    _size = info.size;
-    _stride = std::max(info.stride, 1U);
-    _count = _size / _stride;
-    _flags = info.flags;
-    _isIndirectDrawSupported = static_cast<CCMTLDevice *>(_device)->isIndirectDrawSupported();
+void CCMTLBuffer::doInit(const BufferInfo &info) {
+    _isIndirectDrawSupported = CCMTLDevice::getInstance()->isIndirectDrawSupported();
     if (_usage & BufferUsage::INDEX) {
         switch (_stride) {
             case 4: _indexType = MTLIndexTypeUInt32; break;
@@ -71,47 +65,39 @@ bool CCMTLBuffer::initialize(const BufferInfo &info) {
             _drawInfos.resize(_count);
         }
     }
-
-    return true;
 }
 
-bool CCMTLBuffer::initialize(const BufferViewInfo &info) {
+void CCMTLBuffer::doInit(const BufferViewInfo &info) {
     *this = *static_cast<CCMTLBuffer *>(info.buffer);
     _bufferViewOffset = info.offset;
     _isBufferView = true;
-    return true;
 }
 
 bool CCMTLBuffer::createMTLBuffer(uint size, MemoryUsage usage) {
     _mtlResourceOptions = mu::toMTLResourceOption(usage);
 
     if (_mtlBuffer) {
-        Device *device = _device;
+        Device *device = CCMTLDevice::getInstance();
         id<MTLBuffer> mtlBuffer = _mtlBuffer;
         uint oldSize = [_mtlBuffer length];
 
         std::function<void(void)> destroyFunc = [=]() {
             if (mtlBuffer) {
                 [mtlBuffer release];
-                device->getMemoryStatus().bufferSize -= oldSize;
             }
         };
         //gpu object only
         CCMTLGPUGarbageCollectionPool::getInstance()->collect(destroyFunc);
     }
 
-    id<MTLDevice> mtlDevice = id<MTLDevice>(static_cast<CCMTLDevice *>(_device)->getMTLDevice());
+    id<MTLDevice> mtlDevice = id<MTLDevice>(CCMTLDevice::getInstance()->getMTLDevice());
     _mtlBuffer = [mtlDevice newBufferWithLength:size options:_mtlResourceOptions];
     if (_mtlBuffer == nil) {
         return false;
     }
-
-    _device->getMemoryStatus().bufferSize += size;
-
-    return true;
 }
 
-void CCMTLBuffer::destroy() {
+void CCMTLBuffer::doDestroy() {
     if (_isBufferView) {
         return;
     }
@@ -128,7 +114,7 @@ void CCMTLBuffer::destroy() {
         _drawInfos.clear();
     }
 
-    Device *device = _device;
+    Device *device = CCMTLDevice::getInstance();
     id<MTLBuffer> mtlBuffer = _mtlBuffer;
     _mtlBuffer = nil;
     uint size = _size;
@@ -136,23 +122,13 @@ void CCMTLBuffer::destroy() {
     std::function<void(void)> destroyFunc = [=]() {
         if (mtlBuffer) {
             [mtlBuffer release];
-            device->getMemoryStatus().bufferSize -= size;
         }
     };
     //gpu object only
     CCMTLGPUGarbageCollectionPool::getInstance()->collect(destroyFunc);
 }
 
-void CCMTLBuffer::resize(uint size) {
-    if (_isBufferView) {
-        CC_LOG_WARNING("Cannot resize a buffer view.");
-        return;
-    }
-
-    if (_size == size) {
-        return;
-    }
-
+void CCMTLBuffer::doResize(uint size) {
     if (_usage & BufferUsageBit::VERTEX ||
         _usage & BufferUsageBit::INDEX ||
         _usage & BufferUsageBit::UNIFORM) {
@@ -178,7 +154,7 @@ void CCMTLBuffer::update(void *buffer, uint size) {
         CC_LOG_WARNING("Cannot update a buffer view.");
         return;
     }
-    
+
     uint drawInfoCount = size / _stride;
     const auto *drawInfo = static_cast<const DrawInfo *>(buffer);
     if (drawInfoCount > 0) {
@@ -229,7 +205,7 @@ void CCMTLBuffer::update(void *buffer, uint size) {
 
 void CCMTLBuffer::updateMTLBuffer(void *buffer, uint /*offset*/, uint size) {
     if (_mtlBuffer) {
-        CommandBuffer *cmdBuffer = _device->getCommandBuffer();
+        CommandBuffer *cmdBuffer = CCMTLDevice::getInstance()->getCommandBuffer();
         cmdBuffer->begin();
         static_cast<CCMTLCommandBuffer *>(cmdBuffer)->updateBuffer(this, buffer, size);
 #if (CC_PLATFORM == CC_PLATFORM_MAC_OSX)

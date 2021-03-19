@@ -23,8 +23,7 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#ifndef CC_GFXVULKAN_UTILS_H_
-#define CC_GFXVULKAN_UTILS_H_
+#pragma once
 
 #define WIN32_LEAN_AND_MEAN
 
@@ -598,9 +597,7 @@ void fullPipelineBarrier(VkCommandBuffer cmdBuff) {
     memoryBarrier.srcAccessMask = FULL_ACCESS_FLAGS;
     memoryBarrier.dstAccessMask = FULL_ACCESS_FLAGS;
     vkCmdPipelineBarrier(cmdBuff, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
-                         0, 1, &memoryBarrier, 0, nullptr, 0, nullptr);
-#endif
-}
+                         0, 1, &memoryBarrier, 0, nullptr, 0, nullptr);}
 
 template <typename T, size_t Size>
 char (*countofHelper(T (&_Array)[Size]))[Size];

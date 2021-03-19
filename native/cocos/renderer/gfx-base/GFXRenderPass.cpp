@@ -31,8 +31,8 @@
 namespace cc {
 namespace gfx {
 
-RenderPass::RenderPass(Device *device)
-: GFXObject(ObjectType::RENDER_PASS), _device(device) {
+RenderPass::RenderPass()
+: GFXObject(ObjectType::RENDER_PASS) {
 }
 
 RenderPass::~RenderPass() {
@@ -194,6 +194,23 @@ uint RenderPass::computeHash(const RenderPassInfo &info) {
     }
 
     return seed;
+}
+
+void RenderPass::initialize(const RenderPassInfo &info) {
+    _colorAttachments       = info.colorAttachments;
+    _depthStencilAttachment = info.depthStencilAttachment;
+    _subpasses              = info.subpasses;
+    _hash                   = computeHash();
+
+    doInit(info);
+}
+
+void RenderPass::destroy() {
+    doDestroy();
+
+    _colorAttachments.clear();
+    _subpasses.clear();
+    _hash = 0u;
 }
 
 } // namespace gfx

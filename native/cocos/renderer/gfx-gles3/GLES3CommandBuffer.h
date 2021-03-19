@@ -23,8 +23,7 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#ifndef CC_GFXGLES3_COMMAND_BUFFER_H_
-#define CC_GFXGLES3_COMMAND_BUFFER_H_
+#pragma once
 
 #include "gfx-base/GFXCommandBuffer.h"
 
@@ -36,39 +35,39 @@ namespace gfx {
 class GLES3GPUCommandAllocator;
 
 class CC_GLES3_API GLES3CommandBuffer : public CommandBuffer {
-    friend class GLES3Queue;
-
 public:
-    GLES3CommandBuffer(Device *device);
+    GLES3CommandBuffer();
     ~GLES3CommandBuffer();
 
-    virtual bool initialize(const CommandBufferInfo &info) override;
-    virtual void destroy() override;
-
-    virtual void begin(RenderPass *renderPass, uint subpass, Framebuffer *frameBuffer) override;
-    virtual void end() override;
-    virtual void beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, int stencil, CommandBuffer *const *secondaryCBs, uint secondaryCBCount) override;
-    virtual void endRenderPass() override;
-    virtual void bindPipelineState(PipelineState *pso) override;
-    virtual void bindDescriptorSet(uint set, DescriptorSet *descriptorSet, uint dynamicOffsetCount, const uint *dynamicOffsets) override;
-    virtual void bindInputAssembler(InputAssembler *ia) override;
-    virtual void setViewport(const Viewport &vp) override;
-    virtual void setScissor(const Rect &rect) override;
-    virtual void setLineWidth(float width) override;
-    virtual void setDepthBias(float constant, float clamp, float slope) override;
-    virtual void setBlendConstants(const Color &constants) override;
-    virtual void setDepthBound(float minBounds, float maxBounds) override;
-    virtual void setStencilWriteMask(StencilFace face, uint mask) override;
-    virtual void setStencilCompareMask(StencilFace face, int ref, uint mask) override;
-    virtual void draw(InputAssembler *ia) override;
-    virtual void updateBuffer(Buffer *buff, const void *data, uint size) override;
-    virtual void copyBuffersToTexture(const uint8_t *const *buffers, Texture *texture, const BufferTextureCopy *regions, uint count) override;
-    virtual void blitTexture(Texture *srcTexture, Texture *dstTexture, const TextureBlit *regions, uint count, Filter filter) override;
-    virtual void execute(CommandBuffer *const *cmdBuffs, uint32_t count) override;
-    virtual void dispatch(const DispatchInfo &info) override;
-    virtual void pipelineBarrier(const GlobalBarrier *barrier, const TextureBarrier *const *textureBarriers, const Texture *const *textures, uint textureBarrierCount) override;
+    void begin(RenderPass *renderPass, uint subpass, Framebuffer *frameBuffer) override;
+    void end() override;
+    void beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, int stencil, CommandBuffer *const *secondaryCBs, uint secondaryCBCount) override;
+    void endRenderPass() override;
+    void bindPipelineState(PipelineState *pso) override;
+    void bindDescriptorSet(uint set, DescriptorSet *descriptorSet, uint dynamicOffsetCount, const uint *dynamicOffsets) override;
+    void bindInputAssembler(InputAssembler *ia) override;
+    void setViewport(const Viewport &vp) override;
+    void setScissor(const Rect &rect) override;
+    void setLineWidth(float width) override;
+    void setDepthBias(float constant, float clamp, float slope) override;
+    void setBlendConstants(const Color &constants) override;
+    void setDepthBound(float minBounds, float maxBounds) override;
+    void setStencilWriteMask(StencilFace face, uint mask) override;
+    void setStencilCompareMask(StencilFace face, int ref, uint mask) override;
+    void draw(InputAssembler *ia) override;
+    void updateBuffer(Buffer *buff, const void *data, uint size) override;
+    void copyBuffersToTexture(const uint8_t *const *buffers, Texture *texture, const BufferTextureCopy *regions, uint count) override;
+    void blitTexture(Texture *srcTexture, Texture *dstTexture, const TextureBlit *regions, uint count, Filter filter) override;
+    void execute(CommandBuffer *const *cmdBuffs, uint32_t count) override;
+    void dispatch(const DispatchInfo &info) override;
+    void pipelineBarrier(const GlobalBarrier *barrier, const TextureBarrier *const *textureBarriers, const Texture *const *textures, uint textureBarrierCount) override;
 
 protected:
+    friend class GLES3Queue;
+
+    void doInit(const CommandBufferInfo &info) override;
+    void doDestroy() override;
+
     virtual void BindStates();
 
     GLES3GPUCommandAllocator *_cmdAllocator = nullptr;
@@ -93,5 +92,3 @@ protected:
 
 } // namespace gfx
 } // namespace cc
-
-#endif

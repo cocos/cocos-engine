@@ -23,8 +23,7 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#ifndef CC_CORE_GFX_PIPELINE_STATE_H_
-#define CC_CORE_GFX_PIPELINE_STATE_H_
+#pragma once
 
 #include "GFXObject.h"
 
@@ -33,17 +32,15 @@ namespace gfx {
 
 class CC_DLL PipelineState : public GFXObject {
 public:
-    PipelineState(Device *device);
+    PipelineState();
     virtual ~PipelineState();
 
-public:
-    virtual bool initialize(const PipelineStateInfo &info) = 0;
-    virtual void destroy() = 0;
+    void initialize(const PipelineStateInfo &info);
+    void destroy();
 
-    CC_INLINE Device *getDevice() const { return _device; }
-    CC_INLINE Shader *getShader() const { return _shader; }
+    CC_INLINE Shader *          getShader() const { return _shader; }
     CC_INLINE PipelineBindPoint getBindPoint() const { return _bindPoint; }
-    CC_INLINE PrimitiveMode getPrimitive() const { return _primitive; }
+    CC_INLINE PrimitiveMode     getPrimitive() const { return _primitive; }
     CC_INLINE DynamicStateFlags getDynamicStates() const { return _dynamicStates; }
     CC_INLINE const InputState &getInputState() const { return _inputState; }
     CC_INLINE const RasterizerState &getRasterizerState() const { return _rasterizerState; }
@@ -53,20 +50,20 @@ public:
     CC_INLINE const PipelineLayout *getPipelineLayout() const { return _pipelineLayout; }
 
 protected:
-    Device *_device = nullptr;
-    Shader *_shader = nullptr;
-    PipelineBindPoint _bindPoint = PipelineBindPoint::GRAPHICS;
-    PrimitiveMode _primitive = PrimitiveMode::TRIANGLE_LIST;
+    virtual void doInit(const PipelineStateInfo &info) = 0;
+    virtual void doDestroy()                           = 0;
+
+    Shader *          _shader        = nullptr;
+    PipelineBindPoint _bindPoint     = PipelineBindPoint::GRAPHICS;
+    PrimitiveMode     _primitive     = PrimitiveMode::TRIANGLE_LIST;
     DynamicStateFlags _dynamicStates = DynamicStateFlags::NONE;
-    InputState _inputState;
-    RasterizerState _rasterizerState;
+    InputState        _inputState;
+    RasterizerState   _rasterizerState;
     DepthStencilState _depthStencilState;
-    BlendState _blendState;
-    RenderPass *_renderPass = nullptr;
-    PipelineLayout *_pipelineLayout = nullptr;
+    BlendState        _blendState;
+    RenderPass *      _renderPass     = nullptr;
+    PipelineLayout *  _pipelineLayout = nullptr;
 };
 
 } // namespace gfx
 } // namespace cc
-
-#endif // CC_CORE_GFX_PIPELINE_STATE_H_

@@ -34,19 +34,19 @@ namespace gfx {
 
 class CCMTLSampler final : public Sampler {
 public:
-    explicit CCMTLSampler(Device *device);
+    explicit CCMTLSampler();
     ~CCMTLSampler() override = default;
     CCMTLSampler(const CCMTLSampler &)=delete;
     CCMTLSampler(CCMTLSampler &&)=delete;
     CCMTLSampler &operator=(const CCMTLSampler &)=delete;
     CCMTLSampler &operator=(CCMTLSampler &&)=delete;
 
-    bool initialize(const SamplerInfo &info) override;
-    void destroy() override;
-
     CC_INLINE id<MTLSamplerState> getMTLSamplerState() const { return _mtlSamplerState; }
 
-private:
+protected:
+    void doInit(const SamplerInfo &info) override;
+    void doDestroy() override;
+
     id<MTLSamplerState> _mtlSamplerState = nil;
 };
 

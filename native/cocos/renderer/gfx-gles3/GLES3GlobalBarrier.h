@@ -23,9 +23,7 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#ifndef CC_GFXGLES3_GLOBAL_BARRIER_H_
-#define CC_GFXGLES3_GLOBAL_BARRIER_H_
-
+#pragma once
 #include "gfx-base/GFXGlobalBarrier.h"
 
 namespace cc {
@@ -35,18 +33,16 @@ class GLES3GPUGlobalBarrier;
 
 class CC_DLL GLES3GlobalBarrier : public GlobalBarrier {
 public:
-    GLES3GlobalBarrier(Device *device);
+    GLES3GlobalBarrier();
     ~GLES3GlobalBarrier();
 
     CC_INLINE const GLES3GPUGlobalBarrier *gpuBarrier() const { return _gpuBarrier; }
 
 protected:
-    bool initialize(const GlobalBarrierInfo &info) override;
+    void doInit(const GlobalBarrierInfo &info) override;
 
     GLES3GPUGlobalBarrier *_gpuBarrier = nullptr;
 };
 
 } // namespace gfx
 } // namespace cc
-
-#endif // CC_GFXVULKAN_GLOBAL_BARRIER_H_

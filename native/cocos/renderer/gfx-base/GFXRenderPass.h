@@ -32,15 +32,14 @@ namespace gfx {
 
 class CC_DLL RenderPass : public GFXObject {
 public:
-    RenderPass(Device *device);
+    RenderPass();
     virtual ~RenderPass();
 
     static uint computeHash(const RenderPassInfo &info);
 
-    virtual bool initialize(const RenderPassInfo &info) = 0;
-    virtual void destroy()                              = 0;
+    void initialize(const RenderPassInfo &info);
+    void destroy();
 
-    CC_INLINE Device *getDevice() const { return _device; }
     CC_INLINE const ColorAttachmentList &getColorAttachments() const { return _colorAttachments; }
     CC_INLINE const DepthStencilAttachment &getDepthStencilAttachment() const { return _depthStencilAttachment; }
     CC_INLINE const SubpassInfoList &getSubpasses() const { return _subpasses; }
@@ -49,7 +48,9 @@ public:
 protected:
     uint computeHash();
 
-    Device *               _device = nullptr;
+    virtual void doInit(const RenderPassInfo &info) = 0;
+    virtual void doDestroy()                        = 0;
+
     ColorAttachmentList    _colorAttachments;
     DepthStencilAttachment _depthStencilAttachment;
     SubpassInfoList        _subpasses;

@@ -38,7 +38,7 @@ namespace gfx {
 
 #if (CC_PLATFORM == CC_PLATFORM_MAC_IOS)
 
-bool GLES2Context::initialize(const ContextInfo &info) {
+void GLES2Context::doInit(const ContextInfo &info) {
 
     _vsyncMode = info.vsyncMode;
     _windowHandle = info.windowHandle;
@@ -191,7 +191,7 @@ void GLES2Context::destroyCustomFrameBuffer()
     }
 }
 
-void GLES2Context::destroy() {
+void GLES2Context::doDestroy() {
     destroyCustomFrameBuffer();
 
   if (_eaglContext) {

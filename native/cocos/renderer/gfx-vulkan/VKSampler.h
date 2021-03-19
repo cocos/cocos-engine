@@ -23,8 +23,7 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#ifndef CC_GFXVULKAN_SAMPLER_H_
-#define CC_GFXVULKAN_SAMPLER_H_
+#pragma once
 
 #include "gfx-base/GFXSampler.h"
 
@@ -35,20 +34,17 @@ class CCVKGPUSampler;
 
 class CC_VULKAN_API CCVKSampler final : public Sampler {
 public:
-    CCVKSampler(Device *device);
+    CCVKSampler();
     ~CCVKSampler();
-
-public:
-    bool initialize(const SamplerInfo &info);
-    void destroy();
 
     CC_INLINE CCVKGPUSampler *gpuSampler() const { return _gpuSampler; }
 
-private:
+protected:
+    void doInit(const SamplerInfo &info) override;
+    void doDestroy() override;
+
     CCVKGPUSampler *_gpuSampler = nullptr;
 };
 
 } // namespace gfx
 } // namespace cc
-
-#endif

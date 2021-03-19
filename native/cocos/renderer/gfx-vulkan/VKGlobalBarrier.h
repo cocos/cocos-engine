@@ -35,13 +35,13 @@ class CCVKGPUGlobalBarrier;
 
 class CC_DLL CCVKGlobalBarrier : public GlobalBarrier {
 public:
-    CCVKGlobalBarrier(Device *device);
+    CCVKGlobalBarrier();
     ~CCVKGlobalBarrier();
 
     CC_INLINE const CCVKGPUGlobalBarrier *gpuBarrier() const { return _gpuBarrier; }
 
 protected:
-    bool initialize(const GlobalBarrierInfo &info) override;
+    void doInit(const GlobalBarrierInfo &info) override;
 
     CCVKGPUGlobalBarrier *_gpuBarrier = nullptr;
 };

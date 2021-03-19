@@ -23,8 +23,7 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#ifndef CC_GFXVULKAN_DEVICE_H_
-#define CC_GFXVULKAN_DEVICE_H_
+#pragma once
 
 #include "gfx-base/GFXDevice.h"
 
@@ -50,8 +49,9 @@ class CCVKGPUStagingBufferPool;
 
 class CC_VULKAN_API CCVKDevice final : public Device {
 public:
-    CCVKDevice();
-    ~CCVKDevice();
+    static CCVKDevice *getInstance();
+
+    ~CCVKDevice() override;
 
     friend class CCVKContext;
     using Device::copyBuffersToTexture;
@@ -71,11 +71,10 @@ public:
     using Device::createTexture;
     using Device::createTextureBarrier;
 
-    virtual bool   initialize(const DeviceInfo &info) override;
-    virtual void   destroy() override;
-    virtual void   resize(uint width, uint height) override;
-    virtual void   acquire() override;
-    virtual void   present() override;
+    void resize(uint width, uint height) override;
+    void acquire() override;
+    void present() override;
+
     CC_INLINE bool checkExtension(const String &extension) const {
         return std::find_if(_extensions.begin(), _extensions.end(),
                             [extension](const char *device_extension) {
@@ -98,23 +97,31 @@ public:
     CCVKGPURecycleBin *       gpuRecycleBin();
     CCVKGPUStagingBufferPool *gpuStagingBufferPool();
 
-private:
-    virtual CommandBuffer *      doCreateCommandBuffer(const CommandBufferInfo &info, bool hasAgent) override;
-    virtual Queue *              createQueue() override;
-    virtual Buffer *             createBuffer() override;
-    virtual Texture *            createTexture() override;
-    virtual Sampler *            createSampler() override;
-    virtual Shader *             createShader() override;
-    virtual InputAssembler *     createInputAssembler() override;
-    virtual RenderPass *         createRenderPass() override;
-    virtual Framebuffer *        createFramebuffer() override;
-    virtual DescriptorSet *      createDescriptorSet() override;
-    virtual DescriptorSetLayout *createDescriptorSetLayout() override;
-    virtual PipelineLayout *     createPipelineLayout() override;
-    virtual PipelineState *      createPipelineState() override;
-    virtual GlobalBarrier *      createGlobalBarrier() override;
-    virtual TextureBarrier *     createTextureBarrier() override;
-    virtual void                 copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint count) override;
+protected:
+    static CCVKDevice *_instance;
+
+    friend class DeviceCreator;
+
+    CCVKDevice();
+
+    bool                 doInit(const DeviceInfo &info) override;
+    void                 doDestroy() override;
+    CommandBuffer *      createCommandBuffer(const CommandBufferInfo &info, bool hasAgent) override;
+    Queue *              createQueue() override;
+    Buffer *             createBuffer() override;
+    Texture *            createTexture() override;
+    Sampler *            createSampler() override;
+    Shader *             createShader() override;
+    InputAssembler *     createInputAssembler() override;
+    RenderPass *         createRenderPass() override;
+    Framebuffer *        createFramebuffer() override;
+    DescriptorSet *      createDescriptorSet() override;
+    DescriptorSetLayout *createDescriptorSetLayout() override;
+    PipelineLayout *     createPipelineLayout() override;
+    PipelineState *      createPipelineState() override;
+    GlobalBarrier *      createGlobalBarrier() override;
+    TextureBarrier *     createTextureBarrier() override;
+    void                 copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint count) override;
 
     void destroySwapchain();
     bool checkSwapchainStatus();
@@ -142,5 +149,3 @@ private:
 
 } // namespace gfx
 } // namespace cc
-
-#endif // CC_GFXVULKAN_DEVICE_H_

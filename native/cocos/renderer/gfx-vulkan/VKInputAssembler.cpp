@@ -33,28 +33,15 @@
 namespace cc {
 namespace gfx {
 
-CCVKInputAssembler::CCVKInputAssembler(Device *device)
-: InputAssembler(device) {
+CCVKInputAssembler::CCVKInputAssembler()
+: InputAssembler() {
 }
 
 CCVKInputAssembler::~CCVKInputAssembler() {
 }
 
-bool CCVKInputAssembler::initialize(const InputAssemblerInfo &info) {
-    _attributes = info.attributes;
-    _vertexBuffers = info.vertexBuffers;
-    _indexBuffer = info.indexBuffer;
-    _indirectBuffer = info.indirectBuffer;
+void CCVKInputAssembler::doInit(const InputAssemblerInfo &info) {
     size_t vbCount = _vertexBuffers.size();
-
-    if (_indexBuffer) {
-        _indexCount = _indexBuffer->getCount();
-        _firstIndex = 0;
-    } else if (_vertexBuffers.size()) {
-        _vertexCount = _vertexBuffers[0]->getCount();
-        _firstVertex = 0;
-        _vertexOffset = 0;
-    }
 
     _gpuInputAssembler = CC_NEW(CCVKGPUInputAssembler);
     _gpuInputAssembler->attributes = _attributes;
@@ -80,13 +67,9 @@ bool CCVKInputAssembler::initialize(const InputAssemblerInfo &info) {
         _gpuInputAssembler->vertexBuffers[i] = _gpuInputAssembler->gpuVertexBuffers[i]->vkBuffer;
         _gpuInputAssembler->vertexBufferOffsets[i] = _gpuInputAssembler->gpuVertexBuffers[i]->startOffset;
     }
-
-    _attributesHash = computeAttributesHash();
-
-    return true;
 }
 
-void CCVKInputAssembler::destroy() {
+void CCVKInputAssembler::doDestroy() {
     if (_gpuInputAssembler) {
         _gpuInputAssembler->vertexBuffers.clear();
         _gpuInputAssembler->vertexBufferOffsets.clear();

@@ -23,109 +23,165 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#ifndef CC_CORE_GFX_COMMAND_BUFFER_H_
-#define CC_CORE_GFX_COMMAND_BUFFER_H_
+#pragma once
 
-#include "GFXObject.h"
 #include "GFXBuffer.h"
+#include "GFXObject.h"
 
 namespace cc {
 namespace gfx {
 
 class CC_DLL CommandBuffer : public GFXObject {
 public:
-    CommandBuffer(Device *device);
+    CommandBuffer();
     virtual ~CommandBuffer();
 
 public:
-    virtual bool initialize(const CommandBufferInfo &info) = 0;
-    virtual void destroy() = 0;
-    virtual void begin(RenderPass *renderPass, uint subpass, Framebuffer *frameBuffer) = 0;
-    virtual void end() = 0;
+    void initialize(const CommandBufferInfo &info);
+    void destroy();
+
+    virtual void begin(RenderPass *renderPass, uint subpass, Framebuffer *frameBuffer)                                                                                                                       = 0;
+    virtual void end()                                                                                                                                                                                       = 0;
     virtual void beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, int stencil, CommandBuffer *const *secondaryCBs, uint secondaryCBCount) = 0;
-    virtual void endRenderPass() = 0;
-    virtual void bindPipelineState(PipelineState *pso) = 0;
-    virtual void bindDescriptorSet(uint set, DescriptorSet *descriptorSet, uint dynamicOffsetCount, const uint *dynamicOffsets) = 0;
-    virtual void bindInputAssembler(InputAssembler *ia) = 0;
-    virtual void setViewport(const Viewport &vp) = 0;
-    virtual void setScissor(const Rect &rect) = 0;
-    virtual void setLineWidth(float width) = 0;
-    virtual void setDepthBias(float constant, float clamp, float slope) = 0;
-    virtual void setBlendConstants(const Color &constants) = 0;
-    virtual void setDepthBound(float minBounds, float maxBounds) = 0;
-    virtual void setStencilWriteMask(StencilFace face, uint mask) = 0;
-    virtual void setStencilCompareMask(StencilFace face, int ref, uint mask) = 0;
-    virtual void draw(InputAssembler *ia) = 0;
-    virtual void updateBuffer(Buffer *buff, const void *data, uint size) = 0;
-    virtual void copyBuffersToTexture(const uint8_t *const *buffers, Texture *texture, const BufferTextureCopy *regions, uint count) = 0;
-    virtual void blitTexture(Texture *srcTexture, Texture *dstTexture, const TextureBlit *regions, uint count, Filter filter) = 0;
-    virtual void execute(CommandBuffer *const *cmdBuffs, uint32_t count) = 0;
-    virtual void dispatch(const DispatchInfo &info) = 0;
-    virtual void pipelineBarrier(const GlobalBarrier *barrier, const TextureBarrier *const *textureBarriers, const Texture *const *textures, uint textureBarrierCount) = 0;
+    virtual void endRenderPass()                                                                                                                                                                             = 0;
+    virtual void bindPipelineState(PipelineState *pso)                                                                                                                                                       = 0;
+    virtual void bindDescriptorSet(uint set, DescriptorSet *descriptorSet, uint dynamicOffsetCount, const uint *dynamicOffsets)                                                                              = 0;
+    virtual void bindInputAssembler(InputAssembler *ia)                                                                                                                                                      = 0;
+    virtual void setViewport(const Viewport &vp)                                                                                                                                                             = 0;
+    virtual void setScissor(const Rect &rect)                                                                                                                                                                = 0;
+    virtual void setLineWidth(float width)                                                                                                                                                                   = 0;
+    virtual void setDepthBias(float constant, float clamp, float slope)                                                                                                                                      = 0;
+    virtual void setBlendConstants(const Color &constants)                                                                                                                                                   = 0;
+    virtual void setDepthBound(float minBounds, float maxBounds)                                                                                                                                             = 0;
+    virtual void setStencilWriteMask(StencilFace face, uint mask)                                                                                                                                            = 0;
+    virtual void setStencilCompareMask(StencilFace face, int ref, uint mask)                                                                                                                                 = 0;
+    virtual void draw(InputAssembler *ia)                                                                                                                                                                    = 0;
+    virtual void updateBuffer(Buffer *buff, const void *data, uint size)                                                                                                                                     = 0;
+    virtual void copyBuffersToTexture(const uint8_t *const *buffers, Texture *texture, const BufferTextureCopy *regions, uint count)                                                                         = 0;
+    virtual void blitTexture(Texture *srcTexture, Texture *dstTexture, const TextureBlit *regions, uint count, Filter filter)                                                                                = 0;
+    virtual void execute(CommandBuffer *const *cmdBuffs, uint32_t count)                                                                                                                                     = 0;
+    virtual void dispatch(const DispatchInfo &info)                                                                                                                                                          = 0;
+    virtual void pipelineBarrier(const GlobalBarrier *barrier, const TextureBarrier *const *textureBarriers, const Texture *const *textures, uint textureBarrierCount)                                       = 0;
 
-    CC_INLINE void begin() { begin(nullptr, 0, nullptr); }
-    // secondary command buffer specifics
-    CC_INLINE void begin(RenderPass *renderPass) { begin(renderPass, 0, nullptr); }
-    CC_INLINE void begin(RenderPass *renderPass, uint subpass) { begin(renderPass, subpass, nullptr); }
+    inline void begin();
+    inline void begin(RenderPass *renderPass);
+    inline void begin(RenderPass *renderPass, uint subpass);
 
-    CC_INLINE void updateBuffer(Buffer *buff, const void *data) { updateBuffer(buff, data, buff->getSize()); }
-    CC_INLINE void execute(CommandBufferList &cmdBuffs, uint32_t count) { execute(cmdBuffs.data(), count); }
-    CC_INLINE void bindDescriptorSet(uint set, DescriptorSet *descriptorSet) { bindDescriptorSet(set, descriptorSet, 0, nullptr); }
-    CC_INLINE void bindDescriptorSet(uint set, DescriptorSet *descriptorSet, const vector<uint> &dynamicOffsets) {
-        bindDescriptorSet(set, descriptorSet, static_cast<uint>(dynamicOffsets.size()), dynamicOffsets.data());
-    }
-    CC_INLINE void beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const ColorList &colors, float depth, int stencil, const CommandBufferList &secondaryCBs) {
-        beginRenderPass(renderPass, fbo, renderArea, colors.data(), depth, stencil, secondaryCBs.data(), static_cast<uint>(secondaryCBs.size()));
-    }
-    CC_INLINE void beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const ColorList &colors, float depth, int stencil) {
-        beginRenderPass(renderPass, fbo, renderArea, colors.data(), depth, stencil, nullptr, 0);
-    }
-    CC_INLINE void beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, int stencil) {
-        beginRenderPass(renderPass, fbo, renderArea, colors, depth, stencil, nullptr, 0);
-    }
-    CC_INLINE void copyBuffersToTexture(const BufferDataList &buffers, Texture *texture, const BufferTextureCopyList &regions) {
-        copyBuffersToTexture(buffers.data(), texture, regions.data(), static_cast<uint>(regions.size()));
-    }
-    CC_INLINE void blitTexture(Texture *srcTexture, Texture *dstTexture, const TextureBlitList &regions, Filter filter) {
-        blitTexture(srcTexture, dstTexture, regions.data(), static_cast<uint>(regions.size()), filter);
-    }
-    CC_INLINE void pipelineBarrier(const GlobalBarrier *barrier) { pipelineBarrier(barrier, nullptr, nullptr, 0u); }
-    CC_INLINE void pipelineBarrier(const GlobalBarrier *barrier, const TextureBarrierList &textureBarriers, const TextureList &textures) {
-        pipelineBarrier(barrier, textureBarriers.data(), textures.data(), static_cast<uint>(textureBarriers.size()));
-    }
+    inline void updateBuffer(Buffer *buff, const void *data);
 
-    CC_INLINE void bindDescriptorSetForJS(uint set, DescriptorSet *descriptorSet) {
-        bindDescriptorSet(set, descriptorSet, 0, nullptr);
-    }
-    CC_INLINE void bindDescriptorSetForJS(uint set, DescriptorSet *descriptorSet, const vector<uint> &dynamicOffsets) {
-        bindDescriptorSet(set, descriptorSet, static_cast<uint>(dynamicOffsets.size()), dynamicOffsets.data());
-    }
-    CC_INLINE void beginRenderPassForJS(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const ColorList &colors, float depth, int stencil, const CommandBufferList &secondaryCBs) {
-        beginRenderPass(renderPass, fbo, renderArea, colors.data(), depth, stencil, secondaryCBs.data(), static_cast<uint>(secondaryCBs.size()));
-    }
-    CC_INLINE void beginRenderPassForJS(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const ColorList &colors, float depth, int stencil) {
-        beginRenderPass(renderPass, fbo, renderArea, colors.data(), depth, stencil, nullptr, 0);
-    }
+    inline void execute(CommandBufferList &cmdBuffs, uint32_t count);
 
-    CC_INLINE Device *getDevice() const { return _device; }
-    CC_INLINE Queue *getQueue() const { return _queue; }
-    CC_INLINE CommandBufferType getType() const { return _type; }
+    inline void bindDescriptorSet(uint set, DescriptorSet *descriptorSet);
+    inline void bindDescriptorSet(uint set, DescriptorSet *descriptorSet, const vector<uint> &dynamicOffsets);
+
+    inline void beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const ColorList &colors, float depth, int stencil, const CommandBufferList &secondaryCBs);
+    inline void beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const ColorList &colors, float depth, int stencil);
+    inline void beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, int stencil);
+
+    inline void copyBuffersToTexture(const BufferDataList &buffers, Texture *texture, const BufferTextureCopyList &regions);
+
+    inline void blitTexture(Texture *srcTexture, Texture *dstTexture, const TextureBlitList &regions, Filter filter);
+
+    inline void pipelineBarrier(const GlobalBarrier *barrier);
+    inline void pipelineBarrier(const GlobalBarrier *barrier, const TextureBarrierList &textureBarriers, const TextureList &textures);
+
+    inline void bindDescriptorSetForJS(uint set, DescriptorSet *descriptorSet);
+    inline void bindDescriptorSetForJS(uint set, DescriptorSet *descriptorSet, const vector<uint> &dynamicOffsets);
+    inline void beginRenderPassForJS(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const ColorList &colors, float depth, int stencil, const CommandBufferList &secondaryCBs);
+    inline void beginRenderPassForJS(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const ColorList &colors, float depth, int stencil);
+
+    inline Queue *           getQueue() const { return _queue; }
+    inline CommandBufferType getType() const { return _type; }
 
     virtual uint getNumDrawCalls() const { return _numDrawCalls; }
     virtual uint getNumInstances() const { return _numInstances; }
     virtual uint getNumTris() const { return _numTriangles; }
 
 protected:
-    Device *_device = nullptr;
-    Queue *_queue = nullptr;
-    CommandBufferType _type = CommandBufferType::PRIMARY;
+    virtual void doInit(const CommandBufferInfo &info) = 0;
+    virtual void doDestroy()                           = 0;
+
+    Queue *           _queue = nullptr;
+    CommandBufferType _type  = CommandBufferType::PRIMARY;
 
     uint32_t _numDrawCalls = 0;
     uint32_t _numInstances = 0;
     uint32_t _numTriangles = 0;
 };
 
+//////////////////////////////////////////////////////////////////////////
+
+void CommandBuffer::begin() {
+    begin(nullptr, 0, nullptr);
+}
+
+void CommandBuffer::begin(RenderPass *renderPass) {
+    begin(renderPass, 0, nullptr);
+}
+
+void CommandBuffer::begin(RenderPass *renderPass, uint subpass) {
+    begin(renderPass, subpass, nullptr);
+}
+
+void CommandBuffer::updateBuffer(Buffer *buff, const void *data) {
+    updateBuffer(buff, data, buff->getSize());
+}
+
+void CommandBuffer::execute(CommandBufferList &cmdBuffs, uint32_t count) {
+    execute(cmdBuffs.data(), count);
+}
+
+void CommandBuffer::bindDescriptorSet(uint set, DescriptorSet *descriptorSet) {
+    bindDescriptorSet(set, descriptorSet, 0, nullptr);
+}
+
+void CommandBuffer::bindDescriptorSet(uint set, DescriptorSet *descriptorSet, const vector<uint> &dynamicOffsets) {
+    bindDescriptorSet(set, descriptorSet, static_cast<uint>(dynamicOffsets.size()), dynamicOffsets.data());
+}
+
+void CommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const ColorList &colors, float depth, int stencil, const CommandBufferList &secondaryCBs) {
+    beginRenderPass(renderPass, fbo, renderArea, colors.data(), depth, stencil, secondaryCBs.data(), static_cast<uint>(secondaryCBs.size()));
+}
+
+void CommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const ColorList &colors, float depth, int stencil) {
+    beginRenderPass(renderPass, fbo, renderArea, colors.data(), depth, stencil, nullptr, 0);
+}
+
+void CommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, int stencil) {
+    beginRenderPass(renderPass, fbo, renderArea, colors, depth, stencil, nullptr, 0);
+}
+
+void CommandBuffer::copyBuffersToTexture(const BufferDataList &buffers, Texture *texture, const BufferTextureCopyList &regions) {
+    copyBuffersToTexture(buffers.data(), texture, regions.data(), static_cast<uint>(regions.size()));
+}
+
+void CommandBuffer::blitTexture(Texture *srcTexture, Texture *dstTexture, const TextureBlitList &regions, Filter filter) {
+    blitTexture(srcTexture, dstTexture, regions.data(), static_cast<uint>(regions.size()), filter);
+}
+
+void CommandBuffer::pipelineBarrier(const GlobalBarrier *barrier) {
+    pipelineBarrier(barrier, nullptr, nullptr, 0u);
+}
+
+void CommandBuffer::pipelineBarrier(const GlobalBarrier *barrier, const TextureBarrierList &textureBarriers, const TextureList &textures) {
+    pipelineBarrier(barrier, textureBarriers.data(), textures.data(), static_cast<uint>(textureBarriers.size()));
+}
+
+void CommandBuffer::bindDescriptorSetForJS(uint set, DescriptorSet *descriptorSet) {
+    bindDescriptorSet(set, descriptorSet, 0, nullptr);
+}
+
+void CommandBuffer::bindDescriptorSetForJS(uint set, DescriptorSet *descriptorSet, const vector<uint> &dynamicOffsets) {
+    bindDescriptorSet(set, descriptorSet, static_cast<uint>(dynamicOffsets.size()), dynamicOffsets.data());
+}
+
+void CommandBuffer::beginRenderPassForJS(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const ColorList &colors, float depth, int stencil, const CommandBufferList &secondaryCBs) {
+    beginRenderPass(renderPass, fbo, renderArea, colors.data(), depth, stencil, secondaryCBs.data(), static_cast<uint>(secondaryCBs.size()));
+}
+
+void CommandBuffer::beginRenderPassForJS(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const ColorList &colors, float depth, int stencil) {
+    beginRenderPass(renderPass, fbo, renderArea, colors.data(), depth, stencil, nullptr, 0);
+}
+
 } // namespace gfx
 } // namespace cc
-
-#endif // CC_CORE_GFX_COMMAND_ALLOCATOR_H_

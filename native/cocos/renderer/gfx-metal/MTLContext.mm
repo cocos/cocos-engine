@@ -49,15 +49,15 @@ Format toFormat(MTLPixelFormat format) {
 }
 }
 
-CCMTLContext::CCMTLContext(Device *device)
-: Context(device) {
+CCMTLContext::CCMTLContext()
+: Context() {
 }
 
-bool CCMTLContext::initialize(const ContextInfo &info) {
+bool CCMTLContext::doInit(const ContextInfo &info) {
     _vsyncMode = info.vsyncMode;
     _windowHandle = info.windowHandle;
 
-    CCMTLDevice *device = static_cast<CCMTLDevice *>(_device);
+    CCMTLDevice *device = CCMTLDevice::getInstance();
     CAMetalLayer *layer = (CAMetalLayer *)device->getMTLLayer();
     _colorFmt = toFormat(layer.pixelFormat);
     id<MTLTexture> dssTex = (id<MTLTexture>)device->getDSSTexture();

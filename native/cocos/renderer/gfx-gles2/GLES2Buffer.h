@@ -35,21 +35,21 @@ class GLES2GPUBufferView;
 
 class CC_GLES2_API GLES2Buffer final : public Buffer {
 public:
-    GLES2Buffer(Device *device);
+    GLES2Buffer();
     ~GLES2Buffer();
 
-public:
-    bool initialize(const BufferInfo &info) override;
-    bool initialize(const BufferViewInfo &info) override;
-    void destroy() override;
-    void resize(uint size) override;
     void update(void *buffer, uint size) override;
 
     CC_INLINE GLES2GPUBuffer *gpuBuffer() const { return _gpuBuffer; }
     CC_INLINE GLES2GPUBufferView *gpuBufferView() const { return _gpuBufferView; }
 
-private:
-    GLES2GPUBuffer *_gpuBuffer = nullptr;
+protected:
+    void doInit(const BufferInfo &info) override;
+    void doInit(const BufferViewInfo &info) override;
+    void doDestroy() override;
+    void doResize(uint size) override;
+
+    GLES2GPUBuffer *    _gpuBuffer     = nullptr;
     GLES2GPUBufferView *_gpuBufferView = nullptr;
 };
 

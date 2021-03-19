@@ -23,10 +23,9 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#ifndef CC_GFXVULKAN_SPIRV_H_
-#define CC_GFXVULKAN_SPIRV_H_
+#pragma once
 
-#include "SPIRV/GlslangToSpv.h"
+#include "glslang/SPIRV/GlslangToSpv.h"
 #include "glslang/Public/ShaderLang.h"
 #include "StandAlone/ResourceLimits.h"
 
@@ -119,5 +118,3 @@ const vector<unsigned int> GLSL2SPIRV(ShaderStageFlagBit type, const String &sou
 
 } // namespace gfx
 } // namespace cc
-
-#endif

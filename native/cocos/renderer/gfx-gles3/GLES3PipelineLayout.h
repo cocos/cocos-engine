@@ -35,16 +35,15 @@ class GLES3GPUPipelineLayout;
 
 class CC_GLES3_API GLES3PipelineLayout final : public PipelineLayout {
 public:
-    GLES3PipelineLayout(Device *device);
+    GLES3PipelineLayout();
     ~GLES3PipelineLayout();
-
-public:
-    virtual bool initialize(const PipelineLayoutInfo &info) override;
-    virtual void destroy() override;
 
     CC_INLINE GLES3GPUPipelineLayout *gpuPipelineLayout() const { return _gpuPipelineLayout; }
 
-private:
+protected:
+    void doInit(const PipelineLayoutInfo &info) override;
+    void doDestroy() override;
+
     GLES3GPUPipelineLayout *_gpuPipelineLayout = nullptr;
 };
 

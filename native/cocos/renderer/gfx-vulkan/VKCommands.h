@@ -23,8 +23,7 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#ifndef CC_GFXVULKAN_COMMANDS_H_
-#define CC_GFXVULKAN_COMMANDS_H_
+#pragma once
 
 #include "VKGPUObjects.h"
 
@@ -85,5 +84,3 @@ CC_VULKAN_API void CCVKCmdFuncGlobalMemoryBarrier(const CCVKGPUCommandBuffer *gp
 
 } // namespace gfx
 } // namespace cc
-
-#endif

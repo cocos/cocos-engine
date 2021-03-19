@@ -23,8 +23,7 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#ifndef CC_GFXGLES2_INPUT_ASSEMBLER_H_
-#define CC_GFXGLES2_INPUT_ASSEMBLER_H_
+#pragma once
 
 #include "gfx-base/GFXInputAssembler.h"
 
@@ -36,22 +35,19 @@ class GLES2CmdDraw;
 
 class CC_GLES2_API GLES2InputAssembler final : public InputAssembler {
 public:
-    GLES2InputAssembler(Device *device);
+    GLES2InputAssembler();
     ~GLES2InputAssembler();
-
-public:
-    virtual bool initialize(const InputAssemblerInfo &info) override;
-    virtual void destroy() override;
 
     void ExtractCmdDraw(GLES2CmdDraw *cmd);
 
     CC_INLINE GLES2GPUInputAssembler *gpuInputAssembler() const { return _gpuInputAssembler; }
 
-private:
+protected:
+    void doInit(const InputAssemblerInfo &info) override;
+    void doDestroy() override;
+
     GLES2GPUInputAssembler *_gpuInputAssembler = nullptr;
 };
 
 } // namespace gfx
 } // namespace cc
-
-#endif

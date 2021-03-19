@@ -32,9 +32,8 @@
 namespace cc {
 namespace gfx {
 
-TextureBarrier::TextureBarrier(Device *device)
-: GFXObject(ObjectType::TEXTURE_BARRIER),
-  _device(device) {
+TextureBarrier::TextureBarrier()
+: GFXObject(ObjectType::TEXTURE_BARRIER) {
 }
 
 TextureBarrier::~TextureBarrier() {

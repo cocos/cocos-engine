@@ -91,8 +91,8 @@ void GL_APIENTRY GLES2EGLDebugProc(GLenum source,
 
 #endif
 
-GLES2Context::GLES2Context(Device *device)
-: Context(device) {
+GLES2Context::GLES2Context()
+: Context() {
 }
 
 GLES2Context::~GLES2Context() {
@@ -100,18 +100,18 @@ GLES2Context::~GLES2Context() {
 
 #if (CC_PLATFORM == CC_PLATFORM_WINDOWS || CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_MAC_OSX)
 
-bool GLES2Context::initialize(const ContextInfo &info) {
+bool GLES2Context::doInit(const ContextInfo &info) {
 
     _vsyncMode = info.vsyncMode;
     _windowHandle = info.windowHandle;
 
     //////////////////////////////////////////////////////////////////////////
 
-    if (!gles2wInit()) {
-        return false;
-    }
-
     if (!info.sharedCtx) {
+        if (!gles2wInit()) {
+            return false;
+        }
+
         _isPrimaryContex = true;
         _windowHandle = info.windowHandle;
 
@@ -216,8 +216,8 @@ bool GLES2Context::initialize(const ContextInfo &info) {
             return false;
         }
 
-        uint width = _device->getWidth();
-        uint height = _device->getHeight();
+        uint width = GLES2Device::getInstance()->getWidth();
+        uint height = GLES2Device::getInstance()->getHeight();
         ANativeWindow_setBuffersGeometry((ANativeWindow *)_windowHandle, width, height, nFmt);
     #endif
 
@@ -260,26 +260,25 @@ bool GLES2Context::initialize(const ContextInfo &info) {
             return false;
         }
 
-        _eglSharedContext = _eglContext;
-
-    #if (CC_PLATFORM == CC_PLATFORM_ANDROID)
-        EventDispatcher::addCustomEventListener(EVENT_DESTROY_WINDOW, [=](const CustomEvent &) -> void {
+#if (CC_PLATFORM == CC_PLATFORM_ANDROID)
+        EventDispatcher::addCustomEventListener(EVENT_DESTROY_WINDOW, [=](const CustomEvent & /*unused*/) -> void {
             if (_eglSurface != EGL_NO_SURFACE) {
                 eglDestroySurface(_eglDisplay, _eglSurface);
                 _eglSurface = EGL_NO_SURFACE;
             }
         });
 
+        // guaranteed to be invoked in the order they were added
         EventDispatcher::addCustomEventListener(EVENT_RECREATE_WINDOW, [=](const CustomEvent &event) -> void {
             _windowHandle = (uintptr_t)event.args->ptrVal;
 
-            EGLint nFmt;
+            EGLint nFmt = 0;
             if (eglGetConfigAttrib(_eglDisplay, _eglConfig, EGL_NATIVE_VISUAL_ID, &nFmt) == EGL_FALSE) {
                 CC_LOG_ERROR("Getting configuration attributes failed.");
                 return;
             }
-            uint width = _device->getWidth();
-            uint height = _device->getHeight();
+            uint width = GLES2Device::getInstance()->getWidth();
+            uint height = GLES2Device::getInstance()->getHeight();
             ANativeWindow_setBuffersGeometry((ANativeWindow *)_windowHandle, width, height, nFmt);
 
             EGL_CHECK(_eglSurface = eglCreateWindowSurface(_eglDisplay, _eglConfig, (EGLNativeWindowType)_windowHandle, NULL));
@@ -288,14 +287,12 @@ bool GLES2Context::initialize(const ContextInfo &info) {
                 return;
             }
 
-            ((GLES2Context *)_device->getContext())->MakeCurrent();
-            ((GLES2Device *)_device)->stateCache()->reset();
+            ((GLES2Context *)GLES2Device::getInstance()->getContext())->MakeCurrent();
+            GLES2Device::getInstance()->stateCache()->reset();
         });
-    #endif
+#endif
 
-        if (!gles2wInit()) {
-            return false;
-        }
+        _eglSharedContext = _eglContext;
 
     } else {
         GLES2Context *sharedCtx = (GLES2Context *)info.sharedCtx;
@@ -351,7 +348,7 @@ bool GLES2Context::initialize(const ContextInfo &info) {
     return true;
 }
 
-void GLES2Context::destroy() {
+void GLES2Context::doDestroy() {
     EGL_CHECK(eglMakeCurrent(_eglDisplay, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT));
 
     if (_eglContext != EGL_NO_CONTEXT) {
@@ -359,21 +356,23 @@ void GLES2Context::destroy() {
         _eglContext = EGL_NO_CONTEXT;
     }
 
-    if (_isPrimaryContex && _eglSurface != EGL_NO_SURFACE) {
-        EGL_CHECK(eglDestroySurface(_eglDisplay, _eglSurface));
-        _eglSurface = EGL_NO_SURFACE;
-    }
+    if (_isPrimaryContex) {
+        if (_eglSurface != EGL_NO_SURFACE) {
+            EGL_CHECK(eglDestroySurface(_eglDisplay, _eglSurface));
+            _eglSurface = EGL_NO_SURFACE;
+        }
 
-    if (_eglDisplay != EGL_NO_DISPLAY) {
-        EGL_CHECK(eglTerminate(_eglDisplay));
-        _eglDisplay = EGL_NO_DISPLAY;
-    }
+        if (_eglDisplay != EGL_NO_DISPLAY) {
+            EGL_CHECK(eglTerminate(_eglDisplay));
+            _eglDisplay = EGL_NO_DISPLAY;
+        }
 
     #if (CC_PLATFORM == CC_PLATFORM_WINDOWS)
-    if (_isPrimaryContex && _nativeDisplay) {
-        ReleaseDC((HWND)_windowHandle, _nativeDisplay);
-    }
+        if (_nativeDisplay) {
+            ReleaseDC((HWND)_windowHandle, _nativeDisplay);
+        }
     #endif
+    }
 
     _isPrimaryContex = false;
     _windowHandle = 0;

@@ -32,17 +32,14 @@
 namespace cc {
 namespace gfx {
 
-GLES3PipelineLayout::GLES3PipelineLayout(Device *device)
-: PipelineLayout(device) {
+GLES3PipelineLayout::GLES3PipelineLayout()
+: PipelineLayout() {
 }
 
 GLES3PipelineLayout::~GLES3PipelineLayout() {
 }
 
-bool GLES3PipelineLayout::initialize(const PipelineLayoutInfo &info) {
-
-    _setLayouts = info.setLayouts;
-
+void GLES3PipelineLayout::doInit(const PipelineLayoutInfo &info) {
     _gpuPipelineLayout = CC_NEW(GLES3GPUPipelineLayout);
 
     uint offset = 0u;
@@ -66,11 +63,9 @@ bool GLES3PipelineLayout::initialize(const PipelineLayoutInfo &info) {
     _gpuPipelineLayout->dynamicOffsetOffsets.push_back(offset);
     _gpuPipelineLayout->dynamicOffsetCount = offset;
     _gpuPipelineLayout->dynamicOffsets.resize(offset);
-
-    return true;
 }
 
-void GLES3PipelineLayout::destroy() {
+void GLES3PipelineLayout::doDestroy() {
 
     if (_gpuPipelineLayout) {
         CC_DELETE(_gpuPipelineLayout);

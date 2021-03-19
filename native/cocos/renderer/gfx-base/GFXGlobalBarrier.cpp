@@ -31,9 +31,8 @@
 namespace cc {
 namespace gfx {
 
-GlobalBarrier::GlobalBarrier(Device *device)
-: GFXObject(ObjectType::GLOBAL_BARRIER),
-  _device(device) {
+GlobalBarrier::GlobalBarrier()
+: GFXObject(ObjectType::GLOBAL_BARRIER) {
 }
 
 GlobalBarrier::~GlobalBarrier() {

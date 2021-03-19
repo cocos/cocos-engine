@@ -33,17 +33,14 @@
 namespace cc {
 namespace gfx {
 
-CCVKPipelineLayout::CCVKPipelineLayout(Device *device)
-: PipelineLayout(device) {
+CCVKPipelineLayout::CCVKPipelineLayout()
+: PipelineLayout() {
 }
 
 CCVKPipelineLayout::~CCVKPipelineLayout() {
 }
 
-bool CCVKPipelineLayout::initialize(const PipelineLayoutInfo &info) {
-
-    _setLayouts = info.setLayouts;
-
+void CCVKPipelineLayout::doInit(const PipelineLayoutInfo &info) {
     _gpuPipelineLayout = CC_NEW(CCVKGPUPipelineLayout);
 
     int offset = 0u;
@@ -59,15 +56,12 @@ bool CCVKPipelineLayout::initialize(const PipelineLayoutInfo &info) {
     _gpuPipelineLayout->dynamicOffsetOffsets.push_back(offset);
     _gpuPipelineLayout->dynamicOffsetCount = offset;
 
-    CCVKCmdFuncCreatePipelineLayout((CCVKDevice *)_device, _gpuPipelineLayout);
-
-    return true;
+    CCVKCmdFuncCreatePipelineLayout(CCVKDevice::getInstance(), _gpuPipelineLayout);
 }
 
-void CCVKPipelineLayout::destroy() {
-
+void CCVKPipelineLayout::doDestroy() {
     if (_gpuPipelineLayout) {
-        ((CCVKDevice *)_device)->gpuRecycleBin()->collect(_gpuPipelineLayout);
+        CCVKDevice::getInstance()->gpuRecycleBin()->collect(_gpuPipelineLayout);
         _gpuPipelineLayout = nullptr;
     }
 }

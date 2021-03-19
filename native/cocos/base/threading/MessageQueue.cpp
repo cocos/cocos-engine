@@ -88,15 +88,15 @@ void MessageQueue::MemoryAllocator::free(uint8_t *const chunk) noexcept {
 MessageQueue::MessageQueue() {
     uint8_t *const chunk = MemoryAllocator::getInstance().request();
 
-    _writer._currentMemoryChunk = chunk;
-    _reader._currentMemoryChunk = chunk;
+    _writer.currentMemoryChunk = chunk;
+    _reader.currentMemoryChunk = chunk;
 
     // sentinel node will not be executed
     Message *const msg = allocate<DummyMessage>(1);
     pushMessages();
     pullMessages();
-    _reader._lastMessage = msg;
-    --_reader._newMessageCount;
+    _reader.lastMessage = msg;
+    --_reader.newMessageCount;
 }
 
 void MessageQueue::kick() noexcept {
@@ -119,9 +119,10 @@ void MessageQueue::kickAndWait() noexcept {
 }
 
 void MessageQueue::runConsumerThread() noexcept {
-    if (_workerAttached) {
-        return;
-    }
+    if (_immediateMode || _workerAttached) return;
+
+    _reader.terminateConsumerThread = false;
+    _reader.flushingFinished        = false;
 
     std::thread consumerThread(&MessageQueue::consumerThreadLoop, this);
     consumerThread.detach();
@@ -129,9 +130,7 @@ void MessageQueue::runConsumerThread() noexcept {
 }
 
 void MessageQueue::terminateConsumerThread() noexcept {
-    if (!_workerAttached) {
-        return;
-    }
+    if (_immediateMode || !_workerAttached) return;
 
     EventSem        event;
     EventSem *const pEvent = &event;
@@ -146,7 +145,7 @@ void MessageQueue::terminateConsumerThread() noexcept {
 
 void MessageQueue::finishWriting(bool wait) noexcept {
     if (!_immediateMode) {
-        bool *const flushingFinished = &_reader._flushingFinished;
+        bool *const flushingFinished = &_reader.flushingFinished;
 
         ENQUEUE_MESSAGE_1(this, finishWriting,
                           flushingFinished, flushingFinished,
@@ -174,22 +173,22 @@ uint8_t *MessageQueue::allocateImpl(uint32_t &allocatedSize, uint32_t const requ
     uint32_t const alignedSize = align(requestSize, 16);
     assert(alignedSize + SWITCH_CHUNK_MEMORY_REQUIREMENT <= MEMORY_CHUNK_SIZE); // exceeds the block size
 
-    uint32_t const newOffset = _writer._offset + alignedSize;
+    uint32_t const newOffset = _writer.offset + alignedSize;
 
     if (newOffset + SWITCH_CHUNK_MEMORY_REQUIREMENT <= MEMORY_CHUNK_SIZE) {
         allocatedSize                  = alignedSize;
-        uint8_t *const allocatedMemory = _writer._currentMemoryChunk + _writer._offset;
-        _writer._offset                = newOffset;
+        uint8_t *const allocatedMemory = _writer.currentMemoryChunk + _writer.offset;
+        _writer.offset                 = newOffset;
         return allocatedMemory;
     } else {
         uint8_t *const                  newChunk      = MessageQueue::MemoryAllocator::getInstance().request();
-        MemoryChunkSwitchMessage *const switchMessage = reinterpret_cast<MemoryChunkSwitchMessage *>(_writer._currentMemoryChunk + _writer._offset);
-        new (switchMessage) MemoryChunkSwitchMessage(this, newChunk, _writer._currentMemoryChunk);
+        MemoryChunkSwitchMessage *const switchMessage = reinterpret_cast<MemoryChunkSwitchMessage *>(_writer.currentMemoryChunk + _writer.offset);
+        new (switchMessage) MemoryChunkSwitchMessage(this, newChunk, _writer.currentMemoryChunk);
         switchMessage->_next = reinterpret_cast<Message *>(newChunk); // point to start position
-        _writer._lastMessage = switchMessage;
-        ++_writer._pendingMessageCount;
-        _writer._currentMemoryChunk = newChunk;
-        _writer._offset             = 0;
+        _writer.lastMessage  = switchMessage;
+        ++_writer.pendingMessageCount;
+        _writer.currentMemoryChunk = newChunk;
+        _writer.offset             = 0;
 
         DummyMessage *const head = allocate<DummyMessage>(1);
         new (head) DummyMessage;
@@ -197,7 +196,7 @@ uint8_t *MessageQueue::allocateImpl(uint32_t &allocatedSize, uint32_t const requ
         if (_immediateMode) {
             pushMessages();
             pullMessages();
-            assert(_reader._newMessageCount == 2);
+            assert(_reader.newMessageCount == 2);
             executeMessages();
             executeMessages();
         }
@@ -207,22 +206,22 @@ uint8_t *MessageQueue::allocateImpl(uint32_t &allocatedSize, uint32_t const requ
 }
 
 void MessageQueue::pushMessages() noexcept {
-    _writer._writtenMessageCount.fetch_add(_writer._pendingMessageCount, std::memory_order_acq_rel);
-    _writer._pendingMessageCount = 0;
+    _writer.writtenMessageCount.fetch_add(_writer.pendingMessageCount, std::memory_order_acq_rel);
+    _writer.pendingMessageCount = 0;
 }
 
 void MessageQueue::pullMessages() noexcept {
-    uint32_t const writtenMessageCountNew = _writer._writtenMessageCount.load(std::memory_order_acquire);
-    _reader._newMessageCount += writtenMessageCountNew - _reader._writtenMessageCountSnap;
-    _reader._writtenMessageCountSnap = writtenMessageCountNew;
+    uint32_t const writtenMessageCountNew = _writer.writtenMessageCount.load(std::memory_order_acquire);
+    _reader.newMessageCount += writtenMessageCountNew - _reader.writtenMessageCountSnap;
+    _reader.writtenMessageCountSnap = writtenMessageCountNew;
 }
 
 void MessageQueue::flushMessages() noexcept {
-    while (!_reader._flushingFinished) {
+    while (!_reader.flushingFinished) {
         executeMessages();
     }
 
-    _reader._flushingFinished = false;
+    _reader.flushingFinished = false;
 }
 
 void MessageQueue::executeMessages() noexcept {
@@ -246,15 +245,15 @@ Message *MessageQueue::readMessage() noexcept {
         }
     }
 
-    Message *const msg   = _reader._lastMessage->getNext();
-    _reader._lastMessage = msg;
-    --_reader._newMessageCount;
+    Message *const msg  = _reader.lastMessage->getNext();
+    _reader.lastMessage = msg;
+    --_reader.newMessageCount;
     assert(msg);
     return msg;
 }
 
 void MessageQueue::consumerThreadLoop() noexcept {
-    while (!_reader._terminateConsumerThread) {
+    while (!_reader.terminateConsumerThread) {
         flushMessages();
     }
 
@@ -276,7 +275,7 @@ MemoryChunkSwitchMessage::~MemoryChunkSwitchMessage() {
 }
 
 void MemoryChunkSwitchMessage::execute() noexcept {
-    _messageQueue->_reader._currentMemoryChunk = _newChunk;
+    _messageQueue->_reader.currentMemoryChunk = _newChunk;
     _messageQueue->pullMessages();
 }
 
@@ -290,8 +289,8 @@ TerminateConsumerThreadMessage::TerminateConsumerThreadMessage(EventSem *const p
 }
 
 void TerminateConsumerThreadMessage::execute() noexcept {
-    _reader->_terminateConsumerThread = true;
-    _reader->_flushingFinished        = true;
+    _reader->terminateConsumerThread = true;
+    _reader->flushingFinished        = true;
     _event->signal();
 }
 

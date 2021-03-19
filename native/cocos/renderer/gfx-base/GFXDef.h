@@ -23,8 +23,7 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#ifndef CC_CORE_GFX_DEF_H_
-#define CC_CORE_GFX_DEF_H_
+#pragma once
 
 #include "GFXDef-common.h"
 
@@ -61,23 +60,7 @@ struct DeviceInfo {
     uint               height       = 0;
     uint               nativeWidth  = 0;
     uint               nativeHeight = 0;
-    Context *          sharedCtx    = nullptr;
     BindingMappingInfo bindingMappingInfo;
-};
-
-struct WindowInfo {
-    String      title;
-    int         left            = 0;
-    int         top             = 0;
-    uint        width           = 800;
-    uint        height          = 600;
-    Format      colorFmt        = Format::UNKNOWN;
-    Format      depthStencilFmt = Format::UNKNOWN;
-    bool        isOffscreen     = false;
-    bool        isFullscreen    = false;
-    VsyncMode   vsyncMode       = VsyncMode::OFF;
-    uintptr_t   windowHandle    = 0;
-    RenderPass *renderPass      = nullptr;
 };
 
 struct ContextInfo {
@@ -100,5 +83,3 @@ extern uint FormatSurfaceSize(Format format, uint width, uint height, uint depth
 
 } // namespace gfx
 } // namespace cc
-
-#endif // CC_CORE_GFX_DEF_H_

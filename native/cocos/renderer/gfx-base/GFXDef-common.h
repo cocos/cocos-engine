@@ -23,8 +23,7 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#ifndef CC_CORE_GFX_DEF_COMMON_H_
-#define CC_CORE_GFX_DEF_COMMON_H_
+#pragma once
 
 #include "base/TypeDef.h"
 #include "base/memory/Memory.h"
@@ -401,8 +400,7 @@ using BufferUsage = BufferUsageBit;
 CC_ENUM_OPERATORS(BufferUsageBit);
 
 enum class BufferFlagBit : FlagBits {
-    NONE         = 0,
-    BAKUP_BUFFER = 0x4,
+    NONE = 0,
 };
 using BufferFlags = BufferFlagBit;
 CC_ENUM_OPERATORS(BufferFlagBit);
@@ -449,8 +447,7 @@ CC_ENUM_OPERATORS(TextureUsageBit);
 enum class TextureFlagBit : FlagBits {
     NONE         = 0,
     GEN_MIPMAP   = 0x1,
-    BAKUP_BUFFER = 0x2,
-    IMMUTABLE    = 0x4,
+    IMMUTABLE    = 0x2,
 };
 using TextureFlags = TextureFlagBit;
 CC_ENUM_OPERATORS(TextureFlagBit);
@@ -717,13 +714,15 @@ struct DeviceCaps {
     uint  maxUniformBlockSize            = 0u;
     uint  maxTextureSize                 = 0u;
     uint  maxCubeMapTextureSize          = 0u;
-    uint  uboOffsetAlignment             = 0u;
     uint  depthBits                      = 0u;
     uint  stencilBits                    = 0u;
+    uint  uboOffsetAlignment             = 1u;
+
     uint  maxComputeSharedMemorySize     = 0u;
     uint  maxComputeWorkGroupInvocations = 0u;
     Size  maxComputeWorkGroupSize;
     Size  maxComputeWorkGroupCount;
+
     float clipSpaceMinZ    = -1.0f;
     float screenSpaceSignY = 1.0f;
     float UVSpaceSignY     = -1.0f;
@@ -1237,5 +1236,3 @@ struct MemoryStatus {
 
 } // namespace gfx
 } // namespace cc
-
-#endif // CC_CORE_GFX_DEF_COMMON_H_

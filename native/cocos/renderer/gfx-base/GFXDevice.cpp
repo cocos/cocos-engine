@@ -41,23 +41,10 @@ Device *Device::getInstance() {
 Device::Device() {
     Device::_instance = this;
     memset(_features, 0, sizeof(_features));
-    //EventDispatcher::addCustomEventListener(EVENT_RESTART_VM, [=](const CustomEvent&) -> void {
-    //    // FIXME: wait & flush all pending gfx commands
-    //    Device::_instance->destroy();
-    //});
 }
 
 Device::~Device() {
-    // On Android, engine will check vulkan, gles3, gles2 compatibility in sequence.
-    // Device::_instance will be the supported device, it may not be equal to this.
-    // For example, if a vulkan is not supported and gles3 is supported by a Android
-    // device. Then the function invoking sequence is:
-    // - new VKDevice() -> Device::_instance == VKDevice
-    // - GLES3Device() -> Device::_instance == GLES3Device
-    // delete VKDevice -> Device::_instance != this
-    if (this == Device::_instance) {
-        Device::_instance = nullptr;
-    }
+    Device::_instance = nullptr;
 }
 
 Format Device::getColorFormat() const {
@@ -66,6 +53,32 @@ Format Device::getColorFormat() const {
 
 Format Device::getDepthStencilFormat() const {
     return _context->getDepthStencilFormat();
+}
+
+bool Device::initialize(const DeviceInfo &info) {
+    _width        = info.width;
+    _height       = info.height;
+    _nativeWidth  = info.nativeWidth;
+    _nativeHeight = info.nativeHeight;
+    _windowHandle = info.windowHandle;
+
+    _bindingMappingInfo = info.bindingMappingInfo;
+    if (_bindingMappingInfo.bufferOffsets.empty()) {
+        _bindingMappingInfo.bufferOffsets.push_back(0);
+    }
+    if (_bindingMappingInfo.samplerOffsets.empty()) {
+        _bindingMappingInfo.samplerOffsets.push_back(0);
+    }
+
+    return doInit(info);
+}
+
+void Device::destroy() {
+    doDestroy();
+
+    _bindingMappingInfo.bufferOffsets.clear();
+    _bindingMappingInfo.samplerOffsets.clear();
+    _width = _height = _nativeWidth = _nativeHeight = _windowHandle = 0u;
 }
 
 } // namespace gfx

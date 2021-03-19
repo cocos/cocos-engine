@@ -38,24 +38,17 @@
 namespace cc {
 namespace gfx {
 
-CCVKDescriptorSet::CCVKDescriptorSet(Device *device)
-: DescriptorSet(device) {
+CCVKDescriptorSet::CCVKDescriptorSet()
+: DescriptorSet() {
 }
 
 CCVKDescriptorSet::~CCVKDescriptorSet() {
 }
 
-bool CCVKDescriptorSet::initialize(const DescriptorSetInfo &info) {
-
-    _layout = info.layout;
-
+void CCVKDescriptorSet::doInit(const DescriptorSetInfo &info) {
     CCVKGPUDescriptorSetLayout *gpuDescriptorSetLayout = ((CCVKDescriptorSetLayout *)_layout)->gpuDescriptorSetLayout();
     const uint                  bindingCount           = gpuDescriptorSetLayout->bindings.size();
     const uint                  descriptorCount        = gpuDescriptorSetLayout->descriptorCount;
-
-    _buffers.resize(descriptorCount);
-    _textures.resize(descriptorCount);
-    _samplers.resize(descriptorCount);
 
     _gpuDescriptorSet = CC_NEW(CCVKGPUDescriptorSet);
     _gpuDescriptorSet->gpuDescriptors.resize(descriptorCount, {});
@@ -96,7 +89,7 @@ bool CCVKDescriptorSet::initialize(const DescriptorSetInfo &info) {
         }
     }
 
-    CCVKGPUDevice *gpuDevice     = ((CCVKDevice *)_device)->gpuDevice();
+    CCVKGPUDevice *gpuDevice     = CCVKDevice::getInstance()->gpuDevice();
     _gpuDescriptorSet->gpuLayout = gpuDescriptorSetLayout;
     _gpuDescriptorSet->instances.resize(gpuDevice->backBufferCount);
 
@@ -158,13 +151,11 @@ bool CCVKDescriptorSet::initialize(const DescriptorSetInfo &info) {
             }
         }
     }
-
-    return true;
 }
 
-void CCVKDescriptorSet::destroy() {
+void CCVKDescriptorSet::doDestroy() {
     if (_gpuDescriptorSet) {
-        CCVKGPUDescriptorHub *      descriptorHub          = ((CCVKDevice *)_device)->gpuDescriptorHub();
+        CCVKGPUDescriptorHub *      descriptorHub          = CCVKDevice::getInstance()->gpuDescriptorHub();
         CCVKGPUDescriptorSetLayout *gpuDescriptorSetLayout = ((CCVKDescriptorSetLayout *)_layout)->gpuDescriptorSetLayout();
 
         for (size_t t = 0u; t < _gpuDescriptorSet->instances.size(); ++t) {
@@ -190,22 +181,17 @@ void CCVKDescriptorSet::destroy() {
             }
         }
 
-        ((CCVKDevice *)_device)->gpuDescriptorSetHub()->erase(_gpuDescriptorSet);
+        CCVKDevice::getInstance()->gpuDescriptorSetHub()->erase(_gpuDescriptorSet);
 
         CC_DELETE(_gpuDescriptorSet);
         _gpuDescriptorSet = nullptr;
     }
-
-    // do remember to clear these or else it might not be properly updated when reused
-    _buffers.clear();
-    _textures.clear();
-    _samplers.clear();
 }
 
 void CCVKDescriptorSet::update() {
     if (_isDirty && _gpuDescriptorSet) {
-        CCVKGPUDescriptorHub * descriptorHub   = ((CCVKDevice *)_device)->gpuDescriptorHub();
-        CCVKGPUBarrierManager *layoutMgr       = ((CCVKDevice *)_device)->gpuBarrierManager();
+        CCVKGPUDescriptorHub * descriptorHub   = CCVKDevice::getInstance()->gpuDescriptorHub();
+        CCVKGPUBarrierManager *layoutMgr       = CCVKDevice::getInstance()->gpuBarrierManager();
         uint                   descriptorCount = _gpuDescriptorSet->gpuDescriptors.size();
 
         for (size_t i = 0u; i < descriptorCount; i++) {
@@ -266,7 +252,7 @@ void CCVKDescriptorSet::update() {
                 }
             }
         }
-        ((CCVKDevice *)_device)->gpuDescriptorSetHub()->record(_gpuDescriptorSet);
+        CCVKDevice::getInstance()->gpuDescriptorSetHub()->record(_gpuDescriptorSet);
         _isDirty = false;
     }
 }

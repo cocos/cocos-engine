@@ -32,13 +32,41 @@
 namespace cc {
 namespace gfx {
 
-Shader::Shader(Device *device)
-: GFXObject(ObjectType::SHADER),
-  _device(device) {
+Shader::Shader()
+: GFXObject(ObjectType::SHADER) {
     _shaderID = generateShaderID();
 }
 
 Shader::~Shader() {
+}
+
+void Shader::initialize(const ShaderInfo &info) {
+    _name            = info.name;
+    _stages          = info.stages;
+    _attributes      = info.attributes;
+    _blocks          = info.blocks;
+    _buffers         = info.buffers;
+    _samplerTextures = info.samplerTextures;
+    _samplers        = info.samplers;
+    _textures        = info.textures;
+    _images          = info.images;
+    _subpassInputs   = info.subpassInputs;
+
+    doInit(info);
+}
+
+void Shader::destroy() {
+    doDestroy();
+
+    _stages.clear();
+    _attributes.clear();
+    _blocks.clear();
+    _buffers.clear();
+    _samplerTextures.clear();
+    _samplers.clear();
+    _textures.clear();
+    _images.clear();
+    _subpassInputs.clear();
 }
 
 } // namespace gfx

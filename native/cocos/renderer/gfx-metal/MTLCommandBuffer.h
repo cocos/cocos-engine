@@ -42,18 +42,14 @@ class CCMTLRenderPass;
 class CCMTLFence;
 
 class CCMTLCommandBuffer final : public CommandBuffer {
-    friend class CCMTLQueue;
-
 public:
-    explicit CCMTLCommandBuffer(Device *device);
+    explicit CCMTLCommandBuffer();
     ~CCMTLCommandBuffer() override = default;
     CCMTLCommandBuffer(const CCMTLCommandBuffer &) = delete;
     CCMTLCommandBuffer(CCMTLCommandBuffer &&) = delete;
     CCMTLCommandBuffer &operator=(const CCMTLCommandBuffer &) = delete;
     CCMTLCommandBuffer &operator=(CCMTLCommandBuffer &&) = delete;
 
-    bool initialize(const CommandBufferInfo &info) override;
-    void destroy() override;
     void begin(RenderPass *renderPass, uint subpass, Framebuffer *frameBuffer) override;
     void end() override;
     void beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, int stencil, CommandBuffer *const *secondaryCBs, uint secondaryCBCount) override;
@@ -80,7 +76,12 @@ public:
     CC_INLINE bool isCommandBufferBegan() const { return _commandBufferBegan; }
     CC_INLINE id<MTLCommandBuffer> getMTLCommandBuffer() const { return _mtlCommandBuffer; }
 
-private:
+protected:
+    friend class CCMTLQueue;
+
+    void doInit(const CommandBufferInfo &info) override;
+    void doDestroy() override;
+
     void bindDescriptorSets();
     static bool isRenderingEntireDrawable(const Rect &rect, const CCMTLRenderPass *renderPass);
 

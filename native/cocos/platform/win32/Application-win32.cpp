@@ -27,30 +27,31 @@
 
 #include "platform/Application.h"
 #include "platform/StdC.h" // need it to include Windows.h
-#include <algorithm>
-#include <memory>
-#include <sstream>
-#include <array>
-#include <shellapi.h>
-#include <MMSystem.h>
+
+#include "audio/include/AudioEngine.h"
+#include "base/AutoreleasePool.h"
+#include "base/Scheduler.h"
+#include "cocos/bindings/event/EventDispatcher.h"
+#include "cocos/bindings/jswrapper/SeApi.h"
 #include "platform/FileUtils.h"
 #include "platform/win32/View-win32.h"
-#include "cocos/bindings/jswrapper/SeApi.h"
-#include "cocos/bindings/event/EventDispatcher.h"
-#include "base/Scheduler.h"
-#include "base/AutoreleasePool.h"
-#include "audio/include/AudioEngine.h"
+#include <MMSystem.h>
+#include <algorithm>
+#include <array>
+#include <memory>
+#include <shellapi.h>
+#include <sstream>
 
 extern std::shared_ptr<cc::View> cc_get_application_view();
 
 namespace cc {
 
-Application *Application::_instance = nullptr;
+Application *              Application::_instance  = nullptr;
 std::shared_ptr<Scheduler> Application::_scheduler = nullptr;
 
 Application::Application(int width, int height) {
     Application::_instance = this;
-    _scheduler = std::make_shared<Scheduler>();
+    _scheduler             = std::make_shared<Scheduler>();
 
     FileUtils::getInstance()->addSearchPath("Resources", true);
 
@@ -84,14 +85,14 @@ void Application::setPreferredFramesPerSecond(int fps) {
     if (fps == 0)
         return;
 
-    _fps = fps;
+    _fps                            = fps;
     _prefererredNanosecondsPerFrame = (long)(1.0 / _fps * NANOSECONDS_PER_SECOND);
 }
 
 Application::LanguageType Application::getCurrentLanguage() const {
     LanguageType ret = LanguageType::ENGLISH;
 
-    LCID localeID = GetUserDefaultLCID();
+    LCID           localeID          = GetUserDefaultLCID();
     unsigned short primaryLanguageID = localeID & 0xFF;
 
     switch (primaryLanguageID) {
@@ -158,9 +159,9 @@ Application::LanguageType Application::getCurrentLanguage() const {
 }
 
 std::string Application::getCurrentLanguageCode() const {
-    LANGID lid = GetUserDefaultUILanguage();
+    LANGID     lid       = GetUserDefaultUILanguage();
     const LCID locale_id = MAKELCID(lid, SORT_DEFAULT);
-    int length = GetLocaleInfoA(locale_id, LOCALE_SISO639LANGNAME, nullptr, 0);
+    int        length    = GetLocaleInfoA(locale_id, LOCALE_SISO639LANGNAME, nullptr, 0);
 
     char *tempCode = new char[length];
     GetLocaleInfoA(locale_id, LOCALE_SISO639LANGNAME, tempCode, length);
@@ -172,15 +173,15 @@ std::string Application::getCurrentLanguageCode() const {
 
 bool Application::isDisplayStats() {
     se::AutoHandleScope hs;
-    se::Value ret;
-    char commandBuf[100] = "cc.profiler.isShowingStats();";
+    se::Value           ret;
+    char                commandBuf[100] = "cc.profiler.isShowingStats();";
     se::ScriptEngine::getInstance()->evalString(commandBuf, 100, &ret);
     return ret.toBoolean();
 }
 
 void Application::setDisplayStats(bool isShow) {
     se::AutoHandleScope hs;
-    char commandBuf[100] = {0};
+    char                commandBuf[100] = {0};
     sprintf(commandBuf, isShow ? "cc.profiler.showStats();" : "cc.profiler.hideStats();");
     se::ScriptEngine::getInstance()->evalString(commandBuf);
 }
@@ -194,9 +195,9 @@ Application::Platform Application::getPlatform() const {
 }
 
 bool Application::openURL(const std::string &url) {
-    WCHAR *temp = new WCHAR[url.size() + 1];
-    int wchars_num = MultiByteToWideChar(CP_UTF8, 0, url.c_str(), url.size() + 1, temp, url.size() + 1);
-    HINSTANCE r = ShellExecuteW(NULL, L"open", temp, NULL, NULL, SW_SHOWNORMAL);
+    WCHAR *   temp       = new WCHAR[url.size() + 1];
+    int       wchars_num = MultiByteToWideChar(CP_UTF8, 0, url.c_str(), url.size() + 1, temp, url.size() + 1);
+    HINSTANCE r          = ShellExecuteW(NULL, L"open", temp, NULL, NULL, SW_SHOWNORMAL);
     delete[] temp;
     return (size_t)r > 32;
 }

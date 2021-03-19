@@ -35,16 +35,15 @@ class CCVKGPUDescriptorSetLayout;
 
 class CC_VULKAN_API CCVKDescriptorSetLayout final : public DescriptorSetLayout {
 public:
-    CCVKDescriptorSetLayout(Device *device);
+    CCVKDescriptorSetLayout();
     ~CCVKDescriptorSetLayout();
-
-public:
-    virtual bool initialize(const DescriptorSetLayoutInfo &info) override;
-    virtual void destroy() override;
 
     CC_INLINE CCVKGPUDescriptorSetLayout *gpuDescriptorSetLayout() const { return _gpuDescriptorSetLayout; }
 
-private:
+protected:
+    void doInit(const DescriptorSetLayoutInfo &info) override;
+    void doDestroy() override;
+
     CCVKGPUDescriptorSetLayout *_gpuDescriptorSetLayout = nullptr;
 };
 

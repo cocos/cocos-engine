@@ -27,8 +27,8 @@
 
 #include <functional>
 
-#include "base/Value.h"
 #include "base/Object.h"
+#include "base/Value.h"
 #include "gfx-base/GFXDef.h"
 
 namespace cc {
@@ -189,6 +189,9 @@ enum class CC_DLL PipelineGlobalBindings {
     COUNT,
 };
 
+extern CC_DLL int GLOBAL_UBO_COUNT;
+extern CC_DLL int GLOBAL_SAMPLER_COUNT;
+
 enum class CC_DLL ModelLocalBindings {
     UBO_LOCAL,
     UBO_FORWARD_LIGHTS,
@@ -205,6 +208,21 @@ enum class CC_DLL ModelLocalBindings {
 
     COUNT,
 };
+
+extern CC_DLL int LOCAL_UBO_COUNT;
+extern CC_DLL int LOCAL_SAMPLER_COUNT;
+
+enum class CC_DLL SetIndex {
+    GLOBAL,
+    MATERIAL,
+    LOCAL,
+};
+
+extern CC_DLL uint GLOBAL_SET;
+extern CC_DLL uint MATERIAL_SET;
+extern CC_DLL uint LOCAL_SET;
+
+extern CC_DLL gfx::BindingMappingInfo bindingMappingInfo;
 
 struct CC_DLL UBOLocalBatched {
     static constexpr uint                        BATCHING_COUNT    = 10;
@@ -408,15 +426,7 @@ const uint CAMERA_DEFAULT_MASK = ~static_cast<uint>(LayerList::UI_2D) & ~static_
 //constexpr CAMERA_DEFAULT_MASK = Layers.makeMaskExclude([Layers.BitMask.UI_2D, Layers.BitMask.GIZMOS, Layers.BitMask.EDITOR,
 //                                                           Layers.BitMask.SCENE_GIZMO, Layers.BitMask.PROFILER]);
 
-uint              nextPow2(uint val);
-enum class CC_DLL SetIndex {
-    GLOBAL,
-    MATERIAL,
-    LOCAL,
-};
-extern CC_DLL uint GLOBAL_SET;
-extern CC_DLL uint MATERIAL_SET;
-extern CC_DLL uint LOCAL_SET;
+uint nextPow2(uint val);
 
 extern CC_DLL uint                     SKYBOX_FLAG;
 extern CC_DLL DescriptorSetLayoutInfos globalDescriptorSetLayout;
@@ -519,5 +529,6 @@ struct CC_DLL SPRITE_TEXTURE : public Object {
     static const gfx::UniformSamplerTexture      LAYOUT;
     static const String                          NAME;
 };
+
 } // namespace pipeline
 } // namespace cc

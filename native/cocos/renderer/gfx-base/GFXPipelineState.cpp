@@ -31,11 +31,34 @@
 namespace cc {
 namespace gfx {
 
-PipelineState::PipelineState(Device *device)
-: GFXObject(ObjectType::PIPELINE_STATE), _device(device) {
+PipelineState::PipelineState()
+: GFXObject(ObjectType::PIPELINE_STATE) {
 }
 
 PipelineState::~PipelineState() {
+}
+
+void PipelineState::initialize(const PipelineStateInfo &info) {
+    _primitive         = info.primitive;
+    _shader            = info.shader;
+    _inputState        = info.inputState;
+    _rasterizerState   = info.rasterizerState;
+    _depthStencilState = info.depthStencilState;
+    _bindPoint         = info.bindPoint;
+    _blendState        = info.blendState;
+    _dynamicStates     = info.dynamicStates;
+    _renderPass        = info.renderPass;
+    _pipelineLayout    = info.pipelineLayout;
+
+    doInit(info);
+}
+
+void PipelineState::destroy() {
+    doDestroy();
+
+    _shader         = nullptr;
+    _renderPass     = nullptr;
+    _pipelineLayout = nullptr;
 }
 
 } // namespace gfx

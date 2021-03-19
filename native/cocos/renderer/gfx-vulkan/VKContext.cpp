@@ -46,7 +46,7 @@ constexpr uint FORCE_MINOR_VERSION           = 0; // 0 for default version, othe
 constexpr uint DISABLE_VALIDATION_ASSERTIONS = 1; // 0 for default behavior, otherwise assertions will be disabled
 
 #define FORCE_ENABLE_VALIDATION  0
-#define FORCE_DISABLE_VALIDATION 1
+#define FORCE_DISABLE_VALIDATION 0
 
 #if CC_DEBUG > 0 && !FORCE_DISABLE_VALIDATION || FORCE_ENABLE_VALIDATION
 VKAPI_ATTR VkBool32 VKAPI_CALL debugUtilsMessengerCallback(VkDebugUtilsMessageSeverityFlagBitsEXT      messageSeverity,
@@ -99,18 +99,14 @@ VKAPI_ATTR VkBool32 VKAPI_CALL debugReportCallback(VkDebugReportFlagsEXT      fl
 #endif
 } // namespace
 
-CCVKContext::CCVKContext(Device *device)
-: Context(device) {
+CCVKContext::CCVKContext()
+: Context() {
 }
 
 CCVKContext::~CCVKContext() {
 }
 
-bool CCVKContext::initialize(const ContextInfo &info) {
-
-    _vsyncMode    = info.vsyncMode;
-    _windowHandle = info.windowHandle;
-
+bool CCVKContext::doInit(const ContextInfo &info) {
     if (!info.sharedCtx) {
         _isPrimaryContex = true;
 
@@ -286,9 +282,9 @@ bool CCVKContext::initialize(const ContextInfo &info) {
         EventDispatcher::addCustomEventListener(EVENT_DESTROY_WINDOW, [this](const CustomEvent &event) -> void {
             if (_gpuContext && _gpuContext->vkSurface != VK_NULL_HANDLE) {
 
-                CCVKDevice *device = (CCVKDevice *)_device;
+                CCVKDevice *device = CCVKDevice::getInstance();
 
-                CCVKQueue *queue = (CCVKQueue *)_device->getQueue();
+                CCVKQueue *queue = (CCVKQueue *)device->getQueue();
 
                 uint fenceCount = device->gpuFencePool()->size();
                 if (fenceCount) {
@@ -314,7 +310,7 @@ bool CCVKContext::initialize(const ContextInfo &info) {
                 VK_CHECK(vkCreateAndroidSurfaceKHR(_gpuContext->vkInstance, &surfaceCreateInfo,
                                                    nullptr, &_gpuContext->vkSurface));
 
-                ((CCVKDevice *)_device)->checkSwapchainStatus();
+                CCVKDevice::getInstance()->checkSwapchainStatus();
             }
         });
 #elif defined(VK_USE_PLATFORM_WIN32_KHR)
@@ -553,7 +549,7 @@ bool CCVKContext::initialize(const ContextInfo &info) {
     return true;
 }
 
-void CCVKContext::destroy() {
+void CCVKContext::doDestroy() {
     if (_gpuContext) {
         if (_gpuContext->vkSurface != VK_NULL_HANDLE) {
             vkDestroySurfaceKHR(_gpuContext->vkInstance, _gpuContext->vkSurface, nullptr);

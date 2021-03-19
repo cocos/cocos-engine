@@ -31,11 +31,9 @@
 
 #if (CC_PLATFORM == CC_PLATFORM_ANDROID)
     #include "android/native_window.h"
-    #include "cocos/bindings/event/CustomEventTypes.h"
-    #include "cocos/bindings/event/EventDispatcher.h"
 #endif
 
-#define FORCE_DISABLE_VALIDATION  1
+#define FORCE_DISABLE_VALIDATION 1
 
 namespace cc {
 namespace gfx {
@@ -86,8 +84,8 @@ void GL_APIENTRY GLES3EGLDebugProc(GLenum source, GLenum type, GLuint id, GLenum
 
 #endif
 
-GLES3Context::GLES3Context(Device *device)
-: Context(device) {
+GLES3Context::GLES3Context()
+: Context() {
 }
 
 GLES3Context::~GLES3Context() {
@@ -95,20 +93,20 @@ GLES3Context::~GLES3Context() {
 
 #if (CC_PLATFORM == CC_PLATFORM_WINDOWS || CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_MAC_OSX)
 
-bool GLES3Context::initialize(const ContextInfo &info) {
+bool GLES3Context::doInit(const ContextInfo &info) {
 
-    _vsyncMode = info.vsyncMode;
+    _vsyncMode    = info.vsyncMode;
     _windowHandle = info.windowHandle;
 
     //////////////////////////////////////////////////////////////////////////
 
-    if (!gles3wInit()) {
-        return false;
-    }
-
     if (!info.sharedCtx) {
+        if (!gles3wInit()) {
+            return false;
+        }
+
         _isPrimaryContex = true;
-        _windowHandle = info.windowHandle;
+        _windowHandle    = info.windowHandle;
 
     #if (CC_PLATFORM == CC_PLATFORM_WINDOWS)
         _nativeDisplay = (NativeDisplayType)GetDC((HWND)_windowHandle);
@@ -141,7 +139,7 @@ bool GLES3Context::initialize(const ContextInfo &info) {
         // rather than any other API (such as OpenVG).
         EGL_CHECK(eglBindAPI(EGL_OPENGL_ES_API));
 
-        _colorFmt = Format::RGBA8;
+        _colorFmt        = Format::RGBA8;
         _depthStencilFmt = Format::D24S8;
 
         const EGLint attribs[] = {
@@ -171,7 +169,7 @@ bool GLES3Context::initialize(const ContextInfo &info) {
             return false;
         }
 
-        EGLint depth = attribs[13];
+        EGLint depth   = attribs[13];
         EGLint stencil = attribs[15];
         CC_LOG_INFO("Setup EGLConfig: depth [%d] stencil [%d]", depth, stencil);
 
@@ -208,8 +206,8 @@ bool GLES3Context::initialize(const ContextInfo &info) {
             return false;
         }
 
-        uint width = _device->getWidth();
-        uint height = _device->getHeight();
+        uint width  = GLES3Device::getInstance()->getWidth();
+        uint height = GLES3Device::getInstance()->getHeight();
         ANativeWindow_setBuffersGeometry((ANativeWindow *)_windowHandle, width, height, nFmt);
     #endif
 
@@ -228,7 +226,7 @@ bool GLES3Context::initialize(const ContextInfo &info) {
         _majorVersion = 3;
         _minorVersion = 0;
         EGLint ctxAttribs[32];
-        uint n = 0;
+        uint   n = 0;
 
         bool hasKHRCreateCtx = CheckExtension(CC_TOSTR(EGL_KHR_create_context));
         if (hasKHRCreateCtx) {
@@ -236,7 +234,7 @@ bool GLES3Context::initialize(const ContextInfo &info) {
     #if (CC_PLATFORM == CC_PLATFORM_MAC_OSX)
                 m = 0; // Mac OpenGL doesn't really support ES 3.1+ features
     #endif
-                n = 0;
+                n               = 0;
                 ctxAttribs[n++] = EGL_CONTEXT_MAJOR_VERSION_KHR;
                 ctxAttribs[n++] = _majorVersion;
                 ctxAttribs[n++] = EGL_CONTEXT_MINOR_VERSION_KHR;
@@ -257,7 +255,7 @@ bool GLES3Context::initialize(const ContextInfo &info) {
         } else {
             ctxAttribs[n++] = EGL_CONTEXT_CLIENT_VERSION;
             ctxAttribs[n++] = _majorVersion;
-            ctxAttribs[n] = EGL_NONE;
+            ctxAttribs[n]   = EGL_NONE;
             EGL_CHECK(_eglContext = eglCreateContext(_eglDisplay, _eglConfig, NULL, ctxAttribs));
         }
 
@@ -268,55 +266,20 @@ bool GLES3Context::initialize(const ContextInfo &info) {
 
         _eglSharedContext = _eglContext;
 
-    #if (CC_PLATFORM == CC_PLATFORM_ANDROID)
-        EventDispatcher::addCustomEventListener(EVENT_DESTROY_WINDOW, [=](const CustomEvent &) -> void {
-            if (_eglSurface != EGL_NO_SURFACE) {
-                eglDestroySurface(_eglDisplay, _eglSurface);
-                _eglSurface = EGL_NO_SURFACE;
-            }
-        });
-
-        EventDispatcher::addCustomEventListener(EVENT_RECREATE_WINDOW, [=](const CustomEvent &event) -> void {
-            _windowHandle = (uintptr_t)event.args->ptrVal;
-
-            EGLint nFmt;
-            if (eglGetConfigAttrib(_eglDisplay, _eglConfig, EGL_NATIVE_VISUAL_ID, &nFmt) == EGL_FALSE) {
-                CC_LOG_ERROR("Getting configuration attributes failed.");
-                return;
-            }
-            uint width = _device->getWidth();
-            uint height = _device->getHeight();
-            ANativeWindow_setBuffersGeometry((ANativeWindow *)_windowHandle, width, height, nFmt);
-
-            EGL_CHECK(_eglSurface = eglCreateWindowSurface(_eglDisplay, _eglConfig, (EGLNativeWindowType)_windowHandle, NULL));
-            if (_eglSurface == EGL_NO_SURFACE) {
-                CC_LOG_ERROR("Recreate window surface failed.");
-                return;
-            }
-
-            ((GLES3Context *)_device->getContext())->MakeCurrent();
-            ((GLES3Device *)_device)->stateCache()->reset();
-        });
-    #endif
-
-        if (!gles3wInit()) {
-            return false;
-        }
-
     } else {
         GLES3Context *sharedCtx = (GLES3Context *)info.sharedCtx;
 
-        _majorVersion = sharedCtx->major_ver();
-        _minorVersion = sharedCtx->minor_ver();
-        _nativeDisplay = sharedCtx->native_display();
-        _eglDisplay = sharedCtx->egl_display();
-        _eglConfig = sharedCtx->egl_config();
+        _majorVersion     = sharedCtx->major_ver();
+        _minorVersion     = sharedCtx->minor_ver();
+        _nativeDisplay    = sharedCtx->native_display();
+        _eglDisplay       = sharedCtx->egl_display();
+        _eglConfig        = sharedCtx->egl_config();
         _eglSharedContext = sharedCtx->egl_shared_ctx();
-        _eglSurface = sharedCtx->egl_surface();
-        _colorFmt = sharedCtx->getColorFormat();
-        _depthStencilFmt = sharedCtx->getDepthStencilFormat();
-        _extensions = sharedCtx->_extensions;
-        _isInitialized = sharedCtx->_isInitialized;
+        _eglSurface       = sharedCtx->egl_surface();
+        _colorFmt         = sharedCtx->getColorFormat();
+        _depthStencilFmt  = sharedCtx->getDepthStencilFormat();
+        _extensions       = sharedCtx->_extensions;
+        _isInitialized    = sharedCtx->_isInitialized;
 
         bool hasKHRCreateCtx = CheckExtension(CC_TOSTR(EGL_KHR_create_context));
         if (!hasKHRCreateCtx) {
@@ -325,7 +288,7 @@ bool GLES3Context::initialize(const ContextInfo &info) {
         }
 
         EGLint ctxAttribs[32];
-        uint n = 0;
+        uint   n = 0;
 
         if (hasKHRCreateCtx) {
             ctxAttribs[n++] = EGL_CONTEXT_MAJOR_VERSION_KHR;
@@ -354,7 +317,7 @@ bool GLES3Context::initialize(const ContextInfo &info) {
     return true;
 }
 
-void GLES3Context::destroy() {
+void GLES3Context::doDestroy() {
     EGL_CHECK(eglMakeCurrent(_eglDisplay, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT));
 
     if (_eglContext != EGL_NO_CONTEXT) {
@@ -362,27 +325,62 @@ void GLES3Context::destroy() {
         _eglContext = EGL_NO_CONTEXT;
     }
 
-    if (_isPrimaryContex && _eglSurface != EGL_NO_SURFACE) {
-        EGL_CHECK(eglDestroySurface(_eglDisplay, _eglSurface));
-        _eglSurface = EGL_NO_SURFACE;
-    }
+    if (_isPrimaryContex) {
+        if (_eglSurface != EGL_NO_SURFACE) {
+            EGL_CHECK(eglDestroySurface(_eglDisplay, _eglSurface));
+            _eglSurface = EGL_NO_SURFACE;
+        }
 
-    if (_eglDisplay != EGL_NO_DISPLAY) {
-        EGL_CHECK(eglTerminate(_eglDisplay));
-        _eglDisplay = EGL_NO_DISPLAY;
-    }
+        if (_eglDisplay != EGL_NO_DISPLAY) {
+            EGL_CHECK(eglTerminate(_eglDisplay));
+            _eglDisplay = EGL_NO_DISPLAY;
+        }
 
     #if (CC_PLATFORM == CC_PLATFORM_WINDOWS)
-    if (_isPrimaryContex && _nativeDisplay) {
-        ReleaseDC((HWND)_windowHandle, _nativeDisplay);
-    }
+        if (_nativeDisplay) {
+            ReleaseDC((HWND)_windowHandle, _nativeDisplay);
+        }
     #endif
+    }
 
     _isPrimaryContex = false;
-    _windowHandle = 0;
-    _nativeDisplay = 0;
-    _vsyncMode = VsyncMode::OFF;
-    _isInitialized = false;
+    _windowHandle    = 0;
+    _nativeDisplay   = 0;
+    _vsyncMode       = VsyncMode::OFF;
+    _isInitialized   = false;
+}
+
+void GLES3Context::releaseSurface(uintptr_t windowHandle) {
+    #if (CC_PLATFORM == CC_PLATFORM_ANDROID)
+    if (_eglSurface != EGL_NO_SURFACE) {
+        eglDestroySurface(_eglDisplay, _eglSurface);
+        _eglSurface = EGL_NO_SURFACE;
+    }
+    #endif
+}
+
+void GLES3Context::acquireSurface(uintptr_t windowHandle) {
+    #if (CC_PLATFORM == CC_PLATFORM_ANDROID)
+    _windowHandle = windowHandle;
+
+    EGLint nFmt;
+    if (eglGetConfigAttrib(_eglDisplay, _eglConfig, EGL_NATIVE_VISUAL_ID, &nFmt) == EGL_FALSE) {
+        CC_LOG_ERROR("Getting configuration attributes failed.");
+        return;
+    }
+    uint width  = GLES3Device::getInstance()->getWidth();
+    uint height = GLES3Device::getInstance()->getHeight();
+    ANativeWindow_setBuffersGeometry((ANativeWindow *)_windowHandle, width, height, nFmt);
+
+    EGL_CHECK(_eglSurface = eglCreateWindowSurface(_eglDisplay, _eglConfig, (EGLNativeWindowType)_windowHandle, NULL));
+    if (_eglSurface == EGL_NO_SURFACE) {
+        CC_LOG_ERROR("Recreate window surface failed.");
+        return;
+    }
+
+    ((GLES3Context *)GLES3Device::getInstance()->getContext())->MakeCurrent();
+    GLES3Device::getInstance()->stateCache()->reset();
+    #endif
 }
 
 bool GLES3Context::MakeCurrentImpl(bool bound) {

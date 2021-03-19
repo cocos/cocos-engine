@@ -23,8 +23,7 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#ifndef CC_CORE_GFX_TEXTURE_BARRIER_H_
-#define CC_CORE_GFX_TEXTURE_BARRIER_H_
+#pragma once
 
 #include "GFXObject.h"
 
@@ -33,7 +32,7 @@ namespace gfx {
 
 class CC_DLL TextureBarrier : public GFXObject {
 public:
-    TextureBarrier(Device *device);
+    TextureBarrier();
     virtual ~TextureBarrier();
 
     static uint computeHash(const TextureBarrierInfo &info);
@@ -43,13 +42,12 @@ public:
 protected:
     friend class Device;
 
-    virtual bool initialize(const TextureBarrierInfo &info) { _info = info; return true; }
+    virtual void doInit(const TextureBarrierInfo &info) {}
 
-    Device *_device = nullptr;
+    void initialize(const TextureBarrierInfo &info) { _info = info; doInit(info); }
+
     TextureBarrierInfo _info;
 };
 
 } // namespace gfx
 } // namespace cc
-
-#endif // CC_CORE_GFX_GLOBAL_BARRIER_H_

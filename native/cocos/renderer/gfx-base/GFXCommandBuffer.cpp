@@ -31,12 +31,25 @@
 namespace cc {
 namespace gfx {
 
-CommandBuffer::CommandBuffer(Device *device)
-: GFXObject(ObjectType::COMMAND_BUFFER),
-  _device(device) {
+CommandBuffer::CommandBuffer()
+: GFXObject(ObjectType::COMMAND_BUFFER) {
 }
 
 CommandBuffer::~CommandBuffer() {
+}
+
+void CommandBuffer::initialize(const CommandBufferInfo& info) {
+    _type  = info.type;
+    _queue = info.queue;
+
+    doInit(info);
+}
+
+void CommandBuffer::destroy() {
+    doDestroy();
+
+    _type  = CommandBufferType::PRIMARY;
+    _queue = nullptr;
 }
 
 } // namespace gfx

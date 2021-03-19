@@ -32,12 +32,31 @@
 namespace cc {
 namespace gfx {
 
-DescriptorSet::DescriptorSet(Device *device)
-: GFXObject(ObjectType::DESCRIPTOR_SET),
-  _device(device) {
+DescriptorSet::DescriptorSet()
+: GFXObject(ObjectType::DESCRIPTOR_SET) {
 }
 
 DescriptorSet::~DescriptorSet() {
+}
+
+void DescriptorSet::initialize(const DescriptorSetInfo& info) {
+    _layout              = info.layout;
+    uint descriptorCount = _layout->getDescriptorCount();
+    _buffers.resize(descriptorCount);
+    _textures.resize(descriptorCount);
+    _samplers.resize(descriptorCount);
+
+    doInit(info);
+}
+
+void DescriptorSet::destroy() {
+    doDestroy();
+
+    _layout = nullptr;
+    // have to clear these or else it might not be properly updated when reused
+    _buffers.clear();
+    _textures.clear();
+    _samplers.clear();
 }
 
 void DescriptorSet::bindBuffer(uint binding, Buffer *buffer, uint index) {

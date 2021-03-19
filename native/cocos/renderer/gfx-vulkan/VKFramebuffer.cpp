@@ -34,18 +34,14 @@
 namespace cc {
 namespace gfx {
 
-CCVKFramebuffer::CCVKFramebuffer(Device *device)
-: Framebuffer(device) {
+CCVKFramebuffer::CCVKFramebuffer()
+: Framebuffer() {
 }
 
 CCVKFramebuffer::~CCVKFramebuffer() {
 }
 
-bool CCVKFramebuffer::initialize(const FramebufferInfo &info) {
-    _renderPass = info.renderPass;
-    _colorTextures = info.colorTextures;
-    _depthStencilTexture = info.depthStencilTexture;
-
+void CCVKFramebuffer::doInit(const FramebufferInfo &info) {
     _gpuFBO = CC_NEW(CCVKGPUFramebuffer);
     _gpuFBO->gpuRenderPass = ((CCVKRenderPass *)_renderPass)->gpuRenderPass();
 
@@ -61,14 +57,12 @@ bool CCVKFramebuffer::initialize(const FramebufferInfo &info) {
         _gpuFBO->gpuDepthStencilView = ((CCVKTexture *)_depthStencilTexture)->gpuTextureView();
     }
 
-    CCVKCmdFuncCreateFramebuffer((CCVKDevice *)_device, _gpuFBO);
-
-    return true;
+    CCVKCmdFuncCreateFramebuffer(CCVKDevice::getInstance(), _gpuFBO);
 }
 
-void CCVKFramebuffer::destroy() {
+void CCVKFramebuffer::doDestroy() {
     if (_gpuFBO) {
-        ((CCVKDevice *)_device)->gpuRecycleBin()->collect(_gpuFBO);
+        CCVKDevice::getInstance()->gpuRecycleBin()->collect(_gpuFBO);
         _gpuFBO = nullptr;
     }
 }

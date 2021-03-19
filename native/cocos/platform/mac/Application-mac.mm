@@ -32,6 +32,9 @@
 #include <algorithm>
 #include <mutex>
 
+#include "renderer/GFXDeviceCreator.h"
+#include "pipeline/Define.h"
+
 #import <AppKit/AppKit.h>
 
 @interface MyTimer : NSObject {
@@ -99,6 +102,17 @@ bool setCanvasCallback(se::Object *global) {
             (int)(viewLogicalSize.y),
             (uintptr_t)view);
     se->evalString(commandBuf);
+
+    gfx::DeviceInfo deviceInfo;
+    deviceInfo.windowHandle = (uintptr_t)view;
+    deviceInfo.width        = viewLogicalSize.x;
+    deviceInfo.height       = viewLogicalSize.y;
+    deviceInfo.nativeWidth  = viewLogicalSize.x;
+    deviceInfo.nativeHeight = viewLogicalSize.y;
+    deviceInfo.bindingMappingInfo = pipeline::bindingMappingInfo;
+
+    gfx::DeviceCreator::createDevice(deviceInfo);
+
     return true;
 }
 

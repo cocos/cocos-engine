@@ -32,17 +32,14 @@
 namespace cc {
 namespace gfx {
 
-GLES2PipelineLayout::GLES2PipelineLayout(Device *device)
-: PipelineLayout(device) {
+GLES2PipelineLayout::GLES2PipelineLayout()
+: PipelineLayout() {
 }
 
 GLES2PipelineLayout::~GLES2PipelineLayout() {
 }
 
-bool GLES2PipelineLayout::initialize(const PipelineLayoutInfo &info) {
-
-    _setLayouts = info.setLayouts;
-
+void GLES2PipelineLayout::doInit(const PipelineLayoutInfo &info) {
     _gpuPipelineLayout = CC_NEW(GLES2GPUPipelineLayout);
 
     uint offset = 0u;
@@ -66,11 +63,9 @@ bool GLES2PipelineLayout::initialize(const PipelineLayoutInfo &info) {
     _gpuPipelineLayout->dynamicOffsetOffsets.push_back(offset);
     _gpuPipelineLayout->dynamicOffsetCount = offset;
     _gpuPipelineLayout->dynamicOffsets.resize(offset);
-
-    return true;
 }
 
-void GLES2PipelineLayout::destroy() {
+void GLES2PipelineLayout::doDestroy() {
 
     if (_gpuPipelineLayout) {
         CC_DELETE(_gpuPipelineLayout);

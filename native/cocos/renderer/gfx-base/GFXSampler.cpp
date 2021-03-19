@@ -31,8 +31,8 @@
 namespace cc {
 namespace gfx {
 
-Sampler::Sampler(Device *device)
-: GFXObject(ObjectType::SAMPLER), _device(device) {
+Sampler::Sampler()
+: GFXObject(ObjectType::SAMPLER) {
     _borderColor.x = 0.0f;
     _borderColor.y = 0.0f;
     _borderColor.z = 0.0f;
@@ -40,6 +40,25 @@ Sampler::Sampler(Device *device)
 }
 
 Sampler::~Sampler() {
+}
+
+void Sampler::initialize(const SamplerInfo &info) {
+    _minFilter     = info.minFilter;
+    _magFilter     = info.magFilter;
+    _mipFilter     = info.mipFilter;
+    _addressU      = info.addressU;
+    _addressV      = info.addressV;
+    _addressW      = info.addressW;
+    _maxAnisotropy = info.maxAnisotropy;
+    _cmpFunc       = info.cmpFunc;
+    _borderColor   = info.borderColor;
+    _mipLODBias    = info.mipLODBias;
+
+    doInit(info);
+}
+
+void Sampler::destroy() {
+    doDestroy();
 }
 
 } // namespace gfx

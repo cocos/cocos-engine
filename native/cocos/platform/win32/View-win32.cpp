@@ -27,6 +27,9 @@
 #include "base/Log.h"
 #include <unordered_map>
 
+#include "renderer/GFXDeviceCreator.h"
+#include "pipeline/Define.h"
+
 using namespace cc;
 
 namespace {
@@ -86,14 +89,25 @@ bool View::init() {
         CC_LOG_ERROR("Window could not be created! SDL_Error: %s\n", SDL_GetError());
         return false;
     }
+
+    gfx::DeviceInfo deviceInfo;
+    deviceInfo.windowHandle = (uintptr_t)getWindowHandler();
+    deviceInfo.width        = _width;
+    deviceInfo.height       = _height;
+    deviceInfo.nativeWidth  = _width;
+    deviceInfo.nativeHeight = _height;
+    deviceInfo.bindingMappingInfo = pipeline::bindingMappingInfo;
+
+    gfx::DeviceCreator::createDevice(deviceInfo);
+
     return true;
 }
 
 bool View::pollEvent(bool *quit, bool *resume, bool *pause) {
     int cnt = SDL_PollEvent(&sdlEvent);
     if (cnt == 0) return false;
-    cc::TouchEvent touch;
-    cc::MouseEvent mouse;
+    cc::TouchEvent    touch;
+    cc::MouseEvent    mouse;
     cc::KeyboardEvent keyboard;
     switch (sdlEvent.type) {
         case SDL_QUIT: {
@@ -123,81 +137,81 @@ bool View::pollEvent(bool *quit, bool *resume, bool *pause) {
         }
         case SDL_MOUSEBUTTONDOWN: {
             SDL_MouseButtonEvent &event = sdlEvent.button;
-            mouse.type = MouseEvent::Type::DOWN;
-            mouse.x = static_cast<float>(event.x);
-            mouse.y = static_cast<float>(event.y);
-            mouse.button = event.button - 1;
+            mouse.type                  = MouseEvent::Type::DOWN;
+            mouse.x                     = static_cast<float>(event.x);
+            mouse.y                     = static_cast<float>(event.y);
+            mouse.button                = event.button - 1;
             cc::EventDispatcher::dispatchMouseEvent(mouse);
             break;
         }
         case SDL_MOUSEBUTTONUP: {
             SDL_MouseButtonEvent &event = sdlEvent.button;
-            mouse.type = MouseEvent::Type::UP;
-            mouse.x = static_cast<float>(event.x);
-            mouse.y = static_cast<float>(event.y);
-            mouse.button = event.button - 1;
+            mouse.type                  = MouseEvent::Type::UP;
+            mouse.x                     = static_cast<float>(event.x);
+            mouse.y                     = static_cast<float>(event.y);
+            mouse.button                = event.button - 1;
             cc::EventDispatcher::dispatchMouseEvent(mouse);
             break;
         }
         case SDL_MOUSEMOTION: {
             SDL_MouseMotionEvent &event = sdlEvent.motion;
-            mouse.type = MouseEvent::Type::MOVE;
-            mouse.x = static_cast<float>(event.x);
-            mouse.y = static_cast<float>(event.y);
-            mouse.button = 0;
+            mouse.type                  = MouseEvent::Type::MOVE;
+            mouse.x                     = static_cast<float>(event.x);
+            mouse.y                     = static_cast<float>(event.y);
+            mouse.button                = 0;
             cc::EventDispatcher::dispatchMouseEvent(mouse);
             break;
         }
         case SDL_MOUSEWHEEL: {
             SDL_MouseWheelEvent &event = sdlEvent.wheel;
-            mouse.type = MouseEvent::Type::WHEEL;
-            mouse.x = static_cast<float>(event.x);
-            mouse.y = static_cast<float>(event.y);
-            mouse.button = 0; //TODO: direction
+            mouse.type                 = MouseEvent::Type::WHEEL;
+            mouse.x                    = static_cast<float>(event.x);
+            mouse.y                    = static_cast<float>(event.y);
+            mouse.button               = 0; //TODO: direction
             cc::EventDispatcher::dispatchMouseEvent(mouse);
             break;
         }
         case SDL_FINGERUP: {
             SDL_TouchFingerEvent &event = sdlEvent.tfinger;
-            touch.type = TouchEvent::Type::ENDED;
-            touch.touches = {TouchInfo(event.x, event.y, (int)event.fingerId)};
+            touch.type                  = TouchEvent::Type::ENDED;
+            touch.touches               = {TouchInfo(event.x, event.y, (int)event.fingerId)};
             cc::EventDispatcher::dispatchTouchEvent(touch);
             break;
         }
         case SDL_FINGERDOWN: {
             SDL_TouchFingerEvent &event = sdlEvent.tfinger;
-            touch.type = TouchEvent::Type::BEGAN;
-            touch.touches = {TouchInfo(event.x, event.y, (int)event.fingerId)};
+            touch.type                  = TouchEvent::Type::BEGAN;
+            touch.touches               = {TouchInfo(event.x, event.y, (int)event.fingerId)};
             cc::EventDispatcher::dispatchTouchEvent(touch);
             break;
         }
         case SDL_FINGERMOTION: {
             SDL_TouchFingerEvent &event = sdlEvent.tfinger;
-            touch.type = TouchEvent::Type::MOVED;
-            touch.touches = {TouchInfo(event.x, event.y, (int)event.fingerId)};
+            touch.type                  = TouchEvent::Type::MOVED;
+            touch.touches               = {TouchInfo(event.x, event.y, (int)event.fingerId)};
             cc::EventDispatcher::dispatchTouchEvent(touch);
             break;
         }
         case SDL_KEYDOWN: {
             SDL_KeyboardEvent &event = sdlEvent.key;
-            auto mode = event.keysym.mod;
-            keyboard.action = KeyboardEvent::Action::PRESS;
-            keyboard.key = sdl_keycode_to_cocos_code(event.keysym.sym, mode);
-            keyboard.altKeyActive = mode & KMOD_ALT;
-            keyboard.ctrlKeyActive = mode & KMOD_CTRL;
-            keyboard.shiftKeyActive = mode & KMOD_SHIFT;
+            auto               mode  = event.keysym.mod;
+            keyboard.action          = KeyboardEvent::Action::PRESS;
+            keyboard.key             = sdl_keycode_to_cocos_code(event.keysym.sym, mode);
+            keyboard.altKeyActive    = mode & KMOD_ALT;
+            keyboard.ctrlKeyActive   = mode & KMOD_CTRL;
+            keyboard.shiftKeyActive  = mode & KMOD_SHIFT;
             //CC_LOG_DEBUG("==> key %d -> code %d", event.keysym.sym, keyboard.key);
             cc::EventDispatcher::dispatchKeyboardEvent(keyboard);
             break;
         }
         case SDL_KEYUP: {
             SDL_KeyboardEvent &event = sdlEvent.key;
-            auto mode = event.keysym.mod;
-            keyboard.action = KeyboardEvent::Action::RELEASE;
-            keyboard.key = sdl_keycode_to_cocos_code(event.keysym.sym, mode);
-            keyboard.altKeyActive = mode & KMOD_ALT;
-            keyboard.ctrlKeyActive = mode & KMOD_CTRL;
-            keyboard.shiftKeyActive = mode & KMOD_SHIFT;
+            auto               mode  = event.keysym.mod;
+            keyboard.action          = KeyboardEvent::Action::RELEASE;
+            keyboard.key             = sdl_keycode_to_cocos_code(event.keysym.sym, mode);
+            keyboard.altKeyActive    = mode & KMOD_ALT;
+            keyboard.ctrlKeyActive   = mode & KMOD_CTRL;
+            keyboard.shiftKeyActive  = mode & KMOD_SHIFT;
             cc::EventDispatcher::dispatchKeyboardEvent(keyboard);
             break;
         }

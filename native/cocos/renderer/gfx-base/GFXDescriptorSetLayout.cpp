@@ -31,11 +31,47 @@
 namespace cc {
 namespace gfx {
 
-DescriptorSetLayout::DescriptorSetLayout(Device *device)
-: GFXObject(ObjectType::DESCRIPTOR_SET_LAYOUT), _device(device) {
+DescriptorSetLayout::DescriptorSetLayout()
+: GFXObject(ObjectType::DESCRIPTOR_SET_LAYOUT) {
 }
 
 DescriptorSetLayout::~DescriptorSetLayout() {
+}
+
+void DescriptorSetLayout::initialize(const DescriptorSetLayoutInfo &info) {
+    _bindings         = info.bindings;
+    uint bindingCount = _bindings.size();
+    _descriptorCount  = 0u;
+
+    if (bindingCount) {
+        uint         maxBinding = 0u;
+        vector<uint> flattenedIndices(bindingCount);
+        for (uint i = 0u; i < bindingCount; i++) {
+            const DescriptorSetLayoutBinding &binding = _bindings[i];
+            flattenedIndices[i]                       = _descriptorCount;
+            _descriptorCount += binding.count;
+            if (binding.binding > maxBinding) maxBinding = binding.binding;
+        }
+
+        _bindingIndices.resize(maxBinding + 1, GFX_INVALID_BINDING);
+        _descriptorIndices.resize(maxBinding + 1, GFX_INVALID_BINDING);
+        for (uint i = 0u; i < bindingCount; i++) {
+            const DescriptorSetLayoutBinding &binding = _bindings[i];
+            _bindingIndices[binding.binding]          = i;
+            _descriptorIndices[binding.binding]       = flattenedIndices[i];
+        }
+    }
+
+    doInit(info);
+}
+
+void DescriptorSetLayout::destroy() {
+    doDestroy();
+
+    _bindings.clear();
+    _descriptorCount = 0u;
+    _bindingIndices.clear();
+    _descriptorIndices.clear();
 }
 
 } // namespace gfx

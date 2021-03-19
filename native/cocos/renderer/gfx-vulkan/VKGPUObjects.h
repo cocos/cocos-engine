@@ -23,8 +23,7 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#ifndef CC_GFXVULKAN_GPU_OBJECTS_H_
-#define CC_GFXVULKAN_GPU_OBJECTS_H_
+#pragma once
 
 #include "VKUtils.h"
 
@@ -1243,5 +1242,3 @@ private:
 
 } // namespace gfx
 } // namespace cc
-
-#endif

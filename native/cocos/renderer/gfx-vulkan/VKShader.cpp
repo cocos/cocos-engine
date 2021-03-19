@@ -32,21 +32,14 @@
 namespace cc {
 namespace gfx {
 
-CCVKShader::CCVKShader(Device *device)
-: Shader(device) {
+CCVKShader::CCVKShader()
+: Shader() {
 }
 
 CCVKShader::~CCVKShader() {
 }
 
-bool CCVKShader::initialize(const ShaderInfo &info) {
-    _name = info.name;
-    _stages = info.stages;
-    _attributes = info.attributes;
-    _blocks = info.blocks;
-    _buffers = info.buffers;
-    _samplers = info.samplers;
-
+void CCVKShader::doInit(const ShaderInfo &info) {
     _gpuShader = CC_NEW(CCVKGPUShader);
     _gpuShader->name = _name;
     _gpuShader->attributes = _attributes;
@@ -56,14 +49,12 @@ bool CCVKShader::initialize(const ShaderInfo &info) {
         _gpuShader->gpuStages.push_back({stage.stage, stage.source});
     }
 
-    CCVKCmdFuncCreateShader((CCVKDevice *)_device, _gpuShader);
-
-    return true;
+    CCVKCmdFuncCreateShader(CCVKDevice::getInstance(), _gpuShader);
 }
 
-void CCVKShader::destroy() {
+void CCVKShader::doDestroy() {
     if (_gpuShader) {
-        ((CCVKDevice *)_device)->gpuRecycleBin()->collect(_gpuShader);
+        CCVKDevice::getInstance()->gpuRecycleBin()->collect(_gpuShader);
         _gpuShader = nullptr;
     }
 }

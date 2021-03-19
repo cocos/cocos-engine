@@ -32,13 +32,9 @@
 namespace cc {
 namespace gfx {
 
-CCMTLFramebuffer::CCMTLFramebuffer(Device *device) : Framebuffer(device) {}
+CCMTLFramebuffer::CCMTLFramebuffer() : Framebuffer() {}
 
-bool CCMTLFramebuffer::initialize(const FramebufferInfo &info) {
-    _renderPass = info.renderPass;
-    _colorTextures = info.colorTextures;
-    _depthStencilTexture = info.depthStencilTexture;
-
+void CCMTLFramebuffer::doInit(const FramebufferInfo &info) {
     auto *mtlRenderPass = static_cast<CCMTLRenderPass *>(_renderPass);
     size_t slot = 0;
     size_t levelCount = info.colorMipmapLevels.size();
@@ -64,11 +60,9 @@ bool CCMTLFramebuffer::initialize(const FramebufferInfo &info) {
     }
 
     _isOffscreen = (attachmentIndices != 0);
-
-    return true;
 }
 
-void CCMTLFramebuffer::destroy() {
+void CCMTLFramebuffer::doDestroy() {
 }
 
 } // namespace gfx

@@ -23,10 +23,7 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#ifndef CC_GFXGLES3_H_
-#define CC_GFXGLES3_H_
+#pragma once
 
 #include "GLES3Std.h"
 #include "GLES3Device.h"
-
-#endif

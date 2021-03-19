@@ -23,8 +23,7 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#ifndef CC_GFXGLES2_SHADER_H_
-#define CC_GFXGLES2_SHADER_H_
+#pragma once
 
 #include "gfx-base/GFXShader.h"
 
@@ -35,20 +34,17 @@ class GLES2GPUShader;
 
 class CC_GLES2_API GLES2Shader final : public Shader {
 public:
-    GLES2Shader(Device *device);
+    GLES2Shader();
     ~GLES2Shader();
-
-public:
-    virtual bool initialize(const ShaderInfo &info) override;
-    virtual void destroy() override;
 
     CC_INLINE GLES2GPUShader *gpuShader() const { return _gpuShader; }
 
-private:
+protected:
+    void doInit(const ShaderInfo &info) override;
+    void doDestroy() override;
+
     GLES2GPUShader *_gpuShader = nullptr;
 };
 
 } // namespace gfx
 } // namespace cc
-
-#endif

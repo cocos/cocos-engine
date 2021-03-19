@@ -23,8 +23,7 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#ifndef CC_GFXGLES3_EGL_CONTEXT_H_
-#define CC_GFXGLES3_EGL_CONTEXT_H_
+#pragma once
 
 #include "gfx-base/GFXContext.h"
 
@@ -35,13 +34,10 @@ namespace gfx {
 
 class CC_GLES3_API GLES3Context final : public Context {
 public:
-    GLES3Context(Device *device);
+    GLES3Context();
     ~GLES3Context();
 
-public:
-    virtual bool initialize(const ContextInfo &info) override;
-    virtual void destroy() override;
-    virtual void present() override;
+    void present() override;
 
     bool MakeCurrent(bool bound);
     bool CheckExtension(const String &extension) const;
@@ -49,47 +45,52 @@ public:
 #if (CC_PLATFORM == CC_PLATFORM_MAC_IOS)
     CC_INLINE intptr_t eagl_context() const { return _eaglContext; }
     CC_INLINE intptr_t eagl_shared_ctx() const { return _eaglSharedContext; }
-    CC_INLINE uint getDefaultFramebuffer() const { return _defaultFBO; }
+    CC_INLINE uint     getDefaultFramebuffer() const { return _defaultFBO; }
 #else
     CC_INLINE NativeDisplayType native_display() const { return _nativeDisplay; }
-    CC_INLINE EGLDisplay egl_display() const { return _eglDisplay; }
-    CC_INLINE EGLConfig egl_config() const { return _eglConfig; }
-    CC_INLINE EGLSurface egl_surface() const { return _eglSurface; }
-    CC_INLINE EGLContext egl_context() const { return _eglContext; }
-    CC_INLINE EGLContext egl_shared_ctx() const { return _eglSharedContext; }
+    CC_INLINE EGLDisplay        egl_display() const { return _eglDisplay; }
+    CC_INLINE EGLConfig         egl_config() const { return _eglConfig; }
+    CC_INLINE EGLSurface        egl_surface() const { return _eglSurface; }
+    CC_INLINE EGLContext        egl_context() const { return _eglContext; }
+    CC_INLINE EGLContext        egl_shared_ctx() const { return _eglSharedContext; }
 #endif
     CC_INLINE bool MakeCurrent() { return MakeCurrent(true); }
-    CC_INLINE int major_ver() const { return _majorVersion; }
-    CC_INLINE int minor_ver() const { return _minorVersion; }
+    CC_INLINE int  major_ver() const { return _majorVersion; }
+    CC_INLINE int  minor_ver() const { return _minorVersion; }
 
-private:
+    void releaseSurface(uintptr_t windowHandle);
+    void acquireSurface(uintptr_t windowHandle);
+
+protected:
     bool MakeCurrentImpl(bool bound);
 #if (CC_PLATFORM == CC_PLATFORM_MAC_IOS)
     bool createCustomFrameBuffer();
-    void destroyCustomFrameBuffer();
+    void doDestroyCustomFrameBuffer();
 #endif
 
-private:
+protected:
+    bool doInit(const ContextInfo &info) override;
+    void doDestroy() override;
+
     bool _isPrimaryContex = false;
 #if (CC_PLATFORM == CC_PLATFORM_MAC_IOS)
-    intptr_t _eaglContext = 0;
+    intptr_t _eaglContext       = 0;
     intptr_t _eaglSharedContext = 0;
     // iOS needs to created frame buffer and attach color/depth/stencil buffer.
-    uint _defaultFBO = 0;
-    uint _defaultColorBuffer = 0;
+    uint _defaultFBO                = 0;
+    uint _defaultColorBuffer        = 0;
     uint _defaultDepthStencilBuffer = 0;
 #else
-    NativeDisplayType _nativeDisplay = 0;
-    EGLDisplay _eglDisplay = EGL_NO_DISPLAY;
-    EGLConfig _eglConfig = EGL_NO_CONFIG_KHR;
-    EGLSurface _eglSurface = EGL_NO_SURFACE;
-    EGLContext _eglContext = EGL_NO_CONTEXT;
-    EGLContext _eglSharedContext = EGL_NO_CONTEXT;
-#endif
-    int _majorVersion = 0;
-    int _minorVersion = 0;
-    StringArray _extensions;
-    bool _isInitialized = false;
+    NativeDisplayType           _nativeDisplay    = 0;
+    EGLDisplay                  _eglDisplay       = EGL_NO_DISPLAY;
+    EGLConfig                   _eglConfig        = EGL_NO_CONFIG_KHR;
+    EGLSurface                  _eglSurface       = EGL_NO_SURFACE;
+    EGLContext                  _eglContext       = EGL_NO_CONTEXT;
+    EGLContext                  _eglSharedContext = EGL_NO_CONTEXT;
+    int                         _majorVersion     = 0;
+    int                         _minorVersion     = 0;
+    StringArray                 _extensions;
+    bool                        _isInitialized = false;
 };
 
 } // namespace gfx

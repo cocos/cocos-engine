@@ -32,13 +32,10 @@
 namespace cc {
 namespace gfx {
 
-CCMTLRenderPass::CCMTLRenderPass(Device *device) : RenderPass(device) {}
+CCMTLRenderPass::CCMTLRenderPass() : RenderPass() {}
 
-bool CCMTLRenderPass::initialize(const RenderPassInfo &info) {
-    _colorAttachments = info.colorAttachments;
-    _depthStencilAttachment = info.depthStencilAttachment;
+void CCMTLRenderPass::doInit(const RenderPassInfo &info) {
     _renderTargetSizes.resize(_colorAttachments.size());
-
     _mtlRenderPassDescriptor = [[MTLRenderPassDescriptor alloc] init];
 
     uint i = 0;
@@ -53,13 +50,9 @@ bool CCMTLRenderPass::initialize(const RenderPassInfo &info) {
     _mtlRenderPassDescriptor.depthAttachment.storeAction = mu::toMTLStoreAction(_depthStencilAttachment.depthStoreOp);
     _mtlRenderPassDescriptor.stencilAttachment.loadAction = mu::toMTLLoadAction(_depthStencilAttachment.stencilLoadOp);
     _mtlRenderPassDescriptor.stencilAttachment.storeAction = mu::toMTLStoreAction(_depthStencilAttachment.stencilStoreOp);
-
-    _hash = computeHash();
-
-    return true;
 }
 
-void CCMTLRenderPass::destroy() {
+void CCMTLRenderPass::doDestroy() {
     if (_mtlRenderPassDescriptor) {
         [_mtlRenderPassDescriptor release];
         _mtlRenderPassDescriptor = nil;

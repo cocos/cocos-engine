@@ -31,12 +31,23 @@
 namespace cc {
 namespace gfx {
 
-PipelineLayout::PipelineLayout(Device *device)
-: GFXObject(ObjectType::PIPELINE_LAYOUT),
-  _device(device) {
+PipelineLayout::PipelineLayout()
+: GFXObject(ObjectType::PIPELINE_LAYOUT) {
 }
 
 PipelineLayout::~PipelineLayout() {
+}
+
+void PipelineLayout::initialize(const PipelineLayoutInfo& info) {
+    _setLayouts = info.setLayouts;
+
+    doInit(info);
+}
+
+void PipelineLayout::destroy() {
+    doDestroy();
+
+    _setLayouts.clear();
 }
 
 } // namespace gfx

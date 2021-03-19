@@ -30,28 +30,20 @@
 namespace cc {
 namespace gfx {
 
-GLES2RenderPass::GLES2RenderPass(Device *device)
-: RenderPass(device) {
+GLES2RenderPass::GLES2RenderPass()
+: RenderPass() {
 }
 
 GLES2RenderPass::~GLES2RenderPass() {
 }
 
-bool GLES2RenderPass::initialize(const RenderPassInfo &info) {
-
-    _colorAttachments = info.colorAttachments;
-    _depthStencilAttachment = info.depthStencilAttachment;
-
+void GLES2RenderPass::doInit(const RenderPassInfo &info) {
     _gpuRenderPass = CC_NEW(GLES2GPURenderPass);
     _gpuRenderPass->colorAttachments = _colorAttachments;
     _gpuRenderPass->depthStencilAttachment = _depthStencilAttachment;
-
-    _hash = computeHash();
-
-    return true;
 }
 
-void GLES2RenderPass::destroy() {
+void GLES2RenderPass::doDestroy() {
     if (_gpuRenderPass) {
         CC_DELETE(_gpuRenderPass);
         _gpuRenderPass = nullptr;

@@ -36,6 +36,9 @@
 #include "platform/android/jni/JniHelper.h"
 #include "platform/android/jni/JniCocosActivity.h"
 
+#include "renderer/GFXDeviceCreator.h"
+#include "pipeline/Define.h"
+
 #define LOG_APP_TAG "Application_android Debug"
 #define LOGD(...)   __android_log_print(ANDROID_LOG_DEBUG, LOG_APP_TAG, __VA_ARGS__)
 
@@ -47,7 +50,10 @@ extern "C" size_t __ctype_get_mb_cur_max(void) {
 }
 #endif
 
+namespace cc {
+
 namespace {
+
 bool setCanvasCallback(se::Object *global) {
     auto viewLogicalSize = cc::Application::getInstance()->getViewLogicalSize();
     se::AutoHandleScope scope;
@@ -59,11 +65,20 @@ bool setCanvasCallback(se::Object *global) {
             (uintptr_t)cc::cocosApp.window);
     se->evalString(commandBuf);
 
+    gfx::DeviceInfo deviceInfo;
+    deviceInfo.windowHandle = (uintptr_t)cc::cocosApp.window;
+    deviceInfo.width        = viewLogicalSize.x;
+    deviceInfo.height       = viewLogicalSize.y;
+    deviceInfo.nativeWidth  = viewLogicalSize.x;
+    deviceInfo.nativeHeight = viewLogicalSize.y;
+    deviceInfo.bindingMappingInfo = pipeline::bindingMappingInfo;
+
+    gfx::DeviceCreator::createDevice(deviceInfo);
+
     return true;
 }
-} // namespace
 
-namespace cc {
+} // namespace
 
 Application *Application::_instance = nullptr;
 std::shared_ptr<Scheduler> Application::_scheduler = nullptr;

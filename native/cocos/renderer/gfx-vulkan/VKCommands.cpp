@@ -82,7 +82,7 @@ void CCVKCmdFuncGetDeviceQueue(CCVKDevice *device, CCVKGPUQueue *gpuQueue) {
         case QueueType::TRANSFER: queueType = VK_QUEUE_TRANSFER_BIT; break;
     }
 
-    const CCVKGPUContext *context = ((CCVKContext *)device->getContext())->gpuContext();
+    const CCVKGPUContext *context = device->gpuContext();
 
     size_t queueCount = context->queueFamilyProperties.size();
     for (size_t i = 0u; i < queueCount; ++i) {
@@ -450,7 +450,7 @@ void CCVKCmdFuncCreateFramebuffer(CCVKDevice *device, CCVKGPUFramebuffer *gpuFra
 
 void CCVKCmdFuncCreateShader(CCVKDevice *device, CCVKGPUShader *gpuShader) {
     for (CCVKGPUShaderStage &stage : gpuShader->gpuStages) {
-        vector<unsigned int>     spirv = GLSL2SPIRV(stage.type, "#version 450\n" + stage.source, ((CCVKContext *)device->getContext())->minorVersion());
+        vector<unsigned int>     spirv = GLSL2SPIRV(stage.type, "#version 450\n" + stage.source, device->gpuDevice()->minorVersion);
         VkShaderModuleCreateInfo createInfo{VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO};
         createInfo.codeSize = spirv.size() * sizeof(unsigned int);
         createInfo.pCode    = spirv.data();

@@ -55,7 +55,7 @@ public:
         }
     }
 
-private:
+protected:
     dispatch_semaphore_t _semaphore = nullptr;
     uint _semaphoreCount = 0;
 };

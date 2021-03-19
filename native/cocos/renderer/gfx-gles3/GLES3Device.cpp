@@ -46,42 +46,46 @@
 namespace cc {
 namespace gfx {
 
+GLES3Device *GLES3Device::_instance = nullptr;
+
+GLES3Device *GLES3Device::getInstance() {
+    return GLES3Device::_instance;
+}
+
 GLES3Device::GLES3Device() {
+    _API        = API::GLES3;
+    _deviceName = "GLES3";
+
+    GLES3Device::_instance = this;
 }
 
 GLES3Device::~GLES3Device() {
+    GLES3Device::_instance = nullptr;
 }
 
-bool GLES3Device::initialize(const DeviceInfo &info) {
-    _API          = API::GLES3;
-    _deviceName   = "GLES3";
-    _width        = info.width;
-    _height       = info.height;
-    _nativeWidth  = info.nativeWidth;
-    _nativeHeight = info.nativeHeight;
-    _windowHandle = info.windowHandle;
+bool GLES3Device::doInit(const DeviceInfo &info) {
+    ContextInfo ctxInfo;
+    ctxInfo.windowHandle = _windowHandle;
 
-    _bindingMappingInfo = info.bindingMappingInfo;
-    if (!_bindingMappingInfo.bufferOffsets.size()) {
-        _bindingMappingInfo.bufferOffsets.push_back(0);
+    _renderContext = CC_NEW(GLES3Context);
+    if (!_renderContext->initialize(ctxInfo)) {
+        destroy();
+        return false;
     }
-    if (!_bindingMappingInfo.samplerOffsets.size()) {
-        _bindingMappingInfo.samplerOffsets.push_back(0);
-    }
+
+    QueueInfo queueInfo;
+    queueInfo.type = QueueType::GRAPHICS;
+    _queue         = createQueue(queueInfo);
+
+    CommandBufferInfo cmdBuffInfo;
+    cmdBuffInfo.type  = CommandBufferType::PRIMARY;
+    cmdBuffInfo.queue = _queue;
+    _cmdBuff          = createCommandBuffer(cmdBuffInfo);
 
     _gpuStateCache          = CC_NEW(GLES3GPUStateCache);
     _gpuStagingBufferPool   = CC_NEW(GLES3GPUStagingBufferPool);
     _gpuFramebufferCacheMap = CC_NEW(GLES3GPUFramebufferCacheMap(_gpuStateCache));
 
-    ContextInfo ctxInfo;
-    ctxInfo.windowHandle = _windowHandle;
-    ctxInfo.sharedCtx    = info.sharedCtx;
-
-    _renderContext = CC_NEW(GLES3Context(this));
-    if (!_renderContext->initialize(ctxInfo)) {
-        destroy();
-        return false;
-    }
     bindRenderContext(true);
 
     String extStr = (const char *)glGetString(GL_EXTENSIONS);
@@ -95,7 +99,7 @@ bool GLES3Device::initialize(const DeviceInfo &info) {
     _features[(uint)Feature::INSTANCED_ARRAYS]        = true;
     _features[(uint)Feature::MULTIPLE_RENDER_TARGETS] = true;
     _features[(uint)Feature::BLEND_MINMAX]            = true;
-    _features[(int)Feature::ELEMENT_INDEX_UINT] = true;
+    _features[(uint)Feature::ELEMENT_INDEX_UINT]      = true;
 
     uint minorVersion = ((GLES3Context *)_context)->minor_ver();
     if (minorVersion)
@@ -155,15 +159,6 @@ bool GLES3Device::initialize(const DeviceInfo &info) {
     CC_LOG_INFO("NATIVE_SIZE: %d x %d", _nativeWidth, _nativeHeight);
     CC_LOG_INFO("COMPRESSED_FORMATS: %s", compressedFmts.c_str());
 
-    QueueInfo queueInfo;
-    queueInfo.type = QueueType::GRAPHICS;
-    _queue         = createQueue(queueInfo);
-
-    CommandBufferInfo cmdBuffInfo;
-    cmdBuffInfo.type  = CommandBufferType::PRIMARY;
-    cmdBuffInfo.queue = _queue;
-    _cmdBuff          = createCommandBuffer(cmdBuffInfo);
-
     glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, (GLint *)&_caps.maxVertexAttributes);
     glGetIntegerv(GL_MAX_VERTEX_UNIFORM_VECTORS, (GLint *)&_caps.maxVertexUniformVectors);
     glGetIntegerv(GL_MAX_FRAGMENT_UNIFORM_VECTORS, (GLint *)&_caps.maxFragmentUniformVectors);
@@ -176,7 +171,7 @@ bool GLES3Device::initialize(const DeviceInfo &info) {
     glGetIntegerv(GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT, (GLint *)&_caps.uboOffsetAlignment);
     glGetIntegerv(GL_DEPTH_BITS, (GLint *)&_caps.depthBits);
     glGetIntegerv(GL_STENCIL_BITS, (GLint *)&_caps.stencilBits);
-    
+
     if (minorVersion) {
         glGetIntegerv(GL_MAX_IMAGE_UNITS, (GLint *)&_caps.maxImageUnits);
         glGetIntegerv(GL_MAX_SHADER_STORAGE_BLOCK_SIZE, (GLint *)&_caps.maxShaderStorageBlockSize);
@@ -196,14 +191,23 @@ bool GLES3Device::initialize(const DeviceInfo &info) {
     return true;
 }
 
-void GLES3Device::destroy() {
-    CC_SAFE_DESTROY(_queue);
-    CC_SAFE_DESTROY(_cmdBuff);
+void GLES3Device::doDestroy() {
     CC_SAFE_DELETE(_gpuFramebufferCacheMap);
     CC_SAFE_DELETE(_gpuStagingBufferPool);
     CC_SAFE_DELETE(_gpuStateCache);
+
+    CC_SAFE_DESTROY(_cmdBuff);
+    CC_SAFE_DESTROY(_queue);
     CC_SAFE_DESTROY(_deviceContext);
     CC_SAFE_DESTROY(_renderContext);
+}
+
+void GLES3Device::releaseSurface(const uintptr_t windowHandle) {
+    ((GLES3Context *)_context)->releaseSurface(windowHandle);
+}
+
+void GLES3Device::acquireSurface(const uintptr_t windowHandle) {
+    ((GLES3Context *)_context)->acquireSurface(windowHandle);
 }
 
 void GLES3Device::resize(uint width, uint height) {
@@ -245,7 +249,7 @@ void GLES3Device::bindDeviceContext(bool bound) {
         ctxInfo.windowHandle = _windowHandle;
         ctxInfo.sharedCtx    = _renderContext;
 
-        _deviceContext = CC_NEW(GLES3Context(this));
+        _deviceContext = CC_NEW(GLES3Context);
         _deviceContext->initialize(ctxInfo);
     }
     _deviceContext->MakeCurrent(bound);
@@ -259,65 +263,65 @@ void GLES3Device::bindDeviceContext(bool bound) {
 
 uint GLES3Device::getMinorVersion() const { return ((GLES3Context *)_context)->minor_ver(); }
 
-CommandBuffer *GLES3Device::doCreateCommandBuffer(const CommandBufferInfo &info, bool hasAgent) {
-    if (hasAgent || info.type == CommandBufferType::PRIMARY) return CC_NEW(GLES3PrimaryCommandBuffer(this));
-    return CC_NEW(GLES3CommandBuffer(this));
+CommandBuffer *GLES3Device::createCommandBuffer(const CommandBufferInfo &info, bool hasAgent) {
+    if (hasAgent || info.type == CommandBufferType::PRIMARY) return CC_NEW(GLES3PrimaryCommandBuffer);
+    return CC_NEW(GLES3CommandBuffer);
 }
 
 Queue *GLES3Device::createQueue() {
-    return CC_NEW(GLES3Queue(this));
+    return CC_NEW(GLES3Queue);
 }
 
 Buffer *GLES3Device::createBuffer() {
-    return CC_NEW(GLES3Buffer(this));
+    return CC_NEW(GLES3Buffer);
 }
 
 Texture *GLES3Device::createTexture() {
-    return CC_NEW(GLES3Texture(this));
+    return CC_NEW(GLES3Texture);
 }
 
 Sampler *GLES3Device::createSampler() {
-    return CC_NEW(GLES3Sampler(this));
+    return CC_NEW(GLES3Sampler);
 }
 
 Shader *GLES3Device::createShader() {
-    return CC_NEW(GLES3Shader(this));
+    return CC_NEW(GLES3Shader);
 }
 
 InputAssembler *GLES3Device::createInputAssembler() {
-    return CC_NEW(GLES3InputAssembler(this));
+    return CC_NEW(GLES3InputAssembler);
 }
 
 RenderPass *GLES3Device::createRenderPass() {
-    return CC_NEW(GLES3RenderPass(this));
+    return CC_NEW(GLES3RenderPass);
 }
 
 Framebuffer *GLES3Device::createFramebuffer() {
-    return CC_NEW(GLES3Framebuffer(this));
+    return CC_NEW(GLES3Framebuffer);
 }
 
 DescriptorSet *GLES3Device::createDescriptorSet() {
-    return CC_NEW(GLES3DescriptorSet(this));
+    return CC_NEW(GLES3DescriptorSet);
 }
 
 DescriptorSetLayout *GLES3Device::createDescriptorSetLayout() {
-    return CC_NEW(GLES3DescriptorSetLayout(this));
+    return CC_NEW(GLES3DescriptorSetLayout);
 }
 
 PipelineLayout *GLES3Device::createPipelineLayout() {
-    return CC_NEW(GLES3PipelineLayout(this));
+    return CC_NEW(GLES3PipelineLayout);
 }
 
 PipelineState *GLES3Device::createPipelineState() {
-    return CC_NEW(GLES3PipelineState(this));
+    return CC_NEW(GLES3PipelineState);
 }
 
 GlobalBarrier *GLES3Device::createGlobalBarrier() {
-    return CC_NEW(GLES3GlobalBarrier(this));
+    return CC_NEW(GLES3GlobalBarrier);
 }
 
 TextureBarrier *GLES3Device::createTextureBarrier() {
-    return CC_NEW(TextureBarrier(this));
+    return CC_NEW(TextureBarrier);
 }
 
 void GLES3Device::copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint count) {

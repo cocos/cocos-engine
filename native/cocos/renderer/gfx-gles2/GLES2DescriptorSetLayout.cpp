@@ -31,45 +31,21 @@
 namespace cc {
 namespace gfx {
 
-GLES2DescriptorSetLayout::GLES2DescriptorSetLayout(Device *device)
-: DescriptorSetLayout(device) {
+GLES2DescriptorSetLayout::GLES2DescriptorSetLayout()
+: DescriptorSetLayout() {
 }
 
 GLES2DescriptorSetLayout::~GLES2DescriptorSetLayout() {
 }
 
-bool GLES2DescriptorSetLayout::initialize(const DescriptorSetLayoutInfo &info) {
-
-    _bindings = info.bindings;
-    size_t bindingCount = _bindings.size();
-    _descriptorCount = 0u;
-
-    if (bindingCount) {
-        uint maxBinding = 0u;
-        vector<uint> flattenedIndices(bindingCount);
-        for (uint i = 0u; i < bindingCount; i++) {
-            const DescriptorSetLayoutBinding &binding = _bindings[i];
-            flattenedIndices[i] = _descriptorCount;
-            _descriptorCount += binding.count;
-            if (binding.binding > maxBinding) maxBinding = binding.binding;
-        }
-
-        _bindingIndices.resize(maxBinding + 1, GFX_INVALID_BINDING);
-        _descriptorIndices.resize(maxBinding + 1, GFX_INVALID_BINDING);
-        for (uint i = 0u; i <  bindingCount; i++) {
-            const DescriptorSetLayoutBinding &binding = _bindings[i];
-            _bindingIndices[binding.binding] = i;
-            _descriptorIndices[binding.binding] = flattenedIndices[i];
-        }
-    }
-
+void GLES2DescriptorSetLayout::doInit(const DescriptorSetLayoutInfo &info) {
     _gpuDescriptorSetLayout = CC_NEW(GLES2GPUDescriptorSetLayout);
     _gpuDescriptorSetLayout->descriptorCount = _descriptorCount;
     _gpuDescriptorSetLayout->bindingIndices = _bindingIndices;
     _gpuDescriptorSetLayout->descriptorIndices = _descriptorIndices;
     _gpuDescriptorSetLayout->bindings = _bindings;
 
-    for (uint i = 0u; i < bindingCount; i++) {
+    for (uint i = 0u; i < _bindings.size(); i++) {
         const DescriptorSetLayoutBinding &binding = _bindings[i];
         if (binding.descriptorType & DESCRIPTOR_DYNAMIC_TYPE) {
             for (uint j = 0u; j < binding.count; j++) {
@@ -77,10 +53,9 @@ bool GLES2DescriptorSetLayout::initialize(const DescriptorSetLayoutInfo &info) {
             }
         }
     }
-    return true;
 }
 
-void GLES2DescriptorSetLayout::destroy() {
+void GLES2DescriptorSetLayout::doDestroy() {
     if (_gpuDescriptorSetLayout) {
         CC_DELETE(_gpuDescriptorSetLayout);
         _gpuDescriptorSetLayout = nullptr;

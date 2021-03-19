@@ -23,8 +23,7 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#ifndef CC_GFXGLES2_GPU_OBJECTS_H_
-#define CC_GFXGLES2_GPU_OBJECTS_H_
+#pragma once
 
 #include "gfx-base/GFXDef.h"
 #include "GLES2Wrangler.h"
@@ -408,5 +407,3 @@ private:
 
 } // namespace gfx
 } // namespace cc
-
-#endif

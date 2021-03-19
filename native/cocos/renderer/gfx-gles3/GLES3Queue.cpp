@@ -24,27 +24,26 @@
 ****************************************************************************/
 
 #include "GLES3Std.h"
-#include "GLES3Queue.h"
-#include "GLES3Commands.h"
+
 #include "GLES3CommandBuffer.h"
+#include "GLES3Commands.h"
+#include "GLES3Device.h"
+#include "GLES3Queue.h"
 
 namespace cc {
 namespace gfx {
 
-GLES3Queue::GLES3Queue(Device *device)
-: Queue(device) {
+GLES3Queue::GLES3Queue()
+: Queue() {
 }
 
 GLES3Queue::~GLES3Queue() {
 }
 
-bool GLES3Queue::initialize(const QueueInfo &info) {
-    _type = info.type;
-
-    return true;
+void GLES3Queue::doInit(const QueueInfo &info) {
 }
 
-void GLES3Queue::destroy() {
+void GLES3Queue::doDestroy() {
 }
 
 void GLES3Queue::submit(CommandBuffer *const *cmdBuffs, uint count) {
@@ -54,7 +53,7 @@ void GLES3Queue::submit(CommandBuffer *const *cmdBuffs, uint count) {
         if (!cmdBuff->_pendingPackages.empty()) {
             GLES3CmdPackage *cmdPackage = cmdBuff->_pendingPackages.front();
 
-            GLES3CmdFuncExecuteCmds((GLES3Device *)_device, cmdPackage);
+            GLES3CmdFuncExecuteCmds(GLES3Device::getInstance(), cmdPackage);
 
             cmdBuff->_pendingPackages.pop();
             cmdBuff->_freePackages.push(cmdPackage);

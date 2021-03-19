@@ -30,11 +30,21 @@
 namespace cc {
 namespace gfx {
 
-Context::Context(Device *device)
-: _device(device) {
+Context::Context() {
 }
 
 Context::~Context() {
+}
+
+bool Context::initialize(const ContextInfo& info) {
+    _vsyncMode    = info.vsyncMode;
+    _windowHandle = info.windowHandle;
+
+    return doInit(info);
+}
+
+void Context::destroy() {
+    doDestroy();
 }
 
 } // namespace gfx

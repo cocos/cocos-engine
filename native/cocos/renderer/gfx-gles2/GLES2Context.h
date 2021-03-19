@@ -23,8 +23,7 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#ifndef CC_GFXGLES2_EGL_CONTEXT_H_
-#define CC_GFXGLES2_EGL_CONTEXT_H_
+#pragma once
 
 #include "gfx-base/GFXContext.h"
 #include "GLES2Wrangler.h"
@@ -34,13 +33,10 @@ namespace gfx {
 
 class CC_GLES2_API GLES2Context final : public Context {
 public:
-    GLES2Context(Device *device);
+    GLES2Context();
     ~GLES2Context();
 
-public:
-    virtual bool initialize(const ContextInfo &info) override;
-    virtual void destroy() override;
-    virtual void present() override;
+    void present() override;
     bool MakeCurrent(bool bound);
 
     bool CheckExtension(const String &extension) const;
@@ -61,15 +57,17 @@ public:
     CC_INLINE int major_ver() const { return _majorVersion; }
     CC_INLINE int minor_ver() const { return _minorVersion; }
 
-private:
     bool MakeCurrentImpl(bool bound);
 
 #if (CC_PLATFORM == CC_PLATFORM_MAC_IOS)
     bool createCustomFrameBuffer();
-    void destroyCustomFrameBuffer();
+    void doDestroyCustomFrameBuffer();
 #endif
 
-private:
+protected:
+    bool doInit(const ContextInfo &info) override;
+    void doDestroy() override;
+
     bool _isPrimaryContex = false;
 #if (CC_PLATFORM == CC_PLATFORM_MAC_IOS)
     intptr_t _eaglContext = 0;
@@ -94,5 +92,3 @@ private:
 
 } // namespace gfx
 } // namespace cc
-
-#endif // CC_GFXGLES2_EGL_CONTEXT_H_

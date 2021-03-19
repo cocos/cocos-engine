@@ -23,8 +23,7 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#ifndef CC_GFXVULKAN_FRAMEBUFFER_H_
-#define CC_GFXVULKAN_FRAMEBUFFER_H_
+#pragma once
 
 #include "gfx-base/GFXFramebuffer.h"
 
@@ -35,20 +34,17 @@ class CCVKGPUFramebuffer;
 
 class CC_VULKAN_API CCVKFramebuffer final : public Framebuffer {
 public:
-    CCVKFramebuffer(Device *device);
+    CCVKFramebuffer();
     ~CCVKFramebuffer() override;
-
-public:
-    bool initialize(const FramebufferInfo &info);
-    void destroy();
 
     CC_INLINE CCVKGPUFramebuffer *gpuFBO() const { return _gpuFBO; }
 
-private:
+protected:
+    void doInit(const FramebufferInfo &info) override;
+    void doDestroy() override;
+
     CCVKGPUFramebuffer *_gpuFBO = nullptr;
 };
 
 } // namespace gfx
 } // namespace cc
-
-#endif

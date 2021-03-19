@@ -34,19 +34,13 @@
 
 namespace cc {
 namespace gfx {
-CCMTLDescriptorSet::CCMTLDescriptorSet(Device *device) : DescriptorSet(device) {
+CCMTLDescriptorSet::CCMTLDescriptorSet() : DescriptorSet() {
 }
 
-bool CCMTLDescriptorSet::initialize(const DescriptorSetInfo &info) {
-    _layout = info.layout;
-
+void CCMTLDescriptorSet::doInit(const DescriptorSetInfo &info) {
     const auto gpuDescriptorSetLayout = static_cast<CCMTLDescriptorSetLayout *>(_layout)->gpuDescriptorSetLayout();
     const auto descriptorCount = gpuDescriptorSetLayout->descriptorCount;
     const auto bindingCount = gpuDescriptorSetLayout->bindings.size();
-
-    _buffers.resize(descriptorCount);
-    _textures.resize(descriptorCount);
-    _samplers.resize(descriptorCount);
 
     _gpuDescriptorSet = CC_NEW(CCMTLGPUDescriptorSet);
     _gpuDescriptorSet->descriptorIndices = &gpuDescriptorSetLayout->descriptorIndices;
@@ -57,16 +51,10 @@ bool CCMTLDescriptorSet::initialize(const DescriptorSetInfo &info) {
             _gpuDescriptorSet->gpuDescriptors[k].type = binding.descriptorType;
         }
     }
-
-    return true;
 }
-void CCMTLDescriptorSet::destroy() {
-    _layout = nullptr;
+
+void CCMTLDescriptorSet::doDestroy() {
     CC_SAFE_DELETE(_gpuDescriptorSet);
-    // do remember to clear these or else it might not be properly updated when reused
-    _buffers.clear();
-    _textures.clear();
-    _samplers.clear();
 }
 
 void CCMTLDescriptorSet::update() {

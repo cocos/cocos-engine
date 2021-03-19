@@ -23,8 +23,7 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#ifndef CC_CORE_GFX_DESCRIPTOR_SET_H_
-#define CC_CORE_GFX_DESCRIPTOR_SET_H_
+#pragma once
 
 #include "GFXObject.h"
 
@@ -33,12 +32,13 @@ namespace gfx {
 
 class CC_DLL DescriptorSet : public GFXObject {
 public:
-    DescriptorSet(Device *device);
+    DescriptorSet();
     virtual ~DescriptorSet();
 
 public:
-    virtual bool initialize(const DescriptorSetInfo &info) = 0;
-    virtual void destroy() = 0;
+    void         initialize(const DescriptorSetInfo &info);
+    void         destroy();
+
     virtual void update() = 0;
 
     virtual void bindBuffer(uint binding, Buffer *buffer, uint index);
@@ -50,30 +50,28 @@ public:
     bool bindTextureJSB(uint binding, Texture *texture, uint index);
     bool bindSamplerJSB(uint binding, Sampler *sampler, uint index);
 
-    Buffer *getBuffer(uint binding, uint index) const;
+    Buffer * getBuffer(uint binding, uint index) const;
     Texture *getTexture(uint binding, uint index) const;
     Sampler *getSampler(uint binding, uint index) const;
 
-    CC_INLINE Device *getDevice() const { return _device; }
-    CC_INLINE void bindBuffer(uint binding, Buffer *buffer) { bindBuffer(binding, buffer, 0u); }
-    CC_INLINE void bindTexture(uint binding, Texture *texture) { bindTexture(binding, texture, 0u); }
-    CC_INLINE void bindSampler(uint binding, Sampler *sampler) { bindSampler(binding, sampler, 0u); }
+    CC_INLINE void    bindBuffer(uint binding, Buffer *buffer) { bindBuffer(binding, buffer, 0u); }
+    CC_INLINE void    bindTexture(uint binding, Texture *texture) { bindTexture(binding, texture, 0u); }
+    CC_INLINE void    bindSampler(uint binding, Sampler *sampler) { bindSampler(binding, sampler, 0u); }
     CC_INLINE Buffer *getBuffer(uint binding) const { return getBuffer(binding, 0u); }
     CC_INLINE Texture *getTexture(uint binding) const { return getTexture(binding, 0u); }
     CC_INLINE Sampler *getSampler(uint binding) const { return getSampler(binding, 0u); }
 
 protected:
-    Device *_device = nullptr;
+    virtual void doInit(const DescriptorSetInfo &info) = 0;
+    virtual void doDestroy()                           = 0;
 
     DescriptorSetLayout *_layout;
-    BufferList _buffers;
-    TextureList _textures;
-    SamplerList _samplers;
+    BufferList           _buffers;
+    TextureList          _textures;
+    SamplerList          _samplers;
 
     bool _isDirty = false;
 };
 
 } // namespace gfx
 } // namespace cc
-
-#endif // CC_CORE_GFX_DESCRIPTOR_SET_H_

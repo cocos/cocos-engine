@@ -34,27 +34,26 @@ namespace gfx {
 
 class CCMTLTexture final : public Texture {
 public:
-    explicit CCMTLTexture(Device *device);
+    explicit CCMTLTexture();
     ~CCMTLTexture() override = default;
     CCMTLTexture(const CCMTLTexture &) = delete;
     CCMTLTexture(CCMTLTexture &&) = delete;
     CCMTLTexture &operator=(const CCMTLTexture &) = delete;
     CCMTLTexture &operator=(CCMTLTexture &&) = delete;
 
-    bool initialize(const TextureInfo &info) override;
-    bool initialize(const TextureViewInfo &info) override;
-    void destroy() override;
-    void resize(uint width, uint height) override;
-
     CC_INLINE id<MTLTexture> getMTLTexture() const { return _mtlTexture; }
     CC_INLINE Format getConvertedFormat() const { return _convertedFormat; }
     CC_INLINE bool isArray() const { return _isArray; }
     CC_INLINE bool isPVRTC() const { return _isPVRTC; }
 
-private:
+protected:
+    void doInit(const TextureInfo &info) override;
+    void doInit(const TextureViewInfo &info) override;
+    void doDestroy() override;
+    void doResize(uint width, uint height) override;
+
     bool createMTLTexture();
 
-private:
     id<MTLTexture> _mtlTexture = nil;
     Format _convertedFormat = Format::UNKNOWN;
     bool _isArray = false;

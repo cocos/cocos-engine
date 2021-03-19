@@ -33,7 +33,7 @@
 namespace cc {
 namespace gfx {
 
-bool GLES3Context::initialize(const ContextInfo &info) {
+void GLES3Context::doInit(const ContextInfo &info) {
 
     _vsyncMode = info.vsyncMode;
     _windowHandle = info.windowHandle;
@@ -189,7 +189,7 @@ void GLES3Context::destroyCustomFrameBuffer() {
     }
 }
 
-void GLES3Context::destroy() {
+void GLES3Context::doDestroy() {
     destroyCustomFrameBuffer();
 
     if (_eaglContext) {

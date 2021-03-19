@@ -23,8 +23,7 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#ifndef CC_GFXGLES3_TEXTURE_H_
-#define CC_GFXGLES3_TEXTURE_H_
+#pragma once
 
 #include "gfx-base/GFXTexture.h"
 
@@ -35,22 +34,19 @@ class GLES3GPUTexture;
 
 class CC_GLES3_API GLES3Texture final : public Texture {
 public:
-    GLES3Texture(Device *device);
+    GLES3Texture();
     ~GLES3Texture();
-
-public:
-    virtual bool initialize(const TextureInfo &info) override;
-    virtual bool initialize(const TextureViewInfo &info) override;
-    virtual void destroy() override;
-    virtual void resize(uint width, uint height) override;
 
     CC_INLINE GLES3GPUTexture *gpuTexture() const { return _gpuTexture; }
 
-private:
+protected:
+    void doInit(const TextureInfo &info) override;
+    void doInit(const TextureViewInfo &info) override;
+    void doDestroy() override;
+    void doResize(uint width, uint height) override;
+
     GLES3GPUTexture *_gpuTexture = nullptr;
 };
 
 } // namespace gfx
 } // namespace cc
-
-#endif

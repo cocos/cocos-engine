@@ -30,9 +30,22 @@
 
 namespace cc {
 namespace pipeline {
+
+int GLOBAL_UBO_COUNT = static_cast<int>(PipelineGlobalBindings::SAMPLER_SHADOWMAP);
+int GLOBAL_SAMPLER_COUNT = static_cast<int>(PipelineGlobalBindings::COUNT) - GLOBAL_UBO_COUNT;
+
+int LOCAL_UBO_COUNT     = static_cast<int>(ModelLocalBindings::SAMPLER_JOINTS);
+int LOCAL_SAMPLER_COUNT = static_cast<int>(ModelLocalBindings::COUNT) - LOCAL_UBO_COUNT;
+
 uint GLOBAL_SET   = static_cast<uint>(SetIndex::GLOBAL);
 uint MATERIAL_SET = static_cast<uint>(SetIndex::MATERIAL);
 uint LOCAL_SET    = static_cast<uint>(SetIndex::LOCAL);
+
+gfx::BindingMappingInfo bindingMappingInfo = {
+    {0, GLOBAL_UBO_COUNT + LOCAL_UBO_COUNT, GLOBAL_UBO_COUNT},
+    {-GLOBAL_UBO_COUNT, GLOBAL_SAMPLER_COUNT + LOCAL_SAMPLER_COUNT, GLOBAL_SAMPLER_COUNT - LOCAL_UBO_COUNT},
+    1,
+};
 
 DescriptorSetLayoutInfos              globalDescriptorSetLayout;
 DescriptorSetLayoutInfos              localDescriptorSetLayout;

@@ -23,8 +23,7 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#ifndef CC_GFXGLES3_COMMANDS_H_
-#define CC_GFXGLES3_COMMANDS_H_
+#pragma once
 
 #include "../gfx-gles-common/GLESCommandPool.h"
 #include "GLES3GPUObjects.h"
@@ -84,7 +83,7 @@ public:
 
     GLES3CmdBeginRenderPass() : GLESCmd(GLESCmdType::BEGIN_RENDER_PASS) {}
 
-    virtual void clear() override {
+    void clear() override {
         gpuFBO = nullptr;
         numClearColors = 0;
     }
@@ -120,7 +119,7 @@ public:
 
     GLES3CmdBindStates() : GLESCmd(GLESCmdType::BIND_STATES) {}
 
-    virtual void clear() override {
+    void clear() override {
         gpuPipelineState = nullptr;
         gpuInputAssembler = nullptr;
         gpuDescriptorSets.clear();
@@ -133,7 +132,7 @@ public:
     DrawInfo drawInfo;
 
     GLES3CmdDraw() : GLESCmd(GLESCmdType::DRAW) {}
-    virtual void clear() override {}
+    void clear() override {}
 };
 
 class GLES3CmdDispatch final : public GLESCmd {
@@ -141,7 +140,7 @@ public:
     GLES3GPUDispatchInfo dispatchInfo;
 
     GLES3CmdDispatch() : GLESCmd(GLESCmdType::DISPATCH) {}
-    virtual void clear() override {
+    void clear() override {
         dispatchInfo.indirectBuffer = nullptr;
         dispatchInfo.indirectOffset = 0;
     }
@@ -153,7 +152,7 @@ public:
     GLbitfield barriersByRegion = 0u;
 
     GLES3CmdBarrier() : GLESCmd(GLESCmdType::BARRIER) {}
-    virtual void clear() override {
+    void clear() override {
         barriers = 0u;
         barriersByRegion = 0u;
     }
@@ -168,7 +167,7 @@ public:
 
     GLES3CmdUpdateBuffer() : GLESCmd(GLESCmdType::UPDATE_BUFFER) {}
 
-    virtual void clear() override {
+    void clear() override {
         gpuBuffer = nullptr;
         buffer = nullptr;
     }
@@ -183,7 +182,7 @@ public:
 
     GLES3CmdCopyBufferToTexture() : GLESCmd(GLESCmdType::COPY_BUFFER_TO_TEXTURE) {}
 
-    virtual void clear() override {
+    void clear() override {
         gpuTexture = nullptr;
         regions = nullptr;
         count = 0u;
@@ -201,7 +200,7 @@ public:
 
     GLES3CmdBlitTexture() : GLESCmd(GLESCmdType::BLIT_TEXTURE) {}
 
-    virtual void clear() override {
+    void clear() override {
         gpuTextureSrc = nullptr;
         gpuTextureDst = nullptr;
         regions = nullptr;
@@ -307,5 +306,3 @@ CC_GLES3_API void GLES3CmdFuncMemoryBarrier(GLES3Device *device, GLbitfield barr
 
 } // namespace gfx
 } // namespace cc
-
-#endif

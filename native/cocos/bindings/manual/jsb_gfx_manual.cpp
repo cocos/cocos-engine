@@ -29,35 +29,8 @@
 #include "bindings/manual/jsb_conversions.h"
 #include "bindings/manual/jsb_global.h"
 
-#ifdef CC_USE_VULKAN
-    #include "bindings/auto/jsb_vk_auto.h"
-    #include "gfx-vulkan/GFXVulkan.h"
-#endif
-
-#ifdef CC_USE_METAL
-    #include "bindings/auto/jsb_mtl_auto.h"
-    #include "gfx-metal/GFXMTL.h"
-#endif
-
-#ifdef CC_USE_GLES3
-    #include "bindings/auto/jsb_gles3_auto.h"
-    #include "gfx-gles3/GFXGLES3.h"
-#endif
-
-#ifdef CC_USE_GLES2
-    #include "bindings/auto/jsb_gles2_auto.h"
-    #include "gfx-gles2/GFXGLES2.h"
-#endif
-
 #include <fstream>
 #include <sstream>
-
-#define GFX_MAX_VERTEX_ATTRIBUTES 16
-#define GFX_MAX_TEXTURE_UNITS     16
-#define GFX_MAX_ATTACHMENTS       4
-#define GFX_MAX_BUFFER_BINDINGS   24
-#define GFX_INVALID_BINDING       ((uint8_t)-1)
-#define GFX_INVALID_HANDLE        ((uint)-1)
 
 bool js_gfx_Device_copyBuffersToTexture(se::State &s) {
     cc::gfx::Device *cobj = (cc::gfx::Device *)s.nativeThisObject();
@@ -238,10 +211,10 @@ static bool js_gfx_Buffer_initialize(se::State &s) {
 
         if (initWithBufferViewInfo) {
             auto bufferViewInfo = (cc::gfx::BufferViewInfo *)(args[0].toObject()->getPrivateData());
-            ok &= cobj->initialize(*bufferViewInfo);
+            cobj->initialize(*bufferViewInfo);
         } else {
             auto bufferInfo = (cc::gfx::BufferInfo *)(args[0].toObject()->getPrivateData());
-            ok &= cobj->initialize(*bufferInfo);
+            cobj->initialize(*bufferInfo);
         }
 
         ok &= boolean_to_seval(ok, &s.rval());
@@ -267,10 +240,10 @@ static bool js_gfx_Texture_initialize(se::State &s) {
 
         if (initWithTextureViewInfo) {
             auto textureViewInfo = (cc::gfx::TextureViewInfo *)(args[0].toObject()->getPrivateData());
-            ok &= cobj->initialize(*textureViewInfo);
+            cobj->initialize(*textureViewInfo);
         } else {
             auto textureInfo = (cc::gfx::TextureInfo *)(args[0].toObject()->getPrivateData());
-            ok &= cobj->initialize(*textureInfo);
+            cobj->initialize(*textureInfo);
         }
 
         ok &= boolean_to_seval(ok, &s.rval());
@@ -512,20 +485,11 @@ bool register_all_gfx_manual(se::Object *obj) {
     }
     se::Object *ns = nsVal.toObject();
 
-    //    js_register_gfx_SubPass(ns);
-
-#ifdef CC_USE_VULKAN
-    register_all_vk(obj);
-#endif
-#ifdef CC_USE_GLES3
-    register_all_gles3(obj);
-#endif
-#ifdef CC_USE_GLES2
-    register_all_gles2(obj);
-#endif
-#ifdef CC_USE_METAL
-    register_all_mtl(obj);
-#endif
+    {
+        se::Value jsret;
+        nativevalue_to_se(cc::gfx::Device::getInstance(), jsret, nullptr);
+        ns->setProperty("deviceInstance", jsret);
+    }
 
     return true;
 }

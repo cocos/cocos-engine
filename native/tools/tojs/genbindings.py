@@ -144,36 +144,33 @@ def main():
         output_dir = '%s/cocos/bindings/auto' % project_root
 
         cmd_args = {
-                    'cocos.ini' : ('cocos', 'jsb_cocos_auto'),
-                    'video.ini': ('video', 'jsb_video_auto'),
-                    'webview.ini': ('webview', 'jsb_webview_auto'),
-                    'audio.ini' : ('audio', 'jsb_audio_auto'),
-                    'extension.ini' : ('extension', 'jsb_extension_auto'),
-                    'network.ini' : ('network', 'jsb_network_auto'),
-                    'gfx.ini': ('gfx', 'jsb_gfx_auto'),
-                    'gles2.ini': ('gles2', 'jsb_gles2_auto'),
-                    'gles3.ini': ('gles3', 'jsb_gles3_auto'),
-                    'metal.ini': ('metal', 'jsb_mtl_auto'),
-                    'vulkan.ini': ('vulkan', 'jsb_vk_auto'),
-                    'pipeline.ini': ('pipeline', 'jsb_pipeline_auto'),
-                    'spine.ini': ('spine','jsb_spine_auto'),
-                    'editor_support.ini': ('editor_support','jsb_editor_support_auto'),
-                    'dragonbones.ini': ('dragonbones','jsb_dragonbones_auto')
-                    }
+            'cocos.ini' : ('cocos', 'jsb_cocos_auto'),
+            'video.ini': ('video', 'jsb_video_auto'),
+            'webview.ini': ('webview', 'jsb_webview_auto'),
+            'audio.ini' : ('audio', 'jsb_audio_auto'),
+            'extension.ini' : ('extension', 'jsb_extension_auto'),
+            'network.ini' : ('network', 'jsb_network_auto'),
+            'gfx.ini': ('gfx', 'jsb_gfx_auto'),
+            'pipeline.ini': ('pipeline', 'jsb_pipeline_auto'),
+            'spine.ini': ('spine','jsb_spine_auto'),
+            'editor_support.ini': ('editor_support','jsb_editor_support_auto'),
+            'dragonbones.ini': ('dragonbones','jsb_dragonbones_auto')
+        }
+
         target = 'spidermonkey'
         generator_py = '%s/generator.py' % cxx_generator_root
         tasks = []
         for key in cmd_args.keys():
-            args = cmd_args[key]
-            cfg = '%s/%s' % (tojs_root, key)
-            print '!!----------Generating bindings for %s----------!!' % (key[:-4])
-            command = '%s -W ignore %s %s -s %s -t %s -o %s -n %s' % (python_bin, generator_py, cfg, args[0], target, output_dir, args[1])
-            # tasks.append(_run_cmd(command))
-            _run_cmd(command).communicate()
+            if len(sys.argv) <= 1 or any(key[:-4] in s for s in sys.argv[1:]):
+                args = cmd_args[key]
+                cfg = '%s/%s' % (tojs_root, key)
+                print '!!----------Generating bindings for %s----------!!' % (key[:-4])
+                command = '%s -W ignore %s %s -s %s -t %s -o %s -n %s' % (python_bin, generator_py, cfg, args[0], target, output_dir, args[1])
+                # tasks.append(_run_cmd(command))
+                _run_cmd(command).communicate()
 
         # for t in tasks:
         #     t.communicate()
-
 
         print '----------------------------------------'
         print 'Generating javascript bindings succeeds.'

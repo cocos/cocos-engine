@@ -51,25 +51,14 @@ const GLenum GLES2Primitives[] = {
     GL_NONE,
 };
 
-GLES2PipelineState::GLES2PipelineState(Device *device)
-: PipelineState(device) {
+GLES2PipelineState::GLES2PipelineState()
+: PipelineState() {
 }
 
 GLES2PipelineState::~GLES2PipelineState() {
 }
 
-bool GLES2PipelineState::initialize(const PipelineStateInfo &info) {
-    _primitive = info.primitive;
-    _shader = info.shader;
-    _inputState = info.inputState;
-    _rasterizerState = info.rasterizerState;
-    _depthStencilState = info.depthStencilState;
-    _bindPoint = info.bindPoint;
-    _blendState = info.blendState;
-    _dynamicStates = info.dynamicStates;
-    _renderPass = info.renderPass;
-    _pipelineLayout = info.pipelineLayout;
-
+void GLES2PipelineState::doInit(const PipelineStateInfo &info) {
     _gpuPipelineState = CC_NEW(GLES2GPUPipelineState);
     _gpuPipelineState->glPrimitive = GLES2Primitives[(int)_primitive];
     _gpuPipelineState->gpuShader = ((GLES2Shader *)_shader)->gpuShader();
@@ -84,11 +73,9 @@ bool GLES2PipelineState::initialize(const PipelineStateInfo &info) {
             _gpuPipelineState->dynamicStates.push_back((DynamicStateFlagBit)(1 << i));
         }
     }
-
-    return true;
 }
 
-void GLES2PipelineState::destroy() {
+void GLES2PipelineState::doDestroy() {
     if (_gpuPipelineState) {
         CC_DELETE(_gpuPipelineState);
         _gpuPipelineState = nullptr;

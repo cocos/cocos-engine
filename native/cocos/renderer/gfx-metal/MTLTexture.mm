@@ -33,20 +33,9 @@
 namespace cc {
 namespace gfx {
 
-CCMTLTexture::CCMTLTexture(Device *device) : Texture(device) {}
+CCMTLTexture::CCMTLTexture() : Texture() {}
 
-bool CCMTLTexture::initialize(const TextureInfo &info) {
-    _type = info.type;
-    _usage = info.usage;
-    _format = info.format;
-    _width = info.width;
-    _height = info.height;
-    _depth = info.depth;
-    _layerCount = info.layerCount;
-    _levelCount = info.levelCount;
-    _samples = info.samples;
-    _flags = info.flags;
-    _size = FormatSize(_format, _width, _height, _depth);
+void CCMTLTexture::doInit(const TextureInfo &info) {
     _isArray = _type == TextureType::TEX1D_ARRAY || _type == TextureType::TEX2D_ARRAY;
     if (_format == Format::PVRTC_RGB2 ||
         _format == Format::PVRTC_RGBA2 ||
@@ -57,77 +46,13 @@ bool CCMTLTexture::initialize(const TextureInfo &info) {
         _isPVRTC = true;
     }
 
-#if CC_DEBUG > 0
-    switch (_format) { // device feature validation
-        case Format::D16:
-            if (_device->hasFeature(Feature::FORMAT_D16)) break;
-            CC_LOG_ERROR("D16 texture format is not supported on this backend");
-            return false;
-        case Format::D16S8:
-            if (_device->hasFeature(Feature::FORMAT_D16S8)) break;
-            CC_LOG_WARNING("D16S8 texture format is not supported on this backend");
-            return false;
-        case Format::D24:
-            if (_device->hasFeature(Feature::FORMAT_D24)) break;
-            CC_LOG_WARNING("D24 texture format is not supported on this backend");
-            return false;
-        case Format::D24S8:
-            if (_device->hasFeature(Feature::FORMAT_D24S8)) break;
-            CC_LOG_WARNING("D24S8 texture format is not supported on this backend");
-            return false;
-        case Format::D32F:
-            if (_device->hasFeature(Feature::FORMAT_D32F)) break;
-            CC_LOG_WARNING("D32F texture format is not supported on this backend");
-            return false;
-        case Format::D32F_S8:
-            if (_device->hasFeature(Feature::FORMAT_D32FS8)) break;
-            CC_LOG_WARNING("D32FS8 texture format is not supported on this backend");
-            return false;
-        case Format::RGB8:
-            if (_device->hasFeature(Feature::FORMAT_RGB8)) break;
-            CC_LOG_WARNING("RGB8 texture format is not supported on this backend");
-            return false;
-        default:
-            break;
-    }
-#endif
-
-    if (_flags & TextureFlags::BAKUP_BUFFER) {
-        _buffer = (uint8_t *)CC_MALLOC(_size);
-        if (!_buffer) {
-            CC_LOG_ERROR("CCMTLTexture: CC_MALLOC backup buffer failed.");
-            return false;
-        }
-        _device->getMemoryStatus().textureSize += _size;
-    }
-
     if (!createMTLTexture()) {
         CC_LOG_ERROR("CCMTLTexture: create MTLTexture failed.");
-        return false;
+        return;
     }
-
-    _device->getMemoryStatus().textureSize += _size;
-    return true;
 }
 
-bool CCMTLTexture::initialize(const TextureViewInfo &info) {
-    _isTextureView = true;
-
-    if (!info.texture) {
-        return false;
-    }
-
-    _type = info.type;
-    _usage = info.texture->getUsage();
-    _format = info.format;
-    _width = info.texture->getWidth();
-    _height = info.texture->getHeight();
-    _depth = info.texture->getDepth();
-    _layerCount = info.texture->getLayerCount();
-    _levelCount = info.texture->getLevelCount();
-    _samples = info.texture->getSamples();
-    _flags = info.texture->getFlags();
-    _size = info.texture->getSize();
+void CCMTLTexture::doInit(const TextureViewInfo &info) {
     _isArray = _type == TextureType::TEX1D_ARRAY || _type == TextureType::TEX2D_ARRAY;
     if (_format == Format::PVRTC_RGB2 ||
         _format == Format::PVRTC_RGBA2 ||
@@ -143,11 +68,6 @@ bool CCMTLTexture::initialize(const TextureViewInfo &info) {
                                                                   textureType:mtlTextureType
                                                                        levels:NSMakeRange(info.baseLevel, info.levelCount)
                                                                        slices:NSMakeRange(info.baseLayer, info.layerCount)];
-    if (!_mtlTexture) {
-        return false;
-    }
-
-    return true;
 }
 
 bool CCMTLTexture::createMTLTexture() {
@@ -196,42 +116,30 @@ bool CCMTLTexture::createMTLTexture() {
         descriptor.resourceOptions = MTLResourceStorageModePrivate;
     }
 
-    id<MTLDevice> mtlDevice = id<MTLDevice>(static_cast<CCMTLDevice *>(_device)->getMTLDevice());
+    id<MTLDevice> mtlDevice = id<MTLDevice>(CCMTLDevice::getInstance()->getMTLDevice());
     _mtlTexture = [mtlDevice newTextureWithDescriptor:descriptor];
 
     return _mtlTexture != nil;
 }
 
-void CCMTLTexture::destroy() {
+void CCMTLTexture::doDestroy() {
     if (_isTextureView) {
         return;
     }
 
-    if (_buffer) {
-        CC_FREE(_buffer);
-        _device->getMemoryStatus().textureSize -= _size;
-        _buffer = nullptr;
-    }
-
-    Device *device = _device;
     id<MTLTexture> mtlTexure = _mtlTexture;
     _mtlTexture = nil;
-    uint size = _size;
 
     std::function<void(void)> destroyFunc = [=]() {
         if (mtlTexure) {
             [mtlTexure release];
-            device->getMemoryStatus().textureSize -= size;
         }
     };
     //gpu object only
     CCMTLGPUGarbageCollectionPool::getInstance()->collect(destroyFunc);
 }
 
-void CCMTLTexture::resize(uint width, uint height) {
-    if (_width == width && _height == height)
-        return;
-
+void CCMTLTexture::doResize(uint width, uint height) {
     auto oldSize = _size;
     auto oldWidth = _width;
     auto oldHeight = _height;
@@ -250,32 +158,15 @@ void CCMTLTexture::resize(uint width, uint height) {
     }
 
     if (oldMTLTexture) {
-        Device *device = _device;
         std::function<void(void)> destroyFunc = [=]() {
             if (oldMTLTexture) {
                 [oldMTLTexture release];
-                device->getMemoryStatus().bufferSize -= oldSize;
             }
         };
         //gpu object only
         CCMTLGPUGarbageCollectionPool::getInstance()->collect(destroyFunc);
     }
-
-    _device->getMemoryStatus().textureSize -= oldSize;
-    if (_flags & TextureFlags::BAKUP_BUFFER) {
-        const uint8_t *oldBuffer = _buffer;
-        uint8_t *buffer = (uint8_t *)CC_MALLOC(_size);
-        if (!buffer) {
-            CC_LOG_ERROR("CCMTLTexture: CC_MALLOC backup buffer failed when try to resize the texture.");
-            return;
-        }
-        CC_FREE(oldBuffer);
-        _buffer = buffer;
-        _device->getMemoryStatus().textureSize -= oldSize;
-        _device->getMemoryStatus().textureSize += _size;
-    }
-
-    _device->getMemoryStatus().textureSize += _size;
 }
+
 } // namespace gfx
 } // namespace cc

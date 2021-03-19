@@ -23,8 +23,7 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#ifndef CC_GFXGLES2_COMMANDS_H_
-#define CC_GFXGLES2_COMMANDS_H_
+#pragma once
 
 #include "../gfx-gles-common/GLESCommandPool.h"
 #include "GLES2GPUObjects.h"
@@ -84,7 +83,7 @@ public:
 
     GLES2CmdBeginRenderPass() : GLESCmd(GLESCmdType::BEGIN_RENDER_PASS) {}
 
-    virtual void clear() override {
+    void clear() override {
         gpuFBO = nullptr;
         numClearColors = 0;
     }
@@ -120,7 +119,7 @@ public:
 
     GLES2CmdBindStates() : GLESCmd(GLESCmdType::BIND_STATES) {}
 
-    virtual void clear() override {
+    void clear() override {
         gpuPipelineState = nullptr;
         gpuInputAssembler = nullptr;
         gpuDescriptorSets.clear();
@@ -133,7 +132,7 @@ public:
     DrawInfo drawInfo;
 
     GLES2CmdDraw() : GLESCmd(GLESCmdType::DRAW) {}
-    virtual void clear() override {}
+    void clear() override {}
 };
 
 class GLES2CmdUpdateBuffer final : public GLESCmd {
@@ -145,7 +144,7 @@ public:
 
     GLES2CmdUpdateBuffer() : GLESCmd(GLESCmdType::UPDATE_BUFFER) {}
 
-    virtual void clear() override {
+    void clear() override {
         gpuBuffer = nullptr;
         buffer = nullptr;
     }
@@ -160,7 +159,7 @@ public:
 
     GLES2CmdCopyBufferToTexture() : GLESCmd(GLESCmdType::COPY_BUFFER_TO_TEXTURE) {}
 
-    virtual void clear() override {
+    void clear() override {
         gpuTexture = nullptr;
         regions = nullptr;
         count = 0u;
@@ -245,5 +244,3 @@ CC_GLES2_API void GLES2CmdFuncExecuteCmds(GLES2Device *device, GLES2CmdPackage *
 
 } // namespace gfx
 } // namespace cc
-
-#endif

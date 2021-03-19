@@ -66,21 +66,21 @@ private:
 };
 
 struct alignas(64) WriterContext final {
-    uint8_t *             _currentMemoryChunk{nullptr};
-    Message *             _lastMessage{nullptr};
-    uint32_t              _offset{0};
-    uint32_t              _pendingMessageCount{0};
-    std::atomic<uint32_t> _writtenMessageCount{0};
+    uint8_t *             currentMemoryChunk{nullptr};
+    Message *             lastMessage{nullptr};
+    uint32_t              offset{0};
+    uint32_t              pendingMessageCount{0};
+    std::atomic<uint32_t> writtenMessageCount{0};
 };
 
 struct alignas(64) ReaderContext final {
-    uint8_t *_currentMemoryChunk{nullptr};
-    Message *_lastMessage{nullptr};
-    uint32_t _offset{0};
-    uint32_t _writtenMessageCountSnap{0};
-    uint32_t _newMessageCount{0};
-    bool     _terminateConsumerThread{false};
-    bool     _flushingFinished{false};
+    uint8_t *currentMemoryChunk{nullptr};
+    Message *lastMessage{nullptr};
+    uint32_t offset{0};
+    uint32_t writtenMessageCountSnap{0};
+    uint32_t newMessageCount{0};
+    bool     terminateConsumerThread{false};
+    bool     flushingFinished{false};
 };
 
 // A single-producer single-consumer circular buffer queue.
@@ -126,9 +126,9 @@ public:
     static void freeChunksInFreeQueue(MessageQueue *const mainMessagesQueue) noexcept;
 
     inline void setImmediateMode(bool immediateMode) noexcept { _immediateMode = immediateMode; }
-    inline int  getPendingMessageCount() const noexcept { return _writer._pendingMessageCount; }
-    inline int  getWrittenMessageCount() const noexcept { return _writer._writtenMessageCount; }
-    inline int  getNewMessageCount() const noexcept { return _reader._newMessageCount; }
+    inline int  getPendingMessageCount() const noexcept { return _writer.pendingMessageCount; }
+    inline int  getWrittenMessageCount() const noexcept { return _writer.writtenMessageCount; }
+    inline int  getNewMessageCount() const noexcept { return _reader.newMessageCount; }
 
 private:
     class alignas(64) MemoryAllocator final {
@@ -161,7 +161,7 @@ private:
     void        pullMessages() noexcept;
     void        executeMessages() noexcept;
     Message *   readMessage() noexcept;
-    inline bool hasNewMessage() const noexcept { return _reader._newMessageCount > 0 && !_reader._flushingFinished; }
+    inline bool hasNewMessage() const noexcept { return _reader.newMessageCount > 0 && !_reader.flushingFinished; }
     void        consumerThreadLoop() noexcept;
 
     WriterContext _writer;
@@ -211,9 +211,9 @@ std::enable_if_t<std::is_base_of<Message, T>::value, T *>
 MessageQueue::allocate(uint32_t const count) noexcept {
     uint32_t allocatedSize = 0;
     T *const msg           = reinterpret_cast<T *>(allocateImpl(allocatedSize, sizeof(T)));
-    msg->_next             = reinterpret_cast<Message *>(_writer._currentMemoryChunk + _writer._offset);
-    ++_writer._pendingMessageCount;
-    _writer._lastMessage = msg;
+    msg->_next             = reinterpret_cast<Message *>(_writer.currentMemoryChunk + _writer.offset);
+    ++_writer.pendingMessageCount;
+    _writer.lastMessage = msg;
     return msg;
 }
 
@@ -224,7 +224,7 @@ MessageQueue::allocate(uint32_t const count) noexcept {
     assert(requestSize);
     uint32_t       allocatedSize   = 0;
     uint8_t *const allocatedMemory = allocateImpl(allocatedSize, requestSize);
-    _writer._lastMessage->_next    = reinterpret_cast<Message *>(_writer._currentMemoryChunk + _writer._offset);
+    _writer.lastMessage->_next     = reinterpret_cast<Message *>(_writer.currentMemoryChunk + _writer.offset);
     return reinterpret_cast<T *>(allocatedMemory);
 }
 

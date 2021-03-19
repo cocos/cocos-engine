@@ -59,45 +59,40 @@ namespace gfx {
 
 //#define DISABLE_PRE_TRANSFORM
 
+CCVKDevice *CCVKDevice::_instance = nullptr;
+
+CCVKDevice *CCVKDevice::getInstance() {
+    return CCVKDevice::_instance;
+}
+
 CCVKDevice::CCVKDevice() {
+    _API                   = API::VULKAN;
+    _deviceName            = "Vulkan";
+
     _caps.clipSpaceMinZ    = 0.0f;
     _caps.screenSpaceSignY = -1.0f;
     _caps.UVSpaceSignY     = 1.0f;
+    CCVKDevice::_instance = this;
 }
 
 CCVKDevice::~CCVKDevice() {
+    CCVKDevice::_instance = nullptr;
 }
 
 CCVKGPUContext *CCVKDevice::gpuContext() const {
     return ((CCVKContext *)_context)->gpuContext();
 }
 
-bool CCVKDevice::initialize(const DeviceInfo &info) {
-    _API          = API::VULKAN;
-    _deviceName   = "Vulkan";
-    _width        = info.width;
-    _height       = info.height;
-    _nativeWidth  = info.nativeWidth;
-    _nativeHeight = info.nativeHeight;
-    _windowHandle = info.windowHandle;
+bool CCVKDevice::doInit(const DeviceInfo &info) {
+    ContextInfo ctxInfo;
+    ctxInfo.windowHandle = _windowHandle;
 
-    _bindingMappingInfo = info.bindingMappingInfo;
-    if (!_bindingMappingInfo.bufferOffsets.size()) {
-        _bindingMappingInfo.bufferOffsets.push_back(0);
-    }
-    if (!_bindingMappingInfo.samplerOffsets.size()) {
-        _bindingMappingInfo.samplerOffsets.push_back(0);
-    }
-
-    ContextInfo contextCreateInfo;
-    contextCreateInfo.windowHandle = _windowHandle;
-    contextCreateInfo.sharedCtx    = info.sharedCtx;
-
-    _context = CC_NEW(CCVKContext(this));
-    if (!_context->initialize(contextCreateInfo)) {
+    _context = CC_NEW(CCVKContext);
+    if (!_context->initialize(ctxInfo)) {
         destroy();
         return false;
     }
+
     const CCVKContext *              context         = (CCVKContext *)_context;
     const CCVKGPUContext *           gpuContext      = ((CCVKContext *)_context)->gpuContext();
     const VkPhysicalDeviceFeatures2 &deviceFeatures2 = gpuContext->physicalDeviceFeatures2;
@@ -297,6 +292,15 @@ bool CCVKDevice::initialize(const DeviceInfo &info) {
 
     ///////////////////// Resource Initialization /////////////////////
 
+    QueueInfo queueInfo;
+    queueInfo.type = QueueType::GRAPHICS;
+    _queue         = createQueue(queueInfo);
+
+    CommandBufferInfo cmdBuffInfo;
+    cmdBuffInfo.type  = CommandBufferType::PRIMARY;
+    cmdBuffInfo.queue = _queue;
+    _cmdBuff          = createCommandBuffer(cmdBuffInfo);
+
     VmaVulkanFunctions vmaVulkanFunc{};
     vmaVulkanFunc.vkAllocateMemory                    = vkAllocateMemory;
     vmaVulkanFunc.vkBindBufferMemory                  = vkBindBufferMemory;
@@ -335,10 +339,6 @@ bool CCVKDevice::initialize(const DeviceInfo &info) {
 
     VK_CHECK(vmaCreateAllocator(&allocatorInfo, &_gpuDevice->memoryAllocator));
 
-    QueueInfo queueInfo;
-    queueInfo.type = QueueType::GRAPHICS;
-    _queue         = createQueue(queueInfo);
-
     uint backBufferCount = gpuContext->swapchainCreateInfo.minImageCount;
     for (uint i = 0u; i < backBufferCount; i++) {
         _gpuFencePools.push_back(CC_NEW(CCVKGPUFencePool(_gpuDevice)));
@@ -354,11 +354,6 @@ bool CCVKDevice::initialize(const DeviceInfo &info) {
     _gpuDescriptorSetHub = CC_NEW(CCVKGPUDescriptorSetHub(_gpuDevice));
 
     _gpuDescriptorHub->link(_gpuDescriptorSetHub);
-
-    CommandBufferInfo cmdBuffInfo;
-    cmdBuffInfo.type  = CommandBufferType::PRIMARY;
-    cmdBuffInfo.queue = _queue;
-    _cmdBuff          = createCommandBuffer(cmdBuffInfo);
 
     CCVKCmdFuncCreateSampler(this, &_gpuDevice->defaultSampler);
 
@@ -448,7 +443,7 @@ bool CCVKDevice::initialize(const DeviceInfo &info) {
     return true;
 }
 
-void CCVKDevice::destroy() {
+void CCVKDevice::doDestroy() {
     if (_gpuDevice && _gpuDevice->vkDevice) {
         VK_CHECK(vkDeviceWaitIdle(_gpuDevice->vkDevice));
     }
@@ -557,9 +552,9 @@ void CCVKDevice::acquire() {
     VK_CHECK(vkAcquireNextImageKHR(_gpuDevice->vkDevice, _gpuSwapchain->vkSwapchain, ~0ull,
                                    acquireSemaphore, VK_NULL_HANDLE, &_gpuSwapchain->curImageIndex));
 
-#if defined(VK_USE_PLATFORM_METAL_EXT)
+#if !defined(VK_USE_PLATFORM_METAL_EXT)
     assert(_gpuDevice->curBackBufferIndex == _gpuSwapchain->curImageIndex); // MoltenVK seems to be not consistent
-#endif                                                                      // defined(VK_USE_PLATFORM_METAL_EXT)
+#endif // defined(VK_USE_PLATFORM_METAL_EXT)
 
     queue->gpuQueue()->nextWaitSemaphore   = acquireSemaphore;
     queue->gpuQueue()->nextSignalSemaphore = _gpuSemaphorePool->alloc();
@@ -602,64 +597,64 @@ CCVKGPUFencePool *        CCVKDevice::gpuFencePool() { return _gpuFencePools[_gp
 CCVKGPURecycleBin *       CCVKDevice::gpuRecycleBin() { return _gpuRecycleBins[_gpuDevice->curBackBufferIndex]; }
 CCVKGPUStagingBufferPool *CCVKDevice::gpuStagingBufferPool() { return _gpuStagingBufferPools[_gpuDevice->curBackBufferIndex]; }
 
-CommandBuffer *CCVKDevice::doCreateCommandBuffer(const CommandBufferInfo &info, bool hasAgent) {
-    return CC_NEW(CCVKCommandBuffer(this));
+CommandBuffer *CCVKDevice::createCommandBuffer(const CommandBufferInfo &info, bool hasAgent) {
+    return CC_NEW(CCVKCommandBuffer);
 }
 
 Queue *CCVKDevice::createQueue() {
-    return CC_NEW(CCVKQueue(this));
+    return CC_NEW(CCVKQueue);
 }
 
 Buffer *CCVKDevice::createBuffer() {
-    return CC_NEW(CCVKBuffer(this));
+    return CC_NEW(CCVKBuffer);
 }
 
 Texture *CCVKDevice::createTexture() {
-    return CC_NEW(CCVKTexture(this));
+    return CC_NEW(CCVKTexture);
 }
 
 Sampler *CCVKDevice::createSampler() {
-    return CC_NEW(CCVKSampler(this));
+    return CC_NEW(CCVKSampler);
 }
 
 Shader *CCVKDevice::createShader() {
-    return CC_NEW(CCVKShader(this));
+    return CC_NEW(CCVKShader);
 }
 
 InputAssembler *CCVKDevice::createInputAssembler() {
-    return CC_NEW(CCVKInputAssembler(this));
+    return CC_NEW(CCVKInputAssembler);
 }
 
 RenderPass *CCVKDevice::createRenderPass() {
-    return CC_NEW(CCVKRenderPass(this));
+    return CC_NEW(CCVKRenderPass);
 }
 
 Framebuffer *CCVKDevice::createFramebuffer() {
-    return CC_NEW(CCVKFramebuffer(this));
+    return CC_NEW(CCVKFramebuffer);
 }
 
 DescriptorSet *CCVKDevice::createDescriptorSet() {
-    return CC_NEW(CCVKDescriptorSet(this));
+    return CC_NEW(CCVKDescriptorSet);
 }
 
 DescriptorSetLayout *CCVKDevice::createDescriptorSetLayout() {
-    return CC_NEW(CCVKDescriptorSetLayout(this));
+    return CC_NEW(CCVKDescriptorSetLayout);
 }
 
 PipelineLayout *CCVKDevice::createPipelineLayout() {
-    return CC_NEW(CCVKPipelineLayout(this));
+    return CC_NEW(CCVKPipelineLayout);
 }
 
 PipelineState *CCVKDevice::createPipelineState() {
-    return CC_NEW(CCVKPipelineState(this));
+    return CC_NEW(CCVKPipelineState);
 }
 
 GlobalBarrier *CCVKDevice::createGlobalBarrier() {
-    return CC_NEW(CCVKGlobalBarrier(this));
+    return CC_NEW(CCVKGlobalBarrier);
 }
 
 TextureBarrier *CCVKDevice::createTextureBarrier() {
-    return CC_NEW(CCVKTextureBarrier(this));
+    return CC_NEW(CCVKTextureBarrier);
 }
 
 void CCVKDevice::copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint count) {

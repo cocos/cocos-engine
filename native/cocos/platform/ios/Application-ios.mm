@@ -34,6 +34,9 @@
 #include "audio/include/AudioEngine.h"
 #include "platform/Device.h"
 
+#include "renderer/GFXDeviceCreator.h"
+#include "pipeline/Define.h"
+
 @interface MyTimer : NSObject {
     cc::Application *_app;
     CADisplayLink *_displayLink;
@@ -85,27 +88,39 @@ namespace cc {
 namespace {
     bool setCanvasCallback(se::Object* global) {
         auto viewLogicalSize = cc::Application::getInstance()->getViewLogicalSize();
-        
+
         CGRect nativeBounds = [[UIScreen mainScreen] nativeBounds];
         int nativeWidth = static_cast<int>(nativeBounds.size.width);
         int nativeHeight = static_cast<int>(nativeBounds.size.height);
         auto orientation = cc::Device::getDeviceOrientation();
         bool isLandscape = (orientation == cc::Device::Orientation::LANDSCAPE_RIGHT || orientation == cc::Device::Orientation::LANDSCAPE_LEFT);
         if (isLandscape) std::swap(nativeWidth, nativeHeight);
-        
+
         char commandBuf[200] = {0};
         // https://stackoverflow.com/questions/5795978/string-format-for-intptr-t-and-uintptr-t/41897226#41897226
         // format intptr_t
         //set window.innerWidth/innerHeight in css pixel units
+        uintptr_t windowHandle = reinterpret_cast<uintptr_t>(UIApplication.sharedApplication.delegate.window.rootViewController.view);
         sprintf(commandBuf, "window.innerWidth = %d; window.innerHeight = %d; window.nativeWidth = %d; window.nativeHeight = %d; window.windowHandler = 0x%" PRIxPTR ";",
                 static_cast<int>(viewLogicalSize.x),
                 static_cast<int>(viewLogicalSize.y),
                 nativeWidth,
                 nativeHeight,
-                reinterpret_cast<uintptr_t>(UIApplication.sharedApplication.delegate.window.rootViewController.view));
-        
+                windowHandle);
+
         se::ScriptEngine* se = se::ScriptEngine::getInstance();
         se->evalString(commandBuf);
+
+        gfx::DeviceInfo deviceInfo;
+        deviceInfo.windowHandle = windowHandle;
+        deviceInfo.width        = viewLogicalSize.x;
+        deviceInfo.height       = viewLogicalSize.y;
+        deviceInfo.nativeWidth  = nativeWidth;
+        deviceInfo.nativeHeight = nativeHeight;
+        deviceInfo.bindingMappingInfo = pipeline::bindingMappingInfo;
+
+        gfx::DeviceCreator::createDevice(deviceInfo);
+
         return true;
     }
 

@@ -23,8 +23,7 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#ifndef CC_GFXVULKAN_TEXTURE_H_
-#define CC_GFXVULKAN_TEXTURE_H_
+#pragma once
 
 #include "gfx-base/GFXTexture.h"
 
@@ -36,19 +35,18 @@ class CCVKGPUTextureView;
 
 class CC_VULKAN_API CCVKTexture final : public Texture {
 public:
-    CCVKTexture(Device *device);
+    CCVKTexture();
     ~CCVKTexture();
-
-public:
-    bool initialize(const TextureInfo &info);
-    bool initialize(const TextureViewInfo &info);
-    void destroy();
-    void resize(uint width, uint height);
 
     CC_INLINE CCVKGPUTexture *gpuTexture() const { return _gpuTexture; }
     CC_INLINE CCVKGPUTextureView *gpuTextureView() const { return _gpuTextureView; }
 
-private:
+protected:
+    void doInit(const TextureInfo &info) override;
+    void doInit(const TextureViewInfo &info) override;
+    void doDestroy() override;
+    void doResize(uint width, uint height) override;
+
     void createTextureView();
 
     CCVKGPUTexture *_gpuTexture = nullptr;
@@ -57,5 +55,3 @@ private:
 
 } // namespace gfx
 } // namespace cc
-
-#endif

@@ -45,45 +45,49 @@
 namespace cc {
 namespace gfx {
 
+GLES2Device *GLES2Device::_instance = nullptr;
+
+GLES2Device *GLES2Device::getInstance() {
+    return GLES2Device::_instance;
+}
+
 GLES2Device::GLES2Device() {
+    _API        = API::GLES2;
+    _deviceName = "GLES2";
+
+    GLES2Device::_instance = this;
 }
 
 GLES2Device::~GLES2Device() {
+    GLES2Device::_instance = nullptr;
 }
 
-bool GLES2Device::initialize(const DeviceInfo &info) {
-    _API = API::GLES2;
-    _deviceName = "GLES2";
-    _width = info.width;
-    _height = info.height;
-    _nativeWidth = info.nativeWidth;
-    _nativeHeight = info.nativeHeight;
-    _windowHandle = info.windowHandle;
-
-    _bindingMappingInfo = info.bindingMappingInfo;
-    if (!_bindingMappingInfo.bufferOffsets.size()) {
-        _bindingMappingInfo.bufferOffsets.push_back(0);
-    }
-    if (!_bindingMappingInfo.samplerOffsets.size()) {
-        _bindingMappingInfo.samplerOffsets.push_back(0);
-    }
-
-    _gpuStateCache = CC_NEW(GLES2GPUStateCache);
-    _gpuStagingBufferPool = CC_NEW(GLES2GPUStagingBufferPool);
-
+bool GLES2Device::doInit(const DeviceInfo &info) {
     ContextInfo ctxInfo;
     ctxInfo.windowHandle = _windowHandle;
-    ctxInfo.sharedCtx = info.sharedCtx;
 
-    _renderContext = CC_NEW(GLES2Context(this));
+    _renderContext = CC_NEW(GLES2Context);
     if (!_renderContext->initialize(ctxInfo)) {
         destroy();
         return false;
     }
+
+    QueueInfo queueInfo;
+    queueInfo.type = QueueType::GRAPHICS;
+    _queue         = createQueue(queueInfo);
+
+    CommandBufferInfo cmdBuffInfo;
+    cmdBuffInfo.type  = CommandBufferType::PRIMARY;
+    cmdBuffInfo.queue = _queue;
+    _cmdBuff          = createCommandBuffer(cmdBuffInfo);
+
+    _gpuStateCache        = CC_NEW(GLES2GPUStateCache);
+    _gpuStagingBufferPool = CC_NEW(GLES2GPUStagingBufferPool);
+
     bindRenderContext(true);
 
     String extStr = (const char *)glGetString(GL_EXTENSIONS);
-    _extensions = StringUtil::Split(extStr, " ");
+    _extensions   = StringUtil::Split(extStr, " ");
 
     if (checkExtension("GL_OES_texture_float")) {
         _features[(int)Feature::TEXTURE_FLOAT] = true;
@@ -94,8 +98,8 @@ bool GLES2Device::initialize(const DeviceInfo &info) {
     }
 
     _features[(int)Feature::FORMAT_R11G11B10F] = true;
-    _features[(int)Feature::FORMAT_D24S8] = true;
-    _features[(int)Feature::MSAA] = true;
+    _features[(int)Feature::FORMAT_D24S8]      = true;
+    _features[(int)Feature::MSAA]              = true;
 
     if (checkExtension("GL_OES_element_index_uint")) {
         _features[(int)Feature::ELEMENT_INDEX_UINT] = true;
@@ -119,10 +123,10 @@ bool GLES2Device::initialize(const DeviceInfo &info) {
     if (checkExtension("blend_minmax"))
         _features[(int)Feature::BLEND_MINMAX] = true;
 
-    _useVAO = checkExtension("vertex_array_object");
-    _useDrawInstanced = checkExtension("draw_instanced");
+    _useVAO             = checkExtension("vertex_array_object");
+    _useDrawInstanced   = checkExtension("draw_instanced");
     _useInstancedArrays = _features[(int)Feature::INSTANCED_ARRAYS] = checkExtension("instanced_arrays");
-    _useDiscardFramebuffer = checkExtension("discard_framebuffer");
+    _useDiscardFramebuffer                                          = checkExtension("discard_framebuffer");
 
     String compressedFmts;
 
@@ -145,21 +149,21 @@ bool GLES2Device::initialize(const DeviceInfo &info) {
         _features[(int)Feature::FORMAT_ASTC] = true;
         compressedFmts += "astc ";
     }
-    _features[static_cast<uint>(Feature::DEPTH_BOUNDS)] = true;
-    _features[static_cast<uint>(Feature::LINE_WIDTH)] = true;
+    _features[static_cast<uint>(Feature::DEPTH_BOUNDS)]         = true;
+    _features[static_cast<uint>(Feature::LINE_WIDTH)]           = true;
     _features[static_cast<uint>(Feature::STENCIL_COMPARE_MASK)] = true;
-    _features[static_cast<uint>(Feature::STENCIL_WRITE_MASK)] = true;
-    _features[static_cast<uint>(Feature::FORMAT_RGB8)] = true;
+    _features[static_cast<uint>(Feature::STENCIL_WRITE_MASK)]   = true;
+    _features[static_cast<uint>(Feature::FORMAT_RGB8)]          = true;
 
     if (checkExtension("depth_texture")) {
-        _features[static_cast<uint>(Feature::FORMAT_D16)] = true;
-        _features[static_cast<uint>(Feature::FORMAT_D24)] = true;
+        _features[static_cast<uint>(Feature::FORMAT_D16)]   = true;
+        _features[static_cast<uint>(Feature::FORMAT_D24)]   = true;
         _features[static_cast<uint>(Feature::FORMAT_D24S8)] = checkExtension("packed_depth_stencil");
     }
 
     _renderer = (const char *)glGetString(GL_RENDERER);
-    _vendor = (const char *)glGetString(GL_VENDOR);
-    _version = (const char *)glGetString(GL_VERSION);
+    _vendor   = (const char *)glGetString(GL_VENDOR);
+    _version  = (const char *)glGetString(GL_VERSION);
 
     CC_LOG_INFO("GLES2 device initialized.");
     CC_LOG_INFO("RENDERER: %s", _renderer.c_str());
@@ -170,15 +174,6 @@ bool GLES2Device::initialize(const DeviceInfo &info) {
     CC_LOG_INFO("USE_VAO: %s", _useVAO ? "true" : "false");
     CC_LOG_INFO("COMPRESSED_FORMATS: %s", compressedFmts.c_str());
 
-    QueueInfo queueInfo;
-    queueInfo.type = QueueType::GRAPHICS;
-    _queue = createQueue(queueInfo);
-
-    CommandBufferInfo cmdBuffInfo;
-    cmdBuffInfo.type = CommandBufferType::PRIMARY;
-    cmdBuffInfo.queue = _queue;
-    _cmdBuff = createCommandBuffer(cmdBuffInfo);
-
     glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, (GLint *)&_caps.maxVertexAttributes);
     glGetIntegerv(GL_MAX_VERTEX_UNIFORM_VECTORS, (GLint *)&_caps.maxVertexUniformVectors);
     glGetIntegerv(GL_MAX_FRAGMENT_UNIFORM_VECTORS, (GLint *)&_caps.maxFragmentUniformVectors);
@@ -188,24 +183,24 @@ bool GLES2Device::initialize(const DeviceInfo &info) {
     glGetIntegerv(GL_MAX_CUBE_MAP_TEXTURE_SIZE, (GLint *)&_caps.maxCubeMapTextureSize);
     glGetIntegerv(GL_DEPTH_BITS, (GLint *)&_caps.depthBits);
     glGetIntegerv(GL_STENCIL_BITS, (GLint *)&_caps.stencilBits);
-    _caps.uboOffsetAlignment = 1u;
 
     _gpuStateCache->initialize(_caps.maxTextureUnits, _caps.maxVertexAttributes);
 
     return true;
 }
 
-void GLES2Device::destroy() {
-    CC_SAFE_DESTROY(_queue);
-    CC_SAFE_DESTROY(_cmdBuff);
+void GLES2Device::doDestroy() {
     CC_SAFE_DELETE(_gpuStagingBufferPool);
     CC_SAFE_DELETE(_gpuStateCache);
+
+    CC_SAFE_DESTROY(_cmdBuff);
+    CC_SAFE_DESTROY(_queue);
     CC_SAFE_DESTROY(_deviceContext);
     CC_SAFE_DESTROY(_renderContext);
 }
 
 void GLES2Device::resize(uint width, uint height) {
-    _width = width;
+    _width  = width;
     _height = height;
 }
 
@@ -215,9 +210,9 @@ void GLES2Device::acquire() {
 
 void GLES2Device::present() {
     GLES2Queue *queue = (GLES2Queue *)_queue;
-    _numDrawCalls = queue->_numDrawCalls;
-    _numInstances = queue->_numInstances;
-    _numTriangles = queue->_numTriangles;
+    _numDrawCalls     = queue->_numDrawCalls;
+    _numInstances     = queue->_numInstances;
+    _numTriangles     = queue->_numTriangles;
 
     _context->present();
 
@@ -241,9 +236,9 @@ void GLES2Device::bindDeviceContext(bool bound) {
     if (!_deviceContext) {
         ContextInfo ctxInfo;
         ctxInfo.windowHandle = _windowHandle;
-        ctxInfo.sharedCtx = _renderContext;
+        ctxInfo.sharedCtx    = _renderContext;
 
-        _deviceContext = CC_NEW(GLES2Context(this));
+        _deviceContext = CC_NEW(GLES2Context);
         _deviceContext->initialize(ctxInfo);
     }
     _deviceContext->MakeCurrent(bound);
@@ -255,65 +250,65 @@ void GLES2Device::bindDeviceContext(bool bound) {
     }
 }
 
-CommandBuffer *GLES2Device::doCreateCommandBuffer(const CommandBufferInfo &info, bool hasAgent) {
-    if (hasAgent || info.type == CommandBufferType::PRIMARY) return CC_NEW(GLES2PrimaryCommandBuffer(this));
-    return CC_NEW(GLES2CommandBuffer(this));
+CommandBuffer *GLES2Device::createCommandBuffer(const CommandBufferInfo &info, bool hasAgent) {
+    if (hasAgent || info.type == CommandBufferType::PRIMARY) return CC_NEW(GLES2PrimaryCommandBuffer);
+    return CC_NEW(GLES2CommandBuffer);
 }
 
 Queue *GLES2Device::createQueue() {
-    return CC_NEW(GLES2Queue(this));
+    return CC_NEW(GLES2Queue);
 }
 
 Buffer *GLES2Device::createBuffer() {
-    return CC_NEW(GLES2Buffer(this));
+    return CC_NEW(GLES2Buffer);
 }
 
 Texture *GLES2Device::createTexture() {
-    return CC_NEW(GLES2Texture(this));
+    return CC_NEW(GLES2Texture);
 }
 
 Sampler *GLES2Device::createSampler() {
-    return CC_NEW(GLES2Sampler(this));
+    return CC_NEW(GLES2Sampler);
 }
 
 Shader *GLES2Device::createShader() {
-    return CC_NEW(GLES2Shader(this));
+    return CC_NEW(GLES2Shader);
 }
 
 InputAssembler *GLES2Device::createInputAssembler() {
-    return CC_NEW(GLES2InputAssembler(this));
+    return CC_NEW(GLES2InputAssembler);
 }
 
 RenderPass *GLES2Device::createRenderPass() {
-    return CC_NEW(GLES2RenderPass(this));
+    return CC_NEW(GLES2RenderPass);
 }
 
 Framebuffer *GLES2Device::createFramebuffer() {
-    return CC_NEW(GLES2Framebuffer(this));
+    return CC_NEW(GLES2Framebuffer);
 }
 
 DescriptorSet *GLES2Device::createDescriptorSet() {
-    return CC_NEW(GLES2DescriptorSet(this));
+    return CC_NEW(GLES2DescriptorSet);
 }
 
 DescriptorSetLayout *GLES2Device::createDescriptorSetLayout() {
-    return CC_NEW(GLES2DescriptorSetLayout(this));
+    return CC_NEW(GLES2DescriptorSetLayout);
 }
 
 PipelineLayout *GLES2Device::createPipelineLayout() {
-    return CC_NEW(GLES2PipelineLayout(this));
+    return CC_NEW(GLES2PipelineLayout);
 }
 
 PipelineState *GLES2Device::createPipelineState() {
-    return CC_NEW(GLES2PipelineState(this));
+    return CC_NEW(GLES2PipelineState);
 }
 
 GlobalBarrier *GLES2Device::createGlobalBarrier() {
-    return CC_NEW(GlobalBarrier(this));
+    return CC_NEW(GlobalBarrier);
 }
 
 TextureBarrier *GLES2Device::createTextureBarrier() {
-    return CC_NEW(TextureBarrier(this));
+    return CC_NEW(TextureBarrier);
 }
 
 void GLES2Device::copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint count) {

@@ -23,17 +23,16 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#ifndef CC_CORE_GFX_DEVICE_H_
-#define CC_CORE_GFX_DEVICE_H_
+#pragma once
 
 #include "GFXBuffer.h"
 #include "GFXCommandBuffer.h"
-#include "GFXObject.h"
 #include "GFXDescriptorSet.h"
 #include "GFXDescriptorSetLayout.h"
 #include "GFXFramebuffer.h"
 #include "GFXGlobalBarrier.h"
 #include "GFXInputAssembler.h"
+#include "GFXObject.h"
 #include "GFXPipelineLayout.h"
 #include "GFXPipelineState.h"
 #include "GFXQueue.h"
@@ -50,18 +49,18 @@ class CC_DLL Device : public Object {
 public:
     static Device *getInstance();
 
-    Device();
-    Device(Device *device) : Device() {}
     virtual ~Device();
 
-    virtual bool initialize(const DeviceInfo &info) = 0;
-    virtual void destroy()                          = 0;
-    virtual void resize(uint width, uint height)    = 0;
-    virtual void acquire()                          = 0;
-    virtual void present()                          = 0;
+    bool initialize(const DeviceInfo &info);
+    void destroy();
 
-    virtual void             flushCommands(CommandBuffer *const *cmdBuffs, uint count) {}
-    virtual void             setMultithreaded(bool multithreaded) {}
+    virtual void resize(uint width, uint height) = 0;
+    virtual void acquire()                       = 0;
+    virtual void present()                       = 0;
+
+    virtual void flushCommands(CommandBuffer *const *cmdBuffs, uint count) {}
+    virtual void setMultithreaded(bool multithreaded) {}
+
     virtual SurfaceTransform getSurfaceTransform() const { return _transform; }
     virtual uint             getWidth() const { return _width; }
     virtual uint             getHeight() const { return _height; }
@@ -72,117 +71,54 @@ public:
     virtual uint             getNumInstances() const { return _numInstances; }
     virtual uint             getNumTris() const { return _numTriangles; }
 
-    CC_INLINE CommandBuffer *createCommandBuffer(const CommandBufferInfo &info) {
-        CommandBuffer *res = doCreateCommandBuffer(info, false);
-        res->initialize(info);
-        return res;
-    }
-    CC_INLINE Queue *createQueue(const QueueInfo &info) {
-        Queue *res = createQueue();
-        res->initialize(info);
-        return res;
-    }
-    CC_INLINE Buffer *createBuffer(const BufferInfo &info) {
-        Buffer *res = createBuffer();
-        res->initialize(info);
-        return res;
-    }
-    CC_INLINE Buffer *createBuffer(const BufferViewInfo &info) {
-        Buffer *res = createBuffer();
-        res->initialize(info);
-        return res;
-    }
-    CC_INLINE Texture *createTexture(const TextureInfo &info) {
-        Texture *res = createTexture();
-        res->initialize(info);
-        return res;
-    }
-    CC_INLINE Texture *createTexture(const TextureViewInfo &info) {
-        Texture *res = createTexture();
-        res->initialize(info);
-        return res;
-    }
-    CC_INLINE Sampler *createSampler(const SamplerInfo &info) {
-        Sampler *res = createSampler();
-        res->initialize(info);
-        return res;
-    }
-    CC_INLINE Shader *createShader(const ShaderInfo &info) {
-        Shader *res = createShader();
-        res->initialize(info);
-        return res;
-    }
-    CC_INLINE InputAssembler *createInputAssembler(const InputAssemblerInfo &info) {
-        InputAssembler *res = createInputAssembler();
-        res->initialize(info);
-        return res;
-    }
-    CC_INLINE RenderPass *createRenderPass(const RenderPassInfo &info) {
-        RenderPass *res = createRenderPass();
-        res->initialize(info);
-        return res;
-    }
-    CC_INLINE Framebuffer *createFramebuffer(const FramebufferInfo &info) {
-        Framebuffer *res = createFramebuffer();
-        res->initialize(info);
-        return res;
-    }
-    CC_INLINE DescriptorSet *createDescriptorSet(const DescriptorSetInfo &info) {
-        DescriptorSet *res = createDescriptorSet();
-        res->initialize(info);
-        return res;
-    }
-    CC_INLINE DescriptorSetLayout *createDescriptorSetLayout(const DescriptorSetLayoutInfo &info) {
-        DescriptorSetLayout *res = createDescriptorSetLayout();
-        res->initialize(info);
-        return res;
-    }
-    CC_INLINE PipelineLayout *createPipelineLayout(const PipelineLayoutInfo &info) {
-        PipelineLayout *res = createPipelineLayout();
-        res->initialize(info);
-        return res;
-    }
-    CC_INLINE PipelineState *createPipelineState(const PipelineStateInfo &info) {
-        PipelineState *res = createPipelineState();
-        res->initialize(info);
-        return res;
-    }
-    CC_INLINE GlobalBarrier *createGlobalBarrier(const GlobalBarrierInfo &info) {
-        GlobalBarrier *res = createGlobalBarrier();
-        res->initialize(info);
-        return res;
-    }
-    CC_INLINE TextureBarrier *createTextureBarrier(const TextureBarrierInfo &info) {
-        TextureBarrier *res = createTextureBarrier();
-        res->initialize(info);
-        return res;
-    }
-    CC_INLINE void copyBuffersToTexture(const BufferDataList &buffers, Texture *dst, const BufferTextureCopyList &regions) {
-        copyBuffersToTexture(buffers.data(), dst, regions.data(), static_cast<uint>(regions.size()));
-    }
+    inline CommandBuffer *      createCommandBuffer(const CommandBufferInfo &info);
+    inline Queue *              createQueue(const QueueInfo &info);
+    inline Buffer *             createBuffer(const BufferInfo &info);
+    inline Buffer *             createBuffer(const BufferViewInfo &info);
+    inline Texture *            createTexture(const TextureInfo &info);
+    inline Texture *            createTexture(const TextureViewInfo &info);
+    inline Sampler *            createSampler(const SamplerInfo &info);
+    inline Shader *             createShader(const ShaderInfo &info);
+    inline InputAssembler *     createInputAssembler(const InputAssemblerInfo &info);
+    inline RenderPass *         createRenderPass(const RenderPassInfo &info);
+    inline Framebuffer *        createFramebuffer(const FramebufferInfo &info);
+    inline DescriptorSet *      createDescriptorSet(const DescriptorSetInfo &info);
+    inline DescriptorSetLayout *createDescriptorSetLayout(const DescriptorSetLayoutInfo &info);
+    inline PipelineLayout *     createPipelineLayout(const PipelineLayoutInfo &info);
+    inline PipelineState *      createPipelineState(const PipelineStateInfo &info);
+    inline GlobalBarrier *      createGlobalBarrier(const GlobalBarrierInfo &info);
+    inline TextureBarrier *     createTextureBarrier(const TextureBarrierInfo &info);
 
-    CC_INLINE void flushCommands(const vector<CommandBuffer *> &cmdBuffs) { flushCommands(cmdBuffs.data(), static_cast<uint>(cmdBuffs.size())); }
+    inline void copyBuffersToTexture(const BufferDataList &buffers, Texture *dst, const BufferTextureCopyList &regions);
+    inline void flushCommands(const vector<CommandBuffer *> &cmdBuffs);
+    inline void flushCommandsForJS(const vector<CommandBuffer *> &cmdBuffs);
 
-    CC_INLINE void flushCommandsForJS(const vector<CommandBuffer *> &cmdBuffs) { flushCommands(cmdBuffs.data(), static_cast<uint>(cmdBuffs.size())); }
+    inline Queue *           getQueue() const { return _queue; }
+    inline CommandBuffer *   getCommandBuffer() const { return _cmdBuff; }
+    inline const DeviceCaps &getCapabilities() const { return _caps; }
+    inline API               getGfxAPI() const { return _API; }
+    inline const String &    getDeviceName() const { return _deviceName; }
+    inline const String &    getRenderer() const { return _renderer; }
+    inline const String &    getVendor() const { return _vendor; }
+    inline bool              hasFeature(Feature feature) const { return _features[static_cast<uint8_t>(feature)]; }
 
-    CC_INLINE Context *getContext() const { return _context; }
-    CC_INLINE Queue *getQueue() const { return _queue; }
-    CC_INLINE CommandBuffer *getCommandBuffer() const { return _cmdBuff; }
-    CC_INLINE const DeviceCaps &getCapabilities() const { return _caps; }
-    CC_INLINE bool              hasFeature(Feature feature) const { return _features[static_cast<uint8_t>(feature)]; }
-    CC_INLINE const BindingMappingInfo &bindingMappingInfo() const { return _bindingMappingInfo; }
+    inline const BindingMappingInfo &bindingMappingInfo() const { return _bindingMappingInfo; }
 
-    CC_INLINE API   getGfxAPI() const { return _API; }
-    CC_INLINE const String &getDeviceName() const { return _deviceName; }
-    CC_INLINE const String &getRenderer() const { return _renderer; }
-    CC_INLINE const String &getVendor() const { return _vendor; }
-    Format                  getColorFormat() const;
-    Format                  getDepthStencilFormat() const;
+    Format getColorFormat() const;
+    Format getDepthStencilFormat() const;
 
 protected:
-    friend class DeviceAgent;
+    static Device *_instance;
 
-    virtual CommandBuffer *      doCreateCommandBuffer(const CommandBufferInfo &info, bool hasAgent)                                             = 0;
+    friend class DeviceAgent;
+    friend class DeviceCreator;
+
+    Device();
+
+    virtual bool doInit(const DeviceInfo &info) = 0;
+    virtual void doDestroy()                    = 0;
+
+    virtual CommandBuffer *      createCommandBuffer(const CommandBufferInfo &info, bool hasAgent)                                               = 0;
     virtual Queue *              createQueue()                                                                                                   = 0;
     virtual Buffer *             createBuffer()                                                                                                  = 0;
     virtual Texture *            createTexture()                                                                                                 = 0;
@@ -199,8 +135,15 @@ protected:
     virtual TextureBarrier *     createTextureBarrier()                                                                                          = 0;
     virtual void                 copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint count) = 0;
 
+    // On minimize
+    virtual void releaseSurface(uintptr_t windowHandle) {}
+    // On restore
+    virtual void acquireSurface(uintptr_t windowHandle) {}
+
     virtual void bindRenderContext(bool bound) {}
     virtual void bindDeviceContext(bool bound) {}
+
+    inline Context *getContext() const { return _context; }
 
     API                _API       = API::UNKNOWN;
     SurfaceTransform   _transform = SurfaceTransform::IDENTITY;
@@ -223,12 +166,123 @@ protected:
     uint               _numTriangles = 0u;
     BindingMappingInfo _bindingMappingInfo;
     DeviceCaps         _caps;
-
-private:
-    static Device *_instance;
 };
+
+//////////////////////////////////////////////////////////////////////////
+
+CommandBuffer *Device::createCommandBuffer(const CommandBufferInfo &info) {
+    CommandBuffer *res = createCommandBuffer(info, false);
+    res->initialize(info);
+    return res;
+}
+
+Queue *Device::createQueue(const QueueInfo &info) {
+    Queue *res = createQueue();
+    res->initialize(info);
+    return res;
+}
+
+Buffer *Device::createBuffer(const BufferInfo &info) {
+    Buffer *res = createBuffer();
+    res->initialize(info);
+    return res;
+}
+
+Buffer *Device::createBuffer(const BufferViewInfo &info) {
+    Buffer *res = createBuffer();
+    res->initialize(info);
+    return res;
+}
+
+Texture *Device::createTexture(const TextureInfo &info) {
+    Texture *res = createTexture();
+    res->initialize(info);
+    return res;
+}
+
+Texture *Device::createTexture(const TextureViewInfo &info) {
+    Texture *res = createTexture();
+    res->initialize(info);
+    return res;
+}
+
+Sampler *Device::createSampler(const SamplerInfo &info) {
+    Sampler *res = createSampler();
+    res->initialize(info);
+    return res;
+}
+
+Shader *Device::createShader(const ShaderInfo &info) {
+    Shader *res = createShader();
+    res->initialize(info);
+    return res;
+}
+
+InputAssembler *Device::createInputAssembler(const InputAssemblerInfo &info) {
+    InputAssembler *res = createInputAssembler();
+    res->initialize(info);
+    return res;
+}
+
+RenderPass *Device::createRenderPass(const RenderPassInfo &info) {
+    RenderPass *res = createRenderPass();
+    res->initialize(info);
+    return res;
+}
+
+Framebuffer *Device::createFramebuffer(const FramebufferInfo &info) {
+    Framebuffer *res = createFramebuffer();
+    res->initialize(info);
+    return res;
+}
+
+DescriptorSet *Device::createDescriptorSet(const DescriptorSetInfo &info) {
+    DescriptorSet *res = createDescriptorSet();
+    res->initialize(info);
+    return res;
+}
+
+DescriptorSetLayout *Device::createDescriptorSetLayout(const DescriptorSetLayoutInfo &info) {
+    DescriptorSetLayout *res = createDescriptorSetLayout();
+    res->initialize(info);
+    return res;
+}
+
+PipelineLayout *Device::createPipelineLayout(const PipelineLayoutInfo &info) {
+    PipelineLayout *res = createPipelineLayout();
+    res->initialize(info);
+    return res;
+}
+
+PipelineState *Device::createPipelineState(const PipelineStateInfo &info) {
+    PipelineState *res = createPipelineState();
+    res->initialize(info);
+    return res;
+}
+
+GlobalBarrier *Device::createGlobalBarrier(const GlobalBarrierInfo &info) {
+    GlobalBarrier *res = createGlobalBarrier();
+    res->initialize(info);
+    return res;
+}
+
+TextureBarrier *Device::createTextureBarrier(const TextureBarrierInfo &info) {
+    TextureBarrier *res = createTextureBarrier();
+    res->initialize(info);
+    return res;
+}
+
+void Device::copyBuffersToTexture(const BufferDataList &buffers, Texture *dst, const BufferTextureCopyList &regions) {
+    copyBuffersToTexture(buffers.data(), dst, regions.data(), static_cast<uint>(regions.size()));
+}
+
+void Device::flushCommands(const vector<CommandBuffer *> &cmdBuffs) {
+    flushCommands(cmdBuffs.data(), static_cast<uint>(cmdBuffs.size()));
+}
+
+void Device::flushCommandsForJS(const vector<CommandBuffer *> &cmdBuffs) {
+    flushCommands(cmdBuffs.data(), static_cast<uint>(cmdBuffs.size()));
+}
 
 } // namespace gfx
 } // namespace cc
-
-#endif // CC_CORE_GFX_DEVICE_H_

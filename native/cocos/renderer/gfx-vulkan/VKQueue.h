@@ -23,8 +23,7 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#ifndef CC_GFXVULKAN_QUEUE_H_
-#define CC_GFXVULKAN_QUEUE_H_
+#pragma once
 
 #include "gfx-base/GFXQueue.h"
 
@@ -35,18 +34,19 @@ class CCVKGPUQueue;
 
 class CC_VULKAN_API CCVKQueue final : public Queue {
 public:
-    CCVKQueue(Device *device);
+    CCVKQueue();
     ~CCVKQueue();
 
-    friend class CCVKDevice;
-
-    bool initialize(const QueueInfo &info);
-    void destroy();
-    void submit(CommandBuffer *const *cmdBuffs, uint count);
+    void submit(CommandBuffer *const *cmdBuffs, uint count) override;
 
     CC_INLINE CCVKGPUQueue *gpuQueue() const { return _gpuQueue; }
 
-private:
+protected:
+    friend class CCVKDevice;
+
+    void doInit(const QueueInfo &info) override;
+    void doDestroy() override;
+
     CCVKGPUQueue *_gpuQueue = nullptr;
 
     uint _numDrawCalls = 0;
@@ -56,5 +56,3 @@ private:
 
 } // namespace gfx
 } // namespace cc
-
-#endif

@@ -35,24 +35,17 @@
 namespace cc {
 namespace gfx {
 
-GLES3DescriptorSet::GLES3DescriptorSet(Device *device)
-: DescriptorSet(device) {
+GLES3DescriptorSet::GLES3DescriptorSet()
+: DescriptorSet() {
 }
 
 GLES3DescriptorSet::~GLES3DescriptorSet() {
 }
 
-bool GLES3DescriptorSet::initialize(const DescriptorSetInfo &info) {
-
-    _layout = info.layout;
-
+void GLES3DescriptorSet::doInit(const DescriptorSetInfo &info) {
     const GLES3GPUDescriptorSetLayout *gpuDescriptorSetLayout = ((GLES3DescriptorSetLayout *)_layout)->gpuDescriptorSetLayout();
     const size_t descriptorCount = gpuDescriptorSetLayout->descriptorCount;
     const size_t bindingCount = gpuDescriptorSetLayout->bindings.size();
-
-    _buffers.resize(descriptorCount);
-    _textures.resize(descriptorCount);
-    _samplers.resize(descriptorCount);
 
     _gpuDescriptorSet = CC_NEW(GLES3GPUDescriptorSet);
     _gpuDescriptorSet->gpuDescriptors.resize(descriptorCount);
@@ -64,19 +57,13 @@ bool GLES3DescriptorSet::initialize(const DescriptorSetInfo &info) {
     }
 
     _gpuDescriptorSet->descriptorIndices = &gpuDescriptorSetLayout->descriptorIndices;
-
-    return true;
 }
 
-void GLES3DescriptorSet::destroy() {
+void GLES3DescriptorSet::doDestroy() {
     if (_gpuDescriptorSet) {
         CC_DELETE(_gpuDescriptorSet);
         _gpuDescriptorSet = nullptr;
     }
-    // do remember to clear these or else it might not be properly updated when reused
-    _buffers.clear();
-    _textures.clear();
-    _samplers.clear();
 }
 
 void GLES3DescriptorSet::update() {

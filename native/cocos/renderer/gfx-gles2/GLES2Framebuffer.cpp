@@ -24,27 +24,24 @@
 ****************************************************************************/
 
 #include "GLES2Std.h"
+
+#include "GLES2Commands.h"
+#include "GLES2Device.h"
 #include "GLES2Framebuffer.h"
 #include "GLES2RenderPass.h"
-#include "GLES2Commands.h"
 #include "GLES2Texture.h"
 
 namespace cc {
 namespace gfx {
 
-GLES2Framebuffer::GLES2Framebuffer(Device *device)
-: Framebuffer(device) {
+GLES2Framebuffer::GLES2Framebuffer()
+: Framebuffer() {
 }
 
 GLES2Framebuffer::~GLES2Framebuffer() {
 }
 
-bool GLES2Framebuffer::initialize(const FramebufferInfo &info) {
-
-    _renderPass = info.renderPass;
-    _colorTextures = info.colorTextures;
-    _depthStencilTexture = info.depthStencilTexture;
-
+void GLES2Framebuffer::doInit(const FramebufferInfo &info) {
     if (info.depthStencilMipmapLevel != 0) {
         CC_LOG_WARNING("Mipmap level of depth stencil attachment should be 0 in GLES2. Convert to 0.");
     }
@@ -58,7 +55,7 @@ bool GLES2Framebuffer::initialize(const FramebufferInfo &info) {
         }
     }
 
-    _gpuFBO = CC_NEW(GLES2GPUFramebuffer);
+    _gpuFBO                = CC_NEW(GLES2GPUFramebuffer);
     _gpuFBO->gpuRenderPass = ((GLES2RenderPass *)_renderPass)->gpuRenderPass();
 
     _gpuFBO->gpuColorTextures.resize(_colorTextures.size());
@@ -73,14 +70,12 @@ bool GLES2Framebuffer::initialize(const FramebufferInfo &info) {
         _gpuFBO->gpuDepthStencilTexture = ((GLES2Texture *)_depthStencilTexture)->gpuTexture();
     }
 
-    GLES2CmdFuncCreateFramebuffer((GLES2Device *)_device, _gpuFBO);
-
-    return true;
+    GLES2CmdFuncCreateFramebuffer(GLES2Device::getInstance(), _gpuFBO);
 }
 
-void GLES2Framebuffer::destroy() {
+void GLES2Framebuffer::doDestroy() {
     if (_gpuFBO) {
-        GLES2CmdFuncDestroyFramebuffer((GLES2Device *)_device, _gpuFBO);
+        GLES2CmdFuncDestroyFramebuffer(GLES2Device::getInstance(), _gpuFBO);
         CC_DELETE(_gpuFBO);
         _gpuFBO = nullptr;
     }

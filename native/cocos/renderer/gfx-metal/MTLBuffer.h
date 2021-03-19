@@ -39,17 +39,13 @@ class CCMTLRenderCommandEncoder;
 
 class CCMTLBuffer final : public Buffer {
 public:
-    explicit CCMTLBuffer(Device *device);
+    explicit CCMTLBuffer();
     ~CCMTLBuffer() override = default;
     CCMTLBuffer(const CCMTLBuffer &) = delete;
     CCMTLBuffer(CCMTLBuffer &&) = delete;
     CCMTLBuffer &operator=(const CCMTLBuffer &) = default;
     CCMTLBuffer &operator=(CCMTLBuffer &&) = delete;
 
-    bool initialize(const BufferInfo &info) override;
-    bool initialize(const BufferViewInfo &info) override;
-    void destroy() override;
-    void resize(uint size) override;
     void update(void *buffer, uint offset) override;
 
     void encodeBuffer(CCMTLRenderCommandEncoder &encoder, uint offset, uint binding, ShaderStageFlags stages);
@@ -59,7 +55,12 @@ public:
     CC_INLINE bool isDrawIndirectByIndex() const { return _isDrawIndirectByIndex; }
     CC_INLINE const DrawInfoList &getDrawInfos() const { return _drawInfos; }
 
-private:
+protected:
+    void doInit(const BufferInfo &info) override;
+    void doInit(const BufferViewInfo &info) override;
+    void doDestroy() override;
+    void doResize(uint size) override;
+
     bool createMTLBuffer(uint size, MemoryUsage usage);
     void updateMTLBuffer(void *buffer, uint offset, uint size);
 

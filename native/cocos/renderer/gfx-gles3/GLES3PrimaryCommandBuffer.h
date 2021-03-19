@@ -23,8 +23,7 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#ifndef CC_GFXGLES3_PRIMARY_COMMAND_BUFFER_H_
-#define CC_GFXGLES3_PRIMARY_COMMAND_BUFFER_H_
+#pragma once
 
 #include "GLES3CommandBuffer.h"
 
@@ -32,29 +31,27 @@ namespace cc {
 namespace gfx {
 
 class CC_GLES3_API GLES3PrimaryCommandBuffer final : public GLES3CommandBuffer {
-    friend class GLES3Queue;
-
 public:
-    GLES3PrimaryCommandBuffer(Device *device);
+    GLES3PrimaryCommandBuffer();
     ~GLES3PrimaryCommandBuffer();
 
-    virtual void begin(RenderPass *renderPass, uint subpass, Framebuffer *frameBuffer) override;
-    virtual void end() override;
-    virtual void beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, int stencil, CommandBuffer *const *secondaryCBs, uint secondaryCBCount) override;
-    virtual void endRenderPass() override;
-    virtual void draw(InputAssembler *ia) override;
-    virtual void updateBuffer(Buffer *buff, const void *data, uint size) override;
-    virtual void copyBuffersToTexture(const uint8_t *const *buffers, Texture *texture, const BufferTextureCopy *regions, uint count) override;
-    virtual void execute(CommandBuffer *const *cmdBuffs, uint32_t count) override;
-    virtual void dispatch(const DispatchInfo &info) override;
-    virtual void pipelineBarrier(const GlobalBarrier *barrier, const TextureBarrier *const *textureBarriers, const Texture *const *textures, uint textureBarrierCount) override;
-    virtual void blitTexture(Texture *srcTexture, Texture *dstTexture, const TextureBlit *regions, uint count, Filter filter) override;
+    void begin(RenderPass *renderPass, uint subpass, Framebuffer *frameBuffer) override;
+    void end() override;
+    void beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, int stencil, CommandBuffer *const *secondaryCBs, uint secondaryCBCount) override;
+    void endRenderPass() override;
+    void draw(InputAssembler *ia) override;
+    void updateBuffer(Buffer *buff, const void *data, uint size) override;
+    void copyBuffersToTexture(const uint8_t *const *buffers, Texture *texture, const BufferTextureCopy *regions, uint count) override;
+    void execute(CommandBuffer *const *cmdBuffs, uint32_t count) override;
+    void dispatch(const DispatchInfo &info) override;
+    void pipelineBarrier(const GlobalBarrier *barrier, const TextureBarrier *const *textureBarriers, const Texture *const *textures, uint textureBarrierCount) override;
+    void blitTexture(Texture *srcTexture, Texture *dstTexture, const TextureBlit *regions, uint count, Filter filter) override;
 
 protected:
-    virtual void BindStates() override;
+    friend class GLES3Queue;
+
+    void BindStates() override;
 };
 
 } // namespace gfx
 } // namespace cc
-
-#endif

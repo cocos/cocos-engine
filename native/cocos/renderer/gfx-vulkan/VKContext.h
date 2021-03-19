@@ -39,13 +39,10 @@ class CCVKGPUSemaphorePool;
 
 class CC_VULKAN_API CCVKContext final : public Context {
 public:
-    CCVKContext(Device *device);
+    CCVKContext();
     ~CCVKContext();
 
-public:
-    bool initialize(const ContextInfo &info);
-    void destroy();
-    void present() {}
+    void present() override {}
 
     CC_INLINE bool checkExtension(const String &extension) const {
         return std::find_if(_extensions.begin(), _extensions.end(),
@@ -60,11 +57,14 @@ public:
     CC_INLINE const vector<const char *> &getLayers() const { return _layers; }
     CC_INLINE const vector<const char *> &getExtensions() const { return _extensions; }
 
-private:
-    CCVKGPUContext *_gpuContext = nullptr;
-    bool _isPrimaryContex = false;
-    int _majorVersion = 0;
-    int _minorVersion = 0;
+protected:
+    bool doInit(const ContextInfo &info) override;
+    void doDestroy() override;
+
+    CCVKGPUContext *     _gpuContext      = nullptr;
+    bool                 _isPrimaryContex = false;
+    int                  _majorVersion    = 0;
+    int                  _minorVersion    = 0;
     vector<const char *> _layers;
     vector<const char *> _extensions;
 };

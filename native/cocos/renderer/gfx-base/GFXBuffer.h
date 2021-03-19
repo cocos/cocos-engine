@@ -32,18 +32,18 @@ namespace gfx {
 
 class CC_DLL Buffer : public GFXObject {
 public:
-    Buffer(Device *device);
+    Buffer();
     virtual ~Buffer();
 
     static uint computeHash(const BufferInfo &info);
 
-    virtual bool initialize(const BufferInfo &info)     = 0;
-    virtual bool initialize(const BufferViewInfo &info) = 0;
-    virtual void destroy()                              = 0;
-    virtual void resize(uint size)                      = 0;
-    virtual void update(void *buffer, uint size)        = 0;
+    void initialize(const BufferInfo &info);
+    void initialize(const BufferViewInfo &info);
+    void resize(uint size);
+    void destroy();
 
-    CC_INLINE Device *    getDevice() const { return _device; }
+    virtual void update(void *buffer, uint size) = 0;
+
     CC_INLINE BufferUsage getUsage() const { return _usage; }
     CC_INLINE MemoryUsage getMemUsage() const { return _memUsage; }
     CC_INLINE uint        getStride() const { return _stride; }
@@ -52,7 +52,11 @@ public:
     CC_INLINE BufferFlags getFlags() const { return _flags; }
 
 protected:
-    Device *    _device       = nullptr;
+    virtual void doInit(const BufferInfo &info)     = 0;
+    virtual void doInit(const BufferViewInfo &info) = 0;
+    virtual void doResize(uint size)                = 0;
+    virtual void doDestroy()                        = 0;
+
     BufferUsage _usage        = BufferUsageBit::NONE;
     MemoryUsage _memUsage     = MemoryUsageBit::NONE;
     uint        _stride       = 0u;
@@ -60,7 +64,6 @@ protected:
     uint        _size         = 0u;
     uint        _offset       = 0u;
     BufferFlags _flags        = BufferFlagBit::NONE;
-    uint8_t *   _buffer       = nullptr;
     bool        _isBufferView = false;
 };
 

@@ -23,8 +23,7 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#ifndef CC_GFXGLES2_PRIMARY_COMMAND_BUFFER_H_
-#define CC_GFXGLES2_PRIMARY_COMMAND_BUFFER_H_
+#pragma once
 
 #include "GLES2CommandBuffer.h"
 
@@ -32,23 +31,22 @@ namespace cc {
 namespace gfx {
 
 class CC_GLES2_API GLES2PrimaryCommandBuffer final : public GLES2CommandBuffer {
-    friend class GLES2Queue;
-
 public:
-    GLES2PrimaryCommandBuffer(Device *device);
+    GLES2PrimaryCommandBuffer();
     ~GLES2PrimaryCommandBuffer();
 
-    virtual void begin(RenderPass *renderPass, uint subpass, Framebuffer *frameBuffer) override;
-    virtual void end() override;
-    virtual void beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, int stencil, CommandBuffer *const *secondaryCBs, uint secondaryCBCount) override;
-    virtual void endRenderPass() override;
-    virtual void draw(InputAssembler *ia) override;
-    virtual void updateBuffer(Buffer *buff, const void *data, uint size) override;
-    virtual void copyBuffersToTexture(const uint8_t *const *buffers, Texture *texture, const BufferTextureCopy *regions, uint count) override;
-    virtual void execute(CommandBuffer *const *cmdBuffs, uint32_t count) override;
+    void begin(RenderPass *renderPass, uint subpass, Framebuffer *frameBuffer) override;
+    void end() override;
+    void beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, int stencil, CommandBuffer *const *secondaryCBs, uint secondaryCBCount) override;
+    void endRenderPass() override;
+    void draw(InputAssembler *ia) override;
+    void updateBuffer(Buffer *buff, const void *data, uint size) override;
+    void copyBuffersToTexture(const uint8_t *const *buffers, Texture *texture, const BufferTextureCopy *regions, uint count) override;
+    void execute(CommandBuffer *const *cmdBuffs, uint32_t count) override;
+
+protected:
+    friend class GLES2Queue;
 };
 
 } // namespace gfx
 } // namespace cc
-
-#endif

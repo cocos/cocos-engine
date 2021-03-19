@@ -23,8 +23,7 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#ifndef CC_GFXVULKAN_RENDER_PASS_H_
-#define CC_GFXVULKAN_RENDER_PASS_H_
+#pragma once
 
 #include "gfx-base/GFXRenderPass.h"
 
@@ -35,20 +34,17 @@ class CCVKGPURenderPass;
 
 class CC_VULKAN_API CCVKRenderPass final : public RenderPass {
 public:
-    CCVKRenderPass(Device *device);
+    CCVKRenderPass();
     ~CCVKRenderPass();
-
-public:
-    bool initialize(const RenderPassInfo &info);
-    void destroy();
 
     CC_INLINE CCVKGPURenderPass *gpuRenderPass() const { return _gpuRenderPass; }
 
-private:
+protected:
+    void doInit(const RenderPassInfo &info) override;
+    void doDestroy() override;
+
     CCVKGPURenderPass *_gpuRenderPass = nullptr;
 };
 
 } // namespace gfx
 } // namespace cc
-
-#endif

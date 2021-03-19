@@ -37,7 +37,7 @@ if (options.engineRoot) {
 // TODO: remove this after state info refactor
 const ignoreList = { PipelineStateInfo: true, BlendTarget: true, BlendState: true, DepthStencilState: true, RasterizerState: true };
 
-let header = fs.readFileSync(`${__dirname}/../../cocos/renderer/core/gfx/GFXDef-common.h`).toString();
+let header = fs.readFileSync(ps.join(__dirname, '/../../cocos/renderer/gfx-base/GFXDef-common.h')).toString();
 header = header.replace(/\r\n/g, '\n');
 
 const enumRE = /enum\s+class\s+(\w+).*?{\s*?\n(.+?)};/gs;

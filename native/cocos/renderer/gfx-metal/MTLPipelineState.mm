@@ -40,27 +40,13 @@
 namespace cc {
 namespace gfx {
 
-CCMTLPipelineState::CCMTLPipelineState(Device *device) : PipelineState(device) {}
+CCMTLPipelineState::CCMTLPipelineState() : PipelineState() {}
 
-bool CCMTLPipelineState::initialize(const PipelineStateInfo &info) {
-    _primitive = info.primitive;
-    _shader = info.shader;
-    _inputState = info.inputState;
-    _rasterizerState = info.rasterizerState;
-    _depthStencilState = info.depthStencilState;
-    _bindPoint = info.bindPoint;
-    _blendState = info.blendState;
-    _dynamicStates = info.dynamicStates;
-    _renderPass = info.renderPass;
-    _pipelineLayout = info.pipelineLayout;
-
-    if (!createGPUPipelineState()) {
-        return false;
-    }
-    return true;
+void CCMTLPipelineState::doInit(const PipelineStateInfo &info) {
+    createGPUPipelineState();
 }
 
-void CCMTLPipelineState::destroy() {
+void CCMTLPipelineState::doDestroy() {
     CC_SAFE_DELETE(_GPUPipelineState);
 
     id<MTLRenderPipelineState> renderPipelineState = _mtlRenderPipelineState;
@@ -142,7 +128,7 @@ bool CCMTLPipelineState::createMTLDepthStencilState() {
         descriptor.backFaceStencil = nil;
     }
 
-    id<MTLDevice> mtlDevice = id<MTLDevice>(static_cast<CCMTLDevice *>(_device)->getMTLDevice());
+    id<MTLDevice> mtlDevice = id<MTLDevice>(CCMTLDevice::getInstance()->getMTLDevice());
     _mtlDepthStencilState = [mtlDevice newDepthStencilStateWithDescriptor:descriptor];
     [descriptor release];
 
@@ -175,7 +161,7 @@ void CCMTLPipelineState::setVertexDescriptor(MTLRenderPipelineDescriptor *descri
 
     vector<std::tuple<int /**vertexBufferBindingIndex*/, uint /**stream*/>> layouts;
     unordered_map<int /**vertexBufferBindingIndex*/, std::tuple<uint /**stride*/, bool /**isInstanced*/>> map;
-    vector<uint> streamOffsets(_device->getCapabilities().maxVertexAttributes, 0u);
+    vector<uint> streamOffsets(CCMTLDevice::getInstance()->getCapabilities().maxVertexAttributes, 0u);
     vector<bool> activeAttribIdx(activeAttributes.size(), false);
     for (const auto &inputAttrib : _inputState.attributes) {
         auto bufferIndex = static_cast<CCMTLShader *>(_shader)->getAvailableBufferBindingIndex(ShaderStageFlagBit::VERTEX, inputAttrib.stream);
@@ -274,7 +260,7 @@ void CCMTLPipelineState::setBlendStates(MTLRenderPipelineDescriptor *descriptor)
 }
 
 bool CCMTLPipelineState::createMTLRenderPipeline(MTLRenderPipelineDescriptor *descriptor) {
-    id<MTLDevice> mtlDevice = id<MTLDevice>(((CCMTLDevice *)_device)->getMTLDevice());
+    id<MTLDevice> mtlDevice = id<MTLDevice>(CCMTLDevice::getInstance()->getMTLDevice());
     NSError *nsError = nil;
     _mtlRenderPipelineState = [mtlDevice newRenderPipelineStateWithDescriptor:descriptor error:&nsError];
     if (!_mtlRenderPipelineState) {

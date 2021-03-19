@@ -23,11 +23,8 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#ifndef CC_GFXVULKAN_VK_H_
-#define CC_GFXVULKAN_VK_H_
+#pragma once
 
 #include "VKStd.h"
 
 #include "VKDevice.h"
-
-#endif

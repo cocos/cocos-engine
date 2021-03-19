@@ -24,47 +24,36 @@
 ****************************************************************************/
 
 #include "GLES3Std.h"
-#include "GLES3Sampler.h"
+
 #include "GLES3Commands.h"
+#include "GLES3Device.h"
+#include "GLES3Sampler.h"
 
 namespace cc {
 namespace gfx {
 
-GLES3Sampler::GLES3Sampler(Device *device)
-: Sampler(device) {
+GLES3Sampler::GLES3Sampler()
+: Sampler() {
 }
 
 GLES3Sampler::~GLES3Sampler() {
 }
 
-bool GLES3Sampler::initialize(const SamplerInfo &info) {
-    _minFilter = info.minFilter;
-    _magFilter = info.magFilter;
-    _mipFilter = info.mipFilter;
-    _addressU = info.addressU;
-    _addressV = info.addressV;
-    _addressW = info.addressW;
-    _maxAnisotropy = info.maxAnisotropy;
-    _cmpFunc = info.cmpFunc;
-    _borderColor = info.borderColor;
-    _mipLODBias = info.mipLODBias;
-
-    _gpuSampler = CC_NEW(GLES3GPUSampler);
+void GLES3Sampler::doInit(const SamplerInfo &info) {
+    _gpuSampler            = CC_NEW(GLES3GPUSampler);
     _gpuSampler->minFilter = _minFilter;
     _gpuSampler->magFilter = _magFilter;
     _gpuSampler->mipFilter = _mipFilter;
-    _gpuSampler->addressU = _addressU;
-    _gpuSampler->addressV = _addressV;
-    _gpuSampler->addressW = _addressW;
+    _gpuSampler->addressU  = _addressU;
+    _gpuSampler->addressV  = _addressV;
+    _gpuSampler->addressW  = _addressW;
 
-    GLES3CmdFuncCreateSampler((GLES3Device *)_device, _gpuSampler);
-
-    return true;
+    GLES3CmdFuncCreateSampler(GLES3Device::getInstance(), _gpuSampler);
 }
 
-void GLES3Sampler::destroy() {
+void GLES3Sampler::doDestroy() {
     if (_gpuSampler) {
-        GLES3CmdFuncDestroySampler((GLES3Device *)_device, _gpuSampler);
+        GLES3CmdFuncDestroySampler(GLES3Device::getInstance(), _gpuSampler);
         CC_DELETE(_gpuSampler);
         _gpuSampler = nullptr;
     }
