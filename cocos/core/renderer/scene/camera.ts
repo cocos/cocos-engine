@@ -25,21 +25,21 @@
 
 import { JSB } from 'internal:constants';
 import { Frustum, Ray } from '../../geometry';
-import { ClearFlag, SurfaceTransform } from '../../gfx/define';
+import { SurfaceTransform, ClearFlagBit, Device, Color, ClearFlags } from '../../gfx';
 import {
     lerp, Mat4, Rect, toRadian, Vec3, IVec4Like,
 } from '../../math';
 import { CAMERA_DEFAULT_MASK } from '../../pipeline/define';
 import { Node } from '../../scene-graph';
 import { RenderScene } from './render-scene';
-import { Device, Color } from '../../gfx';
 import { legacyCC } from '../../global-exports';
 import { RenderWindow } from '../core/render-window';
 import {
-    CameraHandle, CameraPool, CameraView, FrustumHandle, FrustumPool, NULL_HANDLE, SceneHandle, RenderWindowHandle,
+    CameraHandle, CameraPool, CameraView, FrustumHandle, FrustumPool, NULL_HANDLE, SceneHandle,
 } from '../core/memory-pools';
 import { recordFrustumToSharedMemory } from '../../geometry/frustum';
 import { preTransforms } from '../../math/mat4';
+import { director } from '../../director';
 
 export enum CameraFOVAxis {
     VERTICAL,
@@ -119,7 +119,7 @@ const v_a = new Vec3();
 const v_b = new Vec3();
 const _tempMat1 = new Mat4();
 
-export const SKYBOX_FLAG = ClearFlag.STENCIL << 1;
+export const SKYBOX_FLAG = ClearFlagBit.STENCIL << 1;
 
 const correctionMatrices: Mat4[] = [];
 
@@ -149,6 +149,10 @@ export class Camera {
     private _matProjInv: Mat4 = new Mat4();
     private _matViewProj: Mat4 = new Mat4();
     private _matViewProjInv: Mat4 = new Mat4();
+    private _matProjOffscreen: Mat4 = new Mat4();
+    private _matProjInvOffscreen: Mat4 = new Mat4();
+    private _matViewProjOffscreen: Mat4 = new Mat4();
+    private _matViewProjInvOffscreen: Mat4 = new Mat4();
     private _frustum: Frustum = new Frustum();
     private _forward: Vec3 = new Vec3();
     private _position: Vec3 = new Vec3();
@@ -173,7 +177,7 @@ export class Camera {
         this._aspect = this.screenScale = 1;
 
         if (!correctionMatrices.length) {
-            const ySign = device.screenSpaceSignY;
+            const ySign = device.capabilities.screenSpaceSignY;
             correctionMatrices[SurfaceTransform.IDENTITY] = new Mat4(1, 0, 0, 0, 0, ySign);
             correctionMatrices[SurfaceTransform.ROTATE_90] = new Mat4(0, 1, 0, 0, -ySign, 0);
             correctionMatrices[SurfaceTransform.ROTATE_180] = new Mat4(-1, 0, 0, 0, 0, -ySign);
@@ -191,7 +195,7 @@ export class Camera {
         const handle = this._poolHandle = CameraPool.alloc();
         CameraPool.set(handle, CameraView.WIDTH, 1);
         CameraPool.set(handle, CameraView.HEIGHT, 1);
-        CameraPool.set(handle, CameraView.CLEAR_FLAG, ClearFlag.NONE);
+        CameraPool.set(handle, CameraView.CLEAR_FLAGS, ClearFlagBit.NONE);
         CameraPool.set(handle, CameraView.CLEAR_DEPTH, 1.0);
         CameraPool.set(handle, CameraView.NODE, this._node.handle);
         CameraPool.set(handle, CameraView.VISIBILITY, CAMERA_DEFAULT_MASK);
@@ -270,26 +274,35 @@ export class Camera {
         }
 
         // projection matrix
-        let orientation = this._device.surfaceTransform;
+        const orientation = this._device.surfaceTransform;
         if (this._isProjDirty || this._curTransform !== orientation) {
             this._curTransform = orientation;
-            let projectionSignY = this._device.screenSpaceSignY;
-            if (this._window && this._window.hasOffScreenAttachments) { // when drawing offscreen...
-                projectionSignY *= this._device.UVSpaceSignY; // apply sign-Y correction
-                orientation = SurfaceTransform.IDENTITY; // no pre-rotation
-            }
+            const projectionSignY = this._device.capabilities.screenSpaceSignY;
             if (this._proj === CameraProjection.PERSPECTIVE) {
                 Mat4.perspective(this._matProj, this._fov, this._aspect, this._nearClip, this._farClip,
-                    this._fovAxis === CameraFOVAxis.VERTICAL, this._device.clipSpaceMinZ, projectionSignY, orientation);
+                    this._fovAxis === CameraFOVAxis.VERTICAL, this._device.capabilities.clipSpaceMinZ, projectionSignY, orientation);
+
+                Mat4.perspective(this._matProjOffscreen, this._fov, this._aspect, this._nearClip, this._farClip,
+                    this._fovAxis === CameraFOVAxis.VERTICAL,
+                    this._device.capabilities.clipSpaceMinZ,
+                    projectionSignY * this._device.capabilities.UVSpaceSignY,
+                    SurfaceTransform.IDENTITY);
             } else {
                 const x = this._orthoHeight * this._aspect; // aspect is already oriented
                 const y = this._orthoHeight;
                 Mat4.ortho(this._matProj, -x, x, -y, y, this._nearClip, this._farClip,
-                    this._device.clipSpaceMinZ, projectionSignY, orientation);
+                    this._device.capabilities.clipSpaceMinZ, projectionSignY, orientation);
+
+                Mat4.ortho(this._matProjOffscreen, -x, x, -y, y, this._nearClip, this._farClip,
+                    this._device.capabilities.clipSpaceMinZ, projectionSignY * this._device.capabilities.UVSpaceSignY, SurfaceTransform.IDENTITY);
             }
             Mat4.invert(this._matProjInv, this._matProj);
+            Mat4.invert(this._matProjInvOffscreen, this._matProjOffscreen);
+
             CameraPool.setMat4(this._poolHandle, CameraView.MAT_PROJ, this._matProj);
             CameraPool.setMat4(this._poolHandle, CameraView.MAT_PROJ_INV, this._matProjInv);
+            CameraPool.setMat4(this._poolHandle, CameraView.MAT_PROJ_OFFSCREEN, this._matProjOffscreen);
+            CameraPool.setMat4(this._poolHandle, CameraView.MAT_PROJ_INV_OFFSCREEN, this._matProjInvOffscreen);
             viewProjDirty = true;
             this._isProjDirty = false;
         }
@@ -297,10 +310,14 @@ export class Camera {
         // view-projection
         if (viewProjDirty) {
             Mat4.multiply(this._matViewProj, this._matProj, this._matView);
+            Mat4.multiply(this._matViewProjOffscreen, this._matProjOffscreen, this._matView);
             Mat4.invert(this._matViewProjInv, this._matViewProj);
+            Mat4.invert(this._matViewProjInvOffscreen, this._matViewProjOffscreen);
             this._frustum.update(this._matViewProj, this._matViewProjInv);
             CameraPool.setMat4(this._poolHandle, CameraView.MAT_VIEW_PROJ, this._matViewProj);
             CameraPool.setMat4(this._poolHandle, CameraView.MAT_VIEW_PROJ_INV, this._matViewProjInv);
+            CameraPool.setMat4(this._poolHandle, CameraView.MAT_VIEW_PROJ_OFFSCREEN, this._matViewProjOffscreen);
+            CameraPool.setMat4(this._poolHandle, CameraView.MAT_VIEW_PROJ_INV_OFFSCREEN, this._matViewProjInvOffscreen);
             recordFrustumToSharedMemory(this._frustumHandle, this._frustum);
         }
     }
@@ -393,7 +410,7 @@ export class Camera {
 
     set viewport (val) {
         const { x, width, height } = val;
-        const y = this._device.screenSpaceSignY < 0 ? 1 - val.y - height : val.y;
+        const y = this._device.capabilities.screenSpaceSignY < 0 ? 1 - val.y - height : val.y;
 
         switch (this._device.surfaceTransform) {
         case SurfaceTransform.ROTATE_90:
@@ -498,6 +515,22 @@ export class Camera {
 
     get matViewProjInv () {
         return this._matViewProjInv;
+    }
+
+    get matProjOffscreen () {
+        return this._matProjOffscreen;
+    }
+
+    get matProjInvOffscreen () {
+        return this._matProjInvOffscreen;
+    }
+
+    get matViewProjOffscreen () {
+        return this._matViewProjOffscreen;
+    }
+
+    get matViewProjInvOffscreen () {
+        return this._matViewProjInvOffscreen;
     }
 
     set frustum (val) {
@@ -605,12 +638,12 @@ export class Camera {
         return CameraPool.get(this._poolHandle, CameraView.EXPOSURE);
     }
 
-    get clearFlag () : ClearFlag {
-        return CameraPool.get(this._poolHandle, CameraView.CLEAR_FLAG);
+    get clearFlag () : ClearFlags {
+        return CameraPool.get(this._poolHandle, CameraView.CLEAR_FLAGS);
     }
 
-    set clearFlag (flag: ClearFlag) {
-        CameraPool.set(this._poolHandle, CameraView.CLEAR_FLAG, flag);
+    set clearFlag (flag: ClearFlags) {
+        CameraPool.set(this._poolHandle, CameraView.CLEAR_FLAGS, flag);
     }
 
     get clearDepth () : number {
@@ -666,7 +699,7 @@ export class Camera {
         const cw = this._viewport.width * width;
         const ch = this._viewport.height * height;
         const isProj = this._proj === CameraProjection.PERSPECTIVE;
-        const ySign = this._device.screenSpaceSignY;
+        const ySign = this._device.capabilities.screenSpaceSignY;
         const preTransform = preTransforms[this._curTransform];
 
         Vec3.set(v_a, (x - cx) / cw * 2 - 1, (y - cy) / ch * 2 - 1, isProj ? 1 : -1);
@@ -699,7 +732,7 @@ export class Camera {
         const cy = this._viewport.y * height;
         const cw = this._viewport.width * width;
         const ch = this._viewport.height * height;
-        const ySign = this._device.screenSpaceSignY;
+        const ySign = this._device.capabilities.screenSpaceSignY;
         const preTransform = preTransforms[this._curTransform];
 
         if (this._proj === CameraProjection.PERSPECTIVE) {
@@ -746,7 +779,7 @@ export class Camera {
         const cy = this._viewport.y * height;
         const cw = this._viewport.width * width;
         const ch = this._viewport.height * height;
-        const ySign = this._device.screenSpaceSignY;
+        const ySign = this._device.capabilities.screenSpaceSignY;
         const preTransform = preTransforms[this._curTransform];
 
         Vec3.transformMat4(out, worldPos, this._matViewProj);

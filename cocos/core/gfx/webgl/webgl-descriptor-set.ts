@@ -23,12 +23,13 @@
  THE SOFTWARE.
  */
 
-import { DescriptorSet, DescriptorSetInfo, DESCRIPTOR_SAMPLER_TYPE, DESCRIPTOR_BUFFER_TYPE } from '../descriptor-set';
+import { DescriptorSet } from '../base/descriptor-set';
 import { WebGLBuffer } from './webgl-buffer';
 import { IWebGLGPUDescriptorSet, IWebGLGPUDescriptor } from './webgl-gpu-objects';
 import { WebGLSampler } from './webgl-sampler';
 import { WebGLTexture } from './webgl-texture';
 import { WebGLDescriptorSetLayout } from './webgl-descriptor-set-layout';
+import { DescriptorSetInfo, DESCRIPTOR_SAMPLER_TYPE, DESCRIPTOR_BUFFER_TYPE } from '../base/define';
 
 export class WebGLDescriptorSet extends DescriptorSet {
     get gpuDescriptorSet (): IWebGLGPUDescriptorSet {

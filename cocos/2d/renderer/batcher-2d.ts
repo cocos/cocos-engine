@@ -31,7 +31,7 @@ import { Camera, Model } from 'cocos/core/renderer/scene';
 import { UIStaticBatch } from '../components';
 import { Material } from '../../core/assets/material';
 import { RenderRoot2D, Renderable2D, UIComponent } from '../framework';
-import { Texture, Device, Attribute, Sampler, DescriptorSetInfo, DescriptorSet, Buffer, BufferInfo } from '../../core/gfx';
+import { Texture, Device, Attribute, Sampler, DescriptorSetInfo, Buffer, BufferInfo, BufferUsageBit, MemoryUsageBit } from '../../core/gfx';
 import { Pool, RecyclePool } from '../../core/memop';
 import { CachedArray } from '../../core/memop/cached-array';
 import { RenderScene } from '../../core/renderer/scene/render-scene';
@@ -48,7 +48,6 @@ import { RenderTexture } from '../../core/assets';
 import { SpriteFrame } from '../assets';
 import { TextureBase } from '../../core/assets/texture-base';
 import { sys } from '../../core/platform/sys';
-import { BufferUsageBit, MemoryUsageBit } from '../../core/gfx/define';
 import { Mat4 } from '../../core/math';
 
 const _dsInfo = new DescriptorSetInfo(null!);
@@ -120,6 +119,10 @@ export class Batcher2D {
         this._currStaticRoot = value;
     }
 
+    set currIsStatic (value: boolean) {
+        this._currIsStatic = value;
+    }
+
     public device: Device;
     private _screens: RenderRoot2D[] = [];
     private _bufferBatchPool: RecyclePool<MeshBuffer> = new RecyclePool(() => new MeshBuffer(this), 128);
@@ -143,6 +146,7 @@ export class Batcher2D {
     private _currBlendTargetHash = 0;
     private _currLayer = 0;
     private _currDepthStencilStateStage: any|null = null;
+    private _currIsStatic = false;
     private _parentOpacity = 1;
     // DescriptorSet Cache Map
     private _descriptorSetCache = new DescriptorSetCache();
@@ -517,7 +521,7 @@ export class Batcher2D {
 
         // HACK: After sharing buffer between drawcalls, the performance degradation a lots on iOS 14 or iPad OS 14 device
         // TODO: Maybe it can be removed after Apple fixes it?
-        if (sys.__isWebIOS14OrIPadOS14Env) {
+        if (sys.__isWebIOS14OrIPadOS14Env && !this._currIsStatic) {
             this._currMeshBuffer = null;
         }
     }

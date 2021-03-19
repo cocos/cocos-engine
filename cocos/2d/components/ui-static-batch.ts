@@ -59,36 +59,6 @@ import { BlendFactor } from '../../core/gfx';
 export class UIStaticBatch extends Renderable2D {
     @override
     @visible(false)
-    get dstBlendFactor () {
-        return this._dstBlendFactor;
-    }
-
-    set dstBlendFactor (value: BlendFactor) {
-        if (this._dstBlendFactor === value) {
-            return;
-        }
-
-        this._dstBlendFactor = value;
-        this._updateBlendFunc();
-    }
-
-    @override
-    @visible(false)
-    get srcBlendFactor () {
-        return this._srcBlendFactor;
-    }
-
-    set srcBlendFactor (value: BlendFactor) {
-        if (this._srcBlendFactor === value) {
-            return;
-        }
-
-        this._srcBlendFactor = value;
-        this._updateBlendFunc();
-    }
-
-    @override
-    @visible(false)
     get color (): Readonly<Color> {
         return this._color;
     }
@@ -136,6 +106,7 @@ export class UIStaticBatch extends Renderable2D {
     }
 
     public updateAssembler (render: Batcher2D) {
+        render.currIsStatic = true;
         if (this._dirty) {
             render.finishMergeBatches();
             this._lastMeshBuffer = render.currBufferBatch;
@@ -160,6 +131,7 @@ export class UIStaticBatch extends Renderable2D {
 
             this._meshBuffer!.uploadBuffers();
         }
+        render.currIsStatic = false;
     }
 
     /**

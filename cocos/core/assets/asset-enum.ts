@@ -28,7 +28,7 @@
  * @module asset
  */
 
-import { Address, Filter as GFXFilter, Format } from '../gfx/define';
+import { Address, Filter as GFXFilter, Format } from '../gfx';
 
 // define a specified number for the pixel format which gfx do not have a standard definition.
 let CUSTOM_PIXEL_FORMAT = 1024;
@@ -40,8 +40,8 @@ let CUSTOM_PIXEL_FORMAT = 1024;
  * other formats are supported by compressed file types or raw data.
  * @zh
  * 纹理像素格式，默认值为RGBA8888，<br>
- * 你应该注意到普通图像文件（png，jpg）加载的纹理只能支持RGBA8888格式，<br>
- * 压缩文件类型或原始数据支持其他格式。
+ * 你应该注意到普通图像文件（png，jpg）加载的纹理只能支持RGBA8888格式，<br>
+ * 压缩文件类型或原始数据支持其他格式。
  */
 export enum PixelFormat {
     /**

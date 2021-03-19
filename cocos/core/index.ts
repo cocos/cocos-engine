@@ -27,7 +27,7 @@
  * @packageDocumentation
  * @module core
  */
-import { legacyCC } from './global-exports';
+import { legacyCC, VERSION } from './global-exports';
 
 import * as geometry from './geometry';
 import * as math from './math';
@@ -40,7 +40,7 @@ import './deprecated';
 legacyCC.math = math;
 legacyCC.geometry = geometry;
 
-export { math, memop, geometry, gfx };
+export { math, memop, geometry, gfx, VERSION };
 
 export * from './math';
 export * from './memop';

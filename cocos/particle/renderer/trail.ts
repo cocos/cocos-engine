@@ -32,8 +32,8 @@ import { ccclass, tooltip, displayOrder, type, serializable } from 'cc.decorator
 import { Material } from '../../core/assets/material';
 import { RenderingSubMesh } from '../../core/assets/rendering-sub-mesh';
 import { director } from '../../core/director';
-import { AttributeName, BufferUsageBit, Format, FormatInfos, MemoryUsageBit, PrimitiveMode } from '../../core/gfx/define';
-import { Device, Attribute, Buffer, IndirectBuffer, BufferInfo, DrawInfo, DRAW_INFO_SIZE } from '../../core/gfx';
+import { AttributeName, BufferUsageBit, Format, FormatInfos, MemoryUsageBit, PrimitiveMode,
+    Device, Attribute, Buffer, IndirectBuffer, BufferInfo, DrawInfo, DRAW_INFO_SIZE } from '../../core/gfx';
 import { Color, Mat4, Quat, toRadian, Vec3 } from '../../core/math';
 import { Pool } from '../../core/memop';
 import { scene } from '../../core/renderer';
@@ -159,7 +159,8 @@ class TrailSegment {
     // public _print () {
     //     let msg = String();
     //     this.iterateElement(this, (target: object, e: ITrailElement, p: Particle, dt: number) => {
-    //         msg += 'pos:' + e.position.toString() + ' lifetime:' + e.lifetime + ' dir:' + e.direction + ' velocity:' + e.velocity.toString() + '\n';
+    //         msg += 'pos:' + e.position.toString() + ' lifetime:' + e.lifetime + ' dir:' + e.direction +
+    //                ' velocity:' + e.velocity.toString() + '\n';
     //         return false;
     //     }, null, 0);
     //     console.log(msg);
@@ -193,7 +194,8 @@ export default class TrailModule {
             this._trailModel.enabled = val;
         }
 
-        val ? this.onEnable() : this.onDisable();
+        if (val) this.onEnable();
+        else this.onDisable();
     }
 
     @serializable
@@ -205,7 +207,7 @@ export default class TrailModule {
     @type(TrailMode)
     @serializable
     @displayOrder(1)
-    @tooltip('Particle在每个粒子的运动轨迹上形成拖尾效果')
+    @tooltip('i18n:trailSegment.mode')
     public mode = TrailMode.Particles;
 
     /**
@@ -214,7 +216,7 @@ export default class TrailModule {
     @type(CurveRange)
     @serializable
     @displayOrder(3)
-    @tooltip('拖尾的生命周期')
+    @tooltip('i18n:trailSegment.lifeTime')
     public lifeTime = new CurveRange();
 
     @serializable
@@ -224,7 +226,7 @@ export default class TrailModule {
      * 每个轨迹粒子之间的最小间距。
      */
     @displayOrder(5)
-    @tooltip('粒子每生成一个拖尾节点所运行的最短距离')
+    @tooltip('i18n:trailSegment.minParticleDistance')
     public get minParticleDistance () {
         return this._minParticleDistance;
     }
@@ -236,7 +238,7 @@ export default class TrailModule {
 
     @type(Space)
     @displayOrder(6)
-    @tooltip('拖尾所在的坐标系，World在世界坐标系中运行，Local在本地坐标系中运行')
+    @tooltip('i18n:trailSegment.space')
     public get space () {
         return this._space;
     }
@@ -260,12 +262,12 @@ export default class TrailModule {
     @type(TextureMode)
     @serializable
     @displayOrder(8)
-    @tooltip('贴图在拖尾上的展开形式，Stretch贴图覆盖在整条拖尾上，Repeat贴图覆盖在一段拖尾上')
+    @tooltip('i18n:trailSegment.textureMode')
     public textureMode = TextureMode.Stretch;
 
     @serializable
     @displayOrder(9)
-    @tooltip('拖尾宽度继承自粒子大小')
+    @tooltip('i18n:trailSegment.widthFromParticle')
     public widthFromParticle = true;
 
     /**
@@ -274,24 +276,24 @@ export default class TrailModule {
     @type(CurveRange)
     @serializable
     @displayOrder(10)
-    @tooltip('拖尾宽度，如果继承自粒子则是粒子大小的比例')
+    @tooltip('i18n:trailSegment.widthRatio')
     public widthRatio = new CurveRange();
 
     @serializable
     @displayOrder(11)
-    @tooltip('拖尾颜色是否继承自粒子')
+    @tooltip('i18n:trailSegment.colorFromParticle')
     public colorFromParticle = false;
 
     @type(GradientRange)
     @serializable
     @displayOrder(12)
-    @tooltip('拖尾颜色随拖尾自身长度的颜色渐变')
+    @tooltip('i18n:trailSegment.colorOverTrail')
     public colorOverTrail = new GradientRange();
 
     @type(GradientRange)
     @serializable
     @displayOrder(13)
-    @tooltip('拖尾颜色随时间的颜色渐变')
+    @tooltip('i18n:trailSegment.colorOvertime')
     public colorOvertime = new GradientRange();
 
     /**
@@ -518,7 +520,8 @@ export default class TrailModule {
             for (let i = trailSeg.start + 1; i < end; i++) {
                 const segEle = trailSeg.trailElements[i % trailSeg.trailElements.length];
                 const j = i - trailSeg.start;
-                this._fillVertexBuffer(segEle, this.colorOverTrail.evaluate(1 - j / trailNum, 1), indexOffset, 1 - j * textCoordSeg, j, PRE_TRIANGLE_INDEX | NEXT_TRIANGLE_INDEX);
+                this._fillVertexBuffer(segEle, this.colorOverTrail.evaluate(1 - j / trailNum, 1),
+                    indexOffset, 1 - j * textCoordSeg, j, PRE_TRIANGLE_INDEX | NEXT_TRIANGLE_INDEX);
             }
             if (this._needTransform) {
                 Vec3.transformMat4(_temp_trailEle.position, p.position, _temp_xform);
@@ -550,7 +553,8 @@ export default class TrailModule {
                 this.vbOffset -= this._vertSize / 4 * 2;
                 this.ibOffset -= 6;
                 // _bcIdx = (_bcIdx - 6 + 9) % 9;  // <wireframe debug>
-                this._fillVertexBuffer(lastSecondTrail, this.colorOverTrail.evaluate(textCoordSeg, 1), indexOffset, textCoordSeg, trailNum - 1, PRE_TRIANGLE_INDEX | NEXT_TRIANGLE_INDEX);
+                this._fillVertexBuffer(lastSecondTrail, this.colorOverTrail.evaluate(textCoordSeg, 1), indexOffset,
+                    textCoordSeg, trailNum - 1, PRE_TRIANGLE_INDEX | NEXT_TRIANGLE_INDEX);
                 Vec3.subtract(_temp_trailEle.velocity, _temp_trailEle.position, lastSecondTrail.position);
                 Vec3.normalize(_temp_trailEle.velocity, _temp_trailEle.velocity);
                 this._checkDirectionReverse(_temp_trailEle, lastSecondTrail);
@@ -654,7 +658,8 @@ export default class TrailModule {
         return trailEle.lifetime > module._trailLifetime;
     }
 
-    private _fillVertexBuffer (trailSeg: ITrailElement, colorModifer: Color, indexOffset: number, xTexCoord: number, trailEleIdx: number, indexSet: number) {
+    private _fillVertexBuffer (trailSeg: ITrailElement, colorModifer: Color, indexOffset: number,
+        xTexCoord: number, trailEleIdx: number, indexSet: number) {
         this._vbF32![this.vbOffset++] = trailSeg.position.x;
         this._vbF32![this.vbOffset++] = trailSeg.position.y;
         this._vbF32![this.vbOffset++] = trailSeg.position.z;
@@ -718,7 +723,8 @@ export default class TrailModule {
     // private _printVB() {
     //     let log = new String();
     //     for (let i = 0; i < this.vbOffset; i++) {
-    //         log += 'pos:' + this._vbF32![i++].toFixed(2) + ',' + this._vbF32![i++].toFixed(2) + ',' + this._vbF32![i++].toFixed(2) + ' dir:' + this._vbF32![i++].toFixed(0) + ' ';
+    //         log += 'pos:' + this._vbF32![i++].toFixed(2) + ',' + this._vbF32![i++].toFixed(2) + ',' +
+    //                this._vbF32![i++].toFixed(2) + ' dir:' + this._vbF32![i++].toFixed(0) + ' ';
     //         i += 6;
     //         log += 'vel:' + this._vbF32![i++].toFixed(2) + ',' + this._vbF32![i++].toFixed(2) + ',' + this._vbF32![i++].toFixed(2) + '\n';
     //     }

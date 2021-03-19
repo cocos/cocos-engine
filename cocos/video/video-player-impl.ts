@@ -23,6 +23,11 @@
  THE SOFTWARE.
  */
 
+/**
+ * @packageDocumentation
+ * @module component/video
+ */
+
 import { legacyCC } from '../core/global-exports';
 import { UITransform } from '../2d/framework';
 import { VideoPlayer } from './video-player';
@@ -125,6 +130,7 @@ export abstract class VideoPlayerImpl {
     public get componentEventList () { return this._componentEventList; }
     public get video () { return this._video; }
     public get state () { return this._state; }
+    public get isPlaying () { return this._playing; }
     get UICamera () {
         return director.root!.batcher2D.getFirstRenderCamera(this._node!);
     }

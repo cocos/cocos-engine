@@ -28,7 +28,7 @@
  * @module core
  */
 
-import { ALIPAY, EDITOR, JSB, PREVIEW, RUNTIME_BASED } from 'internal:constants';
+import { EDITOR, JSB, PREVIEW, RUNTIME_BASED } from 'internal:constants';
 import { IAssetManagerOptions } from './asset-manager/asset-manager';
 import { EventTarget } from './event/event-target';
 import * as debug from './platform/debug';
@@ -566,6 +566,8 @@ export class Game extends EventTarget {
                 } else if (node.parent !== scene) {
                     debug.warnID(3802);
                     return;
+                } else {
+                    node._originalSceneId = scene.uuid;
                 }
             }
             this._persistRootNodes[id] = node;
@@ -579,11 +581,12 @@ export class Game extends EventTarget {
      * @zh 取消常驻根节点。
      * @param node - The node to be removed from persistent node list
      */
-    public removePersistRootNode (node: { uuid: string; _persistNode: boolean; }) {
+    public removePersistRootNode (node: Node) {
         const id = node.uuid || '';
         if (node === this._persistRootNodes[id]) {
             delete this._persistRootNodes[id];
             node._persistNode = false;
+            node._originalSceneId = '';
             legacyCC.assetManager._releaseManager._removePersistNodeRef(node);
         }
     }
@@ -617,7 +620,7 @@ export class Game extends EventTarget {
         this._lastTime = performance.now();
         const frameRate = this.config.frameRate;
         this._frameTime = 1000 / frameRate;
-        if (JSB || RUNTIME_BASED) {
+        if (JSB) {
             // @ts-expect-error JSB Call
             jsb.setPreferredFramesPerSecond(frameRate);
             window.rAF = window.requestAnimationFrame;
@@ -788,31 +791,33 @@ export class Game extends EventTarget {
 
         // WebGL context created successfully
         if (this.renderType === Game.RENDER_TYPE_WEBGL) {
-            const ctors: Constructor<Device>[] = [];
+            let ctors: (() => Device)[] = [];
 
             if (JSB && window.gfx) {
                 const os = sys.os;
                 if (os === sys.OS_OSX || os === sys.OS_IOS) {
-                    if (gfx.CCMTLDevice) { ctors.push(gfx.CCMTLDevice); }
-                    if (gfx.GLES3Device) { ctors.push(gfx.GLES3Device); }
+                    if (gfx.CCMTLDevice) { ctors.push(() => new gfx.CCMTLDevice() as Device); }
+                    if (gfx.GLES3Device) { ctors.push(() => new gfx.GLES3Device() as Device); }
                 } else { // windows or android
-                    if (gfx.GLES3Device) { ctors.push(gfx.GLES3Device); }
-                    if (gfx.CCVKDevice) { ctors.push(gfx.CCVKDevice); }
-                    if (gfx.GLES2Device) { ctors.push(gfx.GLES2Device); }
+                    if (gfx.GLES3Device) { ctors.push(() => new gfx.GLES3Device() as Device); }
+                    if (gfx.CCVKDevice) { ctors.push(() => new gfx.CCVKDevice() as Device); }
+                    if (gfx.GLES2Device) { ctors.push(() => new gfx.GLES2Device() as Device); }
                 }
+                // device thread agent
+                ctors = ctors.map((ctor) => (() => new gfx.DeviceAgent(ctor()) as Device));
             } else {
                 let useWebGL2 = (!!window.WebGL2RenderingContext);
                 const userAgent = window.navigator.userAgent.toLowerCase();
                 if (userAgent.indexOf('safari') !== -1 && userAgent.indexOf('chrome') === -1
-                    || sys.browserType === sys.BROWSER_TYPE_UC // UC browser implementation doesn't not conform to WebGL2 standard
+                    || sys.browserType === sys.BROWSER_TYPE_UC // UC browser implementation doesn't conform to WebGL2 standard
                 ) {
                     useWebGL2 = false;
                 }
                 if (useWebGL2 && legacyCC.WebGL2Device) {
-                    ctors.push(legacyCC.WebGL2Device);
+                    ctors.push(() => new legacyCC.WebGL2Device() as Device);
                 }
                 if (legacyCC.WebGLDevice) {
-                    ctors.push(legacyCC.WebGLDevice);
+                    ctors.push(() => new legacyCC.WebGLDevice() as Device);
                 }
             }
 
@@ -826,7 +831,7 @@ export class Game extends EventTarget {
                 bindingMappingInfo,
             );
             for (let i = 0; i < ctors.length; i++) {
-                this._gfxDevice = new ctors[i]();
+                this._gfxDevice = ctors[i]();
                 if (this._gfxDevice.initialize(opts)) { break; }
             }
         }

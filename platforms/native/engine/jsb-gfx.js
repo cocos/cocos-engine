@@ -137,6 +137,7 @@ let deviceProtos = [
     gfx.CCMTLDevice && gfx.CCMTLDevice.prototype,
     gfx.GLES3Device && gfx.GLES3Device.prototype,
     gfx.GLES2Device && gfx.GLES2Device.prototype,
+    gfx.DeviceAgent && gfx.DeviceAgent.prototype,
 ];
 deviceProtos.forEach(function(item, index) {
     if (item !== undefined) {

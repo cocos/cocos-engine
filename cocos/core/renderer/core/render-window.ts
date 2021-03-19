@@ -24,11 +24,8 @@
  */
 
 import {
-    TextureType,
-    TextureUsageBit,
-    Format,
-} from '../../gfx/define';
-import { RenderPass, Texture, Framebuffer, RenderPassInfo, Device, TextureInfo, FramebufferInfo } from '../../gfx';
+    TextureType, TextureUsageBit, Format, RenderPass, Texture, Framebuffer,
+    RenderPassInfo, Device, TextureInfo, FramebufferInfo } from '../../gfx';
 import { Root } from '../../root';
 import { RenderWindowHandle, RenderWindowPool, RenderWindowView, FramebufferPool, NULL_HANDLE } from './memory-pools';
 import { Camera } from '../scene';
@@ -266,8 +263,7 @@ export class RenderWindow {
         }
     }
 
-    public extractRenderCameras () {
-        const cameras: Camera[] = [];
+    public extractRenderCameras (cameras: Camera[]) {
         for (let j = 0; j < this._cameras.length; j++) {
             const camera = this._cameras[j];
             if (camera.enabled) {
@@ -275,8 +271,6 @@ export class RenderWindow {
                 cameras.push(camera);
             }
         }
-
-        return cameras;
     }
 
     /**

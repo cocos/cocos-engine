@@ -23,59 +23,63 @@
  THE SOFTWARE.
  */
 
+/**
+ * @packageDocumentation
+ * @module gfx
+ */
+
 declare const gfx: any;
 
-import * as Defines from './define';
 import { legacyCC } from '../global-exports';
-import { PipelineState } from './pipeline-state.jsb';
+import * as defines from './base/define';
+import * as pso from './pipeline-state.jsb';
 
-export * from './define';
-export * from './define-class';
-export * from './pipeline-state.jsb';
-export { DeviceInfo, BindingMappingInfo } from './device';
-export {TextureInfo } from './texture';
-export { ShaderStage, UniformSampler, UniformBlock, Uniform, ShaderInfo } from './shader';
-export { DRAW_INFO_SIZE, BufferInfo, BufferViewInfo, DrawInfo, IndirectBuffer } from './buffer';
-export { ColorAttachment, DepthStencilAttachment, SubPassInfo, RenderPassInfo } from './render-pass';
-export { SamplerInfo } from './sampler';
-export { DESCRIPTOR_BUFFER_TYPE, DESCRIPTOR_SAMPLER_TYPE, DescriptorSetInfo } from './descriptor-set';
-export { DescriptorSetLayoutInfo, DescriptorSetLayoutBinding } from './descriptor-set-layout';
-export { CommandBufferInfo } from './command-buffer';
-export { FramebufferInfo } from './framebuffer';
-export { PipelineLayoutInfo } from './pipeline-layout';
-export { FenceInfo } from './fence';
-export { QueueInfo } from './queue';
-export { InputAssemblerInfo } from './input-assembler';
+export * from './base/descriptor-set';
+export * from './base/buffer';
+export * from './base/command-buffer';
+export * from './base/define';
+export * from './base/device';
+export * from './base/framebuffer';
+export * from './base/input-assembler';
+export * from './base/descriptor-set-layout';
+export * from './base/pipeline-layout';
+export * from './base/queue';
+export * from './base/render-pass';
+export * from './base/sampler';
+export * from './base/shader';
+export * from './base/texture';
+export * from './base/global-barrier';
+export * from './base/texture-barrier';
 
-export const TextureViewInfo = gfx.TextureViewInfo;
-export const Texture = gfx.Texture;
-export const Device = gfx.Device;
-export const Shader = gfx.Shader;
-export const Attribute = gfx.Attribute;
-export const InputAssembler = gfx.InputAssembler;
-export const Buffer = gfx.Buffer;
-export const Sampler = gfx.Sampler;
-export const Fence = gfx.Fence
-export const RenderPass = gfx.RenderPass
-export const Queue = gfx.Queue;
-export const PipelineLayout = gfx.PipelineLayout;
-export const DescriptorSetLayout = gfx.DescriptorSetLayout;
-export const Framebuffer = gfx.Framebuffer;
-export const CommandBuffer = gfx.CommandBuffer;
+const polyfillCC: Record<string, unknown> = Object.assign({}, defines);
+polyfillCC.Device = gfx.Device;
+polyfillCC.Buffer = gfx.Buffer;
+polyfillCC.Texture = gfx.Texture;
+polyfillCC.Sampler = gfx.Sampler;
+polyfillCC.Shader = gfx.Shader;
+polyfillCC.InputAssembler = gfx.InputAssembler;
+polyfillCC.RenderPass = gfx.RenderPass;
+polyfillCC.Framebuffer = gfx.Framebuffer;
+polyfillCC.DescriptorSet = gfx.DescriptorSet;
+polyfillCC.DescriptorSetLayout = gfx.DescriptorSetLayout;
+polyfillCC.PipelineLayout = gfx.PipelineLayout;
+polyfillCC.PipelineState = gfx.PipelineState;
+polyfillCC.CommandBuffer = gfx.CommandBuffer;
+polyfillCC.Queue = gfx.Queue;
+legacyCC.gfx = polyfillCC;
 
+// TODO: remove these after state info refactor
+export const BlendTarget = pso.BlendTarget;
+export const BlendState = pso.BlendState;
+export const RasterizerState = pso.RasterizerState;
+export const DepthStencilState = pso.DepthStencilState;
+export const PipelineState = pso.PipelineState;
+export const PipelineStateInfo = pso.PipelineStateInfo;
 
-legacyCC.Device = Device;
-legacyCC.Buffer = Buffer;
-legacyCC.Texture = Texture;
-legacyCC.Sampler = Sampler;
-legacyCC.Shader = Shader;
-legacyCC.InputAssembler = InputAssembler;
-legacyCC.RenderPass = RenderPass;
-legacyCC.Framebuffer = Framebuffer;
-legacyCC.PipelineState = PipelineState;
-legacyCC.CommandBuffer = CommandBuffer;
-legacyCC.Queue = Queue;
+polyfillCC.BlendTarget = pso.BlendTarget;
+polyfillCC.BlendState = pso.BlendState;
+polyfillCC.RasterizerState = pso.RasterizerState;
+polyfillCC.DepthStencilState = pso.DepthStencilState;
+polyfillCC.PipelineStateInfo = pso.PipelineStateInfo;
 
-Object.assign(legacyCC, Defines);
-
-export * from './deprecated-3.0.0';
+import './deprecated-3.0.0';

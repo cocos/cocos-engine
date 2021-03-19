@@ -50,7 +50,7 @@ import { EAxisDirection, EColliderType } from '../../physics-enum';
  */
 @ccclass('cc.ConeCollider')
 @help('i18n:cc.ConeCollider')
-@menu('Physics/ConeCollider(beta)')
+@menu('Physics/ConeCollider')
 @executeInEditMode
 export class ConeCollider extends Collider {
     /// PUBLIC PROPERTY GETTER\SETTER ///
@@ -61,7 +61,7 @@ export class ConeCollider extends Collider {
      * @zh
      * 获取或设置圆锥体上圆面半径。
      */
-    @tooltip('圆锥体上圆面的半径')
+    @tooltip('i18n:physics3d.collider.cone_radius')
     public get radius () {
         return this._radius;
     }
@@ -81,7 +81,7 @@ export class ConeCollider extends Collider {
      * @zh
      * 获取或设置圆锥体在相应轴向的高度。
      */
-    @tooltip('圆锥体在相应轴向的高度')
+    @tooltip('i18n:physics3d.collider.cone_height')
     public get height () {
         return this._height;
     }
@@ -102,6 +102,7 @@ export class ConeCollider extends Collider {
      * 获取或设置在圆锥体本地空间上的方向。
      */
     @type(EAxisDirection)
+    @tooltip('i18n:physics3d.collider.cone_direction')
     public get direction () {
         return this._direction;
     }

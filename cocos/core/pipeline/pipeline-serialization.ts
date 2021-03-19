@@ -30,7 +30,7 @@
 
 import { ccclass, type, serializable, editable } from 'cc.decorator';
 import { CCString } from '../data/utils/attribute';
-import { Format, LoadOp, StoreOp, TextureLayout, TextureType, TextureUsageBit } from '../gfx/define';
+import { AccessType, Format, LoadOp, StoreOp, TextureType, TextureUsageBit } from '../gfx';
 import { ccenum } from '../value-types/enum';
 import { RenderTexture } from '../assets/render-texture';
 import { Material } from '../assets/material';
@@ -39,7 +39,7 @@ ccenum(TextureType);
 ccenum(TextureUsageBit);
 ccenum(StoreOp);
 ccenum(LoadOp);
-ccenum(TextureLayout);
+ccenum(AccessType);
 
 /**
  * @en The tag of the render flow, including SCENE, POSTPROCESS and UI.
@@ -118,10 +118,10 @@ export class ColorDesc {
     @serializable
     @editable
     public sampleCount = 1;
-    @type(TextureLayout)
-    public beginLayout: TextureLayout = TextureLayout.UNDEFINED;
-    @type(TextureLayout)
-    public endLayout: TextureLayout = TextureLayout.PRESENT_SRC;
+    @type([AccessType])
+    public beginAccesses: AccessType[] = [];
+    @type([AccessType])
+    public endAccesses: AccessType[] = [AccessType.PRESENT];
 }
 
 @ccclass('DepthStencilDesc')
@@ -139,10 +139,10 @@ export class DepthStencilDesc {
     @serializable
     @editable
     public sampleCount = 1;
-    @type(TextureLayout)
-    public beginLayout: TextureLayout = TextureLayout.UNDEFINED;
-    @type(TextureLayout)
-    public endLayout: TextureLayout = TextureLayout.DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+    @type([AccessType])
+    public beginAccesses: AccessType[] = [];
+    @type([AccessType])
+    public endAccesses: AccessType[] = [AccessType.DEPTH_STENCIL_ATTACHMENT_WRITE];
 }
 
 @ccclass('RenderPassDesc')

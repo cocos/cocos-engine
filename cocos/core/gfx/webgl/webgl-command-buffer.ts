@@ -23,13 +23,13 @@
  THE SOFTWARE.
  */
 
-import { DescriptorSet } from '../descriptor-set';
-import { Buffer, BufferSource } from '../buffer';
-import { CommandBuffer, CommandBufferInfo } from '../command-buffer';
-import { Framebuffer } from '../framebuffer';
-import { InputAssembler } from '../input-assembler';
-import { PipelineState } from '../pipeline-state';
-import { Texture } from '../texture';
+import { DescriptorSet } from '../base/descriptor-set';
+import { Buffer } from '../base/buffer';
+import { CommandBuffer } from '../base/command-buffer';
+import { Framebuffer } from '../base/framebuffer';
+import { InputAssembler } from '../base/input-assembler';
+import { PipelineState } from '../base/pipeline-state';
+import { Texture } from '../base/texture';
 import { WebGLDescriptorSet } from './webgl-descriptor-set';
 import { WebGLBuffer } from './webgl-buffer';
 import { WebGLCommandAllocator } from './webgl-command-allocator';
@@ -39,13 +39,14 @@ import { IWebGLGPUInputAssembler, IWebGLGPUDescriptorSet, IWebGLGPUPipelineState
 import { WebGLInputAssembler } from './webgl-input-assembler';
 import { WebGLPipelineState } from './webgl-pipeline-state';
 import { WebGLTexture } from './webgl-texture';
-import { RenderPass } from '../render-pass';
+import { RenderPass } from '../base/render-pass';
 import { WebGLRenderPass } from './webgl-render-pass';
-import { BufferUsageBit, CommandBufferType,
-    StencilFace } from '../define';
-import { BufferTextureCopy, Color, Rect, Viewport } from '../define-class';
+import { BufferUsageBit, CommandBufferType, StencilFace, BufferSource,
+    CommandBufferInfo, BufferTextureCopy, Color, Rect, Viewport } from '../base/define';
 import { WebGLCmd, WebGLCmdBeginRenderPass, WebGLCmdBindStates, WebGLCmdCopyBufferToTexture,
     WebGLCmdDraw, WebGLCmdPackage, WebGLCmdUpdateBuffer } from './webgl-commands';
+import { GlobalBarrier } from '../base/global-barrier';
+import { TextureBarrier } from '../base/texture-barrier';
 
 export interface IWebGLDepthBias {
     constantFactor: number;
@@ -457,6 +458,9 @@ export class WebGLCommandBuffer extends CommandBuffer {
             this._numInstances += webGLCmdBuff._numInstances;
             this._numTris += webGLCmdBuff._numTris;
         }
+    }
+
+    public pipelineBarrier (globalBarrier: GlobalBarrier, textureBarriers: TextureBarrier[]) {
     }
 
     public get webGLDevice (): WebGLDevice {

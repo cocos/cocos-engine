@@ -18,7 +18,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-const { getUserDataPath, readJsonSync, makeDirSync, writeFileSync, copyFile, downloadFile, deleteFile, rmdirSync, unzip, isOutOfStorage } = jsb.fsUtils;
+const { getUserDataPath, readJsonSync, makeDirSync, writeFileSync, copyFile, downloadFile, deleteFile, rmdirSync, unzip, isOutOfStorage } = require('./fs-utils');
 
 var checkNextPeriod = false;
 var writeCacheFileList = null;

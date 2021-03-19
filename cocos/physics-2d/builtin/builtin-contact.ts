@@ -22,6 +22,10 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
+/**
+ * @packageDocumentation
+ * @hidden
+ */
 
 import { BuiltinShape2D } from './shapes/shape-2d';
 import Intersection2D from './intersection-2d';

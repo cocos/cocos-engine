@@ -23,6 +23,11 @@
  THE SOFTWARE.
  */
 
+/**
+ * @packageDocumentation
+ * @module component/audio
+ */
+
 import { legacyCC } from '../../core/global-exports';
 
 export abstract class AudioManager<AudioType> {
@@ -34,7 +39,9 @@ export abstract class AudioManager<AudioType> {
     }
 
     public addPlaying (audio: AudioType) {
-        this._playingAudios.push(audio);
+        if (!this._playingAudios.includes(audio)) {
+            this._playingAudios.push(audio);
+        }
     }
 
     public removePlaying (audio: AudioType) {

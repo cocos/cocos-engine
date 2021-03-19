@@ -23,19 +23,20 @@
  THE SOFTWARE.
  */
 
-import { DescriptorSet } from '../descriptor-set';
-import { Buffer, BufferSource } from '../buffer';
-import { CommandBuffer, CommandBufferInfo } from '../command-buffer';
+import { DescriptorSet } from '../base/descriptor-set';
+import { Buffer } from '../base/buffer';
+import { CommandBuffer } from '../base/command-buffer';
 import {
     BufferUsageBit,
     CommandBufferType,
     StencilFace,
-} from '../define';
-import { BufferTextureCopy, Color, Rect, Viewport } from '../define-class';
-import { Framebuffer } from '../framebuffer';
-import { InputAssembler } from '../input-assembler';
-import { PipelineState } from '../pipeline-state';
-import { Texture } from '../texture';
+    BufferSource, CommandBufferInfo,
+    BufferTextureCopy, Color, Rect, Viewport,
+} from '../base/define';
+import { Framebuffer } from '../base/framebuffer';
+import { InputAssembler } from '../base/input-assembler';
+import { PipelineState } from '../base/pipeline-state';
+import { Texture } from '../base/texture';
 import { WebGL2DescriptorSet } from './webgl2-descriptor-set';
 import { WebGL2Buffer } from './webgl2-buffer';
 import { WebGL2CommandAllocator } from './webgl2-command-allocator';
@@ -54,8 +55,10 @@ import { IWebGL2GPUInputAssembler, IWebGL2GPUDescriptorSet, IWebGL2GPUPipelineSt
 import { WebGL2InputAssembler } from './webgl2-input-assembler';
 import { WebGL2PipelineState } from './webgl2-pipeline-state';
 import { WebGL2Texture } from './webgl2-texture';
-import { RenderPass } from '../render-pass';
+import { RenderPass } from '../base/render-pass';
 import { WebGL2RenderPass } from './webgl2-render-pass';
+import { GlobalBarrier } from '../base/global-barrier';
+import { TextureBarrier } from '../base/texture-barrier';
 
 export interface IWebGL2DepthBias {
     constantFactor: number;
@@ -463,6 +466,9 @@ export class WebGL2CommandBuffer extends CommandBuffer {
             this._numInstances += webGL2CmdBuff._numInstances;
             this._numTris += webGL2CmdBuff._numTris;
         }
+    }
+
+    public pipelineBarrier (globalBarrier: GlobalBarrier, textureBarriers: TextureBarrier[]) {
     }
 
     public get webGLDevice (): WebGL2Device {

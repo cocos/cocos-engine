@@ -23,13 +23,12 @@
  THE SOFTWARE.
  */
 
-import { Buffer, BufferSource, DrawInfo } from '../buffer';
-import { CommandBuffer } from '../command-buffer';
-import { BufferUsageBit } from '../define';
-import { BufferTextureCopy, Color, Rect } from '../define-class';
-import { Framebuffer } from '../framebuffer';
-import { InputAssembler } from '../input-assembler';
-import { Texture } from '../texture';
+import { Buffer } from '../base/buffer';
+import { CommandBuffer } from '../base/command-buffer';
+import { BufferUsageBit, BufferTextureCopy, Color, Rect, BufferSource, DrawInfo } from '../base/define';
+import { Framebuffer } from '../base/framebuffer';
+import { InputAssembler } from '../base/input-assembler';
+import { Texture } from '../base/texture';
 import { WebGL2Buffer } from './webgl2-buffer';
 import { WebGL2CommandBuffer } from './webgl2-command-buffer';
 import {
@@ -38,7 +37,7 @@ import {
 import { WebGL2Device } from './webgl2-device';
 import { WebGL2Framebuffer } from './webgl2-framebuffer';
 import { WebGL2Texture } from './webgl2-texture';
-import { RenderPass } from '../render-pass';
+import { RenderPass } from '../base/render-pass';
 import { WebGL2RenderPass } from './webgl2-render-pass';
 
 const _dynamicOffsets: number[] = [];

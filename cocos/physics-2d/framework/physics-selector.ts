@@ -1,8 +1,10 @@
-import { legacyCC } from '../../core/global-exports';
-
 /**
+ * @packageDocumentation
  * @hidden
  */
+
+import { legacyCC } from '../../core/global-exports';
+
 interface IPhysicsWrapperObject {
     PhysicsWorld: any,
     RigidBody?: any,

@@ -71,7 +71,7 @@ export class ParticleSystem extends RenderableComponent {
      * @zh 粒子系统能生成的最大粒子数量。
      */
     @displayOrder(1)
-    @tooltip('粒子系统能生成的最大粒子数量')
+    @tooltip('i18n:particle_system.capacity')
     public get capacity () {
         return this._capacity;
     }
@@ -91,18 +91,18 @@ export class ParticleSystem extends RenderableComponent {
     @type(GradientRange)
     @serializable
     @displayOrder(8)
-    @tooltip('粒子初始颜色')
+    @tooltip('i18n:particle_system.startColor')
     public startColor = new GradientRange();
 
     @type(Space)
     @serializable
     @displayOrder(9)
-    @tooltip('选择缩放坐标系')
+    @tooltip('i18n:particle_system.scaleSpace')
     public scaleSpace = Space.Local;
 
     @serializable
     @displayOrder(10)
-    @tooltip('粒子初始大小')
+    @tooltip('i18n:particle_system.startSize3D')
     public startSize3D = false;
 
     /**
@@ -111,7 +111,7 @@ export class ParticleSystem extends RenderableComponent {
     @formerlySerializedAs('startSize')
     @type(CurveRange)
     @displayOrder(10)
-    @tooltip('粒子初始大小')
+    @tooltip('i18n:particle_system.startSizeX')
     public startSizeX = new CurveRange();
 
     /**
@@ -120,7 +120,7 @@ export class ParticleSystem extends RenderableComponent {
     @type(CurveRange)
     @serializable
     @displayOrder(10)
-    @tooltip('粒子初始大小')
+    @tooltip('i18n:particle_system.startSizeY')
     public startSizeY = new CurveRange();
 
     /**
@@ -129,7 +129,7 @@ export class ParticleSystem extends RenderableComponent {
     @type(CurveRange)
     @serializable
     @displayOrder(10)
-    @tooltip('粒子初始大小')
+    @tooltip('i18n:particle_system.startSizeZ')
     public startSizeZ = new CurveRange();
 
     /**
@@ -139,12 +139,12 @@ export class ParticleSystem extends RenderableComponent {
     @serializable
     @range([-1, 1])
     @displayOrder(11)
-    @tooltip('粒子初始速度')
+    @tooltip('i18n:particle_system.startSpeed')
     public startSpeed = new CurveRange();
 
     @serializable
     @displayOrder(12)
-    @tooltip('粒子初始旋转角度')
+    @tooltip('i18n:particle_system.startRotation3D')
     public startRotation3D = false;
 
     /**
@@ -155,7 +155,7 @@ export class ParticleSystem extends RenderableComponent {
     @range([-1, 1])
     @radian
     @displayOrder(12)
-    @tooltip('粒子初始旋转角度')
+    @tooltip('i18n:particle_system.startRotationX')
     public startRotationX = new CurveRange();
 
     /**
@@ -166,7 +166,7 @@ export class ParticleSystem extends RenderableComponent {
     @range([-1, 1])
     @radian
     @displayOrder(12)
-    @tooltip('粒子初始旋转角度')
+    @tooltip('i18n:particle_system.startRotationY')
     public startRotationY = new CurveRange();
 
     /**
@@ -177,7 +177,7 @@ export class ParticleSystem extends RenderableComponent {
     @range([-1, 1])
     @radian
     @displayOrder(12)
-    @tooltip('粒子初始旋转角度')
+    @tooltip('i18n:particle_system.startRotationZ')
     public startRotationZ = new CurveRange();
 
     /**
@@ -186,7 +186,7 @@ export class ParticleSystem extends RenderableComponent {
     @type(CurveRange)
     @serializable
     @displayOrder(6)
-    @tooltip('粒子系统开始运行后，延迟粒子发射的时间')
+    @tooltip('i18n:particle_system.startDelay')
     public startDelay = new CurveRange();
 
     /**
@@ -195,7 +195,7 @@ export class ParticleSystem extends RenderableComponent {
     @type(CurveRange)
     @serializable
     @displayOrder(7)
-    @tooltip('粒子生命周期')
+    @tooltip('i18n:particle_system.startLifetime')
     public startLifetime = new CurveRange();
 
     /**
@@ -203,7 +203,7 @@ export class ParticleSystem extends RenderableComponent {
      */
     @serializable
     @displayOrder(0)
-    @tooltip('粒子系统运行时间')
+    @tooltip('i18n:particle_system.duration')
     public duration = 5.0;
 
     /**
@@ -211,14 +211,14 @@ export class ParticleSystem extends RenderableComponent {
      */
     @serializable
     @displayOrder(2)
-    @tooltip('粒子系统是否循环播放')
+    @tooltip('i18n:particle_system.loop')
     public loop = true;
 
     /**
      * @zh 选中之后，粒子系统会以已播放完一轮之后的状态开始播放（仅当循环播放启用时有效）。
      */
     @displayOrder(3)
-    @tooltip('选中之后，粒子系统会以已播放完一轮之后的状态开始播放（仅当循环播放启用时有效）')
+    @tooltip('i18n:particle_system.prewarm')
     get prewarm () {
         return this._prewarm;
     }
@@ -236,7 +236,7 @@ export class ParticleSystem extends RenderableComponent {
     @type(Space)
     @serializable
     @displayOrder(4)
-    @tooltip('控制粒子坐标计算所在的坐标系')
+    @tooltip('i18n:particle_system.simulationSpace')
     get simulationSpace () {
         return this._simulationSpace;
     }
@@ -256,7 +256,7 @@ export class ParticleSystem extends RenderableComponent {
      */
     @serializable
     @displayOrder(5)
-    @tooltip('控制整个粒子系统的更新速度')
+    @tooltip('i18n:particle_system.simulationSpeed')
     public simulationSpeed = 1.0;
 
     /**
@@ -264,7 +264,7 @@ export class ParticleSystem extends RenderableComponent {
      */
     @serializable
     @displayOrder(2)
-    @tooltip('粒子系统加载后是否自动开始播放')
+    @tooltip('i18n:particle_system.playOnAwake')
     public playOnAwake = true;
 
     /**
@@ -274,7 +274,7 @@ export class ParticleSystem extends RenderableComponent {
     @serializable
     @range([-1, 1])
     @displayOrder(13)
-    @tooltip('粒子受重力影响的重力系数')
+    @tooltip('i18n:particle_system.gravityModifier')
     public gravityModifier = new CurveRange();
 
     // emission module
@@ -284,7 +284,7 @@ export class ParticleSystem extends RenderableComponent {
     @type(CurveRange)
     @serializable
     @displayOrder(14)
-    @tooltip('每秒发射的粒子数')
+    @tooltip('i18n:particle_system.rateOverTime')
     public rateOverTime = new CurveRange();
 
     /**
@@ -293,7 +293,7 @@ export class ParticleSystem extends RenderableComponent {
     @type(CurveRange)
     @serializable
     @displayOrder(15)
-    @tooltip('每移动单位距离发射的粒子数')
+    @tooltip('i18n:particle_system.rateOverDistance')
     public rateOverDistance = new CurveRange();
 
     /**
@@ -302,14 +302,14 @@ export class ParticleSystem extends RenderableComponent {
     @type([Burst])
     @serializable
     @displayOrder(16)
-    @tooltip('在某个时间点发射给定数量的粒子')
+    @tooltip('i18n:particle_system.bursts')
     public bursts: Burst[] = [];
 
     @override
+    @visible(false)
     @type(Material)
     @serializable
     @displayName('Materials')
-    @visible(false)
     get sharedMaterials () {
         // if we don't create an array copy, the editor will modify the original array directly.
         // eslint-disable-next-line @typescript-eslint/no-unsafe-return
@@ -323,13 +323,13 @@ export class ParticleSystem extends RenderableComponent {
 
     // color over lifetime module
     @type(ColorOverLifetimeModule)
-    _colorOverLifetimeModule:ColorOverLifetimeModule | null = null;
+    _colorOverLifetimeModule: ColorOverLifetimeModule | null = null;
     /**
      * @zh 颜色控制模块。
      */
     @type(ColorOverLifetimeModule)
     @displayOrder(23)
-    @tooltip('颜色模块')
+    @tooltip('i18n:particle_system.colorOverLifetimeModule')
     public get colorOverLifetimeModule () {
         if (EDITOR) {
             if (!this._colorOverLifetimeModule) {
@@ -347,13 +347,13 @@ export class ParticleSystem extends RenderableComponent {
 
     // shape module
     @type(ShapeModule)
-    _shapeModule:ShapeModule | null = null;
+    _shapeModule: ShapeModule | null = null;
     /**
      * @zh 粒子发射器模块。
      */
     @type(ShapeModule)
     @displayOrder(17)
-    @tooltip('发射器模块')
+    @tooltip('i18n:particle_system.shapeModule')
     public get shapeModule () {
         if (EDITOR) {
             if (!this._shapeModule) {
@@ -371,13 +371,13 @@ export class ParticleSystem extends RenderableComponent {
 
     // size over lifetime module
     @type(SizeOvertimeModule)
-    _sizeOvertimeModule:SizeOvertimeModule | null = null;
+    _sizeOvertimeModule: SizeOvertimeModule | null = null;
     /**
      * @zh 粒子大小模块。
      */
     @type(SizeOvertimeModule)
     @displayOrder(21)
-    @tooltip('大小模块')
+    @tooltip('i18n:particle_system.sizeOvertimeModule')
     public get sizeOvertimeModule () {
         if (EDITOR) {
             if (!this._sizeOvertimeModule) {
@@ -395,13 +395,13 @@ export class ParticleSystem extends RenderableComponent {
 
     // velocity overtime module
     @type(VelocityOvertimeModule)
-    _velocityOvertimeModule:VelocityOvertimeModule | null = null;
+    _velocityOvertimeModule: VelocityOvertimeModule | null = null;
     /**
      * @zh 粒子速度模块。
      */
     @type(VelocityOvertimeModule)
     @displayOrder(18)
-    @tooltip('速度模块')
+    @tooltip('i18n:particle_system.velocityOvertimeModule')
     public get velocityOvertimeModule () {
         if (EDITOR) {
             if (!this._velocityOvertimeModule) {
@@ -419,13 +419,13 @@ export class ParticleSystem extends RenderableComponent {
 
     // force overTime module
     @type(ForceOvertimeModule)
-    _forceOvertimeModule:ForceOvertimeModule | null = null;
+    _forceOvertimeModule: ForceOvertimeModule | null = null;
     /**
      * @zh 粒子加速度模块。
      */
     @type(ForceOvertimeModule)
     @displayOrder(19)
-    @tooltip('加速度模块')
+    @tooltip('i18n:particle_system.forceOvertimeModule')
     public get forceOvertimeModule () {
         if (EDITOR) {
             if (!this._forceOvertimeModule) {
@@ -443,14 +443,14 @@ export class ParticleSystem extends RenderableComponent {
 
     // limit velocity overtime module
     @type(LimitVelocityOvertimeModule)
-    _limitVelocityOvertimeModule:LimitVelocityOvertimeModule | null = null;
+    _limitVelocityOvertimeModule: LimitVelocityOvertimeModule | null = null;
 
     /**
      * @zh 粒子限制速度模块（只支持 CPU 粒子）。
      */
     @type(LimitVelocityOvertimeModule)
     @displayOrder(20)
-    @tooltip('限速模块')
+    @tooltip('i18n:particle_system.limitVelocityOvertimeModule')
     public get limitVelocityOvertimeModule () {
         if (EDITOR) {
             if (!this._limitVelocityOvertimeModule) {
@@ -468,13 +468,13 @@ export class ParticleSystem extends RenderableComponent {
 
     // rotation overtime module
     @type(RotationOvertimeModule)
-    _rotationOvertimeModule:RotationOvertimeModule | null = null;
+    _rotationOvertimeModule: RotationOvertimeModule | null = null;
     /**
      * @zh 粒子旋转模块。
      */
     @type(RotationOvertimeModule)
     @displayOrder(22)
-    @tooltip('旋转模块')
+    @tooltip('i18n:particle_system.rotationOvertimeModule')
     public get rotationOvertimeModule () {
         if (EDITOR) {
             if (!this._rotationOvertimeModule) {
@@ -492,13 +492,13 @@ export class ParticleSystem extends RenderableComponent {
 
     // texture animation module
     @type(TextureAnimationModule)
-    _textureAnimationModule:TextureAnimationModule | null = null;
+    _textureAnimationModule: TextureAnimationModule | null = null;
     /**
      * @zh 贴图动画模块。
      */
     @type(TextureAnimationModule)
     @displayOrder(24)
-    @tooltip('贴图动画模块')
+    @tooltip('i18n:particle_system.textureAnimationModule')
     public get textureAnimationModule () {
         if (EDITOR) {
             if (!this._textureAnimationModule) {
@@ -516,13 +516,13 @@ export class ParticleSystem extends RenderableComponent {
 
     // trail module
     @type(TrailModule)
-    _trailModule:TrailModule | null = null;
+    _trailModule: TrailModule | null = null;
     /**
      * @zh 粒子轨迹模块。
      */
     @type(TrailModule)
     @displayOrder(25)
-    @tooltip('拖尾模块')
+    @tooltip('i18n:particle_system.trailModule')
     public get trailModule () {
         if (EDITOR) {
             if (!this._trailModule) {
@@ -543,13 +543,13 @@ export class ParticleSystem extends RenderableComponent {
     @type(ParticleSystemRenderer)
     @serializable
     @displayOrder(26)
-    @tooltip('渲染模块')
+    @tooltip('i18n:particle_system.renderer')
     public renderer: ParticleSystemRenderer = new ParticleSystemRenderer();
 
     // serilized culling
     @serializable
     @displayOrder(27)
-    @tooltip('是否剔除非 enable 的模块数据')
+    @tooltip('i18n:particle_system.enableCulling')
     public enableCulling = false;
 
     /**

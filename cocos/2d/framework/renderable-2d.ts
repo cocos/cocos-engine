@@ -28,13 +28,14 @@
  * @module ui
  */
 import { EDITOR } from 'internal:constants';
-import { ccclass, executeInEditMode, requireComponent, disallowMultiple, tooltip, type, displayOrder, serializable, override, visible, displayName } from 'cc.decorator';
+import { ccclass, executeInEditMode, requireComponent, disallowMultiple, tooltip,
+    type, displayOrder, serializable, override, visible, displayName } from 'cc.decorator';
 import { Color } from '../../core/math';
 import { SystemEventType } from '../../core/platform/event-manager/event-enum';
 import { ccenum } from '../../core/value-types/enum';
 import { builtinResMgr } from '../../core/builtin';
 import { Material } from '../../core/assets';
-import { BlendFactor } from '../../core/gfx/define';
+import { BlendFactor, BlendState, BlendTarget } from '../../core/gfx';
 import { IMaterialInstanceInfo } from '../../core/renderer/core/material-instance';
 import { IAssembler, IAssemblerManager } from '../renderer/base';
 import { RenderData } from '../renderer/render-data';
@@ -45,7 +46,6 @@ import { UITransform } from './ui-transform';
 import { RenderableComponent } from '../../core/components/renderable-component';
 import { Stage } from '../renderer/stencil-manager';
 import { warnID } from '../../core/platform/debug';
-import { BlendState, BlendTarget } from '../../core/gfx/pipeline-state';
 import { legacyCC } from '../../core/global-exports';
 import { murmurhash2_32_gc } from '../../core/utils/murmurhash2_gc';
 
@@ -185,11 +185,8 @@ export class Renderable2D extends RenderableComponent {
      * ```ts
      * sprite.srcBlendFactor = BlendFactor.ONE;
      * ```
+     * @deprecated
      */
-    @visible(function (this: Renderable2D) { if (this._customMaterial) { return false; } return true; })
-    @type(BlendFactor)
-    @displayOrder(0)
-    @tooltip('Source blend factor')
     get srcBlendFactor () {
         if (!EDITOR && this._customMaterial) {
             warnID(12001);
@@ -217,11 +214,8 @@ export class Renderable2D extends RenderableComponent {
      * ```ts
      * sprite.dstBlendFactor = BlendFactor.ONE_MINUS_SRC_ALPHA;
      * ```
+     * @deprecated
      */
-    @visible(function (this: Renderable2D) { if (this._customMaterial) { return false; } return true; })
-    @type(BlendFactor)
-    @displayOrder(1)
-    @tooltip('destination blend factor')
     get dstBlendFactor () {
         if (!EDITOR && this._customMaterial) {
             warnID(12001);
@@ -247,7 +241,7 @@ export class Renderable2D extends RenderableComponent {
      * @zh 渲染颜色，一般情况下会和贴图颜色相乘。
      */
     @displayOrder(2)
-    @tooltip('渲染颜色')
+    @tooltip('i18n:renderable2D.color')
     get color (): Readonly<Color> {
         return this._color;
     }

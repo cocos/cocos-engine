@@ -28,8 +28,8 @@
  * @hidden
  */
 
-import { getTypedArrayConstructor, Format, FormatInfos, TextureType, TextureUsageBit, TextureFlagBit } from '../../gfx/define';
-import { Texture, TextureInfo, Device, BufferTextureCopy } from '../../gfx';
+import { getTypedArrayConstructor, Format, FormatInfos, TextureType, TextureUsageBit,
+    TextureFlagBit, Texture, TextureInfo, Device, BufferTextureCopy } from '../../gfx';
 
 export function nearestPOT (num: number): number {
     --num;

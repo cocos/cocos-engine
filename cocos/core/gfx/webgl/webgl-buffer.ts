@@ -23,8 +23,9 @@
  THE SOFTWARE.
  */
 
-import { Buffer, BufferSource, BufferInfo, BufferViewInfo, IndirectBuffer } from '../buffer';
-import { BufferUsageBit } from '../define';
+import { BufferSource, BufferInfo, BufferViewInfo, IndirectBuffer, BufferUsageBit } from '../base/define';
+import { Buffer } from '../base/buffer';
+
 import {
     WebGLCmdFuncCreateBuffer,
     WebGLCmdFuncDestroyBuffer,
@@ -75,7 +76,6 @@ export class WebGLBuffer extends Buffer {
             if (this._usage & BufferUsageBit.INDIRECT) {
                 this._indirectBuffer = new IndirectBuffer();
             }
-
 
             if ((this._usage & BufferUsageBit.UNIFORM) && this._size > 0) {
                 this._uniformBuffer = new Uint8Array(this._size);

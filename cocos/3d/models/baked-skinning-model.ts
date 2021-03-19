@@ -32,18 +32,17 @@ import { AnimationClip } from '../../core/animation/animation-clip';
 import { Mesh } from '../assets/mesh';
 import { Skeleton } from '../assets/skeleton';
 import { AABB } from '../../core/geometry';
-import { BufferUsageBit, MemoryUsageBit } from '../../core/gfx/define';
-import { Vec3 } from '../../core/math';
+import { BufferUsageBit, MemoryUsageBit, Attribute, DescriptorSet, Buffer, BufferInfo } from '../../core/gfx';
 import { INST_JOINT_ANIM_INFO, UBOSkinningAnimation, UBOSkinningTexture, UNIFORM_JOINT_TEXTURE_BINDING } from '../../core/pipeline/define';
 import { Node } from '../../core/scene-graph';
-import { Pass } from '../../core/renderer/core/pass';
+import { IMacroPatch, Pass } from '../../core/renderer/core/pass';
 import { samplerLib } from '../../core/renderer/core/sampler-lib';
 import { DataPoolManager } from '../skeletal-animation/data-pool-manager';
 import { ModelType } from '../../core/renderer/scene/model';
 import { IAnimInfo, IJointTextureHandle, jointTextureSamplerHash } from '../skeletal-animation/skeletal-animation-utils';
 import { MorphModel } from './morph-model';
 import { legacyCC } from '../../core/global-exports';
-import { Attribute, DescriptorSet, Buffer, BufferInfo } from '../../core/gfx';
+
 import { AABBPool, AABBView } from '../../core/renderer/core/memory-pools';
 
 interface IJointsInfo {
@@ -179,7 +178,7 @@ export class BakedSkinningModel extends MorphModel {
         }
     }
 
-    public getMacroPatches (subModelIndex: number) {
+    public getMacroPatches (subModelIndex: number): IMacroPatch[] | null {
         const patches = super.getMacroPatches(subModelIndex);
         return patches ? patches.concat(myPatches) : myPatches;
     }

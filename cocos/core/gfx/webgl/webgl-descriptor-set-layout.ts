@@ -23,7 +23,8 @@
  THE SOFTWARE.
  */
 
-import { DescriptorSetLayout, DescriptorSetLayoutInfo, DESCRIPTOR_DYNAMIC_TYPE } from '../descriptor-set-layout';
+import { DescriptorSetLayoutInfo, DESCRIPTOR_DYNAMIC_TYPE } from '../base/define';
+import { DescriptorSetLayout } from '../base/descriptor-set-layout';
 import { IWebGLGPUDescriptorSetLayout } from './webgl-gpu-objects';
 
 export class WebGLDescriptorSetLayout extends DescriptorSetLayout {

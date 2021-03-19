@@ -27,7 +27,7 @@
  * @packageDocumentation
  * @module ui
  */
-import { UICoordinateTracker } from './ui-coodinate-tracker';
+import { UICoordinateTracker } from './ui-coordinate-tracker';
 import { BlockInputEvents } from './block-input-events';
 import { Button } from './button';
 import { EditBox } from './editbox/edit-box';

@@ -39,6 +39,7 @@ import {
     type,
     editable,
     serializable,
+    tooltip,
 } from 'cc.decorator';
 import { EDITOR, TEST } from 'internal:constants';
 import { Vec3 } from '../../../../core/math';
@@ -63,6 +64,7 @@ export class SimplexCollider extends Collider {
     /// PUBLIC PROPERTY GETTER\SETTER ///
 
     @type(ESimplexType)
+    @tooltip('i18n:physics3d.collider.simplex_shapeType')
     get shapeType () {
         return this._shapeType;
     }
@@ -75,6 +77,7 @@ export class SimplexCollider extends Collider {
     }
 
     @editable
+    @tooltip('i18n:physics3d.collider.simplex_vertex0')
     get vertex0 () {
         return this._vertices[0];
     }
@@ -85,6 +88,7 @@ export class SimplexCollider extends Collider {
     }
 
     @visible(function (this: SimplexCollider) { return this._shapeType > 1; })
+    @tooltip('i18n:physics3d.collider.simplex_vertex1')
     get vertex1 () {
         return this._vertices[1];
     }
@@ -95,6 +99,7 @@ export class SimplexCollider extends Collider {
     }
 
     @visible(function (this: SimplexCollider) { return this._shapeType > 2; })
+    @tooltip('i18n:physics3d.collider.simplex_vertex2')
     get vertex2 () {
         return this._vertices[2];
     }
@@ -105,6 +110,7 @@ export class SimplexCollider extends Collider {
     }
 
     @visible(function (this: SimplexCollider) { return this._shapeType > 3; })
+    @tooltip('i18n:physics3d.collider.simplex_vertex3')
     get vertex3 () {
         return this._vertices[3];
     }

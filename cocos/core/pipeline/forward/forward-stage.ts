@@ -32,8 +32,7 @@ import { ccclass, displayOrder, type, serializable } from 'cc.decorator';
 import { IRenderPass, SetIndex } from '../define';
 import { getPhaseID } from '../pass-phase';
 import { opaqueCompareFn, RenderQueue, transparentCompareFn } from '../render-queue';
-import { ClearFlag } from '../../gfx/define';
-import { Color, Rect } from '../../gfx';
+import { ClearFlagBit, Color, Rect } from '../../gfx';
 import { SRGBToLinear } from '../pipeline-funcs';
 import { RenderBatchedQueue } from '../render-batched-queue';
 import { RenderInstancedQueue } from '../render-instanced-queue';
@@ -46,7 +45,7 @@ import { BatchingSchemes } from '../../renderer/core/pass';
 import { ForwardFlow } from './forward-flow';
 import { ForwardPipeline } from './forward-pipeline';
 import { RenderQueueDesc, RenderQueueSortMode } from '../pipeline-serialization';
-import { PlanarShadowQueue } from './planar-shadow-queue';
+import { PlanarShadowQueue } from '../planar-shadow-queue';
 import { UIPhase } from './ui-phase';
 import { Camera } from '../../renderer/scene';
 
@@ -133,7 +132,7 @@ export class ForwardStage extends RenderStage {
         }
 
         this._additiveLightQueue = new RenderAdditiveLightQueue(this._pipeline as ForwardPipeline);
-        this._planarQueue = new PlanarShadowQueue(this._pipeline as ForwardPipeline);
+        this._planarQueue = new PlanarShadowQueue(this._pipeline);
         this._uiPhase.activate(pipeline);
     }
 
@@ -147,7 +146,7 @@ export class ForwardStage extends RenderStage {
         const device = pipeline.device;
         this._renderQueues.forEach(this.renderQueueClearFunc);
 
-        const renderObjects = pipeline.renderObjects;
+        const renderObjects = pipeline.pipelineSceneData.renderObjects;
         let m = 0; let p = 0; let k = 0;
         for (let i = 0; i < renderObjects.length; ++i) {
             const ro = renderObjects[i];
@@ -186,18 +185,19 @@ export class ForwardStage extends RenderStage {
         this._planarQueue.gatherShadowPasses(camera, cmdBuff);
 
         const vp = camera.viewport;
+        const sceneData = pipeline.pipelineSceneData;
         // render area is not oriented
         const w = camera.window!.hasOnScreenAttachments && device.surfaceTransform % 2 ? camera.height : camera.width;
         const h = camera.window!.hasOnScreenAttachments && device.surfaceTransform % 2 ? camera.width : camera.height;
         this._renderArea.x = vp.x * w;
         this._renderArea.y = vp.y * h;
-        this._renderArea.width = vp.width * w * pipeline.shadingScale;
-        this._renderArea.height = vp.height * h * pipeline.shadingScale;
+        this._renderArea.width = vp.width * w * sceneData.shadingScale;
+        this._renderArea.height = vp.height * h * sceneData.shadingScale;
 
-        if (camera.clearFlag & ClearFlag.COLOR) {
-            if (pipeline.isHDR) {
+        if (camera.clearFlag & ClearFlagBit.COLOR) {
+            if (sceneData.isHDR) {
                 SRGBToLinear(colors[0], camera.clearColor);
-                const scale = pipeline.fpScale / camera.exposure;
+                const scale = sceneData.fpScale / camera.exposure;
                 colors[0].x *= scale;
                 colors[0].y *= scale;
                 colors[0].z *= scale;

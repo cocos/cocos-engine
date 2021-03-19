@@ -30,12 +30,11 @@
 
 import { EDITOR, TEST } from 'internal:constants';
 import { ccclass, serializable } from 'cc.decorator';
-import { TextureFlagBit, TextureType } from '../gfx/define';
+import { TextureType, TextureInfo } from '../gfx';
 import { ImageAsset } from './image-asset';
 import { PresumedGFXTextureInfo, SimpleTexture } from './simple-texture';
 import { ITexture2DCreateInfo, Texture2D } from './texture-2d';
 import { legacyCC } from '../global-exports';
-import { TextureInfo } from '../gfx';
 
 export type ITextureCubeCreateInfo = ITexture2DCreateInfo;
 
@@ -223,7 +222,7 @@ export class TextureCube extends SimpleTexture {
         this.mipmaps = [];
     }
 
-    public _serialize (ctxForExporting: any): any {
+    public _serialize (ctxForExporting: any): Record<string, unknown> | null {
         if (EDITOR || TEST) {
             return {
                 base: super._serialize(ctxForExporting),
@@ -244,6 +243,7 @@ export class TextureCube extends SimpleTexture {
                 })),
             };
         }
+        return null;
     }
 
     public _deserialize (serializedData: ITextureCubeSerializeData, handle: any) {
@@ -277,7 +277,6 @@ export class TextureCube extends SimpleTexture {
         texInfo.height = this._height;
         texInfo.layerCount = 6;
         Object.assign(texInfo, presumed);
-        texInfo.flags |= TextureFlagBit.CUBEMAP;
         return texInfo;
     }
 }
