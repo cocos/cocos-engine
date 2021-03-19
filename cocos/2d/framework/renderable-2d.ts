@@ -47,7 +47,6 @@ import { RenderableComponent } from '../../core/components/renderable-component'
 import { Stage } from '../renderer/stencil-manager';
 import { warnID } from '../../core/platform/debug';
 import { legacyCC } from '../../core/global-exports';
-import { murmurhash2_32_gc } from '../../core/utils/murmurhash2_gc';
 
 // hack
 ccenum(BlendFactor);
@@ -252,8 +251,6 @@ export class Renderable2D extends RenderableComponent {
         }
 
         this._color.set(value);
-        this._updateColor();
-        this.markForUpdateRenderData();
         if (EDITOR) {
             const clone = value.clone();
             this.node.emit(SystemEventType.COLOR_CHANGED, clone);
@@ -415,6 +412,7 @@ export class Renderable2D extends RenderableComponent {
      * 注意：不要手动调用该函数，除非你理解整个流程。
      */
     public updateAssembler (render: Batcher2D) {
+        this._updateColor();
         if (this._renderFlag) {
             this._checkAndUpdateRenderData();
             this._render(render);
@@ -451,15 +449,22 @@ export class Renderable2D extends RenderableComponent {
                && this.getMaterial(0) !== null
                && this.enabled
                && (this._delegateSrc ? this._delegateSrc.activeInHierarchy : this.enabledInHierarchy)
-               && this._color.a > 0;
+               && this.node._uiProps.opacity > 0;
     }
 
     protected _postCanRender () {}
 
     protected _updateColor () {
-        if (this._assembler && this._assembler.updateColor) {
+        this._updateWorldAlpha();
+        if (this._renderFlag && this._assembler && this._assembler.updateColor) {
             this._assembler.updateColor(this);
         }
+    }
+
+    protected _updateWorldAlpha () {
+        const localAlpha = this.color.a / 255;
+        this.node._uiProps.opacity = this.node.parent ? this.node.parent._uiProps.opacity * localAlpha : localAlpha;
+        this._renderFlag = this._canRender();
     }
 
     public _updateBlendFunc () {

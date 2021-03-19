@@ -208,8 +208,6 @@ export class Graphics extends Renderable2D {
         }
 
         this._color.set(value);
-        this._updateColor();
-        this.markForUpdateRenderData();
     }
 
     get srcBlendFactor () {

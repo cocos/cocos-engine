@@ -60,6 +60,7 @@ let _lineHeight = 0;
 let _hAlign = 0;
 let _vAlign = 0;
 let _color = new Color();
+let _alpha = 1;
 let _fontFamily = '';
 let _overflow = Overflow.NONE;
 let _isWrapText = false;
@@ -176,6 +177,7 @@ export const ttfUtils =  {
         _hAlign = comp.horizontalAlign;
         _vAlign = comp.verticalAlign;
         _color = comp.color;
+        _alpha = comp.node._uiProps.opacity;
         _isBold = comp.isBold;
         _isItalic = comp.isItalic;
         _isUnderline = comp.isUnderline;
@@ -284,7 +286,7 @@ export const ttfUtils =  {
             _context.fillStyle = `rgba(${_color.r}, ${_color.g}, ${_color.b}, ${_invisibleAlpha})`;
             _context.fillRect(0, 0, _canvas.width, _canvas.height);
         }
-        _context.fillStyle = `rgba(${_color.r}, ${_color.g}, ${_color.b}, 1)`;
+        _context.fillStyle = `rgba(${_color.r}, ${_color.g}, ${_color.b}, ${_alpha})`;
         const drawTextPosX = _startPosition.x;
         let drawTextPosY = 0;
         // draw shadow and underline

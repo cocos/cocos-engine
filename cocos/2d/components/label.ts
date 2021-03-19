@@ -740,6 +740,7 @@ export class Label extends Renderable2D {
         if (this._font instanceof BitmapFont) {
             super._updateColor();
         } else {
+            this._updateWorldAlpha();
             this.updateRenderData(false);
         }
     }
