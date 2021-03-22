@@ -320,7 +320,7 @@ let Mask = cc.Class({
             return;
         }
 
-        this.disableRender();        
+        this.disableRender();
     },
 
     _activateMaterial () {
