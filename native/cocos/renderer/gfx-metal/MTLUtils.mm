@@ -791,7 +791,7 @@ MTLTextureUsage mu::toMTLTextureUsage(TextureUsage usage) {
 
     MTLTextureUsage ret = MTLTextureUsageUnknown;
     if (usage & TextureUsage::TRANSFER_SRC)
-        ret |= MTLTextureUsageShaderRead;
+        ret |= MTLTextureUsageShaderRead | MTLTextureUsagePixelFormatView;
     if (usage & TextureUsage::TRANSFER_DST)
         ret |= MTLTextureUsageShaderWrite;
     if (usage & TextureUsage::SAMPLED)
@@ -897,10 +897,34 @@ String mu::compileGLSLShader2Msl(const String &src,
     spirv_cross::ShaderResources resources = msl.get_shader_resources(active);
     msl.set_enabled_interface_variables(std::move(active));
 
+    // TODO: bindings from shader just kind of validation, cannot be directly input
     // Get all uniform buffers in the shader.
     uint maxBufferBindingIndex = static_cast<CCMTLDevice *>(device)->getMaximumBufferBindingIndex();
     const auto &bufferBindingOffset = device->bindingMappingInfo().bufferOffsets;
     for (const auto &ubo : resources.uniform_buffers) {
+        auto set = msl.get_decoration(ubo.id, spv::DecorationDescriptorSet);
+        auto binding = msl.get_decoration(ubo.id, spv::DecorationBinding);
+        auto size = msl.get_declared_struct_size(msl.get_type(ubo.base_type_id));
+
+        if (binding >= maxBufferBindingIndex) {
+            CC_LOG_ERROR("Implementation limits: %s binding at %d, should not use more than %d entries in the buffer argument table", ubo.name.c_str(), binding, maxBufferBindingIndex);
+        }
+        auto mappedBinding = binding + bufferBindingOffset[set];
+        newBinding.desc_set = set;
+        newBinding.binding = binding;
+        newBinding.msl_buffer = mappedBinding;
+        newBinding.msl_texture = 0;
+        newBinding.msl_sampler = 0;
+        msl.add_msl_resource_binding(newBinding);
+
+        if (gpuShader->blocks.find(mappedBinding) == gpuShader->blocks.end())
+            gpuShader->blocks[mappedBinding] = {ubo.name, set, binding, mappedBinding, shaderType, size};
+        else {
+            gpuShader->blocks[mappedBinding].stages |= shaderType;
+        }
+    }
+    
+    for (const auto &ubo : resources.storage_buffers) {
         auto set = msl.get_decoration(ubo.id, spv::DecorationDescriptorSet);
         auto binding = msl.get_decoration(ubo.id, spv::DecorationBinding);
         auto size = msl.get_declared_struct_size(msl.get_type(ubo.base_type_id));
@@ -959,7 +983,6 @@ String mu::compileGLSLShader2Msl(const String &src,
             samplerIndex++;
         }
     }
-
     // Set some options.
     spirv_cross::CompilerMSL::Options options;
     //    options.set_msl_version(2, 0);
@@ -1152,6 +1175,21 @@ uint mu::getMaxCubeMapTextureWidthHeight(uint family) {
         case GPUFamily::Mac1:
         case GPUFamily::Mac2:
             return 16384;
+    }
+}
+
+uint mu::getMaxThreadsPerGroup(uint family) {
+    switch (static_cast<GPUFamily>(family)) {
+        case GPUFamily::Apple1:
+        case GPUFamily::Apple2:
+        case GPUFamily::Apple3:
+            return 512;
+        case GPUFamily::Apple4:
+        case GPUFamily::Apple5:
+        case GPUFamily::Apple6:
+        case GPUFamily::Mac1:
+        case GPUFamily::Mac2:
+            return 1024;
     }
 }
 

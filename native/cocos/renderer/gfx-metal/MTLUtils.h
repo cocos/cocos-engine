@@ -79,6 +79,7 @@ uint getMaxTexture2DWidthHeight(uint family);
 uint getMaxCubeMapTextureWidthHeight(uint family);
 uint getMaxColorRenderTarget(uint family);
 uint getMinBufferOffsetAlignment(uint family);
+uint getMaxThreadsPerGroup(uint family);
 bool isPVRTCSuppported(uint family);
 bool isEAC_ETCCSuppported(uint family);
 bool isASTCSuppported(uint family);

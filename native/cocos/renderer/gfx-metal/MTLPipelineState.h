@@ -52,6 +52,7 @@ protected:
 
     bool createMTLDepthStencilState();
     bool createGPUPipelineState();
+    bool createMTLComputePipelineState();
     bool createMTLRenderPipelineState();
     void setVertexDescriptor(MTLRenderPipelineDescriptor *);
     void setMTLFunctions(MTLRenderPipelineDescriptor *);
@@ -61,6 +62,7 @@ protected:
 
     id<MTLRenderPipelineState> _mtlRenderPipelineState = nil;
     id<MTLDepthStencilState> _mtlDepthStencilState = nil;
+    id<MTLComputePipelineState> _mtlComputePipeline = nil;
     CCMTLGPUPipelineState *_GPUPipelineState = nullptr;
 };
 

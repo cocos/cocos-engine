@@ -216,17 +216,24 @@ void CCMTLBuffer::updateMTLBuffer(void *buffer, uint /*offset*/, uint size) {
     }
 }
 
-void CCMTLBuffer::encodeBuffer(CCMTLRenderCommandEncoder &encoder, uint offset, uint binding, ShaderStageFlags stages) {
+void CCMTLBuffer::encodeBuffer(CCMTLCommandEncoder &encoder, uint offset, uint binding, ShaderStageFlags stages) {
     if (_isBufferView) {
         offset += _bufferViewOffset;
     }
 
     if (stages & ShaderStageFlagBit::VERTEX) {
-        encoder.setVertexBuffer(_mtlBuffer, offset, binding);
+        CCMTLRenderCommandEncoder* renderEncoder = static_cast<CCMTLRenderCommandEncoder*>(&encoder);
+        renderEncoder->setVertexBuffer(_mtlBuffer, offset, binding);
     }
 
     if (stages & ShaderStageFlagBit::FRAGMENT) {
-        encoder.setFragmentBuffer(_mtlBuffer, offset, binding);
+        CCMTLRenderCommandEncoder* renderEncoder = static_cast<CCMTLRenderCommandEncoder*>(&encoder);
+        renderEncoder->setFragmentBuffer(_mtlBuffer, offset, binding);
+    }
+    
+    if(stages & ShaderStageFlagBit::COMPUTE) {
+        CCMTLComputeCommandEncoder* computeEncoder = static_cast<CCMTLComputeCommandEncoder*>(&encoder);
+        computeEncoder->setBuffer(_mtlBuffer, offset, binding);
     }
 }
 

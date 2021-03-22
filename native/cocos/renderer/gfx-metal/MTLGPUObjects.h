@@ -91,6 +91,7 @@ struct CCMTLGPUPipelineState {
     MTLPrimitiveType primitiveType;
     id<MTLRenderPipelineState> mtlRenderPipelineState = nil;
     id<MTLDepthStencilState> mtlDepthStencilState = nil;
+    id<MTLComputePipelineState> mtlComputePipelineState = nil;
     uint stencilRefFront = 0;
     uint stencilRefBack = 0;
     vector<std::tuple<int /**vertexBufferBindingIndex*/, uint /**stream*/>> vertexBufferBindingInfo;

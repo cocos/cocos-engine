@@ -70,6 +70,7 @@ public:
     void onPresentCompleted();
     void* getCurrentDrawable();
     void disposeCurrentDrawable();
+    uint preferredPixelFormat();
 
     CC_INLINE void *getMTLCommandQueue() const { return _mtlCommandQueue; }
     CC_INLINE void *getMTLLayer() const { return _mtlLayer; }

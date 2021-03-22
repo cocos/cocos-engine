@@ -36,6 +36,7 @@
 
 #import <Metal/MTLDevice.h>
 #import <Metal/MTLVertexDescriptor.h>
+#import <Metal/MTLComputePipeline.h>
 
 namespace cc {
 namespace gfx {
@@ -71,24 +72,52 @@ bool CCMTLPipelineState::createGPUPipelineState() {
         CC_LOG_ERROR("CCMTLPipelineState: CC_NEW CCMTLGPUPipelineState failed.");
         return false;
     }
+    
+    if(_bindPoint == PipelineBindPoint::GRAPHICS) {
+        if (!createMTLRenderPipelineState()) {
+            return false;
+        }
+        // Application can run with wrong depth/stencil state.
+        if (!createMTLDepthStencilState()) {
+            return false;
+        }
 
-    if (!createMTLRenderPipelineState()) return false;
+        _GPUPipelineState->mtlDepthStencilState = _mtlDepthStencilState;
+        _GPUPipelineState->mtlRenderPipelineState = _mtlRenderPipelineState;
+        _GPUPipelineState->cullMode = mu::toMTLCullMode(_rasterizerState.cullMode);
+        _GPUPipelineState->fillMode = mu::toMTLTriangleFillMode(_rasterizerState.polygonMode);
+        _GPUPipelineState->depthClipMode = mu::toMTLDepthClipMode(_rasterizerState.isDepthClip != 0);
+        _GPUPipelineState->winding = mu::toMTLWinding(_rasterizerState.isFrontFaceCCW != 0);
+        _GPUPipelineState->stencilRefFront = _depthStencilState.stencilRefFront;
+        _GPUPipelineState->stencilRefBack = _depthStencilState.stencilRefBack;
+        _GPUPipelineState->primitiveType = mu::toMTLPrimitiveType(_primitive);
+        if (_pipelineLayout)
+            _GPUPipelineState->gpuPipelineLayout = static_cast<CCMTLPipelineLayout *>(_pipelineLayout)->gpuPipelineLayout();
+        _GPUPipelineState->gpuShader = static_cast<CCMTLShader *>(_shader)->gpuShader();
+    }
+    else if (_bindPoint == PipelineBindPoint::COMPUTE) {
+        if (!createMTLComputePipelineState()) {
+            return false;
+        }
+        _GPUPipelineState->mtlComputePipelineState = _mtlComputePipeline;
+        _GPUPipelineState->gpuShader = static_cast<CCMTLShader *>(_shader)->gpuShader();
+        if (_pipelineLayout)
+            _GPUPipelineState->gpuPipelineLayout = static_cast<CCMTLPipelineLayout *>(_pipelineLayout)->gpuPipelineLayout();
+    }
+    
+    return true;
+}
 
-    // Application can run with wrong depth/stencil state.
-    if (!createMTLDepthStencilState()) return false;
-
-    _GPUPipelineState->mtlDepthStencilState = _mtlDepthStencilState;
-    _GPUPipelineState->mtlRenderPipelineState = _mtlRenderPipelineState;
-    _GPUPipelineState->cullMode = mu::toMTLCullMode(_rasterizerState.cullMode);
-    _GPUPipelineState->fillMode = mu::toMTLTriangleFillMode(_rasterizerState.polygonMode);
-    _GPUPipelineState->depthClipMode = mu::toMTLDepthClipMode(_rasterizerState.isDepthClip != 0);
-    _GPUPipelineState->winding = mu::toMTLWinding(_rasterizerState.isFrontFaceCCW != 0);
-    _GPUPipelineState->stencilRefFront = _depthStencilState.stencilRefFront;
-    _GPUPipelineState->stencilRefBack = _depthStencilState.stencilRefBack;
-    _GPUPipelineState->primitiveType = mu::toMTLPrimitiveType(_primitive);
-    if (_pipelineLayout)
-        _GPUPipelineState->gpuPipelineLayout = static_cast<CCMTLPipelineLayout *>(_pipelineLayout)->gpuPipelineLayout();
-    _GPUPipelineState->gpuShader = static_cast<CCMTLShader *>(_shader)->gpuShader();
+bool CCMTLPipelineState::createMTLComputePipelineState() {
+    //create with function
+    id<MTLDevice> mtlDevice = id<MTLDevice>(CCMTLDevice::getInstance()->getMTLDevice());
+    NSError* err;
+    _mtlComputePipeline = [mtlDevice newComputePipelineStateWithFunction:((CCMTLShader *)_shader)->getComputeMTLFunction()
+                                                                   error:&err];
+    if (!_mtlComputePipeline) {
+        CC_LOG_ERROR("Create compute pipeline failed: %s", [err.localizedDescription UTF8String]);
+        return false;
+    }
     return true;
 }
 

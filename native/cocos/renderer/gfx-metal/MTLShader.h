@@ -43,6 +43,7 @@ public:
 
     CC_INLINE id<MTLFunction> getVertMTLFunction() const { return _vertexMTLFunction; }
     CC_INLINE id<MTLFunction> getFragmentMTLFunction() const { return _fragmentMTLFunction; }
+    CC_INLINE id<MTLFunction> getComputeMTLFunction() const { return _computeMTLFunction; }
     CC_INLINE const unordered_map<uint, uint> &getFragmentSamplerBindings() const { return _mtlFragmentSamplerBindings; }
     CC_INLINE const CCMTLGPUShader *gpuShader() const { return _gpuShader; }
 
@@ -53,6 +54,8 @@ public:
     CC_INLINE const String &getVertMtlSahder() const { return _vertMtlShader; }
     CC_INLINE const String &getFragGlslShader() const { return _fragGlslShader; }
     CC_INLINE const String &getFragMtlSahder() const { return _fragMtlShader; }
+    CC_INLINE const String &getcompGlslShader() const { return _cmptGlslShader; }
+    CC_INLINE const String &getcompMtlSahder() const { return _cmptMtlShader; }
 #endif
 
 protected:
@@ -64,6 +67,7 @@ protected:
 
     id<MTLFunction> _vertexMTLFunction = nil;
     id<MTLFunction> _fragmentMTLFunction = nil;
+    id<MTLFunction> _computeMTLFunction = nil;
     unordered_map<uint, uint> _mtlFragmentSamplerBindings;
     vector<uint> _availableVertexBufferBindingIndex;
     vector<uint> _availableFragmentBufferBindingIndex;
@@ -76,6 +80,8 @@ protected:
     String _vertMtlShader;
     String _fragGlslShader;
     String _fragMtlShader;
+    String _cmptGlslShader;
+    String _cmptMtlShader;
 #endif
 };
 

@@ -35,7 +35,7 @@ namespace cc {
 namespace gfx {
 
 class CCMTLBuffer;
-class CCMTLRenderCommandEncoder;
+class CCMTLCommandEncoder;
 
 class CCMTLBuffer final : public Buffer {
 public:
@@ -48,7 +48,7 @@ public:
 
     void update(void *buffer, uint offset) override;
 
-    void encodeBuffer(CCMTLRenderCommandEncoder &encoder, uint offset, uint binding, ShaderStageFlags stages);
+    void encodeBuffer(CCMTLCommandEncoder &encoder, uint offset, uint binding, ShaderStageFlags stages);
 
     CC_INLINE id<MTLBuffer> getMTLBuffer() const { return _mtlBuffer; }
     CC_INLINE MTLIndexType getIndexType() const { return _indexType; }

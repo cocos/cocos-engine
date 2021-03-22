@@ -29,6 +29,7 @@
 
 #include "MTLGPUObjects.h"
 #include "MTLRenderCommandEncoder.h"
+#include "MTLComputeCommandEncoder.h"
 #import <Metal/MTLCommandQueue.h>
 #import <MetalKit/MTKView.h>
 
@@ -98,7 +99,8 @@ protected:
     CCMTLDevice *_mtlDevice = nullptr;
     id<MTLCommandQueue> _mtlCommandQueue = nil;
     id<MTLCommandBuffer> _mtlCommandBuffer = nil;
-    CCMTLRenderCommandEncoder _commandEncoder;
+    CCMTLRenderCommandEncoder _renderEncoder;
+    CCMTLComputeCommandEncoder _computeEncoder;
     id<MTLParallelRenderCommandEncoder> _parallelEncoder = nil;
     CCMTLInputAssembler *_inputAssembler = nullptr;
     MTLPrimitiveType _mtlPrimitiveType = MTLPrimitiveType::MTLPrimitiveTypeTriangle;

@@ -78,8 +78,9 @@ bool CCMTLDevice::doInit(const DeviceInfo &info) {
 #else
     UIView *view = (UIView *)_windowHandle;
 #endif
-    CAMetalLayer *layer = static_cast<CAMetalLayer *>(view.layer);
+    CAMetalLayer *layer = static_cast<CAMetalLayer *>(view);
     _mtlLayer = layer;
+    layer.framebufferOnly = NO;
     id<MTLDevice> mtlDevice = (id<MTLDevice>)layer.device;
     _mtlDevice = mtlDevice;
     _mtlCommandQueue = [mtlDevice newCommandQueueWithMaxCommandBufferCount: MAX_COMMAND_BUFFER_COUNT];
@@ -94,6 +95,7 @@ bool CCMTLDevice::doInit(const DeviceInfo &info) {
     _caps.maxCubeMapTextureSize = mu::getMaxCubeMapTextureWidthHeight(gpuFamily);
     _caps.maxColorRenderTargets = mu::getMaxColorRenderTarget(gpuFamily);
     _caps.uboOffsetAlignment = mu::getMinBufferOffsetAlignment(gpuFamily);
+    _caps.maxComputeWorkGroupInvocations = mu::getMaxThreadsPerGroup(gpuFamily);
     _maxBufferBindingIndex = mu::getMaxEntriesInBufferArgumentTable(gpuFamily);
     _icbSuppored = mu::isIndirectCommandBufferSupported(MTLFeatureSet(_mtlFeatureSet));
     _isSamplerDescriptorCompareFunctionSupported = mu::isSamplerDescriptorCompareFunctionSupported(gpuFamily);
@@ -169,6 +171,7 @@ bool CCMTLDevice::doInit(const DeviceInfo &info) {
     _features[static_cast<uint>(Feature::STENCIL_COMPARE_MASK)] = false;
     _features[static_cast<uint>(Feature::STENCIL_WRITE_MASK)] = false;
     _features[static_cast<uint>(Feature::MULTITHREADED_SUBMISSION)] = true;
+    _features[static_cast<uint>(Feature::COMPUTE_SHADER)] = true;
 
     _features[static_cast<uint>(Feature::FORMAT_RGB8)] = false;
     _features[static_cast<uint>(Feature::FORMAT_D16)] = mu::isDepthStencilFormatSupported(mtlDevice, Format::D16, gpuFamily);
@@ -218,7 +221,21 @@ void CCMTLDevice::doDestroy() {
     }
 }
 
-void CCMTLDevice::resize(uint /*width*/, uint /*height*/) {}
+void CCMTLDevice::resize(uint w, uint h) {
+    this->_width = w;
+    this->_height = h;
+    
+    [id<MTLTexture>(_dssTex) release];
+    
+    MTLTextureDescriptor *dssDescriptor = [[MTLTextureDescriptor alloc] init];
+    const auto gpuFamily = mu::getGPUFamily(MTLFeatureSet(_mtlFeatureSet));
+    dssDescriptor.pixelFormat = mu::getSupportedDepthStencilFormat(id<MTLDevice>(this->_mtlDevice), gpuFamily, _caps.depthBits);
+    dssDescriptor.width = w;
+    dssDescriptor.height = h;
+    dssDescriptor.storageMode = MTLStorageModePrivate;
+    dssDescriptor.usage = MTLTextureUsageRenderTarget;
+    _dssTex = [id<MTLDevice>(this->_mtlDevice) newTextureWithDescriptor:dssDescriptor];
+}
 
 void CCMTLDevice::acquire() {
     _inFlightSemaphore->wait();
@@ -351,6 +368,10 @@ void CCMTLDevice::onMemoryWarning() {
     for (int i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i) {
         _gpuStagingBufferPools[i]->shrinkSize();
     }
+}
+
+uint CCMTLDevice::preferredPixelFormat() {
+    return [((CAMetalLayer*)_mtlLayer) pixelFormat];
 }
 
 } // namespace gfx

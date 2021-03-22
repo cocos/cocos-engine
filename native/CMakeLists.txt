@@ -941,6 +941,8 @@ if(CC_USE_METAL)
                      cocos/renderer/gfx-metal/MTLUtils.h
         NO_WERROR    cocos/renderer/gfx-metal/MTLUtils.mm
                      cocos/renderer/gfx-metal/MTLRenderCommandEncoder.h
+                     cocos/renderer/gfx-metal/MTLComputeCommandEncoder.h
+                     cocos/renderer/gfx-metal/MTLCommandEncoder.h
                      cocos/renderer/gfx-metal/MTLConfig.h
                      cocos/renderer/gfx-metal/MTLSemaphore.h
     )

@@ -29,6 +29,7 @@
 #include "MTLUtils.h"
 #include "base/Macros.h"
 #include "math/Math.h"
+#include "MTLCommandEncoder.h"
 #import <Metal/MTLRenderCommandEncoder.h>
 #import <Metal/MTLCommandBuffer.h>
 #import <Metal/MTLRenderPass.h>
@@ -39,7 +40,7 @@ namespace gfx {
 
 struct Color;
 
-class CCMTLRenderCommandEncoder final {
+class CCMTLRenderCommandEncoder final : public CCMTLCommandEncoder {
     struct BufferBinding final {
         id<MTLBuffer> buffer;
         uint offset = 0;
