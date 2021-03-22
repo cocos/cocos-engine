@@ -79,7 +79,6 @@ bool CCMTLBuffer::createMTLBuffer(uint size, MemoryUsage usage) {
     if (_mtlBuffer) {
         Device *device = CCMTLDevice::getInstance();
         id<MTLBuffer> mtlBuffer = _mtlBuffer;
-        uint oldSize = [_mtlBuffer length];
 
         std::function<void(void)> destroyFunc = [=]() {
             if (mtlBuffer) {
@@ -128,16 +127,15 @@ void CCMTLBuffer::doDestroy() {
     CCMTLGPUGarbageCollectionPool::getInstance()->collect(destroyFunc);
 }
 
-void CCMTLBuffer::doResize(uint size) {
+void CCMTLBuffer::doResize(uint size, uint count) {
     if (_usage & BufferUsageBit::VERTEX ||
         _usage & BufferUsageBit::INDEX ||
         _usage & BufferUsageBit::UNIFORM) {
         createMTLBuffer(size, _memUsage);
     }
 
-    const uint oldSize = _size;
     _size = size;
-    _count = _size / _stride;
+    _count = count;
     if (_usage & BufferUsageBit::INDIRECT) {
         if (_isIndirectDrawSupported) {
             createMTLBuffer(size, _memUsage);

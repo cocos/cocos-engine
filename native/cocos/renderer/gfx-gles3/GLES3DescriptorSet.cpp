@@ -43,7 +43,7 @@ GLES3DescriptorSet::~GLES3DescriptorSet() {
 }
 
 void GLES3DescriptorSet::doInit(const DescriptorSetInfo &info) {
-    const GLES3GPUDescriptorSetLayout *gpuDescriptorSetLayout = ((GLES3DescriptorSetLayout *)_layout)->gpuDescriptorSetLayout();
+    const GLES3GPUDescriptorSetLayout *gpuDescriptorSetLayout = static_cast<GLES3DescriptorSetLayout *>(_layout)->gpuDescriptorSetLayout();
     const size_t descriptorCount = gpuDescriptorSetLayout->descriptorCount;
     const size_t bindingCount = gpuDescriptorSetLayout->bindings.size();
 
@@ -72,14 +72,14 @@ void GLES3DescriptorSet::update() {
         for (size_t i = 0; i < descriptors.size(); i++) {
             if (descriptors[i].type & DESCRIPTOR_BUFFER_TYPE) {
                 if (_buffers[i]) {
-                    _gpuDescriptorSet->gpuDescriptors[i].gpuBuffer = ((GLES3Buffer *)_buffers[i])->gpuBuffer();
+                    _gpuDescriptorSet->gpuDescriptors[i].gpuBuffer = static_cast<GLES3Buffer *>(_buffers[i])->gpuBuffer();
                 }
             } else if (descriptors[i].type & DESCRIPTOR_TEXTURE_TYPE) {
                 if (_textures[i]) {
-                    _gpuDescriptorSet->gpuDescriptors[i].gpuTexture = ((GLES3Texture *)_textures[i])->gpuTexture();
+                    _gpuDescriptorSet->gpuDescriptors[i].gpuTexture = static_cast<GLES3Texture *>(_textures[i])->gpuTexture();
                 }
                 if (_samplers[i]) {
-                    _gpuDescriptorSet->gpuDescriptors[i].gpuSampler = ((GLES3Sampler *)_samplers[i])->gpuSampler();
+                    _gpuDescriptorSet->gpuDescriptors[i].gpuSampler = static_cast<GLES3Sampler *>(_samplers[i])->gpuSampler();
                 }
             }
         }

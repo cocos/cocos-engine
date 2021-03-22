@@ -72,17 +72,13 @@ void GLES2Buffer::doDestroy() {
     CC_SAFE_DELETE(_gpuBufferView);
 }
 
-void GLES2Buffer::doResize(uint size) {
-    _gpuBuffer->size     = _size;
-    _gpuBuffer->count    = _count;
+void GLES2Buffer::doResize(uint size, uint count) {
+    _gpuBuffer->size  = size;
+    _gpuBuffer->count = count;
     GLES2CmdFuncResizeBuffer(GLES2Device::getInstance(), _gpuBuffer);
 }
 
 void GLES2Buffer::update(void *buffer, uint size) {
-    CCASSERT(!_isBufferView, "Cannot update through buffer views");
-    CCASSERT(size != 0, "Should not update buffer with 0 bytes of data");
-    CCASSERT(buffer, "Buffer should not be nullptr");
-
     GLES2CmdFuncUpdateBuffer(GLES2Device::getInstance(), _gpuBuffer, buffer, 0u, size);
 }
 

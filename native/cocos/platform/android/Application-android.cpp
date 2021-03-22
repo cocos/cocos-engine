@@ -36,7 +36,7 @@
 #include "platform/android/jni/JniHelper.h"
 #include "platform/android/jni/JniCocosActivity.h"
 
-#include "renderer/GFXDeviceCreator.h"
+#include "renderer/GFXDeviceManager.h"
 #include "pipeline/Define.h"
 
 #define LOG_APP_TAG "Application_android Debug"
@@ -73,7 +73,7 @@ bool setCanvasCallback(se::Object *global) {
     deviceInfo.nativeHeight = viewLogicalSize.y;
     deviceInfo.bindingMappingInfo = pipeline::bindingMappingInfo;
 
-    gfx::DeviceCreator::createDevice(deviceInfo);
+    gfx::DeviceManager::create(deviceInfo);
 
     return true;
 }
@@ -97,6 +97,8 @@ Application::~Application() {
 
     EventDispatcher::destroy();
     se::ScriptEngine::destroyInstance();
+
+    gfx::DeviceManager::destroy();
 
     Application::_instance = nullptr;
 }

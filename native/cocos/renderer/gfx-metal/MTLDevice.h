@@ -88,7 +88,7 @@ public:
 protected:
     static CCMTLDevice * _instance;
 
-    friend class DeviceCreator;
+    friend class DeviceManager;
 
     bool doInit(const DeviceInfo &info) override;
     void doDestroy() override;

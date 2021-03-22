@@ -72,7 +72,7 @@ void QueueAgent::submit(CommandBuffer *const *cmdBuffs, uint count) {
     LinearAllocatorPool *allocator     = DeviceAgent::getInstance()->getMainAllocator();
     CommandBuffer **     actorCmdBuffs = allocator->allocate<CommandBuffer *>(count);
     for (uint i = 0u; i < count; ++i) {
-        actorCmdBuffs[i] = ((CommandBufferAgent *)cmdBuffs[i])->getActor();
+        actorCmdBuffs[i] = static_cast<CommandBufferAgent *>(cmdBuffs[i])->getActor();
     }
 
     ENQUEUE_MESSAGE_3(

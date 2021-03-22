@@ -47,7 +47,7 @@ void PipelineLayoutAgent::doInit(const PipelineLayoutInfo &info) {
     PipelineLayoutInfo actorInfo;
     actorInfo.setLayouts.resize(info.setLayouts.size());
     for (uint i = 0u; i < info.setLayouts.size(); i++) {
-        actorInfo.setLayouts[i] = ((DescriptorSetLayoutAgent *)info.setLayouts[i])->getActor();
+        actorInfo.setLayouts[i] = static_cast<DescriptorSetLayoutAgent *>(info.setLayouts[i])->getActor();
     }
 
     ENQUEUE_MESSAGE_2(

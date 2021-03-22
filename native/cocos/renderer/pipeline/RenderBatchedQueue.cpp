@@ -26,7 +26,9 @@
 #include "RenderBatchedQueue.h"
 #include "BatchedBuffer.h"
 #include "PipelineStateManager.h"
-#include "gfx-base/GFXBase.h"
+#include "gfx-base/GFXDevice.h"
+#include "gfx-base/GFXCommandBuffer.h"
+#include "gfx-base/GFXRenderPass.h"
 #include "helper/SharedMemory.h"
 
 namespace cc {

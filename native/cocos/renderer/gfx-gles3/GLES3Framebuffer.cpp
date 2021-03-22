@@ -43,7 +43,7 @@ GLES3Framebuffer::~GLES3Framebuffer() {
 
 void GLES3Framebuffer::doInit(const FramebufferInfo &info) {
     _gpuFBO                          = CC_NEW(GLES3GPUFramebuffer);
-    _gpuFBO->gpuRenderPass           = ((GLES3RenderPass *)_renderPass)->gpuRenderPass();
+    _gpuFBO->gpuRenderPass           = static_cast<GLES3RenderPass *>(_renderPass)->gpuRenderPass();
     _gpuFBO->depthStencilMipmapLevel = info.depthStencilMipmapLevel;
     for (uint mipLevel : info.colorMipmapLevels) {
         _gpuFBO->colorMipmapLevels.push_back(mipLevel);
@@ -58,7 +58,7 @@ void GLES3Framebuffer::doInit(const FramebufferInfo &info) {
     }
 
     if (_depthStencilTexture) {
-        _gpuFBO->gpuDepthStencilTexture = ((GLES3Texture *)_depthStencilTexture)->gpuTexture();
+        _gpuFBO->gpuDepthStencilTexture = static_cast<GLES3Texture *>(_depthStencilTexture)->gpuTexture();
     }
 
     GLES3CmdFuncCreateFramebuffer(GLES3Device::getInstance(), _gpuFBO);

@@ -92,11 +92,11 @@ void CCVKBuffer::doDestroy() {
     }
 }
 
-void CCVKBuffer::doResize(uint size) {
+void CCVKBuffer::doResize(uint size, uint count) {
     CCVKDevice::getInstance()->gpuRecycleBin()->collect(_gpuBuffer);
 
-    _gpuBuffer->size = _size;
-    _gpuBuffer->count = _count;
+    _gpuBuffer->size = size;
+    _gpuBuffer->count = count;
     CCVKCmdFuncCreateBuffer(CCVKDevice::getInstance(), _gpuBuffer);
 
     createBufferView();
@@ -109,22 +109,6 @@ void CCVKBuffer::doResize(uint size) {
 }
 
 void CCVKBuffer::update(void *buffer, uint size) {
-    CCASSERT(!_isBufferView, "Cannot update through buffer views");
-
-#if CC_DEBUG > 0
-    if (_usage & BufferUsageBit::INDIRECT) {
-        DrawInfo *drawInfo = static_cast<DrawInfo *>(buffer);
-        const size_t drawInfoCount = size / sizeof(DrawInfo);
-        const bool isIndexed = drawInfoCount > 0 && drawInfo->indexCount > 0;
-        for (size_t i = 1u; i < drawInfoCount; i++) {
-            if ((++drawInfo)->indexCount > 0 != isIndexed) {
-                CC_LOG_WARNING("Inconsistent indirect draw infos on using index buffer");
-                return;
-            }
-        }
-    }
-#endif
-
     CCVKDevice::getInstance()->gpuTransportHub()->checkIn([this, buffer, size](CCVKGPUCommandBuffer *gpuCommandBuffer) {
         CCVKCmdFuncUpdateBuffer(CCVKDevice::getInstance(), _gpuBuffer, buffer, size, gpuCommandBuffer);
     });

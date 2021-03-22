@@ -56,7 +56,7 @@ void GLES2Framebuffer::doInit(const FramebufferInfo &info) {
     }
 
     _gpuFBO                = CC_NEW(GLES2GPUFramebuffer);
-    _gpuFBO->gpuRenderPass = ((GLES2RenderPass *)_renderPass)->gpuRenderPass();
+    _gpuFBO->gpuRenderPass = static_cast<GLES2RenderPass *>(_renderPass)->gpuRenderPass();
 
     _gpuFBO->gpuColorTextures.resize(_colorTextures.size());
     for (size_t i = 0; i < _colorTextures.size(); ++i) {
@@ -67,7 +67,7 @@ void GLES2Framebuffer::doInit(const FramebufferInfo &info) {
     }
 
     if (_depthStencilTexture) {
-        _gpuFBO->gpuDepthStencilTexture = ((GLES2Texture *)_depthStencilTexture)->gpuTexture();
+        _gpuFBO->gpuDepthStencilTexture = static_cast<GLES2Texture *>(_depthStencilTexture)->gpuTexture();
     }
 
     GLES2CmdFuncCreateFramebuffer(GLES2Device::getInstance(), _gpuFBO);

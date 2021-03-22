@@ -611,7 +611,7 @@ endif()
 
 ##### renderer
 cocos_source_files(
-                 cocos/renderer/GFXDeviceCreator.h
+                 cocos/renderer/GFXDeviceManager.h
 
                  cocos/renderer/gfx-base/GFXObject.h
     NO_WERROR    cocos/renderer/gfx-base/GFXObject.cpp
@@ -653,6 +653,7 @@ cocos_source_files(
                  cocos/renderer/gfx-base/GFXTexture.h
     NO_WERROR    cocos/renderer/gfx-base/GFXTextureBarrier.cpp
                  cocos/renderer/gfx-base/GFXTextureBarrier.h
+
                  cocos/renderer/gfx-agent/BufferAgent.h
     NO_WERROR    cocos/renderer/gfx-agent/BufferAgent.cpp
                  cocos/renderer/gfx-agent/CommandBufferAgent.h
@@ -682,6 +683,36 @@ cocos_source_files(
     NO_WERROR    cocos/renderer/gfx-agent/ShaderAgent.cpp
                  cocos/renderer/gfx-agent/TextureAgent.h
     NO_WERROR    cocos/renderer/gfx-agent/TextureAgent.cpp
+
+                 cocos/renderer/gfx-validator/BufferValidator.h
+    NO_WERROR    cocos/renderer/gfx-validator/BufferValidator.cpp
+                 cocos/renderer/gfx-validator/CommandBufferValidator.h
+    NO_WERROR    cocos/renderer/gfx-validator/CommandBufferValidator.cpp
+                 cocos/renderer/gfx-validator/DescriptorSetValidator.h
+    NO_WERROR    cocos/renderer/gfx-validator/DescriptorSetValidator.cpp
+                 cocos/renderer/gfx-validator/DescriptorSetLayoutValidator.h
+    NO_WERROR    cocos/renderer/gfx-validator/DescriptorSetLayoutValidator.cpp
+                 cocos/renderer/gfx-validator/DeviceValidator.h
+    NO_WERROR    cocos/renderer/gfx-validator/DeviceValidator.cpp
+                 cocos/renderer/gfx-validator/FramebufferValidator.h
+    NO_WERROR    cocos/renderer/gfx-validator/FramebufferValidator.cpp
+                 cocos/renderer/gfx-validator/InputAssemblerValidator.h
+    NO_WERROR    cocos/renderer/gfx-validator/InputAssemblerValidator.cpp
+                 cocos/renderer/gfx-validator/PipelineLayoutValidator.h
+    NO_WERROR    cocos/renderer/gfx-validator/PipelineLayoutValidator.cpp
+                 cocos/renderer/gfx-validator/PipelineStateValidator.h
+    NO_WERROR    cocos/renderer/gfx-validator/PipelineStateValidator.cpp
+                 cocos/renderer/gfx-validator/QueueValidator.h
+    NO_WERROR    cocos/renderer/gfx-validator/QueueValidator.cpp
+                 cocos/renderer/gfx-validator/RenderPassValidator.h
+    NO_WERROR    cocos/renderer/gfx-validator/RenderPassValidator.cpp
+                 cocos/renderer/gfx-validator/SamplerValidator.h
+    NO_WERROR    cocos/renderer/gfx-validator/SamplerValidator.cpp
+                 cocos/renderer/gfx-validator/ShaderValidator.h
+    NO_WERROR    cocos/renderer/gfx-validator/ShaderValidator.cpp
+                 cocos/renderer/gfx-validator/TextureValidator.h
+    NO_WERROR    cocos/renderer/gfx-validator/TextureValidator.cpp
+
                  cocos/renderer/gfx-empty/EmptyBuffer.h
     NO_WERROR    cocos/renderer/gfx-empty/EmptyBuffer.cpp
                  cocos/renderer/gfx-empty/EmptyCommandBuffer.h
@@ -712,6 +743,7 @@ cocos_source_files(
     NO_WERROR    cocos/renderer/gfx-empty/EmptyShader.cpp
                  cocos/renderer/gfx-empty/EmptyTexture.h
     NO_WERROR    cocos/renderer/gfx-empty/EmptyTexture.cpp
+
     NO_WERROR    cocos/renderer/pipeline/BatchedBuffer.cpp
                  cocos/renderer/pipeline/BatchedBuffer.h
                  cocos/renderer/pipeline/Define.h

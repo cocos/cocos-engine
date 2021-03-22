@@ -139,7 +139,7 @@ void CCMTLTexture::doDestroy() {
     CCMTLGPUGarbageCollectionPool::getInstance()->collect(destroyFunc);
 }
 
-void CCMTLTexture::doResize(uint width, uint height) {
+void CCMTLTexture::doResize(uint width, uint height, uint size) {
     auto oldSize = _size;
     auto oldWidth = _width;
     auto oldHeight = _height;
@@ -147,7 +147,7 @@ void CCMTLTexture::doResize(uint width, uint height) {
 
     _width = width;
     _height = height;
-    _size = FormatSize(_format, _width, _height, _depth);
+    _size = size;
     if (!createMTLTexture()) {
         _width = oldWidth;
         _height = oldHeight;

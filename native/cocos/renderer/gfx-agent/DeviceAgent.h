@@ -102,13 +102,19 @@ public:
 protected:
     static DeviceAgent *_instance;
 
-    friend class DeviceCreator;
+    friend class DeviceManager;
     friend class CommandBufferAgent;
 
     DeviceAgent(Device *device);
 
     bool doInit(const DeviceInfo &info) override;
     void doDestroy() override;
+
+    void releaseSurface(uintptr_t windowHandle) override { _actor->releaseSurface(windowHandle); }
+    void acquireSurface(uintptr_t windowHandle) override { _actor->acquireSurface(windowHandle); }
+
+    void bindRenderContext(bool bound) override { _actor->bindRenderContext(bound); }
+    void bindDeviceContext(bool bound) override { _actor->bindDeviceContext(bound); }
 
     bool          _multithreaded{false};
     MessageQueue *_mainEncoder{nullptr};

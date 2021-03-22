@@ -42,6 +42,9 @@
 #include <shellapi.h>
 #include <sstream>
 
+#include "renderer/GFXDeviceManager.h"
+#include "pipeline/Define.h"
+
 extern std::shared_ptr<cc::View> cc_get_application_view();
 
 namespace cc {
@@ -68,6 +71,8 @@ Application::~Application() {
     EventDispatcher::destroy();
     se::ScriptEngine::destroyInstance();
 
+    gfx::DeviceManager::destroy();
+
     Application::_instance = nullptr;
 }
 
@@ -77,6 +82,19 @@ bool Application::init() {
     scheduler->unscheduleAll();
 
     se::ScriptEngine::getInstance()->cleanup();
+
+    auto view = cc_get_application_view();
+    auto viewSize = view->getViewSize();
+
+    gfx::DeviceInfo deviceInfo;
+    deviceInfo.windowHandle = (uintptr_t)view->getWindowHandler();
+    deviceInfo.width        = viewSize[0];
+    deviceInfo.height       = viewSize[1];
+    deviceInfo.nativeWidth  = viewSize[0];
+    deviceInfo.nativeHeight = viewSize[1];
+    deviceInfo.bindingMappingInfo = pipeline::bindingMappingInfo;
+
+    gfx::DeviceManager::create(deviceInfo);
 
     return true;
 }

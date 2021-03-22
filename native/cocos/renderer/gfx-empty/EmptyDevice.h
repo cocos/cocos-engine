@@ -77,7 +77,7 @@ public:
 protected:
     static EmptyDevice *_instance;
 
-    friend class DeviceCreator;
+    friend class DeviceManager;
 
     EmptyDevice();
 

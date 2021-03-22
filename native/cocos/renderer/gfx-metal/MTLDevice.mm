@@ -135,37 +135,37 @@ bool CCMTLDevice::doInit(const DeviceInfo &info) {
         _gpuStagingBufferPools[i] = CC_NEW(CCMTLGPUStagingBufferPool(mtlDevice));
     }
 
-    _features[static_cast<int>(Feature::COLOR_FLOAT)] = mu::isColorBufferFloatSupported(gpuFamily);
-    _features[static_cast<int>(Feature::COLOR_HALF_FLOAT)] = mu::isColorBufferHalfFloatSupported(gpuFamily);
-    _features[static_cast<int>(Feature::TEXTURE_FLOAT_LINEAR)] = mu::isLinearTextureSupported(gpuFamily);
-    _features[static_cast<int>(Feature::TEXTURE_HALF_FLOAT_LINEAR)] = mu::isLinearTextureSupported(gpuFamily);
+    _features[static_cast<uint>(Feature::COLOR_FLOAT)] = mu::isColorBufferFloatSupported(gpuFamily);
+    _features[static_cast<uint>(Feature::COLOR_HALF_FLOAT)] = mu::isColorBufferHalfFloatSupported(gpuFamily);
+    _features[static_cast<uint>(Feature::TEXTURE_FLOAT_LINEAR)] = mu::isLinearTextureSupported(gpuFamily);
+    _features[static_cast<uint>(Feature::TEXTURE_HALF_FLOAT_LINEAR)] = mu::isLinearTextureSupported(gpuFamily);
 
     String compressedFormats;
     if (mu::isPVRTCSuppported(gpuFamily)) {
-        _features[static_cast<int>(Feature::FORMAT_PVRTC)] = true;
+        _features[static_cast<uint>(Feature::FORMAT_PVRTC)] = true;
         compressedFormats += "pvrtc ";
     }
     if (mu::isEAC_ETCCSuppported(gpuFamily)) {
-        _features[static_cast<int>(Feature::FORMAT_ETC2)] = true;
+        _features[static_cast<uint>(Feature::FORMAT_ETC2)] = true;
         compressedFormats += "etc2 ";
     }
     if (mu::isASTCSuppported(gpuFamily)) {
-        _features[static_cast<int>(Feature::FORMAT_ASTC)] = true;
+        _features[static_cast<uint>(Feature::FORMAT_ASTC)] = true;
         compressedFormats += "astc ";
     }
     if (mu::isBCSupported(gpuFamily)) {
-        _features[static_cast<int>(Feature::FORMAT_ASTC)] = true;
+        _features[static_cast<uint>(Feature::FORMAT_ASTC)] = true;
         compressedFormats += "dxt ";
     }
 
-    _features[(int)Feature::TEXTURE_FLOAT] = true;
-    _features[(int)Feature::TEXTURE_HALF_FLOAT] = true;
-    _features[(int)Feature::FORMAT_R11G11B10F] = true;
-    _features[(int)Feature::MSAA] = true;
-    _features[(int)Feature::INSTANCED_ARRAYS] = true;
-    _features[(int)Feature::MULTIPLE_RENDER_TARGETS] = true;
-    _features[(uint)Feature::BLEND_MINMAX] = true;
-    _features[(uint)Feature::ELEMENT_INDEX_UINT] = true;
+    _features[static_cast<uint>(Feature::TEXTURE_FLOAT)] = true;
+    _features[static_cast<uint>(Feature::TEXTURE_HALF_FLOAT)] = true;
+    _features[static_cast<uint>(Feature::FORMAT_R11G11B10F)] = true;
+    _features[static_cast<uint>(Feature::MSAA)] = true;
+    _features[static_cast<uint>(Feature::INSTANCED_ARRAYS)] = true;
+    _features[static_cast<uint>(Feature::MULTIPLE_RENDER_TARGETS)] = true;
+    _features[static_cast<uint>(Feature::BLEND_MINMAX)] = true;
+    _features[static_cast<uint>(Feature::ELEMENT_INDEX_UINT)] = true;
     _features[static_cast<uint>(Feature::DEPTH_BOUNDS)] = false;
     _features[static_cast<uint>(Feature::LINE_WIDTH)] = false;
     _features[static_cast<uint>(Feature::STENCIL_COMPARE_MASK)] = false;

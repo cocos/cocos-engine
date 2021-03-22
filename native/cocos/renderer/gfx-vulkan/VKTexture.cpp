@@ -41,19 +41,19 @@ CCVKTexture::~CCVKTexture() {
 }
 
 void CCVKTexture::doInit(const TextureInfo &info) {
-    _gpuTexture = CC_NEW(CCVKGPUTexture);
-    _gpuTexture->type = _type;
-    _gpuTexture->format = _format;
-    _gpuTexture->usage = _usage;
-    _gpuTexture->width = _width;
-    _gpuTexture->height = _height;
-    _gpuTexture->depth = _depth;
-    _gpuTexture->size = _size;
+    _gpuTexture              = CC_NEW(CCVKGPUTexture);
+    _gpuTexture->type        = _type;
+    _gpuTexture->format      = _format;
+    _gpuTexture->usage       = _usage;
+    _gpuTexture->width       = _width;
+    _gpuTexture->height      = _height;
+    _gpuTexture->depth       = _depth;
+    _gpuTexture->size        = _size;
     _gpuTexture->arrayLayers = _layerCount;
-    _gpuTexture->mipLevels = _levelCount;
-    _gpuTexture->samples = _samples;
-    _gpuTexture->flags = _flags;
-    _gpuTexture->isPowerOf2 = math::IsPowerOfTwo(_width) && math::IsPowerOfTwo(_height);
+    _gpuTexture->mipLevels   = _levelCount;
+    _gpuTexture->samples     = _samples;
+    _gpuTexture->flags       = _flags;
+    _gpuTexture->isPowerOf2  = math::IsPowerOfTwo(_width) && math::IsPowerOfTwo(_height);
 
     CCVKCmdFuncCreateTexture(CCVKDevice::getInstance(), _gpuTexture);
 
@@ -62,7 +62,7 @@ void CCVKTexture::doInit(const TextureInfo &info) {
 }
 
 void CCVKTexture::doInit(const TextureViewInfo &info) {
-    _gpuTexture = ((CCVKTexture *)info.texture)->gpuTexture();
+    _gpuTexture = static_cast<CCVKTexture *>(info.texture)->gpuTexture();
 
     _gpuTextureView = CC_NEW(CCVKGPUTextureView);
     createTextureView();
@@ -70,11 +70,11 @@ void CCVKTexture::doInit(const TextureViewInfo &info) {
 
 void CCVKTexture::createTextureView() {
     _gpuTextureView->gpuTexture = _gpuTexture;
-    _gpuTextureView->type = _type;
-    _gpuTextureView->format = _format;
-    _gpuTextureView->baseLevel = _baseLevel;
+    _gpuTextureView->type       = _type;
+    _gpuTextureView->format     = _format;
+    _gpuTextureView->baseLevel  = _baseLevel;
     _gpuTextureView->levelCount = _levelCount;
-    _gpuTextureView->baseLayer = _baseLayer;
+    _gpuTextureView->baseLayer  = _baseLayer;
     _gpuTextureView->layerCount = _layerCount;
     CCVKCmdFuncCreateTextureView(CCVKDevice::getInstance(), _gpuTextureView);
 }
@@ -97,10 +97,13 @@ void CCVKTexture::doDestroy() {
     }
 }
 
-void CCVKTexture::doResize(uint width, uint height) {
+void CCVKTexture::doResize(uint width, uint height, uint size) {
     CCVKDevice::getInstance()->gpuRecycleBin()->collect(_gpuTextureView);
     CCVKDevice::getInstance()->gpuRecycleBin()->collect(_gpuTexture);
 
+    _gpuTexture->width  = width;
+    _gpuTexture->height = height;
+    _gpuTexture->size   = size;
     CCVKCmdFuncCreateTexture(CCVKDevice::getInstance(), _gpuTexture);
 
     CCVKCmdFuncCreateTextureView(CCVKDevice::getInstance(), _gpuTextureView);

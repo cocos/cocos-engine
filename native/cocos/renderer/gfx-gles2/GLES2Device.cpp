@@ -90,63 +90,63 @@ bool GLES2Device::doInit(const DeviceInfo &info) {
     _extensions   = StringUtil::Split(extStr, " ");
 
     if (checkExtension("GL_OES_texture_float")) {
-        _features[(int)Feature::TEXTURE_FLOAT] = true;
+        _features[static_cast<uint>(Feature::TEXTURE_FLOAT)] = true;
     }
 
     if (checkExtension("GL_OES_texture_half_float")) {
-        _features[(int)Feature::TEXTURE_HALF_FLOAT] = true;
+        _features[static_cast<uint>(Feature::TEXTURE_HALF_FLOAT)] = true;
     }
 
-    _features[(int)Feature::FORMAT_R11G11B10F] = true;
-    _features[(int)Feature::FORMAT_D24S8]      = true;
-    _features[(int)Feature::MSAA]              = true;
+    _features[static_cast<uint>(Feature::FORMAT_R11G11B10F)] = true;
+    _features[static_cast<uint>(Feature::FORMAT_D24S8)]      = true;
+    _features[static_cast<uint>(Feature::MSAA)]              = true;
 
     if (checkExtension("GL_OES_element_index_uint")) {
-        _features[(int)Feature::ELEMENT_INDEX_UINT] = true;
+        _features[static_cast<uint>(Feature::ELEMENT_INDEX_UINT)] = true;
     }
 
     if (checkExtension("color_buffer_float"))
-        _features[(int)Feature::COLOR_FLOAT] = true;
+        _features[static_cast<uint>(Feature::COLOR_FLOAT)] = true;
 
     if (checkExtension("color_buffer_half_float"))
-        _features[(int)Feature::COLOR_HALF_FLOAT] = true;
+        _features[static_cast<uint>(Feature::COLOR_HALF_FLOAT)] = true;
 
     if (checkExtension("texture_float_linear"))
-        _features[(int)Feature::TEXTURE_FLOAT_LINEAR] = true;
+        _features[static_cast<uint>(Feature::TEXTURE_FLOAT_LINEAR)] = true;
 
     if (checkExtension("texture_half_float_linear"))
-        _features[(int)Feature::TEXTURE_HALF_FLOAT_LINEAR] = true;
+        _features[static_cast<uint>(Feature::TEXTURE_HALF_FLOAT_LINEAR)] = true;
 
     if (checkExtension("draw_buffers"))
-        _features[(int)Feature::MULTIPLE_RENDER_TARGETS] = true;
+        _features[static_cast<uint>(Feature::MULTIPLE_RENDER_TARGETS)] = true;
 
     if (checkExtension("blend_minmax"))
-        _features[(int)Feature::BLEND_MINMAX] = true;
+        _features[static_cast<uint>(Feature::BLEND_MINMAX)] = true;
 
     _useVAO             = checkExtension("vertex_array_object");
     _useDrawInstanced   = checkExtension("draw_instanced");
-    _useInstancedArrays = _features[(int)Feature::INSTANCED_ARRAYS] = checkExtension("instanced_arrays");
+    _useInstancedArrays = _features[static_cast<uint>(Feature::INSTANCED_ARRAYS)] = checkExtension("instanced_arrays");
     _useDiscardFramebuffer                                          = checkExtension("discard_framebuffer");
 
     String compressedFmts;
 
     if (checkExtension("compressed_ETC1")) {
-        _features[(int)Feature::FORMAT_ETC1] = true;
+        _features[static_cast<uint>(Feature::FORMAT_ETC1)] = true;
         compressedFmts += "etc1 ";
     }
 
     if (checkForETC2()) {
-        _features[(int)Feature::FORMAT_ETC2] = true;
+        _features[static_cast<uint>(Feature::FORMAT_ETC2)] = true;
         compressedFmts += "etc2 ";
     }
 
     if (checkExtension("texture_compression_pvrtc")) {
-        _features[(int)Feature::FORMAT_PVRTC] = true;
+        _features[static_cast<uint>(Feature::FORMAT_PVRTC)] = true;
         compressedFmts += "pvrtc ";
     }
 
     if (checkExtension("texture_compression_astc")) {
-        _features[(int)Feature::FORMAT_ASTC] = true;
+        _features[static_cast<uint>(Feature::FORMAT_ASTC)] = true;
         compressedFmts += "astc ";
     }
     _features[static_cast<uint>(Feature::DEPTH_BOUNDS)]         = true;
@@ -312,7 +312,7 @@ TextureBarrier *GLES2Device::createTextureBarrier() {
 }
 
 void GLES2Device::copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint count) {
-    GLES2CmdFuncCopyBuffersToTexture(this, buffers, ((GLES2Texture *)dst)->gpuTexture(), regions, count);
+    GLES2CmdFuncCopyBuffersToTexture(this, buffers, static_cast<GLES2Texture *>(dst)->gpuTexture(), regions, count);
 }
 
 bool GLES2Device::checkForETC2() const {

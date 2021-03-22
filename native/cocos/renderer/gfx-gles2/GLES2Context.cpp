@@ -35,7 +35,7 @@
     #include "cocos/bindings/event/EventDispatcher.h"
 #endif
 
-#define FORCE_DISABLE_VALIDATION  1
+#define FORCE_DISABLE_VALIDATION 1
 
 namespace cc {
 namespace gfx {
@@ -46,7 +46,7 @@ void GL_APIENTRY GLES2EGLDebugProc(GLenum source,
                                    GLenum type, GLuint id,
                                    GLenum severity, GLsizei length,
                                    const GLchar *message,
-                                   const void *userParam) {
+                                   const void *  userParam) {
     String sourceDesc;
     switch (source) {
         case GL_DEBUG_SOURCE_API_KHR: sourceDesc = "API"; break;
@@ -102,7 +102,7 @@ GLES2Context::~GLES2Context() {
 
 bool GLES2Context::doInit(const ContextInfo &info) {
 
-    _vsyncMode = info.vsyncMode;
+    _vsyncMode    = info.vsyncMode;
     _windowHandle = info.windowHandle;
 
     //////////////////////////////////////////////////////////////////////////
@@ -113,21 +113,22 @@ bool GLES2Context::doInit(const ContextInfo &info) {
         }
 
         _isPrimaryContex = true;
-        _windowHandle = info.windowHandle;
+        _windowHandle    = info.windowHandle;
 
     #if (CC_PLATFORM == CC_PLATFORM_WINDOWS)
-        _nativeDisplay = (NativeDisplayType)GetDC((HWND)_windowHandle);
+        _nativeDisplay = GetDC(reinterpret_cast<HWND>(_windowHandle));
         if (!_nativeDisplay) {
             return false;
         }
 
         EGL_CHECK(_eglDisplay = eglGetDisplay(_nativeDisplay));
         if (_eglDisplay == EGL_NO_DISPLAY) {
-            EGL_CHECK(_eglDisplay = eglGetDisplay((EGLNativeDisplayType)EGL_DEFAULT_DISPLAY));
+            EGL_CHECK(_eglDisplay = eglGetDisplay(EGL_DEFAULT_DISPLAY));
         }
     #else
-        EGL_CHECK(_eglDisplay = eglGetDisplay((EGLNativeDisplayType)EGL_DEFAULT_DISPLAY));
+        EGL_CHECK(_eglDisplay = eglGetDisplay(EGL_DEFAULT_DISPLAY));
     #endif
+
         // If a display still couldn't be obtained, return an error.
         if (_eglDisplay == EGL_NO_DISPLAY) {
             CC_LOG_ERROR("eglGetDisplay() - FAILED.");
@@ -146,7 +147,7 @@ bool GLES2Context::doInit(const ContextInfo &info) {
         //    rather than any other API (such as OpenVG).
         EGL_CHECK(eglBindAPI(EGL_OPENGL_ES_API));
 
-        _colorFmt = Format::RGBA8;
+        _colorFmt        = Format::RGBA8;
         _depthStencilFmt = Format::D24S8;
 
         const EGLint attribs[] = {
@@ -177,7 +178,7 @@ bool GLES2Context::doInit(const ContextInfo &info) {
             return false;
         }
 
-        EGLint depth = attribs[13];
+        EGLint depth   = attribs[13];
         EGLint stencil = attribs[15];
         CC_LOG_INFO("Setup EGLConfig: depth [%d] stencil [%d]", depth, stencil);
 
@@ -199,8 +200,8 @@ bool GLES2Context::doInit(const ContextInfo &info) {
         }
 
         CC_LOG_INFO("Chosen EGLConfig: color [%s], depth stencil [%s].",
-                    GFX_FORMAT_INFOS[(int)_colorFmt].name.c_str(),
-                    GFX_FORMAT_INFOS[(int)_depthStencilFmt].name.c_str());
+                    GFX_FORMAT_INFOS[static_cast<uint>(_colorFmt)].name.c_str(),
+                    GFX_FORMAT_INFOS[static_cast<uint>(_depthStencilFmt)].name.c_str());
 
         /**
          * EGL_NATIVE_VISUAL_ID is an attribute of the EGLConfig that is
@@ -216,12 +217,12 @@ bool GLES2Context::doInit(const ContextInfo &info) {
             return false;
         }
 
-        uint width = GLES2Device::getInstance()->getWidth();
+        uint width  = GLES2Device::getInstance()->getWidth();
         uint height = GLES2Device::getInstance()->getHeight();
         ANativeWindow_setBuffersGeometry((ANativeWindow *)_windowHandle, width, height, nFmt);
     #endif
 
-        EGL_CHECK(_eglSurface = eglCreateWindowSurface(_eglDisplay, _eglConfig, (EGLNativeWindowType)_windowHandle, NULL));
+        EGL_CHECK(_eglSurface = eglCreateWindowSurface(_eglDisplay, _eglConfig, reinterpret_cast<EGLNativeWindowType>(_windowHandle), NULL));
         if (_eglSurface == EGL_NO_SURFACE) {
             CC_LOG_ERROR("Window surface created failed.");
             return false;
@@ -230,12 +231,12 @@ bool GLES2Context::doInit(const ContextInfo &info) {
         //String eglVendor = eglQueryString(_eglDisplay, EGL_VENDOR);
         //String eglVersion = eglQueryString(_eglDisplay, EGL_VERSION);
 
-        EGL_CHECK(_extensions = StringUtil::Split((const char *)eglQueryString(_eglDisplay, EGL_EXTENSIONS), " "));
+        EGL_CHECK(_extensions = StringUtil::Split(eglQueryString(_eglDisplay, EGL_EXTENSIONS), " "));
 
         _majorVersion = 2;
         _minorVersion = 0;
         EGLint ctxAttribs[32];
-        uint n = 0;
+        uint   n = 0;
 
         bool hasKHRCreateCtx = CheckExtension(CC_TOSTR(EGL_KHR_create_context));
         if (hasKHRCreateCtx) {
@@ -247,11 +248,11 @@ bool GLES2Context::doInit(const ContextInfo &info) {
             ctxAttribs[n++] = _majorVersion;
             ctxAttribs[n++] = EGL_CONTEXT_MINOR_VERSION_KHR;
             ctxAttribs[n++] = _minorVersion;
-            ctxAttribs[n] = EGL_NONE;
+            ctxAttribs[n]   = EGL_NONE;
         } else {
             ctxAttribs[n++] = EGL_CONTEXT_CLIENT_VERSION;
             ctxAttribs[n++] = _majorVersion;
-            ctxAttribs[n] = EGL_NONE;
+            ctxAttribs[n]   = EGL_NONE;
         }
 
         EGL_CHECK(_eglContext = eglCreateContext(_eglDisplay, _eglConfig, NULL, ctxAttribs));
@@ -260,7 +261,7 @@ bool GLES2Context::doInit(const ContextInfo &info) {
             return false;
         }
 
-#if (CC_PLATFORM == CC_PLATFORM_ANDROID)
+    #if (CC_PLATFORM == CC_PLATFORM_ANDROID)
         EventDispatcher::addCustomEventListener(EVENT_DESTROY_WINDOW, [=](const CustomEvent & /*unused*/) -> void {
             if (_eglSurface != EGL_NO_SURFACE) {
                 eglDestroySurface(_eglDisplay, _eglSurface);
@@ -277,7 +278,7 @@ bool GLES2Context::doInit(const ContextInfo &info) {
                 CC_LOG_ERROR("Getting configuration attributes failed.");
                 return;
             }
-            uint width = GLES2Device::getInstance()->getWidth();
+            uint width  = GLES2Device::getInstance()->getWidth();
             uint height = GLES2Device::getInstance()->getHeight();
             ANativeWindow_setBuffersGeometry((ANativeWindow *)_windowHandle, width, height, nFmt);
 
@@ -290,26 +291,26 @@ bool GLES2Context::doInit(const ContextInfo &info) {
             ((GLES2Context *)GLES2Device::getInstance()->getContext())->MakeCurrent();
             GLES2Device::getInstance()->stateCache()->reset();
         });
-#endif
+    #endif
 
         _eglSharedContext = _eglContext;
 
     } else {
-        GLES2Context *sharedCtx = (GLES2Context *)info.sharedCtx;
+        GLES2Context *sharedCtx = static_cast<GLES2Context *>(info.sharedCtx);
 
-        _majorVersion = sharedCtx->major_ver();
-        _minorVersion = sharedCtx->minor_ver();
-        _nativeDisplay = sharedCtx->native_display();
-        _eglDisplay = sharedCtx->egl_display();
-        _eglConfig = sharedCtx->egl_config();
+        _majorVersion     = sharedCtx->major_ver();
+        _minorVersion     = sharedCtx->minor_ver();
+        _nativeDisplay    = sharedCtx->native_display();
+        _eglDisplay       = sharedCtx->egl_display();
+        _eglConfig        = sharedCtx->egl_config();
         _eglSharedContext = sharedCtx->egl_shared_ctx();
-        _eglSurface = sharedCtx->egl_surface();
-        _colorFmt = sharedCtx->getColorFormat();
-        _depthStencilFmt = sharedCtx->getDepthStencilFormat();
-        _majorVersion = sharedCtx->major_ver();
-        _minorVersion = sharedCtx->minor_ver();
-        _extensions = sharedCtx->_extensions;
-        _isInitialized = sharedCtx->_isInitialized;
+        _eglSurface       = sharedCtx->egl_surface();
+        _colorFmt         = sharedCtx->getColorFormat();
+        _depthStencilFmt  = sharedCtx->getDepthStencilFormat();
+        _majorVersion     = sharedCtx->major_ver();
+        _minorVersion     = sharedCtx->minor_ver();
+        _extensions       = sharedCtx->_extensions;
+        _isInitialized    = sharedCtx->_isInitialized;
 
         bool hasKHRCreateCtx = CheckExtension(CC_TOSTR(EGL_KHR_create_context));
         if (!hasKHRCreateCtx) {
@@ -319,7 +320,7 @@ bool GLES2Context::doInit(const ContextInfo &info) {
         }
 
         EGLint ctxAttribs[32];
-        uint n = 0;
+        uint   n = 0;
 
         if (hasKHRCreateCtx) {
             ctxAttribs[n++] = EGL_CONTEXT_MAJOR_VERSION_KHR;
@@ -369,16 +370,16 @@ void GLES2Context::doDestroy() {
 
     #if (CC_PLATFORM == CC_PLATFORM_WINDOWS)
         if (_nativeDisplay) {
-            ReleaseDC((HWND)_windowHandle, _nativeDisplay);
+            ReleaseDC(reinterpret_cast<HWND>(_windowHandle), _nativeDisplay);
         }
     #endif
     }
 
     _isPrimaryContex = false;
-    _windowHandle = 0;
-    _nativeDisplay = 0;
-    _vsyncMode = VsyncMode::OFF;
-    _isInitialized = false;
+    _windowHandle    = 0;
+    _nativeDisplay   = 0;
+    _vsyncMode       = VsyncMode::OFF;
+    _isInitialized   = false;
 }
 
 bool GLES2Context::MakeCurrentImpl(bool bound) {
@@ -470,7 +471,7 @@ bool GLES2Context::MakeCurrent(bool bound) {
         GL_CHECK(glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD));
         GL_CHECK(glBlendFuncSeparate(GL_ONE, GL_ZERO, GL_ONE, GL_ZERO));
         GL_CHECK(glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE));
-        GL_CHECK(glBlendColor((GLclampf)0.0f, (GLclampf)0.0f, (GLclampf)0.0f, (GLclampf)0.0f));
+        GL_CHECK(glBlendColor(0.0f, 0.0f, 0.0f, 0.0f));
 
         CC_LOG_DEBUG("eglMakeCurrent() - SUCCEEDED, Context: 0x%p", this);
         return true;

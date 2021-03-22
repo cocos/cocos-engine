@@ -45,7 +45,7 @@ CCMTLCommandBuffer::CCMTLCommandBuffer()
   _mtlDevice(CCMTLDevice::getInstance()) {
     _mtlCommandQueue = id<MTLCommandQueue>(_mtlDevice->getMTLCommandQueue());
     _indirectDrawSuppotred = _mtlDevice->isIndirectDrawSupported();
-  
+
     const auto setCount = _mtlDevice->bindingMappingInfo().bufferOffsets.size();
     _GPUDescriptorSets.resize(setCount);
     _dynamicOffsets.resize(setCount);
@@ -271,113 +271,108 @@ void CCMTLCommandBuffer::draw(InputAssembler *ia) {
     const auto *indexBuffer = static_cast<CCMTLBuffer *>(ia->getIndexBuffer());
     auto mtlEncoder = _renderEncoder.getMTLEncoder();
 
-    if (_type == CommandBufferType::PRIMARY || _type == CommandBufferType::SECONDARY) {
-        if (indirectBuffer) {
-            const auto indirectMTLBuffer = indirectBuffer->getMTLBuffer();
+    if (indirectBuffer) {
+        const auto indirectMTLBuffer = indirectBuffer->getMTLBuffer();
 
-            if (_indirectDrawSuppotred) {
-                ++_numDrawCalls;
-                if (indirectBuffer->isDrawIndirectByIndex()) {
-                    [mtlEncoder drawIndexedPrimitives:_mtlPrimitiveType
-                                            indexType:indexBuffer->getIndexType()
-                                          indexBuffer:indexBuffer->getMTLBuffer()
-                                    indexBufferOffset:0
-                                       indirectBuffer:indirectMTLBuffer
-                                 indirectBufferOffset:0];
-                } else {
-                    [mtlEncoder drawPrimitives:_mtlPrimitiveType
-                                indirectBuffer:indirectMTLBuffer
-                          indirectBufferOffset:0];
-                }
+        if (_indirectDrawSuppotred) {
+            ++_numDrawCalls;
+            if (indirectBuffer->isDrawIndirectByIndex()) {
+                [mtlEncoder drawIndexedPrimitives:_mtlPrimitiveType
+                                        indexType:indexBuffer->getIndexType()
+                                        indexBuffer:indexBuffer->getMTLBuffer()
+                                indexBufferOffset:0
+                                    indirectBuffer:indirectMTLBuffer
+                                indirectBufferOffset:0];
             } else {
-                uint stride = indirectBuffer->getStride();
-                uint offset = 0;
-                uint drawInfoCount = indirectBuffer->getCount();
-                const auto &drawInfos = indirectBuffer->getDrawInfos();
-                _numDrawCalls += drawInfoCount;
+                [mtlEncoder drawPrimitives:_mtlPrimitiveType
+                            indirectBuffer:indirectMTLBuffer
+                        indirectBufferOffset:0];
+            }
+        } else {
+            uint stride = indirectBuffer->getStride();
+            uint offset = 0;
+            uint drawInfoCount = indirectBuffer->getCount();
+            const auto &drawInfos = indirectBuffer->getDrawInfos();
+            _numDrawCalls += drawInfoCount;
 
-                for (uint i = 0; i < drawInfoCount; ++i) {
-                    const auto &drawInfo = drawInfos[i];
-                    offset += drawInfo.firstIndex * stride;
-                    if (indirectBuffer->isDrawIndirectByIndex()) {
-                        if (drawInfo.instanceCount == 0) {
-                            [mtlEncoder drawIndexedPrimitives:_mtlPrimitiveType
-                                                   indexCount:drawInfo.indexCount
-                                                    indexType:indexBuffer->getIndexType()
-                                                  indexBuffer:indexBuffer->getMTLBuffer()
-                                            indexBufferOffset:offset];
-                        } else {
-                            [mtlEncoder drawIndexedPrimitives:_mtlPrimitiveType
-                                                   indexCount:drawInfo.indexCount
-                                                    indexType:indexBuffer->getIndexType()
-                                                  indexBuffer:indexBuffer->getMTLBuffer()
-                                            indexBufferOffset:offset
-                                                instanceCount:drawInfo.instanceCount];
-                        }
+            for (uint i = 0; i < drawInfoCount; ++i) {
+                const auto &drawInfo = drawInfos[i];
+                offset += drawInfo.firstIndex * stride;
+                if (indirectBuffer->isDrawIndirectByIndex()) {
+                    if (drawInfo.instanceCount == 0) {
+                        [mtlEncoder drawIndexedPrimitives:_mtlPrimitiveType
+                                                indexCount:drawInfo.indexCount
+                                                indexType:indexBuffer->getIndexType()
+                                                indexBuffer:indexBuffer->getMTLBuffer()
+                                        indexBufferOffset:offset];
                     } else {
-                        if (drawInfo.instanceCount == 0) {
-                            [mtlEncoder drawPrimitives:_mtlPrimitiveType
-                                           vertexStart:drawInfo.firstIndex
-                                           vertexCount:drawInfo.vertexCount];
-                        } else {
-                            [mtlEncoder drawPrimitives:_mtlPrimitiveType
-                                           vertexStart:drawInfo.firstIndex
-                                           vertexCount:drawInfo.vertexCount
-                                         instanceCount:drawInfo.instanceCount];
-                        }
+                        [mtlEncoder drawIndexedPrimitives:_mtlPrimitiveType
+                                                indexCount:drawInfo.indexCount
+                                                indexType:indexBuffer->getIndexType()
+                                                indexBuffer:indexBuffer->getMTLBuffer()
+                                        indexBufferOffset:offset
+                                            instanceCount:drawInfo.instanceCount];
+                    }
+                } else {
+                    if (drawInfo.instanceCount == 0) {
+                        [mtlEncoder drawPrimitives:_mtlPrimitiveType
+                                        vertexStart:drawInfo.firstIndex
+                                        vertexCount:drawInfo.vertexCount];
+                    } else {
+                        [mtlEncoder drawPrimitives:_mtlPrimitiveType
+                                        vertexStart:drawInfo.firstIndex
+                                        vertexCount:drawInfo.vertexCount
+                                        instanceCount:drawInfo.instanceCount];
                     }
                 }
             }
-        } else {
-            DrawInfo drawInfo;
-            static_cast<CCMTLInputAssembler *>(ia)->extractDrawInfo(drawInfo);
-            if (drawInfo.indexCount > 0) {
-                uint offset = 0;
-                offset += drawInfo.firstIndex * indexBuffer->getStride();
-                if (drawInfo.instanceCount == 0) {
-                    [mtlEncoder drawIndexedPrimitives:_mtlPrimitiveType
-                                           indexCount:drawInfo.indexCount
-                                            indexType:indexBuffer->getIndexType()
-                                          indexBuffer:indexBuffer->getMTLBuffer()
-                                    indexBufferOffset:offset];
-                } else {
-                    [mtlEncoder drawIndexedPrimitives:_mtlPrimitiveType
-                                           indexCount:drawInfo.indexCount
-                                            indexType:indexBuffer->getIndexType()
-                                          indexBuffer:indexBuffer->getMTLBuffer()
-                                    indexBufferOffset:offset
-                                        instanceCount:drawInfo.instanceCount];
-                }
-            } else if (drawInfo.vertexCount) {
-                if (drawInfo.instanceCount == 0) {
-                    [mtlEncoder drawPrimitives:_mtlPrimitiveType
-                                   vertexStart:drawInfo.firstIndex
-                                   vertexCount:drawInfo.vertexCount];
-                } else {
-                    [mtlEncoder drawPrimitives:_mtlPrimitiveType
-                                   vertexStart:drawInfo.firstIndex
-                                   vertexCount:drawInfo.vertexCount
-                                 instanceCount:drawInfo.instanceCount];
-                }
+        }
+    } else {
+        DrawInfo drawInfo;
+        static_cast<CCMTLInputAssembler *>(ia)->extractDrawInfo(drawInfo);
+        if (drawInfo.indexCount > 0) {
+            uint offset = 0;
+            offset += drawInfo.firstIndex * indexBuffer->getStride();
+            if (drawInfo.instanceCount == 0) {
+                [mtlEncoder drawIndexedPrimitives:_mtlPrimitiveType
+                                        indexCount:drawInfo.indexCount
+                                        indexType:indexBuffer->getIndexType()
+                                        indexBuffer:indexBuffer->getMTLBuffer()
+                                indexBufferOffset:offset];
+            } else {
+                [mtlEncoder drawIndexedPrimitives:_mtlPrimitiveType
+                                        indexCount:drawInfo.indexCount
+                                        indexType:indexBuffer->getIndexType()
+                                        indexBuffer:indexBuffer->getMTLBuffer()
+                                indexBufferOffset:offset
+                                    instanceCount:drawInfo.instanceCount];
             }
-            _numInstances += drawInfo.instanceCount;
-            _numDrawCalls++;
-            if (_gpuPipelineState) {
-                uint indexCount = drawInfo.indexCount ? drawInfo.indexCount : drawInfo.vertexCount;
-                switch (_mtlPrimitiveType) {
-                    case MTLPrimitiveTypeTriangle:
-                        _numTriangles += indexCount / 3 * std::max(drawInfo.instanceCount, 1U);
-                        break;
-                    case MTLPrimitiveTypeTriangleStrip:
-                        _numTriangles += (indexCount - 2) * std::max(drawInfo.instanceCount, 1U);
-                        break;
-                    default: break;
-                }
+        } else if (drawInfo.vertexCount) {
+            if (drawInfo.instanceCount == 0) {
+                [mtlEncoder drawPrimitives:_mtlPrimitiveType
+                                vertexStart:drawInfo.firstIndex
+                                vertexCount:drawInfo.vertexCount];
+            } else {
+                [mtlEncoder drawPrimitives:_mtlPrimitiveType
+                                vertexStart:drawInfo.firstIndex
+                                vertexCount:drawInfo.vertexCount
+                                instanceCount:drawInfo.instanceCount];
             }
         }
-
-    } else {
-        CC_LOG_ERROR("Command 'draw' must be recorded inside a render pass.");
+        _numInstances += drawInfo.instanceCount;
+        _numDrawCalls++;
+        if (_gpuPipelineState) {
+            uint indexCount = drawInfo.indexCount ? drawInfo.indexCount : drawInfo.vertexCount;
+            switch (_mtlPrimitiveType) {
+                case MTLPrimitiveTypeTriangle:
+                    _numTriangles += indexCount / 3 * std::max(drawInfo.instanceCount, 1U);
+                    break;
+                case MTLPrimitiveTypeTriangleStrip:
+                    _numTriangles += (indexCount - 2) * std::max(drawInfo.instanceCount, 1U);
+                    break;
+                default: break;
+            }
+        }
     }
 }
 

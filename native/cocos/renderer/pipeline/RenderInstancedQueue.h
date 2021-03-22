@@ -25,9 +25,16 @@
 
 #pragma once
 
-#include "gfx-base/GFXBase.h"
+#include "base/CoreStd.h"
 
 namespace cc {
+
+namespace gfx {
+class Device;
+class RenderPass;
+class CommandBuffer;
+} // namespace gfx
+
 namespace pipeline {
 
 class InstancedBuffer;

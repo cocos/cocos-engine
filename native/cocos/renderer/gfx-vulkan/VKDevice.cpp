@@ -66,13 +66,13 @@ CCVKDevice *CCVKDevice::getInstance() {
 }
 
 CCVKDevice::CCVKDevice() {
-    _API                   = API::VULKAN;
-    _deviceName            = "Vulkan";
+    _API        = API::VULKAN;
+    _deviceName = "Vulkan";
 
     _caps.clipSpaceMinZ    = 0.0f;
     _caps.screenSpaceSignY = -1.0f;
     _caps.UVSpaceSignY     = 1.0f;
-    CCVKDevice::_instance = this;
+    CCVKDevice::_instance  = this;
 }
 
 CCVKDevice::~CCVKDevice() {
@@ -80,7 +80,7 @@ CCVKDevice::~CCVKDevice() {
 }
 
 CCVKGPUContext *CCVKDevice::gpuContext() const {
-    return ((CCVKContext *)_context)->gpuContext();
+    return static_cast<CCVKContext *>(_context)->gpuContext();
 }
 
 bool CCVKDevice::doInit(const DeviceInfo &info) {
@@ -94,7 +94,7 @@ bool CCVKDevice::doInit(const DeviceInfo &info) {
     }
 
     const CCVKContext *              context         = (CCVKContext *)_context;
-    const CCVKGPUContext *           gpuContext      = ((CCVKContext *)_context)->gpuContext();
+    const CCVKGPUContext *           gpuContext      = static_cast<CCVKContext *>(_context)->gpuContext();
     const VkPhysicalDeviceFeatures2 &deviceFeatures2 = gpuContext->physicalDeviceFeatures2;
     const VkPhysicalDeviceFeatures & deviceFeatures  = deviceFeatures2.features;
     //const VkPhysicalDeviceVulkan11Features &deviceVulkan11Features = gpuContext->physicalDeviceVulkan11Features;
@@ -203,24 +203,24 @@ bool CCVKDevice::doInit(const DeviceInfo &info) {
 
     ///////////////////// Gather Device Properties /////////////////////
 
-    _features[(uint)Feature::COLOR_FLOAT]               = true;
-    _features[(uint)Feature::COLOR_HALF_FLOAT]          = true;
-    _features[(uint)Feature::TEXTURE_FLOAT]             = true;
-    _features[(uint)Feature::TEXTURE_HALF_FLOAT]        = true;
-    _features[(uint)Feature::TEXTURE_FLOAT_LINEAR]      = true;
-    _features[(uint)Feature::TEXTURE_HALF_FLOAT_LINEAR] = true;
-    _features[(uint)Feature::FORMAT_R11G11B10F]         = true;
-    _features[(uint)Feature::MSAA]                      = true;
-    _features[(uint)Feature::ELEMENT_INDEX_UINT]        = true;
-    _features[(uint)Feature::INSTANCED_ARRAYS]          = true;
-    _features[(uint)Feature::MULTIPLE_RENDER_TARGETS]   = true;
-    _features[(uint)Feature::BLEND_MINMAX]              = true;
-    _features[(uint)Feature::DEPTH_BOUNDS]              = deviceFeatures.depthBounds;
-    _features[(uint)Feature::LINE_WIDTH]                = true;
-    _features[(uint)Feature::STENCIL_COMPARE_MASK]      = true;
-    _features[(uint)Feature::STENCIL_WRITE_MASK]        = true;
-    _features[(uint)Feature::MULTITHREADED_SUBMISSION]  = true;
-    _features[(uint)Feature::COMPUTE_SHADER]            = true;
+    _features[static_cast<uint>(Feature::COLOR_FLOAT)]               = true;
+    _features[static_cast<uint>(Feature::COLOR_HALF_FLOAT)]          = true;
+    _features[static_cast<uint>(Feature::TEXTURE_FLOAT)]             = true;
+    _features[static_cast<uint>(Feature::TEXTURE_HALF_FLOAT)]        = true;
+    _features[static_cast<uint>(Feature::TEXTURE_FLOAT_LINEAR)]      = true;
+    _features[static_cast<uint>(Feature::TEXTURE_HALF_FLOAT_LINEAR)] = true;
+    _features[static_cast<uint>(Feature::FORMAT_R11G11B10F)]         = true;
+    _features[static_cast<uint>(Feature::MSAA)]                      = true;
+    _features[static_cast<uint>(Feature::ELEMENT_INDEX_UINT)]        = true;
+    _features[static_cast<uint>(Feature::INSTANCED_ARRAYS)]          = true;
+    _features[static_cast<uint>(Feature::MULTIPLE_RENDER_TARGETS)]   = true;
+    _features[static_cast<uint>(Feature::BLEND_MINMAX)]              = true;
+    _features[static_cast<uint>(Feature::DEPTH_BOUNDS)]              = deviceFeatures.depthBounds;
+    _features[static_cast<uint>(Feature::LINE_WIDTH)]                = true;
+    _features[static_cast<uint>(Feature::STENCIL_COMPARE_MASK)]      = true;
+    _features[static_cast<uint>(Feature::STENCIL_WRITE_MASK)]        = true;
+    _features[static_cast<uint>(Feature::MULTITHREADED_SUBMISSION)]  = true;
+    _features[static_cast<uint>(Feature::COMPUTE_SHADER)]            = true;
 
     _gpuDevice->useMultiDrawIndirect        = deviceFeatures.multiDrawIndirect;
     _gpuDevice->useDescriptorUpdateTemplate = _gpuDevice->minorVersion > 0 || checkExtension(VK_KHR_DESCRIPTOR_UPDATE_TEMPLATE_EXTENSION_NAME);
@@ -229,41 +229,41 @@ bool CCVKDevice::doInit(const DeviceInfo &info) {
     VkFormatProperties   formatProperties;
     vkGetPhysicalDeviceFormatProperties(gpuContext->physicalDevice, VK_FORMAT_R8G8B8_UNORM, &formatProperties);
     if (formatProperties.optimalTilingFeatures & requiredFeatures) {
-        _features[(uint)Feature::FORMAT_RGB8] = true;
+        _features[static_cast<uint>(Feature::FORMAT_RGB8)] = true;
     }
     requiredFeatures = VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT | VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT;
     vkGetPhysicalDeviceFormatProperties(gpuContext->physicalDevice, VK_FORMAT_D16_UNORM, &formatProperties);
     if (formatProperties.optimalTilingFeatures & requiredFeatures) {
-        _features[(uint)Feature::FORMAT_D16] = true;
+        _features[static_cast<uint>(Feature::FORMAT_D16)] = true;
     }
     vkGetPhysicalDeviceFormatProperties(gpuContext->physicalDevice, VK_FORMAT_X8_D24_UNORM_PACK32, &formatProperties);
     if (formatProperties.optimalTilingFeatures & requiredFeatures) {
-        _features[(uint)Feature::FORMAT_D24] = true;
+        _features[static_cast<uint>(Feature::FORMAT_D24)] = true;
     }
     vkGetPhysicalDeviceFormatProperties(gpuContext->physicalDevice, VK_FORMAT_D32_SFLOAT, &formatProperties);
     if (formatProperties.optimalTilingFeatures & requiredFeatures) {
-        _features[(uint)Feature::FORMAT_D32F] = true;
+        _features[static_cast<uint>(Feature::FORMAT_D32F)] = true;
     }
     vkGetPhysicalDeviceFormatProperties(gpuContext->physicalDevice, VK_FORMAT_D16_UNORM_S8_UINT, &formatProperties);
     if (formatProperties.optimalTilingFeatures & requiredFeatures) {
-        _features[(uint)Feature::FORMAT_D16S8] = true;
+        _features[static_cast<uint>(Feature::FORMAT_D16S8)] = true;
     }
     vkGetPhysicalDeviceFormatProperties(gpuContext->physicalDevice, VK_FORMAT_D24_UNORM_S8_UINT, &formatProperties);
     if (formatProperties.optimalTilingFeatures & requiredFeatures) {
-        _features[(uint)Feature::FORMAT_D24S8] = true;
+        _features[static_cast<uint>(Feature::FORMAT_D24S8)] = true;
     }
     vkGetPhysicalDeviceFormatProperties(gpuContext->physicalDevice, VK_FORMAT_D32_SFLOAT_S8_UINT, &formatProperties);
     if (formatProperties.optimalTilingFeatures & requiredFeatures) {
-        _features[(uint)Feature::FORMAT_D32FS8] = true;
+        _features[static_cast<uint>(Feature::FORMAT_D32FS8)] = true;
     }
 
     String compressedFmts;
     if (deviceFeatures.textureCompressionETC2) {
-        _features[(uint)Feature::FORMAT_ETC2] = true;
+        _features[static_cast<uint>(Feature::FORMAT_ETC2)] = true;
         compressedFmts += "etc2 ";
     }
     if (deviceFeatures.textureCompressionASTC_LDR) {
-        _features[(uint)Feature::FORMAT_ASTC] = true;
+        _features[static_cast<uint>(Feature::FORMAT_ASTC)] = true;
         compressedFmts += "astc ";
     }
 
@@ -347,7 +347,7 @@ bool CCVKDevice::doInit(const DeviceInfo &info) {
     }
 
     _gpuBufferHub        = CC_NEW(CCVKGPUBufferHub(_gpuDevice));
-    _gpuTransportHub     = CC_NEW(CCVKGPUTransportHub(_gpuDevice, ((CCVKQueue *)_queue)->gpuQueue()));
+    _gpuTransportHub     = CC_NEW(CCVKGPUTransportHub(_gpuDevice, static_cast<CCVKQueue *>(_queue)->gpuQueue()));
     _gpuDescriptorHub    = CC_NEW(CCVKGPUDescriptorHub(_gpuDevice));
     _gpuSemaphorePool    = CC_NEW(CCVKGPUSemaphorePool(_gpuDevice));
     _gpuBarrierManager   = CC_NEW(CCVKGPUBarrierManager(_gpuDevice));
@@ -408,10 +408,10 @@ bool CCVKDevice::doInit(const DeviceInfo &info) {
     ///////////////////// Print Debug Info /////////////////////
 
     String instanceLayers, instanceExtensions, deviceLayers, deviceExtensions;
-    for (const char *layer : ((CCVKContext *)_context)->getLayers()) {
+    for (const char *layer : static_cast<CCVKContext *>(_context)->getLayers()) {
         instanceLayers += layer + String(" ");
     }
-    for (const char *extension : ((CCVKContext *)_context)->getExtensions()) {
+    for (const char *extension : static_cast<CCVKContext *>(_context)->getExtensions()) {
         instanceExtensions += extension + String(" ");
     }
     for (const char *layer : _layers) {
@@ -463,7 +463,7 @@ void CCVKDevice::doDestroy() {
     CC_SAFE_DELETE(_gpuBarrierManager);
     CC_SAFE_DELETE(_gpuDescriptorSetHub);
 
-    uint backBufferCount = ((CCVKContext *)_context)->gpuContext()->swapchainCreateInfo.minImageCount;
+    uint backBufferCount = static_cast<CCVKContext *>(_context)->gpuContext()->swapchainCreateInfo.minImageCount;
     for (uint i = 0u; i < backBufferCount; i++) {
         _gpuRecycleBins[i]->clear();
 
@@ -554,7 +554,7 @@ void CCVKDevice::acquire() {
 
 #if !defined(VK_USE_PLATFORM_METAL_EXT)
     assert(_gpuDevice->curBackBufferIndex == _gpuSwapchain->curImageIndex); // MoltenVK seems to be not consistent
-#endif // defined(VK_USE_PLATFORM_METAL_EXT)
+#endif                                                                      // defined(VK_USE_PLATFORM_METAL_EXT)
 
     queue->gpuQueue()->nextWaitSemaphore   = acquireSemaphore;
     queue->gpuQueue()->nextSignalSemaphore = _gpuSemaphorePool->alloc();
@@ -659,12 +659,12 @@ TextureBarrier *CCVKDevice::createTextureBarrier() {
 
 void CCVKDevice::copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint count) {
     gpuTransportHub()->checkIn([this, buffers, dst, regions, count](CCVKGPUCommandBuffer *gpuCommandBuffer) {
-        CCVKCmdFuncCopyBuffersToTexture(this, buffers, ((CCVKTexture *)dst)->gpuTexture(), regions, count, gpuCommandBuffer);
+        CCVKCmdFuncCopyBuffersToTexture(this, buffers, static_cast<CCVKTexture *>(dst)->gpuTexture(), regions, count, gpuCommandBuffer);
     });
 }
 
 bool CCVKDevice::checkSwapchainStatus() {
-    CCVKGPUContext *context = ((CCVKContext *)_context)->gpuContext();
+    CCVKGPUContext *context = static_cast<CCVKContext *>(_context)->gpuContext();
 
     VkSurfaceCapabilitiesKHR surfaceCapabilities;
     VK_CHECK(vkGetPhysicalDeviceSurfaceCapabilitiesKHR(context->physicalDevice, context->vkSurface, &surfaceCapabilities));
@@ -727,8 +727,8 @@ bool CCVKDevice::checkSwapchainStatus() {
     _gpuSwapchain->vkSwapchainImageViews.resize(imageCount);
     for (uint i = 0u; i < imageCount; i++) {
         _depthStencilTextures[i]->resize(_width, _height);
-        _gpuSwapchain->depthStencilImages.push_back(((CCVKTexture *)_depthStencilTextures[i])->gpuTexture()->vkImage);
-        _gpuSwapchain->depthStencilImageViews.push_back(((CCVKTexture *)_depthStencilTextures[i])->gpuTextureView()->vkImageView);
+        _gpuSwapchain->depthStencilImages.push_back(static_cast<CCVKTexture *>(_depthStencilTextures[i])->gpuTexture()->vkImage);
+        _gpuSwapchain->depthStencilImageViews.push_back(static_cast<CCVKTexture *>(_depthStencilTextures[i])->gpuTextureView()->vkImageView);
 
         VkImageViewCreateInfo imageViewCreateInfo{VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO};
         imageViewCreateInfo.image                       = _gpuSwapchain->swapchainImages[i];

@@ -59,7 +59,7 @@ protected:
     void doInit(const BufferInfo &info) override;
     void doInit(const BufferViewInfo &info) override;
     void doDestroy() override;
-    void doResize(uint size) override;
+    void doResize(uint size, uint count) override;
 
     bool createMTLBuffer(uint size, MemoryUsage usage);
     void updateMTLBuffer(void *buffer, uint offset, uint size);
@@ -71,8 +71,8 @@ protected:
     uint _bufferViewOffset = 0;
 
     bool _isDrawIndirectByIndex = false;
-    std::vector<MTLDrawIndexedPrimitivesIndirectArguments> _indexedPrimitivesIndirectArguments;
-    std::vector<MTLDrawPrimitivesIndirectArguments> _primitiveIndirectArguments;
+    vector<MTLDrawIndexedPrimitivesIndirectArguments> _indexedPrimitivesIndirectArguments;
+    vector<MTLDrawPrimitivesIndirectArguments> _primitiveIndirectArguments;
     DrawInfoList _drawInfos;
 };
 

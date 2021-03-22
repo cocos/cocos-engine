@@ -109,18 +109,19 @@ bool GLES3Context::doInit(const ContextInfo &info) {
         _windowHandle    = info.windowHandle;
 
     #if (CC_PLATFORM == CC_PLATFORM_WINDOWS)
-        _nativeDisplay = (NativeDisplayType)GetDC((HWND)_windowHandle);
+        _nativeDisplay = GetDC(reinterpret_cast<HWND>(_windowHandle));
         if (!_nativeDisplay) {
             return false;
         }
 
         EGL_CHECK(_eglDisplay = eglGetDisplay(_nativeDisplay));
         if (_eglDisplay == EGL_NO_DISPLAY) {
-            EGL_CHECK(_eglDisplay = eglGetDisplay((EGLNativeDisplayType)EGL_DEFAULT_DISPLAY));
+            EGL_CHECK(_eglDisplay = eglGetDisplay(EGL_DEFAULT_DISPLAY));
         }
     #else
-        EGL_CHECK(_eglDisplay = eglGetDisplay((EGLNativeDisplayType)EGL_DEFAULT_DISPLAY));
+        EGL_CHECK(_eglDisplay = eglGetDisplay(EGL_DEFAULT_DISPLAY));
     #endif
+
         // If a display still couldn't be obtained, return an error.
         if (_eglDisplay == EGL_NO_DISPLAY) {
             CC_LOG_ERROR("eglGetDisplay() - FAILED.");
@@ -191,13 +192,13 @@ bool GLES3Context::doInit(const ContextInfo &info) {
         }
 
         CC_LOG_INFO("Chosen EGLConfig: color [%s], depth stencil [%s].",
-                    GFX_FORMAT_INFOS[(int)_colorFmt].name.c_str(),
-                    GFX_FORMAT_INFOS[(int)_depthStencilFmt].name.c_str());
+                    GFX_FORMAT_INFOS[static_cast<uint>(_colorFmt)].name.c_str(),
+                    GFX_FORMAT_INFOS[static_cast<uint>(_depthStencilFmt)].name.c_str());
 
         /* EGL_NATIVE_VISUAL_ID is an attribute of the EGLConfig that is
-    * guaranteed to be accepted by ANativeWindow_setBuffersGeometry().
-    * As soon as we picked a EGLConfig, we can safely reconfigure the
-    * ANativeWindow buffers to match, using EGL_NATIVE_VISUAL_ID. */
+         * guaranteed to be accepted by ANativeWindow_setBuffersGeometry().
+         * As soon as we picked a EGLConfig, we can safely reconfigure the
+         * ANativeWindow buffers to match, using EGL_NATIVE_VISUAL_ID. */
 
     #if (CC_PLATFORM == CC_PLATFORM_ANDROID)
         EGLint nFmt;
@@ -211,7 +212,7 @@ bool GLES3Context::doInit(const ContextInfo &info) {
         ANativeWindow_setBuffersGeometry((ANativeWindow *)_windowHandle, width, height, nFmt);
     #endif
 
-        EGL_CHECK(_eglSurface = eglCreateWindowSurface(_eglDisplay, _eglConfig, (EGLNativeWindowType)_windowHandle, NULL));
+        EGL_CHECK(_eglSurface = eglCreateWindowSurface(_eglDisplay, _eglConfig, reinterpret_cast<EGLNativeWindowType>(_windowHandle), NULL));
         if (_eglSurface == EGL_NO_SURFACE) {
             auto err = eglGetError();
             CC_LOG_ERROR("Window surface created failed. code %d", err);
@@ -221,7 +222,7 @@ bool GLES3Context::doInit(const ContextInfo &info) {
         //String eglVendor = eglQueryString(_eglDisplay, EGL_VENDOR);
         //String eglVersion = eglQueryString(_eglDisplay, EGL_VERSION);
 
-        EGL_CHECK(_extensions = StringUtil::Split((const char *)eglQueryString(_eglDisplay, EGL_EXTENSIONS), " "));
+        EGL_CHECK(_extensions = StringUtil::Split(eglQueryString(_eglDisplay, EGL_EXTENSIONS), " "));
 
         _majorVersion = 3;
         _minorVersion = 0;
@@ -338,7 +339,7 @@ void GLES3Context::doDestroy() {
 
     #if (CC_PLATFORM == CC_PLATFORM_WINDOWS)
         if (_nativeDisplay) {
-            ReleaseDC((HWND)_windowHandle, _nativeDisplay);
+            ReleaseDC(reinterpret_cast<HWND>(_windowHandle), _nativeDisplay);
         }
     #endif
     }
@@ -370,15 +371,15 @@ void GLES3Context::acquireSurface(uintptr_t windowHandle) {
     }
     uint width  = GLES3Device::getInstance()->getWidth();
     uint height = GLES3Device::getInstance()->getHeight();
-    ANativeWindow_setBuffersGeometry((ANativeWindow *)_windowHandle, width, height, nFmt);
+    ANativeWindow_setBuffersGeometry(reinterpret_cast<ANativeWindow *>(_windowHandle), width, height, nFmt);
 
-    EGL_CHECK(_eglSurface = eglCreateWindowSurface(_eglDisplay, _eglConfig, (EGLNativeWindowType)_windowHandle, NULL));
+    EGL_CHECK(_eglSurface = eglCreateWindowSurface(_eglDisplay, _eglConfig, reinterpret_cast<EGLNativeWindowType>(_windowHandle), NULL));
     if (_eglSurface == EGL_NO_SURFACE) {
         CC_LOG_ERROR("Recreate window surface failed.");
         return;
     }
 
-    ((GLES3Context *)GLES3Device::getInstance()->getContext())->MakeCurrent();
+    static_cast<GLES3Context *>(GLES3Device::getInstance()->getContext())->MakeCurrent();
     GLES3Device::getInstance()->stateCache()->reset();
     #endif
 }
@@ -471,7 +472,7 @@ bool GLES3Context::MakeCurrent(bool bound) {
         GL_CHECK(glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD));
         GL_CHECK(glBlendFuncSeparate(GL_ONE, GL_ZERO, GL_ONE, GL_ZERO));
         GL_CHECK(glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE));
-        GL_CHECK(glBlendColor((GLclampf)0.0f, (GLclampf)0.0f, (GLclampf)0.0f, (GLclampf)0.0f));
+        GL_CHECK(glBlendColor(0.0f, 0.0f, 0.0f, 0.0f));
 
         CC_LOG_DEBUG("eglMakeCurrent() - SUCCEEDED, Context: 0x%p", this);
         return true;

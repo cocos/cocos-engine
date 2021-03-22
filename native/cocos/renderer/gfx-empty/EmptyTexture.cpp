@@ -37,7 +37,7 @@ void EmptyTexture::doInit(const TextureViewInfo &info) {
 void EmptyTexture::doDestroy() {
 }
 
-void EmptyTexture::doResize(uint width, uint height) {
+void EmptyTexture::doResize(uint width, uint height, uint size) {
 }
 
 } // namespace gfx

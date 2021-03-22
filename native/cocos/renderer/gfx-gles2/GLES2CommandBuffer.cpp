@@ -109,8 +109,8 @@ void GLES2CommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fb
     _isInRenderPass = true;
 
     GLES2CmdBeginRenderPass *cmd = _cmdAllocator->beginRenderPassCmdPool.alloc();
-    cmd->gpuRenderPass = ((GLES2RenderPass *)renderPass)->gpuRenderPass();
-    cmd->gpuFBO = ((GLES2Framebuffer *)fbo)->gpuFBO();
+    cmd->gpuRenderPass = static_cast<GLES2RenderPass *>(renderPass)->gpuRenderPass();
+    cmd->gpuFBO = static_cast<GLES2Framebuffer *>(fbo)->gpuFBO();
     cmd->renderArea = renderArea;
     cmd->numClearColors = cmd->gpuRenderPass->colorAttachments.size();
     for (size_t i = 0; i < cmd->numClearColors; ++i) {
@@ -128,7 +128,7 @@ void GLES2CommandBuffer::endRenderPass() {
 }
 
 void GLES2CommandBuffer::bindPipelineState(PipelineState *pso) {
-    GLES2GPUPipelineState *gpuPipelineState = ((GLES2PipelineState *)pso)->gpuPipelineState();
+    GLES2GPUPipelineState *gpuPipelineState = static_cast<GLES2PipelineState *>(pso)->gpuPipelineState();
     if (_curGPUPipelineState != gpuPipelineState) {
         _curGPUPipelineState = gpuPipelineState;
         _isStateInvalid = true;
@@ -138,7 +138,7 @@ void GLES2CommandBuffer::bindPipelineState(PipelineState *pso) {
 void GLES2CommandBuffer::bindDescriptorSet(uint set, DescriptorSet *descriptorSet, uint dynamicOffsetCount, const uint *dynamicOffsets) {
     CCASSERT(_curGPUDescriptorSets.size() > set, "Invalid set index");
 
-    GLES2GPUDescriptorSet *gpuDescriptorSet = ((GLES2DescriptorSet *)descriptorSet)->gpuDescriptorSet();
+    GLES2GPUDescriptorSet *gpuDescriptorSet = static_cast<GLES2DescriptorSet *>(descriptorSet)->gpuDescriptorSet();
     if (_curGPUDescriptorSets[set] != gpuDescriptorSet) {
         _curGPUDescriptorSets[set] = gpuDescriptorSet;
         _isStateInvalid = true;
@@ -150,7 +150,7 @@ void GLES2CommandBuffer::bindDescriptorSet(uint set, DescriptorSet *descriptorSe
 }
 
 void GLES2CommandBuffer::bindInputAssembler(InputAssembler *ia) {
-    _curGPUInputAssember = ((GLES2InputAssembler *)ia)->gpuInputAssembler();
+    _curGPUInputAssember = static_cast<GLES2InputAssembler *>(ia)->gpuInputAssembler();
     _isStateInvalid = true;
 }
 
@@ -238,77 +238,62 @@ void GLES2CommandBuffer::setStencilCompareMask(StencilFace face, int ref, uint m
 }
 
 void GLES2CommandBuffer::draw(InputAssembler *ia) {
-    if ((_type == CommandBufferType::PRIMARY && _isInRenderPass) ||
-        (_type == CommandBufferType::SECONDARY)) {
-        if (_isStateInvalid) {
-            BindStates();
-        }
+    if (_isStateInvalid) {
+        BindStates();
+    }
 
-        GLES2CmdDraw *cmd = _cmdAllocator->drawCmdPool.alloc();
-        ((GLES2InputAssembler *)ia)->ExtractCmdDraw(cmd);
-        _curCmdPackage->drawCmds.push(cmd);
-        _curCmdPackage->cmds.push(GLESCmdType::DRAW);
+    GLES2CmdDraw *cmd = _cmdAllocator->drawCmdPool.alloc();
+    static_cast<GLES2InputAssembler *>(ia)->ExtractCmdDraw(cmd);
+    _curCmdPackage->drawCmds.push(cmd);
+    _curCmdPackage->cmds.push(GLESCmdType::DRAW);
 
-        ++_numDrawCalls;
-        _numInstances += ia->getInstanceCount();
-        if (_curGPUPipelineState) {
-            switch (_curGPUPipelineState->glPrimitive) {
-                case GL_TRIANGLES: {
-                    if (ia->getIndexBuffer() == nullptr) {
-                        _numTriangles += ia->getVertexCount() / 3 * std::max(ia->getInstanceCount(), 1U);
-                    } else {
-                        _numTriangles += ia->getIndexCount() / 3 * std::max(ia->getInstanceCount(), 1U);
-                    }
-                    break;
+    ++_numDrawCalls;
+    _numInstances += ia->getInstanceCount();
+    if (_curGPUPipelineState) {
+        switch (_curGPUPipelineState->glPrimitive) {
+            case GL_TRIANGLES: {
+                if (ia->getIndexBuffer() == nullptr) {
+                    _numTriangles += ia->getVertexCount() / 3 * std::max(ia->getInstanceCount(), 1U);
+                } else {
+                    _numTriangles += ia->getIndexCount() / 3 * std::max(ia->getInstanceCount(), 1U);
                 }
-                case GL_TRIANGLE_STRIP:
-                case GL_TRIANGLE_FAN: {
-                    _numTriangles += (ia->getVertexCount() - 2) * std::max(ia->getInstanceCount(), 1U);
-                    break;
-                }
-                default:
-                    break;
+                break;
             }
+            case GL_TRIANGLE_STRIP:
+            case GL_TRIANGLE_FAN: {
+                _numTriangles += (ia->getVertexCount() - 2) * std::max(ia->getInstanceCount(), 1U);
+                break;
+            }
+            default:
+                break;
         }
-    } else {
-        CC_LOG_ERROR("Command 'draw' must be recorded inside a render pass.");
     }
 }
 
 void GLES2CommandBuffer::updateBuffer(Buffer *buff, const void *data, uint size) {
-    if ((_type == CommandBufferType::PRIMARY && !_isInRenderPass) ||
-        (_type == CommandBufferType::SECONDARY)) {
-        GLES2GPUBuffer *gpuBuffer = ((GLES2Buffer *)buff)->gpuBuffer();
-        if (gpuBuffer) {
-            GLES2CmdUpdateBuffer *cmd = _cmdAllocator->updateBufferCmdPool.alloc();
-            cmd->gpuBuffer = gpuBuffer;
-            cmd->size = size;
-            cmd->buffer = (uint8_t *)data;
+    GLES2GPUBuffer *gpuBuffer = static_cast<GLES2Buffer *>(buff)->gpuBuffer();
+    if (gpuBuffer) {
+        GLES2CmdUpdateBuffer *cmd = _cmdAllocator->updateBufferCmdPool.alloc();
+        cmd->gpuBuffer = gpuBuffer;
+        cmd->size = size;
+        cmd->buffer = (uint8_t *)data;
 
-            _curCmdPackage->updateBufferCmds.push(cmd);
-            _curCmdPackage->cmds.push(GLESCmdType::UPDATE_BUFFER);
-        }
-    } else {
-        CC_LOG_ERROR("Command 'updateBuffer' must be recorded outside a render pass.");
+        _curCmdPackage->updateBufferCmds.push(cmd);
+        _curCmdPackage->cmds.push(GLESCmdType::UPDATE_BUFFER);
     }
 }
 
 void GLES2CommandBuffer::copyBuffersToTexture(const uint8_t *const *buffers, Texture *texture, const BufferTextureCopy *regions, uint count) {
-    if ((_type == CommandBufferType::PRIMARY && !_isInRenderPass) ||
-        (_type == CommandBufferType::SECONDARY)) {
-        GLES2GPUTexture *gpuTexture = ((GLES2Texture *)texture)->gpuTexture();
-        if (gpuTexture) {
-            GLES2CmdCopyBufferToTexture *cmd = _cmdAllocator->copyBufferToTextureCmdPool.alloc();
-            cmd->gpuTexture = gpuTexture;
-            cmd->regions = regions;
-            cmd->count = count;
-            cmd->buffers = buffers;
+    GLES2GPUTexture *gpuTexture = static_cast<GLES2Texture *>(texture)->gpuTexture();
+    if (gpuTexture) {
+        GLES2CmdCopyBufferToTexture *cmd = _cmdAllocator->copyBufferToTextureCmdPool.alloc();
+        cmd->gpuTexture = gpuTexture;
+        cmd->regions = regions;
+        cmd->count = count;
+        cmd->buffers = buffers;
 
-            _curCmdPackage->copyBufferToTextureCmds.push(cmd);
-            _curCmdPackage->cmds.push(GLESCmdType::COPY_BUFFER_TO_TEXTURE);
-        }
-    } else {
-        CC_LOG_ERROR("Command 'copyBuffersToTexture' must be recorded outside a render pass.");
+        _curCmdPackage->copyBufferToTextureCmds.push(cmd);
+        _curCmdPackage->cmds.push(GLESCmdType::COPY_BUFFER_TO_TEXTURE);
     }
 }
 

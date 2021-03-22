@@ -79,15 +79,13 @@ void GLES3Buffer::doDestroy() {
     }
 }
 
-void GLES3Buffer::doResize(uint size) {
-    _gpuBuffer->size = _size;
-    _gpuBuffer->count = _count;
+void GLES3Buffer::doResize(uint size, uint count) {
+    _gpuBuffer->size  = size;
+    _gpuBuffer->count = count;
     GLES3CmdFuncResizeBuffer(GLES3Device::getInstance(), _gpuBuffer);
 }
 
 void GLES3Buffer::update(void *buffer, uint size) {
-    CCASSERT(!_isBufferView, "Cannot update through buffer views");
-
     GLES3CmdFuncUpdateBuffer(GLES3Device::getInstance(), _gpuBuffer, buffer, 0u, size);
 }
 

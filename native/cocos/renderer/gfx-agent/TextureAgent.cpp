@@ -55,7 +55,7 @@ void TextureAgent::doInit(const TextureInfo &info) {
 
 void TextureAgent::doInit(const TextureViewInfo &info) {
     TextureViewInfo actorInfo = info;
-    actorInfo.texture         = ((TextureAgent *)info.texture)->getActor();
+    actorInfo.texture         = static_cast<TextureAgent *>(info.texture)->getActor();
 
     ENQUEUE_MESSAGE_2(
         DeviceAgent::getInstance()->getMessageQueue(),
@@ -77,7 +77,7 @@ void TextureAgent::doDestroy() {
         });
 }
 
-void TextureAgent::doResize(uint width, uint height) {
+void TextureAgent::doResize(uint width, uint height, uint size) {
     ENQUEUE_MESSAGE_3(
         DeviceAgent::getInstance()->getMessageQueue(),
         TextureResize,

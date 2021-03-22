@@ -47,9 +47,9 @@ public:
     PassNode &operator=(const PassNode &) = delete;
     PassNode &operator=(PassNode &&) = delete;
 
-    Handle      read(FrameGraph &graph, const Handle &input) noexcept;
-    Handle      write(FrameGraph &graph, const Handle &output) noexcept;
-    void        createRenderTargetAttachment(RenderTargetAttachment &&attachment) noexcept;
+    Handle         read(FrameGraph &graph, const Handle &input) noexcept;
+    Handle         write(FrameGraph &graph, const Handle &output) noexcept;
+    void           createRenderTargetAttachment(RenderTargetAttachment &&attachment) noexcept;
     CC_INLINE void sideEffect() noexcept;
     CC_INLINE void subpass(bool clearActionIgnoreable, bool const end) noexcept;
     CC_INLINE void setViewport(const gfx::Viewport &viewport, const gfx::Rect &scissor) noexcept;
@@ -85,9 +85,9 @@ private:
     bool                                _hasClearedAttachment{false};
     bool                                _clearActionIgnoreable{false};
 
-    bool                                _customViewport{false};
-    gfx::Viewport                       _viewport;
-    gfx::Rect                           _scissor;
+    bool          _customViewport{false};
+    gfx::Viewport _viewport;
+    gfx::Rect     _scissor;
 
     friend class FrameGraph;
     friend class DevicePass;
@@ -108,8 +108,8 @@ void PassNode::subpass(bool clearActionIgnoreable, bool const end) noexcept {
 
 void PassNode::setViewport(const gfx::Viewport &viewport, const gfx::Rect &scissor) noexcept {
     _customViewport = true;
-    _viewport = viewport;
-    _scissor = scissor;
+    _viewport       = viewport;
+    _scissor        = scissor;
 }
 
 } // namespace framegraph

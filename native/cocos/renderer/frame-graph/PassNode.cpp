@@ -31,7 +31,7 @@
 namespace cc {
 namespace framegraph {
 
-PassNode::PassNode(const PassInsertPoint  inserPoint, const StringHandle name, const ID &id, Executable *pass) noexcept
+PassNode::PassNode(const PassInsertPoint inserPoint, const StringHandle name, const ID &id, Executable *pass) noexcept
 : _pass(pass),
   _name(name),
   _id(id),
@@ -55,15 +55,15 @@ Handle PassNode::read(FrameGraph &graph, const Handle &input) noexcept {
 Handle PassNode::write(FrameGraph &graph, const Handle &output) noexcept {
     CC_ASSERT(check(graph, output, _reads));
     CC_ASSERT(std::find_if(_writes.begin(), _writes.end(), [output](const Handle handle) {
-               return output == handle;
-           }) == _writes.end());
+                  return output == handle;
+              }) == _writes.end());
 
     const ResourceNode &nodeOldVersion = graph.getResourceNode(output);
     nodeOldVersion.virtualResource->newVersion();
-    _sideEffect                  = nodeOldVersion.virtualResource->isImported();
+    _sideEffect                  = _sideEffect || nodeOldVersion.virtualResource->isImported();
     const Handle  handle         = graph.createResourceNode(nodeOldVersion.virtualResource);
     ResourceNode &nodeNewVersion = graph.getResourceNode(handle);
-    nodeNewVersion.writer       = this;
+    nodeNewVersion.writer        = this;
     _writes.push_back(handle);
     return handle;
 }

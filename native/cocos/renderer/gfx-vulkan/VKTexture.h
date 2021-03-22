@@ -45,7 +45,7 @@ protected:
     void doInit(const TextureInfo &info) override;
     void doInit(const TextureViewInfo &info) override;
     void doDestroy() override;
-    void doResize(uint width, uint height) override;
+    void doResize(uint width, uint height, uint size) override;
 
     void createTextureView();
 

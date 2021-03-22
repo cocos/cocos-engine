@@ -82,14 +82,14 @@ void Buffer::destroy() {
 }
 
 void Buffer::resize(uint size) {
-    CCASSERT(!_isBufferView, "Cannot resize buffer views");
-
     if (size != _size) {
-        doResize(size);
+        uint count = size / _stride;
+        doResize(size, count);
+
         Device::getInstance()->getMemoryStatus().bufferSize -= _size;
 
         _size  = size;
-        _count = size / _stride;
+        _count = count;
 
         Device::getInstance()->getMemoryStatus().bufferSize += _size;
     }

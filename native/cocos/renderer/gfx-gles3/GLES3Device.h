@@ -81,7 +81,7 @@ public:
 protected:
     static GLES3Device *_instance;
 
-    friend class DeviceCreator;
+    friend class DeviceManager;
     friend class GLES3Context;
 
     GLES3Device();

@@ -91,7 +91,7 @@ public:
 protected:
     static GLES2Device * _instance;
 
-    friend class DeviceCreator;
+    friend class DeviceManager;
     friend class GLES2Context;
 
     GLES2Device();

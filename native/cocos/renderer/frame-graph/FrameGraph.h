@@ -66,7 +66,6 @@ public:
 
     template <typename ResourceType>
     TypedHandle<ResourceType> create(const StringHandle &name, const typename ResourceType::Descriptor &desc) noexcept;
-    Handle                    create(VirtualResource *const virtualResource) noexcept;
     template <typename ResourceType>
     TypedHandle<ResourceType> importExternal(const StringHandle &name, ResourceType &resource) noexcept;
     void                      move(const TextureHandle from, const TextureHandle to, uint8_t mipmapLevel, uint8_t faceId, uint8_t arrayPosition) noexcept;
@@ -79,6 +78,7 @@ public:
     CC_INLINE void enableMerge(bool const enable) noexcept;
 
 private:
+    Handle        create(VirtualResource *const virtualResource) noexcept;
     PassNode &    createPassNode(const PassInsertPoint insertPoint, const StringHandle &name, Executable *const pass) noexcept;
     Handle        createResourceNode(VirtualResource *const virtualResource) noexcept;
     void          sort() noexcept;

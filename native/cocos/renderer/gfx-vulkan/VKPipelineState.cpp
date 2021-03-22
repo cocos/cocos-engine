@@ -46,13 +46,13 @@ void CCVKPipelineState::doInit(const PipelineStateInfo &info) {
     _gpuPipelineState = CC_NEW(CCVKGPUPipelineState);
     _gpuPipelineState->bindPoint = _bindPoint;
     _gpuPipelineState->primitive = _primitive;
-    _gpuPipelineState->gpuShader = ((CCVKShader *)_shader)->gpuShader();
+    _gpuPipelineState->gpuShader = static_cast<CCVKShader *>(_shader)->gpuShader();
     _gpuPipelineState->inputState = _inputState;
     _gpuPipelineState->rs = _rasterizerState;
     _gpuPipelineState->dss = _depthStencilState;
     _gpuPipelineState->bs = _blendState;
-    _gpuPipelineState->gpuPipelineLayout = ((CCVKPipelineLayout *)_pipelineLayout)->gpuPipelineLayout();
-    if (_renderPass) _gpuPipelineState->gpuRenderPass = ((CCVKRenderPass *)_renderPass)->gpuRenderPass();
+    _gpuPipelineState->gpuPipelineLayout = static_cast<CCVKPipelineLayout *>(_pipelineLayout)->gpuPipelineLayout();
+    if (_renderPass) _gpuPipelineState->gpuRenderPass = static_cast<CCVKRenderPass *>(_renderPass)->gpuRenderPass();
 
     for (uint i = 0; i < 31; i++) {
         if ((uint)_dynamicStates & (1 << i)) {

@@ -41,7 +41,7 @@ public:
 protected:
     void doInit(const BufferInfo &info) override;
     void doInit(const BufferViewInfo &info) override;
-    void doResize(uint size) override;
+    void doResize(uint size, uint count) override;
     void doDestroy() override;
 };
 

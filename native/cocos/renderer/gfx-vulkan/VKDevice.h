@@ -100,7 +100,7 @@ public:
 protected:
     static CCVKDevice *_instance;
 
-    friend class DeviceCreator;
+    friend class DeviceManager;
 
     CCVKDevice();
 

@@ -61,12 +61,12 @@ GLES3PipelineState::~GLES3PipelineState() {
 void GLES3PipelineState::doInit(const PipelineStateInfo &info) {
     _gpuPipelineState = CC_NEW(GLES3GPUPipelineState);
     _gpuPipelineState->glPrimitive = GLES3Primitives[(int)_primitive];
-    _gpuPipelineState->gpuShader = ((GLES3Shader *)_shader)->gpuShader();
+    _gpuPipelineState->gpuShader = static_cast<GLES3Shader *>(_shader)->gpuShader();
     _gpuPipelineState->rs = _rasterizerState;
     _gpuPipelineState->dss = _depthStencilState;
     _gpuPipelineState->bs = _blendState;
-    _gpuPipelineState->gpuPipelineLayout = ((GLES3PipelineLayout *)_pipelineLayout)->gpuPipelineLayout();
-    if (_renderPass) _gpuPipelineState->gpuRenderPass = ((GLES3RenderPass *)_renderPass)->gpuRenderPass();
+    _gpuPipelineState->gpuPipelineLayout = static_cast<GLES3PipelineLayout *>(_pipelineLayout)->gpuPipelineLayout();
+    if (_renderPass) _gpuPipelineState->gpuRenderPass = static_cast<GLES3RenderPass *>(_renderPass)->gpuRenderPass();
 
     for (uint i = 0; i < 31; i++) {
         if ((uint)_dynamicStates & (1 << i)) {

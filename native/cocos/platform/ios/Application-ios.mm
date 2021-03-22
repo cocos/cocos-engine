@@ -34,7 +34,7 @@
 #include "audio/include/AudioEngine.h"
 #include "platform/Device.h"
 
-#include "renderer/GFXDeviceCreator.h"
+#include "renderer/GFXDeviceManager.h"
 #include "pipeline/Define.h"
 
 @interface MyTimer : NSObject {
@@ -119,7 +119,7 @@ namespace {
         deviceInfo.nativeHeight = nativeHeight;
         deviceInfo.bindingMappingInfo = pipeline::bindingMappingInfo;
 
-        gfx::DeviceCreator::createDevice(deviceInfo);
+        gfx::DeviceManager::create(deviceInfo);
 
         return true;
     }
@@ -147,6 +147,8 @@ Application::~Application() {
 
     EventDispatcher::destroy();
     se::ScriptEngine::destroyInstance();
+
+    gfx::DeviceManager::destroy();
 
     Application::_instance = nullptr;
 

@@ -48,13 +48,13 @@ void FramebufferAgent::doInit(const FramebufferInfo &info) {
     FramebufferInfo actorInfo = info;
     for (uint i = 0u; i < info.colorTextures.size(); ++i) {
         if (info.colorTextures[i]) {
-            actorInfo.colorTextures[i] = ((TextureAgent *)info.colorTextures[i])->getActor();
+            actorInfo.colorTextures[i] = static_cast<TextureAgent *>(info.colorTextures[i])->getActor();
         }
     }
     if (info.depthStencilTexture) {
-        actorInfo.depthStencilTexture = ((TextureAgent *)info.depthStencilTexture)->getActor();
+        actorInfo.depthStencilTexture = static_cast<TextureAgent *>(info.depthStencilTexture)->getActor();
     }
-    actorInfo.renderPass = ((RenderPassAgent *)info.renderPass)->getActor();
+    actorInfo.renderPass = static_cast<RenderPassAgent *>(info.renderPass)->getActor();
 
     ENQUEUE_MESSAGE_2(
         DeviceAgent::getInstance()->getMessageQueue(),

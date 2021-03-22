@@ -43,7 +43,7 @@ GLES2DescriptorSet::~GLES2DescriptorSet() {
 }
 
 void GLES2DescriptorSet::doInit(const DescriptorSetInfo &info) {
-    const GLES2GPUDescriptorSetLayout *gpuDescriptorSetLayout = ((GLES2DescriptorSetLayout *)_layout)->gpuDescriptorSetLayout();
+    const GLES2GPUDescriptorSetLayout *gpuDescriptorSetLayout = static_cast<GLES2DescriptorSetLayout *>(_layout)->gpuDescriptorSetLayout();
     const size_t descriptorCount = gpuDescriptorSetLayout->descriptorCount;
     const size_t bindingCount = gpuDescriptorSetLayout->bindings.size();
 
@@ -85,10 +85,10 @@ void GLES2DescriptorSet::update() {
                 }
             } else if (descriptors[i].type & DESCRIPTOR_TEXTURE_TYPE) {
                 if (_textures[i]) {
-                    _gpuDescriptorSet->gpuDescriptors[i].gpuTexture = ((GLES2Texture *)_textures[i])->gpuTexture();
+                    _gpuDescriptorSet->gpuDescriptors[i].gpuTexture = static_cast<GLES2Texture *>(_textures[i])->gpuTexture();
                 }
                 if (_samplers[i]) {
-                    _gpuDescriptorSet->gpuDescriptors[i].gpuSampler = ((GLES2Sampler *)_samplers[i])->gpuSampler();
+                    _gpuDescriptorSet->gpuDescriptors[i].gpuSampler = static_cast<GLES2Sampler *>(_samplers[i])->gpuSampler();
                 }
             }
         }

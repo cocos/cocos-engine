@@ -48,7 +48,7 @@ DescriptorSetAgent::~DescriptorSetAgent() {
 
 void DescriptorSetAgent::doInit(const DescriptorSetInfo &info) {
     DescriptorSetInfo actorInfo;
-    actorInfo.layout = ((DescriptorSetLayoutAgent *)info.layout)->getActor();
+    actorInfo.layout = static_cast<DescriptorSetLayoutAgent *>(info.layout)->getActor();
 
     ENQUEUE_MESSAGE_2(
         DeviceAgent::getInstance()->getMessageQueue(),
@@ -88,7 +88,7 @@ void DescriptorSetAgent::bindBuffer(uint binding, Buffer *buffer, uint index) {
         DescriptorSetBindBuffer,
         actor, getActor(),
         binding, binding,
-        buffer, ((BufferAgent *)buffer)->getActor(),
+        buffer, static_cast<BufferAgent *>(buffer)->getActor(),
         index, index,
         {
             actor->bindBuffer(binding, buffer, index);
@@ -103,7 +103,7 @@ void DescriptorSetAgent::bindTexture(uint binding, Texture *texture, uint index)
         DescriptorSetBindTexture,
         actor, getActor(),
         binding, binding,
-        texture, ((TextureAgent *)texture)->getActor(),
+        texture, static_cast<TextureAgent *>(texture)->getActor(),
         index, index,
         {
             actor->bindTexture(binding, texture, index);
@@ -118,7 +118,7 @@ void DescriptorSetAgent::bindSampler(uint binding, Sampler *sampler, uint index)
         DescriptorSetBindSampler,
         actor, getActor(),
         binding, binding,
-        sampler, ((SamplerAgent *)sampler)->getActor(),
+        sampler, static_cast<SamplerAgent *>(sampler)->getActor(),
         index, index,
         {
             actor->bindSampler(binding, sampler, index);

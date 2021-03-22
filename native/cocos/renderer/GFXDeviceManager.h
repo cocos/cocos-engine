@@ -29,6 +29,7 @@
 #include "bindings/event/EventDispatcher.h"
 #include "gfx-agent/DeviceAgent.h"
 #include "gfx-empty/EmptyDevice.h"
+#include "gfx-validator/DeviceValidator.h"
 
 #ifdef CC_USE_VULKAN
     #include "gfx-vulkan/GFXVulkan.h"
@@ -49,9 +50,9 @@
 namespace cc {
 namespace gfx {
 
-class CC_DLL DeviceCreator final {
+class CC_DLL DeviceManager final {
 public:
-    static Device *createDevice(const DeviceInfo &info) {
+    static Device *create(const DeviceInfo &info) {
         Device *device = nullptr;
 
 #ifdef CC_USE_VULKAN
@@ -75,6 +76,10 @@ public:
         return nullptr;
     }
 
+    static void destroy() {
+        //CC_SAFE_DESTROY(Device::_instance);
+    }
+
 private:
     template <typename DeviceCtor, typename Enable = std::enable_if_t<std::is_base_of<Device, DeviceCtor>::value>>
     static bool tryCreate(const DeviceInfo &info, Device *&device) {
@@ -82,24 +87,35 @@ private:
 
         device = CC_NEW(gfx::DeviceAgent(device));
 
+        if (CC_DEBUG > 0 && !FORCE_DISABLE_VALIDATION || FORCE_ENABLE_VALIDATION) {
+            device = CC_NEW(gfx::DeviceValidator(device));
+            //((gfx::DeviceValidator *)device)->enableRecording(true);
+        }
+
         if (!device->initialize(info)) {
             CC_SAFE_DELETE(device);
             return false;
         }
 
         EventDispatcher::addCustomEventListener(EVENT_DESTROY_WINDOW, [device](const CustomEvent &e) -> void {
-            DeviceCreator::releaseSurface(device, reinterpret_cast<uintptr_t>(e.args->ptrVal));
+            device->releaseSurface(reinterpret_cast<uintptr_t>(e.args->ptrVal));
         });
 
         EventDispatcher::addCustomEventListener(EVENT_RECREATE_WINDOW, [device](const CustomEvent &e) -> void {
-            DeviceCreator::acquireSurface(device, reinterpret_cast<uintptr_t>(e.args->ptrVal));
+            device->acquireSurface(reinterpret_cast<uintptr_t>(e.args->ptrVal));
         });
+
 
         return true;
     }
 
-    static void releaseSurface(Device *device, uintptr_t windowHandle) { device->releaseSurface(windowHandle); }
-    static void acquireSurface(Device *device, uintptr_t windowHandle) { device->acquireSurface(windowHandle); }
+// TODO: CI env doesn't have this?
+#ifndef CC_DEBUG
+    static constexpr int CC_DEBUG{1};
+#endif
+
+    static constexpr bool FORCE_DISABLE_VALIDATION{false};
+    static constexpr bool FORCE_ENABLE_VALIDATION{false};
 };
 
 } // namespace gfx

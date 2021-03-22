@@ -105,7 +105,7 @@ void CommandBufferAgent::doInit(const CommandBufferInfo &info) {
     initMessageQueue();
 
     CommandBufferInfo actorInfo = info;
-    actorInfo.queue             = ((QueueAgent *)info.queue)->getActor();
+    actorInfo.queue             = static_cast<QueueAgent *>(info.queue)->getActor();
 
     ENQUEUE_MESSAGE_2(
         DeviceAgent::getInstance()->getMessageQueue(), CommandBufferInit,
@@ -132,9 +132,9 @@ void CommandBufferAgent::begin(RenderPass *renderPass, uint subpass, Framebuffer
         _messageQueue,
         CommandBufferBegin,
         actor, getActor(),
-        renderPass, renderPass ? ((RenderPassAgent *)renderPass)->getActor() : nullptr,
+        renderPass, renderPass ? static_cast<RenderPassAgent *>(renderPass)->getActor() : nullptr,
         subpass, subpass,
-        frameBuffer, frameBuffer ? ((FramebufferAgent *)frameBuffer)->getActor() : nullptr,
+        frameBuffer, frameBuffer ? static_cast<FramebufferAgent *>(frameBuffer)->getActor() : nullptr,
         {
             actor->begin(renderPass, subpass, frameBuffer);
         });
@@ -150,7 +150,7 @@ void CommandBufferAgent::end() {
 }
 
 void CommandBufferAgent::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, int stencil, CommandBuffer *const *secondaryCBs, uint secondaryCBCount) {
-    uint   attachmentCount = (uint)renderPass->getColorAttachments().size();
+    uint   attachmentCount = static_cast<uint>(renderPass->getColorAttachments().size());
     Color *actorColors     = nullptr;
     if (attachmentCount) {
         actorColors = getAllocator()->allocate<Color>(attachmentCount);
@@ -161,15 +161,15 @@ void CommandBufferAgent::beginRenderPass(RenderPass *renderPass, Framebuffer *fb
     if (secondaryCBCount) {
         actorSecondaryCBs = getAllocator()->allocate<CommandBuffer *>(secondaryCBCount);
         for (uint i = 0; i < secondaryCBCount; ++i) {
-            actorSecondaryCBs[i] = ((CommandBufferAgent *)secondaryCBs[i])->getActor();
+            actorSecondaryCBs[i] = static_cast<CommandBufferAgent *>(secondaryCBs[i])->getActor();
         }
     }
 
     ENQUEUE_MESSAGE_9(
         _messageQueue, CommandBufferBeginRenderPass,
         actor, getActor(),
-        renderPass, ((RenderPassAgent *)renderPass)->getActor(),
-        fbo, ((FramebufferAgent *)fbo)->getActor(),
+        renderPass, static_cast<RenderPassAgent *>(renderPass)->getActor(),
+        fbo, static_cast<FramebufferAgent *>(fbo)->getActor(),
         renderArea, renderArea,
         colors, actorColors,
         depth, depth,
@@ -195,7 +195,7 @@ void CommandBufferAgent::execute(CommandBuffer *const *cmdBuffs, uint32_t count)
 
     CommandBuffer **actorCmdBuffs = getAllocator()->allocate<CommandBuffer *>(count);
     for (uint i = 0; i < count; ++i) {
-        actorCmdBuffs[i] = ((CommandBufferAgent *)cmdBuffs[i])->getActor();
+        actorCmdBuffs[i] = static_cast<CommandBufferAgent *>(cmdBuffs[i])->getActor();
     }
 
     ENQUEUE_MESSAGE_3(
@@ -212,7 +212,7 @@ void CommandBufferAgent::bindPipelineState(PipelineState *pso) {
     ENQUEUE_MESSAGE_2(
         _messageQueue, CommandBufferBindPipelineState,
         actor, getActor(),
-        pso, ((PipelineStateAgent *)pso)->getActor(),
+        pso, static_cast<PipelineStateAgent *>(pso)->getActor(),
         {
             actor->bindPipelineState(pso);
         });
@@ -229,7 +229,7 @@ void CommandBufferAgent::bindDescriptorSet(uint set, DescriptorSet *descriptorSe
         _messageQueue, CommandBufferBindDescriptorSet,
         actor, getActor(),
         set, set,
-        descriptorSet, ((DescriptorSetAgent *)descriptorSet)->getActor(),
+        descriptorSet, static_cast<DescriptorSetAgent *>(descriptorSet)->getActor(),
         dynamicOffsetCount, dynamicOffsetCount,
         dynamicOffsets, actorDynamicOffsets,
         {
@@ -241,7 +241,7 @@ void CommandBufferAgent::bindInputAssembler(InputAssembler *ia) {
     ENQUEUE_MESSAGE_2(
         _messageQueue, CommandBufferBindInputAssembler,
         actor, getActor(),
-        ia, ((InputAssemblerAgent *)ia)->getActor(),
+        ia, static_cast<InputAssemblerAgent *>(ia)->getActor(),
         {
             actor->bindInputAssembler(ia);
         });
@@ -337,7 +337,7 @@ void CommandBufferAgent::draw(InputAssembler *ia) {
     ENQUEUE_MESSAGE_2(
         _messageQueue, CommandBufferDraw,
         actor, getActor(),
-        ia, ((InputAssemblerAgent *)ia)->getActor(),
+        ia, static_cast<InputAssemblerAgent *>(ia)->getActor(),
         {
             actor->draw(ia);
         });
@@ -352,7 +352,7 @@ void CommandBufferAgent::updateBuffer(Buffer *buff, const void *data, uint size)
     ENQUEUE_MESSAGE_4(
         queue, CommandBufferUpdateBuffer,
         actor, getActor(),
-        buff, ((BufferAgent *)buff)->getActor(),
+        buff, static_cast<BufferAgent *>(buff)->getActor(),
         data, actorData,
         size, size,
         {
@@ -385,7 +385,7 @@ void CommandBufferAgent::copyBuffersToTexture(const uint8_t *const *buffers, Tex
         _messageQueue, CommandBufferCopyBuffersToTexture,
         actor, getActor(),
         buffers, actorBuffers,
-        texture, ((TextureAgent *)texture)->getActor(),
+        texture, static_cast<TextureAgent *>(texture)->getActor(),
         regions, actorRegions,
         count, count,
         {
@@ -396,8 +396,8 @@ void CommandBufferAgent::copyBuffersToTexture(const uint8_t *const *buffers, Tex
 void CommandBufferAgent::blitTexture(Texture *srcTexture, Texture *dstTexture, const TextureBlit *regions, uint count, Filter filter) {
     Texture *actorSrcTexture = nullptr;
     Texture *actorDstTexture = nullptr;
-    if (srcTexture) actorSrcTexture = ((TextureAgent *)srcTexture)->getActor();
-    if (dstTexture) actorDstTexture = ((TextureAgent *)dstTexture)->getActor();
+    if (srcTexture) actorSrcTexture = static_cast<TextureAgent *>(srcTexture)->getActor();
+    if (dstTexture) actorDstTexture = static_cast<TextureAgent *>(dstTexture)->getActor();
 
     TextureBlit *actorRegions = getAllocator()->allocate<TextureBlit>(count);
     memcpy(actorRegions, regions, count * sizeof(TextureBlit));
@@ -417,7 +417,7 @@ void CommandBufferAgent::blitTexture(Texture *srcTexture, Texture *dstTexture, c
 
 void CommandBufferAgent::dispatch(const DispatchInfo &info) {
     DispatchInfo actorInfo = info;
-    if (info.indirectBuffer) actorInfo.indirectBuffer = ((BufferAgent *)info.indirectBuffer)->getActor();
+    if (info.indirectBuffer) actorInfo.indirectBuffer = static_cast<BufferAgent *>(info.indirectBuffer)->getActor();
 
     ENQUEUE_MESSAGE_2(
         _messageQueue, CommandBufferDispatch,
@@ -438,7 +438,7 @@ void CommandBufferAgent::pipelineBarrier(const GlobalBarrier *barrier, const Tex
 
         actorTextures = getAllocator()->allocate<Texture *>(textureBarrierCount);
         for (uint i = 0u; i < textureBarrierCount; ++i) {
-            actorTextures[i] = textures[i] ? ((TextureAgent *)textures[i])->getActor() : nullptr;
+            actorTextures[i] = textures[i] ? static_cast<const TextureAgent *>(textures[i])->getActor() : nullptr;
         }
     }
 

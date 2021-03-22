@@ -65,16 +65,16 @@ bool DeviceAgent::doInit(const DeviceInfo &info) {
         return false;
     }
 
-    _context                                 = _actor->getContext();
-    _API                                     = _actor->getGfxAPI();
-    _deviceName                              = _actor->getDeviceName();
-    _queue                                   = CC_NEW(QueueAgent(_actor->getQueue()));
-    _cmdBuff                                 = CC_NEW(CommandBufferAgent(_actor->getCommandBuffer()));
-    ((CommandBufferAgent *)_cmdBuff)->_queue = _queue;
-    _renderer                                = _actor->getRenderer();
-    _vendor                                  = _actor->getVendor();
-    _caps                                    = _actor->_caps;
-    memcpy(_features, _actor->_features, (uint)Feature::COUNT * sizeof(bool));
+    _context                                            = _actor->getContext();
+    _API                                                = _actor->getGfxAPI();
+    _deviceName                                         = _actor->getDeviceName();
+    _queue                                              = CC_NEW(QueueAgent(_actor->getQueue()));
+    _cmdBuff                                            = CC_NEW(CommandBufferAgent(_actor->getCommandBuffer()));
+    static_cast<CommandBufferAgent *>(_cmdBuff)->_queue = _queue;
+    _renderer                                           = _actor->getRenderer();
+    _vendor                                             = _actor->getVendor();
+    _caps                                               = _actor->_caps;
+    memcpy(_features, _actor->_features, static_cast<uint>(Feature::COUNT) * sizeof(bool));
 
     _mainEncoder = CC_NEW(MessageQueue);
 
@@ -82,9 +82,9 @@ bool DeviceAgent::doInit(const DeviceInfo &info) {
     for (uint i = 0u; i < MAX_CPU_FRAME_AHEAD + 1; ++i) {
         _allocatorPools[i] = CC_NEW(LinearAllocatorPool);
     }
-    ((CommandBufferAgent *)_cmdBuff)->initMessageQueue();
+    static_cast<CommandBufferAgent *>(_cmdBuff)->initMessageQueue();
 
-    setMultithreaded(true);
+    //setMultithreaded(true);
 
     return true;
 }
@@ -98,13 +98,13 @@ void DeviceAgent::doDestroy() {
         });
 
     if (_cmdBuff) {
-        ((CommandBufferAgent *)_cmdBuff)->destroyMessageQueue();
-        ((CommandBufferAgent *)_cmdBuff)->_actor = nullptr;
+        static_cast<CommandBufferAgent *>(_cmdBuff)->destroyMessageQueue();
+        static_cast<CommandBufferAgent *>(_cmdBuff)->_actor = nullptr;
         CC_DELETE(_cmdBuff);
         _cmdBuff = nullptr;
     }
     if (_queue) {
-        ((QueueAgent *)_queue)->_actor = nullptr;
+        static_cast<QueueAgent *>(_queue)->_actor = nullptr;
         CC_DELETE(_queue);
         _queue = nullptr;
     }
@@ -292,7 +292,7 @@ void DeviceAgent::copyBuffersToTexture(const uint8_t *const *buffers, Texture *d
         _mainEncoder, DeviceCopyBuffersToTexture,
         actor, getActor(),
         buffers, actorBuffers,
-        dst, ((TextureAgent *)dst)->getActor(),
+        dst, static_cast<TextureAgent *>(dst)->getActor(),
         regions, actorRegions,
         count, count,
         {
@@ -305,9 +305,9 @@ void DeviceAgent::flushCommands(CommandBuffer *const *cmdBuffs, uint count) {
 
     bool multiThreaded = hasFeature(Feature::MULTITHREADED_SUBMISSION);
 
-    const CommandBufferAgent **agentCmdBuffs = getMainAllocator()->allocate<const CommandBufferAgent *>(count);
+    CommandBufferAgent **agentCmdBuffs = getMainAllocator()->allocate<CommandBufferAgent *>(count);
     for (uint i = 0; i < count; ++i) {
-        agentCmdBuffs[i] = (const CommandBufferAgent *)cmdBuffs[i];
+        agentCmdBuffs[i] = static_cast<CommandBufferAgent *const>(cmdBuffs[i]);
         MessageQueue::freeChunksInFreeQueue(agentCmdBuffs[i]->_messageQueue);
         agentCmdBuffs[i]->_messageQueue->finishWriting();
     }
@@ -315,7 +315,7 @@ void DeviceAgent::flushCommands(CommandBuffer *const *cmdBuffs, uint count) {
     ENQUEUE_MESSAGE_3(
         _mainEncoder, DeviceFlushCommands,
         count, count,
-        cmdBuffs, (CommandBufferAgent *const *)agentCmdBuffs,
+        cmdBuffs, agentCmdBuffs,
         multiThreaded, multiThreaded,
         {
             CommandBufferAgent::flushCommands(count, cmdBuffs, multiThreaded);

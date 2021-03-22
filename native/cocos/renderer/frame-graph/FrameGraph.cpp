@@ -113,11 +113,6 @@ void FrameGraph::gc(uint32_t const unusedFrameCount) noexcept {
     Texture::Allocator::getInstance().gc(unusedFrameCount);
 }
 
-Handle FrameGraph::create(VirtualResource *const virtualResource) noexcept {
-    _virtualResources.emplace_back(virtualResource);
-    return createResourceNode(virtualResource);
-}
-
 void FrameGraph::move(const TextureHandle from, const TextureHandle to, uint8_t mipmapLevel, uint8_t faceId, uint8_t arrayPosition) noexcept {
     const ResourceNode &fromResourceNode = getResourceNode(from);
     const ResourceNode &toResourceNode   = getResourceNode(to);
@@ -156,6 +151,11 @@ void FrameGraph::move(const TextureHandle from, const TextureHandle to, uint8_t 
             }
         }
     }
+}
+
+Handle FrameGraph::create(VirtualResource *const virtualResource) noexcept {
+    _virtualResources.emplace_back(virtualResource);
+    return createResourceNode(virtualResource);
 }
 
 PassNode &FrameGraph::createPassNode(const PassInsertPoint insertPoint, const StringHandle &name, Executable *const pass) noexcept {

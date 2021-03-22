@@ -46,13 +46,13 @@ InputAssemblerAgent::~InputAssemblerAgent() {
 void InputAssemblerAgent::doInit(const InputAssemblerInfo &info) {
     InputAssemblerInfo actorInfo = info;
     for (uint i = 0u; i < actorInfo.vertexBuffers.size(); ++i) {
-        actorInfo.vertexBuffers[i] = ((BufferAgent *)actorInfo.vertexBuffers[i])->getActor();
+        actorInfo.vertexBuffers[i] = static_cast<BufferAgent *>(actorInfo.vertexBuffers[i])->getActor();
     }
     if (actorInfo.indexBuffer) {
-        actorInfo.indexBuffer = ((BufferAgent *)actorInfo.indexBuffer)->getActor();
+        actorInfo.indexBuffer = static_cast<BufferAgent *>(actorInfo.indexBuffer)->getActor();
     }
     if (actorInfo.indirectBuffer) {
-        actorInfo.indirectBuffer = ((BufferAgent *)actorInfo.indirectBuffer)->getActor();
+        actorInfo.indirectBuffer = static_cast<BufferAgent *>(actorInfo.indirectBuffer)->getActor();
     }
 
     ENQUEUE_MESSAGE_2(

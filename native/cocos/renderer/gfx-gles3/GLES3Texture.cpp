@@ -69,10 +69,10 @@ void GLES3Texture::doDestroy() {
     }
 }
 
-void GLES3Texture::doResize(uint width, uint height) {
-    _gpuTexture->width = _width;
-    _gpuTexture->height = _height;
-    _gpuTexture->size = _size;
+void GLES3Texture::doResize(uint width, uint height, uint size) {
+    _gpuTexture->width = width;
+    _gpuTexture->height = height;
+    _gpuTexture->size = size;
     GLES3CmdFuncResizeTexture(GLES3Device::getInstance(), _gpuTexture);
 }
 

@@ -62,10 +62,10 @@ protected:
         return _idGen++;
     }
 
-    virtual void doInit(const TextureInfo &info)     = 0;
-    virtual void doInit(const TextureViewInfo &info) = 0;
-    virtual void doDestroy()                         = 0;
-    virtual void doResize(uint width, uint height)   = 0;
+    virtual void doInit(const TextureInfo &info)              = 0;
+    virtual void doInit(const TextureViewInfo &info)          = 0;
+    virtual void doDestroy()                                  = 0;
+    virtual void doResize(uint width, uint height, uint size) = 0;
 
     uint         _textureID     = 0;
     TextureType  _type          = TextureType::TEX2D;

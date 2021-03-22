@@ -27,9 +27,6 @@
 #include "base/Log.h"
 #include <unordered_map>
 
-#include "renderer/GFXDeviceCreator.h"
-#include "pipeline/Define.h"
-
 using namespace cc;
 
 namespace {
@@ -89,16 +86,6 @@ bool View::init() {
         CC_LOG_ERROR("Window could not be created! SDL_Error: %s\n", SDL_GetError());
         return false;
     }
-
-    gfx::DeviceInfo deviceInfo;
-    deviceInfo.windowHandle = (uintptr_t)getWindowHandler();
-    deviceInfo.width        = _width;
-    deviceInfo.height       = _height;
-    deviceInfo.nativeWidth  = _width;
-    deviceInfo.nativeHeight = _height;
-    deviceInfo.bindingMappingInfo = pipeline::bindingMappingInfo;
-
-    gfx::DeviceCreator::createDevice(deviceInfo);
 
     return true;
 }

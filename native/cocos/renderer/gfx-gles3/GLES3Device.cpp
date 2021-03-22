@@ -91,49 +91,49 @@ bool GLES3Device::doInit(const DeviceInfo &info) {
     String extStr = (const char *)glGetString(GL_EXTENSIONS);
     _extensions   = StringUtil::Split(extStr, " ");
 
-    _features[(uint)Feature::TEXTURE_FLOAT]           = true;
-    _features[(uint)Feature::TEXTURE_HALF_FLOAT]      = true;
-    _features[(uint)Feature::FORMAT_R11G11B10F]       = true;
-    _features[(uint)Feature::FORMAT_D24S8]            = true;
-    _features[(uint)Feature::MSAA]                    = true;
-    _features[(uint)Feature::INSTANCED_ARRAYS]        = true;
-    _features[(uint)Feature::MULTIPLE_RENDER_TARGETS] = true;
-    _features[(uint)Feature::BLEND_MINMAX]            = true;
-    _features[(uint)Feature::ELEMENT_INDEX_UINT]      = true;
+    _features[static_cast<uint>(Feature::TEXTURE_FLOAT)]           = true;
+    _features[static_cast<uint>(Feature::TEXTURE_HALF_FLOAT)]      = true;
+    _features[static_cast<uint>(Feature::FORMAT_R11G11B10F)]       = true;
+    _features[static_cast<uint>(Feature::FORMAT_D24S8)]            = true;
+    _features[static_cast<uint>(Feature::MSAA)]                    = true;
+    _features[static_cast<uint>(Feature::INSTANCED_ARRAYS)]        = true;
+    _features[static_cast<uint>(Feature::MULTIPLE_RENDER_TARGETS)] = true;
+    _features[static_cast<uint>(Feature::BLEND_MINMAX)]            = true;
+    _features[static_cast<uint>(Feature::ELEMENT_INDEX_UINT)]      = true;
 
-    uint minorVersion = ((GLES3Context *)_context)->minor_ver();
+    uint minorVersion = static_cast<GLES3Context *>(_context)->minor_ver();
     if (minorVersion)
-        _features[(uint)Feature::COMPUTE_SHADER] = true;
+        _features[static_cast<uint>(Feature::COMPUTE_SHADER)] = true;
 
     if (checkExtension("color_buffer_float"))
-        _features[(int)Feature::COLOR_FLOAT] = true;
+        _features[static_cast<uint>(Feature::COLOR_FLOAT)] = true;
 
     if (checkExtension("color_buffer_half_float"))
-        _features[(int)Feature::COLOR_HALF_FLOAT] = true;
+        _features[static_cast<uint>(Feature::COLOR_HALF_FLOAT)] = true;
 
     if (checkExtension("texture_float_linear"))
-        _features[(int)Feature::TEXTURE_FLOAT_LINEAR] = true;
+        _features[static_cast<uint>(Feature::TEXTURE_FLOAT_LINEAR)] = true;
 
     if (checkExtension("texture_half_float_linear"))
-        _features[(int)Feature::TEXTURE_HALF_FLOAT_LINEAR] = true;
+        _features[static_cast<uint>(Feature::TEXTURE_HALF_FLOAT_LINEAR)] = true;
 
     String compressedFmts;
 
     if (checkExtension("compressed_ETC1")) {
-        _features[(int)Feature::FORMAT_ETC1] = true;
+        _features[static_cast<uint>(Feature::FORMAT_ETC1)] = true;
         compressedFmts += "etc1 ";
     }
 
-    _features[(int)Feature::FORMAT_ETC2] = true;
+    _features[static_cast<uint>(Feature::FORMAT_ETC2)] = true;
     compressedFmts += "etc2 ";
 
     if (checkExtension("texture_compression_pvrtc")) {
-        _features[(int)Feature::FORMAT_PVRTC] = true;
+        _features[static_cast<uint>(Feature::FORMAT_PVRTC)] = true;
         compressedFmts += "pvrtc ";
     }
 
     if (checkExtension("texture_compression_astc")) {
-        _features[(int)Feature::FORMAT_ASTC] = true;
+        _features[static_cast<uint>(Feature::FORMAT_ASTC)] = true;
         compressedFmts += "astc ";
     }
     _features[static_cast<uint>(Feature::DEPTH_BOUNDS)]         = true;
@@ -203,11 +203,11 @@ void GLES3Device::doDestroy() {
 }
 
 void GLES3Device::releaseSurface(const uintptr_t windowHandle) {
-    ((GLES3Context *)_context)->releaseSurface(windowHandle);
+    static_cast<GLES3Context *>(_context)->releaseSurface(windowHandle);
 }
 
 void GLES3Device::acquireSurface(const uintptr_t windowHandle) {
-    ((GLES3Context *)_context)->acquireSurface(windowHandle);
+    static_cast<GLES3Context *>(_context)->acquireSurface(windowHandle);
 }
 
 void GLES3Device::resize(uint width, uint height) {
@@ -261,7 +261,7 @@ void GLES3Device::bindDeviceContext(bool bound) {
     }
 }
 
-uint GLES3Device::getMinorVersion() const { return ((GLES3Context *)_context)->minor_ver(); }
+uint GLES3Device::getMinorVersion() const { return static_cast<GLES3Context *>(_context)->minor_ver(); }
 
 CommandBuffer *GLES3Device::createCommandBuffer(const CommandBufferInfo &info, bool hasAgent) {
     if (hasAgent || info.type == CommandBufferType::PRIMARY) return CC_NEW(GLES3PrimaryCommandBuffer);
@@ -325,7 +325,7 @@ TextureBarrier *GLES3Device::createTextureBarrier() {
 }
 
 void GLES3Device::copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint count) {
-    GLES3CmdFuncCopyBuffersToTexture(this, buffers, ((GLES3Texture *)dst)->gpuTexture(), regions, count);
+    GLES3CmdFuncCopyBuffersToTexture(this, buffers, static_cast<GLES3Texture *>(dst)->gpuTexture(), regions, count);
 }
 
 } // namespace gfx

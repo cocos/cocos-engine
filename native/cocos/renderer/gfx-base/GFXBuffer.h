@@ -54,7 +54,7 @@ public:
 protected:
     virtual void doInit(const BufferInfo &info)     = 0;
     virtual void doInit(const BufferViewInfo &info) = 0;
-    virtual void doResize(uint size)                = 0;
+    virtual void doResize(uint size, uint count)    = 0;
     virtual void doDestroy()                        = 0;
 
     BufferUsage _usage        = BufferUsageBit::NONE;
