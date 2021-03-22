@@ -167,11 +167,6 @@ let Mask = cc.Class({
                         return;
                     }
                 }
-
-                if (lastSprite) {
-                    lastSprite.off('load', this._activateMaterial, this);
-                }
-                
                 this._spriteFrame = value;
                 
                 this.setVertsDirty();
@@ -295,10 +290,6 @@ let Mask = cc.Class({
     onDestroy () {
         this._super();
         this._removeGraphics();
-
-        if (this._spriteFrame) {
-            this._spriteFrame.off('load', this._activateMaterial, this);
-        }        
     },
 
     _resizeNodeToTargetNode: CC_EDITOR && function () {
@@ -312,14 +303,13 @@ let Mask = cc.Class({
         if (this._type !== MaskType.IMAGE_STENCIL) return;
 
         let spriteFrame = this._spriteFrame;
-        if (spriteFrame) { 
-            spriteFrame.on('load', this._activateMaterial, this);
-            if( spriteFrame.textureLoaded()) {
-                return;
-            }
+        if (spriteFrame && 
+            spriteFrame.textureLoaded()) {
+            return;
         }
 
         this.disableRender();
+        spriteFrame.once('load', this._activateMaterial, this);
     },
 
     _activateMaterial () {
