@@ -300,7 +300,6 @@ export class WebGLDevice extends Device {
         this._caps.maxCubeMapTextureSize = gl.getParameter(gl.MAX_CUBE_MAP_TEXTURE_SIZE);
         this._caps.depthBits = gl.getParameter(gl.DEPTH_BITS);
         this._caps.stencilBits = gl.getParameter(gl.STENCIL_BITS);
-        this._caps.uboOffsetAlignment = 1;
 
         this.stateCache.initialize(this._caps.maxTextureUnits, this._caps.maxVertexAttributes);
 

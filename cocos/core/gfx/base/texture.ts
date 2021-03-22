@@ -136,14 +136,6 @@ export abstract class Texture extends Obj {
         return this._size;
     }
 
-    /**
-     * @en Get texture buffer.
-     * @zh 纹理缓冲。
-     */
-    get buffer (): ArrayBuffer | null {
-        return this._buffer;
-    }
-
     protected _device: Device;
 
     protected _type: TextureType = TextureType.TEX2D;
@@ -158,7 +150,6 @@ export abstract class Texture extends Obj {
     protected _flags: TextureFlags = TextureFlagBit.NONE;
     protected _isPowerOf2 = false;
     protected _size = 0;
-    protected _buffer: ArrayBuffer | null = null;
 
     constructor (device: Device) {
         super(ObjectType.TEXTURE);

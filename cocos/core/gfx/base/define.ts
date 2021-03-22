@@ -366,7 +366,7 @@ export enum BufferUsageBit {
 }
 
 export enum BufferFlagBit {
-    NONE         = 0,
+    NONE = 0,
 }
 
 export enum MemoryAccessBit {
@@ -406,8 +406,7 @@ export enum TextureUsageBit {
 export enum TextureFlagBit {
     NONE         = 0,
     GEN_MIPMAP   = 0x1,
-    BAKUP_BUFFER = 0x2,
-    IMMUTABLE    = 0x4,
+    IMMUTABLE    = 0x2,
 }
 
 export enum SampleCount {
@@ -684,9 +683,9 @@ export class DeviceCaps {
         public maxUniformBlockSize: number = 0,
         public maxTextureSize: number = 0,
         public maxCubeMapTextureSize: number = 0,
-        public uboOffsetAlignment: number = 0,
         public depthBits: number = 0,
         public stencilBits: number = 0,
+        public uboOffsetAlignment: number = 1,
         public maxComputeSharedMemorySize: number = 0,
         public maxComputeWorkGroupInvocations: number = 0,
         public maxComputeWorkGroupSize: Size = new Size(),
@@ -710,9 +709,9 @@ export class DeviceCaps {
         this.maxUniformBlockSize = info.maxUniformBlockSize;
         this.maxTextureSize = info.maxTextureSize;
         this.maxCubeMapTextureSize = info.maxCubeMapTextureSize;
-        this.uboOffsetAlignment = info.uboOffsetAlignment;
         this.depthBits = info.depthBits;
         this.stencilBits = info.stencilBits;
+        this.uboOffsetAlignment = info.uboOffsetAlignment;
         this.maxComputeSharedMemorySize = info.maxComputeSharedMemorySize;
         this.maxComputeWorkGroupInvocations = info.maxComputeWorkGroupInvocations;
         this.maxComputeWorkGroupSize.copy(info.maxComputeWorkGroupSize);
@@ -747,8 +746,8 @@ export class Rect {
     constructor (
         public x: number = 0,
         public y: number = 0,
-        public width: number = 1,
-        public height: number = 1,
+        public width: number = 0,
+        public height: number = 0,
     ) {}
 
     public copy (info: Rect) {

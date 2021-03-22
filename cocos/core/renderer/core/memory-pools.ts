@@ -61,8 +61,7 @@ enum BufferDataType {
     NEVER,
 }
 
-// `| any` here work around this issue: microsoft/TypeScript#41931
-type BufferManifest = { [key: string]: number | string | any; COUNT: number };
+type BufferManifest = { [key: string]: number | string; COUNT: number };
 type StandardBufferElement = number | IHandle<PoolType>;
 type GeneralBufferElement = StandardBufferElement | IVec2Like | IVec3Like | IVec4Like | IMat4Like;
 type BufferTypeManifest<E extends BufferManifest> = { [key in E[keyof E]]: GeneralBufferElement };
@@ -598,21 +597,25 @@ export type BatchHandle2D = IHandle<PoolType.BATCH_2D>;
 export type UIBatchArrayHandle = IHandle<PoolType.BATCH_ARRAY_2D>;
 export type PipelineSceneDataHandle = IHandle<PoolType.PIPELINE_SCENE_DATA>;
 
-// TODO: could use Labeled Tuple Element feature here after next babel update (required TS4.0+ support)
 export const ShaderPool = new ObjectPool(PoolType.SHADER,
-    (args: [Device, ShaderInfo], obj?: Shader) => (obj ? (obj.initialize(args[1]), obj) : args[0].createShader(args[1])),
+    (args: [device: Device, info: ShaderInfo], obj?: Shader) => (
+        obj ? (obj.initialize(args[1]), obj) : args[0].createShader(args[1])),
     (obj: Shader) => (obj && obj.destroy(), obj));
 export const DSPool = new ObjectPool(PoolType.DESCRIPTOR_SETS,
-    (args: [Device, DescriptorSetInfo], obj?: DescriptorSet) => (obj ? (obj.initialize(args[1]), obj) : args[0].createDescriptorSet(args[1])),
+    (args: [device: Device, info: DescriptorSetInfo], obj?: DescriptorSet) => (
+        obj ? (obj.initialize(args[1]), obj) : args[0].createDescriptorSet(args[1])),
     (obj: DescriptorSet) => (obj && obj.destroy(), obj));
 export const IAPool = new ObjectPool(PoolType.INPUT_ASSEMBLER,
-    (args: [Device, InputAssemblerInfo], obj?: InputAssembler) => (obj ? (obj.initialize(args[1]), obj) : args[0].createInputAssembler(args[1])),
+    (args: [device: Device, info: InputAssemblerInfo], obj?: InputAssembler) => (
+        obj ? (obj.initialize(args[1]), obj) : args[0].createInputAssembler(args[1])),
     (obj: InputAssembler) => (obj && obj.destroy(), obj));
 export const PipelineLayoutPool = new ObjectPool(PoolType.PIPELINE_LAYOUT,
-    (args: [Device, PipelineLayoutInfo], obj?: PipelineLayout) => (obj ? (obj.initialize(args[1]), obj) : args[0].createPipelineLayout(args[1])),
+    (args: [device: Device, info: PipelineLayoutInfo], obj?: PipelineLayout) => (
+        obj ? (obj.initialize(args[1]), obj) : args[0].createPipelineLayout(args[1])),
     (obj: PipelineLayout) => (obj && obj.destroy(), obj));
 export const FramebufferPool = new ObjectPool(PoolType.FRAMEBUFFER,
-    (args: [Device, FramebufferInfo], obj?: Framebuffer) => (obj ? (obj.initialize(args[1]), obj) : args[0].createFramebuffer(args[1])),
+    (args: [device: Device, info: FramebufferInfo], obj?: Framebuffer) => (
+        obj ? (obj.initialize(args[1]), obj) : args[0].createFramebuffer(args[1])),
     (obj: Framebuffer) => (obj && obj.destroy(), obj));
 
 export const SubModelArrayPool = new TypedArrayPool<PoolType.SUB_MODEL_ARRAY, Uint32ArrayConstructor, SubModelHandle>(
@@ -639,7 +642,7 @@ export const UIBatchArrayPool = new TypedArrayPool<PoolType.BATCH_ARRAY_2D, Uint
 
 export const RawBufferPool = new BufferAllocator(PoolType.RAW_BUFFER);
 export const RawObjectPool = new ObjectPool(PoolType.RAW_OBJECT,
-    (args: [Record<string, unknown>?]) => args[0] || {}, (_: Record<string, unknown>) => undefined);
+    (args: [obj?: Record<string, unknown>]) => args[0] || {}, (_: Record<string, unknown>) => undefined);
 
 export enum PassView {
     PRIORITY,

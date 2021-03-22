@@ -321,17 +321,7 @@ export class DeferredPipeline extends RenderPipeline {
         }
     }
 
-    public destroy () {
-        this.destroyUBOs();
-        this.destroyQuadInputAssembler();
-
-        const rpIter = this._renderPasses.values();
-        let rpRes = rpIter.next();
-        while (!rpRes.done) {
-            rpRes.value.destroy();
-            rpRes = rpIter.next();
-        }
-
+    private destroyDeferredData () {
         const deferredData = this._deferredRenderData;
         if (deferredData) {
             if (deferredData.gbufferFrameBuffer) deferredData.gbufferFrameBuffer.destroy();
@@ -349,9 +339,34 @@ export class DeferredPipeline extends RenderPipeline {
             deferredData.lightingRenderTargets.length = 0;
         }
 
+        this._deferredRenderData = null;
+    }
+
+    public destroy () {
+        this.destroyUBOs();
+        this.destroyQuadInputAssembler();
+        this.destroyDeferredData();
+
+        const rpIter = this._renderPasses.values();
+        let rpRes = rpIter.next();
+        while (!rpRes.done) {
+            rpRes.value.destroy();
+            rpRes = rpIter.next();
+        }
+
         this._commandBuffers.length = 0;
 
         return super.destroy();
+    }
+
+    public resize (width: number, height: number) {
+        if (this._width === width && this._height === height) {
+            return;
+        }
+        this._width = width;
+        this._height = height;
+        this.destroyDeferredData();
+        this._generateDeferredRenderData();
     }
 
     /**
