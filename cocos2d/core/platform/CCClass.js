@@ -1257,6 +1257,7 @@ function parseAttributes (cls, attributes, className, propName, usedInGetter) {
     parseSimpleAttr('min', 'number');
     parseSimpleAttr('max', 'number');
     parseSimpleAttr('step', 'number');
+    parseSimpleAttr('eGroup', 'string');
 }
 
 cc.Class = CCClass;
