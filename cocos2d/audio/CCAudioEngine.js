@@ -145,6 +145,9 @@ var audioEngine = {
      * });
      */
     play: function (clip, loop, volume) {
+        if (CC_EDITOR) {
+            return;
+        }
         if (!(clip instanceof AudioClip)) {
             return cc.error('Wrong type of AudioClip.');
         }
