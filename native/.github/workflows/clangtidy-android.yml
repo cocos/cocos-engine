@@ -1,0 +1,59 @@
+name: Clang Tidy - Android
+
+# Run this workflow every time a new commit pushed to your repository
+on: pull_request
+
+jobs:
+  # Set the job key. The key is displayed as the job name
+  # when a job name is not provided
+  super-lint:
+    # Name the Job
+    name: Lint code base - Android
+    # Set the type of machine to run on
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checks out a copy of your repository on the ubuntu-latest machine
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - uses: jitterbit/get-changed-files@v1
+        id: listchanged
+        with:
+          format: space-delimited
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Install CMake & Clang Tidy
+        run: |
+          sudo apt install -y cmake llvm clang-tidy-11
+
+      - name: Generate Compile database
+        shell: bash
+        run: |
+          EXT_VERSION=`grep version external/config.json  |awk -F'"' '{print $4}'`
+          rm external/config.json
+          git clone --branch $EXT_VERSION --depth 1 https://github.com/cocos-creator/engine-native-external external
+          echo -e "cmake_minimum_required(VERSION 3.8)\nproject(engine_native CXX)\nenable_language(C ASM)" | cat - CMakeLists.txt > tmp.txt
+          mv tmp.txt CMakeLists.txt
+          cmake -Bbuild -DCC_USE_GLES2=ON -DCC_USE_VULKAN=ON -DCC_USE_GLES3=ON -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_TOOLCHAIN_FILE="$ANDROID_NDK_HOME/build/cmake/android.toolchain.cmake"  -DANDROID_PLATFORM=android-21 -G"Unix Makefiles"
+
+      - name: Generate clang-fix.yaml
+        shell: bash
+        run: |
+          FILES="${{ steps.listchanged.outputs.added_modified }}"
+          CPP=""
+          for file in $FILES; do
+              if [[ "$file" == *.cpp || "$file" == *.c || "$file" == *.m || "$file" == *.mm  || "$file" == *.h ]]; then
+                  CPP+=" $file"
+              fi
+          done
+          if [[ "$CPP-xxx" == "-xxx" ]]; then
+            echo "no source file found!"
+          else
+            clang-tidy-11 -p ./build --export-fixes=clang-fixes.yaml $CPP
+          fi
+      - name: clang-tidy-action
+        uses: PatriceJiang/clang-tidy-action@master
+        if: hashFiles('clang-fixes.yaml') != ''
+        with:
+          fixesFile: clang-fixes.yaml
+          noFailOnIssue: true
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
