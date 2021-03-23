@@ -314,58 +314,56 @@ endif()
 
 ##### base
 cocos_source_files(
-                 cocos/base/Agent.h
-    NO_WERROR    cocos/base/Array.cpp
-                 cocos/base/Array.h
-    NO_WERROR    cocos/base/astc.cpp
-                 cocos/base/astc.h
-    NO_WERROR    cocos/base/AutoreleasePool.cpp
-                 cocos/base/AutoreleasePool.h
-    NO_WERROR    cocos/base/base64.cpp
-                 cocos/base/base64.h
-                 cocos/base/CachedArray.h
-                 cocos/base/Config.h
-                 cocos/base/CoreStd.h
-    NO_WERROR    cocos/base/csscolorparser.cpp
-                 cocos/base/csscolorparser.h
-    NO_WERROR    cocos/base/Data.cpp
-                 cocos/base/Data.h
-    NO_WERROR    cocos/base/etc1.cpp
-                 cocos/base/etc1.h
-    NO_WERROR    cocos/base/etc2.cpp
-                 cocos/base/etc2.h
-                 cocos/base/IndexHandle.h
-    NO_WERROR    cocos/base/Log.cpp
-                 cocos/base/Log.h
-                 cocos/base/Macros.h
-                 cocos/base/Map.h
-                 cocos/base/Object.h
-    NO_WERROR    cocos/base/Random.cpp
-                 cocos/base/Random.h
-    NO_WERROR    cocos/base/Ref.cpp
-                 cocos/base/Ref.h
-    NO_WERROR    cocos/base/Scheduler.cpp
-                 cocos/base/Scheduler.h
-    NO_WERROR    cocos/base/StringHandle.cpp
-                 cocos/base/StringHandle.h
-                 cocos/base/StringPool.h
-    NO_WERROR    cocos/base/StringUtil.cpp
-                 cocos/base/StringUtil.h
-    NO_WERROR    cocos/base/ThreadPool.cpp
-                 cocos/base/ThreadPool.h
-                 cocos/base/TypeDef.h
-    NO_WERROR    cocos/base/UTF8.cpp
-                 cocos/base/UTF8.h
-    NO_WERROR    cocos/base/UTFString.cpp
-                 cocos/base/UTFString.h
-                 cocos/base/uthash.h
-    NO_WERROR    cocos/base/Utils.cpp
-                 cocos/base/Utils.h
-    NO_WERROR    cocos/base/Value.cpp
-                 cocos/base/Value.h
-                 cocos/base/Vector.h
-    NO_WERROR    cocos/base/ZipUtils.cpp
-                 cocos/base/ZipUtils.h
+    cocos/base/Agent.h
+    cocos/base/Array.cpp
+    cocos/base/Array.h
+    cocos/base/astc.cpp
+    cocos/base/astc.h
+    cocos/base/AutoreleasePool.cpp
+    cocos/base/AutoreleasePool.h
+    cocos/base/base64.cpp
+    cocos/base/base64.h
+    cocos/base/CachedArray.h
+    cocos/base/Config.h
+    cocos/base/CoreStd.h
+    cocos/base/csscolorparser.cpp
+    cocos/base/csscolorparser.h
+    cocos/base/Data.cpp
+    cocos/base/Data.h
+    cocos/base/etc1.cpp
+    cocos/base/etc1.h
+    cocos/base/etc2.cpp
+    cocos/base/etc2.h
+    cocos/base/IndexHandle.h
+    cocos/base/Log.cpp
+    cocos/base/Log.h
+    cocos/base/Macros.h
+    cocos/base/Map.h
+    cocos/base/Object.h
+    cocos/base/Random.cpp
+    cocos/base/Random.h
+    cocos/base/Ref.cpp
+    cocos/base/Ref.h
+    cocos/base/Scheduler.cpp
+    cocos/base/Scheduler.h
+    cocos/base/StringHandle.cpp
+    cocos/base/StringHandle.h
+    cocos/base/StringPool.h
+    cocos/base/StringUtil.cpp
+    cocos/base/StringUtil.h
+    cocos/base/ThreadPool.cpp
+    cocos/base/ThreadPool.h
+    cocos/base/TypeDef.h
+    cocos/base/UTF8.cpp
+    cocos/base/UTF8.h
+    cocos/base/uthash.h
+    cocos/base/Utils.cpp
+    cocos/base/Utils.h
+    cocos/base/Value.cpp
+    cocos/base/Value.h
+    cocos/base/Vector.h
+    cocos/base/ZipUtils.cpp
+    cocos/base/ZipUtils.h
 )
 
 ##### memory

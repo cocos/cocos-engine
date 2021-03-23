@@ -24,7 +24,6 @@
 ****************************************************************************/
 
 #include "Log.h"
-#include "UTFString.h"
 #include "StringUtil.h"
 
 #if (CC_PLATFORM == CC_PLATFORM_WINDOWS)
@@ -137,8 +136,8 @@ void Log::logMessage(LogType type, LogLevel level, const char *formats, ...) {
     }
 
 #if (CC_PLATFORM == CC_PLATFORM_WINDOWS)
-    UTFString utfstr(buff);
-    const wchar_t *ustr = utfstr.asWStr_c_str();
+    WCHAR wszBuf[4096] = { 0 };
+    MultiByteToWideChar(CP_UTF8, 0, buff, -1, wszBuf, sizeof(wszBuf));
 
     WORD color;
     switch (level) {
@@ -150,10 +149,10 @@ void Log::logMessage(LogType type, LogLevel level, const char *formats, ...) {
         default: color = COLOR_INFO;
     }
     SET_CONSOLE_TEXT_COLOR(color);
-    wprintf(L"%s", ustr);
+    wprintf(L"%s", wszBuf);
     SET_CONSOLE_TEXT_COLOR(COLOR_NORMAL);
 
-    OutputDebugStringW(ustr);
+    OutputDebugStringW(wszBuf);
 #elif (CC_PLATFORM == CC_PLATFORM_ANDROID)
     android_LogPriority priority;
     switch (level) {

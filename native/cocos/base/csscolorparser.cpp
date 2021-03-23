@@ -215,8 +215,8 @@ const std::vector<NamedColor> namedColors = {
 
 template <typename T>
 uint8_t clamp_css_byte(T i) { // Clamp to integer 0 .. 255.
-    i = ::round(i);           // Seems to be what Chrome does (vs truncation).
-    return i < 0 ? 0 : i > 255 ? 255 : uint8_t(i);
+    i = static_cast<T>(::round(i));           // Seems to be what Chrome does (vs truncation).
+    return static_cast<uint8_t>(i < 0 ? 0 : i > 255 ? 255 : i);
 }
 
 template <typename T>
