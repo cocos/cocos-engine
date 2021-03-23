@@ -114,6 +114,10 @@ export const ttfUtils =  {
         this._updateLabelDimensions();
         this._resetDynamicAtlas(comp);
         this._updateTexture(comp);
+        if (_alpha !== 1) {
+            this.updateOpacity(comp);
+            comp._setCacheAlpha(_alpha);
+        }
         this._calDynamicAtlas(comp);
 
         comp.actualFontSize = _fontSize;
@@ -133,6 +137,18 @@ export const ttfUtils =  {
     },
 
     updateUvs (comp: Label) {
+    },
+
+    updateOpacity (comp: Label) {
+        const vData = comp.renderData!.vData;
+
+        let colorOffset = 5;
+        const colorA = comp.node._uiProps.opacity;
+        for (let i = 0; i < 4; i++) {
+            vData![colorOffset + 3] = colorA;
+
+            colorOffset += 9;
+        }
     },
 
     _updateFontFamily (comp: Label) {
@@ -286,7 +302,7 @@ export const ttfUtils =  {
             _context.fillStyle = `rgba(${_color.r}, ${_color.g}, ${_color.b}, ${_invisibleAlpha})`;
             _context.fillRect(0, 0, _canvas.width, _canvas.height);
         }
-        _context.fillStyle = `rgba(${_color.r}, ${_color.g}, ${_color.b}, ${_alpha})`;
+        _context.fillStyle = `rgba(${_color.r}, ${_color.g}, ${_color.b})`;
         const drawTextPosX = _startPosition.x;
         let drawTextPosY = 0;
         // draw shadow and underline

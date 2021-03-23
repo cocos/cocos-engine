@@ -251,6 +251,7 @@ export class Renderable2D extends RenderableComponent {
         }
 
         this._color.set(value);
+        this._colorDirty = true;
         if (EDITOR) {
             const clone = value.clone();
             this.node.emit(SystemEventType.COLOR_CHANGED, clone);
@@ -306,6 +307,9 @@ export class Renderable2D extends RenderableComponent {
     protected _instanceMaterialType = InstanceMaterialType.ADD_COLOR_AND_TEXTURE;
     protected _blendState: BlendState = new BlendState();
     protected _blendHash = 0;
+
+    protected _colorDirty = true;
+    protected _cacheAlpha = 1;
 
     get blendHash () {
         return this._blendHash;
@@ -456,8 +460,11 @@ export class Renderable2D extends RenderableComponent {
 
     protected _updateColor () {
         this._updateWorldAlpha();
-        if (this._renderFlag && this._assembler && this._assembler.updateColor) {
+        if ((this._colorDirty || this._cacheAlpha !== this.node._uiProps.opacity)
+                && this._renderFlag && this._assembler && this._assembler.updateColor) {
             this._assembler.updateColor(this);
+            this._cacheAlpha = this.node._uiProps.opacity;
+            this._colorDirty = false;
         }
     }
 
@@ -525,6 +532,10 @@ export class Renderable2D extends RenderableComponent {
     }
 
     protected _flushAssembler? (): void;
+
+    public _setCacheAlpha (value) {
+        this._cacheAlpha = value;
+    }
 }
 
 legacyCC.internal.Renderable2D = Renderable2D;

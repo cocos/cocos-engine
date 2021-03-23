@@ -741,7 +741,13 @@ export class Label extends Renderable2D {
             super._updateColor();
         } else {
             this._updateWorldAlpha();
-            this.updateRenderData(false);
+            if (this._colorDirty) {
+                this.updateRenderData(false);
+                this._colorDirty = false;
+            } else if ((this._cacheAlpha !== this.node._uiProps.opacity) && this._renderFlag && this._assembler && this._assembler.updateColor) {
+                this._assembler.updateOpacity(this);
+                this._cacheAlpha = this.node._uiProps.opacity;
+            }
         }
     }
 
