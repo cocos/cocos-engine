@@ -346,8 +346,9 @@ export class ForwardPipeline extends RenderPipeline {
     }
 
     /**
-     * @en Map the value of [-1,1] in screenSpaceSignY and clipSpaceSignY to [0,1],and then move screenSpaceSignY one bit to the left and combine with clipSpaceSignY
-     * @zh 把screenSpaceSignY与clipSpaceSignY中[-1,1]的值映射为[0,1],通过screenSpaceSignY左移一位与clipSpaceSignY合并
+     * Vulkan     : combinedSignY 0, clipSpaceSignY -1, screenSpaceSignY -1
+     * Metal      : combinedSignY 1, clipSpaceSignY  1, screenSpaceSignY -1
+     * GL variants: combinedSignY 3, clipSpaceSignY  1, screenSpaceSignY  1
      */
     public getCombineSignY () {
         return this._combineSignY;

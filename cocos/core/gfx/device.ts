@@ -352,8 +352,8 @@ export abstract class Device {
     }
 
     /**
-     * @en The sign of the clip space Y axis, positive upward.
-     * @zh 裁剪空间的y轴符号，向上为正。
+     * @en The sign of the clip space Y axis, positive if origin at lower-left.
+     * @zh 裁剪空间的y轴符号，原点在左下角时为正。
      */
     get clipSpaceSignY () {
         return this._clipSpaceSignY;
