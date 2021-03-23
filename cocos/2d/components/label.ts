@@ -738,7 +738,8 @@ export class Label extends Renderable2D {
 
     protected _updateColor () {
         if (this._font instanceof BitmapFont) {
-            super._updateColor();
+            this._updateWorldAlpha();
+            this._colorDirty = false;
         } else {
             this._updateWorldAlpha();
             if (this._colorDirty) {

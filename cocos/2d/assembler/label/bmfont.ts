@@ -30,12 +30,14 @@
 
 import { SpriteFrame } from '../../assets/sprite-frame';
 import * as js from '../../../core/utils/js';
-import { Rect } from '../../../core/math';
+import { Color, Rect } from '../../../core/math';
 import { Batcher2D } from '../../renderer/batcher-2d';
 import { Label } from '../../components/label';
 import { IAssembler } from '../../renderer/base';
 import { fillMeshVertices3D } from '../utils';
 import { bmfontUtils } from './bmfontUtils';
+
+const COLOR = new Color(255, 255, 255, 255);
 
 /**
  * bmfont 组装器
@@ -48,7 +50,10 @@ export const bmfont: IAssembler = {
 
     fillBuffers (comp: Label, renderer: Batcher2D) {
         const node = comp.node;
-        fillMeshVertices3D(node, renderer, comp.renderData!, comp.color);
+        comp._setCacheAlpha(node._uiProps.opacity);
+        COLOR.set(comp.color);
+        COLOR.a = node._uiProps.opacity * 255;
+        fillMeshVertices3D(node, renderer, comp.renderData!, COLOR);
     },
 
     appendQuad (comp: Label, spriteFrame: SpriteFrame, rect: Rect, rotated: boolean, x: number, y: number, scale: number) {
