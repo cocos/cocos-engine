@@ -66,7 +66,7 @@ Audio.State = {
     /**
      * @property {Number} ERROR
      */
-    ERROR : -1,
+    ERROR: -1,
     /**
      * @property {Number} INITIALZING
      */
@@ -456,10 +456,16 @@ let WebAudioElement = function (buffer, audio) {
         // If more than the duration of the audio, Need to take the remainder
         this.playedLength %= this._buffer.duration;
         let audio = this._currentSource;
+        if (audio) {
+            if(audio.onended){
+                audio.onended._binded = false;
+                audio.onended = null;
+            }
+            audio.stop(0);
+        }
         this._currentSource = null;
         this._startTime = -1;
-        if (audio)
-            audio.stop(0);
+
     };
 
     Object.defineProperty(proto, 'paused', {
