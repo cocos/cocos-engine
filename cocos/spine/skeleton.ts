@@ -1334,7 +1334,7 @@ export class Skeleton extends Renderable2D {
     }
 
     // HACK: set temporary material since Spine do not use internal material but must have one
-    private _updateBuiltinMaterial () : Material {
+    protected _updateBuiltinMaterial () : Material {
         const mat = builtinResMgr.get('ui-sprite-material');
         return mat as Material;
     }

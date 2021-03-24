@@ -497,7 +497,7 @@ export class Renderable2D extends RenderableComponent {
         }
     }
 
-    private _updateBuiltinMaterial () : Material {
+    protected _updateBuiltinMaterial () : Material {
         let mat : Material;
         switch (this._instanceMaterialType) {
         case InstanceMaterialType.ADD_COLOR:
