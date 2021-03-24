@@ -37,7 +37,6 @@ const matShadowView = new Mat4();
 const matShadowViewProj = new Mat4();
 const vec3_center = new Vec3();
 const vec4ShadowInfo = new Vec4();
-const _shadowCameraView = new Mat4();
 
 export class PipelineUBO {
     public static updateGlobalUBOView (pipeline: RenderPipeline, bufferView: Float32Array) {
@@ -183,6 +182,7 @@ export class PipelineUBO {
                     far = shadowInfo.far;
                 }
 
+                Mat4.toArray(sv, shadowCameraView, UBOShadow.MAT_LIGHT_VIEW_OFFSET);
                 Mat4.invert(matShadowView, shadowCameraView!);
 
                 const projectionSignY = device.capabilities.screenSpaceSignY * device.capabilities.UVSpaceSignY; // always offscreen
@@ -191,7 +191,12 @@ export class PipelineUBO {
                 Mat4.multiply(matShadowViewProj, matShadowViewProj, matShadowView);
                 Mat4.toArray(sv, matShadowViewProj, UBOShadow.MAT_LIGHT_VIEW_PROJ_OFFSET);
 
-                sv[UBOShadow.SHADOW_INFO_OFFSET]     = shadowInfo.size.x;
+                sv[UBOShadow.LIGHT_INFO_OFFSET + 0] = shadowInfo.near;
+                sv[UBOShadow.LIGHT_INFO_OFFSET + 1] = shadowInfo.far;
+                sv[UBOShadow.LIGHT_INFO_OFFSET + 2] = shadowInfo.linear ? 1.0 : 0.0;
+                sv[UBOShadow.LIGHT_INFO_OFFSET + 3] = shadowInfo.selfShadow ? 1.0 : 0.0;
+
+                sv[UBOShadow.SHADOW_INFO_OFFSET + 0] = shadowInfo.size.x;
                 sv[UBOShadow.SHADOW_INFO_OFFSET + 1] = shadowInfo.size.y;
                 sv[UBOShadow.SHADOW_INFO_OFFSET + 2] = shadowInfo.pcf;
                 sv[UBOShadow.SHADOW_INFO_OFFSET + 3] = shadowInfo.bias;
@@ -235,14 +240,22 @@ export class PipelineUBO {
                 _far = shadowInfo.far;
             }
 
-            Mat4.invert(matShadowView, _shadowCameraView);
+            Mat4.toArray(sv, shadowCameraView!, UBOShadow.MAT_LIGHT_VIEW_OFFSET);
+            Mat4.invert(matShadowView, shadowCameraView!);
+
+            vec4ShadowInfo.set(shadowInfo.near, _far, shadowInfo.linear ? 1.0 : 0.0, shadowInfo.selfShadow ? 1.0 : 0.0);
+            Vec4.toArray(sv, vec4ShadowInfo, UBOShadow.LIGHT_INFO_OFFSET);
 
             Mat4.ortho(matShadowViewProj, -_x, _x, -_y, _y, shadowInfo.near, _far,
                 device.capabilities.clipSpaceMinZ, device.capabilities.screenSpaceSignY * device.capabilities.UVSpaceSignY);
             break;
         case LightType.SPOT:
             // light view
+            Mat4.toArray(sv, (light as any).node.getWorldMatrix(), UBOShadow.MAT_LIGHT_VIEW_OFFSET);
             Mat4.invert(matShadowView, (light as any).node.getWorldMatrix());
+
+            vec4ShadowInfo.set(shadowInfo.near, shadowInfo.far, shadowInfo.linear ? 1.0 : 0.0, shadowInfo.selfShadow ? 1.0 : 0.0);
+            Vec4.toArray(sv, vec4ShadowInfo, UBOShadow.LIGHT_INFO_OFFSET);
 
             // light proj
             Mat4.perspective(matShadowViewProj, (light as any).spotAngle, (light as any).aspect, 0.001, (light as any).range);
@@ -254,10 +267,10 @@ export class PipelineUBO {
 
         Mat4.toArray(sv, matShadowViewProj, UBOShadow.MAT_LIGHT_VIEW_PROJ_OFFSET);
 
-        Color.toArray(sv, shadowInfo.shadowColor, UBOShadow.SHADOW_COLOR_OFFSET);
-
         vec4ShadowInfo.set(shadowInfo.size.x, shadowInfo.size.y, shadowInfo.pcf, shadowInfo.bias);
         Vec4.toArray(sv, vec4ShadowInfo, UBOShadow.SHADOW_INFO_OFFSET);
+
+        Color.toArray(sv, shadowInfo.shadowColor, UBOShadow.SHADOW_COLOR_OFFSET);
     }
 
     protected _globalUBO = new Float32Array(UBOGlobal.COUNT);

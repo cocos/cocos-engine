@@ -360,13 +360,13 @@ export class RenderAdditiveLightQueue {
                 // planar PROJ
                 if (mainLight) { updatePlanarPROJ(shadowInfo, mainLight, this._shadowUBO); }
 
-                // Reserve sphere light shadow interface
-                Color.toArray(this._shadowUBO, shadowInfo.shadowColor, UBOShadow.SHADOW_COLOR_OFFSET);
-
                 this._shadowUBO[UBOShadow.SHADOW_INFO_OFFSET + 0] = shadowInfo.size.x;
                 this._shadowUBO[UBOShadow.SHADOW_INFO_OFFSET + 1] = shadowInfo.size.y;
                 this._shadowUBO[UBOShadow.SHADOW_INFO_OFFSET + 2] = shadowInfo.pcf;
                 this._shadowUBO[UBOShadow.SHADOW_INFO_OFFSET + 3] = shadowInfo.bias;
+
+                // Reserve sphere light shadow interface
+                Color.toArray(this._shadowUBO, shadowInfo.shadowColor, UBOShadow.SHADOW_COLOR_OFFSET);
                 break;
             case LightType.SPOT:
 
@@ -374,6 +374,7 @@ export class RenderAdditiveLightQueue {
                 if (mainLight) { updatePlanarPROJ(shadowInfo, mainLight, this._shadowUBO); }
 
                 // light view
+                Mat4.toArray(this._shadowUBO, (light as any).node.getWorldMatrix(), UBOShadow.MAT_LIGHT_VIEW_OFFSET);
                 Mat4.invert(_matShadowView, (light as SpotLight).node!.getWorldMatrix());
 
                 // light proj
@@ -384,12 +385,18 @@ export class RenderAdditiveLightQueue {
 
                 Mat4.toArray(this._shadowUBO, _matShadowViewProj, UBOShadow.MAT_LIGHT_VIEW_PROJ_OFFSET);
 
-                Color.toArray(this._shadowUBO, shadowInfo.shadowColor, UBOShadow.SHADOW_COLOR_OFFSET);
+                this._shadowUBO[UBOShadow.LIGHT_INFO_OFFSET + 0] = shadowInfo.near;
+                this._shadowUBO[UBOShadow.LIGHT_INFO_OFFSET + 1] = shadowInfo.far;
+                this._shadowUBO[UBOShadow.LIGHT_INFO_OFFSET + 2] = shadowInfo.linear ? 1.0 : 0.0;
+                this._shadowUBO[UBOShadow.LIGHT_INFO_OFFSET + 3] = shadowInfo.selfShadow ? 1.0 : 0.0;
 
                 this._shadowUBO[UBOShadow.SHADOW_INFO_OFFSET + 0] = shadowInfo.size.x;
                 this._shadowUBO[UBOShadow.SHADOW_INFO_OFFSET + 1] = shadowInfo.size.y;
                 this._shadowUBO[UBOShadow.SHADOW_INFO_OFFSET + 2] = shadowInfo.pcf;
                 this._shadowUBO[UBOShadow.SHADOW_INFO_OFFSET + 3] = shadowInfo.bias;
+
+                Color.toArray(this._shadowUBO, shadowInfo.shadowColor, UBOShadow.SHADOW_COLOR_OFFSET);
+
                 // Spot light sampler binding
                 if (shadowFrameBufferMap.has(light)) {
                     if (shadowFrameBufferMap.has(light)) {

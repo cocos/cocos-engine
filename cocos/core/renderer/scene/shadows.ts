@@ -262,6 +262,30 @@ export class Shadows {
     }
 
     /**
+     * @en on or off linear depth.
+     * @zh 打开或者关闭线性深度。
+     */
+    public get linear (): boolean {
+        if (ShadowsPool.get(this._handle, ShadowsView.LINEAR)) { return true; }
+        return false;
+    }
+    public set linear (val: boolean) {
+        ShadowsPool.set(this._handle, ShadowsView.LINEAR, val ? 1 : 0);
+    }
+
+    /**
+     * @en on or off Self-shadowing.
+     * @zh 打开或者关闭自阴影。
+     */
+    public get selfShadow (): boolean {
+        if (ShadowsPool.get(this._handle, ShadowsView.SELF_SHADOW)) { return true; }
+        return false;
+    }
+    public set selfShadow (val: boolean) {
+        ShadowsPool.set(this._handle, ShadowsView.SELF_SHADOW, val ? 1 : 0);
+    }
+
+    /**
      * @en get or set shadow auto control.
      * @zh 获取或者设置阴影是否自动控制。
      */
@@ -348,6 +372,8 @@ export class Shadows {
         this._shadowColor.set(shadowsInfo.shadowColor);
         ShadowsPool.setVec4(this._handle, ShadowsView.COLOR, this._shadowColor);
         ShadowsPool.set(this._handle, ShadowsView.BIAS, shadowsInfo.bias);
+        ShadowsPool.set(this._handle, ShadowsView.LINEAR, shadowsInfo.enableLinear ? 1 : 0);
+        ShadowsPool.set(this._handle, ShadowsView.SELF_SHADOW, shadowsInfo.enableSelfShadow ? 1 : 0);
         ShadowsPool.set(this._handle, ShadowsView.ENABLE, shadowsInfo.enabled ? 1 : 0);
         this.maxReceived = shadowsInfo.maxReceived;
         ShadowsPool.set(this._handle, ShadowsView.AUTO_ADAPT, shadowsInfo.autoAdapt ? 1 : 0);

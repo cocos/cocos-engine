@@ -397,6 +397,10 @@ export class ShadowsInfo {
     @serializable
     protected _bias = 0.00001;
     @serializable
+    protected _linear = false;
+    @serializable
+    protected _selfShadow = true;
+    @serializable
     protected _near = 1;
     @serializable
     protected _far = 30;
@@ -605,6 +609,34 @@ export class ShadowsInfo {
     }
     get bias () {
         return this._bias;
+    }
+
+    /**
+     * @en on or off linear depth.
+     * @zh 打开或者关闭线性深度。
+     */
+    @type(CCBoolean)
+    @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap && this._autoAdapt === false; })
+    set linear (val) {
+        this._linear = val;
+        if (this._resource) { this._resource.linear = val; }
+    }
+    get linear () {
+        return this._linear;
+    }
+
+    /**
+     * @en on or off Self-shadowing.
+     * @zh 打开或者关闭自阴影。
+     */
+    @type(CCBoolean)
+    @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap && this._autoAdapt === false; })
+    set selfShadow (val) {
+        this._selfShadow = val;
+        if (this._resource) { this._resource.selfShadow = val; }
+    }
+    get selfShadow () {
+        return this._selfShadow;
     }
 
     /**
