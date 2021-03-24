@@ -251,7 +251,7 @@ var AudioSource = cc.Class({
      * @method play
      */
     play: function () {
-        if ( !this._clip ) return;
+        if ( CC_EDITOR || !this._clip ) return;
 
         var audio = this.audio;
         audio.setVolume(this._mute ? 0 : this._volume);
