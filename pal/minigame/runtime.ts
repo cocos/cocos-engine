@@ -4,15 +4,15 @@ import { cloneObject } from '../utils';
 
 declare let ral: any;
 
-// @ts-expect-error can't init mg when it's declared
-const mg: IMiniGame = {};
-cloneObject(mg, ral);
+// @ts-expect-error can't init minigame when it's declared
+const minigame: IMiniGame = {};
+cloneObject(minigame, ral);
 
-const systemInfo = mg.getSystemInfoSync();
-mg.isSubContext = mg.getOpenDataContext !== undefined;
-mg.isDevTool = (systemInfo.platform === 'devtools');
-mg.isLandscape = systemInfo.screenWidth > systemInfo.screenHeight;
-const orientation = mg.isLandscape ? Orientation.LANDSCAPE_RIGHT : Orientation.PORTRAIT;
+const systemInfo = minigame.getSystemInfoSync();
+minigame.isSubContext = minigame.getOpenDataContext !== undefined;
+minigame.isDevTool = (systemInfo.platform === 'devtools');
+minigame.isLandscape = systemInfo.screenWidth > systemInfo.screenHeight;
+const orientation = minigame.isLandscape ? Orientation.LANDSCAPE_RIGHT : Orientation.PORTRAIT;
 
 // Accelerometer
 // onDeviceOrientationChange is not supported
@@ -25,11 +25,11 @@ const orientation = mg.isLandscape ? Orientation.LANDSCAPE_RIGHT : Orientation.P
 //     }
 // });
 
-mg.onAccelerometerChange = function (cb) {
+minigame.onAccelerometerChange = function (cb) {
     ral.onAccelerometerChange((res) => {
         let x = res.x;
         let y = res.y;
-        if (mg.isLandscape) {
+        if (minigame.isLandscape) {
             const orientationFactor = orientation === Orientation.LANDSCAPE_RIGHT ? 1 : -1;
             const tmp = x;
             x = -y * orientationFactor;
@@ -50,10 +50,10 @@ mg.onAccelerometerChange = function (cb) {
 // safeArea
 // origin point on the top-left corner
 // FIX_ME: wrong safe area when orientation is landscape left
-mg.getSafeArea = function () {
+minigame.getSafeArea = function () {
     let { top, left, bottom, right, width, height } = systemInfo.safeArea;
     // HACK: on iOS device, the orientation should mannually rotate
-    if (systemInfo.platform === 'ios' && !mg.isDevTool && mg.isLandscape) {
+    if (systemInfo.platform === 'ios' && !minigame.isDevTool && minigame.isLandscape) {
         const tempData = [right, top, left, bottom, width, height];
         top = systemInfo.screenHeight - tempData[0];
         left = tempData[1];
@@ -65,4 +65,4 @@ mg.getSafeArea = function () {
     return { top, left, bottom, right, width, height };
 };
 
-export { mg };
+export { minigame };

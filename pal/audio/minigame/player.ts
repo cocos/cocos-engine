@@ -1,4 +1,4 @@
-import { mg } from 'pal/minigame';
+import { minigame } from 'pal/minigame';
 import { OneShotAudio } from 'pal/audio';
 import { legacyCC } from '../../../cocos/core/global-exports';
 import { EventTarget } from '../../../cocos/core/event/event-target';
@@ -101,7 +101,7 @@ export class AudioPlayer {
     }
     static loadNative (url: string): Promise<unknown> {
         return new Promise((resolve, reject) => {
-            const innerAudioContext = mg.createInnerAudioContext();
+            const innerAudioContext = minigame.createInnerAudioContext();
             const timer = setTimeout(() => {
                 clearEvent();
                 resolve(innerAudioContext);
