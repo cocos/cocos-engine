@@ -41,7 +41,7 @@ void CCMTLShader::doInit(const ShaderInfo &info) {
     for (const auto &stage : _stages) {
         if (!createMTLFunction(stage)) {
             destroy();
-            return false;
+            return;
         }
     }
 
@@ -52,11 +52,11 @@ void CCMTLShader::doInit(const ShaderInfo &info) {
 
 void CCMTLShader::doDestroy() {
     id<MTLFunction> vertFunc = _vertexMTLFunction;
-    _vertexMTLFunction = nil;
+    _vertexMTLFunction       = nil;
     id<MTLFunction> fragFunc = _fragmentMTLFunction;
-    _fragmentMTLFunction = nil;
+    _fragmentMTLFunction     = nil;
     id<MTLFunction> cmptFunc = _computeMTLFunction;
-    _computeMTLFunction = nil;
+    _computeMTLFunction      = nil;
 
     CC_SAFE_DELETE(_gpuShader);
 
@@ -75,10 +75,10 @@ void CCMTLShader::doDestroy() {
 }
 
 bool CCMTLShader::createMTLFunction(const ShaderStage &stage) {
-    bool isVertexShader = false;
+    bool isVertexShader   = false;
     bool isFragmentShader = false;
-    bool isComputeShader = false;
-    
+    bool isComputeShader  = false;
+
     if (stage.stage == ShaderStageFlagBit::VERTEX) {
         isVertexShader = true;
     } else if (stage.stage == ShaderStageFlagBit::FRAGMENT) {
@@ -86,7 +86,7 @@ bool CCMTLShader::createMTLFunction(const ShaderStage &stage) {
     } else if (stage.stage == ShaderStageFlagBit::COMPUTE) {
         isComputeShader = true;
     }
-    
+
     id<MTLDevice> mtlDevice = id<MTLDevice>(CCMTLDevice::getInstance()->getMTLDevice());
 
     auto mtlShader = mu::compileGLSLShader2Msl(stage.source,
@@ -94,14 +94,14 @@ bool CCMTLShader::createMTLFunction(const ShaderStage &stage) {
                                                CCMTLDevice::getInstance(),
                                                _gpuShader);
 
-    NSString *shader = [NSString stringWithUTF8String:mtlShader.c_str()];
-    NSError *error = nil;
+    NSString *     shader  = [NSString stringWithUTF8String:mtlShader.c_str()];
+    NSError *      error   = nil;
     id<MTLLibrary> library = [mtlDevice newLibraryWithSource:shader
                                                      options:nil
                                                        error:&error];
     if (!library) {
-        CC_LOG_ERROR("Can not compile %s shader: %s", isVertexShader ? "vertex" :
-                     isFragmentShader ? "fragment" : "compute",
+        CC_LOG_ERROR("Can not compile %s shader: %s", isVertexShader ? "vertex" : isFragmentShader ? "fragment"
+                                                                                                   : "compute",
                      [[error localizedDescription] UTF8String]);
         CC_LOG_ERROR("%s", stage.source.c_str());
         return false;
@@ -138,13 +138,13 @@ bool CCMTLShader::createMTLFunction(const ShaderStage &stage) {
 #ifdef DEBUG_SHADER
     if (isVertexShader) {
         _vertGlslShader = stage.source;
-        _vertMtlShader = mtlShader;
+        _vertMtlShader  = mtlShader;
     } else if (isFragmenShader) {
         _fragGlslShader = stage.source;
-        _fragMtlShader = mtlShader;
+        _fragMtlShader  = mtlShader;
     } else if (isComputeShader) {
         _cmptGlslShader = stage.source;
-        _cmptMtlShader = mtlShader;
+        _cmptMtlShader  = mtlShader;
     }
 #endif
     return true;
@@ -164,10 +164,10 @@ uint CCMTLShader::getAvailableBufferBindingIndex(ShaderStageFlagBit stage, uint 
 }
 
 void CCMTLShader::setAvailableBufferBindingIndex() {
-    uint usedVertexBufferBindingIndexes = 0;
+    uint usedVertexBufferBindingIndexes   = 0;
     uint usedFragmentBufferBindingIndexes = 0;
-    uint vertexBindingCount = 0;
-    uint fragmentBindingCount = 0;
+    uint vertexBindingCount               = 0;
+    uint fragmentBindingCount             = 0;
     for (const auto &block : _gpuShader->blocks) {
         if (block.second.stages & ShaderStageFlagBit::VERTEX) {
             vertexBindingCount++;
@@ -182,9 +182,9 @@ void CCMTLShader::setAvailableBufferBindingIndex() {
     auto maxBufferBindingIndex = CCMTLDevice::getInstance()->getMaximumBufferBindingIndex();
     _availableVertexBufferBindingIndex.resize(maxBufferBindingIndex - vertexBindingCount);
     _availableFragmentBufferBindingIndex.resize(maxBufferBindingIndex - fragmentBindingCount);
-    uint availableVertexBufferBit = ~usedVertexBufferBindingIndexes;
+    uint availableVertexBufferBit   = ~usedVertexBufferBindingIndexes;
     uint availableFragmentBufferBit = ~usedFragmentBufferBindingIndexes;
-    int theBit = maxBufferBindingIndex - 1;
+    int  theBit                     = maxBufferBindingIndex - 1;
     uint i = 0, j = 0;
     for (; theBit >= 0; theBit--) {
         if ((availableVertexBufferBit & (1 << theBit))) {

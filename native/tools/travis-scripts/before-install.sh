@@ -60,6 +60,11 @@ function install_python_win32()
     export PATH="/c/Python27":$PATH
 }
 
+function install_vulkan_sdk_win32()
+{
+    choco install vulkan-sdk
+}
+
 function install_python_module()
 {
   if [ "$TRAVIS_OS_NAME" == "osx" ]; then
@@ -68,6 +73,7 @@ function install_python_module()
     pip install Cheetah
   elif [ "$TRAVIS_OS_NAME" == "windows" ]; then
     install_python_win32
+    install_vulkan_sdk_win32
     python -m easy_install pip 
     python -m pip install PyYAML
     python -m pip install Cheetah

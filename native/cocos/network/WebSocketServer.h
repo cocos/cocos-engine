@@ -29,18 +29,19 @@
 
     #include "uv.h"
 
-    #include <string>
-    #include <vector>
     #include <algorithm>
-    #include <functional>
-    #include <memory>
-    #include <map>
-    #include <list>
-    #include <unordered_map>
-    #include <thread>
-    #include <mutex>
     #include <atomic>
+    #include <functional>
+    #include <list>
+    #include <map>
+    #include <memory>
+    #include <mutex>
+    #include <string>
+    #include <thread>
+    #include <unordered_map>
+    #include <vector>
 
+    #include "cocos/base/Macros.h"
     #include "websockets/libwebsockets.h"
 
 namespace cc {
@@ -89,9 +90,9 @@ public:
     unsigned char *getData() { return _underlyingData.data() + LWS_PRE; }
 
 private:
-    std::vector<unsigned char> _underlyingData;
-    int _consumed = 0;
-    bool _isBinary = false;
+    std::vector<unsigned char>               _underlyingData;
+    int                                      _consumed = 0;
+    bool                                     _isBinary = false;
     std::function<void(const std::string &)> _callback;
 };
 
@@ -102,9 +103,9 @@ public:
 
     enum ReadyState {
         CONNECTING = 1,
-        OPEN = 2,
-        CLOSING = 3,
-        CLOSED = 4
+        OPEN       = 2,
+        CLOSING    = 3,
+        CLOSED     = 4
     };
 
     void sendTextAsync(const std::string &, std::function<void(const std::string &)> callback);
@@ -162,7 +163,7 @@ public:
 
     void onClientCloseInit();
 
-    inline void setData(void *d) { _data = d; }
+    inline void  setData(void *d) { _data = d; }
     inline void *getData() const { return _data; }
 
 private:
@@ -176,31 +177,31 @@ private:
 
     void onConnected();
     void onDataReceive(void *in, int len);
-    int onDrainData();
+    int  onDrainData();
     void onHTTP();
     void onClientCloseInit(int code, const std::string &msg);
 
     void onDestroyClient();
 
-    struct lws *_wsi = nullptr;
-    std::map<std::string, std::string> _headers;
+    struct lws *                          _wsi = nullptr;
+    std::map<std::string, std::string>    _headers;
     std::list<std::shared_ptr<DataFrame>> _sendQueue;
-    std::shared_ptr<DataFrame> _prevPkg;
-    bool _closed = false;
-    std::string _closeReason = "close connection";
-    int _closeCode = 1000;
-    std::atomic<ReadyState> _readyState{ReadyState::CLOSED};
+    std::shared_ptr<DataFrame>            _prevPkg;
+    bool                                  _closed      = false;
+    std::string                           _closeReason = "close connection";
+    int                                   _closeCode   = 1000;
+    std::atomic<ReadyState>               _readyState{ReadyState::CLOSED};
 
     // Attention: do not reference **this** in callbacks
-    std::function<void(int, const std::string &)> _onclose;
-    std::function<void(const std::string &)> _onerror;
+    std::function<void(int, const std::string &)>   _onclose;
+    std::function<void(const std::string &)>        _onerror;
     std::function<void(std::shared_ptr<DataFrame>)> _ontext;
     std::function<void(std::shared_ptr<DataFrame>)> _onbinary;
     std::function<void(std::shared_ptr<DataFrame>)> _ondata;
-    std::function<void()> _onconnect;
-    std::function<void()> _onend;
-    uv_async_t _async = {0};
-    void *_data = nullptr;
+    std::function<void()>                           _onconnect;
+    std::function<void()>                           _onend;
+    uv_async_t                                      _async = {0};
+    void *                                          _data  = nullptr;
 
     friend class WebSocketServer;
 };
@@ -211,7 +212,7 @@ public:
     virtual ~WebSocketServer();
 
     static void listenAsync(std::shared_ptr<WebSocketServer> &server, int port, const std::string &host, std::function<void(const std::string &errorMsg)> callback);
-    void closeAsync(std::function<void(const std::string &errorMsg)> callback = nullptr);
+    void        closeAsync(std::function<void(const std::string &errorMsg)> callback = nullptr);
 
     std::vector<std::shared_ptr<WebSocketServerConnection>> getConnections() const;
 
@@ -239,39 +240,39 @@ public:
         _onbegin = cb;
     }
 
-    inline void setData(void *d) { _data = d; }
+    inline void  setData(void *d) { _data = d; }
     inline void *getData() const { return _data; }
 
 protected:
     static void listen(std::shared_ptr<WebSocketServer> server, int port, const std::string &host, std::function<void(const std::string &errorMsg)> callback);
-    bool close(std::function<void(const std::string &errorMsg)> callback = nullptr);
+    bool        close(std::function<void(const std::string &errorMsg)> callback = nullptr);
 
     void onCreateClient(struct lws *wsi);
     void onDestroyClient(struct lws *wsi);
     void onCloseClient(struct lws *wsi);
     void onCloseClientInit(struct lws *wsi, void *in, int len);
     void onClientReceive(struct lws *wsi, void *in, int len);
-    int onServerWritable(struct lws *wsi);
+    int  onServerWritable(struct lws *wsi);
     void onClientHTTP(struct lws *wsi);
 
 private:
     std::shared_ptr<WebSocketServerConnection> findConnection(struct lws *wsi);
-    void destroyContext();
+    void                                       destroyContext();
 
-    std::string _host;
-    lws_context *_ctx = nullptr;
-    uv_async_t _async = {0};
+    std::string  _host;
+    lws_context *_ctx   = nullptr;
+    uv_async_t   _async = {0};
 
-    mutable std::mutex _connsMtx;
+    mutable std::mutex                                                           _connsMtx;
     std::unordered_map<struct lws *, std::shared_ptr<WebSocketServerConnection>> _conns;
 
     // Attention: do not reference **this** in callbacks
-    std::function<void(const std::string &)> _onlistening;
-    std::function<void(const std::string &)> _onerror;
-    std::function<void(const std::string &)> _onclose;
-    std::function<void(const std::string &)> _onclose_cb;
-    std::function<void()> _onend;
-    std::function<void()> _onbegin;
+    std::function<void(const std::string &)>                        _onlistening;
+    std::function<void(const std::string &)>                        _onerror;
+    std::function<void(const std::string &)>                        _onclose;
+    std::function<void(const std::string &)>                        _onclose_cb;
+    std::function<void()>                                           _onend;
+    std::function<void()>                                           _onbegin;
     std::function<void(std::shared_ptr<WebSocketServerConnection>)> _onconnection;
 
     enum class ServerThreadState {
@@ -282,8 +283,8 @@ private:
         DESTROIED
     };
     std::atomic<ServerThreadState> _serverState{ServerThreadState::NOT_BOOTED};
-    std::mutex _serverLock;
-    void *_data = nullptr;
+    std::mutex                     _serverLock;
+    void *                         _data = nullptr;
 
 public:
     static int _websocketServerCallback(struct lws *wsi, enum lws_callback_reasons reason,

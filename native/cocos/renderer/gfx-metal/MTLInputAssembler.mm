@@ -37,7 +37,7 @@ CCMTLInputAssembler::CCMTLInputAssembler() : InputAssembler() {}
 void CCMTLInputAssembler::doInit(const InputAssemblerInfo &info) {
     _GPUInputAssembler = CC_NEW(CCMTLGPUInputAssembler);
     if (!_GPUInputAssembler) {
-        return false;
+        return;
     }
 
     if (info.indexBuffer) {
