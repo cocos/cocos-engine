@@ -19,6 +19,7 @@ module.exports = {
     'audio-clip': join(__dirname, './assets/audio-clip.js'),
     javascript: join(__dirname, './assets/javascript.js'),
     typescript: join(__dirname, './assets/typescript.js'),
+    'video-clip': join(__dirname, './assets/video-clip.js'),
     text: join(__dirname, './assets/text.js'),
     'render-flow': join(__dirname, './assets/render-flow.js'),
     'render-texture': join(__dirname, './assets/render-texture.js')
