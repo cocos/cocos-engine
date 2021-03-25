@@ -1,5 +1,17 @@
 module.exports = {
     assets: {
+        'label-atlas': {
+            SpriteFrameTip: 'SpriteFrame',
+            ItemWidthTip: 'Item Width',
+            ItemHeightTip: 'Item Height',
+            StartCharTip: 'Start Char',
+            FontSizeTip: 'Font Size',
+            SpriteFrame: 'SpriteFrame',
+            ItemWidth: 'Item Width',
+            ItemHeight: 'Item Height',
+            StartChar: 'Start Char',
+            FontSize: 'Font Size',
+        },
         particle:{
             spriteFrameTip:'Sprite Frame'
         },

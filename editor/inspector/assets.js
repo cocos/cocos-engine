@@ -9,6 +9,7 @@ module.exports = {
     'sprite-frame': join(__dirname, './assets/sprite-frame.js'),
     texture: join(__dirname, './assets/texture.js'),
     material: join(__dirname, './assets/material.js'),
+    'label-atlas': join(__dirname, './assets/label-atlas.js'),
     particle: join(__dirname, './assets/particle.js'),
     json: join(__dirname, './assets/json.js'),
     texture: join(__dirname, './assets/texture.js'),
