@@ -1,37 +1,45 @@
 'use strict';
 
-const { readFileSync } = require('fs-extra');
-const { join } = require('path');
-const { ready } = require('../fbx');
+const path = require('path');
 
 exports.template = `
 <div class="asset-fbx">
     <header class="header">
-        <ui-tab class="tabs"></<ui-tab>
+        <ui-tab class="tabs"></ui-tab>
     </header>
     <div class="content">
-       
-    </div>
-    <div class="preview">
-        <div class="preview-info">
-            <ui-label value="Vertices:0"></ui-label>
-            <ui-label value="Triangles:0"></ui-label>
-        </div>
-        <div class="preview-image">
-            <canvas class="preview-canvas"></canvas>
-        </div>
+        <ui-panel class="tab-panel"></ui-panel>
     </div>
 </div>
 `;
 
-exports.style = readFileSync(join(__dirname, './index.css'), 'utf8');
+exports.style = `
+.asset-fbx {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    padding-top: 5px;
+}
+
+.asset-fbx > .header {
+    text-align: center;
+    padding-bottom: 10px;
+    line-height: calc(var(--size-big-line) * 1px);
+}
+`;
 
 exports.$ = {
     container: '.asset-fbx',
     header: '.header',
     tabs: '.tabs',
-    content: '.content',
-    content: '.content',
+    tabPanel: '.tab-panel',
+};
+
+const Components = {
+    model: path.join(__dirname, `./model.js`),
+    animation: path.join(__dirname, `./animation.js`),
+    material: path.join(__dirname, `./material.js`),
+    fbx: path.join(__dirname, `./fbx.js`),
 };
 
 /**
@@ -42,33 +50,53 @@ const Elements = {
         ready() {
             const panel = this;
 
-            const tabs = ['model', 'animation', 'material', 'fbx'];
-            tabs.forEach((name,index) => {
-                const button = document.createElement('ui-button');
-                panel.$.tabs.appendChild(button);
-
-                button.addEventListener('click', () => {
-                    this.activeTabIndex = index;
-                    Elements.tabs.update();
-                });
-
-                const label = document.createElement('ui-label');
-                button.appendChild(label);
-                label.setAttribute('value', `i18n:inspector.asset.fbx.${name}`);
+            panel.$.tabs.addEventListener('change', () => {
+                panel.activeTab = panel.tabs[panel.$.tabs.value];
+                Elements.tabPanel.update.call(panel);
             });
 
-            this.activeTabIndex = 0;
+            panel.activeTab = 'animation';
         },
         update() {
             const panel = this;
 
-            panel.$.tabs.value = this.activeTabIndex;
-        }
+            panel.$.tabs.innerText = '';
+            panel.tabs = [];
+
+            for (const tab in Components) {
+                if (panel.asset.importer === 'gltf' && tab === 'fbx') {
+                    continue;
+                }
+                panel.tabs.push(tab);
+            }
+
+            panel.tabs.forEach((tab) => {
+                const button = document.createElement('ui-button');
+                panel.$.tabs.appendChild(button);
+
+                const label = document.createElement('ui-label');
+                button.appendChild(label);
+                label.setAttribute('value', `i18n:inspector.asset.fbx.${tab}`);
+            });
+
+            panel.$.tabs.value = panel.tabs.indexOf(panel.activeTab);
+        },
     },
-    tabContent: {
-        ready(){ },
-        update(){ },
-    }
+    tabPanel: {
+        ready() {
+            const panel = this;
+
+            panel.$.tabPanel.addEventListener('change', () => {
+                panel.dispatch('change');
+            });
+        },
+        update() {
+            const panel = this;
+
+            panel.$.tabPanel.setAttribute('src', Components[panel.activeTab]);
+            panel.$.tabPanel.update(panel.assetList, panel.metaList);
+        },
+    },
 };
 
 /**
