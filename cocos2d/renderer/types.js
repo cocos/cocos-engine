@@ -69,7 +69,7 @@ export let enums2default = {
     [enums.PARAM_FLOAT2]: new Float32Array([0, 0]),
     [enums.PARAM_FLOAT3]: new Float32Array([0, 0, 0]),
     [enums.PARAM_FLOAT4]: new Float32Array([0, 0, 0, 0]),
-    [enums.PARAM_MAT4]: cc.mat4().m,
+    [enums.PARAM_MAT4]: new Float32Array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]),
     [enums.PARAM_TEXTURE_2D]: null,
     
     number: 0,
