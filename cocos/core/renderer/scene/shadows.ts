@@ -372,8 +372,8 @@ export class Shadows {
         this._shadowColor.set(shadowsInfo.shadowColor);
         ShadowsPool.setVec4(this._handle, ShadowsView.COLOR, this._shadowColor);
         ShadowsPool.set(this._handle, ShadowsView.BIAS, shadowsInfo.bias);
-        ShadowsPool.set(this._handle, ShadowsView.LINEAR, shadowsInfo.enableLinear ? 1 : 0);
-        ShadowsPool.set(this._handle, ShadowsView.SELF_SHADOW, shadowsInfo.enableSelfShadow ? 1 : 0);
+        ShadowsPool.set(this._handle, ShadowsView.LINEAR, shadowsInfo.linear ? 1 : 0);
+        ShadowsPool.set(this._handle, ShadowsView.SELF_SHADOW, shadowsInfo.selfShadow ? 1 : 0);
         ShadowsPool.set(this._handle, ShadowsView.ENABLE, shadowsInfo.enabled ? 1 : 0);
         this.maxReceived = shadowsInfo.maxReceived;
         ShadowsPool.set(this._handle, ShadowsView.AUTO_ADAPT, shadowsInfo.autoAdapt ? 1 : 0);
