@@ -18,6 +18,7 @@ interface Config {
     moduleOverrides?: Array<{
         test: Test;
         overrides: Record<string, string>;
+        isVirtualModule: boolean;
     }>;
 }
 
@@ -53,6 +54,7 @@ interface Feature {
 interface Context {
     mode?: string;
     platform?: string;
+    buildTimeConstants?: Object;
 }
 
 /**
@@ -175,17 +177,18 @@ export class StatsQuery {
     public evaluateModuleOverrides (context: Context) {
         const overrides: Record<string, string> = {};
 
-        const addModuleOverrides = (moduleOverrides: Record<string, string>) => {
-            for (const [source, override] of Object.entries(moduleOverrides)) {
-                const normalizedSource = ps.resolve(this._engine, source);
+        const addModuleOverrides = (moduleOverrides: Record<string, string>, isVirtualModule: boolean) => {
+            for (let [source, override] of Object.entries(moduleOverrides)) {
+                const normalizedSource = isVirtualModule ? source : ps.resolve(this._engine, source);
+                override = this._evalPathTemplate(override, context);
                 const normalizedOverride = ps.resolve(this._engine, override);
                 overrides[normalizedSource] = normalizedOverride;
             }
         };
 
-        this._config.moduleOverrides?.forEach(({ test, overrides }) => {
+        this._config.moduleOverrides?.forEach(({ test, overrides, isVirtualModule }) => {
             if (this._evalTest(test, context)) {
-                addModuleOverrides(overrides);
+                addModuleOverrides(overrides, isVirtualModule);
             }
         });
 
@@ -225,6 +228,19 @@ export class StatsQuery {
         const result = new Function('context', `return ${test}`)(context) as T;
         console.debug(`Eval "${test}" to ${result}`);
         return result;
+    }
+
+    private _evalPathTemplate (pathTemplate: string, context: Context): string {
+        let resultPath = pathTemplate;
+        let regExp = /\{\{(.*?)\}\}/g;
+        let exeResult;
+        while(exeResult = regExp.exec(pathTemplate)) {
+            let templateItem = exeResult[0];
+            let exp = exeResult[1];
+            let evalResult = (new Function('context', `return ${exp}`)(context)) as string;
+            resultPath = pathTemplate.replace(templateItem, evalResult);
+        }
+        return resultPath;
     }
 
     private async _initialize () {

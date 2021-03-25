@@ -1,0 +1,7 @@
+export enum Orientation {
+    PORTRAIT,
+    PORTRAIT_UPSIDE_DOWN,
+    LANDSCAPE,
+    LANDSCAPE_LEFT,
+    LANDSCAPE_RIGHT,
+}

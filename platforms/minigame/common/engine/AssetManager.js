@@ -71,11 +71,11 @@ function loadInnerAudioContext (url) {
     });
 }
 
-function downloadDomAudio (url, options, onComplete) {
-    loadInnerAudioContext(url).then(nativeAudio => {
-        onComplete(null, nativeAudio);
-    }, err => {
-        onComplete(new Error(err));
+function loadAudioPlayer (url, options, onComplete) {
+    cc.AudioPlayer.load(url).then(player => {
+        onComplete(null, player);
+    }).catch(err => {
+        onComplete(err);
     });
 }
 
@@ -263,7 +263,6 @@ let parsePlist = function (url, options, onComplete) {
     });
 };
 
-downloader.downloadDomAudio = downloadDomAudio;
 downloader.downloadScript = downloadScript;
 parser.parsePVRTex = parsePVRTex;
 parser.parsePKMTex = parsePKMTex;
@@ -355,10 +354,10 @@ parser.register({
     '.ttc': loadFont,
 
     // Audio
-    '.mp3' : downloadDomAudio,
-    '.ogg' : downloadDomAudio,
-    '.wav' : downloadDomAudio,
-    '.m4a' : downloadDomAudio,
+    '.mp3' : loadAudioPlayer,
+    '.ogg' : loadAudioPlayer,
+    '.wav' : loadAudioPlayer,
+    '.m4a' : loadAudioPlayer,
 
     // Txt
     '.txt' : parseText,
