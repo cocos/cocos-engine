@@ -1,6 +1,5 @@
 name: Clang Tidy - Android
 
-# Run this workflow every time a new commit pushed to your repository
 on: pull_request
 
 jobs:
@@ -16,11 +15,21 @@ jobs:
       # Checks out a copy of your repository on the ubuntu-latest machine
       - name: Checkout code
         uses: actions/checkout@v2
-      - uses: jitterbit/get-changed-files@v1
+      - name: Get changed files
+        uses: dorny/paths-filter@v2
         id: listchanged
         with:
-          format: space-delimited
-          token: ${{ secrets.GITHUB_TOKEN }}
+          list-files: shell
+          filters: |
+            source:
+              - added|modified: '**/*.cpp'
+              - added|modified: '**/*.h'
+              - added|modified: '**/*.hpp'
+              - added|modified: '**/*.m'
+              - added|modified: '**/*.mm'
+              - added|modified: '**/*.c'
+            allChanges:
+              - added|modified|deleted: '**'
       - name: Install CMake & Clang Tidy
         run: |
           sudo apt install -y cmake llvm clang-tidy-11
@@ -37,23 +46,20 @@ jobs:
 
       - name: Generate clang-fix.yaml
         shell: bash
+        if: ${{ steps.listchanged.outputs.source == 'true' }}
         run: |
-          FILES="${{ steps.listchanged.outputs.added_modified }}"
-          CPP=""
-          for file in $FILES; do
-              if [[ "$file" == *.cpp || "$file" == *.c || "$file" == *.m || "$file" == *.mm  || "$file" == *.h ]]; then
-                  CPP+=" $file"
-              fi
-          done
-          if [[ "$CPP-xxx" == "-xxx" ]]; then
-            echo "no source file found!"
+          CPP="${{ steps.listchanged.outputs.source_files }}"
+          FILTERED=`node .github/workflows/filter_by_cdb.js $CPP`
+          if [[ "$FILTERED-xxx" == "-xxx" ]]; then
+            echo "no source files match"
           else
-            clang-tidy-11 -p ./build --export-fixes=clang-fixes.yaml $CPP
+            clang-tidy-11 --format-style=file -p ./build --export-fixes=clang-fixes.yaml $FILTERED
           fi
       - name: clang-tidy-action
         uses: PatriceJiang/clang-tidy-action@master
         if: hashFiles('clang-fixes.yaml') != ''
         with:
           fixesFile: clang-fixes.yaml
-          noFailOnIssue: true
+          noFailOnIssue: false
           repo-token: ${{ secrets.GITHUB_TOKEN }}
+          error-limit: 200
