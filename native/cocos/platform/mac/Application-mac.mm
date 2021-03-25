@@ -32,15 +32,15 @@
 #include <algorithm>
 #include <mutex>
 
-#include "renderer/GFXDeviceManager.h"
 #include "pipeline/Define.h"
+#include "renderer/GFXDeviceManager.h"
 
 #import <AppKit/AppKit.h>
 
 @interface MyTimer : NSObject {
     cc::Application *_app;
-    NSTimer *_timer;
-    int _fps;
+    NSTimer *        _timer;
+    int              _fps;
 }
 - (instancetype)initWithApp:(cc::Application *)app fps:(int)fps;
 - (void)start;
@@ -93,10 +93,10 @@ namespace cc {
 
 namespace {
 bool setCanvasCallback(se::Object *global) {
-    auto viewLogicalSize = Application::getInstance()->getViewLogicalSize();
-    se::ScriptEngine *se = se::ScriptEngine::getInstance();
-    char commandBuf[200] = {0};
-    NSView *view = [[[[NSApplication sharedApplication] delegate] getWindow] contentView];
+    auto              viewLogicalSize = Application::getInstance()->getViewLogicalSize();
+    se::ScriptEngine *se              = se::ScriptEngine::getInstance();
+    char              commandBuf[200] = {0};
+    NSView *          view            = [[[[NSApplication sharedApplication] delegate] getWindow] contentView];
     sprintf(commandBuf, "window.innerWidth = %d; window.innerHeight = %d; window.windowHandler = 0x%" PRIxPTR ";",
             (int)(viewLogicalSize.x),
             (int)(viewLogicalSize.y),
@@ -104,11 +104,11 @@ bool setCanvasCallback(se::Object *global) {
     se->evalString(commandBuf);
 
     gfx::DeviceInfo deviceInfo;
-    deviceInfo.windowHandle = (uintptr_t)view;
-    deviceInfo.width        = viewLogicalSize.x;
-    deviceInfo.height       = viewLogicalSize.y;
-    deviceInfo.nativeWidth  = viewLogicalSize.x;
-    deviceInfo.nativeHeight = viewLogicalSize.y;
+    deviceInfo.windowHandle       = (uintptr_t)view;
+    deviceInfo.width              = viewLogicalSize.x;
+    deviceInfo.height             = viewLogicalSize.y;
+    deviceInfo.nativeWidth        = viewLogicalSize.x;
+    deviceInfo.nativeHeight       = viewLogicalSize.y;
     deviceInfo.bindingMappingInfo = pipeline::bindingMappingInfo;
 
     gfx::DeviceManager::create(deviceInfo);
@@ -119,7 +119,7 @@ bool setCanvasCallback(se::Object *global) {
 MyTimer *_timer;
 }
 
-Application *Application::_instance = nullptr;
+Application *              Application::_instance  = nullptr;
 std::shared_ptr<Scheduler> Application::_scheduler = nullptr;
 
 Application::Application(int width, int height) {
@@ -132,8 +132,6 @@ Application::Application(int width, int height) {
     EventDispatcher::init();
 
     _timer = [[MyTimer alloc] initWithApp:this fps:_fps];
-
-    [[[[[NSApplication sharedApplication] delegate] getWindow] contentView] start];
 }
 
 Application::~Application() {
@@ -168,23 +166,23 @@ Application::Platform Application::getPlatform() const {
 }
 
 std::string Application::getCurrentLanguageCode() const {
-    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-    NSArray *languages = [defaults objectForKey:@"AppleLanguages"];
-    NSString *currentLanguage = [languages objectAtIndex:0];
+    NSUserDefaults *defaults        = [NSUserDefaults standardUserDefaults];
+    NSArray *       languages       = [defaults objectForKey:@"AppleLanguages"];
+    NSString *      currentLanguage = [languages objectAtIndex:0];
     return [currentLanguage UTF8String];
 }
 
 bool Application::isDisplayStats() {
     se::AutoHandleScope hs;
-    se::Value ret;
-    char commandBuf[100] = "cc.debug.isDisplayStats();";
+    se::Value           ret;
+    char                commandBuf[100] = "cc.debug.isDisplayStats();";
     se::ScriptEngine::getInstance()->evalString(commandBuf, 100, &ret);
     return ret.toBoolean();
 }
 
 void Application::setDisplayStats(bool isShow) {
     se::AutoHandleScope hs;
-    char commandBuf[100] = {0};
+    char                commandBuf[100] = {0};
     sprintf(commandBuf, "cc.debug.setDisplayStats(%s);", isShow ? "true" : "false");
     se::ScriptEngine::getInstance()->evalString(commandBuf);
 }
@@ -198,13 +196,13 @@ void Application::setCursorEnabled(bool value) {
 
 Application::LanguageType Application::getCurrentLanguage() const {
     // get the current language and country config
-    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-    NSArray *languages = [defaults objectForKey:@"AppleLanguages"];
-    NSString *currentLanguage = [languages objectAtIndex:0];
+    NSUserDefaults *defaults        = [NSUserDefaults standardUserDefaults];
+    NSArray *       languages       = [defaults objectForKey:@"AppleLanguages"];
+    NSString *      currentLanguage = [languages objectAtIndex:0];
 
     // get the current language code.(such as English is "en", Chinese is "zh" and so on)
-    NSDictionary *temp = [NSLocale componentsFromLocaleIdentifier:currentLanguage];
-    NSString *languageCode = [temp objectForKey:NSLocaleLanguageCode];
+    NSDictionary *temp         = [NSLocale componentsFromLocaleIdentifier:currentLanguage];
+    NSString *    languageCode = [temp objectForKey:NSLocaleLanguageCode];
 
     if ([languageCode isEqualToString:@"zh"]) return LanguageType::CHINESE;
     if ([languageCode isEqualToString:@"en"]) return LanguageType::ENGLISH;
@@ -229,8 +227,8 @@ Application::LanguageType Application::getCurrentLanguage() const {
 }
 
 bool Application::openURL(const std::string &url) {
-    NSString *msg = [NSString stringWithCString:url.c_str() encoding:NSUTF8StringEncoding];
-    NSURL *nsUrl = [NSURL URLWithString:msg];
+    NSString *msg   = [NSString stringWithCString:url.c_str() encoding:NSUTF8StringEncoding];
+    NSURL *   nsUrl = [NSURL URLWithString:msg];
     return [[NSWorkspace sharedWorkspace] openURL:nsUrl];
 }
 
@@ -250,8 +248,8 @@ void Application::onResume() {
 }
 
 std::string Application::getSystemVersion() {
-    NSOperatingSystemVersion v = NSProcessInfo.processInfo.operatingSystemVersion;
-    char version[50] = {0};
+    NSOperatingSystemVersion v           = NSProcessInfo.processInfo.operatingSystemVersion;
+    char                     version[50] = {0};
     snprintf(version, sizeof(version), "%d.%d.%d", (int)v.majorVersion, (int)v.minorVersion, (int)v.patchVersion);
     return version;
 }
