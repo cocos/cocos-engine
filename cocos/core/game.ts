@@ -791,20 +791,10 @@ export class Game extends EventTarget {
 
         // WebGL context created successfully
         if (this.renderType === Game.RENDER_TYPE_WEBGL) {
-            let ctors: (() => Device)[] = [];
+            const ctors: Constructor<Device>[] = [];
 
             if (JSB && window.gfx) {
-                const os = sys.os;
-                if (os === sys.OS_OSX || os === sys.OS_IOS) {
-                    if (gfx.CCMTLDevice) { ctors.push(() => new gfx.CCMTLDevice() as Device); }
-                    if (gfx.GLES3Device) { ctors.push(() => new gfx.GLES3Device() as Device); }
-                } else { // windows or android
-                    if (gfx.GLES3Device) { ctors.push(() => new gfx.GLES3Device() as Device); }
-                    if (gfx.CCVKDevice) { ctors.push(() => new gfx.CCVKDevice() as Device); }
-                    if (gfx.GLES2Device) { ctors.push(() => new gfx.GLES2Device() as Device); }
-                }
-                // device thread agent
-                ctors = ctors.map((ctor) => (() => new gfx.DeviceAgent(ctor()) as Device));
+                this._gfxDevice = gfx.deviceInstance;
             } else {
                 let useWebGL2 = (!!window.WebGL2RenderingContext);
                 const userAgent = window.navigator.userAgent.toLowerCase();
@@ -814,25 +804,25 @@ export class Game extends EventTarget {
                     useWebGL2 = false;
                 }
                 if (useWebGL2 && legacyCC.WebGL2Device) {
-                    ctors.push(() => new legacyCC.WebGL2Device() as Device);
+                    ctors.push(legacyCC.WebGL2Device);
                 }
                 if (legacyCC.WebGLDevice) {
-                    ctors.push(() => new legacyCC.WebGLDevice() as Device);
+                    ctors.push(legacyCC.WebGLDevice);
                 }
-            }
 
-            const opts = new DeviceInfo(
-                this.canvas as HTMLCanvasElement,
-                EDITOR || macro.ENABLE_WEBGL_ANTIALIAS,
-                false,
-                window.devicePixelRatio,
-                sys.windowPixelResolution.width,
-                sys.windowPixelResolution.height,
-                bindingMappingInfo,
-            );
-            for (let i = 0; i < ctors.length; i++) {
-                this._gfxDevice = ctors[i]();
-                if (this._gfxDevice.initialize(opts)) { break; }
+                const opts = new DeviceInfo(
+                    this.canvas as HTMLCanvasElement,
+                    EDITOR || macro.ENABLE_WEBGL_ANTIALIAS,
+                    false,
+                    window.devicePixelRatio,
+                    sys.windowPixelResolution.width,
+                    sys.windowPixelResolution.height,
+                    bindingMappingInfo,
+                );
+                for (let i = 0; i < ctors.length; i++) {
+                    this._gfxDevice = new ctors[i]();
+                    if (this._gfxDevice.initialize(opts)) { break; }
+                }
             }
         }
 

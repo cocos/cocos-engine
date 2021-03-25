@@ -82,6 +82,7 @@ export class Asset extends Eventify(CCObject) {
      * @return {Asset}
      */
     public static deserialize (data) {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
         return legacyCC.deserialize(data);
     }
 
@@ -153,7 +154,8 @@ export class Asset extends Eventify(CCObject) {
      * @private
      */
     @property
-    get _nativeAsset (): any {
+    get _nativeAsset () {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
         return this._file;
     }
     set _nativeAsset (obj) {
@@ -187,8 +189,8 @@ export class Asset extends Eventify(CCObject) {
      * JavaScript 会自动调用 toString() 方法。<br>
      * <br>
      * 对于原始类型的资源，它将返回`this.nativeUrl`。<br>
-     * 否则，返回空字符串。<br>
-     * 子类可能会覆盖此方法。
+     * 否则，返回空字符串。<br>
+     * 子类可能会覆盖此方法。
      * @method toString
      * @return {String}
      */
@@ -239,6 +241,7 @@ export class Asset extends Eventify(CCObject) {
         if (this._native) {
             return { __isNative__: true, uuid: this._uuid, ext: this._native };
         }
+        return undefined;
     }
 
     /**
@@ -296,7 +299,6 @@ export class Asset extends Eventify(CCObject) {
  */
 type CreateNodeCallback = (error: Error | null, node: Node) => void;
 
-// @ts-expect-error
-Asset.prototype.createNode = null;
+Asset.prototype.createNode = null!;
 
 legacyCC.Asset = Asset;

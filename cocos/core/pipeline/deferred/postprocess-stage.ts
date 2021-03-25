@@ -30,7 +30,7 @@
 import { ccclass, displayOrder, type, serializable } from 'cc.decorator';
 import { builtinResMgr } from '../../builtin';
 import { Camera } from '../../renderer/scene';
-import { SetIndex } from '../define';
+import { SetIndex, IRenderPass } from '../define';
 import { Color, Rect, Shader, PipelineState, ClearFlagBit, BlendFactor } from '../../gfx';
 import { IRenderStageInfo, RenderStage } from '../render-stage';
 import { DeferredStagePriority } from './enum';
@@ -41,6 +41,10 @@ import { ShaderPool } from '../../renderer/core/memory-pools';
 import { PipelineStateManager } from '../pipeline-state-manager';
 import { Pass } from '../../renderer';
 import { UIPhase } from '../forward/ui-phase';
+import { opaqueCompareFn, RenderQueue, transparentCompareFn } from '../render-queue';
+import { RenderQueueDesc, RenderQueueSortMode } from '../pipeline-serialization';
+
+import { getPhaseID } from '../pass-phase';
 
 const colors: Color[] = [new Color(0, 0, 0, 1)];
 const POSTPROCESSPASS_INDEX = 0;
@@ -51,19 +55,32 @@ const POSTPROCESSPASS_INDEX = 0;
  */
 @ccclass('PostprocessStage')
 export class PostprocessStage extends RenderStage {
-    private _renderArea = new Rect();
-
     public static initInfo: IRenderStageInfo = {
         name: 'PostprocessStage',
         priority: DeferredStagePriority.POSTPROCESS,
         tag: 0,
+        renderQueues: [
+            {
+                isTransparent: true,
+                sortMode: RenderQueueSortMode.BACK_TO_FRONT,
+                stages: ['default'],
+            },
+        ],
     };
 
     @type(Material)
     @serializable
     @displayOrder(3)
     private _postprocessMaterial: Material | null = null;
+
+    @type([RenderQueueDesc])
+    @serializable
+    @displayOrder(2)
+    private renderQueues: RenderQueueDesc[] = [];
+    private _renderArea = new Rect();
     private _uiPhase: UIPhase;
+    private _phaseID = getPhaseID('default');
+    private _renderQueues: RenderQueue[] = [];
 
     set material (val) {
         if (this._postprocessMaterial === val) {
@@ -80,12 +97,40 @@ export class PostprocessStage extends RenderStage {
 
     public initialize (info: IRenderStageInfo): boolean {
         super.initialize(info);
+        if (info.renderQueues) {
+            this.renderQueues = info.renderQueues;
+        }
         return true;
     }
 
     public activate (pipeline: DeferredPipeline, flow: LightingFlow) {
         super.activate(pipeline, flow);
         this._uiPhase.activate(pipeline);
+
+        // activate queue
+        for (let i = 0; i < this.renderQueues.length; i++) {
+            let phase = 0;
+            for (let j = 0; j < this.renderQueues[i].stages.length; j++) {
+                phase |= getPhaseID(this.renderQueues[i].stages[j]);
+            }
+            let sortFunc: (a: IRenderPass, b: IRenderPass) => number = opaqueCompareFn;
+            switch (this.renderQueues[i].sortMode) {
+            case RenderQueueSortMode.BACK_TO_FRONT:
+                sortFunc = transparentCompareFn;
+                break;
+            case RenderQueueSortMode.FRONT_TO_BACK:
+                sortFunc = opaqueCompareFn;
+                break;
+            default:
+                break;
+            }
+
+            this._renderQueues[i] = new RenderQueue({
+                isTransparent: this.renderQueues[i].isTransparent,
+                phases: phase,
+                sortFunc,
+            });
+        }
     }
 
     public destroy () {
@@ -139,14 +184,59 @@ export class PostprocessStage extends RenderStage {
             pso = PipelineStateManager.getOrCreatePipelineState(device, pass, shader, renderPass, inputAssembler);
         }
 
+        const renderObjects = pipeline.pipelineSceneData.renderObjects;
         if (pso != null && pipeline.pipelineSceneData.renderObjects.length > 0) {
             cmdBuff.bindPipelineState(pso);
             cmdBuff.bindInputAssembler(inputAssembler);
             cmdBuff.draw(inputAssembler);
         }
 
+        // Transparent
+        this._renderQueues.forEach(this.renderQueueClearFunc);
+
+        let m = 0; let p = 0; let k = 0;
+        for (let i = 0; i < renderObjects.length; ++i) {
+            const ro = renderObjects[i];
+            const subModels = ro.model.subModels;
+            for (m = 0; m < subModels.length; ++m) {
+                const subModel = subModels[m];
+                const passes = subModel.passes;
+                for (p = 0; p < passes.length; ++p) {
+                    const pass = passes[p];
+                    // TODO: need fallback of ulit and gizmo material.
+                    if (pass.phase !== this._phaseID) continue;
+                    for (k = 0; k < this._renderQueues.length; k++) {
+                        this._renderQueues[k].insertRenderPass(ro, m, p);
+                    }
+                }
+            }
+        }
+
+        this._renderQueues.forEach(this.renderQueueSortFunc);
+        for (let i = 0; i < this._renderQueues.length; i++) {
+            this._renderQueues[i].recordCommandBuffer(device, renderPass, cmdBuff);
+        }
+
         this._uiPhase.render(camera, renderPass);
 
         cmdBuff.endRenderPass();
+    }
+
+    /**
+     * @en Clear the given render queue
+     * @zh 清空指定的渲染队列
+     * @param rq The render queue
+     */
+    protected renderQueueClearFunc (rq: RenderQueue) {
+        rq.clear();
+    }
+
+    /**
+         * @en Sort the given render queue
+         * @zh 对指定的渲染队列执行排序
+         * @param rq The render queue
+         */
+    protected renderQueueSortFunc (rq: RenderQueue) {
+        rq.sort();
     }
 }

@@ -30,16 +30,14 @@
 import { ccclass, displayOrder, type, serializable } from 'cc.decorator';
 import { builtinResMgr } from '../../builtin/builtin-res-mgr';
 import { Camera } from '../../renderer/scene';
-import { IRenderPass, localDescriptorSetLayout, UBODeferredLight, SetIndex, UBOForwardLight } from '../define';
+import { localDescriptorSetLayout, UBODeferredLight, SetIndex, UBOForwardLight } from '../define';
 import { getPhaseID } from '../pass-phase';
-import { opaqueCompareFn, RenderQueue, transparentCompareFn } from '../render-queue';
 import { Color, Rect, Shader, Buffer, BufferUsageBit, MemoryUsageBit, BufferInfo, BufferViewInfo, DescriptorSet, DescriptorSetLayoutInfo,
     DescriptorSetLayout, DescriptorSetInfo, PipelineState, ClearFlags, ClearFlagBit } from '../../gfx';
 import { IRenderStageInfo, RenderStage } from '../render-stage';
 import { DeferredStagePriority } from './enum';
 import { LightingFlow } from './lighting-flow';
 import { DeferredPipeline } from './deferred-pipeline';
-import { RenderQueueDesc, RenderQueueSortMode } from '../pipeline-serialization';
 import { PlanarShadowQueue } from '../planar-shadow-queue';
 import { Material } from '../../assets/material';
 import { ShaderPool } from '../../renderer/core/memory-pools';
@@ -66,35 +64,16 @@ export class LightingStage extends RenderStage {
     private _descriptorSetLayout!: DescriptorSetLayout;
     private _renderArea = new Rect();
     private declare _planarQueue: PlanarShadowQueue;
-    private _phaseID = getPhaseID('default');
 
     @type(Material)
     @serializable
     @displayOrder(3)
     private _deferredMaterial: Material | null = null;
 
-    @type([RenderQueueDesc])
-    @serializable
-    @displayOrder(2)
-    protected renderQueues: RenderQueueDesc[] = [];
-    protected _renderQueues: RenderQueue[] = [];
-
     public static initInfo: IRenderStageInfo = {
         name: 'LightingStage',
         priority: DeferredStagePriority.LIGHTING,
         tag: 0,
-        renderQueues: [
-            {
-                isTransparent: false,
-                sortMode: RenderQueueSortMode.FRONT_TO_BACK,
-                stages: ['default'],
-            },
-            {
-                isTransparent: true,
-                sortMode: RenderQueueSortMode.BACK_TO_FRONT,
-                stages: ['default', 'planarShadow'],
-            },
-        ],
     };
 
     set material (val) {
@@ -107,9 +86,6 @@ export class LightingStage extends RenderStage {
 
     public initialize (info: IRenderStageInfo): boolean {
         super.initialize(info);
-        if (info.renderQueues) {
-            this.renderQueues = info.renderQueues;
-        }
         return true;
     }
 
@@ -227,31 +203,6 @@ export class LightingStage extends RenderStage {
         this._descriptorSet = device.createDescriptorSet(new DescriptorSetInfo(this._descriptorSetLayout));
         this._descriptorSet.bindBuffer(UBOForwardLight.BINDING, deferredLitsBufView);
 
-        // activate queue
-        for (let i = 0; i < this.renderQueues.length; i++) {
-            let phase = 0;
-            for (let j = 0; j < this.renderQueues[i].stages.length; j++) {
-                phase |= getPhaseID(this.renderQueues[i].stages[j]);
-            }
-            let sortFunc: (a: IRenderPass, b: IRenderPass) => number = opaqueCompareFn;
-            switch (this.renderQueues[i].sortMode) {
-            case RenderQueueSortMode.BACK_TO_FRONT:
-                sortFunc = transparentCompareFn;
-                break;
-            case RenderQueueSortMode.FRONT_TO_BACK:
-                sortFunc = opaqueCompareFn;
-                break;
-            default:
-                break;
-            }
-
-            this._renderQueues[i] = new RenderQueue({
-                isTransparent: this.renderQueues[i].isTransparent,
-                phases: phase,
-                sortFunc,
-            });
-        }
-
         this._planarQueue = new PlanarShadowQueue(this._pipeline as DeferredPipeline);
     }
 
@@ -340,50 +291,6 @@ export class LightingStage extends RenderStage {
         // planarQueue
         this._planarQueue.recordCommandBuffer(device, renderPass, cmdBuff);
 
-        // Transparent
-        this._renderQueues.forEach(this.renderQueueClearFunc);
-
-        let m = 0; let p = 0; let k = 0;
-        for (let i = 0; i < renderObjects.length; ++i) {
-            const ro = renderObjects[i];
-            const subModels = ro.model.subModels;
-            for (m = 0; m < subModels.length; ++m) {
-                const subModel = subModels[m];
-                const passes = subModel.passes;
-                for (p = 0; p < passes.length; ++p) {
-                    const pass = passes[p];
-                    // TODO: need fallback of ulit and gizmo material.
-                    if (pass.phase !== this._phaseID) continue;
-                    for (k = 0; k < this._renderQueues.length; k++) {
-                        this._renderQueues[k].insertRenderPass(ro, m, p);
-                    }
-                }
-            }
-        }
-
-        this._renderQueues.forEach(this.renderQueueSortFunc);
-        for (let i = 0; i < this.renderQueues.length; i++) {
-            this._renderQueues[i].recordCommandBuffer(device, renderPass, cmdBuff);
-        }
-
         cmdBuff.endRenderPass();
-    }
-
-    /**
-     * @en Clear the given render queue
-     * @zh 清空指定的渲染队列
-     * @param rq The render queue
-     */
-    protected renderQueueClearFunc (rq: RenderQueue) {
-        rq.clear();
-    }
-
-    /**
-     * @en Sort the given render queue
-     * @zh 对指定的渲染队列执行排序
-     * @param rq The render queue
-     */
-    protected renderQueueSortFunc (rq: RenderQueue) {
-        rq.sort();
     }
 }

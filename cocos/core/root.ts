@@ -309,6 +309,10 @@ export class Root {
                 window.resize(width, height);
             }
         }
+
+        if (this._pipeline) {
+            this._pipeline.resize(width, height);
+        }
     }
 
     public setRenderPipeline (rppl: RenderPipeline): boolean {

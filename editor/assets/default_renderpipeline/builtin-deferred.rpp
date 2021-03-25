@@ -76,7 +76,7 @@
         "__id__": 7
       },
       {
-        "__id__": 9
+        "__id__": 8
       }
     ]
   },
@@ -87,20 +87,7 @@
     "_tag": 0,
     "_deferredMaterial": {
       "__uuid__": "016951c5-5a09-4dd0-9bb7-f4958a82d690"
-    },
-    "renderQueues": [
-      {
-        "__id__": 8
-      }
-    ]
-  },
-  {
-    "__type__": "RenderQueueDesc",
-    "isTransparent": true,
-    "sortMode": 0,
-    "stages": [
-      "default"
-    ]
+    }
   },
   {
     "__type__": "PostprocessStage",
@@ -109,6 +96,19 @@
     "_tag": 0,
     "_postprocessMaterial": {
       "__uuid__": "85c4d630-c264-4b18-90a4-c52d594e6099"
-    }
+    },
+    "renderQueues": [
+      {
+        "__id__": 9
+      }
+    ]
+  },
+  {
+    "__type__": "RenderQueueDesc",
+    "isTransparent": true,
+    "sortMode": 1,
+    "stages": [
+      "default"
+    ]
   }
 ]

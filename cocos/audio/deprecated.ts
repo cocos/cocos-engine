@@ -25,33 +25,37 @@
 
 /**
  * @packageDocumentation
- * @module component/audio
+ * @hidden
  */
 
-import { legacyCC } from '../../core/global-exports';
+import { AudioSource } from './audio-source';
+import { replaceProperty, removeProperty } from '../core/utils/x-deprecated';
+import { AudioClip } from './assets/clip';
 
-export abstract class AudioManager<AudioType> {
-    protected _playingAudios: Array<AudioType>;
-    public static readonly maxAudioChannel: number = 24;
+replaceProperty(AudioClip, 'AudioClip', [
+    {
+        name: 'PlayingState',
+        newName: 'AudioState',
+        target: AudioSource,
+        targetName: 'AudioSource',
+    },
+]);
 
-    constructor () {
-        this._playingAudios = [];
-    }
+const removedProperties = [
+    'state',
+    'play',
+    'pause',
+    'stop',
+    'playOneShot',
+    'setCurrentTime',
+    'getCurrentTime',
+    'setVolume',
+    'getVolume',
+    'setLoop',
+    'getLoop',
+];
 
-    public addPlaying (audio: AudioType) {
-        if (!this._playingAudios.includes(audio)) {
-            this._playingAudios.push(audio);
-        }
-    }
-
-    public removePlaying (audio: AudioType) {
-        const index = this._playingAudios.indexOf(audio);
-        if (index > -1) {
-            this._playingAudios.splice(index, 1);
-        }
-    }
-
-    public abstract discardOnePlayingIfNeeded ();
-}
-
-legacyCC.internal.AudioManager = AudioManager;
+removeProperty(AudioClip.prototype, 'AudioClip.prototype', removedProperties.map((property) => ({
+    name: property,
+    suggest: `Use 'AudioSource.prototype.${property}' instead`,
+})));

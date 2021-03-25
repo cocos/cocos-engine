@@ -132,56 +132,46 @@ descriptorSetProto.update = function() {
     this.dirtyJSB = false;
 }
 
-let deviceProtos = [
-    gfx.CCVKDevice && gfx.CCVKDevice.prototype,
-    gfx.CCMTLDevice && gfx.CCMTLDevice.prototype,
-    gfx.GLES3Device && gfx.GLES3Device.prototype,
-    gfx.GLES2Device && gfx.GLES2Device.prototype,
-    gfx.DeviceAgent && gfx.DeviceAgent.prototype,
-];
-deviceProtos.forEach(function(item, index) {
-    if (item !== undefined) {
-        replace(item, {
-            initialize: replaceFunction('_initialize', _converters.DeviceInfo),
-        });
-
-        let oldCopyTexImagesToTextureFunc = item.copyTexImagesToTexture;
-        item.copyTexImagesToTexture = function(texImages, texture, regions) {
-            let images = _converters.texImagesToBuffers(texImages);
-            oldCopyTexImagesToTextureFunc.call(this, images, texture, regions);
-        }
-
-        let oldDeviceCreatBufferFun = item.createBuffer;
-        item.createBuffer = function(info) {
-            let buffer;
-            if (info.buffer) {
-                buffer = oldDeviceCreatBufferFun.call(this, info, true);
-            } else {
-                buffer = oldDeviceCreatBufferFun.call(this, info, false);
-            }
-            buffer.cachedUsage = info.usage;
-            return buffer;
-        }
-
-        let oldDeviceCreatTextureFun = item.createTexture;
-        item.createTexture = function(info) {
-            if (info.texture) {
-                return oldDeviceCreatTextureFun.call(this, info, true);
-            } else {
-                return oldDeviceCreatTextureFun.call(this, info, false);
-            }
-        }
-
-        Object.defineProperty(item, 'uboOffsetAlignment', {
-            get () {
-                if (this.cachedUboOffsetAlignment === undefined) {
-                    this.cachedUboOffsetAlignment = this.getUboOffsetAlignment();
-                }
-                return this.cachedUboOffsetAlignment;
-            }
-        })
-    }
+let deviceProto = gfx.deviceInstance.__proto__;
+replace(deviceProto, {
+    initialize: replaceFunction('_initialize', _converters.DeviceInfo),
 });
+
+let oldCopyTexImagesToTextureFunc = deviceProto.copyTexImagesToTexture;
+deviceProto.copyTexImagesToTexture = function(texImages, texture, regions) {
+    let images = _converters.texImagesToBuffers(texImages);
+    oldCopyTexImagesToTextureFunc.call(this, images, texture, regions);
+}
+
+let oldDeviceCreatBufferFun = deviceProto.createBuffer;
+deviceProto.createBuffer = function(info) {
+    let buffer;
+    if (info.buffer) {
+        buffer = oldDeviceCreatBufferFun.call(this, info, true);
+    } else {
+        buffer = oldDeviceCreatBufferFun.call(this, info, false);
+    }
+    buffer.cachedUsage = info.usage;
+    return buffer;
+}
+
+let oldDeviceCreatTextureFun = deviceProto.createTexture;
+deviceProto.createTexture = function(info) {
+    if (info.texture) {
+        return oldDeviceCreatTextureFun.call(this, info, true);
+    } else {
+        return oldDeviceCreatTextureFun.call(this, info, false);
+    }
+}
+
+Object.defineProperty(deviceProto, 'uboOffsetAlignment', {
+    get () {
+        if (this.cachedUboOffsetAlignment === undefined) {
+            this.cachedUboOffsetAlignment = this.getUboOffsetAlignment();
+        }
+        return this.cachedUboOffsetAlignment;
+    }
+})
 
 let shaderProto = gfx.Shader.prototype;
 cc.js.get(shaderProto, 'id', function () {

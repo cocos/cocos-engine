@@ -1,0 +1,171 @@
+declare module 'pal/minigame' {
+    export const mg: IMiniGame;
+    export interface IMiniGame {
+        // system
+        isSubContext: boolean;
+        isDevTool: boolean;
+        isLandscape: boolean;
+        getSystemInfoSync(): SystemInfo;
+        onShow(callback: () => void): void;
+        offShow(callback: () => void): void;
+        onHide(callback: () => void): void;
+        offHide(callback: () => void): void;
+        getSafeArea(): SafeArea;
+
+        // render
+        getSharedCanvas(): any;
+        getOpenDataContext(): any;
+
+        // file system
+        getFileSystemManager(): FileSystemManager;
+
+        // input
+        onTouchStart: IEventManager<TouchEvent>;
+        onTouchMove: IEventManager<TouchEvent>;
+        onTouchEnd: IEventManager<TouchEvent>;
+        onTouchCancel: IEventManager<TouchEvent>;
+
+        // audio
+        createInnerAudioContext(): InnerAudioContext;
+        onAudioInterruptionBegin(callback: () => void): any;
+        offAudioInterruptionBegin(callback: () => void): any;
+        onAudioInterruptionEnd(callback: () => void): any;
+        offAudioInterruptionEnd(callback: () => void): any;
+
+        // font
+        loadFont(url: string): string;
+
+        // device
+        onAccelerometerChange(cb: AccelerometerChangeCallback);
+        offAccelerometerChange(cb?: AccelerometerChangeCallback);
+        startAccelerometer(obj: AccelerometerParameter);
+        stopAccelerometer(obj: AccelerometerParameter);
+    }
+}
+
+type AccelerometerChangeCallback = (res: AccelerometerData) => void;
+declare interface AccelerometerData {
+    x: number,
+    y: number,
+    z: number,
+}
+declare interface AccelerometerParameter {
+    success?: () => void,
+    fail?: (err: any) => void,
+    complete?: () => void,
+}
+
+declare interface IEventManager<Event> {
+    (listener: (event: Event) => void): void;
+}
+
+declare class FileSystemManager {
+    access(obj: any);
+    accessSync(path: string): boolean;
+    appendFile(obj: any);
+    appendFileSync(filePath: string, data: string|ArrayBuffer, encoding: string);
+    copyFile(obj: any);
+    copyFileSync(srcPath: string, destPath: string);
+    getFileInfo(obj: any);
+    getSavedFileList(obj: any);
+    mkdir(obj: any);
+    mkdirSync();
+    readdir(obj: any);
+    readdirSync();
+    readFile(obj: any);
+    readFileSync();
+    removeSavedFile(obj: any);
+    rename(obj: any);
+    renameSync();
+    rmdir(obj: any);
+    rmdirSync();
+    saveFile(obj: any);
+    saveFileSync();
+    stat(obj: any);
+    statSync();
+    unlink(obj: any);
+    unlinkSync();
+    unzip(obj: any);
+    writeFile(obj: any);
+    writeFileSync();
+}
+
+declare interface SystemInfo {
+    brand: string;
+    model: string;
+    pixelRatio: number;
+    screenWidth: number;
+    screenHeight: number;
+    windowWidth: number;
+    windowHeight: number;
+    statusBarHeight: number;
+    language: string;
+    version: string;
+    system: string;
+    platform: string;
+    fontSizeSetting: number;
+    SDKVersion: string;
+    benchmarkLevel: number;
+    albumAuthorized: boolean;
+    cameraAuthorized: boolean;
+    locationAuthorized: boolean;
+    microphoneAuthorized: boolean;
+    notificationAuthorized: boolean;
+    notificationAlertAuthorized: boolean;
+    notificationBadgeAuthorized: boolean;
+    notificationSoundAuthorized: boolean;
+    bluetoothEnabled: boolean;
+    locationEnabled: boolean;
+    wifiEnabled: boolean;
+    safeArea: SafeArea;
+    locationReducedAccuracy: boolean;
+    theme: string;
+}
+
+declare interface SafeArea {
+    left: number;
+    right: number;
+    top: number;
+    bottom: number;
+    width: number;
+    height: number;
+}
+
+declare class InnerAudioContext {
+    src: string;
+    startTime: number;
+    autoplay: boolean;
+    loop: boolean;
+    obeyMuteSwitch: boolean;
+    volume: number;
+    duration: number;
+    currentTime: number;
+    paused: boolean;
+    buffered: number;
+
+    destroy(): any;
+    offCanplay(callback: () => void): any;
+    offEnded(callback: () => void): any;
+    offError(callback: (err: any) => void): any;
+    offPause(callback: () => void): any;
+    offPlay(callback: () => void): any;
+    offSeeked(callback: () => void): any;
+    offSeeking(callback: () => void): any;
+    offStop(callback: () => void): any;
+    offTimeUpdate(callback: () => void): any;
+    offWaiting(callback: () => void): any;
+    onCanplay(callback: () => void): any;
+    onEnded(callback: () => void): any;
+    onError(callback: (err: any) => void): any;
+    onPause(callback: () => void): any;
+    onPlay(callback: () => void): any;
+    onSeeked(callback: () => void): any;
+    onSeeking(callback: () => void): any;
+    onStop(callback: () => void): any;
+    onTimeUpdate(callback: () => void): any;
+    onWaiting(callback: () => void): any;
+    pause(): any;
+    play(): any;
+    seek(position:number): any;
+    stop(): any;
+}
