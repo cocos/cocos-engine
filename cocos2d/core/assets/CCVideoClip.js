@@ -24,21 +24,21 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-require('./CCAsset');
-require('./CCFont');
-require('./CCPrefab');
-require('./CCAudioClip');
-require('./CCVideoClip');
-require('./CCScripts');
-require('./CCSceneAsset');
-require('./CCSpriteFrame');
-require('./CCTexture2D');
-require('./CCRenderTexture');
-require('./CCTTFFont');
-require('./CCSpriteAtlas');
-require('./CCBitmapFont');
-require('./CCLabelAtlas');
-require('./CCTextAsset');
-require('./CCJsonAsset');
-require('./CCBufferAsset');
-require('./material');
+const Asset = require('./CCAsset');
+const EventTarget = require('../event/event-target');
+
+/**
+ * !#en Class for video data handling.
+ * !#zh 视频资源类。
+ * @class VideoClip
+ * @extends Asset
+ * @uses EventTarget
+ */
+var VideoClip = cc.Class({
+    name: 'cc.VideoClip',
+    extends: Asset,
+    mixins: [EventTarget],
+});
+
+cc.VideoClip = VideoClip;
+module.exports = VideoClip;
