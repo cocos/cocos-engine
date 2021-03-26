@@ -38,6 +38,7 @@ CCVKTexture::CCVKTexture()
 }
 
 CCVKTexture::~CCVKTexture() {
+    destroy();
 }
 
 void CCVKTexture::doInit(const TextureInfo &info) {

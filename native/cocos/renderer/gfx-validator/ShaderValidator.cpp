@@ -28,11 +28,13 @@
 
 #include "DeviceValidator.h"
 #include "ShaderValidator.h"
+#include "ValidationUtils.h"
 
 namespace cc {
 namespace gfx {
 
 ShaderValidator::~ShaderValidator() {
+    DeviceResourceTracker<Shader>::erase(this);
     CC_SAFE_DELETE(_actor);
 }
 

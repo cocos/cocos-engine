@@ -40,6 +40,7 @@ GLES3DescriptorSet::GLES3DescriptorSet()
 }
 
 GLES3DescriptorSet::~GLES3DescriptorSet() {
+    destroy();
 }
 
 void GLES3DescriptorSet::doInit(const DescriptorSetInfo &info) {

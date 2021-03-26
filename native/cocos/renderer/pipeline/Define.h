@@ -393,7 +393,15 @@ struct CC_DLL UBOShadow : public Object {
 
 class CC_DLL SamplerLib : public Object {
 public:
-    gfx::Sampler *getSampler(uint hash);
+    static gfx::Sampler *getSampler(uint hash);
+    static uint          genSamplerHash(const gfx::SamplerInfo &info);
+
+    static void          destroyAll();
+
+protected:
+    static uint _defaultSamplerHash;
+
+    static unordered_map<uint, gfx::Sampler *> _samplerCache;
 };
 
 struct CC_DLL DescriptorSetLayoutInfos {
@@ -403,9 +411,6 @@ struct CC_DLL DescriptorSetLayoutInfos {
 };
 extern CC_DLL DescriptorSetLayoutInfos globalDescriptorSetLayout;
 extern CC_DLL DescriptorSetLayoutInfos localDescriptorSetLayout;
-
-uint          genSamplerHash(const gfx::SamplerInfo &);
-gfx::Sampler *getSampler(uint hash);
 
 enum class LayerList : uint {
     NONE           = 0,

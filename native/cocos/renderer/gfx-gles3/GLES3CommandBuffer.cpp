@@ -44,6 +44,7 @@ GLES3CommandBuffer::GLES3CommandBuffer()
 }
 
 GLES3CommandBuffer::~GLES3CommandBuffer() {
+    destroy();
 }
 
 void GLES3CommandBuffer::doInit(const CommandBufferInfo &info) {

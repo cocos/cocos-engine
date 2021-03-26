@@ -64,6 +64,8 @@ private:
     std::array<float, UBOGlobal::COUNT> _globalUBO;
     std::array<float, UBOCamera::COUNT> _cameraUBO;
     std::array<float, UBOShadow::COUNT> _shadowUBO;
+
+    std::vector<gfx::Buffer *> _ubos;
 };
 
 } // namespace pipeline

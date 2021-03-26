@@ -37,6 +37,7 @@ GLES3Buffer::GLES3Buffer()
 }
 
 GLES3Buffer::~GLES3Buffer() {
+    destroy();
 }
 
 void GLES3Buffer::doInit(const BufferInfo &info) {

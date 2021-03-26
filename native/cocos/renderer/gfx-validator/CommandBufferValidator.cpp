@@ -37,15 +37,20 @@
 #include "QueueValidator.h"
 #include "RenderPassValidator.h"
 #include "TextureValidator.h"
+#include "ValidationUtils.h"
 
 namespace cc {
 namespace gfx {
 
 CommandBufferValidator::~CommandBufferValidator() {
+    DeviceResourceTracker<CommandBuffer>::erase(this);
     CC_SAFE_DELETE(_actor);
 }
 
 void CommandBufferValidator::doInit(const CommandBufferInfo &info) {
+
+    /////////// execute ///////////
+
     CommandBufferInfo actorInfo = info;
     actorInfo.queue             = static_cast<QueueValidator *>(info.queue)->getActor();
 
@@ -58,9 +63,12 @@ void CommandBufferValidator::doDestroy() {
 
 void CommandBufferValidator::begin(RenderPass *renderPass, uint subpass, Framebuffer *framebuffer) {
     CCASSERT(!_insideRenderPass, "Already inside an render pass?");
+    CCASSERT(_type != CommandBufferType::PRIMARY || !renderPass, "Primary command buffer cannot inherit render passes");
 
     // secondary command buffers enter the render pass right here
     _insideRenderPass = !!renderPass;
+
+    /////////// execute ///////////
 
     RenderPass * renderPassActor  = renderPass ? static_cast<RenderPassValidator *>(renderPass)->getActor() : nullptr;
     Framebuffer *framebufferActor = framebuffer ? static_cast<FramebufferValidator *>(framebuffer)->getActor() : nullptr;
@@ -69,10 +77,10 @@ void CommandBufferValidator::begin(RenderPass *renderPass, uint subpass, Framebu
 }
 
 void CommandBufferValidator::end() {
-    if (_type == CommandBufferType::PRIMARY && _insideRenderPass) {
-        CCASSERT(false, "Still inside an render pass?");
-    }
+    CCASSERT(_type != CommandBufferType::PRIMARY || !_insideRenderPass, "Still inside an render pass?");
     _insideRenderPass = false;
+
+    /////////// execute ///////////
 
     _actor->end();
 }
@@ -87,6 +95,8 @@ void CommandBufferValidator::beginRenderPass(RenderPass *renderPass, Framebuffer
 
     static vector<CommandBuffer *> secondaryCBActors;
     secondaryCBActors.resize(secondaryCBCount);
+
+    /////////// execute ///////////
 
     RenderPass * renderPassActor  = renderPass ? static_cast<RenderPassValidator *>(renderPass)->getActor() : nullptr;
     Framebuffer *framebufferActor = fbo ? static_cast<FramebufferValidator *>(fbo)->getActor() : nullptr;
@@ -107,12 +117,16 @@ void CommandBufferValidator::endRenderPass() {
     CCASSERT(_insideRenderPass, "No render pass to end?");
     _insideRenderPass = false;
 
+    /////////// execute ///////////
+
     _actor->endRenderPass();
 }
 
 void CommandBufferValidator::execute(CommandBuffer *const *cmdBuffs, uint32_t count) {
     if (!count) return; // be more lenient on this for now
     CCASSERT(_type == CommandBufferType::PRIMARY, "Command 'execute' must be recorded in primary command buffers.");
+
+    /////////// execute ///////////
 
     static vector<CommandBuffer *> cmdBuffActors;
     cmdBuffActors.resize(count);
@@ -169,9 +183,9 @@ void CommandBufferValidator::setStencilCompareMask(StencilFace face, int ref, ui
 }
 
 void CommandBufferValidator::draw(InputAssembler *ia) {
-    if (_type == CommandBufferType::PRIMARY && !_insideRenderPass) {
-        CCASSERT(false, "Command 'draw' must be recorded inside render passes.");
-    }
+    CCASSERT(_insideRenderPass, "Command 'draw' must be recorded inside render passes.");
+
+    /////////// execute ///////////
 
     _actor->draw(static_cast<InputAssemblerValidator *>(ia)->getActor());
 }
@@ -180,18 +194,30 @@ void CommandBufferValidator::updateBuffer(Buffer *buff, const void *data, uint s
     CCASSERT(_type == CommandBufferType::PRIMARY, "Command 'updateBuffer' must be recorded in primary command buffers.");
     CCASSERT(!_insideRenderPass, "Command 'updateBuffer' must be recorded outside render passes.");
 
-    _actor->updateBuffer(static_cast<BufferValidator *>(buff)->getActor(), data, size);
+    auto bufferValidator = static_cast<BufferValidator *>(buff);
+    bufferValidator->updateRedundencyCheck();
+
+    /////////// execute ///////////
+
+    _actor->updateBuffer(bufferValidator->getActor(), data, size);
 }
 
 void CommandBufferValidator::copyBuffersToTexture(const uint8_t *const *buffers, Texture *texture, const BufferTextureCopy *regions, uint count) {
     CCASSERT(_type == CommandBufferType::PRIMARY, "Command 'copyBuffersToTexture' must be recorded in primary command buffers.");
     CCASSERT(!_insideRenderPass, "Command 'copyBuffersToTexture' must be recorded outside render passes.");
 
-    _actor->copyBuffersToTexture(buffers, static_cast<TextureValidator *>(texture)->getActor(), regions, count);
+    auto textureValidator = static_cast<TextureValidator *>(texture);
+    textureValidator->updateRedundencyCheck();
+
+    /////////// execute ///////////
+
+    _actor->copyBuffersToTexture(buffers, textureValidator->getActor(), regions, count);
 }
 
 void CommandBufferValidator::blitTexture(Texture *srcTexture, Texture *dstTexture, const TextureBlit *regions, uint count, Filter filter) {
     CCASSERT(!_insideRenderPass, "Command 'blitTexture' must be recorded outside render passes.");
+
+    /////////// execute ///////////
 
     Texture *actorSrcTexture = nullptr;
     Texture *actorDstTexture = nullptr;
@@ -204,6 +230,8 @@ void CommandBufferValidator::blitTexture(Texture *srcTexture, Texture *dstTextur
 void CommandBufferValidator::dispatch(const DispatchInfo &info) {
     CCASSERT(!_insideRenderPass, "Command 'dispatch' must be recorded outside render passes.");
 
+    /////////// execute ///////////
+
     DispatchInfo actorInfo = info;
     if (info.indirectBuffer) actorInfo.indirectBuffer = static_cast<BufferValidator *>(info.indirectBuffer)->getActor();
 
@@ -211,6 +239,9 @@ void CommandBufferValidator::dispatch(const DispatchInfo &info) {
 }
 
 void CommandBufferValidator::pipelineBarrier(const GlobalBarrier *barrier, const TextureBarrier *const *textureBarriers, const Texture *const *textures, uint textureBarrierCount) {
+
+    /////////// execute ///////////
+
     static vector<Texture *> textureActors;
     textureActors.resize(textureBarrierCount);
 

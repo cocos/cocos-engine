@@ -29,11 +29,13 @@
 #include "BufferValidator.h"
 #include "DeviceValidator.h"
 #include "InputAssemblerValidator.h"
+#include "ValidationUtils.h"
 
 namespace cc {
 namespace gfx {
 
 InputAssemblerValidator::~InputAssemblerValidator() {
+    DeviceResourceTracker<InputAssembler>::erase(this);
     CC_SAFE_DELETE(_actor);
 }
 

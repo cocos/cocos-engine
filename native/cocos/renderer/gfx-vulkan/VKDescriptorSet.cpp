@@ -43,6 +43,7 @@ CCVKDescriptorSet::CCVKDescriptorSet()
 }
 
 CCVKDescriptorSet::~CCVKDescriptorSet() {
+    destroy();
 }
 
 void CCVKDescriptorSet::doInit(const DescriptorSetInfo &info) {
@@ -52,6 +53,7 @@ void CCVKDescriptorSet::doInit(const DescriptorSetInfo &info) {
 
     _gpuDescriptorSet = CC_NEW(CCVKGPUDescriptorSet);
     _gpuDescriptorSet->gpuDescriptors.resize(descriptorCount, {});
+    _gpuDescriptorSet->layoutID = gpuDescriptorSetLayout->id;
 
     for (size_t i = 0u, k = 0u; i < bindingCount; ++i) {
         const DescriptorSetLayoutBinding &binding = gpuDescriptorSetLayout->bindings[i];
@@ -95,7 +97,7 @@ void CCVKDescriptorSet::doInit(const DescriptorSetInfo &info) {
 
     for (size_t t = 0u; t < gpuDevice->backBufferCount; ++t) {
         CCVKGPUDescriptorSet::Instance &instance = _gpuDescriptorSet->instances[t];
-        instance.vkDescriptorSet                 = gpuDescriptorSetLayout->pool.request(t);
+        instance.vkDescriptorSet                 = gpuDevice->getDescriptorSetPool(_gpuDescriptorSet->layoutID)->request(t);
         instance.descriptorInfos.resize(descriptorCount, {});
 
         for (size_t i = 0u, k = 0u; i < bindingCount; ++i) {
@@ -155,8 +157,8 @@ void CCVKDescriptorSet::doInit(const DescriptorSetInfo &info) {
 
 void CCVKDescriptorSet::doDestroy() {
     if (_gpuDescriptorSet) {
-        CCVKGPUDescriptorHub *      descriptorHub          = CCVKDevice::getInstance()->gpuDescriptorHub();
-        CCVKGPUDescriptorSetLayout *gpuDescriptorSetLayout = static_cast<CCVKDescriptorSetLayout *>(_layout)->gpuDescriptorSetLayout();
+        CCVKGPUDevice *       gpuDevice     = CCVKDevice::getInstance()->gpuDevice();
+        CCVKGPUDescriptorHub *descriptorHub = CCVKDevice::getInstance()->gpuDescriptorHub();
 
         for (size_t t = 0u; t < _gpuDescriptorSet->instances.size(); ++t) {
             CCVKGPUDescriptorSet::Instance &instance = _gpuDescriptorSet->instances[t];
@@ -176,8 +178,8 @@ void CCVKDescriptorSet::doDestroy() {
                 }
             }
 
-            if (gpuDescriptorSetLayout && instance.vkDescriptorSet) {
-                gpuDescriptorSetLayout->pool.yield(instance.vkDescriptorSet, t);
+            if (instance.vkDescriptorSet) {
+                gpuDevice->getDescriptorSetPool(_gpuDescriptorSet->layoutID)->yield(instance.vkDescriptorSet, t);
             }
         }
 

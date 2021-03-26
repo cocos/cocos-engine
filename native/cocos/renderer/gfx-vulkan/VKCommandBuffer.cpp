@@ -48,6 +48,7 @@ CCVKCommandBuffer::CCVKCommandBuffer()
 }
 
 CCVKCommandBuffer::~CCVKCommandBuffer() {
+    destroy();
 }
 
 void CCVKCommandBuffer::doInit(const CommandBufferInfo &info) {

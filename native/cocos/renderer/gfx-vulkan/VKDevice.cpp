@@ -512,11 +512,12 @@ void CCVKDevice::doDestroy() {
             _gpuDevice->memoryAllocator = VK_NULL_HANDLE;
         }
 
-        for (CCVKGPUDevice::CommandBufferPools::iterator it = _gpuDevice->commandBufferPools.begin();
-             it != _gpuDevice->commandBufferPools.end(); ++it) {
+        for (CCVKGPUDevice::CommandBufferPools::iterator it = _gpuDevice->_commandBufferPools.begin();
+             it != _gpuDevice->_commandBufferPools.end(); ++it) {
             CC_SAFE_DELETE(it->second);
         }
-        _gpuDevice->commandBufferPools.clear();
+        _gpuDevice->_commandBufferPools.clear();
+        _gpuDevice->_descriptorSetPools.clear();
 
         if (_gpuDevice->vkDevice != VK_NULL_HANDLE) {
             vkDestroyDevice(_gpuDevice->vkDevice, nullptr);
@@ -544,7 +545,7 @@ void CCVKDevice::acquire() {
     queue->gpuQueue()->nextWaitSemaphore   = VK_NULL_HANDLE;
     queue->gpuQueue()->nextSignalSemaphore = VK_NULL_HANDLE;
 
-    _gpuBufferHub->flush();
+    _gpuBufferHub->flush(gpuTransportHub());
     _gpuDescriptorSetHub->flush();
 
     _gpuSemaphorePool->reset();

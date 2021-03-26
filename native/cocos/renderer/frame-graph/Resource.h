@@ -64,7 +64,7 @@ public:
     using Descriptor       = DescriptorType;
     using DescriptorHasher = DescriptorHasherType;
 
-    Resource() = default;
+    Resource() noexcept = default;
     explicit Resource(const Descriptor &desc) noexcept;
     ~Resource()                = default;
     Resource(const Resource &) = default;

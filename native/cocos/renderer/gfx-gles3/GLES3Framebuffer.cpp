@@ -39,6 +39,7 @@ GLES3Framebuffer::GLES3Framebuffer()
 }
 
 GLES3Framebuffer::~GLES3Framebuffer() {
+    destroy();
 }
 
 void GLES3Framebuffer::doInit(const FramebufferInfo &info) {

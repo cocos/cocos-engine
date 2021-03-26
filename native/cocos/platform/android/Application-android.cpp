@@ -36,8 +36,9 @@
 #include "platform/android/jni/JniHelper.h"
 #include "platform/android/jni/JniCocosActivity.h"
 
-#include "renderer/GFXDeviceManager.h"
 #include "pipeline/Define.h"
+#include "pipeline/RenderPipeline.h"
+#include "renderer/GFXDeviceManager.h"
 
 #define LOG_APP_TAG "Application_android Debug"
 #define LOGD(...)   __android_log_print(ANDROID_LOG_DEBUG, LOG_APP_TAG, __VA_ARGS__)
@@ -94,6 +95,8 @@ Application::~Application() {
 #if USE_AUDIO
     AudioEngine::end();
 #endif
+
+    pipeline::RenderPipeline::getInstance()->destroy();
 
     EventDispatcher::destroy();
     se::ScriptEngine::destroyInstance();

@@ -31,7 +31,7 @@
 namespace cc {
 namespace pipeline {
 
-int GLOBAL_UBO_COUNT = static_cast<int>(PipelineGlobalBindings::SAMPLER_SHADOWMAP);
+int GLOBAL_UBO_COUNT     = static_cast<int>(PipelineGlobalBindings::SAMPLER_SHADOWMAP);
 int GLOBAL_SAMPLER_COUNT = static_cast<int>(PipelineGlobalBindings::COUNT) - GLOBAL_UBO_COUNT;
 
 int LOCAL_UBO_COUNT     = static_cast<int>(ModelLocalBindings::SAMPLER_JOINTS);
@@ -457,7 +457,11 @@ const gfx::UniformSamplerTexture SPRITE_TEXTURE::LAYOUT = {
     1,
 };
 
-uint genSamplerHash(const gfx::SamplerInfo &info) {
+uint SamplerLib::_defaultSamplerHash{genSamplerHash(gfx::SamplerInfo())};
+
+unordered_map<uint, gfx::Sampler *> SamplerLib::_samplerCache{};
+
+uint SamplerLib::genSamplerHash(const gfx::SamplerInfo &info) {
     uint hash = 0;
     hash |= static_cast<uint>(info.minFilter);
     hash |= static_cast<uint>(info.magFilter) << 2;
@@ -471,17 +475,13 @@ uint genSamplerHash(const gfx::SamplerInfo &info) {
     return hash;
 }
 
-static uint defaultSamplerHash = genSamplerHash(gfx::SamplerInfo());
-
-map<uint, gfx::Sampler *> samplerCache;
-gfx::Sampler *            getSampler(uint hash) {
+gfx::Sampler *SamplerLib::getSampler(uint hash) {
     if (hash == 0) {
-        hash = defaultSamplerHash;
+        hash = _defaultSamplerHash;
     }
 
-    auto sampler = samplerCache[hash];
-    if (sampler) {
-        return sampler;
+    if (_samplerCache.count(hash)) {
+        return _samplerCache[hash];
     }
 
     gfx::SamplerInfo info;
@@ -495,8 +495,14 @@ gfx::Sampler *            getSampler(uint hash) {
     info.cmpFunc       = static_cast<gfx::ComparisonFunc>((hash >> 16) & 15);
     info.mipLODBias    = ((hash >> 28) & 15);
 
-    sampler = gfx::Device::getInstance()->createSampler(std::move(info));
-    return sampler;
+    return _samplerCache[hash] = gfx::Device::getInstance()->createSampler(std::move(info));
+}
+
+void SamplerLib::destroyAll() {
+    for (auto &pair : _samplerCache) {
+        CC_SAFE_DESTROY(pair.second);
+    }
+    _samplerCache.clear();
 }
 
 uint SKYBOX_FLAG = static_cast<uint>(gfx::ClearFlagBit::STENCIL) << 1;

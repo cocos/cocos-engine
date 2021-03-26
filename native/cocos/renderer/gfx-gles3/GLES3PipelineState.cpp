@@ -56,6 +56,7 @@ GLES3PipelineState::GLES3PipelineState()
 }
 
 GLES3PipelineState::~GLES3PipelineState() {
+    destroy();
 }
 
 void GLES3PipelineState::doInit(const PipelineStateInfo &info) {

@@ -35,6 +35,7 @@ GLES3RenderPass::GLES3RenderPass()
 }
 
 GLES3RenderPass::~GLES3RenderPass() {
+    destroy();
 }
 
 void GLES3RenderPass::doInit(const RenderPassInfo &info) {

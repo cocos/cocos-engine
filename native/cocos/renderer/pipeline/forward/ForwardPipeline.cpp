@@ -53,7 +53,7 @@ namespace {
 } // namespace
 
 gfx::RenderPass *ForwardPipeline::getOrCreateRenderPass(gfx::ClearFlags clearFlags) {
-    if (_renderPasses.find(clearFlags) != _renderPasses.end()) {
+    if (_renderPasses.count(clearFlags)) {
         return _renderPasses[clearFlags];
     }
 
@@ -146,8 +146,8 @@ bool ForwardPipeline::activeRenderer() {
         gfx::Address::CLAMP,
         gfx::Address::CLAMP,
     };
-    const auto shadowMapSamplerHash = genSamplerHash(std::move(info));
-    const auto shadowMapSampler = getSampler(shadowMapSamplerHash);
+    const auto shadowMapSamplerHash = SamplerLib::genSamplerHash(std::move(info));
+    const auto shadowMapSampler = SamplerLib::getSampler(shadowMapSamplerHash);
 
     // Main light sampler binding
     this->_descriptorSet->bindSampler(SHADOWMAP::BINDING, shadowMapSampler);
@@ -177,7 +177,7 @@ void ForwardPipeline::destroy() {
     }
 
     for (auto &it : _renderPasses) {
-        it.second->destroy();
+        CC_SAFE_DESTROY(it.second);
     }
     _renderPasses.clear();
 

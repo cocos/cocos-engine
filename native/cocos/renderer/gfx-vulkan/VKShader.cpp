@@ -37,6 +37,7 @@ CCVKShader::CCVKShader()
 }
 
 CCVKShader::~CCVKShader() {
+    destroy();
 }
 
 void CCVKShader::doInit(const ShaderInfo &info) {

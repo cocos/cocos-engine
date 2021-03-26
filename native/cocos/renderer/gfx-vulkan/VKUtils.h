@@ -27,6 +27,7 @@
 
 #define WIN32_LEAN_AND_MEAN
 
+#include "base/Macros.h"
 #include "gfx-base/GFXDef.h"
 
 #include "vk_mem_alloc.h"
@@ -41,7 +42,7 @@
 #define BARRIER_DEDUCTION_LEVEL_FULL  2
 
 #ifndef BARRIER_DEDUCTION_LEVEL
-#define BARRIER_DEDUCTION_LEVEL BARRIER_DEDUCTION_LEVEL_BASIC
+    #define BARRIER_DEDUCTION_LEVEL BARRIER_DEDUCTION_LEVEL_BASIC
 #endif
 
 namespace cc {
@@ -597,7 +598,9 @@ void fullPipelineBarrier(VkCommandBuffer cmdBuff) {
     memoryBarrier.srcAccessMask = FULL_ACCESS_FLAGS;
     memoryBarrier.dstAccessMask = FULL_ACCESS_FLAGS;
     vkCmdPipelineBarrier(cmdBuff, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
-                         0, 1, &memoryBarrier, 0, nullptr, 0, nullptr);}
+                         0, 1, &memoryBarrier, 0, nullptr, 0, nullptr);
+#endif
+}
 
 template <typename T, size_t Size>
 char (*countofHelper(T (&_Array)[Size]))[Size];
@@ -608,14 +611,13 @@ template <class T>
 uint toUint(T value) {
     static_assert(std::is_arithmetic<T>::value, "T must be numeric");
 
-    if (static_cast<uintmax_t>(value) > static_cast<uintmax_t>(std::numeric_limits<uint>::max())) {
-        throw std::runtime_error("to_u32() failed, value is too big to be converted to uint");
-    }
+    CCASSERT(static_cast<uintmax_t>(value) <= static_cast<uintmax_t>(std::numeric_limits<uint>::max()),
+             "value is too big to be converted to uint");
 
     return static_cast<uint>(value);
 }
 
-CC_INLINE VkDeviceSize roundUp(VkDeviceSize numToRound, uint multiple) {
+VkDeviceSize roundUp(VkDeviceSize numToRound, uint multiple) {
     return ((numToRound + multiple - 1) / multiple) * multiple;
 }
 
@@ -650,5 +652,3 @@ bool isExtensionSupported(const char *required, const vector<VkExtensionProperti
 
 } // namespace gfx
 } // namespace cc
-
-#endif // CC_GFXVULKAN_UTILS_H_

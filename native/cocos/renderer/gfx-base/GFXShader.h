@@ -52,7 +52,7 @@ public:
 
 protected:
     static uint generateShaderID() noexcept {
-        static uint _idGen = 0;
+        static uint _idGen = 10000;
         return _idGen++;
     }
 

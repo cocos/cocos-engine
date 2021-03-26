@@ -37,6 +37,7 @@ GLES2PipelineLayout::GLES2PipelineLayout()
 }
 
 GLES2PipelineLayout::~GLES2PipelineLayout() {
+    destroy();
 }
 
 void GLES2PipelineLayout::doInit(const PipelineLayoutInfo &info) {

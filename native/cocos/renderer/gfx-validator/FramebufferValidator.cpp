@@ -30,11 +30,13 @@
 #include "FramebufferValidator.h"
 #include "RenderPassValidator.h"
 #include "TextureValidator.h"
+#include "ValidationUtils.h"
 
 namespace cc {
 namespace gfx {
 
 FramebufferValidator::~FramebufferValidator() {
+    DeviceResourceTracker<Framebuffer>::erase(this);
     CC_SAFE_DELETE(_actor);
 }
 

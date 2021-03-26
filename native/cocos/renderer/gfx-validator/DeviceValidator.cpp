@@ -39,6 +39,7 @@
 #include "SamplerValidator.h"
 #include "ShaderValidator.h"
 #include "TextureValidator.h"
+#include "ValidationUtils.h"
 
 namespace cc {
 namespace gfx {
@@ -63,16 +64,19 @@ bool DeviceValidator::doInit(const DeviceInfo &info) {
         return false;
     }
 
-    _context                                     = _actor->getContext();
-    _API                                         = _actor->getGfxAPI();
-    _deviceName                                  = _actor->getDeviceName();
-    _queue                                       = CC_NEW(QueueValidator(_actor->getQueue()));
-    _cmdBuff                                     = CC_NEW(CommandBufferValidator(_actor->getCommandBuffer()));
+    _context                                                = _actor->getContext();
+    _API                                                    = _actor->getGfxAPI();
+    _deviceName                                             = _actor->getDeviceName();
+    _queue                                                  = CC_NEW(QueueValidator(_actor->getQueue()));
+    _cmdBuff                                                = CC_NEW(CommandBufferValidator(_actor->getCommandBuffer()));
     static_cast<CommandBufferValidator *>(_cmdBuff)->_queue = _queue;
-    _renderer                                    = _actor->getRenderer();
-    _vendor                                      = _actor->getVendor();
-    _caps                                        = _actor->_caps;
+    _renderer                                               = _actor->getRenderer();
+    _vendor                                                 = _actor->getVendor();
+    _caps                                                   = _actor->_caps;
     memcpy(_features, _actor->_features, static_cast<uint>(Feature::COUNT) * sizeof(bool));
+
+    DeviceResourceTracker<CommandBuffer>::push(_cmdBuff);
+    DeviceResourceTracker<Queue>::push(_queue);
 
     CC_LOG_INFO("Device validator enabled.");
 
@@ -91,6 +95,20 @@ void DeviceValidator::doDestroy() {
         _queue = nullptr;
     }
 
+    DeviceResourceTracker<CommandBuffer>::checkEmpty();
+    DeviceResourceTracker<Queue>::checkEmpty();
+    DeviceResourceTracker<Buffer>::checkEmpty();
+    DeviceResourceTracker<Texture>::checkEmpty();
+    DeviceResourceTracker<Sampler>::checkEmpty();
+    DeviceResourceTracker<Shader>::checkEmpty();
+    DeviceResourceTracker<InputAssembler>::checkEmpty();
+    DeviceResourceTracker<RenderPass>::checkEmpty();
+    DeviceResourceTracker<Framebuffer>::checkEmpty();
+    DeviceResourceTracker<DescriptorSet>::checkEmpty();
+    DeviceResourceTracker<DescriptorSetLayout>::checkEmpty();
+    DeviceResourceTracker<PipelineLayout>::checkEmpty();
+    DeviceResourceTracker<PipelineState>::checkEmpty();
+
     _actor->destroy();
 }
 
@@ -104,6 +122,7 @@ void DeviceValidator::acquire() {
 
 void DeviceValidator::present() {
     _actor->present();
+    ++_currentFrame;
 }
 
 void DeviceValidator::setMultithreaded(bool multithreaded) {
@@ -111,84 +130,117 @@ void DeviceValidator::setMultithreaded(bool multithreaded) {
 }
 
 CommandBuffer *DeviceValidator::createCommandBuffer(const CommandBufferInfo &info, bool hasAgent) {
-    CommandBuffer *actor = _actor->createCommandBuffer(info, hasAgent);
-    return CC_NEW(CommandBufferValidator(actor));
+    CommandBuffer *actor  = _actor->createCommandBuffer(info, hasAgent);
+    CommandBuffer *result = CC_NEW(CommandBufferValidator(actor));
+    DeviceResourceTracker<CommandBuffer>::push(result);
+    return result;
 }
 
 Queue *DeviceValidator::createQueue() {
-    Queue *actor = _actor->createQueue();
-    return CC_NEW(QueueValidator(actor));
+    Queue *actor  = _actor->createQueue();
+    Queue *result = CC_NEW(QueueValidator(actor));
+    DeviceResourceTracker<Queue>::push(result);
+    return result;
 }
 
 Buffer *DeviceValidator::createBuffer() {
-    Buffer *actor = _actor->createBuffer();
-    return CC_NEW(BufferValidator(actor));
+    Buffer *actor  = _actor->createBuffer();
+    Buffer *result = CC_NEW(BufferValidator(actor));
+    DeviceResourceTracker<Buffer>::push(result);
+    return result;
 }
 
 Texture *DeviceValidator::createTexture() {
-    Texture *actor = _actor->createTexture();
-    return CC_NEW(TextureValidator(actor));
+    Texture *actor  = _actor->createTexture();
+    Texture *result = CC_NEW(TextureValidator(actor));
+    DeviceResourceTracker<Texture>::push(result);
+    return result;
 }
 
 Sampler *DeviceValidator::createSampler() {
-    Sampler *actor = _actor->createSampler();
-    return CC_NEW(SamplerValidator(actor));
+    Sampler *actor  = _actor->createSampler();
+    Sampler *result = CC_NEW(SamplerValidator(actor));
+    DeviceResourceTracker<Sampler>::push(result);
+    return result;
 }
 
 Shader *DeviceValidator::createShader() {
-    Shader *actor = _actor->createShader();
-    return CC_NEW(ShaderValidator(actor));
+    Shader *actor  = _actor->createShader();
+    Shader *result = CC_NEW(ShaderValidator(actor));
+    DeviceResourceTracker<Shader>::push(result);
+    return result;
 }
 
 InputAssembler *DeviceValidator::createInputAssembler() {
-    InputAssembler *actor = _actor->createInputAssembler();
-    return CC_NEW(InputAssemblerValidator(actor));
+    InputAssembler *actor  = _actor->createInputAssembler();
+    InputAssembler *result = CC_NEW(InputAssemblerValidator(actor));
+    DeviceResourceTracker<InputAssembler>::push(result);
+    return result;
 }
 
 RenderPass *DeviceValidator::createRenderPass() {
-    RenderPass *actor = _actor->createRenderPass();
-    return CC_NEW(RenderPassValidator(actor));
+    RenderPass *actor  = _actor->createRenderPass();
+    RenderPass *result = CC_NEW(RenderPassValidator(actor));
+    DeviceResourceTracker<RenderPass>::push(result);
+    return result;
 }
 
 Framebuffer *DeviceValidator::createFramebuffer() {
-    Framebuffer *actor = _actor->createFramebuffer();
-    return CC_NEW(FramebufferValidator(actor));
+    Framebuffer *actor  = _actor->createFramebuffer();
+    Framebuffer *result = CC_NEW(FramebufferValidator(actor));
+    DeviceResourceTracker<Framebuffer>::push(result);
+    return result;
 }
 
 DescriptorSet *DeviceValidator::createDescriptorSet() {
-    DescriptorSet *actor = _actor->createDescriptorSet();
-    return CC_NEW(DescriptorSetValidator(actor));
+    DescriptorSet *actor  = _actor->createDescriptorSet();
+    DescriptorSet *result = CC_NEW(DescriptorSetValidator(actor));
+    DeviceResourceTracker<DescriptorSet>::push(result);
+    return result;
 }
 
 DescriptorSetLayout *DeviceValidator::createDescriptorSetLayout() {
-    DescriptorSetLayout *actor = _actor->createDescriptorSetLayout();
-    return CC_NEW(DescriptorSetLayoutValidator(actor));
+    DescriptorSetLayout *actor  = _actor->createDescriptorSetLayout();
+    DescriptorSetLayout *result = CC_NEW(DescriptorSetLayoutValidator(actor));
+    DeviceResourceTracker<DescriptorSetLayout>::push(result);
+    return result;
 }
 
 PipelineLayout *DeviceValidator::createPipelineLayout() {
-    PipelineLayout *actor = _actor->createPipelineLayout();
-    return CC_NEW(PipelineLayoutValidator(actor));
+    PipelineLayout *actor  = _actor->createPipelineLayout();
+    PipelineLayout *result = CC_NEW(PipelineLayoutValidator(actor));
+    DeviceResourceTracker<PipelineLayout>::push(result);
+    return result;
 }
 
 PipelineState *DeviceValidator::createPipelineState() {
-    PipelineState *actor = _actor->createPipelineState();
-    return CC_NEW(PipelineStateValidator(actor));
+    PipelineState *actor  = _actor->createPipelineState();
+    PipelineState *result = CC_NEW(PipelineStateValidator(actor));
+    DeviceResourceTracker<PipelineState>::push(result);
+    return result;
 }
 
 GlobalBarrier *DeviceValidator::createGlobalBarrier() {
-    return _actor->createGlobalBarrier();
+    GlobalBarrier *actor = _actor->createGlobalBarrier();
+    return actor;
 }
 
 TextureBarrier *DeviceValidator::createTextureBarrier() {
-    return _actor->createTextureBarrier();
+    TextureBarrier *actor = _actor->createTextureBarrier();
+    return actor;
 }
 
 void DeviceValidator::copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint count) {
-    _actor->copyBuffersToTexture(buffers, static_cast<TextureValidator *>(dst)->getActor(), regions, count);
+    auto textureValidator = static_cast<TextureValidator *>(dst);
+    textureValidator->updateRedundencyCheck();
+
+    _actor->copyBuffersToTexture(buffers, textureValidator->getActor(), regions, count);
 }
 
 void DeviceValidator::flushCommands(CommandBuffer *const *cmdBuffs, uint count) {
     if (!count) return;
+
+    /////////// execute ///////////
 
     static vector<CommandBuffer *> cmdBuffActors;
     cmdBuffActors.resize(count);

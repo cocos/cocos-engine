@@ -32,8 +32,10 @@
 
 namespace cc {
 namespace pipeline {
-map<uint, gfx::PipelineState *> PipelineStateManager::_PSOHashMap;
-gfx::PipelineState *            PipelineStateManager::getOrCreatePipelineState(const PassView *     pass,
+
+unordered_map<uint, gfx::PipelineState *> PipelineStateManager::_PSOHashMap;
+
+gfx::PipelineState *PipelineStateManager::getOrCreatePipelineState(const PassView *     pass,
                                                                    gfx::Shader *        shader,
                                                                    gfx::InputAssembler *inputAssembler,
                                                                    gfx::RenderPass *    renderPass) {
@@ -71,6 +73,13 @@ gfx::PipelineState *PipelineStateManager::getOrCreatePipelineStateByJS(uint32_t 
     const auto pass = GET_PASS(passHandle);
     CC_ASSERT(pass);
     return PipelineStateManager::getOrCreatePipelineState(pass, shader, inputAssembler, renderPass);
+}
+
+void PipelineStateManager::destroyAll() {
+    for (auto &pair : _PSOHashMap) {
+        CC_SAFE_DESTROY(pair.second);
+    }
+    _PSOHashMap.clear();
 }
 
 } // namespace pipeline

@@ -43,6 +43,7 @@ GLES2CommandBuffer::GLES2CommandBuffer()
 }
 
 GLES2CommandBuffer::~GLES2CommandBuffer() {
+    destroy();
 }
 
 void GLES2CommandBuffer::doInit(const CommandBufferInfo &info) {

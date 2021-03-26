@@ -100,7 +100,7 @@ public:
     inline const String &    getDeviceName() const { return _deviceName; }
     inline const String &    getRenderer() const { return _renderer; }
     inline const String &    getVendor() const { return _vendor; }
-    inline bool              hasFeature(Feature feature) const { return _features[static_cast<uint8_t>(feature)]; }
+    inline bool              hasFeature(Feature feature) const { return _features[static_cast<uint>(feature)]; }
 
     inline const BindingMappingInfo &bindingMappingInfo() const { return _bindingMappingInfo; }
 

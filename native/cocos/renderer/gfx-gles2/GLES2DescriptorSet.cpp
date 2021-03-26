@@ -40,6 +40,7 @@ GLES2DescriptorSet::GLES2DescriptorSet()
 }
 
 GLES2DescriptorSet::~GLES2DescriptorSet() {
+    destroy();
 }
 
 void GLES2DescriptorSet::doInit(const DescriptorSetInfo &info) {

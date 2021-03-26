@@ -65,6 +65,8 @@ void CommandBufferAgent::flushCommands(uint count, CommandBufferAgent *const *cm
 }
 
 CommandBufferAgent::~CommandBufferAgent() {
+    destroyMessageQueue();
+
     ENQUEUE_MESSAGE_1(
         DeviceAgent::getInstance()->getMessageQueue(), CommandBufferDestruct,
         actor, _actor,

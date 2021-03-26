@@ -29,11 +29,13 @@
 #include "DescriptorSetLayoutValidator.h"
 #include "DeviceValidator.h"
 #include "PipelineLayoutValidator.h"
+#include "ValidationUtils.h"
 
 namespace cc {
 namespace gfx {
 
 PipelineLayoutValidator::~PipelineLayoutValidator() {
+    DeviceResourceTracker<PipelineLayout>::erase(this);
     CC_SAFE_DELETE(_actor);
 }
 

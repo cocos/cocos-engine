@@ -31,6 +31,10 @@
 #include "gfx-empty/EmptyDevice.h"
 #include "gfx-validator/DeviceValidator.h"
 
+//#undef CC_USE_VULKAN
+//#undef CC_USE_GLES3
+//#undef CC_USE_GLES2
+
 #ifdef CC_USE_VULKAN
     #include "gfx-vulkan/GFXVulkan.h"
 #endif
@@ -77,17 +81,23 @@ public:
     }
 
     static void destroy() {
-        //CC_SAFE_DESTROY(Device::_instance);
+        CC_SAFE_DESTROY(Device::_instance);
     }
+
+    static constexpr bool useAgent() { return true; }
+
+    static constexpr bool useValidator() { return CC_DEBUG > 0 && !FORCE_DISABLE_VALIDATION || FORCE_ENABLE_VALIDATION; }
 
 private:
     template <typename DeviceCtor, typename Enable = std::enable_if_t<std::is_base_of<Device, DeviceCtor>::value>>
     static bool tryCreate(const DeviceInfo &info, Device *&device) {
         device = CC_NEW(DeviceCtor);
 
-        device = CC_NEW(gfx::DeviceAgent(device));
+        if (useAgent()) {
+            device = CC_NEW(gfx::DeviceAgent(device));
+        }
 
-        if (CC_DEBUG > 0 && !FORCE_DISABLE_VALIDATION || FORCE_ENABLE_VALIDATION) {
+        if (useValidator()) {
             device = CC_NEW(gfx::DeviceValidator(device));
             //((gfx::DeviceValidator *)device)->enableRecording(true);
         }
@@ -105,13 +115,11 @@ private:
             device->acquireSurface(reinterpret_cast<uintptr_t>(e.args->ptrVal));
         });
 
-
         return true;
     }
 
-// TODO: CI env doesn't have this?
 #ifndef CC_DEBUG
-    static constexpr int CC_DEBUG{1};
+    static constexpr int CC_DEBUG{0};
 #endif
 
     static constexpr bool FORCE_DISABLE_VALIDATION{false};

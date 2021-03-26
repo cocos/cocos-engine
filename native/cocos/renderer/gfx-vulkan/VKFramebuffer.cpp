@@ -39,6 +39,7 @@ CCVKFramebuffer::CCVKFramebuffer()
 }
 
 CCVKFramebuffer::~CCVKFramebuffer() {
+    destroy();
 }
 
 void CCVKFramebuffer::doInit(const FramebufferInfo &info) {

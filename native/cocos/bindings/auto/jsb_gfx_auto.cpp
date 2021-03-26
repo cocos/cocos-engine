@@ -241,7 +241,6 @@ bool js_register_gfx_Size(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_cc_gfx_DeviceCaps_proto = nullptr;
 se::Class* __jsb_cc_gfx_DeviceCaps_class = nullptr;
 
@@ -1148,7 +1147,6 @@ bool js_register_gfx_DeviceCaps(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_cc_gfx_Offset_proto = nullptr;
 se::Class* __jsb_cc_gfx_Offset_class = nullptr;
 
@@ -1355,7 +1353,6 @@ bool js_register_gfx_Offset(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_cc_gfx_Rect_proto = nullptr;
 se::Class* __jsb_cc_gfx_Rect_class = nullptr;
 
@@ -1597,7 +1594,6 @@ bool js_register_gfx_Rect(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_cc_gfx_Extent_proto = nullptr;
 se::Class* __jsb_cc_gfx_Extent_class = nullptr;
 
@@ -1804,7 +1800,6 @@ bool js_register_gfx_Extent(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_cc_gfx_TextureSubresLayers_proto = nullptr;
 se::Class* __jsb_cc_gfx_TextureSubresLayers_class = nullptr;
 
@@ -2011,7 +2006,6 @@ bool js_register_gfx_TextureSubresLayers(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_cc_gfx_TextureSubresRange_proto = nullptr;
 se::Class* __jsb_cc_gfx_TextureSubresRange_class = nullptr;
 
@@ -2253,7 +2247,6 @@ bool js_register_gfx_TextureSubresRange(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_cc_gfx_TextureCopy_proto = nullptr;
 se::Class* __jsb_cc_gfx_TextureCopy_class = nullptr;
 
@@ -2530,7 +2523,6 @@ bool js_register_gfx_TextureCopy(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_cc_gfx_TextureBlit_proto = nullptr;
 se::Class* __jsb_cc_gfx_TextureBlit_class = nullptr;
 
@@ -2842,7 +2834,6 @@ bool js_register_gfx_TextureBlit(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_cc_gfx_BufferTextureCopy_proto = nullptr;
 se::Class* __jsb_cc_gfx_BufferTextureCopy_class = nullptr;
 
@@ -3119,7 +3110,6 @@ bool js_register_gfx_BufferTextureCopy(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_cc_gfx_Viewport_proto = nullptr;
 se::Class* __jsb_cc_gfx_Viewport_class = nullptr;
 
@@ -3431,7 +3421,6 @@ bool js_register_gfx_Viewport(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_cc_gfx_Color_proto = nullptr;
 se::Class* __jsb_cc_gfx_Color_class = nullptr;
 
@@ -3673,7 +3662,6 @@ bool js_register_gfx_Color(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_cc_gfx_BindingMappingInfo_proto = nullptr;
 se::Class* __jsb_cc_gfx_BindingMappingInfo_class = nullptr;
 
@@ -3880,7 +3868,6 @@ bool js_register_gfx_BindingMappingInfo(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_cc_gfx_BufferInfo_proto = nullptr;
 se::Class* __jsb_cc_gfx_BufferInfo_class = nullptr;
 
@@ -4157,7 +4144,6 @@ bool js_register_gfx_BufferInfo(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_cc_gfx_BufferViewInfo_proto = nullptr;
 se::Class* __jsb_cc_gfx_BufferViewInfo_class = nullptr;
 
@@ -4364,7 +4350,6 @@ bool js_register_gfx_BufferViewInfo(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_cc_gfx_DrawInfo_proto = nullptr;
 se::Class* __jsb_cc_gfx_DrawInfo_class = nullptr;
 
@@ -4711,7 +4696,6 @@ bool js_register_gfx_DrawInfo(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_cc_gfx_DispatchInfo_proto = nullptr;
 se::Class* __jsb_cc_gfx_DispatchInfo_class = nullptr;
 
@@ -4988,7 +4972,6 @@ bool js_register_gfx_DispatchInfo(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_cc_gfx_IndirectBuffer_proto = nullptr;
 se::Class* __jsb_cc_gfx_IndirectBuffer_class = nullptr;
 
@@ -5108,7 +5091,6 @@ bool js_register_gfx_IndirectBuffer(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_cc_gfx_TextureInfo_proto = nullptr;
 se::Class* __jsb_cc_gfx_TextureInfo_class = nullptr;
 
@@ -5560,7 +5542,6 @@ bool js_register_gfx_TextureInfo(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_cc_gfx_TextureViewInfo_proto = nullptr;
 se::Class* __jsb_cc_gfx_TextureViewInfo_class = nullptr;
 
@@ -5907,7 +5888,6 @@ bool js_register_gfx_TextureViewInfo(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_cc_gfx_SamplerInfo_proto = nullptr;
 se::Class* __jsb_cc_gfx_SamplerInfo_class = nullptr;
 
@@ -6359,7 +6339,6 @@ bool js_register_gfx_SamplerInfo(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_cc_gfx_Uniform_proto = nullptr;
 se::Class* __jsb_cc_gfx_Uniform_class = nullptr;
 
@@ -6566,7 +6545,6 @@ bool js_register_gfx_Uniform(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_cc_gfx_UniformBlock_proto = nullptr;
 se::Class* __jsb_cc_gfx_UniformBlock_class = nullptr;
 
@@ -6843,7 +6821,6 @@ bool js_register_gfx_UniformBlock(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_cc_gfx_UniformSamplerTexture_proto = nullptr;
 se::Class* __jsb_cc_gfx_UniformSamplerTexture_class = nullptr;
 
@@ -7120,7 +7097,6 @@ bool js_register_gfx_UniformSamplerTexture(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_cc_gfx_UniformSampler_proto = nullptr;
 se::Class* __jsb_cc_gfx_UniformSampler_class = nullptr;
 
@@ -7362,7 +7338,6 @@ bool js_register_gfx_UniformSampler(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_cc_gfx_UniformTexture_proto = nullptr;
 se::Class* __jsb_cc_gfx_UniformTexture_class = nullptr;
 
@@ -7639,7 +7614,6 @@ bool js_register_gfx_UniformTexture(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_cc_gfx_UniformStorageImage_proto = nullptr;
 se::Class* __jsb_cc_gfx_UniformStorageImage_class = nullptr;
 
@@ -7951,7 +7925,6 @@ bool js_register_gfx_UniformStorageImage(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_cc_gfx_UniformStorageBuffer_proto = nullptr;
 se::Class* __jsb_cc_gfx_UniformStorageBuffer_class = nullptr;
 
@@ -8228,7 +8201,6 @@ bool js_register_gfx_UniformStorageBuffer(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_cc_gfx_UniformInputAttachment_proto = nullptr;
 se::Class* __jsb_cc_gfx_UniformInputAttachment_class = nullptr;
 
@@ -8470,7 +8442,6 @@ bool js_register_gfx_UniformInputAttachment(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_cc_gfx_ShaderStage_proto = nullptr;
 se::Class* __jsb_cc_gfx_ShaderStage_class = nullptr;
 
@@ -8642,7 +8613,6 @@ bool js_register_gfx_ShaderStage(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_cc_gfx_Attribute_proto = nullptr;
 se::Class* __jsb_cc_gfx_Attribute_class = nullptr;
 
@@ -8954,7 +8924,6 @@ bool js_register_gfx_Attribute(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_cc_gfx_ShaderInfo_proto = nullptr;
 se::Class* __jsb_cc_gfx_ShaderInfo_class = nullptr;
 
@@ -9406,7 +9375,6 @@ bool js_register_gfx_ShaderInfo(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_cc_gfx_InputAssemblerInfo_proto = nullptr;
 se::Class* __jsb_cc_gfx_InputAssemblerInfo_class = nullptr;
 
@@ -9648,7 +9616,6 @@ bool js_register_gfx_InputAssemblerInfo(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_cc_gfx_ColorAttachment_proto = nullptr;
 se::Class* __jsb_cc_gfx_ColorAttachment_class = nullptr;
 
@@ -9960,7 +9927,6 @@ bool js_register_gfx_ColorAttachment(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_cc_gfx_DepthStencilAttachment_proto = nullptr;
 se::Class* __jsb_cc_gfx_DepthStencilAttachment_class = nullptr;
 
@@ -10342,7 +10308,6 @@ bool js_register_gfx_DepthStencilAttachment(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_cc_gfx_SubpassInfo_proto = nullptr;
 se::Class* __jsb_cc_gfx_SubpassInfo_class = nullptr;
 
@@ -10619,7 +10584,6 @@ bool js_register_gfx_SubpassInfo(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_cc_gfx_RenderPassInfo_proto = nullptr;
 se::Class* __jsb_cc_gfx_RenderPassInfo_class = nullptr;
 
@@ -10826,7 +10790,6 @@ bool js_register_gfx_RenderPassInfo(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_cc_gfx_GlobalBarrierInfo_proto = nullptr;
 se::Class* __jsb_cc_gfx_GlobalBarrierInfo_class = nullptr;
 
@@ -10998,7 +10961,6 @@ bool js_register_gfx_GlobalBarrierInfo(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_cc_gfx_TextureBarrierInfo_proto = nullptr;
 se::Class* __jsb_cc_gfx_TextureBarrierInfo_class = nullptr;
 
@@ -11275,7 +11237,6 @@ bool js_register_gfx_TextureBarrierInfo(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_cc_gfx_FramebufferInfo_proto = nullptr;
 se::Class* __jsb_cc_gfx_FramebufferInfo_class = nullptr;
 
@@ -11552,7 +11513,6 @@ bool js_register_gfx_FramebufferInfo(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_cc_gfx_DescriptorSetLayoutBinding_proto = nullptr;
 se::Class* __jsb_cc_gfx_DescriptorSetLayoutBinding_class = nullptr;
 
@@ -11829,7 +11789,6 @@ bool js_register_gfx_DescriptorSetLayoutBinding(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_cc_gfx_DescriptorSetLayoutInfo_proto = nullptr;
 se::Class* __jsb_cc_gfx_DescriptorSetLayoutInfo_class = nullptr;
 
@@ -11949,7 +11908,6 @@ bool js_register_gfx_DescriptorSetLayoutInfo(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_cc_gfx_DescriptorSetInfo_proto = nullptr;
 se::Class* __jsb_cc_gfx_DescriptorSetInfo_class = nullptr;
 
@@ -12069,7 +12027,6 @@ bool js_register_gfx_DescriptorSetInfo(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_cc_gfx_PipelineLayoutInfo_proto = nullptr;
 se::Class* __jsb_cc_gfx_PipelineLayoutInfo_class = nullptr;
 
@@ -12189,7 +12146,6 @@ bool js_register_gfx_PipelineLayoutInfo(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_cc_gfx_InputState_proto = nullptr;
 se::Class* __jsb_cc_gfx_InputState_class = nullptr;
 
@@ -12309,7 +12265,6 @@ bool js_register_gfx_InputState(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_cc_gfx_RasterizerState_proto = nullptr;
 se::Class* __jsb_cc_gfx_RasterizerState_class = nullptr;
 
@@ -12831,7 +12786,6 @@ bool js_register_gfx_RasterizerState(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_cc_gfx_DepthStencilState_proto = nullptr;
 se::Class* __jsb_cc_gfx_DepthStencilState_class = nullptr;
 
@@ -13598,7 +13552,6 @@ bool js_register_gfx_DepthStencilState(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_cc_gfx_BlendTarget_proto = nullptr;
 se::Class* __jsb_cc_gfx_BlendTarget_class = nullptr;
 
@@ -13980,7 +13933,6 @@ bool js_register_gfx_BlendTarget(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_cc_gfx_BlendState_proto = nullptr;
 se::Class* __jsb_cc_gfx_BlendState_class = nullptr;
 
@@ -14222,7 +14174,6 @@ bool js_register_gfx_BlendState(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_cc_gfx_CommandBufferInfo_proto = nullptr;
 se::Class* __jsb_cc_gfx_CommandBufferInfo_class = nullptr;
 
@@ -14394,7 +14345,6 @@ bool js_register_gfx_CommandBufferInfo(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_cc_gfx_QueueInfo_proto = nullptr;
 se::Class* __jsb_cc_gfx_QueueInfo_class = nullptr;
 
@@ -14514,7 +14464,6 @@ bool js_register_gfx_QueueInfo(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_cc_gfx_MemoryStatus_proto = nullptr;
 se::Class* __jsb_cc_gfx_MemoryStatus_class = nullptr;
 
@@ -14686,7 +14635,6 @@ bool js_register_gfx_MemoryStatus(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_cc_gfx_DeviceInfo_proto = nullptr;
 se::Class* __jsb_cc_gfx_DeviceInfo_class = nullptr;
 
@@ -14998,7 +14946,6 @@ bool js_register_gfx_DeviceInfo(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_cc_gfx_GFXObject_proto = nullptr;
 se::Class* __jsb_cc_gfx_GFXObject_class = nullptr;
 
@@ -15068,7 +15015,6 @@ bool js_register_gfx_GFXObject(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_cc_gfx_Buffer_proto = nullptr;
 se::Class* __jsb_cc_gfx_Buffer_class = nullptr;
 
@@ -15290,7 +15236,6 @@ bool js_register_gfx_Buffer(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_cc_gfx_CommandBuffer_proto = nullptr;
 se::Class* __jsb_cc_gfx_CommandBuffer_class = nullptr;
 
@@ -16047,7 +15992,6 @@ bool js_register_gfx_CommandBuffer(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_cc_gfx_Context_proto = nullptr;
 se::Class* __jsb_cc_gfx_Context_class = nullptr;
 
@@ -16226,7 +16170,6 @@ bool js_register_gfx_Context(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_cc_gfx_DescriptorSet_proto = nullptr;
 se::Class* __jsb_cc_gfx_DescriptorSet_class = nullptr;
 
@@ -16668,7 +16611,6 @@ bool js_register_gfx_DescriptorSet(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_cc_gfx_DescriptorSetLayout_proto = nullptr;
 se::Class* __jsb_cc_gfx_DescriptorSetLayout_class = nullptr;
 
@@ -16789,7 +16731,6 @@ bool js_register_gfx_DescriptorSetLayout(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_cc_gfx_Framebuffer_proto = nullptr;
 se::Class* __jsb_cc_gfx_Framebuffer_class = nullptr;
 
@@ -16951,7 +16892,6 @@ bool js_register_gfx_Framebuffer(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_cc_gfx_GlobalBarrier_proto = nullptr;
 se::Class* __jsb_cc_gfx_GlobalBarrier_class = nullptr;
 
@@ -17038,7 +16978,6 @@ bool js_register_gfx_GlobalBarrier(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_cc_gfx_InputAssembler_proto = nullptr;
 se::Class* __jsb_cc_gfx_InputAssembler_class = nullptr;
 
@@ -17492,7 +17431,6 @@ bool js_register_gfx_InputAssembler(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_cc_gfx_PipelineLayout_proto = nullptr;
 se::Class* __jsb_cc_gfx_PipelineLayout_class = nullptr;
 
@@ -17593,7 +17531,6 @@ bool js_register_gfx_PipelineLayout(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_cc_gfx_PipelineState_proto = nullptr;
 se::Class* __jsb_cc_gfx_PipelineState_class = nullptr;
 
@@ -17874,7 +17811,6 @@ bool js_register_gfx_PipelineState(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_cc_gfx_Queue_proto = nullptr;
 se::Class* __jsb_cc_gfx_Queue_class = nullptr;
 
@@ -17995,7 +17931,6 @@ bool js_register_gfx_Queue(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_cc_gfx_RenderPass_proto = nullptr;
 se::Class* __jsb_cc_gfx_RenderPass_class = nullptr;
 
@@ -18157,7 +18092,6 @@ bool js_register_gfx_RenderPass(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_cc_gfx_Sampler_proto = nullptr;
 se::Class* __jsb_cc_gfx_Sampler_class = nullptr;
 
@@ -18438,7 +18372,6 @@ bool js_register_gfx_Sampler(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_cc_gfx_Shader_proto = nullptr;
 se::Class* __jsb_cc_gfx_Shader_class = nullptr;
 
@@ -18739,7 +18672,6 @@ bool js_register_gfx_Shader(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_cc_gfx_Texture_proto = nullptr;
 se::Class* __jsb_cc_gfx_Texture_class = nullptr;
 
@@ -19103,7 +19035,6 @@ bool js_register_gfx_Texture(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_cc_gfx_TextureBarrier_proto = nullptr;
 se::Class* __jsb_cc_gfx_TextureBarrier_class = nullptr;
 
@@ -19190,7 +19121,6 @@ bool js_register_gfx_TextureBarrier(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_cc_gfx_Device_proto = nullptr;
 se::Class* __jsb_cc_gfx_Device_class = nullptr;
 
@@ -20034,7 +19964,6 @@ bool js_register_gfx_Device(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 bool register_all_gfx(se::Object* obj)
 {
     // Get the ns

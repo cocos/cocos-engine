@@ -71,7 +71,7 @@ private:
     gfx::BufferList _lightBuffers;
     UintList _lightIndexOffsets;
     UintList _lightIndices;
-    map<gfx::ClearFlags, gfx::RenderPass *> _renderPasses;
+    unordered_map<gfx::ClearFlags, gfx::RenderPass *> _renderPasses;
 };
 
 } // namespace pipeline

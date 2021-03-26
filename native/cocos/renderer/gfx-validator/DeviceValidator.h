@@ -26,7 +26,6 @@
 #pragma once
 
 #include "base/Agent.h"
-#include "base/threading/Semaphore.h"
 #include "gfx-base/GFXDevice.h"
 
 namespace cc {
@@ -90,6 +89,7 @@ public:
 
     inline void enableRecording(bool recording) { _recording = recording; }
     inline bool isRecording() { return _recording; }
+    inline uint currentFrame() { return _currentFrame; }
 
 protected:
     static DeviceValidator *_instance;
@@ -108,6 +108,7 @@ protected:
     void bindDeviceContext(bool bound) override { _actor->bindDeviceContext(bound); }
 
     bool _recording{false};
+    uint _currentFrame{1u};
 };
 
 } // namespace gfx

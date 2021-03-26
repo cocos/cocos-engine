@@ -710,6 +710,8 @@ cocos_source_files(
     NO_WERROR    cocos/renderer/gfx-validator/ShaderValidator.cpp
                  cocos/renderer/gfx-validator/TextureValidator.h
     NO_WERROR    cocos/renderer/gfx-validator/TextureValidator.cpp
+                 cocos/renderer/gfx-validator/ValidationUtils.h
+    NO_WERROR    cocos/renderer/gfx-validator/ValidationUtils.cpp
 
                  cocos/renderer/gfx-empty/EmptyBuffer.h
     NO_WERROR    cocos/renderer/gfx-empty/EmptyBuffer.cpp
@@ -1724,7 +1726,7 @@ target_compile_definitions(cocos2d
 
 if(WIN32)
     target_link_libraries(cocos2d PUBLIC
-        ws2_32 userenv psapi winmm Version Iphlpapi opengl32
+        ws2_32 userenv psapi winmm Iphlpapi
         ${CC_EXTERNAL_LIBS}
     )
 

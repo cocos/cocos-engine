@@ -445,9 +445,9 @@ using TextureUsage = TextureUsageBit;
 CC_ENUM_OPERATORS(TextureUsageBit);
 
 enum class TextureFlagBit : FlagBits {
-    NONE         = 0,
-    GEN_MIPMAP   = 0x1,
-    IMMUTABLE    = 0x2,
+    NONE       = 0,
+    GEN_MIPMAP = 0x1,
+    IMMUTABLE  = 0x2,
 };
 using TextureFlags = TextureFlagBit;
 CC_ENUM_OPERATORS(TextureFlagBit);
@@ -701,27 +701,27 @@ struct Size {
 };
 
 struct DeviceCaps {
-    uint  maxVertexAttributes            = 0u;
-    uint  maxVertexUniformVectors        = 0u;
-    uint  maxFragmentUniformVectors      = 0u;
-    uint  maxTextureUnits                = 0u;
-    uint  maxImageUnits                  = 0u;
-    uint  maxVertexTextureUnits          = 0u;
-    uint  maxColorRenderTargets          = 0u;
-    uint  maxShaderStorageBufferBindings = 0u;
-    uint  maxShaderStorageBlockSize      = 0u;
-    uint  maxUniformBufferBindings       = 0u;
-    uint  maxUniformBlockSize            = 0u;
-    uint  maxTextureSize                 = 0u;
-    uint  maxCubeMapTextureSize          = 0u;
-    uint  depthBits                      = 0u;
-    uint  stencilBits                    = 0u;
-    uint  uboOffsetAlignment             = 1u;
+    uint maxVertexAttributes            = 0u;
+    uint maxVertexUniformVectors        = 0u;
+    uint maxFragmentUniformVectors      = 0u;
+    uint maxTextureUnits                = 0u;
+    uint maxImageUnits                  = 0u;
+    uint maxVertexTextureUnits          = 0u;
+    uint maxColorRenderTargets          = 0u;
+    uint maxShaderStorageBufferBindings = 0u;
+    uint maxShaderStorageBlockSize      = 0u;
+    uint maxUniformBufferBindings       = 0u;
+    uint maxUniformBlockSize            = 0u;
+    uint maxTextureSize                 = 0u;
+    uint maxCubeMapTextureSize          = 0u;
+    uint depthBits                      = 0u;
+    uint stencilBits                    = 0u;
+    uint uboOffsetAlignment             = 1u;
 
-    uint  maxComputeSharedMemorySize     = 0u;
-    uint  maxComputeWorkGroupInvocations = 0u;
-    Size  maxComputeWorkGroupSize;
-    Size  maxComputeWorkGroupCount;
+    uint maxComputeSharedMemorySize     = 0u;
+    uint maxComputeWorkGroupInvocations = 0u;
+    Size maxComputeWorkGroupSize;
+    Size maxComputeWorkGroupCount;
 
     float clipSpaceMinZ    = -1.0f;
     float screenSpaceSignY = 1.0f;
@@ -1054,6 +1054,23 @@ struct ColorAttachment {
     StoreOp                 storeOp     = StoreOp::STORE;
     std::vector<AccessType> beginAccesses;
     std::vector<AccessType> endAccesses{AccessType::PRESENT};
+
+    // vector constructor with initializer list is not noexcept
+    //ColorAttachment() noexcept = default; // this does not work for MSVC intellisense
+    ColorAttachment(
+        Format                  format_        = Format::UNKNOWN,
+        SampleCount             sampleCount_   = SampleCount::X1,
+        LoadOp                  loadOp_        = LoadOp::CLEAR,
+        StoreOp                 storeOp_       = StoreOp::STORE,
+        std::vector<AccessType> beginAccesses_ = {},
+        std::vector<AccessType> endAccesses_   = {AccessType::PRESENT}) noexcept {
+        format        = format_;
+        sampleCount   = sampleCount_;
+        loadOp        = loadOp_;
+        storeOp       = storeOp_;
+        beginAccesses = beginAccesses_;
+        endAccesses   = endAccesses_;
+    }
 };
 
 using ColorAttachmentList = vector<ColorAttachment>;
@@ -1067,6 +1084,27 @@ struct DepthStencilAttachment {
     StoreOp                 stencilStoreOp = StoreOp::STORE;
     std::vector<AccessType> beginAccesses;
     std::vector<AccessType> endAccesses{AccessType::DEPTH_STENCIL_ATTACHMENT_WRITE};
+
+    // vector constructor with initializer list is not noexcept
+    //DepthStencilAttachment() noexcept = default; // this does not work for MSVC intellisense
+    DepthStencilAttachment(
+        Format                  format_         = Format::UNKNOWN,
+        SampleCount             sampleCount_    = SampleCount::X1,
+        LoadOp                  depthLoadOp_    = LoadOp::CLEAR,
+        StoreOp                 depthStoreOp_   = StoreOp::STORE,
+        LoadOp                  stencilLoadOp_  = LoadOp::CLEAR,
+        StoreOp                 stencilStoreOp_ = StoreOp::STORE,
+        std::vector<AccessType> beginAccesses_  = {},
+        std::vector<AccessType> endAccesses_    = {AccessType::DEPTH_STENCIL_ATTACHMENT_WRITE}) noexcept {
+        format         = format_;
+        sampleCount    = sampleCount_;
+        depthLoadOp    = depthLoadOp_;
+        depthStoreOp   = depthStoreOp_;
+        stencilLoadOp  = stencilLoadOp_;
+        stencilStoreOp = stencilStoreOp_;
+        beginAccesses  = beginAccesses_;
+        endAccesses    = endAccesses_;
+    }
 };
 
 struct SubpassInfo {

@@ -24,10 +24,10 @@
 ****************************************************************************/
 
 #include "base/CoreStd.h"
-#include "base/threading/MessageQueue.h"
 
 #include "DeviceValidator.h"
 #include "TextureValidator.h"
+#include "ValidationUtils.h"
 
 namespace cc {
 namespace gfx {
@@ -45,11 +45,12 @@ unordered_map<Format, Feature> featureCheckMap{
 }
 
 TextureValidator::~TextureValidator() {
+    DeviceResourceTracker<Texture>::erase(this);
     CC_SAFE_DELETE(_actor);
 }
 
 void TextureValidator::doInit(const TextureInfo &info) {
-    CCASSERT(DeviceValidator::getInstance()->hasFeature(featureCheckMap[_format]), "unsupported format");
+    CCASSERT(!featureCheckMap.count(_format) || DeviceValidator::getInstance()->hasFeature(featureCheckMap[_format]), "unsupported format");
 
     _actor->initialize(info);
 }
@@ -58,7 +59,7 @@ void TextureValidator::doInit(const TextureViewInfo &info) {
     TextureViewInfo actorInfo = info;
     actorInfo.texture         = static_cast<TextureValidator *>(info.texture)->getActor();
 
-    _actor->initialize(info);
+    _actor->initialize(actorInfo);
 }
 
 void TextureValidator::doDestroy() {
@@ -69,6 +70,17 @@ void TextureValidator::doResize(uint width, uint height, uint size) {
     CCASSERT(!_isTextureView, "Cannot resize texture views");
 
     _actor->resize(width, height);
+}
+
+void TextureValidator::updateRedundencyCheck() {
+    uint cur = DeviceValidator::getInstance()->currentFrame();
+
+    if (cur == _lastUpdateFrame) {
+        CC_LOG_WARNING(utils::getStacktraceJS().c_str());
+        CC_LOG_WARNING("performance warning: texture updated more than once per frame");
+    }
+
+    _lastUpdateFrame = cur;
 }
 
 } // namespace gfx

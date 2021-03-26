@@ -28,11 +28,13 @@
 #include "CommandBufferValidator.h"
 #include "DeviceValidator.h"
 #include "QueueValidator.h"
+#include "ValidationUtils.h"
 
 namespace cc {
 namespace gfx {
 
 QueueValidator::~QueueValidator() {
+    DeviceResourceTracker<Queue>::erase(this);
     CC_SAFE_DELETE(_actor);
 }
 

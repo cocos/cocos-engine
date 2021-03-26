@@ -24,31 +24,31 @@
 ****************************************************************************/
 
 #include "DeferredPipeline.h"
+#include "../SceneCulling.h"
 #include "../helper/SharedMemory.h"
+#include "../shadow/ShadowFlow.h"
 #include "GbufferFlow.h"
 #include "LightingFlow.h"
-#include "../shadow/ShadowFlow.h"
-#include "../SceneCulling.h"
 #include "gfx-base/GFXBuffer.h"
 #include "gfx-base/GFXCommandBuffer.h"
 #include "gfx-base/GFXDescriptorSet.h"
 #include "gfx-base/GFXDevice.h"
+#include "gfx-base/GFXFramebuffer.h"
 #include "gfx-base/GFXQueue.h"
 #include "gfx-base/GFXRenderPass.h"
-#include "gfx-base/GFXTexture.h"
-#include "gfx-base/GFXFramebuffer.h"
 #include "gfx-base/GFXSampler.h"
+#include "gfx-base/GFXTexture.h"
 #include "platform/Application.h"
 
 namespace cc {
 namespace pipeline {
 namespace {
 #define TO_VEC3(dst, src, offset) \
-    dst[offset] = src.x;          \
+    dst[offset]     = src.x;      \
     dst[offset + 1] = src.y;      \
     dst[offset + 2] = src.z;
 #define TO_VEC4(dst, src, offset) \
-    dst[offset] = src.x;          \
+    dst[offset]     = src.x;      \
     dst[offset + 1] = src.y;      \
     dst[offset + 2] = src.z;      \
     dst[offset + 3] = src.w;
@@ -59,19 +59,19 @@ gfx::RenderPass *DeferredPipeline::getOrCreateRenderPass(gfx::ClearFlags clearFl
         return _renderPasses[clearFlags];
     }
 
-    auto device = gfx::Device::getInstance();
-    gfx::ColorAttachment colorAttachment;
+    auto                        device = gfx::Device::getInstance();
+    gfx::ColorAttachment        colorAttachment;
     gfx::DepthStencilAttachment depthStencilAttachment;
-    colorAttachment.format = device->getColorFormat();
-    depthStencilAttachment.format = device->getDepthStencilFormat();
+    colorAttachment.format                = device->getColorFormat();
+    depthStencilAttachment.format         = device->getDepthStencilFormat();
     depthStencilAttachment.stencilStoreOp = gfx::StoreOp::DISCARD;
-    depthStencilAttachment.depthStoreOp = gfx::StoreOp::DISCARD;
+    depthStencilAttachment.depthStoreOp   = gfx::StoreOp::DISCARD;
 
     if (!(clearFlags & gfx::ClearFlagBit::COLOR)) {
         if (clearFlags & static_cast<gfx::ClearFlagBit>(SKYBOX_FLAG)) {
             colorAttachment.loadOp = gfx::LoadOp::DISCARD;
         } else {
-            colorAttachment.loadOp = gfx::LoadOp::LOAD;
+            colorAttachment.loadOp        = gfx::LoadOp::LOAD;
             colorAttachment.beginAccesses = {gfx::AccessType::PRESENT};
         }
     }
@@ -82,7 +82,7 @@ gfx::RenderPass *DeferredPipeline::getOrCreateRenderPass(gfx::ClearFlags clearFl
         depthStencilAttachment.beginAccesses = {gfx::AccessType::DEPTH_STENCIL_ATTACHMENT_WRITE};
     }
 
-    auto renderPass = device->createRenderPass({
+    auto renderPass           = device->createRenderPass({
         {colorAttachment},
         depthStencilAttachment,
     });
@@ -128,10 +128,10 @@ bool DeferredPipeline::activate() {
 }
 
 void DeferredPipeline::render(const vector<uint> &cameras) {
-	if (cameras.size() == 0) return;
+    if (cameras.size() == 0) return;
     _commandBuffers[0]->begin();
     _pipelineUBO->updateGlobalUBO();
-    for (const auto cameraId: cameras) {
+    for (const auto cameraId : cameras) {
         Camera *camera = GET_CAMERA(cameraId);
         _pipelineUBO->updateCameraUBO(camera, true);
         for (const auto flow : _flows) {
@@ -143,46 +143,94 @@ void DeferredPipeline::render(const vector<uint> &cameras) {
     _device->getQueue()->submit(_commandBuffers);
 }
 
-bool DeferredPipeline::createQuadInputAssembler(gfx::Buffer* &quadIB, gfx::Buffer* &quadVB, gfx::InputAssembler* &quadIA, gfx::SurfaceTransform surfaceTransform) {
+bool DeferredPipeline::createQuadInputAssembler(gfx::Buffer *&quadIB, gfx::Buffer *&quadVB, gfx::InputAssembler *&quadIA, gfx::SurfaceTransform surfaceTransform) {
     // step 1 create vertex buffer
     uint vbStride = sizeof(float) * 4;
-    uint vbSize = vbStride * 4;
-    quadVB = _device->createBuffer({gfx::BufferUsageBit::VERTEX | gfx::BufferUsageBit::TRANSFER_DST,
-              gfx::MemoryUsageBit::HOST | gfx::MemoryUsageBit::DEVICE, vbSize, vbStride});
+    uint vbSize   = vbStride * 4;
+    quadVB        = _device->createBuffer({gfx::BufferUsageBit::VERTEX | gfx::BufferUsageBit::TRANSFER_DST,
+                                    gfx::MemoryUsageBit::HOST | gfx::MemoryUsageBit::DEVICE, vbSize, vbStride});
     if (!quadVB) {
         return false;
     }
 
     float vbData[16] = {0};
-    int n = 0;
+    int   n          = 0;
     switch (surfaceTransform) {
         case (gfx::SurfaceTransform::IDENTITY):
-            n = 0;
-            vbData[n++] = -1.0; vbData[n++] = -1.0; vbData[n++] = 0.0; vbData[n++] = 1.0;
-            vbData[n++] = 1.0; vbData[n++] = -1.0; vbData[n++] = 1.0; vbData[n++] = 1.0;
-            vbData[n++] = -1.0; vbData[n++] = 1.0; vbData[n++] = 0.0; vbData[n++] = 0.0;
-            vbData[n++] = 1.0; vbData[n++] = 1.0; vbData[n++] = 1.0; vbData[n++] = 0.0;
+            n           = 0;
+            vbData[n++] = -1.0;
+            vbData[n++] = -1.0;
+            vbData[n++] = 0.0;
+            vbData[n++] = 1.0;
+            vbData[n++] = 1.0;
+            vbData[n++] = -1.0;
+            vbData[n++] = 1.0;
+            vbData[n++] = 1.0;
+            vbData[n++] = -1.0;
+            vbData[n++] = 1.0;
+            vbData[n++] = 0.0;
+            vbData[n++] = 0.0;
+            vbData[n++] = 1.0;
+            vbData[n++] = 1.0;
+            vbData[n++] = 1.0;
+            vbData[n++] = 0.0;
             break;
         case (gfx::SurfaceTransform::ROTATE_90):
-            n = 0;
-            vbData[n++] = -1.0; vbData[n++] = -1.0; vbData[n++] = 1.0; vbData[n++] = 1.0;
-            vbData[n++] = 1.0; vbData[n++] = -1.0; vbData[n++] = 1.0; vbData[n++] = 0.0;
-            vbData[n++] = -1.0; vbData[n++] = 1.0; vbData[n++] = 0.0; vbData[n++] = 1.0;
-            vbData[n++] = 1.0; vbData[n++] = 1.0; vbData[n++] = 0.0; vbData[n++] = 0.0;
+            n           = 0;
+            vbData[n++] = -1.0;
+            vbData[n++] = -1.0;
+            vbData[n++] = 1.0;
+            vbData[n++] = 1.0;
+            vbData[n++] = 1.0;
+            vbData[n++] = -1.0;
+            vbData[n++] = 1.0;
+            vbData[n++] = 0.0;
+            vbData[n++] = -1.0;
+            vbData[n++] = 1.0;
+            vbData[n++] = 0.0;
+            vbData[n++] = 1.0;
+            vbData[n++] = 1.0;
+            vbData[n++] = 1.0;
+            vbData[n++] = 0.0;
+            vbData[n++] = 0.0;
             break;
         case (gfx::SurfaceTransform::ROTATE_180):
-            n = 0;
-            vbData[n++] = -1.0; vbData[n++] = -1.0; vbData[n++] = 0.0; vbData[n++] = 0.0;
-            vbData[n++] = 1.0; vbData[n++] = -1.0; vbData[n++] = 1.0; vbData[n++] = 0.0;
-            vbData[n++] = -1.0; vbData[n++] = 1.0; vbData[n++] = 0.0; vbData[n++] = 1.0;
-            vbData[n++] = 1.0; vbData[n++] = 1.0; vbData[n++] = 1.0; vbData[n++] = 1.0;
+            n           = 0;
+            vbData[n++] = -1.0;
+            vbData[n++] = -1.0;
+            vbData[n++] = 0.0;
+            vbData[n++] = 0.0;
+            vbData[n++] = 1.0;
+            vbData[n++] = -1.0;
+            vbData[n++] = 1.0;
+            vbData[n++] = 0.0;
+            vbData[n++] = -1.0;
+            vbData[n++] = 1.0;
+            vbData[n++] = 0.0;
+            vbData[n++] = 1.0;
+            vbData[n++] = 1.0;
+            vbData[n++] = 1.0;
+            vbData[n++] = 1.0;
+            vbData[n++] = 1.0;
             break;
         case (gfx::SurfaceTransform::ROTATE_270):
-            n = 0;
-            vbData[n++] = -1.0; vbData[n++] = -1.0; vbData[n++] = 0.0; vbData[n++] = 0.0;
-            vbData[n++] = 1.0; vbData[n++] = -1.0; vbData[n++] = 0.0; vbData[n++] = 1.0;
-            vbData[n++] = -1.0; vbData[n++] = 1.0; vbData[n++] = 1.0; vbData[n++] = 0.0;
-            vbData[n++] = 1.0; vbData[n++] = 1.0; vbData[n++] = 1.0; vbData[n++] = 1.0;
+            n           = 0;
+            vbData[n++] = -1.0;
+            vbData[n++] = -1.0;
+            vbData[n++] = 0.0;
+            vbData[n++] = 0.0;
+            vbData[n++] = 1.0;
+            vbData[n++] = -1.0;
+            vbData[n++] = 0.0;
+            vbData[n++] = 1.0;
+            vbData[n++] = -1.0;
+            vbData[n++] = 1.0;
+            vbData[n++] = 1.0;
+            vbData[n++] = 0.0;
+            vbData[n++] = 1.0;
+            vbData[n++] = 1.0;
+            vbData[n++] = 1.0;
+            vbData[n++] = 1.0;
             break;
         default:
             break;
@@ -192,10 +240,10 @@ bool DeferredPipeline::createQuadInputAssembler(gfx::Buffer* &quadIB, gfx::Buffe
 
     // step 2 create index buffer
     uint ibStride = 4;
-    uint ibSize = ibStride * 6;
+    uint ibSize   = ibStride * 6;
 
-    quadIB =_device->createBuffer({gfx::BufferUsageBit::INDEX | gfx::BufferUsageBit::TRANSFER_DST,
-             gfx::MemoryUsageBit::HOST | gfx::MemoryUsageBit::DEVICE, ibSize, ibStride});
+    quadIB = _device->createBuffer({gfx::BufferUsageBit::INDEX | gfx::BufferUsageBit::TRANSFER_DST,
+                                    gfx::MemoryUsageBit::HOST | gfx::MemoryUsageBit::DEVICE, ibSize, ibStride});
 
     if (!quadIB) {
         return false;
@@ -210,7 +258,7 @@ bool DeferredPipeline::createQuadInputAssembler(gfx::Buffer* &quadIB, gfx::Buffe
     info.attributes.push_back({"a_texCoord", gfx::Format::RG32F});
     info.vertexBuffers.push_back(quadVB);
     info.indexBuffer = quadIB;
-    quadIA = _device->createInputAssembler(info);
+    quadIA           = _device->createInputAssembler(info);
     if (!quadIA) {
         return false;
     }
@@ -220,19 +268,18 @@ bool DeferredPipeline::createQuadInputAssembler(gfx::Buffer* &quadIB, gfx::Buffe
 
 gfx::Rect DeferredPipeline::getRenderArea(Camera *camera, bool onScreen) {
     gfx::Rect renderArea;
-    uint w, h;
+    uint      w, h;
     if (onScreen) {
         w = camera->getWindow()->hasOnScreenAttachments && (uint)_device->getSurfaceTransform() % 2 ? camera->height : camera->width;
         h = camera->getWindow()->hasOnScreenAttachments && (uint)_device->getSurfaceTransform() % 2 ? camera->width : camera->height;
-    }
-    else {
+    } else {
         w = camera->width;
         h = camera->height;
     }
 
-    renderArea.x = camera->viewportX * w;
-    renderArea.y = camera->viewportY * h;
-    renderArea.width = camera->viewportWidth * w * _pipelineSceneData->getSharedData()->shadingScale;
+    renderArea.x      = camera->viewportX * w;
+    renderArea.y      = camera->viewportY * h;
+    renderArea.width  = camera->viewportWidth * w * _pipelineSceneData->getSharedData()->shadingScale;
     renderArea.height = camera->viewportHeight * h * _pipelineSceneData->getSharedData()->shadingScale;
     return renderArea;
 }
@@ -276,8 +323,8 @@ bool DeferredPipeline::activeRenderer() {
         gfx::Address::CLAMP,
         gfx::Address::CLAMP,
     };
-    const auto samplerHash = genSamplerHash(std::move(info));
-    const auto sampler = getSampler(samplerHash);
+    const auto samplerHash = SamplerLib::genSamplerHash(std::move(info));
+    const auto sampler     = SamplerLib::getSampler(samplerHash);
 
     // Main light sampler binding
     this->_descriptorSet->bindSampler(SHADOWMAP::BINDING, sampler);
@@ -300,7 +347,7 @@ bool DeferredPipeline::activeRenderer() {
     if (!createQuadInputAssembler(_quadIB, _quadVBOnscreen, _quadIAOnscreen, _device->getSurfaceTransform())) {
         return false;
     }
-    
+
     gfx::RenderPassInfo gbufferPass;
 
     gfx::ColorAttachment color = {
@@ -326,8 +373,8 @@ bool DeferredPipeline::activeRenderer() {
     };
 
     gbufferPass.depthStencilAttachment = depth;
-    _gbufferRenderPass = _device->createRenderPass(gbufferPass);
-    
+    _gbufferRenderPass                 = _device->createRenderPass(gbufferPass);
+
     gfx::ColorAttachment cAttch = {
         gfx::Format::RGBA16F,
         gfx::SampleCount::X1,
@@ -336,10 +383,10 @@ bool DeferredPipeline::activeRenderer() {
         {},
         {gfx::AccessType::COLOR_ATTACHMENT_WRITE},
     };
-    
+
     gfx::RenderPassInfo lightPass;
     lightPass.colorAttachments.push_back(cAttch);
-    
+
     lightPass.depthStencilAttachment = {
         _device->getDepthStencilFormat(),
         gfx::SampleCount::X1,
@@ -351,19 +398,18 @@ bool DeferredPipeline::activeRenderer() {
     };
 
     _lightingRenderPass = _device->createRenderPass(lightPass);
-    
+
     if (_device->getSurfaceTransform() == gfx::SurfaceTransform::IDENTITY ||
         _device->getSurfaceTransform() == gfx::SurfaceTransform::ROTATE_180) {
-            _width = _device->getWidth();
-            _height = _device->getHeight();
+        _width  = _device->getWidth();
+        _height = _device->getHeight();
+    } else {
+        _width  = _device->getHeight();
+        _height = _device->getWidth();
     }
-    else {
-            _width = _device->getHeight();
-            _height = _device->getWidth();
-    }
-    
+
     generateDeferredRenderData();
-    
+
     _descriptorSet->bindSampler(
         static_cast<uint>(PipelineGlobalBindings::SAMPLER_GBUFFER_ALBEDOMAP), sampler);
     _descriptorSet->bindSampler(
@@ -382,7 +428,7 @@ void DeferredPipeline::resize(uint width, uint height) {
     if (_width == width && _height == height) {
         return;
     }
-    _width = width;
+    _width  = width;
     _height = height;
     destroyDeferredData();
     generateDeferredRenderData();
@@ -390,7 +436,7 @@ void DeferredPipeline::resize(uint width, uint height) {
 
 void DeferredPipeline::generateDeferredRenderData() {
     _deferredRenderData = CC_NEW(DeferredRenderData);
-    
+
     gfx::TextureInfo info = {
         gfx::TextureType::TEX2D,
         gfx::TextureUsageBit::COLOR_ATTACHMENT | gfx::TextureUsageBit::SAMPLED,
@@ -404,8 +450,8 @@ void DeferredPipeline::generateDeferredRenderData() {
         _deferredRenderData->gbufferRenderTargets.push_back(tex);
     }
 
-    info.usage = gfx::TextureUsageBit::DEPTH_STENCIL_ATTACHMENT;
-    info.format = _device->getDepthStencilFormat();
+    info.usage                    = gfx::TextureUsageBit::DEPTH_STENCIL_ATTACHMENT;
+    info.format                   = _device->getDepthStencilFormat();
     _deferredRenderData->depthTex = _device->createTexture(info);
 
     gfx::FramebufferInfo gbufferInfo = {
@@ -415,7 +461,7 @@ void DeferredPipeline::generateDeferredRenderData() {
     };
 
     _deferredRenderData->gbufferFrameBuffer = _device->createFramebuffer(gbufferInfo);
-    
+
     gfx::TextureInfo rtInfo = {
         gfx::TextureType::TEX2D,
         gfx::TextureUsageBit::COLOR_ATTACHMENT | gfx::TextureUsageBit::SAMPLED,
@@ -428,7 +474,7 @@ void DeferredPipeline::generateDeferredRenderData() {
     gfx::FramebufferInfo lightingInfo;
     lightingInfo.renderPass = _lightingRenderPass;
     lightingInfo.colorTextures.push_back(_deferredRenderData->lightingRenderTarget);
-    lightingInfo.depthStencilTexture = _deferredRenderData->depthTex;
+    lightingInfo.depthStencilTexture       = _deferredRenderData->depthTex;
     _deferredRenderData->lightingFrameBuff = _device->createFramebuffer(lightingInfo);
 
     _descriptorSet->bindTexture(
@@ -436,13 +482,13 @@ void DeferredPipeline::generateDeferredRenderData() {
     _descriptorSet->bindTexture(
         static_cast<uint>(PipelineGlobalBindings::SAMPLER_GBUFFER_POSITIONMAP), _deferredRenderData->gbufferFrameBuffer->getColorTextures()[1]);
     _descriptorSet->bindTexture(
-       static_cast<uint>(PipelineGlobalBindings::SAMPLER_GBUFFER_NORMALMAP), _deferredRenderData->gbufferFrameBuffer->getColorTextures()[2]);
+        static_cast<uint>(PipelineGlobalBindings::SAMPLER_GBUFFER_NORMALMAP), _deferredRenderData->gbufferFrameBuffer->getColorTextures()[2]);
     _descriptorSet->bindTexture(
         static_cast<uint>(PipelineGlobalBindings::SAMPLER_GBUFFER_EMISSIVEMAP), _deferredRenderData->gbufferFrameBuffer->getColorTextures()[3]);
-    
+
     _descriptorSet->bindTexture(
         static_cast<uint>(PipelineGlobalBindings::SAMPLER_LIGHTING_RESULTMAP),
-                                _deferredRenderData->lightingFrameBuff->getColorTextures()[0]);
+        _deferredRenderData->lightingFrameBuff->getColorTextures()[0]);
 }
 
 void DeferredPipeline::destroy() {
@@ -462,10 +508,10 @@ void DeferredPipeline::destroy() {
         it.second->destroy();
     }
     _renderPasses.clear();
-    
+
     _commandBuffers.clear();
-    
-    _gbufferRenderPass = nullptr;
+
+    _gbufferRenderPass  = nullptr;
     _lightingRenderPass = nullptr;
 
     RenderPipeline::destroy();
@@ -475,7 +521,7 @@ void DeferredPipeline::destroyDeferredData() {
     if (_deferredRenderData->gbufferFrameBuffer) {
         _deferredRenderData->gbufferFrameBuffer->destroy();
     }
-    
+
     if (_deferredRenderData->lightingFrameBuff) {
         _deferredRenderData->lightingFrameBuff->destroy();
     }
@@ -483,9 +529,9 @@ void DeferredPipeline::destroyDeferredData() {
     if (_deferredRenderData->lightingRenderTarget) {
         _deferredRenderData->lightingRenderTarget->destroy();
     }
-    
+
     _deferredRenderData->gbufferRenderTargets.clear();
-    
+
     CC_DELETE(_deferredRenderData);
 }
 

@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "RenderPipeline.h"
+#include "PipelineStateManager.h"
 #include "RenderFlow.h"
 #include "gfx-base/GFXCommandBuffer.h"
 #include "gfx-base/GFXDescriptorSet.h"
@@ -44,33 +45,33 @@ RenderPipeline::RenderPipeline()
     RenderPipeline::_instance = this;
 
     setDescriptorSetLayout();
-    _pipelineUBO = new PipelineUBO();
+    _pipelineUBO       = new PipelineUBO();
     _pipelineSceneData = new PipelineSceneData();
 }
 
 RenderPipeline::~RenderPipeline() {
 }
 
-#define INIT_GLOBAL_DESCSET_LAYOUT(info)                                    \
-do {                                                                        \
-    globalDescriptorSetLayout.samplers[info::NAME] = info::LAYOUT;          \
-    globalDescriptorSetLayout.bindings[info::BINDING] = info::DESCRIPTOR;   \
-} while (0)
+#define INIT_GLOBAL_DESCSET_LAYOUT(info)                                      \
+    do {                                                                      \
+        globalDescriptorSetLayout.samplers[info::NAME]    = info::LAYOUT;     \
+        globalDescriptorSetLayout.bindings[info::BINDING] = info::DESCRIPTOR; \
+    } while (0)
 
 void RenderPipeline::setDescriptorSetLayout() {
     globalDescriptorSetLayout.bindings.resize(static_cast<size_t>(PipelineGlobalBindings::COUNT));
 
-    globalDescriptorSetLayout.blocks[UBOGlobal::NAME] = UBOGlobal::LAYOUT;
-    globalDescriptorSetLayout.bindings[UBOGlobal::BINDING] = UBOGlobal::DESCRIPTOR;
-    globalDescriptorSetLayout.blocks[UBOCamera::NAME] = UBOCamera::LAYOUT;
-    globalDescriptorSetLayout.bindings[UBOCamera::BINDING] = UBOCamera::DESCRIPTOR;
-    globalDescriptorSetLayout.blocks[UBOShadow::NAME] = UBOShadow::LAYOUT;
-    globalDescriptorSetLayout.bindings[UBOShadow::BINDING] = UBOShadow::DESCRIPTOR;
-    globalDescriptorSetLayout.samplers[SHADOWMAP::NAME] = SHADOWMAP::LAYOUT;
-    globalDescriptorSetLayout.bindings[SHADOWMAP::BINDING] = SHADOWMAP::DESCRIPTOR;
-    globalDescriptorSetLayout.samplers[ENVIRONMENT::NAME] = ENVIRONMENT::LAYOUT;
-    globalDescriptorSetLayout.bindings[ENVIRONMENT::BINDING] = ENVIRONMENT::DESCRIPTOR;
-    globalDescriptorSetLayout.samplers[SPOT_LIGHTING_MAP::NAME] = SPOT_LIGHTING_MAP::LAYOUT;
+    globalDescriptorSetLayout.blocks[UBOGlobal::NAME]              = UBOGlobal::LAYOUT;
+    globalDescriptorSetLayout.bindings[UBOGlobal::BINDING]         = UBOGlobal::DESCRIPTOR;
+    globalDescriptorSetLayout.blocks[UBOCamera::NAME]              = UBOCamera::LAYOUT;
+    globalDescriptorSetLayout.bindings[UBOCamera::BINDING]         = UBOCamera::DESCRIPTOR;
+    globalDescriptorSetLayout.blocks[UBOShadow::NAME]              = UBOShadow::LAYOUT;
+    globalDescriptorSetLayout.bindings[UBOShadow::BINDING]         = UBOShadow::DESCRIPTOR;
+    globalDescriptorSetLayout.samplers[SHADOWMAP::NAME]            = SHADOWMAP::LAYOUT;
+    globalDescriptorSetLayout.bindings[SHADOWMAP::BINDING]         = SHADOWMAP::DESCRIPTOR;
+    globalDescriptorSetLayout.samplers[ENVIRONMENT::NAME]          = ENVIRONMENT::LAYOUT;
+    globalDescriptorSetLayout.bindings[ENVIRONMENT::BINDING]       = ENVIRONMENT::DESCRIPTOR;
+    globalDescriptorSetLayout.samplers[SPOT_LIGHTING_MAP::NAME]    = SPOT_LIGHTING_MAP::LAYOUT;
     globalDescriptorSetLayout.bindings[SPOT_LIGHTING_MAP::BINDING] = SPOT_LIGHTING_MAP::DESCRIPTOR;
 
     INIT_GLOBAL_DESCSET_LAYOUT(SAMPLERGBUFFERALBEDOMAP);
@@ -80,37 +81,37 @@ void RenderPipeline::setDescriptorSetLayout() {
     INIT_GLOBAL_DESCSET_LAYOUT(SAMPLERLIGHTINGRESULTMAP);
 
     localDescriptorSetLayout.bindings.resize(static_cast<size_t>(ModelLocalBindings::COUNT));
-    localDescriptorSetLayout.blocks[UBOLocalBatched::NAME] = UBOLocalBatched::LAYOUT;
-    localDescriptorSetLayout.bindings[UBOLocalBatched::BINDING] = UBOLocalBatched::DESCRIPTOR;
-    localDescriptorSetLayout.blocks[UBOLocal::NAME] = UBOLocal::LAYOUT;
-    localDescriptorSetLayout.bindings[UBOLocal::BINDING] = UBOLocal::DESCRIPTOR;
-    localDescriptorSetLayout.blocks[UBOForwardLight::NAME] = UBOForwardLight::LAYOUT;
-    localDescriptorSetLayout.bindings[UBOForwardLight::BINDING] = UBOForwardLight::DESCRIPTOR;
-    localDescriptorSetLayout.blocks[UBOSkinningTexture::NAME] = UBOSkinningTexture::LAYOUT;
-    localDescriptorSetLayout.bindings[UBOSkinningTexture::BINDING] = UBOSkinningTexture::DESCRIPTOR;
-    localDescriptorSetLayout.blocks[UBOSkinningAnimation::NAME] = UBOSkinningAnimation::LAYOUT;
+    localDescriptorSetLayout.blocks[UBOLocalBatched::NAME]           = UBOLocalBatched::LAYOUT;
+    localDescriptorSetLayout.bindings[UBOLocalBatched::BINDING]      = UBOLocalBatched::DESCRIPTOR;
+    localDescriptorSetLayout.blocks[UBOLocal::NAME]                  = UBOLocal::LAYOUT;
+    localDescriptorSetLayout.bindings[UBOLocal::BINDING]             = UBOLocal::DESCRIPTOR;
+    localDescriptorSetLayout.blocks[UBOForwardLight::NAME]           = UBOForwardLight::LAYOUT;
+    localDescriptorSetLayout.bindings[UBOForwardLight::BINDING]      = UBOForwardLight::DESCRIPTOR;
+    localDescriptorSetLayout.blocks[UBOSkinningTexture::NAME]        = UBOSkinningTexture::LAYOUT;
+    localDescriptorSetLayout.bindings[UBOSkinningTexture::BINDING]   = UBOSkinningTexture::DESCRIPTOR;
+    localDescriptorSetLayout.blocks[UBOSkinningAnimation::NAME]      = UBOSkinningAnimation::LAYOUT;
     localDescriptorSetLayout.bindings[UBOSkinningAnimation::BINDING] = UBOSkinningAnimation::DESCRIPTOR;
-    localDescriptorSetLayout.blocks[UBOSkinning::NAME] = UBOSkinning::LAYOUT;
-    localDescriptorSetLayout.bindings[UBOSkinning::BINDING] = UBOSkinning::DESCRIPTOR;
-    localDescriptorSetLayout.blocks[UBOMorph::NAME] = UBOMorph::LAYOUT;
-    localDescriptorSetLayout.bindings[UBOMorph::BINDING] = UBOMorph::DESCRIPTOR;
-    localDescriptorSetLayout.samplers[JOINT_TEXTURE::NAME] = JOINT_TEXTURE::LAYOUT;
-    localDescriptorSetLayout.bindings[JOINT_TEXTURE::BINDING] = JOINT_TEXTURE::DESCRIPTOR;
-    localDescriptorSetLayout.samplers[POSITION_MORPH::NAME] = POSITION_MORPH::LAYOUT;
-    localDescriptorSetLayout.bindings[POSITION_MORPH::BINDING] = POSITION_MORPH::DESCRIPTOR;
-    localDescriptorSetLayout.samplers[NORMAL_MORPH::NAME] = NORMAL_MORPH::LAYOUT;
-    localDescriptorSetLayout.bindings[NORMAL_MORPH::BINDING] = NORMAL_MORPH::DESCRIPTOR;
-    localDescriptorSetLayout.samplers[TANGENT_MORPH::NAME] = TANGENT_MORPH::LAYOUT;
-    localDescriptorSetLayout.bindings[TANGENT_MORPH::BINDING] = TANGENT_MORPH::DESCRIPTOR;
-    localDescriptorSetLayout.samplers[LIGHTMAP_TEXTURE::NAME] = LIGHTMAP_TEXTURE::LAYOUT;
-    localDescriptorSetLayout.bindings[LIGHTMAP_TEXTURE::BINDING] = LIGHTMAP_TEXTURE::DESCRIPTOR;
-    localDescriptorSetLayout.samplers[SPRITE_TEXTURE::NAME] = SPRITE_TEXTURE::LAYOUT;
-    localDescriptorSetLayout.bindings[SPRITE_TEXTURE::BINDING] = SPRITE_TEXTURE::DESCRIPTOR;
+    localDescriptorSetLayout.blocks[UBOSkinning::NAME]               = UBOSkinning::LAYOUT;
+    localDescriptorSetLayout.bindings[UBOSkinning::BINDING]          = UBOSkinning::DESCRIPTOR;
+    localDescriptorSetLayout.blocks[UBOMorph::NAME]                  = UBOMorph::LAYOUT;
+    localDescriptorSetLayout.bindings[UBOMorph::BINDING]             = UBOMorph::DESCRIPTOR;
+    localDescriptorSetLayout.samplers[JOINT_TEXTURE::NAME]           = JOINT_TEXTURE::LAYOUT;
+    localDescriptorSetLayout.bindings[JOINT_TEXTURE::BINDING]        = JOINT_TEXTURE::DESCRIPTOR;
+    localDescriptorSetLayout.samplers[POSITION_MORPH::NAME]          = POSITION_MORPH::LAYOUT;
+    localDescriptorSetLayout.bindings[POSITION_MORPH::BINDING]       = POSITION_MORPH::DESCRIPTOR;
+    localDescriptorSetLayout.samplers[NORMAL_MORPH::NAME]            = NORMAL_MORPH::LAYOUT;
+    localDescriptorSetLayout.bindings[NORMAL_MORPH::BINDING]         = NORMAL_MORPH::DESCRIPTOR;
+    localDescriptorSetLayout.samplers[TANGENT_MORPH::NAME]           = TANGENT_MORPH::LAYOUT;
+    localDescriptorSetLayout.bindings[TANGENT_MORPH::BINDING]        = TANGENT_MORPH::DESCRIPTOR;
+    localDescriptorSetLayout.samplers[LIGHTMAP_TEXTURE::NAME]        = LIGHTMAP_TEXTURE::LAYOUT;
+    localDescriptorSetLayout.bindings[LIGHTMAP_TEXTURE::BINDING]     = LIGHTMAP_TEXTURE::DESCRIPTOR;
+    localDescriptorSetLayout.samplers[SPRITE_TEXTURE::NAME]          = SPRITE_TEXTURE::LAYOUT;
+    localDescriptorSetLayout.bindings[SPRITE_TEXTURE::BINDING]       = SPRITE_TEXTURE::DESCRIPTOR;
 }
 
 bool RenderPipeline::initialize(const RenderPipelineInfo &info) {
     _flows = info.flows;
-    _tag = info.tag;
+    _tag   = info.tag;
     return true;
 }
 
@@ -150,7 +151,7 @@ bool RenderPipeline::activate() {
 void RenderPipeline::render(const vector<uint> &cameras) {
     for (const auto flow : _flows) {
         for (const auto cameraID : cameras) {
-            Camera* camera = GET_CAMERA(cameraID);
+            Camera *camera = GET_CAMERA(cameraID);
             flow->render(camera);
         }
     }
@@ -175,10 +176,12 @@ void RenderPipeline::destroy() {
     CC_SAFE_DESTROY(_defaultTexture);
 
     CC_SAFE_DELETE(_defaultTexture);
+
+    SamplerLib::destroyAll();
+    PipelineStateManager::destroyAll();
 }
 
-void RenderPipeline::setPipelineSharedSceneData(uint handle)
-{
+void RenderPipeline::setPipelineSharedSceneData(uint handle) {
     _pipelineSceneData->setPipelineSharedSceneData(handle);
 }
 

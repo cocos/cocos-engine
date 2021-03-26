@@ -38,6 +38,7 @@ CCVKPipelineLayout::CCVKPipelineLayout()
 }
 
 CCVKPipelineLayout::~CCVKPipelineLayout() {
+    destroy();
 }
 
 void CCVKPipelineLayout::doInit(const PipelineLayoutInfo &info) {

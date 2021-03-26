@@ -37,6 +37,7 @@ GLES3Texture::GLES3Texture()
 }
 
 GLES3Texture::~GLES3Texture() {
+    destroy();
 }
 
 void GLES3Texture::doInit(const TextureInfo &info) {

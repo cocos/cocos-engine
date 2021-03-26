@@ -37,6 +37,7 @@ CCVKRenderPass::CCVKRenderPass()
 }
 
 CCVKRenderPass::~CCVKRenderPass() {
+    destroy();
 }
 
 void CCVKRenderPass::doInit(const RenderPassInfo &info) {

@@ -38,6 +38,7 @@ CCVKInputAssembler::CCVKInputAssembler()
 }
 
 CCVKInputAssembler::~CCVKInputAssembler() {
+    destroy();
 }
 
 void CCVKInputAssembler::doInit(const InputAssemblerInfo &info) {

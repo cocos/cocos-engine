@@ -38,6 +38,8 @@ public:
 
     void update(void *buffer, uint size) override;
 
+    void updateRedundencyCheck();
+
 protected:
     void doInit(const BufferInfo &info) override;
     void doInit(const BufferViewInfo &info) override;
@@ -45,6 +47,8 @@ protected:
     void doDestroy() override;
 
     vector<uint8_t> _buffer;
+
+    uint _lastUpdateFrame = 0u;
 };
 
 } // namespace gfx

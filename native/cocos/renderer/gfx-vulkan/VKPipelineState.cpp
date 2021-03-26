@@ -40,6 +40,7 @@ CCVKPipelineState::CCVKPipelineState()
 }
 
 CCVKPipelineState::~CCVKPipelineState() {
+    destroy();
 }
 
 void CCVKPipelineState::doInit(const PipelineStateInfo &info) {

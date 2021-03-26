@@ -281,6 +281,8 @@ public:
         vector<VkWriteDescriptorSet> descriptorUpdateEntries;
     };
     vector<Instance> instances; // per swapchain image
+
+    uint layoutID = 0u;
 };
 
 typedef vector<CCVKGPUDescriptorSetLayout *> CCVKGPUDescriptorSetLayoutList;
@@ -332,6 +334,7 @@ public:
 };
 
 class CCVKGPUCommandBufferPool;
+class CCVKGPUDescriptorSetPool;
 class CCVKGPUDevice final : public Object {
 public:
     VkDevice                      vkDevice = VK_NULL_HANDLE;
@@ -355,6 +358,12 @@ public:
 
     CCVKGPUSwapchain *swapchain = nullptr; // reference
 
+    CCVKGPUCommandBufferPool *getCommandBufferPool();
+    CCVKGPUDescriptorSetPool *getDescriptorSetPool(uint layoutID);
+
+private:
+    friend class CCVKDevice;
+
     /* */
     using CommandBufferPools = tbb::concurrent_unordered_map<
         std::thread::id, CCVKGPUCommandBufferPool *, std::hash<std::thread::id>>;
@@ -363,9 +372,9 @@ public:
     std::mutex mutex;
     /* */
 
-    CommandBufferPools commandBufferPools;
+    CommandBufferPools _commandBufferPools;
 
-    CCVKGPUCommandBufferPool *getCommandBufferPool();
+    unordered_map<uint, CCVKGPUDescriptorSetPool> _descriptorSetPools;
 };
 
 /**
@@ -603,8 +612,8 @@ public:
     vector<uint> descriptorIndices;
     uint         descriptorCount = 0u;
 
-    uint                     maxSetsPerPool = 10u;
-    CCVKGPUDescriptorSetPool pool;
+    uint id             = 0u;
+    uint maxSetsPerPool = 10u;
 };
 
 /**
@@ -988,98 +997,6 @@ private:
     CCVKGPUDescriptorSetHub *_descriptorSetHub = nullptr;
 };
 
-class CCVKGPUBarrierManager final : public Object {
-public:
-    CCVKGPUBarrierManager(CCVKGPUDevice *device)
-    : _device(device) {}
-
-    void checkIn(CCVKGPUBuffer *gpuBuffer) {
-        _buffersToBeChecked.insert(gpuBuffer);
-    }
-
-    void checkIn(CCVKGPUBuffer *gpuBuffer, const ThsvsAccessType *newTypes, uint newTypeCount) {
-        vector<ThsvsAccessType> &target = gpuBuffer->renderAccessTypes;
-        for (uint i = 0u; i < newTypeCount; ++i) {
-            if (std::find(target.begin(), target.end(), newTypes[i]) == target.end()) {
-                target.push_back(newTypes[i]);
-            }
-        }
-    }
-
-    void checkIn(CCVKGPUTexture *gpuTexture, const ThsvsAccessType *newTypes = nullptr, uint newTypeCount = 0) {
-        vector<ThsvsAccessType> &target = gpuTexture->renderAccessTypes;
-        for (uint i = 0u; i < newTypeCount; ++i) {
-            if (std::find(target.begin(), target.end(), newTypes[i]) == target.end()) {
-                target.push_back(newTypes[i]);
-            }
-        }
-        _texturesToBeChecked.insert(gpuTexture);
-    }
-
-    void update(CCVKGPUCommandBuffer *gpuCommandBuffer);
-
-    CC_INLINE void cancel(CCVKGPUBuffer *gpuBuffer) { _buffersToBeChecked.erase(gpuBuffer); }
-    CC_INLINE void cancel(CCVKGPUTexture *gpuTexture) { _texturesToBeChecked.erase(gpuTexture); }
-    CC_INLINE bool needUpdate() { return !_texturesToBeChecked.empty() || !_buffersToBeChecked.empty(); }
-
-private:
-    unordered_set<CCVKGPUBuffer *>  _buffersToBeChecked;
-    unordered_set<CCVKGPUTexture *> _texturesToBeChecked;
-    CCVKGPUDevice *                 _device = nullptr;
-};
-
-/**
- * Manages buffer update events, across all back buffer instances.
- */
-class CCVKGPUBufferHub final : public Object {
-public:
-    CCVKGPUBufferHub(CCVKGPUDevice *device)
-    : _device(device) {
-        _buffersToBeUpdated.resize(device->backBufferCount);
-    }
-
-    void record(CCVKGPUBuffer *gpuBuffer, const void *src, size_t size) {
-        src = update(gpuBuffer, src, size); // copy from self afterwards
-        for (uint i = 0u; i < _device->backBufferCount; ++i) {
-            if (i == _device->curBackBufferIndex) {
-                _buffersToBeUpdated[i].erase(gpuBuffer);
-            } else {
-                _buffersToBeUpdated[i][gpuBuffer] = {src, size};
-            }
-        }
-    }
-
-    void erase(CCVKGPUBuffer *gpuBuffer) {
-        for (uint i = 0u; i < _device->backBufferCount; ++i) {
-            if (_buffersToBeUpdated[i].count(gpuBuffer)) {
-                _buffersToBeUpdated[i].erase(gpuBuffer);
-            }
-        }
-    }
-
-    void flush() {
-        unordered_map<CCVKGPUBuffer *, BufferUpdate> &buffers = _buffersToBeUpdated[_device->curBackBufferIndex];
-        for (unordered_map<CCVKGPUBuffer *, BufferUpdate>::iterator it = buffers.begin(); it != buffers.end(); ++it) {
-            update(it->first, it->second.src, it->second.size);
-        }
-        buffers.clear();
-    }
-
-private:
-    struct BufferUpdate {
-        const void *src  = nullptr;
-        size_t      size = 0u;
-    };
-    uint8_t *update(CCVKGPUBuffer *gpuBuffer, const void *src, size_t size) {
-        uint8_t *dst = gpuBuffer->mappedData + _device->curBackBufferIndex * gpuBuffer->instanceSize;
-        memcpy(dst, src, size);
-        return dst;
-    }
-
-    CCVKGPUDevice *                                      _device = nullptr;
-    vector<unordered_map<CCVKGPUBuffer *, BufferUpdate>> _buffersToBeUpdated;
-};
-
 /**
  * Recycle bin for GPU resources, clears after vkDeviceWaitIdle every frame.
  * All the destroy events will be postponed to that time.
@@ -1238,6 +1155,101 @@ private:
     CCVKGPUQueue *       _queue = nullptr;
     CCVKGPUCommandBuffer _cmdBuff;
     VkFence              _fence = VK_NULL_HANDLE;
+};
+
+class CCVKGPUBarrierManager final : public Object {
+public:
+    CCVKGPUBarrierManager(CCVKGPUDevice *device)
+    : _device(device) {}
+
+    void checkIn(CCVKGPUBuffer *gpuBuffer) {
+        _buffersToBeChecked.insert(gpuBuffer);
+    }
+
+    void checkIn(CCVKGPUBuffer *gpuBuffer, const ThsvsAccessType *newTypes, uint newTypeCount) {
+        vector<ThsvsAccessType> &target = gpuBuffer->renderAccessTypes;
+        for (uint i = 0u; i < newTypeCount; ++i) {
+            if (std::find(target.begin(), target.end(), newTypes[i]) == target.end()) {
+                target.push_back(newTypes[i]);
+            }
+        }
+    }
+
+    void checkIn(CCVKGPUTexture *gpuTexture, const ThsvsAccessType *newTypes = nullptr, uint newTypeCount = 0) {
+        vector<ThsvsAccessType> &target = gpuTexture->renderAccessTypes;
+        for (uint i = 0u; i < newTypeCount; ++i) {
+            if (std::find(target.begin(), target.end(), newTypes[i]) == target.end()) {
+                target.push_back(newTypes[i]);
+            }
+        }
+        _texturesToBeChecked.insert(gpuTexture);
+    }
+
+    void update(CCVKGPUTransportHub *transportHub);
+
+    CC_INLINE void cancel(CCVKGPUBuffer *gpuBuffer) { _buffersToBeChecked.erase(gpuBuffer); }
+    CC_INLINE void cancel(CCVKGPUTexture *gpuTexture) { _texturesToBeChecked.erase(gpuTexture); }
+
+private:
+    unordered_set<CCVKGPUBuffer *>  _buffersToBeChecked;
+    unordered_set<CCVKGPUTexture *> _texturesToBeChecked;
+    CCVKGPUDevice *                 _device = nullptr;
+};
+
+/**
+ * Manages buffer update events, across all back buffer instances.
+ */
+class CCVKGPUBufferHub final : public Object {
+public:
+    CCVKGPUBufferHub(CCVKGPUDevice *device)
+    : _device(device) {
+        _buffersToBeUpdated.resize(device->backBufferCount);
+    }
+
+    void record(CCVKGPUBuffer *gpuBuffer, const void *src, size_t size) {
+        uint     backBufferIndex = _device->curBackBufferIndex;
+        uint8_t *dst             = gpuBuffer->mappedData + backBufferIndex * gpuBuffer->instanceSize;
+        memcpy(dst, src, size);
+        for (uint i = 0u; i < _device->backBufferCount; ++i) {
+            if (i == backBufferIndex) {
+                _buffersToBeUpdated[i].erase(gpuBuffer);
+            } else {
+                _buffersToBeUpdated[i][gpuBuffer] = {backBufferIndex, size};
+            }
+        }
+    }
+
+    void erase(CCVKGPUBuffer *gpuBuffer) {
+        for (uint i = 0u; i < _device->backBufferCount; ++i) {
+            if (_buffersToBeUpdated[i].count(gpuBuffer)) {
+                _buffersToBeUpdated[i].erase(gpuBuffer);
+            }
+        }
+    }
+
+    void flush(CCVKGPUTransportHub *transportHub) {
+        auto &buffers = _buffersToBeUpdated[_device->curBackBufferIndex];
+        transportHub->checkIn([&](const CCVKGPUCommandBuffer *gpuCommandBuffer) {
+            VkBufferCopy region;
+            for (auto it = buffers.begin(); it != buffers.end(); ++it) {
+                region.srcOffset = it->first->startOffset + it->second.srcIndex * it->first->instanceSize;
+                region.dstOffset = it->first->startOffset + _device->curBackBufferIndex * it->first->instanceSize;
+                region.size      = it->second.size;
+                vkCmdCopyBuffer(gpuCommandBuffer->vkCommandBuffer, it->first->vkBuffer, it->first->vkBuffer, 1, &region);
+            }
+        });
+        buffers.clear();
+    }
+
+private:
+    struct BufferUpdate {
+        uint   srcIndex = 0u;
+        size_t size     = 0u;
+    };
+
+    vector<unordered_map<CCVKGPUBuffer *, BufferUpdate>> _buffersToBeUpdated;
+
+    CCVKGPUDevice *_device = nullptr;
 };
 
 } // namespace gfx

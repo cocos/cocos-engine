@@ -36,6 +36,7 @@ GLES3DescriptorSetLayout::GLES3DescriptorSetLayout()
 }
 
 GLES3DescriptorSetLayout::~GLES3DescriptorSetLayout() {
+    destroy();
 }
 
 void GLES3DescriptorSetLayout::doInit(const DescriptorSetLayoutInfo &info) {

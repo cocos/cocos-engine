@@ -28,15 +28,29 @@
 
 #include "DeviceValidator.h"
 #include "DescriptorSetLayoutValidator.h"
+#include "ValidationUtils.h"
 
 namespace cc {
 namespace gfx {
 
 DescriptorSetLayoutValidator::~DescriptorSetLayoutValidator() {
+    DeviceResourceTracker<DescriptorSetLayout>::erase(this);
     CC_SAFE_DELETE(_actor);
 }
 
 void DescriptorSetLayoutValidator::doInit(const DescriptorSetLayoutInfo &info) {
+    for (const DescriptorSetLayoutBinding &binding : info.bindings) {
+        CCASSERT(binding.binding != GFX_INVALID_BINDING, "Invalid binding");
+        CCASSERT(binding.descriptorType != DescriptorType::UNKNOWN, "Invalid binding type");
+        CCASSERT(binding.count, "Invalid binding count");
+        CCASSERT(binding.stageFlags != ShaderStageFlagBit::NONE, "Invalid binding stage flags");
+        for (const Sampler *sampler : binding.immutableSamplers) {
+            CCASSERT(sampler, "Invalid immutable sampler");
+        }
+    }
+
+    /////////// execute ///////////
+
     _actor->initialize(info);
 }
 

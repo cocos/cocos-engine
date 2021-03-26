@@ -37,6 +37,7 @@ GLES2Texture::GLES2Texture()
 }
 
 GLES2Texture::~GLES2Texture() {
+    destroy();
 }
 
 void GLES2Texture::doInit(const TextureInfo &info) {

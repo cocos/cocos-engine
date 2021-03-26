@@ -43,6 +43,7 @@ GLES2PrimaryCommandBuffer::GLES2PrimaryCommandBuffer()
 }
 
 GLES2PrimaryCommandBuffer::~GLES2PrimaryCommandBuffer() {
+    destroy();
 }
 
 void GLES2PrimaryCommandBuffer::begin(RenderPass *renderPass, uint subpass, Framebuffer *frameBuffer) {

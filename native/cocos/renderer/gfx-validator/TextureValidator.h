@@ -36,11 +36,15 @@ public:
     using Agent::Agent;
     ~TextureValidator() override;
 
+    void updateRedundencyCheck();
+
 protected:
     void doInit(const TextureInfo &info) override;
     void doInit(const TextureViewInfo &info) override;
     void doDestroy() override;
     void doResize(uint width, uint height, uint size) override;
+
+    uint _lastUpdateFrame = 0u;
 };
 
 } // namespace gfx

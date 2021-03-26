@@ -41,11 +41,15 @@ namespace gfx {
 
 CCVKGPUCommandBufferPool *CCVKGPUDevice::getCommandBufferPool() {
     std::thread::id threadID = std::this_thread::get_id();
-    if (!commandBufferPools.count(threadID)) {
+    if (!_commandBufferPools.count(threadID)) {
         //std::scoped_lock<std::mutex> guard(mutex);
-        commandBufferPools[threadID] = CC_NEW(CCVKGPUCommandBufferPool(this));
+        _commandBufferPools[threadID] = CC_NEW(CCVKGPUCommandBufferPool(this));
     }
-    return commandBufferPools[threadID];
+    return _commandBufferPools[threadID];
+}
+
+CCVKGPUDescriptorSetPool *CCVKGPUDevice::getDescriptorSetPool(uint layoutID) {
+    return &_descriptorSetPools[layoutID];
 }
 
 void insertVkDynamicStates(vector<VkDynamicState> &out, const vector<DynamicStateFlagBit> &dynamicStates) {
@@ -199,9 +203,10 @@ void CCVKCmdFuncCreateBuffer(CCVKDevice *device, CCVKGPUBuffer *gpuBuffer) {
         allocInfo.usage = VMA_MEMORY_USAGE_GPU_ONLY;
     } else if (gpuBuffer->memUsage == (MemoryUsage::HOST | MemoryUsage::DEVICE)) {
         /* *
-        gpuBuffer->instanceSize = roundUp(gpuBuffer->size, device->getUboOffsetAlignment());
+        gpuBuffer->instanceSize = roundUp(gpuBuffer->size, device->getCapabilities().uboOffsetAlignment);
         bufferInfo.size = gpuBuffer->instanceSize * device->gpuDevice()->backBufferCount;
         allocInfo.flags = VMA_ALLOCATION_CREATE_MAPPED_BIT;
+        bufferInfo.usage |= VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
         /* */
         bufferInfo.usage |= VK_BUFFER_USAGE_TRANSFER_DST_BIT;
         /* */
@@ -478,9 +483,10 @@ void CCVKCmdFuncCreateDescriptorSetLayout(CCVKDevice *device, CCVKGPUDescriptorS
     setCreateInfo.pBindings    = gpuDescriptorSetLayout->vkBindings.data();
     VK_CHECK(vkCreateDescriptorSetLayout(gpuDevice->vkDevice, &setCreateInfo, nullptr, &gpuDescriptorSetLayout->vkDescriptorSetLayout));
 
-    gpuDescriptorSetLayout->pool.link(gpuDevice, gpuDescriptorSetLayout->maxSetsPerPool, gpuDescriptorSetLayout->vkBindings, gpuDescriptorSetLayout->vkDescriptorSetLayout);
+    CCVKGPUDescriptorSetPool *pool = gpuDevice->getDescriptorSetPool(gpuDescriptorSetLayout->id);
+    pool->link(gpuDevice, gpuDescriptorSetLayout->maxSetsPerPool, gpuDescriptorSetLayout->vkBindings, gpuDescriptorSetLayout->vkDescriptorSetLayout);
 
-    gpuDescriptorSetLayout->defaultDescriptorSet = gpuDescriptorSetLayout->pool.request(0);
+    gpuDescriptorSetLayout->defaultDescriptorSet = pool->request(0);
 
     if (gpuDevice->useDescriptorUpdateTemplate && bindingCount) {
         const vector<VkDescriptorSetLayoutBinding> &bindings = gpuDescriptorSetLayout->vkBindings;
@@ -796,7 +802,6 @@ void CCVKCmdFuncUpdateBuffer(CCVKDevice *device, CCVKGPUBuffer *gpuBuffer, const
     auto         upload = [&stagingBuffer, &gpuBuffer, &region](const CCVKGPUCommandBuffer *gpuCommandBuffer) {
 #if BARRIER_DEDUCTION_LEVEL >= BARRIER_DEDUCTION_LEVEL_BASIC
         if (gpuBuffer->transferAccess) {
-            CC_LOG_WARNING("updateBuffer: performance warning: buffer updated more than once per frame");
             // guard against WAW hazard
             VkMemoryBarrier vkBarrier{VK_STRUCTURE_TYPE_MEMORY_BARRIER};
             vkBarrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
@@ -840,7 +845,6 @@ void CCVKCmdFuncCopyBuffersToTexture(CCVKDevice *device, const uint8_t *const *b
     if (gpuTexture->transferAccess != THSVS_ACCESS_TRANSFER_WRITE) {
         CCVKCmdFuncImageMemoryBarrier(gpuCommandBuffer, barrier);
     } else {
-        CC_LOG_WARNING("copyBuffersToTexture: performance warning: texture updated more than once per frame");
         // guard against WAW hazard
         VkMemoryBarrier vkBarrier{VK_STRUCTURE_TYPE_MEMORY_BARRIER};
         vkBarrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
@@ -979,7 +983,7 @@ void CCVKCmdFuncDestroyFramebuffer(CCVKGPUDevice *gpuDevice, CCVKGPUFramebuffer 
 
 void CCVKCmdFuncDestroyDescriptorSetLayout(CCVKGPUDevice *gpuDevice, CCVKGPUDescriptorSetLayout *gpuDescriptorSetLayout) {
     if (gpuDescriptorSetLayout->defaultDescriptorSet != VK_NULL_HANDLE) {
-        gpuDescriptorSetLayout->pool.yield(gpuDescriptorSetLayout->defaultDescriptorSet, 0);
+        gpuDevice->getDescriptorSetPool(gpuDescriptorSetLayout->id)->yield(gpuDescriptorSetLayout->defaultDescriptorSet, 0);
         gpuDescriptorSetLayout->defaultDescriptorSet = VK_NULL_HANDLE;
     }
 
@@ -1116,7 +1120,9 @@ void CCVKGPURecycleBin::clear() {
     _count = 0;
 }
 
-void CCVKGPUBarrierManager::update(CCVKGPUCommandBuffer *gpuCommandBuffer) {
+void CCVKGPUBarrierManager::update(CCVKGPUTransportHub *transportHub) {
+    if (_buffersToBeChecked.empty() && _texturesToBeChecked.empty()) return;
+
     static vector<ThsvsAccessType>      prevAccesses;
     static vector<ThsvsAccessType>      nextAccesses;
     static vector<VkImageMemoryBarrier> vkImageBarriers;
@@ -1187,8 +1193,10 @@ void CCVKGPUBarrierManager::update(CCVKGPUCommandBuffer *gpuCommandBuffer) {
     }
 
     if (pVkBarrier || vkImageBarriers.size()) {
-        vkCmdPipelineBarrier(gpuCommandBuffer->vkCommandBuffer, srcStageMask, dstStageMask, 0,
-                             pVkBarrier ? 1 : 0, pVkBarrier, 0, nullptr, vkImageBarriers.size(), vkImageBarriers.data());
+        transportHub->checkIn([&](CCVKGPUCommandBuffer *gpuCommandBuffer) {
+            vkCmdPipelineBarrier(gpuCommandBuffer->vkCommandBuffer, srcStageMask, dstStageMask, 0,
+                                 pVkBarrier ? 1 : 0, pVkBarrier, 0, nullptr, vkImageBarriers.size(), vkImageBarriers.data());
+        });
     }
 
     _buffersToBeChecked.clear();

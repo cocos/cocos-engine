@@ -71,6 +71,8 @@ void DescriptorSetAgent::doDestroy() {
 }
 
 void DescriptorSetAgent::update() {
+    _isDirty = false;
+
     ENQUEUE_MESSAGE_1(
         DeviceAgent::getInstance()->getMessageQueue(),
         DescriptorSetUpdate,

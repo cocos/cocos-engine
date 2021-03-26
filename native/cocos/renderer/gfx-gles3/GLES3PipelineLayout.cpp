@@ -37,6 +37,7 @@ GLES3PipelineLayout::GLES3PipelineLayout()
 }
 
 GLES3PipelineLayout::~GLES3PipelineLayout() {
+    destroy();
 }
 
 void GLES3PipelineLayout::doInit(const PipelineLayoutInfo &info) {

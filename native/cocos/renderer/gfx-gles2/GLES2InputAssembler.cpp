@@ -38,6 +38,7 @@ GLES2InputAssembler::GLES2InputAssembler()
 }
 
 GLES2InputAssembler::~GLES2InputAssembler() {
+    destroy();
 }
 
 void GLES2InputAssembler::doInit(const InputAssemblerInfo &info) {

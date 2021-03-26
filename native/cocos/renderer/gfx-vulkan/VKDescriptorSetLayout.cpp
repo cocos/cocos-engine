@@ -37,14 +37,17 @@ CCVKDescriptorSetLayout::CCVKDescriptorSetLayout()
 }
 
 CCVKDescriptorSetLayout::~CCVKDescriptorSetLayout() {
+    destroy();
 }
 
 void CCVKDescriptorSetLayout::doInit(const DescriptorSetLayoutInfo &info) {
-    _gpuDescriptorSetLayout = CC_NEW(CCVKGPUDescriptorSetLayout);
-    _gpuDescriptorSetLayout->descriptorCount = _descriptorCount;
-    _gpuDescriptorSetLayout->bindingIndices = _bindingIndices;
+
+    _gpuDescriptorSetLayout                    = CC_NEW(CCVKGPUDescriptorSetLayout);
+    _gpuDescriptorSetLayout->id                = generateID();
+    _gpuDescriptorSetLayout->descriptorCount   = _descriptorCount;
+    _gpuDescriptorSetLayout->bindingIndices    = _bindingIndices;
     _gpuDescriptorSetLayout->descriptorIndices = _descriptorIndices;
-    _gpuDescriptorSetLayout->bindings = _bindings;
+    _gpuDescriptorSetLayout->bindings          = _bindings;
 
     for (uint i = 0u; i < _bindings.size(); i++) {
         const DescriptorSetLayoutBinding &binding = _bindings[i];

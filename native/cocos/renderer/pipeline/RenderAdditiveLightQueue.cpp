@@ -72,8 +72,8 @@ RenderAdditiveLightQueue::RenderAdditiveLightQueue(RenderPipeline *pipeline) : _
         gfx::Address::CLAMP,
         gfx::Address::CLAMP,
     };
-    const auto shadowMapSamplerHash = genSamplerHash(std::move(info));
-    _sampler                        = getSampler(shadowMapSamplerHash);
+    const auto shadowMapSamplerHash = SamplerLib::genSamplerHash(std::move(info));
+    _sampler                        = SamplerLib::getSampler(shadowMapSamplerHash);
 
     _phaseID = getPhaseID("forward-add");
 
@@ -82,8 +82,10 @@ RenderAdditiveLightQueue::RenderAdditiveLightQueue(RenderPipeline *pipeline) : _
 }
 
 RenderAdditiveLightQueue ::~RenderAdditiveLightQueue() {
-    CC_DELETE(_instancedQueue);
-    CC_DELETE(_batchedQueue);
+    CC_SAFE_DELETE(_instancedQueue);
+    CC_SAFE_DELETE(_batchedQueue);
+    CC_SAFE_DESTROY(_firstLightBufferView);
+    CC_SAFE_DESTROY(_lightBuffer);
 }
 
 void RenderAdditiveLightQueue::recordCommandBuffer(gfx::Device *device, gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuffer) {

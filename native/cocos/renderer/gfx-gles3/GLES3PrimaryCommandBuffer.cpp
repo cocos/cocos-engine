@@ -44,6 +44,7 @@ GLES3PrimaryCommandBuffer::GLES3PrimaryCommandBuffer()
 }
 
 GLES3PrimaryCommandBuffer::~GLES3PrimaryCommandBuffer() {
+    destroy();
 }
 
 void GLES3PrimaryCommandBuffer::begin(RenderPass *renderPass, uint subpass, Framebuffer *frameBuffer) {

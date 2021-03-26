@@ -33,6 +33,7 @@
 #include <mutex>
 
 #include "pipeline/Define.h"
+#include "pipeline/RenderPipeline.h"
 #include "renderer/GFXDeviceManager.h"
 
 #import <AppKit/AppKit.h>
@@ -139,6 +140,8 @@ Application::~Application() {
 #if USE_AUDIO
     AudioEngine::end();
 #endif
+
+    pipeline::RenderPipeline::getInstance()->destroy();
 
     EventDispatcher::destroy();
     se::ScriptEngine::destroyInstance();

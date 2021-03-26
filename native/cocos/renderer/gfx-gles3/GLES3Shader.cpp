@@ -37,6 +37,7 @@ GLES3Shader::GLES3Shader()
 }
 
 GLES3Shader::~GLES3Shader() {
+    destroy();
 }
 
 void GLES3Shader::doInit(const ShaderInfo &info) {

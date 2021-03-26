@@ -34,8 +34,9 @@
 #include "audio/include/AudioEngine.h"
 #include "platform/Device.h"
 
-#include "renderer/GFXDeviceManager.h"
 #include "pipeline/Define.h"
+#include "pipeline/RenderPipeline.h"
+#include "renderer/GFXDeviceManager.h"
 
 @interface MyTimer : NSObject {
     cc::Application *_app;
@@ -144,6 +145,8 @@ Application::~Application() {
 #if USE_AUDIO
     AudioEngine::end();
 #endif
+
+    pipeline::RenderPipeline::getInstance()->destroy();
 
     EventDispatcher::destroy();
     se::ScriptEngine::destroyInstance();

@@ -31,11 +31,13 @@
 #include "PipelineStateValidator.h"
 #include "RenderPassValidator.h"
 #include "ShaderValidator.h"
+#include "ValidationUtils.h"
 
 namespace cc {
 namespace gfx {
 
 PipelineStateValidator::~PipelineStateValidator() {
+    DeviceResourceTracker<PipelineState>::erase(this);
     CC_SAFE_DELETE(_actor);
 }
 

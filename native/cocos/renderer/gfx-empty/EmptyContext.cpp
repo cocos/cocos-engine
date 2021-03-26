@@ -29,6 +29,9 @@ namespace cc {
 namespace gfx {
 
 bool EmptyContext::doInit(const ContextInfo &info) {
+    _colorFmt        = Format::RGBA8;
+    _depthStencilFmt = Format::D24S8;
+
     return true;
 }
 

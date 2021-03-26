@@ -38,6 +38,7 @@ GLES3Queue::GLES3Queue()
 }
 
 GLES3Queue::~GLES3Queue() {
+    destroy();
 }
 
 void GLES3Queue::doInit(const QueueInfo &info) {

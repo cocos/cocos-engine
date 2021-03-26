@@ -32,15 +32,21 @@
 #include "DeviceValidator.h"
 #include "SamplerValidator.h"
 #include "TextureValidator.h"
+#include "ValidationUtils.h"
 
 namespace cc {
 namespace gfx {
 
 DescriptorSetValidator::~DescriptorSetValidator() {
+    DeviceResourceTracker<DescriptorSet>::erase(this);
     CC_SAFE_DELETE(_actor);
 }
 
 void DescriptorSetValidator::doInit(const DescriptorSetInfo &info) {
+    CCASSERT(info.layout, "Invalid set layout");
+
+    /////////// execute ///////////
+
     DescriptorSetInfo actorInfo;
     actorInfo.layout = static_cast<DescriptorSetLayoutValidator *>(info.layout)->getActor();
 
@@ -52,22 +58,51 @@ void DescriptorSetValidator::doDestroy() {
 }
 
 void DescriptorSetValidator::update() {
+    _isDirty = false;
+
     _actor->update();
 }
 
 void DescriptorSetValidator::bindBuffer(uint binding, Buffer *buffer, uint index) {
+    const vector<uint> &                  bindingIndices = _layout->getBindingIndices();
+    const DescriptorSetLayoutBindingList &bindings       = _layout->getBindings();
+    CCASSERT(binding < bindingIndices.size() && bindingIndices[binding] < bindings.size(), "Illegal binding");
+
+    const DescriptorSetLayoutBinding &info = bindings[bindingIndices[binding]];
+    CCASSERT(info.descriptorType & DESCRIPTOR_BUFFER_TYPE, "Setting binding is not DESCRIPTOR_BUFFER_TYPE");
+
+    /////////// execute ///////////
+
     DescriptorSet::bindBuffer(binding, buffer, index);
 
     _actor->bindBuffer(binding, static_cast<BufferValidator *>(buffer)->getActor(), index);
 }
 
 void DescriptorSetValidator::bindTexture(uint binding, Texture *texture, uint index) {
+    const vector<uint> &                  bindingIndices = _layout->getBindingIndices();
+    const DescriptorSetLayoutBindingList &bindings       = _layout->getBindings();
+    CCASSERT(binding < bindingIndices.size() && bindingIndices[binding] < bindings.size(), "Illegal binding");
+
+    const DescriptorSetLayoutBinding &info = bindings[bindingIndices[binding]];
+    CCASSERT(info.descriptorType & DESCRIPTOR_TEXTURE_TYPE, "Setting binding is not DESCRIPTOR_TEXTURE_TYPE");
+
+    /////////// execute ///////////
+
     DescriptorSet::bindTexture(binding, texture, index);
 
     _actor->bindTexture(binding, static_cast<TextureValidator *>(texture)->getActor(), index);
 }
 
 void DescriptorSetValidator::bindSampler(uint binding, Sampler *sampler, uint index) {
+    const vector<uint> &                  bindingIndices = _layout->getBindingIndices();
+    const DescriptorSetLayoutBindingList &bindings       = _layout->getBindings();
+    CCASSERT(binding < bindingIndices.size() && bindingIndices[binding] < bindings.size(), "Illegal binding");
+
+    const DescriptorSetLayoutBinding &info = bindings[bindingIndices[binding]];
+    CCASSERT(info.descriptorType & DESCRIPTOR_TEXTURE_TYPE, "Setting binding is not DESCRIPTOR_TEXTURE_TYPE");
+
+    /////////// execute ///////////
+
     DescriptorSet::bindSampler(binding, sampler, index);
 
     _actor->bindSampler(binding, static_cast<SamplerValidator *>(sampler)->getActor(), index);

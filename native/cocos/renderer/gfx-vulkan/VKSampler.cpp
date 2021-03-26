@@ -37,6 +37,7 @@ CCVKSampler::CCVKSampler()
 }
 
 CCVKSampler::~CCVKSampler() {
+    destroy();
 }
 
 void CCVKSampler::doInit(const SamplerInfo &info) {

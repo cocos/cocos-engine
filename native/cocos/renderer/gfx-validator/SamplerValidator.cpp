@@ -29,11 +29,13 @@
 #include "DescriptorSetLayoutValidator.h"
 #include "DeviceValidator.h"
 #include "SamplerValidator.h"
+#include "ValidationUtils.h"
 
 namespace cc {
 namespace gfx {
 
 SamplerValidator::~SamplerValidator() {
+    DeviceResourceTracker<Sampler>::erase(this);
     CC_SAFE_DELETE(_actor);
 }
 

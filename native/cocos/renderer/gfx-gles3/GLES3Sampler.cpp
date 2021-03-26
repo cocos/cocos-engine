@@ -37,6 +37,7 @@ GLES3Sampler::GLES3Sampler()
 }
 
 GLES3Sampler::~GLES3Sampler() {
+    destroy();
 }
 
 void GLES3Sampler::doInit(const SamplerInfo &info) {

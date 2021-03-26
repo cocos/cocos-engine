@@ -23,36 +23,10 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#ifndef CC_GFXVULKAN_DESCRIPTOR_SET_LAYOUT_H_
-#define CC_GFXVULKAN_DESCRIPTOR_SET_LAYOUT_H_
-
-#include "gfx-base/GFXDescriptorSetLayout.h"
+#include "ValidationUtils.h"
 
 namespace cc {
 namespace gfx {
 
-class CCVKGPUDescriptorSetLayout;
-
-class CC_VULKAN_API CCVKDescriptorSetLayout final : public DescriptorSetLayout {
-public:
-    CCVKDescriptorSetLayout();
-    ~CCVKDescriptorSetLayout();
-
-    CC_INLINE CCVKGPUDescriptorSetLayout *gpuDescriptorSetLayout() const { return _gpuDescriptorSetLayout; }
-
-protected:
-    static uint generateID() noexcept {
-        static uint _idGen = 10000;
-        return _idGen++;
-    }
-
-    void doInit(const DescriptorSetLayoutInfo &info) override;
-    void doDestroy() override;
-
-    CCVKGPUDescriptorSetLayout *_gpuDescriptorSetLayout = nullptr;
-};
-
 } // namespace gfx
 } // namespace cc
-
-#endif // CC_GFXVULKAN_DESCRIPTOR_SET_LAYOUT_H_
