@@ -241,7 +241,6 @@ bool js_register_network_DownloaderHints(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_cc_network_Downloader_proto = nullptr;
 se::Class* __jsb_cc_network_Downloader_class = nullptr;
 
@@ -358,7 +357,6 @@ bool js_register_network_Downloader(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 bool register_all_network(se::Object* obj)
 {
     // Get the ns

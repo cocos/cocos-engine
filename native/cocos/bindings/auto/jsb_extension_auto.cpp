@@ -342,7 +342,6 @@ bool js_register_extension_EventAssetsManagerEx(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_cc_extension_Manifest_proto = nullptr;
 se::Class* __jsb_cc_extension_Manifest_class = nullptr;
 
@@ -655,7 +654,6 @@ bool js_register_extension_Manifest(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_cc_extension_AssetsManagerEx_proto = nullptr;
 se::Class* __jsb_cc_extension_AssetsManagerEx_class = nullptr;
 
@@ -1291,7 +1289,6 @@ bool js_register_extension_AssetsManagerEx(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 bool register_all_extension(se::Object* obj)
 {
     // Get the ns

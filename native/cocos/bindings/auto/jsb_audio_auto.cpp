@@ -164,7 +164,6 @@ bool js_register_audio_AudioProfile(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_cc_AudioEngine_proto = nullptr;
 se::Class* __jsb_cc_AudioEngine_class = nullptr;
 
@@ -853,7 +852,6 @@ bool js_register_audio_AudioEngine(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 bool register_all_audio(se::Object* obj)
 {
     // Get the ns

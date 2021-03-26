@@ -388,7 +388,6 @@ bool js_register_video_VideoPlayer(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 bool register_all_video(se::Object* obj)
 {
     // Get the ns

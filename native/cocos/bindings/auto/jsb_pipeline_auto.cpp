@@ -258,7 +258,6 @@ bool js_register_pipeline_RenderQueueDesc(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_cc_pipeline_Light_proto = nullptr;
 se::Class* __jsb_cc_pipeline_Light_class = nullptr;
 
@@ -930,7 +929,6 @@ bool js_register_pipeline_Light(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_cc_pipeline_PassView_proto = nullptr;
 se::Class* __jsb_cc_pipeline_PassView_class = nullptr;
 
@@ -1612,7 +1610,6 @@ bool js_register_pipeline_PassView(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_cc_pipeline_RenderWindow_proto = nullptr;
 se::Class* __jsb_cc_pipeline_RenderWindow_class = nullptr;
 
@@ -1839,7 +1836,6 @@ bool js_register_pipeline_RenderWindow(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_cc_pipeline_RenderPipelineInfo_proto = nullptr;
 se::Class* __jsb_cc_pipeline_RenderPipelineInfo_class = nullptr;
 
@@ -2011,7 +2007,6 @@ bool js_register_pipeline_RenderPipelineInfo(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_cc_pipeline_RenderPipeline_proto = nullptr;
 se::Class* __jsb_cc_pipeline_RenderPipeline_class = nullptr;
 
@@ -2252,7 +2247,6 @@ bool js_register_pipeline_RenderPipeline(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_cc_pipeline_ForwardPipeline_proto = nullptr;
 se::Class* __jsb_cc_pipeline_ForwardPipeline_class = nullptr;
 
@@ -2298,7 +2292,6 @@ bool js_register_pipeline_ForwardPipeline(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_cc_pipeline_RenderFlowInfo_proto = nullptr;
 se::Class* __jsb_cc_pipeline_RenderFlowInfo_class = nullptr;
 
@@ -2540,7 +2533,6 @@ bool js_register_pipeline_RenderFlowInfo(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_cc_pipeline_RenderFlow_proto = nullptr;
 se::Class* __jsb_cc_pipeline_RenderFlow_class = nullptr;
 
@@ -2623,7 +2615,6 @@ bool js_register_pipeline_RenderFlow(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_cc_pipeline_ForwardFlow_proto = nullptr;
 se::Class* __jsb_cc_pipeline_ForwardFlow_class = nullptr;
 
@@ -2687,7 +2678,6 @@ bool js_register_pipeline_ForwardFlow(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_cc_pipeline_RenderStageInfo_proto = nullptr;
 se::Class* __jsb_cc_pipeline_RenderStageInfo_class = nullptr;
 
@@ -2929,7 +2919,6 @@ bool js_register_pipeline_RenderStageInfo(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_cc_pipeline_RenderStage_proto = nullptr;
 se::Class* __jsb_cc_pipeline_RenderStage_class = nullptr;
 
@@ -3034,7 +3023,6 @@ bool js_register_pipeline_RenderStage(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_cc_pipeline_ForwardStage_proto = nullptr;
 se::Class* __jsb_cc_pipeline_ForwardStage_class = nullptr;
 
@@ -3098,7 +3086,6 @@ bool js_register_pipeline_ForwardStage(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_cc_pipeline_ShadowFlow_proto = nullptr;
 se::Class* __jsb_cc_pipeline_ShadowFlow_class = nullptr;
 
@@ -3162,7 +3149,6 @@ bool js_register_pipeline_ShadowFlow(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_cc_pipeline_ShadowStage_proto = nullptr;
 se::Class* __jsb_cc_pipeline_ShadowStage_class = nullptr;
 
@@ -3268,7 +3254,6 @@ bool js_register_pipeline_ShadowStage(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_cc_pipeline_InstancedBuffer_proto = nullptr;
 se::Class* __jsb_cc_pipeline_InstancedBuffer_class = nullptr;
 
@@ -3394,7 +3379,6 @@ bool js_register_pipeline_InstancedBuffer(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_cc_pipeline_DeferredPipeline_proto = nullptr;
 se::Class* __jsb_cc_pipeline_DeferredPipeline_class = nullptr;
 
@@ -3440,7 +3424,6 @@ bool js_register_pipeline_DeferredPipeline(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_cc_pipeline_GbufferFlow_proto = nullptr;
 se::Class* __jsb_cc_pipeline_GbufferFlow_class = nullptr;
 
@@ -3504,7 +3487,6 @@ bool js_register_pipeline_GbufferFlow(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_cc_pipeline_GbufferStage_proto = nullptr;
 se::Class* __jsb_cc_pipeline_GbufferStage_class = nullptr;
 
@@ -3568,7 +3550,6 @@ bool js_register_pipeline_GbufferStage(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_cc_pipeline_LightingFlow_proto = nullptr;
 se::Class* __jsb_cc_pipeline_LightingFlow_class = nullptr;
 
@@ -3632,7 +3613,6 @@ bool js_register_pipeline_LightingFlow(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_cc_pipeline_LightingStage_proto = nullptr;
 se::Class* __jsb_cc_pipeline_LightingStage_class = nullptr;
 
@@ -3696,7 +3676,6 @@ bool js_register_pipeline_LightingStage(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_cc_pipeline_PostprocessStage_proto = nullptr;
 se::Class* __jsb_cc_pipeline_PostprocessStage_class = nullptr;
 
@@ -3742,7 +3721,6 @@ bool js_register_pipeline_PostprocessStage(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 bool register_all_pipeline(se::Object* obj)
 {
     // Get the ns

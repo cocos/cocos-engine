@@ -907,7 +907,6 @@ bool js_register_engine_FileUtils(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_cc_CanvasGradient_proto = nullptr;
 se::Class* __jsb_cc_CanvasGradient_class = nullptr;
 
@@ -974,7 +973,6 @@ bool js_register_engine_CanvasGradient(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_cc_CanvasRenderingContext2D_proto = nullptr;
 se::Class* __jsb_cc_CanvasRenderingContext2D_class = nullptr;
 
@@ -1399,7 +1397,6 @@ bool js_register_engine_CanvasRenderingContext2D(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_cc_Device_proto = nullptr;
 se::Class* __jsb_cc_Device_class = nullptr;
 
@@ -1617,7 +1614,6 @@ bool js_register_engine_Device(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_cc_SAXParser_proto = nullptr;
 se::Class* __jsb_cc_SAXParser_class = nullptr;
 
@@ -1660,7 +1656,6 @@ bool js_register_engine_SAXParser(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 bool register_all_engine(se::Object* obj)
 {
     // Get the ns

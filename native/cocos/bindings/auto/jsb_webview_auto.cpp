@@ -724,7 +724,6 @@ bool js_register_webview_WebView(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 bool register_all_webview(se::Object* obj)
 {
     // Get the ns

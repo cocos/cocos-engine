@@ -268,7 +268,6 @@ bool js_register_editor_support_Texture2D(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_cc_middleware_SharedBufferManager_proto = nullptr;
 se::Class* __jsb_cc_middleware_SharedBufferManager_class = nullptr;
 
@@ -383,7 +382,6 @@ bool js_register_editor_support_SharedBufferManager(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_cc_middleware_MiddlewareManager_proto = nullptr;
 se::Class* __jsb_cc_middleware_MiddlewareManager_class = nullptr;
 
@@ -681,7 +679,6 @@ bool js_register_editor_support_MiddlewareManager(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 bool register_all_editor_support(se::Object* obj)
 {
     // Get the ns
