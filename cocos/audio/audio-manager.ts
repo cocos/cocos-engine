@@ -26,42 +26,73 @@
 import { AudioPlayer, OneShotAudio } from 'pal/audio';
 
 type ManagedAudio = AudioPlayer | OneShotAudio;
+interface AudioInfo {
+    audio: ManagedAudio;
+    playTime: number;
+    isOneShotAudio: boolean;
+}
 
 export class AudioManager {
-    private _playingAudios: Array<ManagedAudio> = [];
+    private _audioInfoList: AudioInfo[] = [];
+
+    private _findIndex (audio: ManagedAudio): number {
+        return this._audioInfoList.findIndex(audioInfo => audioInfo.audio === audio);
+    }
 
     public addPlaying (audio: ManagedAudio) {
-        const index = this._playingAudios.indexOf(audio);
-        if (index > -1) {
-            // need to update to the newest player
-            this._playingAudios.splice(index, 1);
+        const idx = this._findIndex(audio);
+        if (idx > -1) {
+            let audioInfo = this._audioInfoList[idx];
+            // update play time
+            audioInfo.playTime = performance.now();
+            return;
         }
-        this._playingAudios.push(audio);
+        this._audioInfoList.push({
+            audio,
+            playTime: performance.now(),
+            isOneShotAudio: !(audio instanceof AudioPlayer),
+        });
     }
 
     public removePlaying (audio: ManagedAudio) {
-        const index = this._playingAudios.indexOf(audio);
-        if (index > -1) {
-            this._playingAudios.splice(index, 1);
+        const idx = this._findIndex(audio);
+        if (idx > -1) {
+            let lastIdx = this._audioInfoList.length - 1;
+            if (lastIdx !== idx) {
+                this._audioInfoList[idx] = this._audioInfoList[lastIdx];
+            }
+            this._audioInfoList.length--;
         }
     }
 
     public discardOnePlayingIfNeeded () {
-        if (this._playingAudios.length < AudioPlayer.maxAudioChannel) {
+        if (this._audioInfoList.length < AudioPlayer.maxAudioChannel) {
             return;
         }
 
         // TODO: support discard policy for audio source
-        // a played audio has a higher priority than a played shot
-        let audioToDiscard: ManagedAudio | undefined;
-        const oldestOneShotIndex = this._playingAudios.findIndex((audio) => !(audio instanceof AudioPlayer));
-        if (oldestOneShotIndex > -1) {
-            audioToDiscard = this._playingAudios[oldestOneShotIndex];
-            this._playingAudios.splice(oldestOneShotIndex, 1);
-            audioToDiscard.stop();
-        } else {
-            audioToDiscard = this._playingAudios.shift();
-            audioToDiscard?.stop();
+        let audioInfoToDiscard: AudioInfo | undefined;
+        let foundOneShotAudio = false;
+        this._audioInfoList.forEach(audioInfo => {
+            // discard one shot audio as a priority
+            if (foundOneShotAudio) {
+                if (audioInfo.isOneShotAudio && audioInfo.playTime < audioInfoToDiscard!.playTime) {
+                    audioInfoToDiscard = audioInfo;
+                }
+            }
+            else {
+                if (audioInfo.isOneShotAudio) {
+                    audioInfoToDiscard = audioInfo;
+                    foundOneShotAudio = true;
+                }
+                else if (!audioInfoToDiscard || audioInfo.playTime < audioInfoToDiscard.playTime) {
+                    audioInfoToDiscard = audioInfo;
+                }
+            }
+        });
+        if (audioInfoToDiscard) {
+            audioInfoToDiscard.audio.stop();
+            this.removePlaying(audioInfoToDiscard.audio);
         }
     }
 }
