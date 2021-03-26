@@ -222,7 +222,11 @@ Application::Platform Application::getPlatform() const {
 bool Application::openURL(const std::string &url) {
     NSString *msg = [NSString stringWithCString:url.c_str() encoding:NSUTF8StringEncoding];
     NSURL *nsUrl = [NSURL URLWithString:msg];
-    return [[UIApplication sharedApplication] openURL:nsUrl];
+    __block BOOL flag = false;
+    [[UIApplication sharedApplication] openURL:nsUrl options:@{} completionHandler:^(BOOL success) {
+        flag = success;
+    }];
+    return flag;
 }
 
 void Application::copyTextToClipboard(const std::string &text) {

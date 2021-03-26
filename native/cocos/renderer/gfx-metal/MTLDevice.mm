@@ -376,7 +376,7 @@ void CCMTLDevice::onMemoryWarning() {
 }
 
 uint CCMTLDevice::preferredPixelFormat() {
-    return [((CAMetalLayer*)_mtlLayer) pixelFormat];
+    return static_cast<uint>([((CAMetalLayer*)_mtlLayer) pixelFormat]);
 }
 
 } // namespace gfx

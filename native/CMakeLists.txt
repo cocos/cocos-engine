@@ -578,15 +578,15 @@ elseif(ANDROID)
 elseif(APPLE)
     cocos_source_files(
                      cocos/platform/apple/FileUtils-apple.h
-        NO_WERROR    cocos/platform/apple/Device-apple.mm
-        NO_WERROR    cocos/platform/apple/FileUtils-apple.mm
-        NO_WERROR    cocos/platform/apple/CanvasRenderingContext2D-apple.mm
+                     cocos/platform/apple/Device-apple.mm
+                     cocos/platform/apple/FileUtils-apple.mm
+                     cocos/platform/apple/CanvasRenderingContext2D-apple.mm
                      cocos/platform/apple/Device-apple.h
     )
     # bad structure
     cocos_source_files(
                      cocos/platform/ios/Reachability.h
-        NO_WERROR    cocos/platform/ios/Reachability.cpp
+                     cocos/platform/ios/Reachability.cpp
     )
     if(MACOSX)
         cocos_source_files(
@@ -600,9 +600,9 @@ elseif(APPLE)
     elseif(IOS)
         cocos_source_files(
                          cocos/platform/ios/View.h
-            NO_WERROR    cocos/platform/ios/View.mm
-            NO_WERROR    cocos/platform/ios/Application-ios.mm
-            NO_WERROR    cocos/platform/ios/Device-ios.mm
+            NO_WERROR    cocos/platform/ios/View.mm     # CAMetalLayer bug for apple
+                         cocos/platform/ios/Application-ios.mm
+                         cocos/platform/ios/Device-ios.mm
         )
     endif()
 endif()
@@ -936,40 +936,40 @@ if(CC_USE_METAL)
     cocos_source_files(
                      cocos/renderer/gfx-metal/GFXMTL.h
                      cocos/renderer/gfx-metal/MTLBuffer.h
-        NO_WERROR    cocos/renderer/gfx-metal/MTLBuffer.mm
+                     cocos/renderer/gfx-metal/MTLBuffer.mm
                      cocos/renderer/gfx-metal/MTLCommandBuffer.h
-        NO_WERROR    cocos/renderer/gfx-metal/MTLCommandBuffer.mm
+                     cocos/renderer/gfx-metal/MTLCommandBuffer.mm
                      cocos/renderer/gfx-metal/MTLContext.h
-        NO_WERROR    cocos/renderer/gfx-metal/MTLContext.mm
-                     cocos/renderer/gfx-metal/MTLDevice.h
-        NO_WERROR    cocos/renderer/gfx-metal/MTLDevice.mm
-        NO_WERROR    cocos/renderer/gfx-metal/MTLFramebuffer.mm
+        NO_WERROR    cocos/renderer/gfx-metal/MTLContext.mm     # CAMetalLayer bug for apple
+                     cocos/renderer/gfx-metal/MTLDevice.h       
+        NO_WERROR    cocos/renderer/gfx-metal/MTLDevice.mm      # CAMetalLayer bug for apple
+                     cocos/renderer/gfx-metal/MTLFramebuffer.mm
                      cocos/renderer/gfx-metal/MTLFramebuffer.h
                      cocos/renderer/gfx-metal/MTLGPUObjects.h
                      cocos/renderer/gfx-metal/MTLInputAssembler.h
-        NO_WERROR    cocos/renderer/gfx-metal/MTLInputAssembler.mm
+                     cocos/renderer/gfx-metal/MTLInputAssembler.mm
                      cocos/renderer/gfx-metal/MTLDescriptorSetLayout.h
-        NO_WERROR    cocos/renderer/gfx-metal/MTLDescriptorSetLayout.mm
+                     cocos/renderer/gfx-metal/MTLDescriptorSetLayout.mm
                      cocos/renderer/gfx-metal/MTLPipelineLayout.h
-        NO_WERROR    cocos/renderer/gfx-metal/MTLPipelineLayout.mm
+                     cocos/renderer/gfx-metal/MTLPipelineLayout.mm
                      cocos/renderer/gfx-metal/MTLPipelineState.h
-        NO_WERROR    cocos/renderer/gfx-metal/MTLPipelineState.mm
+                     cocos/renderer/gfx-metal/MTLPipelineState.mm
                      cocos/renderer/gfx-metal/MTLDescriptorSet.h
-        NO_WERROR    cocos/renderer/gfx-metal/MTLDescriptorSet.mm
+                     cocos/renderer/gfx-metal/MTLDescriptorSet.mm
                      cocos/renderer/gfx-metal/MTLQueue.h
-        NO_WERROR    cocos/renderer/gfx-metal/MTLQueue.mm
+                     cocos/renderer/gfx-metal/MTLQueue.mm
                      cocos/renderer/gfx-metal/MTLRenderPass.h
-        NO_WERROR    cocos/renderer/gfx-metal/MTLRenderPass.mm
+                     cocos/renderer/gfx-metal/MTLRenderPass.mm
                      cocos/renderer/gfx-metal/MTLSampler.h
-        NO_WERROR    cocos/renderer/gfx-metal/MTLSampler.mm
+                     cocos/renderer/gfx-metal/MTLSampler.mm
                      cocos/renderer/gfx-metal/MTLShader.h
-        NO_WERROR    cocos/renderer/gfx-metal/MTLShader.mm
-        NO_WERROR    cocos/renderer/gfx-metal/MTLStd.cpp
+                     cocos/renderer/gfx-metal/MTLShader.mm
+                     cocos/renderer/gfx-metal/MTLStd.cpp
                      cocos/renderer/gfx-metal/MTLStd.h
                      cocos/renderer/gfx-metal/MTLTexture.h
-        NO_WERROR    cocos/renderer/gfx-metal/MTLTexture.mm
+                     cocos/renderer/gfx-metal/MTLTexture.mm
                      cocos/renderer/gfx-metal/MTLUtils.h
-        NO_WERROR    cocos/renderer/gfx-metal/MTLUtils.mm
+                     cocos/renderer/gfx-metal/MTLUtils.mm
                      cocos/renderer/gfx-metal/MTLRenderCommandEncoder.h
                      cocos/renderer/gfx-metal/MTLComputeCommandEncoder.h
                      cocos/renderer/gfx-metal/MTLCommandEncoder.h
