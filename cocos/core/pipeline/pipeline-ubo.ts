@@ -191,15 +191,20 @@ export class PipelineUBO {
                 Mat4.multiply(matShadowViewProj, matShadowViewProj, matShadowView);
                 Mat4.toArray(sv, matShadowViewProj, UBOShadow.MAT_LIGHT_VIEW_PROJ_OFFSET);
 
-                sv[UBOShadow.LIGHT_INFO_OFFSET + 0] = shadowInfo.near;
-                sv[UBOShadow.LIGHT_INFO_OFFSET + 1] = shadowInfo.far;
-                sv[UBOShadow.LIGHT_INFO_OFFSET + 2] = shadowInfo.linear ? 1.0 : 0.0;
-                sv[UBOShadow.LIGHT_INFO_OFFSET + 3] = shadowInfo.selfShadow ? 1.0 : 0.0;
+                sv[UBOShadow.SHADOW_NEAR_FAR_LINEAR_SELF_INFO_OFFSET + 0] = shadowInfo.near;
+                sv[UBOShadow.SHADOW_NEAR_FAR_LINEAR_SELF_INFO_OFFSET + 1] = shadowInfo.far;
+                sv[UBOShadow.SHADOW_NEAR_FAR_LINEAR_SELF_INFO_OFFSET + 2] = shadowInfo.linear ? 1.0 : 0.0;
+                sv[UBOShadow.SHADOW_NEAR_FAR_LINEAR_SELF_INFO_OFFSET + 3] = shadowInfo.selfShadow ? 1.0 : 0.0;
 
-                sv[UBOShadow.SHADOW_INFO_OFFSET + 0] = shadowInfo.size.x;
-                sv[UBOShadow.SHADOW_INFO_OFFSET + 1] = shadowInfo.size.y;
-                sv[UBOShadow.SHADOW_INFO_OFFSET + 2] = shadowInfo.pcf;
-                sv[UBOShadow.SHADOW_INFO_OFFSET + 3] = shadowInfo.bias;
+                sv[UBOShadow.SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET + 0] = shadowInfo.size.x;
+                sv[UBOShadow.SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET + 1] = shadowInfo.size.y;
+                sv[UBOShadow.SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET + 2] = shadowInfo.pcf;
+                sv[UBOShadow.SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET + 3] = shadowInfo.bias;
+
+                sv[UBOShadow.SHADOW_LIGHT_PACKING_NULL_NULL_INFO_OFFSET + 0] = 0.0;
+                sv[UBOShadow.SHADOW_LIGHT_PACKING_NULL_NULL_INFO_OFFSET + 1] = shadowInfo.packing ? 1.0 : 0.0;
+                sv[UBOShadow.SHADOW_LIGHT_PACKING_NULL_NULL_INFO_OFFSET + 2] = 0.0;
+                sv[UBOShadow.SHADOW_LIGHT_PACKING_NULL_NULL_INFO_OFFSET + 3] = 0.0;
             } else if (mainLight && shadowInfo.type === ShadowType.Planar) {
                 updatePlanarPROJ(shadowInfo, mainLight, sv);
             }
@@ -244,7 +249,10 @@ export class PipelineUBO {
             Mat4.invert(matShadowView, shadowCameraView!);
 
             vec4ShadowInfo.set(shadowInfo.near, _far, shadowInfo.linear ? 1.0 : 0.0, shadowInfo.selfShadow ? 1.0 : 0.0);
-            Vec4.toArray(sv, vec4ShadowInfo, UBOShadow.LIGHT_INFO_OFFSET);
+            Vec4.toArray(sv, vec4ShadowInfo, UBOShadow.SHADOW_NEAR_FAR_LINEAR_SELF_INFO_OFFSET);
+
+            vec4ShadowInfo.set(0.0, shadowInfo.packing ? 1.0 : 0.0, 0.0, 0.0);
+            Vec4.toArray(sv, vec4ShadowInfo, UBOShadow.SHADOW_LIGHT_PACKING_NULL_NULL_INFO_OFFSET);
 
             Mat4.ortho(matShadowViewProj, -_x, _x, -_y, _y, shadowInfo.near, _far,
                 device.capabilities.clipSpaceMinZ, device.capabilities.screenSpaceSignY * device.capabilities.UVSpaceSignY);
@@ -255,7 +263,10 @@ export class PipelineUBO {
             Mat4.invert(matShadowView, (light as any).node.getWorldMatrix());
 
             vec4ShadowInfo.set(shadowInfo.near, shadowInfo.far, shadowInfo.linear ? 1.0 : 0.0, shadowInfo.selfShadow ? 1.0 : 0.0);
-            Vec4.toArray(sv, vec4ShadowInfo, UBOShadow.LIGHT_INFO_OFFSET);
+            Vec4.toArray(sv, vec4ShadowInfo, UBOShadow.SHADOW_NEAR_FAR_LINEAR_SELF_INFO_OFFSET);
+
+            vec4ShadowInfo.set(1.0, shadowInfo.packing ? 1.0 : 0.0, 0.0, 0.0);
+            Vec4.toArray(sv, vec4ShadowInfo, UBOShadow.SHADOW_LIGHT_PACKING_NULL_NULL_INFO_OFFSET);
 
             // light proj
             Mat4.perspective(matShadowViewProj, (light as any).spotAngle, (light as any).aspect, 0.001, (light as any).range);
@@ -268,7 +279,7 @@ export class PipelineUBO {
         Mat4.toArray(sv, matShadowViewProj, UBOShadow.MAT_LIGHT_VIEW_PROJ_OFFSET);
 
         vec4ShadowInfo.set(shadowInfo.size.x, shadowInfo.size.y, shadowInfo.pcf, shadowInfo.bias);
-        Vec4.toArray(sv, vec4ShadowInfo, UBOShadow.SHADOW_INFO_OFFSET);
+        Vec4.toArray(sv, vec4ShadowInfo, UBOShadow.SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET);
 
         Color.toArray(sv, shadowInfo.shadowColor, UBOShadow.SHADOW_COLOR_OFFSET);
     }

@@ -262,6 +262,18 @@ export class Shadows {
     }
 
     /**
+     * @en on or off packing depth.
+     * @zh 打开或者关闭深度压缩。
+     */
+    public get packing (): boolean {
+        if (ShadowsPool.get(this._handle, ShadowsView.PACKING)) { return true; }
+        return false;
+    }
+    public set packing (val: boolean) {
+        ShadowsPool.set(this._handle, ShadowsView.PACKING, val ? 1 : 0);
+    }
+
+    /**
      * @en on or off linear depth.
      * @zh 打开或者关闭线性深度。
      */
@@ -372,6 +384,7 @@ export class Shadows {
         this._shadowColor.set(shadowsInfo.shadowColor);
         ShadowsPool.setVec4(this._handle, ShadowsView.COLOR, this._shadowColor);
         ShadowsPool.set(this._handle, ShadowsView.BIAS, shadowsInfo.bias);
+        ShadowsPool.set(this._handle, ShadowsView.PACKING, shadowsInfo.packing ? 1 : 0);
         ShadowsPool.set(this._handle, ShadowsView.LINEAR, shadowsInfo.linear ? 1 : 0);
         ShadowsPool.set(this._handle, ShadowsView.SELF_SHADOW, shadowsInfo.selfShadow ? 1 : 0);
         ShadowsPool.set(this._handle, ShadowsView.ENABLE, shadowsInfo.enabled ? 1 : 0);

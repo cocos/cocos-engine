@@ -354,17 +354,24 @@ CCProgram shadow-caster-fs %{
       if (baseColor.ALPHA_TEST_CHANNEL < albedoScaleAndCutoff.w) discard;
     #endif
 
+    // dir is linear
     float depth = v_clip_depth;
 
-    if (cc_lightInfo.z > 0.000001) {
-      // Linear depth
-      vec4 viewStartPos = cc_matLightView * v_worldPos;
-      float dist = length(viewStartPos.xyz);
-      float linear_depth = cc_lightInfo.x + (-dist / (cc_lightInfo.y - cc_lightInfo.x));
+    // spot use linear
+    if(cc_shadowLPNNInfo.x > 0.000001 && cc_shadowLPNNInfo.x < 1.999999) {
+      if (cc_shadowNFLSInfo.z > 0.000001) {
+        // Linear depth
+        vec4 viewStartPos = cc_matLightView * v_worldPos;
+        float dist = length(viewStartPos.xyz);
+        float linear_depth = cc_shadowNFLSInfo.x + (-dist / (cc_shadowNFLSInfo.y - cc_shadowNFLSInfo.x));
+        depth = linear_depth;
+      }
+    }
 
-      depth = linear_depth;
+    if (cc_shadowLPNNInfo.y > 0.000001) {
+      return packDepthToRGBA(depth);
     }
   
-    return packDepthToRGBA(depth);
+    return vec4(depth, 0.0, 0.0, 1.0);
   }
 }%

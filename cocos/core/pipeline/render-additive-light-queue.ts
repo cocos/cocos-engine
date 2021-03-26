@@ -360,10 +360,15 @@ export class RenderAdditiveLightQueue {
                 // planar PROJ
                 if (mainLight) { updatePlanarPROJ(shadowInfo, mainLight, this._shadowUBO); }
 
-                this._shadowUBO[UBOShadow.SHADOW_INFO_OFFSET + 0] = shadowInfo.size.x;
-                this._shadowUBO[UBOShadow.SHADOW_INFO_OFFSET + 1] = shadowInfo.size.y;
-                this._shadowUBO[UBOShadow.SHADOW_INFO_OFFSET + 2] = shadowInfo.pcf;
-                this._shadowUBO[UBOShadow.SHADOW_INFO_OFFSET + 3] = shadowInfo.bias;
+                this._shadowUBO[UBOShadow.SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET + 0] = shadowInfo.size.x;
+                this._shadowUBO[UBOShadow.SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET + 1] = shadowInfo.size.y;
+                this._shadowUBO[UBOShadow.SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET + 2] = shadowInfo.pcf;
+                this._shadowUBO[UBOShadow.SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET + 3] = shadowInfo.bias;
+
+                this._shadowUBO[UBOShadow.SHADOW_LIGHT_PACKING_NULL_NULL_INFO_OFFSET + 0] = 2.0;
+                this._shadowUBO[UBOShadow.SHADOW_LIGHT_PACKING_NULL_NULL_INFO_OFFSET + 1] = shadowInfo.packing ? 1.0 : 0.0;
+                this._shadowUBO[UBOShadow.SHADOW_LIGHT_PACKING_NULL_NULL_INFO_OFFSET + 2] = 0.0;
+                this._shadowUBO[UBOShadow.SHADOW_LIGHT_PACKING_NULL_NULL_INFO_OFFSET + 3] = 0.0;
 
                 // Reserve sphere light shadow interface
                 Color.toArray(this._shadowUBO, shadowInfo.shadowColor, UBOShadow.SHADOW_COLOR_OFFSET);
@@ -385,15 +390,20 @@ export class RenderAdditiveLightQueue {
 
                 Mat4.toArray(this._shadowUBO, _matShadowViewProj, UBOShadow.MAT_LIGHT_VIEW_PROJ_OFFSET);
 
-                this._shadowUBO[UBOShadow.LIGHT_INFO_OFFSET + 0] = shadowInfo.near;
-                this._shadowUBO[UBOShadow.LIGHT_INFO_OFFSET + 1] = shadowInfo.far;
-                this._shadowUBO[UBOShadow.LIGHT_INFO_OFFSET + 2] = shadowInfo.linear ? 1.0 : 0.0;
-                this._shadowUBO[UBOShadow.LIGHT_INFO_OFFSET + 3] = shadowInfo.selfShadow ? 1.0 : 0.0;
+                this._shadowUBO[UBOShadow.SHADOW_NEAR_FAR_LINEAR_SELF_INFO_OFFSET + 0] = shadowInfo.near;
+                this._shadowUBO[UBOShadow.SHADOW_NEAR_FAR_LINEAR_SELF_INFO_OFFSET + 1] = shadowInfo.far;
+                this._shadowUBO[UBOShadow.SHADOW_NEAR_FAR_LINEAR_SELF_INFO_OFFSET + 2] = shadowInfo.linear ? 1.0 : 0.0;
+                this._shadowUBO[UBOShadow.SHADOW_NEAR_FAR_LINEAR_SELF_INFO_OFFSET + 3] = shadowInfo.selfShadow ? 1.0 : 0.0;
 
-                this._shadowUBO[UBOShadow.SHADOW_INFO_OFFSET + 0] = shadowInfo.size.x;
-                this._shadowUBO[UBOShadow.SHADOW_INFO_OFFSET + 1] = shadowInfo.size.y;
-                this._shadowUBO[UBOShadow.SHADOW_INFO_OFFSET + 2] = shadowInfo.pcf;
-                this._shadowUBO[UBOShadow.SHADOW_INFO_OFFSET + 3] = shadowInfo.bias;
+                this._shadowUBO[UBOShadow.SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET + 0] = shadowInfo.size.x;
+                this._shadowUBO[UBOShadow.SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET + 1] = shadowInfo.size.y;
+                this._shadowUBO[UBOShadow.SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET + 2] = shadowInfo.pcf;
+                this._shadowUBO[UBOShadow.SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET + 3] = shadowInfo.bias;
+
+                this._shadowUBO[UBOShadow.SHADOW_LIGHT_PACKING_NULL_NULL_INFO_OFFSET + 0] = 1.0;
+                this._shadowUBO[UBOShadow.SHADOW_LIGHT_PACKING_NULL_NULL_INFO_OFFSET + 1] = shadowInfo.packing ? 1.0 : 0.0;
+                this._shadowUBO[UBOShadow.SHADOW_LIGHT_PACKING_NULL_NULL_INFO_OFFSET + 2] = 0.0;
+                this._shadowUBO[UBOShadow.SHADOW_LIGHT_PACKING_NULL_NULL_INFO_OFFSET + 3] = 0.0;
 
                 Color.toArray(this._shadowUBO, shadowInfo.shadowColor, UBOShadow.SHADOW_COLOR_OFFSET);
 
