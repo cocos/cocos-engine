@@ -4,6 +4,7 @@
         ".clang-format", 
         ".clang-tidy", 
         ".github/workflows/clangtidy-android.yml", 
+        ".github/workflows/cmake.yml", 
         ".github/workflows/filter_by_cdb.js", 
         "CMakeLists.txt", 
         "cocos/audio/AudioEngine.cpp", 
