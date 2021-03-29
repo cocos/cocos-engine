@@ -7,6 +7,7 @@ import { clamp, clamp01 } from '../../../cocos/core';
 // NOTE: fix CI
 const AudioContextClass = (window.AudioContext || window.webkitAudioContext || window.mozAudioContext);
 export class AudioPlayerWeb {
+    private _src: string;
     private static _context: AudioContext = AudioContextClass && new AudioContextClass();
     private _audioBuffer?: AudioBuffer;
     private _sourceNode?: AudioBufferSourceNode;
@@ -23,11 +24,12 @@ export class AudioPlayerWeb {
     private _onHide?: () => void;
     private _onShow?: () => void;
 
-    constructor (audioBuffer: AudioBuffer) {
+    constructor (audioBuffer: AudioBuffer, url: string) {
         const context = AudioPlayerWeb._context;
         this._audioBuffer = audioBuffer;
         this._gainNode = context.createGain();
         this._gainNode.connect(context.destination);
+        this._src = url;
         // event
         // TODO: should not call engine API in pal
         this._onGesture = () => this._eventTarget.emit(AudioEvent.USER_GESTURE);
@@ -72,7 +74,7 @@ export class AudioPlayerWeb {
     static load (url: string): Promise<AudioPlayerWeb> {
         return new Promise((resolve) => {
             AudioPlayerWeb.loadNative(url).then((audioBuffer) => {
-                resolve(new AudioPlayerWeb(audioBuffer));
+                resolve(new AudioPlayerWeb(audioBuffer, url));
             }).catch((e) => {});
         });
     }
@@ -100,6 +102,9 @@ export class AudioPlayerWeb {
         });
     }
 
+    get src (): string {
+        return this._src;
+    }
     get type (): AudioType {
         return AudioType.WEB_AUDIO;
     }

@@ -6,7 +6,7 @@ import { AudioEvent, AudioState, AudioType } from '../type';
 import { clamp, clamp01 } from '../../../cocos/core';
 
 export class AudioPlayer {
-    private _innerAudioContext: any;
+    private _innerAudioContext?: any;
     private _eventTarget: EventTarget;
     private _state: AudioState = AudioState.INIT;
 
@@ -89,6 +89,9 @@ export class AudioPlayer {
         }
     }
 
+    get src () {
+        return this._innerAudioContext ? this._innerAudioContext.src : '';
+    }
     get type (): AudioType {
         return AudioType.MINIGAME_AUDIO;
     }

@@ -112,6 +112,9 @@ export class AudioPlayerDOM {
         });
     }
 
+    get src (): string {
+        return this._domAudio ? this._domAudio.src : '';
+    }
     get type (): AudioType {
         return AudioType.DOM_AUDIO;
     }

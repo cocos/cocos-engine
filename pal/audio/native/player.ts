@@ -85,6 +85,9 @@ export class AudioPlayer {
         return this._id !== INVALID_AUDIO_ID;
     }
 
+    get src () {
+        return this._url;
+    }
     get type (): AudioType {
         return AudioType.NATIVE_AUDIO;
     }
