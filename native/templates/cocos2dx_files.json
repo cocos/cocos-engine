@@ -181,7 +181,6 @@
         "cocos/base/threading/ThreadSafeCounter.h", 
         "cocos/base/threading/ThreadSafeLinearAllocator.cpp", 
         "cocos/base/threading/ThreadSafeLinearAllocator.h", 
-        "cocos/base/uthash.h", 
         "cocos/editor-support/IOBuffer.cpp", 
         "cocos/editor-support/IOBuffer.h", 
         "cocos/editor-support/IOTypedArray.cpp", 
