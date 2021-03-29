@@ -249,6 +249,14 @@ parser.parseASTCTex = downloader.downloadDomImage;
 parser.parsePlist = parsePlist;
 downloader.downloadScript = downloadScript;
 
+function loadAudioPlayer (url, options, onComplete) {
+    cc.AudioPlayer.load(url).then(player => {
+        onComplete(null, player);
+    }).catch(err => {
+        onComplete(err);
+    });
+}
+
 downloader.register({
     // JS
     '.js' : downloadScript,
@@ -326,6 +334,13 @@ parser.register({
     '.tiff' : downloader.downloadDomImage,
     '.webp' : downloader.downloadDomImage,
     '.image' : downloader.downloadDomImage,
+
+    // Audio
+    '.mp3' : loadAudioPlayer,
+    '.ogg' : loadAudioPlayer,
+    '.wav' : loadAudioPlayer,
+    '.m4a' : loadAudioPlayer,
+
     // compressed texture
     '.pvr': downloader.downloadDomImage,
     '.pkm': downloader.downloadDomImage,

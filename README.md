@@ -1,6 +1,7 @@
 <p align="center">
     <a href="https://www.cocos.com/">
-        <img src="https://user-images.githubusercontent.com/1503156/50446380-ad88c980-094f-11e9-8eff-0094bde708d0.png">
+        <img src="https://user-images.githubusercontent.com/1503156/112012067-d5cdf580-8b63-11eb-819a-1c32cf253b25.png"
+             alt="Cocos Creator Logo">
     </a>
 </p>
 <p align="center">

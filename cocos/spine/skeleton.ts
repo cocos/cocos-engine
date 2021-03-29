@@ -574,11 +574,6 @@ export class Skeleton extends Renderable2D {
         this.destroyRenderData();
     }
 
-    // set blendHash value to skip ui component blend
-    public setBlendHash () {
-        if (this._blendHash !== -1) this._blendHash = -1;
-    }
-
     /**
      * @en
      * Sets runtime skeleton data to sp.Skeleton.<br>
@@ -1321,6 +1316,27 @@ export class Skeleton extends Renderable2D {
         });
         inst.recompileShaders({ TWO_COLORED: useTwoColor });
         return inst;
+    }
+
+    protected updateMaterial () {
+        if (this._customMaterial) {
+            this.setMaterial(this._customMaterial, 0);
+            this._blendHash = -1; // a flag to check merge
+            return;
+        }
+        const mat = this._updateBuiltinMaterial();
+        this.setMaterial(mat, 0);
+        this._updateBlendFunc();
+
+        if (this.premultipliedAlpha) {
+            this._blendHash = -1;
+        }
+    }
+
+    // HACK: set temporary material since Spine do not use internal material but must have one
+    protected _updateBuiltinMaterial () : Material {
+        const mat = builtinResMgr.get('ui-sprite-material');
+        return mat as Material;
     }
 
     public querySockets () {
