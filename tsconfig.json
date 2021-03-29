@@ -22,19 +22,23 @@
       "types": [
         "./@types/globals",
         "./@types/consts",
+        "./@types/jsb",
         "./@types/editor-extends",
-        "./@types/wx",
-        "./@types/global-adapter",
         "./@types/webGL.extras",
         "./@types/webGL2.extras",
         "./node_modules/@cocos/cannon/CANNON",
         "./node_modules/@cocos/ammo/Ammo",
         "./node_modules/@cocos/physx/PhysX",
-        "./node_modules/@types/jest/index"
+        "./node_modules/@types/jest/index",
+
+        // pal
+        "./@types/pal/minigame",
+        "./@types/pal/audio"
       ]
     },
     "include": [
         "exports/**/*.ts",
-        "index.ts"
+        "index.ts",
+        "pal/**/*.ts"
     ]
   }
