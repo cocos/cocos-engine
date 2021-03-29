@@ -1798,14 +1798,12 @@ export function WebGL2CmdFuncDestroyInputAssembler (device: WebGL2Device, gpuInp
 interface IWebGL2StateCache {
     gpuPipelineState: IWebGL2GPUPipelineState | null;
     gpuInputAssembler: IWebGL2GPUInputAssembler | null;
-    reverseCW: boolean;
     glPrimitive: number;
     invalidateAttachments: GLenum[];
 }
 const gfxStateCache: IWebGL2StateCache = {
     gpuPipelineState: null,
     gpuInputAssembler: null,
-    reverseCW: false,
     glPrimitive: 0,
     invalidateAttachments: [],
 };
@@ -1828,14 +1826,6 @@ export function WebGL2CmdFuncBeginRenderPass (
         if (cache.glFramebuffer !== gpuFramebuffer.glFramebuffer) {
             gl.bindFramebuffer(gl.FRAMEBUFFER, gpuFramebuffer.glFramebuffer);
             cache.glFramebuffer = gpuFramebuffer.glFramebuffer;
-            // render targets are drawn with flipped-Y
-            const reverseCW = !!gpuFramebuffer.glFramebuffer;
-            if (reverseCW !== gfxStateCache.reverseCW) {
-                gfxStateCache.reverseCW = reverseCW;
-                const isCCW = !device.stateCache.rs.isFrontFaceCCW;
-                gl.frontFace(isCCW ? gl.CCW : gl.CW);
-                device.stateCache.rs.isFrontFaceCCW = isCCW;
-            }
         }
 
         if (cache.viewport.left !== renderArea.x
@@ -2044,7 +2034,7 @@ export function WebGL2CmdFuncBindStates (
                 device.stateCache.rs.cullMode = rs.cullMode;
             }
 
-            const isFrontFaceCCW = rs.isFrontFaceCCW !== gfxStateCache.reverseCW; // boolean XOR
+            const isFrontFaceCCW = rs.isFrontFaceCCW; // boolean XOR
             if (device.stateCache.rs.isFrontFaceCCW !== isFrontFaceCCW) {
                 gl.frontFace(isFrontFaceCCW ? gl.CCW : gl.CW);
                 device.stateCache.rs.isFrontFaceCCW = isFrontFaceCCW;

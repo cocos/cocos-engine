@@ -1279,7 +1279,7 @@ export class SpriteFrame extends Asset {
             this.reset(config);
             this.onLoaded();
         }
-
+        this.emit('changed');
         this._checkPackable();
     }
 

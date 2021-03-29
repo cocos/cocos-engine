@@ -1680,13 +1680,11 @@ export function WebGLCmdFuncDestroyInputAssembler (device: WebGLDevice, gpuInput
 interface IWebGLStateCache {
     gpuPipelineState: IWebGLGPUPipelineState | null;
     gpuInputAssembler: IWebGLGPUInputAssembler | null;
-    reverseCW: boolean;
     glPrimitive: number;
 }
 const gfxStateCache: IWebGLStateCache = {
     gpuPipelineState: null,
     gpuInputAssembler: null,
-    reverseCW: false,
     glPrimitive: 0,
 };
 
@@ -1707,14 +1705,6 @@ export function WebGLCmdFuncBeginRenderPass (
         if (cache.glFramebuffer !== gpuFramebuffer.glFramebuffer) {
             gl.bindFramebuffer(gl.FRAMEBUFFER, gpuFramebuffer.glFramebuffer);
             cache.glFramebuffer = gpuFramebuffer.glFramebuffer;
-            // render targets are drawn with flipped-Y
-            const reverseCW = !!gpuFramebuffer.glFramebuffer;
-            if (reverseCW !== gfxStateCache.reverseCW) {
-                gfxStateCache.reverseCW = reverseCW;
-                const isCCW = !device.stateCache.rs.isFrontFaceCCW;
-                gl.frontFace(isCCW ? gl.CCW : gl.CW);
-                device.stateCache.rs.isFrontFaceCCW = isCCW;
-            }
         }
 
         if (cache.viewport.left !== renderArea.x
@@ -1925,7 +1915,7 @@ export function WebGLCmdFuncBindStates (
                 cache.rs.cullMode = rs.cullMode;
             }
 
-            const isFrontFaceCCW = gfxStateCache.reverseCW ? !rs.isFrontFaceCCW : rs.isFrontFaceCCW;
+            const isFrontFaceCCW = rs.isFrontFaceCCW;
             if (cache.rs.isFrontFaceCCW !== isFrontFaceCCW) {
                 gl.frontFace(isFrontFaceCCW ? gl.CCW : gl.CW);
                 cache.rs.isFrontFaceCCW = isFrontFaceCCW;

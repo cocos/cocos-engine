@@ -4,6 +4,9 @@ in highp vec4 v_shadowPos;
 #include <cc-shadow>
 #include <packing>
 
+// When screenSpaceSingY and clipSpaceSignY have different signs, need to flip the uv
+#define CC_HANDLE_NDC_SAMPLE_FLIP(uv) uv = cc_cameraPos.w == 1.0 ? vec2(uv.x, 1.0 - uv.y) : uv 
+
 #if CC_RECEIVE_SHADOW
   #pragma builtin(global)
   layout(set = 0, binding = 3) uniform sampler2D cc_shadowMap;
@@ -16,7 +19,7 @@ in highp vec4 v_shadowPos;
     if (clipPos.x < 0.0 || clipPos.x > 1.0 ||
         clipPos.y < 0.0 || clipPos.y > 1.0 ||
         clipPos.z <-1.0 || clipPos.z > 1.0) { return 0.0; }
-
+    CC_HANDLE_NDC_SAMPLE_FLIP(clipPos.xy);
     float closestDepth = unpackRGBAToDepth(texture(cc_shadowMap, clipPos.xy));
     float shadow = step(closestDepth, clipPos.z - cc_shadowInfo.w);
 
@@ -33,6 +36,7 @@ in highp vec4 v_shadowPos;
     float offsety = 1.0 / cc_shadowInfo.y;
     float shadow = 0.0;
     float closestDepth = 0.0;
+    CC_HANDLE_NDC_SAMPLE_FLIP(clipPos.xy);
     closestDepth = unpackRGBAToDepth(texture(cc_shadowMap, vec2(clipPos.x - offsetx, clipPos.y - offsety)));
     shadow += step(closestDepth, clipPos.z - cc_shadowInfo.w);
     closestDepth = unpackRGBAToDepth(texture(cc_shadowMap, vec2(clipPos.x - offsetx, clipPos.y + offsety)));
@@ -56,6 +60,7 @@ in highp vec4 v_shadowPos;
     float offsetx = 1.0 / cc_shadowInfo.x;
     float offsety = 1.0 / cc_shadowInfo.y;
     float shadow = 0.0;
+    CC_HANDLE_NDC_SAMPLE_FLIP(clipPos.xy);
     for (int i = -1; i <= 1; i++) {
       for (int j = -1; j <= 1; j++) {
         float closestDepth = unpackRGBAToDepth(texture(cc_shadowMap, clipPos.xy + vec2(i, j) * vec2(offsetx, offsety)));
@@ -75,6 +80,7 @@ in highp vec4 v_shadowPos;
     float offsetx = 1.0 / cc_shadowInfo.x;
     float offsety = 1.0 / cc_shadowInfo.y;
     float shadow = 0.0;
+    CC_HANDLE_NDC_SAMPLE_FLIP(clipPos.xy);
     for (int i = -2; i <= 2; i++) {
       for (int j = -2; j <= 2; j++) {
         float closestDepth = unpackRGBAToDepth(texture(cc_shadowMap, clipPos.xy + vec2(i, j) * vec2(offsetx, offsety)));
@@ -90,7 +96,7 @@ in highp vec4 v_shadowPos;
     if (clipPos.x < 0.0 || clipPos.x > 1.0 ||
         clipPos.y < 0.0 || clipPos.y > 1.0 ||
         clipPos.z <-1.0 || clipPos.z > 1.0) { return 0.0; }
-
+    CC_HANDLE_NDC_SAMPLE_FLIP(clipPos.xy);
     float closestDepth = unpackRGBAToDepth(texture(cc_spotLightingMap, clipPos.xy));
     float shadow = step(closestDepth, clipPos.z - cc_shadowInfo.w);
 
@@ -107,6 +113,7 @@ in highp vec4 v_shadowPos;
     float offsety = 1.0 / cc_shadowInfo.y;
     float shadow = 0.0;
     float closestDepth = 0.0;
+    CC_HANDLE_NDC_SAMPLE_FLIP(clipPos.xy);
     closestDepth = unpackRGBAToDepth(texture(cc_spotLightingMap, vec2(clipPos.x - offsetx, clipPos.y - offsety)));
     shadow += step(closestDepth, clipPos.z - cc_shadowInfo.w);
     closestDepth = unpackRGBAToDepth(texture(cc_spotLightingMap, vec2(clipPos.x - offsetx, clipPos.y + offsety)));
@@ -129,6 +136,7 @@ in highp vec4 v_shadowPos;
     float offsetx = 1.0 / cc_shadowInfo.x;
     float offsety = 1.0 / cc_shadowInfo.y;
     float shadow = 0.0;
+    CC_HANDLE_NDC_SAMPLE_FLIP(clipPos.xy);
     for (int i = -1; i <= 1; i++) {
       for (int j = -1; j <= 1; j++) {
         float closestDepth = unpackRGBAToDepth(texture(cc_spotLightingMap, clipPos.xy + vec2(i, j) * vec2(offsetx, offsety)));
@@ -148,6 +156,7 @@ in highp vec4 v_shadowPos;
     float offsetx = 1.0 / cc_shadowInfo.x;
     float offsety = 1.0 / cc_shadowInfo.y;
     float shadow = 0.0;
+    CC_HANDLE_NDC_SAMPLE_FLIP(clipPos.xy);
     for (int i = -2; i <= 2; i++) {
       for (int j = -2; j <= 2; j++) {
         float closestDepth = unpackRGBAToDepth(texture(cc_spotLightingMap, clipPos.xy + vec2(i, j) * vec2(offsetx, offsety)));

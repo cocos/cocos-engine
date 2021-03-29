@@ -130,10 +130,11 @@ export class ForwardPipeline extends RenderPipeline {
     protected _globalUBO = new Float32Array(UBOGlobal.COUNT);
     protected _cameraUBO = new Float32Array(UBOCamera.COUNT);
     protected _shadowUBO = new Float32Array(UBOShadow.COUNT);
+    private _combineSignY = 0;
 
     public initialize (info: IRenderPipelineInfo): boolean {
         super.initialize(info);
-
+        this._initCombineSignY();
         if (this._flows.length === 0) {
             const shadowFlow = new ShadowFlow();
             shadowFlow.initialize(ShadowFlow.initInfo);
@@ -326,9 +327,8 @@ export class ForwardPipeline extends RenderPipeline {
 
                 Mat4.invert(matShadowView, shadowCameraView!);
 
-                const projectionSignY = device.screenSpaceSignY * device.UVSpaceSignY; // always offscreen
                 Mat4.ortho(matShadowViewProj, -x, x, -y, y, shadowInfo.near, far,
-                    device.clipSpaceMinZ, projectionSignY);
+                    device.clipSpaceMinZ, device.clipSpaceSignY);
                 Mat4.multiply(matShadowViewProj, matShadowViewProj, matShadowView);
                 Mat4.toArray(this._shadowUBO, matShadowViewProj, UBOShadow.MAT_LIGHT_VIEW_PROJ_OFFSET);
 
@@ -343,6 +343,23 @@ export class ForwardPipeline extends RenderPipeline {
             Color.toArray(this._shadowUBO, shadowInfo.shadowColor, UBOShadow.SHADOW_COLOR_OFFSET);
             this._commandBuffers[0].updateBuffer(this._descriptorSet.getBuffer(UBOShadow.BINDING), this._shadowUBO);
         }
+    }
+
+    /**
+     *|combinedSignY|clipSpaceSignY|screenSpaceSignY| Backends |
+     *|    :--:     |    :--:      |      :--:      |   :--:   |
+     *|      0      |      -1      |      -1        |  Vulkan  |
+     *|      1      |       1      |      -1        |  Metal   |
+     *|      2      |      -1      |       1        |          |
+     *|      3      |       1      |       1        |  GL-like |
+     */
+    public getCombineSignY () {
+        return this._combineSignY;
+    }
+
+    private _initCombineSignY () {
+        const device = this._device;
+        this._combineSignY = (device.screenSpaceSignY * 0.5 + 0.5) << 1 | (device.clipSpaceSignY * 0.5 + 0.5);
     }
 
     public updateCameraUBO (camera: Camera) {
@@ -403,11 +420,8 @@ export class ForwardPipeline extends RenderPipeline {
         Mat4.toArray(cv, camera.matViewProj, UBOCamera.MAT_VIEW_PROJ_OFFSET);
         Mat4.toArray(cv, camera.matViewProjInv, UBOCamera.MAT_VIEW_PROJ_INV_OFFSET);
         Vec3.toArray(cv, camera.position, UBOCamera.CAMERA_POS_OFFSET);
-        let projectionSignY = device.screenSpaceSignY;
-        if (camera.window!.hasOffScreenAttachments) {
-            projectionSignY *= device.UVSpaceSignY; // need flipping if drawing on render targets
-        }
-        cv[UBOCamera.CAMERA_POS_OFFSET + 3] = projectionSignY;
+
+        cv[UBOCamera.CAMERA_POS_OFFSET + 3] = this.getCombineSignY();
 
         cv.set(fog.colorArray, UBOCamera.GLOBAL_FOG_COLOR_OFFSET);
 
