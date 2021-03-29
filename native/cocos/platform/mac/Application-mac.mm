@@ -31,6 +31,7 @@
 #include "platform/Application.h"
 #include <algorithm>
 #include <mutex>
+#include <sstream>
 
 #include "pipeline/Define.h"
 #include "pipeline/RenderPipeline.h"
@@ -96,13 +97,13 @@ namespace {
 bool setCanvasCallback(se::Object *global) {
     auto              viewLogicalSize = Application::getInstance()->getViewLogicalSize();
     se::ScriptEngine *se              = se::ScriptEngine::getInstance();
-    char              commandBuf[200] = {0};
     NSView *          view            = [[[[NSApplication sharedApplication] delegate] getWindow] contentView];
-    sprintf(commandBuf, "window.innerWidth = %d; window.innerHeight = %d; window.windowHandler = 0x%" PRIxPTR ";",
-            (int)(viewLogicalSize.x),
-            (int)(viewLogicalSize.y),
-            (uintptr_t)view);
-    se->evalString(commandBuf);
+
+    std::stringstream commandBuf;
+    commandBuf << "window.innerWidth = " << viewLogicalSize.x
+               << " window.innerHeight = " << viewLogicalSize.y
+               << " window.windowHandler = " << reinterpret_cast<uintptr_t>(view);
+    se->evalString(commandBuf.str().c_str());
 
     gfx::DeviceInfo deviceInfo;
     deviceInfo.windowHandle       = (uintptr_t)view;
@@ -118,7 +119,7 @@ bool setCanvasCallback(se::Object *global) {
 }
 
 MyTimer *_timer;
-}
+} // namespace
 
 Application *              Application::_instance  = nullptr;
 std::shared_ptr<Scheduler> Application::_scheduler = nullptr;

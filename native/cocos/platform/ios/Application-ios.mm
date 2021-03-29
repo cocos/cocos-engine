@@ -26,7 +26,10 @@
 ****************************************************************************/
 
 #import "Application.h"
+
 #import <UIKit/UIKit.h>
+#include <sstream>
+
 #include "base/Scheduler.h"
 #include "base/AutoreleasePool.h"
 #include "bindings/event/EventDispatcher.h"
@@ -97,20 +100,19 @@ namespace {
         bool isLandscape = (orientation == cc::Device::Orientation::LANDSCAPE_RIGHT || orientation == cc::Device::Orientation::LANDSCAPE_LEFT);
         if (isLandscape) std::swap(nativeWidth, nativeHeight);
 
-        char commandBuf[200] = {0};
         // https://stackoverflow.com/questions/5795978/string-format-for-intptr-t-and-uintptr-t/41897226#41897226
         // format intptr_t
         //set window.innerWidth/innerHeight in css pixel units
         uintptr_t windowHandle = reinterpret_cast<uintptr_t>(UIApplication.sharedApplication.delegate.window.rootViewController.view);
-        sprintf(commandBuf, "window.innerWidth = %d; window.innerHeight = %d; window.nativeWidth = %d; window.nativeHeight = %d; window.windowHandler = 0x%" PRIxPTR ";",
-                static_cast<int>(viewLogicalSize.x),
-                static_cast<int>(viewLogicalSize.y),
-                nativeWidth,
-                nativeHeight,
-                windowHandle);
+        std::stringstream commandBuf;
+        commandBuf << "window.innerWidth = " << viewLogicalSize.x 
+                   << " window.innerHeight = " << viewLogicalSize.y 
+                   << " window.nativeWidth= " << nativeWidth
+                   << " window.nativeHeight = " << nativeHeight
+                   << " window.windowHandler = " << windowHandle;
 
         se::ScriptEngine* se = se::ScriptEngine::getInstance();
-        se->evalString(commandBuf);
+        se->evalString(commandBuf.str().c_str());
 
         gfx::DeviceInfo deviceInfo;
         deviceInfo.windowHandle = windowHandle;

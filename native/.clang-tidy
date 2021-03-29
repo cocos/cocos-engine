@@ -34,8 +34,13 @@ Checks: >
   -cppcoreguidelines-pro-type-static-cast-downcast,
   -readability-function-cognitive-complexity,
   -cppcoreguidelines-pro-bounds-pointer-arithmetic,
-  -cppcoreguidelines-pro-bounds-array-to-pointer-decay
-
+  -cppcoreguidelines-pro-bounds-array-to-pointer-decay,
+  -misc-non-private-member-variables-in-classes,
+  -readability-uppercase-literal-suffix,
+  -cppcoreguidelines-no-malloc,
+  -cppcoreguidelines-owning-memory,
+  -cppcoreguidelines-non-private-member-variables-in-classes,
+  -readability-use-anyofallof
 
 CheckOptions:
 ################## readability identifier naming ################################
