@@ -65,6 +65,10 @@ export class AudioSource extends Component {
 
     private _cachedCurrentTime = 0;
 
+    // An operation queue to store the operations before loaded the AudioPlayer.
+    private _operationQueue: Function[] = [];
+    private _isLoaded: boolean = false;
+
     /**
      * @en
      * The default AudioClip to be played for this audio source.
@@ -74,36 +78,46 @@ export class AudioSource extends Component {
     @type(AudioClip)
     @tooltip('i18n:audio.clip')
     set clip (val) {
+        if (val === this._clip) {
+            return;
+        }
         this._clip = val;
         this._syncPlayer();
-        this._syncStates();
     }
     get clip () {
         return this._clip;
     }
     private _syncPlayer () {
         const clip = this._clip;
-        if (clip?._nativeAsset === this._player) {
+        this._isLoaded = false;
+        if (!clip) {
+            if (this._player) {
+                this._player.offEnded();
+                this._player.offInterruptionBegin();
+                this._player.offInterruptionBegin();
+                this._player.destroy();
+                this._player = null;
+            }
             return;
         }
-        // FIX_ME: now we can't hanle that multiple audio sources use the same audio clip
-        if (this._player) {
-            this._player.offEnded();
-            this._player.offInterruptionBegin();
-            this._player.offInterruptionBegin();
+        if (!clip._nativeAsset) {
+            console.error('Invalid audio clip');
+            return;
         }
-        this._player = clip ? clip._nativeAsset : null;
-        if (this._player) {
-            this._player.onEnded(() => {
-                audioManager.removePlaying(this._player!);
+        AudioPlayer.load(clip._nativeAsset.src).then((player) => {
+            this._isLoaded = true;
+            this._player = player;
+            player.onEnded(() => {
+                audioManager.removePlaying(player);
             });
-            this._player.onInterruptionBegin(() => {
-                audioManager.removePlaying(this._player!);
+            player.onInterruptionBegin(() => {
+                audioManager.removePlaying(player);
             });
-            this._player.onInterruptionEnd(() => {
-                audioManager.addPlaying(this._player!);
+            player.onInterruptionEnd(() => {
+                audioManager.addPlaying(player);
             });
-        }
+            this._syncStates();
+        });
     }
 
     /**
@@ -166,7 +180,6 @@ export class AudioSource extends Component {
 
     public onLoad () {
         this._syncPlayer();
-        this._syncStates();
     }
 
     public onEnable () {
@@ -195,6 +208,10 @@ export class AudioSource extends Component {
      * 如果音频处于暂停状态，则会继续播放音频。
      */
     public play () {
+        if (!this._isLoaded) {
+            this._operationQueue.push(this.play.bind(this));
+            return;
+        }
         audioManager.discardOnePlayingIfNeeded();
         this._player?.play().then(() => {
             audioManager.addPlaying(this._player!);
@@ -208,6 +225,10 @@ export class AudioSource extends Component {
      * 暂停播放。
      */
     public pause () {
+        if (!this._isLoaded) {
+            this._operationQueue.push(this.pause.bind(this));
+            return;
+        }
         this._player?.pause().then(() => {
             audioManager.removePlaying(this._player!);
         }).catch((e) => {});
@@ -220,6 +241,10 @@ export class AudioSource extends Component {
      * 停止播放。
      */
     public stop () {
+        if (!this._isLoaded) {
+            this._operationQueue.push(this.stop.bind(this));
+            return;
+        }
         this._player?.stop().then(() => {
             audioManager.removePlaying(this._player!);
         }).catch((e) => {});
@@ -239,8 +264,7 @@ export class AudioSource extends Component {
      */
     public playOneShot (clip: AudioClip, volumeScale = 1) {
         audioManager.discardOnePlayingIfNeeded();
-        const player = clip._nativeAsset;
-        const oneShotAudio = player?.playOneShot(this._volume * volumeScale);
+        const oneShotAudio = this._player?.playOneShot(this._volume * volumeScale);
         oneShotAudio?.onPlay(() => {
             audioManager.addPlaying(oneShotAudio);
         }).onEnded(() => {
@@ -254,6 +278,8 @@ export class AudioSource extends Component {
             if (this._player) {
                 this._player.loop = this._loop;
                 this._player.volume = this._volume;
+                this._operationQueue.forEach(operation => operation());
+                this._operationQueue.length = 0;
             }
         }).catch((e) => {});
     }
@@ -289,7 +315,7 @@ export class AudioSource extends Component {
      * 获取以秒为单位的音频总时长。
      */
     get duration () {
-        return this._clip ? this._clip.getDuration() : 0;
+        return this._clip?.getDuration() ?? (this._player ? this._player.currentTime : 0);
     }
 
     /**
