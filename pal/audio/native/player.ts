@@ -1,4 +1,4 @@
-import { AudioPlayer as IAudioPlayer, OneShotAudio } from 'pal/audio';
+import { OneShotAudio } from 'pal/audio';
 import { AudioType, AudioState, AudioEvent } from '../type';
 import { EventTarget } from '../../../cocos/core/event/event-target';
 import { legacyCC } from '../../../cocos/core/global-exports';
@@ -9,7 +9,7 @@ const audioEngine = jsb.AudioEngine;
 const INVALID_AUDIO_ID = -1;
 
 // TODO: set state before playing
-export class AudioPlayer implements IAudioPlayer {
+export class AudioPlayer {
     private _url: string;
     private _id: number = INVALID_AUDIO_ID;
     private _eventTarget: EventTarget = new EventTarget();
