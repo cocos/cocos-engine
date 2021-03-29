@@ -215,6 +215,7 @@
         "cc.Pipeline",
         "cc.Prefab",
         "cc.Primitive",
+        "cc.PrivateNode",
         "cc.ProgressBarComponent",
         "cc.Quat",
         "cc.RatioSampler",
