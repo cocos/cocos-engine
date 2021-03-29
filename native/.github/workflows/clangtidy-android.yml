@@ -16,7 +16,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
       - name: Get changed files
-        uses: dorny/paths-filter@v2
+        uses: PatriceJiang/paths-filter@master
         id: listchanged
         with:
           list-files: shell
@@ -28,8 +28,12 @@ jobs:
               - added|modified: '**/*.m'
               - added|modified: '**/*.mm'
               - added|modified: '**/*.c'
+              - exclude: 'cocos/editor-support/dragonbones/**'
             allChanges:
               - added|modified|deleted: '**'
+            skipedDebug:
+              - added|modified|deleted: '**'
+              - exclude: 'cocos/editor-support/dragonbones/**'
       - name: Install CMake & Clang Tidy
         run: |
           sudo apt install -y cmake llvm clang-tidy-11
