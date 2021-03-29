@@ -34,7 +34,8 @@ import { Layers } from './layers';
 import { Node } from './node';
 import { Vec2 } from '../math/vec2';
 import { Size } from '../math/size';
-import { Scene } from './scene';
+import { legacyCC } from '../global-exports';
+import { js } from '../utils/js';
 
 replaceProperty(BaseNode.prototype, 'BaseNode', [
     {
@@ -225,3 +226,11 @@ removeProperty(Layers.BitMask, 'Layers.BitMask', [
         name: 'ALWAYS',
     },
 ]);
+
+/**
+ * Alias of [[Node]]
+ * @deprecated Since v3.1
+ */
+export { Node as PrivateNode };
+legacyCC.PrivateNode = Node;
+js.setClassAlias(Node, 'cc.PrivateNode');
