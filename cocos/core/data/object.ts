@@ -48,6 +48,7 @@ const Deactivating = 1 << 8;
 const LockedInEditor = 1 << 9;
 // var HideInGame = 1 << 9;
 const HideInHierarchy = 1 << 10;
+const All = DontSave | EditorOnly | LockedInEditor | HideInHierarchy;
 
 const IsOnEnableCalled = 1 << 11;
 const IsEditorOnEnableCalled = 1 << 12;
@@ -223,23 +224,15 @@ class CCObject {
     }
 
     /**
-     * @en Open the HideFlags enumeration setting
-     * @zh 开放 HideFlags 的枚举设置
+     * @en Provide settings for nodes: the object will not be saved, the object will not be saved when building the project,
+     * lock the node so that it cannot be clicked in the scene after locking, hide the object in the editor, etc.
+     * @zh 为节点提供：该对象将不会被保存,构建项目时，该对象将不会被保存, 锁定节点，锁定后场景内不能点击, 在编辑器中隐藏该对象，等设置。
      */
-    public set hideFlags (hideFlags :number) {
-        this._objFlags |= hideFlags;
+    public set hideFlags (hideFlags: CCObject.HideFlags) {
+        this._objFlags = (this._objFlags & ~CCObject.HideFlags.All) | hideFlags;
     }
-
-    /**
-     * @en Open the HideFlags enumeration setting
-     * @zh 开放 HideFlags 的枚举设置
-     */
-    public get objFlags (): number {
+    public get hideFlags () {
         return this._objFlags;
-    }
-
-    public set objFlags (objFlags :number) {
-        this._objFlags |= objFlags;
     }
 
     /**
@@ -442,15 +435,11 @@ CCClass.fastDefine('cc.Object', CCObject, { _name: '', _objFlags: 0 });
  */
 js.value(CCObject, 'Flags', {
     Destroyed,
-    DontSave,
-    EditorOnly,
     Dirty,
     DontDestroy,
     PersistentMask,
     Destroying,
     Deactivating,
-    LockedInEditor,
-    HideInHierarchy,
     IsPreloadStarted,
     IsOnLoadStarted,
     IsOnLoadCalled,
@@ -470,11 +459,11 @@ js.value(CCObject, 'Flags', {
  * @private
  */
 js.value(CCObject, 'HideFlags', {
-    Destroyed,
     DontSave,
     EditorOnly,
     LockedInEditor,
     HideInHierarchy,
+    All,
 });
 
 declare namespace CCObject {
@@ -553,9 +542,6 @@ declare namespace CCObject {
     }
 
     export enum HideFlags {
-        Destroyed,
-        // ToDestroy: ToDestroy,
-
         /**
          * @en The object will not be saved.
          * @zh 该对象将不会被保存。
@@ -580,6 +566,13 @@ declare namespace CCObject {
          * @zh 在编辑器中隐藏该对象。
          */
         HideInHierarchy,
+
+        /**
+         * @en The object will not be saved and hide the object in editor,and lock node, when the node is locked,
+         * cannot be clicked in the scene,and The object will not be saved when building a player.
+         * @zh 该对象将不会被保存,构建项目时，该对象将不会被保存, 锁定节点，锁定后场景内不能点击, 在编辑器中隐藏该对象。
+         */
+        All
     }
 
     // for @ccclass

@@ -1573,7 +1573,8 @@ export class Skeleton extends Renderable2D {
         if (this.debugBones || this.debugSlots || this.debugMesh) {
             if (!this._debugRenderer) {
                 const debugDrawNode = new Node('DEBUG_DRAW_NODE');
-                debugDrawNode.hideFlags = CCObject.HideFlags.DontSave;
+                debugDrawNode.hideFlags |= CCObject.HideFlags.DontSave;
+                debugDrawNode.hideFlags |= CCObject.HideFlags.HideInHierarchy;
                 const debugDraw = debugDrawNode.addComponent(Graphics);
                 debugDraw.lineWidth = 1;
                 debugDraw.strokeColor = new Color(255, 0, 0, 255);
