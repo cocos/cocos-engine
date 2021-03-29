@@ -346,9 +346,12 @@ export class ForwardPipeline extends RenderPipeline {
     }
 
     /**
-     * Vulkan     : combinedSignY 0, clipSpaceSignY -1, screenSpaceSignY -1
-     * Metal      : combinedSignY 1, clipSpaceSignY  1, screenSpaceSignY -1
-     * GL variants: combinedSignY 3, clipSpaceSignY  1, screenSpaceSignY  1
+     *|combinedSignY|clipSpaceSignY|screenSpaceSignY| Backends |
+     *|    :--:     |    :--:      |      :--:      |   :--:   |
+     *|      0      |      -1      |      -1        |  Vulkan  |
+     *|      1      |       1      |      -1        |  Metal   |
+     *|      2      |      -1      |       1        |          |
+     *|      3      |       1      |       1        |  GL-like |
      */
     public getCombineSignY () {
         return this._combineSignY;

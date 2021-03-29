@@ -1680,13 +1680,11 @@ export function WebGLCmdFuncDestroyInputAssembler (device: WebGLDevice, gpuInput
 interface IWebGLStateCache {
     gpuPipelineState: IWebGLGPUPipelineState | null;
     gpuInputAssembler: IWebGLGPUInputAssembler | null;
-    reverseCW: boolean;
     glPrimitive: number;
 }
 const gfxStateCache: IWebGLStateCache = {
     gpuPipelineState: null,
     gpuInputAssembler: null,
-    reverseCW: false,
     glPrimitive: 0,
 };
 
@@ -1917,7 +1915,7 @@ export function WebGLCmdFuncBindStates (
                 cache.rs.cullMode = rs.cullMode;
             }
 
-            const isFrontFaceCCW = gfxStateCache.reverseCW ? !rs.isFrontFaceCCW : rs.isFrontFaceCCW;
+            const isFrontFaceCCW = rs.isFrontFaceCCW;
             if (cache.rs.isFrontFaceCCW !== isFrontFaceCCW) {
                 gl.frontFace(isFrontFaceCCW ? gl.CCW : gl.CW);
                 cache.rs.isFrontFaceCCW = isFrontFaceCCW;
