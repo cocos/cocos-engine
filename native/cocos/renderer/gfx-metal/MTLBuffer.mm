@@ -94,6 +94,7 @@ bool CCMTLBuffer::createMTLBuffer(uint size, MemoryUsage usage) {
     if (_mtlBuffer == nil) {
         return false;
     }
+    return true;
 }
 
 void CCMTLBuffer::doDestroy() {
