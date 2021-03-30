@@ -1,59 +1,61 @@
 exports.template = `
 <section class="asset-physics-material">
-    <div class="content">
-        <div id="content"></div>
-    </div>
 </section>
 `;
 
 exports.methods = {
-    /**
-     * this function will call after commit apply success
-     */
-    async apply () {
-        await Editor.Message.request('scene', 'apply-physics-material', this.assetInfo.uuid, this.PhysicsMaterial);
+    updateReadonly(element) {
+        if (this.asset.readonly) {
+            element.setAttribute('disabled', true);
+        } else {
+            element.removeAttribute('disabled');
+        }
     },
-    /**
-     * call this function when inspector's data change
-     */
-    async onDataChanged () {
-        this.PhysicsMaterial = await Editor.Message.request('scene', 'change-physics-material', this.PhysicsMaterial);
+    async query(uuid) {
+        return await Editor.Message.request('scene', 'query-physics-material', uuid);
+    },
+    async apply() {
+        await Editor.Message.request('scene', 'apply-physics-material', this.asset.uuid, this.physicsMaterial);
+    },
+    async onDataChanged() {
+        await Editor.Message.request('scene', 'change-physics-material', this.physicsMaterial);
         this.dispatch('change');
     },
 };
 exports.$ = {
-    content: '#content',
+    container: '.asset-physics-material',
 };
 
 exports.update = async function (assetList, metaList) {
-    this.metas = metaList;
-    this.meta = this.metas[0];
-    this.assetInfo = assetList[0];
-    this.readonly = this.assetInfo.readyonly;
-    this.PhysicsMaterial = await Editor.Message.request('scene', 'query-physics-material', this.assetInfo.uuid);
-    this.$.content.hidden = this.metas.length !== 1;
-    if (this.$.content.hidden) {
+    this.assetList = assetList;
+    this.metaList = metaList;
+    this.asset = assetList[0];
+    this.meta = metaList[0];
+
+    if (assetList.length !== 1) {
+        this.$.container.innerText = '';
         return;
     }
-    const children = this.$.content.childNodes;
-    let i = 0;
-    for (const key in this.PhysicsMaterial) {
-        const dump = this.PhysicsMaterial[key];
+
+    this.physicsMaterial = await this.query(this.asset.uuid);
+
+    for (const key in this.physicsMaterial) {
+        const dump = this.physicsMaterial[key];
+
         if (!dump.visible) {
             continue;
         }
-        let node = children[i];
-        if (!node) {
-            node = document.createElement('ui-prop');
-            this.$.content.appendChild(node);
-            node.addEventListener('change-dump', this.onDataChanged.bind(this));
-            node.setAttribute('type', 'dump');
+
+        // 复用节点
+        if (!this.$[key]) {
+            this.$[key] = document.createElement('ui-prop');
+            this.$[key].setAttribute('type', 'dump');
         }
-        node.render(dump);
-        i++;
-    }
-    for (let index = children.length - 1; index > i - 1; index--) {
-        const element = children[index];
-        element.remove();
+
+        this.$.container.appendChild(this.$[key]);
+        this.updateReadonly(this.$[key]);
+        this.$[key].render(dump);
+
+        this.$[key].addEventListener('change-dump', this.onDataChanged.bind(this));
     }
 };

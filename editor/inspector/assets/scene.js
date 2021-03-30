@@ -23,10 +23,12 @@ exports.$ = {
  * @param metaList
  */
 exports.update = function (assetList, metaList) {
-    this._assetList = assetList;
-    this._metaList = metaList;
+    this.assetList = assetList;
+    this.metaList = metaList;
+    this.meta = metaList[0];
+    this.asset = assetList[0];
 
-    const asyncLoadAssets = metaList[0].userData.asyncLoadAssets;
+    const asyncLoadAssets = this.meta.userData.asyncLoadAssets;
     const asyncLoadAssetsInvalid = metaList.some((meta) => {
         return meta.userData.asyncLoadAssets !== asyncLoadAssets;
     });
@@ -34,7 +36,7 @@ exports.update = function (assetList, metaList) {
     this.$.asyncLoadAssets.value = asyncLoadAssets;
     this.$.asyncLoadAssets.invalid = asyncLoadAssetsInvalid;
 
-    if (assetList[0].readonly) {
+    if (this.asset.readonly) {
         this.$.asyncLoadAssets.setAttribute('disabled', true);
     } else {
         this.$.asyncLoadAssets.removeAttribute('disabled');
@@ -46,7 +48,11 @@ exports.update = function (assetList, metaList) {
  */
 exports.ready = function () {
     this.$.asyncLoadAssets.addEventListener('change', (event) => {
-        this._metaList.forEach((meta) => {
+        this.metaList.forEach((meta, index) => {
+            const asset = this.assetList[index];
+            if (asset.uuid === meta.uuid && asset.readonly) {
+                return;
+            }
             meta.userData.asyncLoadAssets = event.target.value;
         });
         this.dispatch('change');

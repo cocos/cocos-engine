@@ -23,6 +23,6 @@ module.exports = {
     'video-clip': join(__dirname, './assets/video-clip.js'),
     text: join(__dirname, './assets/text.js'),
     'render-flow': join(__dirname, './assets/render-flow.js'),
-    'render-texture': join(__dirname, './assets/render-texture.js')
+    'render-texture': join(__dirname, './assets/render-texture.js'),
     'physics-material': join(__dirname, './assets/physics-material.js'),
 };

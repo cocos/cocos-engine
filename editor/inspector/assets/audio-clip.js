@@ -1,27 +1,34 @@
 exports.template = `
 <section class="asset-audioclip">
-    <div class="content">
-      <audio class="audio" controls="controls"
-        id="audio"
-      ></audio>
-    </div>
 </section>
 `;
 exports.style = `
-:host > .asset-audioclip > .content > .audio {
+.asset-audioclip .audio {
     outline: none;
     width: 100%;
-    height: 40px;
+    height: 32px;
+    margin-bottom: 16px;
 }
 `;
 exports.$ = {
-    audio: '#audio',
-};
-exports.ready = function () {
-    this.audio = this.$.audio;
+    constainer: '.asset-audioclip',
 };
 exports.update = function (assetList, metaList) {
-    this.info = assetList[0];
-    this.audio.setAttribute('src', this.info.file);
-    this.audio.hidden = !(this.info && this.info.file);
+    // 支持多选时列表显示，限制显示条数
+    let html = '';
+    const maxShowNumber = 5000;
+
+    assetList.forEach((asset, index) => {
+        if (!asset.file || index > maxShowNumber) {
+            return;
+        }
+
+        if (assetList.length > 1) {
+            html += `<div>${asset.name}</div>`;
+        }
+
+        html += `<audio class="audio" controls="controls" src="${asset.file}"></audio>`;
+    });
+
+    this.$.constainer.innerHTML = html;
 };

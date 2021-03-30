@@ -1,10 +1,12 @@
 exports.template = `
-<section class="asset-texture">
+<section class="asset-erp-texture-cube">
     <div class="content">
         <ui-prop>
             <span slot="label">
-                <ui-label tooltip="i18n:ENGINE.assets.erpTextureCube.anisotropyTip" i18n>ENGINE.assets.erpTextureCube.anisotropy</ui-label>
-                <ui-icon value="lock"></ui-icon>
+                <ui-label
+                    tooltip="i18n:ENGINE.assets.erpTextureCube.anisotropyTip"
+                    value="i18n:ENGINE.assets.erpTextureCube.anisotropy"
+                ></ui-label>
             </span>
             <ui-num-input slot="content"    
                 id="anisotropy"
@@ -12,10 +14,10 @@ exports.template = `
         </ui-prop>
         <ui-prop>
             <span slot="label">
-                <ui-label tooltip="i18n:ENGINE.assets.erpTextureCube.faceSize.title" 
-                    i18n
-                >ENGINE.assets.erpTextureCube.faceSize.name</ui-label>
-                <ui-icon value="lock"></ui-icon>
+                <ui-label
+                    tooltip="i18n:ENGINE.assets.erpTextureCube.faceSize.title"
+                    value="i18n:ENGINE.assets.erpTextureCube.faceSize.name"
+                ></ui-label>
             </span>
             <ui-num-input slot="content"    
                 id="faceSize"
@@ -23,65 +25,75 @@ exports.template = `
         </ui-prop>
         <ui-prop>
             <span slot="label">
-                <ui-label tooltip="i18n:ENGINE.assets.erpTextureCube.minFilterTip" i18n>ENGINE.assets.erpTextureCube.minFilter</ui-label>
-                <ui-icon value="lock"></ui-icon>
+                <ui-label
+                    tooltip="i18n:ENGINE.assets.erpTextureCube.minFilterTip"
+                    value="i18n:ENGINE.assets.erpTextureCube.minFilter"
+                ></ui-label>
             </span>
             <ui-select slot="content"
                 id="minfilter"
             >
-                <option>nearest</option>
-                <option>linear</option>
+                <option value="nearest">nearest</option>
+                <option value="linear">linear</option>
             </ui-select>
         </ui-prop>
         <ui-prop>
             <span slot="label">
-                <ui-label tooltip="i18n:ENGINE.assets.erpTextureCube.magFilterTip" i18n>ENGINE.assets.erpTextureCube.magFilter</ui-label>
-                <ui-icon value="lock"></ui-icon>
+                <ui-label
+                    tooltip="i18n:ENGINE.assets.erpTextureCube.magFilterTip"
+                    value="i18n:ENGINE.assets.erpTextureCube.magFilter"
+                ></ui-label>
             </span>
             <ui-select slot="content"
                 id="magfilter"
             >
-                <option>nearest</option>
-                <option>linear</option>
+                <option value="nearest">nearest</option>
+                <option value="linear">linear</option>
             </ui-select>
         </ui-prop>
         <ui-prop>
             <span slot="label">
-                <ui-label tooltip="i18n:ENGINE.assets.erpTextureCube.mipFilterTip" i18n>ENGINE.assets.erpTextureCube.mipFilter</ui-label>
-                <ui-icon value="lock"></ui-icon>
+                <ui-label
+                    tooltip="i18n:ENGINE.assets.erpTextureCube.mipFilterTip"
+                    value="i18n:ENGINE.assets.erpTextureCube.mipFilter"
+                ></ui-label>
             </span>
             <ui-select slot="content"
                 id="mipfilter"
             >
-                <option>none</option>
-                <option>nearest</option>
-                <option>linear</option>
+                <option value="none">none</option>
+                <option value="nearest">nearest</option>
+                <option value="linear">linear</option>
             </ui-select>
         </ui-prop>
         <ui-prop>
             <span slot="label">
-                <ui-label tooltip="i18n:ENGINE.assets.erpTextureCube.wrapModeSTip" i18n>ENGINE.assets.erpTextureCube.wrapModeS</ui-label>
-                <ui-icon value="lock"></ui-icon>
+                <ui-label
+                    tooltip="i18n:ENGINE.assets.erpTextureCube.wrapModeSTip"
+                    value="i18n:ENGINE.assets.erpTextureCube.wrapModeS"
+                ></ui-label>
             </span>
             <ui-select slot="content"
                 id="wrapModeS"
             >
-                <option>repeat</option>
-                <option>clamp-to-edge</option>
-                <option>mirrored-repeat</option>
+                <option value="repeat">repeat</option>
+                <option value="clamp-to-edge">clamp-to-edge</option>
+                <option value="mirrored-repeat">mirrored-repeat</option>
             </ui-select>
         </ui-prop>
         <ui-prop>
             <span slot="label">
-                <ui-label tooltip="i18n:ENGINE.assets.erpTextureCube.wrapModeTTip" i18n>ENGINE.assets.erpTextureCube.wrapModeT</ui-label>
-                <ui-icon value="lock" ></ui-icon>
+                <ui-label
+                    tooltip="i18n:ENGINE.assets.erpTextureCube.wrapModeTTip"
+                    value="i18n:ENGINE.assets.erpTextureCube.wrapModeT"
+                ></ui-label>
             </span>
             <ui-select slot="content"
                 id="wrapModeT"
             >
-                <option>repeat</option>
-                <option>clamp-to-edge</option>
-                <option>mirrored-repeat</option>
+                <option value="repeat">repeat</option>
+                <option value="clamp-to-edge">clamp-to-edge</option>
+                <option value="mirrored-repeat">mirrored-repeat</option>
             </ui-select>
         </ui-prop>
     </div>
@@ -89,84 +101,9 @@ exports.template = `
 `;
 
 exports.style = `
-.asset-texture-cube {
-    overflow: auto;
-    padding: 0 10px;
+.asset-erp-texture-cube  ui-prop{
+    margin-top: 4px;
 }
-.asset-texture-cube .ins-prop {
-    margin: 15px 0;
-}
-.asset-texture-cube .ins-prop ui-asset {
-    flex: 1;
-}
-.asset-texture-cube .texture-cube-preview {
-    height: 300px;
-    background: var(--color-normal-fill-emphasis);
-    outline: none;
-    padding: 20px;
-    display: flex;
-    justify-content: center;
-    margin-bottom: 10px;
-}
-.asset-texture-cube .texture-cube-preview .center {
-    position: relative;
-    width: calc(var(--size) * 4);
-    height: calc(var(--size) * 3);
-}
-.asset-texture-cube .texture-cube-preview ui-image {
-    line-height: var(--size);
-    position: absolute;
-    width: var(--size);
-    height: var(--size);
-    background: var(--color-normal-fill-weaker);
-    text-align: center;
-    overflow: hidden;
-}
-.asset-texture-cube .texture-cube-preview ui-image[hovering] {
-    outline: 1px solid green;
-}
-.asset-texture-cube .texture-cube-preview canvas {
-    pointer-events: none;
-}
-.asset-texture-cube .texture-cube-preview .top {
-    top: 0;
-    left: calc(var(--size) * 2);
-}
-.asset-texture-cube .texture-cube-preview .bottom {
-    top: calc(var(--size) * 2);
-    left: calc(var(--size) * 2);
-}
-.asset-texture-cube .texture-cube-preview .front {
-    top: var(--size);
-    left: calc(var(--size) * 2);
-}
-.asset-texture-cube .texture-cube-preview .back {
-    top: var(--size);
-    left: 0;
-}
-.asset-texture-cube .texture-cube-preview .left {
-    top: var(--size);
-    left: var(--size);
-}
-.asset-texture-cube .texture-cube-preview .right {
-    top: var(--size);
-    left: calc(var(--size) * 3);
-}
-.asset-texture {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-}
-.asset-texture > .content {
-    padding-bottom: 15px;
-    flex: 1;
-    overflow: auto;
-}
-.asset-texture > .content > .edit-btn {
-    text-align: center;
-    margin-top: 10px;
-}
-
 `;
 
 exports.$ = {
@@ -180,125 +117,119 @@ exports.$ = {
 };
 
 exports.ready = function () {
-    for (const key in uiElements) {
-        if (typeof uiElements[key].ready === 'function') {
-            uiElements[key].ready.call(this);
+    for (const key in Elements) {
+        if (typeof Elements[key].ready === 'function') {
+            Elements[key].ready.call(this);
         }
     }
 };
 
 exports.update = function (assetList, metaList) {
-    this.metas = metaList;
+    this.assetList = assetList;
+    this.metaList = metaList;
+    this.asset = assetList[0];
     this.meta = metaList[0];
-    this.assetInfos = assetList;
-    this.assetInfo = assetList[0];
-    for (const key in uiElements) {
-        if (typeof uiElements[key].update === 'function') {
-            uiElements[key].update.call(this);
+
+    for (const key in Elements) {
+        if (typeof Elements[key].update === 'function') {
+            Elements[key].update.call(this);
         }
     }
 };
 
-const uiElements = {
-
-    lockIcons: {
-        ready () {
-            this.lockIcons = this.$this.shadowRoot.querySelectorAll('ui-icon[value="lock"]');
-        },
-        update () {
-            this.lockIcons.forEach((icon) => {
-                const isHidden = !this.assetInfo.readonly;
-                icon.style = isHidden ? 'display:none' : '';
-            });
-        },
-    },
+const Elements = {
     anisotropy: {
         ready () {
-            this.$.anisotropy.addEventListener('change', this._onChangeData.bind(this, 'anisotropy'));
+            this.$.anisotropy.addEventListener('change', this.dataChange.bind(this, 'anisotropy'));
         },
         update () {
-            this.$.anisotropy.invalid = this.getInvalid('anisotropy');
-            this.$.anisotropy.disabled = this.assetInfo.readonly;
             this.$.anisotropy.value = this.meta.userData.anisotropy;
+            this.updateInvalid(this.$.anisotropy, 'anisotropy');
+            this.updateReadonly(this.$.anisotropy);
         },
     },
     faceSize: {
         ready () {
-            this.$.faceSize.addEventListener('change', this._onChangeData.bind(this, 'faceSize'));
+            this.$.faceSize.addEventListener('change', this.dataChange.bind(this, 'faceSize'));
         },
         update () {
-            this.$.faceSize.invalid = this.getInvalid('faceSize');
-            this.$.faceSize.disabled = this.assetInfo.readonly;
             this.$.faceSize.value = this.meta.userData.faceSize;
+            this.updateInvalid(this.$.faceSize, 'faceSize');
+            this.updateReadonly(this.$.faceSize);
         },
     },
     minfilter: {
         ready () {
-            this.$.minfilter.addEventListener('change', this._onChangeData.bind(this, 'minfilter'));
+            this.$.minfilter.addEventListener('change', this.dataChange.bind(this, 'minfilter'));
         },
         update () {
-            this.$.minfilter.invalid = this.getInvalid('minfilter');
-            this.$.minfilter.disabled = this.assetInfo.readonly;
             this.$.minfilter.value = this.meta.userData.minfilter;
+            this.updateInvalid(this.$.minfilter, 'minfilter');
+            this.updateReadonly(this.$.minfilter);
         },
     },
     magfilter: {
         ready () {
-            this.$.magfilter.addEventListener('change', this._onChangeData.bind(this, 'magfilter'));
+            this.$.magfilter.addEventListener('change', this.dataChange.bind(this, 'magfilter'));
         },
         update () {
-            this.$.magfilter.invalid = this.getInvalid('magfilter');
-            this.$.magfilter.disabled = this.assetInfo.readonly;
             this.$.magfilter.value = this.meta.userData.magfilter;
+            this.updateInvalid(this.$.magfilter, 'magfilter');
+            this.updateReadonly(this.$.magfilter);
         },
     },
     mipfilter: {
         ready () {
-            this.$.mipfilter.addEventListener('change', this._onChangeData.bind(this, 'mipfilter'));
+            this.$.mipfilter.addEventListener('change', this.dataChange.bind(this, 'mipfilter'));
         },
         update () {
-            this.$.mipfilter.invalid = this.getInvalid('mipfilter');
-            this.$.mipfilter.disabled = this.assetInfo.readonly;
             this.$.mipfilter.value = this.meta.userData.mipfilter;
+            this.updateInvalid(this.$.mipfilter, 'mipfilter');
+            this.updateReadonly(this.$.mipfilter);
         },
     },
     wrapModeS: {
         ready () {
-            this.$.wrapModeS.addEventListener('change', this._onChangeData.bind(this, 'wrapModeS'));
+            this.$.wrapModeS.addEventListener('change', this.dataChange.bind(this, 'wrapModeS'));
         },
         update () {
-            this.$.wrapModeS.invalid = this.getInvalid('wrapModeS');
-            this.$.wrapModeS.disabled = this.assetInfo.readonly;
             this.$.wrapModeS.value = this.meta.userData.wrapModeS;
+            this.updateInvalid(this.$.wrapModeS, 'wrapModeS');
+            this.updateReadonly(this.$.wrapModeS);
         },
     },
     wrapModeT: {
         ready () {
-            this.$.wrapModeT.addEventListener('change', this._onChangeData.bind(this, 'wrapModeT'));
+            this.$.wrapModeT.addEventListener('change', this.dataChange.bind(this, 'wrapModeT'));
         },
         update () {
-            this.$.wrapModeT.invalid = this.getInvalid('wrapModeT');
-            this.$.wrapModeT.disabled = this.assetInfo.readonly;
             this.$.wrapModeT.value = this.meta.userData.wrapModeT;
+            this.updateInvalid(this.$.wrapModeT, 'wrapModeT');
+            this.updateReadonly(this.$.wrapModeT);
         },
     },
 
 };
 
 exports.methods = {
-    /**
-     * Checks whether a data is invalid in the multiple - selected state
-     * @param key
-     */
-    getInvalid (key) {
-        const source = this.metas[0].userData[key];
-        return !this.metas.every((meta) => source === meta.userData[key]);
+    updateInvalid(element, prop) {
+        const invalid = this.metaList.some((meta) => {
+            return meta.userData[prop] !== this.meta.userData[prop];
+        });
+        element.invalid = invalid;
     },
-
-    _onChangeData (key, event) {
-        this.metas.forEach((meta) => {
+    updateReadonly(element) {
+        if (this.asset.readonly) {
+            element.setAttribute('disabled', true);
+        } else {
+            element.removeAttribute('disabled');
+        }
+    },
+    dataChange (key, event) {
+        this.metaList.forEach((meta) => {
             meta.userData[key] = event.target.value;
         });
+
         this.dispatch('change');
     },
 };

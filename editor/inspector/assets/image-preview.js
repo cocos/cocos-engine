@@ -56,7 +56,14 @@ const Elements = {
             });
         },
         update() {
-            this.$.image.value = this._asset.uuid;
+            const panel = this;
+            panel.$.image.value = panel.asset.uuid;
+
+            if (panel.assetList.length > 1) {
+                panel.$.container.style.display = 'none';
+            } else {
+                panel.$.container.style.display = 'block';
+            }
         },
     },
 };
@@ -67,10 +74,10 @@ const Elements = {
  * @param metaList
  */
 exports.update = function (assetList, metaList) {
-    this._assetList = assetList;
-    this._metaList = metaList;
-    this._asset = assetList[0];
-    this._meta = metaList[0];
+    this.assetList = assetList;
+    this.metaList = metaList;
+    this.asset = assetList[0];
+    this.meta = metaList[0];
 
     for (const prop in Elements) {
         const element = Elements[prop];

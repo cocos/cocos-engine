@@ -150,6 +150,7 @@ const Elements = {
 
                     button.setAttribute('class', 'checktab');
                     button.setAttribute('checked', checked);
+                    panel.updateReadonly(button);
                     button.innerText = name;
                     button.addEventListener('click', () => {
                         if (!panel.combinations[panel.shadersIndex][define.name]) {
@@ -256,12 +257,12 @@ exports.ready = function () {
  * @param metaList
  */
 exports.update = function (assetList, metaList) {
-    this._assetList = assetList;
-    this._metaList = metaList;
-    this._asset = assetList[0];
-    this._meta = metaList[0];
+    this.assetList = assetList;
+    this.metaList = metaList;
+    this.asset = assetList[0];
+    this.meta = metaList[0];
 
-    if (this._assetList.length !== 1) {
+    if (this.assetList.length !== 1) {
         this.$.container.style.display = 'none';
         return;
     } else {
@@ -286,11 +287,11 @@ exports.methods = {
         const panel = this;
 
         // 重要：展示的数据既用到了 library ,又用到了 meta，需要保持两者一致
-        if (panel._asset.uuid !== panel._meta.uuid) {
+        if (panel.asset.uuid !== panel.meta.uuid) {
             return false;
         }
 
-        const fileSource = panel._asset.library['.json'];
+        const fileSource = panel.asset.library['.json'];
 
         if (fileSource && !existsSync(fileSource)) {
             console.error('Read effect json file in library failed.');
@@ -318,8 +319,8 @@ exports.methods = {
 
         // 每个 shader 里 defines 已编辑的值
         panel.combinations = [];
-        if (Array.isArray(panel._meta.userData.combinations)) {
-            panel.combinations = panel._meta.userData.combinations;
+        if (Array.isArray(panel.meta.userData.combinations)) {
+            panel.combinations = panel.meta.userData.combinations;
         }
 
         // 调整部分数据以用于展示
@@ -369,7 +370,7 @@ exports.methods = {
      * 更新只读状态
      */
     updateReadonly(element) {
-        if (this._asset.readonly) {
+        if (this.asset.readonly) {
             element.setAttribute('disabled', true);
         } else {
             element.removeAttribute('disabled');
@@ -390,6 +391,6 @@ exports.methods = {
             });
         });
 
-        panel._meta.userData.combinations = submitData;
+        panel.meta.userData.combinations = submitData;
     },
 };

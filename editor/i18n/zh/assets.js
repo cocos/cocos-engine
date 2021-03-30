@@ -13,6 +13,7 @@ module.exports = {
             FontSize: 'Font Size',
         },
         particle:{
+            spriteFrame:'Sprite Frame',
             spriteFrameTip:'Sprite Frame'
         },
         erpTextureCube: {
@@ -44,7 +45,7 @@ module.exports = {
             loadPluginInWeb: '允许 Web 平台加载',
             loadPluginInEditor: '允许编辑器加载',
             loadPluginInNative: '允许 Native 平台加载',
-            simulateGlobals: '模拟全局变量',
+            executionScopeEnclosed: '模拟全局变量',
             pluginTip: 'Import As Plugin',
             dependenciesTip: 'Dependencies',
             globalTip: 'Global',

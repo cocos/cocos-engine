@@ -115,7 +115,7 @@ const Elements = {
             const panel = this;
 
             panel.$.packableCheckbox.addEventListener('change', (event) => {
-                panel._metaList.forEach((meta) => {
+                panel.metaList.forEach((meta) => {
                     meta.userData.packable = event.target.value;
                 });
                 panel.dispatch('change');
@@ -124,7 +124,7 @@ const Elements = {
         update() {
             const panel = this;
 
-            panel.$.packableCheckbox.value = panel._meta.userData.packable;
+            panel.$.packableCheckbox.value = panel.meta.userData.packable;
 
             panel.updateInvalid(panel.$.packableCheckbox, 'packable');
             panel.updateReadonly(panel.$.packableCheckbox);
@@ -135,7 +135,7 @@ const Elements = {
             const panel = this;
 
             panel.$.rotatedCheckbox.addEventListener('change', (event) => {
-                panel._metaList.forEach((meta) => {
+                panel.metaList.forEach((meta) => {
                     meta.userData.rotated = event.target.value;
                 });
                 panel.dispatch('change');
@@ -144,7 +144,7 @@ const Elements = {
         update() {
             const panel = this;
 
-            panel.$.rotatedCheckbox.value = panel._meta.userData.rotated;
+            panel.$.rotatedCheckbox.value = panel.meta.userData.rotated;
 
             panel.updateInvalid(panel.$.rotatedCheckbox, 'rotated');
         },
@@ -154,7 +154,7 @@ const Elements = {
             const panel = this;
 
             panel.$.offsetXInput.addEventListener('change', (event) => {
-                panel._metaList.forEach((meta) => {
+                panel.metaList.forEach((meta) => {
                     meta.userData.offsetX = event.target.value;
                 });
                 panel.dispatch('change');
@@ -163,7 +163,7 @@ const Elements = {
         update() {
             const panel = this;
 
-            panel.$.offsetXInput.value = panel._meta.userData.offsetX;
+            panel.$.offsetXInput.value = panel.meta.userData.offsetX;
 
             panel.updateInvalid(panel.$.offsetXInput, 'offsetX');
         },
@@ -173,7 +173,7 @@ const Elements = {
             const panel = this;
 
             panel.$.offsetYInput.addEventListener('change', (event) => {
-                panel._metaList.forEach((meta) => {
+                panel.metaList.forEach((meta) => {
                     meta.userData.offsetY = event.target.value;
                 });
                 panel.dispatch('change');
@@ -182,7 +182,7 @@ const Elements = {
         update() {
             const panel = this;
 
-            panel.$.offsetYInput.value = panel._meta.userData.offsetY;
+            panel.$.offsetYInput.value = panel.meta.userData.offsetY;
 
             panel.updateInvalid(panel.$.offsetXInput, 'offsetY');
         },
@@ -192,7 +192,7 @@ const Elements = {
             const panel = this;
 
             panel.$.trimTypeSelect.addEventListener('change', (event) => {
-                panel._metaList.forEach((meta) => {
+                panel.metaList.forEach((meta) => {
                     meta.userData.trimType = event.target.value;
                 });
                 panel.dispatch('change');
@@ -216,7 +216,7 @@ const Elements = {
             });
             panel.$.trimTypeSelect.innerHTML = optionsHtml;
 
-            panel.$.trimTypeSelect.value = panel._meta.userData.trimType;
+            panel.$.trimTypeSelect.value = panel.meta.userData.trimType;
 
             panel.updateInvalid(panel.$.trimTypeSelect, 'trimType');
             panel.updateReadonly(panel.$.trimTypeSelect);
@@ -227,7 +227,7 @@ const Elements = {
             const panel = this;
 
             panel.$.trimThresholdInput.addEventListener('change', (event) => {
-                panel._metaList.forEach((meta) => {
+                panel.metaList.forEach((meta) => {
                     meta.userData.trimThreshold = event.target.value;
                 });
                 panel.dispatch('change');
@@ -236,7 +236,7 @@ const Elements = {
         update() {
             const panel = this;
 
-            panel.$.trimThresholdInput.value = panel._meta.userData.trimThreshold;
+            panel.$.trimThresholdInput.value = panel.meta.userData.trimThreshold;
 
             panel.updateInvalid(panel.$.trimThresholdInput, 'trimThreshold');
             panel.updateReadonly(panel.$.trimThresholdInput);
@@ -247,7 +247,7 @@ const Elements = {
             const panel = this;
 
             panel.$.trimXInput.addEventListener('change', (event) => {
-                panel._metaList.forEach((meta) => {
+                panel.metaList.forEach((meta) => {
                     meta.userData.trimX = event.target.value;
                 });
                 panel.dispatch('change');
@@ -256,7 +256,7 @@ const Elements = {
         update() {
             const panel = this;
 
-            panel.$.trimXInput.value = panel._meta.userData.trimX;
+            panel.$.trimXInput.value = panel.meta.userData.trimX;
 
             panel.updateInvalid(panel.$.trimXInput, 'trimX');
             panel.updateReadonlyCustom(panel.$.trimXInput);
@@ -267,7 +267,7 @@ const Elements = {
             const panel = this;
 
             panel.$.trimYInput.addEventListener('change', (event) => {
-                panel._metaList.forEach((meta) => {
+                panel.metaList.forEach((meta) => {
                     meta.userData.trimY = event.target.value;
                 });
                 panel.dispatch('change');
@@ -276,7 +276,7 @@ const Elements = {
         update() {
             const panel = this;
 
-            panel.$.trimYInput.value = panel._meta.userData.trimY;
+            panel.$.trimYInput.value = panel.meta.userData.trimY;
 
             panel.updateInvalid(panel.$.trimYInput, 'trimY');
             panel.updateReadonlyCustom(panel.$.trimYInput);
@@ -287,7 +287,7 @@ const Elements = {
             const panel = this;
 
             panel.$.widthInput.addEventListener('change', (event) => {
-                panel._metaList.forEach((meta) => {
+                panel.metaList.forEach((meta) => {
                     meta.userData.width = event.target.value;
                 });
                 panel.dispatch('change');
@@ -296,7 +296,7 @@ const Elements = {
         update() {
             const panel = this;
 
-            panel.$.widthInput.value = panel._meta.userData.width;
+            panel.$.widthInput.value = panel.meta.userData.width;
 
             panel.updateInvalid(panel.$.widthInput, 'width');
             panel.updateReadonlyCustom(panel.$.widthInput);
@@ -307,7 +307,7 @@ const Elements = {
             const panel = this;
 
             panel.$.heightInput.addEventListener('change', (event) => {
-                panel._metaList.forEach((meta) => {
+                panel.metaList.forEach((meta) => {
                     meta.userData.height = event.target.value;
                 });
                 panel.dispatch('change');
@@ -316,7 +316,7 @@ const Elements = {
         update() {
             const panel = this;
 
-            panel.$.heightInput.value = panel._meta.userData.height;
+            panel.$.heightInput.value = panel.meta.userData.height;
 
             panel.updateInvalid(panel.$.heightInput, 'height');
             panel.updateReadonlyCustom(panel.$.heightInput);
@@ -327,7 +327,7 @@ const Elements = {
             const panel = this;
 
             panel.$.borderTopInput.addEventListener('change', (event) => {
-                panel._metaList.forEach((meta) => {
+                panel.metaList.forEach((meta) => {
                     meta.userData.borderTop = event.target.value;
                 });
                 panel.dispatch('change');
@@ -336,12 +336,12 @@ const Elements = {
         update() {
             const panel = this;
 
-            panel.$.borderTopInput.value = panel._meta.userData.borderTop;
+            panel.$.borderTopInput.value = panel.meta.userData.borderTop;
 
             panel.updateInvalid(panel.$.borderTopInput, 'borderTop');
             panel.updateReadonly(panel.$.borderTopInput);
 
-            panel.$.borderTopInput.setAttribute('max', this._meta.userData.height - this._meta.userData.borderBottom);
+            panel.$.borderTopInput.setAttribute('max', this.meta.userData.height - this.meta.userData.borderBottom);
         },
     },
     borderBottom: {
@@ -349,7 +349,7 @@ const Elements = {
             const panel = this;
 
             panel.$.borderBottomInput.addEventListener('change', (event) => {
-                panel._metaList.forEach((meta) => {
+                panel.metaList.forEach((meta) => {
                     meta.userData.borderBottom = event.target.value;
                 });
                 panel.dispatch('change');
@@ -358,12 +358,12 @@ const Elements = {
         update() {
             const panel = this;
 
-            panel.$.borderBottomInput.value = panel._meta.userData.borderBottom;
+            panel.$.borderBottomInput.value = panel.meta.userData.borderBottom;
 
             panel.updateInvalid(panel.$.borderBottomInput, 'borderBottom');
             panel.updateReadonly(panel.$.borderBottomInput);
 
-            panel.$.borderBottomInput.setAttribute('max', this._meta.userData.height - this._meta.userData.borderTop);
+            panel.$.borderBottomInput.setAttribute('max', this.meta.userData.height - this.meta.userData.borderTop);
         },
     },
     borderLeft: {
@@ -371,7 +371,7 @@ const Elements = {
             const panel = this;
 
             panel.$.borderLeftInput.addEventListener('change', (event) => {
-                panel._metaList.forEach((meta) => {
+                panel.metaList.forEach((meta) => {
                     meta.userData.borderLeft = event.target.value;
                 });
                 panel.dispatch('change');
@@ -380,12 +380,12 @@ const Elements = {
         update() {
             const panel = this;
 
-            panel.$.borderLeftInput.value = panel._meta.userData.borderLeft;
+            panel.$.borderLeftInput.value = panel.meta.userData.borderLeft;
 
             panel.updateInvalid(panel.$.borderLeftInput, 'borderLeft');
             panel.updateReadonly(panel.$.borderLeftInput);
 
-            panel.$.borderLeftInput.setAttribute('max', this._meta.userData.width - this._meta.userData.borderRight);
+            panel.$.borderLeftInput.setAttribute('max', this.meta.userData.width - this.meta.userData.borderRight);
         },
     },
     borderRight: {
@@ -393,7 +393,7 @@ const Elements = {
             const panel = this;
 
             panel.$.borderRightInput.addEventListener('change', (event) => {
-                panel._metaList.forEach((meta) => {
+                panel.metaList.forEach((meta) => {
                     meta.userData.borderRight = event.target.value;
                 });
                 panel.dispatch('change');
@@ -402,12 +402,12 @@ const Elements = {
         update() {
             const panel = this;
 
-            panel.$.borderRightInput.value = panel._meta.userData.borderRight;
+            panel.$.borderRightInput.value = panel.meta.userData.borderRight;
 
             panel.updateInvalid(panel.$.borderRightInput, 'borderRight');
             panel.updateReadonly(panel.$.borderRightInput);
 
-            panel.$.borderRightInput.setAttribute('max', this._meta.userData.width - this._meta.userData.borderLeft);
+            panel.$.borderRightInput.setAttribute('max', this.meta.userData.width - this.meta.userData.borderLeft);
         },
     },
     editButton: {
@@ -418,18 +418,29 @@ const Elements = {
                 event.stopPropagation();
 
                 Editor.Panel.open('inspector.sprite-editor', {
-                    asset: panel._asset,
-                    meta: panel._meta,
+                    asset: panel.asset,
+                    meta: panel.meta,
                 });
             });
 
-            this._updateFromBroadcast = this.updateFromBroadcast.bind(panel);
-            Editor.Message.addBroadcastListener('sprite-editor:changed', panel._updateFromBroadcast);
+            this.updateFromBroadcastBind = this.updateFromBroadcast.bind(panel);
+            Editor.Message.addBroadcastListener('sprite-editor:changed', panel.updateFromBroadcastBind);
+        },
+        update() {
+            const panel = this;
+            
+            panel.updateReadonly(panel.$.editButton);
+
+            if (panel.assetList.length > 1) {
+                panel.$.editButton.style.display = 'none';
+            } else {
+                panel.$.editButton.style.display = 'block';
+            }
         },
         close() {
             const panel = this;
 
-            Editor.Message.removeBroadcastListener('sprite-editor:changed', panel._updateFromBroadcast);
+            Editor.Message.removeBroadcastListener('sprite-editor:changed', panel.updateFromBroadcastBind);
         },
     },
 };
@@ -440,10 +451,10 @@ const Elements = {
  * @param metaList
  */
 exports.update = function (assetList, metaList) {
-    this._assetList = assetList;
-    this._metaList = metaList;
-    this._asset = assetList[0];
-    this._meta = metaList[0];
+    this.assetList = assetList;
+    this.metaList = metaList;
+    this.asset = assetList[0];
+    this.meta = metaList[0];
 
     for (const prop in Elements) {
         const element = Elements[prop];
@@ -479,8 +490,8 @@ exports.methods = {
      * 更新多选状态下某个数据是否可编辑
      */
     updateInvalid(element, prop) {
-        const invalid = this._metaList.some((meta) => {
-            return meta.userData[prop] !== this._meta.userData[prop];
+        const invalid = this.metaList.some((meta) => {
+            return meta.userData[prop] !== this.meta.userData[prop];
         });
         element.invalid = invalid;
     },
@@ -488,7 +499,7 @@ exports.methods = {
      * 更新只读状态
      */
     updateReadonly(element) {
-        if (this._asset.readonly) {
+        if (this.asset.readonly) {
             element.setAttribute('disabled', true);
         } else {
             element.removeAttribute('disabled');
@@ -498,9 +509,9 @@ exports.methods = {
      * 更新业务相关的只读状态
      */
     updateReadonlyCustom(element) {
-        const isCustom = this._meta.userData.trimType === 'custom';
+        const isCustom = this.meta.userData.trimType === 'custom';
 
-        if (!isCustom || this._asset.readonly) {
+        if (!isCustom || this.asset.readonly) {
             element.setAttribute('disabled', true);
         } else {
             element.removeAttribute('disabled');
@@ -512,9 +523,9 @@ exports.methods = {
     updateFromBroadcast(data) {
         const panel = this;
 
-        if (data.uuid === panel._meta.uuid) {
+        if (data.uuid === panel.meta.uuid) {
             for (const prop in data.userData) {
-                panel._metaList.forEach((meta) => {
+                panel.metaList.forEach((meta) => {
                     meta.userData[prop] = data.userData[prop];
                 });
             }

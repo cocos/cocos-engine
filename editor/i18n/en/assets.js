@@ -12,7 +12,8 @@ module.exports = {
             StartChar: 'Start Char',
             FontSize: 'Font Size',
         },
-        particle:{
+        particle: {
+            spriteFrame:'Sprite Frame',
             spriteFrameTip:'Sprite Frame'
         },
         erpTextureCube: {
@@ -44,7 +45,7 @@ module.exports = {
             loadPluginInWeb: 'Load In Web',
             loadPluginInEditor: 'Load In Editor',
             loadPluginInNative: 'Load In Native',
-            simulateGlobals: 'Simulate global variables',
+            executionScopeEnclosed: 'Simulate global variables',
             pluginTip: 'Import As Plugin',
             dependenciesTip: 'Dependencies',
             globalTip: 'Global',

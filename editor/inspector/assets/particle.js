@@ -3,9 +3,12 @@ exports.template = `
     <div class="content"
         id="content"
     >
-        <ui-prop asset>
-            <ui-label slot="label" tooltip="i18n:ENGINE.assets.particle.spriteFrameTip"> SpriteFrame </ui-label>
-            <ui-asset
+        <ui-prop is="asset">
+            <ui-label slot="label"
+                tooltip="i18n:ENGINE.assets.particle.spriteFrameTip"
+                value="i18n:ENGINE.assets.particle.spriteFrame"
+            ></ui-label>
+            <ui-asset readonly
                 id="asset"
                 slot="content" 
                 droppable="cc.SpriteFrame" 
@@ -19,21 +22,43 @@ exports.$ = {
     content: '#content',
     asset: '#asset',
 };
+
 exports.ready = function () {
-    this.$.asset.addEventListener('change', this._onDataChanged.bind(this, 'spriteFrameUuid'));
+    // 备注：目前 2d 粒子的材质不能变更，ui-asset readonly ，所以以下无效
+    this.$.asset.addEventListener('confirm', this.onDataChanged.bind(this, 'spriteFrameUuid'));
 };
 
 exports.update = function (assetList, metaList) {
-    this.metas = metaList;
-    this.meta = this.metas[0];
-    this.$.content.hidden = this.metas.length !== 1;
+    this.assetList = assetList;
+    this.metaList = metaList;
+    this.asset = assetList[0];
+    this.meta = metaList[0];
+
     this.$.asset.value = this.meta.userData.spriteFrameUuid;
+
+    this.updateInvalid(this.$.asset, 'spriteFrameUuid');
+    this.updateReadonly(this.$.asset);
 };
 exports.methods = {
-    _onDataChanged (key, event) {
-        this.metas.forEach((meta) => {
+    updateInvalid(element, prop) {
+        const invalid = this.metaList.some((meta) => {
+            return meta.userData[prop] !== this.meta.userData[prop];
+        });
+        element.invalid = invalid;
+    },
+
+    updateReadonly(element) {
+        if (this.asset.readonly) {
+            element.setAttribute('disabled', true);
+        } else {
+            element.removeAttribute('disabled');
+        }
+    },
+    onDataChanged(key, event) {
+        this.metaList.forEach((meta) => {
             meta.userData[key] = event.target.value;
         });
+
         this.dispatch('change');
     },
 };

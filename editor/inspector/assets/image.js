@@ -21,7 +21,7 @@ exports.template = `
         <ui-checkbox slot="content" class="useCompressTexture-checkbox"></ui-checkbox>
     </ui-prop>
 
-    <ui-section expand>
+    <ui-section expand class="sub-panel-section">
         <ui-label class="sub-panel-name" slot="header"></ui-label>
         <ui-panel class="sub-panel"></ui-panel>
     </ui-section>
@@ -42,6 +42,7 @@ exports.style = `
 
 exports.$ = {
     panel: '.sub-panel',
+    panelSection: '.sub-panel-section',
     panelName: '.sub-panel-name',
 
     container: '.asset-image',
@@ -61,7 +62,7 @@ const Elements = {
             const panel = this;
 
             panel.$.typeSelect.addEventListener('change', (event) => {
-                panel._metaList.forEach((meta) => {
+                panel.metaList.forEach((meta) => {
                     meta.userData.type = event.target.value;
                 });
                 panel.dispatch('change');
@@ -80,7 +81,7 @@ const Elements = {
             });
             panel.$.typeSelect.innerHTML = optionsHtml;
 
-            panel.$.typeSelect.value = panel._meta.userData.type;
+            panel.$.typeSelect.value = panel.meta.userData.type;
 
             panel.updateInvalid(panel.$.typeSelect, 'type');
             panel.updateReadonly(panel.$.typeSelect);
@@ -91,7 +92,7 @@ const Elements = {
             const panel = this;
 
             panel.$.flipVerticalCheckbox.addEventListener('change', (event) => {
-                panel._metaList.forEach((meta) => {
+                panel.metaList.forEach((meta) => {
                     meta.userData.flipVertical = event.target.value;
                 });
                 panel.dispatch('change');
@@ -100,7 +101,7 @@ const Elements = {
         update() {
             const panel = this;
 
-            panel.$.flipVerticalCheckbox.value = panel._meta.userData.flipVertical;
+            panel.$.flipVerticalCheckbox.value = panel.meta.userData.flipVertical;
 
             panel.updateInvalid(panel.$.flipVerticalCheckbox, 'flipVertical');
             panel.updateReadonly(panel.$.flipVerticalCheckbox);
@@ -111,7 +112,7 @@ const Elements = {
             const panel = this;
 
             panel.$.isRGBECheckbox.addEventListener('change', (event) => {
-                panel._metaList.forEach((meta) => {
+                panel.metaList.forEach((meta) => {
                     meta.userData.isRGBE = event.target.value;
                 });
                 panel.dispatch('change');
@@ -120,10 +121,10 @@ const Elements = {
         update() {
             const panel = this;
 
-            if (panel._meta.userData.type === 'texture cube') {
+            if (panel.meta.userData.type === 'texture cube') {
                 panel.$.isRGBEProp.style.display = 'block';
 
-                panel.$.isRGBECheckbox.value = panel._meta.userData.isRGBE;
+                panel.$.isRGBECheckbox.value = panel.meta.userData.isRGBE;
 
                 panel.updateInvalid(panel.$.isRGBECheckbox, 'isRGBE');
                 panel.updateReadonly(panel.$.isRGBECheckbox);
@@ -137,7 +138,7 @@ const Elements = {
             const panel = this;
 
             panel.$.useCompressTextureCheckbox.addEventListener('change', (event) => {
-                panel._metaList.forEach((meta) => {
+                panel.metaList.forEach((meta) => {
                     meta.userData.useCompressTexture = event.target.value;
                 });
                 panel.dispatch('change');
@@ -146,7 +147,7 @@ const Elements = {
         update() {
             const panel = this;
 
-            panel.$.useCompressTextureCheckbox.value = panel._meta.userData.useCompressTexture;
+            panel.$.useCompressTextureCheckbox.value = panel.meta.userData.useCompressTexture;
 
             panel.updateInvalid(panel.$.useCompressTextureCheckbox, 'useCompressTexture');
             panel.updateReadonly(panel.$.useCompressTextureCheckbox);
@@ -160,10 +161,10 @@ const Elements = {
  * @param metaList
  */
 exports.update = function (assetList, metaList) {
-    this._assetList = assetList;
-    this._metaList = metaList;
-    this._asset = assetList[0];
-    this._meta = metaList[0];
+    this.assetList = assetList;
+    this.metaList = metaList;
+    this.asset = assetList[0];
+    this.meta = metaList[0];
 
     for (const prop in Elements) {
         const element = Elements[prop];
@@ -192,8 +193,8 @@ exports.methods = {
      * 更新多选状态下某个数据是否可编辑
      */
     updateInvalid(element, prop) {
-        const invalid = this._metaList.some((meta) => {
-            return meta.userData[prop] !== this._meta.userData[prop];
+        const invalid = this.metaList.some((meta) => {
+            return meta.userData[prop] !== this.meta.userData[prop];
         });
         element.invalid = invalid;
     },
@@ -201,7 +202,7 @@ exports.methods = {
      * 更新只读状态
      */
     updateReadonly(element) {
-        if (this._asset.readonly) {
+        if (this.asset.readonly) {
             element.setAttribute('disabled', true);
         } else {
             element.removeAttribute('disabled');
@@ -209,14 +210,23 @@ exports.methods = {
     },
 
     async updatePanel() {
-        this._subUUIDList = [];
+        const assetList = [];
+        const metaList = [];
 
-        this._assetList.forEach((asset) => {
+        const imageTypeToImporter = {
+            raw: '',
+            texture: 'texture',
+            'normal map': 'texture',
+            'sprite-frame': 'sprite-frame',
+            'texture cube': 'erp-texture-cube',
+        };
+
+        const imageImporter = imageTypeToImporter[this.meta.userData.type];
+
+        this.assetList.forEach((asset) => {
             if (!asset) {
                 return;
             }
-
-            let validSUbUuid = null;
 
             for (const subUuid in asset.subAssets) {
                 const subAsset = asset.subAssets[subUuid];
@@ -225,37 +235,41 @@ exports.methods = {
                     continue;
                 }
 
-                if (subAsset.importer === 'sprite-frame') {
-                    validSUbUuid = subUuid;
+                if (subAsset.importer === imageImporter) {
+                    assetList.push(subAsset);
                     break;
-                } else {
-                    validSUbUuid = subUuid;
                 }
-            }
-
-            if (validSUbUuid !== null) {
-                this._subUUIDList.push(`${asset.uuid}@${validSUbUuid}`);
             }
         });
 
-        if (!this._subUUIDList.length) {
+        this.metaList.forEach((meta) => {
+            if (!meta) {
+                return;
+            }
+
+            for (const subUuid in meta.subMetas) {
+                const subMeta = meta.subMetas[subUuid];
+
+                if (!subMeta || subMeta.importer === '*') {
+                    continue;
+                }
+
+                if (subMeta.importer === imageImporter) {
+                    metaList.push(subMeta);
+                    break;
+                }
+            }
+        });
+
+        if (!assetList.length || !metaList.length) {
+            this.$.panelSection.style.display = 'none';
             return;
+        } else {
+            this.$.panelSection.style.display = 'block';
         }
 
-        const assetList = await Promise.all(
-            this._subUUIDList.map((uuid) => {
-                return Editor.Message.request('asset-db', 'query-asset-info', uuid);
-            }),
-        );
-
-        const metaList = await Promise.all(
-            this._subUUIDList.map((uuid) => {
-                return Editor.Message.request('asset-db', 'query-asset-meta', uuid);
-            }),
-        );
-
         const asset = assetList[0];
-        this.$.panelName.setAttribute('value', asset.importer);
+        this.$.panelName.setAttribute('value', this.meta.userData.type);
         this.$.panel.setAttribute('src', path.join(__dirname, `./${asset.importer}.js`));
         this.$.panel.update(assetList, metaList);
         this.$.panel.addEventListener('change', () => {
