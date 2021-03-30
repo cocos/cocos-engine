@@ -29,6 +29,11 @@
 #include "base/Utils.h"
 
 namespace cc {
+
+namespace utils {
+String getStacktraceJS();
+} // namespace utils
+
 namespace gfx {
 
 class GFXObject;

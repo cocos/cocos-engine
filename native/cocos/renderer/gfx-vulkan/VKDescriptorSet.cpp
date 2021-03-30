@@ -212,7 +212,6 @@ void CCVKDescriptorSet::update() {
                             if (bufferView) {
                                 descriptorHub->connect(_gpuDescriptorSet, bufferView, &descriptorInfo.buffer, t);
                                 descriptorHub->update(bufferView, &descriptorInfo.buffer);
-                                //layoutMgr->checkIn(bufferView->gpuBuffer, binding.accessTypes.data(), binding.accessTypes.size());
                             }
                         }
                         binding.gpuBufferView = bufferView;

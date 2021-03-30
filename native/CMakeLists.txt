@@ -940,7 +940,7 @@ if(CC_USE_METAL)
                      cocos/renderer/gfx-metal/MTLCommandBuffer.mm
                      cocos/renderer/gfx-metal/MTLContext.h
         NO_WERROR    cocos/renderer/gfx-metal/MTLContext.mm     # CAMetalLayer bug for apple
-                     cocos/renderer/gfx-metal/MTLDevice.h       
+                     cocos/renderer/gfx-metal/MTLDevice.h
         NO_WERROR    cocos/renderer/gfx-metal/MTLDevice.mm      # CAMetalLayer bug for apple
                      cocos/renderer/gfx-metal/MTLFramebuffer.mm
                      cocos/renderer/gfx-metal/MTLFramebuffer.h
@@ -1638,7 +1638,7 @@ cocos_source_files(
                  extensions/ExtensionMacros.h
 )
 
-list(APPEND COCOS2D_SOURCE_LIST ${CC_EXTERNAL_SROUCES})
+list(APPEND COCOS2D_SOURCE_LIST ${CC_EXTERNAL_SOURCES})
 
 add_library(cocos2d ${COCOS2D_SOURCE_LIST})
 

@@ -138,7 +138,6 @@ void CCVKCmdFuncCreateTexture(CCVKDevice *device, CCVKGPUTexture *gpuTexture) {
     //CC_LOG_DEBUG("Allocated texture: %llu %llx %llx %llu %x", res.size, gpuTexture->vkImage, res.deviceMemory, res.offset, res.pMappedData);
 
     gpuTexture->aspectMask = MapVkImageAspectFlags(gpuTexture->format);
-    gpuTexture->layoutRule = gpuTexture->usage & TextureUsage::STORAGE ? THSVS_IMAGE_LAYOUT_GENERAL : THSVS_IMAGE_LAYOUT_OPTIMAL; // as per vulkan spec
 }
 
 void CCVKCmdFuncCreateTextureView(CCVKDevice *device, CCVKGPUTextureView *gpuTextureView) {
@@ -217,7 +216,7 @@ void CCVKCmdFuncCreateBuffer(CCVKDevice *device, CCVKGPUBuffer *gpuBuffer) {
     VK_CHECK(vmaCreateBuffer(device->gpuDevice()->memoryAllocator, &bufferInfo, &allocInfo, &gpuBuffer->vkBuffer, &gpuBuffer->vmaAllocation, &res));
     //CC_LOG_DEBUG("Allocated buffer: %llu, %llx %llx %llu %x", res.size, gpuBuffer->vkBuffer, res.deviceMemory, res.offset, res.pMappedData);
 
-    gpuBuffer->mappedData  = (uint8_t *)res.pMappedData;
+    gpuBuffer->mappedData  = reinterpret_cast<uint8_t *>(res.pMappedData);
     gpuBuffer->startOffset = 0; // we are creating one VkBuffer each for now
 
     // add special access types directly from usage
@@ -422,8 +421,8 @@ void CCVKCmdFuncCreateFramebuffer(CCVKDevice *device, CCVKGPUFramebuffer *gpuFra
 
         gpuFramebuffer->swapchain             = device->gpuSwapchain();
         FramebufferListMap &   fboListMap     = gpuFramebuffer->swapchain->vkSwapchainFramebufferListMap;
-        FramebufferListMapIter fboListMapIter = fboListMap.find(gpuFramebuffer);
-        if (fboListMapIter != fboListMap.end() && fboListMapIter->second.size()) {
+        auto                   fboListMapIter = fboListMap.find(gpuFramebuffer);
+        if (fboListMapIter != fboListMap.end() && !fboListMapIter->second.empty()) {
             return;
         }
         size_t swapchainImageCount = gpuFramebuffer->swapchain->vkSwapchainImageViews.size();
@@ -755,7 +754,7 @@ void CCVKCmdFuncUpdateBuffer(CCVKDevice *device, CCVKGPUBuffer *gpuBuffer, const
 
     if (gpuBuffer->usage & BufferUsageBit::INDIRECT) {
         size_t          drawInfoCount = size / sizeof(DrawInfo);
-        const DrawInfo *drawInfo      = static_cast<const DrawInfo *>(buffer);
+        const auto *drawInfo          = static_cast<const DrawInfo *>(buffer);
         if (drawInfoCount > 0) {
             if (drawInfo->indexCount) {
                 for (size_t i = 0; i < drawInfoCount; ++i) {
@@ -970,10 +969,10 @@ void CCVKCmdFuncDestroyFramebuffer(CCVKGPUDevice *gpuDevice, CCVKGPUFramebuffer 
         }
     } else {
         FramebufferListMap &   fboListMap     = gpuFramebuffer->swapchain->vkSwapchainFramebufferListMap;
-        FramebufferListMapIter fboListMapIter = fboListMap.find(gpuFramebuffer);
+        auto                   fboListMapIter = fboListMap.find(gpuFramebuffer);
         if (fboListMapIter != fboListMap.end()) {
-            for (size_t i = 0u; i < fboListMapIter->second.size(); ++i) {
-                vkDestroyFramebuffer(gpuDevice->vkDevice, fboListMapIter->second[i], nullptr);
+            for (auto & i : fboListMapIter->second) {
+                vkDestroyFramebuffer(gpuDevice->vkDevice, i, nullptr);
             }
             fboListMapIter->second.clear();
             fboListMap.erase(fboListMapIter);
@@ -1014,18 +1013,6 @@ void CCVKCmdFuncDestroyPipelineState(CCVKGPUDevice *gpuDevice, CCVKGPUPipelineSt
         vkDestroyPipeline(gpuDevice->vkDevice, gpuPipelineState->vkPipeline, nullptr);
         gpuPipelineState->vkPipeline = VK_NULL_HANDLE;
     }
-}
-
-void CCVKCmdFuncGlobalMemoryBarrier(const CCVKGPUCommandBuffer *gpuCommandBuffer, const ThsvsGlobalBarrier &globalBarrier) {
-    VkPipelineStageFlags srcStageMask     = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
-    VkPipelineStageFlags dstStageMask     = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
-    VkPipelineStageFlags tempSrcStageMask = 0;
-    VkPipelineStageFlags tempDstStageMask = 0;
-    VkMemoryBarrier      vkBarrier;
-    thsvsGetVulkanMemoryBarrier(globalBarrier, &tempSrcStageMask, &tempDstStageMask, &vkBarrier);
-    srcStageMask |= tempSrcStageMask;
-    dstStageMask |= tempDstStageMask;
-    vkCmdPipelineBarrier(gpuCommandBuffer->vkCommandBuffer, srcStageMask, dstStageMask, 0, 1, &vkBarrier, 0, nullptr, 0, nullptr);
 }
 
 void CCVKCmdFuncImageMemoryBarrier(const CCVKGPUCommandBuffer *gpuCommandBuffer, const ThsvsImageBarrier &imageBarrier) {
@@ -1144,7 +1131,7 @@ void CCVKGPUBarrierManager::update(CCVKGPUTransportHub *transportHub) {
 
     VkMemoryBarrier  vkBarrier;
     VkMemoryBarrier *pVkBarrier = nullptr;
-    if (prevAccesses.size()) {
+    if (!prevAccesses.empty()) {
         ThsvsGlobalBarrier globalBarrier{};
         globalBarrier.prevAccessCount         = prevAccesses.size();
         globalBarrier.pPrevAccesses           = prevAccesses.data();
@@ -1192,7 +1179,7 @@ void CCVKGPUBarrierManager::update(CCVKGPUTransportHub *transportHub) {
         gpuTexture->transferAccess = THSVS_ACCESS_NONE;
     }
 
-    if (pVkBarrier || vkImageBarriers.size()) {
+    if (pVkBarrier || !vkImageBarriers.empty()) {
         transportHub->checkIn([&](CCVKGPUCommandBuffer *gpuCommandBuffer) {
             vkCmdPipelineBarrier(gpuCommandBuffer->vkCommandBuffer, srcStageMask, dstStageMask, 0,
                                  pVkBarrier ? 1 : 0, pVkBarrier, 0, nullptr, vkImageBarriers.size(), vkImageBarriers.data());

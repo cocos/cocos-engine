@@ -54,7 +54,6 @@ void CCVKTexture::doInit(const TextureInfo &info) {
     _gpuTexture->mipLevels   = _levelCount;
     _gpuTexture->samples     = _samples;
     _gpuTexture->flags       = _flags;
-    _gpuTexture->isPowerOf2  = math::IsPowerOfTwo(_width) && math::IsPowerOfTwo(_height);
 
     CCVKCmdFuncCreateTexture(CCVKDevice::getInstance(), _gpuTexture);
 

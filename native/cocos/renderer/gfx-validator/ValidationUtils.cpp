@@ -25,8 +25,20 @@
 
 #include "ValidationUtils.h"
 
+#include "bindings/jswrapper/SeApi.h"
+
 namespace cc {
+
+namespace utils {
+
+String getStacktraceJS() {
+    return se::ScriptEngine::getInstance()->getCurrentStackTrace();
+}
+
+} // namespace utils
+
 namespace gfx {
 
 } // namespace gfx
+
 } // namespace cc

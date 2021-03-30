@@ -56,7 +56,6 @@ Examples:
 namespace utils {
 
 CC_DLL std::string getStacktrace(uint skip = 0, uint maxDepth = UINT_MAX);
-CC_DLL std::string getStacktraceJS();
 
 CC_DLL int nextPOT(int x);
 /** Same to ::atof, but strip the string, remain 7 numbers after '.' before call atof.
