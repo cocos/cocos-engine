@@ -98,8 +98,6 @@
         "cocos/audio/win32/AudioPlayer.cpp", 
         "cocos/audio/win32/AudioPlayer.h", 
         "cocos/base/Agent.h", 
-        "cocos/base/Array.cpp", 
-        "cocos/base/Array.h", 
         "cocos/base/AutoreleasePool.cpp", 
         "cocos/base/AutoreleasePool.h", 
         "cocos/base/CachedArray.h", 
