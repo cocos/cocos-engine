@@ -3,9 +3,14 @@ import { AudioEvent, AudioState, AudioType } from '../type';
 import { EventTarget } from '../../../cocos/core/event/event-target';
 import { legacyCC } from '../../../cocos/core/global-exports';
 import { clamp, clamp01 } from '../../../cocos/core';
+import { EnqueueOperationDecorator } from '../operation-queue';
 
 // NOTE: fix CI
 const AudioContextClass = (window.AudioContext || window.webkitAudioContext || window.mozAudioContext);
+
+// NOTE: fix wrong type in static method
+let DecoratedAudioPlayer: typeof AudioPlayerWeb;
+@EnqueueOperationDecorator
 export class AudioPlayerWeb {
     private _src: string;
     private static _context: AudioContext = AudioContextClass && new AudioContextClass();
@@ -74,7 +79,7 @@ export class AudioPlayerWeb {
     static load (url: string): Promise<AudioPlayerWeb> {
         return new Promise((resolve) => {
             AudioPlayerWeb.loadNative(url).then((audioBuffer) => {
-                resolve(new AudioPlayerWeb(audioBuffer, url));
+                resolve(new DecoratedAudioPlayer(audioBuffer, url));
             }).catch((e) => {});
         });
     }
@@ -288,3 +293,5 @@ export class AudioPlayerWeb {
     onEnded (cb: () => void) { this._eventTarget.on(AudioEvent.ENDED, cb); }
     offEnded (cb?: () => void) { this._eventTarget.off(AudioEvent.ENDED, cb); }
 }
+
+DecoratedAudioPlayer = AudioPlayerWeb;

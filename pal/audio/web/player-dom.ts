@@ -3,7 +3,11 @@ import { AudioEvent, AudioState, AudioType } from '../type';
 import { EventTarget } from '../../../cocos/core/event/event-target';
 import { legacyCC } from '../../../cocos/core/global-exports';
 import { clamp, clamp01 } from '../../../cocos/core';
+import { EnqueueOperationDecorator } from '../operation-queue';
 
+// NOTE: fix wrong type in static method
+let DecoratedAudioPlayer: typeof AudioPlayerDOM;
+@EnqueueOperationDecorator
 export class AudioPlayerDOM {
     private _domAudio?: HTMLAudioElement;
     private _eventTarget: EventTarget = new EventTarget();
@@ -68,7 +72,7 @@ export class AudioPlayerDOM {
     static load (url: string): Promise<AudioPlayerDOM> {
         return new Promise((resolve) => {
             AudioPlayerDOM.loadNative(url).then((domAudio) => {
-                resolve(new AudioPlayerDOM(domAudio));
+                resolve(new DecoratedAudioPlayer(domAudio));
             }).catch((e) => {});
         });
     }
@@ -229,3 +233,5 @@ export class AudioPlayerDOM {
     onEnded (cb: () => void) { this._eventTarget.on(AudioEvent.ENDED, cb); }
     offEnded (cb?: () => void) { this._eventTarget.off(AudioEvent.ENDED, cb); }
 }
+
+DecoratedAudioPlayer = AudioPlayerDOM;

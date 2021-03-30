@@ -4,7 +4,11 @@ import { legacyCC } from '../../../cocos/core/global-exports';
 import { EventTarget } from '../../../cocos/core/event/event-target';
 import { AudioEvent, AudioState, AudioType } from '../type';
 import { clamp, clamp01 } from '../../../cocos/core';
+import { EnqueueOperationDecorator } from '../operation-queue';
 
+// NOTE: fix wrong type in static method
+let DecoratedAudioPlayer: typeof AudioPlayer;
+@EnqueueOperationDecorator
 export class AudioPlayer {
     private _innerAudioContext?: any;
     private _eventTarget: EventTarget;
@@ -98,7 +102,7 @@ export class AudioPlayer {
     static load (url: string): Promise<AudioPlayer> {
         return new Promise((resolve) => {
             AudioPlayer.loadNative(url).then((innerAudioContext) => {
-                resolve(new AudioPlayer(innerAudioContext));
+                resolve(new DecoratedAudioPlayer(innerAudioContext));
             }).catch((e) => {});
         });
     }
@@ -230,5 +234,6 @@ export class AudioPlayer {
     offEnded (cb?: () => void) { this._eventTarget.off(AudioEvent.ENDED, cb); }
 }
 
+DecoratedAudioPlayer = AudioPlayer;
 // REMOVE_ME
 legacyCC.AudioPlayer = AudioPlayer;

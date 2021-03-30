@@ -3,12 +3,16 @@ import { AudioType, AudioState, AudioEvent } from '../type';
 import { EventTarget } from '../../../cocos/core/event/event-target';
 import { legacyCC } from '../../../cocos/core/global-exports';
 import { clamp, clamp01 } from '../../../cocos/core';
+import { EnqueueOperationDecorator } from '../operation-queue';
 
 const urlCount: Record<string, number> = {};
 const audioEngine = jsb.AudioEngine;
 const INVALID_AUDIO_ID = -1;
 
+// NOTE: fix wrong type in static method
+let DecoratedAudioPlayer: typeof AudioPlayer;
 // TODO: set state before playing
+@EnqueueOperationDecorator
 export class AudioPlayer {
     private _url: string;
     private _id: number = INVALID_AUDIO_ID;
@@ -64,7 +68,7 @@ export class AudioPlayer {
     static load (url: string): Promise<AudioPlayer> {
         return new Promise((resolve, reject) => {
             AudioPlayer.loadNative(url).then((url) => {
-                resolve(new AudioPlayer(url as string));
+                resolve(new DecoratedAudioPlayer(url as string));
             }).catch((err) => reject(err));
         });
     }
@@ -223,5 +227,6 @@ export class AudioPlayer {
     offEnded (cb?: () => void) { this._eventTarget.off(AudioEvent.ENDED, cb); }
 }
 
+DecoratedAudioPlayer = AudioPlayer;
 // REMOVE_ME
 legacyCC.AudioPlayer = AudioPlayer;
