@@ -318,8 +318,8 @@ export class TerrainBlock {
 
         this._node = new Node();
         this._node.setParent(this._terrain.node);
-        this._node.hideFlags |= CCObject.HideFlags.DontSave;
-        this._node.hideFlags |= CCObject.HideFlags.HideInHierarchy;
+        this._node.hideFlags |= CCObject.HideFlags.DontSave | CCObject.HideFlags.HideInHierarchy;
+
         this._node.layer = this._terrain.node.layer;
 
         this._renderable = this._node.addComponent(TerrainRenderable);

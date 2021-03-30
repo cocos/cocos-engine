@@ -817,8 +817,7 @@ export class ArmatureDisplay extends Renderable2D {
         if (this.debugBones) {
             if (!this._debugDraw) {
                 const debugDrawNode = new Node('DEBUG_DRAW_NODE');
-                debugDrawNode.hideFlags |= CCObject.HideFlags.DontSave;
-                debugDrawNode.hideFlags |= CCObject.HideFlags.HideInHierarchy;
+                debugDrawNode.hideFlags |= CCObject.HideFlags.DontSave | CCObject.HideFlags.HideInHierarchy;
                 const debugDraw = debugDrawNode.addComponent(Graphics);
                 debugDraw.lineWidth = 1;
                 debugDraw.strokeColor = new Color(255, 0, 0, 255);

@@ -226,9 +226,8 @@ class CCObject {
     }
 
     /**
-     * @en Provide settings for nodes: the object will not be saved, the object will not be saved when building the project,
-     * lock the node so that it cannot be clicked in the scene after locking, hide the object in the editor, etc.
-     * @zh 为节点提供：该对象将不会被保存,构建项目时，该对象将不会被保存, 锁定节点，锁定后场景内不能点击, 在编辑器中隐藏该对象，等设置。
+     * @en After inheriting CCObject objects, control whether you need to hide, lock, serialize, and other functions.
+     * @zh 在继承 CCObject 对象后，控制是否需要隐藏，锁定，序列化等功能。
      */
     public set hideFlags (hideFlags: CCObject.HideFlags) {
         this._objFlags = (this._objFlags & ~CCObject.HideFlags.AllHideMask) | hideFlags;

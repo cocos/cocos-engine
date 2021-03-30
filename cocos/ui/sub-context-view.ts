@@ -109,8 +109,7 @@ export class SubContextView extends Component {
     constructor () {
         super();
         this._content = new Node('content');
-        this._content.hideFlags |= CCObject.HideFlags.DontSave;
-        this._content.hideFlags |= CCObject.HideFlags.HideInHierarchy;
+        this._content.hideFlags |= CCObject.HideFlags.DontSave | CCObject.HideFlags.HideInHierarchy;
         this._sprite = null;
         this._imageAsset = new ImageAsset();
         this._openDataContext = null;
