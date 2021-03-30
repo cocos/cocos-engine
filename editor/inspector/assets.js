@@ -25,4 +25,5 @@ module.exports = {
     'render-flow': join(__dirname, './assets/render-flow.js'),
     'render-texture': join(__dirname, './assets/render-texture.js'),
     'physics-material': join(__dirname, './assets/physics-material.js'),
+    'texture-cube': join(__dirname, './assets/texture-cube.js'),
 };
