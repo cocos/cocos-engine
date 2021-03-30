@@ -437,11 +437,15 @@ CCClass.fastDefine('cc.Object', CCObject, { _name: '', _objFlags: 0 });
  */
 js.value(CCObject, 'Flags', {
     Destroyed,
+    DontSave,
+    EditorOnly,
     Dirty,
     DontDestroy,
     PersistentMask,
     Destroying,
     Deactivating,
+    LockedInEditor,
+    HideInHierarchy,
     IsPreloadStarted,
     IsOnLoadStarted,
     IsOnLoadCalled,
