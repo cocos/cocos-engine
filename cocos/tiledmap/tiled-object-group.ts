@@ -292,7 +292,7 @@ export class TiledObjectGroup extends Component {
                 // Use cc.Node to implement node-level requirements
                 if (imgNode instanceof Node) {
                     imgNode.removeFromParent();
-                    imgNode.hideFlags |= CCObject.HideFlags.DontSave | CCObject.HideFlags.HideInHierarchy;
+                    imgNode.hideFlags |= CCObject.Flags.DontSave | CCObject.Flags.HideInHierarchy;
                     imgNode.destroy();
                     imgNode = null;
                 }

@@ -28,7 +28,7 @@
  * @module core/data
  */
 
-import { SUPPORT_JIT, EDITOR, TEST } from 'internal:constants';
+import { SUPPORT_JIT, EDITOR, TEST, DEBUG } from 'internal:constants';
 import * as js from '../utils/js';
 import { CCClass } from './class';
 import { errorID, warnID } from '../platform/debug';
@@ -71,7 +71,7 @@ const PersistentMask = ~(ToDestroy | Dirty | Destroying | DontDestroy | Deactiva
 /* RegisteredInEditor */);
 
 // all the hideFlags
-const AllHideMask = DontSave | EditorOnly | LockedInEditor | HideInHierarchy;
+const AllHideMasks = DontSave | EditorOnly | LockedInEditor | HideInHierarchy;
 
 const objectsToDestroy: any = [];
 let deferredDestroyTimer = null;
@@ -229,8 +229,12 @@ class CCObject {
      * @en After inheriting CCObject objects, control whether you need to hide, lock, serialize, and other functions.
      * @zh 在继承 CCObject 对象后，控制是否需要隐藏，锁定，序列化等功能。
      */
-    public set hideFlags (hideFlags: CCObject.HideFlags) {
-        this._objFlags = (this._objFlags & ~CCObject.HideFlags.AllHideMask) | hideFlags;
+    public set hideFlags (hideFlags: CCObject.Flags) {
+        if (DEBUG) {
+            hideFlags &= CCObject.Flags.AllHideMasks;
+        }
+
+        this._objFlags = (this._objFlags & ~CCObject.Flags.AllHideMasks) | hideFlags;
     }
     public get hideFlags () {
         return this._objFlags;
@@ -458,23 +462,22 @@ js.value(CCObject, 'Flags', {
     IsSizeLocked,
 });
 
-/**
- * Bit mask that controls object states.
- * @enum Object.HideFlags
- * @private
- */
-js.value(CCObject, 'HideFlags', {
-    DontSave,
-    EditorOnly,
-    LockedInEditor,
-    HideInHierarchy,
-    AllHideMask,
-});
-
 declare namespace CCObject {
     export enum Flags {
         Destroyed,
         // ToDestroy: ToDestroy,
+
+        /**
+         * @en The object will not be saved.
+         * @zh 该对象将不会被保存。
+         */
+        DontSave,
+
+        /**
+         * @en The object will not be saved when building a player.
+         * @zh 构建项目时，该对象将不会被保存。
+         */
+        EditorOnly,
 
         Dirty,
 
@@ -518,6 +521,26 @@ declare namespace CCObject {
          */
         // HideInGame: HideInGame,
 
+        /**
+         * @en The lock node, when the node is locked, cannot be clicked in the scene.
+         * @zh 锁定节点，锁定后场景内不能点击。
+         * @private
+         */
+        LockedInEditor,
+
+        /**
+          * @en Hide the object in editor.
+          * @zh 在编辑器中隐藏该对象。
+          */
+        HideInHierarchy,
+
+        /**
+          * @en The object will not be saved and hide the object in editor,and lock node, when the node is locked,
+          * cannot be clicked in the scene,and The object will not be saved when building a player.
+          * @zh 该对象将不会被保存,构建项目时，该对象将不会被保存, 锁定节点，锁定后场景内不能点击, 在编辑器中隐藏该对象。
+          */
+        AllHideMasks,
+
         // FLAGS FOR EDITOR
 
         /**
@@ -544,40 +567,6 @@ declare namespace CCObject {
         IsScaleLocked,
         IsAnchorLocked,
         IsSizeLocked,
-    }
-
-    export enum HideFlags {
-        /**
-         * @en The object will not be saved.
-         * @zh 该对象将不会被保存。
-         */
-        DontSave,
-
-        /**
-         * @en The object will not be saved when building a player.
-         * @zh 构建项目时，该对象将不会被保存。
-         */
-        EditorOnly,
-
-        /**
-         * @en The lock node, when the node is locked, cannot be clicked in the scene.
-         * @zh 锁定节点，锁定后场景内不能点击。
-         * @private
-         */
-        LockedInEditor,
-
-        /**
-         * @en Hide the object in editor.
-         * @zh 在编辑器中隐藏该对象。
-         */
-        HideInHierarchy,
-
-        /**
-         * @en The object will not be saved and hide the object in editor,and lock node, when the node is locked,
-         * cannot be clicked in the scene,and The object will not be saved when building a player.
-         * @zh 该对象将不会被保存,构建项目时，该对象将不会被保存, 锁定节点，锁定后场景内不能点击, 在编辑器中隐藏该对象。
-         */
-        AllHideMask
     }
 
     // for @ccclass

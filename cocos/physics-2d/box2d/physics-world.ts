@@ -95,7 +95,7 @@ export class b2PhysicsWorld implements IPhysicsWorld {
 
             const node = new Node('PHYSICS_2D_DEBUG_DRAW');
             // node.zIndex = cc.macro.MAX_ZINDEX;
-            node.hideFlags |= CCObject.HideFlags.DontSave;
+            node.hideFlags |= CCObject.Flags.DontSave;
             node.parent = canvas;
             node.worldPosition = Vec3.ZERO;
 
