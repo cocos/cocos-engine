@@ -134,7 +134,6 @@ export class ForwardPipeline extends RenderPipeline {
 
     public initialize (info: IRenderPipelineInfo): boolean {
         super.initialize(info);
-        this._initCombineSignY();
         if (this._flows.length === 0) {
             const shadowFlow = new ShadowFlow();
             shadowFlow.initialize(ShadowFlow.initInfo);
@@ -150,11 +149,10 @@ export class ForwardPipeline extends RenderPipeline {
 
     public activate (): boolean {
         this._macros = {};
-
         if (!super.activate()) {
             return false;
         }
-
+        this._initCombineSignY();
         if (!this._activeRenderer()) {
             errorID(2402);
             return false;
